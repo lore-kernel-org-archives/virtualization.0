@@ -1,41 +1,98 @@
-From: Simon Holm =?ISO-8859-1?Q?Th=F8gersen?= <odie-t5LvXY1cjzpaa/9Udqfwiw@public.gmane.org>
-Subject: Re: [PATCH 4/5] lguest: use KVM hypercalls
-Date: Mon, 06 Apr 2009 08:56:39 +0200
-Message-ID: <1239000999.6448.821.camel@odie.local>
-References: <200903271022.38244.rusty@rustcorp.com.au>
-	<1238709324.5823.8.camel@odie.local>
-	<200904052234.48483.rusty@rustcorp.com.au>
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: Re: [patch 0/6] Guest page hinting version 7.
+Date: Mon, 6 Apr 2009 09:21:11 +0200
+Message-ID: <20090406092111.3b432edd@skybase>
+References: <20090327150905.819861420@de.ibm.com>
+	<200903281705.29798.rusty@rustcorp.com.au>
+	<20090329162336.7c0700e9@skybase>
+	<200904022232.02185.nickpiggin@yahoo.com.au>
+	<20090402175249.3c4a6d59@skybase>
+	<49D50CB7.2050705@redhat.com>
+	<49D518E9.1090001@goop.org>
+	<49D51CA9.6090601@redhat.com>
+	<49D5215D.6050503@goop.org>
+	<20090403104913.29c62082@skybase>
+	<49D6532C.6010804@goop.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <lguest-bounces+glkvl-lguest=m.gmane.org-mnsaURCQ41sdnm+yROfE0A@public.gmane.org>
-In-Reply-To: <200904052234.48483.rusty-8n+1lVoiYb80n/F98K4Iww@public.gmane.org>
-List-Unsubscribe: <https://ozlabs.org/mailman/options/lguest>,
-	<mailto:lguest-request-mnsaURCQ41sdnm+yROfE0A@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://ozlabs.org/pipermail/lguest>
-List-Post: <mailto:lguest-mnsaURCQ41sdnm+yROfE0A@public.gmane.org>
-List-Help: <mailto:lguest-request-mnsaURCQ41sdnm+yROfE0A@public.gmane.org?subject=help>
-List-Subscribe: <https://ozlabs.org/mailman/listinfo/lguest>,
-	<mailto:lguest-request-mnsaURCQ41sdnm+yROfE0A@public.gmane.org?subject=subscribe>
-Sender: lguest-bounces+glkvl-lguest=m.gmane.org-mnsaURCQ41sdnm+yROfE0A@public.gmane.org
-Errors-To: lguest-bounces+glkvl-lguest=m.gmane.org-mnsaURCQ41sdnm+yROfE0A@public.gmane.org
-To: Rusty Russell <rusty-8n+1lVoiYb80n/F98K4Iww@public.gmane.org>
-Cc: virtualization-qjLDD68F18O7TbgM5vRIOg@public.gmane.org, lguest-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, Ingo Molnar <mingo-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Matias Zabaljauregui <zabaljauregui-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <owner-linux-mm@kvack.org>
+In-Reply-To: <49D6532C.6010804@goop.org>
+Sender: owner-linux-mm@kvack.org
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Rik van Riel <riel@redhat.com>, akpm@osdl.org, Nick Piggin <nickpiggin@yahoo.com.au>, frankeh@watson.ibm.com, virtualization@lists.osdl.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, hugh@veritas.com, Xen-devel <xen-devel@lists.xensource.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-c8O4biwgMDUgMDQgMjAwOSBrbC4gMjI6MzQgKzA5MzAsIHNrcmV2IFJ1c3R5IFJ1c3NlbGw6IAo+
-IE9uIEZyaWRheSAwMyBBcHJpbCAyMDA5IDA4OjI1OjI0IFNpbW9uIEhvbG0gVGjDuGdlcnNlbiB3
-cm90ZToKPiA+IGZyZSwgMjcgMDMgMjAwOSBrbC4gMTA6MjIgKzEwMzAsIHNrcmV2IFJ1c3R5IFJ1
-c3NlbGw6Cj4gPiA+IEZyb206IE1hdGlhcyBaYWJhbGphdXJlZ3VpIDx6YWJhbGphdXJlZ3VpQGdt
-YWlsLmNvbT4KPiA+ID4gCj4gPiA+IEltcGFjdDogY2xlYW51cAo+ID4gPiAKPiA+ID4gVGhpcyBw
-YXRjaCBhbGxvdyB1cyB0byB1c2UgS1ZNIGh5cGVyY2FsbHMKPiA+IAo+ID4gU29tZXRoaW5nIGhh
-cyBicm9rZW4gaW4gcmVsYXRpb24gdG8gdGhpcyBjaGFuZ2UuIEknbSBub3Qgc3VyZSBpdCBpcyB0
-aGlzCj4gPiBjaGFuZ2UgaXRzZWxmIG9yIG9uZSBmb2xsb3dpbmcsIGJ1dCBJIGdldCB0aGUgZm9s
-bG93aW5nIGVycm9yIHdoZW4gdXNpbmcKPiA+IGxndWVzdDoKPiA+IAo+ID4gbGd1ZXN0OiB1bmhh
-bmRsZWQgdHJhcCA2IGF0IDB4NDE4NzI2ICgweDApCj4gCj4gQW55IGNoYW5jZSB5b3UgZGlkbid0
-IHJlYnVpbGQgdGhlIExhdW5jaGVyPwoKTm9wZSwgSSd2ZSBkb3VibGUgYW5kIHRyaXBsZSBjaGVj
-a2VkIHRoYXQuIEkgc3RpbGwga2luZCBvZiBleHBlY3QKc29tZXRoaW5nIHdlaXJkIGF0IG15IGVu
-ZCB0aG91Z2gsIHNvIEknZCBiZSBpbnRlcmVzdGVkIHRvIGtub3cgdGhlCnJlc3VsdCBvZiBvdGhl
-cnMgdXNpbmcgbXkgY29uZmlnLgoKClNpbW9uCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fXwpMZ3Vlc3QgbWFpbGluZyBsaXN0CkxndWVzdEBvemxhYnMub3Jn
-Cmh0dHBzOi8vb3psYWJzLm9yZy9tYWlsbWFuL2xpc3RpbmZvL2xndWVzdAo=
+On Fri, 03 Apr 2009 11:19:24 -0700
+Jeremy Fitzhardinge <jeremy@goop.org> wrote:
+
+> Martin Schwidefsky wrote:
+> > This is the basic idea of guest page hinting. Let the host memory
+> > manager make it decision based on the data it has. That includes page
+> > age determined with a global LRU list, page age determined with a
+> > per-guest LRU list, i/o rates of the guests, all kind of policy which
+> > guest should have how much memory.
+> 
+> Do you look at fault rates?  Refault rates?
+
+That is hidden in the memory management of z/VM. I know some details
+how the z/VM page manager works but in the end I don't care as the
+guest operating system.
+
+> >  The page hinting comes into play
+> > AFTER the decision has been made which page to evict. Only then the host
+> > should look at the volatile vs. stable page state and decide what has
+> > to be done with the page. If it is volatile the host can throw the page
+> > away because the guest can recreate it with LESS effort. That is the
+> > optimization.
+> >   
+> 
+> Yes, and its good from that perspective.   Do you really implement it 
+> purely that way, or do you bias the LRU to push volatile and free pages 
+> down the end of the LRU list in preference to pages which must be 
+> preserved?  If you have a small bias then you can prefer to evict easily 
+> evictable pages compared to their near-equivalents which require IO.
+
+We though about a bias to prefer volatile pages but in the end decided
+against it. We do prefer free pages, if the page manager finds a unused
+page it will reuse it immediately.
+
+> > But with page hinting you don't have to even ask. Just take the pages
+> > if you need them. The guest already told you that you can have them by
+> > setting the unused state.
+> >   
+> 
+> Yes.  But it still depends on the guest.  A very helpful guest could 
+> deliberately preswap pages so that it can mark them as volatile, whereas 
+> a less helpful one may keep them persistent and defer preswapping them 
+> until there's a good reason to do so.  Host swapping and page hinting 
+> won't put any apparent memory pressure on the guest, so it has no reason 
+> to start preswapping even if the overall system is under pressure.  
+> Ballooning will expose each guest to its share of the overall system 
+> memory pressure, so they can respond appropriately (one hopes).
+
+Why should the guest want to do preswapping? It is as expensive for
+the host to swap a page and get it back as it is for the guest (= one
+write + one read). It is a waste of cpu time to call into the guest. You
+need something we call PFAULT though: if a guest process hits a page
+that is missing in the host page table you don't want to stop the
+virtual cpu until the page is back. You notify the guest that the host
+page is missing. The process that caused the fault is put to sleep
+until the host retrieved the page again. You will find the pfault code
+for s390 in arch/s390/mm/fault.c
+
+So to me preswap doesn't make sense. The only thing you can gain by
+putting memory pressure on the guest is to free some of the memory that
+is used by the kernel for dentries, inodes, etc. 
+
+-- 
+blue skies,
+   Martin.
+
+"Reality continues to ruin my life." - Calvin.
+
+--
+To unsubscribe, send a message with 'unsubscribe linux-mm' in
+the body to majordomo@kvack.org.  For more info on Linux MM,
+see: http://www.linux-mm.org/ .
+Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
