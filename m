@@ -1,42 +1,55 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [patch 0/6] Guest page hinting version 7.
-Date: Mon, 06 Apr 2009 12:23:35 -0700
-Message-ID: <49DA56B7.9020905@goop.org>
-References: <20090327150905.819861420@de.ibm.com>	<200903281705.29798.rusty@rustcorp.com.au>	<20090329162336.7c0700e9@skybase>	<200904022232.02185.nickpiggin@yahoo.com.au>	<20090402175249.3c4a6d59@skybase>	<49D50CB7.2050705@redhat.com>	<49D518E9.1090001@goop.org>	<49D51CA9.6090601@redhat.com>	<49D5215D.6050503@goop.org>	<20090403104913.29c62082@skybase>	<49D6532C.6010804@goop.org> <20090406092111.3b432edd@skybase>
+From: Arkadiusz Miskiewicz <a.miskiewicz@gmail.com>
+Subject: Re: 2.6.29 git, resume from ram broken on thinkpad
+Date: Tue, 7 Apr 2009 10:54:50 +0200
+Message-ID: <200904071054.51295.a.miskiewicz@gmail.com>
+References: <200904011155.20751.a.miskiewicz@gmail.com> <20090403173955.GD6295@elte.hu> <20090403174540.GB27148@sequoia.sous-sol.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <owner-linux-mm@kvack.org>
-In-Reply-To: <20090406092111.3b432edd@skybase>
-Sender: owner-linux-mm@kvack.org
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: Rik van Riel <riel@redhat.com>, akpm@osdl.org, Nick Piggin <nickpiggin@yahoo.com.au>, frankeh@watson.ibm.com, virtualization@lists.osdl.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, hugh@veritas.com, Xen-devel <xen-devel@lists.xensource.com>
+Content-Type: Text/Plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1754832AbZDGIzL@vger.kernel.org>
+In-Reply-To: <20090403174540.GB27148@sequoia.sous-sol.org>
+Content-Disposition: inline
+Sender: linux-kernel-owner@vger.kernel.org
+To: Chris Wright <chrisw@sous-sol.org>
+Cc: Ingo Molnar <mingo@elte.hu>, "Rafael J. Wysocki" <rjw@sisk.pl>, linux-kernel@vger.kernel.org, Mike Travis <travis@sgi.com>, Jeremy Fitzhardinge <jeremy@xensource.com>, KOSAKI Motohiro <kosaki.motohiro@jp.fujitsu.com>, Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, Yinghai Lu <yhlu.kernel@gmail.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Martin Schwidefsky wrote:
-> Why should the guest want to do preswapping? It is as expensive for
-> the host to swap a page and get it back as it is for the guest (= one
-> write + one read).
+On Friday 03 of April 2009, Chris Wright wrote:
+> * Ingo Molnar (mingo@elte.hu) wrote:
+> > * Chris Wright <chrisw@sous-sol.org> wrote:
+> > > * Arkadiusz Miskiewicz (a.miskiewicz@gmail.com) wrote:
+> > > > On Friday 03 of April 2009, Chris Wright wrote:
+> > > > > * Arkadiusz Miskiewicz (a.miskiewicz@gmail.com) wrote:
+> > > > > > What about 9ea09af3bd3090e8349ca2899ca2011bd94cda85 ?
+> > > > > >
+> > > > > > stop_machine: introduce stop_machine_create/destroy.
+> > > > >
+> > > > > That is later fixed in a0e280e0f33f6c859a235fb69a875ed8f34203=
+88.
+> > > > >
+> > > > > Can you please verify if 2.6.29 works for you?
+> > > >
+> > > > I think that the guilty part is
+> > > > CONFIG_CC_STACKPROTECTOR_ALL=3Dy
+> > > > CONFIG_CC_STACKPROTECTOR=3Dy
+> > >
+> > > Indeed, I think you're right.  In fact...this should fix it:
+> >
+> > Note that i had to do a manual merge of the patch (it had 3 separat=
+e
+> > patch corruptions) - the non-damaged version i applied is the one
+> > below.
+>
+> Indeed, I just discovered that ;-)
+>
+> And, for the record...yes, that fixes it on my laptop.
 
-Yes, perhaps for swapping, but in general it makes sense for the guest 
-to write the pages to backing store to prevent host swapping.  For swap 
-pages there's no big benefit, but for file-backed pages its better for 
-the guest to do it.
+Also fixes it on mine (just tested recent Linus tree which has this pat=
+ch=20
+applied alreday).
 
-> The only thing you can gain by
-> putting memory pressure on the guest is to free some of the memory that
-> is used by the kernel for dentries, inodes, etc. 
->   
+Thanks!
 
-Well, that's also significant.  My point is that the guest has multiple 
-ways in which it can relieve its own memory pressure in response to 
-overall system memory pressure; its just that I happened to pick the 
-example where its much of a muchness.
-
-    J
-
---
-To unsubscribe, send a message with 'unsubscribe linux-mm' in
-the body to majordomo@kvack.org.  For more info on Linux MM,
-see: http://www.linux-mm.org/ .
-Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
+--=20
+Arkadiusz Mi=C5=9Bkiewicz        PLD/Linux Team
+arekm / maven.pl            http://ftp.pld-linux.org/
