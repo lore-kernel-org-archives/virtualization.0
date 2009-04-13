@@ -1,18 +1,18 @@
 From: Matias Zabaljauregui <zabaljauregui-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Subject: Re: [PATCH 4/5] lguest: use KVM hypercalls
-Date: Mon, 13 Apr 2009 13:25:39 -0300
-Message-ID: <1239639939.31741.8.camel@zetabook>
+Date: Mon, 13 Apr 2009 13:29:40 -0300
+Message-ID: <1239640180.31741.12.camel@zetabook>
 References: <200903271022.38244.rusty@rustcorp.com.au>
 	<1238709324.5823.8.camel@odie.local>
 	<1239043798.27826.93.camel@zetabook>
 	<200904081021.39877.rusty@rustcorp.com.au>
-	<1239224319.17844.16.camel@zetabook>
-	<1239273165.5687.10.camel@odie.local>
+	<1239224319.17844.16.camel@zetabook> <49DDE91A.8060603@trash.net>
+	<49DDF614.1060909@trash.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <lguest-bounces+glkvl-lguest=m.gmane.org-mnsaURCQ41sdnm+yROfE0A@public.gmane.org>
-In-Reply-To: <1239273165.5687.10.camel-78RDdhuQolGs1BDpvl8NfQ@public.gmane.org>
+In-Reply-To: <49DDF614.1060909-dcUjhNyLwpNeoWH0uzbU5w@public.gmane.org>
 List-Unsubscribe: <https://ozlabs.org/mailman/options/lguest>,
 	<mailto:lguest-request-mnsaURCQ41sdnm+yROfE0A@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://ozlabs.org/pipermail/lguest>
@@ -22,43 +22,47 @@ List-Subscribe: <https://ozlabs.org/mailman/listinfo/lguest>,
 	<mailto:lguest-request-mnsaURCQ41sdnm+yROfE0A@public.gmane.org?subject=subscribe>
 Sender: lguest-bounces+glkvl-lguest=m.gmane.org-mnsaURCQ41sdnm+yROfE0A@public.gmane.org
 Errors-To: lguest-bounces+glkvl-lguest=m.gmane.org-mnsaURCQ41sdnm+yROfE0A@public.gmane.org
-To: Simon Holm =?ISO-8859-1?Q?Th=F8gersen?= <odie-t5LvXY1cjzpaa/9Udqfwiw@public.gmane.org>
-Cc: virtualization-qjLDD68F18O7TbgM5vRIOg@public.gmane.org, lguest-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, Patrick McHardy <kaber-dcUjhNyLwpNeoWH0uzbU5w@public.gmane.org>
+To: Patrick McHardy <kaber-dcUjhNyLwpNeoWH0uzbU5w@public.gmane.org>
+Cc: lguest-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, "Eric W. Biederman" <ebiederm-aS9lmoZGLiVWk0Htik3J/w@public.gmane.org>, virtualization-qjLDD68F18O7TbgM5vRIOg@public.gmane.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-SGksCgpPbiBUaHUsIDIwMDktMDQtMDkgYXQgMTI6MzIgKzAyMDAsIFNpbW9uIEhvbG0gVGjDuGdl
-cnNlbiB3cm90ZToKPiBvbnMsIDA4IDA0IDIwMDkga2wuIDE3OjU4IC0wMzAwLCBza3JldiBNYXRp
-YXMgWmFiYWxqYXVyZWd1aToKPiA+IFNpbW9uLCBQYXRyaWNrLAo+ID4gCj4gPiBPbiBXZWQsIDIw
-MDktMDQtMDggYXQgMTA6MjEgKzA5MzAsIFJ1c3R5IFJ1c3NlbGwgd3JvdGU6Cj4gPiA+IE9uIFR1
-ZXNkYXkgMDcgQXByaWwgMjAwOSAwNDoxOTo1OCBNYXRpYXMgWmFiYWxqYXVyZWd1aSB3cm90ZToK
-PiA+ID4gPiBCdXQgdGhlbiwgd2hlbiBpdCB0cmllcyB0byByZS1leGVjdXRlIHRoZSBmYXVsdGlu
-ZyBpbnN0cnVjdGlvbiwgd2hpY2ggaXMKPiA+ID4gPiBub3cgcGF0Y2hlZCB3aXRoICJjZCAxZiA5
-MCIgIChpbnQgMHgxZiwgbm9wKSwgaXQgcmFpc2VzIGFuIGludmFsaWQgY29kZQo+ID4gPiA+IGZh
-dWx0IGFnYWluLCBpbnN0ZWFkIG9mIGRvaW5nIHRoZSB0cmFwLiAKPiA+ID4gCj4gPiA+IENPVyBv
-biB0aGUgcGFnZT8gIFBlcmhhcHMgdHJ5IGZsdXNoaW5nIGFsbCB0aGUgc2hhZG93IHBhZ2V0YWJs
-ZXMgYWZ0ZXIgYQo+ID4gPiByZXdyaXRlPwo+ID4gPiAKPiA+ID4gUnVzdHkuCj4gPiAKPiA+IFJ1
-c3R5IHN1Z2dlc3RlZCB0aGF0IHBlcmhhcHMgd2UgbmVlZCB0byBmbHVzaCBhbGwgc2hhZG93IGFm
-dGVyIHJld3JpdGluZy4gCj4gPiBDb3VsZCB5b3UgcGxlYXNlIHRyeSB0aGlzIHBhdGNoPwo+IAo+
-IFllcywgaXQgZml4ZXMgdGhlIGlzc3VlLgoKZ3JlYXQsIHRoYW5rcyBmb3IgdGVzdGluZy4gCgo+
-ID4gCj4gPiBCVFcsIHNob3VsZG4ndCB0aGlzIGFsc28gYWZmZWN0IG15IHRlc3QgYm94ZXMgaWYg
-dGhpcyB3ZXJlIHRoZSBjYXNlPwo+ID4gCj4gQ291bGQgYmUgdGhlIHRpbWluZyBkaWZmZXJlbmNl
-cyBiZXR3ZWVuIG91ciBib3hlcyBJIGd1ZXNzPwoKSSBoYXZlbid0IHJlYWQgQ09XIGNvZGUsIGJ1
-dCBJIGNhbm5vdCBmaWd1cmUgb3V0IGhvdyBDUFUgdGltaW5nCmRpZmZlcmVuY2VzIGNvdWxkIGFm
-ZmVjdCBhIGxvZ2ljIGRyaXZlbiBieSBmYXVsdHMuIEkgd2lsbCBpbnZlc3RpZ2F0ZQpmdXJ0aGVy
-IGFuZCBsZXQgeW91IGtub3cgaWYgSSBjYW4geWllbGQgYW55IGNvbmNsdXNpb24uCgo+IAo+IFRo
-ZSBjb21waWxlciB1c2VkIHNlZW1zIHRvIHBsYXkgYSByb2xlIGFzIHdlbGwsIHRob3VnaC4gSSBj
-b21waWxlZCBhCj4ga2VybmVsIG9uIGFub3RoZXIgYm94IGFuZCB1c2luZyB0aGF0IHRoZXJlIHdh
-cyBubyBwcm9ibGVtcyBldmVuIHdpdGhvdXQKPiB0aGUgcGF0Y2guIElmIHlvdSBhcmUgaW50ZXJl
-c3RlZCBpbiB0ZXN0aW5nIHRoZSBmYXVsdHkga2VybmVsIEkgY291bGQKPiBtYWtlIGl0IGF2YWls
-YWJsZSB0byB5b3UuCj4gU2ltb24KCgpSZWdhcmRzLCAKCk1hdGlhcwoKCgoKCgoKCgo+ID4gCj4g
-PiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9sZ3Vlc3QveDg2L2NvcmUuYyBiL2RyaXZlcnMvbGd1ZXN0
-L3g4Ni9jb3JlLmMKPiA+IGluZGV4IGE2YjcxNzYuLmI0NzQ3ZjcgMTAwNjQ0Cj4gPiAtLS0gYS9k
-cml2ZXJzL2xndWVzdC94ODYvY29yZS5jCj4gPiArKysgYi9kcml2ZXJzL2xndWVzdC94ODYvY29y
-ZS5jCj4gPiBAQCAtMzI0LDYgKzMyNCw3IEBAIHN0YXRpYyB2b2lkIHJld3JpdGVfaHlwZXJjYWxs
-KHN0cnVjdCBsZ19jcHUgKmNwdSkKPiA+ICAJdTggaW5zblszXSA9IHsweGNkLCAweDFmLCAweDkw
-fTsKPiA+ICAKPiA+ICAJX19sZ3dyaXRlKGNwdSwgZ3Vlc3RfcGEoY3B1LCBjcHUtPnJlZ3MtPmVp
-cCksIGluc24sIHNpemVvZihpbnNuKSk7Cj4gPiArCWd1ZXN0X3BhZ2V0YWJsZV9jbGVhcl9hbGwo
-Y3B1KTsKPiA+ICB9Cj4gPiAgCj4gPiAgc3RhdGljIGJvb2wgaXNfaHlwZXJjYWxsKHN0cnVjdCBs
-Z19jcHUgKmNwdSkKPiAKPiAKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fCkxndWVzdCBtYWlsaW5nIGxpc3QKTGd1ZXN0QG96bGFicy5vcmcKaHR0cHM6Ly9v
-emxhYnMub3JnL21haWxtYW4vbGlzdGluZm8vbGd1ZXN0Cg==
+Hello Patrick,
+
+On Thu, 2009-04-09 at 15:20 +0200, Patrick McHardy wrote:
+> Patrick McHardy wrote:
+> > which goes away by turning of CONFIG_STACKPROTECTOR. Now it seems
+> > to work, but the host crashes before the guests are fully up somewhere
+> > in the tun-device. I couldn't capture the oops yet, but I'll try
+> > to fix it myself.
+> 
+> This was caused by a local change of mine to attach to existing
+> tun-devices, combined with a bug in the tun driver, which looks
+> like it was introduced by this patch:
+> 
+> commit c70f182940f988448f3c12a209d18b1edc276e33
+> Author: Eric W. Biederman <ebiederm-aS9lmoZGLiVWk0Htik3J/w@public.gmane.org>
+> Date:   Tue Jan 20 11:07:17 2009 +0000
+> 
+>      tun: Fix races between tun_net_close and free_netdev.
+> 
+
+So, can we assume that everything is ok if we turn off STACK_PROTECTOR ?
+
+thanks 
+
+Matias
+
+
+
+
+
+> When creating the device using tunctl the sk->sk_sleep poiner is
+> set to the read_wait completion of the file opened by tunctl, but
+> it is not refreshed when attaching to lguest or released when
+> closing the file, causing a stale pointer dereference in
+> tun_sock_write_space().
+> 
+> Eric, please review. Thanks.
+> 
+> Signed-off-by: Patrick McHardy <kaber-dcUjhNyLwpNeoWH0uzbU5w@public.gmane.org>
+> 
