@@ -1,7 +1,7 @@
 From: Herbert Xu <herbert-lOAM2aK0SrRLBo1qDEOMRrpzq4S04n8Q@public.gmane.org>
 Subject: Re: [PATCH 4/5] lguest: use KVM hypercalls
-Date: Wed, 15 Apr 2009 22:23:20 +0800
-Message-ID: <20090415142320.GA12193@gondor.apana.org.au>
+Date: Wed, 15 Apr 2009 22:38:34 +0800
+Message-ID: <20090415143834.GA12384@gondor.apana.org.au>
 References: <49E47976.8020005@trash.net>
 	<20090415083610.GA8579@gondor.apana.org.au>
 	<20090415084717.GA8829@gondor.apana.org.au>
@@ -32,19 +32,22 @@ Cc: lguest-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, Christian Borntraeger <bornt
 List-Id: virtualization@lists.linuxfoundation.org
 
 On Wed, Apr 15, 2009 at 07:18:44AM -0700, Eric W. Biederman wrote:
-> 
-> My gut feel is that the socket needs to live in tun_file.  Instead
-> of in tun_struct.  Making that change looked just tricky enough
-> I couldn't sort through it when I glanced at the tun code, after I noticed
-> you had added a socket.
+>
+> So holding the reference only blocks us indefinitely in
+> netdev_wait_allrefs, blocking the network namespace exit, and holding
+> net_mutex indefinitely.
 
-Referring to tun_file to get sk_sleep is just too error-prone.
-Unlike the transmit direction, the receive direction does not
-present itself to the easy xmit lock solution that's currently
-used to make tun_detach atomic.
+OK that's a killer because process A in my previous scenario can
+kill the device itself and cause a dead-lock.
 
-The receive callback that currently uses sk_sleep can happen
-anywhere.
+So how about this? We replace the dev destructor with our own that
+doesn't immediately call free_netdev.  We only call free_netdev once
+all tun fd's attached to the device have been closed.
+
+This can be achieved by simply adding a counter to tun_struct.
+We'd also change the async detach path to set a marker instead
+of detaching.  That marker can then be checked in places like
+tun_get.
 
 Cheers,
 -- 
