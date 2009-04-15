@@ -1,16 +1,21 @@
-From: Rusty Russell <rusty-8n+1lVoiYb80n/F98K4Iww@public.gmane.org>
+From: Herbert Xu <herbert-lOAM2aK0SrRLBo1qDEOMRrpzq4S04n8Q@public.gmane.org>
 Subject: Re: [PATCH 4/5] lguest: use KVM hypercalls
-Date: Wed, 15 Apr 2009 18:12:22 +0930
-Message-ID: <200904151812.23318.rusty@rustcorp.com.au>
+Date: Wed, 15 Apr 2009 16:47:17 +0800
+Message-ID: <20090415084717.GA8829@gondor.apana.org.au>
 References: <200903271022.38244.rusty@rustcorp.com.au>
-	<1239273165.5687.10.camel@odie.local>
-	<1239639939.31741.8.camel@zetabook>
+	<1238709324.5823.8.camel@odie.local>
+	<1239043798.27826.93.camel@zetabook>
+	<200904081021.39877.rusty@rustcorp.com.au>
+	<1239224319.17844.16.camel@zetabook>
+	<49DDE91A.8060603@trash.net> <49DDF614.1060909@trash.net>
+	<m1bpr6hqrm.fsf@fess.ebiederm.org> <49E47976.8020005@trash.net>
+	<20090415083610.GA8579@gondor.apana.org.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <lguest-bounces+glkvl-lguest=m.gmane.org-mnsaURCQ41sdnm+yROfE0A@public.gmane.org>
-In-Reply-To: <1239639939.31741.8.camel@zetabook>
 Content-Disposition: inline
+In-Reply-To: <20090415083610.GA8579-lOAM2aK0SrRLBo1qDEOMRrpzq4S04n8Q@public.gmane.org>
 List-Unsubscribe: <https://ozlabs.org/mailman/options/lguest>,
 	<mailto:lguest-request-mnsaURCQ41sdnm+yROfE0A@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://ozlabs.org/pipermail/lguest>
@@ -20,60 +25,122 @@ List-Subscribe: <https://ozlabs.org/mailman/listinfo/lguest>,
 	<mailto:lguest-request-mnsaURCQ41sdnm+yROfE0A@public.gmane.org?subject=subscribe>
 Sender: lguest-bounces+glkvl-lguest=m.gmane.org-mnsaURCQ41sdnm+yROfE0A@public.gmane.org
 Errors-To: lguest-bounces+glkvl-lguest=m.gmane.org-mnsaURCQ41sdnm+yROfE0A@public.gmane.org
-To: Matias Zabaljauregui <zabaljauregui-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: lguest-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, Patrick McHardy <kaber-dcUjhNyLwpNeoWH0uzbU5w@public.gmane.org>, virtualization-qjLDD68F18O7TbgM5vRIOg@public.gmane.org
+To: Patrick McHardy <kaber-dcUjhNyLwpNeoWH0uzbU5w@public.gmane.org>
+Cc: lguest-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, Christian Borntraeger <borntraeger-tA70FqPdS9bQT0dZR+AlfA@public.gmane.org>, virtualization-qjLDD68F18O7TbgM5vRIOg@public.gmane.org, Matias Zabaljauregui <zabaljauregui-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "Eric W. Biederman" <ebiederm-aS9lmoZGLiVWk0Htik3J/w@public.gmane.org>, netdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "David S. Miller" <davem-fT/PcQaiUtIeIZ0/mPfg9Q@public.gmane.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 14 Apr 2009 01:55:39 am Matias Zabaljauregui wrote:
-> > > BTW, shouldn't this also affect my test boxes if this were the case?
-> > > 
-> > Could be the timing differences between our boxes I guess?
+On Wed, Apr 15, 2009 at 04:36:10PM +0800, Herbert Xu wrote:
 > 
-> I haven't read COW code, but I cannot figure out how CPU timing
-> differences could affect a logic driven by faults. I will investigate
-> further and let you know if I can yield any conclusion.
+> Let me whip up a patch.
 
-I first thought it was guest image layout, until I reproduced it completely
-accidentally here.
+tun: Fix sk_sleep races when attaching/detaching
 
-Matias, can I have a Signed-off-by for your patch (enhanced with comment
-below):
+As the sk_sleep wait queue actually lives in tfile, which may be
+detached from the tun device, bad things will happen when we use
+sk_sleep after detaching.
 
-Subject: lguest: fix KVM-style hypercalls with vmlinux images
-Date: Wed, 08 Apr 2009 17:58:39 -0300
-From: Matias Zabaljauregui <zabaljauregui-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Since the tun device is the persistent data structure here (when
+requested by the user), it makes much more sense to have the wait
+queue live there.  There is no reason to have it in tfile at all
+since the only time we can wait is if we have a tun attached.
+In fact we already have a wait queue in tun_struct, so we might
+as well use it.
 
-Impact: fix guest crash 'lguest: unhandled trap 6 at 0x418726 (0x0)'
+Reported-by: Christian Borntraeger <borntraeger-tA70FqPdS9bQT0dZR+AlfA@public.gmane.org>
+Reported-by: Eric W. Biederman <ebiederm-aS9lmoZGLiVWk0Htik3J/w@public.gmane.org>
+Reported-by: Patrick McHardy <kaber-dcUjhNyLwpNeoWH0uzbU5w@public.gmane.org>
+Signed-off-by: Herbert Xu <herbert-lOAM2aK0SrRLBo1qDEOMRrpzq4S04n8Q@public.gmane.org>
 
-The Launcher mmaps the kernel image.  The Guest executes and
-immediately faults in the first text page (read-only).  Then it hits a
-hypercall, and we rewrite that hypercall, causing a copy-on-write.
-But the Guest pagetables still refer to the old page: we fault again,
-but as Host we see the hypercall already rewritten, and pass the fault
-back to the Guest.  The Guest hasn't set up an IDT yet, so we kill it.
-
-This doesn't happen with bzImages: they unpack themselves and so the
-text pages are already read-write.
-
-Signed-off-by: Rusty Russell <rusty-8n+1lVoiYb80n/F98K4Iww@public.gmane.org>
-Tested-by: Patrick McHardy <kaber-dcUjhNyLwpNeoWH0uzbU5w@public.gmane.org>
----
- drivers/lguest/x86/core.c |    5 +++++
- 1 file changed, 5 insertions(+)
-
-diff --git a/drivers/lguest/x86/core.c b/drivers/lguest/x86/core.c
-index a6b7176..b4747f7 100644
---- a/drivers/lguest/x86/core.c
-+++ b/drivers/lguest/x86/core.c
-@@ -324,6 +324,11 @@ static void rewrite_hypercall(struct lg_cpu *cpu)
- 	u8 insn[3] = {0xcd, 0x1f, 0x90};
+diff --git a/drivers/net/tun.c b/drivers/net/tun.c
+index a1b0697..412b578 100644
+--- a/drivers/net/tun.c
++++ b/drivers/net/tun.c
+@@ -93,7 +93,6 @@ struct tun_file {
+ 	atomic_t count;
+ 	struct tun_struct *tun;
+ 	struct net *net;
+-	wait_queue_head_t	read_wait;
+ };
  
- 	__lgwrite(cpu, guest_pa(cpu, cpu->regs->eip), insn, sizeof(insn));
-+	/* The above write might have caused a copy of that page to be made
-+	 * (if it was read-only).  We need to make sure the Guest has
-+	 * up-to-date pagetables.  As this doesn't happen often, we can just
-+	 * drop them all. */
-+	guest_pagetable_clear_all(cpu);
+ struct tun_sock;
+@@ -333,7 +332,7 @@ static void tun_net_uninit(struct net_device *dev)
+ 	/* Inform the methods they need to stop using the dev.
+ 	 */
+ 	if (tfile) {
+-		wake_up_all(&tfile->read_wait);
++		wake_up_all(&tun->socket.wait);
+ 		if (atomic_dec_and_test(&tfile->count))
+ 			__tun_detach(tun);
+ 	}
+@@ -393,7 +392,7 @@ static int tun_net_xmit(struct sk_buff *skb, struct net_device *dev)
+ 	/* Notify and wake up reader process */
+ 	if (tun->flags & TUN_FASYNC)
+ 		kill_fasync(&tun->fasync, SIGIO, POLL_IN);
+-	wake_up_interruptible(&tun->tfile->read_wait);
++	wake_up_interruptible(&tun->socket.wait);
+ 	return 0;
+ 
+ drop:
+@@ -490,7 +489,7 @@ static unsigned int tun_chr_poll(struct file *file, poll_table * wait)
+ 
+ 	DBG(KERN_INFO "%s: tun_chr_poll\n", tun->dev->name);
+ 
+-	poll_wait(file, &tfile->read_wait, wait);
++	poll_wait(file, &tun->socket.wait, wait);
+ 
+ 	if (!skb_queue_empty(&tun->readq))
+ 		mask |= POLLIN | POLLRDNORM;
+@@ -762,7 +761,7 @@ static ssize_t tun_chr_aio_read(struct kiocb *iocb, const struct iovec *iv,
+ 		goto out;
+ 	}
+ 
+-	add_wait_queue(&tfile->read_wait, &wait);
++	add_wait_queue(&tun->socket.wait, &wait);
+ 	while (len) {
+ 		current->state = TASK_INTERRUPTIBLE;
+ 
+@@ -793,7 +792,7 @@ static ssize_t tun_chr_aio_read(struct kiocb *iocb, const struct iovec *iv,
+ 	}
+ 
+ 	current->state = TASK_RUNNING;
+-	remove_wait_queue(&tfile->read_wait, &wait);
++	remove_wait_queue(&tun->socket.wait, &wait);
+ 
+ out:
+ 	tun_put(tun);
+@@ -861,7 +860,6 @@ static int tun_set_iff(struct net *net, struct file *file, struct ifreq *ifr)
+ 	struct sock *sk;
+ 	struct tun_struct *tun;
+ 	struct net_device *dev;
+-	struct tun_file *tfile = file->private_data;
+ 	int err;
+ 
+ 	dev = __dev_get_by_name(net, ifr->ifr_name);
+@@ -921,11 +919,11 @@ static int tun_set_iff(struct net *net, struct file *file, struct ifreq *ifr)
+ 
+ 		/* This ref count is for tun->sk. */
+ 		dev_hold(dev);
++		init_waitqueue_head(&tun->socket.wait);
+ 		sock_init_data(&tun->socket, sk);
+ 		sk->sk_write_space = tun_sock_write_space;
+ 		sk->sk_destruct = tun_sock_destruct;
+ 		sk->sk_sndbuf = INT_MAX;
+-		sk->sk_sleep = &tfile->read_wait;
+ 
+ 		tun->sk = sk;
+ 		container_of(sk, struct tun_sock, sk)->tun = tun;
+@@ -1265,7 +1263,6 @@ static int tun_chr_open(struct inode *inode, struct file * file)
+ 	atomic_set(&tfile->count, 0);
+ 	tfile->tun = NULL;
+ 	tfile->net = get_net(current->nsproxy->net_ns);
+-	init_waitqueue_head(&tfile->read_wait);
+ 	file->private_data = tfile;
+ 	return 0;
  }
- 
- static bool is_hypercall(struct lg_cpu *cpu)
+
+Cheers,
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert-lOAM2aK0SrRLBo1qDEOMRrpzq4S04n8Q@public.gmane.org>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
