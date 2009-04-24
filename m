@@ -1,49 +1,50 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: [PATCH] virtio-rng: Remove false BUG for spurious callbacks
-Date: Thu, 23 Apr 2009 16:42:59 +0930
-Message-ID: <200904231642.59939.rusty__21486.6048343994$1240471042$gmane$org@rustcorp.com.au>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: Re: [1/2] tun: Only free a netdev when all tun descriptors are closed
+Date: Fri, 24 Apr 2009 10:55:49 +0200
+Message-ID: <200904241055.49794.borntraeger@de.ibm.com>
+References: <20090415083610.GA8579@gondor.apana.org.au> <20090415143834.GA12384@gondor.apana.org.au> <20090416110818.GA20950@gondor.apana.org.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <20090416110818.GA20950@gondor.apana.org.au>
 Content-Disposition: inline
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>, stable@kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+Sender: netdev-owner@vger.kernel.org
+To: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>, Patrick McHardy <kaber@trash.net>, Matias Zabaljauregui <zabaljauregui@gmail.com>, odie@cs.aau.dk, Rusty Russell <rusty@rustcorp.com.au>, lguest@ozlabs.org, virtualization@lists.osdl.org, "David S. Miller" <davem@davemloft.net>, netdev@vger.kernel.org, Carsten Otte <cotte@de.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Christian Borntraeger <borntraeger@de.ibm.com>
+Am Thursday 16 April 2009 13:08:18 schrieb Herbert Xu:
+> On Wed, Apr 15, 2009 at 10:38:34PM +0800, Herbert Xu wrote:
+> > 
+> > So how about this? We replace the dev destructor with our own that
+> > doesn't immediately call free_netdev.  We only call free_netdev once
+> > all tun fd's attached to the device have been closed.
+> 
+> Here's the patch.  I'd appreciate if everyone can review it
+> and see if they can recreate the original race by
+> 
+> 1) Starting a process using tun and polls on it;
+> 2) Doing ip tun del tunXXX while the process is polling.
+> 
+> tun: Only free a netdev when all tun descriptors are closed
+> 
+> The commit c70f182940f988448f3c12a209d18b1edc276e33 ("tun: Fix
+> races between tun_net_close and free_netdev") fixed a race where
+> an asynchronous deletion of a tun device can hose a poll(2) on
+> a tun fd attached to that device.
 
-The virtio-rng drivers checks for spurious callbacks. Since
-callbacks can be implemented via shared interrupts (e.g. PCI) this
-could lead to guest kernel oopses with lots of virtio devices.
+Sorry for the late reply, but this patch creates another regression:
+Now TUNSETIFF returns EBUSY on a persistent tap device:
 
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
----
- drivers/char/hw_random/virtio-rng.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+open("/dev/net/tun", O_RDWR) = 11
+ioctl(11, 0x400454ca, 0x3ffff8e2270) = -1 EBUSY (Device or resource busy)
 
-Index: linux-2.6/drivers/char/hw_random/virtio-rng.c
-===================================================================
---- linux-2.6.orig/drivers/char/hw_random/virtio-rng.c
-+++ linux-2.6/drivers/char/hw_random/virtio-rng.c
-@@ -37,9 +37,9 @@ static void random_recv_done(struct virt
- {
- 	int len;
- 
--	/* We never get spurious callbacks. */
-+	/* We can get spurious callbacks, e.g. shared IRQs + virtio_pci. */
- 	if (!vq->vq_ops->get_buf(vq, &len))
--		BUG();
-+		return;
- 
- 	data_left = len / sizeof(random_data[0]);
- 	complete(&have_data);
+Some debugging (thanks to Carsten Otte) showed that
+
+tun_set_iff calls tun_attach (the first call inside the if(dev)). tun_attach
+now checks for tun->tfile but this is already set.
+Looks like we need another fix on top :-(
+
+Christian
