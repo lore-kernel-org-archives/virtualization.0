@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH 6/8] virtio_balloon: add request_vqs/free_vqs calls
-Date: Mon, 27 Apr 2009 15:33:02 +0300
-Message-ID: <20090427123302.GA1186__15447.1591733911$1240856225$gmane$org@redhat.com>
+Subject: [PATCH 7/8] virtio_pci: split up vp_interrupt
+Date: Mon, 27 Apr 2009 15:33:13 +0300
+Message-ID: <20090427123313.GA1191__2015.55961180038$1240856335$gmane$org@redhat.com>
 References: <cover.1240832196.git.mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,50 +21,84 @@ Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Rusty Russell <rusty@rustcorp.com.au>, virtualization@lists.linux-foundation.org, Anthony Liguori <anthony@codemonkey.ws>, kvm@vger.kernel.org, avi@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Add request_vqs/free_vqs calls to virtio_balloon.
-These will be required for MSI support.
+This reorganizes virtio-pci code in vp_interrupt slightly, so that
+it's easier to add per-vq MSI support on top.
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- drivers/virtio/virtio_balloon.c |    9 ++++++++-
- 1 files changed, 8 insertions(+), 1 deletions(-)
+ drivers/virtio/virtio_pci.c |   45 +++++++++++++++++++++++++++++++++---------
+ 1 files changed, 35 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-index 5926826..77eac2b 100644
---- a/drivers/virtio/virtio_balloon.c
-+++ b/drivers/virtio/virtio_balloon.c
-@@ -217,10 +217,14 @@ static int virtballoon_probe(struct virtio_device *vdev)
- 	vb->vdev = vdev;
- 
- 	/* We expect two virtqueues. */
-+	err = virtio_request_vqs(vdev, 2);
-+	if (err)
-+		goto out_free_vb;
-+
- 	vb->inflate_vq = vdev->config->find_vq(vdev, 0, balloon_ack);
- 	if (IS_ERR(vb->inflate_vq)) {
- 		err = PTR_ERR(vb->inflate_vq);
--		goto out_free_vb;
-+		goto out_free_vqs;
- 	}
- 
- 	vb->deflate_vq = vdev->config->find_vq(vdev, 1, balloon_ack);
-@@ -244,6 +248,8 @@ out_del_deflate_vq:
- 	vdev->config->del_vq(vb->deflate_vq);
- out_del_inflate_vq:
- 	vdev->config->del_vq(vb->inflate_vq);
-+out_free_vqs:
-+	virtio_free_vqs(vdev);
- out_free_vb:
- 	kfree(vb);
- out:
-@@ -265,6 +271,7 @@ static void virtballoon_remove(struct virtio_device *vdev)
- 
- 	vdev->config->del_vq(vb->deflate_vq);
- 	vdev->config->del_vq(vb->inflate_vq);
-+	virtio_free_vqs(vdev);
- 	kfree(vb);
+diff --git a/drivers/virtio/virtio_pci.c b/drivers/virtio/virtio_pci.c
+index 330aacb..151538c 100644
+--- a/drivers/virtio/virtio_pci.c
++++ b/drivers/virtio/virtio_pci.c
+@@ -164,6 +164,37 @@ static void vp_notify(struct virtqueue *vq)
+ 	iowrite16(info->queue_index, vp_dev->ioaddr + VIRTIO_PCI_QUEUE_NOTIFY);
  }
  
++/* Handle a configuration change: Tell driver if it wants to know. */
++static irqreturn_t vp_config_changed(int irq, void *opaque)
++{
++	struct virtio_pci_device *vp_dev = opaque;
++	struct virtio_driver *drv;
++	drv = container_of(vp_dev->vdev.dev.driver,
++			   struct virtio_driver, driver);
++
++	if (drv && drv->config_changed)
++		drv->config_changed(&vp_dev->vdev);
++	return IRQ_HANDLED;
++}
++
++/* Notify all virtqueues on an interrupt. */
++static irqreturn_t vp_vring_interrupt(int irq, void *opaque)
++{
++	struct virtio_pci_device *vp_dev = opaque;
++	struct virtio_pci_vq_info *info;
++	irqreturn_t ret = IRQ_NONE;
++	unsigned long flags;
++
++	spin_lock_irqsave(&vp_dev->lock, flags);
++	list_for_each_entry(info, &vp_dev->virtqueues, node) {
++		if (vring_interrupt(irq, info->vq) == IRQ_HANDLED)
++			ret = IRQ_HANDLED;
++	}
++	spin_unlock_irqrestore(&vp_dev->lock, flags);
++
++	return ret;
++}
++
+ /* A small wrapper to also acknowledge the interrupt when it's handled.
+  * I really need an EIO hook for the vring so I can ack the interrupt once we
+  * know that we'll be handling the IRQ but before we invoke the callback since
+@@ -173,9 +204,6 @@ static void vp_notify(struct virtqueue *vq)
+ static irqreturn_t vp_interrupt(int irq, void *opaque)
+ {
+ 	struct virtio_pci_device *vp_dev = opaque;
+-	struct virtio_pci_vq_info *info;
+-	irqreturn_t ret = IRQ_NONE;
+-	unsigned long flags;
+ 	u8 isr;
+ 
+ 	/* reading the ISR has the effect of also clearing it so it's very
+@@ -187,14 +215,11 @@ static irqreturn_t vp_interrupt(int irq, void *opaque)
+ 		return IRQ_NONE;
+ 
+ 	/* Configuration change?  Tell driver if it wants to know. */
+-	if (isr & VIRTIO_PCI_ISR_CONFIG) {
+-		struct virtio_driver *drv;
+-		drv = container_of(vp_dev->vdev.dev.driver,
+-				   struct virtio_driver, driver);
++	if (isr & VIRTIO_PCI_ISR_CONFIG)
++		vp_config_changed(irq, opaque);
+ 
+-		if (drv && drv->config_changed)
+-			drv->config_changed(&vp_dev->vdev);
+-	}
++	return vp_vring_interrupt(irq, opaque);
++}
+ 
+ 	spin_lock_irqsave(&vp_dev->lock, flags);
+ 	list_for_each_entry(info, &vp_dev->virtqueues, node) {
 -- 
 1.6.0.6
