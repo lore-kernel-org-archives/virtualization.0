@@ -1,14 +1,11 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: Re: [PATCH RFC 0/8] virtio: add guest MSI-X support
-Date: Mon, 27 Apr 2009 18:59:52 +0200
-Message-ID: <200904271859.53190.borntraeger__27077.7644277134$1240851801$gmane$org@de.ibm.com>
-References: <20090427123136.GA1152@redhat.com> <49F5CA08.6060003@redhat.com>
-	<20090427153936.GA2276@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH RFC 0/8] virtio: add guest MSI-X support
+Date: Mon, 27 Apr 2009 15:31:36 +0300
+Message-ID: <20090427123136.GA1152__34162.7589580186$1240855542$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20090427153936.GA2276@redhat.com>
 Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,39 +16,40 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: kvm@vger.kernel.org, Avi Kivity <avi@redhat.com>, Anthony Liguori <anthony@codemonkey.ws>, virtualization@lists.linux-foundation.org
+To: Rusty Russell <rusty@rustcorp.com.au>, virtualization@lists.linux-foundation.org, Anthony Liguori <anthony@codemonkey.ws>, kvm@vger.kernel.org, avi@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Am Monday 27 April 2009 17:39:36 schrieb Michael S. Tsirkin:
-> So we'll probably need to rename request_vqs to request_vectors,
-> but we probably still need the driver to pass the number of
-> vectors it wants to the transport. Right?
+Add optional MSI-X support: use a vector per virtqueue with
+fallback to a common vector and finally to regular interrupt.
+Teach all drivers to use it.
 
-This might be a stupid idea, but would something like the following
-be sufficient for you?
+I added 2 new virtio operations: request_vqs/free_vqs because MSI
+needs to know the total number of vectors upfront.
 
-Index: linux-2.6/drivers/net/virtio_net.c
-===================================================================
---- linux-2.6.orig/drivers/net/virtio_net.c
-+++ linux-2.6/drivers/net/virtio_net.c
-@@ -1021,6 +1021,7 @@ static unsigned int features[] = {
- static struct virtio_driver virtio_net = {
-        .feature_table = features,
-        .feature_table_size = ARRAY_SIZE(features),
-+       .num_vq_max = 3,
-        .driver.name =  KBUILD_MODNAME,
-        .driver.owner = THIS_MODULE,
-        .id_table =     id_table,
-Index: linux-2.6/include/linux/virtio.h
-===================================================================
---- linux-2.6.orig/include/linux/virtio.h
-+++ linux-2.6/include/linux/virtio.h
-@@ -110,6 +110,7 @@ struct virtio_driver {
-        const struct virtio_device_id *id_table;
-        const unsigned int *feature_table;
-        unsigned int feature_table_size;
-+       unsigned int num_vq_max;
-        int (*probe)(struct virtio_device *dev);
-        void (*remove)(struct virtio_device *dev);
-        void (*config_changed)(struct virtio_device *dev);
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+
+---
+
+Here's a draft set of patches for MSI-X support in the guest.  It still
+needs to be tested properly, and performance impact measured, but I
+thought I'd share it here in the hope of getting some very early
+feedback/flames.
+
+Michael S. Tsirkin (8):
+  virtio: add request_vqs/free_vqs virtio operations
+  virtio_blk: add request_vqs/free_vqs calls
+  virtio-rng: add request_vqs/free_vqs calls
+  virtio_console: add request_vqs/free_vqs calls
+  virtio_net: add request_vqs/free_vqs calls
+  virtio_balloon: add request_vqs/free_vqs calls
+  virtio_pci: split up vp_interrupt
+  virtio_pci: optional MSI-X support
+
+ drivers/block/virtio_blk.c          |    9 ++-
+ drivers/char/hw_random/virtio-rng.c |   10 ++-
+ drivers/char/virtio_console.c       |    8 ++-
+ drivers/net/virtio_net.c            |   16 +++-
+ drivers/virtio/virtio_balloon.c     |    9 ++-
+ drivers/virtio/virtio_pci.c         |  192 ++++++++++++++++++++++++++++++-----
+ include/linux/virtio_config.h       |   35 +++++++
+ 7 files changed, 247 insertions(+), 32 deletions(-)
