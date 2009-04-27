@@ -1,16 +1,14 @@
-From: Dor Laor <dlaor@redhat.com>
-Subject: Re: [PATCH 2/3] virtio: indirect ring
-	entries	(VIRTIO_RING_F_INDIRECT_DESC)
-Date: Mon, 27 Apr 2009 10:43:53 +0300
-Message-ID: <49F56239.9010509@redhat.com>
-References: <1229620222-22216-1-git-send-email-markmc@redhat.com>	<1229620222-22216-2-git-send-email-markmc@redhat.com>	<1229620222-22216-3-git-send-email-markmc@redhat.com>
-	<1240318745.443.42.camel@blaa>
-Reply-To: dlaor@redhat.com
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: Re: [PATCH RFC 0/8] virtio: add guest MSI-X support
+Date: Mon, 27 Apr 2009 16:00:30 +0200
+Message-ID: <200904271600.30599.borntraeger__20977.2760318176$1240841122$gmane$org@de.ibm.com>
+References: <20090427123136.GA1152@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1240318745.443.42.camel@blaa>
+In-Reply-To: <20090427123136.GA1152@redhat.com>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,58 +18,25 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Mark McLoughlin <markmc@redhat.com>
-Cc: netdev@vger.kernel.org, Dor Laor <dor@redhat.com>, Avi Kivity <avi@redhat.com>, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: avi@redhat.com, kvm@vger.kernel.org, Anthony Liguori <anthony@codemonkey.ws>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Mark McLoughlin wrote:
-> Hi Rusty,
->
-> On Thu, 2008-12-18 at 17:10 +0000, Mark McLoughlin wrote:
->   
->> Add a new feature flag for indirect ring entries. These are ring
->> entries which point to a table of buffer descriptors.
->>
->> The idea here is to increase the ring capacity by allowing a larger
->> effective ring size whereby the ring size dictates the number of
->> requests that may be outstanding, rather than the size of those
->> requests.
->>
->> This should be most effective in the case of block I/O where we can
->> potentially benefit by concurrently dispatching a large number of
->> large requests. Even in the simple case of single segment block
->> requests, this results in a threefold increase in ring capacity.
->>     
->
-> Apparently, this would also be useful for the windows virtio-net
-> drivers.
->
-> Dor can explain further, but apparently Windows has been observed
-> passing the driver a packet with >256 fragments when using TSO.
->
-> With a ring size of 256, the guest can either drop the packet or copy it
-> into a single buffer. We'd much rather if we could use an indirect ring
-> entry to pass this number of fragments without copying.
->   
-Correct. This is what we do in Windows today.
-The problem arises when using sending lots of small packets
-from the win guest and TSO. Windows prepare very big scatter gather
-list, bigger than the ring size (270 fragments).
-Having indirect ring entries is good both for this and also for block 
-io, as described
-above.
+Am Monday 27 April 2009 14:31:36 schrieb Michael S. Tsirkin:
+> Add optional MSI-X support: use a vector per virtqueue with
+> fallback to a common vector and finally to regular interrupt.
+> Teach all drivers to use it.
+> 
+> I added 2 new virtio operations: request_vqs/free_vqs because MSI
+> needs to know the total number of vectors upfront.
+> 
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 
-Cheers,
-Dor
-> For reference the original patch was here:
->
->   http://lkml.org/lkml/2008/12/18/212
->
-> Cheers,
-> Mark.
->
-> _______________________________________________
-> Virtualization mailing list
-> Virtualization@lists.linux-foundation.org
-> https://lists.linux-foundation.org/mailman/listinfo/virtualization
->   
+I dont know, if that is feasible for MSI, but the transport(virtio_pci) should
+already know the number of virtqueues, which should match the number of
+vectors, no?
+
+In fact, the transport has to have a way of getting the number of virtqeues
+because find_vq returns ENOENT on invalid index numbers.
+
+Christian
