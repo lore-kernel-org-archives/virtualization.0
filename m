@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH 2/8] virtio_blk: add request_vqs/free_vqs calls
-Date: Mon, 27 Apr 2009 15:32:13 +0300
-Message-ID: <20090427123213.GA1166__47069.6709621281$1240855872$gmane$org@redhat.com>
+Subject: [PATCH 3/8] virtio-rng: add request_vqs/free_vqs calls
+Date: Mon, 27 Apr 2009 15:32:26 +0300
+Message-ID: <20090427123226.GA1175__38459.9812016406$1240856030$gmane$org@redhat.com>
 References: <cover.1240832196.git.mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,50 +21,47 @@ Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Rusty Russell <rusty@rustcorp.com.au>, virtualization@lists.linux-foundation.org, Anthony Liguori <anthony@codemonkey.ws>, kvm@vger.kernel.org, avi@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Add request_vqs/free_vqs calls to virtio_blk.
+Add request_vqs/free_vqs calls to virtio-rng.
 These will be required for MSI support.
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- drivers/block/virtio_blk.c |    9 ++++++++-
- 1 files changed, 8 insertions(+), 1 deletions(-)
+ drivers/char/hw_random/virtio-rng.c |   10 +++++++++-
+ 1 files changed, 9 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-index 5d34764..523eddc 100644
---- a/drivers/block/virtio_blk.c
-+++ b/drivers/block/virtio_blk.c
-@@ -224,10 +224,14 @@ static int virtblk_probe(struct virtio_device *vdev)
- 	sg_init_table(vblk->sg, vblk->sg_elems);
+diff --git a/drivers/char/hw_random/virtio-rng.c b/drivers/char/hw_random/virtio-rng.c
+index d0e563e..d43a6cd 100644
+--- a/drivers/char/hw_random/virtio-rng.c
++++ b/drivers/char/hw_random/virtio-rng.c
+@@ -94,13 +94,20 @@ static int virtrng_probe(struct virtio_device *vdev)
+ 	int err;
  
- 	/* We expect one virtqueue, for output. */
+ 	/* We expect a single virtqueue. */
 +	err = virtio_request_vqs(vdev, 1);
 +	if (err)
-+		goto out_free_vblk;
++		return err;
 +
- 	vblk->vq = vdev->config->find_vq(vdev, 0, blk_done);
- 	if (IS_ERR(vblk->vq)) {
- 		err = PTR_ERR(vblk->vq);
--		goto out_free_vblk;
-+		goto out_free_vqs;
+ 	vq = vdev->config->find_vq(vdev, 0, random_recv_done);
+-	if (IS_ERR(vq))
++	if (IS_ERR(vq)) {
++		virtio_free_vqs(vdev);
+ 		return PTR_ERR(vq);
++	}
+ 
+ 	err = hwrng_register(&virtio_hwrng);
+ 	if (err) {
+ 		vdev->config->del_vq(vq);
++		virtio_free_vqs(vdev);
+ 		return err;
  	}
  
- 	vblk->pool = mempool_create_kmalloc_pool(1,sizeof(struct virtblk_req));
-@@ -324,6 +328,8 @@ out_mempool:
- 	mempool_destroy(vblk->pool);
- out_free_vq:
- 	vdev->config->del_vq(vblk->vq);
-+out_free_vqs:
+@@ -113,6 +120,7 @@ static void virtrng_remove(struct virtio_device *vdev)
+ 	vdev->config->reset(vdev);
+ 	hwrng_unregister(&virtio_hwrng);
+ 	vdev->config->del_vq(vq);
 +	virtio_free_vqs(vdev);
- out_free_vblk:
- 	kfree(vblk);
- out:
-@@ -345,6 +351,7 @@ static void virtblk_remove(struct virtio_device *vdev)
- 	put_disk(vblk->disk);
- 	mempool_destroy(vblk->pool);
- 	vdev->config->del_vq(vblk->vq);
-+	virtio_free_vqs(vdev);
- 	kfree(vblk);
  }
  
+ static struct virtio_device_id id_table[] = {
 -- 
 1.6.0.6
