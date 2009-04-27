@@ -1,14 +1,13 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
+From: Anthony Liguori <anthony@codemonkey.ws>
 Subject: Re: [PATCH RFC 0/8] virtio: add guest MSI-X support
-Date: Mon, 27 Apr 2009 16:00:30 +0200
-Message-ID: <200904271600.30599.borntraeger__20977.2760318176$1240841122$gmane$org@de.ibm.com>
+Date: Mon, 27 Apr 2009 09:39:06 -0500
+Message-ID: <49F5C38A.10806__38181.752296123$1240843422$gmane$org@codemonkey.ws>
 References: <20090427123136.GA1152@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 In-Reply-To: <20090427123136.GA1152@redhat.com>
-Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,24 +18,22 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: avi@redhat.com, kvm@vger.kernel.org, Anthony Liguori <anthony@codemonkey.ws>, virtualization@lists.linux-foundation.org
+Cc: avi@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Am Monday 27 April 2009 14:31:36 schrieb Michael S. Tsirkin:
+Michael S. Tsirkin wrote:
 > Add optional MSI-X support: use a vector per virtqueue with
 > fallback to a common vector and finally to regular interrupt.
 > Teach all drivers to use it.
-> 
+>
 > I added 2 new virtio operations: request_vqs/free_vqs because MSI
 > needs to know the total number of vectors upfront.
-> 
+>
 > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+>   
 
-I dont know, if that is feasible for MSI, but the transport(virtio_pci) should
-already know the number of virtqueues, which should match the number of
-vectors, no?
+Do you have userspace patches for testing?
 
-In fact, the transport has to have a way of getting the number of virtqeues
-because find_vq returns ENOENT on invalid index numbers.
+Regards,
 
-Christian
+Anthony Liguori
