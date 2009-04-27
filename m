@@ -1,13 +1,14 @@
-From: Anthony Liguori <anthony@codemonkey.ws>
+From: Avi Kivity <avi@redhat.com>
 Subject: Re: [PATCH RFC 0/8] virtio: add guest MSI-X support
-Date: Mon, 27 Apr 2009 09:39:06 -0500
-Message-ID: <49F5C38A.10806__38181.752296123$1240843422$gmane$org@codemonkey.ws>
+Date: Mon, 27 Apr 2009 18:06:48 +0300
+Message-ID: <49F5CA08.6060003@redhat.com>
 References: <20090427123136.GA1152@redhat.com>
+	<200904271600.30599.borntraeger@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20090427123136.GA1152@redhat.com>
+In-Reply-To: <200904271600.30599.borntraeger@de.ibm.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -17,23 +18,43 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: avi@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, Anthony Liguori <anthony@codemonkey.ws>, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Michael S. Tsirkin wrote:
-> Add optional MSI-X support: use a vector per virtqueue with
-> fallback to a common vector and finally to regular interrupt.
-> Teach all drivers to use it.
+Christian Borntraeger wrote:
+> Am Monday 27 April 2009 14:31:36 schrieb Michael S. Tsirkin:
+>   
+>> Add optional MSI-X support: use a vector per virtqueue with
+>> fallback to a common vector and finally to regular interrupt.
+>> Teach all drivers to use it.
+>>
+>> I added 2 new virtio operations: request_vqs/free_vqs because MSI
+>> needs to know the total number of vectors upfront.
+>>
+>> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+>>     
 >
-> I added 2 new virtio operations: request_vqs/free_vqs because MSI
-> needs to know the total number of vectors upfront.
+> I dont know, if that is feasible for MSI, but the transport(virtio_pci) should
+> already know the number of virtqueues, which should match the number of
+> vectors, no?
 >
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> In fact, the transport has to have a way of getting the number of virtqeues
+> because find_vq returns ENOENT on invalid index numbers.
 >   
 
-Do you have userspace patches for testing?
+One thing I thought was to decouple the virtqueue count from the MSI 
+entry count, and let the guest choose how many MSI entries it wants to 
+use.  This is useful if it wants several queues to share an interrupt, 
+perhaps it wants both rx and tx rings on one cpu to share a single vector.
 
-Regards,
+So the device could expose a large, constant number of MSI entries, and 
+in addition expose a table mapping ring number to msi entry number.  The 
+guest could point all rings to one entry, or have each ring use a 
+private entry, or anything in between.
 
-Anthony Liguori
+That saves us the new API (at the expense of a lot more code, but with 
+added flexibility).
+
+-- 
+error compiling committee.c: too many arguments to function
