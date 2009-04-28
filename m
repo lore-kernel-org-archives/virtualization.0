@@ -1,14 +1,15 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
+From: Avi Kivity <avi@redhat.com>
 Subject: Re: [PATCH RFC 0/8] virtio: add guest MSI-X support
-Date: Mon, 27 Apr 2009 20:42:00 +0300
-Message-ID: <20090427174200.GD2276__41433.6133668714$1240856757$gmane$org@redhat.com>
-References: <20090427123136.GA1152@redhat.com> <49F5C38A.10806@codemonkey.ws>
+Date: Tue, 28 Apr 2009 09:47:14 +0300
+Message-ID: <49F6A672.8050704__26319.9141867974$1240901463$gmane$org@redhat.com>
+References: <20090427123136.GA1152@redhat.com>
+	<200904271600.30599.borntraeger@de.ibm.com>
+	<49F5CA08.6060003@redhat.com> <20090427153936.GA2276@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <49F5C38A.10806@codemonkey.ws>
+In-Reply-To: <20090427153936.GA2276@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,29 +19,24 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Anthony Liguori <anthony@codemonkey.ws>
-Cc: avi@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>, kvm@vger.kernel.org, Anthony Liguori <anthony@codemonkey.ws>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Apr 27, 2009 at 09:39:06AM -0500, Anthony Liguori wrote:
-> Michael S. Tsirkin wrote:
->> Add optional MSI-X support: use a vector per virtqueue with
->> fallback to a common vector and finally to regular interrupt.
->> Teach all drivers to use it.
->>
->> I added 2 new virtio operations: request_vqs/free_vqs because MSI
->> needs to know the total number of vectors upfront.
->>
->> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
->>   
+Michael S. Tsirkin wrote:
+>> That saves us the new API (at the expense of a lot more code, but with  
+>> added flexibility).
+>>     
 >
-> Do you have userspace patches for testing?
+> So we'll probably need to rename request_vqs to request_vectors,
+> but we probably still need the driver to pass the number of
+> vectors it wants to the transport. Right?
 >
-> Regards,
->
-> Anthony Liguori
+>   
 
-Not ready yet, sorry.
+I don't think so - virtio will provide the number of interrupts it 
+supports, and virtio-net will tell it to bind ring X to interrupt Y.
 
 -- 
-MST
+I have a truly marvellous patch that fixes the bug which this
+signature is too narrow to contain.
