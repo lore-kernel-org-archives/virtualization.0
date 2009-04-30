@@ -1,48 +1,39 @@
-From: Chris Wright <chrisw@sous-sol.org>
-Subject: Re: [PATCH] xen block: remove driver_data direct access of struct
-	device
-Date: Thu, 30 Apr 2009 15:43:37 -0700
-Message-ID: <20090430224337.GP3036@sequoia.sous-sol.org>
-References: <20090430222448.GA18690@kroah.com>
-	<20090430223535.GO3036@sequoia.sous-sol.org>
-	<20090430223757.GB16369@kroah.com>
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+Subject: Re: [PATCH] xen block: remove driver_data direct access
+ of struct device
+Date: Thu, 30 Apr 2009 16:25:36 -0700
+Message-ID: <49FA3370.7010802@goop.org>
+References: <20090430222448.GA18690@kroah.com>	<20090430223535.GO3036@sequoia.sous-sol.org>	<20090430223757.GB16369@kroah.com>
+	<20090430224337.GP3036@sequoia.sous-sol.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20090430223757.GB16369@kroah.com>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Greg KH <greg@kroah.com>
-Cc: Chris Wright <chrisw@sous-sol.org>, xen-devel@lists.xensource.com, Greg Kroah-Hartman <gregkh@suse.de>, virtualization@lists.osdl.org
+Return-path: <xen-devel-bounces@lists.xensource.com>
+In-Reply-To: <20090430224337.GP3036@sequoia.sous-sol.org>
+List-Unsubscribe: <http://lists.xensource.com/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
+List-Post: <mailto:xen-devel@lists.xensource.com>
+List-Help: <mailto:xen-devel-request@lists.xensource.com?subject=help>
+List-Subscribe: <http://lists.xensource.com/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
+Sender: xen-devel-bounces@lists.xensource.com
+Errors-To: xen-devel-bounces@lists.xensource.com
+To: Chris Wright <chrisw@sous-sol.org>
+Cc: Greg KH <greg@kroah.com>, xen-devel@lists.xensource.com, Greg Kroah-Hartman <gregkh@suse.de>, virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-* Greg KH (greg@kroah.com) wrote:
-> On Thu, Apr 30, 2009 at 03:35:35PM -0700, Chris Wright wrote:
-> > * Greg Kroah-Hartman (gregkh@suse.de) wrote:
-> > > In the near future, the driver core is going to not allow direct access
-> > > to the driver_data pointer in struct device.  Instead, the functions
-> > > dev_get_drvdata() and dev_set_drvdata() should be used.  These functions
-> > > have been around since the beginning, so are backwards compatible with
-> > > all older kernel versions.
-> > > 
-> > > Cc: xen-devel@lists.xensource.com
-> > > Cc: virtualization@lists.osdl.org
-> > > Cc: Chris Wright <chrisw@sous-sol.org>
-> > > Cc: Jeremy Fitzhardinge <jeremy@xensource.com>
-> > > Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
-> > 
-> > Acked-by: Chris Wright <chrisw@sous-sol.org>
-> 
-> Thanks, will add it.  Any objections for this to go through my
-> driver-core tree to Linus for 2.6.31?
+Chris Wright wrote:
+> * Greg KH (greg@kroah.com) wrote:
+>   
+>> Thanks, will add it.  Any objections for this to go through my
+>> driver-core tree to Linus for 2.6.31?
+>>     
+>
+> None from me.
+>   
 
-None from me.
+Fine by me.
+
+Acked-by: Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>
+
+    J
