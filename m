@@ -1,19 +1,12 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH RFC 0/8] virtio: add guest MSI-X support
-Date: Wed, 29 Apr 2009 00:01:40 +0300
-Message-ID: <20090428210140.GD7604@redhat.com>
-References: <20090427123136.GA1152@redhat.com>
-	<200904271600.30599.borntraeger@de.ibm.com>
-	<49F5CA08.6060003@redhat.com> <20090427153936.GA2276@redhat.com>
-	<49F6A672.8050704@redhat.com> <20090428174152.GA7604@redhat.com>
-	<49F7420C.5070505@redhat.com> <20090428180248.GB7604@redhat.com>
-	<49F75F5F.1000501@codemonkey.ws>
+From: Greg Kroah-Hartman <gregkh@suse.de>
+Subject: [PATCH] xen block: remove driver_data direct access of struct device
+Date: Thu, 30 Apr 2009 15:24:48 -0700
+Message-ID: <20090430222448.GA18690@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <49F75F5F.1000501@codemonkey.ws>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -23,43 +16,87 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Anthony Liguori <anthony@codemonkey.ws>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>, Avi Kivity <avi@redhat.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Chris Wright <chrisw@sous-sol.org>, Jeremy Fitzhardinge <jeremy@xensource.com>
+Cc: virtualization@lists.osdl.org, xen-devel@lists.xensource.com, Greg KH <greg@kroah.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Apr 28, 2009 at 02:56:15PM -0500, Anthony Liguori wrote:
-> Michael S. Tsirkin wrote:
->> So to map vq 0 to vector 0, vq 1 to vector 1 and vq 2 to vector 2 the driver would do:
->>
->> struct virtio_interrupt_mapping mapping[3] = { {0, 0}, {1, 1}, {2, 2} };
->> vec = map_vqs_to_interrupt(dev, mapping, 3);
->> if (vec) {
->>   error handling
->> }
->>
->> and then find_vq as usual.
->>   
->
-> Is it possible to just delay the msix enablement until after the queues  
-> have been finalized (IOW in virtio-pci.c:vp_finalize_features)?
+From: Greg Kroah-Hartman <gregkh@suse.de>
 
-Yes, but
-
-1. vp_finalize_features returns void, while enabling requested
-   number of interrupts might fail.
-
-2. we don't know in advance (without trying) whether we'll be able
-   to allocate a specific number of vectors.
-   So if we want to give drivers the flexibility to assign queues to
-   vectors, driver must request vectors, we'll try to allocate
-   and driver will decide what to do on failure.
-
-After thinking about it, request_vqs was not a bad API for virtio, good
-enough for existing drivers.  And the PCI space can be made future proof
-allowing mapping virtqueues to vectors in case we extend API later.
-
-Thoughts?
+In the near future, the driver core is going to not allow direct access
+to the driver_data pointer in struct device.  Instead, the functions
+dev_get_drvdata() and dev_set_drvdata() should be used.  These functions
+have been around since the beginning, so are backwards compatible with
+all older kernel versions.
 
 
--- 
-MST
+Cc: xen-devel@lists.xensource.com
+Cc: virtualization@lists.osdl.org
+Cc: Chris Wright <chrisw@sous-sol.org>
+Cc: Jeremy Fitzhardinge <jeremy@xensource.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+---
+ drivers/block/xen-blkfront.c |   14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
+
+--- a/drivers/block/xen-blkfront.c
++++ b/drivers/block/xen-blkfront.c
+@@ -755,12 +755,12 @@ static int blkfront_probe(struct xenbus_
+ 
+ 	/* Front end dir is a number, which is used as the id. */
+ 	info->handle = simple_strtoul(strrchr(dev->nodename, '/')+1, NULL, 0);
+-	dev->dev.driver_data = info;
++	dev_det_drvdata(&dev->dev, info);
+ 
+ 	err = talk_to_backend(dev, info);
+ 	if (err) {
+ 		kfree(info);
+-		dev->dev.driver_data = NULL;
++		dev_det_drvdata(&dev->dev, NULL);
+ 		return err;
+ 	}
+ 
+@@ -845,7 +845,7 @@ static int blkif_recover(struct blkfront
+  */
+ static int blkfront_resume(struct xenbus_device *dev)
+ {
+-	struct blkfront_info *info = dev->dev.driver_data;
++	struct blkfront_info *info = dev_get_drvdata(&dev->dev);
+ 	int err;
+ 
+ 	dev_dbg(&dev->dev, "blkfront_resume: %s\n", dev->nodename);
+@@ -924,7 +924,7 @@ static void blkfront_connect(struct blkf
+  */
+ static void blkfront_closing(struct xenbus_device *dev)
+ {
+-	struct blkfront_info *info = dev->dev.driver_data;
++	struct blkfront_info *info = dev_get_drvdata(&dev->dev);
+ 	unsigned long flags;
+ 
+ 	dev_dbg(&dev->dev, "blkfront_closing: %s removed\n", dev->nodename);
+@@ -959,7 +959,7 @@ static void blkfront_closing(struct xenb
+ static void backend_changed(struct xenbus_device *dev,
+ 			    enum xenbus_state backend_state)
+ {
+-	struct blkfront_info *info = dev->dev.driver_data;
++	struct blkfront_info *info = dev_get_drvdata(&dev->dev);
+ 	struct block_device *bd;
+ 
+ 	dev_dbg(&dev->dev, "blkfront:backend_changed.\n");
+@@ -997,7 +997,7 @@ static void backend_changed(struct xenbu
+ 
+ static int blkfront_remove(struct xenbus_device *dev)
+ {
+-	struct blkfront_info *info = dev->dev.driver_data;
++	struct blkfront_info *info = dev_get_drvdata(&dev->dev);
+ 
+ 	dev_dbg(&dev->dev, "blkfront_remove: %s removed\n", dev->nodename);
+ 
+@@ -1010,7 +1010,7 @@ static int blkfront_remove(struct xenbus
+ 
+ static int blkfront_is_ready(struct xenbus_device *dev)
+ {
+-	struct blkfront_info *info = dev->dev.driver_data;
++	struct blkfront_info *info = dev_get_drvdata(&dev->dev);
+ 
+ 	return info->is_ready;
+ }
