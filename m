@@ -1,18 +1,17 @@
-From: Avi Kivity <avi@redhat.com>
-Subject: Re: [PATCH RFC 0/8] virtio: add guest MSI-X support
-Date: Mon, 04 May 2009 14:57:36 +0300
-Message-ID: <49FED830.2090008__22390.8670050607$1241438401$gmane$org@redhat.com>
-References: <20090427123136.GA1152@redhat.com>
-	<200904271600.30599.borntraeger@de.ibm.com>
-	<49F5CA08.6060003@redhat.com> <20090427153936.GA2276@redhat.com>
-	<49F6A672.8050704@redhat.com> <20090428174152.GA7604@redhat.com>
-	<49F7420C.5070505@redhat.com> <20090428180248.GB7604@redhat.com>
-	<49FEB398.4020906@redhat.com> <20090504115450.GB30001@redhat.com>
+From: Andrea Righi <righi.andrea@gmail.com>
+Subject: Re: [PATCH 4/7] blkio-cgroup: The body of blkio-cgroup
+Date: Mon, 4 May 2009 14:05:45 +0200
+Message-ID: <20090504120544.GA3986__45496.3468750522$1241439113$gmane$org@linux>
+References: <20090428.214423.193684619.ryov@valinux.co.jp>
+	<20090428.214457.226801820.ryov@valinux.co.jp>
+	<20090428.214535.71090234.ryov@valinux.co.jp>
+	<20090428.214604.104034341.ryov@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20090504115450.GB30001@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <20090428.214604.104034341.ryov@valinux.co.jp>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -22,72 +21,37 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>, kvm@vger.kernel.org, Anthony Liguori <anthony@codemonkey.ws>, virtualization@lists.linux-foundation.org
+To: Ryo Tsuruta <ryov@valinux.co.jp>
+Cc: containers@lists.linux-foundation.org, dm-devel@redhat.com, xen-devel@lists.xensource.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Michael S. Tsirkin wrote:
-> On Mon, May 04, 2009 at 12:21:28PM +0300, Avi Kivity wrote:
->   
->> Michael S. Tsirkin wrote:
->>     
->>>>> So what I see is transports providing something like:
->>>>>
->>>>> struct virtio_interrupt_mapping {
->>>>> 	int virtqueue;
->>>>> 	int interrupt;
->>>>> };
->>>>>
->>>>> map_vqs_to_interrupt(dev, struct virtio_interrupt_mapping *, int nvirtqueues);
->>>>> unmap_vqs(dev);
->>>>>         
->>>>>           
->>>> Isn't that the same thing?  Please explain the flow.
->>>>     
->>>>         
->>> So to map vq 0 to vector 0, vq 1 to vector 1 and vq 2 to vector 2 the driver would do:
->>>
->>> struct virtio_interrupt_mapping mapping[3] = { {0, 0}, {1, 1}, {2, 2} };
->>> vec = map_vqs_to_interrupt(dev, mapping, 3);
->>> if (vec) {
->>>   error handling
->>> }
->>>
->>> and then find_vq as usual.
->>>   
->>>       
->> Yes, that works.
->>
->> Given that pci_enable_msix() can fail, we can put the retry loop in  
->> virtio-pci, and instead of a static mapping, supply a dynamic mapping:
->>
->>    static void get_vq_interrupt(..., int nr_interrupts, int vq)
->>    {
->>        /* reserve interrupt 0 to config changes; round-robin vqs to  
->> interrupts */
->>        return 1 + (vq % (nr_interrupts - 1));
->>    }
->>
->>    driver_init()
->>    {
->>        map_vqs_to_interrupt(dev, get_vq_interrupt);
->>    }
->>
->> map_vqs_to_interrupts() would call get_vq_interrupt() for each vq,  
->> assuming the maximum nr_interrupts, and retry with smaller nr_interrupts  
->> on failure.
->>     
->
-> Since guest drivers are going to do round-robin most of the time, I
-> think the right thing to do is to make the API simple, along the lines
-> proposed by Rusty, and make the guest/host ABI rich enough to support
-> arbitrary mapping, along the lines proposed by you. We can always change
-> the API, ABI is harder.
->   
+On Tue, Apr 28, 2009 at 09:46:04PM +0900, Ryo Tsuruta wrote:
+> The body of bio-cgroup.
+> 
+> Based on 2.6.30-rc3-git3
+> Signed-off-by: Hirokazu Takahashi <taka@valinux.co.jp>
+> Signed-off-by: Ryo Tsuruta <ryov@valinux.co.jp>
 
-We can provide the round-robin mapper as a helper, so driver code 
-doesn't need to implement any callback if they're satisfied with the 
-default.
+Hi Ryo,
 
--- 
-Do not meddle in the internals of kernels, for they are subtle and quick to panic.
+few minor coding style issues reported by checkpatch.pl:
+
+WARNING: line over 80 characters
+#138: FILE: include/linux/biotrack.h:67:
++static inline void blkio_cgroup_set_owner(struct page *page, struct mm_struct *mm)
+
+WARNING: line over 80 characters
+#152: FILE: include/linux/biotrack.h:81:
++static inline void blkio_cgroup_copy_owner(struct page *page, struct page *opage)
+
+WARNING: EXPORT_SYMBOL(foo); should immediately follow its function/variable
+#513: FILE: mm/biotrack.c:265:
++EXPORT_SYMBOL(get_blkio_cgroup_id);
+
+WARNING: EXPORT_SYMBOL(foo); should immediately follow its function/variable
+#514: FILE: mm/biotrack.c:266:
++EXPORT_SYMBOL(blkio_cgroup_lookup);
+
+total: 0 errors, 4 warnings, 515 lines checked
+
+-Andrea
