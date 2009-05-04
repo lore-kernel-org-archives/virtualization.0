@@ -1,19 +1,16 @@
-From: Greg KH <greg@kroah.com>
-Subject: Re: [PATCH] xen block: remove driver_data direct access of struct
-	device
-Date: Thu, 30 Apr 2009 16:38:41 -0700
-Message-ID: <20090430233841.GA2676@kroah.com>
-References: <20090430222448.GA18690@kroah.com>
-	<20090430223535.GO3036@sequoia.sous-sol.org>
-	<20090430223757.GB16369@kroah.com>
-	<20090430224337.GP3036@sequoia.sous-sol.org>
-	<49FA3370.7010802@goop.org>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH 2/3] virtio: indirect ring
+	=?iso-8859-1?q?entries=09?=(VIRTIO_RING_F_INDIRECT_DESC)
+Date: Mon, 4 May 2009 11:49:00 +0930
+Message-ID: <200905041149.00724.rusty@rustcorp.com.au>
+References: <1229620222-22216-1-git-send-email-markmc@redhat.com>
+	<1240318745.443.42.camel@blaa> <49F56239.9010509@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <49F56239.9010509@redhat.com>
 Content-Disposition: inline
-In-Reply-To: <49FA3370.7010802@goop.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -23,25 +20,84 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, Greg Kroah-Hartman <gregkh@suse.de>
+To: dlaor@redhat.com
+Cc: Mark McLoughlin <markmc@redhat.com>, Dor Laor <dor@redhat.com>, virtualization@lists.linux-foundation.org, Avi Kivity <avi@redhat.com>, netdev@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Apr 30, 2009 at 04:25:36PM -0700, Jeremy Fitzhardinge wrote:
-> Chris Wright wrote:
-> > * Greg KH (greg@kroah.com) wrote:
+On Mon, 27 Apr 2009 05:13:53 pm Dor Laor wrote:
+> Mark McLoughlin wrote:
+> > Hi Rusty,
+> >
+> > On Thu, 2008-12-18 at 17:10 +0000, Mark McLoughlin wrote:
 > >   
-> >> Thanks, will add it.  Any objections for this to go through my
-> >> driver-core tree to Linus for 2.6.31?
+> >> Add a new feature flag for indirect ring entries. These are ring
+> >> entries which point to a table of buffer descriptors.
+> >>
+> >> The idea here is to increase the ring capacity by allowing a larger
+> >> effective ring size whereby the ring size dictates the number of
+> >> requests that may be outstanding, rather than the size of those
+> >> requests.
+
+OK, just so we track our mistakes.
+
+1) virtio_rings must be physically contiguous, even though they actually
+   have two independent parts.
+2) The number of elements in a ring must be a power of 2.
+3) virtio_pci tells the guest what number of elements to use.
+4) The guest has to allocate that much physically contiguous memory, or fail.
+
+In practice, 128 elements = 2 pages, 256 elements = 3 pages, 512 elements
+= 5 pages.  Order 1, order 2, order 3 under Linux.  1 is OK, 2 is iffy, 3 is
+hard.
+
+Blocked from doing the simpler thing, we've decided to go with a layer
+of indirection.  But the patch is simple and clean, so there's nothing
+fundamental to object to.
+
+I can't find 3/3, did it go missing?
+
+Thanks,
+Rusty.
+
+
+
+> >>
+> >> This should be most effective in the case of block I/O where we can
+> >> potentially benefit by concurrently dispatching a large number of
+> >> large requests. Even in the simple case of single segment block
+> >> requests, this results in a threefold increase in ring capacity.
 > >>     
 > >
-> > None from me.
+> > Apparently, this would also be useful for the windows virtio-net
+> > drivers.
+> >
+> > Dor can explain further, but apparently Windows has been observed
+> > passing the driver a packet with >256 fragments when using TSO.
+> >
+> > With a ring size of 256, the guest can either drop the packet or copy it
+> > into a single buffer. We'd much rather if we could use an indirect ring
+> > entry to pass this number of fragments without copying.
+> >   
+> Correct. This is what we do in Windows today.
+> The problem arises when using sending lots of small packets
+> from the win guest and TSO. Windows prepare very big scatter gather
+> list, bigger than the ring size (270 fragments).
+> Having indirect ring entries is good both for this and also for block 
+> io, as described
+> above.
+> 
+> Cheers,
+> Dor
+> > For reference the original patch was here:
+> >
+> >   http://lkml.org/lkml/2008/12/18/212
+> >
+> > Cheers,
+> > Mark.
+> >
+> > _______________________________________________
+> > Virtualization mailing list
+> > Virtualization@lists.linux-foundation.org
+> > https://lists.linux-foundation.org/mailman/listinfo/virtualization
 > >   
 > 
-> Fine by me.
-> 
-> Acked-by: Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>
-
-Thanks, will add this ack and push it myself.
-
-greg k-h
