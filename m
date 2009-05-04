@@ -1,17 +1,17 @@
-From: Andrea Righi <righi.andrea@gmail.com>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Subject: Re: [PATCH 4/7] blkio-cgroup: The body of blkio-cgroup
-Date: Mon, 4 May 2009 14:05:45 +0200
-Message-ID: <20090504120544.GA3986__45496.3468750522$1241439113$gmane$org@linux>
+Date: Mon, 4 May 2009 13:39:42 +0100
+Message-ID: <20090504133942.35dbe7cc__46210.0142766305$1241451349$gmane$org@lxorguk.ukuu.org.uk>
 References: <20090428.214423.193684619.ryov@valinux.co.jp>
 	<20090428.214457.226801820.ryov@valinux.co.jp>
 	<20090428.214535.71090234.ryov@valinux.co.jp>
 	<20090428.214604.104034341.ryov@valinux.co.jp>
+	<20090504120544.GA3986@linux>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20090428.214604.104034341.ryov@valinux.co.jp>
+In-Reply-To: <20090504120544.GA3986@linux>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -21,37 +21,12 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Ryo Tsuruta <ryov@valinux.co.jp>
-Cc: containers@lists.linux-foundation.org, dm-devel@redhat.com, xen-devel@lists.xensource.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Andrea Righi <righi.andrea@gmail.com>
+Cc: xen-devel@lists.xensource.com, containers@lists.linux-foundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, dm-devel@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Apr 28, 2009 at 09:46:04PM +0900, Ryo Tsuruta wrote:
-> The body of bio-cgroup.
-> 
-> Based on 2.6.30-rc3-git3
-> Signed-off-by: Hirokazu Takahashi <taka@valinux.co.jp>
-> Signed-off-by: Ryo Tsuruta <ryov@valinux.co.jp>
+> few minor coding style issues reported by checkpatch.pl:
 
-Hi Ryo,
-
-few minor coding style issues reported by checkpatch.pl:
-
-WARNING: line over 80 characters
-#138: FILE: include/linux/biotrack.h:67:
-+static inline void blkio_cgroup_set_owner(struct page *page, struct mm_struct *mm)
-
-WARNING: line over 80 characters
-#152: FILE: include/linux/biotrack.h:81:
-+static inline void blkio_cgroup_copy_owner(struct page *page, struct page *opage)
-
-WARNING: EXPORT_SYMBOL(foo); should immediately follow its function/variable
-#513: FILE: mm/biotrack.c:265:
-+EXPORT_SYMBOL(get_blkio_cgroup_id);
-
-WARNING: EXPORT_SYMBOL(foo); should immediately follow its function/variable
-#514: FILE: mm/biotrack.c:266:
-+EXPORT_SYMBOL(blkio_cgroup_lookup);
-
-total: 0 errors, 4 warnings, 515 lines checked
-
--Andrea
+checkpatch is a *guide* not some dictator of style. If it's more readable
+the way it is, or it's following existing style (eg with the export
+symbols in a group at the bottom) then checkpatch is best ignored.
