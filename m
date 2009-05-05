@@ -1,15 +1,11 @@
-From: Ryo Tsuruta <ryov@valinux.co.jp>
-Subject: Re: [PATCH 4/7] blkio-cgroup: The body of blkio-cgroup
-Date: Tue, 05 May 2009 07:43:58 +0900 (JST)
-Message-ID: <20090505.074358.226774631.ryov__26576.56213637$1241477345$gmane$org@valinux.co.jp>
-References: <20090428.214535.71090234.ryov@valinux.co.jp>
-	<20090428.214604.104034341.ryov@valinux.co.jp>
-	<20090504120544.GA3986@linux>
+From: Randy Dunlap <randy.dunlap@oracle.com>
+Subject: [patch xen.git xen-tip/master] xen: fix xenbus frontend build
+Date: Tue, 05 May 2009 11:42:00 -0700
+Message-ID: <4A008878.7030409@oracle.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20090504120544.GA3986@linux>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,49 +15,39 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: righi.andrea@gmail.com
-Cc: containers@lists.linux-foundation.org, dm-devel@redhat.com, xen-devel@lists.xensource.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: virtualization@lists.osdl.org, xen-devel@lists.xensource.com
+Cc: Chris Wright <chrisw@sous-sol.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Andrea,
+From: Randy Dunlap <randy.dunlap@oracle.com>
 
-From: Andrea Righi <righi.andrea@gmail.com>
-Subject: Re: [PATCH 4/7] blkio-cgroup: The body of blkio-cgroup
-Date: Mon, 4 May 2009 14:05:45 +0200
+When a driver kconfig symbol =m and it selects another symbol,
+that other symbol will also be =m (unless something else
+causes it to be =y), so when XEN_BLKDEV_FRONTEND=m and/or
+XEN_NETDEV_FRONTEND=m, then XEN_XENBUS_FRONTEND=m, but that
+won't build (build error message below).  Changing
+XEN_XENBUS_FRONTEND from a tristate to a bool makes it be
+=y (builtin) any time that it is selected, so there is
+no build error.
 
-> On Tue, Apr 28, 2009 at 09:46:04PM +0900, Ryo Tsuruta wrote:
-> > The body of bio-cgroup.
-> > 
-> > Based on 2.6.30-rc3-git3
-> > Signed-off-by: Hirokazu Takahashi <taka@valinux.co.jp>
-> > Signed-off-by: Ryo Tsuruta <ryov@valinux.co.jp>
-> 
-> Hi Ryo,
-> 
-> few minor coding style issues reported by checkpatch.pl:
+arch/x86/pci/built-in.o: In function `xenbus_register_frontend':
+include/xen/xenbus.h:115: undefined reference to `__xenbus_register_frontend'
 
-Thanks for reporting these issues. I'll fix them in the next release.
+OTOH, I could have goofed my git trees somehow...
 
-> 
-> WARNING: line over 80 characters
-> #138: FILE: include/linux/biotrack.h:67:
-> +static inline void blkio_cgroup_set_owner(struct page *page, struct mm_struct *mm)
-> 
-> WARNING: line over 80 characters
-> #152: FILE: include/linux/biotrack.h:81:
-> +static inline void blkio_cgroup_copy_owner(struct page *page, struct page *opage)
-> 
-> WARNING: EXPORT_SYMBOL(foo); should immediately follow its function/variable
-> #513: FILE: mm/biotrack.c:265:
-> +EXPORT_SYMBOL(get_blkio_cgroup_id);
-> 
-> WARNING: EXPORT_SYMBOL(foo); should immediately follow its function/variable
-> #514: FILE: mm/biotrack.c:266:
-> +EXPORT_SYMBOL(blkio_cgroup_lookup);
-> 
-> total: 0 errors, 4 warnings, 515 lines checked
-> 
-> -Andrea
+Signed-off-by: Randy Dunlap <randy.dunlap@oracle.com>
+---
+ drivers/xen/Kconfig |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Thanks,
-Ryo Tsuruta
+--- linux-xyz.orig/drivers/xen/Kconfig
++++ linux-xyz/drivers/xen/Kconfig
+@@ -85,7 +85,7 @@ config XEN_SYS_HYPERVISOR
+ 	 but will have no xen contents.
+ 
+ config XEN_XENBUS_FRONTEND
+-       tristate
++       bool
+ 
+ config XEN_GNTDEV
+ 	bool "userspace grant access device driver"
