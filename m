@@ -1,46 +1,49 @@
-From: Randy Dunlap <randy.dunlap@oracle.com>
-Subject: [PATCH] xen: use header for EXPORT_SYMBOL_GPL
-Date: Wed, 06 May 2009 09:50:22 -0700
-Message-ID: <4A01BFCE.6020908@oracle.com>
-References: <200905060438.n464cWFU025212@imap1.linux-foundation.org>
+From: M A Young <m.a.young@durham.ac.uk>
+Subject: Re: [patch xen.git xen-tip/master] xen: fix xenbus
+	frontend build
+Date: Wed, 6 May 2009 23:38:27 +0100 (BST)
+Message-ID: <alpine.LFD.2.00.0905062324440.22137@vega2.dur.ac.uk>
+References: <4A008878.7030409@oracle.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <200905060438.n464cWFU025212@imap1.linux-foundation.org>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org
-Cc: Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, akpm@linux-foundation.org, xen-devel@lists.xensource.com
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Return-path: <xen-devel-bounces@lists.xensource.com>
+In-Reply-To: <4A008878.7030409@oracle.com>
+List-Unsubscribe: <http://lists.xensource.com/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
+List-Post: <mailto:xen-devel@lists.xensource.com>
+List-Help: <mailto:xen-devel-request@lists.xensource.com?subject=help>
+List-Subscribe: <http://lists.xensource.com/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
+Sender: xen-devel-bounces@lists.xensource.com
+Errors-To: xen-devel-bounces@lists.xensource.com
+To: Randy Dunlap <randy.dunlap@oracle.com>
+Cc: Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, "jeremy@goop.org" <jeremy@goop.org>, xen-devel@lists.xensource.com, Jeremy Fitzhardinge <jeremy@xensource.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Randy Dunlap <randy.dunlap@oracle.com>
+On Tue, 5 May 2009, Randy Dunlap wrote:
 
-mmu.c needs to #include module.h to prevent these warnings:
+> From: Randy Dunlap <randy.dunlap@oracle.com>
+>
+> When a driver kconfig symbol =m and it selects another symbol,
+> that other symbol will also be =m (unless something else
+> causes it to be =y), so when XEN_BLKDEV_FRONTEND=m and/or
+> XEN_NETDEV_FRONTEND=m, then XEN_XENBUS_FRONTEND=m, but that
+> won't build (build error message below).  Changing
+> XEN_XENBUS_FRONTEND from a tristate to a bool makes it be
+> =y (builtin) any time that it is selected, so there is
+> no build error.
 
-arch/x86/xen/mmu.c:239: warning: data definition has no type or storage class
-arch/x86/xen/mmu.c:239: warning: type defaults to 'int' in declaration of 'EXPORT_SYMBOL_GPL'
-arch/x86/xen/mmu.c:239: warning: parameter names (without types) in function declaration
+That isn't the right solution. The real problem is that something you have 
+selected as "y" does depend on XEN_XENBUS_FRONTEND but doesn't select it. 
+Switching XEN_XENBUS_FRONTEND from tristate to bool might fix your 
+particular compile problem, but it means that the situation you would get 
+if you changed your configuration so that XEN_BLKDEV_FRONTEND=n and 
+XEN_NETDEV_FRONTEND=n (likewise any other options that do select 
+XEN_XENBUS_FRONTEND) would still broken because then XEN_XENBUS_FRONTEND 
+won't be selected at all.
 
-Signed-off-by: Randy Dunlap <randy.dunlap@oracle.com>
----
- arch/x86/xen/mmu.c |    1 +
- 1 file changed, 1 insertion(+)
+If your configuration has XEN_PCI_PASSTHROUGH=y then I posted a patch for 
+this very situation a few days ago (and it is now in xen-tip/next, though 
+wasn't yet in xen-tip/master when I last checked).
 
---- mmotm-2009-0505-2119.orig/arch/x86/xen/mmu.c
-+++ mmotm-2009-0505-2119/arch/x86/xen/mmu.c
-@@ -42,6 +42,7 @@
- #include <linux/highmem.h>
- #include <linux/debugfs.h>
- #include <linux/bug.h>
-+#include <linux/module.h>
- 
- #include <asm/pgtable.h>
- #include <asm/tlbflush.h>
+ 	Michael Young
