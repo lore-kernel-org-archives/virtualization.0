@@ -1,13 +1,15 @@
-From: M A Young <m.a.young@durham.ac.uk>
+From: Jeremy Fitzhardinge <jeremy@goop.org>
 Subject: Re: [patch xen.git xen-tip/master] xen: fix xenbus
 	frontend build
-Date: Wed, 6 May 2009 23:38:27 +0100 (BST)
-Message-ID: <alpine.LFD.2.00.0905062324440.22137@vega2.dur.ac.uk>
+Date: Wed, 06 May 2009 15:48:52 -0700
+Message-ID: <4A0213D4.9020504@goop.org>
 References: <4A008878.7030409@oracle.com>
+	<alpine.LFD.2.00.0905062324440.22137@vega2.dur.ac.uk>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <xen-devel-bounces@lists.xensource.com>
-In-Reply-To: <4A008878.7030409@oracle.com>
+In-Reply-To: <alpine.LFD.2.00.0905062324440.22137@vega2.dur.ac.uk>
 List-Unsubscribe: <http://lists.xensource.com/mailman/listinfo/xen-devel>,
 	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
 List-Post: <mailto:xen-devel@lists.xensource.com>
@@ -16,34 +18,50 @@ List-Subscribe: <http://lists.xensource.com/mailman/listinfo/xen-devel>,
 	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
 Sender: xen-devel-bounces@lists.xensource.com
 Errors-To: xen-devel-bounces@lists.xensource.com
-To: Randy Dunlap <randy.dunlap@oracle.com>
-Cc: Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, "jeremy@goop.org" <jeremy@goop.org>, xen-devel@lists.xensource.com, Jeremy Fitzhardinge <jeremy@xensource.com>
+To: M A Young <m.a.young@durham.ac.uk>
+Cc: Randy Dunlap <randy.dunlap@oracle.com>, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, Jeremy Fitzhardinge <jeremy@xensource.com>, Chris Wright <chrisw@sous-sol.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 5 May 2009, Randy Dunlap wrote:
-
-> From: Randy Dunlap <randy.dunlap@oracle.com>
+M A Young wrote:
+> On Tue, 5 May 2009, Randy Dunlap wrote:
 >
-> When a driver kconfig symbol =m and it selects another symbol,
-> that other symbol will also be =m (unless something else
-> causes it to be =y), so when XEN_BLKDEV_FRONTEND=m and/or
-> XEN_NETDEV_FRONTEND=m, then XEN_XENBUS_FRONTEND=m, but that
-> won't build (build error message below).  Changing
-> XEN_XENBUS_FRONTEND from a tristate to a bool makes it be
-> =y (builtin) any time that it is selected, so there is
-> no build error.
+>> From: Randy Dunlap <randy.dunlap@oracle.com>
+>>
+>> When a driver kconfig symbol =m and it selects another symbol,
+>> that other symbol will also be =m (unless something else
+>> causes it to be =y), so when XEN_BLKDEV_FRONTEND=m and/or
+>> XEN_NETDEV_FRONTEND=m, then XEN_XENBUS_FRONTEND=m, but that
+>> won't build (build error message below).  Changing
+>> XEN_XENBUS_FRONTEND from a tristate to a bool makes it be
+>> =y (builtin) any time that it is selected, so there is
+>> no build error.
+>
+> That isn't the right solution. The real problem is that something you 
+> have selected as "y" does depend on XEN_XENBUS_FRONTEND but doesn't 
+> select it. Switching XEN_XENBUS_FRONTEND from tristate to bool might 
+> fix your particular compile problem, but it means that the situation 
+> you would get if you changed your configuration so that 
+> XEN_BLKDEV_FRONTEND=n and XEN_NETDEV_FRONTEND=n (likewise any other 
+> options that do select XEN_XENBUS_FRONTEND) would still broken because 
+> then XEN_XENBUS_FRONTEND won't be selected at all.
+>
+> If your configuration has XEN_PCI_PASSTHROUGH=y then I posted a patch 
+> for this very situation a few days ago (and it is now in xen-tip/next, 
+> though wasn't yet in xen-tip/master when I last checked).
 
-That isn't the right solution. The real problem is that something you have 
-selected as "y" does depend on XEN_XENBUS_FRONTEND but doesn't select it. 
-Switching XEN_XENBUS_FRONTEND from tristate to bool might fix your 
-particular compile problem, but it means that the situation you would get 
-if you changed your configuration so that XEN_BLKDEV_FRONTEND=n and 
-XEN_NETDEV_FRONTEND=n (likewise any other options that do select 
-XEN_XENBUS_FRONTEND) would still broken because then XEN_XENBUS_FRONTEND 
-won't be selected at all.
+pcifront wasn't meant to go into master yet.  I'd be interested in some 
+testing feedback from next.
 
-If your configuration has XEN_PCI_PASSTHROUGH=y then I posted a patch for 
-this very situation a few days ago (and it is now in xen-tip/next, though 
-wasn't yet in xen-tip/master when I last checked).
+These xenbus config options seem to be in a bit of a mess, and it would 
+be nice if someone could go through and make them sane.  I think the 
+ideal outcome should be:
 
- 	Michael Young
+    * the backend and frontend should be independently modular
+    * they should be independently selectable (in principle we should
+      allow a backend-only kernel, which I don't think is possible atm)
+    * rather than having separate configs for frontends and backends,
+      and a config frontend/backend xenbus, why not make the drivers
+      depend on their appropriate xenbus, and directly configure them?
+
+Anyone?
+    J
