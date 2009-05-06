@@ -1,11 +1,13 @@
 From: Randy Dunlap <randy.dunlap@oracle.com>
-Subject: [patch xen.git xen-tip/master] xen: fix xenbus frontend build
-Date: Tue, 05 May 2009 11:42:00 -0700
-Message-ID: <4A008878.7030409@oracle.com>
+Subject: [PATCH] xen: use header for EXPORT_SYMBOL_GPL
+Date: Wed, 06 May 2009 09:50:22 -0700
+Message-ID: <4A01BFCE.6020908@oracle.com>
+References: <200905060438.n464cWFU025212@imap1.linux-foundation.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <200905060438.n464cWFU025212@imap1.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -15,39 +17,30 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.osdl.org, xen-devel@lists.xensource.com
-Cc: Chris Wright <chrisw@sous-sol.org>
+To: linux-kernel@vger.kernel.org
+Cc: Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, akpm@linux-foundation.org, xen-devel@lists.xensource.com
 List-Id: virtualization@lists.linuxfoundation.org
 
 From: Randy Dunlap <randy.dunlap@oracle.com>
 
-When a driver kconfig symbol =m and it selects another symbol,
-that other symbol will also be =m (unless something else
-causes it to be =y), so when XEN_BLKDEV_FRONTEND=m and/or
-XEN_NETDEV_FRONTEND=m, then XEN_XENBUS_FRONTEND=m, but that
-won't build (build error message below).  Changing
-XEN_XENBUS_FRONTEND from a tristate to a bool makes it be
-=y (builtin) any time that it is selected, so there is
-no build error.
+mmu.c needs to #include module.h to prevent these warnings:
 
-arch/x86/pci/built-in.o: In function `xenbus_register_frontend':
-include/xen/xenbus.h:115: undefined reference to `__xenbus_register_frontend'
-
-OTOH, I could have goofed my git trees somehow...
+arch/x86/xen/mmu.c:239: warning: data definition has no type or storage class
+arch/x86/xen/mmu.c:239: warning: type defaults to 'int' in declaration of 'EXPORT_SYMBOL_GPL'
+arch/x86/xen/mmu.c:239: warning: parameter names (without types) in function declaration
 
 Signed-off-by: Randy Dunlap <randy.dunlap@oracle.com>
 ---
- drivers/xen/Kconfig |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/xen/mmu.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- linux-xyz.orig/drivers/xen/Kconfig
-+++ linux-xyz/drivers/xen/Kconfig
-@@ -85,7 +85,7 @@ config XEN_SYS_HYPERVISOR
- 	 but will have no xen contents.
+--- mmotm-2009-0505-2119.orig/arch/x86/xen/mmu.c
++++ mmotm-2009-0505-2119/arch/x86/xen/mmu.c
+@@ -42,6 +42,7 @@
+ #include <linux/highmem.h>
+ #include <linux/debugfs.h>
+ #include <linux/bug.h>
++#include <linux/module.h>
  
- config XEN_XENBUS_FRONTEND
--       tristate
-+       bool
- 
- config XEN_GNTDEV
- 	bool "userspace grant access device driver"
+ #include <asm/pgtable.h>
+ #include <asm/tlbflush.h>
