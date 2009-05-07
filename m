@@ -1,30 +1,31 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [patch xen.git xen-tip/master] xen: fix xenbus
+From: Randy Dunlap <randy.dunlap@oracle.com>
+Subject: Re: [Xen-devel] [patch xen.git xen-tip/master] xen: fix xenbus
 	frontend build
-Date: Wed, 06 May 2009 15:48:52 -0700
-Message-ID: <4A0213D4.9020504@goop.org>
+Date: Wed, 06 May 2009 19:20:54 -0700
+Message-ID: <4A024586.20007@oracle.com>
 References: <4A008878.7030409@oracle.com>
 	<alpine.LFD.2.00.0905062324440.22137@vega2.dur.ac.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <xen-devel-bounces@lists.xensource.com>
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
 In-Reply-To: <alpine.LFD.2.00.0905062324440.22137@vega2.dur.ac.uk>
-List-Unsubscribe: <http://lists.xensource.com/mailman/listinfo/xen-devel>,
-	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
-List-Post: <mailto:xen-devel@lists.xensource.com>
-List-Help: <mailto:xen-devel-request@lists.xensource.com?subject=help>
-List-Subscribe: <http://lists.xensource.com/mailman/listinfo/xen-devel>,
-	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
-Sender: xen-devel-bounces@lists.xensource.com
-Errors-To: xen-devel-bounces@lists.xensource.com
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: M A Young <m.a.young@durham.ac.uk>
-Cc: Randy Dunlap <randy.dunlap@oracle.com>, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, Jeremy Fitzhardinge <jeremy@xensource.com>, Chris Wright <chrisw@sous-sol.org>
+Cc: Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, xen-devel@lists.xensource.com
 List-Id: virtualization@lists.linuxfoundation.org
 
 M A Young wrote:
 > On Tue, 5 May 2009, Randy Dunlap wrote:
->
+> 
 >> From: Randy Dunlap <randy.dunlap@oracle.com>
 >>
 >> When a driver kconfig symbol =m and it selects another symbol,
@@ -35,33 +36,26 @@ M A Young wrote:
 >> XEN_XENBUS_FRONTEND from a tristate to a bool makes it be
 >> =y (builtin) any time that it is selected, so there is
 >> no build error.
->
-> That isn't the right solution. The real problem is that something you 
-> have selected as "y" does depend on XEN_XENBUS_FRONTEND but doesn't 
-> select it. Switching XEN_XENBUS_FRONTEND from tristate to bool might 
-> fix your particular compile problem, but it means that the situation 
-> you would get if you changed your configuration so that 
-> XEN_BLKDEV_FRONTEND=n and XEN_NETDEV_FRONTEND=n (likewise any other 
-> options that do select XEN_XENBUS_FRONTEND) would still broken because 
+> 
+> That isn't the right solution. The real problem is that something you
+> have selected as "y" does depend on XEN_XENBUS_FRONTEND but doesn't
+> select it. Switching XEN_XENBUS_FRONTEND from tristate to bool might fix
+> your particular compile problem, but it means that the situation you
+> would get if you changed your configuration so that
+> XEN_BLKDEV_FRONTEND=n and XEN_NETDEV_FRONTEND=n (likewise any other
+> options that do select XEN_XENBUS_FRONTEND) would still broken because
 > then XEN_XENBUS_FRONTEND won't be selected at all.
->
-> If your configuration has XEN_PCI_PASSTHROUGH=y then I posted a patch 
-> for this very situation a few days ago (and it is now in xen-tip/next, 
+> 
+> If your configuration has XEN_PCI_PASSTHROUGH=y then I posted a patch
+> for this very situation a few days ago (and it is now in xen-tip/next,
 > though wasn't yet in xen-tip/master when I last checked).
 
-pcifront wasn't meant to go into master yet.  I'd be interested in some 
-testing feedback from next.
+fwiw, yes, XEN_PCI_PASSTHROUGH=y in my .config file.
 
-These xenbus config options seem to be in a bit of a mess, and it would 
-be nice if someone could go through and make them sane.  I think the 
-ideal outcome should be:
+Where did you post the patch?
 
-    * the backend and frontend should be independently modular
-    * they should be independently selectable (in principle we should
-      allow a backend-only kernel, which I don't think is possible atm)
-    * rather than having separate configs for frontends and backends,
-      and a config frontend/backend xenbus, why not make the drivers
-      depend on their appropriate xenbus, and directly configure them?
-
-Anyone?
-    J
+thanks,
+-- 
+~Randy
+LPC 2009, Sept. 23-25, Portland, Oregon
+http://linuxplumbersconf.org/2009/
