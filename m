@@ -1,17 +1,18 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
+From: Avi Kivity <avi@redhat.com>
 Subject: Re: [PATCH] msi-x: let drivers retry when not enough vectors
-Date: Thu, 7 May 2009 13:32:31 +0300
-Message-ID: <20090507103231.GG32039@redhat.com>
-References: <20090507082841.GA31751@redhat.com>
-	<200905071740.16190.sheng@linux.intel.com>
+Date: Thu, 07 May 2009 13:44:38 +0300
+Message-ID: <4A02BB96.8070103__49192.0837703676$1241693292$gmane$org@redhat.com>
+References: <20090507082841.GA31751@redhat.com>	
+	<200905071651.24970.sheng@linux.intel.com>	
+	<20090507092731.GH8112@parisc-linux.org>	
+	<200905071740.16190.sheng@linux.intel.com>	
 	<20090507095302.GI8112@parisc-linux.org>
-	<200905071819.54426.sheng@linux.intel.com>
+	<1241691830.24385.6.camel@concordia>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <200905071819.54426.sheng@linux.intel.com>
+In-Reply-To: <1241691830.24385.6.camel@concordia>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -21,49 +22,52 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Sheng Yang <sheng@linux.intel.com>
-Cc: kvm@vger.kernel.org, Matthew Wilcox <matthew@wil.cx>, linux-pci@vger.kernel.org, linux-kernel@vger.kernel.org, jbarnes@virtuousgeek.org, virtualization@lists.linux-foundation.org, Matthew Wilcox <willy@linux.intel.com>
+To: michael@ellerman.id.au
+Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, linux-pci@vger.kernel.org, Matthew Wilcox <matthew@wil.cx>, linux-kernel@vger.kernel.org, jbarnes@virtuousgeek.org, virtualization@lists.linux-foundation.org, Matthew Wilcox <willy@linux.intel.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, May 07, 2009 at 06:19:53PM +0800, Sheng Yang wrote:
-> On Thursday 07 May 2009 17:53:02 Matthew Wilcox wrote:
-> > On Thu, May 07, 2009 at 05:40:15PM +0800, Sheng Yang wrote:
-> > > It's indeed weird. Why the semantic of pci_enable_msix can be changed to
-> > > "enable msix, or tell me how many vector do you have"? You can simply
-> > > call pci_msix_table_size() to get what you want, also without any more
-> > > work, no? I can't understand...
-> >
-> > Here's a good example.  Let's suppose you have a driver which supports
-> > two different models of cards, one has 16 MSI-X interrupts, the other
-> > has 10.  You can call pci_enable_msix() asking for 16 vectors.  If your
-> > card is model A, you get 16 interrupts.  If your card is model B, it says
-> > "you can have 10".
-> >
-> > This is less work in the driver (since it must implement falling back to
-> > a smaller number of interrupts *anyway*) than interrogating the card to
-> > find out how many interrupts there are, then requesting the right number,
-> > and still having the fallback path which is going to be less tested.
-> 
-> Yeah, partly understand now.
-> 
-> But the confusing of return value is not that pleasure compared to this 
-> benefit. And even you have to fall back if return > 0 anyway, but in the past, 
-> you just need fall back once at most; but now you may fall back twice.
+Michael Ellerman wrote:
+> Not to mention that there's no guarantee that you'll get as many
+> interrupts as the device supports, so you should really be coding to
+> cope with that anyway. Like the example in MSI-HOWTO.txt:
+>
+> 197 static int foo_driver_enable_msix(struct foo_adapter *adapter, int nvec)
+> 198 {
+> 199         while (nvec >= FOO_DRIVER_MINIMUM_NVEC) {
+> 200                 rc = pci_enable_msix(adapter->pdev,
+> 201                                      adapter->msix_entries, nvec);
+> 202                 if (rc > 0)
+> 203                         nvec = rc;
+> 204                 else
+> 205                         return rc;
+> 206         }
+> 207 
+> 208         return -ENOSPC;
+> 209 }
+>
+> So I agree, this patch is an improvement.
+>   
 
-I don't think that's right - you might not be able to get the
-number of interrupts that pci_enable_msix reported.
+I imagine this loop is present in many drivers.  So why not add a helper
 
-> This 
-> make thing more complex - you need either two ifs or a simple loop. And just 
-> one "if" can deal with it before. All that required is one call for 
-> pci_msix_table_size(), and I believe most driver would like to know how much 
-> vector it have before it fill the vectors, so mostly no extra cost. But for 
-> this ambiguous return meaning, you have to add more code for fall back - yes, 
-> the driver may can assert that the positive return value always would be irq 
-> numbers if it call pci_msix_table_size() before, but is it safe in logic?
+static int pci_enable_msix_min(struct foo_adapter *adapter, int min_nvec)
+{
+	int nvec = 2048;
 
-If you know how many vectors the card has, then the only failure mode
-is when you are out of irqs. No change there.
+        while (nvec >= min_nvec) {
+                rc = pci_enable_msix(adapter->pdev,
+                                     adapter->msix_entries, nvec);
+                if (rc == 0)
+                        return nvec;
+                else if (rc > 0)
+                        nvec = rc;
+                else
+                        return rc;
+        }
+        return -ENOSPC;
+}
+
+
 
 -- 
-MST
+error compiling committee.c: too many arguments to function
