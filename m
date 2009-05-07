@@ -1,15 +1,12 @@
-From: Randy Dunlap <randy.dunlap@oracle.com>
-Subject: Re: [Xen-devel] [patch xen.git xen-tip/master] xen: fix xenbus
-	frontend build
-Date: Wed, 06 May 2009 19:20:54 -0700
-Message-ID: <4A024586.20007@oracle.com>
-References: <4A008878.7030409@oracle.com>
-	<alpine.LFD.2.00.0905062324440.22137@vega2.dur.ac.uk>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH] msi-x: let drivers retry when not enough vectors
+Date: Thu, 7 May 2009 11:28:41 +0300
+Message-ID: <20090507082841.GA31751__39108.273437205$1241685263$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <alpine.LFD.2.00.0905062324440.22137@vega2.dur.ac.uk>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,43 +16,52 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: M A Young <m.a.young@durham.ac.uk>
-Cc: Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, xen-devel@lists.xensource.com
+To: jbarnes@virtuousgeek.org, linux-kernel@vger.kernel.org, linux-pci@vger.kernel.org, Matthew Wilcox <willy@linux.intel.com>
+Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-M A Young wrote:
-> On Tue, 5 May 2009, Randy Dunlap wrote:
-> 
->> From: Randy Dunlap <randy.dunlap@oracle.com>
->>
->> When a driver kconfig symbol =m and it selects another symbol,
->> that other symbol will also be =m (unless something else
->> causes it to be =y), so when XEN_BLKDEV_FRONTEND=m and/or
->> XEN_NETDEV_FRONTEND=m, then XEN_XENBUS_FRONTEND=m, but that
->> won't build (build error message below).  Changing
->> XEN_XENBUS_FRONTEND from a tristate to a bool makes it be
->> =y (builtin) any time that it is selected, so there is
->> no build error.
-> 
-> That isn't the right solution. The real problem is that something you
-> have selected as "y" does depend on XEN_XENBUS_FRONTEND but doesn't
-> select it. Switching XEN_XENBUS_FRONTEND from tristate to bool might fix
-> your particular compile problem, but it means that the situation you
-> would get if you changed your configuration so that
-> XEN_BLKDEV_FRONTEND=n and XEN_NETDEV_FRONTEND=n (likewise any other
-> options that do select XEN_XENBUS_FRONTEND) would still broken because
-> then XEN_XENBUS_FRONTEND won't be selected at all.
-> 
-> If your configuration has XEN_PCI_PASSTHROUGH=y then I posted a patch
-> for this very situation a few days ago (and it is now in xen-tip/next,
-> though wasn't yet in xen-tip/master when I last checked).
+pci_enable_msix currently returns -EINVAL if you ask
+for more vectors than supported by the device, which would
+typically cause fallback to regular interrupts.
 
-fwiw, yes, XEN_PCI_PASSTHROUGH=y in my .config file.
+It's better to return the table size, making the driver retry
+MSI-X with less vectors.
 
-Where did you post the patch?
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
 
-thanks,
+Hi Jesse,
+This came up when I was adding MSI-X support to virtio pci driver,
+which does not know the exact table size upfront.
+Could you consider this patch for 2.6.31 please?
+
+
+ drivers/pci/msi.c |    6 +++---
+ 1 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/pci/msi.c b/drivers/pci/msi.c
+index 6f2e629..f5bd1c9 100644
+--- a/drivers/pci/msi.c
++++ b/drivers/pci/msi.c
+@@ -687,8 +687,8 @@ int pci_msix_table_size(struct pci_dev *dev)
+  * indicates the successful configuration of MSI-X capability structure
+  * with new allocated MSI-X irqs. A return of < 0 indicates a failure.
+  * Or a return of > 0 indicates that driver request is exceeding the number
+- * of irqs available. Driver should use the returned value to re-send
+- * its request.
++ * of irqs or MSI-X vectors available. Driver should use the returned value to
++ * re-send its request.
+  **/
+ int pci_enable_msix(struct pci_dev* dev, struct msix_entry *entries, int nvec)
+ {
+@@ -704,7 +704,7 @@ int pci_enable_msix(struct pci_dev* dev, struct msix_entry *entries, int nvec)
+ 
+ 	nr_entries = pci_msix_table_size(dev);
+ 	if (nvec > nr_entries)
+-		return -EINVAL;
++		return nr_entries;
+ 
+ 	/* Check for any invalid entries */
+ 	for (i = 0; i < nvec; i++) {
 -- 
-~Randy
-LPC 2009, Sept. 23-25, Portland, Oregon
-http://linuxplumbersconf.org/2009/
+1.6.3.rc3.1.g830204
