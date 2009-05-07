@@ -1,19 +1,12 @@
-From: Matthew Wilcox <matthew@wil.cx>
-Subject: Re: [PATCH] msi-x: let drivers retry when not enough vectors
-Date: Thu, 7 May 2009 05:57:39 -0600
-Message-ID: <20090507115739.GJ8112__27782.82472068$1241697575$gmane$org@parisc-linux.org>
-References: <20090507082841.GA31751@redhat.com>
-	<200905071651.24970.sheng@linux.intel.com>
-	<20090507092731.GH8112@parisc-linux.org>
-	<200905071740.16190.sheng@linux.intel.com>
-	<20090507095302.GI8112@parisc-linux.org>
-	<1241691830.24385.6.camel@concordia> <4A02BB96.8070103@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCHv2 0/3] virtio: add guest MSI-X support
+Date: Thu, 7 May 2009 17:08:38 +0300
+Message-ID: <20090507140838.GA1516__20027.212604373$1241705508$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <4A02BB96.8070103@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -23,53 +16,40 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Avi Kivity <avi@redhat.com>
-Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, linux-pci@vger.kernel.org, linux-kernel@vger.kernel.org, jbarnes@virtuousgeek.org, virtualization@lists.linux-foundation.org, michael@ellerman.id.au, Matthew Wilcox <willy@linux.intel.com>
+To: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: avi@redhat.com, kvm@vger.kernel.org, Anthony Liguori <anthony@codemonkey.ws>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, May 07, 2009 at 01:44:38PM +0300, Avi Kivity wrote:
-> I imagine this loop is present in many drivers.  So why not add a helper
+Add optional MSI-X support: use a vector per virtqueue with
+fallback to a common vector and finally to regular interrupt.
+Teach all drivers to use it.
 
-Let's look!
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 
-arch/x86/kernel/amd_iommu_init.c : Needs an exact number of vectors.
-drivers/block/cciss.c : If it doesn't get all 4 vectors, falls back to pin mode (instead of MSI mode -- bug!)
-drivers/dma/ioat_dma.c : Falls back down to 1 vector if it can't get nvec
-drivers/infiniband/hw/mthca/mthca_main.c : Reverts to MSI if it can't get 3.
-drivers/net/benet/be_main.c : Falls back to MSI if it can't get 2.
-drivers/net/bnx2.c : Falls back to MSI if it can't get 9.
-drivers/net/bnx2x_main.c : Falls back to MSI if it can't get N.
-drivers/net/e1000e/netdev.c: Falls back to MSI if it can't get N.
-drivers/net/enic/enic_main.c: Falls back to MSI if it can't get N.
-drivers/net/forcedeth.c: Falls back to MSI if it can't get N.
-drivers/net/igb/igb_main.c: Falls back to MSI if it can't get N.
-drivers/net/igbvf/netdev.c: Falls back to MSI if it can't get 3.
-drivers/net/myri10ge/myri10ge.c: Falls back to Pin if it can't get N.
-drivers/net/netxen/netxen_nic_main.c: Falls back to MSI if it can't get N.
-drivers/net/qlge/qlge_main.c: Falls back to MSI if it can't get N.
-drivers/net/s2io.c: Falls back to MSI if it can't get N.
-drivers/net/vxge/vxge-main.c: Falls back once to a second number.
-drivers/pci/pcie/portdrv_core.c: Falls back to MSI if it can't get all of them.
-drivers/scsi/lpfc/lpfc_init.c: Falls back to MSI if it can't get N.
-drivers/scsi/mpt2sas/mpt2sas_base.c: Only allocates 1.
+---
 
-drivers/net/cxgb3/cxgb3_main.c: Actually falls back ... in a bit of a weird way.  This one could definitely do with the proposed loop.
-drivers/net/ixgbe/ixgbe_main.c: Could also be improved with this loop.
-drivers/net/mlx4/main.c: Nasty goto-based loop.
-drivers/net/niu.c: Ditto
-drivers/net/sfc/efx.c: Only falls back once.  Would benefit from loop.
-drivers/scsi/qla2xxx/qla_isr.c: Only falls back once.  Would benefit from loop.
-drivers/staging/sxg/sxg.c: /*Should try with less vector returned.*/
+Here's a draft set of patches for MSI-X support in the guest.  It still
+needs to be tested properly, and performance impact measured, but I
+thought I'd share it here in the hope of getting some very early
+feedback/flames.
 
-so ... 7 drivers would benefit from this loop.  20 seem like they wouldn't.
+Changelog since v1:
+- Per Avi's suggestion, let guest configure virtqueue to vector mapping
+- Per Rusty's suggestion, replace API with find_vqs/del_vqs.
 
-What a lot of drivers seem to do is fall back either to a single MSI or
-just pin-based interrupts when they can't get as many interrupts as they
-would like.  They don't try to get a single MSI-X interrupt.  I feel an
-update to the MSI-HOWTO coming on.
+Michael S. Tsirkin (3):
+  virtio: find_vqs/del_vqs virtio operations
+  virtio_pci: split up vp_interrupt
+  virtio_pci: optional MSI-X support
 
--- 
-Matthew Wilcox				Intel Open Source Technology Centre
-"Bill, look, we understand that you're interested in selling us this
-operating system, but compare it to ours.  We can't possibly take such
-a retrograde step."
+ drivers/block/virtio_blk.c          |   11 +-
+ drivers/char/hw_random/virtio-rng.c |   11 +-
+ drivers/char/virtio_console.c       |   27 ++--
+ drivers/lguest/lguest_device.c      |   49 ++++++-
+ drivers/net/virtio_net.c            |   47 +++----
+ drivers/s390/kvm/kvm_virtio.c       |   64 ++++++++-
+ drivers/virtio/virtio_balloon.c     |   31 ++--
+ drivers/virtio/virtio_pci.c         |  283 ++++++++++++++++++++++++++++++-----
+ include/linux/virtio_config.h       |   29 +++-
+ include/linux/virtio_pci.h          |    8 +-
+ 10 files changed, 440 insertions(+), 120 deletions(-)
