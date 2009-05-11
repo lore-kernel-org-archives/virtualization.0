@@ -1,12 +1,11 @@
 From: Roel Kluin <roel.kluin@gmail.com>
-Subject: [PATCH] xen/blkfront: remove driver_data direct access of struct
- device
-Date: Mon, 11 May 2009 21:02:08 +0200
-Message-ID: <4A087630.30802@gmail.com>
+Subject: [PATCH] xen pvfb: remove driver_data direct access of struct device
+Date: Mon, 11 May 2009 21:07:08 +0200
+Message-ID: <4A08775C.20305@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1756736AbZEKTCZ@vger.kernel.org>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1756173AbZEKTH1@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 To: jeremy@xensource.com
 Cc: virtualization@lists.osdl.org, xen-devel@lists.xensource.com, lkml <linux-kernel@vger.kernel.org>
@@ -17,67 +16,43 @@ functions dev_get_drvdata() and dev_set_drvdata() should be used.
 
 Signed-off-by: Roel Kluin <roel.kluin@gmail.com>
 ---
-diff --git a/drivers/block/xen-blkfront.c b/drivers/block/xen-blkfront.c
-index 8f90508..ff09809 100644
---- a/drivers/block/xen-blkfront.c
-+++ b/drivers/block/xen-blkfront.c
-@@ -755,12 +755,12 @@ static int blkfront_probe(struct xenbus_device *dev,
- 
- 	/* Front end dir is a number, which is used as the id. */
- 	info->handle = simple_strtoul(strrchr(dev->nodename, '/')+1, NULL, 0);
+diff --git a/drivers/input/xen-kbdfront.c b/drivers/input/xen-kbdfront.c
+index 928d2ed..b115726 100644
+--- a/drivers/input/xen-kbdfront.c
++++ b/drivers/input/xen-kbdfront.c
+@@ -114,7 +114,7 @@ static int __devinit xenkbd_probe(struct xenbus_device *dev,
+ 		xenbus_dev_fatal(dev, -ENOMEM, "allocating info structure");
+ 		return -ENOMEM;
+ 	}
 -	dev->dev.driver_data = info;
 +	dev_set_drvdata(&dev->dev, info);
+ 	info->xbdev = dev;
+ 	info->irq = -1;
+ 	snprintf(info->phys, sizeof(info->phys), "xenbus/%s", dev->nodename);
+@@ -186,7 +186,7 @@ static int __devinit xenkbd_probe(struct xenbus_device *dev,
  
- 	err = talk_to_backend(dev, info);
- 	if (err) {
- 		kfree(info);
--		dev->dev.driver_data = NULL;
-+		dev_set_drvdata(&dev->dev, NULL);
- 		return err;
- 	}
- 
-@@ -845,7 +845,7 @@ static int blkif_recover(struct blkfront_info *info)
-  */
- static int blkfront_resume(struct xenbus_device *dev)
+ static int xenkbd_resume(struct xenbus_device *dev)
  {
--	struct blkfront_info *info = dev->dev.driver_data;
-+	struct blkfront_info *info = dev_get_drvdata(&dev->dev);
- 	int err;
+-	struct xenkbd_info *info = dev->dev.driver_data;
++	struct xenkbd_info *info = dev_get_drvdata(&dev->dev);
  
- 	dev_dbg(&dev->dev, "blkfront_resume: %s\n", dev->nodename);
-@@ -924,7 +924,7 @@ static void blkfront_connect(struct blkfront_info *info)
-  */
- static void blkfront_closing(struct xenbus_device *dev)
+ 	xenkbd_disconnect_backend(info);
+ 	memset(info->page, 0, PAGE_SIZE);
+@@ -195,7 +195,7 @@ static int xenkbd_resume(struct xenbus_device *dev)
+ 
+ static int xenkbd_remove(struct xenbus_device *dev)
  {
--	struct blkfront_info *info = dev->dev.driver_data;
-+	struct blkfront_info *info = dev_get_drvdata(&dev->dev);
- 	unsigned long flags;
+-	struct xenkbd_info *info = dev->dev.driver_data;
++	struct xenkbd_info *info = dev_get_drvdata(&dev->dev);
  
- 	dev_dbg(&dev->dev, "blkfront_closing: %s removed\n", dev->nodename);
-@@ -959,7 +959,7 @@ static void blkfront_closing(struct xenbus_device *dev)
- static void backend_changed(struct xenbus_device *dev,
- 			    enum xenbus_state backend_state)
+ 	xenkbd_disconnect_backend(info);
+ 	if (info->kbd)
+@@ -266,7 +266,7 @@ static void xenkbd_disconnect_backend(struct xenkbd_info *info)
+ static void xenkbd_backend_changed(struct xenbus_device *dev,
+ 				   enum xenbus_state backend_state)
  {
--	struct blkfront_info *info = dev->dev.driver_data;
-+	struct blkfront_info *info = dev_get_drvdata(&dev->dev);
- 	struct block_device *bd;
+-	struct xenkbd_info *info = dev->dev.driver_data;
++	struct xenkbd_info *info = dev_get_drvdata(&dev->dev);
+ 	int ret, val;
  
- 	dev_dbg(&dev->dev, "blkfront:backend_changed.\n");
-@@ -997,7 +997,7 @@ static void backend_changed(struct xenbus_device *dev,
- 
- static int blkfront_remove(struct xenbus_device *dev)
- {
--	struct blkfront_info *info = dev->dev.driver_data;
-+	struct blkfront_info *info = dev_get_drvdata(&dev->dev);
- 
- 	dev_dbg(&dev->dev, "blkfront_remove: %s removed\n", dev->nodename);
- 
-@@ -1010,7 +1010,7 @@ static int blkfront_remove(struct xenbus_device *dev)
- 
- static int blkfront_is_ready(struct xenbus_device *dev)
- {
--	struct blkfront_info *info = dev->dev.driver_data;
-+	struct blkfront_info *info = dev_get_drvdata(&dev->dev);
- 
- 	return info->is_ready;
- }
+ 	switch (backend_state) {
