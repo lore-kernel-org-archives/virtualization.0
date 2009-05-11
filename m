@@ -1,70 +1,103 @@
-From: Roel Kluin <roel.kluin@gmail.com>
-Subject: [PATCH 3] xen-netfront: remove driver_data direct access of struct
- device
-Date: Mon, 11 May 2009 21:40:57 +0200
-Message-ID: <4A087F49.7040204@gmail.com>
-References: <4A08775C.20305@gmail.com> <4A0878DC.8040907@gmail.com>
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+Subject: Re: [PATCH] xen/blkfront: remove driver_data direct
+ access of struct device
+Date: Mon, 11 May 2009 14:02:31 -0700
+Message-ID: <4A089267.9090409@goop.org>
+References: <4A087630.30802@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1758805AbZEKTlQ@vger.kernel.org>
-In-Reply-To: <4A0878DC.8040907@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: jeremy@xensource.com
-Cc: virtualization@lists.osdl.org, xen-devel@lists.xensource.com, lkml <linux-kernel@vger.kernel.org>
+Return-path: <xen-devel-bounces@lists.xensource.com>
+In-Reply-To: <4A087630.30802@gmail.com>
+List-Unsubscribe: <http://lists.xensource.com/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
+List-Post: <mailto:xen-devel@lists.xensource.com>
+List-Help: <mailto:xen-devel-request@lists.xensource.com?subject=help>
+List-Subscribe: <http://lists.xensource.com/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
+Sender: xen-devel-bounces@lists.xensource.com
+Errors-To: xen-devel-bounces@lists.xensource.com
+To: Roel Kluin <roel.kluin@gmail.com>
+Cc: virtualization@lists.osdl.org, xen-devel@lists.xensource.com, Greg KH <gregkh@suse.de>, jeremy@xensource.com, lkml <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-To avoid direct access to the driver_data pointer in struct device, the
-functions dev_get_drvdata() and dev_set_drvdata() should be used.
+Roel Kluin wrote:
+> To avoid direct access to the driver_data pointer in struct device, the
+> functions dev_get_drvdata() and dev_set_drvdata() should be used.
+>   
 
-Signed-off-by: Roel Kluin <roel.kluin@gmail.com>
----
-diff --git a/drivers/net/xen-netfront.c b/drivers/net/xen-netfront.c
-index f673253..8d88dae 100644
---- a/drivers/net/xen-netfront.c
-+++ b/drivers/net/xen-netfront.c
-@@ -1212,7 +1212,7 @@ static int __devinit netfront_probe(struct xenbus_device *dev,
- 	}
- 
- 	info = netdev_priv(netdev);
--	dev->dev.driver_data = info;
-+	dev_set_drvdata(&dev->dev, info);
- 
- 	err = register_netdev(info->netdev);
- 	if (err) {
-@@ -1233,7 +1233,7 @@ static int __devinit netfront_probe(struct xenbus_device *dev,
- 
-  fail:
- 	free_netdev(netdev);
--	dev->dev.driver_data = NULL;
-+	dev_set_drvdata(&dev->dev, NULL);
- 	return err;
- }
- 
-@@ -1275,7 +1275,7 @@ static void xennet_disconnect_backend(struct netfront_info *info)
-  */
- static int netfront_resume(struct xenbus_device *dev)
- {
--	struct netfront_info *info = dev->dev.driver_data;
-+	struct netfront_info *info = dev_get_drvdata(&dev->dev);
- 
- 	dev_dbg(&dev->dev, "%s\n", dev->nodename);
- 
-@@ -1600,7 +1600,7 @@ static int xennet_connect(struct net_device *dev)
- static void backend_changed(struct xenbus_device *dev,
- 			    enum xenbus_state backend_state)
- {
--	struct netfront_info *np = dev->dev.driver_data;
-+	struct netfront_info *np = dev_get_drvdata(&dev->dev);
- 	struct net_device *netdev = np->netdev;
- 
- 	dev_dbg(&dev->dev, "%s\n", xenbus_strstate(backend_state));
-@@ -1774,7 +1774,7 @@ static struct xenbus_device_id netfront_ids[] = {
- 
- static int __devexit xennet_remove(struct xenbus_device *dev)
- {
--	struct netfront_info *info = dev->dev.driver_data;
-+	struct netfront_info *info = dev_get_drvdata(&dev->dev);
- 
- 	dev_dbg(&dev->dev, "%s\n", dev->nodename);
- 
+Are these the same as the ones Greg KH posted last week?
+
+    J
+
+> Signed-off-by: Roel Kluin <roel.kluin@gmail.com>
+> ---
+> diff --git a/drivers/block/xen-blkfront.c b/drivers/block/xen-blkfront.c
+> index 8f90508..ff09809 100644
+> --- a/drivers/block/xen-blkfront.c
+> +++ b/drivers/block/xen-blkfront.c
+> @@ -755,12 +755,12 @@ static int blkfront_probe(struct xenbus_device *dev,
+>  
+>  	/* Front end dir is a number, which is used as the id. */
+>  	info->handle = simple_strtoul(strrchr(dev->nodename, '/')+1, NULL, 0);
+> -	dev->dev.driver_data = info;
+> +	dev_set_drvdata(&dev->dev, info);
+>  
+>  	err = talk_to_backend(dev, info);
+>  	if (err) {
+>  		kfree(info);
+> -		dev->dev.driver_data = NULL;
+> +		dev_set_drvdata(&dev->dev, NULL);
+>  		return err;
+>  	}
+>  
+> @@ -845,7 +845,7 @@ static int blkif_recover(struct blkfront_info *info)
+>   */
+>  static int blkfront_resume(struct xenbus_device *dev)
+>  {
+> -	struct blkfront_info *info = dev->dev.driver_data;
+> +	struct blkfront_info *info = dev_get_drvdata(&dev->dev);
+>  	int err;
+>  
+>  	dev_dbg(&dev->dev, "blkfront_resume: %s\n", dev->nodename);
+> @@ -924,7 +924,7 @@ static void blkfront_connect(struct blkfront_info *info)
+>   */
+>  static void blkfront_closing(struct xenbus_device *dev)
+>  {
+> -	struct blkfront_info *info = dev->dev.driver_data;
+> +	struct blkfront_info *info = dev_get_drvdata(&dev->dev);
+>  	unsigned long flags;
+>  
+>  	dev_dbg(&dev->dev, "blkfront_closing: %s removed\n", dev->nodename);
+> @@ -959,7 +959,7 @@ static void blkfront_closing(struct xenbus_device *dev)
+>  static void backend_changed(struct xenbus_device *dev,
+>  			    enum xenbus_state backend_state)
+>  {
+> -	struct blkfront_info *info = dev->dev.driver_data;
+> +	struct blkfront_info *info = dev_get_drvdata(&dev->dev);
+>  	struct block_device *bd;
+>  
+>  	dev_dbg(&dev->dev, "blkfront:backend_changed.\n");
+> @@ -997,7 +997,7 @@ static void backend_changed(struct xenbus_device *dev,
+>  
+>  static int blkfront_remove(struct xenbus_device *dev)
+>  {
+> -	struct blkfront_info *info = dev->dev.driver_data;
+> +	struct blkfront_info *info = dev_get_drvdata(&dev->dev);
+>  
+>  	dev_dbg(&dev->dev, "blkfront_remove: %s removed\n", dev->nodename);
+>  
+> @@ -1010,7 +1010,7 @@ static int blkfront_remove(struct xenbus_device *dev)
+>  
+>  static int blkfront_is_ready(struct xenbus_device *dev)
+>  {
+> -	struct blkfront_info *info = dev->dev.driver_data;
+> +	struct blkfront_info *info = dev_get_drvdata(&dev->dev);
+>  
+>  	return info->is_ready;
+>  }
+> _______________________________________________
+> Virtualization mailing list
+> Virtualization@lists.linux-foundation.org
+> https://lists.linux-foundation.org/mailman/listinfo/virtualization
+>   
