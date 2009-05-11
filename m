@@ -1,67 +1,83 @@
-From: Mark McLoughlin <markmc@redhat.com>
-Subject: Re: [PATCH 2/3] virtio: indirect ring entries
-	(VIRTIO_RING_F_INDIRECT_DESC)
-Date: Mon, 11 May 2009 18:10:38 +0100
-Message-ID: <1242061838.25337.8.camel__12506.571916356$1242061960$gmane$org@blaa>
-References: <1229620222-22216-1-git-send-email-markmc@redhat.com>
-	<1240318745.443.42.camel@blaa> <49F56239.9010509@redhat.com>
-	<200905041149.00724.rusty@rustcorp.com.au>
-Reply-To: Mark McLoughlin <markmc@redhat.com>
+From: Roel Kluin <roel.kluin@gmail.com>
+Subject: [PATCH] xen/blkfront: remove driver_data direct access of struct
+ device
+Date: Mon, 11 May 2009 21:02:08 +0200
+Message-ID: <4A087630.30802@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <200905041149.00724.rusty@rustcorp.com.au>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: netdev@vger.kernel.org, Dor Laor <dor@redhat.com>, Avi Kivity <avi@redhat.com>, virtualization@lists.linux-foundation.org
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1756736AbZEKTCZ@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: jeremy@xensource.com
+Cc: virtualization@lists.osdl.org, xen-devel@lists.xensource.com, lkml <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, 2009-05-04 at 11:49 +0930, Rusty Russell wrote:
-> On Mon, 27 Apr 2009 05:13:53 pm Dor Laor wrote:
-> > Mark McLoughlin wrote:
-> > > Hi Rusty,
-> > >
-> > > On Thu, 2008-12-18 at 17:10 +0000, Mark McLoughlin wrote:
-> > >   
-> > >> Add a new feature flag for indirect ring entries. These are ring
-> > >> entries which point to a table of buffer descriptors.
-> > >>
-> > >> The idea here is to increase the ring capacity by allowing a larger
-> > >> effective ring size whereby the ring size dictates the number of
-> > >> requests that may be outstanding, rather than the size of those
-> > >> requests.
-> 
-> OK, just so we track our mistakes.
-> 
-> 1) virtio_rings must be physically contiguous, even though they actually
->    have two independent parts.
-> 2) The number of elements in a ring must be a power of 2.
-> 3) virtio_pci tells the guest what number of elements to use.
-> 4) The guest has to allocate that much physically contiguous memory, or fail.
-> 
-> In practice, 128 elements = 2 pages, 256 elements = 3 pages, 512 elements
-> = 5 pages.  Order 1, order 2, order 3 under Linux.  1 is OK, 2 is iffy, 3 is
-> hard.
-> 
-> Blocked from doing the simpler thing, we've decided to go with a layer
-> of indirection.  But the patch is simple and clean, so there's nothing
-> fundamental to object to.
+To avoid direct access to the driver_data pointer in struct device, the
+functions dev_get_drvdata() and dev_set_drvdata() should be used.
 
-Still have one FIXME in the patch worth looking at - at what point
-should we use an indirect entry rather than consuming N entries? 
-
-> I can't find 3/3, did it go missing?
-
-Following up with all three patches again.
-
-Cheers,
-Mark.
+Signed-off-by: Roel Kluin <roel.kluin@gmail.com>
+---
+diff --git a/drivers/block/xen-blkfront.c b/drivers/block/xen-blkfront.c
+index 8f90508..ff09809 100644
+--- a/drivers/block/xen-blkfront.c
++++ b/drivers/block/xen-blkfront.c
+@@ -755,12 +755,12 @@ static int blkfront_probe(struct xenbus_device *dev,
+ 
+ 	/* Front end dir is a number, which is used as the id. */
+ 	info->handle = simple_strtoul(strrchr(dev->nodename, '/')+1, NULL, 0);
+-	dev->dev.driver_data = info;
++	dev_set_drvdata(&dev->dev, info);
+ 
+ 	err = talk_to_backend(dev, info);
+ 	if (err) {
+ 		kfree(info);
+-		dev->dev.driver_data = NULL;
++		dev_set_drvdata(&dev->dev, NULL);
+ 		return err;
+ 	}
+ 
+@@ -845,7 +845,7 @@ static int blkif_recover(struct blkfront_info *info)
+  */
+ static int blkfront_resume(struct xenbus_device *dev)
+ {
+-	struct blkfront_info *info = dev->dev.driver_data;
++	struct blkfront_info *info = dev_get_drvdata(&dev->dev);
+ 	int err;
+ 
+ 	dev_dbg(&dev->dev, "blkfront_resume: %s\n", dev->nodename);
+@@ -924,7 +924,7 @@ static void blkfront_connect(struct blkfront_info *info)
+  */
+ static void blkfront_closing(struct xenbus_device *dev)
+ {
+-	struct blkfront_info *info = dev->dev.driver_data;
++	struct blkfront_info *info = dev_get_drvdata(&dev->dev);
+ 	unsigned long flags;
+ 
+ 	dev_dbg(&dev->dev, "blkfront_closing: %s removed\n", dev->nodename);
+@@ -959,7 +959,7 @@ static void blkfront_closing(struct xenbus_device *dev)
+ static void backend_changed(struct xenbus_device *dev,
+ 			    enum xenbus_state backend_state)
+ {
+-	struct blkfront_info *info = dev->dev.driver_data;
++	struct blkfront_info *info = dev_get_drvdata(&dev->dev);
+ 	struct block_device *bd;
+ 
+ 	dev_dbg(&dev->dev, "blkfront:backend_changed.\n");
+@@ -997,7 +997,7 @@ static void backend_changed(struct xenbus_device *dev,
+ 
+ static int blkfront_remove(struct xenbus_device *dev)
+ {
+-	struct blkfront_info *info = dev->dev.driver_data;
++	struct blkfront_info *info = dev_get_drvdata(&dev->dev);
+ 
+ 	dev_dbg(&dev->dev, "blkfront_remove: %s removed\n", dev->nodename);
+ 
+@@ -1010,7 +1010,7 @@ static int blkfront_remove(struct xenbus_device *dev)
+ 
+ static int blkfront_is_ready(struct xenbus_device *dev)
+ {
+-	struct blkfront_info *info = dev->dev.driver_data;
++	struct blkfront_info *info = dev_get_drvdata(&dev->dev);
+ 
+ 	return info->is_ready;
+ }
