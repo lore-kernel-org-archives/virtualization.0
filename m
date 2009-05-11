@@ -1,14 +1,14 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH 2/2] qemu-kvm: use common code for assigned msix
-Date: Tue, 12 May 2009 01:14:09 +0300
-Message-ID: <20090511221409.GA22863__20676.613765727$1242080207$gmane$org@redhat.com>
-References: <cover.1242079177.git.mst@redhat.com>
+Subject: [PATCH 1/3] virtio: find_vqs/del_vqs virtio operations
+Date: Tue, 12 May 2009 01:19:32 +0300
+Message-ID: <20090511221932.GA22915__14182.9749955379$1242080680$gmane$org@redhat.com>
+References: <cover.1242080138.git.mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <cover.1242079177.git.mst@redhat.com>
+In-Reply-To: <cover.1242080138.git.mst@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -21,596 +21,638 @@ Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Christian Borntraeger <borntraeger@de.ibm.com>, Rusty Russell <rusty@rustcorp.com.au>, virtualization@lists.linux-foundation.org, Anthony Liguori <anthony@codemon>
 List-Id: virtualization@lists.linuxfoundation.org
 
-
-For assigned devices, use common code to enable msi-x.
-Add "hack" option as assigned devices lack a standard way to get vector usage.
+This replaces find_vq/del_vq with find_vqs/del_vqs virtio operations,
+and updates all drivers. This is needed for MSI support, because MSI
+needs to know the total number of vectors upfront.
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- hw/device-assignment.c |  336 ++++++++++++------------------------------------
- hw/device-assignment.h |    8 +-
- hw/msix.c              |   11 ++-
- hw/pci.h               |    4 +
- 4 files changed, 100 insertions(+), 259 deletions(-)
+ drivers/block/virtio_blk.c          |   11 +++---
+ drivers/char/hw_random/virtio-rng.c |   11 +++---
+ drivers/char/virtio_console.c       |   27 ++++++--------
+ drivers/lguest/lguest_device.c      |   49 +++++++++++++++++++++++++-
+ drivers/net/virtio_net.c            |   48 +++++++++++---------------
+ drivers/s390/kvm/kvm_virtio.c       |   64 +++++++++++++++++++++++++++++++++-
+ drivers/virtio/virtio_balloon.c     |   29 +++++++---------
+ drivers/virtio/virtio_pci.c         |   43 +++++++++++++++++++----
+ include/linux/virtio_config.h       |   29 +++++++++++-----
+ net/9p/trans_virtio.c               |    7 ++--
+ 10 files changed, 225 insertions(+), 93 deletions(-)
 
-diff --git a/hw/device-assignment.c b/hw/device-assignment.c
-index 0a5f850..aabed69 100644
---- a/hw/device-assignment.c
-+++ b/hw/device-assignment.c
-@@ -33,6 +33,7 @@
- #include <sys/stat.h>
- #include "qemu-kvm.h"
- #include "hw.h"
-+#include "msix.h"
- #include "pc.h"
- #include "sysemu.h"
- #include "console.h"
-@@ -150,11 +151,10 @@ static void assigned_dev_iomem_map(PCIDevice *pci_dev, int region_num,
- {
-     AssignedDevice *r_dev = container_of(pci_dev, AssignedDevice, dev);
-     AssignedDevRegion *region = &r_dev->v_addrs[region_num];
--    PCIRegion *real_region = &r_dev->real_device.regions[region_num];
-     uint32_t old_ephys = region->e_physbase;
-     uint32_t old_esize = region->e_size;
-     int first_map = (region->e_size == 0);
--    int ret = 0;
-+    int ret;
+diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+index 5d34764..7b7435d 100644
+--- a/drivers/block/virtio_blk.c
++++ b/drivers/block/virtio_blk.c
+@@ -197,6 +197,7 @@ static int virtblk_probe(struct virtio_device *vdev)
+ 	u64 cap;
+ 	u32 v;
+ 	u32 blk_size, sg_elems;
++	virtqueue_callback *callback[] = { blk_done };
  
-     DEBUG("e_phys=%08x r_virt=%p type=%d len=%08x region_num=%d \n",
-           e_phys, region->u.r_virtbase, type, e_size, region_num);
-@@ -166,27 +166,17 @@ static void assigned_dev_iomem_map(PCIDevice *pci_dev, int region_num,
- 	kvm_destroy_phys_mem(kvm_context, old_ephys,
-                              TARGET_PAGE_ALIGN(old_esize));
+ 	if (index_to_minor(index) >= 1 << MINORBITS)
+ 		return -ENOSPC;
+@@ -224,11 +225,9 @@ static int virtblk_probe(struct virtio_device *vdev)
+ 	sg_init_table(vblk->sg, vblk->sg_elems);
  
--    if (e_size > 0) {
--        /* deal with MSI-X MMIO page */
--        if (real_region->base_addr <= r_dev->msix_table_addr &&
--                real_region->base_addr + real_region->size >=
--                r_dev->msix_table_addr) {
--            int offset = r_dev->msix_table_addr - real_region->base_addr;
--            ret = munmap(region->u.r_virtbase + offset, TARGET_PAGE_SIZE);
--            if (ret == 0)
--                DEBUG("munmap done, virt_base 0x%p\n",
--                        region->u.r_virtbase + offset);
--            else {
--                fprintf(stderr, "%s: fail munmap msix table!\n", __func__);
--                exit(1);
--            }
--            cpu_register_physical_memory(e_phys + offset,
--                    TARGET_PAGE_SIZE, r_dev->mmio_index);
--        }
--	ret = kvm_register_phys_mem(kvm_context, e_phys,
--                                    region->u.r_virtbase,
--                                    TARGET_PAGE_ALIGN(e_size), 0);
--    }
-+    if (e_size <= 0)
-+        return;
-+
-+    /* deal with MSI-X MMIO page */
-+    msix_mmio_map(pci_dev, region_num, e_phys, e_size, type);
-+    /* Only register as much memory as required to cover the
-+     * actual device region. */
-+    e_size = r_dev->real_device.regions[region_num].size;
-+    ret = kvm_register_phys_mem(kvm_context, e_phys,
-+                                region->u.r_virtbase,
-+                                TARGET_PAGE_ALIGN(e_size), 0);
+ 	/* We expect one virtqueue, for output. */
+-	vblk->vq = vdev->config->find_vq(vdev, 0, blk_done);
+-	if (IS_ERR(vblk->vq)) {
+-		err = PTR_ERR(vblk->vq);
++	err = vdev->config->find_vqs(vdev, 1, &vblk->vq, callback);
++	if (err)
+ 		goto out_free_vblk;
+-	}
  
-     if (ret != 0) {
- 	fprintf(stderr, "%s: Error: create new mapping failed\n", __func__);
-@@ -378,11 +368,16 @@ static int assigned_dev_register_regions(PCIRegion *io_regions,
- 
-         /* handle memory io regions */
-         if (cur_region->type & IORESOURCE_MEM) {
-+            uint32_t size = i == msix_bar_nr(&pci_dev->dev)
-+                ? pci_dev->msix_bar_size : cur_region->size;
-+
-             int t = cur_region->type & IORESOURCE_PREFETCH
-                 ? PCI_ADDRESS_SPACE_MEM_PREFETCH
-                 : PCI_ADDRESS_SPACE_MEM;
- 
-             /* map physical memory */
-+            /* MSI-X table is located outside cur_region->size
-+             * and so won't be mapped */
-             pci_dev->v_addrs[i].e_physbase = cur_region->base_addr;
-             pci_dev->v_addrs[i].u.r_virtbase =
-                 mmap(NULL,
-@@ -397,7 +392,7 @@ static int assigned_dev_register_regions(PCIRegion *io_regions,
-                         (uint32_t) (cur_region->base_addr));
-                 return -1;
-             }
--            pci_dev->v_addrs[i].r_size = cur_region->size;
-+            pci_dev->v_addrs[i].r_size = size;
-             pci_dev->v_addrs[i].e_size = 0;
- 
-             /* add offset */
-@@ -405,8 +400,7 @@ static int assigned_dev_register_regions(PCIRegion *io_regions,
-                 (cur_region->base_addr & 0xFFF);
- 
-             pci_register_io_region((PCIDevice *) pci_dev, i,
--                                   cur_region->size, t,
--                                   assigned_dev_iomem_map);
-+                                   size, t, assigned_dev_iomem_map);
-             continue;
-         }
-         /* handle port io regions */
-@@ -542,11 +536,11 @@ static void free_dev_irq_entries(AssignedDevice *dev)
- {
-     int i;
- 
--    for (i = 0; i < dev->irq_entries_nr; i++)
--        kvm_del_routing_entry(kvm_context, &dev->entry[i]);
--    free(dev->entry);
--    dev->entry = NULL;
--    dev->irq_entries_nr = 0;
-+    for (i = 0; i < dev->msi_irq_entries_nr; i++)
-+        kvm_del_routing_entry(kvm_context, &dev->msi_entry[i]);
-+    free(dev->msi_entry);
-+    dev->msi_entry = NULL;
-+    dev->msi_irq_entries_nr = 0;
- }
- #endif
- 
-@@ -764,33 +758,33 @@ static void assigned_dev_update_msi(PCIDevice *pci_dev, unsigned int ctrl_pos)
-     }
- 
-     if (ctrl_byte & PCI_MSI_FLAGS_ENABLE) {
--        assigned_dev->entry = calloc(1, sizeof(struct kvm_irq_routing_entry));
--        if (!assigned_dev->entry) {
-+        assigned_dev->msi_entry = calloc(1, sizeof(struct kvm_irq_routing_entry));
-+        if (!assigned_dev->msi_entry) {
-             perror("assigned_dev_update_msi: ");
-             return;
-         }
--        assigned_dev->entry->u.msi.address_lo =
-+        assigned_dev->msi_entry->u.msi.address_lo =
-                 *(uint32_t *)(pci_dev->config + pci_dev->cap.start +
-                               PCI_MSI_ADDRESS_LO);
--        assigned_dev->entry->u.msi.address_hi = 0;
--        assigned_dev->entry->u.msi.data = *(uint16_t *)(pci_dev->config +
-+        assigned_dev->msi_entry->u.msi.address_hi = 0;
-+        assigned_dev->msi_entry->u.msi.data = *(uint16_t *)(pci_dev->config +
-                 pci_dev->cap.start + PCI_MSI_DATA_32);
--        assigned_dev->entry->type = KVM_IRQ_ROUTING_MSI;
--        assigned_dev->entry->gsi = kvm_get_irq_route_gsi(kvm_context);
--        if (assigned_dev->entry->gsi < 0) {
-+        assigned_dev->msi_entry->type = KVM_IRQ_ROUTING_MSI;
-+        assigned_dev->msi_entry->gsi = kvm_get_irq_route_gsi(kvm_context);
-+        if (assigned_dev->msi_entry->gsi < 0) {
-             perror("assigned_dev_update_msi: kvm_get_irq_route_gsi");
-             return;
-         }
- 
--        kvm_add_routing_entry(kvm_context, assigned_dev->entry);
-+        kvm_add_routing_entry(kvm_context, assigned_dev->msi_entry);
-         if (kvm_commit_irq_routes(kvm_context) < 0) {
-             perror("assigned_dev_update_msi: kvm_commit_irq_routes");
-             assigned_dev->cap.state &= ~ASSIGNED_DEVICE_MSI_ENABLED;
-             return;
-         }
--	assigned_dev->irq_entries_nr = 1;
-+	assigned_dev->msi_irq_entries_nr = 1;
- 
--        assigned_irq_data.guest_irq = assigned_dev->entry->gsi;
-+        assigned_irq_data.guest_irq = assigned_dev->msi_entry->gsi;
- 	assigned_irq_data.flags = KVM_DEV_IRQ_HOST_MSI | KVM_DEV_IRQ_GUEST_MSI;
-         if (kvm_assign_irq(kvm_context, &assigned_irq_data) < 0)
-             perror("assigned_dev_enable_msi: assign irq");
-@@ -804,39 +798,17 @@ static void assigned_dev_update_msi(PCIDevice *pci_dev, unsigned int ctrl_pos)
- static int assigned_dev_update_msix_mmio(PCIDevice *pci_dev)
- {
-     AssignedDevice *adev = container_of(pci_dev, AssignedDevice, dev);
--    u16 entries_nr = 0, entries_max_nr;
--    int pos = 0, i, r = 0;
--    u32 msg_addr, msg_upper_addr, msg_data, msg_ctrl;
-+    int i, r = 0, n = 0;
-     struct kvm_assigned_msix_nr msix_nr;
-     struct kvm_assigned_msix_entry msix_entry;
--    void *va = adev->msix_table_page;
--
--    if (adev->cap.available & ASSIGNED_DEVICE_CAP_MSI)
--        pos = pci_dev->cap.start + PCI_CAPABILITY_CONFIG_MSI_LENGTH;
--    else
--        pos = pci_dev->cap.start;
--
--    entries_max_nr = pci_dev->config[pos + 2];
--    entries_max_nr &= PCI_MSIX_TABSIZE;
--    entries_max_nr += 1;
--
--    /* Get the usable entry number for allocating */
--    for (i = 0; i < entries_max_nr; i++) {
--        memcpy(&msg_ctrl, va + i * 16 + 12, 4);
--        memcpy(&msg_data, va + i * 16 + 8, 4);
--        /* Ignore unused entry even it's unmasked */
--        if (msg_data == 0)
--            continue;
--        entries_nr ++;
--    }
- 
--    if (entries_nr == 0) {
--        fprintf(stderr, "MSI-X entry number is zero!\n");
--        return -EINVAL;
--    }
-     msix_nr.assigned_dev_id = calc_assigned_dev_id(adev->h_busnr,
-                                           (uint8_t)adev->h_devfn);
--    msix_nr.entry_nr = entries_nr;
-+    msix_nr.entry_nr = 0;
-+    for (i = 0; i < pci_dev->msix_irq_entries_nr; ++i)
-+        if (msix_vector_is_used(pci_dev, i))
-+            ++msix_nr.entry_nr;
-+
-     r = kvm_assign_set_msix_nr(kvm_context, &msix_nr);
-     if (r != 0) {
-         fprintf(stderr, "fail to set MSI-X entry number for MSIX! %s\n",
-@@ -844,67 +816,29 @@ static int assigned_dev_update_msix_mmio(PCIDevice *pci_dev)
-         return r;
-     }
- 
--    free_dev_irq_entries(adev);
--    adev->irq_entries_nr = entries_nr;
--    adev->entry = calloc(entries_nr, sizeof(struct kvm_irq_routing_entry));
--    if (!adev->entry) {
--        perror("assigned_dev_update_msix_mmio: ");
--        return -errno;
--    }
--
-     msix_entry.assigned_dev_id = msix_nr.assigned_dev_id;
--    entries_nr = 0;
--    for (i = 0; i < entries_max_nr; i++) {
--        if (entries_nr >= msix_nr.entry_nr)
--            break;
--        memcpy(&msg_ctrl, va + i * 16 + 12, 4);
--        if (msg_ctrl & 0x1)
-+    for (i = 0; i < pci_dev->msix_irq_entries_nr; ++i) {
-+        if (!msix_vector_is_used(pci_dev, i))
-             continue;
--        memcpy(&msg_data, va + i * 16 + 8, 4);
--        if (msg_data == 0)
--            continue;
--
--        memcpy(&msg_addr, va + i * 16, 4);
--        memcpy(&msg_upper_addr, va + i * 16 + 4, 4);
--
--        r = kvm_get_irq_route_gsi(kvm_context);
--        if (r < 0)
--            return r;
--
--        adev->entry[entries_nr].gsi = r;
--        adev->entry[entries_nr].type = KVM_IRQ_ROUTING_MSI;
--        adev->entry[entries_nr].flags = 0;
--        adev->entry[entries_nr].u.msi.address_lo = msg_addr;
--        adev->entry[entries_nr].u.msi.address_hi = msg_upper_addr;
--        adev->entry[entries_nr].u.msi.data = msg_data;
--        DEBUG("MSI-X data 0x%x, MSI-X addr_lo 0x%x\n!", msg_data, msg_addr);
--	kvm_add_routing_entry(kvm_context, &adev->entry[entries_nr]);
--
--        msix_entry.gsi = adev->entry[entries_nr].gsi;
--        msix_entry.entry = i;
-+        msix_entry.gsi = pci_dev->msix_irq_entries[i].gsi;
-+        msix_entry.entry = n++;
-         r = kvm_assign_set_msix_entry(kvm_context, &msix_entry);
-         if (r) {
--            fprintf(stderr, "fail to set MSI-X entry! %s\n", strerror(-r));
-+            fprintf(stderr, "failed to set MSI-X entry! %s\n", strerror(-r));
-             break;
-         }
-         DEBUG("MSI-X entry gsi 0x%x, entry %d\n!",
-                 msix_entry.gsi, msix_entry.entry);
--        entries_nr ++;
--    }
--
--    if (r == 0 && kvm_commit_irq_routes(kvm_context) < 0) {
--	    perror("assigned_dev_update_msix_mmio: kvm_commit_irq_routes");
--	    return -EINVAL;
-     }
- 
-     return r;
+ 	vblk->pool = mempool_create_kmalloc_pool(1,sizeof(struct virtblk_req));
+ 	if (!vblk->pool) {
+@@ -323,7 +322,7 @@ out_put_disk:
+ out_mempool:
+ 	mempool_destroy(vblk->pool);
+ out_free_vq:
+-	vdev->config->del_vq(vblk->vq);
++	vdev->config->del_vqs(vdev);
+ out_free_vblk:
+ 	kfree(vblk);
+ out:
+@@ -344,7 +343,7 @@ static void virtblk_remove(struct virtio_device *vdev)
+ 	blk_cleanup_queue(vblk->disk->queue);
+ 	put_disk(vblk->disk);
+ 	mempool_destroy(vblk->pool);
+-	vdev->config->del_vq(vblk->vq);
++	vdev->config->del_vqs(vdev);
+ 	kfree(vblk);
  }
  
--static void assigned_dev_update_msix(PCIDevice *pci_dev, unsigned int ctrl_pos)
-+static void assigned_dev_update_msix(PCIDevice *pci_dev,
-+                                     uint32_t address, uint32_t val, int len)
+diff --git a/drivers/char/hw_random/virtio-rng.c b/drivers/char/hw_random/virtio-rng.c
+index 86e83f8..18eabe4 100644
+--- a/drivers/char/hw_random/virtio-rng.c
++++ b/drivers/char/hw_random/virtio-rng.c
+@@ -91,16 +91,17 @@ static struct hwrng virtio_hwrng = {
+ 
+ static int virtrng_probe(struct virtio_device *vdev)
  {
-     struct kvm_assigned_irq assigned_irq_data;
-     AssignedDevice *assigned_dev = container_of(pci_dev, AssignedDevice, dev);
--    uint16_t *ctrl_word = (uint16_t *)(pci_dev->config + ctrl_pos);
-     int r;
++	virtqueue_callback *callback[] = { random_recv_done };
+ 	int err;
  
-     memset(&assigned_irq_data, 0, sizeof assigned_irq_data);
-@@ -914,15 +848,17 @@ static void assigned_dev_update_msix(PCIDevice *pci_dev, unsigned int ctrl_pos)
+ 	/* We expect a single virtqueue. */
+-	vq = vdev->config->find_vq(vdev, 0, random_recv_done);
+-	if (IS_ERR(vq))
+-		return PTR_ERR(vq);
++	err = vdev->config->find_vqs(vdev, 1, &vq, callback);
++	if (err)
++		return err;
  
-     if (assigned_dev->irq_requested_type) {
-         assigned_irq_data.flags = assigned_dev->irq_requested_type;
--        free_dev_irq_entries(assigned_dev);
-         r = kvm_deassign_irq(kvm_context, &assigned_irq_data);
-         /* -ENXIO means no assigned irq */
-         if (r && r != -ENXIO)
-             perror("assigned_dev_update_msix: deassign irq");
-     }
-+
-+    msix_write_config(pci_dev, address, val, len);
-+
-     assigned_irq_data.flags = KVM_DEV_IRQ_HOST_MSIX | KVM_DEV_IRQ_GUEST_MSIX;
- 
--    if (*ctrl_word & PCI_MSIX_ENABLE) {
-+    if (msix_enabled(pci_dev)) {
-         if (assigned_dev_update_msix_mmio(pci_dev) < 0) {
-             perror("assigned_dev_update_msix_mmio");
-             return;
-@@ -955,12 +891,11 @@ static void assigned_device_pci_cap_write_config(PCIDevice *pci_dev, uint32_t ad
- #endif
- #ifdef KVM_CAP_DEVICE_MSIX
-     if (assigned_dev->cap.available & ASSIGNED_DEVICE_CAP_MSIX) {
--        ctrl_pos = pos + 3;
-+        ctrl_pos = pci_dev->cap.msix + PCI_CAP_FLAGS + 1;
-         if (address <= ctrl_pos && address + len > ctrl_pos) {
-             ctrl_pos--; /* control is word long */
--            assigned_dev_update_msix(pci_dev, ctrl_pos);
-+            assigned_dev_update_msix(pci_dev, address, val, len);
+ 	err = hwrng_register(&virtio_hwrng);
+ 	if (err) {
+-		vdev->config->del_vq(vq);
++		vdev->config->del_vqs(vdev);
+ 		return err;
  	}
--        pos += PCI_CAPABILITY_CONFIG_MSIX_LENGTH;
-     }
- #endif
- #endif
-@@ -971,130 +906,29 @@ static int assigned_device_pci_cap_init(PCIDevice *pci_dev)
+ 
+@@ -112,7 +113,7 @@ static void virtrng_remove(struct virtio_device *vdev)
  {
-     AssignedDevice *dev = container_of(pci_dev, AssignedDevice, dev);
-     PCIRegion *pci_region = dev->real_device.regions;
--    int next_cap_pt = 0;
--
--    pci_dev->cap.length = 0;
--#ifdef KVM_CAP_IRQ_ROUTING
--#ifdef KVM_CAP_DEVICE_MSI
--    /* Expose MSI capability
--     * MSI capability is the 1st capability in capability config */
--    if (pci_find_cap_offset(dev->pdev, PCI_CAP_ID_MSI)) {
--        dev->cap.available |= ASSIGNED_DEVICE_CAP_MSI;
--        memset(&pci_dev->config[pci_dev->cap.start + pci_dev->cap.length],
--               0, PCI_CAPABILITY_CONFIG_MSI_LENGTH);
--        pci_dev->config[pci_dev->cap.start + pci_dev->cap.length] =
--                        PCI_CAP_ID_MSI;
--        pci_dev->cap.length += PCI_CAPABILITY_CONFIG_MSI_LENGTH;
--        next_cap_pt = 1;
--    }
--#endif
--#ifdef KVM_CAP_DEVICE_MSIX
--    /* Expose MSI-X capability */
--    if (pci_find_cap_offset(dev->pdev, PCI_CAP_ID_MSIX)) {
--        int pos, entry_nr, bar_nr;
--        u32 msix_table_entry;
--        dev->cap.available |= ASSIGNED_DEVICE_CAP_MSIX;
--        memset(&pci_dev->config[pci_dev->cap.start + pci_dev->cap.length],
--               0, PCI_CAPABILITY_CONFIG_MSIX_LENGTH);
--        pos = pci_find_cap_offset(dev->pdev, PCI_CAP_ID_MSIX);
--        entry_nr = pci_read_word(dev->pdev, pos + 2) & PCI_MSIX_TABSIZE;
--        pci_dev->config[pci_dev->cap.start + pci_dev->cap.length] = 0x11;
--        pci_dev->config[pci_dev->cap.start +
--                        pci_dev->cap.length + 2] = entry_nr;
--        msix_table_entry = pci_read_long(dev->pdev, pos + PCI_MSIX_TABLE);
--        *(uint32_t *)(pci_dev->config + pci_dev->cap.start +
--                      pci_dev->cap.length + PCI_MSIX_TABLE) = msix_table_entry;
--        *(uint32_t *)(pci_dev->config + pci_dev->cap.start +
--                      pci_dev->cap.length + PCI_MSIX_PBA) =
--                    pci_read_long(dev->pdev, pos + PCI_MSIX_PBA);
--        bar_nr = msix_table_entry & PCI_MSIX_BIR;
--        msix_table_entry &= ~PCI_MSIX_BIR;
--        dev->msix_table_addr = pci_region[bar_nr].base_addr + msix_table_entry;
--        if (next_cap_pt != 0) {
--            pci_dev->config[pci_dev->cap.start + next_cap_pt] =
--                pci_dev->cap.start + pci_dev->cap.length;
--            next_cap_pt += PCI_CAPABILITY_CONFIG_MSI_LENGTH;
--        } else
--            next_cap_pt = 1;
--        pci_dev->cap.length += PCI_CAPABILITY_CONFIG_MSIX_LENGTH;
--    }
--#endif
--#endif
--
--    return 0;
--}
-+    int pos;
- 
--static uint32_t msix_mmio_readl(void *opaque, target_phys_addr_t addr)
--{
--    AssignedDevice *adev = opaque;
--    unsigned int offset = addr & 0xfff;
--    void *page = adev->msix_table_page;
--    uint32_t val = 0;
-+    if (pci_find_cap_offset(dev->pdev, PCI_CAP_ID_MSI))
-+        pci_add_capability(pci_dev, PCI_CAP_ID_MSI,
-+                           PCI_CAPABILITY_CONFIG_MSI_LENGTH);
- 
--    memcpy(&val, (void *)((char *)page + offset), 4);
-+    if ((pos = pci_find_cap_offset(dev->pdev, PCI_CAP_ID_MSIX))) {
-+        int entry_nr = pci_read_word(dev->pdev, pos + PCI_CAP_FLAGS) &
-+                       PCI_MSIX_TABSIZE;
-+        u32 msix_table = pci_read_long(dev->pdev, pos + PCI_MSIX_TABLE);
-+        int r, bar_nr = msix_table & PCI_MSIX_BIR;
- 
--    return val;
--}
--
--static uint32_t msix_mmio_readb(void *opaque, target_phys_addr_t addr)
--{
--    return ((msix_mmio_readl(opaque, addr & ~3)) >>
--            (8 * (addr & 3))) & 0xff;
--}
--
--static uint32_t msix_mmio_readw(void *opaque, target_phys_addr_t addr)
--{
--    return ((msix_mmio_readl(opaque, addr & ~3)) >>
--            (8 * (addr & 3))) & 0xffff;
--}
--
--static void msix_mmio_writel(void *opaque,
--                             target_phys_addr_t addr, uint32_t val)
--{
--    AssignedDevice *adev = opaque;
--    unsigned int offset = addr & 0xfff;
--    void *page = adev->msix_table_page;
--
--    DEBUG("write to MSI-X entry table mmio offset 0x%lx, val 0x%lx\n",
--		    addr, val);
--    memcpy((void *)((char *)page + offset), &val, 4);
--}
--
--static void msix_mmio_writew(void *opaque,
--                             target_phys_addr_t addr, uint32_t val)
--{
--    msix_mmio_writel(opaque, addr & ~3,
--                     (val & 0xffff) << (8*(addr & 3)));
--}
--
--static void msix_mmio_writeb(void *opaque,
--                             target_phys_addr_t addr, uint32_t val)
--{
--    msix_mmio_writel(opaque, addr & ~3,
--                     (val & 0xff) << (8*(addr & 3)));
--}
--
--static CPUWriteMemoryFunc *msix_mmio_write[] = {
--    msix_mmio_writeb,	msix_mmio_writew,	msix_mmio_writel
--};
--
--static CPUReadMemoryFunc *msix_mmio_read[] = {
--    msix_mmio_readb,	msix_mmio_readw,	msix_mmio_readl
--};
--
--static int assigned_dev_register_msix_mmio(AssignedDevice *dev)
--{
--    dev->msix_table_page = mmap(NULL, 0x1000,
--                                PROT_READ|PROT_WRITE,
--                                MAP_ANONYMOUS|MAP_PRIVATE, 0, 0);
--    if (dev->msix_table_page == MAP_FAILED) {
--        fprintf(stderr, "fail allocate msix_table_page! %s\n",
--                strerror(errno));
--        return -EFAULT;
-+        r = msix_init(pci_dev, entry_nr + 1, bar_nr,
-+                      pci_region[bar_nr].size, &dev->msix_bar_size);
-+        /* On error, recover by not enabling MSI-X */
-+        if (r < 0)
-+            fprintf(stderr, "Can't enable MSI-X: %d\n", r);
-+        else {
-+            pci_dev->msix_hack = 1;
-+            dev->cap.available |= ASSIGNED_DEVICE_CAP_MSIX;
-+        }
-     }
--    memset(dev->msix_table_page, 0, 0x1000);
--    dev->mmio_index = cpu_register_io_memory(0,
--                        msix_mmio_read, msix_mmio_write, dev);
-+
-     return 0;
+ 	vdev->config->reset(vdev);
+ 	hwrng_unregister(&virtio_hwrng);
+-	vdev->config->del_vq(vq);
++	vdev->config->del_vqs(vdev);
  }
  
-@@ -1128,12 +962,6 @@ struct PCIDevice *init_assigned_device(AssignedDevInfo *adev, PCIBus *bus)
-         goto out;
-     }
+ static struct virtio_device_id id_table[] = {
+diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
+index ff6f5a4..1fd5376 100644
+--- a/drivers/char/virtio_console.c
++++ b/drivers/char/virtio_console.c
+@@ -188,6 +188,8 @@ static void hvc_handle_input(struct virtqueue *vq)
+  * Finally we put our input buffer in the input queue, ready to receive. */
+ static int __devinit virtcons_probe(struct virtio_device *dev)
+ {
++	struct virtqueue *vqs[2];
++	virtqueue_callback *callbacks[2];
+ 	int err;
  
--    /* handle real device's MMIO/PIO BARs */
--    if (assigned_dev_register_regions(dev->real_device.regions,
--                                      dev->real_device.region_number,
--                                      dev))
--        goto out;
--
-     /* handle interrupt routing */
-     e_device = (dev->dev.devfn >> 3) & 0x1f;
-     e_intx = dev->dev.config[0x3d] - 1;
-@@ -1147,10 +975,17 @@ struct PCIDevice *init_assigned_device(AssignedDevInfo *adev, PCIBus *bus)
-     pci_init(pacc);
-     dev->pdev = pci_get_dev(pacc, 0, adev->bus, adev->dev, adev->func);
+ 	vdev = dev;
+@@ -199,20 +201,17 @@ static int __devinit virtcons_probe(struct virtio_device *dev)
+ 		goto fail;
+ 	}
  
--    if (pci_enable_capability_support(pci_dev, 0, NULL,
-+    if (pci_enable_capability_support(pci_dev, NULL,
-                     assigned_device_pci_cap_write_config,
-                     assigned_device_pci_cap_init) < 0)
--        goto assigned_out;
-+        goto out;
+-	/* Find the input queue. */
++	/* Find the queues. */
+ 	/* FIXME: This is why we want to wean off hvc: we do nothing
+ 	 * when input comes in. */
+-	in_vq = vdev->config->find_vq(vdev, 0, hvc_handle_input);
+-	if (IS_ERR(in_vq)) {
+-		err = PTR_ERR(in_vq);
++	callbacks[0] = hvc_handle_input;
++	callbacks[1] = NULL;
++	err = vdev->config->find_vqs(vdev, 2, vqs, callbacks);
++	if (err)
+ 		goto free;
+-	}
+ 
+-	out_vq = vdev->config->find_vq(vdev, 1, NULL);
+-	if (IS_ERR(out_vq)) {
+-		err = PTR_ERR(out_vq);
+-		goto free_in_vq;
+-	}
++	in_vq = vqs[0];
++	out_vq = vqs[1];
+ 
+ 	/* Start using the new console output. */
+ 	virtio_cons.get_chars = get_chars;
+@@ -233,17 +232,15 @@ static int __devinit virtcons_probe(struct virtio_device *dev)
+ 	hvc = hvc_alloc(0, 0, &virtio_cons, PAGE_SIZE);
+ 	if (IS_ERR(hvc)) {
+ 		err = PTR_ERR(hvc);
+-		goto free_out_vq;
++		goto free_vqs;
+ 	}
+ 
+ 	/* Register the input buffer the first time. */
+ 	add_inbuf();
+ 	return 0;
+ 
+-free_out_vq:
+-	vdev->config->del_vq(out_vq);
+-free_in_vq:
+-	vdev->config->del_vq(in_vq);
++free_vqs:
++	vdev->config->del_vqs(vdev);
+ free:
+ 	kfree(inbuf);
+ fail:
+diff --git a/drivers/lguest/lguest_device.c b/drivers/lguest/lguest_device.c
+index df44d96..53699aa 100644
+--- a/drivers/lguest/lguest_device.c
++++ b/drivers/lguest/lguest_device.c
+@@ -37,6 +37,10 @@ static inline void lguest_unmap(void *addr)
+ struct lguest_device {
+ 	struct virtio_device vdev;
+ 
++	/* Array of virtqueues */
++	struct virtqueue **vqs;
++	int nvqs;
 +
-+
-+    /* handle real device's MMIO/PIO BARs */
-+    if (assigned_dev_register_regions(dev->real_device.regions,
-+                                      dev->real_device.region_number,
-+                                      dev))
-+        goto out;
- 
-     /* assign device to guest */
-     r = assign_device(adev);
-@@ -1162,11 +997,6 @@ struct PCIDevice *init_assigned_device(AssignedDevInfo *adev, PCIBus *bus)
-     if (r < 0)
-         goto assigned_out;
- 
--    /* intercept MSI-X entry page in the MMIO */
--    if (dev->cap.available & ASSIGNED_DEVICE_CAP_MSIX)
--        if (assigned_dev_register_msix_mmio(dev))
--            return NULL;
--
-     return &dev->dev;
- 
- assigned_out:
-diff --git a/hw/device-assignment.h b/hw/device-assignment.h
-index c691e11..7eb6238 100644
---- a/hw/device-assignment.h
-+++ b/hw/device-assignment.h
-@@ -91,12 +91,10 @@ typedef struct {
- #define ASSIGNED_DEVICE_MSIX_MASKED (1 << 2)
-         uint32_t state;
-     } cap;
--    int irq_entries_nr;
--    struct kvm_irq_routing_entry *entry;
--    void *msix_table_page;
--    target_phys_addr_t msix_table_addr;
--    int mmio_index;
-+    int msi_irq_entries_nr;
-+    struct kvm_irq_routing_entry *msi_entry;
-     int need_emulate_cmd;
-+    uint32_t msix_bar_size;
- } AssignedDevice;
- 
- typedef struct AssignedDevInfo AssignedDevInfo;
-diff --git a/hw/msix.c b/hw/msix.c
-index dcb7dbd..4f833c5 100644
---- a/hw/msix.c
-+++ b/hw/msix.c
-@@ -127,7 +127,7 @@ void msix_write_config(PCIDevice *dev, uint32_t addr,
-     /* MSI enable bit is in byte 1 in FLAGS register */
-     unsigned flags_pos = dev->cap.msix + PCI_CAP_FLAGS + 1;
-     uint8_t orig, mask = PCI_MSIX_FLAGS_ENABLE >> 8;
--    int i, enabled;
-+    int i, changed = 0, enabled;
- 
-     /* Slow but simple */
-     for (i = addr; i < addr + len; val >>= 8, ++i) {
-@@ -136,8 +136,17 @@ void msix_write_config(PCIDevice *dev, uint32_t addr,
-         orig = dev->config[i];
-         enabled = val & mask;
-         dev->config[i] = (orig & ~mask) | enabled;
-+        changed = orig ^ dev->config[i];
-         break;
-     }
-+
-+    if (changed && dev->msix_hack) {
-+        if (enabled)
-+            msix_enable(dev);
-+        else
-+            msix_free_irq_entries(dev);
-+        kvm_commit_irq_routes(kvm_context);
-+    }
+ 	/* The entry in the lguest_devices page for this device. */
+ 	struct lguest_device_desc *desc;
+ };
+@@ -312,6 +316,47 @@ static void lg_del_vq(struct virtqueue *vq)
+ 	kfree(lvq);
  }
  
- static uint32_t msix_mmio_readl(void *opaque, target_phys_addr_t addr)
-diff --git a/hw/pci.h b/hw/pci.h
-index cd88564..935d194 100644
---- a/hw/pci.h
-+++ b/hw/pci.h
-@@ -201,6 +201,10 @@ struct PCIDevice {
-     int msix_mmio_index;
-     /* Reference-count for entries actually in use by driver. */
-     unsigned *msix_entry_used;
-+    /* For some devices, there's no easy way to get MSI-X usage data from the
-+     * guest. As a hack, we can look at vector control and message data fields,
-+     * and assume that all unmasked vectors with data != 0 are used. */
-+    int msix_hack;
++static void lg_del_vqs(struct virtio_device *vdev)
++{
++	struct lguest_device *ldev = to_lgdev(vdev);
++	int i;
++	if (!ldev->vqs)
++		return;
++	for (i = 0; i < ldev->nvqs; ++i)
++		lg_del_vq(ldev->vqs[i]);
++	kfree(ldev->vqs);
++	ldev->vqs = NULL;
++	ldev->nvqs = 0;
++}
++
++static int lg_find_vqs(struct virtio_device *vdev, unsigned nvqs,
++		       struct virtqueue *vqs[]
++		       void (*callbacks)[](struct virtqueue *))
++{
++	struct lguest_device *ldev = to_lgdev(vdev);
++	int i;
++
++	/* We must have this many virtqueues. */
++	if (nvqs > ldev->desc->num_vq)
++		return ERR_PTR(-ENOENT);
++
++	ldev->vqs = kmalloc(GFP_KERNEL, nvqs * sizeof *ldev->vqs);
++	if (!ldev->vqs)
++		return -ENOMEM;
++
++	for (i = 0; i < nvqs; ++i) {
++		ldev->vqs[i] = vqs[i] = lg_find_vq(vdev, i, callbacks[i]);
++		if (IS_ERR(vqs[i]))
++			goto error;
++		ldev->nvqs = i;
++	}
++	return 0;
++
++error:
++	vp_del_vqs(vdev);
++	return PTR_ERR(vqs[i]);
++}
++
+ /* The ops structure which hooks everything together. */
+ static struct virtio_config_ops lguest_config_ops = {
+ 	.get_features = lg_get_features,
+@@ -321,8 +366,8 @@ static struct virtio_config_ops lguest_config_ops = {
+ 	.get_status = lg_get_status,
+ 	.set_status = lg_set_status,
+ 	.reset = lg_reset,
+-	.find_vq = lg_find_vq,
+-	.del_vq = lg_del_vq,
++	.find_vqs = lg_find_vqs,
++	.del_vqs = lg_del_vqs,
  };
  
- PCIDevice *pci_register_device(PCIBus *bus, const char *name,
+ /* The root device for the lguest virtio devices.  This makes them appear as
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 4d1d479..862a314 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -845,6 +845,9 @@ static int virtnet_probe(struct virtio_device *vdev)
+ 	int err;
+ 	struct net_device *dev;
+ 	struct virtnet_info *vi;
++	struct virtqueue *vqs[3];
++	virtqueue_callback *callbacks[3];
++	int nvqs;
+ 
+ 	/* Allocate ourselves a network device with room for our info */
+ 	dev = alloc_etherdev(sizeof(struct virtnet_info));
+@@ -905,25 +908,23 @@ static int virtnet_probe(struct virtio_device *vdev)
+ 	if (virtio_has_feature(vdev, VIRTIO_NET_F_MRG_RXBUF))
+ 		vi->mergeable_rx_bufs = true;
+ 
+-	/* We expect two virtqueues, receive then send. */
+-	vi->rvq = vdev->config->find_vq(vdev, 0, skb_recv_done);
+-	if (IS_ERR(vi->rvq)) {
+-		err = PTR_ERR(vi->rvq);
++	/* We expect two virtqueues, receive then send,
++	 * and optionally control. */
++	callbacks[0] = skb_recv_done;
++	callbacks[1] = skb_xmit_done;
++	callbacks[2] = NULL;
++
++	nvqs = virtio_has_feature(vi->vdev, VIRTIO_NET_F_CTRL_VQ) ? 3 : 2;
++
++	err = vdev->config->find_vqs(vdev, nvqs, vqs, callbacks);
++	if (err)
+ 		goto free;
+-	}
+ 
+-	vi->svq = vdev->config->find_vq(vdev, 1, skb_xmit_done);
+-	if (IS_ERR(vi->svq)) {
+-		err = PTR_ERR(vi->svq);
+-		goto free_recv;
+-	}
++	vi->rvq = vqs[0];
++	vi->svq = vqs[1];
+ 
+ 	if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_CTRL_VQ)) {
+-		vi->cvq = vdev->config->find_vq(vdev, 2, NULL);
+-		if (IS_ERR(vi->cvq)) {
+-			err = PTR_ERR(vi->svq);
+-			goto free_send;
+-		}
++		vi->cvq = vqs[2];
+ 
+ 		if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_CTRL_VLAN))
+ 			dev->features |= NETIF_F_HW_VLAN_FILTER;
+@@ -941,7 +942,7 @@ static int virtnet_probe(struct virtio_device *vdev)
+ 	err = register_netdev(dev);
+ 	if (err) {
+ 		pr_debug("virtio_net: registering device failed\n");
+-		goto free_ctrl;
++		goto free_vqs;
+ 	}
+ 
+ 	/* Last of all, set up some receive buffers. */
+@@ -962,13 +963,8 @@ static int virtnet_probe(struct virtio_device *vdev)
+ 
+ unregister:
+ 	unregister_netdev(dev);
+-free_ctrl:
+-	if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_CTRL_VQ))
+-		vdev->config->del_vq(vi->cvq);
+-free_send:
+-	vdev->config->del_vq(vi->svq);
+-free_recv:
+-	vdev->config->del_vq(vi->rvq);
++free_vqs:
++	vdev->config->del_vqs(vdev);
+ free:
+ 	free_netdev(dev);
+ 	return err;
+@@ -994,12 +990,10 @@ static void virtnet_remove(struct virtio_device *vdev)
+ 
+ 	BUG_ON(vi->num != 0);
+ 
+-	vdev->config->del_vq(vi->svq);
+-	vdev->config->del_vq(vi->rvq);
+-	if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_CTRL_VQ))
+-		vdev->config->del_vq(vi->cvq);
+ 	unregister_netdev(vi->dev);
+ 
++	vdev->config->del_vqs(vi->vdev);
++
+ 	while (vi->pages)
+ 		__free_pages(get_a_page(vi, GFP_KERNEL), 0);
+ 
+diff --git a/drivers/s390/kvm/kvm_virtio.c b/drivers/s390/kvm/kvm_virtio.c
+index cbc8566..6787426 100644
+--- a/drivers/s390/kvm/kvm_virtio.c
++++ b/drivers/s390/kvm/kvm_virtio.c
+@@ -34,6 +34,11 @@ static void *kvm_devices;
+ 
+ struct kvm_device {
+ 	struct virtio_device vdev;
++
++	/* Array of virtqueues */
++	struct virtqueue **vqs;
++	int nvqs;
++
+ 	struct kvm_device_desc *desc;
+ };
+ 
+@@ -226,6 +231,61 @@ static void kvm_del_vq(struct virtqueue *vq)
+ 				       KVM_S390_VIRTIO_RING_ALIGN));
+ }
+ 
++static void kvm_del_vqs(struct virtio_device *vdev)
++{
++	struct kvm_device *kdev = to_kvmdev(vdev);
++	int i;
++	if (!kdev->vqs)
++		return;
++	for (i = 0; i < ldev->nvqs; ++i)
++		kvm_del_vq(kdev->vqs[i]);
++	kfree(ldev->vqs);
++	ldev->vqs = NULL;
++	ldev->nvqs = 0;
++}
++
++static int kvm_find_vqs(struct virtio_device *vdev, unsigned nvqs,
++			struct virtqueue *vqs[]
++			void (*callbacks)[](struct virtqueue *))
++{
++	struct kvm_device *kdev = to_kvmdev(vdev);
++	int i;
++
++	/* We must have this many virtqueues. */
++	if (nvqs > kdev->desc->num_vq)
++		return ERR_PTR(-ENOENT);
++
++	kdev->vqs = kmalloc(GFP_KERNEL, nvqs * sizeof *kdev->vqs);
++	if (!kdev->vqs)
++		return -ENOMEM;
++
++	for (i = 0; i < nvqs; ++i) {
++		kdev->vqs[i] = vqs[i] = kvm_find_vq(vdev, i, callbacks[i]);
++		if (IS_ERR(vqs[i]))
++			goto error;
++		kdev->nvqs = i;
++	}
++	return 0;
++
++error:
++	kvm_del_vqs(vdev);
++	return PTR_ERR(vqs[i]);
++}
++
++static void kvm_del_vqs(struct virtio_device *vdev)
++{
++	struct lguest_device *ldev = to_lgdev(vdev);
++	int i;
++
++	if (!ldev->vqs)
++		return;
++	for (i = 0; i < ldev->nvqs; ++i)
++		lg_del_vq(ldev->vqs[i]);
++	kfree(ldev->vqs);
++	ldev->vqs = NULL;
++	ldev->nvqs = 0;
++}
++
+ /*
+  * The config ops structure as defined by virtio config
+  */
+@@ -237,8 +297,8 @@ static struct virtio_config_ops kvm_vq_configspace_ops = {
+ 	.get_status = kvm_get_status,
+ 	.set_status = kvm_set_status,
+ 	.reset = kvm_reset,
+-	.find_vq = kvm_find_vq,
+-	.del_vq = kvm_del_vq,
++	.find_vqs = kvm_find_vqs,
++	.del_vqs = kvm_del_vqs,
+ };
+ 
+ /*
+diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+index 9c76a06..ef7c481 100644
+--- a/drivers/virtio/virtio_balloon.c
++++ b/drivers/virtio/virtio_balloon.c
+@@ -204,6 +204,8 @@ static int balloon(void *_vballoon)
+ static int virtballoon_probe(struct virtio_device *vdev)
+ {
+ 	struct virtio_balloon *vb;
++	struct virtqueue *vqs[2];
++	virtqueue_callback *callbacks[2];
+ 	int err;
+ 
+ 	vdev->priv = vb = kmalloc(sizeof(*vb), GFP_KERNEL);
+@@ -218,22 +220,20 @@ static int virtballoon_probe(struct virtio_device *vdev)
+ 	vb->vdev = vdev;
+ 
+ 	/* We expect two virtqueues. */
+-	vb->inflate_vq = vdev->config->find_vq(vdev, 0, balloon_ack);
+-	if (IS_ERR(vb->inflate_vq)) {
+-		err = PTR_ERR(vb->inflate_vq);
++	callbacks[0] = balloon_ack;
++	callbacks[1] = balloon_ack;
++
++	err = vdev->config->find_vqs(vdev, 2, vqs, callbacks);
++	if (err)
+ 		goto out_free_vb;
+-	}
+ 
+-	vb->deflate_vq = vdev->config->find_vq(vdev, 1, balloon_ack);
+-	if (IS_ERR(vb->deflate_vq)) {
+-		err = PTR_ERR(vb->deflate_vq);
+-		goto out_del_inflate_vq;
+-	}
++	vb->inflate_vq = vqs[0];
++	vb->deflate_vq = vqs[1];
+ 
+ 	vb->thread = kthread_run(balloon, vb, "vballoon");
+ 	if (IS_ERR(vb->thread)) {
+ 		err = PTR_ERR(vb->thread);
+-		goto out_del_deflate_vq;
++		goto out_del_vqs;
+ 	}
+ 
+ 	vb->tell_host_first
+@@ -241,10 +241,8 @@ static int virtballoon_probe(struct virtio_device *vdev)
+ 
+ 	return 0;
+ 
+-out_del_deflate_vq:
+-	vdev->config->del_vq(vb->deflate_vq);
+-out_del_inflate_vq:
+-	vdev->config->del_vq(vb->inflate_vq);
++out_del_vqs:
++	vdev->config->del_vqs(vdev);
+ out_free_vb:
+ 	kfree(vb);
+ out:
+@@ -264,8 +262,7 @@ static void virtballoon_remove(struct virtio_device *vdev)
+ 	/* Now we reset the device so we can clean up the queues. */
+ 	vdev->config->reset(vdev);
+ 
+-	vdev->config->del_vq(vb->deflate_vq);
+-	vdev->config->del_vq(vb->inflate_vq);
++	vdev->config->del_vqs(vdev);
+ 	kfree(vb);
+ }
+ 
+diff --git a/drivers/virtio/virtio_pci.c b/drivers/virtio/virtio_pci.c
+index 330aacb..d5e030f 100644
+--- a/drivers/virtio/virtio_pci.c
++++ b/drivers/virtio/virtio_pci.c
+@@ -275,11 +275,7 @@ static void vp_del_vq(struct virtqueue *vq)
+ {
+ 	struct virtio_pci_device *vp_dev = to_vp_device(vq->vdev);
+ 	struct virtio_pci_vq_info *info = vq->priv;
+-	unsigned long flags, size;
+-
+-	spin_lock_irqsave(&vp_dev->lock, flags);
+-	list_del(&info->node);
+-	spin_unlock_irqrestore(&vp_dev->lock, flags);
++	unsigned long size;
+ 
+ 	vring_del_virtqueue(vq);
+ 
+@@ -292,14 +288,47 @@ static void vp_del_vq(struct virtqueue *vq)
+ 	kfree(info);
+ }
+ 
++static void vp_del_vqs(struct virtio_device *vdev)
++{
++	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
++	struct virtio_pci_vq_info *info;
++	struct list_head virtqueues;
++	unsigned long flags;
++
++	spin_lock_irqsave(&vp_dev->lock, flags);
++	list_replace_init(&vp_dev->virtqueues, &virtqueues);
++	spin_unlock_irqrestore(&vp_dev->lock, flags);
++
++	list_for_each_entry(info, &virtqueues, node)
++		vp_del_vq(info->vq);
++}
++
++static int vp_find_vqs(struct virtio_device *vdev, unsigned nvqs,
++		       struct virtqueue *vqs[],
++		       virtqueue_callback *callbacks[])
++{
++	int i;
++
++	for (i = 0; i < nvqs; ++i) {
++		vqs[i] = vp_find_vq(vdev, i, callbacks[i]);
++		if (IS_ERR(vqs[i]))
++			goto error;
++	}
++	return 0;
++
++error:
++	vp_del_vqs(vdev);
++	return PTR_ERR(vqs[i]);
++}
++
+ static struct virtio_config_ops virtio_pci_config_ops = {
+ 	.get		= vp_get,
+ 	.set		= vp_set,
+ 	.get_status	= vp_get_status,
+ 	.set_status	= vp_set_status,
+ 	.reset		= vp_reset,
+-	.find_vq	= vp_find_vq,
+-	.del_vq		= vp_del_vq,
++	.find_vqs	= vp_find_vqs,
++	.del_vqs	= vp_del_vqs,
+ 	.get_features	= vp_get_features,
+ 	.finalize_features = vp_finalize_features,
+ };
+diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
+index bf8ec28..32f6ce8 100644
+--- a/include/linux/virtio_config.h
++++ b/include/linux/virtio_config.h
+@@ -49,15 +49,25 @@
+  * @set_status: write the status byte
+  *	vdev: the virtio_device
+  *	status: the new status byte
++ * @request_vqs: request the specified number of virtqueues
++ *	vdev: the virtio_device
++ *	max_vqs: the max number of virtqueues we want
++ *      If supplied, must call before any virtqueues are instantiated.
++ *      To modify the max number of virtqueues after request_vqs has been
++ *      called, call free_vqs and then request_vqs with a new value.
++ * @free_vqs: cleanup resources allocated by request_vqs
++ *	vdev: the virtio_device
++ *      If supplied, must call after all virtqueues have been deleted.
+  * @reset: reset the device
+  *	vdev: the virtio device
+  *	After this, status and feature negotiation must be done again
+- * @find_vq: find a virtqueue and instantiate it.
++ * @find_vqs: find virtqueues and instantiate them.
+  *	vdev: the virtio_device
+- *	index: the 0-based virtqueue number in case there's more than one.
+- *	callback: the virqtueue callback
+- *	Returns the new virtqueue or ERR_PTR() (eg. -ENOENT).
+- * @del_vq: free a virtqueue found by find_vq().
++ *	nvqs: the number of virtqueues to find
++ *	vqs: on success, includes new virtqueues
++ *	callbacks: array of callbacks, for each virtqueue
++ *	Returns 0 on success or error status
++ * @del_vqs: free virtqueues found by find_vqs().
+  * @get_features: get the array of feature bits for this device.
+  *	vdev: the virtio_device
+  *	Returns the first 32 feature bits (all we currently need).
+@@ -66,6 +76,7 @@
+  *	This gives the final feature bits for the device: it can change
+  *	the dev->feature bits if it wants.
+  */
++typedef void virtqueue_callback(struct virtqueue *);
+ struct virtio_config_ops
+ {
+ 	void (*get)(struct virtio_device *vdev, unsigned offset,
+@@ -75,10 +86,10 @@ struct virtio_config_ops
+ 	u8 (*get_status)(struct virtio_device *vdev);
+ 	void (*set_status)(struct virtio_device *vdev, u8 status);
+ 	void (*reset)(struct virtio_device *vdev);
+-	struct virtqueue *(*find_vq)(struct virtio_device *vdev,
+-				     unsigned index,
+-				     void (*callback)(struct virtqueue *));
+-	void (*del_vq)(struct virtqueue *vq);
++	int (*find_vqs)(struct virtio_device *, unsigned nvqs,
++			struct virtqueue *vqs[],
++			virtqueue_callback *callbacks[]);
++	void (*del_vqs)(struct virtio_device *);
+ 	u32 (*get_features)(struct virtio_device *vdev);
+ 	void (*finalize_features)(struct virtio_device *vdev);
+ };
+diff --git a/net/9p/trans_virtio.c b/net/9p/trans_virtio.c
+index bb8579a..fd113a1 100644
+--- a/net/9p/trans_virtio.c
++++ b/net/9p/trans_virtio.c
+@@ -230,6 +230,7 @@ static int p9_virtio_probe(struct virtio_device *vdev)
+ 	int err;
+ 	struct virtio_chan *chan;
+ 	int index;
++	virtqueue_callback *callbacks[] = { req_done };
+ 
+ 	mutex_lock(&virtio_9p_lock);
+ 	index = chan_index++;
+@@ -246,11 +247,9 @@ static int p9_virtio_probe(struct virtio_device *vdev)
+ 	chan->vdev = vdev;
+ 
+ 	/* We expect one virtqueue, for requests. */
+-	chan->vq = vdev->config->find_vq(vdev, 0, req_done);
+-	if (IS_ERR(chan->vq)) {
+-		err = PTR_ERR(chan->vq);
++	err = vdev->config->find_vqs(vdev, 1, &chan->vq, callbacks);
++	if (err)
+ 		goto out_free_vq;
+-	}
+ 	chan->vq->vdev->priv = chan;
+ 	spin_lock_init(&chan->lock);
+ 
 -- 
 1.6.3.rc3.1.g830204
