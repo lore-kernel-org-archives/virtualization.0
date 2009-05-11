@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH 1/2] qemu-kvm: add MSI-X support
-Date: Tue, 12 May 2009 01:13:59 +0300
-Message-ID: <20090511221359.GA22860__841.416119556193$1242080200$gmane$org@redhat.com>
+Subject: [PATCH 2/2] qemu-kvm: use common code for assigned msix
+Date: Tue, 12 May 2009 01:14:09 +0300
+Message-ID: <20090511221409.GA22863__20676.613765727$1242080207$gmane$org@redhat.com>
 References: <cover.1242079177.git.mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,1069 +21,596 @@ Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Christian Borntraeger <borntraeger@de.ibm.com>, Rusty Russell <rusty@rustcorp.com.au>, virtualization@lists.linux-foundation.org, Anthony Liguori <anthony@codemon>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This adds (incomplete) MSI-X support to virtio net device.
-Missing is save/load support, and command-line flag to
-control the feature.
+
+For assigned devices, use common code to enable msi-x.
+Add "hack" option as assigned devices lack a standard way to get vector usage.
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- Makefile.target     |    2 +-
- hw/msix.c           |  362 +++++++++++++++++++++++++++++++++++++++++++++++++++
- hw/msix.h           |   33 +++++
- hw/pci.c            |   35 ++++--
- hw/pci.h            |   53 +++++++-
- hw/virtio-balloon.c |    2 +-
- hw/virtio-blk.c     |    3 +-
- hw/virtio-console.c |    3 +-
- hw/virtio-net.c     |    3 +-
- hw/virtio.c         |  167 +++++++++++++++++++-----
- hw/virtio.h         |    4 +-
- 11 files changed, 610 insertions(+), 57 deletions(-)
- create mode 100644 hw/msix.c
- create mode 100644 hw/msix.h
+ hw/device-assignment.c |  336 ++++++++++++------------------------------------
+ hw/device-assignment.h |    8 +-
+ hw/msix.c              |   11 ++-
+ hw/pci.h               |    4 +
+ 4 files changed, 100 insertions(+), 259 deletions(-)
 
-diff --git a/Makefile.target b/Makefile.target
-index 5cb4c64..6a59a30 100644
---- a/Makefile.target
-+++ b/Makefile.target
-@@ -550,7 +550,7 @@ endif #CONFIG_BSD_USER
- # System emulator target
- ifndef CONFIG_USER_ONLY
- 
--OBJS=vl.o osdep.o monitor.o pci.o loader.o isa_mmio.o machine.o dma-helpers.o
-+OBJS=vl.o osdep.o monitor.o pci.o msix.o loader.o isa_mmio.o machine.o dma-helpers.o
- # virtio has to be here due to weird dependency between PCI and virtio-net.
- # need to fix this properly
- OBJS+=virtio.o virtio-blk.o virtio-balloon.o virtio-net.o virtio-console.o
-diff --git a/hw/msix.c b/hw/msix.c
-new file mode 100644
-index 0000000..dcb7dbd
---- /dev/null
-+++ b/hw/msix.c
-@@ -0,0 +1,362 @@
-+/*
-+ * MSI-X device support
-+ *
-+ * This module includes support for MSI-X in pci devices.
-+ *
-+ * Author: Michael S. Tsirkin <mst@redhat.com>
-+ *
-+ *  Copyright (c) 2009, Red Hat Inc, Michael S. Tsirkin (mst@redhat.com)
-+ *
-+ * This work is licensed under the terms of the GNU GPL, version 2.  See
-+ * the COPYING file in the top-level directory.
-+ */
-+
-+#include "hw.h"
+diff --git a/hw/device-assignment.c b/hw/device-assignment.c
+index 0a5f850..aabed69 100644
+--- a/hw/device-assignment.c
++++ b/hw/device-assignment.c
+@@ -33,6 +33,7 @@
+ #include <sys/stat.h>
+ #include "qemu-kvm.h"
+ #include "hw.h"
 +#include "msix.h"
-+#include "pci.h"
-+#include <qemu-kvm.h>
-+
-+/* Declaration from linux/pci_regs.h */
-+#define  PCI_CAP_ID_MSIX 0x11 /* MSI-X */
-+#define  PCI_MSIX_FLAGS 2     /* Table at lower 11 bits */
-+#define  PCI_MSIX_FLAGS_QSIZE	0x7FF
-+#define  PCI_MSIX_FLAGS_ENABLE	(1 << 15)
-+#define  PCI_MSIX_FLAGS_BIRMASK	(7 << 0)
-+
-+/* MSI-X capability structure */
-+#define MSIX_TABLE_OFFSET 4
-+#define MSIX_PBA_OFFSET 8
-+
-+/* MSI-X table format */
-+#define MSIX_MSG_ADDR 0
-+#define MSIX_MSG_UPPER_ADDR 4
-+#define MSIX_MSG_DATA 8
-+#define MSIX_VECTOR_CTRL 12
-+#define MSIX_ENTRY_SIZE 16
-+#define MSIX_VECTOR_MASK 0x1
-+
-+/* How much space does an MSIX table need. */
-+/* The spec requires giving the table structure
-+ * a 4K aligned region all by itself. Align it to
-+ * target pages so that drivers can do passthrough
-+ * on the rest of the region. */
-+#define MSIX_PAGE_SIZE TARGET_PAGE_ALIGN(0x1000)
-+
-+#ifdef MSIX_DEBUG
-+#define DEBUG(fmt, ...)                                       \
-+    do {                                                      \
-+      fprintf(stderr, "%s: " fmt, __func__ , __VA_ARGS__);    \
-+    } while (0)
-+#else
-+#define DEBUG(fmt, ...) do { } while(0)
-+#endif
-+
-+/* Add MSI-X capability to the config space for the device. */
-+/* Given a bar and its size, add MSI-X table on top of it
-+ * and fill MSI-X capability in the config space.
-+ * Original bar size must be a power of 2 or 0.
-+ * New bar size is returned. */
-+static int msix_add_config(struct PCIDevice *pdev, unsigned short nentries,
-+                           unsigned bar_nr, unsigned bar_size,
-+                           unsigned *new_size)
-+{
-+    unsigned config_offset = pdev->cap.start + pdev->cap.length;
-+    uint8_t *config = pdev->config + config_offset;
-+
-+    if (nentries < 1 || nentries > PCI_MSIX_FLAGS_QSIZE + 1)
-+        return -EINVAL;
-+    if (bar_size > 0x80000000)
-+        return -ENOSPC;
-+
-+    /* Add space for MSI-X structures */
-+    if (!bar_size)
-+        *new_size = MSIX_PAGE_SIZE;
-+    else if (bar_size < MSIX_PAGE_SIZE) {
-+        bar_size = MSIX_PAGE_SIZE;
-+        *new_size = MSIX_PAGE_SIZE * 2;
-+    } else
-+        *new_size = bar_size * 2;
-+
-+    pci_set_word(config + PCI_MSIX_FLAGS, nentries - 1);
-+    /* Table on top of BAR */
-+    pci_set_long(config + MSIX_TABLE_OFFSET, bar_size | bar_nr);
-+    /* Pending bits on top of that */
-+    pci_set_long(config + MSIX_PBA_OFFSET, (bar_size + MSIX_PAGE_SIZE / 2) |
-+                 bar_nr);
-+    pci_add_capability(pdev, PCI_CAP_ID_MSIX, PCI_CAPABILITY_CONFIG_MSIX_LENGTH);
-+    pdev->cap.msix = config_offset;
-+    return 0;
-+}
-+
-+static void msix_free_irq_entries(PCIDevice *dev)
-+{
-+    int i;
-+
-+    /* TODO: handle errors */
-+    for (i = 0; i < dev->msix_irq_entries_nr; i++)
-+        msix_vector_unuse(dev, i);
-+}
-+
-+static void msix_enable(PCIDevice *dev)
-+{
-+    uint32_t ctrl, data;
-+    int i;
-+
-+    if (!dev->msix_irq_entries_nr) {
-+        fprintf(stderr, "MSI-X entry number is zero!\n");
+ #include "pc.h"
+ #include "sysemu.h"
+ #include "console.h"
+@@ -150,11 +151,10 @@ static void assigned_dev_iomem_map(PCIDevice *pci_dev, int region_num,
+ {
+     AssignedDevice *r_dev = container_of(pci_dev, AssignedDevice, dev);
+     AssignedDevRegion *region = &r_dev->v_addrs[region_num];
+-    PCIRegion *real_region = &r_dev->real_device.regions[region_num];
+     uint32_t old_ephys = region->e_physbase;
+     uint32_t old_esize = region->e_size;
+     int first_map = (region->e_size == 0);
+-    int ret = 0;
++    int ret;
+ 
+     DEBUG("e_phys=%08x r_virt=%p type=%d len=%08x region_num=%d \n",
+           e_phys, region->u.r_virtbase, type, e_size, region_num);
+@@ -166,27 +166,17 @@ static void assigned_dev_iomem_map(PCIDevice *pci_dev, int region_num,
+ 	kvm_destroy_phys_mem(kvm_context, old_ephys,
+                              TARGET_PAGE_ALIGN(old_esize));
+ 
+-    if (e_size > 0) {
+-        /* deal with MSI-X MMIO page */
+-        if (real_region->base_addr <= r_dev->msix_table_addr &&
+-                real_region->base_addr + real_region->size >=
+-                r_dev->msix_table_addr) {
+-            int offset = r_dev->msix_table_addr - real_region->base_addr;
+-            ret = munmap(region->u.r_virtbase + offset, TARGET_PAGE_SIZE);
+-            if (ret == 0)
+-                DEBUG("munmap done, virt_base 0x%p\n",
+-                        region->u.r_virtbase + offset);
+-            else {
+-                fprintf(stderr, "%s: fail munmap msix table!\n", __func__);
+-                exit(1);
+-            }
+-            cpu_register_physical_memory(e_phys + offset,
+-                    TARGET_PAGE_SIZE, r_dev->mmio_index);
+-        }
+-	ret = kvm_register_phys_mem(kvm_context, e_phys,
+-                                    region->u.r_virtbase,
+-                                    TARGET_PAGE_ALIGN(e_size), 0);
+-    }
++    if (e_size <= 0)
 +        return;
-+    }
 +
-+    for (i = 0; i < dev->msix_irq_entries_nr; ++i) {
-+        uint8_t *table_entry = dev->msix_table_page + i * MSIX_ENTRY_SIZE;
++    /* deal with MSI-X MMIO page */
++    msix_mmio_map(pci_dev, region_num, e_phys, e_size, type);
++    /* Only register as much memory as required to cover the
++     * actual device region. */
++    e_size = r_dev->real_device.regions[region_num].size;
++    ret = kvm_register_phys_mem(kvm_context, e_phys,
++                                region->u.r_virtbase,
++                                TARGET_PAGE_ALIGN(e_size), 0);
+ 
+     if (ret != 0) {
+ 	fprintf(stderr, "%s: Error: create new mapping failed\n", __func__);
+@@ -378,11 +368,16 @@ static int assigned_dev_register_regions(PCIRegion *io_regions,
+ 
+         /* handle memory io regions */
+         if (cur_region->type & IORESOURCE_MEM) {
++            uint32_t size = i == msix_bar_nr(&pci_dev->dev)
++                ? pci_dev->msix_bar_size : cur_region->size;
 +
-+	/* FIXME: move this to pio handling code */
-+        ctrl = pci_get_long(table_entry + MSIX_VECTOR_CTRL);
-+        data = pci_get_long(table_entry + MSIX_MSG_DATA);
-+        if ((ctrl & MSIX_VECTOR_MASK) || !data)
-+            msix_vector_unuse(dev, i);
+             int t = cur_region->type & IORESOURCE_PREFETCH
+                 ? PCI_ADDRESS_SPACE_MEM_PREFETCH
+                 : PCI_ADDRESS_SPACE_MEM;
+ 
+             /* map physical memory */
++            /* MSI-X table is located outside cur_region->size
++             * and so won't be mapped */
+             pci_dev->v_addrs[i].e_physbase = cur_region->base_addr;
+             pci_dev->v_addrs[i].u.r_virtbase =
+                 mmap(NULL,
+@@ -397,7 +392,7 @@ static int assigned_dev_register_regions(PCIRegion *io_regions,
+                         (uint32_t) (cur_region->base_addr));
+                 return -1;
+             }
+-            pci_dev->v_addrs[i].r_size = cur_region->size;
++            pci_dev->v_addrs[i].r_size = size;
+             pci_dev->v_addrs[i].e_size = 0;
+ 
+             /* add offset */
+@@ -405,8 +400,7 @@ static int assigned_dev_register_regions(PCIRegion *io_regions,
+                 (cur_region->base_addr & 0xFFF);
+ 
+             pci_register_io_region((PCIDevice *) pci_dev, i,
+-                                   cur_region->size, t,
+-                                   assigned_dev_iomem_map);
++                                   size, t, assigned_dev_iomem_map);
+             continue;
+         }
+         /* handle port io regions */
+@@ -542,11 +536,11 @@ static void free_dev_irq_entries(AssignedDevice *dev)
+ {
+     int i;
+ 
+-    for (i = 0; i < dev->irq_entries_nr; i++)
+-        kvm_del_routing_entry(kvm_context, &dev->entry[i]);
+-    free(dev->entry);
+-    dev->entry = NULL;
+-    dev->irq_entries_nr = 0;
++    for (i = 0; i < dev->msi_irq_entries_nr; i++)
++        kvm_del_routing_entry(kvm_context, &dev->msi_entry[i]);
++    free(dev->msi_entry);
++    dev->msi_entry = NULL;
++    dev->msi_irq_entries_nr = 0;
+ }
+ #endif
+ 
+@@ -764,33 +758,33 @@ static void assigned_dev_update_msi(PCIDevice *pci_dev, unsigned int ctrl_pos)
+     }
+ 
+     if (ctrl_byte & PCI_MSI_FLAGS_ENABLE) {
+-        assigned_dev->entry = calloc(1, sizeof(struct kvm_irq_routing_entry));
+-        if (!assigned_dev->entry) {
++        assigned_dev->msi_entry = calloc(1, sizeof(struct kvm_irq_routing_entry));
++        if (!assigned_dev->msi_entry) {
+             perror("assigned_dev_update_msi: ");
+             return;
+         }
+-        assigned_dev->entry->u.msi.address_lo =
++        assigned_dev->msi_entry->u.msi.address_lo =
+                 *(uint32_t *)(pci_dev->config + pci_dev->cap.start +
+                               PCI_MSI_ADDRESS_LO);
+-        assigned_dev->entry->u.msi.address_hi = 0;
+-        assigned_dev->entry->u.msi.data = *(uint16_t *)(pci_dev->config +
++        assigned_dev->msi_entry->u.msi.address_hi = 0;
++        assigned_dev->msi_entry->u.msi.data = *(uint16_t *)(pci_dev->config +
+                 pci_dev->cap.start + PCI_MSI_DATA_32);
+-        assigned_dev->entry->type = KVM_IRQ_ROUTING_MSI;
+-        assigned_dev->entry->gsi = kvm_get_irq_route_gsi(kvm_context);
+-        if (assigned_dev->entry->gsi < 0) {
++        assigned_dev->msi_entry->type = KVM_IRQ_ROUTING_MSI;
++        assigned_dev->msi_entry->gsi = kvm_get_irq_route_gsi(kvm_context);
++        if (assigned_dev->msi_entry->gsi < 0) {
+             perror("assigned_dev_update_msi: kvm_get_irq_route_gsi");
+             return;
+         }
+ 
+-        kvm_add_routing_entry(kvm_context, assigned_dev->entry);
++        kvm_add_routing_entry(kvm_context, assigned_dev->msi_entry);
+         if (kvm_commit_irq_routes(kvm_context) < 0) {
+             perror("assigned_dev_update_msi: kvm_commit_irq_routes");
+             assigned_dev->cap.state &= ~ASSIGNED_DEVICE_MSI_ENABLED;
+             return;
+         }
+-	assigned_dev->irq_entries_nr = 1;
++	assigned_dev->msi_irq_entries_nr = 1;
+ 
+-        assigned_irq_data.guest_irq = assigned_dev->entry->gsi;
++        assigned_irq_data.guest_irq = assigned_dev->msi_entry->gsi;
+ 	assigned_irq_data.flags = KVM_DEV_IRQ_HOST_MSI | KVM_DEV_IRQ_GUEST_MSI;
+         if (kvm_assign_irq(kvm_context, &assigned_irq_data) < 0)
+             perror("assigned_dev_enable_msi: assign irq");
+@@ -804,39 +798,17 @@ static void assigned_dev_update_msi(PCIDevice *pci_dev, unsigned int ctrl_pos)
+ static int assigned_dev_update_msix_mmio(PCIDevice *pci_dev)
+ {
+     AssignedDevice *adev = container_of(pci_dev, AssignedDevice, dev);
+-    u16 entries_nr = 0, entries_max_nr;
+-    int pos = 0, i, r = 0;
+-    u32 msg_addr, msg_upper_addr, msg_data, msg_ctrl;
++    int i, r = 0, n = 0;
+     struct kvm_assigned_msix_nr msix_nr;
+     struct kvm_assigned_msix_entry msix_entry;
+-    void *va = adev->msix_table_page;
+-
+-    if (adev->cap.available & ASSIGNED_DEVICE_CAP_MSI)
+-        pos = pci_dev->cap.start + PCI_CAPABILITY_CONFIG_MSI_LENGTH;
+-    else
+-        pos = pci_dev->cap.start;
+-
+-    entries_max_nr = pci_dev->config[pos + 2];
+-    entries_max_nr &= PCI_MSIX_TABSIZE;
+-    entries_max_nr += 1;
+-
+-    /* Get the usable entry number for allocating */
+-    for (i = 0; i < entries_max_nr; i++) {
+-        memcpy(&msg_ctrl, va + i * 16 + 12, 4);
+-        memcpy(&msg_data, va + i * 16 + 8, 4);
+-        /* Ignore unused entry even it's unmasked */
+-        if (msg_data == 0)
+-            continue;
+-        entries_nr ++;
+-    }
+ 
+-    if (entries_nr == 0) {
+-        fprintf(stderr, "MSI-X entry number is zero!\n");
+-        return -EINVAL;
+-    }
+     msix_nr.assigned_dev_id = calc_assigned_dev_id(adev->h_busnr,
+                                           (uint8_t)adev->h_devfn);
+-    msix_nr.entry_nr = entries_nr;
++    msix_nr.entry_nr = 0;
++    for (i = 0; i < pci_dev->msix_irq_entries_nr; ++i)
++        if (msix_vector_is_used(pci_dev, i))
++            ++msix_nr.entry_nr;
++
+     r = kvm_assign_set_msix_nr(kvm_context, &msix_nr);
+     if (r != 0) {
+         fprintf(stderr, "fail to set MSI-X entry number for MSIX! %s\n",
+@@ -844,67 +816,29 @@ static int assigned_dev_update_msix_mmio(PCIDevice *pci_dev)
+         return r;
+     }
+ 
+-    free_dev_irq_entries(adev);
+-    adev->irq_entries_nr = entries_nr;
+-    adev->entry = calloc(entries_nr, sizeof(struct kvm_irq_routing_entry));
+-    if (!adev->entry) {
+-        perror("assigned_dev_update_msix_mmio: ");
+-        return -errno;
+-    }
+-
+     msix_entry.assigned_dev_id = msix_nr.assigned_dev_id;
+-    entries_nr = 0;
+-    for (i = 0; i < entries_max_nr; i++) {
+-        if (entries_nr >= msix_nr.entry_nr)
+-            break;
+-        memcpy(&msg_ctrl, va + i * 16 + 12, 4);
+-        if (msg_ctrl & 0x1)
++    for (i = 0; i < pci_dev->msix_irq_entries_nr; ++i) {
++        if (!msix_vector_is_used(pci_dev, i))
+             continue;
+-        memcpy(&msg_data, va + i * 16 + 8, 4);
+-        if (msg_data == 0)
+-            continue;
+-
+-        memcpy(&msg_addr, va + i * 16, 4);
+-        memcpy(&msg_upper_addr, va + i * 16 + 4, 4);
+-
+-        r = kvm_get_irq_route_gsi(kvm_context);
+-        if (r < 0)
+-            return r;
+-
+-        adev->entry[entries_nr].gsi = r;
+-        adev->entry[entries_nr].type = KVM_IRQ_ROUTING_MSI;
+-        adev->entry[entries_nr].flags = 0;
+-        adev->entry[entries_nr].u.msi.address_lo = msg_addr;
+-        adev->entry[entries_nr].u.msi.address_hi = msg_upper_addr;
+-        adev->entry[entries_nr].u.msi.data = msg_data;
+-        DEBUG("MSI-X data 0x%x, MSI-X addr_lo 0x%x\n!", msg_data, msg_addr);
+-	kvm_add_routing_entry(kvm_context, &adev->entry[entries_nr]);
+-
+-        msix_entry.gsi = adev->entry[entries_nr].gsi;
+-        msix_entry.entry = i;
++        msix_entry.gsi = pci_dev->msix_irq_entries[i].gsi;
++        msix_entry.entry = n++;
+         r = kvm_assign_set_msix_entry(kvm_context, &msix_entry);
+         if (r) {
+-            fprintf(stderr, "fail to set MSI-X entry! %s\n", strerror(-r));
++            fprintf(stderr, "failed to set MSI-X entry! %s\n", strerror(-r));
+             break;
+         }
+         DEBUG("MSI-X entry gsi 0x%x, entry %d\n!",
+                 msix_entry.gsi, msix_entry.entry);
+-        entries_nr ++;
+-    }
+-
+-    if (r == 0 && kvm_commit_irq_routes(kvm_context) < 0) {
+-	    perror("assigned_dev_update_msix_mmio: kvm_commit_irq_routes");
+-	    return -EINVAL;
+     }
+ 
+     return r;
+ }
+ 
+-static void assigned_dev_update_msix(PCIDevice *pci_dev, unsigned int ctrl_pos)
++static void assigned_dev_update_msix(PCIDevice *pci_dev,
++                                     uint32_t address, uint32_t val, int len)
+ {
+     struct kvm_assigned_irq assigned_irq_data;
+     AssignedDevice *assigned_dev = container_of(pci_dev, AssignedDevice, dev);
+-    uint16_t *ctrl_word = (uint16_t *)(pci_dev->config + ctrl_pos);
+     int r;
+ 
+     memset(&assigned_irq_data, 0, sizeof assigned_irq_data);
+@@ -914,15 +848,17 @@ static void assigned_dev_update_msix(PCIDevice *pci_dev, unsigned int ctrl_pos)
+ 
+     if (assigned_dev->irq_requested_type) {
+         assigned_irq_data.flags = assigned_dev->irq_requested_type;
+-        free_dev_irq_entries(assigned_dev);
+         r = kvm_deassign_irq(kvm_context, &assigned_irq_data);
+         /* -ENXIO means no assigned irq */
+         if (r && r != -ENXIO)
+             perror("assigned_dev_update_msix: deassign irq");
+     }
++
++    msix_write_config(pci_dev, address, val, len);
++
+     assigned_irq_data.flags = KVM_DEV_IRQ_HOST_MSIX | KVM_DEV_IRQ_GUEST_MSIX;
+ 
+-    if (*ctrl_word & PCI_MSIX_ENABLE) {
++    if (msix_enabled(pci_dev)) {
+         if (assigned_dev_update_msix_mmio(pci_dev) < 0) {
+             perror("assigned_dev_update_msix_mmio");
+             return;
+@@ -955,12 +891,11 @@ static void assigned_device_pci_cap_write_config(PCIDevice *pci_dev, uint32_t ad
+ #endif
+ #ifdef KVM_CAP_DEVICE_MSIX
+     if (assigned_dev->cap.available & ASSIGNED_DEVICE_CAP_MSIX) {
+-        ctrl_pos = pos + 3;
++        ctrl_pos = pci_dev->cap.msix + PCI_CAP_FLAGS + 1;
+         if (address <= ctrl_pos && address + len > ctrl_pos) {
+             ctrl_pos--; /* control is word long */
+-            assigned_dev_update_msix(pci_dev, ctrl_pos);
++            assigned_dev_update_msix(pci_dev, address, val, len);
+ 	}
+-        pos += PCI_CAPABILITY_CONFIG_MSIX_LENGTH;
+     }
+ #endif
+ #endif
+@@ -971,130 +906,29 @@ static int assigned_device_pci_cap_init(PCIDevice *pci_dev)
+ {
+     AssignedDevice *dev = container_of(pci_dev, AssignedDevice, dev);
+     PCIRegion *pci_region = dev->real_device.regions;
+-    int next_cap_pt = 0;
+-
+-    pci_dev->cap.length = 0;
+-#ifdef KVM_CAP_IRQ_ROUTING
+-#ifdef KVM_CAP_DEVICE_MSI
+-    /* Expose MSI capability
+-     * MSI capability is the 1st capability in capability config */
+-    if (pci_find_cap_offset(dev->pdev, PCI_CAP_ID_MSI)) {
+-        dev->cap.available |= ASSIGNED_DEVICE_CAP_MSI;
+-        memset(&pci_dev->config[pci_dev->cap.start + pci_dev->cap.length],
+-               0, PCI_CAPABILITY_CONFIG_MSI_LENGTH);
+-        pci_dev->config[pci_dev->cap.start + pci_dev->cap.length] =
+-                        PCI_CAP_ID_MSI;
+-        pci_dev->cap.length += PCI_CAPABILITY_CONFIG_MSI_LENGTH;
+-        next_cap_pt = 1;
+-    }
+-#endif
+-#ifdef KVM_CAP_DEVICE_MSIX
+-    /* Expose MSI-X capability */
+-    if (pci_find_cap_offset(dev->pdev, PCI_CAP_ID_MSIX)) {
+-        int pos, entry_nr, bar_nr;
+-        u32 msix_table_entry;
+-        dev->cap.available |= ASSIGNED_DEVICE_CAP_MSIX;
+-        memset(&pci_dev->config[pci_dev->cap.start + pci_dev->cap.length],
+-               0, PCI_CAPABILITY_CONFIG_MSIX_LENGTH);
+-        pos = pci_find_cap_offset(dev->pdev, PCI_CAP_ID_MSIX);
+-        entry_nr = pci_read_word(dev->pdev, pos + 2) & PCI_MSIX_TABSIZE;
+-        pci_dev->config[pci_dev->cap.start + pci_dev->cap.length] = 0x11;
+-        pci_dev->config[pci_dev->cap.start +
+-                        pci_dev->cap.length + 2] = entry_nr;
+-        msix_table_entry = pci_read_long(dev->pdev, pos + PCI_MSIX_TABLE);
+-        *(uint32_t *)(pci_dev->config + pci_dev->cap.start +
+-                      pci_dev->cap.length + PCI_MSIX_TABLE) = msix_table_entry;
+-        *(uint32_t *)(pci_dev->config + pci_dev->cap.start +
+-                      pci_dev->cap.length + PCI_MSIX_PBA) =
+-                    pci_read_long(dev->pdev, pos + PCI_MSIX_PBA);
+-        bar_nr = msix_table_entry & PCI_MSIX_BIR;
+-        msix_table_entry &= ~PCI_MSIX_BIR;
+-        dev->msix_table_addr = pci_region[bar_nr].base_addr + msix_table_entry;
+-        if (next_cap_pt != 0) {
+-            pci_dev->config[pci_dev->cap.start + next_cap_pt] =
+-                pci_dev->cap.start + pci_dev->cap.length;
+-            next_cap_pt += PCI_CAPABILITY_CONFIG_MSI_LENGTH;
+-        } else
+-            next_cap_pt = 1;
+-        pci_dev->cap.length += PCI_CAPABILITY_CONFIG_MSIX_LENGTH;
+-    }
+-#endif
+-#endif
+-
+-    return 0;
+-}
++    int pos;
+ 
+-static uint32_t msix_mmio_readl(void *opaque, target_phys_addr_t addr)
+-{
+-    AssignedDevice *adev = opaque;
+-    unsigned int offset = addr & 0xfff;
+-    void *page = adev->msix_table_page;
+-    uint32_t val = 0;
++    if (pci_find_cap_offset(dev->pdev, PCI_CAP_ID_MSI))
++        pci_add_capability(pci_dev, PCI_CAP_ID_MSI,
++                           PCI_CAPABILITY_CONFIG_MSI_LENGTH);
+ 
+-    memcpy(&val, (void *)((char *)page + offset), 4);
++    if ((pos = pci_find_cap_offset(dev->pdev, PCI_CAP_ID_MSIX))) {
++        int entry_nr = pci_read_word(dev->pdev, pos + PCI_CAP_FLAGS) &
++                       PCI_MSIX_TABSIZE;
++        u32 msix_table = pci_read_long(dev->pdev, pos + PCI_MSIX_TABLE);
++        int r, bar_nr = msix_table & PCI_MSIX_BIR;
+ 
+-    return val;
+-}
+-
+-static uint32_t msix_mmio_readb(void *opaque, target_phys_addr_t addr)
+-{
+-    return ((msix_mmio_readl(opaque, addr & ~3)) >>
+-            (8 * (addr & 3))) & 0xff;
+-}
+-
+-static uint32_t msix_mmio_readw(void *opaque, target_phys_addr_t addr)
+-{
+-    return ((msix_mmio_readl(opaque, addr & ~3)) >>
+-            (8 * (addr & 3))) & 0xffff;
+-}
+-
+-static void msix_mmio_writel(void *opaque,
+-                             target_phys_addr_t addr, uint32_t val)
+-{
+-    AssignedDevice *adev = opaque;
+-    unsigned int offset = addr & 0xfff;
+-    void *page = adev->msix_table_page;
+-
+-    DEBUG("write to MSI-X entry table mmio offset 0x%lx, val 0x%lx\n",
+-		    addr, val);
+-    memcpy((void *)((char *)page + offset), &val, 4);
+-}
+-
+-static void msix_mmio_writew(void *opaque,
+-                             target_phys_addr_t addr, uint32_t val)
+-{
+-    msix_mmio_writel(opaque, addr & ~3,
+-                     (val & 0xffff) << (8*(addr & 3)));
+-}
+-
+-static void msix_mmio_writeb(void *opaque,
+-                             target_phys_addr_t addr, uint32_t val)
+-{
+-    msix_mmio_writel(opaque, addr & ~3,
+-                     (val & 0xff) << (8*(addr & 3)));
+-}
+-
+-static CPUWriteMemoryFunc *msix_mmio_write[] = {
+-    msix_mmio_writeb,	msix_mmio_writew,	msix_mmio_writel
+-};
+-
+-static CPUReadMemoryFunc *msix_mmio_read[] = {
+-    msix_mmio_readb,	msix_mmio_readw,	msix_mmio_readl
+-};
+-
+-static int assigned_dev_register_msix_mmio(AssignedDevice *dev)
+-{
+-    dev->msix_table_page = mmap(NULL, 0x1000,
+-                                PROT_READ|PROT_WRITE,
+-                                MAP_ANONYMOUS|MAP_PRIVATE, 0, 0);
+-    if (dev->msix_table_page == MAP_FAILED) {
+-        fprintf(stderr, "fail allocate msix_table_page! %s\n",
+-                strerror(errno));
+-        return -EFAULT;
++        r = msix_init(pci_dev, entry_nr + 1, bar_nr,
++                      pci_region[bar_nr].size, &dev->msix_bar_size);
++        /* On error, recover by not enabling MSI-X */
++        if (r < 0)
++            fprintf(stderr, "Can't enable MSI-X: %d\n", r);
++        else {
++            pci_dev->msix_hack = 1;
++            dev->cap.available |= ASSIGNED_DEVICE_CAP_MSIX;
++        }
+     }
+-    memset(dev->msix_table_page, 0, 0x1000);
+-    dev->mmio_index = cpu_register_io_memory(0,
+-                        msix_mmio_read, msix_mmio_write, dev);
++
+     return 0;
+ }
+ 
+@@ -1128,12 +962,6 @@ struct PCIDevice *init_assigned_device(AssignedDevInfo *adev, PCIBus *bus)
+         goto out;
+     }
+ 
+-    /* handle real device's MMIO/PIO BARs */
+-    if (assigned_dev_register_regions(dev->real_device.regions,
+-                                      dev->real_device.region_number,
+-                                      dev))
+-        goto out;
+-
+     /* handle interrupt routing */
+     e_device = (dev->dev.devfn >> 3) & 0x1f;
+     e_intx = dev->dev.config[0x3d] - 1;
+@@ -1147,10 +975,17 @@ struct PCIDevice *init_assigned_device(AssignedDevInfo *adev, PCIBus *bus)
+     pci_init(pacc);
+     dev->pdev = pci_get_dev(pacc, 0, adev->bus, adev->dev, adev->func);
+ 
+-    if (pci_enable_capability_support(pci_dev, 0, NULL,
++    if (pci_enable_capability_support(pci_dev, NULL,
+                     assigned_device_pci_cap_write_config,
+                     assigned_device_pci_cap_init) < 0)
+-        goto assigned_out;
++        goto out;
++
++
++    /* handle real device's MMIO/PIO BARs */
++    if (assigned_dev_register_regions(dev->real_device.regions,
++                                      dev->real_device.region_number,
++                                      dev))
++        goto out;
+ 
+     /* assign device to guest */
+     r = assign_device(adev);
+@@ -1162,11 +997,6 @@ struct PCIDevice *init_assigned_device(AssignedDevInfo *adev, PCIBus *bus)
+     if (r < 0)
+         goto assigned_out;
+ 
+-    /* intercept MSI-X entry page in the MMIO */
+-    if (dev->cap.available & ASSIGNED_DEVICE_CAP_MSIX)
+-        if (assigned_dev_register_msix_mmio(dev))
+-            return NULL;
+-
+     return &dev->dev;
+ 
+ assigned_out:
+diff --git a/hw/device-assignment.h b/hw/device-assignment.h
+index c691e11..7eb6238 100644
+--- a/hw/device-assignment.h
++++ b/hw/device-assignment.h
+@@ -91,12 +91,10 @@ typedef struct {
+ #define ASSIGNED_DEVICE_MSIX_MASKED (1 << 2)
+         uint32_t state;
+     } cap;
+-    int irq_entries_nr;
+-    struct kvm_irq_routing_entry *entry;
+-    void *msix_table_page;
+-    target_phys_addr_t msix_table_addr;
+-    int mmio_index;
++    int msi_irq_entries_nr;
++    struct kvm_irq_routing_entry *msi_entry;
+     int need_emulate_cmd;
++    uint32_t msix_bar_size;
+ } AssignedDevice;
+ 
+ typedef struct AssignedDevInfo AssignedDevInfo;
+diff --git a/hw/msix.c b/hw/msix.c
+index dcb7dbd..4f833c5 100644
+--- a/hw/msix.c
++++ b/hw/msix.c
+@@ -127,7 +127,7 @@ void msix_write_config(PCIDevice *dev, uint32_t addr,
+     /* MSI enable bit is in byte 1 in FLAGS register */
+     unsigned flags_pos = dev->cap.msix + PCI_CAP_FLAGS + 1;
+     uint8_t orig, mask = PCI_MSIX_FLAGS_ENABLE >> 8;
+-    int i, enabled;
++    int i, changed = 0, enabled;
+ 
+     /* Slow but simple */
+     for (i = addr; i < addr + len; val >>= 8, ++i) {
+@@ -136,8 +136,17 @@ void msix_write_config(PCIDevice *dev, uint32_t addr,
+         orig = dev->config[i];
+         enabled = val & mask;
+         dev->config[i] = (orig & ~mask) | enabled;
++        changed = orig ^ dev->config[i];
+         break;
+     }
++
++    if (changed && dev->msix_hack) {
++        if (enabled)
++            msix_enable(dev);
 +        else
-+            msix_vector_use(dev, i);
-+    }
-+}
-+
-+/* Handle MSI-X capability config write */
-+void msix_write_config(PCIDevice *dev, uint32_t addr,
-+                       uint32_t val, int len)
-+{
-+    /* MSI enable bit is in byte 1 in FLAGS register */
-+    unsigned flags_pos = dev->cap.msix + PCI_CAP_FLAGS + 1;
-+    uint8_t orig, mask = PCI_MSIX_FLAGS_ENABLE >> 8;
-+    int i, enabled;
-+
-+    /* Slow but simple */
-+    for (i = addr; i < addr + len; val >>= 8, ++i) {
-+        if (i != flags_pos)
-+            continue;
-+        orig = dev->config[i];
-+        enabled = val & mask;
-+        dev->config[i] = (orig & ~mask) | enabled;
-+        break;
-+    }
-+}
-+
-+static uint32_t msix_mmio_readl(void *opaque, target_phys_addr_t addr)
-+{
-+    PCIDevice *dev = opaque;
-+    unsigned int offset = addr & (MSIX_PAGE_SIZE - 1);
-+    void *page = dev->msix_table_page;
-+    uint32_t val = 0;
-+
-+    memcpy(&val, (void *)((char *)page + offset), 4);
-+
-+    return val;
-+}
-+
-+static uint32_t msix_mmio_read_unallowed(void *opaque, target_phys_addr_t addr)
-+{
-+    fprintf(stderr, "MSI-X: only dword read is allowed!\n");
-+    return 0;
-+}
-+
-+static void msix_mmio_writel(void *opaque, target_phys_addr_t addr,
-+                             uint32_t val)
-+{
-+    PCIDevice *dev = opaque;
-+    unsigned int offset = addr & (MSIX_PAGE_SIZE - 1);
-+    void *page = dev->msix_table_page;
-+    /* TODO: handle vector masking / pending bits here. */
-+
-+    memcpy((void *)((char *)page + offset), &val, 4);
-+}
-+
-+static void msix_mmio_write_unallowed(void *opaque, target_phys_addr_t addr,
-+                                      uint32_t val)
-+{
-+    fprintf(stderr, "MSI-X: only dword write is allowed!\n");
-+}
-+
-+static CPUWriteMemoryFunc *msix_mmio_write[] = {
-+    msix_mmio_write_unallowed, msix_mmio_write_unallowed, msix_mmio_writel
-+};
-+
-+static CPUReadMemoryFunc *msix_mmio_read[] = {
-+    msix_mmio_read_unallowed, msix_mmio_read_unallowed, msix_mmio_readl
-+};
-+
-+/* Should be called from device's map method. */
-+void msix_mmio_map(PCIDevice *d, int region_num,
-+                   uint32_t addr, uint32_t size, int type)
-+{
-+    uint8_t *config = d->config + d->cap.msix;
-+    uint32_t table = pci_get_long(config + MSIX_TABLE_OFFSET);
-+    uint32_t offset = table & ~(MSIX_PAGE_SIZE - 1);
-+    /* TODO: map pending bits separately in case they are in a separate bar */
-+    int table_bir = table & PCI_MSIX_FLAGS_BIRMASK;
-+
-+    if (table_bir != region_num)
-+        return;
-+    cpu_register_physical_memory(addr + offset, size - offset,
-+                                 d->msix_mmio_index);
-+}
-+
-+/* Initialize the MSI-X structures. */
-+int msix_init(struct PCIDevice *dev, unsigned short nentries,
-+              unsigned bar_nr, unsigned bar_size,
-+              unsigned *new_size)
-+{
-+    int ret = msix_add_config(dev, nentries, bar_nr, bar_size, new_size);
-+    if (ret)
-+        return ret;
-+
-+    dev->msix_irq_entries = qemu_malloc(nentries *
-+                                        sizeof *dev->msix_irq_entries);
-+    if (!dev->msix_irq_entries)
-+        goto err_entries;
-+
-+    dev->msix_entry_used = qemu_mallocz(nentries *
-+                                        sizeof *dev->msix_entry_used);
-+    if (!dev->msix_entry_used)
-+        goto err_used;
-+
-+    dev->msix_table_page = qemu_mallocz(MSIX_PAGE_SIZE);
-+    if (!dev->msix_table_page)
-+        goto err_page;
-+
-+    dev->msix_mmio_index = cpu_register_io_memory(0, msix_mmio_read,
-+                                                  msix_mmio_write, dev);
-+    if (dev->msix_mmio_index == -1) {
-+        ret = -EBUSY;
-+        goto err_index;
-+    }
-+
-+    dev->msix_irq_entries_nr = nentries;
-+    return 0;
-+
-+err_index:
-+    qemu_free(dev->msix_table_page);
-+    dev->msix_table_page = NULL;
-+err_page:
-+    qemu_free(dev->msix_entry_used);
-+    dev->msix_entry_used = NULL;
-+err_used:
-+    qemu_free(dev->msix_irq_entries);
-+    dev->msix_irq_entries = NULL;
-+err_entries:
-+    pci_del_capability(dev, PCI_CAP_ID_MSIX, PCI_CAPABILITY_CONFIG_MSIX_LENGTH);
-+    return ret;
-+}
-+
-+/* Clean up resources for the device. */
-+void msix_uninit(PCIDevice *dev)
-+{
-+    if (!dev->cap.msix)
-+        return;
-+    msix_free_irq_entries(dev);
-+    dev->msix_irq_entries_nr = 0;
-+    kvm_commit_irq_routes(kvm_context);
-+    cpu_unregister_io_memory(dev->msix_mmio_index);
-+    qemu_free(dev->msix_table_page);
-+    dev->msix_table_page = NULL;
-+    qemu_free(dev->msix_entry_used);
-+    dev->msix_entry_used = NULL;
-+    qemu_free(dev->msix_irq_entries);
-+    dev->msix_irq_entries = NULL;
-+    pci_del_capability(dev, PCI_CAP_ID_MSIX, PCI_CAPABILITY_CONFIG_MSIX_LENGTH);
-+    return;
-+}
-+
-+void msix_save(PCIDevice *vdev, QEMUFile *f)
-+{
-+    /* TODO */
-+}
-+void msix_load(PCIDevice *vdev, QEMUFile *f)
-+{
-+    /* TODO */
-+}
-+
-+/* Is MSI-X enabled? */
-+int msix_enabled(PCIDevice *dev)
-+{
-+    return dev->cap.msix &&
-+        (dev->config[dev->cap.msix + PCI_CAP_FLAGS + 1] &
-+         (PCI_MSIX_FLAGS_ENABLE >> 8));
-+}
-+
-+/* Bar where MSI-X table resides. Returns -1 if no MSI-X capability */
-+int msix_bar_nr(PCIDevice *dev)
-+{
-+    uint8_t *config = dev->config + dev->cap.msix;
-+    if (!dev->cap.msix)
-+        return -1;
-+    return pci_get_word(config + MSIX_TABLE_OFFSET) & PCI_MSIX_FLAGS_BIRMASK;
-+}
-+
-+/* Offset of MSI-X table within the bar */
-+uint32_t msix_offset(PCIDevice *dev)
-+{
-+    uint8_t *config = dev->config + dev->cap.msix;
-+    return pci_get_word(config + MSIX_TABLE_OFFSET) & ~PCI_MSIX_FLAGS_BIRMASK;
-+}
-+
-+/* Size of space reserved for */
-+uint32_t msix_size(PCIDevice *dev)
-+{
-+    return MSIX_PAGE_SIZE;
-+}
-+
-+/* TODO: convert to qemu_set_irq and friends, to make this work without kvm */
-+/* Send an MSI-X message */
-+void msix_notify(PCIDevice *dev, unsigned vector)
-+{
-+    if (vector < dev->msix_irq_entries_nr && dev->msix_entry_used[vector])
-+        kvm_set_irq(dev->msix_irq_entries[vector].gsi, 1, NULL);
-+}
-+
-+/* Mark vector as used. */
-+int msix_vector_use(PCIDevice *dev, unsigned vector)
-+{
-+    uint8_t *table_entry = dev->msix_table_page + vector * MSIX_ENTRY_SIZE;
-+    struct kvm_irq_routing_entry *entry = dev->msix_irq_entries + vector;
-+    int r;
-+
-+    if (vector >= dev->msix_irq_entries_nr || dev->msix_entry_used[vector]++)
-+        return 0;
-+
-+    r = kvm_get_irq_route_gsi(kvm_context);
-+    if (r < 0)
-+        return r;
-+
-+    entry->gsi = r;
-+    entry->type = KVM_IRQ_ROUTING_MSI;
-+    entry->flags = 0;
-+    entry->u.msi.address_lo = pci_get_long(table_entry + MSIX_MSG_ADDR);
-+    entry->u.msi.address_hi = pci_get_long(table_entry + MSIX_MSG_UPPER_ADDR);
-+    entry->u.msi.data = pci_get_long(table_entry + MSIX_MSG_DATA);
-+    r = kvm_add_routing_entry(kvm_context, entry);
-+    if (r < 0) {
-+        perror("msix_vector_use: kvm_add_routing_entry failed: ");
-+        return r;
-+    }
-+
-+    r = kvm_commit_irq_routes(kvm_context);
-+    if (r < 0) {
-+        perror("msix_vector_use: kvm_add_routing_entry failed: ");
-+        return r;
-+    }
-+    return 0;
-+}
-+
-+/* Mark vector as unused. */
-+void msix_vector_unuse(PCIDevice *dev, unsigned vector)
-+{
-+    if (vector < dev->msix_irq_entries_nr && dev->msix_entry_used[vector]
-+        && !--dev->msix_entry_used[vector]) {
-+        kvm_del_routing_entry(kvm_context, &dev->msix_irq_entries[vector]);
++            msix_free_irq_entries(dev);
 +        kvm_commit_irq_routes(kvm_context);
 +    }
-+}
-+
-+int msix_vector_is_used(PCIDevice *dev, unsigned vector)
-+{
-+    return vector < dev->msix_irq_entries_nr && dev->msix_entry_used[vector];
-+}
-diff --git a/hw/msix.h b/hw/msix.h
-new file mode 100644
-index 0000000..282a1c6
---- /dev/null
-+++ b/hw/msix.h
-@@ -0,0 +1,33 @@
-+#ifndef QEMU_MSIX_H
-+#define QEMU_MSIX_H
-+
-+#include "qemu-common.h"
-+
-+int msix_init(PCIDevice *pdev, unsigned short nentries,
-+              unsigned bar_nr, unsigned bar_size,
-+              unsigned *new_size);
-+
-+void msix_write_config(PCIDevice *pci_dev, uint32_t address,
-+                       uint32_t val, int len);
-+
-+void msix_mmio_map(PCIDevice *pci_dev, int region_num,
-+                   uint32_t addr, uint32_t size, int type);
-+
-+void msix_uninit(PCIDevice *d);
-+
-+void msix_save(PCIDevice *vdev, QEMUFile *f);
-+void msix_load(PCIDevice *vdev, QEMUFile *f);
-+
-+int msix_enabled(PCIDevice *dev);
-+
-+int msix_bar_nr(PCIDevice *dev);
-+uint32_t msix_offset(PCIDevice *dev);
-+uint32_t msix_size(PCIDevice *dev);
-+
-+int msix_vector_use(PCIDevice *dev, unsigned vector);
-+void msix_vector_unuse(PCIDevice *dev, unsigned vector);
-+int msix_vector_is_used(PCIDevice *dev, unsigned vector);
-+
-+void msix_notify(PCIDevice *dev, unsigned vector);
-+
-+#endif
-diff --git a/hw/pci.c b/hw/pci.c
-index 64fb82e..fc1ca46 100644
---- a/hw/pci.c
-+++ b/hw/pci.c
-@@ -323,6 +323,7 @@ PCIDevice *pci_register_device(PCIBus *bus, const char *name,
-     pci_dev->irq_index = pci_irq_index++;
-     bus->devices[devfn] = pci_dev;
-     pci_dev->irq = qemu_allocate_irqs(pci_set_irq, pci_dev, 4);
-+    pci_dev->cap.start = PCI_CAPABILITY_CONFIG_START_ADDR;
-     return pci_dev;
  }
  
-@@ -1004,8 +1005,30 @@ PCIBus *pci_bridge_init(PCIBus *bus, int devfn, uint16_t vid, uint16_t did,
-     return s->bus;
- }
- 
-+void pci_add_capability(PCIDevice *pdev, uint8_t cap_id, uint8_t size)
-+{
-+    uint8_t offset = pdev->cap.start + pdev->cap.length;
-+    uint8_t *config = pdev->config + offset;
-+    config[PCI_CAP_LIST_ID] = cap_id;
-+    config[PCI_CAP_LIST_NEXT] = pdev->config[PCI_CAPABILITY_LIST];
-+    pdev->config[PCI_CAPABILITY_LIST] = offset;
-+    pdev->cap.length += size;
-+}
-+
-+void pci_del_capability(PCIDevice *pdev, uint8_t cap_id, uint8_t size)
-+{
-+    uint8_t offset = pdev->config[PCI_CAPABILITY_LIST];
-+    uint8_t *config = pdev->config + offset;
-+    if (config[PCI_CAP_LIST_ID] != cap_id) {
-+        fprintf(stderr, "pci_remove_capability: expected 0x%x found 0x%x\n",
-+                cap_id, config[PCI_CAP_LIST_ID]);
-+        return;
-+    }
-+    pdev->config[PCI_CAPABILITY_LIST] = config[PCI_CAP_LIST_NEXT];
-+    pdev->cap.length -= size;
-+}
-+
- int pci_enable_capability_support(PCIDevice *pci_dev,
--                                  uint32_t config_start,
-                                   PCICapConfigReadFunc *config_read,
-                                   PCICapConfigWriteFunc *config_write,
-                                   PCICapConfigInitFunc *config_init)
-@@ -1015,13 +1038,6 @@ int pci_enable_capability_support(PCIDevice *pci_dev,
- 
-     pci_dev->config[0x06] |= 0x10; // status = capabilities
- 
--    if (config_start == 0)
--	pci_dev->cap.start = PCI_CAPABILITY_CONFIG_DEFAULT_START_ADDR;
--    else if (config_start >= 0x40 && config_start < 0xff)
--        pci_dev->cap.start = config_start;
--    else
--        return -EINVAL;
--
-     if (config_read)
-         pci_dev->cap.config_read = config_read;
-     else
-@@ -1031,6 +1047,5 @@ int pci_enable_capability_support(PCIDevice *pci_dev,
-     else
-         pci_dev->cap.config_write = pci_default_cap_write_config;
-     pci_dev->cap.supported = 1;
--    pci_dev->config[PCI_CAPABILITY_LIST] = pci_dev->cap.start;
--    return config_init(pci_dev);
-+    return config_init ? config_init(pci_dev) : 0;
- }
+ static uint32_t msix_mmio_readl(void *opaque, target_phys_addr_t addr)
 diff --git a/hw/pci.h b/hw/pci.h
-index 21e2cbf..cd88564 100644
+index cd88564..935d194 100644
 --- a/hw/pci.h
 +++ b/hw/pci.h
-@@ -119,6 +119,10 @@ typedef struct PCIIORegion {
- #define PCI_MIN_GNT		0x3e	/* 8 bits */
- #define PCI_MAX_LAT		0x3f	/* 8 bits */
- 
-+#define PCI_CAP_LIST_ID		0	/* Capability ID */
-+#define PCI_CAP_LIST_NEXT	1	/* Next capability in the list */
-+#define PCI_CAP_FLAGS		2	/* Capability defined flags (16 bits) */
-+
- #define PCI_REVISION            0x08    /* obsolete, use PCI_REVISION_ID */
- #define PCI_SUBVENDOR_ID        0x2c    /* obsolete, use PCI_SUBSYSTEM_VENDOR_ID */
- #define PCI_SUBDEVICE_ID        0x2e    /* obsolete, use PCI_SUBSYSTEM_ID */
-@@ -152,7 +156,7 @@ typedef struct PCIIORegion {
- #define PCI_COMMAND_RESERVED_MASK_HI (PCI_COMMAND_RESERVED >> 8)
- 
- #define PCI_CAPABILITY_CONFIG_MAX_LENGTH 0x60
--#define PCI_CAPABILITY_CONFIG_DEFAULT_START_ADDR 0x40
-+#define PCI_CAPABILITY_CONFIG_START_ADDR 0x40
- #define PCI_CAPABILITY_CONFIG_MSI_LENGTH 0x10
- #define PCI_CAPABILITY_CONFIG_MSIX_LENGTH 0x10
- 
-@@ -185,7 +189,18 @@ struct PCIDevice {
-         unsigned int start, length;
-         PCICapConfigReadFunc *config_read;
-         PCICapConfigWriteFunc *config_write;
-+        /* Offsets to specific capabilities */
-+        uint8_t msix;
-     } cap;
-+
-+    int msix_irq_entries_nr;
-+    struct kvm_irq_routing_entry *msix_irq_entries;
-+    /* Space to store MSIX table */
-+    uint8_t *msix_table_page;
-+    /* MMIO index used to map MSIX table and pending bit entries. */
-+    int msix_mmio_index;
-+    /* Reference-count for entries actually in use by driver. */
-+    unsigned *msix_entry_used;
+@@ -201,6 +201,10 @@ struct PCIDevice {
+     int msix_mmio_index;
+     /* Reference-count for entries actually in use by driver. */
+     unsigned *msix_entry_used;
++    /* For some devices, there's no easy way to get MSI-X usage data from the
++     * guest. As a hack, we can look at vector control and message data fields,
++     * and assume that all unmasked vectors with data != 0 are used. */
++    int msix_hack;
  };
  
  PCIDevice *pci_register_device(PCIBus *bus, const char *name,
-@@ -198,12 +213,16 @@ void pci_register_io_region(PCIDevice *pci_dev, int region_num,
-                             uint32_t size, int type,
-                             PCIMapIORegionFunc *map_func);
- 
-+/* Reserve space and add capability to the linked list in pci config space */
-+void pci_add_capability(PCIDevice *pci_dev, uint8_t cap_id, uint8_t cap_size);
-+
- int pci_enable_capability_support(PCIDevice *pci_dev,
--                                  uint32_t config_start,
-                                   PCICapConfigReadFunc *config_read,
-                                   PCICapConfigWriteFunc *config_write,
-                                   PCICapConfigInitFunc *config_init);
- 
-+void pci_del_capability(PCIDevice *pci_dev, uint8_t cap_id, uint8_t cap_size);
-+
- int pci_map_irq(PCIDevice *pci_dev, int pin);
- uint32_t pci_default_read_config(PCIDevice *d,
-                                  uint32_t address, int len);
-@@ -242,21 +261,45 @@ PCIBus *pci_bridge_init(PCIBus *bus, int devfn, uint16_t vid, uint16_t did,
-                         pci_map_irq_fn map_irq, const char *name);
- 
- static inline void
-+pci_set_word(uint8_t *config, uint16_t val)
-+{
-+    cpu_to_le16wu((uint16_t *)config, val);
-+}
-+
-+static inline uint16_t
-+pci_get_word(uint8_t *config)
-+{
-+    return le16_to_cpupu((uint16_t *)config);
-+}
-+
-+static inline void
-+pci_set_long(uint8_t *config, uint16_t val)
-+{
-+    cpu_to_le32wu((uint32_t *)config, val);
-+}
-+
-+static inline uint16_t
-+pci_get_long(uint8_t *config)
-+{
-+    return le32_to_cpupu((uint32_t *)config);
-+}
-+
-+static inline void
- pci_config_set_vendor_id(uint8_t *pci_config, uint16_t val)
- {
--    cpu_to_le16wu((uint16_t *)&pci_config[PCI_VENDOR_ID], val);
-+    pci_set_word(&pci_config[PCI_VENDOR_ID], val);
- }
- 
- static inline void
- pci_config_set_device_id(uint8_t *pci_config, uint16_t val)
- {
--    cpu_to_le16wu((uint16_t *)&pci_config[PCI_DEVICE_ID], val);
-+    pci_set_word(&pci_config[PCI_DEVICE_ID], val);
- }
- 
- static inline void
- pci_config_set_class(uint8_t *pci_config, uint16_t val)
- {
--    cpu_to_le16wu((uint16_t *)&pci_config[PCI_CLASS_DEVICE], val);
-+    pci_set_word(&pci_config[PCI_CLASS_DEVICE], val);
- }
- 
- /* lsi53c895a.c */
-diff --git a/hw/virtio-balloon.c b/hw/virtio-balloon.c
-index 7f41a2a..c1a5c3f 100644
---- a/hw/virtio-balloon.c
-+++ b/hw/virtio-balloon.c
-@@ -180,7 +180,7 @@ void *virtio_balloon_init(PCIBus *bus)
-                                          PCI_VENDOR_ID_REDHAT_QUMRANET,
-                                          VIRTIO_ID_BALLOON,
-                                          PCI_CLASS_MEMORY_RAM, 0x00,
--                                         8, sizeof(VirtIOBalloon));
-+                                         8, sizeof(VirtIOBalloon), 0);
-     if (s == NULL)
-         return NULL;
- 
-diff --git a/hw/virtio-blk.c b/hw/virtio-blk.c
-index 51a8e22..7858a77 100644
---- a/hw/virtio-blk.c
-+++ b/hw/virtio-blk.c
-@@ -251,7 +251,8 @@ void *virtio_blk_init(PCIBus *bus, BlockDriverState *bs)
-                                        PCI_VENDOR_ID_REDHAT_QUMRANET,
-                                        VIRTIO_ID_BLOCK,
-                                        PCI_CLASS_STORAGE_OTHER, 0x00,
--                                       sizeof(struct virtio_blk_config), sizeof(VirtIOBlock));
-+                                       sizeof(struct virtio_blk_config), sizeof(VirtIOBlock),
-+                                       0);
-     if (!s)
-         return NULL;
- 
-diff --git a/hw/virtio-console.c b/hw/virtio-console.c
-index 89e8be0..759f249 100644
---- a/hw/virtio-console.c
-+++ b/hw/virtio-console.c
-@@ -133,7 +133,8 @@ void *virtio_console_init(PCIBus *bus, CharDriverState *chr)
-                                          PCI_VENDOR_ID_REDHAT_QUMRANET,
-                                          VIRTIO_ID_CONSOLE,
-                                          PCI_CLASS_OTHERS, 0x00,
--                                         0, sizeof(VirtIOConsole));
-+                                         0, sizeof(VirtIOConsole),
-+                                         0);
-     if (s == NULL)
-         return NULL;
- 
-diff --git a/hw/virtio-net.c b/hw/virtio-net.c
-index 5f5f2f3..cc1c739 100644
---- a/hw/virtio-net.c
-+++ b/hw/virtio-net.c
-@@ -691,7 +691,8 @@ PCIDevice *virtio_net_init(PCIBus *bus, NICInfo *nd, int devfn)
-                                      VIRTIO_ID_NET,
-                                      PCI_CLASS_NETWORK_ETHERNET, 0x00,
-                                      sizeof(struct virtio_net_config),
--                                     sizeof(VirtIONet));
-+                                     sizeof(VirtIONet),
-+                                     3);
-     if (!n)
-         return NULL;
- 
-diff --git a/hw/virtio.c b/hw/virtio.c
-index 4aa5f20..86d0b53 100644
---- a/hw/virtio.c
-+++ b/hw/virtio.c
-@@ -15,6 +15,7 @@
- 
- #include "virtio.h"
- #include "sysemu.h"
-+#include "msix.h"
- 
- /* from Linux's linux/virtio_pci.h */
- 
-@@ -44,7 +45,21 @@
-  * a read-and-acknowledge. */
- #define VIRTIO_PCI_ISR                  19
- 
--#define VIRTIO_PCI_CONFIG               20
-+/* MSI-X registers: only enabled if MSI-X is enabled. */
-+/* A 16-bit vector for configuration changes. */
-+#define VIRTIO_MSI_CONFIG_VECTOR        20
-+/* A 16-bit vector for selected queue notifications. */
-+#define VIRTIO_MSI_QUEUE_VECTOR         22
-+
-+#define VIRTIO_PCI_CONFIG_NOMSI         20
-+#define VIRTIO_PCI_CONFIG_MSI           24
-+#define VIRTIO_PCI_CONFIG_MAX           24
-+
-+/* The remaining space is defined by each driver as the per-driver
-+ * configuration space */
-+#define VIRTIO_PCI_CONFIG(dev)          (msix_enabled(dev) ? \
-+                                         VIRTIO_PCI_CONFIG_MSI : \
-+                                         VIRTIO_PCI_CONFIG_NOMSI)
- 
- /* Virtio ABI version, if we increment this, we break the guest driver. */
- #define VIRTIO_PCI_ABI_VERSION          0
-@@ -57,6 +72,7 @@
-  * x86 pagesize again. */
- #define VIRTIO_PCI_VRING_ALIGN         4096
- 
-+
- /* QEMU doesn't strictly need write barriers since everything runs in
-  * lock-step.  We'll leave the calls to wmb() in though to make it obvious for
-  * KVM or if kqemu gets SMP support.
-@@ -105,6 +121,7 @@ struct VirtQueue
-     uint32_t pfn;
-     uint16_t last_avail_idx;
-     int inuse;
-+    uint16_t vector;
-     void (*handle_output)(VirtIODevice *vdev, VirtQueue *vq);
- };
- 
-@@ -431,7 +448,8 @@ static void virtio_reset(void *opaque)
-     vdev->queue_sel = 0;
-     vdev->status = 0;
-     vdev->isr = 0;
--    virtio_update_irq(vdev);
-+    if (!msix_enabled(&vdev->pci_dev))
-+        virtio_update_irq(vdev);
- 
-     for(i = 0; i < VIRTIO_PCI_QUEUE_MAX; i++) {
-         vdev->vq[i].vring.desc = 0;
-@@ -447,8 +465,6 @@ static void virtio_ioport_write(void *opaque, uint32_t addr, uint32_t val)
-     VirtIODevice *vdev = to_virtio_device(opaque);
-     ram_addr_t pa;
- 
--    addr -= vdev->addr;
--
-     switch (addr) {
-     case VIRTIO_PCI_GUEST_FEATURES:
- 	/* Guest does not negotiate properly?  We have to assume nothing. */
-@@ -484,6 +500,24 @@ static void virtio_ioport_write(void *opaque, uint32_t addr, uint32_t val)
-         if (vdev->status == 0)
-             virtio_reset(vdev);
-         break;
-+    case VIRTIO_MSI_CONFIG_VECTOR:
-+        msix_vector_unuse(&vdev->pci_dev, vdev->config_vector);
-+        /* Make it possible for guest to discover an error took place. */
-+        if (msix_vector_use(&vdev->pci_dev, val) < 0)
-+            val = -1;
-+        vdev->config_vector = val;
-+        break;
-+    case VIRTIO_MSI_QUEUE_VECTOR:
-+        msix_vector_unuse(&vdev->pci_dev, vdev->vq[vdev->queue_sel].vector);
-+        /* Make it possible for guest to discover an error took place. */
-+        if (msix_vector_use(&vdev->pci_dev, val) < 0)
-+            val = -1;
-+        vdev->vq[vdev->queue_sel].vector = val;
-+        break;
-+    default:
-+        fprintf(stderr, "%s: unexpected address 0x%x value 0x%x\n",
-+                __func__, addr, val);
-+        break;
-     }
- }
- 
-@@ -492,8 +526,6 @@ static uint32_t virtio_ioport_read(void *opaque, uint32_t addr)
-     VirtIODevice *vdev = to_virtio_device(opaque);
-     uint32_t ret = 0xFFFFFFFF;
- 
--    addr -= vdev->addr;
--
-     switch (addr) {
-     case VIRTIO_PCI_HOST_FEATURES:
-         ret = vdev->get_features(vdev);
-@@ -518,9 +550,14 @@ static uint32_t virtio_ioport_read(void *opaque, uint32_t addr)
-         /* reading from the ISR also clears it. */
-         ret = vdev->isr;
-         vdev->isr = 0;
--        virtio_update_irq(vdev);
-+        if (!msix_enabled(&vdev->pci_dev))
-+            virtio_update_irq(vdev);
-+        break;
-+    case VIRTIO_MSI_QUEUE_VECTOR:
-+        ret = vdev->vq[vdev->queue_sel].vector;
-         break;
-     default:
-+        fprintf(stderr, "%s: unexpected address 0x%x\n", __func__, addr);
-         break;
-     }
- 
-@@ -530,11 +567,15 @@ static uint32_t virtio_ioport_read(void *opaque, uint32_t addr)
- static uint32_t virtio_config_readb(void *opaque, uint32_t addr)
- {
-     VirtIODevice *vdev = opaque;
-+    uint32_t config = VIRTIO_PCI_CONFIG(&vdev->pci_dev);
-     uint8_t val;
- 
-     vdev->get_config(vdev, vdev->config);
- 
--    addr -= vdev->addr + VIRTIO_PCI_CONFIG;
-+    addr -= vdev->addr;
-+    if (addr < config)
-+        return virtio_ioport_read(opaque, addr);
-+    addr -= config;
-     if (addr > (vdev->config_len - sizeof(val)))
-         return (uint32_t)-1;
- 
-@@ -545,11 +586,15 @@ static uint32_t virtio_config_readb(void *opaque, uint32_t addr)
- static uint32_t virtio_config_readw(void *opaque, uint32_t addr)
- {
-     VirtIODevice *vdev = opaque;
-+    uint32_t config = VIRTIO_PCI_CONFIG(&vdev->pci_dev);
-     uint16_t val;
- 
-     vdev->get_config(vdev, vdev->config);
- 
--    addr -= vdev->addr + VIRTIO_PCI_CONFIG;
-+    addr -= vdev->addr;
-+    if (addr < config)
-+        return virtio_ioport_read(opaque, addr);
-+    addr -= config;
-     if (addr > (vdev->config_len - sizeof(val)))
-         return (uint32_t)-1;
- 
-@@ -560,11 +605,15 @@ static uint32_t virtio_config_readw(void *opaque, uint32_t addr)
- static uint32_t virtio_config_readl(void *opaque, uint32_t addr)
- {
-     VirtIODevice *vdev = opaque;
-+    uint32_t config = VIRTIO_PCI_CONFIG(&vdev->pci_dev);
-     uint32_t val;
- 
-     vdev->get_config(vdev, vdev->config);
- 
--    addr -= vdev->addr + VIRTIO_PCI_CONFIG;
-+    addr -= vdev->addr;
-+    if (addr < config)
-+        return virtio_ioport_read(opaque, addr);
-+    addr -= config;
-     if (addr > (vdev->config_len - sizeof(val)))
-         return (uint32_t)-1;
- 
-@@ -575,9 +624,15 @@ static uint32_t virtio_config_readl(void *opaque, uint32_t addr)
- static void virtio_config_writeb(void *opaque, uint32_t addr, uint32_t data)
- {
-     VirtIODevice *vdev = opaque;
-+    uint32_t config = VIRTIO_PCI_CONFIG(&vdev->pci_dev);
-     uint8_t val = data;
- 
--    addr -= vdev->addr + VIRTIO_PCI_CONFIG;
-+    addr -= vdev->addr;
-+    if (addr < config) {
-+        virtio_ioport_write(opaque, addr, val);
-+        return;
-+    }
-+    addr -= config;
-     if (addr > (vdev->config_len - sizeof(val)))
-         return;
- 
-@@ -590,9 +645,15 @@ static void virtio_config_writeb(void *opaque, uint32_t addr, uint32_t data)
- static void virtio_config_writew(void *opaque, uint32_t addr, uint32_t data)
- {
-     VirtIODevice *vdev = opaque;
-+    uint32_t config = VIRTIO_PCI_CONFIG(&vdev->pci_dev);
-     uint16_t val = data;
- 
--    addr -= vdev->addr + VIRTIO_PCI_CONFIG;
-+    addr -= vdev->addr;
-+    if (addr < config) {
-+        virtio_ioport_write(opaque, addr, val);
-+        return;
-+    }
-+    addr -= config;
-     if (addr > (vdev->config_len - sizeof(val)))
-         return;
- 
-@@ -605,9 +666,15 @@ static void virtio_config_writew(void *opaque, uint32_t addr, uint32_t data)
- static void virtio_config_writel(void *opaque, uint32_t addr, uint32_t data)
- {
-     VirtIODevice *vdev = opaque;
-+    uint32_t config = VIRTIO_PCI_CONFIG(&vdev->pci_dev);
-     uint32_t val = data;
- 
--    addr -= vdev->addr + VIRTIO_PCI_CONFIG;
-+    addr -= vdev->addr;
-+    if (addr < config) {
-+        virtio_ioport_write(opaque, addr, val);
-+        return;
-+    }
-+    addr -= config;
-     if (addr > (vdev->config_len - sizeof(val)))
-         return;
- 
-@@ -621,30 +688,30 @@ static void virtio_map(PCIDevice *pci_dev, int region_num,
-                        uint32_t addr, uint32_t size, int type)
- {
-     VirtIODevice *vdev = to_virtio_device(pci_dev);
--    int i;
- 
-     vdev->addr = addr;
--    for (i = 0; i < 3; i++) {
--        register_ioport_write(addr, 20, 1 << i, virtio_ioport_write, vdev);
--        register_ioport_read(addr, 20, 1 << i, virtio_ioport_read, vdev);
--    }
- 
--    if (vdev->config_len) {
--        register_ioport_write(addr + 20, vdev->config_len, 1,
--                              virtio_config_writeb, vdev);
--        register_ioport_write(addr + 20, vdev->config_len, 2,
--                              virtio_config_writew, vdev);
--        register_ioport_write(addr + 20, vdev->config_len, 4,
--                              virtio_config_writel, vdev);
--        register_ioport_read(addr + 20, vdev->config_len, 1,
--                             virtio_config_readb, vdev);
--        register_ioport_read(addr + 20, vdev->config_len, 2,
--                             virtio_config_readw, vdev);
--        register_ioport_read(addr + 20, vdev->config_len, 4,
--                             virtio_config_readl, vdev);
-+    register_ioport_write(addr, VIRTIO_PCI_CONFIG_MAX + vdev->config_len, 1,
-+                          virtio_config_writeb, vdev);
-+    register_ioport_write(addr, VIRTIO_PCI_CONFIG_MAX + vdev->config_len, 2,
-+                          virtio_config_writew, vdev);
-+    register_ioport_write(addr, VIRTIO_PCI_CONFIG_MAX + vdev->config_len, 4,
-+                          virtio_config_writel, vdev);
-+    register_ioport_read(addr, VIRTIO_PCI_CONFIG_MAX + vdev->config_len, 1,
-+                         virtio_config_readb, vdev);
-+    register_ioport_read(addr, VIRTIO_PCI_CONFIG_MAX + vdev->config_len, 2,
-+                         virtio_config_readw, vdev);
-+    register_ioport_read(addr, VIRTIO_PCI_CONFIG_MAX + vdev->config_len, 4,
-+                         virtio_config_readl, vdev);
- 
-+    if (vdev->config_len)
-         vdev->get_config(vdev, vdev->config);
--    }
-+}
-+
-+static void virtio_mmio_map(PCIDevice *pci_dev, int region_num,
-+                            uint32_t addr, uint32_t size, int type)
-+{
-+    msix_mmio_map(pci_dev, region_num, addr, size, type);
- }
- 
- VirtQueue *virtio_add_queue(VirtIODevice *vdev, int queue_size,
-@@ -662,6 +729,7 @@ VirtQueue *virtio_add_queue(VirtIODevice *vdev, int queue_size,
- 
-     vdev->vq[i].vring.num = queue_size;
-     vdev->vq[i].handle_output = handle_output;
-+    vdev->vq[i].vector = -1;
- 
-     return &vdev->vq[i];
- }
-@@ -675,7 +743,10 @@ void virtio_notify(VirtIODevice *vdev, VirtQueue *vq)
-         return;
- 
-     vdev->isr |= 0x01;
--    virtio_update_irq(vdev);
-+    if (msix_enabled(&vdev->pci_dev))
-+        msix_notify(&vdev->pci_dev, vq->vector);
-+    else
-+        virtio_update_irq(vdev);
- }
- 
- void virtio_notify_config(VirtIODevice *vdev)
-@@ -684,7 +755,10 @@ void virtio_notify_config(VirtIODevice *vdev)
-         return;
- 
-     vdev->isr |= 0x03;
--    virtio_update_irq(vdev);
-+    if (msix_enabled(&vdev->pci_dev))
-+        msix_notify(&vdev->pci_dev, vdev->config_vector);
-+    else
-+        virtio_update_irq(vdev);
- }
- 
- void virtio_save(VirtIODevice *vdev, QEMUFile *f)
-@@ -716,6 +790,7 @@ void virtio_save(VirtIODevice *vdev, QEMUFile *f)
-         qemu_put_be32s(f, &vdev->vq[i].pfn);
-         qemu_put_be16s(f, &vdev->vq[i].last_avail_idx);
-     }
-+    msix_save(&vdev->pci_dev, f);
- }
- 
- void virtio_load(VirtIODevice *vdev, QEMUFile *f)
-@@ -746,12 +821,15 @@ void virtio_load(VirtIODevice *vdev, QEMUFile *f)
-             virtqueue_init(&vdev->vq[i], pa);
-         }
-     }
-+    msix_load(&vdev->pci_dev, f);
- 
--    virtio_update_irq(vdev);
-+    if (!msix_enabled(&vdev->pci_dev))
-+        virtio_update_irq(vdev);
- }
- 
- void virtio_cleanup(VirtIODevice *vdev)
- {
-+    msix_uninit(&vdev->pci_dev);
-     if (vdev->config)
-         qemu_free(vdev->config);
-     qemu_free(vdev->vq);
-@@ -761,7 +839,8 @@ VirtIODevice *virtio_init_pci(PCIBus *bus, const char *name,
-                               uint16_t vendor, uint16_t device,
-                               uint16_t subvendor, uint16_t subdevice,
-                               uint16_t class_code, uint8_t pif,
--                              size_t config_size, size_t struct_size)
-+                              size_t config_size, size_t struct_size,
-+                              int nvectors)
- {
-     VirtIODevice *vdev;
-     PCIDevice *pci_dev;
-@@ -775,6 +854,7 @@ VirtIODevice *virtio_init_pci(PCIBus *bus, const char *name,
- 
-     vdev = to_virtio_device(pci_dev);
- 
-+    vdev->config_vector = -1;
-     vdev->status = 0;
-     vdev->isr = 0;
-     vdev->queue_sel = 0;
-@@ -810,7 +890,22 @@ VirtIODevice *virtio_init_pci(PCIBus *bus, const char *name,
- 
-     pci_register_io_region(pci_dev, 0, size, PCI_ADDRESS_SPACE_IO,
-                            virtio_map);
-+
-     qemu_register_reset(virtio_reset, vdev);
-+    if (!nvectors)
-+        return vdev;
-+
-+    if (msix_init(pci_dev, nvectors, 1, 0, &size))
-+        return vdev;
-+
-+    if (pci_enable_capability_support(pci_dev, NULL,
-+                    msix_write_config,
-+                    NULL) < 0) {
-+        msix_uninit(pci_dev);
-+        return vdev;
-+    }
- 
-+    pci_register_io_region(pci_dev, 1, size, PCI_ADDRESS_SPACE_MEM,
-+                           virtio_mmio_map);
-     return vdev;
- }
-diff --git a/hw/virtio.h b/hw/virtio.h
-index 935b118..7df1972 100644
---- a/hw/virtio.h
-+++ b/hw/virtio.h
-@@ -83,6 +83,7 @@ struct VirtIODevice
-     uint32_t features;
-     size_t config_len;
-     void *config;
-+    uint16_t config_vector;
-     uint32_t (*get_features)(VirtIODevice *vdev);
-     uint32_t (*bad_features)(VirtIODevice *vdev);
-     void (*set_features)(VirtIODevice *vdev, uint32_t val);
-@@ -96,7 +97,8 @@ VirtIODevice *virtio_init_pci(PCIBus *bus, const char *name,
-                               uint16_t vendor, uint16_t device,
-                               uint16_t subvendor, uint16_t subdevice,
-                               uint16_t class_code, uint8_t pif,
--                              size_t config_size, size_t struct_size);
-+                              size_t config_size, size_t struct_size,
-+                              int nvectors);
- 
- VirtQueue *virtio_add_queue(VirtIODevice *vdev, int queue_size,
-                             void (*handle_output)(VirtIODevice *,
 -- 
 1.6.3.rc3.1.g830204
