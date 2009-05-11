@@ -1,13 +1,14 @@
 From: Roel Kluin <roel.kluin@gmail.com>
-Subject: [PATCH 2] xen pvfb: remove driver_data direct access of struct device
-Date: Mon, 11 May 2009 21:13:32 +0200
-Message-ID: <4A0878DC.8040907@gmail.com>
-References: <4A08775C.20305@gmail.com>
+Subject: [PATCH 3] xen-netfront: remove driver_data direct access of struct
+ device
+Date: Mon, 11 May 2009 21:40:57 +0200
+Message-ID: <4A087F49.7040204@gmail.com>
+References: <4A08775C.20305@gmail.com> <4A0878DC.8040907@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1754456AbZEKTNp@vger.kernel.org>
-In-Reply-To: <4A08775C.20305@gmail.com>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1758805AbZEKTlQ@vger.kernel.org>
+In-Reply-To: <4A0878DC.8040907@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: jeremy@xensource.com
 Cc: virtualization@lists.osdl.org, xen-devel@lists.xensource.com, lkml <linux-kernel@vger.kernel.org>
@@ -18,45 +19,52 @@ functions dev_get_drvdata() and dev_set_drvdata() should be used.
 
 Signed-off-by: Roel Kluin <roel.kluin@gmail.com>
 ---
-And another few, also see http://lkml.org/lkml/2009/5/4/353
-
-diff --git a/drivers/video/xen-fbfront.c b/drivers/video/xen-fbfront.c
-index 2493f05..15502d5 100644
---- a/drivers/video/xen-fbfront.c
-+++ b/drivers/video/xen-fbfront.c
-@@ -384,7 +384,7 @@ static int __devinit xenfb_probe(struct xenbus_device *dev,
- 		fb_size = XENFB_DEFAULT_FB_LEN;
+diff --git a/drivers/net/xen-netfront.c b/drivers/net/xen-netfront.c
+index f673253..8d88dae 100644
+--- a/drivers/net/xen-netfront.c
++++ b/drivers/net/xen-netfront.c
+@@ -1212,7 +1212,7 @@ static int __devinit netfront_probe(struct xenbus_device *dev,
  	}
  
+ 	info = netdev_priv(netdev);
 -	dev->dev.driver_data = info;
 +	dev_set_drvdata(&dev->dev, info);
- 	info->xbdev = dev;
- 	info->irq = -1;
- 	info->x1 = info->y1 = INT_MAX;
-@@ -503,7 +503,7 @@ xenfb_make_preferred_console(void)
  
- static int xenfb_resume(struct xenbus_device *dev)
+ 	err = register_netdev(info->netdev);
+ 	if (err) {
+@@ -1233,7 +1233,7 @@ static int __devinit netfront_probe(struct xenbus_device *dev,
+ 
+  fail:
+ 	free_netdev(netdev);
+-	dev->dev.driver_data = NULL;
++	dev_set_drvdata(&dev->dev, NULL);
+ 	return err;
+ }
+ 
+@@ -1275,7 +1275,7 @@ static void xennet_disconnect_backend(struct netfront_info *info)
+  */
+ static int netfront_resume(struct xenbus_device *dev)
  {
--	struct xenfb_info *info = dev->dev.driver_data;
-+	struct xenfb_info *info = dev_get_drvdata(&dev->dev);
+-	struct netfront_info *info = dev->dev.driver_data;
++	struct netfront_info *info = dev_get_drvdata(&dev->dev);
  
- 	xenfb_disconnect_backend(info);
- 	xenfb_init_shared_page(info, info->fb_info);
-@@ -512,7 +512,7 @@ static int xenfb_resume(struct xenbus_device *dev)
+ 	dev_dbg(&dev->dev, "%s\n", dev->nodename);
  
- static int xenfb_remove(struct xenbus_device *dev)
+@@ -1600,7 +1600,7 @@ static int xennet_connect(struct net_device *dev)
+ static void backend_changed(struct xenbus_device *dev,
+ 			    enum xenbus_state backend_state)
  {
--	struct xenfb_info *info = dev->dev.driver_data;
-+	struct xenfb_info *info = dev_get_drvdata(&dev->dev);
+-	struct netfront_info *np = dev->dev.driver_data;
++	struct netfront_info *np = dev_get_drvdata(&dev->dev);
+ 	struct net_device *netdev = np->netdev;
  
- 	xenfb_disconnect_backend(info);
- 	if (info->fb_info) {
-@@ -621,7 +621,7 @@ static void xenfb_disconnect_backend(struct xenfb_info *info)
- static void xenfb_backend_changed(struct xenbus_device *dev,
- 				  enum xenbus_state backend_state)
+ 	dev_dbg(&dev->dev, "%s\n", xenbus_strstate(backend_state));
+@@ -1774,7 +1774,7 @@ static struct xenbus_device_id netfront_ids[] = {
+ 
+ static int __devexit xennet_remove(struct xenbus_device *dev)
  {
--	struct xenfb_info *info = dev->dev.driver_data;
-+	struct xenfb_info *info = dev_get_drvdata(&dev->dev);
- 	int val;
+-	struct netfront_info *info = dev->dev.driver_data;
++	struct netfront_info *info = dev_get_drvdata(&dev->dev);
  
- 	switch (backend_state) {
+ 	dev_dbg(&dev->dev, "%s\n", dev->nodename);
+ 
