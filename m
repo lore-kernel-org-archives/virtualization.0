@@ -1,15 +1,17 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH RFC 0/2] qemu-kvm: MSI-X support
-Date: Tue, 12 May 2009 16:45:21 +0300
-Message-ID: <20090512134521.GC23796__11552.9545037591$1242136071$gmane$org@redhat.com>
-References: <20090511221350.GA22776@redhat.com>
-	<4A08A599.1070708@codemonkey.ws>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH 2/3] virtio: indirect ring entries
+	(VIRTIO_RING_F_INDIRECT_DESC)
+Date: Tue, 12 May 2009 23:53:53 +0930
+Message-ID: <200905122353.54424.rusty__42216.3721327253$1242138339$gmane$org@rustcorp.com.au>
+References: <1229620222-22216-1-git-send-email-markmc@redhat.com>
+	<200905041149.00724.rusty@rustcorp.com.au>
+	<1242061838.25337.8.camel@blaa>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1242061838.25337.8.camel@blaa>
 Content-Disposition: inline
-In-Reply-To: <4A08A599.1070708@codemonkey.ws>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,55 +21,22 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Anthony Liguori <anthony@codemonkey.ws>
-Cc: Carsten Otte <cotte@de.ibm.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, avi@redhat.com
+To: Mark McLoughlin <markmc@redhat.com>
+Cc: netdev@vger.kernel.org, Dor Laor <dor@redhat.com>, Avi Kivity <avi@redhat.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, May 11, 2009 at 05:24:25PM -0500, Anthony Liguori wrote:
-> Michael S. Tsirkin wrote:
->> Here's a draft MSI-X support patch. Among missing features:
->> save/load support, and command-line flag to control the
->> feature. This is on top of qemu-kvm: msi-x is disabled
->> without kvm interrupt injection support for now.
->>   
+On Tue, 12 May 2009 02:40:38 am Mark McLoughlin wrote:
+> > Blocked from doing the simpler thing, we've decided to go with a layer
+> > of indirection.  But the patch is simple and clean, so there's nothing
+> > fundamental to object to.
 >
-> What's your impression of how much work would be to get this going on  
-> top of upstream QEMU?
->
-> I'm willing to borrow a few cycles to help out here.  I'd really like to  
-> see this series go in via QEMU if possible.
+> Still have one FIXME in the patch worth looking at - at what point
+> should we use an indirect entry rather than consuming N entries?
 
-It seems that if I just call apic_deliver_irq each time
-I want to send MSI, things will work.
+OK, I've applied these as is.  I'm doing some virtio net benchmarking (under 
+lguest); I'll see if I can get a reasonable figure.  I don't think there's an 
+obvious right answer; it depends how many more packets are coming as well as 
+how many descriptors each will use.
 
-However, large part of the msix code is managing IRQs versus kernel,
-and I'm not sure it's a wise investment of effort to rip it all out. So
-IMHO, what's missing is API that abstracts managing irq routes in kvm,
-specifically abstract this stuff in some way:
-	kvm_get_irq_route_gsi
-	kvm_add_routing_entry
-	kvm_del_routing_entry
-	kvm_commit_irq_routes
-	kvm_set_irq
-How hard is that?
-
-For now, this API could be a stub that just stores the routes somewhere,
-and set_irq would call the local apic emulation, along the lines of:
-
-	uint8_t dest = (addr_lo & MSI_ADDR_DEST_ID_MASK)
-		>> MSI_ADDR_DEST_ID_SHIFT;
-	uint8_t vector = (addr_hi & MSI_DATA_VECTOR_MASK)
-		>> MSI_DATA_VECTOR_SHIFT;
-	uint8_t dest_mode = (addr_lo >> MSI_ADDR_DEST_MODE_SHIFT) & 0x1;
-	uint8_t trigger_mode = (data >> MSI_DATA_TRIGGER_SHIFT) & 0x1;
-	uint8_t delivery_mode = (data >> MSI_DATA_DELIVERY_MODE_SHIFT) &
-		0x7;
-	apic_deliver_irq(dest, dest_mode, delivery_mode, vector, 0,
-			 trigger_mode);
-
-I would be happy to port my msix code to work on top of this API.
-Willing to help?
-
-
--- 
-MST
+Thanks,
+Rusty.
