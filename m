@@ -1,14 +1,15 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
 Subject: Re: [PATCH 1/3] virtio: find_vqs/del_vqs virtio operations
-Date: Tue, 12 May 2009 10:55:58 +0200
-Message-ID: <200905121055.58304.borntraeger__24343.2596479126$1242118639$gmane$org@de.ibm.com>
-References: <cover.1242080138.git.mst@redhat.com>
-	<20090511221932.GA22915@redhat.com>
+Date: Tue, 12 May 2009 22:33:14 +0930
+Message-ID: <200905122233.15099.rusty__12789.5153630108$1242133593$gmane$org@rustcorp.com.au>
+References: <cover.1241700929.git.mst@redhat.com>
+	<200905101337.06836.rusty@rustcorp.com.au>
+	<20090510072538.GA5335@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20090511221932.GA22915@redhat.com>
+In-Reply-To: <20090510072538.GA5335@redhat.com>
 Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -20,78 +21,23 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Carsten Otte <cotte@de.ibm.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, avi@redhat.com, Anthony Liguori <anthony@codemonkey.ws>
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>, avi@redhat.com, kvm@vger.kernel.org, Anthony Liguori <anthony@codemonkey.ws>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Am Tuesday 12 May 2009 00:19:32 schrieb Michael S. Tsirkin:
-> This replaces find_vq/del_vq with find_vqs/del_vqs virtio operations,
-> and updates all drivers. This is needed for MSI support, because MSI
-> needs to know the total number of vectors upfront.
-[...]
-> diff --git a/drivers/s390/kvm/kvm_virtio.c b/drivers/s390/kvm/kvm_virtio.c
+On Sun, 10 May 2009 04:55:38 pm Michael S. Tsirkin wrote:
+> On Sun, May 10, 2009 at 01:37:06PM +0930, Rusty Russell wrote:
+> > Yes, and in fact a rough look at your patch reveals that we don't
+> > actually need del_vq: now we track them, we can just do that as part of
+> > vdev destruction, right?
+>
+> Let's assume that a driver encounters an error in probe
+> after it calls find_vq. It would need a way to revert
+> find_vq, won't it?
+>
+> It seems to me that bus->remove does not get called
+> on probe failure. Isn't that right?
 
-This file contains several copy/paste breakages and needs at least the
-patch below to compile.
+Yep, I looked too fast.
 
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-
----
- drivers/s390/kvm/kvm_virtio.c |   28 +++++++---------------------
- 1 file changed, 7 insertions(+), 21 deletions(-)
-
-Index: kvm/drivers/s390/kvm/kvm_virtio.c
-===================================================================
---- kvm.orig/drivers/s390/kvm/kvm_virtio.c
-+++ kvm/drivers/s390/kvm/kvm_virtio.c
-@@ -237,23 +237,23 @@ static void kvm_del_vqs(struct virtio_de
- 	int i;
- 	if (!kdev->vqs)
- 		return;
--	for (i = 0; i < ldev->nvqs; ++i)
-+	for (i = 0; i < kdev->nvqs; ++i)
- 		kvm_del_vq(kdev->vqs[i]);
--	kfree(ldev->vqs);
--	ldev->vqs = NULL;
--	ldev->nvqs = 0;
-+	kfree(kdev->vqs);
-+	kdev->vqs = NULL;
-+	kdev->nvqs = 0;
- }
- 
- static int kvm_find_vqs(struct virtio_device *vdev, unsigned nvqs,
--			struct virtqueue *vqs[]
--			void (*callbacks)[](struct virtqueue *))
-+			struct virtqueue *vqs[],
-+			virtqueue_callback *callbacks[])
- {
- 	struct kvm_device *kdev = to_kvmdev(vdev);
- 	int i;
- 
- 	/* We must have this many virtqueues. */
- 	if (nvqs > kdev->desc->num_vq)
--		return ERR_PTR(-ENOENT);
-+		return -ENOENT;
- 
- 	kdev->vqs = kmalloc(GFP_KERNEL, nvqs * sizeof *kdev->vqs);
- 	if (!kdev->vqs)
-@@ -272,20 +272,6 @@ error:
- 	return PTR_ERR(vqs[i]);
- }
- 
--static void kvm_del_vqs(struct virtio_device *vdev)
--{
--	struct lguest_device *ldev = to_lgdev(vdev);
--	int i;
--
--	if (!ldev->vqs)
--		return;
--	for (i = 0; i < ldev->nvqs; ++i)
--		lg_del_vq(ldev->vqs[i]);
--	kfree(ldev->vqs);
--	ldev->vqs = NULL;
--	ldev->nvqs = 0;
--}
--
- /*
-  * The config ops structure as defined by virtio config
-  */
+Thanks,
+Rusty.
