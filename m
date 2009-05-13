@@ -1,17 +1,16 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH] msi-x: let drivers retry when not enough vectors
-Date: Wed, 13 May 2009 00:28:02 +0300
-Message-ID: <20090512212802.GC28935__36638.7938069694$1242163968$gmane$org@redhat.com>
-References: <20090507082841.GA31751@redhat.com>
-	<20090507095302.GI8112@parisc-linux.org>
-	<200905071819.54426.sheng@linux.intel.com>
-	<200905080925.01398.rusty@rustcorp.com.au>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH 1/3] virtio: find_vqs/del_vqs virtio operations
+Date: Wed, 13 May 2009 10:47:08 +0930
+Message-ID: <200905131047.09416.rusty__24570.1439948336$1242177531$gmane$org@rustcorp.com.au>
+References: <cover.1242080138.git.mst@redhat.com>
+	<200905130000.03032.rusty@rustcorp.com.au>
+	<20090512153330.GB26883@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20090512153330.GB26883@redhat.com>
 Content-Disposition: inline
-In-Reply-To: <200905080925.01398.rusty@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -21,51 +20,30 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: kvm@vger.kernel.org, Matthew Wilcox <matthew@wil.cx>, linux-pci@vger.kernel.org, linux-kernel@vger.kernel.org, jbarnes@virtuousgeek.org, virtualization@lists.linux-foundation.org, Matthew Wilcox <willy@linux.intel.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Carsten Otte <cotte@de.ibm.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, avi@redhat.com, Anthony Liguori <anthony@codemonkey.ws>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, May 08, 2009 at 09:25:00AM +0930, Rusty Russell wrote:
-> On Thu, 7 May 2009 07:49:53 pm Sheng Yang wrote:
-> > On Thursday 07 May 2009 17:53:02 Matthew Wilcox wrote:
-> > > Here's a good example.  Let's suppose you have a driver which supports
-> > > two different models of cards, one has 16 MSI-X interrupts, the other
-> > > has 10.  You can call pci_enable_msix() asking for 16 vectors.  If your
-> > > card is model A, you get 16 interrupts.  If your card is model B, it says
-> > > "you can have 10".
-> 
-> Sheng is absolutely right, that's a horrid API.
-> 
-> If it actually enabled that number and returned it, it might make sense (cf. 
-> write() returning less bytes than you give it).  But overloading the return 
-> value to save an explicit call is just ugly; it's not worth saving a few lines 
-> of code at cost of making all the drivers subtle and tricksy.
-> 
-> Fail with -ENOSPC or something.
-> 
-> Rusty.
+On Wed, 13 May 2009 01:03:30 am Michael S. Tsirkin wrote:
+> On Wed, May 13, 2009 at 12:00:02AM +0930, Rusty Russell wrote
+> > and perhaps consider
+> > varargs for the callbacks (or would that be too horrible at the
+> > implementation end?)
+> >
+> > Thanks,
+> > Rusty.
+>
+> Ugh ... I think it will be. And AFAIK gcc generates a lot of code
+> for varargs - not something we want to do in each interrupt handler.
 
-I do agree that returning a positive value from pci_enable_msix
-it an ugly API (but note that this is the API that linux currently has).
+Err, no I mean for find_vqs:  eg.
+	(block device)
+	err = vdev->config->find_vqs(vdev, 1, &vblk->vq, blk_done);
 
-Here's a wrapper that I ended up with in my driver:
+	(net device)
+	err = vdev->config->find_vqs(vdev, 3, vqs, skb_recv_done, skb_xmit_done, NULL);
 
-static int enable_msix(struct pci_dev *dev, struct msix_entry *entries,
-		       int *options, int noptions)
-{
-        int i;
-        for (i = 0; i < noptions; ++i)
-                if (!pci_enable_msix(dev, entries, options[i]))
-                        return options[i];
-        return -EBUSY;
-}
+A bit neater for for the single-queue case.
 
-This gets an array of options for # of vectors and tries them one after
-the other until an option that the system can support is found.
-On success, we get the # of vectors actually enabled, and
-driver can then use them as it sees fit.
-
-Is there interest in moving something like this to pci.h?
-
--- 
-MST
+Cheers,
+Rusty.
