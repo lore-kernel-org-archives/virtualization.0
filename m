@@ -1,14 +1,16 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCHv6 2/4] virtio: find_vqs/del_vqs virtio operations
-Date: Fri, 15 May 2009 14:20:01 +0930
-Message-ID: <200905151420.02235.rusty__18445.5194314525$1242363077$gmane$org@rustcorp.com.au>
-References: <cover.1242297977.git.mst@redhat.com>
-	<20090514105521.GC3120@redhat.com>
+Subject: Re: [PATCH 2/3] virtio: indirect ring entries
+	(VIRTIO_RING_F_INDIRECT_DESC)
+Date: Sun, 17 May 2009 11:34:30 +0930
+Message-ID: <200905171134.31285.rusty__41225.7988391959$1242525952$gmane$org@rustcorp.com.au>
+References: <1229620222-22216-1-git-send-email-markmc@redhat.com>
+	<200905041149.00724.rusty@rustcorp.com.au>
+	<1242061838.25337.8.camel@blaa>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20090514105521.GC3120@redhat.com>
+In-Reply-To: <1242061838.25337.8.camel@blaa>
 Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,65 +21,127 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
-Cc: Carsten Otte <cotte@de.ibm.com>, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, avi@redhat.com, Anthony Liguori <anthony@codemonkey.ws>
+To: Mark McLoughlin <markmc@redhat.com>
+Cc: netdev@vger.kernel.org, Dor Laor <dor@redhat.com>, Avi Kivity <avi@redhat.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-And here's the fixup patch I applied:
+On Tue, 12 May 2009 02:40:38 am Mark McLoughlin wrote:
+> Still have one FIXME in the patch worth looking at - at what point
+> should we use an indirect entry rather than consuming N entries?
 
-diff --git a/drivers/lguest/lguest_device.c b/drivers/lguest/lguest_device.c
---- a/drivers/lguest/lguest_device.c
-+++ b/drivers/lguest/lguest_device.c
-@@ -318,11 +318,11 @@ static void lg_del_vqs(struct virtio_dev
- 	struct virtqueue *vq, *n;
+Is this overkill?
+
+Rusty.
+
+virtio: use indirect buffers based on demand (heuristic)
+
+virtio_ring uses a ring buffer of descriptors: indirect support allows
+a single descriptor to refer to a table of descriptors.  This saves
+space in the ring, but requires a kmalloc/kfree.
+
+Rather than try to figure out what the right threshold at which to use
+indirect buffers, we drop the threshold dynamically when the ring is
+under stress.
+
+Note: to stress this, I reduced the ring size to 32 in lguest, and a
+1G send reduced the threshold to 9.
+
+Note2: I moved the BUG_ON()s above the indirect test, where they belong
+(indirect falls thru on OOM, so the constraints still apply).
+
+Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -63,6 +63,8 @@ struct vring_virtqueue
  
- 	list_for_each_entry_safe(vq, n, &vdev->vqs, list)
--		kvm_del_vq(vq);
-+		lg_del_vq(vq);
+ 	/* Host supports indirect buffers */
+ 	bool indirect;
++	/* Threshold before we go indirect. */
++	unsigned int indirect_threshold;
+ 
+ 	/* Number of free buffers */
+ 	unsigned int num_free;
+@@ -137,6 +141,32 @@ static int vring_add_indirect(struct vri
+ 	return head;
  }
  
- static int lg_find_vqs(struct virtio_device *vdev, unsigned nvqs,
--		       struct virtqueue *vqs[]
-+		       struct virtqueue *vqs[],
- 		       vq_callback_t *callbacks[],
- 		       const char *names[])
- {
-@@ -331,7 +331,7 @@ static int lg_find_vqs(struct virtio_dev
++static void adjust_threshold(struct vring_virtqueue *vq,
++			     unsigned int out, unsigned int in)
++{
++	/* There are really two species of virtqueue, and it matters here.
++	 * If there are no output parts, it's a "normally full" receive queue,
++	 * otherwise it's a "normally empty" send queue. */
++	if (out) {
++		/* Leave threshold unless we're full. */
++		if (out + in < vq->num_free)
++			return;
++	} else {
++		/* Leave threshold unless we're empty. */
++		if (vq->num_free != vq->vring.num)
++			return;
++	}
++
++	/* Never drop threshold below 1 */
++	vq->indirect_threshold /= 2;
++	vq->indirect_threshold |= 1;
++
++	printk("%s %s: indirect threshold %u (%u+%u vs %u)\n", 
++	       dev_name(&vq->vq.vdev->dev),
++	       vq->vq.name, vq->indirect_threshold,
++	       out, in, vq->num_free);
++}
++
+ static int vring_add_buf(struct virtqueue *_vq,
+ 			 struct scatterlist sg[],
+ 			 unsigned int out,
+@@ -149,18 +179,31 @@ static int vring_add_buf(struct virtqueu
+ 	START_USE(vq);
  
- 	/* We must have this many virtqueues. */
- 	if (nvqs > ldev->desc->num_vq)
--		return ERR_PTR(-ENOENT);
-+		return -ENOENT;
+ 	BUG_ON(data == NULL);
+-
+-	/* If the host supports indirect descriptor tables, and we have multiple
+-	 * buffers, then go indirect. FIXME: tune this threshold */
+-	if (vq->indirect && (out + in) > 1 && vq->num_free) {
+-		head = vring_add_indirect(vq, sg, out, in);
+-		if (head != vq->vring.num)
+-			goto add_head;
+-	}
+-
+ 	BUG_ON(out + in > vq->vring.num);
+ 	BUG_ON(out + in == 0);
  
- 	for (i = 0; i < nvqs; ++i) {
- 		vqs[i] = lg_find_vq(vdev, i, callbacks[i], names[i]);
-@@ -341,7 +341,7 @@ static int lg_find_vqs(struct virtio_dev
- 	return 0;
++	/* If the host supports indirect descriptor tables, consider it. */
++	if (vq->indirect) {
++		bool try_indirect;
++
++		/* We tweak the threshold automatically. */
++		adjust_threshold(vq, out, in);
++
++		/* If we can't fit any at all, fall through. */
++		if (vq->num_free == 0)
++			try_indirect = false;
++		else if (out + in > vq->num_free)
++			try_indirect = true;
++		else
++			try_indirect = (out + in > vq->indirect_threshold);
++
++		if (try_indirect) {
++			head = vring_add_indirect(vq, sg, out, in);
++			if (head != vq->vring.num)
++				goto add_head;
++		}
++	}
++
+ 	if (vq->num_free < out + in) {
+ 		pr_debug("Can't add buf len %i - avail = %i\n",
+ 			 out + in, vq->num_free);
+@@ -391,6 +434,7 @@ struct virtqueue *vring_new_virtqueue(un
+ #endif
  
- error:
--	vp_del_vqs(vdev);
-+	lg_del_vqs(vdev);
- 	return PTR_ERR(vqs[i]);
- }
+ 	vq->indirect = virtio_has_feature(vdev, VIRTIO_RING_F_INDIRECT_DESC);
++	vq->indirect_threshold = num;
  
-diff --git a/net/9p/trans_virtio.c b/net/9p/trans_virtio.c
---- a/net/9p/trans_virtio.c
-+++ b/net/9p/trans_virtio.c
-@@ -260,7 +260,7 @@ static int p9_virtio_probe(struct virtio
- 	return 0;
- 
- out_free_vq:
--	vdev->config->del_vq(chan->vq);
-+	vdev->config->del_vqs(vdev);
- fail:
- 	mutex_lock(&virtio_9p_lock);
- 	chan_index--;
-@@ -331,7 +331,7 @@ static void p9_virtio_remove(struct virt
- 	BUG_ON(chan->inuse);
- 
- 	if (chan->initialized) {
--		vdev->config->del_vq(chan->vq);
-+		vdev->config->del_vqs(vdev);
- 		chan->initialized = false;
- 	}
- }
+ 	/* No callback?  Tell other side not to bother us. */
+ 	if (!callback)
