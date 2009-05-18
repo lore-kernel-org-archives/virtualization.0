@@ -1,15 +1,12 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCHv6 4/4] virtio_pci: optional MSI-X support
-Date: Mon, 18 May 2009 14:01:47 +0300
-Message-ID: <20090518110147.GA3037__25074.5668811307$1242644726$gmane$org@redhat.com>
-References: <cover.1242297977.git.mst@redhat.com>
-	<20090514105541.GE3120@redhat.com> <4A108209.4070805@redhat.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: [RFC] virtio: orphan skbs if we're relying on timer to free them
+Date: Mon, 18 May 2009 22:18:47 +0930
+Message-ID: <200905182218.47975.rusty__36139.5138818354$1242651084$gmane$org@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <4A108209.4070805@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,37 +16,52 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Avi Kivity <avi@redhat.com>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>, Carsten Otte <cotte@de.ibm.com>, kvm@vger.kernel.org, Anthony Liguori <anthony@codemonkey.ws>, virtualization@lists.linux-foundation.org
+To: netdev@vger.kernel.org
+Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, May 18, 2009 at 12:30:49AM +0300, Avi Kivity wrote:
-> Michael S. Tsirkin wrote:
->> This implements optional MSI-X support in virtio_pci.
->> MSI-X is used whenever the host supports at least 2 MSI-X
->> vectors: 1 for configuration changes and 1 for virtqueues.
->> Per-virtqueue vectors are allocated if enough vectors
->> available.
-> 
->
-> I'm not sure I understand how the vq -> msi mapping works.  Do we  
-> actually support an arbitrary mapping, or just either linear or n:1?
+We check for finished xmit skbs on every xmit, or on a timer (unless
+the host promises to force an interrupt when the xmit ring is empty).
+This can penalize userspace tasks which fill their sockbuf.  Not much
+difference with TSO, but measurable with large numbers of packets.
 
-Arbitrary mapping.
+There are a finite number of packets which can be in the transmission
+queue.  We could fire the timer more than every 100ms, but that would
+just hurt performance for a corner case.  This seems neatest.
 
-> I don't mind the driver being limited, but the device interface should  
-> be flexible.  We'll want to deal with limited vector availability soon.
+With interrupt when Tx ring empty:
+				Seconds	TxPkts	TxIRQs
+ 1G TCP Guest->Host:		3.76	32833	32758
+ 1M normal pings:		111	1000008	997463
+ 1M 1k pings (-l 120):		55	1000007	488920
 
-I agree.
+Without interrupt, without orphaning:
+ 1G TCP Guest->Host:		3.64	32806	1
+ 1M normal pings:		106	1000008	1
+ 1M 1k pings (-l 120):		68	1000005	1
 
-The code in qemu lets you specify, for each queue, which MSIX vector you
-want to use, or a special value if you don't want signalling. You also
-specify which MSIX vector you want to use for config change
-notifications, or a special value if you want to e.g. poll.
+With orphaning:
+ 1G TCP Guest->Host:		3.86	32821	1
+ 1M normal pings:		102	1000007	1
+ 1M 1k pings (-l 120):		43	1000005	1
 
-I think that's as flexible as it gets.
+Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+---
+ drivers/net/virtio_net.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
-The API within guest is much simpler, but it does not need to be stable.
-
--- 
-MST
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -522,6 +522,11 @@ static int start_xmit(struct sk_buff *sk
+ {
+ 	struct virtnet_info *vi = netdev_priv(dev);
+ 
++	/* We queue a limited number; don't let that delay writers if
++	 * we are slow in getting tx interrupt. */
++	if (!vi->free_in_tasklet)
++		skb_orphan(skb);
++
+ again:
+ 	/* Free up any pending old buffers before queueing new ones. */
+ 	free_old_xmit_skbs(vi);
