@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [Qemu-devel] [PATCH] qemu: msi irq allocation api
-Date: Wed, 20 May 2009 21:24:11 +0300
-Message-ID: <20090520175641.GB22935__36770.9728460342$1242844039$gmane$org@redhat.com>
+Date: Wed, 20 May 2009 21:28:18 +0300
+Message-ID: <20090520182818.GC22935@redhat.com>
 References: <20090520162130.GA22109@redhat.com>
 	<f43fc5580905201021x265ffb8ax36b04a740c9fe92@mail.gmail.com>
 	<20090520173536.GA22935@redhat.com>
@@ -45,17 +45,8 @@ On Wed, May 20, 2009 at 08:44:31PM +0300, Blue Swirl wrote:
 > >  MSI, not "mondos". What code would benefit from this abstraction?
 > 
 > Sparc64 emulation, of course. I think also the API would be neater.
-> 
-> >  > For example, irq.c could support opaque packet payload of
-> >  > unspecified/predefined size.  MSI packet structure should be defined
-> >  > in ioapic.c.
-> >
-> >
-> > Note that MSI does not have packets and MSI interrupts do not pass any payload.
-> 
-> I don't know too much about MSI, what's the 'data' field in msi_state then?
 
-opaque stuff that apic uses to select irq and cpu.
+Since "mondos" are not interrupts, why use irqs for them?
 
 -- 
 MST
