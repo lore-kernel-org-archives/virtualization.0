@@ -1,15 +1,16 @@
-From: Avi Kivity <avi@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [Qemu-devel] [PATCH] qemu: msi irq allocation api
-Date: Thu, 21 May 2009 15:38:56 +0300
-Message-ID: <4A154B60.4080701__40416.3624196828$1242909732$gmane$org@redhat.com>
+Date: Thu, 21 May 2009 16:06:58 +0300
+Message-ID: <20090521130658.GE25309__6255.96715040064$1242911460$gmane$org@redhat.com>
 References: <20090520162130.GA22109@redhat.com>
 	<200905211301.52089.paul@codesourcery.com>
 	<4A154432.1060808@redhat.com>
 	<200905211329.41578.paul@codesourcery.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
 In-Reply-To: <200905211329.41578.paul@codesourcery.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -21,41 +22,54 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Paul Brook <paul@codesourcery.com>
-Cc: Carsten Otte <cotte@de.ibm.com>, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Carsten Otte <cotte@de.ibm.com>, kvm@vger.kernel.org, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, Avi Kivity <avi@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Paul Brook wrote:
->> Instead of writing directly, let's abstract it behind a qemu_set_irq().
->> This is easier for device authors.  The default implementation of the
->> irq callback could write to apic memory, while for kvm we can directly
->> trigger the interrupt via the kvm APIs.
->>     
->
-> I'm still not convinced.
->
-> A tight coupling between PCI devices and the APIC is just going to cause us 
-> problems later one. I'm going to come back to the fact that these are memory 
-> writes so once we get IOMMU support they will presumably be subject to 
-> remapping by that, just like any other memory access.
->   
-
-I'm not suggesting the qemu_irq will extend all the way to the apic.  
-Think of it as connecting the device core with its interrupt unit.
-
-> Even ignoring that, qemu_irq isn't really the right interface. A MSI is a one-
-> off event, not a level state. OTOH stl_phys is exactly the right interface.
->   
-
-The qemu_irq callback should do an stl_phys().  The device is happy 
-since it's using the same API it uses for non-MSI.  The APIC is happy 
-since it isn't connected directly to the device.  stl_phys() is happy 
-since it sees more traffic and can serve more ads.  kvm is happy since 
-it can hijack the callback to throw the interrupt directly into the kernel.
-
-> The KVM interface should be contained within the APIC implementation.
->   
-
-Tricky, but doable.
-
--- 
-error compiling committee.c: too many arguments to function
+T24gVGh1LCBNYXkgMjEsIDIwMDkgYXQgMDE6Mjk6MzdQTSArMDEwMCwgUGF1bCBCcm9vayB3cm90
+ZToKPiBPbiBUaHVyc2RheSAyMSBNYXkgMjAwOSwgQXZpIEtpdml0eSB3cm90ZToKPiA+IFBhdWwg
+QnJvb2sgd3JvdGU6Cj4gPiA+Pj4+IEluIGFueSBjYXNlIHdlIG5lZWQgc29tZSBpbnRlcm5hbCBB
+UEkgZm9yIHRoaXMsIGFuZCBxZW11X2lycSBsb29rcwo+ID4gPj4+PiBsaWtlIGEgZ29vZCBjaG9p
+Y2UuCj4gPiA+Pj4KPiA+ID4+PiBXaGF0IGRvIHlvdSBleHBlY3QgdG8gYmUgdXNpbmcgdGhpcyBB
+UEk/Cj4gPiA+Pgo+ID4gPj4gdmlydGlvLCBlbXVsYXRlZCBkZXZpY2VzIGNhcGFibGUgb2Ygc3Vw
+cG9ydGluZyBNU0kgKGUxMDAwPyksIGRldmljZQo+ID4gPj4gYXNzaWdubWVudCAobm90IHlldCBp
+biBxZW11LmdpdCkuCj4gPiA+Cj4gPiA+IEl0IHByb2JhYmx5IG1ha2VzIHNlbnNlIHRvIGhhdmUg
+Y29tbW9uIGluZnJhc3RydWN0dXJlIGluIHBjaS5jIHRvCj4gPiA+IGV4cG9zZS9pbXBsZW1lbnQg
+ZGV2aWNlIHNpZGUgTVNJIGZ1bmN0aW9uYWxpdHkuIEhvd2V2ZXIgSSBzZWUgbm8gbmVlZCBmb3IK
+PiA+ID4gYSBkaXJlY3QgQVBJIGJldHdlZW4gdGhlIGRldmljZSBhbmQgdGhlIEFQSUMuIFdlIGFs
+cmVhZHkgaGF2ZSBhbiBBUEkgZm9yCj4gPiA+IG1lbW9yeSBhY2Nlc3NlcyBhbmQgTU1JTyByZWdp
+b25zLiBJJ20gcHJldHR5IHN1cmUgYSBzeXN0ZW0gY291bGQKPiA+ID4gaW1wbGVtZW50IE1TSSBi
+eSBwb2ludGluZyB0aGUgZGV2aWNlIGF0IHN5c3RlbSByYW0sIGFuZCBoYXZpbmcgdGhlIENQVQo+
+ID4gPiBwZXJpb2RpY2FsbHkgcG9sbCB0aGF0Lgo+ID4KPiA+IEluc3RlYWQgb2Ygd3JpdGluZyBk
+aXJlY3RseSwgbGV0J3MgYWJzdHJhY3QgaXQgYmVoaW5kIGEgcWVtdV9zZXRfaXJxKCkuCj4gPiBU
+aGlzIGlzIGVhc2llciBmb3IgZGV2aWNlIGF1dGhvcnMuICBUaGUgZGVmYXVsdCBpbXBsZW1lbnRh
+dGlvbiBvZiB0aGUKPiA+IGlycSBjYWxsYmFjayBjb3VsZCB3cml0ZSB0byBhcGljIG1lbW9yeSwg
+d2hpbGUgZm9yIGt2bSB3ZSBjYW4gZGlyZWN0bHkKPiA+IHRyaWdnZXIgdGhlIGludGVycnVwdCB2
+aWEgdGhlIGt2bSBBUElzLgo+IAo+IEknbSBzdGlsbCBub3QgY29udmluY2VkLgo+IAo+IEEgdGln
+aHQgY291cGxpbmcgYmV0d2VlbiBQQ0kgZGV2aWNlcyBhbmQgdGhlIEFQSUMgaXMganVzdCBnb2lu
+ZyB0byBjYXVzZSB1cyAKPiBwcm9ibGVtcyBsYXRlciBvbmUuIEknbSBnb2luZyB0byBjb21lIGJh
+Y2sgdG8gdGhlIGZhY3QgdGhhdCB0aGVzZSBhcmUgbWVtb3J5IAo+IHdyaXRlcyBzbyBvbmNlIHdl
+IGdldCBJT01NVSBzdXBwb3J0IHRoZXkgd2lsbCBwcmVzdW1hYmx5IGJlIHN1YmplY3QgdG8gCj4g
+cmVtYXBwaW5nIGJ5IHRoYXQsIGp1c3QgbGlrZSBhbnkgb3RoZXIgbWVtb3J5IGFjY2Vzcy4KCkFj
+dHVhbGx5LCBNU0kgbWVzc2FnZXMgYXJlIGhhbmRsZWQgYnkgSU9NTVUgYXMgaW50ZXJydXB0cywg
+bm90IGFzCnJlZ3VsYXIgbWVtb3J5IGFjY2Vzc2VzLiBpb21tdSBib29rIGhhcyBjb21tZW50cyBz
+dWNoIGFzCuKAoiBJbnRlcnJ1cHQgYWRkcmVzc2VzIGFyZSBuZXZlciB0cmFuc2xhdGVkIHRvIG1l
+bW9yeSBhZGRyZXNzZXMsIGJ1dApvdGhlciBzcGVjaWFsIGFkZHJlc3MgcmFuZ2VzIG1heSBiZSBy
+ZWNsYWltZWQgdG8gYmUgYmFja2VkIHdpdGggbWVtb3J5LgoKPiBFdmVuIGlnbm9yaW5nIHRoYXQs
+IHFlbXVfaXJxIGlzbid0IHJlYWxseSB0aGUgcmlnaHQgaW50ZXJmYWNlLiBBIE1TSSBpcyBhIG9u
+ZS0KPiBvZmYgZXZlbnQsIG5vdCBhIGxldmVsIHN0YXRlLgoKWWVzLCBJIGp1c3QgY2hvc2UgdG8g
+aWdub3JlIHRoZSBsZXZlbCB2YWx1ZS4gSXQgZG9lcyBub3QgbG9vayBsaWtlIHN1Y2gKYSBiaWcg
+aXNzdWUgLi4uIERvIHlvdSBhZHZvY2F0ZSBhIG5ldyBxZW11X21zaSBzdHJ1Y3R1cmUgdGhlbj8K
+Cj4gT1RPSCBzdGxfcGh5cyBpcyBleGFjdGx5IHRoZSByaWdodCBpbnRlcmZhY2UuCgpOb3QgcmVh
+bGx5LiBUaGVzZSBhcmUgd3JpdGVzIGJ1dCBub3QgaW50byBwaHlzaWNhbCBtZW1vcnkuCkZvciBl
+eGFtcGxlLCBvbiBpbnRlbCAzMiBiaXQsIHN0bF9waHlzIGdldHMgYSAzMiBiaXQgYWRkcmVzcywK
+TVNJIHdyaXRlcyBlbmNvZGUgdGhlIGludGVycnVwdCB2ZWN0b3IgaW4gaGlnaCAzMiBiaXQgYml0
+IG9mCnRoZSBhZGRyZXNzIC0gd2F5IG91dHNpZGUgYWN0dWFsIHBoeXNpY2FsIG1lbW9yeS4KCj4g
+VGhlIEtWTSBpbnRlcmZhY2Ugc2hvdWxkIGJlIGNvbnRhaW5lZCB3aXRoaW4gdGhlIEFQSUMgaW1w
+bGVtZW50YXRpb24uCj4gCj4gUGF1bAoKVW5mb3J0dW5hdGVseSBrdm0gY2FwYWJpbGl0aWVzIHRo
+YXQgYXJlIHByZXNlbnQgaW4gY3VycmVudCBrZXJuZWxzCmRvIG5vdCBtYXAgd2VsbCB0byB0aGlz
+IGludGVyZmFjZS4gWW91IG5lZWQgdG8gcGVyZm9ybQpleHBlbnNpdmUgc2V0IHVwIGZvciBlYWNo
+IGludGVycnVwdCB2ZWN0b3IgeW91IGFyZSBnb2luZyB0byB1c2UsCmJlIGl0IE1TSSBvciByZWd1
+bGFyIGludGVycnVwdC4KCi0tIApNU1QKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9u
+QGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXgtZm91bmRhdGlv
+bi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
