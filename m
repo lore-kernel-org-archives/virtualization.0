@@ -1,17 +1,16 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
+From: Paul Brook <paul@codesourcery.com>
 Subject: Re: [Qemu-devel] [PATCH] qemu: msi irq allocation api
-Date: Thu, 21 May 2009 17:46:34 +0300
-Message-ID: <20090521144634.GK25309__26042.3780688599$1242917509$gmane$org@redhat.com>
+Date: Thu, 21 May 2009 15:50:18 +0100
+Message-ID: <200905211550.21217.paul__20954.2171135128$1242917514$gmane$org@codesourcery.com>
 References: <20090520162130.GA22109@redhat.com>
-	<200905211409.33325.paul@codesourcery.com>
-	<20090521131231.GH25309@redhat.com>
-	<200905211423.20843.paul@codesourcery.com>
+	<200905211514.31059.paul@codesourcery.com>
+	<4A156739.6060207@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <4A156739.6060207@redhat.com>
 Content-Disposition: inline
-In-Reply-To: <200905211423.20843.paul@codesourcery.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -21,23 +20,28 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Paul Brook <paul@codesourcery.com>
-Cc: Carsten Otte <cotte@de.ibm.com>, kvm@vger.kernel.org, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, Avi Kivity <avi@redhat.com>
+To: Avi Kivity <avi@redhat.com>
+Cc: Carsten Otte <cotte@de.ibm.com>, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, May 21, 2009 at 02:23:20PM +0100, Paul Brook wrote:
-> > > MSI provides multiple edge triggered interrupts, whereas traditional mode
-> > > provides a single level triggered interrupt. My guess is most devices
-> > > will want to treat these differently anyway.
+> >>> kvm has no business messing with the PCI device code.
+> >>
+> >> kvm has a fast path for irq injection.  If qemu wants to support it we
+> >> need some abstraction here.
 > >
-> > So, is qemu_send_msi better than qemu_set_irq.
-> 
-> Neither. pci_send_msi, which is a trivial wrapper around stl_phys.
+> > Fast path from where to where? Having the PCI layer bypass/re-implement
+> > the APIC and inject the interrupt directly into the cpu core sounds a
+> > particularly bad idea.
+>
+> kvm implements the APIC in the host kernel (qemu upstream doesn't
+> support this yet).  The fast path is wired to the in-kernel APIC, not
+> the cpu core directly.
+>
+> The idea is to wire it to UIO for device assignment, to a virtio-device
+> implemented in the kernel, and to qemu.
 
-I guess I'll start with that. This only works if target_phys_addr_t is
-a 64 bit field (because MSI addresses are typically outside the 32 bit
-memory space), I guess the simplest solution is to disable MSI if it's
-not so.
+I still don't see why you're trying to bypass straight from the pci layer to 
+the apic. Why can't you just pass the apic MMIO writes to the kernel? You've 
+presumably got to update the apic state anyway.
 
--- 
-MST
+Paul
