@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [Qemu-devel] [PATCH] qemu: msi irq allocation api
-Date: Thu, 21 May 2009 16:08:37 +0300
-Message-ID: <20090521130837.GF25309__24817.5802561038$1242911545$gmane$org@redhat.com>
+Date: Thu, 21 May 2009 16:11:26 +0300
+Message-ID: <20090521131126.GG25309__41781.3786458739$1242911705$gmane$org@redhat.com>
 References: <20090520162130.GA22109@redhat.com>
 	<200905211301.52089.paul@codesourcery.com>
 	<4A154432.1060808@redhat.com>
@@ -50,21 +50,28 @@ On Thu, May 21, 2009 at 03:38:56PM +0300, Avi Kivity wrote:
 >> off event, not a level state. OTOH stl_phys is exactly the right interface.
 >>   
 >
-> The qemu_irq callback should do an stl_phys().  The device is happy  
+> The qemu_irq callback should do an stl_phys().
+
+Actually, it seems we can't do it this way now as stl_phys
+only gets a 32 bit address. So I'll use apic_deliver for now,
+but yes, it will be easy to later rewrite MSI implementation this way
+if that limitatiuon is lifted.
+
+
+> The device is happy  
 > since it's using the same API it uses for non-MSI.  The APIC is happy  
 > since it isn't connected directly to the device.  stl_phys() is happy  
 > since it sees more traffic and can serve more ads.  kvm is happy since  
 > it can hijack the callback to throw the interrupt directly into the 
 > kernel.
-
-I like the monetization angle here.
-
+>
 >> The KVM interface should be contained within the APIC implementation.
 >>   
 >
 > Tricky, but doable.
-
-I'd rather keep it simple.
+>
+> -- 
+> error compiling committee.c: too many arguments to function
 
 -- 
 MST
