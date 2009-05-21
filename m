@@ -1,16 +1,17 @@
-From: Avi Kivity <avi@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [Qemu-devel] [PATCH] qemu: msi irq allocation api
-Date: Thu, 21 May 2009 18:11:42 +0300
-Message-ID: <4A156F2E.4050802__9836.30213090709$1242918966$gmane$org@redhat.com>
+Date: Thu, 21 May 2009 19:45:20 +0300
+Message-ID: <20090521164520.GA6474__14566.326843533$1242926456$gmane$org@redhat.com>
 References: <20090520162130.GA22109@redhat.com>
-	<200905211550.21217.paul@codesourcery.com>
-	<4A156B41.4090608@redhat.com>
-	<200905211601.33164.paul@codesourcery.com>
+	<20090521131231.GH25309@redhat.com>
+	<200905211423.20843.paul@codesourcery.com>
+	<200905211431.27287.paul@codesourcery.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <200905211601.33164.paul@codesourcery.com>
+Content-Disposition: inline
+In-Reply-To: <200905211431.27287.paul@codesourcery.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -21,23 +22,44 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Paul Brook <paul@codesourcery.com>
-Cc: Carsten Otte <cotte@de.ibm.com>, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Carsten Otte <cotte@de.ibm.com>, kvm@vger.kernel.org, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, Avi Kivity <avi@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Paul Brook wrote:
->> The fast path is an eventfd so that we don't have to teach all the
->> clients about the details of MSI.  Userspace programs the MSI details
->> into kvm and hands the client an eventfd.  All the client has to do is
->> bang on the eventfd for the interrupt to be queued.  The eventfd
->> provides event coalescing and is equally useful from the kernel and
->> userspace, and can be used with targets other than kvm.
->>     
->
-> So presumably if a device triggers an APIC interrupt using a write that isn't 
-> one of the currently configured PCI devices, it all explodes horribly?
->   
-
-I don't follow.  Can you elaborate on your scenario?
-
--- 
-error compiling committee.c: too many arguments to function
+T24gVGh1LCBNYXkgMjEsIDIwMDkgYXQgMDI6MzE6MjZQTSArMDEwMCwgUGF1bCBCcm9vayB3cm90
+ZToKPiBPbiBUaHVyc2RheSAyMSBNYXkgMjAwOSwgUGF1bCBCcm9vayB3cm90ZToKPiA+ID4gPiBN
+U0kgcHJvdmlkZXMgbXVsdGlwbGUgZWRnZSB0cmlnZ2VyZWQgaW50ZXJydXB0cywgd2hlcmVhcyB0
+cmFkaXRpb25hbAo+ID4gPiA+IG1vZGUgcHJvdmlkZXMgYSBzaW5nbGUgbGV2ZWwgdHJpZ2dlcmVk
+IGludGVycnVwdC4gTXkgZ3Vlc3MgaXMgbW9zdAo+ID4gPiA+IGRldmljZXMgd2lsbCB3YW50IHRv
+IHRyZWF0IHRoZXNlIGRpZmZlcmVudGx5IGFueXdheS4KPiA+ID4KPiA+ID4gU28sIGlzIHFlbXVf
+c2VuZF9tc2kgYmV0dGVyIHRoYW4gcWVtdV9zZXRfaXJxLgo+ID4KPiA+IE5laXRoZXIuIHBjaV9z
+ZW5kX21zaSwgd2hpY2ggaXMgYSB0cml2aWFsIHdyYXBwZXIgYXJvdW5kIHN0bF9waHlzLgo+IAo+
+IFRvIGNsYXJpZnksIHlvdSBzZWVtIHRvIGJlIHRyeWluZyB0byBmdXNlIHR3byBsYXJnZWx5IHNl
+cGFyYXRlIGZlYXR1cmVzIAo+IHRvZ2V0aGVyLgo+IAo+IE1TSSBpcyBhIHN0YW5kYXJkIFBDSSBk
+ZXZpY2UgY2FwYWJpbGl0eVsxXSB0aGF0IGludm9sdmVzIHRoZSBkZXZpY2UgcGVyZm9ybWluZyAK
+PiBhIDMyLWJpdCBtZW1vcnkgd3JpdGUgd2hlbiBzb21ldGhpbmcgaW50ZXJlc3Rpbmcgb2NjdXJz
+LiBUaGVzZSB3cml0ZXMgbWF5IG9yIAo+IG1heSBub3QgYmUgZGlyZWN0ZWQgYXQgYSBBUElDLgo+
+IAo+IFRoZSB4ODYgQVBJQyBoYXMgYSBtZW1vcnkgbWFwcGVkIGludGVyZmFjZSB0aGF0IGFsbG93
+cyBnZW5lcmF0aW9uIG9mIENQVSAKPiBpbnRlcnJ1cHRzIGluIHJlc3BvbnNlIHJlc3BvbnNlIHRv
+IG1lbW9yeSB3cml0ZXMuIFRoZXNlIG1heSBvciBtYXkgbm90IGNvbWUgCj4gZnJvbSBhbiBNU0kg
+Y2FwYWJsZSBQQ0kgZGV2aWNlLgo+IAo+IFBhdWwKPiAKPiBbMV0gTm90ZSBhICpkZXZpY2UqIGNh
+cGFiaWxpdHksIG5vdCBhIGJ1cyBjYXBhYmlsaXR5LgoKUGF1bCwgc28gSSB3ZW50IG92ZXIgc3Bl
+Y3MsIGFuZCB3aGF0IHlvdSBzYXkgYWJvdXQgQVBJQyBoZXJlIGRvZXMgbm90CnNlZW0gdG8gYmUg
+d2hhdCBJbnRlbCBhY3R1YWxseSBpbXBsZW1lbnRlZC4gIFNwZWNpZmljYWxseSwgSW50ZWwKaW1w
+bGVtZW50ZWQgKk1TSSBzdXBwb3J0IGluIEFQSUMqLiBUaGlzIGxldHMgUENJIGRldmljZXMsIGJ1
+dCBub3QgdGhlIENQVSwKc2lnbmFsIGludGVycnVwdHMgYnkgbWVtb3J5IHdyaXRlcy4KCkZvciBl
+eGFtcGxlLCBhZnRlciByZXNldCwgd2hlbiBDUFUgd3JpdGVzIHRvIGFkZHJlc3MgMHhmZWUwMDAw
+MCB0aGlzCmlzIGFuIGFjY2VzcyB0byBhIHJlc2VydmVkIHJlZ2lzdGVyIGluIEFQSUMsIGJ1dCB3
+aGVuIFBDSSBkZXZpY2UKZG9lcyB3cml0ZSB0byAweGZlZTAwMDAwLCB0aGlzIHRyaWdnZXJzIGFu
+IGludGVycnVwdCB0byBkZXN0aW5hdGlvbiAwLgoKU2VlIHNlY3Rpb24gOS4xMiBpbiBJbnRlbMKu
+IDY0IGFuZCBJQS0zMiBBcmNoaXRlY3R1cmVzIFNvZnR3YXJlCkRldmVsb3BlcuKAmXMgTWFudWFs
+IFZvbHVtZSAzQTogU3lzdGVtIFByb2dyYW1taW5nIEd1aWRlLCBQYXJ0IDEKaHR0cDovL3d3dy5p
+bnRlbC5jb20vQXNzZXRzL1BERi9tYW51YWwvMjUzNjY4LnBkZgoKU28gaXQgc2VlbXMgdGhhdCB3
+aGF0IHdlIG5lZWQgdG8gZG8gaW4gcGNpIGlzOgoKaWYgKCFtc2lfb3BzIHx8IG1zaV9vcHMtPnNl
+bmRfbXNpKGFkZHJlc3MsIGRhdGEpKQoJc3RsX3BoeShhZGRyZXNzLCBkYXRhKTsKCndoZXJlIHNl
+bmRfbXNpIGlzIHdpcmVkIHRvIGFwaWNfc2VuZF9tc2kgYW5kCndoZXJlIGFwaWNfc2VuZF9tc2kg
+cmV0dXJucyBhbiBlcnJvciBmb3IgYW4gYWRkcmVzcwpvdXRzaWRlIG9mIHRoZSBNU0kgcmFuZ2Ug
+MHhmZWUwMDAwMCAtIDB4ZmVlZmZmZmYKCk1ha2VzIHNlbnNlPwoKLS0gCk1TVApfX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWls
+aW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6
+Ly9saXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0
+aW9u
