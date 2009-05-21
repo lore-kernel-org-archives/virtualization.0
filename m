@@ -1,17 +1,14 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
+From: Paul Brook <paul@codesourcery.com>
 Subject: Re: [Qemu-devel] [PATCH] qemu: msi irq allocation api
-Date: Thu, 21 May 2009 17:07:11 +0300
-Message-ID: <20090521140711.GJ25309__1387.6921650537$1242915151$gmane$org@redhat.com>
+Date: Thu, 21 May 2009 11:09:06 +0100
+Message-ID: <200905211109.09844.paul__3660.2173619487$1242916368$gmane$org@codesourcery.com>
 References: <20090520162130.GA22109@redhat.com>
-	<200905211423.20843.paul@codesourcery.com>
-	<20090521134650.GI25309@redhat.com>
-	<200905211453.14691.paul@codesourcery.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20090520162130.GA22109@redhat.com>
 Content-Disposition: inline
-In-Reply-To: <200905211453.14691.paul@codesourcery.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -21,29 +18,17 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Paul Brook <paul@codesourcery.com>
-Cc: Carsten Otte <cotte@de.ibm.com>, kvm@vger.kernel.org, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, Avi Kivity <avi@redhat.com>
+To: qemu-devel@nongnu.org
+Cc: Carsten Otte <cotte@de.ibm.com>, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, avi@redhat.com, Anthony Liguori <anthony@codemonkey.ws>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, May 21, 2009 at 02:53:14PM +0100, Paul Brook wrote:
-> > > which is a trivial wrapper around stl_phys.
-> >
-> > OK, but I'm adding another level of indirection in the middle,
-> > to allow us to tie in a kvm backend.
-> 
-> kvm has no business messing with the PCI device code.
+On Wednesday 20 May 2009, Michael S. Tsirkin wrote:
+> define api for allocating/setting up msi-x irqs, and for updating them
+> with msi-x vector information, supply implementation in ioapic. Please
+> comment on this API: I intend to port my msi-x patch to work on top of
+> it.
 
-Yes it has :)
+I though the point of MSI is that they are just a regular memory writes, and 
+don't require any special bus support.
 
-kvm needs data on MSI entries: that's the interface
-current kernel exposes for injecting these interrupts.
-
-I think we also need to support in-kernel devices which
-would inject MSI interrupt directly from kernel.
-For these, kvm would need to know when mask bit changes
-and give us info on pending bit.
-
-That's a fair amount of PCI specific code in kvm.
-
--- 
-MST
+Paul
