@@ -1,15 +1,15 @@
 From: Paul Brook <paul@codesourcery.com>
 Subject: Re: [Qemu-devel] [PATCH] qemu: msi irq allocation api
-Date: Thu, 21 May 2009 14:31:26 +0100
-Message-ID: <200905211431.27287.paul__35925.9024066434$1242916950$gmane$org@codesourcery.com>
+Date: Thu, 21 May 2009 14:23:20 +0100
+Message-ID: <200905211423.20843.paul__33672.5807203495$1242916973$gmane$org@codesourcery.com>
 References: <20090520162130.GA22109@redhat.com>
+	<200905211409.33325.paul@codesourcery.com>
 	<20090521131231.GH25309@redhat.com>
-	<200905211423.20843.paul@codesourcery.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <200905211423.20843.paul@codesourcery.com>
+In-Reply-To: <20090521131231.GH25309@redhat.com>
 Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -24,26 +24,12 @@ To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: Carsten Otte <cotte@de.ibm.com>, kvm@vger.kernel.org, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, Avi Kivity <avi@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thursday 21 May 2009, Paul Brook wrote:
-> > > MSI provides multiple edge triggered interrupts, whereas traditional
-> > > mode provides a single level triggered interrupt. My guess is most
-> > > devices will want to treat these differently anyway.
-> >
-> > So, is qemu_send_msi better than qemu_set_irq.
+> > MSI provides multiple edge triggered interrupts, whereas traditional mode
+> > provides a single level triggered interrupt. My guess is most devices
+> > will want to treat these differently anyway.
 >
-> Neither. pci_send_msi, which is a trivial wrapper around stl_phys.
+> So, is qemu_send_msi better than qemu_set_irq.
 
-To clarify, you seem to be trying to fuse two largely separate features 
-together.
-
-MSI is a standard PCI device capability[1] that involves the device performing 
-a 32-bit memory write when something interesting occurs. These writes may or 
-may not be directed at a APIC.
-
-The x86 APIC has a memory mapped interface that allows generation of CPU 
-interrupts in response response to memory writes. These may or may not come 
-from an MSI capable PCI device.
+Neither. pci_send_msi, which is a trivial wrapper around stl_phys.
 
 Paul
-
-[1] Note a *device* capability, not a bus capability.
