@@ -1,72 +1,37 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [Qemu-devel] [PATCH] qemu: msi irq allocation api
-Date: Thu, 21 May 2009 20:33:08 +0300
-Message-ID: <20090521173308.GA7722__26550.39946917$1242929753$gmane$org@redhat.com>
-References: <20090520162130.GA22109@redhat.com>
-	<20090521131231.GH25309@redhat.com>
-	<200905211423.20843.paul@codesourcery.com>
-	<200905211431.27287.paul@codesourcery.com>
-	<20090521164520.GA6474@redhat.com>
+From: Roel Kluin <roel.kluin@gmail.com>
+Subject: [PATCH] xen/blkfront: beyond ARRAY_SIZE of info->shadow
+Date: Thu, 21 May 2009 20:43:30 +0200
+Message-ID: <4A15A0D2.7090209@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20090521164520.GA6474@redhat.com>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Paul Brook <paul@codesourcery.com>
-Cc: Carsten Otte <cotte@de.ibm.com>, kvm@vger.kernel.org, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, Avi Kivity <avi@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <xen-devel-bounces@lists.xensource.com>
+List-Unsubscribe: <http://lists.xensource.com/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
+List-Post: <mailto:xen-devel@lists.xensource.com>
+List-Help: <mailto:xen-devel-request@lists.xensource.com?subject=help>
+List-Subscribe: <http://lists.xensource.com/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
+Sender: xen-devel-bounces@lists.xensource.com
+Errors-To: xen-devel-bounces@lists.xensource.com
+To: jeremy@xensource.com
+Cc: virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>, xen-devel@lists.xensource.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gVGh1LCBNYXkgMjEsIDIwMDkgYXQgMDc6NDU6MjBQTSArMDMwMCwgTWljaGFlbCBTLiBUc2ly
-a2luIHdyb3RlOgo+IE9uIFRodSwgTWF5IDIxLCAyMDA5IGF0IDAyOjMxOjI2UE0gKzAxMDAsIFBh
-dWwgQnJvb2sgd3JvdGU6Cj4gPiBPbiBUaHVyc2RheSAyMSBNYXkgMjAwOSwgUGF1bCBCcm9vayB3
-cm90ZToKPiA+ID4gPiA+IE1TSSBwcm92aWRlcyBtdWx0aXBsZSBlZGdlIHRyaWdnZXJlZCBpbnRl
-cnJ1cHRzLCB3aGVyZWFzIHRyYWRpdGlvbmFsCj4gPiA+ID4gPiBtb2RlIHByb3ZpZGVzIGEgc2lu
-Z2xlIGxldmVsIHRyaWdnZXJlZCBpbnRlcnJ1cHQuIE15IGd1ZXNzIGlzIG1vc3QKPiA+ID4gPiA+
-IGRldmljZXMgd2lsbCB3YW50IHRvIHRyZWF0IHRoZXNlIGRpZmZlcmVudGx5IGFueXdheS4KPiA+
-ID4gPgo+ID4gPiA+IFNvLCBpcyBxZW11X3NlbmRfbXNpIGJldHRlciB0aGFuIHFlbXVfc2V0X2ly
-cS4KPiA+ID4KPiA+ID4gTmVpdGhlci4gcGNpX3NlbmRfbXNpLCB3aGljaCBpcyBhIHRyaXZpYWwg
-d3JhcHBlciBhcm91bmQgc3RsX3BoeXMuCj4gPiAKPiA+IFRvIGNsYXJpZnksIHlvdSBzZWVtIHRv
-IGJlIHRyeWluZyB0byBmdXNlIHR3byBsYXJnZWx5IHNlcGFyYXRlIGZlYXR1cmVzIAo+ID4gdG9n
-ZXRoZXIuCj4gPiAKPiA+IE1TSSBpcyBhIHN0YW5kYXJkIFBDSSBkZXZpY2UgY2FwYWJpbGl0eVsx
-XSB0aGF0IGludm9sdmVzIHRoZSBkZXZpY2UgcGVyZm9ybWluZyAKPiA+IGEgMzItYml0IG1lbW9y
-eSB3cml0ZSB3aGVuIHNvbWV0aGluZyBpbnRlcmVzdGluZyBvY2N1cnMuIFRoZXNlIHdyaXRlcyBt
-YXkgb3IgCj4gPiBtYXkgbm90IGJlIGRpcmVjdGVkIGF0IGEgQVBJQy4KPiA+IAo+ID4gVGhlIHg4
-NiBBUElDIGhhcyBhIG1lbW9yeSBtYXBwZWQgaW50ZXJmYWNlIHRoYXQgYWxsb3dzIGdlbmVyYXRp
-b24gb2YgQ1BVIAo+ID4gaW50ZXJydXB0cyBpbiByZXNwb25zZSByZXNwb25zZSB0byBtZW1vcnkg
-d3JpdGVzLiBUaGVzZSBtYXkgb3IgbWF5IG5vdCBjb21lIAo+ID4gZnJvbSBhbiBNU0kgY2FwYWJs
-ZSBQQ0kgZGV2aWNlLgo+ID4gCj4gPiBQYXVsCj4gPiAKPiA+IFsxXSBOb3RlIGEgKmRldmljZSog
-Y2FwYWJpbGl0eSwgbm90IGEgYnVzIGNhcGFiaWxpdHkuCj4gCj4gUGF1bCwgc28gSSB3ZW50IG92
-ZXIgc3BlY3MsIGFuZCB3aGF0IHlvdSBzYXkgYWJvdXQgQVBJQyBoZXJlIGRvZXMgbm90Cj4gc2Vl
-bSB0byBiZSB3aGF0IEludGVsIGFjdHVhbGx5IGltcGxlbWVudGVkLiAgU3BlY2lmaWNhbGx5LCBJ
-bnRlbAo+IGltcGxlbWVudGVkICpNU0kgc3VwcG9ydCBpbiBBUElDKi4gVGhpcyBsZXRzIFBDSSBk
-ZXZpY2VzLCBidXQgbm90IHRoZSBDUFUsCj4gc2lnbmFsIGludGVycnVwdHMgYnkgbWVtb3J5IHdy
-aXRlcy4KPiAKPiBGb3IgZXhhbXBsZSwgYWZ0ZXIgcmVzZXQsIHdoZW4gQ1BVIHdyaXRlcyB0byBh
-ZGRyZXNzIDB4ZmVlMDAwMDAgdGhpcwo+IGlzIGFuIGFjY2VzcyB0byBhIHJlc2VydmVkIHJlZ2lz
-dGVyIGluIEFQSUMsIGJ1dCB3aGVuIFBDSSBkZXZpY2UKPiBkb2VzIHdyaXRlIHRvIDB4ZmVlMDAw
-MDAsIHRoaXMgdHJpZ2dlcnMgYW4gaW50ZXJydXB0IHRvIGRlc3RpbmF0aW9uIDAuCj4gCj4gU2Vl
-IHNlY3Rpb24gOS4xMiBpbiBJbnRlbMKuIDY0IGFuZCBJQS0zMiBBcmNoaXRlY3R1cmVzIFNvZnR3
-YXJlCj4gRGV2ZWxvcGVy4oCZcyBNYW51YWwgVm9sdW1lIDNBOiBTeXN0ZW0gUHJvZ3JhbW1pbmcg
-R3VpZGUsIFBhcnQgMQo+IGh0dHA6Ly93d3cuaW50ZWwuY29tL0Fzc2V0cy9QREYvbWFudWFsLzI1
-MzY2OC5wZGYKPiAKPiBTbyBpdCBzZWVtcyB0aGF0IHdoYXQgd2UgbmVlZCB0byBkbyBpbiBwY2kg
-aXM6Cj4gCj4gaWYgKCFtc2lfb3BzIHx8IG1zaV9vcHMtPnNlbmRfbXNpKGFkZHJlc3MsIGRhdGEp
-KQo+IAlzdGxfcGh5KGFkZHJlc3MsIGRhdGEpOwo+IAo+IHdoZXJlIHNlbmRfbXNpIGlzIHdpcmVk
-IHRvIGFwaWNfc2VuZF9tc2kgYW5kCj4gd2hlcmUgYXBpY19zZW5kX21zaSByZXR1cm5zIGFuIGVy
-cm9yIGZvciBhbiBhZGRyZXNzCj4gb3V0c2lkZSBvZiB0aGUgTVNJIHJhbmdlIDB4ZmVlMDAwMDAg
-LSAweGZlZWZmZmZmCj4gCj4gTWFrZXMgc2Vuc2U/CgoKU28gSSBlbmRlZCB1cCB3aXRoIHRoZXNl
-IG9wczoKCWFsbG9jYXRlCglmcmVlCgl1cGRhdGUKCXNlbmQKd2hpY2ggQVBJQyB3aWxsIGRlZmlu
-ZSBhbmQgTVNJIGVtdWxhdGlvbgp3aWxsIHVzZS4gSGVyZSwgc2VuZCB3aWxsIHJldHVybiBlcnJv
-ciBmb3IgYWRkcmVzc2VzCm91dHNpZGUgMHhmZWV4eHh4eCByYW5nZSwgYW5kIGRldmljZSB3aWxs
-IGRvIGEgcGxhaW4Kc3RsX3BoeS4KCi0tIApNU1QKX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxp
-emF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXgtZm91
-bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+Do not go beyond ARRAY_SIZE of info->shadow
+
+Signed-off-by: Roel Kluin <roel.kluin@gmail.com>
+---
+diff --git a/drivers/block/xen-blkfront.c b/drivers/block/xen-blkfront.c
+index a6cbf7b..d395986 100644
+--- a/drivers/block/xen-blkfront.c
++++ b/drivers/block/xen-blkfront.c
+@@ -122,7 +122,7 @@ static DEFINE_SPINLOCK(blkif_io_lock);
+ static int get_id_from_freelist(struct blkfront_info *info)
+ {
+ 	unsigned long free = info->shadow_free;
+-	BUG_ON(free > BLK_RING_SIZE);
++	BUG_ON(free >= BLK_RING_SIZE);
+ 	info->shadow_free = info->shadow[free].req.id;
+ 	info->shadow[free].req.id = 0x0fffffee; /* debug */
+ 	return free;
