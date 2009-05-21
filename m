@@ -1,15 +1,23 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [RFC] virtio: orphan skbs if we're relying on timer to free them
-Date: Thu, 21 May 2009 00:15:03 -0700 (PDT)
-Message-ID: <20090521.001503.90069315.davem__32329.4578855441$1242890145$gmane$org@davemloft.net>
-References: <200905182218.47975.rusty@rustcorp.com.au>
-	<20090518.194013.109631461.davem@davemloft.net>
-	<200905211627.05814.rusty@rustcorp.com.au>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [Qemu-devel] [PATCH] qemu: msi irq allocation api
+Date: Thu, 21 May 2009 12:24:27 +0300
+Message-ID: <20090521092427.GA25309__49242.5584969625$1242898043$gmane$org@redhat.com>
+References: <f43fc5580905201021x265ffb8ax36b04a740c9fe92@mail.gmail.com>
+	<20090520173536.GA22935@redhat.com>
+	<f43fc5580905201044u48a12c13pa8961b7663d1a7bf@mail.gmail.com>
+	<20090520182818.GC22935@redhat.com>
+	<f43fc5580905201138g52df3570r29242cc50cbbe83a@mail.gmail.com>
+	<20090520200224.GA23500@redhat.com>
+	<20090520201733.GA23518@redhat.com>
+	<f43fc5580905201326p2472ef1dyf9269c5c21b527ef@mail.gmail.com>
+	<20090520203335.GC23518@redhat.com>
+	<f43fc5580905201344v23e15851u4a7517b9da879604@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <200905211627.05814.rusty@rustcorp.com.au>
+Content-Disposition: inline
+In-Reply-To: <f43fc5580905201344v23e15851u4a7517b9da879604@mail.gmail.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,51 +27,86 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: rusty@rustcorp.com.au
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Blue Swirl <blauwirbel@gmail.com>
+Cc: Carsten Otte <cotte@de.ibm.com>, kvm@vger.kernel.org, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, avi@redhat.com, Anthony Liguori <anthony@codemonkey.ws>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Rusty Russell <rusty@rustcorp.com.au>
-Date: Thu, 21 May 2009 16:27:05 +0930
-
-> On Tue, 19 May 2009 12:10:13 pm David Miller wrote:
->> What you're doing by orphan'ing is creating a situation where a single
->> UDP socket can loop doing sends and monopolize the TX queue of a
->> device.  The only control we have over a sender for fairness in
->> datagram protocols is that send buffer allocation.
+On Wed, May 20, 2009 at 11:44:57PM +0300, Blue Swirl wrote:
+> On 5/20/09, Michael S. Tsirkin <mst@redhat.com> wrote:
+> > On Wed, May 20, 2009 at 11:26:42PM +0300, Blue Swirl wrote:
+> >  > On 5/20/09, Michael S. Tsirkin <mst@redhat.com> wrote:
+> >  > > On Wed, May 20, 2009 at 11:02:24PM +0300, Michael S. Tsirkin wrote:
+> >  > >  > On Wed, May 20, 2009 at 09:38:58PM +0300, Blue Swirl wrote:
+> >  > >  > > On 5/20/09, Michael S. Tsirkin <mst@redhat.com> wrote:
+> >  > >  > > > On Wed, May 20, 2009 at 08:44:31PM +0300, Blue Swirl wrote:
+> >  > >  > > >  > On 5/20/09, Michael S. Tsirkin <mst@redhat.com> wrote:
+> >  > >  > > >  > > On Wed, May 20, 2009 at 08:21:01PM +0300, Blue Swirl wrote:
+> >  > >  > > >  > >  > On 5/20/09, Michael S. Tsirkin <mst@redhat.com> wrote:
+> >  > >  > > >  > >  > > define api for allocating/setting up msi-x irqs, and for updating them
+> >  > >  > > >  > >  > >  with msi-x vector information, supply implementation in ioapic. Please
+> >  > >  > > >  > >  > >  comment on this API: I intend to port my msi-x patch to work on top of
+> >  > >  > > >  > >  > >  it.
+> >  > >  > > >  > >  > >
+> >  > >  > > >  > >  > >  Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> >  > >  > > >  > >  >
+> >  > >  > > >  > >  > Sparc64 also uses packets ("mondos", not implemented yet) for
+> >  > >  > > >  > >  > interrupt vector data, there the packet size is 8 * 64 bits.
+> >  > >  > > >  > >  > I think we should aim for a more generic API that covers this case also.
+> >  > >  > > >  > >
+> >  > >  > > >  > >
+> >  > >  > > >  > > Are you sure this is a good idea? MSI is tied to PCI, and PCI only has
+> >  > >  > > >  > >  MSI, not "mondos". What code would benefit from this abstraction?
+> >  > >  > > >  >
+> >  > >  > > >  > Sparc64 emulation, of course. I think also the API would be neater.
+> >  > >  > > >
+> >  > >  > > >
+> >  > >  > > > Since "mondos" are not interrupts, why use irqs for them?
+> >  > >  > >
+> >  > >  > > I just said above that they are used for interrupt vector data. What
+> >  > >  > > makes you think they are not interrupts?
+> >  > >  >
+> >  > >  > I'm sorry, I don't really know anything about sparc.
+> >  > >  > All I am saying is that in PCI, interrupts never pass data,
+> >  > >  > so qemu_set_irq as it is now, is a good API to send them.
+> >  > >  >
+> >  > >  > For the sparc feature you describe, you probably want to add
+> >  > >  > a message data parameter to qemu_set_irq, but it's not
+> >  > >  > really useful for MSI.
+> >  > >
+> >  > >
+> >  > > Just to clarify, the main difference is that with MSI/MSI-X
+> >  > >  both data and address fields are mostly static, modifying them
+> >  > >  involves ioapic and device updates which might be an expensive
+> >  > >  operation (e.g. with kvm, needs an extra system call).
+> >  > >
+> >  > >  So I don't think it makes sense to pass MSI-X data field
+> >  > >  with each call to qemu_set_irq.
+> >  >
+> >  > No, but I think the Sparc situation is the same, the packet data is
+> >  > static for the interrupt source in question.
+> >
+> >
+> > So, ok, we could add data update callback and then MSI and sparc
+> >  would do their thing there. I'm not convinced I like all this
+> >  play with untyped buffers, do you think it's helpful?
+> >
+> >  If yes, maybe I'll try to code it up and see how does it look.
 > 
-> Urgh, that hadn't even occurred to me.  Good point.
+> Well, get/set_data could be limited to irq.c, ioapic.c could export
+> something like get/set_msi_data. MSI callers should only use
+> get/set_msi_data. Ditto for get/set_mondo_data.
 
-Now this all is predicated on this actually mattering. :-)
+I started coding it up and got lost in a maze of callbacks and void pointers :)
 
-You could argue that the scheduler as well as the size of the
-TX queue should be limiting and enforcing fairness.
+And I also remembered that besides data, there's a mask and pending bits in msi
+(it's ignored in the patch I sent, but I'm fixing that), so there needs
+to be an interface for this as well.
 
-Someone really needs to test this.  Just skb_orphan() every packet
-at the beginning of dev_hard_start_xmit(), then run some test
-program with two clients looping out UDP packets to see if one
-can monopolize the device and get a significantly larger amount
-of TX resources than the other.  Repeat for 3, 4, 5, etc. clients.
+I am guessing that using qemu_irq_get_opaque and qemu_irq_get_vector that I
+added, you'll find it's easy to implement mondos in very few lines of code.
+We can always add another level of indirection later when sparc code
+surfaces, if we find it helps.
 
-> I haven't thought this through properly, but how about a hack where
-> we don't orphan packets if the ring is over half full?
 
-That would also work.  And for the NIU case this would be great
-because I DO have a marker bit for triggering interrupts in the TX
-descriptors.  There's just no "all empty" interrupt on TX (who
-designs these things? :( ).
-
-> Then I guess we could overload the watchdog as a more general
-> timer-after-no- xmit?
-
-Yes, but it means that teardown of a socket can be delayed up to
-the amount of that timer.  Factor in all of this crazy
-round_jiffies() stuff people do these days and it could cause
-pauses for real use cases and drive users batty.
-
-Probably the most profitable avenue is to see if this is a real issue
-afterall (see above).  If we can get away with having the socket
-buffer represent socket --> device space only, that's the most ideal
-solution.  It will probably also improve performance a lot across the
-board, especially on NUMA/SMP boxes as our TX complete events tend to
-be in difference places than the SKB producer.
+-- 
+MST
