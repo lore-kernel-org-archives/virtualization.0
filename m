@@ -1,14 +1,14 @@
-From: Dimitris Michailidis <dm@chelsio.com>
-Subject: Re: [RFC] virtio: orphan skbs if we're relying on timer to free them
-Date: Thu, 21 May 2009 10:24:31 -0700
-Message-ID: <4A158E4F.9070005__34823.56493264$1243011827$gmane$org@chelsio.com>
-References: <200905182218.47975.rusty@rustcorp.com.au>	<20090518.194013.109631461.davem@davemloft.net>	<200905211627.05814.rusty@rustcorp.com.au>
-	<20090521.001503.90069315.davem@davemloft.net>
+From: Avi Kivity <avi@redhat.com>
+Subject: Re: [Qemu-devel] [PATCH] qemu: msi irq allocation api
+Date: Sun, 24 May 2009 14:14:14 +0300
+Message-ID: <4A192C06.3070603__25766.5533492856$1243163824$gmane$org@redhat.com>
+References: <20090520162130.GA22109@redhat.com>	<200905211423.20843.paul@codesourcery.com>	<20090521134650.GI25309@redhat.com>	<200905211453.14691.paul@codesourcery.com>
+	<20090521140711.GJ25309@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20090521.001503.90069315.davem@davemloft.net>
+In-Reply-To: <20090521140711.GJ25309@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,72 +18,22 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: David Miller <davem@davemloft.net>
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Carsten Otte <cotte@de.ibm.com>, kvm@vger.kernel.org, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, Paul Brook <paul@codesourcery.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-David Miller wrote:
-> From: Rusty Russell <rusty@rustcorp.com.au>
-> Date: Thu, 21 May 2009 16:27:05 +0930
-> 
->> On Tue, 19 May 2009 12:10:13 pm David Miller wrote:
->>> What you're doing by orphan'ing is creating a situation where a single
->>> UDP socket can loop doing sends and monopolize the TX queue of a
->>> device.  The only control we have over a sender for fairness in
->>> datagram protocols is that send buffer allocation.
->> Urgh, that hadn't even occurred to me.  Good point.
-> 
-> Now this all is predicated on this actually mattering. :-)
-> 
-> You could argue that the scheduler as well as the size of the
-> TX queue should be limiting and enforcing fairness.
-> 
-> Someone really needs to test this.  Just skb_orphan() every packet
-> at the beginning of dev_hard_start_xmit(), then run some test
-> program with two clients looping out UDP packets to see if one
-> can monopolize the device and get a significantly larger amount
-> of TX resources than the other.  Repeat for 3, 4, 5, etc. clients.
+Michael S. Tsirkin wrote:
+> kvm needs data on MSI entries: that's the interface
+> current kernel exposes for injecting these interrupts.
+>
+> I think we also need to support in-kernel devices which
+> would inject MSI interrupt directly from kernel.
+> For these, kvm would need to know when mask bit changes
+> and give us info on pending bit.
+>
+> That's a fair amount of PCI specific code in kvm
 
-The cxgb3 driver has had skb_orphan in its transmit routine forever (also 
-due to lack of Tx interrupts) and I am not aware of adverse effects caused 
-by doing so.  It does skip skb_orphan when skb_shared but probably nobody 
-sends sharead skbs with destructors.
+My plan is to get rid of it.  The mask stuff need not be pci specific.
 
-The only application I know of that has trouble with lazy skb freeing is 
-pktgen because it treats freeing as an indication that the packet has been 
-transmitted so it's thrown off if packets sit there for a while.  (Also 
-freeing just indicates that the DMA is done, not that the packet has been 
-sent, and modern devices have quite a bit of buffering.)
-
-> 
->> I haven't thought this through properly, but how about a hack where
->> we don't orphan packets if the ring is over half full?
-> 
-> That would also work.  And for the NIU case this would be great
-> because I DO have a marker bit for triggering interrupts in the TX
-> descriptors.  There's just no "all empty" interrupt on TX (who
-> designs these things? :( ).
-> 
->> Then I guess we could overload the watchdog as a more general
->> timer-after-no- xmit?
-> 
-> Yes, but it means that teardown of a socket can be delayed up to
-> the amount of that timer.  Factor in all of this crazy
-> round_jiffies() stuff people do these days and it could cause
-> pauses for real use cases and drive users batty.
-> 
-> Probably the most profitable avenue is to see if this is a real issue
-> afterall (see above).  If we can get away with having the socket
-> buffer represent socket --> device space only, that's the most ideal
-> solution.  It will probably also improve performance a lot across the
-> board, especially on NUMA/SMP boxes as our TX complete events tend to
-> be in difference places than the SKB producer.
-
-There's a comment in the cxgb3 driver where it calls skb_orphan that 
-explains the rationale and includes some of what you're saying.
-
-
-> --
-> To unsubscribe from this list: send the line "unsubscribe netdev" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+error compiling committee.c: too many arguments to function
