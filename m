@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH 07/11] qemu: minimal MSI/MSI-X implementation for PC
-Date: Mon, 25 May 2009 15:25:57 +0300
-Message-ID: <20090525122557.GH5046__2044.56011201746$1243255329$gmane$org@redhat.com>
+Subject: [PATCH 08/11] qemu: add support for resizing regions
+Date: Mon, 25 May 2009 15:26:05 +0300
+Message-ID: <20090525122605.GI5046__17327.2824766629$1243255446$gmane$org@redhat.com>
 References: <cover.1243253205.git.mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,127 +21,101 @@ Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Paul Brook <paul@codesourcery.com>, Avi Kivity <avi@redhat.com>, qemu-devel@nongnu.org, Carsten Otte <cotte@de.ibm.com>, kvm@vger.kernel.org, Rusty Russell <rusty@rustcor>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Implement MSI support in APIC. Note that MSI and MMIO APIC registers
-are at the same memory location, but actually not on the global bus: MSI
-is on PCI bus, APIC is connected directly to the CPU. We map them on the
-global bus at the same address which happens to work because MSI
-registers are reserved in APIC MMIO and vice versa.
+Make it possible to resize PCI regions.  This will be used by virtio
+with MSI-X, where the region size depends on whether MSI-X is enabled,
+and can change across load/save.
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- hw/apic.c |   50 ++++++++++++++++++++++++++++++++++++++++++++++----
- 1 files changed, 46 insertions(+), 4 deletions(-)
+ hw/pci.c |   54 ++++++++++++++++++++++++++++++++++++------------------
+ hw/pci.h |    3 +++
+ 2 files changed, 39 insertions(+), 18 deletions(-)
 
-diff --git a/hw/apic.c b/hw/apic.c
-index 8c8b2de..d831709 100644
---- a/hw/apic.c
-+++ b/hw/apic.c
-@@ -19,6 +19,8 @@
-  */
- #include "hw.h"
- #include "pc.h"
-+#include "pci.h"
-+#include "msix.h"
- #include "qemu-timer.h"
- #include "host-utils.h"
- 
-@@ -63,6 +65,19 @@
- #define MAX_APICS 255
- #define MAX_APIC_WORDS 8
- 
-+/* Intel APIC constants: from include/asm/msidef.h */
-+#define MSI_DATA_VECTOR_SHIFT		0
-+#define MSI_DATA_VECTOR_MASK		0x000000ff
-+#define MSI_DATA_DELIVERY_MODE_SHIFT	8
-+#define MSI_DATA_TRIGGER_SHIFT		15
-+#define MSI_DATA_LEVEL_SHIFT		14
-+#define MSI_ADDR_DEST_MODE_SHIFT	2
-+#define MSI_ADDR_DEST_ID_SHIFT		12
-+#define	MSI_ADDR_DEST_ID_MASK		0x00ffff0
-+
-+#define MSI_ADDR_BASE                   0xfee00000
-+#define MSI_ADDR_SIZE                   0x100000
-+
- typedef struct APICState {
-     CPUState *cpu_env;
-     uint32_t apicbase;
-@@ -86,6 +101,13 @@ typedef struct APICState {
-     QEMUTimer *timer;
- } APICState;
- 
-+struct msi_state {
-+    uint64_t addr;
-+    uint32_t data;
-+    int mask;
-+    int pending;
-+};
-+
- static int apic_io_memory;
- static APICState *local_apics[MAX_APICS + 1];
- static int last_apic_id = 0;
-@@ -712,11 +734,31 @@ static uint32_t apic_mem_readl(void *opaque, target_phys_addr_t addr)
-     return val;
+diff --git a/hw/pci.c b/hw/pci.c
+index 6bc3819..19905b9 100644
+--- a/hw/pci.c
++++ b/hw/pci.c
+@@ -392,6 +392,41 @@ void pci_register_io_region(PCIDevice *pci_dev, int region_num,
+     *(uint32_t *)(pci_dev->mask + addr) = cpu_to_le32(mask);
  }
  
-+static void apic_send_msi(target_phys_addr_t addr, uint32 data)
++static void pci_unmap_region(PCIDevice *d, PCIIORegion *r)
 +{
-+    uint8_t dest = (addr & MSI_ADDR_DEST_ID_MASK) >> MSI_ADDR_DEST_ID_SHIFT;
-+    uint8_t vector = (data & MSI_DATA_VECTOR_MASK) >> MSI_DATA_VECTOR_SHIFT;
-+    uint8_t dest_mode = (addr >> MSI_ADDR_DEST_MODE_SHIFT) & 0x1;
-+    uint8_t trigger_mode = (data >> MSI_DATA_TRIGGER_SHIFT) & 0x1;
-+    uint8_t delivery = (data >> MSI_DATA_DELIVERY_MODE_SHIFT) & 0x7;
-+    /* XXX: Ignore redirection hint. */
-+    apic_deliver_irq(dest, dest_mode, delivery, vector, 0, trigger_mode);
++    if (r->addr == -1)
++        return;
++    if (r->type & PCI_ADDRESS_SPACE_IO) {
++        int class;
++        /* NOTE: specific hack for IDE in PC case:
++           only one byte must be mapped. */
++        class = pci_get_word(d->config + PCI_CLASS_DEVICE);
++        if (class == 0x0101 && r->size == 4) {
++            isa_unassign_ioport(r->addr + 2, 1);
++        } else {
++            isa_unassign_ioport(r->addr, r->size);
++        }
++    } else {
++        cpu_register_physical_memory(pci_to_cpu_addr(r->addr),
++                                     r->size,
++                                     IO_MEM_UNASSIGNED);
++        qemu_unregister_coalesced_mmio(r->addr, r->size);
++    }
 +}
 +
- static void apic_mem_writel(void *opaque, target_phys_addr_t addr, uint32_t val)
- {
-     CPUState *env;
-     APICState *s;
--    int index;
-+    int index = (addr >> 4) & 0xff;
-+    if (addr > 0xfff || !index) {
-+        /* MSI and MMIO APIC are at the same memory location,
-+         * but actually not on the global bus: MSI is on PCI bus
-+         * APIC is connected directly to the CPU.
-+         * Mapping them on the global bus happens to work because
-+         * MSI registers are reserved in APIC MMIO and vice versa. */
-+        apic_send_msi(addr, val);
++void pci_resize_io_region(PCIDevice *pci_dev, int region_num,
++                          uint32_t size)
++{
++
++    PCIIORegion *r = &pci_dev->io_regions[region_num];
++    if (r->size == size)
 +        return;
-+    }
++    r->size = size;
++    pci_unmap_region(pci_dev, r);
++    r->addr = -1;
++    pci_update_mappings(pci_dev);
++}
++
+ static void pci_update_mappings(PCIDevice *d)
+ {
+     PCIIORegion *r;
+@@ -445,24 +480,7 @@ static void pci_update_mappings(PCIDevice *d)
+             }
+             /* now do the real mapping */
+             if (new_addr != r->addr) {
+-                if (r->addr != -1) {
+-                    if (r->type & PCI_ADDRESS_SPACE_IO) {
+-                        int class;
+-                        /* NOTE: specific hack for IDE in PC case:
+-                           only one byte must be mapped. */
+-                        class = d->config[0x0a] | (d->config[0x0b] << 8);
+-                        if (class == 0x0101 && r->size == 4) {
+-                            isa_unassign_ioport(r->addr + 2, 1);
+-                        } else {
+-                            isa_unassign_ioport(r->addr, r->size);
+-                        }
+-                    } else {
+-                        cpu_register_physical_memory(pci_to_cpu_addr(r->addr),
+-                                                     r->size,
+-                                                     IO_MEM_UNASSIGNED);
+-                        qemu_unregister_coalesced_mmio(r->addr, r->size);
+-                    }
+-                }
++                pci_unmap_region(d, r);
+                 r->addr = new_addr;
+                 if (r->addr != -1) {
+                     r->map_func(d, i, r->addr, r->size, r->type);
+diff --git a/hw/pci.h b/hw/pci.h
+index 6da626b..4072f16 100644
+--- a/hw/pci.h
++++ b/hw/pci.h
+@@ -221,6 +221,9 @@ void pci_register_io_region(PCIDevice *pci_dev, int region_num,
+                             uint32_t size, int type,
+                             PCIMapIORegionFunc *map_func);
  
-     env = cpu_single_env;
-     if (!env)
-@@ -727,7 +769,6 @@ static void apic_mem_writel(void *opaque, target_phys_addr_t addr, uint32_t val)
-     printf("APIC write: %08x = %08x\n", (uint32_t)addr, val);
- #endif
++void pci_resize_io_region(PCIDevice *pci_dev, int region_num,
++                          uint32_t size);
++
+ int pci_add_capability(PCIDevice *pci_dev, uint8_t cap_id, uint8_t cap_size);
  
--    index = (addr >> 4) & 0xff;
-     switch(index) {
-     case 0x02:
-         s->id = (val >> 24);
-@@ -911,6 +952,7 @@ int apic_init(CPUState *env)
-     s->cpu_env = env;
- 
-     apic_reset(s);
-+    msix_supported = 1;
- 
-     /* XXX: mapping more APICs at the same memory location */
-     if (apic_io_memory == 0) {
-@@ -918,7 +960,8 @@ int apic_init(CPUState *env)
-            on the global memory bus. */
-         apic_io_memory = cpu_register_io_memory(0, apic_mem_read,
-                                                 apic_mem_write, NULL);
--        cpu_register_physical_memory(s->apicbase & ~0xfff, 0x1000,
-+        /* XXX: what if the base changes? */
-+        cpu_register_physical_memory(MSI_ADDR_BASE, MSI_ADDR_SIZE,
-                                      apic_io_memory);
-     }
-     s->timer = qemu_new_timer(vm_clock, apic_timer, s);
-@@ -929,4 +972,3 @@ int apic_init(CPUState *env)
-     local_apics[s->id] = s;
-     return 0;
- }
--
+ void pci_del_capability(PCIDevice *pci_dev, uint8_t cap_id, uint8_t cap_size);
 -- 
 1.6.3.1.56.g79e1.dirty
