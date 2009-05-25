@@ -1,189 +1,72 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH] qemu: virtio save/load bindings
-Date: Mon, 25 May 2009 16:34:05 +0300
-Message-ID: <20090525133405.GA6166__49480.3513320678$1243258809$gmane$org@redhat.com>
+From: Matias Zabaljauregui <zabaljauregui-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: lguest PAE
+Date: Mon, 25 May 2009 13:25:49 -0300
+Message-ID: <1243268749.7267.40.camel@zetabook>
+References: <1239902474.7166.49.camel@zetabook>  <49E7785D.1040501@goop.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Paul Brook <paul@codesourcery.com>, Avi Kivity <avi@redhat.com>, qemu-devel@nongnu.org, Carsten Otte <cotte@de.ibm.com>, kvm@vger.kernel.org, Rusty Russell <rusty@rustcor>
+Return-path: <lguest-bounces+glkvl-lguest=m.gmane.org-mnsaURCQ41sdnm+yROfE0A@public.gmane.org>
+In-Reply-To: <49E7785D.1040501-TSDbQ3PG+2Y@public.gmane.org>
+List-Unsubscribe: <https://ozlabs.org/mailman/options/lguest>,
+	<mailto:lguest-request-mnsaURCQ41sdnm+yROfE0A@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://ozlabs.org/pipermail/lguest>
+List-Post: <mailto:lguest-mnsaURCQ41sdnm+yROfE0A@public.gmane.org>
+List-Help: <mailto:lguest-request-mnsaURCQ41sdnm+yROfE0A@public.gmane.org?subject=help>
+List-Subscribe: <https://ozlabs.org/mailman/listinfo/lguest>,
+	<mailto:lguest-request-mnsaURCQ41sdnm+yROfE0A@public.gmane.org?subject=subscribe>
+Sender: lguest-bounces+glkvl-lguest=m.gmane.org-mnsaURCQ41sdnm+yROfE0A@public.gmane.org
+Errors-To: lguest-bounces+glkvl-lguest=m.gmane.org-mnsaURCQ41sdnm+yROfE0A@public.gmane.org
+To: Jeremy Fitzhardinge <jeremy-TSDbQ3PG+2Y@public.gmane.org>
+Cc: virtualization-qjLDD68F18O7TbgM5vRIOg@public.gmane.org, lguest-mnsaURCQ41sdnm+yROfE0A@public.gmane.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Implement bindings for virtio save/load. Use them in virtio pci.
+Jeremy, I fixed the code following your comments (hope you still
+remember).
 
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
+I'd like to ask you again about this one:
+  
+> >  /* Found in switcher.S */
+> >  extern unsigned long default_idt_entries[];
+> > diff --git a/arch/x86/include/asm/lguest_hcall.h b/arch/x86/include/asm/lguest_hcall.h
+> > index 0f4ee71..3860153 100644
+> > --- a/arch/x86/include/asm/lguest_hcall.h
+> > +++ b/arch/x86/include/asm/lguest_hcall.h
+> > @@ -17,6 +17,7 @@
+> >  #define LHCALL_SET_PMD		15
+> >  #define LHCALL_LOAD_TLS		16
+> >  #define LHCALL_NOTIFY		17
+> > +#define LHCALL_SET_PUD		18
+> >   
+> 
+> PGD is more accurate than PUD (here, and the rest of the patch).  The 
+> pud level of the pagetable is the 4th level used by 64-bit; PAE just has 
+> PGD, PMD and PTE levels.  Due to pagetable level folding, the PGD is 
+> sometimes referred to as the PUD when looking "up" the pagetable tree 
+> (ie, the PUD is logically the next level up from the PMD), but its still 
+> just an alias for the PGD.  Since the hypervisor interface shouldn't 
+> care about how the guest OS manages its pagetables, it should use a 
+> consistent naming for the levels as they "really" are.  Lguest 
+> traditionally uses the same names that Linux does, so PGD is appropriate.
+  
+I understand, but then should we change also the LHCALL_SET_PMD name ?
+this is the one used for setting a new pgd when PAE is NOT activated.
 
-Is anyone working to fill in load/save bindings so that saving virtio
-devices works? Here's a trivial patch to do this (this one is on top of my
-MSI-X patchset).
-Comments?
 
- hw/virtio-pci.c |   49 ++++++++++++++++++++++++++++++++++++++++++++++++-
- hw/virtio.c     |   31 ++++++++++++++-----------------
- hw/virtio.h     |    4 ++++
- 3 files changed, 66 insertions(+), 18 deletions(-)
+So, just to confirm:  even if we are implementing pv_mmu_ops.set_pud
+replacement (lguest_set_pud in our case), we should use LHCALL_SET_PGD
+hypercall name in this code because that is what host is going to
+actually do? 
 
-diff --git a/hw/virtio-pci.c b/hw/virtio-pci.c
-index 294f4c7..589fbb1 100644
---- a/hw/virtio-pci.c
-+++ b/hw/virtio-pci.c
-@@ -105,6 +105,48 @@ static void virtio_pci_notify(void *opaque, uint16_t vector)
-         qemu_set_irq(proxy->pci_dev.irq[0], proxy->vdev->isr & 1);
- }
- 
-+static void virtio_pci_save_config(void * opaque, QEMUFile *f)
-+{
-+    VirtIOPCIProxy *proxy = opaque;
-+    pci_device_save(&proxy->pci_dev, f);
-+    msix_save(&proxy->pci_dev, f);
-+    if (msix_present(&proxy->pci_dev))
-+        qemu_put_be16(f, proxy->vdev->config_vector);
-+}
-+
-+static void virtio_pci_save_queue(void * opaque, int n, QEMUFile *f)
-+{
-+    VirtIOPCIProxy *proxy = opaque;
-+    if (msix_present(&proxy->pci_dev))
-+        qemu_put_be16(f, virtio_queue_vector(proxy->vdev, n));
-+}
-+
-+static int virtio_pci_load_config(void * opaque, QEMUFile *f)
-+{
-+    VirtIOPCIProxy *proxy = opaque;
-+    int ret;
-+    ret = pci_device_load(&proxy->pci_dev, f);
-+    if (ret)
-+        return ret;
-+    ret = msix_load(&proxy->pci_dev, f);
-+    if (ret)
-+        return ret;
-+    if (msix_present(&proxy->pci_dev))
-+        qemu_get_be16s(f, &proxy->vdev->config_vector);
-+    return 0;
-+}
-+
-+static int virtio_pci_load_queue(void * opaque, int n, QEMUFile *f)
-+{
-+    VirtIOPCIProxy *proxy = opaque;
-+    uint16_t vector;
-+    if (!msix_present(&proxy->pci_dev))
-+        return 0;
-+    qemu_get_be16s(f, &vector);
-+    virtio_queue_set_vector(proxy->vdev, n, vector);
-+    return 0;
-+}
-+
- static void virtio_pci_reset(void *opaque)
- {
-     VirtIOPCIProxy *proxy = opaque;
-@@ -317,7 +359,12 @@ static void virtio_write_config(PCIDevice *pci_dev, uint32_t address,
- }
- 
- static const VirtIOBindings virtio_pci_bindings = {
--    .notify = virtio_pci_notify
-+    .notify = virtio_pci_notify,
-+    .save_config = virtio_pci_save_config,
-+    .load_config = virtio_pci_load_config,
-+    .save_config = virtio_pci_save_config,
-+    .save_queue = virtio_pci_save_queue,
-+    .load_queue = virtio_pci_load_queue,
- };
- 
- static void virtio_init_pci(VirtIOPCIProxy *proxy, VirtIODevice *vdev,
-diff --git a/hw/virtio.c b/hw/virtio.c
-index 63ffcff..b773dff 100644
---- a/hw/virtio.c
-+++ b/hw/virtio.c
-@@ -568,9 +568,8 @@ void virtio_save(VirtIODevice *vdev, QEMUFile *f)
- {
-     int i;
- 
--    /* FIXME: load/save binding.  */
--    //pci_device_save(&vdev->pci_dev, f);
--    //msix_save(&vdev->pci_dev, f);
-+    if (vdev->binding->save_config)
-+        vdev->binding->save_config(vdev->binding_opaque, f);
- 
-     qemu_put_8s(f, &vdev->status);
-     qemu_put_8s(f, &vdev->isr);
-@@ -596,19 +595,20 @@ void virtio_save(VirtIODevice *vdev, QEMUFile *f)
-         qemu_put_be32(f, vdev->vq[i].vring.num);
-         qemu_put_be64(f, vdev->vq[i].pa);
-         qemu_put_be16s(f, &vdev->vq[i].last_avail_idx);
--        if (vdev->nvectors)
--            qemu_put_be16s(f, &vdev->vq[i].vector);
-+        if (vdev->binding->save_queue)
-+            vdev->binding->save_queue(vdev->binding_opaque, i, f);
-     }
- }
- 
- int virtio_load(VirtIODevice *vdev, QEMUFile *f)
- {
--    int num, i;
-+    int num, i, ret;
- 
--    /* FIXME: load/save binding.  */
--    //pci_device_load(&vdev->pci_dev, f);
--    //r = msix_load(&vdev->pci_dev, f);
--    //pci_resize_io_region(&vdev->pci_dev, 1, msix_bar_size(&vdev->pci_dev));
-+    if (vdev->binding->load_config) {
-+        ret = vdev->binding->load_config(vdev->binding_opaque, f);
-+        if (ret)
-+            return ret;
-+    }
- 
-     qemu_get_8s(f, &vdev->status);
-     qemu_get_8s(f, &vdev->isr);
-@@ -617,10 +617,6 @@ int virtio_load(VirtIODevice *vdev, QEMUFile *f)
-     vdev->config_len = qemu_get_be32(f);
-     qemu_get_buffer(f, vdev->config, vdev->config_len);
- 
--    if (vdev->nvectors) {
--        qemu_get_be16s(f, &vdev->config_vector);
--        //msix_vector_use(&vdev->pci_dev, vdev->config_vector);
--    }
-     num = qemu_get_be32(f);
- 
-     for (i = 0; i < num; i++) {
-@@ -631,9 +627,10 @@ int virtio_load(VirtIODevice *vdev, QEMUFile *f)
-         if (vdev->vq[i].pa) {
-             virtqueue_init(&vdev->vq[i]);
-         }
--        if (vdev->nvectors) {
--            qemu_get_be16s(f, &vdev->vq[i].vector);
--            //msix_vector_use(&vdev->pci_dev, vdev->config_vector);
-+        if (vdev->binding->load_queue) {
-+            ret = vdev->binding->load_queue(vdev->binding_opaque, i, f);
-+            if (ret)
-+                return ret;
-         }
-     }
- 
-diff --git a/hw/virtio.h b/hw/virtio.h
-index 04a3c3d..ce05517 100644
---- a/hw/virtio.h
-+++ b/hw/virtio.h
-@@ -72,6 +72,10 @@ typedef struct VirtQueueElement
- 
- typedef struct {
-     void (*notify)(void * opaque, uint16_t vector);
-+    void (*save_config)(void * opaque, QEMUFile *f);
-+    void (*save_queue)(void * opaque, int n, QEMUFile *f);
-+    int (*load_config)(void * opaque, QEMUFile *f);
-+    int (*load_queue)(void * opaque, int n, QEMUFile *f);
- } VirtIOBindings;
- 
- #define VIRTIO_PCI_QUEUE_MAX 16
--- 
-1.6.3.1.56.g79e1.dirty
+static void lguest_set_pud(pud_t *pudp, pud_t pudval)
+{
+	native_set_pud(pudp, pudval);
+
+	/* 32 bytes aligned pdpt address. */
+	lazy_hcall2(LHCALL_SET_PUD, __pa(pudp) & 0xFFFFFFE0,
+		   (__pa(pudp) & 0x1F) / sizeof(pud_t));
+}
+
+
+Thanks, 
+Matias
