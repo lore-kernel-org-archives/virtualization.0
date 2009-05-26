@@ -1,72 +1,93 @@
-From: Matias Zabaljauregui <zabaljauregui-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: lguest PAE
-Date: Mon, 25 May 2009 13:25:49 -0300
-Message-ID: <1243268749.7267.40.camel@zetabook>
-References: <1239902474.7166.49.camel@zetabook>  <49E7785D.1040501@goop.org>
+From: Isaku Yamahata <yamahata@valinux.co.jp>
+Subject: Re: [Qemu-devel] [PATCH 04/11] qemu: helper routines for pci access.
+Date: Tue, 26 May 2009 11:33:37 +0900
+Message-ID: <20090526023337.GF13076%yamahata__17739.3725295135$1243305411$gmane$org@valinux.co.jp>
+References: <cover.1243253205.git.mst@redhat.com>
+	<20090525122533.GE5046@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <lguest-bounces+glkvl-lguest=m.gmane.org-mnsaURCQ41sdnm+yROfE0A@public.gmane.org>
-In-Reply-To: <49E7785D.1040501-TSDbQ3PG+2Y@public.gmane.org>
-List-Unsubscribe: <https://ozlabs.org/mailman/options/lguest>,
-	<mailto:lguest-request-mnsaURCQ41sdnm+yROfE0A@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://ozlabs.org/pipermail/lguest>
-List-Post: <mailto:lguest-mnsaURCQ41sdnm+yROfE0A@public.gmane.org>
-List-Help: <mailto:lguest-request-mnsaURCQ41sdnm+yROfE0A@public.gmane.org?subject=help>
-List-Subscribe: <https://ozlabs.org/mailman/listinfo/lguest>,
-	<mailto:lguest-request-mnsaURCQ41sdnm+yROfE0A@public.gmane.org?subject=subscribe>
-Sender: lguest-bounces+glkvl-lguest=m.gmane.org-mnsaURCQ41sdnm+yROfE0A@public.gmane.org
-Errors-To: lguest-bounces+glkvl-lguest=m.gmane.org-mnsaURCQ41sdnm+yROfE0A@public.gmane.org
-To: Jeremy Fitzhardinge <jeremy-TSDbQ3PG+2Y@public.gmane.org>
-Cc: virtualization-qjLDD68F18O7TbgM5vRIOg@public.gmane.org, lguest-mnsaURCQ41sdnm+yROfE0A@public.gmane.org
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <20090525122533.GE5046@redhat.com>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Carsten Otte <cotte@de.ibm.com>, kvm@vger.kernel.org, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Blue Swirl <blauwirbel@gmail.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Paul Brook <paul@codesourcery.com>, Avi Kivity <avi@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Jeremy, I fixed the code following your comments (hope you still
-remember).
+Just a minor comment.
+How about to add pci_[sg]et_byte() for consistency?
 
-I'd like to ask you again about this one:
-  
-> >  /* Found in switcher.S */
-> >  extern unsigned long default_idt_entries[];
-> > diff --git a/arch/x86/include/asm/lguest_hcall.h b/arch/x86/include/asm/lguest_hcall.h
-> > index 0f4ee71..3860153 100644
-> > --- a/arch/x86/include/asm/lguest_hcall.h
-> > +++ b/arch/x86/include/asm/lguest_hcall.h
-> > @@ -17,6 +17,7 @@
-> >  #define LHCALL_SET_PMD		15
-> >  #define LHCALL_LOAD_TLS		16
-> >  #define LHCALL_NOTIFY		17
-> > +#define LHCALL_SET_PUD		18
-> >   
+On Mon, May 25, 2009 at 03:25:33PM +0300, Michael S. Tsirkin wrote:
+> Add inline routines for convenient access to pci devices
+> with correct (little) endianness. Will be used by MSI-X support.
 > 
-> PGD is more accurate than PUD (here, and the rest of the patch).  The 
-> pud level of the pagetable is the 4th level used by 64-bit; PAE just has 
-> PGD, PMD and PTE levels.  Due to pagetable level folding, the PGD is 
-> sometimes referred to as the PUD when looking "up" the pagetable tree 
-> (ie, the PUD is logically the next level up from the PMD), but its still 
-> just an alias for the PGD.  Since the hypervisor interface shouldn't 
-> care about how the guest OS manages its pagetables, it should use a 
-> consistent naming for the levels as they "really" are.  Lguest 
-> traditionally uses the same names that Linux does, so PGD is appropriate.
-  
-I understand, but then should we change also the LHCALL_SET_PMD name ?
-this is the one used for setting a new pgd when PAE is NOT activated.
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> ---
+>  hw/pci.h |   30 +++++++++++++++++++++++++++---
+>  1 files changed, 27 insertions(+), 3 deletions(-)
+> 
+> diff --git a/hw/pci.h b/hw/pci.h
+> index 40137c6..4e112a3 100644
+> --- a/hw/pci.h
+> +++ b/hw/pci.h
+> @@ -240,21 +240,45 @@ PCIBus *pci_bridge_init(PCIBus *bus, int devfn, uint16_t vid, uint16_t did,
+>                          pci_map_irq_fn map_irq, const char *name);
+>  
+>  static inline void
+> +pci_set_word(uint8_t *config, uint16_t val)
+> +{
+> +    cpu_to_le16wu((uint16_t *)config, val);
+> +}
+> +
+> +static inline uint16_t
+> +pci_get_word(uint8_t *config)
+> +{
+> +    return le16_to_cpupu((uint16_t *)config);
+> +}
+> +
+> +static inline void
+> +pci_set_long(uint8_t *config, uint32_t val)
+> +{
+> +    cpu_to_le32wu((uint32_t *)config, val);
+> +}
+> +
+> +static inline uint32_t
+> +pci_get_long(uint8_t *config)
+> +{
+> +    return le32_to_cpupu((uint32_t *)config);
+> +}
+> +
+> +static inline void
+>  pci_config_set_vendor_id(uint8_t *pci_config, uint16_t val)
+>  {
+> -    cpu_to_le16wu((uint16_t *)&pci_config[PCI_VENDOR_ID], val);
+> +    pci_set_word(&pci_config[PCI_VENDOR_ID], val);
+>  }
+>  
+>  static inline void
+>  pci_config_set_device_id(uint8_t *pci_config, uint16_t val)
+>  {
+> -    cpu_to_le16wu((uint16_t *)&pci_config[PCI_DEVICE_ID], val);
+> +    pci_set_word(&pci_config[PCI_DEVICE_ID], val);
+>  }
+>  
+>  static inline void
+>  pci_config_set_class(uint8_t *pci_config, uint16_t val)
+>  {
+> -    cpu_to_le16wu((uint16_t *)&pci_config[PCI_CLASS_DEVICE], val);
+> +    pci_set_word(&pci_config[PCI_CLASS_DEVICE], val);
+>  }
+>  
+>  typedef void (*pci_qdev_initfn)(PCIDevice *dev);
 
-
-So, just to confirm:  even if we are implementing pv_mmu_ops.set_pud
-replacement (lguest_set_pud in our case), we should use LHCALL_SET_PGD
-hypercall name in this code because that is what host is going to
-actually do? 
-
-static void lguest_set_pud(pud_t *pudp, pud_t pudval)
-{
-	native_set_pud(pudp, pudval);
-
-	/* 32 bytes aligned pdpt address. */
-	lazy_hcall2(LHCALL_SET_PUD, __pa(pudp) & 0xFFFFFFE0,
-		   (__pa(pudp) & 0x1F) / sizeof(pud_t));
-}
-
-
-Thanks, 
-Matias
+-- 
+yamahata
