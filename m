@@ -1,15 +1,14 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH] qemu: fix pci_find_capability for multiple caps
-Date: Tue, 26 May 2009 12:30:27 +0300
-Message-ID: <20090526093027.GC8588@redhat.com>
-References: <cover.1243253205.git.mst@redhat.com>
-	<20090525122520.GD5046@redhat.com>
+From: Paul Brook <paul@codesourcery.com>
+Subject: Re: [PATCH] qemu: virtio save/load bindings
+Date: Tue, 26 May 2009 11:20:29 +0100
+Message-ID: <200905261120.30344.paul__7113.59195779568$1243333377$gmane$org@codesourcery.com>
+References: <20090525133405.GA6166@redhat.com> <4A1BA998.8040803@codemonkey.ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <4A1BA998.8040803@codemonkey.ws>
 Content-Disposition: inline
-In-Reply-To: <20090525122520.GD5046@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,37 +18,22 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Paul Brook <paul@codesourcery.com>, Avi Kivity <avi@redhat.com>, qemu-devel@nongnu.org, Carsten Otte <cotte@de.ibm.com>, kvm@vger.kernel.org, Rusty Russell <rusty@rustcor>
+To: Anthony Liguori <anthony@codemonkey.ws>
+Cc: Carsten Otte <cotte@de.ibm.com>, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Blue Swirl <blauwirbel@gmail.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Avi Kivity <avi@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-pci_find_capability_list has a bug so it'd stop at the first
-capability. This only happens to work as we only support
-a single capability (MSI-X). Here's a fix.
+> > -    /* FIXME: load/save binding.  */
+> > -    //pci_device_save(&vdev->pci_dev, f);
+> > -    //msix_save(&vdev->pci_dev, f);
+>
+> qdev regressed save/restore?  What else is broken right now from the
+> qdev commit?
+>
+> I'm beginning to think committing in the state it was in was a mistake.
+> Paul, can you put together a TODO so that we know all of the things that
+> have regressed so we can get things back into shape?
 
-Found-by: Isaku Yamahata <yamahata@valinux.co.jp>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Sorry, this one apparently slipped past. I#'d intended to fix it, but 
+apparently never ported that bit of the patch.
 
----
-
-This is a fixup for my patch "qemu: add routines to manage PCI
-capabilities".
-
- hw/pci.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
-
-diff --git a/hw/pci.c b/hw/pci.c
-index 19905b9..a63d988 100644
---- a/hw/pci.c
-+++ b/hw/pci.c
-@@ -918,7 +918,7 @@ static uint8_t pci_find_capability_list(PCIDevice *pdev, uint8_t cap_id,
- 
-     for (prev = PCI_CAPABILITY_LIST; (next = pdev->config[prev]);
-          prev = next + PCI_CAP_LIST_NEXT)
--        if (pdev->config[next + PCI_CAP_LIST_ID] != cap_id)
-+        if (pdev->config[next + PCI_CAP_LIST_ID] == cap_id)
-             break;
- 
-     *prev_p = prev;
-
--- 
-MST
+Paul
