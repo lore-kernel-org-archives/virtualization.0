@@ -1,13 +1,13 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [patch 1/2] virtio: fix id_matching for virtio drivers
-Date: Tue, 26 May 2009 15:46:09 +0200
-Message-ID: <20090526135140.796154000__35206.5535299063$1243345960$gmane$org@de.ibm.com>
+Subject: [patch 2/2] virtio: enhance id_matching for virtio drivers
+Date: Tue, 26 May 2009 15:46:10 +0200
+Message-ID: <20090526135141.256078000__3674.13622229851$1243345986$gmane$org@de.ibm.com>
 References: <20090526134608.545964000@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline; filename=virtio_id_fix.patch
+Content-Disposition: inline; filename=virtio_id_enhance.patch
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -23,26 +23,39 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Christian Borntraeger <borntraeger@de.ibm.com>
 
-This bug never appeared, since all current virtio drivers use
-VIRTIO_DEV_ANY_ID for the vendor field. If a real vendor would be used,
-the check in virtio_id_match is wrong - it returns 0 if
-id->vendor == dev->id.vendor.
+This patch allows a virtio driver to use VIRTIO_DEV_ANY_ID for the 
+device id. This will be used by a test module that can be bound to
+any virtio device.
 
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- drivers/virtio/virtio.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/virtio/virtio.c  |    2 +-
+ scripts/mod/file2alias.c |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
 Index: linux-next/drivers/virtio/virtio.c
 ===================================================================
 --- linux-next.orig/drivers/virtio/virtio.c
 +++ linux-next/drivers/virtio/virtio.c
-@@ -61,7 +61,7 @@ static inline int virtio_id_match(const 
- 	if (id->device != dev->id.device)
+@@ -58,7 +58,7 @@ static struct device_attribute virtio_de
+ static inline int virtio_id_match(const struct virtio_device *dev,
+ 				  const struct virtio_device_id *id)
+ {
+-	if (id->device != dev->id.device)
++	if (id->device != dev->id.device && id->device != VIRTIO_DEV_ANY_ID)
  		return 0;
  
--	return id->vendor == VIRTIO_DEV_ANY_ID || id->vendor != dev->id.vendor;
-+	return id->vendor == VIRTIO_DEV_ANY_ID || id->vendor == dev->id.vendor;
- }
+ 	return id->vendor == VIRTIO_DEV_ANY_ID || id->vendor == dev->id.vendor;
+Index: linux-next/scripts/mod/file2alias.c
+===================================================================
+--- linux-next.orig/scripts/mod/file2alias.c
++++ linux-next/scripts/mod/file2alias.c
+@@ -641,7 +641,7 @@ static int do_virtio_entry(const char *f
+ 	id->vendor = TO_NATIVE(id->vendor);
  
- /* This looks through all the IDs a driver claims to support.  If any of them
+ 	strcpy(alias, "virtio:");
+-	ADD(alias, "d", 1, id->device);
++	ADD(alias, "d", id->device != VIRTIO_DEV_ANY_ID, id->device);
+ 	ADD(alias, "v", id->vendor != VIRTIO_DEV_ANY_ID, id->vendor);
+ 
+ 	add_wildcard(alias);
