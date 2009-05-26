@@ -1,16 +1,13 @@
-From: Avi Kivity <avi@redhat.com>
-Subject: Re: [Qemu-devel] [PATCH 04/11] qemu: helper routines for pci	access.
-Date: Tue, 26 May 2009 11:07:33 +0300
-Message-ID: <4A1BA345.3040104__43162.9144739874$1243325448$gmane$org@redhat.com>
-References: <cover.1243253205.git.mst@redhat.com>
-	<20090525122533.GE5046@redhat.com>
-	<20090526023337.GF13076%yamahata@valinux.co.jp>
-	<20090526064152.GH6856@redhat.com>
+From: Anthony Liguori <anthony@codemonkey.ws>
+Subject: Re: [PATCH] qemu: virtio save/load bindings
+Date: Tue, 26 May 2009 03:34:32 -0500
+Message-ID: <4A1BA998.8040803__7049.50596341423$1243327024$gmane$org@codemonkey.ws>
+References: <20090525133405.GA6166@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20090526064152.GH6856@redhat.com>
+In-Reply-To: <20090525133405.GA6166@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -21,28 +18,46 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Carsten Otte <cotte@de.ibm.com>, kvm@vger.kernel.org, Christian Borntraeger <borntraeger@de.ibm.com>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Blue Swirl <blauwirbel@gmail.com>, Isaku Yamahata <yamahata@valinux.co.jp>, Paul Brook <paul@codesourcery.com>
+Cc: Carsten Otte <cotte@de.ibm.com>, kvm@vger.kernel.org, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Blue Swirl <blauwirbel@gmail.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Paul Brook <paul@codesourcery.com>, Avi Kivity <avi@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
 Michael S. Tsirkin wrote:
-> On Tue, May 26, 2009 at 11:33:37AM +0900, Isaku Yamahata wrote:
->   
->> On Mon, May 25, 2009 at 03:25:33PM +0300, Michael S. Tsirkin wrote:
->>     
->>> Add inline routines for convenient access to pci devices
->>> with correct (little) endianness. Will be used by MSI-X support.
->>>       
->> Just a minor comment.
->> How about to add pci_[sg]et_byte() for consistency?
->>     
+> Implement bindings for virtio save/load. Use them in virtio pci.
 >
-> I don't see that it makes sense - pci_set_long(config, value)
-> is shorter than *((uint32_t *)config) = cpu_to_le32(value),
-> but single bytes don't have endianness, and *config = value
-> is shorter.
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> ---
+>
+> Is anyone working to fill in load/save bindings so that saving virtio
+> devices works? Here's a trivial patch to do this (this one is on top of my
+> MSI-X patchset).
+> Comments?
+>
+>  hw/virtio-pci.c |   49 ++++++++++++++++++++++++++++++++++++++++++++++++-
+>  hw/virtio.c     |   31 ++++++++++++++-----------------
+>  hw/virtio.h     |    4 ++++
+>  3 files changed, 66 insertions(+), 18 deletions(-)
+>
+>  static void virtio_init_pci(VirtIOPCIProxy *proxy, VirtIODevice *vdev,
+> diff --git a/hw/virtio.c b/hw/virtio.c
+> index 63ffcff..b773dff 100644
+> --- a/hw/virtio.c
+> +++ b/hw/virtio.c
+> @@ -568,9 +568,8 @@ void virtio_save(VirtIODevice *vdev, QEMUFile *f)
+>  {
+>      int i;
+>  
+> -    /* FIXME: load/save binding.  */
+> -    //pci_device_save(&vdev->pci_dev, f);
+> -    //msix_save(&vdev->pci_dev, f);
 >   
 
-It's nice to have consistent APIs though.
+qdev regressed save/restore?  What else is broken right now from the 
+qdev commit?
 
--- 
-error compiling committee.c: too many arguments to function
+I'm beginning to think committing in the state it was in was a mistake.  
+Paul, can you put together a TODO so that we know all of the things that 
+have regressed so we can get things back into shape?
+
+Regards,
+
+Anthony Liguori
