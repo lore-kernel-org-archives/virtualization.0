@@ -1,15 +1,15 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH 1/4] net: skb_orphan on dev_hard_start_xmit
-Date: Mon, 1 Jun 2009 21:57:28 +0930
-Message-ID: <200906012157.29465.rusty@rustcorp.com.au>
-References: <200905292344.56814.rusty@rustcorp.com.au>
-	<4A1FFB04.30305@gmail.com>
+From: "Charles 'Mack' Rhinelander" <mrhinelander@gmail.com>
+Subject: Fwd: BUG: Documentation/lguest/lguest.c bad paths for includes cause
+	make to fail
+Date: Sun, 31 May 2009 01:45:24 -0700
+Message-ID: <1faf47660905310145g4bea38b0v123a9b468e950a81@mail.gmail.com>
+References: <1faf47660905310128t45f1ea32ge5e1cba82ddca972@mail.gmail.com>
+	<1faf47660905310139y7203bba7w39f4a5330b148f0@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4A1FFB04.30305@gmail.com>
-Content-Disposition: inline
+In-Reply-To: <1faf47660905310139y7203bba7w39f4a5330b148f0@mail.gmail.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,47 +19,94 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Eric Dumazet <eric.dumazet@gmail.com>
-Cc: libertas-dev@lists.infradead.org, Dan Williams <dcbw@redhat.com>, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, Roland Dreier <rolandd@cisco.com>, Divy Le Ray <divy@chelsio.com>, Pavel Emelianov <xemul@openvz.org>
+To: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sat, 30 May 2009 12:41:00 am Eric Dumazet wrote:
-> Rusty Russell a =E9crit :
-> > DaveM points out that there are advantages to doing it generally (it's
-> > more likely to be on same CPU than after xmit), and I couldn't find
-> > any new starvation issues in simple benchmarking here.
->
-> If really no starvations are possible at all, I really wonder why some
-> guys added memory accounting to UDP flows. Maybe they dont run "simple
-> benchmarks" but real apps ? :)
+Pardon my unorganized cc:'s.
 
-Well, without any accounting at all you could use quite a lot of memory as =
+---------- Forwarded message ----------
+From: Charles 'Mack' Rhinelander <mrhinelander@gmail.com>
+Date: Sun, May 31, 2009 at 1:39 AM
+Subject: Fwd: BUG: Documentation/lguest/lguest.c bad paths for
+includes cause make to fail
+To: linux-kernel@vger.kernel.org
+Cc: Andrew Morton <akpm@osdl.org>, lguest@ozlabs.org
 
-there are many places packets can be queued.
+---------- Forwarded message ----------
+From: Charles 'Mack' Rhinelander <mrhinelander@gmail.com>
+Date: Sun, May 31, 2009 at 1:28 AM
+Subject: BUG: Documentation/lguest/lguest.c bad paths for includes
+cause make to fail
+To: mm-commits@vger.kernel.org, kraai@ftbfs.org,
+rusty@rustcorp.com.au, Andi Kleen <ak@suse.de>, Thomas Gleixner
+<tglx@linutronix.de>, Ingo Molnar <mingo@elte.hu>
 
-> For TCP, I agree your patch is a huge benefit, since its paced by remote
-> ACKS and window control
 
-I doubt that.  There'll be some cache friendliness, but I'm not sure it'll =
-be =
+2.6.28-rc2-mm1 make fails at Documentation/lguest/lguest.c =A0Two
+includes have bad paths: line 34 #include <zlib.h> (maybe should be
+linux/zlib.h?), and line 47 #include "asm-x86/bootparam.h"
 
-measurable, let alone "huge".  It's the win to drivers which don't have a =
+Are incorrect paths related to this recent gitignore of lguest.c (see
+first cut below)?
 
-timely and batching tx free mechanism which I aim for.
+asm-x86 has no bootparam.h; is this related to 2007 mm-commit list
+concerning "allow asm-x86 to be included from userspace?" (see second
+cut below)
 
-> , but an UDP sender will likely be able to saturate
-> a link.
+---BEGIN CUT ABOUT gitignore OF lguest.c---
 
-I couldn't see any difference in saturation here (with default scheduler an=
-d an =
+Gitweb: =A0 =A0 http://git.kernel.org/linus/9536c26b31ae34ba6371a1b8f406028=
+e9756f913
+Commit: =A0 =A0 9536c26b31ae34ba6371a1b8f406028e9756f913
+Parent: =A0 =A0 84a139a985300901dfad99bd93c7345d180af860
+Author: =A0 =A0 Matt Kraai <kraai@ftbfs.org>
+AuthorDate: Thu Apr 16 23:46:20 2009 -0700
+Committer: =A0Rusty Russell <rusty@rustcorp.com.au>
+CommitDate: Sun Apr 19 23:14:02 2009 +0930
 
-100MBit e1000e).  Two reasons come to mind: firstly, only the hardware queu=
-e is =
+=A0 =A0lguest: tell git to ignore Documentation/lguest/lguest
 
-unregulated: the tx queue is still accounted.  And when you add scheduling =
-to =
+=A0 =A0This is the example lguest launcher binary.
 
-the mix, I can't in practice cause starvation of other senders.
+=A0 =A0Signed-off-by: Matt Kraai <kraai@ftbfs.org>
+=A0 =A0Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+---
+=A0Documentation/lguest/.gitignore | =A0 =A01 +
+=A01 files changed, 1 insertions(+), 0 deletions(-)
 
-Hope that clarifies,
-Rusty.
+diff --git a/Documentation/lguest/.gitignore b/Documentation/lguest/.gitign=
+ore
+---END CUT---
+
+---BEGIN CUT ABOUT allow x86 bootparam include from userspace---
+List: =A0 =A0 =A0 linux-mm-commits
+Subject: =A0 =A0- make-asm-x86-bootparamh-includable-from-userspace.patch
+removed from -mm tree
+From: =A0 =A0 =A0 akpm () linux-foundation ! org
+Date: =A0 =A0 =A0 2007-10-18 6:05:37
+
+The patch titled
+=A0 =A0 Make asm-x86/bootparam.h includable from userspace
+has been removed from the -mm tree. =A0Its filename was
+=A0 =A0 make-asm-x86-bootparamh-includable-from-userspace.patch
+
+This patch was dropped because because of rejects
+
+------------------------------------------------------
+Subject: Make asm-x86/bootparam.h includable from userspace
+From: Rusty Russell <rusty@rustcorp.com.au>
+
+To actually write a bootloader (or, say, the lguest launcher) currently
+requires duplication of these structures. =A0Making them includeable from
+userspace is much nicer.
+
+We merge the common userspace-required definitions of e820_32/64.h into e82=
+0.h
+for export.
+
+Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Andi Kleen <ak@suse.de>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Ingo Molnar <mingo@elte.hu>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org
+---END CUT---
