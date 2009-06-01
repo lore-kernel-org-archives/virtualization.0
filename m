@@ -1,14 +1,13 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCHv2 12/13] qemu: virtio save/load bindings
-Date: Tue, 2 Jun 2009 18:03:13 +0300
-Message-ID: <20090602150313.GM6554__15982.4086157188$1243955789$gmane$org@redhat.com>
-References: <cover.1243954694.git.mst@redhat.com>
+From: Patrick Ohly <patrick.ohly@intel.com>
+Subject: Re: [PATCH 1/4] net: skb_orphan on dev_hard_start_xmit
+Date: Mon, 01 Jun 2009 21:47:22 +0200
+Message-ID: <1243885642.22917.35.camel__13681.6014921807$1243955848$gmane$org@pohly-MOBL>
+References: <200905292344.56814.rusty@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <cover.1243954694.git.mst@redhat.com>
+In-Reply-To: <200905292344.56814.rusty@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,168 +17,37 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Paul Brook <paul@codesourcery.com>, Avi Kivity <avi@redhat.com>, qemu-devel@nongnu.org, Carsten Otte <cotte@de.ibm.com>, kvm@vger.kernel.org, Rusty Russell <rusty@rustcor>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: libertas-dev@lists.infradead.org, Dan Williams <dcbw@redhat.com>, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, Roland Dreier <rolandd@cisco.com>, Divy Le Ray <divy@chelsio.com>, Pavel Emelianov <xemul@openvz.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Implement bindings for virtio save/load. Use them in virtio pci.
+On Fri, 2009-05-29 at 23:44 +0930, Rusty Russell wrote:
+> This patch adds skb_orphan to the start of dev_hard_start_xmit(): it
+> can be premature in the NETDEV_TX_BUSY case, but that's uncommon.
 
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
- hw/virtio-pci.c |   49 ++++++++++++++++++++++++++++++++++++++++++++++++-
- hw/virtio.c     |   31 ++++++++++++++-----------------
- hw/virtio.h     |    4 ++++
- 3 files changed, 66 insertions(+), 18 deletions(-)
+Would it be possible to make the new skb_orphan() at the start of
+dev_hard_start_xmit() conditionally so that it is not executed for
+packets that are to be time stamped?
 
-diff --git a/hw/virtio-pci.c b/hw/virtio-pci.c
-index 294f4c7..589fbb1 100644
---- a/hw/virtio-pci.c
-+++ b/hw/virtio-pci.c
-@@ -105,6 +105,48 @@ static void virtio_pci_notify(void *opaque, uint16_t vector)
-         qemu_set_irq(proxy->pci_dev.irq[0], proxy->vdev->isr & 1);
- }
- 
-+static void virtio_pci_save_config(void * opaque, QEMUFile *f)
-+{
-+    VirtIOPCIProxy *proxy = opaque;
-+    pci_device_save(&proxy->pci_dev, f);
-+    msix_save(&proxy->pci_dev, f);
-+    if (msix_present(&proxy->pci_dev))
-+        qemu_put_be16(f, proxy->vdev->config_vector);
-+}
-+
-+static void virtio_pci_save_queue(void * opaque, int n, QEMUFile *f)
-+{
-+    VirtIOPCIProxy *proxy = opaque;
-+    if (msix_present(&proxy->pci_dev))
-+        qemu_put_be16(f, virtio_queue_vector(proxy->vdev, n));
-+}
-+
-+static int virtio_pci_load_config(void * opaque, QEMUFile *f)
-+{
-+    VirtIOPCIProxy *proxy = opaque;
-+    int ret;
-+    ret = pci_device_load(&proxy->pci_dev, f);
-+    if (ret)
-+        return ret;
-+    ret = msix_load(&proxy->pci_dev, f);
-+    if (ret)
-+        return ret;
-+    if (msix_present(&proxy->pci_dev))
-+        qemu_get_be16s(f, &proxy->vdev->config_vector);
-+    return 0;
-+}
-+
-+static int virtio_pci_load_queue(void * opaque, int n, QEMUFile *f)
-+{
-+    VirtIOPCIProxy *proxy = opaque;
-+    uint16_t vector;
-+    if (!msix_present(&proxy->pci_dev))
-+        return 0;
-+    qemu_get_be16s(f, &vector);
-+    virtio_queue_set_vector(proxy->vdev, n, vector);
-+    return 0;
-+}
-+
- static void virtio_pci_reset(void *opaque)
- {
-     VirtIOPCIProxy *proxy = opaque;
-@@ -317,7 +359,12 @@ static void virtio_write_config(PCIDevice *pci_dev, uint32_t address,
- }
- 
- static const VirtIOBindings virtio_pci_bindings = {
--    .notify = virtio_pci_notify
-+    .notify = virtio_pci_notify,
-+    .save_config = virtio_pci_save_config,
-+    .load_config = virtio_pci_load_config,
-+    .save_config = virtio_pci_save_config,
-+    .save_queue = virtio_pci_save_queue,
-+    .load_queue = virtio_pci_load_queue,
- };
- 
- static void virtio_init_pci(VirtIOPCIProxy *proxy, VirtIODevice *vdev,
-diff --git a/hw/virtio.c b/hw/virtio.c
-index 63ffcff..b773dff 100644
---- a/hw/virtio.c
-+++ b/hw/virtio.c
-@@ -568,9 +568,8 @@ void virtio_save(VirtIODevice *vdev, QEMUFile *f)
- {
-     int i;
- 
--    /* FIXME: load/save binding.  */
--    //pci_device_save(&vdev->pci_dev, f);
--    //msix_save(&vdev->pci_dev, f);
-+    if (vdev->binding->save_config)
-+        vdev->binding->save_config(vdev->binding_opaque, f);
- 
-     qemu_put_8s(f, &vdev->status);
-     qemu_put_8s(f, &vdev->isr);
-@@ -596,19 +595,20 @@ void virtio_save(VirtIODevice *vdev, QEMUFile *f)
-         qemu_put_be32(f, vdev->vq[i].vring.num);
-         qemu_put_be64(f, vdev->vq[i].pa);
-         qemu_put_be16s(f, &vdev->vq[i].last_avail_idx);
--        if (vdev->nvectors)
--            qemu_put_be16s(f, &vdev->vq[i].vector);
-+        if (vdev->binding->save_queue)
-+            vdev->binding->save_queue(vdev->binding_opaque, i, f);
-     }
- }
- 
- int virtio_load(VirtIODevice *vdev, QEMUFile *f)
- {
--    int num, i;
-+    int num, i, ret;
- 
--    /* FIXME: load/save binding.  */
--    //pci_device_load(&vdev->pci_dev, f);
--    //r = msix_load(&vdev->pci_dev, f);
--    //pci_resize_io_region(&vdev->pci_dev, 1, msix_bar_size(&vdev->pci_dev));
-+    if (vdev->binding->load_config) {
-+        ret = vdev->binding->load_config(vdev->binding_opaque, f);
-+        if (ret)
-+            return ret;
-+    }
- 
-     qemu_get_8s(f, &vdev->status);
-     qemu_get_8s(f, &vdev->isr);
-@@ -617,10 +617,6 @@ int virtio_load(VirtIODevice *vdev, QEMUFile *f)
-     vdev->config_len = qemu_get_be32(f);
-     qemu_get_buffer(f, vdev->config, vdev->config_len);
- 
--    if (vdev->nvectors) {
--        qemu_get_be16s(f, &vdev->config_vector);
--        //msix_vector_use(&vdev->pci_dev, vdev->config_vector);
--    }
-     num = qemu_get_be32(f);
- 
-     for (i = 0; i < num; i++) {
-@@ -631,9 +627,10 @@ int virtio_load(VirtIODevice *vdev, QEMUFile *f)
-         if (vdev->vq[i].pa) {
-             virtqueue_init(&vdev->vq[i]);
-         }
--        if (vdev->nvectors) {
--            qemu_get_be16s(f, &vdev->vq[i].vector);
--            //msix_vector_use(&vdev->pci_dev, vdev->config_vector);
-+        if (vdev->binding->load_queue) {
-+            ret = vdev->binding->load_queue(vdev->binding_opaque, i, f);
-+            if (ret)
-+                return ret;
-         }
-     }
- 
-diff --git a/hw/virtio.h b/hw/virtio.h
-index 04a3c3d..ce05517 100644
---- a/hw/virtio.h
-+++ b/hw/virtio.h
-@@ -72,6 +72,10 @@ typedef struct VirtQueueElement
- 
- typedef struct {
-     void (*notify)(void * opaque, uint16_t vector);
-+    void (*save_config)(void * opaque, QEMUFile *f);
-+    void (*save_queue)(void * opaque, int n, QEMUFile *f);
-+    int (*load_config)(void * opaque, QEMUFile *f);
-+    int (*load_queue)(void * opaque, int n, QEMUFile *f);
- } VirtIOBindings;
- 
- #define VIRTIO_PCI_QUEUE_MAX 16
+As discussed before
+(http://article.gmane.org/gmane.linux.network/121378/), the skb->sk
+socket pointer is required for sending back the send time stamp from
+inside the device driver. Calling skb_orphan() unconditionally as in
+this patch would break the hardware time stamping of outgoing packets.
+
+This should work without much overhead (skb_tx() expands to a lookup of
+the skb_shared_info):
+if (!skb_tx(skb)->flags)
+    skb_orphan(skb);
+
+Instead of looking at the individual skb_shared_tx "hardware" and
+"software" bits I'm just checking the whole byte here because it is
+shorter and perhaps faster. Semantically the result is the same.
+
 -- 
-1.6.3.1.56.g79e1.dirty
+Best Regards, Patrick Ohly
+
+The content of this message is my personal opinion only and although
+I am an employee of Intel, the statements I make here in no way
+represent Intel's position on the issue, nor am I authorized to speak
+on behalf of Intel on this matter.
