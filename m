@@ -1,18 +1,15 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: find_vqs operation starting at arbitrary index
-Date: Mon, 1 Jun 2009 12:45:03 +0300
-Message-ID: <20090601094503.GD5061@redhat.com>
-References: <20090601080348.GA17119@amit-x200.pnq.redhat.com>
-	<20090601081106.GA5061@redhat.com>
-	<20090601083510.GB17119@amit-x200.pnq.redhat.com>
-	<20090601084327.GB5061@redhat.com>
-	<20090601085128.GA19999@amit-x200.pnq.redhat.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH 1/4] net: skb_orphan on dev_hard_start_xmit
+Date: Mon, 1 Jun 2009 21:57:28 +0930
+Message-ID: <200906012157.29465.rusty@rustcorp.com.au>
+References: <200905292344.56814.rusty@rustcorp.com.au>
+	<4A1FFB04.30305@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <4A1FFB04.30305@gmail.com>
 Content-Disposition: inline
-In-Reply-To: <20090601085128.GA19999@amit-x200.pnq.redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -22,33 +19,47 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Amit Shah <amit.shah@redhat.com>
-Cc: virtualization@lists.linux-foundation.org
+To: Eric Dumazet <eric.dumazet@gmail.com>
+Cc: libertas-dev@lists.infradead.org, Dan Williams <dcbw@redhat.com>, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, Roland Dreier <rolandd@cisco.com>, Divy Le Ray <divy@chelsio.com>, Pavel Emelianov <xemul@openvz.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Jun 01, 2009 at 02:21:28PM +0530, Amit Shah wrote:
-> On (Mon) Jun 01 2009 [11:43:27], Michael S. Tsirkin wrote:
-> > On Mon, Jun 01, 2009 at 02:05:10PM +0530, Amit Shah wrote:
-> > > On (Mon) Jun 01 2009 [11:11:06], Michael S. Tsirkin wrote:
-> > > > On Mon, Jun 01, 2009 at 01:33:48PM +0530, Amit Shah wrote:
-> > > > > Hello,
-> > > > > 
-> > > > > The recent find_vqs operation doesn't allow for a vq to be found at an
-> > > > > arbitrary location; it's meant to be called once at startup to find all
-> > > > > possible queues and never called again.
-> > > > > 
-> > > > > This doesn't work for devices which can have queues hot-plugged at
-> > > > > run-time. This can be made to work by passing the 'start_index' value as
-> > > > > was done earlier for find_vq, but I doubt something like the following
-> > > > > will work. The MSI vectors might need some changing as well.
+On Sat, 30 May 2009 12:41:00 am Eric Dumazet wrote:
+> Rusty Russell a =E9crit :
+> > DaveM points out that there are advantages to doing it generally (it's
+> > more likely to be on same CPU than after xmit), and I couldn't find
+> > any new starvation issues in simple benchmarking here.
+>
+> If really no starvations are possible at all, I really wonder why some
+> guys added memory accounting to UDP flows. Maybe they dont run "simple
+> benchmarks" but real apps ? :)
 
-Another possible approach would be to add enable_vq/disable_vq operations
-(or possibly resize_vq).
-Thus you would create an empty queue (size 0) upfront, and associate it with
-a vector, and then enable it/set the real size when you really want to use it.
-disable/resize to 0 when you don't need it anymore.
+Well, without any accounting at all you could use quite a lot of memory as =
 
+there are many places packets can be queued.
 
-Actually, resizing queues might come in handy for virtio_net:
-I think tx queue length might be tunable by user,
-and maybe we can even auto-tune rx queue size to avoid packet loss.
+> For TCP, I agree your patch is a huge benefit, since its paced by remote
+> ACKS and window control
+
+I doubt that.  There'll be some cache friendliness, but I'm not sure it'll =
+be =
+
+measurable, let alone "huge".  It's the win to drivers which don't have a =
+
+timely and batching tx free mechanism which I aim for.
+
+> , but an UDP sender will likely be able to saturate
+> a link.
+
+I couldn't see any difference in saturation here (with default scheduler an=
+d an =
+
+100MBit e1000e).  Two reasons come to mind: firstly, only the hardware queu=
+e is =
+
+unregulated: the tx queue is still accounted.  And when you add scheduling =
+to =
+
+the mix, I can't in practice cause starvation of other senders.
+
+Hope that clarifies,
+Rusty.
