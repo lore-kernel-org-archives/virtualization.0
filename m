@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCHv2 08/13] qemu: add support for resizing regions
-Date: Tue, 2 Jun 2009 18:02:49 +0300
-Message-ID: <20090602150249.GI6554__142.146732150827$1243955650$gmane$org@redhat.com>
+Subject: [PATCHv2 04/13] qemu: helper routines for pci access.
+Date: Tue, 2 Jun 2009 18:02:26 +0300
+Message-ID: <20090602150226.GE6554__44661.3988177434$1243955742$gmane$org@redhat.com>
 References: <cover.1243954694.git.mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,101 +21,66 @@ Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Paul Brook <paul@codesourcery.com>, Avi Kivity <avi@redhat.com>, qemu-devel@nongnu.org, Carsten Otte <cotte@de.ibm.com>, kvm@vger.kernel.org, Rusty Russell <rusty@rustcor>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Make it possible to resize PCI regions.  This will be used by virtio
-with MSI-X, where the region size depends on whether MSI-X is enabled,
-and can change across load/save.
+Add inline routines for convenient access to pci devices
+with correct (little) endianness. Will be used by MSI-X support.
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- hw/pci.c |   54 ++++++++++++++++++++++++++++++++++++------------------
- hw/pci.h |    3 +++
- 2 files changed, 39 insertions(+), 18 deletions(-)
+ hw/pci.h |   30 +++++++++++++++++++++++++++---
+ 1 files changed, 27 insertions(+), 3 deletions(-)
 
-diff --git a/hw/pci.c b/hw/pci.c
-index 31ba2ed..a63d988 100644
---- a/hw/pci.c
-+++ b/hw/pci.c
-@@ -392,6 +392,41 @@ void pci_register_io_region(PCIDevice *pci_dev, int region_num,
-     *(uint32_t *)(pci_dev->mask + addr) = cpu_to_le32(mask);
- }
- 
-+static void pci_unmap_region(PCIDevice *d, PCIIORegion *r)
-+{
-+    if (r->addr == -1)
-+        return;
-+    if (r->type & PCI_ADDRESS_SPACE_IO) {
-+        int class;
-+        /* NOTE: specific hack for IDE in PC case:
-+           only one byte must be mapped. */
-+        class = pci_get_word(d->config + PCI_CLASS_DEVICE);
-+        if (class == 0x0101 && r->size == 4) {
-+            isa_unassign_ioport(r->addr + 2, 1);
-+        } else {
-+            isa_unassign_ioport(r->addr, r->size);
-+        }
-+    } else {
-+        cpu_register_physical_memory(pci_to_cpu_addr(r->addr),
-+                                     r->size,
-+                                     IO_MEM_UNASSIGNED);
-+        qemu_unregister_coalesced_mmio(r->addr, r->size);
-+    }
-+}
-+
-+void pci_resize_io_region(PCIDevice *pci_dev, int region_num,
-+                          uint32_t size)
-+{
-+
-+    PCIIORegion *r = &pci_dev->io_regions[region_num];
-+    if (r->size == size)
-+        return;
-+    r->size = size;
-+    pci_unmap_region(pci_dev, r);
-+    r->addr = -1;
-+    pci_update_mappings(pci_dev);
-+}
-+
- static void pci_update_mappings(PCIDevice *d)
- {
-     PCIIORegion *r;
-@@ -445,24 +480,7 @@ static void pci_update_mappings(PCIDevice *d)
-             }
-             /* now do the real mapping */
-             if (new_addr != r->addr) {
--                if (r->addr != -1) {
--                    if (r->type & PCI_ADDRESS_SPACE_IO) {
--                        int class;
--                        /* NOTE: specific hack for IDE in PC case:
--                           only one byte must be mapped. */
--                        class = d->config[0x0a] | (d->config[0x0b] << 8);
--                        if (class == 0x0101 && r->size == 4) {
--                            isa_unassign_ioport(r->addr + 2, 1);
--                        } else {
--                            isa_unassign_ioport(r->addr, r->size);
--                        }
--                    } else {
--                        cpu_register_physical_memory(pci_to_cpu_addr(r->addr),
--                                                     r->size,
--                                                     IO_MEM_UNASSIGNED);
--                        qemu_unregister_coalesced_mmio(r->addr, r->size);
--                    }
--                }
-+                pci_unmap_region(d, r);
-                 r->addr = new_addr;
-                 if (r->addr != -1) {
-                     r->map_func(d, i, r->addr, r->size, r->type);
 diff --git a/hw/pci.h b/hw/pci.h
-index 6da626b..4072f16 100644
+index 40137c6..4e112a3 100644
 --- a/hw/pci.h
 +++ b/hw/pci.h
-@@ -221,6 +221,9 @@ void pci_register_io_region(PCIDevice *pci_dev, int region_num,
-                             uint32_t size, int type,
-                             PCIMapIORegionFunc *map_func);
+@@ -240,21 +240,45 @@ PCIBus *pci_bridge_init(PCIBus *bus, int devfn, uint16_t vid, uint16_t did,
+                         pci_map_irq_fn map_irq, const char *name);
  
-+void pci_resize_io_region(PCIDevice *pci_dev, int region_num,
-+                          uint32_t size);
+ static inline void
++pci_set_word(uint8_t *config, uint16_t val)
++{
++    cpu_to_le16wu((uint16_t *)config, val);
++}
 +
- int pci_add_capability(PCIDevice *pci_dev, uint8_t cap_id, uint8_t cap_size);
++static inline uint16_t
++pci_get_word(uint8_t *config)
++{
++    return le16_to_cpupu((uint16_t *)config);
++}
++
++static inline void
++pci_set_long(uint8_t *config, uint32_t val)
++{
++    cpu_to_le32wu((uint32_t *)config, val);
++}
++
++static inline uint32_t
++pci_get_long(uint8_t *config)
++{
++    return le32_to_cpupu((uint32_t *)config);
++}
++
++static inline void
+ pci_config_set_vendor_id(uint8_t *pci_config, uint16_t val)
+ {
+-    cpu_to_le16wu((uint16_t *)&pci_config[PCI_VENDOR_ID], val);
++    pci_set_word(&pci_config[PCI_VENDOR_ID], val);
+ }
  
- void pci_del_capability(PCIDevice *pci_dev, uint8_t cap_id, uint8_t cap_size);
+ static inline void
+ pci_config_set_device_id(uint8_t *pci_config, uint16_t val)
+ {
+-    cpu_to_le16wu((uint16_t *)&pci_config[PCI_DEVICE_ID], val);
++    pci_set_word(&pci_config[PCI_DEVICE_ID], val);
+ }
+ 
+ static inline void
+ pci_config_set_class(uint8_t *pci_config, uint16_t val)
+ {
+-    cpu_to_le16wu((uint16_t *)&pci_config[PCI_CLASS_DEVICE], val);
++    pci_set_word(&pci_config[PCI_CLASS_DEVICE], val);
+ }
+ 
+ typedef void (*pci_qdev_initfn)(PCIDevice *dev);
 -- 
 1.6.3.1.56.g79e1.dirty
