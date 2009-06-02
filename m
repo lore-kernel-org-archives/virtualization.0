@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCHv2 07/13] qemu: minimal MSI/MSI-X implementation for PC
-Date: Tue, 2 Jun 2009 18:02:43 +0300
-Message-ID: <20090602150243.GH6554__3161.96213611892$1243955786$gmane$org@redhat.com>
+Subject: [PATCHv2 12/13] qemu: virtio save/load bindings
+Date: Tue, 2 Jun 2009 18:03:13 +0300
+Message-ID: <20090602150313.GM6554__15982.4086157188$1243955789$gmane$org@redhat.com>
 References: <cover.1243954694.git.mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,127 +21,165 @@ Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Paul Brook <paul@codesourcery.com>, Avi Kivity <avi@redhat.com>, qemu-devel@nongnu.org, Carsten Otte <cotte@de.ibm.com>, kvm@vger.kernel.org, Rusty Russell <rusty@rustcor>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Implement MSI support in APIC. Note that MSI and MMIO APIC registers
-are at the same memory location, but actually not on the global bus: MSI
-is on PCI bus, APIC is connected directly to the CPU. We map them on the
-global bus at the same address which happens to work because MSI
-registers are reserved in APIC MMIO and vice versa.
+Implement bindings for virtio save/load. Use them in virtio pci.
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- hw/apic.c |   50 ++++++++++++++++++++++++++++++++++++++++++++++----
- 1 files changed, 46 insertions(+), 4 deletions(-)
+ hw/virtio-pci.c |   49 ++++++++++++++++++++++++++++++++++++++++++++++++-
+ hw/virtio.c     |   31 ++++++++++++++-----------------
+ hw/virtio.h     |    4 ++++
+ 3 files changed, 66 insertions(+), 18 deletions(-)
 
-diff --git a/hw/apic.c b/hw/apic.c
-index 8c8b2de..d831709 100644
---- a/hw/apic.c
-+++ b/hw/apic.c
-@@ -19,6 +19,8 @@
-  */
- #include "hw.h"
- #include "pc.h"
-+#include "pci.h"
-+#include "msix.h"
- #include "qemu-timer.h"
- #include "host-utils.h"
- 
-@@ -63,6 +65,19 @@
- #define MAX_APICS 255
- #define MAX_APIC_WORDS 8
- 
-+/* Intel APIC constants: from include/asm/msidef.h */
-+#define MSI_DATA_VECTOR_SHIFT		0
-+#define MSI_DATA_VECTOR_MASK		0x000000ff
-+#define MSI_DATA_DELIVERY_MODE_SHIFT	8
-+#define MSI_DATA_TRIGGER_SHIFT		15
-+#define MSI_DATA_LEVEL_SHIFT		14
-+#define MSI_ADDR_DEST_MODE_SHIFT	2
-+#define MSI_ADDR_DEST_ID_SHIFT		12
-+#define	MSI_ADDR_DEST_ID_MASK		0x00ffff0
-+
-+#define MSI_ADDR_BASE                   0xfee00000
-+#define MSI_ADDR_SIZE                   0x100000
-+
- typedef struct APICState {
-     CPUState *cpu_env;
-     uint32_t apicbase;
-@@ -86,6 +101,13 @@ typedef struct APICState {
-     QEMUTimer *timer;
- } APICState;
- 
-+struct msi_state {
-+    uint64_t addr;
-+    uint32_t data;
-+    int mask;
-+    int pending;
-+};
-+
- static int apic_io_memory;
- static APICState *local_apics[MAX_APICS + 1];
- static int last_apic_id = 0;
-@@ -712,11 +734,31 @@ static uint32_t apic_mem_readl(void *opaque, target_phys_addr_t addr)
-     return val;
+diff --git a/hw/virtio-pci.c b/hw/virtio-pci.c
+index 294f4c7..589fbb1 100644
+--- a/hw/virtio-pci.c
++++ b/hw/virtio-pci.c
+@@ -105,6 +105,48 @@ static void virtio_pci_notify(void *opaque, uint16_t vector)
+         qemu_set_irq(proxy->pci_dev.irq[0], proxy->vdev->isr & 1);
  }
  
-+static void apic_send_msi(target_phys_addr_t addr, uint32 data)
++static void virtio_pci_save_config(void * opaque, QEMUFile *f)
 +{
-+    uint8_t dest = (addr & MSI_ADDR_DEST_ID_MASK) >> MSI_ADDR_DEST_ID_SHIFT;
-+    uint8_t vector = (data & MSI_DATA_VECTOR_MASK) >> MSI_DATA_VECTOR_SHIFT;
-+    uint8_t dest_mode = (addr >> MSI_ADDR_DEST_MODE_SHIFT) & 0x1;
-+    uint8_t trigger_mode = (data >> MSI_DATA_TRIGGER_SHIFT) & 0x1;
-+    uint8_t delivery = (data >> MSI_DATA_DELIVERY_MODE_SHIFT) & 0x7;
-+    /* XXX: Ignore redirection hint. */
-+    apic_deliver_irq(dest, dest_mode, delivery, vector, 0, trigger_mode);
++    VirtIOPCIProxy *proxy = opaque;
++    pci_device_save(&proxy->pci_dev, f);
++    msix_save(&proxy->pci_dev, f);
++    if (msix_present(&proxy->pci_dev))
++        qemu_put_be16(f, proxy->vdev->config_vector);
 +}
 +
- static void apic_mem_writel(void *opaque, target_phys_addr_t addr, uint32_t val)
++static void virtio_pci_save_queue(void * opaque, int n, QEMUFile *f)
++{
++    VirtIOPCIProxy *proxy = opaque;
++    if (msix_present(&proxy->pci_dev))
++        qemu_put_be16(f, virtio_queue_vector(proxy->vdev, n));
++}
++
++static int virtio_pci_load_config(void * opaque, QEMUFile *f)
++{
++    VirtIOPCIProxy *proxy = opaque;
++    int ret;
++    ret = pci_device_load(&proxy->pci_dev, f);
++    if (ret)
++        return ret;
++    ret = msix_load(&proxy->pci_dev, f);
++    if (ret)
++        return ret;
++    if (msix_present(&proxy->pci_dev))
++        qemu_get_be16s(f, &proxy->vdev->config_vector);
++    return 0;
++}
++
++static int virtio_pci_load_queue(void * opaque, int n, QEMUFile *f)
++{
++    VirtIOPCIProxy *proxy = opaque;
++    uint16_t vector;
++    if (!msix_present(&proxy->pci_dev))
++        return 0;
++    qemu_get_be16s(f, &vector);
++    virtio_queue_set_vector(proxy->vdev, n, vector);
++    return 0;
++}
++
+ static void virtio_pci_reset(void *opaque)
  {
-     CPUState *env;
-     APICState *s;
--    int index;
-+    int index = (addr >> 4) & 0xff;
-+    if (addr > 0xfff || !index) {
-+        /* MSI and MMIO APIC are at the same memory location,
-+         * but actually not on the global bus: MSI is on PCI bus
-+         * APIC is connected directly to the CPU.
-+         * Mapping them on the global bus happens to work because
-+         * MSI registers are reserved in APIC MMIO and vice versa. */
-+        apic_send_msi(addr, val);
-+        return;
+     VirtIOPCIProxy *proxy = opaque;
+@@ -317,7 +359,12 @@ static void virtio_write_config(PCIDevice *pci_dev, uint32_t address,
+ }
+ 
+ static const VirtIOBindings virtio_pci_bindings = {
+-    .notify = virtio_pci_notify
++    .notify = virtio_pci_notify,
++    .save_config = virtio_pci_save_config,
++    .load_config = virtio_pci_load_config,
++    .save_config = virtio_pci_save_config,
++    .save_queue = virtio_pci_save_queue,
++    .load_queue = virtio_pci_load_queue,
+ };
+ 
+ static void virtio_init_pci(VirtIOPCIProxy *proxy, VirtIODevice *vdev,
+diff --git a/hw/virtio.c b/hw/virtio.c
+index 63ffcff..b773dff 100644
+--- a/hw/virtio.c
++++ b/hw/virtio.c
+@@ -568,9 +568,8 @@ void virtio_save(VirtIODevice *vdev, QEMUFile *f)
+ {
+     int i;
+ 
+-    /* FIXME: load/save binding.  */
+-    //pci_device_save(&vdev->pci_dev, f);
+-    //msix_save(&vdev->pci_dev, f);
++    if (vdev->binding->save_config)
++        vdev->binding->save_config(vdev->binding_opaque, f);
+ 
+     qemu_put_8s(f, &vdev->status);
+     qemu_put_8s(f, &vdev->isr);
+@@ -596,19 +595,20 @@ void virtio_save(VirtIODevice *vdev, QEMUFile *f)
+         qemu_put_be32(f, vdev->vq[i].vring.num);
+         qemu_put_be64(f, vdev->vq[i].pa);
+         qemu_put_be16s(f, &vdev->vq[i].last_avail_idx);
+-        if (vdev->nvectors)
+-            qemu_put_be16s(f, &vdev->vq[i].vector);
++        if (vdev->binding->save_queue)
++            vdev->binding->save_queue(vdev->binding_opaque, i, f);
+     }
+ }
+ 
+ int virtio_load(VirtIODevice *vdev, QEMUFile *f)
+ {
+-    int num, i;
++    int num, i, ret;
+ 
+-    /* FIXME: load/save binding.  */
+-    //pci_device_load(&vdev->pci_dev, f);
+-    //r = msix_load(&vdev->pci_dev, f);
+-    //pci_resize_io_region(&vdev->pci_dev, 1, msix_bar_size(&vdev->pci_dev));
++    if (vdev->binding->load_config) {
++        ret = vdev->binding->load_config(vdev->binding_opaque, f);
++        if (ret)
++            return ret;
 +    }
  
-     env = cpu_single_env;
-     if (!env)
-@@ -727,7 +769,6 @@ static void apic_mem_writel(void *opaque, target_phys_addr_t addr, uint32_t val)
-     printf("APIC write: %08x = %08x\n", (uint32_t)addr, val);
- #endif
+     qemu_get_8s(f, &vdev->status);
+     qemu_get_8s(f, &vdev->isr);
+@@ -617,10 +617,6 @@ int virtio_load(VirtIODevice *vdev, QEMUFile *f)
+     vdev->config_len = qemu_get_be32(f);
+     qemu_get_buffer(f, vdev->config, vdev->config_len);
  
--    index = (addr >> 4) & 0xff;
-     switch(index) {
-     case 0x02:
-         s->id = (val >> 24);
-@@ -911,6 +952,7 @@ int apic_init(CPUState *env)
-     s->cpu_env = env;
+-    if (vdev->nvectors) {
+-        qemu_get_be16s(f, &vdev->config_vector);
+-        //msix_vector_use(&vdev->pci_dev, vdev->config_vector);
+-    }
+     num = qemu_get_be32(f);
  
-     apic_reset(s);
-+    msix_supported = 1;
- 
-     /* XXX: mapping more APICs at the same memory location */
-     if (apic_io_memory == 0) {
-@@ -918,7 +960,8 @@ int apic_init(CPUState *env)
-            on the global memory bus. */
-         apic_io_memory = cpu_register_io_memory(0, apic_mem_read,
-                                                 apic_mem_write, NULL);
--        cpu_register_physical_memory(s->apicbase & ~0xfff, 0x1000,
-+        /* XXX: what if the base changes? */
-+        cpu_register_physical_memory(MSI_ADDR_BASE, MSI_ADDR_SIZE,
-                                      apic_io_memory);
+     for (i = 0; i < num; i++) {
+@@ -631,9 +627,10 @@ int virtio_load(VirtIODevice *vdev, QEMUFile *f)
+         if (vdev->vq[i].pa) {
+             virtqueue_init(&vdev->vq[i]);
+         }
+-        if (vdev->nvectors) {
+-            qemu_get_be16s(f, &vdev->vq[i].vector);
+-            //msix_vector_use(&vdev->pci_dev, vdev->config_vector);
++        if (vdev->binding->load_queue) {
++            ret = vdev->binding->load_queue(vdev->binding_opaque, i, f);
++            if (ret)
++                return ret;
+         }
      }
-     s->timer = qemu_new_timer(vm_clock, apic_timer, s);
-@@ -929,4 +972,3 @@ int apic_init(CPUState *env)
-     local_apics[s->id] = s;
-     return 0;
- }
--
+ 
+diff --git a/hw/virtio.h b/hw/virtio.h
+index 04a3c3d..ce05517 100644
+--- a/hw/virtio.h
++++ b/hw/virtio.h
+@@ -72,6 +72,10 @@ typedef struct VirtQueueElement
+ 
+ typedef struct {
+     void (*notify)(void * opaque, uint16_t vector);
++    void (*save_config)(void * opaque, QEMUFile *f);
++    void (*save_queue)(void * opaque, int n, QEMUFile *f);
++    int (*load_config)(void * opaque, QEMUFile *f);
++    int (*load_queue)(void * opaque, int n, QEMUFile *f);
+ } VirtIOBindings;
+ 
+ #define VIRTIO_PCI_QUEUE_MAX 16
 -- 
 1.6.3.1.56.g79e1.dirty
