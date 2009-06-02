@@ -1,15 +1,15 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
 Subject: Re: [PATCH 2/4] virtio_net: return NETDEV_TX_BUSY instead of queueing
 	an extra skb.
-Date: Tue, 2 Jun 2009 23:25:57 +0930
-Message-ID: <200906022325.57961.rusty__12404.2281568565$1243951025$gmane$org@rustcorp.com.au>
+Date: Tue, 2 Jun 2009 23:34:28 +0930
+Message-ID: <200906022334.29428.rusty__455.977329011326$1243951731$gmane$org@rustcorp.com.au>
 References: <200905292346.04815.rusty@rustcorp.com.au>
-	<20090602090552.GA26611@gondor.apana.org.au>
+	<1243930050.9146.53.camel@blaa>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20090602090552.GA26611@gondor.apana.org.au>
+In-Reply-To: <1243930050.9146.53.camel@blaa>
 Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -20,44 +20,72 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Mark McLoughlin <markmc@redhat.com>
+Cc: netdev@vger.kernel.org, Herbert Xu <herbert@gondor.apana.org.au>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 2 Jun 2009 06:35:52 pm Herbert Xu wrote:
-> On Fri, May 29, 2009 at 11:46:04PM +0930, Rusty Russell wrote:
+On Tue, 2 Jun 2009 05:37:30 pm Mark McLoughlin wrote:
+> On Fri, 2009-05-29 at 23:46 +0930, Rusty Russell wrote:
 > > This effectively reverts 99ffc696d10b28580fe93441d627cf290ac4484c
 > > "virtio: wean net driver off NETDEV_TX_BUSY".
 > >
 > > The complexity of queuing an skb (setting a tasklet to re-xmit) is
-> > questionable, especially once we get rid of the other reason for the
+> > questionable,
+>
+> It certainly adds some subtle complexities to start_xmit()
+>
+> >  especially once we get rid of the other reason for the
 > > tasklet in the next patch.
 > >
 > > If the skb won't fit in the tx queue, just return NETDEV_TX_BUSY.  It
 > > might be frowned upon, but it's common and not going away any time
 > > soon.
+> >
+> > Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+> > Cc: Herbert Xu <herbert@gondor.apana.org.au>
+> > ---
+> >  drivers/net/virtio_net.c |   49
+> > ++++++++++------------------------------------- 1 file changed, 11
+> > insertions(+), 38 deletions(-)
+> >
+> > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> > --- a/drivers/net/virtio_net.c
+> > +++ b/drivers/net/virtio_net.c
+> >
+> > @@ -526,27 +517,14 @@ again:
+> >  	/* Free up any pending old buffers before queueing new ones. */
+> >  	free_old_xmit_skbs(vi);
+> >
+> > -	/* If we has a buffer left over from last time, send it now. */
+> > -	if (unlikely(vi->last_xmit_skb) &&
+> > -	    xmit_skb(vi, vi->last_xmit_skb) != 0)
+> > -		goto stop_queue;
+> > +	/* Put new one in send queue and do transmit */
+> > +	__skb_queue_head(&vi->send, skb);
+> > +	if (likely(xmit_skb(vi, skb) == 0)) {
+> > +		vi->svq->vq_ops->kick(vi->svq);
+> > +		return NETDEV_TX_OK;
+> > +	}
 >
-> This looks like a step backwards to me.  If we have to do this
-> to fix a bug, sure.  But just doing it for the sake of it smells
-> wrong.
+> Hmm, is it okay to leave the skb on the send queue if we return
+> NETDEV_TX_BUSY?
 
-I disagree.  We've introduced a third queue, inside the driver, one element 
-long.  That feels terribly, terribly hacky and wrong.
+Certainly not.  That's a bug.  Incremental fix is:
 
-What do we do if it overflows?  Discard the packet, even if we have room in the 
-tx queue.   And when do we flush this queue?  Well, that's a bit messy.  
-Obviously we need to enable the tx interrupt when the tx queue is full, but we 
-can't just netif_wake_queue, we have to also flush the queue.  We can't do that 
-in an irq handler, since we need to block the normal tx path (or introduce 
-another lock and disable interrupts in our xmit routine).  So we add a tasklet 
-to do this re-transmission.
+diff -u b/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+--- b/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -524,8 +524,9 @@
+ 		return NETDEV_TX_OK;
+ 	}
+ 
+-	/* Ring too full for this packet. */
++	/* Ring too full for this packet, remove it from queue again. */
+ 	pr_debug("%s: virtio not prepared to send\n", dev->name);
++	__skb_unlink(skb, &vi->send);
+ 	netif_stop_queue(dev);
+ 
+ 	/* Activate callback for using skbs: if this returns false it
 
-Or, we could just "return NETDEV_TX_BUSY;".  I like that :)
-
-Hope that clarifies,
+Thanks!
 Rusty.
-
-
-
->
-> Cheers,
