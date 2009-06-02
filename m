@@ -1,14 +1,15 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCHv2 06/13] qemu: add flag to disable MSI-X by default
-Date: Tue, 2 Jun 2009 18:02:37 +0300
-Message-ID: <20090602150237.GG6554__38114.7443470128$1243955973$gmane$org@redhat.com>
-References: <cover.1243954694.git.mst@redhat.com>
+Subject: Re: find_vqs operation starting at arbitrary index
+Date: Tue, 2 Jun 2009 19:32:27 +0300
+Message-ID: <20090602163227.GC6827@redhat.com>
+References: <20090601080348.GA17119@amit-x200.pnq.redhat.com>
+	<200906020853.07559.rusty@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <cover.1243954694.git.mst@redhat.com>
+In-Reply-To: <200906020853.07559.rusty@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,64 +19,41 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Paul Brook <paul@codesourcery.com>, Avi Kivity <avi@redhat.com>, qemu-devel@nongnu.org, Carsten Otte <cotte@de.ibm.com>, kvm@vger.kernel.org, Rusty Russell <rusty@rustcor>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Amit Shah <amit.shah@redhat.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Add global flag to disable MSI-X by default.  This is useful primarily
-to make images loadable by older qemu (without msix).  Even when MSI-X
-is disabled by flag, you can still load images that have MSI-X enabled.
+On Tue, Jun 02, 2009 at 08:53:07AM +0930, Rusty Russell wrote:
+> On Mon, 1 Jun 2009 05:33:48 pm Amit Shah wrote:
+> > Hello,
+> >
+> > The recent find_vqs operation doesn't allow for a vq to be found at an
+> > arbitrary location; it's meant to be called once at startup to find all
+> > possible queues and never called again.
+> >
+> > This doesn't work for devices which can have queues hot-plugged at
+> > run-time. This can be made to work by passing the 'start_index' value as
+> > was done earlier for find_vq, but I doubt something like the following
+> > will work. The MSI vectors might need some changing as well.
+> 
+> There's a fundamental conflict here: find_vqs was added so the PCI MSI code 
+> knows exactly how many virtqueues there are.
+> 
+> So you'll need to sort this out with Michael...
+> 
+> Thanks,
+> Rusty.
 
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
- hw/msix.c       |    3 +++
- qemu-options.hx |    2 ++
- vl.c            |    3 +++
- 3 files changed, 8 insertions(+), 0 deletions(-)
+I'd like to understand the expected usage some more.  If there's still a
+small # of hotpluggable queues known in advance, you can request all
+vectors but have the queues disabled, and then enable as queues arrive.
+In that case, something like resize_queue or enable_queue might be a
+good idea.
 
-diff --git a/hw/msix.c b/hw/msix.c
-index 4db2fc1..970a8ca 100644
---- a/hw/msix.c
-+++ b/hw/msix.c
-@@ -122,6 +122,9 @@ void msix_write_config(PCIDevice *dev, uint32_t addr,
-                        uint32_t val, int len)
- {
-     unsigned enable_pos = dev->msix_cap + MSIX_ENABLE_OFFSET;
-+    if (!(dev->cap_present & QEMU_PCI_CAP_MSIX))
-+        return;
-+
-     if (addr + len <= enable_pos || addr > enable_pos)
-         return;
- 
-diff --git a/qemu-options.hx b/qemu-options.hx
-index 87af798..fd041a4 100644
---- a/qemu-options.hx
-+++ b/qemu-options.hx
-@@ -1575,3 +1575,5 @@ DEF("semihosting", 0, QEMU_OPTION_semihosting,
- DEF("old-param", 0, QEMU_OPTION_old_param,
-     "-old-param      old param mode\n")
- #endif
-+DEF("disable-msix", 0, QEMU_OPTION_disable_msix,
-+    "-disable-msix disable msix support for PCI devices (enabled by default)\n")
-diff --git a/vl.c b/vl.c
-index 2c1f0e0..2757d4f 100644
---- a/vl.c
-+++ b/vl.c
-@@ -134,6 +134,7 @@ int main(int argc, char **argv)
- #include "hw/usb.h"
- #include "hw/pcmcia.h"
- #include "hw/pc.h"
-+#include "hw/msix.h"
- #include "hw/audiodev.h"
- #include "hw/isa.h"
- #include "hw/baum.h"
-@@ -5557,6 +5558,8 @@ int main(int argc, char **argv, char **envp)
-                 xen_mode = XEN_ATTACH;
-                 break;
- #endif
-+            case QEMU_OPTION_disable_msix:
-+                msix_disable = 1;
-             }
-         }
-     }
+OTOH, if you want to have a potentially unlimited number of queues,
+you will have to allocate a common vector for all of them
+as on intel we are limited to 256 total vectors for all devices
+taken together.  Not sure what a good API for that would be.
+
 -- 
-1.6.3.1.56.g79e1.dirty
+MST
