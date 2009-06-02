@@ -1,15 +1,14 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH 1/4] net: skb_orphan on dev_hard_start_xmit
-Date: Tue, 2 Jun 2009 23:38:29 +0930
-Message-ID: <200906022338.30618.rusty__8925.23381994597$1243952073$gmane$org@rustcorp.com.au>
-References: <200905292344.56814.rusty@rustcorp.com.au>
-	<1243885642.22917.35.camel@pohly-MOBL>
-	<20090602.002553.143476036.davem@davemloft.net>
+Subject: Re: [PATCH 3/4] virtio_net: don't free buffers in xmit ring
+Date: Tue, 2 Jun 2009 23:37:33 +0930
+Message-ID: <200906022337.33799.rusty__48352.5284835652$1243952160$gmane$org@rustcorp.com.au>
+References: <200905292346.24141.rusty@rustcorp.com.au>
+	<1243930422.9146.60.camel@blaa> <1243942902.9146.216.camel@blaa>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20090602.002553.143476036.davem@davemloft.net>
+In-Reply-To: <1243942902.9146.216.camel@blaa>
 Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -20,36 +19,26 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: David Miller <davem@davemloft.net>
-Cc: rolandd@cisco.com, libertas-dev@lists.infradead.org, dcbw@redhat.com, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, patrick.ohly@intel.com, divy@chelsio.com, xemul@openvz.org
+To: Mark McLoughlin <markmc@redhat.com>
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 2 Jun 2009 04:55:53 pm David Miller wrote:
-> From: Patrick Ohly <patrick.ohly@intel.com>
-> Date: Mon, 01 Jun 2009 21:47:22 +0200
+On Tue, 2 Jun 2009 09:11:42 pm Mark McLoughlin wrote:
+> On Tue, 2009-06-02 at 09:13 +0100, Mark McLoughlin wrote:
+> > I think skb_orphan() is enough to prevent this, is it?
 >
-> > On Fri, 2009-05-29 at 23:44 +0930, Rusty Russell wrote:
-> >> This patch adds skb_orphan to the start of dev_hard_start_xmit(): it
-> >> can be premature in the NETDEV_TX_BUSY case, but that's uncommon.
-> >
-> > Would it be possible to make the new skb_orphan() at the start of
-> > dev_hard_start_xmit() conditionally so that it is not executed for
-> > packets that are to be time stamped?
-> >
-> > As discussed before
-> > (http://article.gmane.org/gmane.linux.network/121378/), the skb->sk
-> > socket pointer is required for sending back the send time stamp from
-> > inside the device driver. Calling skb_orphan() unconditionally as in
-> > this patch would break the hardware time stamping of outgoing packets.
+> Oops, I meant:
 >
-> Indeed, we need to check that case, at a minimum.
->
-> And there are other potentially other problems.  For example, I
-> wonder how this interacts with the new TX MMAP af_packet support
-> in net-next-2.6 :-/
+>   I don't think skb_orphan() is enough to prevent this, is it?
 
-I think I'll do this in the driver for now, and let's revisit doing it 
-generically later?
+Yes, point taken.  No, it's not.  We could add nf_reset here too, which would 
+be perfectly sane.
 
-Thanks,
+I'm tempted to avoid the question marks hanging over generic skb_orphan for 
+now, and just do skb_orphan & nf_reset at the head of our driver.
+
+Then look at making skb_orphan do nf_reset.  It makes sense, but I'd have to 
+audit all the callers.
+
+Thanks.
 Rusty.
