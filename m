@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCHv2 02/13] qemu: capability bits in pci save/restore
-Date: Tue, 2 Jun 2009 18:02:13 +0300
-Message-ID: <20090602150213.GC6554__48452.2340972491$1243955619$gmane$org@redhat.com>
+Subject: [PATCHv2 08/13] qemu: add support for resizing regions
+Date: Tue, 2 Jun 2009 18:02:49 +0300
+Message-ID: <20090602150249.GI6554__142.146732150827$1243955650$gmane$org@redhat.com>
 References: <cover.1243954694.git.mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,75 +21,101 @@ Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Paul Brook <paul@codesourcery.com>, Avi Kivity <avi@redhat.com>, qemu-devel@nongnu.org, Carsten Otte <cotte@de.ibm.com>, kvm@vger.kernel.org, Rusty Russell <rusty@rustcor>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Add support for capability bits in save/restore for pci.
-These will be used for MSI, where the capability might
-be present or not as requested by user, which does not
-map well into a single version number.
+Make it possible to resize PCI regions.  This will be used by virtio
+with MSI-X, where the region size depends on whether MSI-X is enabled,
+and can change across load/save.
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- hw/pci.c |   14 ++++++++++++--
- hw/pci.h |    4 ++++
- 2 files changed, 16 insertions(+), 2 deletions(-)
+ hw/pci.c |   54 ++++++++++++++++++++++++++++++++++++------------------
+ hw/pci.h |    3 +++
+ 2 files changed, 39 insertions(+), 18 deletions(-)
 
 diff --git a/hw/pci.c b/hw/pci.c
-index 1e70e46..5dcfb4e 100644
+index 31ba2ed..a63d988 100644
 --- a/hw/pci.c
 +++ b/hw/pci.c
-@@ -127,12 +127,15 @@ int pci_bus_num(PCIBus *s)
- 
- void pci_device_save(PCIDevice *s, QEMUFile *f)
- {
-+    int version = s->cap_present ? 3 : 2;
-     int i;
- 
--    qemu_put_be32(f, 2); /* PCI device version */
-+    qemu_put_be32(f, version); /* PCI device version */
-     qemu_put_buffer(f, s->config, 256);
-     for (i = 0; i < 4; i++)
-         qemu_put_be32(f, s->irq_state[i]);
-+    if (version >= 3)
-+        qemu_put_be32(f, s->cap_present);
+@@ -392,6 +392,41 @@ void pci_register_io_region(PCIDevice *pci_dev, int region_num,
+     *(uint32_t *)(pci_dev->mask + addr) = cpu_to_le32(mask);
  }
  
- int pci_device_load(PCIDevice *s, QEMUFile *f)
-@@ -141,7 +144,7 @@ int pci_device_load(PCIDevice *s, QEMUFile *f)
-     int i;
- 
-     version_id = qemu_get_be32(f);
--    if (version_id > 2)
-+    if (version_id > 3)
-         return -EINVAL;
-     qemu_get_buffer(f, s->config, 256);
-     pci_update_mappings(s);
-@@ -149,6 +152,13 @@ int pci_device_load(PCIDevice *s, QEMUFile *f)
-     if (version_id >= 2)
-         for (i = 0; i < 4; i ++)
-             s->irq_state[i] = qemu_get_be32(f);
-+    if (version_id >= 3)
-+        s->cap_present = qemu_get_be32(f);
-+    else
-+        s->cap_present = 0;
++static void pci_unmap_region(PCIDevice *d, PCIIORegion *r)
++{
++    if (r->addr == -1)
++        return;
++    if (r->type & PCI_ADDRESS_SPACE_IO) {
++        int class;
++        /* NOTE: specific hack for IDE in PC case:
++           only one byte must be mapped. */
++        class = pci_get_word(d->config + PCI_CLASS_DEVICE);
++        if (class == 0x0101 && r->size == 4) {
++            isa_unassign_ioport(r->addr + 2, 1);
++        } else {
++            isa_unassign_ioport(r->addr, r->size);
++        }
++    } else {
++        cpu_register_physical_memory(pci_to_cpu_addr(r->addr),
++                                     r->size,
++                                     IO_MEM_UNASSIGNED);
++        qemu_unregister_coalesced_mmio(r->addr, r->size);
++    }
++}
 +
-+    if (s->cap_present & ~s->cap_supported)
-+        return -EINVAL;
- 
-     return 0;
- }
++void pci_resize_io_region(PCIDevice *pci_dev, int region_num,
++                          uint32_t size)
++{
++
++    PCIIORegion *r = &pci_dev->io_regions[region_num];
++    if (r->size == size)
++        return;
++    r->size = size;
++    pci_unmap_region(pci_dev, r);
++    r->addr = -1;
++    pci_update_mappings(pci_dev);
++}
++
+ static void pci_update_mappings(PCIDevice *d)
+ {
+     PCIIORegion *r;
+@@ -445,24 +480,7 @@ static void pci_update_mappings(PCIDevice *d)
+             }
+             /* now do the real mapping */
+             if (new_addr != r->addr) {
+-                if (r->addr != -1) {
+-                    if (r->type & PCI_ADDRESS_SPACE_IO) {
+-                        int class;
+-                        /* NOTE: specific hack for IDE in PC case:
+-                           only one byte must be mapped. */
+-                        class = d->config[0x0a] | (d->config[0x0b] << 8);
+-                        if (class == 0x0101 && r->size == 4) {
+-                            isa_unassign_ioport(r->addr + 2, 1);
+-                        } else {
+-                            isa_unassign_ioport(r->addr, r->size);
+-                        }
+-                    } else {
+-                        cpu_register_physical_memory(pci_to_cpu_addr(r->addr),
+-                                                     r->size,
+-                                                     IO_MEM_UNASSIGNED);
+-                        qemu_unregister_coalesced_mmio(r->addr, r->size);
+-                    }
+-                }
++                pci_unmap_region(d, r);
+                 r->addr = new_addr;
+                 if (r->addr != -1) {
+                     r->map_func(d, i, r->addr, r->size, r->type);
 diff --git a/hw/pci.h b/hw/pci.h
-index c0c2380..9139504 100644
+index 6da626b..4072f16 100644
 --- a/hw/pci.h
 +++ b/hw/pci.h
-@@ -178,6 +178,10 @@ struct PCIDevice {
+@@ -221,6 +221,9 @@ void pci_register_io_region(PCIDevice *pci_dev, int region_num,
+                             uint32_t size, int type,
+                             PCIMapIORegionFunc *map_func);
  
-     /* Current IRQ levels.  Used internally by the generic PCI code.  */
-     int irq_state[4];
++void pci_resize_io_region(PCIDevice *pci_dev, int region_num,
++                          uint32_t size);
 +
-+    /* Capability bits for save/load */
-+    uint32_t cap_supported;
-+    uint32_t cap_present;
- };
+ int pci_add_capability(PCIDevice *pci_dev, uint8_t cap_id, uint8_t cap_size);
  
- PCIDevice *pci_register_device(PCIBus *bus, const char *name,
+ void pci_del_capability(PCIDevice *pci_dev, uint8_t cap_id, uint8_t cap_size);
 -- 
 1.6.3.1.56.g79e1.dirty
