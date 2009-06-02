@@ -1,13 +1,14 @@
-From: Patrick Ohly <patrick.ohly@intel.com>
-Subject: Re: [PATCH 1/4] net: skb_orphan on dev_hard_start_xmit
-Date: Mon, 01 Jun 2009 21:47:22 +0200
-Message-ID: <1243885642.22917.35.camel__13681.6014921807$1243955848$gmane$org@pohly-MOBL>
-References: <200905292344.56814.rusty@rustcorp.com.au>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCHv2 06/13] qemu: add flag to disable MSI-X by default
+Date: Tue, 2 Jun 2009 18:02:37 +0300
+Message-ID: <20090602150237.GG6554__38114.7443470128$1243955973$gmane$org@redhat.com>
+References: <cover.1243954694.git.mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <200905292344.56814.rusty@rustcorp.com.au>
+Content-Disposition: inline
+In-Reply-To: <cover.1243954694.git.mst@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -17,37 +18,64 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: libertas-dev@lists.infradead.org, Dan Williams <dcbw@redhat.com>, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, Roland Dreier <rolandd@cisco.com>, Divy Le Ray <divy@chelsio.com>, Pavel Emelianov <xemul@openvz.org>
+To: Paul Brook <paul@codesourcery.com>, Avi Kivity <avi@redhat.com>, qemu-devel@nongnu.org, Carsten Otte <cotte@de.ibm.com>, kvm@vger.kernel.org, Rusty Russell <rusty@rustcor>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 2009-05-29 at 23:44 +0930, Rusty Russell wrote:
-> This patch adds skb_orphan to the start of dev_hard_start_xmit(): it
-> can be premature in the NETDEV_TX_BUSY case, but that's uncommon.
+Add global flag to disable MSI-X by default.  This is useful primarily
+to make images loadable by older qemu (without msix).  Even when MSI-X
+is disabled by flag, you can still load images that have MSI-X enabled.
 
-Would it be possible to make the new skb_orphan() at the start of
-dev_hard_start_xmit() conditionally so that it is not executed for
-packets that are to be time stamped?
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
+ hw/msix.c       |    3 +++
+ qemu-options.hx |    2 ++
+ vl.c            |    3 +++
+ 3 files changed, 8 insertions(+), 0 deletions(-)
 
-As discussed before
-(http://article.gmane.org/gmane.linux.network/121378/), the skb->sk
-socket pointer is required for sending back the send time stamp from
-inside the device driver. Calling skb_orphan() unconditionally as in
-this patch would break the hardware time stamping of outgoing packets.
-
-This should work without much overhead (skb_tx() expands to a lookup of
-the skb_shared_info):
-if (!skb_tx(skb)->flags)
-    skb_orphan(skb);
-
-Instead of looking at the individual skb_shared_tx "hardware" and
-"software" bits I'm just checking the whole byte here because it is
-shorter and perhaps faster. Semantically the result is the same.
-
+diff --git a/hw/msix.c b/hw/msix.c
+index 4db2fc1..970a8ca 100644
+--- a/hw/msix.c
++++ b/hw/msix.c
+@@ -122,6 +122,9 @@ void msix_write_config(PCIDevice *dev, uint32_t addr,
+                        uint32_t val, int len)
+ {
+     unsigned enable_pos = dev->msix_cap + MSIX_ENABLE_OFFSET;
++    if (!(dev->cap_present & QEMU_PCI_CAP_MSIX))
++        return;
++
+     if (addr + len <= enable_pos || addr > enable_pos)
+         return;
+ 
+diff --git a/qemu-options.hx b/qemu-options.hx
+index 87af798..fd041a4 100644
+--- a/qemu-options.hx
++++ b/qemu-options.hx
+@@ -1575,3 +1575,5 @@ DEF("semihosting", 0, QEMU_OPTION_semihosting,
+ DEF("old-param", 0, QEMU_OPTION_old_param,
+     "-old-param      old param mode\n")
+ #endif
++DEF("disable-msix", 0, QEMU_OPTION_disable_msix,
++    "-disable-msix disable msix support for PCI devices (enabled by default)\n")
+diff --git a/vl.c b/vl.c
+index 2c1f0e0..2757d4f 100644
+--- a/vl.c
++++ b/vl.c
+@@ -134,6 +134,7 @@ int main(int argc, char **argv)
+ #include "hw/usb.h"
+ #include "hw/pcmcia.h"
+ #include "hw/pc.h"
++#include "hw/msix.h"
+ #include "hw/audiodev.h"
+ #include "hw/isa.h"
+ #include "hw/baum.h"
+@@ -5557,6 +5558,8 @@ int main(int argc, char **argv, char **envp)
+                 xen_mode = XEN_ATTACH;
+                 break;
+ #endif
++            case QEMU_OPTION_disable_msix:
++                msix_disable = 1;
+             }
+         }
+     }
 -- 
-Best Regards, Patrick Ohly
-
-The content of this message is my personal opinion only and although
-I am an employee of Intel, the statements I make here in no way
-represent Intel's position on the issue, nor am I authorized to speak
-on behalf of Intel on this matter.
+1.6.3.1.56.g79e1.dirty
