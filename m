@@ -1,14 +1,14 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: find_vqs operation starting at arbitrary index
-Date: Tue, 2 Jun 2009 08:53:07 +0930
-Message-ID: <200906020853.07559.rusty@rustcorp.com.au>
-References: <20090601080348.GA17119@amit-x200.pnq.redhat.com>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH 1/4] net: skb_orphan on dev_hard_start_xmit
+Date: Tue, 02 Jun 2009 00:25:53 -0700 (PDT)
+Message-ID: <20090602.002553.143476036.davem__21775.233888957$1243927626$gmane$org@davemloft.net>
+References: <200905292344.56814.rusty@rustcorp.com.au>
+	<1243885642.22917.35.camel@pohly-MOBL>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20090601080348.GA17119@amit-x200.pnq.redhat.com>
-Content-Disposition: inline
+In-Reply-To: <1243885642.22917.35.camel@pohly-MOBL>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,26 +18,29 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Amit Shah <amit.shah@redhat.com>
-Cc: virtualization@lists.linux-foundation.org, mst@redhat.com
+To: patrick.ohly@intel.com
+Cc: libertas-dev@lists.infradead.org, dcbw@redhat.com, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, rolandd@cisco.com, divy@chelsio.com, xemul@openvz.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, 1 Jun 2009 05:33:48 pm Amit Shah wrote:
-> Hello,
->
-> The recent find_vqs operation doesn't allow for a vq to be found at an
-> arbitrary location; it's meant to be called once at startup to find all
-> possible queues and never called again.
->
-> This doesn't work for devices which can have queues hot-plugged at
-> run-time. This can be made to work by passing the 'start_index' value as
-> was done earlier for find_vq, but I doubt something like the following
-> will work. The MSI vectors might need some changing as well.
+From: Patrick Ohly <patrick.ohly@intel.com>
+Date: Mon, 01 Jun 2009 21:47:22 +0200
 
-There's a fundamental conflict here: find_vqs was added so the PCI MSI code 
-knows exactly how many virtqueues there are.
+> On Fri, 2009-05-29 at 23:44 +0930, Rusty Russell wrote:
+>> This patch adds skb_orphan to the start of dev_hard_start_xmit(): it
+>> can be premature in the NETDEV_TX_BUSY case, but that's uncommon.
+> 
+> Would it be possible to make the new skb_orphan() at the start of
+> dev_hard_start_xmit() conditionally so that it is not executed for
+> packets that are to be time stamped?
+> 
+> As discussed before
+> (http://article.gmane.org/gmane.linux.network/121378/), the skb->sk
+> socket pointer is required for sending back the send time stamp from
+> inside the device driver. Calling skb_orphan() unconditionally as in
+> this patch would break the hardware time stamping of outgoing packets.
 
-So you'll need to sort this out with Michael...
+Indeed, we need to check that case, at a minimum.
 
-Thanks,
-Rusty.
+And there are other potentially other problems.  For example, I
+wonder how this interacts with the new TX MMAP af_packet support
+in net-next-2.6 :-/
