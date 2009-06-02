@@ -1,14 +1,11 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH 3/4] virtio_net: don't free buffers in xmit ring
-Date: Tue, 2 Jun 2009 23:37:33 +0930
-Message-ID: <200906022337.33799.rusty__48352.5284835652$1243952160$gmane$org@rustcorp.com.au>
-References: <200905292346.24141.rusty@rustcorp.com.au>
-	<1243930422.9146.60.camel@blaa> <1243942902.9146.216.camel@blaa>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCHv2 00/13] qemu: MSI-X support
+Date: Tue, 2 Jun 2009 18:01:56 +0300
+Message-ID: <20090602150156.GA6554__43829.7085850083$1243955284$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1243942902.9146.216.camel@blaa>
 Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,26 +16,52 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Mark McLoughlin <markmc@redhat.com>
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Paul Brook <paul@codesourcery.com>, Avi Kivity <avi@redhat.com>, qemu-devel@nongnu.org, Carsten Otte <cotte@de.ibm.com>, kvm@vger.kernel.org, Rusty Russell <rusty@rustcor>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 2 Jun 2009 09:11:42 pm Mark McLoughlin wrote:
-> On Tue, 2009-06-02 at 09:13 +0100, Mark McLoughlin wrote:
-> > I think skb_orphan() is enough to prevent this, is it?
->
-> Oops, I meant:
->
->   I don't think skb_orphan() is enough to prevent this, is it?
+Resending. Incorporated a minor fix pointed out by Isaku Yamahata.
 
-Yes, point taken.  No, it's not.  We could add nf_reset here too, which would 
-be perfectly sane.
+Here is the port of MSI-X support patches to upstream qemu.
+Please comment or commit.
 
-I'm tempted to avoid the question marks hanging over generic skb_orphan for 
-now, and just do skb_orphan & nf_reset at the head of our driver.
+This patchset adds generic support for MSI-X, adds implementation in
+APIC, and uses MSI-X in virtio-net. At Paul's suggestion, I use stl_phy
+to decouple APIC and MSI-X implementation.
 
-Then look at making skb_orphan do nf_reset.  It makes sense, but I'd have to 
-audit all the callers.
+This uses the mask table patch that I posted previously, and which is
+now included in the series.
 
-Thanks.
-Rusty.
+-- 
+MST
+
+Michael S. Tsirkin (13):
+  qemu: make default_write_config use mask table
+  qemu: capability bits in pci save/restore
+  qemu: add routines to manage PCI capabilities
+  qemu: helper routines for pci access.
+  qemu: MSI-X support functions
+  qemu: add flag to disable MSI-X by default
+  qemu: minimal MSI/MSI-X implementation for PC
+  qemu: add support for resizing regions
+  qemu: virtio support for many interrupt vectors
+  qemu: MSI-X support in virtio PCI
+  qemu: request 3 vectors in virtio-net
+  qemu: virtio save/load bindings
+  qemu: add pci_get/set_byte
+
+ Makefile.target    |    2 +-
+ hw/apic.c          |   50 ++++++-
+ hw/msix.c          |  426 ++++++++++++++++++++++++++++++++++++++++++++++++++++
+ hw/msix.h          |   35 +++++
+ hw/pci.c           |  295 +++++++++++++++++++-----------------
+ hw/pci.h           |  105 ++++++++++++-
+ hw/syborg_virtio.c |   13 ++-
+ hw/virtio-net.c    |    1 +
+ hw/virtio-pci.c    |  215 +++++++++++++++++++++-----
+ hw/virtio.c        |   70 ++++++---
+ hw/virtio.h        |   14 ++-
+ qemu-options.hx    |    2 +
+ vl.c               |    3 +
+ 13 files changed, 1017 insertions(+), 214 deletions(-)
+ create mode 100644 hw/msix.c
+ create mode 100644 hw/msix.h
