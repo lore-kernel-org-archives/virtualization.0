@@ -1,15 +1,17 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH 1/4] net: skb_orphan on dev_hard_start_xmit
-Date: Tue, 02 Jun 2009 17:14:18 -0700 (PDT)
-Message-ID: <20090602.171418.186096253.davem@davemloft.net>
-References: <1243885642.22917.35.camel@pohly-MOBL>
-	<20090602.002553.143476036.davem@davemloft.net>
-	<200906022338.30618.rusty@rustcorp.com.au>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH 2/4] virtio_net: return NETDEV_TX_BUSY instead of queueing
+	an extra skb.
+Date: Wed, 3 Jun 2009 12:47:04 +0930
+Message-ID: <200906031247.05591.rusty__11267.2333642424$1243999079$gmane$org@rustcorp.com.au>
+References: <200905292346.04815.rusty@rustcorp.com.au>
+	<200906022325.57961.rusty@rustcorp.com.au>
+	<20090602234532.GA5417@gondor.apana.org.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <200906022338.30618.rusty@rustcorp.com.au>
+In-Reply-To: <20090602234532.GA5417@gondor.apana.org.au>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,39 +21,75 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: rusty@rustcorp.com.au
-Cc: rolandd@cisco.com, libertas-dev@lists.infradead.org, dcbw@redhat.com, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, patrick.ohly@intel.com, divy@chelsio.com, xemul@openvz.org
+To: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: netdev@vger.kernel.org, David Miller <davem@davemloft.net>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Rusty Russell <rusty@rustcorp.com.au>
-Date: Tue, 2 Jun 2009 23:38:29 +0930
+On Wed, 3 Jun 2009 09:15:32 am Herbert Xu wrote:
+> On Tue, Jun 02, 2009 at 11:25:57PM +0930, Rusty Russell wrote:
+> > Or, we could just "return NETDEV_TX_BUSY;".  I like that :)
+>
+> No you should fix it so that you check the queue status after
+> transmitting a packet so we never get into this state in the
+> first place.
 
-> On Tue, 2 Jun 2009 04:55:53 pm David Miller wrote:
->> From: Patrick Ohly <patrick.ohly@intel.com>
->> Date: Mon, 01 Jun 2009 21:47:22 +0200
->>
->> > On Fri, 2009-05-29 at 23:44 +0930, Rusty Russell wrote:
->> >> This patch adds skb_orphan to the start of dev_hard_start_xmit(): it
->> >> can be premature in the NETDEV_TX_BUSY case, but that's uncommon.
->> >
->> > Would it be possible to make the new skb_orphan() at the start of
->> > dev_hard_start_xmit() conditionally so that it is not executed for
->> > packets that are to be time stamped?
->> >
->> > As discussed before
->> > (http://article.gmane.org/gmane.linux.network/121378/), the skb->sk
->> > socket pointer is required for sending back the send time stamp from
->> > inside the device driver. Calling skb_orphan() unconditionally as in
->> > this patch would break the hardware time stamping of outgoing packets.
->>
->> Indeed, we need to check that case, at a minimum.
->>
->> And there are other potentially other problems.  For example, I
->> wonder how this interacts with the new TX MMAP af_packet support
->> in net-next-2.6 :-/
-> 
-> I think I'll do this in the driver for now, and let's revisit doing it 
-> generically later?
+We could figure out if we can take the worst-case packet, and underutilize
+our queue.  And fix the other *67* drivers.
 
-That might be the best course of action for the time being.
-This whole area is a rat's nest.
+Of course that doesn't even work, because we return NETDEV_TX_BUSY from dev.c!
+
+"Hi, core netdevs here.  Don't use NETDEV_TX_BUSY.   Yeah, we can't figure out
+how to avoid it either.  But y'know, just hack something together".
+
+Herbert, we are *better* than this!
+
+How's this?  Tested for the virtio_net driver here.
+
+
+[RFC] net: fix double-tcpdump problem with NETDEV_TX_BUSY.
+
+Herbert shares a distain for drivers returning TX_BUSY because
+network taps see packets twice when it's used.  Unfortunately, it's
+ubiquitous.
+
+This patch marks packets by (ab)using the "peeked" bit in the skb.
+This bit is currently used for packets queued in a socket; we reset it
+in dev_queue_xmit and set it when we hand the packet to
+dev_queue_xmit_nit.
+
+We also reset it on incoming packets: this is safe, but it might be
+sufficient to reset it only in the loopback driver?
+
+diff --git a/net/core/dev.c b/net/core/dev.c
+--- a/net/core/dev.c
++++ b/net/core/dev.c
+@@ -1678,8 +1678,10 @@ int dev_hard_start_xmit(struct sk_buff *
+ 	int rc;
+ 
+ 	if (likely(!skb->next)) {
+-		if (!list_empty(&ptype_all))
++		if (!list_empty(&ptype_all) && !skb->peeked) {
+ 			dev_queue_xmit_nit(skb, dev);
++			skb->peeked = true;
++		}
+ 
+ 		if (netif_needs_gso(dev, skb)) {
+ 			if (unlikely(dev_gso_segment(skb)))
+@@ -1796,6 +1798,8 @@ int dev_queue_xmit(struct sk_buff *skb)
+ 	struct Qdisc *q;
+ 	int rc = -ENOMEM;
+ 
++	skb->peeked = false;
++
+ 	/* GSO will handle the following emulations directly. */
+ 	if (netif_needs_gso(dev, skb))
+ 		goto gso;
+@@ -1942,6 +1946,8 @@ int netif_rx(struct sk_buff *skb)
+ 	if (!skb->tstamp.tv64)
+ 		net_timestamp(skb);
+ 
++	skb->peeked = false;
++
+ 	/*
+ 	 * The code is rearranged so that the path is the most
+ 	 * short when CPU is congested, but is still operating.
