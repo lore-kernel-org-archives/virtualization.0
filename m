@@ -1,14 +1,15 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: TODO list for qemu+KVM networking performance v2
-Date: Thu, 4 Jun 2009 20:29:34 +0300
-Message-ID: <20090604172934.GA16012__23488.2551049397$1244136790$gmane$org@redhat.com>
+Date: Thu, 4 Jun 2009 21:10:25 +0300
+Message-ID: <20090604181025.GB16327__8185.69986518032$1244142682$gmane$org@redhat.com>
 References: <20090604164320.GB14592@redhat.com> <4A280155.2060100@gmail.com>
+	<20090604172934.GA16012@redhat.com> <4A28095C.2090002@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <4A280155.2060100@gmail.com>
+In-Reply-To: <4A28095C.2090002@gmail.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -22,89 +23,13 @@ To: Gregory Haskins <gregory.haskins@gmail.com>
 Cc: Chris Wright <chrisw@redhat.com>, Mark McLoughlin <markmc@redhat.com>, kvm@vger.kernel.org, Brian Stein <bstein@redhat.com>, Herbert Xu <herbert.xu@redhat.com>, virtualization@lists.linux-foundation.org, Dor Laor <dor@redhat.com>, Avi Kivity <avi@redhat.com>, Yaron Haviv <yaronh@voltaire.com>, Shahar Klein <shahark@voltaire.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Jun 04, 2009 at 01:16:05PM -0400, Gregory Haskins wrote:
-> Michael S. Tsirkin wrote:
-> > As I'm new to qemu/kvm, to figure out how networking performance can be improved, I
-> > went over the code and took some notes.  As I did this, I tried to record ideas
-> > from recent discussions and ideas that came up on improving performance. Thus
-> > this list.
-> >
-> > This includes a partial overview of networking code in a virtual environment, with
-> > focus on performance: I'm only interested in sending and receiving packets,
-> > ignoring configuration etc.
-> >
-> > I have likely missed a ton of clever ideas and older discussions, and probably
-> > misunderstood some code. Please pipe up with corrections, additions, etc. And
-> > please don't take offence if I didn't attribute the idea correctly - most of
-> > them are marked mst by I don't claim they are original. Just let me know.
-> >
-> > And there are a couple of trivial questions on the code - I'll
-> > add answers here as they become available.
-> >
-> > I out up a copy at http://www.linux-kvm.org/page/Networking_Performance as
-> > well, and intend to dump updates there from time to time.
-> >   
-> 
-> Hi Michael,
->   Not sure if you have seen this, but I've already started to work on
-> the code for in-kernel devices and have a (currently non-virtio based)
-> proof-of-concept network device which you can for comparative data.  You
-> can find details here:
-> 
-> http://lkml.org/lkml/2009/4/21/408
-> 
-> <snip>
+On Thu, Jun 04, 2009 at 01:50:20PM -0400, Gregory Haskins wrote:
+> Suit yourself, but I suspect that by the time you build the prototype
+> you will either end up re-solving all the same problems anyway, or have
+> diminished functionality (or both).
 
-Thanks
+/me goes to look at vbus patches.
 
-> (Will look at your list later, to see if I can add anything)
-> > ---
-> >
-> > Short term plans: I plan to start out with trying out the following ideas:
-> >
-> > save a copy in qemu on RX side in case of a single nic in vlan
-> > implement virtio-host kernel module
-> >
-> > *detail on virtio-host-net kernel module project*
-> >
-> > virtio-host-net is a simple character device which gets memory layout information
-> > from qemu, and uses this to convert between virtio descriptors to skbs.
-> > The skbs are then passed to/from raw socket (or we could bind virtio-host
-> > to physical device like raw socket does TBD).
-> >
-> > Interrupts will be reported to eventfd descriptors, and device will poll
-> > eventfd descriptors to get kicks from guest.
-> >
-> >   
-> 
-> I currently have a virtio transport for vbus implemented, but it still
-> needs a virtio-net device-model backend written.
-
-You mean virtio-ring implementation?
-I intended to basically start by reusing the code from
-Documentation/lguest/lguest.c
-Isn't this all there is to it?
-
->  If you are interested,
-> we can work on this together to implement your idea.  Its on my "todo"
-> list for vbus anyway, but I am currently distracted with the
-> irqfd/iosignalfd projects which are prereqs for vbus to be considered
-> for merge.
-> 
-> Basically vbus is a framework for declaring in-kernel devices (not kvm
-> specific, per se) with a full security/containment model, a
-> hot-pluggable configuration engine, and a dynamically loadable 
-> device-model.  The framework takes care of the details of signal-path
-> and memory routing for you so that something like a virtio-net model can
-> be implemented once and work in a variety of environments such as kvm,
-> lguest, etc.
-> 
-> Interested?
-> -Greg
-> 
-
-It seems that a character device with a couple of ioctls would be simpler
-for an initial prototype.
 
 -- 
 MST
