@@ -1,14 +1,11 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCHv3 09/13] qemu: virtio support for many interrupt vectors
-Date: Fri, 5 Jun 2009 13:24:02 +0300
-Message-ID: <20090605102402.GJ26770__40569.3295914263$1244198245$gmane$org@redhat.com>
-References: <cover.1244192535.git.mst@redhat.com>
+From: Matias Zabaljauregui <zabaljauregui@gmail.com>
+Subject: [PATCH] lguest: PAE support
+Date: Fri, 05 Jun 2009 13:09:02 -0300
+Message-ID: <1244218142.7700.24.camel@zetabook>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <cover.1244192535.git.mst@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,389 +15,921 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Paul Brook <paul@codesourcery.com>, Avi Kivity <avi@redhat.com>, qemu-devel@nongnu.org, Carsten Otte <cotte@de.ibm.com>, kvm@vger.kernel.org, Rusty Russell <rusty@rustcor>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: lguest@ozlabs.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Extend virtio to support many interrupt vectors, and rearrange code in
-preparation for multi-vector support (mostly move reset out to bindings,
-because we will have to reset the vectors in transport-specific code).
-Actual bindings in pci, and use in net, to follow.
-Load and save are not connected to bindings yet, so they are left
-stubbed out for now.
+Hi, this version requires that host and guest have the same PAE status.
+NX cap is not offered to the guest, yet.
 
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+
+Thanks,
+Matias
+
+
+
+Lguest PAE support
+
+Signed-off-by: Matias Zabaljauregui <zabaljauregui@gmail.com>
+
 ---
- hw/syborg_virtio.c |   13 ++++++++--
- hw/virtio-pci.c    |   24 +++++++++++++++----
- hw/virtio.c        |   63 ++++++++++++++++++++++++++++++++++++++-------------
- hw/virtio.h        |   10 ++++++-
- 4 files changed, 84 insertions(+), 26 deletions(-)
+ Documentation/lguest/lguest.txt     |    1 -
+ arch/x86/include/asm/lguest.h       |    7 +-
+ arch/x86/include/asm/lguest_hcall.h |    3 +-
+ arch/x86/lguest/Kconfig             |    1 -
+ arch/x86/lguest/boot.c              |   79 +++++++-
+ drivers/lguest/Kconfig              |    2 +-
+ drivers/lguest/hypercalls.c         |   10 +
+ drivers/lguest/lg.h                 |    5 +
+ drivers/lguest/page_tables.c        |  356 +++++++++++++++++++++++++++++++----
+ 9 files changed, 410 insertions(+), 54 deletions(-)
 
-diff --git a/hw/syborg_virtio.c b/hw/syborg_virtio.c
-index 37c219c..d8c978a 100644
---- a/hw/syborg_virtio.c
-+++ b/hw/syborg_virtio.c
-@@ -134,7 +134,10 @@ static void syborg_virtio_writel(void *opaque, target_phys_addr_t offset,
-         vdev->features = value;
-         break;
-     case SYBORG_VIRTIO_QUEUE_BASE:
--        virtio_queue_set_addr(vdev, vdev->queue_sel, value);
-+        if (value == 0)
-+            virtio_reset(vdev);
-+        else
-+            virtio_queue_set_addr(vdev, vdev->queue_sel, value);
-         break;
-     case SYBORG_VIRTIO_QUEUE_SEL:
-         if (value < VIRTIO_PCI_QUEUE_MAX)
-@@ -228,7 +231,7 @@ static CPUWriteMemoryFunc *syborg_virtio_writefn[] = {
-      syborg_virtio_writel
- };
+diff --git a/Documentation/lguest/lguest.txt b/Documentation/lguest/lguest.txt
+index 28c7473..efb3a6a 100644
+--- a/Documentation/lguest/lguest.txt
++++ b/Documentation/lguest/lguest.txt
+@@ -37,7 +37,6 @@ Running Lguest:
+      "Paravirtualized guest support" = Y
+         "Lguest guest support" = Y
+      "High Memory Support" = off/4GB
+-     "PAE (Physical Address Extension) Support" = N
+      "Alignment value to which kernel should be aligned" = 0x100000
+         (CONFIG_PARAVIRT=y, CONFIG_LGUEST_GUEST=y, CONFIG_HIGHMEM64G=n and
+          CONFIG_PHYSICAL_ALIGN=0x100000)
+diff --git a/arch/x86/include/asm/lguest.h b/arch/x86/include/asm/lguest.h
+index 1caf576..313389c 100644
+--- a/arch/x86/include/asm/lguest.h
++++ b/arch/x86/include/asm/lguest.h
+@@ -17,8 +17,13 @@
+ /* Pages for switcher itself, then two pages per cpu */
+ #define TOTAL_SWITCHER_PAGES (SHARED_SWITCHER_PAGES + 2 * nr_cpu_ids)
  
--static void syborg_virtio_update_irq(void *opaque)
-+static void syborg_virtio_update_irq(void *opaque, uint16_t vector)
+-/* We map at -4M for ease of mapping into the guest (one PTE page). */
++/* We map at -4M (-2M when PAE is activated) for ease of mapping
++ * into the guest (one PTE page). */
++#ifdef CONFIG_X86_PAE
++#define SWITCHER_ADDR 0xFFE00000
++#else
+ #define SWITCHER_ADDR 0xFFC00000
++#endif
+ 
+ /* Found in switcher.S */
+ extern unsigned long default_idt_entries[];
+diff --git a/arch/x86/include/asm/lguest_hcall.h b/arch/x86/include/asm/lguest_hcall.h
+index 553810f..7ba1d81 100644
+--- a/arch/x86/include/asm/lguest_hcall.h
++++ b/arch/x86/include/asm/lguest_hcall.h
+@@ -12,6 +12,7 @@
+ #define LHCALL_TS		8
+ #define LHCALL_SET_CLOCKEVENT	9
+ #define LHCALL_HALT		10
++#define LHCALL_SET_PMD		13
+ #define LHCALL_SET_PTE		14
+ #define LHCALL_SET_PGD		15
+ #define LHCALL_LOAD_TLS		16
+@@ -32,7 +33,7 @@
+  * operations?  There are two ways: the direct way is to make a "hypercall",
+  * to make requests of the Host Itself.
+  *
+- * We use the KVM hypercall mechanism. Eighteen hypercalls are
++ * We use the KVM hypercall mechanism. Sixteen hypercalls are
+  * available: the hypercall number is put in the %eax register, and the
+  * arguments (when required) are placed in %ebx, %ecx, %edx and %esi.
+  * If a return value makes sense, it's returned in %eax.
+diff --git a/arch/x86/lguest/Kconfig b/arch/x86/lguest/Kconfig
+index 8dab8f7..3871804 100644
+--- a/arch/x86/lguest/Kconfig
++++ b/arch/x86/lguest/Kconfig
+@@ -2,7 +2,6 @@ config LGUEST_GUEST
+ 	bool "Lguest guest support"
+ 	select PARAVIRT
+ 	depends on X86_32
+-	depends on !X86_PAE
+ 	select VIRTIO
+ 	select VIRTIO_RING
+ 	select VIRTIO_CONSOLE
+diff --git a/arch/x86/lguest/boot.c b/arch/x86/lguest/boot.c
+index 3b9339e..f2c8003 100644
+--- a/arch/x86/lguest/boot.c
++++ b/arch/x86/lguest/boot.c
+@@ -166,6 +166,7 @@ static void lazy_hcall3(unsigned long call,
+ 		async_hcall(call, arg1, arg2, arg3, 0);
+ }
+ 
++#ifdef CONFIG_X86_PAE
+ static void lazy_hcall4(unsigned long call,
+ 		       unsigned long arg1,
+ 		       unsigned long arg2,
+@@ -177,6 +178,7 @@ static void lazy_hcall4(unsigned long call,
+ 	else
+ 		async_hcall(call, arg1, arg2, arg3, arg4);
+ }
++#endif
+ 
+ /* When lazy mode is turned off reset the per-cpu lazy mode variable and then
+  * issue the do-nothing hypercall to flush any stored calls. */
+@@ -375,8 +377,8 @@ static void lguest_cpuid(unsigned int *ax, unsigned int *bx,
+ 	case 1:	/* Basic feature request. */
+ 		/* We only allow kernel to see SSE3, CMPXCHG16B and SSSE3 */
+ 		*cx &= 0x00002201;
+-		/* SSE, SSE2, FXSR, MMX, CMOV, CMPXCHG8B, TSC, FPU. */
+-		*dx &= 0x07808111;
++		/* SSE, SSE2, FXSR, MMX, CMOV, CMPXCHG8B, TSC, FPU, PAE. */
++		*dx &= 0x07808151;
+ 		/* The Host can do a nice optimization if it knows that the
+ 		 * kernel mappings (addresses above 0xC0000000 or whatever
+ 		 * PAGE_OFFSET is set to) haven't changed.  But Linux calls
+@@ -395,6 +397,11 @@ static void lguest_cpuid(unsigned int *ax, unsigned int *bx,
+ 		if (*ax > 0x80000008)
+ 			*ax = 0x80000008;
+ 		break;
++	case 0x80000001:
++		/* Here we should fix nx cap depending on host. */
++		/* For this version of PAE, we just clear NX bit. */
++		*dx &= ~(1 << 20);
++		break;
+ 	}
+ }
+ 
+@@ -528,25 +535,52 @@ static void lguest_write_cr4(unsigned long val)
+ static void lguest_pte_update(struct mm_struct *mm, unsigned long addr,
+ 			       pte_t *ptep)
  {
-     SyborgVirtIOProxy *proxy = opaque;
-     int level;
-@@ -239,7 +242,7 @@ static void syborg_virtio_update_irq(void *opaque)
++#ifdef CONFIG_X86_PAE
++	lazy_hcall4(LHCALL_SET_PTE, __pa(mm->pgd), addr,
++		    ptep->pte_low, ptep->pte_high);
++#else
+ 	lazy_hcall3(LHCALL_SET_PTE, __pa(mm->pgd), addr, ptep->pte_low);
++#endif
  }
  
- static VirtIOBindings syborg_virtio_bindings = {
--    .update_irq = syborg_virtio_update_irq
-+    .notify = syborg_virtio_update_irq
- };
- 
- static void syborg_virtio_init(SyborgVirtIOProxy *proxy, VirtIODevice *vdev)
-@@ -248,6 +251,8 @@ static void syborg_virtio_init(SyborgVirtIOProxy *proxy, VirtIODevice *vdev)
- 
-     proxy->vdev = vdev;
- 
-+    /* Don't support multiple vectors */
-+    proxy->vdev->nvectors = 0;
-     sysbus_init_irq(&proxy->busdev, &proxy->irq);
-     iomemtype = cpu_register_io_memory(0, syborg_virtio_readfn,
-                                        syborg_virtio_writefn, proxy);
-@@ -255,6 +260,8 @@ static void syborg_virtio_init(SyborgVirtIOProxy *proxy, VirtIODevice *vdev)
- 
-     proxy->id = ((uint32_t)0x1af4 << 16) | vdev->device_id;
- 
-+    qemu_register_reset(virtio_reset, 0, vdev);
-+
-     virtio_bind_device(vdev, &syborg_virtio_bindings, proxy);
- }
- 
-diff --git a/hw/virtio-pci.c b/hw/virtio-pci.c
-index c072423..7dfdd80 100644
---- a/hw/virtio-pci.c
-+++ b/hw/virtio-pci.c
-@@ -78,13 +78,19 @@ typedef struct {
- 
- /* virtio device */
- 
--static void virtio_pci_update_irq(void *opaque)
-+static void virtio_pci_notify(void *opaque, uint16_t vector)
+ static void lguest_set_pte_at(struct mm_struct *mm, unsigned long addr,
+ 			      pte_t *ptep, pte_t pteval)
  {
-     VirtIOPCIProxy *proxy = opaque;
- 
-     qemu_set_irq(proxy->pci_dev.irq[0], proxy->vdev->isr & 1);
+-	*ptep = pteval;
++	native_set_pte(ptep, pteval);
+ 	lguest_pte_update(mm, addr, ptep);
  }
  
-+static void virtio_pci_reset(void *opaque)
+-/* The Guest calls this to set a top-level entry.  Again, we set the entry then
+- * tell the Host which top-level page we changed, and the index of the entry we
+- * changed. */
++/* The Guest calls lguest_set_pud to set a top-level entry and lguest_set_pmd
++ * to set a middle-level entry when PAE is activated.
++ * Again, we set the entry then tell the Host which page we changed,
++ * and the index of the entry we changed. */
++#ifdef CONFIG_X86_PAE
++static void lguest_set_pud(pud_t *pudp, pud_t pudval)
 +{
-+    VirtIOPCIProxy *proxy = opaque;
-+    virtio_reset(proxy->vdev);
++	native_set_pud(pudp, pudval);
++
++	/* 32 bytes aligned pdpt address and the index. */
++	lazy_hcall2(LHCALL_SET_PGD, __pa(pudp) & 0xFFFFFFE0,
++		   (__pa(pudp) & 0x1F) / sizeof(pud_t));
 +}
 +
- static void virtio_ioport_write(void *opaque, uint32_t addr, uint32_t val)
+ static void lguest_set_pmd(pmd_t *pmdp, pmd_t pmdval)
  {
-     VirtIOPCIProxy *proxy = opaque;
-@@ -108,7 +114,10 @@ static void virtio_ioport_write(void *opaque, uint32_t addr, uint32_t val)
-         break;
-     case VIRTIO_PCI_QUEUE_PFN:
-         pa = (target_phys_addr_t)val << VIRTIO_PCI_QUEUE_ADDR_SHIFT;
--        virtio_queue_set_addr(vdev, vdev->queue_sel, pa);
-+        if (pa == 0)
-+            virtio_pci_reset(proxy);
-+        else
-+            virtio_queue_set_addr(vdev, vdev->queue_sel, pa);
-         break;
-     case VIRTIO_PCI_QUEUE_SEL:
-         if (val < VIRTIO_PCI_QUEUE_MAX)
-@@ -120,7 +129,7 @@ static void virtio_ioport_write(void *opaque, uint32_t addr, uint32_t val)
-     case VIRTIO_PCI_STATUS:
-         vdev->status = val & 0xFF;
-         if (vdev->status == 0)
--            virtio_reset(vdev);
-+            virtio_pci_reset(proxy);
-         break;
-     }
- }
-@@ -158,7 +167,7 @@ static uint32_t virtio_ioport_read(void *opaque, uint32_t addr)
-         /* reading from the ISR also clears it. */
-         ret = vdev->isr;
-         vdev->isr = 0;
--        virtio_update_irq(vdev);
-+        qemu_set_irq(proxy->pci_dev.irq[0], 0);
-         break;
-     default:
-         break;
-@@ -243,7 +252,7 @@ static void virtio_map(PCIDevice *pci_dev, int region_num,
- }
- 
- static const VirtIOBindings virtio_pci_bindings = {
--    .update_irq = virtio_pci_update_irq
-+    .notify = virtio_pci_notify
- };
- 
- static void virtio_init_pci(VirtIOPCIProxy *proxy, VirtIODevice *vdev,
-@@ -255,6 +264,9 @@ static void virtio_init_pci(VirtIOPCIProxy *proxy, VirtIODevice *vdev,
- 
-     proxy->vdev = vdev;
- 
-+    /* No support for multiple vectors yet. */
-+    proxy->vdev->nvectors = 0;
-+
-     config = proxy->pci_dev.config;
-     pci_config_set_vendor_id(config, vendor);
-     pci_config_set_device_id(config, device);
-@@ -279,6 +291,8 @@ static void virtio_init_pci(VirtIOPCIProxy *proxy, VirtIODevice *vdev,
-     pci_register_io_region(&proxy->pci_dev, 0, size, PCI_ADDRESS_SPACE_IO,
-                            virtio_map);
- 
-+    qemu_register_reset(virtio_pci_reset, 0, proxy);
-+
-     virtio_bind_device(vdev, &virtio_pci_bindings, proxy);
- }
- 
-diff --git a/hw/virtio.c b/hw/virtio.c
-index 45a49fa..63ffcff 100644
---- a/hw/virtio.c
-+++ b/hw/virtio.c
-@@ -68,6 +68,7 @@ struct VirtQueue
-     target_phys_addr_t pa;
-     uint16_t last_avail_idx;
-     int inuse;
-+    uint16_t vector;
-     void (*handle_output)(VirtIODevice *vdev, VirtQueue *vq);
- };
- 
-@@ -373,12 +374,16 @@ int virtqueue_pop(VirtQueue *vq, VirtQueueElement *elem)
- }
- 
- /* virtio device */
-+static void virtio_notify_vector(VirtIODevice *vdev, uint16_t vector)
-+{
-+    if (vdev->binding->notify) {
-+        vdev->binding->notify(vdev->binding_opaque, vector);
-+    }
+-	*pmdp = pmdval;
++	native_set_pmd(pmdp, pmdval);
++	lazy_hcall2(LHCALL_SET_PMD, __pa(pmdp) & PAGE_MASK,
++		   (__pa(pmdp) & (PAGE_SIZE - 1)) / sizeof(pmd_t));
 +}
- 
- void virtio_update_irq(VirtIODevice *vdev)
- {
--    if (vdev->binding->update_irq) {
--        vdev->binding->update_irq(vdev->binding_opaque);
--    }
-+    virtio_notify_vector(vdev, VIRTIO_NO_VECTOR);
- }
- 
- void virtio_reset(void *opaque)
-@@ -393,7 +398,8 @@ void virtio_reset(void *opaque)
-     vdev->queue_sel = 0;
-     vdev->status = 0;
-     vdev->isr = 0;
--    virtio_update_irq(vdev);
-+    vdev->config_vector = VIRTIO_NO_VECTOR;
-+    virtio_notify_vector(vdev, vdev->config_vector);
- 
-     for(i = 0; i < VIRTIO_PCI_QUEUE_MAX; i++) {
-         vdev->vq[i].vring.desc = 0;
-@@ -401,6 +407,7 @@ void virtio_reset(void *opaque)
-         vdev->vq[i].vring.used = 0;
-         vdev->vq[i].last_avail_idx = 0;
-         vdev->vq[i].pa = 0;
-+        vdev->vq[i].vector = VIRTIO_NO_VECTOR;
-     }
- }
- 
-@@ -484,12 +491,8 @@ void virtio_config_writel(VirtIODevice *vdev, uint32_t addr, uint32_t data)
- 
- void virtio_queue_set_addr(VirtIODevice *vdev, int n, target_phys_addr_t addr)
- {
--    if (addr == 0) {
--        virtio_reset(vdev);
--    } else {
--        vdev->vq[n].pa = addr;
--        virtqueue_init(&vdev->vq[n]);
--    }
-+    vdev->vq[n].pa = addr;
-+    virtqueue_init(&vdev->vq[n]);
- }
- 
- target_phys_addr_t virtio_queue_get_addr(VirtIODevice *vdev, int n)
-@@ -509,6 +512,18 @@ void virtio_queue_notify(VirtIODevice *vdev, int n)
-     }
- }
- 
-+uint16_t virtio_queue_vector(VirtIODevice *vdev, int n)
++#else
++
++/* The Guest calls lguest_set_pmd to set a top-level entry when PAE is not
++ * activated. */
++static void lguest_set_pmd(pmd_t *pmdp, pmd_t pmdval)
 +{
-+    return n < VIRTIO_PCI_QUEUE_MAX ? vdev->vq[n].vector :
-+        VIRTIO_NO_VECTOR;
++	native_set_pmd(pmdp, pmdval);
+ 	lazy_hcall2(LHCALL_SET_PGD, __pa(pmdp) & PAGE_MASK,
+-		   (__pa(pmdp) & (PAGE_SIZE - 1)) / 4);
++		   (__pa(pmdp) & (PAGE_SIZE - 1)) / sizeof(pmd_t));
+ }
++#endif
+ 
+ /* There are a couple of legacy places where the kernel sets a PTE, but we
+  * don't know the top level any more.  This is useless for us, since we don't
+@@ -559,11 +593,31 @@ static void lguest_set_pmd(pmd_t *pmdp, pmd_t pmdval)
+  * which brings boot back to 0.25 seconds. */
+ static void lguest_set_pte(pte_t *ptep, pte_t pteval)
+ {
+-	*ptep = pteval;
++	native_set_pte(ptep, pteval);
++	if (cr3_changed)
++		lazy_hcall1(LHCALL_FLUSH_TLB, 1);
 +}
 +
-+void virtio_queue_set_vector(VirtIODevice *vdev, int n, uint16_t vector)
++#ifdef CONFIG_X86_PAE
++static void lguest_set_pte_atomic(pte_t *ptep, pte_t pte)
 +{
-+    if (n < VIRTIO_PCI_QUEUE_MAX)
-+        vdev->vq[n].vector = vector;
++	native_set_pte_atomic(ptep, pte);
+ 	if (cr3_changed)
+ 		lazy_hcall1(LHCALL_FLUSH_TLB, 1);
+ }
+ 
++void lguest_pte_clear(struct mm_struct *mm, unsigned long addr, pte_t *ptep)
++{
++	native_pte_clear(mm, addr, ptep);
++	lguest_pte_update(mm, addr, ptep);
 +}
 +
- VirtQueue *virtio_add_queue(VirtIODevice *vdev, int queue_size,
-                             void (*handle_output)(VirtIODevice *, VirtQueue *))
- {
-@@ -537,7 +552,7 @@ void virtio_notify(VirtIODevice *vdev, VirtQueue *vq)
-         return;
- 
-     vdev->isr |= 0x01;
--    virtio_update_irq(vdev);
-+    virtio_notify_vector(vdev, vq->vector);
- }
- 
- void virtio_notify_config(VirtIODevice *vdev)
-@@ -546,7 +561,7 @@ void virtio_notify_config(VirtIODevice *vdev)
-         return;
- 
-     vdev->isr |= 0x03;
--    virtio_update_irq(vdev);
-+    virtio_notify_vector(vdev, vdev->config_vector);
- }
- 
- void virtio_save(VirtIODevice *vdev, QEMUFile *f)
-@@ -555,6 +570,7 @@ void virtio_save(VirtIODevice *vdev, QEMUFile *f)
- 
-     /* FIXME: load/save binding.  */
-     //pci_device_save(&vdev->pci_dev, f);
-+    //msix_save(&vdev->pci_dev, f);
- 
-     qemu_put_8s(f, &vdev->status);
-     qemu_put_8s(f, &vdev->isr);
-@@ -563,6 +579,9 @@ void virtio_save(VirtIODevice *vdev, QEMUFile *f)
-     qemu_put_be32(f, vdev->config_len);
-     qemu_put_buffer(f, vdev->config, vdev->config_len);
- 
-+    if (vdev->nvectors)
-+        qemu_put_be16s(f, &vdev->config_vector);
++void lguest_pmd_clear(pmd_t *pmdp)
++{
++	lguest_set_pmd(pmdp, __pmd(0));
++}
++#endif
 +
-     for (i = 0; i < VIRTIO_PCI_QUEUE_MAX; i++) {
-         if (vdev->vq[i].vring.num == 0)
-             break;
-@@ -577,15 +596,19 @@ void virtio_save(VirtIODevice *vdev, QEMUFile *f)
-         qemu_put_be32(f, vdev->vq[i].vring.num);
-         qemu_put_be64(f, vdev->vq[i].pa);
-         qemu_put_be16s(f, &vdev->vq[i].last_avail_idx);
-+        if (vdev->nvectors)
-+            qemu_put_be16s(f, &vdev->vq[i].vector);
-     }
- }
+ /* Unfortunately for Lguest, the pv_mmu_ops for page tables were based on
+  * native page table operations.  On native hardware you can set a new page
+  * table entry whenever you want, but if you want to remove one you have to do
+@@ -1033,6 +1087,7 @@ __init void lguest_init(void)
+ 	pv_info.name = "lguest";
+ 	pv_info.paravirt_enabled = 1;
+ 	pv_info.kernel_rpl = 1;
++	pv_info.shared_kernel_pmd = 1;
  
--void virtio_load(VirtIODevice *vdev, QEMUFile *f)
-+int virtio_load(VirtIODevice *vdev, QEMUFile *f)
+ 	/* We set up all the lguest overrides for sensitive operations.  These
+ 	 * are detailed with the operations themselves. */
+@@ -1078,6 +1133,12 @@ __init void lguest_init(void)
+ 	pv_mmu_ops.set_pte = lguest_set_pte;
+ 	pv_mmu_ops.set_pte_at = lguest_set_pte_at;
+ 	pv_mmu_ops.set_pmd = lguest_set_pmd;
++#ifdef CONFIG_X86_PAE
++	pv_mmu_ops.set_pte_atomic = lguest_set_pte_atomic;
++	pv_mmu_ops.pte_clear = lguest_pte_clear;
++	pv_mmu_ops.pmd_clear = lguest_pmd_clear;
++	pv_mmu_ops.set_pud = lguest_set_pud;
++#endif
+ 	pv_mmu_ops.read_cr2 = lguest_read_cr2;
+ 	pv_mmu_ops.read_cr3 = lguest_read_cr3;
+ 	pv_mmu_ops.lazy_mode.enter = paravirt_enter_lazy_mmu;
+diff --git a/drivers/lguest/Kconfig b/drivers/lguest/Kconfig
+index a3d3cba..8f63845 100644
+--- a/drivers/lguest/Kconfig
++++ b/drivers/lguest/Kconfig
+@@ -1,6 +1,6 @@
+ config LGUEST
+ 	tristate "Linux hypervisor example code"
+-	depends on X86_32 && EXPERIMENTAL && !X86_PAE && FUTEX
++	depends on X86_32 && EXPERIMENTAL && FUTEX
+ 	select HVC_DRIVER
+ 	---help---
+ 	  This is a very simple module which allows you to run
+diff --git a/drivers/lguest/hypercalls.c b/drivers/lguest/hypercalls.c
+index 1cc3377..5415da1 100644
+--- a/drivers/lguest/hypercalls.c
++++ b/drivers/lguest/hypercalls.c
+@@ -73,11 +73,21 @@ static void do_hcall(struct lg_cpu *cpu, struct hcall_args *args)
+ 		guest_set_stack(cpu, args->arg1, args->arg2, args->arg3);
+ 		break;
+ 	case LHCALL_SET_PTE:
++#ifdef CONFIG_X86_PAE
++		guest_set_pte(cpu, args->arg1, args->arg2,
++				__pte(args->arg3 | (u64)args->arg4 << 32));
++#else
+ 		guest_set_pte(cpu, args->arg1, args->arg2, __pte(args->arg3));
++#endif
+ 		break;
+ 	case LHCALL_SET_PGD:
+ 		guest_set_pgd(cpu->lg, args->arg1, args->arg2);
+ 		break;
++#ifdef CONFIG_X86_PAE
++	case LHCALL_SET_PMD:
++		guest_set_pmd(cpu->lg, args->arg1, args->arg2);
++		break;
++#endif
+ 	case LHCALL_SET_CLOCKEVENT:
+ 		guest_set_clockevent(cpu, args->arg1);
+ 		break;
+diff --git a/drivers/lguest/lg.h b/drivers/lguest/lg.h
+index 5e7a27d..ce56ef8 100644
+--- a/drivers/lguest/lg.h
++++ b/drivers/lguest/lg.h
+@@ -137,6 +137,8 @@ int run_guest(struct lg_cpu *cpu, unsigned long __user *user);
+  * in the kernel. */
+ #define pgd_flags(x)	(pgd_val(x) & ~PAGE_MASK)
+ #define pgd_pfn(x)	(pgd_val(x) >> PAGE_SHIFT)
++#define pmd_flags(x)    (pmd_val(x) & ~PAGE_MASK)
++#define pmd_pfn(x)	(pmd_val(x) >> PAGE_SHIFT)
+ 
+ /* interrupts_and_traps.c: */
+ void maybe_do_interrupt(struct lg_cpu *cpu);
+@@ -169,6 +171,9 @@ int init_guest_pagetable(struct lguest *lg);
+ void free_guest_pagetable(struct lguest *lg);
+ void guest_new_pagetable(struct lg_cpu *cpu, unsigned long pgtable);
+ void guest_set_pgd(struct lguest *lg, unsigned long gpgdir, u32 i);
++#ifdef CONFIG_X86_PAE
++void guest_set_pmd(struct lguest *lg, unsigned long gpgdir, u32 i);
++#endif
+ void guest_pagetable_clear_all(struct lg_cpu *cpu);
+ void guest_pagetable_flush_user(struct lg_cpu *cpu);
+ void guest_set_pte(struct lg_cpu *cpu, unsigned long gpgdir,
+diff --git a/drivers/lguest/page_tables.c b/drivers/lguest/page_tables.c
+index 8a3c3a5..a03b74b 100644
+--- a/drivers/lguest/page_tables.c
++++ b/drivers/lguest/page_tables.c
+@@ -53,6 +53,17 @@
+  * page.  */
+ #define SWITCHER_PGD_INDEX (PTRS_PER_PGD - 1)
+ 
++/* For PAE we need the PMD index as well. We use the last 2MB, so we
++ * will need the last pmd entry of the last pmd page.  */
++#ifdef CONFIG_X86_PAE
++#define SWITCHER_PMD_INDEX 	(PTRS_PER_PMD - 1)
++#define RESERVE_MEM 		2U
++#define CHECK_GPGD_MASK		_PAGE_PRESENT
++#else
++#define RESERVE_MEM 		4U
++#define CHECK_GPGD_MASK		_PAGE_TABLE
++#endif
++
+ /* We actually need a separate PTE page for each CPU.  Remember that after the
+  * Switcher code itself comes two pages for each CPU, and we don't want this
+  * CPU's guest to see the pages of any other CPU. */
+@@ -73,23 +84,58 @@ static pgd_t *spgd_addr(struct lg_cpu *cpu, u32 i, unsigned long vaddr)
  {
-     int num, i;
+ 	unsigned int index = pgd_index(vaddr);
  
-     /* FIXME: load/save binding.  */
-     //pci_device_load(&vdev->pci_dev, f);
-+    //r = msix_load(&vdev->pci_dev, f);
-+    //pci_resize_io_region(&vdev->pci_dev, 1, msix_bar_size(&vdev->pci_dev));
- 
-     qemu_get_8s(f, &vdev->status);
-     qemu_get_8s(f, &vdev->isr);
-@@ -594,6 +617,10 @@ void virtio_load(VirtIODevice *vdev, QEMUFile *f)
-     vdev->config_len = qemu_get_be32(f);
-     qemu_get_buffer(f, vdev->config, vdev->config_len);
- 
-+    if (vdev->nvectors) {
-+        qemu_get_be16s(f, &vdev->config_vector);
-+        //msix_vector_use(&vdev->pci_dev, vdev->config_vector);
-+    }
-     num = qemu_get_be32(f);
- 
-     for (i = 0; i < num; i++) {
-@@ -604,9 +631,14 @@ void virtio_load(VirtIODevice *vdev, QEMUFile *f)
-         if (vdev->vq[i].pa) {
-             virtqueue_init(&vdev->vq[i]);
-         }
-+        if (vdev->nvectors) {
-+            qemu_get_be16s(f, &vdev->vq[i].vector);
-+            //msix_vector_use(&vdev->pci_dev, vdev->config_vector);
-+        }
-     }
- 
--    virtio_update_irq(vdev);
-+    virtio_notify_vector(vdev, VIRTIO_NO_VECTOR);
-+    return 0;
++#ifndef CONFIG_X86_PAE
+ 	/* We kill any Guest trying to touch the Switcher addresses. */
+ 	if (index >= SWITCHER_PGD_INDEX) {
+ 		kill_guest(cpu, "attempt to access switcher pages");
+ 		index = 0;
+ 	}
++#endif
+ 	/* Return a pointer index'th pgd entry for the i'th page table. */
+ 	return &cpu->lg->pgdirs[i].pgdir[index];
  }
  
- void virtio_cleanup(VirtIODevice *vdev)
-@@ -627,6 +659,7 @@ VirtIODevice *virtio_common_init(const char *name, uint16_t device_id,
-     vdev->status = 0;
-     vdev->isr = 0;
-     vdev->queue_sel = 0;
-+    vdev->config_vector = VIRTIO_NO_VECTOR;
-     vdev->vq = qemu_mallocz(sizeof(VirtQueue) * VIRTIO_PCI_QUEUE_MAX);
++#ifdef CONFIG_X86_PAE
++/* This routine then takes the PGD entry given above, which contains the
++ * address of the PMD page.  It then returns a pointer to the PMD entry for the
++ * given address. */
++static pmd_t *spmd_addr(struct lg_cpu *cpu, pgd_t spgd, unsigned long vaddr)
++{
++	unsigned int index = pmd_index(vaddr);
++	pmd_t *page;
++
++	/* We kill any Guest trying to touch the Switcher addresses. */
++	if (pgd_index(vaddr) == SWITCHER_PGD_INDEX &&
++					index >= SWITCHER_PMD_INDEX) {
++		kill_guest(cpu, "attempt to access switcher pages");
++		index = 0;
++	}
++
++	/* You should never call this if the PGD entry wasn't valid */
++	BUG_ON(!(pgd_flags(spgd) & _PAGE_PRESENT));
++	page = __va(pgd_pfn(spgd) << PAGE_SHIFT);
++
++	return &page[index];
++}
++#endif
++
+ /* This routine then takes the page directory entry returned above, which
+  * contains the address of the page table entry (PTE) page.  It then returns a
+  * pointer to the PTE entry for the given address. */
+-static pte_t *spte_addr(pgd_t spgd, unsigned long vaddr)
++static pte_t *spte_addr(struct lg_cpu *cpu, pgd_t spgd, unsigned long vaddr)
+ {
++#ifdef CONFIG_X86_PAE
++	pmd_t *pmd = spmd_addr(cpu, spgd, vaddr);
++	pte_t *page = __va(pmd_pfn(*pmd) << PAGE_SHIFT);
++
++	/* You should never call this if the PMD entry wasn't valid */
++	BUG_ON(!(pmd_flags(*pmd) & _PAGE_PRESENT));
++#else
+ 	pte_t *page = __va(pgd_pfn(spgd) << PAGE_SHIFT);
+ 	/* You should never call this if the PGD entry wasn't valid */
+ 	BUG_ON(!(pgd_flags(spgd) & _PAGE_PRESENT));
++#endif
++
+ 	return &page[pte_index(vaddr)];
+ }
  
-     vdev->name = name;
-@@ -636,8 +669,6 @@ VirtIODevice *virtio_common_init(const char *name, uint16_t device_id,
-     else
-         vdev->config = NULL;
+@@ -101,10 +147,31 @@ static unsigned long gpgd_addr(struct lg_cpu *cpu, unsigned long vaddr)
+ 	return cpu->lg->pgdirs[cpu->cpu_pgd].gpgdir + index * sizeof(pgd_t);
+ }
  
--    qemu_register_reset(virtio_reset, 0, vdev);
+-static unsigned long gpte_addr(pgd_t gpgd, unsigned long vaddr)
++#ifdef CONFIG_X86_PAE
++static unsigned long gpmd_addr(pgd_t gpgd, unsigned long vaddr)
+ {
+ 	unsigned long gpage = pgd_pfn(gpgd) << PAGE_SHIFT;
+ 	BUG_ON(!(pgd_flags(gpgd) & _PAGE_PRESENT));
++	return gpage + pmd_index(vaddr) * sizeof(pmd_t);
++}
++#endif
++
++static unsigned long gpte_addr(struct lg_cpu *cpu,
++				pgd_t gpgd, unsigned long vaddr)
++{
++#ifdef CONFIG_X86_PAE
++	pmd_t gpmd;
++#endif
++	unsigned long gpage;
++
++	BUG_ON(!(pgd_flags(gpgd) & _PAGE_PRESENT));
++#ifdef CONFIG_X86_PAE
++	gpmd = lgread(cpu, gpmd_addr(gpgd, vaddr), pmd_t);
++	gpage = pmd_pfn(gpmd) << PAGE_SHIFT;
++	BUG_ON(!(pmd_flags(gpmd) & _PAGE_PRESENT));
++#else
++	gpage = pgd_pfn(gpgd) << PAGE_SHIFT;
++#endif
+ 	return gpage + pte_index(vaddr) * sizeof(pte_t);
+ }
+ /*:*/
+@@ -184,11 +251,20 @@ static void check_gpte(struct lg_cpu *cpu, pte_t gpte)
+ 
+ static void check_gpgd(struct lg_cpu *cpu, pgd_t gpgd)
+ {
+-	if ((pgd_flags(gpgd) & ~_PAGE_TABLE) ||
++	if ((pgd_flags(gpgd) & ~CHECK_GPGD_MASK) ||
+ 	   (pgd_pfn(gpgd) >= cpu->lg->pfn_limit))
+ 		kill_guest(cpu, "bad page directory entry");
+ }
+ 
++#ifdef CONFIG_X86_PAE
++static void check_gpmd(struct lg_cpu *cpu, pmd_t gpmd)
++{
++	if ((pmd_flags(gpmd) & ~_PAGE_TABLE) ||
++	   (pmd_pfn(gpmd) >= cpu->lg->pfn_limit))
++		kill_guest(cpu, "bad page middle directory entry");
++}
++#endif
++
+ /*H:330
+  * (i) Looking up a page table entry when the Guest faults.
+  *
+@@ -207,6 +283,11 @@ bool demand_page(struct lg_cpu *cpu, unsigned long vaddr, int errcode)
+ 	pte_t gpte;
+ 	pte_t *spte;
+ 
++#ifdef CONFIG_X86_PAE
++	pmd_t *spmd;
++	pmd_t gpmd;
++#endif
++
+ 	/* First step: get the top-level Guest page table entry. */
+ 	gpgd = lgread(cpu, gpgd_addr(cpu, vaddr), pgd_t);
+ 	/* Toplevel not present?  We can't map it in. */
+@@ -228,12 +309,40 @@ bool demand_page(struct lg_cpu *cpu, unsigned long vaddr, int errcode)
+ 		check_gpgd(cpu, gpgd);
+ 		/* And we copy the flags to the shadow PGD entry.  The page
+ 		 * number in the shadow PGD is the page we just allocated. */
+-		*spgd = __pgd(__pa(ptepage) | pgd_flags(gpgd));
++		set_pgd(spgd, __pgd(__pa(ptepage) | pgd_flags(gpgd)));
+ 	}
+ 
++#ifdef CONFIG_X86_PAE
++	gpmd = lgread(cpu, gpmd_addr(gpgd, vaddr), pmd_t);
++	/* middle level not present?  We can't map it in. */
++	if (!(pmd_flags(gpmd) & _PAGE_PRESENT))
++		return false;
++
++	/* Now look at the matching shadow entry. */
++	spmd = spmd_addr(cpu, *spgd, vaddr);
++
++	if (!(pmd_flags(*spmd) & _PAGE_PRESENT)) {
++		/* No shadow entry: allocate a new shadow PTE page. */
++		unsigned long ptepage = get_zeroed_page(GFP_KERNEL);
++
++		/* This is not really the Guest's fault, but killing it is
++		* simple for this corner case. */
++		if (!ptepage) {
++			kill_guest(cpu, "out of memory allocating pte page");
++			return false;
++		}
++
++		/* We check that the Guest pmd is OK. */
++		check_gpmd(cpu, gpmd);
++
++		/* And we copy the flags to the shadow PMD entry.  The page
++		 * number in the shadow PMD is the page we just allocated. */
++		native_set_pmd(spmd, __pmd(__pa(ptepage) | pmd_flags(gpmd)));
++	}
++#endif
+ 	/* OK, now we look at the lower level in the Guest page table: keep its
+ 	 * address, because we might update it later. */
+-	gpte_ptr = gpte_addr(gpgd, vaddr);
++	gpte_ptr = gpte_addr(cpu, gpgd, vaddr);
+ 	gpte = lgread(cpu, gpte_ptr, pte_t);
+ 
+ 	/* If this page isn't in the Guest page tables, we can't page it in. */
+@@ -259,7 +368,7 @@ bool demand_page(struct lg_cpu *cpu, unsigned long vaddr, int errcode)
+ 		gpte = pte_mkdirty(gpte);
+ 
+ 	/* Get the pointer to the shadow PTE entry we're going to set. */
+-	spte = spte_addr(*spgd, vaddr);
++	spte = spte_addr(cpu, *spgd, vaddr);
+ 	/* If there was a valid shadow PTE entry here before, we release it.
+ 	 * This can happen with a write to a previously read-only entry. */
+ 	release_pte(*spte);
+@@ -301,14 +410,23 @@ static bool page_writable(struct lg_cpu *cpu, unsigned long vaddr)
+ 	pgd_t *spgd;
+ 	unsigned long flags;
+ 
++#ifdef CONFIG_X86_PAE
++	pmd_t *spmd;
++#endif
+ 	/* Look at the current top level entry: is it present? */
+ 	spgd = spgd_addr(cpu, cpu->cpu_pgd, vaddr);
+ 	if (!(pgd_flags(*spgd) & _PAGE_PRESENT))
+ 		return false;
+ 
++#ifdef CONFIG_X86_PAE
++	spmd = spmd_addr(cpu, *spgd, vaddr);
++	if (!(pmd_flags(*spmd) & _PAGE_PRESENT))
++		return false;
++#endif
++
+ 	/* Check the flags on the pte entry itself: it must be present and
+ 	 * writable. */
+-	flags = pte_flags(*(spte_addr(*spgd, vaddr)));
++	flags = pte_flags(*(spte_addr(cpu, *spgd, vaddr)));
+ 
+ 	return (flags & (_PAGE_PRESENT|_PAGE_RW)) == (_PAGE_PRESENT|_PAGE_RW);
+ }
+@@ -322,6 +440,41 @@ void pin_page(struct lg_cpu *cpu, unsigned long vaddr)
+ 		kill_guest(cpu, "bad stack page %#lx", vaddr);
+ }
+ 
++#ifdef CONFIG_X86_PAE
++static void release_pmd(pmd_t *spmd)
++{
++	/* If the entry's not present, there's nothing to release. */
++	if (pmd_flags(*spmd) & _PAGE_PRESENT) {
++		unsigned int i;
++		pte_t *ptepage = __va(pmd_pfn(*spmd) << PAGE_SHIFT);
++		/* For each entry in the page, we might need to release it. */
++		for (i = 0; i < PTRS_PER_PTE; i++)
++			release_pte(ptepage[i]);
++		/* Now we can free the page of PTEs */
++		free_page((long)ptepage);
++		/* And zero out the PMD entry so we never release it twice. */
++		native_set_pmd(spmd, __pmd(0));
++	}
++}
++
++static void release_pgd(pgd_t *spgd)
++{
++	/* If the entry's not present, there's nothing to release. */
++	if (pgd_flags(*spgd) & _PAGE_PRESENT) {
++		unsigned int i;
++		pmd_t *pmdpage = __va(pgd_pfn(*spgd) << PAGE_SHIFT);
++
++		for (i = 0; i < PTRS_PER_PMD; i++)
++			release_pmd(&pmdpage[i]);
++
++		/* Now we can free the page of PMDs */
++		free_page((long)pmdpage);
++		/* And zero out the PGD entry so we never release it twice. */
++		set_pgd(spgd, __pgd(0));
++	}
++}
++
++#else /* !CONFIG_X86_PAE */
+ /*H:450 If we chase down the release_pgd() code, it looks like this: */
+ static void release_pgd(pgd_t *spgd)
+ {
+@@ -341,7 +494,7 @@ static void release_pgd(pgd_t *spgd)
+ 		*spgd = __pgd(0);
+ 	}
+ }
 -
-     return vdev;
++#endif
+ /*H:445 We saw flush_user_mappings() twice: once from the flush_user_mappings()
+  * hypercall and once in new_pgdir() when we re-used a top-level pgdir page.
+  * It simply releases every PTE page from 0 up to the Guest's kernel address. */
+@@ -370,6 +523,9 @@ unsigned long guest_pa(struct lg_cpu *cpu, unsigned long vaddr)
+ 	pgd_t gpgd;
+ 	pte_t gpte;
+ 
++#ifdef CONFIG_X86_PAE
++	pmd_t gpmd;
++#endif
+ 	/* First step: get the top-level Guest page table entry. */
+ 	gpgd = lgread(cpu, gpgd_addr(cpu, vaddr), pgd_t);
+ 	/* Toplevel not present?  We can't map it in. */
+@@ -378,7 +534,13 @@ unsigned long guest_pa(struct lg_cpu *cpu, unsigned long vaddr)
+ 		return -1UL;
+ 	}
+ 
+-	gpte = lgread(cpu, gpte_addr(gpgd, vaddr), pte_t);
++	gpte = lgread(cpu, gpte_addr(cpu, gpgd, vaddr), pte_t);
++#ifdef CONFIG_X86_PAE
++	gpmd = lgread(cpu, gpmd_addr(gpgd, vaddr), pmd_t);
++	if (!(pmd_flags(gpmd) & _PAGE_PRESENT))
++		kill_guest(cpu, "Bad address %#lx", vaddr);
++#endif
++	gpte = lgread(cpu, gpte_addr(cpu, gpgd, vaddr), pte_t);
+ 	if (!(pte_flags(gpte) & _PAGE_PRESENT))
+ 		kill_guest(cpu, "Bad address %#lx", vaddr);
+ 
+@@ -405,6 +567,9 @@ static unsigned int new_pgdir(struct lg_cpu *cpu,
+ 			      int *blank_pgdir)
+ {
+ 	unsigned int next;
++#ifdef CONFIG_X86_PAE
++	pmd_t *pmd_table;
++#endif
+ 
+ 	/* We pick one entry at random to throw out.  Choosing the Least
+ 	 * Recently Used might be better, but this is easy. */
+@@ -416,10 +581,27 @@ static unsigned int new_pgdir(struct lg_cpu *cpu,
+ 		/* If the allocation fails, just keep using the one we have */
+ 		if (!cpu->lg->pgdirs[next].pgdir)
+ 			next = cpu->cpu_pgd;
+-		else
+-			/* This is a blank page, so there are no kernel
+-			 * mappings: caller must map the stack! */
++		else {
++#ifdef CONFIG_X86_PAE
++			/* In PAE mode, allocate a pmd page and populate the
++			 * last pgd entry. */
++			pmd_table = (pmd_t *)get_zeroed_page(GFP_KERNEL);
++			if (!pmd_table) {
++				free_page((long)cpu->lg->pgdirs[next].pgdir);
++				set_pgd(cpu->lg->pgdirs[next].pgdir, __pgd(0));
++				next = cpu->cpu_pgd;
++			} else {
++				set_pgd(cpu->lg->pgdirs[next].pgdir +
++					SWITCHER_PGD_INDEX,
++					__pgd(__pa(pmd_table) | _PAGE_PRESENT));
++				/* This is a blank page, so there are no kernel
++				 * mappings: caller must map the stack! */
++				*blank_pgdir = 1;
++			}
++#else
+ 			*blank_pgdir = 1;
++#endif
++		}
+ 	}
+ 	/* Record which Guest toplevel this shadows. */
+ 	cpu->lg->pgdirs[next].gpgdir = gpgdir;
+@@ -460,10 +642,25 @@ static void release_all_pagetables(struct lguest *lg)
+ 
+ 	/* Every shadow pagetable this Guest has */
+ 	for (i = 0; i < ARRAY_SIZE(lg->pgdirs); i++)
+-		if (lg->pgdirs[i].pgdir)
++		if (lg->pgdirs[i].pgdir) {
++#ifdef CONFIG_X86_PAE
++			pgd_t *spgd;
++			pmd_t *pmdpage;
++			unsigned int k;
++
++			/* Get the last pmd page. */
++			spgd = lg->pgdirs[i].pgdir + SWITCHER_PGD_INDEX;
++			pmdpage = __va(pgd_pfn(*spgd) << PAGE_SHIFT);
++
++			/* And release the pmd entries of that pmd page,
++			 * except for the switcher pmd. */
++			for (k = 0; k < SWITCHER_PMD_INDEX; k++)
++				release_pmd(&pmdpage[k]);
++#endif
+ 			/* Every PGD entry except the Switcher at the top */
+ 			for (j = 0; j < SWITCHER_PGD_INDEX; j++)
+ 				release_pgd(lg->pgdirs[i].pgdir + j);
++		}
  }
  
-diff --git a/hw/virtio.h b/hw/virtio.h
-index 425727e..04a3c3d 100644
---- a/hw/virtio.h
-+++ b/hw/virtio.h
-@@ -71,11 +71,13 @@ typedef struct VirtQueueElement
- } VirtQueueElement;
- 
- typedef struct {
--    void (*update_irq)(void * opaque);
-+    void (*notify)(void * opaque, uint16_t vector);
- } VirtIOBindings;
- 
- #define VIRTIO_PCI_QUEUE_MAX 16
- 
-+#define VIRTIO_NO_VECTOR 0xffff
-+
- struct VirtIODevice
+ /* We also throw away everything when a Guest tells us it's changed a kernel
+@@ -504,24 +701,37 @@ static void do_set_pte(struct lg_cpu *cpu, int idx,
  {
-     const char *name;
-@@ -85,6 +87,8 @@ struct VirtIODevice
-     uint32_t features;
-     size_t config_len;
-     void *config;
-+    uint16_t config_vector;
-+    int nvectors;
-     uint32_t (*get_features)(VirtIODevice *vdev);
-     uint32_t (*bad_features)(VirtIODevice *vdev);
-     void (*set_features)(VirtIODevice *vdev, uint32_t val);
-@@ -114,7 +118,7 @@ void virtio_notify(VirtIODevice *vdev, VirtQueue *vq);
+ 	/* Look up the matching shadow page directory entry. */
+ 	pgd_t *spgd = spgd_addr(cpu, idx, vaddr);
++#ifdef CONFIG_X86_PAE
++	pmd_t *spmd;
++#endif
  
- void virtio_save(VirtIODevice *vdev, QEMUFile *f);
+ 	/* If the top level isn't present, there's no entry to update. */
+ 	if (pgd_flags(*spgd) & _PAGE_PRESENT) {
+-		/* Otherwise, we start by releasing the existing entry. */
+-		pte_t *spte = spte_addr(*spgd, vaddr);
+-		release_pte(*spte);
+-
+-		/* If they're setting this entry as dirty or accessed, we might
+-		 * as well put that entry they've given us in now.  This shaves
+-		 * 10% off a copy-on-write micro-benchmark. */
+-		if (pte_flags(gpte) & (_PAGE_DIRTY | _PAGE_ACCESSED)) {
+-			check_gpte(cpu, gpte);
+-			*spte = gpte_to_spte(cpu, gpte,
+-					     pte_flags(gpte) & _PAGE_DIRTY);
+-		} else
+-			/* Otherwise kill it and we can demand_page() it in
+-			 * later. */
+-			*spte = __pte(0);
++#ifdef CONFIG_X86_PAE
++		spmd = spmd_addr(cpu, *spgd, vaddr);
++		if (pmd_flags(*spmd) & _PAGE_PRESENT) {
++#endif
++			/* Otherwise, we start by releasing
++			 * the existing entry. */
++			pte_t *spte = spte_addr(cpu, *spgd, vaddr);
++			release_pte(*spte);
++
++			/* If they're setting this entry as dirty or accessed,
++			 * we might as well put that entry they've given us
++			 * in now.  This shaves 10% off a
++			 * copy-on-write micro-benchmark. */
++			if (pte_flags(gpte) & (_PAGE_DIRTY | _PAGE_ACCESSED)) {
++				check_gpte(cpu, gpte);
++				native_set_pte(spte,
++						gpte_to_spte(cpu, gpte,
++						pte_flags(gpte) & _PAGE_DIRTY));
++			} else
++				/* Otherwise kill it and we can demand_page()
++				 * it in later. */
++				native_set_pte(spte, __pte(0));
++#ifdef CONFIG_X86_PAE
++		}
++#endif
+ 	}
+ }
  
--void virtio_load(VirtIODevice *vdev, QEMUFile *f);
-+int virtio_load(VirtIODevice *vdev, QEMUFile *f);
+@@ -572,8 +782,6 @@ void guest_set_pgd(struct lguest *lg, unsigned long gpgdir, u32 idx)
+ {
+ 	int pgdir;
  
- void virtio_cleanup(VirtIODevice *vdev);
+-	/* The kernel seems to try to initialize this early on: we ignore its
+-	 * attempts to map over the Switcher. */
+ 	if (idx >= SWITCHER_PGD_INDEX)
+ 		return;
  
-@@ -140,6 +144,8 @@ void virtio_queue_set_addr(VirtIODevice *vdev, int n, target_phys_addr_t addr);
- target_phys_addr_t virtio_queue_get_addr(VirtIODevice *vdev, int n);
- int virtio_queue_get_num(VirtIODevice *vdev, int n);
- void virtio_queue_notify(VirtIODevice *vdev, int n);
-+uint16_t virtio_queue_vector(VirtIODevice *vdev, int n);
-+void virtio_queue_set_vector(VirtIODevice *vdev, int n, uint16_t vector);
- void virtio_reset(void *opaque);
- void virtio_update_irq(VirtIODevice *vdev);
+@@ -583,6 +791,12 @@ void guest_set_pgd(struct lguest *lg, unsigned long gpgdir, u32 idx)
+ 		/* ... throw it away. */
+ 		release_pgd(lg->pgdirs[pgdir].pgdir + idx);
+ }
++#ifdef CONFIG_X86_PAE
++void guest_set_pmd(struct lguest *lg, unsigned long pmdp, u32 idx)
++{
++	guest_pagetable_clear_all(&lg->cpus[0]);
++}
++#endif
+ 
+ /* Once we know how much memory we have we can construct simple identity
+  * (which set virtual == physical) and linear mappings
+@@ -596,8 +810,16 @@ static unsigned long setup_pagetables(struct lguest *lg,
+ {
+ 	pgd_t __user *pgdir;
+ 	pte_t __user *linear;
+-	unsigned int mapped_pages, i, linear_pages, phys_linear;
+ 	unsigned long mem_base = (unsigned long)lg->mem_base;
++	unsigned int mapped_pages, i, linear_pages;
++#ifdef CONFIG_X86_PAE
++	pmd_t __user *pmds;
++	unsigned int j;
++	pgd_t pgd;
++	pmd_t pmd;
++#else
++	unsigned int phys_linear;
++#endif
+ 
+ 	/* We have mapped_pages frames to map, so we need
+ 	 * linear_pages page tables to map them. */
+@@ -610,6 +832,9 @@ static unsigned long setup_pagetables(struct lguest *lg,
+ 	/* Now we use the next linear_pages pages as pte pages */
+ 	linear = (void *)pgdir - linear_pages * PAGE_SIZE;
+ 
++#ifdef CONFIG_X86_PAE
++	pmds = (void *)linear - PAGE_SIZE;
++#endif
+ 	/* Linear mapping is easy: put every page's address into the
+ 	 * mapping in order. */
+ 	for (i = 0; i < mapped_pages; i++) {
+@@ -621,6 +846,22 @@ static unsigned long setup_pagetables(struct lguest *lg,
+ 
+ 	/* The top level points to the linear page table pages above.
+ 	 * We setup the identity and linear mappings here. */
++#ifdef CONFIG_X86_PAE
++	for (i = 0, j; i < mapped_pages && j < PTRS_PER_PMD;
++	     i += PTRS_PER_PTE, j++) {
++		native_set_pmd(&pmd, __pmd(((unsigned long)(linear + i)
++		- mem_base) | _PAGE_PRESENT | _PAGE_RW | _PAGE_USER));
++
++		if (copy_to_user(&pmds[j], &pmd, sizeof(pmd)) != 0)
++			return -EFAULT;
++	}
++
++	set_pgd(&pgd, __pgd(((u32)pmds - mem_base) | _PAGE_PRESENT));
++	if (copy_to_user(&pgdir[0], &pgd, sizeof(pgd)) != 0)
++		return -EFAULT;
++	if (copy_to_user(&pgdir[3], &pgd, sizeof(pgd)) != 0)
++		return -EFAULT;
++#else
+ 	phys_linear = (unsigned long)linear - mem_base;
+ 	for (i = 0; i < mapped_pages; i += PTRS_PER_PTE) {
+ 		pgd_t pgd;
+@@ -633,6 +874,7 @@ static unsigned long setup_pagetables(struct lguest *lg,
+ 				    &pgd, sizeof(pgd)))
+ 			return -EFAULT;
+ 	}
++#endif
+ 
+ 	/* We return the top level (guest-physical) address: remember where
+ 	 * this is. */
+@@ -648,7 +890,10 @@ int init_guest_pagetable(struct lguest *lg)
+ 	u64 mem;
+ 	u32 initrd_size;
+ 	struct boot_params __user *boot = (struct boot_params *)lg->mem_base;
+-
++#ifdef CONFIG_X86_PAE
++	pgd_t *pgd;
++	pmd_t *pmd_table;
++#endif
+ 	/* Get the Guest memory size and the ramdisk size from the boot header
+ 	 * located at lg->mem_base (Guest address 0). */
+ 	if (copy_from_user(&mem, &boot->e820_map[0].size, sizeof(mem))
+@@ -663,6 +908,15 @@ int init_guest_pagetable(struct lguest *lg)
+ 	lg->pgdirs[0].pgdir = (pgd_t *)get_zeroed_page(GFP_KERNEL);
+ 	if (!lg->pgdirs[0].pgdir)
+ 		return -ENOMEM;
++#ifdef CONFIG_X86_PAE
++	pgd = lg->pgdirs[0].pgdir;
++	pmd_table = (pmd_t *) get_zeroed_page(GFP_KERNEL);
++	if (!pmd_table)
++		return -ENOMEM;
++
++	set_pgd(pgd + SWITCHER_PGD_INDEX,
++		__pgd(__pa(pmd_table) | _PAGE_PRESENT));
++#endif
+ 	lg->cpus[0].cpu_pgd = 0;
+ 	return 0;
+ }
+@@ -672,17 +926,24 @@ void page_table_guest_data_init(struct lg_cpu *cpu)
+ {
+ 	/* We get the kernel address: above this is all kernel memory. */
+ 	if (get_user(cpu->lg->kernel_address,
+-		     &cpu->lg->lguest_data->kernel_address)
+-	    /* We tell the Guest that it can't use the top 4MB of virtual
+-	     * addresses used by the Switcher. */
+-	    || put_user(4U*1024*1024, &cpu->lg->lguest_data->reserve_mem)
+-	    || put_user(cpu->lg->pgdirs[0].gpgdir, &cpu->lg->lguest_data->pgdir))
++		&cpu->lg->lguest_data->kernel_address)
++		/* We tell the Guest that it can't use the top 2 or 4 MB
++		 * of virtual addresses used by the Switcher. */
++		|| put_user(RESERVE_MEM * 1024 * 1024,
++			&cpu->lg->lguest_data->reserve_mem)
++		|| put_user(cpu->lg->pgdirs[0].gpgdir,
++			&cpu->lg->lguest_data->pgdir))
+ 		kill_guest(cpu, "bad guest page %p", cpu->lg->lguest_data);
+ 
+ 	/* In flush_user_mappings() we loop from 0 to
+ 	 * "pgd_index(lg->kernel_address)".  This assumes it won't hit the
+ 	 * Switcher mappings, so check that now. */
++#ifdef CONFIG_X86_PAE
++	if (pgd_index(cpu->lg->kernel_address) == SWITCHER_PGD_INDEX &&
++		pmd_index(cpu->lg->kernel_address) == SWITCHER_PMD_INDEX)
++#else
+ 	if (pgd_index(cpu->lg->kernel_address) >= SWITCHER_PGD_INDEX)
++#endif
+ 		kill_guest(cpu, "bad kernel address %#lx",
+ 				 cpu->lg->kernel_address);
+ }
+@@ -708,16 +969,30 @@ void free_guest_pagetable(struct lguest *lg)
+ void map_switcher_in_guest(struct lg_cpu *cpu, struct lguest_pages *pages)
+ {
+ 	pte_t *switcher_pte_page = __get_cpu_var(switcher_pte_pages);
+-	pgd_t switcher_pgd;
+ 	pte_t regs_pte;
+ 	unsigned long pfn;
+ 
++#ifdef CONFIG_X86_PAE
++	pmd_t switcher_pmd;
++	pmd_t *pmd_table;
++
++	native_set_pmd(&switcher_pmd, pfn_pmd(__pa(switcher_pte_page) >>
++		       PAGE_SHIFT, PAGE_KERNEL_EXEC));
++
++	pmd_table = __va(pgd_pfn(cpu->lg->
++			pgdirs[cpu->cpu_pgd].pgdir[SWITCHER_PGD_INDEX])
++								<< PAGE_SHIFT);
++	native_set_pmd(&pmd_table[SWITCHER_PMD_INDEX], switcher_pmd);
++#else
++	pgd_t switcher_pgd;
++
+ 	/* Make the last PGD entry for this Guest point to the Switcher's PTE
+ 	 * page for this CPU (with appropriate flags). */
+ 	switcher_pgd = __pgd(__pa(switcher_pte_page) | __PAGE_KERNEL_EXEC);
+ 
+ 	cpu->lg->pgdirs[cpu->cpu_pgd].pgdir[SWITCHER_PGD_INDEX] = switcher_pgd;
+ 
++#endif
+ 	/* We also change the Switcher PTE page.  When we're running the Guest,
+ 	 * we want the Guest's "regs" page to appear where the first Switcher
+ 	 * page for this CPU is.  This is an optimization: when the Switcher
+@@ -726,8 +1001,9 @@ void map_switcher_in_guest(struct lg_cpu *cpu, struct lguest_pages *pages)
+ 	 * page is already mapped there, we don't have to copy them out
+ 	 * again. */
+ 	pfn = __pa(cpu->regs_page) >> PAGE_SHIFT;
+-	regs_pte = pfn_pte(pfn, __pgprot(__PAGE_KERNEL));
+-	switcher_pte_page[(unsigned long)pages/PAGE_SIZE%PTRS_PER_PTE] = regs_pte;
++	native_set_pte(&regs_pte, pfn_pte(pfn, PAGE_KERNEL));
++	native_set_pte(&switcher_pte_page[pte_index((unsigned long)pages)],
++			regs_pte);
+ }
+ /*:*/
  
 -- 
-1.6.3.1.56.g79e1.dirty
+1.6.0.4
