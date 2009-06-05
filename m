@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCHv3 12/13] qemu: virtio save/load bindings
-Date: Fri, 5 Jun 2009 13:24:26 +0300
-Message-ID: <20090605102426.GM26770__25780.8399539956$1244197683$gmane$org@redhat.com>
+Subject: [PATCHv3 13/13] qemu: add pci_get/set_byte
+Date: Fri, 5 Jun 2009 13:24:34 +0300
+Message-ID: <20090605102434.GN26770__20443.5036787347$1244197688$gmane$org@redhat.com>
 References: <cover.1244192535.git.mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,165 +21,36 @@ Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Paul Brook <paul@codesourcery.com>, Avi Kivity <avi@redhat.com>, qemu-devel@nongnu.org, Carsten Otte <cotte@de.ibm.com>, kvm@vger.kernel.org, Rusty Russell <rusty@rustcor>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Implement bindings for virtio save/load. Use them in virtio pci.
+Add pci_get/set_byte to keep *_word and *_long access functions company.
+They are unused for now.
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- hw/virtio-pci.c |   49 ++++++++++++++++++++++++++++++++++++++++++++++++-
- hw/virtio.c     |   31 ++++++++++++++-----------------
- hw/virtio.h     |    4 ++++
- 3 files changed, 66 insertions(+), 18 deletions(-)
+ hw/pci.h |   12 ++++++++++++
+ 1 files changed, 12 insertions(+), 0 deletions(-)
 
-diff --git a/hw/virtio-pci.c b/hw/virtio-pci.c
-index 294f4c7..589fbb1 100644
---- a/hw/virtio-pci.c
-+++ b/hw/virtio-pci.c
-@@ -105,6 +105,48 @@ static void virtio_pci_notify(void *opaque, uint16_t vector)
-         qemu_set_irq(proxy->pci_dev.irq[0], proxy->vdev->isr & 1);
- }
+diff --git a/hw/pci.h b/hw/pci.h
+index 8e74033..7cc9a8a 100644
+--- a/hw/pci.h
++++ b/hw/pci.h
+@@ -263,6 +263,18 @@ PCIBus *pci_bridge_init(PCIBus *bus, int devfn, uint16_t vid, uint16_t did,
+                         pci_map_irq_fn map_irq, const char *name);
  
-+static void virtio_pci_save_config(void * opaque, QEMUFile *f)
+ static inline void
++pci_set_byte(uint8_t *config, uint8_t val)
 +{
-+    VirtIOPCIProxy *proxy = opaque;
-+    pci_device_save(&proxy->pci_dev, f);
-+    msix_save(&proxy->pci_dev, f);
-+    if (msix_present(&proxy->pci_dev))
-+        qemu_put_be16(f, proxy->vdev->config_vector);
++    *config = val;
 +}
 +
-+static void virtio_pci_save_queue(void * opaque, int n, QEMUFile *f)
++static inline uint8_t
++pci_get_byte(uint8_t *config)
 +{
-+    VirtIOPCIProxy *proxy = opaque;
-+    if (msix_present(&proxy->pci_dev))
-+        qemu_put_be16(f, virtio_queue_vector(proxy->vdev, n));
++    return *config;
 +}
 +
-+static int virtio_pci_load_config(void * opaque, QEMUFile *f)
-+{
-+    VirtIOPCIProxy *proxy = opaque;
-+    int ret;
-+    ret = pci_device_load(&proxy->pci_dev, f);
-+    if (ret)
-+        return ret;
-+    ret = msix_load(&proxy->pci_dev, f);
-+    if (ret)
-+        return ret;
-+    if (msix_present(&proxy->pci_dev))
-+        qemu_get_be16s(f, &proxy->vdev->config_vector);
-+    return 0;
-+}
-+
-+static int virtio_pci_load_queue(void * opaque, int n, QEMUFile *f)
-+{
-+    VirtIOPCIProxy *proxy = opaque;
-+    uint16_t vector;
-+    if (!msix_present(&proxy->pci_dev))
-+        return 0;
-+    qemu_get_be16s(f, &vector);
-+    virtio_queue_set_vector(proxy->vdev, n, vector);
-+    return 0;
-+}
-+
- static void virtio_pci_reset(void *opaque)
++static inline void
+ pci_set_word(uint8_t *config, uint16_t val)
  {
-     VirtIOPCIProxy *proxy = opaque;
-@@ -317,7 +359,12 @@ static void virtio_write_config(PCIDevice *pci_dev, uint32_t address,
- }
- 
- static const VirtIOBindings virtio_pci_bindings = {
--    .notify = virtio_pci_notify
-+    .notify = virtio_pci_notify,
-+    .save_config = virtio_pci_save_config,
-+    .load_config = virtio_pci_load_config,
-+    .save_config = virtio_pci_save_config,
-+    .save_queue = virtio_pci_save_queue,
-+    .load_queue = virtio_pci_load_queue,
- };
- 
- static void virtio_init_pci(VirtIOPCIProxy *proxy, VirtIODevice *vdev,
-diff --git a/hw/virtio.c b/hw/virtio.c
-index 63ffcff..b773dff 100644
---- a/hw/virtio.c
-+++ b/hw/virtio.c
-@@ -568,9 +568,8 @@ void virtio_save(VirtIODevice *vdev, QEMUFile *f)
- {
-     int i;
- 
--    /* FIXME: load/save binding.  */
--    //pci_device_save(&vdev->pci_dev, f);
--    //msix_save(&vdev->pci_dev, f);
-+    if (vdev->binding->save_config)
-+        vdev->binding->save_config(vdev->binding_opaque, f);
- 
-     qemu_put_8s(f, &vdev->status);
-     qemu_put_8s(f, &vdev->isr);
-@@ -596,19 +595,20 @@ void virtio_save(VirtIODevice *vdev, QEMUFile *f)
-         qemu_put_be32(f, vdev->vq[i].vring.num);
-         qemu_put_be64(f, vdev->vq[i].pa);
-         qemu_put_be16s(f, &vdev->vq[i].last_avail_idx);
--        if (vdev->nvectors)
--            qemu_put_be16s(f, &vdev->vq[i].vector);
-+        if (vdev->binding->save_queue)
-+            vdev->binding->save_queue(vdev->binding_opaque, i, f);
-     }
- }
- 
- int virtio_load(VirtIODevice *vdev, QEMUFile *f)
- {
--    int num, i;
-+    int num, i, ret;
- 
--    /* FIXME: load/save binding.  */
--    //pci_device_load(&vdev->pci_dev, f);
--    //r = msix_load(&vdev->pci_dev, f);
--    //pci_resize_io_region(&vdev->pci_dev, 1, msix_bar_size(&vdev->pci_dev));
-+    if (vdev->binding->load_config) {
-+        ret = vdev->binding->load_config(vdev->binding_opaque, f);
-+        if (ret)
-+            return ret;
-+    }
- 
-     qemu_get_8s(f, &vdev->status);
-     qemu_get_8s(f, &vdev->isr);
-@@ -617,10 +617,6 @@ int virtio_load(VirtIODevice *vdev, QEMUFile *f)
-     vdev->config_len = qemu_get_be32(f);
-     qemu_get_buffer(f, vdev->config, vdev->config_len);
- 
--    if (vdev->nvectors) {
--        qemu_get_be16s(f, &vdev->config_vector);
--        //msix_vector_use(&vdev->pci_dev, vdev->config_vector);
--    }
-     num = qemu_get_be32(f);
- 
-     for (i = 0; i < num; i++) {
-@@ -631,9 +627,10 @@ int virtio_load(VirtIODevice *vdev, QEMUFile *f)
-         if (vdev->vq[i].pa) {
-             virtqueue_init(&vdev->vq[i]);
-         }
--        if (vdev->nvectors) {
--            qemu_get_be16s(f, &vdev->vq[i].vector);
--            //msix_vector_use(&vdev->pci_dev, vdev->config_vector);
-+        if (vdev->binding->load_queue) {
-+            ret = vdev->binding->load_queue(vdev->binding_opaque, i, f);
-+            if (ret)
-+                return ret;
-         }
-     }
- 
-diff --git a/hw/virtio.h b/hw/virtio.h
-index 04a3c3d..ce05517 100644
---- a/hw/virtio.h
-+++ b/hw/virtio.h
-@@ -72,6 +72,10 @@ typedef struct VirtQueueElement
- 
- typedef struct {
-     void (*notify)(void * opaque, uint16_t vector);
-+    void (*save_config)(void * opaque, QEMUFile *f);
-+    void (*save_queue)(void * opaque, int n, QEMUFile *f);
-+    int (*load_config)(void * opaque, QEMUFile *f);
-+    int (*load_queue)(void * opaque, int n, QEMUFile *f);
- } VirtIOBindings;
- 
- #define VIRTIO_PCI_QUEUE_MAX 16
+     cpu_to_le16wu((uint16_t *)config, val);
 -- 
 1.6.3.1.56.g79e1.dirty
