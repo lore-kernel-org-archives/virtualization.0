@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCHv3 06/13] qemu: add flag to disable MSI-X by default
-Date: Fri, 5 Jun 2009 13:23:40 +0300
-Message-ID: <20090605102340.GG26770__1476.15556275031$1244197648$gmane$org@redhat.com>
+Subject: [PATCHv3 08/13] qemu: add support for resizing regions
+Date: Fri, 5 Jun 2009 13:23:55 +0300
+Message-ID: <20090605102355.GI26770__21125.4539237872$1244197654$gmane$org@redhat.com>
 References: <cover.1244192535.git.mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,61 +21,101 @@ Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Paul Brook <paul@codesourcery.com>, Avi Kivity <avi@redhat.com>, qemu-devel@nongnu.org, Carsten Otte <cotte@de.ibm.com>, kvm@vger.kernel.org, Rusty Russell <rusty@rustcor>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Add global flag to disable MSI-X by default.  This is useful primarily
-to make images loadable by older qemu (without msix).  Even when MSI-X
-is disabled by flag, you can still load images that have MSI-X enabled.
+Make it possible to resize PCI regions.  This will be used by virtio
+with MSI-X, where the region size depends on whether MSI-X is enabled,
+and can change across load/save.
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- hw/msix.c       |    3 +++
- qemu-options.hx |    2 ++
- vl.c            |    3 +++
- 3 files changed, 8 insertions(+), 0 deletions(-)
+ hw/pci.c |   54 ++++++++++++++++++++++++++++++++++++------------------
+ hw/pci.h |    3 +++
+ 2 files changed, 39 insertions(+), 18 deletions(-)
 
-diff --git a/hw/msix.c b/hw/msix.c
-index 1b5aec8..ada81d8 100644
---- a/hw/msix.c
-+++ b/hw/msix.c
-@@ -122,6 +122,9 @@ void msix_write_config(PCIDevice *dev, uint32_t addr,
-                        uint32_t val, int len)
- {
-     unsigned enable_pos = dev->msix_cap + MSIX_ENABLE_OFFSET;
-+    if (!(dev->cap_present & QEMU_PCI_CAP_MSIX))
-+        return;
-+
-     if (addr + len <= enable_pos || addr > enable_pos)
-         return;
+diff --git a/hw/pci.c b/hw/pci.c
+index ed011b5..042a216 100644
+--- a/hw/pci.c
++++ b/hw/pci.c
+@@ -392,6 +392,41 @@ void pci_register_io_region(PCIDevice *pci_dev, int region_num,
+     *(uint32_t *)(pci_dev->wmask + addr) = cpu_to_le32(wmask);
+ }
  
-diff --git a/qemu-options.hx b/qemu-options.hx
-index 87af798..fd041a4 100644
---- a/qemu-options.hx
-+++ b/qemu-options.hx
-@@ -1575,3 +1575,5 @@ DEF("semihosting", 0, QEMU_OPTION_semihosting,
- DEF("old-param", 0, QEMU_OPTION_old_param,
-     "-old-param      old param mode\n")
- #endif
-+DEF("disable-msix", 0, QEMU_OPTION_disable_msix,
-+    "-disable-msix disable msix support for PCI devices (enabled by default)\n")
-diff --git a/vl.c b/vl.c
-index 2c1f0e0..2757d4f 100644
---- a/vl.c
-+++ b/vl.c
-@@ -134,6 +134,7 @@ int main(int argc, char **argv)
- #include "hw/usb.h"
- #include "hw/pcmcia.h"
- #include "hw/pc.h"
-+#include "hw/msix.h"
- #include "hw/audiodev.h"
- #include "hw/isa.h"
- #include "hw/baum.h"
-@@ -5557,6 +5558,8 @@ int main(int argc, char **argv, char **envp)
-                 xen_mode = XEN_ATTACH;
-                 break;
- #endif
-+            case QEMU_OPTION_disable_msix:
-+                msix_disable = 1;
++static void pci_unmap_region(PCIDevice *d, PCIIORegion *r)
++{
++    if (r->addr == -1)
++        return;
++    if (r->type & PCI_ADDRESS_SPACE_IO) {
++        int class;
++        /* NOTE: specific hack for IDE in PC case:
++           only one byte must be mapped. */
++        class = pci_get_word(d->config + PCI_CLASS_DEVICE);
++        if (class == 0x0101 && r->size == 4) {
++            isa_unassign_ioport(r->addr + 2, 1);
++        } else {
++            isa_unassign_ioport(r->addr, r->size);
++        }
++    } else {
++        cpu_register_physical_memory(pci_to_cpu_addr(r->addr),
++                                     r->size,
++                                     IO_MEM_UNASSIGNED);
++        qemu_unregister_coalesced_mmio(r->addr, r->size);
++    }
++}
++
++void pci_resize_io_region(PCIDevice *pci_dev, int region_num,
++                          uint32_t size)
++{
++
++    PCIIORegion *r = &pci_dev->io_regions[region_num];
++    if (r->size == size)
++        return;
++    r->size = size;
++    pci_unmap_region(pci_dev, r);
++    r->addr = -1;
++    pci_update_mappings(pci_dev);
++}
++
+ static void pci_update_mappings(PCIDevice *d)
+ {
+     PCIIORegion *r;
+@@ -445,24 +480,7 @@ static void pci_update_mappings(PCIDevice *d)
              }
-         }
-     }
+             /* now do the real mapping */
+             if (new_addr != r->addr) {
+-                if (r->addr != -1) {
+-                    if (r->type & PCI_ADDRESS_SPACE_IO) {
+-                        int class;
+-                        /* NOTE: specific hack for IDE in PC case:
+-                           only one byte must be mapped. */
+-                        class = d->config[0x0a] | (d->config[0x0b] << 8);
+-                        if (class == 0x0101 && r->size == 4) {
+-                            isa_unassign_ioport(r->addr + 2, 1);
+-                        } else {
+-                            isa_unassign_ioport(r->addr, r->size);
+-                        }
+-                    } else {
+-                        cpu_register_physical_memory(pci_to_cpu_addr(r->addr),
+-                                                     r->size,
+-                                                     IO_MEM_UNASSIGNED);
+-                        qemu_unregister_coalesced_mmio(r->addr, r->size);
+-                    }
+-                }
++                pci_unmap_region(d, r);
+                 r->addr = new_addr;
+                 if (r->addr != -1) {
+                     r->map_func(d, i, r->addr, r->size, r->type);
+diff --git a/hw/pci.h b/hw/pci.h
+index 98a34ee..8e74033 100644
+--- a/hw/pci.h
++++ b/hw/pci.h
+@@ -221,6 +221,9 @@ void pci_register_io_region(PCIDevice *pci_dev, int region_num,
+                             uint32_t size, int type,
+                             PCIMapIORegionFunc *map_func);
+ 
++void pci_resize_io_region(PCIDevice *pci_dev, int region_num,
++                          uint32_t size);
++
+ int pci_add_capability(PCIDevice *pci_dev, uint8_t cap_id, uint8_t cap_size);
+ 
+ void pci_del_capability(PCIDevice *pci_dev, uint8_t cap_id, uint8_t cap_size);
 -- 
 1.6.3.1.56.g79e1.dirty
