@@ -1,14 +1,18 @@
-From: Matias Zabaljauregui <zabaljauregui@gmail.com>
-Subject: Re: [PATCH] lguest: PAE support
-Date: Sun, 07 Jun 2009 14:51:07 -0300
-Message-ID: <1244397067.21275.33.camel__14598.0262467221$1244397133$gmane$org@zetabook>
-References: <1244218142.7700.24.camel@zetabook>
-	<200906071058.23921.rusty@rustcorp.com.au>
+From: Herbert Xu <herbert@gondor.apana.org.au>
+Subject: Re: [PATCH 2/4] virtio_net: return NETDEV_TX_BUSY instead of
+	queueing an extra skb.
+Date: Mon, 8 Jun 2009 15:22:47 +1000
+Message-ID: <20090608052247.GA19826__48639.4436950379$1244438633$gmane$org@gondor.apana.org.au>
+References: <200905292346.04815.rusty@rustcorp.com.au>
+	<200906022325.57961.rusty@rustcorp.com.au>
+	<20090602234532.GA5417@gondor.apana.org.au>
+	<200906031247.05591.rusty@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <200906071058.23921.rusty@rustcorp.com.au>
+Content-Disposition: inline
+In-Reply-To: <200906031247.05591.rusty@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,68 +23,37 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: lguest@ozlabs.org, virtualization@lists.linux-foundation.org
+Cc: netdev@vger.kernel.org, David Miller <davem@davemloft.net>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sun, 2009-06-07 at 10:58 +0930, Rusty Russell wrote:
-> On Sat, 6 Jun 2009 01:39:02 am Matias Zabaljauregui wrote:
-> > Hi, this version requires that host and guest have the same PAE status.
-> > NX cap is not offered to the guest, yet.
+On Wed, Jun 03, 2009 at 12:47:04PM +0930, Rusty Russell wrote:
 > 
-> Thanks, applied!
-> 
-> I extracted the following parts for moving into your previous "native ops"
-> patch:
+> We could figure out if we can take the worst-case packet, and underutilize
+> our queue.  And fix the other *67* drivers.
 
-great, thank you    (forgive my laziness)
+Most of those are for debugging purposes, i.e., they'll never
+happen unless the driver is buggy.
 
+> Of course that doesn't even work, because we return NETDEV_TX_BUSY from dev.c!
 
-> diff --git a/arch/x86/lguest/boot.c b/arch/x86/lguest/boot.c
-> --- a/arch/x86/lguest/boot.c
-> +++ b/arch/x86/lguest/boot.c
-> @@ -519,7 +519,7 @@ static void lguest_pte_update(struct mm_
->  static void lguest_set_pte_at(struct mm_struct *mm, unsigned long addr,
->  			      pte_t *ptep, pte_t pteval)
->  {
-> -	*ptep = pteval;
-> +	native_set_pte(ptep, pteval);
->  	lguest_pte_update(mm, addr, ptep);
->  }
->  
-> @@ -528,9 +528,9 @@ static void lguest_set_pte_at(struct mm_
->   * changed. */
->  static void lguest_set_pmd(pmd_t *pmdp, pmd_t pmdval)
->  {
-> -	*pmdp = pmdval;
-> +	native_set_pmd(pmdp, pmdval);
->  	lazy_hcall2(LHCALL_SET_PMD, __pa(pmdp) & PAGE_MASK,
-> -		   (__pa(pmdp) & (PAGE_SIZE - 1)) / 4);
-> +		   (__pa(pmdp) & (PAGE_SIZE - 1)) / sizeof(pmd_t));
->  }
->  
->  /* There are a couple of legacy places where the kernel sets a PTE, but we
-> @@ -544,7 +544,7 @@ static void lguest_set_pmd(pmd_t *pmdp, 
->   * which brings boot back to 0.25 seconds. */
->  static void lguest_set_pte(pte_t *ptep, pte_t pteval)
->  {
-> -	*ptep = pteval;
-> +	native_set_pte(ptep, pteval);
->  	if (cr3_changed)
->  		lazy_hcall1(LHCALL_FLUSH_TLB, 1);
->  }
-> diff --git a/drivers/lguest/page_tables.c b/drivers/lguest/page_tables.c
-> --- a/drivers/lguest/page_tables.c
-> +++ b/drivers/lguest/page_tables.c
-> @@ -726,8 +726,9 @@ void map_switcher_in_guest(struct lg_cpu
->  	 * page is already mapped there, we don't have to copy them out
->  	 * again. */
->  	pfn = __pa(cpu->regs_page) >> PAGE_SHIFT;
-> -	regs_pte = pfn_pte(pfn, __pgprot(__PAGE_KERNEL));
-> -	switcher_pte_page[(unsigned long)pages/PAGE_SIZE%PTRS_PER_PTE] = regs_pte;
-> +	native_set_pte(&regs_pte, pfn_pte(pfn, PAGE_KERNEL));
-> +	native_set_pte(&switcher_pte_page[pte_index((unsigned long)pages)],
-> +			regs_pte);
->  }
->  /*:*/
->  
-> 
+If and when your driver becomes part of the core and it has to
+feed into other drivers, then you can use this argument :)
+
+> "Hi, core netdevs here.  Don't use NETDEV_TX_BUSY.   Yeah, we can't figure out
+> how to avoid it either.  But y'know, just hack something together".
+
+No you've misunderstood my complaint.  I'm not trying to get you
+to replace NETDEV_TX_BUSY by the equally abhorrent queue in the
+driver, I'm saying that you should stop the queue before you get
+a packet that overflows by looking at the amount of free queue
+space after transmitting each packet.
+
+For most drivers this is easy to do.  What's so different about
+virtio-net that makes this impossible?
+
+Cheers,
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
