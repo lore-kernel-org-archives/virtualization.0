@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCHv4 13/13] qemu: add pci_get/set_byte
-Date: Wed, 10 Jun 2009 15:29:33 +0300
-Message-ID: <20090610122933.GN27174__10233.5707437762$1244638659$gmane$org@redhat.com>
+Subject: [PATCHv4 06/13] qemu: add flag to disable MSI-X by default
+Date: Wed, 10 Jun 2009 15:28:42 +0300
+Message-ID: <20090610122842.GG27174__43772.5009084263$1244639212$gmane$org@redhat.com>
 References: <cover.1244635350.git.mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,36 +21,61 @@ Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Paul Brook <paul@codesourcery.com>, Avi Kivity <avi@redhat.com>, qemu-devel@nongnu.org, Carsten Otte <cotte@de.ibm.com>, kvm@vger.kernel.org, Rusty Russell <rusty@rustcor>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Add pci_get/set_byte to keep *_word and *_long access functions company.
-They are unused for now.
+Add global flag to disable MSI-X by default.  This is useful primarily
+to make images loadable by older qemu (without msix).  Even when MSI-X
+is disabled by flag, you can still load images that have MSI-X enabled.
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- hw/pci.h |   12 ++++++++++++
- 1 files changed, 12 insertions(+), 0 deletions(-)
+ hw/msix.c       |    3 +++
+ qemu-options.hx |    2 ++
+ vl.c            |    3 +++
+ 3 files changed, 8 insertions(+), 0 deletions(-)
 
-diff --git a/hw/pci.h b/hw/pci.h
-index 9455e4c..07404c5 100644
---- a/hw/pci.h
-+++ b/hw/pci.h
-@@ -259,6 +259,18 @@ PCIBus *pci_bridge_init(PCIBus *bus, int devfn, uint16_t vid, uint16_t did,
-                         pci_map_irq_fn map_irq, const char *name);
- 
- static inline void
-+pci_set_byte(uint8_t *config, uint8_t val)
-+{
-+    *config = val;
-+}
-+
-+static inline uint8_t
-+pci_get_byte(uint8_t *config)
-+{
-+    return *config;
-+}
-+
-+static inline void
- pci_set_word(uint8_t *config, uint16_t val)
+diff --git a/hw/msix.c b/hw/msix.c
+index a448eab..ce4e6ba 100644
+--- a/hw/msix.c
++++ b/hw/msix.c
+@@ -122,6 +122,9 @@ void msix_write_config(PCIDevice *dev, uint32_t addr,
+                        uint32_t val, int len)
  {
-     cpu_to_le16wu((uint16_t *)config, val);
+     unsigned enable_pos = dev->msix_cap + MSIX_ENABLE_OFFSET;
++    if (!(dev->cap_present & QEMU_PCI_CAP_MSIX))
++        return;
++
+     if (addr + len <= enable_pos || addr > enable_pos)
+         return;
+ 
+diff --git a/qemu-options.hx b/qemu-options.hx
+index fa549c3..ed92ec2 100644
+--- a/qemu-options.hx
++++ b/qemu-options.hx
+@@ -1575,3 +1575,5 @@ DEF("semihosting", 0, QEMU_OPTION_semihosting,
+ DEF("old-param", 0, QEMU_OPTION_old_param,
+     "-old-param      old param mode\n")
+ #endif
++DEF("disable-msix", 0, QEMU_OPTION_disable_msix,
++    "-disable-msix disable msix support for PCI devices (enabled by default)\n")
+diff --git a/vl.c b/vl.c
+index f08f0f3..8c116c7 100644
+--- a/vl.c
++++ b/vl.c
+@@ -135,6 +135,7 @@ int main(int argc, char **argv)
+ #include "hw/usb.h"
+ #include "hw/pcmcia.h"
+ #include "hw/pc.h"
++#include "hw/msix.h"
+ #include "hw/audiodev.h"
+ #include "hw/isa.h"
+ #include "hw/baum.h"
+@@ -5681,6 +5682,8 @@ int main(int argc, char **argv, char **envp)
+                 xen_mode = XEN_ATTACH;
+                 break;
+ #endif
++            case QEMU_OPTION_disable_msix:
++                msix_disable = 1;
+             }
+         }
+     }
 -- 
 1.6.3.1.56.g79e1.dirty
