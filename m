@@ -1,17 +1,16 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [Qemu-devel] [PATCHv3 03/13] qemu: add routines to manage PCI
-	capabilities
-Date: Wed, 10 Jun 2009 12:54:15 +0300
-Message-ID: <20090610095415.GE6844__22252.8233695359$1244627966$gmane$org@redhat.com>
+Subject: Re: [Qemu-devel] [PATCHv3 05/13] qemu: MSI-X support functions
+Date: Wed, 10 Jun 2009 12:58:35 +0300
+Message-ID: <20090610095835.GF6844__45693.087767768$1244628213$gmane$org@redhat.com>
 References: <cover.1244192535.git.mst@redhat.com>
-	<20090605102315.GD26770@redhat.com>
-	<20090609171114.GS11966@poweredge.glommer>
+	<20090605102331.GF26770@redhat.com>
+	<20090609172627.GA19375@poweredge.glommer>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20090609171114.GS11966@poweredge.glommer>
+In-Reply-To: <20090609172627.GA19375@poweredge.glommer>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -25,225 +24,192 @@ To: Glauber Costa <glommer@redhat.com>
 Cc: Carsten Otte <cotte@de.ibm.com>, kvm@vger.kernel.org, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Blue Swirl <blauwirbel@gmail.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Paul Brook <paul@codesourcery.com>, Anthony Liguori <anthony@codemonkey.ws>, Avi Kivity <avi@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jun 09, 2009 at 02:11:14PM -0300, Glauber Costa wrote:
-> On Fri, Jun 05, 2009 at 01:23:15PM +0300, Michael S. Tsirkin wrote:
-> > Add routines to manage PCI capability list. First user will be MSI-X.
+On Tue, Jun 09, 2009 at 02:26:27PM -0300, Glauber Costa wrote:
+> On Fri, Jun 05, 2009 at 01:23:31PM +0300, Michael S. Tsirkin wrote:
+> > Add functions implementing MSI-X support. First user will be virtio-pci.
+> > Note that platform must set a flag to declare MSI supported.
+> > For PC this will be set by APIC.
 > > 
 > > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 > > ---
-> >  hw/pci.c |   98 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++------
-> >  hw/pci.h |   18 +++++++++++-
-> >  2 files changed, 106 insertions(+), 10 deletions(-)
+> >  Makefile.target |    2 +-
+> >  hw/msix.c       |  423 +++++++++++++++++++++++++++++++++++++++++++++++++++++++
+> >  hw/msix.h       |   35 +++++
+> >  hw/pci.h        |   20 +++
+> >  4 files changed, 479 insertions(+), 1 deletions(-)
+> >  create mode 100644 hw/msix.c
+> >  create mode 100644 hw/msix.h
 > > 
-> > diff --git a/hw/pci.c b/hw/pci.c
-> > index 361d741..ed011b5 100644
-> > --- a/hw/pci.c
-> > +++ b/hw/pci.c
-> > @@ -130,12 +130,13 @@ void pci_device_save(PCIDevice *s, QEMUFile *f)
-> >      int version = s->cap_present ? 3 : 2;
-> >      int i;
+> > diff --git a/Makefile.target b/Makefile.target
+> > index 664a1e3..87b2859 100644
+> > --- a/Makefile.target
+> > +++ b/Makefile.target
+> > @@ -486,7 +486,7 @@ endif #CONFIG_BSD_USER
+> >  ifndef CONFIG_USER_ONLY
 > >  
-> > -    qemu_put_be32(f, version); /* PCI device version */
-> > +    /* PCI device version and capabilities */
-> > +    qemu_put_be32(f, version);
-> > +    if (version >= 3)
-> > +        qemu_put_be32(f, s->cap_present);
-> >      qemu_put_buffer(f, s->config, 256);
-> >      for (i = 0; i < 4; i++)
-> >          qemu_put_be32(f, s->irq_state[i]);
-> > -    if (version >= 3)
-> > -        qemu_put_be32(f, s->cap_present);
-> >  }
-> What is it doing here?
-> You should just do it right in the first patch, instead of doing in
-> one way there, and fixing here.
-> 
-> >  
-> >  int pci_device_load(PCIDevice *s, QEMUFile *f)
-> > @@ -146,12 +147,6 @@ int pci_device_load(PCIDevice *s, QEMUFile *f)
-> >      version_id = qemu_get_be32(f);
-> >      if (version_id > 3)
-> >          return -EINVAL;
-> > -    qemu_get_buffer(f, s->config, 256);
-> > -    pci_update_mappings(s);
-> > -
-> > -    if (version_id >= 2)
-> > -        for (i = 0; i < 4; i ++)
-> > -            s->irq_state[i] = qemu_get_be32(f);
-> >      if (version_id >= 3)
-> >          s->cap_present = qemu_get_be32(f);
-> >      else
-> ditto.
-> > @@ -160,6 +155,18 @@ int pci_device_load(PCIDevice *s, QEMUFile *f)
-> >      if (s->cap_present & ~s->cap_supported)
-> >          return -EINVAL;
-> >  
-> > +    qemu_get_buffer(f, s->config, 256);
-> > +    pci_update_mappings(s);
+> >  OBJS=vl.o osdep.o monitor.o pci.o loader.o isa_mmio.o machine.o \
+> > -     gdbstub.o gdbstub-xml.o
+> > +     gdbstub.o gdbstub-xml.o msix.o
+> >  # virtio has to be here due to weird dependency between PCI and virtio-net.
+> >  # need to fix this properly
+> >  OBJS+=virtio-blk.o virtio-balloon.o virtio-net.o virtio-console.o
+> > diff --git a/hw/msix.c b/hw/msix.c
+> > new file mode 100644
+> > index 0000000..1b5aec8
+> > --- /dev/null
+> > +++ b/hw/msix.c
+> > @@ -0,0 +1,423 @@
+> > +/*
+> > + * MSI-X device support
+> > + *
+> > + * This module includes support for MSI-X in pci devices.
+> > + *
+> > + * Author: Michael S. Tsirkin <mst@redhat.com>
+> > + *
+> > + *  Copyright (c) 2009, Red Hat Inc, Michael S. Tsirkin (mst@redhat.com)
+> > + *
+> > + * This work is licensed under the terms of the GNU GPL, version 2.  See
+> > + * the COPYING file in the top-level directory.
+> > + */
 > > +
-> > +    if (version_id >= 2)
-> > +        for (i = 0; i < 4; i ++)
-> > +            s->irq_state[i] = qemu_get_be32(f);
-> > +    /* Clear wmask and used bits for capabilities.
-> > +       Must be restored separately, since capabilities can
-> > +       be placed anywhere in config space. */
-> > +    memset(s->used, 0, PCI_CONFIG_SPACE_SIZE);
-> > +    for (i = PCI_CONFIG_HEADER_SIZE; i < PCI_CONFIG_SPACE_SIZE; ++i)
-> > +        s->wmask[i] = 0xff;
-> >      return 0;
-> >  }
-> Sorry, I don't exactly understand it. Although it can be anywhere, what do we actually
-> lose by keeping it at the same place in config space?
-
-We lose the ability to let user control the capabilities exposed
-by the device.
-
-And generally, I dislike arbitrary limitations. The PCI spec says the
-capability can be anywhere, implementing a linked list of caps is simple
-enough to not invent abritrary restrictions.
-
-> >  
-> > @@ -870,3 +877,76 @@ PCIDevice *pci_create_simple(PCIBus *bus, int devfn, const char *name)
-> >  
-> >      return (PCIDevice *)dev;
-> >  }
+> > +#include "hw.h"
+> > +#include "msix.h"
+> > +#include "pci.h"
 > > +
-> > +static int pci_find_space(PCIDevice *pdev, uint8_t size)
+> > +/* Declaration from linux/pci_regs.h */
+> > +#define  PCI_CAP_ID_MSIX 0x11 /* MSI-X */
+> > +#define  PCI_MSIX_FLAGS 2     /* Table at lower 11 bits */
+> > +#define  PCI_MSIX_FLAGS_QSIZE	0x7FF
+> > +#define  PCI_MSIX_FLAGS_ENABLE	(1 << 15)
+> > +#define  PCI_MSIX_FLAGS_BIRMASK	(7 << 0)
+> > +
+> > +/* MSI-X capability structure */
+> > +#define MSIX_TABLE_OFFSET 4
+> > +#define MSIX_PBA_OFFSET 8
+> > +#define MSIX_CAP_LENGTH 12
+> > +
+> > +/* MSI enable bit is in byte 1 in FLAGS register */
+> > +#define MSIX_ENABLE_OFFSET (PCI_MSIX_FLAGS + 1)
+> > +#define MSIX_ENABLE_MASK (PCI_MSIX_FLAGS_ENABLE >> 8)
+> > +
+> > +/* MSI-X table format */
+> > +#define MSIX_MSG_ADDR 0
+> > +#define MSIX_MSG_UPPER_ADDR 4
+> > +#define MSIX_MSG_DATA 8
+> > +#define MSIX_VECTOR_CTRL 12
+> > +#define MSIX_ENTRY_SIZE 16
+> > +#define MSIX_VECTOR_MASK 0x1
+> > +
+> > +/* How much space does an MSIX table need. */
+> > +/* The spec requires giving the table structure
+> > + * a 4K aligned region all by itself. Align it to
+> > + * target pages so that drivers can do passthrough
+> > + * on the rest of the region. */
+> > +#define MSIX_PAGE_SIZE TARGET_PAGE_ALIGN(0x1000)
+> > +/* Reserve second half of the page for pending bits */
+> > +#define MSIX_PAGE_PENDING (MSIX_PAGE_SIZE / 2)
+> > +#define MSIX_MAX_ENTRIES 32
+> > +
+> > +
+> > +#ifdef MSIX_DEBUG
+> > +#define DEBUG(fmt, ...)                                       \
+> > +    do {                                                      \
+> > +      fprintf(stderr, "%s: " fmt, __func__ , __VA_ARGS__);    \
+> > +    } while (0)
+> > +#else
+> > +#define DEBUG(fmt, ...) do { } while(0)
+> > +#endif
+> > +
+> > +/* Flag to globally disable MSI-X support */
+> > +int msix_disable;
+> > +
+> > +/* Flag for interrupt controller to declare MSI-X support */
+> > +int msix_supported;
+> maybe better to make it static,
+
+It's not read-only either.
+
+> and provide msi_state() returning -1 for disabled,
+> 0 for supported, etc... 
+
+Matter of taste, I prefer a set of binary flags rather than yet another enum:
+msix_disable is controlled by user, msix_supported is a safety valve
+for non-PC platforms. It's easier to keep them separate IMO.
+
+> > +
+> > +/* Add MSI-X capability to the config space for the device. */
+> > +/* Given a bar and its size, add MSI-X table on top of it
+> > + * and fill MSI-X capability in the config space.
+> > + * Original bar size must be a power of 2 or 0.
+> > + * New bar size is returned. */
+> > +static int msix_add_config(struct PCIDevice *pdev, unsigned short nentries,
+> > +                           unsigned bar_nr, unsigned bar_size)
 > > +{
-> > +    int offset = PCI_CONFIG_HEADER_SIZE;
-> > +    int i;
-> > +    for (i = PCI_CONFIG_HEADER_SIZE; i < PCI_CONFIG_SPACE_SIZE; ++i)
-> > +        if (pdev->used[i])
-> > +            offset = i + 1;
-> > +        else if (i - offset + 1 == size)
-> > +            return offset;
+> > +    int config_offset;
+> > +    uint8_t *config;
+> > +    uint32_t new_size;
+> > +
+> > +    if (nentries < 1 || nentries > PCI_MSIX_FLAGS_QSIZE + 1)
+> > +        return -EINVAL;
+> > +    if (bar_size > 0x80000000)
+> > +        return -ENOSPC;
+> > +
+> > +    /* Add space for MSI-X structures */
+> > +    if (!bar_size)
+> > +        new_size = MSIX_PAGE_SIZE;
+> > +    else if (bar_size < MSIX_PAGE_SIZE) {
+> > +        bar_size = MSIX_PAGE_SIZE;
+> > +        new_size = MSIX_PAGE_SIZE * 2;
+> > +    } else
+> > +        new_size = bar_size * 2;
+> > +
+> > +    pdev->msix_bar_size = new_size;
+> > +    config_offset = pci_add_capability(pdev, PCI_CAP_ID_MSIX, MSIX_CAP_LENGTH);
+> > +    if (config_offset < 0)
+> > +        return config_offset;
+> > +    config = pdev->config + config_offset;
+> > +
+> > +    pci_set_word(config + PCI_MSIX_FLAGS, nentries - 1);
+> > +    /* Table on top of BAR */
+> > +    pci_set_long(config + MSIX_TABLE_OFFSET, bar_size | bar_nr);
+> > +    /* Pending bits on top of that */
+> > +    pci_set_long(config + MSIX_PBA_OFFSET, (bar_size + MSIX_PAGE_PENDING) |
+> > +                 bar_nr);
+> > +    pdev->msix_cap = config_offset;
+> > +    /* Make flags bit writeable. */
+> > +    pdev->wmask[config_offset + MSIX_ENABLE_OFFSET] |= MSIX_ENABLE_MASK;
 > > +    return 0;
 > > +}
 > > +
-> > +static uint8_t pci_find_capability_list(PCIDevice *pdev, uint8_t cap_id,
-> > +                                        uint8_t *prev_p)
+> 
+> > +
+> > +/* Initialize the MSI-X structures. Note: if MSI-X is supported, BAR size is
+> > + * modified, it should be retrieved with msix_bar_size. */
+> > +int msix_init(struct PCIDevice *dev, unsigned short nentries,
+> > +              unsigned bar_nr, unsigned bar_size)
 > > +{
-> > +    uint8_t next, prev;
+> > +    int ret = -ENOMEM;
+> > +    /* Nothing to do if MSI is not supported by interrupt controller */
+> > +    if (!msix_supported)
+> > +        return -ENOTTY;
 > > +
-> > +    if (!(pdev->config[PCI_STATUS] & PCI_STATUS_CAP_LIST))
-> > +        return 0;
+> > +    if (nentries > MSIX_MAX_ENTRIES)
+> > +        return -EINVAL;
 > > +
-> > +    for (prev = PCI_CAPABILITY_LIST; (next = pdev->config[prev]);
-> > +         prev = next + PCI_CAP_LIST_NEXT)
-> > +        if (pdev->config[next + PCI_CAP_LIST_ID] == cap_id)
-> > +            break;
+> > +    dev->msix_entry_used = qemu_mallocz(MSIX_MAX_ENTRIES *
+> > +                                        sizeof *dev->msix_entry_used);
+> > +    if (!dev->msix_entry_used)
+> > +        goto err_used;
+> no need to check. oom_checker will kill qemu if it fails.
+> 
 > > +
-> > +    *prev_p = prev;
-> > +    return next;
-> > +}
-> I'd prefer to do:
-> 	if (prev_p)
-> 		*prev_p = prev;
-> so we don't have to always pass a prev_p pointer. You have yourself a user
-> where you don't need it in this very patch.
+> > +    dev->msix_table_page = qemu_mallocz(MSIX_PAGE_SIZE);
+> > +    if (!dev->msix_table_page)
+> > +        goto err_page;
+> ditto.
+> 
 
-
-Good idea.
-
-> > +
-> > +/* Reserve space and add capability to the linked list in pci config space */
-> > +int pci_add_capability(PCIDevice *pdev, uint8_t cap_id, uint8_t size)
-> > +{
-> > +    uint8_t offset = pci_find_space(pdev, size);
-> > +    uint8_t *config = pdev->config + offset;
-> > +    if (!offset)
-> > +        return -ENOSPC;
-> > +    config[PCI_CAP_LIST_ID] = cap_id;
-> > +    config[PCI_CAP_LIST_NEXT] = pdev->config[PCI_CAPABILITY_LIST];
-> > +    pdev->config[PCI_CAPABILITY_LIST] = offset;
-> > +    pdev->config[PCI_STATUS] |= PCI_STATUS_CAP_LIST;
-> > +    memset(pdev->used + offset, 0xFF, size);
-> > +    /* Make capability read-only by default */
-> > +    memset(pdev->wmask + offset, 0, size);
-> > +    return offset;
-> > +}
-> > +
-> > +/* Unlink capability from the pci config space. */
-> > +void pci_del_capability(PCIDevice *pdev, uint8_t cap_id, uint8_t size)
-> > +{
-> > +    uint8_t prev, offset = pci_find_capability_list(pdev, cap_id, &prev);
-> > +    if (!offset)
-> > +        return;
-> > +    pdev->config[prev] = pdev->config[offset + PCI_CAP_LIST_NEXT];
-> > +    /* Make capability writeable again */
-> > +    memset(pdev->wmask + offset, 0xff, size);
-> > +    memset(pdev->used + offset, 0, size);
-> > +
-> > +    if (!pdev->config[PCI_CAPABILITY_LIST])
-> > +        pdev->config[PCI_STATUS] &= ~PCI_STATUS_CAP_LIST;
-> > +}
-> > +
-> > +/* Reserve space for capability at a known offset (to call after load). */
-> > +void pci_reserve_capability(PCIDevice *pdev, uint8_t offset, uint8_t size)
-> > +{
-> > +    memset(pdev->used + offset, 0xff, size);
-> > +}
-> > +
-> > +uint8_t pci_find_capability(PCIDevice *pdev, uint8_t cap_id)
-> > +{
-> > +    uint8_t prev;
-> > +    return pci_find_capability_list(pdev, cap_id, &prev);
-> > +}
-> > diff --git a/hw/pci.h b/hw/pci.h
-> > index 6f0803f..4838c59 100644
-> > --- a/hw/pci.h
-> > +++ b/hw/pci.h
-> > @@ -123,6 +123,10 @@ typedef struct PCIIORegion {
-> >  #define PCI_MIN_GNT		0x3e	/* 8 bits */
-> >  #define PCI_MAX_LAT		0x3f	/* 8 bits */
-> >  
-> > +/* Capability lists */
-> > +#define PCI_CAP_LIST_ID		0	/* Capability ID */
-> > +#define PCI_CAP_LIST_NEXT	1	/* Next capability in the list */
-> > +
-> >  #define PCI_REVISION            0x08    /* obsolete, use PCI_REVISION_ID */
-> >  #define PCI_SUBVENDOR_ID        0x2c    /* obsolete, use PCI_SUBSYSTEM_VENDOR_ID */
-> >  #define PCI_SUBDEVICE_ID        0x2e    /* obsolete, use PCI_SUBSYSTEM_ID */
-> > @@ -130,7 +134,7 @@ typedef struct PCIIORegion {
-> >  /* Bits in the PCI Status Register (PCI 2.3 spec) */
-> >  #define PCI_STATUS_RESERVED1	0x007
-> >  #define PCI_STATUS_INT_STATUS	0x008
-> > -#define PCI_STATUS_CAPABILITIES	0x010
-> > +#define PCI_STATUS_CAP_LIST	0x010
-> >  #define PCI_STATUS_66MHZ	0x020
-> >  #define PCI_STATUS_RESERVED2	0x040
-> >  #define PCI_STATUS_FAST_BACK	0x080
-> > @@ -160,6 +164,9 @@ struct PCIDevice {
-> >      /* Used to implement R/W bytes */
-> >      uint8_t wmask[PCI_CONFIG_SPACE_SIZE];
-> >  
-> > +    /* Used to allocate config space for capabilities. */
-> > +    uint8_t used[PCI_CONFIG_SPACE_SIZE];
-> > +
-> >      /* the following fields are read only */
-> >      PCIBus *bus;
-> >      int devfn;
-> > @@ -194,6 +201,15 @@ void pci_register_io_region(PCIDevice *pci_dev, int region_num,
-> >                              uint32_t size, int type,
-> >                              PCIMapIORegionFunc *map_func);
-> >  
-> > +int pci_add_capability(PCIDevice *pci_dev, uint8_t cap_id, uint8_t cap_size);
-> > +
-> > +void pci_del_capability(PCIDevice *pci_dev, uint8_t cap_id, uint8_t cap_size);
-> > +
-> > +void pci_reserve_capability(PCIDevice *pci_dev, uint8_t offset, uint8_t size);
-> > +
-> > +uint8_t pci_find_capability(PCIDevice *pci_dev, uint8_t cap_id);
-> > +
-> > +
-> >  uint32_t pci_default_read_config(PCIDevice *d,
-> >                                   uint32_t address, int len);
-> >  void pci_default_write_config(PCIDevice *d,
-> > -- 
-> > 1.6.3.1.56.g79e1.dirty
-> > 
-> > 
-> > 
+Good point.
 
 -- 
 MST
