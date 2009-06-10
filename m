@@ -1,15 +1,15 @@
-From: Paul Brook <paul@codesourcery.com>
-Subject: Re: [Qemu-devel] [PATCH 05/11] qemu: MSI-X support functions
-Date: Wed, 10 Jun 2009 15:39:05 +0100
-Message-ID: <200906101539.12367.paul__21488.7196118527$1244644802$gmane$org@codesourcery.com>
-References: <cover.1243253205.git.mst@redhat.com>
-	<200906101507.39823.paul@codesourcery.com>
-	<20090610142508.GA28409@redhat.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: TODO list for qemu+KVM networking performance v2
+Date: Thu, 11 Jun 2009 00:09:33 +0930
+Message-ID: <200906110009.34671.rusty@rustcorp.com.au>
+References: <20090604164320.GB14592@redhat.com>
+	<200906101309.14532.rusty@rustcorp.com.au>
+	<4A2F5217.9090401@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20090610142508.GA28409@redhat.com>
+In-Reply-To: <4A2F5217.9090401@redhat.com>
 Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -20,22 +20,32 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Carsten Otte <cotte@de.ibm.com>, kvm@vger.kernel.org, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Blue Swirl <blauwirbel@gmail.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Avi Kivity <avi@redhat.com>
+To: dlaor@redhat.com
+Cc: Chris Wright <chrisw@redhat.com>, Mark McLoughlin <markmc@redhat.com>, Anthony Liguori <aliguori@us.ibm.com>, kvm@vger.kernel.org, Brian Stein <bstein@redhat.com>, Herbert Xu <herbert.xu@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, Dor Laor <dor@redhat.com>, Avi Kivity <avi@redhat.com>, Yaron Haviv <yaronh@voltaire.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-> > If we really need to avoid MSI-X capable devices then that should be done
-> > explicity per-device. i.e. you have a different virtio-net device that
-> > does not use MSI-X.
-> >
-> > Paul
+On Wed, 10 Jun 2009 03:56:31 pm Dor Laor wrote:
+> Rusty Russell wrote:
+> > The current theoretical hole is that the host suppresses notifications
+> > using the VIRTIO_AVAIL_F_NO_NOTIFY flag, but we can get a number of
+> > notifications in before it gets to that suppression.  You can use a
+> > counter to improve this: you only notify when they're equal, and inc when
+> > you notify.  That way you suppress further notifications even if the
+> > other side takes ages to wake up. In practice, this shouldn't be played
+> > with until we have full aio (or equiv in kernel) for other side: host
+> > xmit tends to be too fast at the moment and we get a notification per
+> > packet anyway.
 >
-> Why should it be done per-device?
+> Xen ring has the exact optimization for ages. imho we should have it
+> too, regardless of aio.
+> It reduces #vmexits/spurious wakeups and it is very simple to implement.
 
+But look at number of wakeups received vs notifications sent: I just don't see 
+any benefit there at the moment.  As I said, improving the host code might 
+change that significantly.
 
-Because otherwise you end up with the horrible hacks that you're currently 
-tripping over: devices have to magically morph into a different device when 
-you load a VM. That's seems just plain wrong to me. Loading a VM shouldn't not 
-do anything that can't happen during normal operation.
+And implementing it the other way is v. v. hard given the nature of interrupts 
+(shared and coalesced).
 
-Paul
+Thanks,
+Rusty.
