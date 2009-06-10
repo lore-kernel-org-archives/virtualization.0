@@ -1,17 +1,17 @@
-From: Avi Kivity <avi@redhat.com>
-Subject: Re: TODO list for qemu+KVM networking performance v2
-Date: Wed, 10 Jun 2009 18:18:01 +0300
-Message-ID: <4A2FCEA9.8010604__31890.8899593682$1244647137$gmane$org@redhat.com>
-References: <20090604164320.GB14592@redhat.com>
-	<200906101309.14532.rusty@rustcorp.com.au>
-	<4A2F5217.9090401@redhat.com>
-	<200906110009.34671.rusty@rustcorp.com.au>
-	<20090610145358.GB28601@redhat.com>
+From: Paul Brook <paul@codesourcery.com>
+Subject: Re: [Qemu-devel] [PATCHv3 03/13] qemu: add routines to manage PCI
+	capabilities
+Date: Wed, 10 Jun 2009 16:24:28 +0100
+Message-ID: <200906101624.30659.paul__30123.08472903$1244647508$gmane$org@codesourcery.com>
+References: <cover.1244192535.git.mst@redhat.com>
+	<20090610145540.GI19375@poweredge.glommer>
+	<20090610150129.GC28601@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20090610145358.GB28601@redhat.com>
+In-Reply-To: <20090610150129.GC28601@redhat.com>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -21,20 +21,26 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Chris Wright <chrisw@redhat.com>, Mark McLoughlin <markmc@redhat.com>, Anthony Liguori <aliguori@us.ibm.com>, kvm@vger.kernel.org, Brian Stein <bstein@redhat.com>, Herbert Xu <herbert.xu@redhat.com>, virtualization@lists.linux-foundation.org, Dor Laor <dor@redhat.com>, Yaron Haviv <yaronh@voltaire.com>
+To: qemu-devel@nongnu.org
+Cc: Carsten Otte <cotte@de.ibm.com>, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, Glauber Costa <glommer@redhat.com>, virtualization@lists.linux-foundation.org, Blue Swirl <blauwirbel@gmail.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Avi Kivity <avi@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Michael S. Tsirkin wrote:
-> But I don't understand how aio will make implementing it easier -
-> or are you merely saying that it will make it worthwhile?
->   
+> > caps can be anywhere, but we don't expect it to change during machine
+> > execution lifetime.
+> >
+> > Or I am just confused by the name "pci_device_load" ?
+>
+> Right. So I want to load an image and it has capability X at offset Y.
+> wmask has to match. I don't want to assume that we never change Y
+> for the device without breaking old images, so I clear wmask here
+> and set it up again after looking up capabilities that I loaded.
 
-If you have aio, the the NIC and the guest proceed in parallel.  If the 
-guest is faster (likely), then when it sends the next packet it will see 
-that interrupts are disabled and not notify again.  Once aio complete we 
-can recheck the queue; if it's empty we reenable notifications.  If 
-there's still stuff in it we submit it with notifications disabled.
+We should not be loading state into a different device (or a similar device 
+with a different set of capabilities).
 
--- 
-error compiling committee.c: too many arguments to function
+If you want to provide backwards compatibility then you should do that by 
+creating a device that is the same as the original.  As I mentioned in my 
+earlier mail, loading a snapshot should never do anything that can not be 
+achieved through normal operation.
+
+Paul
