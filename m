@@ -1,18 +1,17 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [Qemu-devel] [PATCHv3 03/13] qemu: add routines to manage PCI
-	capabilities
-Date: Wed, 10 Jun 2009 18:50:00 +0300
-Message-ID: <20090610155000.GG28601__13150.1178177588$1244649256$gmane$org@redhat.com>
-References: <cover.1244192535.git.mst@redhat.com>
-	<20090610145540.GI19375@poweredge.glommer>
-	<20090610150129.GC28601@redhat.com>
-	<200906101624.30659.paul@codesourcery.com>
+Subject: Re: [Qemu-devel] [PATCH 05/11] qemu: MSI-X support functions
+Date: Wed, 10 Jun 2009 18:52:38 +0300
+Message-ID: <20090610155238.GH28601__2127.219484146$1244649388$gmane$org@redhat.com>
+References: <cover.1243253205.git.mst@redhat.com>
+	<200906101539.12367.paul@codesourcery.com>
+	<20090610144739.GA28601@redhat.com>
+	<200906101615.12956.paul@codesourcery.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <200906101624.30659.paul@codesourcery.com>
+In-Reply-To: <200906101615.12956.paul@codesourcery.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -23,31 +22,26 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Paul Brook <paul@codesourcery.com>
-Cc: Carsten Otte <cotte@de.ibm.com>, kvm@vger.kernel.org, Glauber Costa <glommer@redhat.com>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Blue Swirl <blauwirbel@gmail.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Avi Kivity <avi@redhat.com>
+Cc: Carsten Otte <cotte@de.ibm.com>, kvm@vger.kernel.org, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Blue Swirl <blauwirbel@gmail.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Avi Kivity <avi@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Jun 10, 2009 at 04:24:28PM +0100, Paul Brook wrote:
-> > > caps can be anywhere, but we don't expect it to change during machine
-> > > execution lifetime.
-> > >
-> > > Or I am just confused by the name "pci_device_load" ?
+On Wed, Jun 10, 2009 at 04:15:04PM +0100, Paul Brook wrote:
+> > > That's seems just plain wrong to me.
+> > > Loading a VM shouldn't not
+> > > do anything that can't happen during normal operation.
 > >
-> > Right. So I want to load an image and it has capability X at offset Y.
-> > wmask has to match. I don't want to assume that we never change Y
-> > for the device without breaking old images, so I clear wmask here
-> > and set it up again after looking up capabilities that I loaded.
+> > At least wrt pci, we are very far from this state: load just overwrites
+> > all registers, readonly or not, which can never happen during normal
+> > operation.
 > 
-> We should not be loading state into a different device (or a similar device 
-> with a different set of capabilities).
-> 
-> If you want to provide backwards compatibility then you should do that by 
-> creating a device that is the same as the original.  As I mentioned in my 
-> earlier mail, loading a snapshot should never do anything that can not be 
-> achieved through normal operation.
+> IMO that code is wrong. We should only be loading things that the guest can 
+> change (directly or indirectly).
 > 
 > Paul
 
-Why shouldn't it? You don't load a snapshot while guest is running.
+Making it work this way will mean that minor changes to a device can
+break backwards compatibility with old images, often in surprising ways.
+What are the advantages?
 
 -- 
 MST
