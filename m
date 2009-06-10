@@ -1,18 +1,17 @@
-From: Glauber Costa <glommer@redhat.com>
-Subject: Re: [Qemu-devel] [PATCHv3 03/13] qemu: add routines to manage PCI
-	capabilities
-Date: Wed, 10 Jun 2009 11:55:40 -0300
-Message-ID: <20090610145540.GI19375__39250.7804827348$1244645534$gmane$org@poweredge.glommer>
-References: <cover.1244192535.git.mst@redhat.com>
-	<20090605102315.GD26770@redhat.com>
-	<20090609171114.GS11966@poweredge.glommer>
-	<20090610095415.GE6844@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: TODO list for qemu+KVM networking performance v2
+Date: Wed, 10 Jun 2009 17:53:58 +0300
+Message-ID: <20090610145358.GB28601__44580.3922870711$1244645748$gmane$org@redhat.com>
+References: <20090604164320.GB14592@redhat.com>
+	<200906101309.14532.rusty@rustcorp.com.au>
+	<4A2F5217.9090401@redhat.com>
+	<200906110009.34671.rusty@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20090610095415.GE6844@redhat.com>
+In-Reply-To: <200906110009.34671.rusty@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -22,90 +21,40 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Carsten Otte <cotte@de.ibm.com>, kvm@vger.kernel.org, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Blue Swirl <blauwirbel@gmail.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Paul Brook <paul@codesourcery.com>, Anthony Liguori <anthony@codemonkey.ws>, Avi Kivity <avi@redhat.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Chris Wright <chrisw@redhat.com>, Mark McLoughlin <markmc@redhat.com>, Anthony Liguori <aliguori@us.ibm.com>, kvm@vger.kernel.org, Brian Stein <bstein@redhat.com>, Herbert Xu <herbert.xu@redhat.com>, virtualization@lists.linux-foundation.org, Dor Laor <dor@redhat.com>, Avi Kivity <avi@redhat.com>, Yaron Haviv <yaronh@voltaire.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Jun 10, 2009 at 12:54:15PM +0300, Michael S. Tsirkin wrote:
-> On Tue, Jun 09, 2009 at 02:11:14PM -0300, Glauber Costa wrote:
-> > On Fri, Jun 05, 2009 at 01:23:15PM +0300, Michael S. Tsirkin wrote:
-> > > Add routines to manage PCI capability list. First user will be MSI-X.
-> > > 
-> > > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> > > ---
-> > >  hw/pci.c |   98 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++------
-> > >  hw/pci.h |   18 +++++++++++-
-> > >  2 files changed, 106 insertions(+), 10 deletions(-)
-> > > 
-> > > diff --git a/hw/pci.c b/hw/pci.c
-> > > index 361d741..ed011b5 100644
-> > > --- a/hw/pci.c
-> > > +++ b/hw/pci.c
-> > > @@ -130,12 +130,13 @@ void pci_device_save(PCIDevice *s, QEMUFile *f)
-> > >      int version = s->cap_present ? 3 : 2;
-> > >      int i;
-> > >  
-> > > -    qemu_put_be32(f, version); /* PCI device version */
-> > > +    /* PCI device version and capabilities */
-> > > +    qemu_put_be32(f, version);
-> > > +    if (version >= 3)
-> > > +        qemu_put_be32(f, s->cap_present);
-> > >      qemu_put_buffer(f, s->config, 256);
-> > >      for (i = 0; i < 4; i++)
-> > >          qemu_put_be32(f, s->irq_state[i]);
-> > > -    if (version >= 3)
-> > > -        qemu_put_be32(f, s->cap_present);
-> > >  }
-> > What is it doing here?
-> > You should just do it right in the first patch, instead of doing in
-> > one way there, and fixing here.
-> > 
-> > >  
-> > >  int pci_device_load(PCIDevice *s, QEMUFile *f)
-> > > @@ -146,12 +147,6 @@ int pci_device_load(PCIDevice *s, QEMUFile *f)
-> > >      version_id = qemu_get_be32(f);
-> > >      if (version_id > 3)
-> > >          return -EINVAL;
-> > > -    qemu_get_buffer(f, s->config, 256);
-> > > -    pci_update_mappings(s);
-> > > -
-> > > -    if (version_id >= 2)
-> > > -        for (i = 0; i < 4; i ++)
-> > > -            s->irq_state[i] = qemu_get_be32(f);
-> > >      if (version_id >= 3)
-> > >          s->cap_present = qemu_get_be32(f);
-> > >      else
-> > ditto.
-> > > @@ -160,6 +155,18 @@ int pci_device_load(PCIDevice *s, QEMUFile *f)
-> > >      if (s->cap_present & ~s->cap_supported)
-> > >          return -EINVAL;
-> > >  
-> > > +    qemu_get_buffer(f, s->config, 256);
-> > > +    pci_update_mappings(s);
-> > > +
-> > > +    if (version_id >= 2)
-> > > +        for (i = 0; i < 4; i ++)
-> > > +            s->irq_state[i] = qemu_get_be32(f);
-> > > +    /* Clear wmask and used bits for capabilities.
-> > > +       Must be restored separately, since capabilities can
-> > > +       be placed anywhere in config space. */
-> > > +    memset(s->used, 0, PCI_CONFIG_SPACE_SIZE);
-> > > +    for (i = PCI_CONFIG_HEADER_SIZE; i < PCI_CONFIG_SPACE_SIZE; ++i)
-> > > +        s->wmask[i] = 0xff;
-> > >      return 0;
-> > >  }
-> > Sorry, I don't exactly understand it. Although it can be anywhere, what do we actually
-> > lose by keeping it at the same place in config space?
+On Thu, Jun 11, 2009 at 12:09:33AM +0930, Rusty Russell wrote:
+> On Wed, 10 Jun 2009 03:56:31 pm Dor Laor wrote:
+> > Rusty Russell wrote:
+> > > The current theoretical hole is that the host suppresses notifications
+> > > using the VIRTIO_AVAIL_F_NO_NOTIFY flag, but we can get a number of
+> > > notifications in before it gets to that suppression.  You can use a
+> > > counter to improve this: you only notify when they're equal, and inc when
+> > > you notify.  That way you suppress further notifications even if the
+> > > other side takes ages to wake up. In practice, this shouldn't be played
+> > > with until we have full aio (or equiv in kernel) for other side: host
+> > > xmit tends to be too fast at the moment and we get a notification per
+> > > packet anyway.
+> >
+> > Xen ring has the exact optimization for ages. imho we should have it
+> > too, regardless of aio.
+> > It reduces #vmexits/spurious wakeups and it is very simple to implement.
 > 
-> We lose the ability to let user control the capabilities exposed
-> by the device.
+> But look at number of wakeups received vs notifications sent: I just don't see 
+> any benefit there at the moment.  As I said, improving the host code might 
+> change that significantly.
 > 
-> And generally, I dislike arbitrary limitations. The PCI spec says the
-> capability can be anywhere, implementing a linked list of caps is simple
-> enough to not invent abritrary restrictions.
-yes, but this is migration time, right?
+> And implementing it the other way is v. v. hard given the nature of interrupts 
+> (shared and coalesced).
 
-caps can be anywhere, but we don't expect it to change during machine execution
-lifetime.
+I agree it's not such a simple thing to implement race-free,
+so I do buy the argument that we shouldn't unless it gives
+a performance benefit.
 
-Or I am just confused by the name "pci_device_load" ?
+But I don't understand how aio will make implementing it easier -
+or are you merely saying that it will make it worthwhile?
+
+-- 
+MST
