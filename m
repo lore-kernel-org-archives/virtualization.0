@@ -1,14 +1,16 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCHv4 06/13] qemu: add flag to disable MSI-X by default
-Date: Wed, 10 Jun 2009 15:28:42 +0300
-Message-ID: <20090610122842.GG27174__43772.5009084263$1244639212$gmane$org@redhat.com>
-References: <cover.1244635350.git.mst@redhat.com>
+From: Paul Brook <paul@codesourcery.com>
+Subject: Re: [Qemu-devel] [PATCH 05/11] qemu: MSI-X support functions
+Date: Wed, 10 Jun 2009 15:07:34 +0100
+Message-ID: <200906101507.39823.paul__7838.67823561213$1244642957$gmane$org@codesourcery.com>
+References: <cover.1243253205.git.mst@redhat.com>
+	<200906100019.59981.paul@codesourcery.com>
+	<20090610094604.GD6844@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20090610094604.GD6844@redhat.com>
 Content-Disposition: inline
-In-Reply-To: <cover.1244635350.git.mst@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,64 +20,29 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Paul Brook <paul@codesourcery.com>, Avi Kivity <avi@redhat.com>, qemu-devel@nongnu.org, Carsten Otte <cotte@de.ibm.com>, kvm@vger.kernel.org, Rusty Russell <rusty@rustcor>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Carsten Otte <cotte@de.ibm.com>, kvm@vger.kernel.org, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Blue Swirl <blauwirbel@gmail.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Avi Kivity <avi@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Add global flag to disable MSI-X by default.  This is useful primarily
-to make images loadable by older qemu (without msix).  Even when MSI-X
-is disabled by flag, you can still load images that have MSI-X enabled.
+> > > Note that platform must set a flag to declare MSI supported.
+> > > For PC this will be set by APIC.
+> >
+> > This sounds wrong. The device shouldn't know or care whether the system
+> > has a MSI capable interrupt controller. That's for the guest OS to figure
+> > out.
+>
+> You are right of course. In theory there's nothing that breaks if I
+> set this flag to on, on all platforms. OTOH if qemu emulates some
+> controller incorrectly, guest might misdetect MSI support in the
+> controller, and things will break horribly.
+>
+> It seems safer to have a flag that can be enabled by people
+> that know about a specific platform.
 
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
- hw/msix.c       |    3 +++
- qemu-options.hx |    2 ++
- vl.c            |    3 +++
- 3 files changed, 8 insertions(+), 0 deletions(-)
+No. The solution is to fix whatever is broken.
 
-diff --git a/hw/msix.c b/hw/msix.c
-index a448eab..ce4e6ba 100644
---- a/hw/msix.c
-+++ b/hw/msix.c
-@@ -122,6 +122,9 @@ void msix_write_config(PCIDevice *dev, uint32_t addr,
-                        uint32_t val, int len)
- {
-     unsigned enable_pos = dev->msix_cap + MSIX_ENABLE_OFFSET;
-+    if (!(dev->cap_present & QEMU_PCI_CAP_MSIX))
-+        return;
-+
-     if (addr + len <= enable_pos || addr > enable_pos)
-         return;
- 
-diff --git a/qemu-options.hx b/qemu-options.hx
-index fa549c3..ed92ec2 100644
---- a/qemu-options.hx
-+++ b/qemu-options.hx
-@@ -1575,3 +1575,5 @@ DEF("semihosting", 0, QEMU_OPTION_semihosting,
- DEF("old-param", 0, QEMU_OPTION_old_param,
-     "-old-param      old param mode\n")
- #endif
-+DEF("disable-msix", 0, QEMU_OPTION_disable_msix,
-+    "-disable-msix disable msix support for PCI devices (enabled by default)\n")
-diff --git a/vl.c b/vl.c
-index f08f0f3..8c116c7 100644
---- a/vl.c
-+++ b/vl.c
-@@ -135,6 +135,7 @@ int main(int argc, char **argv)
- #include "hw/usb.h"
- #include "hw/pcmcia.h"
- #include "hw/pc.h"
-+#include "hw/msix.h"
- #include "hw/audiodev.h"
- #include "hw/isa.h"
- #include "hw/baum.h"
-@@ -5681,6 +5682,8 @@ int main(int argc, char **argv, char **envp)
-                 xen_mode = XEN_ATTACH;
-                 break;
- #endif
-+            case QEMU_OPTION_disable_msix:
-+                msix_disable = 1;
-             }
-         }
-     }
--- 
-1.6.3.1.56.g79e1.dirty
+If we really need to avoid MSI-X capable devices then that should be done 
+explicity per-device. i.e. you have a different virtio-net device that does 
+not use MSI-X.
+
+Paul
