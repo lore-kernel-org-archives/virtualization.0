@@ -1,17 +1,16 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [Qemu-devel] [PATCH 05/11] qemu: MSI-X support functions
-Date: Thu, 11 Jun 2009 11:29:44 +0300
-Message-ID: <20090611082944.GA20270__41483.9179757566$1244709315$gmane$org@redhat.com>
-References: <cover.1243253205.git.mst@redhat.com>
-	<200906101830.21537.paul@codesourcery.com>
-	<20090610180756.GM28601@redhat.com>
-	<200906102004.17905.paul@codesourcery.com>
+From: Matias Zabaljauregui <zabaljauregui@gmail.com>
+Subject: Re: [PATCH] lguest: PAE support
+Date: Thu, 11 Jun 2009 20:20:56 -0300
+Message-ID: <1244762456.5360.20.camel__48251.4893672944$1244762505$gmane$org@zetabook>
+References: <1244218142.7700.24.camel@zetabook>
+	<200906071058.23921.rusty@rustcorp.com.au>
+	<1244397067.21275.33.camel@zetabook>
+	<200906111710.45772.rusty@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <200906102004.17905.paul@codesourcery.com>
+In-Reply-To: <200906111710.45772.rusty@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -21,26 +20,124 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Paul Brook <paul@codesourcery.com>
-Cc: Carsten Otte <cotte@de.ibm.com>, kvm@vger.kernel.org, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Blue Swirl <blauwirbel@gmail.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Avi Kivity <avi@redhat.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: lguest@ozlabs.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Jun 10, 2009 at 08:04:13PM +0100, Paul Brook wrote:
-> > > If we can't start a new qemu with the same hardware configuration then we
-> > > should not be allowing migration or loading of snapshots.
-> >
-> > OK, so I'll add an option in virtio-net to disable msi-x, and such
-> > an option will be added in any device with msi-x support.
-> > Will that address your concern?
+On Thu, 2009-06-11 at 17:10 +0930, Rusty Russell wrote:
+> Debugged why guest was crashing immediately with unhandled page fault, also
+> fixed a potential future problem.  Please review.
 > 
-> Yes, as long as migration fails when you try to migrate to the wrong kind of 
-> device.
+> lguest: PAE fixes
 > 
-> Paul
+> 1) j wasn't initialized in setup_pagetables, so they weren't set up for me
+>    causing immediate guest crashes.
+Oops,  don't understand how it worked on my test boxes all these days.
 
-I think the right way to do this, is to make sure that standard
-read-only registers in PCI config space are not modified in migration
-(device-specific registers could have changed as a result of guest
-actions, so we can't make assumptions).
--- 
-MST
+> 
+> 2) gpte_addr should not re-read the pmd from the Guest.  Especially
+>    not BUG_ON() based on the value.  If we ever supported SMP guests,
+>    they could trigger that.  And the Launcher could also trigger it
+>    (tho currently root-only).
+> 
+thanks for fixing this as well.
+
+
+Matias
+
+
+> Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+> 
+> diff --git a/drivers/lguest/page_tables.c b/drivers/lguest/page_tables.c
+> --- a/drivers/lguest/page_tables.c
+> +++ b/drivers/lguest/page_tables.c
+> @@ -154,26 +154,25 @@ static unsigned long gpmd_addr(pgd_t gpg
+>  	BUG_ON(!(pgd_flags(gpgd) & _PAGE_PRESENT));
+>  	return gpage + pmd_index(vaddr) * sizeof(pmd_t);
+>  }
+> -#endif
+>  
+>  static unsigned long gpte_addr(struct lg_cpu *cpu,
+> +			       pmd_t gpmd, unsigned long vaddr)
+> +{
+> +	unsigned long gpage = pmd_pfn(gpmd) << PAGE_SHIFT;
+> +
+> +	BUG_ON(!(pmd_flags(gpmd) & _PAGE_PRESENT));
+> +	return gpage + pte_index(vaddr) * sizeof(pte_t);
+> +}
+> +#else
+> +static unsigned long gpte_addr(struct lg_cpu *cpu,
+>  				pgd_t gpgd, unsigned long vaddr)
+>  {
+> -#ifdef CONFIG_X86_PAE
+> -	pmd_t gpmd;
+> -#endif
+> -	unsigned long gpage;
+> +	unsigned long gpage = pgd_pfn(gpgd) << PAGE_SHIFT;
+>  
+>  	BUG_ON(!(pgd_flags(gpgd) & _PAGE_PRESENT));
+> -#ifdef CONFIG_X86_PAE
+> -	gpmd = lgread(cpu, gpmd_addr(gpgd, vaddr), pmd_t);
+> -	gpage = pmd_pfn(gpmd) << PAGE_SHIFT;
+> -	BUG_ON(!(pmd_flags(gpmd) & _PAGE_PRESENT));
+> -#else
+> -	gpage = pgd_pfn(gpgd) << PAGE_SHIFT;
+> -#endif
+>  	return gpage + pte_index(vaddr) * sizeof(pte_t);
+>  }
+> +#endif
+>  /*:*/
+>  
+>  /*M:014 get_pfn is slow: we could probably try to grab batches of pages here as
+> @@ -339,10 +338,15 @@ bool demand_page(struct lg_cpu *cpu, uns
+>  		 * number in the shadow PMD is the page we just allocated. */
+>  		native_set_pmd(spmd, __pmd(__pa(ptepage) | pmd_flags(gpmd)));
+>  	}
+> -#endif
+> +
+> +	/* OK, now we look at the lower level in the Guest page table: keep its
+> +	 * address, because we might update it later. */
+> +	gpte_ptr = gpte_addr(cpu, gpmd, vaddr);
+> +#else
+>  	/* OK, now we look at the lower level in the Guest page table: keep its
+>  	 * address, because we might update it later. */
+>  	gpte_ptr = gpte_addr(cpu, gpgd, vaddr);
+> +#endif
+>  	gpte = lgread(cpu, gpte_ptr, pte_t);
+>  
+>  	/* If this page isn't in the Guest page tables, we can't page it in. */
+> @@ -522,7 +526,6 @@ unsigned long guest_pa(struct lg_cpu *cp
+>  {
+>  	pgd_t gpgd;
+>  	pte_t gpte;
+> -
+>  #ifdef CONFIG_X86_PAE
+>  	pmd_t gpmd;
+>  #endif
+> @@ -534,13 +537,14 @@ unsigned long guest_pa(struct lg_cpu *cp
+>  		return -1UL;
+>  	}
+>  
+> -	gpte = lgread(cpu, gpte_addr(cpu, gpgd, vaddr), pte_t);
+>  #ifdef CONFIG_X86_PAE
+>  	gpmd = lgread(cpu, gpmd_addr(gpgd, vaddr), pmd_t);
+>  	if (!(pmd_flags(gpmd) & _PAGE_PRESENT))
+>  		kill_guest(cpu, "Bad address %#lx", vaddr);
+> +	gpte = lgread(cpu, gpte_addr(cpu, gpmd, vaddr), pte_t);
+> +#else
+> +	gpte = lgread(cpu, gpte_addr(cpu, gpgd, vaddr), pte_t);
+>  #endif
+> -	gpte = lgread(cpu, gpte_addr(cpu, gpgd, vaddr), pte_t);
+>  	if (!(pte_flags(gpte) & _PAGE_PRESENT))
+>  		kill_guest(cpu, "Bad address %#lx", vaddr);
+>  
+> @@ -847,7 +851,7 @@ static unsigned long setup_pagetables(st
+>  	/* The top level points to the linear page table pages above.
+>  	 * We setup the identity and linear mappings here. */
+>  #ifdef CONFIG_X86_PAE
+> -	for (i = 0, j; i < mapped_pages && j < PTRS_PER_PMD;
+> +	for (i = j = 0; i < mapped_pages && j < PTRS_PER_PMD;
+>  	     i += PTRS_PER_PTE, j++) {
+>  		native_set_pmd(&pmd, __pmd(((unsigned long)(linear + i)
+>  		- mem_base) | _PAGE_PRESENT | _PAGE_RW | _PAGE_USER));
+> 
