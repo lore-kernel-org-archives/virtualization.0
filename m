@@ -1,24 +1,19 @@
-From: Mark McLoughlin <markmc@redhat.com>
+From: Blue Swirl <blauwirbel@gmail.com>
 Subject: Re: Configuration vs. compat hints [was Re: [Qemu-devel] [PATCHv3
 	03/13] qemu: add routines to manage PCI capabilities]
-Date: Fri, 12 Jun 2009 18:31:23 +0100
-Message-ID: <1244827883.26769.44.camel__14764.6105885089$1244828221$gmane$org@blaa>
+Date: Fri, 12 Jun 2009 20:44:41 +0300
+Message-ID: <f43fc5580906121044q6be5cb92vbbe407a83bbc10c7__34581.162434961$1244828786$gmane$org@mail.gmail.com>
 References: <cover.1244192535.git.mst@redhat.com>
-	<20090610145540.GI19375@poweredge.glommer>
-	<20090610150129.GC28601@redhat.com>
-	<200906101624.30659.paul@codesourcery.com>
-	<20090610174301.GC7416@shareable.org>
 	<20090610182227.GN28601@redhat.com>
 	<20090610192702.GH7416@shareable.org> <1244796209.16425.20.camel@blaa>
 	<4A326B5C.5010501@codemonkey.ws> <1244821292.30522.56.camel@blaa>
 	<4A327E4A.7010300@codemonkey.ws> <1244825303.26769.19.camel@blaa>
-	<4A328991.3040006@codemonkey.ws>
-Reply-To: Mark McLoughlin <markmc@redhat.com>
+	<4A328991.3040006@codemonkey.ws> <1244827883.26769.44.camel@blaa>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4A328991.3040006@codemonkey.ws>
+In-Reply-To: <1244827883.26769.44.camel@blaa>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -28,86 +23,67 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Anthony Liguori <anthony@codemonkey.ws>
-Cc: Carsten Otte <cotte@de.ibm.com>, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, Glauber Costa <glommer@redhat.com>, Jamie Lokier <jamie@shareable.org>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Blue Swirl <blauwirbel@gmail.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Paul Brook <paul@codesourcery.com>, Avi Kivity <avi@redhat.com>
+To: Mark McLoughlin <markmc@redhat.com>
+Cc: Carsten Otte <cotte@de.ibm.com>, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, Glauber Costa <glommer@redhat.com>, Jamie Lokier <jamie@shareable.org>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, Paul Brook <paul@codesourcery.com>, Anthony Liguori <anthony@codemonkey.ws>, Avi Kivity <avi@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 2009-06-12 at 12:00 -0500, Anthony Liguori wrote:
-> Mark McLoughlin wrote:
-> > So, when libvirt creates a guest for the first time, it makes a copy of
-> > the device tree and continues to use that even if qemu is upgraded.
-> > That's enough to ensure compat is retained for all built-in devices.
-> >
-> > However, in order to retain compat for that SCSI device (e.g. ensuring
-> > the PCI address doesn't change as other devices are added an removed),
-> > we're back to the same problem ... either:
-> >
-> >   1) Use '-drive file=foo.img,if=scsi,pci_addr=foo'; in order to figure 
-> >      out what address to use, libvirt would need to query qemu for what 
-> >      address was originally allocated to device or it would do all the 
-> >      PCI address allocation itself ... or:
-> >
-> >   2) Don't use the command line, instead get a dump of the entire 
-> >      device tree (including the SCSI device) - if the device is to be 
-> >      removed or modified in future, libvirt would need to modify the 
-> >      device tree
-> >
-> > The basic problem would be that the command line config would have very
-> > limited ability to override the device tree config.
-> >   
-> 
-> After libvirt has done -drive file=foo... it should dump the machine 
-> config and use that from then on.
+On 6/12/09, Mark McLoughlin <markmc@redhat.com> wrote:
+> On Fri, 2009-06-12 at 12:00 -0500, Anthony Liguori wrote:
+>  > Mark McLoughlin wrote:
+>  > > So, when libvirt creates a guest for the first time, it makes a copy of
+>  > > the device tree and continues to use that even if qemu is upgraded.
+>  > > That's enough to ensure compat is retained for all built-in devices.
+>  > >
+>  > > However, in order to retain compat for that SCSI device (e.g. ensuring
+>  > > the PCI address doesn't change as other devices are added an removed),
+>  > > we're back to the same problem ... either:
+>  > >
+>  > >   1) Use '-drive file=foo.img,if=scsi,pci_addr=foo'; in order to figure
+>  > >      out what address to use, libvirt would need to query qemu for what
+>  > >      address was originally allocated to device or it would do all the
+>  > >      PCI address allocation itself ... or:
+>  > >
+>  > >   2) Don't use the command line, instead get a dump of the entire
+>  > >      device tree (including the SCSI device) - if the device is to be
+>  > >      removed or modified in future, libvirt would need to modify the
+>  > >      device tree
+>  > >
+>  > > The basic problem would be that the command line config would have very
+>  > > limited ability to override the device tree config.
+>  > >
+>  >
+>  > After libvirt has done -drive file=foo... it should dump the machine
+>  > config and use that from then on.
+>
+>  Right - libvirt then wouldn't be able to avoid the complexity of merging
+>  any future changes into the dumped machine config.
+>
+>  > To combined to a single thread...
+>  > > How do you add a new attribute to the device tree and, when a supplied
+>  > > device tree lacking said attribute, distinguish between a device tree
+>  > > from an old version of qemu (i.e. use the old default) and a partial
+>  > > device tree from the VM manager (i.e. use the new default) ?
+>  > >
+>  >
+>  > Please define "attribute".  I don't follow what you're asking.
+>
+>  e.g. a per-device "enable MSI support" flag.
+>
+>  If qemu is supplied with a device tree that lacks that flag, does it
+>  enable or disable MSI?
+>
+>  Enable by default is bad - it could be a device tree dumped from an old
+>  version of qemu, so compat would be broken.
+>
+>  Disable by default is bad - it could be a simple device tree supplied by
+>  the user, and the latest features are wanted.
+>
+>  Maybe we want a per-device "this is a complete device description" flag
+>  and if anything is missing from a supposedly complete description, the
+>  old defaults would be used. A config dumped from qemu would have this
+>  flag set, a config generated by libvirt would not have the flag.
 
-Right - libvirt then wouldn't be able to avoid the complexity of merging
-any future changes into the dumped machine config.
-
-> To combined to a single thread...
-> > How do you add a new attribute to the device tree and, when a supplied
-> > device tree lacking said attribute, distinguish between a device tree
-> > from an old version of qemu (i.e. use the old default) and a partial
-> > device tree from the VM manager (i.e. use the new default) ?
-> >   
-> 
-> Please define "attribute".  I don't follow what you're asking.
-
-e.g. a per-device "enable MSI support" flag.
-
-If qemu is supplied with a device tree that lacks that flag, does it
-enable or disable MSI?
-
-Enable by default is bad - it could be a device tree dumped from an old
-version of qemu, so compat would be broken.
-
-Disable by default is bad - it could be a simple device tree supplied by
-the user, and the latest features are wanted.
-
-Maybe we want a per-device "this is a complete device description" flag
-and if anything is missing from a supposedly complete description, the
-old defaults would be used. A config dumped from qemu would have this
-flag set, a config generated by libvirt would not have the flag.
-
-> >> NB the device tree contains no host configuration information.
-> >>     
-> >
-> > So, it wouldn't e.g. include the path to the image file for a block
-> > device? That would always be specified on the command line?
-> >   
-> 
-> No, the IDE definition would contain some sort of symbolic node name.  A 
-> separate mechanism (either command line or host config file) would then 
-> link a image file to the symbolic name.
-
-Okay.
-
-> libvirt should really never worry about the machine config file for 
-> normal things unless it needs to change what devices are exposed to a guest.
-
-But changing devices *is* normal ... e.g. removing a block device.
-
-Writing out a device tree is not a problem for libvirt (or any other
-management tools), it's the need to merge changes into an existing
-device tree is where the real complexity would lie.
-
-Cheers,
-Mark.
+If the device has different behavior or different properties from
+guest perspective compared to the old device, it should get a new
+device type so that you could specify in the device tree either the
+old device or the new one. Flags won't help in the long term.
