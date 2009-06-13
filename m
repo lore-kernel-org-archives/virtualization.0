@@ -1,22 +1,11 @@
-From: Mark McLoughlin <markmc@redhat.com>
-Subject: Re: Configuration vs. compat hints [was Re: [Qemu-devel] [PATCHv3
-	03/13] qemu: add routines to manage PCI capabilities]
-Date: Fri, 12 Jun 2009 18:55:23 +0100
-Message-ID: <1244829323.26769.45.camel__18198.631986934$1244830208$gmane$org@blaa>
-References: <cover.1244192535.git.mst@redhat.com>
-	<20090610182227.GN28601@redhat.com>
-	<20090610192702.GH7416@shareable.org>
-	<1244796209.16425.20.camel@blaa> <4A326B5C.5010501@codemonkey.ws>
-	<1244821292.30522.56.camel@blaa> <4A327E4A.7010300@codemonkey.ws>
-	<1244825303.26769.19.camel@blaa> <4A328991.3040006@codemonkey.ws>
-	<1244827883.26769.44.camel@blaa>
-	<f43fc5580906121044q6be5cb92vbbe407a83bbc10c7@mail.gmail.com>
-Reply-To: Mark McLoughlin <markmc@redhat.com>
+From: Huang Weiyi <weiyi.huang@gmail.com>
+Subject: [PATCH 3/3] xen/dev-evtchn: remove duplicated #include
+Date: Sat, 13 Jun 2009 20:21:39 +0800
+Message-ID: <1244895699-264-1-git-send-email-weiyi.huang@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <f43fc5580906121044q6be5cb92vbbe407a83bbc10c7@mail.gmail.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -26,18 +15,26 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Blue Swirl <blauwirbel@gmail.com>
-Cc: Carsten Otte <cotte@de.ibm.com>, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, Glauber Costa <glommer@redhat.com>, Jamie Lokier <jamie@shareable.org>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, Paul Brook <paul@codesourcery.com>, Anthony Liguori <anthony@codemonkey.ws>, Avi Kivity <avi@redhat.com>
+To: jeremy@xensource.com, chrisw@sous-sol.org
+Cc: virtualization@lists.osdl.org, xen-devel@lists.xensource.com, Huang Weiyi <weiyi.huang@gmail.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 2009-06-12 at 20:44 +0300, Blue Swirl wrote:
+Signed-off-by: Huang Weiyi <weiyi.huang@gmail.com>
+---
+ drivers/xen/evtchn.c |    1 -
+ 1 files changed, 0 insertions(+), 1 deletions(-)
 
-> If the device has different behavior or different properties from
-> guest perspective compared to the old device, it should get a new
-> device type so that you could specify in the device tree either the
-> old device or the new one.
-
-Yes, that works - it's analogous to a device (type, version) pair.
-
-Cheers,
-Mark.
+diff --git a/drivers/xen/evtchn.c b/drivers/xen/evtchn.c
+index af03195..79bedba 100644
+--- a/drivers/xen/evtchn.c
++++ b/drivers/xen/evtchn.c
+@@ -38,7 +38,6 @@
+ #include <linux/string.h>
+ #include <linux/errno.h>
+ #include <linux/fs.h>
+-#include <linux/errno.h>
+ #include <linux/miscdevice.h>
+ #include <linux/major.h>
+ #include <linux/proc_fs.h>
+-- 
+1.6.1.2
