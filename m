@@ -1,18 +1,21 @@
-From: Herbert Xu <herbert@gondor.apana.org.au>
-Subject: Re: [PATCH 2/4] virtio_net: return NETDEV_TX_BUSY instead of
-	queueing an extra skb.
-Date: Sun, 14 Jun 2009 16:45:28 +1000
-Message-ID: <20090614064528.GA29130__18266.2055049606$1244961983$gmane$org@gondor.apana.org.au>
-References: <200905292346.04815.rusty@rustcorp.com.au>
-	<200906031247.05591.rusty@rustcorp.com.au>
-	<20090608052247.GA19826@gondor.apana.org.au>
-	<200906132200.38034.rusty@rustcorp.com.au>
+From: Avi Kivity <avi@redhat.com>
+Subject: Re: Configuration vs. compat hints [was Re: [Qemu-devel] [PATCHv3
+	03/13] qemu: add routines to manage PCI capabilities]
+Date: Sun, 14 Jun 2009 10:55:48 +0300
+Message-ID: <4A34AD04.7080701__21715.5893486508$1244966326$gmane$org@redhat.com>
+References: <cover.1244192535.git.mst@redhat.com>	
+	<20090610145540.GI19375@poweredge.glommer>	
+	<20090610150129.GC28601@redhat.com>	
+	<200906101624.30659.paul@codesourcery.com>	
+	<20090610174301.GC7416@shareable.org>
+	<20090610182227.GN28601@redhat.com>	
+	<20090610192702.GH7416@shareable.org>
+	<1244796209.16425.20.camel@blaa> <4A326B5C.5010501@codemonkey.ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <200906132200.38034.rusty@rustcorp.com.au>
+In-Reply-To: <4A326B5C.5010501@codemonkey.ws>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -22,34 +25,19 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: netdev@vger.kernel.org, David Miller <davem@davemloft.net>, virtualization@lists.linux-foundation.org
+To: Anthony Liguori <anthony@codemonkey.ws>
+Cc: Carsten Otte <cotte@de.ibm.com>, kvm@vger.kernel.org, Mark McLoughlin <markmc@redhat.com>, Glauber Costa <glommer@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, Jamie Lokier <jamie@shareable.org>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Blue Swirl <blauwirbel@gmail.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Paul Brook <paul@codesourcery.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sat, Jun 13, 2009 at 10:00:37PM +0930, Rusty Russell wrote:
-> 
-> But re your comment that the 67 drivers using TX_BUSY are doing it because of 
-> driver bugs, that's hard to believe.  It either hardly ever happens (in which 
-> case just drop the packet), or it happens (in which case we should handle it 
-> correctly).
+Anthony Liguori wrote:
+>
+> What's the problem with parsing the device config and modifying it?  
+> Is it just complexity?
 
-Most of them just do this:
+Two-way modification.  Management wants to store the configuration in 
+their database and tell the hypervisor what the machine looks like.  If 
+qemu also tells management what the machine looks like, we can easily 
+get conflicts.
 
-start_xmit:
-
-if (unlikely(queue is full)) {
-	/* This should never happen. */
-	return TX_BUSY;
-}
-
-transmit
-
-if (queue is full)
-	stop queue
-
-Cheers,
 -- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+error compiling committee.c: too many arguments to function
