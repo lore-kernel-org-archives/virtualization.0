@@ -1,24 +1,21 @@
-From: Mark McLoughlin <markmc@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: Configuration vs. compat hints [was Re: [Qemu-devel] [PATCHv3
 	03/13] qemu: add routines to manage PCI capabilities]
-Date: Mon, 15 Jun 2009 10:09:15 +0100
-Message-ID: <1245056955.6891.33.camel__9733.7446212352$1245060785$gmane$org@blaa>
-References: <cover.1244192535.git.mst@redhat.com>
-	<20090610145540.GI19375@poweredge.glommer>
-	<20090610150129.GC28601@redhat.com>
-	<200906101624.30659.paul@codesourcery.com>
-	<20090610174301.GC7416@shareable.org>
+Date: Mon, 15 Jun 2009 13:29:21 +0300
+Message-ID: <20090615102921.GA6351__13511.9531224065$1245062078$gmane$org@redhat.com>
+References: <20090610174301.GC7416@shareable.org>
 	<20090610182227.GN28601@redhat.com>
-	<20090610192702.GH7416@shareable.org> <1244796209.16425.20.camel@blaa>
-	<4A326C7E.3020309@codemonkey.ws> <1244822007.30522.68.camel@blaa>
-	<4A327E87.6080005@codemonkey.ws> <1244825333.26769.20.camel@blaa>
-	<4A34ADA9.80709@redhat.com>
-Reply-To: Mark McLoughlin <markmc@redhat.com>
+	<20090610192702.GH7416@shareable.org>
+	<1244796209.16425.20.camel@blaa> <4A326B5C.5010501@codemonkey.ws>
+	<1244821292.30522.56.camel@blaa> <4A327E4A.7010300@codemonkey.ws>
+	<1244825303.26769.19.camel@blaa> <20090614095016.GA7560@redhat.com>
+	<4A3617D4.5090405@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4A34ADA9.80709@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <4A3617D4.5090405@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -29,29 +26,38 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Avi Kivity <avi@redhat.com>
-Cc: Carsten Otte <cotte@de.ibm.com>, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, Glauber Costa <glommer@redhat.com>, Jamie Lokier <jamie@shareable.org>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Blue Swirl <blauwirbel@gmail.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Paul Brook <paul@codesourcery.com>, Anthony Liguori <anthony@codemonkey.ws>
+Cc: Mark McLoughlin <markmc@redhat.com>, kvm@vger.kernel.org, Carsten Otte <cotte@de.ibm.com>, Glauber Costa <glommer@redhat.com>, Jamie Lokier <jamie@shareable.org>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Blue Swirl <blauwirbel@gmail.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Paul Brook <paul@codesourcery.com>, Anthony Liguori <anthony@codemonkey.ws>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sun, 2009-06-14 at 10:58 +0300, Avi Kivity wrote:
-> Mark McLoughlin wrote:
-> 
->   
-> 
-> >> I think the point is that you don't need version numbers if you have a 
-> >> proper device tree.
-> >>     
-> >
-> > How do you add a new attribute to the device tree and, when a supplied
-> > device tree lacking said attribute, distinguish between a device tree
-> > from an old version of qemu (i.e. use the old default) and a partial
-> > device tree from the VM manager (i.e. use the new default) ?
-> >   
-> 
-> -baseline 0.10
+On Mon, Jun 15, 2009 at 12:43:48PM +0300, Avi Kivity wrote:
+> On 06/14/2009 12:50 PM, Michael S. Tsirkin wrote:
+>> On Fri, Jun 12, 2009 at 05:48:23PM +0100, Mark McLoughlin wrote:
+>>    
+>>> However, in order to retain compat for that SCSI device (e.g. ensuring
+>>> the PCI address doesn't change as other devices are added an removed),
+>>> we're back to the same problem ... either:
+>>>
+>>>    1) Use '-drive file=foo.img,if=scsi,pci_addr=foo'; in order to figure
+>>>       out what address to use, libvirt would need to query qemu for what
+>>>       address was originally allocated to device or it would do all the
+>>>       PCI address allocation itself ...
+>>>      
+>>
+>> This last option makes sense to me: in a real world the user has
+>> control over where he places the device on the bus, so why
+>> not with qemu?
+>>    
+>
+> Yes, the user build the machine using the command line and monitor (or,  
+> in 2017, the machine configuration file), then turns on the power.   
+> Command line options are the parts lying around when we start.
+>
+> btw, -drive needs to be separated:
+>
+>   -controller type=lsi1234,pci_addr=foobar,name=blah
+>   -drive file=foo.img,controller=blah,index=0
+>   -drive file=bar.img,controller=blah,index=1
+>
+> Drives to not have pci addresses.
 
-That's a version number :-)
-
-(I was responding to Anthony's "you don't need a version number")
-
-Cheers,
-Mark.
+Maybe we need a generic 'bus options' flag.
