@@ -1,23 +1,25 @@
-From: Dor Laor <dlaor@redhat.com>
+From: Anthony Liguori <anthony@codemonkey.ws>
 Subject: Re: Configuration vs. compat hints [was Re: [Qemu-devel] [PATCHv3
 	03/13] qemu: add routines to manage PCI capabilities]
-Date: Mon, 15 Jun 2009 17:06:18 +0300
-Message-ID: <4A36555A.4090303__11401.1826961816$1245075100$gmane$org@redhat.com>
-References: <1244821292.30522.56.camel@blaa>
-	<4A327E4A.7010300@codemonkey.ws>	<1244825303.26769.19.camel@blaa>
-	<20090614095016.GA7560@redhat.com>	<1245056916.6891.31.camel@blaa>
-	<4A3613EC.6030608@redhat.com>	<20090615103249.GB6351@redhat.com>
-	<4A363012.8050409@redhat.com>	<20090615114858.GG6351@redhat.com>
-	<4A3636FA.1040609@redhat.com>	<20090615124101.GH6351@redhat.com>
-	<4A364381.401@redhat.com>	<4A364401.6010500@codemonkey.ws>
-	<4A3647FB.9010808@redhat.com>	<4A364B53.9080007@codemonkey.ws>
-	<4A364FE0.40204@redhat.com> <4A3651EB.3070204@codemonkey.ws>
-Reply-To: dlaor@redhat.com
+Date: Mon, 15 Jun 2009 09:20:00 -0500
+Message-ID: <4A365890.1050106__10435.4181014516$1245075693$gmane$org@codemonkey.ws>
+References: <cover.1244192535.git.mst@redhat.com>	
+	<20090610145540.GI19375@poweredge.glommer>	
+	<20090610150129.GC28601@redhat.com>	
+	<200906101624.30659.paul@codesourcery.com>	
+	<20090610174301.GC7416@shareable.org>
+	<20090610182227.GN28601@redhat.com>	
+	<20090610192702.GH7416@shareable.org>
+	<1244796209.16425.20.camel@blaa>	 <4A326C7E.3020309@codemonkey.ws>
+	<1244822007.30522.68.camel@blaa>	 <4A327E87.6080005@codemonkey.ws>
+	<1244825333.26769.20.camel@blaa>	 <4A34ADA9.80709@redhat.com>
+	<1245056955.6891.33.camel@blaa>	 <4A36314A.8040206@redhat.com>
+	<4A364316.5070402@codemonkey.ws> <1245074447.3222.53.camel@blaa>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4A3651EB.3070204@codemonkey.ws>
+In-Reply-To: <1245074447.3222.53.camel@blaa>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -27,58 +29,61 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Anthony Liguori <anthony@codemonkey.ws>
-Cc: Carsten Otte <cotte@de.ibm.com>, kvm@vger.kernel.org, Mark McLoughlin <markmc@redhat.com>, Glauber Costa <glommer@redhat.com>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Blue Swirl <blauwirbel@gmail.com>, Christian Borntraeger <borntraeger@de.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>, Avi Kivity <avi@redhat.com>, Paul Brook <paul@codesourcery.com>
+To: Mark McLoughlin <markmc@redhat.com>
+Cc: Carsten Otte <cotte@de.ibm.com>, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, Glauber Costa <glommer@redhat.com>, Jamie Lokier <jamie@shareable.org>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Blue Swirl <blauwirbel@gmail.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Avi Kivity <avi@redhat.com>, Paul Brook <paul@codesourcery.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Anthony Liguori wrote:
-> Avi Kivity wrote:
->> On 06/15/2009 04:23 PM, Anthony Liguori wrote:
+Mark McLoughlin wrote:
+> On Mon, 2009-06-15 at 07:48 -0500, Anthony Liguori wrote:
+>   
+>>> Eventually the 
+>>> default configuration becomes increasingly unusable and you need a new 
+>>> baseline.  You must still be able to fall back to the old baseline for 
+>>> older guests.  I don't think games with configuration files can hide 
+>>> that.
+>>>       
+>> -M pc1
+>> -M pc2
 >>
->> How would qemu know which slots to optimize for?
+>> etc.
 >>
->> In practice, I don't see that as a real problem.  We should (a) add 
->> an ioapic and four more pci links (b) recommend that slots be 
->> assigned in ascending order, and everything works.
->>
->> I don't see your concern about libvirt allocating slots.  If a human 
->> can plug a card into a slot, so can libvirt.  Doing an interactive 
->> back-and-forth (equivalent to plugging a card while blindfolded, then 
->> looking to see which slot we hit) is certainly more difficult.
+>> This is pretty easy to maintain with config files.
+>>     
 >
-> Let's take a concrete example because I think you missed my point.  
-> For the r2d board, if you have 1 on-board NIC, it has to go in slot 
-> 2.  Additional NICs can go in any slot, but the primary on-board NIC 
-> is expected to live in slot 2.  It's possible to not have that 
-> on-board NIC.
-Libvirt does not support r2d. I hope it won't start to support it.
-We can have default values for these types of devices or something like 
-pci_addr=auto.
+> I think this would be reasonable, but it is essentially just a version
+> number which you objected to on the basis that it would make
+> cherry-picking harder for distros.
+>   
 
->
-> If you let QEMU allocate which PCI slot a device goes in, we can hide 
-> this detail from libvirt.  If you have libvirt do PCI slot allocation 
-> by default, it has to know about this restriction in the r2d board 
-> unless you have a clever way to express this sort of information.
->
-> Once QEMU has allocated a device to a slot, libvirt can do a good job 
-> maintaining that relationship.
->
+It doesn't have to be pc1, pc2.  It could be pc-with-usb or 
+pc-with-balloon.  If a distro cherry picks in such a way that their pc 
+is not a standard QEMU pc, they would add a new PC type that's specific 
+to their distro.
 
-The end user should have a mechanism to control device slot positioning. 
-For example, if you have several pci devices, some
-get high rate of interrupts and some not, if you want to optimize you 
-guest you should isolate the high rate 'interesting' devices.
-This is something the user will need to do. I agree that the default 
-behavior might be 'auto'
+> One thing that would be nice with this '-M pc1' thing would be to retain
+> '-M pc' as a symlink to the latest version. We'd also need a way to read
+> the symlink too, so that you can query what the current latest version
+> is and use that in future.
+>   
 
-Also, while moving from one qemu version to another, you'll need to 
-represent the older behavior. -qemu-0.10 is not good enough
-since there will be multiple versions in the future with multiple 
-distributions setting their defaults.
+Another option is an explicit -M default which always uses the default 
+machine for the architecture.  Likewise, we would need a way to query 
+what the default machine was for an architecture.
 
-> Regards,
->
-> Anthony Liguori
->
->
+> How would this machine type version relate to e.g. changing the default
+> PCI class of virtio-blk? Would we bump the version number of all machine
+> types can use virtio-blk?
+>   
+You would introduce a new machine type.  For instance, 
+pc-virtio-class-other.  The names don't have to look like that, I'm just 
+doing that to make a point.  This may mean that you end up with dozens 
+of machine types but you preserve compatibility, which is a good thing.
+
+Of course, the flip side is that you make preserving the machine config 
+the duty of the user and we don't maintain compatible machine types.  
+This won't work without a proper config file though so for now, we're 
+stuck maintaining machine types.
+
+Regards,
+
+Anthony Liguori
