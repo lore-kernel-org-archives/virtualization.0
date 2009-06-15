@@ -1,25 +1,23 @@
-From: Mark McLoughlin <markmc@redhat.com>
+From: Dor Laor <dlaor@redhat.com>
 Subject: Re: Configuration vs. compat hints [was Re: [Qemu-devel] [PATCHv3
 	03/13] qemu: add routines to manage PCI capabilities]
-Date: Mon, 15 Jun 2009 15:00:47 +0100
-Message-ID: <1245074447.3222.53.camel__25178.6615736366$1245075025$gmane$org@blaa>
-References: <cover.1244192535.git.mst@redhat.com>
-	<20090610145540.GI19375@poweredge.glommer>
-	<20090610150129.GC28601@redhat.com>
-	<200906101624.30659.paul@codesourcery.com>
-	<20090610174301.GC7416@shareable.org>
-	<20090610182227.GN28601@redhat.com>
-	<20090610192702.GH7416@shareable.org> <1244796209.16425.20.camel@blaa>
-	<4A326C7E.3020309@codemonkey.ws> <1244822007.30522.68.camel@blaa>
-	<4A327E87.6080005@codemonkey.ws> <1244825333.26769.20.camel@blaa>
-	<4A34ADA9.80709@redhat.com> <1245056955.6891.33.camel@blaa>
-	<4A36314A.8040206@redhat.com>  <4A364316.5070402@codemonkey.ws>
-Reply-To: Mark McLoughlin <markmc@redhat.com>
+Date: Mon, 15 Jun 2009 17:06:18 +0300
+Message-ID: <4A36555A.4090303__11401.1826961816$1245075100$gmane$org@redhat.com>
+References: <1244821292.30522.56.camel@blaa>
+	<4A327E4A.7010300@codemonkey.ws>	<1244825303.26769.19.camel@blaa>
+	<20090614095016.GA7560@redhat.com>	<1245056916.6891.31.camel@blaa>
+	<4A3613EC.6030608@redhat.com>	<20090615103249.GB6351@redhat.com>
+	<4A363012.8050409@redhat.com>	<20090615114858.GG6351@redhat.com>
+	<4A3636FA.1040609@redhat.com>	<20090615124101.GH6351@redhat.com>
+	<4A364381.401@redhat.com>	<4A364401.6010500@codemonkey.ws>
+	<4A3647FB.9010808@redhat.com>	<4A364B53.9080007@codemonkey.ws>
+	<4A364FE0.40204@redhat.com> <4A3651EB.3070204@codemonkey.ws>
+Reply-To: dlaor@redhat.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4A364316.5070402@codemonkey.ws>
+In-Reply-To: <4A3651EB.3070204@codemonkey.ws>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -30,69 +28,57 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Anthony Liguori <anthony@codemonkey.ws>
-Cc: Carsten Otte <cotte@de.ibm.com>, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, Glauber Costa <glommer@redhat.com>, Jamie Lokier <jamie@shareable.org>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Blue Swirl <blauwirbel@gmail.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Avi Kivity <avi@redhat.com>, Paul Brook <paul@codesourcery.com>
+Cc: Carsten Otte <cotte@de.ibm.com>, kvm@vger.kernel.org, Mark McLoughlin <markmc@redhat.com>, Glauber Costa <glommer@redhat.com>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Blue Swirl <blauwirbel@gmail.com>, Christian Borntraeger <borntraeger@de.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>, Avi Kivity <avi@redhat.com>, Paul Brook <paul@codesourcery.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, 2009-06-15 at 07:48 -0500, Anthony Liguori wrote:
+Anthony Liguori wrote:
 > Avi Kivity wrote:
-> > On 06/15/2009 12:09 PM, Mark McLoughlin wrote:
-> >>>>> I think the point is that you don't need version numbers if you 
-> >>>>> have a
-> >>>>> proper device tree.
-> >>>>>
-> >>>>>          
-> >>>> How do you add a new attribute to the device tree and, when a supplied
-> >>>> device tree lacking said attribute, distinguish between a device tree
-> >>>> from an old version of qemu (i.e. use the old default) and a partial
-> >>>> device tree from the VM manager (i.e. use the new default) ?
-> >>>>
-> >>>>        
-> >>> -baseline 0.10
-> >>>      
-> >>
-> >> That's a version number :-)
-> >>
-> >> (I was responding to Anthony's "you don't need a version number")
-> >>    
-> >
-> > If you want to prevent incompatibilities, you need to make everything 
-> > new (potentially including bugfixes) non-default.
+>> On 06/15/2009 04:23 PM, Anthony Liguori wrote:
+>>
+>> How would qemu know which slots to optimize for?
+>>
+>> In practice, I don't see that as a real problem.  We should (a) add 
+>> an ioapic and four more pci links (b) recommend that slots be 
+>> assigned in ascending order, and everything works.
+>>
+>> I don't see your concern about libvirt allocating slots.  If a human 
+>> can plug a card into a slot, so can libvirt.  Doing an interactive 
+>> back-and-forth (equivalent to plugging a card while blindfolded, then 
+>> looking to see which slot we hit) is certainly more difficult.
+>
+> Let's take a concrete example because I think you missed my point.  
+> For the r2d board, if you have 1 on-board NIC, it has to go in slot 
+> 2.  Additional NICs can go in any slot, but the primary on-board NIC 
+> is expected to live in slot 2.  It's possible to not have that 
+> on-board NIC.
+Libvirt does not support r2d. I hope it won't start to support it.
+We can have default values for these types of devices or something like 
+pci_addr=auto.
 
-No need to punish new guests in order to maintain compatibility for old
-guests.
+>
+> If you let QEMU allocate which PCI slot a device goes in, we can hide 
+> this detail from libvirt.  If you have libvirt do PCI slot allocation 
+> by default, it has to know about this restriction in the r2d board 
+> unless you have a clever way to express this sort of information.
+>
+> Once QEMU has allocated a device to a slot, libvirt can do a good job 
+> maintaining that relationship.
+>
 
-> > Eventually the 
-> > default configuration becomes increasingly unusable and you need a new 
-> > baseline.  You must still be able to fall back to the old baseline for 
-> > older guests.  I don't think games with configuration files can hide 
-> > that.
-> 
-> -M pc1
-> -M pc2
-> 
-> etc.
-> 
-> This is pretty easy to maintain with config files.
+The end user should have a mechanism to control device slot positioning. 
+For example, if you have several pci devices, some
+get high rate of interrupts and some not, if you want to optimize you 
+guest you should isolate the high rate 'interesting' devices.
+This is something the user will need to do. I agree that the default 
+behavior might be 'auto'
 
-I think this would be reasonable, but it is essentially just a version
-number which you objected to on the basis that it would make
-cherry-picking harder for distros.
+Also, while moving from one qemu version to another, you'll need to 
+represent the older behavior. -qemu-0.10 is not good enough
+since there will be multiple versions in the future with multiple 
+distributions setting their defaults.
 
-One thing that would be nice with this '-M pc1' thing would be to retain
-'-M pc' as a symlink to the latest version. We'd also need a way to read
-the symlink too, so that you can query what the current latest version
-is and use that in future.
-
-How would this machine type version relate to e.g. changing the default
-PCI class of virtio-blk? Would we bump the version number of all machine
-types can use virtio-blk?
-
-A per-device version number is workable alternative, but only with a
-saveabi type file IMHO.
-
-I've tried to summarise the options here:
-
-  https://fedoraproject.org/wiki/Features/KVM_Stable_Guest_ABI
-
-Cheers,
-Mark.
+> Regards,
+>
+> Anthony Liguori
+>
+>
