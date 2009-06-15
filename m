@@ -1,18 +1,23 @@
-From: Javier Guerra <javier@guerrag.com>
-Subject: Re: Configuration vs. compat hints
-Date: Mon, 15 Jun 2009 09:23:44 -0500
-Message-ID: <90eb1dc70906150723h4e0e9aa2h253c8411771b6e7e__29772.4314070821$1245075888$gmane$org@mail.gmail.com>
-References: <20090610150129.GC28601@redhat.com>
-	<4A326B5C.5010501@codemonkey.ws> <1244821292.30522.56.camel@blaa>
-	<4A327E4A.7010300@codemonkey.ws> <1244825303.26769.19.camel@blaa>
-	<20090614095016.GA7560@redhat.com> <1245056916.6891.31.camel@blaa>
-	<4A3613EC.6030608@redhat.com> <87ocsp687t.fsf@pike.pond.sub.org>
-	<4A3633FD.4010208@redhat.com>
+From: Anthony Liguori <anthony@codemonkey.ws>
+Subject: Re: Configuration vs. compat hints [was Re: [Qemu-devel] [PATCHv3
+	03/13] qemu: add routines to manage PCI capabilities]
+Date: Mon, 15 Jun 2009 09:24:32 -0500
+Message-ID: <4A3659A0.3050108@codemonkey.ws>
+References: <1244821292.30522.56.camel@blaa>
+	<4A327E4A.7010300@codemonkey.ws>	<1244825303.26769.19.camel@blaa>
+	<20090614095016.GA7560@redhat.com>	<1245056916.6891.31.camel@blaa>
+	<4A3613EC.6030608@redhat.com>	<20090615103249.GB6351@redhat.com>
+	<4A363012.8050409@redhat.com>	<20090615114858.GG6351@redhat.com>
+	<4A3636FA.1040609@redhat.com>	<20090615124101.GH6351@redhat.com>
+	<4A364381.401@redhat.com>	<4A364401.6010500@codemonkey.ws>
+	<4A3647FB.9010808@redhat.com>	<4A364B53.9080007@codemonkey.ws>
+	<4A364FE0.40204@redhat.com> <4A3651EB.3070204@codemonkey.ws>
+	<4A36555A.4090303@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4A3633FD.4010208@redhat.com>
+In-Reply-To: <4A36555A.4090303@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -22,26 +27,45 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Avi Kivity <avi@redhat.com>
-Cc: Mark McLoughlin <markmc@redhat.com>, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, qemu-devel <qemu-devel@nongnu.org>, Glauber Costa <glommer@redhat.com>, virtualization@lists.linux-foundation.org, Blue Swirl <blauwirbel@gmail.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Paul Brook <paul@codesourcery.com>, Anthony Liguori <anthony@codemonkey.ws>, Carsten Otte <cotte@de.ibm.com>
+To: dlaor@redhat.com
+Cc: Carsten Otte <cotte@de.ibm.com>, kvm@vger.kernel.org, Mark McLoughlin <markmc@redhat.com>, Glauber Costa <glommer@redhat.com>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Blue Swirl <blauwirbel@gmail.com>, Christian Borntraeger <borntraeger@de.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>, Avi Kivity <avi@redhat.com>, Paul Brook <paul@codesourcery.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Jun 15, 2009 at 6:43 AM, Avi Kivity<avi@redhat.com> wrote:
-> (I'd be quite happy constructing the entire machine config on the command
-> line, but I realize it's just me)
+Dor Laor wrote:
+> Libvirt does not support r2d. I hope it won't start to support it.
 
-as a user-only (well, i'm a developer, but don't meddle in kernel
-affairs since 0.99pl9); I also like that kvm is totally CLI-managed.
+It supports mips, sparc, and ppc machines now.  I don't see why it 
+wouldn't support r2d.  For ppcemb, I expect this same problem to occur.  
+This sort of restriction is going to be common with embedded boards.
 
-but migration-wise, i think it could be nicer if the 'origin' process
-could send the config to the 'target' one.  IOW: the -incoming flag
-shouldn't need any other parameter, and the 'migrate' command should
-send the whole hardware description before the CPU state, and fail
-with a 'can't comply' message if the target complains.
+> We can have default values for these types of devices or something 
+> like pci_addr=auto.
 
-of course, that's a simplification.  for example, the 'target' process
-should be able to respect some parameters, mostly the 'external'
-descriptions, like storage pathnames, or '-net tap' ones.
+Why wouldn't libvirt always use pci_addr=auto?  If the only argument for 
+having libvirt do pci slot allocation is error messages, can't we find a 
+nice way to allow libvirt to create friendly error messages when QEMU fails?
 
--- 
-Javier
+>> If you let QEMU allocate which PCI slot a device goes in, we can hide 
+>> this detail from libvirt.  If you have libvirt do PCI slot allocation 
+>> by default, it has to know about this restriction in the r2d board 
+>> unless you have a clever way to express this sort of information.
+>>
+>> Once QEMU has allocated a device to a slot, libvirt can do a good job 
+>> maintaining that relationship.
+>>
+>
+> The end user should have a mechanism to control device slot 
+> positioning. For example, if you have several pci devices, some
+> get high rate of interrupts and some not, if you want to optimize you 
+> guest you should isolate the high rate 'interesting' devices.
+> This is something the user will need to do. I agree that the default 
+> behavior might be 'auto'
+
+I'm not at all arguing against pci_addr.  I'm arguing about how libvirt 
+should use it with respect to the "genesis" use-case where libvirt has 
+no specific reason to choose one PCI slot over another.  In that case, 
+I'm merely advocating that we want to let QEMU make the decision.
+
+Regards,
+
+Anthony Liguori
