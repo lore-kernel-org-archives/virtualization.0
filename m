@@ -1,20 +1,19 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: Configuration vs. compat hints [was Re: [Qemu-devel] [PATCHv3
 	03/13] qemu: add routines to manage PCI capabilities]
-Date: Mon, 15 Jun 2009 17:34:06 +0300
-Message-ID: <20090615143406.GA14405__13952.6974679486$1245076692$gmane$org@redhat.com>
-References: <4A326C7E.3020309@codemonkey.ws> <1244822007.30522.68.camel@blaa>
-	<4A327E87.6080005@codemonkey.ws>
-	<1244825333.26769.20.camel@blaa> <4A34ADA9.80709@redhat.com>
-	<1245056955.6891.33.camel@blaa> <4A36314A.8040206@redhat.com>
-	<4A364316.5070402@codemonkey.ws> <1245074447.3222.53.camel@blaa>
-	<4A365890.1050106@codemonkey.ws>
+Date: Mon, 15 Jun 2009 17:37:37 +0300
+Message-ID: <20090615143737.GB14405__16323.5491877005$1245076864$gmane$org@redhat.com>
+References: <4A3636FA.1040609@redhat.com> <20090615124101.GH6351@redhat.com>
+	<4A364381.401@redhat.com> <4A364401.6010500@codemonkey.ws>
+	<4A3647FB.9010808@redhat.com> <4A364B53.9080007@codemonkey.ws>
+	<4A364FE0.40204@redhat.com> <4A3651EB.3070204@codemonkey.ws>
+	<4A36555A.4090303@redhat.com> <4A3659A0.3050108@codemonkey.ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <4A365890.1050106@codemonkey.ws>
+In-Reply-To: <4A3659A0.3050108@codemonkey.ws>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -25,68 +24,49 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Anthony Liguori <anthony@codemonkey.ws>
-Cc: Mark McLoughlin <markmc@redhat.com>, kvm@vger.kernel.org, Carsten Otte <cotte@de.ibm.com>, Glauber Costa <glommer@redhat.com>, Jamie Lokier <jamie@shareable.org>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Blue Swirl <blauwirbel@gmail.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Avi Kivity <avi@redhat.com>, Paul Brook <paul@codesourcery.com>
+Cc: Carsten Otte <cotte@de.ibm.com>, kvm@vger.kernel.org, Mark McLoughlin <markmc@redhat.com>, Glauber Costa <glommer@redhat.com>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Blue Swirl <blauwirbel@gmail.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Avi Kivity <avi@redhat.com>, Paul Brook <paul@codesourcery.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Jun 15, 2009 at 09:20:00AM -0500, Anthony Liguori wrote:
-> Mark McLoughlin wrote:
->> On Mon, 2009-06-15 at 07:48 -0500, Anthony Liguori wrote:
->>   
->>>> Eventually the default configuration becomes increasingly unusable 
->>>> and you need a new baseline.  You must still be able to fall back 
->>>> to the old baseline for older guests.  I don't think games with 
->>>> configuration files can hide that.
->>>>       
->>> -M pc1
->>> -M pc2
+On Mon, Jun 15, 2009 at 09:24:32AM -0500, Anthony Liguori wrote:
+> Dor Laor wrote:
+>> Libvirt does not support r2d. I hope it won't start to support it.
+>
+> It supports mips, sparc, and ppc machines now.  I don't see why it  
+> wouldn't support r2d.  For ppcemb, I expect this same problem to occur.   
+> This sort of restriction is going to be common with embedded boards.
+>
+>> We can have default values for these types of devices or something  
+>> like pci_addr=auto.
+>
+> Why wouldn't libvirt always use pci_addr=auto?  If the only argument for  
+> having libvirt do pci slot allocation is error messages, can't we find a  
+> nice way to allow libvirt to create friendly error messages when QEMU 
+> fails?
+>
+>>> If you let QEMU allocate which PCI slot a device goes in, we can hide 
+>>> this detail from libvirt.  If you have libvirt do PCI slot allocation 
+>>> by default, it has to know about this restriction in the r2d board  
+>>> unless you have a clever way to express this sort of information.
 >>>
->>> etc.
+>>> Once QEMU has allocated a device to a slot, libvirt can do a good job 
+>>> maintaining that relationship.
 >>>
->>> This is pretty easy to maintain with config files.
->>>     
 >>
->> I think this would be reasonable, but it is essentially just a version
->> number which you objected to on the basis that it would make
->> cherry-picking harder for distros.
->>   
+>> The end user should have a mechanism to control device slot  
+>> positioning. For example, if you have several pci devices, some
+>> get high rate of interrupts and some not, if you want to optimize you  
+>> guest you should isolate the high rate 'interesting' devices.
+>> This is something the user will need to do. I agree that the default  
+>> behavior might be 'auto'
 >
-> It doesn't have to be pc1, pc2.  It could be pc-with-usb or  
-> pc-with-balloon.  If a distro cherry picks in such a way that their pc  
-> is not a standard QEMU pc, they would add a new PC type that's specific  
-> to their distro.
->
->> One thing that would be nice with this '-M pc1' thing would be to retain
->> '-M pc' as a symlink to the latest version. We'd also need a way to read
->> the symlink too, so that you can query what the current latest version
->> is and use that in future.
->>   
->
-> Another option is an explicit -M default which always uses the default  
-> machine for the architecture.  Likewise, we would need a way to query  
-> what the default machine was for an architecture.
->
->> How would this machine type version relate to e.g. changing the default
->> PCI class of virtio-blk? Would we bump the version number of all machine
->> types can use virtio-blk?
->>   
-> You would introduce a new machine type.  For instance,  
-> pc-virtio-class-other.  The names don't have to look like that, I'm just  
-> doing that to make a point.  This may mean that you end up with dozens  
-> of machine types but you preserve compatibility, which is a good thing.
+> I'm not at all arguing against pci_addr.  I'm arguing about how libvirt  
+> should use it with respect to the "genesis" use-case where libvirt has  
+> no specific reason to choose one PCI slot over another.  In that case,  
+> I'm merely advocating that we want to let QEMU make the decision.
 
-And then pc-virtio-class-other-with-balloon-without-usb? Wouldn't it be
-more straightforward to have capability bits which can be switched on
-and off independently rather than trying to fit unrelated features into
-a machine type?  IMO it only seems more work at first, and QA gets a bit
-nervious that they can't exhaustively test all options. But in the long
-run it simplifies things as you don't have to set policy and invent
-silly names.
+The allocation code could be moved out into a library, and libvirt could
+link with it (ducks).
 
-> Of course, the flip side is that you make preserving the machine config  
-> the duty of the user and we don't maintain compatible machine types.   
-> This won't work without a proper config file though so for now, we're  
-> stuck maintaining machine types.
->
 > Regards,
 >
 > Anthony Liguori
