@@ -1,19 +1,24 @@
-From: Anthony Liguori <anthony@codemonkey.ws>
+From: Avi Kivity <avi@redhat.com>
 Subject: Re: Configuration vs. compat hints [was Re: [Qemu-devel] [PATCHv3
 	03/13] qemu: add routines to manage PCI capabilities]
-Date: Mon, 15 Jun 2009 07:52:17 -0500
-Message-ID: <4A364401.6010500__45012.3003953651$1245070471$gmane$org@codemonkey.ws>
-References: <1244821292.30522.56.camel@blaa> <4A327E4A.7010300@codemonkey.ws>
-	<1244825303.26769.19.camel@blaa> <20090614095016.GA7560@redhat.com>
+Date: Mon, 15 Jun 2009 15:55:22 +0300
+Message-ID: <4A3644BA.4090102__17341.2630604163$1245070734$gmane$org@redhat.com>
+References: <20090610150129.GC28601@redhat.com>	
+	<200906101624.30659.paul@codesourcery.com>	
+	<20090610174301.GC7416@shareable.org>
+	<20090610182227.GN28601@redhat.com>	
+	<20090610192702.GH7416@shareable.org>
+	<1244796209.16425.20.camel@blaa>	 <4A326B5C.5010501@codemonkey.ws>
+	<1244821292.30522.56.camel@blaa>	 <4A327E4A.7010300@codemonkey.ws>
+	<1244825303.26769.19.camel@blaa>	
+	<20090614095016.GA7560@redhat.com>
 	<1245056916.6891.31.camel@blaa> <4A3613EC.6030608@redhat.com>
-	<20090615103249.GB6351@redhat.com> <4A363012.8050409@redhat.com>
-	<20090615114858.GG6351@redhat.com> <4A3636FA.1040609@redhat.com>
-	<20090615124101.GH6351@redhat.com> <4A364381.401@redhat.com>
+	<4A36415F.6080206@codemonkey.ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4A364381.401@redhat.com>
+In-Reply-To: <4A36415F.6080206@codemonkey.ws>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -23,29 +28,28 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Avi Kivity <avi@redhat.com>
+To: Anthony Liguori <anthony@codemonkey.ws>
 Cc: Carsten Otte <cotte@de.ibm.com>, kvm@vger.kernel.org, Mark McLoughlin <markmc@redhat.com>, Glauber Costa <glommer@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, Jamie Lokier <jamie@shareable.org>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Blue Swirl <blauwirbel@gmail.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Paul Brook <paul@codesourcery.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Avi Kivity wrote:
-> On 06/15/2009 03:41 PM, Michael S. Tsirkin wrote:
->> We should just tell the user which slots are open.
->>   
->> This might be tricky if the config is passed in with the command line
->> flags.
->>    
+On 06/15/2009 03:41 PM, Anthony Liguori wrote:
+>>> Yep, most people seem to agree that it makes sense to allow this, but
+>>> some believe it should only be via a machine description file, not the
+>>> command line.
+>>
+>> I don't understand this opposition.  It's clear a machine config file 
+>> is a long way in our future.  It's also clear lack of stable PCI 
+>> addresses hurts us now.
 >
-> qemu -show-available-pci-slots
+>
+> Is there opposition?  I don't ever recall seeing a patch...
 
-Why does the user care?
+Izik Eidus posted a patch (using a different syntax) in November 2007.
 
-Let QEMU allocate the PCI slot, then query it to see what slot it 
-assigned and remember that.
+>
+> I think it's a perfectly fine idea.
 
-It's not a good idea to have management applications attempt to do PCI 
-slot allocation.  For instance, one day we may decide to make virtio 
-devices multi-function.
+Good.
 
-Regards,
-
-Anthony Liguori
+-- 
+error compiling committee.c: too many arguments to function
