@@ -1,25 +1,18 @@
-From: Anthony Liguori <anthony@codemonkey.ws>
-Subject: Re: Configuration vs. compat hints [was Re: [Qemu-devel] [PATCHv3
-	03/13] qemu: add routines to manage PCI capabilities]
-Date: Mon, 15 Jun 2009 09:20:00 -0500
-Message-ID: <4A365890.1050106__10435.4181014516$1245075693$gmane$org@codemonkey.ws>
-References: <cover.1244192535.git.mst@redhat.com>	
-	<20090610145540.GI19375@poweredge.glommer>	
-	<20090610150129.GC28601@redhat.com>	
-	<200906101624.30659.paul@codesourcery.com>	
-	<20090610174301.GC7416@shareable.org>
-	<20090610182227.GN28601@redhat.com>	
-	<20090610192702.GH7416@shareable.org>
-	<1244796209.16425.20.camel@blaa>	 <4A326C7E.3020309@codemonkey.ws>
-	<1244822007.30522.68.camel@blaa>	 <4A327E87.6080005@codemonkey.ws>
-	<1244825333.26769.20.camel@blaa>	 <4A34ADA9.80709@redhat.com>
-	<1245056955.6891.33.camel@blaa>	 <4A36314A.8040206@redhat.com>
-	<4A364316.5070402@codemonkey.ws> <1245074447.3222.53.camel@blaa>
+From: Javier Guerra <javier@guerrag.com>
+Subject: Re: Configuration vs. compat hints
+Date: Mon, 15 Jun 2009 09:23:44 -0500
+Message-ID: <90eb1dc70906150723h4e0e9aa2h253c8411771b6e7e__29772.4314070821$1245075888$gmane$org@mail.gmail.com>
+References: <20090610150129.GC28601@redhat.com>
+	<4A326B5C.5010501@codemonkey.ws> <1244821292.30522.56.camel@blaa>
+	<4A327E4A.7010300@codemonkey.ws> <1244825303.26769.19.camel@blaa>
+	<20090614095016.GA7560@redhat.com> <1245056916.6891.31.camel@blaa>
+	<4A3613EC.6030608@redhat.com> <87ocsp687t.fsf@pike.pond.sub.org>
+	<4A3633FD.4010208@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1245074447.3222.53.camel@blaa>
+In-Reply-To: <4A3633FD.4010208@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -29,61 +22,26 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Mark McLoughlin <markmc@redhat.com>
-Cc: Carsten Otte <cotte@de.ibm.com>, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, Glauber Costa <glommer@redhat.com>, Jamie Lokier <jamie@shareable.org>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Blue Swirl <blauwirbel@gmail.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Avi Kivity <avi@redhat.com>, Paul Brook <paul@codesourcery.com>
+To: Avi Kivity <avi@redhat.com>
+Cc: Mark McLoughlin <markmc@redhat.com>, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, qemu-devel <qemu-devel@nongnu.org>, Glauber Costa <glommer@redhat.com>, virtualization@lists.linux-foundation.org, Blue Swirl <blauwirbel@gmail.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Paul Brook <paul@codesourcery.com>, Anthony Liguori <anthony@codemonkey.ws>, Carsten Otte <cotte@de.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Mark McLoughlin wrote:
-> On Mon, 2009-06-15 at 07:48 -0500, Anthony Liguori wrote:
->   
->>> Eventually the 
->>> default configuration becomes increasingly unusable and you need a new 
->>> baseline.  You must still be able to fall back to the old baseline for 
->>> older guests.  I don't think games with configuration files can hide 
->>> that.
->>>       
->> -M pc1
->> -M pc2
->>
->> etc.
->>
->> This is pretty easy to maintain with config files.
->>     
->
-> I think this would be reasonable, but it is essentially just a version
-> number which you objected to on the basis that it would make
-> cherry-picking harder for distros.
->   
+On Mon, Jun 15, 2009 at 6:43 AM, Avi Kivity<avi@redhat.com> wrote:
+> (I'd be quite happy constructing the entire machine config on the command
+> line, but I realize it's just me)
 
-It doesn't have to be pc1, pc2.  It could be pc-with-usb or 
-pc-with-balloon.  If a distro cherry picks in such a way that their pc 
-is not a standard QEMU pc, they would add a new PC type that's specific 
-to their distro.
+as a user-only (well, i'm a developer, but don't meddle in kernel
+affairs since 0.99pl9); I also like that kvm is totally CLI-managed.
 
-> One thing that would be nice with this '-M pc1' thing would be to retain
-> '-M pc' as a symlink to the latest version. We'd also need a way to read
-> the symlink too, so that you can query what the current latest version
-> is and use that in future.
->   
+but migration-wise, i think it could be nicer if the 'origin' process
+could send the config to the 'target' one.  IOW: the -incoming flag
+shouldn't need any other parameter, and the 'migrate' command should
+send the whole hardware description before the CPU state, and fail
+with a 'can't comply' message if the target complains.
 
-Another option is an explicit -M default which always uses the default 
-machine for the architecture.  Likewise, we would need a way to query 
-what the default machine was for an architecture.
+of course, that's a simplification.  for example, the 'target' process
+should be able to respect some parameters, mostly the 'external'
+descriptions, like storage pathnames, or '-net tap' ones.
 
-> How would this machine type version relate to e.g. changing the default
-> PCI class of virtio-blk? Would we bump the version number of all machine
-> types can use virtio-blk?
->   
-You would introduce a new machine type.  For instance, 
-pc-virtio-class-other.  The names don't have to look like that, I'm just 
-doing that to make a point.  This may mean that you end up with dozens 
-of machine types but you preserve compatibility, which is a good thing.
-
-Of course, the flip side is that you make preserving the machine config 
-the duty of the user and we don't maintain compatible machine types.  
-This won't work without a proper config file though so for now, we're 
-stuck maintaining machine types.
-
-Regards,
-
-Anthony Liguori
+-- 
+Javier
