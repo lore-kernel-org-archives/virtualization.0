@@ -1,8 +1,8 @@
-From: Anthony Liguori <anthony@codemonkey.ws>
+From: Avi Kivity <avi@redhat.com>
 Subject: Re: Configuration vs. compat hints [was Re: [Qemu-devel] [PATCHv3
 	03/13] qemu: add routines to manage PCI capabilities]
-Date: Mon, 15 Jun 2009 10:20:21 -0500
-Message-ID: <4A3666B5.2000104__42943.5942591683$1245080578$gmane$org@codemonkey.ws>
+Date: Mon, 15 Jun 2009 18:26:33 +0300
+Message-ID: <4A366829.7060700__48758.8530210361$1245080720$gmane$org@redhat.com>
 References: <20090610150129.GC28601@redhat.com>
 	<200906101624.30659.paul@codesourcery.com>
 	<20090610174301.GC7416@shareable.org>
@@ -15,12 +15,12 @@ References: <20090610150129.GC28601@redhat.com>
 	<4A364698.1090402@redhat.com> <4A364A9B.9070001@codemonkey.ws>
 	<4A364E32.4010808@redhat.com> <4A365078.5080209@codemonkey.ws>
 	<4A36529D.4060200@redhat.com> <4A3663C6.3070801@codemonkey.ws>
-	<4A3664A0.6080105@redhat.com>
+	<4A3664A0.6080105@redhat.com> <4A3666B5.2000104@codemonkey.ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4A3664A0.6080105@redhat.com>
+In-Reply-To: <4A3666B5.2000104@codemonkey.ws>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -30,20 +30,25 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Avi Kivity <avi@redhat.com>
+To: Anthony Liguori <anthony@codemonkey.ws>
 Cc: Carsten Otte <cotte@de.ibm.com>, kvm@vger.kernel.org, Mark McLoughlin <markmc@redhat.com>, Glauber Costa <glommer@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, Jamie Lokier <jamie@shareable.org>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Blue Swirl <blauwirbel@gmail.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Paul Brook <paul@codesourcery.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Avi Kivity wrote:
-> I would prefer explicit names (pci_addr, lun, etc.) but would be okay 
-> with generic names too.
+On 06/15/2009 06:20 PM, Anthony Liguori wrote:
+> Avi Kivity wrote:
+>> I would prefer explicit names (pci_addr, lun, etc.) but would be okay 
+>> with generic names too.
+>
+> I think having a generic address has a lot of value in terms of code 
+> implementation.  Otherwise, the valid options for -drive become 
+> context-sensitive which is going to be annoying and error-prone.  Some 
+> sanity could be added by using addressing prefixes like 
+> addr=pci:00:01.0 or addr=scsi:0.3 but I'll leave that up to whoever 
+> takes this on.
 
-I think having a generic address has a lot of value in terms of code 
-implementation.  Otherwise, the valid options for -drive become 
-context-sensitive which is going to be annoying and error-prone.  Some 
-sanity could be added by using addressing prefixes like addr=pci:00:01.0 
-or addr=scsi:0.3 but I'll leave that up to whoever takes this on.
+The code problems are easily solved by adding another level of 
+indirection.  User confusion problems are only aggravated by additional 
+abstraction, though ("what do I put in addr=, here?").
 
-Regards,
-
-Anthony Liguori
+-- 
+error compiling committee.c: too many arguments to function
