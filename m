@@ -1,7 +1,7 @@
 From: "Fischer, Anna" <anna.fischer@hp.com>
-Subject: [PATCH][RFC] net/bridge: add basic VEPA support
-Date: Mon, 15 Jun 2009 17:33:10 +0000
-Message-ID: <0199E0D51A61344794750DC57738F58E67D2DCECBB__44648.2270992876$1245087821$gmane$org@GVW1118EXC.americas.hpqcorp.net>
+Subject: [PATCH][RFC] bridge-utils: add basic VEPA support
+Date: Mon, 15 Jun 2009 17:33:55 +0000
+Message-ID: <0199E0D51A61344794750DC57738F58E67D2DCECBD__21285.0326592617$1245087865$gmane$org@GVW1118EXC.americas.hpqcorp.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -20,29 +20,29 @@ To: "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, "li
 Cc: Arnd Bergmann <arnd@arndb.de>, "davem@davemloft.net" <davem@davemloft.net>, "Paul Congdon (UC Davis)" <ptcongdon@ucdavis.edu>, "shemminger@linux-foundation.org" <shemminger@linux-foundation.org>, "adobriyan@gmail.com" <adobriyan@gmail.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch adds basic Virtual Ethernet Port Aggregator (VEPA)
-capabilities to the Linux kernel Ethernet bridging code.
+This patch adds basic Virtual Ethernet Port Aggregator (VEPA) 
+capabilities to the Linux Ethernet bridging utilities.
 
-A Virtual Ethernet Port Aggregator (VEPA) is a capability within
-a physical end station that collaborates with an adjacent, external
-bridge to provide distributed bridging support between multiple
-virtual end stations and external networks. The VEPA collaborates
-by forwarding all station-originated frames to the adjacent bridge
-for frame processing and frame relay (including so-called 'hairpin'
-forwarding) and by steering and replicating frames received from
-the VEPA uplink to the appropriate destinations. A VEPA may be
+The patch provides functionality that depends on the Linux kernel
+patch 'net/bridge: add basic VEPA support'.
+
+This patch relies on the patch 'bridge-utils: fix sysfs path for 
+setting bridge configuration parameters'.
+
+A Virtual Ethernet Port Aggregator (VEPA) is a capability within 
+a physical end station that collaborates with an adjacent, external 
+bridge to provide distributed bridging support between multiple 
+virtual end stations and external networks. The VEPA collaborates 
+by forwarding all station-originated frames to the adjacent bridge 
+for frame processing and frame relay (including so-called 'hairpin' 
+forwarding) and by steering and replicating frames received from 
+the VEPA uplink to the appropriate destinations. A VEPA may be 
 implemented in software or in conjunction with embedded hardware.
 
-In particular, the patch extends the Linux Ethernet bridge to act as
-(1) a VEPA - for this we have added VEPA forwarding functionality and
-    added a configuration option for a VEPA uplink port, or as
-(2) a bridge supporting 'hairpin' forwarding - for this we have added a
-    bridge port 'hairpin' mode which allows sending frames back out
-    through the port the frame was received on.
-
-Configuration of VEPA capabilities through Linux userspace bridge
-utilities is provided by an additional patch 'bridge-utils: add
-basic VEPA support'.
+In particular, the patch extends the Linux Ethernet bridge utilities
+to configure a bridge to act as
+(1) a VEPA, or as
+(2) a bridge supporting 'hairpin' forwarding.
 
 You can find additional information on VEPA here:
 http://tech.groups.yahoo.com/group/evb/
@@ -53,315 +53,371 @@ Signed-off-by: Anna Fischer <anna.fischer@hp.com>
 
 ---
 
- net/bridge/br_fdb.c      |   22 ++++++++++++++
- net/bridge/br_forward.c  |   24 ++++++++++++++-
- net/bridge/br_if.c       |    3 ++
- net/bridge/br_input.c    |    9 ++++++
- net/bridge/br_private.h  |   12 ++++++++
- net/bridge/br_sysfs_br.c |   69 ++++++++++++++++++++++++++++++++++++++++++++++
- net/bridge/br_sysfs_if.c |   17 +++++++++++
- 7 files changed, 154 insertions(+), 2 deletions(-)
+ brctl/brctl_cmd.c           |  108 ++++++++++++++++++++++++++++++++++++++++---
+ brctl/brctl_disp.c          |    6 ++
+ libbridge/libbridge.h       |    7 +++
+ libbridge/libbridge_devif.c |   90 ++++++++++++++++++++++++++++++++++-
+ 4 files changed, 201 insertions(+), 10 deletions(-)
 
-diff --git a/net/bridge/br_fdb.c b/net/bridge/br_fdb.c
-index a48f5ef..7d0f6ed 100644
---- a/net/bridge/br_fdb.c
-+++ b/net/bridge/br_fdb.c
-@@ -394,6 +394,15 @@ void br_fdb_update(struct net_bridge *br, struct net_bridge_port *source,
- 
- 	fdb = fdb_find(head, addr);
- 	if (likely(fdb)) {
-+		/*
-+		 * If we are a VEPA and the source port is the uplink,
-+		 * this could be a reflected packet, so don't learn any
-+		 * addresses that already are in the fdb but on other ports
-+		 */
-+		if ((br->flags & BR_VEPA_MODE) && br->uplink == source &&
-+		    fdb->dst != br->uplink)
-+			return;
-+
- 		/* attempt to update an entry for a local interface */
- 		if (unlikely(fdb->is_local)) {
- 			if (net_ratelimit())
-@@ -415,3 +424,16 @@ void br_fdb_update(struct net_bridge *br, struct net_bridge_port *source,
- 		spin_unlock(&br->hash_lock);
- 	}
+diff --git a/brctl/brctl_cmd.c b/brctl/brctl_cmd.c
+index c93dd55..77eaf1e 100644
+--- a/brctl/brctl_cmd.c
++++ b/brctl/brctl_cmd.c
+@@ -280,17 +280,26 @@ static int br_cmd_setportprio(int argc, char *const* argv)
+ 	return err != 0;
  }
-+
-+struct net_bridge_port *br_vepa_find_src(struct net_bridge *br,
-+		   const unsigned char *addr)
+ 
++static int br_parse_param(const char *param, int *res)
 +{
-+	struct hlist_head *head = &br->hash[br_mac_hash(addr)];
-+	struct net_bridge_fdb_entry *fdb;
-+
-+	fdb = fdb_find(head, addr);
-+	if (fdb)
-+		return fdb->dst;
-+	else
-+		return NULL;
-+}
-diff --git a/net/bridge/br_forward.c b/net/bridge/br_forward.c
-index d2c27c8..ff1135e 100644
---- a/net/bridge/br_forward.c
-+++ b/net/bridge/br_forward.c
-@@ -22,7 +22,8 @@
- static inline int should_deliver(const struct net_bridge_port *p,
- 				 const struct sk_buff *skb)
- {
--	return (skb->dev != p->dev && p->state == BR_STATE_FORWARDING);
-+	return (((p->flags & BR_HAIRPIN_MODE) || skb->dev != p->dev) &&
-+		p->state == BR_STATE_FORWARDING);
- }
- 
- static inline unsigned packet_length(const struct sk_buff *skb)
-@@ -92,6 +93,17 @@ void br_deliver(const struct net_bridge_port *to, struct sk_buff *skb)
- }
- 
- /* called with rcu_read_lock */
-+void br_vepa_deliver(const struct net_bridge_port *to, struct sk_buff *skb)
-+{
-+	if (!skb_warn_if_lro(skb) && (to != NULL)) {
-+		__br_forward(to, skb);
-+		return;
++	if (!strcmp(param, "on") || !strcmp(param, "yes")
++	    || !strcmp(param, "1"))
++		*res = 1;
++	else if (!strcmp(param, "off") || !strcmp(param, "no")
++		 || !strcmp(param, "0"))
++		*res = 0;
++	else {
++		return EINVAL;
 +	}
-+
-+	kfree_skb(skb);
-+}
-+
-+/* called with rcu_read_lock */
- void br_forward(const struct net_bridge_port *to, struct sk_buff *skb)
- {
- 	if (should_deliver(to, skb)) {
-@@ -109,11 +121,19 @@ static void br_flood(struct net_bridge *br, struct sk_buff *skb,
- {
- 	struct net_bridge_port *p;
- 	struct net_bridge_port *prev;
-+	struct net_bridge_port *sp = NULL;
-+
-+	/*
-+	 * If we are a VEPA, then we do not want to send the frame
-+	 * to the port it came from originally.
-+	 */
-+	if (br->flags & BR_VEPA_MODE)
-+		sp = br_vepa_find_src(br, eth_hdr(skb)->h_source);
- 
- 	prev = NULL;
- 
- 	list_for_each_entry_rcu(p, &br->port_list, list) {
--		if (should_deliver(p, skb)) {
-+		if (should_deliver(p, skb) && p != sp) {
- 			if (prev != NULL) {
- 				struct sk_buff *skb2;
- 
-diff --git a/net/bridge/br_if.c b/net/bridge/br_if.c
-index 8a96672..22239ef 100644
---- a/net/bridge/br_if.c
-+++ b/net/bridge/br_if.c
-@@ -146,6 +146,8 @@ static void del_nbp(struct net_bridge_port *p)
- 	list_del_rcu(&p->list);
- 
- 	rcu_assign_pointer(dev->br_port, NULL);
-+	if (br->uplink == p)
-+		br->uplink = NULL;
- 
- 	kobject_uevent(&p->kobj, KOBJ_REMOVE);
- 	kobject_del(&p->kobj);
-@@ -203,6 +205,7 @@ static struct net_device *new_bridge_dev(struct net *net, const char *name)
- 	br->topology_change = 0;
- 	br->topology_change_detected = 0;
- 	br->ageing_time = 300 * HZ;
-+	br->uplink = NULL;
- 
- 	br_netfilter_rtable_init(br);
- 
-diff --git a/net/bridge/br_input.c b/net/bridge/br_input.c
-index 5ee1a36..8027156 100644
---- a/net/bridge/br_input.c
-+++ b/net/bridge/br_input.c
-@@ -50,6 +50,15 @@ int br_handle_frame_finish(struct sk_buff *skb)
- 	br = p->br;
- 	br_fdb_update(br, p, eth_hdr(skb)->h_source);
- 
-+	/*
-+	 * If we are a VEPA, and the receiving port is not the uplink we
-+	 * simply want to send this frame to the uplink (after learning)
-+	 */
-+	if ((br->flags & BR_VEPA_MODE) && p != br->uplink) {
-+		br_vepa_deliver(br->uplink, skb);
-+		goto out;
-+	}
-+
- 	if (p->state == BR_STATE_LEARNING)
- 		goto drop;
- 
-diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-index b6c3b71..0c7ee4c 100644
---- a/net/bridge/br_private.h
-+++ b/net/bridge/br_private.h
-@@ -82,6 +82,9 @@ struct net_bridge_port
- 	struct timer_list		message_age_timer;
- 	struct kobject			kobj;
- 	struct rcu_head			rcu;
-+
-+	unsigned long 			flags;
-+#define BR_HAIRPIN_MODE		0x00000001
- };
- 
- struct net_bridge
-@@ -98,6 +101,7 @@ struct net_bridge
- #endif
- 	unsigned long			flags;
- #define BR_SET_MAC_ADDR		0x00000001
-+#define BR_VEPA_MODE		0x00000010
- 
- 	/* STP */
- 	bridge_id			designated_root;
-@@ -128,6 +132,9 @@ struct net_bridge
- 	struct timer_list		topology_change_timer;
- 	struct timer_list		gc_timer;
- 	struct kobject			*ifobj;
-+
-+	/* VEPA */
-+	struct net_bridge_port		*uplink;
- };
- 
- extern struct notifier_block br_device_notifier;
-@@ -165,6 +172,9 @@ extern int br_fdb_insert(struct net_bridge *br,
- extern void br_fdb_update(struct net_bridge *br,
- 			  struct net_bridge_port *source,
- 			  const unsigned char *addr);
-+extern struct net_bridge_port *br_vepa_find_src(struct net_bridge *br,
-+						const unsigned char *addr);
-+
- 
- /* br_forward.c */
- extern void br_deliver(const struct net_bridge_port *to,
-@@ -175,6 +185,8 @@ extern void br_forward(const struct net_bridge_port *to,
- extern int br_forward_finish(struct sk_buff *skb);
- extern void br_flood_deliver(struct net_bridge *br, struct sk_buff *skb);
- extern void br_flood_forward(struct net_bridge *br, struct sk_buff *skb);
-+extern void br_vepa_deliver(const struct net_bridge_port *to,
-+		struct sk_buff *skb);
- 
- /* br_if.c */
- extern void br_port_carrier_check(struct net_bridge_port *p);
-diff --git a/net/bridge/br_sysfs_br.c b/net/bridge/br_sysfs_br.c
-index 603d892..557d7c3 100644
---- a/net/bridge/br_sysfs_br.c
-+++ b/net/bridge/br_sysfs_br.c
-@@ -344,6 +344,73 @@ static ssize_t store_flush(struct device *d,
- }
- static DEVICE_ATTR(flush, S_IWUSR, NULL, store_flush);
- 
-+static ssize_t show_vepa_mode(struct device *d,
-+			      struct device_attribute *attr, char *buf)
-+{
-+	struct net_bridge *br = to_bridge(d);
-+	int vepa_mode = (br->flags & BR_VEPA_MODE) ? 1 : 0;
-+	return sprintf(buf, "%d\n", vepa_mode);
-+}
-+
-+static ssize_t store_vepa_mode(struct device *d,
-+			       struct device_attribute *attr, const char *buf,
-+			       size_t len)
-+{
-+	struct net_bridge *br = to_bridge(d);
-+	int vepa_mode = 0;
-+
-+	if (!capable(CAP_NET_ADMIN))
-+		return -EPERM;
-+
-+	if (sscanf(buf, "%d", &vepa_mode) != 1)
-+		return -EINVAL;
-+
-+	rtnl_lock();
-+	if (vepa_mode)
-+		br->flags |= BR_VEPA_MODE;
-+	else
-+		br->flags &= ~BR_VEPA_MODE;
-+	rtnl_unlock();
-+
-+	return len;
-+}
-+static DEVICE_ATTR(vepa_mode, S_IRUGO | S_IWUSR, show_vepa_mode,
-+		   store_vepa_mode);
-+
-+static ssize_t show_uplink_port(struct device *d, struct device_attribute *attr,
-+				char *buf)
-+{
-+	struct net_bridge *br = to_bridge(d);
-+	if (br->uplink && br->uplink->dev)
-+		return sprintf(buf, "%s\n", br->uplink->dev->name);
-+	else
-+		return sprintf(buf, "\n");
-+}
-+
-+static ssize_t store_uplink_port(struct device *d,
-+				 struct device_attribute *attr, const char *buf,
-+				 size_t len)
-+{
-+	struct net_bridge *br = to_bridge(d);
-+	struct net_device *dev;
-+	if (!capable(CAP_NET_ADMIN))
-+		return -EPERM;
-+
-+	dev = dev_get_by_name(&init_net, buf);
-+	if (!dev || !dev->br_port || (dev->br_port->br != br)) {
-+		br->uplink = NULL;
-+		return -EINVAL;
-+	}
-+
-+	rtnl_lock();
-+	br->uplink = dev->br_port;
-+	rtnl_unlock();
-+
-+	return len;
-+}
-+static DEVICE_ATTR(uplink_port, S_IRUGO | S_IWUSR, show_uplink_port,
-+		   store_uplink_port);
-+
- static struct attribute *bridge_attrs[] = {
- 	&dev_attr_forward_delay.attr,
- 	&dev_attr_hello_time.attr,
-@@ -363,6 +430,8 @@ static struct attribute *bridge_attrs[] = {
- 	&dev_attr_gc_timer.attr,
- 	&dev_attr_group_addr.attr,
- 	&dev_attr_flush.attr,
-+	&dev_attr_vepa_mode.attr,
-+	&dev_attr_uplink_port.attr,
- 	NULL
- };
- 
-diff --git a/net/bridge/br_sysfs_if.c b/net/bridge/br_sysfs_if.c
-index 02b2d50..0e79531 100644
---- a/net/bridge/br_sysfs_if.c
-+++ b/net/bridge/br_sysfs_if.c
-@@ -143,6 +143,22 @@ static ssize_t store_flush(struct net_bridge_port *p, unsigned long v)
- }
- static BRPORT_ATTR(flush, S_IWUSR, NULL, store_flush);
- 
-+static ssize_t show_hairpin_mode(struct net_bridge_port *p, char *buf)
-+{
-+	int hairpin_mode = (p->flags & BR_HAIRPIN_MODE) ? 1 : 0;
-+	return sprintf(buf, "%d\n", hairpin_mode);
-+}
-+static ssize_t store_hairpin_mode(struct net_bridge_port *p, unsigned long v)
-+{
-+	if (v)
-+		p->flags |= BR_HAIRPIN_MODE;
-+	else
-+		p->flags &= ~BR_HAIRPIN_MODE;
 +	return 0;
 +}
-+static BRPORT_ATTR(hairpin_mode, S_IRUGO | S_IWUSR,
-+		   show_hairpin_mode, store_hairpin_mode);
 +
- static struct brport_attribute *brport_attrs[] = {
- 	&brport_attr_path_cost,
- 	&brport_attr_priority,
-@@ -159,6 +175,7 @@ static struct brport_attribute *brport_attrs[] = {
- 	&brport_attr_forward_delay_timer,
- 	&brport_attr_hold_timer,
- 	&brport_attr_flush,
-+	&brport_attr_hairpin_mode,
- 	NULL
+ static int br_cmd_stp(int argc, char *const* argv)
+ {
+ 	int stp, err;
+ 
+-	if (!strcmp(argv[2], "on") || !strcmp(argv[2], "yes") 
+-	    || !strcmp(argv[2], "1"))
+-		stp = 1;
+-	else if (!strcmp(argv[2], "off") || !strcmp(argv[2], "no") 
+-		 || !strcmp(argv[2], "0"))
+-		stp = 0;
+-	else {
++	err = br_parse_param(argv[2], &stp);
++	if (err) {
+ 		fprintf(stderr, "expect on/off for argument\n");
+ 		return 1;
+ 	}
+@@ -316,6 +325,85 @@ static int br_cmd_showstp(int argc, char *const* argv)
+ 	return 0;
+ }
+ 
++static int br_cmd_vepa(int argc, char *const* argv)
++{
++	int vepa, err;
++
++	err = br_parse_param(argv[2], &vepa);
++	if (err) {
++		fprintf(stderr, "expect on/off for argument\n");
++		return 1;
++	}
++
++	err = br_set_vepa_mode(argv[1], vepa);
++	if (err)
++		fprintf(stderr, "set vepa mode failed: %s\n",
++			strerror(errno));
++	return err != 0;
++}
++
++static int br_cmd_vepauplink(int argc, char *const* argv)
++{
++	const char *brname = *++argv;
++	const char *ifname = *++argv;
++	int err;
++
++	if (if_nametoindex(ifname) == 0) {
++		fprintf(stderr, "interface %s does not exist!\n",
++			ifname);
++		return 1;
++	} else if (if_nametoindex(brname) == 0) {
++		fprintf(stderr, "bridge %s does not exist!\n",
++			brname);
++		return 1;
++	}
++
++	err = br_set_vepa_uplink(brname, ifname);
++
++	if (err) {
++		fprintf(stderr, "cannot set %s as vepa uplink.\n%s has "
++			"to be valid port of bridge %s: %s\n", ifname,
++			ifname, brname, strerror(err));
++	}
++	return err != 0;
++}
++
++static int br_cmd_hairpin(int argc, char *const* argv)
++{
++	int hairpin, err;
++	const char *brname = *++argv;
++	const char *ifname = *++argv;
++	const char *hpmode = *++argv;
++
++	if (!strcmp(hpmode, "on") || !strcmp(hpmode, "yes")
++	    || !strcmp(hpmode, "1"))
++		hairpin = 1;
++	else if (!strcmp(hpmode, "off") || !strcmp(hpmode, "no")
++		 || !strcmp(hpmode, "0"))
++		hairpin = 0;
++	else {
++		fprintf(stderr, "expect on/off for argument\n");
++		return 1;
++	}
++	if (if_nametoindex(ifname) == 0) {
++		fprintf(stderr, "interface %s does not exist!\n",
++			ifname);
++		return 1;
++	} else if (if_nametoindex(brname) == 0) {
++		fprintf(stderr, "bridge %s does not exist!\n",
++			brname);
++		return 1;
++	}
++
++	err = br_set_hairpin_mode(brname, ifname, hairpin);
++
++	if (err) {
++		fprintf(stderr, "can't set %s to hairpin on bridge %s: %s\n",
++			ifname, brname, strerror(err));
++	}
++	return err != 0;
++}
++
+ static int show_bridge(const char *name, void *arg)
+ {
+ 	struct bridge_info info;
+@@ -402,6 +490,8 @@ static const struct command commands[] = {
+ 	  "<bridge> <device>\tadd interface to bridge" },
+ 	{ 2, "delif", br_cmd_delif,
+ 	  "<bridge> <device>\tdelete interface from bridge" },
++	{ 3, "hairpin", br_cmd_hairpin,
++	  "<bridge> <port> {on|off}\tturn hairpin on/off" },
+ 	{ 2, "setageing", br_cmd_setageing,
+ 	  "<bridge> <time>\t\tset ageing time" },
+ 	{ 2, "setbridgeprio", br_cmd_setbridgeprio,
+@@ -423,6 +513,10 @@ static const struct command commands[] = {
+ 	  "<bridge>\t\tshow bridge stp info"},
+ 	{ 2, "stp", br_cmd_stp,
+ 	  "<bridge> {on|off}\tturn stp on/off" },
++	{ 2, "vepa", br_cmd_vepa,
++	  "<bridge> {on|off}\tturn vepa on/off" },
++	{ 2, "vepauplink", br_cmd_vepauplink,
++	  "<bridge> <port>\t\tset uplink for vepa" },
  };
+ 
+ const struct command *command_lookup(const char *cmd)
+diff --git a/brctl/brctl_disp.c b/brctl/brctl_disp.c
+index 27ce6d2..5bcf38b 100644
+--- a/brctl/brctl_disp.c
++++ b/brctl/brctl_disp.c
+@@ -93,6 +93,8 @@ static int dump_port_info(const char *br, const char *p,  void *arg)
+ 		printf("CONFIG_PENDING ");
+ 	if (pinfo.top_change_ack)
+ 		printf("TOPOLOGY_CHANGE_ACK ");
++	if (pinfo.hairpin_mode)
++		printf("\n hairpin mode\t\t\%4i", pinfo.hairpin_mode);
+ 	printf("\n");
+ 	printf("\n");
+ 	return 0;
+@@ -136,6 +138,10 @@ void br_dump_info(const char *br, const struct bridge_info *bri)
+ 		printf("TOPOLOGY_CHANGE ");
+ 	if (bri->topology_change_detected)
+ 		printf("TOPOLOGY_CHANGE_DETECTED ");
++	if (bri->vepa_mode) {
++		printf("\n vepa mode\t\t%4i", bri->vepa_mode);
++		printf("\t\t\tuplink port\t\t%s", bri->uplink_port);
++	}
+ 	printf("\n");
+ 	printf("\n");
+ 	printf("\n");
+diff --git a/libbridge/libbridge.h b/libbridge/libbridge.h
+index 016acea..b232f45 100644
+--- a/libbridge/libbridge.h
++++ b/libbridge/libbridge.h
+@@ -54,6 +54,8 @@ struct bridge_info
+ 	struct timeval tcn_timer_value;
+ 	struct timeval topology_change_timer_value;
+ 	struct timeval gc_timer_value;
++	unsigned char vepa_mode;
++	char uplink_port[IFNAMSIZ];
+ };
+ 
+ struct fdb_entry
+@@ -80,6 +82,7 @@ struct port_info
+ 	struct timeval message_age_timer_value;
+ 	struct timeval forward_delay_timer_value;
+ 	struct timeval hold_timer_value;
++	unsigned char hairpin_mode;
+ };
+ 
+ extern int br_init(void);
+@@ -113,4 +116,8 @@ extern int br_set_path_cost(const char *br, const char *p,
+ 			    int path_cost);
+ extern int br_read_fdb(const char *br, struct fdb_entry *fdbs, 
+ 		       unsigned long skip, int num);
++extern int br_set_vepa_uplink(const char *br, const char *uplink);
++extern int br_set_vepa_mode(const char *br, int vepa_mode);
++extern int br_set_hairpin_mode(const char *bridge, const char *dev,
++			       int hairpin_mode);
+ #endif
+diff --git a/libbridge/libbridge_devif.c b/libbridge/libbridge_devif.c
+index 547bb86..cc4a9cb 100644
+--- a/libbridge/libbridge_devif.c
++++ b/libbridge/libbridge_devif.c
+@@ -36,6 +36,14 @@ static FILE *fpopen(const char *dir, const char *name)
+ 	return fopen(path, "r");
+ }
+ 
++static int fpaccess(const char *dir, const char *name)
++{
++	char path[SYSFS_PATH_MAX];
++
++	snprintf(path, SYSFS_PATH_MAX, "%s/%s", dir, name);
++	return access(path, F_OK);
++}
++
+ static void fetch_id(const char *dev, const char *name, struct bridge_id *id)
+ {
+ 	FILE *f = fpopen(dev, name);
+@@ -58,7 +66,8 @@ static int fetch_int(const char *dev, const char *name)
+ 	int value = -1;
+ 
+ 	if (!f) 
+-		fprintf(stderr, "%s: %s\n", dev, strerror(errno));
++		fprintf(stderr, "%s/%s: %s\n", dev, name,
++			strerror(errno));
+ 	else {
+ 		fscanf(f, "%i", &value);
+ 		fclose(f);
+@@ -73,6 +82,27 @@ static void fetch_tv(const char *dev, const char *name,
+ 	__jiffies_to_tv(tv, fetch_int(dev, name));
+ }
+ 
++/* Fetch a string attribute out of sysfs. */
++static void fetch_string(const char *dev, const char *name, char *string)
++{
++	FILE *f = fpopen(dev, name);
++
++	if (!f) {
++		fprintf(stderr, "%s/%s: %s\n", dev, name,
++			strerror(errno));
++		sprintf(string, "-");
++	} else {
++		fscanf(f, "%s", string);
++		fclose(f);
++	}
++}
++
++/* Check if a feature is supported. */
++static int feature_supported(const char *dev, const char *feature)
++{
++	return !fpaccess(dev, feature);
++}
++
+ /* Open sysfs path for writing bridge properties. */
+ static FILE *br_sysfs_open(const char *bridge, const char *name)
+ {
+@@ -168,7 +198,8 @@ static int old_get_bridge_info(const char *bridge, struct bridge_info *info)
+ 	__jiffies_to_tv(&info->topology_change_timer_value, 
+ 			i.topology_change_timer_value);
+ 	__jiffies_to_tv(&info->gc_timer_value, i.gc_timer_value);
+-
++	info->vepa_mode = 0;
++	sprintf(info->uplink_port, "-");
+ 	return 0;
+ }
+ 
+@@ -209,7 +240,13 @@ int br_get_bridge_info(const char *bridge, struct bridge_info *info)
+ 	info->stp_enabled = fetch_int(path, "stp_state");
+ 	info->topology_change = fetch_int(path, "topology_change");
+ 	info->topology_change_detected = fetch_int(path, "topology_change_detected");
+-
++	if (feature_supported(path, "vepa_mode")) {
++		info->vepa_mode = fetch_int(path, "vepa_mode");
++		fetch_string(path, "uplink_port", info->uplink_port);
++	} else {
++		info->vepa_mode = 0;
++		sprintf(info->uplink_port, "-");
++	}
+ 	closedir(dir);
+ 	return 0;
+ 
+@@ -259,6 +296,7 @@ static int old_get_port_info(const char *brname, const char *port,
+ 	__jiffies_to_tv(&info->forward_delay_timer_value, 
+ 			i.forward_delay_timer_value);
+ 	__jiffies_to_tv(&info->hold_timer_value, i.hold_timer_value);
++	info->hairpin_mode = 0;
+ 	return 0;
+ }
+ 
+@@ -291,6 +329,10 @@ int br_get_port_info(const char *brname, const char *port,
+ 	fetch_tv(path, "message_age_timer", &info->message_age_timer_value);
+ 	fetch_tv(path, "forward_delay_timer", &info->forward_delay_timer_value);
+ 	fetch_tv(path, "hold_timer", &info->hold_timer_value);
++	if (feature_supported(path, "hairpin_mode"))
++		info->hairpin_mode = fetch_int(path, "hairpin_mode");
++	else
++		info->hairpin_mode = 0;
+ 	closedir(d);
+ 
+ 	return 0;
+@@ -322,6 +364,33 @@ static int br_set(const char *bridge, const char *name,
+ 	return ret < 0 ? errno : 0;
+ }
+ 
++static int br_set_string(const char *bridge, const char *name,
++			 const char *string, int len)
++{
++	FILE *f;
++	char tmp[len];
++
++	f = br_sysfs_open(bridge, name);
++	if (f) {
++		if (fprintf(f, "%s", string) > 0) {
++			rewind(f);
++			len = fscanf(f, "%s", tmp);
++			if (strncmp(tmp, string, len) == 0) {
++				fclose(f);
++				return 0;
++			} else {
++				fclose(f);
++				return EINVAL;
++			}
++		}
++		return errno;
++	} else {
++		/* fallback to old ioctl */
++		/* not supported for new function */
++		return errno;
++	}
++}
++
+ int br_set_bridge_forward_delay(const char *br, struct timeval *tv)
+ {
+ 	return br_set(br, "forward_delay", __tv_to_jiffies(tv),
+@@ -351,6 +420,16 @@ int br_set_stp_state(const char *br, int stp_state)
+ 	return br_set(br, "stp_state", stp_state, BRCTL_SET_BRIDGE_STP_STATE);
+ }
+ 
++int br_set_vepa_mode(const char *br, int vepa_mode)
++{
++	return br_set(br, "vepa_mode", vepa_mode, 0);
++}
++
++int br_set_vepa_uplink(const char *br, const char *uplink)
++{
++  return br_set_string(br, "uplink_port", uplink, IFNAMSIZ);
++}
++
+ int br_set_bridge_priority(const char *br, int bridge_priority)
+ {
+ 	return br_set(br, "priority", bridge_priority, 
+@@ -398,6 +477,11 @@ int br_set_path_cost(const char *bridge, const char *port, int cost)
+ 	return port_set(bridge, port, "path_cost", cost, BRCTL_SET_PATH_COST);
+ }
+ 
++int br_set_hairpin_mode(const char *bridge, const char *port, int hairpin_mode)
++{
++	return port_set(bridge, port, "hairpin_mode", hairpin_mode, 0);
++}
++
+ static inline void __copy_fdb(struct fdb_entry *ent, 
+ 			      const struct __fdb_entry *f)
+ {
