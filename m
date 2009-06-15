@@ -1,25 +1,20 @@
-From: Avi Kivity <avi@redhat.com>
+From: Dor Laor <dlaor@redhat.com>
 Subject: Re: Configuration vs. compat hints [was Re: [Qemu-devel] [PATCHv3
 	03/13] qemu: add routines to manage PCI capabilities]
-Date: Mon, 15 Jun 2009 18:11:28 +0300
-Message-ID: <4A3664A0.6080105__20067.0196245939$1245080254$gmane$org@redhat.com>
-References: <20090610150129.GC28601@redhat.com>
-	<200906101624.30659.paul@codesourcery.com>
-	<20090610174301.GC7416@shareable.org>
-	<20090610182227.GN28601@redhat.com>
-	<20090610192702.GH7416@shareable.org>
-	<1244796209.16425.20.camel@blaa> <4A326B5C.5010501@codemonkey.ws>
-	<1244821292.30522.56.camel@blaa> <4A327E4A.7010300@codemonkey.ws>
-	<1244825303.26769.19.camel@blaa> <20090614095016.GA7560@redhat.com>
-	<4A3617D4.5090405@redhat.com> <4A36424D.3080901@codemonkey.ws>
-	<4A364698.1090402@redhat.com> <4A364A9B.9070001@codemonkey.ws>
-	<4A364E32.4010808@redhat.com> <4A365078.5080209@codemonkey.ws>
-	<4A36529D.4060200@redhat.com> <4A3663C6.3070801@codemonkey.ws>
+Date: Mon, 15 Jun 2009 18:12:46 +0300
+Message-ID: <4A3664EE.30207__17674.353803932$1245080342$gmane$org@redhat.com>
+References: <4A364381.401@redhat.com> <4A364401.6010500@codemonkey.ws>
+	<4A3647FB.9010808@redhat.com> <4A364B53.9080007@codemonkey.ws>
+	<4A364FE0.40204@redhat.com> <4A3651EB.3070204@codemonkey.ws>
+	<4A36555A.4090303@redhat.com> <4A3659A0.3050108@codemonkey.ws>
+	<20090615143737.GB14405@redhat.com>
+	<4A3662BA.6030304@codemonkey.ws> <20090615150804.GH7233@redhat.com>
+Reply-To: dlaor@redhat.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4A3663C6.3070801@codemonkey.ws>
+In-Reply-To: <20090615150804.GH7233@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -29,42 +24,41 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Anthony Liguori <anthony@codemonkey.ws>
-Cc: Carsten Otte <cotte@de.ibm.com>, kvm@vger.kernel.org, Mark McLoughlin <markmc@redhat.com>, Glauber Costa <glommer@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, Jamie Lokier <jamie@shareable.org>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Blue Swirl <blauwirbel@gmail.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Paul Brook <paul@codesourcery.com>
+To: "Daniel P. Berrange" <berrange@redhat.com>
+Cc: Carsten Otte <cotte@de.ibm.com>, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, Glauber Costa <glommer@redhat.com>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Blue Swirl <blauwirbel@gmail.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Avi Kivity <avi@redhat.com>, Anthony Liguori <anthony@codemonkey.ws>, Mark McLoughlin <markmc@redhat.com>, Paul Brook <paul@codesourcery.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 06/15/2009 06:07 PM, Anthony Liguori wrote:
-> Avi Kivity wrote:
->>
->> I'd object to any implicit addressing rules.  If we have to say 
->> target=2,lun=7,street=8,city=9,state=99,zip=12345 instead of 
->> index=8345345235 so be it.
+Daniel P. Berrange wrote:
+> On Mon, Jun 15, 2009 at 10:03:22AM -0500, Anthony Liguori wrote:
+>   
+>> Michael S. Tsirkin wrote:
+>>     
+>>>> I'm not at all arguing against pci_addr.  I'm arguing about how libvirt  
+>>>> should use it with respect to the "genesis" use-case where libvirt has  
+>>>> no specific reason to choose one PCI slot over another.  In that case,  
+>>>> I'm merely advocating that we want to let QEMU make the decision.
+>>>>    
+>>>>         
+>>> The allocation code could be moved out into a library, and libvirt could
+>>> link with it (ducks).
+>>>  
+>>>       
+>> Why does libvirt want to do allocation?
+>>     
 >
-> The next observation is that while we expand the SCSI addressing, the 
-> current propose flattens the PCI hierarchy (i.e. pci_addr=00:01.0).
->
-> An alternative would be to either always expand or always flatten 
-> addressing.  I think the later has a lot of merit.  Consider:
->
-> -controller type=lsi1234,addr=00:01,name=blah
-> -controller-disk controller=blah,addr=00:01,name=sda
->
-> -controller type=ide,addr=00.02,name=ide
-> -controller-disk controller=ide,addr=3,name=hdd
->
-> -drive file=foo.img,controller-disk=sda
-> -drive file=bar.img,controller-disk=hdd
->
-> This means that addr's format depends on the parent device node which 
-> is a bit less explicit than the previous example.  However, it is much 
-> more consistent and easier to implement.  Basically, when adding a 
-> device to it's parent, you hand the parent the "addr" field and that 
-> lets you say where you want to sit on the bus.
+> It doesn't want to. As Mark said, libvirt just wants to be able to ensure
+> a stable guest ABI, of which stable PCI addresses is one aspect. This does
+> not imply libvirt wants to allocate the PCI addresses, just that it wants
+> a way to keep them stable. All else being equal I'd rather libvirt wasn't
+> in the PCI address allocation business.
+>   
 
-I would prefer explicit names (pci_addr, lun, etc.) but would be okay 
-with generic names too.
+It's not about what libvirt wants. It's about what will serve the end 
+user the most.
+Apart for stable guest ABI, end users need to have the option to control 
+the slot for
+their devices. Just like them have for physical machines. It's not 
+theoretical discussion,
+limiting issues with shared irq is one real life example.
 
-There's value in sticking to well-understood names and address formats.
-
--- 
-error compiling committee.c: too many arguments to function
+Thanks, dor
