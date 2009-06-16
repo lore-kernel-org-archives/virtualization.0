@@ -1,45 +1,102 @@
-From: Blue Swirl <blauwirbel@gmail.com>
-Subject: Re: Configuration vs. compat hints [was Re: [Qemu-devel] [PATCHv3
-	03/13] qemu: add routines to manage PCI capabilities]
-Date: Mon, 15 Jun 2009 21:44:15 +0300
-Message-ID: <f43fc5580906151144k2191579dud1b06aa73b6e3ac3@mail.gmail.com>
-References: <1244821292.30522.56.camel@blaa> <4A364B53.9080007@codemonkey.ws>
-	<4A364FE0.40204@redhat.com> <4A3651EB.3070204@codemonkey.ws>
-	<4A36555A.4090303@redhat.com> <4A3659A0.3050108@codemonkey.ws>
-	<4A366348.1030202@redhat.com> <1245083229.3222.103.camel@blaa>
-	<4A368F12.2090504@codemonkey.ws> <4A36912A.8090900@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4A36912A.8090900@redhat.com>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Avi Kivity <avi@redhat.com>
-Cc: Mark McLoughlin <markmc@redhat.com>, kvm@vger.kernel.org, Carsten Otte <cotte@de.ibm.com>, Glauber Costa <glommer@redhat.com>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>, Paul Brook <paul@codesourcery.com>, Anthony Liguori <anthony@codemonkey.ws>
+From: Greg Kroah-Hartman <gregkh@suse.de>
+Subject: [PATCH 49/64] xen block: remove driver_data direct
+	access of struct device
+Date: Mon, 15 Jun 2009 22:46:38 -0700
+Message-ID: <1245131213-24168-49-git-send-email-gregkh@suse.de>
+References: <20090616051351.GA23627@kroah.com>
+Return-path: <xen-devel-bounces@lists.xensource.com>
+In-Reply-To: <20090616051351.GA23627@kroah.com>
+List-Unsubscribe: <http://lists.xensource.com/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
+List-Post: <mailto:xen-devel@lists.xensource.com>
+List-Help: <mailto:xen-devel-request@lists.xensource.com?subject=help>
+List-Subscribe: <http://lists.xensource.com/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
+Sender: xen-devel-bounces@lists.xensource.com
+Errors-To: xen-devel-bounces@lists.xensource.com
+To: linux-kernel@vger.kernel.org
+Cc: virtualization@lists.osdl.org, Greg Kroah-Hartman <gregkh@suse.de>, xen-devel@lists.xensource.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 6/15/09, Avi Kivity <avi@redhat.com> wrote:
-> On 06/15/2009 09:12 PM, Anthony Liguori wrote:
->
-> >
-> > 2) Whenever the default machine type changes in a guest-visible way,
-> introduce a new machine type
-> >
->
->  s/whenever/qemu stable release/
->
->
-> >  - Use explicit versions in name: pc-v1, pc-v2
-> >
->
->  pc-qemu-0.10?
+In the near future, the driver core is going to not allow direct access
+to the driver_data pointer in struct device.  Instead, the functions
+dev_get_drvdata() and dev_set_drvdata() should be used.  These functions
+have been around since the beginning, so are backwards compatible with
+all older kernel versions.
 
-pc-2009.06? Or given the hardware, should that be pc-1997?
+
+Cc: xen-devel@lists.xensource.com
+Cc: virtualization@lists.osdl.org
+Acked-by: Chris Wright <chrisw@sous-sol.org>
+Acked-by: Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+---
+ drivers/block/xen-blkfront.c |   14 +++++++-------
+ 1 files changed, 7 insertions(+), 7 deletions(-)
+
+diff --git a/drivers/block/xen-blkfront.c b/drivers/block/xen-blkfront.c
+index c199682..e532847 100644
+--- a/drivers/block/xen-blkfront.c
++++ b/drivers/block/xen-blkfront.c
+@@ -753,12 +753,12 @@ static int blkfront_probe(struct xenbus_device *dev,
+ 
+ 	/* Front end dir is a number, which is used as the id. */
+ 	info->handle = simple_strtoul(strrchr(dev->nodename, '/')+1, NULL, 0);
+-	dev->dev.driver_data = info;
++	dev_set_drvdata(&dev->dev, info);
+ 
+ 	err = talk_to_backend(dev, info);
+ 	if (err) {
+ 		kfree(info);
+-		dev->dev.driver_data = NULL;
++		dev_set_drvdata(&dev->dev, NULL);
+ 		return err;
+ 	}
+ 
+@@ -843,7 +843,7 @@ static int blkif_recover(struct blkfront_info *info)
+  */
+ static int blkfront_resume(struct xenbus_device *dev)
+ {
+-	struct blkfront_info *info = dev->dev.driver_data;
++	struct blkfront_info *info = dev_get_drvdata(&dev->dev);
+ 	int err;
+ 
+ 	dev_dbg(&dev->dev, "blkfront_resume: %s\n", dev->nodename);
+@@ -922,7 +922,7 @@ static void blkfront_connect(struct blkfront_info *info)
+  */
+ static void blkfront_closing(struct xenbus_device *dev)
+ {
+-	struct blkfront_info *info = dev->dev.driver_data;
++	struct blkfront_info *info = dev_get_drvdata(&dev->dev);
+ 	unsigned long flags;
+ 
+ 	dev_dbg(&dev->dev, "blkfront_closing: %s removed\n", dev->nodename);
+@@ -957,7 +957,7 @@ static void blkfront_closing(struct xenbus_device *dev)
+ static void backend_changed(struct xenbus_device *dev,
+ 			    enum xenbus_state backend_state)
+ {
+-	struct blkfront_info *info = dev->dev.driver_data;
++	struct blkfront_info *info = dev_get_drvdata(&dev->dev);
+ 	struct block_device *bd;
+ 
+ 	dev_dbg(&dev->dev, "blkfront:backend_changed.\n");
+@@ -997,7 +997,7 @@ static void backend_changed(struct xenbus_device *dev,
+ 
+ static int blkfront_remove(struct xenbus_device *dev)
+ {
+-	struct blkfront_info *info = dev->dev.driver_data;
++	struct blkfront_info *info = dev_get_drvdata(&dev->dev);
+ 
+ 	dev_dbg(&dev->dev, "blkfront_remove: %s removed\n", dev->nodename);
+ 
+@@ -1010,7 +1010,7 @@ static int blkfront_remove(struct xenbus_device *dev)
+ 
+ static int blkfront_is_ready(struct xenbus_device *dev)
+ {
+-	struct blkfront_info *info = dev->dev.driver_data;
++	struct blkfront_info *info = dev_get_drvdata(&dev->dev);
+ 
+ 	return info->is_ready;
+ }
+-- 
+1.6.3.2
