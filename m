@@ -1,14 +1,21 @@
-From: Anthony Liguori <aliguori@us.ibm.com>
-Subject: Re: [PATCHv4 01/13] qemu: make default_write_config use mask table
-Date: Tue, 16 Jun 2009 15:40:13 -0500
-Message-ID: <4A38032D.5060506__42084.9951486618$1245185015$gmane$org@us.ibm.com>
-References: <cover.1244635350.git.mst@redhat.com>
-	<20090610122804.GB27174@redhat.com>
+From: Avi Kivity <avi@redhat.com>
+Subject: Re: Configuration vs. compat hints [was Re: [Qemu-devel] [PATCHv3
+	03/13] qemu: add routines to manage PCI capabilities]
+Date: Wed, 17 Jun 2009 09:38:07 +0300
+Message-ID: <4A388F4F.8000900__22070.3040170067$1245220916$gmane$org@redhat.com>
+References: <4A364B53.9080007@codemonkey.ws> <4A364FE0.40204@redhat.com>
+	<4A3651EB.3070204@codemonkey.ws> <4A36555A.4090303@redhat.com>
+	<4A3659A0.3050108@codemonkey.ws>
+	<20090615143737.GB14405@redhat.com>
+	<4A3662BA.6030304@codemonkey.ws>
+	<20090615150804.GH7233@redhat.com> <4A3664EE.30207@redhat.com>
+	<4A3665A0.7000702@redhat.com>
+	<20090616183222.GH11893@shareable.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20090610122804.GB27174@redhat.com>
+In-Reply-To: <20090616183222.GH11893@shareable.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,26 +25,30 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Carsten Otte <cotte@de.ibm.com>, kvm@vger.kernel.org, Glauber Costa <glommer@redhat.com>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Blue Swirl <blauwirbel@gmail.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Paul Brook <paul@codesourcery.com>, Anthony Liguori <anthony@codemonkey.ws>, Avi Kivity <avi@redhat.com>
+To: Jamie Lokier <jamie@shareable.org>
+Cc: Carsten Otte <cotte@de.ibm.com>, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, Glauber Costa <glommer@redhat.com>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Blue Swirl <blauwirbel@gmail.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Paul Brook <paul@codesourcery.com>, Mark McLoughlin <markmc@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Michael S. Tsirkin wrote:
-> Change much of hw/pci to use symbolic constants and a table-driven
-> design: add a mask table with writable bits set and readonly bits unset.
-> Detect change by comparing original and new registers.
+On 06/16/2009 09:32 PM, Jamie Lokier wrote:
+> Avi Kivity wrote:
+>    
+>> Another issue is enumeration.  Guests will present their devices in the
+>> order they find them on the pci bus (of course enumeration is guest
+>> specific).  So if I have 2 virtio controllers the only way I can
+>> distinguish between them is using their pci slots.
+>>      
 >
-> This makes it easy to support capabilities where read-only/writeable
-> bit layout differs between devices, depending on capabilities present.
->
-> As a result, writing a single byte in BAR registers now works as
-> it should. Writing to upper limit registers in the bridge
-> also works as it should. Code is also shorter.
->
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-This series introduces warning (virtio_load decl/def does not match).
+> virtio controllers really should have a user-suppliable string or UUID
+> to identify them to the guest.  Don't they?
+>    
+
+virtio controllers don't exist.  When they do, they may have a UUID or 
+not, but in either case guest infrastructure is in place for reporting 
+the PCI slot, not the UUID.
+
+virtio disks do have a UUID.  I don't think older versions of Windows 
+will use it though, so if you reorder your slots you'll see your drive 
+letters change.  Same with Linux if you don't use udev by-uuid rules.
 
 -- 
-Regards,
-
-Anthony Liguori
+Do not meddle in the internals of kernels, for they are subtle and quick to panic.
