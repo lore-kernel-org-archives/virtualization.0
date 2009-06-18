@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCHv5 06/13] qemu: add flag to disable MSI-X by default
-Date: Thu, 18 Jun 2009 16:14:09 +0300
-Message-ID: <20090618131409.GG19092__3923.50876140899$1245331916$gmane$org@redhat.com>
+Subject: [PATCHv5 07/13] qemu: minimal MSI/MSI-X implementation for PC
+Date: Thu, 18 Jun 2009 16:14:22 +0300
+Message-ID: <20090618131422.GH19092__15126.4697117314$1245332044$gmane$org@redhat.com>
 References: <cover.1245330293.git.mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,70 +21,113 @@ Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Paul Brook <paul@codesourcery.com>, Avi Kivity <avi@redhat.com>, qemu-devel@nongnu.org, Carsten Otte <cotte@de.ibm.com>, kvm@vger.kernel.org, Rusty Russell <rusty@rustcor>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Add global flag to disable MSI-X by default.  This is useful primarily
-to make images loadable by older qemu (without msix).  Even when MSI-X
-is disabled by flag, you can still load images that have MSI-X enabled.
+Implement MSI support in APIC. Note that MSI and MMIO APIC registers
+are at the same memory location, but actually not on the global bus: MSI
+is on PCI bus, APIC is connected directly to the CPU. We map them on the
+global bus at the same address which happens to work because MSI
+registers are reserved in APIC MMIO and vice versa.
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- hw/msix.c       |    5 ++++-
- qemu-options.hx |    2 ++
- vl.c            |    3 +++
- 3 files changed, 9 insertions(+), 1 deletions(-)
+ hw/apic.c |   43 +++++++++++++++++++++++++++++++++++++++----
+ 1 files changed, 39 insertions(+), 4 deletions(-)
 
-diff --git a/hw/msix.c b/hw/msix.c
-index a448eab..cc62a83 100644
---- a/hw/msix.c
-+++ b/hw/msix.c
-@@ -122,6 +122,9 @@ void msix_write_config(PCIDevice *dev, uint32_t addr,
-                        uint32_t val, int len)
- {
-     unsigned enable_pos = dev->msix_cap + MSIX_ENABLE_OFFSET;
-+    if (!(dev->cap_present & QEMU_PCI_CAP_MSIX))
-+        return;
+diff --git a/hw/apic.c b/hw/apic.c
+index 3e04132..3bcab46 100644
+--- a/hw/apic.c
++++ b/hw/apic.c
+@@ -19,6 +19,8 @@
+  */
+ #include "hw.h"
+ #include "pc.h"
++#include "pci.h"
++#include "msix.h"
+ #include "qemu-timer.h"
+ #include "host-utils.h"
+ 
+@@ -63,6 +65,19 @@
+ #define MAX_APICS 255
+ #define MAX_APIC_WORDS 8
+ 
++/* Intel APIC constants: from include/asm/msidef.h */
++#define MSI_DATA_VECTOR_SHIFT		0
++#define MSI_DATA_VECTOR_MASK		0x000000ff
++#define MSI_DATA_DELIVERY_MODE_SHIFT	8
++#define MSI_DATA_TRIGGER_SHIFT		15
++#define MSI_DATA_LEVEL_SHIFT		14
++#define MSI_ADDR_DEST_MODE_SHIFT	2
++#define MSI_ADDR_DEST_ID_SHIFT		12
++#define	MSI_ADDR_DEST_ID_MASK		0x00ffff0
 +
-     if (addr + len <= enable_pos || addr > enable_pos)
-         return;
++#define MSI_ADDR_BASE                   0xfee00000
++#define MSI_ADDR_SIZE                   0x100000
++
+ typedef struct APICState {
+     CPUState *cpu_env;
+     uint32_t apicbase;
+@@ -731,11 +746,31 @@ static uint32_t apic_mem_readl(void *opaque, target_phys_addr_t addr)
+     return val;
+ }
  
-@@ -242,7 +245,7 @@ int msix_init(struct PCIDevice *dev, unsigned short nentries,
++static void apic_send_msi(target_phys_addr_t addr, uint32 data)
++{
++    uint8_t dest = (addr & MSI_ADDR_DEST_ID_MASK) >> MSI_ADDR_DEST_ID_SHIFT;
++    uint8_t vector = (data & MSI_DATA_VECTOR_MASK) >> MSI_DATA_VECTOR_SHIFT;
++    uint8_t dest_mode = (addr >> MSI_ADDR_DEST_MODE_SHIFT) & 0x1;
++    uint8_t trigger_mode = (data >> MSI_DATA_TRIGGER_SHIFT) & 0x1;
++    uint8_t delivery = (data >> MSI_DATA_DELIVERY_MODE_SHIFT) & 0x7;
++    /* XXX: Ignore redirection hint. */
++    apic_deliver_irq(dest, dest_mode, delivery, vector, 0, trigger_mode);
++}
++
+ static void apic_mem_writel(void *opaque, target_phys_addr_t addr, uint32_t val)
+ {
+     CPUState *env;
+     APICState *s;
+-    int index;
++    int index = (addr >> 4) & 0xff;
++    if (addr > 0xfff || !index) {
++        /* MSI and MMIO APIC are at the same memory location,
++         * but actually not on the global bus: MSI is on PCI bus
++         * APIC is connected directly to the CPU.
++         * Mapping them on the global bus happens to work because
++         * MSI registers are reserved in APIC MMIO and vice versa. */
++        apic_send_msi(addr, val);
++        return;
++    }
  
-     dev->msix_table_page = qemu_mallocz(MSIX_PAGE_SIZE);
- 
--    dev->msix_mmio_index = cpu_register_io_memory(0, msix_mmio_read,
-+    dev->msix_mmio_index = cpu_register_io_memory(msix_mmio_read,
-                                                   msix_mmio_write, dev);
-     if (dev->msix_mmio_index == -1) {
-         ret = -EBUSY;
-diff --git a/qemu-options.hx b/qemu-options.hx
-index 9d5e05a..aa02615 100644
---- a/qemu-options.hx
-+++ b/qemu-options.hx
-@@ -1584,3 +1584,5 @@ DEF("semihosting", 0, QEMU_OPTION_semihosting,
- DEF("old-param", 0, QEMU_OPTION_old_param,
-     "-old-param      old param mode\n")
+     env = cpu_single_env;
+     if (!env)
+@@ -746,7 +781,6 @@ static void apic_mem_writel(void *opaque, target_phys_addr_t addr, uint32_t val)
+     printf("APIC write: %08x = %08x\n", (uint32_t)addr, val);
  #endif
-+DEF("disable-msix", 0, QEMU_OPTION_disable_msix,
-+    "-disable-msix disable msix support for PCI devices (enabled by default)\n")
-diff --git a/vl.c b/vl.c
-index 3242c23..f7c67bb 100644
---- a/vl.c
-+++ b/vl.c
-@@ -135,6 +135,7 @@ int main(int argc, char **argv)
- #include "hw/usb.h"
- #include "hw/pcmcia.h"
- #include "hw/pc.h"
-+#include "hw/msix.h"
- #include "hw/audiodev.h"
- #include "hw/isa.h"
- #include "hw/baum.h"
-@@ -5699,6 +5700,8 @@ int main(int argc, char **argv, char **envp)
-                 xen_mode = XEN_ATTACH;
-                 break;
- #endif
-+            case QEMU_OPTION_disable_msix:
-+                msix_disable = 1;
-             }
-         }
+ 
+-    index = (addr >> 4) & 0xff;
+     switch(index) {
+     case 0x02:
+         s->id = (val >> 24);
+@@ -931,6 +965,7 @@ int apic_init(CPUState *env)
+     s->cpu_env = env;
+ 
+     apic_reset(s);
++    msix_supported = 1;
+ 
+     /* XXX: mapping more APICs at the same memory location */
+     if (apic_io_memory == 0) {
+@@ -938,7 +973,8 @@ int apic_init(CPUState *env)
+            on the global memory bus. */
+         apic_io_memory = cpu_register_io_memory(apic_mem_read,
+                                                 apic_mem_write, NULL);
+-        cpu_register_physical_memory(s->apicbase & ~0xfff, 0x1000,
++        /* XXX: what if the base changes? */
++        cpu_register_physical_memory(MSI_ADDR_BASE, MSI_ADDR_SIZE,
+                                      apic_io_memory);
      }
+     s->timer = qemu_new_timer(vm_clock, apic_timer, s);
+@@ -949,4 +985,3 @@ int apic_init(CPUState *env)
+     local_apics[s->idx] = s;
+     return 0;
+ }
+-
 -- 
 1.6.2.2
