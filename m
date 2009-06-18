@@ -1,20 +1,17 @@
-From: Jamie Lokier <jamie@shareable.org>
-Subject: Re: Configuration vs. compat hints [was Re: [Qemu-devel] [PATCHv3
-	03/13] qemu: add routines to manage PCI capabilities]
-Date: Wed, 17 Jun 2009 12:58:41 +0100
-Message-ID: <20090617115841.GD27947__4772.8271260441$1245240101$gmane$org@shareable.org>
-References: <1245083229.3222.103.camel@blaa> <4A368F12.2090504@codemonkey.ws>
-	<1245154451.11407.22.camel@blaa> <4A378FE5.5050303@redhat.com>
-	<1245155992.30082.8.camel@blaa>
-	<20090616184404.GJ11893@shareable.org>
-	<1245227632.27028.29.camel@blaa> <4A38B147.1030207@redhat.com>
-	<1245230283.27028.36.camel@blaa> <4A38B6CF.6000503@redhat.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH 2/4] virtio_net: return NETDEV_TX_BUSY instead of queueing
+	an extra skb.
+Date: Thu, 18 Jun 2009 16:47:50 +0930
+Message-ID: <200906181647.51045.rusty__47294.4890069359$1245309638$gmane$org@rustcorp.com.au>
+References: <200905292346.04815.rusty@rustcorp.com.au>
+	<200906132200.38034.rusty@rustcorp.com.au>
+	<20090614064528.GA29130@gondor.apana.org.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20090614064528.GA29130@gondor.apana.org.au>
 Content-Disposition: inline
-In-Reply-To: <4A38B6CF.6000503@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -24,54 +21,165 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Avi Kivity <avi@redhat.com>
-Cc: Mark McLoughlin <markmc@redhat.com>, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, Glauber Costa <glommer@redhat.com>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Blue Swirl <blauwirbel@gmail.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Paul Brook <paul@codesourcery.com>, Carsten Otte <cotte@de.ibm.com>
+To: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: netdev@vger.kernel.org, David Miller <davem@davemloft.net>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Avi Kivity wrote:
-> >If management apps need to hard-code which slots are available on
-> >different targets and different qemu versions, or restrictions on which
-> >devices can use which slots, or knowledge that some devices can be
-> >multi-function, or ... anything like that is just lame.
-> >   
-> 
-> You can't abstract these things away.  If you can't put a NIC in slot 4, 
-> and you have 7 slots, then you cannot have 7 NICs.  Having qemu allocate 
-> the slot numbers does not absolve management from knowing this 
-> limitation and preventing the user from creating a machine with 7 slots.
-> 
-> Likewise, management will have to know which devices are multi-function, 
-> since that affects their hotpluggability.  Ditto if some slot if faster 
-> than others, if you want to make use of this information you have to let 
-> the upper layers know.
-> 
-> It could be done using an elaborate machine description that qemu 
-> exposes to management coupled with a constraint solver that optimizes 
-> the machine layout according to user specifications and hardware 
-> limitations.  Or we could take the view that real life is not perfect 
-> (especially where computers are involved), add some machine specific 
-> knowledge, and spend the rest of the summer at the beach.
+On Sun, 14 Jun 2009 04:15:28 pm Herbert Xu wrote:
+> On Sat, Jun 13, 2009 at 10:00:37PM +0930, Rusty Russell wrote:
+> > But re your comment that the 67 drivers using TX_BUSY are doing it
+> > because of driver bugs, that's hard to believe.  It either hardly ever
+> > happens (in which case just drop the packet), or it happens (in which
+> > case we should handle it correctly).
+>
+> Most of them just do this:
+>
+> start_xmit:
+>
+> if (unlikely(queue is full)) {
+> 	/* This should never happen. */
+> 	return TX_BUSY;
+> }
 
-To be honest, an elaborate machine description is probably fine...
+OK, so I did a rough audit, trying to figure out the "never happens" ones (N, 
+could be kfree_skb(skb); return NETDEV_TX_OK) from the "will actually happen" 
+ones (Y).
 
-A fancy constraint solver is not required.  A simple one strikes me as
-about as simple as what you'd hard-code anyway, but with fewer special
-cases.
+One question: can netif_queue_stopped() ever be true inside start_xmit?  Some 
+drivers test that, like sun3lance.c.
 
-Note that the result can fail due to things like insufficient address
-space for all the device BARs even when they _are_ in the right slots.
-Especially if there are lots of slots, or bridges which can provide
-unlimited slots.
+Some have multiple returns, and some are unclear, but my best guess on a 
+quickish reading is below.
 
-That is arcane: device-dependent, CPU-dependent, machine-dependent,
-RAM-size dependent (in a non-linear way), device-option-dependent and
-probably QEMU-version-dependent too.
+Summary: we still have about 54 in-tree drivers which actually use 
+NETDEV_TX_BUSY for normal paths.  Can I fix it now?
 
-It would be nice if libvirt (et al) would prevent the user from
-creating a VM with insufficient BAR space for that machine, but I'm
-not sure how to do it sanely, without arcane knowledge getting about.
+Thanks,
+Rusty.
 
-Maybe that idea of a .so shared by qemu and libvirt, to manipulate
-device configurations, is a sane one after all.
-
--- Jamie
+sungem.c: Y, N
+fs_enet: N
+mace.c: N
+sh_eth.c: Y
+de620.c: N
+acenic.c: N (but goes through stupid hoops to avoid it)
+e1000_main.c: N, Y
+korina.c: N (Buggy: frees skb and returns TX_BUSY.)
+sky2.c: N
+cassini.c: N
+ixgbe: N
+b44.c: N, Y, Y (last two buggy: OOM, does not stop q)
+macb.c: N
+niu.c: N
+smctr.c: N
+olympic.c: Y
+tms380tr.c: N
+3c359.c: Y
+lanstreamer.c: Y
+lib8390.c: N
+xirc2ps_cs.c: Y
+smc91c92_cs.c: N
+fmvj18x_cs.c: N (and buggy: can't happen AFAICT, and return 0 above?)
+axnet_cs.c: N
+smsc9420.c: N (and buggy: doesn't stop q)
+mkiss.c: N (In xmit, can netif_running be false? Can netif_queue_stopped?)
+skge.c: N
+qlge: N, N, Y, N (buggy, OOM, does not stop q) 
+chelsio: N
+s2io.c: Y, Y?
+macmace.c: N
+3c505.c: Y
+defxx.c: Y
+myri10ge: N
+sbni.c: Y
+wanxl.c: N
+cycx_x25.c: N, N, Y?
+dlci.c: Y
+qla3xxx.c: N, N (buggy, OOM, does not stop q), Y, N, 
+tlan.c: Y
+skfp.c: N
+cs89x0.c: N
+smc9194.c: N
+fec_mpc52xx.c: N
+mv643xx_eth.c: N (buggy, OOM, does not stop q)
+ll_temac_main.c: Y, Y
+netxen: Y
+tsi108_eth.c: N, N
+ni65.c: N
+sunhme.c: N
+atl1c.c: Y
+ps3_gelic_net.c: Y
+igbvf: N
+csgb3.c: N
+ks8695net.c: N, N (buggy, neither stops q, latter OOM)
+ether3.c: N
+at91_ether.c: N
+bnx2x_main.c: N, N
+dm9000.c: N
+jme.c: N
+3c537.c: Y (plus, leak on skb_padto fail)
+arcnet.c: N?
+3c59x.c: N
+au1000_eth.c: Y
+ixgb: N
+de600.c: N, N, N
+myri_sbus.c: Y
+bnx2.c: N
+atl1e: Y
+sonic.c: who cares, that won't even compile... (missing semicolon)
+sun3_82586.c: N
+3c515.c: N
+ibm_newemac.c: Y
+donaubae.c:Y?, Y?, Y?, Y (but never stops q)
+sir_dev.c: Y
+au1k_ir.c: Y, Y
+cpmac.c: N (no stop q, and leak on skb_padto fail), Y
+davinci_emac.c: N (no stop q), Y
+de2104x.c: N
+uli526x.c: N
+dmfe.c: N
+xircom_cb.c: N
+iwmc3200wifi: Y
+orinoco: N, N, N, N (no stop q)
+atmel.c: Y
+p54common.c: N, Y?
+arlan-main.c: Y?
+libipw_tx.c: Y (no stop q), N (alloc failure)
+hostap_80211_tx.c: Y
+strip.c: N
+wavelan.c: N, N, N
+at76c50x-usb.c: N
+libertas/tx.c: Y
+ray_cs.c: N, N
+airo.c: Y, Y, Y
+plip.c: N, N, N (starts q, BUSY on too big pkt?)
+ns83820.c: N, N
+ehea: Y, Y (no stop q)
+rionet.c: N
+enic: N
+sis900.c: N
+starfire.c: Y
+r6040.c: N
+sun3lance.c: N, N
+sfc: Y, N, Y
+mac89x0.c: N
+sb1250-mac.c: Y
+pasemi_mac.c: Y
+8139cp.c: N
+e1000e: N
+r8169.c: N?
+sis190.c: N
+e100.c: N
+tg3.c: N, Y?, N
+fec.c: N (no stop q), N
+hamachi.c: N
+forcedeth.c: Y, Y
+vxge: Y?, Y?
+ks8842.c: Y
+spider_net.c: Y
+igb: N
+ewrk3.c: N
+gianfar.c: Y
+sunvnet.c: N
+mlx4: Y
+atlx: Y, Y
