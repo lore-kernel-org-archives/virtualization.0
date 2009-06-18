@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCHv5 12/13] qemu: virtio save/load bindings
-Date: Thu, 18 Jun 2009 16:15:38 +0300
-Message-ID: <20090618131538.GM19092__26066.4406967864$1245332374$gmane$org@redhat.com>
+Subject: [PATCHv5 08/13] qemu: add support for resizing regions
+Date: Thu, 18 Jun 2009 16:14:38 +0300
+Message-ID: <20090618131438.GI19092__12259.8079070032$1245332495$gmane$org@redhat.com>
 References: <cover.1245330293.git.mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,171 +21,99 @@ Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Paul Brook <paul@codesourcery.com>, Avi Kivity <avi@redhat.com>, qemu-devel@nongnu.org, Carsten Otte <cotte@de.ibm.com>, kvm@vger.kernel.org, Rusty Russell <rusty@rustcor>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Implement bindings for virtio save/load. Use them in virtio pci.
+Make it possible to resize PCI regions.  This will be used by virtio
+with MSI-X, where the region size depends on whether MSI-X is enabled,
+and can change across load/save.
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- hw/virtio-pci.c |   50 +++++++++++++++++++++++++++++++++++++++++++++++++-
- hw/virtio.c     |   33 ++++++++++++++++-----------------
- hw/virtio.h     |    4 ++++
- 3 files changed, 69 insertions(+), 18 deletions(-)
+ hw/pci.c |   53 +++++++++++++++++++++++++++++++++++------------------
+ hw/pci.h |    2 ++
+ 2 files changed, 37 insertions(+), 18 deletions(-)
 
-diff --git a/hw/virtio-pci.c b/hw/virtio-pci.c
-index d3f4884..1057ae1 100644
---- a/hw/virtio-pci.c
-+++ b/hw/virtio-pci.c
-@@ -105,6 +105,50 @@ static void virtio_pci_notify(void *opaque, uint16_t vector)
-         qemu_set_irq(proxy->pci_dev.irq[0], proxy->vdev->isr & 1);
+diff --git a/hw/pci.c b/hw/pci.c
+index e3f80d0..aa88a0b 100644
+--- a/hw/pci.c
++++ b/hw/pci.c
+@@ -386,6 +386,40 @@ void pci_register_bar(PCIDevice *pci_dev, int region_num,
+     *(uint32_t *)(pci_dev->wmask + addr) = cpu_to_le32(wmask);
  }
  
-+static void virtio_pci_save_config(void * opaque, QEMUFile *f)
++static void pci_unmap_region(PCIDevice *d, PCIIORegion *r)
 +{
-+    VirtIOPCIProxy *proxy = opaque;
-+    pci_device_save(&proxy->pci_dev, f);
-+    msix_save(&proxy->pci_dev, f);
-+    if (msix_present(&proxy->pci_dev))
-+        qemu_put_be16(f, proxy->vdev->config_vector);
-+}
-+
-+static void virtio_pci_save_queue(void * opaque, int n, QEMUFile *f)
-+{
-+    VirtIOPCIProxy *proxy = opaque;
-+    if (msix_present(&proxy->pci_dev))
-+        qemu_put_be16(f, virtio_queue_vector(proxy->vdev, n));
-+}
-+
-+static int virtio_pci_load_config(void * opaque, QEMUFile *f)
-+{
-+    VirtIOPCIProxy *proxy = opaque;
-+    int ret;
-+    ret = pci_device_load(&proxy->pci_dev, f);
-+    if (ret)
-+        return ret;
-+    ret = msix_load(&proxy->pci_dev, f);
-+    if (ret)
-+        return ret;
-+    if (msix_present(&proxy->pci_dev))
-+        qemu_get_be16s(f, &proxy->vdev->config_vector);
-+
-+    pci_resize_bar(&proxy->pci_dev, 1, msix_bar_size(&proxy->pci_dev));
-+    return 0;
-+}
-+
-+static int virtio_pci_load_queue(void * opaque, int n, QEMUFile *f)
-+{
-+    VirtIOPCIProxy *proxy = opaque;
-+    uint16_t vector;
-+    if (!msix_present(&proxy->pci_dev))
-+        return 0;
-+    qemu_get_be16s(f, &vector);
-+    virtio_queue_set_vector(proxy->vdev, n, vector);
-+    return 0;
-+}
-+
- static void virtio_pci_reset(void *opaque)
- {
-     VirtIOPCIProxy *proxy = opaque;
-@@ -317,7 +361,11 @@ static void virtio_write_config(PCIDevice *pci_dev, uint32_t address,
- }
- 
- static const VirtIOBindings virtio_pci_bindings = {
--    .notify = virtio_pci_notify
-+    .notify = virtio_pci_notify,
-+    .save_config = virtio_pci_save_config,
-+    .load_config = virtio_pci_load_config,
-+    .save_queue = virtio_pci_save_queue,
-+    .load_queue = virtio_pci_load_queue,
- };
- 
- static void virtio_init_pci(VirtIOPCIProxy *proxy, VirtIODevice *vdev,
-diff --git a/hw/virtio.c b/hw/virtio.c
-index fe9f793..b773dff 100644
---- a/hw/virtio.c
-+++ b/hw/virtio.c
-@@ -568,9 +568,8 @@ void virtio_save(VirtIODevice *vdev, QEMUFile *f)
- {
-     int i;
- 
--    /* FIXME: load/save binding.  */
--    //pci_device_save(&vdev->pci_dev, f);
--    //msix_save(&vdev->pci_dev, f);
-+    if (vdev->binding->save_config)
-+        vdev->binding->save_config(vdev->binding_opaque, f);
- 
-     qemu_put_8s(f, &vdev->status);
-     qemu_put_8s(f, &vdev->isr);
-@@ -596,18 +595,20 @@ void virtio_save(VirtIODevice *vdev, QEMUFile *f)
-         qemu_put_be32(f, vdev->vq[i].vring.num);
-         qemu_put_be64(f, vdev->vq[i].pa);
-         qemu_put_be16s(f, &vdev->vq[i].last_avail_idx);
--        if (vdev->nvectors)
--            qemu_put_be16s(f, &vdev->vq[i].vector);
-+        if (vdev->binding->save_queue)
-+            vdev->binding->save_queue(vdev->binding_opaque, i, f);
-     }
- }
- 
--void virtio_load(VirtIODevice *vdev, QEMUFile *f)
-+int virtio_load(VirtIODevice *vdev, QEMUFile *f)
- {
--    int num, i;
-+    int num, i, ret;
- 
--    /* FIXME: load/save binding.  */
--    //pci_device_load(&vdev->pci_dev, f);
--    //r = msix_load(&vdev->pci_dev, f);
-+    if (vdev->binding->load_config) {
-+        ret = vdev->binding->load_config(vdev->binding_opaque, f);
-+        if (ret)
-+            return ret;
++    if (r->addr == -1)
++        return;
++    if (r->type & PCI_ADDRESS_SPACE_IO) {
++        int class;
++        /* NOTE: specific hack for IDE in PC case:
++           only one byte must be mapped. */
++        class = pci_get_word(d->config + PCI_CLASS_DEVICE);
++        if (class == 0x0101 && r->size == 4) {
++            isa_unassign_ioport(r->addr + 2, 1);
++        } else {
++            isa_unassign_ioport(r->addr, r->size);
++        }
++    } else {
++        cpu_register_physical_memory(pci_to_cpu_addr(r->addr),
++                                     r->size,
++                                     IO_MEM_UNASSIGNED);
++        qemu_unregister_coalesced_mmio(r->addr, r->size);
 +    }
++}
++
++void pci_resize_bar(PCIDevice *pci_dev, int region_num, uint32_t size)
++{
++
++    PCIIORegion *r = &pci_dev->io_regions[region_num];
++    if (r->size == size)
++        return;
++    r->size = size;
++    pci_unmap_region(pci_dev, r);
++    r->addr = -1;
++    pci_update_mappings(pci_dev);
++}
++
+ static void pci_update_mappings(PCIDevice *d)
+ {
+     PCIIORegion *r;
+@@ -439,24 +473,7 @@ static void pci_update_mappings(PCIDevice *d)
+             }
+             /* now do the real mapping */
+             if (new_addr != r->addr) {
+-                if (r->addr != -1) {
+-                    if (r->type & PCI_ADDRESS_SPACE_IO) {
+-                        int class;
+-                        /* NOTE: specific hack for IDE in PC case:
+-                           only one byte must be mapped. */
+-                        class = d->config[0x0a] | (d->config[0x0b] << 8);
+-                        if (class == 0x0101 && r->size == 4) {
+-                            isa_unassign_ioport(r->addr + 2, 1);
+-                        } else {
+-                            isa_unassign_ioport(r->addr, r->size);
+-                        }
+-                    } else {
+-                        cpu_register_physical_memory(pci_to_cpu_addr(r->addr),
+-                                                     r->size,
+-                                                     IO_MEM_UNASSIGNED);
+-                        qemu_unregister_coalesced_mmio(r->addr, r->size);
+-                    }
+-                }
++                pci_unmap_region(d, r);
+                 r->addr = new_addr;
+                 if (r->addr != -1) {
+                     r->map_func(d, i, r->addr, r->size, r->type);
+diff --git a/hw/pci.h b/hw/pci.h
+index 25865d7..67e4b4d 100644
+--- a/hw/pci.h
++++ b/hw/pci.h
+@@ -217,6 +217,8 @@ void pci_register_bar(PCIDevice *pci_dev, int region_num,
+                             uint32_t size, int type,
+                             PCIMapIORegionFunc *map_func);
  
-     qemu_get_8s(f, &vdev->status);
-     qemu_get_8s(f, &vdev->isr);
-@@ -616,10 +617,6 @@ void virtio_load(VirtIODevice *vdev, QEMUFile *f)
-     vdev->config_len = qemu_get_be32(f);
-     qemu_get_buffer(f, vdev->config, vdev->config_len);
++void pci_resize_bar(PCIDevice *pci_dev, int region_num, uint32_t size);
++
+ int pci_add_capability(PCIDevice *pci_dev, uint8_t cap_id, uint8_t cap_size);
  
--    if (vdev->nvectors) {
--        qemu_get_be16s(f, &vdev->config_vector);
--        //msix_vector_use(&vdev->pci_dev, vdev->config_vector);
--    }
-     num = qemu_get_be32(f);
- 
-     for (i = 0; i < num; i++) {
-@@ -630,13 +627,15 @@ void virtio_load(VirtIODevice *vdev, QEMUFile *f)
-         if (vdev->vq[i].pa) {
-             virtqueue_init(&vdev->vq[i]);
-         }
--        if (vdev->nvectors) {
--            qemu_get_be16s(f, &vdev->vq[i].vector);
--            //msix_vector_use(&vdev->pci_dev, vdev->config_vector);
-+        if (vdev->binding->load_queue) {
-+            ret = vdev->binding->load_queue(vdev->binding_opaque, i, f);
-+            if (ret)
-+                return ret;
-         }
-     }
- 
-     virtio_notify_vector(vdev, VIRTIO_NO_VECTOR);
-+    return 0;
- }
- 
- void virtio_cleanup(VirtIODevice *vdev)
-diff --git a/hw/virtio.h b/hw/virtio.h
-index 04a3c3d..ce05517 100644
---- a/hw/virtio.h
-+++ b/hw/virtio.h
-@@ -72,6 +72,10 @@ typedef struct VirtQueueElement
- 
- typedef struct {
-     void (*notify)(void * opaque, uint16_t vector);
-+    void (*save_config)(void * opaque, QEMUFile *f);
-+    void (*save_queue)(void * opaque, int n, QEMUFile *f);
-+    int (*load_config)(void * opaque, QEMUFile *f);
-+    int (*load_queue)(void * opaque, int n, QEMUFile *f);
- } VirtIOBindings;
- 
- #define VIRTIO_PCI_QUEUE_MAX 16
+ void pci_del_capability(PCIDevice *pci_dev, uint8_t cap_id, uint8_t cap_size);
 -- 
 1.6.2.2
