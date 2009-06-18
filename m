@@ -1,18 +1,12 @@
-From: Herbert Xu <herbert@gondor.apana.org.au>
-Subject: Re: [PATCH 2/4] virtio_net: return NETDEV_TX_BUSY instead of
-	queueing an extra skb.
-Date: Thu, 18 Jun 2009 15:34:22 +0800
-Message-ID: <20090618073422.GA4087__11981.3013625846$1245310526$gmane$org@gondor.apana.org.au>
-References: <200905292346.04815.rusty@rustcorp.com.au>
-	<200906132200.38034.rusty@rustcorp.com.au>
-	<20090614064528.GA29130@gondor.apana.org.au>
-	<200906181647.51045.rusty@rustcorp.com.au>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PREFIXv5 00/13] qemu: MSI-X support
+Date: Thu, 18 Jun 2009 16:12:26 +0300
+Message-ID: <20090618131226.GA19092__3044.94916131279$1245331099$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <200906181647.51045.rusty@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -22,54 +16,62 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: netdev@vger.kernel.org, David Miller <davem@davemloft.net>, virtualization@lists.linux-foundation.org
+To: Paul Brook <paul@codesourcery.com>, Avi Kivity <avi@redhat.com>, qemu-devel@nongnu.org, Carsten Otte <cotte@de.ibm.com>, kvm@vger.kernel.org, Rusty Russell <rusty@rustcor>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Jun 18, 2009 at 04:47:50PM +0930, Rusty Russell wrote:
-> 
-> One question: can netif_queue_stopped() ever be true inside start_xmit?  Some 
-> drivers test that, like sun3lance.c.
+Here is the port of MSI-X support patches to upstream qemu.
+Please comment or commit.
 
-The driver should never test that because even if it is true
-due to driver shutdown the xmit function should ignore it as
-the upper layer will wait for it anyway.
+This patchset adds generic support for MSI-X, adds implementation in
+APIC, and uses MSI-X in virtio-net.
 
-> Summary: we still have about 54 in-tree drivers which actually use 
-> NETDEV_TX_BUSY for normal paths.  Can I fix it now?
+Changelog:
+- since v4
+  rebased to latest bits. rename resize_region -> resize_bar
+- since v3
+  call to resize_region on load
+  split patches a bit differently to address style comments by Glauber
+  update commit message to clarify what msix_support flag does
+- since v2
+  rename mask -> wmask to avoid conflict with work by Yamahata
+- since v1
+  At Paul's suggestion, use stl_phy to decouple APIC and MSI-X implementation
 
-You can fix it but I don't quite understand your results below :)
+This uses the mask table patch that I posted previously, and which is
+included in the series.
 
-> sungem.c: Y, N
-
-This driver does the bug check in addition to a race check that
-should simply drop the packet instead of queueing.  In fact chances
-are the race check is unnecessary anyway.
-
-> fs_enet: N
-
-This is either just a bug check or the driver is broken in that
-it should stop the queue when the said condition can be true.
-
-> mace.c: N
-
-Just a bug check.
-
-> sh_eth.c: Y
-
-This driver should check the queue after transmitting, just like
-virtio-net :)
-
-So from a totally non-representative sample of 4, my conclusion
-is that none of them need TX_BUSY.  Do you have an example that
-really needs it?
-
-Anyway, I don't think we should reshape our APIs based on how
-broken the existing users are.
-
-Cheers,
 -- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+MST
+
+Michael S. Tsirkin (13):
+  qemu: make default_write_config use mask table
+  qemu: capability bits in pci save/restore
+  qemu: add routines to manage PCI capabilities
+  qemu: helper routines for pci access
+  qemu: MSI-X support functions
+  qemu: add flag to disable MSI-X by default
+  qemu: minimal MSI/MSI-X implementation for PC
+  qemu: add support for resizing regions
+  qemu: virtio support for many interrupt vectors
+  qemu: MSI-X support in virtio PCI
+  qemu: request 3 vectors in virtio-net
+  qemu: virtio save/load bindings
+  qemu: add pci_get/set_byte
+
+ Makefile.target    |    2 +-
+ hw/apic.c          |   43 +++++-
+ hw/msix.c          |  420 ++++++++++++++++++++++++++++++++++++++++++++++++++++
+ hw/msix.h          |   35 +++++
+ hw/pci.c           |  294 +++++++++++++++++++-----------------
+ hw/pci.h           |  104 ++++++++++++-
+ hw/syborg_virtio.c |   13 ++-
+ hw/virtio-net.c    |    1 +
+ hw/virtio-pci.c    |  216 ++++++++++++++++++++++-----
+ hw/virtio.c        |   70 ++++++---
+ hw/virtio.h        |   14 ++-
+ qemu-options.hx    |    2 +
+ rules.mak          |    2 +-
+ vl.c               |    3 +
+ 14 files changed, 1004 insertions(+), 215 deletions(-)
+ create mode 100644 hw/msix.c
+ create mode 100644 hw/msix.h
