@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCHv5 02/13] qemu: capability bits in pci save/restore
-Date: Thu, 18 Jun 2009 16:13:06 +0300
-Message-ID: <20090618131306.GC19092__1147.28697012669$1245331357$gmane$org@redhat.com>
+Subject: [PATCHv5 03/13] qemu: add routines to manage PCI capabilities
+Date: Thu, 18 Jun 2009 16:13:25 +0300
+Message-ID: <20090618131325.GD19092__12625.9458171718$1245331546$gmane$org@redhat.com>
 References: <cover.1245330293.git.mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,75 +21,157 @@ Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Paul Brook <paul@codesourcery.com>, Avi Kivity <avi@redhat.com>, qemu-devel@nongnu.org, Carsten Otte <cotte@de.ibm.com>, kvm@vger.kernel.org, Rusty Russell <rusty@rustcor>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Add support for capability bits in save/restore for pci.
-These will be used for MSI, where the capability might
-be present or not as requested by user, which does not
-map well into a single version number.
+Add routines to manage PCI capability list. First user will be MSI-X.
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- hw/pci.c |   17 ++++++++++++++---
- hw/pci.h |    4 ++++
- 2 files changed, 18 insertions(+), 3 deletions(-)
+ hw/pci.c |   79 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ hw/pci.h |   18 +++++++++++++-
+ 2 files changed, 96 insertions(+), 1 deletions(-)
 
 diff --git a/hw/pci.c b/hw/pci.c
-index 840986f..d42fcd9 100644
+index d42fcd9..e3f80d0 100644
 --- a/hw/pci.c
 +++ b/hw/pci.c
-@@ -126,9 +126,13 @@ int pci_bus_num(PCIBus *s)
- 
- void pci_device_save(PCIDevice *s, QEMUFile *f)
- {
-+    int version = s->cap_present ? 3 : 2;
-     int i;
- 
--    qemu_put_be32(f, 2); /* PCI device version */
-+    /* PCI device version and capabilities */
-+    qemu_put_be32(f, version);
-+    if (version >= 3)
-+        qemu_put_be32(f, s->cap_present);
-     qemu_put_buffer(f, s->config, 256);
-     for (i = 0; i < 4; i++)
-         qemu_put_be32(f, s->irq_state[i]);
-@@ -140,15 +144,22 @@ int pci_device_load(PCIDevice *s, QEMUFile *f)
-     int i;
- 
-     version_id = qemu_get_be32(f);
--    if (version_id > 2)
-+    if (version_id > 3)
-         return -EINVAL;
-+    if (version_id >= 3)
-+        s->cap_present = qemu_get_be32(f);
-+    else
-+        s->cap_present = 0;
-+
-+    if (s->cap_present & ~s->cap_supported)
-+        return -EINVAL;
-+
-     qemu_get_buffer(f, s->config, 256);
-     pci_update_mappings(s);
- 
+@@ -160,6 +160,12 @@ int pci_device_load(PCIDevice *s, QEMUFile *f)
      if (version_id >= 2)
          for (i = 0; i < 4; i ++)
              s->irq_state[i] = qemu_get_be32(f);
--
++    /* Clear wmask and used bits for capabilities.
++       Must be restored separately, since capabilities can
++       be placed anywhere in config space. */
++    memset(s->used, 0, PCI_CONFIG_SPACE_SIZE);
++    for (i = PCI_CONFIG_HEADER_SIZE; i < PCI_CONFIG_SPACE_SIZE; ++i)
++        s->wmask[i] = 0xff;
      return 0;
  }
  
+@@ -867,3 +873,76 @@ PCIDevice *pci_create_simple(PCIBus *bus, int devfn, const char *name)
+ 
+     return (PCIDevice *)dev;
+ }
++
++static int pci_find_space(PCIDevice *pdev, uint8_t size)
++{
++    int offset = PCI_CONFIG_HEADER_SIZE;
++    int i;
++    for (i = PCI_CONFIG_HEADER_SIZE; i < PCI_CONFIG_SPACE_SIZE; ++i)
++        if (pdev->used[i])
++            offset = i + 1;
++        else if (i - offset + 1 == size)
++            return offset;
++    return 0;
++}
++
++static uint8_t pci_find_capability_list(PCIDevice *pdev, uint8_t cap_id,
++                                        uint8_t *prev_p)
++{
++    uint8_t next, prev;
++
++    if (!(pdev->config[PCI_STATUS] & PCI_STATUS_CAP_LIST))
++        return 0;
++
++    for (prev = PCI_CAPABILITY_LIST; (next = pdev->config[prev]);
++         prev = next + PCI_CAP_LIST_NEXT)
++        if (pdev->config[next + PCI_CAP_LIST_ID] == cap_id)
++            break;
++
++    if (prev_p)
++        *prev_p = prev;
++    return next;
++}
++
++/* Reserve space and add capability to the linked list in pci config space */
++int pci_add_capability(PCIDevice *pdev, uint8_t cap_id, uint8_t size)
++{
++    uint8_t offset = pci_find_space(pdev, size);
++    uint8_t *config = pdev->config + offset;
++    if (!offset)
++        return -ENOSPC;
++    config[PCI_CAP_LIST_ID] = cap_id;
++    config[PCI_CAP_LIST_NEXT] = pdev->config[PCI_CAPABILITY_LIST];
++    pdev->config[PCI_CAPABILITY_LIST] = offset;
++    pdev->config[PCI_STATUS] |= PCI_STATUS_CAP_LIST;
++    memset(pdev->used + offset, 0xFF, size);
++    /* Make capability read-only by default */
++    memset(pdev->wmask + offset, 0, size);
++    return offset;
++}
++
++/* Unlink capability from the pci config space. */
++void pci_del_capability(PCIDevice *pdev, uint8_t cap_id, uint8_t size)
++{
++    uint8_t prev, offset = pci_find_capability_list(pdev, cap_id, &prev);
++    if (!offset)
++        return;
++    pdev->config[prev] = pdev->config[offset + PCI_CAP_LIST_NEXT];
++    /* Make capability writeable again */
++    memset(pdev->wmask + offset, 0xff, size);
++    memset(pdev->used + offset, 0, size);
++
++    if (!pdev->config[PCI_CAPABILITY_LIST])
++        pdev->config[PCI_STATUS] &= ~PCI_STATUS_CAP_LIST;
++}
++
++/* Reserve space for capability at a known offset (to call after load). */
++void pci_reserve_capability(PCIDevice *pdev, uint8_t offset, uint8_t size)
++{
++    memset(pdev->used + offset, 0xff, size);
++}
++
++uint8_t pci_find_capability(PCIDevice *pdev, uint8_t cap_id)
++{
++    return pci_find_capability_list(pdev, cap_id, NULL);
++}
 diff --git a/hw/pci.h b/hw/pci.h
-index 44aa61b..1226846 100644
+index 1226846..4f90fdc 100644
 --- a/hw/pci.h
 +++ b/hw/pci.h
-@@ -174,6 +174,10 @@ struct PCIDevice {
+@@ -121,6 +121,10 @@ typedef struct PCIIORegion {
+ #define PCI_MIN_GNT		0x3e	/* 8 bits */
+ #define PCI_MAX_LAT		0x3f	/* 8 bits */
  
-     /* Current IRQ levels.  Used internally by the generic PCI code.  */
-     int irq_state[4];
++/* Capability lists */
++#define PCI_CAP_LIST_ID		0	/* Capability ID */
++#define PCI_CAP_LIST_NEXT	1	/* Next capability in the list */
 +
-+    /* Capability bits for save/load */
-+    uint32_t cap_supported;
-+    uint32_t cap_present;
- };
+ #define PCI_REVISION            0x08    /* obsolete, use PCI_REVISION_ID */
+ #define PCI_SUBVENDOR_ID        0x2c    /* obsolete, use PCI_SUBSYSTEM_VENDOR_ID */
+ #define PCI_SUBDEVICE_ID        0x2e    /* obsolete, use PCI_SUBSYSTEM_ID */
+@@ -128,7 +132,7 @@ typedef struct PCIIORegion {
+ /* Bits in the PCI Status Register (PCI 2.3 spec) */
+ #define PCI_STATUS_RESERVED1	0x007
+ #define PCI_STATUS_INT_STATUS	0x008
+-#define PCI_STATUS_CAPABILITIES	0x010
++#define PCI_STATUS_CAP_LIST	0x010
+ #define PCI_STATUS_66MHZ	0x020
+ #define PCI_STATUS_RESERVED2	0x040
+ #define PCI_STATUS_FAST_BACK	0x080
+@@ -158,6 +162,9 @@ struct PCIDevice {
+     /* Used to implement R/W bytes */
+     uint8_t wmask[PCI_CONFIG_SPACE_SIZE];
  
- PCIDevice *pci_register_device(PCIBus *bus, const char *name,
++    /* Used to allocate config space for capabilities. */
++    uint8_t used[PCI_CONFIG_SPACE_SIZE];
++
+     /* the following fields are read only */
+     PCIBus *bus;
+     int devfn;
+@@ -190,6 +197,15 @@ void pci_register_bar(PCIDevice *pci_dev, int region_num,
+                             uint32_t size, int type,
+                             PCIMapIORegionFunc *map_func);
+ 
++int pci_add_capability(PCIDevice *pci_dev, uint8_t cap_id, uint8_t cap_size);
++
++void pci_del_capability(PCIDevice *pci_dev, uint8_t cap_id, uint8_t cap_size);
++
++void pci_reserve_capability(PCIDevice *pci_dev, uint8_t offset, uint8_t size);
++
++uint8_t pci_find_capability(PCIDevice *pci_dev, uint8_t cap_id);
++
++
+ uint32_t pci_default_read_config(PCIDevice *d,
+                                  uint32_t address, int len);
+ void pci_default_write_config(PCIDevice *d,
 -- 
 1.6.2.2
