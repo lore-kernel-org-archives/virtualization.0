@@ -1,17 +1,18 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH 2/4] virtio_net: return NETDEV_TX_BUSY instead of queueing
-	an extra skb.
-Date: Fri, 19 Jun 2009 13:07:19 +0930
-Message-ID: <200906191307.20360.rusty__25264.9448033937$1245382705$gmane$org@rustcorp.com.au>
+From: Herbert Xu <herbert@gondor.apana.org.au>
+Subject: Re: [PATCH 2/4] virtio_net: return NETDEV_TX_BUSY instead of
+	queueing an extra skb.
+Date: Fri, 19 Jun 2009 12:36:13 +0800
+Message-ID: <20090619043613.GA15163__6189.12652503258$1245386214$gmane$org@gondor.apana.org.au>
 References: <200905292346.04815.rusty@rustcorp.com.au>
 	<200906181647.51045.rusty@rustcorp.com.au>
 	<20090618073422.GA4087@gondor.apana.org.au>
+	<200906191307.20360.rusty@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20090618073422.GA4087@gondor.apana.org.au>
 Content-Disposition: inline
+In-Reply-To: <200906191307.20360.rusty@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -21,76 +22,96 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: netdev@vger.kernel.org, David Miller <davem@davemloft.net>, virtualization@lists.linux-foundation.org
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: netdev@vger.kernel.org, Matt Carlson <mcarlson@broadcom.com>, David Miller <davem@davemloft.net>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 18 Jun 2009 05:04:22 pm Herbert Xu wrote:
-> On Thu, Jun 18, 2009 at 04:47:50PM +0930, Rusty Russell wrote:
-> > Summary: we still have about 54 in-tree drivers which actually use
-> > NETDEV_TX_BUSY for normal paths.  Can I fix it now?
+On Fri, Jun 19, 2009 at 01:07:19PM +0930, Rusty Russell wrote:
 >
-> You can fix it but I don't quite understand your results below :)
+> You didn't comment on my patch which tried to fix NETDEV_TX_BUSY tho?
 
-You didn't comment on my patch which tried to fix NETDEV_TX_BUSY tho?
+I think fixing it would only encourage more drivers to use and
+abuse TX_BUSY.  The fundamental problem with TX_BUSY is that
+you're doing the check before transmitting a packet instead of
+after transmitting it.
 
-> > sungem.c: Y, N
->
-> This driver does the bug check in addition to a race check that
-> should simply drop the packet instead of queueing.  In fact chances
-> are the race check is unnecessary anyway.
+Let me explain why this is wrong, beyond the fact that tcpdump
+may see the packet twice which you've tried to fix.  The problem
+is that requeueing is fundamentally hard.  We use to have this
+horrible logic in the schedulers to handle this.  Thankfully that
+seems to have been replaced with a single device-level packet
+holder shared with GSO.
 
-OK, "N" means "can be simply replaced with kfree_skb(skb); return 
-NETDEV_TX_OK;".  "Y" means "driver will break if we do that, needs rewriting".
-I didn't grade how hard or easy the rewrite would be, but later on I got more 
-picky (I would have said this is N, N: the race can be replaced with a drop).
+However, that is still wrong for many packet schedulers.  For
+example, if the requeued packet is of a lower priority, and a
+higher priority packet comes along, we want the higher priority
+packet to preempt the requeued packet.  Right now it just doesn't
+happen.
 
-> > fs_enet: N
->
-> This is either just a bug check or the driver is broken in that
-> it should stop the queue when the said condition can be true.
->
-> > mace.c: N
->
-> Just a bug check.
+This is not as trivial as it seems because on a busy host this can
+happen many times a second.  With TX_BUSY the QoS guarantees are
+simply not workable.
 
-Err, that's why they're N (ie. does not need TX_BUSY).
+BTW you pointed out that GSO also uses TX_BUSY, but that is
+different because the packet schedulers treat a GSO packet as
+a single entity so there is no issue of preemption.  Also tcpdump
+will never see it twice by design.
 
-> > sh_eth.c: Y
->
-> This driver should check the queue after transmitting, just like
-> virtio-net :)
->
-> So from a totally non-representative sample of 4, my conclusion
-> is that none of them need TX_BUSY.  Do you have an example that
-> really needs it?
+> e1000/e1000_main.c: fifo bug workaround?
 
-First you asserted "Most of them just do this:... /* Never happens */".  Now 
-I've found ~50 drivers which don't do that, it's "Do any of them really need 
-it?".
+The workaround should work just as well as a stop-queue check
+after packet transmission.
 
-So, now I'll look at that.  Some are just buggy (I'll send patches for those).  
-Most I just have no idea what they're doing; they're pretty ugly.  These ones 
-are interesting:
+> ehea/ehea_main.c: ?
 
-e1000/e1000_main.c: fifo bug workaround?
-ehea/ehea_main.c: ?
-starfire.c: "we may not have enough slots even when it seems we do."?
-tg3.c: tg3_gso_bug
+Ahh! The bastard LLTX drivers are still around.  LLTX was the
+worst abuse associated with TX_BUSY.  Thankfully not many of them
+are left.
 
-ISTR at least one driver claimed practice showed it was better to return 
-TX_BUSY, and one insisted it wouldn't wasn't going to waste MAX_FRAGS on the 
-stop-early scheme.
+The fix is to not use LLTX and use the xmit_lock like normal
+drivers.
 
-> Anyway, I don't think we should reshape our APIs based on how
-> broken the existing users are.
+> starfire.c: "we may not have enough slots even when it seems we do."?
 
-We provided an API, people used it.  Constantly trying to disclaim our 
-responsibility for the resulting mess makes me fucking ANGRY.
+Just replace skb_num_frags with SKB_MAX_FRAGS and move the check
+after the transmit.
 
-We either remove the API, or fix it.  I think fixing it is better, because my 
-driver will be simpler and it's obvious noone wants to rewrite 50 drivers and 
-break several of them.
+> tg3.c: tg3_gso_bug
 
-I don't know how many times I can say the same thing...
-Rusty.
+A better solution would in fact be to disable hardware TSO when
+we encounter such a packet (and drop the first one).
+
+Because once you get one you're likely to get a lot more.  The
+difference between hardware TSO and GSO on a card like tg3 is
+negligible anyway.
+
+Alternatively just disable TSO completely on those chips.
+
+Ccing the tg3 maintainer.
+ 
+> We provided an API, people used it.  Constantly trying to disclaim our 
+> responsibility for the resulting mess makes me fucking ANGRY.
+
+Where have I disclaimed responsibility? If we were doing that
+then we wouldn't be having this discussion.
+
+> We either remove the API, or fix it.  I think fixing it is better, because my 
+> driver will be simpler and it's obvious noone wants to rewrite 50 drivers and 
+> break several of them.
+
+My preference is obviously in the long term removal of TX_BUSY.
+Due to resource constraints that cannot be done immediately.  So
+at least we should try to stop its proliferation.
+
+BTW removing TX_BUSY does not mean that your driver has to stay
+complicated.  As I have said repeatedly your driver should be
+checking the stop-queue condition after transmission, not before.
+
+In fact queueing it in the driver is just as bad as return TX_BUSY!
+
+Cheers,
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
