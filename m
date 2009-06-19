@@ -1,17 +1,17 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [Qemu-devel] [PATCHv5 08/13] qemu: add support for resizing
-	regions
-Date: Thu, 18 Jun 2009 19:44:44 +0300
-Message-ID: <20090618164444.GB19553__3395.72318266637$1245343728$gmane$org@redhat.com>
-References: <cover.1245330293.git.mst@redhat.com>
-	<20090618131438.GI19092@redhat.com>
-	<200906181735.10458.paul@codesourcery.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH 2/4] virtio_net: return NETDEV_TX_BUSY instead of queueing
+	an extra skb.
+Date: Fri, 19 Jun 2009 13:07:19 +0930
+Message-ID: <200906191307.20360.rusty__25264.9448033937$1245382705$gmane$org@rustcorp.com.au>
+References: <200905292346.04815.rusty@rustcorp.com.au>
+	<200906181647.51045.rusty@rustcorp.com.au>
+	<20090618073422.GA4087@gondor.apana.org.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20090618073422.GA4087@gondor.apana.org.au>
 Content-Disposition: inline
-In-Reply-To: <200906181735.10458.paul@codesourcery.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -21,24 +21,76 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Paul Brook <paul@codesourcery.com>
-Cc: Carsten Otte <cotte@de.ibm.com>, kvm@vger.kernel.org, Glauber Costa <glommer@redhat.com>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Blue Swirl <blauwirbel@gmail.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Avi Kivity <avi@redhat.com>, Anthony Liguori <anthony@codemonkey.ws>
+To: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: netdev@vger.kernel.org, David Miller <davem@davemloft.net>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Jun 18, 2009 at 05:32:11PM +0100, Paul Brook wrote:
-> On Thursday 18 June 2009, Michael S. Tsirkin wrote:
-> > Make it possible to resize PCI regions.  This will be used by virtio
-> > with MSI-X, where the region size depends on whether MSI-X is enabled,
-> > and can change across load/save.
-> 
-> I thought we'd agreed we shouldn't be doing this.
-> i.e. if the user tries to load the wrong device, just bail out.
-> 
-> Paul
+On Thu, 18 Jun 2009 05:04:22 pm Herbert Xu wrote:
+> On Thu, Jun 18, 2009 at 04:47:50PM +0930, Rusty Russell wrote:
+> > Summary: we still have about 54 in-tree drivers which actually use
+> > NETDEV_TX_BUSY for normal paths.  Can I fix it now?
+>
+> You can fix it but I don't quite understand your results below :)
 
-We need a way to generally prevent load from changing registers in a way
-that can not be done by a guest.  I haven't implemented this feature yet
-though.
+You didn't comment on my patch which tried to fix NETDEV_TX_BUSY tho?
 
--- 
-MST
+> > sungem.c: Y, N
+>
+> This driver does the bug check in addition to a race check that
+> should simply drop the packet instead of queueing.  In fact chances
+> are the race check is unnecessary anyway.
+
+OK, "N" means "can be simply replaced with kfree_skb(skb); return 
+NETDEV_TX_OK;".  "Y" means "driver will break if we do that, needs rewriting".
+I didn't grade how hard or easy the rewrite would be, but later on I got more 
+picky (I would have said this is N, N: the race can be replaced with a drop).
+
+> > fs_enet: N
+>
+> This is either just a bug check or the driver is broken in that
+> it should stop the queue when the said condition can be true.
+>
+> > mace.c: N
+>
+> Just a bug check.
+
+Err, that's why they're N (ie. does not need TX_BUSY).
+
+> > sh_eth.c: Y
+>
+> This driver should check the queue after transmitting, just like
+> virtio-net :)
+>
+> So from a totally non-representative sample of 4, my conclusion
+> is that none of them need TX_BUSY.  Do you have an example that
+> really needs it?
+
+First you asserted "Most of them just do this:... /* Never happens */".  Now 
+I've found ~50 drivers which don't do that, it's "Do any of them really need 
+it?".
+
+So, now I'll look at that.  Some are just buggy (I'll send patches for those).  
+Most I just have no idea what they're doing; they're pretty ugly.  These ones 
+are interesting:
+
+e1000/e1000_main.c: fifo bug workaround?
+ehea/ehea_main.c: ?
+starfire.c: "we may not have enough slots even when it seems we do."?
+tg3.c: tg3_gso_bug
+
+ISTR at least one driver claimed practice showed it was better to return 
+TX_BUSY, and one insisted it wouldn't wasn't going to waste MAX_FRAGS on the 
+stop-early scheme.
+
+> Anyway, I don't think we should reshape our APIs based on how
+> broken the existing users are.
+
+We provided an API, people used it.  Constantly trying to disclaim our 
+responsibility for the resulting mess makes me fucking ANGRY.
+
+We either remove the API, or fix it.  I think fixing it is better, because my 
+driver will be simpler and it's obvious noone wants to rewrite 50 drivers and 
+break several of them.
+
+I don't know how many times I can say the same thing...
+Rusty.
