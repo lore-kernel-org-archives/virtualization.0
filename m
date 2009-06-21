@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCHv6 10/12] qemu/pci: add pci_get/set_byte
-Date: Sun, 21 Jun 2009 19:50:57 +0300
-Message-ID: <20090621165057.GK10164__14043.7501170256$1245604231$gmane$org@redhat.com>
+Subject: [PATCHv6 11/12] qemu/net: request 3 vectors in virtio-net
+Date: Sun, 21 Jun 2009 19:51:04 +0300
+Message-ID: <20090621165104.GL10164__11072.9558430196$1245604347$gmane$org@redhat.com>
 References: <cover.1245594586.git.mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,36 +21,25 @@ Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Paul Brook <paul@codesourcery.com>, Avi Kivity <avi@redhat.com>, qemu-devel@nongnu.org, Carsten Otte <cotte@de.ibm.com>, kvm@vger.kernel.org, Rusty Russell <rusty@rustcor>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Add pci_get/set_byte to keep *_word and *_long access functions company.
-They are unused for now.
+Request up to 3 vectors in virtio-net. Actual bindings might supply
+less.
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- hw/pci.h |   12 ++++++++++++
- 1 files changed, 12 insertions(+), 0 deletions(-)
+ hw/virtio-net.c |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
 
-diff --git a/hw/pci.h b/hw/pci.h
-index 03b0a70..52b66b3 100644
---- a/hw/pci.h
-+++ b/hw/pci.h
-@@ -260,6 +260,18 @@ PCIBus *pci_bridge_init(PCIBus *bus, int devfn, uint16_t vid, uint16_t did,
-                         pci_map_irq_fn map_irq, const char *name);
+diff --git a/hw/virtio-net.c b/hw/virtio-net.c
+index d584287..c8dabbe 100644
+--- a/hw/virtio-net.c
++++ b/hw/virtio-net.c
+@@ -709,6 +709,7 @@ VirtIODevice *virtio_net_init(DeviceState *dev)
+     n->mac_table.macs = qemu_mallocz(MAC_TABLE_ENTRIES * ETH_ALEN);
  
- static inline void
-+pci_set_byte(uint8_t *config, uint8_t val)
-+{
-+    *config = val;
-+}
-+
-+static inline uint8_t
-+pci_get_byte(uint8_t *config)
-+{
-+    return *config;
-+}
-+
-+static inline void
- pci_set_word(uint8_t *config, uint16_t val)
- {
-     cpu_to_le16wu((uint16_t *)config, val);
+     n->vlans = qemu_mallocz(MAX_VLAN >> 3);
++    n->vdev.nvectors = 3;
+ 
+     register_savevm("virtio-net", virtio_net_id++, VIRTIO_NET_VM_VERSION,
+                     virtio_net_save, virtio_net_load, n);
 -- 
 1.6.2.2
