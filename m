@@ -1,18 +1,12 @@
-From: Herbert Xu <herbert@gondor.apana.org.au>
-Subject: Re: [PATCH 2/4] virtio_net: return NETDEV_TX_BUSY instead of
-	queueing an extra skb.
-Date: Fri, 19 Jun 2009 22:10:14 +0800
-Message-ID: <20090619141014.GA19828__12921.0281804719$1245420672$gmane$org@gondor.apana.org.au>
-References: <200905292346.04815.rusty@rustcorp.com.au>
-	<200906191307.20360.rusty@rustcorp.com.au>
-	<20090619043613.GA15163@gondor.apana.org.au>
-	<200906192320.44904.rusty@rustcorp.com.au>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCHv6 00/12] qemu: MSI-X support
+Date: Sun, 21 Jun 2009 19:44:57 +0300
+Message-ID: <20090621164457.GA10164__21843.4012881064$1245602931$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <200906192320.44904.rusty@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -22,57 +16,67 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: netdev@vger.kernel.org, Matt Carlson <mcarlson@broadcom.com>, David Miller <davem@davemloft.net>, virtualization@lists.linux-foundation.org
+To: Paul Brook <paul@codesourcery.com>, Avi Kivity <avi@redhat.com>, qemu-devel@nongnu.org, Carsten Otte <cotte@de.ibm.com>, kvm@vger.kernel.org, Rusty Russell <rusty@rustcor>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Jun 19, 2009 at 11:20:44PM +0930, Rusty Russell wrote:
->
-> Your use of the word guarantee here indicates an idealized concept of QoS 
-> which cannot exist on any NIC which has a queue.  We should try to approach 
-> the ideal, but understand we cannot reach it.
+Here is the port of MSI-X support patches to upstream qemu.
+Please comment or commit.
 
-I'm just pointing out that it's better to not have to do this.
+This patchset adds generic support for MSI-X, adds implementation in
+APIC, and uses MSI-X in virtio-net.
 
-Since TX_BUSY and requeueing the packet is unnecessary in the
-first place because we can avoid it by managing the stop-queue
-action properly, there is no reason to do this because of its
-downsides.
+Changelog:
+- since v5
+  make sure that load does not modify registers that guest can not change
+  replace global msix disable flag with a per-device flag to control the number of vectors
+- since v4
+  rebased to latest bits
+- since v3
+  call to resize_region on load
+  split patches a bit differently to address style comments by Glauber
+  update commit message to clarify what msix_support flag does
+- since v2
+  rename mask -> wmask to avoid conflict with work by Yamahata
+- since v1
+  At Paul's suggestion, use stl_phy to decouple APIC and MSI-X implementation
 
-> On the other hand, we're underutilizing the queue to avoid it.  I find that a 
-> little embarrassing.
+This uses the mask table patch that I posted previously, and which is
+included in the series. That patch has been slightly updated due
+to mask -> wmask rename. Isaku Yamahata, maybe you want to
+update your patch series with that.
 
-Here's why I think this is not an issue.  If your NIC is high
-bandwidth then your ring is going to have to be huge so the
-amount that is underutilised (a 64K packet) is tiny.  If your
-NIC is low bandwidth then this is where you often need QoS and
-in that case you do *NOT* want to fully utilise the HW queue.
-
-> I feel we're being horribly deceptive by giving them a nice API, and upon 
-> review, telling them "don't use that".  And it's been ongoing for far too 
-> long.
-
-If you look at our API documentation it actually says:
-
-        Return codes:
-        o NETDEV_TX_OK everything ok.
-        o NETDEV_TX_BUSY Cannot transmit packet, try later
-          Usually a bug, means queue start/stop flow control is broken in
-          the driver. Note: the driver must NOT put the skb in its DMA ring.
-        o NETDEV_TX_LOCKED Locking failed, please retry quickly.
-          Only valid when NETIF_F_LLTX is set.
-
-So I don't feel too bad :)
-
-> > In fact queueing it in the driver is just as bad as return TX_BUSY!
-> 
-> Agreed (modulo the tcpdump issue).  And worse, because it's ugly and complex!
-
-The right solution is to stop the queue properly.
-
-Cheers,
 -- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+MST
+
+Michael S. Tsirkin (12):
+  qemu/pci: make default_write_config use mask table
+  qemu/pci: helper routines for pci access
+  qemu/pci: add routines to manage PCI capabilities
+  qemu/pci: check constant registers on load
+  qemu/pci: MSI-X support functions
+  qemu/apic: minimal MSI/MSI-X implementation for PC
+  qemu/virtio: virtio support for many interrupt vectors
+  qemu/virtio: MSI-X support in virtio PCI
+  qemu/virtio: virtio save/load bindings
+  qemu/pci: add pci_get/set_byte
+  qemu/net: request 3 vectors in virtio-net
+  qemu/net: flag to control the number of vectors a nic has
+
+ Makefile.target    |    2 +-
+ hw/apic.c          |   43 ++++++-
+ hw/msix.c          |  378 ++++++++++++++++++++++++++++++++++++++++++++++++++++
+ hw/msix.h          |   34 +++++
+ hw/pci.c           |  245 ++++++++++++++++++----------------
+ hw/pci.h           |  106 ++++++++++++++-
+ hw/syborg_virtio.c |   13 ++-
+ hw/virtio-net.c    |    4 +
+ hw/virtio-pci.c    |  212 +++++++++++++++++++++++------
+ hw/virtio.c        |   70 +++++++---
+ hw/virtio.h        |   14 ++-
+ net.c              |   18 +++-
+ net.h              |    4 +
+ qemu-options.hx    |   14 +-
+ rules.mak          |    2 +-
+ 15 files changed, 956 insertions(+), 203 deletions(-)
+ create mode 100644 hw/msix.c
+ create mode 100644 hw/msix.h
