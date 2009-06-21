@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCHv6 05/12] qemu/pci: MSI-X support functions
-Date: Sun, 21 Jun 2009 19:49:54 +0300
-Message-ID: <20090621164954.GF10164__31995.9500492134$1245603665$gmane$org@redhat.com>
+Subject: [PATCHv6 07/12] qemu/virtio: virtio support for many interrupt vectors
+Date: Sun, 21 Jun 2009 19:50:13 +0300
+Message-ID: <20090621165013.GH10164__9902.166928123$1245603779$gmane$org@redhat.com>
 References: <cover.1245594586.git.mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,499 +21,381 @@ Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Paul Brook <paul@codesourcery.com>, Avi Kivity <avi@redhat.com>, qemu-devel@nongnu.org, Carsten Otte <cotte@de.ibm.com>, kvm@vger.kernel.org, Rusty Russell <rusty@rustcor>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Add functions implementing MSI-X support. First user will be virtio-pci.
-Note that platform must set a flag to declare MSI supported: this
-is a safety measure to avoid breaking platforms which should support
-MSI-X but currently lack this in the interrupt controller emulation.
-For PC this will be set by APIC.
+Extend virtio to support many interrupt vectors, and rearrange code in
+preparation for multi-vector support (mostly move reset out to bindings,
+because we will have to reset the vectors in transport-specific code).
+Actual bindings in pci, and use in net, to follow.
+Load and save are not connected to bindings yet, so they are left
+stubbed out for now.
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- Makefile.target |    2 +-
- hw/msix.c       |  378 +++++++++++++++++++++++++++++++++++++++++++++++++++++++
- hw/msix.h       |   34 +++++
- hw/pci.h        |   23 ++++
- 4 files changed, 436 insertions(+), 1 deletions(-)
- create mode 100644 hw/msix.c
- create mode 100644 hw/msix.h
+ hw/syborg_virtio.c |   13 ++++++++--
+ hw/virtio-pci.c    |   24 ++++++++++++++++----
+ hw/virtio.c        |   59 ++++++++++++++++++++++++++++++++++++++-------------
+ hw/virtio.h        |   10 +++++++-
+ 4 files changed, 81 insertions(+), 25 deletions(-)
 
-diff --git a/Makefile.target b/Makefile.target
-index 0159bf7..145b3a9 100644
---- a/Makefile.target
-+++ b/Makefile.target
-@@ -494,7 +494,7 @@ endif #CONFIG_BSD_USER
- ifndef CONFIG_USER_ONLY
- 
- OBJS=vl.o osdep.o monitor.o pci.o loader.o isa_mmio.o machine.o \
--     gdbstub.o gdbstub-xml.o
-+     gdbstub.o gdbstub-xml.o msix.o
- # virtio has to be here due to weird dependency between PCI and virtio-net.
- # need to fix this properly
- OBJS+=virtio-blk.o virtio-balloon.o virtio-net.o virtio-console.o
-diff --git a/hw/msix.c b/hw/msix.c
-new file mode 100644
-index 0000000..773581f
---- /dev/null
-+++ b/hw/msix.c
-@@ -0,0 +1,378 @@
-+/*
-+ * MSI-X device support
-+ *
-+ * This module includes support for MSI-X in pci devices.
-+ *
-+ * Author: Michael S. Tsirkin <mst@redhat.com>
-+ *
-+ *  Copyright (c) 2009, Red Hat Inc, Michael S. Tsirkin (mst@redhat.com)
-+ *
-+ * This work is licensed under the terms of the GNU GPL, version 2.  See
-+ * the COPYING file in the top-level directory.
-+ */
-+
-+#include "hw.h"
-+#include "msix.h"
-+#include "pci.h"
-+
-+/* Declaration from linux/pci_regs.h */
-+#define  PCI_CAP_ID_MSIX 0x11 /* MSI-X */
-+#define  PCI_MSIX_FLAGS 2     /* Table at lower 11 bits */
-+#define  PCI_MSIX_FLAGS_QSIZE	0x7FF
-+#define  PCI_MSIX_FLAGS_ENABLE	(1 << 15)
-+#define  PCI_MSIX_FLAGS_BIRMASK	(7 << 0)
-+
-+/* MSI-X capability structure */
-+#define MSIX_TABLE_OFFSET 4
-+#define MSIX_PBA_OFFSET 8
-+#define MSIX_CAP_LENGTH 12
-+
-+/* MSI enable bit is in byte 1 in FLAGS register */
-+#define MSIX_ENABLE_OFFSET (PCI_MSIX_FLAGS + 1)
-+#define MSIX_ENABLE_MASK (PCI_MSIX_FLAGS_ENABLE >> 8)
-+
-+/* MSI-X table format */
-+#define MSIX_MSG_ADDR 0
-+#define MSIX_MSG_UPPER_ADDR 4
-+#define MSIX_MSG_DATA 8
-+#define MSIX_VECTOR_CTRL 12
-+#define MSIX_ENTRY_SIZE 16
-+#define MSIX_VECTOR_MASK 0x1
-+
-+/* How much space does an MSIX table need. */
-+/* The spec requires giving the table structure
-+ * a 4K aligned region all by itself. Align it to
-+ * target pages so that drivers can do passthrough
-+ * on the rest of the region. */
-+#define MSIX_PAGE_SIZE TARGET_PAGE_ALIGN(0x1000)
-+/* Reserve second half of the page for pending bits */
-+#define MSIX_PAGE_PENDING (MSIX_PAGE_SIZE / 2)
-+#define MSIX_MAX_ENTRIES 32
-+
-+
-+#ifdef MSIX_DEBUG
-+#define DEBUG(fmt, ...)                                       \
-+    do {                                                      \
-+      fprintf(stderr, "%s: " fmt, __func__ , __VA_ARGS__);    \
-+    } while (0)
-+#else
-+#define DEBUG(fmt, ...) do { } while(0)
-+#endif
-+
-+/* Flag for interrupt controller to declare MSI-X support */
-+int msix_supported;
-+
-+/* Add MSI-X capability to the config space for the device. */
-+/* Given a bar and its size, add MSI-X table on top of it
-+ * and fill MSI-X capability in the config space.
-+ * Original bar size must be a power of 2 or 0.
-+ * New bar size is returned. */
-+static int msix_add_config(struct PCIDevice *pdev, unsigned short nentries,
-+                           unsigned bar_nr, unsigned bar_size)
-+{
-+    int config_offset;
-+    uint8_t *config;
-+    uint32_t new_size;
-+
-+    if (nentries < 1 || nentries > PCI_MSIX_FLAGS_QSIZE + 1)
-+        return -EINVAL;
-+    if (bar_size > 0x80000000)
-+        return -ENOSPC;
-+
-+    /* Add space for MSI-X structures */
-+    if (!bar_size)
-+        new_size = MSIX_PAGE_SIZE;
-+    else if (bar_size < MSIX_PAGE_SIZE) {
-+        bar_size = MSIX_PAGE_SIZE;
-+        new_size = MSIX_PAGE_SIZE * 2;
-+    } else
-+        new_size = bar_size * 2;
-+
-+    pdev->msix_bar_size = new_size;
-+    config_offset = pci_add_capability(pdev, PCI_CAP_ID_MSIX, MSIX_CAP_LENGTH);
-+    if (config_offset < 0)
-+        return config_offset;
-+    config = pdev->config + config_offset;
-+
-+    pci_set_word(config + PCI_MSIX_FLAGS, nentries - 1);
-+    /* Table on top of BAR */
-+    pci_set_long(config + MSIX_TABLE_OFFSET, bar_size | bar_nr);
-+    /* Pending bits on top of that */
-+    pci_set_long(config + MSIX_PBA_OFFSET, (bar_size + MSIX_PAGE_PENDING) |
-+                 bar_nr);
-+    pdev->msix_cap = config_offset;
-+    /* Make flags bit writeable. */
-+    pdev->wmask[config_offset + MSIX_ENABLE_OFFSET] |= MSIX_ENABLE_MASK;
-+    return 0;
-+}
-+
-+static void msix_free_irq_entries(PCIDevice *dev)
-+{
-+    int vector;
-+
-+    for (vector = 0; vector < dev->msix_entries_nr; ++vector)
-+        dev->msix_entry_used[vector] = 0;
-+}
-+
-+/* Handle MSI-X capability config write. */
-+void msix_write_config(PCIDevice *dev, uint32_t addr,
-+                       uint32_t val, int len)
-+{
-+    unsigned enable_pos = dev->msix_cap + MSIX_ENABLE_OFFSET;
-+    if (addr + len <= enable_pos || addr > enable_pos)
-+        return;
-+
-+    if (msix_enabled(dev))
-+        qemu_set_irq(dev->irq[0], 0);
-+}
-+
-+static uint32_t msix_mmio_readl(void *opaque, target_phys_addr_t addr)
-+{
-+    PCIDevice *dev = opaque;
-+    unsigned int offset = addr & (MSIX_PAGE_SIZE - 1);
-+    void *page = dev->msix_table_page;
-+    uint32_t val = 0;
-+
-+    memcpy(&val, (void *)((char *)page + offset), 4);
-+
-+    return val;
-+}
-+
-+static uint32_t msix_mmio_read_unallowed(void *opaque, target_phys_addr_t addr)
-+{
-+    fprintf(stderr, "MSI-X: only dword read is allowed!\n");
-+    return 0;
-+}
-+
-+static uint8_t msix_pending_mask(int vector)
-+{
-+    return 1 << (vector % 8);
-+}
-+
-+static uint8_t *msix_pending_byte(PCIDevice *dev, int vector)
-+{
-+    return dev->msix_table_page + MSIX_PAGE_PENDING + vector / 8;
-+}
-+
-+static int msix_is_pending(PCIDevice *dev, int vector)
-+{
-+    return *msix_pending_byte(dev, vector) & msix_pending_mask(vector);
-+}
-+
-+static void msix_set_pending(PCIDevice *dev, int vector)
-+{
-+    *msix_pending_byte(dev, vector) |= msix_pending_mask(vector);
-+}
-+
-+static void msix_clr_pending(PCIDevice *dev, int vector)
-+{
-+    *msix_pending_byte(dev, vector) &= ~msix_pending_mask(vector);
-+}
-+
-+static int msix_is_masked(PCIDevice *dev, int vector)
-+{
-+    unsigned offset = vector * MSIX_ENTRY_SIZE + MSIX_VECTOR_CTRL;
-+    return dev->msix_table_page[offset] & MSIX_VECTOR_MASK;
-+}
-+
-+static void msix_mmio_writel(void *opaque, target_phys_addr_t addr,
-+                             uint32_t val)
-+{
-+    PCIDevice *dev = opaque;
-+    unsigned int offset = addr & (MSIX_PAGE_SIZE - 1);
-+    int vector = offset / MSIX_ENTRY_SIZE;
-+    memcpy(dev->msix_table_page + offset, &val, 4);
-+    if (!msix_is_masked(dev, vector) && msix_is_pending(dev, vector)) {
-+        msix_clr_pending(dev, vector);
-+        msix_notify(dev, vector);
-+    }
-+}
-+
-+static void msix_mmio_write_unallowed(void *opaque, target_phys_addr_t addr,
-+                                      uint32_t val)
-+{
-+    fprintf(stderr, "MSI-X: only dword write is allowed!\n");
-+}
-+
-+static CPUWriteMemoryFunc *msix_mmio_write[] = {
-+    msix_mmio_write_unallowed, msix_mmio_write_unallowed, msix_mmio_writel
-+};
-+
-+static CPUReadMemoryFunc *msix_mmio_read[] = {
-+    msix_mmio_read_unallowed, msix_mmio_read_unallowed, msix_mmio_readl
-+};
-+
-+/* Should be called from device's map method. */
-+void msix_mmio_map(PCIDevice *d, int region_num,
-+                   uint32_t addr, uint32_t size, int type)
-+{
-+    uint8_t *config = d->config + d->msix_cap;
-+    uint32_t table = pci_get_long(config + MSIX_TABLE_OFFSET);
-+    uint32_t offset = table & ~(MSIX_PAGE_SIZE - 1);
-+    /* TODO: for assigned devices, we'll want to make it possible to map
-+     * pending bits separately in case they are in a separate bar. */
-+    int table_bir = table & PCI_MSIX_FLAGS_BIRMASK;
-+
-+    if (table_bir != region_num)
-+        return;
-+    if (size <= offset)
-+        return;
-+    cpu_register_physical_memory(addr + offset, size - offset,
-+                                 d->msix_mmio_index);
-+}
-+
-+/* Initialize the MSI-X structures. Note: if MSI-X is supported, BAR size is
-+ * modified, it should be retrieved with msix_bar_size. */
-+int msix_init(struct PCIDevice *dev, unsigned short nentries,
-+              unsigned bar_nr, unsigned bar_size)
-+{
-+    int ret;
-+    /* Nothing to do if MSI is not supported by interrupt controller */
-+    if (!msix_supported)
-+        return -ENOTSUP;
-+
-+    if (nentries > MSIX_MAX_ENTRIES)
-+        return -EINVAL;
-+
-+    dev->msix_entry_used = qemu_mallocz(MSIX_MAX_ENTRIES *
-+                                        sizeof *dev->msix_entry_used);
-+
-+    dev->msix_table_page = qemu_mallocz(MSIX_PAGE_SIZE);
-+
-+    dev->msix_mmio_index = cpu_register_io_memory(0, msix_mmio_read,
-+                                                  msix_mmio_write, dev);
-+    if (dev->msix_mmio_index == -1) {
-+        ret = -EBUSY;
-+        goto err_index;
-+    }
-+
-+    dev->msix_entries_nr = nentries;
-+    ret = msix_add_config(dev, nentries, bar_nr, bar_size);
-+    if (ret)
-+        goto err_config;
-+
-+    dev->cap_present |= QEMU_PCI_CAP_MSIX;
-+    return 0;
-+
-+err_config:
-+    cpu_unregister_io_memory(dev->msix_mmio_index);
-+err_index:
-+    qemu_free(dev->msix_table_page);
-+    dev->msix_table_page = NULL;
-+    qemu_free(dev->msix_entry_used);
-+    dev->msix_entry_used = NULL;
-+    return ret;
-+}
-+
-+/* Clean up resources for the device. */
-+int msix_uninit(PCIDevice *dev)
-+{
-+    if (!(dev->cap_present & QEMU_PCI_CAP_MSIX))
-+        return 0;
-+    pci_del_capability(dev, PCI_CAP_ID_MSIX, MSIX_CAP_LENGTH);
-+    dev->msix_cap = 0;
-+    msix_free_irq_entries(dev);
-+    dev->msix_entries_nr = 0;
-+    cpu_unregister_io_memory(dev->msix_mmio_index);
-+    qemu_free(dev->msix_table_page);
-+    dev->msix_table_page = NULL;
-+    qemu_free(dev->msix_entry_used);
-+    dev->msix_entry_used = NULL;
-+    dev->cap_present &= ~QEMU_PCI_CAP_MSIX;
-+    return 0;
-+}
-+
-+void msix_save(PCIDevice *dev, QEMUFile *f)
-+{
-+    unsigned nentries = (pci_get_word(dev->config + PCI_MSIX_FLAGS) &
-+                         PCI_MSIX_FLAGS_QSIZE) + 1;
-+    qemu_put_buffer(f, dev->msix_table_page, nentries * MSIX_ENTRY_SIZE);
-+    qemu_put_buffer(f, dev->msix_table_page + MSIX_PAGE_PENDING,
-+                    (nentries + 7) / 8);
-+}
-+
-+/* Should be called after restoring the config space. */
-+void msix_load(PCIDevice *dev, QEMUFile *f)
-+{
-+    unsigned n = dev->msix_entries_nr;
-+
-+    if (!dev->cap_present & QEMU_PCI_CAP_MSIX)
-+        return;
-+
-+    qemu_get_buffer(f, dev->msix_table_page, n * MSIX_ENTRY_SIZE);
-+    qemu_get_buffer(f, dev->msix_table_page + MSIX_PAGE_PENDING, (n + 7) / 8);
-+}
-+
-+/* Does device support MSI-X? */
-+int msix_present(PCIDevice *dev)
-+{
-+    return dev->cap_present & QEMU_PCI_CAP_MSIX;
-+}
-+
-+/* Is MSI-X enabled? */
-+int msix_enabled(PCIDevice *dev)
-+{
-+    return (dev->cap_present & QEMU_PCI_CAP_MSIX) &&
-+        (dev->config[dev->msix_cap + MSIX_ENABLE_OFFSET] &
-+         MSIX_ENABLE_MASK);
-+}
-+
-+/* Size of bar where MSI-X table resides, or 0 if MSI-X not supported. */
-+uint32_t msix_bar_size(PCIDevice *dev)
-+{
-+    return (dev->cap_present & QEMU_PCI_CAP_MSIX) ?
-+        dev->msix_bar_size : 0;
-+}
-+
-+/* Send an MSI-X message */
-+void msix_notify(PCIDevice *dev, unsigned vector)
-+{
-+    uint8_t *table_entry = dev->msix_table_page + vector * MSIX_ENTRY_SIZE;
-+    uint64_t address;
-+    uint32_t data;
-+
-+    if (vector >= dev->msix_entries_nr || !dev->msix_entry_used[vector])
-+        return;
-+    if (msix_is_masked(dev, vector)) {
-+        msix_set_pending(dev, vector);
-+        return;
-+    }
-+
-+    address = pci_get_long(table_entry + MSIX_MSG_UPPER_ADDR);
-+    address = (address << 32) | pci_get_long(table_entry + MSIX_MSG_ADDR);
-+    data = pci_get_long(table_entry + MSIX_MSG_DATA);
-+    stl_phys(address, data);
-+}
-+
-+void msix_reset(PCIDevice *dev)
-+{
-+    if (!(dev->cap_present & QEMU_PCI_CAP_MSIX))
-+        return;
-+    msix_free_irq_entries(dev);
-+    dev->config[dev->msix_cap + MSIX_ENABLE_OFFSET] &= MSIX_ENABLE_MASK;
-+    memset(dev->msix_table_page, 0, MSIX_PAGE_SIZE);
-+}
-+
-+/* PCI spec suggests that devices make it possible for software to configure
-+ * less vectors than supported by the device, but does not specify a standard
-+ * mechanism for devices to do so.
-+ *
-+ * We support this by asking devices to declare vectors software is going to
-+ * actually use, and checking this on the notification path. Devices that
-+ * don't want to follow the spec suggestion can declare all vectors as used. */
-+
-+/* Mark vector as used. */
-+int msix_vector_use(PCIDevice *dev, unsigned vector)
-+{
-+    if (vector >= dev->msix_entries_nr)
-+        return -EINVAL;
-+    dev->msix_entry_used[vector]++;
-+    return 0;
-+}
-+
-+/* Mark vector as unused. */
-+void msix_vector_unuse(PCIDevice *dev, unsigned vector)
-+{
-+    if (vector < dev->msix_entries_nr && dev->msix_entry_used[vector])
-+        --dev->msix_entry_used[vector];
-+}
-diff --git a/hw/msix.h b/hw/msix.h
-new file mode 100644
-index 0000000..3427778
---- /dev/null
-+++ b/hw/msix.h
-@@ -0,0 +1,34 @@
-+#ifndef QEMU_MSIX_H
-+#define QEMU_MSIX_H
-+
-+#include "qemu-common.h"
-+
-+int msix_init(PCIDevice *pdev, unsigned short nentries,
-+              unsigned bar_nr, unsigned bar_size);
-+
-+void msix_write_config(PCIDevice *pci_dev, uint32_t address,
-+                       uint32_t val, int len);
-+
-+void msix_mmio_map(PCIDevice *pci_dev, int region_num,
-+                   uint32_t addr, uint32_t size, int type);
-+
-+int msix_uninit(PCIDevice *d);
-+
-+void msix_save(PCIDevice *dev, QEMUFile *f);
-+void msix_load(PCIDevice *dev, QEMUFile *f);
-+
-+int msix_enabled(PCIDevice *dev);
-+int msix_present(PCIDevice *dev);
-+
-+uint32_t msix_bar_size(PCIDevice *dev);
-+
-+int msix_vector_use(PCIDevice *dev, unsigned vector);
-+void msix_vector_unuse(PCIDevice *dev, unsigned vector);
-+
-+void msix_notify(PCIDevice *dev, unsigned vector);
-+
-+void msix_reset(PCIDevice *dev);
-+
-+extern int msix_supported;
-+
-+#endif
-diff --git a/hw/pci.h b/hw/pci.h
-index 558e18f..03b0a70 100644
---- a/hw/pci.h
-+++ b/hw/pci.h
-@@ -155,6 +155,11 @@ typedef struct PCIIORegion {
- /* Size of the standard PCI config space */
- #define PCI_CONFIG_SPACE_SIZE 0x100
- 
-+/* Bits in cap_present field. */
-+enum {
-+    QEMU_PCI_CAP_MSIX = 0x1,
-+};
-+
- struct PCIDevice {
-     DeviceState qdev;
-     /* PCI config space */
-@@ -186,6 +191,24 @@ struct PCIDevice {
- 
-     /* Current IRQ levels.  Used internally by the generic PCI code.  */
-     int irq_state[4];
-+
-+    /* Capability bits */
-+    uint32_t cap_present;
-+
-+    /* Offset of MSI-X capability in config space */
-+    uint8_t msix_cap;
-+
-+    /* MSI-X entries */
-+    int msix_entries_nr;
-+
-+    /* Space to store MSIX table */
-+    uint8_t *msix_table_page;
-+    /* MMIO index used to map MSIX table and pending bit entries. */
-+    int msix_mmio_index;
-+    /* Reference-count for entries actually in use by driver. */
-+    unsigned *msix_entry_used;
-+    /* Region including the MSI-X table */
-+    uint32_t msix_bar_size;
+diff --git a/hw/syborg_virtio.c b/hw/syborg_virtio.c
+index 8e665c6..108af06 100644
+--- a/hw/syborg_virtio.c
++++ b/hw/syborg_virtio.c
+@@ -134,7 +134,10 @@ static void syborg_virtio_writel(void *opaque, target_phys_addr_t offset,
+         vdev->features = value;
+         break;
+     case SYBORG_VIRTIO_QUEUE_BASE:
+-        virtio_queue_set_addr(vdev, vdev->queue_sel, value);
++        if (value == 0)
++            virtio_reset(vdev);
++        else
++            virtio_queue_set_addr(vdev, vdev->queue_sel, value);
+         break;
+     case SYBORG_VIRTIO_QUEUE_SEL:
+         if (value < VIRTIO_PCI_QUEUE_MAX)
+@@ -228,7 +231,7 @@ static CPUWriteMemoryFunc *syborg_virtio_writefn[] = {
+      syborg_virtio_writel
  };
  
- PCIDevice *pci_register_device(PCIBus *bus, const char *name,
+-static void syborg_virtio_update_irq(void *opaque)
++static void syborg_virtio_update_irq(void *opaque, uint16_t vector)
+ {
+     SyborgVirtIOProxy *proxy = opaque;
+     int level;
+@@ -239,7 +242,7 @@ static void syborg_virtio_update_irq(void *opaque)
+ }
+ 
+ static VirtIOBindings syborg_virtio_bindings = {
+-    .update_irq = syborg_virtio_update_irq
++    .notify = syborg_virtio_update_irq
+ };
+ 
+ static void syborg_virtio_init(SyborgVirtIOProxy *proxy, VirtIODevice *vdev)
+@@ -248,6 +251,8 @@ static void syborg_virtio_init(SyborgVirtIOProxy *proxy, VirtIODevice *vdev)
+ 
+     proxy->vdev = vdev;
+ 
++    /* Don't support multiple vectors */
++    proxy->vdev->nvectors = 0;
+     sysbus_init_irq(&proxy->busdev, &proxy->irq);
+     iomemtype = cpu_register_io_memory(syborg_virtio_readfn,
+                                        syborg_virtio_writefn, proxy);
+@@ -255,6 +260,8 @@ static void syborg_virtio_init(SyborgVirtIOProxy *proxy, VirtIODevice *vdev)
+ 
+     proxy->id = ((uint32_t)0x1af4 << 16) | vdev->device_id;
+ 
++    qemu_register_reset(virtio_reset, 0, vdev);
++
+     virtio_bind_device(vdev, &syborg_virtio_bindings, proxy);
+ }
+ 
+diff --git a/hw/virtio-pci.c b/hw/virtio-pci.c
+index 24fe837..d4a134d 100644
+--- a/hw/virtio-pci.c
++++ b/hw/virtio-pci.c
+@@ -78,13 +78,19 @@ typedef struct {
+ 
+ /* virtio device */
+ 
+-static void virtio_pci_update_irq(void *opaque)
++static void virtio_pci_notify(void *opaque, uint16_t vector)
+ {
+     VirtIOPCIProxy *proxy = opaque;
+ 
+     qemu_set_irq(proxy->pci_dev.irq[0], proxy->vdev->isr & 1);
+ }
+ 
++static void virtio_pci_reset(void *opaque)
++{
++    VirtIOPCIProxy *proxy = opaque;
++    virtio_reset(proxy->vdev);
++}
++
+ static void virtio_ioport_write(void *opaque, uint32_t addr, uint32_t val)
+ {
+     VirtIOPCIProxy *proxy = opaque;
+@@ -108,7 +114,10 @@ static void virtio_ioport_write(void *opaque, uint32_t addr, uint32_t val)
+         break;
+     case VIRTIO_PCI_QUEUE_PFN:
+         pa = (target_phys_addr_t)val << VIRTIO_PCI_QUEUE_ADDR_SHIFT;
+-        virtio_queue_set_addr(vdev, vdev->queue_sel, pa);
++        if (pa == 0)
++            virtio_pci_reset(proxy);
++        else
++            virtio_queue_set_addr(vdev, vdev->queue_sel, pa);
+         break;
+     case VIRTIO_PCI_QUEUE_SEL:
+         if (val < VIRTIO_PCI_QUEUE_MAX)
+@@ -120,7 +129,7 @@ static void virtio_ioport_write(void *opaque, uint32_t addr, uint32_t val)
+     case VIRTIO_PCI_STATUS:
+         vdev->status = val & 0xFF;
+         if (vdev->status == 0)
+-            virtio_reset(vdev);
++            virtio_pci_reset(proxy);
+         break;
+     }
+ }
+@@ -158,7 +167,7 @@ static uint32_t virtio_ioport_read(void *opaque, uint32_t addr)
+         /* reading from the ISR also clears it. */
+         ret = vdev->isr;
+         vdev->isr = 0;
+-        virtio_update_irq(vdev);
++        qemu_set_irq(proxy->pci_dev.irq[0], 0);
+         break;
+     default:
+         break;
+@@ -243,7 +252,7 @@ static void virtio_map(PCIDevice *pci_dev, int region_num,
+ }
+ 
+ static const VirtIOBindings virtio_pci_bindings = {
+-    .update_irq = virtio_pci_update_irq
++    .notify = virtio_pci_notify
+ };
+ 
+ static void virtio_init_pci(VirtIOPCIProxy *proxy, VirtIODevice *vdev,
+@@ -255,6 +264,9 @@ static void virtio_init_pci(VirtIOPCIProxy *proxy, VirtIODevice *vdev,
+ 
+     proxy->vdev = vdev;
+ 
++    /* No support for multiple vectors yet. */
++    proxy->vdev->nvectors = 0;
++
+     config = proxy->pci_dev.config;
+     pci_config_set_vendor_id(config, vendor);
+     pci_config_set_device_id(config, device);
+@@ -279,6 +291,8 @@ static void virtio_init_pci(VirtIOPCIProxy *proxy, VirtIODevice *vdev,
+     pci_register_bar(&proxy->pci_dev, 0, size, PCI_ADDRESS_SPACE_IO,
+                            virtio_map);
+ 
++    qemu_register_reset(virtio_pci_reset, 0, proxy);
++
+     virtio_bind_device(vdev, &virtio_pci_bindings, proxy);
+ }
+ 
+diff --git a/hw/virtio.c b/hw/virtio.c
+index 45a49fa..fe9f793 100644
+--- a/hw/virtio.c
++++ b/hw/virtio.c
+@@ -68,6 +68,7 @@ struct VirtQueue
+     target_phys_addr_t pa;
+     uint16_t last_avail_idx;
+     int inuse;
++    uint16_t vector;
+     void (*handle_output)(VirtIODevice *vdev, VirtQueue *vq);
+ };
+ 
+@@ -373,12 +374,16 @@ int virtqueue_pop(VirtQueue *vq, VirtQueueElement *elem)
+ }
+ 
+ /* virtio device */
++static void virtio_notify_vector(VirtIODevice *vdev, uint16_t vector)
++{
++    if (vdev->binding->notify) {
++        vdev->binding->notify(vdev->binding_opaque, vector);
++    }
++}
+ 
+ void virtio_update_irq(VirtIODevice *vdev)
+ {
+-    if (vdev->binding->update_irq) {
+-        vdev->binding->update_irq(vdev->binding_opaque);
+-    }
++    virtio_notify_vector(vdev, VIRTIO_NO_VECTOR);
+ }
+ 
+ void virtio_reset(void *opaque)
+@@ -393,7 +398,8 @@ void virtio_reset(void *opaque)
+     vdev->queue_sel = 0;
+     vdev->status = 0;
+     vdev->isr = 0;
+-    virtio_update_irq(vdev);
++    vdev->config_vector = VIRTIO_NO_VECTOR;
++    virtio_notify_vector(vdev, vdev->config_vector);
+ 
+     for(i = 0; i < VIRTIO_PCI_QUEUE_MAX; i++) {
+         vdev->vq[i].vring.desc = 0;
+@@ -401,6 +407,7 @@ void virtio_reset(void *opaque)
+         vdev->vq[i].vring.used = 0;
+         vdev->vq[i].last_avail_idx = 0;
+         vdev->vq[i].pa = 0;
++        vdev->vq[i].vector = VIRTIO_NO_VECTOR;
+     }
+ }
+ 
+@@ -484,12 +491,8 @@ void virtio_config_writel(VirtIODevice *vdev, uint32_t addr, uint32_t data)
+ 
+ void virtio_queue_set_addr(VirtIODevice *vdev, int n, target_phys_addr_t addr)
+ {
+-    if (addr == 0) {
+-        virtio_reset(vdev);
+-    } else {
+-        vdev->vq[n].pa = addr;
+-        virtqueue_init(&vdev->vq[n]);
+-    }
++    vdev->vq[n].pa = addr;
++    virtqueue_init(&vdev->vq[n]);
+ }
+ 
+ target_phys_addr_t virtio_queue_get_addr(VirtIODevice *vdev, int n)
+@@ -509,6 +512,18 @@ void virtio_queue_notify(VirtIODevice *vdev, int n)
+     }
+ }
+ 
++uint16_t virtio_queue_vector(VirtIODevice *vdev, int n)
++{
++    return n < VIRTIO_PCI_QUEUE_MAX ? vdev->vq[n].vector :
++        VIRTIO_NO_VECTOR;
++}
++
++void virtio_queue_set_vector(VirtIODevice *vdev, int n, uint16_t vector)
++{
++    if (n < VIRTIO_PCI_QUEUE_MAX)
++        vdev->vq[n].vector = vector;
++}
++
+ VirtQueue *virtio_add_queue(VirtIODevice *vdev, int queue_size,
+                             void (*handle_output)(VirtIODevice *, VirtQueue *))
+ {
+@@ -537,7 +552,7 @@ void virtio_notify(VirtIODevice *vdev, VirtQueue *vq)
+         return;
+ 
+     vdev->isr |= 0x01;
+-    virtio_update_irq(vdev);
++    virtio_notify_vector(vdev, vq->vector);
+ }
+ 
+ void virtio_notify_config(VirtIODevice *vdev)
+@@ -546,7 +561,7 @@ void virtio_notify_config(VirtIODevice *vdev)
+         return;
+ 
+     vdev->isr |= 0x03;
+-    virtio_update_irq(vdev);
++    virtio_notify_vector(vdev, vdev->config_vector);
+ }
+ 
+ void virtio_save(VirtIODevice *vdev, QEMUFile *f)
+@@ -555,6 +570,7 @@ void virtio_save(VirtIODevice *vdev, QEMUFile *f)
+ 
+     /* FIXME: load/save binding.  */
+     //pci_device_save(&vdev->pci_dev, f);
++    //msix_save(&vdev->pci_dev, f);
+ 
+     qemu_put_8s(f, &vdev->status);
+     qemu_put_8s(f, &vdev->isr);
+@@ -563,6 +579,9 @@ void virtio_save(VirtIODevice *vdev, QEMUFile *f)
+     qemu_put_be32(f, vdev->config_len);
+     qemu_put_buffer(f, vdev->config, vdev->config_len);
+ 
++    if (vdev->nvectors)
++        qemu_put_be16s(f, &vdev->config_vector);
++
+     for (i = 0; i < VIRTIO_PCI_QUEUE_MAX; i++) {
+         if (vdev->vq[i].vring.num == 0)
+             break;
+@@ -577,6 +596,8 @@ void virtio_save(VirtIODevice *vdev, QEMUFile *f)
+         qemu_put_be32(f, vdev->vq[i].vring.num);
+         qemu_put_be64(f, vdev->vq[i].pa);
+         qemu_put_be16s(f, &vdev->vq[i].last_avail_idx);
++        if (vdev->nvectors)
++            qemu_put_be16s(f, &vdev->vq[i].vector);
+     }
+ }
+ 
+@@ -586,6 +607,7 @@ void virtio_load(VirtIODevice *vdev, QEMUFile *f)
+ 
+     /* FIXME: load/save binding.  */
+     //pci_device_load(&vdev->pci_dev, f);
++    //r = msix_load(&vdev->pci_dev, f);
+ 
+     qemu_get_8s(f, &vdev->status);
+     qemu_get_8s(f, &vdev->isr);
+@@ -594,6 +616,10 @@ void virtio_load(VirtIODevice *vdev, QEMUFile *f)
+     vdev->config_len = qemu_get_be32(f);
+     qemu_get_buffer(f, vdev->config, vdev->config_len);
+ 
++    if (vdev->nvectors) {
++        qemu_get_be16s(f, &vdev->config_vector);
++        //msix_vector_use(&vdev->pci_dev, vdev->config_vector);
++    }
+     num = qemu_get_be32(f);
+ 
+     for (i = 0; i < num; i++) {
+@@ -604,9 +630,13 @@ void virtio_load(VirtIODevice *vdev, QEMUFile *f)
+         if (vdev->vq[i].pa) {
+             virtqueue_init(&vdev->vq[i]);
+         }
++        if (vdev->nvectors) {
++            qemu_get_be16s(f, &vdev->vq[i].vector);
++            //msix_vector_use(&vdev->pci_dev, vdev->config_vector);
++        }
+     }
+ 
+-    virtio_update_irq(vdev);
++    virtio_notify_vector(vdev, VIRTIO_NO_VECTOR);
+ }
+ 
+ void virtio_cleanup(VirtIODevice *vdev)
+@@ -627,6 +657,7 @@ VirtIODevice *virtio_common_init(const char *name, uint16_t device_id,
+     vdev->status = 0;
+     vdev->isr = 0;
+     vdev->queue_sel = 0;
++    vdev->config_vector = VIRTIO_NO_VECTOR;
+     vdev->vq = qemu_mallocz(sizeof(VirtQueue) * VIRTIO_PCI_QUEUE_MAX);
+ 
+     vdev->name = name;
+@@ -636,8 +667,6 @@ VirtIODevice *virtio_common_init(const char *name, uint16_t device_id,
+     else
+         vdev->config = NULL;
+ 
+-    qemu_register_reset(virtio_reset, 0, vdev);
+-
+     return vdev;
+ }
+ 
+diff --git a/hw/virtio.h b/hw/virtio.h
+index 425727e..04a3c3d 100644
+--- a/hw/virtio.h
++++ b/hw/virtio.h
+@@ -71,11 +71,13 @@ typedef struct VirtQueueElement
+ } VirtQueueElement;
+ 
+ typedef struct {
+-    void (*update_irq)(void * opaque);
++    void (*notify)(void * opaque, uint16_t vector);
+ } VirtIOBindings;
+ 
+ #define VIRTIO_PCI_QUEUE_MAX 16
+ 
++#define VIRTIO_NO_VECTOR 0xffff
++
+ struct VirtIODevice
+ {
+     const char *name;
+@@ -85,6 +87,8 @@ struct VirtIODevice
+     uint32_t features;
+     size_t config_len;
+     void *config;
++    uint16_t config_vector;
++    int nvectors;
+     uint32_t (*get_features)(VirtIODevice *vdev);
+     uint32_t (*bad_features)(VirtIODevice *vdev);
+     void (*set_features)(VirtIODevice *vdev, uint32_t val);
+@@ -114,7 +118,7 @@ void virtio_notify(VirtIODevice *vdev, VirtQueue *vq);
+ 
+ void virtio_save(VirtIODevice *vdev, QEMUFile *f);
+ 
+-void virtio_load(VirtIODevice *vdev, QEMUFile *f);
++int virtio_load(VirtIODevice *vdev, QEMUFile *f);
+ 
+ void virtio_cleanup(VirtIODevice *vdev);
+ 
+@@ -140,6 +144,8 @@ void virtio_queue_set_addr(VirtIODevice *vdev, int n, target_phys_addr_t addr);
+ target_phys_addr_t virtio_queue_get_addr(VirtIODevice *vdev, int n);
+ int virtio_queue_get_num(VirtIODevice *vdev, int n);
+ void virtio_queue_notify(VirtIODevice *vdev, int n);
++uint16_t virtio_queue_vector(VirtIODevice *vdev, int n);
++void virtio_queue_set_vector(VirtIODevice *vdev, int n, uint16_t vector);
+ void virtio_reset(void *opaque);
+ void virtio_update_irq(VirtIODevice *vdev);
+ 
 -- 
 1.6.2.2
