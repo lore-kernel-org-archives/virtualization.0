@@ -1,17 +1,14 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH 2/4] virtio_net: return NETDEV_TX_BUSY instead of queueing
-	an extra skb.
-Date: Mon, 22 Jun 2009 12:09:15 +0930
-Message-ID: <200906221209.16481.rusty__31654.8365787186$1245638500$gmane$org@rustcorp.com.au>
-References: <200905292346.04815.rusty@rustcorp.com.au>
-	<200906192320.44904.rusty@rustcorp.com.au>
-	<20090619141014.GA19828@gondor.apana.org.au>
+From: Isaku Yamahata <yamahata@valinux.co.jp>
+Subject: Re: [Qemu-devel] [PATCHv6 00/12] qemu: MSI-X support
+Date: Mon, 22 Jun 2009 12:03:37 +0900
+Message-ID: <20090622030337.GC32524%yamahata__6503.92092434249$1245639870$gmane$org@valinux.co.jp>
+References: <20090621164457.GA10164@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20090619141014.GA19828@gondor.apana.org.au>
 Content-Disposition: inline
+In-Reply-To: <20090621164457.GA10164@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -21,25 +18,18 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: netdev@vger.kernel.org, Matt Carlson <mcarlson@broadcom.com>, David Miller <davem@davemloft.net>, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Carsten Otte <cotte@de.ibm.com>, kvm@vger.kernel.org, Glauber Costa <glommer@redhat.com>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Blue Swirl <blauwirbel@gmail.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Paul Brook <paul@codesourcery.com>, Anthony Liguori <anthony@codemonkey.ws>, Avi Kivity <avi@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 19 Jun 2009 11:40:14 pm Herbert Xu wrote:
-> > On the other hand, we're underutilizing the queue to avoid it.  I find
-> > that a little embarrassing.
->
-> Here's why I think this is not an issue.  If your NIC is high
-> bandwidth then your ring is going to have to be huge so the
-> amount that is underutilised (a 64K packet) is tiny.  If your
-> NIC is low bandwidth then this is where you often need QoS and
-> in that case you do *NOT* want to fully utilise the HW queue.
+On Sun, Jun 21, 2009 at 07:44:57PM +0300, Michael S. Tsirkin wrote:
+> This uses the mask table patch that I posted previously, and which is
+> included in the series. That patch has been slightly updated due
+> to mask -> wmask rename. Isaku Yamahata, maybe you want to
+> update your patch series with that.
 
-Well, we leave that up to the NIC designer.  It's retro-justification for 
-throwing away a few percent of the queue, but the QoS issue is even more in 
-the noise.
+Thank you for reminding me.
+I've updated the patches in my local repo.
 
-But I will give in now and change virtio_net to use this substandard API :(
-
-Thanks,
-Rusty.
+-- 
+yamahata
