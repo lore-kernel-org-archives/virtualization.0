@@ -1,16 +1,15 @@
-From: Paul Brook <paul@codesourcery.com>
+From: Christian =?iso-8859-1?q?Borntr=E4ger?= <borntraeger@de.ibm.com>
 Subject: Re: [Qemu-devel] virtio-serial: A guest <-> host interface for simple
 	communication
-Date: Tue, 23 Jun 2009 14:09:40 +0100
-Message-ID: <200906231409.41428.paul__26202.7122815654$1245762646$gmane$org@codesourcery.com>
+Date: Tue, 23 Jun 2009 15:58:33 +0200
+Message-ID: <200906231558.33794.borntraeger__30595.0097310872$1245765722$gmane$org@de.ibm.com>
 References: <1245760953-32139-1-git-send-email-amit.shah@redhat.com>
 	<200906231355.53557.paul@codesourcery.com>
-	<20090623130023.GA32110@amit-x200.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20090623130023.GA32110@amit-x200.redhat.com>
+In-Reply-To: <200906231355.53557.paul@codesourcery.com>
 Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -21,24 +20,32 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Amit Shah <amit.shah@redhat.com>
-Cc: qemu-devel@nongnu.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: virtualization@lists.linux-foundation.org
+Cc: Amit Shah <amit.shah@redhat.com>, Paul Brook <paul@codesourcery.com>, kvm@vger.kernel.org, qemu-devel@nongnu.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tuesday 23 June 2009, Amit Shah wrote:
-> On (Tue) Jun 23 2009 [13:55:52], Paul Brook wrote:
-> > > Here are two patches. One implements a virtio-serial device in qemu
-> > > and the other is the driver for a guest kernel.
-> >
-> > So I'll ask again. Why is this separate from virtio-console?
+Am Dienstag 23 Juni 2009 14:55:52 schrieb Paul Brook:
+> > Here are two patches. One implements a virtio-serial device in qemu
+> > and the other is the driver for a guest kernel.
 >
-> I'm basically writing a vmchannel and found out that a lot can be shared
-> between some virtio devices. So I'm just trying to abstract out those
-> things in virtio-serial. Once we're sure virtio-serial is good and ready
-> to be merged, I will look at converting over virtio-console to the
-> virtio-serial interface.
+> So I'll ask again. Why is this separate from virtio-console?
 
-That doesn't really answer my question. We already have a virtual serial 
-device (called virtio-console). Why are you inventing another one?
+I did some work on virtio-console, since kvm on s390 does not provide any other.
+I dont think we should mix two different types of devices into one driver. The 
+only thing that these drivers have in common, is the fact that there are two 
+virtqueues, piping data (single bytes or larger chunks). So you could make the 
+same argument with the first virtio_net driver (the one before GSO) - which is 
+obviously wrong. The common part of the transport is already factored out to 
+virtio_ring and the transports.
 
-Paul
+In addition there are two ABIs involved: a userspace ABI (/dev/hvc0) and a 
+guest/host ABI for this console. (and virtio was not meant to be a KVM-only 
+interface, that we can change all the time). David A. Wheeler's 'SLOCCount' 
+gives me 141 lines of code for virtio_console.c. I am quite confident that the 
+saving we could achieve by merging these two drivers is not worth the hazzle.
+
+Discussion about merging the console code into this distracts from the main 
+problem: To get the interface and functionality right before it becomes an ABI 
+(is it /dev/ttyS, network like or is it something completely different?).
+
+Christian
