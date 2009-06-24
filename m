@@ -1,16 +1,17 @@
-From: Amit Shah <amit.shah@redhat.com>
-Subject: Re: [Qemu-devel] virtio-serial: A guest <-> host interface for
-	simple communication
-Date: Wed, 24 Jun 2009 22:40:28 +0530
-Message-ID: <20090624170632.GA24285__35676.6385645189$1245863602$gmane$org@amit-x200.redhat.com>
+From: Jamie Lokier <jamie@shareable.org>
+Subject: Re: [Qemu-devel] virtio-serial: A guest <-> host interface for simple
+	communication
+Date: Wed, 24 Jun 2009 18:50:02 +0100
+Message-ID: <20090624175002.GJ14121__45378.5193422393$1245865864$gmane$org@shareable.org>
 References: <1245760953-32139-1-git-send-email-amit.shah@redhat.com>
 	<20090624164049.GE14121@shareable.org>
+	<20090624170632.GA24285@amit-x200.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20090624164049.GE14121@shareable.org>
+In-Reply-To: <20090624170632.GA24285@amit-x200.redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,28 +21,40 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jamie Lokier <jamie@shareable.org>
+To: Amit Shah <amit.shah@redhat.com>
 Cc: qemu-devel@nongnu.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On (Wed) Jun 24 2009 [17:40:49], Jamie Lokier wrote:
-> Amit Shah wrote:
-> > A few sample uses for a vmchannel are to share the host and guest
-> > clipboards (to allow copy/paste between a host and a guest), to
-> > lock the screen of the guest session when the vnc viewer is closed,
-> > to find out which applications are installed on a guest OS even when
-> > the guest is powered down (using virt-inspector) and so on.
+Amit Shah wrote:
+> On (Wed) Jun 24 2009 [17:40:49], Jamie Lokier wrote:
+> > Amit Shah wrote:
+> > > A few sample uses for a vmchannel are to share the host and guest
+> > > clipboards (to allow copy/paste between a host and a guest), to
+> > > lock the screen of the guest session when the vnc viewer is closed,
+> > > to find out which applications are installed on a guest OS even when
+> > > the guest is powered down (using virt-inspector) and so on.
+> > 
+> > Those all look like useful features.
+> > 
+> > Can you run an application to provide those features on a guest which
+> > _doesn't_ have a vmchannel/virtio-serial support in the kernel?
+> > 
+> > Or will it be restricted only to guests which have QEMU-specific
+> > support in their kernel?
 > 
-> Those all look like useful features.
-> 
-> Can you run an application to provide those features on a guest which
-> _doesn't_ have a vmchannel/virtio-serial support in the kernel?
-> 
-> Or will it be restricted only to guests which have QEMU-specific
-> support in their kernel?
+> libguestfs currently uses the -net user based vmchannel interface that
+> exists in current qemu. That doesn't need a kernel that doesn't have
+> support for virtio-serial.
 
-libguestfs currently uses the -net user based vmchannel interface that
-exists in current qemu. That doesn't need a kernel that doesn't have
-support for virtio-serial.
+That's great!
 
-		Amit
+If that works fine, and guest apps/libraries are using that as a
+fallback anyway, what benefit do they get from switching to
+virtio-serial when they detect that instead, given they still have
+code for the -net method?
+
+Is the plan to remove -net user based support from libguestfs?
+
+Is virtio-serial significantly simpler to use?
+
+-- Jamie
