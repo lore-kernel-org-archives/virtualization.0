@@ -1,20 +1,16 @@
-From: Amit Shah <amit.shah@redhat.com>
-Subject: Re: [Qemu-devel] virtio-serial: A guest <-> host interface for
-	simple communication
-Date: Thu, 25 Jun 2009 10:11:57 +0530
-Message-ID: <20090625044157.GB26664__26830.1263604828$1245905051$gmane$org@amit-x200.redhat.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: virtio-serial: A guest <-> host interface for simple communication
+Date: Thu, 25 Jun 2009 21:03:02 +0930
+Message-ID: <200906252103.02892.rusty__10339.6914004863$1245929653$gmane$org@rustcorp.com.au>
 References: <1245760953-32139-1-git-send-email-amit.shah@redhat.com>
-	<20090624164049.GE14121@shareable.org>
-	<20090624170632.GA24285@amit-x200.redhat.com>
-	<20090624175002.GJ14121@shareable.org>
-	<20090624180114.GA24906@amit-x200.redhat.com>
-	<20090624192027.GT14121@shareable.org>
+	<200906241345.02051.rusty@rustcorp.com.au>
+	<20090624123937.GA14630@amit-x200.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20090624123937.GA14630@amit-x200.redhat.com>
 Content-Disposition: inline
-In-Reply-To: <20090624192027.GT14121@shareable.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -24,38 +20,55 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jamie Lokier <jamie@shareable.org>
+To: Amit Shah <amit.shah@redhat.com>
 Cc: qemu-devel@nongnu.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On (Wed) Jun 24 2009 [20:20:27], Jamie Lokier wrote:
-> Amit Shah wrote:
-> > 
-> > I think the interface from the guest POV stays the same: reads / writes
-> > to char devices. With virtio-serial, though, we can add a few other
-> > interesting things like names to ports, ability to hot-add ports on
-> > demand, request notifications when either end goes down, etc.
-> 
-> Good features, useful for a lot of handy things.  I think it would be
-> handy if the same features were available to the guest application
-> generally, not just on guest kernels with a specific driver though.
-> 
-> As we talked before, about things like boot loaders and kernel
-> debuggers, and installing the support applications on old guests.
+On Wed, 24 Jun 2009 10:09:37 pm Amit Shah wrote:
+> On (Wed) Jun 24 2009 [13:45:01], Rusty Russell wrote:
+> > On Tue, 23 Jun 2009 10:12:31 pm Amit Shah wrote:
+> > > Hello,
+> > >
+> > > Here are two patches. One implements a virtio-serial device in qemu
+> > > and the other is the driver for a guest kernel.
+> > >
+> > > While working on a vmchannel interface that is needed for communication
+> > > between guest userspace and host userspace, I saw that most of the
+> > > interface can be abstracted out as a "serial" device with "ports".
+> >
+> > OK, I don't think the "naming" idea works though.  A userspace user would
+> > have to open each one in turn to get its name.  I'd stick with numbers.
+>
+> What if an ioctl were added to get the port number from the port name?
+> Userspace would do
+> 	ioctl(fd, VIRTIO_SERIAL_GET_PORT_FROM_NAME, &nr);
+> 	sprintf(port, "/dev/vmch%s", nr);
+> 	fd2 = open(port, ...);
 
-The -net vmchannel offers that option. Can't see how to do it other way.
+Yep, pretty ugly tho.  If you use the "Amit Shah is in charge of port 
+numbering approach", then it's just:
 
-> Is it possible to support access to the same capabilities through a
-> well known IO/MMIO address, in the same way that VGA and IDE are both
-> ordinary PCI devices, but also can be reached easily through well
-> known IO/MMIO addresses in simple code?
+	fd = open("/dev/vmch<my-assigned-number>", ...);
 
-The exits caused by accessing IO/MMIO regions are costlier than using
-PV. So using the current vmchannel option would be almost similar in
-those respects.
+Since you need to control names anyway, why not just use numbers?
 
-Also, virtio is the almost standard way these days to get performance.
-We already have block, net drivers over virtio and they have been ported
-to older kernels as well.
+> > You also don't have dynamic creation and removal, except by hotpluging
+> > the entire device (which was on your requirements page).
+>
+> Actually we're more interested in hotplugging ports than the device
+> itself ("Dynamic channel creation").
 
-		Amit
+Exactly, which you don't seem to have.
+
+> > what ports exist.  Register on the change interrupt to get updates.  Drop
+> > the control vq entirely.
+>
+> If the ioctl mentioned above were added, it would justify the control
+> vq, right?
+
+Yes.  Or put another way, simplifying the interface to use assigned port 
+numbers would simplify the implementation, use, and specification of the device 
+:)
+
+Cheers,
+Rusty.
