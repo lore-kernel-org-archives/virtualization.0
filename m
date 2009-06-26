@@ -1,15 +1,14 @@
-From: Anthony Liguori <anthony@codemonkey.ws>
-Subject: Re: [PATCHv6 05/12] qemu/pci: MSI-X support functions
-Date: Fri, 26 Jun 2009 11:01:12 -0500
-Message-ID: <4A44F0C8.8020807__46816.9588399634$1246032168$gmane$org@codemonkey.ws>
-References: <cover.1245594586.git.mst@redhat.com>
-	<20090621164954.GF10164@redhat.com>
-	<20090626142635.GD5939@redhat.com>
+From: Jesse Barnes <jbarnes@virtuousgeek.org>
+Subject: Re: [PATCH] virtio_blk: add missing __dev{init,exit} markings
+Date: Fri, 26 Jun 2009 12:37:36 -0700
+Message-ID: <20090626123736.594969c8__9553.79062002084$1246045223$gmane$org@jbarnes-g45>
+References: <1242632349-15894-1-git-send-email-vapier@gentoo.org>
+	<200905200010.51786.rusty@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20090626142635.GD5939@redhat.com>
+In-Reply-To: <200905200010.51786.rusty@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,30 +18,27 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Carsten Otte <cotte@de.ibm.com>, kvm@vger.kernel.org, Glauber Costa <glommer@redhat.com>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Blue Swirl <blauwirbel@gmail.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Paul Brook <paul@codesourcery.com>, Avi Kivity <avi@redhat.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Morton <akpm@linux-foundation.org>, virtualization@lists.linux-foundation.org, Mike Frysinger <vapier@gentoo.org>, linux-kernel@vger.kernel.org, Andrew@smtp1.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Michael S. Tsirkin wrote:
-> On Sun, Jun 21, 2009 at 07:49:54PM +0300, Michael S. Tsirkin wrote:
->   
->> +    dev->msix_mmio_index = cpu_register_io_memory(0, msix_mmio_read,
->> +                                                  msix_mmio_write, dev);
->>     
->
->
-> The signature for cpu_register_io_memory changed meanwhile so this now
-> needs to be:
->
-> +    dev->msix_mmio_index = cpu_register_io_memory(msix_mmio_read,
-> +                                                  msix_mmio_write, dev);
->
-> Anthony, I guess you figured this out, or do you want me to respin the series
-> with this minor fix?
->   
+On Wed, 20 May 2009 00:10:51 +0930
+Rusty Russell <rusty@rustcorp.com.au> wrote:
 
-It's already changed in staging.
+> On Mon, 18 May 2009 05:09:09 pm Mike Frysinger wrote:
+> > -static int virtblk_probe(struct virtio_device *vdev)
+> > +static int __devinit virtblk_probe(struct virtio_device *vdev)
+> 
+> This makes sense, I think, but then it implies that
+> virtio_dev_probe() should also be __devinit, right?
+> 
+> And I look at pci_bus_probe(), and it's not __devinit.
+> 
+> Is the PCI code just slack?
 
-Regards,
+I wouldn't be surprised if some annotations were missing or incorrect
+given the churn in hotplug lately, but I can't find that particular
+symbol...
 
-Anthony Liguori
+-- 
+Jesse Barnes, Intel Open Source Technology Center
