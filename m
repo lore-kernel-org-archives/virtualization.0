@@ -1,14 +1,11 @@
-From: Herbert Xu <herbert@gondor.apana.org.au>
-Subject: Re: [PATCH 1/4] net: skb_orphan on dev_hard_start_xmit
-Date: Fri, 3 Jul 2009 15:55:30 +0800
-Message-ID: <20090703075530.GA25190__12179.3050705039$1246607834$gmane$org@gondor.apana.org.au>
-References: <20090602.171418.186096253.davem@davemloft.net>
+From: Amit Shah <amit.shah@redhat.com>
+Subject: [RFC PATCH v3] virito-serial: A guest <-> host interface
+Date: Sat,  4 Jul 2009 00:52:03 +0530
+Message-ID: <1246648925-23732-1-git-send-email-amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20090602.171418.186096253.davem@davemloft.net>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,33 +15,24 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: David Miller <davem@davemloft.net>
-Cc: patrick.ohly@intel.com, libertas-dev@lists.infradead.org, dcbw@redhat.com, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, rolandd@cisco.com, divy@chelsio.com, xemul@openvz.org
+To: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-David Miller <davem@davemloft.net> wrote:
->
->> I think I'll do this in the driver for now, and let's revisit doing it 
->> generically later?
-> 
-> That might be the best course of action for the time being.
-> This whole area is a rat's nest.
 
-Calling skb_orphan like this should be forbidden.  Apart from the
-problems already raised, it is a sign that the driver is trying to
-paper over a more serious issue of not cleaning up skb's timely.
 
-Yes skb_orphan will work for the cases where calling the skb
-destructor allows forward progress, but for the cases where you
-really need to the skb to be freed (e.g., iSCSI or Xen), this
-simply doesn't work.
+Hello,
 
-So anytime someone tries to propose such a solution it is a sign
-that they have bigger problems.
+This is a new iteration of the patches that implement virtio-serial. Changes
+include:
 
-Cheers,
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+* Adding support for port hot-add
+* Creating ports at specific ids that can be bound to specific apps / usage
+* Cleanups
+
+This code still doesn't get rid of the support for assigning names
+to ports but it just has to be ripped out.
+
+Comments welcome.
+
+		Thanks,
+			Amit.
