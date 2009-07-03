@@ -1,11 +1,14 @@
-From: Ryo Tsuruta <ryov@valinux.co.jp>
-Subject: IO controller mini-summit -- Japan, Oct 2009
-Date: Wed, 01 Jul 2009 20:44:50 +0900 (JST)
-Message-ID: <20090701.204450.104062613.ryov__26518.4523225345$1246448804$gmane$org@valinux.co.jp>
+From: Herbert Xu <herbert@gondor.apana.org.au>
+Subject: Re: [PATCH 1/4] net: skb_orphan on dev_hard_start_xmit
+Date: Fri, 3 Jul 2009 15:55:30 +0800
+Message-ID: <20090703075530.GA25190__12179.3050705039$1246607834$gmane$org@gondor.apana.org.au>
+References: <20090602.171418.186096253.davem@davemloft.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <20090602.171418.186096253.davem@davemloft.net>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -15,25 +18,33 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org, dm-devel@redhat.com, containers@lists.linux-foundation.org, virtualization@lists.linux-foundation.org, xen-devel@lists.xensource.com
-Cc: ioband-devel@lists.sourceforge.net, taka@valinux.co.jp, osonoi@linux-foundation.jp, kunai@linux-foundation.jp, corsetproject@googlegroups.com
+To: David Miller <davem@davemloft.net>
+Cc: patrick.ohly@intel.com, libertas-dev@lists.infradead.org, dcbw@redhat.com, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, rolandd@cisco.com, divy@chelsio.com, xemul@openvz.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi All,
+David Miller <davem@davemloft.net> wrote:
+>
+>> I think I'll do this in the driver for now, and let's revisit doing it 
+>> generically later?
+> 
+> That might be the best course of action for the time being.
+> This whole area is a rat's nest.
 
-We will hold a Linux IO controller Mini-Summit in Tokyo, Japan
-on Saturday, Oct. 17, 2009 -- day before the 9th Linux kernel summit.
+Calling skb_orphan like this should be forbidden.  Apart from the
+problems already raised, it is a sign that the driver is trying to
+paper over a more serious issue of not cleaning up skb's timely.
 
-This is a good opportunity to meet face-to-face to discuss issues and
-directions for developing IO controller.
+Yes skb_orphan will work for the cases where calling the skb
+destructor allows forward progress, but for the cases where you
+really need to the skb to be freed (e.g., iSCSI or Xen), this
+simply doesn't work.
 
-Details of the summit are still sketchy, so suggestions for agenda
-topics are welcome. Please e-mail to me or post on the wiki page at
-http://apps.sourceforge.net/trac/ioband/wiki/iosummit
-(You need an account on SourceForge.net to edit this page.)
-The final agenda will be formed by consensus of the attendees.
+So anytime someone tries to propose such a solution it is a sign
+that they have bigger problems.
 
-Please join the summit if you are interested.
-
-Thanks,
-Ryo Tsuruta
+Cheers,
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
