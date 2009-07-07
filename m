@@ -1,20 +1,12 @@
-From: Herbert Xu <herbert@gondor.apana.org.au>
-Subject: Re: [PATCH 1/4] net: skb_orphan on dev_hard_start_xmit
-Date: Sun, 5 Jul 2009 11:34:08 +0800
-Message-ID: <20090705033408.GB7430__26168.6584250585$1246764897$gmane$org@gondor.apana.org.au>
-References: <20090703075530.GA25190@gondor.apana.org.au>
-	<20090703.200254.172991821.davem@davemloft.net>
-	<20090704030830.GA32442@gondor.apana.org.au>
-	<20090703.201347.146036232.davem@davemloft.net>
-	<20090704074245.GA1615@gondor.apana.org.au>
-	<20090704090910.GA2185@gondor.apana.org.au>
-	<20090705032658.GA7430@gondor.apana.org.au>
+From: Mark McLoughlin <markmc@redhat.com>
+Subject: [PATCH] virtio-pci: correctly unregister root device on error
+Date: Tue, 07 Jul 2009 08:26:45 +0100
+Message-ID: <1246951605.2836.8.camel__8655.25933118097$1246951676$gmane$org@blaa>
+Reply-To: Mark McLoughlin <markmc@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20090705032658.GA7430@gondor.apana.org.au>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -24,41 +16,31 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: David Miller <davem@davemloft.net>
-Cc: patrick.ohly@intel.com, libertas-dev@lists.infradead.org, dcbw@redhat.com, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, rolandd@cisco.com, divy@chelsio.com, xemul@openvz.org
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Don Zickus <dzickus@redhat.com>, linux-kernel <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sun, Jul 05, 2009 at 11:26:58AM +0800, Herbert Xu wrote:
-> 
-> Here's a another crazy idea:
-> 
-> Let's use dummy TX descriptors to generate an interrupt, either
-> with or without transmitting an actual packet on the wire depending
-> on the NIC.
+If pci_register_driver() fails we're incorrectly unregistering the root
+device with device_unregister() rather than root_device_unregister().
 
-Here's an even crazier idea that doesn't use dummy descriptors.
+Reported-by: Don Zickus <dzickus@redhat.com>
+Signed-off-by: Mark McLoughlin <markmc@redhat.com>
+---
+ drivers/virtio/virtio_pci.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-xmit(skb)
-
-	if (TX queue contains no interrupting descriptor &&
-	    qdisc is empty)
-		mark TX descriptor as interrupting
-
-	if (TX queue now contains an interrupting descriptor &&
-	    qdisc len < 2)
-		stop queue
-
-	if (TX ring full)
-		stop queue
-
-clean()
-
- 	do work
-	wake queue as per usual
-
-Cheers,
+diff --git a/drivers/virtio/virtio_pci.c b/drivers/virtio/virtio_pci.c
+index 330aacb..2cafa62 100644
+--- a/drivers/virtio/virtio_pci.c
++++ b/drivers/virtio/virtio_pci.c
+@@ -440,7 +440,7 @@ static int __init virtio_pci_init(void)
+ 
+ 	err = pci_register_driver(&virtio_pci_driver);
+ 	if (err)
+-		device_unregister(virtio_pci_root);
++		root_device_unregister(virtio_pci_root);
+ 
+ 	return err;
+ }
 -- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+1.6.2.5
