@@ -1,46 +1,45 @@
-From: Mark McLoughlin <markmc@redhat.com>
-Subject: [PATCH] virtio-pci: correctly unregister root device on error
-Date: Tue, 07 Jul 2009 08:26:45 +0100
-Message-ID: <1246951605.2836.8.camel__8655.25933118097$1246951676$gmane$org@blaa>
-Reply-To: Mark McLoughlin <markmc@redhat.com>
+From: Jaswinder Singh Rajput <jaswinder@kernel.org>
+Subject: [PATCH 33/44] includecheck fix: drivers/xen, evtchn.c
+Date: Wed, 08 Jul 2009 21:12:29 +0530
+Message-ID: <1247067749.4382.90.camel@ht.satnam>
+References: <1247063308.4382.12.camel@ht.satnam>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Don Zickus <dzickus@redhat.com>, linux-kernel <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>
+Return-path: <xen-devel-bounces@lists.xensource.com>
+In-Reply-To: <1247063308.4382.12.camel@ht.satnam>
+List-Unsubscribe: <http://lists.xensource.com/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
+List-Post: <mailto:xen-devel@lists.xensource.com>
+List-Help: <mailto:xen-devel-request@lists.xensource.com?subject=help>
+List-Subscribe: <http://lists.xensource.com/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
+Sender: xen-devel-bounces@lists.xensource.com
+Errors-To: xen-devel-bounces@lists.xensource.com
+To: jeremy@xensource.com, chrisw@sous-sol.org, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, Sam Ravnborg <sam@ravnborg.org>, LKML <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-If pci_register_driver() fails we're incorrectly unregistering the root
-device with device_unregister() rather than root_device_unregister().
 
-Reported-by: Don Zickus <dzickus@redhat.com>
-Signed-off-by: Mark McLoughlin <markmc@redhat.com>
+fix the following 'make includecheck' warning:
+
+  drivers/xen/evtchn.c: linux/errno.h is included more than once.
+
+Signed-off-by: Jaswinder Singh Rajput <jaswinderrajput@gmail.com>
 ---
- drivers/virtio/virtio_pci.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+ drivers/xen/evtchn.c |    1 -
+ 1 files changed, 0 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/virtio/virtio_pci.c b/drivers/virtio/virtio_pci.c
-index 330aacb..2cafa62 100644
---- a/drivers/virtio/virtio_pci.c
-+++ b/drivers/virtio/virtio_pci.c
-@@ -440,7 +440,7 @@ static int __init virtio_pci_init(void)
- 
- 	err = pci_register_driver(&virtio_pci_driver);
- 	if (err)
--		device_unregister(virtio_pci_root);
-+		root_device_unregister(virtio_pci_root);
- 
- 	return err;
- }
+diff --git a/drivers/xen/evtchn.c b/drivers/xen/evtchn.c
+index af03195..79bedba 100644
+--- a/drivers/xen/evtchn.c
++++ b/drivers/xen/evtchn.c
+@@ -38,7 +38,6 @@
+ #include <linux/string.h>
+ #include <linux/errno.h>
+ #include <linux/fs.h>
+-#include <linux/errno.h>
+ #include <linux/miscdevice.h>
+ #include <linux/major.h>
+ #include <linux/proc_fs.h>
 -- 
-1.6.2.5
+1.6.0.6
