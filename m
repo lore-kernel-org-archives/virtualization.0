@@ -1,53 +1,59 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [PATCH 33/44] includecheck fix: drivers/xen,
-	evtchn.c
-Date: Wed, 08 Jul 2009 09:50:42 -0700
-Message-ID: <4A54CE62.8040704@goop.org>
-References: <1247063308.4382.12.camel@ht.satnam>
-	<1247067749.4382.90.camel@ht.satnam>
+From: Akio Takebe <takebe_akio@jp.fujitsu.com>
+Subject: Re: [dm-devel] IO controller mini-summit -- Japan, Oct 2009
+Date: Fri, 10 Jul 2009 09:32:51 +0900
+Message-ID: <4A568C33.4040007__41695.9239439622$1247186030$gmane$org@jp.fujitsu.com>
+References: <20090701.204450.104062613.ryov@valinux.co.jp>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <xen-devel-bounces@lists.xensource.com>
-In-Reply-To: <1247067749.4382.90.camel@ht.satnam>
-List-Unsubscribe: <http://lists.xensource.com/mailman/listinfo/xen-devel>,
-	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
-List-Post: <mailto:xen-devel@lists.xensource.com>
-List-Help: <mailto:xen-devel-request@lists.xensource.com?subject=help>
-List-Subscribe: <http://lists.xensource.com/mailman/listinfo/xen-devel>,
-	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
-Sender: xen-devel-bounces@lists.xensource.com
-Errors-To: xen-devel-bounces@lists.xensource.com
-To: Jaswinder Singh Rajput <jaswinder@kernel.org>
-Cc: xen-devel@lists.xensource.com, jeremy@xensource.com, LKML <linux-kernel@vger.kernel.org>, chrisw@sous-sol.org, virtualization@lists.osdl.org, Sam Ravnborg <sam@ravnborg.org>
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20090701.204450.104062613.ryov@valinux.co.jp>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: device-mapper development <dm-devel@redhat.com>
+Cc: xen-devel@lists.xensource.com, containers@lists.linux-foundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, ioband-devel@lists.sourceforge.net, corsetproject@googlegroups.com, kunai@linux-foundation.jp, osonoi@linux-foundation.jp
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 07/08/09 08:42, Jaswinder Singh Rajput wrote:
-> fix the following 'make includecheck' warning:
->
->   drivers/xen/evtchn.c: linux/errno.h is included more than once.
->
-> Signed-off-by: Jaswinder Singh Rajput <jaswinderrajput@gmail.com>
->   
-Acked-by: Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>
+Hi, Ryo
 
-Thanks,
-    J
+I'm a fun of IO controller, especially dm-ioband.
+I'm interested in a discussiond about issues and
+directions for developing IO controller.
+Please let me join the mini-summit.
 
-> ---
->  drivers/xen/evtchn.c |    1 -
->  1 files changed, 0 insertions(+), 1 deletions(-)
->
-> diff --git a/drivers/xen/evtchn.c b/drivers/xen/evtchn.c
-> index af03195..79bedba 100644
-> --- a/drivers/xen/evtchn.c
-> +++ b/drivers/xen/evtchn.c
-> @@ -38,7 +38,6 @@
->  #include <linux/string.h>
->  #include <linux/errno.h>
->  #include <linux/fs.h>
-> -#include <linux/errno.h>
->  #include <linux/miscdevice.h>
->  #include <linux/major.h>
->  #include <linux/proc_fs.h>
->   
+Best Regards,
+
+Akio Takebe
+
+Ryo Tsuruta wrote:
+> Hi All,
+> 
+> We will hold a Linux IO controller Mini-Summit in Tokyo, Japan
+> on Saturday, Oct. 17, 2009 -- day before the 9th Linux kernel summit.
+> 
+> This is a good opportunity to meet face-to-face to discuss issues and
+> directions for developing IO controller.
+> 
+> Details of the summit are still sketchy, so suggestions for agenda
+> topics are welcome. Please e-mail to me or post on the wiki page at
+> http://apps.sourceforge.net/trac/ioband/wiki/iosummit
+> (You need an account on SourceForge.net to edit this page.)
+> The final agenda will be formed by consensus of the attendees.
+> 
+> Please join the summit if you are interested.
+> 
+> Thanks,
+> Ryo Tsuruta
+> 
+> --
+> dm-devel mailing list
+> dm-devel@redhat.com
+> https://www.redhat.com/mailman/listinfo/dm-devel
+> 
