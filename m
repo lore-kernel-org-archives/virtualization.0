@@ -1,14 +1,14 @@
 From: Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [patch 37/54] Staging: hv: remove TRUE, FALSE, and NULL usage
-Date: Fri, 17 Jul 2009 11:09:27 -0700
-Message-ID: <20090717180921.909237594@mini.kroah.org>
+Subject: [patch 36/54] Staging: hv: remove FIELD_OFFSET usage
+Date: Fri, 17 Jul 2009 11:09:26 -0700
+Message-ID: <20090717180921.758169794@mini.kroah.org>
 References: <20090717180850.873962925@mini.kroah.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline;
-	filename=staging-hv-remove-true-false-and-null-usage.patch
+	filename=staging-hv-remove-field_offset-usage.patch
 In-Reply-To: <20090720160025.GA20249@kroah.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -25,158 +25,42 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Greg Kroah-Hartman <gregkh@suse.de>
 
-Don't define things that are either already provided (like NULL), or you
-shouldn't use (like TRUE and FALSE).
+This isn't needed, or even used, at all.
 
 Cc: Hank Janssen <hjanssen@microsoft.com>
 Cc: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 ---
- drivers/staging/hv/ChannelMgmt.c |    4 ++--
- drivers/staging/hv/Hv.c          |    8 ++++----
- drivers/staging/hv/NetVsc.c      |    4 ++--
- drivers/staging/hv/RndisFilter.c |   10 +++++-----
- drivers/staging/hv/include/osd.h |   14 --------------
- 5 files changed, 13 insertions(+), 27 deletions(-)
+ drivers/staging/hv/include/VmbusChannelInterface.h |    9 ---------
+ drivers/staging/hv/include/osd.h                   |    2 --
+ 2 files changed, 11 deletions(-)
 
---- a/drivers/staging/hv/ChannelMgmt.c
-+++ b/drivers/staging/hv/ChannelMgmt.c
-@@ -240,7 +240,7 @@ VmbusChannelProcessOffer(
- 	VMBUS_CHANNEL* newChannel=(VMBUS_CHANNEL*)context;
- 	LIST_ENTRY* anchor;
- 	LIST_ENTRY* curr;
--	bool fNew=TRUE;
-+	bool fNew = true;
- 	VMBUS_CHANNEL* channel;
- 
- 	DPRINT_ENTER(VMBUS);
-@@ -255,7 +255,7 @@ VmbusChannelProcessOffer(
- 		if (!memcmp(&channel->OfferMsg.Offer.InterfaceType, &newChannel->OfferMsg.Offer.InterfaceType,sizeof(GUID)) &&
- 			!memcmp(&channel->OfferMsg.Offer.InterfaceInstance, &newChannel->OfferMsg.Offer.InterfaceInstance, sizeof(GUID)))
- 		{
--			fNew = FALSE;
-+			fNew = false;
- 			break;
- 		}
- 	}
---- a/drivers/staging/hv/Hv.c
-+++ b/drivers/staging/hv/Hv.c
-@@ -31,7 +31,7 @@
- 
- // The one and only
- HV_CONTEXT gHvContext={
--	.SynICInitialized = FALSE,
-+	.SynICInitialized = false,
- 	.HypercallPage = NULL,
- 	.SignalEventParam = NULL,
- 	.SignalEventBuffer = NULL,
-@@ -571,8 +571,8 @@ HvSynicInit (
- 
- 	sharedSint.AsUINT64 = 0;
-     sharedSint.Vector = irqVector; //HV_SHARED_SINT_IDT_VECTOR + 0x20;
--    sharedSint.Masked = FALSE;
--    sharedSint.AutoEoi = TRUE;
-+    sharedSint.Masked = false;
-+    sharedSint.AutoEoi = true;
- 
- 	DPRINT_DBG(VMBUS, "HV_X64_MSR_SINT1 msr set to: %llx", sharedSint.AsUINT64);
- 
-@@ -584,7 +584,7 @@ HvSynicInit (
- 
-     WriteMsr(HV_X64_MSR_SCONTROL, sctrl.AsUINT64);
- 
--	gHvContext.SynICInitialized = TRUE;
-+	gHvContext.SynICInitialized = true;
- 
- 	DPRINT_EXIT(VMBUS);
- 
 --- a/drivers/staging/hv/include/osd.h
 +++ b/drivers/staging/hv/include/osd.h
-@@ -37,20 +37,6 @@
+@@ -37,8 +37,6 @@
  #define LOWORD(dw)		((unsigned short) (dw))
  #define HIWORD(dw)		((unsigned short) (((unsigned int) (dw) >> 16) & 0xFFFF))
  
--#ifdef FALSE
--#undef FALSE
--#endif
--#define FALSE 0
+-#define FIELD_OFFSET(t, f)    ((unsigned int)(unsigned long)&(((t *)0)->f))
 -
--#ifdef TRUE
--#undef TRUE
--#endif
--#define TRUE  1
+ #ifdef FALSE
+ #undef FALSE
+ #endif
+--- a/drivers/staging/hv/include/VmbusChannelInterface.h
++++ b/drivers/staging/hv/include/VmbusChannelInterface.h
+@@ -98,15 +98,6 @@ typedef struct
+ #pragma pack(pop)
+ 
+ 
+-//
+-// Verify the MAX_PIPE_USER_DEFINED_BYTES value.
+-//
+-//C_ASSERT(MAX_PIPE_USER_DEFINED_BYTES ==
+-//         MAX_USER_DEFINED_BYTES -
+-//         (FIELD_OFFSET(VMBUS_CHANNEL_OFFER, u.Pipe.UserDefined) -
+-//          FIELD_OFFSET(VMBUS_CHANNEL_OFFER, u.Standard.UserDefined)));
+-//
 -
--#ifndef NULL
--#define NULL  (void *)0
--#endif
--
- typedef struct _DLIST_ENTRY {
-    struct _DLIST_ENTRY *Flink;
-    struct _DLIST_ENTRY *Blink;
---- a/drivers/staging/hv/NetVsc.c
-+++ b/drivers/staging/hv/NetVsc.c
-@@ -1345,7 +1345,7 @@ NetVscOnReceiveCompletion(
- 	DEVICE_OBJECT *device = (DEVICE_OBJECT*)packet->Device;
- 	NETVSC_DEVICE* netDevice;
- 	u64	transactionId=0;
--	bool fSendReceiveComp = FALSE;
-+	bool fSendReceiveComp = false;
+ typedef u32 GPADL_HANDLE;
  
- 	DPRINT_ENTER(NETVSC);
- 
-@@ -1371,7 +1371,7 @@ NetVscOnReceiveCompletion(
- 	// Return the xfer page packet itself to the freelist
- 	if (packet->XferPagePacket->Count == 0)
- 	{
--		fSendReceiveComp = TRUE;
-+		fSendReceiveComp = true;
- 		transactionId = packet->Completion.Recv.ReceiveCompletionTid;
- 
- 		INSERT_TAIL_LIST(&netDevice->ReceivePacketList, &packet->XferPagePacket->ListEntry);
---- a/drivers/staging/hv/RndisFilter.c
-+++ b/drivers/staging/hv/RndisFilter.c
-@@ -357,7 +357,7 @@ RndisFilterSendRequest(
- 	// Setup the packet to send it
- 	packet = &Request->Packet;
- 
--	packet->IsDataPacket = FALSE;
-+	packet->IsDataPacket = false;
- 	packet->TotalDataBufferLength = Request->RequestMessage.MessageLength;
- 	packet->PageBufferCount = 1;
- 
-@@ -384,7 +384,7 @@ RndisFilterReceiveResponse(
- 	LIST_ENTRY *anchor;
- 	LIST_ENTRY *curr;
- 	RNDIS_REQUEST *request=NULL;
--	bool found=FALSE;
-+	bool found = false;
- 
- 	DPRINT_ENTER(NETVSC);
- 
-@@ -399,7 +399,7 @@ RndisFilterReceiveResponse(
- 			DPRINT_DBG(NETVSC, "found rndis request for this response (id 0x%x req type 0x%x res type 0x%x)",
- 				request->RequestMessage.Message.InitializeRequest.RequestId, request->RequestMessage.NdisMessageType, Response->NdisMessageType);
- 
--			found = TRUE;
-+			found = true;
- 			break;
- 		}
- 	}
-@@ -485,7 +485,7 @@ RndisFilterReceiveData(
- 	Packet->PageBuffers[0].Offset += dataOffset;
- 	Packet->PageBuffers[0].Length -= dataOffset;
- 
--	Packet->IsDataPacket = TRUE;
-+	Packet->IsDataPacket = true;
- 
- 	gRndisFilter.InnerDriver.OnReceiveCallback(Device->NetDevice->Device, Packet);
- 
-@@ -1112,7 +1112,7 @@ RndisFilterOnSend(
- 	rndisPacket->DataOffset = sizeof(RNDIS_PACKET);
- 	rndisPacket->DataLength = Packet->TotalDataBufferLength;
- 
--	Packet->IsDataPacket = TRUE;
-+	Packet->IsDataPacket = true;
- 	Packet->PageBuffers[0].Pfn		= GetPhysicalAddress(rndisMessage) >> PAGE_SHIFT;
- 	Packet->PageBuffers[0].Offset	= (unsigned long)rndisMessage & (PAGE_SIZE-1);
- 	Packet->PageBuffers[0].Length	= rndisMessageSize;
+ //
