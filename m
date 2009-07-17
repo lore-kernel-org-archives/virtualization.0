@@ -1,14 +1,14 @@
 From: Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [patch 30/54] Staging: hv: remove BOOL and BOOLEAN typedefs
-Date: Fri, 17 Jul 2009 11:09:20 -0700
-Message-ID: <20090717180920.806261936@mini.kroah.org>
+Subject: [patch 43/54] Staging: hv: make RingInfo->RingLock a real spinlock
+Date: Fri, 17 Jul 2009 11:09:33 -0700
+Message-ID: <20090717180922.909597625@mini.kroah.org>
 References: <20090717180850.873962925@mini.kroah.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline;
-	filename=staging-hv-remove-bool-and-boolean-typedefs.patch
+	filename=staging-hv-make-ringinfo-ringlock-a-real-spinlock.patch
 In-Reply-To: <20090720160025.GA20249@kroah.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,153 +19,149 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org, devel@driverdev.osuosl.org, virtualization@lists.osdl.org, Greg KH <greg@kroah.com>
+To: linux-kernel@vger.kernel.org, devel@driverdev.osuosl.org, virtualization@lists.osdl.org
 Cc: Sam Ramji <sramji@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, shemminger@linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
 From: Greg Kroah-Hartman <gregkh@suse.de>
 
-The BOOL and BOOLEAN typedefs are now removed from the Hyper-V driver
-code.
+Don't use the wrapper functions for this lock, make it a real
+lock so that we know what is going on.
+
+I don't think we really want to be doing a irqsave for this code, but I
+left it alone to preserve the original codepath.  It should be reviewed
+later.
 
 Cc: Hank Janssen <hjanssen@microsoft.com>
 Cc: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
-
 ---
- drivers/staging/hv/ChannelMgmt.c               |    2 +-
- drivers/staging/hv/Hv.h                        |    2 +-
- drivers/staging/hv/NetVsc.c                    |    2 +-
- drivers/staging/hv/RndisFilter.c               |    2 +-
- drivers/staging/hv/include/ChannelMessages.h   |    6 +++---
- drivers/staging/hv/include/List.h              |    2 +-
- drivers/staging/hv/include/NetVscApi.h         |    4 ++--
- drivers/staging/hv/include/VmbusPacketFormat.h |    2 +-
- drivers/staging/hv/include/osd.h               |    2 --
- 9 files changed, 11 insertions(+), 13 deletions(-)
+ drivers/staging/hv/RingBuffer.c |   24 +++++++++++++-----------
+ drivers/staging/hv/RingBuffer.h |    2 +-
+ 2 files changed, 14 insertions(+), 12 deletions(-)
 
---- a/drivers/staging/hv/ChannelMgmt.c
-+++ b/drivers/staging/hv/ChannelMgmt.c
-@@ -240,7 +240,7 @@ VmbusChannelProcessOffer(
- 	VMBUS_CHANNEL* newChannel=(VMBUS_CHANNEL*)context;
- 	LIST_ENTRY* anchor;
- 	LIST_ENTRY* curr;
--	BOOL fNew=TRUE;
-+	bool fNew=TRUE;
- 	VMBUS_CHANNEL* channel;
+--- a/drivers/staging/hv/RingBuffer.c
++++ b/drivers/staging/hv/RingBuffer.c
+@@ -315,7 +315,7 @@ RingBufferInit(
+ 	RingInfo->RingSize = BufferLen;
+ 	RingInfo->RingDataSize = BufferLen - sizeof(RING_BUFFER);
+ 
+-	RingInfo->RingLock = SpinlockCreate();
++	spin_lock_init(&RingInfo->ring_lock);
+ 
+ 	return 0;
+ }
+@@ -334,7 +334,6 @@ RingBufferCleanup(
+ 	RING_BUFFER_INFO* RingInfo
+ 	)
+ {
+-	SpinlockClose(RingInfo->RingLock);
+ }
+ 
+ /*++
+@@ -360,6 +359,7 @@ RingBufferWrite(
+ 
+ 	volatile u32 nextWriteLocation;
+ 	u64 prevIndices=0;
++	unsigned long flags;
  
  	DPRINT_ENTER(VMBUS);
---- a/drivers/staging/hv/Hv.h
-+++ b/drivers/staging/hv/Hv.h
-@@ -113,7 +113,7 @@ typedef struct {
- 	u64	GuestId;			// XenLinux or native Linux. If XenLinux, the hypercall and synic pages has already been initialized
- 	void*	HypercallPage;
  
--	BOOL	SynICInitialized;
-+	bool	SynICInitialized;
- 	// This is used as an input param to HvCallSignalEvent hypercall. The input param is immutable
- 	// in our usage and must be dynamic mem (vs stack or global).
- 	HV_INPUT_SIGNAL_EVENT_BUFFER *SignalEventBuffer;
---- a/drivers/staging/hv/include/ChannelMessages.h
-+++ b/drivers/staging/hv/include/ChannelMessages.h
-@@ -82,7 +82,7 @@ typedef struct _VMBUS_CHANNEL_QUERY_VMBU
- typedef struct _VMBUS_CHANNEL_VERSION_SUPPORTED
- {
-     VMBUS_CHANNEL_MESSAGE_HEADER Header;
--    BOOLEAN VersionSupported;
-+    bool VersionSupported;
- } VMBUS_CHANNEL_VERSION_SUPPORTED, *PVMBUS_CHANNEL_VERSION_SUPPORTED;
+@@ -370,7 +370,7 @@ RingBufferWrite(
  
- // Offer Channel parameters
-@@ -92,7 +92,7 @@ typedef struct _VMBUS_CHANNEL_OFFER_CHAN
-     VMBUS_CHANNEL_OFFER Offer;
-     u32  ChildRelId;
-     u8   MonitorId;
--    BOOLEAN MonitorAllocated;
-+    bool MonitorAllocated;
- } VMBUS_CHANNEL_OFFER_CHANNEL, *PVMBUS_CHANNEL_OFFER_CHANNEL;
+ 	totalBytesToWrite += sizeof(u64);
  
- //
-@@ -264,7 +264,7 @@ typedef struct _VMBUS_CHANNEL_INITIATE_C
- typedef struct _VMBUS_CHANNEL_VERSION_RESPONSE
- {
-     VMBUS_CHANNEL_MESSAGE_HEADER Header;
--    BOOLEAN     VersionSupported;
-+    bool     VersionSupported;
- } VMBUS_CHANNEL_VERSION_RESPONSE, *PVMBUS_CHANNEL_VERSION_RESPONSE;
+-	SpinlockAcquire(OutRingInfo->RingLock);
++	spin_lock_irqsave(&OutRingInfo->ring_lock, flags);
  
- typedef VMBUS_CHANNEL_MESSAGE_HEADER VMBUS_CHANNEL_UNLOAD, *PVMBUS_CHANNEL_UNLOAD;
---- a/drivers/staging/hv/include/List.h
-+++ b/drivers/staging/hv/include/List.h
-@@ -56,7 +56,7 @@ typedef DLIST_ENTRY *PLIST_ENTRY;
+ 	GetRingBufferAvailBytes(OutRingInfo, &byteAvailToRead, &byteAvailToWrite);
  
+@@ -384,7 +384,7 @@ RingBufferWrite(
+ 	{
+ 		DPRINT_DBG(VMBUS, "No more space left on outbound ring buffer (needed %u, avail %u)", totalBytesToWrite, byteAvailToWrite);
  
- /*
-- *  BOOLEAN
-+ *  bool
-  *  IsListEmpty(
-  *      PLIST_ENTRY ListHead
-  *      );
---- a/drivers/staging/hv/include/NetVscApi.h
-+++ b/drivers/staging/hv/include/NetVscApi.h
-@@ -72,7 +72,7 @@ typedef struct _NETVSC_PACKET {
- 	DLIST_ENTRY				ListEntry;
+-		SpinlockRelease(OutRingInfo->RingLock);
++		spin_unlock_irqrestore(&OutRingInfo->ring_lock, flags);
  
- 	DEVICE_OBJECT			*Device;
--	BOOL					IsDataPacket;
-+	bool					IsDataPacket;
+ 		DPRINT_EXIT(VMBUS);
  
- 	// Valid only for receives when we break a xfer page packet into multiple netvsc packets
- 	XFERPAGE_PACKET		*XferPagePacket;
-@@ -131,7 +131,7 @@ typedef struct _NETVSC_DRIVER_OBJECT {
+@@ -418,7 +418,7 @@ RingBufferWrite(
  
- typedef struct _NETVSC_DEVICE_INFO {
-     unsigned char	MacAddr[6];
--    BOOL	LinkState;	// 0 - link up, 1 - link down
-+    bool	LinkState;	// 0 - link up, 1 - link down
- } NETVSC_DEVICE_INFO;
+ 	//DumpRingInfo(OutRingInfo, "AFTER ");
  
- //
---- a/drivers/staging/hv/include/osd.h
-+++ b/drivers/staging/hv/include/osd.h
-@@ -98,8 +98,6 @@ typedef struct _DLIST_ENTRY {
- // Other types
- //
- //typedef unsigned char		GUID[16];
--typedef unsigned char		BOOL;
--typedef unsigned char		BOOLEAN;
- typedef void*				HANDLE;
+-	SpinlockRelease(OutRingInfo->RingLock);
++	spin_unlock_irqrestore(&OutRingInfo->ring_lock, flags);
  
- typedef struct {
---- a/drivers/staging/hv/include/VmbusPacketFormat.h
-+++ b/drivers/staging/hv/include/VmbusPacketFormat.h
-@@ -113,7 +113,7 @@ typedef struct VMTRANSFER_PAGE_PACKET_HE
- #endif
+ 	DPRINT_EXIT(VMBUS);
  
-     u16                  TransferPageSetId;
--    BOOLEAN                 SenderOwnsSet;
-+    bool                 SenderOwnsSet;
-     u8                   Reserved;
-     u32                  RangeCount;
-     VMTRANSFER_PAGE_RANGE   Ranges[1];
---- a/drivers/staging/hv/NetVsc.c
-+++ b/drivers/staging/hv/NetVsc.c
-@@ -1344,7 +1344,7 @@ NetVscOnReceiveCompletion(
- 	DEVICE_OBJECT *device = (DEVICE_OBJECT*)packet->Device;
- 	NETVSC_DEVICE* netDevice;
- 	u64	transactionId=0;
--	BOOL fSendReceiveComp = FALSE;
-+	bool fSendReceiveComp = FALSE;
+@@ -445,8 +445,9 @@ RingBufferPeek(
+ 	u32 bytesAvailToWrite;
+ 	u32 bytesAvailToRead;
+ 	u32 nextReadLocation=0;
++	unsigned long flags;
  
- 	DPRINT_ENTER(NETVSC);
+-	SpinlockAcquire(InRingInfo->RingLock);
++	spin_lock_irqsave(&InRingInfo->ring_lock, flags);
  
---- a/drivers/staging/hv/RndisFilter.c
-+++ b/drivers/staging/hv/RndisFilter.c
-@@ -383,7 +383,7 @@ RndisFilterReceiveResponse(
- 	LIST_ENTRY *anchor;
- 	LIST_ENTRY *curr;
- 	RNDIS_REQUEST *request=NULL;
--	BOOL found=FALSE;
-+	bool found=FALSE;
+ 	GetRingBufferAvailBytes(InRingInfo, &bytesAvailToRead, &bytesAvailToWrite);
  
- 	DPRINT_ENTER(NETVSC);
+@@ -455,7 +456,7 @@ RingBufferPeek(
+ 	{
+ 		//DPRINT_DBG(VMBUS, "got callback but not enough to read <avail to read %d read size %d>!!", bytesAvailToRead, BufferLen);
+ 
+-		SpinlockRelease(InRingInfo->RingLock);
++		spin_unlock_irqrestore(&InRingInfo->ring_lock, flags);
+ 
+ 		return -1;
+ 	}
+@@ -468,7 +469,7 @@ RingBufferPeek(
+ 											BufferLen,
+ 											nextReadLocation);
+ 
+-	SpinlockRelease(InRingInfo->RingLock);
++	spin_unlock_irqrestore(&InRingInfo->ring_lock, flags);
+ 
+ 	return 0;
+ }
+@@ -495,10 +496,11 @@ RingBufferRead(
+ 	u32 bytesAvailToRead;
+ 	u32 nextReadLocation=0;
+ 	u64 prevIndices=0;
++	unsigned long flags;
+ 
+ 	ASSERT(BufferLen > 0);
+ 
+-	SpinlockAcquire(InRingInfo->RingLock);
++	spin_lock_irqsave(&InRingInfo->ring_lock, flags);
+ 
+ 	GetRingBufferAvailBytes(InRingInfo, &bytesAvailToRead, &bytesAvailToWrite);
+ 
+@@ -511,7 +513,7 @@ RingBufferRead(
+ 	{
+ 		DPRINT_DBG(VMBUS, "got callback but not enough to read <avail to read %d read size %d>!!", bytesAvailToRead, BufferLen);
+ 
+-		SpinlockRelease(InRingInfo->RingLock);
++		spin_unlock_irqrestore(&InRingInfo->ring_lock, flags);
+ 
+ 		return -1;
+ 	}
+@@ -537,7 +539,7 @@ RingBufferRead(
+ 
+ 	//DumpRingInfo(InRingInfo, "AFTER ");
+ 
+-	SpinlockRelease(InRingInfo->RingLock);
++	spin_unlock_irqrestore(&InRingInfo->ring_lock, flags);
+ 
+ 	return 0;
+ }
+--- a/drivers/staging/hv/RingBuffer.h
++++ b/drivers/staging/hv/RingBuffer.h
+@@ -48,7 +48,7 @@ typedef struct _RING_BUFFER {
+ typedef struct _RING_BUFFER_INFO {
+     RING_BUFFER*	RingBuffer;
+     u32			RingSize;			// Include the shared header
+-	HANDLE			RingLock;
++	spinlock_t ring_lock;
+ 
+     u32			RingDataSize;		// < ringSize
+ 	u32			RingDataStartOffset;
