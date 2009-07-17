@@ -1,15 +1,14 @@
 From: Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [patch 34/54] Staging: hv: remove STRUCT_PACKED and STRUCT_ALIGNED
-	defines
-Date: Fri, 17 Jul 2009 11:09:24 -0700
-Message-ID: <20090717180921.448023599@mini.kroah.org>
+Subject: [patch 51/54] Staging: hv: osd: remove LogMsg wrapper
+Date: Fri, 17 Jul 2009 11:09:41 -0700
+Message-ID: <20090717180924.204304923@mini.kroah.org>
 References: <20090717180850.873962925@mini.kroah.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline;
-	filename=staging-hv-remove-struct_packed-and-struct_aligned-defines.patch
+	filename=staging-hv-osd-remove-logmsg-wrapper.patch
 In-Reply-To: <20090720160025.GA20249@kroah.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -26,36 +25,150 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Greg Kroah-Hartman <gregkh@suse.de>
 
-Use the correct __attribute__((packed)) one if it's really needed.
+Use the "real" printk call instead of a wrapper function.
 
 Cc: Hank Janssen <hjanssen@microsoft.com>
 Cc: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 ---
- drivers/staging/hv/RingBuffer.h  |    2 +-
- drivers/staging/hv/include/osd.h |    3 ---
- 2 files changed, 1 insertion(+), 4 deletions(-)
+ drivers/staging/hv/include/logging.h |   54 ++++++++++++++++++++---------------
+ drivers/staging/hv/include/osd.h     |    2 -
+ drivers/staging/hv/osd.c             |   13 --------
+ 3 files changed, 31 insertions(+), 38 deletions(-)
 
+--- a/drivers/staging/hv/include/logging.h
++++ b/drivers/staging/hv/include/logging.h
+@@ -53,11 +53,10 @@
+ 							BLKVSC_DRV)
+ 
+ // Logging Level
+-#define CRITICAL_LVL				2
+-#define ERROR_LVL					3
+-#define WARNING_LVL					4
+-#define INFO_LVL					6
+-#define DEBUG_LVL					7
++#define ERROR_LVL				3
++#define WARNING_LVL				4
++#define INFO_LVL				6
++#define DEBUG_LVL				7
+ #define DEBUG_LVL_ENTEREXIT			8
+ #define DEBUG_RING_LVL				9
+ 
+@@ -65,44 +64,53 @@ extern unsigned int vmbus_loglevel;
+ 
+ #define ASSERT(expr)	\
+         if (!(expr)) {	\
+-		LogMsg("<%d>Assertion failed! %s,%s,%s,line=%d\n", CRITICAL_LVL, #expr,__FILE__,__FUNCTION__,__LINE__);	\
++		printk(KERN_CRIT "Assertion failed! %s,%s,%s,line=%d\n", \
++		       #expr, __FILE__, __func__, __LINE__);	\
+ 		__asm__ __volatile__("int3");	\
+         }
+ 
+ #define DPRINT(mod, lvl, fmt, args...) do {\
+-	if (mod & (HIWORD(vmbus_loglevel))) \
+-		(lvl <= LOWORD(vmbus_loglevel))?(LogMsg("<%d>" #mod": %s() " fmt "\n", DEBUG_LVL, __FUNCTION__, ## args)):(0);\
++	if ((mod & (HIWORD(vmbus_loglevel))) &&	\
++	    (lvl <= LOWORD(vmbus_loglevel)))	\
++		printk(KERN_DEBUG #mod": %s() " fmt "\n", __func__, ## args);\
+ 	} while (0)
+ 
+ #define DPRINT_DBG(mod, fmt, args...) do {\
+-	if (mod & (HIWORD(vmbus_loglevel))) \
+-		(DEBUG_LVL <= LOWORD(vmbus_loglevel))?(LogMsg("<%d>" #mod": %s() " fmt "\n", DEBUG_LVL, __FUNCTION__, ## args)):(0);\
++	if ((mod & (HIWORD(vmbus_loglevel))) &&		\
++	    (DEBUG_LVL <= LOWORD(vmbus_loglevel)))	\
++		printk(KERN_DEBUG #mod": %s() " fmt "\n", __func__, ## args);\
+ 	} while (0)
+ 
+ #define DPRINT_INFO(mod, fmt, args...) do {\
+-	if (mod & (HIWORD(vmbus_loglevel))) \
+-		(INFO_LVL <= LOWORD(vmbus_loglevel))?(LogMsg("<%d>" #mod": " fmt "\n", INFO_LVL, ## args)):(0);\
++	if ((mod & (HIWORD(vmbus_loglevel))) &&		\
++	    (INFO_LVL <= LOWORD(vmbus_loglevel)))	\
++		printk(KERN_INFO #mod": " fmt "\n", ## args);\
+ 	} while (0)
+ 
+ #define DPRINT_WARN(mod, fmt, args...) do {\
+-	if (mod & (HIWORD(vmbus_loglevel))) \
+-		(WARNING_LVL <= LOWORD(vmbus_loglevel))?(LogMsg("<%d>" #mod": WARNING! " fmt "\n", WARNING_LVL, ## args)):(0);\
++	if ((mod & (HIWORD(vmbus_loglevel))) &&		\
++	    (WARNING_LVL <= LOWORD(vmbus_loglevel)))	\
++	    printk(KERN_WARNING #mod": WARNING! " fmt "\n", ## args);\
+ 	} while (0)
+ 
+ #define DPRINT_ERR(mod, fmt, args...) do {\
+-	if (mod & (HIWORD(vmbus_loglevel))) \
+-		(ERROR_LVL <= LOWORD(vmbus_loglevel))?(LogMsg("<%d>" #mod": %s() ERROR!! " fmt "\n", ERROR_LVL, __FUNCTION__, ## args)):(0);\
++	if ((mod & (HIWORD(vmbus_loglevel))) &&		\
++	    (ERROR_LVL <= LOWORD(vmbus_loglevel)))	\
++		printk(KERN_ERR #mod": %s() ERROR!! " fmt "\n",	\
++		       __func__, ## args);\
+ 	} while (0)
+ 
+ #ifdef DEBUG
+ #define DPRINT_ENTER(mod) do {\
+-	if (mod & (HIWORD(vmbus_loglevel))) \
+-		(DEBUG_LVL_ENTEREXIT <= LOWORD(vmbus_loglevel))?(LogMsg("<%d>" "["#mod"]: %s() enter\n", DEBUG_LVL, __FUNCTION__)):(0);\
++	if ((mod & (HIWORD(vmbus_loglevel))) && \
++	    (DEBUG_LVL_ENTEREXIT <= LOWORD(vmbus_loglevel)))	\
++	    printk(KERN_DEBUG "["#mod"]: %s() enter\n", __func__);\
+ 	} while (0)
+ 
+ #define DPRINT_EXIT(mod) do {\
+-	if (mod & (HIWORD(vmbus_loglevel))) \
+-		(DEBUG_LVL_ENTEREXIT <= LOWORD(vmbus_loglevel))?(LogMsg("<%d>" "["#mod"]: %s() exit\n", DEBUG_LVL, __FUNCTION__)):(0);\
++	if ((mod & (HIWORD(vmbus_loglevel))) && \
++	    (DEBUG_LVL_ENTEREXIT <= LOWORD(vmbus_loglevel)))	\
++		printk(KERN_DEBUG "["#mod"]: %s() exit\n", __func__);\
+ 	} while (0)
+ #else
+ #define DPRINT_ENTER(mod)
+@@ -113,12 +121,12 @@ static inline void PrintBytes(const unsi
+ {
+ 	int i=0;
+ 
+-	LogMsg("\n<< ");
++	printk("\n<< ");
+ 	for (i=0; i< len; i++)
+ 	{
+-		LogMsg("0x%x ", bytes[i]);
++		printk("0x%x ", bytes[i]);
+ 	}
+-	LogMsg(">>\n");
++	printk(">>\n");
+ }
+ 
+ //
 --- a/drivers/staging/hv/include/osd.h
 +++ b/drivers/staging/hv/include/osd.h
-@@ -30,9 +30,6 @@
+@@ -98,8 +98,6 @@ static inline void do_cpuid(unsigned int
  //
- 
- 
--#define STRUCT_PACKED		__attribute__((__packed__))
--#define STRUCT_ALIGNED(x)	__attribute__((__aligned__(x)))
+ // Osd routines
+ //
+-extern void LogMsg(const char *fmt, ...);
 -
- #define UNUSED_VAR(v)		v  __attribute__((__unused__))
+ extern void BitSet(unsigned int* addr, int value);
+ extern void BitClear(unsigned int* addr, int value);
+ extern int BitTest(unsigned int* addr, int value);
+--- a/drivers/staging/hv/osd.c
++++ b/drivers/staging/hv/osd.c
+@@ -72,19 +72,6 @@ typedef struct _WORKITEM {
+ } WORKITEM;
  
- #define ALIGN_UP(value, align)			( ((value) & (align-1))? ( ((value) + (align-1)) & ~(align-1) ): (value) )
---- a/drivers/staging/hv/RingBuffer.h
-+++ b/drivers/staging/hv/RingBuffer.h
-@@ -43,7 +43,7 @@ typedef struct _RING_BUFFER {
- 	// volatile u32 InterruptMask;
- 	// Ring data starts here + RingDataStartOffset !!! DO NOT place any fields below this !!!
-     u8		Buffer[0];
--} STRUCT_PACKED RING_BUFFER;
-+} __attribute__((packed)) RING_BUFFER;
  
- typedef struct _RING_BUFFER_INFO {
-     RING_BUFFER*	RingBuffer;
+-//
+-// Global
+-//
+-
+-void LogMsg(const char *fmt, ...)
+-{
+-	va_list args;
+-
+-	va_start(args, fmt);
+-	vprintk(fmt, args);
+-	va_end(args);
+-}
+-
+ void BitSet(unsigned int* addr, int bit)
+ {
+ 	set_bit(bit, (unsigned long*)addr);
