@@ -1,14 +1,14 @@
 From: Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [patch 43/54] Staging: hv: make RingInfo->RingLock a real spinlock
-Date: Fri, 17 Jul 2009 11:09:33 -0700
-Message-ID: <20090717180922.909597625@mini.kroah.org>
+Subject: [patch 41/54] Staging: hv: osd: remove MemFree wrapper
+Date: Fri, 17 Jul 2009 11:09:31 -0700
+Message-ID: <20090717180922.584234775@mini.kroah.org>
 References: <20090717180850.873962925@mini.kroah.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline;
-	filename=staging-hv-make-ringinfo-ringlock-a-real-spinlock.patch
+	filename=staging-hv-osd-remove-memfree-wrapper.patch
 In-Reply-To: <20090720160025.GA20249@kroah.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -25,143 +25,301 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Greg Kroah-Hartman <gregkh@suse.de>
 
-Don't use the wrapper functions for this lock, make it a real
-lock so that we know what is going on.
-
-I don't think we really want to be doing a irqsave for this code, but I
-left it alone to preserve the original codepath.  It should be reviewed
-later.
+Use the "real" kfree call instead of a wrapper function.
 
 Cc: Hank Janssen <hjanssen@microsoft.com>
 Cc: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 ---
- drivers/staging/hv/RingBuffer.c |   24 +++++++++++++-----------
- drivers/staging/hv/RingBuffer.h |    2 +-
- 2 files changed, 14 insertions(+), 12 deletions(-)
+ drivers/staging/hv/Channel.c     |    8 ++++----
+ drivers/staging/hv/ChannelMgmt.c |   14 +++++++-------
+ drivers/staging/hv/Connection.c  |    6 +++---
+ drivers/staging/hv/Hv.c          |    4 ++--
+ drivers/staging/hv/NetVsc.c      |   12 ++++++------
+ drivers/staging/hv/RndisFilter.c |    8 ++++----
+ drivers/staging/hv/StorVsc.c     |    2 +-
+ drivers/staging/hv/include/osd.h |    1 -
+ drivers/staging/hv/osd.c         |    5 -----
+ 9 files changed, 27 insertions(+), 33 deletions(-)
 
---- a/drivers/staging/hv/RingBuffer.c
-+++ b/drivers/staging/hv/RingBuffer.c
-@@ -315,7 +315,7 @@ RingBufferInit(
- 	RingInfo->RingSize = BufferLen;
- 	RingInfo->RingDataSize = BufferLen - sizeof(RING_BUFFER);
+--- a/drivers/staging/hv/Channel.c
++++ b/drivers/staging/hv/Channel.c
+@@ -311,7 +311,7 @@ Cleanup:
+ 	SpinlockRelease(gVmbusConnection.ChannelMsgLock);
  
--	RingInfo->RingLock = SpinlockCreate();
-+	spin_lock_init(&RingInfo->ring_lock);
- 
- 	return 0;
- }
-@@ -334,7 +334,6 @@ RingBufferCleanup(
- 	RING_BUFFER_INFO* RingInfo
- 	)
- {
--	SpinlockClose(RingInfo->RingLock);
- }
- 
- /*++
-@@ -360,6 +359,7 @@ RingBufferWrite(
- 
- 	volatile u32 nextWriteLocation;
- 	u64 prevIndices=0;
-+	unsigned long flags;
- 
- 	DPRINT_ENTER(VMBUS);
- 
-@@ -370,7 +370,7 @@ RingBufferWrite(
- 
- 	totalBytesToWrite += sizeof(u64);
- 
--	SpinlockAcquire(OutRingInfo->RingLock);
-+	spin_lock_irqsave(&OutRingInfo->ring_lock, flags);
- 
- 	GetRingBufferAvailBytes(OutRingInfo, &byteAvailToRead, &byteAvailToWrite);
- 
-@@ -384,7 +384,7 @@ RingBufferWrite(
- 	{
- 		DPRINT_DBG(VMBUS, "No more space left on outbound ring buffer (needed %u, avail %u)", totalBytesToWrite, byteAvailToWrite);
- 
--		SpinlockRelease(OutRingInfo->RingLock);
-+		spin_unlock_irqrestore(&OutRingInfo->ring_lock, flags);
- 
- 		DPRINT_EXIT(VMBUS);
- 
-@@ -418,7 +418,7 @@ RingBufferWrite(
- 
- 	//DumpRingInfo(OutRingInfo, "AFTER ");
- 
--	SpinlockRelease(OutRingInfo->RingLock);
-+	spin_unlock_irqrestore(&OutRingInfo->ring_lock, flags);
+ 	WaitEventClose(openInfo->WaitEvent);
+-	MemFree(openInfo);
++	kfree(openInfo);
  
  	DPRINT_EXIT(VMBUS);
  
-@@ -445,8 +445,9 @@ RingBufferPeek(
- 	u32 bytesAvailToWrite;
- 	u32 bytesAvailToRead;
- 	u32 nextReadLocation=0;
-+	unsigned long flags;
+@@ -597,7 +597,7 @@ Cleanup:
+ 	SpinlockRelease(gVmbusConnection.ChannelMsgLock);
  
--	SpinlockAcquire(InRingInfo->RingLock);
-+	spin_lock_irqsave(&InRingInfo->ring_lock, flags);
+ 	WaitEventClose(msgInfo->WaitEvent);
+-	MemFree(msgInfo);
++	kfree(msgInfo);
  
- 	GetRingBufferAvailBytes(InRingInfo, &bytesAvailToRead, &bytesAvailToWrite);
+ 	DPRINT_EXIT(VMBUS);
  
-@@ -455,7 +456,7 @@ RingBufferPeek(
+@@ -658,7 +658,7 @@ VmbusChannelTeardownGpadl(
+ 	SpinlockRelease(gVmbusConnection.ChannelMsgLock);
+ 
+ 	WaitEventClose(info->WaitEvent);
+-	MemFree(info);
++	kfree(info);
+ 
+ 	DPRINT_EXIT(VMBUS);
+ 
+@@ -720,7 +720,7 @@ VmbusChannelClose(
+ 
+ 	PageFree(Channel->RingBufferPages, Channel->RingBufferPageCount);
+ 
+-	MemFree(info);
++	kfree(info);
+ 
+ 	// If we are closing the channel during an error path in opening the channel, don't free the channel
+ 	// since the caller will free the channel
+--- a/drivers/staging/hv/ChannelMgmt.c
++++ b/drivers/staging/hv/ChannelMgmt.c
+@@ -152,7 +152,7 @@ VMBUS_CHANNEL* AllocVmbusChannel(void)
+ 	channel->InboundLock = SpinlockCreate();
+ 	if (!channel->InboundLock)
  	{
- 		//DPRINT_DBG(VMBUS, "got callback but not enough to read <avail to read %d read size %d>!!", bytesAvailToRead, BufferLen);
- 
--		SpinlockRelease(InRingInfo->RingLock);
-+		spin_unlock_irqrestore(&InRingInfo->ring_lock, flags);
- 
- 		return -1;
+-		MemFree(channel);
++		kfree(channel);
+ 		return NULL;
  	}
-@@ -468,7 +469,7 @@ RingBufferPeek(
- 											BufferLen,
- 											nextReadLocation);
  
--	SpinlockRelease(InRingInfo->RingLock);
-+	spin_unlock_irqrestore(&InRingInfo->ring_lock, flags);
+@@ -160,7 +160,7 @@ VMBUS_CHANNEL* AllocVmbusChannel(void)
+ 	if (!channel->PollTimer)
+ 	{
+ 		SpinlockClose(channel->InboundLock);
+-		MemFree(channel);
++		kfree(channel);
+ 		return NULL;
+ 	}
+ 
+@@ -170,7 +170,7 @@ VMBUS_CHANNEL* AllocVmbusChannel(void)
+ 	{
+ 		TimerClose(channel->PollTimer);
+ 		SpinlockClose(channel->InboundLock);
+-		MemFree(channel);
++		kfree(channel);
+ 		return NULL;
+ 	}
+ 
+@@ -196,7 +196,7 @@ static inline void ReleaseVmbusChannel(v
+ 	WorkQueueClose(channel->ControlWQ);
+ 	DPRINT_DBG(VMBUS, "channel released (%p)", channel);
+ 
+-	MemFree(channel);
++	kfree(channel);
+ 
+ 	DPRINT_EXIT(VMBUS);
+ }
+@@ -691,7 +691,7 @@ VmbusOnChannelMessage(
+ 	{
+ 		DPRINT_ERR(VMBUS, "Received invalid channel message type %d size %d", hdr->MessageType, size);
+ 		PrintBytes((unsigned char *)msg->u.Payload, size);
+-		MemFree(msg);
++		kfree(msg);
+ 		return;
+ 	}
+ 
+@@ -705,7 +705,7 @@ VmbusOnChannelMessage(
+ 	}
+ 
+ 	// Free the msg that was allocated in VmbusOnMsgDPC()
+-	MemFree(msg);
++	kfree(msg);
+ 	DPRINT_EXIT(VMBUS);
+ }
+ 
+@@ -764,7 +764,7 @@ Cleanup:
+ 	if (msgInfo)
+ 	{
+ 		WaitEventClose(msgInfo->WaitEvent);
+-		MemFree(msgInfo);
++		kfree(msgInfo);
+ 	}
+ 
+ 	DPRINT_EXIT(VMBUS);
+--- a/drivers/staging/hv/Connection.c
++++ b/drivers/staging/hv/Connection.c
+@@ -145,7 +145,7 @@ VmbusConnect(
+ 
+ 
+ 	WaitEventClose(msgInfo->WaitEvent);
+-	MemFree(msgInfo);
++	kfree(msgInfo);
+ 	DPRINT_EXIT(VMBUS);
  
  	return 0;
- }
-@@ -495,10 +496,11 @@ RingBufferRead(
- 	u32 bytesAvailToRead;
- 	u32 nextReadLocation=0;
- 	u64 prevIndices=0;
-+	unsigned long flags;
+@@ -175,7 +175,7 @@ Cleanup:
+ 		if (msgInfo->WaitEvent)
+ 			WaitEventClose(msgInfo->WaitEvent);
  
- 	ASSERT(BufferLen > 0);
- 
--	SpinlockAcquire(InRingInfo->RingLock);
-+	spin_lock_irqsave(&InRingInfo->ring_lock, flags);
- 
- 	GetRingBufferAvailBytes(InRingInfo, &bytesAvailToRead, &bytesAvailToWrite);
- 
-@@ -511,7 +513,7 @@ RingBufferRead(
- 	{
- 		DPRINT_DBG(VMBUS, "got callback but not enough to read <avail to read %d read size %d>!!", bytesAvailToRead, BufferLen);
- 
--		SpinlockRelease(InRingInfo->RingLock);
-+		spin_unlock_irqrestore(&InRingInfo->ring_lock, flags);
- 
- 		return -1;
+-		MemFree(msgInfo);
++		kfree(msgInfo);
  	}
-@@ -537,7 +539,7 @@ RingBufferRead(
  
- 	//DumpRingInfo(InRingInfo, "AFTER ");
+ 	DPRINT_EXIT(VMBUS);
+@@ -233,7 +233,7 @@ VmbusDisconnect(
+ Cleanup:
+ 	if (msg)
+ 	{
+-		MemFree(msg);
++		kfree(msg);
+ 	}
  
--	SpinlockRelease(InRingInfo->RingLock);
-+	spin_unlock_irqrestore(&InRingInfo->ring_lock, flags);
+ 	DPRINT_EXIT(VMBUS);
+--- a/drivers/staging/hv/Hv.c
++++ b/drivers/staging/hv/Hv.c
+@@ -361,7 +361,7 @@ HvCleanup (
  
- 	return 0;
+ 	if (gHvContext.SignalEventBuffer)
+ 	{
+-		MemFree(gHvContext.SignalEventBuffer);
++		kfree(gHvContext.SignalEventBuffer);
+ 		gHvContext.SignalEventBuffer = NULL;
+ 		gHvContext.SignalEventParam = NULL;
+ 	}
+@@ -430,7 +430,7 @@ HvPostMessage(
+ 
+ 	status = HvDoHypercall(HvCallPostMessage, alignedMsg, 0) & 0xFFFF;
+ 
+-	MemFree((void*)addr);
++	kfree((void*)addr);
+ 
+ 	return status;
  }
---- a/drivers/staging/hv/RingBuffer.h
-+++ b/drivers/staging/hv/RingBuffer.h
-@@ -48,7 +48,7 @@ typedef struct _RING_BUFFER {
- typedef struct _RING_BUFFER_INFO {
-     RING_BUFFER*	RingBuffer;
-     u32			RingSize;			// Include the shared header
--	HANDLE			RingLock;
-+	spinlock_t ring_lock;
+--- a/drivers/staging/hv/include/osd.h
++++ b/drivers/staging/hv/include/osd.h
+@@ -121,7 +121,6 @@ extern void PageFree(void* page, unsigne
+ extern void* MemMapIO(unsigned long phys, unsigned long size);
+ extern void MemUnmapIO(void* virt);
  
-     u32			RingDataSize;		// < ringSize
- 	u32			RingDataStartOffset;
+-extern void MemFree(void* buf);
+ extern void MemoryFence(void);
+ 
+ extern HANDLE TimerCreate(PFN_TIMER_CALLBACK pfnTimerCB, void* context);
+--- a/drivers/staging/hv/NetVsc.c
++++ b/drivers/staging/hv/NetVsc.c
+@@ -139,7 +139,7 @@ static inline void FreeNetDevice(NETVSC_
+ {
+ 	ASSERT(Device->RefCount == 0);
+ 	Device->Device->Extension = NULL;
+-	MemFree(Device);
++	kfree(Device);
+ }
+ 
+ 
+@@ -563,7 +563,7 @@ NetVscDestroyReceiveBuffer(
+ 
+ 	if (NetDevice->ReceiveSections)
+ 	{
+-		MemFree(NetDevice->ReceiveSections);
++		kfree(NetDevice->ReceiveSections);
+ 		NetDevice->ReceiveSections = NULL;
+ 		NetDevice->ReceiveSectionCount = 0;
+ 	}
+@@ -873,7 +873,7 @@ Cleanup:
+ 		{
+ 			entry = REMOVE_HEAD_LIST(&netDevice->ReceivePacketList);
+ 			packet = CONTAINING_RECORD(entry, NETVSC_PACKET, ListEntry);
+-			MemFree(packet);
++			kfree(packet);
+ 		}
+ 
+ 		SpinlockClose(netDevice->ReceivePacketListLock);
+@@ -949,7 +949,7 @@ NetVscOnDeviceRemove(
+ 		entry = REMOVE_HEAD_LIST(&netDevice->ReceivePacketList);
+ 		netvscPacket = CONTAINING_RECORD(entry, NETVSC_PACKET, ListEntry);
+ 
+-		MemFree(netvscPacket);
++		kfree(netvscPacket);
+ 	}
+ 
+ 	SpinlockClose(netDevice->ReceivePacketListLock);
+@@ -1456,7 +1456,7 @@ NetVscOnChannelCallback(
+ 				// reset
+ 				if (bufferlen > netPacketSize)
+ 				{
+-					MemFree(buffer);
++					kfree(buffer);
+ 
+ 					buffer = packet;
+ 					bufferlen = netPacketSize;
+@@ -1469,7 +1469,7 @@ NetVscOnChannelCallback(
+ 				// reset
+ 				if (bufferlen > netPacketSize)
+ 				{
+-					MemFree(buffer);
++					kfree(buffer);
+ 
+ 					buffer = packet;
+ 					bufferlen = netPacketSize;
+--- a/drivers/staging/hv/osd.c
++++ b/drivers/staging/hv/osd.c
+@@ -189,11 +189,6 @@ void PageUnmapVirtualAddress(void* VirtA
+ 	kunmap_atomic(VirtAddr, KM_IRQ0);
+ }
+ 
+-void MemFree(void* buf)
+-{
+-	kfree(buf);
+-}
+-
+ void *MemMapIO(unsigned long phys, unsigned long size)
+ {
+ #if X2V_LINUX
+--- a/drivers/staging/hv/RndisFilter.c
++++ b/drivers/staging/hv/RndisFilter.c
+@@ -219,7 +219,7 @@ static inline RNDIS_DEVICE* GetRndisDevi
+ 	device->RequestLock = SpinlockCreate();
+ 	if (!device->RequestLock)
+ 	{
+-		MemFree(device);
++		kfree(device);
+ 		return NULL;
+ 	}
+ 
+@@ -233,7 +233,7 @@ static inline RNDIS_DEVICE* GetRndisDevi
+ static inline void PutRndisDevice(RNDIS_DEVICE *Device)
+ {
+ 	SpinlockClose(Device->RequestLock);
+-	MemFree(Device);
++	kfree(Device);
+ }
+ 
+ static inline RNDIS_REQUEST* GetRndisRequest(RNDIS_DEVICE *Device, u32 MessageType, u32 MessageLength)
+@@ -251,7 +251,7 @@ static inline RNDIS_REQUEST* GetRndisReq
+ 	request->WaitEvent = WaitEventCreate();
+ 	if (!request->WaitEvent)
+ 	{
+-		MemFree(request);
++		kfree(request);
+ 		return NULL;
+ 	}
+ 
+@@ -279,7 +279,7 @@ static inline void PutRndisRequest(RNDIS
+ 	SpinlockRelease(Device->RequestLock);
+ 
+ 	WaitEventClose(Request->WaitEvent);
+-	MemFree(Request);
++	kfree(Request);
+ }
+ 
+ static inline void DumpRndisMessage(RNDIS_MESSAGE *RndisMessage)
+--- a/drivers/staging/hv/StorVsc.c
++++ b/drivers/staging/hv/StorVsc.c
+@@ -164,7 +164,7 @@ static inline STORVSC_DEVICE* AllocStorD
+ static inline void FreeStorDevice(STORVSC_DEVICE *Device)
+ {
+ 	ASSERT(Device->RefCount == 0);
+-	MemFree(Device);
++	kfree(Device);
+ }
+ 
+ // Get the stordevice object iff exists and its refcount > 1
