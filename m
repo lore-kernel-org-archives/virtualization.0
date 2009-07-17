@@ -1,13 +1,15 @@
 From: Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [patch 53/54] Staging: hv: fix up printk warnings
-Date: Fri, 17 Jul 2009 11:09:43 -0700
-Message-ID: <20090717180924.505534401@mini.kroah.org>
+Subject: [patch 12/54] Staging: hv: add the Hyper-V virtual scsi driver to the
+	build
+Date: Fri, 17 Jul 2009 11:09:02 -0700
+Message-ID: <20090717180917.788904562@mini.kroah.org>
 References: <20090717180850.873962925@mini.kroah.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline; filename=staging-hv-fix-up-printk-warnings.patch
+Content-Disposition: inline;
+	filename=staging-hv-add-the-hyper-v-virtual-scsi-driver-to-the-build.patch
 In-Reply-To: <20090720160025.GA20249@kroah.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,179 +20,40 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org, devel@driverdev.osuosl.org, virtualization@lists.osdl.org
+To: linux-kernel@vger.kernel.org, devel@driverdev.osuosl.org, virtualization@lists.osdl.org, Greg KH <greg@kroah.com>
 Cc: Sam Ramji <sramji@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Hank Janssen <hjanssen@microsoft.com>, shemminger@linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
 From: Greg Kroah-Hartman <gregkh@suse.de>
 
-After LogMsg was converted to printk, lots of build warnings showed up
-as no one was checking the arguments to LogMsg.  This patch fixes them
-all.
+Add the Hyper-V virtual scsi driver to the kernel build system.
 
 Cc: Hank Janssen <hjanssen@microsoft.com>
 Cc: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
----
- drivers/staging/hv/Hv.c          |    6 +++---
- drivers/staging/hv/StorVsc.c     |   16 ++++++++--------
- drivers/staging/hv/blkvsc_drv.c  |   12 ++++++------
- drivers/staging/hv/storvsc_drv.c |    2 +-
- 4 files changed, 18 insertions(+), 18 deletions(-)
 
---- a/drivers/staging/hv/blkvsc_drv.c
-+++ b/drivers/staging/hv/blkvsc_drv.c
-@@ -918,7 +918,7 @@ static int blkvsc_submit_request(struct 
+---
+ drivers/staging/hv/Kconfig  |    6 ++++++
+ drivers/staging/hv/Makefile |    2 ++
+ 2 files changed, 8 insertions(+)
+
+--- a/drivers/staging/hv/Kconfig
++++ b/drivers/staging/hv/Kconfig
+@@ -6,3 +6,9 @@ config HYPERV
+ 	  Select this option to run Linux as a Hyper-V client operating
+ 	  system.
  
- 	STORVSC_REQUEST *storvsc_req;
++config HYPERV_STORAGE
++	tristate "Microsoft Hyper-V virtual storage driver"
++	depends on SCSI
++	default n
++	help
++	 Select this option to enable the Hyper-V virtual storage driver.
+--- a/drivers/staging/hv/Makefile
++++ b/drivers/staging/hv/Makefile
+@@ -1,3 +1,5 @@
+ obj-$(CONFIG_HYPERV)		+= hv_vmbus.o
++obj-$(CONFIG_HYPERV_STORAGE)	+= hv_storvsc.o
  
--	DPRINT_DBG(BLKVSC_DRV, "blkvsc_submit_request() - req %p type %s start_sector %llu count %d offset %d len %d\n",
-+	DPRINT_DBG(BLKVSC_DRV, "blkvsc_submit_request() - req %p type %s start_sector %llu count %ld offset %d len %d\n",
- 		blkvsc_req,
- 		(blkvsc_req->write)?"WRITE":"READ",
- 		blkvsc_req->sector_start,
-@@ -1087,7 +1087,7 @@ static int blkvsc_do_request(struct bloc
- 	{
- 		if (pending)
- 		{
--			DPRINT_DBG(BLKVSC_DRV, "adding blkvsc_req to pending_list - blkvsc_req %p start_sect %llu sect_count %d (%llu %d)\n",
-+			DPRINT_DBG(BLKVSC_DRV, "adding blkvsc_req to pending_list - blkvsc_req %p start_sect %llu sect_count %ld (%llu %ld)\n",
- 				blkvsc_req, blkvsc_req->sector_start, blkvsc_req->sector_count, start_sector, num_sectors);
- 
- 			list_add_tail(&blkvsc_req->pend_entry, &blkdev->pending_list);
-@@ -1101,7 +1101,7 @@ static int blkvsc_do_request(struct bloc
- 				list_add_tail(&blkvsc_req->pend_entry, &blkdev->pending_list);
- 			}
- 
--			DPRINT_DBG(BLKVSC_DRV, "submitted blkvsc_req %p start_sect %llu sect_count %d (%llu %d) ret %d\n",
-+			DPRINT_DBG(BLKVSC_DRV, "submitted blkvsc_req %p start_sect %llu sect_count %ld (%llu %ld) ret %d\n",
- 				blkvsc_req, blkvsc_req->sector_start, blkvsc_req->sector_count, start_sector, num_sectors, ret);
- 		}
- 	}
-@@ -1141,7 +1141,7 @@ static void blkvsc_request_completion(ST
- 
- 	ASSERT(blkvsc_req->group);
- 
--	DPRINT_DBG(BLKVSC_DRV, "blkdev %p blkvsc_req %p group %p type %s sect_start %llu sect_count %d len %d group outstd %d total outstd %d\n",
-+	DPRINT_DBG(BLKVSC_DRV, "blkdev %p blkvsc_req %p group %p type %s sect_start %llu sect_count %ld len %d group outstd %d total outstd %d\n",
- 		blkdev,
- 		blkvsc_req,
- 		blkvsc_req->group,
-@@ -1163,7 +1163,7 @@ static void blkvsc_request_completion(ST
- 	{
- 		list_for_each_entry_safe(comp_req, tmp, &blkvsc_req->group->blkvsc_req_list, req_entry)
- 		{
--			DPRINT_DBG(BLKVSC_DRV, "completing blkvsc_req %p sect_start %llu sect_count %d \n",
-+			DPRINT_DBG(BLKVSC_DRV, "completing blkvsc_req %p sect_start %llu sect_count %ld \n",
- 				comp_req,
- 				comp_req->sector_start,
- 				comp_req->sector_count);
-@@ -1222,7 +1222,7 @@ static int blkvsc_cancel_pending_reqs(st
- 		// until we hit the pend_req
- 		list_for_each_entry_safe(comp_req, tmp2, &pend_req->group->blkvsc_req_list, req_entry)
- 		{
--			DPRINT_DBG(BLKVSC_DRV, "completing blkvsc_req %p sect_start %llu sect_count %d \n",
-+			DPRINT_DBG(BLKVSC_DRV, "completing blkvsc_req %p sect_start %llu sect_count %ld \n",
- 				comp_req,
- 				comp_req->sector_start,
- 				comp_req->sector_count);
---- a/drivers/staging/hv/Hv.c
-+++ b/drivers/staging/hv/Hv.c
-@@ -300,9 +300,9 @@ HvInit (
- 		goto Cleanup;
- 	}
- 
--    DPRINT_INFO(VMBUS, "Hypercall page VA=0x%08x, PA=0x%08x",
--               (unsigned long)gHvContext.HypercallPage,
--               (unsigned long)hypercallMsr.GuestPhysicalAddress << PAGE_SHIFT);
-+	DPRINT_INFO(VMBUS, "Hypercall page VA=%p, PA=0x%0llx",
-+		    gHvContext.HypercallPage,
-+		    (u64)hypercallMsr.GuestPhysicalAddress << PAGE_SHIFT);
- 
- 	// Setup the global signal event param for the signal event hypercall
- 	gHvContext.SignalEventBuffer = kmalloc(sizeof(HV_INPUT_SIGNAL_EVENT_BUFFER), GFP_KERNEL);
---- a/drivers/staging/hv/StorVsc.c
-+++ b/drivers/staging/hv/StorVsc.c
-@@ -348,7 +348,7 @@ StorVscOnDeviceAdd(
- 	deviceInfo->PathId = storDevice->PathId;
- 	deviceInfo->TargetId = storDevice->TargetId;
- 
--	DPRINT_DBG(STORVSC, "assigned port %u, path %u target %u\n", storDevice->PortNumber, storDevice->PathId, storDevice->TargetId);
-+	DPRINT_DBG(STORVSC, "assigned port %lu, path %u target %u\n", storDevice->PortNumber, storDevice->PathId, storDevice->TargetId);
- 
- Cleanup:
- 	DPRINT_EXIT(STORVSC);
-@@ -404,7 +404,7 @@ static int StorVscChannelInit(DEVICE_OBJ
- 
- 	if (vstorPacket->Operation != VStorOperationCompleteIo || vstorPacket->Status != 0)
- 	{
--		DPRINT_ERR(STORVSC, "BEGIN_INITIALIZATION_OPERATION failed (op %d status 0x%x)", vstorPacket->Operation, vstorPacket->Status);
-+		DPRINT_ERR(STORVSC, "BEGIN_INITIALIZATION_OPERATION failed (op %d status 0x%lx)", vstorPacket->Operation, vstorPacket->Status);
- 		goto Cleanup;
- 	}
- 
-@@ -435,7 +435,7 @@ static int StorVscChannelInit(DEVICE_OBJ
- 	// TODO: Check returned version
- 	if (vstorPacket->Operation != VStorOperationCompleteIo || vstorPacket->Status != 0)
- 	{
--		DPRINT_ERR(STORVSC, "QUERY_PROTOCOL_VERSION_OPERATION failed (op %d status 0x%x)", vstorPacket->Operation, vstorPacket->Status);
-+		DPRINT_ERR(STORVSC, "QUERY_PROTOCOL_VERSION_OPERATION failed (op %d status 0x%lx)", vstorPacket->Operation, vstorPacket->Status);
- 		goto Cleanup;
- 	}
- 
-@@ -465,7 +465,7 @@ static int StorVscChannelInit(DEVICE_OBJ
- 	// TODO: Check returned version
- 	if (vstorPacket->Operation != VStorOperationCompleteIo || vstorPacket->Status != 0)
- 	{
--		DPRINT_ERR(STORVSC, "QUERY_PROPERTIES_OPERATION failed (op %d status 0x%x)", vstorPacket->Operation, vstorPacket->Status);
-+		DPRINT_ERR(STORVSC, "QUERY_PROPERTIES_OPERATION failed (op %d status 0x%lx)", vstorPacket->Operation, vstorPacket->Status);
- 		goto Cleanup;
- 	}
- 
-@@ -473,7 +473,7 @@ static int StorVscChannelInit(DEVICE_OBJ
- 	storDevice->PathId = vstorPacket->StorageChannelProperties.PathId;
- 	storDevice->TargetId = vstorPacket->StorageChannelProperties.TargetId;
- 
--	DPRINT_DBG(STORVSC, "channel flag 0x%x, max xfer len 0x%x", vstorPacket->StorageChannelProperties.Flags, vstorPacket->StorageChannelProperties.MaxTransferBytes);
-+	DPRINT_DBG(STORVSC, "channel flag 0x%lx, max xfer len 0x%lx", vstorPacket->StorageChannelProperties.Flags, vstorPacket->StorageChannelProperties.MaxTransferBytes);
- 
- 	DPRINT_INFO(STORVSC, "END_INITIALIZATION_OPERATION...");
- 
-@@ -498,7 +498,7 @@ static int StorVscChannelInit(DEVICE_OBJ
- 
- 	if (vstorPacket->Operation != VStorOperationCompleteIo || vstorPacket->Status != 0)
- 	{
--		DPRINT_ERR(STORVSC, "END_INITIALIZATION_OPERATION failed (op %d status 0x%x)", vstorPacket->Operation, vstorPacket->Status);
-+		DPRINT_ERR(STORVSC, "END_INITIALIZATION_OPERATION failed (op %d status 0x%lx)", vstorPacket->Operation, vstorPacket->Status);
- 		goto Cleanup;
- 	}
- 
-@@ -540,7 +540,7 @@ StorVscConnectToVsp(
- 		Device
- 		);
- 
--	DPRINT_DBG(STORVSC, "storage props: path id %d, tgt id %d, max xfer %d", props.PathId, props.TargetId, props.MaxTransferBytes);
-+	DPRINT_DBG(STORVSC, "storage props: path id %d, tgt id %d, max xfer %ld", props.PathId, props.TargetId, props.MaxTransferBytes);
- 
- 	if (ret != 0)
- 	{
-@@ -819,7 +819,7 @@ StorVscOnIOCompletion(
- 		return;
- 	}
- 
--	DPRINT_DBG(STORVSC, "IO_COMPLETE_OPERATION - request extension %p completed bytes xfer %u",
-+	DPRINT_DBG(STORVSC, "IO_COMPLETE_OPERATION - request extension %p completed bytes xfer %lu",
- 		RequestExt, VStorPacket->VmSrb.DataTransferLength);
- 
- 	ASSERT(RequestExt != NULL);
---- a/drivers/staging/hv/storvsc_drv.c
-+++ b/drivers/staging/hv/storvsc_drv.c
-@@ -1054,7 +1054,7 @@ static int storvsc_device_configure(stru
- 	DPRINT_INFO(STORVSC_DRV, "sdev (%p) - setting queue depth to %d", sdevice, STORVSC_MAX_IO_REQUESTS);
- 	scsi_adjust_queue_depth(sdevice, MSG_SIMPLE_TAG, STORVSC_MAX_IO_REQUESTS);
- 
--	DPRINT_INFO(STORVSC_DRV, "sdev (%p) - setting max segment size to %d", sdevice, PAGE_SIZE);
-+	DPRINT_INFO(STORVSC_DRV, "sdev (%p) - setting max segment size to %ld", sdevice, PAGE_SIZE);
- 	blk_queue_max_segment_size(sdevice->request_queue, PAGE_SIZE);
- 
- 	DPRINT_INFO(STORVSC_DRV, "sdev (%p) - adding merge bio vec routine", sdevice);
+ hv_vmbus-objs := vmbus_drv.o osd.o Sources.o
++hv_storvsc-objs := storvsc_drv.o osd.o StorVsc.o
