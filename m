@@ -1,14 +1,14 @@
 From: Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [patch 40/54] Staging: hv: osd: remove MemAllocAtomic wrapper
-Date: Fri, 17 Jul 2009 11:09:30 -0700
-Message-ID: <20090717180922.419965495@mini.kroah.org>
+Subject: [patch 31/54] Staging: hv: remove #defines from osd.c
+Date: Fri, 17 Jul 2009 11:09:21 -0700
+Message-ID: <20090717180920.969888881@mini.kroah.org>
 References: <20090717180850.873962925@mini.kroah.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline;
-	filename=staging-hv-osd-remove-memallocatomic-wrapper.patch
+	filename=staging-hv-remove-defines-from-osd.c.patch
 In-Reply-To: <20090720160025.GA20249@kroah.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -25,91 +25,117 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Greg Kroah-Hartman <gregkh@suse.de>
 
-Use the "real" kmalloc call instead of a wrapper function.
+Remove the unneeded #defines from osd.c
 
 Cc: Hank Janssen <hjanssen@microsoft.com>
 Cc: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 ---
- drivers/staging/hv/ChannelMgmt.c |    3 +--
- drivers/staging/hv/Hv.c          |    2 +-
- drivers/staging/hv/NetVsc.c      |    2 +-
- drivers/staging/hv/Vmbus.c       |    2 +-
- drivers/staging/hv/include/osd.h |    1 -
- drivers/staging/hv/osd.c         |    5 -----
- 6 files changed, 4 insertions(+), 11 deletions(-)
+ drivers/staging/hv/osd.c |   42 ------------------------------------------
+ 1 file changed, 42 deletions(-)
 
---- a/drivers/staging/hv/ChannelMgmt.c
-+++ b/drivers/staging/hv/ChannelMgmt.c
-@@ -143,13 +143,12 @@ VMBUS_CHANNEL* AllocVmbusChannel(void)
- {
- 	VMBUS_CHANNEL* channel;
- 
--	channel = (VMBUS_CHANNEL*) MemAllocAtomic(sizeof(VMBUS_CHANNEL));
-+	channel = kzalloc(sizeof(VMBUS_CHANNEL), GFP_ATOMIC);
- 	if (!channel)
- 	{
- 		return NULL;
- 	}
- 
--	memset(channel, 0,sizeof(VMBUS_CHANNEL));
- 	channel->InboundLock = SpinlockCreate();
- 	if (!channel->InboundLock)
- 	{
---- a/drivers/staging/hv/Hv.c
-+++ b/drivers/staging/hv/Hv.c
-@@ -414,7 +414,7 @@ HvPostMessage(
- 		return -1;
- 	}
- 
--	addr = (unsigned long)MemAllocAtomic(sizeof(struct alignedInput));
-+	addr = (unsigned long)kmalloc(sizeof(struct alignedInput), GFP_ATOMIC);
- 
- 	if (!addr)
- 	{
---- a/drivers/staging/hv/include/osd.h
-+++ b/drivers/staging/hv/include/osd.h
-@@ -121,7 +121,6 @@ extern void PageFree(void* page, unsigne
- extern void* MemMapIO(unsigned long phys, unsigned long size);
- extern void MemUnmapIO(void* virt);
- 
--extern void* MemAllocAtomic(unsigned int size);
- extern void MemFree(void* buf);
- extern void MemoryFence(void);
- 
---- a/drivers/staging/hv/NetVsc.c
-+++ b/drivers/staging/hv/NetVsc.c
-@@ -1480,7 +1480,7 @@ NetVscOnChannelCallback(
- 		}
- 		else if (ret == -2) // Handle large packet
- 		{
--			buffer = MemAllocAtomic(bytesRecvd);
-+			buffer = kmalloc(bytesRecvd, GFP_ATOMIC);
- 			if (buffer == NULL)
- 			{
- 				// Try again next time around
 --- a/drivers/staging/hv/osd.c
 +++ b/drivers/staging/hv/osd.c
-@@ -189,11 +189,6 @@ void PageUnmapVirtualAddress(void* VirtA
- 	kunmap_atomic(VirtAddr, KM_IRQ0);
+@@ -21,15 +21,12 @@
+  *
+  */
+ 
+-#define KERNEL_2_6_27
+-
+ #include <linux/module.h>
+ #include <linux/init.h>
+ #include <linux/types.h>
+ #include <linux/mm.h>
+ #include <linux/highmem.h>
+ #include <linux/vmalloc.h>
+-//#include <linux/config.h>
+ #include <linux/ioport.h>
+ #include <linux/irq.h>
+ #include <linux/interrupt.h>
+@@ -86,20 +83,11 @@ typedef struct _WORKITEM {
+ 
+ void LogMsg(const char *fmt, ...)
+ {
+-#ifdef KERNEL_2_6_5
+-	char buf[1024];
+-#endif
+ 	va_list args;
+ 
+ 	va_start(args, fmt);
+-#ifdef KERNEL_2_6_5
+-	vsnprintf(buf, 1024, fmt, args);
+-	va_end(args);
+-	printk(buf);
+-#else
+ 	vprintk(fmt, args);
+ 	va_end(args);
+-#endif
  }
  
--void* MemAllocAtomic(unsigned int size)
--{
--	return kmalloc(size, GFP_ATOMIC);
--}
--
- void MemFree(void* buf)
+ void BitSet(unsigned int* addr, int bit)
+@@ -130,30 +118,12 @@ int BitTestAndSet(unsigned int* addr, in
+ 
+ int InterlockedIncrement(int *val)
  {
- 	kfree(buf);
---- a/drivers/staging/hv/Vmbus.c
-+++ b/drivers/staging/hv/Vmbus.c
-@@ -411,7 +411,7 @@ VmbusOnMsgDPC(
- 		}
- 		else
- 		{
--			copied = MemAllocAtomic(sizeof(HV_MESSAGE));
-+			copied = kmalloc(sizeof(HV_MESSAGE), GFP_ATOMIC);
- 			if (copied == NULL)
- 			{
- 				continue;
+-#ifdef KERNEL_2_6_5
+-	int i;
+-	local_irq_disable();
+-	i = atomic_read((atomic_t*)val);
+-	atomic_set((atomic_t*)val, i+1);
+-	local_irq_enable();
+-	return i+1;
+-#else
+ 	return atomic_inc_return((atomic_t*)val);
+-#endif
+ }
+ 
+ int InterlockedDecrement(int *val)
+ {
+-#ifdef KERNEL_2_6_5
+-	int i;
+-	local_irq_disable();
+-	i = atomic_read((atomic_t*)val);
+-	atomic_set((atomic_t*)val, i-1);
+-	local_irq_enable();
+-	return i-1;
+-#else
+ 	return atomic_dec_return((atomic_t*)val);
+-#endif
+ }
+ 
+ #ifndef atomic_cmpxchg
+@@ -428,11 +398,7 @@ unsigned long Virtual2Physical(void * Vi
+ 	return pfn << PAGE_SHIFT;
+ }
+ 
+-#ifdef KERNEL_2_6_27
+ void WorkItemCallback(struct work_struct *work)
+-#else
+-void WorkItemCallback(void* work)
+-#endif
+ {
+ 	WORKITEM* w = (WORKITEM*)work;
+ 
+@@ -474,11 +440,7 @@ int WorkQueueQueueWorkItem(HANDLE hWorkQ
+ 
+ 	w->callback = workItem,
+ 	w->context = context;
+-#ifdef KERNEL_2_6_27
+ 	INIT_WORK(&w->work, WorkItemCallback);
+-#else
+-	INIT_WORK(&w->work, WorkItemCallback, w);
+-#endif
+ 	return queue_work(wq->queue, &w->work);
+ }
+ 
+@@ -492,10 +454,6 @@ void QueueWorkItem(PFN_WORKITEM_CALLBACK
+ 
+ 	w->callback = workItem,
+ 	w->context = context;
+-#ifdef KERNEL_2_6_27
+ 	INIT_WORK(&w->work, WorkItemCallback);
+-#else
+-	INIT_WORK(&w->work, WorkItemCallback, w);
+-#endif
+ 	schedule_work(&w->work);
+ }
