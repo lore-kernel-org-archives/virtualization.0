@@ -1,14 +1,14 @@
 From: Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [patch 01/54] Staging: hv: add the Hyper-V api header files
-Date: Fri, 17 Jul 2009 11:08:51 -0700
-Message-ID: <20090717180915.969354509@mini.kroah.org>
+Subject: [patch 04/54] Staging: hv: add the Hyper-V virtual block driver
+Date: Fri, 17 Jul 2009 11:08:54 -0700
+Message-ID: <20090717180916.500738119@mini.kroah.org>
 References: <20090717180850.873962925@mini.kroah.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline;
-	filename=staging-hv-add-the-hyper-v-api-header-files.patch
+	filename=staging-hv-add-the-hyper-v-virtual-block-driver.patch
 In-Reply-To: <20090720160025.GA20249@kroah.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -25,46 +25,20 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Hank Janssen <hjanssen@microsoft.com>
 
-These are the header files for the API to talk to the Hyper-V
-core.
+This is the virtual block driver when running Linux on top of Hyper-V.
 
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 ---
- drivers/staging/hv/include/ChannelMessages.h       |  312 +++++++
- drivers/staging/hv/include/HvHalApi.h              |   32 
- drivers/staging/hv/include/HvHcApi.h               |   60 +
- drivers/staging/hv/include/HvPtApi.h               |   86 ++
- drivers/staging/hv/include/HvStatus.h              |  718 ++++++++++++++++++
- drivers/staging/hv/include/HvSynicApi.h            |  490 ++++++++++++
- drivers/staging/hv/include/HvTypes.h               |   31 
- drivers/staging/hv/include/HvVpApi.h               |   51 +
- drivers/staging/hv/include/List.h                  |  269 ++++++
- drivers/staging/hv/include/VmbusChannelInterface.h |  131 +++
- drivers/staging/hv/include/VmbusPacketFormat.h     |  322 ++++++++
- drivers/staging/hv/include/nvspprotocol.h          |  306 +++++++
- drivers/staging/hv/include/rndis.h                 |  836 +++++++++++++++++++++
- drivers/staging/hv/include/vstorage.h              |  309 +++++++
- 14 files changed, 3953 insertions(+)
- create mode 100644 drivers/staging/hv/include/ChannelMessages.h
- create mode 100644 drivers/staging/hv/include/HvHalApi.h
- create mode 100644 drivers/staging/hv/include/HvHcApi.h
- create mode 100644 drivers/staging/hv/include/HvPtApi.h
- create mode 100644 drivers/staging/hv/include/HvStatus.h
- create mode 100644 drivers/staging/hv/include/HvSynicApi.h
- create mode 100644 drivers/staging/hv/include/HvTypes.h
- create mode 100644 drivers/staging/hv/include/HvVpApi.h
- create mode 100644 drivers/staging/hv/include/List.h
- create mode 100644 drivers/staging/hv/include/VmbusChannelInterface.h
- create mode 100644 drivers/staging/hv/include/VmbusPacketFormat.h
- create mode 100644 drivers/staging/hv/include/nvspprotocol.h
- create mode 100644 drivers/staging/hv/include/rndis.h
- create mode 100644 drivers/staging/hv/include/vstorage.h
+ drivers/staging/hv/BlkVsc.c     |  107 ++
+ drivers/staging/hv/blkvsc_drv.c | 1547 ++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 1654 insertions(+)
+ create mode 100644 drivers/staging/hv/blkvsc.c
 
 --- /dev/null
-+++ b/drivers/staging/hv/include/ChannelMessages.h
-@@ -0,0 +1,312 @@
++++ b/drivers/staging/hv/BlkVsc.c
+@@ -0,0 +1,107 @@
 +/*
 + *
 + * Copyright (c) 2009, Microsoft Corporation.
@@ -83,3977 +57,1642 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 + * Place - Suite 330, Boston, MA 02111-1307 USA.
 + *
 + * Authors:
-+ *   Haiyang Zhang <haiyangz@microsoft.com>
 + *   Hank Janssen  <hjanssen@microsoft.com>
 + *
 + */
 +
 +
-+#pragma once
++#include "../storvsc/StorVsc.c"
 +
-+#include <VmbusPacketFormat.h>
++static const char* gBlkDriverName="blkvsc";
 +
-+#define C_ASSERT(x)
-+typedef UINT32 NTSTATUS;
++//{32412632-86cb-44a2-9b5c-50d1417354f5}
++static const GUID gBlkVscDeviceType={
++	.Data = {0x32, 0x26, 0x41, 0x32, 0xcb, 0x86, 0xa2, 0x44, 0x9b, 0x5c, 0x50, 0xd1, 0x41, 0x73, 0x54, 0xf5}
++};
 +
-+#pragma pack(push,1)
++// Static routines
++static int
++BlkVscOnDeviceAdd(
++	DEVICE_OBJECT	*Device,
++	void			*AdditionalInfo
++	);
 +
-+//
-+// Version 1 messages
-+//
 +
-+typedef enum _VMBUS_CHANNEL_MESSAGE_TYPE
++int
++BlkVscInitialize(
++	DRIVER_OBJECT *Driver
++	)
 +{
-+    ChannelMessageInvalid                   =  0,
-+    ChannelMessageOfferChannel              =  1,
-+    ChannelMessageRescindChannelOffer       =  2,
-+    ChannelMessageRequestOffers             =  3,
-+    ChannelMessageAllOffersDelivered        =  4,
-+    ChannelMessageOpenChannel               =  5,
-+    ChannelMessageOpenChannelResult         =  6,
-+    ChannelMessageCloseChannel              =  7,
-+    ChannelMessageGpadlHeader               =  8,
-+    ChannelMessageGpadlBody                 =  9,
-+    ChannelMessageGpadlCreated              = 10,
-+    ChannelMessageGpadlTeardown             = 11,
-+    ChannelMessageGpadlTorndown             = 12,
-+    ChannelMessageRelIdReleased             = 13,
-+    ChannelMessageInitiateContact           = 14,
-+    ChannelMessageVersionResponse           = 15,
-+    ChannelMessageUnload                    = 16,
-+#ifdef VMBUS_FEATURE_PARENT_OR_PEER_MEMORY_MAPPED_INTO_A_CHILD
-+    ChannelMessageViewRangeAdd              = 17,
-+    ChannelMessageViewRangeRemove           = 18,
++	STORVSC_DRIVER_OBJECT* storDriver = (STORVSC_DRIVER_OBJECT*)Driver;
++	int ret=0;
++
++	DPRINT_ENTER(BLKVSC);
++
++	// Make sure we are at least 2 pages since 1 page is used for control
++	ASSERT(storDriver->RingBufferSize >= (PAGE_SIZE << 1));
++
++	Driver->name = gBlkDriverName;
++	memcpy(&Driver->deviceType, &gBlkVscDeviceType, sizeof(GUID));
++
++	storDriver->RequestExtSize			= sizeof(STORVSC_REQUEST_EXTENSION);
++	// Divide the ring buffer data size (which is 1 page less than the ring buffer size since that page is reserved for the ring buffer indices)
++	// by the max request size (which is VMBUS_CHANNEL_PACKET_MULITPAGE_BUFFER + VSTOR_PACKET + UINT64)
++	storDriver->MaxOutstandingRequestsPerChannel =
++		((storDriver->RingBufferSize - PAGE_SIZE) / ALIGN_UP(MAX_MULTIPAGE_BUFFER_PACKET + sizeof(VSTOR_PACKET) + sizeof(UINT64),sizeof(UINT64)));
++
++	DPRINT_INFO(BLKVSC, "max io outstd %u", storDriver->MaxOutstandingRequestsPerChannel);
++
++	// Setup the dispatch table
++	storDriver->Base.OnDeviceAdd		= BlkVscOnDeviceAdd;
++	storDriver->Base.OnDeviceRemove		= StorVscOnDeviceRemove;
++	storDriver->Base.OnCleanup			= StorVscOnCleanup;
++
++	storDriver->OnIORequest				= StorVscOnIORequest;
++
++	DPRINT_EXIT(BLKVSC);
++
++	return ret;
++}
++
++int
++BlkVscOnDeviceAdd(
++	DEVICE_OBJECT	*Device,
++	void			*AdditionalInfo
++	)
++{
++	int ret=0;
++	STORVSC_DEVICE_INFO *deviceInfo = (STORVSC_DEVICE_INFO*)AdditionalInfo;
++
++	DPRINT_ENTER(BLKVSC);
++
++	ret = StorVscOnDeviceAdd(Device, AdditionalInfo);
++
++	if (ret != 0)
++	{
++		DPRINT_EXIT(BLKVSC);
++
++		return ret;
++	}
++
++	// We need to use the device instance guid to set the path and target id. For IDE devices, the
++	// device instance id is formatted as <bus id> - <device id> - 8899 - 000000000000.
++	deviceInfo->PathId = Device->deviceInstance.Data[3] << 24 | Device->deviceInstance.Data[2] << 16 |
++		Device->deviceInstance.Data[1] << 8 |Device->deviceInstance.Data[0];
++
++	deviceInfo->TargetId = Device->deviceInstance.Data[5] << 8 | Device->deviceInstance.Data[4];
++
++	DPRINT_EXIT(BLKVSC);
++
++	return ret;
++}
+--- /dev/null
++++ b/drivers/staging/hv/blkvsc_drv.c
+@@ -0,0 +1,1547 @@
++/*
++ *
++ * Copyright (c) 2009, Microsoft Corporation.
++ *
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms and conditions of the GNU General Public License,
++ * version 2, as published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope it will be useful, but WITHOUT
++ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
++ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
++ * more details.
++ *
++ * You should have received a copy of the GNU General Public License along with
++ * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
++ * Place - Suite 330, Boston, MA 02111-1307 USA.
++ *
++ * Authors:
++ *   Hank Janssen  <hjanssen@microsoft.com>
++ *
++ */
++
++
++#include <linux/init.h>
++#include <linux/module.h>
++#include <linux/device.h>
++#include <linux/blkdev.h>
++#include <linux/major.h>
++#include <linux/delay.h>
++#include <linux/hdreg.h>
++
++#include <scsi/scsi.h>
++#include <scsi/scsi_cmnd.h>
++#include <scsi/scsi_eh.h>
++#include <scsi/scsi_dbg.h>
++
++#include "logging.h"
++#include "vmbus.h"
++
++#include "StorVscApi.h"
++
++//
++// #defines
++//
++#define BLKVSC_MINORS	64
++
++//
++// Data types
++//
++enum blkvsc_device_type {
++	UNKNOWN_DEV_TYPE,
++	HARDDISK_TYPE,
++	DVD_TYPE,
++};
++
++// This request ties the struct request and struct blkvsc_request/STORVSC_REQUEST together
++// A struct request may be represented by 1 or more struct blkvsc_request
++struct blkvsc_request_group {
++	int					outstanding;
++	int					status;
++
++	struct list_head	blkvsc_req_list;	// list of blkvsc_requests
++};
++
++
++struct blkvsc_request {
++	struct list_head	req_entry;			// blkvsc_request_group.blkvsc_req_list
++
++	struct list_head	pend_entry;			// block_device_context.pending_list
++
++	struct request		*req;				// This may be null if we generate a request internally
++	struct block_device_context	*dev;
++	struct blkvsc_request_group	*group;		// The group this request is part of. Maybe null
++
++	wait_queue_head_t	wevent;
++	int cond;
++
++	int					write;
++	sector_t			sector_start;
++	unsigned long		sector_count;
++
++	unsigned char sense_buffer[SCSI_SENSE_BUFFERSIZE];
++	unsigned char cmd_len;
++	unsigned char cmnd[MAX_COMMAND_SIZE];
++
++	STORVSC_REQUEST		request;
++	// !!!DO NOT ADD ANYTHING BELOW HERE!!! Otherwise, memory can overlap, because -
++	// The extension buffer falls right here and is pointed to by request.Extension;
++};
++
++// Per device structure
++struct block_device_context {
++	struct device_context	*device_ctx; // point back to our device context
++	struct kmem_cache	*request_pool;
++	spinlock_t				lock;
++	struct gendisk			*gd;
++	enum blkvsc_device_type	device_type;
++	struct list_head		pending_list;
++
++	unsigned char			device_id[64];
++	unsigned int			device_id_len;
++	int						num_outstanding_reqs;
++	int						shutting_down;
++	int						media_not_present;
++	unsigned int			sector_size;
++	sector_t				capacity;
++	unsigned int			port;
++	unsigned char			path;
++	unsigned char			target;
++	int						users;
++};
++
++// Per driver
++struct blkvsc_driver_context {
++	// !! These must be the first 2 fields !!
++	struct driver_context	drv_ctx;
++	STORVSC_DRIVER_OBJECT	drv_obj;
++};
++
++// Static decl
++static int blkvsc_probe(struct device *dev);
++static int blkvsc_remove(struct device *device);
++static void blkvsc_shutdown(struct device *device);
++
++static int blkvsc_open(struct inode *inode, struct file *filep);
++static int blkvsc_release(struct inode *inode, struct file *filep);
++static int blkvsc_media_changed(struct gendisk *gd);
++static int blkvsc_revalidate_disk(struct gendisk *gd);
++static int blkvsc_getgeo(struct block_device *bd, struct hd_geometry *hg);
++static int blkvsc_ioctl(struct inode *inode, struct file *filep, unsigned cmd, unsigned long arg);
++
++static void blkvsc_request(struct request_queue *queue);
++static void blkvsc_request_completion(STORVSC_REQUEST* request);
++static int blkvsc_do_request(struct block_device_context *blkdev, struct request *req);
++static int blkvsc_submit_request(struct blkvsc_request *blkvsc_req, void (*request_completion)(STORVSC_REQUEST*) );
++static void blkvsc_init_rw(struct blkvsc_request *blkvsc_req);
++static void blkvsc_cmd_completion(STORVSC_REQUEST* request);
++static int blkvsc_do_inquiry(struct block_device_context *blkdev);
++static int blkvsc_do_read_capacity(struct block_device_context *blkdev);
++static int blkvsc_do_read_capacity16(struct block_device_context *blkdev);
++static int blkvsc_do_flush(struct block_device_context *blkdev);
++static int blkvsc_cancel_pending_reqs(struct block_device_context *blkdev);
++static int blkvsc_do_pending_reqs(struct block_device_context *blkdev);
++
++
++static int blkvsc_ringbuffer_size = BLKVSC_RING_BUFFER_SIZE;
++
++// The one and only one
++static struct blkvsc_driver_context g_blkvsc_drv;
++
++
++static struct block_device_operations block_ops =
++{
++	.owner = THIS_MODULE,
++	.open = blkvsc_open,
++	.release = blkvsc_release,
++	.media_changed = blkvsc_media_changed,
++	.revalidate_disk = blkvsc_revalidate_disk,
++	.getgeo = blkvsc_getgeo,
++	.ioctl  = blkvsc_ioctl,
++};
++
++/*++
++
++Name:	blkvsc_drv_init()
++
++Desc:	BlkVsc driver initialization.
++
++--*/
++int blkvsc_drv_init(PFN_DRIVERINITIALIZE pfn_drv_init)
++{
++	int ret=0;
++	STORVSC_DRIVER_OBJECT *storvsc_drv_obj=&g_blkvsc_drv.drv_obj;
++	struct driver_context *drv_ctx=&g_blkvsc_drv.drv_ctx;
++
++	DPRINT_ENTER(BLKVSC_DRV);
++
++	vmbus_get_interface(&storvsc_drv_obj->Base.VmbusChannelInterface);
++
++	storvsc_drv_obj->RingBufferSize = blkvsc_ringbuffer_size;
++
++	// Callback to client driver to complete the initialization
++	pfn_drv_init(&storvsc_drv_obj->Base);
++
++	drv_ctx->driver.name = storvsc_drv_obj->Base.name;
++	memcpy(&drv_ctx->class_id, &storvsc_drv_obj->Base.deviceType, sizeof(GUID));
++
++#if defined(KERNEL_2_6_5) || defined(KERNEL_2_6_9)
++	drv_ctx->driver.probe = blkvsc_probe;
++	drv_ctx->driver.remove = blkvsc_remove;
++#else
++	drv_ctx->probe = blkvsc_probe;
++	drv_ctx->remove = blkvsc_remove;
++	drv_ctx->shutdown = blkvsc_shutdown;
 +#endif
-+    ChannelMessageCount
-+} VMBUS_CHANNEL_MESSAGE_TYPE, *PVMBUS_CHANNEL_MESSAGE_TYPE;
 +
-+// begin_wpp config
-+// CUSTOM_TYPE(ChannelMessageType, ItemEnum(_VMBUS_CHANNEL_MESSAGE_TYPE));
-+// end_wpp
++	// The driver belongs to vmbus
++	vmbus_child_driver_register(drv_ctx);
 +
-+typedef struct _VMBUS_CHANNEL_MESSAGE_HEADER
++	DPRINT_EXIT(BLKVSC_DRV);
++
++	return ret;
++}
++
++
++static int blkvsc_drv_exit_cb(struct device *dev, void *data)
 +{
-+    VMBUS_CHANNEL_MESSAGE_TYPE  MessageType;
-+    UINT32                      Padding;
-+} VMBUS_CHANNEL_MESSAGE_HEADER, *PVMBUS_CHANNEL_MESSAGE_HEADER;
++	struct device **curr = (struct device **)data;
++	*curr = dev;
++	return 1; // stop iterating
++}
 +
-+// Query VMBus Version parameters
-+typedef struct _VMBUS_CHANNEL_QUERY_VMBUS_VERSION
++/*++
++
++Name:	blkvsc_drv_exit()
++
++Desc:
++
++--*/
++void blkvsc_drv_exit(void)
 +{
-+    VMBUS_CHANNEL_MESSAGE_HEADER Header;
-+    UINT32 Version;
-+} VMBUS_CHANNEL_QUERY_VMBUS_VERSION, *PVMBUS_CHANNEL_QUERY_VMBUS_VERSION;
++	STORVSC_DRIVER_OBJECT *storvsc_drv_obj=&g_blkvsc_drv.drv_obj;
++	struct driver_context *drv_ctx=&g_blkvsc_drv.drv_ctx;
 +
-+// VMBus Version Supported parameters
-+typedef struct _VMBUS_CHANNEL_VERSION_SUPPORTED
++	struct device *current_dev=NULL;
++
++#if defined(KERNEL_2_6_5) || defined(KERNEL_2_6_9)
++#define driver_for_each_device(drv, start, data, fn) \
++	struct list_head *ptr, *n; \
++	list_for_each_safe(ptr, n, &((drv)->devices)) {\
++		struct device *curr_dev;\
++		curr_dev = list_entry(ptr, struct device, driver_list);\
++		fn(curr_dev, data);\
++	}
++#endif // KERNEL_2_6_9
++
++	DPRINT_ENTER(BLKVSC_DRV);
++
++	while (1)
++	{
++		current_dev = NULL;
++
++		// Get the device
++		driver_for_each_device(&drv_ctx->driver, NULL, (void*)&current_dev, blkvsc_drv_exit_cb);
++
++		if (current_dev == NULL)
++			break;
++
++		// Initiate removal from the top-down
++		device_unregister(current_dev);
++	}
++
++	if (storvsc_drv_obj->Base.OnCleanup)
++		storvsc_drv_obj->Base.OnCleanup(&storvsc_drv_obj->Base);
++
++	vmbus_child_driver_unregister(drv_ctx);
++
++	DPRINT_EXIT(BLKVSC_DRV);
++
++	return;
++}
++
++/*++
++
++Name:	blkvsc_probe()
++
++Desc:	Add a new device for this driver
++
++--*/
++static int blkvsc_probe(struct device *device)
 +{
-+    VMBUS_CHANNEL_MESSAGE_HEADER Header;
-+    BOOLEAN VersionSupported;
-+} VMBUS_CHANNEL_VERSION_SUPPORTED, *PVMBUS_CHANNEL_VERSION_SUPPORTED;
++	int ret=0;
 +
-+// Offer Channel parameters
-+typedef struct _VMBUS_CHANNEL_OFFER_CHANNEL
-+{
-+    VMBUS_CHANNEL_MESSAGE_HEADER Header;
-+    VMBUS_CHANNEL_OFFER Offer;
-+    UINT32  ChildRelId;
-+    UINT8   MonitorId;
-+    BOOLEAN MonitorAllocated;
-+} VMBUS_CHANNEL_OFFER_CHANNEL, *PVMBUS_CHANNEL_OFFER_CHANNEL;
++	struct driver_context *driver_ctx = driver_to_driver_context(device->driver);
++	struct blkvsc_driver_context *blkvsc_drv_ctx = (struct blkvsc_driver_context*)driver_ctx;
++	STORVSC_DRIVER_OBJECT* storvsc_drv_obj = &blkvsc_drv_ctx->drv_obj;
 +
-+//
-+// Make sure VMBUS_CHANNEL_OFFER_CHANNEL fits into Synic message.
-+//
-+C_ASSERT(sizeof(VMBUS_CHANNEL_OFFER_CHANNEL) <= MAXIMUM_SYNIC_MESSAGE_BYTES);
++	struct device_context *device_ctx = device_to_device_context(device);
++	DEVICE_OBJECT* device_obj = &device_ctx->device_obj;
 +
-+// Rescind Offer parameters
-+typedef struct _VMBUS_CHANNEL_RESCIND_OFFER
-+{
-+    VMBUS_CHANNEL_MESSAGE_HEADER Header;
-+    UINT32          ChildRelId;
-+} VMBUS_CHANNEL_RESCIND_OFFER, *PVMBUS_CHANNEL_RESCIND_OFFER;
++	struct block_device_context *blkdev=NULL;
++	STORVSC_DEVICE_INFO device_info;
++	int major=0;
++	int devnum=0;
 +
-+// Request Offer -- no parameters, SynIC message contains the partition ID
-+// Set Snoop -- no parameters, SynIC message contains the partition ID
-+// Clear Snoop -- no parameters, SynIC message contains the partition ID
-+// All Offers Delivered -- no parameters, SynIC message contains the partition ID
-+// Flush Client -- no parameters, SynIC message contains the partition ID
++	static int ide0_registered=0;
++	static int ide1_registered=0;
 +
-+// Open Channel parameters
-+typedef struct _VMBUS_CHANNEL_OPEN_CHANNEL
-+{
-+    VMBUS_CHANNEL_MESSAGE_HEADER Header;
++	DPRINT_ENTER(BLKVSC_DRV);
 +
-+    //
-+    // Identifies the specific VMBus channel that is being opened.
-+    //
-+    UINT32          ChildRelId;
++	DPRINT_DBG(BLKVSC_DRV, "blkvsc_probe - enter");
 +
-+    //
-+    // ID making a particular open request at a channel offer unique.
-+    //
-+    UINT32          OpenId;
++	if (!storvsc_drv_obj->Base.OnDeviceAdd)
++	{
++		DPRINT_ERR(BLKVSC_DRV, "OnDeviceAdd() not set");
 +
-+    //
-+    // GPADL for the channel's ring buffer.
-+    //
-+    GPADL_HANDLE    RingBufferGpadlHandle;
++		ret = -1;
++		goto Cleanup;
++	}
 +
-+    //
-+    // GPADL for the channel's server context save area.
-+    //
-+    GPADL_HANDLE    ServerContextAreaGpadlHandle;
++	blkdev = kzalloc(sizeof(struct block_device_context), GFP_KERNEL);
++	if (!blkdev)
++	{
++		ret = -ENOMEM;
++		goto Cleanup;
++	}
 +
-+    //
-+    // The upstream ring buffer begins at offset zero in the memory described
-+    // by RingBufferGpadlHandle. The downstream ring buffer follows it at this
-+    // offset (in pages).
-+    //
-+    UINT32          DownstreamRingBufferPageOffset;
++	INIT_LIST_HEAD(&blkdev->pending_list);
 +
-+    //
-+    // User-specific data to be passed along to the server endpoint.
-+    //
-+    UCHAR           UserData[MAX_USER_DEFINED_BYTES];
++	// Initialize what we can here
++	spin_lock_init(&blkdev->lock);
 +
-+} VMBUS_CHANNEL_OPEN_CHANNEL, *PVMBUS_CHANNEL_OPEN_CHANNEL;
++	ASSERT(sizeof(struct blkvsc_request_group) <= sizeof(struct blkvsc_request));
 +
-+// Reopen Channel parameters;
-+typedef VMBUS_CHANNEL_OPEN_CHANNEL VMBUS_CHANNEL_REOPEN_CHANNEL, *PVMBUS_CHANNEL_REOPEN_CHANNEL;
-+
-+// Open Channel Result parameters
-+typedef struct _VMBUS_CHANNEL_OPEN_RESULT
-+{
-+    VMBUS_CHANNEL_MESSAGE_HEADER Header;
-+    UINT32      ChildRelId;
-+    UINT32      OpenId;
-+    NTSTATUS    Status;
-+} VMBUS_CHANNEL_OPEN_RESULT, *PVMBUS_CHANNEL_OPEN_RESULT;
-+
-+// Close channel parameters;
-+typedef struct _VMBUS_CHANNEL_CLOSE_CHANNEL
-+{
-+    VMBUS_CHANNEL_MESSAGE_HEADER Header;
-+    UINT32      ChildRelId;
-+} VMBUS_CHANNEL_CLOSE_CHANNEL, *PVMBUS_CHANNEL_CLOSE_CHANNEL;
-+
-+// Channel Message GPADL
-+#define GPADL_TYPE_RING_BUFFER          1
-+#define GPADL_TYPE_SERVER_SAVE_AREA     2
-+#define GPADL_TYPE_TRANSACTION          8
-+
-+//
-+// The number of PFNs in a GPADL message is defined by the number of pages
-+// that would be spanned by ByteCount and ByteOffset.  If the implied number
-+// of PFNs won't fit in this packet, there will be a follow-up packet that
-+// contains more.
-+//
-+
-+typedef struct _VMBUS_CHANNEL_GPADL_HEADER
-+{
-+    VMBUS_CHANNEL_MESSAGE_HEADER Header;
-+    UINT32      ChildRelId;
-+    UINT32      Gpadl;
-+    UINT16      RangeBufLen;
-+    UINT16      RangeCount;
-+    GPA_RANGE   Range[0];
-+} VMBUS_CHANNEL_GPADL_HEADER, *PVMBUS_CHANNEL_GPADL_HEADER;
-+
-+
-+//
-+// This is the followup packet that contains more PFNs.
-+//
-+
-+typedef struct _VMBUS_CHANNEL_GPADL_BODY
-+{
-+    VMBUS_CHANNEL_MESSAGE_HEADER Header;
-+    UINT32              MessageNumber;
-+    UINT32              Gpadl;
-+    UINT64              Pfn[0];
-+} VMBUS_CHANNEL_GPADL_BODY, *PVMBUS_CHANNEL_GPADL_BODY;
-+
-+
-+typedef struct _VMBUS_CHANNEL_GPADL_CREATED
-+{
-+    VMBUS_CHANNEL_MESSAGE_HEADER Header;
-+    UINT32              ChildRelId;
-+    UINT32              Gpadl;
-+    UINT32              CreationStatus;
-+} VMBUS_CHANNEL_GPADL_CREATED, *PVMBUS_CHANNEL_GPADL_CREATED;
-+
-+typedef struct _VMBUS_CHANNEL_GPADL_TEARDOWN
-+{
-+    VMBUS_CHANNEL_MESSAGE_HEADER Header;
-+    UINT32              ChildRelId;
-+    UINT32              Gpadl;
-+} VMBUS_CHANNEL_GPADL_TEARDOWN, *PVMBUS_CHANNEL_GPADL_TEARDOWN;
-+
-+typedef struct _VMBUS_CHANNEL_GPADL_TORNDOWN
-+{
-+    VMBUS_CHANNEL_MESSAGE_HEADER Header;
-+    UINT32              Gpadl;
-+} VMBUS_CHANNEL_GPADL_TORNDOWN, *PVMBUS_CHANNEL_GPADL_TORNDOWN;
-+
-+#ifdef VMBUS_FEATURE_PARENT_OR_PEER_MEMORY_MAPPED_INTO_A_CHILD
-+typedef struct _VMBUS_CHANNEL_VIEW_RANGE_ADD
-+{
-+    VMBUS_CHANNEL_MESSAGE_HEADER Header;
-+    PHYSICAL_ADDRESS    ViewRangeBase;
-+    UINT64              ViewRangeLength;
-+    UINT32              ChildRelId;
-+} VMBUS_CHANNEL_VIEW_RANGE_ADD, *PVMBUS_CHANNEL_VIEW_RANGE_ADD;
-+
-+typedef struct _VMBUS_CHANNEL_VIEW_RANGE_REMOVE
-+{
-+    VMBUS_CHANNEL_MESSAGE_HEADER Header;
-+    PHYSICAL_ADDRESS    ViewRangeBase;
-+    UINT32              ChildRelId;
-+} VMBUS_CHANNEL_VIEW_RANGE_REMOVE, *PVMBUS_CHANNEL_VIEW_RANGE_REMOVE;
++#ifdef KERNEL_2_6_27
++        blkdev->request_pool = kmem_cache_create(device_ctx->device.bus_id,
++                sizeof(struct blkvsc_request) + storvsc_drv_obj->RequestExtSize, 0,
++                SLAB_HWCACHE_ALIGN, NULL);
++#else
++	blkdev->request_pool = kmem_cache_create(device_ctx->device.bus_id,
++		sizeof(struct blkvsc_request) + storvsc_drv_obj->RequestExtSize, 0,
++		SLAB_HWCACHE_ALIGN, NULL, NULL);
 +#endif
-+
-+typedef struct _VMBUS_CHANNEL_RELID_RELEASED
-+{
-+    VMBUS_CHANNEL_MESSAGE_HEADER Header;
-+    UINT32              ChildRelId;
-+} VMBUS_CHANNEL_RELID_RELEASED, *PVMBUS_CHANNEL_RELID_RELEASED;
-+
-+typedef struct _VMBUS_CHANNEL_INITIATE_CONTACT
-+{
-+    VMBUS_CHANNEL_MESSAGE_HEADER Header;
-+    UINT32              VMBusVersionRequested;
-+    UINT32              Padding2;
-+    UINT64              InterruptPage;
-+    UINT64              MonitorPage1;
-+    UINT64              MonitorPage2;
-+} VMBUS_CHANNEL_INITIATE_CONTACT, *PVMBUS_CHANNEL_INITIATE_CONTACT;
-+
-+typedef struct _VMBUS_CHANNEL_VERSION_RESPONSE
-+{
-+    VMBUS_CHANNEL_MESSAGE_HEADER Header;
-+    BOOLEAN     VersionSupported;
-+} VMBUS_CHANNEL_VERSION_RESPONSE, *PVMBUS_CHANNEL_VERSION_RESPONSE;
-+
-+typedef VMBUS_CHANNEL_MESSAGE_HEADER VMBUS_CHANNEL_UNLOAD, *PVMBUS_CHANNEL_UNLOAD;
-+
-+//
-+// Kind of a table to use the preprocessor to get us the right type for a
-+// specified message ID. Used with ChAllocateSendMessage()
-+//
-+#define ChannelMessageQueryVmbusVersion_TYPE    VMBUS_CHANNEL_MESSAGE_HEADER
-+#define ChannelMessageVmbusVersionSupported_TYPE VMBUS_CHANNEL_VERSION_SUPPORTED
-+#define ChannelMessageOfferChannel_TYPE         VMBUS_CHANNEL_OFFER_CHANNEL
-+#define ChannelMessageRescindChannelOffer_TYPE  VMBUS_CHANNEL_RESCIND_OFFER
-+#define ChannelMessageRequestOffers_TYPE        VMBUS_CHANNEL_MESSAGE_HEADER
-+#define ChannelMessageAllOffersDelivered_TYPE   VMBUS_CHANNEL_MESSAGE_HEADER
-+#define ChannelMessageOpenChannel_TYPE          VMBUS_CHANNEL_OPEN_CHANNEL
-+#define ChannelMessageOpenChannelResult_TYPE    VMBUS_CHANNEL_OPEN_RESULT
-+#define ChannelMessageCloseChannel_TYPE         VMBUS_CHANNEL_CLOSE_CHANNEL
-+#define ChannelMessageAllGpadlsUnmapped_TYPE    VMBUS_CHANNEL_CLOSE_CHANNEL
-+#define ChannelMessageGpadlHeader_TYPE          VMBUS_CHANNEL_GPADL_HEADER
-+#define ChannelMessageGpadlBody_TYPE            VMBUS_CHANNEL_GPADL_BODY
-+#define ChannelMessageGpadlCreated_TYPE         VMBUS_CHANNEL_GPADL_CREATED
-+#define ChannelMessageGpadlTeardown_TYPE        VMBUS_CHANNEL_GPADL_TEARDOWN
-+#define ChannelMessageGpadlTorndown_TYPE        VMBUS_CHANNEL_GPADL_TORNDOWN
-+#define ChannelMessageViewRangeAdd_TYPE         VMBUS_CHANNEL_VIEW_RANGE_ADD
-+#define ChannelMessageViewRangeRemove_TYPE      VMBUS_CHANNEL_VIEW_RANGE_REMOVE
-+#define ChannelMessageRelIdReleased_TYPE        VMBUS_CHANNEL_RELID_RELEASED
-+#define ChannelMessageInitiateContact_TYPE      VMBUS_CHANNEL_INITIATE_CONTACT
-+#define ChannelMessageVersionResponse_TYPE      VMBUS_CHANNEL_VERSION_RESPONSE
-+#define ChannelMessageUnload_TYPE               VMBUS_CHANNEL_UNLOAD
-+
-+//
-+// Preprocessor wrapper to ChAllocateSendMessageSize() converting the return
-+// value to the correct pointer and calculate the needed size.
-+//
-+// Argument:
-+//
-+//  Id - the numberic ID (type VMBUS_CHANNEL_MESSAGE_TYPE) of the message to
-+//       send.
-+//
-+#define ChAllocateSendMessage(Id, Fn, Context)   \
-+    (Id##_TYPE*)ChAllocateSendMessageSized(sizeof(Id##_TYPE), Id, Fn, Context)
-+
-+
-+#pragma pack(pop)
-+
---- /dev/null
-+++ b/drivers/staging/hv/include/HvHalApi.h
-@@ -0,0 +1,32 @@
-+/*
-+ *
-+ * Copyright (c) 2009, Microsoft Corporation.
-+ *
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms and conditions of the GNU General Public License,
-+ * version 2, as published by the Free Software Foundation.
-+ *
-+ * This program is distributed in the hope it will be useful, but WITHOUT
-+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
-+ * more details.
-+ *
-+ * You should have received a copy of the GNU General Public License along with
-+ * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
-+ * Place - Suite 330, Boston, MA 02111-1307 USA.
-+ *
-+ * Authors:
-+ *   Haiyang Zhang <haiyangz@microsoft.com>
-+ *   Hank Janssen  <hjanssen@microsoft.com>
-+ *
-+ */
-+
-+
-+#pragma once
-+
-+
-+//
-+// Time in the hypervisor is measured in 100 nanosecond units
-+//
-+typedef UINT64 HV_NANO100_TIME,     *PHV_NANO100_TIME;
-+typedef UINT64 HV_NANO100_DURATION, *PHV_NANO100_DURATION;
---- /dev/null
-+++ b/drivers/staging/hv/include/HvHcApi.h
-@@ -0,0 +1,60 @@
-+/*
-+ *
-+ * Copyright (c) 2009, Microsoft Corporation.
-+ *
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms and conditions of the GNU General Public License,
-+ * version 2, as published by the Free Software Foundation.
-+ *
-+ * This program is distributed in the hope it will be useful, but WITHOUT
-+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
-+ * more details.
-+ *
-+ * You should have received a copy of the GNU General Public License along with
-+ * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
-+ * Place - Suite 330, Boston, MA 02111-1307 USA.
-+ *
-+ * Authors:
-+ *   Haiyang Zhang <haiyangz@microsoft.com>
-+ *   Hank Janssen  <hjanssen@microsoft.com>
-+ *
-+ */
-+
-+
-+#pragma once
-+
-+//
-+// Declare the various hypercall operations.
-+//
-+typedef enum _HV_CALL_CODE
-+{
-+
-+    HvCallPostMessage                   = 0x005c,
-+    HvCallSignalEvent                   = 0x005d,
-+
-+} HV_CALL_CODE, *PHV_CALL_CODE;
-+//
-+// Definition of the HvPostMessage hypercall input structure.
-+//
-+
-+typedef struct _HV_INPUT_POST_MESSAGE
-+{
-+    HV_CONNECTION_ID    ConnectionId;
-+    UINT32              Reserved;
-+    HV_MESSAGE_TYPE     MessageType;
-+    UINT32              PayloadSize;
-+    UINT64              Payload[HV_MESSAGE_PAYLOAD_QWORD_COUNT];
-+} HV_INPUT_POST_MESSAGE, *PHV_INPUT_POST_MESSAGE;
-+
-+
-+//
-+// Definition of the HvSignalEvent hypercall input structure.
-+//
-+
-+typedef struct _HV_INPUT_SIGNAL_EVENT
-+{
-+    HV_CONNECTION_ID ConnectionId;
-+    UINT16           FlagNumber;
-+    UINT16           RsvdZ;
-+} HV_INPUT_SIGNAL_EVENT, *PHV_INPUT_SIGNAL_EVENT;
---- /dev/null
-+++ b/drivers/staging/hv/include/HvPtApi.h
-@@ -0,0 +1,86 @@
-+/*
-+ *
-+ * Copyright (c) 2009, Microsoft Corporation.
-+ *
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms and conditions of the GNU General Public License,
-+ * version 2, as published by the Free Software Foundation.
-+ *
-+ * This program is distributed in the hope it will be useful, but WITHOUT
-+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
-+ * more details.
-+ *
-+ * You should have received a copy of the GNU General Public License along with
-+ * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
-+ * Place - Suite 330, Boston, MA 02111-1307 USA.
-+ *
-+ * Authors:
-+ *   Haiyang Zhang <haiyangz@microsoft.com>
-+ *   Hank Janssen  <hjanssen@microsoft.com>
-+ *
-+ */
-+
-+
-+#pragma once
-+
-+//
-+// Versioning definitions used for guests reporting themselves to the
-+// hypervisor, and visa versa.
-+// ==================================================================
-+//
-+
-+//
-+// Version info reported by guest OS's
-+//
-+typedef enum _HV_GUEST_OS_VENDOR
-+{
-+    HvGuestOsVendorMicrosoft        = 0x0001
-+
-+} HV_GUEST_OS_VENDOR, *PHV_GUEST_OS_VENDOR;
-+
-+typedef enum _HV_GUEST_OS_MICROSOFT_IDS
-+{
-+    HvGuestOsMicrosoftUndefined     = 0x00,
-+    HvGuestOsMicrosoftMSDOS         = 0x01,
-+    HvGuestOsMicrosoftWindows3x     = 0x02,
-+    HvGuestOsMicrosoftWindows9x     = 0x03,
-+    HvGuestOsMicrosoftWindowsNT     = 0x04,
-+    HvGuestOsMicrosoftWindowsCE     = 0x05
-+
-+} HV_GUEST_OS_MICROSOFT_IDS, *PHV_GUEST_OS_MICROSOFT_IDS;
-+
-+//
-+// Declare the MSR used to identify the guest OS.
-+//
-+#define HV_X64_MSR_GUEST_OS_ID 0x40000000
-+
-+typedef union _HV_X64_MSR_GUEST_OS_ID_CONTENTS
-+{
-+    UINT64 AsUINT64;
-+    struct
-+    {
-+        UINT64 BuildNumber    : 16;
-+        UINT64 ServiceVersion : 8; // Service Pack, etc.
-+        UINT64 MinorVersion   : 8;
-+        UINT64 MajorVersion   : 8;
-+        UINT64 OsId           : 8; // HV_GUEST_OS_MICROSOFT_IDS (If Vendor=MS)
-+        UINT64 VendorId       : 16; // HV_GUEST_OS_VENDOR
-+    };
-+} HV_X64_MSR_GUEST_OS_ID_CONTENTS, *PHV_X64_MSR_GUEST_OS_ID_CONTENTS;
-+
-+//
-+// Declare the MSR used to setup pages used to communicate with the hypervisor.
-+//
-+#define HV_X64_MSR_HYPERCALL 0x40000001
-+
-+typedef union _HV_X64_MSR_HYPERCALL_CONTENTS
-+{
-+    UINT64 AsUINT64;
-+    struct
-+    {
-+        UINT64 Enable               : 1;
-+        UINT64 Reserved             : 11;
-+        UINT64 GuestPhysicalAddress : 52;
-+    };
-+} HV_X64_MSR_HYPERCALL_CONTENTS, *PHV_X64_MSR_HYPERCALL_CONTENTS;
---- /dev/null
-+++ b/drivers/staging/hv/include/HvStatus.h
-@@ -0,0 +1,718 @@
-+/*
-+ *
-+ * Copyright (c) 2009, Microsoft Corporation.
-+ *
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms and conditions of the GNU General Public License,
-+ * version 2, as published by the Free Software Foundation.
-+ *
-+ * This program is distributed in the hope it will be useful, but WITHOUT
-+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
-+ * more details.
-+ *
-+ * You should have received a copy of the GNU General Public License along with
-+ * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
-+ * Place - Suite 330, Boston, MA 02111-1307 USA.
-+ *
-+ * Authors:
-+ *   Haiyang Zhang <haiyangz@microsoft.com>
-+ *   Hank Janssen  <hjanssen@microsoft.com>
-+ *
-+ */
-+
-+
-+// begin_hvgdk
-+//
-+// Status codes for hypervisor operations.
-+//
-+typedef UINT16 HV_STATUS, *PHV_STATUS;
-+
-+//
-+// MessageId: HV_STATUS_SUCCESS
-+//
-+// MessageText:
-+//
-+// The specified hypercall succeeded
-+//
-+#define HV_STATUS_SUCCESS                ((HV_STATUS)0x0000)
-+
-+//
-+// MessageId: HV_STATUS_INVALID_HYPERCALL_CODE
-+//
-+// MessageText:
-+//
-+// The hypervisor does not support the operation because the specified hypercall code is not supported.
-+//
-+#define HV_STATUS_INVALID_HYPERCALL_CODE ((HV_STATUS)0x0002)
-+
-+//
-+// MessageId: HV_STATUS_INVALID_HYPERCALL_INPUT
-+//
-+// MessageText:
-+//
-+// The hypervisor does not support the operation because the encoding for the hypercall input register is not supported.
-+//
-+#define HV_STATUS_INVALID_HYPERCALL_INPUT ((HV_STATUS)0x0003)
-+
-+//
-+// MessageId: HV_STATUS_INVALID_ALIGNMENT
-+//
-+// MessageText:
-+//
-+// The hypervisor could not perform the operation beacuse a parameter has an invalid alignment.
-+//
-+#define HV_STATUS_INVALID_ALIGNMENT      ((HV_STATUS)0x0004)
-+
-+//
-+// MessageId: HV_STATUS_INVALID_PARAMETER
-+//
-+// MessageText:
-+//
-+// The hypervisor could not perform the operation beacuse an invalid parameter was specified.
-+//
-+#define HV_STATUS_INVALID_PARAMETER      ((HV_STATUS)0x0005)
-+
-+//
-+// MessageId: HV_STATUS_ACCESS_DENIED
-+//
-+// MessageText:
-+//
-+// Access to the specified object was denied.
-+//
-+#define HV_STATUS_ACCESS_DENIED          ((HV_STATUS)0x0006)
-+
-+//
-+// MessageId: HV_STATUS_INVALID_PARTITION_STATE
-+//
-+// MessageText:
-+//
-+// The hypervisor could not perform the operation because the partition is entering or in an invalid state.
-+//
-+#define HV_STATUS_INVALID_PARTITION_STATE ((HV_STATUS)0x0007)
-+
-+//
-+// MessageId: HV_STATUS_OPERATION_DENIED
-+//
-+// MessageText:
-+//
-+// The operation is not allowed in the current state.
-+//
-+#define HV_STATUS_OPERATION_DENIED       ((HV_STATUS)0x0008)
-+
-+//
-+// MessageId: HV_STATUS_UNKNOWN_PROPERTY
-+//
-+// MessageText:
-+//
-+// The hypervisor does not recognize the specified partition property.
-+//
-+#define HV_STATUS_UNKNOWN_PROPERTY       ((HV_STATUS)0x0009)
-+
-+//
-+// MessageId: HV_STATUS_PROPERTY_VALUE_OUT_OF_RANGE
-+//
-+// MessageText:
-+//
-+// The specified value of a partition property is out of range or violates an invariant.
-+//
-+#define HV_STATUS_PROPERTY_VALUE_OUT_OF_RANGE ((HV_STATUS)0x000A)
-+
-+//
-+// MessageId: HV_STATUS_INSUFFICIENT_MEMORY
-+//
-+// MessageText:
-+//
-+// There is not enough memory in the hypervisor pool to complete the operation.
-+//
-+#define HV_STATUS_INSUFFICIENT_MEMORY    ((HV_STATUS)0x000B)
-+
-+//
-+// MessageId: HV_STATUS_PARTITION_TOO_DEEP
-+//
-+// MessageText:
-+//
-+// The maximum partition depth has been exceeded for the partition hierarchy.
-+//
-+#define HV_STATUS_PARTITION_TOO_DEEP     ((HV_STATUS)0x000C)
-+
-+//
-+// MessageId: HV_STATUS_INVALID_PARTITION_ID
-+//
-+// MessageText:
-+//
-+// A partition with the specified partition Id does not exist.
-+//
-+#define HV_STATUS_INVALID_PARTITION_ID   ((HV_STATUS)0x000D)
-+
-+//
-+// MessageId: HV_STATUS_INVALID_VP_INDEX
-+//
-+// MessageText:
-+//
-+// The hypervisor could not perform the operation because the specified VP index is invalid.
-+//
-+#define HV_STATUS_INVALID_VP_INDEX       ((HV_STATUS)0x000E)
-+
-+//
-+// MessageId: HV_STATUS_NOT_FOUND
-+//
-+// MessageText:
-+//
-+// The iteration is complete; no addition items in the iteration could be found.
-+//
-+#define HV_STATUS_NOT_FOUND              ((HV_STATUS)0x0010)
-+
-+//
-+// MessageId: HV_STATUS_INVALID_PORT_ID
-+//
-+// MessageText:
-+//
-+// The hypervisor could not perform the operation because the specified port identifier is invalid.
-+//
-+#define HV_STATUS_INVALID_PORT_ID        ((HV_STATUS)0x0011)
-+
-+//
-+// MessageId: HV_STATUS_INVALID_CONNECTION_ID
-+//
-+// MessageText:
-+//
-+// The hypervisor could not perform the operation because the specified connection identifier is invalid.
-+//
-+#define HV_STATUS_INVALID_CONNECTION_ID  ((HV_STATUS)0x0012)
-+
-+//
-+// MessageId: HV_STATUS_INSUFFICIENT_BUFFERS
-+//
-+// MessageText:
-+//
-+// You did not supply enough message buffers to send a message.
-+//
-+#define HV_STATUS_INSUFFICIENT_BUFFERS   ((HV_STATUS)0x0013)
-+
-+//
-+// MessageId: HV_STATUS_NOT_ACKNOWLEDGED
-+//
-+// MessageText:
-+//
-+// The previous virtual interrupt has not been acknowledged.
-+//
-+#define HV_STATUS_NOT_ACKNOWLEDGED       ((HV_STATUS)0x0014)
-+
-+//
-+// MessageId: HV_STATUS_INVALID_VP_STATE
-+//
-+// MessageText:
-+//
-+// A virtual processor is not in the correct state for the performance of the indicated operation.
-+//
-+#define HV_STATUS_INVALID_VP_STATE       ((HV_STATUS)0x0015)
-+
-+//
-+// MessageId: HV_STATUS_ACKNOWLEDGED
-+//
-+// MessageText:
-+//
-+// The previous virtual interrupt has already been acknowledged.
-+//
-+#define HV_STATUS_ACKNOWLEDGED           ((HV_STATUS)0x0016)
-+
-+//
-+// MessageId: HV_STATUS_INVALID_SAVE_RESTORE_STATE
-+//
-+// MessageText:
-+//
-+// The indicated partition is not in a valid state for saving or restoring.
-+//
-+#define HV_STATUS_INVALID_SAVE_RESTORE_STATE ((HV_STATUS)0x0017)
-+
-+//
-+// MessageId: HV_STATUS_INVALID_SYNIC_STATE
-+//
-+// MessageText:
-+//
-+// The hypervisor could not complete the operation because a required feature of the synthetic interrupt controller (SynIC) was disabled.
-+//
-+#define HV_STATUS_INVALID_SYNIC_STATE    ((HV_STATUS)0x0018)
-+
-+//
-+// MessageId: HV_STATUS_OBJECT_IN_USE
-+//
-+// MessageText:
-+//
-+// The hypervisor could not perform the operation because the object or value was either already in use or being used for a purpose that would not permit completing the operation.
-+//
-+#define HV_STATUS_OBJECT_IN_USE          ((HV_STATUS)0x0019)
-+
-+//
-+// MessageId: HV_STATUS_INVALID_PROXIMITY_DOMAIN_INFO
-+//
-+// MessageText:
-+//
-+// The proximity domain information is invalid.
-+//
-+#define HV_STATUS_INVALID_PROXIMITY_DOMAIN_INFO ((HV_STATUS)0x001A)
-+
-+//
-+// MessageId: HV_STATUS_NO_DATA
-+//
-+// MessageText:
-+//
-+// An attempt to retrieve debugging data failed because none was available.
-+//
-+#define HV_STATUS_NO_DATA                ((HV_STATUS)0x001B)
-+
-+//
-+// MessageId: HV_STATUS_INACTIVE
-+//
-+// MessageText:
-+//
-+// The physical connection being used for debuggging has not recorded any receive activity since the last operation.
-+//
-+#define HV_STATUS_INACTIVE               ((HV_STATUS)0x001C)
-+
-+//
-+// MessageId: HV_STATUS_NO_RESOURCES
-+//
-+// MessageText:
-+//
-+// There are not enough resources to complete the operation.
-+//
-+#define HV_STATUS_NO_RESOURCES           ((HV_STATUS)0x001D)
-+
-+//
-+// MessageId: HV_STATUS_FEATURE_UNAVAILABLE
-+//
-+// MessageText:
-+//
-+// A hypervisor feature is not available to the user.
-+//
-+#define HV_STATUS_FEATURE_UNAVAILABLE    ((HV_STATUS)0x001E)
-+
-+// end_hvgdk
-+
-+//
-+// MessageId: HV_STATUS_UNSUCCESSFUL
-+//
-+// MessageText:
-+//
-+// {Operation Failed}
-+// The requested operation was unsuccessful.
-+//
-+#define HV_STATUS_UNSUCCESSFUL           ((HV_STATUS)0x1001)
-+
-+//
-+// MessageId: HV_STATUS_INSUFFICIENT_BUFFER
-+//
-+// MessageText:
-+//
-+// The specified buffer was too small to contain all of the requested data.
-+//
-+#define HV_STATUS_INSUFFICIENT_BUFFER    ((HV_STATUS)0x1002)
-+
-+//
-+// MessageId: HV_STATUS_GPA_NOT_PRESENT
-+//
-+// MessageText:
-+//
-+// The guest physical address is not currently associated with a system physical address.
-+//
-+#define HV_STATUS_GPA_NOT_PRESENT        ((HV_STATUS)0x1003)
-+
-+//
-+// MessageId: HV_STATUS_GUEST_PAGE_FAULT
-+//
-+// MessageText:
-+//
-+// The operation would have resulted in a page fault in the guest.
-+//
-+#define HV_STATUS_GUEST_PAGE_FAULT       ((HV_STATUS)0x1004)
-+
-+//
-+// MessageId: HV_STATUS_RUNDOWN_DISABLED
-+//
-+// MessageText:
-+//
-+// The operation cannot proceed as the rundown object was marked disabled.
-+//
-+#define HV_STATUS_RUNDOWN_DISABLED       ((HV_STATUS)0x1005)
-+
-+//
-+// MessageId: HV_STATUS_KEY_ALREADY_EXISTS
-+//
-+// MessageText:
-+//
-+// The entry cannot be added as another entry with the same key already exists.
-+//
-+#define HV_STATUS_KEY_ALREADY_EXISTS     ((HV_STATUS)0x1006)
-+
-+//
-+// MessageId: HV_STATUS_GPA_INTERCEPT
-+//
-+// MessageText:
-+//
-+// The operation resulted an intercept on a region of guest physical memory.
-+//
-+#define HV_STATUS_GPA_INTERCEPT          ((HV_STATUS)0x1007)
-+
-+//
-+// MessageId: HV_STATUS_GUEST_GENERAL_PROTECTION_FAULT
-+//
-+// MessageText:
-+//
-+// The operation would have resulted in a general protection fault in the guest.
-+//
-+#define HV_STATUS_GUEST_GENERAL_PROTECTION_FAULT ((HV_STATUS)0x1008)
-+
-+//
-+// MessageId: HV_STATUS_GUEST_STACK_FAULT
-+//
-+// MessageText:
-+//
-+// The operation would have resulted in a stack fault in the guest.
-+//
-+#define HV_STATUS_GUEST_STACK_FAULT      ((HV_STATUS)0x1009)
-+
-+//
-+// MessageId: HV_STATUS_GUEST_INVALID_OPCODE_FAULT
-+//
-+// MessageText:
-+//
-+// The operation would have resulted in an invalid opcode fault in the guest.
-+//
-+#define HV_STATUS_GUEST_INVALID_OPCODE_FAULT ((HV_STATUS)0x100A)
-+
-+//
-+// MessageId: HV_STATUS_FINALIZE_INCOMPLETE
-+//
-+// MessageText:
-+//
-+// The partition is not completely finalized.
-+//
-+#define HV_STATUS_FINALIZE_INCOMPLETE    ((HV_STATUS)0x100B)
-+
-+//
-+// MessageId: HV_STATUS_GUEST_MACHINE_CHECK_ABORT
-+//
-+// MessageText:
-+//
-+// The operation would have resulted in an machine check abort in the guest.
-+//
-+#define HV_STATUS_GUEST_MACHINE_CHECK_ABORT ((HV_STATUS)0x100C)
-+
-+//
-+// MessageId: HV_STATUS_ILLEGAL_OVERLAY_ACCESS
-+//
-+// MessageText:
-+//
-+// An illegal access was attempted to an overlay page.
-+//
-+#define HV_STATUS_ILLEGAL_OVERLAY_ACCESS ((HV_STATUS)0x100D)
-+
-+//
-+// MessageId: HV_STATUS_INSUFFICIENT_SYSTEM_VA
-+//
-+// MessageText:
-+//
-+// There is not enough system VA space available to satisfy the request,
-+//
-+#define HV_STATUS_INSUFFICIENT_SYSTEM_VA ((HV_STATUS)0x100E)
-+
-+//
-+// MessageId: HV_STATUS_VIRTUAL_ADDRESS_NOT_MAPPED
-+//
-+// MessageText:
-+//
-+// The passed virtual address was not mapped in the hypervisor address space.
-+//
-+#define HV_STATUS_VIRTUAL_ADDRESS_NOT_MAPPED ((HV_STATUS)0x100F)
-+
-+//
-+// MessageId: HV_STATUS_NOT_IMPLEMENTED
-+//
-+// MessageText:
-+//
-+// The requested operation is not implemented in this version of the hypervisor.
-+//
-+#define HV_STATUS_NOT_IMPLEMENTED        ((HV_STATUS)0x1010)
-+
-+//
-+// MessageId: HV_STATUS_VMX_INSTRUCTION_FAILED
-+//
-+// MessageText:
-+//
-+// The requested VMX instruction failed to complete succesfully.
-+//
-+#define HV_STATUS_VMX_INSTRUCTION_FAILED ((HV_STATUS)0x1011)
-+
-+//
-+// MessageId: HV_STATUS_VMX_INSTRUCTION_FAILED_WITH_STATUS
-+//
-+// MessageText:
-+//
-+// The requested VMX instruction failed to complete succesfully indicating status.
-+//
-+#define HV_STATUS_VMX_INSTRUCTION_FAILED_WITH_STATUS ((HV_STATUS)0x1012)
-+
-+//
-+// MessageId: HV_STATUS_MSR_ACCESS_FAILED
-+//
-+// MessageText:
-+//
-+// The requested access to the model specific register failed.
-+//
-+#define HV_STATUS_MSR_ACCESS_FAILED      ((HV_STATUS)0x1013)
-+
-+//
-+// MessageId: HV_STATUS_CR_ACCESS_FAILED
-+//
-+// MessageText:
-+//
-+// The requested access to the control register failed.
-+//
-+#define HV_STATUS_CR_ACCESS_FAILED       ((HV_STATUS)0x1014)
-+
-+//
-+// MessageId: HV_STATUS_TIMEOUT
-+//
-+// MessageText:
-+//
-+// The specified timeout expired before the operation completed.
-+//
-+#define HV_STATUS_TIMEOUT                ((HV_STATUS)0x1016)
-+
-+//
-+// MessageId: HV_STATUS_MSR_INTERCEPT
-+//
-+// MessageText:
-+//
-+// The requested access to the model specific register generated an intercept.
-+//
-+#define HV_STATUS_MSR_INTERCEPT          ((HV_STATUS)0x1017)
-+
-+//
-+// MessageId: HV_STATUS_CPUID_INTERCEPT
-+//
-+// MessageText:
-+//
-+// The CPUID instruction generated an intercept.
-+//
-+#define HV_STATUS_CPUID_INTERCEPT        ((HV_STATUS)0x1018)
-+
-+//
-+// MessageId: HV_STATUS_REPEAT_INSTRUCTION
-+//
-+// MessageText:
-+//
-+// The current instruction should be repeated and the instruction pointer not advanced.
-+//
-+#define HV_STATUS_REPEAT_INSTRUCTION     ((HV_STATUS)0x1019)
-+
-+//
-+// MessageId: HV_STATUS_PAGE_PROTECTION_VIOLATION
-+//
-+// MessageText:
-+//
-+// The current instruction should be repeated and the instruction pointer not advanced.
-+//
-+#define HV_STATUS_PAGE_PROTECTION_VIOLATION ((HV_STATUS)0x101A)
-+
-+//
-+// MessageId: HV_STATUS_PAGE_TABLE_INVALID
-+//
-+// MessageText:
-+//
-+// The current instruction should be repeated and the instruction pointer not advanced.
-+//
-+#define HV_STATUS_PAGE_TABLE_INVALID     ((HV_STATUS)0x101B)
-+
-+//
-+// MessageId: HV_STATUS_PAGE_NOT_PRESENT
-+//
-+// MessageText:
-+//
-+// The current instruction should be repeated and the instruction pointer not advanced.
-+//
-+#define HV_STATUS_PAGE_NOT_PRESENT       ((HV_STATUS)0x101C)
-+
-+//
-+// MessageId: HV_STATUS_IO_INTERCEPT
-+//
-+// MessageText:
-+//
-+// The requested access to the I/O port generated an intercept.
-+//
-+#define HV_STATUS_IO_INTERCEPT           ((HV_STATUS)0x101D)
-+
-+//
-+// MessageId: HV_STATUS_NOTHING_TO_DO
-+//
-+// MessageText:
-+//
-+// There is nothing to do.
-+//
-+#define HV_STATUS_NOTHING_TO_DO          ((HV_STATUS)0x101E)
-+
-+//
-+// MessageId: HV_STATUS_THREAD_TERMINATING
-+//
-+// MessageText:
-+//
-+// The requested thread is terminating.
-+//
-+#define HV_STATUS_THREAD_TERMINATING     ((HV_STATUS)0x101F)
-+
-+//
-+// MessageId: HV_STATUS_SECTION_ALREADY_CONSTRUCTED
-+//
-+// MessageText:
-+//
-+// The specified section was already constructed.
-+//
-+#define HV_STATUS_SECTION_ALREADY_CONSTRUCTED ((HV_STATUS)0x1020)
-+
-+//
-+// MessageId: HV_STATUS_SECTION_NOT_ALREADY_CONSTRUCTED
-+//
-+// MessageText:
-+//
-+// The specified section was not already constructed.
-+//
-+#define HV_STATUS_SECTION_NOT_ALREADY_CONSTRUCTED ((HV_STATUS)0x1021)
-+
-+//
-+// MessageId: HV_STATUS_PAGE_ALREADY_COMMITTED
-+//
-+// MessageText:
-+//
-+// The specified virtual address was already backed by physical memory.
-+//
-+#define HV_STATUS_PAGE_ALREADY_COMMITTED ((HV_STATUS)0x1022)
-+
-+//
-+// MessageId: HV_STATUS_PAGE_NOT_ALREADY_COMMITTED
-+//
-+// MessageText:
-+//
-+// The specified virtual address was not already backed by physical memory.
-+//
-+#define HV_STATUS_PAGE_NOT_ALREADY_COMMITTED ((HV_STATUS)0x1023)
-+
-+//
-+// MessageId: HV_STATUS_COMMITTED_PAGES_REMAIN
-+//
-+// MessageText:
-+//
-+// Committed pages remain in the section.
-+//
-+#define HV_STATUS_COMMITTED_PAGES_REMAIN ((HV_STATUS)0x1024)
-+
-+//
-+// MessageId: HV_STATUS_NO_REMAINING_COMMITTED_PAGES
-+//
-+// MessageText:
-+//
-+// No additional committed pages beyond the specified page exist in the section.
-+//
-+#define HV_STATUS_NO_REMAINING_COMMITTED_PAGES ((HV_STATUS)0x1025)
-+
-+//
-+// MessageId: HV_STATUS_INSUFFICIENT_COMPARTMENT_VA
-+//
-+// MessageText:
-+//
-+// The VA space of the compartment is exhausted.
-+//
-+#define HV_STATUS_INSUFFICIENT_COMPARTMENT_VA ((HV_STATUS)0x1026)
-+
-+//
-+// MessageId: HV_STATUS_DEREF_SPA_LIST_FULL
-+//
-+// MessageText:
-+//
-+// The SPA dereference list is full, and there are additional entries
-+// to be added to it.
-+//
-+#define HV_STATUS_DEREF_SPA_LIST_FULL ((HV_STATUS)0x1027)
-+
-+//
-+// MessageId: HV_STATUS_GPA_OUT_OF_RANGE
-+//
-+// MessageText:
-+//
-+// The supplied GPA is out of range.
-+//
-+#define HV_STATUS_GPA_OUT_OF_RANGE ((HV_STATUS)0x1027)
-+
-+//
-+// MessageId: HV_STATUS_NONVOLATILE_XMM_STALE
-+//
-+// MessageText:
-+//
-+// The XMM register that was being accessed is stale.
-+//
-+#define HV_STATUS_NONVOLATILE_XMM_STALE ((HV_STATUS)0x1028)
-+
-+//
-+// MessageId: HV_STATUS_UNSUPPORTED_PROCESSOR
-+//
-+// MessageText:
-+//
-+// The hypervisor does not support the processors in this system.
-+//
-+#define HV_STATUS_UNSUPPORTED_PROCESSOR ((HV_STATUS)0x1029)
-+
-+//
-+// MessageId: HV_STATUS_INSUFFICIENT_CROM_SPACE
-+//
-+// MessageText:
-+//
-+// Insufficient space existed for copying over the CROM contents.
-+//
-+#define HV_STATUS_INSUFFICIENT_CROM_SPACE ((HV_STATUS)0x2000)
-+
-+//
-+// MessageId: HV_STATUS_BAD_CROM_FORMAT
-+//
-+// MessageText:
-+//
-+// The contents of the CROM failed validation attempts.
-+//
-+#define HV_STATUS_BAD_CROM_FORMAT        ((HV_STATUS)0x2001)
-+
-+//
-+// MessageId: HV_STATUS_UNSUPPORTED_CROM_FORMAT
-+//
-+// MessageText:
-+//
-+// The contents of the CROM contain contents the parser doesn't support.
-+//
-+#define HV_STATUS_UNSUPPORTED_CROM_FORMAT ((HV_STATUS)0x2002)
-+
-+//
-+// MessageId: HV_STATUS_UNSUPPORTED_CONTROLLER
-+//
-+// MessageText:
-+//
-+// The register format of the OHCI controller specified for debugging is not supported.
-+//
-+#define HV_STATUS_UNSUPPORTED_CONTROLLER ((HV_STATUS)0x2003)
-+
-+//
-+// MessageId: HV_STATUS_CROM_TOO_LARGE
-+//
-+// MessageText:
-+//
-+// The CROM contents were to large to copy over.
-+//
-+#define HV_STATUS_CROM_TOO_LARGE         ((HV_STATUS)0x2004)
-+
-+//
-+// MessageId: HV_STATUS_CONTROLLER_IN_USE
-+//
-+// MessageText:
-+//
-+// The OHCI controller specified for debugging cannot be used as it is already in use.
-+//
-+#define HV_STATUS_CONTROLLER_IN_USE      ((HV_STATUS)0x2005)
-+
---- /dev/null
-+++ b/drivers/staging/hv/include/HvSynicApi.h
-@@ -0,0 +1,490 @@
-+/*
-+ *
-+ * Copyright (c) 2009, Microsoft Corporation.
-+ *
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms and conditions of the GNU General Public License,
-+ * version 2, as published by the Free Software Foundation.
-+ *
-+ * This program is distributed in the hope it will be useful, but WITHOUT
-+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
-+ * more details.
-+ *
-+ * You should have received a copy of the GNU General Public License along with
-+ * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
-+ * Place - Suite 330, Boston, MA 02111-1307 USA.
-+ *
-+ * Authors:
-+ *   Haiyang Zhang <haiyangz@microsoft.com>
-+ *   Hank Janssen  <hjanssen@microsoft.com>
-+ *
-+ */
-+
-+#pragma once
-+
-+//
-+// Define the virtual APIC registers
-+//
-+#define HV_X64_MSR_EOI                  (0x40000070)
-+#define HV_X64_MSR_ICR                  (0x40000071)
-+#define HV_X64_MSR_TPR                  (0x40000072)
-+#define HV_X64_MSR_APIC_ASSIST_PAGE     (0x40000073)
-+
-+//
-+// Define version of the synthetic interrupt controller.
-+//
-+
-+#define HV_SYNIC_VERSION        (1)
-+
-+
-+//
-+// Define synthetic interrupt controller model specific registers.
-+//
-+
-+#define HV_X64_MSR_SCONTROL   (0x40000080)
-+#define HV_X64_MSR_SVERSION   (0x40000081)
-+#define HV_X64_MSR_SIEFP      (0x40000082)
-+#define HV_X64_MSR_SIMP       (0x40000083)
-+#define HV_X64_MSR_EOM        (0x40000084)
-+#define HV_X64_MSR_SINT0      (0x40000090)
-+#define HV_X64_MSR_SINT1      (0x40000091)
-+#define HV_X64_MSR_SINT2      (0x40000092)
-+#define HV_X64_MSR_SINT3      (0x40000093)
-+#define HV_X64_MSR_SINT4      (0x40000094)
-+#define HV_X64_MSR_SINT5      (0x40000095)
-+#define HV_X64_MSR_SINT6      (0x40000096)
-+#define HV_X64_MSR_SINT7      (0x40000097)
-+#define HV_X64_MSR_SINT8      (0x40000098)
-+#define HV_X64_MSR_SINT9      (0x40000099)
-+#define HV_X64_MSR_SINT10     (0x4000009A)
-+#define HV_X64_MSR_SINT11     (0x4000009B)
-+#define HV_X64_MSR_SINT12     (0x4000009C)
-+#define HV_X64_MSR_SINT13     (0x4000009D)
-+#define HV_X64_MSR_SINT14     (0x4000009E)
-+#define HV_X64_MSR_SINT15     (0x4000009F)
-+
-+//
-+// Define the expected SynIC version.
-+//
-+#define HV_SYNIC_VERSION_1 (0x1)
-+
-+//
-+// Define synthetic interrupt controller message constants.
-+//
-+
-+#define HV_MESSAGE_SIZE                 (256)
-+#define HV_MESSAGE_PAYLOAD_BYTE_COUNT   (240)
-+#define HV_MESSAGE_PAYLOAD_QWORD_COUNT  (30)
-+#define HV_ANY_VP                       (0xFFFFFFFF)
-+
-+//
-+// Define synthetic interrupt controller flag constants.
-+//
-+
-+#define HV_EVENT_FLAGS_COUNT        (256 * 8)
-+#define HV_EVENT_FLAGS_BYTE_COUNT   (256)
-+#define HV_EVENT_FLAGS_DWORD_COUNT  (256 / sizeof(UINT32))
-+
-+//
-+// Define hypervisor message types.
-+//
-+typedef enum _HV_MESSAGE_TYPE
-+{
-+    HvMessageTypeNone = 0x00000000,
-+
-+    //
-+    // Memory access messages.
-+    //
-+    HvMessageTypeUnmappedGpa = 0x80000000,
-+    HvMessageTypeGpaIntercept = 0x80000001,
-+
-+    //
-+    // Timer notification messages.
-+    //
-+    HvMessageTimerExpired = 0x80000010,
-+
-+    //
-+    // Error messages.
-+    //
-+    HvMessageTypeInvalidVpRegisterValue = 0x80000020,
-+    HvMessageTypeUnrecoverableException = 0x80000021,
-+    HvMessageTypeUnsupportedFeature = 0x80000022,
-+
-+    //
-+    // Trace buffer complete messages.
-+    //
-+    HvMessageTypeEventLogBufferComplete = 0x80000040,
-+
-+    //
-+    // Platform-specific processor intercept messages.
-+    //
-+    HvMessageTypeX64IoPortIntercept = 0x80010000,
-+    HvMessageTypeX64MsrIntercept = 0x80010001,
-+    HvMessageTypeX64CpuidIntercept = 0x80010002,
-+    HvMessageTypeX64ExceptionIntercept = 0x80010003,
-+    HvMessageTypeX64ApicEoi = 0x80010004,
-+    HvMessageTypeX64LegacyFpError = 0x80010005
-+
-+} HV_MESSAGE_TYPE, *PHV_MESSAGE_TYPE;
-+
-+//
-+// Define the number of synthetic interrupt sources.
-+//
-+
-+#define HV_SYNIC_SINT_COUNT (16)
-+#define HV_SYNIC_STIMER_COUNT (4)
-+
-+//
-+// Define the synthetic interrupt source index type.
-+//
-+
-+typedef UINT32 HV_SYNIC_SINT_INDEX, *PHV_SYNIC_SINT_INDEX;
-+
-+//
-+// Define partition identifier type.
-+//
-+
-+typedef UINT64 HV_PARTITION_ID, *PHV_PARTITION_ID;
-+
-+//
-+// Define invalid partition identifier.
-+//
-+#define HV_PARTITION_ID_INVALID ((HV_PARTITION_ID) 0x0)
-+
-+//
-+// Define connection identifier type.
-+//
-+
-+typedef union _HV_CONNECTION_ID
-+{
-+    UINT32 AsUINT32;
-+
-+    struct
-+    {
-+        UINT32 Id:24;
-+        UINT32 Reserved:8;
-+    } u;
-+
-+} HV_CONNECTION_ID, *PHV_CONNECTION_ID;
-+
-+//
-+// Define port identifier type.
-+//
-+
-+typedef union _HV_PORT_ID
-+{
-+    UINT32 AsUINT32;
-+
-+    struct
-+    {
-+        UINT32 Id:24;
-+        UINT32 Reserved:8;
-+    } u ;
-+
-+} HV_PORT_ID, *PHV_PORT_ID;
-+
-+//
-+// Define port type.
-+//
-+
-+typedef enum _HV_PORT_TYPE
-+{
-+    HvPortTypeMessage   = 1,
-+    HvPortTypeEvent     = 2,
-+    HvPortTypeMonitor   = 3
-+} HV_PORT_TYPE, *PHV_PORT_TYPE;
-+
-+//
-+// Define port information structure.
-+//
-+
-+typedef struct _HV_PORT_INFO
-+{
-+    HV_PORT_TYPE PortType;
-+    UINT32 Padding;
-+
-+    union
-+    {
-+        struct
-+        {
-+            HV_SYNIC_SINT_INDEX TargetSint;
-+            HV_VP_INDEX TargetVp;
-+            UINT64 RsvdZ;
-+        } MessagePortInfo;
-+
-+        struct
-+        {
-+            HV_SYNIC_SINT_INDEX TargetSint;
-+            HV_VP_INDEX TargetVp;
-+            UINT16 BaseFlagNumber;
-+            UINT16 FlagCount;
-+            UINT32 RsvdZ;
-+        } EventPortInfo;
-+
-+        struct
-+        {
-+            HV_GPA MonitorAddress;
-+            UINT64 RsvdZ;
-+        } MonitorPortInfo;
-+    };
-+} HV_PORT_INFO, *PHV_PORT_INFO;
-+
-+typedef const HV_PORT_INFO *PCHV_PORT_INFO;
-+
-+typedef struct _HV_CONNECTION_INFO
-+{
-+    HV_PORT_TYPE PortType;
-+    UINT32 Padding;
-+
-+    union
-+    {
-+        struct
-+        {
-+            UINT64 RsvdZ;
-+        } MessageConnectionInfo;
-+
-+        struct
-+        {
-+            UINT64 RsvdZ;
-+        } EventConnectionInfo;
-+
-+        struct
-+        {
-+            HV_GPA MonitorAddress;
-+        } MonitorConnectionInfo;
-+    };
-+} HV_CONNECTION_INFO, *PHV_CONNECTION_INFO;
-+
-+typedef const HV_CONNECTION_INFO *PCHV_CONNECTION_INFO;
-+
-+//
-+// Define synthetic interrupt controller message flags.
-+//
-+
-+typedef union _HV_MESSAGE_FLAGS
-+{
-+    UINT8 AsUINT8;
-+    struct
-+    {
-+        UINT8 MessagePending:1;
-+        UINT8 Reserved:7;
-+    };
-+} HV_MESSAGE_FLAGS, *PHV_MESSAGE_FLAGS;
-+
-+
-+//
-+// Define synthetic interrupt controller message header.
-+//
-+
-+typedef struct _HV_MESSAGE_HEADER
-+{
-+    HV_MESSAGE_TYPE     MessageType;
-+    UINT8               PayloadSize;
-+    HV_MESSAGE_FLAGS    MessageFlags;
-+    UINT8               Reserved[2];
-+    union
-+    {
-+        HV_PARTITION_ID Sender;
-+        HV_PORT_ID      Port;
-+    };
-+
-+} HV_MESSAGE_HEADER, *PHV_MESSAGE_HEADER;
-+
-+//
-+// Define timer message payload structure.
-+//
-+typedef struct _HV_TIMER_MESSAGE_PAYLOAD
-+{
-+    UINT32          TimerIndex;
-+    UINT32          Reserved;
-+    HV_NANO100_TIME ExpirationTime;     // When the timer expired
-+    HV_NANO100_TIME DeliveryTime;       // When the message was delivered
-+} HV_TIMER_MESSAGE_PAYLOAD, *PHV_TIMER_MESSAGE_PAYLOAD;
-+
-+//
-+// Define synthetic interrupt controller message format.
-+//
-+
-+typedef struct _HV_MESSAGE
-+{
-+    HV_MESSAGE_HEADER Header;
-+    union
-+    {
-+        UINT64 Payload[HV_MESSAGE_PAYLOAD_QWORD_COUNT];
-+    } u ;
-+} HV_MESSAGE, *PHV_MESSAGE;
-+
-+//
-+// Define the number of message buffers associated with each port.
-+//
-+
-+#define HV_PORT_MESSAGE_BUFFER_COUNT (16)
-+
-+//
-+// Define the synthetic interrupt message page layout.
-+//
-+
-+typedef struct _HV_MESSAGE_PAGE
-+{
-+    volatile HV_MESSAGE SintMessage[HV_SYNIC_SINT_COUNT];
-+} HV_MESSAGE_PAGE, *PHV_MESSAGE_PAGE;
-+
-+
-+//
-+// Define the synthetic interrupt controller event flags format.
-+//
-+
-+typedef union _HV_SYNIC_EVENT_FLAGS
-+{
-+    UINT8 Flags8[HV_EVENT_FLAGS_BYTE_COUNT];
-+    UINT32 Flags32[HV_EVENT_FLAGS_DWORD_COUNT];
-+} HV_SYNIC_EVENT_FLAGS, *PHV_SYNIC_EVENT_FLAGS;
-+
-+
-+//
-+// Define the synthetic interrupt flags page layout.
-+//
-+
-+typedef struct _HV_SYNIC_EVENT_FLAGS_PAGE
-+{
-+    volatile HV_SYNIC_EVENT_FLAGS SintEventFlags[HV_SYNIC_SINT_COUNT];
-+} HV_SYNIC_EVENT_FLAGS_PAGE, *PHV_SYNIC_EVENT_FLAGS_PAGE;
-+
-+
-+//
-+// Define SynIC control register.
-+//
-+typedef union _HV_SYNIC_SCONTROL
-+{
-+    UINT64 AsUINT64;
-+    struct
-+    {
-+        UINT64 Enable:1;
-+        UINT64 Reserved:63;
-+    };
-+} HV_SYNIC_SCONTROL, *PHV_SYNIC_SCONTROL;
-+
-+//
-+// Define synthetic interrupt source.
-+//
-+
-+typedef union _HV_SYNIC_SINT
-+{
-+    UINT64 AsUINT64;
-+    struct
-+    {
-+        UINT64 Vector    :8;
-+        UINT64 Reserved1 :8;
-+        UINT64 Masked    :1;
-+        UINT64 AutoEoi   :1;
-+        UINT64 Reserved2 :46;
-+    };
-+} HV_SYNIC_SINT, *PHV_SYNIC_SINT;
-+
-+//
-+// Define the format of the SIMP register
-+//
-+
-+typedef union _HV_SYNIC_SIMP
-+{
-+    UINT64 AsUINT64;
-+    struct
-+    {
-+        UINT64 SimpEnabled : 1;
-+        UINT64 Preserved   : 11;
-+        UINT64 BaseSimpGpa : 52;
-+    };
-+} HV_SYNIC_SIMP, *PHV_SYNIC_SIMP;
-+
-+//
-+// Define the format of the SIEFP register
-+//
-+
-+typedef union _HV_SYNIC_SIEFP
-+{
-+    UINT64 AsUINT64;
-+    struct
-+    {
-+        UINT64 SiefpEnabled : 1;
-+        UINT64 Preserved   : 11;
-+        UINT64 BaseSiefpGpa : 52;
-+    };
-+} HV_SYNIC_SIEFP, *PHV_SYNIC_SIEFP;
-+
-+//
-+// Definitions for the monitored notification facility
-+//
-+
-+typedef union _HV_MONITOR_TRIGGER_GROUP
-+{
-+    UINT64 AsUINT64;
-+
-+    struct
-+    {
-+        UINT32 Pending;
-+        UINT32 Armed;
-+    };
-+
-+} HV_MONITOR_TRIGGER_GROUP, *PHV_MONITOR_TRIGGER_GROUP;
-+
-+typedef struct _HV_MONITOR_PARAMETER
-+{
-+    HV_CONNECTION_ID    ConnectionId;
-+    UINT16              FlagNumber;
-+    UINT16              RsvdZ;
-+} HV_MONITOR_PARAMETER, *PHV_MONITOR_PARAMETER;
-+
-+typedef union _HV_MONITOR_TRIGGER_STATE
-+{
-+    UINT32 AsUINT32;
-+
-+    struct
-+    {
-+        UINT32 GroupEnable : 4;
-+        UINT32 RsvdZ       : 28;
-+    };
-+
-+} HV_MONITOR_TRIGGER_STATE, *PHV_MONITOR_TRIGGER_STATE;
-+
-+//
-+// HV_MONITOR_PAGE Layout
-+// ------------------------------------------------------
-+// | 0   | TriggerState (4 bytes) | Rsvd1 (4 bytes)     |
-+// | 8   | TriggerGroup[0]                              |
-+// | 10  | TriggerGroup[1]                              |
-+// | 18  | TriggerGroup[2]                              |
-+// | 20  | TriggerGroup[3]                              |
-+// | 28  | Rsvd2[0]                                     |
-+// | 30  | Rsvd2[1]                                     |
-+// | 38  | Rsvd2[2]                                     |
-+// | 40  | NextCheckTime[0][0]    | NextCheckTime[0][1] |
-+// | ...                                                |
-+// | 240 | Latency[0][0..3]                             |
-+// | 340 | Rsvz3[0]                                     |
-+// | 440 | Parameter[0][0]                              |
-+// | 448 | Parameter[0][1]                              |
-+// | ...                                                |
-+// | 840 | Rsvd4[0]                                     |
-+// ------------------------------------------------------
-+
-+typedef struct _HV_MONITOR_PAGE
-+{
-+    HV_MONITOR_TRIGGER_STATE TriggerState;
-+    UINT32                   RsvdZ1;
-+
-+    HV_MONITOR_TRIGGER_GROUP TriggerGroup[4];
-+    UINT64                   RsvdZ2[3];
-+
-+    INT32                    NextCheckTime[4][32];
-+
-+    UINT16                   Latency[4][32];
-+    UINT64                   RsvdZ3[32];
-+
-+    HV_MONITOR_PARAMETER     Parameter[4][32];
-+
-+    UINT8                    RsvdZ4[1984];
-+
-+} HV_MONITOR_PAGE, *PHV_MONITOR_PAGE;
-+
-+typedef volatile HV_MONITOR_PAGE* PVHV_MONITOR_PAGE;
---- /dev/null
-+++ b/drivers/staging/hv/include/HvTypes.h
-@@ -0,0 +1,31 @@
-+/*
-+ *
-+ * Copyright (c) 2009, Microsoft Corporation.
-+ *
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms and conditions of the GNU General Public License,
-+ * version 2, as published by the Free Software Foundation.
-+ *
-+ * This program is distributed in the hope it will be useful, but WITHOUT
-+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
-+ * more details.
-+ *
-+ * You should have received a copy of the GNU General Public License along with
-+ * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
-+ * Place - Suite 330, Boston, MA 02111-1307 USA.
-+ *
-+ * Authors:
-+ *   Haiyang Zhang <haiyangz@microsoft.com>
-+ *   Hank Janssen  <hjanssen@microsoft.com>
-+ *
-+ */
-+
-+
-+#pragma once
-+
-+typedef UINT64 HV_GPA, *PHV_GPA;
-+
-+#define HV_X64_PAGE_SIZE (4096)
-+#define HV_PAGE_SIZE HV_X64_PAGE_SIZE
-+
---- /dev/null
-+++ b/drivers/staging/hv/include/HvVpApi.h
-@@ -0,0 +1,51 @@
-+/*
-+ *
-+ * Copyright (c) 2009, Microsoft Corporation.
-+ *
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms and conditions of the GNU General Public License,
-+ * version 2, as published by the Free Software Foundation.
-+ *
-+ * This program is distributed in the hope it will be useful, but WITHOUT
-+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
-+ * more details.
-+ *
-+ * You should have received a copy of the GNU General Public License along with
-+ * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
-+ * Place - Suite 330, Boston, MA 02111-1307 USA.
-+ *
-+ * Authors:
-+ *   Haiyang Zhang <haiyangz@microsoft.com>
-+ *   Hank Janssen  <hjanssen@microsoft.com>
-+ *
-+ */
-+
-+
-+#pragma once
-+//
-+// Virtual Processor Indices
-+//
-+typedef UINT32 HV_VP_INDEX, *PHV_VP_INDEX;
-+
-+//
-+// The below CPUID leaves are present if VersionAndFeatures.HypervisorPresent
-+// is set by CPUID(HvCpuIdFunctionVersionAndFeatures).
-+// ==========================================================================
-+//
-+
-+typedef enum _HV_CPUID_FUNCTION
-+{
-+    HvCpuIdFunctionVersionAndFeatures           = 0x00000001,
-+    HvCpuIdFunctionHvVendorAndMaxFunction       = 0x40000000,
-+    HvCpuIdFunctionHvInterface                  = 0x40000001,
-+
-+    //
-+    // The remaining functions depend on the value of HvCpuIdFunctionInterface
-+    //
-+    HvCpuIdFunctionMsHvVersion                  = 0x40000002,
-+    HvCpuIdFunctionMsHvFeatures                 = 0x40000003,
-+    HvCpuIdFunctionMsHvEnlightenmentInformation = 0x40000004,
-+    HvCpuIdFunctionMsHvImplementationLimits     = 0x40000005
-+
-+} HV_CPUID_FUNCTION, *PHV_CPUID_FUNCTION;
---- /dev/null
-+++ b/drivers/staging/hv/include/List.h
-@@ -0,0 +1,269 @@
-+/*
-+ *
-+ * Copyright (c) 2009, Microsoft Corporation.
-+ *
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms and conditions of the GNU General Public License,
-+ * version 2, as published by the Free Software Foundation.
-+ *
-+ * This program is distributed in the hope it will be useful, but WITHOUT
-+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
-+ * more details.
-+ *
-+ * You should have received a copy of the GNU General Public License along with
-+ * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
-+ * Place - Suite 330, Boston, MA 02111-1307 USA.
-+ *
-+ * Authors:
-+ *   Haiyang Zhang <haiyangz@microsoft.com>
-+ *   Hank Janssen  <hjanssen@microsoft.com>
-+ *
-+ */
-+
-+
-+#ifndef _LIST_H_
-+#define _LIST_H_
-+
-+#include "osd.h"
-+/*
-+ *
-+ *  Doubly-linked list manipulation routines.  Implemented as macros
-+ *  but logically these are procedures.
-+ *
-+ */
-+
-+typedef DLIST_ENTRY LIST_ENTRY;
-+typedef DLIST_ENTRY *PLIST_ENTRY;
-+
-+//typedef struct LIST_ENTRY {
-+//   struct LIST_ENTRY * volatile Flink;
-+//   struct LIST_ENTRY * volatile Blink;
-+//} LIST_ENTRY, *PLIST_ENTRY;
-+
-+
-+
-+/*
-+ *  VOID
-+ *  InitializeListHead(
-+ *      PLIST_ENTRY ListHead
-+ *      );
-+ */
-+#define INITIALIZE_LIST_HEAD	InitializeListHead
-+
-+#define InitializeListHead(ListHead) (\
-+    (ListHead)->Flink = (ListHead)->Blink = (ListHead))
-+
-+
-+/*
-+ *  BOOLEAN
-+ *  IsListEmpty(
-+ *      PLIST_ENTRY ListHead
-+ *      );
-+ */
-+#define IS_LIST_EMPTY			IsListEmpty
-+
-+#define IsListEmpty(ListHead) \
-+    ((ListHead)->Flink == (ListHead))
-+
-+
-+/*
-+ *  PLIST_ENTRY
-+ *  NextListEntry(
-+ *      PLIST_ENTRY Entry
-+ *      );
-+ */
-+#define	NEXT_LIST_ENTRY			NextListEntry
-+
-+#define NextListEntry(Entry) \
-+    (Entry)->Flink
-+
-+
-+/*
-+ *  PLIST_ENTRY
-+ *  PrevListEntry(
-+ *      PLIST_ENTRY Entry
-+ *      );
-+ */
-+#define	PREV_LIST_ENTRY			PrevListEntry
-+
-+#define PrevListEntry(Entry) \
-+    (Entry)->Blink
-+
-+
-+/*
-+ *  PLIST_ENTRY
-+ *  TopListEntry(
-+ *      PLIST_ENTRY ListHead
-+ *      );
-+ */
-+#define	TOP_LIST_ENTRY			TopListEntry
-+
-+#define TopListEntry(ListHead) \
-+    (ListHead)->Flink
-+
-+
-+
-+/*
-+ *  PLIST_ENTRY
-+ *  RemoveHeadList(
-+ *      PLIST_ENTRY ListHead
-+ *      );
-+ */
-+
-+#define	REMOVE_HEAD_LIST		RemoveHeadList
-+
-+#define RemoveHeadList(ListHead) \
-+    (ListHead)->Flink;\
-+    {RemoveEntryList((ListHead)->Flink)}
-+
-+
-+/*
-+ *  PLIST_ENTRY
-+ *  RemoveTailList(
-+ *      PLIST_ENTRY ListHead
-+ *      );
-+ */
-+#define	REMOVE_TAIL_LIST		RemoveTailList
-+
-+#define RemoveTailList(ListHead) \
-+    (ListHead)->Blink;\
-+    {RemoveEntryList((ListHead)->Blink)}
-+
-+
-+/*
-+ *  VOID
-+ *  RemoveEntryList(
-+ *      PLIST_ENTRY Entry
-+ *      );
-+ */
-+#define	REMOVE_ENTRY_LIST		RemoveEntryList
-+
-+#define RemoveEntryList(Entry) {\
-+    PLIST_ENTRY _EX_Flink = (Entry)->Flink;\
-+    PLIST_ENTRY _EX_Blink = (Entry)->Blink;\
-+    _EX_Blink->Flink = _EX_Flink;\
-+    _EX_Flink->Blink = _EX_Blink;\
++	if (!blkdev->request_pool)
++	{
++		ret = -ENOMEM;
++		goto Cleanup;
 +	}
 +
 +
-+/*
-+ *  VOID
-+ *  AttachList(
-+ *      PLIST_ENTRY ListHead,
-+ *      PLIST_ENTRY ListEntry
-+ *      );
-+ */
-+#define	ATTACH_LIST		AttachList
++	// Call to the vsc driver to add the device
++	ret = storvsc_drv_obj->Base.OnDeviceAdd(device_obj, &device_info);
++	if (ret != 0)
++	{
++		DPRINT_ERR(BLKVSC_DRV, "unable to add blkvsc device");
++		goto Cleanup;
++	}
 +
-+#define AttachList(ListHead,ListEntry) {\
-+    PLIST_ENTRY _EX_ListHead = (ListHead);\
-+    PLIST_ENTRY _EX_Blink = (ListHead)->Blink;\
-+    (ListEntry)->Blink->Flink = _EX_ListHead;\
-+    _EX_Blink->Flink = (ListEntry);\
-+    _EX_ListHead->Blink = (ListEntry)->Blink;\
-+    (ListEntry)->Blink = _EX_Blink;\
++	blkdev->device_ctx = device_ctx;
++	blkdev->target = device_info.TargetId; // this identified the device 0 or 1
++	blkdev->path = device_info.PathId; // this identified the ide ctrl 0 or 1
++
++	device->driver_data = blkdev;
++
++	// Calculate the major and device num
++	if (blkdev->path == 0)
++	{
++		major = IDE0_MAJOR;
++		devnum = blkdev->path + blkdev->target;		// 0 or 1
++
++		if (!ide0_registered)
++		{
++			ret = register_blkdev(major, "ide");
++			if (ret != 0)
++			{
++				DPRINT_ERR(BLKVSC_DRV, "register_blkdev() failed! ret %d", ret);
++				goto Remove;
++			}
++
++			ide0_registered = 1;
++		}
++	}
++	else if (blkdev->path == 1)
++	{
++		major = IDE1_MAJOR;
++		devnum = blkdev->path + blkdev->target + 1; // 2 or 3
++
++		if (!ide1_registered)
++		{
++			ret = register_blkdev(major, "ide");
++			if (ret != 0)
++			{
++				DPRINT_ERR(BLKVSC_DRV, "register_blkdev() failed! ret %d", ret);
++				goto Remove;
++			}
++
++			ide1_registered = 1;
++		}
++
++	}
++	else
++	{
++		DPRINT_ERR(BLKVSC_DRV, "invalid pathid");
++		ret = -1;
++		goto Cleanup;
++	}
++
++	DPRINT_INFO(BLKVSC_DRV, "blkvsc registered for major %d!!", major);
++
++	blkdev->gd = alloc_disk(BLKVSC_MINORS);
++	if (!blkdev->gd)
++	{
++		DPRINT_ERR(BLKVSC_DRV, "register_blkdev() failed! ret %d", ret);
++		ret = -1;
++		goto Cleanup;
++	}
++
++	blkdev->gd->queue = blk_init_queue(blkvsc_request, &blkdev->lock);
++
++	blk_queue_max_segment_size(blkdev->gd->queue, PAGE_SIZE);
++	blk_queue_max_phys_segments(blkdev->gd->queue, MAX_MULTIPAGE_BUFFER_COUNT);
++	blk_queue_max_hw_segments(blkdev->gd->queue, MAX_MULTIPAGE_BUFFER_COUNT);
++	blk_queue_segment_boundary(blkdev->gd->queue, PAGE_SIZE-1);
++	blk_queue_bounce_limit(blkdev->gd->queue, BLK_BOUNCE_ANY);
++	blk_queue_dma_alignment(blkdev->gd->queue, 511);
++
++	blkdev->gd->major = major;
++	if (devnum == 1 || devnum == 3)
++		blkdev->gd->first_minor = BLKVSC_MINORS;
++	else
++		blkdev->gd->first_minor = 0;
++	blkdev->gd->fops = &block_ops;
++	blkdev->gd->private_data = blkdev;
++	sprintf(blkdev->gd->disk_name, "hd%c", 'a'+ devnum);
++
++	blkvsc_do_inquiry(blkdev);
++	if (blkdev->device_type == DVD_TYPE)
++	{
++		set_disk_ro(blkdev->gd, 1);
++		blkdev->gd->flags |= GENHD_FL_REMOVABLE;
++		blkvsc_do_read_capacity(blkdev);
++	}
++	else
++	{
++		blkvsc_do_read_capacity16(blkdev);
++	}
++
++	set_capacity(blkdev->gd, blkdev->capacity * (blkdev->sector_size/512));
++	blk_queue_hardsect_size(blkdev->gd->queue, blkdev->sector_size);
++	// go!
++	add_disk(blkdev->gd);
++
++	DPRINT_INFO(BLKVSC_DRV, "%s added!! capacity %llu sector_size %d", blkdev->gd->disk_name, blkdev->capacity, blkdev->sector_size);
++
++	return ret;
++
++Remove:
++	storvsc_drv_obj->Base.OnDeviceRemove(device_obj);
++
++Cleanup:
++	if (blkdev)
++	{
++		if (blkdev->request_pool)
++		{
++			kmem_cache_destroy(blkdev->request_pool);
++			blkdev->request_pool = NULL;
++		}
++		kfree(blkdev);
++		blkdev = NULL;
++	}
++
++	DPRINT_EXIT(BLKVSC_DRV);
++
++	return ret;
++}
++
++static void blkvsc_shutdown(struct device *device)
++{
++	struct block_device_context *blkdev = (struct block_device_context*)device->driver_data;
++	unsigned long flags;
++
++	if (!blkdev)
++		return;
++
++	DPRINT_DBG(BLKVSC_DRV, "blkvsc_shutdown - users %d disk %s\n", blkdev->users, blkdev->gd->disk_name);
++
++	spin_lock_irqsave(&blkdev->lock, flags);
++
++	blkdev->shutting_down = 1;
++
++	blk_stop_queue(blkdev->gd->queue);
++
++	spin_unlock_irqrestore(&blkdev->lock, flags);
++
++	while (blkdev->num_outstanding_reqs)
++	{
++		DPRINT_INFO(STORVSC, "waiting for %d requests to complete...", blkdev->num_outstanding_reqs);
++
++		udelay(100);
++	}
++
++	blkvsc_do_flush(blkdev);
++
++	spin_lock_irqsave(&blkdev->lock, flags);
++
++	blkvsc_cancel_pending_reqs(blkdev);
++
++	spin_unlock_irqrestore(&blkdev->lock, flags);
++}
++
++static int blkvsc_do_flush(struct block_device_context *blkdev)
++{
++	struct blkvsc_request *blkvsc_req=NULL;
++
++	DPRINT_DBG(BLKVSC_DRV, "blkvsc_do_flush()\n");
++
++	if (blkdev->device_type != HARDDISK_TYPE)
++		return 0;
++
++	blkvsc_req = kmem_cache_alloc(blkdev->request_pool, GFP_KERNEL);
++	if (!blkvsc_req)
++	{
++		return -ENOMEM;
++	}
++
++	memset(blkvsc_req, 0, sizeof(struct blkvsc_request));
++	init_waitqueue_head(&blkvsc_req->wevent);
++	blkvsc_req->dev = blkdev;
++	blkvsc_req->req = NULL;
++	blkvsc_req->write = 0;
++
++	blkvsc_req->request.DataBuffer.PfnArray[0] = 0;
++	blkvsc_req->request.DataBuffer.Offset = 0;
++	blkvsc_req->request.DataBuffer.Length = 0;
++
++	blkvsc_req->cmnd[0] = SYNCHRONIZE_CACHE;
++	blkvsc_req->cmd_len = 10;
++
++	// Set this here since the completion routine may be invoked and completed before we return
++	blkvsc_req->cond =0;
++	blkvsc_submit_request(blkvsc_req, blkvsc_cmd_completion);
++
++	wait_event_interruptible(blkvsc_req->wevent, blkvsc_req->cond);
++
++	kmem_cache_free(blkvsc_req->dev->request_pool, blkvsc_req);
++
++	return 0;
++}
++
++// Do a scsi INQUIRY cmd here to get the device type (ie disk or dvd)
++static int blkvsc_do_inquiry(struct block_device_context *blkdev)
++{
++	struct blkvsc_request *blkvsc_req=NULL;
++	struct page *page_buf;
++	unsigned char *buf;
++	unsigned char device_type;
++
++	DPRINT_DBG(BLKVSC_DRV, "blkvsc_do_inquiry()\n");
++
++	blkvsc_req = kmem_cache_alloc(blkdev->request_pool, GFP_KERNEL);
++	if (!blkvsc_req)
++	{
++		return -ENOMEM;
++	}
++
++	memset(blkvsc_req, 0, sizeof(struct blkvsc_request));
++	page_buf = alloc_page(GFP_KERNEL);
++	if (!page_buf)
++	{
++		kmem_cache_free(blkvsc_req->dev->request_pool, blkvsc_req);
++		return -ENOMEM;
++	}
++
++	init_waitqueue_head(&blkvsc_req->wevent);
++	blkvsc_req->dev = blkdev;
++	blkvsc_req->req = NULL;
++	blkvsc_req->write = 0;
++
++	blkvsc_req->request.DataBuffer.PfnArray[0] = page_to_pfn(page_buf);
++	blkvsc_req->request.DataBuffer.Offset = 0;
++	blkvsc_req->request.DataBuffer.Length = 64;
++
++	blkvsc_req->cmnd[0] = INQUIRY;
++	blkvsc_req->cmnd[1] = 0x1;		// Get product data
++	blkvsc_req->cmnd[2] = 0x83;		// mode page 83
++	blkvsc_req->cmnd[4] = 64;
++	blkvsc_req->cmd_len = 6;
++
++	// Set this here since the completion routine may be invoked and completed before we return
++	blkvsc_req->cond =0;
++
++	blkvsc_submit_request(blkvsc_req, blkvsc_cmd_completion);
++
++	DPRINT_DBG(BLKVSC_DRV, "waiting %p to complete - cond %d\n", blkvsc_req, blkvsc_req->cond);
++
++	wait_event_interruptible(blkvsc_req->wevent, blkvsc_req->cond);
++
++	buf = kmap(page_buf);
++
++	//PrintBytes(buf, 64);
++	// be to le
++	device_type = buf[0] & 0x1F;
++
++	if (device_type == 0x0)
++	{
++		blkdev->device_type = HARDDISK_TYPE;
++	}
++	else if (device_type == 0x5)
++	{
++		blkdev->device_type = DVD_TYPE;
++	}
++	else
++	{
++		// TODO: this is currently unsupported device type
++		blkdev->device_type = UNKNOWN_DEV_TYPE;
++	}
++
++	DPRINT_DBG(BLKVSC_DRV, "device type %d \n", device_type);
++
++	blkdev->device_id_len = buf[7];
++	if (blkdev->device_id_len > 64)
++		blkdev->device_id_len = 64;
++
++	memcpy(blkdev->device_id, &buf[8], blkdev->device_id_len);
++	//PrintBytes(blkdev->device_id, blkdev->device_id_len);
++
++	kunmap(page_buf);
++
++	__free_page(page_buf);
++
++	kmem_cache_free(blkvsc_req->dev->request_pool, blkvsc_req);
++
++	return 0;
++}
++
++// Do a scsi READ_CAPACITY cmd here to get the size of the disk
++static int blkvsc_do_read_capacity(struct block_device_context *blkdev)
++{
++	struct blkvsc_request *blkvsc_req=NULL;
++	struct page *page_buf;
++	unsigned char *buf;
++	struct scsi_sense_hdr sense_hdr;
++
++	DPRINT_DBG(BLKVSC_DRV, "blkvsc_do_read_capacity()\n");
++
++	blkdev->sector_size = 0;
++	blkdev->capacity = 0;
++	blkdev->media_not_present = 0; // assume a disk is present
++
++	blkvsc_req = kmem_cache_alloc(blkdev->request_pool, GFP_KERNEL);
++	if (!blkvsc_req)
++	{
++		return -ENOMEM;
++	}
++
++	memset(blkvsc_req, 0, sizeof(struct blkvsc_request));
++	page_buf = alloc_page(GFP_KERNEL);
++	if (!page_buf)
++	{
++		kmem_cache_free(blkvsc_req->dev->request_pool, blkvsc_req);
++		return -ENOMEM;
++	}
++
++	init_waitqueue_head(&blkvsc_req->wevent);
++	blkvsc_req->dev = blkdev;
++	blkvsc_req->req = NULL;
++	blkvsc_req->write = 0;
++
++	blkvsc_req->request.DataBuffer.PfnArray[0] = page_to_pfn(page_buf);
++	blkvsc_req->request.DataBuffer.Offset = 0;
++	blkvsc_req->request.DataBuffer.Length = 8;
++
++	blkvsc_req->cmnd[0] = READ_CAPACITY;
++	blkvsc_req->cmd_len = 16;
++
++	// Set this here since the completion routine may be invoked and completed before we return
++	blkvsc_req->cond =0;
++
++	blkvsc_submit_request(blkvsc_req, blkvsc_cmd_completion);
++
++	DPRINT_DBG(BLKVSC_DRV, "waiting %p to complete - cond %d\n", blkvsc_req, blkvsc_req->cond);
++
++	wait_event_interruptible(blkvsc_req->wevent, blkvsc_req->cond);
++
++	// check error
++	if (blkvsc_req->request.Status)
++	{
++		scsi_normalize_sense(blkvsc_req->sense_buffer, SCSI_SENSE_BUFFERSIZE, &sense_hdr);
++
++		if (sense_hdr.asc == 0x3A) // Medium not present
++		{
++			blkdev->media_not_present = 1;
++		}
++
++		return 0;
++	}
++	buf = kmap(page_buf);
++
++	// be to le
++	blkdev->capacity = ((buf[0] << 24) | (buf[1] << 16) | (buf[2] << 8) | buf[3]) + 1;
++	blkdev->sector_size = (buf[4] << 24) | (buf[5] << 16) | (buf[6] << 8) | buf[7];
++
++	kunmap(page_buf);
++
++	__free_page(page_buf);
++
++	kmem_cache_free(blkvsc_req->dev->request_pool, blkvsc_req);
++
++	return 0;
++}
++
++
++static int blkvsc_do_read_capacity16(struct block_device_context *blkdev)
++{
++	struct blkvsc_request *blkvsc_req=NULL;
++	struct page *page_buf;
++	unsigned char *buf;
++	struct scsi_sense_hdr sense_hdr;
++
++	DPRINT_DBG(BLKVSC_DRV, "blkvsc_do_read_capacity16()\n");
++
++	blkdev->sector_size = 0;
++	blkdev->capacity = 0;
++	blkdev->media_not_present = 0; // assume a disk is present
++
++	blkvsc_req = kmem_cache_alloc(blkdev->request_pool, GFP_KERNEL);
++	if (!blkvsc_req)
++	{
++		return -ENOMEM;
++	}
++
++	memset(blkvsc_req, 0, sizeof(struct blkvsc_request));
++	page_buf = alloc_page(GFP_KERNEL);
++	if (!page_buf)
++	{
++		kmem_cache_free(blkvsc_req->dev->request_pool, blkvsc_req);
++		return -ENOMEM;
++	}
++
++	init_waitqueue_head(&blkvsc_req->wevent);
++	blkvsc_req->dev = blkdev;
++	blkvsc_req->req = NULL;
++	blkvsc_req->write = 0;
++
++	blkvsc_req->request.DataBuffer.PfnArray[0] = page_to_pfn(page_buf);
++	blkvsc_req->request.DataBuffer.Offset = 0;
++	blkvsc_req->request.DataBuffer.Length = 12;
++
++	blkvsc_req->cmnd[0] = 0x9E; //READ_CAPACITY16;
++	blkvsc_req->cmd_len = 16;
++
++	// Set this here since the completion routine may be invoked and completed before we return
++	blkvsc_req->cond =0;
++
++	blkvsc_submit_request(blkvsc_req, blkvsc_cmd_completion);
++
++	DPRINT_DBG(BLKVSC_DRV, "waiting %p to complete - cond %d\n", blkvsc_req, blkvsc_req->cond);
++
++	wait_event_interruptible(blkvsc_req->wevent, blkvsc_req->cond);
++
++	// check error
++	if (blkvsc_req->request.Status)
++	{
++		scsi_normalize_sense(blkvsc_req->sense_buffer, SCSI_SENSE_BUFFERSIZE, &sense_hdr);
++
++		if (sense_hdr.asc == 0x3A) // Medium not present
++		{
++			blkdev->media_not_present = 1;
++		}
++
++		return 0;
++	}
++	buf = kmap(page_buf);
++
++	// be to le
++	blkdev->capacity = be64_to_cpu(*(unsigned long long*) &buf[0]) + 1;
++	blkdev->sector_size = be32_to_cpu(*(unsigned int*)&buf[8]);
++
++	//blkdev->capacity = ((buf[0] << 24) | (buf[1] << 16) | (buf[2] << 8) | buf[3]) + 1;
++	//blkdev->sector_size = (buf[4] << 24) | (buf[5] << 16) | (buf[6] << 8) | buf[7];
++
++	kunmap(page_buf);
++
++	__free_page(page_buf);
++
++	kmem_cache_free(blkvsc_req->dev->request_pool, blkvsc_req);
++
++	return 0;
++}
++
++/*++
++
++Name:	blkvsc_remove()
++
++Desc:	Callback when our device is removed
++
++--*/
++static int blkvsc_remove(struct device *device)
++{
++	int ret=0;
++
++	struct driver_context *driver_ctx = driver_to_driver_context(device->driver);
++	struct blkvsc_driver_context *blkvsc_drv_ctx = (struct blkvsc_driver_context*)driver_ctx;
++	STORVSC_DRIVER_OBJECT* storvsc_drv_obj = &blkvsc_drv_ctx->drv_obj;
++
++	struct device_context *device_ctx = device_to_device_context(device);
++	DEVICE_OBJECT* device_obj = &device_ctx->device_obj;
++	struct block_device_context *blkdev = (struct block_device_context*)device->driver_data;
++	unsigned long flags;
++
++	DPRINT_ENTER(BLKVSC_DRV);
++
++	DPRINT_DBG(BLKVSC_DRV, "blkvsc_remove()\n");
++
++	if (!storvsc_drv_obj->Base.OnDeviceRemove)
++	{
++		DPRINT_EXIT(BLKVSC_DRV);
++		return -1;
++	}
++
++	// Call to the vsc driver to let it know that the device is being removed
++	ret = storvsc_drv_obj->Base.OnDeviceRemove(device_obj);
++	if (ret != 0)
++	{
++		// TODO:
++		DPRINT_ERR(BLKVSC_DRV, "unable to remove blkvsc device (ret %d)", ret);
++	}
++
++	// Get to a known state
++	spin_lock_irqsave(&blkdev->lock, flags);
++
++	blkdev->shutting_down = 1;
++
++	blk_stop_queue(blkdev->gd->queue);
++
++	spin_unlock_irqrestore(&blkdev->lock, flags);
++
++	while (blkdev->num_outstanding_reqs)
++	{
++		DPRINT_INFO(STORVSC, "waiting for %d requests to complete...", blkdev->num_outstanding_reqs);
++
++		udelay(100);
++	}
++
++	blkvsc_do_flush(blkdev);
++
++	spin_lock_irqsave(&blkdev->lock, flags);
++
++	blkvsc_cancel_pending_reqs(blkdev);
++
++	spin_unlock_irqrestore(&blkdev->lock, flags);
++
++	blk_cleanup_queue(blkdev->gd->queue);
++
++	del_gendisk(blkdev->gd);
++
++	kmem_cache_destroy(blkdev->request_pool);
++
++	kfree(blkdev);
++
++	DPRINT_EXIT(BLKVSC_DRV);
++
++	return ret;
++}
++
++static void blkvsc_init_rw(struct blkvsc_request *blkvsc_req)
++{
++	ASSERT(blkvsc_req->req);
++	ASSERT(blkvsc_req->sector_count <= (MAX_MULTIPAGE_BUFFER_COUNT*8));
++
++	blkvsc_req->cmd_len = 16;
++
++	if (blkvsc_req->sector_start > 0xffffffff)
++	{
++		if (rq_data_dir(blkvsc_req->req))
++		{
++			blkvsc_req->write = 1;
++			blkvsc_req->cmnd[0] = WRITE_16;
++		}
++		else
++		{
++			blkvsc_req->write = 0;
++			blkvsc_req->cmnd[0] = READ_16;
++		}
++
++		blkvsc_req->cmnd[1] |= blk_fua_rq(blkvsc_req->req) ? 0x8 : 0;
++
++		*(unsigned long long*)&blkvsc_req->cmnd[2] = cpu_to_be64(blkvsc_req->sector_start);
++		*(unsigned int*)&blkvsc_req->cmnd[10] = cpu_to_be32(blkvsc_req->sector_count);
++	}
++	else if ((blkvsc_req->sector_count > 0xff) || (blkvsc_req->sector_start > 0x1fffff))
++	{
++		if (rq_data_dir(blkvsc_req->req))
++		{
++			blkvsc_req->write = 1;
++			blkvsc_req->cmnd[0] = WRITE_10;
++		}
++		else
++		{
++			blkvsc_req->write = 0;
++			blkvsc_req->cmnd[0] = READ_10;
++		}
++
++		blkvsc_req->cmnd[1] |= blk_fua_rq(blkvsc_req->req) ? 0x8 : 0;
++
++		*(unsigned int *)&blkvsc_req->cmnd[2] = cpu_to_be32(blkvsc_req->sector_start);
++		*(unsigned short*)&blkvsc_req->cmnd[7] = cpu_to_be16(blkvsc_req->sector_count);
 +    }
++	else
++	{
++		if (rq_data_dir(blkvsc_req->req))
++		{
++			blkvsc_req->write = 1;
++			blkvsc_req->cmnd[0] = WRITE_6;
++		}
++		else
++		{
++			blkvsc_req->write = 0;
++			blkvsc_req->cmnd[0] = READ_6;
++		}
 +
++		*(unsigned int *)&blkvsc_req->cmnd[1] = cpu_to_be32(blkvsc_req->sector_start) >> 8;
++		blkvsc_req->cmnd[1] &= 0x1f;
++		blkvsc_req->cmnd[4] = (unsigned char) blkvsc_req->sector_count;
++	}
++}
 +
-+
-+/*
-+ *  VOID
-+ *  InsertTailList(
-+ *      PLIST_ENTRY ListHead,
-+ *      PLIST_ENTRY Entry
-+ *      );
-+ */
-+
-+#define	INSERT_TAIL_LIST		InsertTailList
-+
-+#define InsertTailList(ListHead,Entry) {\
-+    PLIST_ENTRY _EX_ListHead = (ListHead);\
-+    PLIST_ENTRY _EX_Blink = (ListHead)->Blink;\
-+    (Entry)->Flink = _EX_ListHead;\
-+    (Entry)->Blink = _EX_Blink;\
-+    _EX_Blink->Flink = (Entry);\
-+    _EX_ListHead->Blink = (Entry);\
-+    }
-+
-+
-+/*
-+ *  VOID
-+ *  InsertHeadList(
-+ *      PLIST_ENTRY ListHead,
-+ *      PLIST_ENTRY Entry
-+ *      );
-+ */
-+#define	INSERT_HEAD_LIST		InsertHeadList
-+
-+#define InsertHeadList(ListHead,Entry) {\
-+    PLIST_ENTRY _EX_ListHead = (ListHead);\
-+    PLIST_ENTRY _EX_Flink = (ListHead)->Flink;\
-+    (Entry)->Flink = _EX_Flink;\
-+    (Entry)->Blink = _EX_ListHead;\
-+    _EX_Flink->Blink = (Entry);\
-+    _EX_ListHead->Flink = (Entry);\
-+    }
-+
-+
-+/*
-+ *  VOID
-+ *  IterateListEntries(
-+ *      PLIST_ENTRY anchor,
-+ *      PLIST_ENTRY index,
-+ *		PLIST_ENTRY listp
-+ *      );
-+ */
-+
-+#define	ITERATE_LIST_ENTRIES	IterateListEntries
-+
-+#define IterateListEntries(anchor, index, listp) \
-+	(anchor) = (LIST_ENTRY *)(listp); \
-+	for((index) = (anchor)->Flink; (index) != (anchor); (index) = (index)->Flink)
-+
-+
-+
-+/*
-+ *  PSINGLE_LIST_ENTRY
-+ *  PopEntryList(
-+ *      PSINGLE_LIST_ENTRY ListHead
-+ *      );
-+ */
-+
-+#define	POP_ENTRY_LIST		PopEntryList
-+
-+#define PopEntryList(ListHead) \
-+    (ListHead)->Next;\
-+    {\
-+        PSINGLE_LIST_ENTRY FirstEntry;\
-+        FirstEntry = (ListHead)->Next;\
-+        if (FirstEntry != NULL) {     \
-+            (ListHead)->Next = FirstEntry->Next;\
-+        }                             \
-+    }
-+
-+
-+
-+/*
-+ *  VOID
-+ *  PushEntryList(
-+ *      PSINGLE_LIST_ENTRY ListHead,
-+ *		PSINGLE_LIST_ENTRY Entry
-+ *      );
-+ */
-+
-+#define	PUSH_ENTRY_LIST			PushEntryList
-+
-+#define PushEntryList(ListHead,Entry) \
-+    (Entry)->Next = (ListHead)->Next; \
-+    (ListHead)->Next = (Entry)
-+
-+#ifndef CONTAINING_RECORD
-+#define CONTAINING_RECORD(address, type, field) ((type *)( \
-+                                                  (PCHAR)(address) - \
-+                                                  (PCHAR)(&((type *)0)->field)))
-+#endif /* CONTAINING_RECORD */
-+
-+#endif /* _LIST_H_ */
-+
-+/* EOF */
---- /dev/null
-+++ b/drivers/staging/hv/include/nvspprotocol.h
-@@ -0,0 +1,306 @@
-+/*
-+ *
-+ * Copyright (c) 2009, Microsoft Corporation.
-+ *
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms and conditions of the GNU General Public License,
-+ * version 2, as published by the Free Software Foundation.
-+ *
-+ * This program is distributed in the hope it will be useful, but WITHOUT
-+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
-+ * more details.
-+ *
-+ * You should have received a copy of the GNU General Public License along with
-+ * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
-+ * Place - Suite 330, Boston, MA 02111-1307 USA.
-+ *
-+ * Authors:
-+ *   Haiyang Zhang <haiyangz@microsoft.com>
-+ *   Hank Janssen  <hjanssen@microsoft.com>
-+ *
-+ */
-+
-+
-+#pragma once
-+
-+#include <VmbusChannelInterface.h>
-+
-+#define NVSP_INVALID_PROTOCOL_VERSION           ((UINT32)0xFFFFFFFF)
-+
-+#define NVSP_PROTOCOL_VERSION_1                 2
-+#define NVSP_MIN_PROTOCOL_VERSION               NVSP_PROTOCOL_VERSION_1
-+#define NVSP_MAX_PROTOCOL_VERSION               NVSP_PROTOCOL_VERSION_1
-+
-+typedef enum _NVSP_MESSAGE_TYPE
++static int blkvsc_submit_request(struct blkvsc_request *blkvsc_req, void (*request_completion)(STORVSC_REQUEST*) )
 +{
-+    NvspMessageTypeNone = 0,
-+
-+    //
-+    // Init Messages
-+    //
-+    NvspMessageTypeInit                         = 1,
-+    NvspMessageTypeInitComplete                 = 2,
-+
-+    NvspVersionMessageStart                     = 100,
-+
-+    //
-+    // Version 1 Messages
-+    //
-+    NvspMessage1TypeSendNdisVersion             = NvspVersionMessageStart,
-+
-+    NvspMessage1TypeSendReceiveBuffer,
-+    NvspMessage1TypeSendReceiveBufferComplete,
-+    NvspMessage1TypeRevokeReceiveBuffer,
-+
-+    NvspMessage1TypeSendSendBuffer,
-+    NvspMessage1TypeSendSendBufferComplete,
-+    NvspMessage1TypeRevokeSendBuffer,
-+
-+    NvspMessage1TypeSendRNDISPacket,
-+    NvspMessage1TypeSendRNDISPacketComplete,
-+
-+    //
-+    // This should be set to the number of messages for the version
-+    // with the maximum number of messages.
-+    //
-+    NvspNumMessagePerVersion                    = 9,
-+
-+} NVSP_MESSAGE_TYPE, *PNVSP_MESSAGE_TYPE;
-+
-+typedef enum _NVSP_STATUS
-+{
-+    NvspStatusNone = 0,
-+    NvspStatusSuccess,
-+    NvspStatusFailure,
-+    NvspStatusProtocolVersionRangeTooNew,
-+    NvspStatusProtocolVersionRangeTooOld,
-+    NvspStatusInvalidRndisPacket,
-+    NvspStatusBusy,
-+    NvspStatusMax,
-+} NVSP_STATUS, *PNVSP_STATUS;
-+
-+#pragma pack(push, 1)
-+
-+typedef struct _NVSP_MESSAGE_HEADER
-+{
-+    UINT32                                  MessageType;
-+} NVSP_MESSAGE_HEADER, *PNVSP_MESSAGE_HEADER;
-+
-+//
-+// Init Messages
-+//
-+
-+//
-+// This message is used by the VSC to initialize the channel
-+// after the channels has been opened. This message should
-+// never include anything other then versioning (i.e. this
-+// message will be the same for ever).
-+//
-+typedef struct _NVSP_MESSAGE_INIT
-+{
-+    UINT32                                  MinProtocolVersion;
-+    UINT32                                  MaxProtocolVersion;
-+} NVSP_MESSAGE_INIT, *PNVSP_MESSAGE_INIT;
-+
-+//
-+// This message is used by the VSP to complete the initialization
-+// of the channel. This message should never include anything other
-+// then versioning (i.e. this message will be the same for ever).
-+//
-+typedef struct _NVSP_MESSAGE_INIT_COMPLETE
-+{
-+    UINT32                                  NegotiatedProtocolVersion;
-+    UINT32                                  MaximumMdlChainLength;
-+    UINT32                                  Status;
-+} NVSP_MESSAGE_INIT_COMPLETE, *PNVSP_MESSAGE_INIT_COMPLETE;
-+
-+typedef union _NVSP_MESSAGE_INIT_UBER
-+{
-+    NVSP_MESSAGE_INIT                       Init;
-+    NVSP_MESSAGE_INIT_COMPLETE              InitComplete;
-+} NVSP_MESSAGE_INIT_UBER;
-+
-+//
-+// Version 1 Messages
-+//
-+
-+//
-+// This message is used by the VSC to send the NDIS version
-+// to the VSP. The VSP can use this information when handling
-+// OIDs sent by the VSC.
-+//
-+typedef struct _NVSP_1_MESSAGE_SEND_NDIS_VERSION
-+{
-+    UINT32                                  NdisMajorVersion;
-+    UINT32                                  NdisMinorVersion;
-+} NVSP_1_MESSAGE_SEND_NDIS_VERSION, *PNVSP_1_MESSAGE_SEND_NDIS_VERSION;
-+
-+//
-+// This message is used by the VSC to send a receive buffer
-+// to the VSP. The VSP can then use the receive buffer to
-+// send data to the VSC.
-+//
-+typedef struct _NVSP_1_MESSAGE_SEND_RECEIVE_BUFFER
-+{
-+    GPADL_HANDLE                            GpadlHandle;
-+    UINT16                                  Id;
-+} NVSP_1_MESSAGE_SEND_RECEIVE_BUFFER, *PNVSP_1_MESSAGE_SEND_RECEIVE_BUFFER;
-+
-+typedef struct _NVSP_1_RECEIVE_BUFFER_SECTION
-+{
-+    UINT32                                  Offset;
-+    UINT32                                  SubAllocationSize;
-+    UINT32                                  NumSubAllocations;
-+    UINT32                                  EndOffset;
-+} NVSP_1_RECEIVE_BUFFER_SECTION, *PNVSP_1_RECEIVE_BUFFER_SECTION;
-+
-+//
-+// This message is used by the VSP to acknowledge a receive
-+// buffer send by the VSC. This message must be sent by the
-+// VSP before the VSP uses the receive buffer.
-+//
-+typedef struct _NVSP_1_MESSAGE_SEND_RECEIVE_BUFFER_COMPLETE
-+{
-+    UINT32                                  Status;
-+    UINT32                                  NumSections;
-+
-+    //
-+    // The receive buffer is split into two parts, a large
-+    // suballocation section and a small suballocation
-+    // section. These sections are then suballocated by a
-+    // certain size.
-+    //
-+    // For example, the following break up of the receive
-+    // buffer has 6 large suballocations and 10 small
-+    // suballocations.
-+    //
-+    // |            Large Section          |  |   Small Section   |
-+    // ------------------------------------------------------------
-+    // |     |     |     |     |     |     |  | | | | | | | | | | |
-+    // |                                      |
-+    // LargeOffset                            SmallOffset
-+    //
-+    NVSP_1_RECEIVE_BUFFER_SECTION           Sections[1];
-+
-+} NVSP_1_MESSAGE_SEND_RECEIVE_BUFFER_COMPLETE, *PNVSP_1_MESSAGE_SEND_RECEIVE_BUFFER_COMPLETE;
-+
-+//
-+// This message is sent by the VSC to revoke the receive buffer.
-+// After the VSP completes this transaction, the vsp should never
-+// use the receive buffer again.
-+//
-+typedef struct _NVSP_1_MESSAGE_REVOKE_RECEIVE_BUFFER
-+{
-+    UINT16                                  Id;
-+} NVSP_1_MESSAGE_REVOKE_RECEIVE_BUFFER, *PNVSP_1_MESSAGE_REVOKE_RECEIVE_BUFFER;
-+
-+//
-+// This message is used by the VSC to send a send buffer
-+// to the VSP. The VSC can then use the send buffer to
-+// send data to the VSP.
-+//
-+typedef struct _NVSP_1_MESSAGE_SEND_SEND_BUFFER
-+{
-+    GPADL_HANDLE                            GpadlHandle;
-+    UINT16                                  Id;
-+} NVSP_1_MESSAGE_SEND_SEND_BUFFER, *PNVSP_1_MESSAGE_SEND_SEND_BUFFER;
-+
-+//
-+// This message is used by the VSP to acknowledge a send
-+// buffer sent by the VSC. This message must be sent by the
-+// VSP before the VSP uses the sent buffer.
-+//
-+typedef struct _NVSP_1_MESSAGE_SEND_SEND_BUFFER_COMPLETE
-+{
-+    UINT32                                  Status;
-+
-+    //
-+    // The VSC gets to choose the size of the send buffer and
-+    // the VSP gets to choose the sections size of the buffer.
-+    // This was done to enable dynamic reconfigurations when
-+    // the cost of GPA-direct buffers decreases.
-+    //
-+    UINT32                                  SectionSize;
-+} NVSP_1_MESSAGE_SEND_SEND_BUFFER_COMPLETE, *PNVSP_1_MESSAGE_SEND_SEND_BUFFER_COMPLETE;
-+
-+//
-+// This message is sent by the VSC to revoke the send buffer.
-+// After the VSP completes this transaction, the vsp should never
-+// use the send buffer again.
-+//
-+typedef struct _NVSP_1_MESSAGE_REVOKE_SEND_BUFFER
-+{
-+    UINT16                                  Id;
-+} NVSP_1_MESSAGE_REVOKE_SEND_BUFFER, *PNVSP_1_MESSAGE_REVOKE_SEND_BUFFER;
-+
-+//
-+// This message is used by both the VSP and the VSC to send
-+// a RNDIS message to the opposite channel endpoint.
-+//
-+typedef struct _NVSP_1_MESSAGE_SEND_RNDIS_PACKET
-+{
-+    //
-+    // This field is specified by RNIDS. They assume there's
-+    // two different channels of communication. However,
-+    // the Network VSP only has one. Therefore, the channel
-+    // travels with the RNDIS packet.
-+    //
-+    UINT32                                  ChannelType;
-+
-+    //
-+    // This field is used to send part or all of the data
-+    // through a send buffer. This values specifies an
-+    // index into the send buffer. If the index is
-+    // 0xFFFFFFFF, then the send buffer is not being used
-+    // and all of the data was sent through other VMBus
-+    // mechanisms.
-+    //
-+    UINT32                                  SendBufferSectionIndex;
-+    UINT32                                  SendBufferSectionSize;
-+} NVSP_1_MESSAGE_SEND_RNDIS_PACKET, *PNVSP_1_MESSAGE_SEND_RNDIS_PACKET;
-+
-+//
-+// This message is used by both the VSP and the VSC to complete
-+// a RNDIS message to the opposite channel endpoint. At this
-+// point, the initiator of this message cannot use any resources
-+// associated with the original RNDIS packet.
-+//
-+typedef struct _NVSP_1_MESSAGE_SEND_RNDIS_PACKET_COMPLETE
-+{
-+    UINT32                                  Status;
-+} NVSP_1_MESSAGE_SEND_RNDIS_PACKET_COMPLETE, *PNVSP_1_MESSAGE_SEND_RNDIS_PACKET_COMPLETE;
-+
-+typedef union _NVSP_MESSAGE_1_UBER
-+{
-+    NVSP_1_MESSAGE_SEND_NDIS_VERSION            SendNdisVersion;
-+
-+    NVSP_1_MESSAGE_SEND_RECEIVE_BUFFER          SendReceiveBuffer;
-+    NVSP_1_MESSAGE_SEND_RECEIVE_BUFFER_COMPLETE SendReceiveBufferComplete;
-+    NVSP_1_MESSAGE_REVOKE_RECEIVE_BUFFER        RevokeReceiveBuffer;
-+
-+    NVSP_1_MESSAGE_SEND_SEND_BUFFER             SendSendBuffer;
-+    NVSP_1_MESSAGE_SEND_SEND_BUFFER_COMPLETE    SendSendBufferComplete;
-+    NVSP_1_MESSAGE_REVOKE_SEND_BUFFER           RevokeSendBuffer;
-+
-+    NVSP_1_MESSAGE_SEND_RNDIS_PACKET            SendRNDISPacket;
-+    NVSP_1_MESSAGE_SEND_RNDIS_PACKET_COMPLETE   SendRNDISPacketComplete;
-+} NVSP_1_MESSAGE_UBER;
-+
-+typedef union _NVSP_ALL_MESSAGES
-+{
-+    NVSP_MESSAGE_INIT_UBER                  InitMessages;
-+    NVSP_1_MESSAGE_UBER                     Version1Messages;
-+
-+} NVSP_ALL_MESSAGES;
-+
-+//
-+// ALL Messages
-+//
-+typedef struct _NVSP_MESSAGE
-+{
-+    NVSP_MESSAGE_HEADER                     Header;
-+    NVSP_ALL_MESSAGES                       Messages;
-+} NVSP_MESSAGE, *PNVSP_MESSAGE;
-+
-+#pragma pack(pop)
---- /dev/null
-+++ b/drivers/staging/hv/include/rndis.h
-@@ -0,0 +1,836 @@
-+/*
-+ *
-+ * Copyright (c) 2009, Microsoft Corporation.
-+ *
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms and conditions of the GNU General Public License,
-+ * version 2, as published by the Free Software Foundation.
-+ *
-+ * This program is distributed in the hope it will be useful, but WITHOUT
-+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
-+ * more details.
-+ *
-+ * You should have received a copy of the GNU General Public License along with
-+ * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
-+ * Place - Suite 330, Boston, MA 02111-1307 USA.
-+ *
-+ * Authors:
-+ *   Haiyang Zhang <haiyangz@microsoft.com>
-+ *   Hank Janssen  <hjanssen@microsoft.com>
-+ *
-+ */
-+
-+
-+#ifndef _RNDIS_H_
-+#define _RNDIS_H_
-+
-+//
-+//  Basic types
-+//
-+typedef UINT32                                  RNDIS_REQUEST_ID;
-+typedef UINT32                                  RNDIS_HANDLE;
-+typedef UINT32                                  RNDIS_STATUS;
-+typedef UINT32                                  RNDIS_REQUEST_TYPE;
-+typedef UINT32                                  RNDIS_OID;
-+typedef UINT32                                  RNDIS_CLASS_ID;
-+typedef UINT32                                  RNDIS_MEDIUM;
-+typedef UINT32                                  *PRNDIS_REQUEST_ID;
-+typedef UINT32                                  *PRNDIS_HANDLE;
-+typedef UINT32                                  *PRNDIS_STATUS;
-+typedef UINT32                                  *PRNDIS_REQUEST_TYPE;
-+typedef UINT32                                  *PRNDIS_OID;
-+typedef UINT32                                  *PRNDIS_CLASS_ID;
-+typedef UINT32                                  *PRNDIS_MEDIUM;
-+typedef UINT32                                  RNDIS_AF;
-+
-+//
-+//  Status codes
-+//
-+
-+#ifndef STATUS_SUCCESS
-+#define STATUS_SUCCESS                          (0x00000000L)
-+#endif
-+
-+#ifndef STATUS_UNSUCCESSFUL
-+#define STATUS_UNSUCCESSFUL                     (0xC0000001L)
-+#endif
-+
-+#ifndef STATUS_PENDING
-+#define STATUS_PENDING                          (0x00000103L)
-+#endif
-+
-+#ifndef STATUS_INSUFFICIENT_RESOURCES
-+#define STATUS_INSUFFICIENT_RESOURCES           (0xC000009AL)
-+#endif
-+
-+#ifndef STATUS_BUFFER_OVERFLOW
-+#define STATUS_BUFFER_OVERFLOW                  (0x80000005L)
-+#endif
-+
-+#ifndef STATUS_NOT_SUPPORTED
-+#define STATUS_NOT_SUPPORTED                    (0xC00000BBL)
-+#endif
-+
-+#define RNDIS_STATUS_SUCCESS                    ((RNDIS_STATUS)STATUS_SUCCESS)
-+#define RNDIS_STATUS_PENDING                    ((RNDIS_STATUS)STATUS_PENDING)
-+#define RNDIS_STATUS_NOT_RECOGNIZED             ((RNDIS_STATUS)0x00010001L)
-+#define RNDIS_STATUS_NOT_COPIED                 ((RNDIS_STATUS)0x00010002L)
-+#define RNDIS_STATUS_NOT_ACCEPTED               ((RNDIS_STATUS)0x00010003L)
-+#define RNDIS_STATUS_CALL_ACTIVE                ((RNDIS_STATUS)0x00010007L)
-+
-+#define RNDIS_STATUS_ONLINE                     ((RNDIS_STATUS)0x40010003L)
-+#define RNDIS_STATUS_RESET_START                ((RNDIS_STATUS)0x40010004L)
-+#define RNDIS_STATUS_RESET_END                  ((RNDIS_STATUS)0x40010005L)
-+#define RNDIS_STATUS_RING_STATUS                ((RNDIS_STATUS)0x40010006L)
-+#define RNDIS_STATUS_CLOSED                     ((RNDIS_STATUS)0x40010007L)
-+#define RNDIS_STATUS_WAN_LINE_UP                ((RNDIS_STATUS)0x40010008L)
-+#define RNDIS_STATUS_WAN_LINE_DOWN              ((RNDIS_STATUS)0x40010009L)
-+#define RNDIS_STATUS_WAN_FRAGMENT               ((RNDIS_STATUS)0x4001000AL)
-+#define RNDIS_STATUS_MEDIA_CONNECT              ((RNDIS_STATUS)0x4001000BL)
-+#define RNDIS_STATUS_MEDIA_DISCONNECT           ((RNDIS_STATUS)0x4001000CL)
-+#define RNDIS_STATUS_HARDWARE_LINE_UP           ((RNDIS_STATUS)0x4001000DL)
-+#define RNDIS_STATUS_HARDWARE_LINE_DOWN         ((RNDIS_STATUS)0x4001000EL)
-+#define RNDIS_STATUS_INTERFACE_UP               ((RNDIS_STATUS)0x4001000FL)
-+#define RNDIS_STATUS_INTERFACE_DOWN             ((RNDIS_STATUS)0x40010010L)
-+#define RNDIS_STATUS_MEDIA_BUSY                 ((RNDIS_STATUS)0x40010011L)
-+#define RNDIS_STATUS_MEDIA_SPECIFIC_INDICATION  ((RNDIS_STATUS)0x40010012L)
-+#define RNDIS_STATUS_WW_INDICATION              RNDIS_STATUS_MEDIA_SPECIFIC_INDICATION
-+#define RNDIS_STATUS_LINK_SPEED_CHANGE          ((RNDIS_STATUS)0x40010013L)
-+
-+#define RNDIS_STATUS_NOT_RESETTABLE             ((RNDIS_STATUS)0x80010001L)
-+#define RNDIS_STATUS_SOFT_ERRORS                ((RNDIS_STATUS)0x80010003L)
-+#define RNDIS_STATUS_HARD_ERRORS                ((RNDIS_STATUS)0x80010004L)
-+#define RNDIS_STATUS_BUFFER_OVERFLOW            ((RNDIS_STATUS)STATUS_BUFFER_OVERFLOW)
-+
-+#define RNDIS_STATUS_FAILURE                    ((RNDIS_STATUS)STATUS_UNSUCCESSFUL)
-+#define RNDIS_STATUS_RESOURCES                  ((RNDIS_STATUS)STATUS_INSUFFICIENT_RESOURCES)
-+#define RNDIS_STATUS_CLOSING                    ((RNDIS_STATUS)0xC0010002L)
-+#define RNDIS_STATUS_BAD_VERSION                ((RNDIS_STATUS)0xC0010004L)
-+#define RNDIS_STATUS_BAD_CHARACTERISTICS        ((RNDIS_STATUS)0xC0010005L)
-+#define RNDIS_STATUS_ADAPTER_NOT_FOUND          ((RNDIS_STATUS)0xC0010006L)
-+#define RNDIS_STATUS_OPEN_FAILED                ((RNDIS_STATUS)0xC0010007L)
-+#define RNDIS_STATUS_DEVICE_FAILED              ((RNDIS_STATUS)0xC0010008L)
-+#define RNDIS_STATUS_MULTICAST_FULL             ((RNDIS_STATUS)0xC0010009L)
-+#define RNDIS_STATUS_MULTICAST_EXISTS           ((RNDIS_STATUS)0xC001000AL)
-+#define RNDIS_STATUS_MULTICAST_NOT_FOUND        ((RNDIS_STATUS)0xC001000BL)
-+#define RNDIS_STATUS_REQUEST_ABORTED            ((RNDIS_STATUS)0xC001000CL)
-+#define RNDIS_STATUS_RESET_IN_PROGRESS          ((RNDIS_STATUS)0xC001000DL)
-+#define RNDIS_STATUS_CLOSING_INDICATING         ((RNDIS_STATUS)0xC001000EL)
-+#define RNDIS_STATUS_NOT_SUPPORTED              ((RNDIS_STATUS)STATUS_NOT_SUPPORTED)
-+#define RNDIS_STATUS_INVALID_PACKET             ((RNDIS_STATUS)0xC001000FL)
-+#define RNDIS_STATUS_OPEN_LIST_FULL             ((RNDIS_STATUS)0xC0010010L)
-+#define RNDIS_STATUS_ADAPTER_NOT_READY          ((RNDIS_STATUS)0xC0010011L)
-+#define RNDIS_STATUS_ADAPTER_NOT_OPEN           ((RNDIS_STATUS)0xC0010012L)
-+#define RNDIS_STATUS_NOT_INDICATING             ((RNDIS_STATUS)0xC0010013L)
-+#define RNDIS_STATUS_INVALID_LENGTH             ((RNDIS_STATUS)0xC0010014L)
-+#define RNDIS_STATUS_INVALID_DATA               ((RNDIS_STATUS)0xC0010015L)
-+#define RNDIS_STATUS_BUFFER_TOO_SHORT           ((RNDIS_STATUS)0xC0010016L)
-+#define RNDIS_STATUS_INVALID_OID                ((RNDIS_STATUS)0xC0010017L)
-+#define RNDIS_STATUS_ADAPTER_REMOVED            ((RNDIS_STATUS)0xC0010018L)
-+#define RNDIS_STATUS_UNSUPPORTED_MEDIA          ((RNDIS_STATUS)0xC0010019L)
-+#define RNDIS_STATUS_GROUP_ADDRESS_IN_USE       ((RNDIS_STATUS)0xC001001AL)
-+#define RNDIS_STATUS_FILE_NOT_FOUND             ((RNDIS_STATUS)0xC001001BL)
-+#define RNDIS_STATUS_ERROR_READING_FILE         ((RNDIS_STATUS)0xC001001CL)
-+#define RNDIS_STATUS_ALREADY_MAPPED             ((RNDIS_STATUS)0xC001001DL)
-+#define RNDIS_STATUS_RESOURCE_CONFLICT          ((RNDIS_STATUS)0xC001001EL)
-+#define RNDIS_STATUS_NO_CABLE                   ((RNDIS_STATUS)0xC001001FL)
-+
-+#define RNDIS_STATUS_INVALID_SAP                ((RNDIS_STATUS)0xC0010020L)
-+#define RNDIS_STATUS_SAP_IN_USE                 ((RNDIS_STATUS)0xC0010021L)
-+#define RNDIS_STATUS_INVALID_ADDRESS            ((RNDIS_STATUS)0xC0010022L)
-+#define RNDIS_STATUS_VC_NOT_ACTIVATED           ((RNDIS_STATUS)0xC0010023L)
-+#define RNDIS_STATUS_DEST_OUT_OF_ORDER          ((RNDIS_STATUS)0xC0010024L)
-+#define RNDIS_STATUS_VC_NOT_AVAILABLE           ((RNDIS_STATUS)0xC0010025L)
-+#define RNDIS_STATUS_CELLRATE_NOT_AVAILABLE     ((RNDIS_STATUS)0xC0010026L)
-+#define RNDIS_STATUS_INCOMPATABLE_QOS           ((RNDIS_STATUS)0xC0010027L)
-+#define RNDIS_STATUS_AAL_PARAMS_UNSUPPORTED     ((RNDIS_STATUS)0xC0010028L)
-+#define RNDIS_STATUS_NO_ROUTE_TO_DESTINATION    ((RNDIS_STATUS)0xC0010029L)
-+
-+#define RNDIS_STATUS_TOKEN_RING_OPEN_ERROR      ((RNDIS_STATUS)0xC0011000L)
-+
-+
-+//
-+// Object Identifiers used by NdisRequest Query/Set Information
-+//
-+
-+//
-+// General Objects
-+//
-+
-+#define RNDIS_OID_GEN_SUPPORTED_LIST                    0x00010101
-+#define RNDIS_OID_GEN_HARDWARE_STATUS                   0x00010102
-+#define RNDIS_OID_GEN_MEDIA_SUPPORTED                   0x00010103
-+#define RNDIS_OID_GEN_MEDIA_IN_USE                      0x00010104
-+#define RNDIS_OID_GEN_MAXIMUM_LOOKAHEAD                 0x00010105
-+#define RNDIS_OID_GEN_MAXIMUM_FRAME_SIZE                0x00010106
-+#define RNDIS_OID_GEN_LINK_SPEED                        0x00010107
-+#define RNDIS_OID_GEN_TRANSMIT_BUFFER_SPACE             0x00010108
-+#define RNDIS_OID_GEN_RECEIVE_BUFFER_SPACE              0x00010109
-+#define RNDIS_OID_GEN_TRANSMIT_BLOCK_SIZE               0x0001010A
-+#define RNDIS_OID_GEN_RECEIVE_BLOCK_SIZE                0x0001010B
-+#define RNDIS_OID_GEN_VENDOR_ID                         0x0001010C
-+#define RNDIS_OID_GEN_VENDOR_DESCRIPTION                0x0001010D
-+#define RNDIS_OID_GEN_CURRENT_PACKET_FILTER             0x0001010E
-+#define RNDIS_OID_GEN_CURRENT_LOOKAHEAD                 0x0001010F
-+#define RNDIS_OID_GEN_DRIVER_VERSION                    0x00010110
-+#define RNDIS_OID_GEN_MAXIMUM_TOTAL_SIZE                0x00010111
-+#define RNDIS_OID_GEN_PROTOCOL_OPTIONS                  0x00010112
-+#define RNDIS_OID_GEN_MAC_OPTIONS                       0x00010113
-+#define RNDIS_OID_GEN_MEDIA_CONNECT_STATUS              0x00010114
-+#define RNDIS_OID_GEN_MAXIMUM_SEND_PACKETS              0x00010115
-+#define RNDIS_OID_GEN_VENDOR_DRIVER_VERSION             0x00010116
-+#define RNDIS_OID_GEN_NETWORK_LAYER_ADDRESSES           0x00010118
-+#define RNDIS_OID_GEN_TRANSPORT_HEADER_OFFSET           0x00010119
-+#define RNDIS_OID_GEN_MACHINE_NAME                      0x0001021A
-+#define RNDIS_OID_GEN_RNDIS_CONFIG_PARAMETER            0x0001021B
-+
-+#define RNDIS_OID_GEN_XMIT_OK                           0x00020101
-+#define RNDIS_OID_GEN_RCV_OK                            0x00020102
-+#define RNDIS_OID_GEN_XMIT_ERROR                        0x00020103
-+#define RNDIS_OID_GEN_RCV_ERROR                         0x00020104
-+#define RNDIS_OID_GEN_RCV_NO_BUFFER                     0x00020105
-+
-+#define RNDIS_OID_GEN_DIRECTED_BYTES_XMIT               0x00020201
-+#define RNDIS_OID_GEN_DIRECTED_FRAMES_XMIT              0x00020202
-+#define RNDIS_OID_GEN_MULTICAST_BYTES_XMIT              0x00020203
-+#define RNDIS_OID_GEN_MULTICAST_FRAMES_XMIT             0x00020204
-+#define RNDIS_OID_GEN_BROADCAST_BYTES_XMIT              0x00020205
-+#define RNDIS_OID_GEN_BROADCAST_FRAMES_XMIT             0x00020206
-+#define RNDIS_OID_GEN_DIRECTED_BYTES_RCV                0x00020207
-+#define RNDIS_OID_GEN_DIRECTED_FRAMES_RCV               0x00020208
-+#define RNDIS_OID_GEN_MULTICAST_BYTES_RCV               0x00020209
-+#define RNDIS_OID_GEN_MULTICAST_FRAMES_RCV              0x0002020A
-+#define RNDIS_OID_GEN_BROADCAST_BYTES_RCV               0x0002020B
-+#define RNDIS_OID_GEN_BROADCAST_FRAMES_RCV              0x0002020C
-+
-+#define RNDIS_OID_GEN_RCV_CRC_ERROR                     0x0002020D
-+#define RNDIS_OID_GEN_TRANSMIT_QUEUE_LENGTH             0x0002020E
-+
-+#define RNDIS_OID_GEN_GET_TIME_CAPS                     0x0002020F
-+#define RNDIS_OID_GEN_GET_NETCARD_TIME                  0x00020210
-+
-+//
-+// These are connection-oriented general OIDs.
-+// These replace the above OIDs for connection-oriented media.
-+//
-+#define RNDIS_OID_GEN_CO_SUPPORTED_LIST                 0x00010101
-+#define RNDIS_OID_GEN_CO_HARDWARE_STATUS                0x00010102
-+#define RNDIS_OID_GEN_CO_MEDIA_SUPPORTED                0x00010103
-+#define RNDIS_OID_GEN_CO_MEDIA_IN_USE                   0x00010104
-+#define RNDIS_OID_GEN_CO_LINK_SPEED                     0x00010105
-+#define RNDIS_OID_GEN_CO_VENDOR_ID                      0x00010106
-+#define RNDIS_OID_GEN_CO_VENDOR_DESCRIPTION             0x00010107
-+#define RNDIS_OID_GEN_CO_DRIVER_VERSION                 0x00010108
-+#define RNDIS_OID_GEN_CO_PROTOCOL_OPTIONS               0x00010109
-+#define RNDIS_OID_GEN_CO_MAC_OPTIONS                    0x0001010A
-+#define RNDIS_OID_GEN_CO_MEDIA_CONNECT_STATUS           0x0001010B
-+#define RNDIS_OID_GEN_CO_VENDOR_DRIVER_VERSION          0x0001010C
-+#define RNDIS_OID_GEN_CO_MINIMUM_LINK_SPEED             0x0001010D
-+
-+#define RNDIS_OID_GEN_CO_GET_TIME_CAPS                  0x00010201
-+#define RNDIS_OID_GEN_CO_GET_NETCARD_TIME               0x00010202
-+
-+//
-+// These are connection-oriented statistics OIDs.
-+//
-+#define RNDIS_OID_GEN_CO_XMIT_PDUS_OK                   0x00020101
-+#define RNDIS_OID_GEN_CO_RCV_PDUS_OK                    0x00020102
-+#define RNDIS_OID_GEN_CO_XMIT_PDUS_ERROR                0x00020103
-+#define RNDIS_OID_GEN_CO_RCV_PDUS_ERROR                 0x00020104
-+#define RNDIS_OID_GEN_CO_RCV_PDUS_NO_BUFFER             0x00020105
-+
-+
-+#define RNDIS_OID_GEN_CO_RCV_CRC_ERROR                  0x00020201
-+#define RNDIS_OID_GEN_CO_TRANSMIT_QUEUE_LENGTH          0x00020202
-+#define RNDIS_OID_GEN_CO_BYTES_XMIT                     0x00020203
-+#define RNDIS_OID_GEN_CO_BYTES_RCV                      0x00020204
-+#define RNDIS_OID_GEN_CO_BYTES_XMIT_OUTSTANDING         0x00020205
-+#define RNDIS_OID_GEN_CO_NETCARD_LOAD                   0x00020206
-+
-+//
-+// These are objects for Connection-oriented media call-managers.
-+//
-+#define RNDIS_OID_CO_ADD_PVC                            0xFF000001
-+#define RNDIS_OID_CO_DELETE_PVC                         0xFF000002
-+#define RNDIS_OID_CO_GET_CALL_INFORMATION               0xFF000003
-+#define RNDIS_OID_CO_ADD_ADDRESS                        0xFF000004
-+#define RNDIS_OID_CO_DELETE_ADDRESS                     0xFF000005
-+#define RNDIS_OID_CO_GET_ADDRESSES                      0xFF000006
-+#define RNDIS_OID_CO_ADDRESS_CHANGE                     0xFF000007
-+#define RNDIS_OID_CO_SIGNALING_ENABLED                  0xFF000008
-+#define RNDIS_OID_CO_SIGNALING_DISABLED                 0xFF000009
-+
-+
-+//
-+// 802.3 Objects (Ethernet)
-+//
-+
-+#define RNDIS_OID_802_3_PERMANENT_ADDRESS               0x01010101
-+#define RNDIS_OID_802_3_CURRENT_ADDRESS                 0x01010102
-+#define RNDIS_OID_802_3_MULTICAST_LIST                  0x01010103
-+#define RNDIS_OID_802_3_MAXIMUM_LIST_SIZE               0x01010104
-+#define RNDIS_OID_802_3_MAC_OPTIONS                     0x01010105
-+
-+//
-+//
-+#define NDIS_802_3_MAC_OPTION_PRIORITY                  0x00000001
-+
-+#define RNDIS_OID_802_3_RCV_ERROR_ALIGNMENT             0x01020101
-+#define RNDIS_OID_802_3_XMIT_ONE_COLLISION              0x01020102
-+#define RNDIS_OID_802_3_XMIT_MORE_COLLISIONS            0x01020103
-+
-+#define RNDIS_OID_802_3_XMIT_DEFERRED                   0x01020201
-+#define RNDIS_OID_802_3_XMIT_MAX_COLLISIONS             0x01020202
-+#define RNDIS_OID_802_3_RCV_OVERRUN                     0x01020203
-+#define RNDIS_OID_802_3_XMIT_UNDERRUN                   0x01020204
-+#define RNDIS_OID_802_3_XMIT_HEARTBEAT_FAILURE          0x01020205
-+#define RNDIS_OID_802_3_XMIT_TIMES_CRS_LOST             0x01020206
-+#define RNDIS_OID_802_3_XMIT_LATE_COLLISIONS            0x01020207
-+
-+
-+//
-+// Remote NDIS message types
-+//
-+#define REMOTE_NDIS_PACKET_MSG                  0x00000001
-+#define REMOTE_NDIS_INITIALIZE_MSG              0x00000002
-+#define REMOTE_NDIS_HALT_MSG                    0x00000003
-+#define REMOTE_NDIS_QUERY_MSG                   0x00000004
-+#define REMOTE_NDIS_SET_MSG                     0x00000005
-+#define REMOTE_NDIS_RESET_MSG                   0x00000006
-+#define REMOTE_NDIS_INDICATE_STATUS_MSG         0x00000007
-+#define REMOTE_NDIS_KEEPALIVE_MSG               0x00000008
-+
-+#define REMOTE_CONDIS_MP_CREATE_VC_MSG          0x00008001
-+#define REMOTE_CONDIS_MP_DELETE_VC_MSG          0x00008002
-+#define REMOTE_CONDIS_MP_ACTIVATE_VC_MSG        0x00008005
-+#define REMOTE_CONDIS_MP_DEACTIVATE_VC_MSG      0x00008006
-+#define REMOTE_CONDIS_INDICATE_STATUS_MSG       0x00008007
-+
-+
-+// Remote NDIS message completion types
-+#define REMOTE_NDIS_INITIALIZE_CMPLT            0x80000002
-+#define REMOTE_NDIS_QUERY_CMPLT                 0x80000004
-+#define REMOTE_NDIS_SET_CMPLT                   0x80000005
-+#define REMOTE_NDIS_RESET_CMPLT                 0x80000006
-+#define REMOTE_NDIS_KEEPALIVE_CMPLT             0x80000008
-+
-+#define REMOTE_CONDIS_MP_CREATE_VC_CMPLT        0x80008001
-+#define REMOTE_CONDIS_MP_DELETE_VC_CMPLT        0x80008002
-+#define REMOTE_CONDIS_MP_ACTIVATE_VC_CMPLT      0x80008005
-+#define REMOTE_CONDIS_MP_DEACTIVATE_VC_CMPLT    0x80008006
-+
-+//
-+// Reserved message type for private communication between lower-layer
-+// host driver and remote device, if necessary.
-+//
-+#define REMOTE_NDIS_BUS_MSG                     0xff000001
-+
-+
-+
-+//
-+//  Defines for DeviceFlags in RNDIS_INITIALIZE_COMPLETE
-+//
-+#define RNDIS_DF_CONNECTIONLESS             0x00000001
-+#define RNDIS_DF_CONNECTION_ORIENTED        0x00000002
-+#define RNDIS_DF_RAW_DATA                   0x00000004
-+
-+//
-+//  Remote NDIS medium types.
-+//
-+#define RNdisMedium802_3                    0x00000000
-+#define RNdisMedium802_5                    0x00000001
-+#define RNdisMediumFddi                     0x00000002
-+#define RNdisMediumWan                      0x00000003
-+#define RNdisMediumLocalTalk                0x00000004
-+#define RNdisMediumArcnetRaw                0x00000006
-+#define RNdisMediumArcnet878_2              0x00000007
-+#define RNdisMediumAtm                      0x00000008
-+#define RNdisMediumWirelessWan              0x00000009
-+#define RNdisMediumIrda                     0x0000000a
-+#define RNdisMediumCoWan                    0x0000000b
-+#define RNdisMediumMax                      0x0000000d     // Not a real medium, defined as an upper-bound
-+
-+//
-+// Remote NDIS medium connection states.
-+//
-+#define RNdisMediaStateConnected            0x00000000
-+#define RNdisMediaStateDisconnected         0x00000001
-+
-+//
-+//  Remote NDIS version numbers
-+//
-+#define RNDIS_MAJOR_VERSION                 0x00000001
-+#define RNDIS_MINOR_VERSION                 0x00000000
-+
-+//
-+//  NdisInitialize message
-+//
-+typedef struct _RNDIS_INITIALIZE_REQUEST
-+{
-+    RNDIS_REQUEST_ID                        RequestId;
-+    UINT32                                  MajorVersion;
-+    UINT32                                  MinorVersion;
-+    UINT32                                  MaxTransferSize;
-+} RNDIS_INITIALIZE_REQUEST, *PRNDIS_INITIALIZE_REQUEST;
-+
-+
-+//
-+//  Response to NdisInitialize
-+//
-+typedef struct _RNDIS_INITIALIZE_COMPLETE
-+{
-+    RNDIS_REQUEST_ID                        RequestId;
-+    RNDIS_STATUS                            Status;
-+    UINT32                                  MajorVersion;
-+    UINT32                                  MinorVersion;
-+    UINT32                                  DeviceFlags;
-+    RNDIS_MEDIUM                            Medium;
-+    UINT32                                  MaxPacketsPerMessage;
-+    UINT32                                  MaxTransferSize;
-+    UINT32                                  PacketAlignmentFactor;
-+    UINT32                                  AFListOffset;
-+    UINT32                                  AFListSize;
-+} RNDIS_INITIALIZE_COMPLETE, *PRNDIS_INITIALIZE_COMPLETE;
-+
-+
-+//
-+//  Call manager devices only: Information about an address family
-+//  supported by the device is appended to the response to NdisInitialize.
-+//
-+typedef struct _RNDIS_CO_ADDRESS_FAMILY
-+{
-+    RNDIS_AF                                AddressFamily;
-+    UINT32                                  MajorVersion;
-+    UINT32                                  MinorVersion;
-+} RNDIS_CO_ADDRESS_FAMILY, *PRNDIS_CO_ADDRESS_FAMILY;
-+
-+
-+//
-+//  NdisHalt message
-+//
-+typedef struct _RNDIS_HALT_REQUEST
-+{
-+    RNDIS_REQUEST_ID                        RequestId;
-+} RNDIS_HALT_REQUEST, *PRNDIS_HALT_REQUEST;
-+
-+
-+//
-+// NdisQueryRequest message
-+//
-+typedef struct _RNDIS_QUERY_REQUEST
-+{
-+    RNDIS_REQUEST_ID                        RequestId;
-+    RNDIS_OID                               Oid;
-+    UINT32                                  InformationBufferLength;
-+    UINT32                                  InformationBufferOffset;
-+    RNDIS_HANDLE                            DeviceVcHandle;
-+} RNDIS_QUERY_REQUEST, *PRNDIS_QUERY_REQUEST;
-+
-+
-+//
-+//  Response to NdisQueryRequest
-+//
-+typedef struct _RNDIS_QUERY_COMPLETE
-+{
-+    RNDIS_REQUEST_ID                        RequestId;
-+    RNDIS_STATUS                            Status;
-+    UINT32                                  InformationBufferLength;
-+    UINT32                                  InformationBufferOffset;
-+} RNDIS_QUERY_COMPLETE, *PRNDIS_QUERY_COMPLETE;
-+
-+
-+//
-+//  NdisSetRequest message
-+//
-+typedef struct _RNDIS_SET_REQUEST
-+{
-+    RNDIS_REQUEST_ID                        RequestId;
-+    RNDIS_OID                               Oid;
-+    UINT32                                  InformationBufferLength;
-+    UINT32                                  InformationBufferOffset;
-+    RNDIS_HANDLE                            DeviceVcHandle;
-+} RNDIS_SET_REQUEST, *PRNDIS_SET_REQUEST;
-+
-+
-+//
-+//  Response to NdisSetRequest
-+//
-+typedef struct _RNDIS_SET_COMPLETE
-+{
-+    RNDIS_REQUEST_ID                        RequestId;
-+    RNDIS_STATUS                            Status;
-+} RNDIS_SET_COMPLETE, *PRNDIS_SET_COMPLETE;
-+
-+
-+//
-+//  NdisReset message
-+//
-+typedef struct _RNDIS_RESET_REQUEST
-+{
-+    UINT32                                  Reserved;
-+} RNDIS_RESET_REQUEST, *PRNDIS_RESET_REQUEST;
-+
-+//
-+//  Response to NdisReset
-+//
-+typedef struct _RNDIS_RESET_COMPLETE
-+{
-+    RNDIS_STATUS                            Status;
-+    UINT32                                  AddressingReset;
-+} RNDIS_RESET_COMPLETE, *PRNDIS_RESET_COMPLETE;
-+
-+
-+//
-+//  NdisMIndicateStatus message
-+//
-+typedef struct _RNDIS_INDICATE_STATUS
-+{
-+    RNDIS_STATUS                            Status;
-+    UINT32                                  StatusBufferLength;
-+    UINT32                                  StatusBufferOffset;
-+} RNDIS_INDICATE_STATUS, *PRNDIS_INDICATE_STATUS;
-+
-+
-+//
-+//  Diagnostic information passed as the status buffer in
-+//  RNDIS_INDICATE_STATUS messages signifying error conditions.
-+//
-+typedef struct _RNDIS_DIAGNOSTIC_INFO
-+{
-+    RNDIS_STATUS                            DiagStatus;
-+    UINT32                                  ErrorOffset;
-+} RNDIS_DIAGNOSTIC_INFO, *PRNDIS_DIAGNOSTIC_INFO;
-+
-+
-+
-+//
-+//  NdisKeepAlive message
-+//
-+typedef struct _RNDIS_KEEPALIVE_REQUEST
-+{
-+    RNDIS_REQUEST_ID                        RequestId;
-+} RNDIS_KEEPALIVE_REQUEST, *PRNDIS_KEEPALIVE_REQUEST;
-+
-+
-+//
-+// Response to NdisKeepAlive
-+//
-+typedef struct _RNDIS_KEEPALIVE_COMPLETE
-+{
-+    RNDIS_REQUEST_ID                        RequestId;
-+    RNDIS_STATUS                            Status;
-+} RNDIS_KEEPALIVE_COMPLETE, *PRNDIS_KEEPALIVE_COMPLETE;
-+
-+
-+//
-+//  Data message. All Offset fields contain byte offsets from the beginning
-+//  of the RNDIS_PACKET structure. All Length fields are in bytes.
-+//  VcHandle is set to 0 for connectionless data, otherwise it
-+//  contains the VC handle.
-+//
-+typedef struct _RNDIS_PACKET
-+{
-+    UINT32                                  DataOffset;
-+    UINT32                                  DataLength;
-+    UINT32                                  OOBDataOffset;
-+    UINT32                                  OOBDataLength;
-+    UINT32                                  NumOOBDataElements;
-+    UINT32                                  PerPacketInfoOffset;
-+    UINT32                                  PerPacketInfoLength;
-+    RNDIS_HANDLE                            VcHandle;
-+    UINT32                                  Reserved;
-+} RNDIS_PACKET, *PRNDIS_PACKET;
-+
-+//
-+//  Optional Out of Band data associated with a Data message.
-+//
-+typedef struct _RNDIS_OOBD
-+{
-+    UINT32                                  Size;
-+    RNDIS_CLASS_ID                          Type;
-+    UINT32                                  ClassInformationOffset;
-+} RNDIS_OOBD, *PRNDIS_OOBD;
-+
-+//
-+//  Packet extension field contents associated with a Data message.
-+//
-+typedef struct _RNDIS_PER_PACKET_INFO
-+{
-+    UINT32                                  Size;
-+    UINT32                                  Type;
-+    UINT32                                  PerPacketInformationOffset;
-+} RNDIS_PER_PACKET_INFO, *PRNDIS_PER_PACKET_INFO;
-+
-+
-+//
-+//  Format of Information buffer passed in a SetRequest for the OID
-+//  OID_GEN_RNDIS_CONFIG_PARAMETER.
-+//
-+typedef struct _RNDIS_CONFIG_PARAMETER_INFO
-+{
-+    UINT32                                  ParameterNameOffset;
-+    UINT32                                  ParameterNameLength;
-+    UINT32                                  ParameterType;
-+    UINT32                                  ParameterValueOffset;
-+    UINT32                                  ParameterValueLength;
-+} RNDIS_CONFIG_PARAMETER_INFO, *PRNDIS_CONFIG_PARAMETER_INFO;
-+
-+//
-+//  Values for ParameterType in RNDIS_CONFIG_PARAMETER_INFO
-+//
-+#define RNDIS_CONFIG_PARAM_TYPE_INTEGER     0
-+#define RNDIS_CONFIG_PARAM_TYPE_STRING      2
-+
-+
-+//
-+//  CONDIS Miniport messages for connection oriented devices
-+//  that do not implement a call manager.
-+//
-+
-+//
-+//  CoNdisMiniportCreateVc message
-+//
-+typedef struct _RCONDIS_MP_CREATE_VC
-+{
-+    RNDIS_REQUEST_ID                        RequestId;
-+    RNDIS_HANDLE                            NdisVcHandle;
-+} RCONDIS_MP_CREATE_VC, *PRCONDIS_MP_CREATE_VC;
-+
-+//
-+//  Response to CoNdisMiniportCreateVc
-+//
-+typedef struct _RCONDIS_MP_CREATE_VC_COMPLETE
-+{
-+    RNDIS_REQUEST_ID                        RequestId;
-+    RNDIS_HANDLE                            DeviceVcHandle;
-+    RNDIS_STATUS                            Status;
-+} RCONDIS_MP_CREATE_VC_COMPLETE, *PRCONDIS_MP_CREATE_VC_COMPLETE;
-+
-+
-+//
-+//  CoNdisMiniportDeleteVc message
-+//
-+typedef struct _RCONDIS_MP_DELETE_VC
-+{
-+    RNDIS_REQUEST_ID                        RequestId;
-+    RNDIS_HANDLE                            DeviceVcHandle;
-+} RCONDIS_MP_DELETE_VC, *PRCONDIS_MP_DELETE_VC;
-+
-+//
-+//  Response to CoNdisMiniportDeleteVc
-+//
-+typedef struct _RCONDIS_MP_DELETE_VC_COMPLETE
-+{
-+    RNDIS_REQUEST_ID                        RequestId;
-+    RNDIS_STATUS                            Status;
-+} RCONDIS_MP_DELETE_VC_COMPLETE, *PRCONDIS_MP_DELETE_VC_COMPLETE;
-+
-+
-+//
-+//  CoNdisMiniportQueryRequest message
-+//
-+typedef struct _RCONDIS_MP_QUERY_REQUEST
-+{
-+    RNDIS_REQUEST_ID                        RequestId;
-+    RNDIS_REQUEST_TYPE                      RequestType;
-+    RNDIS_OID                               Oid;
-+    RNDIS_HANDLE                            DeviceVcHandle;
-+    UINT32                                  InformationBufferLength;
-+    UINT32                                  InformationBufferOffset;
-+} RCONDIS_MP_QUERY_REQUEST, *PRCONDIS_MP_QUERY_REQUEST;
-+
-+
-+//
-+//  CoNdisMiniportSetRequest message
-+//
-+typedef struct _RCONDIS_MP_SET_REQUEST
-+{
-+    RNDIS_REQUEST_ID                        RequestId;
-+    RNDIS_REQUEST_TYPE                      RequestType;
-+    RNDIS_OID                               Oid;
-+    RNDIS_HANDLE                            DeviceVcHandle;
-+    UINT32                                  InformationBufferLength;
-+    UINT32                                  InformationBufferOffset;
-+} RCONDIS_MP_SET_REQUEST, *PRCONDIS_MP_SET_REQUEST;
-+
-+
-+//
-+//  CoNdisIndicateStatus message
-+//
-+typedef struct _RCONDIS_INDICATE_STATUS
-+{
-+    RNDIS_HANDLE                            NdisVcHandle;
-+    RNDIS_STATUS                            Status;
-+    UINT32                                  StatusBufferLength;
-+    UINT32                                  StatusBufferOffset;
-+} RCONDIS_INDICATE_STATUS, *PRCONDIS_INDICATE_STATUS;
-+
-+
-+//
-+//  CONDIS Call/VC parameters
-+//
-+
-+typedef struct _RCONDIS_SPECIFIC_PARAMETERS
-+{
-+    UINT32                                  ParameterType;
-+    UINT32                                  ParameterLength;
-+    UINT32                                  ParameterOffset;
-+} RCONDIS_SPECIFIC_PARAMETERS, *PRCONDIS_SPECIFIC_PARAMETERS;
-+
-+typedef struct _RCONDIS_MEDIA_PARAMETERS
-+{
-+    UINT32                                  Flags;
-+    UINT32                                  Reserved1;
-+    UINT32                                  Reserved2;
-+    RCONDIS_SPECIFIC_PARAMETERS             MediaSpecific;
-+} RCONDIS_MEDIA_PARAMETERS, *PRCONDIS_MEDIA_PARAMETERS;
-+
-+
-+typedef struct _RNDIS_FLOWSPEC
-+{
-+    UINT32                                  TokenRate;
-+    UINT32                                  TokenBucketSize;
-+    UINT32                                  PeakBandwidth;
-+    UINT32                                  Latency;
-+    UINT32                                  DelayVariation;
-+    UINT32                                  ServiceType;
-+    UINT32                                  MaxSduSize;
-+    UINT32                                  MinimumPolicedSize;
-+} RNDIS_FLOWSPEC, *PRNDIS_FLOWSPEC;
-+
-+typedef struct _RCONDIS_CALL_MANAGER_PARAMETERS
-+{
-+    RNDIS_FLOWSPEC                          Transmit;
-+    RNDIS_FLOWSPEC                          Receive;
-+    RCONDIS_SPECIFIC_PARAMETERS             CallMgrSpecific;
-+} RCONDIS_CALL_MANAGER_PARAMETERS, *PRCONDIS_CALL_MANAGER_PARAMETERS;
-+
-+//
-+//  CoNdisMiniportActivateVc message
-+//
-+typedef struct _RCONDIS_MP_ACTIVATE_VC_REQUEST
-+{
-+    RNDIS_REQUEST_ID                        RequestId;
-+    UINT32                                  Flags;
-+    RNDIS_HANDLE                            DeviceVcHandle;
-+    UINT32                                  MediaParamsOffset;
-+    UINT32                                  MediaParamsLength;
-+    UINT32                                  CallMgrParamsOffset;
-+    UINT32                                  CallMgrParamsLength;
-+} RCONDIS_MP_ACTIVATE_VC_REQUEST, *PRCONDIS_MP_ACTIVATE_VC_REQUEST;
-+
-+//
-+//  Response to CoNdisMiniportActivateVc
-+//
-+typedef struct _RCONDIS_MP_ACTIVATE_VC_COMPLETE
-+{
-+    RNDIS_REQUEST_ID                        RequestId;
-+    RNDIS_STATUS                            Status;
-+} RCONDIS_MP_ACTIVATE_VC_COMPLETE, *PRCONDIS_MP_ACTIVATE_VC_COMPLETE;
-+
-+
-+//
-+//  CoNdisMiniportDeactivateVc message
-+//
-+typedef struct _RCONDIS_MP_DEACTIVATE_VC_REQUEST
-+{
-+    RNDIS_REQUEST_ID                        RequestId;
-+    UINT32                                  Flags;
-+    RNDIS_HANDLE                            DeviceVcHandle;
-+} RCONDIS_MP_DEACTIVATE_VC_REQUEST, *PRCONDIS_MP_DEACTIVATE_VC_REQUEST;
-+
-+//
-+//  Response to CoNdisMiniportDeactivateVc
-+//
-+typedef struct _RCONDIS_MP_DEACTIVATE_VC_COMPLETE
-+{
-+    RNDIS_REQUEST_ID                        RequestId;
-+    RNDIS_STATUS                            Status;
-+} RCONDIS_MP_DEACTIVATE_VC_COMPLETE, *PRCONDIS_MP_DEACTIVATE_VC_COMPLETE;
-+
-+
-+//
-+// union with all of the RNDIS messages
-+//
-+typedef union _RNDIS_MESSAGE_CONTAINER
-+{
-+    RNDIS_PACKET                        Packet;
-+    RNDIS_INITIALIZE_REQUEST            InitializeRequest;
-+    RNDIS_HALT_REQUEST                  HaltRequest;
-+    RNDIS_QUERY_REQUEST                 QueryRequest;
-+    RNDIS_SET_REQUEST                   SetRequest;
-+    RNDIS_RESET_REQUEST                 ResetRequest;
-+    RNDIS_KEEPALIVE_REQUEST             KeepaliveRequest;
-+    RNDIS_INDICATE_STATUS               IndicateStatus;
-+    RNDIS_INITIALIZE_COMPLETE           InitializeComplete;
-+    RNDIS_QUERY_COMPLETE                QueryComplete;
-+    RNDIS_SET_COMPLETE                  SetComplete;
-+    RNDIS_RESET_COMPLETE                ResetComplete;
-+    RNDIS_KEEPALIVE_COMPLETE            KeepaliveComplete;
-+    RCONDIS_MP_CREATE_VC                CoMiniportCreateVc;
-+    RCONDIS_MP_DELETE_VC                CoMiniportDeleteVc;
-+    RCONDIS_INDICATE_STATUS             CoIndicateStatus;
-+    RCONDIS_MP_ACTIVATE_VC_REQUEST      CoMiniportActivateVc;
-+    RCONDIS_MP_DEACTIVATE_VC_REQUEST    CoMiniportDeactivateVc;
-+    RCONDIS_MP_CREATE_VC_COMPLETE       CoMiniportCreateVcComplete;
-+    RCONDIS_MP_DELETE_VC_COMPLETE       CoMiniportDeleteVcComplete;
-+    RCONDIS_MP_ACTIVATE_VC_COMPLETE     CoMiniportActivateVcComplete;
-+    RCONDIS_MP_DEACTIVATE_VC_COMPLETE   CoMiniportDeactivateVcComplete;
-+
-+
-+} RNDIS_MESSAGE_CONTAINER, *PRNDIS_MESSAGE_CONTAINER;
-+
-+//
-+// Remote NDIS message format
-+//
-+typedef __struct_bcount(MessageLength) struct _RNDIS_MESSAGE
-+{
-+    UINT32                                  NdisMessageType;
-+
-+    //
-+    // Total length of this message, from the beginning
-+    // of the RNDIS_MESSAGE struct, in bytes.
-+    //
-+    UINT32                                  MessageLength;
-+
-+    // Actual message
-+    RNDIS_MESSAGE_CONTAINER                 Message;
-+
-+} RNDIS_MESSAGE, *PRNDIS_MESSAGE;
-+
-+
-+
-+//
-+// Handy macros
-+
-+// get the size of an RNDIS message. Pass in the message type,
-+// RNDIS_SET_REQUEST, RNDIS_PACKET for example
-+#define RNDIS_MESSAGE_SIZE(Message)                             \
-+    (sizeof(Message) + (sizeof(RNDIS_MESSAGE) - sizeof(RNDIS_MESSAGE_CONTAINER)))
-+
-+// get pointer to info buffer with message pointer
-+#define MESSAGE_TO_INFO_BUFFER(Message)                         \
-+    (((PUCHAR)(Message)) + Message->InformationBufferOffset)
-+
-+// get pointer to status buffer with message pointer
-+#define MESSAGE_TO_STATUS_BUFFER(Message)                       \
-+    (((PUCHAR)(Message)) + Message->StatusBufferOffset)
-+
-+// get pointer to OOBD buffer with message pointer
-+#define MESSAGE_TO_OOBD_BUFFER(Message)                         \
-+    (((PUCHAR)(Message)) + Message->OOBDataOffset)
-+
-+// get pointer to data buffer with message pointer
-+#define MESSAGE_TO_DATA_BUFFER(Message)                         \
-+    (((PUCHAR)(Message)) + Message->PerPacketInfoOffset)
-+
-+// get pointer to contained message from NDIS_MESSAGE pointer
-+#define RNDIS_MESSAGE_PTR_TO_MESSAGE_PTR(RndisMessage)          \
-+    ((PVOID) &RndisMessage->Message)
-+
-+// get pointer to contained message from NDIS_MESSAGE pointer
-+#define RNDIS_MESSAGE_RAW_PTR_TO_MESSAGE_PTR(RndisMessage)      \
-+    ((PVOID) RndisMessage)
-+
-+#endif // _RNDIS_H_
---- /dev/null
-+++ b/drivers/staging/hv/include/VmbusChannelInterface.h
-@@ -0,0 +1,131 @@
-+/*
-+ *
-+ * Copyright (c) 2009, Microsoft Corporation.
-+ *
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms and conditions of the GNU General Public License,
-+ * version 2, as published by the Free Software Foundation.
-+ *
-+ * This program is distributed in the hope it will be useful, but WITHOUT
-+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
-+ * more details.
-+ *
-+ * You should have received a copy of the GNU General Public License along with
-+ * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
-+ * Place - Suite 330, Boston, MA 02111-1307 USA.
-+ *
-+ * Authors:
-+ *   Haiyang Zhang <haiyangz@microsoft.com>
-+ *   Hank Janssen  <hjanssen@microsoft.com>
-+ *
-+ */
-+
-+
-+#pragma once
-+// allow nameless unions
-+//#pragma warning(disable : 4201)
-+
-+//
-+// A revision number of vmbus that is used for ensuring both ends on a
-+// partition are using compatible versions.
-+//
-+#define VMBUS_REVISION_NUMBER       13
-+
-+//
-+// Make maximum size of pipe payload of 16K
-+//
-+#define MAX_PIPE_DATA_PAYLOAD 		(sizeof(BYTE) * 16384)
-+
-+//
-+// Define PipeMode values.
-+//
-+#define VMBUS_PIPE_TYPE_BYTE                    0x00000000
-+#define VMBUS_PIPE_TYPE_MESSAGE                 0x00000004
-+
-+//
-+// The size of the user defined data buffer for non-pipe offers.
-+//
-+#define MAX_USER_DEFINED_BYTES                  120
-+
-+//
-+// The size of the user defined data buffer for pipe offers.
-+//
-+#define MAX_PIPE_USER_DEFINED_BYTES             116
-+
-+
-+//
-+// At the center of the Channel Management library is
-+// the Channel Offer. This struct contains the
-+// fundamental information about an offer.
-+//
-+#pragma pack(push,1)
-+
-+typedef struct
-+{
-+
-+    GUID    InterfaceType;
-+    GUID    InterfaceInstance;
-+    UINT64  InterruptLatencyIn100nsUnits;
-+    UINT32  InterfaceRevision;
-+    UINT32  ServerContextAreaSize;  // in bytes
-+    UINT16  ChannelFlags;
-+    UINT16  MmioMegabytes;          // in bytes * 1024 * 1024
-+
-+    union
-+    {
-+        //
-+        // Non-pipes: The user has MAX_USER_DEFINED_BYTES bytes.
-+        //
-+        struct
-+        {
-+            UCHAR   UserDefined[MAX_USER_DEFINED_BYTES];
-+        } Standard;
-+
-+        //
-+        // Pipes: The following sructure is an integrated pipe protocol, which
-+        //        is implemented on top of standard user-defined data. Pipe clients
-+        //        have MAX_PIPE_USER_DEFINED_BYTES left for their own use.
-+        //
-+        struct
-+        {
-+            UINT32  PipeMode;
-+            UCHAR   UserDefined[MAX_PIPE_USER_DEFINED_BYTES];
-+        } Pipe;
-+    } u;
-+	UINT32	Padding;
-+} VMBUS_CHANNEL_OFFER, *PVMBUS_CHANNEL_OFFER;
-+#pragma pack(pop)
-+
-+
-+//
-+// Verify the MAX_PIPE_USER_DEFINED_BYTES value.
-+//
-+//C_ASSERT(MAX_PIPE_USER_DEFINED_BYTES ==
-+//         MAX_USER_DEFINED_BYTES -
-+//         (FIELD_OFFSET(VMBUS_CHANNEL_OFFER, u.Pipe.UserDefined) -
-+//          FIELD_OFFSET(VMBUS_CHANNEL_OFFER, u.Standard.UserDefined)));
-+//
-+
-+typedef UINT32 GPADL_HANDLE;
-+
-+//
-+// Server Flags
-+//
-+
-+#define VMBUS_CHANNEL_ENUMERATE_DEVICE_INTERFACE           1
-+#define VMBUS_CHANNEL_SERVER_SUPPORTS_TRANSFER_PAGES       2
-+#define VMBUS_CHANNEL_SERVER_SUPPORTS_GPADLS               4
-+#define VMBUS_CHANNEL_NAMED_PIPE_MODE                   0x10
-+#define VMBUS_CHANNEL_LOOPBACK_OFFER                   0x100
-+#define VMBUS_CHANNEL_PARENT_OFFER                     0x200
-+#define VMBUS_CHANNEL_REQUEST_MONITORED_NOTIFICATION   0x400
-+
-+//
-+// TEMPTEMP -- move this next define to devioctl.h some day
-+//
-+
-+#ifndef FILE_DEVICE_VMBUS
-+#define FILE_DEVICE_VMBUS   0x0000003E
-+#endif
-+
---- /dev/null
-+++ b/drivers/staging/hv/include/VmbusPacketFormat.h
-@@ -0,0 +1,322 @@
-+/*
-+ *
-+ * Copyright (c) 2009, Microsoft Corporation.
-+ *
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms and conditions of the GNU General Public License,
-+ * version 2, as published by the Free Software Foundation.
-+ *
-+ * This program is distributed in the hope it will be useful, but WITHOUT
-+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
-+ * more details.
-+ *
-+ * You should have received a copy of the GNU General Public License along with
-+ * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
-+ * Place - Suite 330, Boston, MA 02111-1307 USA.
-+ *
-+ * Authors:
-+ *   Haiyang Zhang <haiyangz@microsoft.com>
-+ *   Hank Janssen  <hjanssen@microsoft.com>
-+ *
-+ */
-+
-+
-+#pragma once
-+
-+//#ifndef PAGE_SIZE
-+//#if defined(_IA64_)
-+//#error This does not work for IA64
-+//#else
-+//#define PAGE_SIZE 0x1000
-+//#endif
-+//#endif
-+
-+// allow nameless unions
-+//#pragma warning(disable : 4201)
-+
-+typedef struct
-+{
-+    union
-+    {
-+        struct
-+        {
-+            volatile UINT32  In;        // Offset in bytes from the ring base
-+            volatile UINT32  Out;       // Offset in bytes from the ring base
-+        };
-+        volatile LONGLONG    InOut;
-+    };
-+
-+    //
-+    // If the receiving endpoint sets this to some non-zero value, the sending
-+    // endpoint should not send any interrupts.
-+    //
-+
-+    volatile UINT32 InterruptMask;
-+
-+} VMRCB, *PVMRCB;
-+
-+typedef struct
-+{
-+    union
-+    {
-+        struct
-+        {
-+            VMRCB Control;
-+        };
-+
-+        UINT8 Reserved[PAGE_SIZE];
-+    };
-+
-+    //
-+    // Beginning of the ring data.  Note: It must be guaranteed that
-+    // this data does not share a page with the control structure.
-+    //
-+    UINT8 Data[1];
-+} VMRING, *PVMRING;
-+
-+#pragma pack(push, 1)
-+
-+typedef struct
-+{
-+    UINT16 Type;
-+    UINT16 DataOffset8;
-+    UINT16 Length8;
-+    UINT16 Flags;
-+    UINT64 TransactionId;
-+} VMPACKET_DESCRIPTOR, *PVMPACKET_DESCRIPTOR;
-+
-+typedef UINT32 PREVIOUS_PACKET_OFFSET, *PPREVIOUS_PACKET_OFFSET;
-+
-+typedef struct
-+{
-+    PREVIOUS_PACKET_OFFSET  PreviousPacketStartOffset;
-+    VMPACKET_DESCRIPTOR     Descriptor;
-+} VMPACKET_HEADER, *PVMPACKET_HEADER;
-+
-+typedef struct
-+{
-+    UINT32  ByteCount;
-+    UINT32  ByteOffset;
-+} VMTRANSFER_PAGE_RANGE, *PVMTRANSFER_PAGE_RANGE;
-+
-+#ifdef __cplusplus
-+
-+typedef struct _VMTRANSFER_PAGE_PACKET_HEADER : VMPACKET_DESCRIPTOR {
-+
-+#else
-+
-+typedef struct VMTRANSFER_PAGE_PACKET_HEADER {
-+
-+    VMPACKET_DESCRIPTOR d;
-+
-+#endif
-+
-+    UINT16                  TransferPageSetId;
-+    BOOLEAN                 SenderOwnsSet;
-+    UINT8                   Reserved;
-+    UINT32                  RangeCount;
-+    VMTRANSFER_PAGE_RANGE   Ranges[1];
-+
-+} VMTRANSFER_PAGE_PACKET_HEADER, *PVMTRANSFER_PAGE_PACKET_HEADER;
-+
-+
-+#ifdef __cplusplus
-+
-+typedef struct _VMGPADL_PACKET_HEADER : VMPACKET_DESCRIPTOR {
-+
-+#else
-+
-+typedef struct _VMGPADL_PACKET_HEADER {
-+
-+    VMPACKET_DESCRIPTOR d;
-+
-+#endif
-+
-+
-+    UINT32  Gpadl;
-+    UINT32  Reserved;
-+
-+} VMGPADL_PACKET_HEADER, *PVMGPADL_PACKET_HEADER;
-+
-+#ifdef __cplusplus
-+
-+typedef struct _VMADD_REMOVE_TRANSFER_PAGE_SET : VMPACKET_DESCRIPTOR {
-+
-+#else
-+
-+typedef struct _VMADD_REMOVE_TRANSFER_PAGE_SET {
-+
-+    VMPACKET_DESCRIPTOR d;
-+
-+#endif
-+
-+    UINT32  Gpadl;
-+    UINT16  TransferPageSetId;
-+    UINT16  Reserved;
-+
-+} VMADD_REMOVE_TRANSFER_PAGE_SET, *PVMADD_REMOVE_TRANSFER_PAGE_SET;
-+
-+#pragma pack(pop)
-+
-+//
-+// This structure defines a range in guest physical space that can be made
-+// to look virtually contiguous.
-+//
-+
-+typedef struct _GPA_RANGE {
-+
-+    UINT32  ByteCount;
-+    UINT32  ByteOffset;
-+    UINT64  PfnArray[0];
-+
-+} GPA_RANGE, *PGPA_RANGE;
-+
-+
-+
-+#pragma pack(push, 1)
-+
-+//
-+// This is the format for an Establish Gpadl packet, which contains a handle
-+// by which this GPADL will be known and a set of GPA ranges associated with
-+// it.  This can be converted to a MDL by the guest OS.  If there are multiple
-+// GPA ranges, then the resulting MDL will be "chained," representing multiple
-+// VA ranges.
-+//
-+
-+#ifdef __cplusplus
-+
-+typedef struct _VMESTABLISH_GPADL : VMPACKET_DESCRIPTOR {
-+
-+#else
-+
-+typedef struct _VMESTABLISH_GPADL {
-+
-+    VMPACKET_DESCRIPTOR d;
-+
-+#endif
-+
-+    UINT32      Gpadl;
-+    UINT32      RangeCount;
-+    GPA_RANGE   Range[1];
-+
-+} VMESTABLISH_GPADL, *PVMESTABLISH_GPADL;
-+
-+
-+//
-+// This is the format for a Teardown Gpadl packet, which indicates that the
-+// GPADL handle in the Establish Gpadl packet will never be referenced again.
-+//
-+
-+#ifdef __cplusplus
-+
-+typedef struct _VMTEARDOWN_GPADL : VMPACKET_DESCRIPTOR {
-+
-+#else
-+
-+typedef struct _VMTEARDOWN_GPADL {
-+
-+    VMPACKET_DESCRIPTOR d;
-+
-+#endif
-+
-+    UINT32  Gpadl;
-+    UINT32  Reserved; // for alignment to a 8-byte boundary
-+} VMTEARDOWN_GPADL, *PVMTEARDOWN_GPADL;
-+
-+
-+//
-+// This is the format for a GPA-Direct packet, which contains a set of GPA
-+// ranges, in addition to commands and/or data.
-+//
-+
-+#ifdef __cplusplus
-+
-+typedef struct _VMDATA_GPA_DIRECT : VMPACKET_DESCRIPTOR {
-+
-+#else
-+
-+typedef struct _VMDATA_GPA_DIRECT {
-+
-+    VMPACKET_DESCRIPTOR d;
-+
-+#endif
-+
-+    UINT32      Reserved;
-+    UINT32      RangeCount;
-+    GPA_RANGE   Range[1];
-+
-+} VMDATA_GPA_DIRECT, *PVMDATA_GPA_DIRECT;
-+
-+
-+
-+//
-+// This is the format for a Additional Data Packet.
-+//
-+
-+#ifdef __cplusplus
-+
-+typedef struct _VMADDITIONAL_DATA : VMPACKET_DESCRIPTOR {
-+
-+#else
-+
-+typedef struct _VMADDITIONAL_DATA {
-+
-+    VMPACKET_DESCRIPTOR d;
-+
-+#endif
-+
-+    UINT64  TotalBytes;
-+    UINT32  ByteOffset;
-+    UINT32  ByteCount;
-+    UCHAR   Data[1];
-+
-+} VMADDITIONAL_DATA, *PVMADDITIONAL_DATA;
-+
-+
-+#pragma pack(pop)
-+
-+typedef union {
-+    VMPACKET_DESCRIPTOR             SimpleHeader;
-+    VMTRANSFER_PAGE_PACKET_HEADER   TransferPageHeader;
-+    VMGPADL_PACKET_HEADER           GpadlHeader;
-+    VMADD_REMOVE_TRANSFER_PAGE_SET  AddRemoveTransferPageHeader;
-+    VMESTABLISH_GPADL               EstablishGpadlHeader;
-+    VMTEARDOWN_GPADL                TeardownGpadlHeader;
-+    VMDATA_GPA_DIRECT               DataGpaDirectHeader;
-+} VMPACKET_LARGEST_POSSIBLE_HEADER, *PVMPACKET_LARGEST_POSSIBLE_HEADER;
-+
-+#define VMPACKET_DATA_START_ADDRESS(__packet)                           \
-+    (PVOID)(((PUCHAR)__packet) + ((PVMPACKET_DESCRIPTOR)__packet)->DataOffset8 * 8)
-+
-+#define VMPACKET_DATA_LENGTH(__packet)                                  \
-+    ((((PVMPACKET_DESCRIPTOR)__packet)->Length8 - ((PVMPACKET_DESCRIPTOR)__packet)->DataOffset8) * 8)
-+
-+#define VMPACKET_TRANSFER_MODE(__packet) ((PVMPACKET_DESCRIPTOR)__packet)->Type
-+
-+typedef enum {
-+    VmbusServerEndpoint = 0,
-+    VmbusClientEndpoint,
-+    VmbusEndpointMaximum
-+} ENDPOINT_TYPE, *PENDPOINT_TYPE;
-+
-+typedef enum {
-+    VmbusPacketTypeInvalid                      = 0x0,
-+    VmbusPacketTypeSynch                        = 0x1,
-+    VmbusPacketTypeAddTransferPageSet           = 0x2,
-+    VmbusPacketTypeRemoveTransferPageSet        = 0x3,
-+    VmbusPacketTypeEstablishGpadl               = 0x4,
-+    VmbusPacketTypeTearDownGpadl                = 0x5,
-+    VmbusPacketTypeDataInBand                   = 0x6,
-+    VmbusPacketTypeDataUsingTransferPages       = 0x7,
-+    VmbusPacketTypeDataUsingGpadl               = 0x8,
-+    VmbusPacketTypeDataUsingGpaDirect           = 0x9,
-+    VmbusPacketTypeCancelRequest                = 0xa,
-+    VmbusPacketTypeCompletion                   = 0xb,
-+    VmbusPacketTypeDataUsingAdditionalPackets   = 0xc,
-+    VmbusPacketTypeAdditionalData               = 0xd
-+} VMBUS_PACKET_TYPE, *PVMBUS_PACKET_TYPE;
-+
-+#define VMBUS_DATA_PACKET_FLAG_COMPLETION_REQUESTED    1
-+
-+
---- /dev/null
-+++ b/drivers/staging/hv/include/vstorage.h
-@@ -0,0 +1,309 @@
-+/*
-+ *
-+ * Copyright (c) 2009, Microsoft Corporation.
-+ *
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms and conditions of the GNU General Public License,
-+ * version 2, as published by the Free Software Foundation.
-+ *
-+ * This program is distributed in the hope it will be useful, but WITHOUT
-+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
-+ * more details.
-+ *
-+ * You should have received a copy of the GNU General Public License along with
-+ * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
-+ * Place - Suite 330, Boston, MA 02111-1307 USA.
-+ *
-+ * Authors:
-+ *   Haiyang Zhang <haiyangz@microsoft.com>
-+ *   Hank Janssen  <hjanssen@microsoft.com>
-+ *
-+ */
-+
-+
-+#pragma once
-+
-+//#include <vmbuspacketformat.h>
-+//#include <ntddscsi.h>
-+
-+#define C_ASSERT(x)
-+//
-+//  public interface to the server
-+//
-+
-+//
-+//  Storvsp device interface guid
-+//
-+
-+
-+//
-+//  Protocol versions.
-+//
-+
-+//
-+// vstorage.w revision number.  This is used in the case of a version match,
-+// to alert the user that structure sizes may be mismatched even though the
-+// protocol versions match.
-+//
-+
-+#define REVISION_STRING(REVISION_) #REVISION_
-+#define FILL_VMSTOR_REVISION(RESULT_LVALUE_)                     \
-+{                                                                \
-+    char *revisionString = REVISION_STRING($Revision: 6 $) + 11; \
-+    RESULT_LVALUE_ = 0;                                          \
-+    while (*revisionString >= '0' && *revisionString <= '9')     \
-+    {                                                            \
-+        RESULT_LVALUE_ *= 10;                                    \
-+        RESULT_LVALUE_ += *revisionString - '0';                 \
-+        revisionString++;                                        \
-+    }                                                            \
++	struct block_device_context *blkdev = blkvsc_req->dev;
++	struct device_context *device_ctx=blkdev->device_ctx;
++	struct driver_context *driver_ctx = driver_to_driver_context(device_ctx->device.driver);
++	struct blkvsc_driver_context *blkvsc_drv_ctx = (struct blkvsc_driver_context*)driver_ctx;
++	STORVSC_DRIVER_OBJECT* storvsc_drv_obj = &blkvsc_drv_ctx->drv_obj;
++	int ret =0;
++
++	STORVSC_REQUEST *storvsc_req;
++
++	DPRINT_DBG(BLKVSC_DRV, "blkvsc_submit_request() - req %p type %s start_sector %llu count %d offset %d len %d\n",
++		blkvsc_req,
++		(blkvsc_req->write)?"WRITE":"READ",
++		blkvsc_req->sector_start,
++		blkvsc_req->sector_count,
++		blkvsc_req->request.DataBuffer.Offset,
++		blkvsc_req->request.DataBuffer.Length);
++
++	/*for (i=0; i < (blkvsc_req->request.DataBuffer.Length >> 12); i++)
++	{
++		DPRINT_DBG(BLKVSC_DRV, "blkvsc_submit_request() - req %p pfn[%d] %llx\n",
++		blkvsc_req,
++		i,
++		blkvsc_req->request.DataBuffer.PfnArray[i]);
++	}*/
++
++	storvsc_req = &blkvsc_req->request;
++	storvsc_req->Extension = (void*)((unsigned long)blkvsc_req + sizeof(struct blkvsc_request));
++
++	storvsc_req->Type = blkvsc_req->write? WRITE_TYPE : READ_TYPE;
++
++	storvsc_req->OnIOCompletion = request_completion;
++	storvsc_req->Context = blkvsc_req;
++
++	storvsc_req->Host = blkdev->port;
++	storvsc_req->Bus = blkdev->path;
++	storvsc_req->TargetId = blkdev->target;
++	storvsc_req->LunId = 0;	 // this is not really used at all
++
++	storvsc_req->CdbLen = blkvsc_req->cmd_len;
++	storvsc_req->Cdb = blkvsc_req->cmnd;
++
++	storvsc_req->SenseBuffer = blkvsc_req->sense_buffer;
++	storvsc_req->SenseBufferSize = SCSI_SENSE_BUFFERSIZE;
++
++	ret = storvsc_drv_obj->OnIORequest(&blkdev->device_ctx->device_obj, &blkvsc_req->request);
++	if (ret == 0)
++	{
++		blkdev->num_outstanding_reqs++;
++	}
++
++	return ret;
 +}
 +
 +//
-+// Major/minor macros.  Minor version is in LSB, meaning that earlier flat
-+// version numbers will be interpreted as "0.x" (i.e., 1 becomes 0.1).
++// We break the request into 1 or more blkvsc_requests and submit them.
++// If we cant submit them all, we put them on the pending_list. The
++// blkvsc_request() will work on the pending_list.
 +//
-+
-+#define VMSTOR_PROTOCOL_MAJOR(VERSION_)         (((VERSION_) >> 8) & 0xff)
-+#define VMSTOR_PROTOCOL_MINOR(VERSION_)         (((VERSION_)     ) & 0xff)
-+#define VMSTOR_PROTOCOL_VERSION(MAJOR_, MINOR_) ((((MAJOR_) & 0xff) << 8) | \
-+                                                 (((MINOR_) & 0xff)     ))
-+
-+//
-+// Invalid version.
-+//
-+
-+#define VMSTOR_INVALID_PROTOCOL_VERSION  -1
-+
-+//
-+// Version history:
-+// V1 Beta                    0.1
-+// V1 RC < 2008/1/31          1.0
-+// V1 RC > 2008/1/31          2.0
-+//
-+#define VMSTOR_PROTOCOL_VERSION_CURRENT VMSTOR_PROTOCOL_VERSION(2, 0)
-+
-+
-+//
-+//  This will get replaced with the max transfer length that is possible on
-+//  the host adapter.
-+//  The max transfer length will be published when we offer a vmbus channel.
-+//
-+
-+#define MAX_TRANSFER_LENGTH 0x40000
-+#define DEFAULT_PACKET_SIZE (sizeof(VMDATA_GPA_DIRECT) +                            \
-+                             sizeof(VSTOR_PACKET) +                                 \
-+                             (sizeof(UINT64) * (MAX_TRANSFER_LENGTH / PAGE_SIZE)))
-+
-+
-+
-+//
-+//  Packet structure describing virtual storage requests.
-+//
-+
-+typedef enum
++static int blkvsc_do_request(struct block_device_context *blkdev, struct request *req)
 +{
-+    VStorOperationCompleteIo            = 1,
-+    VStorOperationRemoveDevice          = 2,
-+    VStorOperationExecuteSRB            = 3,
-+    VStorOperationResetLun              = 4,
-+    VStorOperationResetAdapter          = 5,
-+    VStorOperationResetBus              = 6,
-+    VStorOperationBeginInitialization   = 7,
-+    VStorOperationEndInitialization     = 8,
-+    VStorOperationQueryProtocolVersion  = 9,
-+    VStorOperationQueryProperties       = 10,
-+    VStorOperationMaximum               = 10
++	struct bio *bio=NULL;
++	struct bio_vec *bvec=NULL;
++	struct bio_vec *prev_bvec=NULL;
 +
-+} VSTOR_PACKET_OPERATION;
++	struct blkvsc_request *blkvsc_req=NULL;
++	struct blkvsc_request *tmp;
++	int databuf_idx=0;
++	int seg_idx=0;
 +
++	sector_t start_sector;
++	unsigned long num_sectors = 0;
++	int ret=0;
++	int pending=0;
++	struct blkvsc_request_group *group=NULL;
 +
-+//
-+//  Platform neutral description of a scsi request -
-+//  this remains the same across the write regardless of 32/64 bit
-+//  note: it's patterned off the SCSI_PASS_THROUGH structure
-+//
++	DPRINT_DBG(BLKVSC_DRV, "blkdev %p req %p sect %llu \n", blkdev, req, req->sector);
 +
++	// Create a group to tie req to list of blkvsc_reqs
++	group = (struct blkvsc_request_group*)kmem_cache_alloc(blkdev->request_pool, GFP_ATOMIC);
++	if (!group)
++	{
++		return -ENOMEM;
++	}
 +
-+#pragma pack(push,1)
++	INIT_LIST_HEAD(&group->blkvsc_req_list);
++	group->outstanding = group->status = 0;
 +
++	start_sector = req->sector;
 +
-+#define CDB16GENERIC_LENGTH 0x10
++	// foreach bio in the request
++	if (req->bio)
++	 for (bio = req->bio; bio; bio = bio->bi_next)
++	{
++		// Map this bio into an existing or new storvsc request
++		bio_for_each_segment (bvec, bio, seg_idx)
++		{
++			DPRINT_DBG(BLKVSC_DRV, "bio_for_each_segment() - req %p bio %p bvec %p seg_idx %d databuf_idx %d\n",
++							req, bio, bvec, seg_idx, databuf_idx);
 +
-+#ifndef SENSE_BUFFER_SIZE
-+#define SENSE_BUFFER_SIZE 0x12
++			// Get a new storvsc request
++			if ( (!blkvsc_req) ||									// 1st-time
++				 (databuf_idx >= MAX_MULTIPAGE_BUFFER_COUNT) ||
++				 (bvec->bv_offset != 0) ||							// hole at the begin of page
++				 (prev_bvec && (prev_bvec->bv_len != PAGE_SIZE)) )	// hold at the end of page
++			{
++				// submit the prev one
++				if (blkvsc_req)
++				{
++					blkvsc_req->sector_start = start_sector;
++					sector_div(blkvsc_req->sector_start, (blkdev->sector_size >> 9));
++
++					blkvsc_req->sector_count = num_sectors / (blkdev->sector_size >> 9);
++
++					blkvsc_init_rw(blkvsc_req);
++				}
++
++				// Create new blkvsc_req to represent the current bvec
++				blkvsc_req = kmem_cache_alloc(blkdev->request_pool, GFP_ATOMIC);
++				if (!blkvsc_req)
++				{
++					// free up everything
++					list_for_each_entry_safe(blkvsc_req, tmp, &group->blkvsc_req_list, req_entry)
++					{
++						list_del(&blkvsc_req->req_entry);
++						kmem_cache_free(blkdev->request_pool, blkvsc_req);
++					}
++
++					kmem_cache_free(blkdev->request_pool, group);
++					return -ENOMEM;
++				}
++
++				memset(blkvsc_req, 0, sizeof(struct blkvsc_request));
++
++				blkvsc_req->dev = blkdev;
++				blkvsc_req->req = req;
++				blkvsc_req->request.DataBuffer.Offset = bvec->bv_offset;
++				blkvsc_req->request.DataBuffer.Length = 0;
++
++				// Add to the group
++				blkvsc_req->group = group;
++				blkvsc_req->group->outstanding++;
++				list_add_tail(&blkvsc_req->req_entry, &blkvsc_req->group->blkvsc_req_list);
++
++				start_sector += num_sectors;
++				num_sectors = 0;
++				databuf_idx = 0;
++			}
++
++			// Add the curr bvec/segment to the curr blkvsc_req
++			blkvsc_req->request.DataBuffer.PfnArray[databuf_idx] = page_to_pfn(bvec->bv_page);
++			blkvsc_req->request.DataBuffer.Length += bvec->bv_len;
++
++			prev_bvec = bvec;
++
++			databuf_idx++;
++			num_sectors += bvec->bv_len >> 9;
++
++		} // bio_for_each_segment
++
++	} // rq_for_each_bio
++
++	// Handle the last one
++	if (blkvsc_req)
++	{
++		DPRINT_DBG(BLKVSC_DRV, "blkdev %p req %p group %p count %d\n", blkdev, req, blkvsc_req->group, blkvsc_req->group->outstanding);
++
++		blkvsc_req->sector_start = start_sector;
++		sector_div(blkvsc_req->sector_start, (blkdev->sector_size >> 9));
++
++		blkvsc_req->sector_count = num_sectors / (blkdev->sector_size >> 9);
++
++		blkvsc_init_rw(blkvsc_req);
++	}
++
++	list_for_each_entry(blkvsc_req, &group->blkvsc_req_list, req_entry)
++	{
++		if (pending)
++		{
++			DPRINT_DBG(BLKVSC_DRV, "adding blkvsc_req to pending_list - blkvsc_req %p start_sect %llu sect_count %d (%llu %d)\n",
++				blkvsc_req, blkvsc_req->sector_start, blkvsc_req->sector_count, start_sector, num_sectors);
++
++			list_add_tail(&blkvsc_req->pend_entry, &blkdev->pending_list);
++		}
++		else
++		{
++			ret = blkvsc_submit_request(blkvsc_req, blkvsc_request_completion);
++			if (ret == -1)
++			{
++				pending = 1;
++				list_add_tail(&blkvsc_req->pend_entry, &blkdev->pending_list);
++			}
++
++			DPRINT_DBG(BLKVSC_DRV, "submitted blkvsc_req %p start_sect %llu sect_count %d (%llu %d) ret %d\n",
++				blkvsc_req, blkvsc_req->sector_start, blkvsc_req->sector_count, start_sector, num_sectors, ret);
++		}
++	}
++
++	return pending;
++}
++
++static void blkvsc_cmd_completion(STORVSC_REQUEST* request)
++{
++	struct blkvsc_request *blkvsc_req=(struct blkvsc_request*)request->Context;
++	struct block_device_context *blkdev = (struct block_device_context*)blkvsc_req->dev;
++
++	struct scsi_sense_hdr sense_hdr;
++
++	DPRINT_DBG(BLKVSC_DRV, "blkvsc_cmd_completion() - req %p\n", blkvsc_req);
++
++	blkdev->num_outstanding_reqs--;
++
++	if (blkvsc_req->request.Status)
++	{
++		if (scsi_normalize_sense(blkvsc_req->sense_buffer, SCSI_SENSE_BUFFERSIZE, &sense_hdr))
++		{
++			scsi_print_sense_hdr("blkvsc", &sense_hdr);
++		}
++	}
++
++	blkvsc_req->cond =1;
++	wake_up_interruptible(&blkvsc_req->wevent);
++}
++
++static void blkvsc_request_completion(STORVSC_REQUEST* request)
++{
++	struct blkvsc_request *blkvsc_req=(struct blkvsc_request*)request->Context;
++	struct block_device_context *blkdev = (struct block_device_context*)blkvsc_req->dev;
++	unsigned long flags;
++	struct blkvsc_request *comp_req, *tmp;
++
++	ASSERT(blkvsc_req->group);
++
++	DPRINT_DBG(BLKVSC_DRV, "blkdev %p blkvsc_req %p group %p type %s sect_start %llu sect_count %d len %d group outstd %d total outstd %d\n",
++		blkdev,
++		blkvsc_req,
++		blkvsc_req->group,
++		(blkvsc_req->write)?"WRITE":"READ",
++		blkvsc_req->sector_start,
++		blkvsc_req->sector_count,
++		blkvsc_req->request.DataBuffer.Length,
++		blkvsc_req->group->outstanding,
++		blkdev->num_outstanding_reqs);
++
++	spin_lock_irqsave(&blkdev->lock, flags);
++
++	blkdev->num_outstanding_reqs--;
++	blkvsc_req->group->outstanding--;
++
++	// Only start processing when all the blkvsc_reqs are completed. This guarantees no out-of-order
++	// blkvsc_req completion when calling end_that_request_first()
++	if (blkvsc_req->group->outstanding == 0)
++	{
++		list_for_each_entry_safe(comp_req, tmp, &blkvsc_req->group->blkvsc_req_list, req_entry)
++		{
++			DPRINT_DBG(BLKVSC_DRV, "completing blkvsc_req %p sect_start %llu sect_count %d \n",
++				comp_req,
++				comp_req->sector_start,
++				comp_req->sector_count);
++
++			list_del(&comp_req->req_entry);
++
++#ifdef KERNEL_2_6_27
++			if (!__blk_end_request(
++				comp_req->req,
++				(!comp_req->request.Status ? 0: -EIO),
++				comp_req->sector_count * blkdev->sector_size))
++			{
++				//All the sectors have been xferred ie the request is done
++				DPRINT_DBG(BLKVSC_DRV, "req %p COMPLETED\n", comp_req->req);
++				kmem_cache_free(blkdev->request_pool, comp_req->group);
++			}
++#else
++			if (!end_that_request_first(comp_req->req, !comp_req->request.Status,  (comp_req->sector_count * (blkdev->sector_size >> 9))))
++			{
++				//All the sectors have been xferred ie the request is done
++				DPRINT_DBG(BLKVSC_DRV, "req %p COMPLETED\n", comp_req->req);
++
++				end_that_request_last(comp_req->req, !comp_req->request.Status);
++
++				kmem_cache_free(blkdev->request_pool, comp_req->group);
++			}
 +#endif
-+C_ASSERT(SENSE_BUFFER_SIZE == 0x12);
 +
-+#define MAX_DATA_BUFFER_LENGTH_WITH_PADDING 0x14
++			kmem_cache_free(blkdev->request_pool, comp_req);
++		}
 +
++		if (!blkdev->shutting_down)
++		{
++			blkvsc_do_pending_reqs(blkdev);
++			blk_start_queue(blkdev->gd->queue);
++			blkvsc_request(blkdev->gd->queue);
++		}
++	}
 +
-+typedef struct
++	spin_unlock_irqrestore(&blkdev->lock, flags);
++}
++
++static int blkvsc_cancel_pending_reqs(struct block_device_context *blkdev)
 +{
-+    USHORT Length;
-+    UCHAR SrbStatus;
-+    UCHAR ScsiStatus;
++	struct blkvsc_request *pend_req, *tmp;
++	struct blkvsc_request *comp_req, *tmp2;
 +
-+    UCHAR PortNumber;
-+    UCHAR PathId;
-+    UCHAR TargetId;
-+    UCHAR Lun;
++	int ret=0;
 +
-+    UCHAR CdbLength;
-+    UCHAR SenseInfoLength;
-+    UCHAR DataIn;
-+    UCHAR Reserved;
++	DPRINT_DBG(BLKVSC_DRV, "blkvsc_cancel_pending_reqs()");
 +
-+    ULONG DataTransferLength;
++	// Flush the pending list first
++	list_for_each_entry_safe(pend_req, tmp, &blkdev->pending_list, pend_entry)
++	{
++		// The pend_req could be part of a partially completed request. If so, complete those req first
++		// until we hit the pend_req
++		list_for_each_entry_safe(comp_req, tmp2, &pend_req->group->blkvsc_req_list, req_entry)
++		{
++			DPRINT_DBG(BLKVSC_DRV, "completing blkvsc_req %p sect_start %llu sect_count %d \n",
++				comp_req,
++				comp_req->sector_start,
++				comp_req->sector_count);
 +
-+    union
-+    {
-+        UCHAR Cdb[CDB16GENERIC_LENGTH];
++			if (comp_req == pend_req)
++				break;
 +
-+        UCHAR SenseData[SENSE_BUFFER_SIZE];
++			list_del(&comp_req->req_entry);
 +
-+        UCHAR ReservedArray[MAX_DATA_BUFFER_LENGTH_WITH_PADDING];
-+    };
++			if (comp_req->req)
++			{
++#ifdef KERNEL_2_6_27
++			ret = __blk_end_request(
++			    comp_req->req,
++			    (!comp_req->request.Status ? 0 : -EIO),
++			    comp_req->sector_count * blkdev->sector_size);
++#else
++			ret = end_that_request_first(comp_req->req, !comp_req->request.Status,  (comp_req->sector_count * (blkdev->sector_size >> 9)));
++#endif
++			ASSERT(ret != 0);
++			}
 +
-+} VMSCSI_REQUEST, *PVMSCSI_REQUEST;
++			kmem_cache_free(blkdev->request_pool, comp_req);
++		}
 +
-+C_ASSERT((sizeof(VMSCSI_REQUEST) % 4) == 0);
++		DPRINT_DBG(BLKVSC_DRV, "cancelling pending request - %p\n", pend_req);
 +
++		list_del(&pend_req->pend_entry);
 +
-+//
-+//  This structure is sent during the intialization phase to get the different
-+//  properties of the channel.
-+//
++		list_del(&pend_req->req_entry);
 +
-+typedef struct
++		if (comp_req->req)
++		{
++#ifdef KERNEL_2_6_27
++		if (!__blk_end_request(
++			pend_req->req,
++			-EIO,
++			pend_req->sector_count * blkdev->sector_size))
++		{
++			//All the sectors have been xferred ie the request is done
++			DPRINT_DBG(BLKVSC_DRV, "blkvsc_cancel_pending_reqs() - req %p COMPLETED\n", pend_req->req);
++			kmem_cache_free(blkdev->request_pool, pend_req->group);
++		}
++#else
++		if (!end_that_request_first(pend_req->req, 0,  (pend_req->sector_count * (blkdev->sector_size >> 9))))
++		{
++			//All the sectors have been xferred ie the request is done
++			DPRINT_DBG(BLKVSC_DRV, "blkvsc_cancel_pending_reqs() - req %p COMPLETED\n", pend_req->req);
++
++			end_that_request_last(pend_req->req, 0);
++
++			kmem_cache_free(blkdev->request_pool, pend_req->group);
++		}
++#endif
++		}
++
++		kmem_cache_free(blkdev->request_pool, pend_req);
++	}
++
++	return ret;
++}
++
++static int blkvsc_do_pending_reqs(struct block_device_context *blkdev)
 +{
-+    USHORT ProtocolVersion;
-+    UCHAR  PathId;
-+    UCHAR  TargetId;
++	struct blkvsc_request *pend_req, *tmp;
++	int ret=0;
 +
-+    //
-+    // Note: port number is only really known on the client side
-+    //
-+    ULONG  PortNumber;
++	// Flush the pending list first
++	list_for_each_entry_safe(pend_req, tmp, &blkdev->pending_list, pend_entry)
++	{
++		DPRINT_DBG(BLKVSC_DRV, "working off pending_list - %p\n", pend_req);
 +
-+    ULONG  Flags;
++		ret = blkvsc_submit_request(pend_req, blkvsc_request_completion);
++		if (ret != 0)
++		{
++			break;
++		}
++		else
++		{
++			list_del(&pend_req->pend_entry);
++		}
++	}
 +
-+    ULONG  MaxTransferBytes;
++	return ret;
++}
 +
-+    //
-+    //  This id is unique for each channel and will correspond with
-+    //  vendor specific data in the inquirydata
-+    //
-+
-+    ULONGLONG UniqueId;
-+
-+} VMSTORAGE_CHANNEL_PROPERTIES, *PVMSTORAGE_CHANNEL_PROPERTIES;
-+
-+C_ASSERT((sizeof(VMSTORAGE_CHANNEL_PROPERTIES) % 4) == 0);
-+
-+
-+//
-+//  This structure is sent during the storage protocol negotiations.
-+//
-+
-+typedef struct
++static void blkvsc_request(struct request_queue *queue)
 +{
-+    //
-+    // Major (MSW) and minor (LSW) version numbers.
-+    //
++	struct block_device_context *blkdev = NULL;
++	struct request *req;
++	int ret=0;
 +
-+    USHORT MajorMinor;
++	DPRINT_DBG(BLKVSC_DRV, "- enter \n");
++	while ((req = elv_next_request(queue)) != NULL)
++	{
++		DPRINT_DBG(BLKVSC_DRV, "- req %p\n", req);
 +
++		blkdev = req->rq_disk->private_data;
++		if (blkdev->shutting_down || !blk_fs_request(req) || blkdev->media_not_present) {
++			end_request(req, 0);
++			continue;
++		}
 +
-+    //
-+    // Revision number is auto-incremented whenever this file is changed
-+    // (See FILL_VMSTOR_REVISION macro above).  Mismatch does not definitely
-+    // indicate incompatibility--but it does indicate mismatched builds.
-+    //
++		ret = blkvsc_do_pending_reqs(blkdev);
 +
-+    USHORT Revision;
++		if (ret != 0)
++		{
++			DPRINT_DBG(BLKVSC_DRV, "- stop queue - pending_list not empty\n");
++			blk_stop_queue(queue);
++			break;
++		}
 +
-+} VMSTORAGE_PROTOCOL_VERSION, *PVMSTORAGE_PROTOCOL_VERSION;
++		blkdev_dequeue_request(req);
 +
-+C_ASSERT((sizeof(VMSTORAGE_PROTOCOL_VERSION) % 4) == 0);
++		ret = blkvsc_do_request(blkdev, req);
++		if (ret > 0)
++		{
++			DPRINT_DBG(BLKVSC_DRV, "- stop queue - no room\n");
++			blk_stop_queue(queue);
++			break;
++		}
++		else if (ret < 0)
++		{
++			DPRINT_DBG(BLKVSC_DRV, "- stop queue - no mem\n");
++			blk_requeue_request(queue, req);
++			blk_stop_queue(queue);
++			break;
++		}
++	}
++}
 +
-+
-+//
-+// Channel Property Flags
-+//
-+
-+#define STORAGE_CHANNEL_REMOVABLE_FLAG                  0x1
-+#define STORAGE_CHANNEL_EMULATED_IDE_FLAG               0x2
-+
-+
-+typedef struct _VSTOR_PACKET
++static int blkvsc_open(struct inode *inode, struct file *filep)
 +{
-+    //
-+    // Requested operation type
-+    //
++	struct block_device_context *blkdev = inode->i_bdev->bd_disk->private_data;
 +
-+    VSTOR_PACKET_OPERATION Operation;
++	DPRINT_DBG(BLKVSC_DRV, "- users %d disk %s\n", blkdev->users, blkdev->gd->disk_name);
 +
-+    //
-+    //  Flags - see below for values
-+    //
++	spin_lock(&blkdev->lock);
 +
-+    ULONG     Flags;
++	if (!blkdev->users && blkdev->device_type == DVD_TYPE)
++	{
++		spin_unlock(&blkdev->lock);
++		check_disk_change(inode->i_bdev);
++		spin_lock(&blkdev->lock);
++	}
 +
-+    //
-+    // Status of the request returned from the server side.
-+    //
++	blkdev->users++;
 +
-+    ULONG     Status;
++	spin_unlock(&blkdev->lock);
++	return 0;
++}
 +
-+    //
-+    // Data payload area
-+    //
++static int blkvsc_release(struct inode *inode, struct file *filep)
++{
++	struct block_device_context *blkdev = inode->i_bdev->bd_disk->private_data;
 +
-+    union
-+    {
-+        //
-+        //  Structure used to forward SCSI commands from the client to the server.
-+        //
++	DPRINT_DBG(BLKVSC_DRV, "- users %d disk %s\n", blkdev->users, blkdev->gd->disk_name);
 +
-+        VMSCSI_REQUEST VmSrb;
++	spin_lock(&blkdev->lock);
++	if (blkdev->users == 1)
++	{
++		spin_unlock(&blkdev->lock);
++		blkvsc_do_flush(blkdev);
++		spin_lock(&blkdev->lock);
++	}
 +
-+        //
-+        // Structure used to query channel properties.
-+        //
++	blkdev->users--;
 +
-+        VMSTORAGE_CHANNEL_PROPERTIES StorageChannelProperties;
++	spin_unlock(&blkdev->lock);
++	return 0;
++}
 +
-+        //
-+        // Used during version negotiations.
-+        //
++static int blkvsc_media_changed(struct gendisk *gd)
++{
++	DPRINT_DBG(BLKVSC_DRV, "- enter\n");
 +
-+        VMSTORAGE_PROTOCOL_VERSION Version;
-+    };
++	return 1;
++}
 +
-+} VSTOR_PACKET, *PVSTOR_PACKET;
++static int blkvsc_revalidate_disk(struct gendisk *gd)
++{
++	struct block_device_context *blkdev = gd->private_data;
 +
-+C_ASSERT((sizeof(VSTOR_PACKET) % 4) == 0);
++	DPRINT_DBG(BLKVSC_DRV, "- enter\n");
 +
-+//
-+//  Packet flags
-+//
++	if (blkdev->device_type == DVD_TYPE)
++	{
++		blkvsc_do_read_capacity(blkdev);
++		set_capacity(blkdev->gd, blkdev->capacity * (blkdev->sector_size/512));
++		blk_queue_hardsect_size(gd->queue, blkdev->sector_size);
++	}
++	return 0;
++}
 +
-+//
-+//  This flag indicates that the server should send back a completion for this
-+//  packet.
-+//
++int blkvsc_getgeo(struct block_device *bd, struct hd_geometry *hg)
++{
++	sector_t total_sectors = get_capacity(bd->bd_disk);
++	sector_t cylinder_times_heads=0;
++	sector_t temp=0;
 +
-+#define REQUEST_COMPLETION_FLAG 0x1
++	int sectors_per_track=0;
++	int heads=0;
++	int cylinders=0;
++	int rem=0;
 +
-+//
-+//  This is the set of flags that the vsc can set in any packets it sends
-+//
++    if (total_sectors > (65535 * 16 * 255)) {
++        total_sectors = (65535 * 16 * 255);
++    }
 +
-+#define VSC_LEGAL_FLAGS (REQUEST_COMPLETION_FLAG)
++    if (total_sectors >= (65535 * 16 * 63)) {
++        sectors_per_track = 255;
++        heads = 16;
++
++		cylinder_times_heads = total_sectors;
++		rem = sector_div(cylinder_times_heads, sectors_per_track); // sector_div stores the quotient in cylinder_times_heads
++    }
++	else
++	{
++        sectors_per_track = 17;
++
++		cylinder_times_heads = total_sectors;
++        rem = sector_div(cylinder_times_heads, sectors_per_track); 	// sector_div stores the quotient in cylinder_times_heads
++
++		temp = cylinder_times_heads + 1023;
++		rem = sector_div(temp, 1024); 	// sector_div stores the quotient in temp
++
++		heads = temp;
++
++        if (heads < 4) {
++            heads = 4;
++        }
++
++        if (cylinder_times_heads >= (heads * 1024) || (heads > 16)) {
++            sectors_per_track = 31;
++            heads = 16;
++
++			cylinder_times_heads = total_sectors;
++            rem = sector_div(cylinder_times_heads, sectors_per_track); // sector_div stores the quotient in cylinder_times_heads
++        }
++
++        if (cylinder_times_heads >= (heads * 1024)) {
++            sectors_per_track = 63;
++            heads = 16;
++
++			cylinder_times_heads = total_sectors;
++            rem = sector_div(cylinder_times_heads, sectors_per_track); // sector_div stores the quotient in cylinder_times_heads
++        }
++    }
++
++	temp = cylinder_times_heads;
++    rem = sector_div(temp, heads); // sector_div stores the quotient in temp
++	cylinders = temp;
++
++	hg->heads = heads;
++    hg->sectors = sectors_per_track;
++    hg->cylinders = cylinders;
++
++	DPRINT_INFO(BLKVSC_DRV, "CHS (%d, %d, %d)", cylinders, heads, sectors_per_track);
++
++    return 0;
++}
++
++static int blkvsc_ioctl(struct inode *inode, struct file *filep, unsigned cmd, unsigned long arg)
++{
++	struct block_device *bd = inode->i_bdev;
++	struct block_device_context *blkdev = bd->bd_disk->private_data;
++	int ret=0;
++
++	switch (cmd)
++	{
++	// TODO: I think there is certain format for HDIO_GET_IDENTITY rather than just
++	// a GUID. Commented it out for now.
++	/*case HDIO_GET_IDENTITY:
++		DPRINT_INFO(BLKVSC_DRV, "HDIO_GET_IDENTITY\n");
++
++		if (copy_to_user((void __user *)arg, blkdev->device_id, blkdev->device_id_len))
++		{
++			ret = -EFAULT;
++		}
++
++		break;*/
++	default:
++		ret = -EINVAL;
++		break;
++	}
++
++	return ret;
++}
 +
 +
-+#pragma pack(pop)
++MODULE_LICENSE("GPL");
 +
++static int __init blkvsc_init(void)
++{
++	int ret;
 +
++	ASSERT(sizeof(sector_t) == 8); // Make sure CONFIG_LBD is set
++
++	DPRINT_ENTER(BLKVSC_DRV);
++
++	DPRINT_INFO(BLKVSC_DRV, "Blkvsc initializing....");
++
++	ret = blkvsc_drv_init(BlkVscInitialize);
++
++	DPRINT_EXIT(BLKVSC_DRV);
++
++	return ret;
++}
++
++static void __exit blkvsc_exit(void)
++{
++	DPRINT_ENTER(BLKVSC_DRV);
++
++	blkvsc_drv_exit();
++
++	DPRINT_ENTER(BLKVSC_DRV);
++}
++
++module_param(blkvsc_ringbuffer_size, int, S_IRUGO);
++
++module_init(blkvsc_init);
++module_exit(blkvsc_exit);
++
++// eof
