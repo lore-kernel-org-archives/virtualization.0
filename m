@@ -1,14 +1,14 @@
 From: Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [patch 50/54] Staging: hv: osd: remove MemoryFence wrapper
-Date: Fri, 17 Jul 2009 11:09:40 -0700
-Message-ID: <20090717180924.015884951@mini.kroah.org>
+Subject: [patch 44/54] Staging: hv: make Device->RequestLock a real spinlock
+Date: Fri, 17 Jul 2009 11:09:34 -0700
+Message-ID: <20090717180923.079382551@mini.kroah.org>
 References: <20090717180850.873962925@mini.kroah.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline;
-	filename=staging-hv-osd-remove-memoryfence-wrapper.patch
+	filename=staging-hv-make-device-requestlock-a-real-spinlock.patch
 In-Reply-To: <20090720160025.GA20249@kroah.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -25,71 +25,105 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Greg Kroah-Hartman <gregkh@suse.de>
 
-Use the "real" mb call instead of a wrapper function.
+Don't use the wrapper functions for this lock, make it a real
+lock so that we know what is going on.
+
+I don't think we really want to be doing a irqsave for this code, but I
+left it alone to preserve the original codepath.  It should be reviewed
+later.
 
 Cc: Hank Janssen <hjanssen@microsoft.com>
 Cc: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 ---
- drivers/staging/hv/RingBuffer.c  |    4 ++--
- drivers/staging/hv/Vmbus.c       |    2 +-
- drivers/staging/hv/include/osd.h |    2 --
- drivers/staging/hv/osd.c         |    5 -----
- 4 files changed, 3 insertions(+), 10 deletions(-)
+ drivers/staging/hv/RndisFilter.c |   26 ++++++++++++--------------
+ 1 file changed, 12 insertions(+), 14 deletions(-)
 
---- a/drivers/staging/hv/include/osd.h
-+++ b/drivers/staging/hv/include/osd.h
-@@ -119,8 +119,6 @@ extern void PageFree(void* page, unsigne
- extern void* MemMapIO(unsigned long phys, unsigned long size);
- extern void MemUnmapIO(void* virt);
+--- a/drivers/staging/hv/RndisFilter.c
++++ b/drivers/staging/hv/RndisFilter.c
+@@ -54,7 +54,7 @@ typedef struct _RNDIS_DEVICE {
+ 	u32					LinkStatus;
+ 	u32					NewRequestId;
  
--extern void MemoryFence(void);
--
- extern HANDLE TimerCreate(PFN_TIMER_CALLBACK pfnTimerCB, void* context);
- extern void TimerClose(HANDLE hTimer);
- extern int TimerStop(HANDLE hTimer);
---- a/drivers/staging/hv/osd.c
-+++ b/drivers/staging/hv/osd.c
-@@ -197,11 +197,6 @@ void MemUnmapIO(void *virt)
- 	//iounmap(virt);
+-	HANDLE					RequestLock;
++	spinlock_t request_lock;
+ 	LIST_ENTRY				RequestList;
+ 
+ 	unsigned char					HwMacAddr[HW_MACADDR_LEN];
+@@ -216,12 +216,7 @@ static inline RNDIS_DEVICE* GetRndisDevi
+ 		return NULL;
+ 	}
+ 
+-	device->RequestLock = SpinlockCreate();
+-	if (!device->RequestLock)
+-	{
+-		kfree(device);
+-		return NULL;
+-	}
++	spin_lock_init(&device->request_lock);
+ 
+ 	INITIALIZE_LIST_HEAD(&device->RequestList);
+ 
+@@ -232,7 +227,6 @@ static inline RNDIS_DEVICE* GetRndisDevi
+ 
+ static inline void PutRndisDevice(RNDIS_DEVICE *Device)
+ {
+-	SpinlockClose(Device->RequestLock);
+ 	kfree(Device);
  }
  
--void MemoryFence()
--{
--	mb();
--}
--
- void TimerCallback(unsigned long data)
+@@ -241,6 +235,7 @@ static inline RNDIS_REQUEST* GetRndisReq
+ 	RNDIS_REQUEST *request;
+ 	RNDIS_MESSAGE *rndisMessage;
+ 	RNDIS_SET_REQUEST *set;
++	unsigned long flags;
+ 
+ 	request = kzalloc(sizeof(RNDIS_REQUEST), GFP_KERNEL);
+ 	if (!request)
+@@ -265,18 +260,20 @@ static inline RNDIS_REQUEST* GetRndisReq
+ 	set->RequestId = InterlockedIncrement((int*)&Device->NewRequestId);
+ 
+ 	// Add to the request list
+-	SpinlockAcquire(Device->RequestLock);
++	spin_lock_irqsave(&Device->request_lock, flags);
+ 	INSERT_TAIL_LIST(&Device->RequestList, &request->ListEntry);
+-	SpinlockRelease(Device->RequestLock);
++	spin_unlock_irqrestore(&Device->request_lock, flags);
+ 
+ 	return request;
+ }
+ 
+ static inline void PutRndisRequest(RNDIS_DEVICE *Device, RNDIS_REQUEST *Request)
  {
- 	TIMER* t = (TIMER*)data;
---- a/drivers/staging/hv/RingBuffer.c
-+++ b/drivers/staging/hv/RingBuffer.c
-@@ -411,7 +411,7 @@ RingBufferWrite(
- 												sizeof(u64));
+-	SpinlockAcquire(Device->RequestLock);
++	unsigned long flags;
++
++	spin_lock_irqsave(&Device->request_lock, flags);
+ 	REMOVE_ENTRY_LIST(&Request->ListEntry);
+-	SpinlockRelease(Device->RequestLock);
++	spin_unlock_irqrestore(&Device->request_lock, flags);
  
- 	// Make sure we flush all writes before updating the writeIndex
--	MemoryFence();
-+	mb();
+ 	WaitEventClose(Request->WaitEvent);
+ 	kfree(Request);
+@@ -385,10 +382,11 @@ RndisFilterReceiveResponse(
+ 	LIST_ENTRY *curr;
+ 	RNDIS_REQUEST *request=NULL;
+ 	bool found = false;
++	unsigned long flags;
  
- 	// Now, update the write location
- 	SetNextWriteLocation(OutRingInfo, nextWriteLocation);
-@@ -532,7 +532,7 @@ RingBufferRead(
+ 	DPRINT_ENTER(NETVSC);
  
- 	// Make sure all reads are done before we update the read index since
- 	// the writer may start writing to the read area once the read index is updated
--	MemoryFence();
-+	mb();
+-	SpinlockAcquire(Device->RequestLock);
++	spin_lock_irqsave(&Device->request_lock, flags);
+ 	ITERATE_LIST_ENTRIES(anchor, curr, &Device->RequestList)
+ 	{
+ 		request = CONTAINING_RECORD(curr, RNDIS_REQUEST, ListEntry);
+@@ -403,7 +401,7 @@ RndisFilterReceiveResponse(
+ 			break;
+ 		}
+ 	}
+-	SpinlockRelease(Device->RequestLock);
++	spin_unlock_irqrestore(&Device->request_lock, flags);
  
- 	// Update the read index
- 	SetNextReadLocation(InRingInfo, nextReadLocation);
---- a/drivers/staging/hv/Vmbus.c
-+++ b/drivers/staging/hv/Vmbus.c
-@@ -426,7 +426,7 @@ VmbusOnMsgDPC(
- 		// Make sure the write to MessageType (ie set to HvMessageTypeNone) happens
- 		// before we read the MessagePending and EOMing. Otherwise, the EOMing will not deliver
- 		// any more messages since there is no empty slot
--		MemoryFence();
-+		mb();
- 
- 		if (msg->Header.MessageFlags.MessagePending)
- 		{
+ 	if (found)
+ 	{
