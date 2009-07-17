@@ -1,14 +1,15 @@
 From: Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [patch 39/54] Staging: hv: osd: remove MemAllocZeroed wrapper
-Date: Fri, 17 Jul 2009 11:09:29 -0700
-Message-ID: <20090717180922.259556004@mini.kroah.org>
+Subject: [patch 45/54] Staging: hv: make netDevice->ReceivePacketListLock a
+	real spinlock
+Date: Fri, 17 Jul 2009 11:09:35 -0700
+Message-ID: <20090717180923.221241152@mini.kroah.org>
 References: <20090717180850.873962925@mini.kroah.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline;
-	filename=staging-hv-osd-remove-memalloczeroed-wrapper.patch
+	filename=staging-hv-make-netdevice-receivepacketlistlock-a-real-spinlock.patch
 In-Reply-To: <20090720160025.GA20249@kroah.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -25,152 +26,127 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Greg Kroah-Hartman <gregkh@suse.de>
 
-Use the "real" kzalloc call instead of a wrapper function.
+Don't use the wrapper functions for this lock, make it a real
+lock so that we know what is going on.
+
+I don't think we really want to be doing a irqsave for this code, but I
+left it alone to preserve the original codepath.  It should be reviewed
+later.
 
 Cc: Hank Janssen <hjanssen@microsoft.com>
 Cc: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 ---
- drivers/staging/hv/Channel.c     |    8 ++++----
- drivers/staging/hv/Connection.c  |    4 ++--
- drivers/staging/hv/NetVsc.c      |    4 ++--
- drivers/staging/hv/RndisFilter.c |    4 ++--
- drivers/staging/hv/StorVsc.c     |    2 +-
- drivers/staging/hv/include/osd.h |    1 -
- drivers/staging/hv/osd.c         |    7 -------
- 7 files changed, 11 insertions(+), 19 deletions(-)
+ drivers/staging/hv/NetVsc.c |   19 +++++++++----------
+ drivers/staging/hv/NetVsc.h |    2 +-
+ 2 files changed, 10 insertions(+), 11 deletions(-)
 
---- a/drivers/staging/hv/Channel.c
-+++ b/drivers/staging/hv/Channel.c
-@@ -226,7 +226,7 @@ VmbusChannelOpen(
- 
- 	// Allocate the ring buffer
- 	out = PageAlloc((SendRingBufferSize + RecvRingBufferSize) >> PAGE_SHIFT);
--	//out = MemAllocZeroed(sendRingBufferSize + recvRingBufferSize);
-+	//out = kzalloc(sendRingBufferSize + recvRingBufferSize, GFP_KERNEL);
- 	ASSERT(out);
- 	ASSERT(((unsigned long)out & (PAGE_SIZE-1)) == 0);
- 
-@@ -421,7 +421,7 @@ VmbusChannelCreateGpadlHeader(
- 	{
- 		// fill in the header
- 		msgSize = sizeof(VMBUS_CHANNEL_MSGINFO) + sizeof(VMBUS_CHANNEL_GPADL_HEADER) + sizeof(GPA_RANGE) + pfnCount*sizeof(u64);
--		msgHeader =  MemAllocZeroed(msgSize);
-+		msgHeader =  kzalloc(msgSize, GFP_KERNEL);
- 
- 		INITIALIZE_LIST_HEAD(&msgHeader->SubMsgList);
- 		msgHeader->MessageSize=msgSize;
-@@ -458,7 +458,7 @@ VmbusChannelCreateGpadlHeader(
- 			}
- 
- 			msgSize = sizeof(VMBUS_CHANNEL_MSGINFO) + sizeof(VMBUS_CHANNEL_GPADL_BODY) + pfnCurr*sizeof(u64);
--			msgBody =  MemAllocZeroed(msgSize);
-+			msgBody = kzalloc(msgSize, GFP_KERNEL);
- 			ASSERT(msgBody);
- 			msgBody->MessageSize = msgSize;
- 			(*MessageCount)++;
-@@ -481,7 +481,7 @@ VmbusChannelCreateGpadlHeader(
- 	{
- 		// everything fits in a header
- 		msgSize = sizeof(VMBUS_CHANNEL_MSGINFO) + sizeof(VMBUS_CHANNEL_GPADL_HEADER) + sizeof(GPA_RANGE) + pageCount*sizeof(u64);
--		msgHeader =  MemAllocZeroed(msgSize);
-+		msgHeader = kzalloc(msgSize, GFP_KERNEL);
- 		msgHeader->MessageSize=msgSize;
- 
- 		gpaHeader = (VMBUS_CHANNEL_GPADL_HEADER*)msgHeader->Msg;
---- a/drivers/staging/hv/Connection.c
-+++ b/drivers/staging/hv/Connection.c
-@@ -89,7 +89,7 @@ VmbusConnect(
- 		goto Cleanup;
- 	}
- 
--	msgInfo = (VMBUS_CHANNEL_MSGINFO*)MemAllocZeroed(sizeof(VMBUS_CHANNEL_MSGINFO) + sizeof(VMBUS_CHANNEL_INITIATE_CONTACT));
-+	msgInfo = kzalloc(sizeof(VMBUS_CHANNEL_MSGINFO) + sizeof(VMBUS_CHANNEL_INITIATE_CONTACT), GFP_KERNEL);
- 	if (msgInfo == NULL)
- 	{
- 		ret = -1;
-@@ -207,7 +207,7 @@ VmbusDisconnect(
- 	if (gVmbusConnection.ConnectState != Connected)
- 		return -1;
- 
--	msg = MemAllocZeroed(sizeof(VMBUS_CHANNEL_UNLOAD));
-+	msg = kzalloc(sizeof(VMBUS_CHANNEL_UNLOAD), GFP_KERNEL);
- 
- 	msg->MessageType = ChannelMessageUnload;
- 
---- a/drivers/staging/hv/include/osd.h
-+++ b/drivers/staging/hv/include/osd.h
-@@ -121,7 +121,6 @@ extern void PageFree(void* page, unsigne
- extern void* MemMapIO(unsigned long phys, unsigned long size);
- extern void MemUnmapIO(void* virt);
- 
--extern void* MemAllocZeroed(unsigned int size);
- extern void* MemAllocAtomic(unsigned int size);
- extern void MemFree(void* buf);
- extern void MemoryFence(void);
 --- a/drivers/staging/hv/NetVsc.c
 +++ b/drivers/staging/hv/NetVsc.c
-@@ -122,7 +122,7 @@ static inline NETVSC_DEVICE* AllocNetDev
- {
- 	NETVSC_DEVICE *netDevice;
+@@ -807,7 +807,7 @@ NetVscOnDeviceAdd(
  
--	netDevice = MemAllocZeroed(sizeof(NETVSC_DEVICE));
-+	netDevice = kzalloc(sizeof(NETVSC_DEVICE), GFP_KERNEL);
- 	if (!netDevice)
- 		return NULL;
+ 	// Initialize the NetVSC channel extension
+ 	netDevice->ReceiveBufferSize = NETVSC_RECEIVE_BUFFER_SIZE;
+-	netDevice->ReceivePacketListLock = SpinlockCreate();
++	spin_lock_init(&netDevice->receive_packet_list_lock);
  
-@@ -815,7 +815,7 @@ NetVscOnDeviceAdd(
+ 	netDevice->SendBufferSize = NETVSC_SEND_BUFFER_SIZE;
  
- 	for (i=0; i < NETVSC_RECEIVE_PACKETLIST_COUNT; i++)
- 	{
--		packet = MemAllocZeroed(sizeof(NETVSC_PACKET) + (NETVSC_RECEIVE_SG_COUNT* sizeof(PAGE_BUFFER)));
-+		packet = kzalloc(sizeof(NETVSC_PACKET) + (NETVSC_RECEIVE_SG_COUNT* sizeof(PAGE_BUFFER)), GFP_KERNEL);
- 		if (!packet)
- 		{
- 			DPRINT_DBG(NETVSC, "unable to allocate netvsc pkts for receive pool (wanted %d got %d)", NETVSC_RECEIVE_PACKETLIST_COUNT, i);
---- a/drivers/staging/hv/osd.c
-+++ b/drivers/staging/hv/osd.c
-@@ -189,13 +189,6 @@ void PageUnmapVirtualAddress(void* VirtA
- 	kunmap_atomic(VirtAddr, KM_IRQ0);
- }
+@@ -876,8 +876,6 @@ Cleanup:
+ 			kfree(packet);
+ 		}
  
--void* MemAllocZeroed(unsigned int size)
--{
--	void *p = kmalloc(size, GFP_KERNEL);
--	if (p) memset(p, 0, size);
--	return p;
--}
+-		SpinlockClose(netDevice->ReceivePacketListLock);
 -
- void* MemAllocAtomic(unsigned int size)
- {
- 	return kmalloc(size, GFP_ATOMIC);
---- a/drivers/staging/hv/RndisFilter.c
-+++ b/drivers/staging/hv/RndisFilter.c
-@@ -210,7 +210,7 @@ static inline RNDIS_DEVICE* GetRndisDevi
- {
- 	RNDIS_DEVICE *device;
+ 		ReleaseOutboundNetDevice(Device);
+ 		ReleaseInboundNetDevice(Device);
  
--	device = MemAllocZeroed(sizeof(RNDIS_DEVICE));
-+	device = kzalloc(sizeof(RNDIS_DEVICE), GFP_KERNEL);
- 	if (!device)
+@@ -952,7 +950,6 @@ NetVscOnDeviceRemove(
+ 		kfree(netvscPacket);
+ 	}
+ 
+-	SpinlockClose(netDevice->ReceivePacketListLock);
+ 	WaitEventClose(netDevice->ChannelInitEvent);
+ 	FreeNetDevice(netDevice);
+ 
+@@ -1118,6 +1115,7 @@ NetVscOnReceive(
+ 
+ 	int i=0, j=0;
+ 	int count=0, bytesRemain=0;
++	unsigned long flags;
+ 
+ 	DPRINT_ENTER(NETVSC);
+ 
+@@ -1164,7 +1162,7 @@ NetVscOnReceive(
+ 
+ 	// Grab free packets (range count + 1) to represent this xfer page packet. +1 to represent
+ 	// the xfer page packet itself. We grab it here so that we know exactly how many we can fulfil
+-	SpinlockAcquire(netDevice->ReceivePacketListLock);
++	spin_lock_irqsave(&netDevice->receive_packet_list_lock, flags);
+ 	while (!IsListEmpty(&netDevice->ReceivePacketList))
  	{
- 		return NULL;
-@@ -242,7 +242,7 @@ static inline RNDIS_REQUEST* GetRndisReq
- 	RNDIS_MESSAGE *rndisMessage;
- 	RNDIS_SET_REQUEST *set;
+ 		entry = REMOVE_HEAD_LIST(&netDevice->ReceivePacketList);
+@@ -1175,7 +1173,7 @@ NetVscOnReceive(
+ 		if (++count == vmxferpagePacket->RangeCount + 1)
+ 			break;
+ 	}
+-	SpinlockRelease(netDevice->ReceivePacketListLock);
++	spin_unlock_irqrestore(&netDevice->receive_packet_list_lock, flags);
  
--	request = MemAllocZeroed(sizeof(RNDIS_REQUEST));
-+	request = kzalloc(sizeof(RNDIS_REQUEST), GFP_KERNEL);
- 	if (!request)
- 	{
- 		return NULL;
---- a/drivers/staging/hv/StorVsc.c
-+++ b/drivers/staging/hv/StorVsc.c
-@@ -147,7 +147,7 @@ static inline STORVSC_DEVICE* AllocStorD
- {
- 	STORVSC_DEVICE *storDevice;
+ 	// We need at least 2 netvsc pkts (1 to represent the xfer page and at least 1 for the range)
+ 	// i.e. we can handled some of the xfer page packet ranges...
+@@ -1184,7 +1182,7 @@ NetVscOnReceive(
+ 		DPRINT_ERR(NETVSC, "Got only %d netvsc pkt...needed %d pkts. Dropping this xfer page packet completely!", count, vmxferpagePacket->RangeCount+1);
  
--	storDevice = MemAllocZeroed(sizeof(STORVSC_DEVICE));
-+	storDevice = kzalloc(sizeof(STORVSC_DEVICE), GFP_KERNEL);
- 	if (!storDevice)
- 		return NULL;
+ 		// Return it to the freelist
+-		SpinlockAcquire(netDevice->ReceivePacketListLock);
++		spin_lock_irqsave(&netDevice->receive_packet_list_lock, flags);
+ 		for (i=count; i != 0; i--)
+ 		{
+ 			entry = REMOVE_HEAD_LIST(&listHead);
+@@ -1192,7 +1190,7 @@ NetVscOnReceive(
+ 
+ 			INSERT_TAIL_LIST(&netDevice->ReceivePacketList, &netvscPacket->ListEntry);
+ 		}
+-		SpinlockRelease(netDevice->ReceivePacketListLock);
++		spin_unlock_irqrestore(&netDevice->receive_packet_list_lock, flags);
+ 
+ 		NetVscSendReceiveCompletion(Device, vmxferpagePacket->d.TransactionId);
+ 
+@@ -1346,6 +1344,7 @@ NetVscOnReceiveCompletion(
+ 	NETVSC_DEVICE* netDevice;
+ 	u64	transactionId=0;
+ 	bool fSendReceiveComp = false;
++	unsigned long flags;
+ 
+ 	DPRINT_ENTER(NETVSC);
+ 
+@@ -1362,7 +1361,7 @@ NetVscOnReceiveCompletion(
+ 	}
+ 
+ 	// Overloading use of the lock.
+-	SpinlockAcquire(netDevice->ReceivePacketListLock);
++	spin_lock_irqsave(&netDevice->receive_packet_list_lock, flags);
+ 
+ 	ASSERT(packet->XferPagePacket->Count > 0);
+ 	packet->XferPagePacket->Count--;
+@@ -1379,7 +1378,7 @@ NetVscOnReceiveCompletion(
+ 
+ 	// Put the packet back
+ 	INSERT_TAIL_LIST(&netDevice->ReceivePacketList, &packet->ListEntry);
+-	SpinlockRelease(netDevice->ReceivePacketListLock);
++	spin_unlock_irqrestore(&netDevice->receive_packet_list_lock, flags);
+ 
+ 	// Send a receive completion for the xfer page packet
+ 	if (fSendReceiveComp)
+--- a/drivers/staging/hv/NetVsc.h
++++ b/drivers/staging/hv/NetVsc.h
+@@ -62,7 +62,7 @@ typedef struct _NETVSC_DEVICE {
+ 	int								NumOutstandingSends;
+ 	// List of free preallocated NETVSC_PACKET to represent receive packet
+ 	LIST_ENTRY						ReceivePacketList;
+-	HANDLE							ReceivePacketListLock;
++	spinlock_t receive_packet_list_lock;
+ 
+ 	// Send buffer allocated by us but manages by NetVSP
+ 	void *							SendBuffer;
