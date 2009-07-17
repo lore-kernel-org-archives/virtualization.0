@@ -1,14 +1,15 @@
 From: Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [patch 42/54] Staging: hv: make Channel->InboundLock a real spinlock
-Date: Fri, 17 Jul 2009 11:09:32 -0700
-Message-ID: <20090717180922.727355686@mini.kroah.org>
+Subject: [patch 14/54] Staging: hv: add the Hyper-V virtual block driver to
+	the build
+Date: Fri, 17 Jul 2009 11:09:04 -0700
+Message-ID: <20090717180918.115435809@mini.kroah.org>
 References: <20090717180850.873962925@mini.kroah.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline;
-	filename=staging-hv-make-channel-inboundlock-a-real-spinlock.patch
+	filename=staging-hv-add-the-hyper-v-virtual-block-driver-to-the-build.patch
 In-Reply-To: <20090720160025.GA20249@kroah.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -25,149 +26,38 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Greg Kroah-Hartman <gregkh@suse.de>
 
-Don't use the wrapper functions for this lock, make it a real
-lock so that we know what is going on.
-
-I don't think we really want to be doing a irqsave for this code, but I
-left it alone to preserve the original codepath.  It should be reviewed
-later.
+Add the Hyper-V virtual block driver to the kernel build system.
 
 Cc: Hank Janssen <hjanssen@microsoft.com>
 Cc: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
----
- drivers/staging/hv/Channel.c     |   18 ++++++++++--------
- drivers/staging/hv/ChannelMgmt.c |   10 +---------
- drivers/staging/hv/ChannelMgmt.h |    2 +-
- 3 files changed, 12 insertions(+), 18 deletions(-)
 
---- a/drivers/staging/hv/Channel.c
-+++ b/drivers/staging/hv/Channel.c
-@@ -991,18 +991,19 @@ VmbusChannelRecvPacket(
- 	u32 packetLen;
- 	u32 userLen;
- 	int ret;
-+	unsigned long flags;
+
+---
+ drivers/staging/hv/Kconfig  |    7 +++++++
+ drivers/staging/hv/Makefile |    2 ++
+ 2 files changed, 9 insertions(+)
+
+--- a/drivers/staging/hv/Kconfig
++++ b/drivers/staging/hv/Kconfig
+@@ -12,3 +12,10 @@ config HYPERV_STORAGE
+ 	default n
+ 	help
+ 	 Select this option to enable the Hyper-V virtual storage driver.
++
++config HYPERV_BLOCK
++	tristate "Microsoft Hyper-V virtual block driver"
++	depends on BLOCK
++	default n
++	help
++	  Select this option to enable the Hyper-V virtual block driver.
+--- a/drivers/staging/hv/Makefile
++++ b/drivers/staging/hv/Makefile
+@@ -1,5 +1,7 @@
+ obj-$(CONFIG_HYPERV)		+= hv_vmbus.o
+ obj-$(CONFIG_HYPERV_STORAGE)	+= hv_storvsc.o
++obj-$(CONFIG_HYPERV_BLOCK)	+= hv_blkvsc.o
  
- 	DPRINT_ENTER(VMBUS);
- 
- 	*BufferActualLen = 0;
- 	*RequestId = 0;
- 
--	SpinlockAcquire(Channel->InboundLock);
-+	spin_lock_irqsave(&Channel->inbound_lock, flags);
- 
- 	ret = RingBufferPeek(&Channel->Inbound, &desc, sizeof(VMPACKET_DESCRIPTOR));
- 	if (ret != 0)
- 	{
--		SpinlockRelease(Channel->InboundLock);
-+		spin_unlock_irqrestore(&Channel->inbound_lock, flags);
- 
- 		//DPRINT_DBG(VMBUS, "nothing to read!!");
- 		DPRINT_EXIT(VMBUS);
-@@ -1026,7 +1027,7 @@ VmbusChannelRecvPacket(
- 
- 	if (userLen > BufferLen)
- 	{
--		SpinlockRelease(Channel->InboundLock);
-+		spin_unlock_irqrestore(&Channel->inbound_lock, flags);
- 
- 		DPRINT_ERR(VMBUS, "buffer too small - got %d needs %d", BufferLen, userLen);
- 		DPRINT_EXIT(VMBUS);
-@@ -1039,7 +1040,7 @@ VmbusChannelRecvPacket(
- 	// Copy over the packet to the user buffer
- 	ret = RingBufferRead(&Channel->Inbound, Buffer, userLen, (desc.DataOffset8 << 3));
- 
--	SpinlockRelease(Channel->InboundLock);
-+	spin_unlock_irqrestore(&Channel->inbound_lock, flags);
- 
- 	DPRINT_EXIT(VMBUS);
- 
-@@ -1068,18 +1069,19 @@ VmbusChannelRecvPacketRaw(
- 	u32 packetLen;
- 	u32 userLen;
- 	int ret;
-+	unsigned long flags;
- 
- 	DPRINT_ENTER(VMBUS);
- 
- 	*BufferActualLen = 0;
- 	*RequestId = 0;
- 
--	SpinlockAcquire(Channel->InboundLock);
-+	spin_lock_irqsave(&Channel->inbound_lock, flags);
- 
- 	ret = RingBufferPeek(&Channel->Inbound, &desc, sizeof(VMPACKET_DESCRIPTOR));
- 	if (ret != 0)
- 	{
--		SpinlockRelease(Channel->InboundLock);
-+		spin_unlock_irqrestore(&Channel->inbound_lock, flags);
- 
- 		//DPRINT_DBG(VMBUS, "nothing to read!!");
- 		DPRINT_EXIT(VMBUS);
-@@ -1102,7 +1104,7 @@ VmbusChannelRecvPacketRaw(
- 
- 	if (packetLen > BufferLen)
- 	{
--		SpinlockRelease(Channel->InboundLock);
-+		spin_unlock_irqrestore(&Channel->inbound_lock, flags);
- 
- 		DPRINT_ERR(VMBUS, "buffer too small - needed %d bytes but got space for only %d bytes", packetLen, BufferLen);
- 		DPRINT_EXIT(VMBUS);
-@@ -1114,7 +1116,7 @@ VmbusChannelRecvPacketRaw(
- 	// Copy over the entire packet to the user buffer
- 	ret = RingBufferRead(&Channel->Inbound, Buffer, packetLen, 0);
- 
--	SpinlockRelease(Channel->InboundLock);
-+	spin_unlock_irqrestore(&Channel->inbound_lock, flags);
- 
- 	DPRINT_EXIT(VMBUS);
- 
---- a/drivers/staging/hv/ChannelMgmt.c
-+++ b/drivers/staging/hv/ChannelMgmt.c
-@@ -149,17 +149,11 @@ VMBUS_CHANNEL* AllocVmbusChannel(void)
- 		return NULL;
- 	}
- 
--	channel->InboundLock = SpinlockCreate();
--	if (!channel->InboundLock)
--	{
--		kfree(channel);
--		return NULL;
--	}
-+	spin_lock_init(&channel->inbound_lock);
- 
- 	channel->PollTimer = TimerCreate(VmbusChannelOnTimer, channel);
- 	if (!channel->PollTimer)
- 	{
--		SpinlockClose(channel->InboundLock);
- 		kfree(channel);
- 		return NULL;
- 	}
-@@ -169,7 +163,6 @@ VMBUS_CHANNEL* AllocVmbusChannel(void)
- 	if (!channel->ControlWQ)
- 	{
- 		TimerClose(channel->PollTimer);
--		SpinlockClose(channel->InboundLock);
- 		kfree(channel);
- 		return NULL;
- 	}
-@@ -212,7 +205,6 @@ Description:
- --*/
- void FreeVmbusChannel(VMBUS_CHANNEL* Channel)
- {
--	SpinlockClose(Channel->InboundLock);
- 	TimerClose(Channel->PollTimer);
- 
- 	// We have to release the channel's workqueue/thread in the vmbus's workqueue/thread context
---- a/drivers/staging/hv/ChannelMgmt.h
-+++ b/drivers/staging/hv/ChannelMgmt.h
-@@ -63,7 +63,7 @@ typedef struct _VMBUS_CHANNEL {
- 	u32						RingBufferPageCount;
- 	RING_BUFFER_INFO			Outbound;	// send to parent
- 	RING_BUFFER_INFO			Inbound;	// receive from parent
--	HANDLE						InboundLock;
-+	spinlock_t inbound_lock;
- 	HANDLE						ControlWQ;
- 
- 	// Channel callback are invoked in this workqueue context
+ hv_vmbus-objs := vmbus_drv.o osd.o Sources.o
+ hv_storvsc-objs := storvsc_drv.o osd.o StorVsc.o
++hv_blkvsc-objs := blkvsc_drv.o osd.o BlkVsc.o
