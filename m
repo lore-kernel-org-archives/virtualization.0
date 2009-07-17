@@ -1,14 +1,15 @@
 From: Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [patch 13/54] Staging: hv: make the Hyper-V virtual block driver build
-Date: Fri, 17 Jul 2009 11:09:03 -0700
-Message-ID: <20090717180917.937967504@mini.kroah.org>
+Subject: [patch 11/54] Staging: hv: make the Hyper-V virtual storage driver
+	build
+Date: Fri, 17 Jul 2009 11:09:01 -0700
+Message-ID: <20090717180917.609085770@mini.kroah.org>
 References: <20090717180850.873962925@mini.kroah.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline;
-	filename=staging-hv-make-the-hyper-v-virtual-block-driver-build.patch
+	filename=staging-hv-make-the-hyper-v-virtual-storage-driver-build.patch
 In-Reply-To: <20090720160025.GA20249@kroah.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -29,36 +30,42 @@ The #define KERNEL_2_6_27 needs to be set, and I adjusted the include
 directories a bit to get things to build properly.
 
 I also fixed up the direct access of bus_id, as that field is now gone.
-Lots of block api changes were needed, and I don't think I got it
-all correct.  It would be great of someone who knows the block api better
-could review it.
+Some minor scsi api changes were needed as well.
 
-The hv_blkvsc code should now build, with no errors.
+The hv_storvsc code should now build properly, with no errors.
 
 Cc: Hank Janssen <hjanssen@microsoft.com>
 Cc: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
-
 ---
- drivers/staging/hv/BlkVsc.c     |    2 +-
- drivers/staging/hv/blkvsc_drv.c |   23 ++++++++++++-----------
- 2 files changed, 13 insertions(+), 12 deletions(-)
+ drivers/staging/hv/StorVsc.c     |    9 +++++----
+ drivers/staging/hv/storvsc_drv.c |   11 ++++++-----
+ 2 files changed, 11 insertions(+), 9 deletions(-)
 
---- a/drivers/staging/hv/BlkVsc.c
-+++ b/drivers/staging/hv/BlkVsc.c
-@@ -21,7 +21,7 @@
+--- a/drivers/staging/hv/StorVsc.c
++++ b/drivers/staging/hv/StorVsc.c
+@@ -21,12 +21,13 @@
+  *
   */
  
++#define KERNEL_2_6_27
  
--#include "../storvsc/StorVsc.c"
-+#include "StorVsc.c"
+-#include "logging.h"
++#include "include/logging.h"
  
- static const char* gBlkDriverName="blkvsc";
+-#include "StorVscApi.h"
+-#include "VmbusPacketFormat.h"
+-#include "vstorage.h"
++#include "include/StorVscApi.h"
++#include "include/VmbusPacketFormat.h"
++#include "include/vstorage.h"
  
---- a/drivers/staging/hv/blkvsc_drv.c
-+++ b/drivers/staging/hv/blkvsc_drv.c
-@@ -20,6 +20,7 @@
+ 
+ //
+--- a/drivers/staging/hv/storvsc_drv.c
++++ b/drivers/staging/hv/storvsc_drv.c
+@@ -21,6 +21,7 @@
   *
   */
  
@@ -66,9 +73,9 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
  
  #include <linux/init.h>
  #include <linux/module.h>
-@@ -34,10 +35,10 @@
- #include <scsi/scsi_eh.h>
+@@ -40,10 +41,10 @@
  #include <scsi/scsi_dbg.h>
+ #endif
  
 -#include "logging.h"
 -#include "vmbus.h"
@@ -80,73 +87,21 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
  
  //
  // #defines
-@@ -313,7 +314,7 @@ static int blkvsc_probe(struct device *d
- 	ASSERT(sizeof(struct blkvsc_request_group) <= sizeof(struct blkvsc_request));
+@@ -296,7 +297,7 @@ static int storvsc_probe(struct device *
+ #if defined(KERNEL_2_6_27)
+ 	host_device_ctx->request_pool =
+ 	    kmem_cache_create
+-	    (device_ctx->device.bus_id,
++	    (dev_name(&device_ctx->device),
+ 	     sizeof(struct storvsc_cmd_request) + storvsc_drv_obj->RequestExtSize,
+ 	     0,
+ 	     SLAB_HWCACHE_ALIGN, NULL);
+@@ -1250,7 +1251,7 @@ static int storvsc_report_luns(struct sc
+ 	// cmd length
+ 	*(unsigned int*)&cmd[6] = cpu_to_be32(report_len);
  
- #ifdef KERNEL_2_6_27
--        blkdev->request_pool = kmem_cache_create(device_ctx->device.bus_id,
-+        blkdev->request_pool = kmem_cache_create(dev_name(&device_ctx->device),
-                 sizeof(struct blkvsc_request) + storvsc_drv_obj->RequestExtSize, 0,
-                 SLAB_HWCACHE_ALIGN, NULL);
- #else
-@@ -426,7 +427,7 @@ static int blkvsc_probe(struct device *d
- 	}
- 
- 	set_capacity(blkdev->gd, blkdev->capacity * (blkdev->sector_size/512));
--	blk_queue_hardsect_size(blkdev->gd->queue, blkdev->sector_size);
-+	blk_queue_logical_block_size(blkdev->gd->queue, blkdev->sector_size);
- 	// go!
- 	add_disk(blkdev->gd);
- 
-@@ -982,7 +983,7 @@ static int blkvsc_do_request(struct bloc
- 	int pending=0;
- 	struct blkvsc_request_group *group=NULL;
- 
--	DPRINT_DBG(BLKVSC_DRV, "blkdev %p req %p sect %llu \n", blkdev, req, req->sector);
-+	DPRINT_DBG(BLKVSC_DRV, "blkdev %p req %p sect %llu \n", blkdev, req, blk_rq_pos(req));
- 
- 	// Create a group to tie req to list of blkvsc_reqs
- 	group = (struct blkvsc_request_group*)kmem_cache_alloc(blkdev->request_pool, GFP_ATOMIC);
-@@ -994,7 +995,7 @@ static int blkvsc_do_request(struct bloc
- 	INIT_LIST_HEAD(&group->blkvsc_req_list);
- 	group->outstanding = group->status = 0;
- 
--	start_sector = req->sector;
-+	start_sector = blk_rq_pos(req);
- 
- 	// foreach bio in the request
- 	if (req->bio)
-@@ -1314,13 +1315,13 @@ static void blkvsc_request(struct reques
- 	int ret=0;
- 
- 	DPRINT_DBG(BLKVSC_DRV, "- enter \n");
--	while ((req = elv_next_request(queue)) != NULL)
-+	while ((req = blk_peek_request(queue)) != NULL)
+-	result = scsi_execute_req(sdev, cmd, DMA_FROM_DEVICE, (unsigned char*)report_luns, report_len, &sshdr, 30*HZ, 3);
++	result = scsi_execute_req(sdev, cmd, DMA_FROM_DEVICE, (unsigned char*)report_luns, report_len, &sshdr, 30*HZ, 3, NULL);
+ 	if (result != 0)
  	{
- 		DPRINT_DBG(BLKVSC_DRV, "- req %p\n", req);
- 
- 		blkdev = req->rq_disk->private_data;
- 		if (blkdev->shutting_down || !blk_fs_request(req) || blkdev->media_not_present) {
--			end_request(req, 0);
-+			__blk_end_request_cur(req, 0);
- 			continue;
- 		}
- 
-@@ -1333,7 +1334,7 @@ static void blkvsc_request(struct reques
- 			break;
- 		}
- 
--		blkdev_dequeue_request(req);
-+		blk_start_request(req);
- 
- 		ret = blkvsc_do_request(blkdev, req);
- 		if (ret > 0)
-@@ -1410,7 +1411,7 @@ static int blkvsc_revalidate_disk(struct
- 	{
- 		blkvsc_do_read_capacity(blkdev);
- 		set_capacity(blkdev->gd, blkdev->capacity * (blkdev->sector_size/512));
--		blk_queue_hardsect_size(gd->queue, blkdev->sector_size);
-+		blk_queue_logical_block_size(gd->queue, blkdev->sector_size);
- 	}
- 	return 0;
- }
+ 		kfree(report_luns);
