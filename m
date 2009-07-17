@@ -1,62 +1,281 @@
-From: Greg KH <gregkh@suse.de>
-Subject: Re: [patch 00/54] [Announce] Microsoft Hyper-V drivers for Linux
-Date: Mon, 20 Jul 2009 10:03:45 -0700
-Message-ID: <20090720170345.GA23990@suse.de>
-References: <20090720160025.GA20249@kroah.com>
- <20090720162810.GA22102@kroah.com>
- <20090720165941.GA15660@redhat.com>
+From: Greg Kroah-Hartman <gregkh@suse.de>
+Subject: [patch 21/54] Staging: hv: remove UINT16 and INT16 typedefs
+Date: Fri, 17 Jul 2009 11:09:11 -0700
+Message-ID: <20090717180919.278330105@mini.kroah.org>
+References: <20090717180850.873962925@mini.kroah.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1752859AbZGTRGe@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20090720165941.GA15660@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dave Jones <davej@redhat.com>, linux-kernel@vger.kernel.org, devel@driverdev.osuosl.org, virtualization@lists.osdl.org, Hank Janssen <hjanssen@microsoft.com>, Haiyang Zhang <haiyangz@>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline;
+	filename=staging-hv-remove-uint16-and-int16-typedefs.patch
+In-Reply-To: <20090720160025.GA20249@kroah.com>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: linux-kernel@vger.kernel.org, devel@driverdev.osuosl.org, virtualization@lists.osdl.org, Greg KH <greg@kroah.com>
+Cc: Sam Ramji <sramji@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Hank Janssen <hjanssen@microsoft.com>, shemminger@linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Jul 20, 2009 at 12:59:41PM -0400, Dave Jones wrote:
-> On Mon, Jul 20, 2009 at 09:28:10AM -0700, Greg KH wrote:
->  > On Mon, Jul 20, 2009 at 09:00:25AM -0700, Greg Kroah-Hartman wrote:
->  > > 
->  > > Hi all,
->  > > 
->  > > I'm happy to announce, that after many months of discussions, Microsoft
->  > > has released their Hyper-V Linux drivers under the GPLv2.  Following
->  > > this message, will be the patches that add the drivers to the
->  > > drivers/staging/ tree, and a whole bunch of cleanups.
->  > 
->  > Hm, for some reason my scripts to send patches out caused them to get
->  > eaten by the very good lkml filters.  (note, it was my fault, not
->  > lkml's).
->  > 
->  > So instead of trying to send them again, and spaming everyone who
->  > already got them, you can find them in my staging tree at:
->  > 	http://www.kernel.org/pub/linux/kernel/people/gregkh/gregkh-2.6/gregkh-05-staging/
->  > 
->  > If anyone wants me to post any of the individual 54 patches to them,
->  > please let me know.
-> 
-> Given the numerous cleanup patches that already exist, is there any reason
-> to not just post the cleaned up drivers ?  It would certainly be more
-> reviewable than the current pile.
-> 
-> Come to think of it, is there any value in merging the pre-cleaned up
-> patches ? Why merge 54 patches to mainline when a half dozen will do ?
+From: Greg Kroah-Hartman <gregkh@suse.de>
 
-It's the "normal" way of cleaning up code.  Start with a known-working
-piece of stuff, and incrementally clean it up.  This way if I mess any
-of the individual steps up, it's easy to find the problem.  This has
-already paid off in the past week working with the Microsoft developers
-to get this into a buildable / workable state.
+The UINT16 and INT16 typedefs are now removed from the Hyper-V driver
+code.
 
-The code still needs lots of cleanup, and review, as is evident by the
-TODO file.  It looks like the patches did get sent to the driver-devel
-and virtualization lists, so you can see them there if you want to.
+Cc: Hank Janssen <hjanssen@microsoft.com>
+Cc: Haiyang Zhang <haiyangz@microsoft.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
-But if you want, I can post the 4 individual drivers as of right now,
-what they will show up in the linux-next tree tomorrow if you want me
-to.
+---
+ drivers/staging/hv/Channel.c                       |    6 +++---
+ drivers/staging/hv/Channel.h                       |   16 ++++++++--------
+ drivers/staging/hv/include/ChannelMessages.h       |    4 ++--
+ drivers/staging/hv/include/HvHcApi.h               |    4 ++--
+ drivers/staging/hv/include/HvStatus.h              |    2 +-
+ drivers/staging/hv/include/HvSynicApi.h            |   10 +++++-----
+ drivers/staging/hv/include/VmbusChannelInterface.h |    4 ++--
+ drivers/staging/hv/include/VmbusPacketFormat.h     |   14 +++++++-------
+ drivers/staging/hv/include/nvspprotocol.h          |    8 ++++----
+ drivers/staging/hv/include/osd.h                   |    2 --
+ 10 files changed, 34 insertions(+), 36 deletions(-)
 
-thanks,
-
-greg k-h
+--- a/drivers/staging/hv/Channel.c
++++ b/drivers/staging/hv/Channel.c
+@@ -777,7 +777,7 @@ VmbusChannelSendPacket(
+ 	desc.Type = Type;//VmbusPacketTypeDataInBand;
+ 	desc.Flags = Flags;//VMBUS_DATA_PACKET_FLAG_COMPLETION_REQUESTED;
+     desc.DataOffset8 = sizeof(VMPACKET_DESCRIPTOR) >> 3; // in 8-bytes granularity
+-    desc.Length8 = (UINT16)(packetLenAligned >> 3);
++    desc.Length8 = (u16)(packetLenAligned >> 3);
+     desc.TransactionId = RequestId;
+ 
+ 	bufferList[0].Data = &desc;
+@@ -851,7 +851,7 @@ VmbusChannelSendPacketPageBuffer(
+ 	desc.Type = VmbusPacketTypeDataUsingGpaDirect;
+ 	desc.Flags = VMBUS_DATA_PACKET_FLAG_COMPLETION_REQUESTED;
+     desc.DataOffset8 = descSize >> 3; // in 8-bytes grandularity
+-    desc.Length8 = (UINT16)(packetLenAligned >> 3);
++    desc.Length8 = (u16)(packetLenAligned >> 3);
+     desc.TransactionId = RequestId;
+ 	desc.RangeCount = PageCount;
+ 
+@@ -936,7 +936,7 @@ VmbusChannelSendPacketMultiPageBuffer(
+ 	desc.Type = VmbusPacketTypeDataUsingGpaDirect;
+ 	desc.Flags = VMBUS_DATA_PACKET_FLAG_COMPLETION_REQUESTED;
+     desc.DataOffset8 = descSize >> 3; // in 8-bytes grandularity
+-    desc.Length8 = (UINT16)(packetLenAligned >> 3);
++    desc.Length8 = (u16)(packetLenAligned >> 3);
+     desc.TransactionId = RequestId;
+ 	desc.RangeCount = 1;
+ 
+--- a/drivers/staging/hv/Channel.h
++++ b/drivers/staging/hv/Channel.h
+@@ -33,10 +33,10 @@
+ 
+ // The format must be the same as VMDATA_GPA_DIRECT
+ typedef struct _VMBUS_CHANNEL_PACKET_PAGE_BUFFER {
+-    UINT16				Type;
+-    UINT16				DataOffset8;
+-    UINT16				Length8;
+-    UINT16				Flags;
++    u16				Type;
++    u16				DataOffset8;
++    u16				Length8;
++    u16				Flags;
+     UINT64				TransactionId;
+ 	UINT32				Reserved;
+ 	UINT32				RangeCount;
+@@ -46,10 +46,10 @@ typedef struct _VMBUS_CHANNEL_PACKET_PAG
+ 
+ // The format must be the same as VMDATA_GPA_DIRECT
+ typedef struct _VMBUS_CHANNEL_PACKET_MULITPAGE_BUFFER {
+-    UINT16				Type;
+-    UINT16				DataOffset8;
+-    UINT16				Length8;
+-    UINT16				Flags;
++    u16				Type;
++    u16				DataOffset8;
++    u16				Length8;
++    u16				Flags;
+     UINT64				TransactionId;
+ 	UINT32				Reserved;
+ 	UINT32				RangeCount;		// Always 1 in this case
+--- a/drivers/staging/hv/include/ChannelMessages.h
++++ b/drivers/staging/hv/include/ChannelMessages.h
+@@ -188,8 +188,8 @@ typedef struct _VMBUS_CHANNEL_GPADL_HEAD
+     VMBUS_CHANNEL_MESSAGE_HEADER Header;
+     UINT32      ChildRelId;
+     UINT32      Gpadl;
+-    UINT16      RangeBufLen;
+-    UINT16      RangeCount;
++    u16      RangeBufLen;
++    u16      RangeCount;
+     GPA_RANGE   Range[0];
+ } VMBUS_CHANNEL_GPADL_HEADER, *PVMBUS_CHANNEL_GPADL_HEADER;
+ 
+--- a/drivers/staging/hv/include/HvHcApi.h
++++ b/drivers/staging/hv/include/HvHcApi.h
+@@ -55,6 +55,6 @@ typedef struct _HV_INPUT_POST_MESSAGE
+ typedef struct _HV_INPUT_SIGNAL_EVENT
+ {
+     HV_CONNECTION_ID ConnectionId;
+-    UINT16           FlagNumber;
+-    UINT16           RsvdZ;
++    u16           FlagNumber;
++    u16           RsvdZ;
+ } HV_INPUT_SIGNAL_EVENT, *PHV_INPUT_SIGNAL_EVENT;
+--- a/drivers/staging/hv/include/HvStatus.h
++++ b/drivers/staging/hv/include/HvStatus.h
+@@ -26,7 +26,7 @@
+ //
+ // Status codes for hypervisor operations.
+ //
+-typedef UINT16 HV_STATUS, *PHV_STATUS;
++typedef u16 HV_STATUS, *PHV_STATUS;
+ 
+ //
+ // MessageId: HV_STATUS_SUCCESS
+--- a/drivers/staging/hv/include/HvSynicApi.h
++++ b/drivers/staging/hv/include/HvSynicApi.h
+@@ -217,8 +217,8 @@ typedef struct _HV_PORT_INFO
+         {
+             HV_SYNIC_SINT_INDEX TargetSint;
+             HV_VP_INDEX TargetVp;
+-            UINT16 BaseFlagNumber;
+-            UINT16 FlagCount;
++            u16 BaseFlagNumber;
++            u16 FlagCount;
+             UINT32 RsvdZ;
+         } EventPortInfo;
+ 
+@@ -431,8 +431,8 @@ typedef union _HV_MONITOR_TRIGGER_GROUP
+ typedef struct _HV_MONITOR_PARAMETER
+ {
+     HV_CONNECTION_ID    ConnectionId;
+-    UINT16              FlagNumber;
+-    UINT16              RsvdZ;
++    u16              FlagNumber;
++    u16              RsvdZ;
+ } HV_MONITOR_PARAMETER, *PHV_MONITOR_PARAMETER;
+ 
+ typedef union _HV_MONITOR_TRIGGER_STATE
+@@ -478,7 +478,7 @@ typedef struct _HV_MONITOR_PAGE
+ 
+     INT32                    NextCheckTime[4][32];
+ 
+-    UINT16                   Latency[4][32];
++    u16                   Latency[4][32];
+     UINT64                   RsvdZ3[32];
+ 
+     HV_MONITOR_PARAMETER     Parameter[4][32];
+--- a/drivers/staging/hv/include/nvspprotocol.h
++++ b/drivers/staging/hv/include/nvspprotocol.h
+@@ -144,7 +144,7 @@ typedef struct _NVSP_1_MESSAGE_SEND_NDIS
+ typedef struct _NVSP_1_MESSAGE_SEND_RECEIVE_BUFFER
+ {
+     GPADL_HANDLE                            GpadlHandle;
+-    UINT16                                  Id;
++    u16                                  Id;
+ } NVSP_1_MESSAGE_SEND_RECEIVE_BUFFER, *PNVSP_1_MESSAGE_SEND_RECEIVE_BUFFER;
+ 
+ typedef struct _NVSP_1_RECEIVE_BUFFER_SECTION
+@@ -192,7 +192,7 @@ typedef struct _NVSP_1_MESSAGE_SEND_RECE
+ //
+ typedef struct _NVSP_1_MESSAGE_REVOKE_RECEIVE_BUFFER
+ {
+-    UINT16                                  Id;
++    u16                                  Id;
+ } NVSP_1_MESSAGE_REVOKE_RECEIVE_BUFFER, *PNVSP_1_MESSAGE_REVOKE_RECEIVE_BUFFER;
+ 
+ //
+@@ -203,7 +203,7 @@ typedef struct _NVSP_1_MESSAGE_REVOKE_RE
+ typedef struct _NVSP_1_MESSAGE_SEND_SEND_BUFFER
+ {
+     GPADL_HANDLE                            GpadlHandle;
+-    UINT16                                  Id;
++    u16                                  Id;
+ } NVSP_1_MESSAGE_SEND_SEND_BUFFER, *PNVSP_1_MESSAGE_SEND_SEND_BUFFER;
+ 
+ //
+@@ -231,7 +231,7 @@ typedef struct _NVSP_1_MESSAGE_SEND_SEND
+ //
+ typedef struct _NVSP_1_MESSAGE_REVOKE_SEND_BUFFER
+ {
+-    UINT16                                  Id;
++    u16                                  Id;
+ } NVSP_1_MESSAGE_REVOKE_SEND_BUFFER, *PNVSP_1_MESSAGE_REVOKE_SEND_BUFFER;
+ 
+ //
+--- a/drivers/staging/hv/include/osd.h
++++ b/drivers/staging/hv/include/osd.h
+@@ -97,7 +97,6 @@ typedef struct _DLIST_ENTRY {
+ //
+ // unsigned types
+ //
+-typedef unsigned short		UINT16;
+ typedef unsigned int		UINT32;
+ #ifdef __x86_64__
+ typedef unsigned long		UINT64;
+@@ -113,7 +112,6 @@ typedef unsigned char		UCHAR;
+ //
+ // signed types
+ //
+-typedef short				INT16;
+ typedef int					INT32;
+ #ifdef __x86_64__
+ typedef long				INT64;
+--- a/drivers/staging/hv/include/VmbusChannelInterface.h
++++ b/drivers/staging/hv/include/VmbusChannelInterface.h
+@@ -69,8 +69,8 @@ typedef struct
+     UINT64  InterruptLatencyIn100nsUnits;
+     UINT32  InterfaceRevision;
+     UINT32  ServerContextAreaSize;  // in bytes
+-    UINT16  ChannelFlags;
+-    UINT16  MmioMegabytes;          // in bytes * 1024 * 1024
++    u16  ChannelFlags;
++    u16  MmioMegabytes;          // in bytes * 1024 * 1024
+ 
+     union
+     {
+--- a/drivers/staging/hv/include/VmbusPacketFormat.h
++++ b/drivers/staging/hv/include/VmbusPacketFormat.h
+@@ -79,10 +79,10 @@ typedef struct
+ 
+ typedef struct
+ {
+-    UINT16 Type;
+-    UINT16 DataOffset8;
+-    UINT16 Length8;
+-    UINT16 Flags;
++    u16 Type;
++    u16 DataOffset8;
++    u16 Length8;
++    u16 Flags;
+     UINT64 TransactionId;
+ } VMPACKET_DESCRIPTOR, *PVMPACKET_DESCRIPTOR;
+ 
+@@ -112,7 +112,7 @@ typedef struct VMTRANSFER_PAGE_PACKET_HE
+ 
+ #endif
+ 
+-    UINT16                  TransferPageSetId;
++    u16                  TransferPageSetId;
+     BOOLEAN                 SenderOwnsSet;
+     u8                   Reserved;
+     UINT32                  RangeCount;
+@@ -152,8 +152,8 @@ typedef struct _VMADD_REMOVE_TRANSFER_PA
+ #endif
+ 
+     UINT32  Gpadl;
+-    UINT16  TransferPageSetId;
+-    UINT16  Reserved;
++    u16  TransferPageSetId;
++    u16  Reserved;
+ 
+ } VMADD_REMOVE_TRANSFER_PAGE_SET, *PVMADD_REMOVE_TRANSFER_PAGE_SET;
