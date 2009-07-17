@@ -1,13 +1,15 @@
 From: Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [patch 26/54] Staging: hv: remove ULONG_PTR typedef
-Date: Fri, 17 Jul 2009 11:09:16 -0700
-Message-ID: <20090717180920.126629900@mini.kroah.org>
+Subject: [patch 15/54] Staging: hv: make the Hyper-V virtual network driver
+	build
+Date: Fri, 17 Jul 2009 11:09:05 -0700
+Message-ID: <20090717180918.271727173@mini.kroah.org>
 References: <20090717180850.873962925@mini.kroah.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline; filename=staging-hv-remove-ulong_ptr-typedef.patch
+Content-Disposition: inline;
+	filename=staging-hv-make-the-hyper-v-virtual-network-driver-build.patch
 In-Reply-To: <20090720160025.GA20249@kroah.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,478 +20,155 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org, devel@driverdev.osuosl.org, virtualization@lists.osdl.org, Greg KH <greg@kroah.com>
+To: linux-kernel@vger.kernel.org, devel@driverdev.osuosl.org, virtualization@lists.osdl.org
 Cc: Sam Ramji <sramji@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Hank Janssen <hjanssen@microsoft.com>, shemminger@linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
 From: Greg Kroah-Hartman <gregkh@suse.de>
 
-The ULONG_PTR typedef is now removed from the Hyper-V driver code.
+The #define KERNEL_2_6_27 needs to be set, and I adjusted the include
+directories a bit to get things to build properly.
+
+The driver was changed to use net_device_ops, as that is needed to build
+and operate properly now.
+
+The hv_netvsc code should now build with no errors.
 
 Cc: Hank Janssen <hjanssen@microsoft.com>
 Cc: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 ---
- drivers/staging/hv/Channel.c     |    4 ++--
- drivers/staging/hv/Connection.c  |    8 ++++----
- drivers/staging/hv/Hv.c          |    8 ++++----
- drivers/staging/hv/NetVsc.c      |   34 +++++++++++++++++-----------------
- drivers/staging/hv/RndisFilter.c |   16 ++++++++--------
- drivers/staging/hv/StorVsc.c     |   16 ++++++++--------
- drivers/staging/hv/include/osd.h |    8 +++-----
- drivers/staging/hv/netvsc_drv.c  |    4 ++--
- drivers/staging/hv/osd.c         |    8 ++++----
- 9 files changed, 52 insertions(+), 54 deletions(-)
+ drivers/staging/hv/NetVsc.c               |    3 ++-
+ drivers/staging/hv/NetVsc.h               |    8 ++++----
+ drivers/staging/hv/RndisFilter.c          |    5 +++--
+ drivers/staging/hv/RndisFilter.h          |    4 ++--
+ drivers/staging/hv/include/nvspprotocol.h |    2 +-
+ drivers/staging/hv/netvsc_drv.c           |   21 +++++++++++++--------
+ 6 files changed, 25 insertions(+), 18 deletions(-)
 
---- a/drivers/staging/hv/Channel.c
-+++ b/drivers/staging/hv/Channel.c
-@@ -228,9 +228,9 @@ VmbusChannelOpen(
- 	out = PageAlloc((SendRingBufferSize + RecvRingBufferSize) >> PAGE_SHIFT);
- 	//out = MemAllocZeroed(sendRingBufferSize + recvRingBufferSize);
- 	ASSERT(out);
--	ASSERT(((ULONG_PTR)out & (PAGE_SIZE-1)) == 0);
-+	ASSERT(((unsigned long)out & (PAGE_SIZE-1)) == 0);
+--- a/drivers/staging/hv/include/nvspprotocol.h
++++ b/drivers/staging/hv/include/nvspprotocol.h
+@@ -24,7 +24,7 @@
  
--	in = (void*)((ULONG_PTR)out + SendRingBufferSize);
-+	in = (void*)((unsigned long)out + SendRingBufferSize);
+ #pragma once
  
- 	NewChannel->RingBufferPages = out;
- 	NewChannel->RingBufferPageCount = (SendRingBufferSize + RecvRingBufferSize) >> PAGE_SHIFT;
---- a/drivers/staging/hv/Connection.c
-+++ b/drivers/staging/hv/Connection.c
-@@ -79,7 +79,7 @@ VmbusConnect(
- 	}
+-#include <VmbusChannelInterface.h>
++#include "VmbusChannelInterface.h"
  
- 	gVmbusConnection.RecvInterruptPage = gVmbusConnection.InterruptPage;
--	gVmbusConnection.SendInterruptPage = (void*)((ULONG_PTR)gVmbusConnection.InterruptPage + (PAGE_SIZE >> 1));
-+	gVmbusConnection.SendInterruptPage = (void*)((unsigned long)gVmbusConnection.InterruptPage + (PAGE_SIZE >> 1));
+ #define NVSP_INVALID_PROTOCOL_VERSION           ((UINT32)0xFFFFFFFF)
  
- 	// Setup the monitor notification facility. The 1st page for parent->child and the 2nd page for child->parent
- 	gVmbusConnection.MonitorPages = PageAlloc(2);
-@@ -103,7 +103,7 @@ VmbusConnect(
- 	msg->VMBusVersionRequested = VMBUS_REVISION_NUMBER;
- 	msg->InterruptPage = GetPhysicalAddress(gVmbusConnection.InterruptPage);
- 	msg->MonitorPage1 = GetPhysicalAddress(gVmbusConnection.MonitorPages);
--	msg->MonitorPage2 = GetPhysicalAddress((void *)((ULONG_PTR)gVmbusConnection.MonitorPages + PAGE_SIZE));
-+	msg->MonitorPage2 = GetPhysicalAddress((void *)((unsigned long)gVmbusConnection.MonitorPages + PAGE_SIZE));
- 
- 	// Add to list before we send the request since we may receive the response
- 	// before returning from this routine
-@@ -294,7 +294,7 @@ VmbusProcessChannelEvent(
- 	)
- {
- 	VMBUS_CHANNEL* channel;
--	u32 relId = (u32)(ULONG_PTR)context;
-+	u32 relId = (u32)(unsigned long)context;
- 
- 	ASSERT(relId > 0);
- 
-@@ -362,7 +362,7 @@ VmbusOnEvents(
- 						{
- 							//QueueWorkItem(VmbusProcessEvent, (void*)relid);
- 							//ret = WorkQueueQueueWorkItem(gVmbusConnection.workQueue, VmbusProcessChannelEvent, (void*)relid);
--							VmbusProcessChannelEvent((void*)(ULONG_PTR)relid);
-+							VmbusProcessChannelEvent((void*)(unsigned long)relid);
- 						}
- 					}
- 				}
---- a/drivers/staging/hv/Hv.c
-+++ b/drivers/staging/hv/Hv.c
-@@ -233,7 +233,7 @@ HvInit (
-     int maxLeaf;
- 	HV_X64_MSR_HYPERCALL_CONTENTS hypercallMsr;
- 	void* virtAddr=0;
--	ULONG_PTR physAddr=0;
-+	unsigned long physAddr=0;
- 
- 	DPRINT_ENTER(VMBUS);
- 
-@@ -311,7 +311,7 @@ HvInit (
- 		goto Cleanup;
- 	}
- 
--	gHvContext.SignalEventParam = (PHV_INPUT_SIGNAL_EVENT)(ALIGN_UP((ULONG_PTR)gHvContext.SignalEventBuffer, HV_HYPERCALL_PARAM_ALIGN));
-+	gHvContext.SignalEventParam = (PHV_INPUT_SIGNAL_EVENT)(ALIGN_UP((unsigned long)gHvContext.SignalEventBuffer, HV_HYPERCALL_PARAM_ALIGN));
- 	gHvContext.SignalEventParam->ConnectionId.Asu32 = 0;
- 	gHvContext.SignalEventParam->ConnectionId.u.Id = VMBUS_EVENT_CONNECTION_ID;
- 	gHvContext.SignalEventParam->FlagNumber = 0;
-@@ -407,14 +407,14 @@ HvPostMessage(
- 
- 	PHV_INPUT_POST_MESSAGE alignedMsg;
- 	HV_STATUS status;
--	ULONG_PTR addr;
-+	unsigned long addr;
- 
- 	if (payloadSize > HV_MESSAGE_PAYLOAD_BYTE_COUNT)
- 	{
- 		return -1;
- 	}
- 
--	addr = (ULONG_PTR)MemAllocAtomic(sizeof(struct alignedInput));
-+	addr = (unsigned long)MemAllocAtomic(sizeof(struct alignedInput));
- 
- 	if (!addr)
- 	{
---- a/drivers/staging/hv/include/osd.h
-+++ b/drivers/staging/hv/include/osd.h
-@@ -115,8 +115,6 @@ typedef void*				HANDLE;
- typedef u32				DWORD;
- typedef unsigned char		BYTE;
- 
--typedef unsigned long		ULONG_PTR;
--
- typedef struct {
- 	unsigned char	Data[16];
- } GUID;
-@@ -217,12 +215,12 @@ extern void	SpinlockRelease(HANDLE hSpin
- 
- 
- #define GetVirtualAddress Physical2LogicalAddr
--void* Physical2LogicalAddr(ULONG_PTR PhysAddr);
-+void* Physical2LogicalAddr(unsigned long PhysAddr);
- 
- #define GetPhysicalAddress Logical2PhysicalAddr
--ULONG_PTR Logical2PhysicalAddr(void * LogicalAddr);
-+unsigned long Logical2PhysicalAddr(void * LogicalAddr);
- 
--ULONG_PTR Virtual2Physical(void * VirtAddr);
-+unsigned long Virtual2Physical(void * VirtAddr);
- 
- void* PageMapVirtualAddress(unsigned long Pfn);
- void PageUnmapVirtualAddress(void* VirtAddr);
 --- a/drivers/staging/hv/NetVsc.c
 +++ b/drivers/staging/hv/NetVsc.c
-@@ -298,7 +298,7 @@ NetVscInitializeReceiveBufferWithNetVsp(
- 		ret = -1;
- 		goto Cleanup;
- 	}
--	ASSERT(((ULONG_PTR)netDevice->ReceiveBuffer & (PAGE_SIZE-1)) == 0); // page-aligned buffer
-+	ASSERT(((unsigned long)netDevice->ReceiveBuffer & (PAGE_SIZE-1)) == 0); // page-aligned buffer
+@@ -20,8 +20,9 @@
+  *
+  */
  
- 	DPRINT_INFO(NETVSC, "Establishing receive buffer's GPADL...");
++#define KERNEL_2_6_27
  
-@@ -333,7 +333,7 @@ NetVscInitializeReceiveBufferWithNetVsp(
- 	ret = Device->Driver->VmbusChannelInterface.SendPacket(Device,
- 															initPacket,
- 															sizeof(NVSP_MESSAGE),
--															(ULONG_PTR)initPacket,
-+															(unsigned long)initPacket,
- 															VmbusPacketTypeDataInBand,
- 															VMBUS_DATA_PACKET_FLAG_COMPLETION_REQUESTED);
- 	if (ret != 0)
-@@ -425,7 +425,7 @@ NetVscInitializeSendBufferWithNetVsp(
- 		ret = -1;
- 		goto Cleanup;
- 	}
--	ASSERT(((ULONG_PTR)netDevice->SendBuffer & (PAGE_SIZE-1)) == 0); // page-aligned buffer
-+	ASSERT(((unsigned long)netDevice->SendBuffer & (PAGE_SIZE-1)) == 0); // page-aligned buffer
+-#include "logging.h"
++#include "include/logging.h"
+ #include "NetVsc.h"
+ #include "RndisFilter.h"
  
- 	DPRINT_INFO(NETVSC, "Establishing send buffer's GPADL...");
- 
-@@ -460,7 +460,7 @@ NetVscInitializeSendBufferWithNetVsp(
- 	ret = Device->Driver->VmbusChannelInterface.SendPacket(Device,
- 															initPacket,
- 															sizeof(NVSP_MESSAGE),
--															(ULONG_PTR)initPacket,
-+															(unsigned long)initPacket,
- 															VmbusPacketTypeDataInBand,
- 															VMBUS_DATA_PACKET_FLAG_COMPLETION_REQUESTED);
- 	if (ret != 0)
-@@ -521,7 +521,7 @@ NetVscDestroyReceiveBuffer(
- 		ret = NetDevice->Device->Driver->VmbusChannelInterface.SendPacket(NetDevice->Device,
- 																			revokePacket,
- 																			sizeof(NVSP_MESSAGE),
--																			(ULONG_PTR)revokePacket,
-+																			(unsigned long)revokePacket,
- 																			VmbusPacketTypeDataInBand,
- 																			0);
- 		// If we failed here, we might as well return and have a leak rather than continue and a bugchk
-@@ -602,7 +602,7 @@ NetVscDestroySendBuffer(
- 		ret = NetDevice->Device->Driver->VmbusChannelInterface.SendPacket(NetDevice->Device,
- 																			revokePacket,
- 																			sizeof(NVSP_MESSAGE),
--																			(ULONG_PTR)revokePacket,
-+																			(unsigned long)revokePacket,
- 																			VmbusPacketTypeDataInBand,
- 																			0);
- 		// If we failed here, we might as well return and have a leak rather than continue and a bugchk
-@@ -681,7 +681,7 @@ NetVscConnectToVsp(
- 	ret = Device->Driver->VmbusChannelInterface.SendPacket(Device,
- 															initPacket,
- 															sizeof(NVSP_MESSAGE),
--															(ULONG_PTR)initPacket,
-+															(unsigned long)initPacket,
- 															VmbusPacketTypeDataInBand,
- 															VMBUS_DATA_PACKET_FLAG_COMPLETION_REQUESTED);
- 
-@@ -728,7 +728,7 @@ NetVscConnectToVsp(
- 	ret = Device->Driver->VmbusChannelInterface.SendPacket(Device,
- 															initPacket,
- 															sizeof(NVSP_MESSAGE),
--															(ULONG_PTR)initPacket,
-+															(unsigned long)initPacket,
- 															VmbusPacketTypeDataInBand,
- 															0);
- 	if (ret != 0)
-@@ -1000,7 +1000,7 @@ NetVscOnSendCompletion(
- 		return;
- 	}
- 
--	nvspPacket = (NVSP_MESSAGE*)((ULONG_PTR)Packet + (Packet->DataOffset8 << 3));
-+	nvspPacket = (NVSP_MESSAGE*)((unsigned long)Packet + (Packet->DataOffset8 << 3));
- 
- 	DPRINT_DBG(NETVSC, "send completion packet - type %d", nvspPacket->Header.MessageType);
- 
-@@ -1015,7 +1015,7 @@ NetVscOnSendCompletion(
- 	else if (nvspPacket->Header.MessageType == NvspMessage1TypeSendRNDISPacketComplete)
- 	{
- 		// Get the send context
--		nvscPacket = (NETVSC_PACKET *)(ULONG_PTR)Packet->TransactionId;
-+		nvscPacket = (NETVSC_PACKET *)(unsigned long)Packet->TransactionId;
- 		ASSERT(nvscPacket);
- 
- 		// Notify the layer above us
-@@ -1072,14 +1072,14 @@ NetVscOnSend(
- 																			Packet->PageBufferCount,
- 																			&sendMessage,
- 																			sizeof(NVSP_MESSAGE),
--																			(ULONG_PTR)Packet);
-+																			(unsigned long)Packet);
- 	}
- 	else
- 	{
- 		ret = Device->Driver->VmbusChannelInterface.SendPacket(Device,
- 																&sendMessage,
- 																sizeof(NVSP_MESSAGE),
--																(ULONG_PTR)Packet,
-+																(unsigned long)Packet,
- 																VmbusPacketTypeDataInBand,
- 																VMBUS_DATA_PACKET_FLAG_COMPLETION_REQUESTED);
- 
-@@ -1109,8 +1109,8 @@ NetVscOnReceive(
- 	NVSP_MESSAGE *nvspPacket;
- 	NETVSC_PACKET *netvscPacket=NULL;
- 	LIST_ENTRY* entry;
--	ULONG_PTR start;
--	ULONG_PTR end, endVirtual;
-+	unsigned long start;
-+	unsigned long end, endVirtual;
- 	//NETVSC_DRIVER_OBJECT *netvscDriver;
- 	XFERPAGE_PACKET *xferpagePacket=NULL;
- 	LIST_ENTRY listHead;
-@@ -1136,7 +1136,7 @@ NetVscOnReceive(
- 		return;
- 	}
- 
--	nvspPacket = (NVSP_MESSAGE*)((ULONG_PTR)Packet + (Packet->DataOffset8 << 3));
-+	nvspPacket = (NVSP_MESSAGE*)((unsigned long)Packet + (Packet->DataOffset8 << 3));
- 
- 	// Make sure this is a valid nvsp packet
- 	if (nvspPacket->Header.MessageType != NvspMessage1TypeSendRNDISPacket )
-@@ -1230,10 +1230,10 @@ NetVscOnReceive(
- 
- 		netvscPacket->PageBuffers[0].Length = vmxferpagePacket->Ranges[i].ByteCount;
- 
--		start = GetPhysicalAddress((void*)((ULONG_PTR)netDevice->ReceiveBuffer + vmxferpagePacket->Ranges[i].ByteOffset));
-+		start = GetPhysicalAddress((void*)((unsigned long)netDevice->ReceiveBuffer + vmxferpagePacket->Ranges[i].ByteOffset));
- 
- 		netvscPacket->PageBuffers[0].Pfn = start >> PAGE_SHIFT;
--		endVirtual = (ULONG_PTR)netDevice->ReceiveBuffer
-+		endVirtual = (unsigned long)netDevice->ReceiveBuffer
- 		    + vmxferpagePacket->Ranges[i].ByteOffset
- 		    + vmxferpagePacket->Ranges[i].ByteCount -1;
- 		end = GetPhysicalAddress((void*)endVirtual);
 --- a/drivers/staging/hv/netvsc_drv.c
 +++ b/drivers/staging/hv/netvsc_drv.c
-@@ -386,7 +386,7 @@ Desc:	Send completion processing
- static void netvsc_xmit_completion(void *context)
- {
- 	NETVSC_PACKET *packet = (NETVSC_PACKET *)context;
--	struct sk_buff *skb = (struct sk_buff *)(ULONG_PTR)packet->Completion.Send.SendCompletionTid;
-+	struct sk_buff *skb = (struct sk_buff *)(unsigned long)packet->Completion.Send.SendCompletionTid;
- 	struct net_device* net;
+@@ -20,6 +20,7 @@
+  *
+  */
  
- 	DPRINT_ENTER(NETVSC_DRV);
-@@ -478,7 +478,7 @@ static int netvsc_start_xmit (struct sk_
- 	// Set the completion routine
- 	packet->Completion.Send.OnSendCompletion = netvsc_xmit_completion;
- 	packet->Completion.Send.SendCompletionContext = packet;
--	packet->Completion.Send.SendCompletionTid = (ULONG_PTR)skb;
-+	packet->Completion.Send.SendCompletionTid = (unsigned long)skb;
++#define KERNEL_2_6_27
  
- retry_send:
- 	ret = net_drv_obj->OnSend(&net_device_ctx->device_ctx->device_obj, packet);
---- a/drivers/staging/hv/osd.c
-+++ b/drivers/staging/hv/osd.c
-@@ -407,23 +407,23 @@ void SpinlockClose(HANDLE hSpin)
- 	kfree(spin);
- }
+ #include <linux/init.h>
+ #include <linux/module.h>
+@@ -41,10 +42,10 @@
+ #include <net/sock.h>
+ #include <net/pkt_sched.h>
  
--void* Physical2LogicalAddr(ULONG_PTR PhysAddr)
-+void* Physical2LogicalAddr(unsigned long PhysAddr)
- {
- 	void* logicalAddr = phys_to_virt(PhysAddr);
- 	BUG_ON(!virt_addr_valid(logicalAddr));
- 	return logicalAddr;
- }
+-#include "logging.h"
+-#include "vmbus.h"
++#include "include/logging.h"
++#include "include/vmbus.h"
  
--ULONG_PTR Logical2PhysicalAddr(void * LogicalAddr)
-+unsigned long Logical2PhysicalAddr(void * LogicalAddr)
- {
- 	BUG_ON(!virt_addr_valid(LogicalAddr));
- 	return virt_to_phys(LogicalAddr);
+-#include "NetVscApi.h"
++#include "include/NetVscApi.h"
+ 
+ MODULE_LICENSE("GPL");
+ 
+@@ -158,6 +159,14 @@ static void netvsc_set_multicast_list(UN
  }
  
  
--ULONG_PTR Virtual2Physical(void * VirtAddr)
-+unsigned long Virtual2Physical(void * VirtAddr)
- {
--	ULONG_PTR pfn = vmalloc_to_pfn(VirtAddr);
-+	unsigned long pfn = vmalloc_to_pfn(VirtAddr);
++static const struct net_device_ops device_ops = {
++	.ndo_open = netvsc_open,
++	.ndo_stop = netvsc_close,
++	.ndo_start_xmit	= netvsc_start_xmit,
++	.ndo_get_stats = netvsc_get_stats,
++	.ndo_set_multicast_list = netvsc_set_multicast_list,
++};
++
+ /*++
  
- 	return pfn << PAGE_SHIFT;
- }
+ Name:	netvsc_probe()
+@@ -225,11 +234,7 @@ static int netvsc_probe(struct device *d
+ 
+ 	memcpy(net->dev_addr, device_info.MacAddr, ETH_ALEN);
+ 
+-	net->open				= netvsc_open;
+-	net->hard_start_xmit	= netvsc_start_xmit;
+-	net->stop				= netvsc_close;
+-	net->get_stats			= netvsc_get_stats;
+-	net->set_multicast_list = netvsc_set_multicast_list;
++	net->netdev_ops = &device_ops;
+ 
+ #if !defined(KERNEL_2_6_27)
+ 	SET_MODULE_OWNER(net);
+--- a/drivers/staging/hv/NetVsc.h
++++ b/drivers/staging/hv/NetVsc.h
+@@ -24,12 +24,12 @@
+ #ifndef _NETVSC_H_
+ #define _NETVSC_H_
+ 
+-#include "VmbusPacketFormat.h"
+-#include "nvspprotocol.h"
++#include "include/VmbusPacketFormat.h"
++#include "include/nvspprotocol.h"
+ 
+-#include "List.h"
++#include "include/List.h"
+ 
+-#include "NetVscApi.h"
++#include "include/NetVscApi.h"
+ //
+ // #defines
+ //
 --- a/drivers/staging/hv/RndisFilter.c
 +++ b/drivers/staging/hv/RndisFilter.c
-@@ -362,11 +362,11 @@ RndisFilterSendRequest(
+@@ -21,10 +21,11 @@
+  *
+  */
  
- 	packet->PageBuffers[0].Pfn = GetPhysicalAddress(&Request->RequestMessage) >> PAGE_SHIFT;
- 	packet->PageBuffers[0].Length = Request->RequestMessage.MessageLength;
--	packet->PageBuffers[0].Offset = (ULONG_PTR)&Request->RequestMessage & (PAGE_SIZE -1);
-+	packet->PageBuffers[0].Offset = (unsigned long)&Request->RequestMessage & (PAGE_SIZE -1);
++#define KERNEL_2_6_27
  
- 	packet->Completion.Send.SendCompletionContext = Request;//packet;
- 	packet->Completion.Send.OnSendCompletion = RndisFilterOnSendRequestCompletion;
--	packet->Completion.Send.SendCompletionTid = (ULONG_PTR)Device;
-+	packet->Completion.Send.SendCompletionTid = (unsigned long)Device;
+-#include "logging.h"
++#include "include/logging.h"
  
- 	ret = gRndisFilter.InnerDriver.OnSend(Device->NetDevice->Device, packet);
- 	DPRINT_EXIT(NETVSC);
-@@ -523,7 +523,7 @@ RndisFilterOnReceive(
+-#include "NetVscApi.h"
++#include "include/NetVscApi.h"
+ #include "RndisFilter.h"
  
- 	rndisHeader = (RNDIS_MESSAGE*)PageMapVirtualAddress(Packet->PageBuffers[0].Pfn);
+ //
+--- a/drivers/staging/hv/RndisFilter.h
++++ b/drivers/staging/hv/RndisFilter.h
+@@ -27,10 +27,10 @@
  
--	rndisHeader = (void*)((ULONG_PTR)rndisHeader + Packet->PageBuffers[0].Offset);
-+	rndisHeader = (void*)((unsigned long)rndisHeader + Packet->PageBuffers[0].Offset);
+ #define __struct_bcount(x)
  
- 	// Make sure we got a valid rndis message
- 	// FIXME: There seems to be a bug in set completion msg where its MessageLength is 16 bytes but
-@@ -531,7 +531,7 @@ RndisFilterOnReceive(
- #if 0
- 	if ( Packet->TotalDataBufferLength != rndisHeader->MessageLength )
- 	{
--		PageUnmapVirtualAddress((void*)(ULONG_PTR)rndisHeader - Packet->PageBuffers[0].Offset);
-+		PageUnmapVirtualAddress((void*)(unsigned long)rndisHeader - Packet->PageBuffers[0].Offset);
+-#include "osd.h"
++#include "include/osd.h"
+ #include "NetVsc.h"
  
- 		DPRINT_ERR(NETVSC, "invalid rndis message? (expected %u bytes got %u)...dropping this message!",
- 			rndisHeader->MessageLength, Packet->TotalDataBufferLength);
-@@ -548,7 +548,7 @@ RndisFilterOnReceive(
+-#include "rndis.h"
++#include "include/rndis.h"
  
- 	memcpy(&rndisMessage, rndisHeader, (rndisHeader->MessageLength > sizeof(RNDIS_MESSAGE))?sizeof(RNDIS_MESSAGE):rndisHeader->MessageLength);
- 
--	PageUnmapVirtualAddress((void*)(ULONG_PTR)rndisHeader - Packet->PageBuffers[0].Offset);
-+	PageUnmapVirtualAddress((void*)(unsigned long)rndisHeader - Packet->PageBuffers[0].Offset);
- 
- 	DumpRndisMessage(&rndisMessage);
- 
-@@ -633,7 +633,7 @@ RndisFilterQueryDevice(
- 	}
- 
- 	memcpy(Result,
--			(void*)((ULONG_PTR)queryComplete + queryComplete->InformationBufferOffset),
-+			(void*)((unsigned long)queryComplete + queryComplete->InformationBufferOffset),
- 			queryComplete->InformationBufferLength);
- 
- 	*ResultSize = queryComplete->InformationBufferLength;
-@@ -703,7 +703,7 @@ RndisFilterSetPacketFilter(
- 	set->InformationBufferLength = sizeof(u32);
- 	set->InformationBufferOffset = sizeof(RNDIS_SET_REQUEST);
- 
--	memcpy((void*)(ULONG_PTR)set + sizeof(RNDIS_SET_REQUEST), &NewFilter, sizeof(u32));
-+	memcpy((void*)(unsigned long)set + sizeof(RNDIS_SET_REQUEST), &NewFilter, sizeof(u32));
- 
- 	ret = RndisFilterSendRequest(Device, request);
- 	if (ret != 0)
-@@ -1113,7 +1113,7 @@ RndisFilterOnSend(
- 
- 	Packet->IsDataPacket = TRUE;
- 	Packet->PageBuffers[0].Pfn		= GetPhysicalAddress(rndisMessage) >> PAGE_SHIFT;
--	Packet->PageBuffers[0].Offset	= (ULONG_PTR)rndisMessage & (PAGE_SIZE-1);
-+	Packet->PageBuffers[0].Offset	= (unsigned long)rndisMessage & (PAGE_SIZE-1);
- 	Packet->PageBuffers[0].Length	= rndisMessageSize;
- 
- 	// Save the packet send completion and context
---- a/drivers/staging/hv/StorVsc.c
-+++ b/drivers/staging/hv/StorVsc.c
-@@ -388,7 +388,7 @@ static int StorVscChannelInit(DEVICE_OBJ
- 	ret = Device->Driver->VmbusChannelInterface.SendPacket(Device,
- 															vstorPacket,
- 															sizeof(VSTOR_PACKET),
--															(ULONG_PTR)request,
-+															(unsigned long)request,
- 															VmbusPacketTypeDataInBand,
- 															VMBUS_DATA_PACKET_FLAG_COMPLETION_REQUESTED);
- 	if ( ret != 0)
-@@ -418,7 +418,7 @@ static int StorVscChannelInit(DEVICE_OBJ
- 	ret = Device->Driver->VmbusChannelInterface.SendPacket(Device,
- 															vstorPacket,
- 															sizeof(VSTOR_PACKET),
--															(ULONG_PTR)request,
-+															(unsigned long)request,
- 															VmbusPacketTypeDataInBand,
- 															VMBUS_DATA_PACKET_FLAG_COMPLETION_REQUESTED);
- 	if ( ret != 0)
-@@ -447,7 +447,7 @@ static int StorVscChannelInit(DEVICE_OBJ
- 	ret = Device->Driver->VmbusChannelInterface.SendPacket(Device,
- 															vstorPacket,
- 															sizeof(VSTOR_PACKET),
--															(ULONG_PTR)request,
-+															(unsigned long)request,
- 															VmbusPacketTypeDataInBand,
- 															VMBUS_DATA_PACKET_FLAG_COMPLETION_REQUESTED);
- 
-@@ -481,7 +481,7 @@ static int StorVscChannelInit(DEVICE_OBJ
- 	ret = Device->Driver->VmbusChannelInterface.SendPacket(Device,
- 															vstorPacket,
- 															sizeof(VSTOR_PACKET),
--															(ULONG_PTR)request,
-+															(unsigned long)request,
- 															VmbusPacketTypeDataInBand,
- 															VMBUS_DATA_PACKET_FLAG_COMPLETION_REQUESTED);
- 
-@@ -650,7 +650,7 @@ StorVscOnHostReset(
- 	ret = Device->Driver->VmbusChannelInterface.SendPacket(Device,
- 															vstorPacket,
- 															sizeof(VSTOR_PACKET),
--															(ULONG_PTR)&storDevice->ResetRequest,
-+															(unsigned long)&storDevice->ResetRequest,
- 															VmbusPacketTypeDataInBand,
- 															VMBUS_DATA_PACKET_FLAG_COMPLETION_REQUESTED);
- 	if (ret != 0)
-@@ -752,14 +752,14 @@ StorVscOnIORequest(
- 				&requestExtension->Request->DataBuffer,
- 				vstorPacket,
- 				sizeof(VSTOR_PACKET),
--				(ULONG_PTR)requestExtension);
-+				(unsigned long)requestExtension);
- 	}
- 	else
- 	{
- 		ret = Device->Driver->VmbusChannelInterface.SendPacket(Device,
- 															vstorPacket,
- 															sizeof(VSTOR_PACKET),
--															(ULONG_PTR)requestExtension,
-+															(unsigned long)requestExtension,
- 															VmbusPacketTypeDataInBand,
- 															VMBUS_DATA_PACKET_FLAG_COMPLETION_REQUESTED);
- 	}
-@@ -938,7 +938,7 @@ StorVscOnChannelCallback(
- 
- 			//ASSERT(bytesRecvd == sizeof(VSTOR_PACKET));
- 
--			request = (STORVSC_REQUEST_EXTENSION*)(ULONG_PTR)requestId;
-+			request = (STORVSC_REQUEST_EXTENSION*)(unsigned long)requestId;
- 			ASSERT(request);
- 
- 			//if (vstorPacket.Flags & SYNTHETIC_FLAG)
+ #define RNDIS_HEADER_SIZE	(sizeof(RNDIS_MESSAGE) - sizeof(RNDIS_MESSAGE_CONTAINER))
