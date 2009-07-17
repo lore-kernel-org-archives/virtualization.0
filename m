@@ -1,15 +1,15 @@
 From: Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [patch 45/54] Staging: hv: make netDevice->ReceivePacketListLock a
+Subject: [patch 46/54] Staging: hv: make gVmbusConnection.ChannelMsgLock a
 	real spinlock
-Date: Fri, 17 Jul 2009 11:09:35 -0700
-Message-ID: <20090717180923.221241152@mini.kroah.org>
+Date: Fri, 17 Jul 2009 11:09:36 -0700
+Message-ID: <20090717180923.387129266@mini.kroah.org>
 References: <20090717180850.873962925@mini.kroah.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline;
-	filename=staging-hv-make-netdevice-receivepacketlistlock-a-real-spinlock.patch
+	filename=staging-hv-make-gvmbusconnection.channelmsglock-a-real-spinlock.patch
 In-Reply-To: <20090720160025.GA20249@kroah.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -37,116 +37,263 @@ Cc: Hank Janssen <hjanssen@microsoft.com>
 Cc: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 ---
- drivers/staging/hv/NetVsc.c |   19 +++++++++----------
- drivers/staging/hv/NetVsc.h |    2 +-
- 2 files changed, 10 insertions(+), 11 deletions(-)
+ drivers/staging/hv/Channel.c      |   27 +++++++++++++++------------
+ drivers/staging/hv/ChannelMgmt.c  |   20 ++++++++++++--------
+ drivers/staging/hv/Connection.c   |   10 ++++------
+ drivers/staging/hv/VmbusPrivate.h |    2 +-
+ 4 files changed, 32 insertions(+), 27 deletions(-)
 
---- a/drivers/staging/hv/NetVsc.c
-+++ b/drivers/staging/hv/NetVsc.c
-@@ -807,7 +807,7 @@ NetVscOnDeviceAdd(
- 
- 	// Initialize the NetVSC channel extension
- 	netDevice->ReceiveBufferSize = NETVSC_RECEIVE_BUFFER_SIZE;
--	netDevice->ReceivePacketListLock = SpinlockCreate();
-+	spin_lock_init(&netDevice->receive_packet_list_lock);
- 
- 	netDevice->SendBufferSize = NETVSC_SEND_BUFFER_SIZE;
- 
-@@ -876,8 +876,6 @@ Cleanup:
- 			kfree(packet);
- 		}
- 
--		SpinlockClose(netDevice->ReceivePacketListLock);
--
- 		ReleaseOutboundNetDevice(Device);
- 		ReleaseInboundNetDevice(Device);
- 
-@@ -952,7 +950,6 @@ NetVscOnDeviceRemove(
- 		kfree(netvscPacket);
- 	}
- 
--	SpinlockClose(netDevice->ReceivePacketListLock);
- 	WaitEventClose(netDevice->ChannelInitEvent);
- 	FreeNetDevice(netDevice);
- 
-@@ -1118,6 +1115,7 @@ NetVscOnReceive(
- 
- 	int i=0, j=0;
- 	int count=0, bytesRemain=0;
+--- a/drivers/staging/hv/Channel.c
++++ b/drivers/staging/hv/Channel.c
+@@ -214,6 +214,7 @@ VmbusChannelOpen(
+ 	VMBUS_CHANNEL_OPEN_CHANNEL* openMsg;
+ 	VMBUS_CHANNEL_MSGINFO* openInfo;
+ 	void *in, *out;
 +	unsigned long flags;
  
- 	DPRINT_ENTER(NETVSC);
+ 	DPRINT_ENTER(VMBUS);
  
-@@ -1164,7 +1162,7 @@ NetVscOnReceive(
+@@ -280,9 +281,9 @@ VmbusChannelOpen(
+ 		memcpy(openMsg->UserData, UserData, UserDataLen);
+ 	}
  
- 	// Grab free packets (range count + 1) to represent this xfer page packet. +1 to represent
- 	// the xfer page packet itself. We grab it here so that we know exactly how many we can fulfil
--	SpinlockAcquire(netDevice->ReceivePacketListLock);
-+	spin_lock_irqsave(&netDevice->receive_packet_list_lock, flags);
- 	while (!IsListEmpty(&netDevice->ReceivePacketList))
+-	SpinlockAcquire(gVmbusConnection.ChannelMsgLock);
++	spin_lock_irqsave(&gVmbusConnection.channelmsg_lock, flags);
+ 	INSERT_TAIL_LIST(&gVmbusConnection.ChannelMsgList, &openInfo->MsgListEntry);
+-	SpinlockRelease(gVmbusConnection.ChannelMsgLock);
++	spin_unlock_irqrestore(&gVmbusConnection.channelmsg_lock, flags);
+ 
+ 	DPRINT_DBG(VMBUS, "Sending channel open msg...");
+ 
+@@ -306,9 +307,9 @@ VmbusChannelOpen(
+ 	}
+ 
+ Cleanup:
+-	SpinlockAcquire(gVmbusConnection.ChannelMsgLock);
++	spin_lock_irqsave(&gVmbusConnection.channelmsg_lock, flags);
+ 	REMOVE_ENTRY_LIST(&openInfo->MsgListEntry);
+-	SpinlockRelease(gVmbusConnection.ChannelMsgLock);
++	spin_unlock_irqrestore(&gVmbusConnection.channelmsg_lock, flags);
+ 
+ 	WaitEventClose(openInfo->WaitEvent);
+ 	kfree(openInfo);
+@@ -531,6 +532,7 @@ VmbusChannelEstablishGpadl(
+ 	LIST_ENTRY* anchor;
+ 	LIST_ENTRY* curr;
+ 	u32 nextGpadlHandle;
++	unsigned long flags;
+ 
+ 	DPRINT_ENTER(VMBUS);
+ 
+@@ -549,9 +551,9 @@ VmbusChannelEstablishGpadl(
+ 
+ 	DumpGpadlHeader(gpadlMsg);
+ 
+-	SpinlockAcquire(gVmbusConnection.ChannelMsgLock);
++	spin_lock_irqsave(&gVmbusConnection.channelmsg_lock, flags);
+ 	INSERT_TAIL_LIST(&gVmbusConnection.ChannelMsgList, &msgInfo->MsgListEntry);
+-	SpinlockRelease(gVmbusConnection.ChannelMsgLock);
++	spin_unlock_irqrestore(&gVmbusConnection.channelmsg_lock, flags);
+ 
+ 	DPRINT_DBG(VMBUS, "buffer %p, size %d msg cnt %d", Kbuffer, Size, msgCount);
+ 
+@@ -592,9 +594,9 @@ VmbusChannelEstablishGpadl(
+ 	*GpadlHandle = gpadlMsg->Gpadl;
+ 
+ Cleanup:
+-	SpinlockAcquire(gVmbusConnection.ChannelMsgLock);
++	spin_lock_irqsave(&gVmbusConnection.channelmsg_lock, flags);
+ 	REMOVE_ENTRY_LIST(&msgInfo->MsgListEntry);
+-	SpinlockRelease(gVmbusConnection.ChannelMsgLock);
++	spin_unlock_irqrestore(&gVmbusConnection.channelmsg_lock, flags);
+ 
+ 	WaitEventClose(msgInfo->WaitEvent);
+ 	kfree(msgInfo);
+@@ -624,6 +626,7 @@ VmbusChannelTeardownGpadl(
+ 	int ret=0;
+ 	VMBUS_CHANNEL_GPADL_TEARDOWN *msg;
+ 	VMBUS_CHANNEL_MSGINFO* info;
++	unsigned long flags;
+ 
+ 	DPRINT_ENTER(VMBUS);
+ 
+@@ -640,9 +643,9 @@ VmbusChannelTeardownGpadl(
+     msg->ChildRelId  = Channel->OfferMsg.ChildRelId;
+     msg->Gpadl       = GpadlHandle;
+ 
+-	SpinlockAcquire(gVmbusConnection.ChannelMsgLock);
++	spin_lock_irqsave(&gVmbusConnection.channelmsg_lock, flags);
+ 	INSERT_TAIL_LIST(&gVmbusConnection.ChannelMsgList, &info->MsgListEntry);
+-	SpinlockRelease(gVmbusConnection.ChannelMsgLock);
++	spin_unlock_irqrestore(&gVmbusConnection.channelmsg_lock, flags);
+ 
+ 	ret = VmbusPostMessage(msg, sizeof(VMBUS_CHANNEL_GPADL_TEARDOWN));
+ 	if (ret != 0)
+@@ -653,9 +656,9 @@ VmbusChannelTeardownGpadl(
+ 	WaitEventWait(info->WaitEvent);
+ 
+ 	// Received a torndown response
+-	SpinlockAcquire(gVmbusConnection.ChannelMsgLock);
++	spin_lock_irqsave(&gVmbusConnection.channelmsg_lock, flags);
+ 	REMOVE_ENTRY_LIST(&info->MsgListEntry);
+-	SpinlockRelease(gVmbusConnection.ChannelMsgLock);
++	spin_unlock_irqrestore(&gVmbusConnection.channelmsg_lock, flags);
+ 
+ 	WaitEventClose(info->WaitEvent);
+ 	kfree(info);
+--- a/drivers/staging/hv/ChannelMgmt.c
++++ b/drivers/staging/hv/ChannelMgmt.c
+@@ -472,13 +472,14 @@ VmbusChannelOnOpenResult(
+ 	VMBUS_CHANNEL_MSGINFO* msgInfo;
+ 	VMBUS_CHANNEL_MESSAGE_HEADER* requestHeader;
+ 	VMBUS_CHANNEL_OPEN_CHANNEL* openMsg;
++	unsigned long flags;
+ 
+ 	DPRINT_ENTER(VMBUS);
+ 
+ 	DPRINT_DBG(VMBUS, "vmbus open result - %d", result->Status);
+ 
+ 	// Find the open msg, copy the result and signal/unblock the wait event
+-	SpinlockAcquire(gVmbusConnection.ChannelMsgLock);
++	spin_lock_irqsave(&gVmbusConnection.channelmsg_lock, flags);
+ 
+ 	ITERATE_LIST_ENTRIES(anchor, curr, &gVmbusConnection.ChannelMsgList)
  	{
- 		entry = REMOVE_HEAD_LIST(&netDevice->ReceivePacketList);
-@@ -1175,7 +1173,7 @@ NetVscOnReceive(
- 		if (++count == vmxferpagePacket->RangeCount + 1)
- 			break;
- 	}
--	SpinlockRelease(netDevice->ReceivePacketListLock);
-+	spin_unlock_irqrestore(&netDevice->receive_packet_list_lock, flags);
- 
- 	// We need at least 2 netvsc pkts (1 to represent the xfer page and at least 1 for the range)
- 	// i.e. we can handled some of the xfer page packet ranges...
-@@ -1184,7 +1182,7 @@ NetVscOnReceive(
- 		DPRINT_ERR(NETVSC, "Got only %d netvsc pkt...needed %d pkts. Dropping this xfer page packet completely!", count, vmxferpagePacket->RangeCount+1);
- 
- 		// Return it to the freelist
--		SpinlockAcquire(netDevice->ReceivePacketListLock);
-+		spin_lock_irqsave(&netDevice->receive_packet_list_lock, flags);
- 		for (i=count; i != 0; i--)
- 		{
- 			entry = REMOVE_HEAD_LIST(&listHead);
-@@ -1192,7 +1190,7 @@ NetVscOnReceive(
- 
- 			INSERT_TAIL_LIST(&netDevice->ReceivePacketList, &netvscPacket->ListEntry);
+@@ -497,7 +498,7 @@ VmbusChannelOnOpenResult(
+ 			}
  		}
--		SpinlockRelease(netDevice->ReceivePacketListLock);
-+		spin_unlock_irqrestore(&netDevice->receive_packet_list_lock, flags);
+ 	}
+-	SpinlockRelease(gVmbusConnection.ChannelMsgLock);
++	spin_unlock_irqrestore(&gVmbusConnection.channelmsg_lock, flags);
  
- 		NetVscSendReceiveCompletion(Device, vmxferpagePacket->d.TransactionId);
- 
-@@ -1346,6 +1344,7 @@ NetVscOnReceiveCompletion(
- 	NETVSC_DEVICE* netDevice;
- 	u64	transactionId=0;
- 	bool fSendReceiveComp = false;
+ 	DPRINT_EXIT(VMBUS);
+ }
+@@ -525,13 +526,14 @@ VmbusChannelOnGpadlCreated(
+ 	VMBUS_CHANNEL_MSGINFO *msgInfo;
+ 	VMBUS_CHANNEL_MESSAGE_HEADER *requestHeader;
+ 	VMBUS_CHANNEL_GPADL_HEADER *gpadlHeader;
 +	unsigned long flags;
  
- 	DPRINT_ENTER(NETVSC);
+ 	DPRINT_ENTER(VMBUS);
  
-@@ -1362,7 +1361,7 @@ NetVscOnReceiveCompletion(
+ 	DPRINT_DBG(VMBUS, "vmbus gpadl created result - %d", gpadlCreated->CreationStatus);
+ 
+ 	// Find the establish msg, copy the result and signal/unblock the wait event
+-	SpinlockAcquire(gVmbusConnection.ChannelMsgLock);
++	spin_lock_irqsave(&gVmbusConnection.channelmsg_lock, flags);
+ 
+ 	ITERATE_LIST_ENTRIES(anchor, curr, &gVmbusConnection.ChannelMsgList)
+ 	{
+@@ -551,7 +553,7 @@ VmbusChannelOnGpadlCreated(
+ 			}
+ 		}
  	}
+-	SpinlockRelease(gVmbusConnection.ChannelMsgLock);
++	spin_unlock_irqrestore(&gVmbusConnection.channelmsg_lock, flags);
  
- 	// Overloading use of the lock.
--	SpinlockAcquire(netDevice->ReceivePacketListLock);
-+	spin_lock_irqsave(&netDevice->receive_packet_list_lock, flags);
+ 	DPRINT_EXIT(VMBUS);
+ }
+@@ -579,11 +581,12 @@ VmbusChannelOnGpadlTorndown(
+ 	VMBUS_CHANNEL_MSGINFO* msgInfo;
+ 	VMBUS_CHANNEL_MESSAGE_HEADER *requestHeader;
+ 	VMBUS_CHANNEL_GPADL_TEARDOWN *gpadlTeardown;
++	unsigned long flags;
  
- 	ASSERT(packet->XferPagePacket->Count > 0);
- 	packet->XferPagePacket->Count--;
-@@ -1379,7 +1378,7 @@ NetVscOnReceiveCompletion(
+ 	DPRINT_ENTER(VMBUS);
  
- 	// Put the packet back
- 	INSERT_TAIL_LIST(&netDevice->ReceivePacketList, &packet->ListEntry);
--	SpinlockRelease(netDevice->ReceivePacketListLock);
-+	spin_unlock_irqrestore(&netDevice->receive_packet_list_lock, flags);
+ 	// Find the open msg, copy the result and signal/unblock the wait event
+-	SpinlockAcquire(gVmbusConnection.ChannelMsgLock);
++	spin_lock_irqsave(&gVmbusConnection.channelmsg_lock, flags);
  
- 	// Send a receive completion for the xfer page packet
- 	if (fSendReceiveComp)
---- a/drivers/staging/hv/NetVsc.h
-+++ b/drivers/staging/hv/NetVsc.h
-@@ -62,7 +62,7 @@ typedef struct _NETVSC_DEVICE {
- 	int								NumOutstandingSends;
- 	// List of free preallocated NETVSC_PACKET to represent receive packet
- 	LIST_ENTRY						ReceivePacketList;
--	HANDLE							ReceivePacketListLock;
-+	spinlock_t receive_packet_list_lock;
+ 	ITERATE_LIST_ENTRIES(anchor, curr, &gVmbusConnection.ChannelMsgList)
+ 	{
+@@ -602,7 +605,7 @@ VmbusChannelOnGpadlTorndown(
+ 			}
+ 		}
+ 	}
+-	SpinlockRelease(gVmbusConnection.ChannelMsgLock);
++	spin_unlock_irqrestore(&gVmbusConnection.channelmsg_lock, flags);
  
- 	// Send buffer allocated by us but manages by NetVSP
- 	void *							SendBuffer;
+ 	DPRINT_EXIT(VMBUS);
+ }
+@@ -630,10 +633,11 @@ VmbusChannelOnVersionResponse(
+ 	VMBUS_CHANNEL_MESSAGE_HEADER *requestHeader;
+ 	VMBUS_CHANNEL_INITIATE_CONTACT *initiate;
+ 	VMBUS_CHANNEL_VERSION_RESPONSE *versionResponse  = (VMBUS_CHANNEL_VERSION_RESPONSE*)hdr;
++	unsigned long flags;
+ 
+ 	DPRINT_ENTER(VMBUS);
+ 
+-	SpinlockAcquire(gVmbusConnection.ChannelMsgLock);
++	spin_lock_irqsave(&gVmbusConnection.channelmsg_lock, flags);
+ 
+ 	ITERATE_LIST_ENTRIES(anchor, curr, &gVmbusConnection.ChannelMsgList)
+ 	{
+@@ -647,7 +651,7 @@ VmbusChannelOnVersionResponse(
+ 			WaitEventSet(msgInfo->WaitEvent);
+ 		}
+ 	}
+-	SpinlockRelease(gVmbusConnection.ChannelMsgLock);
++	spin_unlock_irqrestore(&gVmbusConnection.channelmsg_lock, flags);
+ 
+ 	DPRINT_EXIT(VMBUS);
+ }
+--- a/drivers/staging/hv/Connection.c
++++ b/drivers/staging/hv/Connection.c
+@@ -53,6 +53,7 @@ VmbusConnect(
+ 	int ret=0;
+ 	VMBUS_CHANNEL_MSGINFO *msgInfo=NULL;
+ 	VMBUS_CHANNEL_INITIATE_CONTACT *msg;
++	unsigned long flags;
+ 
+ 	DPRINT_ENTER(VMBUS);
+ 
+@@ -65,7 +66,7 @@ VmbusConnect(
+ 	gVmbusConnection.WorkQueue = WorkQueueCreate("vmbusQ");
+ 
+ 	INITIALIZE_LIST_HEAD(&gVmbusConnection.ChannelMsgList);
+-	gVmbusConnection.ChannelMsgLock = SpinlockCreate();
++	spin_lock_init(&gVmbusConnection.channelmsg_lock);
+ 
+ 	INITIALIZE_LIST_HEAD(&gVmbusConnection.ChannelList);
+ 	gVmbusConnection.ChannelLock = SpinlockCreate();
+@@ -107,9 +108,9 @@ VmbusConnect(
+ 
+ 	// Add to list before we send the request since we may receive the response
+ 	// before returning from this routine
+-	SpinlockAcquire(gVmbusConnection.ChannelMsgLock);
++	spin_lock_irqsave(&gVmbusConnection.channelmsg_lock, flags);
+ 	INSERT_TAIL_LIST(&gVmbusConnection.ChannelMsgList, &msgInfo->MsgListEntry);
+-	SpinlockRelease(gVmbusConnection.ChannelMsgLock);
++	spin_unlock_irqrestore(&gVmbusConnection.channelmsg_lock, flags);
+ 
+ 	DPRINT_DBG(VMBUS, "Vmbus connection -  interrupt pfn %llx, monitor1 pfn %llx,, monitor2 pfn %llx",
+ 		msg->InterruptPage, msg->MonitorPage1, msg->MonitorPage2);
+@@ -156,7 +157,6 @@ Cleanup:
+ 
+ 	WorkQueueClose(gVmbusConnection.WorkQueue);
+ 	SpinlockClose(gVmbusConnection.ChannelLock);
+-	SpinlockClose(gVmbusConnection.ChannelMsgLock);
+ 
+ 	if (gVmbusConnection.InterruptPage)
+ 	{
+@@ -222,8 +222,6 @@ VmbusDisconnect(
+ 
+ 	// TODO: iterate thru the msg list and free up
+ 
+-	SpinlockClose(gVmbusConnection.ChannelMsgLock);
+-
+ 	WorkQueueClose(gVmbusConnection.WorkQueue);
+ 
+ 	gVmbusConnection.ConnectState = Disconnected;
+--- a/drivers/staging/hv/VmbusPrivate.h
++++ b/drivers/staging/hv/VmbusPrivate.h
+@@ -80,7 +80,7 @@ typedef struct _VMBUS_CONNECTION {
+ 	// 2 pages - 1st page for parent->child notification and 2nd is child->parent notification
+ 	void *								MonitorPages;
+ 	LIST_ENTRY							ChannelMsgList;
+-	HANDLE								ChannelMsgLock;
++	spinlock_t channelmsg_lock;
+ 
+ 	// List of channels
+ 	LIST_ENTRY							ChannelList;
