@@ -1,14 +1,14 @@
 From: Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [patch 09/54] Staging: hv: use the correct #ifdef for x86-64
-Date: Fri, 17 Jul 2009 11:08:59 -0700
-Message-ID: <20090717180917.291210440@mini.kroah.org>
+Subject: [patch 50/54] Staging: hv: osd: remove MemoryFence wrapper
+Date: Fri, 17 Jul 2009 11:09:40 -0700
+Message-ID: <20090717180924.015884951@mini.kroah.org>
 References: <20090717180850.873962925@mini.kroah.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline;
-	filename=staging-hv-use-the-correct-ifdef-for-x86-64.patch
+	filename=staging-hv-osd-remove-memoryfence-wrapper.patch
 In-Reply-To: <20090720160025.GA20249@kroah.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -25,25 +25,71 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Greg Kroah-Hartman <gregkh@suse.de>
 
-x86-64 needs a different config check.  Thanks to Hank for the debugging
-to determine the fix for this.
+Use the "real" mb call instead of a wrapper function.
 
 Cc: Hank Janssen <hjanssen@microsoft.com>
 Cc: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
-
 ---
- drivers/staging/hv/Hv.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/staging/hv/RingBuffer.c  |    4 ++--
+ drivers/staging/hv/Vmbus.c       |    2 +-
+ drivers/staging/hv/include/osd.h |    2 --
+ drivers/staging/hv/osd.c         |    5 -----
+ 4 files changed, 3 insertions(+), 10 deletions(-)
 
---- a/drivers/staging/hv/Hv.c
-+++ b/drivers/staging/hv/Hv.c
-@@ -165,7 +165,7 @@ HvDoHypercall (
-     void*   Output
-     )
+--- a/drivers/staging/hv/include/osd.h
++++ b/drivers/staging/hv/include/osd.h
+@@ -119,8 +119,6 @@ extern void PageFree(void* page, unsigne
+ extern void* MemMapIO(unsigned long phys, unsigned long size);
+ extern void MemUnmapIO(void* virt);
+ 
+-extern void MemoryFence(void);
+-
+ extern HANDLE TimerCreate(PFN_TIMER_CALLBACK pfnTimerCB, void* context);
+ extern void TimerClose(HANDLE hTimer);
+ extern int TimerStop(HANDLE hTimer);
+--- a/drivers/staging/hv/osd.c
++++ b/drivers/staging/hv/osd.c
+@@ -197,11 +197,6 @@ void MemUnmapIO(void *virt)
+ 	//iounmap(virt);
+ }
+ 
+-void MemoryFence()
+-{
+-	mb();
+-}
+-
+ void TimerCallback(unsigned long data)
  {
--#ifdef x86_64
-+#ifdef CONFIG_X86_64
-     UINT64 hvStatus=0;
-     UINT64 inputAddress = (Input)? GetPhysicalAddress(Input) : 0;
- 	UINT64 outputAddress = (Output)? GetPhysicalAddress(Output) : 0;
+ 	TIMER* t = (TIMER*)data;
+--- a/drivers/staging/hv/RingBuffer.c
++++ b/drivers/staging/hv/RingBuffer.c
+@@ -411,7 +411,7 @@ RingBufferWrite(
+ 												sizeof(u64));
+ 
+ 	// Make sure we flush all writes before updating the writeIndex
+-	MemoryFence();
++	mb();
+ 
+ 	// Now, update the write location
+ 	SetNextWriteLocation(OutRingInfo, nextWriteLocation);
+@@ -532,7 +532,7 @@ RingBufferRead(
+ 
+ 	// Make sure all reads are done before we update the read index since
+ 	// the writer may start writing to the read area once the read index is updated
+-	MemoryFence();
++	mb();
+ 
+ 	// Update the read index
+ 	SetNextReadLocation(InRingInfo, nextReadLocation);
+--- a/drivers/staging/hv/Vmbus.c
++++ b/drivers/staging/hv/Vmbus.c
+@@ -426,7 +426,7 @@ VmbusOnMsgDPC(
+ 		// Make sure the write to MessageType (ie set to HvMessageTypeNone) happens
+ 		// before we read the MessagePending and EOMing. Otherwise, the EOMing will not deliver
+ 		// any more messages since there is no empty slot
+-		MemoryFence();
++		mb();
+ 
+ 		if (msg->Header.MessageFlags.MessagePending)
+ 		{
