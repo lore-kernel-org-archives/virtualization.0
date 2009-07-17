@@ -1,34 +1,79 @@
-From: Matthias Urlichs <smurf@smurf.noris.de>
-Subject: Re: [patch 00/54] [Announce] Microsoft Hyper-V drivers for Linux
-Date: Mon, 20 Jul 2009 19:09:11 +0200
-Message-ID: <20090720170911.GS12833@kiste.smurf.noris.de>
-References: <20090720160025.GA20249@kroah.com> <20090720162810.GA22102@kroah.com> <20090720165941.GA15660@redhat.com>
+From: Greg Kroah-Hartman <gregkh@suse.de>
+Subject: [patch 25/54] Staging: hv: remove ULONGLONG and LONGLONG typedefs
+Date: Fri, 17 Jul 2009 11:09:15 -0700
+Message-ID: <20090717180919.937702806@mini.kroah.org>
+References: <20090717180850.873962925@mini.kroah.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1753184AbZGTRKO@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20090720165941.GA15660@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dave Jones <davej@redhat.com>, Greg KH <gregkh@suse.de>, linux-kernel@vger.kernel.org, devel@driverdev.osuosl.org, virtualization@lists.osdl.org, Hank Janssen <hjanssen@microsoft.com>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline;
+	filename=staging-hv-remove-ulonglong-and-longlong-typedefs.patch
+In-Reply-To: <20090720160025.GA20249@kroah.com>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: linux-kernel@vger.kernel.org, devel@driverdev.osuosl.org, virtualization@lists.osdl.org, Greg KH <greg@kroah.com>
+Cc: Sam Ramji <sramji@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Hank Janssen <hjanssen@microsoft.com>, shemminger@linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi,
+From: Greg Kroah-Hartman <gregkh@suse.de>
 
-Dave Jones:
-> Given the numerous cleanup patches that already exist, is there any reason
-> to not just post the cleaned up drivers ?  It would certainly be more
-> reviewable than the current pile.
-> 
-Feel free to apply / combinediff these patches before reviewing. :-P
+The ULONGLONG and LONGLONG typedefs are now removed from the Hyper-V
+driver code.
 
-Personally, I don't want to ever see another patch where substantial
-changes (for some nontrivial value of "substantial") are intermixed
-with distracting s/\<BOOLEAN\>/bool/g cleanups.
+Cc: Hank Janssen <hjanssen@microsoft.com>
+Cc: Haiyang Zhang <haiyangz@microsoft.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
--- 
-Matthias Urlichs   |   {M:U} IT Design @ m-u-it.de   |  smurf@smurf.noris.de
-Disclaimer: The quote was selected randomly. Really. | http://smurf.noris.de
-v4sw7$Yhw6+8ln7ma7u7L!wl7DUi2e6t3TMWb8HAGen6g3a4s6Mr1p-3/-6 hackerkey.com
- - -
-You can never do merely one thing.
-					-- Garrett Hardin
+---
+ drivers/staging/hv/include/VmbusPacketFormat.h |    2 +-
+ drivers/staging/hv/include/osd.h               |    3 ---
+ drivers/staging/hv/include/vstorage.h          |    2 +-
+ 3 files changed, 2 insertions(+), 5 deletions(-)
+
+--- a/drivers/staging/hv/include/osd.h
++++ b/drivers/staging/hv/include/osd.h
+@@ -97,15 +97,12 @@ typedef struct _DLIST_ENTRY {
+ //
+ // unsigned types
+ //
+-
+-typedef unsigned long long	ULONGLONG;
+ typedef unsigned int		ULONG;
+ 
+ //
+ // signed types
+ //
+ typedef int					LONG;
+-typedef long long			LONGLONG;
+ 
+ //
+ // Other types
+--- a/drivers/staging/hv/include/VmbusPacketFormat.h
++++ b/drivers/staging/hv/include/VmbusPacketFormat.h
+@@ -44,7 +44,7 @@ typedef struct
+             volatile u32  In;        // Offset in bytes from the ring base
+             volatile u32  Out;       // Offset in bytes from the ring base
+         };
+-        volatile LONGLONG    InOut;
++        volatile long long InOut;
+     };
+ 
+     //
+--- a/drivers/staging/hv/include/vstorage.h
++++ b/drivers/staging/hv/include/vstorage.h
+@@ -196,7 +196,7 @@ typedef struct
+     //  vendor specific data in the inquirydata
+     //
+ 
+-    ULONGLONG UniqueId;
++    unsigned long long UniqueId;
+ 
+ } VMSTORAGE_CHANNEL_PROPERTIES, *PVMSTORAGE_CHANNEL_PROPERTIES;
