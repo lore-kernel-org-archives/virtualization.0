@@ -1,14 +1,13 @@
 From: Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [patch 20/54] Staging: hv: remove UINT8 and INT8 typedefs
-Date: Fri, 17 Jul 2009 11:09:10 -0700
-Message-ID: <20090717180919.129302865@mini.kroah.org>
+Subject: [patch 18/54] Staging: hv: remove PVOID typedef
+Date: Fri, 17 Jul 2009 11:09:08 -0700
+Message-ID: <20090717180918.757790487@mini.kroah.org>
 References: <20090717180850.873962925@mini.kroah.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline;
-	filename=staging-hv-remove-uint8-and-int8-typedefs.patch
+Content-Disposition: inline; filename=staging-hv-remove-pvoid-typedef.patch
 In-Reply-To: <20090720160025.GA20249@kroah.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -25,262 +24,755 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Greg Kroah-Hartman <gregkh@suse.de>
 
-The UINT8 and INT8 typedefs are now removed from the Hyper-V driver
-code.
-
-Had to include <linux/kernel.h> in a few places to get the
-build to work properly as well.
+The PVOID typedef is now removed from the Hyper-V driver code.
 
 Cc: Hank Janssen <hjanssen@microsoft.com>
 Cc: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 ---
- drivers/staging/hv/BlkVsc.c                    |    2 +-
- drivers/staging/hv/Channel.c                   |    6 +++---
- drivers/staging/hv/ChannelMgmt.c               |    4 ++--
+ drivers/staging/hv/Channel.c                   |   20 ++++++++++----------
+ drivers/staging/hv/Channel.h                   |   16 ++++++++--------
+ drivers/staging/hv/ChannelInterface.c          |   16 ++++++++--------
+ drivers/staging/hv/ChannelMgmt.c               |    8 ++++----
  drivers/staging/hv/ChannelMgmt.h               |    4 ++--
- drivers/staging/hv/NetVsc.c                    |    1 +
- drivers/staging/hv/RingBuffer.h                |    4 ++--
- drivers/staging/hv/RndisFilter.c               |    1 +
- drivers/staging/hv/StorVsc.c                   |    1 +
- drivers/staging/hv/Vmbus.c                     |    2 +-
- drivers/staging/hv/include/ChannelMessages.h   |    2 +-
- drivers/staging/hv/include/HvSynicApi.h        |   14 +++++++-------
- drivers/staging/hv/include/StorVscApi.h        |    2 +-
- drivers/staging/hv/include/VmbusPacketFormat.h |    6 +++---
- drivers/staging/hv/include/osd.h               |    2 --
- 14 files changed, 26 insertions(+), 25 deletions(-)
+ drivers/staging/hv/Connection.c                |    6 +++---
+ drivers/staging/hv/Hv.c                        |    2 +-
+ drivers/staging/hv/Hv.h                        |    2 +-
+ drivers/staging/hv/NetVsc.c                    |    8 ++++----
+ drivers/staging/hv/NetVsc.h                    |    4 ++--
+ drivers/staging/hv/RingBuffer.c                |   18 +++++++++---------
+ drivers/staging/hv/RingBuffer.h                |    8 ++++----
+ drivers/staging/hv/StorVsc.c                   |    6 +++---
+ drivers/staging/hv/VmbusPrivate.h              |    2 +-
+ drivers/staging/hv/include/NetVscApi.h         |    8 ++++----
+ drivers/staging/hv/include/StorVscApi.h        |    4 ++--
+ drivers/staging/hv/include/VmbusApi.h          |   18 +++++++++---------
+ drivers/staging/hv/include/VmbusPacketFormat.h |    2 +-
+ drivers/staging/hv/include/osd.h               |    5 ++---
+ drivers/staging/hv/include/rndis.h             |    4 ++--
+ drivers/staging/hv/osd.c                       |    4 ++--
+ 21 files changed, 82 insertions(+), 83 deletions(-)
 
---- a/drivers/staging/hv/BlkVsc.c
-+++ b/drivers/staging/hv/BlkVsc.c
-@@ -20,7 +20,7 @@
-  *
-  */
- 
--
-+#include <linux/kernel.h>
- #include "StorVsc.c"
- 
- static const char* gBlkDriverName="blkvsc";
 --- a/drivers/staging/hv/Channel.c
 +++ b/drivers/staging/hv/Channel.c
-@@ -21,7 +21,7 @@
-  *
-  */
- 
--
-+#include <linux/kernel.h>
- #include "include/osd.h"
- #include "include/logging.h"
- 
-@@ -162,8 +162,8 @@ VmbusChannelGetDebugInfo(
+@@ -32,7 +32,7 @@
+ //
+ static int
+ VmbusChannelCreateGpadlHeader(
+-	PVOID					Kbuffer,	// must be phys and virt contiguous
++	void *					Kbuffer,	// must be phys and virt contiguous
+ 	UINT32					Size,		// page-size multiple
+ 	VMBUS_CHANNEL_MSGINFO	**msgInfo,
+ 	UINT32					*MessageCount
+@@ -204,10 +204,10 @@ VmbusChannelOpen(
+ 	VMBUS_CHANNEL			*NewChannel,
+ 	UINT32					SendRingBufferSize,
+ 	UINT32					RecvRingBufferSize,
+-	PVOID					UserData,
++	void *					UserData,
+ 	UINT32					UserDataLen,
+ 	PFN_CHANNEL_CALLBACK	pfnOnChannelCallback,
+-	PVOID					Context
++	void *					Context
  	)
  {
- 	HV_MONITOR_PAGE *monitorPage;
--    UINT8 monitorGroup    = (UINT8)Channel->OfferMsg.MonitorId / 32;
--    UINT8 monitorOffset   = (UINT8)Channel->OfferMsg.MonitorId % 32;
-+    u8 monitorGroup    = (u8)Channel->OfferMsg.MonitorId / 32;
-+    u8 monitorOffset   = (u8)Channel->OfferMsg.MonitorId % 32;
- 	//UINT32 monitorBit	= 1 << monitorOffset;
+ 	int ret=0;
+@@ -392,7 +392,7 @@ Description:
+ --*/
+ static int
+ VmbusChannelCreateGpadlHeader(
+-	PVOID					Kbuffer,	// from kmalloc()
++	void *					Kbuffer,	// from kmalloc()
+ 	UINT32					Size,		// page-size multiple
+ 	VMBUS_CHANNEL_MSGINFO	**MsgInfo,
+ 	UINT32					*MessageCount)
+@@ -515,7 +515,7 @@ Description:
+ int
+ VmbusChannelEstablishGpadl(
+ 	VMBUS_CHANNEL	*Channel,
+-	PVOID			Kbuffer,	// from kmalloc()
++	void *			Kbuffer,	// from kmalloc()
+ 	UINT32			Size,		// page-size multiple
+ 	UINT32			*GpadlHandle
+ 	)
+@@ -752,7 +752,7 @@ Description:
+ int
+ VmbusChannelSendPacket(
+ 	VMBUS_CHANNEL		*Channel,
+-	const PVOID			Buffer,
++	const void *			Buffer,
+ 	UINT32				BufferLen,
+ 	UINT64				RequestId,
+ 	VMBUS_PACKET_TYPE	Type,
+@@ -820,7 +820,7 @@ VmbusChannelSendPacketPageBuffer(
+ 	VMBUS_CHANNEL		*Channel,
+ 	PAGE_BUFFER			PageBuffers[],
+ 	UINT32				PageCount,
+-	PVOID				Buffer,
++	void *				Buffer,
+ 	UINT32				BufferLen,
+ 	UINT64				RequestId
+ )
+@@ -902,7 +902,7 @@ int
+ VmbusChannelSendPacketMultiPageBuffer(
+ 	VMBUS_CHANNEL		*Channel,
+ 	MULTIPAGE_BUFFER	*MultiPageBuffer,
+-	PVOID				Buffer,
++	void *				Buffer,
+ 	UINT32				BufferLen,
+ 	UINT64				RequestId
+ )
+@@ -984,7 +984,7 @@ Description:
+ int
+ VmbusChannelRecvPacket(
+ 	VMBUS_CHANNEL		*Channel,
+-	PVOID				Buffer,
++	void *				Buffer,
+ 	UINT32				BufferLen,
+ 	UINT32*				BufferActualLen,
+ 	UINT64*				RequestId
+@@ -1061,7 +1061,7 @@ Description:
+ int
+ VmbusChannelRecvPacketRaw(
+ 	VMBUS_CHANNEL		*Channel,
+-	PVOID				Buffer,
++	void *				Buffer,
+ 	UINT32				BufferLen,
+ 	UINT32*				BufferActualLen,
+ 	UINT64*				RequestId
+--- a/drivers/staging/hv/Channel.h
++++ b/drivers/staging/hv/Channel.h
+@@ -67,10 +67,10 @@ VmbusChannelOpen(
+ 	VMBUS_CHANNEL			*Channel,
+ 	UINT32					SendRingBufferSize,
+ 	UINT32					RecvRingBufferSize,
+-	PVOID					UserData,
++	void *					UserData,
+ 	UINT32					UserDataLen,
+ 	PFN_CHANNEL_CALLBACK	pfnOnChannelCallback,
+-	PVOID					Context
++	void *					Context
+ 	);
  
- 	DebugInfo->RelId = Channel->OfferMsg.ChildRelId;
+ static void
+@@ -81,7 +81,7 @@ VmbusChannelClose(
+ static int
+ VmbusChannelSendPacket(
+ 	VMBUS_CHANNEL		*Channel,
+-	const PVOID			Buffer,
++	const void *			Buffer,
+ 	UINT32				BufferLen,
+ 	UINT64				RequestId,
+ 	VMBUS_PACKET_TYPE	Type,
+@@ -93,7 +93,7 @@ VmbusChannelSendPacketPageBuffer(
+ 	VMBUS_CHANNEL		*Channel,
+ 	PAGE_BUFFER			PageBuffers[],
+ 	UINT32				PageCount,
+-	PVOID				Buffer,
++	void *				Buffer,
+ 	UINT32				BufferLen,
+ 	UINT64				RequestId
+ 	);
+@@ -102,7 +102,7 @@ static int
+ VmbusChannelSendPacketMultiPageBuffer(
+ 	VMBUS_CHANNEL		*Channel,
+ 	MULTIPAGE_BUFFER	*MultiPageBuffer,
+-	PVOID				Buffer,
++	void *				Buffer,
+ 	UINT32				BufferLen,
+ 	UINT64				RequestId
+ );
+@@ -110,7 +110,7 @@ VmbusChannelSendPacketMultiPageBuffer(
+ static int
+ VmbusChannelEstablishGpadl(
+ 	VMBUS_CHANNEL		*Channel,
+-	PVOID				Kbuffer,	// from kmalloc()
++	void *				Kbuffer,	// from kmalloc()
+ 	UINT32				Size,		// page-size multiple
+ 	UINT32				*GpadlHandle
+ 	);
+@@ -124,7 +124,7 @@ VmbusChannelTeardownGpadl(
+ static int
+ VmbusChannelRecvPacket(
+ 	VMBUS_CHANNEL		*Channel,
+-	PVOID				Buffer,
++	void *				Buffer,
+ 	UINT32				BufferLen,
+ 	UINT32*				BufferActualLen,
+ 	UINT64*				RequestId
+@@ -133,7 +133,7 @@ VmbusChannelRecvPacket(
+ static int
+ VmbusChannelRecvPacketRaw(
+ 	VMBUS_CHANNEL		*Channel,
+-	PVOID				Buffer,
++	void *				Buffer,
+ 	UINT32				BufferLen,
+ 	UINT32*				BufferActualLen,
+ 	UINT64*				RequestId
+--- a/drivers/staging/hv/ChannelInterface.c
++++ b/drivers/staging/hv/ChannelInterface.c
+@@ -28,10 +28,10 @@ IVmbusChannelOpen(
+ 	PDEVICE_OBJECT		Device,
+ 	UINT32				SendBufferSize,
+ 	UINT32				RecvRingBufferSize,
+-	PVOID				UserData,
++	void *				UserData,
+ 	UINT32				UserDataLen,
+ 	VMBUS_CHANNEL_CALLBACK ChannelCallback,
+-	PVOID				Context
++	void *				Context
+ 	)
+ {
+ 	return VmbusChannelOpen( (VMBUS_CHANNEL*)Device->context,
+@@ -56,7 +56,7 @@ IVmbusChannelClose(
+ static int
+ IVmbusChannelSendPacket(
+ 	PDEVICE_OBJECT		Device,
+-	const PVOID			Buffer,
++	const void *			Buffer,
+ 	UINT32				BufferLen,
+ 	UINT64				RequestId,
+ 	UINT32				Type,
+@@ -76,7 +76,7 @@ IVmbusChannelSendPacketPageBuffer(
+ 	PDEVICE_OBJECT		Device,
+ 	PAGE_BUFFER			PageBuffers[],
+ 	UINT32				PageCount,
+-	PVOID				Buffer,
++	void *				Buffer,
+ 	UINT32				BufferLen,
+ 	UINT64				RequestId
+ 	)
+@@ -93,7 +93,7 @@ static int
+ IVmbusChannelSendPacketMultiPageBuffer(
+ 	PDEVICE_OBJECT		Device,
+ 	MULTIPAGE_BUFFER	*MultiPageBuffer,
+-	PVOID				Buffer,
++	void *				Buffer,
+ 	UINT32				BufferLen,
+ 	UINT64				RequestId
+ 	)
+@@ -108,7 +108,7 @@ IVmbusChannelSendPacketMultiPageBuffer(
+ static int
+ IVmbusChannelRecvPacket (
+ 	PDEVICE_OBJECT		Device,
+-	PVOID				Buffer,
++	void *				Buffer,
+ 	UINT32				BufferLen,
+ 	UINT32*				BufferActualLen,
+ 	UINT64*				RequestId
+@@ -124,7 +124,7 @@ IVmbusChannelRecvPacket (
+ static int
+ IVmbusChannelRecvPacketRaw(
+ 	PDEVICE_OBJECT		Device,
+-	PVOID				Buffer,
++	void *				Buffer,
+ 	UINT32				BufferLen,
+ 	UINT32*				BufferActualLen,
+ 	UINT64*				RequestId
+@@ -140,7 +140,7 @@ IVmbusChannelRecvPacketRaw(
+ static int
+ IVmbusChannelEstablishGpadl(
+ 	PDEVICE_OBJECT		Device,
+-	PVOID				Buffer,
++	void *				Buffer,
+ 	UINT32				BufferLen,
+ 	UINT32*				GpadlHandle
+ 	)
 --- a/drivers/staging/hv/ChannelMgmt.c
 +++ b/drivers/staging/hv/ChannelMgmt.c
-@@ -396,8 +396,8 @@ VmbusChannelOnOffer(
- 	DPRINT_DBG(VMBUS, "channel object allocated - %p", newChannel);
+@@ -82,12 +82,12 @@ VmbusChannelOnVersionResponse(
  
- 	memcpy(&newChannel->OfferMsg, offer, sizeof(VMBUS_CHANNEL_OFFER_CHANNEL));
--	newChannel->MonitorGroup = (UINT8)offer->MonitorId / 32;
--	newChannel->MonitorBit = (UINT8)offer->MonitorId % 32;
-+	newChannel->MonitorGroup = (u8)offer->MonitorId / 32;
-+	newChannel->MonitorBit = (u8)offer->MonitorId % 32;
+ static void
+ VmbusChannelProcessOffer(
+-	PVOID context
++	void * context
+ 	);
  
- 	// TODO: Make sure the offer comes from our parent partition
- 	WorkQueueQueueWorkItem(newChannel->ControlWQ, VmbusChannelProcessOffer, newChannel);
+ static void
+ VmbusChannelProcessRescindOffer(
+-	PVOID context
++	void * context
+ 	);
+ 
+ 
+@@ -233,7 +233,7 @@ Description:
+ --*/
+ static void
+ VmbusChannelProcessOffer(
+-	PVOID context
++	void * context
+ 	)
+ {
+ 	int ret=0;
+@@ -317,7 +317,7 @@ Description:
+ --*/
+ static void
+ VmbusChannelProcessRescindOffer(
+-	PVOID context
++	void * context
+ 	)
+ {
+ 	VMBUS_CHANNEL* channel=(VMBUS_CHANNEL*)context;
 --- a/drivers/staging/hv/ChannelMgmt.h
 +++ b/drivers/staging/hv/ChannelMgmt.h
-@@ -53,8 +53,8 @@ typedef struct _VMBUS_CHANNEL {
+@@ -34,7 +34,7 @@
  
- 	VMBUS_CHANNEL_OFFER_CHANNEL OfferMsg;
- 	// These are based on the OfferMsg.MonitorId. Save it here for easy access.
--	UINT8						MonitorGroup;
--	UINT8						MonitorBit;
-+	u8						MonitorGroup;
-+	u8						MonitorBit;
  
- 	UINT32						RingBufferGpadlHandle;
  
---- a/drivers/staging/hv/include/ChannelMessages.h
-+++ b/drivers/staging/hv/include/ChannelMessages.h
-@@ -91,7 +91,7 @@ typedef struct _VMBUS_CHANNEL_OFFER_CHAN
-     VMBUS_CHANNEL_MESSAGE_HEADER Header;
-     VMBUS_CHANNEL_OFFER Offer;
-     UINT32  ChildRelId;
--    UINT8   MonitorId;
-+    u8   MonitorId;
-     BOOLEAN MonitorAllocated;
- } VMBUS_CHANNEL_OFFER_CHANNEL, *PVMBUS_CHANNEL_OFFER_CHANNEL;
+-typedef void (*PFN_CHANNEL_CALLBACK)(PVOID context);
++typedef void (*PFN_CHANNEL_CALLBACK)(void * context);
  
---- a/drivers/staging/hv/include/HvSynicApi.h
-+++ b/drivers/staging/hv/include/HvSynicApi.h
-@@ -264,11 +264,11 @@ typedef const HV_CONNECTION_INFO *PCHV_C
+ typedef enum {
+ 	CHANNEL_OFFER_STATE,
+@@ -70,7 +70,7 @@ typedef struct _VMBUS_CHANNEL {
+ 	//HANDLE						dataWorkQueue;
  
- typedef union _HV_MESSAGE_FLAGS
+ 	PFN_CHANNEL_CALLBACK		OnChannelCallback;
+-	PVOID						ChannelCallbackContext;
++	void *						ChannelCallbackContext;
+ 
+ } VMBUS_CHANNEL;
+ 
+--- a/drivers/staging/hv/Connection.c
++++ b/drivers/staging/hv/Connection.c
+@@ -103,7 +103,7 @@ VmbusConnect(
+ 	msg->VMBusVersionRequested = VMBUS_REVISION_NUMBER;
+ 	msg->InterruptPage = GetPhysicalAddress(gVmbusConnection.InterruptPage);
+ 	msg->MonitorPage1 = GetPhysicalAddress(gVmbusConnection.MonitorPages);
+-	msg->MonitorPage2 = GetPhysicalAddress((PVOID)((ULONG_PTR)gVmbusConnection.MonitorPages + PAGE_SIZE));
++	msg->MonitorPage2 = GetPhysicalAddress((void *)((ULONG_PTR)gVmbusConnection.MonitorPages + PAGE_SIZE));
+ 
+ 	// Add to list before we send the request since we may receive the response
+ 	// before returning from this routine
+@@ -290,7 +290,7 @@ Description:
+ --*/
+ static void
+ VmbusProcessChannelEvent(
+-	PVOID context
++	void * context
+ 	)
  {
--    UINT8 AsUINT8;
-+    u8 Asu8;
-     struct
-     {
--        UINT8 MessagePending:1;
--        UINT8 Reserved:7;
-+        u8 MessagePending:1;
-+        u8 Reserved:7;
-     };
- } HV_MESSAGE_FLAGS, *PHV_MESSAGE_FLAGS;
- 
-@@ -280,9 +280,9 @@ typedef union _HV_MESSAGE_FLAGS
- typedef struct _HV_MESSAGE_HEADER
+ 	VMBUS_CHANNEL* channel;
+@@ -385,7 +385,7 @@ Description:
+ --*/
+ int
+ VmbusPostMessage(
+-	PVOID			buffer,
++	void *			buffer,
+ 	SIZE_T			bufferLen
+ 	)
  {
-     HV_MESSAGE_TYPE     MessageType;
--    UINT8               PayloadSize;
-+    u8               PayloadSize;
-     HV_MESSAGE_FLAGS    MessageFlags;
--    UINT8               Reserved[2];
-+    u8               Reserved[2];
-     union
-     {
-         HV_PARTITION_ID Sender;
-@@ -337,7 +337,7 @@ typedef struct _HV_MESSAGE_PAGE
- 
- typedef union _HV_SYNIC_EVENT_FLAGS
+--- a/drivers/staging/hv/Hv.c
++++ b/drivers/staging/hv/Hv.c
+@@ -396,7 +396,7 @@ HV_STATUS
+ HvPostMessage(
+ 	HV_CONNECTION_ID connectionId,
+ 	HV_MESSAGE_TYPE  messageType,
+-	PVOID            payload,
++	void *            payload,
+ 	SIZE_T           payloadSize
+ 	)
  {
--    UINT8 Flags8[HV_EVENT_FLAGS_BYTE_COUNT];
-+    u8 Flags8[HV_EVENT_FLAGS_BYTE_COUNT];
-     UINT32 Flags32[HV_EVENT_FLAGS_DWORD_COUNT];
- } HV_SYNIC_EVENT_FLAGS, *PHV_SYNIC_EVENT_FLAGS;
+--- a/drivers/staging/hv/Hv.h
++++ b/drivers/staging/hv/Hv.h
+@@ -162,7 +162,7 @@ static HV_STATUS
+ HvPostMessage(
+ 	HV_CONNECTION_ID connectionId,
+ 	HV_MESSAGE_TYPE  messageType,
+-	PVOID            payload,
++	void *            payload,
+ 	SIZE_T           payloadSize
+ 	);
  
-@@ -483,7 +483,7 @@ typedef struct _HV_MONITOR_PAGE
+--- a/drivers/staging/hv/include/NetVscApi.h
++++ b/drivers/staging/hv/include/NetVscApi.h
+@@ -49,7 +49,7 @@ typedef int (*PFN_ON_CLOSE)(DEVICE_OBJEC
  
-     HV_MONITOR_PARAMETER     Parameter[4][32];
+ typedef void (*PFN_QUERY_LINKSTATUS)(DEVICE_OBJECT *Device);
+ typedef int (*PFN_ON_SEND)(DEVICE_OBJECT *dev, PNETVSC_PACKET packet);
+-typedef void (*PFN_ON_SENDRECVCOMPLETION)(PVOID Context);
++typedef void (*PFN_ON_SENDRECVCOMPLETION)(void * Context);
  
--    UINT8                    RsvdZ4[1984];
-+    u8                    RsvdZ4[1984];
+ typedef int (*PFN_ON_RECVCALLBACK)(DEVICE_OBJECT *dev, PNETVSC_PACKET packet);
+ typedef void (*PFN_ON_LINKSTATUS_CHANGED)(DEVICE_OBJECT *dev, UINT32 Status);
+@@ -80,18 +80,18 @@ typedef struct _NETVSC_PACKET {
+ 	union {
+ 		struct{
+ 			UINT64						ReceiveCompletionTid;
+-			PVOID						ReceiveCompletionContext;
++			void *						ReceiveCompletionContext;
+ 			PFN_ON_SENDRECVCOMPLETION	OnReceiveCompletion;
+ 		} Recv;
+ 		struct{
+ 			UINT64						SendCompletionTid;
+-			PVOID						SendCompletionContext;
++			void *						SendCompletionContext;
+ 			PFN_ON_SENDRECVCOMPLETION	OnSendCompletion;
+ 		} Send;
+ 	} Completion;
  
- } HV_MONITOR_PAGE, *PHV_MONITOR_PAGE;
+ 	// This points to the memory after PageBuffers
+-	PVOID					Extension;
++	void *					Extension;
  
+ 	UINT32					TotalDataBufferLength;
+ 	// Points to the send/receive buffer where the ethernet frame is
 --- a/drivers/staging/hv/include/osd.h
 +++ b/drivers/staging/hv/include/osd.h
-@@ -97,7 +97,6 @@ typedef struct _DLIST_ENTRY {
- //
- // unsigned types
- //
--typedef unsigned char		UINT8;
- typedef unsigned short		UINT16;
- typedef unsigned int		UINT32;
- #ifdef __x86_64__
-@@ -114,7 +113,6 @@ typedef unsigned char		UCHAR;
- //
- // signed types
- //
--typedef char				INT8;
- typedef short				INT16;
- typedef int					INT32;
- #ifdef __x86_64__
+@@ -133,7 +133,6 @@ typedef long long			LONGLONG;
+ typedef unsigned long		SIZE_T;
+ typedef void				VOID;
+ //typedef unsigned char		GUID[16];
+-typedef void*				PVOID;
+ typedef unsigned char		BOOL;
+ typedef unsigned char		BOOLEAN;
+ typedef void*				HANDLE;
+@@ -246,9 +245,9 @@ extern void	SpinlockRelease(HANDLE hSpin
+ void* Physical2LogicalAddr(ULONG_PTR PhysAddr);
+ 
+ #define GetPhysicalAddress Logical2PhysicalAddr
+-ULONG_PTR Logical2PhysicalAddr(PVOID LogicalAddr);
++ULONG_PTR Logical2PhysicalAddr(void * LogicalAddr);
+ 
+-ULONG_PTR Virtual2Physical(PVOID VirtAddr);
++ULONG_PTR Virtual2Physical(void * VirtAddr);
+ 
+ void* PageMapVirtualAddress(unsigned long Pfn);
+ void PageUnmapVirtualAddress(void* VirtAddr);
+--- a/drivers/staging/hv/include/rndis.h
++++ b/drivers/staging/hv/include/rndis.h
+@@ -827,10 +827,10 @@ typedef __struct_bcount(MessageLength) s
+ 
+ // get pointer to contained message from NDIS_MESSAGE pointer
+ #define RNDIS_MESSAGE_PTR_TO_MESSAGE_PTR(RndisMessage)          \
+-    ((PVOID) &RndisMessage->Message)
++    ((void *) &RndisMessage->Message)
+ 
+ // get pointer to contained message from NDIS_MESSAGE pointer
+ #define RNDIS_MESSAGE_RAW_PTR_TO_MESSAGE_PTR(RndisMessage)      \
+-    ((PVOID) RndisMessage)
++    ((void *) RndisMessage)
+ 
+ #endif // _RNDIS_H_
 --- a/drivers/staging/hv/include/StorVscApi.h
 +++ b/drivers/staging/hv/include/StorVscApi.h
-@@ -75,7 +75,7 @@ typedef struct _STORVSC_REQUEST {
- 	UINT32					Bus;
- 	UINT32					TargetId;
- 	UINT32					LunId;
--	UINT8*					Cdb;
-+	u8 *					Cdb;
- 	UINT32					CdbLen;
- 	UINT32					Status;
- 	UINT32					BytesXfer;
+@@ -83,12 +83,12 @@ typedef struct _STORVSC_REQUEST {
+ 	UCHAR*					SenseBuffer;
+ 	UINT32					SenseBufferSize;
+ 
+-	PVOID					Context;
++	void *					Context;
+ 
+ 	PFN_ON_IO_REQUEST_COMPLTN	OnIOCompletion;
+ 
+ 	// This points to the memory after DataBuffer
+-	PVOID					Extension;
++	void *					Extension;
+ 
+ 	MULTIPAGE_BUFFER		DataBuffer;
+ } STORVSC_REQUEST;
+--- a/drivers/staging/hv/include/VmbusApi.h
++++ b/drivers/staging/hv/include/VmbusApi.h
+@@ -88,16 +88,16 @@ typedef int (*PFN_ON_CHILDDEVICE_ADD)(PD
+ typedef void (*PFN_ON_CHILDDEVICE_REMOVE)(PDEVICE_OBJECT Device);
+ 
+ // Vmbus channel interface
+-typedef void (*VMBUS_CHANNEL_CALLBACK)(PVOID context);
++typedef void (*VMBUS_CHANNEL_CALLBACK)(void * context);
+ 
+ typedef int	(*VMBUS_CHANNEL_OPEN)(
+ 	PDEVICE_OBJECT		Device,
+ 	UINT32				SendBufferSize,
+ 	UINT32				RecvRingBufferSize,
+-	PVOID				UserData,
++	void *				UserData,
+ 	UINT32				UserDataLen,
+ 	VMBUS_CHANNEL_CALLBACK ChannelCallback,
+-	PVOID				Context
++	void *				Context
+ 	);
+ 
+ typedef void (*VMBUS_CHANNEL_CLOSE)(
+@@ -106,7 +106,7 @@ typedef void (*VMBUS_CHANNEL_CLOSE)(
+ 
+ typedef int	(*VMBUS_CHANNEL_SEND_PACKET)(
+ 	PDEVICE_OBJECT		Device,
+-	const PVOID			Buffer,
++	const void *			Buffer,
+ 	UINT32				BufferLen,
+ 	UINT64				RequestId,
+ 	UINT32				Type,
+@@ -117,7 +117,7 @@ typedef int	(*VMBUS_CHANNEL_SEND_PACKET_
+ 	PDEVICE_OBJECT		Device,
+ 	PAGE_BUFFER			PageBuffers[],
+ 	UINT32				PageCount,
+-	PVOID				Buffer,
++	void *				Buffer,
+ 	UINT32				BufferLen,
+ 	UINT64				RequestId
+ 	);
+@@ -125,14 +125,14 @@ typedef int	(*VMBUS_CHANNEL_SEND_PACKET_
+ typedef int	(*VMBUS_CHANNEL_SEND_PACKET_MULTIPAGEBUFFER)(
+ 	PDEVICE_OBJECT		Device,
+ 	MULTIPAGE_BUFFER	*MultiPageBuffer,
+-	PVOID				Buffer,
++	void *				Buffer,
+ 	UINT32				BufferLen,
+ 	UINT64				RequestId
+ );
+ 
+ typedef int	(*VMBUS_CHANNEL_RECV_PACKET)(
+ 	PDEVICE_OBJECT		Device,
+-	PVOID				Buffer,
++	void *				Buffer,
+ 	UINT32				BufferLen,
+ 	UINT32*				BufferActualLen,
+ 	UINT64*				RequestId
+@@ -140,7 +140,7 @@ typedef int	(*VMBUS_CHANNEL_RECV_PACKET)
+ 
+ typedef int	(*VMBUS_CHANNEL_RECV_PACKET_PAW)(
+ 	PDEVICE_OBJECT		Device,
+-	PVOID				Buffer,
++	void *				Buffer,
+ 	UINT32				BufferLen,
+ 	UINT32*				BufferActualLen,
+ 	UINT64*				RequestId
+@@ -148,7 +148,7 @@ typedef int	(*VMBUS_CHANNEL_RECV_PACKET_
+ 
+ typedef int	(*VMBUS_CHANNEL_ESTABLISH_GPADL)(
+ 	PDEVICE_OBJECT		Device,
+-	PVOID				Buffer,	// from kmalloc()
++	void *				Buffer,	// from kmalloc()
+ 	UINT32				BufferLen,		// page-size multiple
+ 	UINT32*				GpadlHandle
+ 	);
 --- a/drivers/staging/hv/include/VmbusPacketFormat.h
 +++ b/drivers/staging/hv/include/VmbusPacketFormat.h
-@@ -65,14 +65,14 @@ typedef struct
-             VMRCB Control;
-         };
+@@ -287,7 +287,7 @@ typedef union {
+ } VMPACKET_LARGEST_POSSIBLE_HEADER, *PVMPACKET_LARGEST_POSSIBLE_HEADER;
  
--        UINT8 Reserved[PAGE_SIZE];
-+        u8 Reserved[PAGE_SIZE];
-     };
+ #define VMPACKET_DATA_START_ADDRESS(__packet)                           \
+-    (PVOID)(((PUCHAR)__packet) + ((PVMPACKET_DESCRIPTOR)__packet)->DataOffset8 * 8)
++    (void *)(((PUCHAR)__packet) + ((PVMPACKET_DESCRIPTOR)__packet)->DataOffset8 * 8)
  
-     //
-     // Beginning of the ring data.  Note: It must be guaranteed that
-     // this data does not share a page with the control structure.
-     //
--    UINT8 Data[1];
-+    u8 Data[1];
- } VMRING, *PVMRING;
- 
- #pragma pack(push, 1)
-@@ -114,7 +114,7 @@ typedef struct VMTRANSFER_PAGE_PACKET_HE
- 
-     UINT16                  TransferPageSetId;
-     BOOLEAN                 SenderOwnsSet;
--    UINT8                   Reserved;
-+    u8                   Reserved;
-     UINT32                  RangeCount;
-     VMTRANSFER_PAGE_RANGE   Ranges[1];
- 
+ #define VMPACKET_DATA_LENGTH(__packet)                                  \
+     ((((PVMPACKET_DESCRIPTOR)__packet)->Length8 - ((PVMPACKET_DESCRIPTOR)__packet)->DataOffset8) * 8)
 --- a/drivers/staging/hv/NetVsc.c
 +++ b/drivers/staging/hv/NetVsc.c
-@@ -22,6 +22,7 @@
+@@ -59,7 +59,7 @@ NetVscOnCleanup(
  
- #define KERNEL_2_6_27
+ static void
+ NetVscOnChannelCallback(
+-	PVOID context
++	void * context
+ 	);
  
-+#include <linux/kernel.h>
- #include "include/logging.h"
- #include "NetVsc.h"
- #include "RndisFilter.h"
+ static int
+@@ -107,7 +107,7 @@ NetVscOnReceive(
+ 
+ static void
+ NetVscOnReceiveCompletion(
+-	PVOID Context
++	void * Context
+ 	);
+ 
+ static void
+@@ -1337,7 +1337,7 @@ retry_send_cmplt:
+ //
+ static void
+ NetVscOnReceiveCompletion(
+-	PVOID Context)
++	void * Context)
+ {
+ 	NETVSC_PACKET *packet = (NETVSC_PACKET*)Context;
+ 	DEVICE_OBJECT *device = (DEVICE_OBJECT*)packet->Device;
+@@ -1393,7 +1393,7 @@ NetVscOnReceiveCompletion(
+ 
+ void
+ NetVscOnChannelCallback(
+-	PVOID Context
++	void * Context
+ 	)
+ {
+ 	const int netPacketSize=2048;
+--- a/drivers/staging/hv/NetVsc.h
++++ b/drivers/staging/hv/NetVsc.h
+@@ -65,13 +65,13 @@ typedef struct _NETVSC_DEVICE {
+ 	HANDLE							ReceivePacketListLock;
+ 
+ 	// Send buffer allocated by us but manages by NetVSP
+-	PVOID							SendBuffer;
++	void *							SendBuffer;
+ 	UINT32							SendBufferSize;
+ 	UINT32							SendBufferGpadlHandle;
+ 	UINT32							SendSectionSize;
+ 
+ 	// Receive buffer allocated by us but manages by NetVSP
+-	PVOID							ReceiveBuffer;
++	void *							ReceiveBuffer;
+ 	UINT32							ReceiveBufferSize;
+ 	UINT32							ReceiveBufferGpadlHandle;
+ 	UINT32							ReceiveSectionCount;
+--- a/drivers/staging/hv/osd.c
++++ b/drivers/staging/hv/osd.c
+@@ -414,14 +414,14 @@ void* Physical2LogicalAddr(ULONG_PTR Phy
+ 	return logicalAddr;
+ }
+ 
+-ULONG_PTR Logical2PhysicalAddr(PVOID LogicalAddr)
++ULONG_PTR Logical2PhysicalAddr(void * LogicalAddr)
+ {
+ 	BUG_ON(!virt_addr_valid(LogicalAddr));
+ 	return virt_to_phys(LogicalAddr);
+ }
+ 
+ 
+-ULONG_PTR Virtual2Physical(PVOID VirtAddr)
++ULONG_PTR Virtual2Physical(void * VirtAddr)
+ {
+ 	ULONG_PTR pfn = vmalloc_to_pfn(VirtAddr);
+ 
+--- a/drivers/staging/hv/RingBuffer.c
++++ b/drivers/staging/hv/RingBuffer.c
+@@ -156,10 +156,10 @@ Description:
+ 	Get the start of the ring buffer
+ 
+ --*/
+-static inline PVOID
++static inline void *
+ GetRingBuffer(RING_BUFFER_INFO* RingInfo)
+ {
+-	return (PVOID)RingInfo->RingBuffer->Buffer;
++	return (void *)RingInfo->RingBuffer->Buffer;
+ }
+ 
+ 
+@@ -228,13 +228,13 @@ static UINT32
+ CopyToRingBuffer(
+ 	RING_BUFFER_INFO	*RingInfo,
+ 	UINT32				StartWriteOffset,
+-	PVOID				Src,
++	void *				Src,
+ 	UINT32				SrcLen);
+ 
+ static UINT32
+ CopyFromRingBuffer(
+ 	RING_BUFFER_INFO	*RingInfo,
+-	PVOID				Dest,
++	void *				Dest,
+ 	UINT32				DestLen,
+ 	UINT32				StartReadOffset);
+ 
+@@ -486,7 +486,7 @@ Description:
+ int
+ RingBufferRead(
+ 	RING_BUFFER_INFO*	InRingInfo,
+-	PVOID				Buffer,
++	void *				Buffer,
+ 	UINT32				BufferLen,
+ 	UINT32				Offset
+ 	)
+@@ -557,10 +557,10 @@ UINT32
+ CopyToRingBuffer(
+ 	RING_BUFFER_INFO	*RingInfo,
+ 	UINT32				StartWriteOffset,
+-	PVOID				Src,
++	void *				Src,
+ 	UINT32				SrcLen)
+ {
+-	PVOID ringBuffer=GetRingBuffer(RingInfo);
++	void * ringBuffer=GetRingBuffer(RingInfo);
+ 	UINT32 ringBufferSize=GetRingBufferSize(RingInfo);
+ 	UINT32 fragLen;
+ 
+@@ -597,11 +597,11 @@ Description:
+ UINT32
+ CopyFromRingBuffer(
+ 	RING_BUFFER_INFO	*RingInfo,
+-	PVOID				Dest,
++	void *				Dest,
+ 	UINT32				DestLen,
+ 	UINT32				StartReadOffset)
+ {
+-	PVOID ringBuffer=GetRingBuffer(RingInfo);
++	void * ringBuffer=GetRingBuffer(RingInfo);
+ 	UINT32 ringBufferSize=GetRingBufferSize(RingInfo);
+ 
+ 	UINT32 fragLen;
 --- a/drivers/staging/hv/RingBuffer.h
 +++ b/drivers/staging/hv/RingBuffer.h
-@@ -37,12 +37,12 @@ typedef struct _RING_BUFFER {
-     volatile UINT32	ReadIndex;      // Offset in bytes from the start of ring data below
+@@ -28,7 +28,7 @@
+ #include "include/osd.h"
  
- 	volatile UINT32 InterruptMask;
--	UINT8	Reserved[4084];			// Pad it to PAGE_SIZE so that data starts on page boundary
-+	u8	Reserved[4084];			// Pad it to PAGE_SIZE so that data starts on page boundary
- 	// NOTE: The InterruptMask field is used only for channels but since our vmbus connection
- 	// also uses this data structure and its data starts here, we commented out this field.
- 	// volatile UINT32 InterruptMask;
- 	// Ring data starts here + RingDataStartOffset !!! DO NOT place any fields below this !!!
--    UINT8		Buffer[0];
-+    u8		Buffer[0];
- } STRUCT_PACKED RING_BUFFER;
+ typedef struct _SG_BUFFER_LIST {
+-	PVOID	Data;
++	void *	Data;
+ 	UINT32	Length;
+ } SG_BUFFER_LIST;
  
- typedef struct _RING_BUFFER_INFO {
---- a/drivers/staging/hv/RndisFilter.c
-+++ b/drivers/staging/hv/RndisFilter.c
-@@ -23,6 +23,7 @@
+@@ -72,7 +72,7 @@ typedef struct _RING_BUFFER_DEBUG_INFO {
+ static int
+ RingBufferInit(
+ 	RING_BUFFER_INFO	*RingInfo,
+-	PVOID				Buffer,
++	void *				Buffer,
+ 	UINT32				BufferLen
+ 	);
  
- #define KERNEL_2_6_27
+@@ -91,14 +91,14 @@ RingBufferWrite(
+ static int
+ RingBufferPeek(
+ 	RING_BUFFER_INFO	*RingInfo,
+-	PVOID				Buffer,
++	void *				Buffer,
+ 	UINT32				BufferLen
+ 	);
  
-+#include <linux/kernel.h>
- #include "include/logging.h"
- 
- #include "include/NetVscApi.h"
+ static int
+ RingBufferRead(
+ 	RING_BUFFER_INFO	*RingInfo,
+-	PVOID				Buffer,
++	void *				Buffer,
+ 	UINT32				BufferLen,
+ 	UINT32				Offset
+ 	);
 --- a/drivers/staging/hv/StorVsc.c
 +++ b/drivers/staging/hv/StorVsc.c
-@@ -23,6 +23,7 @@
+@@ -118,7 +118,7 @@ StorVscOnCleanup(
  
- #define KERNEL_2_6_27
+ static void
+ StorVscOnChannelCallback(
+-	PVOID Context
++	void * Context
+ 	);
  
-+#include <linux/kernel.h>
- #include "include/logging.h"
+ static void
+@@ -530,7 +530,7 @@ StorVscConnectToVsp(
+ 	ret = Device->Driver->VmbusChannelInterface.Open(Device,
+ 		storDriver->RingBufferSize,
+ 		storDriver->RingBufferSize,
+-		(PVOID)&props,
++		(void *)&props,
+ 		sizeof(VMSTORAGE_CHANNEL_PROPERTIES),
+ 		StorVscOnChannelCallback,
+ 		Device
+@@ -901,7 +901,7 @@ StorVscOnReceive(
  
- #include "include/StorVscApi.h"
---- a/drivers/staging/hv/Vmbus.c
-+++ b/drivers/staging/hv/Vmbus.c
-@@ -21,7 +21,7 @@
-  *
-  */
+ void
+ StorVscOnChannelCallback(
+-	PVOID Context
++	void * Context
+ 	)
+ {
+ 	int ret=0;
+--- a/drivers/staging/hv/VmbusPrivate.h
++++ b/drivers/staging/hv/VmbusPrivate.h
+@@ -148,7 +148,7 @@ VmbusDisconnect(
  
--
-+#include <linux/kernel.h>
- #include "include/logging.h"
- #include "VersionInfo.h"
- #include "VmbusPrivate.h"
+ static int
+ VmbusPostMessage(
+-	PVOID			buffer,
++	void *			buffer,
+ 	SIZE_T			bufSize
+ 	);
