@@ -1,14 +1,14 @@
 From: Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [patch 52/54] Staging: hv: osd: remove PrintBytes wrapper
-Date: Fri, 17 Jul 2009 11:09:42 -0700
-Message-ID: <20090717180924.346172103@mini.kroah.org>
+Subject: [patch 42/54] Staging: hv: make Channel->InboundLock a real spinlock
+Date: Fri, 17 Jul 2009 11:09:32 -0700
+Message-ID: <20090717180922.727355686@mini.kroah.org>
 References: <20090717180850.873962925@mini.kroah.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline;
-	filename=staging-hv-osd-remove-printbytes-wrapper.patch
+	filename=staging-hv-make-channel-inboundlock-a-real-spinlock.patch
 In-Reply-To: <20090720160025.GA20249@kroah.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -25,88 +25,149 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Greg Kroah-Hartman <gregkh@suse.de>
 
-Use the "real" print_hex_dump_bytes call instead of a wrapper function.
+Don't use the wrapper functions for this lock, make it a real
+lock so that we know what is going on.
+
+I don't think we really want to be doing a irqsave for this code, but I
+left it alone to preserve the original codepath.  It should be reviewed
+later.
 
 Cc: Hank Janssen <hjanssen@microsoft.com>
 Cc: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 ---
- drivers/staging/hv/ChannelMgmt.c     |    3 ++-
- drivers/staging/hv/StorVsc.c         |    2 +-
- drivers/staging/hv/blkvsc_drv.c      |    5 +++--
- drivers/staging/hv/include/logging.h |   22 ----------------------
- 4 files changed, 6 insertions(+), 26 deletions(-)
+ drivers/staging/hv/Channel.c     |   18 ++++++++++--------
+ drivers/staging/hv/ChannelMgmt.c |   10 +---------
+ drivers/staging/hv/ChannelMgmt.h |    2 +-
+ 3 files changed, 12 insertions(+), 18 deletions(-)
 
---- a/drivers/staging/hv/blkvsc_drv.c
-+++ b/drivers/staging/hv/blkvsc_drv.c
-@@ -578,7 +578,7 @@ static int blkvsc_do_inquiry(struct bloc
+--- a/drivers/staging/hv/Channel.c
++++ b/drivers/staging/hv/Channel.c
+@@ -991,18 +991,19 @@ VmbusChannelRecvPacket(
+ 	u32 packetLen;
+ 	u32 userLen;
+ 	int ret;
++	unsigned long flags;
  
- 	buf = kmap(page_buf);
+ 	DPRINT_ENTER(VMBUS);
  
--	//PrintBytes(buf, 64);
-+	/* print_hex_dump_bytes("", DUMP_PREFIX_NONE, buf, 64); */
- 	// be to le
- 	device_type = buf[0] & 0x1F;
+ 	*BufferActualLen = 0;
+ 	*RequestId = 0;
  
-@@ -603,7 +603,8 @@ static int blkvsc_do_inquiry(struct bloc
- 		blkdev->device_id_len = 64;
+-	SpinlockAcquire(Channel->InboundLock);
++	spin_lock_irqsave(&Channel->inbound_lock, flags);
  
- 	memcpy(blkdev->device_id, &buf[8], blkdev->device_id_len);
--	//PrintBytes(blkdev->device_id, blkdev->device_id_len);
-+	/* printk_hex_dump_bytes("", DUMP_PREFIX_NONE, blkdev->device_id,
-+	 * 			 blkdev->device_id_len); */
+ 	ret = RingBufferPeek(&Channel->Inbound, &desc, sizeof(VMPACKET_DESCRIPTOR));
+ 	if (ret != 0)
+ 	{
+-		SpinlockRelease(Channel->InboundLock);
++		spin_unlock_irqrestore(&Channel->inbound_lock, flags);
  
- 	kunmap(page_buf);
+ 		//DPRINT_DBG(VMBUS, "nothing to read!!");
+ 		DPRINT_EXIT(VMBUS);
+@@ -1026,7 +1027,7 @@ VmbusChannelRecvPacket(
+ 
+ 	if (userLen > BufferLen)
+ 	{
+-		SpinlockRelease(Channel->InboundLock);
++		spin_unlock_irqrestore(&Channel->inbound_lock, flags);
+ 
+ 		DPRINT_ERR(VMBUS, "buffer too small - got %d needs %d", BufferLen, userLen);
+ 		DPRINT_EXIT(VMBUS);
+@@ -1039,7 +1040,7 @@ VmbusChannelRecvPacket(
+ 	// Copy over the packet to the user buffer
+ 	ret = RingBufferRead(&Channel->Inbound, Buffer, userLen, (desc.DataOffset8 << 3));
+ 
+-	SpinlockRelease(Channel->InboundLock);
++	spin_unlock_irqrestore(&Channel->inbound_lock, flags);
+ 
+ 	DPRINT_EXIT(VMBUS);
+ 
+@@ -1068,18 +1069,19 @@ VmbusChannelRecvPacketRaw(
+ 	u32 packetLen;
+ 	u32 userLen;
+ 	int ret;
++	unsigned long flags;
+ 
+ 	DPRINT_ENTER(VMBUS);
+ 
+ 	*BufferActualLen = 0;
+ 	*RequestId = 0;
+ 
+-	SpinlockAcquire(Channel->InboundLock);
++	spin_lock_irqsave(&Channel->inbound_lock, flags);
+ 
+ 	ret = RingBufferPeek(&Channel->Inbound, &desc, sizeof(VMPACKET_DESCRIPTOR));
+ 	if (ret != 0)
+ 	{
+-		SpinlockRelease(Channel->InboundLock);
++		spin_unlock_irqrestore(&Channel->inbound_lock, flags);
+ 
+ 		//DPRINT_DBG(VMBUS, "nothing to read!!");
+ 		DPRINT_EXIT(VMBUS);
+@@ -1102,7 +1104,7 @@ VmbusChannelRecvPacketRaw(
+ 
+ 	if (packetLen > BufferLen)
+ 	{
+-		SpinlockRelease(Channel->InboundLock);
++		spin_unlock_irqrestore(&Channel->inbound_lock, flags);
+ 
+ 		DPRINT_ERR(VMBUS, "buffer too small - needed %d bytes but got space for only %d bytes", packetLen, BufferLen);
+ 		DPRINT_EXIT(VMBUS);
+@@ -1114,7 +1116,7 @@ VmbusChannelRecvPacketRaw(
+ 	// Copy over the entire packet to the user buffer
+ 	ret = RingBufferRead(&Channel->Inbound, Buffer, packetLen, 0);
+ 
+-	SpinlockRelease(Channel->InboundLock);
++	spin_unlock_irqrestore(&Channel->inbound_lock, flags);
+ 
+ 	DPRINT_EXIT(VMBUS);
  
 --- a/drivers/staging/hv/ChannelMgmt.c
 +++ b/drivers/staging/hv/ChannelMgmt.c
-@@ -687,7 +687,8 @@ VmbusOnChannelMessage(
- 	if (hdr->MessageType >= ChannelMessageCount)
- 	{
- 		DPRINT_ERR(VMBUS, "Received invalid channel message type %d size %d", hdr->MessageType, size);
--		PrintBytes((unsigned char *)msg->u.Payload, size);
-+		print_hex_dump_bytes("", DUMP_PREFIX_NONE,
-+				     (unsigned char *)msg->u.Payload, size);
- 		kfree(msg);
- 		return;
+@@ -149,17 +149,11 @@ VMBUS_CHANNEL* AllocVmbusChannel(void)
+ 		return NULL;
  	}
---- a/drivers/staging/hv/include/logging.h
-+++ b/drivers/staging/hv/include/logging.h
-@@ -117,26 +117,4 @@ extern unsigned int vmbus_loglevel;
- #define DPRINT_EXIT(mod)
- #endif
  
--static inline void PrintBytes(const unsigned char* bytes, int len)
--{
--	int i=0;
--
--	printk("\n<< ");
--	for (i=0; i< len; i++)
+-	channel->InboundLock = SpinlockCreate();
+-	if (!channel->InboundLock)
 -	{
--		printk("0x%x ", bytes[i]);
+-		kfree(channel);
+-		return NULL;
 -	}
--	printk(">>\n");
--}
--
--//
--// Inline
--//
--//static inline void GuidToStr(const GUID g, char *str)
--//{
--//	sprintf(str, "{%02x%02x%02x%02x-%02x%02x-%02x%02x-%02x%02x%02x%02x%02x%02x%02x%02x}",
--//	g[3], g[2], g[1], g[0], g[5], g[4], g[7], g[6], g[8], g[9], g[10], g[11], g[12], g[13], g[14], g[15]);
--//
--//}
--
- #endif //_LOGGING_H_
---- a/drivers/staging/hv/StorVsc.c
-+++ b/drivers/staging/hv/StorVsc.c
-@@ -713,7 +713,7 @@ StorVscOnIORequest(
- 		return -2;
++	spin_lock_init(&channel->inbound_lock);
+ 
+ 	channel->PollTimer = TimerCreate(VmbusChannelOnTimer, channel);
+ 	if (!channel->PollTimer)
+ 	{
+-		SpinlockClose(channel->InboundLock);
+ 		kfree(channel);
+ 		return NULL;
  	}
+@@ -169,7 +163,6 @@ VMBUS_CHANNEL* AllocVmbusChannel(void)
+ 	if (!channel->ControlWQ)
+ 	{
+ 		TimerClose(channel->PollTimer);
+-		SpinlockClose(channel->InboundLock);
+ 		kfree(channel);
+ 		return NULL;
+ 	}
+@@ -212,7 +205,6 @@ Description:
+ --*/
+ void FreeVmbusChannel(VMBUS_CHANNEL* Channel)
+ {
+-	SpinlockClose(Channel->InboundLock);
+ 	TimerClose(Channel->PollTimer);
  
--	//PrintBytes(Request->Cdb, Request->CdbLen);
-+	/* print_hex_dump_bytes("", DUMP_PREFIX_NONE, Request->Cdb, Request->CdbLen); */
+ 	// We have to release the channel's workqueue/thread in the vmbus's workqueue/thread context
+--- a/drivers/staging/hv/ChannelMgmt.h
++++ b/drivers/staging/hv/ChannelMgmt.h
+@@ -63,7 +63,7 @@ typedef struct _VMBUS_CHANNEL {
+ 	u32						RingBufferPageCount;
+ 	RING_BUFFER_INFO			Outbound;	// send to parent
+ 	RING_BUFFER_INFO			Inbound;	// receive from parent
+-	HANDLE						InboundLock;
++	spinlock_t inbound_lock;
+ 	HANDLE						ControlWQ;
  
- 	requestExtension->Request = Request;
- 	requestExtension->Device  = Device;
+ 	// Channel callback are invoked in this workqueue context
