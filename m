@@ -1,14 +1,13 @@
 From: Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [patch 38/54] Staging: hv: osd: remove MemAlloc wrapper
-Date: Fri, 17 Jul 2009 11:09:28 -0700
-Message-ID: <20090717180922.078820399@mini.kroah.org>
+Subject: [patch 53/54] Staging: hv: fix up printk warnings
+Date: Fri, 17 Jul 2009 11:09:43 -0700
+Message-ID: <20090717180924.505534401@mini.kroah.org>
 References: <20090717180850.873962925@mini.kroah.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline;
-	filename=staging-hv-osd-remove-memalloc-wrapper.patch
+Content-Disposition: inline; filename=staging-hv-fix-up-printk-warnings.patch
 In-Reply-To: <20090720160025.GA20249@kroah.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -25,118 +24,173 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Greg Kroah-Hartman <gregkh@suse.de>
 
-Use the "real" kmalloc call instead of a wrapper function.
+After LogMsg was converted to printk, lots of build warnings showed up
+as no one was checking the arguments to LogMsg.  This patch fixes them
+all.
 
 Cc: Hank Janssen <hjanssen@microsoft.com>
 Cc: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 ---
- drivers/staging/hv/Channel.c     |    9 +++------
- drivers/staging/hv/ChannelMgmt.c |    3 +--
- drivers/staging/hv/Hv.c          |    2 +-
- drivers/staging/hv/NetVsc.c      |    2 +-
- drivers/staging/hv/RndisFilter.c |    1 -
- drivers/staging/hv/include/osd.h |    1 -
- drivers/staging/hv/osd.c         |    5 -----
- 7 files changed, 6 insertions(+), 17 deletions(-)
+ drivers/staging/hv/Hv.c          |    6 +++---
+ drivers/staging/hv/StorVsc.c     |   16 ++++++++--------
+ drivers/staging/hv/blkvsc_drv.c  |   12 ++++++------
+ drivers/staging/hv/storvsc_drv.c |    2 +-
+ 4 files changed, 18 insertions(+), 18 deletions(-)
 
---- a/drivers/staging/hv/Channel.c
-+++ b/drivers/staging/hv/Channel.c
-@@ -260,8 +260,7 @@ VmbusChannelOpen(
- 		SendRingBufferSize);
+--- a/drivers/staging/hv/blkvsc_drv.c
++++ b/drivers/staging/hv/blkvsc_drv.c
+@@ -918,7 +918,7 @@ static int blkvsc_submit_request(struct 
  
- 	// Create and init the channel open message
--	openInfo =
--		(VMBUS_CHANNEL_MSGINFO*)MemAlloc(sizeof(VMBUS_CHANNEL_MSGINFO) + sizeof(VMBUS_CHANNEL_OPEN_CHANNEL));
-+	openInfo = kmalloc(sizeof(VMBUS_CHANNEL_MSGINFO) + sizeof(VMBUS_CHANNEL_OPEN_CHANNEL), GFP_KERNEL);
- 	ASSERT(openInfo != NULL);
+ 	STORVSC_REQUEST *storvsc_req;
  
- 	openInfo->WaitEvent = WaitEventCreate();
-@@ -630,8 +629,7 @@ VmbusChannelTeardownGpadl(
+-	DPRINT_DBG(BLKVSC_DRV, "blkvsc_submit_request() - req %p type %s start_sector %llu count %d offset %d len %d\n",
++	DPRINT_DBG(BLKVSC_DRV, "blkvsc_submit_request() - req %p type %s start_sector %llu count %ld offset %d len %d\n",
+ 		blkvsc_req,
+ 		(blkvsc_req->write)?"WRITE":"READ",
+ 		blkvsc_req->sector_start,
+@@ -1087,7 +1087,7 @@ static int blkvsc_do_request(struct bloc
+ 	{
+ 		if (pending)
+ 		{
+-			DPRINT_DBG(BLKVSC_DRV, "adding blkvsc_req to pending_list - blkvsc_req %p start_sect %llu sect_count %d (%llu %d)\n",
++			DPRINT_DBG(BLKVSC_DRV, "adding blkvsc_req to pending_list - blkvsc_req %p start_sect %llu sect_count %ld (%llu %ld)\n",
+ 				blkvsc_req, blkvsc_req->sector_start, blkvsc_req->sector_count, start_sector, num_sectors);
  
- 	ASSERT(GpadlHandle != 0);
+ 			list_add_tail(&blkvsc_req->pend_entry, &blkdev->pending_list);
+@@ -1101,7 +1101,7 @@ static int blkvsc_do_request(struct bloc
+ 				list_add_tail(&blkvsc_req->pend_entry, &blkdev->pending_list);
+ 			}
  
--	info =
--		(VMBUS_CHANNEL_MSGINFO*)MemAlloc(sizeof(VMBUS_CHANNEL_MSGINFO) + sizeof(VMBUS_CHANNEL_GPADL_TEARDOWN));
-+	info = kmalloc(sizeof(VMBUS_CHANNEL_MSGINFO) + sizeof(VMBUS_CHANNEL_GPADL_TEARDOWN), GFP_KERNEL);
- 	ASSERT(info != NULL);
+-			DPRINT_DBG(BLKVSC_DRV, "submitted blkvsc_req %p start_sect %llu sect_count %d (%llu %d) ret %d\n",
++			DPRINT_DBG(BLKVSC_DRV, "submitted blkvsc_req %p start_sect %llu sect_count %ld (%llu %ld) ret %d\n",
+ 				blkvsc_req, blkvsc_req->sector_start, blkvsc_req->sector_count, start_sector, num_sectors, ret);
+ 		}
+ 	}
+@@ -1141,7 +1141,7 @@ static void blkvsc_request_completion(ST
  
- 	info->WaitEvent = WaitEventCreate();
-@@ -693,8 +691,7 @@ VmbusChannelClose(
- 	TimerStop(Channel->PollTimer);
+ 	ASSERT(blkvsc_req->group);
  
- 	// Send a closing message
--	info =
--		(VMBUS_CHANNEL_MSGINFO*)MemAlloc(sizeof(VMBUS_CHANNEL_MSGINFO) + sizeof(VMBUS_CHANNEL_CLOSE_CHANNEL));
-+	info = kmalloc(sizeof(VMBUS_CHANNEL_MSGINFO) + sizeof(VMBUS_CHANNEL_CLOSE_CHANNEL), GFP_KERNEL);
- 	ASSERT(info != NULL);
- 
- 	//info->waitEvent = WaitEventCreate();
---- a/drivers/staging/hv/ChannelMgmt.c
-+++ b/drivers/staging/hv/ChannelMgmt.c
-@@ -731,8 +731,7 @@ VmbusChannelRequestOffers(
- 
- 	DPRINT_ENTER(VMBUS);
- 
--	msgInfo =
--		(VMBUS_CHANNEL_MSGINFO*)MemAlloc(sizeof(VMBUS_CHANNEL_MSGINFO) + sizeof(VMBUS_CHANNEL_MESSAGE_HEADER));
-+	msgInfo = kmalloc(sizeof(VMBUS_CHANNEL_MSGINFO) + sizeof(VMBUS_CHANNEL_MESSAGE_HEADER), GFP_KERNEL);
- 	ASSERT(msgInfo != NULL);
- 
- 	msgInfo->WaitEvent = WaitEventCreate();
+-	DPRINT_DBG(BLKVSC_DRV, "blkdev %p blkvsc_req %p group %p type %s sect_start %llu sect_count %d len %d group outstd %d total outstd %d\n",
++	DPRINT_DBG(BLKVSC_DRV, "blkdev %p blkvsc_req %p group %p type %s sect_start %llu sect_count %ld len %d group outstd %d total outstd %d\n",
+ 		blkdev,
+ 		blkvsc_req,
+ 		blkvsc_req->group,
+@@ -1163,7 +1163,7 @@ static void blkvsc_request_completion(ST
+ 	{
+ 		list_for_each_entry_safe(comp_req, tmp, &blkvsc_req->group->blkvsc_req_list, req_entry)
+ 		{
+-			DPRINT_DBG(BLKVSC_DRV, "completing blkvsc_req %p sect_start %llu sect_count %d \n",
++			DPRINT_DBG(BLKVSC_DRV, "completing blkvsc_req %p sect_start %llu sect_count %ld \n",
+ 				comp_req,
+ 				comp_req->sector_start,
+ 				comp_req->sector_count);
+@@ -1222,7 +1222,7 @@ static int blkvsc_cancel_pending_reqs(st
+ 		// until we hit the pend_req
+ 		list_for_each_entry_safe(comp_req, tmp2, &pend_req->group->blkvsc_req_list, req_entry)
+ 		{
+-			DPRINT_DBG(BLKVSC_DRV, "completing blkvsc_req %p sect_start %llu sect_count %d \n",
++			DPRINT_DBG(BLKVSC_DRV, "completing blkvsc_req %p sect_start %llu sect_count %ld \n",
+ 				comp_req,
+ 				comp_req->sector_start,
+ 				comp_req->sector_count);
 --- a/drivers/staging/hv/Hv.c
 +++ b/drivers/staging/hv/Hv.c
-@@ -305,7 +305,7 @@ HvInit (
-                (unsigned long)hypercallMsr.GuestPhysicalAddress << PAGE_SHIFT);
+@@ -300,9 +300,9 @@ HvInit (
+ 		goto Cleanup;
+ 	}
+ 
+-    DPRINT_INFO(VMBUS, "Hypercall page VA=0x%08x, PA=0x%08x",
+-               (unsigned long)gHvContext.HypercallPage,
+-               (unsigned long)hypercallMsr.GuestPhysicalAddress << PAGE_SHIFT);
++	DPRINT_INFO(VMBUS, "Hypercall page VA=%p, PA=0x%0llx",
++		    gHvContext.HypercallPage,
++		    (u64)hypercallMsr.GuestPhysicalAddress << PAGE_SHIFT);
  
  	// Setup the global signal event param for the signal event hypercall
--	gHvContext.SignalEventBuffer = MemAlloc(sizeof(HV_INPUT_SIGNAL_EVENT_BUFFER));
-+	gHvContext.SignalEventBuffer = kmalloc(sizeof(HV_INPUT_SIGNAL_EVENT_BUFFER), GFP_KERNEL);
- 	if (!gHvContext.SignalEventBuffer)
+ 	gHvContext.SignalEventBuffer = kmalloc(sizeof(HV_INPUT_SIGNAL_EVENT_BUFFER), GFP_KERNEL);
+--- a/drivers/staging/hv/StorVsc.c
++++ b/drivers/staging/hv/StorVsc.c
+@@ -348,7 +348,7 @@ StorVscOnDeviceAdd(
+ 	deviceInfo->PathId = storDevice->PathId;
+ 	deviceInfo->TargetId = storDevice->TargetId;
+ 
+-	DPRINT_DBG(STORVSC, "assigned port %u, path %u target %u\n", storDevice->PortNumber, storDevice->PathId, storDevice->TargetId);
++	DPRINT_DBG(STORVSC, "assigned port %lu, path %u target %u\n", storDevice->PortNumber, storDevice->PathId, storDevice->TargetId);
+ 
+ Cleanup:
+ 	DPRINT_EXIT(STORVSC);
+@@ -404,7 +404,7 @@ static int StorVscChannelInit(DEVICE_OBJ
+ 
+ 	if (vstorPacket->Operation != VStorOperationCompleteIo || vstorPacket->Status != 0)
  	{
+-		DPRINT_ERR(STORVSC, "BEGIN_INITIALIZATION_OPERATION failed (op %d status 0x%x)", vstorPacket->Operation, vstorPacket->Status);
++		DPRINT_ERR(STORVSC, "BEGIN_INITIALIZATION_OPERATION failed (op %d status 0x%lx)", vstorPacket->Operation, vstorPacket->Status);
  		goto Cleanup;
---- a/drivers/staging/hv/include/osd.h
-+++ b/drivers/staging/hv/include/osd.h
-@@ -121,7 +121,6 @@ extern void PageFree(void* page, unsigne
- extern void* MemMapIO(unsigned long phys, unsigned long size);
- extern void MemUnmapIO(void* virt);
+ 	}
  
--extern void* MemAlloc(unsigned int size);
- extern void* MemAllocZeroed(unsigned int size);
- extern void* MemAllocAtomic(unsigned int size);
- extern void MemFree(void* buf);
---- a/drivers/staging/hv/NetVsc.c
-+++ b/drivers/staging/hv/NetVsc.c
-@@ -361,7 +361,7 @@ NetVscInitializeReceiveBufferWithNetVsp(
- 
- 	netDevice->ReceiveSectionCount = initPacket->Messages.Version1Messages.SendReceiveBufferComplete.NumSections;
- 
--	netDevice->ReceiveSections = MemAlloc(netDevice->ReceiveSectionCount * sizeof(NVSP_1_RECEIVE_BUFFER_SECTION));
-+	netDevice->ReceiveSections = kmalloc(netDevice->ReceiveSectionCount * sizeof(NVSP_1_RECEIVE_BUFFER_SECTION), GFP_KERNEL);
- 	if (netDevice->ReceiveSections == NULL)
+@@ -435,7 +435,7 @@ static int StorVscChannelInit(DEVICE_OBJ
+ 	// TODO: Check returned version
+ 	if (vstorPacket->Operation != VStorOperationCompleteIo || vstorPacket->Status != 0)
  	{
- 		ret = -1;
---- a/drivers/staging/hv/osd.c
-+++ b/drivers/staging/hv/osd.c
-@@ -189,11 +189,6 @@ void PageUnmapVirtualAddress(void* VirtA
- 	kunmap_atomic(VirtAddr, KM_IRQ0);
- }
+-		DPRINT_ERR(STORVSC, "QUERY_PROTOCOL_VERSION_OPERATION failed (op %d status 0x%x)", vstorPacket->Operation, vstorPacket->Status);
++		DPRINT_ERR(STORVSC, "QUERY_PROTOCOL_VERSION_OPERATION failed (op %d status 0x%lx)", vstorPacket->Operation, vstorPacket->Status);
+ 		goto Cleanup;
+ 	}
  
--void* MemAlloc(unsigned int size)
--{
--	return kmalloc(size, GFP_KERNEL);
--}
--
- void* MemAllocZeroed(unsigned int size)
- {
- 	void *p = kmalloc(size, GFP_KERNEL);
---- a/drivers/staging/hv/RndisFilter.c
-+++ b/drivers/staging/hv/RndisFilter.c
-@@ -943,7 +943,6 @@ RndisFilterOnDeviceAdd(
- 
- 	DPRINT_ENTER(NETVSC);
- 
--	//rndisDevice = MemAlloc(sizeof(RNDIS_DEVICE));
- 	rndisDevice = GetRndisDevice();
- 	if (!rndisDevice)
+@@ -465,7 +465,7 @@ static int StorVscChannelInit(DEVICE_OBJ
+ 	// TODO: Check returned version
+ 	if (vstorPacket->Operation != VStorOperationCompleteIo || vstorPacket->Status != 0)
  	{
+-		DPRINT_ERR(STORVSC, "QUERY_PROPERTIES_OPERATION failed (op %d status 0x%x)", vstorPacket->Operation, vstorPacket->Status);
++		DPRINT_ERR(STORVSC, "QUERY_PROPERTIES_OPERATION failed (op %d status 0x%lx)", vstorPacket->Operation, vstorPacket->Status);
+ 		goto Cleanup;
+ 	}
+ 
+@@ -473,7 +473,7 @@ static int StorVscChannelInit(DEVICE_OBJ
+ 	storDevice->PathId = vstorPacket->StorageChannelProperties.PathId;
+ 	storDevice->TargetId = vstorPacket->StorageChannelProperties.TargetId;
+ 
+-	DPRINT_DBG(STORVSC, "channel flag 0x%x, max xfer len 0x%x", vstorPacket->StorageChannelProperties.Flags, vstorPacket->StorageChannelProperties.MaxTransferBytes);
++	DPRINT_DBG(STORVSC, "channel flag 0x%lx, max xfer len 0x%lx", vstorPacket->StorageChannelProperties.Flags, vstorPacket->StorageChannelProperties.MaxTransferBytes);
+ 
+ 	DPRINT_INFO(STORVSC, "END_INITIALIZATION_OPERATION...");
+ 
+@@ -498,7 +498,7 @@ static int StorVscChannelInit(DEVICE_OBJ
+ 
+ 	if (vstorPacket->Operation != VStorOperationCompleteIo || vstorPacket->Status != 0)
+ 	{
+-		DPRINT_ERR(STORVSC, "END_INITIALIZATION_OPERATION failed (op %d status 0x%x)", vstorPacket->Operation, vstorPacket->Status);
++		DPRINT_ERR(STORVSC, "END_INITIALIZATION_OPERATION failed (op %d status 0x%lx)", vstorPacket->Operation, vstorPacket->Status);
+ 		goto Cleanup;
+ 	}
+ 
+@@ -540,7 +540,7 @@ StorVscConnectToVsp(
+ 		Device
+ 		);
+ 
+-	DPRINT_DBG(STORVSC, "storage props: path id %d, tgt id %d, max xfer %d", props.PathId, props.TargetId, props.MaxTransferBytes);
++	DPRINT_DBG(STORVSC, "storage props: path id %d, tgt id %d, max xfer %ld", props.PathId, props.TargetId, props.MaxTransferBytes);
+ 
+ 	if (ret != 0)
+ 	{
+@@ -819,7 +819,7 @@ StorVscOnIOCompletion(
+ 		return;
+ 	}
+ 
+-	DPRINT_DBG(STORVSC, "IO_COMPLETE_OPERATION - request extension %p completed bytes xfer %u",
++	DPRINT_DBG(STORVSC, "IO_COMPLETE_OPERATION - request extension %p completed bytes xfer %lu",
+ 		RequestExt, VStorPacket->VmSrb.DataTransferLength);
+ 
+ 	ASSERT(RequestExt != NULL);
+--- a/drivers/staging/hv/storvsc_drv.c
++++ b/drivers/staging/hv/storvsc_drv.c
+@@ -1054,7 +1054,7 @@ static int storvsc_device_configure(stru
+ 	DPRINT_INFO(STORVSC_DRV, "sdev (%p) - setting queue depth to %d", sdevice, STORVSC_MAX_IO_REQUESTS);
+ 	scsi_adjust_queue_depth(sdevice, MSG_SIMPLE_TAG, STORVSC_MAX_IO_REQUESTS);
+ 
+-	DPRINT_INFO(STORVSC_DRV, "sdev (%p) - setting max segment size to %d", sdevice, PAGE_SIZE);
++	DPRINT_INFO(STORVSC_DRV, "sdev (%p) - setting max segment size to %ld", sdevice, PAGE_SIZE);
+ 	blk_queue_max_segment_size(sdevice->request_queue, PAGE_SIZE);
+ 
+ 	DPRINT_INFO(STORVSC_DRV, "sdev (%p) - adding merge bio vec routine", sdevice);
