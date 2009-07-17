@@ -1,15 +1,14 @@
 From: Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [patch 11/54] Staging: hv: make the Hyper-V virtual storage driver
-	build
-Date: Fri, 17 Jul 2009 11:09:01 -0700
-Message-ID: <20090717180917.609085770@mini.kroah.org>
+Subject: [patch 10/54] Staging: hv: add the Hyper-V virtual bus to the build
+Date: Fri, 17 Jul 2009 11:09:00 -0700
+Message-ID: <20090717180917.450231213@mini.kroah.org>
 References: <20090717180850.873962925@mini.kroah.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline;
-	filename=staging-hv-make-the-hyper-v-virtual-storage-driver-build.patch
+	filename=staging-hv-add-the-hyper-v-virtual-bus-to-the-build.patch
 In-Reply-To: <20090720160025.GA20249@kroah.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -26,82 +25,50 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Greg Kroah-Hartman <gregkh@suse.de>
 
-The #define KERNEL_2_6_27 needs to be set, and I adjusted the include
-directories a bit to get things to build properly.
-
-I also fixed up the direct access of bus_id, as that field is now gone.
-Some minor scsi api changes were needed as well.
-
-The hv_storvsc code should now build properly, with no errors.
+Add the Hyper-V virtual bus to the kernel build system.
 
 Cc: Hank Janssen <hjanssen@microsoft.com>
 Cc: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 ---
- drivers/staging/hv/StorVsc.c     |    9 +++++----
- drivers/staging/hv/storvsc_drv.c |   11 ++++++-----
- 2 files changed, 11 insertions(+), 9 deletions(-)
+ drivers/staging/Kconfig     |    2 ++
+ drivers/staging/Makefile    |    1 +
+ drivers/staging/hv/Kconfig  |    8 ++++++++
+ drivers/staging/hv/Makefile |    3 +++
+ 4 files changed, 14 insertions(+)
 
---- a/drivers/staging/hv/StorVsc.c
-+++ b/drivers/staging/hv/StorVsc.c
-@@ -21,12 +21,13 @@
-  *
-  */
+--- a/drivers/staging/Kconfig
++++ b/drivers/staging/Kconfig
+@@ -129,5 +129,7 @@ source "drivers/staging/pata_rdc/Kconfig
  
-+#define KERNEL_2_6_27
+ source "drivers/staging/udlfb/Kconfig"
  
--#include "logging.h"
-+#include "include/logging.h"
- 
--#include "StorVscApi.h"
--#include "VmbusPacketFormat.h"
--#include "vstorage.h"
-+#include "include/StorVscApi.h"
-+#include "include/VmbusPacketFormat.h"
-+#include "include/vstorage.h"
- 
- 
- //
---- a/drivers/staging/hv/storvsc_drv.c
-+++ b/drivers/staging/hv/storvsc_drv.c
-@@ -21,6 +21,7 @@
-  *
-  */
- 
-+#define KERNEL_2_6_27
- 
- #include <linux/init.h>
- #include <linux/module.h>
-@@ -40,10 +41,10 @@
- #include <scsi/scsi_dbg.h>
- #endif
- 
--#include "logging.h"
--#include "vmbus.h"
-+#include "include/logging.h"
-+#include "include/vmbus.h"
- 
--#include "StorVscApi.h"
-+#include "include/StorVscApi.h"
- 
- //
- // #defines
-@@ -296,7 +297,7 @@ static int storvsc_probe(struct device *
- #if defined(KERNEL_2_6_27)
- 	host_device_ctx->request_pool =
- 	    kmem_cache_create
--	    (device_ctx->device.bus_id,
-+	    (dev_name(&device_ctx->device),
- 	     sizeof(struct storvsc_cmd_request) + storvsc_drv_obj->RequestExtSize,
- 	     0,
- 	     SLAB_HWCACHE_ALIGN, NULL);
-@@ -1250,7 +1251,7 @@ static int storvsc_report_luns(struct sc
- 	// cmd length
- 	*(unsigned int*)&cmd[6] = cpu_to_be32(report_len);
- 
--	result = scsi_execute_req(sdev, cmd, DMA_FROM_DEVICE, (unsigned char*)report_luns, report_len, &sshdr, 30*HZ, 3);
-+	result = scsi_execute_req(sdev, cmd, DMA_FROM_DEVICE, (unsigned char*)report_luns, report_len, &sshdr, 30*HZ, 3, NULL);
- 	if (result != 0)
- 	{
- 		kfree(report_luns);
++source "drivers/staging/hv/Kconfig"
++
+ endif # !STAGING_EXCLUDE_BUILD
+ endif # STAGING
+--- a/drivers/staging/Makefile
++++ b/drivers/staging/Makefile
+@@ -46,3 +46,4 @@ obj-$(CONFIG_VT6655)		+= vt6655/
+ obj-$(CONFIG_USB_CPC)		+= cpc-usb/
+ obj-$(CONFIG_RDC_17F3101X)	+= pata_rdc/
+ obj-$(CONFIG_FB_UDL)		+= udlfb/
++obj-$(CONFIG_HYPERV)		+= hv/
+--- /dev/null
++++ b/drivers/staging/hv/Kconfig
+@@ -0,0 +1,8 @@
++config HYPERV
++	tristate "Microsoft Hyper-V client drivers"
++	depends on X86
++	default n
++	help
++	  Select this option to run Linux as a Hyper-V client operating
++	  system.
++
+--- /dev/null
++++ b/drivers/staging/hv/Makefile
+@@ -0,0 +1,3 @@
++obj-$(CONFIG_HYPERV)		+= hv_vmbus.o
++
++hv_vmbus-objs := vmbus_drv.o osd.o Sources.o
