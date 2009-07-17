@@ -1,28 +1,480 @@
-From: Dave Jones <davej@redhat.com>
-Subject: Re: [patch 00/54] [Announce] Microsoft Hyper-V drivers for Linux
-Date: Mon, 20 Jul 2009 13:22:15 -0400
-Message-ID: <20090720172214.GB16129@redhat.com>
-References: <20090720160025.GA20249@kroah.com> <20090720162810.GA22102@kroah.com> <20090720165941.GA15660@redhat.com> <20090720170345.GA23990@suse.de>
+From: Greg Kroah-Hartman <gregkh@suse.de>
+Subject: [patch 17/54] Staging: hv: remove INTERNAL typedef
+Date: Fri, 17 Jul 2009 11:09:07 -0700
+Message-ID: <20090717180918.613837562@mini.kroah.org>
+References: <20090717180850.873962925@mini.kroah.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1752796AbZGTRW0@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20090720170345.GA23990@suse.de>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Greg KH <gregkh@suse.de>
-Cc: linux-kernel@vger.kernel.org, devel@driverdev.osuosl.org, virtualization@lists.osdl.org, Hank Janssen <hjanssen@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Sam Ramji <sramji@microsoft.com>, shemminger@linux-foundation.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline; filename=staging-hv-remove-internal-typedef.patch
+In-Reply-To: <20090720160025.GA20249@kroah.com>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: linux-kernel@vger.kernel.org, devel@driverdev.osuosl.org, virtualization@lists.osdl.org, Greg KH <greg@kroah.com>
+Cc: Sam Ramji <sramji@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Hank Janssen <hjanssen@microsoft.com>, shemminger@linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Jul 20, 2009 at 10:03:45AM -0700, Greg KH wrote:
- > The code still needs lots of cleanup, and review, as is evident by the
- > TODO file.  It looks like the patches did get sent to the driver-devel
- > and virtualization lists, so you can see them there if you want to.
- > 
- > But if you want, I can post the 4 individual drivers as of right now,
- > what they will show up in the linux-next tree tomorrow if you want me
- > to.
+From: Greg Kroah-Hartman <gregkh@suse.de>
 
-I already patched a copy of all 54 patches while I was waiting.
-(For those playing along at home: http://codemonkey.org.uk/junk/hv.diff)
+The INTERNAL typedef is now removed from the Hyper-V driver code.
 
-	Dave
+Cc: Hank Janssen <hjanssen@microsoft.com>
+Cc: Haiyang Zhang <haiyangz@microsoft.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+
+---
+ drivers/staging/hv/Channel.h          |   24 ++++++++++++------------
+ drivers/staging/hv/ChannelInterface.c |   22 +++++++++++-----------
+ drivers/staging/hv/ChannelInterface.h |    4 ++--
+ drivers/staging/hv/ChannelMgmt.h      |   10 +++++-----
+ drivers/staging/hv/Hv.h               |   12 ++++++------
+ drivers/staging/hv/RingBuffer.h       |   16 ++++++++--------
+ drivers/staging/hv/VmbusPrivate.h     |   24 ++++++++++--------------
+ 7 files changed, 54 insertions(+), 58 deletions(-)
+
+--- a/drivers/staging/hv/Channel.h
++++ b/drivers/staging/hv/Channel.h
+@@ -62,7 +62,7 @@ typedef struct _VMBUS_CHANNEL_PACKET_MUL
+ // Routines
+ //
+ 
+-INTERNAL int
++static int
+ VmbusChannelOpen(
+ 	VMBUS_CHANNEL			*Channel,
+ 	UINT32					SendRingBufferSize,
+@@ -73,12 +73,12 @@ VmbusChannelOpen(
+ 	PVOID					Context
+ 	);
+ 
+-INTERNAL void
++static void
+ VmbusChannelClose(
+ 	VMBUS_CHANNEL		*Channel
+ 	);
+ 
+-INTERNAL int
++static int
+ VmbusChannelSendPacket(
+ 	VMBUS_CHANNEL		*Channel,
+ 	const PVOID			Buffer,
+@@ -88,7 +88,7 @@ VmbusChannelSendPacket(
+ 	UINT32				Flags
+ );
+ 
+-INTERNAL int
++static int
+ VmbusChannelSendPacketPageBuffer(
+ 	VMBUS_CHANNEL		*Channel,
+ 	PAGE_BUFFER			PageBuffers[],
+@@ -98,7 +98,7 @@ VmbusChannelSendPacketPageBuffer(
+ 	UINT64				RequestId
+ 	);
+ 
+-INTERNAL int
++static int
+ VmbusChannelSendPacketMultiPageBuffer(
+ 	VMBUS_CHANNEL		*Channel,
+ 	MULTIPAGE_BUFFER	*MultiPageBuffer,
+@@ -107,7 +107,7 @@ VmbusChannelSendPacketMultiPageBuffer(
+ 	UINT64				RequestId
+ );
+ 
+-INTERNAL int
++static int
+ VmbusChannelEstablishGpadl(
+ 	VMBUS_CHANNEL		*Channel,
+ 	PVOID				Kbuffer,	// from kmalloc()
+@@ -115,13 +115,13 @@ VmbusChannelEstablishGpadl(
+ 	UINT32				*GpadlHandle
+ 	);
+ 
+-INTERNAL int
++static int
+ VmbusChannelTeardownGpadl(
+ 	VMBUS_CHANNEL	*Channel,
+ 	UINT32			GpadlHandle
+ 	);
+ 
+-INTERNAL int
++static int
+ VmbusChannelRecvPacket(
+ 	VMBUS_CHANNEL		*Channel,
+ 	PVOID				Buffer,
+@@ -130,7 +130,7 @@ VmbusChannelRecvPacket(
+ 	UINT64*				RequestId
+ 	);
+ 
+-INTERNAL int
++static int
+ VmbusChannelRecvPacketRaw(
+ 	VMBUS_CHANNEL		*Channel,
+ 	PVOID				Buffer,
+@@ -139,18 +139,18 @@ VmbusChannelRecvPacketRaw(
+ 	UINT64*				RequestId
+ 	);
+ 
+-INTERNAL void
++static void
+ VmbusChannelOnChannelEvent(
+ 	VMBUS_CHANNEL		*Channel
+ 	);
+ 
+-INTERNAL void
++static void
+ VmbusChannelGetDebugInfo(
+ 	VMBUS_CHANNEL				*Channel,
+ 	VMBUS_CHANNEL_DEBUG_INFO	*DebugInfo
+ 	);
+ 
+-INTERNAL void
++static void
+ VmbusChannelOnTimer(
+ 	void		*Context
+ 	);
+--- a/drivers/staging/hv/ChannelInterface.c
++++ b/drivers/staging/hv/ChannelInterface.c
+@@ -23,7 +23,7 @@
+ 
+ #include "VmbusPrivate.h"
+ 
+-INTERNAL int
++static int
+ IVmbusChannelOpen(
+ 	PDEVICE_OBJECT		Device,
+ 	UINT32				SendBufferSize,
+@@ -44,7 +44,7 @@ IVmbusChannelOpen(
+ }
+ 
+ 
+-INTERNAL void
++static void
+ IVmbusChannelClose(
+ 	PDEVICE_OBJECT		Device
+ 	)
+@@ -53,7 +53,7 @@ IVmbusChannelClose(
+ }
+ 
+ 
+-INTERNAL int
++static int
+ IVmbusChannelSendPacket(
+ 	PDEVICE_OBJECT		Device,
+ 	const PVOID			Buffer,
+@@ -71,7 +71,7 @@ IVmbusChannelSendPacket(
+ 									Flags);
+ }
+ 
+-INTERNAL int
++static int
+ IVmbusChannelSendPacketPageBuffer(
+ 	PDEVICE_OBJECT		Device,
+ 	PAGE_BUFFER			PageBuffers[],
+@@ -89,7 +89,7 @@ IVmbusChannelSendPacketPageBuffer(
+ 												RequestId);
+ }
+ 
+-INTERNAL int
++static int
+ IVmbusChannelSendPacketMultiPageBuffer(
+ 	PDEVICE_OBJECT		Device,
+ 	MULTIPAGE_BUFFER	*MultiPageBuffer,
+@@ -105,7 +105,7 @@ IVmbusChannelSendPacketMultiPageBuffer(
+ 													RequestId);
+ }
+ 
+-INTERNAL int
++static int
+ IVmbusChannelRecvPacket (
+ 	PDEVICE_OBJECT		Device,
+ 	PVOID				Buffer,
+@@ -121,7 +121,7 @@ IVmbusChannelRecvPacket (
+ 									RequestId);
+ }
+ 
+-INTERNAL int
++static int
+ IVmbusChannelRecvPacketRaw(
+ 	PDEVICE_OBJECT		Device,
+ 	PVOID				Buffer,
+@@ -137,7 +137,7 @@ IVmbusChannelRecvPacketRaw(
+ 										RequestId);
+ }
+ 
+-INTERNAL int
++static int
+ IVmbusChannelEstablishGpadl(
+ 	PDEVICE_OBJECT		Device,
+ 	PVOID				Buffer,
+@@ -151,7 +151,7 @@ IVmbusChannelEstablishGpadl(
+ 										GpadlHandle);
+ }
+ 
+-INTERNAL int
++static int
+ IVmbusChannelTeardownGpadl(
+    PDEVICE_OBJECT		Device,
+    UINT32				GpadlHandle
+@@ -162,7 +162,7 @@ IVmbusChannelTeardownGpadl(
+ 
+ }
+ 
+-INTERNAL void
++static void
+ GetChannelInterface(
+ 	VMBUS_CHANNEL_INTERFACE *ChannelInterface
+ 	)
+@@ -180,7 +180,7 @@ GetChannelInterface(
+ }
+ 
+ 
+-INTERNAL void
++static void
+ GetChannelInfo(
+ 	PDEVICE_OBJECT		Device,
+ 	DEVICE_INFO			*DeviceInfo
+--- a/drivers/staging/hv/ChannelInterface.h
++++ b/drivers/staging/hv/ChannelInterface.h
+@@ -27,12 +27,12 @@
+ 
+ #include "include/VmbusApi.h"
+ 
+-INTERNAL void
++static void
+ GetChannelInterface(
+ 	VMBUS_CHANNEL_INTERFACE *ChannelInterface
+ 	);
+ 
+-INTERNAL void
++static void
+ GetChannelInfo(
+ 	PDEVICE_OBJECT		Device,
+ 	DEVICE_INFO			*DeviceInfo
+--- a/drivers/staging/hv/ChannelMgmt.h
++++ b/drivers/staging/hv/ChannelMgmt.h
+@@ -128,27 +128,27 @@ typedef struct _VMBUS_CHANNEL_MSGINFO {
+ // Routines
+ //
+ 
+-INTERNAL VMBUS_CHANNEL*
++static VMBUS_CHANNEL*
+ AllocVmbusChannel(
+ 	void
+ 	);
+ 
+-INTERNAL void
++static void
+ FreeVmbusChannel(
+ 	VMBUS_CHANNEL *Channel
+ 	);
+ 
+-INTERNAL void
++static void
+ VmbusOnChannelMessage(
+ 	void *Context
+ 	);
+ 
+-INTERNAL int
++static int
+ VmbusChannelRequestOffers(
+ 	void
+ 	);
+ 
+-INTERNAL void
++static void
+ VmbusChannelReleaseUnattachedChannels(
+ 	void
+ 	);
+--- a/drivers/staging/hv/Hv.h
++++ b/drivers/staging/hv/Hv.h
+@@ -148,17 +148,17 @@ static inline void WriteMsr(int msr, UIN
+ //
+ // Hv Interface
+ //
+-INTERNAL int
++static int
+ HvInit(
+     VOID
+     );
+ 
+-INTERNAL VOID
++static VOID
+ HvCleanup(
+     VOID
+     );
+ 
+-INTERNAL HV_STATUS
++static HV_STATUS
+ HvPostMessage(
+ 	HV_CONNECTION_ID connectionId,
+ 	HV_MESSAGE_TYPE  messageType,
+@@ -166,17 +166,17 @@ HvPostMessage(
+ 	SIZE_T           payloadSize
+ 	);
+ 
+-INTERNAL HV_STATUS
++static HV_STATUS
+ HvSignalEvent(
+ 	VOID
+ 	);
+ 
+-INTERNAL int
++static int
+ HvSynicInit(
+ 	UINT32		irqVector
+ 	);
+ 
+-INTERNAL VOID
++static VOID
+ HvSynicCleanup(
+ 	VOID
+ 	);
+--- a/drivers/staging/hv/RingBuffer.h
++++ b/drivers/staging/hv/RingBuffer.h
+@@ -69,33 +69,33 @@ typedef struct _RING_BUFFER_DEBUG_INFO {
+ // Interface
+ //
+ 
+-INTERNAL int
++static int
+ RingBufferInit(
+ 	RING_BUFFER_INFO	*RingInfo,
+ 	PVOID				Buffer,
+ 	UINT32				BufferLen
+ 	);
+ 
+-INTERNAL void
++static void
+ RingBufferCleanup(
+ 	RING_BUFFER_INFO	*RingInfo
+ 	);
+ 
+-INTERNAL int
++static int
+ RingBufferWrite(
+ 	RING_BUFFER_INFO	*RingInfo,
+ 	SG_BUFFER_LIST		SgBuffers[],
+ 	UINT32				SgBufferCount
+ 	);
+ 
+-INTERNAL int
++static int
+ RingBufferPeek(
+ 	RING_BUFFER_INFO	*RingInfo,
+ 	PVOID				Buffer,
+ 	UINT32				BufferLen
+ 	);
+ 
+-INTERNAL int
++static int
+ RingBufferRead(
+ 	RING_BUFFER_INFO	*RingInfo,
+ 	PVOID				Buffer,
+@@ -103,18 +103,18 @@ RingBufferRead(
+ 	UINT32				Offset
+ 	);
+ 
+-INTERNAL UINT32
++static UINT32
+ GetRingBufferInterruptMask(
+ 	RING_BUFFER_INFO *RingInfo
+ 	);
+ 
+-INTERNAL void
++static void
+ DumpRingInfo(
+ 	RING_BUFFER_INFO* RingInfo,
+ 	char *Prefix
+ 	);
+ 
+-INTERNAL void
++static void
+ RingBufferGetDebugInfo(
+ 	RING_BUFFER_INFO		*RingInfo,
+ 	RING_BUFFER_DEBUG_INFO	*DebugInfo
+--- a/drivers/staging/hv/VmbusPrivate.h
++++ b/drivers/staging/hv/VmbusPrivate.h
+@@ -25,10 +25,6 @@
+ #ifndef _VMBUS_PRIVATE_H_
+ #define _VMBUS_PRIVATE_H_
+ 
+-#ifndef INTERNAL
+-#define INTERNAL static
+-#endif
+-
+ #include "Hv.h"
+ #include "include/VmbusApi.h"
+ #include "Channel.h"
+@@ -114,25 +110,25 @@ extern VMBUS_CONNECTION gVmbusConnection
+ //
+ // General vmbus interface
+ //
+-INTERNAL DEVICE_OBJECT*
++static DEVICE_OBJECT*
+ VmbusChildDeviceCreate(
+ 	GUID deviceType,
+ 	GUID deviceInstance,
+ 	void *context);
+ 
+-INTERNAL int
++static int
+ VmbusChildDeviceAdd(
+ 	DEVICE_OBJECT* Device);
+ 
+-INTERNAL void
++static void
+ VmbusChildDeviceRemove(
+    DEVICE_OBJECT* Device);
+ 
+-//INTERNAL void
++//static void
+ //VmbusChildDeviceDestroy(
+ //	DEVICE_OBJECT*);
+ 
+-INTERNAL VMBUS_CHANNEL*
++static VMBUS_CHANNEL*
+ GetChannelFromRelId(
+ 	UINT32 relId
+ 	);
+@@ -140,28 +136,28 @@ GetChannelFromRelId(
+ //
+ // Connection interface
+ //
+-INTERNAL int
++static int
+ VmbusConnect(
+ 	VOID
+ 	);
+ 
+-INTERNAL int
++static int
+ VmbusDisconnect(
+ 	VOID
+ 	);
+ 
+-INTERNAL int
++static int
+ VmbusPostMessage(
+ 	PVOID			buffer,
+ 	SIZE_T			bufSize
+ 	);
+ 
+-INTERNAL int
++static int
+ VmbusSetEvent(
+ 	UINT32 childRelId
+ 	);
+ 
+-INTERNAL VOID
++static VOID
+ VmbusOnEvents(
+   VOID
+ 	);
