@@ -1,64 +1,62 @@
-From: Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [patch 16/54] Staging: hv: add the Hyper-V virtual network driver to
-	the build
-Date: Fri, 17 Jul 2009 11:09:06 -0700
-Message-ID: <20090717180918.443218032@mini.kroah.org>
-References: <20090717180850.873962925@mini.kroah.org>
+From: Greg KH <gregkh@suse.de>
+Subject: Re: [patch 00/54] [Announce] Microsoft Hyper-V drivers for Linux
+Date: Mon, 20 Jul 2009 10:03:45 -0700
+Message-ID: <20090720170345.GA23990@suse.de>
+References: <20090720160025.GA20249@kroah.com>
+ <20090720162810.GA22102@kroah.com>
+ <20090720165941.GA15660@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline;
-	filename=staging-hv-add-the-hyper-v-virtual-network-driver-to-the-build.patch
-In-Reply-To: <20090720160025.GA20249@kroah.com>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org, devel@driverdev.osuosl.org, virtualization@lists.osdl.org
-Cc: Sam Ramji <sramji@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Hank Janssen <hjanssen@microsoft.com>, shemminger@linux-foundation.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1752859AbZGTRGe@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20090720165941.GA15660@redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dave Jones <davej@redhat.com>, linux-kernel@vger.kernel.org, devel@driverdev.osuosl.org, virtualization@lists.osdl.org, Hank Janssen <hjanssen@microsoft.com>, Haiyang Zhang <haiyangz@>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Greg Kroah-Hartman <gregkh@suse.de>
+On Mon, Jul 20, 2009 at 12:59:41PM -0400, Dave Jones wrote:
+> On Mon, Jul 20, 2009 at 09:28:10AM -0700, Greg KH wrote:
+>  > On Mon, Jul 20, 2009 at 09:00:25AM -0700, Greg Kroah-Hartman wrote:
+>  > > 
+>  > > Hi all,
+>  > > 
+>  > > I'm happy to announce, that after many months of discussions, Microsoft
+>  > > has released their Hyper-V Linux drivers under the GPLv2.  Following
+>  > > this message, will be the patches that add the drivers to the
+>  > > drivers/staging/ tree, and a whole bunch of cleanups.
+>  > 
+>  > Hm, for some reason my scripts to send patches out caused them to get
+>  > eaten by the very good lkml filters.  (note, it was my fault, not
+>  > lkml's).
+>  > 
+>  > So instead of trying to send them again, and spaming everyone who
+>  > already got them, you can find them in my staging tree at:
+>  > 	http://www.kernel.org/pub/linux/kernel/people/gregkh/gregkh-2.6/gregkh-05-staging/
+>  > 
+>  > If anyone wants me to post any of the individual 54 patches to them,
+>  > please let me know.
+> 
+> Given the numerous cleanup patches that already exist, is there any reason
+> to not just post the cleaned up drivers ?  It would certainly be more
+> reviewable than the current pile.
+> 
+> Come to think of it, is there any value in merging the pre-cleaned up
+> patches ? Why merge 54 patches to mainline when a half dozen will do ?
 
-Add the Hyper-V virtual network driver to the kernel build system.
+It's the "normal" way of cleaning up code.  Start with a known-working
+piece of stuff, and incrementally clean it up.  This way if I mess any
+of the individual steps up, it's easy to find the problem.  This has
+already paid off in the past week working with the Microsoft developers
+to get this into a buildable / workable state.
 
-Cc: Hank Janssen <hjanssen@microsoft.com>
-Cc: Haiyang Zhang <haiyangz@microsoft.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+The code still needs lots of cleanup, and review, as is evident by the
+TODO file.  It looks like the patches did get sent to the driver-devel
+and virtualization lists, so you can see them there if you want to.
 
----
- drivers/staging/hv/Kconfig  |    7 +++++++
- drivers/staging/hv/Makefile |    2 ++
- 2 files changed, 9 insertions(+)
+But if you want, I can post the 4 individual drivers as of right now,
+what they will show up in the linux-next tree tomorrow if you want me
+to.
 
---- a/drivers/staging/hv/Kconfig
-+++ b/drivers/staging/hv/Kconfig
-@@ -19,3 +19,10 @@ config HYPERV_BLOCK
- 	default n
- 	help
- 	  Select this option to enable the Hyper-V virtual block driver.
-+
-+config HYPERV_NET
-+	tristate "Microsoft Hyper-V virtual network driver"
-+	depends on NET
-+	default n
-+	help
-+	  Select this option to enable the Hyper-V virtual network driver.
---- a/drivers/staging/hv/Makefile
-+++ b/drivers/staging/hv/Makefile
-@@ -1,7 +1,9 @@
- obj-$(CONFIG_HYPERV)		+= hv_vmbus.o
- obj-$(CONFIG_HYPERV_STORAGE)	+= hv_storvsc.o
- obj-$(CONFIG_HYPERV_BLOCK)	+= hv_blkvsc.o
-+obj-$(CONFIG_HYPERV_NET)	+= hv_netvsc.o
- 
- hv_vmbus-objs := vmbus_drv.o osd.o Sources.o
- hv_storvsc-objs := storvsc_drv.o osd.o StorVsc.o
- hv_blkvsc-objs := blkvsc_drv.o osd.o BlkVsc.o
-+hv_netvsc-objs := netvsc_drv.o osd.o NetVsc.o RndisFilter.o
+thanks,
+
+greg k-h
