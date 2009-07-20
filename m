@@ -1,53 +1,61 @@
-From: Greg KH <gregkh@suse.de>
+From: Jan Engelhardt <jengelh@medozas.de>
 Subject: Re: [patch 00/54] [Announce] Microsoft Hyper-V drivers for Linux
-Date: Mon, 20 Jul 2009 12:57:54 -0700
-Message-ID: <20090720195754.GB30483@suse.de>
+Date: Mon, 20 Jul 2009 23:24:24 +0200 (CEST)
+Message-ID: <alpine.LSU.2.00.0907202304180.1353@fbirervta.pbzchgretzou.qr>
 References: <20090720160025.GA20249@kroah.com>
-	<20090720162810.GA22102@kroah.com>
-	<20090720165941.GA15660@redhat.com>
-	<20090720170345.GA23990@suse.de> <871vob4047.fsf@basil.nowhere.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <871vob4047.fsf@basil.nowhere.org>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Andi Kleen <andi@firstfloor.org>
-Cc: devel@driverdev.osuosl.org, Dave Jones <davej@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org
+Content-Type: TEXT/PLAIN; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1754082AbZGTVY2@vger.kernel.org>
+In-Reply-To: <20090720160025.GA20249@kroah.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Greg Kroah-Hartman <gregkh@suse.de>
+Cc: linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org, Hank Janssen <hjanssen@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Sam Ramji <sramji@microsoft.com>, shemminger@linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Jul 20, 2009 at 09:37:12PM +0200, Andi Kleen wrote:
-> Greg KH <gregkh@suse.de> writes:
-> >
-> > It's the "normal" way of cleaning up code.  Start with a known-working
-> > piece of stuff, and incrementally clean it up. 
-> 
-> I have to agree with David. This is essentially unreviewable
-> in the original state. It would be good if you could
-> do all the obvious cleanups first and then post a consolidated
-> series.
-> 
-> Most "obvious" cleanups should not change the binary, so
-> you can easily check they are correct by comparing the assembler
-> code.
 
-Unfortunatly, some of these cleanups do change the binary, as they are
-removing wrapper functions.
+On Monday 2009-07-20 18:00, Greg Kroah-Hartman wrote:
+>
+>I'm happy to announce, that after many months of discussions, Microsof=
+t
+>has released their Hyper-V Linux drivers under the GPLv2.  Following
+>this message, will be the patches that add the drivers to the
+>drivers/staging/ tree, and a whole bunch of cleanups.
+>
+>It's taken a long road to get here, and I'd like to thank the followin=
+g
+>people who made this possible:
+>  - Steve Hemminger for the initial prodding and extreme patience
+>  - Hank Janssen for providing the code and working with me to get it
+>    into a workable and semi-mergable state.  His involvement within
+>    Microsoft was also invaluable.
+>  - Sam Ramji for his push within Microsoft to make this happen in a
+>    manner that works with the Linux community.
+>  - Novell for sponsoring my work on the Linux Driver project, without
+>    which, this would not have even been possible.
 
-Anyway, I agree, for a "proper" review, I will show the final, cleaned
-up version, like normal.  But we aren't there just yet, that is why this
-code is going to live in the staging tree for a while.  Give us some
-time to get it fixed up.
+(Your title as Maintainer of Crap has been well earned. But crap
+should not be maintained, it should be improved.)
 
-thanks,
 
-greg k-h
+I took a random patch to look at
+(add-the-hyper-v-virtual-network-driver.patch to be precise). I think
+the /hv/ subdirectory name should be expanded a little (to, say,
+/hyper-v/); we're not in the Unix days anymore where space is at such
+a premium that people even strip the last e off /usr. Our wireless
+drivers also don't live in /wl/. And since hv does not seem to be
+related to a hypervisor=C2=A0=E2=80=94 cf. sunhv.c.
+
+
+As for the code=E2=80=A6 I was immediately greeted by the screaming-upp=
+ercase
+typedef crap jungle that is so redundant[1] yet typical in many
+commercial products. One may hope that the evolution of the posted
+hyper-v code brings a coding strategy breeze into the house of
+Microsoft.
+
+[1] DWORD they could have replaced by uint32_t once it became
+available via C99's stdint.h. The LPCSTR crap only makes sense if you
+are a lazy typist, but I would not call code doing things like LPCSTR
+clean. At least it's one thing - consistent. Consistently hard to
+read, though.
