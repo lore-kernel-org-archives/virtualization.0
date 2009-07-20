@@ -1,15 +1,16 @@
-From: Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [patch 41/54] Staging: hv: osd: remove MemFree wrapper
-Date: Fri, 17 Jul 2009 11:09:31 -0700
-Message-ID: <20090717180922.584234775@mini.kroah.org>
-References: <20090717180850.873962925@mini.kroah.org>
+From: Andi Kleen <andi@firstfloor.org>
+Subject: Re: [patch 00/54] [Announce] Microsoft Hyper-V drivers for Linux
+Date: Mon, 20 Jul 2009 21:37:12 +0200
+Message-ID: <871vob4047.fsf@basil.nowhere.org>
+References: <20090720160025.GA20249@kroah.com>
+	<20090720162810.GA22102@kroah.com> <20090720165941.GA15660@redhat.com>
+	<20090720170345.GA23990@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline;
-	filename=staging-hv-osd-remove-memfree-wrapper.patch
-In-Reply-To: <20090720160025.GA20249@kroah.com>
+In-Reply-To: <20090720170345.GA23990@suse.de> (Greg KH's message of "Mon,
+	20 Jul 2009 10:03:45 -0700")
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,307 +20,25 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org, devel@driverdev.osuosl.org, virtualization@lists.osdl.org
-Cc: Sam Ramji <sramji@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, shemminger@linux-foundation.org
+To: Greg KH <gregkh@suse.de>
+Cc: devel@driverdev.osuosl.org, virtualization@lists.osdl.org, linux-kernel@vger.kernel.org, Haiyang@firstfloor.org, Dave Jones <davej@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Greg Kroah-Hartman <gregkh@suse.de>
+Greg KH <gregkh@suse.de> writes:
+>
+> It's the "normal" way of cleaning up code.  Start with a known-working
+> piece of stuff, and incrementally clean it up. 
 
-Use the "real" kfree call instead of a wrapper function.
+I have to agree with David. This is essentially unreviewable
+in the original state. It would be good if you could
+do all the obvious cleanups first and then post a consolidated
+series.
 
-Cc: Hank Janssen <hjanssen@microsoft.com>
-Cc: Haiyang Zhang <haiyangz@microsoft.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
----
- drivers/staging/hv/Channel.c     |    8 ++++----
- drivers/staging/hv/ChannelMgmt.c |   14 +++++++-------
- drivers/staging/hv/Connection.c  |    6 +++---
- drivers/staging/hv/Hv.c          |    4 ++--
- drivers/staging/hv/NetVsc.c      |   12 ++++++------
- drivers/staging/hv/RndisFilter.c |    8 ++++----
- drivers/staging/hv/StorVsc.c     |    2 +-
- drivers/staging/hv/include/osd.h |    1 -
- drivers/staging/hv/osd.c         |    5 -----
- 9 files changed, 27 insertions(+), 33 deletions(-)
+Most "obvious" cleanups should not change the binary, so
+you can easily check they are correct by comparing the assembler
+code.
 
---- a/drivers/staging/hv/Channel.c
-+++ b/drivers/staging/hv/Channel.c
-@@ -311,7 +311,7 @@ Cleanup:
- 	SpinlockRelease(gVmbusConnection.ChannelMsgLock);
- 
- 	WaitEventClose(openInfo->WaitEvent);
--	MemFree(openInfo);
-+	kfree(openInfo);
- 
- 	DPRINT_EXIT(VMBUS);
- 
-@@ -597,7 +597,7 @@ Cleanup:
- 	SpinlockRelease(gVmbusConnection.ChannelMsgLock);
- 
- 	WaitEventClose(msgInfo->WaitEvent);
--	MemFree(msgInfo);
-+	kfree(msgInfo);
- 
- 	DPRINT_EXIT(VMBUS);
- 
-@@ -658,7 +658,7 @@ VmbusChannelTeardownGpadl(
- 	SpinlockRelease(gVmbusConnection.ChannelMsgLock);
- 
- 	WaitEventClose(info->WaitEvent);
--	MemFree(info);
-+	kfree(info);
- 
- 	DPRINT_EXIT(VMBUS);
- 
-@@ -720,7 +720,7 @@ VmbusChannelClose(
- 
- 	PageFree(Channel->RingBufferPages, Channel->RingBufferPageCount);
- 
--	MemFree(info);
-+	kfree(info);
- 
- 	// If we are closing the channel during an error path in opening the channel, don't free the channel
- 	// since the caller will free the channel
---- a/drivers/staging/hv/ChannelMgmt.c
-+++ b/drivers/staging/hv/ChannelMgmt.c
-@@ -152,7 +152,7 @@ VMBUS_CHANNEL* AllocVmbusChannel(void)
- 	channel->InboundLock = SpinlockCreate();
- 	if (!channel->InboundLock)
- 	{
--		MemFree(channel);
-+		kfree(channel);
- 		return NULL;
- 	}
- 
-@@ -160,7 +160,7 @@ VMBUS_CHANNEL* AllocVmbusChannel(void)
- 	if (!channel->PollTimer)
- 	{
- 		SpinlockClose(channel->InboundLock);
--		MemFree(channel);
-+		kfree(channel);
- 		return NULL;
- 	}
- 
-@@ -170,7 +170,7 @@ VMBUS_CHANNEL* AllocVmbusChannel(void)
- 	{
- 		TimerClose(channel->PollTimer);
- 		SpinlockClose(channel->InboundLock);
--		MemFree(channel);
-+		kfree(channel);
- 		return NULL;
- 	}
- 
-@@ -196,7 +196,7 @@ static inline void ReleaseVmbusChannel(v
- 	WorkQueueClose(channel->ControlWQ);
- 	DPRINT_DBG(VMBUS, "channel released (%p)", channel);
- 
--	MemFree(channel);
-+	kfree(channel);
- 
- 	DPRINT_EXIT(VMBUS);
- }
-@@ -691,7 +691,7 @@ VmbusOnChannelMessage(
- 	{
- 		DPRINT_ERR(VMBUS, "Received invalid channel message type %d size %d", hdr->MessageType, size);
- 		PrintBytes((unsigned char *)msg->u.Payload, size);
--		MemFree(msg);
-+		kfree(msg);
- 		return;
- 	}
- 
-@@ -705,7 +705,7 @@ VmbusOnChannelMessage(
- 	}
- 
- 	// Free the msg that was allocated in VmbusOnMsgDPC()
--	MemFree(msg);
-+	kfree(msg);
- 	DPRINT_EXIT(VMBUS);
- }
- 
-@@ -764,7 +764,7 @@ Cleanup:
- 	if (msgInfo)
- 	{
- 		WaitEventClose(msgInfo->WaitEvent);
--		MemFree(msgInfo);
-+		kfree(msgInfo);
- 	}
- 
- 	DPRINT_EXIT(VMBUS);
---- a/drivers/staging/hv/Connection.c
-+++ b/drivers/staging/hv/Connection.c
-@@ -145,7 +145,7 @@ VmbusConnect(
- 
- 
- 	WaitEventClose(msgInfo->WaitEvent);
--	MemFree(msgInfo);
-+	kfree(msgInfo);
- 	DPRINT_EXIT(VMBUS);
- 
- 	return 0;
-@@ -175,7 +175,7 @@ Cleanup:
- 		if (msgInfo->WaitEvent)
- 			WaitEventClose(msgInfo->WaitEvent);
- 
--		MemFree(msgInfo);
-+		kfree(msgInfo);
- 	}
- 
- 	DPRINT_EXIT(VMBUS);
-@@ -233,7 +233,7 @@ VmbusDisconnect(
- Cleanup:
- 	if (msg)
- 	{
--		MemFree(msg);
-+		kfree(msg);
- 	}
- 
- 	DPRINT_EXIT(VMBUS);
---- a/drivers/staging/hv/Hv.c
-+++ b/drivers/staging/hv/Hv.c
-@@ -361,7 +361,7 @@ HvCleanup (
- 
- 	if (gHvContext.SignalEventBuffer)
- 	{
--		MemFree(gHvContext.SignalEventBuffer);
-+		kfree(gHvContext.SignalEventBuffer);
- 		gHvContext.SignalEventBuffer = NULL;
- 		gHvContext.SignalEventParam = NULL;
- 	}
-@@ -430,7 +430,7 @@ HvPostMessage(
- 
- 	status = HvDoHypercall(HvCallPostMessage, alignedMsg, 0) & 0xFFFF;
- 
--	MemFree((void*)addr);
-+	kfree((void*)addr);
- 
- 	return status;
- }
---- a/drivers/staging/hv/include/osd.h
-+++ b/drivers/staging/hv/include/osd.h
-@@ -121,7 +121,6 @@ extern void PageFree(void* page, unsigne
- extern void* MemMapIO(unsigned long phys, unsigned long size);
- extern void MemUnmapIO(void* virt);
- 
--extern void MemFree(void* buf);
- extern void MemoryFence(void);
- 
- extern HANDLE TimerCreate(PFN_TIMER_CALLBACK pfnTimerCB, void* context);
---- a/drivers/staging/hv/NetVsc.c
-+++ b/drivers/staging/hv/NetVsc.c
-@@ -139,7 +139,7 @@ static inline void FreeNetDevice(NETVSC_
- {
- 	ASSERT(Device->RefCount == 0);
- 	Device->Device->Extension = NULL;
--	MemFree(Device);
-+	kfree(Device);
- }
- 
- 
-@@ -563,7 +563,7 @@ NetVscDestroyReceiveBuffer(
- 
- 	if (NetDevice->ReceiveSections)
- 	{
--		MemFree(NetDevice->ReceiveSections);
-+		kfree(NetDevice->ReceiveSections);
- 		NetDevice->ReceiveSections = NULL;
- 		NetDevice->ReceiveSectionCount = 0;
- 	}
-@@ -873,7 +873,7 @@ Cleanup:
- 		{
- 			entry = REMOVE_HEAD_LIST(&netDevice->ReceivePacketList);
- 			packet = CONTAINING_RECORD(entry, NETVSC_PACKET, ListEntry);
--			MemFree(packet);
-+			kfree(packet);
- 		}
- 
- 		SpinlockClose(netDevice->ReceivePacketListLock);
-@@ -949,7 +949,7 @@ NetVscOnDeviceRemove(
- 		entry = REMOVE_HEAD_LIST(&netDevice->ReceivePacketList);
- 		netvscPacket = CONTAINING_RECORD(entry, NETVSC_PACKET, ListEntry);
- 
--		MemFree(netvscPacket);
-+		kfree(netvscPacket);
- 	}
- 
- 	SpinlockClose(netDevice->ReceivePacketListLock);
-@@ -1456,7 +1456,7 @@ NetVscOnChannelCallback(
- 				// reset
- 				if (bufferlen > netPacketSize)
- 				{
--					MemFree(buffer);
-+					kfree(buffer);
- 
- 					buffer = packet;
- 					bufferlen = netPacketSize;
-@@ -1469,7 +1469,7 @@ NetVscOnChannelCallback(
- 				// reset
- 				if (bufferlen > netPacketSize)
- 				{
--					MemFree(buffer);
-+					kfree(buffer);
- 
- 					buffer = packet;
- 					bufferlen = netPacketSize;
---- a/drivers/staging/hv/osd.c
-+++ b/drivers/staging/hv/osd.c
-@@ -189,11 +189,6 @@ void PageUnmapVirtualAddress(void* VirtA
- 	kunmap_atomic(VirtAddr, KM_IRQ0);
- }
- 
--void MemFree(void* buf)
--{
--	kfree(buf);
--}
--
- void *MemMapIO(unsigned long phys, unsigned long size)
- {
- #if X2V_LINUX
---- a/drivers/staging/hv/RndisFilter.c
-+++ b/drivers/staging/hv/RndisFilter.c
-@@ -219,7 +219,7 @@ static inline RNDIS_DEVICE* GetRndisDevi
- 	device->RequestLock = SpinlockCreate();
- 	if (!device->RequestLock)
- 	{
--		MemFree(device);
-+		kfree(device);
- 		return NULL;
- 	}
- 
-@@ -233,7 +233,7 @@ static inline RNDIS_DEVICE* GetRndisDevi
- static inline void PutRndisDevice(RNDIS_DEVICE *Device)
- {
- 	SpinlockClose(Device->RequestLock);
--	MemFree(Device);
-+	kfree(Device);
- }
- 
- static inline RNDIS_REQUEST* GetRndisRequest(RNDIS_DEVICE *Device, u32 MessageType, u32 MessageLength)
-@@ -251,7 +251,7 @@ static inline RNDIS_REQUEST* GetRndisReq
- 	request->WaitEvent = WaitEventCreate();
- 	if (!request->WaitEvent)
- 	{
--		MemFree(request);
-+		kfree(request);
- 		return NULL;
- 	}
- 
-@@ -279,7 +279,7 @@ static inline void PutRndisRequest(RNDIS
- 	SpinlockRelease(Device->RequestLock);
- 
- 	WaitEventClose(Request->WaitEvent);
--	MemFree(Request);
-+	kfree(Request);
- }
- 
- static inline void DumpRndisMessage(RNDIS_MESSAGE *RndisMessage)
---- a/drivers/staging/hv/StorVsc.c
-+++ b/drivers/staging/hv/StorVsc.c
-@@ -164,7 +164,7 @@ static inline STORVSC_DEVICE* AllocStorD
- static inline void FreeStorDevice(STORVSC_DEVICE *Device)
- {
- 	ASSERT(Device->RefCount == 0);
--	MemFree(Device);
-+	kfree(Device);
- }
- 
- // Get the stordevice object iff exists and its refcount > 1
+-Andi
+
+-- 
+ak@linux.intel.com -- Speaking for myself only.
