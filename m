@@ -1,179 +1,42 @@
-From: Greg KH <gregkh@suse.de>
+From: Bernd Petrovitsch <bernd@firmix.at>
 Subject: Re: [patch 27/54] Staging: hv: remove ULONG and LONG typedefs
-Date: Mon, 20 Jul 2009 19:45:57 -0700
-Message-ID: <20090721024557.GA17242@suse.de>
+Date: Tue, 21 Jul 2009 10:26:11 +0200
+Message-ID: <1248164771.16364.7.camel@spike.firmix.at>
 References: <20090717180850.873962925@mini.kroah.org>
- <20090717180920.285605541@mini.kroah.org>
- <200907210200.16295.arnd@arndb.de>
- <20090721023823.GA12154@suse.de>
+	 <20090717180920.285605541@mini.kroah.org>
+	 <200907210200.16295.arnd@arndb.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1754789AbZGUCtK@vger.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1753700AbZGUIcO@vger.kernel.org>
+In-Reply-To: <200907210200.16295.arnd@arndb.de>
 Content-Disposition: inline
-In-Reply-To: <20090721023823.GA12154@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Arnd Bergmann <arnd@arndb.de>
-Cc: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, devel@driverdev.osuosl.org, virtualization@lists.osdl.org, Greg KH <greg@kroah.com>, Sam Ramji <sramji@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Hank Janssen <hjanssen@microsoft.com>, shemminger@linux-foundation.org
+Cc: virtualization@lists.linux-foundation.org, devel@driverdev.osuosl.org, Haiyang Zhang <haiyangz@microsoft.com>, Greg Kroah-Hartman <gregkh@suse.de>, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org, Sam Ramji <sramji@microsoft.com>, shemminger@linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Jul 20, 2009 at 07:38:23PM -0700, Greg KH wrote:
-> On Tue, Jul 21, 2009 at 02:00:16AM +0200, Arnd Bergmann wrote:
-> > On Friday 17 July 2009, Greg Kroah-Hartman wrote:
-> > > From: Greg Kroah-Hartman <gregkh@suse.de>
-> > > 
-> > > The ULONG and LONG typedefs are now removed from the Hyper-V driver
-> > > code
-> > > 
+On Tue, 2009-07-21 at 02:00 +0200, Arnd Bergmann wrote:
+> On Friday 17 July 2009, Greg Kroah-Hartman wrote:
+> > From: Greg Kroah-Hartman <gregkh@suse.de>
 > > 
-> > This conversion is not equivalent:
-> > 
-> > >  //
-> > > -// unsigned types
-> > > -//
-> > > -typedef unsigned int		ULONG;
-> > > -
-> > > -//
-> > > -// signed types
-> > > -//
-> > > -typedef int					LONG;
-> > 
-> > - // redefine the world, because we can
-> > - extern char *i;
-> > - void abs(unsigned u);
-> > - #define FALSE (2)
-> > 
-> > ;-)
-> > 
-> > > --- a/drivers/staging/hv/include/StorVscApi.h
-> > > +++ b/drivers/staging/hv/include/StorVscApi.h
-> > > @@ -117,7 +117,7 @@ typedef struct _STORVSC_DRIVER_OBJECT {
-> > >  } STORVSC_DRIVER_OBJECT;
-> > >  
-> > >  typedef struct _STORVSC_DEVICE_INFO {
-> > > -	ULONG	PortNumber;
-> > > +	unsigned long	PortNumber;
-> > >      unsigned char	PathId;
-> > >      unsigned char	TargetId;
-> > >  } STORVSC_DEVICE_INFO;
-> > 
-> > If this is an API (as the header file name suggests), you just changed it.
-> > Same for the other hunks in this patch.
+> > The ULONG and LONG typedefs are now removed from the Hyper-V driver
+> > code
 > 
-> Ah crap, you're right, that's all wrong, nice catch.
-> 
-> I'll go redo it to be "unsigned int", but for some reason, the code
-> still seems to work properly :)
+> This conversion is not equivalent:
+[...]
+> - // redefine the world, because we can
+[...]
+> - #define FALSE (2)
+That has been done already by the SNMP folks - see
+http://www.faqs.org/rfcs/rfc1903.html under "TruthValue".
+S,CNR and for off-topic ...
 
-Ok, here's the updated version.  Thanks for the review.
+> ;-)
+;-) either ....
 
-Hank, a lot of these should probably be converted to "real" kernel
-types, like u32, or u64 if it's really needed.  Especially if they are
-crossing the kernel/hypervisor boundry.
-
-thanks,
-
-greg k-h
-
--------------
-From: Greg Kroah-Hartman <gregkh@suse.de>
-Subject: Staging: hv: remove ULONG and LONG typedefs
-
-From: Greg Kroah-Hartman <gregkh@suse.de>
-
-The ULONG and LONG typedefs are now removed from the Hyper-V driver
-code.
-
-Cc: Hank Janssen <hjanssen@microsoft.com>
-Cc: Haiyang Zhang <haiyangz@microsoft.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
-
----
- drivers/staging/hv/StorVsc.c            |    2 +-
- drivers/staging/hv/include/StorVscApi.h |    2 +-
- drivers/staging/hv/include/osd.h        |   10 ----------
- drivers/staging/hv/include/vstorage.h   |   12 ++++++------
- 4 files changed, 8 insertions(+), 18 deletions(-)
-
---- a/drivers/staging/hv/StorVsc.c
-+++ b/drivers/staging/hv/StorVsc.c
-@@ -62,7 +62,7 @@ typedef struct _STORVSC_DEVICE{
- 
- 	//  Each unique Port/Path/Target represents 1 channel ie scsi controller. In reality, the pathid, targetid is always 0
- 	// and the port is set by us
--	ULONG						PortNumber;
-+	unsigned int						PortNumber;
-     unsigned char						PathId;
-     unsigned char						TargetId;
- 
---- a/drivers/staging/hv/include/StorVscApi.h
-+++ b/drivers/staging/hv/include/StorVscApi.h
-@@ -117,7 +117,7 @@ typedef struct _STORVSC_DRIVER_OBJECT {
- } STORVSC_DRIVER_OBJECT;
- 
- typedef struct _STORVSC_DEVICE_INFO {
--	ULONG	PortNumber;
-+	unsigned int	PortNumber;
-     unsigned char	PathId;
-     unsigned char	TargetId;
- } STORVSC_DEVICE_INFO;
---- a/drivers/staging/hv/include/osd.h
-+++ b/drivers/staging/hv/include/osd.h
-@@ -95,16 +95,6 @@ typedef struct _DLIST_ENTRY {
- } DLIST_ENTRY;
- 
- //
--// unsigned types
--//
--typedef unsigned int		ULONG;
--
--//
--// signed types
--//
--typedef int					LONG;
--
--//
- // Other types
- //
- typedef unsigned long		SIZE_T;
---- a/drivers/staging/hv/include/vstorage.h
-+++ b/drivers/staging/hv/include/vstorage.h
-@@ -155,7 +155,7 @@ typedef struct
-     unsigned char DataIn;
-     unsigned char Reserved;
- 
--    ULONG DataTransferLength;
-+    unsigned int DataTransferLength;
- 
-     union
-     {
-@@ -185,11 +185,11 @@ typedef struct
-     //
-     // Note: port number is only really known on the client side
-     //
--    ULONG  PortNumber;
-+    unsigned int  PortNumber;
- 
--    ULONG  Flags;
-+    unsigned int  Flags;
- 
--    ULONG  MaxTransferBytes;
-+    unsigned int  MaxTransferBytes;
- 
-     //
-     //  This id is unique for each channel and will correspond with
-@@ -249,13 +249,13 @@ typedef struct _VSTOR_PACKET
-     //  Flags - see below for values
-     //
- 
--    ULONG     Flags;
-+    unsigned int     Flags;
- 
-     //
-     // Status of the request returned from the server side.
-     //
- 
--    ULONG     Status;
-+    unsigned int     Status;
- 
-     //
-     // Data payload area
+	Bernd
+-- 
+Firmix Software GmbH                   http://www.firmix.at/
+mobil: +43 664 4416156                 fax: +43 1 7890849-55
+          Embedded Linux Development and Services
