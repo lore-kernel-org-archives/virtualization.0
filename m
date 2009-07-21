@@ -1,57 +1,39 @@
 From: Greg KH <greg@kroah.com>
 Subject: Re: [patch 00/54] [Announce] Microsoft Hyper-V drivers for Linux
-Date: Tue, 21 Jul 2009 09:51:53 -0700
-Message-ID: <20090721165153.GG14746@kroah.com>
+Date: Tue, 21 Jul 2009 09:51:07 -0700
+Message-ID: <20090721165107.GF14746@kroah.com>
 References: <20090720160025.GA20249@kroah.com>
- <20090721110607.GA25127@balbir.in.ibm.com>
+ <871vob4047.fsf@basil.nowhere.org>
+ <20090720195754.GB30483@suse.de>
+ <200907211407.40229.arnd@arndb.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1755484AbZGUQys@vger.kernel.org>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1755593AbZGUQyz@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20090721110607.GA25127@balbir.in.ibm.com>
+In-Reply-To: <200907211407.40229.arnd@arndb.de>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Balbir Singh <balbir@linux.vnet.ibm.com>
-Cc: Sam Ramji <sramji@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org, devel@linuxdriverproject.org, shemminger@linux-foundation.org
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: virtualization@lists.linux-foundation.org, devel@driverdev.osuosl.org, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org, Andi Kleen <andi@firstfloor.org>, Dave Jones <davej@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jul 21, 2009 at 04:36:07PM +0530, Balbir Singh wrote:
-> * Greg Kroah-Hartman <gregkh@suse.de> [2009-07-20 09:00:25]:
+On Tue, Jul 21, 2009 at 02:07:40PM +0200, Arnd Bergmann wrote:
+> On Monday 20 July 2009, Greg KH wrote:
+> > Anyway, I agree, for a "proper" review, I will show the final, cleaned
+> > up version, like normal.  But we aren't there just yet, that is why this
+> > code is going to live in the staging tree for a while.  Give us some
+> > time to get it fixed up.
 > 
-> > 
-> > Hi all,
-> > 
-> > I'm happy to announce, that after many months of discussions, Microsoft
-> > has released their Hyper-V Linux drivers under the GPLv2.  Following
-> > this message, will be the patches that add the drivers to the
-> > drivers/staging/ tree, and a whole bunch of cleanups.
-> > 
-> > It's taken a long road to get here, and I'd like to thank the following
-> > people who made this possible:
-> >   - Steve Hemminger for the initial prodding and extreme patience
-> >   - Hank Janssen for providing the code and working with me to get it
-> >     into a workable and semi-mergable state.  His involvement within
-> >     Microsoft was also invaluable.
-> >   - Sam Ramji for his push within Microsoft to make this happen in a
-> >     manner that works with the Linux community.
-> >   - Novell for sponsoring my work on the Linux Driver project, without
-> >     which, this would not have even been possible.
-> > And there are many others both within Novell and Microsoft, who I do not
-> > want to slight by not naming, but the list would be too long to go into.
-> > 
-> > These drivers are to enable Linux to work better when running as a guest
-> > on top of the Hyper-V system.  There is still a lot of work to do in
-> > getting this into "proper" mergable state, and moving it out of the
-> > staging directory, but Hank and I will be undertaking this task.  See
-> > the TODO file in the drivers/staging/hv/ directory if anyone wishes to
-> > help out with this task.
-> >
+> I would find it helpful to have them in a git tree (or a branch) that
+> I can pull, so I can look at both the original code and the cleaned up
+> state.
 > 
-> What is the long term strategy to keep the sources in sync? Is there
-> one? Do you expect to get updates for these sources? 
+> Any reason why the patches are not yet in your staging.git?
 
-The in-kernel version will be the only source for the drivers in the
-long run.  Eventually they will take the drivers off their web site when
-the distros pick them up in their new releases.
+staging.git is for sending patches to Linus only.  Look in the
+MAINTAINERS file for a location of my tree of patches for staging.
+
+If you like git, I'd recommend just using the linux-next tree, as that
+always has the latest staging patches in it.
 
 thanks,
 
