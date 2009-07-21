@@ -1,14 +1,15 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH 1/2] virtio: fix memory leak on device removal
-Date: Tue, 21 Jul 2009 18:59:09 +0300
-Message-ID: <20090721155909.GB3306__38015.7800428153$1248192319$gmane$org@redhat.com>
+Subject: Re: [PATCH 1/2] virtio: fix memory leak on device removal
+Date: Tue, 21 Jul 2009 19:03:15 +0300
+Message-ID: <20090721160315.GA3341__11751.0653603405$1248192661$gmane$org@redhat.com>
 References: <cover.1248181714.git.mst@redhat.com>
+	<20090721155909.GB3306@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <cover.1248181714.git.mst@redhat.com>
+In-Reply-To: <20090721155909.GB3306@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -25,6 +26,9 @@ Free up msi vector tables.
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
+
+Resending with corrected To list. Sorry about the churn.
+
  drivers/virtio/virtio_pci.c |    3 +++
  1 files changed, 3 insertions(+), 0 deletions(-)
 
