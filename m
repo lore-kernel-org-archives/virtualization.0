@@ -1,45 +1,70 @@
-From: Belisko Marek <marek.belisko@gmail.com>
-Subject: Re: [patch 00/54] [Announce] Microsoft Hyper-V drivers for Linux
-Date: Tue, 21 Jul 2009 15:38:43 +0200
-Message-ID: <e7c6a05e0907210638g188c9eabie656d5c3fb1365b9@mail.gmail.com>
-References: <20090720160025.GA20249@kroah.com>
-	 <871vob4047.fsf@basil.nowhere.org> <20090720195754.GB30483@suse.de>
-	 <200907211407.40229.arnd@arndb.de>
+From: Ryo Tsuruta <ryov@valinux.co.jp>
+Subject: [PATCH 1/9] I/O bandwidth controller and BIO tracking
+Date: Tue, 21 Jul 2009 23:09:11 +0900 (JST)
+Message-ID: <20090721.230911.193692312.ryov__18301.5492548749$1248185461$gmane$org@valinux.co.jp>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1753068AbZGUNis@vger.kernel.org>
-In-Reply-To: <200907211407.40229.arnd@arndb.de>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: virtualization@lists.linux-foundation.org, devel@driverdev.osuosl.org, Greg KH <gregkh@suse.de>, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org, Andi Kleen <andi@firstfloor.org>, Dave Jones <davej@redhat.com>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: linux-kernel@vger.kernel.org, dm-devel@redhat.com, containers@lists.linux-foundation.org, virtualization@lists.linux-foundation.org, xen-devel@lists.xensource.com
+Cc: agk@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jul 21, 2009 at 2:07 PM, Arnd Bergmann<arnd@arndb.de> wrote:
-> On Monday 20 July 2009, Greg KH wrote:
->> Anyway, I agree, for a "proper" review, I will show the final, clean=
-ed
->> up version, like normal. =C2=A0But we aren't there just yet, that is=
- why this
->> code is going to live in the staging tree for a while. =C2=A0Give us=
- some
->> time to get it fixed up.
->
-> I would find it helpful to have them in a git tree (or a branch) that
-> I can pull, so I can look at both the original code and the cleaned u=
-p
-> state.
-You can find sources in linux-next tree in /drivers/staging/hv director=
-y.
-(git://git.kernel.org/pub/scm/linux/kernel/git/sfr/linux-next.git)
->
-> Any reason why the patches are not yet in your staging.git?
->
-> =C2=A0 =C2=A0 =C2=A0 =C2=A0Arnd <><
-> _______________________________________________
-> devel mailing list
-> devel@linuxdriverproject.org
-> http://driverdev.linuxdriverproject.org/mailman/listinfo/devel
->
+Hi all,
 
-Marek
+These are new releases of dm-ioband and blkio-cgroup. The major
+changes of these releases are:
+  - dm-ioband can be configured through the cgroup interface. The
+    bandwidth can be assigned on a per cgroup per block device basis.
+  - The event tracing is supported that helps in debugging and
+    monitoring dm-ioband.
+  - A document for blkio-cgroup is available at
+    Documentation/cgroup/blkio.txt.
+
+This series of patches consists of two parts:
+dm-ioband v1.12.1
+  dm-ioband is an I/O bandwidth controller implemented as a
+  device-mapper driver and can control bandwidth on per partition, per
+  user, per process, per virtual machine (such as KVM or Xen) basis.
+
+blkio-cgruop v9 
+  blkio-cgroup is a block I/O tracking mechanism implemented on the
+  cgroup memory subsystem. Using this feature the owners of any type
+  of I/O can be determined. This allows dm-ioband to control block I/O
+  bandwidth even when it is accepting delayed write requests.
+  dm-ioband can find the cgroup of each request. It is also for
+  possible that others working on I/O bandwidth throttling to use this
+  functionality to control asynchronous I/O with a little enhancement.
+
+The patches can be applied to both the current device-mapper development
+tree and 2.6.31-rc3.
+
+The list of the patches:
+  [PATCH 1/9] I/O bandwidth controller and BIO tracking
+  [PATCH 2/9] dm-ioband-1.12.1: All-in-one patch
+  [PATCH 3/9] blkio-cgroup-v9: The new page_cgroup framework
+  [PATCH 4/9] blkio-cgroup-v9: Refactoring io-context initialization
+  [PATCH 5/9] blkio-cgroup-v9: The body of blkio-cgroup
+  [PATCH 6/9] blkio-cgroup-v9: The document of blkio-cgroup
+  [PATCH 7/9] blkio-cgroup-v9: Page tracking hooks
+  [PATCH 8/9] blkio-cgroup-v9: Fast page tracking
+  [PATCH 9/9] blkio-cgroup-v9: Add a cgroup support to dm-ioband
+
+Please visit our website, the patches and more information are available.
+  Linux Block I/O Bandwidth Control Project
+  http://sourceforge.net/apps/trac/ioband/
+
+I'd like to get some feedbacks from the list. Any comments are
+appreciated.
+
+Thanks,
+Ryo Tsuruta
