@@ -1,42 +1,52 @@
-From: Bernd Petrovitsch <bernd@firmix.at>
-Subject: Re: [patch 27/54] Staging: hv: remove ULONG and LONG typedefs
-Date: Tue, 21 Jul 2009 10:26:11 +0200
-Message-ID: <1248164771.16364.7.camel@spike.firmix.at>
-References: <20090717180850.873962925@mini.kroah.org>
-	 <20090717180920.285605541@mini.kroah.org>
-	 <200907210200.16295.arnd@arndb.de>
+From: Balbir Singh <balbir@linux.vnet.ibm.com>
+Subject: Re: [patch 00/54] [Announce] Microsoft Hyper-V drivers for Linux
+Date: Tue, 21 Jul 2009 16:36:07 +0530
+Message-ID: <20090721110607.GA25127@balbir.in.ibm.com>
+References: <20090720160025.GA20249@kroah.com>
+Reply-To: balbir@linux.vnet.ibm.com
 Mime-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1753700AbZGUIcO@vger.kernel.org>
-In-Reply-To: <200907210200.16295.arnd@arndb.de>
+Content-Type: text/plain; charset=iso-8859-1
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1755242AbZGULGR@vger.kernel.org>
 Content-Disposition: inline
+In-Reply-To: <20090720160025.GA20249@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: virtualization@lists.linux-foundation.org, devel@driverdev.osuosl.org, Haiyang Zhang <haiyangz@microsoft.com>, Greg Kroah-Hartman <gregkh@suse.de>, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org, Sam Ramji <sramji@microsoft.com>, shemminger@linux-foundation.org
+To: Greg Kroah-Hartman <gregkh@suse.de>
+Cc: linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org, Hank Janssen <hjanssen@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Sam Ramji <sramji@microsoft.com>, shemminger@linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 2009-07-21 at 02:00 +0200, Arnd Bergmann wrote:
-> On Friday 17 July 2009, Greg Kroah-Hartman wrote:
-> > From: Greg Kroah-Hartman <gregkh@suse.de>
-> > 
-> > The ULONG and LONG typedefs are now removed from the Hyper-V driver
-> > code
+* Greg Kroah-Hartman <gregkh@suse.de> [2009-07-20 09:00:25]:
+
 > 
-> This conversion is not equivalent:
-[...]
-> - // redefine the world, because we can
-[...]
-> - #define FALSE (2)
-That has been done already by the SNMP folks - see
-http://www.faqs.org/rfcs/rfc1903.html under "TruthValue".
-S,CNR and for off-topic ...
+> Hi all,
+> 
+> I'm happy to announce, that after many months of discussions, Microsoft
+> has released their Hyper-V Linux drivers under the GPLv2.  Following
+> this message, will be the patches that add the drivers to the
+> drivers/staging/ tree, and a whole bunch of cleanups.
+> 
+> It's taken a long road to get here, and I'd like to thank the following
+> people who made this possible:
+>   - Steve Hemminger for the initial prodding and extreme patience
+>   - Hank Janssen for providing the code and working with me to get it
+>     into a workable and semi-mergable state.  His involvement within
+>     Microsoft was also invaluable.
+>   - Sam Ramji for his push within Microsoft to make this happen in a
+>     manner that works with the Linux community.
+>   - Novell for sponsoring my work on the Linux Driver project, without
+>     which, this would not have even been possible.
+> And there are many others both within Novell and Microsoft, who I do not
+> want to slight by not naming, but the list would be too long to go into.
+> 
+> These drivers are to enable Linux to work better when running as a guest
+> on top of the Hyper-V system.  There is still a lot of work to do in
+> getting this into "proper" mergable state, and moving it out of the
+> staging directory, but Hank and I will be undertaking this task.  See
+> the TODO file in the drivers/staging/hv/ directory if anyone wishes to
+> help out with this task.
+>
 
-> ;-)
-;-) either ....
+What is the long term strategy to keep the sources in sync? Is there
+one? Do you expect to get updates for these sources? 
 
-	Bernd
 -- 
-Firmix Software GmbH                   http://www.firmix.at/
-mobil: +43 664 4416156                 fax: +43 1 7890849-55
-          Embedded Linux Development and Services
+	Balbir
