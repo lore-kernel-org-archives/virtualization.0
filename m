@@ -1,40 +1,38 @@
-From: Greg KH <greg@kroah.com>
-Subject: Re: [patch 00/54] [Announce] Microsoft Hyper-V drivers for Linux
-Date: Tue, 21 Jul 2009 09:51:07 -0700
-Message-ID: <20090721165107.GF14746@kroah.com>
+From: Hank Janssen <hjanssen@microsoft.com>
+Subject: RE: [patch 00/54] [Announce] Microsoft Hyper-V drivers for Linux
+Date: Tue, 21 Jul 2009 18:00:10 +0000
+Message-ID: <8AFC7968D54FB448A30D8F38F259C56209A3B032@TK5EX14MBXC114.redmond.corp.microsoft.com>
 References: <20090720160025.GA20249@kroah.com>
- <871vob4047.fsf@basil.nowhere.org>
- <20090720195754.GB30483@suse.de>
- <200907211407.40229.arnd@arndb.de>
+ <20090721110607.GA25127@balbir.in.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1755593AbZGUQyz@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <200907211407.40229.arnd@arndb.de>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1755448AbZGUSAU@vger.kernel.org>
+In-Reply-To: <20090721110607.GA25127@balbir.in.ibm.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: virtualization@lists.linux-foundation.org, devel@driverdev.osuosl.org, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org, Andi Kleen <andi@firstfloor.org>, Dave Jones <davej@redhat.com>
+To: "balbir@linux.vnet.ibm.com" <balbir@linux.vnet.ibm.com>, Greg Kroah-Hartman <gregkh@suse.de>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, Haiyang Zhang <haiyangz@microsoft.com>, "shemminger@linux-foundation.org" <shemminger@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jul 21, 2009 at 02:07:40PM +0200, Arnd Bergmann wrote:
-> On Monday 20 July 2009, Greg KH wrote:
-> > Anyway, I agree, for a "proper" review, I will show the final, cleaned
-> > up version, like normal.  But we aren't there just yet, that is why this
-> > code is going to live in the staging tree for a while.  Give us some
-> > time to get it fixed up.
-> 
-> I would find it helpful to have them in a git tree (or a branch) that
-> I can pull, so I can look at both the original code and the cleaned up
-> state.
-> 
-> Any reason why the patches are not yet in your staging.git?
 
-staging.git is for sending patches to Linus only.  Look in the
-MAINTAINERS file for a location of my tree of patches for staging.
 
-If you like git, I'd recommend just using the linux-next tree, as that
-always has the latest staging patches in it.
+>What is the long term strategy to keep the sources in sync? Is there
+>one? Do you expect to get updates for these sources?
+>
+>        Balbir
 
-thanks,
 
-greg k-h
+Balbir,
+
+I think you are asking me if we plan to continue contributing?
+
+It is my plan to use the kernel as my primary development area, and I will
+Continue to provide Greg with updates. First step is to clean up the code
+To make sure if fulfills all Kernel coding standards and requirements.
+
+Then I will start contributing new functionality.
+
+Thanks,
+
+Hank.
