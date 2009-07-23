@@ -1,15 +1,15 @@
-From: Amit Shah <amit.shah@redhat.com>
-Subject: Re: qemu-kvm missing some msix capability check
-Date: Thu, 23 Jul 2009 19:55:50 +0530
-Message-ID: <20090723142550.GA4470__12478.3805608333$1248359331$gmane$org@amit-x200.redhat.com>
-References: <20090717130439.GA10081@amit-x200.redhat.com>
-	<20090721165400.GB4826@redhat.com>
+From: Gleb Natapov <gleb@redhat.com>
+Subject: Re: KVM-88 Crash with Linux-2.6.25 kernel
+Date: Thu, 23 Jul 2009 18:32:32 +0300
+Message-ID: <20090723153232.GH1424__34955.6702109568$1248363582$gmane$org@redhat.com>
+References: <20090723105047.GE7928@redhat.com>
+	<OF6031F6B2.7DD24E9E-ON652575FC.004B70CD-652575FC.004BCB3D@lntinfotech.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20090721165400.GB4826@redhat.com>
+In-Reply-To: <OF6031F6B2.7DD24E9E-ON652575FC.004B70CD-652575FC.004BCB3D@lntinfotech.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,254 +19,176 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Haneef Syed <Haneef.Syed@lntinfotech.com>
+Cc: avi@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On (Tue) Jul 21 2009 [19:54:00], Michael S. Tsirkin wrote:
-> On Fri, Jul 17, 2009 at 06:34:40PM +0530, Amit Shah wrote:
-> > Hello,
+On Thu, Jul 23, 2009 at 07:17:51PM +0530, Haneef Syed wrote:
+> Hi Gleb,
+> 
+> After installing kvm-88 kernel package and issuing modprobe kvm-intel and 
+> in dmesg it displays as follows
+> 
+> "loaded kvm module (kvm-kmod-devel-86)" 
+> 
+> it confirms that kvm-88 kernel modules are installed properly but still i 
+> m unable to fix installation bug..?
+> 
+What is the bug? Host kernel oops like below?
+
+> 
+> 
+> 
+> 
+> Gleb Natapov <gleb@redhat.com> 
+> 07/23/2009 04:20 PM
+> 
+> To
+> Haneef Syed <Haneef.Syed@lntinfotech.com>
+> cc
+> avi@redhat.com, kvm@vger.kernel.org, 
+> virtualization@lists.linux-foundation.org
+> Subject
+> Re: KVM-88 Crash with Linux-2.6.25 kernel
+> 
+> 
+> 
+> 
+> 
+> 
+> On Thu, Jul 23, 2009 at 03:13:25PM +0530, Haneef Syed wrote:
+> > If i use kvm-88 kernel package then system does not crash
 > > 
-> > Using recent qemu-kvm userspace with a slightly older kernel module I
-> > get this when using the virtio-net device:
-
-I was getting this with a very recent kernel in the guest with an older
-host kernel.
-
-2.6.31-rc3 in the guest and 2.6.29 (F11) kernel in the host.
-
-> > kvm_msix_add: kvm_get_irq_route_gsi failed: No space left on device
+> > but it uses qemu emulation but not kvm. I want kvm emulation so
 > > 
-> > ... and the guest doesn't use the net device.
+> If it uses qemu emulation then you haven't installed kvm-88 kernel modules
+> properly.
+> 
+> > can u tell me how to achieve that.
 > > 
-> > This goes away when using a newer kvm module.
 > > 
-> > 		Amit
+> > 
+> > 
+> > Gleb Natapov <gleb@redhat.com> 
+> > 07/23/2009 03:09 PM
+> > 
+> > To
+> > Haneef Syed <Haneef.Syed@lntinfotech.com>
+> > cc
+> > kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, 
+> > avi@redhat.com
+> > Subject
+> > Re: KVM-88 Crash with Linux-2.6.25 kernel
+> > 
+> > 
+> > 
+> > 
+> > 
+> > 
+> > On Thu, Jul 23, 2009 at 03:06:07PM +0530, Haneef Syed wrote:
+> > > Hi All,
+> > > 
+> > > I am using kvm-88 user space package with linux-2.6.25 kernel. I f i 
+> run 
+> > 
+> > > following command system gets hang.
+> > > 
+> > Please use kvm-88 kernel package.
+> > 
+> > > ./qemu-system-x86_64 -hda new.qcow2 -cdrom 
+> rhel-server-5.3-i386-dvd.iso 
+> > > -boot d -m 512
+> > > 
+> > > When i print dmesg it displays as follows:
+> > > 
+> > > 
+> > > BUG: unable to handle kernel NULL pointer dereference at virtual 
+> address 
+> > 
+> > > 00000024
+> > >  printing eip:
+> > > c0425fb0
+> > > *pde = 3963c067
+> > > Oops: 0000 [#1]
+> > > SMP
+> > > Modules linked in: ipt_MASQUERADE iptable_nat nf_nat nf_conntrack_ipv4 
 > 
-> Could you verify if the following helps please?
-
-This worked for me with your other patches:
-
-guest kernel (on top of Avi's kvm/master):
-1. [PATCH 1/2] virtio: Fix memory leak on device removal
-2. [PATCH 2/2] virtio: fix double free_irq]
-
-qemu-kvm (on top of Avi's qemu-kvm/master):
-1. [PATCHv2] qemu-kvm: routing table update thinko fix
-2. [PATCH 2/2] qemu-kvm: broken MSI routing work-around
-3. [PATCH] qemu-kvm: fix error handling in msix vector add
-
-Tested-by: Amit Shah <amit.shah@redhat.com>
-
-> ---
+> > > xt_state nf_conntrack nfnetlink ipt_REJECT xt_tcpudp iptable_filter 
+> > > ip_tables x_tables bridge rfcomm l2cap bluetooth autofs4 sunrpc 
+> ib_iser 
+> > > rdma_cm ib_cm iw_cm ib_sa ib_mad ib_core ib_addr iscsi_tcp libiscsi 
+> > > scsi_transport_iscsi cpufreq_ondemand acpi_cpufreq loop dm_multipath 
+> > ipv6 
+> > > kvm_intel kvm snd_hda_intel snd_hda_codec snd_seq_dummy snd_seq_oss 
+> > > snd_seq_midi_event snd_seq snd_seq_device snd_pcm_oss snd_mixer_oss 
+> > > snd_pcm snd_timer snd soundcore via_rhine i2c_i801 parport_pc 
+> > > snd_page_alloc mii parport i2c_core serio_raw pcspkr sg ata_generic 
+> > > dm_snapshot dm_zero dm_mirror dm_mod ahci libata sd_mod scsi_mod ext3 
+> > jbd 
+> > > mbcache uhci_hcd ohci_hcd ehci_hcd
+> > > CPU:    0
+> > > EIP:    0060:[<c0425fb0>]    Not tainted VLI
+> > > EFLAGS: 00010246   (2.6.21.kvm-25-21 #14)
+> > > EIP is at do_exit+0x2ca/0x3c8
+> > > eax: 00000000   ebx: f7c51dc0   ecx: 00000001   edx: f7bc80f0
+> > > esi: f7bc80f0   edi: 00000000   ebp: 00000100   esp: f5372f84
+> > > ds: 007b   es: 007b   fs: 00d8  gs: 0000  ss: 0068
+> > > Process qemu-system-x86 (pid: 3668[#0], ti=f5372000 task=f7bc80f0 
+> > > task.ti=f5372000)
+> > > Stack: f7bc80f0 00000100 f5372000 c042cdf8 f7bb1580 f7a15ac0 00000100 
+> > > f5372000
+> > >        c0426144 00000001 00d55274 00d55274 c0404db0 00000001 b77956d0 
+> > > 00000000
+> > >        00d55274 00d55274 b7795738 000000fc ffff007b c040007b c0600000 
+> > > 000000fc
+> > > Call Trace:
+> > >  [<c042cdf8>] signal_wake_up+0x1e/0x2c
+> > >  [<c0426144>] sys_exit_group+0x0/0xd
+> > >  [<c0404db0>] syscall_call+0x7/0xb
+> > >  [<c0600000>] packet_setsockopt+0x13f/0x170
+> > >  =======================
+> > > Code: ab 04 00 e8 f7 d4 fd ff 85 ff 74 19 8b 86 6c 04 00 00 83 b8 b0 
+> 00 
+> > 00 
+> > > 00 00 74 0a b8 01 00 00 00 e8 7e 64 10 00 8b 46 04 8b 40 04 <8b> 40 24 
 > 
-> virtio: retry on vector assignment failure
+> > e8 
+> > > 94 0d 02 00 8b 86 a4 00 00 00 85 c0 74 08 8b 40 04
+> > > EIP: [<c0425fb0>] do_exit+0x2ca/0x3c8 SS:ESP 0068:f5372f84
+> > > Fixing recursive fault but reboot is needed!
+> > > 
+> > > Please suggest me how to fix this bug..
+> > > 
+> > > Thanks in advance :-))
+> > > 
+> > > 
+> > > ______________________________________________________________________
+> > > --
+> > > To unsubscribe from this list: send the line "unsubscribe kvm" in
+> > > the body of a message to majordomo@vger.kernel.org
+> > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > 
+> > --
+> >                                                  Gleb.
+> > 
+> > ______________________________________________________________________
+> > 
+> > 
+> > 
+> > ______________________________________________________________________
 > 
-> virtio currently fails to find any vqs if the device supports msi-x but
-> fails to assign it to a queue.  Turns out, this actually happens for old
-> host kernels which can't allocate a gsi for the vector. As a result
-> guest does not use virtio net.  Fix this by disabling msi on
-> such failures and falling back on regular interrupts.
+> --
+>                                                  Gleb.
 > 
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> ______________________________________________________________________
 > 
-> diff --git a/drivers/virtio/virtio_pci.c b/drivers/virtio/virtio_pci.c
-> index 9dcc368..567c972 100644
-> --- a/drivers/virtio/virtio_pci.c
-> +++ b/drivers/virtio/virtio_pci.c
-> @@ -273,26 +273,35 @@ static void vp_free_vectors(struct virtio_device *vdev)
->  }
->  
->  static int vp_enable_msix(struct pci_dev *dev, struct msix_entry *entries,
-> -			  int *options, int noptions)
-> +			  int nvectors)
->  {
-> -	int i;
-> -	for (i = 0; i < noptions; ++i)
-> -		if (!pci_enable_msix(dev, entries, options[i]))
-> -			return options[i];
-> -	return -EBUSY;
-> +	int err = pci_enable_msix(dev, entries, nvectors);
-> +	if (err > 0)
-> +		err = -ENOSPC;
-> +	return err;
->  }
->  
-> -static int vp_request_vectors(struct virtio_device *vdev, unsigned max_vqs)
-> +static int vp_request_irq(struct virtio_device *vdev)
-> +{
-> +	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
-> +	int err;
-> +	/* Can't allocate enough MSI-X vectors, use regular interrupt */
-> +	vp_dev->msix_vectors = 0;
-> +	err = request_irq(vp_dev->pci_dev->irq, vp_interrupt,
-> +			  IRQF_SHARED, dev_name(&vp_dev->vdev.dev), vp_dev);
-> +	if (err)
-> +		return err;
-> +	vp_dev->intx_enabled = 1;
-> +	return 0;
-> +}
-> +
-> +static int vp_request_vectors(struct virtio_device *vdev, unsigned max_vqs,
-> +			      int nvectors)
->  {
->  	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
->  	const char *name = dev_name(&vp_dev->vdev.dev);
->  	unsigned i, v;
->  	int err = -ENOMEM;
-> -	/* We want at most one vector per queue and one for config changes.
-> -	 * Fallback to separate vectors for config and a shared for queues.
-> -	 * Finally fall back to regular interrupts. */
-> -	int options[] = { max_vqs + 1, 2 };
-> -	int nvectors = max(options[0], options[1]);
->  
->  	vp_dev->msix_entries = kmalloc(nvectors * sizeof *vp_dev->msix_entries,
->  				       GFP_KERNEL);
-> @@ -307,37 +316,29 @@ static int vp_request_vectors(struct virtio_device *vdev, unsigned max_vqs)
->  		vp_dev->msix_entries[i].entry = i;
->  
->  	err = vp_enable_msix(vp_dev->pci_dev, vp_dev->msix_entries,
-> -			     options, ARRAY_SIZE(options));
-> -	if (err < 0) {
-> -		/* Can't allocate enough MSI-X vectors, use regular interrupt */
-> -		vp_dev->msix_vectors = 0;
-> -		err = request_irq(vp_dev->pci_dev->irq, vp_interrupt,
-> -				  IRQF_SHARED, name, vp_dev);
-> -		if (err)
-> -			goto error_irq;
-> -		vp_dev->intx_enabled = 1;
-> -	} else {
-> -		vp_dev->msix_vectors = err;
-> -		vp_dev->msix_enabled = 1;
-> -
-> -		/* Set the vector used for configuration */
-> -		v = vp_dev->msix_used_vectors;
-> -		snprintf(vp_dev->msix_names[v], sizeof *vp_dev->msix_names,
-> -			 "%s-config", name);
-> -		err = request_irq(vp_dev->msix_entries[v].vector,
-> -				  vp_config_changed, 0, vp_dev->msix_names[v],
-> -				  vp_dev);
-> -		if (err)
-> -			goto error_irq;
-> -		++vp_dev->msix_used_vectors;
-> -
-> -		iowrite16(v, vp_dev->ioaddr + VIRTIO_MSI_CONFIG_VECTOR);
-> -		/* Verify we had enough resources to assign the vector */
-> -		v = ioread16(vp_dev->ioaddr + VIRTIO_MSI_CONFIG_VECTOR);
-> -		if (v == VIRTIO_MSI_NO_VECTOR) {
-> -			err = -EBUSY;
-> -			goto error_irq;
-> -		}
-> +			     nvectors);
-> +	if (err)
-> +		goto error_enable;
-> +	vp_dev->msix_vectors = nvectors;
-> +	vp_dev->msix_enabled = 1;
-> +
-> +	/* Set the vector used for configuration */
-> +	v = vp_dev->msix_used_vectors;
-> +	snprintf(vp_dev->msix_names[v], sizeof *vp_dev->msix_names,
-> +		 "%s-config", name);
-> +	err = request_irq(vp_dev->msix_entries[v].vector,
-> +			  vp_config_changed, 0, vp_dev->msix_names[v],
-> +			  vp_dev);
-> +	if (err)
-> +		goto error_irq;
-> +	++vp_dev->msix_used_vectors;
-> +
-> +	iowrite16(v, vp_dev->ioaddr + VIRTIO_MSI_CONFIG_VECTOR);
-> +	/* Verify we had enough resources to assign the vector */
-> +	v = ioread16(vp_dev->ioaddr + VIRTIO_MSI_CONFIG_VECTOR);
-> +	if (v == VIRTIO_MSI_NO_VECTOR) {
-> +		err = -EBUSY;
-> +		goto error_irq;
->  	}
->  
->  	if (vp_dev->msix_vectors && vp_dev->msix_vectors != max_vqs + 1) {
-> @@ -355,9 +356,12 @@ static int vp_request_vectors(struct virtio_device *vdev, unsigned max_vqs)
->  	return 0;
->  error_irq:
->  	vp_free_vectors(vdev);
-> +error_enable:
->  	kfree(vp_dev->msix_names);
-> +	vp_dev->msix_names = NULL;
->  error_names:
->  	kfree(vp_dev->msix_entries);
-> +	vp_dev->msix_entries = NULL;
->  error_entries:
->  	return err;
->  }
-> @@ -499,24 +503,24 @@ static void vp_del_vqs(struct virtio_device *vdev)
->  
->  	vp_free_vectors(vdev);
->  	kfree(vp_dev->msix_names);
-> +	vp_dev->msix_names = NULL;
->  	kfree(vp_dev->msix_entries);
-> +	vp_dev->msix_entries = NULL;
->  }
->  
-> -/* the config->find_vqs() implementation */
-> -static int vp_find_vqs(struct virtio_device *vdev, unsigned nvqs,
-> -		       struct virtqueue *vqs[],
-> -		       vq_callback_t *callbacks[],
-> -		       const char *names[])
-> +static int vp_try_to_find_vqs(struct virtio_device *vdev, unsigned nvqs,
-> +			      struct virtqueue *vqs[],
-> +			      vq_callback_t *callbacks[],
-> +			      const char *names[],
-> +			      int max_vectors,
-> +			      int nvectors)
->  {
-> -	int vectors = 0;
->  	int i, err;
->  
-> -	/* How many vectors would we like? */
-> -	for (i = 0; i < nvqs; ++i)
-> -		if (callbacks[i])
-> -			++vectors;
-> -
-> -	err = vp_request_vectors(vdev, vectors);
-> +	if (nvectors)
-> +		err = vp_request_vectors(vdev, max_vectors, nvectors);
-> +	else
-> +		err = vp_request_irq(vdev);
->  	if (err)
->  		goto error_request;
->  
-> @@ -534,6 +538,34 @@ error_request:
->  	return PTR_ERR(vqs[i]);
->  }
->  
-> +/* the config->find_vqs() implementation */
-> +static int vp_find_vqs(struct virtio_device *vdev, unsigned nvqs,
-> +		       struct virtqueue *vqs[],
-> +		       vq_callback_t *callbacks[],
-> +		       const char *names[])
-> +{
-> +	/* We want at most one vector per queue and one for config changes.
-> +	 * Fallback to separate vectors for config and a shared for queues.
-> +	 * Finally fall back to regular interrupts. */
-> +	int options[] = { 1, 2, 0 };
-> +	int vectors = 0;
-> +	int i, uninitialized_var(err);
-> +
-> +	/* How many vectors would we like? */
-> +	for (i = 0; i < nvqs; ++i)
-> +		if (callbacks[i])
-> +			++vectors;
-> +	options[0] = vectors + 1;
-> +
-> +	for (i = 0; i < ARRAY_SIZE(options); ++i) {
-> +		err = vp_try_to_find_vqs(vdev, nvqs, vqs, callbacks, names,
-> +					 vectors, options[i]);
-> +		if (!err)
-> +			break;
-> +	}
-> +	return err;
-> +}
-> +
->  static struct virtio_config_ops virtio_pci_config_ops = {
->  	.get		= vp_get,
->  	.set		= vp_set,
+> 
+> 
+> ______________________________________________________________________
+> --
+> To unsubscribe from this list: send the line "unsubscribe kvm" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
-		Amit
+--
+			Gleb.
