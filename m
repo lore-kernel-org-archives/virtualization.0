@@ -1,14 +1,15 @@
-From: Gleb Natapov <gleb@redhat.com>
-Subject: Re: KVM-88 Crash with Linux-2.6.25 kernel
-Date: Thu, 23 Jul 2009 12:39:33 +0300
-Message-ID: <20090723093933.GD7928__8567.12500467456$1248342060$gmane$org@redhat.com>
-References: <OF27CE2627.C83EFC21-ON652575FC.0033EEF2-652575FC.0034BF39@lntinfotech.com>
+From: Ryo Tsuruta <ryov@valinux.co.jp>
+Subject: Re: [Xen-devel] Re: [PATCH 7/9] blkio-cgroup-v9: Page tracking hooks
+Date: Thu, 23 Jul 2009 19:02:53 +0900 (JST)
+Message-ID: <20090723.190253.226783703.ryov__40568.995793774$1248343457$gmane$org@valinux.co.jp>
+References: <20090723091841.81ff2432.kamezawa.hiroyu@jp.fujitsu.com>
+	<20090723.153843.193704010.ryov@valinux.co.jp>
+	<20090723164935.e97a3ccf.kamezawa.hiroyu@jp.fujitsu.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <OF27CE2627.C83EFC21-ON652575FC.0033EEF2-652575FC.0034BF39@lntinfotech.com>
+In-Reply-To: <20090723164935.e97a3ccf.kamezawa.hiroyu@jp.fujitsu.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,79 +19,113 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Haneef Syed <Haneef.Syed@lntinfotech.com>
-Cc: avi@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: kamezawa.hiroyu@jp.fujitsu.com
+Cc: xen-devel@lists.xensource.com, containers@lists.linux-foundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, dm-devel@redhat.com, agk@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Jul 23, 2009 at 03:06:07PM +0530, Haneef Syed wrote:
-> Hi All,
+KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com> wrote:
+> On Thu, 23 Jul 2009 15:38:43 +0900 (JST)
+> Ryo Tsuruta <ryov@valinux.co.jp> wrote:
 > 
-> I am using kvm-88 user space package with linux-2.6.25 kernel. I f i run 
-> following command system gets hang.
+> > KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com> wrote:
+> > > On Wed, 22 Jul 2009 18:40:55 +0900 (JST)
+> > > Ryo Tsuruta <ryov@valinux.co.jp> wrote:
+> > > 
+> > > > KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com> wrote:
+> > > > > On Tue, 21 Jul 2009 23:23:16 +0900 (JST)
+> > > > > Ryo Tsuruta <ryov@valinux.co.jp> wrote:
+> > > > > 
+> > > > > > This patch contains several hooks that let the blkio-cgroup framework to know
+> > > > > > which blkio-cgroup is the owner of a page before starting I/O against the page.
+> > > > > 
+> > > > > > @@ -464,6 +465,7 @@ int add_to_page_cache_locked(struct page
+> > > > > >  					gfp_mask & GFP_RECLAIM_MASK);
+> > > > > >  	if (error)
+> > > > > >  		goto out;
+> > > > > > +	blkio_cgroup_set_owner(page, current->mm);
+> > > > > >  
+> > > > > 
+> > > > > This part is doubtful...Is this necessary ? 
+> > > > > I recommend you that the caller should attach owner by itself.
+> > > > 
+> > > > I think that it is reasonable to add the hook right here rather than
+> > > > to add many hooks to a variety of places.
+> > > > 
+> > > Why ? at writing, it's will be overwriten soon, IIUC. Then, this information
+> > > is misleading. plz add a hook like this when it means something. In this case,
+> > > read/write callers.
+> > > IMO, you just increase patch's readbility but decrease easiness of maintaince.
+> > 
+> > Even though the owner is overwritten soon at writing, I'm not sure why
+> > inserting the hook here causes the misleading. I think that it is easy
+> > to understand when and where the owner is set by blkio-cgroup, and it
+> > does not decrease maintainability, rather than put many hooks to each
+> > caller.
+> >  
+> Are there _many_ callers ? I don't think so. 
+> But okay, I don't say strong objections more if other ones say ok.
 > 
-Please use kvm-88 kernel package.
+> BTW, a sad information for you.
+> you can't call lock_page_cgroup() under radix_tree->lock.
+> 
+> http://git.kernel.org/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=e767e0561d7fd2333df1921f1ab4176211f9036b
+> 
+> plz update.
 
-> ./qemu-system-x86_64 -hda new.qcow2 -cdrom rhel-server-5.3-i386-dvd.iso 
-> -boot d -m 512
-> 
-> When i print dmesg it displays as follows:
-> 
-> 
-> BUG: unable to handle kernel NULL pointer dereference at virtual address 
-> 00000024
->  printing eip:
-> c0425fb0
-> *pde = 3963c067
-> Oops: 0000 [#1]
-> SMP
-> Modules linked in: ipt_MASQUERADE iptable_nat nf_nat nf_conntrack_ipv4 
-> xt_state nf_conntrack nfnetlink ipt_REJECT xt_tcpudp iptable_filter 
-> ip_tables x_tables bridge rfcomm l2cap bluetooth autofs4 sunrpc ib_iser 
-> rdma_cm ib_cm iw_cm ib_sa ib_mad ib_core ib_addr iscsi_tcp libiscsi 
-> scsi_transport_iscsi cpufreq_ondemand acpi_cpufreq loop dm_multipath ipv6 
-> kvm_intel kvm snd_hda_intel snd_hda_codec snd_seq_dummy snd_seq_oss 
-> snd_seq_midi_event snd_seq snd_seq_device snd_pcm_oss snd_mixer_oss 
-> snd_pcm snd_timer snd soundcore via_rhine i2c_i801 parport_pc 
-> snd_page_alloc mii parport i2c_core serio_raw pcspkr sg ata_generic 
-> dm_snapshot dm_zero dm_mirror dm_mod ahci libata sd_mod scsi_mod ext3 jbd 
-> mbcache uhci_hcd ohci_hcd ehci_hcd
-> CPU:    0
-> EIP:    0060:[<c0425fb0>]    Not tainted VLI
-> EFLAGS: 00010246   (2.6.21.kvm-25-21 #14)
-> EIP is at do_exit+0x2ca/0x3c8
-> eax: 00000000   ebx: f7c51dc0   ecx: 00000001   edx: f7bc80f0
-> esi: f7bc80f0   edi: 00000000   ebp: 00000100   esp: f5372f84
-> ds: 007b   es: 007b   fs: 00d8  gs: 0000  ss: 0068
-> Process qemu-system-x86 (pid: 3668[#0], ti=f5372000 task=f7bc80f0 
-> task.ti=f5372000)
-> Stack: f7bc80f0 00000100 f5372000 c042cdf8 f7bb1580 f7a15ac0 00000100 
-> f5372000
->        c0426144 00000001 00d55274 00d55274 c0404db0 00000001 b77956d0 
-> 00000000
->        00d55274 00d55274 b7795738 000000fc ffff007b c040007b c0600000 
-> 000000fc
-> Call Trace:
->  [<c042cdf8>] signal_wake_up+0x1e/0x2c
->  [<c0426144>] sys_exit_group+0x0/0xd
->  [<c0404db0>] syscall_call+0x7/0xb
->  [<c0600000>] packet_setsockopt+0x13f/0x170
->  =======================
-> Code: ab 04 00 e8 f7 d4 fd ff 85 ff 74 19 8b 86 6c 04 00 00 83 b8 b0 00 00 
-> 00 00 74 0a b8 01 00 00 00 e8 7e 64 10 00 8b 46 04 8b 40 04 <8b> 40 24 e8 
-> 94 0d 02 00 8b 86 a4 00 00 00 85 c0 74 08 8b 40 04
-> EIP: [<c0425fb0>] do_exit+0x2ca/0x3c8 SS:ESP 0068:f5372f84
-> Fixing recursive fault but reboot is needed!
-> 
-> Please suggest me how to fix this bug..
-> 
-> Thanks in advance :-))
-> 
-> 
-> ______________________________________________________________________
-> --
-> To unsubscribe from this list: send the line "unsubscribe kvm" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Thank you for letting me know. I'll fix it.
 
---
-			Gleb.
+> 
+> > > 
+> > > Consider following situation.
+> > > 
+> > > - A process "A" has big memory. When several threads requests memory, all 
+> > >   of them are caught by a blockio cgroup of "A".
+> > > - A process "B" has read big file caches. When several threads requests memory, 
+> > >   all  of them are caught by a blockio cgroup of "B".
+> > > 
+> > > If "A" and "B" 's threshold is small, you'll see big slow down.
+> > > But it's not _planned_ behavior in many cases.
+> > > 
+> > > If you charges agaisnt memory owner, the admin has to set _big_ priority of I/O
+> > > controller to "A" and "B" if it uses much memory. I think the admin can't design
+> > > his system. It's nonsense to say "plz set I/O limit propotional to memory usage of
+> > > your apps even if it never do I/O in usual."
+> > >
+> > > If this blockio cgroup is introduced, people will see *unexpected* very
+> > > terrible slow down and the user will see heartbeat warnings/failover by cluster
+> > > management software. Please do I/O at the priority of memory reclaiming requester.
+> > 
+> > dm-ioband gives high priority to I/O for swap-out by checking whether
+> > PG_swapcache flag is set on the I/O page, regardless of the assigned
+> > I/O bandwidth, and the bandwidth consumed for swap-out is charged to
+> > the owner of the pages as a debt.
+> > How about this approach?
+> 
+> I don't think it's reasonable. Why I/O device, scheduler should know about
+> such mm-related information ? I think layering is wrong.
+
+I think that urgent I/O requests such as swap-out should be notified
+by setting a special flag in the struct bio, but there is no such
+mechanism at this time. That is why dm-ioband uses this approach.
+
+> And your approatch cannot be a workaround.
+> 
+> In follwing _typical_ case,
+>  
+>   - A process does small logging to /var/log/mylog, once in a sec.
+>     but it uses some amount of cold memory or shmem.
+> 
+> This process's logging will be delayed _unexpectedly_ by some buggy process
+> which does memory leak.
+
+Do you mean that the delay in logging is caused since the small process
+is swapped out unexpectedly by the buggy processes?
+How about using memory cgroup to prevent the small process from swap-out?
+I would appreciate it if you could tell me more about this.
+
+Thanks,
+Ryo Tsuruta
+
+> 
+> Thanks,
+> -Kame
