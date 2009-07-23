@@ -1,16 +1,15 @@
-From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-Subject: Re: [PATCH 7/9] blkio-cgroup-v9: Page tracking hooks
-Date: Thu, 23 Jul 2009 09:18:41 +0900
-Message-ID: <20090723091841.81ff2432.kamezawa.hiroyu__44356.8033552312$1248308487$gmane$org@jp.fujitsu.com>
-References: <20090721.231505.112612378.ryov@valinux.co.jp>
-	<20090721.232316.183036419.ryov@valinux.co.jp>
-	<20090722111714.8af6c5d8.kamezawa.hiroyu@jp.fujitsu.com>
-	<20090722.184055.226788113.ryov@valinux.co.jp>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH 1/2] virtio: fix memory leak on device removal
+Date: Thu, 23 Jul 2009 13:56:58 +0930
+Message-ID: <200907231356.59681.rusty__45066.3621108562$1248323476$gmane$org@rustcorp.com.au>
+References: <cover.1248181714.git.mst@redhat.com>
+	<20090721155909.GB3306@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20090722.184055.226788113.ryov@valinux.co.jp>
+In-Reply-To: <20090721155909.GB3306@redhat.com>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,70 +19,21 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Ryo Tsuruta <ryov@valinux.co.jp>
-Cc: xen-devel@lists.xensource.com, containers@lists.linux-foundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, dm-devel@redhat.com, agk@redhat.com
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Carsten Otte <cotte@de.ibm.com>, kvm@vger.kernel.org, t@redhat.com, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, avi@redhat.com, Anthony Liguori <anthony@codemonkey.ws>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 22 Jul 2009 18:40:55 +0900 (JST)
-Ryo Tsuruta <ryov@valinux.co.jp> wrote:
+On Wed, 22 Jul 2009 01:29:09 am Michael S. Tsirkin wrote:
+> Free up msi vector tables.
 
-> KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com> wrote:
-> > On Tue, 21 Jul 2009 23:23:16 +0900 (JST)
-> > Ryo Tsuruta <ryov@valinux.co.jp> wrote:
-> > 
-> > > This patch contains several hooks that let the blkio-cgroup framework to know
-> > > which blkio-cgroup is the owner of a page before starting I/O against the page.
-> > 
-> > > @@ -464,6 +465,7 @@ int add_to_page_cache_locked(struct page
-> > >  					gfp_mask & GFP_RECLAIM_MASK);
-> > >  	if (error)
-> > >  		goto out;
-> > > +	blkio_cgroup_set_owner(page, current->mm);
-> > >  
-> > 
-> > This part is doubtful...Is this necessary ? 
-> > I recommend you that the caller should attach owner by itself.
-> 
-> I think that it is reasonable to add the hook right here rather than
-> to add many hooks to a variety of places.
-> 
-Why ? at writing, it's will be overwriten soon, IIUC. Then, this information
-is misleading. plz add a hook like this when it means something. In this case,
-read/write callers.
-IMO, you just increase patch's readbility but decrease easiness of maintaince.
+Michael, this papers over the bug, but doesn't actually fix the problem.
 
+The problem is that vp_free_vectors() does not do the reverse of 
+vp_request_vectors.  If the author (you) can't get it right, what hope the 
+rest of us?
 
-> > IMHO, later io for swap-out is caused by the caller of swapout, not page's
-> > owner. plz charge to them or,
-> >   - add special BLOCK CGROUP ID for the kernel's swap out. 
-> 
-> I think that it is not too bad to charge the owner of a page for
-> swap-out. From another perspective, it can be considered that swap-out
-> is caused by a process which uses a large amount of memory.
-> 
-No. swap-out is caused by a thread who requests memory even while memory is
-in short. IMHO, I/O by memory reqraim should work in priority of memory requester.
-
-Consider following situation.
-
-- A process "A" has big memory. When several threads requests memory, all 
-  of them are caught by a blockio cgroup of "A".
-- A process "B" has read big file caches. When several threads requests memory, 
-  all  of them are caught by a blockio cgroup of "B".
-
-If "A" and "B" 's threshold is small, you'll see big slow down.
-But it's not _planned_ behavior in many cases.
-
-If you charges agaisnt memory owner, the admin has to set _big_ priority of I/O
-controller to "A" and "B" if it uses much memory. I think the admin can't design
-his system. It's nonsense to say "plz set I/O limit propotional to memory usage of
-your apps even if it never do I/O in usual."
-
-
-If this blockio cgroup is introduced, people will see *unexpected* very
-terrible slow down and the user will see heartbeat warnings/failover by cluster
-management software. Please do I/O at the priority of memory reclaiming requester.
-
+Indeed, if you look harder, you'll see another leak caused by this problem, 
+which your patch *didn't* fix.
 
 Thanks,
--Kame
+Rusty.
