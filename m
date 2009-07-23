@@ -1,14 +1,16 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCHv2 2/2] virtio: fix memory leak on device removal
-Date: Thu, 23 Jul 2009 14:57:37 +0300
-Message-ID: <20090723115737.GC12293__18798.4216296629$1248350373$gmane$org@redhat.com>
-References: <cover.1248350116.git.mst@redhat.com>
+From: "KAMEZAWA Hiroyuki" <kamezawa.hiroyu@jp.fujitsu.com>
+Subject: Re: [Xen-devel] Re: [PATCH 7/9] blkio-cgroup-v9: Page tracking hooks
+Date: Thu, 23 Jul 2009 21:02:13 +0900 (JST)
+Message-ID: <5971c26b399a97f51dd10ea497617733.squirrel__40812.9365802326$1248350599$gmane$org@webmail-b.css.fujitsu.com>
+References: <20090723091841.81ff2432.kamezawa.hiroyu@jp.fujitsu.com>
+	<20090723.153843.193704010.ryov@valinux.co.jp>
+	<20090723164935.e97a3ccf.kamezawa.hiroyu@jp.fujitsu.com>
+	<20090723.190253.226783703.ryov@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <cover.1248350116.git.mst@redhat.com>
+In-Reply-To: <20090723.190253.226783703.ryov@valinux.co.jp>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,105 +20,51 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Christian Borntraeger <borntraeger@de.ibm.com>, virtualization@lists.linux-foundation.org, Anthony Liguori <anthony@codemonkey.ws>, kvm@vger.kernel.org, avi@redha
+To: Ryo Tsuruta <ryov@valinux.co.jp>
+Cc: xen-devel@lists.xensource.com, containers@lists.linux-foundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, dm-devel@redhat.com, agk@redhat.com, kamezawa.hiroyu@jp.fujitsu.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Make vp_free_vectors do the reverse of vq_request_vectors.
+Ryo Tsuruta wrote:
+> KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com> wrote:
 
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
- drivers/virtio/virtio_pci.c |   28 +++++++++++++++-------------
- 1 files changed, 15 insertions(+), 13 deletions(-)
+>> > dm-ioband gives high priority to I/O for swap-out by checking whether
+>> > PG_swapcache flag is set on the I/O page, regardless of the assigned
+>> > I/O bandwidth, and the bandwidth consumed for swap-out is charged to
+>> > the owner of the pages as a debt.
+>> > How about this approach?
+>>
+>> I don't think it's reasonable. Why I/O device, scheduler should know
+>> about
+>> such mm-related information ? I think layering is wrong.
+>
+> I think that urgent I/O requests such as swap-out should be notified
+> by setting a special flag in the struct bio, but there is no such
+> mechanism at this time. That is why dm-ioband uses this approach.
+>
+>> And your approatch cannot be a workaround.
+>>
+>> In follwing _typical_ case,
+>>
+>>   - A process does small logging to /var/log/mylog, once in a sec.
+>>     but it uses some amount of cold memory or shmem.
+>>
+>> This process's logging will be delayed _unexpectedly_ by some buggy
+>> process
+>> which does memory leak.
+>
+> Do you mean that the delay in logging is caused since the small process
+> is swapped out unexpectedly by the buggy processes?
+I don't write "small process", "small logging".
+Buggy process does swap-out and cosumes someone else's bandwidth, then,
+loggind will be delayed. Important here is throttle bandwidth consumed by
+buggy prorcess, not other's.
 
-diff --git a/drivers/virtio/virtio_pci.c b/drivers/virtio/virtio_pci.c
-index a40e4f7..3aff895 100644
---- a/drivers/virtio/virtio_pci.c
-+++ b/drivers/virtio/virtio_pci.c
-@@ -258,7 +258,6 @@ static void vp_free_vectors(struct virtio_device *vdev)
- 
- 	for (i = 0; i < vp_dev->msix_used_vectors; ++i)
- 		free_irq(vp_dev->msix_entries[i].vector, vp_dev);
--	vp_dev->msix_used_vectors = 0;
- 
- 	if (vp_dev->msix_enabled) {
- 		/* Disable the vector used for configuration */
-@@ -267,9 +266,16 @@ static void vp_free_vectors(struct virtio_device *vdev)
- 		/* Flush the write out to device */
- 		ioread16(vp_dev->ioaddr + VIRTIO_MSI_CONFIG_VECTOR);
- 
--		vp_dev->msix_enabled = 0;
- 		pci_disable_msix(vp_dev->pci_dev);
-+		vp_dev->msix_enabled = 0;
-+		vp_dev->msix_vectors = 0;
- 	}
-+
-+	vp_dev->msix_used_vectors = 0;
-+	kfree(vp_dev->msix_names);
-+	vp_dev->msix_names = NULL;
-+	kfree(vp_dev->msix_entries);
-+	vp_dev->msix_entries = NULL;
- }
- 
- static int vp_enable_msix(struct pci_dev *dev, struct msix_entry *entries,
-@@ -297,11 +303,11 @@ static int vp_request_vectors(struct virtio_device *vdev, unsigned max_vqs)
- 	vp_dev->msix_entries = kmalloc(nvectors * sizeof *vp_dev->msix_entries,
- 				       GFP_KERNEL);
- 	if (!vp_dev->msix_entries)
--		goto error_entries;
-+		goto error;
- 	vp_dev->msix_names = kmalloc(nvectors * sizeof *vp_dev->msix_names,
- 				     GFP_KERNEL);
- 	if (!vp_dev->msix_names)
--		goto error_names;
-+		goto error;
- 
- 	for (i = 0; i < nvectors; ++i)
- 		vp_dev->msix_entries[i].entry = i;
-@@ -314,7 +320,7 @@ static int vp_request_vectors(struct virtio_device *vdev, unsigned max_vqs)
- 		err = request_irq(vp_dev->pci_dev->irq, vp_interrupt,
- 				  IRQF_SHARED, name, vp_dev);
- 		if (err)
--			goto error_irq;
-+			goto error;
- 		vp_dev->intx_enabled = 1;
- 	} else {
- 		vp_dev->msix_vectors = err;
-@@ -328,7 +334,7 @@ static int vp_request_vectors(struct virtio_device *vdev, unsigned max_vqs)
- 				  vp_config_changed, 0, vp_dev->msix_names[v],
- 				  vp_dev);
- 		if (err)
--			goto error_irq;
-+			goto error;
- 		++vp_dev->msix_used_vectors;
- 
- 		iowrite16(v, vp_dev->ioaddr + VIRTIO_MSI_CONFIG_VECTOR);
-@@ -336,7 +342,7 @@ static int vp_request_vectors(struct virtio_device *vdev, unsigned max_vqs)
- 		v = ioread16(vp_dev->ioaddr + VIRTIO_MSI_CONFIG_VECTOR);
- 		if (v == VIRTIO_MSI_NO_VECTOR) {
- 			err = -EBUSY;
--			goto error_irq;
-+			goto error;
- 		}
- 	}
- 
-@@ -349,16 +355,12 @@ static int vp_request_vectors(struct virtio_device *vdev, unsigned max_vqs)
- 				  vp_vring_interrupt, 0, vp_dev->msix_names[v],
- 				  vp_dev);
- 		if (err)
--			goto error_irq;
-+			goto error;
- 		++vp_dev->msix_used_vectors;
- 	}
- 	return 0;
--error_irq:
-+error:
- 	vp_free_vectors(vdev);
--	kfree(vp_dev->msix_names);
--error_names:
--	kfree(vp_dev->msix_entries);
--error_entries:
- 	return err;
- }
- 
--- 
-1.6.2.5
+> How about using memory cgroup to prevent the small process from swap-out?
+It never be help if memcg is not configured.
+
+My point is "don't allow anyone to use bandwidth of others."
+Considering job isolation, a thread who requests swap-out should be charged
+against bandwidth.
+
+Thanks,
+-Kame
