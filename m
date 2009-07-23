@@ -1,15 +1,16 @@
-From: Ryo Tsuruta <ryov@valinux.co.jp>
+From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
 Subject: Re: [PATCH 7/9] blkio-cgroup-v9: Page tracking hooks
-Date: Wed, 22 Jul 2009 18:40:55 +0900 (JST)
-Message-ID: <20090722.184055.226788113.ryov__36847.6761541844$1248255768$gmane$org@valinux.co.jp>
+Date: Thu, 23 Jul 2009 09:18:41 +0900
+Message-ID: <20090723091841.81ff2432.kamezawa.hiroyu__44356.8033552312$1248308487$gmane$org@jp.fujitsu.com>
 References: <20090721.231505.112612378.ryov@valinux.co.jp>
 	<20090721.232316.183036419.ryov@valinux.co.jp>
 	<20090722111714.8af6c5d8.kamezawa.hiroyu@jp.fujitsu.com>
+	<20090722.184055.226788113.ryov@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20090722111714.8af6c5d8.kamezawa.hiroyu@jp.fujitsu.com>
+In-Reply-To: <20090722.184055.226788113.ryov@valinux.co.jp>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,145 +20,70 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: kamezawa.hiroyu@jp.fujitsu.com
+To: Ryo Tsuruta <ryov@valinux.co.jp>
 Cc: xen-devel@lists.xensource.com, containers@lists.linux-foundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, dm-devel@redhat.com, agk@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com> wrote:
-> On Tue, 21 Jul 2009 23:23:16 +0900 (JST)
-> Ryo Tsuruta <ryov@valinux.co.jp> wrote:
-> 
-> > This patch contains several hooks that let the blkio-cgroup framework to know
-> > which blkio-cgroup is the owner of a page before starting I/O against the page.
-> 
-> > @@ -464,6 +465,7 @@ int add_to_page_cache_locked(struct page
-> >  					gfp_mask & GFP_RECLAIM_MASK);
-> >  	if (error)
-> >  		goto out;
-> > +	blkio_cgroup_set_owner(page, current->mm);
-> >  
-> 
-> This part is doubtful...Is this necessary ? 
-> I recommend you that the caller should attach owner by itself.
+On Wed, 22 Jul 2009 18:40:55 +0900 (JST)
+Ryo Tsuruta <ryov@valinux.co.jp> wrote:
 
-I think that it is reasonable to add the hook right here rather than
-to add many hooks to a variety of places.
- 
-> >  	error = radix_tree_preload(gfp_mask & ~__GFP_HIGHMEM);
-> >  	if (error == 0) {
-> > Index: linux-2.6.31-rc3/mm/memory.c
-> > ===================================================================
-> > --- linux-2.6.31-rc3.orig/mm/memory.c
-> > +++ linux-2.6.31-rc3/mm/memory.c
-> > @@ -51,6 +51,7 @@
-> >  #include <linux/init.h>
-> >  #include <linux/writeback.h>
-> >  #include <linux/memcontrol.h>
-> > +#include <linux/biotrack.h>
-> >  #include <linux/mmu_notifier.h>
-> >  #include <linux/kallsyms.h>
-> >  #include <linux/swapops.h>
-> > @@ -2115,6 +2116,7 @@ gotten:
-> >  		 */
-> >  		ptep_clear_flush_notify(vma, address, page_table);
-> >  		page_add_new_anon_rmap(new_page, vma, address);
-> > +		blkio_cgroup_set_owner(new_page, mm);
+> KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com> wrote:
+> > On Tue, 21 Jul 2009 23:23:16 +0900 (JST)
+> > Ryo Tsuruta <ryov@valinux.co.jp> wrote:
+> > 
+> > > This patch contains several hooks that let the blkio-cgroup framework to know
+> > > which blkio-cgroup is the owner of a page before starting I/O against the page.
+> > 
+> > > @@ -464,6 +465,7 @@ int add_to_page_cache_locked(struct page
+> > >  					gfp_mask & GFP_RECLAIM_MASK);
+> > >  	if (error)
+> > >  		goto out;
+> > > +	blkio_cgroup_set_owner(page, current->mm);
+> > >  
+> > 
+> > This part is doubtful...Is this necessary ? 
+> > I recommend you that the caller should attach owner by itself.
 > 
-> plz do this in swap-out code.
+> I think that it is reasonable to add the hook right here rather than
+> to add many hooks to a variety of places.
 > 
-> >  		set_pte_at(mm, address, page_table, entry);
-> >  		update_mmu_cache(vma, address, entry);
-> >  		if (old_page) {
-> > @@ -2580,6 +2582,7 @@ static int do_swap_page(struct mm_struct
-> >  	flush_icache_page(vma, page);
-> >  	set_pte_at(mm, address, page_table, pte);
-> >  	page_add_anon_rmap(page, vma, address);
-> > +	blkio_cgroup_reset_owner(page, mm);
-> 
-> and this.
-> 
-> 
-> >  	/* It's better to call commit-charge after rmap is established */
-> >  	mem_cgroup_commit_charge_swapin(page, ptr);
-> >  
-> > @@ -2644,6 +2647,7 @@ static int do_anonymous_page(struct mm_s
-> >  		goto release;
-> >  	inc_mm_counter(mm, anon_rss);
-> >  	page_add_new_anon_rmap(page, vma, address);
-> > +	blkio_cgroup_set_owner(page, mm);
-> >  	set_pte_at(mm, address, page_table, entry);
-> >  
-> and this.
-> 
-> >  	/* No need to invalidate - it was non-present before */
-> > @@ -2791,6 +2795,7 @@ static int __do_fault(struct mm_struct *
-> >  		if (anon) {
-> >  			inc_mm_counter(mm, anon_rss);
-> >  			page_add_new_anon_rmap(page, vma, address);
-> > +			blkio_cgroup_set_owner(page, mm);
-> and this.
-> 
-> IMHO, later io for swap-out is caused by the caller of swapout, not page's
-> owner. plz charge to them or,
->   - add special BLOCK CGROUP ID for the kernel's swap out. 
+Why ? at writing, it's will be overwriten soon, IIUC. Then, this information
+is misleading. plz add a hook like this when it means something. In this case,
+read/write callers.
+IMO, you just increase patch's readbility but decrease easiness of maintaince.
 
-I think that it is not too bad to charge the owner of a page for
-swap-out. From another perspective, it can be considered that swap-out
-is caused by a process which uses a large amount of memory.
+
+> > IMHO, later io for swap-out is caused by the caller of swapout, not page's
+> > owner. plz charge to them or,
+> >   - add special BLOCK CGROUP ID for the kernel's swap out. 
+> 
+> I think that it is not too bad to charge the owner of a page for
+> swap-out. From another perspective, it can be considered that swap-out
+> is caused by a process which uses a large amount of memory.
+> 
+No. swap-out is caused by a thread who requests memory even while memory is
+in short. IMHO, I/O by memory reqraim should work in priority of memory requester.
+
+Consider following situation.
+
+- A process "A" has big memory. When several threads requests memory, all 
+  of them are caught by a blockio cgroup of "A".
+- A process "B" has read big file caches. When several threads requests memory, 
+  all  of them are caught by a blockio cgroup of "B".
+
+If "A" and "B" 's threshold is small, you'll see big slow down.
+But it's not _planned_ behavior in many cases.
+
+If you charges agaisnt memory owner, the admin has to set _big_ priority of I/O
+controller to "A" and "B" if it uses much memory. I think the admin can't design
+his system. It's nonsense to say "plz set I/O limit propotional to memory usage of
+your apps even if it never do I/O in usual."
+
+
+If this blockio cgroup is introduced, people will see *unexpected* very
+terrible slow down and the user will see heartbeat warnings/failover by cluster
+management software. Please do I/O at the priority of memory reclaiming requester.
+
 
 Thanks,
-Ryo Tsuruta
-
-> 
-> Bye,
-> -Kame
-> 
-> >  		} else {
-> >  			inc_mm_counter(mm, file_rss);
-> >  			page_add_file_rmap(page);
-> > Index: linux-2.6.31-rc3/mm/page-writeback.c
-> > ===================================================================
-> > --- linux-2.6.31-rc3.orig/mm/page-writeback.c
-> > +++ linux-2.6.31-rc3/mm/page-writeback.c
-> > @@ -23,6 +23,7 @@
-> >  #include <linux/init.h>
-> >  #include <linux/backing-dev.h>
-> >  #include <linux/task_io_accounting_ops.h>
-> > +#include <linux/biotrack.h>
-> >  #include <linux/blkdev.h>
-> >  #include <linux/mpage.h>
-> >  #include <linux/rmap.h>
-> > @@ -1247,6 +1248,7 @@ int __set_page_dirty_nobuffers(struct pa
-> >  			BUG_ON(mapping2 != mapping);
-> >  			WARN_ON_ONCE(!PagePrivate(page) && !PageUptodate(page));
-> >  			account_page_dirtied(page, mapping);
-> > +			blkio_cgroup_reset_owner_pagedirty(page, current->mm);
-> >  			radix_tree_tag_set(&mapping->page_tree,
-> >  				page_index(page), PAGECACHE_TAG_DIRTY);
-> >  		}
-> > Index: linux-2.6.31-rc3/mm/swap_state.c
-> > ===================================================================
-> > --- linux-2.6.31-rc3.orig/mm/swap_state.c
-> > +++ linux-2.6.31-rc3/mm/swap_state.c
-> > @@ -18,6 +18,7 @@
-> >  #include <linux/pagevec.h>
-> >  #include <linux/migrate.h>
-> >  #include <linux/page_cgroup.h>
-> > +#include <linux/biotrack.h>
-> >  
-> >  #include <asm/pgtable.h>
-> >  
-> > @@ -307,6 +308,7 @@ struct page *read_swap_cache_async(swp_e
-> >  		 */
-> >  		__set_page_locked(new_page);
-> >  		SetPageSwapBacked(new_page);
-> > +		blkio_cgroup_set_owner(new_page, current->mm);
-> >  		err = add_to_swap_cache(new_page, entry, gfp_mask & GFP_KERNEL);
-> >  		if (likely(!err)) {
-> >  			/*
-> > --
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> > 
+-Kame
