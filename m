@@ -1,15 +1,15 @@
-From: Ryo Tsuruta <ryov@valinux.co.jp>
-Subject: Re: [Xen-devel] Re: [PATCH 7/9] blkio-cgroup-v9: Page tracking hooks
-Date: Fri, 24 Jul 2009 17:48:53 +0900 (JST)
-Message-ID: <20090724.174853.193712105.ryov__8440.00236033953$1248425405$gmane$org@valinux.co.jp>
-References: <5971c26b399a97f51dd10ea497617733.squirrel@webmail-b.css.fujitsu.com>
-	<20090724.144416.71112906.ryov@valinux.co.jp>
-	<20090724151923.986dd932.kamezawa.hiroyu@jp.fujitsu.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCHv2 1/2] virtio: fix double free_irq on device removal
+Date: Fri, 24 Jul 2009 21:54:26 +0930
+Message-ID: <200907242154.26665.rusty__35136.281423229$1248438462$gmane$org@rustcorp.com.au>
+References: <cover.1248350116.git.mst@redhat.com>
+	<20090723115731.GB12293@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20090724151923.986dd932.kamezawa.hiroyu@jp.fujitsu.com>
+In-Reply-To: <20090723115731.GB12293@redhat.com>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,73 +19,51 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: kamezawa.hiroyu@jp.fujitsu.com
-Cc: xen-devel@lists.xensource.com, containers@lists.linux-foundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, dm-devel@redhat.com, agk@redhat.com
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Carsten Otte <cotte@de.ibm.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, avi@redhat.com, Anthony Liguori <anthony@codemonkey.ws>
 List-Id: virtualization@lists.linuxfoundation.org
 
-KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com> wrote:
-> On Fri, 24 Jul 2009 14:44:16 +0900 (JST)
-> Ryo Tsuruta <ryov@valinux.co.jp> wrote:
->  good solution to resolve such problem.
-> > 
-> > > My point is "don't allow anyone to use bandwidth of others."
-> > > Considering job isolation, a thread who requests swap-out should be charg=
-> > > ed
-> > > against bandwidth.
-> > 
-> > From another perspective, the swap-out is caused since the buggy
-> > process uses a large amount of memory, so it can be considered as 
-> > the bandwidth of logging process is used due to the buggy process.
-> > 
-> > Please consider the following case. If a thread who requests swap-out
-> > is charged, the thread is charged other threads' I/O.
-> > 
-> >    (1)                          --------      (2)
-> >    Process A                   |        |     Process B
-> >    mmaps a large area in   --> | memory | <-- tries to allocate a page.
-> >    the memory and writes       |        |
-> >    data to there.               --------     (3)
-> >                                    |         To get a free page,
-> >                                    |         the data written by Proc.A
-> >                                    |         is written out to the disk.
-> >                                    V         The I/O is done by using
-> >                                 ---------    Proc.B's bandwidth.
-> >                                |  disk   |   
-> >                                 ---------
-> > 
-> > Thus I think that page owners should be charged against bandwidth.
-> > 
-> Ok, no good way. yours is wrong, mine is wrong, too.
-> plz find 3rd way, reasonable.
-> 
-> Below is brief thinking.
-> 
-> "Why process A should be charged to I/O when it just maps anon memory ?"
-> I can't answer this.
-> 
-> Even in yorr case, Process B requests memory and get penalty. It's
-> very natural, I think.
-> 
-> In usual case, 
->  - if process A maps ANON, there will be no I/O.
->  - if process A maps FILE, it will be charged to process A.
-> ok ?
-> 
-> Under memory pressure,
->  - if process A maps ANON, swap I/O should be charged to process B.
->  - if process A maps FILE, I/O should be charged to process A.
-> maybe. 
+On Thu, 23 Jul 2009 09:27:31 pm Michael S. Tsirkin wrote:
+> msix_user_vectors counted both per-vq and shared/config vectors.
+> This causes BUG_ON when device is removed, as
+> free_vectors tries to free per-vq vectors.
 
-I think that even process A maps ANON, it should be charged to process A
-because the memory pressure is caused by process A. It seems natual
-for me that a process which consumes more resources is more likely to
-get penalty.
+OK, I looked at this patch, then looked at this code (after it was applied).
 
-> Anyway, there will be ineraction with dirty_ratio of memcg (not implemeted yet)
-> and _Owner should be charged_ issue will be handled in this dirty_ratio layer.
-> More consideration is necessary, I think.
+I'm still very confused.
 
-I'll keep thinking how it should be done.
+Looking at the call site for vp_find_vq:
+
+	for (i = 0; i < nvqs; ++i) {
+		if (!callbacks[i])
+			vector = per_vq_vector = VIRTIO_MSI_NO_VECTOR;
+		else if (vp_dev->msix_used_vectors < vp_dev->msix_vectors)
+			per_vq_vector = vector = allocated_vectors++;
+		else {
+			vector = VP_MSIX_VQ_VECTOR;
+			per_vq_vector = VIRTIO_MSI_NO_VECTOR;
+		}
+
+Now, I can't find where msix_used_vectors is set, only once where it's
+incremented.  It seems completely redundant and confusing now?  And
+this "< vp_dev->msix_vectors" test is wrong?
+
+AFAICT there are three cases:
+1) We don't have MSI, so we use a normal interrupt for all vqs (old style).
+    This request_irq is done in  vp_request_vectors.
+2) We get some, but not enough for one per queue.  We then use 2: one for
+   changes, and one for all vqs.  Requested in vp_request_vectors.
+3) We get enough.  Use one for changes, one per vq.  Each vq
+   requests in vp_find_vq.
+
+I suggest you be explicit, and don't do any request in vp_find_vq().  Do the
+per-vq request (case 3) in the find_vqs() loop, so vp_find_vq doesn't need
+to know anything except to do the iowrite16 if vector != VIRTIO_MSI_NO_VECTOR.
+
+Maybe an explicit "bool per_vq_vectors" would make it clearer, too.
+
+Note: this is partially my fault for not reviewing this code when it went in.
+I know Anthony is disclaiming virtio_pci :)
 
 Thanks,
-Ryo Tsuruta
+Rusty.
