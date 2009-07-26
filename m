@@ -1,12 +1,14 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCHv3 0/2] virtio: find_vqs/del_vqs fixes
-Date: Sun, 26 Jul 2009 15:47:52 +0300
-Message-ID: <20090726124752.GA20740__1304.70571243695$1248612714$gmane$org@redhat.com>
+Subject: [PATCHv3 1/2] virtio: delete vq from list
+Date: Sun, 26 Jul 2009 15:48:01 +0300
+Message-ID: <20090726124801.GB20740__22907.8674492941$1248612759$gmane$org@redhat.com>
+References: <cover.1248612107.git.mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
+In-Reply-To: <cover.1248612107.git.mst@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,20 +21,31 @@ Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Christian Borntraeger <borntraeger@de.ibm.com>, virtualization@lists.linux-foundation.org, Anthony Liguori <anthony@codemonkey.ws>, kvm@vger.kernel.org, avi@redha
 List-Id: virtualization@lists.linuxfoundation.org
 
-Here's a patch series to fix known regressions in virtio_pci,
-by refactoring code along the lines suggested by Rusty.
+This makes delete vq the reverse of find vq.
+This is required to make it possible to retry find_vqs
+after a failure, otherwise the list gets corrupted.
 
-This is on top of patch
-	virtio: fix memory leak on device removal
-that has been applied by Rusty.
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
+ drivers/virtio/virtio_pci.c |    6 +++++-
+ 1 files changed, 5 insertions(+), 1 deletions(-)
 
-This supercedes patches:
-	[PATCHv3] virtio: recover from vector assignment failure
-	[PATCHv2] virtio: fix double free_irq on device removal
-
-Michael S. Tsirkin (2):
-  virtio: delete vq from list
-  virtio: refactor find_vqs
-
- drivers/virtio/virtio_pci.c |  218 ++++++++++++++++++++++++-------------------
- 1 files changed, 124 insertions(+), 94 deletions(-)
+diff --git a/drivers/virtio/virtio_pci.c b/drivers/virtio/virtio_pci.c
+index 7e21389..2eaf1fb 100644
+--- a/drivers/virtio/virtio_pci.c
++++ b/drivers/virtio/virtio_pci.c
+@@ -464,7 +464,11 @@ static void vp_del_vq(struct virtqueue *vq)
+ {
+ 	struct virtio_pci_device *vp_dev = to_vp_device(vq->vdev);
+ 	struct virtio_pci_vq_info *info = vq->priv;
+-	unsigned long size;
++	unsigned long flags, size;
++
++        spin_lock_irqsave(&vp_dev->lock, flags);
++        list_del(&info->node);
++        spin_unlock_irqrestore(&vp_dev->lock, flags);
+ 
+ 	iowrite16(info->queue_index, vp_dev->ioaddr + VIRTIO_PCI_QUEUE_SEL);
+ 
+-- 
+1.6.2.5
