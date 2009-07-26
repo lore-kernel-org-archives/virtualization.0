@@ -1,15 +1,12 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCHv3 1/2] virtio: delete vq from list
-Date: Sun, 26 Jul 2009 18:41:27 +0300
-Message-ID: <20090726154127.GA21203__41104.9259514131$1248623025$gmane$org@redhat.com>
-References: <cover.1248612107.git.mst@redhat.com>
-	<20090726124801.GB20740@redhat.com>
+Subject: [PATCHv4 0/2] virtio: find_vqs/del_vqs fixes
+Date: Sun, 26 Jul 2009 18:46:54 +0300
+Message-ID: <20090726154654.GA21829__11886.3024320037$1248623314$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20090726124801.GB20740@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -22,40 +19,23 @@ Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Christian Borntraeger <borntraeger@de.ibm.com>, virtualization@lists.linux-foundation.org, Anthony Liguori <anthony@codemonkey.ws>, kvm@vger.kernel.org, avi@redha
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sun, Jul 26, 2009 at 03:48:01PM +0300, Michael S. Tsirkin wrote:
-> This makes delete vq the reverse of find vq.
-> This is required to make it possible to retry find_vqs
-> after a failure, otherwise the list gets corrupted.
-> 
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> ---
->  drivers/virtio/virtio_pci.c |    6 +++++-
->  1 files changed, 5 insertions(+), 1 deletions(-)
-> 
-> diff --git a/drivers/virtio/virtio_pci.c b/drivers/virtio/virtio_pci.c
-> index 7e21389..2eaf1fb 100644
-> --- a/drivers/virtio/virtio_pci.c
-> +++ b/drivers/virtio/virtio_pci.c
-> @@ -464,7 +464,11 @@ static void vp_del_vq(struct virtqueue *vq)
->  {
->  	struct virtio_pci_device *vp_dev = to_vp_device(vq->vdev);
->  	struct virtio_pci_vq_info *info = vq->priv;
-> -	unsigned long size;
-> +	unsigned long flags, size;
-> +
-> +        spin_lock_irqsave(&vp_dev->lock, flags);
-> +        list_del(&info->node);
-> +        spin_unlock_irqrestore(&vp_dev->lock, flags);
+Here's a patch series to fix known regressions in virtio_pci,
+by refactoring code along the lines suggested by Rusty.
 
-Grr, whitespace damage. Not sure how this got in, resending a corrected
-patch. Sorry about the churn.
+Changes since v3:
+   whitespace fixed in PATCH 1/2
 
->  	iowrite16(info->queue_index, vp_dev->ioaddr + VIRTIO_PCI_QUEUE_SEL);
->  
-> -- 
-> 1.6.2.5
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe kvm" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+This is on top of patch
+	virtio: fix memory leak on device removal
+that has been applied by Rusty.
+
+This supercedes patches:
+	[PATCHv3] virtio: recover from vector assignment failure
+	[PATCHv2] virtio: fix double free_irq on device removal
+
+Michael S. Tsirkin (2):
+  virtio: make del_vq delete vq from list
+  virtio: refactor find_vqs
+
+ drivers/virtio/virtio_pci.c |  218 ++++++++++++++++++++++++-------------------
+ 1 files changed, 124 insertions(+), 94 deletions(-)
