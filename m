@@ -1,15 +1,11 @@
 From: Amit Shah <amit.shah@redhat.com>
-Subject: [PATCH 2/3] vnc: add a is_vnc_active() helper
-Date: Mon, 27 Jul 2009 23:34:35 +0530
-Message-ID: <1248717876-17630-4-git-send-email-amit.shah__30386.9579489858$1248718068$gmane$org@redhat.com>
-References: <1248717876-17630-1-git-send-email-amit.shah@redhat.com>
-	<1248717876-17630-2-git-send-email-amit.shah@redhat.com>
-	<1248717876-17630-3-git-send-email-amit.shah@redhat.com>
+Subject: virtio-serial: An interface for host-guest communication
+Date: Mon, 27 Jul 2009 23:34:32 +0530
+Message-ID: <1248717876-17630-1-git-send-email-amit.shah__17567.4950042323$1248718174$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1248717876-17630-3-git-send-email-amit.shah@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,52 +16,46 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: virtualization@lists.linux-foundation.org
-Cc: Amit Shah <amit.shah@redhat.com>, qemu-devel@nongnu.org, kvm@vger.kernel.org
+Cc: qemu-devel@nongnu.org, kvm@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-This helper is introduced to query the status of vnc.
 
-Signed-off-by: Amit Shah <amit.shah@redhat.com>
----
- vnc.c |   10 +++++++++-
- vnc.h |    2 +-
- 2 files changed, 10 insertions(+), 2 deletions(-)
+Hello all,
 
-diff --git a/vnc.c b/vnc.c
-index de0ff87..e4e78dc 100644
---- a/vnc.c
-+++ b/vnc.c
-@@ -176,9 +176,17 @@ static void do_info_vnc_client(Monitor *mon, VncState *client)
- #endif
- }
- 
--void do_info_vnc(Monitor *mon)
-+int is_vnc_active(void)
- {
-     if (vnc_display == NULL || vnc_display->display == NULL) {
-+        return 0;
-+    }
-+    return 1;
-+}
-+
-+void do_info_vnc(Monitor *mon)
-+{
-+    if (!is_vnc_active()) {
-         monitor_printf(mon, "Server: disabled\n");
-     } else {
-         char *serverAddr = vnc_socket_local_addr("     address: %s:%s\n",
-diff --git a/vnc.h b/vnc.h
-index 3ae95f3..9739c35 100644
---- a/vnc.h
-+++ b/vnc.h
-@@ -313,7 +313,7 @@ void buffer_append(Buffer *buffer, const void *data, size_t len);
- 
- /* Misc helpers */
- 
-+int is_vnc_active(void);
- char *vnc_socket_local_addr(const char *format, int fd);
- char *vnc_socket_remote_addr(const char *format, int fd);
--
- #endif /* __QEMU_VNC_H */
--- 
-1.6.2.5
+This are the latest version of the patches.
+
+Lots of things have changed since the last submission. A few of
+which I remember:
+- VNC copy / paste works* (* conditions apply)
+  - client vnc copies get propagated to guest port 3 (/dev/vmch3)
+  - guest writes to port 3 (/dev/vmch3) go straight to client's clipboard
+- sysfs hooks to autodiscover ports
+- support for 64 ports in this version (MAX_VIRTIO_SERIAL_PORTS). More
+  ports can be added by introducing a new feature flag to maintain
+  backward compat. However, till this code gets accepted upstream, the
+  value of that #define can change. I think 64 ports are enough for
+  everyone.
+- remove support for control queue (though this queue could make a
+  comeback for just one use-case that I can currently think of:
+  to prevent rogue (host) userspace putting lots of data into a guest
+  that goes unconsumed for a while, increasing the memory pressure. To
+  prevent this a threshold level can be decided upon and a control
+  message can be sent to host userspace to prevent any more writes
+  to the port.
+- numerous fixes
+
+There still exist a few kmalloc/kfree-related debug logs that spew up
+in the guest but I haven't been able to track them down.
+
+As for the merge with virtio-console, Christian has voiced some oppostion
+to that idea. For the merge to happen, the kernel folks have to agree
+in merging the driver as well and I can proceed once we have a resolution
+on this.
+
+Other than that, a few more rebases have to be done to the qemu code to
+make it apply to qemu-upstream.
+
+Please give this a good review. 
+
+Thanks,
+	Amit.
