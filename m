@@ -1,16 +1,16 @@
-From: Jamie Lokier <jamie@shareable.org>
+From: Anthony Liguori <anthony@codemonkey.ws>
 Subject: Re: [Qemu-devel] Re: virtio-serial: An interface for host-guest
 	communication
-Date: Mon, 27 Jul 2009 21:46:27 +0100
-Message-ID: <20090727204627.GA32432__25559.345415286$1248727634$gmane$org@shareable.org>
+Date: Mon, 27 Jul 2009 18:44:28 -0500
+Message-ID: <4A6E3BDC.8050101__30576.2729062282$1248738688$gmane$org@codemonkey.ws>
 References: <1248717876-17630-1-git-send-email-amit.shah@redhat.com>
 	<4A6E0C9E.10908@codemonkey.ws> <20090727203214.GG15020@redhat.com>
+	<20090727204627.GA32432@shareable.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20090727203214.GG15020@redhat.com>
+In-Reply-To: <20090727204627.GA32432@shareable.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,27 +20,42 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Daniel P. Berrange" <berrange@redhat.com>
-Cc: Amit Shah <amit.shah@redhat.com>, virtualization@lists.linux-foundation.org, qemu-devel@nongnu.org, Anthony Liguori <anthony@codemonkey.ws>, kvm@vger.kernel.org
+To: Jamie Lokier <jamie@shareable.org>
+Cc: Amit Shah <amit.shah@redhat.com>, "Daniel P. Berrange" <berrange@redhat.com>, qemu-devel@nongnu.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Daniel P. Berrange wrote:
-> > I expect the first problem you'll run into is that copy/paste daemon has 
-> > to run as an unprivileged user but /dev/vmch3 is going to be owned by 
-> > root.  You could set udev rules for /dev/vmch3 but that's pretty 
-> > terrible IMHO.
-> 
-> I don't think that's not too bad, for example, with fast-user-switching 
-> between multiple X servers and/or text consoles, there's already support
-> code that deals with chown'ing things like /dev/snd/* devices to match 
-> the active console session. Doing the same with the /dev/vmch3 device so
-> that it is only ever accessible to the current logged in user actually
-> fits in to that scheme quite well.
+Jamie Lokier wrote:
+> With multiple X servers, there can be more than one currently logged in user.
+>
+> Same with multiple text consoles - that's more familiar.
+>
+> Which one owns /dev/vmch3?
+>   
 
-With multiple X servers, there can be more than one currently logged in user.
+For a VMM, copy/paste should work with whatever user has the active X 
+session that's controlling the physical display.
 
-Same with multiple text consoles - that's more familiar.
+Yes, it could get complicated if we supported multiple video cards, but 
+fortunately we don't :-)
 
-Which one owns /dev/vmch3?
+I really think you need to have a copy/paste daemon that allows multiple 
+X sessions to connect to it and then that daemon can somehow determine 
+who is the "active" session.
 
--- Jamie
+This is part of the reason I've been pushing for a concrete example.  
+All the signs here point to a privileged daemon that delegates to 
+multiple users.  I think just about any use-case will have a similar model.
+
+It really suggests that you need _one_ vmchannel that's exposed to 
+userspace with a single userspace daemon that consumes it.  You want the 
+flexibility of a userspace daemon in determining how you multiplex and 
+do security.  I don't think it's something you want to bake into the 
+userspace/kernel interface.
+
+And if you have a single daemon that serves vmchannel sessions, that 
+daemon can make it transparent whether the session is going over 
+/dev/ttyS0, a network device, /dev/hvc1, etc.
+
+Regards,
+
+Anthony Liguori
