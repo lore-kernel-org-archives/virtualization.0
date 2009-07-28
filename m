@@ -1,17 +1,20 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCHv4 2/2] virtio: refactor find_vqs
-Date: Tue, 28 Jul 2009 17:58:02 +0300
-Message-ID: <20090728145801.GA6048__1382.86559745229$1248793667$gmane$org@redhat.com>
-References: <cover.1248623150.git.mst@redhat.com>
-	<20090726154709.GC21829@redhat.com>
-	<200907281244.32124.rusty@rustcorp.com.au>
-	<20090728143052.GA10365@amit-x200.redhat.com>
+From: Anthony Liguori <anthony@codemonkey.ws>
+Subject: Re: [Qemu-devel] Re: virtio-serial: An interface for host-guest
+	communication
+Date: Tue, 28 Jul 2009 10:00:06 -0500
+Message-ID: <4A6F1276.50709__34778.8309831687$1248794110$gmane$org@codemonkey.ws>
+References: <1248717876-17630-1-git-send-email-amit.shah@redhat.com>
+	<4A6E0C9E.10908@codemonkey.ws> <20090727203214.GG15020@redhat.com>
+	<20090727204627.GA32432@shareable.org>
+	<4A6E3BDC.8050101@codemonkey.ws>
+	<20090728140029.GA16067@amd.home.annexia.org>
+	<4A6F0FA0.4010101@codemonkey.ws>
+	<20090728145557.GI3842@amd.home.annexia.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20090728143052.GA10365@amit-x200.redhat.com>
+In-Reply-To: <20090728145557.GI3842@amd.home.annexia.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -21,29 +24,30 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Amit Shah <amit.shah@redhat.com>
-Cc: Carsten Otte <cotte@de.ibm.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, avi@redhat.com, Anthony Liguori <anthony@codemonkey.ws>
+To: "Richard W.M. Jones" <rjones@redhat.com>
+Cc: Amit Shah <amit.shah@redhat.com>, qemu-devel@nongnu.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jul 28, 2009 at 08:00:52PM +0530, Amit Shah wrote:
-> On (Tue) Jul 28 2009 [12:44:31], Rusty Russell wrote:
-> > On Mon, 27 Jul 2009 01:17:09 am Michael S. Tsirkin wrote:
-> > > This refactors find_vqs, making it more readable and robust, and fixing
-> > > two regressions from 2.6.30:
-> > > - double free_irq causing BUG_ON on device removal
-> > > - probe failure when vq can't be assigned to msi-x vector
-> > >   (reported on old host kernels)
-> > > 
-> > > An older version of this patch was tested by Amit Shah.
-> > 
-> > OK, I've applied both of these; I'd like to see a new test by Amit to
-> > make sure tho.
-> 
-> Tested these patches as well. They work fine.
-> 
-> Tested-by: Amit Shah <amit.shah@redhat.com>
+Richard W.M. Jones wrote:
+> On Tue, Jul 28, 2009 at 09:48:00AM -0500, Anthony Liguori wrote:
+>   
+>> Dave Miller nacked that approach with a sledgehammer instead preferring  
+>> that we just use standard TCP/IP which is what led to the current  
+>> implementation using slirp.
+>>     
+>
+> I'm aware of that - I just don't think it was a good choice.
+>
+> [BTW the qemu-devel mailing list seems to be bouncing messages]
+>   
 
-Amit, thanks very much for the testing.
+I know.  I've reported it to the Savannah admins and am helping them 
+track it down.
 
--- 
-MST
+> Rich.
+>
+>   
+
+Regards,
+
+Anthony Liguori
