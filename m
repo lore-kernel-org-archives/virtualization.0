@@ -1,18 +1,11 @@
-From: Amit Shah <amit.shah@redhat.com>
-Subject: Re: [Qemu-devel] Re: virtio-serial: An interface for host-guest
-	communication
-Date: Tue, 28 Jul 2009 16:06:24 +0530
-Message-ID: <20090728103624.GA5176__15276.4391540133$1248777491$gmane$org@amit-x200.redhat.com>
-References: <1248717876-17630-1-git-send-email-amit.shah@redhat.com>
-	<4A6E0C9E.10908@codemonkey.ws> <20090727203214.GG15020@redhat.com>
-	<20090727204627.GA32432@shareable.org>
-	<4A6E3BDC.8050101@codemonkey.ws>
+From: Ryo Tsuruta <ryov@valinux.co.jp>
+Subject: [PATCH 1/7] blkio-cgroup-v10: Introduction
+Date: Tue, 28 Jul 2009 21:09:34 +0900 (JST)
+Message-ID: <20090728.210934.193696111.ryov__35357.7824229889$1248783409$gmane$org@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <4A6E3BDC.8050101@codemonkey.ws>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -22,53 +15,42 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Anthony Liguori <anthony@codemonkey.ws>
-Cc: "Daniel P. Berrange" <berrange@redhat.com>, Jamie Lokier <jamie@shareable.org>, qemu-devel@nongnu.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: linux-kernel@vger.kernel.org, dm-devel@redhat.com, containers@lists.linux-foundation.org, virtualization@lists.linux-foundation.org, xen-devel@lists.xensource.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On (Mon) Jul 27 2009 [18:44:28], Anthony Liguori wrote:
-> Jamie Lokier wrote:
->> With multiple X servers, there can be more than one currently logged in user.
->>
->> Same with multiple text consoles - that's more familiar.
->>
->> Which one owns /dev/vmch3?
->>   
->
-> For a VMM, copy/paste should work with whatever user has the active X  
-> session that's controlling the physical display.
->
-> Yes, it could get complicated if we supported multiple video cards, but  
-> fortunately we don't :-)
->
-> I really think you need to have a copy/paste daemon that allows multiple  
-> X sessions to connect to it and then that daemon can somehow determine  
-> who is the "active" session.
->
-> This is part of the reason I've been pushing for a concrete example.   
-> All the signs here point to a privileged daemon that delegates to  
-> multiple users.  I think just about any use-case will have a similar 
-> model.
->
-> It really suggests that you need _one_ vmchannel that's exposed to  
-> userspace with a single userspace daemon that consumes it.  You want the  
-> flexibility of a userspace daemon in determining how you multiplex and  
-> do security.  I don't think it's something you want to bake into the  
-> userspace/kernel interface.
+Hi all,
 
-Right; use virtio just as the transport and all the interesting
-activity happens in userspaces. That was the basis with which I started.
-I can imagine dbus doing the copy/paste, lock screen, etc. actions.
+This is a new release of blkio-cgroup v10. This release reduces
+IO tracking overhead and fixes an issue that could cause a deadlock
+since lock_page_cgroup() is no longer used.
+Thank you KAMEZAWA-san for your suggestions and pointing out the issue.
 
-However for libguestfs, dbus isn't an option and they already have some
-predefined agents for each port. So libguestfs is an example for a
-multi-port usecase for virtio-serial.
+This patch can be applied to 2.6.31-rc3-mmotm0716 and 2.6.31-rc4.
 
-> And if you have a single daemon that serves vmchannel sessions, that  
-> daemon can make it transparent whether the session is going over  
-> /dev/ttyS0, a network device, /dev/hvc1, etc.
+The list of the patches:
+  [PATCH 1/7] blkio-cgroup-v10: Introduction
+  [PATCH 2/7] blkio-cgroup-v10: The new page_cgroup framework
+  [PATCH 3/7] blkio-cgroup-v10: Refactoring io-context initialization
+  [PATCH 4/7] blkio-cgroup-v10: The body of blkio-cgroup
+  [PATCH 5/7] blkio-cgroup-v10: The document of blkio-cgroup
+  [PATCH 6/7] blkio-cgroup-v10: Page tracking hooks
+  [PATCH 7/7] blkio-cgroup-v10: Add a cgroup support to dm-ioband
 
-or /dev/vmch0. it doesn't matter. All minimal virtio devices will look
-the same. Pop buffers, populate them, push them, etc.
+About blkio-cgroup:
+blkio-cgroup is a block I/O tracking mechanism implemented on the
+cgroup memory subsystem. Using this feature the owners of any type of
+I/O can be determined. This allows dm-ioband to control block I/O
+bandwidth even when it is accepting delayed write requests. dm-ioband
+can find the cgroup of each request. It is also for possible that
+others working on I/O bandwidth throttling to use this functionality
+to control asynchronous I/O with a little enhancement.
 
-		Amit
+Please visit our website, the patches and more information are available.
+  Linux Block I/O Bandwidth Control Project
+  http://sourceforge.net/apps/trac/ioband/
+
+I'd like to get some feedbacks from the list. Any comments are
+appreciated.
+
+Thanks,
+Ryo Tsuruta
