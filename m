@@ -1,20 +1,20 @@
-From: Anthony Liguori <anthony@codemonkey.ws>
+From: Amit Shah <amit.shah@redhat.com>
 Subject: Re: [Qemu-devel] Re: virtio-serial: An interface for host-guest
 	communication
-Date: Tue, 28 Jul 2009 10:00:06 -0500
-Message-ID: <4A6F1276.50709__34778.8309831687$1248794110$gmane$org@codemonkey.ws>
+Date: Wed, 29 Jul 2009 13:14:18 +0530
+Message-ID: <20090729074418.GA24925__10298.9182727926$1248853560$gmane$org@amit-x200.redhat.com>
 References: <1248717876-17630-1-git-send-email-amit.shah@redhat.com>
 	<4A6E0C9E.10908@codemonkey.ws> <20090727203214.GG15020@redhat.com>
 	<20090727204627.GA32432@shareable.org>
 	<4A6E3BDC.8050101@codemonkey.ws>
-	<20090728140029.GA16067@amd.home.annexia.org>
-	<4A6F0FA0.4010101@codemonkey.ws>
-	<20090728145557.GI3842@amd.home.annexia.org>
+	<20090728103624.GA5176@amit-x200.redhat.com>
+	<4A6F0048.1000103@codemonkey.ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20090728145557.GI3842@amd.home.annexia.org>
+Content-Disposition: inline
+In-Reply-To: <4A6F0048.1000103@codemonkey.ws>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -24,30 +24,30 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Richard W.M. Jones" <rjones@redhat.com>
-Cc: Amit Shah <amit.shah@redhat.com>, qemu-devel@nongnu.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Anthony Liguori <anthony@codemonkey.ws>
+Cc: "Daniel P. Berrange" <berrange@redhat.com>, Jamie Lokier <jamie@shareable.org>, qemu-devel@nongnu.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Richard W.M. Jones wrote:
-> On Tue, Jul 28, 2009 at 09:48:00AM -0500, Anthony Liguori wrote:
->   
->> Dave Miller nacked that approach with a sledgehammer instead preferring  
->> that we just use standard TCP/IP which is what led to the current  
->> implementation using slirp.
->>     
+On (Tue) Jul 28 2009 [08:42:32], Anthony Liguori wrote:
+> Amit Shah wrote:
+>> Right; use virtio just as the transport and all the interesting
+>> activity happens in userspaces. That was the basis with which I started.
+>> I can imagine dbus doing the copy/paste, lock screen, etc. actions.
+>>
+>> However for libguestfs, dbus isn't an option and they already have some
+>> predefined agents for each port. So libguestfs is an example for a
+>> multi-port usecase for virtio-serial.
+>>   
 >
-> I'm aware of that - I just don't think it was a good choice.
->
-> [BTW the qemu-devel mailing list seems to be bouncing messages]
->   
+> Or don't use dbus and use something that libguestfs is able to embed.   
+> The fact that libguestfs doesn't want dbus in the guest is not an  
+> argument for using a higher level kernel interface especially one that  
+> doesn't meet the requirements of the interface.
 
-I know.  I've reported it to the Savannah admins and am helping them 
-track it down.
+But why do we want to limit the device to only one port? It's not too
+complex supporting additional ones.
 
-> Rich.
->
->   
+As I see it qemu and the kernel should provide the basic abstraction for
+the userspace to go do its job. Why create unnecessary barriers?
 
-Regards,
-
-Anthony Liguori
+		Amit
