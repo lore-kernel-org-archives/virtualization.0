@@ -1,12 +1,14 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: [PULL] lguest & virtio fixes, cleanups
-Date: Thu, 30 Jul 2009 16:11:37 +0930
-Message-ID: <200907301611.38480.rusty__8388.81216845966$1248936248$gmane$org@rustcorp.com.au>
+From: Ryo Tsuruta <ryov@valinux.co.jp>
+Subject: Re: [PATCH] dm-ioband-v1.12.2: I/O bandwidth controller
+Date: Thu, 30 Jul 2009 17:53:21 +0900 (JST)
+Message-ID: <20090730.175321.193708040.ryov__44374.7257152156$1248944296$gmane$org@valinux.co.jp>
+References: <20090730.115454.226775179.ryov@valinux.co.jp>
+	<20090730054204.GA11291@verge.net.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
+In-Reply-To: <20090730054204.GA11291@verge.net.au>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -16,66 +18,41 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: lguest <lguest@ozlabs.org>, "Michael S. Tsirkin" <mst@redhat.com>, Dan Carpenter <error27@gmail.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: horms@verge.net.au
+Cc: xen-devel@lists.xensource.com, containers@lists.linux-foundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, dm-devel@redhat.com, agk@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Note that the bulk of this is comment updates and style fixups: the
-diffstat on the 5 fixes is:
+Hi Simon,
 
- Documentation/lguest/lguest.c |    6 -
- drivers/lguest/lguest_user.c  |    5
- drivers/virtio/virtio_pci.c   |  246 +++++++++++++++++++++++-------------------
- 3 files changed, 147 insertions(+), 110 deletions(-)
+> Hi Tsuruta-san,
+> 
+> have you run sparse over this code? There seem to be a few interesting
+> warnings generated (and some at the top noise too).
 
-The bulk of *that* is the virtio_pci MSI-X support "refactor": I should have
-looked much harder at that before I merged it in.
+Thank you for your comment.
+I'll do sparse every time from now on.
+ 
+> $ make C=1 CF="-D__CHECK_ENDIAN__"
+> [snip]
+> include/trace/events/dm-ioband.h:9:1: warning: symbol 'ftrace_raw_output_ioband_hold_urgent_bio' was not declared. Should it be static?
+[snip ftrace warnings]
+
+> drivers/md/dm-ioband-ctl.c:178:2: warning: context problem in 'suspend_ioband_device': '_spin_unlock_irqrestore' expected different context
+> drivers/md/dm-ioband-ctl.c:178:2:    context 'lock': wanted >= 1, got 0
+> drivers/md/dm-ioband-ctl.c:600:3: warning: context imbalance in 'prevent_burst_bios': unexpected unlock
+> drivers/md/dm-ioband-ctl.c:600:3:    context '<noident>': wanted 0, got -1
+> drivers/md/dm-ioband-ctl.c:816:3: warning: context imbalance in 'ioband_map': __context__ statement expected different context
+> drivers/md/dm-ioband-ctl.c:816:3:    context '<noident>': wanted >= 0, got -1
+> drivers/md/dm-ioband-rangebw.c:287:4: warning: context imbalance in 'range_bw_queue_full': __context__ statement expected different context
+> drivers/md/dm-ioband-rangebw.c:287:4:    context '<noident>': wanted >= 0, got -1
+
+These imbalances are not warned by the latest sparse command retrieved
+from the git repository, and actually they are not imbalanced.
+
+> drivers/md/dm-ioband-rangebw.c:592:6: warning: symbol 'range_bw_timeover' was not declared. Should it be static?
+> drivers/md/dm-ioband-rangebw.c:210: warning: 'io_mode' may be used uninitialized in this function
+
+I'll fix these warnings and post the update soon.
 
 Thanks,
-Rusty.
-
-The following changes since commit 658874f05d040ca96eb5ba9b1c30ce0ff287d762:                
-  Linus Torvalds (1):                                                                       
-        Merge branch 'i2c-fixes-rc4' of git://aeryn.fluff.org.uk/bjdooks/linux              
-
-are available in the git repository at:
-
-  ssh://master.kernel.org/pub/scm/linux/kernel/git/rusty/linux-2.6-for-linus.git master
-
-Dan Carpenter (1):
-      lguest: dereferencing freed mem in add_eventfd()
-
-Michael S. Tsirkin (3):
-      virtio: fix memory leak on device removal
-      virtio: delete vq from list
-      virtio: refactor find_vqs
-
-Rusty Russell (4):
-      lguest: fix descriptor corruption in example launcher
-      lguest: fix comment style
-      lguest: update commentry
-      lguest and virtio: cleanup struct definitions to Linux style.
-
- Documentation/lguest/lguest.c         |  721 ++++++++++++++++++++++-----------
- arch/x86/include/asm/lguest.h         |    3 +-
- arch/x86/include/asm/lguest_hcall.h   |   18 +-
- arch/x86/lguest/boot.c                |  509 ++++++++++++++++--------
- arch/x86/lguest/i386_head.S           |  112 ++++--
- drivers/lguest/core.c                 |  119 ++++--
- drivers/lguest/hypercalls.c           |  145 +++++---
- drivers/lguest/interrupts_and_traps.c |  288 +++++++++-----
- drivers/lguest/lg.h                   |   32 +-
- drivers/lguest/lguest_device.c        |  160 +++++---
- drivers/lguest/lguest_user.c          |  232 ++++++++---
- drivers/lguest/page_tables.c          |  489 +++++++++++++++-------
- drivers/lguest/segments.c             |  106 ++++--
- drivers/lguest/x86/core.c             |  374 +++++++++++------
- drivers/lguest/x86/switcher_32.S      |   22 +-
- drivers/virtio/virtio_pci.c           |  240 +++++++-----
- include/linux/lguest.h                |   39 ++-
- include/linux/lguest_launcher.h       |   18 +-
- include/linux/virtio_blk.h            |    6 +-
- include/linux/virtio_config.h         |    3 +-
- include/linux/virtio_net.h            |    6 +-
- include/linux/virtio_ring.h           |   12 +-
- 22 files changed, 2422 insertions(+), 1232 deletions(-)
+Ryo Tsuruta
