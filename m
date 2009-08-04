@@ -1,15 +1,15 @@
-From: Peter Zijlstra <peterz@infradead.org>
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 Subject: Re: [PATCH 0/4] Virtual Machine Time Accounting
-Date: Tue, 04 Aug 2009 19:33:14 +0200
-Message-ID: <1249407194.4762.28.camel__49669.2978464582$1249407593$gmane$org@laptop>
+Date: Tue, 4 Aug 2009 20:12:20 +0200
+Message-ID: <20090804201220.4f71a4b0__25780.8615606793$1249409730$gmane$org@skybase>
 References: <46C99371.7070705@bull.net> <1249395398.7924.223.camel@twins>
 	<20090804170747.11801f0a@skybase> <1249403202.4762.12.camel@laptop>
-	<20090804192924.217930fc@skybase>
+	<20090804192924.217930fc@skybase> <1249407194.4762.28.camel@laptop>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20090804192924.217930fc@skybase>
+In-Reply-To: <1249407194.4762.28.camel@laptop>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,41 +19,55 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>
+To: Peter Zijlstra <peterz@infradead.org>
 Cc: kvm-devel <kvm-devel@lists.sourceforge.net>, Laurent Vivier <Laurent.Vivier@bull.net>, Ingo Molnar <mingo@elte.hu>, linux-kernel <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 2009-08-04 at 19:29 +0200, Martin Schwidefsky wrote:
+On Tue, 04 Aug 2009 19:33:14 +0200
+Peter Zijlstra <peterz@infradead.org> wrote:
 
-> > So its going to split user time into user and guest. Does that really
-> > make sense? For the host kernel it really is just another user process,
-> > no?
+> On Tue, 2009-08-04 at 19:29 +0200, Martin Schwidefsky wrote:
 > 
-> The code (at least in parts) is already upstream. Look at the
-> account_guest_time function:
+> > > So its going to split user time into user and guest. Does that really
+> > > make sense? For the host kernel it really is just another user process,
+> > > no?
+> > 
+> > The code (at least in parts) is already upstream. Look at the
+> > account_guest_time function:
+> > 
+> > static void account_guest_time(struct task_struct *p, cputime_t cputime,
+> >                                cputime_t cputime_scaled)
+> > {
+> >         cputime64_t tmp;
+> >         struct cpu_usage_stat *cpustat = &kstat_this_cpu.cpustat;
+> > 
+> >         tmp = cputime_to_cputime64(cputime);
+> > 
+> >         /* Add guest time to process. */
+> >         p->utime = cputime_add(p->utime, cputime);
+> >         p->utimescaled = cputime_add(p->utimescaled, cputime_scaled);
+> >         account_group_user_time(p, cputime);
+> >         p->gtime = cputime_add(p->gtime, cputime);
+> > 
+> >         /* Add guest time to cpustat. */
+> >         cpustat->user = cputime64_add(cpustat->user, tmp);
+> >         cpustat->guest = cputime64_add(cpustat->guest, tmp);
+> > }
+> > 
+> > The cpu time for a guest is added to p->utime AND p->gtime. That is
+> > done not to break existing tools that know nothing about guest time.
+> > A guest time aware tool can subtract the p->gtime from p->utime to
+> > get the time spent by the process outside of the guest context.
 > 
-> static void account_guest_time(struct task_struct *p, cputime_t cputime,
->                                cputime_t cputime_scaled)
-> {
->         cputime64_t tmp;
->         struct cpu_usage_stat *cpustat = &kstat_this_cpu.cpustat;
-> 
->         tmp = cputime_to_cputime64(cputime);
-> 
->         /* Add guest time to process. */
->         p->utime = cputime_add(p->utime, cputime);
->         p->utimescaled = cputime_add(p->utimescaled, cputime_scaled);
->         account_group_user_time(p, cputime);
->         p->gtime = cputime_add(p->gtime, cputime);
-> 
->         /* Add guest time to cpustat. */
->         cpustat->user = cputime64_add(cpustat->user, tmp);
->         cpustat->guest = cputime64_add(cpustat->guest, tmp);
-> }
-> 
-> The cpu time for a guest is added to p->utime AND p->gtime. That is
-> done not to break existing tools that know nothing about guest time.
-> A guest time aware tool can subtract the p->gtime from p->utime to
-> get the time spent by the process outside of the guest context.
+> But why? How a vcpu anything other than yet another userspace process?
 
-But why? How a vcpu anything other than yet another userspace process?
+Because you have two different contexts where you spent time, the
+"normal" process context and the "guest" process context. To know how
+much of your cpu time is spent on virtualization overhead is an
+interesting number.
+
+-- 
+blue skies,
+   Martin.
+
+"Reality continues to ruin my life." - Calvin.
