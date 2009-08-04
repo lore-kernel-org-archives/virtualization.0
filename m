@@ -1,18 +1,13 @@
-From: Anthony Liguori <anthony@codemonkey.ws>
-Subject: Re: [Qemu-devel] Re: virtio-serial: An interface for host-guest
-	communication
-Date: Mon, 03 Aug 2009 14:57:01 -0500
-Message-ID: <4A77410D.4090804__19391.6074735627$1249329507$gmane$org@codemonkey.ws>
-References: <1248717876-17630-1-git-send-email-amit.shah@redhat.com>
-	<4A6E0C9E.10908@codemonkey.ws> <20090727203214.GG15020@redhat.com>
-	<20090727204627.GA32432@shareable.org>
-	<4A6E3BDC.8050101@codemonkey.ws>
-	<20090728140029.GA16067@amd.home.annexia.org>
+From: Peter Zijlstra <peterz@infradead.org>
+Subject: Re: [PATCH 0/4] Virtual Machine Time Accounting
+Date: Tue, 04 Aug 2009 16:16:38 +0200
+Message-ID: <1249395398.7924.223.camel__46472.1842705787$1249395769$gmane$org@twins>
+References: <46C99371.7070705@bull.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20090728140029.GA16067@amd.home.annexia.org>
+In-Reply-To: <46C99371.7070705@bull.net>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -22,27 +17,36 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Richard W.M. Jones" <rjones@redhat.com>
-Cc: Amit Shah <amit.shah@redhat.com>, qemu-devel@nongnu.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Laurent Vivier <Laurent.Vivier@bull.net>
+Cc: kvm-devel <kvm-devel@lists.sourceforge.net>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Ingo Molnar <mingo@elte.hu>, linux-kernel <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Richard W.M. Jones wrote:
-> On Mon, Jul 27, 2009 at 06:44:28PM -0500, Anthony Liguori wrote:
->   
->> It really suggests that you need _one_ vmchannel that's exposed to  
->> userspace with a single userspace daemon that consumes it.
->>     
->
-> ... or a more flexible API.  I don't like having fixed /dev/vmch*
-> devices either.
->   
+These patches never seem to have made it onto LKML?!
 
-Have you considered using a usb serial device?  Something attractive 
-about it is that a productid/vendorid can be specified which means that 
-you can use that as a method of enumerating devices.
+On Mon, 2007-08-20 at 15:13 +0200, Laurent Vivier wrote:
+> The aim of these four patches is to introduce Virtual Machine time accounting.
+> 
+> _Ingo_, as these patches modify files of the scheduler, could you have a look to
+> them, please ?
+> 
+> [PATCH 1/4] as recent CPUs introduce a third running state, after "user" and
+> "system", we need a new field, "guest", in cpustat to store the time used by
+> the CPU to run virtual CPU. Modify /proc/stat to display this new field.
+> 
+> [PATCH 2/4] like for cpustat, introduce the "gtime" (guest time of the task) and
+> "cgtime" (guest time of the task children) fields for the
+> tasks. Modify signal_struct and task_struct. Modify /proc/<pid>/stat to display
+> these new fields.
+> 
+> [PATCH 3/4] modify account_system_time() to add cputime to cpustat->guest if we
+> are running a VCPU. We add this cputime to  cpustat->user instead of
+> cpustat->system because this part of KVM code is in fact user code although it
+> is executed in the kernel. We duplicate VCPU time between guest and user to
+> allow an unmodified "top(1)" to display correct value. A modified "top(1)" is
+> able to display good cpu user time and cpu guest time by subtracting cpu guest
+> time from cpu user time. Update "gtime" and "cgtime" in signal_struct and
+> task_struct accordingly.
+> 
+> [PATCH 4/4] Modify KVM to update guest time accounting.
 
-Hot add/remove is supported automagically.
-
-Regards,
-
-Anthony Liguori
+Isn't this exactly what CONFIG_VIRT_CPU_ACCOUNTING is about?
