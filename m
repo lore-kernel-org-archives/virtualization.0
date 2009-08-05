@@ -1,22 +1,20 @@
-From: Jamie Lokier <jamie@shareable.org>
+From: Anthony Liguori <anthony@codemonkey.ws>
 Subject: Re: [Qemu-devel] Re: virtio-serial: An interface for host-guest
 	communication
-Date: Wed, 5 Aug 2009 19:00:49 +0100
-Message-ID: <20090805180049.GC28738__885.321052237664$1249495309$gmane$org@shareable.org>
+Date: Wed, 05 Aug 2009 13:00:57 -0500
+Message-ID: <4A79C8D9.5030606__14001.0145413273$1249495317$gmane$org@codemonkey.ws>
 References: <1248717876-17630-1-git-send-email-amit.shah@redhat.com>
 	<4A6E0C9E.10908@codemonkey.ws> <20090727203214.GG15020@redhat.com>
 	<20090727204627.GA32432@shareable.org>
 	<4A6E3BDC.8050101@codemonkey.ws>
-	<20090728103624.GA5176@amit-x200.redhat.com>
-	<4A6F0048.1000103@codemonkey.ws>
-	<20090729074418.GA24925@amit-x200.redhat.com>
-	<20090729074827.GJ30449@redhat.com>
+	<20090728140029.GA16067@amd.home.annexia.org>
+	<4A77410D.4090804@codemonkey.ws>
+	<20090805175713.GB28738@shareable.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20090729074827.GJ30449@redhat.com>
+In-Reply-To: <20090805175713.GB28738@shareable.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -26,32 +24,58 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gleb Natapov <gleb@redhat.com>
-Cc: "Daniel P. Berrange" <berrange@redhat.com>, kvm@vger.kernel.org, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Anthony Liguori <anthony@codemonkey.ws>, Amit Shah <amit.shah@redhat.com>
+To: Jamie Lokier <jamie@shareable.org>
+Cc: Amit Shah <amit.shah@redhat.com>, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, qemu-devel@nongnu.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Gleb Natapov wrote:
-> On Wed, Jul 29, 2009 at 01:14:18PM +0530, Amit Shah wrote:
-> > But why do we want to limit the device to only one port? It's not too
-> > complex supporting additional ones.
-> > 
-> > As I see it qemu and the kernel should provide the basic abstraction for
-> > the userspace to go do its job. Why create unnecessary barriers?
-> > 
-> I agree. If userspace wants it may use only one channel and demultiplex
-> messages by itself, but we shouldn't force it to. Also one of the
-> requirements for virtio-serial is to have connect disconnect
-> notifications. It is not possible with demultiplexing in the userspace.
+Jamie Lokier wrote:
+> Anthony Liguori wrote:
+>   
+>> Richard W.M. Jones wrote:
+>> Have you considered using a usb serial device?  Something attractive 
+>> about it is that a productid/vendorid can be specified which means that 
+>> you can use that as a method of enumerating devices.
+>>
+>> Hot add/remove is supported automagically.
+>>     
+>
+> The same applies to PCI: productid/vendorid (and subids);
+> PCI hotplug is possible though not as native as USB.
+>   
 
-I agree too, for all those reasons.
+What's nice about USB is that HID specifies quite a few functional 
+generic devices that can be extended to increase functionality.  This 
+means you can implement a more sophisticated usb device that satisfies 
+the serial interface, provide a special more featureful driver for 
+Linux, and just use normal serial for Windows.
 
-However it would be useful if the devices provided a simpler way to be
-found by guest applications than /dev/vmch0, vmch1, vmch2...
+The downside is that USB emulation stinks.
 
-On Linux udev provides a sane way to find devices according to roles,
-subtypes, serial numbers, whatever you want, if the appropriate id
-codes are available from the devices and put into /sys/* by the kernel
-driver.  That would make the devices much more useful to independent
-applications, imho.
+> Here's another idea: Many devices these days have a serial number or
+> id string.  E.g. USB storage, ATA drives, media cards, etc.  Linux
+> these days creates alias device nodes which include the id string in
+> the device name.  E.g. /dev/disks/by-id/ata-FUJITSU_MHV2100BH_NWAQT662615H
+>
+> So in addition to (or instead of) /dev/vmch0, /dev/vmch1 etc.,
+> Linux guests could easily generate:
+>
+>     /dev/vmchannel/by-role/clipboard-0
+>     /dev/vmchannel/by-role/gueststats-0
+>     /dev/vmchannel/by-role/vmmanager-0
+>
+> It's not necessary to do this at the beginning.  All that is needed is
+> to provide enough id information that will appear in /sys/..., so that
+> that a udev policy for naming devices can be created at some later date.
+>   
 
--- Jamie
+Well my thinking is that the "clipboard" device actually becomes a USB 
+serial device.  It's easy to enumerate and detect via the existing Linux 
+infrastructure.  Plus usb drivers can be implemented in userspace which 
+is a nice plus (cross platform too via libusb).
+
+Regards,
+
+Anthony Liguori
+
+> -- Jamie
+>   
