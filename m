@@ -1,15 +1,15 @@
-From: Ingo Molnar <mingo@elte.hu>
-Subject: Re: [PATCH 2/4] Introduce a new fields "gtime" and "cgtime" in
-	task_struct and signal_struct
-Date: Wed, 5 Aug 2009 08:59:19 +0200
-Message-ID: <20090805065919.GA6305__11979.2988793508$1249455644$gmane$org@elte.hu>
-References: <46C99392.3050205@bull.net>
+From: Or Gerlitz <ogerlitz@voltaire.com>
+Subject: Re: bridge vs macvlan performance
+Date: Wed, 05 Aug 2009 10:02:22 +0300
+Message-ID: <4A792E7E.10007__26256.2348777012$1249455853$gmane$org@Voltaire.com>
+References: <Pine.LNX.4.64.0908041650560.13803@zuben.voltaire.com>	<4A785824.2030500@candelatech.com>
+	<4A790D24.9000008@voltaire.com>	<4A790F35.60204@candelatech.com>
+	<4A791BA2.1040503@voltaire.com> <4A791DA5.3090202@candelatech.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <46C99392.3050205@bull.net>
+In-Reply-To: <4A791DA5.3090202@candelatech.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,64 +19,107 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Laurent Vivier <Laurent.Vivier@bull.net>, Jeremy Fitzhardinge <jeremy@goop.org>, Peter Zijlstra <a.p.zijlstra@chello.nl>, Martin Schwidefsky <schwidefsky@de.ibm.c>
-Cc: kvm-devel <kvm-devel@lists.sourceforge.net>, linux-kernel <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>
+To: Ben Greear <greearb@candelatech.com>
+Cc: Sapan Bhatia <sapanb@cs.princeton.edu>, netdev@vger.kernel.org, Stephen Hemminger <shemminger@linux-foundation.org>, Vytautas Valancius <vytautas.valancius@gmail.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
+Ben Greear wrote:
+> Or Gerlitz wrote:
 
-* Laurent Vivier <Laurent.Vivier@bull.net> wrote:
+>> Using the same pktgen script (i.e with clone=0) I see that a
+>> veth-->bridge-->veth configuration gives about 400K PPS forwarding
+>> performance where macvlan-->veth-->macvlan gives 680K PPS (again, I
+>> made sure that the bridge has applied learning before I start the test).
 
-> [PATCH 2/4] like for cpustat, introduce the "gtime" (guest time of 
-> the task) and "cgtime" (guest time of the task children) fields 
-> for the tasks. Modify signal_struct and task_struct. Modify 
-> /proc/<pid>/stat to display these new fields.
+(its interesting how many times the same mistake can be done...) setting net.bridge.bridge-nf-call-iptables=0 made the veth-->bridge-->veth test to deliver 600K PPS thus reducing the gain achieved by the macvlan-->veth-->macvlan test from 70% to 20% which is way less but still notable.
 
-> --- kvm.orig/include/linux/sched.h	2007-08-20 11:11:30.000000000 +0200
-> +++ kvm/include/linux/sched.h	2007-08-20 13:00:02.000000000 +0200
-> @@ -515,6 +515,10 @@ struct signal_struct {
->  	 * in __exit_signal, except for the group leader.
->  	 */
->  	cputime_t utime, stime, cutime, cstime;
-> +#ifdef CONFIG_GUEST_ACCOUNTING
-> +	cputime_t gtime;
-> +	cputime_t cgtime;
-> +#endif
+> A VETH has to send to it's peer, so your descriptions are a bit vague.
+> What are you really configuring?  Maybe show us your script or commands
+> that set up each of these tests?
 
-A handful of general (and less general) observations about these 
-patches:
+Yes, VETH has to send to its peer, so the veth/bridge/veth test has actually two more hops vs the macvlan/veth/macvlan test, maybe this can explain the difference, as for you question see below my configuration.
 
- 1- The code is very ugly due to being an #ifdef fest. Please
-    always try to avoid them.
+I am looking for the simplest setup to test the Linux bridge forwarding performance, I could do a tap-->bridge-->tap test with two processes sitting in user space, but I tend to think that user/kernel switches and the tap code may become the bottleneck in that case, where the kernel pktgen is much more efficient. 
 
- 2- cputime_t is very coarse on x86: measured in jiffies. This means
-    that with a default HZ of 250 we'll have units of 4 msecs. 
-    That's almost useless to rely on in new instrumentation: an irq 
-    can come in and out without accounting noticing it, etc. If we 
-    do some new statistics then it should be a lot better than 
-    jiffies granular.
+Or.
 
- 3- stime of vcpu tasks/threads already approximates 'guest time' 
-    adequately. (as Jeremy observed it as well) Yes, it mixes 'true 
-    guest mode' and 'host mode' system time, but then again due to 
-    the jiffies granularity we have a _far_ bigger skew going on 
-    already.
+------> for veth/bridge/veth test I do the below such that my config is
+------> pktgen --> veth1 --> veth0 --> br0 --> veth2 --> veth3
 
- 4- namespace collision: 'gtime' is already used as 'group time' in 
-    a few places. One of the two things needs to be renamed.
+BRIDGE=br0
 
- 5- tracepoints and perfcounters could be used to measure guest time 
-    precisely, in a low-overhead mode.
+brctl addbr $BRIDGE
+ifconfig $BRIDGE up
 
-These issues need to be addressed in a meaningful way. #2 probably 
-means a revamping of cputime_t handling on x86 - of not just the 
-gtime. But #3 is worth keeping in mind as well.
+# set the bridge such that it does NOT call iptables 
+sysctl -w net.bridge.bridge-nf-call-iptables=0
 
-I think #5 is the most capable solution by a wide margin - we need 
-just a single tracepoint to emit 'nsecs spent in guest mode' 
-information and that's it. It would be a far smaller patch.
+DEV_A=veth0
+DEV_B=veth1
+MAC_A=72:EC:8E:4F:89:00
+MAC_B=72:EC:8E:4F:89:01
 
-The tracepoint might even sample the guest RIP and hence could be 
-used as a VM-exit profiler and 'perf record -e kvm:vm_exit + perf 
-report' could be used to examine/profile/trace guest exit reasons.
+DEV_B_IP=20.20.49.11
+MASK=16
 
-	Ingo
+# create the 1st veth device pair
+ip link add name $DEV_A address $MAC_A type veth peer name $DEV_B address $MAC_B
+
+# bring up and connect one veth device to the bridge
+ifconfig $DEV_A up
+brctl addif $BRIDGE $DEV_A
+
+# configure the other veth device as NIC
+ifconfig $DEV_B $DEV_B_IP/$MASK up
+
+DEV_C=veth2
+DEV_D=veth3
+MAC_C=72:EC:8E:4F:89:02
+MAC_D=72:EC:8E:4F:89:03
+
+DEV_D_IP=20.20.49.13
+
+# create the 2nd veth device pair
+ip link add name $DEV_C address $MAC_C type veth peer name $DEV_D address $MAC_D
+
+# bring up and connect the other veth device to the bridge
+ifconfig $DEV_C up
+brctl addif $BRIDGE $DEV_C
+
+# configure the other veth device as NIC
+ifconfig $DEV_D $DEV_D_IP/$MASK up
+
+# make local Linux bridge learning come into play, populate the bridge FDB 
+REMOTE=1.1.1.1
+ping -I $DEV_B $REMOTE -i 0.05 -c 10 -q
+ping -I $DEV_D $REMOTE -i 0.05 -c 10 -q
+
+# examine the bridge FDB to make sure learning happened
+brctl showmacs $BRIDGE
+
+------> for macvlan/veth/macvlan test I do the below such that my config is
+------> pktgen --> mv0 --> veth1 --> veth0 --> mv1
+
+DEV_A=veth0
+DEV_B=veth1
+MAC_A=72:EC:8E:4F:89:00
+MAC_B=72:EC:8E:4F:89:01
+
+# create the 1st veth device pair
+ip link add name $DEV_A address $MAC_A type veth peer name $DEV_B address $MAC_B
+
+# bring up and connect one veth device to the bridge
+ifconfig $DEV_A up
+ifconfig $DEV_B up
+
+UPLINK_DEV_A=veth1
+UPLINK_DEV_B=veth0
+
+DEV_A=mv1
+DEV_B=mv0
+
+MAC_A=00:19:d1:29:d2:01
+MAC_B=00:19:d1:29:d2:00
+
+ip link add link $UPLINK_DEV_A address $MAC_A $DEV_A type macvlan
+ip link add link $UPLINK_DEV_B address $MAC_B $DEV_B type macvlan
