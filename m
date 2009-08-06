@@ -1,16 +1,22 @@
-From: Christoph Hellwig <hch@infradead.org>
-Subject: Re: [dm-devel] [PATCH] block: silently error unsupported empty
-	barriers too
-Date: Thu, 6 Aug 2009 08:22:21 -0400
-Message-ID: <20090806122221.GA5175__5798.94154002449$1249561441$gmane$org@infradead.org>
-References: <1249557257.3721.55.camel@blaa>
-	<20090806114550.GL29899@agk-dp.fab.redhat.com>
+From: Anthony Liguori <anthony@codemonkey.ws>
+Subject: Re: [Qemu-devel] Re: virtio-serial: An interface for host-guest
+	communication
+Date: Thu, 06 Aug 2009 08:29:40 -0500
+Message-ID: <4A7ADAC4.70902__8439.98117275096$1249565648$gmane$org@codemonkey.ws>
+References: <1248717876-17630-1-git-send-email-amit.shah@redhat.com>
+	<4A6E0C9E.10908@codemonkey.ws> <20090727203214.GG15020@redhat.com>
+	<20090727204627.GA32432@shareable.org>
+	<4A6E3BDC.8050101@codemonkey.ws>
+	<20090728140029.GA16067@amd.home.annexia.org>
+	<4A77410D.4090804@codemonkey.ws>
+	<20090805175713.GB28738@shareable.org>
+	<4A79C8D9.5030606@codemonkey.ws>
+	<20090806103843.GC9222@amit-x200.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20090806114550.GL29899@agk-dp.fab.redhat.com>
+In-Reply-To: <20090806103843.GC9222@amit-x200.redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,17 +26,21 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Mark McLoughlin <markmc@redhat.com>, device-mapper development <dm-devel@redhat.com>, Jens Axboe <jens.axboe@oracle.com>, Rusty Russell <rusty@rustcorp.com.au>
+To: Amit Shah <amit.shah@redhat.com>
+Cc: kvm@vger.kernel.org, Jamie Lokier <jamie@shareable.org>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Aug 06, 2009 at 12:45:50PM +0100, Alasdair G Kergon wrote:
-> On Thu, Aug 06, 2009 at 12:14:17PM +0100, Mark McLoughlin wrote:
-> > We should error all barriers, even empty barriers, on devices like
-> > virtio_blk which don't support them.
->  
-> Have you considered whether or not virtio_blk actually needs to
-> support empty barriers?
+Amit Shah wrote:
+> Sure; but there's been no resistance from anyone from including the
+> virtio-serial device driver so maybe we don't need to discuss that.
+>   
 
-virtio_blk on kvm does not support any barriers at all, similar to many
-other drivers out there.  If the queue flags say we don't support
-barriers higher layers should not submit any barrier requests.
+There certainly is from me.  The userspace interface is not reasonable 
+for guest applications to use.
+
+Regards,
+
+Anthony Liguori
+
+> 		Amit
+>   
