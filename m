@@ -1,20 +1,21 @@
-From: "Richard W.M. Jones" <rjones@redhat.com>
+From: Amit Shah <amit.shah@redhat.com>
 Subject: Re: [Qemu-devel] Re: virtio-serial: An interface for host-guest
 	communication
-Date: Wed, 5 Aug 2009 19:32:04 +0100
-Message-ID: <20090805183204.GI3501__28007.1158231751$1249497487$gmane$org@amd.home.annexia.org>
+Date: Thu, 6 Aug 2009 16:05:53 +0530
+Message-ID: <20090806103553.GB9222__48242.8138763227$1249555015$gmane$org@amit-x200.redhat.com>
 References: <1248717876-17630-1-git-send-email-amit.shah@redhat.com>
 	<4A6E0C9E.10908@codemonkey.ws> <20090727203214.GG15020@redhat.com>
 	<20090727204627.GA32432@shareable.org>
 	<4A6E3BDC.8050101@codemonkey.ws>
 	<20090728140029.GA16067@amd.home.annexia.org>
 	<4A77410D.4090804@codemonkey.ws>
+	<20090805175713.GB28738@shareable.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <4A77410D.4090804@codemonkey.ws>
+In-Reply-To: <20090805175713.GB28738@shareable.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -24,43 +25,42 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Anthony Liguori <anthony@codemonkey.ws>
-Cc: qemu-devel@nongnu.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Jamie Lokier <jamie@shareable.org>
+Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, Anthony Liguori <anthony@codemonkey.ws>, qemu-devel@nongnu.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Aug 03, 2009 at 02:57:01PM -0500, Anthony Liguori wrote:
-> Richard W.M. Jones wrote:
->> On Mon, Jul 27, 2009 at 06:44:28PM -0500, Anthony Liguori wrote:
->>   
->>> It really suggests that you need _one_ vmchannel that's exposed to   
->>> userspace with a single userspace daemon that consumes it.
->>>     
->>
->> ... or a more flexible API.  I don't like having fixed /dev/vmch*
->> devices either.
->>   
->
-> Have you considered using a usb serial device?  Something attractive  
-> about it is that a productid/vendorid can be specified which means that  
-> you can use that as a method of enumerating devices.
->
-> Hot add/remove is supported automagically.
+On (Wed) Aug 05 2009 [18:57:13], Jamie Lokier wrote:
+> Anthony Liguori wrote:
+> > Richard W.M. Jones wrote:
+> > Have you considered using a usb serial device?  Something attractive 
+> > about it is that a productid/vendorid can be specified which means that 
+> > you can use that as a method of enumerating devices.
+> > 
+> > Hot add/remove is supported automagically.
+> 
+> The same applies to PCI: productid/vendorid (and subids);
+> PCI hotplug is possible though not as native as USB.
+> 
+> Here's another idea: Many devices these days have a serial number or
+> id string.  E.g. USB storage, ATA drives, media cards, etc.  Linux
+> these days creates alias device nodes which include the id string in
+> the device name.  E.g. /dev/disks/by-id/ata-FUJITSU_MHV2100BH_NWAQT662615H
+> 
+> So in addition to (or instead of) /dev/vmch0, /dev/vmch1 etc.,
+> Linux guests could easily generate:
+> 
+>     /dev/vmchannel/by-role/clipboard-0
+>     /dev/vmchannel/by-role/gueststats-0
+>     /dev/vmchannel/by-role/vmmanager-0
 
-[ Meant to reply to this two days ago :-( ]
+That's interesting; worth a thought. When we actually have all the
+parties together (libvirt, libguestfs, qemu) to decide which ports need
+to act as which transports, we'll be able to add this.
 
-We're using -net channel ^W guestfwd in libguestfs now.  Apart from
-the problem with using the "new syntax", which I hope to get around
-to resolving some day, it performs quite well.
+> It's not necessary to do this at the beginning.  All that is needed is
+> to provide enough id information that will appear in /sys/..., so that
+> that a udev policy for naming devices can be created at some later date.
 
-The userspace API is somewhat annoying.
+True.
 
-Hot add/remove isn't a concern for us right now, nor is migration.
-Since we can throw up new qemu-based appliances in a few seconds.
-
-Rich.
-
--- 
-Richard Jones, Emerging Technologies, Red Hat  http://et.redhat.com/~rjones
-New in Fedora 11: Fedora Windows cross-compiler. Compile Windows
-programs, test, and build Windows installers. Over 70 libraries supprt'd
-http://fedoraproject.org/wiki/MinGW http://www.annexia.org/fedora_mingw
+		Amit
