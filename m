@@ -1,14 +1,24 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [PATCH][RFC] net/bridge: add basic VEPA support
-Date: Fri, 7 Aug 2009 13:29:44 +0200
-Message-ID: <200908071329.44437.arnd__8722.39517416364$1249644765$gmane$org@arndb.de>
-References: <0199E0D51A61344794750DC57738F58E67D2DCECBB@GVW1118EXC.americas.hpqcorp.net>
-	<20090806210002.75beb7c6@nehalam>
+From: Anthony Liguori <anthony@codemonkey.ws>
+Subject: Re: [Qemu-devel] Re: virtio-serial: An interface for host-guest
+	communication
+Date: Fri, 07 Aug 2009 09:14:43 -0500
+Message-ID: <4A7C36D3.3040305@codemonkey.ws>
+References: <20090728140029.GA16067@amd.home.annexia.org>
+	<4A77410D.4090804@codemonkey.ws>
+	<20090805175713.GB28738@shareable.org>
+	<4A79C8D9.5030606@codemonkey.ws>
+	<20090806103843.GC9222@amit-x200.redhat.com>
+	<4A7ADAC4.70902@codemonkey.ws>
+	<20090806134103.GC11733@amit-x200.redhat.com>
+	<4A7AE169.4000606@codemonkey.ws>
+	<20090806140404.GA12083@amit-x200.redhat.com>
+	<20090806173740.GA1178@shareable.org>
+	<20090807063800.GA16769@amit-x200.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20090806210002.75beb7c6@nehalam>
+In-Reply-To: <20090807063800.GA16769@amit-x200.redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,45 +28,57 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Stephen Hemminger <shemminger@linux-foundation.org>
-Cc: "Fischer, Anna" <anna.fischer@hp.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "Paul Congdon (UC Davis)" <ptcongdon@ucdavis.edu>, "adobriyan@gmail.com" <adobriyan@gmail.com>, "evb@yahoogroups.com" <evb@yahoogroups.com>, "davem@davemloft.net" <davem@davemloft.net>
+To: Amit Shah <amit.shah@redhat.com>
+Cc: kvm@vger.kernel.org, qemu-devel@nongnu.org, Jamie Lokier <jamie@shareable.org>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Friday 07 August 2009, Stephen Hemminger wrote:
-> So instead of adding more stuff to existing bridge code, why not
-> have a new driver for just VEPA. You could
-> do it with a simple version of macvlan type driver.
+Amit Shah wrote:
+> On (Thu) Aug 06 2009 [18:37:40], Jamie Lokier wrote:
+>   
+>> Apart from dbus, hard-coded meanings of small N in /dev/vmchN are
+>> asking for trouble.  It is bound to break when widely deployed and
+>>     
+>
+> It's no different from the way major-minor numbering works on the Linux
+> kernel: they uniquely identify a device.
 
-The current macvlan driver already does the downstream side of
-VEPA and only needs a connection to KVM et al, either using
-Or's qemu packet socket interface, or using the macvtap driver
-I posted.
+Bad example.  Quite a lot of modern devices drivers are using dynamic 
+major/minor numbers because they have proven to be such a pain in the 
+butt.  That's why we have more sophisticated mechanisms like udev for 
+userspace to make use of.
 
-Now Anna's patch also addresses the upstream side of VEPA, by
-making it possible for the bridge code to send frames back
-in the bridge code that they were received from, if that port
-is marked as a hairpin mode port.
+We'll definitely need some way to support dynamic vmchannels.  Static 
+allocation of ports is just not going to work.  If we did a userspace 
+daemon, I'd suggest using some sort of universal identifier that's easy 
+to manage in a distributed fashion.  Like a reverse fqdn.
 
-Is your suggestion to do that part also with a macvlan type driver?
-I've thought about this before, and I guess that would mean
-basically the same as the macvlan driver, except hashing the
-source MAC address instead of the destination MAC address for
-inbound frames. That way you should be able to do something
-like:
+So for instance, I could have an "com.ibm.my-awesome-channel" and never 
+have to worry about conflicts.
 
-            Host A                             Host B
+>> guest/host configs don't match.  It also doesn't fit comfortably when
+>> you have, say, bob and alice both logged in with desktops on separate
+>> VTs.  Clashes are inevitable, as third-party apps pick N values for
+>> themselves then get distributed - unless N values can be large
+>> (/dev/vmch44324 == kernelstats...).
+>>     
+>
+> Hm, so there can be one daemon on the guest handling all clipboard
+> events. There's some work done already by the fast-user-switch support
+> and that can be extended to daemons that talk over virtio-serial.
+>   
 
-      /- nalvcam0 -\                   /- macvlan0 - 192.168.1.1
-br0 -|              |- ethA === ethB -|
-      \- nalvcam1 -/                   \- macvlan1 - 192.168.1.2
-  
-Now assuming that macvlan0 and macvlan1 are in different
-network namespaces or belong to different KVM guests, these
-guests would be able to communicate with each other through
-the bridge on host A, which can set the policy (using ebtables)
-for this communication and get interface statistics on its
-nalvcam interfaces. Also, instead of having the br0, Host A could
-assign an IP addresses to the two nalvcam interfaces that host
-B has, and use IP forwarding between the guests of host B.
+You could have one daemon that manages all vmchannel sessions.  It can 
+then expose channels to apps via whatever mechanism is best.  It could 
+use unix domain sockets, sys v ipc, whatever floats your boat.
 
-	Arnd <><
+And, you can build this daemon today using the existing vmchannel over 
+TCP/IP.  You could also make it support serial devices.  We could also 
+introduce a custom usb device and use libusb.  libusb is portable to 
+Windows and Linux.
+
+So we get backwards compatibility, and the Just Works experience with no 
+funky kernel drivers.  What's there not to like?
+
+Regards,
+
+Anthony Liguori
