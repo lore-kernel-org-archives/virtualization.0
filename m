@@ -1,17 +1,15 @@
-From: "Fischer, Anna" <anna.fischer@hp.com>
-Subject: RE: [evb] Re: [PATCH][RFC] net/bridge: add basic VEPA support
-Date: Mon, 10 Aug 2009 15:59:04 +0000
-Message-ID: <0199E0D51A61344794750DC57738F58E6D6AE99867__13374.7818334543$1249920600$gmane$org@GVW1118EXC.americas.hpqcorp.net>
+From: "Paul Congdon \(UC Davis\)" <ptcongdon@ucdavis.edu>
+Subject: RE: [PATCH][RFC] net/bridge: add basic VEPA support
+Date: Fri, 7 Aug 2009 11:58:00 -0700
+Message-ID: <004e01ca1790$fec36c30$fc4a4490$__29615.7226818197$1249920702$gmane$org@edu>
 References: <0199E0D51A61344794750DC57738F58E67D2DCECBB@GVW1118EXC.americas.hpqcorp.net>
-	<200908071329.44437.arnd@arndb.de>
-	<005101ca1797$70dcf5b0$5296e110$@edu>
-	<200908101723.10832.arnd@arndb.de>
+	<20090806210002.75beb7c6@nehalam>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <200908101723.10832.arnd@arndb.de>
-Content-Language: en-US
+In-Reply-To: <20090806210002.75beb7c6@nehalam>
+Content-Language: en-us
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -21,57 +19,75 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: "Paul Congdon (UC Davis)" <ptcongdon@ucdavis.edu>, "Fischer,
-	Anna" <anna.fischer@hp.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "adobriyan@gmail.com" <adobriyan@gmail.com>, "evb@yahoogroups.com" <evb@yahoogroups.com>, 'Stephen Hemminger' <shemminger@linux-foundation.org>, "davem@davemloft.net" <davem@davemloft.net>
+To: 'Stephen Hemminger' <shemminger@linux-foundation.org>, "'Fischer, Anna'" <anna.fischer@hp.com>
+Cc: 'Arnd Bergmann' <arnd@arndb.de>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, adobriyan@gmail.com, evb@yahoogroups.com, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-> Subject: Re: [PATCH][RFC] net/bridge: add basic VEPA support
 > 
-> On Friday 07 August 2009, Paul Congdon (UC Davis) wrote:
-> >
-> > I don't think your scheme works too well because broadcast packet
-> coming
-> > from other interfaces on br0 would get replicated and sent across the
-> wire
-> > to ethB multiple times.
+> After reading more about this, I am not convinced this should be part 
+> of the bridge code. The bridge code really consists of two parts:
+> forwarding table and optional spanning tree. Well the VEPA code short 
+> circuits both of these; it can't imagine it working with STP turned 
+> on. The only part of bridge code that really gets used by this are the 
+> receive packet hooks and the crufty old API.
 > 
-> Right, that won't work. So the bridge patch for the hairpin turn
-> is still the best solution. 
+> So instead of adding more stuff to existing bridge code, why not have 
+> a new driver for just VEPA. You could do it with a simple version of 
+> macvlan type driver.
 
-Yes, I think that we should separate the discussions between hairpin 
-mode on the adjacent bridge and the VEPA filtering service residing
-within the end-station. The hairpin feature really has to be
-implemented in the bridging code.
+Stephen,
 
+Thanks for your comments and questions.  We do believe the bridge code is
+the right place for this, so I'd like to embellish on that a bit more to
+help persuade you.  Sorry for the long winded response, but here are some
+thoughts:
 
-> Btw, how will that interact with
-> the bride-netfilter (ebtables) setup? Can you apply any filters
-> that work on current bridges also between two VEPA ports while
-> doing the hairpin turn?
+- First and foremost, VEPA is going to be a standard addition to the IEEE
+802.1Q specification.  The working group agreed at the last meeting to
+pursue a project to augment the bridge standard with hairpin mode (aka
+reflective relay) and a remote filtering service (VEPA).  See for details:
+http://www.ieee802.org/1/files/public/docs2009/new-evb-congdon-evbPar5C-0709
+-v01.pdf
 
-The hairpin mode is implemented on the adjacent bridge. The only 
-difference for a hairpin mode port vs. a normal bridge port is that
-it can pass frames back out to the same port it came from. All the
-netfilter hooks are still in place.
+- The VEPA functionality was really a pretty small change to the code with
+low risk and wouldn't seem to warrant an entire new driver or module.
 
-On the VEPA filtering service side, the only change we have implemented
-in the bridging code is that in VEPA mode all frames are passed to the
-uplink on TX. However, frames are still passed through the netfilter 
-hooks before they go out on the wire. On the inbound path, there are
-no changes to the way frames are processed (except the filtering for
-the original source port), so netfilter hooks work in the same way
-as for a normal bridge.
+- There are good use cases where VMs will want to have some of their
+interfaces attached to bridges and others to bridges operating in VEPA mode.
+In other words, we see simultaneous operation of the bridge code and VEPA
+occurring, so having as much of the underlying code as common as possible
+would seem to be beneficial. 
 
-If a frame is reflected back because of a hairpin turn, then of course
-the incoming port is the VEPA uplink port and not the port that
-originally sent the frame. So if you are trying to enforce some
-packet filtering on that inbound path, then you would have to do that
-based on MAC addresses and not on bridge ports. But I would assume that
-you would enforce the filtering already before you send out the frame
-to the adjacent bridge. Apart from that, if you enable your bridge to
-behave in VEPA mode, then you would typically do packet filtering etc
-on the adjacent bridge and not use the netfilter hook. You can still use
-both though, if you like.
+- By augmenting the bridge code with VEPA there is a great amount of re-use
+achieved.  It works wherever the bridge code works and doesn't need anything
+special to support KVM, XEN, and all the hooks, etc...
 
-Anna
+- The hardware vendors building SR-IOV NICs with embedded switches will be
+adding VEPA mode, so by keeping the bridge module in sync would be
+consistent with this trend and direction.  It will be possible to extend the
+hardware implementations by cascading a software bridge and/or VEPA, so
+being in sync with the architecture would make this more consistent.
+ 
+- The forwarding table is still needed and used on inbound traffic to
+deliver frames to the correct virtual interfaces and to filter any reflected
+frames.  A new driver would have to basically implement an equivalent
+forwarding table anyway.  As I understand the current macvlan type driver,
+it wouldn't filter multicast frames properly without such a table.
+
+- It seems the hairpin mode would be needed in the bridge module whether
+VEPA was added to the bridge module or a new driver.  Having the associated
+changes together in the same code could aid in understanding and deployment.
+
+As I understand the macvlan code, it currently doesn't allow two VMs on the
+same machine to communicate with one another.  I could imagine a hairpin
+mode on the adjacent bridge making this possible, but the macvlan code would
+need to be updated to filter reflected frames so a source did not receive
+his own packet.  I could imagine this being done as well, but to also
+support selective multicast usage, something similar to the bridge
+forwarding table would be needed.  I think putting VEPA into a new driver
+would cause you to implement many things the bridge code already supports.
+Given that we expect the bridge standard to ultimately include VEPA, and the
+new functions are basic forwarding operations, it seems to make most sense
+to keep this consistent with the bridge module.
+
+Paul
