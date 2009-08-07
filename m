@@ -1,13 +1,13 @@
-From: Ryo Tsuruta <ryov@valinux.co.jp>
-Subject: Re: [PATCH] dm-ioband-v1.12.3: I/O bandwidth controller
-Date: Fri, 07 Aug 2009 10:36:40 +0900 (JST)
-Message-ID: <20090807.103640.104065157.ryov__49024.9852453873$1249609074$gmane$org@valinux.co.jp>
-References: <20090731.130333.104034609.ryov@valinux.co.jp>
+From: Stephen Hemminger <shemminger@linux-foundation.org>
+Subject: Re: [PATCH][RFC] net/bridge: add basic VEPA support
+Date: Thu, 6 Aug 2009 21:00:02 -0700
+Message-ID: <20090806210002.75beb7c6__20616.7781645947$1249617696$gmane$org@nehalam>
+References: <0199E0D51A61344794750DC57738F58E67D2DCECBB@GVW1118EXC.americas.hpqcorp.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20090731.130333.104034609.ryov@valinux.co.jp>
+In-Reply-To: <0199E0D51A61344794750DC57738F58E67D2DCECBB@GVW1118EXC.americas.hpqcorp.net>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -17,27 +17,46 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: agk@redhat.com
-Cc: containers@lists.linux-foundation.org, dm-devel@redhat.com, xen-devel@lists.xensource.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: "Fischer, Anna" <anna.fischer@hp.com>
+Cc: Arnd Bergmann <arnd@arndb.de>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "Paul Congdon (UC
+	Davis)" <ptcongdon@ucdavis.edu>, "adobriyan@gmail.com" <adobriyan@gmail.com>, "evb@yahoogroups.com" <evb@yahoogroups.com>, "davem@davemloft.net" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Alasdair,
+On Mon, 15 Jun 2009 17:33:10 +0000
+"Fischer, Anna" <anna.fischer@hp.com> wrote:
 
-Ryo Tsuruta <ryov@valinux.co.jp> wrote:
-> Hi Alasdair,
+> This patch adds basic Virtual Ethernet Port Aggregator (VEPA)
+> capabilities to the Linux kernel Ethernet bridging code.
 > 
-> This is dm-ioband v1.12.3 release that is a minor update to avoid
-> sparse warnings other than related to the event tracing. (I used
-> sparse-2009-07-29.)
+> A Virtual Ethernet Port Aggregator (VEPA) is a capability within
+> a physical end station that collaborates with an adjacent, external
+> bridge to provide distributed bridging support between multiple
+> virtual end stations and external networks. The VEPA collaborates
+> by forwarding all station-originated frames to the adjacent bridge
+> for frame processing and frame relay (including so-called 'hairpin'
+> forwarding) and by steering and replicating frames received from
+> the VEPA uplink to the appropriate destinations. A VEPA may be
+> implemented in software or in conjunction with embedded hardware.
 > 
-> This patch can be applied to the current dm-devel tree and 2.6.31-rc4,
-> so could you please replace dm-add-ioband.patch in your tree with this?
-> And I would appreciate it if you would let me know your thoughts about
-> merging dm-ioband to upstream.
+> In particular, the patch extends the Linux Ethernet bridge to act as
+> (1) a VEPA - for this we have added VEPA forwarding functionality and
+>     added a configuration option for a VEPA uplink port, or as
+> (2) a bridge supporting 'hairpin' forwarding - for this we have added a
+>     bridge port 'hairpin' mode which allows sending frames back out
+>     through the port the frame was received on.
+> 
+> Configuration of VEPA capabilities through Linux userspace bridge
+> utilities is provided by an additional patch 'bridge-utils: add
+> basic VEPA support'.
 
-The dm-ioband patch in the dm-devel tree is still older. Could you
-please update it with the new patch? And could you please let me know
-your thoughts about dm-ioband?
+After reading more about this, I am not convinced this should be part
+of the bridge code. The bridge code really consists of two parts:
+forwarding table and optional spanning tree. Well the VEPA code
+short circuits both of these; it can't imagine it working
+with STP turned on. The only part of bridge code that really gets
+used by this are the receive packet hooks and the crufty old
+API.
 
-Thanks,
-Ryo Tsuruta
+So instead of adding more stuff to existing bridge code, why not
+have a new driver for just VEPA. You could
+do it with a simple version of macvlan type driver.
