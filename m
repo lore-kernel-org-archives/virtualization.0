@@ -1,14 +1,14 @@
-From: Stephen Hemminger <shemminger@linux-foundation.org>
+From: Arnd Bergmann <arnd@arndb.de>
 Subject: Re: [evb] RE: [PATCH][RFC] net/bridge: add basic VEPA support
-Date: Fri, 7 Aug 2009 14:36:52 -0700
-Message-ID: <20090807143652.1659ac57__46680.4167874672$1249681108$gmane$org@nehalam>
+Date: Sat, 8 Aug 2009 11:22:28 +0200
+Message-ID: <200908081122.28883.arnd__47569.2854066894$1249723855$gmane$org@arndb.de>
 References: <D2E118A1E7268F449C469EA2F301D92902BC39B2@exil.voltaire.com>
-	<000001ca17a3$03f841f0$0be8c5d0$@edu>
+	<0199E0D51A61344794750DC57738F58E6D6A6CD803@GVW1118EXC.americas.hpqcorp.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <000001ca17a3$03f841f0$0be8c5d0$@edu>
+In-Reply-To: <0199E0D51A61344794750DC57738F58E6D6A6CD803@GVW1118EXC.americas.hpqcorp.net>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,31 +18,33 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Paul Congdon (UC Davis)" <ptcongdon@ucdavis.edu>
-Cc: arnd@arndb.de, anna.fischer@hp.com, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, davem@davemloft.net, adobriyan@gmail.com, virtualization@lists.linux-foundation.org
+To: "Fischer, Anna" <anna.fischer@hp.com>
+Cc: Yaron Haviv <yaronh@voltaire.com>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "Paul Congdon (UC Davis)" <ptcongdon@ucdavis.edu>, "adobriyan@gmail.com" <adobriyan@gmail.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "evb@yahoogroups.com" <evb@yahoogroups.com>, "shemminger@linux-foundation.org" <shemminger@linux-foundation.org>, "davem@davemloft.net" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gRnJpLCA3IEF1ZyAyMDA5IDE0OjA2OjU4IC0wNzAwCiJQYXVsIENvbmdkb24gXChVQyBEYXZp
-c1wpIiA8cHRjb25nZG9uQHVjZGF2aXMuZWR1PiB3cm90ZToKCj4gWWFyb24sCj4gCj4gCj4gVGhl
-IGludGVyZmFjZSBtdWx0aXBsZXhpbmcgY2FuIGJlIGFjaGlldmVkIHVzaW5nIG1hY3ZsYW4gZHJp
-dmVyIG9yIHVzaW5nIGFuIFNSLUlPViBjYXBhYmxlIE5JQyAodGhlIHByZWZlcnJlZCBvcHRpb24p
-LCBtYWN2bGFuIG1heSBuZWVkIHRvIGJlIGV4dGVuZGVkIHRvIHN1cHBvcnQgVkVQQSBtdWx0aWNh
-c3QgaGFuZGxpbmcsIHRoaXMgbG9va3MgbGlrZSBhIHJhdGhlciBzaW1wbGUgdGFzayAKPiAKPiBB
-Z3JlZWQgdGhhdCB0aGUgaGFyZHdhcmUgc29sdXRpb24gaXMgcHJlZmVycmVkIHNvIHRoZSBtYWN2
-bGFuIGltcGxlbWVudGF0aW9uIGRvZXNu4oCZdCByZWFsbHkgbWF0dGVyLiAgSWYgd2UgYXJlIHRh
-bGtpbmcgU1ItSU9WLCB0aGVuIGl0IGlzIGRpcmVjdCBtYXBwZWQsIHJlZ2FyZGxlc3Mgb2Ygd2hl
-dGhlciB0aGVyZSBpcyBhIFZFQiBvciBWRVBBIGluIHRoZSBoYXJkd2FyZSBiZWxvdywgc28geW91
-IGFyZSBieXBhc3NpbmcgdGhlIGJyaWRnZSBzb2Z0d2FyZSBjb2RlIGFsc28uICAKPiAKPiBJIGRp
-c2FncmVlIHRoYXQgYWRkaW5nIHRoZSBtdWx0aWNhc3QgaGFuZGxpbmcgaXMgc2ltcGxlIOKAkyB3
-aGlsZSBub3QgY29uY2VwdHVhbGx5IGhhcmQsIGl0IHdpbGwgYmFzaWNhbGx5IHJlcXVpcmUgeW91
-IHRvIHB1dCBhbiBhZGRyZXNzIHRhYmxlIGludG8gdGhlIG1hY3ZsYW4gaW1wbGVtZW50YXRpb24g
-4oCTIGlmIHlvdSBoYXZlIHRoYXQsIHRoZW4gd2h5IG5vdCBoYXZlIGp1c3QgdXNlZCB0aGUgb25l
-IGFscmVhZHkgaW4gdGhlIGJyaWRnZSBjb2RlLiAgSWYgeW91IGhvb2sgYSBWRVBBIHVwIHRvIGEg
-bm9uLWhhaXJwaW4gbW9kZSBleHRlcm5hbCBicmlkZ2UsIHlvdSBnZXQgdGhlIG1hY3ZsYW4gY2Fw
-YWJpbGl0eSBhcyB3ZWxsLgoKSSBoYXZlIGEgcGF0Y2ggdGhhdCBmb3J3YXJkcyBhbGwgbXVsdGlj
-YXN0IHBhY2tldHMsIGFuZCBhbm90aGVyIHRoYXQgZG9lcwpwcm9wZXIgZm9yd2FyZGluZy4gSXQg
-c2hvdWxkIGhhdmUgd29ya2VkIHRoYXQgd2F5IGluIG9yaWdpbmFsIG1hY3ZsYW4sIHRoZQpjdXJy
-ZW50IGJlaGF2aW9yIGlzIHJlYWxseSBhIGJ1Zy4KCgotLSAKX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZp
-cnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGlu
-dXgtZm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+On Friday 07 August 2009, Fischer, Anna wrote:
+> If you do have a SRIOV NIC that supports VEPA, then I would think
+> that you do not have QEMU or macvtap in the setup any more though.
+> Simply because in that case the VM can directly access the VF on
+> the physical device. That would be ideal.
+
+There may be reasons why even with an SR-IOV adapter you may want
+to use the macvtap setup, with some extensions. E.g. guest migration
+becomes a lot simpler if you don't have to deal with PCI passthrough
+devices. If we manage to add both TX and RX zero-copy (into the
+guest) to the macvlan driver, we can treat an SR-IOV adapter like
+a VMDq adapter and get the best of both.
+
+> I do think that the macvtap driver is a good addition as a simple
+> and fast virtual network I/O interface, in case you do not need
+> full bridge functionality. It does seem to assume though that the
+> virtualization software uses QEMU/tap interfaces. How would this
+> work with a Xen para-virtualized network interface? I guess there
+> would need to be yet another driver?
+
+I'm not sure how Xen guest networking works, but if neither the
+traditional macvlan driver nor the macvtap driver are able to
+connect it to the external NIC, then you can probably add a third
+macvlan backend to handle that.
+
+	Arnd <><
