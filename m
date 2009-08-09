@@ -1,35 +1,43 @@
-From: Or Gerlitz <ogerlitz@voltaire.com>
-Subject: Re: [evb] RE: [PATCH][RFC] net/bridge: add basic VEPA support
-Date: Sun, 09 Aug 2009 14:19:08 +0300
-Message-ID: <4A7EB0AC.2030104__9434.43051442063$1249817149$gmane$org@Voltaire.com>
-References: <D2E118A1E7268F449C469EA2F301D92902BC39B2@exil.voltaire.com>	<000001ca17a3$03f841f0$0be8c5d0$@edu>
-	<20090807143652.1659ac57@nehalam>
+From: Jaswinder Singh Rajput <jaswinder@kernel.org>
+Subject: [PATCH] XEN: includecheck fix for drivers/xen/evtchn.c
+Date: Sun, 09 Aug 2009 20:07:41 +0530
+Message-ID: <1249828661.2957.18.camel@ht.satnam>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20090807143652.1659ac57@nehalam>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Stephen Hemminger <shemminger@linux-foundation.org>
-Cc: "evb@yahoogroups.com" <evb@yahoogroups.com>, arnd@arndb.de, anna.fischer@hp.com, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, adobriyan@gmail.com, "Paul Congdon (UC Davis)" <ptcongdon@ucdavis.edu>, virtualization@lists.linux-foundation.org, davem@davemloft.net
+Return-path: <xen-devel-bounces@lists.xensource.com>
+List-Unsubscribe: <http://lists.xensource.com/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
+List-Post: <mailto:xen-devel@lists.xensource.com>
+List-Help: <mailto:xen-devel-request@lists.xensource.com?subject=help>
+List-Subscribe: <http://lists.xensource.com/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
+Sender: xen-devel-bounces@lists.xensource.com
+Errors-To: xen-devel-bounces@lists.xensource.com
+To: Jeremy Fitzhardinge <jeremy@xensource.com>, Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, xen-devel@lists.xensource.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Stephen Hemminger wrote:
-> I have a patch that forwards all multicast packets, and another that does proper forwarding. It should have worked that way in original macvlan, the current behavior is really a bug.
->   
-Looking in macvlan_set_multicast_list() it acts in a similar manner to
-macvlan_set_mac_address() in the sense that it calls dev_mc_sync(). I
-assume what's left is to add macvlan_hash_xxx multicast logic to
-map/unmap multicast groups to what macvlan devices want to receive them
-and this way the flooding can be removed, correct?
 
+fix the following 'make includecheck' warning:
 
-Or.
+  drivers/xen/evtchn.c: linux/errno.h is included more than once.
+
+Signed-off-by: Jaswinder Singh Rajput <jaswinderrajput@gmail.com>
+---
+ drivers/xen/evtchn.c |    1 -
+ 1 files changed, 0 insertions(+), 1 deletions(-)
+
+diff --git a/drivers/xen/evtchn.c b/drivers/xen/evtchn.c
+index af03195..79bedba 100644
+--- a/drivers/xen/evtchn.c
++++ b/drivers/xen/evtchn.c
+@@ -38,7 +38,6 @@
+ #include <linux/string.h>
+ #include <linux/errno.h>
+ #include <linux/fs.h>
+-#include <linux/errno.h>
+ #include <linux/miscdevice.h>
+ #include <linux/major.h>
+ #include <linux/proc_fs.h>
+-- 
+1.6.0.6
