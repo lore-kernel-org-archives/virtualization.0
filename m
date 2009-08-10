@@ -1,16 +1,18 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [PATCH 2/2] vhost_net: a kernel-level virtio server
-Date: Mon, 10 Aug 2009 22:16:22 +0000
-Message-ID: <200908102216.22410.arnd__6789.3847394318$1249942745$gmane$org@arndb.de>
-References: <cover.1249930169.git.mst@redhat.com>
-	<200908102151.18529.arnd@arndb.de>
-	<20090810201044.GA16899@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [Qemu-devel] Re: [PATCH] qemu/virtio: move features to an
+	inline function
+Date: Tue, 11 Aug 2009 01:19:40 +0300
+Message-ID: <20090810221940.GB17099@redhat.com>
+References: <20090810192809.GA16800@redhat.com>
+	<4A8076F0.5050700@codemonkey.ws>
+	<20090810194753.GA16803@redhat.com>
+	<4A808437.8040307@codemonkey.ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20090810201044.GA16899@redhat.com>
 Content-Disposition: inline
+In-Reply-To: <4A808437.8040307@codemonkey.ws>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,56 +22,49 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Anthony Liguori <anthony@codemonkey.ws>
+Cc: qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Monday 10 August 2009 20:10:44 Michael S. Tsirkin wrote:
-> On Mon, Aug 10, 2009 at 09:51:18PM +0200, Arnd Bergmann wrote:
-> > what is the difference between vhost_net_reset_owner(n)
-> > and vhost_net_set_socket(n, -1)?
-> 
-> set socket to -1 will only stop the device.
-> 
-> reset owner will let another process take over the device.
-> It also needs to reset all parameters to make it safe for that
-> other process, so in particular the device is stopped.
+On Mon, Aug 10, 2009 at 03:33:59PM -0500, Anthony Liguori wrote:
+> Michael S. Tsirkin wrote:
+>>> Normally, the common features are transport features and the devices  
+>>> should have absolutely no knowledge of transport feature (since 
+>>> they're  transport dependent).
+>>>     
+>>
+>> Good point. But
+>>
+>> 1. note that with my patch they don't. They call
+>> virtio_get_common_features and that's all.
+>>
+>> 2. some features may not make sense for some devices. For example, it is
+>> quite possible that indirect ring entries feature improves performance
+>> on block but hurts on net, as net has a similar merged buffers feature.
+>> Someone should try benchmarking with it disabled, and it becomes
+>> possible with my patch.
+>>   
+>
+> I don't necessarily disagree but I think your patch goes about it the  
+> wrong way.
+>
+> There ought to be a way to layer qdev properties that achieves this goal  
+> so that when you create a virtio-pci-block device, you have the ability  
+> to turn off indirect sg without virtio-block having to know what that is.
 
-ok
- 
-> I tried explaining this in the header vhost.h - does the comment
-> there help, or do I need to clarify it?
+I don't understand, sorry. Why do you insist on involving pci here?
+ring layout has nothing to do with pci, does it?  With my patch,
+virtio-block does not know what indirect sg is. It just does
+enable/disable.
 
-No, I just didn't get there yet.
+virtio net has device-specific feature that overlaps with
+indirect entries. So insisting that devices should just ignore
+transport does not make sense, to me.
 
-> I had the impression that if there's no compat_ioctl,
-> unlocked_ioctl will get called automatically. No?
+> For your use-case, I wonder if you're integrating at the wrong level.   
 
-It will issue a kernel warning but not call unlocked_ioctl,
-so you need either a compat_ioctl method or list the numbers
-in fs/compat_ioctl.c, which I try to avoid.
+Forget about that for now. Let's solve the generic problem.
 
-> > Why do you need a kernel thread here? If the data transfer functions
-> > all get called from a guest intercept, shouldn't you already be
-> > in the right mm?
-> 
-> several reasons :)
-> - I get called under lock, so can't block
-> - eventfd can be passed to another process, and I won't be in guest context at all
-> - this also gets called outside guest context from socket poll
-> - vcpu is blocked while it's doing i/o. it is better to free it up
->   as all the packet copying might take a while
-
-Ok.
-
-> > I guess that this is where one could plug into macvlan directly, using
-> > sock_alloc_send_skb/memcpy_fromiovec/dev_queue_xmit directly,
-> > instead of filling a msghdr for each, if we want to combine this
-> > with the work I did on that.
-> 
-> quite possibly. Or one can just bind a raw socket to macvlan :)
-
-Right, that works as well, but may get more complicated once we
-try to add zero-copy or other optimizations.
-
-	Arnd <><
+> Regards,
+>
+> Anthony Liguori
