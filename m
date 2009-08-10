@@ -1,7 +1,7 @@
 From: Arnd Bergmann <arnd@arndb.de>
 Subject: Re: [PATCH][RFC] net/bridge: add basic VEPA support
-Date: Mon, 10 Aug 2009 17:07:32 +0200
-Message-ID: <200908101707.32751.arnd__18763.4710142904$1249917716$gmane$org@arndb.de>
+Date: Mon, 10 Aug 2009 17:06:58 +0200
+Message-ID: <200908101706.58261.arnd__27081.3456889757$1249918204$gmane$org@arndb.de>
 References: <0199E0D51A61344794750DC57738F58E67D2DCECBB@GVW1118EXC.americas.hpqcorp.net>
 	<200908081149.27409.arnd@arndb.de>
 	<0199E0D51A61344794750DC57738F58E6D6AE99743@GVW1118EXC.americas.hpqcorp.net>
