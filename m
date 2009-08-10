@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH 2/3] qemu/virtio: move features to an inline function
-Date: Mon, 10 Aug 2009 22:23:36 +0300
-Message-ID: <20090810192336.GC16781__41983.3110798665$1249932328$gmane$org@redhat.com>
+Subject: [PATCH 1/3] qemu: move virtio-pci.o to near pci.o
+Date: Mon, 10 Aug 2009 22:23:16 +0300
+Message-ID: <20090810192316.GB16781__29575.4008381211$1249932335$gmane$org@redhat.com>
 References: <cover.1249932163.git.mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,107 +21,42 @@ Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: avi@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-devices should have the final say over which virtio features they
-support. E.g. indirect entries may or may not make sense in the context
-of virtio-console.  Move the common bits from virtio-pci to an inline
-function and let each device call it.
-
-No functional changes.
+virtio-pci depends, and will always depend, on pci.c
+so it makes sense to keep it in the same makefile,
+(unlike the rest of virtio files which should eventually
+ be moved out to Makefile.hw).
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- hw/virtio-balloon.c |    2 +-
- hw/virtio-blk.c     |    2 +-
- hw/virtio-console.c |    2 +-
- hw/virtio-net.c     |    2 +-
- hw/virtio-pci.c     |    3 ---
- hw/virtio.h         |   10 ++++++++++
- 6 files changed, 14 insertions(+), 7 deletions(-)
+ Makefile.hw     |    2 +-
+ Makefile.target |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/hw/virtio-balloon.c b/hw/virtio-balloon.c
-index 7ca783e..15b50bb 100644
---- a/hw/virtio-balloon.c
-+++ b/hw/virtio-balloon.c
-@@ -127,7 +127,7 @@ static void virtio_balloon_set_config(VirtIODevice *vdev,
+diff --git a/Makefile.hw b/Makefile.hw
+index f7a9507..6857fea 100644
+--- a/Makefile.hw
++++ b/Makefile.hw
+@@ -16,7 +16,7 @@ CPPFLAGS += -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE
+ CPPFLAGS+=-I$(SRC_PATH)/fpu
  
- static uint32_t virtio_balloon_get_features(VirtIODevice *vdev)
- {
--    return 0;
-+    return virtio_common_features();
- }
+ obj-y =
+-obj-y += virtio.o virtio-pci.o
++obj-y += virtio.o
+ obj-y += fw_cfg.o
+ obj-y += watchdog.o
+ obj-y += nand.o ecc.o
+diff --git a/Makefile.target b/Makefile.target
+index df1f32b..0dd56b1 100644
+--- a/Makefile.target
++++ b/Makefile.target
+@@ -538,7 +538,7 @@ obj-y = vl.o osdep.o monitor.o pci.o loader.o isa_mmio.o machine.o \
+         gdbstub.o gdbstub-xml.o msix.o ioport.o
+ # virtio has to be here due to weird dependency between PCI and virtio-net.
+ # need to fix this properly
+-obj-y += virtio-blk.o virtio-balloon.o virtio-net.o virtio-console.o
++obj-y += virtio-blk.o virtio-balloon.o virtio-net.o virtio-console.o virtio-pci.o
+ obj-$(CONFIG_KVM) += kvm.o kvm-all.o
  
- static ram_addr_t virtio_balloon_to_target(void *opaque, ram_addr_t target)
-diff --git a/hw/virtio-blk.c b/hw/virtio-blk.c
-index 2beff52..7d33fee 100644
---- a/hw/virtio-blk.c
-+++ b/hw/virtio-blk.c
-@@ -364,7 +364,7 @@ static uint32_t virtio_blk_get_features(VirtIODevice *vdev)
-     if (strcmp(s->serial_str, "0"))
-         features |= 1 << VIRTIO_BLK_F_IDENTIFY;
- 
--    return features;
-+    return features | virtio_common_features();
- }
- 
- static void virtio_blk_save(QEMUFile *f, void *opaque)
-diff --git a/hw/virtio-console.c b/hw/virtio-console.c
-index 663c8b9..ac25499 100644
---- a/hw/virtio-console.c
-+++ b/hw/virtio-console.c
-@@ -53,7 +53,7 @@ static void virtio_console_handle_input(VirtIODevice *vdev, VirtQueue *vq)
- 
- static uint32_t virtio_console_get_features(VirtIODevice *vdev)
- {
--    return 0;
-+    return virtio_common_features();
- }
- 
- static int vcon_can_read(void *opaque)
-diff --git a/hw/virtio-net.c b/hw/virtio-net.c
-index ef9e7ff..2e51a6a 100644
---- a/hw/virtio-net.c
-+++ b/hw/virtio-net.c
-@@ -154,7 +154,7 @@ static uint32_t virtio_net_get_features(VirtIODevice *vdev)
-     }
- #endif
- 
--    return features;
-+    return features | virtio_common_features();
- }
- 
- static uint32_t virtio_net_bad_features(VirtIODevice *vdev)
-diff --git a/hw/virtio-pci.c b/hw/virtio-pci.c
-index 3b9bfd1..90f51be 100644
---- a/hw/virtio-pci.c
-+++ b/hw/virtio-pci.c
-@@ -232,9 +232,6 @@ static uint32_t virtio_ioport_read(VirtIOPCIProxy *proxy, uint32_t addr)
-     switch (addr) {
-     case VIRTIO_PCI_HOST_FEATURES:
-         ret = vdev->get_features(vdev);
--        ret |= (1 << VIRTIO_F_NOTIFY_ON_EMPTY);
--        ret |= (1 << VIRTIO_RING_F_INDIRECT_DESC);
--        ret |= (1 << VIRTIO_F_BAD_FEATURE);
-         break;
-     case VIRTIO_PCI_GUEST_FEATURES:
-         ret = vdev->features;
-diff --git a/hw/virtio.h b/hw/virtio.h
-index aa55677..de620a7 100644
---- a/hw/virtio.h
-+++ b/hw/virtio.h
-@@ -166,4 +166,14 @@ VirtIODevice *virtio_net_init(DeviceState *dev);
- VirtIODevice *virtio_console_init(DeviceState *dev);
- VirtIODevice *virtio_balloon_init(DeviceState *dev);
- 
-+static inline uint32_t virtio_common_features(void)
-+{
-+    uint32_t features = 0;
-+    features |= (1 << VIRTIO_F_NOTIFY_ON_EMPTY);
-+    features |= (1 << VIRTIO_RING_F_INDIRECT_DESC);
-+    features |= (1 << VIRTIO_F_BAD_FEATURE);
-+
-+    return features;
-+}
-+
- #endif
+ LIBS+=-lz
 -- 
 1.6.2.5
