@@ -1,18 +1,12 @@
-From: Anthony Liguori <anthony@codemonkey.ws>
-Subject: Re: [Qemu-devel] Re: virtio-serial: An interface for
-	host-guest	communication
-Date: Mon, 10 Aug 2009 12:27:03 -0500
-Message-ID: <4A805867.503__42460.3740954355$1249925371$gmane$org@codemonkey.ws>
-References: <20090805175713.GB28738@shareable.org>	<4A79C8D9.5030606@codemonkey.ws>	<20090806103843.GC9222@amit-x200.redhat.com>	<4A7ADAC4.70902@codemonkey.ws>	<20090806134103.GC11733@amit-x200.redhat.com>	<4A7AE169.4000606@codemonkey.ws>	<20090806140404.GA12083@amit-x200.redhat.com>	<20090806173740.GA1178@shareable.org>	<20090807063800.GA16769@amit-x200.redhat.com>	<4A7C36D3.3040305@codemonkey.ws>
-	<20090810065508.GA4499@amit-x200.redhat.com>
-	<4A7FECCA.8080804@redhat.com> <4A801A7B.1020208@codemonkey.ws>
-	<4A80287C.7050400@redhat.com> <4A802CA7.9020701@codemonkey.ws>
-	<4A803E07.7080407@redhat.com> <4A8051F3.7040400@codemonkey.ws>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH 0/2] vhost: a kernel-level virtio server
+Date: Mon, 10 Aug 2009 21:51:35 +0300
+Message-ID: <20090810185135.GA13924__39540.0989371867$1249930440$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4A8051F3.7040400@codemonkey.ws>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -22,35 +16,44 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gerd Hoffmann <kraxel@redhat.com>
-Cc: kvm@vger.kernel.org, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Amit Shah <amit.shah@redhat.com>
+To: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Anthony Liguori wrote:
->
-> There is nothing sane about vmchannel.  It's just an attempt to bypass 
-> QEMU which is going to introduce all sorts of complexities wrt 
-> migration, guest compatibility, etc.
->
-> However, as I've mentioned repeatedly, the reason I won't merge 
-> virtio-serial is that it duplicates functionality with 
-> virtio-console.  If the two are converged, I'm happy to merge it.  I'm 
-> not opposed to having more functionality.
+This implements vhost: a kernel-level backend for virtio,
+The main motivation for this work is to reduce virtualization
+overhead for virtio by removing system calls on data path,
+without guest changes. For virtio-net, this removes up to
+4 system calls per packet: vm exit for kick, reentry for kick,
+iothread wakeup for packet, interrupt injection for packet.
 
-NB: the userspace interface for these devices should be a tty, not a new 
-character device.
+Some more detailed description attached to the patch itself.
 
-If you want to add a new bustype for these devices, and then have an 
-entry in sysfs that had some sort of identification string, that's 
-perfectly acceptable.
+The patches are against 2.6.31-rc4.  I'd like them to go into linux-next
+and down the road 2.6.32 if possible.  Please comment.
 
-Also note though that this is exactly what usb-serial is today.  
-/sys/bus/usbserial contains all the usb serial devices and you can get a 
-vendor id/device id to uniquely identify the device type.
+Userspace bits using this driver will be posted to kvm@vger shortly.
 
-Using virtio vs. usb has it's advantage but the userspace interface 
-model should be roughly equivalent.
+Michael S. Tsirkin (2):
+  export cpu_tlbstate to modules
+  vhost_net: a kernel-level virtio server
 
-Regards,
-
-Anthony Liguori
+ MAINTAINERS                |   10 +
+ arch/x86/kvm/Kconfig       |    1 +
+ arch/x86/mm/tlb.c          |    1 +
+ drivers/Makefile           |    1 +
+ drivers/block/virtio_blk.c |    3 +
+ drivers/vhost/Kconfig      |   11 +
+ drivers/vhost/Makefile     |    2 +
+ drivers/vhost/net.c        |  462 ++++++++++++++++++++++++++++++
+ drivers/vhost/vhost.c      |  663 ++++++++++++++++++++++++++++++++++++++++++++
+ drivers/vhost/vhost.h      |  108 +++++++
+ include/linux/Kbuild       |    1 +
+ include/linux/miscdevice.h |    1 +
+ include/linux/vhost.h      |  100 +++++++
+ 13 files changed, 1364 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/vhost/Kconfig
+ create mode 100644 drivers/vhost/Makefile
+ create mode 100644 drivers/vhost/net.c
+ create mode 100644 drivers/vhost/vhost.c
+ create mode 100644 drivers/vhost/vhost.h
+ create mode 100644 include/linux/vhost.h
