@@ -1,15 +1,16 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [evb] Re: [PATCH][RFC] net/bridge: add basic VEPA support
-Date: Mon, 10 Aug 2009 18:16:08 +0200
-Message-ID: <200908101816.08287.arnd__31380.2572702572$1249921542$gmane$org@arndb.de>
-References: <0199E0D51A61344794750DC57738F58E67D2DCECBB@GVW1118EXC.americas.hpqcorp.net>
-	<200908101723.10832.arnd@arndb.de>
-	<0199E0D51A61344794750DC57738F58E6D6AE99867@GVW1118EXC.americas.hpqcorp.net>
+From: "Fischer, Anna" <anna.fischer@hp.com>
+Subject: RE: [evb] RE: [PATCH][RFC] net/bridge: add basic VEPA support
+Date: Mon, 10 Aug 2009 16:32:01 +0000
+Message-ID: <0199E0D51A61344794750DC57738F58E6D6AE99884__37335.2514500313$1249922371$gmane$org@GVW1118EXC.americas.hpqcorp.net>
+References: <D2E118A1E7268F449C469EA2F301D92902BC39B2@exil.voltaire.com>
+	<4A7EB0AC.2030104@Voltaire.com> <20090810082037.17b352c2@nehalam>
+	<200908101728.15649.arnd@arndb.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <0199E0D51A61344794750DC57738F58E6D6AE99867@GVW1118EXC.americas.hpqcorp.net>
+In-Reply-To: <200908101728.15649.arnd@arndb.de>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,41 +20,46 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Fischer, Anna" <anna.fischer@hp.com>
-Cc: "Paul Congdon (UC Davis)" <ptcongdon@ucdavis.edu>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "adobriyan@gmail.com" <adobriyan@gmail.com>, "evb@yahoogroups.com" <evb@yahoogroups.com>, 'Stephen Hemminger' <shemminger@linux-foundation.org>, "davem@davemloft.net" <davem@davemloft.net>
+To: Stephen Hemminger <shemminger@linux-foundation.org>, Arnd Bergmann <arnd@arndb.de>
+Cc: "Paul Congdon (UC Davis)" <ptcongdon@ucdavis.edu>, "evb@yahoogroups.com" <evb@yahoogroups.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, "davem@davemloft.net" <davem@davemloft.net>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "adobriyan@gmail.com" <adobriyan@gmail.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Monday 10 August 2009, Fischer, Anna wrote:
-> On the VEPA filtering service side, the only change we have implemented
-> in the bridging code is that in VEPA mode all frames are passed to the
-> uplink on TX. However, frames are still passed through the netfilter 
-> hooks before they go out on the wire. On the inbound path, there are
-> no changes to the way frames are processed (except the filtering for
-> the original source port), so netfilter hooks work in the same way
-> as for a normal bridge.
+> Subject: Re: [evb] RE: [PATCH][RFC] net/bridge: add basic VEPA support
+> 
+> On Monday 10 August 2009, Stephen Hemminger wrote:
+> > On Sun, 09 Aug 2009 14:19:08 +0300, Or Gerlitz
+> <ogerlitz@voltaire.com> wrote:
+> > > Looking in macvlan_set_multicast_list() it acts in a similar manner
+> to
+> > > macvlan_set_mac_address() in the sense that it calls dev_mc_sync().
+> I
+> > > assume what's left is to add macvlan_hash_xxx multicast logic to
+> > > map/unmap multicast groups to what macvlan devices want to receive
+> them
+> > > and this way the flooding can be removed, correct?
+> >
+> > The device can just flood all multicast packets, since the filtering
+> > is done on the receive path anyway.
 
-Ah, interesting. I did not realize that the hooks were still active,
-although that obviously makes sense. So that would be another
-important difference between our implementations.
+Is this handled by one of the additional patches? In the current kernel tree
+macvlan code it looks as if multicast filtering is only handled by the
+physical device driver, but not on particular macvlan devices.
+ 
 
-> If a frame is reflected back because of a hairpin turn, then of course
-> the incoming port is the VEPA uplink port and not the port that
-> originally sent the frame. So if you are trying to enforce some
-> packet filtering on that inbound path, then you would have to do that
-> based on MAC addresses and not on bridge ports. But I would assume that
-> you would enforce the filtering already before you send out the frame
-> to the adjacent bridge. Apart from that, if you enable your bridge to
-> behave in VEPA mode, then you would typically do packet filtering etc
-> on the adjacent bridge and not use the netfilter hook. You can still use
-> both though, if you like.
+> But we'd still have to copy the frames to user space (for both
+> macvtap and raw packet sockets) and exit from the guest to inject
+> it into its stack, right?
 
-Right, that was my point. They bridge in VEPA mode would likely be
-configured to be completely ignorant of the data going through it
-and not do any filter, and you do all filterring on the adjacent
-bridge.
+I think it would be nice if you can implement what Or describes for 
+macvlan and avoid flooding, and it doesn't sound too hard to do. 
 
-I just wasn't sure that this is possible with ebtables if the
-adjacent bridge is a Linux system with the bridge in hairpin turn
-mode.
+I guess one advantage for macvlan (over the bridge) is that you can 
+program in all information you have for the ports attached to it, e.g. 
+MAC addresses and multicast addresses. So you could take advantage of
+that whereas the bridge always floods multicast frames to all ports.
+ 
+How would this work though, if the OS inside the guest wants to register
+to a particular multicast address? Is this propagated through the backend
+drivers to the macvlan/macvtap interface?
 
-	Arnd <><
+Anna
