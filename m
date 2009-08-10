@@ -1,15 +1,17 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: Re: [Qemu-devel] Re: virtio-serial: An interface for
-	host-guest	communication
-Date: Mon, 10 Aug 2009 17:57:25 +0200
-Message-ID: <4A804365.6010106__22629.9230162569$1249919895$gmane$org@redhat.com>
-References: <20090805175713.GB28738@shareable.org>	<4A79C8D9.5030606@codemonkey.ws>	<20090806103843.GC9222@amit-x200.redhat.com>	<4A7ADAC4.70902@codemonkey.ws>	<20090806134103.GC11733@amit-x200.redhat.com>	<4A7AE169.4000606@codemonkey.ws>	<20090806140404.GA12083@amit-x200.redhat.com>	<20090806173740.GA1178@shareable.org>	<20090807063800.GA16769@amit-x200.redhat.com>	<4A7C36D3.3040305@codemonkey.ws>	<20090810065508.GA4499@amit-x200.redhat.com>
-	<4A802E35.1040308@codemonkey.ws>
+From: "Fischer, Anna" <anna.fischer@hp.com>
+Subject: RE: [evb] Re: [PATCH][RFC] net/bridge: add basic VEPA support
+Date: Mon, 10 Aug 2009 15:59:04 +0000
+Message-ID: <0199E0D51A61344794750DC57738F58E6D6AE99867__13374.7818334543$1249920600$gmane$org@GVW1118EXC.americas.hpqcorp.net>
+References: <0199E0D51A61344794750DC57738F58E67D2DCECBB@GVW1118EXC.americas.hpqcorp.net>
+	<200908071329.44437.arnd@arndb.de>
+	<005101ca1797$70dcf5b0$5296e110$@edu>
+	<200908101723.10832.arnd@arndb.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4A802E35.1040308@codemonkey.ws>
+In-Reply-To: <200908101723.10832.arnd@arndb.de>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,36 +21,57 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Anthony Liguori <anthony@codemonkey.ws>
-Cc: kvm@vger.kernel.org, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Amit Shah <amit.shah@redhat.com>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: "Paul Congdon (UC Davis)" <ptcongdon@ucdavis.edu>, "Fischer,
+	Anna" <anna.fischer@hp.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "adobriyan@gmail.com" <adobriyan@gmail.com>, "evb@yahoogroups.com" <evb@yahoogroups.com>, 'Stephen Hemminger' <shemminger@linux-foundation.org>, "davem@davemloft.net" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 08/10/09 16:27, Anthony Liguori wrote:
+> Subject: Re: [PATCH][RFC] net/bridge: add basic VEPA support
+> 
+> On Friday 07 August 2009, Paul Congdon (UC Davis) wrote:
+> >
+> > I don't think your scheme works too well because broadcast packet
+> coming
+> > from other interfaces on br0 would get replicated and sent across the
+> wire
+> > to ethB multiple times.
+> 
+> Right, that won't work. So the bridge patch for the hairpin turn
+> is still the best solution. 
 
-> I think my fundamental argument boils down to two points. 1) we should
-> not require new guest drivers unless we absolutely have to
+Yes, I think that we should separate the discussions between hairpin 
+mode on the adjacent bridge and the VEPA filtering service residing
+within the end-station. The hairpin feature really has to be
+implemented in the bridging code.
 
-Allow guest drivers is fine though I guess?
 
-> 2) we should
-> always do things in userspace unless we absolutely have to do things in
-> the kernel.
+> Btw, how will that interact with
+> the bride-netfilter (ebtables) setup? Can you apply any filters
+> that work on current bridges also between two VEPA ports while
+> doing the hairpin turn?
 
-Wrong.  There are often good reasons to do stuff in kernel, even if you 
-can do it in userspace too.
+The hairpin mode is implemented on the adjacent bridge. The only 
+difference for a hairpin mode port vs. a normal bridge port is that
+it can pass frames back out to the same port it came from. All the
+netfilter hooks are still in place.
 
-> Adding new kernel drivers breaks support for enterprise Linux distros.
-> Adding a userspace daemon does not. Windows device drivers require
-> signing which is very difficult to do. There's a huge practical
-> advantage in not requiring guest drivers.
+On the VEPA filtering service side, the only change we have implemented
+in the bridging code is that in VEPA mode all frames are passed to the
+uplink on TX. However, frames are still passed through the netfilter 
+hooks before they go out on the wire. On the inbound path, there are
+no changes to the way frames are processed (except the filtering for
+the original source port), so netfilter hooks work in the same way
+as for a normal bridge.
 
-Ok, so the virtio-serial + usbserial combo should work well then I think.
+If a frame is reflected back because of a hairpin turn, then of course
+the incoming port is the VEPA uplink port and not the port that
+originally sent the frame. So if you are trying to enforce some
+packet filtering on that inbound path, then you would have to do that
+based on MAC addresses and not on bridge ports. But I would assume that
+you would enforce the filtering already before you send out the frame
+to the adjacent bridge. Apart from that, if you enable your bridge to
+behave in VEPA mode, then you would typically do packet filtering etc
+on the adjacent bridge and not use the netfilter hook. You can still use
+both though, if you like.
 
-If you have guest drivers you'll go the virtio-serial route.
-If you don't have guest drivers you can go the usbserial route, either 
-via /dev/ttyUSB or via libusb.
-
-We can also have a libvmchannel as abstraction layer on top of this.
-
-cheers,
-   Gerd
+Anna
