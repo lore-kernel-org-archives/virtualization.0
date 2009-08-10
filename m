@@ -1,15 +1,15 @@
-From: Benny Amorsen <benny+usenet@amorsen.dk>
-Subject: Re: [evb] RE: [PATCH][RFC] net/bridge: add basic VEPA support
-Date: Sat, 08 Aug 2009 10:50:10 +0200
-Message-ID: <m3d476hepp.fsf__12363.2360170179$1249920761$gmane$org@ursa.amorsen.dk>
-References: <D2E118A1E7268F449C469EA2F301D92902BC39B2@exil.voltaire.com>
-	<0199E0D51A61344794750DC57738F58E6D6A6CD803__29862.6656564467$1249679159$gmane$org@GVW1118EXC.americas.hpqcorp.net>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [evb] Re: [PATCH][RFC] net/bridge: add basic VEPA support
+Date: Mon, 10 Aug 2009 18:16:08 +0200
+Message-ID: <200908101816.08287.arnd__31380.2572702572$1249921542$gmane$org@arndb.de>
+References: <0199E0D51A61344794750DC57738F58E67D2DCECBB@GVW1118EXC.americas.hpqcorp.net>
+	<200908101723.10832.arnd@arndb.de>
+	<0199E0D51A61344794750DC57738F58E6D6AE99867@GVW1118EXC.americas.hpqcorp.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <0199E0D51A61344794750DC57738F58E6D6A6CD803__29862.6656564467$1249679159$gmane$org@GVW1118EXC.americas.hpqcorp.net>
-	(Anna Fischer's message of "Fri\, 7 Aug 2009 21\:00\:54 +0000")
+In-Reply-To: <0199E0D51A61344794750DC57738F58E6D6AE99867@GVW1118EXC.americas.hpqcorp.net>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,22 +20,40 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: "Fischer, Anna" <anna.fischer@hp.com>
-Cc: "arnd@arndb.de" <arnd@arndb.de>, Yaron Haviv <yaronh@voltaire.com>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "adobriyan@gmail.com" <adobriyan@gmail.com>, "Paul Congdon (UC Davis)" <ptcongdon@ucdavis.edu>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "evb@yahoogroups.com" <evb@yahoogroups.com>, "shemminger@linux-foundation.org" <shemminger@linux-foundation.org>, "davem@davemloft.net" <davem@davemloft.net>
+Cc: "Paul Congdon (UC Davis)" <ptcongdon@ucdavis.edu>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "adobriyan@gmail.com" <adobriyan@gmail.com>, "evb@yahoogroups.com" <evb@yahoogroups.com>, 'Stephen Hemminger' <shemminger@linux-foundation.org>, "davem@davemloft.net" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-"Fischer, Anna" <anna.fischer@hp.com> writes:
+On Monday 10 August 2009, Fischer, Anna wrote:
+> On the VEPA filtering service side, the only change we have implemented
+> in the bridging code is that in VEPA mode all frames are passed to the
+> uplink on TX. However, frames are still passed through the netfilter 
+> hooks before they go out on the wire. On the inbound path, there are
+> no changes to the way frames are processed (except the filtering for
+> the original source port), so netfilter hooks work in the same way
+> as for a normal bridge.
 
-> If you do have a SRIOV NIC that supports VEPA, then I would think that
-> you do not have QEMU or macvtap in the setup any more though. Simply
-> because in that case the VM can directly access the VF on the physical
-> device. That would be ideal.
+Ah, interesting. I did not realize that the hooks were still active,
+although that obviously makes sense. So that would be another
+important difference between our implementations.
 
-I'm just trying to understand how this all works, so I'm probably asking
-a stupid question:
+> If a frame is reflected back because of a hairpin turn, then of course
+> the incoming port is the VEPA uplink port and not the port that
+> originally sent the frame. So if you are trying to enforce some
+> packet filtering on that inbound path, then you would have to do that
+> based on MAC addresses and not on bridge ports. But I would assume that
+> you would enforce the filtering already before you send out the frame
+> to the adjacent bridge. Apart from that, if you enable your bridge to
+> behave in VEPA mode, then you would typically do packet filtering etc
+> on the adjacent bridge and not use the netfilter hook. You can still use
+> both though, if you like.
 
-Would a SRIOV NIC with VEPA support show up as multiple devices? I.e.
-would I get e.g. eth0-eth7 for a NIC with support for 8 virtual
-interfaces? Would they have different MAC addresses?
+Right, that was my point. They bridge in VEPA mode would likely be
+configured to be completely ignorant of the data going through it
+and not do any filter, and you do all filterring on the adjacent
+bridge.
 
+I just wasn't sure that this is possible with ebtables if the
+adjacent bridge is a Linux system with the bridge in hairpin turn
+mode.
 
-/Benny
+	Arnd <><
