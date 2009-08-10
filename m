@@ -1,16 +1,16 @@
-From: Anthony Liguori <anthony@codemonkey.ws>
-Subject: Re: [Qemu-devel] Re: virtio-serial: An interface for
-	host-guest	communication
-Date: Mon, 10 Aug 2009 08:02:51 -0500
-Message-ID: <4A801A7B.1020208__12992.1259278946$1249909540$gmane$org@codemonkey.ws>
-References: <20090805175713.GB28738@shareable.org>	<4A79C8D9.5030606@codemonkey.ws>	<20090806103843.GC9222@amit-x200.redhat.com>	<4A7ADAC4.70902@codemonkey.ws>	<20090806134103.GC11733@amit-x200.redhat.com>	<4A7AE169.4000606@codemonkey.ws>	<20090806140404.GA12083@amit-x200.redhat.com>	<20090806173740.GA1178@shareable.org>	<20090807063800.GA16769@amit-x200.redhat.com>	<4A7C36D3.3040305@codemonkey.ws>
-	<20090810065508.GA4499@amit-x200.redhat.com>
-	<4A7FECCA.8080804@redhat.com>
+From: "Fischer, Anna" <anna.fischer@hp.com>
+Subject: RE: [PATCH][RFC] net/bridge: add basic VEPA support
+Date: Mon, 10 Aug 2009 13:16:00 +0000
+Message-ID: <0199E0D51A61344794750DC57738F58E6D6AE99743__46862.470979295$1249910636$gmane$org@GVW1118EXC.americas.hpqcorp.net>
+References: <0199E0D51A61344794750DC57738F58E67D2DCECBB@GVW1118EXC.americas.hpqcorp.net>
+	<20090806210002.75beb7c6@nehalam> <004e01ca1790$fec36c30$fc4a4490$@edu>
+	<200908081149.27409.arnd@arndb.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4A7FECCA.8080804@redhat.com>
+In-Reply-To: <200908081149.27409.arnd@arndb.de>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,30 +20,77 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gerd Hoffmann <kraxel@redhat.com>
-Cc: kvm@vger.kernel.org, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Amit Shah <amit.shah@redhat.com>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: "Fischer, Anna" <anna.fischer@hp.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "Paul Congdon (UC Davis)" <ptcongdon@ucdavis.edu>, "adobriyan@gmail.com" <adobriyan@gmail.com>, "evb@yahoogroups.com" <evb@yahoogroups.com>, 'Stephen Hemminger' <shemminger@linux-foundation.org>, "davem@davemloft.net" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Gerd Hoffmann wrote:
->
->> There are some other problems with usb too: It's not transparent to
->> users. Any hotplug event could alert users and that's not desired. It's
->> a system-only thing and should also remain that way.
->
-> I think virtio-serial is the better way to handle vmchannel.  Unlike 
-> usb virtio is designed to work nicely in a virtual environment.
->
-> But vmchannel-over-usbserial should be easy too though in case some 
-> guests lacks virtio backports or something.
+> Subject: Re: [PATCH][RFC] net/bridge: add basic VEPA support
+> 
+> On Friday 07 August 2009, Paul Congdon (UC Davis) wrote:
+> > As I understand the macvlan code, it currently doesn't allow two VMs
+> on the
+> > same machine to communicate with one another.
+> 
+> There are patches to do that. I think if we add that, there should be
+> a way to choose the behavior between either bridging between the
+> guests or VEPA.
 
-I think you're missing my fundamental point.  Don't use the kernel as 
-the guest interface.
+If you implement this direct bridging capability between local VMs for 
+macvlan, then would this not break existing applications that currently
+use it? It would be quite a significant change to how macvlan works 
+today. I guess, ideally, you would want to have macvlan work in 
+separate modes, e.g. traditional macvlan, bridging, and VEPA.
 
-Introduce a userspace daemon that exposes a domain socket.  Then we can 
-have a proper protocol that uses reverse fqdns for identification.
+ 
+> > I could imagine a hairpin mode on the adjacent bridge making this
+> > possible, but the macvlan code would need to be updated to filter
+> > reflected frames so a source did not receive his own packet.
+> 
+> Right, I missed this point so far. I'll follow up with a patch
+> to do that.
 
-We can do the backend over TCP/IP, usb, standard serial, etc.
+Can you maybe point me to the missing patches for macvlan that you
+have mentioned in other emails, and the one you mention above? 
+E.g. enabling multicast distribution and allowing local bridging etc.
+I could not find any of those in the archives. Thanks.
 
-Regards,
+ 
+> > I could imagine this being done as well, but to also
+> > support selective multicast usage, something similar to the bridge
+> > forwarding table would be needed.  I think putting VEPA into a new
+> driver
+> > would cause you to implement many things the bridge code already
+> supports.
+> > Given that we expect the bridge standard to ultimately include VEPA,
+> and the
+> > new functions are basic forwarding operations, it seems to make most
+> sense
+> > to keep this consistent with the bridge module.
+> 
+> This is the interesting part of the discussion. The bridge and macvlan
+> drivers certainly have an overlap in functionality and you can argue
+> that you only need one. Then again, the bridge code is a little crufty
+> and we might not want to add much more to it for functionality that can
+> be implemented in a much simpler way elsewhere. My preferred way would
+> be to use bridge when you really need 802.1d MAC learning, netfilter-
+> bridge
+> and STP, while we put the optimizations for stuff like VMDq, zero-copy
+> and multiqueue guest adapters only into the macvlan code.
 
-Anthony Liguori
+I can see this being a possible solution. 
+
+My concern with putting VEPA into macvlan instead of the bridging code
+is that there will be more work required to make it usable for other
+virtualization solution as macvtap will only work for KVM type setups. 
+Basically, VEPA capabilities would rely on someone developing further
+drivers to connect macvlan to different backend interfaces, e.g. one for
+KVM (macvtap), one for Xen PV drivers, one for virtio, and whatever else
+is out there, or will be there in the future. The bridging code is
+already very generic in that respect, and all virtualization layers
+can deal with connecting interfaces to a bridge. 
+
+Our extensions to the bridging code to enable VEPA for the Linux kernel
+are only very minimal code changes and would allow to make VEPA available
+to most virtualization solutions today.
+
+Anna
