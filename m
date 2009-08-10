@@ -1,15 +1,12 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [evb] RE: [PATCH][RFC] net/bridge: add basic VEPA support
-Date: Mon, 10 Aug 2009 21:18:49 +0200
-Message-ID: <200908102118.49253.arnd__18640.3651409366$1249932174$gmane$org@arndb.de>
-References: <D2E118A1E7268F449C469EA2F301D92902BC39B2@exil.voltaire.com>
-	<0199E0D51A61344794750DC57738F58E6D6AE99884@GVW1118EXC.americas.hpqcorp.net>
-	<20090810095118.125fe966@nehalam>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH 0/3] qemu-kvm: vhost net support
+Date: Mon, 10 Aug 2009 22:23:04 +0300
+Message-ID: <20090810192304.GA16781__1672.96894728697$1249932296$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20090810095118.125fe966@nehalam>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,30 +16,37 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
-Cc: "Fischer, Anna" <anna.fischer@hp.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, "davem@davemloft.net" <davem@davemloft.net>, "Paul Congdon (UC Davis)" <ptcongdon@ucdavis.edu>, "evb@yahoogroups.com" <evb@yahoogroups.com>, Stephen Hemminger <shemminger@linux-foundation.org>, "adobriyan@gmail.com" <adobriyan@gmail.com>
+To: avi@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Monday 10 August 2009, Stephen Hemminger wrote:
-> On Mon, 10 Aug 2009 16:32:01, "Fischer, Anna" <anna.fischer@hp.com> wrote:
-> > How would this work though, if the OS inside the guest wants to register
-> > to a particular multicast address? Is this propagated through the backend
-> > drivers to the macvlan/macvtap interface?
-> 
-> Sure filtering is better, but multicast performance with large number
-> of guests is really a corner case, not the real performance issue.
+This adds support for vhost-net virtio kernel backend.
 
-Well, right now, qemu does not care at all about this, it essentially
-leaves the tun device in ALLMULTI state. I should check whether macvtap
-at this stage can receive multicast frames at all, but if it does,
-it will get them all ;-).
+This is RFC, but works without issues for me.
 
-If we want to implement this with kvm, we would have to start with
-the qemu virtio-net implementation, to move the receive filter into
-the tap device. With tun/tap that will mean less copying to user
-space, with macvtap (after implementing TUNSETTXFILTER) we get already
-pretty far because we no longer need to have the external interface
-in ALLMULTI state. Once that is in place, we can start thinking about
-filtering per virtual device.
+Still needs to be split up, tested and benchmarked properly,
+but posting it here in case people want to test drive
+the kernel bits I posted.
 
-	Arnd <><
+Michael S. Tsirkin (3):
+  qemu-kvm: move virtio-pci.o to near pci.o
+  virtio: move features to an inline function
+  qemu-kvm: vhost-net implementation
+
+ Makefile.hw         |    2 +-
+ Makefile.target     |    3 +-
+ hw/vhost_net.c      |  181 +++++++++++++++++++++++++++++++++++++++++++++++++++
+ hw/vhost_net.h      |   30 +++++++++
+ hw/virtio-balloon.c |    2 +-
+ hw/virtio-blk.c     |    2 +-
+ hw/virtio-console.c |    2 +-
+ hw/virtio-net.c     |   34 +++++++++-
+ hw/virtio-pci.c     |   43 +++++++++++-
+ hw/virtio.c         |   19 ------
+ hw/virtio.h         |   38 ++++++++++-
+ net.c               |    8 ++-
+ net.h               |    1 +
+ qemu-kvm.c          |    8 --
+ qemu-kvm.h          |    9 +++
+ 15 files changed, 340 insertions(+), 42 deletions(-)
+ create mode 100644 hw/vhost_net.c
+ create mode 100644 hw/vhost_net.h
