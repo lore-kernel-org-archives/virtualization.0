@@ -1,16 +1,18 @@
-From: Stephen Hemminger <shemminger@linux-foundation.org>
-Subject: Re: [evb] RE: [PATCH][RFC] net/bridge: add basic VEPA support
-Date: Mon, 10 Aug 2009 09:51:18 -0700
-Message-ID: <20090810095118.125fe966__47473.8499302932$1249923212$gmane$org@nehalam>
-References: <D2E118A1E7268F449C469EA2F301D92902BC39B2@exil.voltaire.com>
-	<4A7EB0AC.2030104@Voltaire.com> <20090810082037.17b352c2@nehalam>
-	<200908101728.15649.arnd@arndb.de>
-	<0199E0D51A61344794750DC57738F58E6D6AE99884@GVW1118EXC.americas.hpqcorp.net>
+From: Anthony Liguori <anthony@codemonkey.ws>
+Subject: Re: [Qemu-devel] Re: virtio-serial: An interface for
+	host-guest	communication
+Date: Mon, 10 Aug 2009 11:59:31 -0500
+Message-ID: <4A8051F3.7040400__35781.3340066516$1249923637$gmane$org@codemonkey.ws>
+References: <20090805175713.GB28738@shareable.org>	<4A79C8D9.5030606@codemonkey.ws>	<20090806103843.GC9222@amit-x200.redhat.com>	<4A7ADAC4.70902@codemonkey.ws>	<20090806134103.GC11733@amit-x200.redhat.com>	<4A7AE169.4000606@codemonkey.ws>	<20090806140404.GA12083@amit-x200.redhat.com>	<20090806173740.GA1178@shareable.org>	<20090807063800.GA16769@amit-x200.redhat.com>	<4A7C36D3.3040305@codemonkey.ws>
+	<20090810065508.GA4499@amit-x200.redhat.com>
+	<4A7FECCA.8080804@redhat.com> <4A801A7B.1020208@codemonkey.ws>
+	<4A80287C.7050400@redhat.com> <4A802CA7.9020701@codemonkey.ws>
+	<4A803E07.7080407@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <0199E0D51A61344794750DC57738F58E6D6AE99884@GVW1118EXC.americas.hpqcorp.net>
+In-Reply-To: <4A803E07.7080407@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,50 +22,49 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Fischer, Anna" <anna.fischer@hp.com>
-Cc: "Paul Congdon (UC Davis)" <ptcongdon@ucdavis.edu>, "evb@yahoogroups.com" <evb@yahoogroups.com>, Arnd Bergmann <arnd@arndb.de>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, "adobriyan@gmail.com" <adobriyan@gmail.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "davem@davemloft.net" <davem@davemloft.net>
+To: Gerd Hoffmann <kraxel@redhat.com>
+Cc: kvm@vger.kernel.org, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Amit Shah <amit.shah@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, 10 Aug 2009 16:32:01 +0000
-"Fischer, Anna" <anna.fischer@hp.com> wrote:
+Gerd Hoffmann wrote:
+> Ok, lets rip out the in-kernel ioapic code then.  It can (and has 
+> been) done in userspace.
 
-> > Subject: Re: [evb] RE: [PATCH][RFC] net/bridge: add basic VEPA support
-> > 
-> > On Monday 10 August 2009, Stephen Hemminger wrote:
-> > > On Sun, 09 Aug 2009 14:19:08 +0300, Or Gerlitz
-> > <ogerlitz@voltaire.com> wrote:
-> > > > Looking in macvlan_set_multicast_list() it acts in a similar manner
-> > to
-> > > > macvlan_set_mac_address() in the sense that it calls dev_mc_sync().
-> > I
-> > > > assume what's left is to add macvlan_hash_xxx multicast logic to
-> > > > map/unmap multicast groups to what macvlan devices want to receive
-> > them
-> > > > and this way the flooding can be removed, correct?
-> > >
-> > > The device can just flood all multicast packets, since the filtering
-> > > is done on the receive path anyway.
-> 
-> Is this handled by one of the additional patches? In the current kernel tree
-> macvlan code it looks as if multicast filtering is only handled by the
-> physical device driver, but not on particular macvlan devices.
->  
-> 
-> > But we'd still have to copy the frames to user space (for both
-> > macvtap and raw packet sockets) and exit from the guest to inject
-> > it into its stack, right?
-> 
-> I think it would be nice if you can implement what Or describes for 
-> macvlan and avoid flooding, and it doesn't sound too hard to do. 
-> 
-> I guess one advantage for macvlan (over the bridge) is that you can 
-> program in all information you have for the ports attached to it, e.g. 
-> MAC addresses and multicast addresses. So you could take advantage of
-> that whereas the bridge always floods multicast frames to all ports.
->  
-> How would this work though, if the OS inside the guest wants to register
-> to a particular multicast address? Is this propagated through the backend
-> drivers to the macvlan/macvtap interface?
+The justification is performance although that's not really true anymore 
+post TPR optimization.
 
-Sure filtering is better, but multicast performance with large number
-of guests is really a corner case, not the real performance issue.
+But FWIW, I opposed both the in-kernel apic and the in-kernel pit when 
+they were introduced.  If nothing else, I'm at least consistent :-)
+
+> The daemon increases the possibility of userspace bugs.
+
+How?
+
+> Seriously:  Attaching a name tag to virtio-serial devices and have 
+> them exposed via sysfs is probably *much* less code than a vmchannel 
+> daemon.
+
+I strongly doubt that.
+
+>> If we really want
+>> vmchannel to be used by application developers, then we really need a
+>> libvmchannel.
+>
+> We need a sane solution developed and merged and not a new idea each 
+> week.
+
+There is nothing sane about vmchannel.  It's just an attempt to bypass 
+QEMU which is going to introduce all sorts of complexities wrt 
+migration, guest compatibility, etc.
+
+However, as I've mentioned repeatedly, the reason I won't merge 
+virtio-serial is that it duplicates functionality with virtio-console.  
+If the two are converged, I'm happy to merge it.  I'm not opposed to 
+having more functionality.
+
+I think it's the wrong solution for the use-case, and I always have, but 
+that's independent of my willingness to merge it.
+
+Regards,
+
+Anthony Liguori
