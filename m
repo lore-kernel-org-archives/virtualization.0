@@ -1,18 +1,15 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [Qemu-devel] Re: [PATCH] qemu/virtio: move features to an
-	inline function
-Date: Tue, 11 Aug 2009 01:19:40 +0300
-Message-ID: <20090810221940.GB17099@redhat.com>
-References: <20090810192809.GA16800@redhat.com>
-	<4A8076F0.5050700@codemonkey.ws>
-	<20090810194753.GA16803@redhat.com>
-	<4A808437.8040307@codemonkey.ws>
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: [PATCH 1/2] export cpu_tlbstate to modules
+Date: Mon, 10 Aug 2009 15:24:50 -0700
+Message-ID: <4A809E32.6060206__41415.2650665075$1249943189$gmane$org@zytor.com>
+References: <cover.1249930169.git.mst@redhat.com>
+	<20090810185302.GB13924@redhat.com> <4A80979E.3080204@zytor.com>
+	<20090810220613.GA17099@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <4A808437.8040307@codemonkey.ws>
+In-Reply-To: <20090810220613.GA17099@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -22,49 +19,16 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Anthony Liguori <anthony@codemonkey.ws>
-Cc: qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: netdev@vger.kernel.org, mingo@elte.hu, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Aug 10, 2009 at 03:33:59PM -0500, Anthony Liguori wrote:
-> Michael S. Tsirkin wrote:
->>> Normally, the common features are transport features and the devices  
->>> should have absolutely no knowledge of transport feature (since 
->>> they're  transport dependent).
->>>     
->>
->> Good point. But
->>
->> 1. note that with my patch they don't. They call
->> virtio_get_common_features and that's all.
->>
->> 2. some features may not make sense for some devices. For example, it is
->> quite possible that indirect ring entries feature improves performance
->> on block but hurts on net, as net has a similar merged buffers feature.
->> Someone should try benchmarking with it disabled, and it becomes
->> possible with my patch.
->>   
->
-> I don't necessarily disagree but I think your patch goes about it the  
-> wrong way.
->
-> There ought to be a way to layer qdev properties that achieves this goal  
-> so that when you create a virtio-pci-block device, you have the ability  
-> to turn off indirect sg without virtio-block having to know what that is.
+On 08/10/2009 03:06 PM, Michael S. Tsirkin wrote:
+>> Wouldn't it be a *lot* better to move use_mm() from fs/aio.c into common
+>> code, and export that instead?
+> 
+> That's easy too. What would a good place for it be?
 
-I don't understand, sorry. Why do you insist on involving pci here?
-ring layout has nothing to do with pci, does it?  With my patch,
-virtio-block does not know what indirect sg is. It just does
-enable/disable.
-
-virtio net has device-specific feature that overlaps with
-indirect entries. So insisting that devices should just ignore
-transport does not make sense, to me.
-
-> For your use-case, I wonder if you're integrating at the wrong level.   
-
-Forget about that for now. Let's solve the generic problem.
-
-> Regards,
->
-> Anthony Liguori
+Somewhere in mm/, presumably.  When in doubt, make it a new file...
+	
+	-hpa
