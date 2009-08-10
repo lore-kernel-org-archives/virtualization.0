@@ -1,8 +1,8 @@
 From: Anthony Liguori <anthony@codemonkey.ws>
 Subject: Re: [Qemu-devel] Re: virtio-serial: An interface for
 	host-guest	communication
-Date: Mon, 10 Aug 2009 09:20:23 -0500
-Message-ID: <4A802CA7.9020701__7196.22102701596$1249914271$gmane$org@codemonkey.ws>
+Date: Mon, 10 Aug 2009 09:20:32 -0500
+Message-ID: <4A802CB0.1090807__30254.5272432782$1249914342$gmane$org@codemonkey.ws>
 References: <20090805175713.GB28738@shareable.org>	<4A79C8D9.5030606@codemonkey.ws>	<20090806103843.GC9222@amit-x200.redhat.com>	<4A7ADAC4.70902@codemonkey.ws>	<20090806134103.GC11733@amit-x200.redhat.com>	<4A7AE169.4000606@codemonkey.ws>	<20090806140404.GA12083@amit-x200.redhat.com>	<20090806173740.GA1178@shareable.org>	<20090807063800.GA16769@amit-x200.redhat.com>	<4A7C36D3.3040305@codemonkey.ws>
 	<20090810065508.GA4499@amit-x200.redhat.com>
 	<4A7FECCA.8080804@redhat.com> <4A801A7B.1020208@codemonkey.ws>
