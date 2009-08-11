@@ -1,18 +1,21 @@
-From: "Paul Congdon \(UC Davis\)" <ptcongdon@ucdavis.edu>
-Subject: RE: [PATCH][RFC] net/bridge: add basic VEPA support
-Date: Tue, 11 Aug 2009 07:55:04 -0700
-Message-ID: <001001ca1a93$b6e50ee0$24af2ca0$__23110.8810673051$1250002857$gmane$org@edu>
-References: <0199E0D51A61344794750DC57738F58E67D2DCECBB@GVW1118EXC.americas.hpqcorp.net>
-	<200908081149.27409.arnd@arndb.de>
-	<0199E0D51A61344794750DC57738F58E6D6AE99743@GVW1118EXC.americas.hpqcorp.net>
-	<200908101707.32751.arnd@arndb.de>
-	<0199E0D51A61344794750DC57738F58E6D6AE99C53@GVW1118EXC.americas.hpqcorp.net>
+From: Anthony Liguori <anthony@codemonkey.ws>
+Subject: Re: [Qemu-devel] Re: [PATCH] qemu/virtio: move features to an inline
+	function
+Date: Tue, 11 Aug 2009 11:08:32 -0500
+Message-ID: <4A819780.4040002@codemonkey.ws>
+References: <20090810192809.GA16800@redhat.com>
+	<4A8076F0.5050700@codemonkey.ws>
+	<20090810194753.GA16803@redhat.com>
+	<4A808437.8040307@codemonkey.ws>
+	<20090810221940.GB17099@redhat.com>
+	<4A80A0A1.2020905@codemonkey.ws> <20090811084807.GA3029@redhat.com>
+	<4A816EEB.4070707@codemonkey.ws>
+	<20090811134331.GA22661@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <0199E0D51A61344794750DC57738F58E6D6AE99C53@GVW1118EXC.americas.hpqcorp.net>
-Content-Language: en-us
+In-Reply-To: <20090811134331.GA22661@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -22,28 +25,67 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "'Fischer, Anna'" <anna.fischer@hp.com>, 'Arnd Bergmann' <arnd@arndb.de>
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, adobriyan@gmail.com, evb@yahoogroups.com, 'Stephen Hemminger' <shemminger@linux-foundation.org>, davem@davemloft.net, 'Eric Biederman' <ebiederm@xmission.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-> >
-> > The patch from Eric Biederman to allow macvlan to bridge between
-> > its slave ports is at
-> >
-> > http://kerneltrap.org/mailarchive/linux-netdev/2009/3/9/5125774
-> 
-> Looking through the discussions here, it does not seem as if a decision
-> was made to integrate those patches, because they would make the
-> macvlan
-> interface behave too much like a bridge. Also, it seems as if there was
-> still a problem with doing multicast/broadcast delivery when enabling
-> local VM-to-VM communication. Is that solved by now?
-> 
+Michael S. Tsirkin wrote:
+>> Let's say we supported virtio-vbus along with virtio-pci.  What does  
+>> virtio_blk_get_features() do to mask out sg_indirect?  For all  
+>> virtio-blk knows, it could be on top of virtio-vbus.
+>>     
+>
+> So? VIRTIO_RING_F_INDIRECT_DESC applies to all transports.
+> Just clear this bit.
+>   
 
-Also, is there a solution, or plans for a solution, to address macvtap
-interfaces that are set to 'promiscuous' mode?  It would seem fairly easy to
-support this for interfaces that are simply trying to listen to the port
-(e.g. Wireshark).  If the port was being used by something like a firewall
-then the VEPA filtering doesn't work too well.
+You can have many layers with virtio.  device + transport + ring
 
-Paul
+virtio-vbus would have a different transport and a different ring 
+implementation.  So no, VIRTIO_RING_F_INDIRECT_DESC wouldn't apply to 
+virtio-vbus.
+
+>>>   This would break things like
+>>> migrating between userspace and kernel virtio (something that I
+>>> support).
+>>>       
+>> The PIT uses a common state structure and common code for save/restore.   
+>> This makes migration compatible.
+>>     
+>
+> Isn't device name put in the machine config, which presumably is
+> send along as well?
+>   
+
+Good question.  I don't know the best way to resolve this.
+
+Maybe migration between devices isn't such a good idea.  It's 
+conceivable that vhost will require some state that isn't present in the 
+userspace virtio-net.  I think this requires some thought.
+
+>> In this case, it's two separate implementations of the same device.  I  
+>> think it makes sense for them to be separate devices.
+>>
+>> Regards,
+>>
+>> Anthony Liguori
+>>     
+>
+> Hmm, I see what you mean. But kernel virtio is harder. Unlike
+> PIT/APIC, it is not a separate codepath.  It still needs
+> all of userspace virtio to support live migration and non-MSI guests.
+> Really, it's the same device that switches between kernel and userspace
+> modes on the fly.
+>
+> This will become clearer from code when I implement migration for vhost,
+> but basically you switch to userspace when you start migration, and
+> back to kernel if migration fails. You also switch to kernel when MSI
+> is enabled and back to userspace when it is disabled.
+>   
+
+Why bother switching to userspace for migration?  Can't you just have 
+get/set ioctls for the state?
+
+Regards,
+
+Anthony Liguori
