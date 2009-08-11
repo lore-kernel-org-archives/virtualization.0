@@ -1,21 +1,17 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [Qemu-devel] Re: [PATCH] qemu/virtio: move features to an
-	inline function
-Date: Tue, 11 Aug 2009 16:43:32 +0300
-Message-ID: <20090811134331.GA22661@redhat.com>
-References: <20090810192809.GA16800@redhat.com>
-	<4A8076F0.5050700@codemonkey.ws>
-	<20090810194753.GA16803@redhat.com>
-	<4A808437.8040307@codemonkey.ws>
-	<20090810221940.GB17099@redhat.com>
-	<4A80A0A1.2020905@codemonkey.ws> <20090811084807.GA3029@redhat.com>
-	<4A816EEB.4070707@codemonkey.ws>
+From: "Fischer, Anna" <anna.fischer@hp.com>
+Subject: RE: [PATCH][RFC] net/bridge: add basic VEPA support
+Date: Tue, 11 Aug 2009 14:30:23 +0000
+Message-ID: <0199E0D51A61344794750DC57738F58E6D6AE99C53__23787.3953221881$1250001601$gmane$org@GVW1118EXC.americas.hpqcorp.net>
+References: <0199E0D51A61344794750DC57738F58E67D2DCECBB@GVW1118EXC.americas.hpqcorp.net>
+	<200908081149.27409.arnd@arndb.de>
+	<0199E0D51A61344794750DC57738F58E6D6AE99743@GVW1118EXC.americas.hpqcorp.net>
+	<200908101707.32751.arnd@arndb.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <4A816EEB.4070707@codemonkey.ws>
+In-Reply-To: <200908101707.32751.arnd@arndb.de>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -25,121 +21,71 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Anthony Liguori <anthony@codemonkey.ws>
-Cc: qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "Paul Congdon (UC Davis)" <ptcongdon@ucdavis.edu>, "adobriyan@gmail.com" <adobriyan@gmail.com>, "evb@yahoogroups.com" <evb@yahoogroups.com>, 'Stephen Hemminger' <shemminger@linux-foundation.org>, "davem@davemloft.net" <davem@davemloft.net>, Eric Biederman <ebiederm@xmission.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Aug 11, 2009 at 08:15:23AM -0500, Anthony Liguori wrote:
-> Michael S. Tsirkin wrote:
->> On Mon, Aug 10, 2009 at 05:35:13PM -0500, Anthony Liguori wrote:
->>   
->>> What I'm saying is that virtio-blk-pci, which is the qdev 
->>> instantiation  of virtio-pci + virtio-blk, should be able to have a 
->>> set of qdev  properties that is composed of a combination of at least 
->>> two sets of  properties: virtio-blk's qdev properties and 
->>> virtio-pci's qdev properties.
->>>     
->>
->> Yea. But indirect ring entries is not virtio-pci property.
->
-> It's a ring feature and the ring implementation is currently in the  
-> generic virtio code.  Ring features really have no home today so  
-> virtio-pci seems logical.
+> Subject: Re: [PATCH][RFC] net/bridge: add basic VEPA support
+> 
+> On Monday 10 August 2009, Fischer, Anna wrote:
+> > > Subject: Re: [PATCH][RFC] net/bridge: add basic VEPA support
+> > >
+> > > On Friday 07 August 2009, Paul Congdon (UC Davis) wrote:
+> > > > As I understand the macvlan code, it currently doesn't allow two
+> VMs
+> > > on the
+> > > > same machine to communicate with one another.
+> > >
+> > > There are patches to do that. I think if we add that, there should
+> be
+> > > a way to choose the behavior between either bridging between the
+> > > guests or VEPA.
+> >
+> > If you implement this direct bridging capability between local VMs
+> for
+> > macvlan, then would this not break existing applications that
+> currently
+> > use it? It would be quite a significant change to how macvlan works
+> > today. I guess, ideally, you would want to have macvlan work in
+> > separate modes, e.g. traditional macvlan, bridging, and VEPA.
+> 
+> Right, that's what I meant with my sentence above. I'm not sure
+> if we need to differentiate traditional macvlan and VEPA though.
+> AFAICT, the only difference should be the handling of broadcast
+> and multicast frames returning from the hairpin turn. Since this
+> does not happen with a traditional macvlan, we can always send them
+> to all macvlan ports except the source port.
 
-Why is this logical? Let's put the feature in generic virtio code,
-where ring itself it. That's what my patch does.
+Yes, if you add a check for the original source port on broadcast/
+multicast delivery, then macvlan would be able to function in
+basic VEPA mode. 
 
->>   And ev
->> with virtio-pci properies, such as MSI, specific device should
->> have control over number of vectors.
->>   
->
-> Devices, or instantiation of the devices?  The later is what I'm suggesting.
+Maybe it might still be worth preserving the old behaviour, and 
+just add an explicit VEPA mode.
 
-The former would be my guess. Hard to see why different instances
-of blk would behave much differently.
+ 
+> > > > I could imagine a hairpin mode on the adjacent bridge making this
+> > > > possible, but the macvlan code would need to be updated to filter
+> > > > reflected frames so a source did not receive his own packet.
+> > >
+> > > Right, I missed this point so far. I'll follow up with a patch
+> > > to do that.
+> >
+> > Can you maybe point me to the missing patches for macvlan that you
+> > have mentioned in other emails, and the one you mention above?
+> > E.g. enabling multicast distribution and allowing local bridging etc.
+> > I could not find any of those in the archives. Thanks.
+> 
+> The patch from Eric Biederman to allow macvlan to bridge between
+> its slave ports is at
+> 
+> http://kerneltrap.org/mailarchive/linux-netdev/2009/3/9/5125774
 
-> Let's say we supported virtio-vbus along with virtio-pci.  What does  
-> virtio_blk_get_features() do to mask out sg_indirect?  For all  
-> virtio-blk knows, it could be on top of virtio-vbus.
+Looking through the discussions here, it does not seem as if a decision
+was made to integrate those patches, because they would make the macvlan
+interface behave too much like a bridge. Also, it seems as if there was 
+still a problem with doing multicast/broadcast delivery when enabling
+local VM-to-VM communication. Is that solved by now?
 
-So? VIRTIO_RING_F_INDIRECT_DESC applies to all transports.
-Just clear this bit.
-
->> Me as a user? We can't expect the user to tweak such low level stuff for
->> each device.  So devices such as block should have a say in which ring
->> format options are used, in a way optimal for the specific usage.  My
->> example is that virtio net has merged buffers so indirect ring is
->> probably just useless.  And again, pci seems to have nothing to do with
->> it, so why drag it in?
->>   
->
-> If you want to tweak such thing, why not use default property values for  
-> virtio-blk-pci's definition in virtio-pci.c?  That keeps it out of  
-> virtio-blk.c.
-
-Me as a user? I don't want to know what it is, much less tweak it.
-Me as a developer? Using different ring formats depending on
-transport is possible, but creates extra testing/benchmarking burden,
-reduces coverage.
-
->>> separate qdev device than virtio-net-pci.  It can have an identical   
->>> guest interface but within qemu, it should be a separate device.  
->>> This  is how we handle the in-kernel PIT and it's how we should 
->>> handle the  in-kernel APIC.
->>>     
->>
->> Ugh. What advantages does this have?
->
-> It keeps a clean separate of the two devices.  It actually ends up  
-> making things a lot easier to understand because it's clear what  
-> portions of code are not being used for the in-kernel device models.
-
-Ah, I see what you mean now.  That separation is a wish I can't grant,
-sorry.  See below.
-
->>   This would break things like
->> migrating between userspace and kernel virtio (something that I
->> support).
->
-> The PIT uses a common state structure and common code for save/restore.   
-> This makes migration compatible.
-
-Isn't device name put in the machine config, which presumably is
-send along as well?
-
->>   IMO, this should work like MSI, detect capability and just
->> have virtio go faster, with a disable flag for troubleshooting purposes.
->>
->> Can migration between in-kernel and userspace PIT work?
->> If yes we would be better off changing that, as well.
->>   
->
-> Take a look at i8524{,-kvm.c} in qemu-kvm and how it's instantiated in  
-> pc.c.  It ends up being really straight forward.
->
->> Separate devices should be for things that have guest-visible
->> differences. Don't try to encode random information into the device
->> name.
->>   
->
-> In this case, it's two separate implementations of the same device.  I  
-> think it makes sense for them to be separate devices.
->
-> Regards,
->
-> Anthony Liguori
-
-Hmm, I see what you mean. But kernel virtio is harder. Unlike
-PIT/APIC, it is not a separate codepath.  It still needs
-all of userspace virtio to support live migration and non-MSI guests.
-Really, it's the same device that switches between kernel and userspace
-modes on the fly.
-
-This will become clearer from code when I implement migration for vhost,
-but basically you switch to userspace when you start migration, and
-back to kernel if migration fails. You also switch to kernel when MSI
-is enabled and back to userspace when it is disabled.
-
--- 
-MST
+Thanks,
+Anna
