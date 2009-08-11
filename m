@@ -1,16 +1,19 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH 1/2] export cpu_tlbstate to modules
-Date: Tue, 11 Aug 2009 14:19:04 +0300
-Message-ID: <20090811111903.GA3809__28757.2286012166$1249989694$gmane$org@redhat.com>
-References: <cover.1249930169.git.mst@redhat.com>
-	<20090810185302.GB13924@redhat.com> <4A80979E.3080204@zytor.com>
-	<20090810220613.GA17099@redhat.com> <4A809E32.6060206@zytor.com>
+From: Anthony Liguori <anthony@codemonkey.ws>
+Subject: Re: [Qemu-devel] Re: [PATCH] qemu/virtio: move features to an inline
+	function
+Date: Tue, 11 Aug 2009 08:15:23 -0500
+Message-ID: <4A816EEB.4070707@codemonkey.ws>
+References: <20090810192809.GA16800@redhat.com>
+	<4A8076F0.5050700@codemonkey.ws>
+	<20090810194753.GA16803@redhat.com>
+	<4A808437.8040307@codemonkey.ws>
+	<20090810221940.GB17099@redhat.com>
+	<4A80A0A1.2020905@codemonkey.ws> <20090811084807.GA3029@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <4A809E32.6060206@zytor.com>
+In-Reply-To: <20090811084807.GA3029@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,204 +23,86 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, mingo@elte.hu, akpm@linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
+Michael S. Tsirkin wrote:
+> On Mon, Aug 10, 2009 at 05:35:13PM -0500, Anthony Liguori wrote:
+>   
+>> What I'm saying is that virtio-blk-pci, which is the qdev instantiation  
+>> of virtio-pci + virtio-blk, should be able to have a set of qdev  
+>> properties that is composed of a combination of at least two sets of  
+>> properties: virtio-blk's qdev properties and virtio-pci's qdev 
+>> properties.
+>>     
+>
+> Yea. But indirect ring entries is not virtio-pci property.
 
-Subject: [PATCH] mm: export use_mm/unuse_mm to modules
+It's a ring feature and the ring implementation is currently in the 
+generic virtio code.  Ring features really have no home today so 
+virtio-pci seems logical.
 
-vhost net module wants to do copy to/from user from a kernel thread,
-which needs use_mm (like what fs/aio has).  Move that into mm/ and
-export to modules.
+>   And ev
+> with virtio-pci properies, such as MSI, specific device should
+> have control over number of vectors.
+>   
 
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
+Devices, or instantiation of the devices?  The later is what I'm suggesting.
 
-On Mon, Aug 10, 2009 at 03:24:50PM -0700, H. Peter Anvin wrote:
-> On 08/10/2009 03:06 PM, Michael S. Tsirkin wrote:
-> >> Wouldn't it be a *lot* better to move use_mm() from fs/aio.c into common
-> >> code, and export that instead?
-> > 
-> > That's easy too. What would a good place for it be?
-> 
-> Somewhere in mm/, presumably.  When in doubt, make it a new file...
-> 	
-> 	-hpa
+Let's say we supported virtio-vbus along with virtio-pci.  What does 
+virtio_blk_get_features() do to mask out sg_indirect?  For all 
+virtio-blk knows, it could be on top of virtio-vbus.
 
-Like this? Ack?
+> Me as a user? We can't expect the user to tweak such low level stuff for
+> each device.  So devices such as block should have a say in which ring
+> format options are used, in a way optimal for the specific usage.  My
+> example is that virtio net has merged buffers so indirect ring is
+> probably just useless.  And again, pci seems to have nothing to do with
+> it, so why drag it in?
+>   
 
- fs/aio.c                    |   47 +----------------------------------
- include/linux/mmu_context.h |    9 ++++++
- mm/Makefile                 |    2 +-
- mm/mmu_context.c            |   58 +++++++++++++++++++++++++++++++++++++++++++
- 4 files changed, 69 insertions(+), 47 deletions(-)
- create mode 100644 include/linux/mmu_context.h
- create mode 100644 mm/mmu_context.c
+If you want to tweak such thing, why not use default property values for 
+virtio-blk-pci's definition in virtio-pci.c?  That keeps it out of 
+virtio-blk.c.
 
-diff --git a/fs/aio.c b/fs/aio.c
-index d065b2c..fc21c23 100644
---- a/fs/aio.c
-+++ b/fs/aio.c
-@@ -24,6 +24,7 @@
- #include <linux/file.h>
- #include <linux/mm.h>
- #include <linux/mman.h>
-+#include <linux/mmu_context.h>
- #include <linux/slab.h>
- #include <linux/timer.h>
- #include <linux/aio.h>
-@@ -34,7 +35,6 @@
- 
- #include <asm/kmap_types.h>
- #include <asm/uaccess.h>
--#include <asm/mmu_context.h>
- 
- #if DEBUG > 1
- #define dprintk		printk
-@@ -595,51 +595,6 @@ static struct kioctx *lookup_ioctx(unsigned long ctx_id)
- }
- 
- /*
-- * use_mm
-- *	Makes the calling kernel thread take on the specified
-- *	mm context.
-- *	Called by the retry thread execute retries within the
-- *	iocb issuer's mm context, so that copy_from/to_user
-- *	operations work seamlessly for aio.
-- *	(Note: this routine is intended to be called only
-- *	from a kernel thread context)
-- */
--static void use_mm(struct mm_struct *mm)
--{
--	struct mm_struct *active_mm;
--	struct task_struct *tsk = current;
--
--	task_lock(tsk);
--	active_mm = tsk->active_mm;
--	atomic_inc(&mm->mm_count);
--	tsk->mm = mm;
--	tsk->active_mm = mm;
--	switch_mm(active_mm, mm, tsk);
--	task_unlock(tsk);
--
--	mmdrop(active_mm);
--}
--
--/*
-- * unuse_mm
-- *	Reverses the effect of use_mm, i.e. releases the
-- *	specified mm context which was earlier taken on
-- *	by the calling kernel thread
-- *	(Note: this routine is intended to be called only
-- *	from a kernel thread context)
-- */
--static void unuse_mm(struct mm_struct *mm)
--{
--	struct task_struct *tsk = current;
--
--	task_lock(tsk);
--	tsk->mm = NULL;
--	/* active_mm is still 'mm' */
--	enter_lazy_tlb(mm, tsk);
--	task_unlock(tsk);
--}
--
--/*
-  * Queue up a kiocb to be retried. Assumes that the kiocb
-  * has already been marked as kicked, and places it on
-  * the retry run list for the corresponding ioctx, if it
-diff --git a/include/linux/mmu_context.h b/include/linux/mmu_context.h
-new file mode 100644
-index 0000000..70fffeb
---- /dev/null
-+++ b/include/linux/mmu_context.h
-@@ -0,0 +1,9 @@
-+#ifndef _LINUX_MMU_CONTEXT_H
-+#define _LINUX_MMU_CONTEXT_H
-+
-+struct mm_struct;
-+
-+void use_mm(struct mm_struct *mm);
-+void unuse_mm(struct mm_struct *mm);
-+
-+#endif
-diff --git a/mm/Makefile b/mm/Makefile
-index 5e0bd64..46c3892 100644
---- a/mm/Makefile
-+++ b/mm/Makefile
-@@ -11,7 +11,7 @@ obj-y			:= bootmem.o filemap.o mempool.o oom_kill.o fadvise.o \
- 			   maccess.o page_alloc.o page-writeback.o pdflush.o \
- 			   readahead.o swap.o truncate.o vmscan.o shmem.o \
- 			   prio_tree.o util.o mmzone.o vmstat.o backing-dev.o \
--			   page_isolation.o mm_init.o $(mmu-y)
-+			   page_isolation.o mm_init.o mmu_context.o $(mmu-y)
- obj-y += init-mm.o
- 
- obj-$(CONFIG_PROC_PAGE_MONITOR) += pagewalk.o
-diff --git a/mm/mmu_context.c b/mm/mmu_context.c
-new file mode 100644
-index 0000000..9989c2f
---- /dev/null
-+++ b/mm/mmu_context.c
-@@ -0,0 +1,58 @@
-+/* Copyright (C) 2009 Red Hat, Inc.
-+ *
-+ * See ../COPYING for licensing terms.
-+ */
-+
-+#include <linux/mm.h>
-+#include <linux/mmu_context.h>
-+#include <linux/module.h>
-+#include <linux/sched.h>
-+
-+#include <asm/mmu_context.h>
-+
-+/*
-+ * use_mm
-+ *	Makes the calling kernel thread take on the specified
-+ *	mm context.
-+ *	Called by the retry thread execute retries within the
-+ *	iocb issuer's mm context, so that copy_from/to_user
-+ *	operations work seamlessly for aio.
-+ *	(Note: this routine is intended to be called only
-+ *	from a kernel thread context)
-+ */
-+void use_mm(struct mm_struct *mm)
-+{
-+	struct mm_struct *active_mm;
-+	struct task_struct *tsk = current;
-+
-+	task_lock(tsk);
-+	active_mm = tsk->active_mm;
-+	atomic_inc(&mm->mm_count);
-+	tsk->mm = mm;
-+	tsk->active_mm = mm;
-+	switch_mm(active_mm, mm, tsk);
-+	task_unlock(tsk);
-+
-+	mmdrop(active_mm);
-+}
-+EXPORT_SYMBOL_GPL(use_mm);
-+
-+/*
-+ * unuse_mm
-+ *	Reverses the effect of use_mm, i.e. releases the
-+ *	specified mm context which was earlier taken on
-+ *	by the calling kernel thread
-+ *	(Note: this routine is intended to be called only
-+ *	from a kernel thread context)
-+ */
-+void unuse_mm(struct mm_struct *mm)
-+{
-+	struct task_struct *tsk = current;
-+
-+	task_lock(tsk);
-+	tsk->mm = NULL;
-+	/* active_mm is still 'mm' */
-+	enter_lazy_tlb(mm, tsk);
-+	task_unlock(tsk);
-+}
-+EXPORT_SYMBOL_GPL(unuse_mm);
--- 
-1.6.2.5
+>> separate qdev device than virtio-net-pci.  It can have an identical  
+>> guest interface but within qemu, it should be a separate device.  This  
+>> is how we handle the in-kernel PIT and it's how we should handle the  
+>> in-kernel APIC.
+>>     
+>
+> Ugh. What advantages does this have?
+
+It keeps a clean separate of the two devices.  It actually ends up 
+making things a lot easier to understand because it's clear what 
+portions of code are not being used for the in-kernel device models.
+
+>   This would break things like
+> migrating between userspace and kernel virtio (something that I
+> support).
+
+The PIT uses a common state structure and common code for save/restore.  
+This makes migration compatible.
+
+>   IMO, this should work like MSI, detect capability and just
+> have virtio go faster, with a disable flag for troubleshooting purposes.
+>
+> Can migration between in-kernel and userspace PIT work?
+> If yes we would be better off changing that, as well.
+>   
+
+Take a look at i8524{,-kvm.c} in qemu-kvm and how it's instantiated in 
+pc.c.  It ends up being really straight forward.
+
+> Separate devices should be for things that have guest-visible
+> differences. Don't try to encode random information into the device
+> name.
+>   
+
+In this case, it's two separate implementations of the same device.  I 
+think it makes sense for them to be separate devices.
+
+Regards,
+
+Anthony Liguori
