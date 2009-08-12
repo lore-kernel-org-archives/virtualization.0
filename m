@@ -1,15 +1,17 @@
-From: Gregory Haskins <gregory.haskins@gmail.com>
-Subject: Re: [PATCHv2 2/2] vhost_net: a kernel-level virtio server
-Date: Wed, 12 Aug 2009 09:41:35 -0400
-Message-ID: <4A82C68F.8070306__35594.8058459491$1250085765$gmane$org@gmail.com>
-References: <cover.1249992497.git.mst@redhat.com>
-	<20090811212802.GC26309@redhat.com> <4A82076A.1060805@gmail.com>
-	<20090812090219.GB26847@redhat.com> <4A82BD2F.7080405@gmail.com>
-	<20090812132539.GD29200@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCHv2 0/2] vhost: a kernel-level virtio server
+Date: Wed, 12 Aug 2009 17:02:24 +0300
+Message-ID: <20090812140224.GA29345__35105.4973937154$1250086080$gmane$org@redhat.com>
+References: <20090811212743.GA26309@redhat.com>
+	<200908121452.01802.arnd@arndb.de>
+	<20090812130612.GC29200@redhat.com>
+	<200908121540.44928.arnd@arndb.de> <4A82C8F1.4030703@gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============1961978305888532133=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20090812132539.GD29200@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <4A82C8F1.4030703@gmail.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -17,103 +19,57 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Mime-version: 1.0
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: "kvm@vger.kernel.org" <kvm@vger.kernel.org>, netdev@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, hpa@zytor.com, Ingo Molnar <mingo@elte.hu>, paulmck@linux.vnet.ibm.com, Andrew Morton <akpm@linux-foundation.org>
+To: Gregory Haskins <gregory.haskins@gmail.com>
+Cc: Arnd Bergmann <arnd@arndb.de>, kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, hpa@zytor.com, Patrick Mullaney <pmullaney@novell.com>, mingo@elte.hu, Andrew Morton <akpm@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---===============1961978305888532133==
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig3EF8735E064856490BFD866C"
+On Wed, Aug 12, 2009 at 09:51:45AM -0400, Gregory Haskins wrote:
+> Arnd Bergmann wrote:
+> > On Wednesday 12 August 2009, Michael S. Tsirkin wrote:
+> >>> If I understand it correctly, you can at least connect a veth pair
+> >>> to a bridge, right? Something like
+> >>>
+> >>>            veth0 - veth1 - vhost - guest 1 
+> >>> eth0 - br0-|
+> >>>            veth2 - veth3 - vhost - guest 2
+> >>>            
+> >> Heh, you don't need a bridge in this picture:
+> >>
+> >> guest 1 - vhost - veth0 - veth1 - vhost guest 2
+> > 
+> > Sure, but the setup I described is the one that I would expect
+> > to see in practice because it gives you external connectivity.
+> > 
+> > Measuring two guests communicating over a veth pair is
+> > interesting for finding the bottlenecks, but of little
+> > practical relevance.
+> > 
+> > 	Arnd <><
+> 
+> Yeah, this would be the config I would be interested in.
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig3EF8735E064856490BFD866C
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+Hmm, this wouldn't be the config to use for the benchmark though: there
+are just too many variables.  If you want both guest to guest and guest
+to host, create 2 nics in the guest.
 
-Michael S. Tsirkin wrote:
-> On Wed, Aug 12, 2009 at 09:01:35AM -0400, Gregory Haskins wrote:
->> I think I understand what your comment above meant:  You don't need to=
+Here's one way to do this:
 
->> do synchronize_rcu() because you can flush the workqueue instead to
->> ensure that all readers have completed.
->=20
-> Yes.
->=20
->>  But if thats true, to me, the
->> rcu_dereference itself is gratuitous,
->=20
-> Here's a thesis on what rcu_dereference does (besides documentation):
->=20
-> reader does this
->=20
-> 	A: sock =3D n->sock
-> 	B: use *sock
->=20
-> Say writer does this:
->=20
-> 	C: newsock =3D allocate socket
-> 	D: initialize(newsock)
-> 	E: n->sock =3D newsock
-> 	F: flush
->=20
->=20
-> On Alpha, reads could be reordered.  So, on smp, command A could get
-> data from point F, and command B - from point D (uninitialized, from
-> cache).  IOW, you get fresh pointer but stale data.
-> So we need to stick a barrier in there.
+	-net nic,model=virtio,vlan=0 -net user,vlan=0
+	-net nic,vlan=1,model=virtio,vhost=veth0
+	-redir tcp:8022::22
 
-Yes, that is understood.  Perhaps you should just use a normal barrier,
-however.  (Or at least a comment that says "I am just using this for its
-barrier").
+	-net nic,model=virtio,vlan=0 -net user,vlan=0
+	 -net nic,vlan=1,model=virtio,vhost=veth1
+	-redir tcp:8023::22
 
->=20
->> and that pointer is *not* actually
->> RCU protected (nor does it need to be).
->=20
-> Heh, if readers are lockless and writer does init/update/sync,
-> this to me spells rcu.
+In guests, for simplicity, configure eth1 and eth0
+to use separate subnets.
 
-More correctly: it "smells like" RCU, but its not. ;)  It's rcu-like,
-but you are not really using the rcu facilities.  I think anyone that
-knows RCU and reads your code will likely be scratching their heads as we=
-ll.
+Long term, I hope macvlan will be extended to support
+guest to guest.
 
-Its probably not a big deal, as I understand your code now.  Just a
-suggestion to help clarify it.
-
-Regards,
--Greg
-
-
---------------enig3EF8735E064856490BFD866C
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG/MacGPG2 v2.0.11 (Darwin)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
-
-iEYEARECAAYFAkqCxo8ACgkQP5K2CMvXmqGHNwCfeSOj6XEoQldiuqHUKtcJi8K9
-NTQAniNqfbw8pAtN7bgG/hfXO+Ab81ZP
-=G+NZ
------END PGP SIGNATURE-----
-
---------------enig3EF8735E064856490BFD866C--
-
---===============1961978305888532133==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linux-foundation.org/mailman/listinfo/virtualization
---===============1961978305888532133==--
+> Regards,
+> -Greg
+> 
