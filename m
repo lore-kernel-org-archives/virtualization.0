@@ -1,15 +1,18 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [PATCH][RFC] net/bridge: add basic VEPA support
-Date: Wed, 12 Aug 2009 18:27:28 +0200
-Message-ID: <200908121827.28905.arnd__22579.5243088671$1250094553$gmane$org@arndb.de>
-References: <0199E0D51A61344794750DC57738F58E67D2DCECBB@GVW1118EXC.americas.hpqcorp.net>
-	<200908121519.36808.arnd@arndb.de>
-	<0199E0D51A61344794750DC57738F58E6D6AE9A0C1@GVW1118EXC.americas.hpqcorp.net>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCHv2 0/2] vhost: a kernel-level virtio server
+Date: Wed, 12 Aug 2009 19:37:37 +0300
+Message-ID: <20090812163737.GA29903__43932.8715125614$1250095210$gmane$org@redhat.com>
+References: <20090811212743.GA26309@redhat.com>
+	<200908121452.01802.arnd@arndb.de>
+	<20090812130612.GC29200@redhat.com>
+	<200908121540.44928.arnd@arndb.de> <4A82C8F1.4030703@gmail.com>
+	<20090812140224.GA29345@redhat.com> <4A82EA37.3010902@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <0199E0D51A61344794750DC57738F58E6D6AE9A0C1@GVW1118EXC.americas.hpqcorp.net>
+Content-Disposition: inline
+In-Reply-To: <4A82EA37.3010902@gmail.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,73 +22,68 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Fischer, Anna" <anna.fischer@hp.com>
-Cc: "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "Paul Congdon (UC Davis)" <ptcongdon@ucdavis.edu>, "adobriyan@gmail.com" <adobriyan@gmail.com>, "evb@yahoogroups.com" <evb@yahoogroups.com>, 'Stephen Hemminger' <shemminger@linux-foundation.org>, "davem@davemloft.net" <davem@davemloft.net>, 'Eric Biederman' <ebiederm@xmission.com>
+To: Gregory Haskins <gregory.haskins@gmail.com>
+Cc: Arnd Bergmann <arnd@arndb.de>, kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, hpa@zytor.com, Patrick Mullaney <pmullaney@novell.com>, mingo@elte.hu, Andrew Morton <akpm@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wednesday 12 August 2009, Fischer, Anna wrote:
-> Yes, for the basic VEPA this is not important. For MultiChannel VEPA, it 
-> would be nice if a macvlan device could operate as VEPA and as a typical
-> VEB (VEB = traditional bridge but no learning).
+On Wed, Aug 12, 2009 at 12:13:43PM -0400, Gregory Haskins wrote:
+> Michael S. Tsirkin wrote:
+> > On Wed, Aug 12, 2009 at 09:51:45AM -0400, Gregory Haskins wrote:
+> >> Arnd Bergmann wrote:
+> >>> On Wednesday 12 August 2009, Michael S. Tsirkin wrote:
+> >>>>> If I understand it correctly, you can at least connect a veth pair
+> >>>>> to a bridge, right? Something like
+> >>>>>
+> >>>>>            veth0 - veth1 - vhost - guest 1 
+> >>>>> eth0 - br0-|
+> >>>>>            veth2 - veth3 - vhost - guest 2
+> >>>>>            
+> >>>> Heh, you don't need a bridge in this picture:
+> >>>>
+> >>>> guest 1 - vhost - veth0 - veth1 - vhost guest 2
+> >>> Sure, but the setup I described is the one that I would expect
+> >>> to see in practice because it gives you external connectivity.
+> >>>
+> >>> Measuring two guests communicating over a veth pair is
+> >>> interesting for finding the bottlenecks, but of little
+> >>> practical relevance.
+> >>>
+> >>> 	Arnd <><
+> >> Yeah, this would be the config I would be interested in.
+> > 
+> > Hmm, this wouldn't be the config to use for the benchmark though: there
+> > are just too many variables.  If you want both guest to guest and guest
+> > to host, create 2 nics in the guest.
+> > 
+> > Here's one way to do this:
+> > 
+> > 	-net nic,model=virtio,vlan=0 -net user,vlan=0
+> > 	-net nic,vlan=1,model=virtio,vhost=veth0
+> > 	-redir tcp:8022::22
+> > 
+> > 	-net nic,model=virtio,vlan=0 -net user,vlan=0
+> > 	 -net nic,vlan=1,model=virtio,vhost=veth1
+> > 	-redir tcp:8023::22
+> > 
+> > In guests, for simplicity, configure eth1 and eth0
+> > to use separate subnets.
+> 
+> I can try to do a few variations, but what I am interested is in
+> performance in a real-world L2 configuration.  This would generally mean
+>  all hosts (virtual or physical) in the same L2 domain.
+> 
+> If I get a chance, though, I will try to also wire them up in isolation
+> as another data point.
+> 
+> Regards,
+> -Greg
+> 
+> 
 
-Right, this would be a logical extension in that scenario. I would imagine
-that in many scenarios running a VEB also means that you want to use
-the advanced ebtables/iptables filtering of the bridge subsystem, but
-if all guests trust each other, using macvlan to bridge between them
-sounds useful as well, if only for simplicity.
+Or patch macvlan to support guest to guest:
+http://markmail.org/message/sjy74g57qsvdo2wh
+That patch needs to be updated to support guest to guest multiast,
+but it seems functional enough for your purposes.
 
-> Basically, what we would need to be able to support is running a VEB and
-> a VEPA simultaneously on the same uplink port (e.g. the physical device). 
-> A new component (called the S-Component) would then multiplex frames
-> to the VEB or the VEPA based on a tagging scheme.
-
-You can of course do that by adding one port of the S-component to
-a port of a bridge, and using another port of the S-component to
-create macvlan devices, or you could have multiple ports of the
-S-component each with a macvlan multiplexor.
-
-Just to make sure I get the chain right, would it look like this?
-(adapted from Paul's PDF)
-
-eth0 (external) ---scomponent0 --- vlan2 --- macvlan0 
-                 |              |         \- macvlan1
-                 |               \-vlan3 --- macvlan2
-                 |-scomponent1 --- vlan2 --- br0 --- tap0
-                 |                             \ --- tap1
-                 |-scomponent2 --- vlan3 --- macvlan3
-                 \-scomponent3 ---  ---  --- macvlan4
-
-In this scenario, tap0 and tap1 could communicate over the bridge without
-tagging, while any data going out through the S-Component gets tagged
-with both a 802.1q Q-Tag and an S-Tag. 
-
-macvlan4 would be a guest that does its own tagging, and the external
-switch would need to check the VLAN IDs, but it could communicate with
-any other guest by tagging the frames as 2 or 3.
-
-macvlan2 and macvlan3 could communicate with each other and with external
-guests in vlan3.
-
-Guests on scomponent1 and scomponent3 could in theory have
-subdivisions of the network with macvlan running in the guest
-to run containers.
-
-> I think the question here was whether there is a way for a macvlan interface
-> to be set to promiscuous mode. At the moment, I believe a macvlan interface
-> only receives packets based on its destination address (this is for unicast
-> packets now). What if a macvlan interface wanted to get all packets that
-> are being received (either on the physical device, or on a particular
-> VLAN if using macvlan nested in vlan). Would this work easily? Imagine
-> you have a virtual machine attached to that macvlan / macvtap device and
-> this VM wants to do packet inspection or network traffic monitoring on 
-> all packets flowing through the virtualized server.
-
-Ok, I see. As I said, the host could easily get access to all frames
-on macvlan downstream ports by opening a raw socket on the upstream
-port (with some extra work if we want to support this in bridge mode).
-
-If you want the inspection to be done in a guest rather than the host,
-the easiest way to achieve that would be to connect that raw socket
-to the guest using Or's raw frontend for qemu.
-
-	Arnd <><
+-- 
+MST
