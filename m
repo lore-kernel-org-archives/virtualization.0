@@ -1,15 +1,15 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [PATCH 2/2] vhost_net: a kernel-level virtio server
-Date: Wed, 12 Aug 2009 19:59:47 +0200
-Message-ID: <200908121959.47222.arnd__29686.9083228104$1250100137$gmane$org@arndb.de>
-References: <cover.1249930169.git.mst@redhat.com>
-	<200908121903.22325.arnd@arndb.de>
-	<20090812172141.GA29966@redhat.com>
+From: Paul Brook <paul@codesourcery.com>
+Subject: Re: [Qemu-devel] Re: virtio-serial: An interface for
+	=?iso-8859-1?q?host-guest=09communication?=
+Date: Wed, 12 Aug 2009 19:27:13 +0100
+Message-ID: <200908121927.14139.paul__19840.1623558768$1250101717$gmane$org@codesourcery.com>
+References: <20090805175713.GB28738@shareable.org>
+	<4A803E07.7080407@redhat.com> <4A8051F3.7040400@codemonkey.ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20090812172141.GA29966@redhat.com>
+In-Reply-To: <4A8051F3.7040400@codemonkey.ws>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,54 +19,15 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: netdev@vger.kernel.org, "Ira W. Snyder" <iws@ovro.caltech.edu>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: qemu-devel@nongnu.org
+Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, Anthony Liguori <anthony@codemonkey.ws>, Amit Shah <amit.shah@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wednesday 12 August 2009, Michael S. Tsirkin wrote:
-> On Wed, Aug 12, 2009 at 07:03:22PM +0200, Arnd Bergmann wrote:
-> > We discussed this before, and I still think this could be directly derived
-> > from struct virtqueue, in the same way that vring_virtqueue is derived from
-> > struct virtqueue.
-> 
-> I prefer keeping it simple. Much of abstraction in virtio is due to the
-> fact that it needs to work on top of different hardware emulations:
-> lguest,kvm, possibly others in the future.  vhost is always working on
-> real hardware, using eventfd as the interface, so it does not need that.
+> However, as I've mentioned repeatedly, the reason I won't merge
+> virtio-serial is that it duplicates functionality with virtio-console.
+> If the two are converged, I'm happy to merge it.  I'm not opposed to
+> having more functionality.
 
-Well, that was my point: virtio can already work on a number of abstractions,
-so adding one more for vhost should not be too hard.
+I strongly agree.
 
-> > That would make it possible for simple device drivers
-> > to use the same driver in both host and guest,
-> 
-> I don't think so. For example, there's a callback field that gets
-> invoked in guest when buffers are consumed.  It could be overloaded to
-> mean "buffers are available" in host but you never handle both
-> situations in the same way, so what's the point?
->
-...
-> 
-> As I pointed out earlier, most code in virtio net is asymmetrical: guest
-> provides buffers, host consumes them.  Possibly, one could use virtio
-> rings in a symmetrical way, but support of existing guest virtio net
-> means there's almost no shared code.
-
-The trick is to swap the virtqueues instead. virtio-net is actually
-mostly symmetric in just the same way that the physical wires on a
-twisted pair ethernet are symmetric (I like how that analogy fits).
-
-virtio_net kicks the transmit virtqueue when it has data and
-it kicks the receive queue when it has empty buffers to fill,
-and it has callbacks when the two are done. You can do the
-same in both the guest and the host, but then the guests input
-virtqueue is the hosts output virtqueue and vice versa.
-
-Once a virtqueue got kicked from both sides, the vhost_virtqueue
-implementation between the two only needs to do a copy_from_user
-or copy_to_user (possibly from a thread if it is in atomic context)
-and then call the two callback functions. This is basically the
-same thing you do already, except that you use slightly different
-names for the components.
-
-	Arnd <><
+Paul
