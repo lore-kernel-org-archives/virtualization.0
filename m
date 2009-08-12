@@ -1,14 +1,15 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH 0/3] qemu-kvm: vhost net support
-Date: Wed, 12 Aug 2009 20:35:48 +0300
-Message-ID: <20090812173548.GA29981__14770.1708636761$1250098731$gmane$org@redhat.com>
-References: <20090810192304.GA16781@redhat.com> <4A808840.70704@codemonkey.ws>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [PATCH 2/2] vhost_net: a kernel-level virtio server
+Date: Wed, 12 Aug 2009 19:59:47 +0200
+Message-ID: <200908121959.47222.arnd__29686.9083228104$1250100137$gmane$org@arndb.de>
+References: <cover.1249930169.git.mst@redhat.com>
+	<200908121903.22325.arnd@arndb.de>
+	<20090812172141.GA29966@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <4A808840.70704@codemonkey.ws>
+In-Reply-To: <20090812172141.GA29966@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,67 +19,54 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Anthony Liguori <anthony@codemonkey.ws>
-Cc: avi@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: netdev@vger.kernel.org, "Ira W. Snyder" <iws@ovro.caltech.edu>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Aug 10, 2009 at 03:51:12PM -0500, Anthony Liguori wrote:
-> Michael S. Tsirkin wrote:
->> This adds support for vhost-net virtio kernel backend.
->>
->> This is RFC, but works without issues for me.
->>
->> Still needs to be split up, tested and benchmarked properly,
->> but posting it here in case people want to test drive
->> the kernel bits I posted.
->>   
+On Wednesday 12 August 2009, Michael S. Tsirkin wrote:
+> On Wed, Aug 12, 2009 at 07:03:22PM +0200, Arnd Bergmann wrote:
+> > We discussed this before, and I still think this could be directly derived
+> > from struct virtqueue, in the same way that vring_virtqueue is derived from
+> > struct virtqueue.
+> 
+> I prefer keeping it simple. Much of abstraction in virtio is due to the
+> fact that it needs to work on top of different hardware emulations:
+> lguest,kvm, possibly others in the future.  vhost is always working on
+> real hardware, using eventfd as the interface, so it does not need that.
+
+Well, that was my point: virtio can already work on a number of abstractions,
+so adding one more for vhost should not be too hard.
+
+> > That would make it possible for simple device drivers
+> > to use the same driver in both host and guest,
+> 
+> I don't think so. For example, there's a callback field that gets
+> invoked in guest when buffers are consumed.  It could be overloaded to
+> mean "buffers are available" in host but you never handle both
+> situations in the same way, so what's the point?
 >
-> Any rough idea on performance?  Better or worse than userspace?
->
-> Regards,
->
-> Anthony Liguori
+...
+> 
+> As I pointed out earlier, most code in virtio net is asymmetrical: guest
+> provides buffers, host consumes them.  Possibly, one could use virtio
+> rings in a symmetrical way, but support of existing guest virtio net
+> means there's almost no shared code.
 
-Well, I definitely see some gain in latency.
-Here's a simple test over a 1G ethernet link (host to guest):
+The trick is to swap the virtqueues instead. virtio-net is actually
+mostly symmetric in just the same way that the physical wires on a
+twisted pair ethernet are symmetric (I like how that analogy fits).
 
-Native:
-[root@qus18 ~]# netperf -H 11.0.0.1 -t udp_rr
-UDP REQUEST/RESPONSE TEST from 0.0.0.0 (0.0.0.0) port 0 AF_INET to 11.0.0.1 (11.0.0.1) port 0 AF_INET
-Local /Remote
-Socket Size   Request  Resp.   Elapsed  Trans.
-Send   Recv   Size     Size    Time     Rate
-bytes  Bytes  bytes    bytes   secs.    per sec
+virtio_net kicks the transmit virtqueue when it has data and
+it kicks the receive queue when it has empty buffers to fill,
+and it has callbacks when the two are done. You can do the
+same in both the guest and the host, but then the guests input
+virtqueue is the hosts output virtqueue and vice versa.
 
-126976 126976 1        1       10.00    10393.23
-124928 124928
+Once a virtqueue got kicked from both sides, the vhost_virtqueue
+implementation between the two only needs to do a copy_from_user
+or copy_to_user (possibly from a thread if it is in atomic context)
+and then call the two callback functions. This is basically the
+same thing you do already, except that you use slightly different
+names for the components.
 
-
-vhost virtio:
-[root@qus18 ~]# netperf -H 11.0.0.3 -t udp_rr
-UDP REQUEST/RESPONSE TEST from 0.0.0.0 (0.0.0.0) port 0 AF_INET to 11.0.0.3 (11.0.0.3) port 0 AF_INET
-Local /Remote
-Socket Size   Request  Resp.   Elapsed  Trans.
-Send   Recv   Size     Size    Time     Rate
-bytes  Bytes  bytes    bytes   secs.    per sec
-
-126976 126976 1        1       10.00    8169.58
-124928 124928
-
-Userspace virtio:
-[root@qus18 ~]# netperf -H 11.0.0.3 -t udp_rr
-UDP REQUEST/RESPONSE TEST from 0.0.0.0 (0.0.0.0) port 0 AF_INET to 11.0.0.3 (11.0.0.3) port 0 AF_INET
-Local /Remote
-Socket Size   Request  Resp.   Elapsed  Trans.
-Send   Recv   Size     Size    Time     Rate
-bytes  Bytes  bytes    bytes   secs.    per sec
-
-126976 126976 1        1       10.00    2029.49
-124928 124928
-
-
-Part of it might be that tx mitigation does not come into play with vhost. I
-need to disable it in qemu and see.
-
--- 
-MST
+	Arnd <><
