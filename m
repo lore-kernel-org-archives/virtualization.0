@@ -1,16 +1,15 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCHv2 0/2] vhost: a kernel-level virtio server
-Date: Wed, 12 Aug 2009 16:06:12 +0300
-Message-ID: <20090812130612.GC29200__33637.2319878594$1250082699$gmane$org@redhat.com>
-References: <20090811212743.GA26309@redhat.com>
-	<20090812120541.GA29158@redhat.com>
-	<4A82B87B.4010208@gmail.com> <200908121452.01802.arnd@arndb.de>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [PATCH][RFC] net/bridge: add basic VEPA support
+Date: Wed, 12 Aug 2009 15:19:36 +0200
+Message-ID: <200908121519.36808.arnd__17118.3101753288$1250083347$gmane$org@arndb.de>
+References: <0199E0D51A61344794750DC57738F58E67D2DCECBB@GVW1118EXC.americas.hpqcorp.net>
+	<0199E0D51A61344794750DC57738F58E6D6AE99C53@GVW1118EXC.americas.hpqcorp.net>
+	<001001ca1a93$b6e50ee0$24af2ca0$@edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <200908121452.01802.arnd@arndb.de>
+In-Reply-To: <001001ca1a93$b6e50ee0$24af2ca0$@edu>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,37 +19,91 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, hpa@zytor.com, Patrick Mullaney <pmullaney@novell.com>, mingo@elte.hu, Andrew Morton <akpm@linux-foundation.org>
+To: "Paul Congdon (UC Davis)" <ptcongdon@ucdavis.edu>
+Cc: "'Fischer, Anna'" <anna.fischer@hp.com>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, adobriyan@gmail.com, evb@yahoogroups.com, 'Stephen Hemminger' <shemminger@linux-foundation.org>, davem@davemloft.net, 'Eric Biederman' <ebiederm@xmission.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Aug 12, 2009 at 02:52:01PM +0200, Arnd Bergmann wrote:
-> On Wednesday 12 August 2009, Gregory Haskins wrote:
-> > >> Are you saying SRIOV is a requirement, and I can either program the
-> > >> SRIOV adapter with a mac or use promis?  Or are you saying I can use
-> > >> SRIOV+programmed mac OR a regular nic + promisc (with a perf penalty).
-> > > 
-> > > SRIOV is not a requirement. And you can also use a dedicated
-> > > nic+programmed mac if you are so inclined.
+On Tuesday 11 August 2009, Paul Congdon (UC Davis) wrote:
+> > >
+> > > The patch from Eric Biederman to allow macvlan to bridge between
+> > > its slave ports is at
+> > >
+> > > http://kerneltrap.org/mailarchive/linux-netdev/2009/3/9/5125774
 > > 
-> > Makes sense.  Got it.
-> > 
-> > I was going to add guest-to-guest to the test matrix, but I assume that
-> > is not supported with vhost unless you have something like a VEPA
-> > enabled bridge?
-> > 
-> 
-> If I understand it correctly, you can at least connect a veth pair
-> to a bridge, right? Something like
-> 
->            veth0 - veth1 - vhost - guest 1 
-> eth0 - br0-|
->            veth2 - veth3 - vhost - guest 2
->           
-> It's a bit more complicated than it need to be, but should work fine.
-> 
-> 	Arnd <><
+> > Looking through the discussions here, it does not seem as if a decision
+> > was made to integrate those patches, because they would make the
+> > macvlan interface behave too much like a bridge. 
 
-Heh, you don't need a bridge in this picture:
+Right, that question is still open, and dont't see it as very important
+right now, as long as we can still use it for VEPA.
 
-guest 1 - vhost - veth0 - veth1 - vhost guest 2
+> > Also, it seems as if there was still a problem with doing
+> > multicast/broadcast delivery when enabling local VM-to-VM
+> > communication. Is that solved by now?
+
+Not yet, but I guess it comes as a natural extension when I fix
+multicast/broadcast delivery from the reflective relay for VEPA.
+
+The logic that I would use there is:
+
+broadcast from a dowstream port:
+     if (bridge_mode(source_port)) {
+          forward_to_upstream(frame);
+          for_each_downstream(port) {
+                /* deliver to all bridge ports except self, do
+                   not deliver to any VEPA port. */
+                if (bridge_mode(port) && port != source_port) {
+                       forward_to_downstream(frame, port);
+                }
+          }
+     } else {
+          forward_to_upstream(frame);
+     }
+
+
+broadcast from the upstream port
+     if (bridge_mode(frame.source)) {
+          /* comes from a port in bridge mode, so has already been
+             delivered to all other bridge ports */
+          for_each_downstream(port) {
+                if (!bridge_mode(port)) {
+                         forward_to_downstream(frame, port);
+                }
+          }
+     } else if (vepa_mode(frame.source)) {
+          /* comes from VEPA port, so need to deliver to all
+             bridge and all vepa ports except self */
+          for_each_downstream(port) {
+                if (port != frame.source)
+                       forward_to_downstream(frame, port);
+     } else {
+          /* external source, so flood to everyone */
+          for_each_downstream(port) {
+                forward_to_downstream(frame, port);
+     }
+
+For multicast, we can do the same, or optionally add a per-port filter
+as you mentioned, if it becomes a bottleneck. 
+
+Do you think this addresses the problem, or did I miss something important?
+
+> Also, is there a solution, or plans for a solution, to address macvtap
+> interfaces that are set to 'promiscuous' mode?  It would seem fairly easy to
+> support this for interfaces that are simply trying to listen to the port
+> (e.g. Wireshark). 
+
+If you want to use tcpdump or wireshark on all ports simulateously in a pure
+VEPA, you can still attach it to the 'lowerdev', e.g. eth0 or eth0.2 (for macvlan
+nested in vlan).
+If we allow bridge ports, we might want to extend the local delivery
+to also go through all the hooks of the external port, so that you can
+attach packet sockets there.
+
+> If the port was being used by something like a firewall
+> then the VEPA filtering doesn't work too well.
+
+Not sure what you mean. Are you talking about a firewall separating the guests
+from the outside, between the VEPA and the reflective relay, or a firewall between
+the guests in case of local delivery?
+
+	Arnd <><
