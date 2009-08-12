@@ -1,14 +1,14 @@
-From: Gregory Haskins <gregory.haskins@gmail.com>
+From: Arnd Bergmann <arnd@arndb.de>
 Subject: Re: [PATCHv2 0/2] vhost: a kernel-level virtio server
-Date: Wed, 12 Aug 2009 08:41:31 -0400
-Message-ID: <4A82B87B.4010208__46864.7683076144$1250081052$gmane$org@gmail.com>
-References: <20090811212743.GA26309@redhat.com> <4A820391.1090404@gmail.com>
-	<20090812071636.GA26847@redhat.com> <4A82ADD5.6040909@gmail.com>
-	<20090812120541.GA29158@redhat.com>
+Date: Wed, 12 Aug 2009 14:52:01 +0200
+Message-ID: <200908121452.01802.arnd__47179.7757469632$1250081693$gmane$org@arndb.de>
+References: <20090811212743.GA26309@redhat.com>
+	<20090812120541.GA29158@redhat.com> <4A82B87B.4010208@gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============5658279085313655200=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20090812120541.GA29158@redhat.com>
+In-Reply-To: <4A82B87B.4010208@gmail.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -16,89 +16,34 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Mime-version: 1.0
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, hpa@zytor.com, Patrick Mullaney <pmullaney@novell.com>, mingo@elte.hu, "akpm@linux-foundation.org >> Andrew Morton" <akpm@linux-foundation.org>
+To: Gregory Haskins <gregory.haskins@gmail.com>
+Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, hpa@zytor.com, Patrick Mullaney <pmullaney@novell.com>, mingo@elte.hu, Andrew Morton <akpm@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---===============5658279085313655200==
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig174E0DB952567894B5C84450"
+On Wednesday 12 August 2009, Gregory Haskins wrote:
+> >> Are you saying SRIOV is a requirement, and I can either program the
+> >> SRIOV adapter with a mac or use promis?  Or are you saying I can use
+> >> SRIOV+programmed mac OR a regular nic + promisc (with a perf penalty).
+> > 
+> > SRIOV is not a requirement. And you can also use a dedicated
+> > nic+programmed mac if you are so inclined.
+> 
+> Makes sense.  Got it.
+> 
+> I was going to add guest-to-guest to the test matrix, but I assume that
+> is not supported with vhost unless you have something like a VEPA
+> enabled bridge?
+> 
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig174E0DB952567894B5C84450
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+If I understand it correctly, you can at least connect a veth pair
+to a bridge, right? Something like
 
-Michael S. Tsirkin wrote:
-> On Wed, Aug 12, 2009 at 07:56:05AM -0400, Gregory Haskins wrote:
->> Michael S. Tsirkin wrote:
+           veth0 - veth1 - vhost - guest 1 
+eth0 - br0-|
+           veth2 - veth3 - vhost - guest 2
+          
+It's a bit more complicated than it need to be, but should work fine.
 
-<snip>
-
->>>
->>> 1. use a dedicated network interface with SRIOV, program mac to match=
-
->>>    that of guest (for testing, you can set promisc mode, but that is
->>>    bad for performance)
->>
->> Are you saying SRIOV is a requirement, and I can either program the
->> SRIOV adapter with a mac or use promis?  Or are you saying I can use
->> SRIOV+programmed mac OR a regular nic + promisc (with a perf penalty).=
-
->=20
-> SRIOV is not a requirement. And you can also use a dedicated
-> nic+programmed mac if you are so inclined.
-
-Makes sense.  Got it.
-
-I was going to add guest-to-guest to the test matrix, but I assume that
-is not supported with vhost unless you have something like a VEPA
-enabled bridge?
-
-<snip>
-
->>> 3. add vhost=3DethX
->> You mean via "ip link" I assume?
->=20
-> No, that's a new flag for virtio in qemu:
->=20
-> -net nic,model=3Dvirtio,vhost=3Dveth0
-
-Ah, ok.  Even better.
-
-Thanks!
--Greg
-
-
---------------enig174E0DB952567894B5C84450
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG/MacGPG2 v2.0.11 (Darwin)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
-
-iEYEARECAAYFAkqCuHsACgkQP5K2CMvXmqFbSQCfXtpBd2Q0mrhRjwRuIAyyTt5Y
-Ng4An3c7WsysfPVp8bJdLHpPutqgws9L
-=2P8B
------END PGP SIGNATURE-----
-
---------------enig174E0DB952567894B5C84450--
-
---===============5658279085313655200==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linux-foundation.org/mailman/listinfo/virtualization
---===============5658279085313655200==--
+	Arnd <><
