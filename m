@@ -1,12 +1,14 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCHv2 0/3] qemu-kvm: vhost net support
-Date: Thu, 13 Aug 2009 11:50:40 +0300
-Message-ID: <20090813085040.GA4726__1923.19635903022$1250153563$gmane$org@redhat.com>
+Subject: [PATCHv2 1/3] qemu-kvm: move virtio-pci.o to near pci.o
+Date: Thu, 13 Aug 2009 11:50:47 +0300
+Message-ID: <20090813085047.GB4726__40274.7509455823$1250153566$gmane$org@redhat.com>
+References: <cover.1250153371.git.mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
+In-Reply-To: <cover.1250153371.git.mst@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,36 +21,42 @@ Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: avi@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-This adds support for vhost-net virtio kernel backend.
+virtio-pci depends, and will always depend, on pci.c
+so it makes sense to keep it in the same makefile,
+(unlike the rest of virtio files which should eventually
+ be moved out to Makefile.hw).
 
-This is RFC, but works without issues for me.
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
+ Makefile.hw     |    2 +-
+ Makefile.target |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-Still needs to be split up, tested and benchmarked properly,
-but posting it here in case people want to test drive
-the kernel bits I posted.
-
-Changes since v1:
-- rebased on top of 9dc275d9d660fe1cd64d36102d600885f9fdb88a
-
-Michael S. Tsirkin (3):
-  qemu-kvm: move virtio-pci.o to near pci.o
-  virtio: move features to an inline function
-  qemu-kvm: vhost-net implementation
-
- Makefile.hw         |    2 +-
- Makefile.target     |    3 +-
- hw/vhost_net.c      |  181 +++++++++++++++++++++++++++++++++++++++++++++++++++
- hw/vhost_net.h      |   30 +++++++++
- hw/virtio-balloon.c |    2 +-
- hw/virtio-blk.c     |    2 +-
- hw/virtio-console.c |    2 +-
- hw/virtio-net.c     |   34 +++++++++-
- hw/virtio-pci.c     |   43 +++++++++++-
- hw/virtio.c         |   19 ------
- hw/virtio.h         |   38 ++++++++++-
- net.c               |    5 ++
- net.h               |    1 +
- qemu-kvm.h          |    9 +++
- 14 files changed, 339 insertions(+), 32 deletions(-)
- create mode 100644 hw/vhost_net.c
- create mode 100644 hw/vhost_net.h
+diff --git a/Makefile.hw b/Makefile.hw
+index 139412e..6472ec1 100644
+--- a/Makefile.hw
++++ b/Makefile.hw
+@@ -11,7 +11,7 @@ VPATH=$(SRC_PATH):$(SRC_PATH)/hw
+ QEMU_CFLAGS+=-I.. -I$(SRC_PATH)/fpu
+ 
+ obj-y =
+-obj-y += virtio.o virtio-pci.o
++obj-y += virtio.o
+ obj-y += fw_cfg.o
+ obj-y += watchdog.o
+ obj-y += nand.o ecc.o
+diff --git a/Makefile.target b/Makefile.target
+index aeda3fe..f6d9708 100644
+--- a/Makefile.target
++++ b/Makefile.target
+@@ -170,7 +170,7 @@ obj-y = vl.o osdep.o monitor.o pci.o loader.o isa_mmio.o machine.o \
+         gdbstub.o gdbstub-xml.o msix.o ioport.o qemu-config.o
+ # virtio has to be here due to weird dependency between PCI and virtio-net.
+ # need to fix this properly
+-obj-y += virtio-blk.o virtio-balloon.o virtio-net.o virtio-console.o
++obj-y += virtio-blk.o virtio-balloon.o virtio-net.o virtio-console.o virtio-pci.o
+ obj-$(CONFIG_KVM) += kvm.o kvm-all.o
+ 
+ LIBS+=-lz
+-- 
+1.6.2.5
