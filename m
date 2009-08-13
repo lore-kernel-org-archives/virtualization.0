@@ -1,7 +1,7 @@
-From: Arnd Bergmann <arnd@arndb.de>
+From: Stephen Hemminger <shemminger@linux-foundation.org>
 Subject: Re: [PATCH] net/bridge: Add 'hairpin' port forwarding mode
-Date: Thu, 13 Aug 2009 19:06:21 +0200
-Message-ID: <200908131906.21916.arnd__15595.0013468557$1250183324$gmane$org@arndb.de>
+Date: Thu, 13 Aug 2009 11:07:44 -0700
+Message-ID: <20090813110744.09465f76__39411.0958245166$1250187037$gmane$org@nehalam>
 References: <0199E0D51A61344794750DC57738F58E6D6B0C70D9@GVW1118EXC.americas.hpqcorp.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -18,27 +18,23 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: "Fischer, Anna" <anna.fischer@hp.com>
-Cc: "Dickson, Mike (ISS Software)" <mike.dickson@hp.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "Paul Congdon (UC Davis)" <ptcongdon@ucdavis.edu>, "bridge@osdl.org" <bridge@osdl.org>, "adobriyan@gmail.com" <adobriyan@gmail.com>, "evb@yahoogroups.com" <evb@yahoogroups.com>, Stephen Hemminger <shemminger@linux-foundation.org>, "davem@davemloft.net" <davem@davemloft.net>
+Cc: "Dickson, Mike (ISS
+	Software)" <mike.dickson@hp.com>, Arnd Bergmann <arnd@arndb.de>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "Paul Congdon (UC
+	Davis)" <ptcongdon@ucdavis.edu>, "bridge@osdl.org" <bridge@osdl.org>, "adobriyan@gmail.com" <adobriyan@gmail.com>, "evb@yahoogroups.com" <evb@yahoogroups.com>, "davem@davemloft.net" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thursday 13 August 2009, Fischer, Anna wrote:
-> This patch adds a 'hairpin' (also called 'reflective relay') mode
-> port configuration to the Linux Ethernet bridge kernel module.
-> A bridge supporting hairpin forwarding mode can send frames back
-> out through the port the frame was received on.
-> 
-> Hairpin mode is required to support basic VEPA (Virtual
-> Ethernet Port Aggregator) capabilities.
-> 
-> You can find additional information on VEPA here:
-> http://tech.groups.yahoo.com/group/evb/
-> http://www.ieee802.org/1/files/public/docs2009/new-hudson-vepa_seminar-20090514d.pdf
-> http://www.internet2.edu/presentations/jt2009jul/20090719-congdon.pdf
-> 
-> An additional patch 'bridge-utils: Add 'hairpin' port forwarding mode'
-> is provided to allow configuring hairpin mode from userspace tools.
-> 
-> Signed-off-by: Paul Congdon <paul.congdon@hp.com>
-> Signed-off-by: Anna Fischer <anna.fischer@hp.com>
 
-Acked-by: Arnd Bergmann <arnd@arndb.de>
+> diff --git a/net/bridge/br_if.c b/net/bridge/br_if.c
+> index eb404dc..e486f1f 100644
+> --- a/net/bridge/br_if.c
+> +++ b/net/bridge/br_if.c
+> @@ -256,6 +256,7 @@ static struct net_bridge_port *new_nbp(struct net_bridge *br,
+>  	p->path_cost = port_cost(dev);
+>  	p->priority = 0x8000 >> BR_PORT_BITS;
+>  	p->port_no = index;
+> +	p->flags = 0;
+>  	br_init_port(p);
+>  	p->state = BR_STATE_DISABLED;
+>  	br_stp_port_timer_init(p);
+
+Minor nit. this is unnecessary since the structure is allocated with kzalloc.
