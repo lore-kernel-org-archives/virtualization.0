@@ -1,13 +1,12 @@
-From: Stephen Hemminger <shemminger@linux-foundation.org>
-Subject: Re: [PATCH] net/bridge: Add 'hairpin' port forwarding mode
-Date: Thu, 13 Aug 2009 11:07:44 -0700
-Message-ID: <20090813110744.09465f76__39411.0958245166$1250187037$gmane$org@nehalam>
-References: <0199E0D51A61344794750DC57738F58E6D6B0C70D9@GVW1118EXC.americas.hpqcorp.net>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCHv3 0/2] vhost: a kernel-level virtio server
+Date: Thu, 13 Aug 2009 21:27:50 +0300
+Message-ID: <20090813182749.GA6585__40535.8273805634$1250188942$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <0199E0D51A61344794750DC57738F58E6D6B0C70D9@GVW1118EXC.americas.hpqcorp.net>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -17,24 +16,57 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Fischer, Anna" <anna.fischer@hp.com>
-Cc: "Dickson, Mike (ISS
-	Software)" <mike.dickson@hp.com>, Arnd Bergmann <arnd@arndb.de>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "Paul Congdon (UC
-	Davis)" <ptcongdon@ucdavis.edu>, "bridge@osdl.org" <bridge@osdl.org>, "adobriyan@gmail.com" <adobriyan@gmail.com>, "evb@yahoogroups.com" <evb@yahoogroups.com>, "davem@davemloft.net" <davem@davemloft.net>
+To: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, mingo@elte.hu, linux-mm@kvack.org, akpm@linux-founda
 List-Id: virtualization@lists.linuxfoundation.org
 
+This implements vhost: a kernel-level backend for virtio,
+The main motivation for this work is to reduce virtualization
+overhead for virtio by removing system calls on data path,
+without guest changes. For virtio-net, this removes up to
+4 system calls per packet: vm exit for kick, reentry for kick,
+iothread wakeup for packet, interrupt injection for packet.
 
-> diff --git a/net/bridge/br_if.c b/net/bridge/br_if.c
-> index eb404dc..e486f1f 100644
-> --- a/net/bridge/br_if.c
-> +++ b/net/bridge/br_if.c
-> @@ -256,6 +256,7 @@ static struct net_bridge_port *new_nbp(struct net_bridge *br,
->  	p->path_cost = port_cost(dev);
->  	p->priority = 0x8000 >> BR_PORT_BITS;
->  	p->port_no = index;
-> +	p->flags = 0;
->  	br_init_port(p);
->  	p->state = BR_STATE_DISABLED;
->  	br_stp_port_timer_init(p);
+Some more detailed description attached to the patch itself.
 
-Minor nit. this is unnecessary since the structure is allocated with kzalloc.
+The patches are against 2.6.31-rc4.  I'd like them to go into linux-next
+and down the road 2.6.32 if possible.  Please comment.
+
+Changelog from v2:
+- Comments on RCU usage
+- Compat ioctl support
+- Make variable static
+- Copied more idiomatic english from Rusty
+
+Changes from v1:
+- Move use_mm/unuse_mm from fs/aio.c to mm instead of copying.
+- Reorder code to avoid need for forward declarations
+- Kill a couple of debugging printks
+
+Michael S. Tsirkin (2):
+  mm: export use_mm/unuse_mm to modules
+  vhost_net: a kernel-level virtio server
+
+ MAINTAINERS                 |   10 +
+ arch/x86/kvm/Kconfig        |    1 +
+ drivers/Makefile            |    1 +
+ drivers/vhost/Kconfig       |   11 +
+ drivers/vhost/Makefile      |    2 +
+ drivers/vhost/net.c         |  429 ++++++++++++++++++++++++++++
+ drivers/vhost/vhost.c       |  663 +++++++++++++++++++++++++++++++++++++++++++
+ drivers/vhost/vhost.h       |  108 +++++++
+ fs/aio.c                    |   47 +---
+ include/linux/Kbuild        |    1 +
+ include/linux/miscdevice.h  |    1 +
+ include/linux/mmu_context.h |    9 +
+ include/linux/vhost.h       |  100 +++++++
+ mm/Makefile                 |    2 +-
+ mm/mmu_context.c            |   58 ++++
+ 15 files changed, 1396 insertions(+), 47 deletions(-)
+ create mode 100644 drivers/vhost/Kconfig
+ create mode 100644 drivers/vhost/Makefile
+ create mode 100644 drivers/vhost/net.c
+ create mode 100644 drivers/vhost/vhost.c
+ create mode 100644 drivers/vhost/vhost.h
+ create mode 100644 include/linux/mmu_context.h
+ create mode 100644 include/linux/vhost.h
+ create mode 100644 mm/mmu_context.c
