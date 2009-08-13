@@ -1,18 +1,17 @@
-From: "Ira W. Snyder" <iws@ovro.caltech.edu>
-Subject: Re: [PATCH 2/2] vhost_net: a kernel-level virtio server
-Date: Wed, 12 Aug 2009 10:48:21 -0700
-Message-ID: <20090812174821.GD24151__34308.8598609485$1250198584$gmane$org@ovro.caltech.edu>
-References: <cover.1249930169.git.mst@redhat.com>
-	<20090810185340.GC13924@redhat.com>
-	<200908121903.22325.arnd@arndb.de>
-	<20090812171921.GC24151@ovro.caltech.edu>
-	<20090812173104.GB29966@redhat.com>
+From: "Fischer, Anna" <anna.fischer@hp.com>
+Subject: RE: [PATCH][RFC] net/bridge: add basic VEPA support
+Date: Thu, 13 Aug 2009 22:11:06 +0000
+Message-ID: <0199E0D51A61344794750DC57738F58E6D6B0C7111__14327.644048217$1250201836$gmane$org@GVW1118EXC.americas.hpqcorp.net>
+References: <0199E0D51A61344794750DC57738F58E67D2DCECBB@GVW1118EXC.americas.hpqcorp.net>
+	<200908121519.36808.arnd@arndb.de>
+	<0199E0D51A61344794750DC57738F58E6D6AE9A0C1@GVW1118EXC.americas.hpqcorp.net>
+	<200908121827.28905.arnd@arndb.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20090812173104.GB29966@redhat.com>
+In-Reply-To: <200908121827.28905.arnd@arndb.de>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -22,94 +21,106 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, virtualization@lists.linux-foundation.org
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "Paul Congdon (UC Davis)" <ptcongdon@ucdavis.edu>, "adobriyan@gmail.com" <adobriyan@gmail.com>, "evb@yahoogroups.com" <evb@yahoogroups.com>, 'Stephen Hemminger' <shemminger@linux-foundation.org>, "davem@davemloft.net" <davem@davemloft.net>, 'Eric Biederman' <ebiederm@xmission.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Aug 12, 2009 at 08:31:04PM +0300, Michael S. Tsirkin wrote:
-> On Wed, Aug 12, 2009 at 10:19:22AM -0700, Ira W. Snyder wrote:
+> Subject: Re: [PATCH][RFC] net/bridge: add basic VEPA support
+> 
+> On Wednesday 12 August 2009, Fischer, Anna wrote:
+> > Yes, for the basic VEPA this is not important. For MultiChannel VEPA,
+> it
+> > would be nice if a macvlan device could operate as VEPA and as a
+> typical
+> > VEB (VEB = traditional bridge but no learning).
+> 
+> Right, this would be a logical extension in that scenario. I would
+> imagine
+> that in many scenarios running a VEB also means that you want to use
+> the advanced ebtables/iptables filtering of the bridge subsystem, but
+> if all guests trust each other, using macvlan to bridge between them
+> sounds useful as well, if only for simplicity.
+> 
+> > Basically, what we would need to be able to support is running a VEB
+> and
+> > a VEPA simultaneously on the same uplink port (e.g. the physical
+> device).
+> > A new component (called the S-Component) would then multiplex frames
+> > to the VEB or the VEPA based on a tagging scheme.
+> 
+> You can of course do that by adding one port of the S-component to
+> a port of a bridge, and using another port of the S-component to
+> create macvlan devices, or you could have multiple ports of the
+> S-component each with a macvlan multiplexor.
+> 
+> Just to make sure I get the chain right, would it look like this?
+> (adapted from Paul's PDF)
+> 
+> eth0 (external) ---scomponent0 --- vlan2 --- macvlan0
+>                  |              |         \- macvlan1
+>                  |               \-vlan3 --- macvlan2
+>                  |-scomponent1 --- vlan2 --- br0 --- tap0
+>                  |                             \ --- tap1
+>                  |-scomponent2 --- vlan3 --- macvlan3
+>                  \-scomponent3 ---  ---  --- macvlan4
+> 
+> In this scenario, tap0 and tap1 could communicate over the bridge
+> without
+> tagging, while any data going out through the S-Component gets tagged
+> with both a 802.1q Q-Tag and an S-Tag.
 
-[ snip out code ]
+Yes, that looks right. If all the different interfaces, e.g. bridge ports,
+macvlan devices, vlan tagging devices can be stacked that easily without
+any known issues, that would be great.
 
-> > > 
-> > > We discussed this before, and I still think this could be directly derived
-> > > from struct virtqueue, in the same way that vring_virtqueue is derived from
-> > > struct virtqueue. That would make it possible for simple device drivers
-> > > to use the same driver in both host and guest, similar to how Ira Snyder
-> > > used virtqueues to make virtio_net run between two hosts running the
-> > > same code [1].
-> > > 
-> > > Ideally, I guess you should be able to even make virtio_net work in the
-> > > host if you do that, but that could bring other complexities.
-> > 
-> > I have no comments about the vhost code itself, I haven't reviewed it.
-> > 
-> > It might be interesting to try using a virtio-net in the host kernel to
-> > communicate with the virtio-net running in the guest kernel. The lack of
-> > a management interface is the biggest problem you will face (setting MAC
-> > addresses, negotiating features, etc. doesn't work intuitively).
-> 
-> That was one of the reasons I decided to move most of code out to
-> userspace. My kernel driver only handles datapath,
-> it's much smaller than virtio net.
-> 
-> > Getting
-> > the network interfaces talking is relatively easy.
-> > 
-> > Ira
-> 
-> Tried this, but
-> - guest memory isn't pinned, so copy_to_user
->   to access it, errors need to be handled in a sane way
-> - used/available roles are reversed
-> - kick/interrupt roles are reversed
-> 
-> So most of the code then looks like
-> 
-> 	if (host) {
-> 	} else {
-> 	}
-> 	return
-> 
-> 
-> The only common part is walking the descriptor list,
-> but that's like 10 lines of code.
-> 
-> At which point it's better to keep host/guest code separate, IMO.
-> 
 
-Ok, that makes sense. Let me see if I understand the concept of the
-driver. Here's a picture of what makes sense to me:
+> macvlan4 would be a guest that does its own tagging, and the external
+> switch would need to check the VLAN IDs, but it could communicate with
+> any other guest by tagging the frames as 2 or 3.
+> 
+> macvlan2 and macvlan3 could communicate with each other and with
+> external
+> guests in vlan3.
+> 
+> Guests on scomponent1 and scomponent3 could in theory have
+> subdivisions of the network with macvlan running in the guest
+> to run containers.
+> 
+> > I think the question here was whether there is a way for a macvlan
+> interface
+> > to be set to promiscuous mode. At the moment, I believe a macvlan
+> interface
+> > only receives packets based on its destination address (this is for
+> unicast
+> > packets now). What if a macvlan interface wanted to get all packets
+> that
+> > are being received (either on the physical device, or on a particular
+> > VLAN if using macvlan nested in vlan). Would this work easily?
+> Imagine
+> > you have a virtual machine attached to that macvlan / macvtap device
+> and
+> > this VM wants to do packet inspection or network traffic monitoring
+> on
+> > all packets flowing through the virtualized server.
+> 
+> Ok, I see. As I said, the host could easily get access to all frames
+> on macvlan downstream ports by opening a raw socket on the upstream
+> port (with some extra work if we want to support this in bridge mode).
+> 
+> If you want the inspection to be done in a guest rather than the host,
+> the easiest way to achieve that would be to connect that raw socket
+> to the guest using Or's raw frontend for qemu.
 
-guest system
----------------------------------
-| userspace applications        |
----------------------------------
-| kernel network stack          |
----------------------------------
-| virtio-net                    |
----------------------------------
-| transport (virtio-ring, etc.) |
----------------------------------
-               |
-               |
----------------------------------
-| transport (virtio-ring, etc.) |
----------------------------------
-| some driver (maybe vhost?)    | <-- [1]
----------------------------------
-| kernel network stack          |
----------------------------------
-host system
+I am not too familiar with that raw frontend for qemu to be honest, but 
+if it can share the physical device with other macvlan interfaces 
+simultaneously, then I think that would indeed be sufficient to support
+promiscuous mode ports. We would need to have a similar sort of driver
+for Xen and other hypervisor solutions again as well though.
 
-From the host's network stack, packets can be forwarded out to the
-physical network, or be consumed by a normal userspace application on
-the host. Just as if this were any other network interface.
+If it is possible to easily stack macvlan devices and bridges as you
+describe above, then a promiscuous port should also be realized quite
+easily as a typical bridge port, e.g. as shown above tap0 and tap1 
+would be typical, traditional bridge ports and though could send
+and receive from/with any MAC addresses they like.
 
-In my patch, [1] was the virtio-net driver, completely unmodified.
-
-So, does this patch accomplish the above diagram? If so, why the
-copy_to_user(), etc? Maybe I'm confusing this with my system, where the
-"guest" is another physical system, separated by the PCI bus.
-
-Ira
+Anna
