@@ -1,17 +1,18 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH 2/2] vhost_net: a kernel-level virtio server
-Date: Thu, 13 Aug 2009 09:31:13 +0300
-Message-ID: <20090813063113.GA3508__11185.4074094028$1250145190$gmane$org@redhat.com>
+Date: Thu, 13 Aug 2009 11:45:13 +0300
+Message-ID: <20090813084512.GA4401__21.6603432365403$1250153330$gmane$org@redhat.com>
 References: <cover.1249930169.git.mst@redhat.com>
+	<20090810185340.GC13924@redhat.com>
 	<200908121903.22325.arnd@arndb.de>
 	<20090812172141.GA29966@redhat.com>
-	<200908121959.47222.arnd@arndb.de> <4A8317A3.4030303@codemonkey.ws>
+	<4A83167E.2080701@codemonkey.ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <4A8317A3.4030303@codemonkey.ws>
+In-Reply-To: <4A83167E.2080701@codemonkey.ws>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -25,28 +26,34 @@ To: Anthony Liguori <anthony@codemonkey.ws>
 Cc: Arnd Bergmann <arnd@arndb.de>, kvm@vger.kernel.org, "Ira W. Snyder" <iws@ovro.caltech.edu>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Aug 12, 2009 at 02:27:31PM -0500, Anthony Liguori wrote:
-> Arnd Bergmann wrote:
->>> As I pointed out earlier, most code in virtio net is asymmetrical: guest
->>> provides buffers, host consumes them.  Possibly, one could use virtio
->>> rings in a symmetrical way, but support of existing guest virtio net
->>> means there's almost no shared code.
+On Wed, Aug 12, 2009 at 02:22:38PM -0500, Anthony Liguori wrote:
+> Michael S. Tsirkin wrote:
+>>>
+>>> We discussed this before, and I still think this could be directly derived
+>>> from struct virtqueue, in the same way that vring_virtqueue is derived from
+>>> struct virtqueue.
 >>>     
 >>
->> The trick is to swap the virtqueues instead. virtio-net is actually
->> mostly symmetric in just the same way that the physical wires on a
->> twisted pair ethernet are symmetric (I like how that analogy fits).
+>> I prefer keeping it simple. Much of abstraction in virtio is due to the
+>> fact that it needs to work on top of different hardware emulations:
+>> lguest,kvm, possibly others in the future.  vhost is always working on
+>> real hardware, using eventfd as the interface, so it does not need that.
 >>   
 >
-> It's already been done between two guests.  See  
-> http://article.gmane.org/gmane.linux.kernel.virtualization/5423
+> Actually, vhost may not always be limited to real hardware.
+
+Yes, any ethernet device will do. What I mean is that vhost does not
+deal with emulation at all. All setup is done in userspace.
+
 >
+> We may on day use vhost as the basis of a driver domain.  There's quite  
+> a lot of interest in this for networking.
+
+You can use veth for this. This works today.
+
+> At any rate, I'd like to see performance results before we consider  
+> trying to reuse virtio code.
+> 
 > Regards,
 >
 > Anthony Liguori
-
-Yes, this works by copying data (see PATCH 5/5).  Another possibility is
-page flipping.  Either will kill performance.
-
--- 
-MST
