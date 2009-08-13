@@ -1,7 +1,7 @@
 From: "Fischer, Anna" <anna.fischer@hp.com>
-Subject: [PATCH] net/bridge: Add 'hairpin' port forwarding mode
-Date: Thu, 13 Aug 2009 16:55:16 +0000
-Message-ID: <0199E0D51A61344794750DC57738F58E6D6B0C70D9__32389.4723821015$1250183052$gmane$org@GVW1118EXC.americas.hpqcorp.net>
+Subject: [PATCH] bridge-utils: Add 'hairpin' port forwarding mode
+Date: Thu, 13 Aug 2009 17:02:24 +0000
+Message-ID: <0199E0D51A61344794750DC57738F58E6D6B0C70DC__32252.3515591913$1250183222$gmane$org@GVW1118EXC.americas.hpqcorp.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -16,14 +16,13 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>
+To: Stephen Hemminger <shemminger@linux-foundation.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>
 Cc: "Dickson, Mike (ISS
-	Software)" <mike.dickson@hp.com>, Arnd Bergmann <arnd@arndb.de>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "Paul Congdon (UC
-	Davis)" <ptcongdon@ucdavis.edu>, "bridge@osdl.org" <bridge@osdl.org>, "adobriyan@gmail.com" <adobriyan@gmail.com>, "evb@yahoogroups.com" <evb@yahoogroups.com>, Stephen Hemminger <shemminger@linux-foundation.org>, "davem@davemloft.net" <davem@davemloft.net>
+	Software)" <mike.dickson@hp.com>, Arnd Bergmann <arnd@arndb.de>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "davem@davemloft.net" <davem@davemloft.net>, "Paul Congdon (UC Davis)" <ptcongdon@ucdavis.edu>, "bridge@osdl.org" <bridge@osdl.org>, "adobriyan@gmail.com" <adobriyan@gmail.com>, "evb@yahoogroups.com" <evb@yahoogroups.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
 This patch adds a 'hairpin' (also called 'reflective relay') mode
-port configuration to the Linux Ethernet bridge kernel module.
+port configuration to the Linux Ethernet bridge utilities.
 A bridge supporting hairpin forwarding mode can send frames back
 out through the port the frame was received on.
 
@@ -35,91 +34,169 @@ http://tech.groups.yahoo.com/group/evb/
 http://www.ieee802.org/1/files/public/docs2009/new-hudson-vepa_seminar-20090514d.pdf
 http://www.internet2.edu/presentations/jt2009jul/20090719-congdon.pdf
 
-An additional patch 'bridge-utils: Add 'hairpin' port forwarding mode'
-is provided to allow configuring hairpin mode from userspace tools.
+Hairpin forwarding requires support from the kernel. A further kernel 
+patch 'net/bridge: Add 'hairpin' port forwarding mode' is provided
+for this.
 
 Signed-off-by: Paul Congdon <paul.congdon@hp.com>
 Signed-off-by: Anna Fischer <anna.fischer@hp.com>
 
 ---
 
- net/bridge/br_forward.c  |    3 ++-
- net/bridge/br_if.c       |    1 +
- net/bridge/br_private.h  |    3 +++
- net/bridge/br_sysfs_if.c |   17 +++++++++++++++++
- 4 files changed, 23 insertions(+), 1 deletions(-)
+ brctl/brctl_cmd.c           |   38 ++++++++++++++++++++++++++++++++++++++
+ brctl/brctl_disp.c          |    2 ++
+ libbridge/libbridge.h       |    3 +++
+ libbridge/libbridge_devif.c |   24 ++++++++++++++++++++++++
+ 4 files changed, 67 insertions(+), 0 deletions(-)
 
-diff --git a/net/bridge/br_forward.c b/net/bridge/br_forward.c
-index d2c27c8..bc1704a 100644
---- a/net/bridge/br_forward.c
-+++ b/net/bridge/br_forward.c
-@@ -22,7 +22,8 @@
- static inline int should_deliver(const struct net_bridge_port *p,
- 				 const struct sk_buff *skb)
+diff --git a/brctl/brctl_cmd.c b/brctl/brctl_cmd.c
+index c93dd55..d37e99c 100644
+--- a/brctl/brctl_cmd.c
++++ b/brctl/brctl_cmd.c
+@@ -395,6 +395,42 @@ static int br_cmd_showmacs(int argc, char *const* argv)
+ 	return 0;
+ }
+ 
++static int br_cmd_hairpin(int argc, char *const* argv)
++{
++	int hairpin, err;
++	const char *brname = *++argv;
++	const char *ifname = *++argv;
++	const char *hpmode = *++argv;
++
++	if (!strcmp(hpmode, "on") || !strcmp(hpmode, "yes")
++	    || !strcmp(hpmode, "1"))
++		hairpin = 1;
++	else if (!strcmp(hpmode, "off") || !strcmp(hpmode, "no")
++		 || !strcmp(hpmode, "0"))
++		hairpin = 0;
++	else {
++		fprintf(stderr, "expect on/off for argument\n");
++		return 1;
++	}
++	if (if_nametoindex(ifname) == 0) {
++		fprintf(stderr, "interface %s does not exist!\n",
++			ifname);
++		return 1;
++	} else if (if_nametoindex(brname) == 0) {
++		fprintf(stderr, "bridge %s does not exist!\n",
++			brname);
++		return 1;
++	}
++
++	err = br_set_hairpin_mode(brname, ifname, hairpin);
++
++	if (err) {
++		fprintf(stderr, "can't set %s to hairpin on bridge %s: %s\n",
++			ifname, brname, strerror(err));
++	}
++	return err != 0;
++}
++
+ static const struct command commands[] = {
+ 	{ 1, "addbr", br_cmd_addbr, "<bridge>\t\tadd bridge" },
+ 	{ 1, "delbr", br_cmd_delbr, "<bridge>\t\tdelete bridge" },
+@@ -402,6 +438,8 @@ static const struct command commands[] = {
+ 	  "<bridge> <device>\tadd interface to bridge" },
+ 	{ 2, "delif", br_cmd_delif,
+ 	  "<bridge> <device>\tdelete interface from bridge" },
++	{ 3, "hairpin", br_cmd_hairpin,
++	  "<bridge> <port> {on|off}\tturn hairpin on/off" },
+ 	{ 2, "setageing", br_cmd_setageing,
+ 	  "<bridge> <time>\t\tset ageing time" },
+ 	{ 2, "setbridgeprio", br_cmd_setbridgeprio,
+diff --git a/brctl/brctl_disp.c b/brctl/brctl_disp.c
+index 27ce6d2..3e81241 100644
+--- a/brctl/brctl_disp.c
++++ b/brctl/brctl_disp.c
+@@ -93,6 +93,8 @@ static int dump_port_info(const char *br, const char *p,  void *arg)
+ 		printf("CONFIG_PENDING ");
+ 	if (pinfo.top_change_ack)
+ 		printf("TOPOLOGY_CHANGE_ACK ");
++	if (pinfo.hairpin_mode)
++		printf("\n hairpin mode\t\t\%4i", pinfo.hairpin_mode);
+ 	printf("\n");
+ 	printf("\n");
+ 	return 0;
+diff --git a/libbridge/libbridge.h b/libbridge/libbridge.h
+index 016acea..39964f2 100644
+--- a/libbridge/libbridge.h
++++ b/libbridge/libbridge.h
+@@ -80,6 +80,7 @@ struct port_info
+ 	struct timeval message_age_timer_value;
+ 	struct timeval forward_delay_timer_value;
+ 	struct timeval hold_timer_value;
++	unsigned char hairpin_mode;
+ };
+ 
+ extern int br_init(void);
+@@ -113,4 +114,6 @@ extern int br_set_path_cost(const char *br, const char *p,
+ 			    int path_cost);
+ extern int br_read_fdb(const char *br, struct fdb_entry *fdbs, 
+ 		       unsigned long skip, int num);
++extern int br_set_hairpin_mode(const char *bridge, const char *dev,
++			       int hairpin_mode);
+ #endif
+diff --git a/libbridge/libbridge_devif.c b/libbridge/libbridge_devif.c
+index 34e3cc8..ca40325 100644
+--- a/libbridge/libbridge_devif.c
++++ b/libbridge/libbridge_devif.c
+@@ -36,6 +36,14 @@ static FILE *fpopen(const char *dir, const char *name)
+ 	return fopen(path, "r");
+ }
+ 
++static int fpaccess(const char *dir, const char *name)
++{
++	char path[SYSFS_PATH_MAX];
++
++	snprintf(path, SYSFS_PATH_MAX, "%s/%s", dir, name);
++	return access(path, F_OK);
++}
++
+ static void fetch_id(const char *dev, const char *name, struct bridge_id *id)
  {
--	return (skb->dev != p->dev && p->state == BR_STATE_FORWARDING);
-+	return (((p->flags & BR_HAIRPIN_MODE) || skb->dev != p->dev) &&
-+		p->state == BR_STATE_FORWARDING);
+ 	FILE *f = fpopen(dev, name);
+@@ -73,6 +81,12 @@ static void fetch_tv(const char *dev, const char *name,
+ 	__jiffies_to_tv(tv, fetch_int(dev, name));
  }
  
- static inline unsigned packet_length(const struct sk_buff *skb)
-diff --git a/net/bridge/br_if.c b/net/bridge/br_if.c
-index eb404dc..e486f1f 100644
---- a/net/bridge/br_if.c
-+++ b/net/bridge/br_if.c
-@@ -256,6 +256,7 @@ static struct net_bridge_port *new_nbp(struct net_bridge *br,
- 	p->path_cost = port_cost(dev);
- 	p->priority = 0x8000 >> BR_PORT_BITS;
- 	p->port_no = index;
-+	p->flags = 0;
- 	br_init_port(p);
- 	p->state = BR_STATE_DISABLED;
- 	br_stp_port_timer_init(p);
-diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-index d5b5537..8319247 100644
---- a/net/bridge/br_private.h
-+++ b/net/bridge/br_private.h
-@@ -81,6 +81,9 @@ struct net_bridge_port
- 	struct timer_list		message_age_timer;
- 	struct kobject			kobj;
- 	struct rcu_head			rcu;
-+
-+	unsigned long 			flags;
-+#define BR_HAIRPIN_MODE		0x00000001
- };
- 
- struct net_bridge
-diff --git a/net/bridge/br_sysfs_if.c b/net/bridge/br_sysfs_if.c
-index 4a3cdf8..820643a 100644
---- a/net/bridge/br_sysfs_if.c
-+++ b/net/bridge/br_sysfs_if.c
-@@ -143,6 +143,22 @@ static ssize_t store_flush(struct net_bridge_port *p, unsigned long v)
- }
- static BRPORT_ATTR(flush, S_IWUSR, NULL, store_flush);
- 
-+static ssize_t show_hairpin_mode(struct net_bridge_port *p, char *buf)
++/* Check if a feature is supported. */
++static int feature_supported(const char *dev, const char *feature)
 +{
-+	int hairpin_mode = (p->flags & BR_HAIRPIN_MODE) ? 1 : 0;
-+	return sprintf(buf, "%d\n", hairpin_mode);
++	return !fpaccess(dev, feature);
 +}
-+static ssize_t store_hairpin_mode(struct net_bridge_port *p, unsigned long v)
-+{
-+	if (v)
-+		p->flags |= BR_HAIRPIN_MODE;
++
+ /*
+  * Convert device name to an index in the list of ports in bridge.
+  *
+@@ -239,6 +253,7 @@ static int old_get_port_info(const char *brname, const char *port,
+ 	__jiffies_to_tv(&info->forward_delay_timer_value, 
+ 			i.forward_delay_timer_value);
+ 	__jiffies_to_tv(&info->hold_timer_value, i.hold_timer_value);
++	info->hairpin_mode = 0;
+ 	return 0;
+ }
+ 
+@@ -271,6 +286,10 @@ int br_get_port_info(const char *brname, const char *port,
+ 	fetch_tv(path, "message_age_timer", &info->message_age_timer_value);
+ 	fetch_tv(path, "forward_delay_timer", &info->forward_delay_timer_value);
+ 	fetch_tv(path, "hold_timer", &info->hold_timer_value);
++	if (feature_supported(path, "hairpin_mode"))
++		info->hairpin_mode = fetch_int(path, "hairpin_mode");
 +	else
-+		p->flags &= ~BR_HAIRPIN_MODE;
-+	return 0;
++		info->hairpin_mode = 0;
+ 	closedir(d);
+ 
+ 	return 0;
+@@ -381,6 +400,11 @@ int br_set_path_cost(const char *bridge, const char *port, int cost)
+ 	return port_set(bridge, port, "path_cost", cost, BRCTL_SET_PATH_COST);
+ }
+ 
++int br_set_hairpin_mode(const char *bridge, const char *port, int hairpin_mode)
++{
++	return port_set(bridge, port, "hairpin_mode", hairpin_mode, 0);
 +}
-+static BRPORT_ATTR(hairpin_mode, S_IRUGO | S_IWUSR,
-+		   show_hairpin_mode, store_hairpin_mode);
 +
- static struct brport_attribute *brport_attrs[] = {
- 	&brport_attr_path_cost,
- 	&brport_attr_priority,
-@@ -159,6 +175,7 @@ static struct brport_attribute *brport_attrs[] = {
- 	&brport_attr_forward_delay_timer,
- 	&brport_attr_hold_timer,
- 	&brport_attr_flush,
-+	&brport_attr_hairpin_mode,
- 	NULL
- };
+ static inline void __copy_fdb(struct fdb_entry *ent, 
+ 			      const struct __fdb_entry *f)
+ {
