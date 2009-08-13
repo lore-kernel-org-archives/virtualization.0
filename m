@@ -1,17 +1,16 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
+From: Avi Kivity <avi@redhat.com>
 Subject: Re: [PATCH 2/2] vhost_net: a kernel-level virtio server
-Date: Thu, 13 Aug 2009 18:03:44 +0300
-Message-ID: <20090813150344.GC5080__15289.9753804833$1250176205$gmane$org@redhat.com>
+Date: Thu, 13 Aug 2009 18:37:21 +0300
+Message-ID: <4A843331.1020402__37362.6746972606$1250177899$gmane$org@redhat.com>
 References: <cover.1249930169.git.mst@redhat.com>
-	<200908131538.44465.arnd@arndb.de>
-	<20090813143922.GA5080@redhat.com>
-	<200908131658.06522.arnd@arndb.de>
+	<200908131548.35199.arnd@arndb.de>
+	<20090813144129.GB5080@redhat.com>
+	<200908131653.47029.arnd@arndb.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <200908131658.06522.arnd@arndb.de>
+In-Reply-To: <200908131653.47029.arnd@arndb.de>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -22,26 +21,28 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Arnd Bergmann <arnd@arndb.de>
-Cc: netdev@vger.kernel.org, "Ira W. Snyder" <iws@ovro.caltech.edu>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: kvm@vger.kernel.org, "Ira W. Snyder" <iws@ovro.caltech.edu>, netdev@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Aug 13, 2009 at 04:58:06PM +0200, Arnd Bergmann wrote:
+On 08/13/2009 05:53 PM, Arnd Bergmann wrote:
 > On Thursday 13 August 2009, Michael S. Tsirkin wrote:
-> > > Right now, the number of copy operations in your code is the same.
-> > > You are doing the copy a little bit later in skb_copy_datagram_iovec(),
-> > > which is indeed a very nice hack. Changing to a virtqueue based method
-> > > would imply that the host needs to add each skb_frag_t to its outbound
-> > > virtqueue, which then gets copied into the guests inbound virtqueue.
-> > 
-> > Which is a lot more code than just calling skb_copy_datagram_iovec.
-> 
-> Well, I don't see this part as much of a problem, because the code
-> already exists in virtio_net.
+>    
+>> The best way to do this IMO would be to add zero copy support to raw
+>> sockets, vhost will then get it basically for free.
+>>      
+>
+> Yes, that would be nice. I wonder if that could lead to security
+> problems on TX though. I guess It will only bring significant performance
+> improvements if we leave the data writable in the user space or guest
+> during the operation. If the user finds the right timing, it could
+> modify the frame headers after they have been checked using netfilter,
+> or while the frames are being consumed in the kernel (e.g. an NFS
+> server running in a guest).
+>    
 
-I am talking about the copying done in low level transport, here.
+IIRC when the kernel consumes data it linearizes the skb.  We just need 
+to make sure all the zerocopy data is in the nonlinear part, and the 
+kernel will copy if/when it needs to access packet data.
 
-> If we really wanted to go down that road,
-> just using virtio_net would solve the problem of frame handling
-> entirely, but create new problems elsewhere, as we have mentioned.
-> 
-> 	Arnd <><
+-- 
+error compiling committee.c: too many arguments to function
