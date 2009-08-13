@@ -1,17 +1,23 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH 2/2] vhost_net: a kernel-level virtio server
-Date: Thu, 13 Aug 2009 09:06:15 +0300
-Message-ID: <20090813060615.GC3029__15715.193647384$1250143698$gmane$org@redhat.com>
-References: <cover.1249930169.git.mst@redhat.com>
-	<200908121903.22325.arnd@arndb.de>
-	<20090812172141.GA29966@redhat.com>
-	<200908121959.47222.arnd@arndb.de>
+Subject: Re: [Qemu-devel] Re: [PATCH] qemu/virtio: move features to an
+	inline function
+Date: Thu, 13 Aug 2009 09:15:22 +0300
+Message-ID: <20090813061522.GD3029@redhat.com>
+References: <20090810194753.GA16803@redhat.com>
+	<4A808437.8040307@codemonkey.ws>
+	<20090810221940.GB17099@redhat.com>
+	<4A80A0A1.2020905@codemonkey.ws> <20090811084807.GA3029@redhat.com>
+	<4A816EEB.4070707@codemonkey.ws>
+	<20090811134331.GA22661@redhat.com>
+	<4A819780.4040002@codemonkey.ws>
+	<20090811162537.GA25705@redhat.com>
+	<4A83157C.9040009@codemonkey.ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <200908121959.47222.arnd@arndb.de>
+In-Reply-To: <4A83157C.9040009@codemonkey.ws>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -21,23 +27,37 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: netdev@vger.kernel.org, "Ira W. Snyder" <iws@ovro.caltech.edu>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Anthony Liguori <anthony@codemonkey.ws>
+Cc: avi@redhat.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Aug 12, 2009 at 07:59:47PM +0200, Arnd Bergmann wrote:
-> The trick is to swap the virtqueues instead. virtio-net is actually
-> mostly symmetric in just the same way that the physical wires on a
-> twisted pair ethernet are symmetric (I like how that analogy fits).
+On Wed, Aug 12, 2009 at 02:18:20PM -0500, Anthony Liguori wrote:
+> Michael S. Tsirkin wrote:
+>> On
+>>   
+>>> Why bother switching to userspace for migration?  Can't you just have 
+>>>  get/set ioctls for the state?
+>>>     
+>>
+>> I have these. But live migration requires dirty page logging.
+>> I do not want to implement it in kernel.
+>>   
+>
+> Is it really that difficult?  I think it would be better to just do that.
 
-You need to really squint hard for it to look symmetric.
+The idea is if it can be in userspace, let's keep it there.
 
-For example, for RX, virtio allocates an skb, puts a descriptor on a
-ring and waits for host to fill it in. Host system can not do the same:
-guest does not have access to host memory.
+> I wonder though if mmu notifiers can be used to make it transparent...
 
-You can do a copy in transport to hide this fact, but it will kill
-performance.
+Maybe they can, but that decision belongs to KVM.
+Avi, what do you think?
 
--- 
-MST
+> Regards,
+>
+> Anthony Liguori
+>
+>>> Regards,
+>>>
+>>> Anthony Liguori
+>>>
+>>>     
