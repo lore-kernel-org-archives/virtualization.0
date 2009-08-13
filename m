@@ -1,18 +1,12 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH 2/2] vhost_net: a kernel-level virtio server
-Date: Thu, 13 Aug 2009 11:45:13 +0300
-Message-ID: <20090813084512.GA4401__21.6603432365403$1250153330$gmane$org@redhat.com>
-References: <cover.1249930169.git.mst@redhat.com>
-	<20090810185340.GC13924@redhat.com>
-	<200908121903.22325.arnd@arndb.de>
-	<20090812172141.GA29966@redhat.com>
-	<4A83167E.2080701@codemonkey.ws>
+Subject: [PATCHv2 0/3] qemu-kvm: vhost net support
+Date: Thu, 13 Aug 2009 11:50:40 +0300
+Message-ID: <20090813085040.GA4726__1923.19635903022$1250153563$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <4A83167E.2080701@codemonkey.ws>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -22,38 +16,39 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Anthony Liguori <anthony@codemonkey.ws>
-Cc: Arnd Bergmann <arnd@arndb.de>, kvm@vger.kernel.org, "Ira W. Snyder" <iws@ovro.caltech.edu>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: avi@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Aug 12, 2009 at 02:22:38PM -0500, Anthony Liguori wrote:
-> Michael S. Tsirkin wrote:
->>>
->>> We discussed this before, and I still think this could be directly derived
->>> from struct virtqueue, in the same way that vring_virtqueue is derived from
->>> struct virtqueue.
->>>     
->>
->> I prefer keeping it simple. Much of abstraction in virtio is due to the
->> fact that it needs to work on top of different hardware emulations:
->> lguest,kvm, possibly others in the future.  vhost is always working on
->> real hardware, using eventfd as the interface, so it does not need that.
->>   
->
-> Actually, vhost may not always be limited to real hardware.
+This adds support for vhost-net virtio kernel backend.
 
-Yes, any ethernet device will do. What I mean is that vhost does not
-deal with emulation at all. All setup is done in userspace.
+This is RFC, but works without issues for me.
 
->
-> We may on day use vhost as the basis of a driver domain.  There's quite  
-> a lot of interest in this for networking.
+Still needs to be split up, tested and benchmarked properly,
+but posting it here in case people want to test drive
+the kernel bits I posted.
 
-You can use veth for this. This works today.
+Changes since v1:
+- rebased on top of 9dc275d9d660fe1cd64d36102d600885f9fdb88a
 
-> At any rate, I'd like to see performance results before we consider  
-> trying to reuse virtio code.
-> 
-> Regards,
->
-> Anthony Liguori
+Michael S. Tsirkin (3):
+  qemu-kvm: move virtio-pci.o to near pci.o
+  virtio: move features to an inline function
+  qemu-kvm: vhost-net implementation
+
+ Makefile.hw         |    2 +-
+ Makefile.target     |    3 +-
+ hw/vhost_net.c      |  181 +++++++++++++++++++++++++++++++++++++++++++++++++++
+ hw/vhost_net.h      |   30 +++++++++
+ hw/virtio-balloon.c |    2 +-
+ hw/virtio-blk.c     |    2 +-
+ hw/virtio-console.c |    2 +-
+ hw/virtio-net.c     |   34 +++++++++-
+ hw/virtio-pci.c     |   43 +++++++++++-
+ hw/virtio.c         |   19 ------
+ hw/virtio.h         |   38 ++++++++++-
+ net.c               |    5 ++
+ net.h               |    1 +
+ qemu-kvm.h          |    9 +++
+ 14 files changed, 339 insertions(+), 32 deletions(-)
+ create mode 100644 hw/vhost_net.c
+ create mode 100644 hw/vhost_net.h
