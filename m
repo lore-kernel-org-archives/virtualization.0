@@ -1,15 +1,15 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH 0/3] qemu-kvm: vhost net support
-Date: Thu, 13 Aug 2009 14:53:38 +0300
-Message-ID: <20090813115337.GA4853__10835.8645732098$1250164638$gmane$org@redhat.com>
-References: <20090810192304.GA16781@redhat.com> <4A8325C0.7060001@gmail.com>
-	<20090813055941.GB3029@redhat.com> <4A83FA98.1010708@gmail.com>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [PATCH 2/2] vhost_net: a kernel-level virtio server
+Date: Thu, 13 Aug 2009 15:38:43 +0200
+Message-ID: <200908131538.44465.arnd__40933.6868011907$1250170835$gmane$org@arndb.de>
+References: <cover.1249930169.git.mst@redhat.com>
+	<200908121959.47222.arnd@arndb.de>
+	<20090813060615.GC3029@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <4A83FA98.1010708@gmail.com>
+In-Reply-To: <20090813060615.GC3029@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,62 +19,37 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gregory Haskins <gregory.haskins@gmail.com>
-Cc: avi@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: netdev@vger.kernel.org, "Ira W. Snyder" <iws@ovro.caltech.edu>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Aug 13, 2009 at 07:35:52AM -0400, Gregory Haskins wrote:
-> Michael S. Tsirkin wrote:
-> > On Wed, Aug 12, 2009 at 04:27:44PM -0400, Gregory Haskins wrote:
-> >> Michael S. Tsirkin wrote:
-> >>> This adds support for vhost-net virtio kernel backend.
-> >>>
-> >>> This is RFC, but works without issues for me.
-> >>>
-> >>> Still needs to be split up, tested and benchmarked properly,
-> >>> but posting it here in case people want to test drive
-> >>> the kernel bits I posted.
-> >> This has a large degree of rejects against qemu-kvm.git/master.  What
-> >> tree does this apply to?
-> >>
-> >> -Greg
-> >>
-> > 
-> > Likely that tree has advanced since.
-> > This is on top of commit b6bbd41fac4b6fb0efc65e083d2151ce1521f615.
-> > 
+On Thursday 13 August 2009, Michael S. Tsirkin wrote:
+> On Wed, Aug 12, 2009 at 07:59:47PM +0200, Arnd Bergmann wrote:
+> > The trick is to swap the virtqueues instead. virtio-net is actually
+> > mostly symmetric in just the same way that the physical wires on a
+> > twisted pair ethernet are symmetric (I like how that analogy fits).
 > 
+> You need to really squint hard for it to look symmetric.
 > 
-> Hmm....better, but I still get rejects.  Of particular concern is this
-> one in net.c:
+> For example, for RX, virtio allocates an skb, puts a descriptor on a
+> ring and waits for host to fill it in. Host system can not do the same:
+> guest does not have access to host memory.
 > 
-> @@ -1903,7 +1903,7 @@ static TAPState *net_tap_init(VLANState *vlan,
-> const char *model,
->  typedef struct RAWState {
->      VLANClientState *vc;
->      int fd;
-> -    uint8_t buf[4096];
-> +    uint8_t buf[65000];
->      int promisc;
->  } RAWState;
-> 
-> 
-> I do not see any occurrence of "RAWState" in b6bbd41f (or master, for
-> that matter).  There is probably an operator error somewhere in here ;),
+> You can do a copy in transport to hide this fact, but it will kill
+> performance.
 
-Yes. Mine :)
+Yes, that is what I was suggesting all along. The actual copy operation
+has to be done by the host transport, which is obviously different from
+the guest transport that just calls the host using vring_kick().
 
-> but any help getting this working is appreciated.
+Right now, the number of copy operations in your code is the same.
+You are doing the copy a little bit later in skb_copy_datagram_iovec(),
+which is indeed a very nice hack. Changing to a virtqueue based method
+would imply that the host needs to add each skb_frag_t to its outbound
+virtqueue, which then gets copied into the guests inbound virtqueue.
 
-I reposted a clean one which is against latest bits earlier today.
-Look for PATCHv2 in your inbox.
+Unfortunately, this also implies that you could no longer simply use the
+packet socket interface as you do currently, as I realized only now.
+This obviously has a significant impact on your user space interface.
 
-> Do you have a git tree I can pull somewhere?
-> Kind Regards,
-> -Greg
-> 
-
-Thanks for the patience,
-
--- 
-MST
+	Arnd <><
