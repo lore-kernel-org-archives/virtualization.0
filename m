@@ -1,22 +1,16 @@
-From: Anthony Liguori <anthony@codemonkey.ws>
-Subject: Re: [Qemu-devel] Re: virtio-serial: An interface for
-	host-guest	communication
-Date: Fri, 14 Aug 2009 11:25:32 -0500
-Message-ID: <4A858FFC.7000607__21383.6177172654$1250267412$gmane$org@codemonkey.ws>
-References: <20090806173740.GA1178@shareable.org>
-	<20090807063800.GA16769@amit-x200.redhat.com>
-	<4A7C36D3.3040305@codemonkey.ws>
-	<20090810065508.GA4499@amit-x200.redhat.com>
-	<4A7FECCA.8080804@redhat.com> <4A801A7B.1020208@codemonkey.ws>
-	<4A80287C.7050400@redhat.com> <4A802CA7.9020701@codemonkey.ws>
-	<4A803E07.7080407@redhat.com> <4A8051F3.7040400@codemonkey.ws>
-	<20090814081518.GA7418@amit-x200.redhat.com>
-	<4A856B5E.2000303@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCHv3 2/2] vhost_net: a kernel-level virtio server
+Date: Sun, 16 Aug 2009 09:51:10 +0300
+Message-ID: <20090816065110.GA3008__11268.6888700866$1250405628$gmane$org@redhat.com>
+References: <cover.1250187913.git.mst@redhat.com>
+	<20090813182931.GC6585@redhat.com>
+	<200908141340.36176.arnd@arndb.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4A856B5E.2000303@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <200908141340.36176.arnd@arndb.de>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -26,30 +20,111 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gerd Hoffmann <kraxel@redhat.com>
-Cc: Amit Shah <amit.shah@redhat.com>, qemu-devel@nongnu.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, hpa@zytor.com, mingo@elte.hu, akpm@linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Gerd Hoffmann wrote:
-> On 08/14/09 10:15, Amit Shah wrote:
->> The guest code sort-of ends up looking like this after merging
->> virtio_console into virtio_serial.
->
-> I think it should better go the other way around: add multichannel 
-> support to virtio-concole, probably guarded by a feature flag so old 
-> host+new guest and new host+old guest combinations continue to work.
->
->> Since there's support for only one console as of now, I've assigned port
->> #2 as the console port so that we hook into hvc when a port is found at
->> that location.
->
-> Doesn't sound like this is going to be backward compatible ...
->
-> Also I still think passing a 'protocol' string for each port is a good 
-> idea, so you can stick that into a sysfs file for guests use.
+On Fri, Aug 14, 2009 at 01:40:36PM +0200, Arnd Bergmann wrote:
+> On Thursday 13 August 2009, Michael S. Tsirkin wrote:
+> > What it is: vhost net is a character device that can be used to reduce
+> > the number of system calls involved in virtio networking.
+> > Existing virtio net code is used in the guest without modification.
+> 
+> AFAICT, you have addressed all my comments, mostly by convincing me
+> that you got it right anyway ;-).
+> 
+> I hope this gets into 2.6.32, good work!
+> 
+> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> 
+> Acked-by: Arnd Bergmann <arnd@arndb.de>
+> 
+> One idea though:
+> 
+> > +	/* Parameter checking */
+> > +	if (sock->sk->sk_type != SOCK_RAW) {
+> > +		r = -ESOCKTNOSUPPORT;
+> > +		goto done;
+> > +	}
+> > +
+> > +	r = sock->ops->getname(sock, (struct sockaddr *)&uaddr.sa,
+> > +			       &uaddr_len, 0);
+> > +	if (r)
+> > +		goto done;
+> > +
+> > +	if (uaddr.sa.sll_family != AF_PACKET) {
+> > +		r = -EPFNOSUPPORT;
+> > +		goto done;
+> > +	}
+> 
+> You currently limit the scope of the driver by only allowing raw packet
+> sockets to be passed into the network driver. In qemu, we currently support
+> some very similar transports:
+> 
+> * raw packet (not in a release yet)
+> * tcp connection
+> * UDP multicast
+> * tap character device
+> * VDE with Unix local sockets
+> 
+> My primary interest right now is the tap support, but I think it would
+> be interesting in general to allow different file descriptor types
+> in vhost_net_set_socket. AFAICT, there are two major differences
+> that we need to handle for this:
+> 
+> * most of the transports are sockets, tap uses a character device.
+>   This could be dealt with by having both a struct socket * in
+>   struct vhost_net *and* a struct file *, or by always keeping the
+>   struct file and calling vfs_readv/vfs_writev for the data transport
+>   in both cases.
 
-Or drops ports altogether and just use protocol strings...
+I am concerned that character devices might have weird side effects with
+read/write operations and that calling them from kernel thread the way I
+do might have security implications. Can't point at anything specific
+though at the moment.
+I wonder - can we expose the underlying socket used by tap, or will that
+create complex lifetime issues?
 
-Regards,
+> * Each transport has a slightly different header, we have
+>   - raw ethernet frames (raw, udp multicast, tap)
+>   - 32-bit length + raw frames, possibly fragmented (tcp)
+>   - 80-bit header + raw frames, possibly fragmented (tap with vnet_hdr)
+>   To handle these three cases, we need either different ioctl numbers
+>   so that vhost_net can choose the right one, or a flags field in
+>   VHOST_NET_SET_SOCKET, like
+> 
+>   #define VHOST_NET_RAW		1
+>   #define VHOST_NET_LEN_HDR	2
+>   #define VHOST_NET_VNET_HDR	4
+> 
+>   struct vhost_net_socket {
+> 	unsigned int flags;
+> 	int fd;
+>   };
+>   #define VHOST_NET_SET_SOCKET _IOW(VHOST_VIRTIO, 0x30, struct vhost_net_socket)
 
-Anthony Liguori
+It seems we can query the socket to find out the type, or use the
+features ioctl.
+
+> If both of those are addressed, we can treat vhost_net as a generic
+> way to do network handling in the kernel independent of the qemu
+> model (raw, tap, ...) for it. 
+> 
+> Your qemu patch would have to work differently, so instead of 
+> 
+> qemu -net nic,vhost=eth0
+> 
+> you would do the same as today with the raw packet socket extension
+> 
+> qemu -net nic -net raw,ifname=eth0 
+> 
+> Qemu could then automatically try to use vhost_net, if it's available
+> in the kernel, or just fall back on software vlan otherwise.
+> Does that make sense?
+> 
+> 	Arnd <>
+
+I agree, long term it should be enabled automatically when possible.
+
+-- 
+MST
