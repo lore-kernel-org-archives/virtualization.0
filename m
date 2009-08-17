@@ -1,16 +1,12 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCHv3 2/2] vhost_net: a kernel-level virtio server
-Date: Sun, 16 Aug 2009 09:51:10 +0300
-Message-ID: <20090816065110.GA3008__11268.6888700866$1250405628$gmane$org@redhat.com>
-References: <cover.1250187913.git.mst@redhat.com>
-	<20090813182931.GC6585@redhat.com>
-	<200908141340.36176.arnd@arndb.de>
+Subject: [PATCHv3 0/4] qemu-kvm: vhost net support
+Date: Mon, 17 Aug 2009 15:37:01 +0300
+Message-ID: <20090817123701.GA10700__16977.6853210807$1250512866$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <200908141340.36176.arnd@arndb.de>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,111 +16,47 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, hpa@zytor.com, mingo@elte.hu, akpm@linux-foundation.org
+To: avi@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Aug 14, 2009 at 01:40:36PM +0200, Arnd Bergmann wrote:
-> On Thursday 13 August 2009, Michael S. Tsirkin wrote:
-> > What it is: vhost net is a character device that can be used to reduce
-> > the number of system calls involved in virtio networking.
-> > Existing virtio net code is used in the guest without modification.
-> 
-> AFAICT, you have addressed all my comments, mostly by convincing me
-> that you got it right anyway ;-).
-> 
-> I hope this gets into 2.6.32, good work!
-> 
-> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> 
-> Acked-by: Arnd Bergmann <arnd@arndb.de>
-> 
-> One idea though:
-> 
-> > +	/* Parameter checking */
-> > +	if (sock->sk->sk_type != SOCK_RAW) {
-> > +		r = -ESOCKTNOSUPPORT;
-> > +		goto done;
-> > +	}
-> > +
-> > +	r = sock->ops->getname(sock, (struct sockaddr *)&uaddr.sa,
-> > +			       &uaddr_len, 0);
-> > +	if (r)
-> > +		goto done;
-> > +
-> > +	if (uaddr.sa.sll_family != AF_PACKET) {
-> > +		r = -EPFNOSUPPORT;
-> > +		goto done;
-> > +	}
-> 
-> You currently limit the scope of the driver by only allowing raw packet
-> sockets to be passed into the network driver. In qemu, we currently support
-> some very similar transports:
-> 
-> * raw packet (not in a release yet)
-> * tcp connection
-> * UDP multicast
-> * tap character device
-> * VDE with Unix local sockets
-> 
-> My primary interest right now is the tap support, but I think it would
-> be interesting in general to allow different file descriptor types
-> in vhost_net_set_socket. AFAICT, there are two major differences
-> that we need to handle for this:
-> 
-> * most of the transports are sockets, tap uses a character device.
->   This could be dealt with by having both a struct socket * in
->   struct vhost_net *and* a struct file *, or by always keeping the
->   struct file and calling vfs_readv/vfs_writev for the data transport
->   in both cases.
+This adds support for vhost-net virtio kernel backend.
 
-I am concerned that character devices might have weird side effects with
-read/write operations and that calling them from kernel thread the way I
-do might have security implications. Can't point at anything specific
-though at the moment.
-I wonder - can we expose the underlying socket used by tap, or will that
-create complex lifetime issues?
+This is RFC, but works without issues for me.
 
-> * Each transport has a slightly different header, we have
->   - raw ethernet frames (raw, udp multicast, tap)
->   - 32-bit length + raw frames, possibly fragmented (tcp)
->   - 80-bit header + raw frames, possibly fragmented (tap with vnet_hdr)
->   To handle these three cases, we need either different ioctl numbers
->   so that vhost_net can choose the right one, or a flags field in
->   VHOST_NET_SET_SOCKET, like
-> 
->   #define VHOST_NET_RAW		1
->   #define VHOST_NET_LEN_HDR	2
->   #define VHOST_NET_VNET_HDR	4
-> 
->   struct vhost_net_socket {
-> 	unsigned int flags;
-> 	int fd;
->   };
->   #define VHOST_NET_SET_SOCKET _IOW(VHOST_VIRTIO, 0x30, struct vhost_net_socket)
+Still needs to be split up, tested and benchmarked properly,
+but posting it here in case people want to test drive
+the kernel bits I posted.
 
-It seems we can query the socket to find out the type, or use the
-features ioctl.
+Changes since v2:
+- minor fixes
+- added patch to build on RHEL5.3
+Changes since v1:
+- rebased on top of 9dc275d9d660fe1cd64d36102d600885f9fdb88a
 
-> If both of those are addressed, we can treat vhost_net as a generic
-> way to do network handling in the kernel independent of the qemu
-> model (raw, tap, ...) for it. 
-> 
-> Your qemu patch would have to work differently, so instead of 
-> 
-> qemu -net nic,vhost=eth0
-> 
-> you would do the same as today with the raw packet socket extension
-> 
-> qemu -net nic -net raw,ifname=eth0 
-> 
-> Qemu could then automatically try to use vhost_net, if it's available
-> in the kernel, or just fall back on software vlan otherwise.
-> Does that make sense?
-> 
-> 	Arnd <>
+Michael S. Tsirkin (4):
+  qemu-kvm: move virtio-pci.o to near pci.o
+  virtio: move features to an inline function
+  qemu-kvm: vhost-net implementation
+  qemu-kvm: add compat eventfd
 
-I agree, long term it should be enabled automatically when possible.
-
--- 
-MST
+ Makefile.hw          |    2 +-
+ Makefile.target      |    3 +-
+ compat/sys/eventfd.h |   13 ++++
+ configure            |    1 +
+ hw/vhost_net.c       |  181 ++++++++++++++++++++++++++++++++++++++++++++++++++
+ hw/vhost_net.h       |   30 ++++++++
+ hw/virtio-balloon.c  |    2 +-
+ hw/virtio-blk.c      |    2 +-
+ hw/virtio-console.c  |    2 +-
+ hw/virtio-net.c      |   34 +++++++++-
+ hw/virtio-pci.c      |   43 +++++++++++-
+ hw/virtio.c          |   19 -----
+ hw/virtio.h          |   38 ++++++++++-
+ net.c                |    6 ++-
+ net.h                |    1 +
+ qemu-kvm.c           |    8 --
+ qemu-kvm.h           |    9 +++
+ 17 files changed, 353 insertions(+), 41 deletions(-)
+ create mode 100644 compat/sys/eventfd.h
+ create mode 100644 hw/vhost_net.c
+ create mode 100644 hw/vhost_net.h
