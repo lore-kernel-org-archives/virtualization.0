@@ -1,15 +1,11 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH 1/4] net: skb_orphan on dev_hard_start_xmit
-Date: Mon, 17 Aug 2009 18:47:12 -0700 (PDT)
-Message-ID: <20090817.184712.180559154.davem__22852.4768645459$1250560078$gmane$org@davemloft.net>
-References: <20090704090910.GA2185@gondor.apana.org.au>
-	<20090705032658.GA7430@gondor.apana.org.au>
-	<20090705033408.GB7430@gondor.apana.org.au>
+From: Amit Shah <amit.shah@redhat.com>
+Subject: [PATCH 1/2] virtio: Add a can_add_buf helper
+Date: Tue, 18 Aug 2009 21:31:29 +0530
+Message-ID: <1250611290-2410-1-git-send-email-amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20090705033408.GB7430@gondor.apana.org.au>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,46 +15,79 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: herbert@gondor.apana.org.au
-Cc: patrick.ohly@intel.com, libertas-dev@lists.infradead.org, dcbw@redhat.com, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, rolandd@cisco.com, divy@chelsio.com, xemul@openvz.org
+To: virtualization@lists.linux-foundation.org
+Cc: Amit Shah <amit.shah@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Herbert Xu <herbert@gondor.apana.org.au>
-Date: Sun, 5 Jul 2009 11:34:08 +0800
+This helper returns 1 if a call to add_buf will not fail
+with -ENOSPC.
 
-> Here's an even crazier idea that doesn't use dummy descriptors.
-> 
-> xmit(skb)
-> 
-> 	if (TX queue contains no interrupting descriptor &&
-> 	    qdisc is empty)
-> 		mark TX descriptor as interrupting
-> 
-> 	if (TX queue now contains an interrupting descriptor &&
-> 	    qdisc len < 2)
-> 		stop queue
-> 
-> 	if (TX ring full)
-> 		stop queue
-> 
-> clean()
-> 
->  	do work
-> 	wake queue as per usual
+This will help callers that do
 
-I'm pretty sure that for normal TCP and UDP workloads, this is just
-going to set the interrupt bit on the first packet that gets into the
-queue, and then not in the rest.
+while(1) {
+	alloc()
+	if (add_buf()) {
+		free();
+		break;
+	}
+}
 
-TCP just loops over packets in the send queue, and at initial state
-the qdisc will be empty.
+This will result in one less alloc/free exercise.
 
-It's very hard to get this to work as well as if we had a real
-queue empty interrupt status event.
+Signed-off-by: Amit Shah <amit.shah@redhat.com>
+---
+ drivers/virtio/virtio_ring.c |    8 ++++++++
+ include/linux/virtio.h       |    5 +++++
+ 2 files changed, 13 insertions(+), 0 deletions(-)
 
-Even if you get upstream status from the protocols saying "there's
-more packets coming" via some flag in the SKB, that only says what one
-client feeding the TX ring is about to do.
-
-It says nothing about other threads of control which are about to start
-feeding packets to the same device.
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+index a882f26..e2e5eb7 100644
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -137,6 +137,13 @@ static int vring_add_indirect(struct vring_virtqueue *vq,
+ 	return head;
+ }
+ 
++static bool vring_can_add_buf(struct virtqueue *_vq)
++{
++	struct vring_virtqueue *vq = to_vvq(_vq);
++
++	return vq->num_free ? 1 : 0;
++}
++
+ static int vring_add_buf(struct virtqueue *_vq,
+ 			 struct scatterlist sg[],
+ 			 unsigned int out,
+@@ -350,6 +357,7 @@ EXPORT_SYMBOL_GPL(vring_interrupt);
+ static struct virtqueue_ops vring_vq_ops = {
+ 	.add_buf = vring_add_buf,
+ 	.get_buf = vring_get_buf,
++	.can_add_buf = vring_can_add_buf,
+ 	.kick = vring_kick,
+ 	.disable_cb = vring_disable_cb,
+ 	.enable_cb = vring_enable_cb,
+diff --git a/include/linux/virtio.h b/include/linux/virtio.h
+index 4fca4f5..cc0e3aa 100644
+--- a/include/linux/virtio.h
++++ b/include/linux/virtio.h
+@@ -35,6 +35,9 @@ struct virtqueue {
+  *	in_num: the number of sg which are writable (after readable ones)
+  *	data: the token identifying the buffer.
+  *      Returns 0 or an error.
++ * @can_add_buf: indicates whether we have a free slot to add a buffer
++ *      vq: the struct virtqueue we're talking about.
++ *      Returns 0 or 1.
+  * @kick: update after add_buf
+  *	vq: the struct virtqueue
+  *	After one or more add_buf calls, invoke this to kick the other side.
+@@ -65,6 +68,8 @@ struct virtqueue_ops {
+ 		       unsigned int in_num,
+ 		       void *data);
+ 
++	bool (*can_add_buf)(struct virtqueue *vq);
++
+ 	void (*kick)(struct virtqueue *vq);
+ 
+ 	void *(*get_buf)(struct virtqueue *vq, unsigned int *len);
+-- 
+1.6.2.5
