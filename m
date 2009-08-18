@@ -1,11 +1,13 @@
 From: Amit Shah <amit.shah@redhat.com>
-Subject: [PATCH 1/2] virtio: Add a can_add_buf helper
-Date: Tue, 18 Aug 2009 21:31:29 +0530
-Message-ID: <1250611290-2410-1-git-send-email-amit.shah@redhat.com>
+Subject: [PATCH 2/2] virtio_net: Use can_add_buf to test for enough room to add
+Date: Tue, 18 Aug 2009 21:31:30 +0530
+Message-ID: <1250611290-2410-2-git-send-email-amit.shah@redhat.com>
+References: <1250611290-2410-1-git-send-email-amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1250611290-2410-1-git-send-email-amit.shah@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,75 +21,29 @@ To: virtualization@lists.linux-foundation.org
 Cc: Amit Shah <amit.shah@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This helper returns 1 if a call to add_buf will not fail
-with -ENOSPC.
+Use the can_add_buf virtqueue operation to test if
+there's room to add another buf to the queue.
 
-This will help callers that do
-
-while(1) {
-	alloc()
-	if (add_buf()) {
-		free();
-		break;
-	}
-}
-
-This will result in one less alloc/free exercise.
+Saves us one cycle of alloc-add-free if the queue
+was full.
 
 Signed-off-by: Amit Shah <amit.shah@redhat.com>
 ---
- drivers/virtio/virtio_ring.c |    8 ++++++++
- include/linux/virtio.h       |    5 +++++
- 2 files changed, 13 insertions(+), 0 deletions(-)
+ drivers/net/virtio_net.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index a882f26..e2e5eb7 100644
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -137,6 +137,13 @@ static int vring_add_indirect(struct vring_virtqueue *vq,
- 	return head;
- }
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 2a6e81d..fd1d628 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -280,7 +280,7 @@ static void try_fill_recv_maxbufs(struct virtnet_info *vi)
+ 	int num, err, i;
  
-+static bool vring_can_add_buf(struct virtqueue *_vq)
-+{
-+	struct vring_virtqueue *vq = to_vvq(_vq);
-+
-+	return vq->num_free ? 1 : 0;
-+}
-+
- static int vring_add_buf(struct virtqueue *_vq,
- 			 struct scatterlist sg[],
- 			 unsigned int out,
-@@ -350,6 +357,7 @@ EXPORT_SYMBOL_GPL(vring_interrupt);
- static struct virtqueue_ops vring_vq_ops = {
- 	.add_buf = vring_add_buf,
- 	.get_buf = vring_get_buf,
-+	.can_add_buf = vring_can_add_buf,
- 	.kick = vring_kick,
- 	.disable_cb = vring_disable_cb,
- 	.enable_cb = vring_enable_cb,
-diff --git a/include/linux/virtio.h b/include/linux/virtio.h
-index 4fca4f5..cc0e3aa 100644
---- a/include/linux/virtio.h
-+++ b/include/linux/virtio.h
-@@ -35,6 +35,9 @@ struct virtqueue {
-  *	in_num: the number of sg which are writable (after readable ones)
-  *	data: the token identifying the buffer.
-  *      Returns 0 or an error.
-+ * @can_add_buf: indicates whether we have a free slot to add a buffer
-+ *      vq: the struct virtqueue we're talking about.
-+ *      Returns 0 or 1.
-  * @kick: update after add_buf
-  *	vq: the struct virtqueue
-  *	After one or more add_buf calls, invoke this to kick the other side.
-@@ -65,6 +68,8 @@ struct virtqueue_ops {
- 		       unsigned int in_num,
- 		       void *data);
+ 	sg_init_table(sg, 2+MAX_SKB_FRAGS);
+-	for (;;) {
++	while (vi->rvq->vq_ops->can_add_buf(vi->rvq)) {
+ 		struct virtio_net_hdr *hdr;
  
-+	bool (*can_add_buf)(struct virtqueue *vq);
-+
- 	void (*kick)(struct virtqueue *vq);
- 
- 	void *(*get_buf)(struct virtqueue *vq, unsigned int *len);
+ 		skb = netdev_alloc_skb(vi->dev, MAX_PACKET_LEN + NET_IP_ALIGN);
 -- 
 1.6.2.5
