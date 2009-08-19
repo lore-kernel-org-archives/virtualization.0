@@ -1,17 +1,15 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
+From: Arnd Bergmann <arnd@arndb.de>
 Subject: Re: [PATCHv3 2/2] vhost_net: a kernel-level virtio server
-Date: Wed, 19 Aug 2009 16:04:17 +0300
-Message-ID: <20090819130417.GB3080__43145.176411099$1250687503$gmane$org@redhat.com>
+Date: Wed, 19 Aug 2009 15:46:44 +0200
+Message-ID: <200908191546.44193.arnd__42948.8541245975$1250689922$gmane$org@arndb.de>
 References: <cover.1250187913.git.mst@redhat.com>
-	<200908141340.36176.arnd@arndb.de>
-	<20090816065110.GA3008@redhat.com>
 	<200908191104.50672.arnd@arndb.de>
+	<20090819130417.GB3080@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <200908191104.50672.arnd@arndb.de>
+In-Reply-To: <20090819130417.GB3080@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -21,100 +19,85 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Arnd Bergmann <arnd@arndb.de>
+To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, hpa@zytor.com, mingo@elte.hu, akpm@linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Aug 19, 2009 at 11:04:50AM +0200, Arnd Bergmann wrote:
-> On Sunday 16 August 2009, Michael S. Tsirkin wrote:
-> > On Fri, Aug 14, 2009 at 01:40:36PM +0200, Arnd Bergmann wrote:
-> > > 
-> > > * most of the transports are sockets, tap uses a character device.
-> > >   This could be dealt with by having both a struct socket * in
-> > >   struct vhost_net *and* a struct file *, or by always keeping the
-> > >   struct file and calling vfs_readv/vfs_writev for the data transport
-> > >   in both cases.
+On Wednesday 19 August 2009, Michael S. Tsirkin wrote:
+> > Maybe we could instead extend the 'splice' system call to work on a
+> > vhost_net file descriptor.  If we do that, we can put the access back
+> > into a user thread (or two) that stays in splice indefinetely
+> 
+> An issue with exposing internal threading model to userspace
+> in this way is that we lose control of e.g. CPU locality -
+> and it is very hard for userspace to get it right.
+
+Good point, I hadn't thought about that in this context.
+
+For macvtap, my idea was to open the same tap char device multiple
+times and use each fd exclusively on one *guest* CPU. I'm not sure
+if virtio-net can already handle SMP guests efficiently. We might
+actually need to extend it to have more pairs of virtqueues, one
+for each guest CPU, which can then be bound to a host queue (or queue
+pair) in the physical nic.
+
+Leaving that aside for now, you could replace VHOST_NET_SET_SOCKET,
+VHOST_SET_OWNER, VHOST_RESET_OWNER and your kernel thread with a new
+VHOST_NET_SPLICE blocking ioctl that does all the transfers in the
+context of the calling thread.
+
+This would improve the driver on various fronts:
+
+- no need for playing tricks with use_mm/unuse_mm
+- possibly fewer global TLB flushes from switch_mm, which
+  may improve performance.
+- ability to pass down error codes from socket or guest to
+  user space by returning from ioctl
+- based on that, the ability to use any kind of file
+  descriptor that can do writev/readv or sendmsg/recvmsg
+  without the nastiness you mentioned.
+
+The disadvantage of course is that you need to add a user
+thread for each guest device to make up for the workqueue
+that you save.
+
+> > to
+> > avoid some of the implications of kernel threads like the missing
+> > ability to handle transfer errors in user space.
+> 
+> Are you talking about TCP here?
+> Transfer errors are typically asynchronous - possibly eventfd
+> as I expose for vhost net is sufficient there.
+
+I mean errors in general if we allow random file descriptors to be used.
+E.g. tun_chr_aio_read could return EBADFD, EINVAL, EFAULT, ERESTARTSYS,
+EIO, EAGAIN and possibly others. We can handle some in kernel, others
+should never happen with vhost_net, but if something unexpected happens
+it would be nice to just bail out to user space.
+
+> > > I wonder - can we expose the underlying socket used by tap, or will that
+> > > create complex lifetime issues?
 > > 
-> > I am concerned that character devices might have weird side effects with
-> > read/write operations and that calling them from kernel thread the way I
-> > do might have security implications. Can't point at anything specific
-> > though at the moment.
+> > I think this could get more messy in the long run than calling vfs_readv
+> > on a random fd. It would mean deep internal knowledge of the tap driver
+> > in vhost_net, which I really would prefer to avoid.
 > 
-> I understand your feelings about passing a chardev fd into your driver
-> and I agree that we need to be very careful if we want to allow it.
-> 
-> Maybe we could instead extend the 'splice' system call to work on a
-> vhost_net file descriptor.  If we do that, we can put the access back
-> into a user thread (or two) that stays in splice indefinetely
+> No, what I had in mind is adding a GET_SOCKET ioctl to tap.
+> vhost would then just use the socket.
 
-An issue with exposing internal threading model to userspace
-in this way is that we lose control of e.g. CPU locality -
-and it is very hard for userspace to get it right.
+Right, that would work with tun/tap at least. It sounds a bit fishy
+but I can't see a reason why it would be hard to do.
+I'd have to think about how to get it working with macvtap, or if
+there is much value left in macvtap after that anyway.
 
-> to
-> avoid some of the implications of kernel threads like the missing
-> ability to handle transfer errors in user space.
+> > So how about making the qemu command line interface an extension to
+> > what Or Gerlitz has done for the raw packet sockets?
+>
+> Not sure I see the connection, but I have not thought about qemu
+> side of things too much yet - trying to get kernel bits in place
+> first so that there's a stable ABI to work with.
 
-Are you talking about TCP here?
-Transfer errors are typically asynchronous - possibly eventfd
-as I expose for vhost net is sufficient there.
+Ok, fair enough. The kernel bits are obviously more time critical
+right now, since they should get into 2.6.32.
 
-> > I wonder - can we expose the underlying socket used by tap, or will that
-> > create complex lifetime issues?
-> 
-> I think this could get more messy in the long run than calling vfs_readv
-> on a random fd. It would mean deep internal knowledge of the tap driver
-> in vhost_net, which I really would prefer to avoid.
-
-No, what I had in mind is adding a GET_SOCKET ioctl to tap.
-vhost would then just use the socket.
-
-> > > * Each transport has a slightly different header, we have
-> > >   - raw ethernet frames (raw, udp multicast, tap)
-> > >   - 32-bit length + raw frames, possibly fragmented (tcp)
-> > >   - 80-bit header + raw frames, possibly fragmented (tap with vnet_hdr)
-> > >   To handle these three cases, we need either different ioctl numbers
-> > >   so that vhost_net can choose the right one, or a flags field in
-> > >   VHOST_NET_SET_SOCKET, like
-> > > 
-> > >   #define VHOST_NET_RAW		1
-> > >   #define VHOST_NET_LEN_HDR	2
-> > >   #define VHOST_NET_VNET_HDR	4
-> > > 
-> > >   struct vhost_net_socket {
-> > > 	unsigned int flags;
-> > > 	int fd;
-> > >   };
-> > >   #define VHOST_NET_SET_SOCKET _IOW(VHOST_VIRTIO, 0x30, struct vhost_net_socket)
-> > 
-> > It seems we can query the socket to find out the type, 
-> 
-> yes, I understand that you can do that, but I still think that decision
-> should be left to user space. Adding a length header for TCP streams but
-> not for UDP is something that we would normally want to do, but IMHO
-> vhost_net should not need to know about this.
-> 
-> > or use the features ioctl.
-> 
-> Right, I had forgotten about that one. It's probably equivalent
-> to the flags I suggested, except that one allows you to set features
-> after starting the communication, while the other one prevents
-> you from doing that.
-> 
-> > > Qemu could then automatically try to use vhost_net, if it's available
-> > > in the kernel, or just fall back on software vlan otherwise.
-> > > Does that make sense?
-> > 
-> > I agree, long term it should be enabled automatically when possible.
-> 
-> So how about making the qemu command line interface an extension to
-> what Or Gerlitz has done for the raw packet sockets?
-> 
-> 	Arnd <><
-
-Not sure I see the connection, but I have not thought about qemu
-side of things too much yet - trying to get kernel bits in place
-first so that there's a stable ABI to work with.
-
--- 
-MST
+	Arnd <><
