@@ -1,14 +1,15 @@
-From: Amit Shah <amit.shah@redhat.com>
-Subject: [PATCH v2 2/2] virtio_net: Use can_add_buf to test for enough room to
-	add
-Date: Wed, 19 Aug 2009 13:55:24 +0530
-Message-ID: <1250670324-8426-2-git-send-email-amit.shah@redhat.com>
-References: <1250670324-8426-1-git-send-email-amit.shah@redhat.com>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [PATCHv3 2/2] vhost_net: a kernel-level virtio server
+Date: Wed, 19 Aug 2009 11:04:50 +0200
+Message-ID: <200908191104.50672.arnd__6113.9301899404$1250672871$gmane$org@arndb.de>
+References: <cover.1250187913.git.mst@redhat.com>
+	<200908141340.36176.arnd@arndb.de>
+	<20090816065110.GA3008@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1250670324-8426-1-git-send-email-amit.shah@redhat.com>
+In-Reply-To: <20090816065110.GA3008@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,45 +19,79 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: rusty@rustcorp.com.au
-Cc: Amit Shah <amit.shah@redhat.com>, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, hpa@zytor.com, mingo@elte.hu, akpm@linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Use the can_add_buf virtqueue operation to test if
-there's room to add another buf to the queue.
+On Sunday 16 August 2009, Michael S. Tsirkin wrote:
+> On Fri, Aug 14, 2009 at 01:40:36PM +0200, Arnd Bergmann wrote:
+> > 
+> > * most of the transports are sockets, tap uses a character device.
+> >   This could be dealt with by having both a struct socket * in
+> >   struct vhost_net *and* a struct file *, or by always keeping the
+> >   struct file and calling vfs_readv/vfs_writev for the data transport
+> >   in both cases.
+> 
+> I am concerned that character devices might have weird side effects with
+> read/write operations and that calling them from kernel thread the way I
+> do might have security implications. Can't point at anything specific
+> though at the moment.
 
-Saves us one cycle of alloc-add-free if the queue
-was full.
+I understand your feelings about passing a chardev fd into your driver
+and I agree that we need to be very careful if we want to allow it.
 
-Signed-off-by: Amit Shah <amit.shah@redhat.com>
----
-v2:
-  convert usage in try_fill_recv() as well
+Maybe we could instead extend the 'splice' system call to work on a
+vhost_net file descriptor. If we do that, we can put the access back
+into a user thread (or two) that stays in splice indefinetely to
+avoid some of the implications of kernel threads like the missing
+ability to handle transfer errors in user space.
 
- drivers/net/virtio_net.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+> I wonder - can we expose the underlying socket used by tap, or will that
+> create complex lifetime issues?
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 2a6e81d..a93ca07 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -280,7 +280,7 @@ static void try_fill_recv_maxbufs(struct virtnet_info *vi)
- 	int num, err, i;
- 
- 	sg_init_table(sg, 2+MAX_SKB_FRAGS);
--	for (;;) {
-+	while (vi->rvq->vq_ops->can_add_buf(vi->rvq)) {
- 		struct virtio_net_hdr *hdr;
- 
- 		skb = netdev_alloc_skb(vi->dev, MAX_PACKET_LEN + NET_IP_ALIGN);
-@@ -338,7 +338,7 @@ static void try_fill_recv(struct virtnet_info *vi)
- 		return;
- 	}
- 
--	for (;;) {
-+	while (vi->rvq->vq_ops->can_add_buf(vi->rvq)) {
- 		skb_frag_t *f;
- 
- 		skb = netdev_alloc_skb(vi->dev, GOOD_COPY_LEN + NET_IP_ALIGN);
--- 
-1.6.2.5
+I think this could get more messy in the long run than calling vfs_readv
+on a random fd. It would mean deep internal knowledge of the tap driver
+in vhost_net, which I really would prefer to avoid.
+
+> > * Each transport has a slightly different header, we have
+> >   - raw ethernet frames (raw, udp multicast, tap)
+> >   - 32-bit length + raw frames, possibly fragmented (tcp)
+> >   - 80-bit header + raw frames, possibly fragmented (tap with vnet_hdr)
+> >   To handle these three cases, we need either different ioctl numbers
+> >   so that vhost_net can choose the right one, or a flags field in
+> >   VHOST_NET_SET_SOCKET, like
+> > 
+> >   #define VHOST_NET_RAW		1
+> >   #define VHOST_NET_LEN_HDR	2
+> >   #define VHOST_NET_VNET_HDR	4
+> > 
+> >   struct vhost_net_socket {
+> > 	unsigned int flags;
+> > 	int fd;
+> >   };
+> >   #define VHOST_NET_SET_SOCKET _IOW(VHOST_VIRTIO, 0x30, struct vhost_net_socket)
+> 
+> It seems we can query the socket to find out the type, 
+
+yes, I understand that you can do that, but I still think that decision
+should be left to user space. Adding a length header for TCP streams but
+not for UDP is something that we would normally want to do, but IMHO
+vhost_net should not need to know about this.
+
+> or use the features ioctl.
+
+Right, I had forgotten about that one. It's probably equivalent
+to the flags I suggested, except that one allows you to set features
+after starting the communication, while the other one prevents
+you from doing that.
+
+> > Qemu could then automatically try to use vhost_net, if it's available
+> > in the kernel, or just fall back on software vlan otherwise.
+> > Does that make sense?
+> 
+> I agree, long term it should be enabled automatically when possible.
+
+So how about making the qemu command line interface an extension to
+what Or Gerlitz has done for the raw packet sockets?
+
+	Arnd <><
