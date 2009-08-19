@@ -1,16 +1,17 @@
-From: Alex Williamson <alex.williamson@hp.com>
-Subject: Re: [PATCHv3 0/4] qemu-kvm: vhost net support
-Date: Tue, 18 Aug 2009 15:23:02 -0600
-Message-ID: <7162ab20908181423l65f30744vc9a968c0e546a361__25996.176157105$1250630663$gmane$org@mail.gmail.com>
-References: <20090817123701.GA10700@redhat.com>
-	<7162ab20908181354g653ecd2ch3b3dc36ca16babff@mail.gmail.com>
-	<20090818210411.GD20393@redhat.com>
-	<7162ab20908181411q4209d1f7v64b263712fd74852@mail.gmail.com>
+From: Herbert Xu <herbert@gondor.apana.org.au>
+Subject: Re: [PATCH 1/4] net: skb_orphan on dev_hard_start_xmit
+Date: Wed, 19 Aug 2009 13:19:26 +1000
+Message-ID: <20090819031926.GA17367__18496.1367551752$1250652030$gmane$org@gondor.apana.org.au>
+References: <20090704090910.GA2185@gondor.apana.org.au>
+	<20090705032658.GA7430@gondor.apana.org.au>
+	<20090705033408.GB7430@gondor.apana.org.au>
+	<20090817.184712.180559154.davem@davemloft.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <7162ab20908181411q4209d1f7v64b263712fd74852@mail.gmail.com>
+Content-Disposition: inline
+In-Reply-To: <20090817.184712.180559154.davem@davemloft.net>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,28 +21,51 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: avi@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: David Miller <davem@davemloft.net>
+Cc: patrick.ohly@intel.com, libertas-dev@lists.infradead.org, dcbw@redhat.com, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, rolandd@cisco.com, divy@chelsio.com, xemul@openvz.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gVHVlLCBBdWcgMTgsIDIwMDkgYXQgMzoxMSBQTSwgQWxleCBXaWxsaWFtc29uPGFsZXgud2ls
-bGlhbXNvbkBocC5jb20+IHdyb3RlOgo+IE9uIFR1ZSwgQXVnIDE4LCAyMDA5IGF0IDM6MDQgUE0s
-IE1pY2hhZWwgUy4gVHNpcmtpbjxtc3RAcmVkaGF0LmNvbT4gd3JvdGU6Cj4+IERpZCB5b3UgYXNz
-aWduIGlwIGFkZHJlc3MgaW4gaG9zdCBieSBhbnkgY2hhbmNlPyBZb3UgZG9uJ3Qgd2FudCB0aGF0
-Lgo+Cj4gTm9wZSwganVzdCB1cCBvbiB0aGUgaG9zdCwgbm8gSVA6Cj4KPiBldGgxMCDCoCDCoCBM
-aW5rIGVuY2FwOkV0aGVybmV0IMKgSFdhZGRyIDAwOjE3OmE0Ojc3OmE0OjA4Cj4gwqAgwqAgwqAg
-wqAgwqBpbmV0NiBhZGRyOiBmZTgwOjoyMTc6YTRmZjpmZTc3OmE0MDgvNjQgU2NvcGU6TGluawo+
-IMKgIMKgIMKgIMKgIMKgVVAgQlJPQURDQVNUIFJVTk5JTkcgTVVMVElDQVNUIMKgTVRVOjE1MDAg
-wqBNZXRyaWM6MQo+IMKgIMKgIMKgIMKgIMKgUlggcGFja2V0czoyMjQ0NjQ4NyBlcnJvcnM6MCBk
-cm9wcGVkOjAgb3ZlcnJ1bnM6MCBmcmFtZTowCj4gwqAgwqAgwqAgwqAgwqBUWCBwYWNrZXRzOjQ1
-MjkwMDggZXJyb3JzOjAgZHJvcHBlZDowIG92ZXJydW5zOjAgY2FycmllcjowCj4gwqAgwqAgwqAg
-wqAgwqBjb2xsaXNpb25zOjAgdHhxdWV1ZWxlbjoxMDAwCj4gwqAgwqAgwqAgwqAgwqBSWCBieXRl
-czoxNDkyMTg3NDUzICgxLjMgR2lCKSDCoFRYIGJ5dGVzOjI5NzI4MDYyMzYgKDIuNyBHaUIpCj4g
-wqAgwqAgwqAgwqAgwqBNZW1vcnk6ZmJhZTAwMDAtZmJiMDAwMDAKPgoKSG1tLCBJIGxvc2UgdGhl
-IGR1cGUgYW5kIGdldCBwcmV0dHkgcmVzcGVjdGFibGUgdGNwX3JyIHJhdGVzIGlmIEkgdXNlCnRo
-ZSBob3N0IGFzIG15IHRhcmdldCBJUCwgaXMgdGhlIGlzc3VlIG1heWJlIGlzb2xhdGVkIHRvIG9m
-Zi1ib3gKY29tbXVuaWNhdGlvbj8gIHRjcF9zdHJlYW0gaXMgc3RpbGwgd29yc2UgdGhhbiB1c2Vy
-c3BhY2UgdGhvdWdoLgoKQWxleApfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlz
-dHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eC1mb3VuZGF0aW9uLm9y
-Zy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+On Mon, Aug 17, 2009 at 06:47:12PM -0700, David Miller wrote:
+> 
+> I'm pretty sure that for normal TCP and UDP workloads, this is just
+> going to set the interrupt bit on the first packet that gets into the
+> queue, and then not in the rest.
+> 
+> TCP just loops over packets in the send queue, and at initial state
+> the qdisc will be empty.
+
+The scheme I actually tried on the e1000e is not quite the same
+as what I had here.  I'm basically just adding descriptors per
+usual.
+
+However, I don't give them to the hardware immediately.  Instead
+they're held back so that on average we have about three descriptors
+in the queue spaced equally that will cause interrupts.  It seems
+to work fairly well for netperf-generated TCP/UDP traffic in terms
+of generating the right amount of interrupts (once every qlen/3
+packets).
+
+I haven't posted anything yet because I ran into a weird problem
+with the e1000e.  It was generating a lot more interrupts than
+what I'm telling it to do.  Even if I hard-code the interrupts
+at 0, qlen/3, 2qlen/2 I still get way more than qlen/3 interrupts
+for qlen packets.
+
+This may be related to the fact that e1000e doesn't really have
+a way of turning the interrupts off for a given descriptor.  Well
+actually it does but it also turns off status reporting which means
+that we will never know whether that entry has finished processing.
+So I've had to rely on using its TX interrupt delay mechanism as an
+approximation of turning interrupt notification off.  Evidently that
+is not working in the way I intended it to.
+
+I'm in the process of repeating the same experiment with cxgb3
+which hopefully should let me turn interrupts off on descriptors
+while still reporting completion status.
+
+Cheers,
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
