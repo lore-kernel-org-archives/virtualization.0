@@ -1,17 +1,12 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCHv3 2/2] vhost_net: a kernel-level virtio server
-Date: Wed, 19 Aug 2009 17:20:38 +0300
-Message-ID: <20090819142038.GA3862__48898.5023381703$1250692056$gmane$org@redhat.com>
-References: <cover.1250187913.git.mst@redhat.com>
-	<200908191104.50672.arnd@arndb.de>
-	<20090819130417.GB3080@redhat.com>
-	<200908191546.44193.arnd@arndb.de>
+Subject: [PATCHv4 0/2] vhost: a kernel-level virtio server
+Date: Wed, 19 Aug 2009 18:00:29 +0300
+Message-ID: <20090819150029.GA4236__13302.8956399814$1250694193$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <200908191546.44193.arnd@arndb.de>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -21,117 +16,76 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, hpa@zytor.com, mingo@elte.hu, akpm@linux-foundation.org
+To: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, mingo@elte.hu, linux-mm@kvack.org, akpm@linux-founda
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Aug 19, 2009 at 03:46:44PM +0200, Arnd Bergmann wrote:
-> On Wednesday 19 August 2009, Michael S. Tsirkin wrote:
-> > > Maybe we could instead extend the 'splice' system call to work on a
-> > > vhost_net file descriptor.  If we do that, we can put the access back
-> > > into a user thread (or two) that stays in splice indefinetely
-> > 
-> > An issue with exposing internal threading model to userspace
-> > in this way is that we lose control of e.g. CPU locality -
-> > and it is very hard for userspace to get it right.
-> 
-> Good point, I hadn't thought about that in this context.
-> 
-> For macvtap, my idea was to open the same tap char device multiple
-> times and use each fd exclusively on one *guest* CPU. I'm not sure
-> if virtio-net can already handle SMP guests efficiently. We might
-> actually need to extend it to have more pairs of virtqueues, one
-> for each guest CPU, which can then be bound to a host queue (or queue
-> pair) in the physical nic.
-> 
-> Leaving that aside for now, you could replace VHOST_NET_SET_SOCKET,
-> VHOST_SET_OWNER, VHOST_RESET_OWNER
+Rusty, could you review and comment on the patches please?  Since most
+of the code deals with virtio from host side, I think it will make sense
+to merge them through your tree. What do you think?
 
-SET/RESET OWNER is still needed: otherwise if you share a descriptor
-with another process, it can corrupt your memory.
+One comment on placement: I put files under a separate vhost directory
+to avoid confusion with virtio-net which runs in guest.  Does this sound
+sane? If not let me know and I'll move them.
 
-> and your kernel thread with a new
-> VHOST_NET_SPLICE blocking ioctl that does all the transfers in the
-> context of the calling thread.
+Thanks!
 
-For one, you'd want a thread per virtqueue.  Second, an incoming traffic
-might arrive on another CPU, we want to keep it local.  I guess you
-would also want ioctls to wake up the threads spuriously ...
+---
 
-> This would improve the driver on various fronts:
-> 
-> - no need for playing tricks with use_mm/unuse_mm
-> - possibly fewer global TLB flushes from switch_mm, which
->   may improve performance.
+This implements vhost: a kernel-level backend for virtio,
+The main motivation for this work is to reduce virtualization
+overhead for virtio by removing system calls on data path,
+without guest changes. For virtio-net, this removes up to
+4 system calls per packet: vm exit for kick, reentry for kick,
+iothread wakeup for packet, interrupt injection for packet.
 
-Why would there be less flushes?
+This driver is as minimal as possible and does not implement any virtio
+optional features, but it's fully functional (including migration
+support), and already shows a latency improvement over userspace.
 
-> - ability to pass down error codes from socket or guest to
->   user space by returning from ioctl
+Some more detailed description attached to the patch itself.
 
-virtio can not pass error codes. translation errors are
-simple enough to just have a counter.
+The patches are against 2.6.31-rc4.  I'd like them to go into linux-next
+and down the road 2.6.32 if possible.  Please comment.
 
-> - based on that, the ability to use any kind of file
->   descriptor that can do writev/readv or sendmsg/recvmsg
->   without the nastiness you mentioned.
+Changelog from v3:
+- checkpatch fixes
 
-Yes, it's an interesting approach. As I said, need to tread very
-carefully though, I don't think all issues are figured out. For example:
-what happens if we pass our own fd here? Will refcount on file ever get
-to 0 on exit?  There may be others ...
+Changelog from v2:
+- Comments on RCU usage
+- Compat ioctl support
+- Make variable static
+- Copied more idiomatic english from Rusty
 
-> The disadvantage of course is that you need to add a user
-> thread for each guest device to make up for the workqueue
-> that you save.
+Changes from v1:
+- Move use_mm/unuse_mm from fs/aio.c to mm instead of copying.
+- Reorder code to avoid need for forward declarations
+- Kill a couple of debugging printks
 
-More importantly, you lose control of CPU locality.  Simply put, a
-natural threading model in virtualization is one thread per guest vcpu.
-Asking applications to add multiple helper threads just so they can
-block forever is wrong, IMO, as userspace has no idea which CPU
-they should be on, what priority to use, etc.
+Michael S. Tsirkin (2):
+  mm: export use_mm/unuse_mm to modules
+  vhost_net: a kernel-level virtio server
 
-
-> > > to
-> > > avoid some of the implications of kernel threads like the missing
-> > > ability to handle transfer errors in user space.
-> > 
-> > Are you talking about TCP here?
-> > Transfer errors are typically asynchronous - possibly eventfd
-> > as I expose for vhost net is sufficient there.
-> 
-> I mean errors in general if we allow random file descriptors to be used.
-> E.g. tun_chr_aio_read could return EBADFD, EINVAL, EFAULT, ERESTARTSYS,
-> EIO, EAGAIN and possibly others. We can handle some in kernel, others
-> should never happen with vhost_net, but if something unexpected happens
-> it would be nice to just bail out to user space.
-
-And note that there might be more than one error.  I guess, that's
-another problem with trying to layer on top of vfs.
-
-> > > > I wonder - can we expose the underlying socket used by tap, or will that
-> > > > create complex lifetime issues?
-> > > 
-> > > I think this could get more messy in the long run than calling vfs_readv
-> > > on a random fd. It would mean deep internal knowledge of the tap driver
-> > > in vhost_net, which I really would prefer to avoid.
-> > 
-> > No, what I had in mind is adding a GET_SOCKET ioctl to tap.
-> > vhost would then just use the socket.
-> 
-> Right, that would work with tun/tap at least. It sounds a bit fishy
-> but I can't see a reason why it would be hard to do.
-> I'd have to think about how to get it working with macvtap, or if
-> there is much value left in macvtap after that anyway.
-> 
-> > > So how about making the qemu command line interface an extension to
-> > > what Or Gerlitz has done for the raw packet sockets?
-> >
-> > Not sure I see the connection, but I have not thought about qemu
-> > side of things too much yet - trying to get kernel bits in place
-> > first so that there's a stable ABI to work with.
-> 
-> Ok, fair enough. The kernel bits are obviously more time critical
-> right now, since they should get into 2.6.32.
-> 
-> 	Arnd <><
+ MAINTAINERS                 |   10 +
+ arch/x86/kvm/Kconfig        |    1 +
+ drivers/Makefile            |    1 +
+ drivers/vhost/Kconfig       |   11 +
+ drivers/vhost/Makefile      |    2 +
+ drivers/vhost/net.c         |  429 ++++++++++++++++++++++++++++
+ drivers/vhost/vhost.c       |  664 +++++++++++++++++++++++++++++++++++++++++++
+ drivers/vhost/vhost.h       |  108 +++++++
+ fs/aio.c                    |   47 +---
+ include/linux/Kbuild        |    1 +
+ include/linux/miscdevice.h  |    1 +
+ include/linux/mmu_context.h |    9 +
+ include/linux/vhost.h       |  100 +++++++
+ mm/Makefile                 |    2 +-
+ mm/mmu_context.c            |   58 ++++
+ 15 files changed, 1397 insertions(+), 47 deletions(-)
+ create mode 100644 drivers/vhost/Kconfig
+ create mode 100644 drivers/vhost/Makefile
+ create mode 100644 drivers/vhost/net.c
+ create mode 100644 drivers/vhost/vhost.c
+ create mode 100644 drivers/vhost/vhost.h
+ create mode 100644 include/linux/mmu_context.h
+ create mode 100644 include/linux/vhost.h
+ create mode 100644 mm/mmu_context.c
