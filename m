@@ -1,14 +1,15 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH 0/3] qemu-kvm: vhost net support
-Date: Thu, 20 Aug 2009 16:49:47 +0930
-Message-ID: <200908201649.48082.rusty__19893.4912602001$1250752846$gmane$org@rustcorp.com.au>
-References: <20090810192304.GA16781@redhat.com> <4A808840.70704@codemonkey.ws>
-	<20090812173548.GA29981@redhat.com>
+Subject: Re: [PATCH 2/2] vhost_net: a kernel-level virtio server
+Date: Thu, 20 Aug 2009 16:55:48 +0930
+Message-ID: <200908201655.48779.rusty__36663.4461367086$1250753195$gmane$org@rustcorp.com.au>
+References: <cover.1249930169.git.mst@redhat.com>
+	<20090813144129.GB5080@redhat.com>
+	<200908131653.47029.arnd@arndb.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20090812173548.GA29981@redhat.com>
+In-Reply-To: <200908131653.47029.arnd@arndb.de>
 Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -20,21 +21,24 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: virtualization@lists.linux-foundation.org
-Cc: kvm@vger.kernel.org, avi@redhat.com, Anthony Liguori <anthony@codemonkey.ws>, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Arnd Bergmann <arnd@arndb.de>, kvm@vger.kernel.org, "Ira W. Snyder" <iws@ovro.caltech.edu>, netdev@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 13 Aug 2009 03:05:48 am Michael S. Tsirkin wrote:
-> On Mon, Aug 10, 2009 at 03:51:12PM -0500, Anthony Liguori wrote:
-> > Any rough idea on performance?  Better or worse than userspace?
+On Fri, 14 Aug 2009 12:23:46 am Arnd Bergmann wrote:
+> On Thursday 13 August 2009, Michael S. Tsirkin wrote:
+> > The best way to do this IMO would be to add zero copy support to raw
+> > sockets, vhost will then get it basically for free.
 > 
-> Well, I definitely see some gain in latency.
-...
-> Part of it might be that tx mitigation does not come into play with vhost. I
-> need to disable it in qemu and see.
+> Yes, that would be nice. I wonder if that could lead to security
+> problems on TX though. I guess It will only bring significant performance
+> improvements if we leave the data writable in the user space or guest
+> during the operation. If the user finds the right timing, it could
+> modify the frame headers after they have been checked using netfilter,
+> or while the frames are being consumed in the kernel (e.g. an NFS
+> server running in a guest).
 
-A simple test I've found reasonably indicative when looking at base performance (before stuff like TSO get involved) is to do pings.  Throughput with "ping -s 1024 -l 120 -c 1000000 -f -q" and latency with "ping -c 1000000 -f -q".
-
-(You may need to cut -l down if your ring is too small).
+For this reason, we always linearize parts of packets we're filtering.
+ie. copy.
 
 Cheers,
 Rusty.
