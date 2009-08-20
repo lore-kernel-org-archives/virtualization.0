@@ -1,17 +1,15 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
+From: Arnd Bergmann <arnd@arndb.de>
 Subject: Re: [PATCHv3 2/2] vhost_net: a kernel-level virtio server
-Date: Thu, 20 Aug 2009 11:31:55 +0300
-Message-ID: <20090820083155.GB5448__10757.378236349$1250757293$gmane$org@redhat.com>
+Date: Thu, 20 Aug 2009 15:10:54 +0200
+Message-ID: <200908201510.54482.arnd__23255.4667666138$1250774115$gmane$org@arndb.de>
 References: <cover.1250187913.git.mst@redhat.com>
-	<200908191546.44193.arnd@arndb.de>
-	<20090819142038.GA3862@redhat.com>
 	<200908191727.07681.arnd@arndb.de>
+	<20090820083155.GB5448@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <200908191727.07681.arnd@arndb.de>
+In-Reply-To: <20090820083155.GB5448@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -21,160 +19,139 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Arnd Bergmann <arnd@arndb.de>
+To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, hpa@zytor.com, mingo@elte.hu, akpm@linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Aug 19, 2009 at 05:27:07PM +0200, Arnd Bergmann wrote:
-> On Wednesday 19 August 2009, Michael S. Tsirkin wrote:
-> > On Wed, Aug 19, 2009 at 03:46:44PM +0200, Arnd Bergmann wrote:
-> > > On Wednesday 19 August 2009, Michael S. Tsirkin wrote:
-> > >
-> > > Leaving that aside for now, you could replace VHOST_NET_SET_SOCKET,
-> > > VHOST_SET_OWNER, VHOST_RESET_OWNER
-> > 
-> > SET/RESET OWNER is still needed: otherwise if you share a descriptor
-> > with another process, it can corrupt your memory.
-> 
-> How? The point of using user threads is that you only ever access the
-> address space of the thread that called the ioctl.
-
-Think about this example with processes A and B sharing an fd:
-A does SET_USED_ADDRESS
-B does SET_USED_ADDRESS
-A does VHOST_NET_SPLICE
-See how stuff gets written into a random place in memory of A?
-
-> > > and your kernel thread with a new
-> > > VHOST_NET_SPLICE blocking ioctl that does all the transfers in the
-> > > context of the calling thread.
-> > 
-> > For one, you'd want a thread per virtqueue.
-> 
-> Don't understand why. The thread can be blocked on all four ends
-> of the device and wake up whenever there is some work do to in
-> any direction. If we have data to be transferred in both ways,
-> we save one thread switch. It probably won't hurt much to have one
-> thread per direction, but I don't see the point.
-> > Second, an incoming traffic might arrive on another CPU, we want
-> > to keep it local.  I guess you would also want ioctls to wake up
-> > the threads spuriously ...
-> 
-> Outbound traffic should just stay on whatever CPU was sending it
-> from the guest. For inbound traffic, we should only wake up
-> the thread on the CPU that got the data to start with.
-
-Exactly. Since we have RX and TX virtqueues, this would mean thread per
-direction or virtqueue, same thing. OTOH if RX and TX happen to run on the
-same CPU, thread switch would be just a waste of time: but userspace
-does not know it, only guest and kernel know.
-
-> Why would I wake up the threads spuriously? Do you mean for
-> stopping the transmission or something else? I guess a pthread_kill
-> would be enough for shutting it down.
-
-If you kill and restart them you lost priority etc parameters, but maybe.
-
-> > > This would improve the driver on various fronts:
+On Thursday 20 August 2009, Michael S. Tsirkin wrote:
+> On Wed, Aug 19, 2009 at 05:27:07PM +0200, Arnd Bergmann wrote:
+> > On Wednesday 19 August 2009, Michael S. Tsirkin wrote:
+> > > On Wed, Aug 19, 2009 at 03:46:44PM +0200, Arnd Bergmann wrote:
+> > > > On Wednesday 19 August 2009, Michael S. Tsirkin wrote:
+> > > >
+> > > > Leaving that aside for now, you could replace VHOST_NET_SET_SOCKET,
+> > > > VHOST_SET_OWNER, VHOST_RESET_OWNER
 > > > 
-> > > - no need for playing tricks with use_mm/unuse_mm
-> > > - possibly fewer global TLB flushes from switch_mm, which
-> > >   may improve performance.
+> > > SET/RESET OWNER is still needed: otherwise if you share a descriptor
+> > > with another process, it can corrupt your memory.
 > > 
-> > Why would there be less flushes?
+> > How? The point of using user threads is that you only ever access the
+> > address space of the thread that called the ioctl.
 > 
-> I just read up on task->active_mm handling. There probably wouldn't
-> be any. I got that wrong.
+> Think about this example with processes A and B sharing an fd:
+> A does SET_USED_ADDRESS
+> B does SET_USED_ADDRESS
+> A does VHOST_NET_SPLICE
+> See how stuff gets written into a random place in memory of A?
+
+Yes, I didn't think of that. It doesn't seem like a big problem
+though, because it's a clear misuse of the API (I guess your
+current code returns an error for one of the SET_USED_ADDRESS
+ioctls), so I would see it as a classic garbage-in garbage-out
+case.
+
+It may even work in the case that the sharing of the fd resulted
+from a fork, where the address contains the same buffer in both
+processes. I can't think of a reason why you would want to use
+it like that though.
+
+> > Why would I wake up the threads spuriously? Do you mean for
+> > stopping the transmission or something else? I guess a pthread_kill
+> > would be enough for shutting it down.
 > 
-> > > - based on that, the ability to use any kind of file
-> > >   descriptor that can do writev/readv or sendmsg/recvmsg
-> > >   without the nastiness you mentioned.
+> If you kill and restart them you lost priority etc parameters, but maybe.
+
+If you want to restart it, just send a nonfatal signal (SIGUSR1,
+SIGRTMIN, ...) instead of a SIGKILL.
+
+> > > More importantly, you lose control of CPU locality.  Simply put, a
+> > > natural threading model in virtualization is one thread per guest vcpu.
+> > > Asking applications to add multiple helper threads just so they can
+> > > block forever is wrong, IMO, as userspace has no idea which CPU
+> > > they should be on, what priority to use, etc.
 > > 
-> > Yes, it's an interesting approach. As I said, need to tread very
-> > carefully though, I don't think all issues are figured out. For example:
-> > what happens if we pass our own fd here? Will refcount on file ever get
-> > to 0 on exit?  There may be others ...
+> > But the kernel also doesn't know this, you get the same problem in
+> > another way. If you have multiple guests running at different priorities,
+> > the kernel will use those priorities to do the more important transfers
+> > first, while with a global workqueue every guest gets the same priority.
 > 
-> right.
+> We could create more threads if this becomes a problem. I just think it
+> should be transparent to userspace. Possibly it's useful to look at the
+> packet header as well to decide on priority: this is something userspace
+> can't do.
+
+Being transparent to user space would be nice, I agree. Letting user space
+choose would also be nice, e.g. if you want to distribute eight available
+hardware queue pairs to three guests in a non-obvious way. The
+implementation depends to some degree on how we want to do multiqueue
+RX/TX in virtio-net in the long run. For best cache locality and NUMA
+behaviour, we might want to have one virtqueue per guest CPU and control
+them independently from the host.
+
+Priorities of the packets are dealt with in the packet scheduler for
+external interfaces, I guess that is sufficient. I'm not sure if we
+need to honor the same priorities for guest-to-guest communication,
+my feeling is that we don't need to.
+
+> > You say that the natural model is to have one thread per guest
+> > CPU,
 > 
-> > > The disadvantage of course is that you need to add a user
-> > > thread for each guest device to make up for the workqueue
-> > > that you save.
+> Sorry I was not clear. I think userspace should create thread per guest.
+> We can create as many as we need for networking but I think this should
+> be behind the scenes, so userspace shouldn't bother with host CPUs, it
+> will just get it wrong. Think of CPU hotplug, interrupts migrating
+> between CPUs, etc ...
+
+Yes, I hope we can avoid letting qemu know about host CPUs.
+I'm not sure we can avoid it completely, because something needs
+to set physical IRQ affinity and such for the virtual devices
+if you want to get the best locality.
+
+> > but you have a thread per host CPU instead. If the numbers
+> > are different, you probably lose either way.
+> 
+> The trick I used is to keep as much as possible local
+> TX done on the CPU that runs the guest,
+> RX done on the CPU that runs the NIC interrupt.
+> a smart SMP guest sees which cpu gets interrupts
+> from NIC and schedules RX there, and it shouldn't matter
+> if the numbers of CPUs are different.
+
+yes, that sounds good.
+
+> > It gets worse if you try to apply NUMA policies.
+> 
+> I believe the best we could do is avoid switching CPUs
+> until we know the actual destination.
+
+My point is that the RX data in the guest address space
+should be on the same NUMA node that gets the interrupt.
+
+> > > And note that there might be more than one error.  I guess, that's
+> > > another problem with trying to layer on top of vfs.
 > > 
-> > More importantly, you lose control of CPU locality.  Simply put, a
-> > natural threading model in virtualization is one thread per guest vcpu.
-> > Asking applications to add multiple helper threads just so they can
-> > block forever is wrong, IMO, as userspace has no idea which CPU
-> > they should be on, what priority to use, etc.
+> > Why is that different from any other system call?
 > 
-> But the kernel also doesn't know this, you get the same problem in
-> another way. If you have multiple guests running at different priorities,
-> the kernel will use those priorities to do the more important transfers
-> first, while with a global workqueue every guest gets the same priority.
+> With other system calls nothing happens while you process the error.
+> Here, the guest (other queues) and the network keep running (unless
+> there is a thread per queue, maybe we can block a queue, but we both
+> agreed above we don't want that).
 
-We could create more threads if this becomes a problem. I just think it
-should be transparent to userspace. Possibly it's useful to look at the
-packet header as well to decide on priority: this is something userspace
-can't do.
+Well, I would expect error conditions to be fatal for the connections
+normally, so blocking the queue is totally fine here IMHO. The ioctl
+would never return while a guest is running and connected to a
+working NIC.
 
-> You say that the natural model is to have one thread per guest
-> CPU,
-
-Sorry I was not clear. I think userspace should create thread per guest.
-We can create as many as we need for networking but I think this should
-be behind the scenes, so userspace shouldn't bother with host CPUs, it
-will just get it wrong. Think of CPU hotplug, interrupts migrating
-between CPUs, etc ...
-
-> but you have a thread per host CPU instead. If the numbers
-> are different, you probably lose either way.
-
-The trick I used is to keep as much as possible local
-TX done on the CPU that runs the guest,
-RX done on the CPU that runs the NIC interrupt.
-a smart SMP guest sees which cpu gets interrupts
-from NIC and schedules RX there, and it shouldn't matter
-if the numbers of CPUs are different.
-
-> It gets worse if you try to apply NUMA policies.
-
-I believe the best we could do is avoid switching CPUs
-until we know the actual destination.
-
-> > > > > to
-> > > > > avoid some of the implications of kernel threads like the missing
-> > > > > ability to handle transfer errors in user space.
-> > > > 
-> > > > Are you talking about TCP here?
-> > > > Transfer errors are typically asynchronous - possibly eventfd
-> > > > as I expose for vhost net is sufficient there.
-> > > 
-> > > I mean errors in general if we allow random file descriptors to be used.
-> > > E.g. tun_chr_aio_read could return EBADFD, EINVAL, EFAULT, ERESTARTSYS,
-> > > EIO, EAGAIN and possibly others. We can handle some in kernel, others
-> > > should never happen with vhost_net, but if something unexpected happens
-> > > it would be nice to just bail out to user space.
-> > 
-> > And note that there might be more than one error.  I guess, that's
-> > another problem with trying to layer on top of vfs.
+> > We just return when
+> > we hit the first error condition.
 > 
-> Why is that different from any other system call?
+> If you assume losing the code for the second error condition is OK, why
+> is the first one so important?  That's why I used a counter (eventfd)
+> per virtqueue, on error userspace can scan the ring and poll the socket
+> and discover what's wrong, and counter ensures we can detect that error
+> happened while we were not looking.
 
-With other system calls nothing happens while you process the error.
-Here, the guest (other queues) and the network keep running (unless
-there is a thread per queue, maybe we can block a queue, but we both
-agreed above we don't want that).
+I guess we were talking about different kinds of errors here, and I'm
+still not sure which one you are talking about.
 
-> We just return when
-> we hit the first error condition.
-> 
-> 	Arnd <><
-
-If you assume losing the code for the second error condition is OK, why
-is the first one so important?  That's why I used a counter (eventfd)
-per virtqueue, on error userspace can scan the ring and poll the socket
-and discover what's wrong, and counter ensures we can detect that error
-happened while we were not looking.
-
--- 
-MST
+	Arnd <><
