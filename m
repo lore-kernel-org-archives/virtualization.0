@@ -1,15 +1,15 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [PATCHv3 2/2] vhost_net: a kernel-level virtio server
-Date: Wed, 19 Aug 2009 17:27:07 +0200
-Message-ID: <200908191727.07681.arnd__38435.6058821597$1250695800$gmane$org@arndb.de>
-References: <cover.1250187913.git.mst@redhat.com>
-	<200908191546.44193.arnd@arndb.de>
-	<20090819142038.GA3862@redhat.com>
+From: Simon Horman <horms@verge.net.au>
+Subject: Re: [PATCH] dm-ioband-v1.12.3: I/O bandwidth controller
+Date: Thu, 20 Aug 2009 12:37:41 +1000
+Message-ID: <20090820023740.GA12528__36476.8534237102$1250735920$gmane$org@verge.net.au>
+References: <20090731.130333.104034609.ryov@valinux.co.jp>
+	<20090807.103640.104065157.ryov@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20090819142038.GA3862@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <20090807.103640.104065157.ryov@valinux.co.jp>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,107 +19,30 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, hpa@zytor.com, mingo@elte.hu, akpm@linux-foundation.org
+To: Ryo Tsuruta <ryov@valinux.co.jp>
+Cc: xen-devel@lists.xensource.com, containers@lists.linux-foundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, dm-devel@redhat.com, agk@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wednesday 19 August 2009, Michael S. Tsirkin wrote:
-> On Wed, Aug 19, 2009 at 03:46:44PM +0200, Arnd Bergmann wrote:
-> > On Wednesday 19 August 2009, Michael S. Tsirkin wrote:
-> >
-> > Leaving that aside for now, you could replace VHOST_NET_SET_SOCKET,
-> > VHOST_SET_OWNER, VHOST_RESET_OWNER
+On Fri, Aug 07, 2009 at 10:36:40AM +0900, Ryo Tsuruta wrote:
+> Hi Alasdair,
 > 
-> SET/RESET OWNER is still needed: otherwise if you share a descriptor
-> with another process, it can corrupt your memory.
-
-How? The point of using user threads is that you only ever access the
-address space of the thread that called the ioctl.
-
-> > and your kernel thread with a new
-> > VHOST_NET_SPLICE blocking ioctl that does all the transfers in the
-> > context of the calling thread.
-> 
-> For one, you'd want a thread per virtqueue.
-
-Don't understand why. The thread can be blocked on all four ends
-of the device and wake up whenever there is some work do to in
-any direction. If we have data to be transferred in both ways,
-we save one thread switch. It probably won't hurt much to have one
-thread per direction, but I don't see the point.
-
-> Second, an incoming traffic might arrive on another CPU, we want
-> to keep it local.  I guess you would also want ioctls to wake up
-> the threads spuriously ...
-
-Outbound traffic should just stay on whatever CPU was sending it
-from the guest. For inbound traffic, we should only wake up
-the thread on the CPU that got the data to start with.
-
-Why would I wake up the threads spuriously? Do you mean for
-stopping the transmission or something else? I guess a pthread_kill
-would be enough for shutting it down.
-
-> > This would improve the driver on various fronts:
+> Ryo Tsuruta <ryov@valinux.co.jp> wrote:
+> > Hi Alasdair,
 > > 
-> > - no need for playing tricks with use_mm/unuse_mm
-> > - possibly fewer global TLB flushes from switch_mm, which
-> >   may improve performance.
-> 
-> Why would there be less flushes?
-
-I just read up on task->active_mm handling. There probably wouldn't
-be any. I got that wrong.
-
-> > - based on that, the ability to use any kind of file
-> >   descriptor that can do writev/readv or sendmsg/recvmsg
-> >   without the nastiness you mentioned.
-> 
-> Yes, it's an interesting approach. As I said, need to tread very
-> carefully though, I don't think all issues are figured out. For example:
-> what happens if we pass our own fd here? Will refcount on file ever get
-> to 0 on exit?  There may be others ...
-
-right.
-
-> > The disadvantage of course is that you need to add a user
-> > thread for each guest device to make up for the workqueue
-> > that you save.
-> 
-> More importantly, you lose control of CPU locality.  Simply put, a
-> natural threading model in virtualization is one thread per guest vcpu.
-> Asking applications to add multiple helper threads just so they can
-> block forever is wrong, IMO, as userspace has no idea which CPU
-> they should be on, what priority to use, etc.
-
-But the kernel also doesn't know this, you get the same problem in
-another way. If you have multiple guests running at different priorities,
-the kernel will use those priorities to do the more important transfers
-first, while with a global workqueue every guest gets the same priority.
-
-You say that the natural model is to have one thread per guest
-CPU, but you have a thread per host CPU instead. If the numbers
-are different, you probably lose either way. It gets worse if you
-try to apply NUMA policies.
- 
-> > > > to
-> > > > avoid some of the implications of kernel threads like the missing
-> > > > ability to handle transfer errors in user space.
-> > > 
-> > > Are you talking about TCP here?
-> > > Transfer errors are typically asynchronous - possibly eventfd
-> > > as I expose for vhost net is sufficient there.
+> > This is dm-ioband v1.12.3 release that is a minor update to avoid
+> > sparse warnings other than related to the event tracing. (I used
+> > sparse-2009-07-29.)
 > > 
-> > I mean errors in general if we allow random file descriptors to be used.
-> > E.g. tun_chr_aio_read could return EBADFD, EINVAL, EFAULT, ERESTARTSYS,
-> > EIO, EAGAIN and possibly others. We can handle some in kernel, others
-> > should never happen with vhost_net, but if something unexpected happens
-> > it would be nice to just bail out to user space.
+> > This patch can be applied to the current dm-devel tree and 2.6.31-rc4,
+> > so could you please replace dm-add-ioband.patch in your tree with this?
+> > And I would appreciate it if you would let me know your thoughts about
+> > merging dm-ioband to upstream.
 > 
-> And note that there might be more than one error.  I guess, that's
-> another problem with trying to layer on top of vfs.
+> The dm-ioband patch in the dm-devel tree is still older. Could you
+> please update it with the new patch? And could you please let me know
+> your thoughts about dm-ioband?
 
-Why is that different from any other system call? We just return when
-we hit the first error condition.
+Hi Alasdiar,
 
-	Arnd <><
+I'm wondering if you see any problems with merging dm-ioband at this time.
+I'm eager to address any such concerns.
