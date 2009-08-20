@@ -1,16 +1,19 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH 0/3] qemu-kvm: vhost net support
-Date: Thu, 20 Aug 2009 20:00:28 +0300
-Message-ID: <20090820170028.GA8908__7872.91282690621$1250787941$gmane$org@redhat.com>
-References: <20090810192304.GA16781@redhat.com> <4A808840.70704@codemonkey.ws>
-	<20090812173548.GA29981@redhat.com>
-	<200908201649.48082.rusty@rustcorp.com.au>
+From: Jamie Lokier <jamie@shareable.org>
+Subject: Re: [Qemu-devel] Re: virtio-serial: An interface for host-guest
+	communication
+Date: Thu, 20 Aug 2009 18:10:18 +0100
+Message-ID: <20090820171018.GA2370__42549.0543283106$1250788529$gmane$org@shareable.org>
+References: <20090806173740.GA1178@shareable.org>
+	<4A856B5E.2000303@redhat.com> <4A858FFC.7000607@codemonkey.ws>
+	<200908201701.30467.rusty@rustcorp.com.au>
+	<4A8CFEDD.4000009@redhat.com>
+	<20090820075539.GA5876@amit-x200.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <200908201649.48082.rusty@rustcorp.com.au>
+In-Reply-To: <20090820075539.GA5876@amit-x200.redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,64 +23,41 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: kvm@vger.kernel.org, avi@redhat.com, Anthony Liguori <anthony@codemonkey.ws>, virtualization@lists.linux-foundation.org
+To: Amit Shah <amit.shah@redhat.com>
+Cc: virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, qemu-devel@nongnu.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Aug 20, 2009 at 04:49:47PM +0930, Rusty Russell wrote:
-> On Thu, 13 Aug 2009 03:05:48 am Michael S. Tsirkin wrote:
-> > On Mon, Aug 10, 2009 at 03:51:12PM -0500, Anthony Liguori wrote:
-> > > Any rough idea on performance?  Better or worse than userspace?
-> > 
-> > Well, I definitely see some gain in latency.
-> ...
-> > Part of it might be that tx mitigation does not come into play with vhost. I
-> > need to disable it in qemu and see.
+Amit Shah wrote:
+> > I think strings are better as numbers for identifying protocols as you  
+> > can work without a central registry for the numbers then.
 > 
-> A simple test I've found reasonably indicative when looking at base performance (before stuff like TSO get involved) is to do pings.  Throughput with "ping -s 1024 -l 120 -c 1000000 -f -q" and latency with "ping -c 1000000 -f -q".
-> 
-> (You may need to cut -l down if your ring is too small).
-> 
-> Cheers,
-> Rusty.
+> I like the way assigned numbers work: it's simpler to code, needs a
+> bitmap for all the ports that fits in nicely in the config space and
+> udev rules / scripts can point /dev/vmch02 to /dev/console.
 
-Surprisingly, I seem to get better-than-userspace throughput with this
-benchmark as well.  Here's a test run locally, host-to-guest,
-over a veth link:
+How would a third party go about assigning themselves a number?
 
-vhost:
-[root@qus19 ~]# ping -c 1000000 -f -q 11.0.0.4
-PING 11.0.0.4 (11.0.0.4) 56(84) bytes of data.
+For the sake of example, imagine they develop a simple service like
+"guesttop" which let's the host get a listing of guest processes.
 
---- 11.0.0.4 ping statistics ---
-1000000 packets transmitted, 1000000 received, 0% packet loss, time 10230ms
-rtt min/avg/max/mdev = 0.005/0.006/0.035/0.000 ms, ipg/ewma 0.010/0.006 ms
-[root@qus19 ~]# ping -s 1024 -l 120 -c 1000000 -f -q 11.0.0.4
-PING 11.0.0.4 (11.0.0.4) 1024(1052) bytes of data.
+They'll have to distributed app-specific udev rule patches for every
+guest distro, which sounds like a lot of work.  The app itself is
+probably a very simple C program; the hardest part of making it
+portable across distros would be the udev rules, which is silly.
 
---- 11.0.0.4 ping statistics ---
-1000000 packets transmitted, 1000000 received, 0% packet loss, time 11270ms
-rtt min/avg/max/mdev = 0.006/0.006/0.022/0.002 ms, pipe 120, ipg/ewma 0.011/0.007 ms
+Anyway, every other device has a name or uuid these days.  You can
+still use /dev/sda1 to refer to your boot partition, but LABEL=boot is
+also available if you prefer.  Isn't that the ethos these days?
 
-qemu:
+Why not both?  /dev/vmch05 if you prefer, plus symlink
+/dev/vmch-guesttop -> /dev/vmch05 if name=guesttop was given to QEMU.
 
-[root@qus19 ~]# ping -c 1000000 -f -q 12.0.0.2
-PING 12.0.0.2 (12.0.0.2) 56(84) bytes of data.
+If you do stay with numbers only, note that it's not like TCP/UDP port
+numbers because the number space is far smaller.  Picking a random
+number that you hope nobody else uses is harder.
 
---- 12.0.0.2 ping statistics ---
-1000000 packets transmitted, 1000000 received, 0% packet loss, time 59974ms
-rtt min/avg/max/mdev = 0.025/0.044/8.076/0.012 ms, pipe 2, ipg/ewma 0.059/0.045 ms
+... Back to technical bits.  If config space is tight, use a channel!
+Dedicate channel 0 to control, used to fetch the name (if there is
+one) for each number.
 
-[root@qus19 ~]# ping -s 1024 -l 120 -c 1000000 -f -q 12.0.0.2
-PING 12.0.0.2 (12.0.0.2) 1024(1052) bytes of data.
-
---- 12.0.0.2 ping statistics ---
-1000000 packets transmitted, 833496 received, 16% packet loss, time 38841ms
-rtt min/avg/max/mdev = 0.133/4.482/9.728/0.771 ms, pipe 120, ipg/ewma 0.038/4.144 ms
-
-Will try over an external link next week when I get access to
-a back-to-back setup (don't want to bother with external
-switches at this point).
-
--- 
-MST
+-- Jamie
