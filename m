@@ -1,21 +1,22 @@
-From: Amit Shah <amit.shah@redhat.com>
+From: "Daniel P. Berrange" <berrange@redhat.com>
 Subject: Re: [Qemu-devel] Re: virtio-serial: An interface for host-guest
 	communication
-Date: Thu, 20 Aug 2009 19:12:41 +0530
-Message-ID: <20090820134241.GA19395__20361.0812816352$1250775943$gmane$org@amit-x200.redhat.com>
-References: <4A7C36D3.3040305@codemonkey.ws>
-	<20090810065508.GA4499@amit-x200.redhat.com>
+Date: Thu, 20 Aug 2009 15:25:09 +0100
+Message-ID: <20090820142509.GD27710@redhat.com>
+References: <20090810065508.GA4499@amit-x200.redhat.com>
 	<4A7FECCA.8080804@redhat.com> <4A801A7B.1020208@codemonkey.ws>
 	<4A80287C.7050400@redhat.com> <4A802CA7.9020701@codemonkey.ws>
 	<4A803E07.7080407@redhat.com> <4A8051F3.7040400@codemonkey.ws>
 	<20090814081518.GA7418@amit-x200.redhat.com>
 	<4A8566B8.8030808@codemonkey.ws>
+	<20090820134241.GA19395@amit-x200.redhat.com>
+Reply-To: "Daniel P. Berrange" <berrange@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <4A8566B8.8030808@codemonkey.ws>
+In-Reply-To: <20090820134241.GA19395@amit-x200.redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -25,85 +26,46 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Anthony Liguori <anthony@codemonkey.ws>
-Cc: virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, qemu-devel@nongnu.org
+To: Amit Shah <amit.shah@redhat.com>
+Cc: kvm@vger.kernel.org, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Anthony Liguori <anthony@codemonkey.ws>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On (Fri) Aug 14 2009 [08:29:28], Anthony Liguori wrote:
-> Amit Shah wrote:
->> On (Mon) Aug 10 2009 [11:59:31], Anthony Liguori wrote:
->>   
->>> However, as I've mentioned repeatedly, the reason I won't merge   
->>> virtio-serial is that it duplicates functionality with 
->>> virtio-console.   If the two are converged, I'm happy to merge it.  
->>> I'm not opposed to  having more functionality.
->>>     
->>
->> The guest code sort-of ends up looking like this after merging
->> virtio_console into virtio_serial. Diff is against virtio_serial in my
->> git tree, but that should be pretty close to the last submission I made
->> at
->>
->> http://patchwork.kernel.org/patch/39335/
->>
->> or the tree at
->>
->> git://git.kernel.org/pub/scm/linux/kernel/git/amit/vs-kernel.git
->>
->> I've merged bits from virtio_console.c into virtio_serial.c. If needed,
->> virtio_serial can be renamed to virtio_console. The VIRITIO_ID also
->> needs to change to that of virtio_console's.
->>
->> Similar changes are needed for userspace.
->>
->> Since there's support for only one console as of now, I've assigned port
->> #2 as the console port so that we hook into hvc when a port is found at
->> that location.
->>
->> One issue that crops up for put_chars: a copy of the buffer to be sent
->> has to be made as we don't wait for host to ack the buffer before we
->> move on.
->>
->> The biggest loss so far is Rusty's excellent comments: they will have to
->> be reworked and added for the whole of the new file.
->>
->> Is this approach acceptable?
->>   
->
-> I think we want to keep virtio_console.c and definitely continue using  
-> the virtio_console id.
+On Thu, Aug 20, 2009 at 07:12:41PM +0530, Amit Shah wrote:
+> 
+> I've now seen some more code here and to me it looks like virtioconsole
+> is not used on any of the guests that qemu supports. The virtio_console
+> kernel module only works with lguest and s390 currently. There is one
+> feature and some config values supported by the kernel module but not in
+> qemu.
+> 
+> So it looks as if we have virtio-console merged but no one uses it. Is
+> this right?
 
-I've now seen some more code here and to me it looks like virtioconsole
-is not used on any of the guests that qemu supports. The virtio_console
-kernel module only works with lguest and s390 currently. There is one
-feature and some config values supported by the kernel module but not in
-qemu.
+Nope. Grab a Fedora 11 live CD, and boot with
 
-So it looks as if we have virtio-console merged but no one uses it. Is
-this right?
+  # qemu-kvm -virtioconsole stdio -cdrom Fedora-11-i686-Live.iso  -m 500
 
-If that's the case, I'll send patches to replace virtio-console with
-virtio-serial, making sure we keep the command line arg,
+Once it completes booting & logs into gnome, open a terminal and run
+as root
 
--virtioconsole <qemu char dev>
+   agetty /dev/hvc0 9600 vt100  
 
-which will be translated to something like
+You'll get a login prompt on the host machine now.
 
--virtioserial <qemu char dev>,port=2
+What appears to not be working, is early kernel boot messages. eg, I
+ought to be able todo
 
-or
+  # qemu-kvm -virtioconsole stdio -kernel vmlinuz -initrd initrd.img \
+      -append "console=hvc0"  -m 500
 
--virtioserial <qemu char dev>,protocol=console
+and see the kernel boot messages, but this doesn't work with Fedora
+kernels at least. Not tried upstream, or looked to see if this is just
+an oversight in the Kconfig use for Fedora kernels.
 
-depending on what we finalise on.
-
-Does anyone have objections to this or pointers for me to see where
-virtioconsole is actually used by qemu-supported guests?
-
-I'm also open to convert the guest kernel virtio_console driver over
-to support the new functionality, or just let that be and have a new
-virtio-serial module.
-
-Rusty, what's your take on this?
-
-		Amit
+Regards,
+Daniel
+-- 
+|: Red Hat, Engineering, London   -o-   http://people.redhat.com/berrange/ :|
+|: http://libvirt.org  -o-  http://virt-manager.org  -o-  http://ovirt.org :|
+|: http://autobuild.org       -o-         http://search.cpan.org/~danberr/ :|
+|: GnuPG: 7D3B9505  -o-  F3C9 553F A1DA 4AC2 5648 23C1 B3DF F742 7D3B 9505 :|
