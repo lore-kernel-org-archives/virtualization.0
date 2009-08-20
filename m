@@ -1,16 +1,21 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH 0/3] qemu-kvm: vhost net support
-Date: Thu, 20 Aug 2009 16:41:03 +0300
-Message-ID: <20090820134103.GC7834__3561.44836773655$1250775882$gmane$org@redhat.com>
-References: <20090810192304.GA16781@redhat.com> <4A808840.70704@codemonkey.ws>
-	<20090812173548.GA29981@redhat.com>
-	<200908201649.48082.rusty@rustcorp.com.au>
+From: Amit Shah <amit.shah@redhat.com>
+Subject: Re: [Qemu-devel] Re: virtio-serial: An interface for host-guest
+	communication
+Date: Thu, 20 Aug 2009 19:12:41 +0530
+Message-ID: <20090820134241.GA19395__20361.0812816352$1250775943$gmane$org@amit-x200.redhat.com>
+References: <4A7C36D3.3040305@codemonkey.ws>
+	<20090810065508.GA4499@amit-x200.redhat.com>
+	<4A7FECCA.8080804@redhat.com> <4A801A7B.1020208@codemonkey.ws>
+	<4A80287C.7050400@redhat.com> <4A802CA7.9020701@codemonkey.ws>
+	<4A803E07.7080407@redhat.com> <4A8051F3.7040400@codemonkey.ws>
+	<20090814081518.GA7418@amit-x200.redhat.com>
+	<4A8566B8.8030808@codemonkey.ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <200908201649.48082.rusty@rustcorp.com.au>
+In-Reply-To: <4A8566B8.8030808@codemonkey.ws>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,28 +25,85 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: kvm@vger.kernel.org, avi@redhat.com, Anthony Liguori <anthony@codemonkey.ws>, virtualization@lists.linux-foundation.org
+To: Anthony Liguori <anthony@codemonkey.ws>
+Cc: virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, qemu-devel@nongnu.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Aug 20, 2009 at 04:49:47PM +0930, Rusty Russell wrote:
-> On Thu, 13 Aug 2009 03:05:48 am Michael S. Tsirkin wrote:
-> > On Mon, Aug 10, 2009 at 03:51:12PM -0500, Anthony Liguori wrote:
-> > > Any rough idea on performance?  Better or worse than userspace?
-> > 
-> > Well, I definitely see some gain in latency.
-> ...
-> > Part of it might be that tx mitigation does not come into play with vhost. I
-> > need to disable it in qemu and see.
-> 
-> A simple test I've found reasonably indicative when looking at base performance (before stuff like TSO get involved) is to do pings.  Throughput with "ping -s 1024 -l 120 -c 1000000 -f -q" and latency with "ping -c 1000000 -f -q".
-> 
-> (You may need to cut -l down if your ring is too small).
-> 
-> Cheers,
-> Rusty.
+On (Fri) Aug 14 2009 [08:29:28], Anthony Liguori wrote:
+> Amit Shah wrote:
+>> On (Mon) Aug 10 2009 [11:59:31], Anthony Liguori wrote:
+>>   
+>>> However, as I've mentioned repeatedly, the reason I won't merge   
+>>> virtio-serial is that it duplicates functionality with 
+>>> virtio-console.   If the two are converged, I'm happy to merge it.  
+>>> I'm not opposed to  having more functionality.
+>>>     
+>>
+>> The guest code sort-of ends up looking like this after merging
+>> virtio_console into virtio_serial. Diff is against virtio_serial in my
+>> git tree, but that should be pretty close to the last submission I made
+>> at
+>>
+>> http://patchwork.kernel.org/patch/39335/
+>>
+>> or the tree at
+>>
+>> git://git.kernel.org/pub/scm/linux/kernel/git/amit/vs-kernel.git
+>>
+>> I've merged bits from virtio_console.c into virtio_serial.c. If needed,
+>> virtio_serial can be renamed to virtio_console. The VIRITIO_ID also
+>> needs to change to that of virtio_console's.
+>>
+>> Similar changes are needed for userspace.
+>>
+>> Since there's support for only one console as of now, I've assigned port
+>> #2 as the console port so that we hook into hvc when a port is found at
+>> that location.
+>>
+>> One issue that crops up for put_chars: a copy of the buffer to be sent
+>> has to be made as we don't wait for host to ack the buffer before we
+>> move on.
+>>
+>> The biggest loss so far is Rusty's excellent comments: they will have to
+>> be reworked and added for the whole of the new file.
+>>
+>> Is this approach acceptable?
+>>   
+>
+> I think we want to keep virtio_console.c and definitely continue using  
+> the virtio_console id.
 
-OK, will try that.
+I've now seen some more code here and to me it looks like virtioconsole
+is not used on any of the guests that qemu supports. The virtio_console
+kernel module only works with lguest and s390 currently. There is one
+feature and some config values supported by the kernel module but not in
+qemu.
 
--- 
-MST
+So it looks as if we have virtio-console merged but no one uses it. Is
+this right?
+
+If that's the case, I'll send patches to replace virtio-console with
+virtio-serial, making sure we keep the command line arg,
+
+-virtioconsole <qemu char dev>
+
+which will be translated to something like
+
+-virtioserial <qemu char dev>,port=2
+
+or
+
+-virtioserial <qemu char dev>,protocol=console
+
+depending on what we finalise on.
+
+Does anyone have objections to this or pointers for me to see where
+virtioconsole is actually used by qemu-supported guests?
+
+I'm also open to convert the guest kernel virtio_console driver over
+to support the new functionality, or just let that be and have a new
+virtio-serial module.
+
+Rusty, what's your take on this?
+
+		Amit
