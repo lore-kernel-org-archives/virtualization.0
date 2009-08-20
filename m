@@ -1,18 +1,17 @@
-From: Amit Shah <amit.shah@redhat.com>
-Subject: Re: [Qemu-devel] Re: virtio-serial: An interface for  host-guest
-	communication
-Date: Thu, 20 Aug 2009 13:25:39 +0530
-Message-ID: <20090820075539.GA5876__27113.4251066998$1250755009$gmane$org@amit-x200.redhat.com>
-References: <20090806173740.GA1178@shareable.org>
-	<4A856B5E.2000303@redhat.com> <4A858FFC.7000607@codemonkey.ws>
-	<200908201701.30467.rusty@rustcorp.com.au>
-	<4A8CFEDD.4000009@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCHv3 2/2] vhost_net: a kernel-level virtio server
+Date: Thu, 20 Aug 2009 11:31:55 +0300
+Message-ID: <20090820083155.GB5448__10757.378236349$1250757293$gmane$org@redhat.com>
+References: <cover.1250187913.git.mst@redhat.com>
+	<200908191546.44193.arnd@arndb.de>
+	<20090819142038.GA3862@redhat.com>
+	<200908191727.07681.arnd@arndb.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <4A8CFEDD.4000009@redhat.com>
+In-Reply-To: <200908191727.07681.arnd@arndb.de>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -22,41 +21,160 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gerd Hoffmann <kraxel@redhat.com>
-Cc: qemu-devel@nongnu.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, hpa@zytor.com, mingo@elte.hu, akpm@linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On (Thu) Aug 20 2009 [09:44:29], Gerd Hoffmann wrote:
-> On 08/20/09 09:31, Rusty Russell wrote:
->> On Sat, 15 Aug 2009 01:55:32 am Anthony Liguori wrote:
->>> Gerd Hoffmann wrote:
->>>> Also I still think passing a 'protocol' string for each port is a good
->>>> idea, so you can stick that into a sysfs file for guests use.
->>> Or drops ports altogether and just use protocol strings...
->>
->> Both is silly, yes.
->>
->> I guess strings + HAL magic can make the /dev names sane.  I don't want to
->> see userspace trolling through sysfs to figure out what device to open.
->
-> udev can create sane /dev names (or symlinks) by checking sysfs  
-> attributes, apps just open the /dev/whatever then.
+On Wed, Aug 19, 2009 at 05:27:07PM +0200, Arnd Bergmann wrote:
+> On Wednesday 19 August 2009, Michael S. Tsirkin wrote:
+> > On Wed, Aug 19, 2009 at 03:46:44PM +0200, Arnd Bergmann wrote:
+> > > On Wednesday 19 August 2009, Michael S. Tsirkin wrote:
+> > >
+> > > Leaving that aside for now, you could replace VHOST_NET_SET_SOCKET,
+> > > VHOST_SET_OWNER, VHOST_RESET_OWNER
+> > 
+> > SET/RESET OWNER is still needed: otherwise if you share a descriptor
+> > with another process, it can corrupt your memory.
+> 
+> How? The point of using user threads is that you only ever access the
+> address space of the thread that called the ioctl.
 
-There still will have to be some way in transferring all the strings
-from qemu to the guest. Could be done from the config space, but will
-have to be done one port at a time (config space is limited in size).
+Think about this example with processes A and B sharing an fd:
+A does SET_USED_ADDRESS
+B does SET_USED_ADDRESS
+A does VHOST_NET_SPLICE
+See how stuff gets written into a random place in memory of A?
 
->> Which is why I prefer assigned numbers, which get mapped to minors.
->
-> ports map trivially to minors.  When using protocol strings minors can  
-> simply be dynamically auto-allocated by the guest and we don't need the  
-> port numbers in the host<->guest protocol any more.
->
-> I think strings are better as numbers for identifying protocols as you  
-> can work without a central registry for the numbers then.
+> > > and your kernel thread with a new
+> > > VHOST_NET_SPLICE blocking ioctl that does all the transfers in the
+> > > context of the calling thread.
+> > 
+> > For one, you'd want a thread per virtqueue.
+> 
+> Don't understand why. The thread can be blocked on all four ends
+> of the device and wake up whenever there is some work do to in
+> any direction. If we have data to be transferred in both ways,
+> we save one thread switch. It probably won't hurt much to have one
+> thread per direction, but I don't see the point.
+> > Second, an incoming traffic might arrive on another CPU, we want
+> > to keep it local.  I guess you would also want ioctls to wake up
+> > the threads spuriously ...
+> 
+> Outbound traffic should just stay on whatever CPU was sending it
+> from the guest. For inbound traffic, we should only wake up
+> the thread on the CPU that got the data to start with.
 
-I like the way assigned numbers work: it's simpler to code, needs a
-bitmap for all the ports that fits in nicely in the config space and
-udev rules / scripts can point /dev/vmch02 to /dev/console.
+Exactly. Since we have RX and TX virtqueues, this would mean thread per
+direction or virtqueue, same thing. OTOH if RX and TX happen to run on the
+same CPU, thread switch would be just a waste of time: but userspace
+does not know it, only guest and kernel know.
 
-		Amit
+> Why would I wake up the threads spuriously? Do you mean for
+> stopping the transmission or something else? I guess a pthread_kill
+> would be enough for shutting it down.
+
+If you kill and restart them you lost priority etc parameters, but maybe.
+
+> > > This would improve the driver on various fronts:
+> > > 
+> > > - no need for playing tricks with use_mm/unuse_mm
+> > > - possibly fewer global TLB flushes from switch_mm, which
+> > >   may improve performance.
+> > 
+> > Why would there be less flushes?
+> 
+> I just read up on task->active_mm handling. There probably wouldn't
+> be any. I got that wrong.
+> 
+> > > - based on that, the ability to use any kind of file
+> > >   descriptor that can do writev/readv or sendmsg/recvmsg
+> > >   without the nastiness you mentioned.
+> > 
+> > Yes, it's an interesting approach. As I said, need to tread very
+> > carefully though, I don't think all issues are figured out. For example:
+> > what happens if we pass our own fd here? Will refcount on file ever get
+> > to 0 on exit?  There may be others ...
+> 
+> right.
+> 
+> > > The disadvantage of course is that you need to add a user
+> > > thread for each guest device to make up for the workqueue
+> > > that you save.
+> > 
+> > More importantly, you lose control of CPU locality.  Simply put, a
+> > natural threading model in virtualization is one thread per guest vcpu.
+> > Asking applications to add multiple helper threads just so they can
+> > block forever is wrong, IMO, as userspace has no idea which CPU
+> > they should be on, what priority to use, etc.
+> 
+> But the kernel also doesn't know this, you get the same problem in
+> another way. If you have multiple guests running at different priorities,
+> the kernel will use those priorities to do the more important transfers
+> first, while with a global workqueue every guest gets the same priority.
+
+We could create more threads if this becomes a problem. I just think it
+should be transparent to userspace. Possibly it's useful to look at the
+packet header as well to decide on priority: this is something userspace
+can't do.
+
+> You say that the natural model is to have one thread per guest
+> CPU,
+
+Sorry I was not clear. I think userspace should create thread per guest.
+We can create as many as we need for networking but I think this should
+be behind the scenes, so userspace shouldn't bother with host CPUs, it
+will just get it wrong. Think of CPU hotplug, interrupts migrating
+between CPUs, etc ...
+
+> but you have a thread per host CPU instead. If the numbers
+> are different, you probably lose either way.
+
+The trick I used is to keep as much as possible local
+TX done on the CPU that runs the guest,
+RX done on the CPU that runs the NIC interrupt.
+a smart SMP guest sees which cpu gets interrupts
+from NIC and schedules RX there, and it shouldn't matter
+if the numbers of CPUs are different.
+
+> It gets worse if you try to apply NUMA policies.
+
+I believe the best we could do is avoid switching CPUs
+until we know the actual destination.
+
+> > > > > to
+> > > > > avoid some of the implications of kernel threads like the missing
+> > > > > ability to handle transfer errors in user space.
+> > > > 
+> > > > Are you talking about TCP here?
+> > > > Transfer errors are typically asynchronous - possibly eventfd
+> > > > as I expose for vhost net is sufficient there.
+> > > 
+> > > I mean errors in general if we allow random file descriptors to be used.
+> > > E.g. tun_chr_aio_read could return EBADFD, EINVAL, EFAULT, ERESTARTSYS,
+> > > EIO, EAGAIN and possibly others. We can handle some in kernel, others
+> > > should never happen with vhost_net, but if something unexpected happens
+> > > it would be nice to just bail out to user space.
+> > 
+> > And note that there might be more than one error.  I guess, that's
+> > another problem with trying to layer on top of vfs.
+> 
+> Why is that different from any other system call?
+
+With other system calls nothing happens while you process the error.
+Here, the guest (other queues) and the network keep running (unless
+there is a thread per queue, maybe we can block a queue, but we both
+agreed above we don't want that).
+
+> We just return when
+> we hit the first error condition.
+> 
+> 	Arnd <><
+
+If you assume losing the code for the second error condition is OK, why
+is the first one so important?  That's why I used a counter (eventfd)
+per virtqueue, on error userspace can scan the ring and poll the socket
+and discover what's wrong, and counter ensures we can detect that error
+happened while we were not looking.
+
+-- 
+MST
