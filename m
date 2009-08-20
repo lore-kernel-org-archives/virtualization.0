@@ -1,15 +1,21 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [PATCHv3 2/2] vhost_net: a kernel-level virtio server
-Date: Thu, 20 Aug 2009 16:31:36 +0200
-Message-ID: <200908201631.37285.arnd__24288.4780899205$1250778976$gmane$org@arndb.de>
-References: <cover.1250187913.git.mst@redhat.com>
-	<200908201510.54482.arnd@arndb.de>
-	<20090820133817.GA7834@redhat.com>
+From: Amit Shah <amit.shah@redhat.com>
+Subject: Re: [Qemu-devel] Re: virtio-serial: An interface for host-guest
+	communication
+Date: Thu, 20 Aug 2009 20:08:02 +0530
+Message-ID: <20090820143802.GA20265@amit-x200.redhat.com>
+References: <4A7FECCA.8080804@redhat.com> <4A801A7B.1020208@codemonkey.ws>
+	<4A80287C.7050400@redhat.com> <4A802CA7.9020701@codemonkey.ws>
+	<4A803E07.7080407@redhat.com> <4A8051F3.7040400@codemonkey.ws>
+	<20090814081518.GA7418@amit-x200.redhat.com>
+	<4A8566B8.8030808@codemonkey.ws>
+	<20090820134241.GA19395@amit-x200.redhat.com>
+	<20090820142509.GD27710@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20090820133817.GA7834@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <20090820142509.GD27710@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,49 +25,47 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, hpa@zytor.com, mingo@elte.hu, akpm@linux-foundation.org
+To: "Daniel P. Berrange" <berrange@redhat.com>
+Cc: qemu-devel@nongnu.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thursday 20 August 2009, Michael S. Tsirkin wrote:
-> On Thu, Aug 20, 2009 at 03:10:54PM +0200, Arnd Bergmann wrote:
-> > On Thursday 20 August 2009, Michael S. Tsirkin wrote:
->
-> It doesn't matter that I don't want this: allowing 1 process corrupt
-> another's memory is a security issue.  Once you get an fd, you want to
-> be able to use it without worrying that a bug in another process will
-> crash yours.
-
-Ok, got it. Yes, that would be inacceptable.
-
-> > > If you assume losing the code for the second error condition is OK, why
-> > > is the first one so important?  That's why I used a counter (eventfd)
-> > > per virtqueue, on error userspace can scan the ring and poll the socket
-> > > and discover what's wrong, and counter ensures we can detect that error
-> > > happened while we were not looking.
+On (Thu) Aug 20 2009 [15:25:09], Daniel P. Berrange wrote:
+> On Thu, Aug 20, 2009 at 07:12:41PM +0530, Amit Shah wrote:
 > > 
-> > I guess we were talking about different kinds of errors here, and I'm
-> > still not sure which one you are talking about.
+> > I've now seen some more code here and to me it looks like virtioconsole
+> > is not used on any of the guests that qemu supports. The virtio_console
+> > kernel module only works with lguest and s390 currently. There is one
+> > feature and some config values supported by the kernel module but not in
+> > qemu.
 > > 
-> Non fatal errors. E.g. translation errors probably should be
-> non-fatal. I can also imagine working around guest bugs in
-> userspace.
+> > So it looks as if we have virtio-console merged but no one uses it. Is
+> > this right?
+> 
+> Nope. Grab a Fedora 11 live CD, and boot with
+> 
+>   # qemu-kvm -virtioconsole stdio -cdrom Fedora-11-i686-Live.iso  -m 500
+> 
+> Once it completes booting & logs into gnome, open a terminal and run
+> as root
+> 
+>    agetty /dev/hvc0 9600 vt100  
+> 
+> You'll get a login prompt on the host machine now.
+> 
+> What appears to not be working, is early kernel boot messages. eg, I
+> ought to be able todo
 
-Ah, so I guess the confusion was that I was worried about
-errors coming from the socket file descriptor, while you
-were thinking of errors from the guest side, which I did not
-expect to happen.
+Oh; ok. So the console device is exposed only in the userspace; it's not
+used for the early boot messages and not registered early-on. That's
+only done for lguest and s390.
 
-The errors from the socket (or chardev, as that was the
-start of the argument) should still fit into the categories
-that I mentioned, either they can be handled by the host
-kernel, or they are fatal.
+>   # qemu-kvm -virtioconsole stdio -kernel vmlinuz -initrd initrd.img \
+>       -append "console=hvc0"  -m 500
+> 
+> and see the kernel boot messages, but this doesn't work with Fedora
+> kernels at least. Not tried upstream, or looked to see if this is just
+> an oversight in the Kconfig use for Fedora kernels.
 
-I'll read up in your code to see how you handle asynchronous
-non-fatal errors from the guest. Intuitively, I'd still
-assume that returning the first error should be enough
-because it will typically mean that you cannot continue
-without fixing it up first, and you might get the next
-error immediately after that.
+Thanks,
 
-	Arnd <><
+		Amit
