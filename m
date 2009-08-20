@@ -1,15 +1,15 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH 2/2] vhost_net: a kernel-level virtio server
-Date: Thu, 20 Aug 2009 16:55:48 +0930
-Message-ID: <200908201655.48779.rusty__36663.4461367086$1250753195$gmane$org@rustcorp.com.au>
-References: <cover.1249930169.git.mst@redhat.com>
-	<20090813144129.GB5080@redhat.com>
-	<200908131653.47029.arnd@arndb.de>
+Subject: Re: [Qemu-devel] Re: virtio-serial: An interface for
+	=?iso-8859-1?q?host-guest=09communication?=
+Date: Thu, 20 Aug 2009 17:01:29 +0930
+Message-ID: <200908201701.30467.rusty__27181.7393870608$1250753668$gmane$org@rustcorp.com.au>
+References: <20090806173740.GA1178@shareable.org>
+	<4A856B5E.2000303@redhat.com> <4A858FFC.7000607@codemonkey.ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <200908131653.47029.arnd@arndb.de>
+In-Reply-To: <4A858FFC.7000607@codemonkey.ws>
 Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -20,25 +20,22 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
-Cc: Arnd Bergmann <arnd@arndb.de>, kvm@vger.kernel.org, "Ira W. Snyder" <iws@ovro.caltech.edu>, netdev@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
+To: Anthony Liguori <anthony@codemonkey.ws>
+Cc: Amit Shah <amit.shah@redhat.com>, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, qemu-devel@nongnu.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 14 Aug 2009 12:23:46 am Arnd Bergmann wrote:
-> On Thursday 13 August 2009, Michael S. Tsirkin wrote:
-> > The best way to do this IMO would be to add zero copy support to raw
-> > sockets, vhost will then get it basically for free.
+On Sat, 15 Aug 2009 01:55:32 am Anthony Liguori wrote:
+> Gerd Hoffmann wrote:
+> > Also I still think passing a 'protocol' string for each port is a good 
+> > idea, so you can stick that into a sysfs file for guests use.
 > 
-> Yes, that would be nice. I wonder if that could lead to security
-> problems on TX though. I guess It will only bring significant performance
-> improvements if we leave the data writable in the user space or guest
-> during the operation. If the user finds the right timing, it could
-> modify the frame headers after they have been checked using netfilter,
-> or while the frames are being consumed in the kernel (e.g. an NFS
-> server running in a guest).
+> Or drops ports altogether and just use protocol strings...
 
-For this reason, we always linearize parts of packets we're filtering.
-ie. copy.
+Both is silly, yes.
 
-Cheers,
+I guess strings + HAL magic can make the /dev names sane.  I don't want to
+see userspace trolling through sysfs to figure out what device to open.
+
+Which is why I prefer assigned numbers, which get mapped to minors.
+
 Rusty.
