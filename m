@@ -1,18 +1,14 @@
-From: Gleb Natapov <gleb@redhat.com>
-Subject: Re: [PATCHv3 2/2] vhost_net: a kernel-level virtio server
-Date: Fri, 21 Aug 2009 16:20:22 +0300
-Message-ID: <20090821132022.GA6966__15840.8110183247$1250861340$gmane$org@redhat.com>
-References: <cover.1250187913.git.mst@redhat.com>
-	<200908191727.07681.arnd@arndb.de>
-	<20090820083155.GB5448@redhat.com>
-	<200908201510.54482.arnd@arndb.de>
-	<20090820133817.GA7834@redhat.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH 1/2] virtio: Add a can_add_buf helper
+Date: Sat, 22 Aug 2009 17:31:26 +0930
+Message-ID: <200908221731.26834.rusty@rustcorp.com.au>
+References: <1250611290-2410-1-git-send-email-amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1250611290-2410-1-git-send-email-amit.shah@redhat.com>
 Content-Disposition: inline
-In-Reply-To: <20090820133817.GA7834@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -22,51 +18,184 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Arnd Bergmann <arnd@arndb.de>, kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, hpa@zytor.com, mingo@elte.hu, akpm@linux-foundation.org
+To: virtualization@lists.linux-foundation.org
+Cc: Amit Shah <amit.shah@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Aug 20, 2009 at 04:38:17PM +0300, Michael S. Tsirkin wrote:
-> On Thu, Aug 20, 2009 at 03:10:54PM +0200, Arnd Bergmann wrote:
-> > On Thursday 20 August 2009, Michael S. Tsirkin wrote:
-> > > On Wed, Aug 19, 2009 at 05:27:07PM +0200, Arnd Bergmann wrote:
-> > > > On Wednesday 19 August 2009, Michael S. Tsirkin wrote:
-> > > > > On Wed, Aug 19, 2009 at 03:46:44PM +0200, Arnd Bergmann wrote:
-> > > > > > On Wednesday 19 August 2009, Michael S. Tsirkin wrote:
-> > > > > >
-> > > > > > Leaving that aside for now, you could replace VHOST_NET_SET_SOCKET,
-> > > > > > VHOST_SET_OWNER, VHOST_RESET_OWNER
-> > > > > 
-> > > > > SET/RESET OWNER is still needed: otherwise if you share a descriptor
-> > > > > with another process, it can corrupt your memory.
-> > > > 
-> > > > How? The point of using user threads is that you only ever access the
-> > > > address space of the thread that called the ioctl.
-> > > 
-> > > Think about this example with processes A and B sharing an fd:
-> > > A does SET_USED_ADDRESS
-> > > B does SET_USED_ADDRESS
-> > > A does VHOST_NET_SPLICE
-> > > See how stuff gets written into a random place in memory of A?
-> > 
-> > Yes, I didn't think of that. It doesn't seem like a big problem
-> > though, because it's a clear misuse of the API (I guess your
-> > current code returns an error for one of the SET_USED_ADDRESS
-> > ioctls), so I would see it as a classic garbage-in garbage-out
-> > case.
-> > 
-> > It may even work in the case that the sharing of the fd resulted
-> > from a fork, where the address contains the same buffer in both
-> > processes. I can't think of a reason why you would want to use
-> > it like that though.
+On Wed, 19 Aug 2009 01:31:29 am Amit Shah wrote:
+> This helper returns 1 if a call to add_buf will not fail
+> with -ENOSPC.
 > 
-> It doesn't matter that I don't want this: allowing 1 process corrupt
-> another's memory is a security issue.  Once you get an fd, you want to
-> be able to use it without worrying that a bug in another process will
-> crash yours.
+> This will help callers that do
 > 
-If B's SET_USED_ADDRESS fails how one process can corrupt a memory of
-other process?
+> while(1) {
+> 	alloc()
+> 	if (add_buf()) {
+> 		free();
+> 		break;
+> 	}
+> }
+> 
+> This will result in one less alloc/free exercise.
 
---
-			Gleb.
+Hi Amit,
+
+    This is what I have in my tree; similar motivation.  I didn't
+adapt virtio_net like you did tho.
+
+virtio: make add_buf return capacity remaining
+
+This API change means that virtio_net can tell how much capacity
+remains for buffers.  It's necessarily fuzzy, since
+VIRTIO_RING_F_INDIRECT_DESC means we can fit any number of descriptors
+in one, *if* we can kmalloc.
+
+Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Dinesh Subhraveti <dineshs@us.ibm.com>
+---
+ drivers/block/virtio_blk.c          |    2 +-
+ drivers/char/hw_random/virtio-rng.c |    2 +-
+ drivers/char/virtio_console.c       |    4 ++--
+ drivers/net/virtio_net.c            |    8 ++++----
+ drivers/virtio/virtio_balloon.c     |    2 +-
+ drivers/virtio/virtio_ring.c        |    6 +++++-
+ include/linux/virtio.h              |    2 +-
+ net/9p/trans_virtio.c               |    2 +-
+ 8 files changed, 16 insertions(+), 12 deletions(-)
+
+diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+--- a/drivers/block/virtio_blk.c
++++ b/drivers/block/virtio_blk.c
+@@ -139,7 +139,7 @@ static bool do_req(struct request_queue 
+ 		}
+ 	}
+ 
+-	if (vblk->vq->vq_ops->add_buf(vblk->vq, vblk->sg, out, in, vbr)) {
++	if (vblk->vq->vq_ops->add_buf(vblk->vq, vblk->sg, out, in, vbr) < 0) {
+ 		mempool_free(vbr, vblk->pool);
+ 		return false;
+ 	}
+diff --git a/drivers/char/hw_random/virtio-rng.c b/drivers/char/hw_random/virtio-rng.c
+--- a/drivers/char/hw_random/virtio-rng.c
++++ b/drivers/char/hw_random/virtio-rng.c
+@@ -51,7 +51,7 @@ static void register_buffer(void)
+ 
+ 	sg_init_one(&sg, random_data+data_left, RANDOM_DATA_SIZE-data_left);
+ 	/* There should always be room for one buffer. */
+-	if (vq->vq_ops->add_buf(vq, &sg, 0, 1, random_data) != 0)
++	if (vq->vq_ops->add_buf(vq, &sg, 0, 1, random_data) < 0)
+ 		BUG();
+ 	vq->vq_ops->kick(vq);
+ }
+diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
+--- a/drivers/char/virtio_console.c
++++ b/drivers/char/virtio_console.c
+@@ -65,7 +65,7 @@ static int put_chars(u32 vtermno, const 
+ 
+ 	/* add_buf wants a token to identify this buffer: we hand it any
+ 	 * non-NULL pointer, since there's only ever one buffer. */
+-	if (out_vq->vq_ops->add_buf(out_vq, sg, 1, 0, (void *)1) == 0) {
++	if (out_vq->vq_ops->add_buf(out_vq, sg, 1, 0, (void *)1) >= 0) {
+ 		/* Tell Host to go! */
+ 		out_vq->vq_ops->kick(out_vq);
+ 		/* Chill out until it's done with the buffer. */
+@@ -85,7 +85,7 @@ static void add_inbuf(void)
+ 	sg_init_one(sg, inbuf, PAGE_SIZE);
+ 
+ 	/* We should always be able to add one buffer to an empty queue. */
+-	if (in_vq->vq_ops->add_buf(in_vq, sg, 0, 1, inbuf) != 0)
++	if (in_vq->vq_ops->add_buf(in_vq, sg, 0, 1, inbuf) < 0)
+ 		BUG();
+ 	in_vq->vq_ops->kick(in_vq);
+ }
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -300,7 +300,7 @@ static void try_fill_recv_maxbufs(struct
+ 		skb_queue_head(&vi->recv, skb);
+ 
+ 		err = vi->rvq->vq_ops->add_buf(vi->rvq, sg, 0, num, skb);
+-		if (err) {
++		if (err < 0) {
+ 			skb_unlink(skb, &vi->recv);
+ 			trim_pages(vi, skb);
+ 			kfree_skb(skb);
+@@ -349,7 +349,7 @@ static void try_fill_recv(struct virtnet
+ 		skb_queue_head(&vi->recv, skb);
+ 
+ 		err = vi->rvq->vq_ops->add_buf(vi->rvq, sg, 0, 1, skb);
+-		if (err) {
++		if (err < 0) {
+ 			skb_unlink(skb, &vi->recv);
+ 			kfree_skb(skb);
+ 			break;
+@@ -480,7 +480,7 @@ again:
+ 
+ 	/* Put new one in send queue and do transmit */
+ 	__skb_queue_head(&vi->send, skb);
+-	if (likely(xmit_skb(vi, skb) == 0)) {
++	if (likely(xmit_skb(vi, skb) >= 0)) {
+ 		vi->svq->vq_ops->kick(vi->svq);
+ 		/* Don't wait up for transmitted skbs to be freed. */
+ 		skb_orphan(skb);
+@@ -577,7 +577,7 @@ static bool virtnet_send_command(struct 
+ 		sg_set_buf(&sg[i + 1], sg_virt(s), s->length);
+ 	sg_set_buf(&sg[out + in - 1], &status, sizeof(status));
+ 
+-	BUG_ON(vi->cvq->vq_ops->add_buf(vi->cvq, sg, out, in, vi));
++	BUG_ON(vi->cvq->vq_ops->add_buf(vi->cvq, sg, out, in, vi) < 0);
+ 
+ 	vi->cvq->vq_ops->kick(vi->cvq);
+ 
+diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+--- a/drivers/virtio/virtio_balloon.c
++++ b/drivers/virtio/virtio_balloon.c
+@@ -84,7 +84,7 @@ static void tell_host(struct virtio_ball
+ 	init_completion(&vb->acked);
+ 
+ 	/* We should always be able to add one buffer to an empty queue. */
+-	if (vq->vq_ops->add_buf(vq, &sg, 1, 0, vb) != 0)
++	if (vq->vq_ops->add_buf(vq, &sg, 1, 0, vb) < 0)
+ 		BUG();
+ 	vq->vq_ops->kick(vq);
+ 
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -213,7 +213,11 @@ add_head:
+ 
+ 	pr_debug("Added buffer head %i to %p\n", head, vq);
+ 	END_USE(vq);
+-	return 0;
++
++	/* If we're indirect, we can fit many (assuming not OOM). */
++	if (vq->indirect)
++		return vq->num_free ? vq->vring.num : 0;
++	return vq->num_free;
+ }
+ 
+ static void vring_kick(struct virtqueue *_vq)
+diff --git a/include/linux/virtio.h b/include/linux/virtio.h
+--- a/include/linux/virtio.h
++++ b/include/linux/virtio.h
+@@ -34,7 +34,7 @@ struct virtqueue {
+  *	out_num: the number of sg readable by other side
+  *	in_num: the number of sg which are writable (after readable ones)
+  *	data: the token identifying the buffer.
+- *      Returns 0 or an error.
++ *      Returns remaining capacity of queue (sg segments) or a negative error.
+  * @kick: update after add_buf
+  *	vq: the struct virtqueue
+  *	After one or more add_buf calls, invoke this to kick the other side.
+diff --git a/net/9p/trans_virtio.c b/net/9p/trans_virtio.c
+--- a/net/9p/trans_virtio.c
++++ b/net/9p/trans_virtio.c
+@@ -203,7 +203,7 @@ p9_virtio_request(struct p9_client *clie
+ 
+ 	req->status = REQ_STATUS_SENT;
+ 
+-	if (chan->vq->vq_ops->add_buf(chan->vq, chan->sg, out, in, req->tc)) {
++	if (chan->vq->vq_ops->add_buf(chan->vq, chan->sg, out, in, req->tc) < 0) {
+ 		P9_DPRINTK(P9_DEBUG_TRANS,
+ 			"9p debug: virtio rpc add_buf returned failure");
+ 		return -EIO;
