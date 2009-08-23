@@ -1,15 +1,17 @@
-From: Avi Kivity <avi@redhat.com>
-Subject: Re: [PATCHv3 3/4] qemu-kvm: vhost-net implementation
-Date: Sun, 23 Aug 2009 12:58:06 +0300
-Message-ID: <4A9112AE.4070402__38596.1195141592$1251021545$gmane$org@redhat.com>
-References: <cover.1250512448.git.mst@redhat.com>	
-	<20090817123724.GD10700@redhat.com>
-	<1250791027.3080.130.camel@blaa>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCHv3 0/4] qemu-kvm: vhost net support
+Date: Sun, 23 Aug 2009 22:22:11 +0300
+Message-ID: <20090823192210.GA29928__13769.9724561118$1251055666$gmane$org@redhat.com>
+References: <20090817123701.GA10700@redhat.com>
+	<7162ab20908181354g653ecd2ch3b3dc36ca16babff@mail.gmail.com>
+	<20090818210411.GD20393@redhat.com>
+	<7162ab20908181411q4209d1f7v64b263712fd74852@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1250791027.3080.130.camel@blaa>
+Content-Disposition: inline
+In-Reply-To: <7162ab20908181411q4209d1f7v64b263712fd74852@mail.gmail.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,60 +21,30 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Mark McLoughlin <markmc@redhat.com>
-Cc: virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
+To: Alex Williamson <alex.williamson@hp.com>
+Cc: avi@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 08/20/2009 08:57 PM, Mark McLoughlin wrote:
->    - I think /dev/vhost makes more sense - we shouldn't need to add
->      another character device if we implement kernel backends for other
->      virtio devices
->    
+On Tue, Aug 18, 2009 at 03:11:04PM -0600, Alex Williamson wrote:
+> On Tue, Aug 18, 2009 at 3:04 PM, Michael S. Tsirkin<mst@redhat.com> wrote:
+> > Did you assign ip address in host by any chance? You don't want that.
+> 
+> Nope, just up on the host, no IP:
+> 
+> eth10     Link encap:Ethernet  HWaddr 00:17:a4:77:a4:08
+>           inet6 addr: fe80::217:a4ff:fe77:a408/64 Scope:Link
+>           UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+>           RX packets:22446487 errors:0 dropped:0 overruns:0 frame:0
+>           TX packets:4529008 errors:0 dropped:0 overruns:0 carrier:0
+>           collisions:0 txqueuelen:1000
+>           RX bytes:1492187453 (1.3 GiB)  TX bytes:2972806236 (2.7 GiB)
+>           Memory:fbae0000-fbb00000
 
-I'm of the opposite opinion - vhost-net and vhost-blk are related, but 
-they're a lot more different than they are similar.
 
->    - I'd really like vhost to support a 'tap' mode, so that we can still
->      use a bridge if a NIC isn't available to be assigned. It would
->      result in this stuff getting much more testing. Options I see:
->
->         1) Add tap-like functionality to vhost
->         2) Add VHOST_NET_SET_TAP
->         3) Just tell people to set up a tap and bind a raw socket too it
->
->       IMHO, (2) makes the most sense - it should be much less exta kernel
->      code than (1), and it would be much more convenient than (3)
->    
-
-What about connecting vhost-net to one end of a veth pair, and 
-conencting the other end to a bridge?
-
->    - Distros will also need some way to have the module loaded if its
->      not built-in; best I can think of in Fedora is to stick it in
->      /etc/sysconfig/modules/kvm.modules
->
->      What would be nicer is if loading the kvm module could cause vhost
->      to be loaded. It's nice that vhost can be used without kvm, but I
->      think if kvm is loaded it's just very convenient to load vhost too.
->      See also the problems we've cause with needing mkinitrd/dracut
->      hacks by not having KVM_GUEST require VIRTIO_PCI
->    
-
-Given that new userspace and a new kernel is needed, I don't see an 
-issue with the /etc/sysconfig fix.
-
->> 2. disable tso, gso, lro, jumbo frames on the card
->>     (disabling lro + jumbo frames should be sufficient,
->>      haven't tested this)
->>      
-> And this.
->
-> If we leave that up to the user or the management app, we need to expose
-> to them what features vhost supports so that they can know in future to
-> stop disabling them.
->    
-
-I imagine the merged version will support all those goodies.
+Just had a different, but slightly similar problem when the host running
+qemu had forwarding enabled. Is it possible your host is forwarding the
+packets somewhere else, and that's why we get the dupes?
+sysctl -w net.ipv4.conf.all.forwarding=0
 
 -- 
-error compiling committee.c: too many arguments to function
+MST
