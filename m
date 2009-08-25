@@ -1,18 +1,17 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: vhost net: performance with ping benchmark
-Date: Tue, 25 Aug 2009 16:45:55 +0300
-Message-ID: <20090825134555.GD13949__14726.5381100171$1251208184$gmane$org@redhat.com>
+Date: Tue, 25 Aug 2009 17:02:34 +0300
+Message-ID: <20090825140234.GA14129__1157.09703318334$1251209112$gmane$org@redhat.com>
 References: <20090824081240.GA3415@redhat.com>
 	<20090824212137.GA9835@redhat.com>
 	<4A934AF7.2090904@codemonkey.ws> <4A936525.5030300@redhat.com>
-	<20090825064604.GB10429@redhat.com>
-	<4A93E235.5040008@codemonkey.ws>
+	<4A93E1DF.5080004@codemonkey.ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <4A93E235.5040008@codemonkey.ws>
+In-Reply-To: <4A93E1DF.5080004@codemonkey.ws>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -26,14 +25,30 @@ To: Anthony Liguori <anthony@codemonkey.ws>
 Cc: Mark McLoughlin <markmc@redhat.com>, Avi Kivity <avi@redhat.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Aug 25, 2009 at 08:08:05AM -0500, Anthony Liguori wrote:
-> Once it goes into the upstream  
-> kernel, we need to have backwards compatibility code in QEMU forever to  
-> support that kernel version.
+On Tue, Aug 25, 2009 at 08:06:39AM -0500, Anthony Liguori wrote:
+> Avi Kivity wrote:
+>>> I think this is likely going to be needed regardless.  I also think  
+>>> the tap compatibility suggestion would simplify the consumption of  
+>>> this in userspace.
+>>
+>> What about veth pairs?
+>
+> Does veth support GSO and checksum offload?
 
-BTW, qemu can keep doing the userspace thing if some capability it needs
-is missing. It won't be worse off than if the driver is not upstream at
-all :).
+AFAIK, no. But again, improving veth is a separate project :)
 
--- 
-MST
+>>> I'd like some time to look at get_state/set_state ioctl()s along with 
+>>> dirty tracking support.  It's a much better model for live migration  
+>>> IMHO.
+>>
+>> My preference is ring proxying.  Not we'll need ring proxying (or at  
+>> least event proxying) for non-MSI guests.
+>
+> I avoided suggested ring proxying because I didn't want to suggest that  
+> merging should be contingent on it.
+
+Happily, the proposed interface supports is.
+
+> Regards,
+>
+> Anthony Liguori
