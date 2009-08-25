@@ -1,17 +1,15 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCHv4 2/2] virtio: refactor find_vqs
-Date: Tue, 25 Aug 2009 15:04:34 +0300
-Message-ID: <20090825120434.GA13896__15737.504248$1251202028$gmane$org@redhat.com>
-References: <cover.1248623150.git.mst@redhat.com>
-	<200907281244.32124.rusty@rustcorp.com.au>
-	<20090728083308.GA662@redhat.com>
-	<200908100907.53059.rusty@rustcorp.com.au>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCHv4 2/2] vhost_net: a kernel-level virtio server
+Date: Tue, 25 Aug 2009 21:40:40 +0930
+Message-ID: <200908252140.41295.rusty__15930.8064649396$1251202613$gmane$org@rustcorp.com.au>
+References: <cover.1250693417.git.mst@redhat.com>
+	<20090819150309.GC4236@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20090819150309.GC4236@redhat.com>
 Content-Disposition: inline
-In-Reply-To: <200908100907.53059.rusty@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -21,248 +19,221 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Carsten Otte <cotte@de.ibm.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, avi@redhat.com, Anthony Liguori <anthony@codemonkey.ws>, amit.shah@redhat.com
+To: virtualization@lists.linux-foundation.org
+Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org, hpa@zytor.com, mingo@elte.hu, akpm@linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Sorry it took a bit to respond to this.  I kept hoping I'll have time to
-test it but looks like I won't before I'm on vacation.  I agree it's
-good cleanup, and maybe we can go even further, see below.
+On Thu, 20 Aug 2009 12:33:09 am Michael S. Tsirkin wrote:
+> What it is: vhost net is a character device that can be used to reduce
+> the number of system calls involved in virtio networking.
+> Existing virtio net code is used in the guest without modification.
 
-On Mon, Aug 10, 2009 at 09:07:52AM +0930, Rusty Russell wrote:
-> On Tue, 28 Jul 2009 06:03:08 pm Michael S. Tsirkin wrote:
-> > On Tue, Jul 28, 2009 at 12:44:31PM +0930, Rusty Russell wrote:
-> > > On Mon, 27 Jul 2009 01:17:09 am Michael S. Tsirkin wrote:
-> > > > This refactors find_vqs, making it more readable and robust, and fixing
-> > > > two regressions from 2.6.30:
-> > > > - double free_irq causing BUG_ON on device removal
-> > > > - probe failure when vq can't be assigned to msi-x vector
-> > > >   (reported on old host kernels)
-> > > > 
-> > > > An older version of this patch was tested by Amit Shah.
-> > > 
-> > > OK, I've applied both of these; I'd like to see a new test by Amit to
-> > > make sure tho.
-> > > 
-> > > I really like this cleanup!  I looked harder at this code, and my best
-> > > attempts to untangle it further came to very little.  This is what I
-> > > ended up with, but it's all cosmetic and can wait until next merge window.
-> > > See what you think.
-> > > 
-> > > Thanks!
-> > > Rusty.
-> > > 
-> > > virtio_pci: minor MSI-X cleanups
-> > > 
-> > > 1) Rename vp_request_vectors to vp_request_msix_vectors, and take
-> > >    non-MSI-X case out to caller.
-> > 
-> > I'm not sure this change was for the best: we still have a separate code
-> > path under if !use_msix, only in another place now.  See below.
-> > And this seems to break the symmetry between request_ and free_vectors.
-> 
-> Yes, but unfortunately request_vectors was never really symmetrical :(
-> 
-> That's because we didn't do the request_irq's for the per_vector case, because
-> we don't have the names.  This is what prevented me from doing a nice
-> encapsulation.
+...
 
-Yes. But let's split free_vectors out into free_msix_vectors and
-free_intx as well?
-
-> > > -	err = vp_request_vectors(vdev, nvectors, per_vq_vectors);
-> > > +	if (!use_msix) {
-> > > +		/* Old style: one normal interrupt for change and all vqs. */
-> > > +		vp_dev->msix_vectors = 0;
-> > > +		vp_dev->per_vq_vectors = false;
-> > > +		err = request_irq(vp_dev->pci_dev->irq, vp_interrupt,
-> > > +				  IRQF_SHARED, dev_name(&vdev->dev), vp_dev);
-> > > +		if (!err)
-> > > +			vp_dev->intx_enabled = 1;
-> > 
-> > shorter as vp_dev->intx_enabled = !err
-> > 
-> > > +		return err;
-> > 
-> > Is that all? Don't we need to create the vqs?
-> 
-> Oh, yeah :)
-> 
-> This patch applies on top.  Basically reverts that part, and
-> renames vector to msix_vector, which I think makes the code more
-> readable.
-
-Yes, I agree, this is good cleanup, structure field names should be
-desriptive.  Are you sure we want to make all local variables named
-vector renamed to msix_vector though? CodingStyle says local var names
-should be short ...  A couple of ideas below.
-
-> virtio: more PCI minor cleanups
-> 
-> Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
-> ---
->  drivers/virtio/virtio_pci.c |   73 +++++++++++++++++++++-----------------------
->  1 file changed, 36 insertions(+), 37 deletions(-)
-> 
-> diff --git a/drivers/virtio/virtio_pci.c b/drivers/virtio/virtio_pci.c
-> --- a/drivers/virtio/virtio_pci.c
-> +++ b/drivers/virtio/virtio_pci.c
-> @@ -84,7 +84,7 @@ struct virtio_pci_vq_info
->  	struct list_head node;
->  
->  	/* MSI-X vector (or none) */
-> -	unsigned vector;
-> +	unsigned msix_vector;
-
-Good. And now we don't need the comment.
-
->  };
->  
->  /* Qumranet donated their vendor ID for devices 0x1000 thru 0x10FF. */
-> @@ -349,7 +349,7 @@ error:
->  static struct virtqueue *setup_vq(struct virtio_device *vdev, unsigned index,
->  				  void (*callback)(struct virtqueue *vq),
->  				  const char *name,
-> -				  u16 vector)
-> +				  u16 msix_vector)
->  {
->  	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
->  	struct virtio_pci_vq_info *info;
-> @@ -374,7 +374,7 @@ static struct virtqueue *setup_vq(struct
->  
->  	info->queue_index = index;
->  	info->num = num;
-> -	info->vector = vector;
-> +	info->msix_vector = msix_vector;
->  
->  	size = PAGE_ALIGN(vring_size(num, VIRTIO_PCI_VRING_ALIGN));
->  	info->queue = alloc_pages_exact(size, GFP_KERNEL|__GFP_ZERO);
-> @@ -398,10 +398,10 @@ static struct virtqueue *setup_vq(struct
->  	vq->priv = info;
->  	info->vq = vq;
->  
-> -	if (vector != VIRTIO_MSI_NO_VECTOR) {
-> -		iowrite16(vector, vp_dev->ioaddr + VIRTIO_MSI_QUEUE_VECTOR);
-> -		vector = ioread16(vp_dev->ioaddr + VIRTIO_MSI_QUEUE_VECTOR);
-> -		if (vector == VIRTIO_MSI_NO_VECTOR) {
-> +	if (msix_vector != VIRTIO_MSI_NO_VECTOR) {
-> +		iowrite16(msix_vector, vp_dev->ioaddr+VIRTIO_MSI_QUEUE_VECTOR);
-> +		msix_vector = ioread16(vp_dev->ioaddr+VIRTIO_MSI_QUEUE_VECTOR);
-
-checkpatch will complain that space is lacking around "+".
-We won't have a problem if we keep it named vector.
-
-> +		if (msix_vector == VIRTIO_MSI_NO_VECTOR) {
->  			err = -EBUSY;
->  			goto out_assign;
->  		}
-> @@ -462,7 +462,8 @@ static void vp_del_vqs(struct virtio_dev
->  	list_for_each_entry_safe(vq, n, &vdev->vqs, list) {
->  		info = vq->priv;
->  		if (vp_dev->per_vq_vectors)
-> -			free_irq(vp_dev->msix_entries[info->vector].vector, vq);
-> +			free_irq(vp_dev->msix_entries[info->msix_vector].vector,
-> +				 vq);
->  		vp_del_vq(vq);
->  	}
->  	vp_dev->per_vq_vectors = false;
-> @@ -478,58 +479,56 @@ static int vp_try_to_find_vqs(struct vir
->  			      bool per_vq_vectors)
->  {
->  	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
-> -	u16 vector;
-> +	u16 msix_vector;
->  	int i, err, nvectors, allocated_vectors;
->  
->  	if (!use_msix) {
->  		/* Old style: one normal interrupt for change and all vqs. */
->  		vp_dev->msix_vectors = 0;
-> -		vp_dev->per_vq_vectors = false;
-
-I know it's enough to look at msix_vectors, but isn't
-it cleaner to have per_vq_vectors consistent as well?
-E.g. del_vqs seems to only look at per_vq_vectors.
-
->  		err = request_irq(vp_dev->pci_dev->irq, vp_interrupt,
->  				  IRQF_SHARED, dev_name(&vdev->dev), vp_dev);
-> -		if (!err)
-> -			vp_dev->intx_enabled = 1;
-> -		return err;
-> +		if (err)
-> +			return err;
-
-Maybe move this part out into a separate function?  This way
-vp_try_to_find_vqs does high-level processing.
-
-
-> +	} else {
-> +		if (per_vq_vectors) {
-> +			/* Best option: one for change interrupt, one per vq. */
-> +			nvectors = 1;
-> +			for (i = 0; i < nvqs; ++i)
-> +				if (callbacks[i])
-> +					++nvectors;
-> +		} else {
-> +			/* Second best: one for change, shared for all vqs. */
-> +			nvectors = 2;
-
-Out of curiosity: why do you put {} here? They aren't
-strictly necessary ...
-
-> +		}
+> +config VHOST_NET
+> +	tristate "Host kernel accelerator for virtio net"
+> +	depends on NET && EVENTFD
+> +	---help---
+> +	  This kernel module can be loaded in host kernel to accelerate
+> +	  guest networking with virtio_net. Not to be confused with virtio_net
+> +	  module itself which needs to be loaded in guest kernel.
 > +
-> +		err = vp_request_msix_vectors(vdev, nvectors, per_vq_vectors);
-> +		if (err)
-> +			goto error_request;
->  	}
->  
-> -	if (per_vq_vectors) {
-> -		/* Best option: one for change interrupt, one per vq. */
-> -		nvectors = 1;
-> -		for (i = 0; i < nvqs; ++i)
-> -			if (callbacks[i])
-> -				++nvectors;
-> -	} else {
-> -		/* Second best: one for change, shared one for all vqs. */
-> -		nvectors = 2;
-> -	}
-> -
-> -	err = vp_request_msix_vectors(vdev, nvectors, per_vq_vectors);
-> -	if (err)
-> -		goto error_request;
-> -
->  	vp_dev->per_vq_vectors = per_vq_vectors;
->  	allocated_vectors = vp_dev->msix_used_vectors;
->  	for (i = 0; i < nvqs; ++i) {
->  		if (!callbacks[i] || !vp_dev->msix_enabled)
-> -			vector = VIRTIO_MSI_NO_VECTOR;
-> +			msix_vector = VIRTIO_MSI_NO_VECTOR;
->  		else if (vp_dev->per_vq_vectors)
-> -			vector = allocated_vectors++;
-> +			msix_vector = allocated_vectors++;
->  		else
-> -			vector = VP_MSIX_VQ_VECTOR;
-> -		vqs[i] = setup_vq(vdev, i, callbacks[i], names[i], vector);
-> +			msix_vector = VP_MSIX_VQ_VECTOR;
-> +		vqs[i] = setup_vq(vdev, i, callbacks[i], names[i], msix_vector);
->  		if (IS_ERR(vqs[i])) {
->  			err = PTR_ERR(vqs[i]);
->  			goto error_find;
->  		}
->  		/* allocate per-vq irq if available and necessary */
-> -		if (vp_dev->per_vq_vectors && vector != VIRTIO_MSI_NO_VECTOR) {
-> -			snprintf(vp_dev->msix_names[vector],
-> +		if (vp_dev->per_vq_vectors) {
-> +			snprintf(vp_dev->msix_names[msix_vector],
->  				 sizeof *vp_dev->msix_names,
->  				 "%s-%s",
->  				 dev_name(&vp_dev->vdev.dev), names[i]);
-> -			err = request_irq(vp_dev->msix_entries[vector].vector,
-> -					  vring_interrupt, 0,
-> -					  vp_dev->msix_names[vector], vqs[i]);
-> +			err = request_irq(msix_vector, vring_interrupt, 0,
-> +					  vp_dev->msix_names[msix_vector],
-> +					  vqs[i]);
->  			if (err) {
->  				vp_del_vq(vqs[i]);
->  				goto error_find;
+> +	  To compile this driver as a module, choose M here: the module will
+> +	  be called vhost_net.
+
+Just want to note that the patch explanation and the Kconfig help text are
+exceptional examples of reader-oriented text.  Nice!
+
+> +		/* Sanity check */
+> +		if (vq->iov->iov_len != sizeof(struct virtio_net_hdr)) {
+> +			vq_err(vq, "Unexpected header len for TX: "
+> +			       "%ld expected %zd\n", vq->iov->iov_len,
+> +			       sizeof(struct virtio_net_hdr));
+> +			break;
+> +		}
+
+OK, this check, which is in the qemu version, is *wrong*.  There should be
+no assumption on sg boundaries.  For example, the guest should be able to
+put the virtio_net_hdr in the front of the skbuf data if there is room.
+
+You should try to explicitly "consume" sizeof(struct virtio_net_hdr) of the
+iov, and if fail, do this message.  You can skip the out <= 1 test then,
+too.
+
+Anyway, I really prefer vq->iov[0]. to vq->iov-> here.
+
+> +		/* Sanity check */
+> +		if (vq->iov->iov_len != sizeof(struct virtio_net_hdr)) {
+> +			vq_err(vq, "Unexpected header len for RX: "
+> +			       "%ld expected %zd\n",
+> +			       vq->iov->iov_len, sizeof(struct virtio_net_hdr));
+> +			break;
+
+Here too.
+
+> +	u32 __user *featurep = argp;
+> +	int __user *fdp = argp;
+> +	u32 features;
+> +	int fd, r;
+> +	switch (ioctl) {
+> +	case VHOST_NET_SET_SOCKET:
+> +		r = get_user(fd, fdp);
+> +		if (r < 0)
+> +			return r;
+> +		return vhost_net_set_socket(n, fd);
+> +	case VHOST_GET_FEATURES:
+> +		/* No features for now */
+> +		features = 0;
+> +		return put_user(features, featurep);
+
+We may well get more than 32 feature bits, at least for virtio_net, which will
+force us to do some trickery in virtio_pci.  I'd like to avoid that here,
+though it's kind of ugly.  We'd need VHOST_GET_FEATURES (and ACK) to take a
+struct like:
+
+	u32 feature_size;
+	u32 features[];
+
+> +int vhost_net_init(void)
+
+static?
+
+> +void vhost_net_exit(void)
+
+static?
+
+> +/* Start polling a file. We add ourselves to file's wait queue. The user must
+> + * keep a reference to a file until after vhost_poll_stop is called. */
+
+I experienced minor confusion from the comments in this file.  Where you said
+"user" I think "caller".  No biggie though.
+
+> +	memory->nregions = 2;
+> +	memory->regions[0].guest_phys_addr = 1;
+> +	memory->regions[0].userspace_addr = 1;
+> +	memory->regions[0].memory_size = ~0ULL;
+> +	memory->regions[1].guest_phys_addr = 0;
+> +	memory->regions[1].userspace_addr = 0;
+> +	memory->regions[1].memory_size = 1;
+
+Not sure I understand why there are two regions to start?
+
+> +	case VHOST_SET_VRING_BASE:
+> +		r = copy_from_user(&s, argp, sizeof s);
+> +		if (r < 0)
+> +			break;
+> +		if (s.num > 0xffff) {
+> +			r = -EINVAL;
+> +			break;
+> +		}
+> +		vq->last_avail_idx = s.num;
+> +		break;
+> +	case VHOST_GET_VRING_BASE:
+> +		s.index = idx;
+> +		s.num = vq->last_avail_idx;
+> +		r = copy_to_user(argp, &s, sizeof s);
+> +		break;
+
+Ah, this is my fault.  I didn't expose the last_avail_idx in the ring
+because the other side doesn't need it; but without it the ring state is not
+fully observable from outside (no external save / restore!).
+
+I have a patch which published these indices (we have room), see:
+	http://ozlabs.org/~rusty/kernel/rr-2009-08-12-1/virtio:ring-publish-indices.patch
+
+Perhaps we should use that mechanism instead?  We don't actually have to
+offer the feature (we don't care about the guest state), but it's nice as
+documentation.  I've been waiting for an excuse to use that patch.
+
+> +long vhost_dev_ioctl(struct vhost_dev *d, unsigned int ioctl, unsigned long arg)
+> +{
+> +	void __user *argp = (void __user *)arg;
+> +	long r;
+> +
+> +	mutex_lock(&d->mutex);
+> +	if (ioctl == VHOST_SET_OWNER) {
+> +		r = vhost_dev_set_owner(d);
+> +		goto done;
+> +	}
+> +
+> +	r = vhost_dev_check_owner(d);
+
+You can do a VHOST_SET_OWNER without being the owner?  So really,
+the -EPERM from all the vhost_dev_check_owner() is not a security thing,
+but a "I don't think you mean to do that" thing?
+
+If so, a comment above it might help?
+
+> +static const struct vhost_memory_region *find_region(struct vhost_memory *mem,
+> +						     __u64 addr, __u32 len)
+> +{
+> +	struct vhost_memory_region *reg;
+> +	int i;
+> +	/* linear search is not brilliant, but we really have on the order of 6
+> +	 * regions in practice */
+
+Ah, you actually mean "this code has been carefully cache-optimized for the
+common case" :)
+
+> +/* FIXME: this does not handle a region that spans multiple
+> + * address/len pairs */
+> +int translate_desc(struct vhost_dev *dev, u64 addr, u32 len,
+> +		   struct iovec iov[], int iov_count, int iov_size,
+> +		   unsigned *num)
+> +{
+> +	const struct vhost_memory_region *reg;
+> +	struct vhost_memory *mem;
+> +	struct iovec *_iov;
+> +	u64 s = 0;
+> +	int ret = 0;
+
+Would this be neater if it returned the num iovecs used?  And offsetting
+iov in the caller, rather than passing iov_count?
+
+> +	/* If their number is silly, that's a fatal mistake. */
+> +	if (head >= vq->num) {
+> +		vq_err(vq, "Guest says index %u > %u is available",
+> +		       head, vq->num);
+> +		return vq->num;
+> +	}
+
+Not a fatal mistake in this code/
+
+> +	vq->inflight++;
+
+vq->inflight was a brain fart in the old lguest code.  See
+commit ebf9a5a99c1a464afe0b4dfa64416fc8b273bc5c.
+
+Also, see other fixes to the lguest launcher since then which might
+be relevant to this code:
+	lguest: get more serious about wmb() in example Launcher code
+	lguest: clean up length-used value in example launcher
+
+> +	/* If they don't want an interrupt, don't send one, unless empty. */
+> +	if ((flags & VRING_AVAIL_F_NO_INTERRUPT) && vq->inflight)
+> +		return;
+
+And I wouldn't support notify on empty at all, TBH.  It should
+definitely be conditional on the guest accepting the NOTIFY_ON_EMPTY
+feature.
+
+> +/* The virtqueue structure describes a queue attached to a device. */
+> +struct vhost_virtqueue {
+...
+> +} ____cacheline_aligned;
+
+Really?  I'd want to see numbers on this one.  False sharing vs. more cache
+utilization.
+
+> +#define vq_err(vq, fmt, ...) do {                                  \
+> +		printk(KERN_ERR pr_fmt(fmt), ##__VA_ARGS__);       \
+> +		if ((vq)->error_ctx)                               \
+> +				eventfd_signal((vq)->error_ctx, 1);\
+> +	} while (0)
+
+Mmm... guests should not be able to create unlimited printks in the host.
+
+But really, nothing major to object to in here...
+
+Thanks!
+Rusty.
