@@ -1,15 +1,14 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCHv4 2/2] vhost_net: a kernel-level virtio server
-Date: Tue, 25 Aug 2009 21:40:40 +0930
-Message-ID: <200908252140.41295.rusty__15930.8064649396$1251202613$gmane$org@rustcorp.com.au>
-References: <cover.1250693417.git.mst@redhat.com>
-	<20090819150309.GC4236@redhat.com>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: vhost net: performance with ping benchmark
+Date: Tue, 25 Aug 2009 14:34:41 +0200
+Message-ID: <200908251434.41402.arnd__31692.4580409706$1251203788$gmane$org@arndb.de>
+References: <20090824081240.GA3415@redhat.com>
+	<4A934AF7.2090904@codemonkey.ws> <4A936525.5030300@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20090819150309.GC4236@redhat.com>
-Content-Disposition: inline
+In-Reply-To: <4A936525.5030300@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,221 +18,52 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
-Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org, hpa@zytor.com, mingo@elte.hu, akpm@linux-foundation.org
+To: Avi Kivity <avi@redhat.com>
+Cc: Mark McLoughlin <markmc@redhat.com>, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, Anthony Liguori <anthony@codemonkey.ws>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 20 Aug 2009 12:33:09 am Michael S. Tsirkin wrote:
-> What it is: vhost net is a character device that can be used to reduce
-> the number of system calls involved in virtio networking.
-> Existing virtio net code is used in the guest without modification.
+On Tuesday 25 August 2009, Avi Kivity wrote:
+> On 08/25/2009 05:22 AM, Anthony Liguori wrote:
+> >
+> > I think 2.6.32 is pushing it. 
+> 
+> 2.6.32 is pushing it, but we need to push it.
 
-...
+Agreed.
 
-> +config VHOST_NET
-> +	tristate "Host kernel accelerator for virtio net"
-> +	depends on NET && EVENTFD
-> +	---help---
-> +	  This kernel module can be loaded in host kernel to accelerate
-> +	  guest networking with virtio_net. Not to be confused with virtio_net
-> +	  module itself which needs to be loaded in guest kernel.
-> +
-> +	  To compile this driver as a module, choose M here: the module will
-> +	  be called vhost_net.
+> > I think some time is needed to flush out the userspace interface.  In 
+> > particular, I don't think Mark's comments have been adequately 
+> > addressed.  If a version were merged without GSO support, some 
+> > mechanism to do feature detection would be needed in the userspace API. 
+> 
+> I don't see any point  in merging without gso (unless it beats userspace 
+> with gso, which I don't think will happen).  In any case we'll need 
+> feature negotiation.
 
-Just want to note that the patch explanation and the Kconfig help text are
-exceptional examples of reader-oriented text.  Nice!
+The feature negotiation that Michael has put in seems sufficient for this.
+If you care more about latency than bandwidth, the current driver is
+an enormous improvement over the user space code, which I find is enough
+reason to have it now.
 
-> +		/* Sanity check */
-> +		if (vq->iov->iov_len != sizeof(struct virtio_net_hdr)) {
-> +			vq_err(vq, "Unexpected header len for TX: "
-> +			       "%ld expected %zd\n", vq->iov->iov_len,
-> +			       sizeof(struct virtio_net_hdr));
-> +			break;
-> +		}
+> > I think this is likely going to be needed regardless.  I also think 
+> > the tap compatibility suggestion would simplify the consumption of 
+> > this in userspace.
+> 
+> What about veth pairs?
 
-OK, this check, which is in the qemu version, is *wrong*.  There should be
-no assumption on sg boundaries.  For example, the guest should be able to
-put the virtio_net_hdr in the front of the skbuf data if there is room.
+I think you are talking about different issues. Veth pairs let you connect
+vhost to a bridge device like you do in the typical tun/tap setup, which
+addresses one problem.
 
-You should try to explicitly "consume" sizeof(struct virtio_net_hdr) of the
-iov, and if fail, do this message.  You can skip the out <= 1 test then,
-too.
+The other issue that came up is that raw sockets require root permissions,
+so you have to start qemu as root or with an open file descriptor for the
+socket (e.g. through libvirt). Permission handling on tap devices is ugly
+as well, but is a solved problem. The solution is to be able to pass
+a tap device (or a socket from a tap device) into vhost net. IMHO we
+need this eventually, but it's not a show stopper for 2.6.32.
 
-Anyway, I really prefer vq->iov[0]. to vq->iov-> here.
+Along the same lines, I also think it should support TCP and UDP sockets
+so we can offload 'qemu -net socket,mcast' and 'qemu -net socket,connect'
+in addition to 'qemu -net socket,raw'.
 
-> +		/* Sanity check */
-> +		if (vq->iov->iov_len != sizeof(struct virtio_net_hdr)) {
-> +			vq_err(vq, "Unexpected header len for RX: "
-> +			       "%ld expected %zd\n",
-> +			       vq->iov->iov_len, sizeof(struct virtio_net_hdr));
-> +			break;
-
-Here too.
-
-> +	u32 __user *featurep = argp;
-> +	int __user *fdp = argp;
-> +	u32 features;
-> +	int fd, r;
-> +	switch (ioctl) {
-> +	case VHOST_NET_SET_SOCKET:
-> +		r = get_user(fd, fdp);
-> +		if (r < 0)
-> +			return r;
-> +		return vhost_net_set_socket(n, fd);
-> +	case VHOST_GET_FEATURES:
-> +		/* No features for now */
-> +		features = 0;
-> +		return put_user(features, featurep);
-
-We may well get more than 32 feature bits, at least for virtio_net, which will
-force us to do some trickery in virtio_pci.  I'd like to avoid that here,
-though it's kind of ugly.  We'd need VHOST_GET_FEATURES (and ACK) to take a
-struct like:
-
-	u32 feature_size;
-	u32 features[];
-
-> +int vhost_net_init(void)
-
-static?
-
-> +void vhost_net_exit(void)
-
-static?
-
-> +/* Start polling a file. We add ourselves to file's wait queue. The user must
-> + * keep a reference to a file until after vhost_poll_stop is called. */
-
-I experienced minor confusion from the comments in this file.  Where you said
-"user" I think "caller".  No biggie though.
-
-> +	memory->nregions = 2;
-> +	memory->regions[0].guest_phys_addr = 1;
-> +	memory->regions[0].userspace_addr = 1;
-> +	memory->regions[0].memory_size = ~0ULL;
-> +	memory->regions[1].guest_phys_addr = 0;
-> +	memory->regions[1].userspace_addr = 0;
-> +	memory->regions[1].memory_size = 1;
-
-Not sure I understand why there are two regions to start?
-
-> +	case VHOST_SET_VRING_BASE:
-> +		r = copy_from_user(&s, argp, sizeof s);
-> +		if (r < 0)
-> +			break;
-> +		if (s.num > 0xffff) {
-> +			r = -EINVAL;
-> +			break;
-> +		}
-> +		vq->last_avail_idx = s.num;
-> +		break;
-> +	case VHOST_GET_VRING_BASE:
-> +		s.index = idx;
-> +		s.num = vq->last_avail_idx;
-> +		r = copy_to_user(argp, &s, sizeof s);
-> +		break;
-
-Ah, this is my fault.  I didn't expose the last_avail_idx in the ring
-because the other side doesn't need it; but without it the ring state is not
-fully observable from outside (no external save / restore!).
-
-I have a patch which published these indices (we have room), see:
-	http://ozlabs.org/~rusty/kernel/rr-2009-08-12-1/virtio:ring-publish-indices.patch
-
-Perhaps we should use that mechanism instead?  We don't actually have to
-offer the feature (we don't care about the guest state), but it's nice as
-documentation.  I've been waiting for an excuse to use that patch.
-
-> +long vhost_dev_ioctl(struct vhost_dev *d, unsigned int ioctl, unsigned long arg)
-> +{
-> +	void __user *argp = (void __user *)arg;
-> +	long r;
-> +
-> +	mutex_lock(&d->mutex);
-> +	if (ioctl == VHOST_SET_OWNER) {
-> +		r = vhost_dev_set_owner(d);
-> +		goto done;
-> +	}
-> +
-> +	r = vhost_dev_check_owner(d);
-
-You can do a VHOST_SET_OWNER without being the owner?  So really,
-the -EPERM from all the vhost_dev_check_owner() is not a security thing,
-but a "I don't think you mean to do that" thing?
-
-If so, a comment above it might help?
-
-> +static const struct vhost_memory_region *find_region(struct vhost_memory *mem,
-> +						     __u64 addr, __u32 len)
-> +{
-> +	struct vhost_memory_region *reg;
-> +	int i;
-> +	/* linear search is not brilliant, but we really have on the order of 6
-> +	 * regions in practice */
-
-Ah, you actually mean "this code has been carefully cache-optimized for the
-common case" :)
-
-> +/* FIXME: this does not handle a region that spans multiple
-> + * address/len pairs */
-> +int translate_desc(struct vhost_dev *dev, u64 addr, u32 len,
-> +		   struct iovec iov[], int iov_count, int iov_size,
-> +		   unsigned *num)
-> +{
-> +	const struct vhost_memory_region *reg;
-> +	struct vhost_memory *mem;
-> +	struct iovec *_iov;
-> +	u64 s = 0;
-> +	int ret = 0;
-
-Would this be neater if it returned the num iovecs used?  And offsetting
-iov in the caller, rather than passing iov_count?
-
-> +	/* If their number is silly, that's a fatal mistake. */
-> +	if (head >= vq->num) {
-> +		vq_err(vq, "Guest says index %u > %u is available",
-> +		       head, vq->num);
-> +		return vq->num;
-> +	}
-
-Not a fatal mistake in this code/
-
-> +	vq->inflight++;
-
-vq->inflight was a brain fart in the old lguest code.  See
-commit ebf9a5a99c1a464afe0b4dfa64416fc8b273bc5c.
-
-Also, see other fixes to the lguest launcher since then which might
-be relevant to this code:
-	lguest: get more serious about wmb() in example Launcher code
-	lguest: clean up length-used value in example launcher
-
-> +	/* If they don't want an interrupt, don't send one, unless empty. */
-> +	if ((flags & VRING_AVAIL_F_NO_INTERRUPT) && vq->inflight)
-> +		return;
-
-And I wouldn't support notify on empty at all, TBH.  It should
-definitely be conditional on the guest accepting the NOTIFY_ON_EMPTY
-feature.
-
-> +/* The virtqueue structure describes a queue attached to a device. */
-> +struct vhost_virtqueue {
-...
-> +} ____cacheline_aligned;
-
-Really?  I'd want to see numbers on this one.  False sharing vs. more cache
-utilization.
-
-> +#define vq_err(vq, fmt, ...) do {                                  \
-> +		printk(KERN_ERR pr_fmt(fmt), ##__VA_ARGS__);       \
-> +		if ((vq)->error_ctx)                               \
-> +				eventfd_signal((vq)->error_ctx, 1);\
-> +	} while (0)
-
-Mmm... guests should not be able to create unlimited printks in the host.
-
-But really, nothing major to object to in here...
-
-Thanks!
-Rusty.
+	Arnd <><
