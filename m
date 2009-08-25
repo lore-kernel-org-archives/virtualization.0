@@ -1,93 +1,65 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [PATCH] XEN: remove undefined functions
-Date: Tue, 25 Aug 2009 09:32:10 -0700
-Message-ID: <4A94120A.1020301@goop.org>
-References: <1251194494.2399.22.camel@Fedora32.jaswinder>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCHv4 2/2] vhost_net: a kernel-level virtio server
+Date: Tue, 25 Aug 2009 20:50:16 +0300
+Message-ID: <20090825175016.GA15790__39788.6486295194$1251223200$gmane$org@redhat.com>
+References: <cover.1250693417.git.mst@redhat.com>
+	<20090819150309.GC4236@redhat.com>
+	<200908252140.41295.rusty@rustcorp.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-Return-path: <xen-devel-bounces@lists.xensource.com>
-In-Reply-To: <1251194494.2399.22.camel@Fedora32.jaswinder>
-List-Unsubscribe: <http://lists.xensource.com/mailman/listinfo/xen-devel>,
-	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
-List-Post: <mailto:xen-devel@lists.xensource.com>
-List-Help: <mailto:xen-devel-request@lists.xensource.com?subject=help>
-List-Subscribe: <http://lists.xensource.com/mailman/listinfo/xen-devel>,
-	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
-Sender: xen-devel-bounces@lists.xensource.com
-Errors-To: xen-devel-bounces@lists.xensource.com
-To: Jaswinder Singh Rajput <jaswinder@kernel.org>
-Cc: Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, Jeremy Fitzhardinge <jeremy@xensource.com>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <200908252140.41295.rusty@rustcorp.com.au>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, hpa@zytor.com, mingo@elte.hu, akpm@linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 08/25/09 03:01, Jaswinder Singh Rajput wrote:
-> mk_pirq_info(), gsi_from_irq() and vector_from_irq() are static functio=
-ns
-> and no one is calling them.
->
-> This fixed following compilation warnings :
->
->   drivers/xen/events.c:134: warning: =E2=80=98mk_pirq_info=E2=80=99 def=
-ined but not used
->   drivers/xen/events.c:180: warning: =E2=80=98gsi_from_irq=E2=80=99 def=
-ined but not used
->   drivers/xen/events.c:190: warning: =E2=80=98vector_from_irq=E2=80=99 =
-defined but not used
->
-> Signed-off-by: Jaswinder Singh Rajput <jaswinderrajput@gmail.com>
->  =20
+On Tue, Aug 25, 2009 at 09:40:40PM +0930, Rusty Russell wrote:
+> > +	u32 __user *featurep = argp;
+> > +	int __user *fdp = argp;
+> > +	u32 features;
+> > +	int fd, r;
+> > +	switch (ioctl) {
+> > +	case VHOST_NET_SET_SOCKET:
+> > +		r = get_user(fd, fdp);
+> > +		if (r < 0)
+> > +			return r;
+> > +		return vhost_net_set_socket(n, fd);
+> > +	case VHOST_GET_FEATURES:
+> > +		/* No features for now */
+> > +		features = 0;
+> > +		return put_user(features, featurep);
+> 
+> We may well get more than 32 feature bits, at least for virtio_net, which will
+> force us to do some trickery in virtio_pci.
 
-Hm, they're all about to become used.
+Unlike PCI, if we ever run out of bits we can just
+add FEATURES_EXTENDED ioctl, no need for trickery.
 
-    J
-> ---
->  drivers/xen/events.c |   27 ---------------------------
->  1 files changed, 0 insertions(+), 27 deletions(-)
->
-> diff --git a/drivers/xen/events.c b/drivers/xen/events.c
-> index abad71b..d43957a 100644
-> --- a/drivers/xen/events.c
-> +++ b/drivers/xen/events.c
-> @@ -131,13 +131,6 @@ static struct irq_info mk_virq_info(unsigned short=
- evtchn, unsigned short virq)
->  			.cpu =3D 0, .u.virq =3D virq };
->  }
-> =20
-> -static struct irq_info mk_pirq_info(unsigned short evtchn,
-> -				    unsigned short gsi, unsigned short vector)
-> -{
-> -	return (struct irq_info) { .type =3D IRQT_PIRQ, .evtchn =3D evtchn,
-> -			.cpu =3D 0, .u.pirq =3D { .gsi =3D gsi, .vector =3D vector } };
-> -}
-> -
->  /*
->   * Accessors for packed IRQ information.
->   */
-> @@ -177,26 +170,6 @@ static unsigned virq_from_irq(unsigned irq)
->  	return info->u.virq;
->  }
-> =20
-> -static unsigned gsi_from_irq(unsigned irq)
-> -{
-> -	struct irq_info *info =3D info_for_irq(irq);
-> -
-> -	BUG_ON(info =3D=3D NULL);
-> -	BUG_ON(info->type !=3D IRQT_PIRQ);
-> -
-> -	return info->u.pirq.gsi;
-> -}
-> -
-> -static unsigned vector_from_irq(unsigned irq)
-> -{
-> -	struct irq_info *info =3D info_for_irq(irq);
-> -
-> -	BUG_ON(info =3D=3D NULL);
-> -	BUG_ON(info->type !=3D IRQT_PIRQ);
-> -
-> -	return info->u.pirq.vector;
-> -}
-> -
->  static enum xen_irq_type type_from_irq(unsigned irq)
->  {
->  	return info_for_irq(irq)->type;
->  =20
+>  I'd like to avoid that here,
+> though it's kind of ugly.  We'd need VHOST_GET_FEATURES (and ACK) to take a
+> struct like:
+> 
+> 	u32 feature_size;
+> 	u32 features[];
+
+
+Thinking about this proposal some more, how will the guest
+determine the size to supply the GET_FEATURES ioctl?
+
+Since we are a bit tight in 32 bit space already,
+let's just use a 64 bit integer and be done with it?
+Right?
+
+-- 
+MST
