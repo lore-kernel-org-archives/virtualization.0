@@ -1,17 +1,16 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: vhost net: performance with ping benchmark
-Date: Tue, 25 Aug 2009 17:02:34 +0300
-Message-ID: <20090825140234.GA14129__1157.09703318334$1251209112$gmane$org@redhat.com>
-References: <20090824081240.GA3415@redhat.com>
-	<20090824212137.GA9835@redhat.com>
-	<4A934AF7.2090904@codemonkey.ws> <4A936525.5030300@redhat.com>
-	<4A93E1DF.5080004@codemonkey.ws>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH 1/2] virtio: Add a can_add_buf helper
+Date: Tue, 25 Aug 2009 23:57:54 +0930
+Message-ID: <200908252357.54455.rusty@rustcorp.com.au>
+References: <1250611290-2410-1-git-send-email-amit.shah@redhat.com>
+	<200908221731.26834.rusty@rustcorp.com.au>
+	<20090824073944.GA7653@amit-x200.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20090824073944.GA7653@amit-x200.redhat.com>
 Content-Disposition: inline
-In-Reply-To: <4A93E1DF.5080004@codemonkey.ws>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -21,34 +20,19 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Anthony Liguori <anthony@codemonkey.ws>
-Cc: Mark McLoughlin <markmc@redhat.com>, Avi Kivity <avi@redhat.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Amit Shah <amit.shah@redhat.com>
+Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Aug 25, 2009 at 08:06:39AM -0500, Anthony Liguori wrote:
-> Avi Kivity wrote:
->>> I think this is likely going to be needed regardless.  I also think  
->>> the tap compatibility suggestion would simplify the consumption of  
->>> this in userspace.
->>
->> What about veth pairs?
->
-> Does veth support GSO and checksum offload?
+On Mon, 24 Aug 2009 05:09:44 pm Amit Shah wrote:
+>  	sg_init_table(sg, 2+MAX_SKB_FRAGS);
+> -	for (;;) {
+> +	ret = 1;
+> +	while(ret > 0) { /* Is there space to add another buffer to the vq */
 
-AFAIK, no. But again, improving veth is a separate project :)
+This is called a "do" loop :)
 
->>> I'd like some time to look at get_state/set_state ioctl()s along with 
->>> dirty tracking support.  It's a much better model for live migration  
->>> IMHO.
->>
->> My preference is ring proxying.  Not we'll need ring proxying (or at  
->> least event proxying) for non-MSI guests.
->
-> I avoided suggested ring proxying because I didn't want to suggest that  
-> merging should be contingent on it.
+Please test, and I'll apply.
 
-Happily, the proposed interface supports is.
-
-> Regards,
->
-> Anthony Liguori
+Cheers,
+Rusty.
