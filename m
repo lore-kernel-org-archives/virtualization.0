@@ -1,16 +1,11 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: vhost net: performance with ping benchmark
-Date: Wed, 26 Aug 2009 11:14:26 +0300
-Message-ID: <20090826081425.GA17414__27712.8355614424$1251274657$gmane$org@redhat.com>
-References: <20090824081240.GA3415@redhat.com> <4A936525.5030300@redhat.com>
-	<200908251434.41402.arnd@arndb.de>
-	<200908261704.45298.rusty@rustcorp.com.au>
+From: Amit Shah <amit.shah@redhat.com>
+Subject: [PATCH] virtio_net: Check for room in the vq before adding buffer
+Date: Wed, 26 Aug 2009 14:58:28 +0530
+Message-ID: <1251278908-18601-1-git-send-email-amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <200908261704.45298.rusty@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,29 +15,60 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Mark McLoughlin <markmc@redhat.com>, Arnd Bergmann <arnd@arndb.de>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, Avi Kivity <avi@redhat.com>, Anthony Liguori <anthony@codemonkey.ws>
+To: rusty@rustcorp.com.au
+Cc: Amit Shah <amit.shah@redhat.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Aug 26, 2009 at 05:04:44PM +0930, Rusty Russell wrote:
-> On Tue, 25 Aug 2009 10:04:41 pm Arnd Bergmann wrote:
-> > On Tuesday 25 August 2009, Avi Kivity wrote:
-> > > On 08/25/2009 05:22 AM, Anthony Liguori wrote:
-> > > >
-> > > > I think 2.6.32 is pushing it. 
-> > > 
-> > > 2.6.32 is pushing it, but we need to push it.
-> > 
-> > Agreed.
-> 
-> Get real.  It's not happening.
-> 
-> We need migration completely solved and tested.  I want to see all the
-> features supported, including indirect descs and GSO.
+Saves us one cycle of alloc-add-free if the queue was full.
 
-I'm not sure why indirect descs are needed for virtio-net. Comments?
+Signed-off-by: Amit Shah <amit.shah@redhat.com>
+---
 
-> If this wasn't a new userspace ABI, I'd be all for throwing it in as
-> experimental ASAP.
-> 
-> Rusty.
+Rusty: Tested this. 256 buffers are allocated with the patch,
+257 without (and one is later freed).
+
+ drivers/net/virtio_net.c |    8 ++++----
+ 1 files changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index e94f817..bb54a1f 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -280,7 +280,7 @@ static bool try_fill_recv_maxbufs(struct virtnet_info *vi, gfp_t gfp)
+ 	bool oom = false;
+ 
+ 	sg_init_table(sg, 2+MAX_SKB_FRAGS);
+-	for (;;) {
++	do {
+ 		struct skb_vnet_hdr *hdr;
+ 
+ 		skb = netdev_alloc_skb(vi->dev, MAX_PACKET_LEN + NET_IP_ALIGN);
+@@ -323,7 +323,7 @@ static bool try_fill_recv_maxbufs(struct virtnet_info *vi, gfp_t gfp)
+ 			break;
+ 		}
+ 		vi->num++;
+-	}
++	} while (err > 0);
+ 	if (unlikely(vi->num > vi->max))
+ 		vi->max = vi->num;
+ 	vi->rvq->vq_ops->kick(vi->rvq);
+@@ -341,7 +341,7 @@ static bool try_fill_recv(struct virtnet_info *vi, gfp_t gfp)
+ 	if (!vi->mergeable_rx_bufs)
+ 		return try_fill_recv_maxbufs(vi, gfp);
+ 
+-	for (;;) {
++	do {
+ 		skb_frag_t *f;
+ 
+ 		skb = netdev_alloc_skb(vi->dev, GOOD_COPY_LEN + NET_IP_ALIGN);
+@@ -375,7 +375,7 @@ static bool try_fill_recv(struct virtnet_info *vi, gfp_t gfp)
+ 			break;
+ 		}
+ 		vi->num++;
+-	}
++	} while (err > 0);
+ 	if (unlikely(vi->num > vi->max))
+ 		vi->max = vi->num;
+ 	vi->rvq->vq_ops->kick(vi->rvq);
+-- 
+1.6.2.5
