@@ -1,17 +1,15 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCHv4 2/2] vhost_net: a kernel-level virtio server
-Date: Thu, 27 Aug 2009 13:10:26 +0300
-Message-ID: <20090827101026.GA8545__22077.320123981$1251368003$gmane$org@redhat.com>
-References: <cover.1250693417.git.mst@redhat.com>
-	<200908252140.41295.rusty@rustcorp.com.au>
-	<20090825175016.GA15790@redhat.com>
-	<200908261540.59900.arnd@arndb.de>
+From: Amit Shah <amit.shah@redhat.com>
+Subject: Re: [PATCH] virtio_net: Check for room in the vq before adding buffer
+Date: Thu, 27 Aug 2009 15:59:06 +0530
+Message-ID: <20090827102906.GA10885@amit-x200.redhat.com>
+References: <1251278908-18601-1-git-send-email-amit.shah@redhat.com>
+	<200908271917.21260.rusty@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <200908261540.59900.arnd@arndb.de>
+In-Reply-To: <200908271917.21260.rusty@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -21,37 +19,32 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, hpa@zytor.com, mingo@elte.hu, akpm@linux-foundation.org
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Aug 26, 2009 at 03:40:59PM +0200, Arnd Bergmann wrote:
-> On Tuesday 25 August 2009, Michael S. Tsirkin wrote:
-> > >  I'd like to avoid that here,
-> > > though it's kind of ugly.  We'd need VHOST_GET_FEATURES (and ACK) to take a
-> > > struct like:
-> > > 
-> > >       u32 feature_size;
-> > >       u32 features[];
+On (Thu) Aug 27 2009 [19:17:20], Rusty Russell wrote:
+> On Wed, 26 Aug 2009 06:58:28 pm Amit Shah wrote:
+> > Saves us one cycle of alloc-add-free if the queue was full.
+> > 
+> > Signed-off-by: Amit Shah <amit.shah@redhat.com>
 > 
-> Hmm, variable length ioctl arguments, I'd rather not go there.
-> The ioctl infrastructure already has a length argument encoded
-> in the ioctl number. We can use that if we need more, e.g.
+> Thanks, applied with one change:
 > 
-> /* now */
-> #define VHOST_GET_FEATURES     _IOR(VHOST_VIRTIO, 0x00, __u64)
-> /*
->  * uncomment if we run out of feature bits:
+> > @@ -323,7 +323,7 @@ static bool try_fill_recv_maxbufs(struct virtnet_info *vi, gfp_t gfp)
+> >  			break;
+> >  		}
+> >  		vi->num++;
+> > -	}
+> > +	} while (err > 0);
 > 
-> struct vhost_get_features2 {
-> 	__u64 bits[2];
-> };
-> #define VHOST_GET_FEATURES2     _IOR(VHOST_VIRTIO, 0x00, \
-> 			struct  vhost_get_features2)
->  */
+> This is better as "while (err >= num)".  The other one is right (we only need
+> 1 buffer), this one we need to be able to fit "num" entries.
 
+I'm missing something though: the value of 'num' changes in the loop and
+the value of num when it will be compared will just have been used by
+add_buf. The next iteration of the loop will probably use a different
+value (-- from just reading the code, not going over the cases in which
+this function is called).
 
-I thought so, too. Rusty, agree?
-
--- 
-MST
+		Amit
