@@ -1,17 +1,15 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCHv4 2/2] virtio: refactor find_vqs
-Date: Thu, 27 Aug 2009 14:26:58 +0300
-Message-ID: <20090827112656.GA21834__26888.9754232534$1251372597$gmane$org@redhat.com>
-References: <cover.1248623150.git.mst@redhat.com>
-	<200908271900.34757.rusty@rustcorp.com.au>
-	<20090827094926.GB8391@redhat.com>
-	<200908272032.24724.rusty@rustcorp.com.au>
+From: Or Gerlitz <ogerlitz@voltaire.com>
+Subject: Re: [evb] RE: [PATCH][RFC] net/bridge: add basic VEPA support
+Date: Thu, 27 Aug 2009 15:35:55 +0300
+Message-ID: <4A967DAB.2010209__21744.4559246816$1251377035$gmane$org@voltaire.com>
+References: <D2E118A1E7268F449C469EA2F301D92902BC39B2@exil.voltaire.com>	<000001ca17a3$03f841f0$0be8c5d0$@edu>
+	<20090807143652.1659ac57@nehalam>	<4A7EB0AC.2030104@Voltaire.com>
+	<20090810082037.17b352c2@nehalam>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <200908272032.24724.rusty@rustcorp.com.au>
+In-Reply-To: <20090810082037.17b352c2@nehalam>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -21,47 +19,17 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Carsten Otte <cotte@de.ibm.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, avi@redhat.com, Anthony Liguori <anthony@codemonkey.ws>, amit.shah@redhat.com
+To: Stephen Hemminger <shemminger@linux-foundation.org>
+Cc: "evb@yahoogroups.com" <evb@yahoogroups.com>, arnd@arndb.de, anna.fischer@hp.com, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, adobriyan@gmail.com, "Paul Congdon (UC Davis)" <ptcongdon@ucdavis.edu>, virtualization@lists.linux-foundation.org, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Aug 27, 2009 at 08:32:24PM +0930, Rusty Russell wrote:
-> On Thu, 27 Aug 2009 07:19:26 pm Michael S. Tsirkin wrote:
-> > On Thu, Aug 27, 2009 at 07:00:34PM +0930, Rusty Russell wrote:
-> > > On Tue, 25 Aug 2009 09:34:34 pm Michael S. Tsirkin wrote:
-> > > > > That's because we didn't do the request_irq's for the per_vector case, because
-> > > > > we don't have the names.  This is what prevented me from doing a nice
-> > > > > encapsulation.
-> > > > 
-> > > > Yes. But let's split free_vectors out into free_msix_vectors and
-> > > > free_intx as well?
-> > > 
-> > > Perhaps.  Patch welcome :)
-> > 
-> > Could you put the end result somewhere so I can work on top of it?
-> 
-> Sure, it'll hit linux-next tomorrow, otherwise you can steal from
-> http://ozlabs.org/~rusty/kernel/rr-latest (virtio:pci-minor-cleanups.patch
-> and virtio:pci-minor-cleanups-fix.patch).
-> 
-> > > But vector for something which isn't always the vector
-> > > is misleading, IMHO.
-> > 
-> > I think you mean it's isn't always used? It's always a vector ...
-> 
-> The non-MSI case, it's set to VIRTIO_MSI_NO_VECTOR, and we use a normal
-> interrupt vector.
-> 
-> > BTW, let's get rid of msix_enabled completely?
-> > We can always use msix_vectors ...
-> 
-> That would be nice.  But yes, requiring more audit.
-> 
-> Ideally, if msix_vectors == 0, implies intx_enabled.
+Stephen Hemminger wrote:
+> Or Gerlitz <ogerlitz@voltaire.com> wrote:
+>> Looking in macvlan_set_multicast_list() it acts in a similar manner to macvlan_set_mac_address() in the sense that it calls dev_mc_sync(). I assume what's left is to add macvlan_hash_xxx multicast logic to map/unmap multicast groups to what macvlan devices want to receive them and this way the flooding can be removed, correct?
+> The device can just flood all multicast packets, since the filtering is done on the receive path anyway.
+for each multicast packet, macvlan_broadcast is invoked and calls 
+skb_clone/ netif_rx for each device, now a smart scheme that takes into 
+account (hash) the multicast list of the different macvlan  devices 
+would save the skb_clone call, isn't it?
 
-It seems that since we *can* request both an intx
-and msix vectors, it's better to have them independent even if we
-currently don't do that. No?
-
-> Thanks,
-> Rusty.
+Or.
