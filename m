@@ -1,15 +1,16 @@
-From: Amit Shah <amit.shah@redhat.com>
-Subject: Re: [PATCH] virtio_net: Check for room in the vq before adding buffer
-Date: Thu, 27 Aug 2009 15:59:06 +0530
-Message-ID: <20090827102906.GA10885@amit-x200.redhat.com>
-References: <1251278908-18601-1-git-send-email-amit.shah@redhat.com>
-	<200908271917.21260.rusty@rustcorp.com.au>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCHv4 2/2] vhost_net: a kernel-level virtio server
+Date: Thu, 27 Aug 2009 13:45:18 +0300
+Message-ID: <20090827104517.GB8545__19715.3411842466$1251370075$gmane$org@redhat.com>
+References: <cover.1250693417.git.mst@redhat.com>
+	<20090819150309.GC4236@redhat.com>
+	<200908252140.41295.rusty@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <200908271917.21260.rusty@rustcorp.com.au>
+In-Reply-To: <200908252140.41295.rusty@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,31 +21,26 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: virtualization@lists.linux-foundation.org
+Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, hpa@zytor.com, mingo@elte.hu, akpm@linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On (Thu) Aug 27 2009 [19:17:20], Rusty Russell wrote:
-> On Wed, 26 Aug 2009 06:58:28 pm Amit Shah wrote:
-> > Saves us one cycle of alloc-add-free if the queue was full.
-> > 
-> > Signed-off-by: Amit Shah <amit.shah@redhat.com>
-> 
-> Thanks, applied with one change:
-> 
-> > @@ -323,7 +323,7 @@ static bool try_fill_recv_maxbufs(struct virtnet_info *vi, gfp_t gfp)
-> >  			break;
-> >  		}
-> >  		vi->num++;
-> > -	}
-> > +	} while (err > 0);
-> 
-> This is better as "while (err >= num)".  The other one is right (we only need
-> 1 buffer), this one we need to be able to fit "num" entries.
+On Tue, Aug 25, 2009 at 09:40:40PM +0930, Rusty Russell wrote:
+> Also, see other fixes to the lguest launcher since then which might
+> be relevant to this code:
+> 	lguest: get more serious about wmb() in example Launcher code
 
-I'm missing something though: the value of 'num' changes in the loop and
-the value of num when it will be compared will just have been used by
-add_buf. The next iteration of the loop will probably use a different
-value (-- from just reading the code, not going over the cases in which
-this function is called).
+Heh, this just gets one step closer to a real wmb.  I just used the
+correct code from linux, so I think nothing needs to be done in vhost.
+Apropos this change in lguest: why is a compiler barrier sufficient? The
+comment says devices are run in separate threads (presumably from
+guest?), if so don't you need to tell CPU that there's a barrier as
+well?
 
-		Amit
+> 	lguest: clean up length-used value in example launcher
+
+OK, fixing that.
+
+Thanks!
+
+-- 
+MST
