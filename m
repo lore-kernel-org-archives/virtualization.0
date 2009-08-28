@@ -1,18 +1,13 @@
-From: Ryan Arnold <rsa@us.ibm.com>
-Subject: Re: Extending virtio_console to support multiple ports
-Date: Thu, 27 Aug 2009 09:13:28 -0500
-Message-ID: <1251382408.3063.9.camel__27615.6097920195$1251397410$gmane$org@localhost.localdomain>
-References: <1251181044-3696-1-git-send-email-amit.shah@redhat.com>
-	<20090826112718.GA11117@amit-x200.redhat.com>
-	<20090826154552.GA31910@amit-x200.redhat.com>
-	<1251349485.6267.6.camel@concordia>
-	<20090827065251.GB3218@amit-x200.redhat.com>
-Reply-To: rsa@us.ibm.com
+From: Gregory Haskins <gregory.haskins@gmail.com>
+Subject: Re: [PATCHv5 1/3] mm: export use_mm/unuse_mm to modules
+Date: Fri, 28 Aug 2009 11:31:30 -0400
+Message-ID: <4A97F852.6060505__3649.39772193811$1251474056$gmane$org@gmail.com>
+References: <cover.1251388414.git.mst@redhat.com>
+	<20090827160656.GB23722@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============7183215231741579985=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20090827065251.GB3218@amit-x200.redhat.com>
+In-Reply-To: <20090827160656.GB23722@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,39 +15,67 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Mime-version: 1.0
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Amit Shah <amit.shah@redhat.com>
-Cc: kvm@vger.kernel.org, linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org, miltonm@bga.com, qemu-devel@nongnu.org, Michael Ellerman <michael@ellerman.id.au>, borntraeger@de.ibm.com, brueckner@linux.vnet.ibm.com, virtualization@lists.linux-foundation.org, alan@linux.intel.com
+To: "Michael S. Tsirkin" <mst@redhat.com>, akpm@linux-foundation.org
+Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, s.hetze@linux-ag.com, hpa@zytor.com, mingo@elte.hu
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 2009-08-27 at 12:22 +0530, Amit Shah wrote:
-> On (Thu) Aug 27 2009 [15:04:45], Michael Ellerman wrote:
->  Ryan you called his code "pure legacy baggage" if you
-> > don't ;)
-> > 
-> > http://git.kernel.org/?p=linux/kernel/git/torvalds/old-2.6-bkcvs.git;a=commitdiff;h=d450b4ae023fb4be175389c18f4f87677da03020
-> 
-> Thanks for the link!
-> 
-> (and this general area might be the one that doesn't get major upheavals
-> in 5-yr spans :-)
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--===============7183215231741579985==
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig1C5BA6B72C76D6CD23C7D55F"
 
-Actually, quite the opposite... too many cooks in the kitchen in the
-last 6 years have left this code with some historical oddities.  When I
-added the interrupt context code in the first place I made sure that the
-driver did NOTHING in the interrupt handler except awaken the working
-thread.  Someone in the subsequent years thought it'd be a good idea to
-have the interrupt handler actually do the work.
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig1C5BA6B72C76D6CD23C7D55F
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-Furthermore the front and backends were separated so that new front ends
-can be used.  This was sometime in the last 5 years as well.
+Michael S. Tsirkin wrote:
+> vhost net module wants to do copy to/from user from a kernel thread,
+> which needs use_mm (like what fs/aio has).  Move that into mm/ and
+> export to modules.
 
-Let's just say I'm happy to pass the torch on this one.
 
-I would suggest that someone perform throughput tests on this driver at
-some point.  At the point where I stopped maintaining it I'd gotten the
-driver to the point where there was no jerking output or lost data under
-heavy I/O load.  I'm not sure where the driver's at now.
+Michael, Andrew,
 
-Ryan S. Arnold
+I am just curious: Is there any technical reason why a kthread cannot
+have a long-term use_mm() in effect? (Assuming this makes sense for the
+design, of course).  For the cases there we know the kthread will always
+service the same context (such as with venettap/vhost, it may make sense
+to do a use_mm() at init time and just leave it until the thread exits.
+ Will this break anything?
+
+Kind Regards,
+-Greg
+
+
+--------------enig1C5BA6B72C76D6CD23C7D55F
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG/MacGPG2 v2.0.11 (Darwin)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
+
+iEYEARECAAYFAkqX+FIACgkQP5K2CMvXmqGsNACghgmvgLjfVfN25itYVCnOSH4G
+CIwAn1VdFGYr8TJCQTlY3E1yjibfYjMF
+=3B87
+-----END PGP SIGNATURE-----
+
+--------------enig1C5BA6B72C76D6CD23C7D55F--
+
+--===============7183215231741579985==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linux-foundation.org/mailman/listinfo/virtualization
+--===============7183215231741579985==--
