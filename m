@@ -1,19 +1,16 @@
-From: Jamie Lokier <jamie@shareable.org>
-Subject: Re: [Qemu-devel] Re: Extending virtio_console to support multiple
-	ports
-Date: Sat, 29 Aug 2009 02:15:17 +0100
-Message-ID: <20090829011517.GG8036__34946.8159176924$1251508695$gmane$org@shareable.org>
+From: Amit Shah <amit.shah@redhat.com>
+Subject: Re: Extending virtio_console to support multiple ports
+Date: Sun, 30 Aug 2009 15:40:57 +0530
+Message-ID: <20090830101057.GB32563__17700.1397627921$1251627222$gmane$org@amit-x200.redhat.com>
 References: <1251181044-3696-1-git-send-email-amit.shah@redhat.com>
 	<20090826112718.GA11117@amit-x200.redhat.com>
-	<20090826154552.GA31910@amit-x200.redhat.com>
-	<1251346023.20467.21.camel@pasglop>
-	<20090827100809.5f0aa0a7@linux.intel.com>
+	<4A980D18.30106@codemonkey.ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20090827100809.5f0aa0a7@linux.intel.com>
+In-Reply-To: <4A980D18.30106@codemonkey.ws>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -23,21 +20,46 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Alan Cox <alan@linux.intel.com>
-Cc: kvm@vger.kernel.org, borntraeger@de.ibm.com, Benjamin Herrenschmidt <benh@kernel.crashing.org>, qemu-devel@nongnu.org, miltonm@bga.com, linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org, brueckner@linux.vnet.ibm.com, Amit Shah <amit.shah@redhat.com>, virtualization@lists.linux-foundation.org
+To: Anthony Liguori <anthony@codemonkey.ws>
+Cc: qemu-devel@nongnu.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Alan Cox wrote:
-> >  - Then, are we certain that there's no case where the tty layer will
-> > call us with some lock held or in an atomic context ? To be honest,
-> > I've totally lost track of the locking rules in tty land lately so it
-> > might well be ok, but something to verify.
-> 
-> Some of the less well behaved line disciplines do this and always have
-> done.
+On (Fri) Aug 28 2009 [12:00:08], Anthony Liguori wrote:
+> Amit Shah wrote:
+>> On (Tue) Aug 25 2009 [11:47:20], Amit Shah wrote:
+>>   
+>>> Hello all,
+>>>
+>>> Here is a new iteration of the patch series that implements a
+>>> transport for guest and host communications.
+>>>
+>>> The code has been updated to reuse the virtio-console device instead
+>>> of creating a new virtio-serial device.
+>>>     
+>>
+>> And the problem now is that hvc calls the put_chars function with
+>> spinlocks held and we now allocate pages in send_buf(), called from
+>> put_chars.
+>>   
+>
+> Don't allocate pages in send_buf.  There's a fixed number of possible  
+> entries on the ring.  Preallocate them up front and then you don't need  
+> to sleep.
 
-I had a backtrace in my kernel log recently which looked like that,
-while doing PPP over Bluetooth RFCOMM.  Resulted in AppArmor
-complaining that it's hook was being called in irq context.
+I did think about that as well, but there are problems:
 
--- Jamie
+- vnc clients (at least tigervnc) wants to receive the entire clipboard
+  in a single flush command. So in the pre-allocated buffers scenario we
+  could run short of the available buffers in some cases. So there will
+  have to be a flag with each buffer that says 'there's more data
+  pending for this particular write' which will have to be passed on to
+  qemu and qemu will then flush it once it receives all the data
+
+- A lock has to be introduced to fetch one unused buffer from the list
+  and pass it on to the host. And this lock has to be a spinlock, just
+  because writes can be called from irq context.
+
+We're basically just turning a simple transport into more and more
+complex code just to handle this special case.
+
+		Amit
