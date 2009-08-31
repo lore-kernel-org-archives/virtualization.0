@@ -1,23 +1,14 @@
-From: Anthony Liguori <anthony@codemonkey.ws>
-Subject: Re: Extending virtio_console to support multiple ports
-Date: Mon, 31 Aug 2009 11:37:05 -0500
-Message-ID: <4A9BFC31.9070005__1987.9002742984$1251736790$gmane$org@codemonkey.ws>
-References: <20090826112718.GA11117@amit-x200.redhat.com>
-	<4A980D18.30106@codemonkey.ws>
-	<20090830101057.GB32563@amit-x200.redhat.com>
-	<4A9A7525.6010707@codemonkey.ws>
-	<20090830131738.GC3401@amit-x200.redhat.com>
-	<4A9BCD61.2040903@codemonkey.ws>
-	<20090831135147.GA16371@amit-x200.redhat.com>
-	<4A9BDC59.1090801@codemonkey.ws>
-	<20090831143101.GA16943@amit-x200.redhat.com>
-	<4A9BF2AB.8080104@codemonkey.ws>
-	<20090831161925.GA22928@amit-x200.redhat.com>
+From: Avi Kivity <avi@redhat.com>
+Subject: Re: [PATCHv5 3/3] vhost_net: a kernel-level virtio server
+Date: Mon, 31 Aug 2009 20:52:02 +0300
+Message-ID: <4A9C0DC2.6080704__17470.1144489974$1251741285$gmane$org@redhat.com>
+References: <E88DD564E9DC5446A76B2B47C3BCCA150219600F9B@pdsmsx503.ccr.corp.intel.com>
+	<C85CEDA13AB1CF4D9D597824A86D2B9006AEB944B8@PDSMSX501.ccr.corp.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20090831161925.GA22928@amit-x200.redhat.com>
+In-Reply-To: <C85CEDA13AB1CF4D9D597824A86D2B9006AEB944B8@PDSMSX501.ccr.corp.intel.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -27,59 +18,27 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Amit Shah <amit.shah@redhat.com>
-Cc: qemu-devel@nongnu.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: "Xin, Xiaohui" <xiaohui.xin@intel.com>
+Cc: "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "mst@redhat.com" <mst@redhat.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "hpa@zytor.com" <hpa@zytor.com>, "mingo@elte.hu" <mingo@elte.hu>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Amit Shah wrote:
->>> We're ending up having to compromise on the performance or functionality
->>> or simplicity the devices just because of this restriction.
->>>   
->>>       
->> This is _not_ a high performance device and there so far has been no  
->> functionality impact.  I don't understand why you keep dragging your  
->> feet about this.  It's very simple, if you post a functional set of  
->> patches for a converged virtio-console driver, we'll merge it.  If you  
->>     
+On 08/31/2009 02:42 PM, Xin, Xiaohui wrote:
+> Hi, Michael
+> That's a great job. We are now working on support VMDq on KVM, and since the VMDq hardware presents L2 sorting based on MAC addresses and VLAN tags, our target is to implement a zero copy solution using VMDq. We stared from the virtio-net architecture. What we want to proposal is to use AIO combined with direct I/O:
+> 1) Modify virtio-net Backend service in Qemu to submit aio requests composed from virtqueue.
+> 2) Modify TUN/TAP device to support aio operations and the user space buffer directly mapping into the host kernel.
+> 3) Let a TUN/TAP device binds to single rx/tx queue from the NIC.
+> 4) Modify the net_dev and skb structure to permit allocated skb to use user space directly mapped payload buffer address rather then kernel allocated.
 >
-> I have already posted them and have received no feedback about the
-> patches since. Let me add another request here for you to review them.
->   
+> As zero copy is also your goal, we are interested in what's in your mind, and would like to collaborate with you if possible.
+>    
 
-But the guest drivers do not have proper locking.  Have you posted a new 
-series with that fixed?
+One way to share the effort is to make vmdq queues available as normal 
+kernel interfaces.  It would take quite a bit of work, but the end 
+result is that no other components need to be change, and it makes vmdq 
+useful outside kvm.  It also greatly reduces the amount of integration 
+work needed throughout the stack (kvm/qemu/libvirt).
 
->> keep arguing about having a separate virtio-serial driver, it's not  
->> going to get merged.  I don't know how to be more clear than this.
->>     
->
-> I'm not at all arguing for a separate virtio-serial driver. Please note
-> the difference in what I'm asking for: I'm just asking for a good
-> justification for the merging of the two since it just makes both the
-> drivers not simple and also introduces dependencies on code outside our
-> control.
->   
-
-Functionally speaking, both virtio-console and virtio-serial do the same 
-thing.  In fact, virtio-console is just a subset of virtio-serial.
-
-If there are problems converging the two drivers in Linux, then I 
-suggest you have two separate driver modules in Linux.  That would 
-obviously be rejected for Linux though because you cannot have two 
-drivers for the same device.  Why should qemu have a different policy?
-
-  
-
->> That is not a justification to add a new device in QEMU.  If we add a  
->> new device everytime we encounter a less than ideal interface within a  
->> guest, we're going to end up having hundreds of devices.
->>     
->
-> I just find this argument funny.
->   
-
-I'm finding this discussion not so productive.
-
-Regards,
-
-Anthony Liguori
+-- 
+I have a truly marvellous patch that fixes the bug which this
+signature is too narrow to contain.
