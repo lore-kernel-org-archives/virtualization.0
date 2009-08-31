@@ -1,22 +1,14 @@
-From: Amit Shah <amit.shah@redhat.com>
-Subject: Re: Extending virtio_console to support multiple ports
-Date: Mon, 31 Aug 2009 20:01:01 +0530
-Message-ID: <20090831143101.GA16943__48549.260167829$1251729218$gmane$org@amit-x200.redhat.com>
-References: <1251181044-3696-1-git-send-email-amit.shah@redhat.com>
-	<20090826112718.GA11117@amit-x200.redhat.com>
-	<4A980D18.30106@codemonkey.ws>
-	<20090830101057.GB32563@amit-x200.redhat.com>
-	<4A9A7525.6010707@codemonkey.ws>
-	<20090830131738.GC3401@amit-x200.redhat.com>
-	<4A9BCD61.2040903@codemonkey.ws>
-	<20090831135147.GA16371@amit-x200.redhat.com>
-	<4A9BDC59.1090801@codemonkey.ws>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [PATCHv5 3/3] vhost_net: a kernel-level virtio server
+Date: Mon, 31 Aug 2009 17:23:33 +0200
+Message-ID: <200908311723.34067.arnd__27522.51500865$1251732477$gmane$org@arndb.de>
+References: <E88DD564E9DC5446A76B2B47C3BCCA150219600F9B@pdsmsx503.ccr.corp.intel.com>
+	<C85CEDA13AB1CF4D9D597824A86D2B9006AEB944B8@PDSMSX501.ccr.corp.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <4A9BDC59.1090801@codemonkey.ws>
+In-Reply-To: <C85CEDA13AB1CF4D9D597824A86D2B9006AEB944B8@PDSMSX501.ccr.corp.intel.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -26,34 +18,47 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Anthony Liguori <anthony@codemonkey.ws>
-Cc: qemu-devel@nongnu.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: "Xin, Xiaohui" <xiaohui.xin@intel.com>
+Cc: "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "mst@redhat.com" <mst@redhat.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "hpa@zytor.com" <hpa@zytor.com>, "mingo@elte.hu" <mingo@elte.hu>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On (Mon) Aug 31 2009 [09:21:13], Anthony Liguori wrote:
-> Amit Shah wrote:
->> Can you please explain your rationale for being so rigid about merging
->> the two drivers?
->>   
->
-> Because they do the same thing.  I'm not going to constantly rehash  
-> this.  It's been explained multiple times.
+On Monday 31 August 2009, Xin, Xiaohui wrote:
+> 
+> Hi, Michael
+> That's a great job. We are now working on support VMDq on KVM, and since the VMDq hardware presents L2 sorting
+> based on MAC addresses and VLAN tags, our target is to implement a zero copy solution using VMDq.
 
-It hardly looks like the same thing each passing day.
+I'm also interested in helping there, please include me in the discussions.
 
-I've also mentioned that each minimal virtio device would start out
-looking the same.
+> We stared
+> from the virtio-net architecture. What we want to proposal is to use AIO combined with direct I/O:
+> 1) Modify virtio-net Backend service in Qemu to submit aio requests composed from virtqueue.
 
-We're ending up having to compromise on the performance or functionality
-or simplicity the devices just because of this restriction.
+right, that sounds useful.
 
-> If there are implementation issues within the Linux drivers because of  
-> peculiarities of hvc then hvc needs to be fixed.  It has nothing to do  
-> with the driver ABI which is what qemu cares about.
+> 2) Modify TUN/TAP device to support aio operations and the user space buffer directly mapping into the host kernel.
+> 3) Let a TUN/TAP device binds to single rx/tx queue from the NIC.
 
-I'd welcome that effort as well. But we all know that's not going to
-happen anytime soon.
+I don't think we should do that with the tun/tap driver. By design, tun/tap is a way to interact with the
+networking stack as if coming from a device. The only way this connects to an external adapter is through
+a bridge or through IP routing, which means that it does not correspond to a specific NIC.
 
-Also, there's no driver ABI for virtio-serial yet. 
+I have worked on a driver I called 'macvtap' in lack of a better name, to add a new tap frontend to
+the 'macvlan' driver. Since macvlan lets you add slaves to a single NIC device, this gives you a direct
+connection between one or multiple tap devices to an external NIC, which works a lot better than when
+you have a bridge inbetween. There is also work underway to add a bridging capability to macvlan, so
+you can communicate directly between guests like you can do with a bridge.
 
-		Amit
+Michael's vhost_net can plug into the same macvlan infrastructure, so the work is complementary.
+
+> 4) Modify the net_dev and skb structure to permit allocated skb to use user space directly mapped payload
+> buffer address rather then kernel allocated.
+
+yes.
+
+> As zero copy is also your goal, we are interested in what's in your mind, and would like to collaborate with you if possible.
+> BTW, we will send our VMDq write-up very soon.
+
+Ok, cool.
+
+	Arnd <><
