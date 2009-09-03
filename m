@@ -1,14 +1,11 @@
-From: Ryo Tsuruta <ryov@valinux.co.jp>
-Subject: Re: a room for blkio-cgroup in struct page_cgroup
-Date: Thu, 03 Sep 2009 14:09:32 +0900 (JST)
-Message-ID: <20090903.140932.189713001.ryov__31022.3336484798$1251954781$gmane$org@valinux.co.jp>
-References: <20090902.205137.71100180.ryov@valinux.co.jp>
-	<ff13736137802f78cf492d13c43c1af1.squirrel@webmail-b.css.fujitsu.com>
+From: Amit Shah <amit.shah@redhat.com>
+Subject: Multiple port support for virtio-console
+Date: Thu,  3 Sep 2009 18:23:29 +0530
+Message-ID: <1251982412-11870-1-git-send-email-amit.shah__49509.1503057212$1251982650$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <ff13736137802f78cf492d13c43c1af1.squirrel@webmail-b.css.fujitsu.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,52 +15,38 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: kamezawa.hiroyu@jp.fujitsu.com
-Cc: xen-devel@lists.xensource.com, containers@lists.linux-foundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, dm-devel@redhat.com, balbir@linux.vnet.ibm.com
+To: qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Kamezawa-san,
+Hello all,
 
-"KAMEZAWA Hiroyuki" <kamezawa.hiroyu@jp.fujitsu.com> wrote:
-> Ryo Tsuruta wrote:
-> > Hi Kamezawa-san,
-> >
-> > As you wrote before (http://lkml.org/lkml/2009/7/22/65)
-> >> To be honest, what I expected in these days for people of blockio
-> >> cgroup is like following for getting room for themselves.
-> > <<snip>>
-> >> --- mmotm-2.6.31-Jul16.orig/include/linux/page_cgroup.h
-> >> +++ mmotm-2.6.31-Jul16/include/linux/page_cgroup.h
-> >> @@ -13,7 +13,7 @@
-> >>  struct page_cgroup {
-> >>       unsigned long flags;
-> >>       struct mem_cgroup *mem_cgroup;
-> >> -     struct page *page;
-> >> +     /* block io tracking will use extra unsigned long bytes */
-> >>       struct list_head lru;       /* per cgroup LRU list */
-> >> };
-> >
-> > Have you already added a room for blkio_cgroup in struct page_cgroup?
-> No.
-> 
-> > If not, I would like you to apply the above change to mmotm.
-> >
-> Plz wait until October. We're deadly busy and some amount of more important
-> patches are piled up in front of us. I have no objections if you add
-> a pointer or id  because I know I can reduce 8(4)bytes later.
-> Just add (a small) member for a while and ignore page_cgroup's size.
-> I'll fix later.
+Here is a new iteration of the patch series that implements a
+transport for guest and host communications.
 
-Thank you very much, but I've already added unsigned long member in the
-last posted patch...
+I've tested for compatibility (old qemu & new kernel, new qemu & old
+kernel, new qemu & new kernel) and it all works fine*.
 
-> > The latest blkio-cgroup has reflected the comments you pointed out.
-> > I would also like you to give me any comments on it and consider
-> > merging blkio-cgroup to mmotm.
-> >
-> BTW, do you all have cosensus about implementation ?
+There are a few items on my todo list but this works well.
 
-Not yet, it is under discussion now.
+New since last send:
+- live migration support**
+- write path in the guest driver can now be called from irq context
 
-Thanks,
-Ryo Tsuruta
+TODO:
+- Convert all config writes to little endian in qemu / convert from
+little endian to host endian in guest
+- Address a few FIXMEs spread in the code
+- Introduce a watermark to stop a rogue host process flooding guest
+with data
+
+Conditions:
+* Heavy IO on an hvc port and a non-hvc port causes memory corruption
+  each time, same place. It could be realted to locking but I doubt
+  that. This still has to be sorted out
+
+** qemu now caches buffers till a char device is opened or till an
+   entire write request is not received in userspace. These buffers
+   aren't yet migrated.
+
+Please review.
+	Amit
