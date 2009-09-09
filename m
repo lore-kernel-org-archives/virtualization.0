@@ -1,17 +1,19 @@
 From: Amit Shah <amit.shah@redhat.com>
-Subject: [PATCH 3/5] virtio-console: in-qemu api for open/read/write/close
-	ports
-Date: Wed,  9 Sep 2009 13:42:03 +0530
-Message-ID: <1252483925-26336-5-git-send-email-amit.shah__25502.4923397743$1252484074$gmane$org@redhat.com>
+Subject: [PATCH 5/5] vnc: Send / receive guest clipboard if virtio-console
+	connected to clipboard port
+Date: Wed,  9 Sep 2009 13:42:05 +0530
+Message-ID: <1252483925-26336-7-git-send-email-amit.shah__16524.7727804401$1252484082$gmane$org@redhat.com>
 References: <1252483925-26336-1-git-send-email-amit.shah@redhat.com>
 	<1252483925-26336-2-git-send-email-amit.shah@redhat.com>
 	<1252483925-26336-3-git-send-email-amit.shah@redhat.com>
 	<1252483925-26336-4-git-send-email-amit.shah@redhat.com>
+	<1252483925-26336-5-git-send-email-amit.shah@redhat.com>
+	<1252483925-26336-6-git-send-email-amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1252483925-26336-4-git-send-email-amit.shah@redhat.com>
+In-Reply-To: <1252483925-26336-6-git-send-email-amit.shah@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -25,119 +27,105 @@ To: qemu-devel@nongnu.org, kvm@vger.kernel.org, virtualization@lists.linux-found
 Cc: Amit Shah <amit.shah@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This is a simple-to-use api for opening a port, registering
-a callback for reading stuff, writing to a port and closing
-it.
-
-Another api for hot-adding a port can be provided.
+If a connection to the guest clipboard is open, send the host
+clipboard to the guest and guest clipboard to the host on any
+change
 
 Signed-off-by: Amit Shah <amit.shah@redhat.com>
 ---
- hw/virtio-console.c |   61 ++++++++++++++++++++++++++++++++++++++++++++++++--
- hw/virtio-console.h |    5 ++++
- 2 files changed, 63 insertions(+), 3 deletions(-)
+ hw/virtio-console.h |    1 +
+ vnc.c               |   33 +++++++++++++++++++++++++++++++++
+ 2 files changed, 34 insertions(+), 0 deletions(-)
 
-diff --git a/hw/virtio-console.c b/hw/virtio-console.c
-index 135fdbb..9e78a9e 100644
---- a/hw/virtio-console.c
-+++ b/hw/virtio-console.c
-@@ -52,6 +52,11 @@ struct VirtIOConsolePort {
- 
-     TAILQ_HEAD(, VirtIOConsolePortBuffer) unflushed_buffer_head;
- 
-+    /* Callback that's invoked when we have a buffer that can be consumed
-+     * by an in-qemu user of this port
-+     */
-+    size_t (*read_callback)(const uint8_t *buf, const size_t len);
-+
-     bool guest_connected;
-     bool host_connected;
- };
-@@ -150,10 +155,15 @@ static bool has_complete_data(VirtIOConsolePort *port)
- 
- static size_t flush_buf(VirtIOConsolePort *port, const uint8_t *buf, size_t len)
- {
--    if (!port->hd) {
--        return 0;
-+    int ret;
-+
-+    ret = 0;
-+    if (port->read_callback) {
-+        ret = port->read_callback(buf, len);
-+    } else if (port->hd) {
-+        ret = qemu_chr_write(port->hd, buf, len);
-     }
--    return qemu_chr_write(port->hd, buf, len);
-+    return ret;
- }
- 
- static void flush_queue(VirtIOConsolePort *port)
-@@ -431,6 +441,51 @@ static void vcon_event(void *opaque, int event)
-     send_control_event(port, &cpkt);
- }
- 
-+/* Functions for use inside qemu to open and read from/write to ports */
-+VirtIOConsolePort *virtio_console_open(uint32_t id,
-+                                       size_t(*read_callback)(const uint8_t*buf,
-+                                                              const size_t len))
-+{
-+    VirtIOConsolePort *port = get_port_from_id(id);
-+    struct virtio_console_control cpkt;
-+
-+    if (port == NULL) {
-+        return NULL;
-+    }
-+    /* Don't allow opening an already-open port */
-+    if (port->host_connected) {
-+        return NULL;
-+    }
-+    /* Send port open notification to the guest */
-+    port->host_connected = true;
-+    port->read_callback = read_callback;
-+    cpkt.event = VIRTIO_CONSOLE_PORT_OPEN;
-+    cpkt.value = 1;
-+    send_control_event(port, &cpkt);
-+    return port;
-+}
-+
-+void virtio_console_close(VirtIOConsolePort *port)
-+{
-+    struct virtio_console_control cpkt;
-+
-+    if (!port)
-+        return;
-+
-+    port->read_callback = NULL;
-+
-+    cpkt.event = VIRTIO_CONSOLE_PORT_OPEN;
-+    cpkt.value = 0;
-+    send_control_event(port, &cpkt);
-+}
-+
-+size_t virtio_console_write(VirtIOConsolePort *port, uint8_t *buf, size_t size)
-+{
-+    if (!port || !port->host_connected) {
-+        return 0;
-+    }
-+    return write_to_port(port, buf, size, false);
-+}
- static void virtio_console_set_port_active(uint32_t idx)
- {
-     int i;
 diff --git a/hw/virtio-console.h b/hw/virtio-console.h
-index 56448a9..62d0c4b 100644
+index 62d0c4b..bd4c5cb 100644
 --- a/hw/virtio-console.h
 +++ b/hw/virtio-console.h
-@@ -68,5 +68,10 @@ struct virtio_console_header {
- typedef struct VirtIOConsolePort VirtIOConsolePort;
- void virtio_console_monitor_command(Monitor *mon,
-                                     const char *command, const char *param);
-+VirtIOConsolePort *virtio_console_open(uint32_t id,
-+                                       size_t(*read_callback)(const uint8_t*buf,
-+                                                              const size_t len));
-+void virtio_console_close(VirtIOConsolePort *port);
-+size_t virtio_console_write(VirtIOConsolePort *port, uint8_t *buf, size_t size);
+@@ -28,6 +28,7 @@
+ /* Port number to function mapping */
+ #define VIRTIO_CONSOLE_CONSOLE_PORT	0
+ #define VIRTIO_CONSOLE_CONSOLE2_PORT	1
++#define VIRTIO_CONSOLE_CLIPBOARD_PORT	3
  
+ /* Features supported */
+ #define VIRTIO_CONSOLE_F_MULTIPORT	1
+diff --git a/vnc.c b/vnc.c
+index ff2d4a8..19a4cca 100644
+--- a/vnc.c
++++ b/vnc.c
+@@ -29,6 +29,7 @@
+ #include "qemu_socket.h"
+ #include "qemu-timer.h"
+ #include "acl.h"
++#include "hw/virtio-console.h"
+ 
+ #define VNC_REFRESH_INTERVAL_BASE 30
+ #define VNC_REFRESH_INTERVAL_INC  50
+@@ -47,6 +48,7 @@
+ 
+ static VncDisplay *vnc_display; /* needed for info vnc */
+ static DisplayChangeListener *dcl;
++static VirtIOConsolePort *virtcon_port;
+ 
+ static char *addr_to_string(const char *format,
+                             struct sockaddr_storage *sa,
+@@ -671,6 +673,32 @@ static void vnc_copy(VncState *vs, int src_x, int src_y, int dst_x, int dst_y, i
+     vnc_flush(vs);
+ }
+ 
++static size_t vnc_clipboard_data_from_guest(const uint8_t *buf, size_t len)
++{
++    VncState *vs;
++    VncDisplay *vd;
++    DisplayState *ds;
++
++    if (!is_vnc_active())
++        return 0;
++
++    ds = vnc_display->ds;
++    vd = ds->opaque;
++
++    for (vs = vd->clients; vs; vs = vs->next) {
++        vnc_write_u8(vs, 3);  /* ServerCutText */
++        vnc_write_u8(vs, 0);  /* Padding */
++        vnc_write_u8(vs, 0);  /* Padding */
++        vnc_write_u8(vs, 0);  /* Padding */
++        vnc_write_u32(vs, len);
++        while (len--) {
++            vnc_write_u8(vs, *(buf++));
++        }
++        vnc_flush(vs);
++    }
++    return len;
++}
++
+ static void vnc_dpy_copy(DisplayState *ds, int src_x, int src_y, int dst_x, int dst_y, int w, int h)
+ {
+     VncDisplay *vd = ds->opaque;
+@@ -1240,6 +1268,7 @@ uint32_t read_u32(uint8_t *data, size_t offset)
+ 
+ static void client_cut_text(VncState *vs, size_t len, uint8_t *text)
+ {
++    virtio_console_write(virtcon_port, text, len);
+ }
+ 
+ static void check_pointer_type_change(VncState *vs, int absolute)
+@@ -2265,6 +2294,7 @@ void vnc_display_close(DisplayState *ds)
+     vs->subauth = VNC_AUTH_INVALID;
+     vs->tls.x509verify = 0;
  #endif
++    virtio_console_close(virtcon_port);
+ }
+ 
+ int vnc_display_password(DisplayState *ds, const char *password)
+@@ -2514,5 +2544,8 @@ int vnc_display_open(DisplayState *ds, const char *display)
+             vs->display = dpy;
+         }
+     }
++
++    virtcon_port = virtio_console_open(VIRTIO_CONSOLE_CLIPBOARD_PORT,
++                                       vnc_clipboard_data_from_guest);
+     return qemu_set_fd_handler2(vs->lsock, NULL, vnc_listen_read, NULL, vs);
+ }
 -- 
 1.6.2.5
