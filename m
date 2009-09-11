@@ -1,15 +1,17 @@
-From: Alan Cox <alan@linux.intel.com>
-Subject: Re: [PATCH] virtio_console: Add support for multiple ports for
-	generic guest and host communication
-Date: Fri, 11 Sep 2009 17:00:10 +0100
-Message-ID: <20090911170010.34c80f2d__48371.3704547428$1252685387$gmane$org@linux.intel.com>
-References: <1252678386-17404-1-git-send-email-amit.shah@redhat.com>
-	<1252678386-17404-2-git-send-email-amit.shah@redhat.com>
+From: Gregory Haskins <gregory.haskins@gmail.com>
+Subject: Re: [PATCHv5 3/3] vhost_net: a kernel-level virtio server
+Date: Fri, 11 Sep 2009 12:14:07 -0400
+Message-ID: <4AAA774F.2050209__14761.7071670995$1252685720$gmane$org@gmail.com>
+References: <cover.1251388414.git.mst@redhat.com>
+	<20090827160750.GD23722@redhat.com>
+	<20090903183945.GF28651@ovro.caltech.edu>
+	<20090907101537.GH3031@redhat.com>
+	<20090908172035.GB319@ovro.caltech.edu>
+	<4AAA7415.5080204@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============6367642954297484999=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1252678386-17404-2-git-send-email-amit.shah@redhat.com>
+In-Reply-To: <4AAA7415.5080204@gmail.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -17,40 +19,92 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Mime-version: 1.0
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-Cc: Amit Shah <amit.shah@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: "Ira W. Snyder" <iws@ovro.caltech.edu>
+Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, s.hetze@linux-ag.com, hpa@zytor.com, mingo@elte.hu, akpm@linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-> The interface presented to guest userspace is of a simple char
-> device, so it can be used like this:
-> 
->     fd = open("/dev/vcon2", O_RDWR);
->     ret = read(fd, buf, 100);
->     ret = write(fd, string, strlen(string));
-> 
-> Each port is to be assigned a unique function, for example, the
-> first 4 ports may be reserved for libvirt usage, the next 4 for
-> generic streaming data and so on. This port-function mapping
-> isn't finalised yet.
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--===============6367642954297484999==
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig82C43E5F2EF2CEB5FEA90C83"
 
-Unless I am missing something this looks completely bonkers
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig82C43E5F2EF2CEB5FEA90C83
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-Every time we have a table of numbers for functionality it ends in
-tears. We have to keep tables up to date and managed, we have to
-administer the magical number to name space.
+Gregory Haskins wrote:
 
-Anyway - you don't seem to need a fixed number you can use dynamic
-allocation and udev.
+[snip]
 
-There are at least two better ways to do this
+>=20
+> FWIW: VBUS handles this situation via the "memctx" abstraction.  IOW,
+> the memory is not assumed to be a userspace address.  Rather, it is a
+> memctx-specific address, which can be userspace, or any other type
+> (including hardware, dma-engine, etc).  As long as the memctx knows how=
 
-- Using sysfs nodes so you have a proper heirarchy of names/functions
-- Using a simple file system which provides a heirarchy of nodes whose
-  enumeration and access is backed by calls to whatever happyvisor you
-  are using.
+> to translate it, it will work.
+>=20
 
-it then self enumerates, self populates, doesn't need anyone to keep
-updating magic tables of guest code and expands cleanly - yes ?
+citations:
 
-Alan
+Here is a packet import (from the perspective of the host side "venet"
+device model, similar to Michaels "vhost")
+
+http://git.kernel.org/?p=3Dlinux/kernel/git/ghaskins/alacrityvm/linux-2.6=
+=2Egit;a=3Dblob;f=3Dkernel/vbus/devices/venet-tap.c;h=3Dee091c47f06e9bb84=
+87a45e72d493273fe08329f;hb=3Dded8ce2005a85c174ba93ee26f8d67049ef11025#l53=
+5
+
+Here is the KVM specific memctx:
+
+http://git.kernel.org/?p=3Dlinux/kernel/git/ghaskins/alacrityvm/linux-2.6=
+=2Egit;a=3Dblob;f=3Dkernel/vbus/kvm.c;h=3D56e2c5682a7ca8432c159377b0f7389=
+cf34cbc1b;hb=3Dded8ce2005a85c174ba93ee26f8d67049ef11025#l188
+
+and
+
+http://git.kernel.org/?p=3Dlinux/kernel/git/ghaskins/alacrityvm/linux-2.6=
+=2Egit;a=3Dblob;f=3Dvirt/kvm/xinterface.c;h=3D0cccb6095ca2a51bad01f7ba213=
+7fdd9111b63d3;hb=3Dded8ce2005a85c174ba93ee26f8d67049ef11025#l289
+
+You could alternatively define a memctx for your environment which knows
+how to deal with your PPC boards PCI based memory, and the devices would
+all "just work".
+
+Kind Regards,
+-Greg
+
+
+
+--------------enig82C43E5F2EF2CEB5FEA90C83
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG/MacGPG2 v2.0.11 (Darwin)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
+
+iEYEARECAAYFAkqqd08ACgkQP5K2CMvXmqEaqQCfXWSJFQS12SmLB3k+J4WDiEJq
+68cAoIjRCya0FvGnWGkZBETyFAe17+a/
+=8hCs
+-----END PGP SIGNATURE-----
+
+--------------enig82C43E5F2EF2CEB5FEA90C83--
+
+--===============6367642954297484999==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linux-foundation.org/mailman/listinfo/virtualization
+--===============6367642954297484999==--
