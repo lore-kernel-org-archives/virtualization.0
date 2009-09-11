@@ -1,17 +1,16 @@
 From: Gregory Haskins <gregory.haskins@gmail.com>
 Subject: Re: [PATCHv5 3/3] vhost_net: a kernel-level virtio server
-Date: Fri, 11 Sep 2009 12:14:07 -0400
-Message-ID: <4AAA774F.2050209__14761.7071670995$1252685720$gmane$org@gmail.com>
+Date: Fri, 11 Sep 2009 12:00:21 -0400
+Message-ID: <4AAA7415.5080204__31773.1693656699$1252686905$gmane$org@gmail.com>
 References: <cover.1251388414.git.mst@redhat.com>
 	<20090827160750.GD23722@redhat.com>
 	<20090903183945.GF28651@ovro.caltech.edu>
 	<20090907101537.GH3031@redhat.com>
 	<20090908172035.GB319@ovro.caltech.edu>
-	<4AAA7415.5080204@gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============6367642954297484999=="
+Content-Type: multipart/mixed; boundary="===============5121901445098425922=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4AAA7415.5080204@gmail.com>
+In-Reply-To: <20090908172035.GB319@ovro.caltech.edu>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -27,61 +26,103 @@ Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kern
 List-Id: virtualization@lists.linuxfoundation.org
 
 This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---===============6367642954297484999==
+--===============5121901445098425922==
 Content-Type: multipart/signed; micalg=pgp-sha1;
  protocol="application/pgp-signature";
- boundary="------------enig82C43E5F2EF2CEB5FEA90C83"
+ boundary="------------enig44D4489987F3DAB472725FC4"
 
 This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig82C43E5F2EF2CEB5FEA90C83
+--------------enig44D4489987F3DAB472725FC4
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: quoted-printable
 
-Gregory Haskins wrote:
+Ira W. Snyder wrote:
+> On Mon, Sep 07, 2009 at 01:15:37PM +0300, Michael S. Tsirkin wrote:
+>> On Thu, Sep 03, 2009 at 11:39:45AM -0700, Ira W. Snyder wrote:
+>>> On Thu, Aug 27, 2009 at 07:07:50PM +0300, Michael S. Tsirkin wrote:
+>>>> What it is: vhost net is a character device that can be used to redu=
+ce
+>>>> the number of system calls involved in virtio networking.
+>>>> Existing virtio net code is used in the guest without modification.
+>>>>
+>>>> There's similarity with vringfd, with some differences and reduced s=
+cope
+>>>> - uses eventfd for signalling
+>>>> - structures can be moved around in memory at any time (good for mig=
+ration)
+>>>> - support memory table and not just an offset (needed for kvm)
+>>>>
+>>>> common virtio related code has been put in a separate file vhost.c a=
+nd
+>>>> can be made into a separate module if/when more backends appear.  I =
+used
+>>>> Rusty's lguest.c as the source for developing this part : this suppl=
+ied
+>>>> me with witty comments I wouldn't be able to write myself.
+>>>>
+>>>> What it is not: vhost net is not a bus, and not a generic new system=
 
-[snip]
+>>>> call. No assumptions are made on how guest performs hypercalls.
+>>>> Userspace hypervisors are supported as well as kvm.
+>>>>
+>>>> How it works: Basically, we connect virtio frontend (configured by
+>>>> userspace) to a backend. The backend could be a network device, or a=
 
+>>>> tun-like device. In this version I only support raw socket as a back=
+end,
+>>>> which can be bound to e.g. SR IOV, or to macvlan device.  Backend is=
+
+>>>> also configured by userspace, including vlan/mac etc.
+>>>>
+>>>> Status:
+>>>> This works for me, and I haven't see any crashes.
+>>>> I have done some light benchmarking (with v4), compared to userspace=
+, I
+>>>> see improved latency (as I save up to 4 system calls per packet) but=
+ not
+>>>> bandwidth/CPU (as TSO and interrupt mitigation are not supported).  =
+For
+>>>> ping benchmark (where there's no TSO) troughput is also improved.
+>>>>
+>>>> Features that I plan to look at in the future:
+>>>> - tap support
+>>>> - TSO
+>>>> - interrupt mitigation
+>>>> - zero copy
+>>>>
+>>> Hello Michael,
+>>>
+>>> I've started looking at vhost with the intention of using it over PCI=
+ to
+>>> connect physical machines together.
+>>>
+>>> The part that I am struggling with the most is figuring out which par=
+ts
+>>> of the rings are in the host's memory, and which parts are in the
+>>> guest's memory.
+>> All rings are in guest's memory, to match existing virtio code.
 >=20
-> FWIW: VBUS handles this situation via the "memctx" abstraction.  IOW,
-> the memory is not assumed to be a userspace address.  Rather, it is a
-> memctx-specific address, which can be userspace, or any other type
-> (including hardware, dma-engine, etc).  As long as the memctx knows how=
-
-> to translate it, it will work.
+> Ok, this makes sense.
 >=20
+>> vhost
+>> assumes that the memory space of the hypervisor userspace process cove=
+rs
+>> the whole of guest memory.
+>=20
+> Is this necessary? Why? The assumption seems very wrong when you're
+> doing data transport between two physical systems via PCI.
 
-citations:
-
-Here is a packet import (from the perspective of the host side "venet"
-device model, similar to Michaels "vhost")
-
-http://git.kernel.org/?p=3Dlinux/kernel/git/ghaskins/alacrityvm/linux-2.6=
-=2Egit;a=3Dblob;f=3Dkernel/vbus/devices/venet-tap.c;h=3Dee091c47f06e9bb84=
-87a45e72d493273fe08329f;hb=3Dded8ce2005a85c174ba93ee26f8d67049ef11025#l53=
-5
-
-Here is the KVM specific memctx:
-
-http://git.kernel.org/?p=3Dlinux/kernel/git/ghaskins/alacrityvm/linux-2.6=
-=2Egit;a=3Dblob;f=3Dkernel/vbus/kvm.c;h=3D56e2c5682a7ca8432c159377b0f7389=
-cf34cbc1b;hb=3Dded8ce2005a85c174ba93ee26f8d67049ef11025#l188
-
-and
-
-http://git.kernel.org/?p=3Dlinux/kernel/git/ghaskins/alacrityvm/linux-2.6=
-=2Egit;a=3Dblob;f=3Dvirt/kvm/xinterface.c;h=3D0cccb6095ca2a51bad01f7ba213=
-7fdd9111b63d3;hb=3Dded8ce2005a85c174ba93ee26f8d67049ef11025#l289
-
-You could alternatively define a memctx for your environment which knows
-how to deal with your PPC boards PCI based memory, and the devices would
-all "just work".
+FWIW: VBUS handles this situation via the "memctx" abstraction.  IOW,
+the memory is not assumed to be a userspace address.  Rather, it is a
+memctx-specific address, which can be userspace, or any other type
+(including hardware, dma-engine, etc).  As long as the memctx knows how
+to translate it, it will work.
 
 Kind Regards,
 -Greg
 
 
-
---------------enig82C43E5F2EF2CEB5FEA90C83
+--------------enig44D4489987F3DAB472725FC4
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: OpenPGP digital signature
 Content-Disposition: attachment; filename="signature.asc"
@@ -90,14 +131,14 @@ Content-Disposition: attachment; filename="signature.asc"
 Version: GnuPG/MacGPG2 v2.0.11 (Darwin)
 Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
 
-iEYEARECAAYFAkqqd08ACgkQP5K2CMvXmqEaqQCfXWSJFQS12SmLB3k+J4WDiEJq
-68cAoIjRCya0FvGnWGkZBETyFAe17+a/
-=8hCs
+iEYEARECAAYFAkqqdBYACgkQP5K2CMvXmqG10wCeMsWj8pZ67IwUC/p5CWgPbkcS
+1E8An17le37yKs06FqAvx8ohzQF+yphQ
+=VaYm
 -----END PGP SIGNATURE-----
 
---------------enig82C43E5F2EF2CEB5FEA90C83--
+--------------enig44D4489987F3DAB472725FC4--
 
---===============6367642954297484999==
+--===============5121901445098425922==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -107,4 +148,4 @@ _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linux-foundation.org/mailman/listinfo/virtualization
---===============6367642954297484999==--
+--===============5121901445098425922==--
