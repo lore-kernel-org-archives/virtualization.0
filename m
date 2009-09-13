@@ -1,19 +1,20 @@
-From: Anthony Liguori <anthony@codemonkey.ws>
-Subject: Re: [PATCH] virtio_console: Add support for multiple ports for generic
-	guest and host communication
-Date: Fri, 11 Sep 2009 12:35:18 -0500
-Message-ID: <4AAA8A56.3040707__20817.6595428542$1252690810$gmane$org@codemonkey.ws>
-References: <1252678386-17404-1-git-send-email-amit.shah@redhat.com>
-	<1252678386-17404-2-git-send-email-amit.shah@redhat.com>
-	<20090911170010.34c80f2d@linux.intel.com>
-	<20090911163806.GB25535@amit-x200.redhat.com>
-	<4AAA8838.1080106@codemonkey.ws>
-	<20090911173307.GB27046@amit-x200.redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCHv5 3/3] vhost_net: a kernel-level virtio server
+Date: Sun, 13 Sep 2009 08:46:10 +0300
+Message-ID: <20090913054610.GA4446__17307.9134583988$1252821047$gmane$org@redhat.com>
+References: <cover.1251388414.git.mst@redhat.com>
+	<20090827160750.GD23722@redhat.com>
+	<20090903183945.GF28651@ovro.caltech.edu>
+	<20090907101537.GH3031@redhat.com>
+	<20090908172035.GB319@ovro.caltech.edu>
+	<20090908201428.GA12420@redhat.com>
+	<C85CEDA13AB1CF4D9D597824A86D2B9006AECB9C1D@PDSMSX501.ccr.corp.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20090911173307.GB27046@amit-x200.redhat.com>
+Content-Disposition: inline
+In-Reply-To: <C85CEDA13AB1CF4D9D597824A86D2B9006AECB9C1D@PDSMSX501.ccr.corp.intel.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -23,46 +24,40 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Amit Shah <amit.shah@redhat.com>
-Cc: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Alan Cox <alan@linux.intel.com>
+To: "Xin, Xiaohui" <xiaohui.xin@intel.com>
+Cc: "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "Ira W. Snyder" <iws@ovro.caltech.edu>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "s.hetze@linux-ag.com" <s.hetze@linux-ag.com>, avi@redhat.com, "hpa@zytor.com" <hpa@zytor.com>, "mingo@elte.hu" <mingo@elte.hu>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Amit Shah wrote:
-> On (Fri) Sep 11 2009 [12:26:16], Anthony Liguori wrote:
->   
->> Amit Shah wrote:
->>     
->>> Right; there was some discussion about this. A few alternatives were
->>> suggested like
->>>
->>> - udev scripts to create symlinks from ports to function, like:
->>>
->>>   /dev/vcon3 -> /dev/virtio-console/clipboard
->>>
->>> - Some fqdn-like hierarchy, like
->>>
->>>   /dev/virtio-console/com/redhat/clipboard
->>>
->>>   which again can be created by udev scripts
->>>   
->>>       
->> And I dislike all of them.  What I'd rather have is these devices  
->> exposed as tty's with a sys attribute that exposed the name of the 
->> device.
->>     
->
-> A sysfs attribute can even be exposed with a char device.
->
-> I didn't want to venture more into tty after the hvc thing and the
-> unexpected bugs that crept up (memory corruption, which is now fixed in
-> linux-next). I'd rather just keep it limited to the subsystems I know.
->   
+On Fri, Sep 11, 2009 at 11:17:33PM +0800, Xin, Xiaohui wrote:
+> Michael,
+> We are very interested in your patch and want to have a try with it.
+> I have collected your 3 patches in kernel side and 4 patches in queue side.
+> The patches are listed here:
+> 
+> PATCHv5-1-3-mm-export-use_mm-unuse_mm-to-modules.patch
+> PATCHv5-2-3-mm-reduce-atomic-use-on-use_mm-fast-path.patch
+> PATCHv5-3-3-vhost_net-a-kernel-level-virtio-server.patch
+> 
+> PATCHv3-1-4-qemu-kvm-move-virtio-pci[1].o-to-near-pci.o.patch
+> PATCHv3-2-4-virtio-move-features-to-an-inline-function.patch
+> PATCHv3-3-4-qemu-kvm-vhost-net-implementation.patch
+> PATCHv3-4-4-qemu-kvm-add-compat-eventfd.patch
+> 
+> I applied the kernel patches on v2.6.31-rc4 and the qemu patches on latest kvm qemu.
+> But seems there are some patches are needed at least irqfd and ioeventfd patches on
+> current qemu. I cannot create a kvm guest with "-net nic,model=virtio,vhost=vethX".
+> 
+> May you kindly advice us the patch lists all exactly to make it work?
+> Thanks a lot. :-)
+> 
+> Thanks
+> Xiaohui
 
-I don't think that's a good justification.
 
-This device is very much a serial port.  I don't see any reason not to 
-treat it like one.
+The irqfd/ioeventfd patches are part of Avi's kvm.git tree:
+git://git.kernel.org/pub/scm/linux/kernel/git/avi/kvm.git
 
-Regards,
+I expect them to be merged by 2.6.32-rc1 - right, Avi?
 
-Anthony Liguori
+-- 
+MST
