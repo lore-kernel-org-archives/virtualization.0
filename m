@@ -1,15 +1,13 @@
-From: Dhaval Giani <dhaval@linux.vnet.ibm.com>
-Subject: Re: IO controller Mini-Summit 2009
-Date: Fri, 11 Sep 2009 16:46:32 +0530
-Message-ID: <20090911111632.GF4474__33418.1162914776$1252941758$gmane$org@linux.vnet.ibm.com>
-References: <20090826.203251.260094379.ryov@valinux.co.jp>
-Reply-To: Dhaval Giani <dhaval@linux.vnet.ibm.com>
+From: Daniel Walker <dwalker@fifo99.com>
+Subject: Re: [PATCH 1/9] I/O bandwidth controller and BIO tracking
+Date: Mon, 14 Sep 2009 07:11:20 -0700
+Message-ID: <1252937480.28368.221.camel__316.714184782718$1252941763$gmane$org@desktop>
+References: <20090914.212805.193688121.ryov@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20090826.203251.260094379.ryov@valinux.co.jp>
+In-Reply-To: <20090914.212805.193688121.ryov@valinux.co.jp>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,57 +18,26 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Ryo Tsuruta <ryov@valinux.co.jp>
-Cc: xen-devel@lists.xensource.com, Balbir Singh <balbir@in.ibm.com>, containers@lists.linux-foundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, ioband-devel@lists.sourceforge.net, dm-devel@redhat.com, corsetproject@googlegroups.com, kunai@linux-foundation.jp, vgoyal@redhat.com, osonoi@linux-foundation.jp
+Cc: xen-devel@lists.xensource.com, containers@lists.linux-foundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, dm-devel@redhat.com, agk@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Aug 26, 2009 at 08:32:51PM +0900, Ryo Tsuruta wrote:
-> Hi All,
-> 
-> As I have notified before, The 1st Linux IO controller Mini-Summit
-> will be held in Tokyo Japan on Oct 17 -- day before the 9th Linux
-> kernel summit. So I would like to propose the following topics for 
-> the mini-summit and discuss about them.
-> 
-> - Multiple IO controller development projects
->   - There are two activities for the development of IO controller,
->     Vivek's io-controller and dm-ioband. Do we have to pick one of
->     them to put into the mainline? How to advance the development?
-> 
-> - Extensions of struct bio
->   - Make a bio point to the io_context of a process which creates the
->     I/O request. This allows to pass the IO scheduling class and
->     priority information to IO controller even if the IO is submitted
->     by another process which does not create the request, such as a
->     worker thread.
->   - Add a new flag to struct bio to identify the bio as urgent. This
->     gives IO controller a chance to handle the bio as high priority.
->     This flag should be set if the bio is created for the page-out
->     operation.
-> 
-> - I/O tracking and charging policy
->   - Which process, a page-requesting process or a page-returning
->     process, should be charged for the I/O caused by page reclaim?
->     We should consider two cases where the IO flushes anonymous pages
->     and file mapped pages.
-> 
-> I think this is a good opportunity to meet face-to-face to discuss
-> about IO controller development. I would like to many developers to
-> join this mini-summit. Please visit the following URL for more
-> information about the mini-summit.
-> http://apps.sourceforge.net/trac/ioband/wiki/iosummit
-> If you would like to join the mini-summit, please e-mail to me or post
-> on the wiki page, 
-> (You need an account on SourceForge.net to edit the wiki page.)
-> 
-> All comments, questions, suggestions and anything else are appreciated.
-> 
+On Mon, 2009-09-14 at 21:28 +0900, Ryo Tsuruta wrote:
 
-Hi Ryo,
+> The list of the patches:
+>   [PATCH 1/9] I/O bandwidth controller and BIO tracking
+>   [PATCH 2/9] dm-ioband-1.13.0: All-in-one patch
+>   [PATCH 3/9] blkio-cgroup-v12: The new page_cgroup framework
+>   [PATCH 4/9] blkio-cgroup-v12: Refactoring io-context initialization
+>   [PATCH 5/9] blkio-cgroup-v12: The body of blkio-cgroup
+>   [PATCH 6/9] blkio-cgroup-v12: Page tracking hooks
+>   [PATCH 7/9] blkio-cgroup-v12: The document of blkio-cgroup
+>   [PATCH 8/9] blkio-cgroup-v12: Add a cgroup support to dm-ioband
+>   [PATCH 9/9] blkio-cgroup-v12: The document of a cgroup support for dm-ioband
 
-Would you be having a remote dial-in for folks who cannot attend in
-person?
 
-thanks,
--- 
-regards,
-Dhaval
+Patches 5, 8, and 9 all have checkpatch errors (2 does also but it
+involves tracing, so Steven may not let you fix them). 
+
+Could you correct those errors before this get included ?
+
+Daniel
