@@ -1,14 +1,18 @@
-From: Ryo Tsuruta <ryov@valinux.co.jp>
-Subject: Re: IO controller Mini-Summit 2009
-Date: Mon, 14 Sep 2009 10:41:11 +0900 (JST)
-Message-ID: <20090914.104111.226776844.ryov__44103.1311093413$1252892580$gmane$org@valinux.co.jp>
-References: <20090826.203251.260094379.ryov@valinux.co.jp>
-	<20090911111632.GF4474@linux.vnet.ibm.com>
+From: Alok Kataria <akataria@vmware.com>
+Subject: Re: [Pv-drivers] [PATCH] SCSI driver for VMware's virtual HBA - V4.
+Date: Sun, 13 Sep 2009 20:05:21 -0700
+Message-ID: <1252897521.28095.46.camel__9255.85404406792$1252897629$gmane$org@ank32.eng.vmware.com>
+References: <1252458903.24914.73.camel@ank32.eng.vmware.com>
+	<4AA8177A.2020606@codemonkey.ws>
+	<1252533093.24633.40.camel@ank32.eng.vmware.com>
+	<4AA8284A.3010908@codemonkey.ws>
+	<1252626223.3899.64.camel@ank32.eng.vmware.com>
+Reply-To: akataria@vmware.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20090911111632.GF4474@linux.vnet.ibm.com>
+In-Reply-To: <1252626223.3899.64.camel@ank32.eng.vmware.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,62 +22,93 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: dhaval@linux.vnet.ibm.com
-Cc: xen-devel@lists.xensource.com, balbir@in.ibm.com, containers@lists.linux-foundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, ioband-devel@lists.sourceforge.net, dm-devel@redhat.com, corsetproject@googlegroups.com, kunai@linux-foundation.jp, vgoyal@redhat.com, osonoi@linux-foundation.jp
+To: James Bottomley <James.Bottomley@suse.de>
+Cc: "linux-scsi@vger.kernel.org" <linux-scsi@vger.kernel.org>, "pv-drivers@vmware.com" <pv-drivers@vmware.com>, LKML <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>, "Chetan.Loke@Emulex.Com" <Chetan.Loke@Emulex.Com>, Anthony Liguori <anthony@codemonkey.ws>, Rolf Eike Beer <eike-kernel@sf-tec.de>, Andrew Morton <akpm@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Dhaval, 
-
-Dhaval Giani <dhaval@linux.vnet.ibm.com> wrote:
-> On Wed, Aug 26, 2009 at 08:32:51PM +0900, Ryo Tsuruta wrote:
-> > Hi All,
+On Thu, 2009-09-10 at 16:43 -0700, Alok Kataria wrote:
+> Hi Anthony,
+> 
+> On Wed, 2009-09-09 at 15:12 -0700, Anthony Liguori wrote:
+> > Alok Kataria wrote:
+> > > I see your point, but the ring logic or the ABI that we use to
+> > > communicate between the hypervisor and guest is not shared between our
+> > > storage and network drivers. As a result, I don't see any benefit of
+> > > separating out this ring handling mechanism, on the contrary it might
+> > > just add some overhead of translating between various layers for our
+> > > SCSI driver.
+> > >   
 > > 
-> > As I have notified before, The 1st Linux IO controller Mini-Summit
-> > will be held in Tokyo Japan on Oct 17 -- day before the 9th Linux
-> > kernel summit. So I would like to propose the following topics for 
-> > the mini-summit and discuss about them.
+> > But if you separate out the ring logic, it allows the scsi logic to be 
+> > shared by other paravirtual device drivers.  This is significant and 
+> > important from a Linux point of view.
 > > 
-> > - Multiple IO controller development projects
-> >   - There are two activities for the development of IO controller,
-> >     Vivek's io-controller and dm-ioband. Do we have to pick one of
-> >     them to put into the mainline? How to advance the development?
+> > There is almost nothing vmware specific about the vast majority of your 
+> > code.  If you split out the scsi logic, then you will receive help 
+> > debugging, adding future features, and improving performance from other 
+> > folks interested in this.  In the long term, it will make your life 
+> > much, much easier by making the driver relevant to a wider audience :-)
+> 
+> >From what you are saying, it seems that for that matter any physical
+> SCSI HBA's driver could be converted to use the virtio interface;
+> doesn't each and every driver have something like a ring/queue & I/O
+> register mechanism to talk to the device ?
+> 
+> Also, why would you add overhead for translation layers between APIs or
+> data structures just for the sake of it ? I guess you would say it helps
+> code re-usability, but I fail to see how much of a benefit that is. The
+> vast majority of the 1500 odd lines of the driver are still very
+> specific and tied to our PCI device and register interface.
+> 
+> I will just like to re-iterate this once again, this driver should be  
+> treated no different than a hardware SCSI HBA driver, albeit a very  
+> simple HBA. We export a PCI device as any other physical HBA, also the
+> driver talks to the device (emulation) through device IO regisers
+> without any hypercalls.
+> 
+> As for the virt_scsi layer, we can evaluate it whenever it is ready for
+> upstream and then take a more informed decision whether we should switch
+> to using it.
+> 
 > > 
-> > - Extensions of struct bio
-> >   - Make a bio point to the io_context of a process which creates the
-> >     I/O request. This allows to pass the IO scheduling class and
-> >     priority information to IO controller even if the IO is submitted
-> >     by another process which does not create the request, such as a
-> >     worker thread.
-> >   - Add a new flag to struct bio to identify the bio as urgent. This
-> >     gives IO controller a chance to handle the bio as high priority.
-> >     This flag should be set if the bio is created for the page-out
-> >     operation.
+> > > Having said that, I will like to add that yes if in some future
+> > > iteration of our paravirtualized drivers, if we decide to share this
+> > > ring mechanism for our various device drivers this might be an
+> > > interesting proposition. 
+> > >   
 > > 
-> > - I/O tracking and charging policy
-> >   - Which process, a page-requesting process or a page-returning
-> >     process, should be charged for the I/O caused by page reclaim?
-> >     We should consider two cases where the IO flushes anonymous pages
-> >     and file mapped pages.
-> > 
-> > I think this is a good opportunity to meet face-to-face to discuss
-> > about IO controller development. I would like to many developers to
-> > join this mini-summit. Please visit the following URL for more
-> > information about the mini-summit.
-> > http://apps.sourceforge.net/trac/ioband/wiki/iosummit
-> > If you would like to join the mini-summit, please e-mail to me or post
-> > on the wiki page, 
-> > (You need an account on SourceForge.net to edit the wiki page.)
-> > 
-> > All comments, questions, suggestions and anything else are appreciated.
+> > I am certainly not the block subsystem maintainer, but I'd hate to see 
+> > this merged without any attempt at making the code more reusable.  If 
+> > adding the virtio layering is going to somehow hurt performance, break 
+> > your ABI, or in some way limit you, then that's something to certainly 
+> > discuss and would be valid concerns.  That said, I don't think it's a 
+> > huge change to your current patch and I don't see any obvious problems 
+> > it would cause.
 > > 
 > 
-> Hi Ryo,
+> I will also like to add that, this is just a driver and is isolated from
+> the rest of the core of the kernel. The driver is not doing anything
+> improper either and is using the SCSI stack the way that any other SCSI
+> driver would use it. 
+> In earlier cases, when there were changes to the core kernel parts (e.g.
+> VMI, hypervisor_init- the tsc freq part) VMware did work with the
+> community to come up with generic interfaces. 
 > 
-> Would you be having a remote dial-in for folks who cannot attend in
-> person?
+> In this case though, I don't think the advantages of using the virtio
+> interfaces are justified as yet. As and when the virt-scsi layer is
+> implemented we can re-evaluate our design and use that layer instead.
+> 
+> Holding inclusion of pvscsi driver until the development of virt-scsi
+> interface is completed doesn't sound right to me. 
+> 
 
-Yes. I will provide a conference call and let you know the dial number
-if you would join the summit.
+Hi James, 
+
+Please let us know your views on how should we proceed on this ? In my
+previous mail, I have tried to state my reservations against going the
+virt-scsi way just as yet. Also please note that we emulate a pure PCI
+device hence I don't see a reason why our driver should be treated any
+different than a driver for a physical HBA. 
 
 Thanks,
-Ryo Tsuruta
+Alok
