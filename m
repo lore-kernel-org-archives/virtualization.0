@@ -1,18 +1,21 @@
-From: Alok Kataria <akataria@vmware.com>
-Subject: Re: [Pv-drivers] [PATCH] SCSI driver for VMware's virtual HBA - V4.
-Date: Sun, 13 Sep 2009 20:05:21 -0700
-Message-ID: <1252897521.28095.46.camel__9255.85404406792$1252897629$gmane$org@ank32.eng.vmware.com>
-References: <1252458903.24914.73.camel@ank32.eng.vmware.com>
-	<4AA8177A.2020606@codemonkey.ws>
-	<1252533093.24633.40.camel@ank32.eng.vmware.com>
-	<4AA8284A.3010908@codemonkey.ws>
-	<1252626223.3899.64.camel@ank32.eng.vmware.com>
-Reply-To: akataria@vmware.com
+From: "Xin, Xiaohui" <xiaohui.xin@intel.com>
+Subject: RE: [PATCHv5 3/3] vhost_net: a kernel-level virtio server
+Date: Mon, 14 Sep 2009 13:57:06 +0800
+Message-ID: <C85CEDA13AB1CF4D9D597824A86D2B9006AECB9FE7__37045.8218422302$1252907906$gmane$org@PDSMSX501.ccr.corp.intel.com>
+References: <cover.1251388414.git.mst@redhat.com>
+	<20090827160750.GD23722@redhat.com>
+	<20090903183945.GF28651@ovro.caltech.edu>
+	<20090907101537.GH3031@redhat.com>
+	<20090908172035.GB319@ovro.caltech.edu>
+	<20090908201428.GA12420@redhat.com>
+	<C85CEDA13AB1CF4D9D597824A86D2B9006AECB9C1D@PDSMSX501.ccr.corp.intel.com>
+	<20090913054610.GA4446@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1252626223.3899.64.camel@ank32.eng.vmware.com>
+In-Reply-To: <20090913054610.GA4446@redhat.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -22,93 +25,66 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: James Bottomley <James.Bottomley@suse.de>
-Cc: "linux-scsi@vger.kernel.org" <linux-scsi@vger.kernel.org>, "pv-drivers@vmware.com" <pv-drivers@vmware.com>, LKML <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>, "Chetan.Loke@Emulex.Com" <Chetan.Loke@Emulex.Com>, Anthony Liguori <anthony@codemonkey.ws>, Rolf Eike Beer <eike-kernel@sf-tec.de>, Andrew Morton <akpm@linux-foundation.org>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "Ira W. Snyder" <iws@ovro.caltech.edu>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "s.hetze@linux-ag.com" <s.hetze@linux-ag.com>, "avi@redhat.com" <avi@redhat.com>, "hpa@zytor.com" <hpa@zytor.com>, "mingo@elte.hu" <mingo@elte.hu>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 2009-09-10 at 16:43 -0700, Alok Kataria wrote:
-> Hi Anthony,
-> 
-> On Wed, 2009-09-09 at 15:12 -0700, Anthony Liguori wrote:
-> > Alok Kataria wrote:
-> > > I see your point, but the ring logic or the ABI that we use to
-> > > communicate between the hypervisor and guest is not shared between our
-> > > storage and network drivers. As a result, I don't see any benefit of
-> > > separating out this ring handling mechanism, on the contrary it might
-> > > just add some overhead of translating between various layers for our
-> > > SCSI driver.
-> > >   
-> > 
-> > But if you separate out the ring logic, it allows the scsi logic to be 
-> > shared by other paravirtual device drivers.  This is significant and 
-> > important from a Linux point of view.
-> > 
-> > There is almost nothing vmware specific about the vast majority of your 
-> > code.  If you split out the scsi logic, then you will receive help 
-> > debugging, adding future features, and improving performance from other 
-> > folks interested in this.  In the long term, it will make your life 
-> > much, much easier by making the driver relevant to a wider audience :-)
-> 
-> >From what you are saying, it seems that for that matter any physical
-> SCSI HBA's driver could be converted to use the virtio interface;
-> doesn't each and every driver have something like a ring/queue & I/O
-> register mechanism to talk to the device ?
-> 
-> Also, why would you add overhead for translation layers between APIs or
-> data structures just for the sake of it ? I guess you would say it helps
-> code re-usability, but I fail to see how much of a benefit that is. The
-> vast majority of the 1500 odd lines of the driver are still very
-> specific and tied to our PCI device and register interface.
-> 
-> I will just like to re-iterate this once again, this driver should be  
-> treated no different than a hardware SCSI HBA driver, albeit a very  
-> simple HBA. We export a PCI device as any other physical HBA, also the
-> driver talks to the device (emulation) through device IO regisers
-> without any hypercalls.
-> 
-> As for the virt_scsi layer, we can evaluate it whenever it is ready for
-> upstream and then take a more informed decision whether we should switch
-> to using it.
-> 
-> > 
-> > > Having said that, I will like to add that yes if in some future
-> > > iteration of our paravirtualized drivers, if we decide to share this
-> > > ring mechanism for our various device drivers this might be an
-> > > interesting proposition. 
-> > >   
-> > 
-> > I am certainly not the block subsystem maintainer, but I'd hate to see 
-> > this merged without any attempt at making the code more reusable.  If 
-> > adding the virtio layering is going to somehow hurt performance, break 
-> > your ABI, or in some way limit you, then that's something to certainly 
-> > discuss and would be valid concerns.  That said, I don't think it's a 
-> > huge change to your current patch and I don't see any obvious problems 
-> > it would cause.
-> > 
-> 
-> I will also like to add that, this is just a driver and is isolated from
-> the rest of the core of the kernel. The driver is not doing anything
-> improper either and is using the SCSI stack the way that any other SCSI
-> driver would use it. 
-> In earlier cases, when there were changes to the core kernel parts (e.g.
-> VMI, hypervisor_init- the tsc freq part) VMware did work with the
-> community to come up with generic interfaces. 
-> 
-> In this case though, I don't think the advantages of using the virtio
-> interfaces are justified as yet. As and when the virt-scsi layer is
-> implemented we can re-evaluate our design and use that layer instead.
-> 
-> Holding inclusion of pvscsi driver until the development of virt-scsi
-> interface is completed doesn't sound right to me. 
-> 
+>The irqfd/ioeventfd patches are part of Avi's kvm.git tree:
+>git://git.kernel.org/pub/scm/linux/kernel/git/avi/kvm.git
+>
+>I expect them to be merged by 2.6.32-rc1 - right, Avi?
 
-Hi James, 
+Michael,
 
-Please let us know your views on how should we proceed on this ? In my
-previous mail, I have tried to state my reservations against going the
-virt-scsi way just as yet. Also please note that we emulate a pure PCI
-device hence I don't see a reason why our driver should be treated any
-different than a driver for a physical HBA. 
+I think I have the kernel patch for kvm_irqfd and kvm_ioeventfd, but missed the qemu side patch for irqfd and ioeventfd.
 
-Thanks,
-Alok
+I met the compile error when I compiled virtio-pci.c file in qemu-kvm like this:
+
+/root/work/vmdq/vhost/qemu-kvm/hw/virtio-pci.c:384: error: `KVM_IRQFD` undeclared (first use in this function)
+/root/work/vmdq/vhost/qemu-kvm/hw/virtio-pci.c:400: error: `KVM_IOEVENTFD` undeclared (first use in this function)
+
+Which qemu tree or patch do you use for kvm_irqfd and kvm_ioeventfd?
+
+Thanks
+Xiaohui
+
+-----Original Message-----
+From: Michael S. Tsirkin [mailto:mst@redhat.com] 
+Sent: Sunday, September 13, 2009 1:46 PM
+To: Xin, Xiaohui
+Cc: Ira W. Snyder; netdev@vger.kernel.org; virtualization@lists.linux-foundation.org; kvm@vger.kernel.org; linux-kernel@vger.kernel.org; mingo@elte.hu; linux-mm@kvack.org; akpm@linux-foundation.org; hpa@zytor.com; gregory.haskins@gmail.com; Rusty Russell; s.hetze@linux-ag.com; avi@redhat.com
+Subject: Re: [PATCHv5 3/3] vhost_net: a kernel-level virtio server
+
+On Fri, Sep 11, 2009 at 11:17:33PM +0800, Xin, Xiaohui wrote:
+> Michael,
+> We are very interested in your patch and want to have a try with it.
+> I have collected your 3 patches in kernel side and 4 patches in queue side.
+> The patches are listed here:
+> 
+> PATCHv5-1-3-mm-export-use_mm-unuse_mm-to-modules.patch
+> PATCHv5-2-3-mm-reduce-atomic-use-on-use_mm-fast-path.patch
+> PATCHv5-3-3-vhost_net-a-kernel-level-virtio-server.patch
+> 
+> PATCHv3-1-4-qemu-kvm-move-virtio-pci[1].o-to-near-pci.o.patch
+> PATCHv3-2-4-virtio-move-features-to-an-inline-function.patch
+> PATCHv3-3-4-qemu-kvm-vhost-net-implementation.patch
+> PATCHv3-4-4-qemu-kvm-add-compat-eventfd.patch
+> 
+> I applied the kernel patches on v2.6.31-rc4 and the qemu patches on latest kvm qemu.
+> But seems there are some patches are needed at least irqfd and ioeventfd patches on
+> current qemu. I cannot create a kvm guest with "-net nic,model=virtio,vhost=vethX".
+> 
+> May you kindly advice us the patch lists all exactly to make it work?
+> Thanks a lot. :-)
+> 
+> Thanks
+> Xiaohui
+
+
+The irqfd/ioeventfd patches are part of Avi's kvm.git tree:
+git://git.kernel.org/pub/scm/linux/kernel/git/avi/kvm.git
+
+I expect them to be merged by 2.6.32-rc1 - right, Avi?
+
+-- 
+MST
