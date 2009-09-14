@@ -1,22 +1,11 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCHv5 3/3] vhost_net: a kernel-level virtio server
-Date: Mon, 14 Sep 2009 10:05:59 +0300
-Message-ID: <20090914070559.GB14030__37322.5352298052$1252912273$gmane$org@redhat.com>
-References: <cover.1251388414.git.mst@redhat.com>
-	<20090827160750.GD23722@redhat.com>
-	<20090903183945.GF28651@ovro.caltech.edu>
-	<20090907101537.GH3031@redhat.com>
-	<20090908172035.GB319@ovro.caltech.edu>
-	<20090908201428.GA12420@redhat.com>
-	<C85CEDA13AB1CF4D9D597824A86D2B9006AECB9C1D@PDSMSX501.ccr.corp.intel.com>
-	<20090913054610.GA4446@redhat.com>
-	<C85CEDA13AB1CF4D9D597824A86D2B9006AECB9FE7@PDSMSX501.ccr.corp.intel.com>
+From: Ryo Tsuruta <ryov@valinux.co.jp>
+Subject: [PATCH 1/9] I/O bandwidth controller and BIO tracking
+Date: Mon, 14 Sep 2009 21:28:05 +0900 (JST)
+Message-ID: <20090914.212805.193688121.ryov__26443.9038736329$1252931462$gmane$org@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <C85CEDA13AB1CF4D9D597824A86D2B9006AECB9FE7@PDSMSX501.ccr.corp.intel.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -26,70 +15,65 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Xin, Xiaohui" <xiaohui.xin@intel.com>
-Cc: "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "Ira W. Snyder" <iws@ovro.caltech.edu>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "s.hetze@linux-ag.com" <s.hetze@linux-ag.com>, "avi@redhat.com" <avi@redhat.com>, "hpa@zytor.com" <hpa@zytor.com>, "mingo@elte.hu" <mingo@elte.hu>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>
+To: linux-kernel@vger.kernel.org, dm-devel@redhat.com, containers@lists.linux-foundation.org, virtualization@lists.linux-foundation.org, xen-devel@lists.xensource.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Sep 14, 2009 at 01:57:06PM +0800, Xin, Xiaohui wrote:
-> >The irqfd/ioeventfd patches are part of Avi's kvm.git tree:
-> >git://git.kernel.org/pub/scm/linux/kernel/git/avi/kvm.git
-> >
-> >I expect them to be merged by 2.6.32-rc1 - right, Avi?
-> 
-> Michael,
-> 
-> I think I have the kernel patch for kvm_irqfd and kvm_ioeventfd, but missed the qemu side patch for irqfd and ioeventfd.
-> 
-> I met the compile error when I compiled virtio-pci.c file in qemu-kvm like this:
-> 
-> /root/work/vmdq/vhost/qemu-kvm/hw/virtio-pci.c:384: error: `KVM_IRQFD` undeclared (first use in this function)
-> /root/work/vmdq/vhost/qemu-kvm/hw/virtio-pci.c:400: error: `KVM_IOEVENTFD` undeclared (first use in this function)
-> 
-> Which qemu tree or patch do you use for kvm_irqfd and kvm_ioeventfd?
+Hi all,
 
-I'm using the headers from upstream kernel.
-I'll send a patch for that.
+These are new releases of dm-ioband and blkio-cgroup. The major change
+of these releases is that a hierarchical configuration is supported,
+a parent cgroup's bandwidth is distributed to its children. The
+hierarchical configuration is available when using dm-ioband and
+blkio-cgroup together. Please refer to the documentation included in 
+this series of patches on how to use it.
 
-> Thanks
-> Xiaohui
-> 
-> -----Original Message-----
-> From: Michael S. Tsirkin [mailto:mst@redhat.com] 
-> Sent: Sunday, September 13, 2009 1:46 PM
-> To: Xin, Xiaohui
-> Cc: Ira W. Snyder; netdev@vger.kernel.org; virtualization@lists.linux-foundation.org; kvm@vger.kernel.org; linux-kernel@vger.kernel.org; mingo@elte.hu; linux-mm@kvack.org; akpm@linux-foundation.org; hpa@zytor.com; gregory.haskins@gmail.com; Rusty Russell; s.hetze@linux-ag.com; avi@redhat.com
-> Subject: Re: [PATCHv5 3/3] vhost_net: a kernel-level virtio server
-> 
-> On Fri, Sep 11, 2009 at 11:17:33PM +0800, Xin, Xiaohui wrote:
-> > Michael,
-> > We are very interested in your patch and want to have a try with it.
-> > I have collected your 3 patches in kernel side and 4 patches in queue side.
-> > The patches are listed here:
-> > 
-> > PATCHv5-1-3-mm-export-use_mm-unuse_mm-to-modules.patch
-> > PATCHv5-2-3-mm-reduce-atomic-use-on-use_mm-fast-path.patch
-> > PATCHv5-3-3-vhost_net-a-kernel-level-virtio-server.patch
-> > 
-> > PATCHv3-1-4-qemu-kvm-move-virtio-pci[1].o-to-near-pci.o.patch
-> > PATCHv3-2-4-virtio-move-features-to-an-inline-function.patch
-> > PATCHv3-3-4-qemu-kvm-vhost-net-implementation.patch
-> > PATCHv3-4-4-qemu-kvm-add-compat-eventfd.patch
-> > 
-> > I applied the kernel patches on v2.6.31-rc4 and the qemu patches on latest kvm qemu.
-> > But seems there are some patches are needed at least irqfd and ioeventfd patches on
-> > current qemu. I cannot create a kvm guest with "-net nic,model=virtio,vhost=vethX".
-> > 
-> > May you kindly advice us the patch lists all exactly to make it work?
-> > Thanks a lot. :-)
-> > 
-> > Thanks
-> > Xiaohui
-> 
-> 
-> The irqfd/ioeventfd patches are part of Avi's kvm.git tree:
-> git://git.kernel.org/pub/scm/linux/kernel/git/avi/kvm.git
-> 
-> I expect them to be merged by 2.6.32-rc1 - right, Avi?
-> 
-> -- 
-> MST
+The summary of the changes are below:
+dm-ioband v1.13.0
+  - Introduce a hierarchical grouping mechanism for blkio-cgroup.
+  - Change the dmsetup status outputs to be similar to 
+    /proc/diskstats and /sys/block/dev/stat files.
+blkio-cgroup v12
+  - dm-ioband can be configured in a hierarchical manner through the
+    cgroup interface.
+  - blkio.stat file is added which shows IO statistics per cgroup.
+
+TODO
+  - Borrowing and lending bandwidth between a parent and children if
+    spare bandwidth is available in them.
+
+These patches can be applied to kernel 2.6.31
+
+The list of the patches:
+  [PATCH 1/9] I/O bandwidth controller and BIO tracking
+  [PATCH 2/9] dm-ioband-1.13.0: All-in-one patch
+  [PATCH 3/9] blkio-cgroup-v12: The new page_cgroup framework
+  [PATCH 4/9] blkio-cgroup-v12: Refactoring io-context initialization
+  [PATCH 5/9] blkio-cgroup-v12: The body of blkio-cgroup
+  [PATCH 6/9] blkio-cgroup-v12: Page tracking hooks
+  [PATCH 7/9] blkio-cgroup-v12: The document of blkio-cgroup
+  [PATCH 8/9] blkio-cgroup-v12: Add a cgroup support to dm-ioband
+  [PATCH 9/9] blkio-cgroup-v12: The document of a cgroup support for dm-ioband
+
+About dm-ioband
+  dm-ioband is an I/O bandwidth controller implemented as a
+  device-mapper driver and can control bandwidth on per partition, per
+  user, per process, per virtual machine (such as KVM or Xen) basis.
+
+About blkio-cgruop
+  blkio-cgroup is a block I/O tracking mechanism implemented on the
+  cgroup memory subsystem. Using this feature the owners of any type
+  of I/O can be determined. This allows dm-ioband to control block I/O
+  bandwidth even when it is accepting delayed write requests.
+  dm-ioband can find the cgroup of each request. It is also for
+  possible that others working on I/O bandwidth throttling to use this
+  functionality to control asynchronous I/O with a little enhancement.
+
+Please visit our website, the patches and more information are available.
+  Linux Block I/O Bandwidth Control Project
+  http://sourceforge.net/apps/trac/ioband/
+
+I'd like to get some feedbacks from the list. Any comments are
+appreciated.
+
+Thanks,
+Ryo Tsuruta
