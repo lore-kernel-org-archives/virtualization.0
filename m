@@ -1,19 +1,14 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCHv5 3/3] vhost_net: a kernel-level virtio server
-Date: Sun, 13 Sep 2009 15:01:42 +0300
-Message-ID: <20090913120140.GA31218__12343.5244350278$1252843488$gmane$org@redhat.com>
-References: <cover.1251388414.git.mst@redhat.com>
-	<20090827160750.GD23722@redhat.com>
-	<20090903183945.GF28651@ovro.caltech.edu>
-	<20090907101537.GH3031@redhat.com>
-	<20090908172035.GB319@ovro.caltech.edu>
-	<4AAA7415.5080204@gmail.com>
+From: Ryo Tsuruta <ryov@valinux.co.jp>
+Subject: Re: IO controller Mini-Summit 2009
+Date: Mon, 14 Sep 2009 10:41:11 +0900 (JST)
+Message-ID: <20090914.104111.226776844.ryov__44103.1311093413$1252892580$gmane$org@valinux.co.jp>
+References: <20090826.203251.260094379.ryov@valinux.co.jp>
+	<20090911111632.GF4474@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <4AAA7415.5080204@gmail.com>
+In-Reply-To: <20090911111632.GF4474@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -23,20 +18,62 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gregory Haskins <gregory.haskins@gmail.com>
-Cc: kvm@vger.kernel.org, "Ira W. Snyder" <iws@ovro.caltech.edu>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, s.hetze@linux-ag.com, hpa@zytor.com, mingo@elte.hu, akpm@linux-foundation.org
+To: dhaval@linux.vnet.ibm.com
+Cc: xen-devel@lists.xensource.com, balbir@in.ibm.com, containers@lists.linux-foundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, ioband-devel@lists.sourceforge.net, dm-devel@redhat.com, corsetproject@googlegroups.com, kunai@linux-foundation.jp, vgoyal@redhat.com, osonoi@linux-foundation.jp
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Sep 11, 2009 at 12:00:21PM -0400, Gregory Haskins wrote:
-> FWIW: VBUS handles this situation via the "memctx" abstraction.  IOW,
-> the memory is not assumed to be a userspace address.  Rather, it is a
-> memctx-specific address, which can be userspace, or any other type
-> (including hardware, dma-engine, etc).  As long as the memctx knows how
-> to translate it, it will work.
+Hi Dhaval, 
 
-How would permissions be handled? it's easy to allow an app to pass in
-virtual addresses in its own address space.  But we can't let the guest
-specify physical addresses.
+Dhaval Giani <dhaval@linux.vnet.ibm.com> wrote:
+> On Wed, Aug 26, 2009 at 08:32:51PM +0900, Ryo Tsuruta wrote:
+> > Hi All,
+> > 
+> > As I have notified before, The 1st Linux IO controller Mini-Summit
+> > will be held in Tokyo Japan on Oct 17 -- day before the 9th Linux
+> > kernel summit. So I would like to propose the following topics for 
+> > the mini-summit and discuss about them.
+> > 
+> > - Multiple IO controller development projects
+> >   - There are two activities for the development of IO controller,
+> >     Vivek's io-controller and dm-ioband. Do we have to pick one of
+> >     them to put into the mainline? How to advance the development?
+> > 
+> > - Extensions of struct bio
+> >   - Make a bio point to the io_context of a process which creates the
+> >     I/O request. This allows to pass the IO scheduling class and
+> >     priority information to IO controller even if the IO is submitted
+> >     by another process which does not create the request, such as a
+> >     worker thread.
+> >   - Add a new flag to struct bio to identify the bio as urgent. This
+> >     gives IO controller a chance to handle the bio as high priority.
+> >     This flag should be set if the bio is created for the page-out
+> >     operation.
+> > 
+> > - I/O tracking and charging policy
+> >   - Which process, a page-requesting process or a page-returning
+> >     process, should be charged for the I/O caused by page reclaim?
+> >     We should consider two cases where the IO flushes anonymous pages
+> >     and file mapped pages.
+> > 
+> > I think this is a good opportunity to meet face-to-face to discuss
+> > about IO controller development. I would like to many developers to
+> > join this mini-summit. Please visit the following URL for more
+> > information about the mini-summit.
+> > http://apps.sourceforge.net/trac/ioband/wiki/iosummit
+> > If you would like to join the mini-summit, please e-mail to me or post
+> > on the wiki page, 
+> > (You need an account on SourceForge.net to edit the wiki page.)
+> > 
+> > All comments, questions, suggestions and anything else are appreciated.
+> > 
+> 
+> Hi Ryo,
+> 
+> Would you be having a remote dial-in for folks who cannot attend in
+> person?
 
--- 
-MST
+Yes. I will provide a conference call and let you know the dial number
+if you would join the summit.
+
+Thanks,
+Ryo Tsuruta
