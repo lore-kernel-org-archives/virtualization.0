@@ -1,18 +1,19 @@
-From: Anthony Liguori <anthony@codemonkey.ws>
-Subject: Re: [PATCH] virtio_console: Add support for multiple ports for generic
-	guest and host communication
-Date: Tue, 15 Sep 2009 09:09:41 -0500
-Message-ID: <4AAFA025.3050401@codemonkey.ws>
-References: <1252678386-17404-1-git-send-email-amit.shah@redhat.com>
-	<1252678386-17404-2-git-send-email-amit.shah@redhat.com>
-	<20090911170010.34c80f2d@linux.intel.com>
-	<20090915123752.GB5247@amit-x200.redhat.com>
-	<4AAF8F26.8030503@codemonkey.ws> <4AAF9FD8.1010008@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCHv5 3/3] vhost_net: a kernel-level virtio server
+Date: Tue, 15 Sep 2009 17:28:21 +0300
+Message-ID: <20090915142821.GA24488__32865.6957870864$1253025273$gmane$org@redhat.com>
+References: <20090908172035.GB319@ovro.caltech.edu>
+	<4AAA7415.5080204@gmail.com> <20090913120140.GA31218@redhat.com>
+	<4AAE6A97.7090808@gmail.com> <20090914164750.GB3745@redhat.com>
+	<4AAE961B.6020509@gmail.com> <4AAF8A03.5020806@redhat.com>
+	<4AAF909F.9080306@gmail.com> <4AAF95D1.1080600@redhat.com>
+	<4AAF9BAF.3030109@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4AAF9FD8.1010008@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <4AAF9BAF.3030109@gmail.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -22,28 +23,79 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gerd Hoffmann <kraxel@redhat.com>
-Cc: greg@kroah.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Amit Shah <amit.shah@redhat.com>, Alan Cox <alan@linux.intel.com>
+To: Gregory Haskins <gregory.haskins@gmail.com>
+Cc: kvm@vger.kernel.org, "Ira W. Snyder" <iws@ovro.caltech.edu>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, s.hetze@linux-ag.com, Avi Kivity <avi@redhat.com>, hpa@zytor.com, mingo@elte.hu, alacrityvm-devel@lists.sourceforge.net, akpm@linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Gerd Hoffmann wrote:
->> Userspace can detect when new virtio-consoles appear via udev events.
->> When it sees a new ttyVN, it can then look in sysfs to discover it's 
->> name.
->
-> No.  udev can create symlinks for you, so apps don't have to dig into 
-> sysfs.  You'll need a rule along the lines (untested):
->
->    SUBSYSTEM=="virtio", \
->    DRIVERS="virtio-console", \
->    SYMLINK+="vcon/$attr{name}"
->
-> then udev will create a /dev/vcon/org.qemu.clipboard symlink pointing 
-> to dev/ttyV0.  Apps can just open /dev/vcon/$name then.
+On Tue, Sep 15, 2009 at 09:50:39AM -0400, Gregory Haskins wrote:
+> Avi Kivity wrote:
+> > On 09/15/2009 04:03 PM, Gregory Haskins wrote:
+> >>
+> >>> In this case the x86 is the owner and the ppc boards use translated
+> >>> access.  Just switch drivers and device and it falls into place.
+> >>>
+> >>>      
+> >> You could switch vbus roles as well, I suppose.
+> > 
+> > Right, there's not real difference in this regard.
+> > 
+> >> Another potential
+> >> option is that he can stop mapping host memory on the guest so that it
+> >> follows the more traditional model.  As a bus-master device, the ppc
+> >> boards should have access to any host memory at least in the GFP_DMA
+> >> range, which would include all relevant pointers here.
+> >>
+> >> I digress:  I was primarily addressing the concern that Ira would need
+> >> to manage the "host" side of the link using hvas mapped from userspace
+> >> (even if host side is the ppc boards).  vbus abstracts that access so as
+> >> to allow something other than userspace/hva mappings.  OTOH, having each
+> >> ppc board run a userspace app to do the mapping on its behalf and feed
+> >> it to vhost is probably not a huge deal either.  Where vhost might
+> >> really fall apart is when any assumptions about pageable memory occur,
+> >> if any.
+> >>    
+> > 
+> > Why?  vhost will call get_user_pages() or copy_*_user() which ought to
+> > do the right thing.
+> 
+> I was speaking generally, not specifically to Ira's architecture.  What
+> I mean is that vbus was designed to work without assuming that the
+> memory is pageable.  There are environments in which the host is not
+> capable of mapping hvas/*page, but the memctx->copy_to/copy_from
+> paradigm could still work (think rdma, for instance).
 
-That works equally well.  I don't necessarily think that naming is more 
-useful.
+rdma interfaces are typically asynchronous, so blocking
+copy_from/copy_to can be made to work, but likely won't work
+that well. DMA might work better if it is asynchronous as well.
 
-Regards,
+Assuming a synchronous copy is what we need - maybe the issue is that
+there aren't good APIs for x86/ppc communication? If so, sticking them in
+vhost might not be the best place.  Maybe the specific platform can
+redefine copy_to/from_user to do the right thing? Or, maybe add another
+API for that ...
 
-Anthony Liguori
+> > 
+> >> As an aside: a bigger issue is that, iiuc, Ira wants more than a single
+> >> ethernet channel in his design (multiple ethernets, consoles, etc).  A
+> >> vhost solution in this environment is incomplete.
+> >>    
+> > 
+> > Why?  Instantiate as many vhost-nets as needed.
+> 
+> a) what about non-ethernets?
+
+vhost-net actually does not care.
+the packet is passed on to a socket, we are done.
+
+> b) what do you suppose this protocol to aggregate the connections would
+> look like? (hint: this is what a vbus-connector does).
+
+You are talking about management protocol between ppc and x86, right?
+One wonders why does it have to be in kernel at all.
+
+> c) how do you manage the configuration, especially on a per-board basis?
+
+not sure what a board is, but configuration is done in userspace.
+
+-- 
+MST
