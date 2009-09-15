@@ -1,17 +1,17 @@
-From: Amit Shah <amit.shah@redhat.com>
-Subject: Re: [PATCH] virtio_console: Add support for multiple ports for
-	generic guest and host communication
-Date: Tue, 15 Sep 2009 18:07:52 +0530
-Message-ID: <20090915123752.GB5247__16903.5627659925$1253018342$gmane$org@amit-x200.redhat.com>
+From: Anthony Liguori <anthony@codemonkey.ws>
+Subject: Re: [PATCH] virtio_console: Add support for multiple ports for generic
+	guest and host communication
+Date: Tue, 15 Sep 2009 07:57:10 -0500
+Message-ID: <4AAF8F26.8030503__10196.0125299685$1253019480$gmane$org@codemonkey.ws>
 References: <1252678386-17404-1-git-send-email-amit.shah@redhat.com>
 	<1252678386-17404-2-git-send-email-amit.shah@redhat.com>
 	<20090911170010.34c80f2d@linux.intel.com>
+	<20090915123752.GB5247@amit-x200.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20090911170010.34c80f2d@linux.intel.com>
+In-Reply-To: <20090915123752.GB5247@amit-x200.redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -21,66 +21,40 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Alan Cox <alan@linux.intel.com>
-Cc: greg@kroah.com, linux-kernel@vger.kernel.org, Anthony Liguori <anthony@codemonkey.ws>, virtualization@lists.linux-foundation.org
+To: Amit Shah <amit.shah@redhat.com>
+Cc: greg@kroah.com, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Alan Cox <alan@linux.intel.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-[Adding Greg to the CC list]
+Amit Shah wrote:
+> Hey Greg,
+>
+> Can you tell me how this could work out -- each console port could have
+> a "role" string associated with it (obtainable from the invoking qemu
+> process in case of qemu/kvm). Something that I have in mind currently
+> is:
+>
+> $ qemu-kvm ... -virtioconsole role=org/qemu/clipboard
+>
+> and then the guest kernel sees the string, and puts the
+> "org/qemu/clipboard" in some file in sysfs. Guest userspace should then
+> be able to open and read/write to
+>
+> /dev/virtio_console/org/qemu/clipboard
+>   
 
-On (Fri) Sep 11 2009 [17:00:10], Alan Cox wrote:
-> > The interface presented to guest userspace is of a simple char
-> > device, so it can be used like this:
-> > 
-> >     fd = open("/dev/vcon2", O_RDWR);
-> >     ret = read(fd, buf, 100);
-> >     ret = write(fd, string, strlen(string));
-> > 
-> > Each port is to be assigned a unique function, for example, the
-> > first 4 ports may be reserved for libvirt usage, the next 4 for
-> > generic streaming data and so on. This port-function mapping
-> > isn't finalised yet.
-> 
-> Unless I am missing something this looks completely bonkers
-> 
-> Every time we have a table of numbers for functionality it ends in
-> tears. We have to keep tables up to date and managed, we have to
-> administer the magical number to name space.
-> 
-> Anyway - you don't seem to need a fixed number you can use dynamic
-> allocation and udev.
-> 
-> There are at least two better ways to do this
-> 
-> - Using sysfs nodes so you have a proper heirarchy of names/functions
-> - Using a simple file system which provides a heirarchy of nodes whose
->   enumeration and access is backed by calls to whatever happyvisor you
->   are using.
-> 
-> it then self enumerates, self populates, doesn't need anyone to keep
-> updating magic tables of guest code and expands cleanly - yes ?
+That's probably not what we want.  I imagine what we want is:
 
-Hey Greg,
+/dev/ttyV0
+/dev/ttyV1
+/dev/ttyVN
 
-Can you tell me how this could work out -- each console port could have
-a "role" string associated with it (obtainable from the invoking qemu
-process in case of qemu/kvm). Something that I have in mind currently
-is:
+And then we want:
 
-$ qemu-kvm ... -virtioconsole role=org/qemu/clipboard
+/sys/class/virtio-console/ttyV0/name -> "org.qemu.clipboard"
 
-and then the guest kernel sees the string, and puts the
-"org/qemu/clipboard" in some file in sysfs. Guest userspace should then
-be able to open and read/write to
+Userspace can detect when new virtio-consoles appear via udev events.  
+When it sees a new ttyVN, it can then look in sysfs to discover it's name.
 
-/dev/virtio_console/org/qemu/clipboard
+Regards,
 
-I guess that's an acceptable scheme to all.
-
-I also don't know how this would work -- which sysfs attributes to
-export and how would udev pick that up and create the device at the
-specified location.
-
-Any pointers appreciated.
-
-Thanks,
-		Amit
+Anthony Liguori
