@@ -1,8 +1,12 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
+From: Avi Kivity <avi@redhat.com>
 Subject: Re: [PATCHv5 3/3] vhost_net: a kernel-level virtio server
-Date: Tue, 15 Sep 2009 17:28:21 +0300
-Message-ID: <20090915142821.GA24488__32865.6957870864$1253025273$gmane$org@redhat.com>
-References: <20090908172035.GB319@ovro.caltech.edu>
+Date: Tue, 15 Sep 2009 18:03:17 +0300
+Message-ID: <4AAFACB5.9050808__4656.19587707824$1253027094$gmane$org@redhat.com>
+References: <cover.1251388414.git.mst@redhat.com>
+	<20090827160750.GD23722@redhat.com>
+	<20090903183945.GF28651@ovro.caltech.edu>
+	<20090907101537.GH3031@redhat.com>
+	<20090908172035.GB319@ovro.caltech.edu>
 	<4AAA7415.5080204@gmail.com> <20090913120140.GA31218@redhat.com>
 	<4AAE6A97.7090808@gmail.com> <20090914164750.GB3745@redhat.com>
 	<4AAE961B.6020509@gmail.com> <4AAF8A03.5020806@redhat.com>
@@ -12,7 +16,6 @@ Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
 In-Reply-To: <4AAF9BAF.3030109@gmail.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -24,78 +27,77 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Gregory Haskins <gregory.haskins@gmail.com>
-Cc: kvm@vger.kernel.org, "Ira W. Snyder" <iws@ovro.caltech.edu>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, s.hetze@linux-ag.com, Avi Kivity <avi@redhat.com>, hpa@zytor.com, mingo@elte.hu, alacrityvm-devel@lists.sourceforge.net, akpm@linux-foundation.org
+Cc: kvm@vger.kernel.org, "Ira W. Snyder" <iws@ovro.caltech.edu>, netdev@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, s.hetze@linux-ag.com, hpa@zytor.com, mingo@elte.hu, alacrityvm-devel@lists.sourceforge.net, akpm@linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Sep 15, 2009 at 09:50:39AM -0400, Gregory Haskins wrote:
-> Avi Kivity wrote:
-> > On 09/15/2009 04:03 PM, Gregory Haskins wrote:
-> >>
-> >>> In this case the x86 is the owner and the ppc boards use translated
-> >>> access.  Just switch drivers and device and it falls into place.
-> >>>
-> >>>      
-> >> You could switch vbus roles as well, I suppose.
-> > 
-> > Right, there's not real difference in this regard.
-> > 
-> >> Another potential
-> >> option is that he can stop mapping host memory on the guest so that it
-> >> follows the more traditional model.  As a bus-master device, the ppc
-> >> boards should have access to any host memory at least in the GFP_DMA
-> >> range, which would include all relevant pointers here.
-> >>
-> >> I digress:  I was primarily addressing the concern that Ira would need
-> >> to manage the "host" side of the link using hvas mapped from userspace
-> >> (even if host side is the ppc boards).  vbus abstracts that access so as
-> >> to allow something other than userspace/hva mappings.  OTOH, having each
-> >> ppc board run a userspace app to do the mapping on its behalf and feed
-> >> it to vhost is probably not a huge deal either.  Where vhost might
-> >> really fall apart is when any assumptions about pageable memory occur,
-> >> if any.
-> >>    
-> > 
-> > Why?  vhost will call get_user_pages() or copy_*_user() which ought to
-> > do the right thing.
-> 
+On 09/15/2009 04:50 PM, Gregory Haskins wrote:
+>> Why?  vhost will call get_user_pages() or copy_*_user() which ought to
+>> do the right thing.
+>>      
 > I was speaking generally, not specifically to Ira's architecture.  What
 > I mean is that vbus was designed to work without assuming that the
 > memory is pageable.  There are environments in which the host is not
 > capable of mapping hvas/*page, but the memctx->copy_to/copy_from
 > paradigm could still work (think rdma, for instance).
+>    
 
-rdma interfaces are typically asynchronous, so blocking
-copy_from/copy_to can be made to work, but likely won't work
-that well. DMA might work better if it is asynchronous as well.
+Sure, vbus is more flexible here.
 
-Assuming a synchronous copy is what we need - maybe the issue is that
-there aren't good APIs for x86/ppc communication? If so, sticking them in
-vhost might not be the best place.  Maybe the specific platform can
-redefine copy_to/from_user to do the right thing? Or, maybe add another
-API for that ...
-
-> > 
-> >> As an aside: a bigger issue is that, iiuc, Ira wants more than a single
-> >> ethernet channel in his design (multiple ethernets, consoles, etc).  A
-> >> vhost solution in this environment is incomplete.
-> >>    
-> > 
-> > Why?  Instantiate as many vhost-nets as needed.
-> 
+>>> As an aside: a bigger issue is that, iiuc, Ira wants more than a single
+>>> ethernet channel in his design (multiple ethernets, consoles, etc).  A
+>>> vhost solution in this environment is incomplete.
+>>>
+>>>        
+>> Why?  Instantiate as many vhost-nets as needed.
+>>      
 > a) what about non-ethernets?
+>    
 
-vhost-net actually does not care.
-the packet is passed on to a socket, we are done.
+There's virtio-console, virtio-blk etc.  None of these have kernel-mode 
+servers, but these could be implemented if/when needed.
 
 > b) what do you suppose this protocol to aggregate the connections would
 > look like? (hint: this is what a vbus-connector does).
+>    
 
-You are talking about management protocol between ppc and x86, right?
-One wonders why does it have to be in kernel at all.
+You mean multilink?  You expose the device as a multiqueue.
 
 > c) how do you manage the configuration, especially on a per-board basis?
+>    
 
-not sure what a board is, but configuration is done in userspace.
+pci (for kvm/x86).
+
+> Actually I have patches queued to allow vbus to be managed via ioctls as
+> well, per your feedback (and it solves the permissions/lifetime
+> critisims in alacrityvm-v0.1).
+>    
+
+That will make qemu integration easier.
+
+>>   The only difference is the implementation.  vhost-net
+>> leaves much more to userspace, that's the main difference.
+>>      
+> Also,
+>
+> *) vhost is virtio-net specific, whereas vbus is a more generic device
+> model where thing like virtio-net or venet ride on top.
+>    
+
+I think vhost-net is separated into vhost and vhost-net.
+
+> *) vhost is only designed to work with environments that look very
+> similar to a KVM guest (slot/hva translatable).  vbus can bridge various
+> environments by abstracting the key components (such as memory access).
+>    
+
+Yes.  virtio is really virtualization oriented.
+
+> *) vhost requires an active userspace management daemon, whereas vbus
+> can be driven by transient components, like scripts (ala udev)
+>    
+
+vhost by design leaves configuration and handshaking to userspace.  I 
+see it as an advantage.
 
 -- 
-MST
+error compiling committee.c: too many arguments to function
