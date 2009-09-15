@@ -1,19 +1,19 @@
-From: Gregory Haskins <gregory.haskins@gmail.com>
-Subject: Re: [PATCHv5 3/3] vhost_net: a kernel-level virtio server
-Date: Tue, 15 Sep 2009 09:03:27 -0400
-Message-ID: <4AAF909F.9080306__19303.2220624902$1253019947$gmane$org@gmail.com>
-References: <cover.1251388414.git.mst@redhat.com>
-	<20090827160750.GD23722@redhat.com>
-	<20090903183945.GF28651@ovro.caltech.edu>
-	<20090907101537.GH3031@redhat.com>
-	<20090908172035.GB319@ovro.caltech.edu>
-	<4AAA7415.5080204@gmail.com> <20090913120140.GA31218@redhat.com>
-	<4AAE6A97.7090808@gmail.com> <20090914164750.GB3745@redhat.com>
-	<4AAE961B.6020509@gmail.com> <4AAF8A03.5020806@redhat.com>
+From: Amit Shah <amit.shah@redhat.com>
+Subject: Re: [PATCH] virtio_console: Add support for multiple ports for
+	generic guest and host communication
+Date: Tue, 15 Sep 2009 18:33:57 +0530
+Message-ID: <20090915130357.GC5247__35619.7607740343$1253020069$gmane$org@amit-x200.redhat.com>
+References: <1252678386-17404-1-git-send-email-amit.shah@redhat.com>
+	<1252678386-17404-2-git-send-email-amit.shah@redhat.com>
+	<20090911170010.34c80f2d@linux.intel.com>
+	<20090915123752.GB5247@amit-x200.redhat.com>
+	<4AAF8F26.8030503@codemonkey.ws>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============6350488334294093894=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4AAF8A03.5020806@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <4AAF8F26.8030503@codemonkey.ws>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -21,88 +21,49 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Mime-version: 1.0
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Avi Kivity <avi@redhat.com>
-Cc: kvm@vger.kernel.org, "Ira W. Snyder" <iws@ovro.caltech.edu>, netdev@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, s.hetze@linux-ag.com, hpa@zytor.com, mingo@elte.hu, alacrityvm-devel@lists.sourceforge.net, akpm@linux-foundation.org
+To: Anthony Liguori <anthony@codemonkey.ws>
+Cc: greg@kroah.com, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Alan Cox <alan@linux.intel.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---===============6350488334294093894==
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig46A1F91EB19287765BBD0682"
+On (Tue) Sep 15 2009 [07:57:10], Anthony Liguori wrote:
+> Amit Shah wrote:
+>> Hey Greg,
+>>
+>> Can you tell me how this could work out -- each console port could have
+>> a "role" string associated with it (obtainable from the invoking qemu
+>> process in case of qemu/kvm). Something that I have in mind currently
+>> is:
+>>
+>> $ qemu-kvm ... -virtioconsole role=org/qemu/clipboard
+>>
+>> and then the guest kernel sees the string, and puts the
+>> "org/qemu/clipboard" in some file in sysfs. Guest userspace should then
+>> be able to open and read/write to
+>>
+>> /dev/virtio_console/org/qemu/clipboard
+>>   
+>
+> That's probably not what we want.  I imagine what we want is:
+>
+> /dev/ttyV0
+> /dev/ttyV1
+> /dev/ttyVN
+>
+> And then we want:
+>
+> /sys/class/virtio-console/ttyV0/name -> "org.qemu.clipboard"
+>
+> Userspace can detect when new virtio-consoles appear via udev events.   
+> When it sees a new ttyVN, it can then look in sysfs to discover it's 
+> name.
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig46A1F91EB19287765BBD0682
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+OK; but that's kind of roundabout isn't it? An application, instead of
+watching for the console port it's interested in, has to instead monitor
+all the ports.
 
-Avi Kivity wrote:
-> On 09/14/2009 10:14 PM, Gregory Haskins wrote:
->> To reiterate, as long as the model is such that the ppc boards are
->> considered the "owner" (direct access, no translation needed) I believ=
-e
->> it will work.  If the pointers are expected to be owned by the host,
->> then my model doesn't work well either.
->>   =20
->=20
-> In this case the x86 is the owner and the ppc boards use translated
-> access.  Just switch drivers and device and it falls into place.
->=20
+So in effect there has to be one app monitoring for new ports and then
+that app exec'ing the corresponding app meant for that port.
 
-You could switch vbus roles as well, I suppose.  Another potential
-option is that he can stop mapping host memory on the guest so that it
-follows the more traditional model.  As a bus-master device, the ppc
-boards should have access to any host memory at least in the GFP_DMA
-range, which would include all relevant pointers here.
-
-I digress:  I was primarily addressing the concern that Ira would need
-to manage the "host" side of the link using hvas mapped from userspace
-(even if host side is the ppc boards).  vbus abstracts that access so as
-to allow something other than userspace/hva mappings.  OTOH, having each
-ppc board run a userspace app to do the mapping on its behalf and feed
-it to vhost is probably not a huge deal either.  Where vhost might
-really fall apart is when any assumptions about pageable memory occur,
-if any.
-
-As an aside: a bigger issue is that, iiuc, Ira wants more than a single
-ethernet channel in his design (multiple ethernets, consoles, etc).  A
-vhost solution in this environment is incomplete.
-
-Note that Ira's architecture highlights that vbus's explicit management
-interface is more valuable here than it is in KVM, since KVM already has
-its own management interface via QEMU.
-
-Kind Regards,
--Greg
-
-
---------------enig46A1F91EB19287765BBD0682
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG/MacGPG2 v2.0.11 (Darwin)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
-
-iEYEARECAAYFAkqvkJ8ACgkQP5K2CMvXmqGd0wCbB/8y7sxyTXx/3odUb27n3vc/
-W/AAn3rM1U3FG86WYLElMfmUO3tXTp6R
-=vpj/
------END PGP SIGNATURE-----
-
---------------enig46A1F91EB19287765BBD0682--
-
---===============6350488334294093894==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linux-foundation.org/mailman/listinfo/virtualization
---===============6350488334294093894==--
+		Amit
