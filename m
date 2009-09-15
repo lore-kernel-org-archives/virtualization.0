@@ -1,19 +1,20 @@
-From: Anthony Liguori <anthony@codemonkey.ws>
-Subject: Re: [PATCH] virtio_console: Add support for multiple ports for generic
-	guest and host communication
-Date: Tue, 15 Sep 2009 08:37:39 -0500
-Message-ID: <4AAF98A3.7080404__23985.9668574811$1253022061$gmane$org@codemonkey.ws>
-References: <1252678386-17404-1-git-send-email-amit.shah@redhat.com>
-	<1252678386-17404-2-git-send-email-amit.shah@redhat.com>
-	<20090911170010.34c80f2d@linux.intel.com>
-	<20090915123752.GB5247@amit-x200.redhat.com>
-	<4AAF8F26.8030503@codemonkey.ws>
-	<20090915130357.GC5247@amit-x200.redhat.com>
+From: Gregory Haskins <gregory.haskins@gmail.com>
+Subject: Re: [PATCHv5 3/3] vhost_net: a kernel-level virtio server
+Date: Tue, 15 Sep 2009 09:50:39 -0400
+Message-ID: <4AAF9BAF.3030109__37390.4978776865$1253022704$gmane$org@gmail.com>
+References: <cover.1251388414.git.mst@redhat.com>
+	<20090827160750.GD23722@redhat.com>
+	<20090903183945.GF28651@ovro.caltech.edu>
+	<20090907101537.GH3031@redhat.com>
+	<20090908172035.GB319@ovro.caltech.edu>
+	<4AAA7415.5080204@gmail.com> <20090913120140.GA31218@redhat.com>
+	<4AAE6A97.7090808@gmail.com> <20090914164750.GB3745@redhat.com>
+	<4AAE961B.6020509@gmail.com> <4AAF8A03.5020806@redhat.com>
+	<4AAF909F.9080306@gmail.com> <4AAF95D1.1080600@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============1571494792654028215=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20090915130357.GC5247@amit-x200.redhat.com>
+In-Reply-To: <4AAF95D1.1080600@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -21,68 +22,141 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Mime-version: 1.0
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Amit Shah <amit.shah@redhat.com>
-Cc: greg@kroah.com, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Alan Cox <alan@linux.intel.com>
+To: Avi Kivity <avi@redhat.com>
+Cc: kvm@vger.kernel.org, "Ira W. Snyder" <iws@ovro.caltech.edu>, netdev@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, s.hetze@linux-ag.com, hpa@zytor.com, mingo@elte.hu, alacrityvm-devel@lists.sourceforge.net, akpm@linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Amit Shah wrote:
-> On (Tue) Sep 15 2009 [07:57:10], Anthony Liguori wrote:
->   
->> Amit Shah wrote:
->>     
->>> Hey Greg,
->>>
->>> Can you tell me how this could work out -- each console port could have
->>> a "role" string associated with it (obtainable from the invoking qemu
->>> process in case of qemu/kvm). Something that I have in mind currently
->>> is:
->>>
->>> $ qemu-kvm ... -virtioconsole role=org/qemu/clipboard
->>>
->>> and then the guest kernel sees the string, and puts the
->>> "org/qemu/clipboard" in some file in sysfs. Guest userspace should then
->>> be able to open and read/write to
->>>
->>> /dev/virtio_console/org/qemu/clipboard
->>>   
->>>       
->> That's probably not what we want.  I imagine what we want is:
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--===============1571494792654028215==
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enigE58C3AB1B03AC57412E22747"
+
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enigE58C3AB1B03AC57412E22747
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+
+Avi Kivity wrote:
+> On 09/15/2009 04:03 PM, Gregory Haskins wrote:
 >>
->> /dev/ttyV0
->> /dev/ttyV1
->> /dev/ttyVN
+>>> In this case the x86 is the owner and the ppc boards use translated
+>>> access.  Just switch drivers and device and it falls into place.
+>>>
+>>>     =20
+>> You could switch vbus roles as well, I suppose.
+>=20
+> Right, there's not real difference in this regard.
+>=20
+>> Another potential
+>> option is that he can stop mapping host memory on the guest so that it=
+
+>> follows the more traditional model.  As a bus-master device, the ppc
+>> boards should have access to any host memory at least in the GFP_DMA
+>> range, which would include all relevant pointers here.
 >>
->> And then we want:
->>
->> /sys/class/virtio-console/ttyV0/name -> "org.qemu.clipboard"
->>
->> Userspace can detect when new virtio-consoles appear via udev events.   
->> When it sees a new ttyVN, it can then look in sysfs to discover it's 
->> name.
->>     
->
-> OK; but that's kind of roundabout isn't it? An application, instead of
-> watching for the console port it's interested in, has to instead monitor
-> all the ports.
->   
+>> I digress:  I was primarily addressing the concern that Ira would need=
 
-If you wanted to use /dev/virtio/org/qemu/clipboard you still have the 
-same problem.  You have to use udev or inotify to listen for a new file 
-in a directory.
+>> to manage the "host" side of the link using hvas mapped from userspace=
 
-The /dev/ path may look nicer from a high level, but the code ends up 
-being roughly the same for either approach.  What I propose has the 
-advantage of looking like existing subsystems.  It also avoids encoding 
-device information in the device name.
+>> (even if host side is the ppc boards).  vbus abstracts that access so =
+as
+>> to allow something other than userspace/hva mappings.  OTOH, having ea=
+ch
+>> ppc board run a userspace app to do the mapping on its behalf and feed=
 
-> So in effect there has to be one app monitoring for new ports and then
-> that app exec'ing the corresponding app meant for that port.
->   
+>> it to vhost is probably not a huge deal either.  Where vhost might
+>> really fall apart is when any assumptions about pageable memory occur,=
 
-I think if you think through both models, they end up looking the same.
+>> if any.
+>>   =20
+>=20
+> Why?  vhost will call get_user_pages() or copy_*_user() which ought to
+> do the right thing.
 
-Regards,
+I was speaking generally, not specifically to Ira's architecture.  What
+I mean is that vbus was designed to work without assuming that the
+memory is pageable.  There are environments in which the host is not
+capable of mapping hvas/*page, but the memctx->copy_to/copy_from
+paradigm could still work (think rdma, for instance).
 
-Anthony Liguroi
+>=20
+>> As an aside: a bigger issue is that, iiuc, Ira wants more than a singl=
+e
+>> ethernet channel in his design (multiple ethernets, consoles, etc).  A=
+
+>> vhost solution in this environment is incomplete.
+>>   =20
+>=20
+> Why?  Instantiate as many vhost-nets as needed.
+
+a) what about non-ethernets?
+b) what do you suppose this protocol to aggregate the connections would
+look like? (hint: this is what a vbus-connector does).
+c) how do you manage the configuration, especially on a per-board basis?
+
+>=20
+>> Note that Ira's architecture highlights that vbus's explicit managemen=
+t
+>> interface is more valuable here than it is in KVM, since KVM already h=
+as
+>> its own management interface via QEMU.
+>>   =20
+>=20
+> vhost-net and vbus both need management, vhost-net via ioctls and vbus
+> via configfs.
+
+Actually I have patches queued to allow vbus to be managed via ioctls as
+well, per your feedback (and it solves the permissions/lifetime
+critisims in alacrityvm-v0.1).
+
+>  The only difference is the implementation.  vhost-net
+> leaves much more to userspace, that's the main difference.
+
+Also,
+
+*) vhost is virtio-net specific, whereas vbus is a more generic device
+model where thing like virtio-net or venet ride on top.
+
+*) vhost is only designed to work with environments that look very
+similar to a KVM guest (slot/hva translatable).  vbus can bridge various
+environments by abstracting the key components (such as memory access).
+
+*) vhost requires an active userspace management daemon, whereas vbus
+can be driven by transient components, like scripts (ala udev)
+
+Kind Regards,
+-Greg
+
+
+
+--------------enigE58C3AB1B03AC57412E22747
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG/MacGPG2 v2.0.11 (Darwin)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
+
+iEYEARECAAYFAkqvm68ACgkQP5K2CMvXmqGjeACfaeq+q8+zPvMaTCbdNBdPCaWg
+brsAoIQkXtftjfx+YbkfDtWCeVwCtpDw
+=W5uC
+-----END PGP SIGNATURE-----
+
+--------------enigE58C3AB1B03AC57412E22747--
+
+--===============1571494792654028215==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linux-foundation.org/mailman/listinfo/virtualization
+--===============1571494792654028215==--
