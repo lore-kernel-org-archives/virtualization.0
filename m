@@ -1,47 +1,63 @@
-From: Chris Wright <chrisw@sous-sol.org>
+From: Alok Kataria <akataria@vmware.com>
 Subject: Re: Paravirtualization on VMware's Platform [VMI].
-Date: Thu, 17 Sep 2009 17:58:08 -0700
-Message-ID: <20090918005808.GJ26034@sequoia.sous-sol.org>
-References: <1253233028.19731.63.camel@ank32.eng.vmware.com> <20090918003412.GI26034@sequoia.sous-sol.org> <4AB2DA0D.8020606@goop.org>
+Date: Thu, 17 Sep 2009 18:43:10 -0700
+Message-ID: <1253238190.19731.75.camel@ank32.eng.vmware.com>
+References: <1253233028.19731.63.camel@ank32.eng.vmware.com>
+	 <20090918003412.GI26034@sequoia.sous-sol.org> <4AB2DA0D.8020606@goop.org>
+	 <20090918005808.GJ26034@sequoia.sous-sol.org>
+Reply-To: akataria@vmware.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1755178AbZIRBES@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <4AB2DA0D.8020606@goop.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1753552AbZIRBnM@vger.kernel.org>
+In-Reply-To: <20090918005808.GJ26034@sequoia.sous-sol.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Chris Wright <chrisw@sous-sol.org>, Alok Kataria <akataria@vmware.com>, Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>, "H. Peter Anvin" <hpa@zytor.com>, the arch/x86 maintainers <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>, Rusty Russell <rusty@rustcorp.com.au>, virtualization@lists.osdl.org
+To: Chris Wright <chrisw@sous-sol.org>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>, "H. Peter Anvin" <hpa@zytor.com>, the arch/x86 maintainers <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>, Rusty Russell <rusty@rustcorp.com.au>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-* Jeremy Fitzhardinge (jeremy@goop.org) wrote:
-> On 09/17/09 17:34, Chris Wright wrote:
-> >> One of the options that I am contemplating is to drop the code from the
-> >> tip tree in this release cycle, and given that this should be a low risk
-> >> change we can remove it from Linus's tree later in the merge cycle.
-> >>
-> >> Let me know your views on this or if you think we should do this some
-> >> other way.
-> >>     
-> > Typically we give time measured in multiple release cycles
-> > before deprecating a feature.  This means placing an entry in
-> > Documentation/feature-removal-schedule.txt, and potentially
-> > adding some noise to warn users they are using a deprecated
-> > feature.
+
+On Thu, 2009-09-17 at 17:58 -0700, Chris Wright wrote:
+> * Jeremy Fitzhardinge (jeremy@goop.org) wrote:
+> > On 09/17/09 17:34, Chris Wright wrote:
+> > >> One of the options that I am contemplating is to drop the code from the
+> > >> tip tree in this release cycle, and given that this should be a low risk
+> > >> change we can remove it from Linus's tree later in the merge cycle.
+> > >>
+> > >> Let me know your views on this or if you think we should do this some
+> > >> other way.
+> > >>     
+> > > Typically we give time measured in multiple release cycles
+> > > before deprecating a feature.  This means placing an entry in
+> > > Documentation/feature-removal-schedule.txt, and potentially
+> > > adding some noise to warn users they are using a deprecated
+> > > feature.
+> > 
+> > That's true if the feature has some functional effect on users.  But at
+> > first sight, VMI is really just an optimisation, and a non-VMI-equipped
+> > kernel would be completely functionally equivalent, right?
 > 
-> That's true if the feature has some functional effect on users.  But at
-> first sight, VMI is really just an optimisation, and a non-VMI-equipped
-> kernel would be completely functionally equivalent, right?
+> True.  I'm all for removing code that's got no planned maintenance and
+> no place to run ;-)
 
-True.  I'm all for removing code that's got no planned maintenance and
-no place to run ;-)
+That's correct, Jeremy put it as well as I could, VMI was always a
+optimization, and we expect that new HW features bridge that performance
+gap too. So a generic kernel will run just as well on VMware's platform.
 
-> On the other hand, there could well be a performance regression which
-> could affect users.  However they're taking the explicit step of
-> withdrawing support for VMI, so I guess they can just take that in their
-> stride.
+Having said that, I would like to clarify that existing products which
+support VMI will still carry on supporting it for the current customer
+base. Its only the new products which will stop supporting this feature.
 
-Yeah.  Different than normal deprecation since it's atop VMware's HV
-which is all in their domain.
+> 
+> > On the other hand, there could well be a performance regression which
+> > could affect users.  However they're taking the explicit step of
+> > withdrawing support for VMI, so I guess they can just take that in their
+> > stride.
+> 
+> Yeah.  Different than normal deprecation since it's atop VMware's HV
+> which is all in their domain.
 
-thanks,
--chris
+Yep that's true. 
+
+Thanks,
+Alok
