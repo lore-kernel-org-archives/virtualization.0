@@ -1,69 +1,81 @@
-From: Amit Shah <amit.shah@redhat.com>
-Subject: Re: [PATCH] virtio_console: Add support for multiple ports for
-	generic guest and host communication
-Date: Thu, 17 Sep 2009 22:16:33 +0530
-Message-ID: <20090917164633.GA29951__34681.6614772708$1253206085$gmane$org@amit-x200.redhat.com>
-References: <20090911163806.GB25535@amit-x200.redhat.com>
-	<4AAA8838.1080106@codemonkey.ws>
-	<20090911173307.GB27046@amit-x200.redhat.com>
-	<4AAA8A56.3040707@codemonkey.ws>
-	<20090916112332.6bf981a5@linux.intel.com>
-	<4AB164A0.8000402@codemonkey.ws> <87tyz1en5f.fsf@pike.pond.sub.org>
-	<20090917141531.4d2489d4@lxorguk.ukuu.org.uk>
-	<20090917134125.GA27511@amit-x200.redhat.com>
-	<20090917165701.400ad28c@lxorguk.ukuu.org.uk>
+From: Alok Kataria <akataria@vmware.com>
+Subject: Paravirtualization on VMware's Platform [VMI].
+Date: Thu, 17 Sep 2009 17:17:08 -0700
+Message-ID: <1253233028.19731.63.camel@ank32.eng.vmware.com>
+Reply-To: akataria@vmware.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20090917165701.400ad28c@lxorguk.ukuu.org.uk>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: greg@kroah.com, virtualization@lists.linux-foundation.org, Anthony Liguori <anthony@codemonkey.ws>, linux-kernel@vger.kernel.org
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1754927AbZIRARL@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>, "H. Peter Anvin" <hpa@zytor.com>
+Cc: the arch/x86 maintainers <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>, Jeremy Fitzhardinge <jeremy@goop.org>, Chris Wright <chrisw@sous-sol.org>, Rusty Russell <rusty@rustcorp.com.au>, virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On (Thu) Sep 17 2009 [16:57:01], Alan Cox wrote:
-> > Alan, I'm not sure how many ports at a time people would want to use so
-> > allocating one major device for this seems OK?
-> 
-> We have very large minor number ranges now so one dynamic major should do
-> you for a while yet. Probably forever but thats always asking for a
-> "640K.." moment ;)
+Hi,
 
-:-) OK.
+We ran a few experiments to compare performance of VMware's
+paravirtualization technique (VMI) and hardware MMU technologies (HWMMU)
+on VMware's hypervisor.
 
-> > +static ssize_t fill_readbuf(struct virtio_console_port *port,
-> > +			    char *out_buf, size_t out_count, bool to_user)
-> > +{
-> 
-> Save yourself serious grief - and the FIXME pain noted below - unless you
-> are shipping huge objects use a bounce buffer and kill off the to_user
-> stuff - modern CPUs are so fast doing cache transfers it really isn't
-> worth the suffering for small stuff.
+To give some background, VMI is VMware's paravirtualization
+specification which tries to optimize CPU and MMU operations of the
+guest operating system. For more information take a look at this
+http://www.vmware.com/interfaces/paravirtualization.html
 
-I would if I knew what it is that you are suggesting. A bounce buffer
-for guest kernel - guest userspace communication?
+In most of the benchmarks, EPT/NPT (hwmmu) technologies are at par or
+provide better performance compared to VMI.
+The experiments included comparing performance across various micro and
+real world like benchmarks.
 
-This is what it looks like right now:
+Host configuration used for testing.
+* Dell PowerEdge 2970
+* 2 x quad-core AMD Opteron 2384 2.7GHz (Shanghai C2), RVI capable.
+* 8 GB (4 x 2GB) memory, NUMA enabled
+* 2 x 300GB RAID 0 storage
+* 2 x embedded 1Gb NICs (Braodcom NetXtreme II BCM5708 1000Base-T)
+* Running developement build of ESX.
 
-For guest kernel - host communication, I'm using virtio - which is a
-bounce buffer (guest allocates pages, host fetches, reads/writes, guest
-gets an ack).
+The guest VM was a SLES 10 SP2 based VM for both the VMI and non-VMI
+case. kernel version: 2.6.16.60-0.37_f594963d-vmipae.
 
-But I probably didn't get what you meant, so please explain.
+Below is a short summary of performance results between HWMMU and VMI.
+These results are averaged over 9 runs. The memory was sized at 512MB
+per VCPU in all experiments.
+For the ratio results comparing hwmmu technologies to vmi, higher than 1
+means hwmmu is better than vmi.
 
-> > +			ret = copy_to_user(out_buf + out_offset,
-> > +					   buf->buf + buf->offset,
-> > +					   copy_size);
-> > +			/* FIXME: Deal with ret != 0 */
+compile workloads - 4-way : 1.02, i.e. about 2% better.
+compile workloads - 8-way : 1.14, i,e. 14% better.
+oracle swingbench - 4-way (small pages) : 1.34, i.e. 34% better.
+oracle swingbench - 4-way (large pages) : 1.03, i.e. 3% better.
+specjbb (large pages)   : 0.99, i.e. 1% degradation.
 
-		Amit
+Please note that specjbb is the worst case benchmark for hwmmu, due to
+the higher TLB miss latency, so it's a good result that the worst case
+benchmark has a degradation of only 1%.
+
+VMware expects that these hardware virtualization features will be
+ubiquitous by 2011.
+
+Apart from the performance benefit, VMI was important for Linux on
+VMware's platform, from timekeeping point of view, but with the tickless
+kernels and TSC improvements that were done for the mainline tree, we
+think VMI has outlived those requirements too.
+
+In light of these results and availability of such hardware, we have
+decided to stop supporting VMI in our future products.
+
+Given this new development, I wanted to discuss how should we go about
+retiring the VMI code from mainline Linux, i.e. the vmi_32.c and
+vmiclock_32.c bits.
+
+One of the options that I am contemplating is to drop the code from the
+tip tree in this release cycle, and given that this should be a low risk
+change we can remove it from Linus's tree later in the merge cycle.
+
+Let me know your views on this or if you think we should do this some
+other way.
+
+Thanks,
+Alok
