@@ -1,63 +1,48 @@
-From: Alok Kataria <akataria@vmware.com>
-Subject: Re: Paravirtualization on VMware's Platform [VMI].
-Date: Thu, 17 Sep 2009 18:43:10 -0700
-Message-ID: <1253238190.19731.75.camel@ank32.eng.vmware.com>
-References: <1253233028.19731.63.camel@ank32.eng.vmware.com>
-	 <20090918003412.GI26034@sequoia.sous-sol.org> <4AB2DA0D.8020606@goop.org>
-	 <20090918005808.GJ26034@sequoia.sous-sol.org>
-Reply-To: akataria@vmware.com
+From: Alan Cox <alan@linux.intel.com>
+Subject: Re: [PATCH] virtio_console: Add support for multiple ports for
+	generic guest and host communication
+Date: Fri, 18 Sep 2009 17:00:48 +0100
+Message-ID: <20090918170048.53ba8cf6__31845.7926311114$1253290009$gmane$org@linux.intel.com>
+References: <1252678386-17404-1-git-send-email-amit.shah@redhat.com>
+	<1252678386-17404-2-git-send-email-amit.shah@redhat.com>
+	<20090911170010.34c80f2d@linux.intel.com>
+	<20090911163806.GB25535@amit-x200.redhat.com>
+	<4AAA8838.1080106@codemonkey.ws>
+	<20090911173307.GB27046@amit-x200.redhat.com>
+	<4AAA8A56.3040707@codemonkey.ws>
+	<20090916112332.6bf981a5@linux.intel.com>
+	<4AB164A0.8000402@codemonkey.ws>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1753552AbZIRBnM@vger.kernel.org>
-In-Reply-To: <20090918005808.GJ26034@sequoia.sous-sol.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Chris Wright <chrisw@sous-sol.org>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>, "H. Peter Anvin" <hpa@zytor.com>, the arch/x86 maintainers <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>, Rusty Russell <rusty@rustcorp.com.au>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <4AB164A0.8000402@codemonkey.ws>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Anthony Liguori <anthony@codemonkey.ws>
+Cc: Amit Shah <amit.shah@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
+> We do actually want hangup and a few other of the tty specific ops.
+> The only thing we really don't want is a baud rate.
 
-On Thu, 2009-09-17 at 17:58 -0700, Chris Wright wrote:
-> * Jeremy Fitzhardinge (jeremy@goop.org) wrote:
-> > On 09/17/09 17:34, Chris Wright wrote:
-> > >> One of the options that I am contemplating is to drop the code from the
-> > >> tip tree in this release cycle, and given that this should be a low risk
-> > >> change we can remove it from Linus's tree later in the merge cycle.
-> > >>
-> > >> Let me know your views on this or if you think we should do this some
-> > >> other way.
-> > >>     
-> > > Typically we give time measured in multiple release cycles
-> > > before deprecating a feature.  This means placing an entry in
-> > > Documentation/feature-removal-schedule.txt, and potentially
-> > > adding some noise to warn users they are using a deprecated
-> > > feature.
-> > 
-> > That's true if the feature has some functional effect on users.  But at
-> > first sight, VMI is really just an optimisation, and a non-VMI-equipped
-> > kernel would be completely functionally equivalent, right?
-> 
-> True.  I'm all for removing code that's got no planned maintenance and
-> no place to run ;-)
+So you need break, parity ... no be serious please
 
-That's correct, Jeremy put it as well as I could, VMI was always a
-optimization, and we expect that new HW features bridge that performance
-gap too. So a generic kernel will run just as well on VMware's platform.
+> This device cannot be implemented as-is in userspace because it
+> depends on DMA which precludes the use of something like uio_pci.  We
+> could modify the device to avoid dma if the feeling was that there
+> was no interest in putting this in the kernel.
 
-Having said that, I would like to clarify that existing products which
-support VMI will still carry on supporting it for the current customer
-base. Its only the new products which will stop supporting this feature.
+So you need a tiny kernel side driver to unpack it into a meaningful
+fs, or just a user-user channel with a daemon each end and a protocol
+over it - nothing kernel in that.
 
-> 
-> > On the other hand, there could well be a performance regression which
-> > could affect users.  However they're taking the explicit step of
-> > withdrawing support for VMI, so I guess they can just take that in their
-> > stride.
-> 
-> Yeah.  Different than normal deprecation since it's atop VMware's HV
-> which is all in their domain.
-
-Yep that's true. 
-
-Thanks,
-Alok
+We don't implement tcp/ip http sessions as tty devices with the kernel
+as web server and the same logic applies here.
