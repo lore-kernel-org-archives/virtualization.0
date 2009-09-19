@@ -1,37 +1,30 @@
-From: Avi Kivity <avi@redhat.com>
+From: Greg KH <greg@kroah.com>
 Subject: Re: Paravirtualization on VMware's Platform [VMI].
-Date: Sat, 19 Sep 2009 10:43:40 +0300
-Message-ID: <4AB48BAC.1000409@redhat.com>
+Date: Sat, 19 Sep 2009 15:44:30 -0700
+Message-ID: <20090919224430.GB9567@kroah.com>
 References: <1253233028.19731.63.camel@ank32.eng.vmware.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1755530AbZISHrG@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1753331AbZISWr5@vger.kernel.org>
+Content-Disposition: inline
 In-Reply-To: <1253233028.19731.63.camel@ank32.eng.vmware.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: akataria@vmware.com
-Cc: Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>, "H. Peter Anvin" <hpa@zytor.com>, the arch/x86 maintainers <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>, Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org
+To: Alok Kataria <akataria@vmware.com>
+Cc: Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>, "H. Peter Anvin" <hpa@zytor.com>, the arch/x86 maintainers <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>, Jeremy Fitzhardinge <jeremy@goop.org>, Chris Wright <chrisw@sous-sol.org>, Rusty Russell <rusty@rustcorp.com.au>, virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 09/18/2009 03:17 AM, Alok Kataria wrote:
-> Hi,
->
-> We ran a few experiments to compare performance of VMware's
-> paravirtualization technique (VMI) and hardware MMU technologies (HWMMU)
-> on VMware's hypervisor.
->
-> To give some background, VMI is VMware's paravirtualization
-> specification which tries to optimize CPU and MMU operations of the
-> guest operating system. For more information take a look at this
-> http://www.vmware.com/interfaces/paravirtualization.html
->
-> In most of the benchmarks, EPT/NPT (hwmmu) technologies are at par or
-> provide better performance compared to VMI.
-> The experiments included comparing performance across various micro and
-> real world like benchmarks.
->    
+On Thu, Sep 17, 2009 at 05:17:08PM -0700, Alok Kataria wrote:
+> Given this new development, I wanted to discuss how should we go about
+> retiring the VMI code from mainline Linux, i.e. the vmi_32.c and
+> vmiclock_32.c bits.
+> 
+> One of the options that I am contemplating is to drop the code from the
+> tip tree in this release cycle, and given that this should be a low risk
+> change we can remove it from Linus's tree later in the merge cycle.
 
-We've reached a similar conclusion for kvm pvmmu vs ept/npt.
+That sounds good to me, how intrusive are the patches to do this?  Is it
+going to be tricky to get everything merged properly in -tip for it?
 
--- 
-Do not meddle in the internals of kernels, for they are subtle and quick to panic.
+thanks,
+
+greg k-h
