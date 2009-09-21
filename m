@@ -1,11 +1,24 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: [PATCH 4/5] lguest: cleanup for map_switcher()
-Date: Mon, 21 Sep 2009 16:52:21 +0930
-Message-ID: <200909210723.n8L7Nu5Y022168@smtp1.linux-foundation.org>
+From: Alan Cox <alan@linux.intel.com>
+Subject: Re: [PATCH] virtio_console: Add support for multiple ports for
+	generic guest and host communication
+Date: Mon, 21 Sep 2009 11:06:38 +0100
+Message-ID: <20090921110638.02a2e3e1__6876.97305479578$1253527936$gmane$org@linux.intel.com>
+References: <1252678386-17404-1-git-send-email-amit.shah@redhat.com>
+	<1252678386-17404-2-git-send-email-amit.shah@redhat.com>
+	<20090911170010.34c80f2d@linux.intel.com>
+	<20090911163806.GB25535@amit-x200.redhat.com>
+	<4AAA8838.1080106@codemonkey.ws>
+	<20090911173307.GB27046@amit-x200.redhat.com>
+	<4AAA8A56.3040707@codemonkey.ws>
+	<20090916112332.6bf981a5@linux.intel.com>
+	<4AB164A0.8000402@codemonkey.ws>
+	<20090918170048.53ba8cf6@linux.intel.com>
+	<4AB3C988.2040303@codemonkey.ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <4AB3C988.2040303@codemonkey.ws>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -15,36 +28,20 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.osdl.org
-Cc: Xiao Guangrong <xiaoguangrong@cn.fujitsu.com>, lguest@ozlabs.org
+To: Anthony Liguori <anthony@codemonkey.ws>
+Cc: Amit Shah <amit.shah@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Xiao Guangrong <xiaoguangrong@cn.fujitsu.com>
+> Again, this is paravirtual serial device and I think it's entirely 
+> reasonable for people to hook up these ports in the guest directly to 
+> physical serial devices in the host.
 
-We can use alloc_page() instead of get_zeroed_page() and virt_to_page()
+virtio doesn't support all those features.
 
-Signed-off-by: Xiao Guangrong <xiaoguangrong@cn.fujitsu.com>
-Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
----
- drivers/lguest/core.c |    5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+> I fail to see how this is at all relevant.  This is a virtual
+> machine, we're presenting virtual hardware that behaves like a serial
+> device.
 
-diff --git a/drivers/lguest/core.c b/drivers/lguest/core.c
-index 1e2cb84..b639019 100644
---- a/drivers/lguest/core.c
-+++ b/drivers/lguest/core.c
-@@ -67,12 +67,11 @@ static __init int map_switcher(void)
- 	 * so we make sure they're zeroed.
- 	 */
- 	for (i = 0; i < TOTAL_SWITCHER_PAGES; i++) {
--		unsigned long addr = get_zeroed_page(GFP_KERNEL);
--		if (!addr) {
-+		switcher_page[i] = alloc_page(GFP_KERNEL|__GFP_ZERO);
-+		if (!switcher_page[i]) {
- 			err = -ENOMEM;
- 			goto free_some_pages;
- 		}
--		switcher_page[i] = virt_to_page(addr);
- 	}
- 
- 	/*
+The more important question is what you are using it for, and when you
+ask that question it looks remarkably unlike a tty or serial port and
+rather more like a message and status passing bus ?
