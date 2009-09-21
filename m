@@ -1,7 +1,7 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: [PATCH 1/6] virtio_pci: minor MSI-X cleanups
-Date: Mon, 21 Sep 2009 16:28:11 +0930
-Message-ID: <200909211628.12106.rusty@rustcorp.com.au>
+Subject: [PATCH 2/6] virtio: make add_buf return capacity remaining
+Date: Mon, 21 Sep 2009 16:28:19 +0930
+Message-ID: <200909211628.19636.rusty@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -17,241 +17,188 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: virtualization@lists.osdl.org
-Cc: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Dinesh Subhraveti <dineshs@us.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
 
-1) Rename vp_request_vectors to vp_request_msix_vectors, and take
-   non-MSI-X case out to caller.
-2) Comment weird pci_enable_msix API
-3) Rename vp_find_vq to setup_vq.
-4) Fix spaces to tabs
-5) Make nvectors calc internal to vp_try_to_find_vqs()
-6) Rename vector to msix_vector for more clarity.
+This API change means that virtio_net can tell how much capacity
+remains for buffers.  It's necessarily fuzzy, since
+VIRTIO_RING_F_INDIRECT_DESC means we can fit any number of descriptors
+in one, *if* we can kmalloc.
 
 Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Dinesh Subhraveti <dineshs@us.ibm.com>
 ---
- drivers/virtio/virtio_pci.c |   89 ++++++++++++++++++++++++--------------------
- 1 file changed, 49 insertions(+), 40 deletions(-)
+ drivers/block/virtio_blk.c          |    2 +-
+ drivers/char/hw_random/virtio-rng.c |    2 +-
+ drivers/char/virtio_console.c       |    4 ++--
+ drivers/net/virtio_net.c            |    8 ++++----
+ drivers/virtio/virtio_balloon.c     |    2 +-
+ drivers/virtio/virtio_ring.c        |    6 +++++-
+ include/linux/virtio.h              |    2 +-
+ net/9p/trans_virtio.c               |    2 +-
+ 8 files changed, 16 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/virtio/virtio_pci.c b/drivers/virtio/virtio_pci.c
---- a/drivers/virtio/virtio_pci.c
-+++ b/drivers/virtio/virtio_pci.c
-@@ -84,7 +84,7 @@ struct virtio_pci_vq_info
- 	struct list_head node;
- 
- 	/* MSI-X vector (or none) */
--	unsigned vector;
-+	unsigned msix_vector;
- };
- 
- /* Qumranet donated their vendor ID for devices 0x1000 thru 0x10FF. */
-@@ -280,25 +280,14 @@ static void vp_free_vectors(struct virti
- 	vp_dev->msix_entries = NULL;
- }
- 
--static int vp_request_vectors(struct virtio_device *vdev, int nvectors,
--			      bool per_vq_vectors)
-+static int vp_request_msix_vectors(struct virtio_device *vdev, int nvectors,
-+				   bool per_vq_vectors)
- {
- 	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
- 	const char *name = dev_name(&vp_dev->vdev.dev);
- 	unsigned i, v;
- 	int err = -ENOMEM;
- 
--	if (!nvectors) {
--		/* Can't allocate MSI-X vectors, use regular interrupt */
--		vp_dev->msix_vectors = 0;
--		err = request_irq(vp_dev->pci_dev->irq, vp_interrupt,
--				  IRQF_SHARED, name, vp_dev);
--		if (err)
--			return err;
--		vp_dev->intx_enabled = 1;
--		return 0;
--	}
--
- 	vp_dev->msix_entries = kmalloc(nvectors * sizeof *vp_dev->msix_entries,
- 				       GFP_KERNEL);
- 	if (!vp_dev->msix_entries)
-@@ -311,6 +300,7 @@ static int vp_request_vectors(struct vir
- 	for (i = 0; i < nvectors; ++i)
- 		vp_dev->msix_entries[i].entry = i;
- 
-+	/* pci_enable_msix returns positive if we can't get this many. */
- 	err = pci_enable_msix(vp_dev->pci_dev, vp_dev->msix_entries, nvectors);
- 	if (err > 0)
- 		err = -ENOSPC;
-@@ -356,10 +346,22 @@ error:
- 	return err;
- }
- 
--static struct virtqueue *vp_find_vq(struct virtio_device *vdev, unsigned index,
--				    void (*callback)(struct virtqueue *vq),
--				    const char *name,
--				    u16 vector)
-+static int vp_request_intx(struct virtio_device *vdev)
-+{
-+	int err;
-+	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
-+
-+	err = request_irq(vp_dev->pci_dev->irq, vp_interrupt,
-+			  IRQF_SHARED, dev_name(&vdev->dev), vp_dev);
-+	if (!err)
-+		vp_dev->intx_enabled = 1;
-+	return err;
-+}
-+
-+static struct virtqueue *setup_vq(struct virtio_device *vdev, unsigned index,
-+				  void (*callback)(struct virtqueue *vq),
-+				  const char *name,
-+				  u16 msix_vec)
- {
- 	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
- 	struct virtio_pci_vq_info *info;
-@@ -384,7 +386,7 @@ static struct virtqueue *vp_find_vq(stru
- 
- 	info->queue_index = index;
- 	info->num = num;
--	info->vector = vector;
-+	info->msix_vector = msix_vec;
- 
- 	size = PAGE_ALIGN(vring_size(num, VIRTIO_PCI_VRING_ALIGN));
- 	info->queue = alloc_pages_exact(size, GFP_KERNEL|__GFP_ZERO);
-@@ -408,10 +410,10 @@ static struct virtqueue *vp_find_vq(stru
- 	vq->priv = info;
- 	info->vq = vq;
- 
--	 if (vector != VIRTIO_MSI_NO_VECTOR) {
--		iowrite16(vector, vp_dev->ioaddr + VIRTIO_MSI_QUEUE_VECTOR);
--		vector = ioread16(vp_dev->ioaddr + VIRTIO_MSI_QUEUE_VECTOR);
--		if (vector == VIRTIO_MSI_NO_VECTOR) {
-+	if (msix_vec != VIRTIO_MSI_NO_VECTOR) {
-+		iowrite16(msix_vec, vp_dev->ioaddr + VIRTIO_MSI_QUEUE_VECTOR);
-+		msix_vec = ioread16(vp_dev->ioaddr + VIRTIO_MSI_QUEUE_VECTOR);
-+		if (msix_vec == VIRTIO_MSI_NO_VECTOR) {
- 			err = -EBUSY;
- 			goto out_assign;
+diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+--- a/drivers/block/virtio_blk.c
++++ b/drivers/block/virtio_blk.c
+@@ -139,7 +139,7 @@ static bool do_req(struct request_queue 
  		}
-@@ -472,7 +474,8 @@ static void vp_del_vqs(struct virtio_dev
- 	list_for_each_entry_safe(vq, n, &vdev->vqs, list) {
- 		info = vq->priv;
- 		if (vp_dev->per_vq_vectors)
--			free_irq(vp_dev->msix_entries[info->vector].vector, vq);
-+			free_irq(vp_dev->msix_entries[info->msix_vector].vector,
-+				 vq);
- 		vp_del_vq(vq);
  	}
- 	vp_dev->per_vq_vectors = false;
-@@ -484,38 +487,58 @@ static int vp_try_to_find_vqs(struct vir
- 			      struct virtqueue *vqs[],
- 			      vq_callback_t *callbacks[],
- 			      const char *names[],
--			      int nvectors,
-+			      bool use_msix,
- 			      bool per_vq_vectors)
- {
- 	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
--	u16 vector;
--	int i, err, allocated_vectors;
-+	u16 msix_vec;
-+	int i, err, nvectors, allocated_vectors;
  
--	err = vp_request_vectors(vdev, nvectors, per_vq_vectors);
--	if (err)
--		goto error_request;
-+	if (!use_msix) {
-+		/* Old style: one normal interrupt for change and all vqs. */
-+		err = vp_request_intx(vdev);
-+		if (err)
-+			goto error_request;
-+	} else {
-+		if (per_vq_vectors) {
-+			/* Best option: one for change interrupt, one per vq. */
-+			nvectors = 1;
-+			for (i = 0; i < nvqs; ++i)
-+				if (callbacks[i])
-+					++nvectors;
-+		} else {
-+			/* Second best: one for change, shared for all vqs. */
-+			nvectors = 2;
-+		}
+-	if (vblk->vq->vq_ops->add_buf(vblk->vq, vblk->sg, out, in, vbr)) {
++	if (vblk->vq->vq_ops->add_buf(vblk->vq, vblk->sg, out, in, vbr) < 0) {
+ 		mempool_free(vbr, vblk->pool);
+ 		return false;
+ 	}
+diff --git a/drivers/char/hw_random/virtio-rng.c b/drivers/char/hw_random/virtio-rng.c
+--- a/drivers/char/hw_random/virtio-rng.c
++++ b/drivers/char/hw_random/virtio-rng.c
+@@ -51,7 +51,7 @@ static void register_buffer(void)
+ 
+ 	sg_init_one(&sg, random_data+data_left, RANDOM_DATA_SIZE-data_left);
+ 	/* There should always be room for one buffer. */
+-	if (vq->vq_ops->add_buf(vq, &sg, 0, 1, random_data) != 0)
++	if (vq->vq_ops->add_buf(vq, &sg, 0, 1, random_data) < 0)
+ 		BUG();
+ 	vq->vq_ops->kick(vq);
+ }
+diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
+--- a/drivers/char/virtio_console.c
++++ b/drivers/char/virtio_console.c
+@@ -65,7 +65,7 @@ static int put_chars(u32 vtermno, const 
+ 
+ 	/* add_buf wants a token to identify this buffer: we hand it any
+ 	 * non-NULL pointer, since there's only ever one buffer. */
+-	if (out_vq->vq_ops->add_buf(out_vq, sg, 1, 0, (void *)1) == 0) {
++	if (out_vq->vq_ops->add_buf(out_vq, sg, 1, 0, (void *)1) >= 0) {
+ 		/* Tell Host to go! */
+ 		out_vq->vq_ops->kick(out_vq);
+ 		/* Chill out until it's done with the buffer. */
+@@ -85,7 +85,7 @@ static void add_inbuf(void)
+ 	sg_init_one(sg, inbuf, PAGE_SIZE);
+ 
+ 	/* We should always be able to add one buffer to an empty queue. */
+-	if (in_vq->vq_ops->add_buf(in_vq, sg, 0, 1, inbuf) != 0)
++	if (in_vq->vq_ops->add_buf(in_vq, sg, 0, 1, inbuf) < 0)
+ 		BUG();
+ 	in_vq->vq_ops->kick(in_vq);
+ }
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -320,7 +320,7 @@ static bool try_fill_recv_maxbufs(struct
+ 		skb_queue_head(&vi->recv, skb);
+ 
+ 		err = vi->rvq->vq_ops->add_buf(vi->rvq, sg, 0, num, skb);
+-		if (err) {
++		if (err < 0) {
+ 			skb_unlink(skb, &vi->recv);
+ 			trim_pages(vi, skb);
+ 			kfree_skb(skb);
+@@ -373,7 +373,7 @@ static bool try_fill_recv(struct virtnet
+ 		skb_queue_head(&vi->recv, skb);
+ 
+ 		err = vi->rvq->vq_ops->add_buf(vi->rvq, sg, 0, 1, skb);
+-		if (err) {
++		if (err < 0) {
+ 			skb_unlink(skb, &vi->recv);
+ 			kfree_skb(skb);
+ 			break;
+@@ -527,7 +527,7 @@ static int xmit_skb(struct virtnet_info 
+ 	num = skb_to_sgvec(skb, sg+1, 0, skb->len) + 1;
+ 
+ 	err = vi->svq->vq_ops->add_buf(vi->svq, sg, num, 0, skb);
+-	if (!err && !vi->free_in_tasklet)
++	if (err >= 0 && !vi->free_in_tasklet)
+ 		mod_timer(&vi->xmit_free_timer, jiffies + (HZ/10));
+ 
+ 	return err;
+@@ -538,7 +538,7 @@ static void xmit_tasklet(unsigned long d
+ 	struct virtnet_info *vi = (void *)data;
+ 
+ 	netif_tx_lock_bh(vi->dev);
+-	if (vi->last_xmit_skb && xmit_skb(vi, vi->last_xmit_skb) == 0) {
++	if (vi->last_xmit_skb && xmit_skb(vi, vi->last_xmit_skb) >= 0) {
+ 		vi->svq->vq_ops->kick(vi->svq);
+ 		vi->last_xmit_skb = NULL;
+ 	}
+@@ -557,7 +557,7 @@ again:
+ 
+ 	/* If we has a buffer left over from last time, send it now. */
+ 	if (unlikely(vi->last_xmit_skb) &&
+-	    xmit_skb(vi, vi->last_xmit_skb) != 0)
++	    xmit_skb(vi, vi->last_xmit_skb) < 0)
+ 		goto stop_queue;
+ 
+ 	vi->last_xmit_skb = NULL;
+@@ -565,7 +565,7 @@ again:
+ 	/* Put new one in send queue and do transmit */
+ 	if (likely(skb)) {
+ 		__skb_queue_head(&vi->send, skb);
+-		if (xmit_skb(vi, skb) != 0) {
++		if (xmit_skb(vi, skb) < 0) {
+ 			vi->last_xmit_skb = skb;
+ 			skb = NULL;
+ 			goto stop_queue;
+@@ -668,7 +668,7 @@ static bool virtnet_send_command(struct 
+ 		sg_set_buf(&sg[i + 1], sg_virt(s), s->length);
+ 	sg_set_buf(&sg[out + in - 1], &status, sizeof(status));
+ 
+-	BUG_ON(vi->cvq->vq_ops->add_buf(vi->cvq, sg, out, in, vi));
++	BUG_ON(vi->cvq->vq_ops->add_buf(vi->cvq, sg, out, in, vi) < 0);
+ 
+ 	vi->cvq->vq_ops->kick(vi->cvq);
+ 
+diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+--- a/drivers/virtio/virtio_balloon.c
++++ b/drivers/virtio/virtio_balloon.c
+@@ -84,7 +84,7 @@ static void tell_host(struct virtio_ball
+ 	init_completion(&vb->acked);
+ 
+ 	/* We should always be able to add one buffer to an empty queue. */
+-	if (vq->vq_ops->add_buf(vq, &sg, 1, 0, vb) != 0)
++	if (vq->vq_ops->add_buf(vq, &sg, 1, 0, vb) < 0)
+ 		BUG();
+ 	vq->vq_ops->kick(vq);
+ 
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -208,7 +208,11 @@ add_head:
+ 
+ 	pr_debug("Added buffer head %i to %p\n", head, vq);
+ 	END_USE(vq);
+-	return 0;
 +
-+		err = vp_request_msix_vectors(vdev, nvectors, per_vq_vectors);
-+		if (err)
-+			goto error_request;
-+	}
- 
- 	vp_dev->per_vq_vectors = per_vq_vectors;
- 	allocated_vectors = vp_dev->msix_used_vectors;
- 	for (i = 0; i < nvqs; ++i) {
- 		if (!callbacks[i] || !vp_dev->msix_enabled)
--			vector = VIRTIO_MSI_NO_VECTOR;
-+			msix_vec = VIRTIO_MSI_NO_VECTOR;
- 		else if (vp_dev->per_vq_vectors)
--			vector = allocated_vectors++;
-+			msix_vec = allocated_vectors++;
- 		else
--			vector = VP_MSIX_VQ_VECTOR;
--		vqs[i] = vp_find_vq(vdev, i, callbacks[i], names[i], vector);
-+			msix_vec = VP_MSIX_VQ_VECTOR;
-+		vqs[i] = setup_vq(vdev, i, callbacks[i], names[i], msix_vec);
- 		if (IS_ERR(vqs[i])) {
- 			err = PTR_ERR(vqs[i]);
- 			goto error_find;
- 		}
- 		/* allocate per-vq irq if available and necessary */
--		if (vp_dev->per_vq_vectors && vector != VIRTIO_MSI_NO_VECTOR) {
--			snprintf(vp_dev->msix_names[vector], sizeof *vp_dev->msix_names,
--				 "%s-%s", dev_name(&vp_dev->vdev.dev), names[i]);
--			err = request_irq(vp_dev->msix_entries[vector].vector,
--					  vring_interrupt, 0,
--					  vp_dev->msix_names[vector], vqs[i]);
-+		if (vp_dev->per_vq_vectors) {
-+			snprintf(vp_dev->msix_names[msix_vec],
-+				 sizeof *vp_dev->msix_names,
-+				 "%s-%s",
-+				 dev_name(&vp_dev->vdev.dev), names[i]);
-+			err = request_irq(msix_vec, vring_interrupt, 0,
-+					  vp_dev->msix_names[msix_vec],
-+					  vqs[i]);
- 			if (err) {
- 				vp_del_vq(vqs[i]);
- 				goto error_find;
-@@ -537,28 +560,20 @@ static int vp_find_vqs(struct virtio_dev
- 		       vq_callback_t *callbacks[],
- 		       const char *names[])
- {
--	int vectors = 0;
--	int i, uninitialized_var(err);
-+	int err;
- 
--	/* How many vectors would we like? */
--	for (i = 0; i < nvqs; ++i)
--		if (callbacks[i])
--			++vectors;
--
--	/* We want at most one vector per queue and one for config changes. */
--	err = vp_try_to_find_vqs(vdev, nvqs, vqs, callbacks, names,
--				 vectors + 1, true);
-+	/* Try MSI-X with one vector per queue. */
-+	err = vp_try_to_find_vqs(vdev, nvqs, vqs, callbacks, names, true, true);
- 	if (!err)
- 		return 0;
--	/* Fallback to separate vectors for config and a shared for queues. */
-+	/* Fallback: MSI-X with one vector for config, one shared for queues. */
- 	err = vp_try_to_find_vqs(vdev, nvqs, vqs, callbacks, names,
--				 2, false);
-+				 true, false);
- 	if (!err)
- 		return 0;
- 	/* Finally fall back to regular interrupts. */
--	err = vp_try_to_find_vqs(vdev, nvqs, vqs, callbacks, names,
--				 0, false);
--	return err;
-+	return vp_try_to_find_vqs(vdev, nvqs, vqs, callbacks, names,
-+				  false, false);
++	/* If we're indirect, we can fit many (assuming not OOM). */
++	if (vq->indirect)
++		return vq->num_free ? vq->vring.num : 0;
++	return vq->num_free;
  }
  
- static struct virtio_config_ops virtio_pci_config_ops = {
+ static void vring_kick(struct virtqueue *_vq)
+diff --git a/include/linux/virtio.h b/include/linux/virtio.h
+--- a/include/linux/virtio.h
++++ b/include/linux/virtio.h
+@@ -34,7 +34,7 @@ struct virtqueue {
+  *	out_num: the number of sg readable by other side
+  *	in_num: the number of sg which are writable (after readable ones)
+  *	data: the token identifying the buffer.
+- *      Returns 0 or an error.
++ *      Returns remaining capacity of queue (sg segments) or a negative error.
+  * @kick: update after add_buf
+  *	vq: the struct virtqueue
+  *	After one or more add_buf calls, invoke this to kick the other side.
+diff --git a/net/9p/trans_virtio.c b/net/9p/trans_virtio.c
+--- a/net/9p/trans_virtio.c
++++ b/net/9p/trans_virtio.c
+@@ -200,7 +200,7 @@ p9_virtio_request(struct p9_client *clie
+ 
+ 	req->status = REQ_STATUS_SENT;
+ 
+-	if (chan->vq->vq_ops->add_buf(chan->vq, chan->sg, out, in, req->tc)) {
++	if (chan->vq->vq_ops->add_buf(chan->vq, chan->sg, out, in, req->tc) < 0) {
+ 		P9_DPRINTK(P9_DEBUG_TRANS,
+ 			"9p debug: virtio rpc add_buf returned failure");
+ 		return -EIO;
