@@ -1,7 +1,7 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: [PATCH 5/6] virtio_blk: set QUEUE_ORDERED_DRAIN by default
-Date: Mon, 21 Sep 2009 16:28:31 +0930
-Message-ID: <200909211628.31791.rusty@rustcorp.com.au>
+Subject: [PATCH 6/6] virtio_blk: revert QUEUE_FLAG_VIRT addition
+Date: Mon, 21 Sep 2009 16:28:34 +0930
+Message-ID: <200909211628.34834.rusty@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -22,49 +22,39 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Christoph Hellwig <hch@lst.de>
 
-Currently virtio-blk doesn't set any QUEUE_ORDERED_ flag by default, which
-means it does not allow filesystems to use barriers.  But the typical use
-case for virtio-blk is to use a backed that uses synchronous I/O, and in
-that case we can simply set QUEUE_ORDERED_DRAIN to make the block layer
-drain the request queue around barrier I/O and provide the semantics that
-the filesystems need.  This is what the SCSI disk driver does for disks
-that have the write cache disabled.
+It seems like the addition of QUEUE_FLAG_VIRT caueses major performance
+regressions for Fedora users:
 
-With this patch we incorrectly advertise barrier support if someone
-configure qemu with write back caching.  While this displays wrong
-information in the guest there is nothing that guest could have done
-even if we rightfully told it that we do not support any barriers.
+	https://bugzilla.redhat.com/show_bug.cgi?id=509383
+	https://bugzilla.redhat.com/show_bug.cgi?id=505695
 
-(Christoph further explains:
- "Really, enabling volatile write caches without advertising a cache flush
- command is a bug in the storage, where in our case qemu is the storage."
- Actual write cache feature is coming in successive patch. --RR )
+while I can't reproduce those extreme regressions myself I think the flag
+is wrong.
 
+Rationale:
+
+  QUEUE_FLAG_VIRT expands to QUEUE_FLAG_NONROT which casus the queue
+  unplugged immediately.  This is not a good behaviour for at least
+  qemu and kvm where we do have significant overhead for every
+  I/O operations.  Even with all the latested speeups (native AIO,
+  MSI support, zero copy) we can only get native speed for up to 128kb
+  I/O requests we already are down to 66% of native performance for 4kb
+  requests even on my laptop running the Intel X25-M SSD for which the
+  QUEUE_FLAG_NONROT was designed.
+  If we ever get virtio-blk overhead low enough that this flag makes
+  sense it should only be set based on a feature flag set by the host.
+	
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
----
- drivers/block/virtio_blk.c |    9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
-
 Index: linux-2.6/drivers/block/virtio_blk.c
 ===================================================================
---- linux-2.6.orig/drivers/block/virtio_blk.c	2009-08-20 17:41:37.019718433 -0300
-+++ linux-2.6/drivers/block/virtio_blk.c	2009-08-20 17:45:40.511747922 -0300
-@@ -336,9 +336,16 @@ static int __devinit virtblk_probe(struc
- 	vblk->disk->driverfs_dev = &vdev->dev;
- 	index++;
+--- linux-2.6.orig/drivers/block/virtio_blk.c	2009-09-04 17:33:48.802523987 -0300
++++ linux-2.6/drivers/block/virtio_blk.c	2009-09-04 17:33:56.186522158 -0300
+@@ -314,7 +314,6 @@ static int __devinit virtblk_probe(struc
+ 	}
  
--	/* If barriers are supported, tell block layer that queue is ordered */
-+	/*
-+	 * If barriers are supported, tell block layer that queue is ordered.
-+	 *
-+	 * If no barriers are supported assume the host uses synchronous
-+	 * writes and just drain the the queue before and after the barrier.
-+	 */
- 	if (virtio_has_feature(vdev, VIRTIO_BLK_F_BARRIER))
- 		blk_queue_ordered(vblk->disk->queue, QUEUE_ORDERED_TAG, NULL);
-+	else
-+		blk_queue_ordered(vblk->disk->queue, QUEUE_ORDERED_DRAIN, NULL);
+ 	vblk->disk->queue->queuedata = vblk;
+-	queue_flag_set_unlocked(QUEUE_FLAG_VIRT, vblk->disk->queue);
  
- 	/* If disk is read-only in the host, the guest should obey */
- 	if (virtio_has_feature(vdev, VIRTIO_BLK_F_RO))
+ 	if (index < 26) {
+ 		sprintf(vblk->disk->disk_name, "vd%c", 'a' + index % 26);
