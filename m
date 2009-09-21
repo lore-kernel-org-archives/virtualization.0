@@ -1,7 +1,8 @@
 From: Rusty Russell <rusty-8n+1lVoiYb80n/F98K4Iww@public.gmane.org>
-Subject: [PATCH 4/5] lguest: cleanup for map_switcher()
+Subject: [PATCH 3/5] lguest: use PGDIR_SHIFT for PAE code to allow
+	different PAGE_OFFSET
 Date: Mon, 21 Sep 2009 16:52:21 +0930
-Message-ID: <20090921072352.BF18BB7CF1@ozlabs.org>
+Message-ID: <20090921072352.1A008B7C87@ozlabs.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -16,35 +17,33 @@ List-Subscribe: <https://lists.ozlabs.org/listinfo/lguest>,
 Sender: lguest-bounces+glkvl-lguest=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
 Errors-To: lguest-bounces+glkvl-lguest=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
 To: virtualization-qjLDD68F18O7TbgM5vRIOg@public.gmane.org
-Cc: Xiao Guangrong <xiaoguangrong-BthXqXjhjHXQFUHtdCDX3A@public.gmane.org>, lguest-mnsaURCQ41sdnm+yROfE0A@public.gmane.org
+Cc: lguest-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, Matias Zabaljauregui <zabaljauregui-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Xiao Guangrong <xiaoguangrong-BthXqXjhjHXQFUHtdCDX3A@public.gmane.org>
 
-We can use alloc_page() instead of get_zeroed_page() and virt_to_page()
+We still assume the Guest and Host have the same PAGE_OFFSET settings,
+but now we don't assume 0xC0000000.
 
-Signed-off-by: Xiao Guangrong <xiaoguangrong-BthXqXjhjHXQFUHtdCDX3A@public.gmane.org>
 Signed-off-by: Rusty Russell <rusty-8n+1lVoiYb80n/F98K4Iww@public.gmane.org>
+Cc: Matias Zabaljauregui <zabaljauregui-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 ---
- drivers/lguest/core.c |    5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/lguest/page_tables.c |    6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/lguest/core.c b/drivers/lguest/core.c
-index 1e2cb84..b639019 100644
---- a/drivers/lguest/core.c
-+++ b/drivers/lguest/core.c
-@@ -67,12 +67,11 @@ static __init int map_switcher(void)
- 	 * so we make sure they're zeroed.
+diff --git a/drivers/lguest/page_tables.c b/drivers/lguest/page_tables.c
+--- a/drivers/lguest/page_tables.c
++++ b/drivers/lguest/page_tables.c
+@@ -996,11 +996,9 @@ static unsigned long setup_pagetables(st
+ 	if (copy_to_user(&pgdir[0], &pgd, sizeof(pgd)) != 0)
+ 		return -EFAULT;
+ 	/*
+-	 * And the third PGD entry (ie. addresses 3G-4G).
+-	 *
+-	 * FIXME: This assumes that PAGE_OFFSET for the Guest is 0xC0000000.
++	 * And the other PGD entry to make the linear mapping at PAGE_OFFSET
  	 */
- 	for (i = 0; i < TOTAL_SWITCHER_PAGES; i++) {
--		unsigned long addr = get_zeroed_page(GFP_KERNEL);
--		if (!addr) {
-+		switcher_page[i] = alloc_page(GFP_KERNEL|__GFP_ZERO);
-+		if (!switcher_page[i]) {
- 			err = -ENOMEM;
- 			goto free_some_pages;
- 		}
--		switcher_page[i] = virt_to_page(addr);
- 	}
- 
+-	if (copy_to_user(&pgdir[3], &pgd, sizeof(pgd)) != 0)
++	if (copy_to_user(&pgdir[KERNEL_PGD_BOUNDARY], &pgd, sizeof(pgd)))
+ 		return -EFAULT;
+ #else
  	/*
