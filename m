@@ -1,24 +1,15 @@
-From: Alan Cox <alan@linux.intel.com>
-Subject: Re: [PATCH] virtio_console: Add support for multiple ports for
-	generic guest and host communication
-Date: Mon, 21 Sep 2009 11:06:38 +0100
-Message-ID: <20090921110638.02a2e3e1__6876.97305479578$1253527936$gmane$org@linux.intel.com>
-References: <1252678386-17404-1-git-send-email-amit.shah@redhat.com>
-	<1252678386-17404-2-git-send-email-amit.shah@redhat.com>
-	<20090911170010.34c80f2d@linux.intel.com>
-	<20090911163806.GB25535@amit-x200.redhat.com>
-	<4AAA8838.1080106@codemonkey.ws>
-	<20090911173307.GB27046@amit-x200.redhat.com>
-	<4AAA8A56.3040707@codemonkey.ws>
-	<20090916112332.6bf981a5@linux.intel.com>
-	<4AB164A0.8000402@codemonkey.ws>
-	<20090918170048.53ba8cf6@linux.intel.com>
-	<4AB3C988.2040303@codemonkey.ws>
+From: Stephen Hemminger <shemminger@vyatta.com>
+Subject: Re: [RFC] Virtual Machine Device Queues(VMDq) support on KVM
+Date: Mon, 21 Sep 2009 09:21:30 -0700
+Message-ID: <20090921092130.30984dbd__39929.181620437$1253550234$gmane$org@s6510>
+References: <C85CEDA13AB1CF4D9D597824A86D2B9006AEB94861@PDSMSX501.ccr.corp.intel.com>
+	<20090901090518.1193e412@nehalam>
+	<200909211637.23299.rusty@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4AB3C988.2040303@codemonkey.ws>
+In-Reply-To: <200909211637.23299.rusty@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -28,20 +19,20 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Anthony Liguori <anthony@codemonkey.ws>
-Cc: Amit Shah <amit.shah@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: "Xin, Xiaohui" <xiaohui.xin@intel.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "mst@redhat.com" <mst@redhat.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, "linux-mm@kvack.org" <linux-mm@kvack.org>, "hpa@zytor.com" <hpa@zytor.com>, "mingo@elte.hu" <mingo@elte.hu>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-> Again, this is paravirtual serial device and I think it's entirely 
-> reasonable for people to hook up these ports in the guest directly to 
-> physical serial devices in the host.
+On Mon, 21 Sep 2009 16:37:22 +0930
+Rusty Russell <rusty@rustcorp.com.au> wrote:
 
-virtio doesn't support all those features.
+> > > Actually this framework can apply to traditional network adapters which have
+> > > just one tx/rx queue pair. And applications using the same user/kernel interface
+> > > can utilize this framework to send/receive network traffic directly thru a tx/rx
+> > > queue pair in a network adapter.
+> > > 
 
-> I fail to see how this is at all relevant.  This is a virtual
-> machine, we're presenting virtual hardware that behaves like a serial
-> device.
-
-The more important question is what you are using it for, and when you
-ask that question it looks remarkably unlike a tty or serial port and
-rather more like a message and status passing bus ?
+More importantly, when virtualizations is used with multi-queue NIC's the virtio-net
+NIC is a single CPU bottleneck. The virtio-net NIC should preserve the parallelism (lock
+free) using multiple receive/transmit queues. The number of queues should equal the
+number of CPUs.
