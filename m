@@ -1,7 +1,8 @@
 From: Rusty Russell <rusty-8n+1lVoiYb80n/F98K4Iww@public.gmane.org>
-Subject: [PATCH 5/5] lguest: don't force VIRTIO_F_NOTIFY_ON_EMPTY
+Subject: [PATCH 2/5] lguest: use set_pte/set_pmd uniformly for real
+	page table entries
 Date: Mon, 21 Sep 2009 16:52:21 +0930
-Message-ID: <20090921072351.5DC4EB7C18@ozlabs.org>
+Message-ID: <20090921072350.72D83B7BA5@ozlabs.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -16,74 +17,156 @@ List-Subscribe: <https://lists.ozlabs.org/listinfo/lguest>,
 Sender: lguest-bounces+glkvl-lguest=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
 Errors-To: lguest-bounces+glkvl-lguest=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
 To: virtualization-qjLDD68F18O7TbgM5vRIOg@public.gmane.org
-Cc: lguest-mnsaURCQ41sdnm+yROfE0A@public.gmane.org
+Cc: lguest-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, Matias Zabaljauregui <zabaljauregui-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Kamalesh Babulal <kamalesh-23VcF4HTsmIX0ybBhKVfKdBPR1lH4CV8@public.gmane.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
 
-VIRTIO_F_NOTIFY_ON_EMPTY indicates to the Guest that we will hit them with
-an interrupt every time the xmit queue is emptied.
+If we're building a pte, we can use simple assigment; only use set_pte
+etc. when we're actually going to use that destination as a PTE.  I
+don't know that we'll ever run under Xen, but it's neater.
 
-Because it results in lots of tx interrupts, modern Guests probably don't
-want it, so let's only force it when they accept the option.
+And use set_pte/set_pmd rather than assuming native_ versions, even
+though that's probably true for most people.
 
+(Includes compile fix by Kamalesh Babulal <kamalesh-23VcF4HTsmIX0ybBhKVfKdBPR1lH4CV8@public.gmane.org>)
 Signed-off-by: Rusty Russell <rusty-8n+1lVoiYb80n/F98K4Iww@public.gmane.org>
+Cc: Matias Zabaljauregui <zabaljauregui-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Kamalesh Babulal <kamalesh-23VcF4HTsmIX0ybBhKVfKdBPR1lH4CV8@public.gmane.org>
 ---
- Documentation/lguest/lguest.c |   25 +++++++++++++++++++++----
- 1 file changed, 21 insertions(+), 4 deletions(-)
+ drivers/lguest/page_tables.c |   39 +++++++++++++++++----------------------
+ 1 file changed, 17 insertions(+), 22 deletions(-)
 
-diff --git a/Documentation/lguest/lguest.c b/Documentation/lguest/lguest.c
---- a/Documentation/lguest/lguest.c
-+++ b/Documentation/lguest/lguest.c
-@@ -134,6 +134,9 @@ struct device {
- 	/* Is it operational */
- 	bool running;
+diff --git a/drivers/lguest/page_tables.c b/drivers/lguest/page_tables.c
+--- a/drivers/lguest/page_tables.c
++++ b/drivers/lguest/page_tables.c
+@@ -380,7 +380,7 @@ bool demand_page(struct lg_cpu *cpu, uns
+ 		 * And we copy the flags to the shadow PMD entry.  The page
+ 		 * number in the shadow PMD is the page we just allocated.
+ 		 */
+-		native_set_pmd(spmd, __pmd(__pa(ptepage) | pmd_flags(gpmd)));
++		set_pmd(spmd, __pmd(__pa(ptepage) | pmd_flags(gpmd)));
+ 	}
  
-+	/* Does Guest want an intrrupt on empty? */
-+	bool irq_on_empty;
-+
- 	/* Device-specific data. */
- 	void *priv;
- };
-@@ -624,10 +627,13 @@ static void trigger_irq(struct virtqueue
- 		return;
- 	vq->pending_used = 0;
+ 	/*
+@@ -447,7 +447,7 @@ bool demand_page(struct lg_cpu *cpu, uns
+ 		 * we will come back here when a write does actually occur, so
+ 		 * we can update the Guest's _PAGE_DIRTY flag.
+ 		 */
+-		native_set_pte(spte, gpte_to_spte(cpu, pte_wrprotect(gpte), 0));
++		set_pte(spte, gpte_to_spte(cpu, pte_wrprotect(gpte), 0));
  
--	/* If they don't want an interrupt, don't send one, unless empty. */
--	if ((vq->vring.avail->flags & VRING_AVAIL_F_NO_INTERRUPT)
--	    && lg_last_avail(vq) != vq->vring.avail->idx)
--		return;
-+	/* If they don't want an interrupt, don't send one... */
-+	if (vq->vring.avail->flags & VRING_AVAIL_F_NO_INTERRUPT) {
-+		/* ... unless they've asked us to force one on empty. */
-+		if (!vq->dev->irq_on_empty
-+		    || lg_last_avail(vq) != vq->vring.avail->idx)
-+			return;
-+	}
- 
- 	/* Send the Guest an interrupt tell them we used something up. */
- 	if (write(lguest_fd, buf, sizeof(buf)) != 0)
-@@ -1043,6 +1049,15 @@ static void create_thread(struct virtque
- 	close(vq->eventfd);
+ 	/*
+ 	 * Finally, we write the Guest PTE entry back: we've set the
+@@ -528,7 +528,7 @@ static void release_pmd(pmd_t *spmd)
+ 		/* Now we can free the page of PTEs */
+ 		free_page((long)ptepage);
+ 		/* And zero out the PMD entry so we never release it twice. */
+-		native_set_pmd(spmd, __pmd(0));
++		set_pmd(spmd, __pmd(0));
+ 	}
  }
  
-+static bool accepted_feature(struct device *dev, unsigned int bit)
-+{
-+	const u8 *features = get_feature_bits(dev) + dev->feature_len;
-+
-+	if (dev->feature_len < bit / CHAR_BIT)
-+		return false;
-+	return features[bit / CHAR_BIT] & (1 << (bit % CHAR_BIT));
-+}
-+
- static void start_device(struct device *dev)
- {
- 	unsigned int i;
-@@ -1056,6 +1071,8 @@ static void start_device(struct device *
- 		verbose(" %02x", get_feature_bits(dev)
- 			[dev->feature_len+i]);
+@@ -833,15 +833,15 @@ static void do_set_pte(struct lg_cpu *cp
+ 			 */
+ 			if (pte_flags(gpte) & (_PAGE_DIRTY | _PAGE_ACCESSED)) {
+ 				check_gpte(cpu, gpte);
+-				native_set_pte(spte,
+-						gpte_to_spte(cpu, gpte,
++				set_pte(spte,
++					gpte_to_spte(cpu, gpte,
+ 						pte_flags(gpte) & _PAGE_DIRTY));
+ 			} else {
+ 				/*
+ 				 * Otherwise kill it and we can demand_page()
+ 				 * it in later.
+ 				 */
+-				native_set_pte(spte, __pte(0));
++				set_pte(spte, __pte(0));
+ 			}
+ #ifdef CONFIG_X86_PAE
+ 		}
+@@ -983,16 +983,15 @@ static unsigned long setup_pagetables(st
+ 	 */
+ 	for (i = j = 0; i < mapped_pages && j < PTRS_PER_PMD;
+ 	     i += PTRS_PER_PTE, j++) {
+-		/* FIXME: native_set_pmd is overkill here. */
+-		native_set_pmd(&pmd, __pmd(((unsigned long)(linear + i)
+-		- mem_base) | _PAGE_PRESENT | _PAGE_RW | _PAGE_USER));
++		pmd = pfn_pmd(((unsigned long)&linear[i] - mem_base)/PAGE_SIZE,
++			      __pgprot(_PAGE_PRESENT | _PAGE_RW | _PAGE_USER));
  
-+	dev->irq_on_empty = accepted_feature(dev, VIRTIO_F_NOTIFY_ON_EMPTY);
-+
- 	for (vq = dev->vq; vq; vq = vq->next) {
- 		if (vq->service)
- 			create_thread(vq);
+ 		if (copy_to_user(&pmds[j], &pmd, sizeof(pmd)) != 0)
+ 			return -EFAULT;
+ 	}
+ 
+ 	/* One PGD entry, pointing to that PMD page. */
+-	set_pgd(&pgd, __pgd(((u32)pmds - mem_base) | _PAGE_PRESENT));
++	pgd = __pgd(((unsigned long)pmds - mem_base) | _PAGE_PRESENT);
+ 	/* Copy it in as the first PGD entry (ie. addresses 0-1G). */
+ 	if (copy_to_user(&pgdir[0], &pgd, sizeof(pgd)) != 0)
+ 		return -EFAULT;
+@@ -1141,15 +1140,13 @@ void map_switcher_in_guest(struct lg_cpu
+ {
+ 	pte_t *switcher_pte_page = __get_cpu_var(switcher_pte_pages);
+ 	pte_t regs_pte;
+-	unsigned long pfn;
+ 
+ #ifdef CONFIG_X86_PAE
+ 	pmd_t switcher_pmd;
+ 	pmd_t *pmd_table;
+ 
+-	/* FIXME: native_set_pmd is overkill here. */
+-	native_set_pmd(&switcher_pmd, pfn_pmd(__pa(switcher_pte_page) >>
+-		       PAGE_SHIFT, PAGE_KERNEL_EXEC));
++	switcher_pmd = pfn_pmd(__pa(switcher_pte_page) >> PAGE_SHIFT,
++			       PAGE_KERNEL_EXEC);
+ 
+ 	/* Figure out where the pmd page is, by reading the PGD, and converting
+ 	 * it to a virtual address. */
+@@ -1157,7 +1154,7 @@ void map_switcher_in_guest(struct lg_cpu
+ 			pgdirs[cpu->cpu_pgd].pgdir[SWITCHER_PGD_INDEX])
+ 								<< PAGE_SHIFT);
+ 	/* Now write it into the shadow page table. */
+-	native_set_pmd(&pmd_table[SWITCHER_PMD_INDEX], switcher_pmd);
++	set_pmd(&pmd_table[SWITCHER_PMD_INDEX], switcher_pmd);
+ #else
+ 	pgd_t switcher_pgd;
+ 
+@@ -1179,10 +1176,8 @@ void map_switcher_in_guest(struct lg_cpu
+ 	 * page is already mapped there, we don't have to copy them out
+ 	 * again.
+ 	 */
+-	pfn = __pa(cpu->regs_page) >> PAGE_SHIFT;
+-	native_set_pte(&regs_pte, pfn_pte(pfn, PAGE_KERNEL));
+-	native_set_pte(&switcher_pte_page[pte_index((unsigned long)pages)],
+-			regs_pte);
++	regs_pte = pfn_pte(__pa(cpu->regs_page) >> PAGE_SHIFT, PAGE_KERNEL);
++	set_pte(&switcher_pte_page[pte_index((unsigned long)pages)], regs_pte);
+ }
+ /*:*/
+ 
+@@ -1209,7 +1204,7 @@ static __init void populate_switcher_pte
+ 
+ 	/* The first entries are easy: they map the Switcher code. */
+ 	for (i = 0; i < pages; i++) {
+-		native_set_pte(&pte[i], mk_pte(switcher_page[i],
++		set_pte(&pte[i], mk_pte(switcher_page[i],
+ 				__pgprot(_PAGE_PRESENT|_PAGE_ACCESSED)));
+ 	}
+ 
+@@ -1217,14 +1212,14 @@ static __init void populate_switcher_pte
+ 	i = pages + cpu*2;
+ 
+ 	/* First page (Guest registers) is writable from the Guest */
+-	native_set_pte(&pte[i], pfn_pte(page_to_pfn(switcher_page[i]),
++	set_pte(&pte[i], pfn_pte(page_to_pfn(switcher_page[i]),
+ 			 __pgprot(_PAGE_PRESENT|_PAGE_ACCESSED|_PAGE_RW)));
+ 
+ 	/*
+ 	 * The second page contains the "struct lguest_ro_state", and is
+ 	 * read-only.
+ 	 */
+-	native_set_pte(&pte[i+1], pfn_pte(page_to_pfn(switcher_page[i+1]),
++	set_pte(&pte[i+1], pfn_pte(page_to_pfn(switcher_page[i+1]),
+ 			   __pgprot(_PAGE_PRESENT|_PAGE_ACCESSED)));
+ }
