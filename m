@@ -1,26 +1,42 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: Paravirtualization on VMware's Platform [VMI].
-Date: Tue, 22 Sep 2009 11:16:24 -0700
-Message-ID: <4AB91478.2050508@goop.org>
-References: <1253233028.19731.63.camel@ank32.eng.vmware.com> <20090919224430.GB9567@kroah.com> <1253419185.3253.21.camel@ank32.eng.vmware.com> <20090920074247.GA5733@elte.hu> <20090920095239.456ad6f2@infradead.org> <4AB5EF25.9070502@redhat.com> <4AB64EFC.10707@goop.org> <20090922080913.GB1475@elte.hu> <4AB900CC.7090409@goop.org> <20090922180216.GA16789@elte.hu>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [RFC] Virtual Machine Device Queues(VMDq) support on KVM
+Date: Tue, 22 Sep 2009 20:34:28 +0200
+Message-ID: <200909222034.28865.arnd__46776.9217947081$1253644544$gmane$org@arndb.de>
+References: <C85CEDA13AB1CF4D9D597824A86D2B9006AEB94861@PDSMSX501.ccr.corp.intel.com>
+	<200909221350.54847.arnd@arndb.de> <20090922092957.17e68cbc@s6510>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1756828AbZIVSQW@vger.kernel.org>
-In-Reply-To: <20090922180216.GA16789@elte.hu>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Avi Kivity <avi@redhat.com>, Arjan van de Ven <arjan@infradead.org>, Alok Kataria <akataria@vmware.com>, Thomas Gleixner <tglx@linutronix.de>, "H. Peter Anvin" <hpa@zytor.com>, the arch/x86 maintainers <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>, Chris Wright <chrisw@sous-sol.org>, Rusty Russell <rusty@rustcorp.com.au>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, Greg KH <greg@kroah.com>, Linus Torvalds <torvalds@linux-foundation.org>, Andrew Morton <akpm@linux-foundation.org>
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20090922092957.17e68cbc@s6510>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Stephen Hemminger <shemminger@vyatta.com>
+Cc: "Xin, Xiaohui" <xiaohui.xin@intel.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Chris Wright <chrisw@sous-sol.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "hpa@zytor.com" <hpa@zytor.com>, "mingo@elte.hu" <mingo@elte.hu>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 09/22/09 11:02, Ingo Molnar wrote:
-> obviously they are workload dependent - that's why numbers were posted 
-> in this thread with various workloads. Do you concur with those 
-> conclusions that they are generally a speedup over paravirt? If not, 
-> which are the workloads where paravirt offers significant speedup over 
-> hardware acceleration?
->   
+On Tuesday 22 September 2009, Stephen Hemminger wrote:
+> > My idea for that was to open multiple file descriptors to the same
+> > macvtap device and let the kernel figure out the  right thing to
+> > do with that. You can do the same with raw packed sockets in case
+> > of vhost_net, but I wouldn't want to add more complexity to the
+> > tun/tap driver for this.
+> > 
+> Or get tap out of the way entirely. The packets should not have
+> to go out to user space at all (see veth)
 
-We're not in a position to do any useful measurements yet.
+How does veth relate to that, do you mean vhost_net? With vhost_net,
+you could still open multiple sockets, only the access is in the kernel.
+Obviously, once it all is in the kernel, that could be done under the
+covers, but I think it would be cleaner to treat vhost_net purely as
+a way to bypass the syscalls for user space, with as little as possible
+visible impact otherwise.
 
-    J
+	Arnd <><
