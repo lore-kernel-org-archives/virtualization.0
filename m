@@ -1,52 +1,97 @@
-From: Ingo Molnar <mingo@elte.hu>
-Subject: Re: Paravirtualization on VMware's Platform [VMI].
-Date: Tue, 22 Sep 2009 10:09:13 +0200
-Message-ID: <20090922080913.GB1475@elte.hu>
-References: <1253233028.19731.63.camel@ank32.eng.vmware.com> <20090919224430.GB9567@kroah.com> <1253419185.3253.21.camel@ank32.eng.vmware.com> <20090920074247.GA5733@elte.hu> <20090920095239.456ad6f2@infradead.org> <4AB5EF25.9070502@redhat.com> <4AB64EFC.10707@goop.org>
+From: Avi Kivity <avi@redhat.com>
+Subject: Re: [PATCHv5 3/3] vhost_net: a kernel-level virtio server
+Date: Tue, 22 Sep 2009 12:43:36 +0300
+Message-ID: <4AB89C48.4020903__21529.5632057407$1253612708$gmane$org@redhat.com>
+References: <4AAFACB5.9050808@redhat.com> <4AAFF437.7060100@gmail.com>
+	<4AB0A070.1050400@redhat.com> <4AB0CFA5.6040104@gmail.com>
+	<4AB0E2A2.3080409@redhat.com> <4AB0F1EF.5050102@gmail.com>
+	<4AB10B67.2050108@redhat.com> <4AB13B09.5040308@gmail.com>
+	<4AB151D7.10402@redhat.com> <4AB1A8FD.2010805@gmail.com>
+	<20090921214312.GJ7182@ovro.caltech.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1755385AbZIVIKR@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <4AB64EFC.10707@goop.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Avi Kivity <avi@redhat.com>, Arjan van de Ven <arjan@infradead.org>, Alok Kataria <akataria@vmware.com>, Thomas Gleixner <tglx@linutronix.de>, "H. Peter Anvin" <hpa@zytor.com>, the arch/x86 maintainers <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>, Chris Wright <chrisw@sous-sol.org>, Rusty Russell <rusty@rustcorp.com.au>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, Greg KH <greg@kroah.com>, Linus Torvalds <torvalds@linux-foundation.org>, Andrew Morton <akpm@linux-foundation.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20090921214312.GJ7182@ovro.caltech.edu>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: "Ira W. Snyder" <iws@ovro.caltech.edu>
+Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, s.hetze@linux-ag.com, hpa@zytor.com, mingo@elte.hu, alacrityvm-devel@lists.sourceforge.net, akpm@linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
+On 09/22/2009 12:43 AM, Ira W. Snyder wrote:
+>
+>> Sure, virtio-ira and he is on his own to make a bus-model under that, or
+>> virtio-vbus + vbus-ira-connector to use the vbus framework.  Either
+>> model can work, I agree.
+>>
+>>      
+> Yes, I'm having to create my own bus model, a-la lguest, virtio-pci, and
+> virtio-s390. It isn't especially easy. I can steal lots of code from the
+> lguest bus model, but sometimes it is good to generalize, especially
+> after the fourth implemention or so. I think this is what GHaskins tried
+> to do.
+>    
 
-* Jeremy Fitzhardinge <jeremy@goop.org> wrote:
+Yes.  vbus is more finely layered so there is less code duplication.
 
-> On 09/20/09 02:00, Avi Kivity wrote:
-> > On 09/20/2009 10:52 AM, Arjan van de Ven wrote:
-> >> On Sun, 20 Sep 2009 09:42:47 +0200
-> >> Ingo Molnar<mingo@elte.hu>  wrote:
-> >>
-> >>   
-> >>> If we were able to rip out all (or most) of paravirt from arch/x86 it
-> >>> would be tempting for other technical reasons - but the patch above
-> >>> is well localized.
-> >>>      
-> >> interesting question is if this would allow us to remove a few of the
-> >> paravirt hooks....
-> >>    
-> >
-> > kvm will be removing the pvmmu support soon; and Xen is talking about
-> > running paravirtualized guests in a vmx/svm container where they don't
-> > need most of the hooks.
-> 
-> We have no plans to drop support for non-vmx/svm capable processors, 
-> let alone require ept/npt.
+The virtio layering was more or less dictated by Xen which doesn't have 
+shared memory (it uses grant references instead).  As a matter of fact 
+lguest, kvm/pci, and kvm/s390 all have shared memory, as you do, so that 
+part is duplicated.  It's probably possible to add a virtio-shmem.ko 
+library that people who do have shared memory can reuse.
 
-But, just to map out our plans for the future, do you concur with the 
-statements and numbers offered here by the VMware and KVM folks that
-on sufficiently recent hardware, hardware-assisted virtualization 
-outperforms paravirt_ops in many (most?) workloads?
+> I've given it some thought, and I think that running vhost-net (or
+> similar) on the ppc boards, with virtio-net on the x86 crate server will
+> work. The virtio-ring abstraction is almost good enough to work for this
+> situation, but I had to re-invent it to work with my boards.
+>
+> I've exposed a 16K region of memory as PCI BAR1 from my ppc board.
+> Remember that this is the "host" system. I used each 4K block as a
+> "device descriptor" which contains:
+>
+> 1) the type of device, config space, etc. for virtio
+> 2) the "desc" table (virtio memory descriptors, see virtio-ring)
+> 3) the "avail" table (available entries in the desc table)
+>    
 
-I.e. paravirt_ops becomes a legacy hardware thing, not a core component 
-of the design of arch/x86/.
+Won't access from x86 be slow to this memory (on the other hand, if you 
+change it to main memory access from ppc will be slow... really depends 
+on how your system is tuned.
 
-(with a long obsoletion period, of course.)
+> Parts 2 and 3 are repeated three times, to allow for a maximum of three
+> virtqueues per device. This is good enough for all current drivers.
+>    
 
-Thanks,
+The plan is to switch to multiqueue soon.  Will not affect you if your 
+boards are uniprocessor or small smp.
 
-	Ingo
+> I've gotten plenty of email about this from lots of interested
+> developers. There are people who would like this kind of system to just
+> work, while having to write just some glue for their device, just like a
+> network driver. I hunch most people have created some proprietary mess
+> that basically works, and left it at that.
+>    
+
+So long as you keep the system-dependent features hookable or 
+configurable, it should work.
+
+> So, here is a desperate cry for help. I'd like to make this work, and
+> I'd really like to see it in mainline. I'm trying to give back to the
+> community from which I've taken plenty.
+>    
+
+Not sure who you're crying for help to.  Once you get this working, post 
+patches.  If the patches are reasonably clean and don't impact 
+performance for the main use case, and if you can show the need, I 
+expect they'll be merged.
+
+-- 
+error compiling committee.c: too many arguments to function
