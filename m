@@ -1,57 +1,202 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: Re: Paravirtualization on VMware's Platform [VMI].
-Date: Wed, 23 Sep 2009 09:29:42 +0200
-Message-ID: <4AB9CE66.1030504@redhat.com>
-References: <1253233028.19731.63.camel@ank32.eng.vmware.com>	 <20090919224430.GB9567@kroah.com>	 <1253419185.3253.21.camel@ank32.eng.vmware.com>	 <20090920074247.GA5733@elte.hu> <1253647845.10565.20.camel@ank32.eng.vmware.com>
+From: Gregory Haskins <gregory.haskins@gmail.com>
+Subject: Re: [PATCHv5 3/3] vhost_net: a kernel-level virtio server
+Date: Wed, 23 Sep 2009 10:26:13 -0400
+Message-ID: <4ABA3005.60905__43072.601586073$1253716138$gmane$org@gmail.com>
+References: <4AAFACB5.9050808@redhat.com> <4AAFF437.7060100@gmail.com>
+	<4AB0A070.1050400@redhat.com> <4AB0CFA5.6040104@gmail.com>
+	<4AB0E2A2.3080409@redhat.com> <4AB0F1EF.5050102@gmail.com>
+	<4AB10B67.2050108@redhat.com> <4AB13B09.5040308@gmail.com>
+	<4AB151D7.10402@redhat.com> <4AB1A8FD.2010805@gmail.com>
+	<20090921214312.GJ7182@ovro.caltech.edu>
+	<4AB89C48.4020903@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1754487AbZIWHdU@vger.kernel.org>
-In-Reply-To: <1253647845.10565.20.camel@ank32.eng.vmware.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: akataria@vmware.com
-Cc: Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>, "H. Peter Anvin" <hpa@zytor.com>, the arch/x86 maintainers <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>, Jeremy Fitzhardinge <jeremy@goop.org>, Chris Wright <chrisw@sous-sol.org>, Rusty Russell <rusty@rustcorp.com.au>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, Greg KH <greg@kroah.com>, Linus Torvalds <torvalds@linux-foundation.org>, Andrew Morton <akpm@linux-foundation.org>
+Content-Type: multipart/mixed; boundary="===============5027807773823018715=="
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <4AB89C48.4020903@redhat.com>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Mime-version: 1.0
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Avi Kivity <avi@redhat.com>
+Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, "Ira W. Snyder" <iws@ovro.caltech.edu>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, s.hetze@linux-ag.com, hpa@zytor.com, mingo@elte.hu, alacrityvm-devel@lists.sourceforge.net, akpm@linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 09/22/09 21:30, Alok Kataria wrote:
-> Hi Ingo,
->
-> On Sun, 2009-09-20 at 00:42 -0700, Ingo Molnar wrote:
->
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--===============5027807773823018715==
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig018D6C9E90E6E69889E172C8"
+
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig018D6C9E90E6E69889E172C8
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+
+Avi Kivity wrote:
+> On 09/22/2009 12:43 AM, Ira W. Snyder wrote:
 >>
->> The thing is, the overwhelming majority of vmware users dont benefit
->> from hardware features like nested page tables yet. So this needs to be
->> done _way_ more carefully, with a proper sunset period of a couple of
->> kernel cycles.
->
-> I am fine with that too. Below is a patch which adds notes in
-> feature-removal-schedule.txt, I have marked it for removal from 2.6.34.
-> Please consider this patch for 2.6.32.
+>>> Sure, virtio-ira and he is on his own to make a bus-model under that,=
+ or
+>>> virtio-vbus + vbus-ira-connector to use the vbus framework.  Either
+>>> model can work, I agree.
+>>>
+>>>     =20
+>> Yes, I'm having to create my own bus model, a-la lguest, virtio-pci, a=
+nd
+>> virtio-s390. It isn't especially easy. I can steal lots of code from t=
+he
+>> lguest bus model, but sometimes it is good to generalize, especially
+>> after the fourth implemention or so. I think this is what GHaskins tri=
+ed
+>> to do.
+>>   =20
+>=20
+> Yes.  vbus is more finely layered so there is less code duplication.
 
-Hmm.  Given that you are talking about vmi not being supported any more 
-in *future* products, there is a huge installed base with vmi support 
-available, right?  I don't think we should zap the code that quickly.
+To clarify, Ira was correct in stating this generalizing some of these
+components was one of the goals for the vbus project: IOW vbus finely
+layers and defines what's below virtio, not replaces it.
 
->   config VMI
-> -	bool "VMI Guest support"
-> -	select PARAVIRT
-> -	depends on X86_32
-> +	bool "VMI Guest support [will be deprecated soon]"
-> +	default n
-> +	depends on X86_32&&  PARAVIRT
->   	---help---
->   	  VMI provides a paravirtualized interface to the VMware ESX server
->   	  (it could be used by other hypervisors in theory too, but is not
->   	  at the moment), by linking the kernel to a GPL-ed ROM module
->   	  provided by the hypervisor.
-> +	  VMware has started a phased retirement of this feature from there
-> +	  products. Please see feature-removal-schedule.txt for details.
+You can think of a virtio-stack like this:
 
-How about adding version numbers here?  i.e. latest versions with vmi 
-support are workstation x.y, ...
+--------------------------
+| virtio-net
+--------------------------
+| virtio-ring
+--------------------------
+| virtio-bus
+--------------------------
+| ? undefined ?
+--------------------------
 
-So people can easily figure whenever it makes sense to turn this on for 
-their environment.
+IOW: The way I see it, virtio is a device interface model only.  The
+rest of it is filled in by the virtio-transport and some kind of back-end=
+=2E
 
-cheers
-   Gerd
+So today, we can complete the "? undefined ?" block like this for KVM:
+
+--------------------------
+| virtio-pci
+--------------------------
+             |
+--------------------------
+| kvm.ko
+--------------------------
+| qemu
+--------------------------
+| tuntap
+--------------------------
+
+In this case, kvm.ko and tuntap are providing plumbing, and qemu is
+providing a backend device model (pci-based, etc).
+
+You can, of course, plug a different stack in (such as virtio-lguest,
+virtio-ira, etc) but you are more or less on your own to recreate many
+of the various facilities contained in that stack (such as things
+provided by QEMU, like discovery/hotswap/addressing), as Ira is discoveri=
+ng.
+
+Vbus tries to commoditize more components in the stack (like the bus
+model and backend-device model) so they don't need to be redesigned each
+time we solve this "virtio-transport" problem.  IOW: stop the
+proliferation of the need for pci-bus, lguest-bus, foo-bus underneath
+virtio.  Instead, we can then focus on the value add on top, like the
+models themselves or the simple glue between them.
+
+So now you might have something like
+
+--------------------------
+| virtio-vbus
+--------------------------
+| vbus-proxy
+--------------------------
+| kvm-guest-connector
+--------------------------
+             |
+--------------------------
+| kvm.ko
+--------------------------
+| kvm-host-connector.ko
+--------------------------
+| vbus.ko
+--------------------------
+| virtio-net-backend.ko
+--------------------------
+
+so now we don't need to worry about the bus-model or the device-model
+framework.  We only need to implement the connector, etc.  This is handy
+when you find yourself in an environment that doesn't support PCI (such
+as Ira's rig, or userspace containers), or when you want to add features
+that PCI doesn't have (such as fluid event channels for things like IPC
+services, or priortizable interrupts, etc).
+
+>=20
+> The virtio layering was more or less dictated by Xen which doesn't have=
+
+> shared memory (it uses grant references instead).  As a matter of fact
+> lguest, kvm/pci, and kvm/s390 all have shared memory, as you do, so tha=
+t
+> part is duplicated.  It's probably possible to add a virtio-shmem.ko
+> library that people who do have shared memory can reuse.
+
+Note that I do not believe the Xen folk use virtio, so while I can
+appreciate the foresight that went into that particular aspect of the
+design of the virtio model, I am not sure if its a realistic constraint.
+
+The reason why I decided to not worry about that particular model is
+twofold:
+
+1) Trying to support non shared-memory designs is prohibitively high for
+my performance goals (for instance, requiring an exit on each
+->add_buf() in addition to the ->kick()).
+
+2) The Xen guys are unlikely to diverge from something like
+xenbus/xennet anyway, so it would be for naught.
+
+Therefore, I just went with a device model optimized for shared-memory
+outright.
+
+That said, I believe we can refactor what is called the
+"vbus-proxy-device" into this virtio-shmem interface that you and
+Anthony have described.  We could make the feature optional and only
+support on architectures where this makes sense.
+
+<snip>
+
+Kind Regards,
+-Greg
+
+
+--------------enig018D6C9E90E6E69889E172C8
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG/MacGPG2 v2.0.11 (Darwin)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
+
+iEYEARECAAYFAkq6MAUACgkQP5K2CMvXmqG1hQCeIovZyEMNNCZ5tLvhRzoDRU0p
+1ukAoIcSD9Jxc+va4gqc7pwGR3iOIWDb
+=cmA0
+-----END PGP SIGNATURE-----
+
+--------------enig018D6C9E90E6E69889E172C8--
+
+--===============5027807773823018715==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linux-foundation.org/mailman/listinfo/virtualization
+--===============5027807773823018715==--
