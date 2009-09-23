@@ -1,7 +1,7 @@
 From: Gregory Haskins <gregory.haskins@gmail.com>
 Subject: Re: [PATCHv5 3/3] vhost_net: a kernel-level virtio server
-Date: Wed, 23 Sep 2009 11:10:43 -0400
-Message-ID: <4ABA3A73.5090508__13022.2384389073$1253718796$gmane$org@gmail.com>
+Date: Wed, 23 Sep 2009 13:58:41 -0400
+Message-ID: <4ABA61D1.80703__7085.52095243267$1253728937$gmane$org@gmail.com>
 References: <4AAFACB5.9050808@redhat.com> <4AAFF437.7060100@gmail.com>
 	<4AB0A070.1050400@redhat.com> <4AB0CFA5.6040104@gmail.com>
 	<4AB0E2A2.3080409@redhat.com> <4AB0F1EF.5050102@gmail.com>
@@ -9,11 +9,11 @@ References: <4AAFACB5.9050808@redhat.com> <4AAFF437.7060100@gmail.com>
 	<4AB151D7.10402@redhat.com> <4AB1A8FD.2010805@gmail.com>
 	<20090921214312.GJ7182@ovro.caltech.edu>
 	<4AB89C48.4020903@redhat.com> <4ABA3005.60905@gmail.com>
-	<4ABA32AF.50602@redhat.com>
+	<4ABA32AF.50602@redhat.com> <4ABA3A73.5090508@gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============0710991129993197362=="
+Content-Type: multipart/mixed; boundary="===============1052258694386048796=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4ABA32AF.50602@redhat.com>
+In-Reply-To: <4ABA3A73.5090508@gmail.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -29,207 +29,302 @@ Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kern
 List-Id: virtualization@lists.linuxfoundation.org
 
 This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---===============0710991129993197362==
+--===============1052258694386048796==
 Content-Type: multipart/signed; micalg=pgp-sha1;
  protocol="application/pgp-signature";
- boundary="------------enig5B75B8792B906F18C2BBDA7B"
+ boundary="------------enig2960FB4A219017B9F4183E21"
 
 This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig5B75B8792B906F18C2BBDA7B
+--------------enig2960FB4A219017B9F4183E21
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: quoted-printable
 
-Avi Kivity wrote:
-> On 09/23/2009 05:26 PM, Gregory Haskins wrote:
->>
->>  =20
->>>> Yes, I'm having to create my own bus model, a-la lguest, virtio-pci,=
+Gregory Haskins wrote:
+> Avi Kivity wrote:
+>> On 09/23/2009 05:26 PM, Gregory Haskins wrote:
+>>>  =20
+>>>>> Yes, I'm having to create my own bus model, a-la lguest, virtio-pci=
+,
+>>>>> and
+>>>>> virtio-s390. It isn't especially easy. I can steal lots of code fro=
+m
+>>>>> the
+>>>>> lguest bus model, but sometimes it is good to generalize, especiall=
+y
+>>>>> after the fourth implemention or so. I think this is what GHaskins
+>>>>> tried
+>>>>> to do.
+>>>>>
+>>>>>       =20
+>>>> Yes.  vbus is more finely layered so there is less code duplication.=
 
->>>> and
->>>> virtio-s390. It isn't especially easy. I can steal lots of code from=
+>>>>     =20
+>>> To clarify, Ira was correct in stating this generalizing some of thes=
+e
+>>> components was one of the goals for the vbus project: IOW vbus finely=
 
->>>> the
->>>> lguest bus model, but sometimes it is good to generalize, especially=
+>>> layers and defines what's below virtio, not replaces it.
+>>>
+>>> You can think of a virtio-stack like this:
+>>>
+>>> --------------------------
+>>> | virtio-net
+>>> --------------------------
+>>> | virtio-ring
+>>> --------------------------
+>>> | virtio-bus
+>>> --------------------------
+>>> | ? undefined ?
+>>> --------------------------
+>>>
+>>> IOW: The way I see it, virtio is a device interface model only.  The
+>>> rest of it is filled in by the virtio-transport and some kind of
+>>> back-end.
+>>>
+>>> So today, we can complete the "? undefined ?" block like this for KVM=
+:
+>>>
+>>> --------------------------
+>>> | virtio-pci
+>>> --------------------------
+>>>               |
+>>> --------------------------
+>>> | kvm.ko
+>>> --------------------------
+>>> | qemu
+>>> --------------------------
+>>> | tuntap
+>>> --------------------------
+>>>
+>>> In this case, kvm.ko and tuntap are providing plumbing, and qemu is
+>>> providing a backend device model (pci-based, etc).
+>>>
+>>> You can, of course, plug a different stack in (such as virtio-lguest,=
 
->>>> after the fourth implemention or so. I think this is what GHaskins
->>>> tried
->>>> to do.
->>>>
->>>>       =20
->>> Yes.  vbus is more finely layered so there is less code duplication.
->>>     =20
->> To clarify, Ira was correct in stating this generalizing some of these=
+>>> virtio-ira, etc) but you are more or less on your own to recreate man=
+y
+>>> of the various facilities contained in that stack (such as things
+>>> provided by QEMU, like discovery/hotswap/addressing), as Ira is
+>>> discovering.
+>>>
+>>> Vbus tries to commoditize more components in the stack (like the bus
+>>> model and backend-device model) so they don't need to be redesigned e=
+ach
+>>> time we solve this "virtio-transport" problem.  IOW: stop the
+>>> proliferation of the need for pci-bus, lguest-bus, foo-bus underneath=
 
->> components was one of the goals for the vbus project: IOW vbus finely
->> layers and defines what's below virtio, not replaces it.
->>
->> You can think of a virtio-stack like this:
->>
->> --------------------------
->> | virtio-net
->> --------------------------
->> | virtio-ring
->> --------------------------
->> | virtio-bus
->> --------------------------
->> | ? undefined ?
->> --------------------------
->>
->> IOW: The way I see it, virtio is a device interface model only.  The
->> rest of it is filled in by the virtio-transport and some kind of
->> back-end.
->>
->> So today, we can complete the "? undefined ?" block like this for KVM:=
+>>> virtio.  Instead, we can then focus on the value add on top, like the=
 
->>
->> --------------------------
->> | virtio-pci
->> --------------------------
->>               |
->> --------------------------
->> | kvm.ko
->> --------------------------
->> | qemu
->> --------------------------
->> | tuntap
->> --------------------------
->>
->> In this case, kvm.ko and tuntap are providing plumbing, and qemu is
->> providing a backend device model (pci-based, etc).
->>
->> You can, of course, plug a different stack in (such as virtio-lguest,
->> virtio-ira, etc) but you are more or less on your own to recreate many=
+>>> models themselves or the simple glue between them.
+>>>
+>>> So now you might have something like
+>>>
+>>> --------------------------
+>>> | virtio-vbus
+>>> --------------------------
+>>> | vbus-proxy
+>>> --------------------------
+>>> | kvm-guest-connector
+>>> --------------------------
+>>>               |
+>>> --------------------------
+>>> | kvm.ko
+>>> --------------------------
+>>> | kvm-host-connector.ko
+>>> --------------------------
+>>> | vbus.ko
+>>> --------------------------
+>>> | virtio-net-backend.ko
+>>> --------------------------
+>>>
+>>> so now we don't need to worry about the bus-model or the device-model=
 
->> of the various facilities contained in that stack (such as things
->> provided by QEMU, like discovery/hotswap/addressing), as Ira is
->> discovering.
->>
->> Vbus tries to commoditize more components in the stack (like the bus
->> model and backend-device model) so they don't need to be redesigned ea=
+>>> framework.  We only need to implement the connector, etc.  This is ha=
+ndy
+>>> when you find yourself in an environment that doesn't support PCI (su=
 ch
->> time we solve this "virtio-transport" problem.  IOW: stop the
->> proliferation of the need for pci-bus, lguest-bus, foo-bus underneath
->> virtio.  Instead, we can then focus on the value add on top, like the
->> models themselves or the simple glue between them.
->>
->> So now you might have something like
->>
->> --------------------------
->> | virtio-vbus
->> --------------------------
->> | vbus-proxy
->> --------------------------
->> | kvm-guest-connector
->> --------------------------
->>               |
->> --------------------------
->> | kvm.ko
->> --------------------------
->> | kvm-host-connector.ko
->> --------------------------
->> | vbus.ko
->> --------------------------
->> | virtio-net-backend.ko
->> --------------------------
->>
->> so now we don't need to worry about the bus-model or the device-model
->> framework.  We only need to implement the connector, etc.  This is han=
-dy
->> when you find yourself in an environment that doesn't support PCI (suc=
-h
->> as Ira's rig, or userspace containers), or when you want to add featur=
-es
->> that PCI doesn't have (such as fluid event channels for things like IP=
-C
->> services, or priortizable interrupts, etc).
->>   =20
+>>> as Ira's rig, or userspace containers), or when you want to add featu=
+res
+>>> that PCI doesn't have (such as fluid event channels for things like I=
+PC
+>>> services, or priortizable interrupts, etc).
+>>>   =20
+>> Well, vbus does more, for example it tunnels interrupts instead of
+>> exposing them 1:1 on the native interface if it exists.
 >=20
-> Well, vbus does more, for example it tunnels interrupts instead of
-> exposing them 1:1 on the native interface if it exists.
+> As I've previously explained, that trait is a function of the
+> kvm-connector I've chosen to implement, not of the overall design of vb=
+us.
+>=20
+> The reason why my kvm-connector is designed that way is because my earl=
+y
+> testing/benchmarking shows one of the issues in KVM performance is the
+> ratio of exits per IO operation are fairly high, especially as your
+> scale io-load.  Therefore, the connector achieves a substantial
+> reduction in that ratio by treating "interrupts" to the same kind of
+> benefits that NAPI brought to general networking: That is, we enqueue
+> "interrupt" messages into a lockless ring and only hit the IDT for the
+> first occurrence.  Subsequent interrupts are injected in a
+> parallel/lockless manner, without hitting the IDT nor incurring an extr=
+a
+> EOI.  This pays dividends as the IO rate increases, which is when the
+> guest needs the most help.
+>=20
+> OTOH, it is entirely possible to design the connector such that we
+> maintain a 1:1 ratio of signals to traditional IDT interrupts.  It is
+> also possible to design a connector which surfaces as something else,
+> such as PCI devices (by terminating the connector in QEMU and utilizing=
 
-As I've previously explained, that trait is a function of the
-kvm-connector I've chosen to implement, not of the overall design of vbus=
+> its PCI emulation facilities), which would naturally employ 1:1 mapping=
 =2E
-
-The reason why my kvm-connector is designed that way is because my early
-testing/benchmarking shows one of the issues in KVM performance is the
-ratio of exits per IO operation are fairly high, especially as your
-scale io-load.  Therefore, the connector achieves a substantial
-reduction in that ratio by treating "interrupts" to the same kind of
-benefits that NAPI brought to general networking: That is, we enqueue
-"interrupt" messages into a lockless ring and only hit the IDT for the
-first occurrence.  Subsequent interrupts are injected in a
-parallel/lockless manner, without hitting the IDT nor incurring an extra
-EOI.  This pays dividends as the IO rate increases, which is when the
-guest needs the most help.
-
-OTOH, it is entirely possible to design the connector such that we
-maintain a 1:1 ratio of signals to traditional IDT interrupts.  It is
-also possible to design a connector which surfaces as something else,
-such as PCI devices (by terminating the connector in QEMU and utilizing
-its PCI emulation facilities), which would naturally employ 1:1 mapping.
-
-So if 1:1 mapping is a critical feature (I would argue to the contrary),
-vbus can support it.
-
-> It also pulls parts of the device model into the host kernel.
-
-That is the point.  Most of it needs to be there for performance.  And
-what doesn't need to be there for performance can either be:
-
-a) skipped at the discretion of the connector/device-model designer
-
-OR
-
-b) included because its trivially small subset of the model (e.g. a
-mac-addr attribute) and its nice to have a cohesive solution instead of
-requiring a separate binary blob that can get out of sync, etc.
-
-The example Ive provided to date (venet on kvm) utilizes (b), but it
-certainly doesn't have to.  Therefore, I don't think vbus as a whole can
-be judged on this one point.
-
 >=20
->>> The virtio layering was more or less dictated by Xen which doesn't ha=
-ve
->>> shared memory (it uses grant references instead).  As a matter of fac=
-t
->>> lguest, kvm/pci, and kvm/s390 all have shared memory, as you do, so t=
-hat
->>> part is duplicated.  It's probably possible to add a virtio-shmem.ko
->>> library that people who do have shared memory can reuse.
->>>     =20
->> Note that I do not believe the Xen folk use virtio, so while I can
->> appreciate the foresight that went into that particular aspect of the
->> design of the virtio model, I am not sure if its a realistic constrain=
-t.
->>   =20
+> So if 1:1 mapping is a critical feature (I would argue to the contrary)=
+,
+> vbus can support it.
 >=20
-> Since a virtio goal was to reduce virtual device driver proliferation,
-> it was necessary to accommodate Xen.
+>> It also pulls parts of the device model into the host kernel.
+>=20
+> That is the point.  Most of it needs to be there for performance.
 
-Fair enough, but I don't think the Xen community will ever use it.
+To clarify this point:
 
-To your point, a vbus goal was to reduce the bus-model and
-backend-device-model proliferation for environments served by Linux as
-the host.  This naturally complements virtio's driver non-proliferation
-goal, but probably excludes Xen for reasons beyond the lack of shmem
-(since it has its own non-linux hypervisor kernel).
+There are various aspects about designing high-performance virtual
+devices such as providing the shortest paths possible between the
+physical resources and the consumers.  Conversely, we also need to
+ensure that we meet proper isolation/protection guarantees at the same
+time.  What this means is there are various aspects to any
+high-performance PV design that require to be placed in-kernel to
+maximize the performance yet properly isolate the guest.
 
-In any case, I've already stated that we simply make the virtio-shmem
-(vbus-proxy-device) facility optionally defined, and unavailable on
-non-shmem based architectures to work around that issue.
+For instance, you are required to have your signal-path (interrupts and
+hypercalls), your memory-path (gpa translation), and
+addressing/isolation model in-kernel to maximize performance.
 
-The alternative is that we abstract the shmem concept further (ala
-->add_buf() from the virtqueue world) but it is probably pointless to
-try to accommodate shared-memory if you don't really have it, and no-one
-will likely use it.
+Vbus accomplishes its in-kernel isolation model by providing a
+"container" concept, where objects are placed into this container by
+userspace.  The host kernel enforces isolation/protection by using a
+namespace to identify objects that is only relevant within a specific
+container's context (namely, a "u32 dev-id").  The guest addresses the
+objects by its dev-id, and the kernel ensures that the guest can't
+access objects outside of its dev-id namespace.
+
+All that is required is a way to transport a message with a "devid"
+attribute as an address (such as DEVCALL(devid)) and the framework
+provides the rest of the decode+execute function.
+
+Contrast this to vhost+virtio-pci (called simply "vhost" from here).
+It is not immune to requiring in-kernel addressing support either, but
+rather it just does it differently (and its not as you might expect via
+qemu).
+
+Vhost relies on QEMU to render PCI objects to the guest, which the guest
+assigns resources (such as BARs, interrupts, etc).  A PCI-BAR in this
+example may represent a PIO address for triggering some operation in the
+device-model's fast-path.  For it to have meaning in the fast-path, KVM
+has to have in-kernel knowledge of what a PIO-exit is, and what to do
+with it (this is where pio-bus and ioeventfd come in).  The programming
+of the PIO-exit and the ioeventfd are likewise controlled by some
+userspace management entity (i.e. qemu).   The PIO address and value
+tuple form the address, and the ioeventfd framework within KVM provide
+the decode+execute function.
+
+This idea seemingly works fine, mind you, but it rides on top of a *lot*
+of stuff including but not limited to: the guests pci stack, the qemu
+pci emulation, kvm pio support, and ioeventfd.  When you get into
+situations where you don't have PCI or even KVM underneath you (e.g. a
+userspace container, Ira's rig, etc) trying to recreate all of that PCI
+infrastructure for the sake of using PCI is, IMO, a lot of overhead for
+little gain.
+
+All you really need is a simple decode+execute mechanism, and a way to
+program it from userspace control.  vbus tries to do just that:
+commoditize it so all you need is the transport of the control messages
+(like DEVCALL()), but the decode+execute itself is reuseable, even
+across various environments (like KVM or Iras rig).
+
+And we face similar situations with the signal-path and memory-path
+components...but lets take a look at the slow-path side.
+
+
+>  And what doesn't need to be there for performance can either be:
+>=20
+> a) skipped at the discretion of the connector/device-model designer
+>=20
+> OR
+>=20
+> b) included because its trivially small subset of the model (e.g. a
+> mac-addr attribute) and its nice to have a cohesive solution instead of=
+
+> requiring a separate binary blob that can get out of sync, etc.
+>=20
+> The example Ive provided to date (venet on kvm) utilizes (b), but it
+> certainly doesn't have to.  Therefore, I don't think vbus as a whole ca=
+n
+> be judged on this one point.
+
+
+For a given model, we have a grouping of operations for fast path and
+slow path.  Fast path would be things like we just talked about
+(signal-path, memory-path, addressing model).  Slow path would be things
+like device discovery (and hotswap), config-space, etc.
+
+And your argument, I believe, is that vbus allows both to be implemented
+in the kernel (though to reiterate, its optional) and is therefore a bad
+design, so lets discuss that.
+
+I believe the assertion is that things like config-space are best left
+to userspace, and we should only relegate fast-path duties to the
+kernel.  The problem is that, in my experience, a good deal of
+config-space actually influences the fast-path and thus needs to
+interact with the fast-path mechanism eventually anyway.  Whats left
+over that doesn't fall into this category may cheaply ride on existing
+plumbing, so its not like we created something new or unnatural just to
+support this subclass of config-space.
+
+For example: take an attribute like the mac-address assigned to a NIC.
+This clearly doesn't need to be in-kernel and could go either way (such
+as a PCI config-space register).
+
+As another example: consider an option bit that enables a new feature
+that affects the fast-path, like RXBUF merging.  If we use the split
+model where config space is handled by userspace and fast-path is
+in-kernel, the userspace component is only going to act as a proxy.
+I.e. it will pass the option down to the kernel eventually.  Therefore,
+there is little gain in trying to split this type of slow-path out to
+userspace.  In fact, its more work.
+
+vbus addresses this observation by providing a very simple (yet
+hopefully powerful) model of providing two basic verbs to a device:
+
+dev->call()
+dev->shm()
+
+It makes no distinction of slow or fast-path type operations, per se.
+Just a mechanism for synchronous or asynchronous communication.  It is
+expected that a given component will build "config-space" primarily from
+the synchronous ->call() interface if it requires one.  However, it gets
+this for free since we need ->call() for fast-path too (like the
+rt-scheduler device, etc).
+
+So I can then use ->call to perform a fast-path scheduler update (has to
+go in-kernel for performance), an "enable rxbuf-merge" function (has to
+end-up in-kernel eventually), or a "macquery" (doesn't need to be
+in-kernel).
+
+My choice was to support that third operation in-kernel as well, because
+its way more complicated to do it another way that it is to simply
+export a sysfs attribute to set it.  Userspace is still completely in
+control..it sets the value.  It just doesnt have to write plumbing to
+make it accessible.  The basic vbus model inherently provides this.
+
+Thats enough for now.  We can talk about discovery/hotswap at a later tim=
+e.
 
 Kind Regards,
 -Greg
 
 
---------------enig5B75B8792B906F18C2BBDA7B
+--------------enig2960FB4A219017B9F4183E21
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: OpenPGP digital signature
 Content-Disposition: attachment; filename="signature.asc"
@@ -238,14 +333,14 @@ Content-Disposition: attachment; filename="signature.asc"
 Version: GnuPG/MacGPG2 v2.0.11 (Darwin)
 Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
 
-iEYEARECAAYFAkq6OnMACgkQP5K2CMvXmqFK7gCfRr08U1PGhr8SulFvwY5YQJnO
-APoAn0k3pmKeK+oy9y4Bbyw3OXcjdLt9
-=xUnP
+iEYEARECAAYFAkq6YdEACgkQP5K2CMvXmqGZBQCghw6prAw9k8PjmGtKYVpsNUt9
+WOcAn0bSahCftRGmgimravnt/fqFYUEM
+=J665
 -----END PGP SIGNATURE-----
 
---------------enig5B75B8792B906F18C2BBDA7B--
+--------------enig2960FB4A219017B9F4183E21--
 
---===============0710991129993197362==
+--===============1052258694386048796==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -255,4 +350,4 @@ _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linux-foundation.org/mailman/listinfo/virtualization
---===============0710991129993197362==--
+--===============1052258694386048796==--
