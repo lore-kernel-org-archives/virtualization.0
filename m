@@ -1,21 +1,19 @@
-From: Gregory Haskins <gregory.haskins@gmail.com>
+From: "Ira W. Snyder" <iws@ovro.caltech.edu>
 Subject: Re: [PATCHv5 3/3] vhost_net: a kernel-level virtio server
-Date: Thu, 24 Sep 2009 14:04:34 -0400
-Message-ID: <4ABBB4B2.7050404__11075.6524526098$1253815857$gmane$org@gmail.com>
-References: <4AAFACB5.9050808@redhat.com> <4AAFF437.7060100@gmail.com>
-	<4AB0A070.1050400@redhat.com> <4AB0CFA5.6040104@gmail.com>
-	<4AB0E2A2.3080409@redhat.com> <4AB0F1EF.5050102@gmail.com>
-	<4AB10B67.2050108@redhat.com> <4AB13B09.5040308@gmail.com>
-	<4AB151D7.10402@redhat.com> <4AB1A8FD.2010805@gmail.com>
+Date: Thu, 24 Sep 2009 12:27:54 -0700
+Message-ID: <20090924192754.GA14341__11704.6980689794$1253820631$gmane$org@ovro.caltech.edu>
+References: <4AB1A8FD.2010805@gmail.com>
 	<20090921214312.GJ7182@ovro.caltech.edu>
 	<4AB89C48.4020903@redhat.com> <4ABA3005.60905@gmail.com>
 	<4ABA32AF.50602@redhat.com> <4ABA3A73.5090508@gmail.com>
 	<4ABA61D1.80703@gmail.com> <4ABA78DC.7070604@redhat.com>
-	<4ABB27B9.4050904@redhat.com>
+	<4ABA8FDC.5010008@gmail.com> <4ABB1D44.5000007@redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============3345396558063714035=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4ABB27B9.4050904@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <4ABB1D44.5000007@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -23,76 +21,177 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Mime-version: 1.0
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Avi Kivity <avi@redhat.com>
-Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, "Ira W. Snyder" <iws@ovro.caltech.edu>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, s.hetze@linux-ag.com, hpa@zytor.com, mingo@elte.hu, alacrityvm-devel@lists.sourceforge.net, akpm@linux-foundation.org
+Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, s.hetze@linux-ag.com, hpa@zytor.com, mingo@elte.hu, alacrityvm-devel@lists.sourceforge.net, akpm@linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---===============3345396558063714035==
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enigDE5D73E043EEC9B7281C9F0D"
+On Thu, Sep 24, 2009 at 10:18:28AM +0300, Avi Kivity wrote:
+> On 09/24/2009 12:15 AM, Gregory Haskins wrote:
+> >
+> >>> There are various aspects about designing high-performance virtual
+> >>> devices such as providing the shortest paths possible between the
+> >>> physical resources and the consumers.  Conversely, we also need to
+> >>> ensure that we meet proper isolation/protection guarantees at the same
+> >>> time.  What this means is there are various aspects to any
+> >>> high-performance PV design that require to be placed in-kernel to
+> >>> maximize the performance yet properly isolate the guest.
+> >>>
+> >>> For instance, you are required to have your signal-path (interrupts and
+> >>> hypercalls), your memory-path (gpa translation), and
+> >>> addressing/isolation model in-kernel to maximize performance.
+> >>>
+> >>>        
+> >> Exactly.  That's what vhost puts into the kernel and nothing more.
+> >>      
+> > Actually, no.  Generally, _KVM_ puts those things into the kernel, and
+> > vhost consumes them.  Without KVM (or something equivalent), vhost is
+> > incomplete.  One of my goals with vbus is to generalize the "something
+> > equivalent" part here.
+> >    
+> 
+> I don't really see how vhost and vbus are different here.  vhost expects 
+> signalling to happen through a couple of eventfds and requires someone 
+> to supply them and implement kernel support (if needed).  vbus requires 
+> someone to write a connector to provide the signalling implementation.  
+> Neither will work out-of-the-box when implementing virtio-net over 
+> falling dominos, for example.
+> 
+> >>> Vbus accomplishes its in-kernel isolation model by providing a
+> >>> "container" concept, where objects are placed into this container by
+> >>> userspace.  The host kernel enforces isolation/protection by using a
+> >>> namespace to identify objects that is only relevant within a specific
+> >>> container's context (namely, a "u32 dev-id").  The guest addresses the
+> >>> objects by its dev-id, and the kernel ensures that the guest can't
+> >>> access objects outside of its dev-id namespace.
+> >>>
+> >>>        
+> >> vhost manages to accomplish this without any kernel support.
+> >>      
+> > No, vhost manages to accomplish this because of KVMs kernel support
+> > (ioeventfd, etc).   Without a KVM-like in-kernel support, vhost is a
+> > merely a kind of "tuntap"-like clone signalled by eventfds.
+> >    
+> 
+> Without a vbus-connector-falling-dominos, vbus-venet can't do anything 
+> either.  Both vhost and vbus need an interface, vhost's is just narrower 
+> since it doesn't do configuration or enumeration.
+> 
+> > This goes directly to my rebuttal of your claim that vbus places too
+> > much in the kernel.  I state that, one way or the other, address decode
+> > and isolation _must_ be in the kernel for performance.  Vbus does this
+> > with a devid/container scheme.  vhost+virtio-pci+kvm does it with
+> > pci+pio+ioeventfd.
+> >    
+> 
+> vbus doesn't do kvm guest address decoding for the fast path.  It's 
+> still done by ioeventfd.
+> 
+> >>   The guest
+> >> simply has not access to any vhost resources other than the guest->host
+> >> doorbell, which is handed to the guest outside vhost (so it's somebody
+> >> else's problem, in userspace).
+> >>      
+> > You mean _controlled_ by userspace, right?  Obviously, the other side of
+> > the kernel still needs to be programmed (ioeventfd, etc).  Otherwise,
+> > vhost would be pointless: e.g. just use vanilla tuntap if you don't need
+> > fast in-kernel decoding.
+> >    
+> 
+> Yes (though for something like level-triggered interrupts we're probably 
+> keeping it in userspace, enjoying the benefits of vhost data path while 
+> paying more for signalling).
+> 
+> >>> All that is required is a way to transport a message with a "devid"
+> >>> attribute as an address (such as DEVCALL(devid)) and the framework
+> >>> provides the rest of the decode+execute function.
+> >>>
+> >>>        
+> >> vhost avoids that.
+> >>      
+> > No, it doesn't avoid it.  It just doesn't specify how its done, and
+> > relies on something else to do it on its behalf.
+> >    
+> 
+> That someone else can be in userspace, apart from the actual fast path.
+> 
+> > Conversely, vbus specifies how its done, but not how to transport the
+> > verb "across the wire".  That is the role of the vbus-connector abstraction.
+> >    
+> 
+> So again, vbus does everything in the kernel (since it's so easy and 
+> cheap) but expects a vbus-connector.  vhost does configuration in 
+> userspace (since it's so clunky and fragile) but expects a couple of 
+> eventfds.
+> 
+> >>> Contrast this to vhost+virtio-pci (called simply "vhost" from here).
+> >>>
+> >>>        
+> >> It's the wrong name.  vhost implements only the data path.
+> >>      
+> > Understood, but vhost+virtio-pci is what I am contrasting, and I use
+> > "vhost" for short from that point on because I am too lazy to type the
+> > whole name over and over ;)
+> >    
+> 
+> If you #define A A+B+C don't expect intelligent conversation afterwards.
+> 
+> >>> It is not immune to requiring in-kernel addressing support either, but
+> >>> rather it just does it differently (and its not as you might expect via
+> >>> qemu).
+> >>>
+> >>> Vhost relies on QEMU to render PCI objects to the guest, which the guest
+> >>> assigns resources (such as BARs, interrupts, etc).
+> >>>        
+> >> vhost does not rely on qemu.  It relies on its user to handle
+> >> configuration.  In one important case it's qemu+pci.  It could just as
+> >> well be the lguest launcher.
+> >>      
+> > I meant vhost=vhost+virtio-pci here.  Sorry for the confusion.
+> >
+> > The point I am making specifically is that vhost in general relies on
+> > other in-kernel components to function.  I.e. It cannot function without
+> > having something like the PCI model to build an IO namespace.  That
+> > namespace (in this case, pio addresses+data tuples) are used for the
+> > in-kernel addressing function under KVM + virtio-pci.
+> >
+> > The case of the lguest launcher is a good one to highlight.  Yes, you
+> > can presumably also use lguest with vhost, if the requisite facilities
+> > are exposed to lguest-bus, and some eventfd based thing like ioeventfd
+> > is written for the host (if it doesnt exist already).
+> >
+> > And when the next virt design "foo" comes out, it can make a "foo-bus"
+> > model, and implement foo-eventfd on the backend, etc, etc.
+> >    
+> 
+> It's exactly the same with vbus needing additional connectors for 
+> additional transports.
+> 
+> > Ira can make ira-bus, and ira-eventfd, etc, etc.
+> >
+> > Each iteration will invariably introduce duplicated parts of the stack.
+> >    
+> 
+> Invariably?  Use libraries (virtio-shmem.ko, libvhost.so).
+> 
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigDE5D73E043EEC9B7281C9F0D
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+Referencing libraries that don't yet exist doesn't seem like a good
+argument against vbus from my point of view. I'm not speficially
+advocating for vbus; I'm just letting you know how it looks to another
+developer in the trenches.
 
-Avi Kivity wrote:
-> On 09/23/2009 10:37 PM, Avi Kivity wrote:
->>
->> Example: feature negotiation.  If it happens in userspace, it's easy
->> to limit what features we expose to the guest.  If it happens in the
->> kernel, we need to add an interface to let the kernel know which
->> features it should expose to the guest.  We also need to add an
->> interface to let userspace know which features were negotiated, if we
->> want to implement live migration.  Something fairly trivial bloats
->> rapidly.
->=20
-> btw, we have this issue with kvm reporting cpuid bits to the guest.=20
-> Instead of letting kvm talk directly to the hardware and the guest, kvm=
+If you'd like to see the amount of duplication present, look at the code
+I'm currently working on. It mostly works at this point, though I
+haven't finished my userspace, nor figured out how to actually transfer
+data.
 
-> gets the cpuid bits from the hardware, strips away features it doesn't
-> support, exposes that to userspace, and expects userspace to program th=
-e
-> cpuid bits it wants to expose to the guest (which may be different than=
+The current question I have (just to let you know where I am in
+development) is:
 
-> what kvm exposed to userspace, and different from guest to guest).
->=20
+I have the physical address of the remote data, but how do I get it into
+a userspace buffer, so I can pass it to tun?
 
-This issue doesn't exist in the model I am referring to, as these are
-all virtual-devices anyway.  See my last reply
+http://www.mmarray.org/~iws/virtio-phys/
 
--Greg
-
-
---------------enigDE5D73E043EEC9B7281C9F0D
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG/MacGPG2 v2.0.11 (Darwin)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
-
-iEYEARECAAYFAkq7tLIACgkQP5K2CMvXmqFsrACfdMqWfjhbcD0aRdM1iWka41vU
-lDkAmwWgvAoZNTrMhDRgJ/UlEl0f4Mpo
-=5LFr
------END PGP SIGNATURE-----
-
---------------enigDE5D73E043EEC9B7281C9F0D--
-
---===============3345396558063714035==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linux-foundation.org/mailman/listinfo/virtualization
---===============3345396558063714035==--
+Ira
