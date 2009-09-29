@@ -1,15 +1,18 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [PATCH 2.6.31-rc9] net: VMware virtual Ethernet NIC driver:
-	vmxnet3
-Date: Tue, 29 Sep 2009 15:05:50 +0200
-Message-ID: <200909291505.50961.arnd__32361.0192434446$1254229715$gmane$org@arndb.de>
-References: <89E2752CFA8EC044846EB849981913410173CDFAF6@EXCH-MBX-4.vmware.com>
-	<20090929085333.GC3958@sequoia.sous-sol.org>
+From: Amit Shah <amit.shah@redhat.com>
+Subject: Re: [PATCH] virtio_console: Add support for multiple ports for
+	generic guest and host communication
+Date: Tue, 29 Sep 2009 18:39:50 +0530
+Message-ID: <20090929130950.GA23395__9480.95942517302$1254229903$gmane$org@amit-x200.redhat.com>
+References: <1252678386-17404-1-git-send-email-amit.shah@redhat.com>
+	<200909291403.08547.borntraeger@de.ibm.com>
+	<20090929122006.GB3766@amit-x200.redhat.com>
+	<200909291456.56723.borntraeger@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20090929085333.GC3958@sequoia.sous-sol.org>
+Content-Disposition: inline
+In-Reply-To: <200909291456.56723.borntraeger@de.ibm.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,34 +22,59 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Chris Wright <chrisw@sous-sol.org>
-Cc: "pv-drivers@vmware.com" <pv-drivers@vmware.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>, Greg Kroah-Hartman <greg@kroah.com>, Anthony Liguori <anthony@codemonkey.ws>, Jeff Garzik <jgarzik@pobox.com>, Andrew Morton <akpm@linux-foundation.org>, Stephen Hemminger <shemminger@linux-foundation.org>, "David S. Miller" <davem@davemloft.net>
+To: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Alan Cox <alan@linux.intel.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tuesday 29 September 2009, Chris Wright wrote:
-> > +struct Vmxnet3_MiscConf {
-> > +       struct Vmxnet3_DriverInfo driverInfo;
-> > +       uint64_t             uptFeatures;
-> > +       uint64_t             ddPA;         /* driver data PA */
-> > +       uint64_t             queueDescPA;  /* queue descriptor table PA */
-> > +       uint32_t             ddLen;        /* driver data len */
-> > +       uint32_t             queueDescLen; /* queue desc. table len in bytes */
-> > +       uint32_t             mtu;
-> > +       uint16_t             maxNumRxSG;
-> > +       uint8_t              numTxQueues;
-> > +       uint8_t              numRxQueues;
-> > +       uint32_t             reserved[4];
-> > +};
+On (Tue) Sep 29 2009 [14:56:56], Christian Borntraeger wrote:
+> Am Dienstag 29 September 2009 14:20:06 schrieb Amit Shah:
+> > Christian tested the patch on s390 and found that the output was
+> > very slow. He tracked it down to put_chars never getting init'ed
+> > to the final value.
+> > 
+> > Signed-off-by: Amit Shah <amit.shah@redhat.com>
 > 
-> should this be packed (or others that are shared w/ device)?  i assume
-> you've already done 32 vs 64 here
+> Thanks. This fix is 
+> Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> Tested-by: Christian Borntraeger <borntraeger@de.ibm.com> 
 
-I would not mark it packed, because it already is well-defined on all
-systems. You should add __packed only to the fields where you screwed
-up, but not to structures that already work fine.
+Great, thanks. However I was thinking of moving this init to the probe()
+routine instead of in the init_conosle routine just because multiple
+consoles can be added and we don't want to init this each time.. just
+once in probe is fine.
 
-One thing that should possibly be fixed is the naming of identifiers, e.g.
-'s/Vmxnet3_MiscConf/vmxnet3_misc_conf/g', unless these header files are
-shared with the host implementation.
+> I am a bit reluctant to Ack the whole change, since my preference would have
+> been to not merge virtio serial/console and instead keeping both separate.
+> We have already managed to clutter all other virtio drivers with tons of 
+> configuration stuff and feature bits - and every driver uses a different model
+> for configuration and commands (feature bits, config space, config_change 
+> indication, extra config virtqueue, commands embedded into the data....).
+> Using a different device ID for a different use seem like a better way to me.
 
-	Arnd <><
+Well, Anthony described your objection as a comment in passing and that
+you weren't strongly against merging the two drivers when I brought up
+your argument sometime back.
+
+Also, it was difficult to make progress and just keep fighting about
+these issues. So even though I didn't like merging the stuff, I had to.
+
+Rusty too in a recent mail mentioned he sees both the drivers as one
+because the functionlities are similar.
+
+> On the other hand, this patch allows more than one console (I have not tested
+> this feature) and with this fix applied I dont see any obvious problems.
+
+Note though that to use the multiple consoles, you'll have to modify
+your userspace to handle the new messages that get passed between the
+host and the guest (one can argue I've done the guest part; you only
+have the host part to be done :-))
+
+> For the console part I can give a 
+> Acked-by: Christian Borntraeger <borntraeger@de.ibm.com> (console)
+
+Thanks again. I'll put this in the next spin.
+
+> Ignoring my preference for having a separate driver and devids, I have no 
+> opinion about the generic communication stuff - no ack or nack.
+
+		Amit
