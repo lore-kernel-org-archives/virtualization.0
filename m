@@ -1,16 +1,19 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [Pv-drivers] [PATCH 2.6.31-rc9] net: VMware virtual Ethernet
-	NIC driver: vmxnet3
-Date: Mon, 28 Sep 2009 18:17:02 -0700 (PDT)
-Message-ID: <20090928.181702.41922043.davem__26065.9917643808$1254187062$gmane$org@davemloft.net>
-References: <89E2752CFA8EC044846EB849981913410173CDFAF6@EXCH-MBX-4.vmware.com>
-	<20090929002207.GB31372@kroah.com>
-	<1254185499.13456.40.camel@ank32.eng.vmware.com>
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: Paravirtualization on VMware's Platform [VMI].
+Date: Mon, 28 Sep 2009 19:25:28 -0700
+Message-ID: <4AC17018.4040600@zytor.com>
+References: <1253233028.19731.63.camel@ank32.eng.vmware.com>	
+	<20090919224430.GB9567@kroah.com>	
+	<1253419185.3253.21.camel@ank32.eng.vmware.com>	
+	<20090920074247.GA5733@elte.hu>	
+	<1253647845.10565.20.camel@ank32.eng.vmware.com>	
+	<4AB9CE66.1030504@redhat.com>
+	<1254185107.13456.32.camel@ank32.eng.vmware.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1254185499.13456.40.camel@ank32.eng.vmware.com>
+In-Reply-To: <1254185107.13456.32.camel@ank32.eng.vmware.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -21,17 +24,21 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: akataria@vmware.com
-Cc: pv-drivers@vmware.com, greg@kroah.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, anthony@codemonkey.ws, netdev@vger.kernel.org, akpm@linux-foundation.org, shemminger@linux-foundation.org, jgarzik@pobox.com
+Cc: Andrew Morton <akpm@linux-foundation.org>, Greg KH <greg@kroah.com>, the arch/x86 maintainers <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>, Chris Wright <chrisw@sous-sol.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, Ingo Molnar <mingo@elte.hu>, Linus Torvalds <torvalds@linux-foundation.org>, Thomas Gleixner <tglx@linutronix.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Alok Kataria <akataria@vmware.com>
-Date: Mon, 28 Sep 2009 17:51:39 -0700
+On 09/28/2009 05:45 PM, Alok Kataria wrote:
+> +	bool "VMI Guest support [will be deprecated soon]"
+> +	default n
 
-> As a side note, were there any changes in the networking API's, that we
-> should look out for in the merge cycle ?
-> If not I think the rebase should be pretty trivial.
+This is incorrect use of the word "deprecated"... it's *already*
+deprecated (a word which pretty much means the opposite of "recommended".)
 
-Just off the top of my head, the return type of the driver transmit
-function was changed to netdev_tx_t, for one thing.
+As far as "default n" is concerned... this is usually not necessary; "n"
+is the default unless anything else is specified.
 
-But there were likely numerous others.  You'll have to check.
+	-hpa
+
+-- 
+H. Peter Anvin, Intel Open Source Technology Center
+I work for Intel.  I don't speak on their behalf.
