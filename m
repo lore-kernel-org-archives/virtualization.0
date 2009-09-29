@@ -1,17 +1,16 @@
-From: Amit Shah <amit.shah@redhat.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
 Subject: Re: [PATCH] virtio_console: Add support for multiple ports for
 	generic guest and host communication
-Date: Tue, 29 Sep 2009 18:54:05 +0530
-Message-ID: <20090929132405.GB23395__42956.0064957061$1254230891$gmane$org@amit-x200.redhat.com>
+Date: Tue, 29 Sep 2009 15:31:23 +0200
+Message-ID: <200909291531.23389.borntraeger__6749.2228969515$1254231151$gmane$org@de.ibm.com>
 References: <1252678386-17404-1-git-send-email-amit.shah@redhat.com>
-	<1252678386-17404-2-git-send-email-amit.shah@redhat.com>
-	<200909292241.46275.rusty@rustcorp.com.au>
+	<200909291456.56723.borntraeger@de.ibm.com>
+	<20090929130950.GA23395@amit-x200.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <200909292241.46275.rusty@rustcorp.com.au>
+In-Reply-To: <20090929130950.GA23395@amit-x200.redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -21,40 +20,38 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, alan@linux.intel.com
+To: Amit Shah <amit.shah@redhat.com>
+Cc: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Alan Cox <alan@linux.intel.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On (Tue) Sep 29 2009 [22:41:45], Rusty Russell wrote:
-> On Fri, 11 Sep 2009 11:43:06 pm Amit Shah wrote:
-> > Expose multiple char devices ("ports") for simple communication
-> > between the host userspace and guest.
+Am Dienstag 29 September 2009 15:09:50 schrieb Amit Shah:
+> Great, thanks. However I was thinking of moving this init to the probe()
+> routine instead of in the init_conosle routine just because multiple
+> consoles can be added and we don't want to init this each time.. just
+> once in probe is fine.
+
+If you have new patch CC me and I can give it a spin.
+
+
+> > I am a bit reluctant to Ack the whole change, since my preference would
+> > have been to not merge virtio serial/console and instead keeping both
+> > separate. We have already managed to clutter all other virtio drivers
+> > with tons of configuration stuff and feature bits - and every driver uses
+> > a different model for configuration and commands (feature bits, config
+> > space, config_change indication, extra config virtqueue, commands
+> > embedded into the data....). Using a different device ID for a different
+> > use seem like a better way to me.
 > 
-> OK, I think other comments have died down, so it's time for a review.  This
-> was the latest patch I could find.
+> Well, Anthony described your objection as a comment in passing and that
+> you weren't strongly against merging the two drivers when I brought up
+> your argument sometime back.
+> 
+> Also, it was difficult to make progress and just keep fighting about
+> these issues. So even though I didn't like merging the stuff, I had to.
 
-I just sent a new patch in this thread; can you please review that one?
+Sure, you were caught between two stools... I have to admit that I dropped of 
+this discussion and did not follow up - I simply considered my wedding and 
+honeymoon more important ;-)
 
-> The obvious way to do this is to use multiple pairs of virtqueues.  Is this
-> silly for some reason?  Yes, we're restricted to 32k ports.
-
-There were a couple of things to note about that:
-- Avi, in the past, mentioned separate ivq and ovqs for each port for
-  the kind of usage intended would be overkill.
-- With the MSI rework, we can't init new i/ovqs for hotplugged ports as
-  we find them. The queues all have to be init'ed at probe() time. I had
-  some discussion with Michael some time back on virtualization@, but
-  thought the overhead of implementing that would be high.
-
-> It means that if we see the MULTIQUEUE feature, we can look for the other
-> queues.  Our current MSI-X friendly API makes that a little painful, but
-> if we resolve that our code should be sweetness, no?
-
-If this is to solve the port numbering, etc., issues, I've thought of a
-new way this can be done in the newest patch. What's more, Christian
-tested it on s390 as well and it worked with a minor tweak. I tested the
-new patch with combinations of qemu and kernel (old/new) and they worked
-fine.
-
-Thanks,
-		Amit
+I still belive that I am right and Anthony is wrong about this  8-), but if 
+merging is the way to go - so be it. 
