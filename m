@@ -1,15 +1,16 @@
-From: Brian Jackson <iggy@theiggy.com>
-Subject: Re: Learning question regarding virtio and partvirt_ops
-Date: Tue, 29 Sep 2009 14:02:31 -0500
-Message-ID: <200909291402.31796.iggy@theiggy.com>
-References: <1253233028.19731.63.camel@ank32.eng.vmware.com>
-	<1254242989.7803.11.camel@ank32.eng.vmware.com>
-	<8AFC7968D54FB448A30D8F38F259C5620E784325@TK5EX14MBXC114.redmond.corp.microsoft.com>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [Pv-drivers] [PATCH 2.6.31-rc9] net: VMware virtual Ethernet
+	NIC driver: vmxnet3
+Date: Tue, 29 Sep 2009 12:55:30 -0700 (PDT)
+Message-ID: <20090929.125530.31894576.davem__46388.7893049561$1254254636$gmane$org@davemloft.net>
+References: <20090929085333.GC3958@sequoia.sous-sol.org>
+	<200909291505.50961.arnd@arndb.de>
+	<8B1F619C9F5F454E81D90D3C161698D7017DB76582@EXCH-MBX-3.vmware.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <8AFC7968D54FB448A30D8F38F259C5620E784325@TK5EX14MBXC114.redmond.corp.microsoft.com>
+In-Reply-To: <8B1F619C9F5F454E81D90D3C161698D7017DB76582@EXCH-MBX-3.vmware.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,64 +20,20 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
+To: bhavesh@vmware.com
+Cc: arnd@arndb.de, pv-drivers@vmware.com, netdev@vger.kernel.org, shemminger@linux-foundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, anthony@codemonkey.ws, greg@kroah.com, akpm@linux-foundation.org, jgarzik@pobox.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tuesday 29 September 2009 12:55:05 pm Hank Janssen wrote:
-> Greetings all,
-> 
-> I guess this is my official first port on the virtualization mailing list.
-> 
-> So any errors in posting and the correctness of asking questions in the
->  present And future are mine alone :)
-> 
-> I am one of the Microsoft developers responsible for Hyper-V support for
->  Linux.
-> 
-> I had the pleasure of meeting Anthony Liguori and Chris Wright last week at
->  the Linux Plumbers Conference in Portland.
-> 
-> The discussion was around virtio and possibly using some virtio for the
->  Hyper-V work. Since I am still much a novice with virtio, I wanted to ask
->  the general wisdom on the list.
-> 
-> There is also paravirt_ops, and I am trying to understand the relationship
->  of paravirt_ops And the kernel, virtio and the kernel and possible
->  relation between paravirt_ops and virtio.
+From: Bhavesh Davda <bhavesh@vmware.com>
+Date: Tue, 29 Sep 2009 12:52:05 -0700
 
-
-PV_ops is about optimizing things like time, cpu, irq, mmu, apic, locking, and 
-other similar functions.
-
-Virtio is about optimizing I/O. There are currently drivers for networking, 
-block devices, rng, memory ballooning, console, and maybe others that I don't 
-remember offhand.
-
-
+>> One thing that should possibly be fixed is the naming of identifiers,
+>> e.g.
+>> 's/Vmxnet3_MiscConf/vmxnet3_misc_conf/g', unless these header files are
+>> shared with the host implementation.
 > 
-> Is there a place somebody can point me towards that gives me a better
->  understanding of These two systems, how they compliment/do not compliment,
->  are the same or are not the same. And what is the general direction of the
->  people on the list regarding these systems.
+> These header files are indeed shared with the host implementation, as you've guessed. If it's not a big deal, we would like to keep the names the same, just for our own sanity's sake?
 
-The source as usual. Namely arch/x86/include/asm/paravirt_types.h for pv_ops. 
-Pointing out specific places to look for virtio is hard since the drivers are 
-spread all over the kernel tree in the directories they belong. A quick find 
-on the kernel source tree should help.
-
-
-> 
-> Why you would use one over the other, or if they can be combined in some
->  way.
-
-Lguest uses both. Xen uses pv_ops. KVM uses both. 
-
-> 
-> I know this might be a loaded question, but there you have it :)
-> 
-> Anthony and Chris can only be blamed for telling me that this is a good
->  list to have These discussions on. Everything else is my fault :)
-> 
-> Thanks,
-> 
-> Hank.
+No.  This isn't your source tree, it's everyone's.  So you should
+adhere to basic naming conventions and coding standards of the
+tree regardless of what you happen to use or need to use internally.
