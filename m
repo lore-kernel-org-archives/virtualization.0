@@ -1,15 +1,16 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH] virtio_ids: let virtio header files include virtio_ids.h
-	and export it
-Date: Wed, 30 Sep 2009 21:06:01 +0930
-Message-ID: <200909302106.02490.rusty__48260.3870136247$1254310625$gmane$org@rustcorp.com.au>
-References: <200909301117.21964.borntraeger@de.ibm.com>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [Pv-drivers] [PATCH 2.6.31-rc9] net: VMware virtual Ethernet NIC
+	driver: vmxnet3
+Date: Tue, 29 Sep 2009 23:23:20 +0200
+Message-ID: <200909292323.20713.arnd__37171.9933617443$1254315371$gmane$org@arndb.de>
+References: <20090929085333.GC3958@sequoia.sous-sol.org>
+	<8B1F619C9F5F454E81D90D3C161698D7017DB76582@EXCH-MBX-3.vmware.com>
+	<20090929.125530.31894576.davem@davemloft.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <200909301117.21964.borntraeger@de.ibm.com>
-Content-Disposition: inline
+In-Reply-To: <20090929.125530.31894576.davem@davemloft.net>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,13 +20,23 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Fernando Luis Vazquez Cao <fernando@oss.ntt.co.jp>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: David Miller <davem@davemloft.net>
+Cc: pv-drivers@vmware.com, netdev@vger.kernel.org, shemminger@linux-foundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, anthony@codemonkey.ws, greg@kroah.com, akpm@linux-foundation.org, bhavesh@vmware.com, jgarzik@pobox.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 30 Sep 2009 06:47:21 pm Christian Borntraeger wrote:
-> [PATCH] virtio_ids: let header files include virtio_ids.h
+On Tuesday 29 September 2009, David Miller wrote:
+> > 
+> > These header files are indeed shared with the host implementation,
+> > as you've guessed. If it's not a big deal, we would like to keep
+> > the names the same, just for our own sanity's sake?
+> 
+> No.  This isn't your source tree, it's everyone's.  So you should
+> adhere to basic naming conventions and coding standards of the
+> tree regardless of what you happen to use or need to use internally.
 
-Thanks, applied.
+Well, there is nothing wrong with making the identifiers the same
+everywhere, as long as they all follow the Linux coding style ;-).
 
-Rusty.
+I heard that a number of cross-OS device drivers do that nowadays.
+
+	Arnd <><
