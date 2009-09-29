@@ -1,16 +1,16 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: Re: [PATCH] virtio_console: Add support for multiple ports for
-	generic guest and host communication
-Date: Tue, 29 Sep 2009 15:31:23 +0200
-Message-ID: <200909291531.23389.borntraeger__6749.2228969515$1254231151$gmane$org@de.ibm.com>
-References: <1252678386-17404-1-git-send-email-amit.shah@redhat.com>
-	<200909291456.56723.borntraeger@de.ibm.com>
-	<20090929130950.GA23395@amit-x200.redhat.com>
+From: Shreyas Bhatewara <sbhatewara@vmware.com>
+Subject: RE: [PATCH 2.6.31-rc9] net: VMware virtual Ethernet NIC driver:
+	vmxnet3
+Date: Tue, 29 Sep 2009 09:37:59 -0700
+Message-ID: <89E2752CFA8EC044846EB849981913410173CDFD23__2703.17927138439$1254242805$gmane$org@EXCH-MBX-4.vmware.com>
+References: <89E2752CFA8EC044846EB849981913410173CDFAF6@EXCH-MBX-4.vmware.com>
+	<20090928.170821.124026517.davem@davemloft.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20090929130950.GA23395@amit-x200.redhat.com>
+In-Reply-To: <20090928.170821.124026517.davem@davemloft.net>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,38 +20,30 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Amit Shah <amit.shah@redhat.com>
-Cc: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Alan Cox <alan@linux.intel.com>
+To: David Miller <davem@davemloft.net>
+Cc: "pv-drivers@vmware.com" <pv-drivers@vmware.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "chrisw@sous-sol.org" <chrisw@sous-sol.org>, "greg@kroah.com" <greg@kroah.com>, "anthony@codemonkey.ws" <anthony@codemonkey.ws>, "jgarzik@pobox.com" <jgarzik@pobox.com>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, "shemminger@linux-foundation.org" <shemminger@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Am Dienstag 29 September 2009 15:09:50 schrieb Amit Shah:
-> Great, thanks. However I was thinking of moving this init to the probe()
-> routine instead of in the init_conosle routine just because multiple
-> consoles can be added and we don't want to init this each time.. just
-> once in probe is fine.
-
-If you have new patch CC me and I can give it a spin.
-
-
-> > I am a bit reluctant to Ack the whole change, since my preference would
-> > have been to not merge virtio serial/console and instead keeping both
-> > separate. We have already managed to clutter all other virtio drivers
-> > with tons of configuration stuff and feature bits - and every driver uses
-> > a different model for configuration and commands (feature bits, config
-> > space, config_change indication, extra config virtqueue, commands
-> > embedded into the data....). Using a different device ID for a different
-> > use seem like a better way to me.
+> -----Original Message-----
+> From: David Miller [mailto:davem@davemloft.net]
+> Sent: Monday, September 28, 2009 5:08 PM
+> To: Shreyas Bhatewara
+> Cc: linux-kernel@vger.kernel.org; netdev@vger.kernel.org;
+> shemminger@linux-foundation.org; jgarzik@pobox.com;
+> anthony@codemonkey.ws; chrisw@sous-sol.org; greg@kroah.com; akpm@linux-
+> foundation.org; virtualization@lists.linux-foundation.org; pv-
+> drivers@vmware.com
+> Subject: Re: [PATCH 2.6.31-rc9] net: VMware virtual Ethernet NIC
+> driver: vmxnet3
 > 
-> Well, Anthony described your objection as a comment in passing and that
-> you weren't strongly against merging the two drivers when I brought up
-> your argument sometime back.
+> From: Shreyas Bhatewara <sbhatewara@vmware.com>
+> Date: Mon, 28 Sep 2009 16:56:45 -0700
 > 
-> Also, it was difficult to make progress and just keep fighting about
-> these issues. So even though I didn't like merging the stuff, I had to.
+> > +       uint32_t rxdIdx:12;    /* Index of the RxDesc */
+> 
+> Don't use uint32_t et al. sized types, use "u32" and friends
+> throughout.
 
-Sure, you were caught between two stools... I have to admit that I dropped of 
-this discussion and did not follow up - I simply considered my wedding and 
-honeymoon more important ;-)
+Sure, I will fix that.
 
-I still belive that I am right and Anthony is wrong about this  8-), but if 
-merging is the way to go - so be it. 
+->Shreyas
