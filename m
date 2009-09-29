@@ -1,42 +1,161 @@
-From: Greg KH <greg@kroah.com>
-Subject: Re: [PATCH 2.6.31-rc9] net: VMware virtual Ethernet NIC driver:
-	vmxnet3
-Date: Mon, 28 Sep 2009 17:22:07 -0700
-Message-ID: <20090929002207.GB31372__4699.16080260209$1254183993$gmane$org@kroah.com>
-References: <89E2752CFA8EC044846EB849981913410173CDFAF6@EXCH-MBX-4.vmware.com>
+From: Alok Kataria <akataria@vmware.com>
+Subject: Re: Paravirtualization on VMware's Platform [VMI].
+Date: Mon, 28 Sep 2009 17:45:07 -0700
+Message-ID: <1254185107.13456.32.camel@ank32.eng.vmware.com>
+References: <1253233028.19731.63.camel@ank32.eng.vmware.com>
+	 <20090919224430.GB9567@kroah.com>
+	 <1253419185.3253.21.camel@ank32.eng.vmware.com>
+	 <20090920074247.GA5733@elte.hu>
+	 <1253647845.10565.20.camel@ank32.eng.vmware.com>
+	 <4AB9CE66.1030504@redhat.com>
+Reply-To: akataria@vmware.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <89E2752CFA8EC044846EB849981913410173CDFAF6@EXCH-MBX-4.vmware.com>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Shreyas Bhatewara <sbhatewara@vmware.com>
-Cc: "pv-drivers@vmware.com" <pv-drivers@vmware.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, Stephen Hemminger <shemminger@linux-foundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>, Chris Wright <chrisw@sous-sol.org>, Anthony Liguori <anthony@codemonkey.ws>, Andrew Morton <akpm@linux-foundation.org>, Jeff Garzik <jgarzik@pobox.com>, "David S. Miller" <davem@davemloft.net>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1753823AbZI2ApG@vger.kernel.org>
+In-Reply-To: <4AB9CE66.1030504@redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Gerd Hoffmann <kraxel@redhat.com>
+Cc: Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>, "H. Peter Anvin" <hpa@zytor.com>, the arch/x86 maintainers <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>, Jeremy Fitzhardinge <jeremy@goop.org>, Chris Wright <chrisw@sous-sol.org>, Rusty Russell <rusty@rustcorp.com.au>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, Greg KH <greg@kroah.com>, Linus Torvalds <torvalds@linux-foundation.org>, Andrew Morton <akpm@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Sep 28, 2009 at 04:56:45PM -0700, Shreyas Bhatewara wrote:
+
+On Wed, 2009-09-23 at 00:29 -0700, Gerd Hoffmann wrote:
+> On 09/22/09 21:30, Alok Kataria wrote:
+> > Hi Ingo,
+> >
+> > On Sun, 2009-09-20 at 00:42 -0700, Ingo Molnar wrote:
+> >
+> >>
+> >> The thing is, the overwhelming majority of vmware users dont benefit
+> >> from hardware features like nested page tables yet. So this needs to be
+> >> done _way_ more carefully, with a proper sunset period of a couple of
+> >> kernel cycles.
+> >
+> > I am fine with that too. Below is a patch which adds notes in
+> > feature-removal-schedule.txt, I have marked it for removal from 2.6.34.
+> > Please consider this patch for 2.6.32.
 > 
-> Please consider this for inclusion in the linux net tree. I will be
-> glad to receive your review comments and answer queries in order to be
-> accepted in mainline in 2.6.32 release cycle.
+> Hmm.  Given that you are talking about vmi not being supported any more 
+> in *future* products, there is a huge installed base with vmi support 
+> available, right?  I don't think we should zap the code that quickly.
 
-It's usually a bit late given that the big merge window for 2.6.32 is
-now closed.
+Yep, hpa too raised the same issue, I spoke to him during LPC and we
+decided that 2.6.37 will be the right time frame for removal of this
+code. 
+For now I have just added some text in the feature-removal file and
+disabled VMI by default in the Kconfig, the reason that needs to be done
+is because "Live Migration" of a VMI enabled VM to future products which
+don't support VMI will not work, so its important that newer distros
+keep this disabled, if they want seamless migration that is.
 
-> The patch applies to 2.6.31-rc9.
+> 
+> >   config VMI
+> > -	bool "VMI Guest support"
+> > -	select PARAVIRT
+> > -	depends on X86_32
+> > +	bool "VMI Guest support [will be deprecated soon]"
+> > +	default n
+> > +	depends on X86_32&&  PARAVIRT
+> >   	---help---
+> >   	  VMI provides a paravirtualized interface to the VMware ESX server
+> >   	  (it could be used by other hypervisors in theory too, but is not
+> >   	  at the moment), by linking the kernel to a GPL-ed ROM module
+> >   	  provided by the hypervisor.
+> > +	  VMware has started a phased retirement of this feature from there
+> > +	  products. Please see feature-removal-schedule.txt for details.
+> 
+> How about adding version numbers here?  i.e. latest versions with vmi 
+> support are workstation x.y, ...
+> 
+> So people can easily figure whenever it makes sense to turn this on for 
+> their environment.
 
-2.6.32-rc1 is out, you should rebase to it as a few tens of thousands of
-changes have already happened since 2.6.31-rc9 :)
+Okay, have added that text too.
 
-thanks,
+Thanks for your comments.
 
-greg k-h
+Ingo/hpa, please consider the patch below for tip. 
+
+--
+
+Mark VMI for deprecation in feature-removal-schedule.txt.
+
+From: Alok N Kataria <akataria@vmware.com>
+
+Add text in feature-removal.txt and also modify Kconfig to disable
+vmi by default.
+---
+
+ Documentation/feature-removal-schedule.txt |   30 ++++++++++++++++++++++++++++
+ arch/x86/Kconfig                           |   13 +++++++++---
+ 2 files changed, 40 insertions(+), 3 deletions(-)
+
+
+diff --git a/Documentation/feature-removal-schedule.txt b/Documentation/feature-removal-schedule.txt
+index fa75220..0271f37 100644
+--- a/Documentation/feature-removal-schedule.txt
++++ b/Documentation/feature-removal-schedule.txt
+@@ -459,3 +459,33 @@ Why:	OSS sound_core grabs all legacy minors (0-255) of SOUND_MAJOR
+ 	will also allow making ALSA OSS emulation independent of
+ 	sound_core.  The dependency will be broken then too.
+ Who:	Tejun Heo <tj@kernel.org>
++
++----------------------------
++
++What:	Support for VMware's guest paravirtuliazation technique [VMI] will be
++	dropped.
++When:	2.6.37 or earlier.
++Why:	With the recent innovations in CPU hardware acceleration technologies
++	from Intel and AMD, VMware ran a few experiments to compare these
++	techniques to guest paravirtualization technique on VMware's platform.
++	These hardware assisted virtualization techniques have outperformed the
++	performance benefits provided by VMI in most of the workloads. VMware
++	expects that these hardware features will be ubiquitous in a couple of
++	years, as a result, VMware has started a phased retirement of this
++	feature from the hypervisor. We will be removing this feature from the
++	Kernel too. Right now we are targeting 2.6.37 but can retire earlier if
++	technical reasons ( read opportunity to remove major chunk of pvops)
++	arise.
++
++	Please note that VMI has always been an optimization and non-VMI kernels
++	still work fine on VMware's platform.
++	Latest versions of VMware's product which support VMI are,
++	Workstation 7.0 and VSphere 4.0 on ESX side, future maintainence
++	releases for these products will continue supporting VMI.
++
++	For more details about VMI retirement take a look at this,
++	http://blogs.vmware.com/guestosguide/2009/09/vmi-retirement.html
++
++Who:	Alok N Kataria <akataria@vmware.com>
++
++----------------------------
+diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
+index e214f45..84fd47c 100644
+--- a/arch/x86/Kconfig
++++ b/arch/x86/Kconfig
+@@ -485,14 +485,21 @@ if PARAVIRT_GUEST
+ source "arch/x86/xen/Kconfig"
+ 
+ config VMI
+-	bool "VMI Guest support"
+-	select PARAVIRT
+-	depends on X86_32
++	bool "VMI Guest support [will be deprecated soon]"
++	default n
++	depends on X86_32 && PARAVIRT
+ 	---help---
+ 	  VMI provides a paravirtualized interface to the VMware ESX server
+ 	  (it could be used by other hypervisors in theory too, but is not
+ 	  at the moment), by linking the kernel to a GPL-ed ROM module
+ 	  provided by the hypervisor.
++	  As of September 2009, VMware has started a phased retirement of this
++	  feature from VMware's products. Please see
++	  feature-removal-schedule.txt for details.
++	  If you are planning to enable this option, please note that you
++	  cannot live migrate a VMI enabled VM to a future VMware product,
++	  which doesn't support VMI. So if you expect your kernel to seamlessly
++	  migrate to newer VMware products, keep this disabled.
+ 
+ config KVM_CLOCK
+ 	bool "KVM paravirtualized clock"
