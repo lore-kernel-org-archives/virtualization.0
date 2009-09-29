@@ -1,18 +1,16 @@
-From: Amit Shah <amit.shah@redhat.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
 Subject: Re: [PATCH] virtio_console: Add support for multiple ports for
 	generic guest and host communication
-Date: Tue, 29 Sep 2009 16:03:54 +0530
-Message-ID: <20090929103354.GA3766__16883.8320336819$1254220698$gmane$org@amit-x200.redhat.com>
+Date: Tue, 29 Sep 2009 13:02:51 +0200
+Message-ID: <200909291302.51432.borntraeger__48747.8957664736$1254222321$gmane$org@de.ibm.com>
 References: <1252678386-17404-1-git-send-email-amit.shah@redhat.com>
-	<20090922154549.GA11379@amit-x200.redhat.com>
-	<20090929092431.GA3368@amit-x200.redhat.com>
 	<200909291209.25775.borntraeger@de.ibm.com>
+	<20090929103354.GA3766@amit-x200.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <200909291209.25775.borntraeger@de.ibm.com>
+In-Reply-To: <20090929103354.GA3766@amit-x200.redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -22,22 +20,54 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Christian Borntraeger <borntraeger@de.ibm.com>
+To: Amit Shah <amit.shah@redhat.com>
 Cc: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Alan Cox <alan@linux.intel.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On (Tue) Sep 29 2009 [12:09:25], Christian Borntraeger wrote:
-> Am Dienstag 29 September 2009 11:24:31 schrieb Amit Shah:
-> > OK; how I solved this is: a new internal message between the guest and
-> > the host. If a host is a console port, the host has to indicate that by
-> > passing a message to the guest and the guest then hooks it up with hvc.
-> 
-> I am curious how you going to make this compatible with existing code that 
-> currently uses virtio console.
+Am Dienstag 29 September 2009 12:33:54 schrieben Sie:
+> I've tested old qemu new kernel, new qemu old kernel, new qemu, new
+> kernel and all the cases work fine.
 
-I've tested old qemu new kernel, new qemu old kernel, new qemu, new
-kernel and all the cases work fine.
+The patch breaks at least s390 causing the following oops.
 
-Please see the virtcons_probe() function for the details.
+    <0>------------[ cut here ]------------                                                                       
+    <2>Kernel BUG at 000000000087d902 [verbose debug info unavailable]                                            
+    <4>illegal operation: 0001 [#1] SMP                                                                           
+    <4>Modules linked in:                                                                                         
+    <4>CPU: 0 Not tainted 2.6.31-selfgit-08936-g851b147-dirty #137                                                
+    <4>Process swapper (pid: 1, task: 000000000c6de758, ksp: 000000000c6e3838)                                    
+    <4>Krnl PSW : 0404200180000000 000000000087d902 (early_put_chars+0x6/0x98)                                    
+    <4>           R:0 T:1 IO:0 EX:0 Key:0 M:1 W:0 P:0 AS:0 CC:2 PM:0 EA:3                                         
+    <4>Krnl GPRS: 0000000000000007 000000000087d8fc 0000000000000000 000000000c6e3c68                             
+    <4>           0000000000000010 0000000000834408 0000000000000000 0000000000000000                             
+    <4>           000000000c6e3c68 0000000000000000 0000000000000010 000000000000001a                             
+    <4>           0000000000000010 0000000000558848 00000000003b6b32 000000000c6e3bc0                             
+    <4>Krnl Code:>000000000087d902: cccccccccccc        unknown                                                   
+    <4>           000000000087d908: cccccccccccc        unknown                                                   
+    <4>           000000000087d90e: cccccccccccc        unknown                                                   
+    <4>           000000000087d914: cccccccccccc        unknown                                                   
+    <4>           000000000087d91a: cccccccccccc        unknown                                                   
+    <4>Call Trace:                                                                                                
+    <4>([<000000000c6e3cc8>] 0xc6e3cc8)                                                                           
+    <4> [<000000000013f7cc>] __call_console_drivers+0xcc/0xe8                                                     
+    <4> [<000000000013fdfa>] release_console_sem+0x1e2/0x29c                                                      
+    <4> [<0000000000140606>] vprintk+0x316/0x498                                                                  
+    <4> [<000000000051a846>] printk+0x52/0x64                                                                     
+    <4> [<0000000000100240>] init_post+0x28/0x1a4                                                                 
+    <4> [<000000000085a48e>] kernel_init+0x2d2/0x3b4                                                              
+    <4> [<000000000010a212>] kernel_thread_starter+0x6/0xc                                                        
+    <4> [<000000000010a20c>] kernel_thread_starter+0x0/0xc                                                        
+    <4>Last Breaking-Event-Address:                                                                               
+    <4> [<00000000003b6b30>] hvc_console_print+0x8c/0x12c                                                         
+    <4>                                                                                                           
+    <4>---[ end trace 1e5e8c448b0f2e2b ]--- 
 
-		Amit
+
+I took a dump and had a look. It looks that this message thing is indeed not
+the problem. Our early_put_chars method was marked as __init and the old code
+replaced the put_chars method quickly enough to never make a problem.
+Removing the __init from early_put_chars solved this kernel bug, but the tty
+performance is now horribly slow. I will test, if the put_chars method is
+replaced at all.
+
+Christian
