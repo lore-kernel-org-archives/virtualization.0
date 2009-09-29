@@ -1,111 +1,26 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: [PATCH 1/4] virtio_blk: deprecate the 1024-byte ID field.
-Date: Wed, 30 Sep 2009 02:48:09 +0930
-Message-ID: <200909300248.09630.rusty__23488.6190075942$1254248581$gmane$org@rustcorp.com.au>
+From: Chris Wright <chrisw@sous-sol.org>
+Subject: Re: Paravirtualization on VMware's Platform [VMI].
+Date: Tue, 29 Sep 2009 11:21:06 -0700
+Message-ID: <20090929182106.GE3958@sequoia.sous-sol.org>
+References: <20090919224430.GB9567@kroah.com> <1253419185.3253.21.camel@ank32.eng.vmware.com> <20090920074247.GA5733@elte.hu> <1253647845.10565.20.camel@ank32.eng.vmware.com> <4AB9CE66.1030504@redhat.com> <1254185107.13456.32.camel@ank32.eng.vmware.com> <4AC17018.4040600@zytor.com> <1254193238.13456.48.camel@ank32.eng.vmware.com> <20090929090130.GD3958@sequoia.sous-sol.org> <1254245124.7803.34.camel@ank32.eng.vmware.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1753431AbZI2SXy@vger.kernel.org>
 Content-Disposition: inline
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org
-Cc: john cooper <john.cooper@redhat.com>, virtualization@lists.linux-foundation.org
+In-Reply-To: <1254245124.7803.34.camel@ank32.eng.vmware.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Alok Kataria <akataria@vmware.com>
+Cc: Chris Wright <chrisw@sous-sol.org>, "H. Peter Anvin" <hpa@zytor.com>, Gerd Hoffmann <kraxel@redhat.com>, Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>, the arch/x86 maintainers <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>, Jeremy Fitzhardinge <jeremy@goop.org>, Rusty Russell <rusty@rustcorp.com.au>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, Greg KH <greg@kroah.com>, Linus Torvalds <torvalds@linux-foundation.org>, Andrew Morton <akpm@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
+* Alok Kataria (akataria@vmware.com) wrote:
+> Mark VMI for removal in feature-removal-schedule.txt.
+> 
+> From: Alok N Kataria <akataria@vmware.com>
+> 
+> Add text in feature-removal.txt and also modify Kconfig to disable
+> vmi by default.
+> 
+> Signed-off-by: Alok N Kataria <akataria@vmware.com>
 
-PCI, lguest and s390 can all only support 256-byte configuration
-space.  So, this giant field broke just about everyone.
-Unfortunately, removing it is not so simple: we don't want to break
-old userspace, but we're going to want to re-use that part of the
-struct.
-
-So, modern users can #define VIRTIO_BLK_IDENTIFY_DEPRECATED to indicate
-that they know it's no longer in the config struct, and can use any
-new features (all new features which add a configuration field will
-conflict with this deprecated one).
-
-Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
----
- drivers/block/virtio_blk.c |   20 ++++++++++++++++++--
- include/linux/virtio_blk.h |   10 +++++++++-
- 2 files changed, 27 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
---- a/drivers/block/virtio_blk.c
-+++ b/drivers/block/virtio_blk.c
-@@ -1,4 +1,6 @@
- //#define DEBUG
-+/* We want to see new fields: we use our own struct if we fall back to this */
-+#define VIRTIO_BLK_IDENTIFY_DEPRECATED
- #include <linux/spinlock.h>
- #include <linux/blkdev.h>
- #include <linux/hdreg.h>
-@@ -183,8 +185,22 @@ static void do_virtblk_request(struct re
- 		vblk->vq->vq_ops->kick(vblk->vq);
- }
- 
--/* return ATA identify data
-+/* return ATA identify data: deprecated
-  */
-+struct virtio_blk_config_deprecated {
-+	/* The capacity (in 512-byte sectors). */
-+	__u64 capacity;
-+	/* The maximum segment size (if VIRTIO_BLK_F_SIZE_MAX) */
-+	__u32 size_max;
-+	/* The maximum number of segments (if VIRTIO_BLK_F_SEG_MAX) */
-+	__u32 seg_max;
-+	/* geometry the device (if VIRTIO_BLK_F_GEOMETRY) */
-+	struct virtio_blk_geometry geometry;
-+	/* block size of device (if VIRTIO_BLK_F_BLK_SIZE) */
-+	__u32 blk_size;
-+	__u8 identify[VIRTIO_BLK_ID_BYTES];
-+} __attribute__((packed));
-+
- static int virtblk_identify(struct gendisk *disk, void *argp)
- {
- 	struct virtio_blk *vblk = disk->private_data;
-@@ -196,7 +212,7 @@ static int virtblk_identify(struct gendi
- 		goto out;
- 
- 	err = virtio_config_buf(vblk->vdev, VIRTIO_BLK_F_IDENTIFY,
--		offsetof(struct virtio_blk_config, identify), opaque,
-+		offsetof(struct virtio_blk_config_deprecated, identify), opaque,
- 		VIRTIO_BLK_ID_BYTES);
- 
- 	if (err)
-diff --git a/include/linux/virtio_blk.h b/include/linux/virtio_blk.h
---- a/include/linux/virtio_blk.h
-+++ b/include/linux/virtio_blk.h
-@@ -13,7 +13,7 @@
- #define VIRTIO_BLK_F_RO		5	/* Disk is read-only */
- #define VIRTIO_BLK_F_BLK_SIZE	6	/* Block size of disk is available*/
- #define VIRTIO_BLK_F_SCSI	7	/* Supports scsi command passthru */
--#define VIRTIO_BLK_F_IDENTIFY	8	/* ATA IDENTIFY supported */
-+#define VIRTIO_BLK_F_IDENTIFY	8	/* ATA IDENTIFY support (deprecated) */
- #define VIRTIO_BLK_F_FLUSH	9	/* Cache flush command support */
- 
- #define VIRTIO_BLK_ID_BYTES	(sizeof(__u16[256]))	/* IDENTIFY DATA */
-@@ -33,7 +33,15 @@ struct virtio_blk_config {
- 	} geometry;
- 	/* block size of device (if VIRTIO_BLK_F_BLK_SIZE) */
- 	__u32 blk_size;
-+#ifndef VIRTIO_BLK_IDENTIFY_DEPRECATED
-+	/*
-+	 * New code shouldn't use this, but it's under the #ifndef so old
-+	 * userspace doesn't break.
-+	 */
- 	__u8 identify[VIRTIO_BLK_ID_BYTES];
-+#else
-+	/* New fields go here: (all new extensions conflict with F_IDENTIFY) */
-+#endif
- } __attribute__((packed));
- 
- /*
+Acked-by: Chris Wright <chrisw@sous-sol.org>
