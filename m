@@ -1,19 +1,13 @@
-From: Chris Wright <chrisw@sous-sol.org>
-Subject: Re: [Pv-drivers] [PATCH 2.6.31-rc9] net: VMware virtual Ethernet
-	NIC driver: vmxnet3
-Date: Tue, 29 Sep 2009 14:54:23 -0700
-Message-ID: <20090929215423.GI3958__32881.124461028$1254261446$gmane$org@sequoia.sous-sol.org>
-References: <89E2752CFA8EC044846EB849981913410173CDFAF6@EXCH-MBX-4.vmware.com>
-	<20090929085333.GC3958@sequoia.sous-sol.org>
-	<8B1F619C9F5F454E81D90D3C161698D7017DB76576@EXCH-MBX-3.vmware.com>
-	<20090929203018.GG3958@sequoia.sous-sol.org>
-	<8B1F619C9F5F454E81D90D3C161698D7017DB765E8@EXCH-MBX-3.vmware.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: Re: [PATCH 1/4] virtio_blk: deprecate the 1024-byte ID field.
+Date: Wed, 30 Sep 2009 09:41:24 +0200
+Message-ID: <200909300941.24736.borntraeger@de.ibm.com>
+References: <200909300248.09630.rusty@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <8B1F619C9F5F454E81D90D3C161698D7017DB765E8@EXCH-MBX-3.vmware.com>
+In-Reply-To: <200909300248.09630.rusty@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -23,74 +17,32 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Bhavesh Davda <bhavesh@vmware.com>
-Cc: "David S. Miller" <davem@davemloft.net>, "pv-drivers@vmware.com" <pv-drivers@vmware.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>, Chris Wright <chrisw@sous-sol.org>, Anthony Liguori <anthony@codemonkey.ws>, Greg Kroah-Hartman <greg@kroah.com>, Andrew Morton <akpm@linux-foundation.org>, Stephen Hemminger <shemminger@linux-foundation.org>, Jeff Garzik <jgarzik@pobox.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: john cooper <john.cooper@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-* Bhavesh Davda (bhavesh@vmware.com) wrote:
-> > > Thanks a bunch for your really thorough review! I'll answer some of
-> > your questions here. Shreyas can respond to your comments about some of
-> > the coding style/comments/etc. in a separate mail.
-> > 
-> > The style is less important at this stage, but certainly eases review
-> > to make it more consistent w/ Linux code.  The StudlyCaps, extra macros
-> > (screaming caps) and inconistent space/tabs are visual distractions,
-> > that's all.
+Am Dienstag 29 September 2009 19:18:09 schrieb Rusty Russell:
+> PCI, lguest and s390 can all only support 256-byte configuration
+> space.  So, this giant field broke just about everyone.
+> Unfortunately, removing it is not so simple: we don't want to break
+> old userspace, but we're going to want to re-use that part of the
+> struct.
 > 
-> Agreed, but we'll definitely address all the style issues in our subsequent patch posts. Actually Shreyas showed me his raw patch and it had tabs and not spaces, so we're trying to figure out if either Outlook (corporate blessed) or our Exchange server is converting those tabs to spaces or something.
+> So, modern users can #define VIRTIO_BLK_IDENTIFY_DEPRECATED to indicate
+> that they know it's no longer in the config struct, and can use any
+> new features (all new features which add a configuration field will
+> conflict with this deprecated one).
 
-Ah, that's always fun.  You can check by mailing to yourself and looking
-at the outcome.
 
-> > > We do have an internal prototype of a Linux vmxnet3 driver with 4 Tx
-> > queues and 4 Rx queues, using 9 MSI-X vectors, but it needs some work
-> > before calling it production ready.
-> > 
-> > I'd expect once you switch to alloc_etherdev_mq(), make napi work per
-> > rx queue, and fix MSI-X allocation (all needed for 4/4), you should
-> > have enough to support the max of 16/8 (IOW, 4/4 still sounds like an
-> > aritificial limitation).
-> 
-> Absolutely: 4/4 was simply a prototype to see if it helps with performance any with certain benchmarks. So far it looks like there's a small performance gain with microbenchmarks like netperf, but we're hoping having multiple queues with multiple vectors might have some promise with macro benchmarks like SPECjbb. If it pans out, we'll most likely make it a module_param with some reasonable defaults, possibly just 1/1 by default.
+Since s390 never used the giant id field, it would be ok for us just delete it 
+(without the #define). IIRC kvm-userspace also never used that. Since qemu 
+upstream seems to use that field your way seems to be the only compatible...
 
-Most physical devices that do MSI-X will do queue per cpu (or some
-grouping if large number of cpus compared to queues).  Probably
-reasonable default here too.
+O dear, virtio used to look pretty ;-).
+I think somewhen in the future we have to create a virtio2 that gets rid of all 
+the stuff that accumulated in the early phase of Linux virtualization.
 
-> > > > How about GRO conversion?
-> > >
-> > > Looks attractive, and we'll work on that in a subsequent patch.
-> > Again, when we first wrote the driver, the NETIF_F_GRO stuff didn't
-> > exist in Linux.
-> > 
-> > OK, shouldn't be too much work.
-> > 
-> > Another thing I forgot to mention is that net_device now has
-> > net_device_stats in it.  So you shouldn't need net_device_stats in
-> > vmxnet3_adapter.
-> 
-> Cool. Will do.
-> 
-> > > > > +#define UPT1_MAX_TX_QUEUES  64
-> > > > > +#define UPT1_MAX_RX_QUEUES  64
-> > > >
-> > > > This is different than the 16/8 described above (and seemingly all
-> > moot
-> > > > since it becomes a single queue device).
-> > >
-> > > Nice catch! Those are not even used and are from the earliest days of
-> > our driver development. We'll nuke those.
-> > 
-> > Could you describe the UPT layer a bit?  There were a number of
-> > constants that didn't appear to be used.
-> 
-> UPT stands for Uniform Pass Thru, a spec/framework VMware developed with its IHV partners to implement the fast path (Tx/Rx) features of vmxnet3 in silicon. Some of these #defines that appear not to be used are based on this initial spec that VMware shared with its IHV partners.
-> 
-> We divided the emulated vmxnet3 PCIe device's registers into two sets on two separate BARs: BAR 0 for the UPT registers we asked IHV partners to implement that we emulate in our hypervisor if no physical device compliant with the UPT spec is available to pass thru from a virtual machine, and BAR 1 for registers we always emulate for slow path/control operations like setting the MAC address, or activating/quiescing/resetting the device, etc.
+Anyway, your patch was tested successfully on s390 to survive the current 
+userspace.
 
-Interesting.  Sounds like part of NetQueue and also something that virtio
-has looked into to support, e.g. VMDq.  Do you have a more complete
-spec?
-
-thanks,
--chris
+Tested-by: Christian Borntraeger <borntraeger@de.ibm.com>
