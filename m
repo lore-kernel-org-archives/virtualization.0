@@ -1,8 +1,8 @@
 From: Amit Shah <amit.shah@redhat.com>
 Subject: Re: [PATCH] virtio_console: Add support for multiple ports for
 	generic guest and host communication
-Date: Thu, 1 Oct 2009 16:12:49 +0530
-Message-ID: <20091001104249.GA12439__3557.55947898633$1254393920$gmane$org@amit-x200.redhat.com>
+Date: Thu, 1 Oct 2009 17:28:01 +0530
+Message-ID: <20091001114244.GB12334__48982.6537589126$1254398400$gmane$org@amit-x200.redhat.com>
 References: <1252678386-17404-1-git-send-email-amit.shah@redhat.com>
 	<200909291531.23389.borntraeger@de.ibm.com>
 	<20090930171321.GA17200@amit-x200.redhat.com>
@@ -58,11 +58,10 @@ On (Thu) Oct 01 2009 [12:28:30], Christian Borntraeger wrote:
 > Seems that I can reproduce it with large amounts of output (find / for example)
 > Without your patch everything is fine.
 
-Do you mean the entire patch? Or just the last snippet that I sent?
+I spawned two ports; one doing 'find /' and the other transferring a
+800M file from the host to the guest, both running at the same time.
+This is on top of the latest Linus tree + my patches. It works fine.
 
-I'm testing things using a few days old linux-next; I guess you're
-seeing this with Linus' git tree?
-
-I'll try that.
+Can you give me any additional info that can help me nail this down?
 
 		Amit
