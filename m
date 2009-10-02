@@ -1,76 +1,47 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH 2.6.32-rc1] net: VMware virtual Ethernet NIC driver:
-	vmxnet3
-Date: Thu, 01 Oct 2009 15:23:55 -0700 (PDT)
-Message-ID: <20091001.152355.209105273.davem__22934.6200977036$1254435854$gmane$org@davemloft.net>
-References: <alpine.LRH.2.00.0909301432410.8073@localhost.localdomain>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Subject: Re: Paravirtualization on VMware's Platform [VMI].
+Date: Thu, 01 Oct 2009 20:00:51 -0700
+Message-ID: <m1y6nuxzx8.fsf@fess.ebiederm.org>
+References: <1253233028.19731.63.camel@ank32.eng.vmware.com>
+	<20090919224430.GB9567@kroah.com>
+	<1253419185.3253.21.camel@ank32.eng.vmware.com>
+	<20090920074247.GA5733@elte.hu>
+	<1253647845.10565.20.camel@ank32.eng.vmware.com>
+	<4AB9CE66.1030504@redhat.com>
+	<1254185107.13456.32.camel@ank32.eng.vmware.com>
+	<20090929100831.18ece319@infradead.org>
+	<1254242989.7803.11.camel@ank32.eng.vmware.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <alpine.LRH.2.00.0909301432410.8073@localhost.localdomain>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: sbhatewara@vmware.com
-Cc: pv-drivers@vmware.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, greg@kroah.com, anthony@codemonkey.ws, jgarzik@pobox.com, akpm@linux-foundation.org, shemminger@linux-foundation.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1756405AbZJBDBI@vger.kernel.org>
+In-Reply-To: <1254242989.7803.11.camel@ank32.eng.vmware.com> (Alok Kataria's message of "Tue\, 29 Sep 2009 09\:49\:49 -0700")
+Sender: linux-kernel-owner@vger.kernel.org
+To: akataria@vmware.com
+Cc: Arjan van de Ven <arjan@infradead.org>, Gerd Hoffmann <kraxel@redhat.com>, Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>, "H. Peter Anvin" <hpa@zytor.com>, the arch/x86 maintainers <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>, Jeremy Fitzhardinge <jeremy@goop.org>, Chris Wright <chrisw@sous-sol.org>, Rusty Russell <rusty@rustcorp.com.au>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, Greg KH <greg@kroah.com>, Linus Torvalds <torvalds@linux-foundation.org>, Andrew Morton <akpm@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Shreyas Bhatewara <sbhatewara@vmware.com>
-Date: Wed, 30 Sep 2009 14:34:57 -0700 (PDT)
+Alok Kataria <akataria@vmware.com> writes:
 
-> +{
-> +	struct vmxnet3_adapter *adapter = netdev_priv(netdev);
-> +	u8 *base;
-> +	int i;
-> +
-> + VMXNET3_WRITE_BAR1_REG(adapter, VMXNET3_REG_CMD,
-> VMXNET3_CMD_GET_STATS);
-> +
-> +	/* this does assume each counter is 64-bit wide */
-> +
-> +	base = (u8 *)&adapter->tqd_start->stats;
-> +	for (i = 0; i < ARRAY_SIZE(vmxnet3_tq_dev_stats); i++)
-> + *buf++ = *(u64 *)(base + vmxnet3_tq_dev_stats[i].offset);
-> +
-> +	base = (u8 *)&adapter->tx_queue.stats;
-> +	for (i = 0; i < ARRAY_SIZE(vmxnet3_tq_driver_stats); i++)
-> + *buf++ = *(u64 *)(base + vmxnet3_tq_driver_stats[i].offset);
-> +
-> +	base = (u8 *)&adapter->rqd_start->stats;
+> On Tue, 2009-09-29 at 01:08 -0700, Arjan van de Ven wrote:
+>> > For now I have just added some text in the feature-removal file and
+>> > disabled VMI by default in the Kconfig, the reason that needs to be
+>> > done is because "Live Migration" of a VMI enabled VM to future
+>> > products which don't support VMI will not work, so its important that
+>> > newer distros keep this disabled, if they want seamless migration
+>> > that is.
+>> 
+>> btw the "default" in KConfig tends to be totally ignored by distro
+>> kernel maintainers... please don't assume that just because some default
+>> is set in KConfig it has ANY impact on what shows up in distributions.
+>
+> So, are you saying that we should be doing something else along with
+> toggling it off in the Kconfig ? 
+> We have already informed most of the distro folks about this deprecation
+> so I think we should be okay there, but if there is something else that
+> should be done, do let me know.
 
-There's a lot of code like this that isn't indented properly.  Either
-that or your email client has corrupted the patch by breaking up long
-lines or similar.
+Perhaps log a message when it is first used?
 
-Another example:
+I do that for sysctl right now.
 
-> +static int
-> +vmxnet3_set_rx_csum(struct net_device *netdev, u32 val)
-> +{
-> +	struct vmxnet3_adapter *adapter = netdev_priv(netdev);
-> +
-> +	if (adapter->rxcsum != val) {
-> +		adapter->rxcsum = val;
-> +		if (netif_running(netdev)) {
-> +			if (val)
-> + adapter->shared->devRead.misc.uptFeatures |=
-> + UPT1_F_RXCSUM;
-> +			else
-> + adapter->shared->devRead.misc.uptFeatures &=
-> + ~UPT1_F_RXCSUM;
-> +
-> + VMXNET3_WRITE_BAR1_REG(adapter, VMXNET3_REG_CMD,
-> + VMXNET3_CMD_UPDATE_FEATURE);
-> +		}
-> +	}
-> +	return 0;
-> +}
-
-Yikes! :-)
+Eric
