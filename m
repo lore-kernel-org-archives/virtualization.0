@@ -1,45 +1,88 @@
-From: Alok Kataria <akataria@vmware.com>
-Subject: Re: Paravirtualization on VMware's Platform [VMI].
-Date: Thu, 01 Oct 2009 21:45:21 -0700
-Message-ID: <1254458721.8491.39.camel@ank32.eng.vmware.com>
-References: <1253233028.19731.63.camel@ank32.eng.vmware.com>
-	 <20090919224430.GB9567@kroah.com>
-	 <1253419185.3253.21.camel@ank32.eng.vmware.com>
-	 <20090920074247.GA5733@elte.hu>
-	 <1253647845.10565.20.camel@ank32.eng.vmware.com>
-	 <4AB9CE66.1030504@redhat.com>
-	 <1254185107.13456.32.camel@ank32.eng.vmware.com>
-	 <20090929100831.18ece319@infradead.org>
-	 <1254242989.7803.11.camel@ank32.eng.vmware.com>
-	 <m1y6nuxzx8.fsf@fess.ebiederm.org>
-Reply-To: akataria@vmware.com
+From: Ryo Tsuruta <ryov@valinux.co.jp>
+Subject: [PATCH 1/9] I/O bandwidth controller and BIO tracking
+Date: Fri, 02 Oct 2009 20:56:07 +0900 (JST)
+Message-ID: <20091002.205607.193712402.ryov__2399.41924014619$1254484714$gmane$org@valinux.co.jp>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1753518AbZJBEpT@vger.kernel.org>
-In-Reply-To: <m1y6nuxzx8.fsf@fess.ebiederm.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Arjan van de Ven <arjan@infradead.org>, Gerd Hoffmann <kraxel@redhat.com>, Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>, "H. Peter Anvin" <hpa@zytor.com>, the arch/x86 maintainers <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>, Jeremy Fitzhardinge <jeremy@goop.org>, Chris Wright <chrisw@sous-sol.org>, Rusty Russell <rusty@rustcorp.com.au>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, Greg KH <greg@kroah.com>, Linus Torvalds <torvalds@linux-foundation.org>, Andrew Morton <akpm@linux-foundation.org>
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: linux-kernel@vger.kernel.org, dm-devel@redhat.com, containers@lists.linux-foundation.org, virtualization@lists.linux-foundation.org, xen-devel@lists.xensource.com
 List-Id: virtualization@lists.linuxfoundation.org
 
+Hi all,
 
-On Thu, 2009-10-01 at 20:00 -0700, Eric W. Biederman wrote:
+These are new releases of dm-ioband and blkio-cgroup. The major change
+of these releases is that dm-ioband handles sync/async IO requests
+separately and it solves write-startve-read issue pointed out by Vivek.
+Thank you Vivek for your pointing out the issue.
 
-> >> btw the "default" in KConfig tends to be totally ignored by distro
-> >> kernel maintainers... please don't assume that just because some default
-> >> is set in KConfig it has ANY impact on what shows up in distributions.
-> >
-> > So, are you saying that we should be doing something else along with
-> > toggling it off in the Kconfig ? 
-> > We have already informed most of the distro folks about this deprecation
-> > so I think we should be okay there, but if there is something else that
-> > should be done, do let me know.
-> 
-> Perhaps log a message when it is first used?
+  Subject: ioband: Writer starves reader even without competitors
+  http://lkml.org/lkml/2009/9/15/478
 
-Yeah, Chris' suggestion about adding "deprecated" string in pv_info.name
-does just that.
+Here is the test result. I did the same test as Vivek did, it reads
+32MB files four times during a bufferd writer is running.
 
-Thanks, 
-Alok
+dm-ioband v1.14.0
+file #   1, plain reading it took: 0.73 seconds
+file #   2, plain reading it took: 0.78 seconds
+file #   3, plain reading it took: 0.78 seconds
+file #   4, plain reading it took: 0.94 seconds
+
+dm-ioband v1.13.0
+file #   1, plain reading it took: 14.27 seconds
+file #   2, plain reading it took: 22.17 seconds
+file #   3, plain reading it took: 12.31 seconds
+file #   4, plain reading it took: 17.69 seconds
+
+The summary of the changes are below:
+dm-ioband v1.14.0
+  - Handle sync/async IO requests separetely, it solves write-starve-read
+    issue.
+  - Allow it to compile against 2.6.32-rc1.
+blkio-cgroup v13
+  - Fix style issues caught by checkpatch.pl.
+  - Allow it to compile against 2.6.32-rc1.
+
+The list of the patches:
+  [PATCH 1/9] I/O bandwidth controller and BIO tracking
+  [PATCH 2/9] dm-ioband-1.14.0: All-in-one patch
+  [PATCH 3/9] blkio-cgroup-v13: The new page_cgroup framework
+  [PATCH 4/9] blkio-cgroup-v13: Refactoring io-context initialization
+  [PATCH 5/9] blkio-cgroup-v13: The body of blkio-cgroup
+  [PATCH 6/9] blkio-cgroup-v13: Page tracking hooks
+  [PATCH 7/9] blkio-cgroup-v13: The document of blkio-cgroup
+  [PATCH 8/9] blkio-cgroup-v13: Add a cgroup support to dm-ioband
+  [PATCH 9/9] blkio-cgroup-v13: The document of a cgroup support for dm-ioband
+
+About dm-ioband
+  dm-ioband is an I/O bandwidth controller implemented as a
+  device-mapper driver and can control bandwidth on per partition, per
+  user, per process, per virtual machine (such as KVM or Xen) basis.
+
+About blkio-cgruop
+  blkio-cgroup is a block I/O tracking mechanism implemented on the
+  cgroup memory subsystem. Using this feature the owners of any type
+  of I/O can be determined. This allows dm-ioband to control block I/O
+  bandwidth even when it is accepting delayed write requests.
+  dm-ioband can find the cgroup of each request. It is also for
+  possible that others working on I/O bandwidth throttling to use this
+  functionality to control asynchronous I/O with a little enhancement.
+
+Please visit our website, the patches and more information are available.
+  Linux Block I/O Bandwidth Control Project
+  http://sourceforge.net/apps/trac/ioband/
+
+I'd like to get some feedbacks from the list. Any comments are
+appreciated.
+
+Thanks,
+Ryo Tsuruta
