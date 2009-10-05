@@ -1,14 +1,14 @@
-From: Kevin Bowling <kevinb@analograils.com>
-Subject: Re: INFO: task journal:337 blocked for more than 120 seconds
-Date: Sun, 04 Oct 2009 00:12:37 -0400
-Message-ID: <4AC820B5.2050504__9363.76474933258$1254762575$gmane$org@analograils.com>
-References: <1254345112.8837.9.camel@localhost.localdomain>
-	<4AC646D7.5030709@goop.org>
+From: john cooper <john.cooper@redhat.com>
+Subject: Re: [PATCH 1/4] virtio_blk: deprecate the 1024-byte ID field.
+Date: Mon, 05 Oct 2009 12:20:12 -0400
+Message-ID: <4ACA1CBC.8020402__32475.6958907985$1254762734$gmane$org@redhat.com>
+References: <200909300248.09630.rusty@rustcorp.com.au>
+	<200909300941.24736.borntraeger@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4AC646D7.5030709@goop.org>
+In-Reply-To: <200909300941.24736.borntraeger@de.ibm.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,42 +18,39 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Andrew Jones <drjones@redhat.com>, kvm@vger.kernel.org, Shirley Ma <mashirle@us.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Jens Axboe <jens.axboe@oracle.com>
+To: Christian Borntraeger <borntraeger@de.ibm.com>, Rusty Russell <rusty@rustcorp.com.au>
+Cc: john.cooper@redhat.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 10/2/2009 2:30 PM, Jeremy Fitzhardinge wrote:
-> On 09/30/09 14:11, Shirley Ma wrote:
->    
->> Anybody found this problem before? I kept hitting this issue for 2.6.31
->> guest kernel even with a simple network test.
+Christian Borntraeger wrote:
+> Am Dienstag 29 September 2009 19:18:09 schrieb Rusty Russell:
+>> PCI, lguest and s390 can all only support 256-byte configuration
+>> space.  So, this giant field broke just about everyone.
+>> Unfortunately, removing it is not so simple: we don't want to break
+>> old userspace, but we're going to want to re-use that part of the
+>> struct.
 >>
->> INFO: task kjournal:337 blocked for more than 120 seconds.
->> "echo 0>  /proc/sys/kernel/hung_task_timeout_sec" disables this message.
->>
->> kjournald	D 00000041	0	337	2 0x00000000
->>
->> My test is totally being blocked.
->>      
-> I'm assuming from the lists you've posted to that this is under KVM?
-> What disk drivers are you using (virtio or emulated)?
->
-> Can you get a full stack backtrace of kjournald?
->
-> Kevin Bowling submitted a RH bug against Xen with apparently the same
-> symptoms (https://bugzilla.redhat.com/show_bug.cgi?id=526627).  I'm
-> wondering if there's a core kernel bug here, which is perhaps more
-> easily triggered by the changed timing in a virtual machine.
->
-> Thanks,
->      J
->    
+>> So, modern users can #define VIRTIO_BLK_IDENTIFY_DEPRECATED to indicate
+>> that they know it's no longer in the config struct, and can use any
+>> new features (all new features which add a configuration field will
+>> conflict with this deprecated one).
+> 
+> 
+> Since s390 never used the giant id field, it would be ok for us just delete it 
+> (without the #define). IIRC kvm-userspace also never used that. Since qemu 
+> upstream seems to use that field your way seems to be the only compatible...
 
-I've had a stable system thus far by appending "clocksource=jiffies" to 
-the kernel boot line.  The default clocksource is otherwise "xen".
+It seems simply retiring use of the VIRTIO_BLK_F_IDENTIFY
+binary value should be sufficient.  The patch which
+implemented the cooperating logic in qemu was dropped
+due to the config space issue.  So the case of a virtio_blk
+driver successfully negotiating the feature and trying to
+access the now depreciated structure area should effectively
+be a non-issue.  The bit value can be reclaimed for reuse
+in the future when concern over any suspected usage falls
+into the noise.
 
-The dmesg boot warnings in my bugzilla report still occur.
+-john
 
-Regards,
-Kevin Bowling
-http://www.analograils.com/
+-- 
+john.cooper@redhat.com
