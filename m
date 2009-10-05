@@ -1,26 +1,18 @@
-From: Avi Kivity <avi@redhat.com>
-Subject: Re: [PATCHv5 3/3] vhost_net: a kernel-level virtio server
-Date: Sat, 03 Oct 2009 12:00:48 +0200
-Message-ID: <4AC720D0.6030300__44295.0219651268$1254564136$gmane$org@redhat.com>
-References: <4AAFACB5.9050808@redhat.com> <4AAFF437.7060100@gmail.com>
-	<4AB0A070.1050400@redhat.com> <4AB0CFA5.6040104@gmail.com>
-	<4AB0E2A2.3080409@redhat.com> <4AB0F1EF.5050102@gmail.com>
-	<4AB10B67.2050108@redhat.com> <4AB13B09.5040308@gmail.com>
-	<4AB151D7.10402@redhat.com> <4AB1A8FD.2010805@gmail.com>
-	<20090921214312.GJ7182@ovro.caltech.edu>
-	<4AB89C48.4020903@redhat.com> <4ABA3005.60905@gmail.com>
-	<4ABA32AF.50602@redhat.com> <4ABA3A73.5090508@gmail.com>
-	<4ABA61D1.80703@gmail.com> <4ABA78DC.7070604@redhat.com>
-	<4ABA8FDC.5010008@gmail.com> <4ABB1D44.5000007@redhat.com>
-	<4ABBB46D.2000102@gmail.com> <4ABC7DCE.2000404@redhat.com>
-	<4ABD36E3.9070503@gmail.com> <4ABF33B2.4000805@redhat.com>
-	<4AC3B9C6.5090408@gmail.com> <4AC46989.7030502@redhat.com>
-	<4AC501EB.8090608@gmail.com>
+From: Amit Shah <amit.shah@redhat.com>
+Subject: Re: [PATCH] virtio_console: Add support for multiple ports for
+	generic guest and host communication
+Date: Mon, 5 Oct 2009 19:35:35 +0530
+Message-ID: <20091005140535.GA31333@amit-x200.redhat.com>
+References: <1252678386-17404-1-git-send-email-amit.shah@redhat.com>
+	<200909291531.23389.borntraeger@de.ibm.com>
+	<20090930171321.GA17200@amit-x200.redhat.com>
+	<200910011228.30563.borntraeger@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4AC501EB.8090608@gmail.com>
+Content-Disposition: inline
+In-Reply-To: <200910011228.30563.borntraeger@de.ibm.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -30,711 +22,1404 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gregory Haskins <gregory.haskins@gmail.com>
-Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, "Ira W. Snyder" <iws@ovro.caltech.edu>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, s.hetze@linux-ag.com, hpa@zytor.com, mingo@elte.hu, alacrityvm-devel@lists.sourceforge.net, akpm@linux-foundation.org
+To: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 10/01/2009 09:24 PM, Gregory Haskins wrote:
->
->> Virtualization is about not doing that.  Sometimes it's necessary (when
->> you have made unfixable design mistakes), but just to replace a bus,
->> with no advantages to the guest that has to be changed (other
->> hypervisors or hypervisorless deployment scenarios aren't).
->>      
-> The problem is that your continued assertion that there is no advantage
-> to the guest is a completely unsubstantiated claim.  As it stands right
-> now, I have a public git tree that, to my knowledge, is the fastest KVM
-> PV networking implementation around.  It also has capabilities that are
-> demonstrably not found elsewhere, such as the ability to render generic
-> shared-memory interconnects (scheduling, timers), interrupt-priority
-> (qos), and interrupt-coalescing (exit-ratio reduction).  I designed each
-> of these capabilities after carefully analyzing where KVM was coming up
-> short.
->
-> Those are facts.
->
-> I can't easily prove which of my new features alone are what makes it
-> special per se, because I don't have unit tests for each part that
-> breaks it down.  What I _can_ state is that its the fastest and most
-> feature rich KVM-PV tree that I am aware of, and others may download and
-> test it themselves to verify my claims.
->    
-
-If you wish to introduce a feature which has downsides (and to me, vbus 
-has downsides) then you must prove it is necessary on its own merits.  
-venet is pretty cool but I need proof before I believe its performance 
-is due to vbus and not to venet-host.
-
-> The disproof, on the other hand, would be in a counter example that
-> still meets all the performance and feature criteria under all the same
-> conditions while maintaining the existing ABI.  To my knowledge, this
-> doesn't exist.
->    
-
-mst is working on it and we should have it soon.
-
-> Therefore, if you believe my work is irrelevant, show me a git tree that
-> accomplishes the same feats in a binary compatible way, and I'll rethink
-> my position.  Until then, complaining about lack of binary compatibility
-> is pointless since it is not an insurmountable proposition, and the one
-> and only available solution declares it a required casualty.
->    
-
-Fine, let's defer it until vhost-net is up and running.
-
->> Well, Xen requires pre-translation (since the guest has to give the host
->> (which is just another guest) permissions to access the data).
->>      
-> Actually I am not sure that it does require pre-translation.  You might
-> be able to use the memctx->copy_to/copy_from scheme in post translation
-> as well, since those would be able to communicate to something like the
-> xen kernel.  But I suppose either method would result in extra exits, so
-> there is no distinct benefit using vbus there..as you say below "they're
-> just different".
->
-> The biggest difference is that my proposed model gets around the notion
-> that the entire guest address space can be represented by an arbitrary
-> pointer.  For instance, the copy_to/copy_from routines take a GPA, but
-> may use something indirect like a DMA controller to access that GPA.  On
-> the other hand, virtio fully expects a viable pointer to come out of the
-> interface iiuc.  This is in part what makes vbus more adaptable to non-virt.
->    
-
-No, virtio doesn't expect a pointer (this is what makes Xen possible).  
-vhost does; but nothing prevents an interested party from adapting it.
-
->>> An interesting thing here is that you don't even need a fancy
->>> multi-homed setup to see the effects of my exit-ratio reduction work:
->>> even single port configurations suffer from the phenomenon since many
->>> devices have multiple signal-flows (e.g. network adapters tend to have
->>> at least 3 flows: rx-ready, tx-complete, and control-events (link-state,
->>> etc).  Whats worse, is that the flows often are indirectly related (for
->>> instance, many host adapters will free tx skbs during rx operations, so
->>> you tend to get bursts of tx-completes at the same time as rx-ready.  If
->>> the flows map 1:1 with IDT, they will suffer the same problem.
->>>
->>>        
->> You can simply use the same vector for both rx and tx and poll both at
->> every interrupt.
->>      
-> Yes, but that has its own problems: e.g. additional exits or at least
-> additional overhead figuring out what happens each time.
-
-If you're just coalescing tx and rx, it's an additional memory read 
-(which you have anyway in the vbus interrupt queue).
-
-> This is even
-> more important as we scale out to MQ which may have dozens of queue
-> pairs.  You really want finer grained signal-path decode if you want
-> peak performance.
->    
-
-MQ definitely wants per-queue or per-queue-pair vectors, and it 
-definitely doesn't want all interrupts to be serviced by a single 
-interrupt queue (you could/should make the queue per-vcpu).
-
->>> Its important to note here that we are actually looking at the interrupt
->>> rate, not the exit rate (which is usually a multiple of the interrupt
->>> rate, since you have to factor in as many as three exits per interrupt
->>> (IPI, window, EOI).  Therefore we saved about 18k interrupts in this 10
->>> second burst, but we may have actually saved up to 54k exits in the
->>> process. This is only over a 10 second window at GigE rates, so YMMV.
->>> These numbers get even more dramatic on higher end hardware, but I
->>> haven't had a chance to generate new numbers yet.
->>>
->>>        
->> (irq window exits should only be required on a small percentage of
->> interrupt injections, since the guest will try to disable interrupts for
->> short periods only)
->>      
-> Good point. You are probably right. Certainly the other 2 remain, however.
->
->    
-
-You can easily eliminate most of the EOI exits by patching 
-ack_APIC_irq() to do the following:
-
-     if (atomic_inc_return(&vapic->eoi_count) < 0)
-         null_hypercall();
-
-Where eoi_count is a per-cpu shared counter that indicates how many EOIs 
-were performed by the guest, with the sign bit a signal from the 
-hypervisor that an lower-priority interrupt is pending.
-
-We do something similar for the TPR, which is heavily exercised by 
-Windows XP.
-
-Note that svm provides a mechanism to queue interrupts without requiring 
-the interrupt window; we don't use it in kvm (primarily because only a 
-small fraction of injections would benefit).
-
-> Ultimately, the fastest exit is the one you do not take.  That is what I
-> am trying to achieve.
->    
-
-The problem is that all those paravirtualizations bring their own 
-problems and are quickly obsoleted by hardware advances.  Intel and AMD 
-also see what you're seeing.  Sure, it takes hardware a long time to 
-propagate to the field, but the same holds for software.
-
->
->>> The even worse news for 1:1 models is that the ratio of
->>> exits-per-interrupt climbs with load (exactly when it hurts the most)
->>> since that is when the probability that the vcpu will need all three
->>> exits is the highest.
->>>
->>>        
->> Requiring all three exits means the guest is spending most of its time
->> with interrupts disabled; that's unlikely.
->>      
-> (see "softirqs" above)
->    
-
-There are no softirqs above, please clarify.
-
->> Thanks for the numbers.  Are those 11% attributable to rx/tx
->> piggybacking from the same interface?
->>      
-> Its hard to tell, since I am not instrumented to discern the difference
-> in this run.  I do know from previous traces on the 10GE rig that the
-> chelsio T3 that I am running reaps the pending-tx ring at the same time
-> as a rx polling, so its very likely that both events are often
-> coincident at least there.
->    
-
-I assume you had only two active interrupts?  In that case, tx and rx 
-mitigation should have prevented the same interrupt from coalescing with 
-itself, so that leaves rx/tx coalescing as the only option?
-
->> Also, 170K interupts ->  17K interrupts/sec ->  55kbit/interrupt ->
->> 6.8kB/interrupt.  Ignoring interrupt merging and assuming equal rx/tx
->> distribution, that's about 13kB/interrupt.  Seems rather low for a
->> saturated link.
->>      
-> I am not following: Do you suspect that I have too few interrupts to
-> represent 940Mb/s, or that I have too little data/interrupt and this
-> ratio should be improved?
->    
-
-Too few bits/interrupt.  With tso, your "packets" should be 64KB at 
-least, and you should expect multiple packets per tx interrupt.  Maybe 
-these are all acks?
-
->>>>
->>>>          
->>> Everyone is of course entitled to an opinion, but the industry as a
->>> whole would disagree with you.  Signal path routing (1:1, aggregated,
->>> etc) is at the discretion of the bus designer.  Most buses actually do
->>> _not_ support 1:1 with IDT (think USB, SCSI, IDE, etc).
->>>
->>>        
->> With standard PCI, they do not.  But all modern host adapters support
->> MSI and they will happily give you one interrupt per queue.
->>      
-> While MSI is a good technological advancement for PCI, I was referring
-> to signal:IDT ratio.  MSI would still classify as 1:1.
->    
-
-I meant, a multiqueue SCSI or network adapter is not N:1 but N:M since 
-each queue would get its own interrupt.  So it looks like modern cards 
-try to disaggregate, not aggregate.  Previously, non-MSI PCI forced them 
-to aggregate by providing a small amount of irq pins.
-
->> Let's do that then.  Please reserve the corresponding comparisons from
->> your side as well.
->>      
-> That is quite the odd request.  My graphs are all built using readily
-> available code and open tools and do not speculate as to what someone
-> else may come up with in the future.  They reflect what is available
-> today.  Do you honestly think I should wait indefinitely for a competing
-> idea to try to catch up before I talk about my results?  That's
-> certainly an interesting perspective.
->    
-
-You results are excellent and I'm not asking you hide them.  But you 
-can't compare (more) complete code to incomplete code and state that 
-this proves you are right, or to use results for an entire stack as 
-proof that one component is what made it possible.
-
-> With all due respect, the only red-herring is your unsubstantiated
-> claims that my results do not matter.
->    
-
-My claim is that your results are mostly due to venet-host.  I don't 
-have a proof but you don't have a counterproof.  That is why I ask you 
-to wait for vhost-net, it will give us more data so we can see what's what.
-
->>> This is not to mention
->>> that vhost-net does nothing to address our other goals, like scheduler
->>> coordination and non-802.x fabrics.
->>>
->>>        
->> What are scheduler coordination and non-802.x fabrics?
->>      
-> We are working on real-time, IB and QOS, for examples, in addition to
-> the now well known 802.x venet driver.
->    
-
-Won't QoS require a departure from aggregated interrupts?  Suppose an 
-low priority interrupt arrives and the guest starts processing, then a 
-high priority interrupt.  Don't you need a real (IDT) interrupt to make 
-the guest process the high-priority event?
-
->>>> Right, when you ignore the points where they don't fit, it's a perfect
->>>> mesh.
->>>>
->>>>          
->>> Where doesn't it fit?
->>>
->>>        
->> (avoiding infinite loop)
->>      
-> I'm serious.  Where doesn't it fit?  Point me at a URL if its already
-> discussed.
->    
-
-Sorry, I lost the context; also my original comment wasn't very 
-constructive, consider it retracted.
-
->>> Citation please.  Afaict, the one use case that we looked at for vhost
->>> outside of KVM failed to adapt properly, so I do not see how this is
->>> true.
->>>
->>>        
->> I think Ira said he can make vhost work?
->>
->>      
-> Not exactly.  It kind of works for 802.x only (albeit awkwardly) because
-> there is no strong distinction between "resource" and "consumer" with
-> ethernet.  So you can run it inverted without any serious consequences
-> (at least, not from consequences of the inversion).  Since the x86
-> boards are the actual resource providers in his system, other device
-> types will fail to map to the vhost model properly, like disk-io or
-> consoles for instance.
->    
-
-In that case vhost will have to be adapted or they will have to use 
-something else.
-
-
-
->> virtio-net over pci is deployed.  Replacing the backend with vhost-net
->> will require no guest modifications.
->>      
-> That _is_ a nice benefit, I agree.  I just do not agree its a hard
-> requirement.
->    
-
-Consider a cloud where the hypervisor is updated without the knowledge 
-of the guest admins.  Either we break the guests and require the guest 
-admins to login (without networking) to upgrade their drivers during 
-production and then look for a new cloud, or we maintain both device 
-models and ask the guest admins to upgrade their drivers so we can drop 
-support for the old device, a request which they will rightly ignore.
-
->> Obviously virtio-net isn't deployed in non-virt.  But if we adopt vbus,
->> we have to migrate guests.
->>      
-> As a first step, lets just shoot for "support" instead of "adopt".
->    
-
-"support" means eventually "adopt", it isn't viable to maintain two 
-models in parallel.
-
-> Ill continue to push patches to you that help interfacing with the guest
-> in a vbus neutral way (like irqfd/ioeventfd) and we can go from there.
-> Are you open to this work assuming it passes normal review cycles, etc?
->   It would presumably be of use to others that want to interface to a
-> guest (e.g. vhost) as well.
->    
-
-Neutral interfaces are great, and I've already received feedback from 
-third parties that they ought to work well for their uses.  I don't 
-really like xinterface since I think it's too intrusive locking wise, 
-especially when there's currently churn in kvm memory management.  But 
-feel free to post your ideas or patches, maybe we can work something out.
-
->>> And once those events are fed, you still need a
->>> PV layer to actually handle the bus interface in a high-performance
->>> manner so its not like you really have a "native" stack in either case.
->>>
->>>        
->> virtio-net doesn't use any pv layer.
->>      
-> Well, it does when you really look closely at how it works.  For one, it
-> has the virtqueues library that would be (or at least _should be_)
-> common for all virtio-X adapters, etc etc.  Even if this layer is
-> collapsed into each driver on the Windows platform, its still there
-> nonetheless.
->    
-
-By "pv layer" I meant something that is visible along the guest/host 
-interface.  virtio devices are completely independent from one another 
-and (using virtio-pci) only talk through interfaces exposed by the 
-relevant card.  If you wanted to, you could implement a virtio-pci card 
-in silicon.
-
-Practically the only difference between ordinary NICs and virtio-net is 
-that interrupt status and enable/disable are stored in memory instead of 
-NIC registers, but a real NIC could have done it the virtio way.
-
->>>> that doesn't need to be retrofitted.
->>>>
->>>>          
->>> No, that is incorrect.  You have to heavily modify the pci model with
->>> layers on top to get any kind of performance out of it.  Otherwise, we
->>> would just use realtek emulation, which is technically the native PCI
->>> you are apparently so enamored with.
->>>
->>>        
->> virtio-net doesn't modify the PCI model.
->>      
-> Sure it does.  It doesn't use MMIO/PIO bars for registers, it uses
-> vq->kick().
-
-Which translates to a BAR register.
-
-> It doesn't use pci-config-space, it uses virtio->features.
->    
-
-Which translates to a BAR.
-
->   It doesn't use PCI interrupts, it uses a callback on the vq etc, etc.
-> You would never use raw "registers", as the exit rate would crush you.
-> You would never use raw interrupts, as you need a shared-memory based
-> mitigation scheme.
->
-> IOW: Virtio has a device model layer that tunnels over PCI.  It doesn't
-> actually use PCI directly.  This is in fact what allows the linux
-> version to work over lguest, s390 and vbus in addition to PCI.
->    
-
-That's just a nice way to reuse the driver across multiple busses.  Kind 
-of like isa/pci drivers that might even still exist in the source tree.  
-On x86, virtio doesn't bypass PCI, just adds a layer above it.
-
->> You can have dynamic MSI/queue routing with virtio, and each MSI can be
->> routed to a vcpu at will.
->>      
-> Can you arbitrarily create a new MSI/queue on a per-device basis on the
-> fly?   We want to do this for some upcoming designs.  Or do you need to
-> predeclare the vectors when the device is hot-added?
->    
-
-You need to predeclare the number of vectors, but queue/interrupt 
-assignment is runtime.
-
-
->>> priority, and coalescing, etc.
->>>
->>>        
->> Do you mean interrupt priority?  Well, apic allows interrupt priorities
->> and Windows uses them; Linux doesn't.  I don't see a reason to provide
->> more than native hardware.
->>      
-> The APIC model is not optimal for PV given the exits required for a
-> basic operation like an interrupt injection, and has scaling/flexibility
-> issues with its 16:16 priority mapping.
->
-> OTOH, you don't necessarily want to rip it out because of all the
-> additional features it has like the IPI facility and the handling of
-> many low-performance data-paths.  Therefore, I am of the opinion that
-> the optimal placement for advanced signal handling is directly at the
-> bus that provides the high-performance resources.  I could be convinced
-> otherwise with a compelling argument, but I think this is the path of
-> least resistance.
->    
-
-With EOI PV you can reduce the cost of interrupt injection to slightly 
-more than one exit/interrupt.  vbus might reduce it to slightly less 
-than one exit/interrupt.
-
-wrt priority, if you have 12 or fewer realtime interrupt sources you can 
-map them to available priorities.  If you have more then you take extra 
-interrupts, but at a ratio of 12:1 (so 24 realtime interrupts mean you 
-may take a single extra exit).  The advantages of this is that all 
-interrupts (not just vbus) are prioritized, and bare metal benefits as well.
-
-If 12 is too low for you, pressure Intel to increase the TPR to 8 r/w 
-bits, too bad they missed a chance with x2apic (which btw reduces the 
-apic exit costs significantly).
-
-
-
->> N:1 breaks down on large guests since one vcpu will have to process all
->> events.
->>      
-> Well, first of all that is not necessarily true.  Some high performance
-> buses like SCSI and FC work fine with an aggregated model, so its not a
-> foregone conclusion that aggregation kills SMP IO performance.  This is
-> especially true when you adding coalescing on top, like AlacrityVM does.
->    
-
-Nevertheless, the high performance adaptors provide multiqueue and MSI; 
-one of the reasons is to distribute processing.
-
-> I do agree that other subsystems, like networking for instance, may
-> sometimes benefit from flexible signal-routing because of multiqueue,
-> etc, for particularly large guests.  However, the decision to make the
-> current kvm-connector used in AlacrityVM aggregate one priority FIFO per
-> IRQ was an intentional design tradeoff.  My experience with my target
-> user base is that these data-centers are typically deploying 1-4 vcpu
-> guests, so I optimized for that.  YMMV, so we can design a different
-> connector, or a different mode of the existing connector, to accommodate
-> large guests as well if that was something desirable.
->
->    
->> You could do N:M, with commands to change routings, but where's
->> your userspace interface?
->>      
-> Well, we should be able to add that when/if its needed.  I just don't
-> think the need is there yet.  KVM tops out at 16 IIUC anyway.
->    
-
-My feeling is that 16 will definitely need multiqueue, and perhaps even 4.
-
-(we can probably up the 16, certainly with Marcelo's srcu work).
-
->> you can't tell from /proc/interrupts which
->> vbus interupts are active
->>      
-> This should be trivial to add some kind of *fs display.  I will fix this
-> shortly.
->    
-
-And update irqbalance and other tools?  What about the Windows 
-equivalent?  What happens when (say) Linux learns to migrate interrupts 
-to where they're actually used?
-
-This should really be done at the irqchip level, but before that, we 
-need to be 100% certain it's worthwhile.
-
->> The larger your installed base, the more difficult it is.  Of course
->> it's doable, but I prefer not doing it and instead improving things in a
->> binary backwards compatible manner.  If there is no choice we will bow
->> to the inevitable and make our users upgrade.  But at this point there
->> is a choice, and I prefer to stick with vhost-net until it is proven
->> that it won't work.
->>      
-> Fair enough.  But note you are likely going to need to respin your
-> existing drivers anyway to gain peak performance, since there are known
-> shortcomings in the virtio-pci ABI today (like queue identification in
-> the interrupt hotpath) as it stands.  So that pain is coming one way or
-> the other.
->    
-
-We'll update the drivers but we won't require users to update.  The 
-majority will not notice an upgrade; those who are interested in getting 
-more performance will update their drivers (at their own schedule).
-
->> One of the benefits of virtualization is that the guest model is
->> stable.  You can live-migrate guests and upgrade the hardware
->> underneath.  You can have a single guest image that you clone to
->> provision new guests.  If you switch to a new model, you give up those
->> benefits, or you support both models indefinitely.
->>      
-> I understand what you are saying, but I don't buy it.  If you add a new
-> feature to an existing model even without something as drastic as a new
-> bus, you still have the same exact dilemma:  The migration target needs
-> feature parity with consumed features in the guest.  Its really the same
-> no matter what unless you never add guest-visible features.
->    
-
-When you upgrade your data center, you start upgrading your hypervisors 
-(one by one, with live migration making it transparent) and certainly 
-not exposing new features to running guests.  Once you are done you can 
-expose the new features, and guests which can interested in them can 
-upgrade their drivers and see them.
-
->> Note even hardware nowadays is binary compatible.  One e1000 driver
->> supports a ton of different cards, and I think (not sure) newer cards
->> will work with older drivers, just without all their features.
->>      
-> Noted, but that is not really the same thing.  Thats more like adding a
-> feature bit to virtio, not replacing GigE with 10GE.
->    
-
-Right, and that's what virtio-net changes look like.
-
->>> If and when that becomes a priority concern, that would be a function
->>> transparently supported in the BIOS shipped with the hypervisor, and
->>> would thus be invisible to the user.
->>>
->>>        
->> No, you have to update the driver in your initrd (for Linux)
->>      
-> Thats fine, the distros generally do this automatically when you load
-> the updated KMP package.
->    
-
-So it's not invisible to the user.  You update your hypervisor and now 
-need to tell your users to add the new driver to their initrd and 
-reboot.  They're not going to like you.
-
-
->> or properly install the new driver (for Windows).  It's especially
->> difficult for Windows.
->>      
-> What is difficult here?  I never seem to have any problems and I have
-> all kinds of guests from XP to Win7.
->    
-
-If you accidentally reboot before you install the new driver, you won't 
-boot; and there are issues with loading a new driver without the 
-hardware present (not sure what exactly).
-
->> I don't want to support both virtio and vbus in parallel.  There's
->> enough work already.
->>      
-> Until I find some compelling reason that indicates I was wrong about all
-> of this, I will continue building a community around the vbus code base
-> and developing support for its components anyway.  So that effort is
-> going to happen in parallel regardless.
->
-> This is purely a question about whether you will work with me to make
-> vbus an available option in upstream KVM or not.
->    
-
-Without xinterface there's no need for vbus support in kvm, so nothing's 
-blocking you there.  I'm open to extending the host-side kvm interfaces 
-to improve kernel integration.  However I still think vbus is the wrong 
-design and shouldn't be merged.
-
->>   If we adopt vbus, we'll have to deprecate and eventually kill off virtio.
->>      
-> Thats more hyperbole.  virtio is technically fine and complementary as
-> it is.  No one says you have to do anything drastic w.r.t. virtio.  If
-> you _did_ adopt vbus, perhaps you would want to optionally deprecate
-> vhost or possibly the virtio-pci adapter, but that is about it.  The
-> rest of the infrastructure should be preserved if it was designed properly.
->    
-
-virtio-pci is what makes existing guests work (and vhost-net will 
-certainly need to be killed off).  But I really don't see the point of 
-layering virtio on top of vbus.
-
->> PCI is continuously updated, with MSI, MSI-X, and IOMMU support being
->> some recent updates.  I'd like to ride on top of that instead of having
->> to clone it for every guest I support.
->>      
-> While a noble goal, one of the points I keep making though, as someone
-> who has built the stack both ways, is almost none of the PCI stack is
-> actually needed to get the PV job done.  The part you do need is
-> primarily a function of the generic OS stack and trivial to interface
-> with anyway.
->    
-
-PCI doesn't stand in the way of pv, and allows us to have a uniform 
-interface to purely emulated, pv, and assigned devices, with minimal 
-changes to the guest.  To me that's the path of least resistance.
-
->>
->>>>> As an added bonus, its device-model is modular.  A developer can
->>>>> write a
->>>>> new device model, compile it, insmod it to the host kernel, hotplug it
->>>>> to the running guest with mkdir/ln, and the come back out again
->>>>> (hotunplug with rmdir, rmmod, etc).  They may do this all without
->>>>> taking
->>>>> the guest down, and while eating QEMU based IO solutions for breakfast
->>>>> performance wise.
->>>>>
->>>>> Afaict, qemu can't do either of those things.
->>>>>
->>>>>
->>>>>            
->>>> We've seen that herring before,
->>>>
->>>>          
->>> Citation?
->>>
->>>        
->> It's the compare venet-in-kernel to virtio-in-userspace thing again.
->>      
-> No, you said KVM has "userspace hotplug".  I retorted that vbus not only
-> has hotplug, it also has a modular architecture.  You then countered
-> that this feature is a red-herring.  If this was previously discussed
-> and rejected for some reason, I would like to know the history.  Or did
-> I misunderstand you?
->    
-
-I was talking about your breakfast (the performance comparison again).
-
-> For one, we have the common layer of shm-signal, and IOQ.  These
-> libraries were designed to be reused on both sides of the link.
-> Generally shm-signal has no counterpart in the existing model, though
-> its functionality is integrated into the virtqueue.
-
-I agree that ioq/shm separation is a nice feature.
-
-
->  From there, going down the stack, it looks like
->
->      (guest-side)
-> |-------------------------
-> | venet (competes with virtio-net)
-> |-------------------------
-> | vbus-proxy (competes with pci-bus, config+hotplug, sync/async)
-> |-------------------------
-> | vbus-pcibridge (interrupt coalescing + priority, fastpath)
-> |-------------------------
->             |
-> |-------------------------
-> | vbus-kvmconnector (interrupt coalescing + priority, fast-path)
-> |-------------------------
-> | vbus-core (hotplug, address decoding, etc)
-> |-------------------------
-> | venet-device (ioq frame/deframe to tap/macvlan/vmdq, etc)
-> |-------------------------
->
-> If you want to use virtio, insert a virtio layer between the "driver"
-> and "device" components at the outer edges of the stack.
->    
-
-But then it adds no value.  It's just another shim.
-
->> To me, compatible means I can live migrate an image to a new system
->> without the user knowing about the change.  You'll be able to do that
->> with vhost-net.
->>      
-> As soon as you add any new guest-visible feature, you are in the same
-> exact boat.
->    
-
-No.  You support two-way migration while hiding new features.  You 
-support one-way migration if you expose new features (suitable for data 
-center upgrade).  You don't support any migration if you switch models.
-
->>> No, that is incorrect.  For one, vhost uses them on a per-signal path
->>> basis, whereas vbus only has one channel for the entire guest->host.
->>>
->>>        
->> You'll probably need to change that as you start running smp guests.
->>      
-> The hypercall channel is already SMP optimized over a single PIO path,
-> so I think we are covered there.  See "fastcall" in my code for details:
->
-> http://git.kernel.org/?p=linux/kernel/git/ghaskins/alacrityvm/linux-2.6.git;a=blob;f=drivers/vbus/pci-bridge.c;h=81f7cdd2167ae2f53406850ebac448a2183842f2;hb=fd1c156be7735f8b259579f18268a756beccfc96#l102
->
-> It just passes the cpuid into the PIO write so we can have parallel,
-> lockless "hypercalls".  This forms the basis of our guest scheduler
-> support, for instance.
->    
-
-This is... wierd.  Scheduler support should be part of kvm core and done 
-using ordinary hypercalls, not as part of a bus model.
-
->>   You could implement virtio-net hardware if you wanted to.
->>      
-> Technically you could build vbus in hardware too, I suppose, since the
-> bridge is PCI compliant.  I would never advocate it, however, since many
-> of our tricks do not matter if its real hardware (e.g. they are
-> optimized for the costs associated with VM).
->    
-
-No, you can't.  You won't get the cpuid in your pio writes, for one.  
-And if multiple vbus cards are plugged into different PCI slots, they 
-either lost inter-card interrupt coalescing, or you have to connect them 
-in a side-channel.
-
--- 
-Do not meddle in the internals of kernels, for they are subtle and quick to panic.
+On (Thu) Oct 01 2009 [12:28:30], Christian Borntraeger wrote:
+> 
+> With the latest git kernel + your patch I sometmes get a completely frozen 
+> console. In the dump there is 
+> 
+>     <3>virtio_console virtio0: output:id 68 is not a head!
+> 
+> Seems that I can reproduce it with large amounts of output (find / for example)
+> Without your patch everything is fine.
+
+Hey Christian,
+
+Can you try this patch?
+
+There's something funny happening with hvc still, though. It sometimes
+doesn't respond to input which could mean a race somewhere. When it
+fails, it doesn't show up a Password: prompt on the terminal (but
+accepts and echoes the username fine). When it does work, however,
+everything seems fine.
+
+It would be great if you could try this a few times on your setup.
+
+		Amit
+
+
+diff --git a/drivers/char/Kconfig b/drivers/char/Kconfig
+index 08a6f50..fc8a04e 100644
+--- a/drivers/char/Kconfig
++++ b/drivers/char/Kconfig
+@@ -679,6 +679,12 @@ config VIRTIO_CONSOLE
+ 	help
+ 	  Virtio console for use with lguest and other hypervisors.
+ 
++	  Also serves as a general-purpose serial device for data
++	  transfer between the guest and host. Character devices at
++	  /dev/vconNN will be created when corresponding ports are
++	  found. If specified by the host, a sysfs attribute called
++	  'name' will be populated with a name for the port which can
++	  be used by udev scripts to create a symlink to /dev/vconNN.
+ 
+ config HVCS
+ 	tristate "IBM Hypervisor Virtual Console Server support"
+diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
+index 0d328b5..14a68b4 100644
+--- a/drivers/char/virtio_console.c
++++ b/drivers/char/virtio_console.c
+@@ -9,10 +9,8 @@
+  * functions.
+  :*/
+ 
+-/*M:002 The console can be flooded: while the Guest is processing input the
+- * Host can send more.  Buffering in the Host could alleviate this, but it is a
+- * difficult problem in general. :*/
+ /* Copyright (C) 2006, 2007 Rusty Russell, IBM Corporation
++ * Copyright (C) 2009, Amit Shah, Red Hat, Inc.
+  *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of the GNU General Public License as published by
+@@ -28,116 +26,520 @@
+  * along with this program; if not, write to the Free Software
+  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+  */
++
++#include <linux/cdev.h>
++#include <linux/device.h>
+ #include <linux/err.h>
++#include <linux/fs.h>
+ #include <linux/init.h>
++#include <linux/poll.h>
++#include <linux/sched.h>
++#include <linux/spinlock.h>
+ #include <linux/virtio.h>
+ #include <linux/virtio_ids.h>
+ #include <linux/virtio_console.h>
++#include <linux/workqueue.h>
+ #include "hvc_console.h"
+ 
+-/*D:340 These represent our input and output console queues, and the virtio
+- * operations for them. */
+-static struct virtqueue *in_vq, *out_vq;
+-static struct virtio_device *vdev;
++/* This struct stores data that's common to all the ports */
++struct virtio_console_struct {
++	/*
++	 * Workqueue handlers where we process deferred work after an
++	 * interrupt
++	 */
++	struct work_struct rx_work;
++	struct work_struct tx_work;
++	struct work_struct config_work;
+ 
+-/* This is our input buffer, and how much data is left in it. */
+-static unsigned int in_len;
+-static char *in, *inbuf;
++	struct list_head port_head;
++	struct list_head unused_read_head;
++	struct list_head unused_write_head;
+ 
+-/* The operations for our console. */
+-static struct hv_ops virtio_cons;
++	/* To protect the list of unused write buffers and the out_vq */
++	spinlock_t write_list_lock;
++
++	struct virtio_device *vdev;
++	struct class *class;
++	/* The input and the output queues */
++	struct virtqueue *in_vq, *out_vq;
++
++	/* The current config space is stored here */
++	struct virtio_console_config config;
++};
++
++/* This struct holds individual buffers received for each port */
++struct virtio_console_port_buffer {
++	struct list_head next;
++
++	char *buf;
++
++	/* length of the buffer */
++	size_t len;
++	/* offset in the buf from which to consume data */
++	size_t offset;
++};
++
++/* This struct holds the per-port data */
++struct virtio_console_port {
++	/* Next port in the list, head is in the virtio_console_struct */
++	struct list_head next;
++
++	/* Pointer to the virtio_console device */
++	struct virtio_console_struct *vcon;
++
++	/* Buffer management */
++	struct list_head readbuf_head;
++
++	/*
++	 * To protect the readbuf_head list. Has to be a spinlock
++	 * because it can be called from interrupt context
++	 * (cons_get_char())
++	 */
++	spinlock_t readbuf_list_lock;
++
++	/* A waitqueue for poll() or blocking read operations */
++	wait_queue_head_t waitqueue;
++
++	/* Each port associates with a separate char device */
++	struct cdev cdev;
++	struct device *dev;
++
++	/* The hvc device, if this port is associated with a console */
++	struct hvc_struct *hvc;
++
++	/* The 'name' of the port that we expose via sysfs properties */
++	char *name;
++
++	/* The 'id' to identify the port with the Host */
++	u32 id;
+ 
+-/* The hvc device */
+-static struct hvc_struct *hvc;
++	/*
++	 * If this port is a console port, this number identifies the
++	 * number that we used to register with hvc in
++	 * hvc_instantiate() and hvc_alloc().
++	 */
++	u32 vtermno;
+ 
+-/*D:310 The put_chars() callback is pretty straightforward.
++	/* Is the host device open */
++	bool host_connected;
++};
++
++static struct virtio_console_struct virtconsole;
++
++/*
++ * This is used to keep track of the number of hvc consoles spawned.
++ * This number is given as first argument to hvc_alloc(). We could as
++ * well pass on the minor number of the char device but to correctly
++ * map an initial console spawned via hvc_instantiate to the console
++ * being hooked up via hvc_alloc, we need to pass the same vtermno.
+  *
+- * We turn the characters into a scatter-gather list, add it to the output
+- * queue and then kick the Host.  Then we sit here waiting for it to finish:
+- * inefficient in theory, but in practice implementations will do it
+- * immediately (lguest's Launcher does). */
+-static int put_chars(u32 vtermno, const char *buf, int count)
++ * With this int, we just assume the first console being initialised
++ * was the first one that got used as the initial console.
++ */
++static unsigned int hvc_vtermno;
++
++static struct virtio_console_port *get_port_from_vtermno(u32 vtermno)
+ {
+-	struct scatterlist sg[1];
+-	unsigned int len;
+-
+-	/* This is a convenient routine to initialize a single-elem sg list */
+-	sg_init_one(sg, buf, count);
+-
+-	/* add_buf wants a token to identify this buffer: we hand it any
+-	 * non-NULL pointer, since there's only ever one buffer. */
+-	if (out_vq->vq_ops->add_buf(out_vq, sg, 1, 0, (void *)1) >= 0) {
+-		/* Tell Host to go! */
+-		out_vq->vq_ops->kick(out_vq);
+-		/* Chill out until it's done with the buffer. */
+-		while (!out_vq->vq_ops->get_buf(out_vq, &len))
+-			cpu_relax();
++	struct virtio_console_port *port;
++
++	list_for_each_entry(port, &virtconsole.port_head, next) {
++		if (port->hvc && port->vtermno == vtermno)
++			return port;
+ 	}
++	return NULL;
++}
++
++static struct virtio_console_port *get_port_from_devt(dev_t devt)
++{
++	struct virtio_console_port *port;
+ 
+-	/* We're expected to return the amount of data we wrote: all of it. */
+-	return count;
++	list_for_each_entry(port, &virtconsole.port_head, next) {
++		if (port->dev->devt == devt)
++			return port;
++	}
++	return NULL;
+ }
+ 
+-/* Create a scatter-gather list representing our input buffer and put it in the
+- * queue. */
+-static void add_inbuf(void)
++static struct virtio_console_port *get_port_from_id(u32 id)
+ {
+-	struct scatterlist sg[1];
+-	sg_init_one(sg, inbuf, PAGE_SIZE);
++	struct virtio_console_port *port;
+ 
+-	/* We should always be able to add one buffer to an empty queue. */
+-	if (in_vq->vq_ops->add_buf(in_vq, sg, 0, 1, inbuf) < 0)
+-		BUG();
+-	in_vq->vq_ops->kick(in_vq);
++	list_for_each_entry(port, &virtconsole.port_head, next) {
++		if (port->id == id)
++			return port;
++	}
++	return NULL;
+ }
+ 
+-/*D:350 get_chars() is the callback from the hvc_console infrastructure when
+- * an interrupt is received.
+- *
+- * Most of the code deals with the fact that the hvc_console() infrastructure
+- * only asks us for 16 bytes at a time.  We keep in_offset and in_used fields
+- * for partially-filled buffers. */
+-static int get_chars(u32 vtermno, char *buf, int count)
++static int get_id_from_port(struct virtio_console_port *port)
+ {
+-	/* If we don't have an input queue yet, we can't get input. */
+-	BUG_ON(!in_vq);
++	return port->id;
++}
+ 
+-	/* No buffer?  Try to get one. */
+-	if (!in_len) {
+-		in = in_vq->vq_ops->get_buf(in_vq, &in_len);
+-		if (!in)
++static bool is_console_port(struct virtio_console_port *port)
++{
++	if (port->hvc)
++		return true;
++	return false;
++}
++
++static inline bool use_multiport(struct virtio_console_struct *vcon)
++{
++	/*
++	 * This condition can be true when put_chars is called from
++	 * early_init
++	 */
++	if (!vcon->vdev)
++		return 0;
++	return vcon->vdev->features[0] & (1 << VIRTIO_CONSOLE_F_MULTIPORT);
++}
++
++static inline bool is_internal(u32 flags)
++{
++	return flags & VIRTIO_CONSOLE_ID_INTERNAL;
++}
++
++/*
++ * Give out the data that's requested from the buffers that we have
++ * queued up per port
++ */
++static ssize_t fill_readbuf(struct virtio_console_port *port,
++			    char *out_buf, size_t out_count, bool to_user)
++{
++	struct virtio_console_port_buffer *buf, *buf2;
++	ssize_t out_offset, ret;
++
++	out_offset = 0;
++	/*
++	 * Not taking the port->readbuf_list_lock here relying on the
++	 * fact that buffers are taken out from the list only in this
++	 * function so buf2 should be available all the time.
++	 *
++	 * Also, copy_to_user() might sleep.
++	 */
++	list_for_each_entry_safe(buf, buf2, &port->readbuf_head, next) {
++		size_t copy_size;
++
++		copy_size = out_count;
++		if (copy_size > buf->len - buf->offset)
++			copy_size = buf->len - buf->offset;
++
++		if (to_user) {
++			ret = copy_to_user(out_buf + out_offset,
++					   buf->buf + buf->offset,
++					   copy_size);
++			/* FIXME: Deal with ret != 0 */
++		} else {
++			memcpy(out_buf + out_offset,
++			       buf->buf + buf->offset,
++			       copy_size);
++			ret = 0; /* Emulate copy_to_user behaviour */
++		}
++
++		/* Return the number of bytes actually copied */
++		ret = copy_size - ret;
++		buf->offset += ret;
++		out_offset += ret;
++		out_count -= ret;
++
++		if (buf->len - buf->offset == 0) {
++			spin_lock(&port->readbuf_list_lock);
++			list_del(&buf->next);
++			spin_unlock(&port->readbuf_list_lock);
++			kfree(buf->buf);
++			kfree(buf);
++		}
++		if (!out_count)
++			break;
++	}
++	return out_offset;
++}
++
++/* The condition that must be true for polling to end */
++static bool wait_is_over(struct virtio_console_port *port)
++{
++	return !list_empty(&port->readbuf_head) || !port->host_connected;
++}
++
++static ssize_t virtconsole_read(struct file *filp, char __user *ubuf,
++			       size_t count, loff_t *offp)
++{
++	struct virtio_console_port *port;
++	ssize_t ret;
++
++	port = filp->private_data;
++
++	if (list_empty(&port->readbuf_head)) {
++		/*
++		 * If nothing's connected on the host just return 0 in
++		 * case of list_empty; this tells the userspace app
++		 * that there's no connection
++		 */
++		if (!port->host_connected)
+ 			return 0;
++		if (filp->f_flags & O_NONBLOCK)
++			return -EAGAIN;
++
++		ret = wait_event_interruptible(port->waitqueue,
++					       wait_is_over(port));
++		if (ret < 0)
++			return ret;
++	}
++	/*
++	 * We could've received a disconnection message while we were
++	 * waiting for more data.
++	 *
++	 * This check is not clubbed in the if() statement above as we
++	 * might receive some data as well as the host could get
++	 * disconnected after we got woken up from our wait. So we
++	 * really want to give off whatever data we have and only then
++	 * check for host_connected
++	 */
++	if (list_empty(&port->readbuf_head) && !port->host_connected)
++		return 0;
++
++	return fill_readbuf(port, ubuf, count, true);
++}
++
++static ssize_t send_buf(struct virtio_console_port *port,
++			const char *in_buf, size_t in_count,
++			u32 flags, bool from_user)
++{
++	struct virtqueue *out_vq;
++	struct virtio_console_port_buffer *buf, *buf2;
++	struct scatterlist sg[1];
++	struct virtio_console_header header;
++	size_t in_offset, copy_size;
++	ssize_t ret;
++	unsigned int header_len;
++
++	if (!in_count)
++		return 0;
++
++	out_vq = port->vcon->out_vq;
++	/*
++	 * We should not send internal messages to a host that won't
++	 * understand them
++	 */
++	if (!use_multiport(port->vcon) && is_internal(flags))
++		return 0;
++	header_len = 0;
++	if (use_multiport(port->vcon)) {
++		header.id = get_id_from_port(port);
++		header.flags = flags;
++		header.size = in_count;
++		header_len = sizeof(header);
+ 	}
++	in_offset = 0; /* offset in the user buffer */
++	while (in_count - in_offset) {
++		copy_size = min(in_count - in_offset + header_len, PAGE_SIZE);
+ 
+-	/* You want more than we have to give?  Well, try wanting less! */
+-	if (in_len < count)
+-		count = in_len;
++		spin_lock(&port->vcon->write_list_lock);
++		list_for_each_entry_safe(buf, buf2,
++					 &port->vcon->unused_write_head,
++					 next) {
++			list_del(&buf->next);
++			break;
++		}
++		spin_unlock(&port->vcon->write_list_lock);
++		if (!buf)
++			break;
++		if (header_len) {
++			memcpy(buf->buf, &header, header_len);
++			copy_size -= header_len;
++		}
++		if (from_user)
++			ret = copy_from_user(buf->buf + header_len,
++					     in_buf + in_offset, copy_size);
++		else {
++			/*
++			 * Since we're not sure when the host will actually
++			 * consume the data and tell us about it, we have
++			 * to copy the data here in case the caller
++			 * frees the in_buf
++			 */
++			memcpy(buf->buf + header_len,
++			       in_buf + in_offset, copy_size);
++			ret = 0; /* Emulate copy_from_user behaviour */
++		}
++		buf->len = header_len + copy_size - ret;
++		sg_init_one(sg, buf->buf, buf->len);
+ 
+-	/* Copy across to their buffer and increment offset. */
+-	memcpy(buf, in, count);
+-	in += count;
+-	in_len -= count;
++		spin_lock(&port->vcon->write_list_lock);
++		ret = out_vq->vq_ops->add_buf(out_vq, sg, 1, 0, buf);
++		spin_unlock(&port->vcon->write_list_lock);
++		if (ret < 0) {
++			memset(buf->buf, 0, buf->len);
++			spin_lock(&virtconsole.write_list_lock);
++			list_add_tail(&buf->next,
++				      &port->vcon->unused_write_head);
++			spin_unlock(&port->vcon->write_list_lock);
++			break;
++		}
++		in_offset += buf->len - header_len;
++		/*
++		 * Only send size with the first buffer.  This way
++		 * userspace can find out a continuous stream of data
++		 * belonging to one write request and consume it
++		 * appropriately
++		 */
++		header.size = 0;
+ 
+-	/* Finished?  Re-register buffer so Host will use it again. */
+-	if (in_len == 0)
+-		add_inbuf();
++		/* No space left in the vq anyway */
++		if (!ret)
++			break;
++	}
++	/* Tell Host to go! */
++	spin_lock(&port->vcon->write_list_lock);
++	out_vq->vq_ops->kick(out_vq);
++	spin_unlock(&port->vcon->write_list_lock);
+ 
+-	return count;
++	/* We're expected to return the amount of data we wrote */
++	return in_offset;
+ }
+-/*:*/
+ 
+-/*D:320 Console drivers are initialized very early so boot messages can go out,
+- * so we do things slightly differently from the generic virtio initialization
+- * of the net and block drivers.
++static ssize_t virtconsole_write(struct file *filp, const char __user *ubuf,
++				 size_t count, loff_t *offp)
++{
++	struct virtio_console_port *port;
++
++	port = filp->private_data;
++
++	return send_buf(port, ubuf, count, 0, true);
++}
++
++static unsigned int virtconsole_poll(struct file *filp, poll_table *wait)
++{
++	struct virtio_console_port *port;
++	unsigned int ret;
++
++	port = filp->private_data;
++	poll_wait(filp, &port->waitqueue, wait);
++
++	ret = 0;
++	if (!list_empty(&port->readbuf_head))
++		ret |= POLLIN | POLLRDNORM;
++	if (!port->host_connected)
++		ret |= POLLHUP;
++
++	return ret;
++}
++
++static int virtconsole_release(struct inode *inode, struct file *filp)
++{
++	struct virtio_console_control cpkt;
++
++	/* Notify host of port being closed */
++	cpkt.event = VIRTIO_CONSOLE_PORT_OPEN;
++	cpkt.value = 0;
++	send_buf(filp->private_data, (char *)&cpkt, sizeof(cpkt),
++		 VIRTIO_CONSOLE_ID_INTERNAL, false);
++	return 0;
++}
++
++static int virtconsole_open(struct inode *inode, struct file *filp)
++{
++	struct cdev *cdev = inode->i_cdev;
++	struct virtio_console_port *port;
++	struct virtio_console_control cpkt;
++
++	port = container_of(cdev, struct virtio_console_port, cdev);
++	filp->private_data = port;
++
++	/* Notify host of port being opened */
++	cpkt.event = VIRTIO_CONSOLE_PORT_OPEN;
++	cpkt.value = 1;
++	send_buf(filp->private_data, (char *)&cpkt, sizeof(cpkt),
++		 VIRTIO_CONSOLE_ID_INTERNAL, false);
++
++	return 0;
++}
++
++/*
++ * The file operations that we support: programs in the guest can open
++ * a console device, read from it, write to it, poll for data and
++ * close it. The devices are at /dev/vconNN
++ */
++static const struct file_operations virtconsole_fops = {
++	.owner = THIS_MODULE,
++	.open  = virtconsole_open,
++	.read  = virtconsole_read,
++	.write = virtconsole_write,
++	.poll  = virtconsole_poll,
++	.release = virtconsole_release,
++};
++
++
++static ssize_t show_port_name(struct device *dev,
++			      struct device_attribute *attr, char *buffer)
++{
++	struct virtio_console_port *port;
++
++	port = get_port_from_devt(dev->devt);
++	if (!port || !port->name)
++		return 0;
++
++	return sprintf(buffer, "%s\n", port->name);
++}
++
++static DEVICE_ATTR(name, S_IRUGO, show_port_name, NULL);
++
++static struct attribute *virtcon_sysfs_entries[] = {
++	&dev_attr_name.attr,
++	NULL
++};
++
++static struct attribute_group virtcon_attribute_group = {
++	.name = NULL,		/* put in device directory */
++	.attrs = virtcon_sysfs_entries,
++};
++
++
++/*D:310
++ * The cons_put_chars() callback is pretty straightforward.
+  *
+- * At this stage, the console is output-only.  It's too early to set up a
+- * virtqueue, so we let the drivers do some boutique early-output thing. */
+-int __init virtio_cons_early_init(int (*put_chars)(u32, const char *, int))
++ * We turn the characters into a scatter-gather list, add it to the output
++ * queue and then kick the Host.
++ *
++ * If the data to be outpu spans more than a page, it's split into
++ * page-sized buffers and then individual buffers are pushed to Host.
++ */
++static int cons_put_chars(u32 vtermno, const char *buf, int count)
+ {
+-	virtio_cons.put_chars = put_chars;
+-	return hvc_instantiate(0, 0, &virtio_cons);
++	struct virtio_console_port *port;
++
++	port = get_port_from_vtermno(vtermno);
++	if (!port)
++		return 0;
++
++	return send_buf(port, buf, count, 0, false);
+ }
+ 
++/*D:350
++ * cons_get_chars() is the callback from the hvc_console
++ * infrastructure when an interrupt is received.
++ *
++ * We call out to fill_readbuf that gets us the required data from the
++ * buffers that are queued up.
++ */
++static int cons_get_chars(u32 vtermno, char *buf, int count)
++{
++	struct virtio_console_port *port;
++
++	/* If we don't have an input queue yet, we can't get input. */
++	BUG_ON(!virtconsole.in_vq);
++
++	port = get_port_from_vtermno(vtermno);
++	if (!port)
++		return 0;
++
++	if (list_empty(&port->readbuf_head))
++		return 0;
++
++	return fill_readbuf(port, buf, count, false);
++}
++/*:*/
++
+ /*
+  * virtio console configuration. This supports:
+  * - console resize
+@@ -153,98 +555,572 @@ static void virtcons_apply_config(struct virtio_device *dev)
+ 		dev->config->get(dev,
+ 				 offsetof(struct virtio_console_config, rows),
+ 				 &ws.ws_row, sizeof(u16));
+-		hvc_resize(hvc, ws);
++		/*
++		 * We'll use this way of resizing only for legacy
++		 * support. For newer userspace (VIRTIO_CONSOLE_F_MULTPORT+),
++		 * use internal messages to indicate console size
++		 * changes so that it can be done per-port
++		 */
++		if (!use_multiport(&virtconsole))
++			hvc_resize(get_port_from_id(0)->hvc, ws);
+ 	}
+ }
+ 
+ /*
+- * we support only one console, the hvc struct is a global var
+  * We set the configuration at this point, since we now have a tty
+  */
+-static int notifier_add_vio(struct hvc_struct *hp, int data)
++static int cons_notifier_add_vio(struct hvc_struct *hp, int data)
+ {
+ 	hp->irq_requested = 1;
+-	virtcons_apply_config(vdev);
++	virtcons_apply_config(virtconsole.vdev);
+ 
+ 	return 0;
+ }
+ 
+-static void notifier_del_vio(struct hvc_struct *hp, int data)
++static void cons_notifier_del_vio(struct hvc_struct *hp, int data)
+ {
+ 	hp->irq_requested = 0;
+ }
+ 
+-static void hvc_handle_input(struct virtqueue *vq)
++/* The operations for our console. */
++static struct hv_ops virtio_cons = {
++	.get_chars = cons_get_chars,
++	.put_chars = cons_put_chars,
++	.notifier_add = cons_notifier_add_vio,
++	.notifier_del = cons_notifier_del_vio,
++	.notifier_hangup = cons_notifier_del_vio,
++};
++
++/*D:320
++ * Console drivers are initialized very early so boot messages can go out,
++ * so we do things slightly differently from the generic virtio initialization
++ * of the net and block drivers.
++ *
++ * At this stage, the console is output-only.  It's too early to set up a
++ * virtqueue, so we let the drivers do some boutique early-output thing.
++ */
++int __init virtio_cons_early_init(int (*put_chars)(u32, const char *, int))
++{
++	virtio_cons.put_chars = put_chars;
++	return hvc_instantiate(0, 0, &virtio_cons);
++}
++
++int init_port_console(struct virtio_console_port *port)
+ {
+-	if (hvc_poll(hvc))
+-		hvc_kick();
++	int ret = 0;
++
++	/*
++	 * The Host's telling us this port is a console port. Hook it
++	 * up with an hvc console.
++	 *
++	 * To set up and manage our virtual console, we call
++	 * hvc_alloc().
++	 *
++	 * The first argument of hvc_alloc() is the virtual console
++	 * number.  The second argument is the parameter for the
++	 * notification mechanism (like irq number). We currently
++	 * leave this as zero, virtqueues have implicit notifications.
++	 *
++	 * The third argument is a "struct hv_ops" containing the
++	 * put_chars() get_chars(), notifier_add() and notifier_del()
++	 * pointers.  The final argument is the output buffer size: we
++	 * can do any size, so we put PAGE_SIZE here.
++	 */
++	port->hvc = hvc_alloc(hvc_vtermno, 0, &virtio_cons, PAGE_SIZE);
++	if (IS_ERR(port->hvc)) {
++		ret = PTR_ERR(port->hvc);
++		pr_err("%s: Could not alloc hvc for virtio console port, ret = %d\n",
++		       __func__, ret);
++		port->hvc = NULL;
++	} else
++		port->vtermno = hvc_vtermno++;
++	return ret;
+ }
+ 
+-/*D:370 Once we're further in boot, we get probed like any other virtio device.
+- * At this stage we set up the output virtqueue.
++/* Any secret messages that the Host and Guest want to share */
++static void handle_control_message(struct virtio_console_port *port,
++				   struct virtio_console_port_buffer *buf)
++{
++	struct virtio_console_control *cpkt;
++	size_t name_size;
++
++	cpkt = (struct virtio_console_control *)(buf->buf + buf->offset);
++
++	switch (cpkt->event) {
++	case VIRTIO_CONSOLE_PORT_OPEN:
++		port->host_connected = cpkt->value;
++		break;
++	case VIRTIO_CONSOLE_PORT_NAME:
++		/*
++		 * Skip the size of the header and the cpkt to get the size
++		 * of the name that was sent
++		 */
++		name_size = buf->len - buf->offset - sizeof(*cpkt) + 1;
++
++		port->name = kmalloc(name_size, GFP_KERNEL);
++		if (!port->name) {
++			pr_err("%s: not enough space to store port name\n",
++			       __func__);
++			break;
++		}
++		strncpy(port->name, buf->buf + buf->offset + sizeof(*cpkt),
++			name_size - 1);
++		port->name[name_size - 1] = 0;
++		break;
++	case VIRTIO_CONSOLE_CONSOLE_PORT:
++		if (!cpkt->value)
++			break;
++		init_port_console(port);
++		/*
++		 * Could remove the port here in case init fails - but
++		 * have to notify the host first
++		 */
++		break;
++	}
++}
++
++
++static struct virtio_console_port_buffer *get_buf(size_t buf_size)
++{
++	struct virtio_console_port_buffer *buf;
++
++	buf = kzalloc(sizeof(*buf), GFP_KERNEL);
++	if (!buf)
++		goto out;
++	buf->buf = kzalloc(buf_size, GFP_KERNEL);
++	if (!buf->buf) {
++		kfree(buf);
++		goto out;
++	}
++	buf->len = buf_size;
++out:
++	return buf;
++}
++
++static void fill_queue(struct virtqueue *vq, size_t buf_size,
++		       struct list_head *unused_head)
++{
++	struct scatterlist sg[1];
++	struct virtio_console_port_buffer *buf;
++	int ret;
++
++	do {
++		buf = get_buf(buf_size);
++		if (!buf)
++			break;
++		sg_init_one(sg, buf->buf, buf_size);
++
++		ret = vq->vq_ops->add_buf(vq, sg, 0, 1, buf);
++		if (ret < 0) {
++			kfree(buf->buf);
++			kfree(buf);
++			break;
++		}
++		/*
++		 * We have to keep track of the unused buffers so that
++		 * they can be freed when the module is being removed
++		 */
++		list_add_tail(&buf->next, unused_head);
++	} while (ret > 0);
++	vq->vq_ops->kick(vq);
++}
++
++static void fill_receive_queue(struct virtio_console_struct *vcon)
++{
++	fill_queue(vcon->in_vq, PAGE_SIZE, &vcon->unused_read_head);
++}
++
++/*
++ * This function is only called from the init routine so the spinlock
++ * for the unused_write_head list isn't taken
++ */
++static void alloc_write_bufs(struct virtio_console_struct *vcon)
++{
++	struct virtio_console_port_buffer *buf;
++	int i;
++
++	for (i = 0; i < 1024; i++) {
++		buf = get_buf(PAGE_SIZE);
++		if (!buf)
++			break;
++		list_add_tail(&buf->next, &vcon->unused_write_head);
++	}
++}
++
++/*
++ * The workhandler for any buffers that appear on our input queue.
++ * Pick the buffer; if it's some internal communication meant for the
++ * us, just process it. Otherwise queue it up for the read() or
++ * get_chars() routines to pick the data up later.
++ */
++static void virtio_console_rx_work_handler(struct work_struct *work)
++{
++	struct virtio_console_struct *vcon;
++	struct virtio_console_port *port;
++	struct virtio_console_port_buffer *buf;
++	struct virtio_console_header header;
++	struct virtqueue *vq;
++	unsigned int tmplen, header_len;
++
++	vcon = container_of(work, struct virtio_console_struct, rx_work);
++	header_len = use_multiport(vcon) ? sizeof(header) : 0;
++
++	port = NULL;
++	vq = vcon->in_vq;
++	while ((buf = vq->vq_ops->get_buf(vq, &tmplen))) {
++		/* The buffer is no longer unused */
++		list_del(&buf->next);
++
++		if (use_multiport(vcon)) {
++			memcpy(&header, buf->buf, header_len);
++			port = get_port_from_id(header.id);
++		} else
++			port = get_port_from_id(0);
++		if (!port) {
++			/* No valid header at start of buffer. Drop it. */
++			pr_debug("%s: invalid index in buffer, %c %d\n",
++				 __func__, buf->buf[0], buf->buf[0]);
++			/*
++			 * OPT: This buffer can be added to the unused
++			 * list to avoid free / alloc
++			 */
++			kfree(buf->buf);
++			kfree(buf);
++			break;
++		}
++		buf->len = tmplen;
++		buf->offset = header_len;
++		if (use_multiport(vcon) && is_internal(header.flags)) {
++			handle_control_message(port, buf);
++			/*
++			 * OPT: This buffer can be added to the unused
++			 * list to avoid free/alloc
++			 */
++			kfree(buf->buf);
++			kfree(buf);
++		} else {
++			spin_lock(&port->readbuf_list_lock);
++			list_add_tail(&buf->next, &port->readbuf_head);
++			spin_unlock(&port->readbuf_list_lock);
++			/*
++			 * We might have missed a connection
++			 * notification, e.g. before the queues were
++			 * initialised.
++			 */
++			port->host_connected = true;
++		}
++		wake_up_interruptible(&port->waitqueue);
++
++		if (is_console_port(port) && !list_empty(&port->readbuf_head))
++			if (hvc_poll(port->hvc))
++				hvc_kick();
++	}
++	/* Allocate buffers for all the ones that got used up */
++	fill_receive_queue(&virtconsole);
++}
++
++/*
++ * This is the workhandler for buffers that get received on the output
++ * virtqueue, which is an indication that Host consumed the data we
++ * sent it. Since all our buffers going out are of a fixed size we can
++ * just reuse them instead of freeing them and allocating new ones.
++ *
++ * Zero out the buffer so that we don't leak any information from
++ * other processes. There's a small optimisation here as well: the
++ * buffers are PAGE_SIZE-sized; but instead of zeroing the entire
++ * page, we just zero the length that was most recently used and we
++ * can be sure the rest of the page is already set to 0s.
++ *
++ * So once we zero them out we add them back to the unused buffers
++ * list
++ */
++static void virtio_console_tx_work_handler(struct work_struct *work)
++{
++	struct virtio_console_struct *vcon;
++	struct virtqueue *vq;
++	struct virtio_console_port_buffer *buf;
++	unsigned int tmplen;
++
++	vcon = container_of(work, struct virtio_console_struct, tx_work);
++
++	vq = vcon->out_vq;
++	spin_lock(&vcon->write_list_lock);
++	while ((buf = vq->vq_ops->get_buf(vq, &tmplen))) {
++		/* 0 the buffer to not leak data from other processes */
++		memset(buf->buf, 0, buf->len);
++		list_add_tail(&buf->next, &vcon->unused_write_head);
++	}
++	spin_unlock(&vcon->write_list_lock);
++}
++
++static void rx_intr(struct virtqueue *vq)
++{
++	schedule_work(&virtconsole.rx_work);
++}
++
++static void tx_intr(struct virtqueue *vq)
++{
++	schedule_work(&virtconsole.tx_work);
++}
++
++static void config_intr(struct virtio_device *vdev)
++{
++	if (use_multiport(&virtconsole)) {
++		/* Handle port hot-add */
++		schedule_work(&virtconsole.config_work);
++	}
++	/* Handle console size changes */
++	virtcons_apply_config(vdev);
++}
++
++static int virtconsole_add_port(u32 port_nr)
++{
++	struct virtio_console_port *port;
++	struct virtio_console_control cpkt;
++	dev_t devt;
++	int ret;
++
++	port = kzalloc(sizeof(*port), GFP_KERNEL);
++	if (!port)
++		return -ENOMEM;
++
++	port->vcon = &virtconsole;
++	port->id = port_nr;
++
++	cdev_init(&port->cdev, &virtconsole_fops);
++
++	ret = alloc_chrdev_region(&devt, 0, 1, "virtio-console");
++	if (ret < 0) {
++		pr_err("%s: error allocing chrdev region, ret = %d\n",
++		       __func__, ret);
++		goto free_port;
++	}
++	ret = cdev_add(&port->cdev, devt, 1);
++	if (ret < 0) {
++		pr_err("%s: error adding cdev, ret = %d\n", __func__, ret);
++		goto free_chrdev;
++	}
++	port->dev = device_create(port->vcon->class, NULL, devt, NULL,
++				  "vcon%u", port_nr);
++	if (IS_ERR(port->dev)) {
++		ret = PTR_ERR(port->dev);
++		pr_err("%s: error creating device, ret = %d\n", __func__, ret);
++		goto free_cdev;
++	}
++	ret = sysfs_create_group(&port->dev->kobj, &virtcon_attribute_group);
++	if (ret) {
++		pr_err("%s: error creating sysfs device attributes, ret = %d\n",
++		       __func__, ret);
++		goto free_cdev;
++	}
++
++	spin_lock_init(&port->readbuf_list_lock);
++	INIT_LIST_HEAD(&port->readbuf_head);
++	init_waitqueue_head(&port->waitqueue);
++
++	list_add_tail(&port->next, &port->vcon->port_head);
++
++	/*
++	 * Ask for the port's name from Host. The string that we
++	 * receive in 'name' can be of arbitrary length; so pass the
++	 * maximum available buffer size: PAGE_SIZE.
++	 */
++	cpkt.event = VIRTIO_CONSOLE_PORT_NAME;
++	send_buf(port, (char *)&cpkt, sizeof(cpkt),
++		 VIRTIO_CONSOLE_ID_INTERNAL, false);
++
++	/*
++	 * If we're not using multiport support, this has to be a console port
++	 */
++	if (!use_multiport(&virtconsole)) {
++		ret = init_port_console(port);
++		if (ret)
++			goto free_cdev;
++	}
++	return 0;
++free_cdev:
++	cdev_del(&port->cdev);
++free_chrdev:
++	unregister_chrdev_region(devt, 1);
++free_port:
++	kfree(port);
++	return ret;
++}
++
++
++/* The workhandler for config-space updates
+  *
+- * To set up and manage our virtual console, we call hvc_alloc().  Since we
+- * never remove the console device we never need this pointer again.
++ * This is used when new ports are added
++ */
++static void virtio_console_config_work_handler(struct work_struct *work)
++{
++	struct virtio_console_struct *vcon;
++	struct virtio_console_config virtconconf;
++	struct virtio_device *vdev;
++	u32 i;
++	int ret;
++
++	vcon = container_of(work, struct virtio_console_struct, config_work);
++
++	vdev = vcon->vdev;
++	vdev->config->get(vdev,
++			  offsetof(struct virtio_console_config, nr_active_ports),
++			  &virtconconf.nr_active_ports,
++			  sizeof(virtconconf.nr_active_ports));
++
++	/* Hot-add ports */
++	for (i = virtconsole.config.nr_active_ports;
++	     i < virtconconf.nr_active_ports; i++) {
++		ret = virtconsole_add_port(virtconsole.config.nr_active_ports + i);
++		if (!ret)
++			virtconsole.config.nr_active_ports++;
++	}
++}
++
++/*D:370
++ * Once we're further in boot, we get probed like any other virtio device.
++ * At this stage we set up the output virtqueue.
+  *
+- * Finally we put our input buffer in the input queue, ready to receive. */
+-static int __devinit virtcons_probe(struct virtio_device *dev)
++ * Finally we put our input buffer in the input queue, ready to receive.
++ */
++static int __devinit virtcons_probe(struct virtio_device *vdev)
+ {
+-	vq_callback_t *callbacks[] = { hvc_handle_input, NULL};
++	vq_callback_t *callbacks[] = { rx_intr, tx_intr };
+ 	const char *names[] = { "input", "output" };
+ 	struct virtqueue *vqs[2];
+-	int err;
+-
+-	vdev = dev;
++	u32 i;
++	int ret;
++	bool multiport;
+ 
+-	/* This is the scratch page we use to receive console input */
+-	inbuf = kmalloc(PAGE_SIZE, GFP_KERNEL);
+-	if (!inbuf) {
+-		err = -ENOMEM;
+-		goto fail;
++	if (virtconsole.vdev) {
++		pr_err("Multiple virtio-console devices not supported yet\n");
++		return -EEXIST;
+ 	}
++	virtconsole.vdev = vdev;
++
++	multiport = false;
++	if (virtio_has_feature(vdev, VIRTIO_CONSOLE_F_MULTIPORT)) {
++		multiport = true;
++		vdev->features[0] |= 1 << VIRTIO_CONSOLE_F_MULTIPORT;
++		vdev->config->finalize_features(vdev);
+ 
++		vdev->config->get(vdev, offsetof(struct virtio_console_config,
++						 nr_active_ports),
++				  &virtconsole.config.nr_active_ports,
++				  sizeof(virtconsole.config.nr_active_ports));
++	}
+ 	/* Find the queues. */
+ 	/* FIXME: This is why we want to wean off hvc: we do nothing
+ 	 * when input comes in. */
+-	err = vdev->config->find_vqs(vdev, 2, vqs, callbacks, names);
+-	if (err)
+-		goto free;
++	ret = vdev->config->find_vqs(vdev, 2, vqs, callbacks, names);
++	if (ret)
++		goto fail;
+ 
+-	in_vq = vqs[0];
+-	out_vq = vqs[1];
++	virtconsole.in_vq = vqs[0];
++	virtconsole.out_vq = vqs[1];
+ 
+-	/* Start using the new console output. */
+-	virtio_cons.get_chars = get_chars;
+-	virtio_cons.put_chars = put_chars;
+-	virtio_cons.notifier_add = notifier_add_vio;
+-	virtio_cons.notifier_del = notifier_del_vio;
+-	virtio_cons.notifier_hangup = notifier_del_vio;
+-
+-	/* The first argument of hvc_alloc() is the virtual console number, so
+-	 * we use zero.  The second argument is the parameter for the
+-	 * notification mechanism (like irq number). We currently leave this
+-	 * as zero, virtqueues have implicit notifications.
+-	 *
+-	 * The third argument is a "struct hv_ops" containing the put_chars()
+-	 * get_chars(), notifier_add() and notifier_del() pointers.
+-	 * The final argument is the output buffer size: we can do any size,
+-	 * so we put PAGE_SIZE here. */
+-	hvc = hvc_alloc(0, 0, &virtio_cons, PAGE_SIZE);
+-	if (IS_ERR(hvc)) {
+-		err = PTR_ERR(hvc);
+-		goto free_vqs;
++	/*
++	 * We had set the virtio_cons put_chars implementation to
++	 * put_chars for early_init. Now that we're done with the
++	 * early init phase, replace it with our cons_put_chars
++	 * implementation.
++	 */
++	virtio_cons.put_chars = cons_put_chars;
++
++	INIT_LIST_HEAD(&virtconsole.port_head);
++	INIT_LIST_HEAD(&virtconsole.unused_read_head);
++	INIT_LIST_HEAD(&virtconsole.unused_write_head);
++
++	INIT_WORK(&virtconsole.rx_work, &virtio_console_rx_work_handler);
++	INIT_WORK(&virtconsole.tx_work, &virtio_console_tx_work_handler);
++	INIT_WORK(&virtconsole.config_work, &virtio_console_config_work_handler);
++	spin_lock_init(&virtconsole.write_list_lock);
++
++	fill_receive_queue(&virtconsole);
++	alloc_write_bufs(&virtconsole);
++
++	virtconsole_add_port(0);
++	if (multiport)
++		for (i = 1; i < virtconsole.config.nr_active_ports; i++)
++			virtconsole_add_port(i);
++
++	return 0;
++
++fail:
++	return ret;
++}
++
++/*
++ * Remove port-specific data.
++ * In case the port can't be removed, return non-zero. This could
++ * then be used in the port hot-unplug case.
++ */
++static int virtcons_remove_port_data(struct virtio_console_port *port)
++{
++	struct virtio_console_port_buffer *buf, *buf2;
++
++	if (is_console_port(port)) {
++		/* hvc_console is compiled in, at least on Fedora. */
++		/* hvc_remove(hvc); */
++		return 1;
+ 	}
+ 
+-	/* Register the input buffer the first time. */
+-	add_inbuf();
++	sysfs_remove_group(&port->dev->kobj, &virtcon_attribute_group);
++	device_destroy(virtconsole.class, port->dev->devt);
++	unregister_chrdev_region(port->dev->devt, 1);
++	cdev_del(&port->cdev);
++
++	kfree(port->name);
++
++	/* Remove the buffers in which we have unconsumed data */
++	spin_lock(&port->readbuf_list_lock);
++	list_for_each_entry_safe(buf, buf2, &port->readbuf_head, next) {
++		list_del(&buf->next);
++		kfree(buf->buf);
++		kfree(buf);
++	}
++	spin_unlock(&port->readbuf_list_lock);
+ 	return 0;
++}
++
++static void virtcons_remove(struct virtio_device *vdev)
++{
++	struct virtio_console_port *port, *port2;
++	struct virtio_console_port_buffer *buf, *buf2;
++	char *tmpbuf;
++	int len;
++
++	class_destroy(virtconsole.class);
++
++	cancel_work_sync(&virtconsole.rx_work);
++	/*
++	 * Free up the buffers that we queued up for the Host to pass
++	 * us data
++	 */
++	while ((tmpbuf = virtconsole.in_vq->vq_ops->get_buf(virtconsole.in_vq,
++							    &len)))
++		kfree(tmpbuf);
+ 
+-free_vqs:
+ 	vdev->config->del_vqs(vdev);
+-free:
+-	kfree(inbuf);
+-fail:
+-	return err;
++	/*
++	 * Free up the buffers that were sent to us by Host but were
++	 * left unused
++	 */
++	list_for_each_entry_safe(buf, buf2, &virtconsole.unused_read_head, next) {
++		list_del(&buf->next);
++		kfree(buf->buf);
++		kfree(buf);
++	}
++	list_for_each_entry_safe(buf, buf2, &virtconsole.unused_write_head, next) {
++		list_del(&buf->next);
++		kfree(buf->buf);
++		kfree(buf);
++	}
++	list_for_each_entry_safe(port, port2, &virtconsole.port_head, next) {
++		list_del(&port->next);
++		virtcons_remove_port_data(port);
++		kfree(port);
++	}
+ }
+ 
+ static struct virtio_device_id id_table[] = {
+@@ -254,6 +1130,7 @@ static struct virtio_device_id id_table[] = {
+ 
+ static unsigned int features[] = {
+ 	VIRTIO_CONSOLE_F_SIZE,
++	VIRTIO_CONSOLE_F_MULTIPORT,
+ };
+ 
+ static struct virtio_driver virtio_console = {
+@@ -263,14 +1140,34 @@ static struct virtio_driver virtio_console = {
+ 	.driver.owner =	THIS_MODULE,
+ 	.id_table =	id_table,
+ 	.probe =	virtcons_probe,
+-	.config_changed = virtcons_apply_config,
++	.remove =	virtcons_remove,
++	.config_changed = config_intr,
+ };
+ 
+ static int __init init(void)
+ {
+-	return register_virtio_driver(&virtio_console);
++	int ret;
++
++	virtconsole.class = class_create(THIS_MODULE, "virtio-console");
++	if (IS_ERR(virtconsole.class)) {
++		pr_err("Error creating virtio-console class\n");
++		ret = PTR_ERR(virtconsole.class);
++		return ret;
++	}
++	ret = register_virtio_driver(&virtio_console);
++	if (ret) {
++		class_destroy(virtconsole.class);
++		return ret;
++	}
++	return 0;
++}
++
++static void __exit fini(void)
++{
++	unregister_virtio_driver(&virtio_console);
+ }
+ module_init(init);
++module_exit(fini);
+ 
+ MODULE_DEVICE_TABLE(virtio, id_table);
+ MODULE_DESCRIPTION("Virtio console driver");
+diff --git a/include/linux/virtio_console.h b/include/linux/virtio_console.h
+index b5f5198..96bb6f0 100644
+--- a/include/linux/virtio_console.h
++++ b/include/linux/virtio_console.h
+@@ -2,19 +2,63 @@
+ #define _LINUX_VIRTIO_CONSOLE_H
+ #include <linux/types.h>
+ #include <linux/virtio_config.h>
+-/* This header, excluding the #ifdef __KERNEL__ part, is BSD licensed so
+- * anyone can use the definitions to implement compatible drivers/servers. */
++/*
++ * This header, excluding the #ifdef __KERNEL__ part, is BSD licensed so
++ * anyone can use the definitions to implement compatible drivers/servers.
++ *
++ * Copyright (C) Red Hat, Inc., 2009
++ */
+ 
+ /* Feature bits */
+ #define VIRTIO_CONSOLE_F_SIZE	0	/* Does host provide console size? */
++#define VIRTIO_CONSOLE_F_MULTIPORT 1	/* Does host provide multiple ports? */
++
++#define VIRTIO_CONSOLE_BAD_ID	(~(u32)0) /* Invalid port number */
+ 
+ struct virtio_console_config {
+ 	/* colums of the screens */
+ 	__u16 cols;
+ 	/* rows of the screens */
+ 	__u16 rows;
++	/* number of ports in use */
++	__u32 nr_active_ports;
++} __attribute__((packed));
++
++
++/*
++ * An internal-only message that's passed between the Host and the
++ * Guest for a particular port.
++ */
++struct virtio_console_control {
++	__u16 event;
++	__u16 value;
++};
++
++/* Some events for internal messages (control packets) */
++#define VIRTIO_CONSOLE_PORT_OPEN	0
++#define VIRTIO_CONSOLE_PORT_NAME	1
++#define VIRTIO_CONSOLE_CONSOLE_PORT	2
++
++
++/*
++ * This struct is put in each buffer that gets passed to userspace and
++ * vice-versa
++ */
++struct virtio_console_header {
++	/* Port number */
++	u32 id;
++	/* Some message between host and guest */
++	u32 flags;
++	/*
++	 * Complete size of the write request - only sent with the
++	 * first buffer for each write request
++	 */
++	u32 size;
+ } __attribute__((packed));
+ 
++/* Messages between host and guest ('flags' field in the header above) */
++#define VIRTIO_CONSOLE_ID_INTERNAL	(1 << 0)
++
+ 
+ #ifdef __KERNEL__
+ int __init virtio_cons_early_init(int (*put_chars)(u32, const char *, int));
