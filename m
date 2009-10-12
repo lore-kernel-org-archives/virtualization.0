@@ -1,14 +1,12 @@
-From: Amit Shah <amit.shah@redhat.com>
-Subject: [PATCH v8 1/1] virtio_console: Add support for multiple ports for
-	generic guest and host communication
-Date: Mon, 12 Oct 2009 11:06:31 +0530
-Message-ID: <1255325791-9086-2-git-send-email-amit.shah__3172.86152062497$1255325957$gmane$org@redhat.com>
-References: <1255325791-9086-1-git-send-email-amit.shah@redhat.com>
+From: Shreyas Bhatewara <sbhatewara@vmware.com>
+Subject: [PATCH 2.6.32-rc4] net: VMware virtual Ethernet NIC driver:
+ vmxnet3
+Date: Mon, 12 Oct 2009 15:18:42 -0700 (PDT)
+Message-ID: <alpine.LRH.2.00.0910121447090.13205@sbhatewara-dev1.eng.vmware.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1255325791-9086-1-git-send-email-amit.shah@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,1546 +16,4320 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: rusty@rustcorp.com.au
-Cc: Amit Shah <amit.shah@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: linux-kernel <linux-kernel@vger.kernel.org>, netdev <netdev@vger.kernel.org>, Stephen Hemminger <shemminger@linux-foundation.org>, "David S. Miller" <davem@davemloft.net>
+Cc: Chris Wright <chrisw@sous-sol.org>, Greg Kroah-Hartman <greg@kroah.com>, pv-drivers <pv-drivers@vmware.com>, virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Expose multiple char devices ("ports") for simple communication
-between the host userspace and guest.
 
-Sample offline usages can be: poking around in a guest to find out
-the file systems used, applications installed, etc. Online usages
-can be sharing of clipboard data between the guest and the host,
-sending information about logged-in users to the host, locking the
-screen or session when a vnc session is closed, and so on.
+Ethernet NIC driver for VMware's vmxnet3
 
-This patch also enables spawning of multiple console ports that
-can be attached to hvc consoles.
+From: Shreyas Bhatewara <sbhatewara@vmware.com>
 
-The interface presented to guest userspace is of a simple char
-device, so it can be used like this:
+This patch adds driver support for VMware's virtual Ethernet NIC: vmxnet3
+Guests running on VMware hypervisors supporting vmxnet3 device will thus have
+access to improved network functionalities and performance.
 
-    fd = open("/dev/vcon2", O_RDWR);
-    ret = read(fd, buf, 100);
-    ret = write(fd, string, strlen(string));
+Signed-off-by: Shreyas Bhatewara <sbhatewara@vmware.com>
+Signed-off-by: Bhavesh Davda <bhavesh@vmware.com>
+Signed-off-by: Ronghua Zhang <ronghua@vmware.com>
 
-A name property, if set by the host, is exposed in
-
-    /sys/class/virtio-console/vconNN/name
-
-that can be used to create symlinks by udev scripts, example:
-
-    /dev/vcon/org.libvirt.channel.0  -> /dev/vcon1
-
-For requirements, use-cases and some history see
-
-    http://www.linux-kvm.org/page/VMchannel_Requirements
-
-Signed-off-by: Amit Shah <amit.shah@redhat.com>
-Acked-by: Christian Borntraeger <borntraeger@de.ibm.com> (console)
 ---
- drivers/char/Kconfig           |    6 +
- drivers/char/virtio_console.c  | 1290 +++++++++++++++++++++++++++++++++++-----
- include/linux/virtio_console.h |   50 ++-
- 3 files changed, 1210 insertions(+), 136 deletions(-)
 
-diff --git a/drivers/char/Kconfig b/drivers/char/Kconfig
-index 08a6f50..fc8a04e 100644
---- a/drivers/char/Kconfig
-+++ b/drivers/char/Kconfig
-@@ -679,6 +679,12 @@ config VIRTIO_CONSOLE
- 	help
- 	  Virtio console for use with lguest and other hypervisors.
+VMware virtual Ethernet NIC Driver : vmxnet3 - v4
+
+Changelog (v4-v3)
+- change the method to return results in vmxnet3_do_poll
+- free irq resources between suspend and resume power mngt operations
+- bump up the version number of driver
+- rebase to 2.6.32-rc4
+
+Changelog (v3-v2)
+- use ethtool instead of a module param to control hw LRO feature
+- rebase to 2.6.32-rc3
+
+Changelog (v2-v1)
+- Rebased the patch to v2.6.32-rc1
+- Changed all uint32_t types to u32 and friends
+- Removed duplicate max queue size from upt1_defs.h
+- Replaced #defines by enum
+- uniform spacing between datatype and membername in structures
+- removed some noisy printks, eliminated some BUG_ONs
+- corrected arguments of kcalloc
+- used pc_request_selected_regions, pci_enable_dev_mem
+- elminated not-so-useful wrapper functions, used eth_op_ functions instead
+- used strlcpy
+- used get_sset_counts instead of get_stats_count
+- used net_device_stats from struct net_device
+
+
+The following patch addresses comments/feedback posted on the mailing 
+lists so far. Please consider for inclusion in net-2.6 tree.
+
+Let me know comments if any.
+
+
+Thanking you
+->Shreyas
+
+---
+
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 69e31aa..d0c7c56 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -5651,6 +5651,13 @@ S:	Maintained
+ F:	drivers/vlynq/vlynq.c
+ F:	include/linux/vlynq.h
  
-+	  Also serves as a general-purpose serial device for data
-+	  transfer between the guest and host. Character devices at
-+	  /dev/vconNN will be created when corresponding ports are
-+	  found. If specified by the host, a sysfs attribute called
-+	  'name' will be populated with a name for the port which can
-+	  be used by udev scripts to create a symlink to /dev/vconNN.
- 
- config HVCS
- 	tristate "IBM Hypervisor Virtual Console Server support"
-diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index 0d328b5..0775d25 100644
---- a/drivers/char/virtio_console.c
-+++ b/drivers/char/virtio_console.c
-@@ -9,10 +9,8 @@
-  * functions.
-  :*/
- 
--/*M:002 The console can be flooded: while the Guest is processing input the
-- * Host can send more.  Buffering in the Host could alleviate this, but it is a
-- * difficult problem in general. :*/
- /* Copyright (C) 2006, 2007 Rusty Russell, IBM Corporation
-+ * Copyright (C) 2009, Amit Shah, Red Hat, Inc.
-  *
-  * This program is free software; you can redistribute it and/or modify
-  * it under the terms of the GNU General Public License as published by
-@@ -28,115 +26,577 @@
-  * along with this program; if not, write to the Free Software
-  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-  */
++VMWARE VMXNET3 ETHERNET DRIVER
++M:     Shreyas Bhatewara <sbhatewara@vmware.com>
++M:     VMware, Inc. <pv-drivers@vmware.com>
++L:     netdev@vger.kernel.org
++S:     Maintained
++F:     drivers/net/vmxnet3/
 +
-+#include <linux/cdev.h>
-+#include <linux/device.h>
- #include <linux/err.h>
-+#include <linux/fs.h>
- #include <linux/init.h>
-+#include <linux/poll.h>
-+#include <linux/sched.h>
-+#include <linux/spinlock.h>
- #include <linux/virtio.h>
- #include <linux/virtio_ids.h>
- #include <linux/virtio_console.h>
-+#include <linux/workqueue.h>
- #include "hvc_console.h"
+ VOLTAGE AND CURRENT REGULATOR FRAMEWORK
+ M:	Liam Girdwood <lrg@slimlogic.co.uk>
+ M:	Mark Brown <broonie@opensource.wolfsonmicro.com>
+diff --git a/drivers/net/Kconfig b/drivers/net/Kconfig
+index 7127760..9789de2 100644
+--- a/drivers/net/Kconfig
++++ b/drivers/net/Kconfig
+@@ -3230,4 +3230,12 @@ config VIRTIO_NET
+ 	  This is the virtual network driver for virtio.  It can be used with
+           lguest or QEMU based VMMs (like KVM or Xen).  Say Y or M.
  
--/*D:340 These represent our input and output console queues, and the virtio
-- * operations for them. */
--static struct virtqueue *in_vq, *out_vq;
--static struct virtio_device *vdev;
-+/* This struct stores data that's common to all the ports */
-+struct virtio_console_struct {
-+	/*
-+	 * Workqueue handlers where we process deferred work after an
-+	 * interrupt
-+	 */
-+	struct work_struct rx_work;
-+	struct work_struct tx_work;
-+	struct work_struct config_work;
- 
--/* This is our input buffer, and how much data is left in it. */
--static unsigned int in_len;
--static char *in, *inbuf;
-+	struct list_head port_head;
-+	struct list_head unused_read_head;
-+	struct list_head unused_write_head;
- 
--/* The operations for our console. */
--static struct hv_ops virtio_cons;
-+	/* To protect the list of unused write buffers and the out_vq */
-+	spinlock_t write_list_lock;
++config VMXNET3
++       tristate "VMware VMXNET3 ethernet driver"
++       depends on PCI && X86
++       help
++         This driver supports VMware's vmxnet3 virtual ethernet NIC.
++         To compile this driver as a module, choose M here: the
++         module will be called vmxnet3.
 +
-+	struct virtio_device *vdev;
-+	struct class *class;
-+	/* The input and the output queues */
-+	struct virtqueue *in_vq, *out_vq;
+ endif # NETDEVICES
+diff --git a/drivers/net/Makefile b/drivers/net/Makefile
+index d866b8c..d3a0418 100644
+--- a/drivers/net/Makefile
++++ b/drivers/net/Makefile
+@@ -26,6 +26,7 @@ obj-$(CONFIG_TEHUTI) += tehuti.o
+ obj-$(CONFIG_ENIC) += enic/
+ obj-$(CONFIG_JME) += jme.o
+ obj-$(CONFIG_BE2NET) += benet/
++obj-$(CONFIG_VMXNET3) += vmxnet3/
+ 
+ gianfar_driver-objs := gianfar.o \
+ 		gianfar_ethtool.o \
+diff --git a/drivers/net/vmxnet3/Makefile b/drivers/net/vmxnet3/Makefile
+new file mode 100644
+index 0000000..880f509
+--- /dev/null
++++ b/drivers/net/vmxnet3/Makefile
+@@ -0,0 +1,35 @@
++################################################################################
++#
++# Linux driver for VMware's vmxnet3 ethernet NIC.
++#
++# Copyright (C) 2007-2009, VMware, Inc. All Rights Reserved.
++#
++# This program is free software; you can redistribute it and/or modify it
++# under the terms of the GNU General Public License as published by the
++# Free Software Foundation; version 2 of the License and no later version.
++#
++# This program is distributed in the hope that it will be useful, but
++# WITHOUT ANY WARRANTY; without even the implied warranty of
++# MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE, GOOD TITLE or
++# NON INFRINGEMENT.  See the GNU General Public License for more
++# details.
++#
++# You should have received a copy of the GNU General Public License
++# along with this program; if not, write to the Free Software
++# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
++#
++# The full GNU General Public License is included in this distribution in
++# the file called "COPYING".
++#
++# Maintained by: Shreyas Bhatewara <pv-drivers@vmware.com>
++#
++#
++################################################################################
 +
-+	/* The current config space is stored here */
-+	struct virtio_console_config config;
++#
++# Makefile for the VMware vmxnet3 ethernet NIC driver
++#
++
++obj-$(CONFIG_VMXNET3) += vmxnet3.o
++
++vmxnet3-objs := vmxnet3_drv.o vmxnet3_ethtool.o
+diff --git a/drivers/net/vmxnet3/upt1_defs.h b/drivers/net/vmxnet3/upt1_defs.h
+new file mode 100644
+index 0000000..37108fb
+--- /dev/null
++++ b/drivers/net/vmxnet3/upt1_defs.h
+@@ -0,0 +1,96 @@
++/*
++ * Linux driver for VMware's vmxnet3 ethernet NIC.
++ *
++ * Copyright (C) 2008-2009, VMware, Inc. All Rights Reserved.
++ *
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License as published by the
++ * Free Software Foundation; version 2 of the License and no later version.
++ *
++ * This program is distributed in the hope that it will be useful, but
++ * WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE, GOOD TITLE or
++ * NON INFRINGEMENT.  See the GNU General Public License for more
++ * details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
++ *
++ * The full GNU General Public License is included in this distribution in
++ * the file called "COPYING".
++ *
++ * Maintained by: Shreyas Bhatewara <pv-drivers@vmware.com>
++ *
++ */
++
++#ifndef _UPT1_DEFS_H
++#define _UPT1_DEFS_H
++
++struct UPT1_TxStats {
++	u64			TSOPktsTxOK;  /* TSO pkts post-segmentation */
++	u64			TSOBytesTxOK;
++	u64			ucastPktsTxOK;
++	u64			ucastBytesTxOK;
++	u64			mcastPktsTxOK;
++	u64			mcastBytesTxOK;
++	u64			bcastPktsTxOK;
++	u64			bcastBytesTxOK;
++	u64			pktsTxError;
++	u64			pktsTxDiscard;
 +};
 +
-+/* This struct holds individual buffers received for each port */
-+struct virtio_console_port_buffer {
-+	struct list_head next;
-+
-+	char *buf;
-+
-+	/* length of the buffer */
-+	size_t len;
-+	/* offset in the buf from which to consume data */
-+	size_t offset;
++struct UPT1_RxStats {
++	u64			LROPktsRxOK;    /* LRO pkts */
++	u64			LROBytesRxOK;   /* bytes from LRO pkts */
++	/* the following counters are for pkts from the wire, i.e., pre-LRO */
++	u64			ucastPktsRxOK;
++	u64			ucastBytesRxOK;
++	u64			mcastPktsRxOK;
++	u64			mcastBytesRxOK;
++	u64			bcastPktsRxOK;
++	u64			bcastBytesRxOK;
++	u64			pktsRxOutOfBuf;
++	u64			pktsRxError;
 +};
 +
-+/* This struct holds the per-port data */
-+struct virtio_console_port {
-+	/* Next port in the list, head is in the virtio_console_struct */
-+	struct list_head next;
-+
-+	/* Pointer to the virtio_console device */
-+	struct virtio_console_struct *vcon;
-+
-+	/* Buffer management */
-+	struct list_head readbuf_head;
-+
-+	/*
-+	 * To protect the readbuf_head list. Has to be a spinlock
-+	 * because it can be called from interrupt context
-+	 * (cons_get_char())
-+	 */
-+	spinlock_t readbuf_list_lock;
-+
-+	/* A waitqueue for poll() or blocking read operations */
-+	wait_queue_head_t waitqueue;
-+
-+	/* Each port associates with a separate char device */
-+	struct cdev cdev;
-+	struct device *dev;
-+
-+	/* The hvc device, if this port is associated with a console */
-+	struct hvc_struct *hvc;
-+
-+	/* The 'name' of the port that we expose via sysfs properties */
-+	char *name;
-+
-+	/* The 'id' to identify the port with the Host */
-+	u32 id;
-+
-+	/*
-+	 * If this port is a console port, this number identifies the
-+	 * number that we used to register with hvc in
-+	 * hvc_instantiate() and hvc_alloc().
-+	 */
-+	u32 vtermno;
- 
--/* The hvc device */
--static struct hvc_struct *hvc;
-+	/*
-+	 * The Host can set some limit to the number of outstanding
-+	 * buffers we can have in the readbuf_head list before we
-+	 * should ask the Host to stop any more data from coming
-+	 * in. This is to not allow a rogue process on the Host to OOM
-+	 * the entire guest.
-+	 */
-+	u32 buffer_limit;
- 
--/*D:310 The put_chars() callback is pretty straightforward.
-+	/*
-+	 * The actual number of buffers we have pending in the
-+	 * readbuf_head list
-+	 */
-+	u32 nr_buffers;
-+
-+	/* Is the host device open */
-+	bool host_connected;
-+
-+	/* Does the Host not want to accept more data currently?  */
-+	bool host_throttled;
-+
-+	/* Have we sent out a throttle request to the Host? */
-+	bool guest_throttled;
-+
-+	/* Does the port want to cache data when disconnected? */
-+	bool cache_buffers;
++/* interrupt moderation level */
++enum {
++	UPT1_IML_NONE		= 0, /* no interrupt moderation */
++	UPT1_IML_HIGHEST	= 7, /* least intr generated */
++	UPT1_IML_ADAPTIVE	= 8, /* adpative intr moderation */
++};
++/* values for UPT1_RSSConf.hashFunc */
++enum {
++	UPT1_RSS_HASH_TYPE_NONE      = 0x0,
++	UPT1_RSS_HASH_TYPE_IPV4      = 0x01,
++	UPT1_RSS_HASH_TYPE_TCP_IPV4  = 0x02,
++	UPT1_RSS_HASH_TYPE_IPV6      = 0x04,
++	UPT1_RSS_HASH_TYPE_TCP_IPV6  = 0x08,
 +};
 +
-+static struct virtio_console_struct virtconsole;
++enum {
++	UPT1_RSS_HASH_FUNC_NONE      = 0x0,
++	UPT1_RSS_HASH_FUNC_TOEPLITZ  = 0x01,
++};
++
++#define UPT1_RSS_MAX_KEY_SIZE        40
++#define UPT1_RSS_MAX_IND_TABLE_SIZE  128
++
++struct UPT1_RSSConf {
++	u16			hashType;
++	u16			hashFunc;
++	u16			hashKeySize;
++	u16			indTableSize;
++	u8			hashKey[UPT1_RSS_MAX_KEY_SIZE];
++	u8			indTable[UPT1_RSS_MAX_IND_TABLE_SIZE];
++};
++
++/* features */
++enum {
++	UPT1_F_RXCSUM		= 0x0001,   /* rx csum verification */
++	UPT1_F_RSS		= 0x0002,
++	UPT1_F_RXVLAN		= 0x0004,   /* VLAN tag stripping */
++	UPT1_F_LRO		= 0x0008,
++};
++#endif
+diff --git a/drivers/net/vmxnet3/vmxnet3_defs.h b/drivers/net/vmxnet3/vmxnet3_defs.h
+new file mode 100644
+index 0000000..dc8ee44
+--- /dev/null
++++ b/drivers/net/vmxnet3/vmxnet3_defs.h
+@@ -0,0 +1,535 @@
++/*
++ * Linux driver for VMware's vmxnet3 ethernet NIC.
++ *
++ * Copyright (C) 2008-2009, VMware, Inc. All Rights Reserved.
++ *
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License as published by the
++ * Free Software Foundation; version 2 of the License and no later version.
++ *
++ * This program is distributed in the hope that it will be useful, but
++ * WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE, GOOD TITLE or
++ * NON INFRINGEMENT.  See the GNU General Public License for more
++ * details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
++ *
++ * The full GNU General Public License is included in this distribution in
++ * the file called "COPYING".
++ *
++ * Maintained by: Shreyas Bhatewara <pv-drivers@vmware.com>
++ *
++ */
++
++#ifndef _VMXNET3_DEFS_H_
++#define _VMXNET3_DEFS_H_
++
++#include "upt1_defs.h"
++
++/* all registers are 32 bit wide */
++/* BAR 1 */
++enum {
++	VMXNET3_REG_VRRS	= 0x0,	/* Vmxnet3 Revision Report Selection */
++	VMXNET3_REG_UVRS	= 0x8,	/* UPT Version Report Selection */
++	VMXNET3_REG_DSAL	= 0x10,	/* Driver Shared Address Low */
++	VMXNET3_REG_DSAH	= 0x18,	/* Driver Shared Address High */
++	VMXNET3_REG_CMD		= 0x20,	/* Command */
++	VMXNET3_REG_MACL	= 0x28,	/* MAC Address Low */
++	VMXNET3_REG_MACH	= 0x30,	/* MAC Address High */
++	VMXNET3_REG_ICR		= 0x38,	/* Interrupt Cause Register */
++	VMXNET3_REG_ECR		= 0x40	/* Event Cause Register */
++};
++
++/* BAR 0 */
++enum {
++	VMXNET3_REG_IMR		= 0x0,	 /* Interrupt Mask Register */
++	VMXNET3_REG_TXPROD	= 0x600, /* Tx Producer Index */
++	VMXNET3_REG_RXPROD	= 0x800, /* Rx Producer Index for ring 1 */
++	VMXNET3_REG_RXPROD2	= 0xA00	 /* Rx Producer Index for ring 2 */
++};
++
++#define VMXNET3_PT_REG_SIZE     4096	/* BAR 0 */
++#define VMXNET3_VD_REG_SIZE     4096	/* BAR 1 */
++
++#define VMXNET3_REG_ALIGN       8	/* All registers are 8-byte aligned. */
++#define VMXNET3_REG_ALIGN_MASK  0x7
++
++/* I/O Mapped access to registers */
++#define VMXNET3_IO_TYPE_PT              0
++#define VMXNET3_IO_TYPE_VD              1
++#define VMXNET3_IO_ADDR(type, reg)      (((type) << 24) | ((reg) & 0xFFFFFF))
++#define VMXNET3_IO_TYPE(addr)           ((addr) >> 24)
++#define VMXNET3_IO_REG(addr)            ((addr) & 0xFFFFFF)
++
++enum {
++	VMXNET3_CMD_FIRST_SET = 0xCAFE0000,
++	VMXNET3_CMD_ACTIVATE_DEV = VMXNET3_CMD_FIRST_SET,
++	VMXNET3_CMD_QUIESCE_DEV,
++	VMXNET3_CMD_RESET_DEV,
++	VMXNET3_CMD_UPDATE_RX_MODE,
++	VMXNET3_CMD_UPDATE_MAC_FILTERS,
++	VMXNET3_CMD_UPDATE_VLAN_FILTERS,
++	VMXNET3_CMD_UPDATE_RSSIDT,
++	VMXNET3_CMD_UPDATE_IML,
++	VMXNET3_CMD_UPDATE_PMCFG,
++	VMXNET3_CMD_UPDATE_FEATURE,
++	VMXNET3_CMD_LOAD_PLUGIN,
++
++	VMXNET3_CMD_FIRST_GET = 0xF00D0000,
++	VMXNET3_CMD_GET_QUEUE_STATUS = VMXNET3_CMD_FIRST_GET,
++	VMXNET3_CMD_GET_STATS,
++	VMXNET3_CMD_GET_LINK,
++	VMXNET3_CMD_GET_PERM_MAC_LO,
++	VMXNET3_CMD_GET_PERM_MAC_HI,
++	VMXNET3_CMD_GET_DID_LO,
++	VMXNET3_CMD_GET_DID_HI,
++	VMXNET3_CMD_GET_DEV_EXTRA_INFO,
++	VMXNET3_CMD_GET_CONF_INTR
++};
++
++struct Vmxnet3_TxDesc {
++	u64		addr;
++
++	u32		len:14;
++	u32		gen:1;      /* generation bit */
++	u32		rsvd:1;
++	u32		dtype:1;    /* descriptor type */
++	u32		ext1:1;
++	u32		msscof:14;  /* MSS, checksum offset, flags */
++
++	u32		hlen:10;    /* header len */
++	u32		om:2;       /* offload mode */
++	u32		eop:1;      /* End Of Packet */
++	u32		cq:1;       /* completion request */
++	u32		ext2:1;
++	u32		ti:1;       /* VLAN Tag Insertion */
++	u32		tci:16;     /* Tag to Insert */
++};
++
++/* TxDesc.OM values */
++#define VMXNET3_OM_NONE		0
++#define VMXNET3_OM_CSUM		2
++#define VMXNET3_OM_TSO		3
++
++/* fields in TxDesc we access w/o using bit fields */
++#define VMXNET3_TXD_EOP_SHIFT	12
++#define VMXNET3_TXD_CQ_SHIFT	13
++#define VMXNET3_TXD_GEN_SHIFT	14
++
++#define VMXNET3_TXD_CQ		(1 << VMXNET3_TXD_CQ_SHIFT)
++#define VMXNET3_TXD_EOP		(1 << VMXNET3_TXD_EOP_SHIFT)
++#define VMXNET3_TXD_GEN		(1 << VMXNET3_TXD_GEN_SHIFT)
++
++#define VMXNET3_HDR_COPY_SIZE   128
++
++
++struct Vmxnet3_TxDataDesc {
++	u8		data[VMXNET3_HDR_COPY_SIZE];
++};
++
++
++struct Vmxnet3_TxCompDesc {
++	u32		txdIdx:12;    /* Index of the EOP TxDesc */
++	u32		ext1:20;
++
++	u32		ext2;
++	u32		ext3;
++
++	u32		rsvd:24;
++	u32		type:7;       /* completion type */
++	u32		gen:1;        /* generation bit */
++};
++
++
++struct Vmxnet3_RxDesc {
++	u64		addr;
++
++	u32		len:14;
++	u32		btype:1;      /* Buffer Type */
++	u32		dtype:1;      /* Descriptor type */
++	u32		rsvd:15;
++	u32		gen:1;        /* Generation bit */
++
++	u32		ext1;
++};
++
++/* values of RXD.BTYPE */
++#define VMXNET3_RXD_BTYPE_HEAD   0    /* head only */
++#define VMXNET3_RXD_BTYPE_BODY   1    /* body only */
++
++/* fields in RxDesc we access w/o using bit fields */
++#define VMXNET3_RXD_BTYPE_SHIFT  14
++#define VMXNET3_RXD_GEN_SHIFT    31
++
++
++struct Vmxnet3_RxCompDesc {
++	u32		rxdIdx:12;    /* Index of the RxDesc */
++	u32		ext1:2;
++	u32		eop:1;        /* End of Packet */
++	u32		sop:1;        /* Start of Packet */
++	u32		rqID:10;      /* rx queue/ring ID */
++	u32		rssType:4;    /* RSS hash type used */
++	u32		cnc:1;        /* Checksum Not Calculated */
++	u32		ext2:1;
++
++	u32		rssHash;      /* RSS hash value */
++
++	u32		len:14;       /* data length */
++	u32		err:1;        /* Error */
++	u32		ts:1;         /* Tag is stripped */
++	u32		tci:16;       /* Tag stripped */
++
++	u32		csum:16;
++	u32		tuc:1;        /* TCP/UDP Checksum Correct */
++	u32		udp:1;        /* UDP packet */
++	u32		tcp:1;        /* TCP packet */
++	u32		ipc:1;        /* IP Checksum Correct */
++	u32		v6:1;         /* IPv6 */
++	u32		v4:1;         /* IPv4 */
++	u32		frg:1;        /* IP Fragment */
++	u32		fcs:1;        /* Frame CRC correct */
++	u32		type:7;       /* completion type */
++	u32		gen:1;        /* generation bit */
++};
++
++/* fields in RxCompDesc we access via Vmxnet3_GenericDesc.dword[3] */
++#define VMXNET3_RCD_TUC_SHIFT	16
++#define VMXNET3_RCD_IPC_SHIFT	19
++
++/* fields in RxCompDesc we access via Vmxnet3_GenericDesc.qword[1] */
++#define VMXNET3_RCD_TYPE_SHIFT	56
++#define VMXNET3_RCD_GEN_SHIFT	63
++
++/* csum OK for TCP/UDP pkts over IP */
++#define VMXNET3_RCD_CSUM_OK (1 << VMXNET3_RCD_TUC_SHIFT | \
++			     1 << VMXNET3_RCD_IPC_SHIFT)
++
++/* value of RxCompDesc.rssType */
++enum {
++	VMXNET3_RCD_RSS_TYPE_NONE     = 0,
++	VMXNET3_RCD_RSS_TYPE_IPV4     = 1,
++	VMXNET3_RCD_RSS_TYPE_TCPIPV4  = 2,
++	VMXNET3_RCD_RSS_TYPE_IPV6     = 3,
++	VMXNET3_RCD_RSS_TYPE_TCPIPV6  = 4,
++};
++
++
++/* a union for accessing all cmd/completion descriptors */
++union Vmxnet3_GenericDesc {
++	u64				qword[2];
++	u32				dword[4];
++	u16				word[8];
++	struct Vmxnet3_TxDesc		txd;
++	struct Vmxnet3_RxDesc		rxd;
++	struct Vmxnet3_TxCompDesc	tcd;
++	struct Vmxnet3_RxCompDesc	rcd;
++};
++
++#define VMXNET3_INIT_GEN       1
++
++/* Max size of a single tx buffer */
++#define VMXNET3_MAX_TX_BUF_SIZE  (1 << 14)
++
++/* # of tx desc needed for a tx buffer size */
++#define VMXNET3_TXD_NEEDED(size) (((size) + VMXNET3_MAX_TX_BUF_SIZE - 1) / \
++				  VMXNET3_MAX_TX_BUF_SIZE)
++
++/* max # of tx descs for a non-tso pkt */
++#define VMXNET3_MAX_TXD_PER_PKT 16
++
++/* Max size of a single rx buffer */
++#define VMXNET3_MAX_RX_BUF_SIZE  ((1 << 14) - 1)
++/* Minimum size of a type 0 buffer */
++#define VMXNET3_MIN_T0_BUF_SIZE  128
++#define VMXNET3_MAX_CSUM_OFFSET  1024
++
++/* Ring base address alignment */
++#define VMXNET3_RING_BA_ALIGN   512
++#define VMXNET3_RING_BA_MASK    (VMXNET3_RING_BA_ALIGN - 1)
++
++/* Ring size must be a multiple of 32 */
++#define VMXNET3_RING_SIZE_ALIGN 32
++#define VMXNET3_RING_SIZE_MASK  (VMXNET3_RING_SIZE_ALIGN - 1)
++
++/* Max ring size */
++#define VMXNET3_TX_RING_MAX_SIZE   4096
++#define VMXNET3_TC_RING_MAX_SIZE   4096
++#define VMXNET3_RX_RING_MAX_SIZE   4096
++#define VMXNET3_RC_RING_MAX_SIZE   8192
++
++/* a list of reasons for queue stop */
++
++enum {
++ VMXNET3_ERR_NOEOP        = 0x80000000,  /* cannot find the EOP desc of a pkt */
++ VMXNET3_ERR_TXD_REUSE    = 0x80000001,  /* reuse TxDesc before tx completion */
++ VMXNET3_ERR_BIG_PKT      = 0x80000002,  /* too many TxDesc for a pkt */
++ VMXNET3_ERR_DESC_NOT_SPT = 0x80000003,  /* descriptor type not supported */
++ VMXNET3_ERR_SMALL_BUF    = 0x80000004,  /* type 0 buffer too small */
++ VMXNET3_ERR_STRESS       = 0x80000005,  /* stress option firing in vmkernel */
++ VMXNET3_ERR_SWITCH       = 0x80000006,  /* mode switch failure */
++ VMXNET3_ERR_TXD_INVALID  = 0x80000007,  /* invalid TxDesc */
++};
++
++/* completion descriptor types */
++#define VMXNET3_CDTYPE_TXCOMP      0    /* Tx Completion Descriptor */
++#define VMXNET3_CDTYPE_RXCOMP      3    /* Rx Completion Descriptor */
++
++enum {
++	VMXNET3_GOS_BITS_UNK    = 0,   /* unknown */
++	VMXNET3_GOS_BITS_32     = 1,
++	VMXNET3_GOS_BITS_64     = 2,
++};
++
++#define VMXNET3_GOS_TYPE_LINUX	1
++
++
++struct Vmxnet3_GOSInfo {
++	u32				gosBits:2;	/* 32-bit or 64-bit? */
++	u32				gosType:4;   /* which guest */
++	u32				gosVer:16;   /* gos version */
++	u32				gosMisc:10;  /* other info about gos */
++};
++
++
++struct Vmxnet3_DriverInfo {
++	u32				version;
++	struct Vmxnet3_GOSInfo		gos;
++	u32				vmxnet3RevSpt;
++	u32				uptVerSpt;
++};
++
++
++#define VMXNET3_REV1_MAGIC  0xbabefee1
 +
 +/*
-+ * This is used to keep track of the number of hvc consoles spawned.
-+ * This number is given as first argument to hvc_alloc(). We could as
-+ * well pass on the minor number of the char device but to correctly
-+ * map an initial console spawned via hvc_instantiate to the console
-+ * being hooked up via hvc_alloc, we need to pass the same vtermno.
-  *
-- * We turn the characters into a scatter-gather list, add it to the output
-- * queue and then kick the Host.  Then we sit here waiting for it to finish:
-- * inefficient in theory, but in practice implementations will do it
-- * immediately (lguest's Launcher does). */
--static int put_chars(u32 vtermno, const char *buf, int count)
-+ * With this int, we just assume the first console being initialised
-+ * was the first one that got used as the initial console.
++ * QueueDescPA must be 128 bytes aligned. It points to an array of
++ * Vmxnet3_TxQueueDesc followed by an array of Vmxnet3_RxQueueDesc.
++ * The number of Vmxnet3_TxQueueDesc/Vmxnet3_RxQueueDesc are specified by
++ * Vmxnet3_MiscConf.numTxQueues/numRxQueues, respectively.
 + */
-+static unsigned int hvc_vtermno;
++#define VMXNET3_QUEUE_DESC_ALIGN  128
 +
-+static struct virtio_console_port *get_port_from_vtermno(u32 vtermno)
- {
--	struct scatterlist sg[1];
--	unsigned int len;
-+	struct virtio_console_port *port;
- 
--	/* This is a convenient routine to initialize a single-elem sg list */
--	sg_init_one(sg, buf, count);
-+	list_for_each_entry(port, &virtconsole.port_head, next) {
-+		if (port->hvc && port->vtermno == vtermno)
-+			return port;
-+	}
-+	return NULL;
-+}
- 
--	/* add_buf wants a token to identify this buffer: we hand it any
--	 * non-NULL pointer, since there's only ever one buffer. */
--	if (out_vq->vq_ops->add_buf(out_vq, sg, 1, 0, (void *)1) >= 0) {
--		/* Tell Host to go! */
--		out_vq->vq_ops->kick(out_vq);
--		/* Chill out until it's done with the buffer. */
--		while (!out_vq->vq_ops->get_buf(out_vq, &len))
--			cpu_relax();
-+static struct virtio_console_port *get_port_from_devt(dev_t devt)
-+{
-+	struct virtio_console_port *port;
 +
-+	list_for_each_entry(port, &virtconsole.port_head, next) {
-+		if (port->dev->devt == devt)
-+			return port;
- 	}
-+	return NULL;
-+}
++struct Vmxnet3_MiscConf {
++	struct Vmxnet3_DriverInfo driverInfo;
++	u64		uptFeatures;
++	u64		ddPA;         /* driver data PA */
++	u64		queueDescPA;  /* queue descriptor table PA */
++	u32		ddLen;        /* driver data len */
++	u32		queueDescLen; /* queue desc. table len in bytes */
++	u32		mtu;
++	u16		maxNumRxSG;
++	u8		numTxQueues;
++	u8		numRxQueues;
++	u32		reserved[4];
++};
 +
-+static struct virtio_console_port *get_port_from_id(u32 id)
-+{
-+	struct virtio_console_port *port;
- 
--	/* We're expected to return the amount of data we wrote: all of it. */
--	return count;
-+	list_for_each_entry(port, &virtconsole.port_head, next) {
-+		if (port->id == id)
-+			return port;
-+	}
-+	return NULL;
-+}
 +
-+static int get_id_from_port(struct virtio_console_port *port)
-+{
-+	return port->id;
-+}
++struct Vmxnet3_TxQueueConf {
++	u64		txRingBasePA;
++	u64		dataRingBasePA;
++	u64		compRingBasePA;
++	u64		ddPA;         /* driver data */
++	u64		reserved;
++	u32		txRingSize;   /* # of tx desc */
++	u32		dataRingSize; /* # of data desc */
++	u32		compRingSize; /* # of comp desc */
++	u32		ddLen;        /* size of driver data */
++	u8		intrIdx;
++	u8		_pad[7];
++};
 +
-+static bool is_console_port(struct virtio_console_port *port)
-+{
-+	if (port->hvc)
-+		return true;
-+	return false;
-+}
 +
-+static inline bool use_multiport(struct virtio_console_struct *vcon)
-+{
-+	/*
-+	 * This condition can be true when put_chars is called from
-+	 * early_init
-+	 */
-+	if (!vcon->vdev)
-+		return 0;
-+	return vcon->vdev->features[0] & (1 << VIRTIO_CONSOLE_F_MULTIPORT);
- }
- 
--/* Create a scatter-gather list representing our input buffer and put it in the
-- * queue. */
--static void add_inbuf(void)
-+static inline bool is_internal(u32 flags)
- {
-+	return flags & VIRTIO_CONSOLE_ID_INTERNAL;
-+}
++struct Vmxnet3_RxQueueConf {
++	u64		rxRingBasePA[2];
++	u64		compRingBasePA;
++	u64		ddPA;            /* driver data */
++	u64		reserved;
++	u32		rxRingSize[2];   /* # of rx desc */
++	u32		compRingSize;    /* # of rx comp desc */
++	u32		ddLen;           /* size of driver data */
++	u8		intrIdx;
++	u8		_pad[7];
++};
 +
-+static ssize_t send_buf(struct virtio_console_port *port,
-+			const char *in_buf, size_t in_count,
-+			u32 flags, bool from_user)
-+{
-+	struct virtqueue *out_vq;
-+	struct virtio_console_port_buffer *buf, *buf2;
- 	struct scatterlist sg[1];
--	sg_init_one(sg, inbuf, PAGE_SIZE);
-+	struct virtio_console_header header;
-+	size_t in_offset, copy_size;
-+	ssize_t ret;
-+	unsigned int header_len;
- 
--	/* We should always be able to add one buffer to an empty queue. */
--	if (in_vq->vq_ops->add_buf(in_vq, sg, 0, 1, inbuf) < 0)
--		BUG();
--	in_vq->vq_ops->kick(in_vq);
-+	if (!in_count)
-+		return 0;
 +
-+	out_vq = port->vcon->out_vq;
-+	/*
-+	 * We should not send internal messages to a host that won't
-+	 * understand them
-+	 */
-+	if (!use_multiport(port->vcon) && is_internal(flags))
-+		return 0;
-+	header_len = 0;
-+	if (use_multiport(port->vcon)) {
-+		header.id = get_id_from_port(port);
-+		header.flags = flags;
-+		header.size = in_count;
-+		header_len = sizeof(header);
-+	}
-+	in_offset = 0; /* offset in the user buffer */
-+	while (in_count - in_offset) {
-+		copy_size = min(in_count - in_offset + header_len, PAGE_SIZE);
++enum vmxnet3_intr_mask_mode {
++	VMXNET3_IMM_AUTO   = 0,
++	VMXNET3_IMM_ACTIVE = 1,
++	VMXNET3_IMM_LAZY   = 2
++};
 +
-+		spin_lock(&port->vcon->write_list_lock);
-+		list_for_each_entry_safe(buf, buf2,
-+					 &port->vcon->unused_write_head,
-+					 next) {
-+			list_del(&buf->next);
-+			break;
-+		}
-+		spin_unlock(&port->vcon->write_list_lock);
-+		if (!buf)
-+			break;
-+		if (header_len) {
-+			memcpy(buf->buf, &header, header_len);
-+			copy_size -= header_len;
-+		}
-+		if (from_user) {
-+			ret = copy_from_user(buf->buf + header_len,
-+					     in_buf + in_offset, copy_size);
-+		} else {
-+			/*
-+			 * Since we're not sure when the host will actually
-+			 * consume the data and tell us about it, we have
-+			 * to copy the data here in case the caller
-+			 * frees the in_buf
-+			 */
-+			memcpy(buf->buf + header_len,
-+			       in_buf + in_offset, copy_size);
-+			ret = 0; /* Emulate copy_from_user behaviour */
-+		}
-+		buf->len = header_len + copy_size - ret;
-+		sg_init_one(sg, buf->buf, buf->len);
++enum vmxnet3_intr_type {
++	VMXNET3_IT_AUTO = 0,
++	VMXNET3_IT_INTX = 1,
++	VMXNET3_IT_MSI  = 2,
++	VMXNET3_IT_MSIX = 3
++};
 +
-+		spin_lock(&port->vcon->write_list_lock);
-+		ret = out_vq->vq_ops->add_buf(out_vq, sg, 1, 0, buf);
-+		spin_unlock(&port->vcon->write_list_lock);
-+		if (ret < 0) {
-+			memset(buf->buf, 0, buf->len);
-+			spin_lock(&virtconsole.write_list_lock);
-+			list_add_tail(&buf->next,
-+				      &port->vcon->unused_write_head);
-+			spin_unlock(&port->vcon->write_list_lock);
-+			break;
-+		}
-+		in_offset += buf->len - header_len;
-+		/*
-+		 * Only send size with the first buffer.  This way
-+		 * userspace can find out a continuous stream of data
-+		 * belonging to one write request and consume it
-+		 * appropriately
-+		 */
-+		header.size = 0;
++#define VMXNET3_MAX_TX_QUEUES  8
++#define VMXNET3_MAX_RX_QUEUES  16
++/* addition 1 for events */
++#define VMXNET3_MAX_INTRS      25
 +
-+		/* No space left in the vq anyway */
-+		if (!ret)
-+			break;
-+	}
-+	/* Tell Host to go! */
-+	spin_lock(&port->vcon->write_list_lock);
-+	out_vq->vq_ops->kick(out_vq);
-+	spin_unlock(&port->vcon->write_list_lock);
 +
-+	/* We're expected to return the amount of data we wrote */
-+	return in_offset;
- }
- 
--/*D:350 get_chars() is the callback from the hvc_console infrastructure when
-- * an interrupt is received.
-- *
-- * Most of the code deals with the fact that the hvc_console() infrastructure
-- * only asks us for 16 bytes at a time.  We keep in_offset and in_used fields
-- * for partially-filled buffers. */
--static int get_chars(u32 vtermno, char *buf, int count)
++struct Vmxnet3_IntrConf {
++	bool		autoMask;
++	u8		numIntrs;      /* # of interrupts */
++	u8		eventIntrIdx;
++	u8		modLevels[VMXNET3_MAX_INTRS];	/* moderation level for
++							 * each intr */
++	u32		reserved[3];
++};
++
++/* one bit per VLAN ID, the size is in the units of u32	*/
++#define VMXNET3_VFT_SIZE  (4096 / (sizeof(u32) * 8))
++
++
++struct Vmxnet3_QueueStatus {
++	bool		stopped;
++	u8		_pad[3];
++	u32		error;
++};
++
++
++struct Vmxnet3_TxQueueCtrl {
++	u32		txNumDeferred;
++	u32		txThreshold;
++	u64		reserved;
++};
++
++
++struct Vmxnet3_RxQueueCtrl {
++	bool		updateRxProd;
++	u8		_pad[7];
++	u64		reserved;
++};
++
++enum {
++	VMXNET3_RXM_UCAST     = 0x01,  /* unicast only */
++	VMXNET3_RXM_MCAST     = 0x02,  /* multicast passing the filters */
++	VMXNET3_RXM_BCAST     = 0x04,  /* broadcast only */
++	VMXNET3_RXM_ALL_MULTI = 0x08,  /* all multicast */
++	VMXNET3_RXM_PROMISC   = 0x10  /* promiscuous */
++};
++
++struct Vmxnet3_RxFilterConf {
++	u32		rxMode;       /* VMXNET3_RXM_xxx */
++	u16		mfTableLen;   /* size of the multicast filter table */
++	u16		_pad1;
++	u64		mfTablePA;    /* PA of the multicast filters table */
++	u32		vfTable[VMXNET3_VFT_SIZE]; /* vlan filter */
++};
++
++
++#define VMXNET3_PM_MAX_FILTERS        6
++#define VMXNET3_PM_MAX_PATTERN_SIZE   128
++#define VMXNET3_PM_MAX_MASK_SIZE      (VMXNET3_PM_MAX_PATTERN_SIZE / 8)
++
++#define VMXNET3_PM_WAKEUP_MAGIC       0x01  /* wake up on magic pkts */
++#define VMXNET3_PM_WAKEUP_FILTER      0x02  /* wake up on pkts matching
++					     * filters */
++
++
++struct Vmxnet3_PM_PktFilter {
++	u8		maskSize;
++	u8		patternSize;
++	u8		mask[VMXNET3_PM_MAX_MASK_SIZE];
++	u8		pattern[VMXNET3_PM_MAX_PATTERN_SIZE];
++	u8		pad[6];
++};
++
++
++struct Vmxnet3_PMConf {
++	u16		wakeUpEvents;  /* VMXNET3_PM_WAKEUP_xxx */
++	u8		numFilters;
++	u8		pad[5];
++	struct Vmxnet3_PM_PktFilter filters[VMXNET3_PM_MAX_FILTERS];
++};
++
++
++struct Vmxnet3_VariableLenConfDesc {
++	u32		confVer;
++	u32		confLen;
++	u64		confPA;
++};
++
++
++struct Vmxnet3_TxQueueDesc {
++	struct Vmxnet3_TxQueueCtrl		ctrl;
++	struct Vmxnet3_TxQueueConf		conf;
++
++	/* Driver read after a GET command */
++	struct Vmxnet3_QueueStatus		status;
++	struct UPT1_TxStats			stats;
++	u8					_pad[88]; /* 128 aligned */
++};
++
++
++struct Vmxnet3_RxQueueDesc {
++	struct Vmxnet3_RxQueueCtrl		ctrl;
++	struct Vmxnet3_RxQueueConf		conf;
++	/* Driver read after a GET commad */
++	struct Vmxnet3_QueueStatus		status;
++	struct UPT1_RxStats			stats;
++	u8				      __pad[88]; /* 128 aligned */
++};
++
++
++struct Vmxnet3_DSDevRead {
++	/* read-only region for device, read by dev in response to a SET cmd */
++	struct Vmxnet3_MiscConf			misc;
++	struct Vmxnet3_IntrConf			intrConf;
++	struct Vmxnet3_RxFilterConf		rxFilterConf;
++	struct Vmxnet3_VariableLenConfDesc	rssConfDesc;
++	struct Vmxnet3_VariableLenConfDesc	pmConfDesc;
++	struct Vmxnet3_VariableLenConfDesc	pluginConfDesc;
++};
++
++/* All structures in DriverShared are padded to multiples of 8 bytes */
++struct Vmxnet3_DriverShared {
++	u32				magic;
++	/* make devRead start at 64bit boundaries */
++	u32					pad;
++	struct Vmxnet3_DSDevRead		devRead;
++	u32					ecr;
++	u32					reserved[5];
++};
++
++
++#define VMXNET3_ECR_RQERR       (1 << 0)
++#define VMXNET3_ECR_TQERR       (1 << 1)
++#define VMXNET3_ECR_LINK        (1 << 2)
++#define VMXNET3_ECR_DIC         (1 << 3)
++#define VMXNET3_ECR_DEBUG       (1 << 4)
++
++/* flip the gen bit of a ring */
++#define VMXNET3_FLIP_RING_GEN(gen) ((gen) = (gen) ^ 0x1)
++
++/* only use this if moving the idx won't affect the gen bit */
++#define VMXNET3_INC_RING_IDX_ONLY(idx, ring_size) \
++	do {\
++		(idx)++;\
++		if (unlikely((idx) == (ring_size))) {\
++			(idx) = 0;\
++		} \
++	} while (0)
++
++#define VMXNET3_SET_VFTABLE_ENTRY(vfTable, vid) \
++	(vfTable[vid >> 5] |= (1 << (vid & 31)))
++#define VMXNET3_CLEAR_VFTABLE_ENTRY(vfTable, vid) \
++	(vfTable[vid >> 5] &= ~(1 << (vid & 31)))
++
++#define VMXNET3_VFTABLE_ENTRY_IS_SET(vfTable, vid) \
++	((vfTable[vid >> 5] & (1 << (vid & 31))) != 0)
++
++#define VMXNET3_MAX_MTU     9000
++#define VMXNET3_MIN_MTU     60
++
++#define VMXNET3_LINK_UP         (10000 << 16 | 1)    /* 10 Gbps, up */
++#define VMXNET3_LINK_DOWN       0
++
++#endif /* _VMXNET3_DEFS_H_ */
+diff --git a/drivers/net/vmxnet3/vmxnet3_drv.c b/drivers/net/vmxnet3/vmxnet3_drv.c
+new file mode 100644
+index 0000000..44fb0c5
+--- /dev/null
++++ b/drivers/net/vmxnet3/vmxnet3_drv.c
+@@ -0,0 +1,2556 @@
 +/*
-+ * Give out the data that's requested from the buffers that we have
-+ * queued up per port
++ * Linux driver for VMware's vmxnet3 ethernet NIC.
++ *
++ * Copyright (C) 2008-2009, VMware, Inc. All Rights Reserved.
++ *
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License as published by the
++ * Free Software Foundation; version 2 of the License and no later version.
++ *
++ * This program is distributed in the hope that it will be useful, but
++ * WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE, GOOD TITLE or
++ * NON INFRINGEMENT. See the GNU General Public License for more
++ * details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
++ *
++ * The full GNU General Public License is included in this distribution in
++ * the file called "COPYING".
++ *
++ * Maintained by: Shreyas Bhatewara <pv-drivers@vmware.com>
++ *
 + */
-+static ssize_t fill_readbuf(struct virtio_console_port *port,
-+			    char *out_buf, size_t out_count, bool to_user)
- {
--	/* If we don't have an input queue yet, we can't get input. */
--	BUG_ON(!in_vq);
-+	struct virtio_console_port_buffer *buf, *buf2;
-+	ssize_t out_offset, ret;
 +
-+	out_offset = 0;
-+	/*
-+	 * Not taking the port->readbuf_list_lock here relying on the
-+	 * fact that buffers are taken out from the list only in this
-+	 * function so buf2 should be available all the time.
-+	 *
-+	 * Also, copy_to_user() might sleep.
-+	 */
-+	list_for_each_entry_safe(buf, buf2, &port->readbuf_head, next) {
-+		size_t copy_size;
++#include "vmxnet3_int.h"
 +
-+		copy_size = out_count;
-+		if (copy_size > buf->len - buf->offset)
-+			copy_size = buf->len - buf->offset;
++char vmxnet3_driver_name[] = "vmxnet3";
++#define VMXNET3_DRIVER_DESC "VMware vmxnet3 virtual NIC driver"
 +
-+		if (to_user) {
-+			ret = copy_to_user(out_buf + out_offset,
-+					   buf->buf + buf->offset,
-+					   copy_size);
-+			/* FIXME: Deal with ret != 0 */
-+		} else {
-+			memcpy(out_buf + out_offset,
-+			       buf->buf + buf->offset,
-+			       copy_size);
-+			ret = 0; /* Emulate copy_to_user behaviour */
-+		}
-+
-+		/* Return the number of bytes actually copied */
-+		ret = copy_size - ret;
-+		buf->offset += ret;
-+		out_offset += ret;
-+		out_count -= ret;
-+
-+		if (buf->len - buf->offset == 0) {
-+			spin_lock(&port->readbuf_list_lock);
-+			list_del(&buf->next);
-+			port->nr_buffers--;
-+			spin_unlock(&port->readbuf_list_lock);
-+			kfree(buf->buf);
-+			kfree(buf);
-+		}
-+		if (!out_count)
-+			break;
-+	}
-+	if (port->guest_throttled && port->nr_buffers < port->buffer_limit) {
-+		struct virtio_console_control cpkt;
-+
-+		cpkt.event = VIRTIO_CONSOLE_THROTTLE_PORT;
-+		cpkt.value = false;
-+		send_buf(port, (char *)&cpkt, sizeof(cpkt),
-+			 VIRTIO_CONSOLE_ID_INTERNAL, false);
-+		port->guest_throttled = false;
-+	}
-+	return out_offset;
-+}
-+
-+/* The condition that must be true for polling to end */
-+static bool wait_is_over(struct virtio_console_port *port)
-+{
-+	return !list_empty(&port->readbuf_head) || !port->host_connected;
-+}
- 
--	/* No buffer?  Try to get one. */
--	if (!in_len) {
--		in = in_vq->vq_ops->get_buf(in_vq, &in_len);
--		if (!in)
-+static ssize_t virtconsole_read(struct file *filp, char __user *ubuf,
-+			       size_t count, loff_t *offp)
-+{
-+	struct virtio_console_port *port;
-+	ssize_t ret;
-+
-+	port = filp->private_data;
-+
-+	if (list_empty(&port->readbuf_head)) {
-+		/*
-+		 * If nothing's connected on the host just return 0 in
-+		 * case of list_empty; this tells the userspace app
-+		 * that there's no connection
-+		 */
-+		if (!port->host_connected)
- 			return 0;
-+		if (filp->f_flags & O_NONBLOCK)
-+			return -EAGAIN;
-+
-+		ret = wait_event_interruptible(port->waitqueue,
-+					       wait_is_over(port));
-+		if (ret < 0)
-+			return ret;
- 	}
-+	/*
-+	 * We could've received a disconnection message while we were
-+	 * waiting for more data.
-+	 *
-+	 * This check is not clubbed in the if() statement above as we
-+	 * might receive some data as well as the host could get
-+	 * disconnected after we got woken up from our wait. So we
-+	 * really want to give off whatever data we have and only then
-+	 * check for host_connected
-+	 */
-+	if (list_empty(&port->readbuf_head) && !port->host_connected)
-+		return 0;
- 
--	/* You want more than we have to give?  Well, try wanting less! */
--	if (in_len < count)
--		count = in_len;
-+	return fill_readbuf(port, ubuf, count, true);
-+}
-+
-+static ssize_t virtconsole_write(struct file *filp, const char __user *ubuf,
-+				 size_t count, loff_t *offp)
-+{
-+	struct virtio_console_port *port;
- 
--	/* Copy across to their buffer and increment offset. */
--	memcpy(buf, in, count);
--	in += count;
--	in_len -= count;
-+	port = filp->private_data;
- 
--	/* Finished?  Re-register buffer so Host will use it again. */
--	if (in_len == 0)
--		add_inbuf();
-+	if (port->host_throttled)
-+		return -ENOSPC;
- 
--	return count;
-+	return send_buf(port, ubuf, count, 0, true);
- }
--/*:*/
- 
--/*D:320 Console drivers are initialized very early so boot messages can go out,
-- * so we do things slightly differently from the generic virtio initialization
-- * of the net and block drivers.
-+static unsigned int virtconsole_poll(struct file *filp, poll_table *wait)
-+{
-+	struct virtio_console_port *port;
-+	unsigned int ret;
-+
-+	port = filp->private_data;
-+	poll_wait(filp, &port->waitqueue, wait);
-+
-+	ret = 0;
-+	if (!list_empty(&port->readbuf_head))
-+		ret |= POLLIN | POLLRDNORM;
-+	if (!port->host_connected)
-+		ret |= POLLHUP;
-+	if (!port->host_throttled)
-+		ret |= POLLOUT;
-+
-+	return ret;
-+}
-+
-+static int virtconsole_release(struct inode *inode, struct file *filp)
-+{
-+	struct virtio_console_port *port;
-+	struct virtio_console_control cpkt;
-+
-+	port = filp->private_data;
-+
-+	/* Notify host of port being closed */
-+	cpkt.event = VIRTIO_CONSOLE_PORT_OPEN;
-+	cpkt.value = 0;
-+	send_buf(filp->private_data, (char *)&cpkt, sizeof(cpkt),
-+		 VIRTIO_CONSOLE_ID_INTERNAL, false);
-+
-+	/*
-+	 * If the port doesn't want to cache buffers while closed,
-+	 * flush the unread buffers queue
-+	 */
-+	if (!port->cache_buffers) {
-+		struct virtio_console_port_buffer *buf, *buf2;
-+
-+		spin_lock(&port->readbuf_list_lock);
-+		list_for_each_entry_safe(buf, buf2, &port->readbuf_head, next) {
-+			list_del(&buf->next);
-+			kfree(buf->buf);
-+			kfree(buf);
-+		}
-+		spin_unlock(&port->readbuf_list_lock);
-+	}
-+	return 0;
-+}
-+
-+static int virtconsole_open(struct inode *inode, struct file *filp)
-+{
-+	struct cdev *cdev = inode->i_cdev;
-+	struct virtio_console_port *port;
-+	struct virtio_console_control cpkt;
-+
-+	port = container_of(cdev, struct virtio_console_port, cdev);
-+	filp->private_data = port;
-+
-+	/* Notify host of port being opened */
-+	cpkt.event = VIRTIO_CONSOLE_PORT_OPEN;
-+	cpkt.value = 1;
-+	send_buf(filp->private_data, (char *)&cpkt, sizeof(cpkt),
-+		 VIRTIO_CONSOLE_ID_INTERNAL, false);
-+
-+	return 0;
-+}
 +
 +/*
-+ * The file operations that we support: programs in the guest can open
-+ * a console device, read from it, write to it, poll for data and
-+ * close it. The devices are at /dev/vconNN
++ * PCI Device ID Table
++ * Last entry must be all 0s
 + */
-+static const struct file_operations virtconsole_fops = {
-+	.owner = THIS_MODULE,
-+	.open  = virtconsole_open,
-+	.read  = virtconsole_read,
-+	.write = virtconsole_write,
-+	.poll  = virtconsole_poll,
-+	.release = virtconsole_release,
++static const struct pci_device_id vmxnet3_pciid_table[] = {
++	{PCI_VDEVICE(VMWARE, PCI_DEVICE_ID_VMWARE_VMXNET3)},
++	{0}
 +};
 +
++MODULE_DEVICE_TABLE(pci, vmxnet3_pciid_table);
 +
-+static ssize_t show_port_name(struct device *dev,
-+			      struct device_attribute *attr, char *buffer)
++static atomic_t devices_found;
++
++
++/*
++ *    Enable/Disable the given intr
++ */
++static void
++vmxnet3_enable_intr(struct vmxnet3_adapter *adapter, unsigned intr_idx)
 +{
-+	struct virtio_console_port *port;
-+
-+	port = get_port_from_devt(dev->devt);
-+	if (!port || !port->name)
-+		return 0;
-+
-+	return sprintf(buffer, "%s\n", port->name);
++	VMXNET3_WRITE_BAR0_REG(adapter, VMXNET3_REG_IMR + intr_idx * 8, 0);
 +}
 +
-+static DEVICE_ATTR(name, S_IRUGO, show_port_name, NULL);
 +
-+static struct attribute *virtcon_sysfs_entries[] = {
-+	&dev_attr_name.attr,
-+	NULL
-+};
-+
-+static struct attribute_group virtcon_attribute_group = {
-+	.name = NULL,		/* put in device directory */
-+	.attrs = virtcon_sysfs_entries,
-+};
-+
-+
-+/*D:310
-+ * The cons_put_chars() callback is pretty straightforward.
-  *
-- * At this stage, the console is output-only.  It's too early to set up a
-- * virtqueue, so we let the drivers do some boutique early-output thing. */
--int __init virtio_cons_early_init(int (*put_chars)(u32, const char *, int))
-+ * We turn the characters into a scatter-gather list, add it to the output
-+ * queue and then kick the Host.
-+ *
-+ * If the data to be outpu spans more than a page, it's split into
-+ * page-sized buffers and then individual buffers are pushed to Host.
-+ */
-+static int cons_put_chars(u32 vtermno, const char *buf, int count)
- {
--	virtio_cons.put_chars = put_chars;
--	return hvc_instantiate(0, 0, &virtio_cons);
-+	struct virtio_console_port *port;
-+
-+	port = get_port_from_vtermno(vtermno);
-+	if (!port)
-+		return 0;
-+
-+	return send_buf(port, buf, count, 0, false);
++static void
++vmxnet3_disable_intr(struct vmxnet3_adapter *adapter, unsigned intr_idx)
++{
++	VMXNET3_WRITE_BAR0_REG(adapter, VMXNET3_REG_IMR + intr_idx * 8, 1);
 +}
 +
-+/*D:350
-+ * cons_get_chars() is the callback from the hvc_console
-+ * infrastructure when an interrupt is received.
-+ *
-+ * We call out to fill_readbuf that gets us the required data from the
-+ * buffers that are queued up.
++
++/*
++ *    Enable/Disable all intrs used by the device
 + */
-+static int cons_get_chars(u32 vtermno, char *buf, int count)
++static void
++vmxnet3_enable_all_intrs(struct vmxnet3_adapter *adapter)
 +{
-+	struct virtio_console_port *port;
++	int i;
 +
-+	/* If we don't have an input queue yet, we can't get input. */
-+	BUG_ON(!virtconsole.in_vq);
++	for (i = 0; i < adapter->intr.num_intrs; i++)
++		vmxnet3_enable_intr(adapter, i);
++}
 +
-+	port = get_port_from_vtermno(vtermno);
-+	if (!port)
-+		return 0;
 +
-+	if (list_empty(&port->readbuf_head))
-+		return 0;
++static void
++vmxnet3_disable_all_intrs(struct vmxnet3_adapter *adapter)
++{
++	int i;
 +
-+	return fill_readbuf(port, buf, count, false);
- }
-+/*:*/
- 
- /*
-  * virtio console configuration. This supports:
-@@ -153,98 +613,639 @@ static void virtcons_apply_config(struct virtio_device *dev)
- 		dev->config->get(dev,
- 				 offsetof(struct virtio_console_config, rows),
- 				 &ws.ws_row, sizeof(u16));
--		hvc_resize(hvc, ws);
-+		/*
-+		 * We'll use this way of resizing only for legacy
-+		 * support. For newer userspace (VIRTIO_CONSOLE_F_MULTPORT+),
-+		 * use internal messages to indicate console size
-+		 * changes so that it can be done per-port
-+		 */
-+		if (!use_multiport(&virtconsole))
-+			hvc_resize(get_port_from_id(0)->hvc, ws);
- 	}
- }
- 
- /*
-- * we support only one console, the hvc struct is a global var
-  * We set the configuration at this point, since we now have a tty
-  */
--static int notifier_add_vio(struct hvc_struct *hp, int data)
-+static int cons_notifier_add_vio(struct hvc_struct *hp, int data)
- {
- 	hp->irq_requested = 1;
--	virtcons_apply_config(vdev);
-+	virtcons_apply_config(virtconsole.vdev);
- 
- 	return 0;
- }
- 
--static void notifier_del_vio(struct hvc_struct *hp, int data)
-+static void cons_notifier_del_vio(struct hvc_struct *hp, int data)
- {
- 	hp->irq_requested = 0;
- }
- 
--static void hvc_handle_input(struct virtqueue *vq)
-+/* The operations for our console. */
-+static struct hv_ops virtio_cons = {
-+	.get_chars = cons_get_chars,
-+	.put_chars = cons_put_chars,
-+	.notifier_add = cons_notifier_add_vio,
-+	.notifier_del = cons_notifier_del_vio,
-+	.notifier_hangup = cons_notifier_del_vio,
-+};
++	for (i = 0; i < adapter->intr.num_intrs; i++)
++		vmxnet3_disable_intr(adapter, i);
++}
 +
-+/*D:320
-+ * Console drivers are initialized very early so boot messages can go out,
-+ * so we do things slightly differently from the generic virtio initialization
-+ * of the net and block drivers.
-+ *
-+ * At this stage, the console is output-only.  It's too early to set up a
-+ * virtqueue, so we let the drivers do some boutique early-output thing.
++
++static void
++vmxnet3_ack_events(struct vmxnet3_adapter *adapter, u32 events)
++{
++	VMXNET3_WRITE_BAR1_REG(adapter, VMXNET3_REG_ECR, events);
++}
++
++
++static bool
++vmxnet3_tq_stopped(struct vmxnet3_tx_queue *tq, struct vmxnet3_adapter *adapter)
++{
++	return netif_queue_stopped(adapter->netdev);
++}
++
++
++static void
++vmxnet3_tq_start(struct vmxnet3_tx_queue *tq, struct vmxnet3_adapter *adapter)
++{
++	tq->stopped = false;
++	netif_start_queue(adapter->netdev);
++}
++
++
++static void
++vmxnet3_tq_wake(struct vmxnet3_tx_queue *tq, struct vmxnet3_adapter *adapter)
++{
++	tq->stopped = false;
++	netif_wake_queue(adapter->netdev);
++}
++
++
++static void
++vmxnet3_tq_stop(struct vmxnet3_tx_queue *tq, struct vmxnet3_adapter *adapter)
++{
++	tq->stopped = true;
++	tq->num_stop++;
++	netif_stop_queue(adapter->netdev);
++}
++
++
++/*
++ * Check the link state. This may start or stop the tx queue.
 + */
-+int __init virtio_cons_early_init(int (*put_chars)(u32, const char *, int))
- {
--	if (hvc_poll(hvc))
--		hvc_kick();
-+	virtio_cons.put_chars = put_chars;
-+	return hvc_instantiate(0, 0, &virtio_cons);
- }
- 
--/*D:370 Once we're further in boot, we get probed like any other virtio device.
-- * At this stage we set up the output virtqueue.
-+int init_port_console(struct virtio_console_port *port)
++static void
++vmxnet3_check_link(struct vmxnet3_adapter *adapter)
 +{
-+	int ret = 0;
++	u32 ret;
 +
-+	/*
-+	 * The Host's telling us this port is a console port. Hook it
-+	 * up with an hvc console.
-+	 *
-+	 * To set up and manage our virtual console, we call
-+	 * hvc_alloc().
-+	 *
-+	 * The first argument of hvc_alloc() is the virtual console
-+	 * number.  The second argument is the parameter for the
-+	 * notification mechanism (like irq number). We currently
-+	 * leave this as zero, virtqueues have implicit notifications.
-+	 *
-+	 * The third argument is a "struct hv_ops" containing the
-+	 * put_chars() get_chars(), notifier_add() and notifier_del()
-+	 * pointers.  The final argument is the output buffer size: we
-+	 * can do any size, so we put PAGE_SIZE here.
-+	 */
-+	port->hvc = hvc_alloc(hvc_vtermno, 0, &virtio_cons, PAGE_SIZE);
-+	if (IS_ERR(port->hvc)) {
-+		ret = PTR_ERR(port->hvc);
-+		pr_err("%s: Could not alloc hvc for virtio console port, ret = %d\n",
-+		       __func__, ret);
-+		port->hvc = NULL;
++	VMXNET3_WRITE_BAR1_REG(adapter, VMXNET3_REG_CMD, VMXNET3_CMD_GET_LINK);
++	ret = VMXNET3_READ_BAR1_REG(adapter, VMXNET3_REG_CMD);
++	adapter->link_speed = ret >> 16;
++	if (ret & 1) { /* Link is up. */
++		printk(KERN_INFO "%s: NIC Link is Up %d Mbps\n",
++		       adapter->netdev->name, adapter->link_speed);
++		if (!netif_carrier_ok(adapter->netdev))
++			netif_carrier_on(adapter->netdev);
++
++		vmxnet3_tq_start(&adapter->tx_queue, adapter);
 +	} else {
-+		port->vtermno = hvc_vtermno++;
++		printk(KERN_INFO "%s: NIC Link is Down\n",
++		       adapter->netdev->name);
++		if (netif_carrier_ok(adapter->netdev))
++			netif_carrier_off(adapter->netdev);
++
++		vmxnet3_tq_stop(&adapter->tx_queue, adapter);
 +	}
-+	return ret;
 +}
 +
-+/* Any secret messages that the Host and Guest want to share */
-+static void handle_control_message(struct virtio_console_port *port,
-+				   struct virtio_console_port_buffer *buf)
++
++static void
++vmxnet3_process_events(struct vmxnet3_adapter *adapter)
 +{
-+	struct virtio_console_control *cpkt;
-+	size_t name_size;
++	u32 events = adapter->shared->ecr;
++	if (!events)
++		return;
 +
-+	cpkt = (struct virtio_console_control *)(buf->buf + buf->offset);
++	vmxnet3_ack_events(adapter, events);
 +
-+	switch (cpkt->event) {
-+	case VIRTIO_CONSOLE_PORT_OPEN:
-+		port->host_connected = cpkt->value;
-+		break;
-+	case VIRTIO_CONSOLE_PORT_NAME:
-+		/*
-+		 * Skip the size of the header and the cpkt to get the size
-+		 * of the name that was sent
++	/* Check if link state has changed */
++	if (events & VMXNET3_ECR_LINK)
++		vmxnet3_check_link(adapter);
++
++	/* Check if there is an error on xmit/recv queues */
++	if (events & (VMXNET3_ECR_TQERR | VMXNET3_ECR_RQERR)) {
++		VMXNET3_WRITE_BAR1_REG(adapter, VMXNET3_REG_CMD,
++				       VMXNET3_CMD_GET_QUEUE_STATUS);
++
++		if (adapter->tqd_start->status.stopped) {
++			printk(KERN_ERR "%s: tq error 0x%x\n",
++			       adapter->netdev->name,
++			       adapter->tqd_start->status.error);
++		}
++		if (adapter->rqd_start->status.stopped) {
++			printk(KERN_ERR "%s: rq error 0x%x\n",
++			       adapter->netdev->name,
++			       adapter->rqd_start->status.error);
++		}
++
++		schedule_work(&adapter->work);
++	}
++}
++
++
++static void
++vmxnet3_unmap_tx_buf(struct vmxnet3_tx_buf_info *tbi,
++		     struct pci_dev *pdev)
++{
++	if (tbi->map_type == VMXNET3_MAP_SINGLE)
++		pci_unmap_single(pdev, tbi->dma_addr, tbi->len,
++				 PCI_DMA_TODEVICE);
++	else if (tbi->map_type == VMXNET3_MAP_PAGE)
++		pci_unmap_page(pdev, tbi->dma_addr, tbi->len,
++			       PCI_DMA_TODEVICE);
++	else
++		BUG_ON(tbi->map_type != VMXNET3_MAP_NONE);
++
++	tbi->map_type = VMXNET3_MAP_NONE; /* to help debugging */
++}
++
++
++static int
++vmxnet3_unmap_pkt(u32 eop_idx, struct vmxnet3_tx_queue *tq,
++		  struct pci_dev *pdev,	struct vmxnet3_adapter *adapter)
++{
++	struct sk_buff *skb;
++	int entries = 0;
++
++	/* no out of order completion */
++	BUG_ON(tq->buf_info[eop_idx].sop_idx != tq->tx_ring.next2comp);
++	BUG_ON(tq->tx_ring.base[eop_idx].txd.eop != 1);
++
++	skb = tq->buf_info[eop_idx].skb;
++	BUG_ON(skb == NULL);
++	tq->buf_info[eop_idx].skb = NULL;
++
++	VMXNET3_INC_RING_IDX_ONLY(eop_idx, tq->tx_ring.size);
++
++	while (tq->tx_ring.next2comp != eop_idx) {
++		vmxnet3_unmap_tx_buf(tq->buf_info + tq->tx_ring.next2comp,
++				     pdev);
++
++		/* update next2comp w/o tx_lock. Since we are marking more,
++		 * instead of less, tx ring entries avail, the worst case is
++		 * that the tx routine incorrectly re-queues a pkt due to
++		 * insufficient tx ring entries.
 +		 */
-+		name_size = buf->len - buf->offset - sizeof(*cpkt) + 1;
++		vmxnet3_cmd_ring_adv_next2comp(&tq->tx_ring);
++		entries++;
++	}
 +
-+		port->name = kmalloc(name_size, GFP_KERNEL);
-+		if (!port->name) {
-+			pr_err("%s: not enough space to store port name\n",
-+			       __func__);
++	dev_kfree_skb_any(skb);
++	return entries;
++}
++
++
++static int
++vmxnet3_tq_tx_complete(struct vmxnet3_tx_queue *tq,
++			struct vmxnet3_adapter *adapter)
++{
++	int completed = 0;
++	union Vmxnet3_GenericDesc *gdesc;
++
++	gdesc = tq->comp_ring.base + tq->comp_ring.next2proc;
++	while (gdesc->tcd.gen == tq->comp_ring.gen) {
++		completed += vmxnet3_unmap_pkt(gdesc->tcd.txdIdx, tq,
++					       adapter->pdev, adapter);
++
++		vmxnet3_comp_ring_adv_next2proc(&tq->comp_ring);
++		gdesc = tq->comp_ring.base + tq->comp_ring.next2proc;
++	}
++
++	if (completed) {
++		spin_lock(&tq->tx_lock);
++		if (unlikely(vmxnet3_tq_stopped(tq, adapter) &&
++			     vmxnet3_cmd_ring_desc_avail(&tq->tx_ring) >
++			     VMXNET3_WAKE_QUEUE_THRESHOLD(tq) &&
++			     netif_carrier_ok(adapter->netdev))) {
++			vmxnet3_tq_wake(tq, adapter);
++		}
++		spin_unlock(&tq->tx_lock);
++	}
++	return completed;
++}
++
++
++static void
++vmxnet3_tq_cleanup(struct vmxnet3_tx_queue *tq,
++		   struct vmxnet3_adapter *adapter)
++{
++	int i;
++
++	while (tq->tx_ring.next2comp != tq->tx_ring.next2fill) {
++		struct vmxnet3_tx_buf_info *tbi;
++		union Vmxnet3_GenericDesc *gdesc;
++
++		tbi = tq->buf_info + tq->tx_ring.next2comp;
++		gdesc = tq->tx_ring.base + tq->tx_ring.next2comp;
++
++		vmxnet3_unmap_tx_buf(tbi, adapter->pdev);
++		if (tbi->skb) {
++			dev_kfree_skb_any(tbi->skb);
++			tbi->skb = NULL;
++		}
++		vmxnet3_cmd_ring_adv_next2comp(&tq->tx_ring);
++	}
++
++	/* sanity check, verify all buffers are indeed unmapped and freed */
++	for (i = 0; i < tq->tx_ring.size; i++) {
++		BUG_ON(tq->buf_info[i].skb != NULL ||
++		       tq->buf_info[i].map_type != VMXNET3_MAP_NONE);
++	}
++
++	tq->tx_ring.gen = VMXNET3_INIT_GEN;
++	tq->tx_ring.next2fill = tq->tx_ring.next2comp = 0;
++
++	tq->comp_ring.gen = VMXNET3_INIT_GEN;
++	tq->comp_ring.next2proc = 0;
++}
++
++
++void
++vmxnet3_tq_destroy(struct vmxnet3_tx_queue *tq,
++		   struct vmxnet3_adapter *adapter)
++{
++	if (tq->tx_ring.base) {
++		pci_free_consistent(adapter->pdev, tq->tx_ring.size *
++				    sizeof(struct Vmxnet3_TxDesc),
++				    tq->tx_ring.base, tq->tx_ring.basePA);
++		tq->tx_ring.base = NULL;
++	}
++	if (tq->data_ring.base) {
++		pci_free_consistent(adapter->pdev, tq->data_ring.size *
++				    sizeof(struct Vmxnet3_TxDataDesc),
++				    tq->data_ring.base, tq->data_ring.basePA);
++		tq->data_ring.base = NULL;
++	}
++	if (tq->comp_ring.base) {
++		pci_free_consistent(adapter->pdev, tq->comp_ring.size *
++				    sizeof(struct Vmxnet3_TxCompDesc),
++				    tq->comp_ring.base, tq->comp_ring.basePA);
++		tq->comp_ring.base = NULL;
++	}
++	kfree(tq->buf_info);
++	tq->buf_info = NULL;
++}
++
++
++static void
++vmxnet3_tq_init(struct vmxnet3_tx_queue *tq,
++		struct vmxnet3_adapter *adapter)
++{
++	int i;
++
++	/* reset the tx ring contents to 0 and reset the tx ring states */
++	memset(tq->tx_ring.base, 0, tq->tx_ring.size *
++	       sizeof(struct Vmxnet3_TxDesc));
++	tq->tx_ring.next2fill = tq->tx_ring.next2comp = 0;
++	tq->tx_ring.gen = VMXNET3_INIT_GEN;
++
++	memset(tq->data_ring.base, 0, tq->data_ring.size *
++	       sizeof(struct Vmxnet3_TxDataDesc));
++
++	/* reset the tx comp ring contents to 0 and reset comp ring states */
++	memset(tq->comp_ring.base, 0, tq->comp_ring.size *
++	       sizeof(struct Vmxnet3_TxCompDesc));
++	tq->comp_ring.next2proc = 0;
++	tq->comp_ring.gen = VMXNET3_INIT_GEN;
++
++	/* reset the bookkeeping data */
++	memset(tq->buf_info, 0, sizeof(tq->buf_info[0]) * tq->tx_ring.size);
++	for (i = 0; i < tq->tx_ring.size; i++)
++		tq->buf_info[i].map_type = VMXNET3_MAP_NONE;
++
++	/* stats are not reset */
++}
++
++
++static int
++vmxnet3_tq_create(struct vmxnet3_tx_queue *tq,
++		  struct vmxnet3_adapter *adapter)
++{
++	BUG_ON(tq->tx_ring.base || tq->data_ring.base ||
++	       tq->comp_ring.base || tq->buf_info);
++
++	tq->tx_ring.base = pci_alloc_consistent(adapter->pdev, tq->tx_ring.size
++			   * sizeof(struct Vmxnet3_TxDesc),
++			   &tq->tx_ring.basePA);
++	if (!tq->tx_ring.base) {
++		printk(KERN_ERR "%s: failed to allocate tx ring\n",
++		       adapter->netdev->name);
++		goto err;
++	}
++
++	tq->data_ring.base = pci_alloc_consistent(adapter->pdev,
++			     tq->data_ring.size *
++			     sizeof(struct Vmxnet3_TxDataDesc),
++			     &tq->data_ring.basePA);
++	if (!tq->data_ring.base) {
++		printk(KERN_ERR "%s: failed to allocate data ring\n",
++		       adapter->netdev->name);
++		goto err;
++	}
++
++	tq->comp_ring.base = pci_alloc_consistent(adapter->pdev,
++			     tq->comp_ring.size *
++			     sizeof(struct Vmxnet3_TxCompDesc),
++			     &tq->comp_ring.basePA);
++	if (!tq->comp_ring.base) {
++		printk(KERN_ERR "%s: failed to allocate tx comp ring\n",
++		       adapter->netdev->name);
++		goto err;
++	}
++
++	tq->buf_info = kcalloc(tq->tx_ring.size, sizeof(tq->buf_info[0]),
++			       GFP_KERNEL);
++	if (!tq->buf_info) {
++		printk(KERN_ERR "%s: failed to allocate tx bufinfo\n",
++		       adapter->netdev->name);
++		goto err;
++	}
++
++	return 0;
++
++err:
++	vmxnet3_tq_destroy(tq, adapter);
++	return -ENOMEM;
++}
++
++
++/*
++ *    starting from ring->next2fill, allocate rx buffers for the given ring
++ *    of the rx queue and update the rx desc. stop after @num_to_alloc buffers
++ *    are allocated or allocation fails
++ */
++
++static int
++vmxnet3_rq_alloc_rx_buf(struct vmxnet3_rx_queue *rq, u32 ring_idx,
++			int num_to_alloc, struct vmxnet3_adapter *adapter)
++{
++	int num_allocated = 0;
++	struct vmxnet3_rx_buf_info *rbi_base = rq->buf_info[ring_idx];
++	struct vmxnet3_cmd_ring *ring = &rq->rx_ring[ring_idx];
++	u32 val;
++
++	while (num_allocated < num_to_alloc) {
++		struct vmxnet3_rx_buf_info *rbi;
++		union Vmxnet3_GenericDesc *gd;
++
++		rbi = rbi_base + ring->next2fill;
++		gd = ring->base + ring->next2fill;
++
++		if (rbi->buf_type == VMXNET3_RX_BUF_SKB) {
++			if (rbi->skb == NULL) {
++				rbi->skb = dev_alloc_skb(rbi->len +
++							 NET_IP_ALIGN);
++				if (unlikely(rbi->skb == NULL)) {
++					rq->stats.rx_buf_alloc_failure++;
++					break;
++				}
++				rbi->skb->dev = adapter->netdev;
++
++				skb_reserve(rbi->skb, NET_IP_ALIGN);
++				rbi->dma_addr = pci_map_single(adapter->pdev,
++						rbi->skb->data, rbi->len,
++						PCI_DMA_FROMDEVICE);
++			} else {
++				/* rx buffer skipped by the device */
++			}
++			val = VMXNET3_RXD_BTYPE_HEAD << VMXNET3_RXD_BTYPE_SHIFT;
++		} else {
++			BUG_ON(rbi->buf_type != VMXNET3_RX_BUF_PAGE ||
++			       rbi->len  != PAGE_SIZE);
++
++			if (rbi->page == NULL) {
++				rbi->page = alloc_page(GFP_ATOMIC);
++				if (unlikely(rbi->page == NULL)) {
++					rq->stats.rx_buf_alloc_failure++;
++					break;
++				}
++				rbi->dma_addr = pci_map_page(adapter->pdev,
++						rbi->page, 0, PAGE_SIZE,
++						PCI_DMA_FROMDEVICE);
++			} else {
++				/* rx buffers skipped by the device */
++			}
++			val = VMXNET3_RXD_BTYPE_BODY << VMXNET3_RXD_BTYPE_SHIFT;
++		}
++
++		BUG_ON(rbi->dma_addr == 0);
++		gd->rxd.addr = rbi->dma_addr;
++		gd->dword[2] = (ring->gen << VMXNET3_RXD_GEN_SHIFT) | val |
++				rbi->len;
++
++		num_allocated++;
++		vmxnet3_cmd_ring_adv_next2fill(ring);
++	}
++	rq->uncommitted[ring_idx] += num_allocated;
++
++	dprintk(KERN_ERR "alloc_rx_buf: %d allocated, next2fill %u, next2comp "
++		"%u, uncommited %u\n", num_allocated, ring->next2fill,
++		ring->next2comp, rq->uncommitted[ring_idx]);
++
++	/* so that the device can distinguish a full ring and an empty ring */
++	BUG_ON(num_allocated != 0 && ring->next2fill == ring->next2comp);
++
++	return num_allocated;
++}
++
++
++static void
++vmxnet3_append_frag(struct sk_buff *skb, struct Vmxnet3_RxCompDesc *rcd,
++		    struct vmxnet3_rx_buf_info *rbi)
++{
++	struct skb_frag_struct *frag = skb_shinfo(skb)->frags +
++		skb_shinfo(skb)->nr_frags;
++
++	BUG_ON(skb_shinfo(skb)->nr_frags >= MAX_SKB_FRAGS);
++
++	frag->page = rbi->page;
++	frag->page_offset = 0;
++	frag->size = rcd->len;
++	skb->data_len += frag->size;
++	skb_shinfo(skb)->nr_frags++;
++}
++
++
++static void
++vmxnet3_map_pkt(struct sk_buff *skb, struct vmxnet3_tx_ctx *ctx,
++		struct vmxnet3_tx_queue *tq, struct pci_dev *pdev,
++		struct vmxnet3_adapter *adapter)
++{
++	u32 dw2, len;
++	unsigned long buf_offset;
++	int i;
++	union Vmxnet3_GenericDesc *gdesc;
++	struct vmxnet3_tx_buf_info *tbi = NULL;
++
++	BUG_ON(ctx->copy_size > skb_headlen(skb));
++
++	/* use the previous gen bit for the SOP desc */
++	dw2 = (tq->tx_ring.gen ^ 0x1) << VMXNET3_TXD_GEN_SHIFT;
++
++	ctx->sop_txd = tq->tx_ring.base + tq->tx_ring.next2fill;
++	gdesc = ctx->sop_txd; /* both loops below can be skipped */
++
++	/* no need to map the buffer if headers are copied */
++	if (ctx->copy_size) {
++		ctx->sop_txd->txd.addr = tq->data_ring.basePA +
++					tq->tx_ring.next2fill *
++					sizeof(struct Vmxnet3_TxDataDesc);
++		ctx->sop_txd->dword[2] = dw2 | ctx->copy_size;
++		ctx->sop_txd->dword[3] = 0;
++
++		tbi = tq->buf_info + tq->tx_ring.next2fill;
++		tbi->map_type = VMXNET3_MAP_NONE;
++
++		dprintk(KERN_ERR "txd[%u]: 0x%Lx 0x%x 0x%x\n",
++			tq->tx_ring.next2fill, ctx->sop_txd->txd.addr,
++			ctx->sop_txd->dword[2], ctx->sop_txd->dword[3]);
++		vmxnet3_cmd_ring_adv_next2fill(&tq->tx_ring);
++
++		/* use the right gen for non-SOP desc */
++		dw2 = tq->tx_ring.gen << VMXNET3_TXD_GEN_SHIFT;
++	}
++
++	/* linear part can use multiple tx desc if it's big */
++	len = skb_headlen(skb) - ctx->copy_size;
++	buf_offset = ctx->copy_size;
++	while (len) {
++		u32 buf_size;
++
++		buf_size = len > VMXNET3_MAX_TX_BUF_SIZE ?
++			   VMXNET3_MAX_TX_BUF_SIZE : len;
++
++		tbi = tq->buf_info + tq->tx_ring.next2fill;
++		tbi->map_type = VMXNET3_MAP_SINGLE;
++		tbi->dma_addr = pci_map_single(adapter->pdev,
++				skb->data + buf_offset, buf_size,
++				PCI_DMA_TODEVICE);
++
++		tbi->len = buf_size; /* this automatically convert 2^14 to 0 */
++
++		gdesc = tq->tx_ring.base + tq->tx_ring.next2fill;
++		BUG_ON(gdesc->txd.gen == tq->tx_ring.gen);
++
++		gdesc->txd.addr = tbi->dma_addr;
++		gdesc->dword[2] = dw2 | buf_size;
++		gdesc->dword[3] = 0;
++
++		dprintk(KERN_ERR "txd[%u]: 0x%Lx 0x%x 0x%x\n",
++			tq->tx_ring.next2fill, gdesc->txd.addr,
++			gdesc->dword[2], gdesc->dword[3]);
++		vmxnet3_cmd_ring_adv_next2fill(&tq->tx_ring);
++		dw2 = tq->tx_ring.gen << VMXNET3_TXD_GEN_SHIFT;
++
++		len -= buf_size;
++		buf_offset += buf_size;
++	}
++
++	for (i = 0; i < skb_shinfo(skb)->nr_frags; i++) {
++		struct skb_frag_struct *frag = &skb_shinfo(skb)->frags[i];
++
++		tbi = tq->buf_info + tq->tx_ring.next2fill;
++		tbi->map_type = VMXNET3_MAP_PAGE;
++		tbi->dma_addr = pci_map_page(adapter->pdev, frag->page,
++					     frag->page_offset, frag->size,
++					     PCI_DMA_TODEVICE);
++
++		tbi->len = frag->size;
++
++		gdesc = tq->tx_ring.base + tq->tx_ring.next2fill;
++		BUG_ON(gdesc->txd.gen == tq->tx_ring.gen);
++
++		gdesc->txd.addr = tbi->dma_addr;
++		gdesc->dword[2] = dw2 | frag->size;
++		gdesc->dword[3] = 0;
++
++		dprintk(KERN_ERR "txd[%u]: 0x%llu %u %u\n",
++			tq->tx_ring.next2fill, gdesc->txd.addr,
++			gdesc->dword[2], gdesc->dword[3]);
++		vmxnet3_cmd_ring_adv_next2fill(&tq->tx_ring);
++		dw2 = tq->tx_ring.gen << VMXNET3_TXD_GEN_SHIFT;
++	}
++
++	ctx->eop_txd = gdesc;
++
++	/* set the last buf_info for the pkt */
++	tbi->skb = skb;
++	tbi->sop_idx = ctx->sop_txd - tq->tx_ring.base;
++}
++
++
++/*
++ *    parse and copy relevant protocol headers:
++ *      For a tso pkt, relevant headers are L2/3/4 including options
++ *      For a pkt requesting csum offloading, they are L2/3 and may include L4
++ *      if it's a TCP/UDP pkt
++ *
++ * Returns:
++ *    -1:  error happens during parsing
++ *     0:  protocol headers parsed, but too big to be copied
++ *     1:  protocol headers parsed and copied
++ *
++ * Other effects:
++ *    1. related *ctx fields are updated.
++ *    2. ctx->copy_size is # of bytes copied
++ *    3. the portion copied is guaranteed to be in the linear part
++ *
++ */
++static int
++vmxnet3_parse_and_copy_hdr(struct sk_buff *skb, struct vmxnet3_tx_queue *tq,
++			   struct vmxnet3_tx_ctx *ctx,
++			   struct vmxnet3_adapter *adapter)
++{
++	struct Vmxnet3_TxDataDesc *tdd;
++
++	if (ctx->mss) {
++		ctx->eth_ip_hdr_size = skb_transport_offset(skb);
++		ctx->l4_hdr_size = ((struct tcphdr *)
++				   skb_transport_header(skb))->doff * 4;
++		ctx->copy_size = ctx->eth_ip_hdr_size + ctx->l4_hdr_size;
++	} else {
++		unsigned int pull_size;
++
++		if (skb->ip_summed == CHECKSUM_PARTIAL) {
++			ctx->eth_ip_hdr_size = skb_transport_offset(skb);
++
++			if (ctx->ipv4) {
++				struct iphdr *iph = (struct iphdr *)
++						    skb_network_header(skb);
++				if (iph->protocol == IPPROTO_TCP) {
++					pull_size = ctx->eth_ip_hdr_size +
++						    sizeof(struct tcphdr);
++
++					if (unlikely(!pskb_may_pull(skb,
++								pull_size))) {
++						goto err;
++					}
++					ctx->l4_hdr_size = ((struct tcphdr *)
++					   skb_transport_header(skb))->doff * 4;
++				} else if (iph->protocol == IPPROTO_UDP) {
++					ctx->l4_hdr_size =
++							sizeof(struct udphdr);
++				} else {
++					ctx->l4_hdr_size = 0;
++				}
++			} else {
++				/* for simplicity, don't copy L4 headers */
++				ctx->l4_hdr_size = 0;
++			}
++			ctx->copy_size = ctx->eth_ip_hdr_size +
++					 ctx->l4_hdr_size;
++		} else {
++			ctx->eth_ip_hdr_size = 0;
++			ctx->l4_hdr_size = 0;
++			/* copy as much as allowed */
++			ctx->copy_size = min((unsigned int)VMXNET3_HDR_COPY_SIZE
++					     , skb_headlen(skb));
++		}
++
++		/* make sure headers are accessible directly */
++		if (unlikely(!pskb_may_pull(skb, ctx->copy_size)))
++			goto err;
++	}
++
++	if (unlikely(ctx->copy_size > VMXNET3_HDR_COPY_SIZE)) {
++		tq->stats.oversized_hdr++;
++		ctx->copy_size = 0;
++		return 0;
++	}
++
++	tdd = tq->data_ring.base + tq->tx_ring.next2fill;
++
++	memcpy(tdd->data, skb->data, ctx->copy_size);
++	dprintk(KERN_ERR "copy %u bytes to dataRing[%u]\n",
++		ctx->copy_size, tq->tx_ring.next2fill);
++	return 1;
++
++err:
++	return -1;
++}
++
++
++static void
++vmxnet3_prepare_tso(struct sk_buff *skb,
++		    struct vmxnet3_tx_ctx *ctx)
++{
++	struct tcphdr *tcph = (struct tcphdr *)skb_transport_header(skb);
++	if (ctx->ipv4) {
++		struct iphdr *iph = (struct iphdr *)skb_network_header(skb);
++		iph->check = 0;
++		tcph->check = ~csum_tcpudp_magic(iph->saddr, iph->daddr, 0,
++						 IPPROTO_TCP, 0);
++	} else {
++		struct ipv6hdr *iph = (struct ipv6hdr *)skb_network_header(skb);
++		tcph->check = ~csum_ipv6_magic(&iph->saddr, &iph->daddr, 0,
++					       IPPROTO_TCP, 0);
++	}
++}
++
++
++/*
++ * Transmits a pkt thru a given tq
++ * Returns:
++ *    NETDEV_TX_OK:      descriptors are setup successfully
++ *    NETDEV_TX_OK:      error occured, the pkt is dropped
++ *    NETDEV_TX_BUSY:    tx ring is full, queue is stopped
++ *
++ * Side-effects:
++ *    1. tx ring may be changed
++ *    2. tq stats may be updated accordingly
++ *    3. shared->txNumDeferred may be updated
++ */
++
++static int
++vmxnet3_tq_xmit(struct sk_buff *skb, struct vmxnet3_tx_queue *tq,
++		struct vmxnet3_adapter *adapter, struct net_device *netdev)
++{
++	int ret;
++	u32 count;
++	unsigned long flags;
++	struct vmxnet3_tx_ctx ctx;
++	union Vmxnet3_GenericDesc *gdesc;
++
++	/* conservatively estimate # of descriptors to use */
++	count = VMXNET3_TXD_NEEDED(skb_headlen(skb)) +
++		skb_shinfo(skb)->nr_frags + 1;
++
++	ctx.ipv4 = (skb->protocol == __constant_ntohs(ETH_P_IP));
++
++	ctx.mss = skb_shinfo(skb)->gso_size;
++	if (ctx.mss) {
++		if (skb_header_cloned(skb)) {
++			if (unlikely(pskb_expand_head(skb, 0, 0,
++						      GFP_ATOMIC) != 0)) {
++				tq->stats.drop_tso++;
++				goto drop_pkt;
++			}
++			tq->stats.copy_skb_header++;
++		}
++		vmxnet3_prepare_tso(skb, &ctx);
++	} else {
++		if (unlikely(count > VMXNET3_MAX_TXD_PER_PKT)) {
++
++			/* non-tso pkts must not use more than
++			 * VMXNET3_MAX_TXD_PER_PKT entries
++			 */
++			if (skb_linearize(skb) != 0) {
++				tq->stats.drop_too_many_frags++;
++				goto drop_pkt;
++			}
++			tq->stats.linearized++;
++
++			/* recalculate the # of descriptors to use */
++			count = VMXNET3_TXD_NEEDED(skb_headlen(skb)) + 1;
++		}
++	}
++
++	ret = vmxnet3_parse_and_copy_hdr(skb, tq, &ctx, adapter);
++	if (ret >= 0) {
++		BUG_ON(ret <= 0 && ctx.copy_size != 0);
++		/* hdrs parsed, check against other limits */
++		if (ctx.mss) {
++			if (unlikely(ctx.eth_ip_hdr_size + ctx.l4_hdr_size >
++				     VMXNET3_MAX_TX_BUF_SIZE)) {
++				goto hdr_too_big;
++			}
++		} else {
++			if (skb->ip_summed == CHECKSUM_PARTIAL) {
++				if (unlikely(ctx.eth_ip_hdr_size +
++					     skb->csum_offset >
++					     VMXNET3_MAX_CSUM_OFFSET)) {
++					goto hdr_too_big;
++				}
++			}
++		}
++	} else {
++		tq->stats.drop_hdr_inspect_err++;
++		goto drop_pkt;
++	}
++
++	spin_lock_irqsave(&tq->tx_lock, flags);
++
++	if (count > vmxnet3_cmd_ring_desc_avail(&tq->tx_ring)) {
++		tq->stats.tx_ring_full++;
++		dprintk(KERN_ERR "tx queue stopped on %s, next2comp %u"
++			" next2fill %u\n", adapter->netdev->name,
++			tq->tx_ring.next2comp, tq->tx_ring.next2fill);
++
++		vmxnet3_tq_stop(tq, adapter);
++		spin_unlock_irqrestore(&tq->tx_lock, flags);
++		return NETDEV_TX_BUSY;
++	}
++
++	/* fill tx descs related to addr & len */
++	vmxnet3_map_pkt(skb, &ctx, tq, adapter->pdev, adapter);
++
++	/* setup the EOP desc */
++	ctx.eop_txd->dword[3] = VMXNET3_TXD_CQ | VMXNET3_TXD_EOP;
++
++	/* setup the SOP desc */
++	gdesc = ctx.sop_txd;
++	if (ctx.mss) {
++		gdesc->txd.hlen = ctx.eth_ip_hdr_size + ctx.l4_hdr_size;
++		gdesc->txd.om = VMXNET3_OM_TSO;
++		gdesc->txd.msscof = ctx.mss;
++		tq->shared->txNumDeferred += (skb->len - gdesc->txd.hlen +
++					     ctx.mss - 1) / ctx.mss;
++	} else {
++		if (skb->ip_summed == CHECKSUM_PARTIAL) {
++			gdesc->txd.hlen = ctx.eth_ip_hdr_size;
++			gdesc->txd.om = VMXNET3_OM_CSUM;
++			gdesc->txd.msscof = ctx.eth_ip_hdr_size +
++					    skb->csum_offset;
++		} else {
++			gdesc->txd.om = 0;
++			gdesc->txd.msscof = 0;
++		}
++		tq->shared->txNumDeferred++;
++	}
++
++	if (vlan_tx_tag_present(skb)) {
++		gdesc->txd.ti = 1;
++		gdesc->txd.tci = vlan_tx_tag_get(skb);
++	}
++
++	wmb();
++
++	/* finally flips the GEN bit of the SOP desc */
++	gdesc->dword[2] ^= VMXNET3_TXD_GEN;
++	dprintk(KERN_ERR "txd[%u]: SOP 0x%Lx 0x%x 0x%x\n",
++		(u32)((union Vmxnet3_GenericDesc *)ctx.sop_txd -
++		tq->tx_ring.base), gdesc->txd.addr, gdesc->dword[2],
++		gdesc->dword[3]);
++
++	spin_unlock_irqrestore(&tq->tx_lock, flags);
++
++	if (tq->shared->txNumDeferred >= tq->shared->txThreshold) {
++		tq->shared->txNumDeferred = 0;
++		VMXNET3_WRITE_BAR0_REG(adapter, VMXNET3_REG_TXPROD,
++				       tq->tx_ring.next2fill);
++	}
++	netdev->trans_start = jiffies;
++
++	return NETDEV_TX_OK;
++
++hdr_too_big:
++	tq->stats.drop_oversized_hdr++;
++drop_pkt:
++	tq->stats.drop_total++;
++	dev_kfree_skb(skb);
++	return NETDEV_TX_OK;
++}
++
++
++static netdev_tx_t
++vmxnet3_xmit_frame(struct sk_buff *skb, struct net_device *netdev)
++{
++	struct vmxnet3_adapter *adapter = netdev_priv(netdev);
++	struct vmxnet3_tx_queue *tq = &adapter->tx_queue;
++
++	return vmxnet3_tq_xmit(skb, tq, adapter, netdev);
++}
++
++
++static void
++vmxnet3_rx_csum(struct vmxnet3_adapter *adapter,
++		struct sk_buff *skb,
++		union Vmxnet3_GenericDesc *gdesc)
++{
++	if (!gdesc->rcd.cnc && adapter->rxcsum) {
++		/* typical case: TCP/UDP over IP and both csums are correct */
++		if ((gdesc->dword[3] & VMXNET3_RCD_CSUM_OK) ==
++							VMXNET3_RCD_CSUM_OK) {
++			skb->ip_summed = CHECKSUM_UNNECESSARY;
++			BUG_ON(!(gdesc->rcd.tcp || gdesc->rcd.udp));
++			BUG_ON(!(gdesc->rcd.v4  || gdesc->rcd.v6));
++			BUG_ON(gdesc->rcd.frg);
++		} else {
++			if (gdesc->rcd.csum) {
++				skb->csum = htons(gdesc->rcd.csum);
++				skb->ip_summed = CHECKSUM_PARTIAL;
++			} else {
++				skb->ip_summed = CHECKSUM_NONE;
++			}
++		}
++	} else {
++		skb->ip_summed = CHECKSUM_NONE;
++	}
++}
++
++
++static void
++vmxnet3_rx_error(struct vmxnet3_rx_queue *rq, struct Vmxnet3_RxCompDesc *rcd,
++		 struct vmxnet3_rx_ctx *ctx,  struct vmxnet3_adapter *adapter)
++{
++	rq->stats.drop_err++;
++	if (!rcd->fcs)
++		rq->stats.drop_fcs++;
++
++	rq->stats.drop_total++;
++
++	/*
++	 * We do not unmap and chain the rx buffer to the skb.
++	 * We basically pretend this buffer is not used and will be recycled
++	 * by vmxnet3_rq_alloc_rx_buf()
++	 */
++
++	/*
++	 * ctx->skb may be NULL if this is the first and the only one
++	 * desc for the pkt
++	 */
++	if (ctx->skb)
++		dev_kfree_skb_irq(ctx->skb);
++
++	ctx->skb = NULL;
++}
++
++
++static int
++vmxnet3_rq_rx_complete(struct vmxnet3_rx_queue *rq,
++		       struct vmxnet3_adapter *adapter, int quota)
++{
++	static u32 rxprod_reg[2] = {VMXNET3_REG_RXPROD, VMXNET3_REG_RXPROD2};
++	u32 num_rxd = 0;
++	struct Vmxnet3_RxCompDesc *rcd;
++	struct vmxnet3_rx_ctx *ctx = &rq->rx_ctx;
++
++	rcd = &rq->comp_ring.base[rq->comp_ring.next2proc].rcd;
++	while (rcd->gen == rq->comp_ring.gen) {
++		struct vmxnet3_rx_buf_info *rbi;
++		struct sk_buff *skb;
++		int num_to_alloc;
++		struct Vmxnet3_RxDesc *rxd;
++		u32 idx, ring_idx;
++
++		if (num_rxd >= quota) {
++			/* we may stop even before we see the EOP desc of
++			 * the current pkt
++			 */
 +			break;
 +		}
-+		strncpy(port->name, buf->buf + buf->offset + sizeof(*cpkt),
-+			name_size - 1);
-+		port->name[name_size - 1] = 0;
-+		break;
-+	case VIRTIO_CONSOLE_CONSOLE_PORT:
-+		if (!cpkt->value)
-+			break;
-+		init_port_console(port);
-+		/*
-+		 * Could remove the port here in case init fails - but
-+		 * have to notify the host first
-+		 */
-+		break;
-+	case VIRTIO_CONSOLE_CACHE_BUFFERS:
-+		if (!cpkt->value)
-+			break;
-+		port->cache_buffers = true;
-+		break;
-+	case VIRTIO_CONSOLE_THROTTLE_PORT:
-+		/*
-+		 * Hosts can govern some policy to disallow rogue
-+		 * processes write indefinitely to ports leading to
-+		 * OOM situations.  If we receive this message here,
-+		 * it means the Host side of the port either reached
-+		 * its max. limit to cache data or signal to us that
-+		 * the host is ready to accept more data.
-+		 */
-+		port->host_throttled = cpkt->value;
-+		break;
-+	case VIRTIO_CONSOLE_BUFFER_LIMIT:
-+		/*
-+		 * We can ask the Host to stop sending data to us in
-+		 * case some rogue process on the Host injects data to
-+		 * OOM the entire guest (as unread buffers keep piling
-+		 * up in the kernel space). The Host, via this
-+		 * message, can tell us the number of Mbytes to
-+		 * buffer.
-+		 *
-+		 * The calculation is easy: we use 4K-sized pages in
-+		 * our readbuf_head list. So on each buffer added to
-+		 * the list, increment count by 1 (and decrement by 1
-+		 * when one gets removed). So we just store the
-+		 * (number-in-MB * 1024) / 4 to calculate the number of
-+		 * buffers we can have in the list.
-+		 */
-+		port->buffer_limit = (u32)cpkt->value * 1024 / 4;
-+		break;
++		num_rxd++;
++
++		idx = rcd->rxdIdx;
++		ring_idx = rcd->rqID == rq->qid ? 0 : 1;
++
++		rxd = &rq->rx_ring[ring_idx].base[idx].rxd;
++		rbi = rq->buf_info[ring_idx] + idx;
++
++		BUG_ON(rxd->addr != rbi->dma_addr || rxd->len != rbi->len);
++
++		if (unlikely(rcd->eop && rcd->err)) {
++			vmxnet3_rx_error(rq, rcd, ctx, adapter);
++			goto rcd_done;
++		}
++
++		if (rcd->sop) { /* first buf of the pkt */
++			BUG_ON(rxd->btype != VMXNET3_RXD_BTYPE_HEAD ||
++			       rcd->rqID != rq->qid);
++
++			BUG_ON(rbi->buf_type != VMXNET3_RX_BUF_SKB);
++			BUG_ON(ctx->skb != NULL || rbi->skb == NULL);
++
++			if (unlikely(rcd->len == 0)) {
++				/* Pretend the rx buffer is skipped. */
++				BUG_ON(!(rcd->sop && rcd->eop));
++				dprintk(KERN_ERR "rxRing[%u][%u] 0 length\n",
++					ring_idx, idx);
++				goto rcd_done;
++			}
++
++			ctx->skb = rbi->skb;
++			rbi->skb = NULL;
++
++			pci_unmap_single(adapter->pdev, rbi->dma_addr, rbi->len,
++					 PCI_DMA_FROMDEVICE);
++
++			skb_put(ctx->skb, rcd->len);
++		} else {
++			BUG_ON(ctx->skb == NULL);
++			/* non SOP buffer must be type 1 in most cases */
++			if (rbi->buf_type == VMXNET3_RX_BUF_PAGE) {
++				BUG_ON(rxd->btype != VMXNET3_RXD_BTYPE_BODY);
++
++				if (rcd->len) {
++					pci_unmap_page(adapter->pdev,
++						       rbi->dma_addr, rbi->len,
++						       PCI_DMA_FROMDEVICE);
++
++					vmxnet3_append_frag(ctx->skb, rcd, rbi);
++					rbi->page = NULL;
++				}
++			} else {
++				/*
++				 * The only time a non-SOP buffer is type 0 is
++				 * when it's EOP and error flag is raised, which
++				 * has already been handled.
++				 */
++				BUG_ON(true);
++			}
++		}
++
++		skb = ctx->skb;
++		if (rcd->eop) {
++			skb->len += skb->data_len;
++			skb->truesize += skb->data_len;
++
++			vmxnet3_rx_csum(adapter, skb,
++					(union Vmxnet3_GenericDesc *)rcd);
++			skb->protocol = eth_type_trans(skb, adapter->netdev);
++
++			if (unlikely(adapter->vlan_grp && rcd->ts)) {
++				vlan_hwaccel_receive_skb(skb,
++						adapter->vlan_grp, rcd->tci);
++			} else {
++				netif_receive_skb(skb);
++			}
++
++			adapter->netdev->last_rx = jiffies;
++			ctx->skb = NULL;
++		}
++
++rcd_done:
++		/* device may skip some rx descs */
++		rq->rx_ring[ring_idx].next2comp = idx;
++		VMXNET3_INC_RING_IDX_ONLY(rq->rx_ring[ring_idx].next2comp,
++					  rq->rx_ring[ring_idx].size);
++
++		/* refill rx buffers frequently to avoid starving the h/w */
++		num_to_alloc = vmxnet3_cmd_ring_desc_avail(rq->rx_ring +
++							   ring_idx);
++		if (unlikely(num_to_alloc > VMXNET3_RX_ALLOC_THRESHOLD(rq,
++							ring_idx, adapter))) {
++			vmxnet3_rq_alloc_rx_buf(rq, ring_idx, num_to_alloc,
++						adapter);
++
++			/* if needed, update the register */
++			if (unlikely(rq->shared->updateRxProd)) {
++				VMXNET3_WRITE_BAR0_REG(adapter,
++					rxprod_reg[ring_idx] + rq->qid * 8,
++					rq->rx_ring[ring_idx].next2fill);
++				rq->uncommitted[ring_idx] = 0;
++			}
++		}
++
++		vmxnet3_comp_ring_adv_next2proc(&rq->comp_ring);
++		rcd = &rq->comp_ring.base[rq->comp_ring.next2proc].rcd;
++	}
++
++	return num_rxd;
++}
++
++
++static void
++vmxnet3_rq_cleanup(struct vmxnet3_rx_queue *rq,
++		   struct vmxnet3_adapter *adapter)
++{
++	u32 i, ring_idx;
++	struct Vmxnet3_RxDesc *rxd;
++
++	for (ring_idx = 0; ring_idx < 2; ring_idx++) {
++		for (i = 0; i < rq->rx_ring[ring_idx].size; i++) {
++			rxd = &rq->rx_ring[ring_idx].base[i].rxd;
++
++			if (rxd->btype == VMXNET3_RXD_BTYPE_HEAD &&
++					rq->buf_info[ring_idx][i].skb) {
++				pci_unmap_single(adapter->pdev, rxd->addr,
++						 rxd->len, PCI_DMA_FROMDEVICE);
++				dev_kfree_skb(rq->buf_info[ring_idx][i].skb);
++				rq->buf_info[ring_idx][i].skb = NULL;
++			} else if (rxd->btype == VMXNET3_RXD_BTYPE_BODY &&
++					rq->buf_info[ring_idx][i].page) {
++				pci_unmap_page(adapter->pdev, rxd->addr,
++					       rxd->len, PCI_DMA_FROMDEVICE);
++				put_page(rq->buf_info[ring_idx][i].page);
++				rq->buf_info[ring_idx][i].page = NULL;
++			}
++		}
++
++		rq->rx_ring[ring_idx].gen = VMXNET3_INIT_GEN;
++		rq->rx_ring[ring_idx].next2fill =
++					rq->rx_ring[ring_idx].next2comp = 0;
++		rq->uncommitted[ring_idx] = 0;
++	}
++
++	rq->comp_ring.gen = VMXNET3_INIT_GEN;
++	rq->comp_ring.next2proc = 0;
++}
++
++
++void vmxnet3_rq_destroy(struct vmxnet3_rx_queue *rq,
++			struct vmxnet3_adapter *adapter)
++{
++	int i;
++	int j;
++
++	/* all rx buffers must have already been freed */
++	for (i = 0; i < 2; i++) {
++		if (rq->buf_info[i]) {
++			for (j = 0; j < rq->rx_ring[i].size; j++)
++				BUG_ON(rq->buf_info[i][j].page != NULL);
++		}
++	}
++
++
++	kfree(rq->buf_info[0]);
++
++	for (i = 0; i < 2; i++) {
++		if (rq->rx_ring[i].base) {
++			pci_free_consistent(adapter->pdev, rq->rx_ring[i].size
++					    * sizeof(struct Vmxnet3_RxDesc),
++					    rq->rx_ring[i].base,
++					    rq->rx_ring[i].basePA);
++			rq->rx_ring[i].base = NULL;
++		}
++		rq->buf_info[i] = NULL;
++	}
++
++	if (rq->comp_ring.base) {
++		pci_free_consistent(adapter->pdev, rq->comp_ring.size *
++				    sizeof(struct Vmxnet3_RxCompDesc),
++				    rq->comp_ring.base, rq->comp_ring.basePA);
++		rq->comp_ring.base = NULL;
 +	}
 +}
 +
 +
-+static struct virtio_console_port_buffer *get_buf(size_t buf_size)
++static int
++vmxnet3_rq_init(struct vmxnet3_rx_queue *rq,
++		struct vmxnet3_adapter  *adapter)
 +{
-+	struct virtio_console_port_buffer *buf;
++	int i;
 +
-+	buf = kzalloc(sizeof(*buf), GFP_KERNEL);
-+	if (!buf)
-+		goto out;
-+	buf->buf = kzalloc(buf_size, GFP_KERNEL);
-+	if (!buf->buf) {
-+		kfree(buf);
-+		goto out;
++	/* initialize buf_info */
++	for (i = 0; i < rq->rx_ring[0].size; i++) {
++
++		/* 1st buf for a pkt is skbuff */
++		if (i % adapter->rx_buf_per_pkt == 0) {
++			rq->buf_info[0][i].buf_type = VMXNET3_RX_BUF_SKB;
++			rq->buf_info[0][i].len = adapter->skb_buf_size;
++		} else { /* subsequent bufs for a pkt is frag */
++			rq->buf_info[0][i].buf_type = VMXNET3_RX_BUF_PAGE;
++			rq->buf_info[0][i].len = PAGE_SIZE;
++		}
 +	}
-+	buf->len = buf_size;
-+out:
++	for (i = 0; i < rq->rx_ring[1].size; i++) {
++		rq->buf_info[1][i].buf_type = VMXNET3_RX_BUF_PAGE;
++		rq->buf_info[1][i].len = PAGE_SIZE;
++	}
++
++	/* reset internal state and allocate buffers for both rings */
++	for (i = 0; i < 2; i++) {
++		rq->rx_ring[i].next2fill = rq->rx_ring[i].next2comp = 0;
++		rq->uncommitted[i] = 0;
++
++		memset(rq->rx_ring[i].base, 0, rq->rx_ring[i].size *
++		       sizeof(struct Vmxnet3_RxDesc));
++		rq->rx_ring[i].gen = VMXNET3_INIT_GEN;
++	}
++	if (vmxnet3_rq_alloc_rx_buf(rq, 0, rq->rx_ring[0].size - 1,
++				    adapter) == 0) {
++		/* at least has 1 rx buffer for the 1st ring */
++		return -ENOMEM;
++	}
++	vmxnet3_rq_alloc_rx_buf(rq, 1, rq->rx_ring[1].size - 1, adapter);
++
++	/* reset the comp ring */
++	rq->comp_ring.next2proc = 0;
++	memset(rq->comp_ring.base, 0, rq->comp_ring.size *
++	       sizeof(struct Vmxnet3_RxCompDesc));
++	rq->comp_ring.gen = VMXNET3_INIT_GEN;
++
++	/* reset rxctx */
++	rq->rx_ctx.skb = NULL;
++
++	/* stats are not reset */
++	return 0;
++}
++
++
++static int
++vmxnet3_rq_create(struct vmxnet3_rx_queue *rq, struct vmxnet3_adapter *adapter)
++{
++	int i;
++	size_t sz;
++	struct vmxnet3_rx_buf_info *bi;
++
++	for (i = 0; i < 2; i++) {
++
++		sz = rq->rx_ring[i].size * sizeof(struct Vmxnet3_RxDesc);
++		rq->rx_ring[i].base = pci_alloc_consistent(adapter->pdev, sz,
++							&rq->rx_ring[i].basePA);
++		if (!rq->rx_ring[i].base) {
++			printk(KERN_ERR "%s: failed to allocate rx ring %d\n",
++			       adapter->netdev->name, i);
++			goto err;
++		}
++	}
++
++	sz = rq->comp_ring.size * sizeof(struct Vmxnet3_RxCompDesc);
++	rq->comp_ring.base = pci_alloc_consistent(adapter->pdev, sz,
++						  &rq->comp_ring.basePA);
++	if (!rq->comp_ring.base) {
++		printk(KERN_ERR "%s: failed to allocate rx comp ring\n",
++		       adapter->netdev->name);
++		goto err;
++	}
++
++	sz = sizeof(struct vmxnet3_rx_buf_info) * (rq->rx_ring[0].size +
++						   rq->rx_ring[1].size);
++	bi = kmalloc(sz, GFP_KERNEL);
++	if (!bi) {
++		printk(KERN_ERR "%s: failed to allocate rx bufinfo\n",
++		       adapter->netdev->name);
++		goto err;
++	}
++	memset(bi, 0, sz);
++	rq->buf_info[0] = bi;
++	rq->buf_info[1] = bi + rq->rx_ring[0].size;
++
++	return 0;
++
++err:
++	vmxnet3_rq_destroy(rq, adapter);
++	return -ENOMEM;
++}
++
++
++static int
++vmxnet3_do_poll(struct vmxnet3_adapter *adapter, int budget)
++{
++	if (unlikely(adapter->shared->ecr))
++		vmxnet3_process_events(adapter);
++
++	vmxnet3_tq_tx_complete(&adapter->tx_queue, adapter);
++	return vmxnet3_rq_rx_complete(&adapter->rx_queue, adapter, budget);
++}
++
++
++static int
++vmxnet3_poll(struct napi_struct *napi, int budget)
++{
++	struct vmxnet3_adapter *adapter = container_of(napi,
++					  struct vmxnet3_adapter, napi);
++	int rxd_done;
++
++	rxd_done = vmxnet3_do_poll(adapter, budget);
++
++	if (rxd_done < budget) {
++		napi_complete(napi);
++		vmxnet3_enable_intr(adapter, 0);
++	}
++	return rxd_done;
++}
++
++
++/* Interrupt handler for vmxnet3  */
++static irqreturn_t
++vmxnet3_intr(int irq, void *dev_id)
++{
++	struct net_device *dev = dev_id;
++	struct vmxnet3_adapter *adapter = netdev_priv(dev);
++
++	if (unlikely(adapter->intr.type == VMXNET3_IT_INTX)) {
++		u32 icr = VMXNET3_READ_BAR1_REG(adapter, VMXNET3_REG_ICR);
++		if (unlikely(icr == 0))
++			/* not ours */
++			return IRQ_NONE;
++	}
++
++
++	/* disable intr if needed */
++	if (adapter->intr.mask_mode == VMXNET3_IMM_ACTIVE)
++		vmxnet3_disable_intr(adapter, 0);
++
++	napi_schedule(&adapter->napi);
++
++	return IRQ_HANDLED;
++}
++
++#ifdef CONFIG_NET_POLL_CONTROLLER
++
++
++/* netpoll callback. */
++static void
++vmxnet3_netpoll(struct net_device *netdev)
++{
++	struct vmxnet3_adapter *adapter = netdev_priv(netdev);
++	int irq;
++
++	if (adapter->intr.type == VMXNET3_IT_MSIX)
++		irq = adapter->intr.msix_entries[0].vector;
++	else
++		irq = adapter->pdev->irq;
++
++	disable_irq(irq);
++	vmxnet3_intr(irq, netdev);
++	enable_irq(irq);
++}
++#endif
++
++static int
++vmxnet3_request_irqs(struct vmxnet3_adapter *adapter)
++{
++	int err;
++
++	if (adapter->intr.type == VMXNET3_IT_MSIX) {
++		/* we only use 1 MSI-X vector */
++		err = request_irq(adapter->intr.msix_entries[0].vector,
++				  vmxnet3_intr, 0, adapter->netdev->name,
++				  adapter->netdev);
++	} else if (adapter->intr.type == VMXNET3_IT_MSI) {
++		err = request_irq(adapter->pdev->irq, vmxnet3_intr, 0,
++				  adapter->netdev->name, adapter->netdev);
++	} else {
++		err = request_irq(adapter->pdev->irq, vmxnet3_intr,
++				  IRQF_SHARED, adapter->netdev->name,
++				  adapter->netdev);
++	}
++
++	if (err)
++		printk(KERN_ERR "Failed to request irq %s (intr type:%d), error"
++		       ":%d\n", adapter->netdev->name, adapter->intr.type, err);
++
++
++	if (!err) {
++		int i;
++		/* init our intr settings */
++		for (i = 0; i < adapter->intr.num_intrs; i++)
++			adapter->intr.mod_levels[i] = UPT1_IML_ADAPTIVE;
++
++		/* next setup intr index for all intr sources */
++		adapter->tx_queue.comp_ring.intr_idx = 0;
++		adapter->rx_queue.comp_ring.intr_idx = 0;
++		adapter->intr.event_intr_idx = 0;
++
++		printk(KERN_INFO "%s: intr type %u, mode %u, %u vectors "
++		       "allocated\n", adapter->netdev->name, adapter->intr.type,
++		       adapter->intr.mask_mode, adapter->intr.num_intrs);
++	}
++
++	return err;
++}
++
++
++static void
++vmxnet3_free_irqs(struct vmxnet3_adapter *adapter)
++{
++	BUG_ON(adapter->intr.type == VMXNET3_IT_AUTO ||
++	       adapter->intr.num_intrs <= 0);
++
++	switch (adapter->intr.type) {
++	case VMXNET3_IT_MSIX:
++	{
++		int i;
++
++		for (i = 0; i < adapter->intr.num_intrs; i++)
++			free_irq(adapter->intr.msix_entries[i].vector,
++				 adapter->netdev);
++		break;
++	}
++	case VMXNET3_IT_MSI:
++		free_irq(adapter->pdev->irq, adapter->netdev);
++		break;
++	case VMXNET3_IT_INTX:
++		free_irq(adapter->pdev->irq, adapter->netdev);
++		break;
++	default:
++		BUG_ON(true);
++	}
++}
++
++
++static void
++vmxnet3_vlan_rx_register(struct net_device *netdev, struct vlan_group *grp)
++{
++	struct vmxnet3_adapter *adapter = netdev_priv(netdev);
++	struct Vmxnet3_DriverShared *shared = adapter->shared;
++	u32 *vfTable = adapter->shared->devRead.rxFilterConf.vfTable;
++
++	if (grp) {
++		/* add vlan rx stripping. */
++		if (adapter->netdev->features & NETIF_F_HW_VLAN_RX) {
++			int i;
++			struct Vmxnet3_DSDevRead *devRead = &shared->devRead;
++			adapter->vlan_grp = grp;
++
++			/* update FEATURES to device */
++			devRead->misc.uptFeatures |= UPT1_F_RXVLAN;
++			VMXNET3_WRITE_BAR1_REG(adapter, VMXNET3_REG_CMD,
++					       VMXNET3_CMD_UPDATE_FEATURE);
++			/*
++			 *  Clear entire vfTable; then enable untagged pkts.
++			 *  Note: setting one entry in vfTable to non-zero turns
++			 *  on VLAN rx filtering.
++			 */
++			for (i = 0; i < VMXNET3_VFT_SIZE; i++)
++				vfTable[i] = 0;
++
++			VMXNET3_SET_VFTABLE_ENTRY(vfTable, 0);
++			VMXNET3_WRITE_BAR1_REG(adapter, VMXNET3_REG_CMD,
++					       VMXNET3_CMD_UPDATE_VLAN_FILTERS);
++		} else {
++			printk(KERN_ERR "%s: vlan_rx_register when device has "
++			       "no NETIF_F_HW_VLAN_RX\n", netdev->name);
++		}
++	} else {
++		/* remove vlan rx stripping. */
++		struct Vmxnet3_DSDevRead *devRead = &shared->devRead;
++		adapter->vlan_grp = NULL;
++
++		if (devRead->misc.uptFeatures & UPT1_F_RXVLAN) {
++			int i;
++
++			for (i = 0; i < VMXNET3_VFT_SIZE; i++) {
++				/* clear entire vfTable; this also disables
++				 * VLAN rx filtering
++				 */
++				vfTable[i] = 0;
++			}
++			VMXNET3_WRITE_BAR1_REG(adapter, VMXNET3_REG_CMD,
++					       VMXNET3_CMD_UPDATE_VLAN_FILTERS);
++
++			/* update FEATURES to device */
++			devRead->misc.uptFeatures &= ~UPT1_F_RXVLAN;
++			VMXNET3_WRITE_BAR1_REG(adapter, VMXNET3_REG_CMD,
++					       VMXNET3_CMD_UPDATE_FEATURE);
++		}
++	}
++}
++
++
++static void
++vmxnet3_restore_vlan(struct vmxnet3_adapter *adapter)
++{
++	if (adapter->vlan_grp) {
++		u16 vid;
++		u32 *vfTable = adapter->shared->devRead.rxFilterConf.vfTable;
++		bool activeVlan = false;
++
++		for (vid = 0; vid < VLAN_GROUP_ARRAY_LEN; vid++) {
++			if (vlan_group_get_device(adapter->vlan_grp, vid)) {
++				VMXNET3_SET_VFTABLE_ENTRY(vfTable, vid);
++				activeVlan = true;
++			}
++		}
++		if (activeVlan) {
++			/* continue to allow untagged pkts */
++			VMXNET3_SET_VFTABLE_ENTRY(vfTable, 0);
++		}
++	}
++}
++
++
++static void
++vmxnet3_vlan_rx_add_vid(struct net_device *netdev, u16 vid)
++{
++	struct vmxnet3_adapter *adapter = netdev_priv(netdev);
++	u32 *vfTable = adapter->shared->devRead.rxFilterConf.vfTable;
++
++	VMXNET3_SET_VFTABLE_ENTRY(vfTable, vid);
++	VMXNET3_WRITE_BAR1_REG(adapter, VMXNET3_REG_CMD,
++			       VMXNET3_CMD_UPDATE_VLAN_FILTERS);
++}
++
++
++static void
++vmxnet3_vlan_rx_kill_vid(struct net_device *netdev, u16 vid)
++{
++	struct vmxnet3_adapter *adapter = netdev_priv(netdev);
++	u32 *vfTable = adapter->shared->devRead.rxFilterConf.vfTable;
++
++	VMXNET3_CLEAR_VFTABLE_ENTRY(vfTable, vid);
++	VMXNET3_WRITE_BAR1_REG(adapter, VMXNET3_REG_CMD,
++			       VMXNET3_CMD_UPDATE_VLAN_FILTERS);
++}
++
++
++static u8 *
++vmxnet3_copy_mc(struct net_device *netdev)
++{
++	u8 *buf = NULL;
++	u32 sz = netdev->mc_count * ETH_ALEN;
++
++	/* struct Vmxnet3_RxFilterConf.mfTableLen is u16. */
++	if (sz <= 0xffff) {
++		/* We may be called with BH disabled */
++		buf = kmalloc(sz, GFP_ATOMIC);
++		if (buf) {
++			int i;
++			struct dev_mc_list *mc = netdev->mc_list;
++
++			for (i = 0; i < netdev->mc_count; i++) {
++				BUG_ON(!mc);
++				memcpy(buf + i * ETH_ALEN, mc->dmi_addr,
++				       ETH_ALEN);
++				mc = mc->next;
++			}
++		}
++	}
 +	return buf;
 +}
 +
-+static void fill_queue(struct virtqueue *vq, size_t buf_size,
-+		       struct list_head *unused_head)
++
++static void
++vmxnet3_set_mc(struct net_device *netdev)
 +{
-+	struct scatterlist sg[1];
-+	struct virtio_console_port_buffer *buf;
-+	int ret;
++	struct vmxnet3_adapter *adapter = netdev_priv(netdev);
++	struct Vmxnet3_RxFilterConf *rxConf =
++					&adapter->shared->devRead.rxFilterConf;
++	u8 *new_table = NULL;
++	u32 new_mode = VMXNET3_RXM_UCAST;
 +
-+	do {
-+		buf = get_buf(buf_size);
-+		if (!buf)
-+			break;
-+		sg_init_one(sg, buf->buf, buf_size);
++	if (netdev->flags & IFF_PROMISC)
++		new_mode |= VMXNET3_RXM_PROMISC;
 +
-+		ret = vq->vq_ops->add_buf(vq, sg, 0, 1, buf);
-+		if (ret < 0) {
-+			kfree(buf->buf);
-+			kfree(buf);
-+			break;
-+		}
-+		/*
-+		 * We have to keep track of the unused buffers so that
-+		 * they can be freed when the module is being removed
-+		 */
-+		list_add_tail(&buf->next, unused_head);
-+	} while (ret > 0);
-+	vq->vq_ops->kick(vq);
-+}
++	if (netdev->flags & IFF_BROADCAST)
++		new_mode |= VMXNET3_RXM_BCAST;
 +
-+static void fill_receive_queue(struct virtio_console_struct *vcon)
-+{
-+	fill_queue(vcon->in_vq, PAGE_SIZE, &vcon->unused_read_head);
-+}
-+
-+/*
-+ * This function is only called from the init routine so the spinlock
-+ * for the unused_write_head list isn't taken
-+ */
-+static void alloc_write_bufs(struct virtio_console_struct *vcon)
-+{
-+	struct virtio_console_port_buffer *buf;
-+	int i;
-+
-+	for (i = 0; i < 1024; i++) {
-+		buf = get_buf(PAGE_SIZE);
-+		if (!buf)
-+			break;
-+		list_add_tail(&buf->next, &vcon->unused_write_head);
-+	}
-+}
-+
-+/*
-+ * The workhandler for any buffers that appear on our input queue.
-+ * Pick the buffer; if it's some internal communication meant for the
-+ * us, just process it. Otherwise queue it up for the read() or
-+ * get_chars() routines to pick the data up later.
-+ */
-+static void virtio_console_rx_work_handler(struct work_struct *work)
-+{
-+	struct virtio_console_struct *vcon;
-+	struct virtio_console_port *port;
-+	struct virtio_console_port_buffer *buf;
-+	struct virtio_console_header header;
-+	struct virtqueue *vq;
-+	unsigned int tmplen, header_len;
-+
-+	vcon = container_of(work, struct virtio_console_struct, rx_work);
-+	header_len = use_multiport(vcon) ? sizeof(header) : 0;
-+
-+	port = NULL;
-+	vq = vcon->in_vq;
-+	while ((buf = vq->vq_ops->get_buf(vq, &tmplen))) {
-+		/* The buffer is no longer unused */
-+		list_del(&buf->next);
-+
-+		if (use_multiport(vcon)) {
-+			memcpy(&header, buf->buf, header_len);
-+			port = get_port_from_id(header.id);
-+		} else {
-+			port = get_port_from_id(0);
-+		}
-+		if (!port) {
-+			/* No valid header at start of buffer. Drop it. */
-+			pr_debug("%s: invalid index in buffer, %c %d\n",
-+				 __func__, buf->buf[0], buf->buf[0]);
-+			/*
-+			 * OPT: This buffer can be added to the unused
-+			 * list to avoid free / alloc
-+			 */
-+			kfree(buf->buf);
-+			kfree(buf);
-+			break;
-+		}
-+		buf->len = tmplen;
-+		buf->offset = header_len;
-+		if (use_multiport(vcon) && is_internal(header.flags)) {
-+			handle_control_message(port, buf);
-+			/*
-+			 * OPT: This buffer can be added to the unused
-+			 * list to avoid free/alloc
-+			 */
-+			kfree(buf->buf);
-+			kfree(buf);
-+		} else {
-+			spin_lock(&port->readbuf_list_lock);
-+			list_add_tail(&buf->next, &port->readbuf_head);
-+			port->nr_buffers++;
-+			spin_unlock(&port->readbuf_list_lock);
-+			/*
-+			 * We might have missed a connection
-+			 * notification, e.g. before the queues were
-+			 * initialised.
-+			 */
-+			port->host_connected = true;
-+			/*
-+			 * If we reached the throttle level, send out
-+			 * a message to the host to ask it to stop
-+			 * sending us any more data.
-+			 */
-+			if (port->nr_buffers == port->buffer_limit) {
-+				struct virtio_console_control cpkt;
-+
-+				port->guest_throttled = true;
-+				cpkt.event = VIRTIO_CONSOLE_THROTTLE_PORT;
-+				cpkt.value = true;
-+				send_buf(port, (char *)&cpkt, sizeof(cpkt),
-+					 VIRTIO_CONSOLE_ID_INTERNAL, false);
++	if (netdev->flags & IFF_ALLMULTI)
++		new_mode |= VMXNET3_RXM_ALL_MULTI;
++	else
++		if (netdev->mc_count > 0) {
++			new_table = vmxnet3_copy_mc(netdev);
++			if (new_table) {
++				new_mode |= VMXNET3_RXM_MCAST;
++				rxConf->mfTableLen = netdev->mc_count *
++						     ETH_ALEN;
++				rxConf->mfTablePA = virt_to_phys(new_table);
++			} else {
++				printk(KERN_INFO "%s: failed to copy mcast list"
++				       ", setting ALL_MULTI\n", netdev->name);
++				new_mode |= VMXNET3_RXM_ALL_MULTI;
 +			}
 +		}
-+		wake_up_interruptible(&port->waitqueue);
 +
-+		if (is_console_port(port) && !list_empty(&port->readbuf_head))
-+			if (hvc_poll(port->hvc))
-+				hvc_kick();
++
++	if (!(new_mode & VMXNET3_RXM_MCAST)) {
++		rxConf->mfTableLen = 0;
++		rxConf->mfTablePA = 0;
 +	}
-+	/* Allocate buffers for all the ones that got used up */
-+	fill_receive_queue(&virtconsole);
++
++	if (new_mode != rxConf->rxMode) {
++		rxConf->rxMode = new_mode;
++		VMXNET3_WRITE_BAR1_REG(adapter, VMXNET3_REG_CMD,
++				       VMXNET3_CMD_UPDATE_RX_MODE);
++	}
++
++	VMXNET3_WRITE_BAR1_REG(adapter, VMXNET3_REG_CMD,
++			       VMXNET3_CMD_UPDATE_MAC_FILTERS);
++
++	kfree(new_table);
 +}
++
 +
 +/*
-+ * This is the workhandler for buffers that get received on the output
-+ * virtqueue, which is an indication that Host consumed the data we
-+ * sent it. Since all our buffers going out are of a fixed size we can
-+ * just reuse them instead of freeing them and allocating new ones.
-  *
-- * To set up and manage our virtual console, we call hvc_alloc().  Since we
-- * never remove the console device we never need this pointer again.
-+ * Zero out the buffer so that we don't leak any information from
-+ * other processes. There's a small optimisation here as well: the
-+ * buffers are PAGE_SIZE-sized; but instead of zeroing the entire
-+ * page, we just zero the length that was most recently used and we
-+ * can be sure the rest of the page is already set to 0s.
-  *
-- * Finally we put our input buffer in the input queue, ready to receive. */
--static int __devinit virtcons_probe(struct virtio_device *dev)
-+ * So once we zero them out we add them back to the unused buffers
-+ * list
++ *   Set up driver_shared based on settings in adapter.
 + */
-+static void virtio_console_tx_work_handler(struct work_struct *work)
- {
--	vq_callback_t *callbacks[] = { hvc_handle_input, NULL};
-+	struct virtio_console_struct *vcon;
-+	struct virtqueue *vq;
-+	struct virtio_console_port_buffer *buf;
-+	unsigned int tmplen;
 +
-+	vcon = container_of(work, struct virtio_console_struct, tx_work);
++static void
++vmxnet3_setup_driver_shared(struct vmxnet3_adapter *adapter)
++{
++	struct Vmxnet3_DriverShared *shared = adapter->shared;
++	struct Vmxnet3_DSDevRead *devRead = &shared->devRead;
++	struct Vmxnet3_TxQueueConf *tqc;
++	struct Vmxnet3_RxQueueConf *rqc;
++	int i;
 +
-+	vq = vcon->out_vq;
-+	spin_lock(&vcon->write_list_lock);
-+	while ((buf = vq->vq_ops->get_buf(vq, &tmplen))) {
-+		/* 0 the buffer to not leak data from other processes */
-+		memset(buf->buf, 0, buf->len);
-+		list_add_tail(&buf->next, &vcon->unused_write_head);
++	memset(shared, 0, sizeof(*shared));
++
++	/* driver settings */
++	shared->magic = VMXNET3_REV1_MAGIC;
++	devRead->misc.driverInfo.version = VMXNET3_DRIVER_VERSION_NUM;
++	devRead->misc.driverInfo.gos.gosBits = (sizeof(void *) == 4 ?
++				VMXNET3_GOS_BITS_32 : VMXNET3_GOS_BITS_64);
++	devRead->misc.driverInfo.gos.gosType = VMXNET3_GOS_TYPE_LINUX;
++	devRead->misc.driverInfo.vmxnet3RevSpt = 1;
++	devRead->misc.driverInfo.uptVerSpt = 1;
++
++	devRead->misc.ddPA = virt_to_phys(adapter);
++	devRead->misc.ddLen = sizeof(struct vmxnet3_adapter);
++
++	/* set up feature flags */
++	if (adapter->rxcsum)
++		devRead->misc.uptFeatures |= UPT1_F_RXCSUM;
++
++	if (adapter->lro) {
++		devRead->misc.uptFeatures |= UPT1_F_LRO;
++		devRead->misc.maxNumRxSG = 1 + MAX_SKB_FRAGS;
 +	}
-+	spin_unlock(&vcon->write_list_lock);
++	if ((adapter->netdev->features & NETIF_F_HW_VLAN_RX)
++			&& adapter->vlan_grp) {
++		devRead->misc.uptFeatures |= UPT1_F_RXVLAN;
++	}
++
++	devRead->misc.mtu = adapter->netdev->mtu;
++	devRead->misc.queueDescPA = adapter->queue_desc_pa;
++	devRead->misc.queueDescLen = sizeof(struct Vmxnet3_TxQueueDesc) +
++				     sizeof(struct Vmxnet3_RxQueueDesc);
++
++	/* tx queue settings */
++	BUG_ON(adapter->tx_queue.tx_ring.base == NULL);
++
++	devRead->misc.numTxQueues = 1;
++	tqc = &adapter->tqd_start->conf;
++	tqc->txRingBasePA   = adapter->tx_queue.tx_ring.basePA;
++	tqc->dataRingBasePA = adapter->tx_queue.data_ring.basePA;
++	tqc->compRingBasePA = adapter->tx_queue.comp_ring.basePA;
++	tqc->ddPA           = virt_to_phys(adapter->tx_queue.buf_info);
++	tqc->txRingSize     = adapter->tx_queue.tx_ring.size;
++	tqc->dataRingSize   = adapter->tx_queue.data_ring.size;
++	tqc->compRingSize   = adapter->tx_queue.comp_ring.size;
++	tqc->ddLen          = sizeof(struct vmxnet3_tx_buf_info) *
++			      tqc->txRingSize;
++	tqc->intrIdx        = adapter->tx_queue.comp_ring.intr_idx;
++
++	/* rx queue settings */
++	devRead->misc.numRxQueues = 1;
++	rqc = &adapter->rqd_start->conf;
++	rqc->rxRingBasePA[0] = adapter->rx_queue.rx_ring[0].basePA;
++	rqc->rxRingBasePA[1] = adapter->rx_queue.rx_ring[1].basePA;
++	rqc->compRingBasePA  = adapter->rx_queue.comp_ring.basePA;
++	rqc->ddPA            = virt_to_phys(adapter->rx_queue.buf_info);
++	rqc->rxRingSize[0]   = adapter->rx_queue.rx_ring[0].size;
++	rqc->rxRingSize[1]   = adapter->rx_queue.rx_ring[1].size;
++	rqc->compRingSize    = adapter->rx_queue.comp_ring.size;
++	rqc->ddLen           = sizeof(struct vmxnet3_rx_buf_info) *
++			       (rqc->rxRingSize[0] + rqc->rxRingSize[1]);
++	rqc->intrIdx         = adapter->rx_queue.comp_ring.intr_idx;
++
++	/* intr settings */
++	devRead->intrConf.autoMask = adapter->intr.mask_mode ==
++				     VMXNET3_IMM_AUTO;
++	devRead->intrConf.numIntrs = adapter->intr.num_intrs;
++	for (i = 0; i < adapter->intr.num_intrs; i++)
++		devRead->intrConf.modLevels[i] = adapter->intr.mod_levels[i];
++
++	devRead->intrConf.eventIntrIdx = adapter->intr.event_intr_idx;
++
++	/* rx filter settings */
++	devRead->rxFilterConf.rxMode = 0;
++	vmxnet3_restore_vlan(adapter);
++	/* the rest are already zeroed */
 +}
 +
-+static void rx_intr(struct virtqueue *vq)
++
++int
++vmxnet3_activate_dev(struct vmxnet3_adapter *adapter)
 +{
-+	schedule_work(&virtconsole.rx_work);
-+}
++	int err;
++	u32 ret;
 +
-+static void tx_intr(struct virtqueue *vq)
-+{
-+	schedule_work(&virtconsole.tx_work);
-+}
++	dprintk(KERN_ERR "%s: skb_buf_size %d, rx_buf_per_pkt %d, ring sizes"
++		" %u %u %u\n", adapter->netdev->name, adapter->skb_buf_size,
++		adapter->rx_buf_per_pkt, adapter->tx_queue.tx_ring.size,
++		adapter->rx_queue.rx_ring[0].size,
++		adapter->rx_queue.rx_ring[1].size);
 +
-+static void config_intr(struct virtio_device *vdev)
-+{
-+	if (use_multiport(&virtconsole)) {
-+		/* Handle port hot-add */
-+		schedule_work(&virtconsole.config_work);
-+	}
-+	/* Handle console size changes */
-+	virtcons_apply_config(vdev);
-+}
-+
-+static int virtconsole_add_port(u32 port_nr)
-+{
-+	struct virtio_console_port *port;
-+	struct virtio_console_control cpkt;
-+	dev_t devt;
-+	int ret;
-+
-+	port = kzalloc(sizeof(*port), GFP_KERNEL);
-+	if (!port)
-+		return -ENOMEM;
-+
-+	port->vcon = &virtconsole;
-+	port->id = port_nr;
-+
-+	cdev_init(&port->cdev, &virtconsole_fops);
-+
-+	ret = alloc_chrdev_region(&devt, 0, 1, "virtio-console");
-+	if (ret < 0) {
-+		pr_err("%s: error allocing chrdev region, ret = %d\n",
-+		       __func__, ret);
-+		goto free_port;
-+	}
-+	ret = cdev_add(&port->cdev, devt, 1);
-+	if (ret < 0) {
-+		pr_err("%s: error adding cdev, ret = %d\n", __func__, ret);
-+		goto free_chrdev;
-+	}
-+	port->dev = device_create(port->vcon->class, NULL, devt, NULL,
-+				  "vcon%u", port_nr);
-+	if (IS_ERR(port->dev)) {
-+		ret = PTR_ERR(port->dev);
-+		pr_err("%s: error creating device, ret = %d\n", __func__, ret);
-+		goto free_cdev;
-+	}
-+	ret = sysfs_create_group(&port->dev->kobj, &virtcon_attribute_group);
-+	if (ret) {
-+		pr_err("%s: error creating sysfs device attributes, ret = %d\n",
-+		       __func__, ret);
-+		goto free_cdev;
++	vmxnet3_tq_init(&adapter->tx_queue, adapter);
++	err = vmxnet3_rq_init(&adapter->rx_queue, adapter);
++	if (err) {
++		printk(KERN_ERR "Failed to init rx queue for %s: error %d\n",
++		       adapter->netdev->name, err);
++		goto rq_err;
 +	}
 +
-+	spin_lock_init(&port->readbuf_list_lock);
-+	INIT_LIST_HEAD(&port->readbuf_head);
-+	init_waitqueue_head(&port->waitqueue);
++	err = vmxnet3_request_irqs(adapter);
++	if (err) {
++		printk(KERN_ERR "Failed to setup irq for %s: error %d\n",
++		       adapter->netdev->name, err);
++		goto irq_err;
++	}
 +
-+	list_add_tail(&port->next, &port->vcon->port_head);
++	vmxnet3_setup_driver_shared(adapter);
++
++	VMXNET3_WRITE_BAR1_REG(adapter, VMXNET3_REG_DSAL,
++			       VMXNET3_GET_ADDR_LO(adapter->shared_pa));
++	VMXNET3_WRITE_BAR1_REG(adapter, VMXNET3_REG_DSAH,
++			       VMXNET3_GET_ADDR_HI(adapter->shared_pa));
++
++	VMXNET3_WRITE_BAR1_REG(adapter, VMXNET3_REG_CMD,
++			       VMXNET3_CMD_ACTIVATE_DEV);
++	ret = VMXNET3_READ_BAR1_REG(adapter, VMXNET3_REG_CMD);
++
++	if (ret != 0) {
++		printk(KERN_ERR "Failed to activate dev %s: error %u\n",
++		       adapter->netdev->name, ret);
++		err = -EINVAL;
++		goto activate_err;
++	}
++	VMXNET3_WRITE_BAR0_REG(adapter, VMXNET3_REG_RXPROD,
++			       adapter->rx_queue.rx_ring[0].next2fill);
++	VMXNET3_WRITE_BAR0_REG(adapter, VMXNET3_REG_RXPROD2,
++			       adapter->rx_queue.rx_ring[1].next2fill);
++
++	/* Apply the rx filter settins last. */
++	vmxnet3_set_mc(adapter->netdev);
 +
 +	/*
-+	 * Ask for the port's name from Host. The string that we
-+	 * receive in 'name' can be of arbitrary length; so pass the
-+	 * maximum available buffer size: PAGE_SIZE.
++	 * Check link state when first activating device. It will start the
++	 * tx queue if the link is up.
 +	 */
-+	cpkt.event = VIRTIO_CONSOLE_PORT_NAME;
-+	send_buf(port, (char *)&cpkt, sizeof(cpkt),
-+		 VIRTIO_CONSOLE_ID_INTERNAL, false);
++	vmxnet3_check_link(adapter);
 +
-+	/*
-+	 * If we're not using multiport support, this has to be a console port
-+	 */
-+	if (!use_multiport(&virtconsole)) {
-+		ret = init_port_console(port);
-+		if (ret)
-+			goto free_cdev;
++	napi_enable(&adapter->napi);
++	vmxnet3_enable_all_intrs(adapter);
++	clear_bit(VMXNET3_STATE_BIT_QUIESCED, &adapter->state);
++	return 0;
++
++activate_err:
++	VMXNET3_WRITE_BAR1_REG(adapter, VMXNET3_REG_DSAL, 0);
++	VMXNET3_WRITE_BAR1_REG(adapter, VMXNET3_REG_DSAH, 0);
++	vmxnet3_free_irqs(adapter);
++irq_err:
++rq_err:
++	/* free up buffers we allocated */
++	vmxnet3_rq_cleanup(&adapter->rx_queue, adapter);
++	return err;
++}
++
++
++void
++vmxnet3_reset_dev(struct vmxnet3_adapter *adapter)
++{
++	VMXNET3_WRITE_BAR1_REG(adapter, VMXNET3_REG_CMD, VMXNET3_CMD_RESET_DEV);
++}
++
++
++int
++vmxnet3_quiesce_dev(struct vmxnet3_adapter *adapter)
++{
++	if (test_and_set_bit(VMXNET3_STATE_BIT_QUIESCED, &adapter->state))
++		return 0;
++
++
++	VMXNET3_WRITE_BAR1_REG(adapter, VMXNET3_REG_CMD,
++			       VMXNET3_CMD_QUIESCE_DEV);
++	vmxnet3_disable_all_intrs(adapter);
++
++	napi_disable(&adapter->napi);
++	netif_tx_disable(adapter->netdev);
++	adapter->link_speed = 0;
++	netif_carrier_off(adapter->netdev);
++
++	vmxnet3_tq_cleanup(&adapter->tx_queue, adapter);
++	vmxnet3_rq_cleanup(&adapter->rx_queue, adapter);
++	vmxnet3_free_irqs(adapter);
++	return 0;
++}
++
++
++static void
++vmxnet3_write_mac_addr(struct vmxnet3_adapter *adapter, u8 *mac)
++{
++	u32 tmp;
++
++	tmp = *(u32 *)mac;
++	VMXNET3_WRITE_BAR1_REG(adapter, VMXNET3_REG_MACL, tmp);
++
++	tmp = (mac[5] << 8) | mac[4];
++	VMXNET3_WRITE_BAR1_REG(adapter, VMXNET3_REG_MACH, tmp);
++}
++
++
++static int
++vmxnet3_set_mac_addr(struct net_device *netdev, void *p)
++{
++	struct sockaddr *addr = p;
++	struct vmxnet3_adapter *adapter = netdev_priv(netdev);
++
++	memcpy(netdev->dev_addr, addr->sa_data, netdev->addr_len);
++	vmxnet3_write_mac_addr(adapter, addr->sa_data);
++
++	return 0;
++}
++
++
++/* ==================== initialization and cleanup routines ============ */
++
++static int
++vmxnet3_alloc_pci_resources(struct vmxnet3_adapter *adapter, bool *dma64)
++{
++	int err;
++	unsigned long mmio_start, mmio_len;
++	struct pci_dev *pdev = adapter->pdev;
++
++	err = pci_enable_device(pdev);
++	if (err) {
++		printk(KERN_ERR "Failed to enable adapter %s: error %d\n",
++		       pci_name(pdev), err);
++		return err;
++	}
++
++	if (pci_set_dma_mask(pdev, DMA_BIT_MASK(64)) == 0) {
++		if (pci_set_consistent_dma_mask(pdev, DMA_BIT_MASK(64)) != 0) {
++			printk(KERN_ERR "pci_set_consistent_dma_mask failed "
++			       "for adapter %s\n", pci_name(pdev));
++			err = -EIO;
++			goto err_set_mask;
++		}
++		*dma64 = true;
++	} else {
++		if (pci_set_dma_mask(pdev, DMA_BIT_MASK(32)) != 0) {
++			printk(KERN_ERR "pci_set_dma_mask failed for adapter "
++			       "%s\n",	pci_name(pdev));
++			err = -EIO;
++			goto err_set_mask;
++		}
++		*dma64 = false;
++	}
++
++	err = pci_request_selected_regions(pdev, (1 << 2) - 1,
++					   vmxnet3_driver_name);
++	if (err) {
++		printk(KERN_ERR "Failed to request region for adapter %s: "
++		       "error %d\n", pci_name(pdev), err);
++		goto err_set_mask;
++	}
++
++	pci_set_master(pdev);
++
++	mmio_start = pci_resource_start(pdev, 0);
++	mmio_len = pci_resource_len(pdev, 0);
++	adapter->hw_addr0 = ioremap(mmio_start, mmio_len);
++	if (!adapter->hw_addr0) {
++		printk(KERN_ERR "Failed to map bar0 for adapter %s\n",
++		       pci_name(pdev));
++		err = -EIO;
++		goto err_ioremap;
++	}
++
++	mmio_start = pci_resource_start(pdev, 1);
++	mmio_len = pci_resource_len(pdev, 1);
++	adapter->hw_addr1 = ioremap(mmio_start, mmio_len);
++	if (!adapter->hw_addr1) {
++		printk(KERN_ERR "Failed to map bar1 for adapter %s\n",
++		       pci_name(pdev));
++		err = -EIO;
++		goto err_bar1;
 +	}
 +	return 0;
-+free_cdev:
-+	cdev_del(&port->cdev);
-+free_chrdev:
-+	unregister_chrdev_region(devt, 1);
-+free_port:
-+	kfree(port);
-+	return ret;
++
++err_bar1:
++	iounmap(adapter->hw_addr0);
++err_ioremap:
++	pci_release_selected_regions(pdev, (1 << 2) - 1);
++err_set_mask:
++	pci_disable_device(pdev);
++	return err;
 +}
 +
 +
-+/* The workhandler for config-space updates
-+ *
-+ * This is used when new ports are added
-+ */
-+static void virtio_console_config_work_handler(struct work_struct *work)
++static void
++vmxnet3_free_pci_resources(struct vmxnet3_adapter *adapter)
 +{
-+	struct virtio_console_struct *vcon;
-+	struct virtio_console_config virtconconf;
-+	struct virtio_device *vdev;
-+	u32 i;
-+	int ret;
++	BUG_ON(!adapter->pdev);
 +
-+	vcon = container_of(work, struct virtio_console_struct, config_work);
++	iounmap(adapter->hw_addr0);
++	iounmap(adapter->hw_addr1);
++	pci_release_selected_regions(adapter->pdev, (1 << 2) - 1);
++	pci_disable_device(adapter->pdev);
++}
 +
-+	vdev = vcon->vdev;
-+	vdev->config->get(vdev,
-+			  offsetof(struct virtio_console_config, nr_active_ports),
-+			  &virtconconf.nr_active_ports,
-+			  sizeof(virtconconf.nr_active_ports));
 +
-+	if (vcon->config.nr_active_ports == virtconconf.nr_active_ports) {
-+		/*
-+		 * Port 0 got hot-added. Since we already did all the other
-+		 * initialisation for it, just ask the Host for the name
-+		 * if set
-+		 */
-+		struct virtio_console_control cpkt;
-+		struct virtio_console_port *port;
++static void
++vmxnet3_adjust_rx_ring_size(struct vmxnet3_adapter *adapter)
++{
++	size_t sz;
 +
-+		port = get_port_from_id(0);
-+		cpkt.event = VIRTIO_CONSOLE_PORT_NAME;
-+		send_buf(port, (char *)&cpkt, sizeof(cpkt),
-+			 VIRTIO_CONSOLE_ID_INTERNAL, false);
++	if (adapter->netdev->mtu <= VMXNET3_MAX_SKB_BUF_SIZE -
++				    VMXNET3_MAX_ETH_HDR_SIZE) {
++		adapter->skb_buf_size = adapter->netdev->mtu +
++					VMXNET3_MAX_ETH_HDR_SIZE;
++		if (adapter->skb_buf_size < VMXNET3_MIN_T0_BUF_SIZE)
++			adapter->skb_buf_size = VMXNET3_MIN_T0_BUF_SIZE;
++
++		adapter->rx_buf_per_pkt = 1;
++	} else {
++		adapter->skb_buf_size = VMXNET3_MAX_SKB_BUF_SIZE;
++		sz = adapter->netdev->mtu - VMXNET3_MAX_SKB_BUF_SIZE +
++					    VMXNET3_MAX_ETH_HDR_SIZE;
++		adapter->rx_buf_per_pkt = 1 + (sz + PAGE_SIZE - 1) / PAGE_SIZE;
++	}
++
++	/*
++	 * for simplicity, force the ring0 size to be a multiple of
++	 * rx_buf_per_pkt * VMXNET3_RING_SIZE_ALIGN
++	 */
++	sz = adapter->rx_buf_per_pkt * VMXNET3_RING_SIZE_ALIGN;
++	adapter->rx_queue.rx_ring[0].size = (adapter->rx_queue.rx_ring[0].size +
++					     sz - 1) / sz * sz;
++	adapter->rx_queue.rx_ring[0].size = min_t(u32,
++					    adapter->rx_queue.rx_ring[0].size,
++					    VMXNET3_RX_RING_MAX_SIZE / sz * sz);
++}
++
++
++int
++vmxnet3_create_queues(struct vmxnet3_adapter *adapter, u32 tx_ring_size,
++		      u32 rx_ring_size, u32 rx_ring2_size)
++{
++	int err;
++
++	adapter->tx_queue.tx_ring.size   = tx_ring_size;
++	adapter->tx_queue.data_ring.size = tx_ring_size;
++	adapter->tx_queue.comp_ring.size = tx_ring_size;
++	adapter->tx_queue.shared = &adapter->tqd_start->ctrl;
++	adapter->tx_queue.stopped = true;
++	err = vmxnet3_tq_create(&adapter->tx_queue, adapter);
++	if (err)
++		return err;
++
++	adapter->rx_queue.rx_ring[0].size = rx_ring_size;
++	adapter->rx_queue.rx_ring[1].size = rx_ring2_size;
++	vmxnet3_adjust_rx_ring_size(adapter);
++	adapter->rx_queue.comp_ring.size  = adapter->rx_queue.rx_ring[0].size +
++					    adapter->rx_queue.rx_ring[1].size;
++	adapter->rx_queue.qid  = 0;
++	adapter->rx_queue.qid2 = 1;
++	adapter->rx_queue.shared = &adapter->rqd_start->ctrl;
++	err = vmxnet3_rq_create(&adapter->rx_queue, adapter);
++	if (err)
++		vmxnet3_tq_destroy(&adapter->tx_queue, adapter);
++
++	return err;
++}
++
++static int
++vmxnet3_open(struct net_device *netdev)
++{
++	struct vmxnet3_adapter *adapter;
++	int err;
++
++	adapter = netdev_priv(netdev);
++
++	spin_lock_init(&adapter->tx_queue.tx_lock);
++
++	err = vmxnet3_create_queues(adapter, VMXNET3_DEF_TX_RING_SIZE,
++				    VMXNET3_DEF_RX_RING_SIZE,
++				    VMXNET3_DEF_RX_RING_SIZE);
++	if (err)
++		goto queue_err;
++
++	err = vmxnet3_activate_dev(adapter);
++	if (err)
++		goto activate_err;
++
++	return 0;
++
++activate_err:
++	vmxnet3_rq_destroy(&adapter->rx_queue, adapter);
++	vmxnet3_tq_destroy(&adapter->tx_queue, adapter);
++queue_err:
++	return err;
++}
++
++
++static int
++vmxnet3_close(struct net_device *netdev)
++{
++	struct vmxnet3_adapter *adapter = netdev_priv(netdev);
++
++	/*
++	 * Reset_work may be in the middle of resetting the device, wait for its
++	 * completion.
++	 */
++	while (test_and_set_bit(VMXNET3_STATE_BIT_RESETTING, &adapter->state))
++		msleep(1);
++
++	vmxnet3_quiesce_dev(adapter);
++
++	vmxnet3_rq_destroy(&adapter->rx_queue, adapter);
++	vmxnet3_tq_destroy(&adapter->tx_queue, adapter);
++
++	clear_bit(VMXNET3_STATE_BIT_RESETTING, &adapter->state);
++
++
++	return 0;
++}
++
++
++void
++vmxnet3_force_close(struct vmxnet3_adapter *adapter)
++{
++	/*
++	 * we must clear VMXNET3_STATE_BIT_RESETTING, otherwise
++	 * vmxnet3_close() will deadlock.
++	 */
++	BUG_ON(test_bit(VMXNET3_STATE_BIT_RESETTING, &adapter->state));
++
++	/* we need to enable NAPI, otherwise dev_close will deadlock */
++	napi_enable(&adapter->napi);
++	dev_close(adapter->netdev);
++}
++
++
++static int
++vmxnet3_change_mtu(struct net_device *netdev, int new_mtu)
++{
++	struct vmxnet3_adapter *adapter = netdev_priv(netdev);
++	int err = 0;
++
++	if (new_mtu < VMXNET3_MIN_MTU || new_mtu > VMXNET3_MAX_MTU)
++		return -EINVAL;
++
++	if (new_mtu > 1500 && !adapter->jumbo_frame)
++		return -EINVAL;
++
++	netdev->mtu = new_mtu;
++
++	/*
++	 * Reset_work may be in the middle of resetting the device, wait for its
++	 * completion.
++	 */
++	while (test_and_set_bit(VMXNET3_STATE_BIT_RESETTING, &adapter->state))
++		msleep(1);
++
++	if (netif_running(netdev)) {
++		vmxnet3_quiesce_dev(adapter);
++		vmxnet3_reset_dev(adapter);
++
++		/* we need to re-create the rx queue based on the new mtu */
++		vmxnet3_rq_destroy(&adapter->rx_queue, adapter);
++		vmxnet3_adjust_rx_ring_size(adapter);
++		adapter->rx_queue.comp_ring.size  =
++					adapter->rx_queue.rx_ring[0].size +
++					adapter->rx_queue.rx_ring[1].size;
++		err = vmxnet3_rq_create(&adapter->rx_queue, adapter);
++		if (err) {
++			printk(KERN_ERR "%s: failed to re-create rx queue,"
++				" error %d. Closing it.\n", netdev->name, err);
++			goto out;
++		}
++
++		err = vmxnet3_activate_dev(adapter);
++		if (err) {
++			printk(KERN_ERR "%s: failed to re-activate, error %d. "
++				"Closing it\n", netdev->name, err);
++			goto out;
++		}
++	}
++
++out:
++	clear_bit(VMXNET3_STATE_BIT_RESETTING, &adapter->state);
++	if (err)
++		vmxnet3_force_close(adapter);
++
++	return err;
++}
++
++
++static void
++vmxnet3_declare_features(struct vmxnet3_adapter *adapter, bool dma64)
++{
++	struct net_device *netdev = adapter->netdev;
++
++	netdev->features = NETIF_F_SG |
++		NETIF_F_HW_CSUM |
++		NETIF_F_HW_VLAN_TX |
++		NETIF_F_HW_VLAN_RX |
++		NETIF_F_HW_VLAN_FILTER |
++		NETIF_F_TSO |
++		NETIF_F_TSO6 |
++		NETIF_F_LRO;
++
++	printk(KERN_INFO "features: sg csum vlan jf tso tsoIPv6 lro");
++
++	adapter->rxcsum = true;
++	adapter->jumbo_frame = true;
++	adapter->lro = true;
++
++	if (dma64) {
++		netdev->features |= NETIF_F_HIGHDMA;
++		printk(" highDMA");
++	}
++
++	netdev->vlan_features = netdev->features;
++	printk("\n");
++}
++
++
++static void
++vmxnet3_read_mac_addr(struct vmxnet3_adapter *adapter, u8 *mac)
++{
++	u32 tmp;
++
++	tmp = VMXNET3_READ_BAR1_REG(adapter, VMXNET3_REG_MACL);
++	*(u32 *)mac = tmp;
++
++	tmp = VMXNET3_READ_BAR1_REG(adapter, VMXNET3_REG_MACH);
++	mac[4] = tmp & 0xff;
++	mac[5] = (tmp >> 8) & 0xff;
++}
++
++
++static void
++vmxnet3_alloc_intr_resources(struct vmxnet3_adapter *adapter)
++{
++	u32 cfg;
++
++	/* intr settings */
++	VMXNET3_WRITE_BAR1_REG(adapter, VMXNET3_REG_CMD,
++			       VMXNET3_CMD_GET_CONF_INTR);
++	cfg = VMXNET3_READ_BAR1_REG(adapter, VMXNET3_REG_CMD);
++	adapter->intr.type = cfg & 0x3;
++	adapter->intr.mask_mode = (cfg >> 2) & 0x3;
++
++	if (adapter->intr.type == VMXNET3_IT_AUTO) {
++		int err;
++
++		adapter->intr.msix_entries[0].entry = 0;
++		err = pci_enable_msix(adapter->pdev, adapter->intr.msix_entries,
++				      VMXNET3_LINUX_MAX_MSIX_VECT);
++		if (!err) {
++			adapter->intr.num_intrs = 1;
++			adapter->intr.type = VMXNET3_IT_MSIX;
++			return;
++		}
++
++		err = pci_enable_msi(adapter->pdev);
++		if (!err) {
++			adapter->intr.num_intrs = 1;
++			adapter->intr.type = VMXNET3_IT_MSI;
++			return;
++		}
++	}
++
++	adapter->intr.type = VMXNET3_IT_INTX;
++
++	/* INT-X related setting */
++	adapter->intr.num_intrs = 1;
++}
++
++
++static void
++vmxnet3_free_intr_resources(struct vmxnet3_adapter *adapter)
++{
++	if (adapter->intr.type == VMXNET3_IT_MSIX)
++		pci_disable_msix(adapter->pdev);
++	else if (adapter->intr.type == VMXNET3_IT_MSI)
++		pci_disable_msi(adapter->pdev);
++	else
++		BUG_ON(adapter->intr.type != VMXNET3_IT_INTX);
++}
++
++
++static void
++vmxnet3_tx_timeout(struct net_device *netdev)
++{
++	struct vmxnet3_adapter *adapter = netdev_priv(netdev);
++	adapter->tx_timeout_count++;
++
++	printk(KERN_ERR "%s: tx hang\n", adapter->netdev->name);
++	schedule_work(&adapter->work);
++}
++
++
++static void
++vmxnet3_reset_work(struct work_struct *data)
++{
++	struct vmxnet3_adapter *adapter;
++
++	adapter = container_of(data, struct vmxnet3_adapter, work);
++
++	/* if another thread is resetting the device, no need to proceed */
++	if (test_and_set_bit(VMXNET3_STATE_BIT_RESETTING, &adapter->state))
 +		return;
++
++	/* if the device is closed, we must leave it alone */
++	if (netif_running(adapter->netdev)) {
++		printk(KERN_INFO "%s: resetting\n", adapter->netdev->name);
++		vmxnet3_quiesce_dev(adapter);
++		vmxnet3_reset_dev(adapter);
++		vmxnet3_activate_dev(adapter);
++	} else {
++		printk(KERN_INFO "%s: already closed\n", adapter->netdev->name);
 +	}
 +
-+	/* Hot-add ports */
-+	for (i = virtconsole.config.nr_active_ports;
-+	     i < virtconconf.nr_active_ports; i++) {
-+		ret = virtconsole_add_port(virtconsole.config.nr_active_ports + i);
-+		if (!ret)
-+			virtconsole.config.nr_active_ports++;
-+	}
++	clear_bit(VMXNET3_STATE_BIT_RESETTING, &adapter->state);
 +}
 +
-+/*D:370
-+ * Once we're further in boot, we get probed like any other virtio device.
-+ * At this stage we set up the output virtqueue.
-+ *
-+ * Finally we put our input buffer in the input queue, ready to receive.
-+ */
-+static int __devinit virtcons_probe(struct virtio_device *vdev)
++
++static int __devinit
++vmxnet3_probe_device(struct pci_dev *pdev,
++		     const struct pci_device_id *id)
 +{
-+	vq_callback_t *callbacks[] = { rx_intr, tx_intr };
- 	const char *names[] = { "input", "output" };
- 	struct virtqueue *vqs[2];
--	int err;
--
--	vdev = dev;
-+	u32 i;
-+	int ret;
-+	bool multiport;
- 
--	/* This is the scratch page we use to receive console input */
--	inbuf = kmalloc(PAGE_SIZE, GFP_KERNEL);
--	if (!inbuf) {
--		err = -ENOMEM;
--		goto fail;
-+	if (virtconsole.vdev) {
-+		pr_err("Multiple virtio-console devices not supported yet\n");
-+		return -EEXIST;
- 	}
-+	virtconsole.vdev = vdev;
++	static const struct net_device_ops vmxnet3_netdev_ops = {
++		.ndo_open = vmxnet3_open,
++		.ndo_stop = vmxnet3_close,
++		.ndo_start_xmit = vmxnet3_xmit_frame,
++		.ndo_set_mac_address = vmxnet3_set_mac_addr,
++		.ndo_change_mtu = vmxnet3_change_mtu,
++		.ndo_get_stats = vmxnet3_get_stats,
++		.ndo_tx_timeout = vmxnet3_tx_timeout,
++		.ndo_set_multicast_list = vmxnet3_set_mc,
++		.ndo_vlan_rx_register = vmxnet3_vlan_rx_register,
++		.ndo_vlan_rx_add_vid = vmxnet3_vlan_rx_add_vid,
++		.ndo_vlan_rx_kill_vid = vmxnet3_vlan_rx_kill_vid,
++#ifdef CONFIG_NET_POLL_CONTROLLER
++		.ndo_poll_controller = vmxnet3_netpoll,
++#endif
++	};
++	int err;
++	bool dma64 = false; /* stupid gcc */
++	u32 ver;
++	struct net_device *netdev;
++	struct vmxnet3_adapter *adapter;
++	u8 mac[ETH_ALEN];
 +
-+	multiport = false;
-+	if (virtio_has_feature(vdev, VIRTIO_CONSOLE_F_MULTIPORT)) {
-+		multiport = true;
-+		vdev->features[0] |= 1 << VIRTIO_CONSOLE_F_MULTIPORT;
-+		vdev->config->finalize_features(vdev);
- 
-+		vdev->config->get(vdev, offsetof(struct virtio_console_config,
-+						 nr_active_ports),
-+				  &virtconsole.config.nr_active_ports,
-+				  sizeof(virtconsole.config.nr_active_ports));
++	netdev = alloc_etherdev(sizeof(struct vmxnet3_adapter));
++	if (!netdev) {
++		printk(KERN_ERR "Failed to alloc ethernet device for adapter "
++			"%s\n",	pci_name(pdev));
++		return -ENOMEM;
 +	}
- 	/* Find the queues. */
- 	/* FIXME: This is why we want to wean off hvc: we do nothing
- 	 * when input comes in. */
--	err = vdev->config->find_vqs(vdev, 2, vqs, callbacks, names);
--	if (err)
--		goto free;
-+	ret = vdev->config->find_vqs(vdev, 2, vqs, callbacks, names);
-+	if (ret)
-+		goto fail;
- 
--	in_vq = vqs[0];
--	out_vq = vqs[1];
-+	virtconsole.in_vq = vqs[0];
-+	virtconsole.out_vq = vqs[1];
 +
-+	/*
-+	 * We had set the virtio_cons put_chars implementation to
-+	 * put_chars for early_init. Now that we're done with the
-+	 * early init phase, replace it with our cons_put_chars
-+	 * implementation.
-+	 */
-+	virtio_cons.put_chars = cons_put_chars;
++	pci_set_drvdata(pdev, netdev);
++	adapter = netdev_priv(netdev);
++	adapter->netdev = netdev;
++	adapter->pdev = pdev;
 +
-+	INIT_LIST_HEAD(&virtconsole.port_head);
-+	INIT_LIST_HEAD(&virtconsole.unused_read_head);
-+	INIT_LIST_HEAD(&virtconsole.unused_write_head);
++	adapter->shared = pci_alloc_consistent(adapter->pdev,
++			  sizeof(struct Vmxnet3_DriverShared),
++			  &adapter->shared_pa);
++	if (!adapter->shared) {
++		printk(KERN_ERR "Failed to allocate memory for %s\n",
++			pci_name(pdev));
++		err = -ENOMEM;
++		goto err_alloc_shared;
++	}
 +
-+	INIT_WORK(&virtconsole.rx_work, &virtio_console_rx_work_handler);
-+	INIT_WORK(&virtconsole.tx_work, &virtio_console_tx_work_handler);
-+	INIT_WORK(&virtconsole.config_work, &virtio_console_config_work_handler);
-+	spin_lock_init(&virtconsole.write_list_lock);
++	adapter->tqd_start = pci_alloc_consistent(adapter->pdev,
++			     sizeof(struct Vmxnet3_TxQueueDesc) +
++			     sizeof(struct Vmxnet3_RxQueueDesc),
++			     &adapter->queue_desc_pa);
 +
-+	fill_receive_queue(&virtconsole);
-+	alloc_write_bufs(&virtconsole);
++	if (!adapter->tqd_start) {
++		printk(KERN_ERR "Failed to allocate memory for %s\n",
++			pci_name(pdev));
++		err = -ENOMEM;
++		goto err_alloc_queue_desc;
++	}
++	adapter->rqd_start = (struct Vmxnet3_RxQueueDesc *)(adapter->tqd_start
++							    + 1);
 +
-+	virtconsole_add_port(0);
-+	if (multiport)
-+		for (i = 1; i < virtconsole.config.nr_active_ports; i++)
-+			virtconsole_add_port(i);
- 
--	/* Start using the new console output. */
--	virtio_cons.get_chars = get_chars;
--	virtio_cons.put_chars = put_chars;
--	virtio_cons.notifier_add = notifier_add_vio;
--	virtio_cons.notifier_del = notifier_del_vio;
--	virtio_cons.notifier_hangup = notifier_del_vio;
--
--	/* The first argument of hvc_alloc() is the virtual console number, so
--	 * we use zero.  The second argument is the parameter for the
--	 * notification mechanism (like irq number). We currently leave this
--	 * as zero, virtqueues have implicit notifications.
--	 *
--	 * The third argument is a "struct hv_ops" containing the put_chars()
--	 * get_chars(), notifier_add() and notifier_del() pointers.
--	 * The final argument is the output buffer size: we can do any size,
--	 * so we put PAGE_SIZE here. */
--	hvc = hvc_alloc(0, 0, &virtio_cons, PAGE_SIZE);
--	if (IS_ERR(hvc)) {
--		err = PTR_ERR(hvc);
--		goto free_vqs;
--	}
--
--	/* Register the input buffer the first time. */
--	add_inbuf();
- 	return 0;
- 
--free_vqs:
--	vdev->config->del_vqs(vdev);
--free:
--	kfree(inbuf);
- fail:
--	return err;
-+	return ret;
++	adapter->pm_conf = kmalloc(sizeof(struct Vmxnet3_PMConf), GFP_KERNEL);
++	if (adapter->pm_conf == NULL) {
++		printk(KERN_ERR "Failed to allocate memory for %s\n",
++			pci_name(pdev));
++		err = -ENOMEM;
++		goto err_alloc_pm;
++	}
++
++	err = vmxnet3_alloc_pci_resources(adapter, &dma64);
++	if (err < 0)
++		goto err_alloc_pci;
++
++	ver = VMXNET3_READ_BAR1_REG(adapter, VMXNET3_REG_VRRS);
++	if (ver & 1) {
++		VMXNET3_WRITE_BAR1_REG(adapter, VMXNET3_REG_VRRS, 1);
++	} else {
++		printk(KERN_ERR "Incompatible h/w version (0x%x) for adapter"
++		       " %s\n",	ver, pci_name(pdev));
++		err = -EBUSY;
++		goto err_ver;
++	}
++
++	ver = VMXNET3_READ_BAR1_REG(adapter, VMXNET3_REG_UVRS);
++	if (ver & 1) {
++		VMXNET3_WRITE_BAR1_REG(adapter, VMXNET3_REG_UVRS, 1);
++	} else {
++		printk(KERN_ERR "Incompatible upt version (0x%x) for "
++		       "adapter %s\n", ver, pci_name(pdev));
++		err = -EBUSY;
++		goto err_ver;
++	}
++
++	vmxnet3_declare_features(adapter, dma64);
++
++	adapter->dev_number = atomic_read(&devices_found);
++	vmxnet3_alloc_intr_resources(adapter);
++
++	vmxnet3_read_mac_addr(adapter, mac);
++	memcpy(netdev->dev_addr,  mac, netdev->addr_len);
++
++	netdev->netdev_ops = &vmxnet3_netdev_ops;
++	netdev->watchdog_timeo = 5 * HZ;
++	vmxnet3_set_ethtool_ops(netdev);
++
++	INIT_WORK(&adapter->work, vmxnet3_reset_work);
++
++	netif_napi_add(netdev, &adapter->napi, vmxnet3_poll, 64);
++	SET_NETDEV_DEV(netdev, &pdev->dev);
++	err = register_netdev(netdev);
++
++	if (err) {
++		printk(KERN_ERR "Failed to register adapter %s\n",
++			pci_name(pdev));
++		goto err_register;
++	}
++
++	set_bit(VMXNET3_STATE_BIT_QUIESCED, &adapter->state);
++	atomic_inc(&devices_found);
++	return 0;
++
++err_register:
++	vmxnet3_free_intr_resources(adapter);
++err_ver:
++	vmxnet3_free_pci_resources(adapter);
++err_alloc_pci:
++	kfree(adapter->pm_conf);
++err_alloc_pm:
++	pci_free_consistent(adapter->pdev, sizeof(struct Vmxnet3_TxQueueDesc) +
++			    sizeof(struct Vmxnet3_RxQueueDesc),
++			    adapter->tqd_start, adapter->queue_desc_pa);
++err_alloc_queue_desc:
++	pci_free_consistent(adapter->pdev, sizeof(struct Vmxnet3_DriverShared),
++			    adapter->shared, adapter->shared_pa);
++err_alloc_shared:
++	pci_set_drvdata(pdev, NULL);
++	free_netdev(netdev);
++	return err;
 +}
 +
-+/*
-+ * Remove port-specific data.
-+ * In case the port can't be removed, return non-zero. This could
-+ * then be used in the port hot-unplug case.
-+ */
-+static int virtcons_remove_port_data(struct virtio_console_port *port)
++
++static void __devexit
++vmxnet3_remove_device(struct pci_dev *pdev)
 +{
-+	struct virtio_console_port_buffer *buf, *buf2;
++	struct net_device *netdev = pci_get_drvdata(pdev);
++	struct vmxnet3_adapter *adapter = netdev_priv(netdev);
 +
-+	if (is_console_port(port)) {
-+		/* hvc_console is compiled in, at least on Fedora. */
-+		/* hvc_remove(hvc); */
-+		return 1;
++	flush_scheduled_work();
++
++	unregister_netdev(netdev);
++
++	vmxnet3_free_intr_resources(adapter);
++	vmxnet3_free_pci_resources(adapter);
++	kfree(adapter->pm_conf);
++	pci_free_consistent(adapter->pdev, sizeof(struct Vmxnet3_TxQueueDesc) +
++			    sizeof(struct Vmxnet3_RxQueueDesc),
++			    adapter->tqd_start, adapter->queue_desc_pa);
++	pci_free_consistent(adapter->pdev, sizeof(struct Vmxnet3_DriverShared),
++			    adapter->shared, adapter->shared_pa);
++	free_netdev(netdev);
++}
++
++
++#ifdef CONFIG_PM
++
++static int
++vmxnet3_suspend(struct device *device)
++{
++	struct pci_dev *pdev = to_pci_dev(device);
++	struct net_device *netdev = pci_get_drvdata(pdev);
++	struct vmxnet3_adapter *adapter = netdev_priv(netdev);
++	struct Vmxnet3_PMConf *pmConf;
++	struct ethhdr *ehdr;
++	struct arphdr *ahdr;
++	u8 *arpreq;
++	struct in_device *in_dev;
++	struct in_ifaddr *ifa;
++	int i = 0;
++
++	if (!netif_running(netdev))
++		return 0;
++
++	vmxnet3_disable_all_intrs(adapter);
++	vmxnet3_free_irqs(adapter);
++	vmxnet3_free_intr_resources(adapter);
++
++	netif_device_detach(netdev);
++	netif_stop_queue(netdev);
++
++	/* Create wake-up filters. */
++	pmConf = adapter->pm_conf;
++	memset(pmConf, 0, sizeof(*pmConf));
++
++	if (adapter->wol & WAKE_UCAST) {
++		pmConf->filters[i].patternSize = ETH_ALEN;
++		pmConf->filters[i].maskSize = 1;
++		memcpy(pmConf->filters[i].pattern, netdev->dev_addr, ETH_ALEN);
++		pmConf->filters[i].mask[0] = 0x3F; /* LSB ETH_ALEN bits */
++
++		pmConf->wakeUpEvents |= VMXNET3_PM_WAKEUP_FILTER;
++		i++;
 +	}
 +
-+	sysfs_remove_group(&port->dev->kobj, &virtcon_attribute_group);
-+	device_destroy(virtconsole.class, port->dev->devt);
-+	unregister_chrdev_region(port->dev->devt, 1);
-+	cdev_del(&port->cdev);
++	if (adapter->wol & WAKE_ARP) {
++		in_dev = in_dev_get(netdev);
++		if (!in_dev)
++			goto skip_arp;
 +
-+	kfree(port->name);
++		ifa = (struct in_ifaddr *)in_dev->ifa_list;
++		if (!ifa)
++			goto skip_arp;
 +
-+	/* Remove the buffers in which we have unconsumed data */
-+	spin_lock(&port->readbuf_list_lock);
-+	list_for_each_entry_safe(buf, buf2, &port->readbuf_head, next) {
-+		list_del(&buf->next);
-+		kfree(buf->buf);
-+		kfree(buf);
++		pmConf->filters[i].patternSize = ETH_HLEN + /* Ethernet header*/
++			sizeof(struct arphdr) +		/* ARP header */
++			2 * ETH_ALEN +		/* 2 Ethernet addresses*/
++			2 * sizeof(u32);	/*2 IPv4 addresses */
++		pmConf->filters[i].maskSize =
++			(pmConf->filters[i].patternSize - 1) / 8 + 1;
++
++		/* ETH_P_ARP in Ethernet header. */
++		ehdr = (struct ethhdr *)pmConf->filters[i].pattern;
++		ehdr->h_proto = htons(ETH_P_ARP);
++
++		/* ARPOP_REQUEST in ARP header. */
++		ahdr = (struct arphdr *)&pmConf->filters[i].pattern[ETH_HLEN];
++		ahdr->ar_op = htons(ARPOP_REQUEST);
++		arpreq = (u8 *)(ahdr + 1);
++
++		/* The Unicast IPv4 address in 'tip' field. */
++		arpreq += 2 * ETH_ALEN + sizeof(u32);
++		*(u32 *)arpreq = ifa->ifa_address;
++
++		/* The mask for the relevant bits. */
++		pmConf->filters[i].mask[0] = 0x00;
++		pmConf->filters[i].mask[1] = 0x30; /* ETH_P_ARP */
++		pmConf->filters[i].mask[2] = 0x30; /* ARPOP_REQUEST */
++		pmConf->filters[i].mask[3] = 0x00;
++		pmConf->filters[i].mask[4] = 0xC0; /* IPv4 TIP */
++		pmConf->filters[i].mask[5] = 0x03; /* IPv4 TIP */
++		in_dev_put(in_dev);
++
++		pmConf->wakeUpEvents |= VMXNET3_PM_WAKEUP_FILTER;
++		i++;
 +	}
-+	spin_unlock(&port->readbuf_list_lock);
++
++skip_arp:
++	if (adapter->wol & WAKE_MAGIC)
++		pmConf->wakeUpEvents |= VMXNET3_PM_WAKEUP_MAGIC;
++
++	pmConf->numFilters = i;
++
++	adapter->shared->devRead.pmConfDesc.confVer = 1;
++	adapter->shared->devRead.pmConfDesc.confLen = sizeof(*pmConf);
++	adapter->shared->devRead.pmConfDesc.confPA = virt_to_phys(pmConf);
++
++	VMXNET3_WRITE_BAR1_REG(adapter, VMXNET3_REG_CMD,
++			       VMXNET3_CMD_UPDATE_PMCFG);
++
++	pci_save_state(pdev);
++	pci_enable_wake(pdev, pci_choose_state(pdev, PMSG_SUSPEND),
++			adapter->wol);
++	pci_disable_device(pdev);
++	pci_set_power_state(pdev, pci_choose_state(pdev, PMSG_SUSPEND));
++
 +	return 0;
 +}
 +
-+static void virtcons_remove(struct virtio_device *vdev)
++
++static int
++vmxnet3_resume(struct device *device)
 +{
-+	struct virtio_console_port *port, *port2;
-+	struct virtio_console_port_buffer *buf, *buf2;
-+	char *tmpbuf;
-+	int len;
++	int err;
++	struct pci_dev *pdev = to_pci_dev(device);
++	struct net_device *netdev = pci_get_drvdata(pdev);
++	struct vmxnet3_adapter *adapter = netdev_priv(netdev);
++	struct Vmxnet3_PMConf *pmConf;
 +
-+	class_destroy(virtconsole.class);
++	if (!netif_running(netdev))
++		return 0;
 +
-+	cancel_work_sync(&virtconsole.rx_work);
-+	/*
-+	 * Free up the buffers that we queued up for the Host to pass
-+	 * us data
-+	 */
-+	while ((tmpbuf = virtconsole.in_vq->vq_ops->get_buf(virtconsole.in_vq,
-+							    &len)))
-+		kfree(tmpbuf);
++	/* Destroy wake-up filters. */
++	pmConf = adapter->pm_conf;
++	memset(pmConf, 0, sizeof(*pmConf));
 +
-+	vdev->config->del_vqs(vdev);
-+	/*
-+	 * Free up the buffers that were sent to us by Host but were
-+	 * left unused
-+	 */
-+	list_for_each_entry_safe(buf, buf2, &virtconsole.unused_read_head, next) {
-+		list_del(&buf->next);
-+		kfree(buf->buf);
-+		kfree(buf);
-+	}
-+	list_for_each_entry_safe(buf, buf2, &virtconsole.unused_write_head, next) {
-+		list_del(&buf->next);
-+		kfree(buf->buf);
-+		kfree(buf);
-+	}
-+	list_for_each_entry_safe(port, port2, &virtconsole.port_head, next) {
-+		list_del(&port->next);
-+		virtcons_remove_port_data(port);
-+		kfree(port);
-+	}
- }
- 
- static struct virtio_device_id id_table[] = {
-@@ -254,6 +1255,7 @@ static struct virtio_device_id id_table[] = {
- 
- static unsigned int features[] = {
- 	VIRTIO_CONSOLE_F_SIZE,
-+	VIRTIO_CONSOLE_F_MULTIPORT,
- };
- 
- static struct virtio_driver virtio_console = {
-@@ -263,14 +1265,34 @@ static struct virtio_driver virtio_console = {
- 	.driver.owner =	THIS_MODULE,
- 	.id_table =	id_table,
- 	.probe =	virtcons_probe,
--	.config_changed = virtcons_apply_config,
-+	.remove =	virtcons_remove,
-+	.config_changed = config_intr,
- };
- 
- static int __init init(void)
- {
--	return register_virtio_driver(&virtio_console);
-+	int ret;
++	adapter->shared->devRead.pmConfDesc.confVer = 1;
++	adapter->shared->devRead.pmConfDesc.confLen = sizeof(*pmConf);
++	adapter->shared->devRead.pmConfDesc.confPA = virt_to_phys(pmConf);
 +
-+	virtconsole.class = class_create(THIS_MODULE, "virtio-console");
-+	if (IS_ERR(virtconsole.class)) {
-+		pr_err("Error creating virtio-console class\n");
-+		ret = PTR_ERR(virtconsole.class);
-+		return ret;
-+	}
-+	ret = register_virtio_driver(&virtio_console);
-+	if (ret) {
-+		class_destroy(virtconsole.class);
-+		return ret;
-+	}
++	netif_device_attach(netdev);
++	pci_set_power_state(pdev, PCI_D0);
++	pci_restore_state(pdev);
++	err = pci_enable_device_mem(pdev);
++	if (err != 0)
++		return err;
++
++	pci_enable_wake(pdev, PCI_D0, 0);
++
++	VMXNET3_WRITE_BAR1_REG(adapter, VMXNET3_REG_CMD,
++			       VMXNET3_CMD_UPDATE_PMCFG);
++	vmxnet3_alloc_intr_resources(adapter);
++	vmxnet3_request_irqs(adapter);
++	vmxnet3_enable_all_intrs(adapter);
++
 +	return 0;
 +}
 +
-+static void __exit fini(void)
-+{
-+	unregister_virtio_driver(&virtio_console);
- }
- module_init(init);
-+module_exit(fini);
- 
- MODULE_DEVICE_TABLE(virtio, id_table);
- MODULE_DESCRIPTION("Virtio console driver");
-diff --git a/include/linux/virtio_console.h b/include/linux/virtio_console.h
-index b5f5198..9ef7f90 100644
---- a/include/linux/virtio_console.h
-+++ b/include/linux/virtio_console.h
-@@ -2,20 +2,66 @@
- #define _LINUX_VIRTIO_CONSOLE_H
- #include <linux/types.h>
- #include <linux/virtio_config.h>
--/* This header, excluding the #ifdef __KERNEL__ part, is BSD licensed so
-- * anyone can use the definitions to implement compatible drivers/servers. */
-+/*
-+ * This header, excluding the #ifdef __KERNEL__ part, is BSD licensed so
-+ * anyone can use the definitions to implement compatible drivers/servers.
-+ *
-+ * Copyright (C) Red Hat, Inc., 2009
-+ */
- 
- /* Feature bits */
- #define VIRTIO_CONSOLE_F_SIZE	0	/* Does host provide console size? */
-+#define VIRTIO_CONSOLE_F_MULTIPORT 1	/* Does host provide multiple ports? */
++static struct dev_pm_ops vmxnet3_pm_ops = {
++	.suspend = vmxnet3_suspend,
++	.resume = vmxnet3_resume,
++};
++#endif
 +
-+#define VIRTIO_CONSOLE_BAD_ID	(~(u32)0) /* Invalid port number */
- 
- struct virtio_console_config {
- 	/* colums of the screens */
- 	__u16 cols;
- 	/* rows of the screens */
- 	__u16 rows;
-+	/* number of ports in use */
-+	__u32 nr_active_ports;
- } __attribute__((packed));
- 
- 
-+/*
-+ * An internal-only message that's passed between the Host and the
-+ * Guest for a particular port.
-+ */
-+struct virtio_console_control {
-+	__u16 event;
-+	__u16 value;
++static struct pci_driver vmxnet3_driver = {
++	.name		= vmxnet3_driver_name,
++	.id_table	= vmxnet3_pciid_table,
++	.probe		= vmxnet3_probe_device,
++	.remove		= __devexit_p(vmxnet3_remove_device),
++#ifdef CONFIG_PM
++	.driver.pm	= &vmxnet3_pm_ops,
++#endif
 +};
 +
-+/* Some events for internal messages (control packets) */
-+#define VIRTIO_CONSOLE_PORT_OPEN	0
-+#define VIRTIO_CONSOLE_PORT_NAME	1
-+#define VIRTIO_CONSOLE_CONSOLE_PORT	2
-+#define VIRTIO_CONSOLE_CACHE_BUFFERS	3
-+#define VIRTIO_CONSOLE_THROTTLE_PORT	4
-+#define VIRTIO_CONSOLE_BUFFER_LIMIT	5
++
++static int __init
++vmxnet3_init_module(void)
++{
++	printk(KERN_INFO "%s - version %s\n", VMXNET3_DRIVER_DESC,
++		VMXNET3_DRIVER_VERSION_REPORT);
++	return pci_register_driver(&vmxnet3_driver);
++}
++
++module_init(vmxnet3_init_module);
++
++
++static void
++vmxnet3_exit_module(void)
++{
++	pci_unregister_driver(&vmxnet3_driver);
++}
++
++module_exit(vmxnet3_exit_module);
++
++MODULE_AUTHOR("VMware, Inc.");
++MODULE_DESCRIPTION(VMXNET3_DRIVER_DESC);
++MODULE_LICENSE("GPL v2");
++MODULE_VERSION(VMXNET3_DRIVER_VERSION_STRING);
+diff --git a/drivers/net/vmxnet3/vmxnet3_ethtool.c b/drivers/net/vmxnet3/vmxnet3_ethtool.c
+new file mode 100644
+index 0000000..c2c15e4
+--- /dev/null
++++ b/drivers/net/vmxnet3/vmxnet3_ethtool.c
+@@ -0,0 +1,566 @@
++/*
++ * Linux driver for VMware's vmxnet3 ethernet NIC.
++ *
++ * Copyright (C) 2008-2009, VMware, Inc. All Rights Reserved.
++ *
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License as published by the
++ * Free Software Foundation; version 2 of the License and no later version.
++ *
++ * This program is distributed in the hope that it will be useful, but
++ * WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE, GOOD TITLE or
++ * NON INFRINGEMENT.  See the GNU General Public License for more
++ * details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
++ *
++ * The full GNU General Public License is included in this distribution in
++ * the file called "COPYING".
++ *
++ * Maintained by: Shreyas Bhatewara <pv-drivers@vmware.com>
++ *
++ */
++
++
++#include "vmxnet3_int.h"
++
++struct vmxnet3_stat_desc {
++	char desc[ETH_GSTRING_LEN];
++	int  offset;
++};
++
++
++static u32
++vmxnet3_get_rx_csum(struct net_device *netdev)
++{
++	struct vmxnet3_adapter *adapter = netdev_priv(netdev);
++	return adapter->rxcsum;
++}
++
++
++static int
++vmxnet3_set_rx_csum(struct net_device *netdev, u32 val)
++{
++	struct vmxnet3_adapter *adapter = netdev_priv(netdev);
++
++	if (adapter->rxcsum != val) {
++		adapter->rxcsum = val;
++		if (netif_running(netdev)) {
++			if (val)
++				adapter->shared->devRead.misc.uptFeatures |=
++								UPT1_F_RXCSUM;
++			else
++				adapter->shared->devRead.misc.uptFeatures &=
++								~UPT1_F_RXCSUM;
++
++			VMXNET3_WRITE_BAR1_REG(adapter, VMXNET3_REG_CMD,
++					       VMXNET3_CMD_UPDATE_FEATURE);
++		}
++	}
++	return 0;
++}
++
++
++/* per tq stats maintained by the device */
++static const struct vmxnet3_stat_desc
++vmxnet3_tq_dev_stats[] = {
++	/* description,         offset */
++	{ "TSO pkts tx",        offsetof(struct UPT1_TxStats, TSOPktsTxOK) },
++	{ "TSO bytes tx",       offsetof(struct UPT1_TxStats, TSOBytesTxOK) },
++	{ "ucast pkts tx",      offsetof(struct UPT1_TxStats, ucastPktsTxOK) },
++	{ "ucast bytes tx",     offsetof(struct UPT1_TxStats, ucastBytesTxOK) },
++	{ "mcast pkts tx",      offsetof(struct UPT1_TxStats, mcastPktsTxOK) },
++	{ "mcast bytes tx",     offsetof(struct UPT1_TxStats, mcastBytesTxOK) },
++	{ "bcast pkts tx",      offsetof(struct UPT1_TxStats, bcastPktsTxOK) },
++	{ "bcast bytes tx",     offsetof(struct UPT1_TxStats, bcastBytesTxOK) },
++	{ "pkts tx err",        offsetof(struct UPT1_TxStats, pktsTxError) },
++	{ "pkts tx discard",    offsetof(struct UPT1_TxStats, pktsTxDiscard) },
++};
++
++/* per tq stats maintained by the driver */
++static const struct vmxnet3_stat_desc
++vmxnet3_tq_driver_stats[] = {
++	/* description,         offset */
++	{"drv dropped tx total", offsetof(struct vmxnet3_tq_driver_stats,
++					drop_total) },
++	{ "   too many frags",  offsetof(struct vmxnet3_tq_driver_stats,
++					drop_too_many_frags) },
++	{ "   giant hdr",       offsetof(struct vmxnet3_tq_driver_stats,
++					drop_oversized_hdr) },
++	{ "   hdr err",         offsetof(struct vmxnet3_tq_driver_stats,
++					drop_hdr_inspect_err) },
++	{ "   tso",             offsetof(struct vmxnet3_tq_driver_stats,
++					drop_tso) },
++	{ "ring full",          offsetof(struct vmxnet3_tq_driver_stats,
++					tx_ring_full) },
++	{ "pkts linearized",    offsetof(struct vmxnet3_tq_driver_stats,
++					linearized) },
++	{ "hdr cloned",         offsetof(struct vmxnet3_tq_driver_stats,
++					copy_skb_header) },
++	{ "giant hdr",          offsetof(struct vmxnet3_tq_driver_stats,
++					oversized_hdr) },
++};
++
++/* per rq stats maintained by the device */
++static const struct vmxnet3_stat_desc
++vmxnet3_rq_dev_stats[] = {
++	{ "LRO pkts rx",        offsetof(struct UPT1_RxStats, LROPktsRxOK) },
++	{ "LRO byte rx",        offsetof(struct UPT1_RxStats, LROBytesRxOK) },
++	{ "ucast pkts rx",      offsetof(struct UPT1_RxStats, ucastPktsRxOK) },
++	{ "ucast bytes rx",     offsetof(struct UPT1_RxStats, ucastBytesRxOK) },
++	{ "mcast pkts rx",      offsetof(struct UPT1_RxStats, mcastPktsRxOK) },
++	{ "mcast bytes rx",     offsetof(struct UPT1_RxStats, mcastBytesRxOK) },
++	{ "bcast pkts rx",      offsetof(struct UPT1_RxStats, bcastPktsRxOK) },
++	{ "bcast bytes rx",     offsetof(struct UPT1_RxStats, bcastBytesRxOK) },
++	{ "pkts rx out of buf", offsetof(struct UPT1_RxStats, pktsRxOutOfBuf) },
++	{ "pkts rx err",        offsetof(struct UPT1_RxStats, pktsRxError) },
++};
++
++/* per rq stats maintained by the driver */
++static const struct vmxnet3_stat_desc
++vmxnet3_rq_driver_stats[] = {
++	/* description,         offset */
++	{ "drv dropped rx total", offsetof(struct vmxnet3_rq_driver_stats,
++					   drop_total) },
++	{ "   err",            offsetof(struct vmxnet3_rq_driver_stats,
++					drop_err) },
++	{ "   fcs",            offsetof(struct vmxnet3_rq_driver_stats,
++					drop_fcs) },
++	{ "rx buf alloc fail", offsetof(struct vmxnet3_rq_driver_stats,
++					rx_buf_alloc_failure) },
++};
++
++/* gloabl stats maintained by the driver */
++static const struct vmxnet3_stat_desc
++vmxnet3_global_stats[] = {
++	/* description,         offset */
++	{ "tx timeout count",   offsetof(struct vmxnet3_adapter,
++					 tx_timeout_count) }
++};
++
++
++struct net_device_stats *
++vmxnet3_get_stats(struct net_device *netdev)
++{
++	struct vmxnet3_adapter *adapter;
++	struct vmxnet3_tq_driver_stats *drvTxStats;
++	struct vmxnet3_rq_driver_stats *drvRxStats;
++	struct UPT1_TxStats *devTxStats;
++	struct UPT1_RxStats *devRxStats;
++	struct net_device_stats *net_stats = &netdev->stats;
++
++	adapter = netdev_priv(netdev);
++
++	/* Collect the dev stats into the shared area */
++	VMXNET3_WRITE_BAR1_REG(adapter, VMXNET3_REG_CMD, VMXNET3_CMD_GET_STATS);
++
++	/* Assuming that we have a single queue device */
++	devTxStats = &adapter->tqd_start->stats;
++	devRxStats = &adapter->rqd_start->stats;
++
++	/* Get access to the driver stats per queue */
++	drvTxStats = &adapter->tx_queue.stats;
++	drvRxStats = &adapter->rx_queue.stats;
++
++	memset(net_stats, 0, sizeof(*net_stats));
++
++	net_stats->rx_packets = devRxStats->ucastPktsRxOK +
++				devRxStats->mcastPktsRxOK +
++				devRxStats->bcastPktsRxOK;
++
++	net_stats->tx_packets = devTxStats->ucastPktsTxOK +
++				devTxStats->mcastPktsTxOK +
++				devTxStats->bcastPktsTxOK;
++
++	net_stats->rx_bytes = devRxStats->ucastBytesRxOK +
++			      devRxStats->mcastBytesRxOK +
++			      devRxStats->bcastBytesRxOK;
++
++	net_stats->tx_bytes = devTxStats->ucastBytesTxOK +
++			      devTxStats->mcastBytesTxOK +
++			      devTxStats->bcastBytesTxOK;
++
++	net_stats->rx_errors = devRxStats->pktsRxError;
++	net_stats->tx_errors = devTxStats->pktsTxError;
++	net_stats->rx_dropped = drvRxStats->drop_total;
++	net_stats->tx_dropped = drvTxStats->drop_total;
++	net_stats->multicast =  devRxStats->mcastPktsRxOK;
++
++	return net_stats;
++}
++
++static int
++vmxnet3_get_sset_count(struct net_device *netdev, int sset)
++{
++	switch (sset) {
++	case ETH_SS_STATS:
++		return ARRAY_SIZE(vmxnet3_tq_dev_stats) +
++			ARRAY_SIZE(vmxnet3_tq_driver_stats) +
++			ARRAY_SIZE(vmxnet3_rq_dev_stats) +
++			ARRAY_SIZE(vmxnet3_rq_driver_stats) +
++			ARRAY_SIZE(vmxnet3_global_stats);
++	default:
++		return -EOPNOTSUPP;
++	}
++}
++
++
++static int
++vmxnet3_get_regs_len(struct net_device *netdev)
++{
++	return 20 * sizeof(u32);
++}
++
++
++static void
++vmxnet3_get_drvinfo(struct net_device *netdev, struct ethtool_drvinfo *drvinfo)
++{
++	struct vmxnet3_adapter *adapter = netdev_priv(netdev);
++
++	strlcpy(drvinfo->driver, vmxnet3_driver_name, sizeof(drvinfo->driver));
++	drvinfo->driver[sizeof(drvinfo->driver) - 1] = '\0';
++
++	strlcpy(drvinfo->version, VMXNET3_DRIVER_VERSION_REPORT,
++		sizeof(drvinfo->version));
++	drvinfo->driver[sizeof(drvinfo->version) - 1] = '\0';
++
++	strlcpy(drvinfo->fw_version, "N/A", sizeof(drvinfo->fw_version));
++	drvinfo->fw_version[sizeof(drvinfo->fw_version) - 1] = '\0';
++
++	strlcpy(drvinfo->bus_info, pci_name(adapter->pdev),
++		ETHTOOL_BUSINFO_LEN);
++	drvinfo->n_stats = vmxnet3_get_sset_count(netdev, ETH_SS_STATS);
++	drvinfo->testinfo_len = 0;
++	drvinfo->eedump_len   = 0;
++	drvinfo->regdump_len  = vmxnet3_get_regs_len(netdev);
++}
++
++
++static void
++vmxnet3_get_strings(struct net_device *netdev, u32 stringset, u8 *buf)
++{
++	if (stringset == ETH_SS_STATS) {
++		int i;
++
++		for (i = 0; i < ARRAY_SIZE(vmxnet3_tq_dev_stats); i++) {
++			memcpy(buf, vmxnet3_tq_dev_stats[i].desc,
++			       ETH_GSTRING_LEN);
++			buf += ETH_GSTRING_LEN;
++		}
++		for (i = 0; i < ARRAY_SIZE(vmxnet3_tq_driver_stats); i++) {
++			memcpy(buf, vmxnet3_tq_driver_stats[i].desc,
++			       ETH_GSTRING_LEN);
++			buf += ETH_GSTRING_LEN;
++		}
++		for (i = 0; i < ARRAY_SIZE(vmxnet3_rq_dev_stats); i++) {
++			memcpy(buf, vmxnet3_rq_dev_stats[i].desc,
++			       ETH_GSTRING_LEN);
++			buf += ETH_GSTRING_LEN;
++		}
++		for (i = 0; i < ARRAY_SIZE(vmxnet3_rq_driver_stats); i++) {
++			memcpy(buf, vmxnet3_rq_driver_stats[i].desc,
++			       ETH_GSTRING_LEN);
++			buf += ETH_GSTRING_LEN;
++		}
++		for (i = 0; i < ARRAY_SIZE(vmxnet3_global_stats); i++) {
++			memcpy(buf, vmxnet3_global_stats[i].desc,
++				ETH_GSTRING_LEN);
++			buf += ETH_GSTRING_LEN;
++		}
++	}
++}
++
++static u32
++vmxnet3_get_flags(struct net_device *netdev) {
++	return netdev->features;
++}
++
++static int
++vmxnet3_set_flags(struct net_device *netdev, u32 data) {
++	struct vmxnet3_adapter *adapter = netdev_priv(netdev);
++	u8 lro_requested = (data & ETH_FLAG_LRO) == 0 ? 0 : 1;
++	u8 lro_present = (netdev->features & NETIF_F_LRO) == 0 ? 0 : 1;
++
++	if (lro_requested ^ lro_present) {
++		/* toggle the LRO feature*/
++		netdev->features ^= NETIF_F_LRO;
++
++		/* update harware LRO capability accordingly */
++		if (lro_requested)
++			adapter->shared->devRead.misc.uptFeatures &= UPT1_F_LRO;
++		else
++			adapter->shared->devRead.misc.uptFeatures &=
++								~UPT1_F_LRO;
++		VMXNET3_WRITE_BAR1_REG(adapter, VMXNET3_REG_CMD,
++				       VMXNET3_CMD_UPDATE_FEATURE);
++	}
++	return 0;
++}
++
++static void
++vmxnet3_get_ethtool_stats(struct net_device *netdev,
++			  struct ethtool_stats *stats, u64  *buf)
++{
++	struct vmxnet3_adapter *adapter = netdev_priv(netdev);
++	u8 *base;
++	int i;
++
++	VMXNET3_WRITE_BAR1_REG(adapter, VMXNET3_REG_CMD, VMXNET3_CMD_GET_STATS);
++
++	/* this does assume each counter is 64-bit wide */
++
++	base = (u8 *)&adapter->tqd_start->stats;
++	for (i = 0; i < ARRAY_SIZE(vmxnet3_tq_dev_stats); i++)
++		*buf++ = *(u64 *)(base + vmxnet3_tq_dev_stats[i].offset);
++
++	base = (u8 *)&adapter->tx_queue.stats;
++	for (i = 0; i < ARRAY_SIZE(vmxnet3_tq_driver_stats); i++)
++		*buf++ = *(u64 *)(base + vmxnet3_tq_driver_stats[i].offset);
++
++	base = (u8 *)&adapter->rqd_start->stats;
++	for (i = 0; i < ARRAY_SIZE(vmxnet3_rq_dev_stats); i++)
++		*buf++ = *(u64 *)(base + vmxnet3_rq_dev_stats[i].offset);
++
++	base = (u8 *)&adapter->rx_queue.stats;
++	for (i = 0; i < ARRAY_SIZE(vmxnet3_rq_driver_stats); i++)
++		*buf++ = *(u64 *)(base + vmxnet3_rq_driver_stats[i].offset);
++
++	base = (u8 *)adapter;
++	for (i = 0; i < ARRAY_SIZE(vmxnet3_global_stats); i++)
++		*buf++ = *(u64 *)(base + vmxnet3_global_stats[i].offset);
++}
++
++
++static void
++vmxnet3_get_regs(struct net_device *netdev, struct ethtool_regs *regs, void *p)
++{
++	struct vmxnet3_adapter *adapter = netdev_priv(netdev);
++	u32 *buf = p;
++
++	memset(p, 0, vmxnet3_get_regs_len(netdev));
++
++	regs->version = 1;
++
++	/* Update vmxnet3_get_regs_len if we want to dump more registers */
++
++	/* make each ring use multiple of 16 bytes */
++	buf[0] = adapter->tx_queue.tx_ring.next2fill;
++	buf[1] = adapter->tx_queue.tx_ring.next2comp;
++	buf[2] = adapter->tx_queue.tx_ring.gen;
++	buf[3] = 0;
++
++	buf[4] = adapter->tx_queue.comp_ring.next2proc;
++	buf[5] = adapter->tx_queue.comp_ring.gen;
++	buf[6] = adapter->tx_queue.stopped;
++	buf[7] = 0;
++
++	buf[8] = adapter->rx_queue.rx_ring[0].next2fill;
++	buf[9] = adapter->rx_queue.rx_ring[0].next2comp;
++	buf[10] = adapter->rx_queue.rx_ring[0].gen;
++	buf[11] = 0;
++
++	buf[12] = adapter->rx_queue.rx_ring[1].next2fill;
++	buf[13] = adapter->rx_queue.rx_ring[1].next2comp;
++	buf[14] = adapter->rx_queue.rx_ring[1].gen;
++	buf[15] = 0;
++
++	buf[16] = adapter->rx_queue.comp_ring.next2proc;
++	buf[17] = adapter->rx_queue.comp_ring.gen;
++	buf[18] = 0;
++	buf[19] = 0;
++}
++
++
++static void
++vmxnet3_get_wol(struct net_device *netdev, struct ethtool_wolinfo *wol)
++{
++	struct vmxnet3_adapter *adapter = netdev_priv(netdev);
++
++	wol->supported = WAKE_UCAST | WAKE_ARP | WAKE_MAGIC;
++	wol->wolopts = adapter->wol;
++}
++
++
++static int
++vmxnet3_set_wol(struct net_device *netdev, struct ethtool_wolinfo *wol)
++{
++	struct vmxnet3_adapter *adapter = netdev_priv(netdev);
++
++	if (wol->wolopts & (WAKE_PHY | WAKE_MCAST | WAKE_BCAST |
++			    WAKE_MAGICSECURE)) {
++		return -EOPNOTSUPP;
++	}
++
++	adapter->wol = wol->wolopts;
++
++	device_set_wakeup_enable(&adapter->pdev->dev, adapter->wol);
++
++	return 0;
++}
++
++
++static int
++vmxnet3_get_settings(struct net_device *netdev, struct ethtool_cmd *ecmd)
++{
++	struct vmxnet3_adapter *adapter = netdev_priv(netdev);
++
++	ecmd->supported = SUPPORTED_10000baseT_Full | SUPPORTED_1000baseT_Full |
++			  SUPPORTED_TP;
++	ecmd->advertising = ADVERTISED_TP;
++	ecmd->port = PORT_TP;
++	ecmd->transceiver = XCVR_INTERNAL;
++
++	if (adapter->link_speed) {
++		ecmd->speed = adapter->link_speed;
++		ecmd->duplex = DUPLEX_FULL;
++	} else {
++		ecmd->speed = -1;
++		ecmd->duplex = -1;
++	}
++	return 0;
++}
++
++
++static void
++vmxnet3_get_ringparam(struct net_device *netdev,
++		      struct ethtool_ringparam *param)
++{
++	struct vmxnet3_adapter *adapter = netdev_priv(netdev);
++
++	param->rx_max_pending = VMXNET3_RX_RING_MAX_SIZE;
++	param->tx_max_pending = VMXNET3_TX_RING_MAX_SIZE;
++	param->rx_mini_max_pending = 0;
++	param->rx_jumbo_max_pending = 0;
++
++	param->rx_pending = adapter->rx_queue.rx_ring[0].size;
++	param->tx_pending = adapter->tx_queue.tx_ring.size;
++	param->rx_mini_pending = 0;
++	param->rx_jumbo_pending = 0;
++}
++
++
++static int
++vmxnet3_set_ringparam(struct net_device *netdev,
++		      struct ethtool_ringparam *param)
++{
++	struct vmxnet3_adapter *adapter = netdev_priv(netdev);
++	u32 new_tx_ring_size, new_rx_ring_size;
++	u32 sz;
++	int err = 0;
++
++	if (param->tx_pending == 0 || param->tx_pending >
++						VMXNET3_TX_RING_MAX_SIZE)
++		return -EINVAL;
++
++	if (param->rx_pending == 0 || param->rx_pending >
++						VMXNET3_RX_RING_MAX_SIZE)
++		return -EINVAL;
++
++
++	/* round it up to a multiple of VMXNET3_RING_SIZE_ALIGN */
++	new_tx_ring_size = (param->tx_pending + VMXNET3_RING_SIZE_MASK) &
++							~VMXNET3_RING_SIZE_MASK;
++	new_tx_ring_size = min_t(u32, new_tx_ring_size,
++				 VMXNET3_TX_RING_MAX_SIZE);
++	if (new_tx_ring_size > VMXNET3_TX_RING_MAX_SIZE || (new_tx_ring_size %
++						VMXNET3_RING_SIZE_ALIGN) != 0)
++		return -EINVAL;
++
++	/* ring0 has to be a multiple of
++	 * rx_buf_per_pkt * VMXNET3_RING_SIZE_ALIGN
++	 */
++	sz = adapter->rx_buf_per_pkt * VMXNET3_RING_SIZE_ALIGN;
++	new_rx_ring_size = (param->rx_pending + sz - 1) / sz * sz;
++	new_rx_ring_size = min_t(u32, new_rx_ring_size,
++				 VMXNET3_RX_RING_MAX_SIZE / sz * sz);
++	if (new_rx_ring_size > VMXNET3_RX_RING_MAX_SIZE || (new_rx_ring_size %
++							   sz) != 0)
++		return -EINVAL;
++
++	if (new_tx_ring_size == adapter->tx_queue.tx_ring.size &&
++			new_rx_ring_size == adapter->rx_queue.rx_ring[0].size) {
++		return 0;
++	}
++
++	/*
++	 * Reset_work may be in the middle of resetting the device, wait for its
++	 * completion.
++	 */
++	while (test_and_set_bit(VMXNET3_STATE_BIT_RESETTING, &adapter->state))
++		msleep(1);
++
++	if (netif_running(netdev)) {
++		vmxnet3_quiesce_dev(adapter);
++		vmxnet3_reset_dev(adapter);
++
++		/* recreate the rx queue and the tx queue based on the
++		 * new sizes */
++		vmxnet3_tq_destroy(&adapter->tx_queue, adapter);
++		vmxnet3_rq_destroy(&adapter->rx_queue, adapter);
++
++		err = vmxnet3_create_queues(adapter, new_tx_ring_size,
++			new_rx_ring_size, VMXNET3_DEF_RX_RING_SIZE);
++		if (err) {
++			/* failed, most likely because of OOM, try default
++			 * size */
++			printk(KERN_ERR "%s: failed to apply new sizes, try the"
++				" default ones\n", netdev->name);
++			err = vmxnet3_create_queues(adapter,
++						    VMXNET3_DEF_TX_RING_SIZE,
++						    VMXNET3_DEF_RX_RING_SIZE,
++						    VMXNET3_DEF_RX_RING_SIZE);
++			if (err) {
++				printk(KERN_ERR "%s: failed to create queues "
++					"with default sizes. Closing it\n",
++					netdev->name);
++				goto out;
++			}
++		}
++
++		err = vmxnet3_activate_dev(adapter);
++		if (err)
++			printk(KERN_ERR "%s: failed to re-activate, error %d."
++				" Closing it\n", netdev->name, err);
++	}
++
++out:
++	clear_bit(VMXNET3_STATE_BIT_RESETTING, &adapter->state);
++	if (err)
++		vmxnet3_force_close(adapter);
++
++	return err;
++}
++
++
++static struct ethtool_ops vmxnet3_ethtool_ops = {
++	.get_settings      = vmxnet3_get_settings,
++	.get_drvinfo       = vmxnet3_get_drvinfo,
++	.get_regs_len      = vmxnet3_get_regs_len,
++	.get_regs          = vmxnet3_get_regs,
++	.get_wol           = vmxnet3_get_wol,
++	.set_wol           = vmxnet3_set_wol,
++	.get_link          = ethtool_op_get_link,
++	.get_rx_csum       = vmxnet3_get_rx_csum,
++	.set_rx_csum       = vmxnet3_set_rx_csum,
++	.get_tx_csum       = ethtool_op_get_tx_csum,
++	.set_tx_csum       = ethtool_op_set_tx_hw_csum,
++	.get_sg            = ethtool_op_get_sg,
++	.set_sg            = ethtool_op_set_sg,
++	.get_tso           = ethtool_op_get_tso,
++	.set_tso           = ethtool_op_set_tso,
++	.get_strings       = vmxnet3_get_strings,
++	.get_flags	   = vmxnet3_get_flags,
++	.set_flags	   = vmxnet3_set_flags,
++	.get_sset_count	   = vmxnet3_get_sset_count,
++	.get_ethtool_stats = vmxnet3_get_ethtool_stats,
++	.get_ringparam     = vmxnet3_get_ringparam,
++	.set_ringparam     = vmxnet3_set_ringparam,
++};
++
++void vmxnet3_set_ethtool_ops(struct net_device *netdev)
++{
++	SET_ETHTOOL_OPS(netdev, &vmxnet3_ethtool_ops);
++}
+diff --git a/drivers/net/vmxnet3/vmxnet3_int.h b/drivers/net/vmxnet3/vmxnet3_int.h
+new file mode 100644
+index 0000000..6bb9157
+--- /dev/null
++++ b/drivers/net/vmxnet3/vmxnet3_int.h
+@@ -0,0 +1,389 @@
++/*
++ * Linux driver for VMware's vmxnet3 ethernet NIC.
++ *
++ * Copyright (C) 2008-2009, VMware, Inc. All Rights Reserved.
++ *
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License as published by the
++ * Free Software Foundation; version 2 of the License and no later version.
++ *
++ * This program is distributed in the hope that it will be useful, but
++ * WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE, GOOD TITLE or
++ * NON INFRINGEMENT.  See the GNU General Public License for more
++ * details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
++ *
++ * The full GNU General Public License is included in this distribution in
++ * the file called "COPYING".
++ *
++ * Maintained by: Shreyas Bhatewara <pv-drivers@vmware.com>
++ *
++ */
++
++#ifndef _VMXNET3_INT_H
++#define _VMXNET3_INT_H
++
++#include <linux/types.h>
++#include <linux/ethtool.h>
++#include <linux/delay.h>
++#include <linux/netdevice.h>
++#include <linux/pci.h>
++#include <linux/ethtool.h>
++#include <linux/compiler.h>
++#include <linux/module.h>
++#include <linux/moduleparam.h>
++#include <linux/slab.h>
++#include <linux/spinlock.h>
++#include <linux/ioport.h>
++#include <linux/highmem.h>
++#include <linux/init.h>
++#include <linux/timer.h>
++#include <linux/skbuff.h>
++#include <linux/interrupt.h>
++#include <linux/workqueue.h>
++#include <linux/uaccess.h>
++#include <asm/dma.h>
++#include <asm/page.h>
++
++#include <linux/tcp.h>
++#include <linux/udp.h>
++#include <linux/ip.h>
++#include <linux/ipv6.h>
++#include <linux/in.h>
++#include <linux/etherdevice.h>
++#include <asm/checksum.h>
++#include <linux/if_vlan.h>
++#include <linux/if_arp.h>
++#include <linux/inetdevice.h>
++#include <linux/dst.h>
++
++#include "vmxnet3_defs.h"
++
++#ifdef DEBUG
++# define VMXNET3_DRIVER_VERSION_REPORT VMXNET3_DRIVER_VERSION_STRING"-NAPI(debug)"
++#else
++# define VMXNET3_DRIVER_VERSION_REPORT VMXNET3_DRIVER_VERSION_STRING"-NAPI"
++#endif
++
 +
 +/*
-+ * This struct is put in each buffer that gets passed to userspace and
-+ * vice-versa
++ * Version numbers
 + */
-+struct virtio_console_header {
-+	/* Port number */
-+	u32 id;
-+	/* Some message between host and guest */
-+	u32 flags;
-+	/*
-+	 * Complete size of the write request - only sent with the
-+	 * first buffer for each write request
-+	 */
-+	u32 size;
-+} __attribute__((packed));
++#define VMXNET3_DRIVER_VERSION_STRING   "1.0.5.0-k"
 +
-+/* Messages between host and guest ('flags' field in the header above) */
-+#define VIRTIO_CONSOLE_ID_INTERNAL	(1 << 0)
++/* a 32-bit int, each byte encode a verion number in VMXNET3_DRIVER_VERSION */
++#define VMXNET3_DRIVER_VERSION_NUM      0x01000500
 +
 +
- #ifdef __KERNEL__
- int __init virtio_cons_early_init(int (*put_chars)(u32, const char *, int));
- #endif /* __KERNEL__ */
--- 
-1.6.2.5
++/*
++ * Capabilities
++ */
++
++enum {
++	VMNET_CAP_SG	        = 0x0001, /* Can do scatter-gather transmits. */
++	VMNET_CAP_IP4_CSUM      = 0x0002, /* Can checksum only TCP/UDP over
++					   * IPv4 */
++	VMNET_CAP_HW_CSUM       = 0x0004, /* Can checksum all packets. */
++	VMNET_CAP_HIGH_DMA      = 0x0008, /* Can DMA to high memory. */
++	VMNET_CAP_TOE	        = 0x0010, /* Supports TCP/IP offload. */
++	VMNET_CAP_TSO	        = 0x0020, /* Supports TCP Segmentation
++					   * offload */
++	VMNET_CAP_SW_TSO        = 0x0040, /* Supports SW TCP Segmentation */
++	VMNET_CAP_VMXNET_APROM  = 0x0080, /* Vmxnet APROM support */
++	VMNET_CAP_HW_TX_VLAN    = 0x0100, /* Can we do VLAN tagging in HW */
++	VMNET_CAP_HW_RX_VLAN    = 0x0200, /* Can we do VLAN untagging in HW */
++	VMNET_CAP_SW_VLAN       = 0x0400, /* VLAN tagging/untagging in SW */
++	VMNET_CAP_WAKE_PCKT_RCV = 0x0800, /* Can wake on network packet recv? */
++	VMNET_CAP_ENABLE_INT_INLINE = 0x1000,  /* Enable Interrupt Inline */
++	VMNET_CAP_ENABLE_HEADER_COPY = 0x2000,  /* copy header for vmkernel */
++	VMNET_CAP_TX_CHAIN      = 0x4000, /* Guest can use multiple tx entries
++					  * for a pkt */
++	VMNET_CAP_RX_CHAIN      = 0x8000, /* pkt can span multiple rx entries */
++	VMNET_CAP_LPD           = 0x10000, /* large pkt delivery */
++	VMNET_CAP_BPF           = 0x20000, /* BPF Support in VMXNET Virtual HW*/
++	VMNET_CAP_SG_SPAN_PAGES = 0x40000, /* Scatter-gather can span multiple*/
++					   /* pages transmits */
++	VMNET_CAP_IP6_CSUM      = 0x80000, /* Can do IPv6 csum offload. */
++	VMNET_CAP_TSO6         = 0x100000, /* TSO seg. offload for IPv6 pkts. */
++	VMNET_CAP_TSO256k      = 0x200000, /* Can do TSO seg offload for */
++					   /* pkts up to 256kB. */
++	VMNET_CAP_UPT          = 0x400000  /* Support UPT */
++};
++
++/*
++ * PCI vendor and device IDs.
++ */
++#define PCI_VENDOR_ID_VMWARE            0x15AD
++#define PCI_DEVICE_ID_VMWARE_VMXNET3    0x07B0
++#define MAX_ETHERNET_CARDS		10
++#define MAX_PCI_PASSTHRU_DEVICE		6
++
++struct vmxnet3_cmd_ring {
++	union Vmxnet3_GenericDesc *base;
++	u32		size;
++	u32		next2fill;
++	u32		next2comp;
++	u8		gen;
++	dma_addr_t	basePA;
++};
++
++static inline void
++vmxnet3_cmd_ring_adv_next2fill(struct vmxnet3_cmd_ring *ring)
++{
++	ring->next2fill++;
++	if (unlikely(ring->next2fill == ring->size)) {
++		ring->next2fill = 0;
++		VMXNET3_FLIP_RING_GEN(ring->gen);
++	}
++}
++
++static inline void
++vmxnet3_cmd_ring_adv_next2comp(struct vmxnet3_cmd_ring *ring)
++{
++	VMXNET3_INC_RING_IDX_ONLY(ring->next2comp, ring->size);
++}
++
++static inline int
++vmxnet3_cmd_ring_desc_avail(struct vmxnet3_cmd_ring *ring)
++{
++	return (ring->next2comp > ring->next2fill ? 0 : ring->size) +
++		ring->next2comp - ring->next2fill - 1;
++}
++
++struct vmxnet3_comp_ring {
++	union Vmxnet3_GenericDesc *base;
++	u32               size;
++	u32               next2proc;
++	u8                gen;
++	u8                intr_idx;
++	dma_addr_t           basePA;
++};
++
++static inline void
++vmxnet3_comp_ring_adv_next2proc(struct vmxnet3_comp_ring *ring)
++{
++	ring->next2proc++;
++	if (unlikely(ring->next2proc == ring->size)) {
++		ring->next2proc = 0;
++		VMXNET3_FLIP_RING_GEN(ring->gen);
++	}
++}
++
++struct vmxnet3_tx_data_ring {
++	struct Vmxnet3_TxDataDesc *base;
++	u32              size;
++	dma_addr_t          basePA;
++};
++
++enum vmxnet3_buf_map_type {
++	VMXNET3_MAP_INVALID = 0,
++	VMXNET3_MAP_NONE,
++	VMXNET3_MAP_SINGLE,
++	VMXNET3_MAP_PAGE,
++};
++
++struct vmxnet3_tx_buf_info {
++	u32      map_type;
++	u16      len;
++	u16      sop_idx;
++	dma_addr_t  dma_addr;
++	struct sk_buff *skb;
++};
++
++struct vmxnet3_tq_driver_stats {
++	u64 drop_total;     /* # of pkts dropped by the driver, the
++				* counters below track droppings due to
++				* different reasons
++				*/
++	u64 drop_too_many_frags;
++	u64 drop_oversized_hdr;
++	u64 drop_hdr_inspect_err;
++	u64 drop_tso;
++
++	u64 tx_ring_full;
++	u64 linearized;         /* # of pkts linearized */
++	u64 copy_skb_header;    /* # of times we have to copy skb header */
++	u64 oversized_hdr;
++};
++
++struct vmxnet3_tx_ctx {
++	bool   ipv4;
++	u16 mss;
++	u32 eth_ip_hdr_size; /* only valid for pkts requesting tso or csum
++				 * offloading
++				 */
++	u32 l4_hdr_size;     /* only valid if mss != 0 */
++	u32 copy_size;       /* # of bytes copied into the data ring */
++	union Vmxnet3_GenericDesc *sop_txd;
++	union Vmxnet3_GenericDesc *eop_txd;
++};
++
++struct vmxnet3_tx_queue {
++	spinlock_t                      tx_lock;
++	struct vmxnet3_cmd_ring         tx_ring;
++	struct vmxnet3_tx_buf_info     *buf_info;
++	struct vmxnet3_tx_data_ring     data_ring;
++	struct vmxnet3_comp_ring        comp_ring;
++	struct Vmxnet3_TxQueueCtrl            *shared;
++	struct vmxnet3_tq_driver_stats  stats;
++	bool                            stopped;
++	int                             num_stop;  /* # of times the queue is
++						    * stopped */
++} __attribute__((__aligned__(SMP_CACHE_BYTES)));
++
++enum vmxnet3_rx_buf_type {
++	VMXNET3_RX_BUF_NONE = 0,
++	VMXNET3_RX_BUF_SKB = 1,
++	VMXNET3_RX_BUF_PAGE = 2
++};
++
++struct vmxnet3_rx_buf_info {
++	enum vmxnet3_rx_buf_type buf_type;
++	u16     len;
++	union {
++		struct sk_buff *skb;
++		struct page    *page;
++	};
++	dma_addr_t dma_addr;
++};
++
++struct vmxnet3_rx_ctx {
++	struct sk_buff *skb;
++	u32 sop_idx;
++};
++
++struct vmxnet3_rq_driver_stats {
++	u64 drop_total;
++	u64 drop_err;
++	u64 drop_fcs;
++	u64 rx_buf_alloc_failure;
++};
++
++struct vmxnet3_rx_queue {
++	struct vmxnet3_cmd_ring   rx_ring[2];
++	struct vmxnet3_comp_ring  comp_ring;
++	struct vmxnet3_rx_ctx     rx_ctx;
++	u32 qid;            /* rqID in RCD for buffer from 1st ring */
++	u32 qid2;           /* rqID in RCD for buffer from 2nd ring */
++	u32 uncommitted[2]; /* # of buffers allocated since last RXPROD
++				* update */
++	struct vmxnet3_rx_buf_info     *buf_info[2];
++	struct Vmxnet3_RxQueueCtrl            *shared;
++	struct vmxnet3_rq_driver_stats  stats;
++} __attribute__((__aligned__(SMP_CACHE_BYTES)));
++
++#define VMXNET3_LINUX_MAX_MSIX_VECT     1
++
++struct vmxnet3_intr {
++	enum vmxnet3_intr_mask_mode  mask_mode;
++	enum vmxnet3_intr_type       type;	/* MSI-X, MSI, or INTx? */
++	u8  num_intrs;			/* # of intr vectors */
++	u8  event_intr_idx;		/* idx of the intr vector for event */
++	u8  mod_levels[VMXNET3_LINUX_MAX_MSIX_VECT]; /* moderation level */
++#ifdef CONFIG_PCI_MSI
++	struct msix_entry msix_entries[VMXNET3_LINUX_MAX_MSIX_VECT];
++#endif
++};
++
++#define VMXNET3_STATE_BIT_RESETTING   0
++#define VMXNET3_STATE_BIT_QUIESCED    1
++struct vmxnet3_adapter {
++	struct vmxnet3_tx_queue         tx_queue;
++	struct vmxnet3_rx_queue         rx_queue;
++	struct napi_struct              napi;
++	struct vlan_group              *vlan_grp;
++
++	struct vmxnet3_intr             intr;
++
++	struct Vmxnet3_DriverShared    *shared;
++	struct Vmxnet3_PMConf          *pm_conf;
++	struct Vmxnet3_TxQueueDesc     *tqd_start;     /* first tx queue desc */
++	struct Vmxnet3_RxQueueDesc     *rqd_start;     /* first rx queue desc */
++	struct net_device              *netdev;
++	struct pci_dev                 *pdev;
++
++	u8				*hw_addr0; /* for BAR 0 */
++	u8				*hw_addr1; /* for BAR 1 */
++
++	/* feature control */
++	bool				rxcsum;
++	bool				lro;
++	bool				jumbo_frame;
++
++	/* rx buffer related */
++	unsigned			skb_buf_size;
++	int		rx_buf_per_pkt;  /* only apply to the 1st ring */
++	dma_addr_t			shared_pa;
++	dma_addr_t queue_desc_pa;
++
++	/* Wake-on-LAN */
++	u32     wol;
++
++	/* Link speed */
++	u32     link_speed; /* in mbps */
++
++	u64     tx_timeout_count;
++	struct work_struct work;
++
++	unsigned long  state;    /* VMXNET3_STATE_BIT_xxx */
++
++	int dev_number;
++};
++
++#define VMXNET3_WRITE_BAR0_REG(adapter, reg, val)  \
++	writel((val), (adapter)->hw_addr0 + (reg))
++#define VMXNET3_READ_BAR0_REG(adapter, reg)        \
++	readl((adapter)->hw_addr0 + (reg))
++
++#define VMXNET3_WRITE_BAR1_REG(adapter, reg, val)  \
++	writel((val), (adapter)->hw_addr1 + (reg))
++#define VMXNET3_READ_BAR1_REG(adapter, reg)        \
++	readl((adapter)->hw_addr1 + (reg))
++
++#define VMXNET3_WAKE_QUEUE_THRESHOLD(tq)  (5)
++#define VMXNET3_RX_ALLOC_THRESHOLD(rq, ring_idx, adapter) \
++	((rq)->rx_ring[ring_idx].size >> 3)
++
++#define VMXNET3_GET_ADDR_LO(dma)   ((u32)(dma))
++#define VMXNET3_GET_ADDR_HI(dma)   ((u32)(((u64)(dma)) >> 32))
++
++/* must be a multiple of VMXNET3_RING_SIZE_ALIGN */
++#define VMXNET3_DEF_TX_RING_SIZE    512
++#define VMXNET3_DEF_RX_RING_SIZE    256
++
++#define VMXNET3_MAX_ETH_HDR_SIZE    22
++#define VMXNET3_MAX_SKB_BUF_SIZE    (3*1024)
++
++int
++vmxnet3_quiesce_dev(struct vmxnet3_adapter *adapter);
++
++int
++vmxnet3_activate_dev(struct vmxnet3_adapter *adapter);
++
++void
++vmxnet3_force_close(struct vmxnet3_adapter *adapter);
++
++void
++vmxnet3_reset_dev(struct vmxnet3_adapter *adapter);
++
++void
++vmxnet3_tq_destroy(struct vmxnet3_tx_queue *tq,
++		   struct vmxnet3_adapter *adapter);
++
++void
++vmxnet3_rq_destroy(struct vmxnet3_rx_queue *rq,
++		   struct vmxnet3_adapter *adapter);
++
++int
++vmxnet3_create_queues(struct vmxnet3_adapter *adapter,
++		      u32 tx_ring_size, u32 rx_ring_size, u32 rx_ring2_size);
++
++extern void vmxnet3_set_ethtool_ops(struct net_device *netdev);
++extern struct net_device_stats *vmxnet3_get_stats(struct net_device *netdev);
++
++extern char vmxnet3_driver_name[];
++#endif
