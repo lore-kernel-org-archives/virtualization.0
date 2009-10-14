@@ -1,18 +1,11 @@
-From: Chris Wright <chrisw@sous-sol.org>
-Subject: Re: SCSI driver for VMware's virtual HBA - V6.
-Date: Tue, 13 Oct 2009 16:41:27 -0700
-Message-ID: <20091013234127.GA9024@sequoia.sous-sol.org>
-References: <1254336812.19921.23.camel@ank32.eng.vmware.com>
-	<20091002004725.GP3958@sequoia.sous-sol.org>
-	<1254789028.15233.54.camel@ank32.eng.vmware.com>
-	<20091013053726.GE17547@sequoia.sous-sol.org>
-	<1255470665.12792.105.camel@ank32.eng.vmware.com>
+From: Ryo Tsuruta <ryov@valinux.co.jp>, Ryo Tsuruta <ryov@valinux.co.jp>
+Subject: IO controller Mini-Summit 2009
+Date: Wed, 14 Oct 2009 21:24:44 +0900 (JST)
+Message-ID: <20091014.212444.179938286.ryov__43689.9821310819$1255523273$gmane$org@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1255470665.12792.105.camel@ank32.eng.vmware.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -22,21 +15,54 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Alok Kataria <akataria@vmware.com>
-Cc: Randy Dunlap <randy.dunlap@oracle.com>, Mike Christie <michaelc@cs.wisc.edu>, "virtualization@lists.linux-foundataion.org" <virtualization@lists.linux-foundataion.org>, Bart Van Assche <bvanassche@acm.org>, "linux-scsi@vger.kernel.org" <linux-scsi@vger.kernel.org>, Matthew Wilcox <matthew@wil.cx>, "pv-drivers@vmware.com" <pv-drivers@vmware.com>, Roland Dreier <rdreier@cisco.com>, LKML <linux-kernel@vger.kernel.org>, Chris Wright <chrisw@sous-sol.org>, "Chetan.Loke@Emulex.Com" <Chetan.Loke@Emulex.Com>, James Bottomley <James.Bottomley@suse.de>, virtualization@lists.osdl.org, Daniel Walker <dwalker@fifo99.com>, Rolf Eike Beer <eike-kernel@sf-tec.de>, Robert Love <robert.w.love@intel.com>, Andrew Morton <akpm@linux-foundation.org>
+To: linux-kernel@vger.kernel.org, dm-devel@redhat.com, containers@lists.linux-foundation.org, virtualization@lists.linux-foundation.org, xen-devel@lists.xensource.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-* Alok Kataria (akataria@vmware.com) wrote:
-> SCSI driver for VMware's virtual HBA.
-> 
-> From: Alok N Kataria <akataria@vmware.com>
-> 
-> This is a driver for VMware's paravirtualized SCSI device,
-> which should improve disk performance for guests running
-> under control of VMware hypervisors that support such devices.
-> 
-> Signed-off-by: Alok N Kataria <akataria@vmware.com>
+Hello,
 
-Looks in good shape to me.
+I have summarized the topics for the IO controller mini-summit and
+written the ideas seen in the mailing list.
 
-Reviewed-by: Chris Wright <chrisw@sous-sol.org>
+- The place where IO controller should be implemented
+  - Block layer in conjunction with the IO scheduler
+  - Common layer right above the IO scheduler
+  - CFQ enhancement.
+  - Both block and common layer, users can select whichever controller
+    they want.
+  - VFS layer
+
+- What kind of bandwidth control policies are needed?
+  - Proportional weight
+  - Enforcing upper limit
+  - Minimum bandwidth guarantee
+
+- How to handle buffered writes?
+  - Add dirt-ratio in the memory controller
+  - Add bufferred-write-cgroup to track buffered writebacks
+  - A per group per bdi pdflush threads
+
+- Who should be charged for swap activity?
+  - who requests a page.
+  - who has a page.
+  - All swap activities are charged to the root group.
+
+And I would also like to discuss about the followings.
+
+- Extensions of struct bio
+  - Make a bio point to the io_context of a process which creates the
+    I/O request. This allows to pass the IO scheduling class and
+    priority information to IO controller even if the IO is submitted
+    by another process which does not create the request, such as a
+    worker thread.
+  - Add a new flag to struct bio to identify the bio as urgent. This
+    gives IO controller a chance to handle the bio as high
+    priority. This flag should be set if the bio is created for the
+    page-out operation. 
+
+- Common test methods to verify the functionality of IO controller.
+
+Please give me comments and suggestions. I may be missing or
+misunderstanding something.
+
+Thanks,
+Ryo Tsuruta
