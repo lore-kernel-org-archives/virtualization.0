@@ -1,15 +1,16 @@
-From: Ryo Tsuruta <ryov@valinux.co.jp>
-Subject: Re: IO controller Mini-Summit 2009
-Date: Thu, 15 Oct 2009 20:20:50 +0900 (JST)
-Message-ID: <20091015.202050.193693749.ryov__37101.1001909666$1255605824$gmane$org@valinux.co.jp>
-References: <20091014.212444.179938286.ryov@valinux.co.jp>
-	<20091014175521.GG3528@redhat.com>
-	<20091015.105902.70196131.ryov@valinux.co.jp>
+From: Massimo Cetra <mcetra@navynet.it>
+Subject: Re: Bug on barriers for virtio_blk device - end_request: I/O error,
+	dev vda, sector 0
+Date: Thu, 15 Oct 2009 12:55:23 +0200
+Message-ID: <4AD6FF9B.6060109__37736.5374392413$1255624552$gmane$org@navynet.it>
+References: <4AD5DC1D.9070002@navynet.it> <4AD5DC1D.9070002@navynet.it>1 2
+	<4AD62690.9080408@navynet.it>
+	<200910142232.14837.elendil@planet.nl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20091015.105902.70196131.ryov@valinux.co.jp>
+In-Reply-To: <200910142232.14837.elendil@planet.nl>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,103 +20,30 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: vgoyal@redhat.com
-Cc: xen-devel@lists.xensource.com, guijianfeng@cn.fujitsu.com, containers@lists.linux-foundation.org, lizf@cn.fujitsu.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, taka@valinux.co.jp, yamahata@valinux.co.jp, dm-devel@redhat.com, baramsori72@gmail.com, jens.axboe@oracle.com, nauman@google.com, m-ikeda@ds.jp.nec.com, fernando@oss.ntt.co.jp, balbir@linux.vnet.ibm.com
+To: Frans Pop <elendil@planet.nl>
+Cc: Mark McLoughlin <markmc@redhat.com>, Neil Brown <neilb@suse.de>, linux-kernel@vger.kernel.org, virtualization <virtualization@lists.linux-foundation.org>, dm-devel <dm-devel@redhat.com>, Mikulas Patocka <mpatocka@redhat.com>, Alasdair G Kergon <agk@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi all,
+Frans Pop ha scritto:
+> Added CCs for the author of and people CCed on the patch.
+> 
+> The patch has been submitted twice (6 Aug, 3 Sept), the first time there 
+> was one concern voiced which seems to have been addressed in replies. The 
+> second time there were no reactions.
+> 
+> The patch seems to work for Massimo...
 
-I'm planning to use the skype group chat for the IO mini-summit.
-Although I haven't used it ever, but If it works well, I think it
-would be helpful for the discussion. I'll post my skype account on
-the IO mini-summit web soon.
-https://sourceforge.net/apps/trac/ioband/wiki/iosummit
+[CUT]
 
-Thanks,
-Ryo Tsuruta
+>> No one listening here ?
+> 
+> It helps if you CC the people who maintain the relevant code.
 
-Ryo Tsuruta <ryov@valinux.co.jp> wrote:
-> Hi Vivek,
-> 
-> Vivek Goyal <vgoyal@redhat.com> wrote:
-> > CCing people who are planning to attend the mini summit either in person
-> > or phone. (As per your list on io mini summit wiki page). Not sure if
-> > everybody is scanning mailing list for update on mini summit.
-> 
-> Thank you for CCing people. I'll add all prospective attendees to Cc
-> list when I post the information on mini summit.
-> 
-> > I am checking out wiki page for more information like Venue. It says the
-> > venue is linux foundation office Japan. Hopefully there is no change in
-> > that information.
-> 
-> There is no change in the venue.
->  
-> > What are the conference call details for the people who might want to join
-> > in over phone? Could not find those. Are you yet to post these?
-> 
-> Here is the phone number of the conference call.
-> number +1-218-936-7999
-> passcode 374489#
-> 
-> I've also added the phone number on the web site.
-> http://sourceforge.net/apps/trac/ioband/wiki/iosummit
-> 
-> Thank you for your help.
-> Ryo Tsuruta
-> 
-> > 
-> > Thanks
-> > Vivek
-> > 
-> > > I have summarized the topics for the IO controller mini-summit and
-> > > written the ideas seen in the mailing list.
-> > > 
-> > > - The place where IO controller should be implemented
-> > >   - Block layer in conjunction with the IO scheduler
-> > >   - Common layer right above the IO scheduler
-> > >   - CFQ enhancement.
-> > >   - Both block and common layer, users can select whichever controller
-> > >     they want.
-> > >   - VFS layer
-> > > 
-> > > - What kind of bandwidth control policies are needed?
-> > >   - Proportional weight
-> > >   - Enforcing upper limit
-> > >   - Minimum bandwidth guarantee
-> > > 
-> > > - How to handle buffered writes?
-> > >   - Add dirt-ratio in the memory controller
-> > >   - Add bufferred-write-cgroup to track buffered writebacks
-> > >   - A per group per bdi pdflush threads
-> > > 
-> > > - Who should be charged for swap activity?
-> > >   - who requests a page.
-> > >   - who has a page.
-> > >   - All swap activities are charged to the root group.
-> > > 
-> > > And I would also like to discuss about the followings.
-> > > 
-> > > - Extensions of struct bio
-> > >   - Make a bio point to the io_context of a process which creates the
-> > >     I/O request. This allows to pass the IO scheduling class and
-> > >     priority information to IO controller even if the IO is submitted
-> > >     by another process which does not create the request, such as a
-> > >     worker thread.
-> > >   - Add a new flag to struct bio to identify the bio as urgent. This
-> > >     gives IO controller a chance to handle the bio as high
-> > >     priority. This flag should be set if the bio is created for the
-> > >     page-out operation. 
-> > > 
-> > > - Common test methods to verify the functionality of IO controller.
-> > > 
-> > > Please give me comments and suggestions. I may be missing or
-> > > misunderstanding something.
-> > > 
-> > > Thanks,
-> > > Ryo Tsuruta
-> > > --
-> > > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > > the body of a message to majordomo@vger.kernel.org
-> > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > > Please read the FAQ at  http://www.tux.org/lkml/
+Thanks, Frans.
+
+By the way, where can i find a list of the mantainers of the various areas ?
+I found it some years ago, but it seems i can't find it anymore.
+It's probably under my eyes... but i'm blind.
+
+Thanks again
+Massimo
