@@ -1,14 +1,13 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: INDIRECT and NEXT
-Date: Mon, 19 Oct 2009 13:04:20 +1030
-Message-ID: <200910191304.20748.rusty@rustcorp.com.au>
-References: <20091004143734.GB17578@redhat.com>
+From: Ryo Tsuruta <ryov@valinux.co.jp>
+Subject: Re: IO controller Mini-Summit 2009
+Date: Mon, 19 Oct 2009 16:58:05 +0900 (JST)
+Message-ID: <20091019.165805.226786007.ryov__29419.7029703811$1255939581$gmane$org@valinux.co.jp>
+References: <20091014.212444.179938286.ryov@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20091004143734.GB17578@redhat.com>
-Content-Disposition: inline
+In-Reply-To: <20091014.212444.179938286.ryov@valinux.co.jp>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,20 +17,18 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: virtualization@lists.osdl.org
+To: vgoyal@redhat.com, jens.axboe@oracle.com, nauman@google.com, balbir@linux.vnet.ibm.com, rostedt@goodmis.org, m-ikeda@ds.jp.nec.com, taka@valinux.co.jp, lizf@cn.fujitsu.co
+Cc: xen-devel@lists.xensource.com, containers@lists.linux-foundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, dm-devel@redhat.com, @valinux.co.jp
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, 5 Oct 2009 01:07:34 am Michael S. Tsirkin wrote:
-> Hi!
-> I note that chaining INDIRECT descriptors with NEXT
-> currently is broken in lguest, because current
-> ring index gets overwritten.
+Hi all,
 
-I agree this should be fixed, but not quite sure what you're referring to.
+I've uploaded the conslusions of IO controller Mini-summit 2009 on the
+web page. Thanks Fernando for creating the slides.
+http://sourceforge.net/apps/trac/ioband/wiki/iosummit
 
-I could force indirect and reproduce it, but I figure asking you for details
-would be more efficient :)
+Thank you to all attendees and thank you to the Linux Foundation Japan
+for providing us with a conference venue and facilities. 
 
-Thanks!
-Rusty.
+Thanks,
+Ryo Tsuruta
