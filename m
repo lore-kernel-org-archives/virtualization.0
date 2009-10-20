@@ -1,13 +1,12 @@
-From: Ryo Tsuruta <ryov@valinux.co.jp>
-Subject: Re: IO controller Mini-Summit 2009
-Date: Mon, 19 Oct 2009 16:58:05 +0900 (JST)
-Message-ID: <20091019.165805.226786007.ryov__29419.7029703811$1255939581$gmane$org@valinux.co.jp>
-References: <20091014.212444.179938286.ryov@valinux.co.jp>
+From: Amit Shah <amit.shah@redhat.com>
+Subject: [PATCH v9 0/1] virtio-console: Support for generic ports and multiple
+	consoles
+Date: Tue, 20 Oct 2009 11:24:54 +0530
+Message-ID: <1256018095-19400-1-git-send-email-amit.shah__3152.69704810834$1256018220$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20091014.212444.179938286.ryov@valinux.co.jp>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -17,18 +16,46 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: vgoyal@redhat.com, jens.axboe@oracle.com, nauman@google.com, balbir@linux.vnet.ibm.com, rostedt@goodmis.org, m-ikeda@ds.jp.nec.com, taka@valinux.co.jp, lizf@cn.fujitsu.co
-Cc: xen-devel@lists.xensource.com, containers@lists.linux-foundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, dm-devel@redhat.com, @valinux.co.jp
+To: rusty@rustcorp.com.au
+Cc: Amit Shah <amit.shah@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi all,
+Hello all,
 
-I've uploaded the conslusions of IO controller Mini-summit 2009 on the
-web page. Thanks Fernando for creating the slides.
-http://sourceforge.net/apps/trac/ioband/wiki/iosummit
+Here is a new iteration of the patch series that implements a
+transport for guest and host communications.
 
-Thank you to all attendees and thank you to the Linux Foundation Japan
-for providing us with a conference venue and facilities. 
+I've tested for compatibility (old qemu & new kernel, new qemu & old
+kernel, new qemu & new kernel) and it all works fine. To maintain
+backward compatibility, the first port to be spawned (port at id 0) is
+to be a console port, to be bound to hvc. This keeps new host, old
+guest happy.
 
-Thanks,
-Ryo Tsuruta
+A testsuite is put up at the following site that has an interactive
+test program that can be run in the guest. It also has an automated
+test suite that tests the major functionalities presented here:
+
+    http://fedorapeople.org/gitweb?p=amitshah/public_git/test-virtserial.git
+
+This version passes all the automated tests there.
+
+Christian has tested the console functionality on s390.
+
+v9:
+- Add debugfs files for each port to expose some port-specific information for
+  easier debugging
+- Port hotplug fix
+- Disallow opening of console ports (open(/dev/vcon0) should fail)
+- A couple of other minor fixes.
+
+Please review and apply,
+	Amit
+
+Amit Shah (1):
+  virtio_console: Add support for multiple ports for generic guest and
+    host communication
+
+ drivers/char/Kconfig           |    6 +
+ drivers/char/virtio_console.c  | 1372 ++++++++++++++++++++++++++++++++++++----
+ include/linux/virtio_console.h |   50 ++-
+ 3 files changed, 1292 insertions(+), 136 deletions(-)
