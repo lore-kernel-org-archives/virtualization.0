@@ -1,14 +1,16 @@
-From: Marcelo Tosatti <mtosatti@redhat.com>
-Subject: Re: [PATCH] virtio-pci: fix per-vq MSI-X request logic
-Date: Thu, 22 Oct 2009 14:17:18 -0200
-Message-ID: <20091022161718.GA3876__19013.357620179$1256228479$gmane$org@amt.cnet>
-References: <20091022130606.GA6923@redhat.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: INDIRECT and NEXT
+Date: Fri, 23 Oct 2009 14:01:23 +1030
+Message-ID: <200910231401.24419.rusty@rustcorp.com.au>
+References: <20091004143734.GB17578@redhat.com>
+	<200910191304.20748.rusty@rustcorp.com.au>
+	<20091022093745.GA27765@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20091022093745.GA27765@redhat.com>
 Content-Disposition: inline
-In-Reply-To: <20091022130606.GA6923@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,24 +21,20 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: xma@us.ibm.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Oct 22, 2009 at 03:06:06PM +0200, Michael S. Tsirkin wrote:
-> Commit f68d24082e22ccee3077d11aeb6dc5354f0ca7f1
-> in 2.6.32-rc1 broke requesting IRQs for per-VQ MSI-X vectors:
-> - vector number was used instead of the vector itself
-> - we try to request an IRQ for VQ which does not
->   have a callback handler
-> 
-> This is a regression that causes warnings in kernel log,
-> potentially lower performance as we need to scan vq list,
-> and might cause system failure if the interrupt
-> requested is in fact needed by another system.
-> 
-> This was not noticed earlier because in most cases
-> we were falling back on shared interrupt for all vqs.
+On Thu, 22 Oct 2009 08:07:45 pm Michael S. Tsirkin wrote:
+> Imagine an indirect entry where NEXT bit is also set.
 
-Works for me. Thanks Michael.
+Hmm, so it's not obvious whether the kvm userspace code handles it
+correctly either.
 
-Tested-by: Marcelo Tosatti <mtosatti@redhat.com>
+Want to hack something up to use NEXT + INDIRECT, then we can actually test
+it?  If it doesn't work, this will have to be a new feature bit.
+
+Also, we have a limitation that you can't have more descriptors than the ring
+size, even with indirect, due to overzealous checks...
+
+Thanks,
+Rusty.
