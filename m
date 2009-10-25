@@ -1,11 +1,13 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH] virtio-net: fix data corruption with OOM
-Date: Sun, 25 Oct 2009 19:03:40 +0200
-Message-ID: <20091025170340.GA22099__39769.8599765592$1256490423$gmane$org@redhat.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCHv2] virtio: order used ring after used index read
+Date: Mon, 26 Oct 2009 10:25:38 +1030
+Message-ID: <200910261025.38950.rusty__19997.4219002344$1256514996$gmane$org@rustcorp.com.au>
+References: <20091025132853.GA21301@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20091025132853.GA21301@redhat.com>
 Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,54 +18,17 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, Rusty Russell <rusty@rustcorp.com.au>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-virtio net used to unlink skbs from send queues on error,
-but ever since 48925e372f04f5e35fec6269127c62b2c71ab794
-we do not do this. This causes guest data corruption and crashes
-with vhost since net core can requeue the skb or free it without
-it being taken off the list.
+On Sun, 25 Oct 2009 11:58:53 pm Michael S. Tsirkin wrote:
+> On SMP guests, reads from the ring might bypass
+> used index reads. This causes guest crashes
+> because host writes to used index to signal ring data
+> readiness.
+> Fix this by inserting rmb before used ring reads.
 
-This patch fixes this by queueing the skb after successfull
-transmit.
+Thanks, good spotting.  Applied.
 
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
-
-Rusty, here's a fix for another data corrupter I saw.
-This fixes a regression from 2.6.31, so definitely
-2.6.32 I think. Comments?
-
- drivers/net/virtio_net.c |    8 +++++---
- 1 files changed, 5 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 8d00976..be459e1 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -517,8 +517,7 @@ again:
- 	/* Free up any pending old buffers before queueing new ones. */
- 	free_old_xmit_skbs(vi);
- 
--	/* Put new one in send queue and do transmit */
--	__skb_queue_head(&vi->send, skb);
-+	/* Try to transmit */
- 	capacity = xmit_skb(vi, skb);
- 
- 	/* This can happen with OOM and indirect buffers. */
-@@ -532,8 +531,11 @@ again:
- 		}
- 		return NETDEV_TX_BUSY;
- 	}
--
- 	vi->svq->vq_ops->kick(vi->svq);
-+
-+	/* Put new one in send queue */
-+	__skb_queue_head(&vi->send, skb);
-+
- 	/* Don't wait up for transmitted skbs to be freed. */
- 	skb_orphan(skb);
- 	nf_reset(skb);
--- 
-1.6.5.rc2
+Rusty.
