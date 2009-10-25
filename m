@@ -1,15 +1,12 @@
-From: Mike Snitzer <snitzer@redhat.com>
-Subject: Re: [PATCH resend] block: silently error unsupported empty barriers
-	too
-Date: Fri, 23 Oct 2009 16:40:44 -0400
-Message-ID: <20091023204044.GA29173__20460.8287931935$1256330497$gmane$org@redhat.com>
-References: <1251992870.3084.125.camel@blaa>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH] virtio: order used ring after used index read
+Date: Sun, 25 Oct 2009 14:22:18 +0200
+Message-ID: <20091025122218.GA10992__20907.7112879188$1256473538$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1251992870.3084.125.camel@blaa>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,105 +16,40 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jens Axboe <jens.axboe@oracle.com>, Rusty Russell <rusty@rustcorp.com.au>, device-mapper development <dm-devel@redhat.com>
-Cc: Mark McLoughlin <markmc@redhat.com>, linux-kernel <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>, Christoph Hellwig <hch@infradead.org>, Mikulas Patocka <mpatocka@redhat.com>, Alasdair Kergon <agk@redhat.com>
+To: virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, Rusty Russell <rusty@rustcorp.com.au>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Sep 03 2009 at 11:47am -0400,
-Mark McLoughlin <markmc@redhat.com> wrote:
+On SMP guests, reads from the ring might bypass
+used index reads. This causes guest crashes
+because host writes to used index to signal ring data
+readiness.
+Fix this by inserting rmb before used ring reads.
 
-> With 2.6.31-rc5 in a KVM guest using dm and virtio_blk, we see the
-> following errors:
-> 
->   end_request: I/O error, dev vda, sector 0
->   end_request: I/O error, dev vda, sector 0
-> 
-> The errors go away if dm stops submitting empty barriers, by reverting:
-> 
->   commit 52b1fd5a27c625c78373e024bf570af3c9d44a79
->   Author: Mikulas Patocka <mpatocka@redhat.com>
->     dm: send empty barriers to targets in dm_flush
-> 
-> We should error all barriers, even empty barriers, on devices like
-> virtio_blk which don't support them.
-> 
-> See also:
-> 
->   https://bugzilla.redhat.com/514901
-> 
-> Signed-off-by: Mark McLoughlin <markmc@redhat.com>
-> Cc: Rusty Russell <rusty@rustcorp.com.au>
-> Cc: Mikulas Patocka <mpatocka@redhat.com>
-> Cc: Alasdair G Kergon <agk@redhat.com>
-> Cc: Neil Brown <neilb@suse.de>
-> Cc: Christoph Hellwig <hch@infradead.org>
-> ---
->  block/blk-core.c |    3 +--
->  1 files changed, 1 insertions(+), 2 deletions(-)
-> 
-> diff --git a/block/blk-core.c b/block/blk-core.c
-> index e3299a7..35ad2bb 100644
-> --- a/block/blk-core.c
-> +++ b/block/blk-core.c
-> @@ -1163,8 +1163,7 @@ static int __make_request(struct request_queue *q, struct bio *bio)
->  	const int unplug = bio_unplug(bio);
->  	int rw_flags;
->  
-> -	if (bio_barrier(bio) && bio_has_data(bio) &&
-> -	    (q->next_ordered == QUEUE_ORDERED_NONE)) {
-> +	if (bio_barrier(bio) && (q->next_ordered == QUEUE_ORDERED_NONE)) {
->  		bio_endio(bio, -EOPNOTSUPP);
->  		return 0;
->  	}
-
-Jens,
-
-Any chance we can get this fix upstream for 2.6.32?  I refreshed the
-patch to work on 2.6.32-rc5:
-
-
-From: Mark McLoughlin <markmc@redhat.com>
-
-With 2.6.32-rc5 in a KVM guest using dm and virtio_blk, we see the
-following errors:
-
-  end_request: I/O error, dev vda, sector 0
-  end_request: I/O error, dev vda, sector 0
-
-The errors go away if dm stops submitting empty barriers, by reverting:
-
-  commit 52b1fd5a27c625c78373e024bf570af3c9d44a79
-  Author: Mikulas Patocka <mpatocka@redhat.com>
-    dm: send empty barriers to targets in dm_flush
-
-We should silently error all barriers, even empty barriers, on devices
-like virtio_blk which don't support them.
-
-See also:
-
-  https://bugzilla.redhat.com/514901
-
-Signed-off-by: Mark McLoughlin <markmc@redhat.com>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
-Acked-by: Alasdair G Kergon <agk@redhat.com>
-Acked-by: Mikulas Patocka <mpatocka@redhat.com>
-Cc: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Neil Brown <neilb@suse.de>
-Cc: Christoph Hellwig <hch@infradead.org>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- block/blk-core.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
 
-diff --git a/block/blk-core.c b/block/blk-core.c
-index ac0fa10..71da511 100644
---- a/block/blk-core.c
-+++ b/block/blk-core.c
-@@ -1161,7 +1161,7 @@ static int __make_request(struct request_queue *q, struct bio *bio)
-	const unsigned int ff = bio->bi_rw & REQ_FAILFAST_MASK;
-	int rw_flags;
+Rusty, I see guest crashes with virtio net on vhost sometimes,
+and the following seems to help.
+This seems an obviously correct thing to do, anyway.
+If you think so, too, can this be queued for 2.6.32 please?
+Thanks,
+
+ drivers/virtio/virtio_ring.c |    3 +++
+ 1 files changed, 3 insertions(+), 0 deletions(-)
+
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+index f536005..4c4df3e 100644
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -285,6 +285,9 @@ static void *vring_get_buf(struct virtqueue *_vq, unsigned int *len)
+ 		return NULL;
+ 	}
  
--	if (bio_rw_flagged(bio, BIO_RW_BARRIER) && bio_has_data(bio) &&
-+	if (bio_rw_flagged(bio, BIO_RW_BARRIER) &&
-	    (q->next_ordered == QUEUE_ORDERED_NONE)) {
-		bio_endio(bio, -EOPNOTSUPP);
-		return 0;
++        /* Only get used array entries after they have been exposed by host. */
++	rmb();
++
+ 	i = vq->vring.used->ring[vq->last_used_idx%vq->vring.num].id;
+ 	*len = vq->vring.used->ring[vq->last_used_idx%vq->vring.num].len;
+ 
+-- 
+1.6.5.rc2
