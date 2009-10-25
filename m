@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH] virtio: order used ring after used index read
-Date: Sun, 25 Oct 2009 14:22:18 +0200
-Message-ID: <20091025122218.GA10992__20907.7112879188$1256473538$gmane$org@redhat.com>
+Subject: [PATCHv2] virtio: order used ring after used index read
+Date: Sun, 25 Oct 2009 15:28:53 +0200
+Message-ID: <20091025132853.GA21301__583.39402680776$1256477555$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -28,24 +28,28 @@ Fix this by inserting rmb before used ring reads.
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
 
+Change from v1: indent with TAB and not spaces. sorry about the noise.
+
 Rusty, I see guest crashes with virtio net on vhost sometimes,
 and the following seems to help.
 This seems an obviously correct thing to do, anyway.
 If you think so, too, can this be queued for 2.6.32 please?
 Thanks,
 
+
+
  drivers/virtio/virtio_ring.c |    3 +++
  1 files changed, 3 insertions(+), 0 deletions(-)
 
 diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index f536005..4c4df3e 100644
+index f536005..fbd2ecd 100644
 --- a/drivers/virtio/virtio_ring.c
 +++ b/drivers/virtio/virtio_ring.c
 @@ -285,6 +285,9 @@ static void *vring_get_buf(struct virtqueue *_vq, unsigned int *len)
  		return NULL;
  	}
  
-+        /* Only get used array entries after they have been exposed by host. */
++	/* Only get used array entries after they have been exposed by host. */
 +	rmb();
 +
  	i = vq->vring.used->ring[vq->last_used_idx%vq->vring.num].id;
