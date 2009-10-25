@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCHv2] virtio: order used ring after used index read
-Date: Sun, 25 Oct 2009 15:28:53 +0200
-Message-ID: <20091025132853.GA21301__583.39402680776$1256477555$gmane$org@redhat.com>
+Subject: [PATCH] virtio-net: fix data corruption with OOM
+Date: Sun, 25 Oct 2009 19:03:40 +0200
+Message-ID: <20091025170340.GA22099__39769.8599765592$1256490423$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -19,41 +19,51 @@ Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, Rusty Russell <rusty@rustcorp.com.au>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On SMP guests, reads from the ring might bypass
-used index reads. This causes guest crashes
-because host writes to used index to signal ring data
-readiness.
-Fix this by inserting rmb before used ring reads.
+virtio net used to unlink skbs from send queues on error,
+but ever since 48925e372f04f5e35fec6269127c62b2c71ab794
+we do not do this. This causes guest data corruption and crashes
+with vhost since net core can requeue the skb or free it without
+it being taken off the list.
+
+This patch fixes this by queueing the skb after successfull
+transmit.
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
 
-Change from v1: indent with TAB and not spaces. sorry about the noise.
+Rusty, here's a fix for another data corrupter I saw.
+This fixes a regression from 2.6.31, so definitely
+2.6.32 I think. Comments?
 
-Rusty, I see guest crashes with virtio net on vhost sometimes,
-and the following seems to help.
-This seems an obviously correct thing to do, anyway.
-If you think so, too, can this be queued for 2.6.32 please?
-Thanks,
+ drivers/net/virtio_net.c |    8 +++++---
+ 1 files changed, 5 insertions(+), 3 deletions(-)
 
-
-
- drivers/virtio/virtio_ring.c |    3 +++
- 1 files changed, 3 insertions(+), 0 deletions(-)
-
-diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index f536005..fbd2ecd 100644
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -285,6 +285,9 @@ static void *vring_get_buf(struct virtqueue *_vq, unsigned int *len)
- 		return NULL;
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 8d00976..be459e1 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -517,8 +517,7 @@ again:
+ 	/* Free up any pending old buffers before queueing new ones. */
+ 	free_old_xmit_skbs(vi);
+ 
+-	/* Put new one in send queue and do transmit */
+-	__skb_queue_head(&vi->send, skb);
++	/* Try to transmit */
+ 	capacity = xmit_skb(vi, skb);
+ 
+ 	/* This can happen with OOM and indirect buffers. */
+@@ -532,8 +531,11 @@ again:
+ 		}
+ 		return NETDEV_TX_BUSY;
  	}
- 
-+	/* Only get used array entries after they have been exposed by host. */
-+	rmb();
+-
+ 	vi->svq->vq_ops->kick(vi->svq);
 +
- 	i = vq->vring.used->ring[vq->last_used_idx%vq->vring.num].id;
- 	*len = vq->vring.used->ring[vq->last_used_idx%vq->vring.num].len;
- 
++	/* Put new one in send queue */
++	__skb_queue_head(&vi->send, skb);
++
+ 	/* Don't wait up for transmitted skbs to be freed. */
+ 	skb_orphan(skb);
+ 	nf_reset(skb);
 -- 
 1.6.5.rc2
