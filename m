@@ -1,12 +1,16 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: performance regression in virtio-net in 2.6.32-rc4
-Date: Mon, 26 Oct 2009 20:48:35 +0200
-Message-ID: <20091026184835.GB26473__26965.0832204663$1256583222$gmane$org@redhat.com>
+Subject: Re: [PATCH] virtio-net: fix data corruption with OOM
+Date: Mon, 26 Oct 2009 21:34:17 +0200
+Message-ID: <20091026193417.GA26552__17961.2902379178$1256585863$gmane$org@redhat.com>
+References: <20091025170340.GA22099@redhat.com>
+	<200910261211.52148.rusty@rustcorp.com.au>
+	<20091026184243.GA26473@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
+In-Reply-To: <20091026184243.GA26473@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,38 +24,30 @@ To: Rusty Russell <rusty@rustcorp.com.au>
 Cc: netdev@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi!
-I noticed a performance regression in virtio net: going from
-2.6.31 to 2.6.32-rc4 I see this, for guest to host communication:
+On Mon, Oct 26, 2009 at 08:42:43PM +0200, Michael S. Tsirkin wrote:
+> On Mon, Oct 26, 2009 at 12:11:51PM +1030, Rusty Russell wrote:
+> > On Mon, 26 Oct 2009 03:33:40 am Michael S. Tsirkin wrote:
+> > > virtio net used to unlink skbs from send queues on error,
+> > > but ever since 48925e372f04f5e35fec6269127c62b2c71ab794
+> > > we do not do this. This causes guest data corruption and crashes
+> > > with vhost since net core can requeue the skb or free it without
+> > > it being taken off the list.
+> > > 
+> > > This patch fixes this by queueing the skb after successfull
+> > > transmit.
+> > 
+> > I originally thought that this was racy: as soon as we do add_buf, we need to
+> > make sure we're ready for the callback (for virtio_pci, it's ->kick, but we
+> > shouldn't rely on that).
+> 
+> Modified the guest slightly, and I am getting crashes again.
+> I didn't have time to debug this, but based on previous experience,
+> I reverted 48925e372f04f5e35fec6269127c62b2c71ab794,
+> and the crash went away.
+> Rusty, what do you say we just revert 48925e372f04f5e35fec6269127c62b2c71ab794
+> for now?
 
-[mst@tuck ~]$ ssh robin sh streamtest1
-TCP STREAM TEST from 0.0.0.0 (0.0.0.0) port 0 AF_INET to 11.0.0.3
-(11.0.0.3) port 0 AF_INET : demo
-Recv   Send    Send
-Socket Socket  Message  Elapsed
-Size   Size    Size     Time     Throughput
-bytes  bytes   bytes    secs.    10^6bits/sec
-
- 87380  16384  16384    10.20    7806.48
-
-
-[mst@tuck ~]$ ssh robin sh streamtest1
-TCP STREAM TEST from 0.0.0.0 (0.0.0.0) port 0 AF_INET to 11.0.0.3
-(11.0.0.3) port 0 AF_INET : demo
-Recv   Send    Send
-Socket Socket  Message  Elapsed
-Size   Size    Size     Time     Throughput
-bytes  bytes   bytes    secs.    10^6bits/sec
-
- 87380  16384  16384    10.00    6814.60
-
-
-Note: I had to revert 48925e372f04f5e35fec6269127c62b2c71ab794,
-and I applied a patch
-	virtio-pci: fix per-vq MSI-X request logic
-which fixes a bug introduced by f68d24082e22ccee3077d11aeb6dc5354f0ca7f1.
-
-Any tips on debugging this?
-
--- 
-MST
+Hmm. Can't reproduce the crash anymore.
+There is a small chance that the problem was my error,
+so I guess I should try to reproduce and debug this,
+after all.
