@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH] virtio-net: fix data corruption with OOM
-Date: Mon, 26 Oct 2009 10:54:48 +0200
-Message-ID: <20091026085448.GA23376__9182.34894420511$1256547494$gmane$org@redhat.com>
+Date: Mon, 26 Oct 2009 11:00:38 +0200
+Message-ID: <20091026090038.GA23408__38169.6253586144$1256547821$gmane$org@redhat.com>
 References: <20091025170340.GA22099@redhat.com>
 	<200910261211.52148.rusty@rustcorp.com.au>
 Mime-Version: 1.0
@@ -37,11 +37,12 @@ On Mon, Oct 26, 2009 at 12:11:51PM +1030, Rusty Russell wrote:
 > I originally thought that this was racy: as soon as we do add_buf, we need to
 > make sure we're ready for the callback (for virtio_pci, it's ->kick, but we
 > shouldn't rely on that).
-> 
+
+BTW, wanted to note that unlink on error would *also* be racy if we did any
+processing in the callback.
+
 > So a comment would be nice.  How's this?
-
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
-
+> 
 > Subject: virtio-net: fix data corruption with OOM
 > Date: Sun, 25 Oct 2009 19:03:40 +0200
 > From: "Michael S. Tsirkin" <mst@redhat.com>
