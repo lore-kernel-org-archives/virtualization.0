@@ -1,13 +1,13 @@
 From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: Re: [Qemu-devel] [PATCH 0/4] megaraid_sas HBA emulation
-Date: Tue, 27 Oct 2009 17:47:21 +0100
-Message-ID: <4AE72419.60608__31780.5624953055$1256662363$gmane$org@redhat.com>
-References: <4AE71116.6080809@suse.de>
+Subject: Re: [Qemu-devel] [PATCH 2/4] megasas: LSI MegaRAID SAS HBA emulation
+Date: Tue, 27 Oct 2009 17:59:28 +0100
+Message-ID: <4AE726F0.9010800__28609.161618124$1256662828$gmane$org@redhat.com>
+References: <20091027152849.F37C439742@ochil.suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4AE71116.6080809@suse.de>
+In-Reply-To: <20091027152849.F37C439742@ochil.suse.de>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -23,31 +23,14 @@ List-Id: virtualization@lists.linuxfoundation.org
 
    Hi,
 
-> The device can be accessed by
->
-> -drive if=raid,file=XXX
+> +    /* The current Qemu infrastructure allows only for LUN 0 */
+> +    if (lun == 0&&  target<  MAX_RAID_DEVS)
+> +	cmd->lun =&s->luns[target];
 
-Don't extend that qemu automagic please.  The new way to handle this is:
-
-   -drive if=none,id=mydisk,file=/path/to/some/disk.img
-   -device megasas,id=raid
-   -device scsi-disk,bus=raid.0,scsi-id=1,drive=mydisk
-
-> In order to support SCSI command emulation I had to update /
-> patch up the existing SCSI disk support. This might be
-> not to everyones taste, so I'm open to alternative
-> suggestions.
->
-> But I certainly do _not_ want to update the SCSI disk
-> emulation, as this is really quite tied to the SCSI parallel
-> interface used by the old lsi53c895a.c.
-
---verbose please.  I'd prefer to fix scsi-disk bugs and/or limitations 
-instead of working around them.
-
-> Plus it doesn't do scatter-gather list handling,
-
-Which should be fixed anyway.
+One more thing which should be fixed in qemu instead of worked around in 
+your driver.  After all even good old parallel scsi knows multiple luns. 
+  Guess this is how you end up with 128 scsi devices (16 ids with 8 luns 
+each)?
 
 cheers,
    Gerd
