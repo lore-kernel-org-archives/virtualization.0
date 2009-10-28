@@ -1,14 +1,15 @@
 From: Gerd Hoffmann <kraxel@redhat.com>
 Subject: Re: [Qemu-devel] [PATCH 0/4] megaraid_sas HBA emulation
-Date: Wed, 28 Oct 2009 11:54:31 +0100
-Message-ID: <4AE822E7.2010108__5042.67858709699$1256727356$gmane$org@redhat.com>
-References: <4AE71116.6080809@suse.de> <4AE72419.60608@redhat.com>
-	<20091028091129.n46xqd1lww8oosc8@imap.suse.de>
+Date: Wed, 28 Oct 2009 14:58:33 +0100
+Message-ID: <4AE84E09.7090002__49735.3497463793$1256738631$gmane$org@redhat.com>
+References: <4AE71116.6080809@suse.de>
+	<4AE72419.60608@redhat.com>	<20091028091129.n46xqd1lww8oosc8@imap.suse.de>
+	<4AE822E7.2010108@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20091028091129.n46xqd1lww8oosc8@imap.suse.de>
+In-Reply-To: <4AE822E7.2010108@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -24,52 +25,45 @@ List-Id: virtualization@lists.linuxfoundation.org
 
    Hi,
 
->>> In order to support SCSI command emulation I had to update /
->>> patch up the existing SCSI disk support. This might be
->>> not to everyones taste, so I'm open to alternative
->>> suggestions.
->>>
->>> But I certainly do _not_ want to update the SCSI disk
->>> emulation, as this is really quite tied to the SCSI parallel
->>> interface used by the old lsi53c895a.c.
->>
->> --verbose please. I'd prefer to fix scsi-disk bugs and/or limitations
->> instead of working around them.
->>
-> The problem is I don't have any documentation for the LSI parallel
-> SCSI controller. So I don't know if and in what shape I/O is passed
-> down, nor anything else.
+> From a really quick view fixing up the data xfer code paths doesn't
+> look too bad. Think I'll give it a try.
 
-[ after briefly checking the code ]
+Oh well.  The interface pretty obviously designed for the esp, which is 
+the oldest scsi adapter in qemu ...
 
-Hmm.  Data is passed back+forth between scsi-device and scsi-adapter 
-using a bounce buffer per request and a amazing maze of callbacks ...
+ESP: There is no scatter-gather support in the hardware.  So for large 
+reads/writes there are quite switches between OS and ESP:  The OS saying 
+"dma next sectors to this location" via ioports, the ESP doing it and 
+raising a IRQ when done, next round.  The existing callback mechanism 
+models that pretty closely.
 
-That interface needs some serious rework, so we have a chance to kill 
-the memcpy() and use iovecs.
+USB: streams the data in small packets (smaller than sector size, 64 
+bytes IIRC).  Current interface works good enougth.
 
-> And as the SCSI disk emulation is really
-> tied into the LSI parallel SCSI controller, any change in the former
-> is likely to break the latter.
+LSI: Hops through quite a few loops to work with the existing interface. 
+  Current emulation reads one lsi script command at a time and does 
+reads/writes in small pieces like the ESP.  I think it could do alot 
+better: parse lsi scripts into scatter lists and submit larger requests. 
+  Maybe even have multiple requests in flight at the same time.  That 
+probably means putting the lsi script parsing code upside down though.
 
-Not really.
+MEGASAS: I guess you have scatter lists at hand and want to submit them 
+directly to the block layer for zerocopy block I/O.
 
-> And what with me no way of fixing it. Hence I decided on this approach.
+So, where to go from here?
 
- From a really quick view fixing up the data xfer code paths doesn't 
-look too bad.  Think I'll give it a try.
+I'm tempted to zap the complete read-in-pieces logic.  For read/write 
+transfers storage must be passed where everything fits in.  The 
+completion callback is called on command completion and nothing else.
 
->>> Plus it doesn't do scatter-gather list handling,
->>
->> Which should be fixed anyway.
->>
-> Quite. But as I said, the LSI parallel SCSI controller is going to
-> suffer.
+I think we'll need to modes here: xfer from/to host-allocated bounce 
+buffer (linear buffer) and xfer from/to guest memory (scatter list).
 
-Don't think so.  Even if scsi-disk *supports* scatter lists, lsi isn't 
-forced to actually use that.  I think we'll need a bounce-buffer mode 
-anyway for usb-msd because it streams the scsi data in tons of small 
-packets over usb ...
+That means (emulated) hardware without scatter-gather support must use 
+the bounce buffer mode can can't do zerocopy I/O.  I don't think this is 
+a big problem though.  Lots of small I/O requests don't perform very 
+well, so one big request filling the bounce buffer then memcpy() from/to 
+guest memory will most likely be faster anyway.
 
-cheers,
+comments?
    Gerd
