@@ -1,15 +1,16 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: Re: [Qemu-devel] [PATCH 0/4] megaraid_sas HBA emulation
-Date: Wed, 28 Oct 2009 14:58:33 +0100
-Message-ID: <4AE84E09.7090002__49735.3497463793$1256738631$gmane$org@redhat.com>
-References: <4AE71116.6080809@suse.de>
-	<4AE72419.60608@redhat.com>	<20091028091129.n46xqd1lww8oosc8@imap.suse.de>
-	<4AE822E7.2010108@redhat.com>
+From: Hannes Reinecke <hare@suse.de>
+Subject: Re: [Qemu-devel] [PATCH 3/4] scsi-disk: Factor out SCSI command
+	emulation
+Date: Wed, 28 Oct 2009 20:01:20 +0100
+Message-ID: <20091028200120.lijyyq2ao0ss0ksk__33873.2730284848$1256756562$gmane$org@imap.suse.de>
+References: <20091027152859.C6CF739742@ochil.suse.de>
+	<20091028084247.GC17601@lst.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4AE822E7.2010108@redhat.com>
+In-Reply-To: <20091028084247.GC17601@lst.de>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,51 +20,32 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Hannes Reinecke <hare@suse.de>
+To: Christoph Hellwig <hch@lst.de>
 Cc: qemu-devel@nongnu.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-   Hi,
+Am Wed 28 Oct 2009 09:42:47 AM CET schrieb Christoph Hellwig <hch@lst.de>:
 
-> From a really quick view fixing up the data xfer code paths doesn't
-> look too bad. Think I'll give it a try.
+> On Tue, Oct 27, 2009 at 04:28:59PM +0100, Hannes Reinecke wrote:
+>>
+>> Other drives might want to use SCSI command emulation without
+>> going through the SCSI disk abstraction, as this imposes too
+>> many limits on the emulation.
+>
+> Might be a good idea to move something like this first into the series
+> and share the CDB decoder between scsi and ide (atapi) as a start.  A
+> little bit of refactoring of the CDB decoder, e.g. into one function
+> per opcode (-family) won't hurt either.
+>
 
-Oh well.  The interface pretty obviously designed for the esp, which is 
-the oldest scsi adapter in qemu ...
+Yes, that was on my to-do list, as well.
+Eg even the megasas already emulates REPORT LUNs, as we certainly  
+don't want to pass the original LUN information back to the guest.
+And it would make sense to trap some other commands (like INQUIRY), too, to
+strip it off any unwanted information.
 
-ESP: There is no scatter-gather support in the hardware.  So for large 
-reads/writes there are quite switches between OS and ESP:  The OS saying 
-"dma next sectors to this location" via ioports, the ESP doing it and 
-raising a IRQ when done, next round.  The existing callback mechanism 
-models that pretty closely.
+Cheers,
 
-USB: streams the data in small packets (smaller than sector size, 64 
-bytes IIRC).  Current interface works good enougth.
-
-LSI: Hops through quite a few loops to work with the existing interface. 
-  Current emulation reads one lsi script command at a time and does 
-reads/writes in small pieces like the ESP.  I think it could do alot 
-better: parse lsi scripts into scatter lists and submit larger requests. 
-  Maybe even have multiple requests in flight at the same time.  That 
-probably means putting the lsi script parsing code upside down though.
-
-MEGASAS: I guess you have scatter lists at hand and want to submit them 
-directly to the block layer for zerocopy block I/O.
-
-So, where to go from here?
-
-I'm tempted to zap the complete read-in-pieces logic.  For read/write 
-transfers storage must be passed where everything fits in.  The 
-completion callback is called on command completion and nothing else.
-
-I think we'll need to modes here: xfer from/to host-allocated bounce 
-buffer (linear buffer) and xfer from/to guest memory (scatter list).
-
-That means (emulated) hardware without scatter-gather support must use 
-the bounce buffer mode can can't do zerocopy I/O.  I don't think this is 
-a big problem though.  Lots of small I/O requests don't perform very 
-well, so one big request filling the bounce buffer then memcpy() from/to 
-guest memory will most likely be faster anyway.
-
-comments?
-   Gerd
+Hannes
+---
+No .sig today as this is from my laptop.
