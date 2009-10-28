@@ -1,51 +1,77 @@
-From: Alok Kataria <akataria@vmware.com>
-Subject: Re: SCSI driver for VMware's virtual HBA - V6.
-Date: Wed, 28 Oct 2009 13:28:40 -0700
-Message-ID: <1256761720.22354.74.camel@ank32.eng.vmware.com>
-References: <1254336812.19921.23.camel@ank32.eng.vmware.com>
-	 <20091002004725.GP3958@sequoia.sous-sol.org>
-	 <1254789028.15233.54.camel@ank32.eng.vmware.com>
-	 <20091013053726.GE17547@sequoia.sous-sol.org>
-	 <1255470665.12792.105.camel@ank32.eng.vmware.com>
-	 <20091013234127.GA9024@sequoia.sous-sol.org>
-Reply-To: akataria@vmware.com
+From: Mike Snitzer <snitzer@redhat.com>
+Subject: Re: block: silently error unsupported empty barriers too
+Date: Wed, 28 Oct 2009 17:03:25 -0400
+Message-ID: <20091028210325.GC1143__1638.26457360319$1256763864$gmane$org@redhat.com>
+References: <1249557257.3721.55.camel@blaa>
+	<20090806114550.GL29899@agk-dp.fab.redhat.com>
+	<Pine.LNX.4.64.0908062148060.8764@hs20-bc2-1.build.redhat.com>
+	<1256761141.5830.79.camel@grinch>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-scsi-owner@vger.kernel.org>
-In-Reply-To: <20091013234127.GA9024@sequoia.sous-sol.org>
-Sender: linux-scsi-owner@vger.kernel.org
-To: James Bottomley <James.Bottomley@suse.de>
-Cc: Chris Wright <chrisw@sous-sol.org>, Randy Dunlap <randy.dunlap@oracle.com>, Mike Christie <michaelc@cs.wisc.edu>, Bart Van Assche <bvanassche@acm.org>, "linux-scsi@vger.kernel.org" <linux-scsi@vger.kernel.org>, Matthew Wilcox <matthew@wil.cx>, "pv-drivers@vmware.com" <pv-drivers@vmware.com>, Roland Dreier <rdreier@cisco.com>, LKML <linux-kernel@vger.kernel.org>, "Chetan.Loke@Emulex.Com" <Chetan.Loke@Emulex.Com>, Brian King <brking@linux.vnet.ibm.com>, Rolf Eike Beer <eike-kernel@sf-tec.de>, Robert Love <robert.w.love@intel.com>, Andrew Morton <akpm@linux-foundation.org>, Daniel Walker <dwalker@fifo99.com>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, "virtualization@lists.linux-foundataion.org" <virtualization@lists.linux-foundataion.org>
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <1256761141.5830.79.camel@grinch>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Andrew Patterson <andrew.patterson@hp.com>
+Cc: Mark McLoughlin <markmc@redhat.com>, ". troy.heber"@hp.com, linux-kernel <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>, device-mapper development <dm-devel@redhat.com>, Mikulas Patocka <mpatocka@redhat.com>, Jens Axboe <jens.axboe@oracle.com>, Alasdair G Kergon <agk@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
+On Wed, Oct 28 2009 at  4:19pm -0400,
+Andrew Patterson <andrew.patterson@hp.com> wrote:
 
-On Tue, 2009-10-13 at 16:41 -0700, Chris Wright wrote: 
-> * Alok Kataria (akataria@vmware.com) wrote:
-> > SCSI driver for VMware's virtual HBA.
+> On Thu, 2009-08-06 at 21:50 -0400, Mikulas Patocka wrote:
+> > On Thu, 6 Aug 2009, Alasdair G Kergon wrote:
 > > 
-> > From: Alok N Kataria <akataria@vmware.com>
+> > > On Thu, Aug 06, 2009 at 12:14:17PM +0100, Mark McLoughlin wrote:
+> > > > We should error all barriers, even empty barriers, on devices like
+> > > > virtio_blk which don't support them.
+> > >  
+> > > Have you considered whether or not virtio_blk actually needs to
+> > > support empty barriers?
+> > > 
+> > > Alasdair
 > > 
-> > This is a driver for VMware's paravirtualized SCSI device,
-> > which should improve disk performance for guests running
-> > under control of VMware hypervisors that support such devices.
+> > This is only for request-based drivers, where it is the responsibility of 
+> > blk-core to translate barriers. I think the empty barrier request anyway 
+> > in blk_do_ordered, but with an error message. So the patch changes it to 
+> > discard it early and queitly. It seems ok.
 > > 
-> > Signed-off-by: Alok N Kataria <akataria@vmware.com>
+> > Mikulas
+> > --
 > 
-> Looks in good shape to me.
+> This patch seems to have been dropped.  I can reproduce the error using
+> the following:
 > 
-> Reviewed-by: Chris Wright <chrisw@sous-sol.org>
+>      1. Create an LVM logical volume on top of a cciss device (note that
+>         the cciss driver does not support barriers)
+>      2. Create an ext3 file system on top of the logical volume
+>      3. Mount the file-system using -obarrier=1
+>      4. Copy some files onto the file-system
+>      5. Run sync (dm_flush is called)
+> 
+> If I apply the patch (with some munging), the 
+> 
+> "end_request: I/O error, dev cciss/cXdY, sector 0"
+> 
+> messages go away.
+> 
+> This is not strictly a regression, given that the problem was introduced
+> in 2.6.31, but I think it should still be fixed for 2.6.32.
 
-<ping>
+It was resubmitted last Friday:
+http://lkml.org/lkml/2009/10/23/196
 
-This seems to have slipped through the cracks, maybe all the conferences
-last week managed to take our attention off this :-).
+And is queued in Jens' 'for-linus' branch (meaning it should get
+upstream in time for 2.6.32), see:
+http://git.kernel.org/?p=linux/kernel/git/axboe/linux-2.6-block.git;a=commit;h=6cafb12dc85a5bdc722791cc5070968413264909
 
-I just checked the SCSI tree and don't see this merged in any of those
-trees yet, though I don't think there is anything else that's pending on
-for the driver merge. Some feedback about when this can be merged will
-be really helpful.
-
-Thanks,
-Alok
-
+Mike
