@@ -1,15 +1,16 @@
-From: Christoph Hellwig <hch@lst.de>
-Subject: Re: [Qemu-devel] [PATCH 3/4] scsi-disk: Factor out SCSI command
-	emulation
-Date: Wed, 28 Oct 2009 09:42:47 +0100
-Message-ID: <20091028084247.GC17601__29555.3125128665$1256768421$gmane$org@lst.de>
-References: <20091027152859.C6CF739742@ochil.suse.de>
+From: Andrew Patterson <andrew.patterson@hp.com>
+Subject: Re: [dm-devel] [PATCH] block: silently error unsupported empty
+	barriers too
+Date: Wed, 28 Oct 2009 20:19:01 +0000
+Message-ID: <1256761141.5830.79.camel__27594.3421097056$1256768427$gmane$org@grinch>
+References: <1249557257.3721.55.camel@blaa>
+	<20090806114550.GL29899@agk-dp.fab.redhat.com>
+	<Pine.LNX.4.64.0908062148060.8764@hs20-bc2-1.build.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20091027152859.C6CF739742@ochil.suse.de>
+In-Reply-To: <Pine.LNX.4.64.0908062148060.8764@hs20-bc2-1.build.redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,17 +20,51 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Hannes Reinecke <hare@suse.de>
-Cc: qemu-devel@nongnu.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Mikulas Patocka <mpatocka@redhat.com>
+Cc: Mark McLoughlin <markmc@redhat.com>, ". troy.heber"@hp.com, linux-kernel <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>, device-mapper development <dm-devel@redhat.com>, Jens Axboe <jens.axboe@oracle.com>, Alasdair G Kergon <agk@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Oct 27, 2009 at 04:28:59PM +0100, Hannes Reinecke wrote:
+On Thu, 2009-08-06 at 21:50 -0400, Mikulas Patocka wrote:
+> On Thu, 6 Aug 2009, Alasdair G Kergon wrote:
 > 
-> Other drives might want to use SCSI command emulation without
-> going through the SCSI disk abstraction, as this imposes too
-> many limits on the emulation.
+> > On Thu, Aug 06, 2009 at 12:14:17PM +0100, Mark McLoughlin wrote:
+> > > We should error all barriers, even empty barriers, on devices like
+> > > virtio_blk which don't support them.
+> >  
+> > Have you considered whether or not virtio_blk actually needs to
+> > support empty barriers?
+> > 
+> > Alasdair
+> 
+> This is only for request-based drivers, where it is the responsibility of 
+> blk-core to translate barriers. I think the empty barrier request anyway 
+> in blk_do_ordered, but with an error message. So the patch changes it to 
+> discard it early and queitly. It seems ok.
+> 
+> Mikulas
+> --
 
-Might be a good idea to move something like this first into the series
-and share the CDB decoder between scsi and ide (atapi) as a start.  A
-little bit of refactoring of the CDB decoder, e.g. into one function
-per opcode (-family) won't hurt either.
+This patch seems to have been dropped.  I can reproduce the error using
+the following:
+
+     1. Create an LVM logical volume on top of a cciss device (note that
+        the cciss driver does not support barriers)
+     2. Create an ext3 file system on top of the logical volume
+     3. Mount the file-system using -obarrier=1
+     4. Copy some files onto the file-system
+     5. Run sync (dm_flush is called)
+
+If I apply the patch (with some munging), the 
+
+"end_request: I/O error, dev cciss/cXdY, sector 0"
+
+messages go away.
+
+This is not strictly a regression, given that the problem was introduced
+in 2.6.31, but I think it should still be fixed for 2.6.32.
+
+Andrew
+
+-- 
+Andrew Patterson
+Hewlett-Packard
