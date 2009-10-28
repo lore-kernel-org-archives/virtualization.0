@@ -1,15 +1,15 @@
 From: Christoph Hellwig <hch@lst.de>
-Subject: Re: [Qemu-devel] [PATCH 0/4] megaraid_sas HBA emulation
-Date: Wed, 28 Oct 2009 09:40:22 +0100
-Message-ID: <20091028084022.GB17601__42145.0357106098$1256768403$gmane$org@lst.de>
-References: <4AE71116.6080809@suse.de> <4AE72419.60608@redhat.com>
-	<20091028091129.n46xqd1lww8oosc8@imap.suse.de>
+Subject: Re: [Qemu-devel] [PATCH 3/4] scsi-disk: Factor out SCSI command
+	emulation
+Date: Wed, 28 Oct 2009 09:42:47 +0100
+Message-ID: <20091028084247.GC17601__29555.3125128665$1256768421$gmane$org@lst.de>
+References: <20091027152859.C6CF739742@ochil.suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20091028091129.n46xqd1lww8oosc8@imap.suse.de>
+In-Reply-To: <20091027152859.C6CF739742@ochil.suse.de>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,17 +20,16 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Hannes Reinecke <hare@suse.de>
-Cc: virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, qemu-devel@nongnu.org
+Cc: qemu-devel@nongnu.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Oct 28, 2009 at 09:11:29AM +0100, Hannes Reinecke wrote:
-> The problem is I don't have any documentation for the LSI parallel
-> SCSI controller. So I don't know if and in what shape I/O is passed
-> down, nor anything else. And as the SCSI disk emulation is really
-> tied into the LSI parallel SCSI controller, any change in the former
-> is likely to break the latter.
+On Tue, Oct 27, 2009 at 04:28:59PM +0100, Hannes Reinecke wrote:
+> 
+> Other drives might want to use SCSI command emulation without
+> going through the SCSI disk abstraction, as this imposes too
+> many limits on the emulation.
 
-scsi-disk is not tied into the lsi/symbios driver.  It's also used
-by the esp driver and usb-mcd.  But it's a complete mess, and all my
-attempts to untangle it have so far failed with my brain hurting for
-a long time after.
+Might be a good idea to move something like this first into the series
+and share the CDB decoder between scsi and ide (atapi) as a start.  A
+little bit of refactoring of the CDB decoder, e.g. into one function
+per opcode (-family) won't hurt either.
