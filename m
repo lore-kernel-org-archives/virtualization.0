@@ -1,7 +1,7 @@
 From: Gerd Hoffmann <kraxel@redhat.com>
 Subject: Re: [Qemu-devel] [PATCH 0/4] megaraid_sas HBA emulation
-Date: Thu, 29 Oct 2009 09:47:19 +0100
-Message-ID: <4AE95697.6020602__29760.0444326692$1256806279$gmane$org@redhat.com>
+Date: Thu, 29 Oct 2009 13:57:40 +0100
+Message-ID: <4AE99144.6050904__8646.70322412184$1256821423$gmane$org@redhat.com>
 References: <4AE71116.6080809@suse.de> <4AE72419.60608@redhat.com>
 	<20091028091129.n46xqd1lww8oosc8@imap.suse.de>
 	<4AE822E7.2010108@redhat.com> <4AE84E09.7090002@redhat.com>
@@ -26,23 +26,23 @@ Cc: virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, qemu-devel@n
 List-Id: virtualization@lists.linuxfoundation.org
 
 On 10/29/09 05:37, Christoph Hellwig wrote:
+>> So something like
+>> - Get next request
+>> - Attach iovec/bounc-buffer
+>> - handle request (command/write/read)
+>> - complete request (callback)
+>
+> Btw, from some previuous attempts to sort out this code here are some
+> thing that I think would be beneficial:
 
->   - try to create generic scsi device/request structures that the hba
->     driver can access, and which contain additional private data for
->     scsi-disk/generic.  Information in the generic one would include
->     the information about the data transfer, the tag and the command
->     block.
+Trying to go forward in review+bisect friendly baby steps.  Here is what 
+I have now:
 
-Agreed.  For scsi device this did already happen as part of the 
-qdev-ification work.  It certainly makes sense to do that for scsi 
-requests too.  May also allow to kill some code duplication in 
-scsi-disk.c and scsi-generic.c
+http://repo.or.cz/w/qemu/kraxel.git?a=shortlog;h=refs/heads/scsi.v1
 
->   - try to get rid of the tag indexing stuff by just using a pointer to
->     the generic scsi request in the hba drivers.  That should get rid
->     of a lot of useless list searching.
+It is far from being completed, will continue tomorrow.  Should give a 
+idea of the direction I'm heading to though.  Comments welcome.
 
-Indeed.
+/me leaves to pick up the kids,
 
-cheers,
    Gerd
