@@ -1,16 +1,17 @@
-From: Andrew Patterson <andrew.patterson@hp.com>
-Subject: Re: [dm-devel] [PATCH] block: silently error unsupported empty
-	barriers too
-Date: Wed, 28 Oct 2009 20:19:01 +0000
-Message-ID: <1256761141.5830.79.camel__27594.3421097056$1256768427$gmane$org@grinch>
-References: <1249557257.3721.55.camel@blaa>
-	<20090806114550.GL29899@agk-dp.fab.redhat.com>
-	<Pine.LNX.4.64.0908062148060.8764@hs20-bc2-1.build.redhat.com>
+From: Christoph Hellwig <hch@lst.de>
+Subject: Re: [Qemu-devel] [PATCH 0/4] megaraid_sas HBA emulation
+Date: Thu, 29 Oct 2009 05:37:08 +0100
+Message-ID: <20091029043708.GA3552__44258.470767136$1256791093$gmane$org@lst.de>
+References: <4AE71116.6080809@suse.de> <4AE72419.60608@redhat.com>
+	<20091028091129.n46xqd1lww8oosc8@imap.suse.de>
+	<4AE822E7.2010108@redhat.com> <4AE84E09.7090002@redhat.com>
+	<20091028202522.r53660olwsk8cokk@imap.suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <Pine.LNX.4.64.0908062148060.8764@hs20-bc2-1.build.redhat.com>
+Content-Disposition: inline
+In-Reply-To: <20091028202522.r53660olwsk8cokk@imap.suse.de>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,51 +21,35 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Mikulas Patocka <mpatocka@redhat.com>
-Cc: Mark McLoughlin <markmc@redhat.com>, ". troy.heber"@hp.com, linux-kernel <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>, device-mapper development <dm-devel@redhat.com>, Jens Axboe <jens.axboe@oracle.com>, Alasdair G Kergon <agk@redhat.com>
+To: Hannes Reinecke <hare@suse.de>
+Cc: virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, qemu-devel@nongnu.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 2009-08-06 at 21:50 -0400, Mikulas Patocka wrote:
-> On Thu, 6 Aug 2009, Alasdair G Kergon wrote:
-> 
-> > On Thu, Aug 06, 2009 at 12:14:17PM +0100, Mark McLoughlin wrote:
-> > > We should error all barriers, even empty barriers, on devices like
-> > > virtio_blk which don't support them.
-> >  
-> > Have you considered whether or not virtio_blk actually needs to
-> > support empty barriers?
-> > 
-> > Alasdair
-> 
-> This is only for request-based drivers, where it is the responsibility of 
-> blk-core to translate barriers. I think the empty barrier request anyway 
-> in blk_do_ordered, but with an error message. So the patch changes it to 
-> discard it early and queitly. It seems ok.
-> 
-> Mikulas
-> --
+On Wed, Oct 28, 2009 at 08:25:22PM +0100, Hannes Reinecke wrote:
+> I don't think we really need two modes.
+> My preferred interface here is to pass down scatter-gather lists down
+> with every xfer; this way it'll be the responsibility of the driver to
+> create the lists in the first place. If it has hardware scatter-gather
+> support it can just pass them down, if not it can as easily create a
+> scatter-gather list with just one element as a bounce buffer.
 
-This patch seems to have been dropped.  I can reproduce the error using
-the following:
+Yes.  If this really causes performance problems for esp we can add
+bounce buffering in that driver later.
 
-     1. Create an LVM logical volume on top of a cciss device (note that
-        the cciss driver does not support barriers)
-     2. Create an ext3 file system on top of the logical volume
-     3. Mount the file-system using -obarrier=1
-     4. Copy some files onto the file-system
-     5. Run sync (dm_flush is called)
+> So something like
+> - Get next request
+> - Attach iovec/bounc-buffer
+> - handle request (command/write/read)
+> - complete request (callback)
 
-If I apply the patch (with some munging), the 
+Btw, from some previuous attempts to sort out this code here are some
+thing that I think would be beneficial:
 
-"end_request: I/O error, dev cciss/cXdY, sector 0"
-
-messages go away.
-
-This is not strictly a regression, given that the problem was introduced
-in 2.6.31, but I think it should still be fixed for 2.6.32.
-
-Andrew
-
--- 
-Andrew Patterson
-Hewlett-Packard
+ - try to create generic scsi device/request structures that the hba
+   driver can access, and which contain additional private data for
+   scsi-disk/generic.  Information in the generic one would include
+   the information about the data transfer, the tag and the command
+   block.
+ - try to get rid of the tag indexing stuff by just using a pointer to
+   the generic scsi request in the hba drivers.  That should get rid
+   of a lot of useless list searching.
