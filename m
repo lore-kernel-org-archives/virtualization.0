@@ -1,12 +1,14 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCHv4 0/6] qemu-kvm: vhost net support
-Date: Tue, 3 Nov 2009 00:23:20 +0200
-Message-ID: <20091102222320.GA15153__49721.4091629305$1257200877$gmane$org@redhat.com>
+Subject: [PATCHv4 1/6] qemu/virtio: move features to an inline function
+Date: Tue, 3 Nov 2009 00:23:30 +0200
+Message-ID: <20091102222329.GB15153__30278.8154258907$1257200910$gmane$org@redhat.com>
+References: <cover.1257200517.git.mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
+In-Reply-To: <cover.1257200517.git.mst@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,54 +21,108 @@ Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: avi@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-This adds support for vhost-net virtio kernel backend.
+devices should have the final say over which virtio features they
+support. E.g. indirect entries may or may not make sense in the context
+of virtio-console. In particular, for vhost, we do not want to report to
+guest bits not supported by kernel backend.  Move the common bits from
+virtio-pci to an inline function and let each device call it.
 
-This is not intented for merge.  See vhost net patch description for
-details.  This applies on top of commit
-47e465f031fc43c53ea8f08fa55cc3482c6435c8 in Avi's tree.  It won't apply
-to tree tip. TODO: rebase.
+No functional changes.
 
-The patchset also includes raw socket backend since I find it useful for
-testing vhost. When we get to merging, there's no reason to merge these
-features together, and dependency between patches is minimal.
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
+ hw/virtio-balloon.c |    2 +-
+ hw/virtio-blk.c     |    2 +-
+ hw/virtio-console.c |    2 +-
+ hw/virtio-net.c     |    2 +-
+ hw/virtio-pci.c     |    3 ---
+ hw/virtio.h         |   10 ++++++++++
+ 6 files changed, 14 insertions(+), 7 deletions(-)
 
-Changes since v3:
-- changed option syntax
-- filled in feature negotiation
-Changes since v2:
-- minor fixes
-- added patch to build on RHEL5.3
-Changes since v1:
-- rebased on top of 9dc275d9d660fe1cd64d36102d600885f9fdb88a
-
-Michael S. Tsirkin (5):
-  qemu/virtio: move features to an inline function
-  qemu/net: routines to get tap fd
-  qemu/net: move typedef to qemu-common.h
-  qemu/raw: add API to get raw socket
-  qemu-kvm: vhost-net implementation
-
-Or Gerlitz (1):
-  qemu/net: add raw backend
-
- Makefile.target           |    3 +-
- hw/vhost_net.c            |  251 +++++++++++++++++++++++++++++++++++++++++++++
- hw/vhost_net.h            |   38 +++++++
- hw/virtio-balloon.c       |    2 +-
- hw/virtio-blk.c           |    2 +-
- hw/virtio-console.c       |    2 +-
- hw/virtio-net.c           |   68 ++++++++++--
- hw/virtio-pci.c           |   43 +++++++-
- hw/virtio.c               |   19 ----
- hw/virtio.h               |   38 ++++++-
- kvm/include/linux/vhost.h |  126 +++++++++++++++++++++++
- net.c                     |  217 +++++++++++++++++++++++++++++++++++++++
- net.h                     |    6 +-
- qemu-common.h             |    1 +
- qemu-kvm.c                |    8 --
- qemu-kvm.h                |    9 ++
- qemu-options.hx           |    4 +
- 17 files changed, 787 insertions(+), 50 deletions(-)
- create mode 100644 hw/vhost_net.c
- create mode 100644 hw/vhost_net.h
- create mode 100644 kvm/include/linux/vhost.h
+diff --git a/hw/virtio-balloon.c b/hw/virtio-balloon.c
+index 7ca783e..15b50bb 100644
+--- a/hw/virtio-balloon.c
++++ b/hw/virtio-balloon.c
+@@ -127,7 +127,7 @@ static void virtio_balloon_set_config(VirtIODevice *vdev,
+ 
+ static uint32_t virtio_balloon_get_features(VirtIODevice *vdev)
+ {
+-    return 0;
++    return virtio_common_features();
+ }
+ 
+ static ram_addr_t virtio_balloon_to_target(void *opaque, ram_addr_t target)
+diff --git a/hw/virtio-blk.c b/hw/virtio-blk.c
+index 2630b99..db727b9 100644
+--- a/hw/virtio-blk.c
++++ b/hw/virtio-blk.c
+@@ -445,7 +445,7 @@ static uint32_t virtio_blk_get_features(VirtIODevice *vdev)
+     if (strcmp(s->serial_str, "0"))
+         features |= 1 << VIRTIO_BLK_F_IDENTIFY;
+ 
+-    return features;
++    return features | virtio_common_features();
+ }
+ 
+ static void virtio_blk_save(QEMUFile *f, void *opaque)
+diff --git a/hw/virtio-console.c b/hw/virtio-console.c
+index 92c953c..79544bb 100644
+--- a/hw/virtio-console.c
++++ b/hw/virtio-console.c
+@@ -53,7 +53,7 @@ static void virtio_console_handle_input(VirtIODevice *vdev, VirtQueue *vq)
+ 
+ static uint32_t virtio_console_get_features(VirtIODevice *vdev)
+ {
+-    return 0;
++    return virtio_common_features();
+ }
+ 
+ static int vcon_can_read(void *opaque)
+diff --git a/hw/virtio-net.c b/hw/virtio-net.c
+index ce8e6cb..469c6e3 100644
+--- a/hw/virtio-net.c
++++ b/hw/virtio-net.c
+@@ -154,7 +154,7 @@ static uint32_t virtio_net_get_features(VirtIODevice *vdev)
+     }
+ #endif
+ 
+-    return features;
++    return features | virtio_common_features();
+ }
+ 
+ static uint32_t virtio_net_bad_features(VirtIODevice *vdev)
+diff --git a/hw/virtio-pci.c b/hw/virtio-pci.c
+index 01782e5..0716f6f 100644
+--- a/hw/virtio-pci.c
++++ b/hw/virtio-pci.c
+@@ -230,9 +230,6 @@ static uint32_t virtio_ioport_read(VirtIOPCIProxy *proxy, uint32_t addr)
+     switch (addr) {
+     case VIRTIO_PCI_HOST_FEATURES:
+         ret = vdev->get_features(vdev);
+-        ret |= (1 << VIRTIO_F_NOTIFY_ON_EMPTY);
+-        ret |= (1 << VIRTIO_RING_F_INDIRECT_DESC);
+-        ret |= (1 << VIRTIO_F_BAD_FEATURE);
+         break;
+     case VIRTIO_PCI_GUEST_FEATURES:
+         ret = vdev->features;
+diff --git a/hw/virtio.h b/hw/virtio.h
+index 0f9be7d..799e608 100644
+--- a/hw/virtio.h
++++ b/hw/virtio.h
+@@ -167,4 +167,14 @@ VirtIODevice *virtio_net_init(DeviceState *dev);
+ VirtIODevice *virtio_console_init(DeviceState *dev);
+ VirtIODevice *virtio_balloon_init(DeviceState *dev);
+ 
++static inline uint32_t virtio_common_features(void)
++{
++    uint32_t features = 0;
++    features |= (1 << VIRTIO_F_NOTIFY_ON_EMPTY);
++    features |= (1 << VIRTIO_RING_F_INDIRECT_DESC);
++    features |= (1 << VIRTIO_F_BAD_FEATURE);
++
++    return features;
++}
++
+ #endif
+-- 
+1.6.5.2.143.g8cc62
