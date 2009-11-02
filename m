@@ -1,12 +1,14 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCHv6 0/3] vhost: a kernel-level virtio server
-Date: Tue, 3 Nov 2009 00:25:51 +0200
-Message-ID: <20091102222551.GA15184__12981.7122630358$1257200942$gmane$org@redhat.com>
+Subject: [PATCHv6 2/3] mm: export use_mm/unuse_mm to modules
+Date: Tue, 3 Nov 2009 00:26:24 +0200
+Message-ID: <20091102222624.GC15184__13116.0340075896$1257200979$gmane$org@redhat.com>
+References: <cover.1257193660.git.mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
+In-Reply-To: <cover.1257193660.git.mst@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,82 +21,39 @@ Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, mingo@elte.hu, linux-mm@kvack.org, akpm@linux-founda
 List-Id: virtualization@lists.linuxfoundation.org
 
-Rusty, ok, I think I've addressed your comments so far here.  In
-particular I have added write logging for live migration, indirect
-buffers and virtio net header (enables gso).  I'd like this to go
-into linux-next, through your tree, and hopefully 2.6.33.
-What do you think?
+vhost net module wants to do copy to/from user from a kernel thread,
+which needs use_mm. Export it to modules.
 
+Acked-by: Andrea Arcangeli <aarcange@redhat.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
+ mm/mmu_context.c |    3 +++
+ 1 files changed, 3 insertions(+), 0 deletions(-)
 
-This implements vhost: a kernel-level backend for virtio,
-The main motivation for this work is to reduce virtualization
-overhead for virtio by removing system calls on data path,
-without guest changes. For virtio-net, this removes up to
-4 system calls per packet: vm exit for kick, reentry for kick,
-iothread wakeup for packet, interrupt injection for packet.
-
-This driver is pretty minimal, but it's fully functional (including
-migration support interfaces), and already shows performance (especially
-latency) improvement over userspace.
-
-Some more detailed description attached to the patch itself.
-
-The patches apply to both 2.6.32-rc5 and kvm.git.  I'd like them to go
-into linux-next if possible.  Please comment.
-
-Changelog from v5:
-- tun support
-- backends with virtio net header support (enables GSO, checksum etc)
-- 32 bit compat fixed
-- support indirect buffers, tx exit mitigation,
-  tx interrupt mitigation
-- support write logging (allows migration without virtio ring code in userspace)
-
-Changelog from v4:
-- disable rx notification when have rx buffers
-- addressed all comments from Rusty's review
-- copy bugfixes from lguest commits:
-	ebf9a5a99c1a464afe0b4dfa64416fc8b273bc5c
-	e606490c440900e50ccf73a54f6fc6150ff40815
-
-Changelog from v3:
-- checkpatch fixes
-
-Changelog from v2:
-- Comments on RCU usage
-- Compat ioctl support
-- Make variable static
-- Copied more idiomatic english from Rusty
-
-Changes from v1:
-- Move use_mm/unuse_mm from fs/aio.c to mm instead of copying.
-- Reorder code to avoid need for forward declarations
-- Kill a couple of debugging printks
-
-Michael S. Tsirkin (3):
-  tun: export underlying socket
-  mm: export use_mm/unuse_mm to modules
-  vhost_net: a kernel-level virtio server
-
- MAINTAINERS                |   10 +
- arch/x86/kvm/Kconfig       |    1 +
- drivers/Makefile           |    1 +
- drivers/net/tun.c          |  101 ++++-
- drivers/vhost/Kconfig      |   11 +
- drivers/vhost/Makefile     |    2 +
- drivers/vhost/net.c        |  634 +++++++++++++++++++++++++++++
- drivers/vhost/vhost.c      |  968 ++++++++++++++++++++++++++++++++++++++++++++
- drivers/vhost/vhost.h      |  158 +++++++
- include/linux/Kbuild       |    1 +
- include/linux/if_tun.h     |   14 +
- include/linux/miscdevice.h |    1 +
- include/linux/vhost.h      |  126 ++++++
- mm/mmu_context.c           |    3 +
- 14 files changed, 2012 insertions(+), 19 deletions(-)
- create mode 100644 drivers/vhost/Kconfig
- create mode 100644 drivers/vhost/Makefile
- create mode 100644 drivers/vhost/net.c
- create mode 100644 drivers/vhost/vhost.c
- create mode 100644 drivers/vhost/vhost.h
- create mode 100644 include/linux/vhost.h
+diff --git a/mm/mmu_context.c b/mm/mmu_context.c
+index ded9081..0777654 100644
+--- a/mm/mmu_context.c
++++ b/mm/mmu_context.c
+@@ -5,6 +5,7 @@
+ 
+ #include <linux/mm.h>
+ #include <linux/mmu_context.h>
++#include <linux/module.h>
+ #include <linux/sched.h>
+ 
+ #include <asm/mmu_context.h>
+@@ -37,6 +38,7 @@ void use_mm(struct mm_struct *mm)
+ 	if (active_mm != mm)
+ 		mmdrop(active_mm);
+ }
++EXPORT_SYMBOL_GPL(use_mm);
+ 
+ /*
+  * unuse_mm
+@@ -56,3 +58,4 @@ void unuse_mm(struct mm_struct *mm)
+ 	enter_lazy_tlb(mm, tsk);
+ 	task_unlock(tsk);
+ }
++EXPORT_SYMBOL_GPL(unuse_mm);
+-- 
+1.6.5.rc2
