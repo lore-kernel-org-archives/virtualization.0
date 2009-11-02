@@ -1,14 +1,13 @@
 From: Anthony Liguori <anthony@codemonkey.ws>
-Subject: Re: [PATCHv4 1/6] qemu/virtio: move features to an inline function
-Date: Mon, 02 Nov 2009 16:33:53 -0600
-Message-ID: <4AEF5E51.80101__17200.6651563153$1257201274$gmane$org@codemonkey.ws>
-References: <cover.1257200517.git.mst@redhat.com>
-	<20091102222329.GB15153@redhat.com>
+Subject: Re: [PATCHv4 0/6] qemu-kvm: vhost net support
+Date: Mon, 02 Nov 2009 16:58:39 -0600
+Message-ID: <4AEF641F.7080106__32203.7064390772$1257202815$gmane$org@codemonkey.ws>
+References: <20091102222320.GA15153@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20091102222329.GB15153@redhat.com>
+In-Reply-To: <20091102222320.GA15153@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,26 +18,74 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: avi@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: Mark McLoughlin <markmc@redhat.com>, avi@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Michael S. Tsirkin wrote:
-> devices should have the final say over which virtio features they
-> support. E.g. indirect entries may or may not make sense in the context
-> of virtio-console. In particular, for vhost, we do not want to report to
-> guest bits not supported by kernel backend.  Move the common bits from
-> virtio-pci to an inline function and let each device call it.
->
-> No functional changes.
->   
+Hi Michael,
 
-This is a layering violation.  There are transport specific features and 
-device specific features.  The virtio-net device should have no 
-knowledge or nack'ing ability for transport features.
+I'll reserve individual patch review until they're in a mergable state, 
+but I do have some comments about the overall integration architecture.
 
-If you need to change transport features, it suggests you're modeling 
-things incorrectly and should be supplying an alternative transport 
-implementation.
+Generally speaking, I think the integration unnecessarily invasive.  It 
+adds things to the virtio infrastructure that shouldn't be there like 
+the irqfd/queuefd bindings.  It also sneaks in things like raw backend 
+support which really isn't needed.
+
+I think we can do better.  Here's what I suggest:
+
+The long term goal should be to have a NetDevice interface that looks 
+very much like virtio-net but as an API, not an ABI.  Roughly, it would 
+look something like:
+
+struct NetDevice {
+   int add_xmit(NetDevice *dev, struct iovec *iov, int iovcnt, void *token);
+   int add recv(NetDevice *dev, struct iovec *iov, int iovcnt, void *token);
+
+   void *get_xmit(NetDevice *dev);
+   void *get_recv(NetDevice *dev);
+
+   void kick(NetDevice *dev);
+
+   ...
+};
+
+That gives us a better API for use with virtio-net, e1000, etc.
+
+Assuming we had this interface, I think a natural extension would be:
+
+int add_ring(NetDevice *dev, void *address);
+int add_kickfd(NetDevice *dev, int fd);
+
+For slot management, it really should happen outside of the NetDevice 
+structure.  We'll need a slot notifier mechanism such that we can keep 
+this up to date as things change.
+
+vhost-net because a NetDevice.  It can support things like the e1000 by 
+doing ring translation behind the scenes. virtio-net can be fast pathed 
+in the case that we're using KVM but otherwise, it would also rely on 
+the ring translation.  N.B. in the case vhost-net is fast pathed, it 
+requires a different device in QEMU that uses a separate virtio 
+transport.  We should reuse as much code as possible obviously.  It 
+doesn't make sense to have all of the virtio-pci code and virtio-net 
+code in place when we aren't using it.
+
+All this said, I'm *not* suggesting you have to implement all of this to 
+get vhost-net merged.  Rather, I'm suggesting that we should try to 
+structure the current vhost-net implementation to complement this 
+architecture assuming we all agree this is the sane thing to do.  That 
+means I would make the following changes to your series:
+
+ - move vhost-net support to a VLANClientState backend.
+ - do not introduce a raw socket backend
+ - if for some reason you want to back to tap and raw, those should be 
+options to the vhost-net backend.
+ - when fast pathing with vhost-net, we should introduce interfaces to 
+VLANClientState similar to add_ring and add_kickfd.  They'll be very 
+specific to vhost-net for now, but that's okay.
+ - sort out the layering of vhost-net within the virtio infrastructure.  
+vhost-net should really be it's own qdev device.  I don't see very much 
+code reuse happening right now so I don't understand why it's not that 
+way currently.
 
 Regards,
 
