@@ -1,13 +1,14 @@
-From: Gregory Haskins <gregory.haskins@gmail.com>
-Subject: Re: [PATCHv7 2/3] mm: export use_mm/unuse_mm to modules
-Date: Tue, 03 Nov 2009 12:32:01 -0500
-Message-ID: <4AF06911.6040200__39352.4532825269$1257269586$gmane$org@gmail.com>
+From: Eric Dumazet <eric.dumazet@gmail.com>
+Subject: Re: [PATCHv7 3/3] vhost_net: a kernel-level virtio server
+Date: Tue, 03 Nov 2009 19:03:55 +0100
+Message-ID: <4AF0708B.4020406__25418.8284547583$1257271620$gmane$org@gmail.com>
 References: <cover.1257267892.git.mst@redhat.com>
-	<20091103172411.GC5591@redhat.com>
+	<20091103172422.GD5591@redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============6222666078935864008=="
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20091103172411.GC5591@redhat.com>
+In-Reply-To: <20091103172422.GD5591@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -15,91 +16,48 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Mime-version: 1.0
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, s.hetze@linux-ag.com, hpa@zytor.com, mingo@elte.hu, akpm@linux-foundation.org
+Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, s.hetze@linux-ag.com, hpa@zytor.com, mingo@elte.hu, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, akpm@linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---===============6222666078935864008==
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig598D640FFD0D66019E041E55"
+Michael S. Tsirkin a =E9crit :
+> +static void handle_tx(struct vhost_net *net)
+> +{
+> +	struct vhost_virtqueue *vq =3D &net->dev.vqs[VHOST_NET_VQ_TX];
+> +	unsigned head, out, in, s;
+> +	struct msghdr msg =3D {
+> +		.msg_name =3D NULL,
+> +		.msg_namelen =3D 0,
+> +		.msg_control =3D NULL,
+> +		.msg_controllen =3D 0,
+> +		.msg_iov =3D vq->iov,
+> +		.msg_flags =3D MSG_DONTWAIT,
+> +	};
+> +	size_t len, total_len =3D 0;
+> +	int err, wmem;
+> +	size_t hdr_size;
+> +	struct socket *sock =3D rcu_dereference(vq->private_data);
+> +	if (!sock)
+> +		return;
+> +
+> +	wmem =3D atomic_read(&sock->sk->sk_wmem_alloc);
+> +	if (wmem >=3D sock->sk->sk_sndbuf)
+> +		return;
+> +
+> +	use_mm(net->dev.mm);
+> +	mutex_lock(&vq->mutex);
+> +	vhost_no_notify(vq);
+> +
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig598D640FFD0D66019E041E55
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+using rcu_dereference() and mutex_lock() at the same time seems wrong, I su=
+spect
+that your use of RCU is not correct.
 
-Michael S. Tsirkin wrote:
-> vhost net module wants to do copy to/from user from a kernel thread,
-> which needs use_mm. Export it to modules.
->=20
-> Acked-by: Andrea Arcangeli <aarcange@redhat.com>
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+1) rcu_dereference() should be done inside a read_rcu_lock() section, and
+   we are not allowed to sleep in such a section.
+   (Quoting Documentation/RCU/whatisRCU.txt :
+     It is illegal to block while in an RCU read-side critical section, )
 
-I need this too:
-
-Acked-by: Gregory Haskins <ghaskins@novell.com>
-
-> ---
->  mm/mmu_context.c |    3 +++
->  1 files changed, 3 insertions(+), 0 deletions(-)
->=20
-> diff --git a/mm/mmu_context.c b/mm/mmu_context.c
-> index ded9081..0777654 100644
-> --- a/mm/mmu_context.c
-> +++ b/mm/mmu_context.c
-> @@ -5,6 +5,7 @@
-> =20
->  #include <linux/mm.h>
->  #include <linux/mmu_context.h>
-> +#include <linux/module.h>
->  #include <linux/sched.h>
-> =20
->  #include <asm/mmu_context.h>
-> @@ -37,6 +38,7 @@ void use_mm(struct mm_struct *mm)
->  	if (active_mm !=3D mm)
->  		mmdrop(active_mm);
->  }
-> +EXPORT_SYMBOL_GPL(use_mm);
-> =20
->  /*
->   * unuse_mm
-> @@ -56,3 +58,4 @@ void unuse_mm(struct mm_struct *mm)
->  	enter_lazy_tlb(mm, tsk);
->  	task_unlock(tsk);
->  }
-> +EXPORT_SYMBOL_GPL(unuse_mm);
-
-
-
---------------enig598D640FFD0D66019E041E55
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG/MacGPG2 v2.0.11 (Darwin)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
-
-iEYEARECAAYFAkrwaRIACgkQP5K2CMvXmqGMiACeN0+/nU4v8+3SYnFHbPpWW7yY
-+YMAoIolyA+MA43fNvoJCMg/0hjy8eFS
-=oNu+
------END PGP SIGNATURE-----
-
---------------enig598D640FFD0D66019E041E55--
-
---===============6222666078935864008==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linux-foundation.org/mailman/listinfo/virtualization
---===============6222666078935864008==--
+2) mutex_lock() can sleep (ie block)
