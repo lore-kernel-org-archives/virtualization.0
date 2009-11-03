@@ -1,18 +1,16 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: Re: [Qemu-devel] [PATCH 0/4] megaraid_sas HBA emulation
-Date: Tue, 03 Nov 2009 22:03:25 +0100
-Message-ID: <4AF09A9D.8020501__38831.4519696452$1257282271$gmane$org@redhat.com>
-References: <4AE71116.6080809@suse.de> <4AE72419.60608@redhat.com>
-	<20091028091129.n46xqd1lww8oosc8@imap.suse.de>
-	<4AE822E7.2010108@redhat.com> <4AE84E09.7090002@redhat.com>
-	<20091028202522.r53660olwsk8cokk@imap.suse.de>
-	<20091029043708.GA3552@lst.de> <4AE99144.6050904@redhat.com>
-	<4AEA9FD8.6070007@suse.de>
+From: Eric Dumazet <eric.dumazet@gmail.com>
+Subject: Re: [PATCHv7 3/3] vhost_net: a kernel-level virtio server
+Date: Tue, 03 Nov 2009 22:11:12 +0100
+Message-ID: <4AF09C70.6090505__38614.981089677$1257282903$gmane$org@gmail.com>
+References: <cover.1257267892.git.mst@redhat.com>
+	<20091103172422.GD5591@redhat.com> <4AF0708B.4020406@gmail.com>
+	<4AF07199.2020601@gmail.com> <4AF072EE.9020202@gmail.com>
+	<4AF07BB7.1020802@gmail.com> <20091103195841.GB6669@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4AEA9FD8.6070007@suse.de>
+In-Reply-To: <20091103195841.GB6669@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -22,50 +20,68 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Hannes Reinecke <hare@suse.de>
-Cc: virtualization@lists.linux-foundation.org, Christoph Hellwig <hch@lst.de>, kvm@vger.kernel.org, qemu-devel@nongnu.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, s.hetze@linux-ag.com, hpa@zytor.com, mingo@elte.hu, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, akpm@linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 10/30/09 09:12, Hannes Reinecke wrote:
-> Gerd Hoffmann wrote:
->> http://repo.or.cz/w/qemu/kraxel.git?a=shortlog;h=refs/heads/scsi.v1
->>
->> It is far from being completed, will continue tomorrow.  Should give a
->> idea of the direction I'm heading to though.  Comments welcome.
->>
-> Yep, this looks good.
+Michael S. Tsirkin a =E9crit :
+> =
 
-More bits available now at:
+> Paul, you acked this previously. Should I add you acked-by line so
+> people calm down?  If you would rather I replace
+> rcu_dereference/rcu_assign_pointer with rmb/wmb, I can do this.
+> Or maybe patch Documentation to explain this RCU usage?
+> =
 
-http://repo.or.cz/w/qemu/kraxel.git/shortlog/refs/heads/scsi.v3
 
-Please have a look at the new interface, this commit:
+So you believe I am over-reacting to this dubious use of RCU ?
 
-http://repo.or.cz/w/qemu/kraxel.git/commitdiff/9c825dac540282dd4d5f5f660ca13af617888037
+RCU documentation is already very complex, we dont need to add yet another
+subtle use, and makes it less readable.
 
-The workflow I have in mind is:
+It seems you use 'RCU api' in drivers/vhost/net.c as convenient macros :
 
-   ->request_new()
+#define rcu_dereference(p)     ({ \
+                                typeof(p) _________p1 =3D ACCESS_ONCE(p); \
+                                smp_read_barrier_depends(); \
+                                (_________p1); \
+                                })
 
-Returns a parsed request, i.e. all fields of req->cmd are filled 
-already, so the host adapter can easily check whenever it is a read or 
-write and how many bytes will be transfered.
+#define rcu_assign_pointer(p, v) \
+        ({ \
+                if (!__builtin_constant_p(v) || \
+                    ((v) !=3D NULL)) \
+                        smp_wmb(); \
+                (p) =3D (v); \
+        })
 
-   ->request_run()
 
-Execute the command.  iovec is passed to the dma_bdrv_*() functions, 
-which means it should contain guest physical addresses.
+There are plenty regular uses of smp_wmb() in kernel, not related to Read C=
+opy Update,
+there is nothing wrong to use barriers with appropriate comments.
 
-When the request is done the complete callback is called.  For commands 
-which complete immediately the callback might be called before 
-request_run() returns.  Or maybe don't call the callback at all then? 
-We can easily indicate using the return value that we are done already.
+(And you already use mb(), wmb(), rmb(), smp_wmb() in your patch)
 
-   ->request_del()
 
-Release request when done.
+BTW there is at least one locking bug in vhost_net_set_features()
 
-Questions & comments are welcome.
+Apparently, mutex_unlock() doesnt trigger a fault if mutex is not locked
+by current thread... even with DEBUG_MUTEXES / DEBUG_LOCK_ALLOC
 
-cheers,
-   Gerd
+
+static void vhost_net_set_features(struct vhost_net *n, u64 features)
+{
+       size_t hdr_size =3D features & (1 << VHOST_NET_F_VIRTIO_NET_HDR) ?
+               sizeof(struct virtio_net_hdr) : 0;
+       int i;
+<<!>>  mutex_unlock(&n->dev.mutex);
+       n->dev.acked_features =3D features;
+       smp_wmb();
+       for (i =3D 0; i < VHOST_NET_VQ_MAX; ++i) {
+               mutex_lock(&n->vqs[i].mutex);
+               n->vqs[i].hdr_size =3D hdr_size;
+               mutex_unlock(&n->vqs[i].mutex);
+       }
+       mutex_unlock(&n->dev.mutex);
+       vhost_net_flush(n);
+}
