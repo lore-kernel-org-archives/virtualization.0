@@ -1,15 +1,12 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [PATCHv6 1/3] tun: export underlying socket
-Date: Tue, 3 Nov 2009 13:41:31 +0100
-Message-ID: <200911031341.31622.arnd__29625.0370717191$1257252276$gmane$org@arndb.de>
-References: <cover.1257193660.git.mst@redhat.com>
-	<200911031312.33580.arnd@arndb.de>
-	<20091103123112.GA4961@redhat.com>
+From: Amit Shah <amit.shah@redhat.com>
+Subject: [PATCH v10 0/1] virtio-console: Support for generic ports and
+	multiple consoles
+Date: Tue,  3 Nov 2009 22:08:38 +0530
+Message-ID: <1257266319-24300-1-git-send-email-amit.shah__4617.19261152229$1257266515$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20091103123112.GA4961@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,39 +16,46 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, s.hetze@linux-ag.com, hpa@zytor.com, mingo@elte.hu, akpm@linux-foundation.org
+To: linux-kernel@vger.kernel.org, rusty@rustcorp.com.au
+Cc: Amit Shah <amit.shah@redhat.com>, virtualization@linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tuesday 03 November 2009, Michael S. Tsirkin wrote:
-> > What was your reason for changing?
-> 
-> It turns out socket structure is really bound to specific a file, so we
-> can not have 2 files referencing the same socket.  Instead, as I say
-> above, it's possible to make sendmsg/recvmsg work on tap file directly.
+(Rusty, would it improve the chances of getting this patch in your
+tree if this description were written with latex instead of without
+it?)
 
-Ah, I see.
+Here is a new iteration of the patch series that implements a
+transport for guest and host communications.
 
-> I have implemented this (patch below), but decided to go with the simple
-> thing first.  Since no userspace-visible changes are involved, let's do
-> this by small steps: it will be easier to figure out when vhost
-> is upstream.
+I've tested for compatibility (old qemu & new kernel, new qemu & old
+kernel, new qemu & new kernel) and it all works fine. To maintain
+backward compatibility, the first port to be spawned (port at id 0) is
+to be a console port, to be bound to hvc. This keeps new host, old
+guest happy.
 
-This may even make it easier for me to do the same with macvtap
-if I resume work on that.
+A testsuite is put up at the following site that has an interactive
+test program that can be run in the guest. It also has an automated
+test suite that tests the major functionalities presented here:
 
-> @@ -416,8 +422,8 @@ int sock_map_fd(struct socket *sock, int flags)
->  
->  static struct socket *sock_from_file(struct file *file, int *err)
->  {
-> -       if (file->f_op == &socket_file_ops)
-> -               return file->private_data;      /* set in sock_map_fd */
-> +       if (file->f_op->get_socket)
-> +               return file->f_op->get_socket(file);
->  
->         *err = -ENOTSOCK;
+    http://fedorapeople.org/gitweb?p=amitshah/public_git/test-virtserial.git
 
-Or maybe do both (socket_file_ops and get_socket), to avoid an indirect
-function call.
+This version passes all the automated tests there.
 
-	Arnd <><
+Christian has tested the console functionality on s390.
+
+v10:
+- only one process can open a port in the guest
+- minor fixes for throttling and caching cases
+
+
+Please review and apply,
+	Amit
+
+Amit Shah (1):
+  virtio_console: Add support for multiple ports for generic guest and
+    host communication
+
+ drivers/char/Kconfig           |    6 +
+ drivers/char/virtio_console.c  | 1412 ++++++++++++++++++++++++++++++++++++----
+ include/linux/virtio_console.h |   50 ++-
+ 3 files changed, 1332 insertions(+), 136 deletions(-)
