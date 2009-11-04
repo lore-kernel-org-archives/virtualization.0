@@ -1,20 +1,14 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCHv7 3/3] vhost_net: a kernel-level virtio server
-Date: Wed, 4 Nov 2009 15:17:36 +0200
-Message-ID: <20091104131735.GD8920__31829.4766279452$1257340869$gmane$org@redhat.com>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCHv7 1/3] tun: export underlying socket
+Date: Wed, 04 Nov 2009 05:30:29 -0800 (PST)
+Message-ID: <20091104.053029.166783766.davem__15770.1011318297$1257341502$gmane$org@davemloft.net>
 References: <cover.1257267892.git.mst@redhat.com>
-	<20091103172422.GD5591@redhat.com>
-	<878wema6o0.fsf@basil.nowhere.org>
-	<20091104121009.GF8398@redhat.com>
-	<20091104125957.GL31511@one.firstfloor.org>
-	<20091104130828.GC8920@redhat.com>
-	<20091104131533.GM31511@one.firstfloor.org>
+	<20091103172400.GB5591@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20091104131533.GM31511@one.firstfloor.org>
+In-Reply-To: <20091103172400.GB5591@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -24,48 +18,17 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Andi Kleen <andi@firstfloor.org>
-Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, mingo@elte.hu, akpm@linux-foundation.org
+To: mst@redhat.com
+Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, s.hetze@linux-ag.com, hpa@zytor.com, mingo@elte.hu, akpm@linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Nov 04, 2009 at 02:15:33PM +0100, Andi Kleen wrote:
-> On Wed, Nov 04, 2009 at 03:08:28PM +0200, Michael S. Tsirkin wrote:
-> > On Wed, Nov 04, 2009 at 01:59:57PM +0100, Andi Kleen wrote:
-> > > > Fine?
-> > > 
-> > > I cannot say -- are there paths that could drop the device beforehand?
-> > 
-> > Do you mean drop the mm reference?
-> 
-> No the reference to the device, which owns the mm for you.
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Date: Tue, 3 Nov 2009 19:24:00 +0200
 
-The device is created when file is open and destroyed
-when file is closed. So I think the fs code handles the
-reference counting for me: it won't call file cleanup
-callback while some userspace process has the file open.
-Right?
+> Assuming it's okay with davem, I think it makes sense to merge this
+> patch through Rusty's tree because vhost is the first user of the new
+> interface.  Posted here for completeness.
 
-> > 
-> > > (as in do you hold a reference to it?)
-> > 
-> > By design I think I always have a reference to mm before I use it.
-> > 
-> > This works like this:
-> > ioctl SET_OWNER - calls get_task_mm, I think this gets a reference to mm
-> > ioctl SET_BACKEND - checks that SET_OWNER was run, starts virtqueue
-> > ioctl RESET_OWNER - stops virtqueues, drops the reference to mm
-> > file close - stops virtqueues, if we still have it then drops mm
-> > 
-> > This is why I think I can call use_mm/unuse_mm while virtqueue is running,
-> > safely.
-> > Makes sense?
-> 
-> Do you protect against another thread doing RESET_OWNER in parallel while
-> RESET_OWNER runs?
+I'm fine with that, please add my:
 
-Yes, I have a mutex in the device for that. Same with SET_BACKEND.
-
-> -Andi
-> 
-> -- 
-> ak@linux.intel.com -- Speaking for myself only.
+Acked-by: David S. Miller <davem@davemloft.net>
