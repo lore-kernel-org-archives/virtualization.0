@@ -1,14 +1,23 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCHv8 0/3] vhost: a kernel-level virtio server
-Date: Wed, 4 Nov 2009 18:23:39 +0200
-Message-ID: <20091104162339.GA311__17472.5461671644$1257352639$gmane$org@redhat.com>
-References: <20091104155234.GA32673@redhat.com> <4AF1A587.8000509@gmail.com>
+Subject: Re: [PATCHv7 3/3] vhost_net: a kernel-level virtio server
+Date: Wed, 4 Nov 2009 18:37:34 +0200
+Message-ID: <20091104163734.GB311__30704.6805428856$1257353130$gmane$org@redhat.com>
+References: <cover.1257267892.git.mst@redhat.com>
+	<20091103172422.GD5591@redhat.com>
+	<878wema6o0.fsf@basil.nowhere.org>
+	<20091104121009.GF8398@redhat.com>
+	<20091104125957.GL31511@one.firstfloor.org>
+	<20091104130828.GC8920@redhat.com>
+	<20091104131533.GM31511@one.firstfloor.org>
+	<20091104131735.GD8920@redhat.com>
+	<20091104133728.GN31511@one.firstfloor.org>
+	<20091104134146.GE8920@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <4AF1A587.8000509@gmail.com>
+In-Reply-To: <20091104134146.GE8920@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,53 +27,67 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gregory Haskins <gregory.haskins@gmail.com>
-Cc: Eric Dumazet <eric.dumazet@gmail.com>, kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, s.hetze@linux-ag.com, hpa@zytor.com, Daniel Walker <dwalker@fifo99.com>, mingo@elte.hu, akpm@linux-foundation.org
+To: Andi Kleen <andi@firstfloor.org>
+Cc: Andrea Arcangeli <aarcange@redhat.com>, kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, avi@redhat.com, mingo@elte.hu, akpm@linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Nov 04, 2009 at 11:02:15AM -0500, Gregory Haskins wrote:
-> Michael S. Tsirkin wrote:
-> > Ok, I think I've addressed all comments so far here.
-> > Rusty, I'd like this to go into linux-next, through your tree, and
-> > hopefully 2.6.33.  What do you think?
+On Wed, Nov 04, 2009 at 03:41:47PM +0200, Michael S. Tsirkin wrote:
+> On Wed, Nov 04, 2009 at 02:37:28PM +0100, Andi Kleen wrote:
+> > On Wed, Nov 04, 2009 at 03:17:36PM +0200, Michael S. Tsirkin wrote:
+> > > On Wed, Nov 04, 2009 at 02:15:33PM +0100, Andi Kleen wrote:
+> > > > On Wed, Nov 04, 2009 at 03:08:28PM +0200, Michael S. Tsirkin wrote:
+> > > > > On Wed, Nov 04, 2009 at 01:59:57PM +0100, Andi Kleen wrote:
+> > > > > > > Fine?
+> > > > > > 
+> > > > > > I cannot say -- are there paths that could drop the device beforehand?
+> > > > > 
+> > > > > Do you mean drop the mm reference?
+> > > > 
+> > > > No the reference to the device, which owns the mm for you.
+> > > 
+> > > The device is created when file is open and destroyed
+> > > when file is closed. So I think the fs code handles the
+> > > reference counting for me: it won't call file cleanup
+> > > callback while some userspace process has the file open.
+> > > Right?
+> > 
+> > Yes.
+> > 
+> > But the semantics when someone inherits such a fd through exec
+> > or through file descriptor passing would be surely "interesting"
+> > You would still do IO on the old VM.
+> > 
+> > I guess it would be a good way to confuse memory accounting schemes 
+> > or administrators @)
+> > It would be all saner if this was all a single atomic step.
+> > 
+> > -Andi
 > 
-> I think the benchmark data is a prerequisite for merge consideration, IMO.
-
-Shirley Ma was kind enough to send me some measurement results showing
-how kernel level acceleration helps speed up you can find them here:
-http://www.linux-kvm.org/page/VhostNet
-
-Generally, I think that merging should happen *before* agressive
-benchmarking/performance tuning: otherwise there is very substancial
-risk that what is an optimization in one setup hurts performance in
-another one. When code is upstream, people can bisect to debug
-regressions. Another good reason is that I can stop spending time
-rebasing and start profiling.
-
-> Do you have anything for us to look at?
-
-For guest to host, compared to latest qemu with userspace virtio
-backend, latency drops by a factor of 6, bandwidth doubles, cpu
-utilization drops slightly :)
-
-> I think comparison that show the following are of interest:
+> I have this atomic actually. A child process will first thing
+> do SET_OWNER: this is required before any other operation.
 > 
-> throughput (e.g. netperf::TCP_STREAM): guest->host, guest->host->guest,
-> guest->host->remote, host->remote, remote->host->guest
+> SET_OWNER atomically (under mutex) does two things:
+> - check that there is no other owner
+> - get mm and set current process as owner
 > 
-> latency (e.g. netperf::UDP_RR): same conditions as throughput
-> 
-> cpu-utilization
-> 
-> others?
-> 
-> Ideally, this should be at least between upstream virtio and vhost.
-> Bonus points if you include venet as well.
+> I hope this addresses your concern?
 
-And vmxnet3 :)
+Andrea, since you looked at this design at the early stages,
+maybe you can provide feedback on the following question:
 
-> Kind regards,
-> -Greg
-> 
+vhost has an ioctl to do get_task_mm and store the mm in per-file device
+structure.  mmput is called when file is closed.  vhost is careful not
+to reference the mm after is has been put. There is also an atomic
+mutual exclusion mechanism to ensure that vhost does not allow one
+process to access another's mm, even if they share a vhost file
+descriptor.  But, this still means that mm structure can outlive the
+task if the file descriptor is shared with another process.
+
+Other drivers, such as kvm, have the same property.
+
+Do you think this is OK?
+
+Thanks!
+
 -- 
 MST
