@@ -1,15 +1,17 @@
-From: Andi Kleen <andi@firstfloor.org>
+From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCHv7 3/3] vhost_net: a kernel-level virtio server
-Date: Wed, 04 Nov 2009 12:08:47 +0100
-Message-ID: <878wema6o0.fsf__25804.0977678776$1257332991$gmane$org@basil.nowhere.org>
+Date: Wed, 4 Nov 2009 13:57:29 +0200
+Message-ID: <20091104115729.GD8398__24260.4266423315$1257336436$gmane$org@redhat.com>
 References: <cover.1257267892.git.mst@redhat.com>
-	<20091103172422.GD5591@redhat.com>
+	<20091103172422.GD5591@redhat.com> <4AF0708B.4020406@gmail.com>
+	<4AF07199.2020601@gmail.com> <4AF072EE.9020202@gmail.com>
+	<20091103235744.GF6726@linux.vnet.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20091103172422.GD5591@redhat.com> (Michael S. Tsirkin's message
-	of "Tue, 3 Nov 2009 19:24:23 +0200")
+Content-Disposition: inline
+In-Reply-To: <20091103235744.GF6726@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,46 +21,105 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, mingo@elte.hu, akpm@linux-foundation.org
+To: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
+Cc: Eric Dumazet <eric.dumazet@gmail.com>, kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, s.hetze@linux-ag.com, hpa@zytor.com, mingo@elte.hu, akpm@linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-"Michael S. Tsirkin" <mst@redhat.com> writes:
+On Tue, Nov 03, 2009 at 03:57:44PM -0800, Paul E. McKenney wrote:
+> On Tue, Nov 03, 2009 at 01:14:06PM -0500, Gregory Haskins wrote:
+> > Gregory Haskins wrote:
+> > > Eric Dumazet wrote:
+> > >> Michael S. Tsirkin a =E9crit :
+> > >>> +static void handle_tx(struct vhost_net *net)
+> > >>> +{
+> > >>> +	struct vhost_virtqueue *vq =3D &net->dev.vqs[VHOST_NET_VQ_TX];
+> > >>> +	unsigned head, out, in, s;
+> > >>> +	struct msghdr msg =3D {
+> > >>> +		.msg_name =3D NULL,
+> > >>> +		.msg_namelen =3D 0,
+> > >>> +		.msg_control =3D NULL,
+> > >>> +		.msg_controllen =3D 0,
+> > >>> +		.msg_iov =3D vq->iov,
+> > >>> +		.msg_flags =3D MSG_DONTWAIT,
+> > >>> +	};
+> > >>> +	size_t len, total_len =3D 0;
+> > >>> +	int err, wmem;
+> > >>> +	size_t hdr_size;
+> > >>> +	struct socket *sock =3D rcu_dereference(vq->private_data);
+> > >>> +	if (!sock)
+> > >>> +		return;
+> > >>> +
+> > >>> +	wmem =3D atomic_read(&sock->sk->sk_wmem_alloc);
+> > >>> +	if (wmem >=3D sock->sk->sk_sndbuf)
+> > >>> +		return;
+> > >>> +
+> > >>> +	use_mm(net->dev.mm);
+> > >>> +	mutex_lock(&vq->mutex);
+> > >>> +	vhost_no_notify(vq);
+> > >>> +
+> > >> using rcu_dereference() and mutex_lock() at the same time seems wron=
+g, I suspect
+> > >> that your use of RCU is not correct.
+> > >>
+> > >> 1) rcu_dereference() should be done inside a read_rcu_lock() section=
+, and
+> > >>    we are not allowed to sleep in such a section.
+> > >>    (Quoting Documentation/RCU/whatisRCU.txt :
+> > >>      It is illegal to block while in an RCU read-side critical secti=
+on, )
+> > >>
+> > >> 2) mutex_lock() can sleep (ie block)
+> > >>
+> > > =
 
-Haven't really read the whole thing, just noticed something at a glance.
+> > > =
 
-> +/* Expects to be always run from workqueue - which acts as
-> + * read-size critical section for our kind of RCU. */
-> +static void handle_tx(struct vhost_net *net)
-> +{
-> +	struct vhost_virtqueue *vq = &net->dev.vqs[VHOST_NET_VQ_TX];
-> +	unsigned head, out, in, s;
-> +	struct msghdr msg = {
-> +		.msg_name = NULL,
-> +		.msg_namelen = 0,
-> +		.msg_control = NULL,
-> +		.msg_controllen = 0,
-> +		.msg_iov = vq->iov,
-> +		.msg_flags = MSG_DONTWAIT,
-> +	};
-> +	size_t len, total_len = 0;
-> +	int err, wmem;
-> +	size_t hdr_size;
-> +	struct socket *sock = rcu_dereference(vq->private_data);
-> +	if (!sock)
-> +		return;
-> +
-> +	wmem = atomic_read(&sock->sk->sk_wmem_alloc);
-> +	if (wmem >= sock->sk->sk_sndbuf)
-> +		return;
-> +
-> +	use_mm(net->dev.mm);
+> > > Michael,
+> > >   I warned you that this needed better documentation ;)
+> > > =
 
-I haven't gone over all this code in detail, but that isolated reference count
-use looks suspicious. What prevents the mm from going away before
-you increment, if it's not the current one?
+> > > Eric,
+> > >   I think I flagged this once before, but Michael convinced me that it
+> > > was indeed "ok", if but perhaps a bit unconventional.  I will try to
+> > > find the thread.
+> > > =
 
--Andi 
+> > > Kind Regards,
+> > > -Greg
+> > > =
 
--- 
-ak@linux.intel.com -- Speaking for myself only.
+> > =
+
+> > Here it is:
+> > =
+
+> > http://lkml.org/lkml/2009/8/12/173
+> =
+
+> What was happening in that case was that the rcu_dereference()
+> was being used in a workqueue item.  The role of rcu_read_lock()
+> was taken on be the start of execution of the workqueue item, of
+> rcu_read_unlock() by the end of execution of the workqueue item, and
+> of synchronize_rcu() by flush_workqueue().  This does work, at least
+> assuming that flush_workqueue() operates as advertised, which it appears
+> to at first glance.
+> =
+
+> The above code looks somewhat different, however -- I don't see
+> handle_tx() being executed in the context of a work queue.  Instead
+> it appears to be in an interrupt handler.
+> So what is the story?  Using synchronize_irq() or some such?
+> =
+
+> 							Thanx, Paul
+
+No, there has been no change (I won't be able to use a mutex in an
+interrupt handler, will I?).  handle_tx is still called in the context
+of a work queue: either from handle_tx_kick or from handle_tx_net which
+are work queue items.
+
+Can you ack this usage please?
+
+-- =
+
+MST
