@@ -1,10 +1,14 @@
-From: "Chun-Hsian Huang" <huang@cs.ccu.edu.tw>
-Subject: device virtualization
-Date: Thu, 5 Nov 2009 02:50:25 +0800
-Message-ID: <9EA1764517344ED4A898F14520D4A949@chunhsian>
+From: Sridhar Samudrala <sri@us.ibm.com>
+Subject: Re: [PATCHv4 6/6] qemu-kvm: vhost-net implementation
+Date: Wed, 04 Nov 2009 16:22:07 -0800
+Message-ID: <1257380527.30511.677.camel__16582.6706601822$1257544079$gmane$org@w-sridhar.beaverton.ibm.com>
+References: <cover.1257200517.git.mst@redhat.com>
+	<20091102222433.GG15153@redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============3473966403560604585=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20091102222433.GG15153@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -12,161 +16,38 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Mime-version: 1.0
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Shirley Ma <xma@us.ibm.com>, kvm@vger.kernel.org, David Stevens <dlstevens@us.ibm.com>, virtualization@lists.linux-foundation.org, avi@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-This is a multi-part message in MIME format.
+On Tue, 2009-11-03 at 00:24 +0200, Michael S. Tsirkin wrote:
+> This adds support for vhost-net virtio kernel backend.
+> 
+> This patch is not intended to being merged yet.
+> I'm posting it for the benefit of people testing
+> the backend.
+> 
+> Usage instructions:
+> vhost currently requires MSI-X support in guest virtio.
+> This means guests kernel version should be >= 2.6.31.
+> 
+> To enable vhost, simply add ",vhost" flag to nic options.
+> Example with tap backend:
+> qemu-system-x86_64 -m 1G disk-c.qcow2 \
+> -net tap,ifname=msttap0,script=/home/mst/ifup,downscript=no \
+>  -net nic,model=virtio,vhost
+> 
+> Example with raw socket backend:
+> ifconfig eth3 promisc
+> qemu-system-x86_64 -m 1G disk-c.qcow2 \
+> -net raw,ifname=eth3 \
+>  -net nic,model=virtio,vhost
 
---===============3473966403560604585==
-Content-Type: multipart/alternative;
-	boundary="----=_NextPart_000_0003_01CA5DC2.B9F61030"
+As the vhost is a backend feature, i think the 'vhost' flag should
+be added to the -net tap or -net raw option rather than the -net nic
+which specifies the guest options.
 
-This is a multi-part message in MIME format.
-
-------=_NextPart_000_0003_01CA5DC2.B9F61030
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-
-Dear all:
-
- 
-
-           In a Linux system, the access of a hardware device is to open and
-close its device node. However, using device virtualization, the physical
-device can be shared with one more guest OSes. Does the device node of the
-shared physical device still need to be opened and closed turn by turn for
-being accessed by the guest OSes? Does it mean that the device sharing
-mechanism is performed in the user space and not kernel space? What are
-performed in the kernel space if KVM is used? How about Xen, QEMU, and
-VMWare, or other device virtualization techniques? I'm a beginner for
-virtualization, and hope that someone can answer to my questions Thanks very
-much!
-
- 
-
-Sincerely,
-
-Huang.
-
-
-------=_NextPart_000_0003_01CA5DC2.B9F61030
-Content-Type: text/html;
-	charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-
-<html xmlns:o=3D"urn:schemas-microsoft-com:office:office" =
-xmlns:w=3D"urn:schemas-microsoft-com:office:word" =
-xmlns=3D"http://www.w3.org/TR/REC-html40">
-
-<head>
-<meta http-equiv=3DContent-Type content=3D"text/html; =
-charset=3Dus-ascii">
-<meta name=3DGenerator content=3D"Microsoft Word 11 (filtered medium)">
-<style>
-<!--
- /* Font Definitions */
- @font-face
-	{font-family:PMingLiU;
-	panose-1:2 2 3 0 0 0 0 0 0 0;}
-@font-face
-	{font-family:PMingLiU;
-	panose-1:2 2 3 0 0 0 0 0 0 0;}
- /* Style Definitions */
- p.MsoNormal, li.MsoNormal, div.MsoNormal
-	{margin:0cm;
-	margin-bottom:.0001pt;
-	font-size:12.0pt;
-	font-family:"Times New Roman";}
-a:link, span.MsoHyperlink
-	{color:blue;
-	text-decoration:underline;}
-a:visited, span.MsoHyperlinkFollowed
-	{color:purple;
-	text-decoration:underline;}
-span.EmailStyle17
-	{mso-style-type:personal-compose;
-	font-family:Arial;
-	color:windowtext;}
- /* Page Definitions */
- @page Section1
-	{size:595.3pt 841.9pt;
-	margin:72.0pt 90.0pt 72.0pt 90.0pt;
-	layout-grid:18.0pt;}
-div.Section1
-	{page:Section1;}
--->
-</style>
-
-</head>
-
-<body lang=3DZH-TW link=3Dblue vlink=3Dpurple =
-style=3D'text-justify-trim:punctuation'>
-
-<div class=3DSection1 style=3D'layout-grid:18.0pt'>
-
-<p class=3DMsoNormal><font size=3D2 face=3D"Times New Roman"><span =
-lang=3DEN-US
-style=3D'font-size:10.0pt'>Dear all:<o:p></o:p></span></font></p>
-
-<p class=3DMsoNormal><font size=3D2 face=3D"Times New Roman"><span =
-lang=3DEN-US
-style=3D'font-size:10.0pt'><o:p>&nbsp;</o:p></span></font></p>
-
-<p class=3DMsoNormal><font size=3D2 face=3D"Times New Roman"><span =
-lang=3DEN-US
-style=3D'font-size:10.0pt'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbs=
-p;&nbsp;&nbsp; In
-a Linux system, the access of a hardware device is to open and close its =
-device
-node. However, using device virtualization, the physical device can be =
-shared
-with one more guest OSes. Does the device node of the shared physical =
-device still
-need to be opened and closed turn by turn for being accessed by the =
-guest OSes?
-Does it mean that the device sharing mechanism is performed in the user =
-space
-and not kernel space? What are performed in the kernel space if KVM is =
-used? How
-about Xen, QEMU, and VMWare, or other device virtualization techniques? =
-I&#8217;m
-a beginner for virtualization, and hope that someone can answer to my =
-questions
-Thanks very much!<o:p></o:p></span></font></p>
-
-<p class=3DMsoNormal><font size=3D2 face=3D"Times New Roman"><span =
-lang=3DEN-US
-style=3D'font-size:10.0pt'><o:p>&nbsp;</o:p></span></font></p>
-
-<p class=3DMsoNormal><font size=3D2 face=3D"Times New Roman"><span =
-lang=3DEN-US
-style=3D'font-size:10.0pt'>Sincerely,<o:p></o:p></span></font></p>
-
-<p class=3DMsoNormal><font size=3D2 face=3D"Times New Roman"><span =
-lang=3DEN-US
-style=3D'font-size:10.0pt'>Huang.<o:p></o:p></span></font></p>
-
-</div>
-
-</body>
-
-</html>
-
-------=_NextPart_000_0003_01CA5DC2.B9F61030--
-
-
---===============3473966403560604585==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linux-foundation.org/mailman/listinfo/virtualization
---===============3473966403560604585==--
+Thanks
+Sridhar
