@@ -1,15 +1,16 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCHv8 0/3] vhost: a kernel-level virtio server
-Date: Wed, 4 Nov 2009 21:19:26 +0200
-Message-ID: <20091104191926.GC772__38804.1041362614$1257362605$gmane$org@redhat.com>
-References: <20091104155234.GA32673@redhat.com> <4AF1A587.8000509@gmail.com>
-	<20091104162339.GA311@redhat.com> <4AF1D2DE.10705@gmail.com>
+Subject: Re: [PATCHv4 6/6] qemu-kvm: vhost-net implementation
+Date: Thu, 5 Nov 2009 10:23:41 +0200
+Message-ID: <20091105082341.GC5774__29868.20895826$1257409626$gmane$org@redhat.com>
+References: <cover.1257200517.git.mst@redhat.com>
+	<20091102222433.GG15153@redhat.com>
+	<1257380527.30511.677.camel@w-sridhar.beaverton.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <4AF1D2DE.10705@gmail.com>
+In-Reply-To: <1257380527.30511.677.camel@w-sridhar.beaverton.ibm.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,39 +20,42 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gregory Haskins <gregory.haskins@gmail.com>
-Cc: Eric Dumazet <eric.dumazet@gmail.com>, kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, s.hetze@linux-ag.com, hpa@zytor.com, Daniel Walker <dwalker@fifo99.com>, mingo@elte.hu, akpm@linux-foundation.org
+To: Sridhar Samudrala <sri@us.ibm.com>
+Cc: Shirley Ma <xma@us.ibm.com>, kvm@vger.kernel.org, David Stevens <dlstevens@us.ibm.com>, virtualization@lists.linux-foundation.org, avi@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Nov 04, 2009 at 02:15:42PM -0500, Gregory Haskins wrote:
-> Michael S. Tsirkin wrote:
-> > On Wed, Nov 04, 2009 at 11:02:15AM -0500, Gregory Haskins wrote:
-> >> Michael S. Tsirkin wrote:
-> >>> Ok, I think I've addressed all comments so far here.
-> >>> Rusty, I'd like this to go into linux-next, through your tree, and
-> >>> hopefully 2.6.33.  What do you think?
-> >> I think the benchmark data is a prerequisite for merge consideration, IMO.
+On Wed, Nov 04, 2009 at 04:22:07PM -0800, Sridhar Samudrala wrote:
+> On Tue, 2009-11-03 at 00:24 +0200, Michael S. Tsirkin wrote:
+> > This adds support for vhost-net virtio kernel backend.
 > > 
-> > Shirley Ma was kind enough to send me some measurement results showing
-> > how kernel level acceleration helps speed up you can find them here:
-> > http://www.linux-kvm.org/page/VhostNet
+> > This patch is not intended to being merged yet.
+> > I'm posting it for the benefit of people testing
+> > the backend.
+> > 
+> > Usage instructions:
+> > vhost currently requires MSI-X support in guest virtio.
+> > This means guests kernel version should be >= 2.6.31.
+> > 
+> > To enable vhost, simply add ",vhost" flag to nic options.
+> > Example with tap backend:
+> > qemu-system-x86_64 -m 1G disk-c.qcow2 \
+> > -net tap,ifname=msttap0,script=/home/mst/ifup,downscript=no \
+> >  -net nic,model=virtio,vhost
+> > 
+> > Example with raw socket backend:
+> > ifconfig eth3 promisc
+> > qemu-system-x86_64 -m 1G disk-c.qcow2 \
+> > -net raw,ifname=eth3 \
+> >  -net nic,model=virtio,vhost
 > 
-> Thanks for the pointers.  I will roll your latest v8 code into our test
-> matrix.  What kernel/qemu trees do they apply to?
+> As the vhost is a backend feature, i think the 'vhost' flag should
+> be added to the -net tap or -net raw option rather than the -net nic
+> which specifies the guest options.
 > 
-> -Greg
-> 
+> Thanks
+> Sridhar
 
-
-kernel 2.6.32-rc6, qemu-kvm 47e465f031fc43c53ea8f08fa55cc3482c6435c8.
-You can also use my development git trees if you like.
-
-kernel:
-git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git vhost
-userspace:
-git://git.kernel.org/pub/scm/linux/kernel/git/mst/qemu-kvm.git vhost
-
-Please note I rebase especially userspace tree now and when.
+Yes.
 
 -- 
 MST
