@@ -1,16 +1,18 @@
-From: Anthony Liguori <aliguori@us.ibm.com>
-Subject: Re: [PATCH v10 1/1] virtio_console: Add support for multiple ports
-	for generic guest and host communication
-Date: Fri, 06 Nov 2009 08:32:05 -0600
-Message-ID: <4AF43365.2030208__31077.4161982865$1257518321$gmane$org@us.ibm.com>
-References: <1257266319-24300-1-git-send-email-amit.shah@redhat.com>
-	<200911060900.49923.borntraeger@de.ibm.com>	<4AF41DF0.7050002@us.ibm.com>
-	<200911061512.40413.borntraeger@de.ibm.com>
+From: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
+Subject: Re: [PATCHv7 3/3] vhost_net: a kernel-level virtio server
+Date: Fri, 6 Nov 2009 08:30:07 -0800
+Message-ID: <20091106163007.GC6746__43840.99254753$1257525182$gmane$org@linux.vnet.ibm.com>
+References: <cover.1257267892.git.mst@redhat.com>
+	<20091104115729.GD8398@redhat.com>
+	<20091104172542.GC6736@linux.vnet.ibm.com>
+	<200911061531.20299.rusty@rustcorp.com.au>
+Reply-To: paulmck@linux.vnet.ibm.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <200911061512.40413.borntraeger@de.ibm.com>
+Content-Disposition: inline
+In-Reply-To: <200911061531.20299.rusty@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,43 +22,31 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Amit Shah <amit.shah@redhat.com>, linux-kernel@vger.kernel.org, virtualization@linux-foundation.org, "Michael S. Tsirkin" <mst@redhat.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Eric Dumazet <eric.dumazet@gmail.com>, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, s.hetze@linux-ag.com, hpa@zytor.com, mingo@elte.hu, akpm@linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Christian Borntraeger wrote:
->> Fundamentally speaking, right now, virtio-console is a single stream
->> that acts as an interactive terminal.  What we're looking to add here is
->> to support multiple terminals that can be enumerated in a rationale way.
->>     
->
-> Right, that is a point where I disagree. The original purpose and intent of the 
-> multiple port thing was to have a generic guest/host comm channels and *NOT* to 
-> have multiple console devices. Having multiple console devices is just a fall-
-> out of the current implementation.
->   
+On Fri, Nov 06, 2009 at 03:31:20PM +1030, Rusty Russell wrote:
+> On Thu, 5 Nov 2009 03:55:42 am Paul E. McKenney wrote:
+> > On Wed, Nov 04, 2009 at 01:57:29PM +0200, Michael S. Tsirkin wrote:
+> > > Can you ack this usage please?
+> > 
+> > I thought I had done so in my paragraph above, but if you would like
+> > something a bit more formal...
+> 
+> <snip verbose super-ack with qualifications>
+> 
+> That's great guys.  And yes, this is a kind of read-copy-update.  And no,
+> there's nothing wrong with it.
+> 
+> But it's still nasty to use half an API.  If it were a few places I would
+> have open-coded it with a comment, or wrapped it.  As it is, I don't think
+> that would be a win.
 
-This is part of what makes this series so difficult.  As a generic 
-guest/host communications channel, this series does not at all meet 
-reasonable expectations.  It makes no attempt to deal with things like 
-live migration.  It can at best be described as a hack.
+So would it help to have a rcu_read_lock_workqueue() and
+rcu_read_unlock_workqueue() that checked nesting and whether they were
+actually running in the context of a workqueue item?  Or did you have
+something else in mind?  Or am I misjudging the level of sarcasm in
+your reply?  ;-)
 
-The whole thing's a mess because it's never been thought through 
-properly which is probably because the actual consumer of it has not 
-been released publicly.
-
-I've always advocated that this use case would be better served as a 
-_userspace_ interface that implements a protocol on top of an arbitrary 
-transport.  It could be a network socket, a virtio device (even 
-virtio-console unmodified), a real serial device, etc.
-
-You can do multiplexing, connect/disconnect notification, etc. all as 
-elements of a streaming protocol.  Throwing all of these channel 
-semantics coupled tightly with the transport and then trying to make a 
-kernel interface be what's the supported user interface is really just 
-asking for trouble.
-
--- 
-Regards,
-
-Anthony Liguori
+							Thanx, Paul
