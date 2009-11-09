@@ -1,17 +1,17 @@
 From: Amit Shah <amit.shah@redhat.com>
 Subject: Re: [PATCH v10 1/1] virtio_console: Add support for multiple ports
 	for generic guest and host communication
-Date: Mon, 9 Nov 2009 17:38:39 +0530
-Message-ID: <20091109120839.GA11256__29785.2186290131$1257768643$gmane$org@amit-x200.redhat.com>
+Date: Mon, 9 Nov 2009 17:39:26 +0530
+Message-ID: <20091109120926.GB11256@amit-x200.redhat.com>
 References: <1257266319-24300-1-git-send-email-amit.shah@redhat.com>
 	<1257266319-24300-2-git-send-email-amit.shah@redhat.com>
-	<200911061740.03734.rusty@rustcorp.com.au>
+	<200911060843.05934.borntraeger@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <200911061740.03734.rusty@rustcorp.com.au>
+In-Reply-To: <200911060843.05934.borntraeger@de.ibm.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -21,44 +21,24 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>, Anthony Liguori <aliguori@us.ibm.com>, linux-kernel@vger.kernel.org, virtualization@linux-foundation.org, "Michael S. Tsirkin" <mst@redhat.com>
+To: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: linux-kernel@vger.kernel.org, virtualization@linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hey Rusty,
-
-On (Fri) Nov 06 2009 [17:40:02], Rusty Russell wrote:
-> On Wed, 4 Nov 2009 03:08:39 am Amit Shah wrote:
-> > Expose multiple char devices ("ports") for simple communication
-> > between the host userspace and guest.
+On (Fri) Nov 06 2009 [08:43:05], Christian Borntraeger wrote:
+> Am Dienstag 03 November 2009 17:38:39 schrieb Amit Shah:
 > 
-> OK, I've taken the chance to audit this patch.  I started adding patches
-> until I got overwhelmed.   It's a complete mess and needs a total rewrite :(
+> > drivers/char/Kconfig           |    6 +
+> > drivers/char/virtio_console.c  | 1412 ++++++++++++++++++++++++++++++++++++----
+> > include/linux/virtio_console.h |   50 ++-
+> > 3 files changed, 1332 insertions(+), 136 deletions(-)
 > 
-> This shows the problem with feeding me a complete driver rewrite in one
-> big hit.  You've combined lots of changes and techniques in here at once:
+> I have not looked at your last two versions of the patch  since you did not add 
+> a changelog to your patch description. I thought you only did minor changes.
+> Turned out you added/changed several places. (e.g. VIRTIO_CONSOLE_CACHE_BUFFERS, 
+> VIRTIO_CONSOLE_THROTTLE_PORT  and VIRTIO_CONSOLE_BUFFER_LIMIT  are all new)
 
-I'm really sorry for dumping this all at once.
+I see v8 slipped out without a changelog; sorry for that. v9, v10 had
+the changelogs but v8 had included the caching and throttling support.
 
-I've separated out the patches for easier reviewing, the result passes
-my tests but I'm going to give them some more time to run.
-
-> Less important nitpicks:
-
-...
-
-> 3) Don't use list_for_each_safe() to get the head entry of a list.  Your
->    use is buggy anyway: buf will never be NULL afterwards.
-
-As long as 'head' isn't the only node in the list we should loop. And
-list_foreach_safe() does that. So it's OK right?
-
-> In summary: this is the one we're going to throw away.
-> 
-> Now I'm going to start again, one patch at a time, and see how that works.
-
-I'm sorry for having created more work for you; I'll send out my patches
-to you in a couple of days.
-
-Thanks!
 		Amit
