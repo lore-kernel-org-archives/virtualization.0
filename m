@@ -1,17 +1,17 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCHv8 3/3] vhost_net: a kernel-level virtio server
-Date: Mon, 9 Nov 2009 13:55:48 +0200
-Message-ID: <20091109115548.GA2368__9323.16090115837$1257768029$gmane$org@redhat.com>
-References: <cover.1257349249.git.mst@redhat.com>
-	<200911061529.17500.rusty@rustcorp.com.au>
-	<20091108113516.GA19016@redhat.com>
-	<200911091647.29655.rusty@rustcorp.com.au>
+From: Amit Shah <amit.shah@redhat.com>
+Subject: Re: [PATCH v10 1/1] virtio_console: Add support for multiple ports
+	for generic guest and host communication
+Date: Mon, 9 Nov 2009 17:38:39 +0530
+Message-ID: <20091109120839.GA11256__29785.2186290131$1257768643$gmane$org@amit-x200.redhat.com>
+References: <1257266319-24300-1-git-send-email-amit.shah@redhat.com>
+	<1257266319-24300-2-git-send-email-amit.shah@redhat.com>
+	<200911061740.03734.rusty@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <200911091647.29655.rusty@rustcorp.com.au>
+In-Reply-To: <200911061740.03734.rusty@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -22,52 +22,43 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Eric Dumazet <eric.dumazet@gmail.com>, kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, s.hetze@linux-ag.com, hpa@zytor.com, Daniel Walker <dwalker@fifo99.com>, mingo@elte.hu, akpm@linux-foundation.org
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>, Anthony Liguori <aliguori@us.ibm.com>, linux-kernel@vger.kernel.org, virtualization@linux-foundation.org, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Nov 09, 2009 at 04:47:29PM +1030, Rusty Russell wrote:
-> Actually, this looks wrong to me:
+Hey Rusty,
+
+On (Fri) Nov 06 2009 [17:40:02], Rusty Russell wrote:
+> On Wed, 4 Nov 2009 03:08:39 am Amit Shah wrote:
+> > Expose multiple char devices ("ports") for simple communication
+> > between the host userspace and guest.
 > 
-> +	case VHOST_SET_VRING_BASE:
-> ...
-> +		vq->avail_idx = vq->last_avail_idx = s.num;
+> OK, I've taken the chance to audit this patch.  I started adding patches
+> until I got overwhelmed.   It's a complete mess and needs a total rewrite :(
 > 
-> The last_avail_idx is part of the state of the driver.  It needs to be saved
-> and restored over susp/resume.  The only reason it's not in the ring itself
-> is because I figured the other side doesn't need to see it (which is true, but
-> missed debugging opportunities as well as man-in-the-middle issues like this
-> one).  I had a patch which put this field at the end of the ring, I might
-> resurrect it to avoid this problem.  This is backwards compatible with all
-> implementations.  See patch at end.
+> This shows the problem with feeding me a complete driver rewrite in one
+> big hit.  You've combined lots of changes and techniques in here at once:
+
+I'm really sorry for dumping this all at once.
+
+I've separated out the patches for easier reviewing, the result passes
+my tests but I'm going to give them some more time to run.
+
+> Less important nitpicks:
+
+...
+
+> 3) Don't use list_for_each_safe() to get the head entry of a list.  Your
+>    use is buggy anyway: buf will never be NULL afterwards.
+
+As long as 'head' isn't the only node in the list we should loop. And
+list_foreach_safe() does that. So it's OK right?
+
+> In summary: this is the one we're going to throw away.
 > 
-> I would drop avail_idx altogether: get_user is basically free, and simplifies
-> a lot.  As most state is in the ring, all you need is an ioctl to save/restore
-> the last_avail_idx.
+> Now I'm going to start again, one patch at a time, and see how that works.
 
-I remembered another reason for caching head in avail_idx.  Basically,
-avail index could change between when I poll for descriptors and when I
-want to notify guest.
+I'm sorry for having created more work for you; I'll send out my patches
+to you in a couple of days.
 
-So we could have:
-	- poll descriptors until empty
-	- notify
-		detects not empty so does not notify
-
-And the way to solve it would be to return flag from
-notify telling us to restart the polling loop.
-
-But, this will be more code, on data path, than
-what happens today where I simply keep state
-from descriptor polling and use that to notify.
-
-I also suspect that somehow this race in practice can not create
-deadlocks ... but I prefer to avoid it, these things are very tricky: if
-I see an empty ring, and stop processing descriptors, I want to trigger
-notify on empty.
-
-So if we want to avoid keeping "empty" state, IMO the best way would be
-to pass a flag to vhost_signal that tells it that ring is empty.
-Makes sense?
-
--- 
-MST
+Thanks!
+		Amit
