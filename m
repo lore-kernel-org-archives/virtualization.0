@@ -1,17 +1,12 @@
-From: Amit Shah <amit.shah@redhat.com>
-Subject: Re: [PATCH v10 1/1] virtio_console: Add support for multiple ports
-	for generic guest and host communication
-Date: Mon, 9 Nov 2009 17:39:26 +0530
-Message-ID: <20091109120926.GB11256@amit-x200.redhat.com>
-References: <1257266319-24300-1-git-send-email-amit.shah@redhat.com>
-	<1257266319-24300-2-git-send-email-amit.shah@redhat.com>
-	<200911060843.05934.borntraeger@de.ibm.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH] virtio-spec: correct wording
+Date: Mon, 9 Nov 2009 16:47:53 +0200
+Message-ID: <20091109144751.GA3339@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <200911060843.05934.borntraeger@de.ibm.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -21,24 +16,66 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: linux-kernel@vger.kernel.org, virtualization@linux-foundation.org
+To: rusty@rustcorp.com.au, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On (Fri) Nov 06 2009 [08:43:05], Christian Borntraeger wrote:
-> Am Dienstag 03 November 2009 17:38:39 schrieb Amit Shah:
-> 
-> > drivers/char/Kconfig           |    6 +
-> > drivers/char/virtio_console.c  | 1412 ++++++++++++++++++++++++++++++++++++----
-> > include/linux/virtio_console.h |   50 ++-
-> > 3 files changed, 1332 insertions(+), 136 deletions(-)
-> 
-> I have not looked at your last two versions of the patch  since you did not add 
-> a changelog to your patch description. I thought you only did minor changes.
-> Turned out you added/changed several places. (e.g. VIRTIO_CONSOLE_CACHE_BUFFERS, 
-> VIRTIO_CONSOLE_THROTTLE_PORT  and VIRTIO_CONSOLE_BUFFER_LIMIT  are all new)
+virtio header resizes in the first I/O region,
+not in PCI configuration space as the spec v0.8.1 implied.
+Correct this.
 
-I see v8 slipped out without a changelog; sorry for that. v9, v10 had
-the changelogs but v8 had included the caching and throttling support.
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
 
-		Amit
+I started looking at virtio spec with the view to updating it with new
+features and possibly documenting more devices. I have used latex in the
+past but not lyx.  As a start, here's a patch to correct a nit in
+wording.  This is just what lyx generated for me, I'd like to get an
+idea how best to prepare such documentation patches. E.g. do we want
+change tracking in the document at this stage?  Rusty?
+
+The patches are agaist initial version from here:
+http://ozlabs.org/~rusty/virtio-spec/virtio-spec-0.8.1.lyx This is just
+what google found for me.  Is there a repository I should work against
+instead?
+
+
+ virtio-spec.lyx |   13 +++++++++----
+ 1 files changed, 9 insertions(+), 4 deletions(-)
+
+diff --git a/virtio-spec.lyx b/virtio-spec.lyx
+index 7e39d77..33e8e0a 100644
+--- a/virtio-spec.lyx
++++ b/virtio-spec.lyx
+@@ -1,4 +1,4 @@
+-#LyX 1.6.2 created this file. For more info see http://www.lyx.org/
++#LyX 1.6.4 created this file. For more info see http://www.lyx.org/
+ \lyxformat 345
+ \begin_document
+ \begin_header
+@@ -36,7 +36,7 @@
+ \paperpagestyle default
+ \tracking_changes true
+ \output_changes true
+-\author "" 
++\author "Michael S. Tsirkin" 
+ \author "" 
+ \end_header
+ 
+@@ -1971,8 +1971,13 @@ Notifying The Device
+ 
+ \begin_layout Standard
+ Device notification occurs by writing the 16-bit virtqueue index of this
+- virtqueue to the Queue Notify field of the virtio header in the PCI configurati
+-on space.
++ virtqueue to the Queue Notify field of the virtio header in the 
++\change_inserted 0 1257776268
++first I/O region of the PCI device
++\change_deleted 0 1257776222
++PCI configuration space
++\change_unchanged
++.
+  This can be expensive, however, so the device can suppress such notifications
+  if it doesn't need them.
+  We have to be careful to expose the new idx value 
+-- 
+1.6.5.2.143.g8cc62
