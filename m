@@ -1,12 +1,14 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: Re: [PATCH 3/8] hvc_console: make the ops pointer const.
-Date: Tue, 10 Nov 2009 09:56:45 +0100
-Message-ID: <200911100956.45668.borntraeger__5251.88811957396$1257843493$gmane$org@de.ibm.com>
+From: Amit Shah <amit.shah@redhat.com>
+Subject: Re: [PATCH 8/8] virtio: console: struct ports for multiple ports
+	per device.
+Date: Tue, 10 Nov 2009 15:03:28 +0530
+Message-ID: <20091110093328.GA22563@amit-x200.redhat.com>
 References: <1257834450..rusty@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
 In-Reply-To: <1257834450..rusty@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,36 +20,73 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Amit Shah <amit.shah@redhat.com>, linuxppc-dev@ozlabs.org, virtualization@linux-foundation.org
+Cc: virtualization@linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Am Dienstag 10 November 2009 07:27:30 schrieb Rusty Russell:
-> This is nicer for modern R/O protection.  And noone needs it non-const, so
-> constify the callers as well.
+On (Tue) Nov 10 2009 [16:57:30], Rusty Russell wrote:
 > 
-> Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
-> To: Christian Borntraeger <borntraeger@de.ibm.com>
-> Cc: linuxppc-dev@ozlabs.org
-> ---
->  drivers/char/hvc_beat.c       |    2 +-
->  drivers/char/hvc_console.c    |    7 ++++---
->  drivers/char/hvc_console.h    |    7 ++++---
->  drivers/char/hvc_iseries.c    |    2 +-
->  drivers/char/hvc_iucv.c       |    2 +-
->  drivers/char/hvc_rtas.c       |    2 +-
->  drivers/char/hvc_udbg.c       |    2 +-
->  drivers/char/hvc_vio.c        |    2 +-
->  drivers/char/hvc_xen.c        |    2 +-
->  drivers/char/virtio_console.c |    2 +-
->  10 files changed, 16 insertions(+), 14 deletions(-)
+> Rather than assume a single port, add a 'struct ports' with an array
+> of ports.  Currently, there's always only one, but that will change.
 
-Ok, I started with patches 1-3. I like the result.
+Hey Rusty,
 
-So for the first 3 patches you can add
-Tested-by: Christian Borntraeger <borntraeger@de.ibm.com> (on s390)
-Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+>  static void virtcons_apply_config(struct virtio_device *dev)
+>  {
+> -	struct port *port = dev->priv;
+> +	struct ports *ports = dev->priv;
+>  	struct winsize ws;
+>  
+>  	if (virtio_has_feature(dev, VIRTIO_CONSOLE_F_SIZE)) {
+> @@ -158,7 +168,9 @@ static void virtcons_apply_config(struct
+>  		dev->config->get(dev,
+>  				 offsetof(struct virtio_console_config, rows),
+>  				 &ws.ws_row, sizeof(u16));
+> -		hvc_resize(port->hvc, ws);
+> +		/* This is the pre-multiport style: we use control messages
+> +		 * these days which specify the port.  So this means port 0. */
+> +		hvc_resize(ports->port[0].hvc, ws);
 
-I have not yet looked at the other ones, but I will try to find some time to 
-look at them.
+I've fixed a bug in the latest patches that I have (just on git so far;
+not sent to lists) -- this function is also called from hvc's
+notifier_add, so instead of passing vdev here, we can just pass the port
+and look up the port in the notifier_add_vio() function via
+get_port_from_vtermno().
 
-Christian
+> -static struct port *__devinit alloc_port(u32 vtermno)
+> +static struct ports *__devinit alloc_ports(unsigned int num)
+
+This will have to be changed when we add support for hotplug. So instead
+of doing this, just have a linked list from the start?
+
+>  {
+> -	struct port *port = kmalloc(sizeof *port, GFP_KERNEL);
+> +	struct ports *ports;
+> +	int i;
+>  
+> -	if (!port)
+> +	ports = kmalloc(sizeof *ports + sizeof(ports->port[0]) * num,
+> +			GFP_KERNEL);
+> +	if (!ports)
+>  		return NULL;
+
+
+Other than this, the series is good; I can base my patches on top of
+these.
+
+I guess we can also assign a number to each vdev that gets probed so
+that sysfs and debugfs entries for ports can be put in their
+vdev-specific directories, like
+
+/sys/class/virtio-console0/vcon0/name
+
+etc.
+
+Also, if you think the send/receive workqueues are fine and we move to
+those, they will have to be introduced slightly earlier in this patch
+series.
+
+(I'll send out my patches to the list in a while; some polishing is
+required still but they're all style issues rather than functionality
+ones.)
+
+		Amit
