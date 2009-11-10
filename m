@@ -1,15 +1,15 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH 8/8] virtio: console: struct ports for multiple ports per
-	device.
-Date: Tue, 10 Nov 2009 23:21:42 +1030
-Message-ID: <200911102321.42594.rusty@rustcorp.com.au>
-References: <1257834450..rusty@rustcorp.com.au>
-	<20091110093328.GA22563@amit-x200.redhat.com>
+Subject: Re: [PATCH 01/15] virtio_console: Initialize hv_ops struct at
+	declaration instead of in the probe() routine
+Date: Tue, 10 Nov 2009 23:37:39 +1030
+Message-ID: <200911102337.39372.rusty@rustcorp.com.au>
+References: <1257846101-23258-1-git-send-email-amit.shah@redhat.com>
+	<1257846101-23258-2-git-send-email-amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20091110093328.GA22563@amit-x200.redhat.com>
+In-Reply-To: <1257846101-23258-2-git-send-email-amit.shah@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,51 +20,52 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Amit Shah <amit.shah@redhat.com>
-Cc: virtualization@linux-foundation.org
+Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 10 Nov 2009 08:03:28 pm Amit Shah wrote:
-> On (Tue) Nov 10 2009 [16:57:30], Rusty Russell wrote:
-> > 
-> > Rather than assume a single port, add a 'struct ports' with an array
-> > of ports.  Currently, there's always only one, but that will change.
-> 
-> Hey Rusty,
+On Tue, 10 Nov 2009 08:11:27 pm Amit Shah wrote:
+> Initialize the hv_ops function pointers using C99 style. However, we
+> need to re-init the 'put_chars' field to our implementation in the
+> probe() routine as we replace it for early_init to use the caller's
+> put_chars implementation.
 
-Hi Amit,
+(I've decided one email for all the feedback, because obviously the merge
+of the two series will cause substantial changes)
 
-> > -static struct port *__devinit alloc_port(u32 vtermno)
-> > +static struct ports *__devinit alloc_ports(unsigned int num)
-> 
-> This will have to be changed when we add support for hotplug. So instead
-> of doing this, just have a linked list from the start?
+It's interesting to contrast this with mine.  There's nothing *wrong*
+with this, but the larger issue of making as much kernel data const lead
+me to the separate early_put_chars hook.
 
-No, for hotplug I think we just shift from a dangling array to a pointer
-to an array.  That changes the alloc and free functions, but *not* change
-to any users.
+Re: [PATCH 02/15] virtio_console: We support only one device at a time
 
-> Other than this, the series is good; I can base my patches on top of
-> these.
+> We support only one virtio_console device at a time. If multiple are
+> found, error out if one is already initialized.
 
-Excellent!
+I like this; it should be integrated early in my series; technically it's
+a fix.  But it should use dev_err() (or dev_warn maybe) not pr_err().
 
-> I guess we can also assign a number to each vdev that gets probed so
-> that sysfs and debugfs entries for ports can be put in their
-> vdev-specific directories, like
-> 
-> /sys/class/virtio-console0/vcon0/name
+Re: [PATCH 03/15] virtio_console: Club all globals into one struct
 
-That makes sense; we do the same with virtio_blk IIRC.
+I chose "port" as a name; it's better once we're finished than
+"struct virtio_console_struct".  You also dropped the static, which is
+sloppy.
 
-> Also, if you think the send/receive workqueues are fine and we move to
-> those, they will have to be introduced slightly earlier in this patch
-> series.
+Re: [PATCH 04/15] virtio_console: Introduce a workqueue for handling host->guest notifications
 
-So far I haven't seen a need for them.  This is simple and works.  But if
-a later patch needs it, we do it and then maybe shuffle the patch backwards
-in the sequence.
+This one I disagree with.  The host will wait until a buffer comes available.
+It has to anyway, and it should work just fine.  *If* we need speed, then we
+might need workqueues so we reduce guest exits, but I don't think we need that
+yet.
 
-(As you can tell, I don't use git for development :)
+Will defer most of the other patches until we sort this issue out.  But one
+minor thing:
 
-Thanks,
+Re: [PATCH 10/15] virtio_console: Register with sysfs and create a 'name' attribute
+
+Is there a better way to have that attribute dynamic, rather than just having
+the sysfs file there but empty if it has no name?
+
+I think get_port_from_dev_t cannot fail (BUG() at the end?).
+
+Thanks!
 Rusty.
