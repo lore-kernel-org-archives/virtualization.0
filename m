@@ -1,16 +1,13 @@
-From: Amit Shah <amit.shah@redhat.com>
-Subject: Re: [PATCH 8/8] virtio: console: struct ports for multiple ports
-	per device.
-Date: Tue, 10 Nov 2009 12:54:14 +0530
-Message-ID: <20091110072414.GA17361@amit-x200.redhat.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: Re: [PATCH 3/8] hvc_console: make the ops pointer const.
+Date: Tue, 10 Nov 2009 09:56:45 +0100
+Message-ID: <200911100956.45668.borntraeger__5251.88811957396$1257843493$gmane$org@de.ibm.com>
 References: <1257834450..rusty@rustcorp.com.au>
-	<200911101727.03491.rusty@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <200911101727.03491.rusty@rustcorp.com.au>
+In-Reply-To: <1257834450..rusty@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -21,87 +18,36 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: virtualization@lists.linux-foundation.org
+Cc: Amit Shah <amit.shah@redhat.com>, linuxppc-dev@ozlabs.org, virtualization@linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On (Tue) Nov 10 2009 [17:27:03], Rusty Russell wrote:
-> On Tue, 10 Nov 2009 04:57:30 pm Rusty Russell wrote:
-> > 
-> > Rather than assume a single port, add a 'struct ports' with an array
-> > of ports.  Currently, there's always only one, but that will change.
+Am Dienstag 10 November 2009 07:27:30 schrieb Rusty Russell:
+> This is nicer for modern R/O protection.  And noone needs it non-const, so
+> constify the callers as well.
 > 
-> Now, from here we need several more patches.  At least:
+> Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+> To: Christian Borntraeger <borntraeger@de.ibm.com>
+> Cc: linuxppc-dev@ozlabs.org
+> ---
+>  drivers/char/hvc_beat.c       |    2 +-
+>  drivers/char/hvc_console.c    |    7 ++++---
+>  drivers/char/hvc_console.h    |    7 ++++---
+>  drivers/char/hvc_iseries.c    |    2 +-
+>  drivers/char/hvc_iucv.c       |    2 +-
+>  drivers/char/hvc_rtas.c       |    2 +-
+>  drivers/char/hvc_udbg.c       |    2 +-
+>  drivers/char/hvc_vio.c        |    2 +-
+>  drivers/char/hvc_xen.c        |    2 +-
+>  drivers/char/virtio_console.c |    2 +-
+>  10 files changed, 16 insertions(+), 14 deletions(-)
 
-Hey Rusty,
+Ok, I started with patches 1-3. I like the result.
 
-Thanks. I'll look through these.
+So for the first 3 patches you can add
+Tested-by: Christian Borntraeger <borntraeger@de.ibm.com> (on s390)
+Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
 
-I've split up my code as well, have put it up at
+I have not yet looked at the other ones, but I will try to find some time to 
+look at them.
 
-http://git.kernel.org/?p=linux/kernel/git/amit/virtio-console.git
-
-
-> 1) Generalize the output path so we can sleep, rather than spinning.
->    This means a non-NULL callback, a 'done' flag and a struct completion.
-
-Instead of the buffer pool? I think we can go with the buffer pool of
-fixed-sized buffers, but a lot lesser than the 1024 I had.
-
-(Also meshes with the vnc comment below)
-
-On the other hand, performance isn't critical, so we could do away with
-the pool.
-
-> 2) Do we really need more than input buffer at a time?  If not, it's easy to
->    generalize the input callback.  This will be slow, but shouldn't be a
->    problem.
-
-In my testing of a vnc clipboard copy/paste, the vnc client only sent the
-clipboard data once and didn't bother about retransmitting if write()
-returned < len. It's a problem with the vnc client I used (tigervnc, which is
-based off tightvnc) though but adding that support would hurt?
-
-> 3) Add a header.  I suggest we change your proposed format a little, rather
->    than an explicit length use a "continues" bit:
-> 
-> 	struct virtio_console_header {
-> 		/* Port number */
-> 		__u32 id;
-> 		/* VIRTIO_CONSOLE_HDR_CONTROLMSG, VIRTIO_CONSOLE_HDR_CONTINUES. */
-> 		__u32 flags;
-> 	} __attribute__((packed));
-
-Good idea.
- 
->    This should be really easy to construct, and for input in the !multiport
->    path we can fake one up.  We ignore CONTINUES on input since we don't have
->    a userspace API which understands framing (we'd need recvmsg).
-
-The header should only be sent (and expected) in the multiport case, so
-this won't matter when the .._F_MULTIPORT feature is not found.
-
-> 4) Hook it all together with the new feature bit.
-
-I've actually split it into 4 feature bits:
-MULTIPORT means multiple ports and a header
-THROTTLE to save host and guest from OOM
-CACHING to allow ports to buffer data even after the char device is
-  closed
-UNPLUG to allow port unplug
-
-(I added these as part of the splitting effort because they're now in
-individual patches)
-
-> 5) Add the debugfs and sysfs stuff in stages.
-
-Agreed (and have done in my scratch series).
-
-> 6) See if we really need throttling now we're only allowing 1 buffer at a
->    time.
-
-That also depends if we cache data per port -- the throttling I had was
-for the per-port unconsumed buffers.
-
-Thanks again,
-
-		Amit
+Christian
