@@ -1,15 +1,14 @@
 From: Amit Shah <amit.shah@redhat.com>
-Subject: Re: [PATCH 8/8] virtio: console: struct ports for multiple ports
-	per device.
-Date: Tue, 10 Nov 2009 15:03:28 +0530
-Message-ID: <20091110093328.GA22563@amit-x200.redhat.com>
-References: <1257834450..rusty@rustcorp.com.au>
+Subject: [PATCH 01/15] virtio_console: Initialize hv_ops struct at declaration
+	instead of in the probe() routine
+Date: Tue, 10 Nov 2009 15:11:27 +0530
+Message-ID: <1257846101-23258-2-git-send-email-amit.shah@redhat.com>
+References: <1257846101-23258-1-git-send-email-amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1257834450..rusty@rustcorp.com.au>
+In-Reply-To: <1257846101-23258-1-git-send-email-amit.shah@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,74 +18,102 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: virtualization@linux-foundation.org
+To: rusty@rustcorp.com.au
+Cc: Amit Shah <amit.shah@redhat.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On (Tue) Nov 10 2009 [16:57:30], Rusty Russell wrote:
-> 
-> Rather than assume a single port, add a 'struct ports' with an array
-> of ports.  Currently, there's always only one, but that will change.
+Initialize the hv_ops function pointers using C99 style. However, we
+need to re-init the 'put_chars' field to our implementation in the
+probe() routine as we replace it for early_init to use the caller's
+put_chars implementation.
 
-Hey Rusty,
+Signed-off-by: Amit Shah <amit.shah@redhat.com>
+---
+ drivers/char/virtio_console.c |   50 ++++++++++++++++++++++++----------------
+ 1 files changed, 30 insertions(+), 20 deletions(-)
 
->  static void virtcons_apply_config(struct virtio_device *dev)
->  {
-> -	struct port *port = dev->priv;
-> +	struct ports *ports = dev->priv;
->  	struct winsize ws;
->  
->  	if (virtio_has_feature(dev, VIRTIO_CONSOLE_F_SIZE)) {
-> @@ -158,7 +168,9 @@ static void virtcons_apply_config(struct
->  		dev->config->get(dev,
->  				 offsetof(struct virtio_console_config, rows),
->  				 &ws.ws_row, sizeof(u16));
-> -		hvc_resize(port->hvc, ws);
-> +		/* This is the pre-multiport style: we use control messages
-> +		 * these days which specify the port.  So this means port 0. */
-> +		hvc_resize(ports->port[0].hvc, ws);
-
-I've fixed a bug in the latest patches that I have (just on git so far;
-not sent to lists) -- this function is also called from hvc's
-notifier_add, so instead of passing vdev here, we can just pass the port
-and look up the port in the notifier_add_vio() function via
-get_port_from_vtermno().
-
-> -static struct port *__devinit alloc_port(u32 vtermno)
-> +static struct ports *__devinit alloc_ports(unsigned int num)
-
-This will have to be changed when we add support for hotplug. So instead
-of doing this, just have a linked list from the start?
-
->  {
-> -	struct port *port = kmalloc(sizeof *port, GFP_KERNEL);
-> +	struct ports *ports;
-> +	int i;
->  
-> -	if (!port)
-> +	ports = kmalloc(sizeof *ports + sizeof(ports->port[0]) * num,
-> +			GFP_KERNEL);
-> +	if (!ports)
->  		return NULL;
-
-
-Other than this, the series is good; I can base my patches on top of
-these.
-
-I guess we can also assign a number to each vdev that gets probed so
-that sysfs and debugfs entries for ports can be put in their
-vdev-specific directories, like
-
-/sys/class/virtio-console0/vcon0/name
-
-etc.
-
-Also, if you think the send/receive workqueues are fine and we move to
-those, they will have to be introduced slightly earlier in this patch
-series.
-
-(I'll send out my patches to the list in a while; some polishing is
-required still but they're all style issues rather than functionality
-ones.)
-
-		Amit
+diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
+index a035ae3..e5284a9 100644
+--- a/drivers/char/virtio_console.c
++++ b/drivers/char/virtio_console.c
+@@ -43,9 +43,6 @@ static struct virtio_device *vdev;
+ static unsigned int in_len;
+ static char *in, *inbuf;
+ 
+-/* The operations for our console. */
+-static struct hv_ops virtio_cons;
+-
+ /* The hvc device */
+ static struct hvc_struct *hvc;
+ 
+@@ -125,18 +122,6 @@ static int get_chars(u32 vtermno, char *buf, int count)
+ }
+ /*:*/
+ 
+-/*D:320 Console drivers are initialized very early so boot messages can go out,
+- * so we do things slightly differently from the generic virtio initialization
+- * of the net and block drivers.
+- *
+- * At this stage, the console is output-only.  It's too early to set up a
+- * virtqueue, so we let the drivers do some boutique early-output thing. */
+-int __init virtio_cons_early_init(int (*put_chars)(u32, const char *, int))
+-{
+-	virtio_cons.put_chars = put_chars;
+-	return hvc_instantiate(0, 0, &virtio_cons);
+-}
+-
+ /*
+  * virtio console configuration. This supports:
+  * - console resize
+@@ -173,6 +158,30 @@ static void notifier_del_vio(struct hvc_struct *hp, int data)
+ 	hp->irq_requested = 0;
+ }
+ 
++/* The operations for our console. */
++static struct hv_ops virtio_cons = {
++	.get_chars = get_chars,
++	.put_chars = put_chars,
++	.notifier_add = notifier_add_vio,
++	.notifier_del = notifier_del_vio,
++	.notifier_hangup = notifier_del_vio,
++};
++
++/*D:320
++ * Console drivers are initialized very early so boot messages can go
++ * out, so we do things slightly differently from the generic virtio
++ * initialization of the net and block drivers.
++ *
++ * At this stage, the console is output-only.  It's too early to set
++ * up a virtqueue, so we let the drivers do some boutique early-output
++ * thing.
++ */
++int __init virtio_cons_early_init(int (*put_chars)(u32, const char *, int))
++{
++	virtio_cons.put_chars = put_chars;
++	return hvc_instantiate(0, 0, &virtio_cons);
++}
++
+ static void hvc_handle_input(struct virtqueue *vq)
+ {
+ 	if (hvc_poll(hvc))
+@@ -212,12 +221,13 @@ static int __devinit virtcons_probe(struct virtio_device *dev)
+ 	in_vq = vqs[0];
+ 	out_vq = vqs[1];
+ 
+-	/* Start using the new console output. */
+-	virtio_cons.get_chars = get_chars;
++	/*
++	 * We had set the virtio_cons ->put_chars implementation to an
++	 * architecture-provided put_chars for early_init. Now that
++	 * we're done with the early init phase, replace it with our
++	 * implementation.
++	 */
+ 	virtio_cons.put_chars = put_chars;
+-	virtio_cons.notifier_add = notifier_add_vio;
+-	virtio_cons.notifier_del = notifier_del_vio;
+-	virtio_cons.notifier_hangup = notifier_del_vio;
+ 
+ 	/* The first argument of hvc_alloc() is the virtual console number, so
+ 	 * we use zero.  The second argument is the parameter for the
+-- 
+1.6.2.5
