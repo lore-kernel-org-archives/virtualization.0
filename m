@@ -1,15 +1,13 @@
-From: Anthony Liguori <aliguori@us.ibm.com>
-Subject: Re: virtio: Add memory statistics reporting to the balloon driver
-Date: Tue, 10 Nov 2009 18:07:56 -0600
-Message-ID: <4AFA005C.7020607__18116.9228432283$1257898162$gmane$org@us.ibm.com>
-References: <1257782838.2835.5.camel@aglitke>
-	<200911101312.02650.rusty@rustcorp.com.au>	<4AF9E0AA.8040100@us.ibm.com>
-	<200911111032.14956.rusty@rustcorp.com.au>
+From: Paul Brook <paul@codesourcery.com>
+Subject: Re: [Qemu-devel] [PATCH 0/4] megaraid_sas HBA emulation
+Date: Wed, 11 Nov 2009 01:49:05 +0000
+Message-ID: <200911110149.05626.paul__3992.22190394557$1257904206$gmane$org@codesourcery.com>
+References: <4AE71116.6080809@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <200911111032.14956.rusty@rustcorp.com.au>
+In-Reply-To: <4AE71116.6080809@suse.de>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,61 +17,17 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, agl@linux.vnet.ibm.com, qemu-devel@nongnu.org, Avi Kivity <avi@redhat.com>
+To: qemu-devel@nongnu.org
+Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Rusty Russell wrote:
-> On Wed, 11 Nov 2009 08:22:42 am Anthony Liguori wrote:
->   
->> Rusty Russell wrote:
->>     
->>> On Tue, 10 Nov 2009 03:02:06 am Adam Litke wrote:
->>>   
->>>       
->>>> A simpler approach is to collect memory statistics in the virtio
->>>> balloon driver and communicate them to the host via the device config space.
->>>>     
->>>>         
->>> There are two issues I see with this.  First, there's an atomicity problem
->>> since you can't tell when the stats are consistent.  Second, polling is
->>> ugly.
->>>
->>> A stats vq might solve this more cleanly?
->>>   
->>>       
->> This turns out to not work so nicely.  You really need bidirectional 
->> communication.  You need to request that stats be collected and then you 
->> need to tell the hypervisor about the stats that were collected.  You 
->> don't need any real correlation between requests and stat reports either.
->>     
->
-> You register an outbuf at initialization time.  The host hands it back when
-> it wants you to refill it with stats.
->   
+> But I certainly do _not_ want to update the SCSI disk
+> emulation, as this is really quite tied to the SCSI parallel
+> interface used by the old lsi53c895a.c.
 
-That's strangely backwards.  Guest send a stat buffer that's filled out, 
-host acks it when it wants another.  That doesn't seem bizarre to you?
+This is completely untrue. scsi-disk.c contains no transport-specific code. It 
+is deliberately designed to be independent of both the transport (e.g. 
+parallel SCSI or USB) and the mechanism by which the initiator transfers data 
+to the host.
 
->> This really models how target/actual work and I think it suggests that 
->> we want to reuse that mechanism for the stats too.
->>     
->
-> Sure, I want to.  You want to.  It's simple.
->
-> But the universe is remarkably indifferent to what we want.  Is it actually
-> sufficient or are we going to regret our laziness?
->   
-
-It's not laziness, it's consistency.  How is actual different than free 
-memory or any other stat?
-
-> Cheers,
-> Rusty.
->   
-
-
--- 
-Regards,
-
-Anthony Liguori
+Paul
