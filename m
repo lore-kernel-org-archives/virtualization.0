@@ -1,15 +1,19 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: virtio: Add memory statistics reporting to the balloon driver
-Date: Wed, 11 Nov 2009 13:13:23 +1030
-Message-ID: <200911111313.24226.rusty__45325.3764463172$1257907564$gmane$org@rustcorp.com.au>
+From: Jamie Lokier <jamie@shareable.org>
+Subject: Re: [Qemu-devel] Re: virtio: Add memory statistics reporting to the
+	balloon driver
+Date: Wed, 11 Nov 2009 09:24:09 +0000
+Message-ID: <20091111092409.GA24646__35724.0849909887$1257931544$gmane$org@shareable.org>
 References: <1257782838.2835.5.camel@aglitke>
-	<200911111032.14956.rusty@rustcorp.com.au>
-	<4AFA005C.7020607@us.ibm.com>
+	<1257784326.2835.16.camel@aglitke>
+	<200911101312.02650.rusty@rustcorp.com.au>
+	<4AF97A5E.1070801@codemonkey.ws> <4AF97C1A.2080609@redhat.com>
+	<4AF97F93.2080707@us.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4AFA005C.7020607@us.ibm.com>
+Content-Disposition: inline
+In-Reply-To: <4AF97F93.2080707@us.ibm.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,40 +24,37 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Anthony Liguori <aliguori@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, agl@linux.vnet.ibm.com, qemu-devel@nongnu.org, Avi Kivity <avi@redhat.com>
+Cc: agl@linux.vnet.ibm.com, qemu-devel@nongnu.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Avi Kivity <avi@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 11 Nov 2009 10:37:56 am Anthony Liguori wrote:
-> Rusty Russell wrote:
-> > You register an outbuf at initialization time.  The host hands it back when
-> > it wants you to refill it with stats.
+Anthony Liguori wrote:
+> Avi Kivity wrote:
+> >On 11/10/2009 04:36 PM, Anthony Liguori wrote:
+> >>
+> >>>A stats vq might solve this more cleanly?
+> >>
+> >>actual and target are both really just stats.  Had we implemented 
+> >>those with a vq, I'd be inclined to agree with you but since they're 
+> >>implemented in the config space, it seems natural to extend the 
+> >>config space with other stats.
+> >>
+> >
+> >There is in fact a difference; actual and target are very rarely 
+> >updated, while the stats are updated very often.  Using a vq means a 
+> >constant number of exits per batch instead of one exit per statistic.  
+> >If the vq is host-driven, it also allows the host to control the 
+> >update frequency dynamically (i.e. stop polling when there is no 
+> >memory pressure).
 > 
-> That's strangely backwards.  Guest send a stat buffer that's filled out, 
-> host acks it when it wants another.  That doesn't seem bizarre to you?
+> I'm not terribly opposed to using a vq for this.  I would expect the 
+> stat update interval to be rather long (10s probably) but a vq works 
+> just as well.
 
-Yep!  But that's a limitation of our brains, not the infrastructure ;)
+If there's no memory pressure and no guest activity, you probably want
+the stat update to be as rare as possible to avoid wakeups.  Save
+power on laptops, that sort of thing.
 
-Think of the stats as an infinite stream of data.  Read from it at your
-leisure.  This is how, for example, console output works.
+If there's a host user interested in the state ("qemutop?"), you may
+want updates more often than 10s.
 
-> > But the universe is remarkably indifferent to what we want.  Is it actually
-> > sufficient or are we going to regret our laziness?
-> 
-> It's not laziness, it's consistency.  How is actual different than free 
-> memory or any other stat?
-
-Because it's a COLLECTION of stats.  For example, swap in should be < swap
-out.  Now, the current Linux implementation of all_vm_events() is non-atomic
-anyway, so maybe we can just document this as best-effort.  I'm saying that
-if it *is* a problem, I think we need a vq.
-
-But it raises the question: what stats are generally useful cross-OS?  Should
-we be supplying numbers like "unused" (free) "instantly discardable" (ie.
-clean), "discardable to disk" (ie. file-backed), "discardable to swap"
-(ie. swap-backed) and "unswappable" instead?
-
-(I just made those up, of course, but it seems like that would give a fair
-indication of real memory pressure in any OS).
-
-Thanks,
-Rusty.
+-- Jamie
