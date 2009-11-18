@@ -1,13 +1,14 @@
-From: Alexander Graf <agraf@suse.de>
-Subject: [PATCH 3/3] Split the KVM pv-ops support by feature
-Date: Wed, 18 Nov 2009 01:13:12 +0100
-Message-ID: <1258503192-14246-4-git-send-email-agraf__13130.0346031368$1258503292$gmane$org@suse.de>
-References: <1258503192-14246-1-git-send-email-agraf@suse.de>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: virtio: Add memory statistics reporting to the balloon driver (V2)
+Date: Wed, 18 Nov 2009 12:00:39 +1030
+Message-ID: <200911181200.39971.rusty__43695.316653657$1258507980$gmane$org@rustcorp.com.au>
+References: <1258488996.2820.35.camel@aglitke>
+	<1258490189.2820.37.camel@aglitke>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1258503192-14246-1-git-send-email-agraf@suse.de>
+In-Reply-To: <1258490189.2820.37.camel@aglitke>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -17,132 +18,44 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: kvm list <kvm@vger.kernel.org>
-Cc: Nick Piggin <npiggin@suse.de>, Glauber Costa <glommer@redhat.com>, Avi Kivity <avi@redhat.com>, virtualization@lists.linux-foundation.org
+To: Adam Litke <agl@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, Anthony Liguori <aliguori@us.ibm.com>, virtualization@lists.linux-foundation.org, qemu-devel@nongnu.org, Avi Kivity <avi@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Currently selecting KVM guest support enabled multiple features at once that
-not everyone necessarily wants to have, namely:
+On Wed, 18 Nov 2009 07:06:29 am Adam Litke wrote:
+> virtio: Add memory statistics reporting to the balloon driver (V2)
+> 
+> Changes since V1:
+>  - Use a virtqueue instead of the device config space
 
- - PV MMU
- - zero io delay
- - apic detection workaround
+Hi Adam,
 
-Let's split them off so we don't drag in the full pv-ops framework just to
-detect we're running on KVM. That gives us more chances to tweak performance!
+    If Anthony's happy, I'm happy with this approach.
 
-Signed-off-by: Alexander Graf <agraf@suse.de>
----
- arch/x86/Kconfig      |   29 ++++++++++++++++++++++++++++-
- arch/x86/kernel/kvm.c |   22 +++++++++++++++-------
- 2 files changed, 43 insertions(+), 8 deletions(-)
+Couple of minor points:
 
-diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
-index 8c150b6..97d4f92 100644
---- a/arch/x86/Kconfig
-+++ b/arch/x86/Kconfig
-@@ -522,11 +522,38 @@ config KVM_CLOCK
- 
- config KVM_GUEST
- 	bool "KVM Guest support"
--	select PARAVIRT_ALL
-+	select PARAVIRT
- 	---help---
- 	  This option enables various optimizations for running under the KVM
- 	  hypervisor.
- 
-+config KVM_IODELAY
-+	bool "KVM IO-delay support"
-+	depends on KVM_GUEST
-+	select PARAVIRT_CPU
-+	---help---
-+	  Usually we wait for PIO access to complete. When inside KVM there's
-+	  no need to do that, as we know that we're not going through a bus,
-+	  but process PIO requests instantly.
-+
-+	  This option disables PIO waits, but drags in CPU-bound pv-ops. Thus
-+	  you will probably get more speed loss than speedup using this option.
-+
-+	  If in doubt, say N.
-+
-+config KVM_MMU
-+	bool "KVM PV MMU support"
-+	depends on KVM_GUEST
-+	select PARAVIRT_MMU
-+	---help---
-+	  This option enables the paravirtualized MMU for KVM. In most cases
-+	  it's pretty useless and shouldn't be used.
-+
-+	  It will only cost you performance, because it drags in pv-ops for
-+	  memory management.
-+
-+	  If in doubt, say N.
-+
- source "arch/x86/lguest/Kconfig"
- 
- config PARAVIRT
-diff --git a/arch/x86/kernel/kvm.c b/arch/x86/kernel/kvm.c
-index 63b0ec8..7e0207f 100644
---- a/arch/x86/kernel/kvm.c
-+++ b/arch/x86/kernel/kvm.c
-@@ -29,6 +29,16 @@
- #include <linux/hardirq.h>
- #include <asm/timer.h>
- 
-+#ifdef CONFIG_KVM_IODELAY
-+/*
-+ * No need for any "IO delay" on KVM
-+ */
-+static void kvm_io_delay(void)
-+{
-+}
-+#endif  /* CONFIG_KVM_IODELAY */
-+
-+#ifdef CONFIG_KVM_MMU
- #define MMU_QUEUE_SIZE 1024
- 
- struct kvm_para_state {
-@@ -43,13 +53,6 @@ static struct kvm_para_state *kvm_para_state(void)
- 	return &per_cpu(para_state, raw_smp_processor_id());
- }
- 
--/*
-- * No need for any "IO delay" on KVM
-- */
--static void kvm_io_delay(void)
--{
--}
--
- static void kvm_mmu_op(void *buffer, unsigned len)
- {
- 	int r;
-@@ -194,15 +197,19 @@ static void kvm_leave_lazy_mmu(void)
- 	mmu_queue_flush(state);
- 	paravirt_leave_lazy_mmu();
- }
-+#endif  /* CONFIG_KVM_MMU */
- 
- static void __init paravirt_ops_setup(void)
- {
- 	pv_info.name = "KVM";
- 	pv_info.paravirt_enabled = 1;
- 
-+#ifdef CONFIG_KVM_IODELAY
- 	if (kvm_para_has_feature(KVM_FEATURE_NOP_IO_DELAY))
- 		pv_cpu_ops.io_delay = kvm_io_delay;
-+#endif
- 
-+#ifdef CONFIG_KVM_MMU
- 	if (kvm_para_has_feature(KVM_FEATURE_MMU_OP)) {
- 		pv_mmu_ops.set_pte = kvm_set_pte;
- 		pv_mmu_ops.set_pte_at = kvm_set_pte_at;
-@@ -226,6 +233,7 @@ static void __init paravirt_ops_setup(void)
- 		pv_mmu_ops.lazy_mode.enter = kvm_enter_lazy_mmu;
- 		pv_mmu_ops.lazy_mode.leave = kvm_leave_lazy_mmu;
- 	}
-+#endif  /* CONFIG_KVM_MMU */
- #ifdef CONFIG_X86_IO_APIC
- 	no_timer_check = 1;
- #endif
--- 
-1.6.0.2
+> +static inline void update_stat(struct virtio_balloon *vb, int idx,
+> +				unsigned int tag, unsigned long val)
+> +{
+> +	BUG_ON(idx >= VIRTIO_BALLOON_S_NR);
+> +	vb->stats[idx].tag = tag;
+> +	vb->stats[idx].val = cpu_to_le32(val);
+> +}
+
+The little-endian conversion of the balloon driver is a historical mistake
+(no other driver does this).  Let's not extend it to the stats.
+
+Here you've done one and not the other, which is even worse.  (Sparse would
+have found this, I assume).
+
+> +struct virtio_balloon_stat
+> +{
+> +	__le16 tag;
+> +	__le32 val;
+> +};
+
+Is 32 bits sufficient?  A big machine might get over 4bn faults, and certainly
+4 TB of memory isn't that far away.
+
+Thanks,
+Rusty.
