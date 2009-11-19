@@ -1,14 +1,13 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [PATCH 1/3] Split paravirt ops by functionality
-Date: Thu, 19 Nov 2009 22:59:49 +0800
-Message-ID: <4B055D65.2000201__35877.4689994336$1258642854$gmane$org@goop.org>
-References: <1258503192-14246-1-git-send-email-agraf@suse.de>
-	<1258503192-14246-2-git-send-email-agraf@suse.de>
+From: Adam Litke <agl@us.ibm.com>
+Subject: virtio: Add memory statistics reporting to the balloon driver (V3)
+Date: Thu, 19 Nov 2009 09:19:05 -0600
+Message-ID: <1258643945.3464.5.camel__21134.0865157128$1258644023$gmane$org@aglitke>
+References: <1258643169.3464.3.camel@aglitke>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1258503192-14246-2-git-send-email-agraf@suse.de>
+In-Reply-To: <1258643169.3464.3.camel@aglitke>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,841 +17,214 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Alexander Graf <agraf@suse.de>
-Cc: Nick Piggin <npiggin@suse.de>, Glauber Costa <glommer@redhat.com>, Avi Kivity <avi@redhat.com>, kvm list <kvm@vger.kernel.org>, virtualization@lists.linux-foundation.org
+To: Anthony Liguori <aliguori@us.ibm.com>, Rusty Russell <rusty@rustcorp.com.au>
+Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, qemu-devel@nongnu.org, Avi Kivity <avi@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 11/18/09 08:13, Alexander Graf wrote:
-> Currently when using paravirt ops it's an all-or-nothing option. We can either
-> use pv-ops for CPU, MMU, timing, etc. or not at all.
->
-> Now there are some use cases where we don't need the full feature set, but only
-> a small chunk of it. KVM is a pretty prominent example for this.
->
-> So let's make everything a bit more fine-grained. We already have a splitting
-> by function groups, namely "cpu", "mmu", "time", "irq", "apic" and "spinlock".
->
-> Taking that existing splitting and extending it to only compile in the PV
-> capable bits sounded like a natural fit. That way we don't get performance hits
-> in MMU code from using the KVM PV clock which only needs the TIME parts of
-> pv-ops.
->
-> We define a new CONFIG_PARAVIRT_ALL option that basically does the same thing
-> the CONFIG_PARAVIRT did before this splitting. We move all users of
-> CONFIG_PARAVIRT to CONFIG_PARAVIRT_ALL, so they behave the same way they did
-> before.
->
-> So here it is - the splitting! I would have made the patch smaller, but this
-> was the closest I could get to atomic (for bisect) while staying sane.
->   
+Rusty and Anthony,
+If I've addressed all outstanding issues, please consider this patch for
+inclusion.  Thanks.
 
-The basic idea seems pretty sane.  I'm wondering how much compile test
-coverage you've given all these extra config options; there are now a
-lot more combinations, and your use of select is particularly worrying
-because they don't propagate dependencies properly.
+Changes since V2:
+ - Increase stat field size to 64 bits
+ - Report all sizes in kb (not pages)
+ - Drop anon_pages stat and fix endianness conversion
 
-For example, does this actually work?
->  config XEN
->  	bool "Xen guest support"
-> -	select PARAVIRT
-> +	select PARAVIRT_ALL
->  	select PARAVIRT_CLOCK
->  	depends on X86_64 || (X86_32 && X86_PAE && !X86_VISWS)
->  	depends on X86_CMPXCHG && X86_TSC
->   
-Does selecting PARAVIRT_ALL end up selecting all the other PARAVIRT_*?
+Changes since V1:
+ - Use a virtqueue instead of the device config space
 
-Can you reassure me?
+When using ballooning to manage overcommitted memory on a host, a system for
+guests to communicate their memory usage to the host can provide information
+that will minimize the impact of ballooning on the guests.  The current method
+employs a daemon running in each guest that communicates memory statistics to a
+host daemon at a specified time interval.  The host daemon aggregates this
+information and inflates and/or deflates balloons according to the level of
+host memory pressure.  This approach is effective but overly complex since a
+daemon must be installed inside each guest and coordinated to communicate with
+the host.  A simpler approach is to collect memory statistics in the virtio
+balloon driver and communicate them directly to the hypervisor.
 
-Also, I think VMI is the only serious user of PARAVIRT_APIC, so we can
-mark that to go when VMI does.
+This patch enables the guest-side support by adding stats collection and
+reporting to the virtio balloon driver.
 
-What ends up using plain CONFIG_PARAVIRT?  Do we still need it?
+Signed-off-by: Adam Litke <agl@us.ibm.com>
+Cc: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Anthony Liguori <anthony@codemonkey.ws>
+Cc: virtualization@lists.linux-foundation.org
+Cc: linux-kernel@vger.kernel.org
 
-    J
+diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+index 200c22f..ebc9d39 100644
+--- a/drivers/virtio/virtio_balloon.c
++++ b/drivers/virtio/virtio_balloon.c
+@@ -29,7 +29,7 @@
+ struct virtio_balloon
+ {
+ 	struct virtio_device *vdev;
+-	struct virtqueue *inflate_vq, *deflate_vq;
++	struct virtqueue *inflate_vq, *deflate_vq, *stats_vq;
+ 
+ 	/* Where the ballooning thread waits for config to change. */
+ 	wait_queue_head_t config_change;
+@@ -50,6 +50,9 @@ struct virtio_balloon
+ 	/* The array of pfns we tell the Host about. */
+ 	unsigned int num_pfns;
+ 	u32 pfns[256];
++
++	/* Memory statistics */
++	struct virtio_balloon_stat stats[VIRTIO_BALLOON_S_NR];
+ };
+ 
+ static struct virtio_device_id id_table[] = {
+@@ -155,6 +158,57 @@ static void leak_balloon(struct virtio_balloon *vb, size_t num)
+ 	}
+ }
+ 
++static inline void update_stat(struct virtio_balloon *vb, int idx,
++				__le16 tag, __le64 val)
++{
++	BUG_ON(idx >= VIRTIO_BALLOON_S_NR);
++	vb->stats[idx].tag = cpu_to_le16(tag);
++	vb->stats[idx].val = cpu_to_le64(val);
++}
++
++#define K(x) ((x) << (PAGE_SHIFT - 10))
++static void update_balloon_stats(struct virtio_balloon *vb)
++{
++	unsigned long events[NR_VM_EVENT_ITEMS];
++	struct sysinfo i;
++	int idx = 0;
++
++	all_vm_events(events);
++	si_meminfo(&i);
++
++	update_stat(vb, idx++, VIRTIO_BALLOON_S_SWAP_IN, K(events[PSWPIN]));
++	update_stat(vb, idx++, VIRTIO_BALLOON_S_SWAP_OUT, K(events[PSWPOUT]));
++	update_stat(vb, idx++, VIRTIO_BALLOON_S_MAJFLT, events[PGMAJFAULT]);
++	update_stat(vb, idx++, VIRTIO_BALLOON_S_MINFLT, events[PGFAULT]);
++	update_stat(vb, idx++, VIRTIO_BALLOON_S_MEMFREE, K(i.freeram));
++	update_stat(vb, idx++, VIRTIO_BALLOON_S_MEMTOT, K(i.totalram));
++}
++
++/*
++ * While most virtqueues communicate guest-initiated requests to the hypervisor,
++ * the stats queue operates in reverse.  The driver initializes the virtqueue
++ * with a single buffer.  From that point forward, all conversations consist of
++ * a hypervisor request (a call to this function) which directs us to refill
++ * the virtqueue with a fresh stats buffer.
++ */
++static void stats_ack(struct virtqueue *vq)
++{
++	struct virtio_balloon *vb;
++	unsigned int len;
++	struct scatterlist sg;
++
++	vb = vq->vq_ops->get_buf(vq, &len);
++	if (!vb)
++		return;
++
++	update_balloon_stats(vb);
++
++	sg_init_one(&sg, vb->stats, sizeof(vb->stats));
++	if (vq->vq_ops->add_buf(vq, &sg, 1, 0, vb) < 0)
++		BUG();
++	vq->vq_ops->kick(vq);
++}
++
+ static void virtballoon_changed(struct virtio_device *vdev)
+ {
+ 	struct virtio_balloon *vb = vdev->priv;
+@@ -205,10 +259,10 @@ static int balloon(void *_vballoon)
+ static int virtballoon_probe(struct virtio_device *vdev)
+ {
+ 	struct virtio_balloon *vb;
+-	struct virtqueue *vqs[2];
+-	vq_callback_t *callbacks[] = { balloon_ack, balloon_ack };
+-	const char *names[] = { "inflate", "deflate" };
+-	int err;
++	struct virtqueue *vqs[3];
++	vq_callback_t *callbacks[] = { balloon_ack, balloon_ack, stats_ack };
++	const char *names[] = { "inflate", "deflate", "stats" };
++	int err, nvqs;
+ 
+ 	vdev->priv = vb = kmalloc(sizeof(*vb), GFP_KERNEL);
+ 	if (!vb) {
+@@ -221,13 +275,28 @@ static int virtballoon_probe(struct virtio_device *vdev)
+ 	init_waitqueue_head(&vb->config_change);
+ 	vb->vdev = vdev;
+ 
+-	/* We expect two virtqueues. */
+-	err = vdev->config->find_vqs(vdev, 2, vqs, callbacks, names);
++	/* We expect two virtqueues: inflate and deflate,
++	 * and optionally stat. */
++	nvqs = virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_STATS_VQ) ? 3 : 2;
++	err = vdev->config->find_vqs(vdev, nvqs, vqs, callbacks, names);
+ 	if (err)
+ 		goto out_free_vb;
+ 
+ 	vb->inflate_vq = vqs[0];
+ 	vb->deflate_vq = vqs[1];
++	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_STATS_VQ)) {
++		struct scatterlist sg;
++		vb->stats_vq = vqs[2];
++
++		/*
++		 * Prime this virtqueue with one buffer so the hypervisor can
++		 * use it to signal us later.
++		 */
++		sg_init_one(&sg, vb->stats, sizeof(vb->stats));
++		if (vb->stats_vq->vq_ops->add_buf(vb->stats_vq, &sg, 1, 0, vb) < 0)
++			BUG();
++		vb->stats_vq->vq_ops->kick(vb->stats_vq);
++	}
+ 
+ 	vb->thread = kthread_run(balloon, vb, "vballoon");
+ 	if (IS_ERR(vb->thread)) {
+@@ -265,7 +334,9 @@ static void virtballoon_remove(struct virtio_device *vdev)
+ 	kfree(vb);
+ }
+ 
+-static unsigned int features[] = { VIRTIO_BALLOON_F_MUST_TELL_HOST };
++static unsigned int features[] = {
++	VIRTIO_BALLOON_F_MUST_TELL_HOST, VIRTIO_BALLOON_F_STATS_VQ,
++};
+ 
+ static struct virtio_driver virtio_balloon = {
+ 	.feature_table = features,
+diff --git a/include/linux/virtio_balloon.h b/include/linux/virtio_balloon.h
+index 09d7300..a5c09e6 100644
+--- a/include/linux/virtio_balloon.h
++++ b/include/linux/virtio_balloon.h
+@@ -6,6 +6,7 @@
+ 
+ /* The feature bitmap for virtio balloon */
+ #define VIRTIO_BALLOON_F_MUST_TELL_HOST	0 /* Tell before reclaiming pages */
++#define VIRTIO_BALLOON_F_STATS_VQ 1 /* Memory Stats virtqueue */
+ 
+ /* Size of a PFN in the balloon interface. */
+ #define VIRTIO_BALLOON_PFN_SHIFT 12
+@@ -17,4 +18,19 @@ struct virtio_balloon_config
+ 	/* Number of pages we've actually got in balloon. */
+ 	__le32 actual;
+ };
++
++#define VIRTIO_BALLOON_S_SWAP_IN  0   /* Amount of memory swapped in */
++#define VIRTIO_BALLOON_S_SWAP_OUT 1   /* Amount of memory swapped out */
++#define VIRTIO_BALLOON_S_MAJFLT   2   /* Number of major faults */
++#define VIRTIO_BALLOON_S_MINFLT   3   /* Number of minor faults */
++#define VIRTIO_BALLOON_S_MEMFREE  4   /* Total amount of free memory */
++#define VIRTIO_BALLOON_S_MEMTOT   5   /* Total amount of memory */
++#define VIRTIO_BALLOON_S_NR       6
++
++struct virtio_balloon_stat
++{
++	__le16 tag;
++	__le64 val;
++};
++
+ #endif /* _LINUX_VIRTIO_BALLOON_H */
 
-> Signed-off-by: Alexander Graf <agraf@suse.de>
-> ---
->  arch/x86/Kconfig                            |   47 ++++++++++++++++++++++++--
->  arch/x86/include/asm/apic.h                 |    2 +-
->  arch/x86/include/asm/desc.h                 |    4 +-
->  arch/x86/include/asm/fixmap.h               |    2 +-
->  arch/x86/include/asm/highmem.h              |    2 +-
->  arch/x86/include/asm/io_32.h                |    4 ++-
->  arch/x86/include/asm/io_64.h                |    2 +-
->  arch/x86/include/asm/irqflags.h             |   21 +++++++++---
->  arch/x86/include/asm/mmu_context.h          |    4 +-
->  arch/x86/include/asm/msr.h                  |    4 +-
->  arch/x86/include/asm/paravirt.h             |   44 ++++++++++++++++++++++++-
->  arch/x86/include/asm/paravirt_types.h       |   12 +++++++
->  arch/x86/include/asm/pgalloc.h              |    2 +-
->  arch/x86/include/asm/pgtable-3level_types.h |    2 +-
->  arch/x86/include/asm/pgtable.h              |    2 +-
->  arch/x86/include/asm/processor.h            |    2 +-
->  arch/x86/include/asm/required-features.h    |    2 +-
->  arch/x86/include/asm/smp.h                  |    2 +-
->  arch/x86/include/asm/system.h               |   13 +++++--
->  arch/x86/include/asm/tlbflush.h             |    4 +-
->  arch/x86/kernel/head_64.S                   |    2 +-
->  arch/x86/kernel/paravirt.c                  |    2 +
->  arch/x86/kernel/tsc.c                       |    2 +-
->  arch/x86/kernel/vsmp_64.c                   |    2 +-
->  arch/x86/xen/Kconfig                        |    2 +-
->  25 files changed, 149 insertions(+), 38 deletions(-)
->
-> diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
-> index 0c7b699..8c150b6 100644
-> --- a/arch/x86/Kconfig
-> +++ b/arch/x86/Kconfig
-> @@ -350,7 +350,7 @@ endif
->  
->  config X86_VSMP
->  	bool "ScaleMP vSMP"
-> -	select PARAVIRT
-> +	select PARAVIRT_ALL
->  	depends on X86_64 && PCI
->  	depends on X86_EXTENDED_PLATFORM
->  	---help---
-> @@ -493,7 +493,7 @@ source "arch/x86/xen/Kconfig"
->  
->  config VMI
->  	bool "VMI Guest support (DEPRECATED)"
-> -	select PARAVIRT
-> +	select PARAVIRT_ALL
->  	depends on X86_32
->  	---help---
->  	  VMI provides a paravirtualized interface to the VMware ESX server
-> @@ -512,7 +512,6 @@ config VMI
->  
->  config KVM_CLOCK
->  	bool "KVM paravirtualized clock"
-> -	select PARAVIRT
->  	select PARAVIRT_CLOCK
->  	---help---
->  	  Turning on this option will allow you to run a paravirtualized clock
-> @@ -523,7 +522,7 @@ config KVM_CLOCK
->  
->  config KVM_GUEST
->  	bool "KVM Guest support"
-> -	select PARAVIRT
-> +	select PARAVIRT_ALL
->  	---help---
->  	  This option enables various optimizations for running under the KVM
->  	  hypervisor.
-> @@ -551,8 +550,48 @@ config PARAVIRT_SPINLOCKS
->  
->  	  If you are unsure how to answer this question, answer N.
->  
-> +config PARAVIRT_CPU
-> +	bool
-> +	select PARAVIRT
-> +	default n
-> +
-> +config PARAVIRT_TIME
-> +	bool
-> +	select PARAVIRT
-> +	default n
-> +
-> +config PARAVIRT_IRQ
-> +	bool
-> +	select PARAVIRT
-> +	default n
-> +
-> +config PARAVIRT_APIC
-> +	bool
-> +	select PARAVIRT
-> +	default n
-> +
-> +config PARAVIRT_MMU
-> +	bool
-> +	select PARAVIRT
-> +	default n
-> +
-> +#
-> +# This is a placeholder to activate the old "include all pv-ops functionality"
-> +# behavior. If you're using this I'd recommend looking through your code to see
-> +# if you can be more specific. It probably saves you a few cycles!
-> +#
-> +config PARAVIRT_ALL
-> +	bool
-> +	select PARAVIRT_CPU
-> +	select PARAVIRT_TIME
-> +	select PARAVIRT_IRQ
-> +	select PARAVIRT_APIC
-> +	select PARAVIRT_MMU
-> +	default n
-> +
->  config PARAVIRT_CLOCK
->  	bool
-> +	select PARAVIRT_TIME
->  	default n
->  
->  endif
-> diff --git a/arch/x86/include/asm/apic.h b/arch/x86/include/asm/apic.h
-> index 474d80d..b54c24a 100644
-> --- a/arch/x86/include/asm/apic.h
-> +++ b/arch/x86/include/asm/apic.h
-> @@ -81,7 +81,7 @@ static inline bool apic_from_smp_config(void)
->  /*
->   * Basic functions accessing APICs.
->   */
-> -#ifdef CONFIG_PARAVIRT
-> +#ifdef CONFIG_PARAVIRT_APIC
->  #include <asm/paravirt.h>
->  #endif
->  
-> diff --git a/arch/x86/include/asm/desc.h b/arch/x86/include/asm/desc.h
-> index e8de2f6..cf65891 100644
-> --- a/arch/x86/include/asm/desc.h
-> +++ b/arch/x86/include/asm/desc.h
-> @@ -78,7 +78,7 @@ static inline int desc_empty(const void *ptr)
->  	return !(desc[0] | desc[1]);
->  }
->  
-> -#ifdef CONFIG_PARAVIRT
-> +#ifdef CONFIG_PARAVIRT_CPU
->  #include <asm/paravirt.h>
->  #else
->  #define load_TR_desc() native_load_tr_desc()
-> @@ -108,7 +108,7 @@ static inline void paravirt_alloc_ldt(struct desc_struct *ldt, unsigned entries)
->  static inline void paravirt_free_ldt(struct desc_struct *ldt, unsigned entries)
->  {
->  }
-> -#endif	/* CONFIG_PARAVIRT */
-> +#endif	/* CONFIG_PARAVIRT_CPU */
->  
->  #define store_ldt(ldt) asm("sldt %0" : "=m"(ldt))
->  
-> diff --git a/arch/x86/include/asm/fixmap.h b/arch/x86/include/asm/fixmap.h
-> index 14f9890..5f29317 100644
-> --- a/arch/x86/include/asm/fixmap.h
-> +++ b/arch/x86/include/asm/fixmap.h
-> @@ -156,7 +156,7 @@ void __native_set_fixmap(enum fixed_addresses idx, pte_t pte);
->  void native_set_fixmap(enum fixed_addresses idx,
->  		       phys_addr_t phys, pgprot_t flags);
->  
-> -#ifndef CONFIG_PARAVIRT
-> +#ifndef CONFIG_PARAVIRT_MMU
->  static inline void __set_fixmap(enum fixed_addresses idx,
->  				phys_addr_t phys, pgprot_t flags)
->  {
-> diff --git a/arch/x86/include/asm/highmem.h b/arch/x86/include/asm/highmem.h
-> index 014c2b8..458d785 100644
-> --- a/arch/x86/include/asm/highmem.h
-> +++ b/arch/x86/include/asm/highmem.h
-> @@ -66,7 +66,7 @@ void *kmap_atomic_pfn(unsigned long pfn, enum km_type type);
->  void *kmap_atomic_prot_pfn(unsigned long pfn, enum km_type type, pgprot_t prot);
->  struct page *kmap_atomic_to_page(void *ptr);
->  
-> -#ifndef CONFIG_PARAVIRT
-> +#ifndef CONFIG_PARAVIRT_MMU
->  #define kmap_atomic_pte(page, type)	kmap_atomic(page, type)
->  #endif
->  
-> diff --git a/arch/x86/include/asm/io_32.h b/arch/x86/include/asm/io_32.h
-> index a299900..a263c6f 100644
-> --- a/arch/x86/include/asm/io_32.h
-> +++ b/arch/x86/include/asm/io_32.h
-> @@ -109,7 +109,9 @@ extern void io_delay_init(void);
->  
->  #if defined(CONFIG_PARAVIRT)
->  #include <asm/paravirt.h>
-> -#else
-> +#endif
-> +
-> +#ifndef CONFIG_PARAVIRT_CPU
->  
->  static inline void slow_down_io(void)
->  {
-> diff --git a/arch/x86/include/asm/io_64.h b/arch/x86/include/asm/io_64.h
-> index 2440678..82c6eae 100644
-> --- a/arch/x86/include/asm/io_64.h
-> +++ b/arch/x86/include/asm/io_64.h
-> @@ -40,7 +40,7 @@ extern void native_io_delay(void);
->  extern int io_delay_type;
->  extern void io_delay_init(void);
->  
-> -#if defined(CONFIG_PARAVIRT)
-> +#if defined(CONFIG_PARAVIRT_CPU)
->  #include <asm/paravirt.h>
->  #else
->  
-> diff --git a/arch/x86/include/asm/irqflags.h b/arch/x86/include/asm/irqflags.h
-> index 9e2b952..b8d8f4c 100644
-> --- a/arch/x86/include/asm/irqflags.h
-> +++ b/arch/x86/include/asm/irqflags.h
-> @@ -58,9 +58,11 @@ static inline void native_halt(void)
->  
->  #ifdef CONFIG_PARAVIRT
->  #include <asm/paravirt.h>
-> -#else
-> +#endif
-> +
->  #ifndef __ASSEMBLY__
->  
-> +#ifndef CONFIG_PARAVIRT_IRQ
->  static inline unsigned long __raw_local_save_flags(void)
->  {
->  	return native_save_fl();
-> @@ -110,12 +112,17 @@ static inline unsigned long __raw_local_irq_save(void)
->  
->  	return flags;
->  }
-> -#else
-> +#endif  /* CONFIG_PARAVIRT_IRQ */
-> +
-> +#else   /* __ASSEMBLY__ */
->  
-> +#ifndef CONFIG_PARAVIRT_IRQ
->  #define ENABLE_INTERRUPTS(x)	sti
->  #define DISABLE_INTERRUPTS(x)	cli
-> +#endif /* !CONFIG_PARAVIRT_IRQ */
->  
->  #ifdef CONFIG_X86_64
-> +#ifndef CONFIG_PARAVIRT_CPU
->  #define SWAPGS	swapgs
->  /*
->   * Currently paravirt can't handle swapgs nicely when we
-> @@ -128,8 +135,6 @@ static inline unsigned long __raw_local_irq_save(void)
->   */
->  #define SWAPGS_UNSAFE_STACK	swapgs
->  
-> -#define PARAVIRT_ADJUST_EXCEPTION_FRAME	/*  */
-> -
->  #define INTERRUPT_RETURN	iretq
->  #define USERGS_SYSRET64				\
->  	swapgs;					\
-> @@ -141,16 +146,22 @@ static inline unsigned long __raw_local_irq_save(void)
->  	swapgs;					\
->  	sti;					\
->  	sysexit
-> +#endif /* !CONFIG_PARAVIRT_CPU */
-> +
-> +#ifndef CONFIG_PARAVIRT_IRQ
-> +#define PARAVIRT_ADJUST_EXCEPTION_FRAME	/*  */
-> +#endif /* !CONFIG_PARAVIRT_IRQ */
->  
->  #else
-> +#ifndef CONFIG_PARAVIRT_CPU
->  #define INTERRUPT_RETURN		iret
->  #define ENABLE_INTERRUPTS_SYSEXIT	sti; sysexit
->  #define GET_CR0_INTO_EAX		movl %cr0, %eax
-> +#endif /* !CONFIG_PARAVIRT_CPU */
->  #endif
->  
->  
->  #endif /* __ASSEMBLY__ */
-> -#endif /* CONFIG_PARAVIRT */
->  
->  #ifndef __ASSEMBLY__
->  #define raw_local_save_flags(flags)				\
-> diff --git a/arch/x86/include/asm/mmu_context.h b/arch/x86/include/asm/mmu_context.h
-> index 4a2d4e0..a209e67 100644
-> --- a/arch/x86/include/asm/mmu_context.h
-> +++ b/arch/x86/include/asm/mmu_context.h
-> @@ -6,14 +6,14 @@
->  #include <asm/pgalloc.h>
->  #include <asm/tlbflush.h>
->  #include <asm/paravirt.h>
-> -#ifndef CONFIG_PARAVIRT
-> +#ifndef CONFIG_PARAVIRT_MMU
->  #include <asm-generic/mm_hooks.h>
->  
->  static inline void paravirt_activate_mm(struct mm_struct *prev,
->  					struct mm_struct *next)
->  {
->  }
-> -#endif	/* !CONFIG_PARAVIRT */
-> +#endif	/* !CONFIG_PARAVIRT_MMU */
->  
->  /*
->   * Used for LDT copy/destruction.
-> diff --git a/arch/x86/include/asm/msr.h b/arch/x86/include/asm/msr.h
-> index 7e2b6ba..80ec5a5 100644
-> --- a/arch/x86/include/asm/msr.h
-> +++ b/arch/x86/include/asm/msr.h
-> @@ -123,7 +123,7 @@ static inline unsigned long long native_read_pmc(int counter)
->  	return EAX_EDX_VAL(val, low, high);
->  }
->  
-> -#ifdef CONFIG_PARAVIRT
-> +#ifdef CONFIG_PARAVIRT_CPU
->  #include <asm/paravirt.h>
->  #else
->  #include <linux/errno.h>
-> @@ -234,7 +234,7 @@ do {                                                            \
->  
->  #define rdtscpll(val, aux) (val) = native_read_tscp(&(aux))
->  
-> -#endif	/* !CONFIG_PARAVIRT */
-> +#endif	/* !CONFIG_PARAVIRT_CPU */
->  
->  
->  #define checking_wrmsrl(msr, val) wrmsr_safe((msr), (u32)(val),		\
-> diff --git a/arch/x86/include/asm/paravirt.h b/arch/x86/include/asm/paravirt.h
-> index efb3899..e543098 100644
-> --- a/arch/x86/include/asm/paravirt.h
-> +++ b/arch/x86/include/asm/paravirt.h
-> @@ -18,6 +18,7 @@ static inline int paravirt_enabled(void)
->  	return pv_info.paravirt_enabled;
->  }
->  
-> +#ifdef CONFIG_PARAVIRT_CPU
->  static inline void load_sp0(struct tss_struct *tss,
->  			     struct thread_struct *thread)
->  {
-> @@ -58,7 +59,9 @@ static inline void write_cr0(unsigned long x)
->  {
->  	PVOP_VCALL1(pv_cpu_ops.write_cr0, x);
->  }
-> +#endif  /* CONFIG_PARAVIRT_CPU */
->  
-> +#ifdef CONFIG_PARAVIRT_MMU
->  static inline unsigned long read_cr2(void)
->  {
->  	return PVOP_CALL0(unsigned long, pv_mmu_ops.read_cr2);
-> @@ -78,7 +81,9 @@ static inline void write_cr3(unsigned long x)
->  {
->  	PVOP_VCALL1(pv_mmu_ops.write_cr3, x);
->  }
-> +#endif  /* CONFIG_PARAVIRT_MMU */
->  
-> +#ifdef CONFIG_PARAVIRT_CPU
->  static inline unsigned long read_cr4(void)
->  {
->  	return PVOP_CALL0(unsigned long, pv_cpu_ops.read_cr4);
-> @@ -92,8 +97,9 @@ static inline void write_cr4(unsigned long x)
->  {
->  	PVOP_VCALL1(pv_cpu_ops.write_cr4, x);
->  }
-> +#endif  /* CONFIG_PARAVIRT_CPU */
->  
-> -#ifdef CONFIG_X86_64
-> +#if defined(CONFIG_X86_64) && defined(CONFIG_PARAVIRT_CPU)
->  static inline unsigned long read_cr8(void)
->  {
->  	return PVOP_CALL0(unsigned long, pv_cpu_ops.read_cr8);
-> @@ -105,6 +111,7 @@ static inline void write_cr8(unsigned long x)
->  }
->  #endif
->  
-> +#ifdef CONFIG_PARAVIRT_IRQ
->  static inline void raw_safe_halt(void)
->  {
->  	PVOP_VCALL0(pv_irq_ops.safe_halt);
-> @@ -114,14 +121,18 @@ static inline void halt(void)
->  {
->  	PVOP_VCALL0(pv_irq_ops.safe_halt);
->  }
-> +#endif  /* CONFIG_PARAVIRT_IRQ */
->  
-> +#ifdef CONFIG_PARAVIRT_CPU
->  static inline void wbinvd(void)
->  {
->  	PVOP_VCALL0(pv_cpu_ops.wbinvd);
->  }
-> +#endif
->  
->  #define get_kernel_rpl()  (pv_info.kernel_rpl)
->  
-> +#ifdef CONFIG_PARAVIRT_CPU
->  static inline u64 paravirt_read_msr(unsigned msr, int *err)
->  {
->  	return PVOP_CALL2(u64, pv_cpu_ops.read_msr, msr, err);
-> @@ -224,12 +235,16 @@ do {						\
->  } while (0)
->  
->  #define rdtscll(val) (val = paravirt_read_tsc())
-> +#endif  /* CONFIG_PARAVIRT_CPU */
->  
-> +#ifdef CONFIG_PARAVIRT_TIME
->  static inline unsigned long long paravirt_sched_clock(void)
->  {
->  	return PVOP_CALL0(unsigned long long, pv_time_ops.sched_clock);
->  }
-> +#endif  /* CONFIG_PARAVIRT_TIME */
->  
-> +#ifdef CONFIG_PARAVIRT_CPU
->  static inline unsigned long long paravirt_read_pmc(int counter)
->  {
->  	return PVOP_CALL1(u64, pv_cpu_ops.read_pmc, counter);
-> @@ -345,8 +360,9 @@ static inline void slow_down_io(void)
->  	pv_cpu_ops.io_delay();
->  #endif
->  }
-> +#endif  /* CONFIG_PARAVIRT_CPU */
->  
-> -#ifdef CONFIG_SMP
-> +#if defined(CONFIG_SMP) && defined(CONFIG_PARAVIRT_APIC)
->  static inline void startup_ipi_hook(int phys_apicid, unsigned long start_eip,
->  				    unsigned long start_esp)
->  {
-> @@ -355,6 +371,7 @@ static inline void startup_ipi_hook(int phys_apicid, unsigned long start_eip,
->  }
->  #endif
->  
-> +#ifdef CONFIG_PARAVIRT_MMU
->  static inline void paravirt_activate_mm(struct mm_struct *prev,
->  					struct mm_struct *next)
->  {
-> @@ -698,7 +715,9 @@ static inline void pmd_clear(pmd_t *pmdp)
->  	set_pmd(pmdp, __pmd(0));
->  }
->  #endif	/* CONFIG_X86_PAE */
-> +#endif  /* CONFIG_PARAVIRT_MMU */
->  
-> +#ifdef CONFIG_PARAVIRT_CPU
->  #define  __HAVE_ARCH_START_CONTEXT_SWITCH
->  static inline void arch_start_context_switch(struct task_struct *prev)
->  {
-> @@ -709,7 +728,9 @@ static inline void arch_end_context_switch(struct task_struct *next)
->  {
->  	PVOP_VCALL1(pv_cpu_ops.end_context_switch, next);
->  }
-> +#endif  /* CONFIG_PARAVIRT_CPU */
->  
-> +#ifdef CONFIG_PARAVIRT_MMU
->  #define  __HAVE_ARCH_ENTER_LAZY_MMU_MODE
->  static inline void arch_enter_lazy_mmu_mode(void)
->  {
-> @@ -728,6 +749,7 @@ static inline void __set_fixmap(unsigned /* enum fixed_addresses */ idx,
->  {
->  	pv_mmu_ops.set_fixmap(idx, phys, flags);
->  }
-> +#endif  /* CONFIG_PARAVIRT_MMU */
->  
->  #if defined(CONFIG_SMP) && defined(CONFIG_PARAVIRT_SPINLOCKS)
->  
-> @@ -838,6 +860,7 @@ static __always_inline void __raw_spin_unlock(struct raw_spinlock *lock)
->  #define __PV_IS_CALLEE_SAVE(func)			\
->  	((struct paravirt_callee_save) { func })
->  
-> +#ifdef CONFIG_PARAVIRT_IRQ
->  static inline unsigned long __raw_local_save_flags(void)
->  {
->  	return PVOP_CALLEE0(unsigned long, pv_irq_ops.save_fl);
-> @@ -866,6 +889,7 @@ static inline unsigned long __raw_local_irq_save(void)
->  	raw_local_irq_disable();
->  	return f;
->  }
-> +#endif  /* CONFIG_PARAVIRT_IRQ */
->  
->  
->  /* Make sure as little as possible of this mess escapes. */
-> @@ -948,10 +972,13 @@ extern void default_banner(void);
->  #define PARA_INDIRECT(addr)	*%cs:addr
->  #endif
->  
-> +#ifdef CONFIG_PARAVIRT_CPU
->  #define INTERRUPT_RETURN						\
->  	PARA_SITE(PARA_PATCH(pv_cpu_ops, PV_CPU_iret), CLBR_NONE,	\
->  		  jmp PARA_INDIRECT(pv_cpu_ops+PV_CPU_iret))
-> +#endif  /* CONFIG_PARAVIRT_CPU */
->  
-> +#ifdef CONFIG_PARAVIRT_IRQ
->  #define DISABLE_INTERRUPTS(clobbers)					\
->  	PARA_SITE(PARA_PATCH(pv_irq_ops, PV_IRQ_irq_disable), clobbers, \
->  		  PV_SAVE_REGS(clobbers | CLBR_CALLEE_SAVE);		\
-> @@ -963,13 +990,17 @@ extern void default_banner(void);
->  		  PV_SAVE_REGS(clobbers | CLBR_CALLEE_SAVE);		\
->  		  call PARA_INDIRECT(pv_irq_ops+PV_IRQ_irq_enable);	\
->  		  PV_RESTORE_REGS(clobbers | CLBR_CALLEE_SAVE);)
-> +#endif  /* CONFIG_PARAVIRT_IRQ */
->  
-> +#ifdef CONFIG_PARAVIRT_CPU
->  #define USERGS_SYSRET32							\
->  	PARA_SITE(PARA_PATCH(pv_cpu_ops, PV_CPU_usergs_sysret32),	\
->  		  CLBR_NONE,						\
->  		  jmp PARA_INDIRECT(pv_cpu_ops+PV_CPU_usergs_sysret32))
-> +#endif  /* CONFIG_PARAVIRT_CPU */
->  
->  #ifdef CONFIG_X86_32
-> +#ifdef CONFIG_PARAVIRT_CPU
->  #define GET_CR0_INTO_EAX				\
->  	push %ecx; push %edx;				\
->  	call PARA_INDIRECT(pv_cpu_ops+PV_CPU_read_cr0);	\
-> @@ -979,10 +1010,12 @@ extern void default_banner(void);
->  	PARA_SITE(PARA_PATCH(pv_cpu_ops, PV_CPU_irq_enable_sysexit),	\
->  		  CLBR_NONE,						\
->  		  jmp PARA_INDIRECT(pv_cpu_ops+PV_CPU_irq_enable_sysexit))
-> +#endif  /* CONFIG_PARAVIRT_CPU */
->  
->  
->  #else	/* !CONFIG_X86_32 */
->  
-> +#ifdef CONFIG_PARAVIRT_CPU
->  /*
->   * If swapgs is used while the userspace stack is still current,
->   * there's no way to call a pvop.  The PV replacement *must* be
-> @@ -1002,17 +1035,23 @@ extern void default_banner(void);
->  	PARA_SITE(PARA_PATCH(pv_cpu_ops, PV_CPU_swapgs), CLBR_NONE,	\
->  		  call PARA_INDIRECT(pv_cpu_ops+PV_CPU_swapgs)		\
->  		 )
-> +#endif  /* CONFIG_PARAVIRT_CPU */
->  
-> +#ifdef CONFIG_PARAVIRT_MMU
->  #define GET_CR2_INTO_RCX				\
->  	call PARA_INDIRECT(pv_mmu_ops+PV_MMU_read_cr2);	\
->  	movq %rax, %rcx;				\
->  	xorq %rax, %rax;
-> +#endif  /* CONFIG_PARAVIRT_MMU */
->  
-> +#ifdef CONFIG_PARAVIRT_IRQ
->  #define PARAVIRT_ADJUST_EXCEPTION_FRAME					\
->  	PARA_SITE(PARA_PATCH(pv_irq_ops, PV_IRQ_adjust_exception_frame), \
->  		  CLBR_NONE,						\
->  		  call PARA_INDIRECT(pv_irq_ops+PV_IRQ_adjust_exception_frame))
-> +#endif  /* CONFIG_PARAVIRT_IRQ */
->  
-> +#ifdef CONFIG_PARAVIRT_CPU
->  #define USERGS_SYSRET64							\
->  	PARA_SITE(PARA_PATCH(pv_cpu_ops, PV_CPU_usergs_sysret64),	\
->  		  CLBR_NONE,						\
-> @@ -1022,6 +1061,7 @@ extern void default_banner(void);
->  	PARA_SITE(PARA_PATCH(pv_cpu_ops, PV_CPU_irq_enable_sysexit),	\
->  		  CLBR_NONE,						\
->  		  jmp PARA_INDIRECT(pv_cpu_ops+PV_CPU_irq_enable_sysexit))
-> +#endif  /* CONFIG_PARAVIRT_CPU */
->  #endif	/* CONFIG_X86_32 */
->  
->  #endif /* __ASSEMBLY__ */
-> diff --git a/arch/x86/include/asm/paravirt_types.h b/arch/x86/include/asm/paravirt_types.h
-> index 9357473..e190450 100644
-> --- a/arch/x86/include/asm/paravirt_types.h
-> +++ b/arch/x86/include/asm/paravirt_types.h
-> @@ -343,12 +343,24 @@ struct paravirt_patch_template {
->  
->  extern struct pv_info pv_info;
->  extern struct pv_init_ops pv_init_ops;
-> +#ifdef CONFIG_PARAVIRT_TIME
->  extern struct pv_time_ops pv_time_ops;
-> +#endif
-> +#ifdef CONFIG_PARAVIRT_CPU
->  extern struct pv_cpu_ops pv_cpu_ops;
-> +#endif
-> +#ifdef CONFIG_PARAVIRT_IRQ
->  extern struct pv_irq_ops pv_irq_ops;
-> +#endif
-> +#ifdef CONFIG_PARAVIRT_APIC
->  extern struct pv_apic_ops pv_apic_ops;
-> +#endif
-> +#ifdef CONFIG_PARAVIRT_MMU
->  extern struct pv_mmu_ops pv_mmu_ops;
-> +#endif
-> +#ifdef CONFIG_PARAVIRT_SPINLOCKS
->  extern struct pv_lock_ops pv_lock_ops;
-> +#endif
->   
 
-That's unpleasantly noisy, but I guess we just have to blame cpp's syntax.
-
->  
->  #define PARAVIRT_PATCH(x)					\
->  	(offsetof(struct paravirt_patch_template, x) / sizeof(void *))
-> diff --git a/arch/x86/include/asm/pgalloc.h b/arch/x86/include/asm/pgalloc.h
-> index 0e8c2a0..94cce3d 100644
-> --- a/arch/x86/include/asm/pgalloc.h
-> +++ b/arch/x86/include/asm/pgalloc.h
-> @@ -7,7 +7,7 @@
->  
->  static inline int  __paravirt_pgd_alloc(struct mm_struct *mm) { return 0; }
->  
-> -#ifdef CONFIG_PARAVIRT
-> +#ifdef CONFIG_PARAVIRT_MMU
->  #include <asm/paravirt.h>
->  #else
->  #define paravirt_pgd_alloc(mm)	__paravirt_pgd_alloc(mm)
-> diff --git a/arch/x86/include/asm/pgtable-3level_types.h b/arch/x86/include/asm/pgtable-3level_types.h
-> index 1bd5876..be58e74 100644
-> --- a/arch/x86/include/asm/pgtable-3level_types.h
-> +++ b/arch/x86/include/asm/pgtable-3level_types.h
-> @@ -18,7 +18,7 @@ typedef union {
->  } pte_t;
->  #endif	/* !__ASSEMBLY__ */
->  
-> -#ifdef CONFIG_PARAVIRT
-> +#ifdef CONFIG_PARAVIRT_MMU
->  #define SHARED_KERNEL_PMD	(pv_info.shared_kernel_pmd)
->  #else
->  #define SHARED_KERNEL_PMD	1
-> diff --git a/arch/x86/include/asm/pgtable.h b/arch/x86/include/asm/pgtable.h
-> index af6fd36..b68edfc 100644
-> --- a/arch/x86/include/asm/pgtable.h
-> +++ b/arch/x86/include/asm/pgtable.h
-> @@ -26,7 +26,7 @@ extern unsigned long empty_zero_page[PAGE_SIZE / sizeof(unsigned long)];
->  extern spinlock_t pgd_lock;
->  extern struct list_head pgd_list;
->  
-> -#ifdef CONFIG_PARAVIRT
-> +#ifdef CONFIG_PARAVIRT_MMU
->  #include <asm/paravirt.h>
->  #else  /* !CONFIG_PARAVIRT */
->  #define set_pte(ptep, pte)		native_set_pte(ptep, pte)
-> diff --git a/arch/x86/include/asm/processor.h b/arch/x86/include/asm/processor.h
-> index c3429e8..a42a807 100644
-> --- a/arch/x86/include/asm/processor.h
-> +++ b/arch/x86/include/asm/processor.h
-> @@ -571,7 +571,7 @@ static inline void native_swapgs(void)
->  #endif
->  }
->  
-> -#ifdef CONFIG_PARAVIRT
-> +#ifdef CONFIG_PARAVIRT_CPU
->  #include <asm/paravirt.h>
->  #else
->  #define __cpuid			native_cpuid
-> diff --git a/arch/x86/include/asm/required-features.h b/arch/x86/include/asm/required-features.h
-> index 64cf2d2..f68edf2 100644
-> --- a/arch/x86/include/asm/required-features.h
-> +++ b/arch/x86/include/asm/required-features.h
-> @@ -48,7 +48,7 @@
->  #endif
->  
->  #ifdef CONFIG_X86_64
-> -#ifdef CONFIG_PARAVIRT
-> +#ifdef CONFIG_PARAVIRT_MMU
->  /* Paravirtualized systems may not have PSE or PGE available */
->  #define NEED_PSE	0
->  #define NEED_PGE	0
-> diff --git a/arch/x86/include/asm/smp.h b/arch/x86/include/asm/smp.h
-> index 1e79678..fdd889a 100644
-> --- a/arch/x86/include/asm/smp.h
-> +++ b/arch/x86/include/asm/smp.h
-> @@ -66,7 +66,7 @@ struct smp_ops {
->  extern void set_cpu_sibling_map(int cpu);
->  
->  #ifdef CONFIG_SMP
-> -#ifndef CONFIG_PARAVIRT
-> +#ifndef CONFIG_PARAVIRT_APIC
->  #define startup_ipi_hook(phys_apicid, start_eip, start_esp) do { } while (0)
->  #endif
->  extern struct smp_ops smp_ops;
-> diff --git a/arch/x86/include/asm/system.h b/arch/x86/include/asm/system.h
-> index f08f973..63ca93c 100644
-> --- a/arch/x86/include/asm/system.h
-> +++ b/arch/x86/include/asm/system.h
-> @@ -302,13 +302,18 @@ static inline void native_wbinvd(void)
->  
->  #ifdef CONFIG_PARAVIRT
->  #include <asm/paravirt.h>
-> -#else
-> -#define read_cr0()	(native_read_cr0())
-> -#define write_cr0(x)	(native_write_cr0(x))
-> +#endif/* CONFIG_PARAVIRT */
-> +
-> +#ifndef CONFIG_PARAVIRT_MMU
->  #define read_cr2()	(native_read_cr2())
->  #define write_cr2(x)	(native_write_cr2(x))
->  #define read_cr3()	(native_read_cr3())
->  #define write_cr3(x)	(native_write_cr3(x))
-> +#endif  /* CONFIG_PARAVIRT_MMU */
-> +
-> +#ifndef CONFIG_PARAVIRT_CPU
-> +#define read_cr0()	(native_read_cr0())
-> +#define write_cr0(x)	(native_write_cr0(x))
->  #define read_cr4()	(native_read_cr4())
->  #define read_cr4_safe()	(native_read_cr4_safe())
->  #define write_cr4(x)	(native_write_cr4(x))
-> @@ -322,7 +327,7 @@ static inline void native_wbinvd(void)
->  /* Clear the 'TS' bit */
->  #define clts()		(native_clts())
->  
-> -#endif/* CONFIG_PARAVIRT */
-> +#endif  /* CONFIG_PARAVIRT_CPU */
->  
->  #define stts() write_cr0(read_cr0() | X86_CR0_TS)
->  
-> diff --git a/arch/x86/include/asm/tlbflush.h b/arch/x86/include/asm/tlbflush.h
-> index 7f3eba0..89e055c 100644
-> --- a/arch/x86/include/asm/tlbflush.h
-> +++ b/arch/x86/include/asm/tlbflush.h
-> @@ -7,7 +7,7 @@
->  #include <asm/processor.h>
->  #include <asm/system.h>
->  
-> -#ifdef CONFIG_PARAVIRT
-> +#ifdef CONFIG_PARAVIRT_MMU
->  #include <asm/paravirt.h>
->  #else
->  #define __flush_tlb() __native_flush_tlb()
-> @@ -162,7 +162,7 @@ static inline void reset_lazy_tlbstate(void)
->  
->  #endif	/* SMP */
->  
-> -#ifndef CONFIG_PARAVIRT
-> +#ifndef CONFIG_PARAVIRT_MMU
->  #define flush_tlb_others(mask, mm, va)	native_flush_tlb_others(mask, mm, va)
->  #endif
->  
-> diff --git a/arch/x86/kernel/head_64.S b/arch/x86/kernel/head_64.S
-> index 780cd92..1284d8d 100644
-> --- a/arch/x86/kernel/head_64.S
-> +++ b/arch/x86/kernel/head_64.S
-> @@ -20,7 +20,7 @@
->  #include <asm/processor-flags.h>
->  #include <asm/percpu.h>
->  
-> -#ifdef CONFIG_PARAVIRT
-> +#ifdef CONFIG_PARAVIRT_MMU
->  #include <asm/asm-offsets.h>
->  #include <asm/paravirt.h>
->  #else
-> diff --git a/arch/x86/kernel/paravirt.c b/arch/x86/kernel/paravirt.c
-> index 1b1739d..c8530bd 100644
-> --- a/arch/x86/kernel/paravirt.c
-> +++ b/arch/x86/kernel/paravirt.c
-> @@ -155,12 +155,14 @@ unsigned paravirt_patch_default(u8 type, u16 clobbers, void *insnbuf,
->  	else if (opfunc == _paravirt_ident_64)
->  		ret = paravirt_patch_ident_64(insnbuf, len);
->  
-> +#ifdef CONFIG_PARAVIRT_CPU
->  	else if (type == PARAVIRT_PATCH(pv_cpu_ops.iret) ||
->  		 type == PARAVIRT_PATCH(pv_cpu_ops.irq_enable_sysexit) ||
->  		 type == PARAVIRT_PATCH(pv_cpu_ops.usergs_sysret32) ||
->  		 type == PARAVIRT_PATCH(pv_cpu_ops.usergs_sysret64))
->  		/* If operation requires a jmp, then jmp */
->  		ret = paravirt_patch_jmp(insnbuf, opfunc, addr, len);
-> +#endif
->  	else
->  		/* Otherwise call the function; assume target could
->  		   clobber any caller-save reg */
-> diff --git a/arch/x86/kernel/tsc.c b/arch/x86/kernel/tsc.c
-> index cd982f4..96aad98 100644
-> --- a/arch/x86/kernel/tsc.c
-> +++ b/arch/x86/kernel/tsc.c
-> @@ -66,7 +66,7 @@ u64 native_sched_clock(void)
->  
->  /* We need to define a real function for sched_clock, to override the
->     weak default version */
-> -#ifdef CONFIG_PARAVIRT
-> +#ifdef CONFIG_PARAVIRT_TIME
->  unsigned long long sched_clock(void)
->  {
->  	return paravirt_sched_clock();
-> diff --git a/arch/x86/kernel/vsmp_64.c b/arch/x86/kernel/vsmp_64.c
-> index a1d804b..23f4612 100644
-> --- a/arch/x86/kernel/vsmp_64.c
-> +++ b/arch/x86/kernel/vsmp_64.c
-> @@ -22,7 +22,7 @@
->  #include <asm/paravirt.h>
->  #include <asm/setup.h>
->  
-> -#if defined CONFIG_PCI && defined CONFIG_PARAVIRT
-> +#if defined CONFIG_PCI && defined CONFIG_PARAVIRT_IRQ
->  /*
->   * Interrupt control on vSMPowered systems:
->   * ~AC is a shadow of IF.  If IF is 'on' AC should be 'off'
-> diff --git a/arch/x86/xen/Kconfig b/arch/x86/xen/Kconfig
-> index b83e119..eef41bd 100644
-> --- a/arch/x86/xen/Kconfig
-> +++ b/arch/x86/xen/Kconfig
-> @@ -4,7 +4,7 @@
->  
->  config XEN
->  	bool "Xen guest support"
-> -	select PARAVIRT
-> +	select PARAVIRT_ALL
->  	select PARAVIRT_CLOCK
->  	depends on X86_64 || (X86_32 && X86_PAE && !X86_VISWS)
->  	depends on X86_CMPXCHG && X86_TSC
->   
+-- 
+Thanks,
+Adam
