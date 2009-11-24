@@ -1,15 +1,16 @@
-From: Patrick McHardy <kaber@trash.net>
-Subject: Re: [PATCH 4/4] macvlan: export macvlan mode through netlink
-Date: Tue, 24 Nov 2009 14:47:45 +0100
-Message-ID: <4B0BE401.4010209__28327.8546914973$1259070727$gmane$org@trash.net>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Subject: Re: [PATCH 1/4] veth: move loopback logic to common location
+Date: Tue, 24 Nov 2009 08:42:34 -0800
+Message-ID: <m1aaybc1s5.fsf__24264.822030864$1259081342$gmane$org@fess.ebiederm.org>
 References: <1259024166-28158-1-git-send-email-arnd@arndb.de>
-	<1259024166-28158-5-git-send-email-arnd@arndb.de>
-	<4B0BBB2E.8020502@trash.net> <200911241357.46690.arnd@arndb.de>
+	<200911241002.20904.arnd@arndb.de> <4B0BB2A7.5040707@trash.net>
+	<200911241034.43961.arnd@arndb.de> <4B0BB818.6090509@trash.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <200911241357.46690.arnd@arndb.de>
+In-Reply-To: <4B0BB818.6090509@trash.net> (Patrick McHardy's message of "Tue\,
+	24 Nov 2009 11\:40\:24 +0100")
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,136 +20,41 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>, Eric Dumazet <eric.dumazet@gmail.com>, Anna Fischer <anna.fischer@hp.com>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Mark Smith <lk-netdev@lk-netdev.nosense.org>, Gerhard Stenzel <gerhard.stenzel@de.ibm.com>, "Eric W. Biederman" <ebiederm@xmission.com>, Jens Osterkamp <jens@linux.vnet.ibm.com>, Patrick Mullaney <pmullaney@novell.com>, Stephen Hemminger <shemminger@vyatta.com>, Edge Virtual Bridging <evb@yahoogroups.com>, David Miller <davem@davemloft.net>
+To: Patrick McHardy <kaber@trash.net>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>, Eric Dumazet <eric.dumazet@gmail.com>, Anna Fischer <anna.fischer@hp.com>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Mark Smith <lk-netdev@lk-netdev.nosense.org>, Gerhard Stenzel <gerhard.stenzel@de.ibm.com>, Arnd Bergmann <arnd@arndb.de>, Jens Osterkamp <jens@linux.vnet.ibm.com>, Patrick Mullaney <pmullaney@novell.com>, Stephen Hemminger <shemminger@vyatta.com>, Edge Virtual Bridging <evb@yahoogroups.com>, David Miller <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Arnd Bergmann wrote:
-> Thanks for the review. Combined changes below.
+Patrick McHardy <kaber@trash.net> writes:
 
-Looks good, thanks.
+>>>> I did all my testing with macvlan interfaces in separate namespaces
+>>>> communicating with each other, so I'd assume that we should always
+>>>> clear skb->mark and skb->dst in this function.
+>>> Good point, in that case we probably should clear it as well. But
+>>> in the non-namespace case the TC classification currently works and
+>>> this is consistent with any other virtual device driver, so it
+>>> should continue to work.
+>> 
+>> Do you think we should be able to use TC to direct traffic between
+>> macvlans on the same underlying device in bridge mode? It does sound
+>> useful, but I'm not sure how to implement that or if you'd expect
+>> it to work with the current code. If we support that, it should probably
+>> also work with namespaces, by consuming the mark in the macvlan
+>> and veth drivers.
+>
+> I don't think its necessary, we bypass outgoing queuing anyways.
+> But if you'd want to add it, just keeping the skb->mark clearing
+> in veth should work from what I can tell.
 
-> 
-> 	Arnd <><
-> ---
-> 
->  drivers/net/macvlan.c |   47 +++++++++++++++++++++++------------------------
->  1 files changed, 23 insertions(+), 24 deletions(-)
-> 
-> --- a/drivers/net/macvlan.c
-> +++ b/drivers/net/macvlan.c
-> @@ -118,15 +118,16 @@ static int macvlan_addr_busy(const struct macvlan_port *port,
->  	return 0;
->  }
->  
-> -static inline void macvlan_count_rx(const struct macvlan_dev *vlan, int length,
-> -			     bool success, bool multicast)
-> +static inline void macvlan_count_rx(const struct macvlan_dev *vlan,
-> +				    unsigned int len, bool success,
-> +				    bool multicast)
->  {
->  	struct macvlan_rx_stats *rx_stats;
->  
->  	rx_stats = per_cpu_ptr(vlan->rx_stats, smp_processor_id());
->  	if (likely(success)) {
->  		rx_stats->rx_packets++;;
-> -		rx_stats->rx_bytes += length;
-> +		rx_stats->rx_bytes += len;
->  		if (multicast)
->  			rx_stats->multicast++;
->  	} else {
-> @@ -170,7 +171,7 @@ static void macvlan_broadcast(struct sk_buff *skb,
->  
->  	for (i = 0; i < MACVLAN_HASH_SIZE; i++) {
->  		hlist_for_each_entry_rcu(vlan, n, &port->vlan_hash[i], hlist) {
-> -			if ((vlan->dev == src) || !(vlan->mode & mode))
-> +			if (vlan->dev == src || !(vlan->mode & mode))
->  				continue;
->  
->  			nskb = skb_clone(skb, GFP_ATOMIC);
-> @@ -190,7 +191,7 @@ static struct sk_buff *macvlan_handle_frame(struct sk_buff *skb)
->  	const struct macvlan_dev *vlan;
->  	const struct macvlan_dev *src;
->  	struct net_device *dev;
-> -	int len;
-> +	unsigned int len;
->  
->  	port = rcu_dereference(skb->dev->macvlan_port);
->  	if (port == NULL)
-> @@ -200,17 +201,22 @@ static struct sk_buff *macvlan_handle_frame(struct sk_buff *skb)
->  		src = macvlan_hash_lookup(port, eth->h_source);
->  		if (!src)
->  			/* frame comes from an external address */
-> -			macvlan_broadcast(skb, port, NULL, MACVLAN_MODE_PRIVATE
-> -				| MACVLAN_MODE_VEPA | MACVLAN_MODE_BRIDGE);
-> +			macvlan_broadcast(skb, port, NULL,
-> +					  MACVLAN_MODE_PRIVATE |
-> +					  MACVLAN_MODE_VEPA    |
-> +					  MACVLAN_MODE_BRIDGE);
->  		else if (src->mode == MACVLAN_MODE_VEPA)
->  			/* flood to everyone except source */
->  			macvlan_broadcast(skb, port, src->dev,
-> -				MACVLAN_MODE_VEPA | MACVLAN_MODE_BRIDGE);
-> +					  MACVLAN_MODE_VEPA |
-> +					  MACVLAN_MODE_BRIDGE);
->  		else if (src->mode == MACVLAN_MODE_BRIDGE)
-> -			/* flood only to VEPA ports, bridge ports
-> -			   already saw the frame */
-> +			/*
-> +			 * flood only to VEPA ports, bridge ports
-> +			 * already saw the frame on the way out.
-> +			 */
->  			macvlan_broadcast(skb, port, src->dev,
-> -				MACVLAN_MODE_VEPA);
-> +					  MACVLAN_MODE_VEPA);
->  		return skb;
->  	}
->  
-> @@ -253,7 +259,7 @@ static int macvlan_queue_xmit(struct sk_buff *skb, struct net_device *dev)
->  
->  		dest = macvlan_hash_lookup(port, eth->h_dest);
->  		if (dest && dest->mode == MACVLAN_MODE_BRIDGE) {
-> -			int length = skb->len + ETH_HLEN;
-> +			unsigned int length = skb->len + ETH_HLEN;
->  			int ret = dev_forward_skb(dest->dev, skb);
->  			macvlan_count_rx(dest, length,
->  					 ret == NET_RX_SUCCESS, 0);
-> @@ -604,8 +610,7 @@ static int macvlan_validate(struct nlattr *tb[], struct nlattr *data[])
->  	}
->  
->  	if (data && data[IFLA_MACVLAN_MODE]) {
-> -		u32 mode = nla_get_u32(data[IFLA_MACVLAN_MODE]);
-> -		switch (mode) {
-> +		switch (nla_get_u32(data[IFLA_MACVLAN_MODE])) {
->  		case MACVLAN_MODE_PRIVATE:
->  		case MACVLAN_MODE_VEPA:
->  		case MACVLAN_MODE_BRIDGE:
-> @@ -679,11 +684,8 @@ static int macvlan_newlink(struct net *src_net, struct net_device *dev,
->  	vlan->port     = port;
->  
->  	vlan->mode     = MACVLAN_MODE_VEPA;
-> -	if (data && data[IFLA_MACVLAN_MODE]) {
-> -		u32 mode = nla_get_u32(data[IFLA_MACVLAN_MODE]);
-> -
-> -		vlan->mode     = mode;
-> -	}
-> +	if (data && data[IFLA_MACVLAN_MODE])
-> +		vlan->mode = nla_get_u32(data[IFLA_MACVLAN_MODE]);
->  
->  	err = register_netdevice(dev);
->  	if (err < 0)
-> @@ -710,11 +712,8 @@ static int macvlan_changelink(struct net_device *dev,
->  		struct nlattr *tb[], struct nlattr *data[])
->  {
->  	struct macvlan_dev *vlan = netdev_priv(dev);
-> -	if (data && data[IFLA_MACVLAN_MODE]) {
-> -		u32 mode = nla_get_u32(data[IFLA_MACVLAN_MODE]);
-> -		vlan->mode     = mode;
-> -	}
-> -
-> +	if (data && data[IFLA_MACVLAN_MODE])
-> +		vlan->mode = nla_get_u32(data[IFLA_MACVLAN_MODE]);
->  	return 0;
->  }
->  
-> 
+veth doesn't have an outgoing queue.  The reason we clear skb->mark
+in veth is because when reentering the networking stack the packet
+needs to be reclassified.  At the point of loopback we are talking
+a packet that has at least logically gone out of the machine on a
+wire and come back into the machine on another physical interface.
+
+So it seems to me we should have consistent handling for macvlans,
+veth, for the cases where we are looping packets back around.  In
+practice I expect all of those cases are going to be cross namespace
+as otherwise we would have intercepted the packet before going
+out a physical interface.
+
+Eric
