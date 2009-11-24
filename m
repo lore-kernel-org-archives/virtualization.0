@@ -1,15 +1,14 @@
 From: Patrick McHardy <kaber@trash.net>
-Subject: Re: [PATCH 1/4] veth: move loopback logic to common location
-Date: Tue, 24 Nov 2009 11:40:24 +0100
-Message-ID: <4B0BB818.6090509__6502.63094944439$1259059545$gmane$org@trash.net>
+Subject: Re: [PATCH 2/4] macvlan: cleanup rx statistics
+Date: Tue, 24 Nov 2009 11:41:38 +0100
+Message-ID: <4B0BB862.6070101__34872.7101846181$1259059723$gmane$org@trash.net>
 References: <1259024166-28158-1-git-send-email-arnd@arndb.de>
-	<200911241002.20904.arnd@arndb.de> <4B0BB2A7.5040707@trash.net>
-	<200911241034.43961.arnd@arndb.de>
+	<1259024166-28158-3-git-send-email-arnd@arndb.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <200911241034.43961.arnd@arndb.de>
+In-Reply-To: <1259024166-28158-3-git-send-email-arnd@arndb.de>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -24,43 +23,51 @@ Cc: Herbert Xu <herbert@gondor.apana.org.au>, Eric Dumazet <eric.dumazet@gmail.c
 List-Id: virtualization@lists.linuxfoundation.org
 
 Arnd Bergmann wrote:
-> On Tuesday 24 November 2009 10:17:11 Patrick McHardy wrote:
->> Arnd Bergmann wrote:
->>> On Tuesday 24 November 2009 09:51:19 Patrick McHardy wrote:
->>>>> +     skb_dst_drop(skb);
->>>>> +     skb->tstamp.tv64 = 0;
->>>>> +     skb->pkt_type = PACKET_HOST;
->>>>> +     skb->protocol = eth_type_trans(skb, dev);
->>>>> +     skb->mark = 0;
->>>> skb->mark clearing should stay private to veth since its usually
->>>> supposed to stay intact. The only exception is packets crossing
->>>> namespaces, where they should appear like a freshly received skbs.
->>> But isn't that what we want in macvlan as well when we're
->>> forwarding from one downstream interface to another?
->> In the TX direction you can use the mark for TC classification
->> on the underlying device.
-> 
-> I don't use dev_forward_skb for the case where the data is sent
-> to the underlying device, so the TC classification should stay
-> intact.
+> diff --git a/drivers/net/macvlan.c b/drivers/net/macvlan.c
+> index ae2b5c7..a0dea23 100644
+> --- a/drivers/net/macvlan.c
+> +++ b/drivers/net/macvlan.c
+> @@ -116,42 +116,53 @@ static int macvlan_addr_busy(const struct macvlan_port *port,
+>  	return 0;
+>  }
+>  
+> +static inline void macvlan_count_rx(const struct macvlan_dev *vlan, int length,
 
-Right, I see. This looks fine.
+Please use unsigned int for length values.
 
->>> I did all my testing with macvlan interfaces in separate namespaces
->>> communicating with each other, so I'd assume that we should always
->>> clear skb->mark and skb->dst in this function.
->> Good point, in that case we probably should clear it as well. But
->> in the non-namespace case the TC classification currently works and
->> this is consistent with any other virtual device driver, so it
->> should continue to work.
-> 
-> Do you think we should be able to use TC to direct traffic between
-> macvlans on the same underlying device in bridge mode? It does sound
-> useful, but I'm not sure how to implement that or if you'd expect
-> it to work with the current code. If we support that, it should probably
-> also work with namespaces, by consuming the mark in the macvlan
-> and veth drivers.
+Regarding Eric's comments, I also think it would be more readable to use
+if (success) {
+	...
+} else {
+	...
+}
 
-I don't think its necessary, we bypass outgoing queuing anyways.
-But if you'd want to add it, just keeping the skb->mark clearing
-in veth should work from what I can tell.
+> +			     int success, int multicast)
+> +{
+> +	struct macvlan_rx_stats *rx_stats;
+> +
+> +	rx_stats = per_cpu_ptr(vlan->rx_stats, smp_processor_id());
+> +	rx_stats->rx_packets += success != 0;
+> +	rx_stats->rx_bytes   += success ? length : 0;
+> +	rx_stats->multicast  += success && multicast;
+> +	rx_stats->rx_errors  += !success;
+> +}
+> +
+> +static int macvlan_broadcast_one(struct sk_buff *skb, struct net_device *dev,
+> +				 const struct ethhdr *eth)
+> +{
+> +	if (!skb)
+> +		return NET_RX_DROP;
+> +
+> +	skb->dev = dev;
+> +	if (!compare_ether_addr_64bits(eth->h_dest,
+> +				       dev->broadcast))
+
+This would fit on one line without reducing readability.
+
+> +		skb->pkt_type = PACKET_BROADCAST;
+> +	else
+> +		skb->pkt_type = PACKET_MULTICAST;
+> +
+> +	return netif_rx(skb);
+> +}
