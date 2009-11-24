@@ -1,14 +1,14 @@
 From: Patrick McHardy <kaber@trash.net>
-Subject: Re: [PATCH 3/4] macvlan: implement bridge, VEPA and private mode
-Date: Tue, 24 Nov 2009 11:42:39 +0100
-Message-ID: <4B0BB89F.7030605__46276.6037825078$1259059744$gmane$org@trash.net>
+Subject: Re: [PATCH 4/4] macvlan: export macvlan mode through netlink
+Date: Tue, 24 Nov 2009 11:53:34 +0100
+Message-ID: <4B0BBB2E.8020502__31159.5076149844$1259060341$gmane$org@trash.net>
 References: <1259024166-28158-1-git-send-email-arnd@arndb.de>
-	<1259024166-28158-4-git-send-email-arnd@arndb.de>
+	<1259024166-28158-5-git-send-email-arnd@arndb.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1259024166-28158-4-git-send-email-arnd@arndb.de>
+In-Reply-To: <1259024166-28158-5-git-send-email-arnd@arndb.de>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -23,167 +23,61 @@ Cc: Herbert Xu <herbert@gondor.apana.org.au>, Eric Dumazet <eric.dumazet@gmail.c
 List-Id: virtualization@lists.linuxfoundation.org
 
 Arnd Bergmann wrote:
-> This allows each macvlan slave device to be in one
-> of three modes, depending on the use case:
-> 
-> MACVLAN_PRIVATE:
->   The device never communicates with any other device
->   on the same upper_dev. This even includes frames
->   coming back from a reflective relay, where supported
->   by the adjacent bridge.
-> 
-> MACVLAN_VEPA:
->   The new Virtual Ethernet Port Aggregator (VEPA) mode,
->   we assume that the adjacent bridge returns all frames
->   where both source and destination are local to the
->   macvlan port, i.e. the bridge is set up as a reflective
->   relay.
->   Broadcast frames coming in from the upper_dev get
->   flooded to all macvlan interfaces in VEPA mode.
->   We never deliver any frames locally.
-> 
-> MACVLAN_BRIDGE:
->   We provide the behavior of a simple bridge between
->   different macvlan interfaces on the same port. Frames
->   from one interface to another one get delivered directly
->   and are not sent out externally. Broadcast frames get
->   flooded to all other bridge ports and to the external
->   interface, but when they come back from a reflective
->   relay, we don't deliver them again.
->   Since we know all the MAC addresses, the macvlan bridge
->   mode does not require learning or STP like the bridge
->   module does.
-
-This looks pretty nice. Some stylistic nitpicking below :)
-
-> diff --git a/drivers/net/macvlan.c b/drivers/net/macvlan.c
-> index a0dea23..b840b3a 100644
-> --- a/drivers/net/macvlan.c
-> +++ b/drivers/net/macvlan.c
-> @@ -29,9 +29,16 @@
->  #include <linux/if_link.h>
->  #include <linux/if_macvlan.h>
->  #include <net/rtnetlink.h>
-> +#include <net/xfrm.h>
-
-Do we really need this?
-
-> @@ -129,11 +137,14 @@ static inline void macvlan_count_rx(const struct macvlan_dev *vlan, int length,
->  }
->  
->  static int macvlan_broadcast_one(struct sk_buff *skb, struct net_device *dev,
-> -				 const struct ethhdr *eth)
-> +				 const struct ethhdr *eth, int local)
-
-bool local?
-
->  {
->  	if (!skb)
->  		return NET_RX_DROP;
->  
-> +	if (local)
-> +		return dev_forward_skb(dev, skb);
-> +
->  	skb->dev = dev;
->  	if (!compare_ether_addr_64bits(eth->h_dest,
->  				       dev->broadcast))
-> @@ -145,7 +156,9 @@ static int macvlan_broadcast_one(struct sk_buff *skb, struct net_device *dev,
->  }
->  
->  static void macvlan_broadcast(struct sk_buff *skb,
-> -			      const struct macvlan_port *port)
-> +			      const struct macvlan_port *port,
-> +			      struct net_device *src,
-> +			      enum macvlan_mode mode)
->  {
->  	const struct ethhdr *eth = eth_hdr(skb);
->  	const struct macvlan_dev *vlan;
-> @@ -159,8 +172,12 @@ static void macvlan_broadcast(struct sk_buff *skb,
->  
->  	for (i = 0; i < MACVLAN_HASH_SIZE; i++) {
->  		hlist_for_each_entry_rcu(vlan, n, &port->vlan_hash[i], hlist) {
-> +			if ((vlan->dev == src) || !(vlan->mode & mode))
-
-Please remove those unnecessary parentheses around the
-device comparison.
-
-> @@ -173,6 +190,7 @@ static struct sk_buff *macvlan_handle_frame(struct sk_buff *skb)
->  	const struct ethhdr *eth = eth_hdr(skb);
->  	const struct macvlan_port *port;
->  	const struct macvlan_dev *vlan;
-> +	const struct macvlan_dev *src;
->  	struct net_device *dev;
->  
->  	port = rcu_dereference(skb->dev->macvlan_port);
-> @@ -180,7 +198,20 @@ static struct sk_buff *macvlan_handle_frame(struct sk_buff *skb)
->  		return skb;
->  
->  	if (is_multicast_ether_addr(eth->h_dest)) {
-> -		macvlan_broadcast(skb, port);
-> +		src = macvlan_hash_lookup(port, eth->h_source);
-> +		if (!src)
-> +			/* frame comes from an external address */
-> +			macvlan_broadcast(skb, port, NULL, MACVLAN_MODE_PRIVATE
-> +				| MACVLAN_MODE_VEPA | MACVLAN_MODE_BRIDGE);
-
-The '|' should go on the first line.
-
-> +		else if (src->mode == MACVLAN_MODE_VEPA)
-> +			/* flood to everyone except source */
-> +			macvlan_broadcast(skb, port, src->dev,
-> +				MACVLAN_MODE_VEPA | MACVLAN_MODE_BRIDGE);
-> +		else if (src->mode == MACVLAN_MODE_BRIDGE)
-> +			/* flood only to VEPA ports, bridge ports
-> +			   already saw the frame */
-
-Multi-line comments should begin every line with '*'.
-
-> +			macvlan_broadcast(skb, port, src->dev,
-> +				MACVLAN_MODE_VEPA);
-
-Please align the mode values (in all cases above) to the arguments
-on the line above.
-
->  		return skb;
+> @@ -600,6 +594,18 @@ static int macvlan_validate(struct nlattr *tb[], struct nlattr *data[])
+>  		if (!is_valid_ether_addr(nla_data(tb[IFLA_ADDRESS])))
+>  			return -EADDRNOTAVAIL;
 >  	}
->  
-> @@ -203,18 +234,46 @@ static struct sk_buff *macvlan_handle_frame(struct sk_buff *skb)
->  	return NULL;
->  }
->  
-> +static int macvlan_queue_xmit(struct sk_buff *skb, struct net_device *dev)
-> +{
-> +	const struct macvlan_dev *vlan = netdev_priv(dev);
-> +	const struct macvlan_port *port = vlan->port;
-> +	const struct macvlan_dev *dest;
 > +
-> +	if (vlan->mode == MACVLAN_MODE_BRIDGE) {
-> +		const struct ethhdr *eth = (void *)skb->data;
+> +	if (data && data[IFLA_MACVLAN_MODE]) {
+> +		u32 mode = nla_get_u32(data[IFLA_MACVLAN_MODE]);
+> +		switch (mode) {
+> +		case MACVLAN_MODE_PRIVATE:
+> +		case MACVLAN_MODE_VEPA:
+> +		case MACVLAN_MODE_BRIDGE:
+> +			break;
+> +		default:
+> +			return -EINVAL;
 
-eth_hdr()?
+EINVAL is quite unspecific. In this case I think EOPNOTSUPP would
+be fine and provide more information.
 
-> +
-> +		/* send to other bridge ports directly */
-> +		if (is_multicast_ether_addr(eth->h_dest)) {
-> +			macvlan_broadcast(skb, port, dev, MACVLAN_MODE_BRIDGE);
-> +			goto xmit_world;
-> +		}
-> +
-> +		dest = macvlan_hash_lookup(port, eth->h_dest);
-> +		if (dest && dest->mode == MACVLAN_MODE_BRIDGE) {
-> +			int length = skb->len + ETH_HLEN;
-
-unsigned int for length values please.
-
-> +			int ret = dev_forward_skb(dest->dev, skb);
-> +			macvlan_count_rx(dest, length,
-> +					 likely(ret == NET_RX_SUCCESS), 0);
-> +
-> +			return NET_XMIT_SUCCESS;
 > +		}
 > +	}
+>  	return 0;
+>  }
+> @@ -664,6 +670,13 @@ static int macvlan_newlink(struct net *src_net, struct net_device *dev,
+>  	vlan->dev      = dev;
+>  	vlan->port     = port;
+>  
+> +	vlan->mode     = MACVLAN_MODE_VEPA;
+> +	if (data && data[IFLA_MACVLAN_MODE]) {
+> +		u32 mode = nla_get_u32(data[IFLA_MACVLAN_MODE]);
 > +
-> +xmit_world:
-> +	skb->dev = vlan->lowerdev;
-> +	return dev_queue_xmit(skb);
+> +		vlan->mode     = mode;
+
+This looks a bit strange, like cut-and-paste without reformatting :)
+I'd suggest to simply use "vlan->mode = nla_get_u32(...)".
+
+> +	}
+> +
+>  	err = register_netdevice(dev);
+>  	if (err < 0)
+>  		return err;
+> @@ -685,6 +698,39 @@ static void macvlan_dellink(struct net_device *dev, struct list_head *head)
+>  		macvlan_port_destroy(port->dev);
+>  }
+>  
+> +static int macvlan_changelink(struct net_device *dev,
+> +		struct nlattr *tb[], struct nlattr *data[])
+> +{
+> +	struct macvlan_dev *vlan = netdev_priv(dev);
+> +	if (data && data[IFLA_MACVLAN_MODE]) {
+> +		u32 mode = nla_get_u32(data[IFLA_MACVLAN_MODE]);
+> +		vlan->mode     = mode;
+
+Same here.
+
+> +	}
+> +
+> +	return 0;
 > +}
