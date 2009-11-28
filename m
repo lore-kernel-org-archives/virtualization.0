@@ -1,8 +1,7 @@
 From: Amit Shah <amit.shah@redhat.com>
-Subject: [PATCH 23/28] virtio: console: Add throttling support to prevent
-	flooding ports
-Date: Sat, 28 Nov 2009 12:20:46 +0530
-Message-ID: <1259391051-7752-24-git-send-email-amit.shah@redhat.com>
+Subject: [PATCH 12/28] virtio: console: Buffer data that comes in from the host
+Date: Sat, 28 Nov 2009 12:20:35 +0530
+Message-ID: <1259391051-7752-13-git-send-email-amit.shah@redhat.com>
 References: <1259391051-7752-1-git-send-email-amit.shah@redhat.com>
 	<1259391051-7752-2-git-send-email-amit.shah@redhat.com>
 	<1259391051-7752-3-git-send-email-amit.shah@redhat.com>
@@ -15,22 +14,11 @@ References: <1259391051-7752-1-git-send-email-amit.shah@redhat.com>
 	<1259391051-7752-10-git-send-email-amit.shah@redhat.com>
 	<1259391051-7752-11-git-send-email-amit.shah@redhat.com>
 	<1259391051-7752-12-git-send-email-amit.shah@redhat.com>
-	<1259391051-7752-13-git-send-email-amit.shah@redhat.com>
-	<1259391051-7752-14-git-send-email-amit.shah@redhat.com>
-	<1259391051-7752-15-git-send-email-amit.shah@redhat.com>
-	<1259391051-7752-16-git-send-email-amit.shah@redhat.com>
-	<1259391051-7752-17-git-send-email-amit.shah@redhat.com>
-	<1259391051-7752-18-git-send-email-amit.shah@redhat.com>
-	<1259391051-7752-19-git-send-email-amit.shah@redhat.com>
-	<1259391051-7752-20-git-send-email-amit.shah@redhat.com>
-	<1259391051-7752-21-git-send-email-amit.shah@redhat.com>
-	<1259391051-7752-22-git-send-email-amit.shah@redhat.com>
-	<1259391051-7752-23-git-send-email-amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1259391051-7752-23-git-send-email-amit.shah@redhat.com>
+In-Reply-To: <1259391051-7752-12-git-send-email-amit.shah@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -44,175 +32,325 @@ To: rusty@rustcorp.com.au
 Cc: Amit Shah <amit.shah@redhat.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Rogue processes on guests or hosts could pump in data
-and cause an OOM condition. Add support for throttling
-so that a limit to the number of outstanding buffers
-can be specified.
+The console could be flooded with data from the host; handle
+this situation by buffering the data.
+
+We move from the per-port inbuf to a per-device queue of buffers,
+shared by all the ports for that device, ready to receive host data.
 
 Signed-off-by: Amit Shah <amit.shah@redhat.com>
 ---
- drivers/char/virtio_console.c  |   78 ++++++++++++++++++++++++++++++++++++++-
- include/linux/virtio_console.h |    2 +
- 2 files changed, 78 insertions(+), 2 deletions(-)
+ drivers/char/virtio_console.c |  219 +++++++++++++++++++++++++++++++----------
+ 1 files changed, 168 insertions(+), 51 deletions(-)
 
 diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index d0bdc18..fe8f14f 100644
+index a80d15c..e8dabae 100644
 --- a/drivers/char/virtio_console.c
 +++ b/drivers/char/virtio_console.c
-@@ -169,11 +169,32 @@ struct port {
- 	/* The 'id' to identify the port with the Host */
- 	u32 id;
- 
-+	/*
-+	 * The Host can set some limit to the number of outstanding
-+	 * buffers we can have in the readbuf_head list before we
-+	 * should ask the Host to stop any more data from coming in.
-+	 * This is to not allow a rogue process on the Host to OOM the
-+	 * entire guest.
-+	 */
-+	u32 buffer_limit;
+@@ -65,6 +65,23 @@ struct ports_device {
+ 	 * interrupt
+ 	 */
+ 	struct work_struct rx_work;
 +
-+	/*
-+	 * The actual number of buffers we have pending in the
-+	 * readbuf_head list
-+	 */
-+	u32 nr_buffers;
++	struct list_head unused_read_head;
 +
- 	/* Is the host device open */
- 	bool host_connected;
- 
- 	/* We should allow only one process to open a port */
- 	bool guest_connected;
++	/* To protect the list of unused read buffers and the in_vq */
++	spinlock_t read_list_lock;
++};
 +
-+	/* Does the Host not want to accept more data currently?  */
-+	bool host_throttled;
++/* This struct holds individual buffers received for each port */
++struct port_buffer {
++	struct list_head list;
 +
-+	/* Have we sent out a throttle request to the Host? */
-+	bool guest_throttled;
++	char *buf;
++
++	/* length of the buffer */
++	size_t len;
++	/* offset in the buf from which to consume data */
++	size_t offset;
  };
  
- /* This is the very early arch-specified put chars function. */
-@@ -383,6 +404,7 @@ static ssize_t fill_readbuf(struct port *port, char *out_buf, size_t out_count,
- 		if (buf->len - buf->offset == 0) {
- 			spin_lock_irqsave(&port->readbuf_list_lock, flags);
- 			list_del(&buf->list);
-+			port->nr_buffers--;
- 			spin_unlock_irqrestore(&port->readbuf_list_lock, flags);
- 			kfree(buf->buf);
- 			kfree(buf);
-@@ -390,6 +412,10 @@ static ssize_t fill_readbuf(struct port *port, char *out_buf, size_t out_count,
- 		if (!out_count)
- 			break;
- 	}
-+	if (port->guest_throttled && port->nr_buffers < port->buffer_limit) {
-+		send_control_msg(port, VIRTIO_CONSOLE_THROTTLE_PORT, 0);
-+		port->guest_throttled = false;
-+	}
- 	return out_offset;
- }
+ /* This struct holds the per-port data */
+@@ -72,9 +89,15 @@ struct port {
+ 	/* Pointer to the parent virtio_console device */
+ 	struct ports_device *portdev;
  
-@@ -446,6 +472,9 @@ static ssize_t port_fops_write(struct file *filp, const char __user *ubuf,
- 
- 	port = filp->private_data;
- 
-+	if (port->host_throttled)
-+		return -ENOSPC;
+-	/* This is our input buffer, and how much data is left in it. */
+-	char *inbuf;
+-	unsigned int used_len, offset;
++	/* Buffer management */
++	struct list_head readbuf_head;
 +
- 	return send_buf(port, ubuf, count, 0, true);
++	/*
++	 * To protect the readbuf_head list.  Has to be a spinlock
++	 * because it can be called from interrupt context
++	 * (get_char())
++	 */
++	spinlock_t readbuf_list_lock;
+ 
+ 	/* For console ports, hvc != NULL and these are valid. */
+ 	/* The hvc device */
+@@ -145,67 +168,71 @@ static int put_chars(u32 vtermno, const char *buf, int count)
  }
- 
-@@ -460,7 +489,7 @@ static unsigned int port_fops_poll(struct file *filp, poll_table *wait)
- 	ret = 0;
- 	if (!list_empty(&port->readbuf_head))
- 		ret |= POLLIN | POLLRDNORM;
--	if (port->host_connected)
-+	if (port->host_connected && !port->host_throttled)
- 		ret |= POLLOUT;
- 	if (!port->host_connected)
- 		ret |= POLLHUP;
-@@ -811,6 +840,35 @@ static void handle_control_message(struct port *port, struct port_buffer *buf)
- 				err);
- 
- 		break;
-+	case VIRTIO_CONSOLE_THROTTLE_PORT:
-+		/*
-+		 * Hosts can govern some policy to disallow rogue
-+		 * processes write indefinitely to ports leading to
-+		 * OOM situations.  If we receive this message here,
-+		 * it means the Host side of the port either reached
-+		 * its max. limit to cache data or signal to us that
-+		 * the host is ready to accept more data.
-+		 */
-+		port->host_throttled = cpkt->value;
-+		break;
-+	case VIRTIO_CONSOLE_BUFFER_LIMIT:
-+		/*
-+		 * We can ask the Host to stop sending data to us in
-+		 * case some rogue process on the Host injects data to
-+		 * OOM the entire guest (as unread buffers keep piling
-+		 * up in the kernel space). The Host, via this
-+		 * message, can tell us the number of Mbytes to
-+		 * buffer.
-+		 *
-+		 * The calculation is easy: we use 4K-sized pages in
-+		 * our readbuf_head list. So on each buffer added to
-+		 * the list, increment count by 1 (and decrement by 1
-+		 * when one gets removed). So we just store the
-+		 * (number-in-MB * 1024) / 4 to calculate the number of
-+		 * buffers we can have in the list.
-+		 */
-+		port->buffer_limit = (u32)cpkt->value * 1024 / 4;
-+		break;
- 	}
- }
- 
-@@ -881,10 +939,24 @@ static void rx_work_handler(struct work_struct *work)
- 		 */
- 		port->host_connected = true;
- 
-+		if (port->guest_throttled) {
-+			kfree(buf->buf);
-+			kfree(buf);
-+			continue;
-+		}
- 		spin_lock_irq(&port->readbuf_list_lock);
- 		list_add_tail(&buf->list, &port->readbuf_head);
-+		port->nr_buffers++;
- 		spin_unlock_irq(&port->readbuf_list_lock);
--
-+		/*
-+		 * If we reached the throttle level, send out a
-+		 * message to the host to ask it to stop sending us
-+		 * any more data.
-+		 */
-+		if (port->nr_buffers >= port->buffer_limit) {
-+			send_control_msg(port, VIRTIO_CONSOLE_THROTTLE_PORT, 1);
-+			port->guest_throttled = true;
-+		}
- 		wake_up_interruptible(&port->waitqueue);
- 
- 		if (is_console_port(port))
-@@ -974,6 +1046,8 @@ static int __devinit add_port(struct ports_device *portdev, u32 id)
- 	port->portdev = portdev;
- 	port->id = id;
- 
-+	port->buffer_limit = ~(u32)0;
-+
- 	cdev_init(&port->cdev, &port_fops);
- 
- 	devt = MKDEV(portdev->chr_major, id);
-diff --git a/include/linux/virtio_console.h b/include/linux/virtio_console.h
-index d65fdb5..2aa2b42 100644
---- a/include/linux/virtio_console.h
-+++ b/include/linux/virtio_console.h
-@@ -38,6 +38,8 @@ struct virtio_console_control {
- #define VIRTIO_CONSOLE_RESIZE		2
- #define VIRTIO_CONSOLE_PORT_OPEN	3
- #define VIRTIO_CONSOLE_PORT_NAME	4
-+#define VIRTIO_CONSOLE_THROTTLE_PORT	5
-+#define VIRTIO_CONSOLE_BUFFER_LIMIT	6
  
  /*
-  * This struct is put at the start of each buffer that gets passed to
+- * Create a scatter-gather list representing our input buffer and put
+- * it in the queue.
++ * Give out the data that's requested from the buffers that we have
++ * queued up.
+  */
+-static void add_inbuf(struct port *port)
++static ssize_t fill_readbuf(struct port *port, char *out_buf, size_t out_count)
+ {
+-	struct virtqueue *in_vq;
+-	struct scatterlist sg[1];
+-
+-	sg_init_one(sg, port->inbuf, PAGE_SIZE);
++	struct port_buffer *buf, *buf2;
++	ssize_t out_offset, ret;
++	unsigned long flags;
+ 
+-	in_vq = port->portdev->in_vq;
+-	/* Should always be able to add one buffer to an empty queue. */
+-	if (in_vq->vq_ops->add_buf(in_vq, sg, 0, 1, port) < 0)
+-		BUG();
+-	in_vq->vq_ops->kick(in_vq);
++	out_offset = 0;
++	/*
++	 * Not taking the port->readbuf_list_lock here relying on the
++	 * fact that buffers are taken out from the list only in this
++	 * function so buf2 should be available all the time.
++	 */
++	list_for_each_entry_safe(buf, buf2, &port->readbuf_head, list) {
++		size_t copy_size;
++
++		copy_size = out_count;
++		if (copy_size > buf->len - buf->offset)
++			copy_size = buf->len - buf->offset;
++
++		memcpy(out_buf + out_offset, buf->buf + buf->offset, copy_size);
++
++		/* Return the number of bytes actually copied */
++		ret = copy_size;
++		buf->offset += ret;
++		out_offset += ret;
++		out_count -= ret;
++
++		if (buf->len - buf->offset == 0) {
++			spin_lock_irqsave(&port->readbuf_list_lock, flags);
++			list_del(&buf->list);
++			spin_unlock_irqrestore(&port->readbuf_list_lock, flags);
++			kfree(buf->buf);
++			kfree(buf);
++		}
++		if (!out_count)
++			break;
++	}
++	return out_offset;
+ }
+ 
+ /*
+  * get_chars() is the callback from the hvc_console infrastructure
+  * when an interrupt is received.
+  *
+- * Most of the code deals with the fact that the hvc_console()
+- * infrastructure only asks us for 16 bytes at a time.  We keep
+- * in_offset and in_used fields for partially-filled buffers.
++ * We call out to fill_readbuf that gets us the required data from the
++ * buffers that are queued up.
+  */
+ static int get_chars(u32 vtermno, char *buf, int count)
+ {
+ 	struct port *port;
+-	struct virtqueue *in_vq;
+ 
+ 	port = find_port_by_vtermno(vtermno);
+ 	if (!port)
+ 		return 0;
+ 
+-	in_vq = port->portdev->in_vq;
+ 	/* If we don't have an input queue yet, we can't get input. */
+-	BUG_ON(!in_vq);
+-
+-	/* No more in buffer?  See if they've (re)used it. */
+-	if (port->offset == port->used_len) {
+-		unsigned int len;
+-
+-		if (!in_vq->vq_ops->get_buf(in_vq, &len))
+-			return 0;
+-		port->used_len = len;
+-		port->offset = 0;
+-	}
+-
+-	/* You want more than we have to give?  Well, try wanting less! */
+-	if (port->offset + count > port->used_len)
+-		count = port->used_len - port->offset;
++	BUG_ON(!port->portdev->in_vq);
+ 
+-	/* Copy across to their buffer and increment offset. */
+-	memcpy(buf, port->inbuf + port->offset, count);
+-	port->offset += count;
+-
+-	/* Finished?  Re-register buffer so Host will use it again. */
+-	if (port->offset == port->used_len)
+-		add_inbuf(port);
++	if (list_empty(&port->readbuf_head))
++		return 0;
+ 
+-	return count;
++	return fill_readbuf(port, buf, count);
+ }
+ 
+ static void resize_console(struct port *port)
+@@ -274,16 +301,103 @@ int __init virtio_cons_early_init(int (*put_chars)(u32, const char *, int))
+ 	return hvc_instantiate(0, 0, &hv_ops);
+ }
+ 
++static struct port_buffer *get_buf(size_t buf_size)
++{
++	struct port_buffer *buf;
++
++	buf = kzalloc(sizeof(*buf), GFP_KERNEL);
++	if (!buf)
++		goto out;
++	buf->buf = kzalloc(buf_size, GFP_KERNEL);
++	if (!buf->buf) {
++		kfree(buf);
++		goto out;
++	}
++	buf->len = buf_size;
++out:
++	return buf;
++}
++
++static void fill_receive_queue(struct ports_device *portdev)
++{
++	struct scatterlist sg[1];
++	struct port_buffer *buf;
++	struct virtqueue *vq;
++	int buf_size, ret;
++
++	vq = portdev->in_vq;
++	buf_size = PAGE_SIZE;
++	do {
++		buf = get_buf(buf_size);
++		if (!buf)
++			break;
++		sg_init_one(sg, buf->buf, buf_size);
++
++		spin_lock(&portdev->read_list_lock);
++		ret = vq->vq_ops->add_buf(vq, sg, 0, 1, buf);
++		if (ret < 0) {
++			spin_unlock(&portdev->read_list_lock);
++			kfree(buf->buf);
++			kfree(buf);
++			break;
++		}
++		/*
++		 * We have to keep track of the unused buffers so that
++		 * they can be freed when the module is being removed
++		 */
++		list_add_tail(&buf->list, &portdev->unused_read_head);
++		spin_unlock(&portdev->read_list_lock);
++	} while (ret > 0);
++
++	spin_lock(&portdev->read_list_lock);
++	vq->vq_ops->kick(vq);
++	spin_unlock(&portdev->read_list_lock);
++}
++
++static void *get_incoming_buf(struct ports_device *portdev,
++			      unsigned int *len)
++{
++	struct port_buffer *buf;
++	struct virtqueue *vq;
++
++	vq = portdev->in_vq;
++
++	spin_lock(&portdev->read_list_lock);
++	buf = vq->vq_ops->get_buf(vq, len);
++	if (buf) {
++		/* The buffer is no longer unused */
++		list_del(&buf->list);
++	}
++	spin_unlock(&portdev->read_list_lock);
++	return buf;
++}
++
+ static void rx_work_handler(struct work_struct *work)
+ {
++	struct ports_device *portdev;
+ 	struct port *port;
++	struct port_buffer *buf;
++	unsigned int tmplen;
+ 	bool activity = false;
+ 
+-	list_for_each_entry(port, &pdrvdata.consoles, list)
+-		activity |= hvc_poll(port->hvc);
++	portdev = container_of(work, struct ports_device, rx_work);
++
++	/* We currently have only one port */
++	port = find_port_by_vtermno(0);
++	while ((buf = get_incoming_buf(portdev, &tmplen))) {
++		buf->len = tmplen;
++		buf->offset = 0;
++
++		spin_lock_irq(&port->readbuf_list_lock);
++		list_add_tail(&buf->list, &port->readbuf_head);
++		spin_unlock_irq(&port->readbuf_list_lock);
+ 
++		activity |= hvc_poll(port->hvc);
++	}
+ 	if (activity)
+ 		hvc_kick();
++
++	fill_receive_queue(portdev);
+ }
+ 
+ static void rx_intr(struct virtqueue *vq)
+@@ -305,9 +419,6 @@ static int __devinit add_port(struct ports_device *portdev)
+ 		goto fail;
+ 
+ 	port->portdev = portdev;
+-	port->inbuf = kmalloc(PAGE_SIZE, GFP_KERNEL);
+-	if (!port->inbuf)
+-		goto free;
+ 
+ 	/*
+ 	 * The first argument of hvc_alloc() is the virtual console
+@@ -327,15 +438,15 @@ static int __devinit add_port(struct ports_device *portdev)
+ 		goto free;
+ 	}
+ 
++	spin_lock_init(&port->readbuf_list_lock);
++	INIT_LIST_HEAD(&port->readbuf_head);
++
+ 	/* Add to vtermno list. */
+ 	spin_lock_irq(&pdrvdata_lock);
+ 	pdrvdata.next_vtermno++;
+ 	list_add(&port->list, &pdrvdata.consoles);
+ 	spin_unlock_irq(&pdrvdata_lock);
+ 
+-	/* Register the input buffer the first time. */
+-	add_inbuf(port);
+-
+ 	return 0;
+ free:
+ 	kfree(port);
+@@ -372,8 +483,14 @@ static int __devinit virtcons_probe(struct virtio_device *vdev)
+ 	portdev->in_vq = vqs[0];
+ 	portdev->out_vq = vqs[1];
+ 
++	spin_lock_init(&portdev->read_list_lock);
++
++	INIT_LIST_HEAD(&portdev->unused_read_head);
++
+ 	INIT_WORK(&portdev->rx_work, &rx_work_handler);
+ 
++	fill_receive_queue(portdev);
++
+ 	/* We only have one port. */
+ 	err = add_port(portdev);
+ 	if (err)
 -- 
 1.6.2.5
