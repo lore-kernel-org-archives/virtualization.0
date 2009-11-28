@@ -1,8 +1,8 @@
 From: Amit Shah <amit.shah@redhat.com>
-Subject: [PATCH 09/28] virtio: console: struct ports for multiple ports per
-	device.
-Date: Sat, 28 Nov 2009 12:20:32 +0530
-Message-ID: <1259391051-7752-10-git-send-email-amit.shah@redhat.com>
+Subject: [PATCH 11/28] virtio: console: Introduce a workqueue for handling
+	host->guest notifications
+Date: Sat, 28 Nov 2009 12:20:34 +0530
+Message-ID: <1259391051-7752-12-git-send-email-amit.shah@redhat.com>
 References: <1259391051-7752-1-git-send-email-amit.shah@redhat.com>
 	<1259391051-7752-2-git-send-email-amit.shah@redhat.com>
 	<1259391051-7752-3-git-send-email-amit.shah@redhat.com>
@@ -12,11 +12,13 @@ References: <1259391051-7752-1-git-send-email-amit.shah@redhat.com>
 	<1259391051-7752-7-git-send-email-amit.shah@redhat.com>
 	<1259391051-7752-8-git-send-email-amit.shah@redhat.com>
 	<1259391051-7752-9-git-send-email-amit.shah@redhat.com>
+	<1259391051-7752-10-git-send-email-amit.shah@redhat.com>
+	<1259391051-7752-11-git-send-email-amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1259391051-7752-9-git-send-email-amit.shah@redhat.com>
+In-Reply-To: <1259391051-7752-11-git-send-email-amit.shah@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -30,301 +32,107 @@ To: rusty@rustcorp.com.au
 Cc: Amit Shah <amit.shah@redhat.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Rather than assume a single port, add a 'struct ports_device' which
-stores data related to all the ports for that device.
+We currently only maintain one buffer per port for any data the
+host sends us. If we're slow in consuming that data, we might lose
+old data. To buffer the data that the host sends us, we need to be
+able to allocate buffers as and when the host sends us some.
 
-Currently, there's only one port and is hooked up with hvc, but that
-will change.
+Using a workqueue gives us the freedom to allocate kernel buffers
+since the workqueues are executed in process context.
 
 Signed-off-by: Amit Shah <amit.shah@redhat.com>
 ---
- drivers/char/virtio_console.c |  154 +++++++++++++++++++++++-----------------
- 1 files changed, 88 insertions(+), 66 deletions(-)
+ drivers/char/virtio_console.c |   43 ++++++++++++++++++++++++++++------------
+ 1 files changed, 30 insertions(+), 13 deletions(-)
 
 diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index 98a5249..d4e2327 100644
+index 5a3d5df..a80d15c 100644
 --- a/drivers/char/virtio_console.c
 +++ b/drivers/char/virtio_console.c
-@@ -51,9 +51,20 @@ static struct ports_driver_data pdrvdata;
- 
- DEFINE_SPINLOCK(pdrvdata_lock);
- 
--struct port {
-+/*
-+ * This is a per-device struct that stores data common to all the
-+ * ports for that device (vdev->priv).
-+ */
-+struct ports_device {
- 	struct virtqueue *in_vq, *out_vq;
- 	struct virtio_device *vdev;
-+};
-+
-+/* This struct holds the per-port data */
-+struct port {
-+	/* Pointer to the parent virtio_console device */
-+	struct ports_device *portdev;
-+
- 	/* This is our input buffer, and how much data is left in it. */
- 	char *inbuf;
- 	unsigned int used_len, offset;
-@@ -100,6 +111,7 @@ static int put_chars(u32 vtermno, const char *buf, int count)
- {
- 	struct scatterlist sg[1];
- 	struct port *port;
-+	struct virtqueue *out_vq;
- 	unsigned int len;
- 
- 	port = find_port_by_vtermno(vtermno);
-@@ -109,14 +121,15 @@ static int put_chars(u32 vtermno, const char *buf, int count)
- 	if (unlikely(early_put_chars))
- 		return early_put_chars(vtermno, buf, count);
- 
-+	out_vq = port->portdev->out_vq;
- 	/* This is a convenient routine to initialize a single-elem sg list */
- 	sg_init_one(sg, buf, count);
- 
- 	/* This shouldn't fail: if it does, we lose chars. */
--	if (port->out_vq->vq_ops->add_buf(port->out_vq, sg, 1, 0, port) >= 0) {
-+	if (out_vq->vq_ops->add_buf(out_vq, sg, 1, 0, port) >= 0) {
- 		/* Tell Host to go! */
--		port->out_vq->vq_ops->kick(port->out_vq);
--		while (!port->out_vq->vq_ops->get_buf(port->out_vq, &len))
-+		out_vq->vq_ops->kick(out_vq);
-+		while (!out_vq->vq_ops->get_buf(out_vq, &len))
- 			cpu_relax();
- 	}
- 
-@@ -130,13 +143,16 @@ static int put_chars(u32 vtermno, const char *buf, int count)
-  */
- static void add_inbuf(struct port *port)
- {
-+	struct virtqueue *in_vq;
- 	struct scatterlist sg[1];
-+
- 	sg_init_one(sg, port->inbuf, PAGE_SIZE);
- 
-+	in_vq = port->portdev->in_vq;
- 	/* Should always be able to add one buffer to an empty queue. */
--	if (port->in_vq->vq_ops->add_buf(port->in_vq, sg, 0, 1, port) < 0)
-+	if (in_vq->vq_ops->add_buf(in_vq, sg, 0, 1, port) < 0)
- 		BUG();
--	port->in_vq->vq_ops->kick(port->in_vq);
-+	in_vq->vq_ops->kick(in_vq);
- }
+@@ -21,6 +21,7 @@
+ #include <linux/spinlock.h>
+ #include <linux/virtio.h>
+ #include <linux/virtio_console.h>
++#include <linux/workqueue.h>
+ #include "hvc_console.h"
  
  /*
-@@ -150,18 +166,23 @@ static void add_inbuf(struct port *port)
- static int get_chars(u32 vtermno, char *buf, int count)
- {
- 	struct port *port;
-+	struct virtqueue *in_vq;
- 
- 	port = find_port_by_vtermno(vtermno);
- 	if (!port)
- 		return 0;
- 
-+	in_vq = port->portdev->in_vq;
- 	/* If we don't have an input queue yet, we can't get input. */
--	BUG_ON(!port->in_vq);
-+	BUG_ON(!in_vq);
- 
- 	/* No more in buffer?  See if they've (re)used it. */
- 	if (port->offset == port->used_len) {
--		if (!port->in_vq->vq_ops->get_buf(port->in_vq, &port->used_len))
-+		unsigned int len;
+@@ -58,6 +59,12 @@ DEFINE_SPINLOCK(pdrvdata_lock);
+ struct ports_device {
+ 	struct virtqueue *in_vq, *out_vq;
+ 	struct virtio_device *vdev;
 +
-+		if (!in_vq->vq_ops->get_buf(in_vq, &len))
- 			return 0;
-+		port->used_len = len;
- 		port->offset = 0;
- 	}
++	/*
++	 * Workqueue handlers where we process deferred work after an
++	 * interrupt
++	 */
++	struct work_struct rx_work;
+ };
  
-@@ -186,7 +207,6 @@ static int get_chars(u32 vtermno, char *buf, int count)
-  */
- static void virtcons_apply_config(struct virtio_device *dev)
- {
--	struct port *port = dev->priv;
- 	struct winsize ws;
- 
- 	if (virtio_has_feature(dev, VIRTIO_CONSOLE_F_SIZE)) {
-@@ -196,7 +216,9 @@ static void virtcons_apply_config(struct virtio_device *dev)
- 		dev->config->get(dev,
- 				 offsetof(struct virtio_console_config, rows),
- 				 &ws.ws_row, sizeof(u16));
--		hvc_resize(port->hvc, ws);
-+		/* This is the pre-multiport style: we use control messages
-+		 * these days which specify the port.  So this means port 0. */
-+		hvc_resize(find_port_by_vtermno(0)->hvc, ws);
- 	}
+ /* This struct holds the per-port data */
+@@ -243,18 +250,6 @@ static void notifier_del_vio(struct hvc_struct *hp, int data)
+ 	hp->irq_requested = 0;
  }
  
-@@ -210,7 +232,7 @@ static int notifier_add_vio(struct hvc_struct *hp, int data)
- 		return -EINVAL;
- 
- 	hp->irq_requested = 1;
--	virtcons_apply_config(port->vdev);
-+	virtcons_apply_config(port->portdev->vdev);
- 
- 	return 0;
+-static void hvc_handle_input(struct virtqueue *vq)
+-{
+-	struct port *port;
+-	bool activity = false;
+-
+-	list_for_each_entry(port, &pdrvdata.consoles, list)
+-		activity |= hvc_poll(port->hvc);
+-
+-	if (activity)
+-		hvc_kick();
+-}
+-
+ /* The operations for the console. */
+ static const struct hv_ops hv_ops = {
+ 	.get_chars = get_chars,
+@@ -279,6 +274,26 @@ int __init virtio_cons_early_init(int (*put_chars)(u32, const char *, int))
+ 	return hvc_instantiate(0, 0, &hv_ops);
  }
-@@ -222,9 +244,13 @@ static void notifier_del_vio(struct hvc_struct *hp, int data)
  
- static void hvc_handle_input(struct virtqueue *vq)
- {
--	struct port *port = vq->vdev->priv;
++static void rx_work_handler(struct work_struct *work)
++{
 +	struct port *port;
 +	bool activity = false;
- 
--	if (hvc_poll(port->hvc))
++
 +	list_for_each_entry(port, &pdrvdata.consoles, list)
 +		activity |= hvc_poll(port->hvc);
 +
 +	if (activity)
- 		hvc_kick();
- }
- 
-@@ -252,67 +278,21 @@ int __init virtio_cons_early_init(int (*put_chars)(u32, const char *, int))
- 	return hvc_instantiate(0, 0, &hv_ops);
- }
- 
--static struct port *__devinit add_port(u32 vtermno)
-+static int __devinit add_port(struct ports_device *portdev)
- {
- 	struct port *port;
--
--	port = kzalloc(sizeof *port, GFP_KERNEL);
--	if (!port)
--		return NULL;
--
--	port->used_len = port->offset = 0;
--	port->inbuf = kmalloc(PAGE_SIZE, GFP_KERNEL);
--	if (!port->inbuf) {
--		kfree(port);
--		return NULL;
--	}
--	port->hvc = NULL;
--	port->vtermno = vtermno;
--	return port;
--}
--
--static void free_port(struct port *port)
--{
--	kfree(port->inbuf);
--	kfree(port);
--}
--
--/*
-- * Once we're further in boot, we get probed like any other virtio
-- * device.  At this stage we set up the output virtqueue.
-- *
-- * To set up and manage our virtual console, we call hvc_alloc().
-- * Since we never remove the console device we never need this pointer
-- * again.
-- *
-- * Finally we put our input buffer in the input queue, ready to
-- * receive.
-- */
--static int __devinit virtcons_probe(struct virtio_device *vdev)
--{
--	vq_callback_t *callbacks[] = { hvc_handle_input, NULL};
--	const char *names[] = { "input", "output" };
--	struct virtqueue *vqs[2];
--	struct port *port;
- 	int err;
- 
- 	err = -ENOMEM;
--	port = add_port(pdrvdata.next_vtermno);
-+	port = kzalloc(sizeof *port, GFP_KERNEL);
- 	if (!port)
- 		goto fail;
- 
--	/* Attach this port to this virtio_device, and vice-versa. */
--	port->vdev = vdev;
--	vdev->priv = port;
--
--	/* Find the queues. */
--	err = vdev->config->find_vqs(vdev, 2, vqs, callbacks, names);
--	if (err)
-+	port->portdev = portdev;
-+	port->inbuf = kmalloc(PAGE_SIZE, GFP_KERNEL);
-+	if (!port->inbuf)
- 		goto free;
- 
--	port->in_vq = vqs[0];
--	port->out_vq = vqs[1];
--
- 	/*
- 	 * The first argument of hvc_alloc() is the virtual console
- 	 * number.  The second argument is the parameter for the
-@@ -324,10 +304,11 @@ static int __devinit virtcons_probe(struct virtio_device *vdev)
- 	 * pointers.  The final argument is the output buffer size: we
- 	 * can do any size, so we put PAGE_SIZE here.
- 	 */
-+	port->vtermno = pdrvdata.next_vtermno;
- 	port->hvc = hvc_alloc(port->vtermno, 0, &hv_ops, PAGE_SIZE);
- 	if (IS_ERR(port->hvc)) {
- 		err = PTR_ERR(port->hvc);
--		goto free_vqs;
-+		goto free;
- 	}
- 
- 	/* Add to vtermno list. */
-@@ -339,6 +320,47 @@ static int __devinit virtcons_probe(struct virtio_device *vdev)
- 	/* Register the input buffer the first time. */
- 	add_inbuf(port);
- 
-+	return 0;
-+free:
-+	kfree(port);
-+fail:
-+	return err;
++		hvc_kick();
 +}
 +
-+/*
-+ * Once we're further in boot, we get probed like any other virtio
-+ * device.
-+ */
-+static int __devinit virtcons_probe(struct virtio_device *vdev)
++static void rx_intr(struct virtqueue *vq)
 +{
-+	vq_callback_t *callbacks[] = { hvc_handle_input, NULL};
-+	const char *names[] = { "input", "output" };
-+	struct virtqueue *vqs[2];
 +	struct ports_device *portdev;
-+	int err;
 +
-+	err = -ENOMEM;
-+	portdev = kzalloc(sizeof *portdev, GFP_KERNEL);
-+	if (!portdev)
-+		goto fail;
++	portdev = vq->vdev->priv;
++	schedule_work(&portdev->rx_work);
++}
 +
-+	/* Attach this portdev to this virtio_device, and vice-versa. */
-+	portdev->vdev = vdev;
-+	vdev->priv = portdev;
+ static int __devinit add_port(struct ports_device *portdev)
+ {
+ 	struct port *port;
+@@ -334,7 +349,7 @@ fail:
+  */
+ static int __devinit virtcons_probe(struct virtio_device *vdev)
+ {
+-	vq_callback_t *callbacks[] = { hvc_handle_input, NULL};
++	vq_callback_t *callbacks[] = { rx_intr, NULL};
+ 	const char *names[] = { "input", "output" };
+ 	struct virtqueue *vqs[2];
+ 	struct ports_device *portdev;
+@@ -357,6 +372,8 @@ static int __devinit virtcons_probe(struct virtio_device *vdev)
+ 	portdev->in_vq = vqs[0];
+ 	portdev->out_vq = vqs[1];
+ 
++	INIT_WORK(&portdev->rx_work, &rx_work_handler);
 +
-+	/* Find the queues. */
-+	err = vdev->config->find_vqs(vdev, 2, vqs, callbacks, names);
-+	if (err)
-+		goto free;
-+
-+	portdev->in_vq = vqs[0];
-+	portdev->out_vq = vqs[1];
-+
-+	/* We only have one port. */
-+	err = add_port(portdev);
-+	if (err)
-+		goto free_vqs;
-+
- 	/* Start using the new console output. */
- 	early_put_chars = NULL;
- 	return 0;
-@@ -346,7 +368,7 @@ static int __devinit virtcons_probe(struct virtio_device *vdev)
- free_vqs:
- 	vdev->config->del_vqs(vdev);
- free:
--	free_port(port);
-+	kfree(portdev);
- fail:
- 	return err;
- }
+ 	/* We only have one port. */
+ 	err = add_port(portdev);
+ 	if (err)
 -- 
 1.6.2.5
