@@ -1,7 +1,8 @@
 From: Amit Shah <amit.shah@redhat.com>
-Subject: [PATCH 27/28] virtio: console: Add ability to hot-unplug ports
-Date: Sat, 28 Nov 2009 12:20:50 +0530
-Message-ID: <1259391051-7752-28-git-send-email-amit.shah@redhat.com>
+Subject: [PATCH 20/28] virtio: console: Add file operations to ports for
+	open/read/write/poll
+Date: Sat, 28 Nov 2009 12:20:43 +0530
+Message-ID: <1259391051-7752-21-git-send-email-amit.shah@redhat.com>
 References: <1259391051-7752-1-git-send-email-amit.shah@redhat.com>
 	<1259391051-7752-2-git-send-email-amit.shah@redhat.com>
 	<1259391051-7752-3-git-send-email-amit.shah@redhat.com>
@@ -22,18 +23,11 @@ References: <1259391051-7752-1-git-send-email-amit.shah@redhat.com>
 	<1259391051-7752-18-git-send-email-amit.shah@redhat.com>
 	<1259391051-7752-19-git-send-email-amit.shah@redhat.com>
 	<1259391051-7752-20-git-send-email-amit.shah@redhat.com>
-	<1259391051-7752-21-git-send-email-amit.shah@redhat.com>
-	<1259391051-7752-22-git-send-email-amit.shah@redhat.com>
-	<1259391051-7752-23-git-send-email-amit.shah@redhat.com>
-	<1259391051-7752-24-git-send-email-amit.shah@redhat.com>
-	<1259391051-7752-25-git-send-email-amit.shah@redhat.com>
-	<1259391051-7752-26-git-send-email-amit.shah@redhat.com>
-	<1259391051-7752-27-git-send-email-amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1259391051-7752-27-git-send-email-amit.shah@redhat.com>
+In-Reply-To: <1259391051-7752-20-git-send-email-amit.shah@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -47,126 +41,302 @@ To: rusty@rustcorp.com.au
 Cc: Amit Shah <amit.shah@redhat.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Remove port data; deregister from the hvc core if it's a console port.
+Allow guest userspace applications to open, read from, write to, poll
+the ports via the char dev interface.
+
+When a port gets opened, a notification is sent to the host via a
+control message indicating a connection has been established. Similarly,
+on closing of the port, a notification is sent indicating disconnection.
 
 Signed-off-by: Amit Shah <amit.shah@redhat.com>
 ---
- drivers/char/virtio_console.c  |   69 +++++++++++++++++++++++++++++++++++++--
- include/linux/virtio_console.h |    1 +
- 2 files changed, 66 insertions(+), 4 deletions(-)
+ drivers/char/virtio_console.c  |  165 ++++++++++++++++++++++++++++++++++++++--
+ include/linux/virtio_console.h |    3 +
+ 2 files changed, 161 insertions(+), 7 deletions(-)
 
 diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index 47d84d7..8ed57c2 100644
+index 4d55f0f..66875d6 100644
 --- a/drivers/char/virtio_console.c
 +++ b/drivers/char/virtio_console.c
-@@ -795,6 +795,43 @@ static void fill_receive_queue(struct ports_device *portdev)
+@@ -19,11 +19,15 @@
+ #include <linux/cdev.h>
+ #include <linux/device.h>
+ #include <linux/err.h>
++#include <linux/fs.h>
+ #include <linux/init.h>
+ #include <linux/list.h>
++#include <linux/poll.h>
++#include <linux/sched.h>
+ #include <linux/spinlock.h>
+ #include <linux/virtio.h>
+ #include <linux/virtio_console.h>
++#include <linux/wait.h>
+ #include <linux/workqueue.h>
+ #include "hvc_console.h"
  
- static struct attribute_group port_attribute_group;
+@@ -146,6 +150,9 @@ struct port {
+ 	 */
+ 	spinlock_t readbuf_list_lock;
  
-+/* Remove port-specific data. */
-+static int remove_port_data(struct port *port)
++	/* A waitqueue for poll() or blocking read operations */
++	wait_queue_head_t waitqueue;
++
+ 	/* Each port associates with a separate char device */
+ 	struct cdev cdev;
+ 	struct device *dev;
+@@ -158,6 +165,9 @@ struct port {
+ 
+ 	/* The 'id' to identify the port with the Host */
+ 	u32 id;
++
++	/* Is the host device open */
++	bool host_connected;
+ };
+ 
+ /* This is the very early arch-specified put chars function. */
+@@ -245,7 +255,7 @@ static ssize_t send_buf(struct port *port, const char *in_buf, size_t in_count,
+ 		return 0;
+ 
+ 	header.id = port->id;
+-	header.flags = flags;
++	header.flags = flags | VIRTIO_CONSOLE_HDR_START_DATA;
+ 	header_len = use_multiport(port->portdev) ? sizeof(header) : 0;
+ 
+ 	in_offset = 0; /* offset in the user buffer */
+@@ -261,10 +271,7 @@ static ssize_t send_buf(struct port *port, const char *in_buf, size_t in_count,
+ 		list_del(&buf->list);
+ 		spin_unlock_irqrestore(&port->portdev->write_list_lock, irqf);
+ 
+-		if (header_len) {
+-			memcpy(buf->buf, &header, header_len);
+-			copy_size -= header_len;
+-		}
++		copy_size -= header_len;
+ 		if (from_user) {
+ 			ret = copy_from_user(buf->buf + header_len,
+ 					     in_buf + in_offset, copy_size);
+@@ -280,8 +287,13 @@ static ssize_t send_buf(struct port *port, const char *in_buf, size_t in_count,
+ 			ret = 0; /* Emulate copy_from_user behaviour */
+ 		}
+ 		buf->len = header_len + copy_size - ret;
+-		sg_init_one(sg, buf->buf, buf->len);
++		if (!(in_count - in_offset - (buf->len - header_len)))
++			header.flags |= VIRTIO_CONSOLE_HDR_END_DATA;
+ 
++		if (header_len)
++			memcpy(buf->buf, &header, header_len);
++
++		sg_init_one(sg, buf->buf, buf->len);
+ 		spin_lock_irqsave(&port->portdev->write_list_lock, irqf);
+ 		ret = out_vq->vq_ops->add_buf(out_vq, sg, 1, 0, buf);
+ 		if (ret < 0) {
+@@ -292,6 +304,9 @@ static ssize_t send_buf(struct port *port, const char *in_buf, size_t in_count,
+ 		}
+ 		in_offset += buf->len - header_len;
+ 
++		/* Set the START_DATA flag only for the first buffer. */
++		header.flags &= ~VIRTIO_CONSOLE_HDR_START_DATA;
++
+ 		/* No space left in the vq anyway */
+ 		if (!ret)
+ 			break;
+@@ -372,6 +387,129 @@ static ssize_t fill_readbuf(struct port *port, char *out_buf, size_t out_count,
+ 	return out_offset;
+ }
+ 
++/* The condition that must be true for polling to end */
++static bool wait_is_over(struct port *port)
 +{
-+	struct port_buffer *buf, *buf2;
++	return !list_empty(&port->readbuf_head) || !port->host_connected;
++}
 +
-+	spin_lock_irq(&port->portdev->ports_list_lock);
-+	list_del(&port->list);
-+	spin_unlock_irq(&port->portdev->ports_list_lock);
++static ssize_t port_fops_read(struct file *filp, char __user *ubuf,
++			      size_t count, loff_t *offp)
++{
++	struct port *port;
++	ssize_t ret;
 +
-+	if (port->guest_connected)
-+		send_control_msg(port, VIRTIO_CONSOLE_PORT_OPEN, 0);
++	port = filp->private_data;
 +
-+	if (is_console_port(port)) {
-+		spin_lock_irq(&pdrvdata_lock);
-+		list_del(&port->cons.list);
-+		spin_unlock_irq(&pdrvdata_lock);
-+		hvc_remove(port->cons.hvc);
++	if (list_empty(&port->readbuf_head)) {
++		/*
++		 * If nothing's connected on the host just return 0 in
++		 * case of list_empty; this tells the userspace app
++		 * that there's no connection
++		 */
++		if (!port->host_connected)
++			return 0;
++		if (filp->f_flags & O_NONBLOCK)
++			return -EAGAIN;
++
++		ret = wait_event_interruptible(port->waitqueue,
++					       wait_is_over(port));
++		if (ret < 0)
++			return ret;
 +	}
-+	sysfs_remove_group(&port->dev->kobj, &port_attribute_group);
-+	device_destroy(pdrvdata.class, port->dev->devt);
-+	cdev_del(&port->cdev);
++	/*
++	 * We could've received a disconnection message while we were
++	 * waiting for more data.
++	 *
++	 * This check is not clubbed in the if() statement above as we
++	 * might receive some data as well as the host could get
++	 * disconnected after we got woken up from our wait.  So we
++	 * really want to give off whatever data we have and only then
++	 * check for host_connected.
++	 */
++	if (list_empty(&port->readbuf_head) && !port->host_connected)
++		return 0;
 +
-+	kfree(port->name);
++	return fill_readbuf(port, ubuf, count, true);
++}
 +
-+	/* Remove the buffers in which we have unconsumed data */
-+	spin_lock_irq(&port->readbuf_list_lock);
-+	list_for_each_entry_safe(buf, buf2, &port->readbuf_head, list) {
-+		list_del(&buf->list);
-+		kfree(buf->buf);
-+		kfree(buf);
-+	}
-+	spin_unlock_irq(&port->readbuf_list_lock);
++static ssize_t port_fops_write(struct file *filp, const char __user *ubuf,
++			       size_t count, loff_t *offp)
++{
++	struct port *port;
 +
-+	kfree(port);
++	port = filp->private_data;
++
++	return send_buf(port, ubuf, count, 0, true);
++}
++
++static unsigned int port_fops_poll(struct file *filp, poll_table *wait)
++{
++	struct port *port;
++	unsigned int ret;
++
++	port = filp->private_data;
++	poll_wait(filp, &port->waitqueue, wait);
++
++	ret = 0;
++	if (!list_empty(&port->readbuf_head))
++		ret |= POLLIN | POLLRDNORM;
++	if (port->host_connected)
++		ret |= POLLOUT;
++	if (!port->host_connected)
++		ret |= POLLHUP;
++
++	return ret;
++}
++
++static int port_fops_release(struct inode *inode, struct file *filp)
++{
++	struct port *port;
++
++	port = filp->private_data;
++
++	/* Notify host of port being closed */
++	send_control_msg(port, VIRTIO_CONSOLE_PORT_OPEN, 0);
++
 +	return 0;
 +}
 +
- /* Any private messages that the Host and Guest want to share */
- static void handle_control_message(struct port *port, struct port_buffer *buf)
- {
-@@ -888,6 +925,30 @@ static void handle_control_message(struct port *port, struct port_buffer *buf)
- 	case VIRTIO_CONSOLE_CACHE_BUFFERS:
- 		port->cache_buffers = cpkt->value;
++static int port_fops_open(struct inode *inode, struct file *filp)
++{
++	struct cdev *cdev = inode->i_cdev;
++	struct port *port;
++
++	port = container_of(cdev, struct port, cdev);
++	filp->private_data = port;
++
++	/*
++	 * Don't allow opening of console port devices -- that's done
++	 * via /dev/hvc
++	 */
++	if (is_console_port(port))
++		return -ENXIO;
++
++	/* Notify host of port being opened */
++	send_control_msg(filp->private_data, VIRTIO_CONSOLE_PORT_OPEN, 1);
++
++	return 0;
++}
++
++/*
++ * The file operations that we support: programs in the guest can open
++ * a console device, read from it, write to it, poll for data and
++ * close it. The devices are at
++ *   /dev/vport<device number>p<port number>
++ */
++static const struct file_operations port_fops = {
++	.owner = THIS_MODULE,
++	.open  = port_fops_open,
++	.read  = port_fops_read,
++	.write = port_fops_write,
++	.poll  = port_fops_poll,
++	.release = port_fops_release,
++};
++
+ /*
+  * The put_chars() callback is pretty straightforward.
+  *
+@@ -618,6 +756,10 @@ static void handle_control_message(struct port *port, struct port_buffer *buf)
+ 		port->cons.hvc->irq_requested = 1;
+ 		resize_console(port);
  		break;
-+	case VIRTIO_CONSOLE_PORT_REMOVE:
-+		/*
-+		 * Hot unplug the port. We don't decrement nr_ports
-+		 * since we don't want to deal with extra complexities
-+		 * of using the lowest-available port id: We can just
-+		 * pick up the nr_ports number as the id and not have
-+		 * userspace send it to us. This helps us in two ways:
-+		 *
-+		 * - We don't need to have a 'port_id' field in the
-+		 *   config space when a port is hot-added. This is a
-+		 *   good thing as we might queue up multiple hotplug
-+		 *   requests issued in our workqueue.
-+		 *
-+		 * - Another way to deal with this would have been to
-+		 *   use a bitmap of the active ports and select the
-+		 *   lowest non-active port from that map. That bloats
-+		 *   the already tight config space and we would end
-+		 *   up artificially limiting the max. number of ports
-+		 *   to sizeof(bitmap). Right now we can support 2^32
-+		 *   ports (as the port id is stored in a u32 type).
-+		 *
-+		 */
-+		remove_port_data(port);
++	case VIRTIO_CONSOLE_PORT_OPEN:
++		port->host_connected = cpkt->value;
++		wake_up_interruptible(&port->waitqueue);
 +		break;
  	}
  }
  
-@@ -1152,10 +1213,6 @@ fail:
- 	return err;
- }
- 
--static struct file_operations portdev_fops = {
--	.owner = THIS_MODULE,
--};
--
- /*
-  * The workhandler for config-space updates
-  *
-@@ -1200,6 +1257,10 @@ static void config_work_handler(struct work_struct *work)
- 	}
- }
- 
-+static struct file_operations portdev_fops = {
-+	.owner = THIS_MODULE,
-+};
+@@ -682,10 +824,18 @@ static void rx_work_handler(struct work_struct *work)
+ 			kfree(buf);
+ 			continue;
+ 		}
++		/*
++		 * We might have missed a connection notification,
++		 * e.g. before the queues were initialised.
++		 */
++		port->host_connected = true;
 +
- /*
-  * Once we're further in boot, we get probed like any other virtio
-  * device.
+ 		spin_lock_irq(&port->readbuf_list_lock);
+ 		list_add_tail(&buf->list, &port->readbuf_head);
+ 		spin_unlock_irq(&port->readbuf_list_lock);
+ 
++		wake_up_interruptible(&port->waitqueue);
++
+ 		if (is_console_port(port))
+ 			console_activity |= hvc_poll(port->cons.hvc);
+ 	}
+@@ -751,7 +901,7 @@ static int __devinit add_port(struct ports_device *portdev, u32 id)
+ 	port->portdev = portdev;
+ 	port->id = id;
+ 
+-	cdev_init(&port->cdev, NULL);
++	cdev_init(&port->cdev, &port_fops);
+ 
+ 	devt = MKDEV(portdev->chr_major, id);
+ 	err = cdev_add(&port->cdev, devt, 1);
+@@ -772,6 +922,7 @@ static int __devinit add_port(struct ports_device *portdev, u32 id)
+ 	}
+ 	spin_lock_init(&port->readbuf_list_lock);
+ 	INIT_LIST_HEAD(&port->readbuf_head);
++	init_waitqueue_head(&port->waitqueue);
+ 
+ 	/*
+ 	 * If we're not using multiport support, this has to be a console port
 diff --git a/include/linux/virtio_console.h b/include/linux/virtio_console.h
-index 70924a1..4941c91 100644
+index ad9557d..14af53d 100644
 --- a/include/linux/virtio_console.h
 +++ b/include/linux/virtio_console.h
-@@ -41,6 +41,7 @@ struct virtio_console_control {
- #define VIRTIO_CONSOLE_THROTTLE_PORT	5
- #define VIRTIO_CONSOLE_BUFFER_LIMIT	6
- #define VIRTIO_CONSOLE_CACHE_BUFFERS	7
-+#define VIRTIO_CONSOLE_PORT_REMOVE	8
+@@ -36,6 +36,7 @@ struct virtio_console_control {
+ #define VIRTIO_CONSOLE_PORT_READY	0
+ #define VIRTIO_CONSOLE_CONSOLE_PORT	1
+ #define VIRTIO_CONSOLE_RESIZE		2
++#define VIRTIO_CONSOLE_PORT_OPEN	3
  
  /*
   * This struct is put at the start of each buffer that gets passed to
+@@ -50,6 +51,8 @@ struct virtio_console_header {
+ 
+ /* Messages between host and guest ('flags' field in the header above) */
+ #define VIRTIO_CONSOLE_HDR_CONTROL	(1 << 0)
++#define VIRTIO_CONSOLE_HDR_START_DATA	(1 << 1)
++#define VIRTIO_CONSOLE_HDR_END_DATA	(1 << 2)
+ 
+ #ifdef __KERNEL__
+ int __init virtio_cons_early_init(int (*put_chars)(u32, const char *, int));
 -- 
 1.6.2.5
