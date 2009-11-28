@@ -1,8 +1,7 @@
 From: Amit Shah <amit.shah@redhat.com>
-Subject: [PATCH 24/28] virtio: console: Add option to remove cached buffers on
-	port close
-Date: Sat, 28 Nov 2009 12:20:47 +0530
-Message-ID: <1259391051-7752-25-git-send-email-amit.shah@redhat.com>
+Subject: [PATCH 27/28] virtio: console: Add ability to hot-unplug ports
+Date: Sat, 28 Nov 2009 12:20:50 +0530
+Message-ID: <1259391051-7752-28-git-send-email-amit.shah@redhat.com>
 References: <1259391051-7752-1-git-send-email-amit.shah@redhat.com>
 	<1259391051-7752-2-git-send-email-amit.shah@redhat.com>
 	<1259391051-7752-3-git-send-email-amit.shah@redhat.com>
@@ -27,11 +26,14 @@ References: <1259391051-7752-1-git-send-email-amit.shah@redhat.com>
 	<1259391051-7752-22-git-send-email-amit.shah@redhat.com>
 	<1259391051-7752-23-git-send-email-amit.shah@redhat.com>
 	<1259391051-7752-24-git-send-email-amit.shah@redhat.com>
+	<1259391051-7752-25-git-send-email-amit.shah@redhat.com>
+	<1259391051-7752-26-git-send-email-amit.shah@redhat.com>
+	<1259391051-7752-27-git-send-email-amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1259391051-7752-24-git-send-email-amit.shah@redhat.com>
+In-Reply-To: <1259391051-7752-27-git-send-email-amit.shah@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -45,99 +47,124 @@ To: rusty@rustcorp.com.au
 Cc: Amit Shah <amit.shah@redhat.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-If caching of buffers upon closing a port is not desired,
-delete all the buffers queued up for the port upon port
-close.
-
-This only applies to generic ports; console ports aren't
-opened / closed by the chardev interface.
+Remove port data; deregister from the hvc core if it's a console port.
 
 Signed-off-by: Amit Shah <amit.shah@redhat.com>
 ---
- drivers/char/virtio_console.c  |   37 ++++++++++++++++++++++++++++++++++++-
+ drivers/char/virtio_console.c  |   69 +++++++++++++++++++++++++++++++++++++--
  include/linux/virtio_console.h |    1 +
- 2 files changed, 37 insertions(+), 1 deletions(-)
+ 2 files changed, 66 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index fe8f14f..8fac9eb 100644
+index 47d84d7..8ed57c2 100644
 --- a/drivers/char/virtio_console.c
 +++ b/drivers/char/virtio_console.c
-@@ -195,6 +195,9 @@ struct port {
+@@ -795,6 +795,43 @@ static void fill_receive_queue(struct ports_device *portdev)
  
- 	/* Have we sent out a throttle request to the Host? */
- 	bool guest_throttled;
+ static struct attribute_group port_attribute_group;
+ 
++/* Remove port-specific data. */
++static int remove_port_data(struct port *port)
++{
++	struct port_buffer *buf, *buf2;
 +
-+	/* Does the port want to cache data when disconnected? */
-+	bool cache_buffers;
- };
- 
- /* This is the very early arch-specified put chars function. */
-@@ -506,8 +509,25 @@ static int port_fops_release(struct inode *inode, struct file *filp)
- 	/* Notify host of port being closed */
- 	send_control_msg(port, VIRTIO_CONSOLE_PORT_OPEN, 0);
- 
++	spin_lock_irq(&port->portdev->ports_list_lock);
++	list_del(&port->list);
++	spin_unlock_irq(&port->portdev->ports_list_lock);
++
++	if (port->guest_connected)
++		send_control_msg(port, VIRTIO_CONSOLE_PORT_OPEN, 0);
++
++	if (is_console_port(port)) {
++		spin_lock_irq(&pdrvdata_lock);
++		list_del(&port->cons.list);
++		spin_unlock_irq(&pdrvdata_lock);
++		hvc_remove(port->cons.hvc);
++	}
++	sysfs_remove_group(&port->dev->kobj, &port_attribute_group);
++	device_destroy(pdrvdata.class, port->dev->devt);
++	cdev_del(&port->cdev);
++
++	kfree(port->name);
++
++	/* Remove the buffers in which we have unconsumed data */
 +	spin_lock_irq(&port->readbuf_list_lock);
- 	port->guest_connected = false;
- 
-+	/*
-+	 * If the port doesn't want to cache buffers while closed,
-+	 * flush the unread buffers queue
-+	 */
-+	if (!port->cache_buffers) {
-+		struct port_buffer *buf, *buf2;
-+
-+		list_for_each_entry_safe(buf, buf2, &port->readbuf_head, list) {
-+			list_del(&buf->list);
-+			kfree(buf->buf);
-+			kfree(buf);
-+			port->nr_buffers--;
-+		}
++	list_for_each_entry_safe(buf, buf2, &port->readbuf_head, list) {
++		list_del(&buf->list);
++		kfree(buf->buf);
++		kfree(buf);
 +	}
 +	spin_unlock_irq(&port->readbuf_list_lock);
 +
- 	return 0;
- }
- 
-@@ -869,6 +889,9 @@ static void handle_control_message(struct port *port, struct port_buffer *buf)
- 		 */
- 		port->buffer_limit = (u32)cpkt->value * 1024 / 4;
++	kfree(port);
++	return 0;
++}
++
+ /* Any private messages that the Host and Guest want to share */
+ static void handle_control_message(struct port *port, struct port_buffer *buf)
+ {
+@@ -888,6 +925,30 @@ static void handle_control_message(struct port *port, struct port_buffer *buf)
+ 	case VIRTIO_CONSOLE_CACHE_BUFFERS:
+ 		port->cache_buffers = cpkt->value;
  		break;
-+	case VIRTIO_CONSOLE_CACHE_BUFFERS:
-+		port->cache_buffers = cpkt->value;
++	case VIRTIO_CONSOLE_PORT_REMOVE:
++		/*
++		 * Hot unplug the port. We don't decrement nr_ports
++		 * since we don't want to deal with extra complexities
++		 * of using the lowest-available port id: We can just
++		 * pick up the nr_ports number as the id and not have
++		 * userspace send it to us. This helps us in two ways:
++		 *
++		 * - We don't need to have a 'port_id' field in the
++		 *   config space when a port is hot-added. This is a
++		 *   good thing as we might queue up multiple hotplug
++		 *   requests issued in our workqueue.
++		 *
++		 * - Another way to deal with this would have been to
++		 *   use a bitmap of the active ports and select the
++		 *   lowest non-active port from that map. That bloats
++		 *   the already tight config space and we would end
++		 *   up artificially limiting the max. number of ports
++		 *   to sizeof(bitmap). Right now we can support 2^32
++		 *   ports (as the port id is stored in a u32 type).
++		 *
++		 */
++		remove_port_data(port);
 +		break;
  	}
  }
  
-@@ -938,7 +961,19 @@ static void rx_work_handler(struct work_struct *work)
- 		 * e.g. before the queues were initialised.
- 		 */
- 		port->host_connected = true;
+@@ -1152,10 +1213,6 @@ fail:
+ 	return err;
+ }
+ 
+-static struct file_operations portdev_fops = {
+-	.owner = THIS_MODULE,
+-};
 -
-+		/*
-+		 * Don't queue up buffers if caching is disabled and
-+		 * port is closed. This condition can be reached when
-+		 * a console port is not yet connected (no tty is
-+		 * spawned) and the host sends out data to console
-+		 * ports. For generic serial ports, the host won't
-+		 * send data till the guest is connected.
-+		 */
-+		if (!port->guest_connected && !port->cache_buffers) {
-+			kfree(buf->buf);
-+			kfree(buf);
-+			continue;
-+		}
- 		if (port->guest_throttled) {
- 			kfree(buf->buf);
- 			kfree(buf);
+ /*
+  * The workhandler for config-space updates
+  *
+@@ -1200,6 +1257,10 @@ static void config_work_handler(struct work_struct *work)
+ 	}
+ }
+ 
++static struct file_operations portdev_fops = {
++	.owner = THIS_MODULE,
++};
++
+ /*
+  * Once we're further in boot, we get probed like any other virtio
+  * device.
 diff --git a/include/linux/virtio_console.h b/include/linux/virtio_console.h
-index 2aa2b42..70924a1 100644
+index 70924a1..4941c91 100644
 --- a/include/linux/virtio_console.h
 +++ b/include/linux/virtio_console.h
-@@ -40,6 +40,7 @@ struct virtio_console_control {
- #define VIRTIO_CONSOLE_PORT_NAME	4
+@@ -41,6 +41,7 @@ struct virtio_console_control {
  #define VIRTIO_CONSOLE_THROTTLE_PORT	5
  #define VIRTIO_CONSOLE_BUFFER_LIMIT	6
-+#define VIRTIO_CONSOLE_CACHE_BUFFERS	7
+ #define VIRTIO_CONSOLE_CACHE_BUFFERS	7
++#define VIRTIO_CONSOLE_PORT_REMOVE	8
  
  /*
   * This struct is put at the start of each buffer that gets passed to
