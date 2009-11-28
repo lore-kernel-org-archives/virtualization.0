@@ -1,8 +1,8 @@
 From: Amit Shah <amit.shah@redhat.com>
-Subject: [PATCH 21/28] virtio: console: Ensure only one process can have a
-	port open at a time
-Date: Sat, 28 Nov 2009 12:20:44 +0530
-Message-ID: <1259391051-7752-22-git-send-email-amit.shah@redhat.com>
+Subject: [PATCH 24/28] virtio: console: Add option to remove cached buffers on
+	port close
+Date: Sat, 28 Nov 2009 12:20:47 +0530
+Message-ID: <1259391051-7752-25-git-send-email-amit.shah@redhat.com>
 References: <1259391051-7752-1-git-send-email-amit.shah@redhat.com>
 	<1259391051-7752-2-git-send-email-amit.shah@redhat.com>
 	<1259391051-7752-3-git-send-email-amit.shah@redhat.com>
@@ -24,11 +24,14 @@ References: <1259391051-7752-1-git-send-email-amit.shah@redhat.com>
 	<1259391051-7752-19-git-send-email-amit.shah@redhat.com>
 	<1259391051-7752-20-git-send-email-amit.shah@redhat.com>
 	<1259391051-7752-21-git-send-email-amit.shah@redhat.com>
+	<1259391051-7752-22-git-send-email-amit.shah@redhat.com>
+	<1259391051-7752-23-git-send-email-amit.shah@redhat.com>
+	<1259391051-7752-24-git-send-email-amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1259391051-7752-21-git-send-email-amit.shah@redhat.com>
+In-Reply-To: <1259391051-7752-24-git-send-email-amit.shah@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -42,64 +45,101 @@ To: rusty@rustcorp.com.au
 Cc: Amit Shah <amit.shah@redhat.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Add a guest_connected field that ensures only one process
-can have a port open at a time.
+If caching of buffers upon closing a port is not desired,
+delete all the buffers queued up for the port upon port
+close.
 
-This also ensures we don't have a race when we later add support for
-dropping buffers when closing the char dev and buffer caching is turned
-off for the particular port.
+This only applies to generic ports; console ports aren't
+opened / closed by the chardev interface.
 
 Signed-off-by: Amit Shah <amit.shah@redhat.com>
 ---
- drivers/char/virtio_console.c |   15 +++++++++++++++
- 1 files changed, 15 insertions(+), 0 deletions(-)
+ drivers/char/virtio_console.c  |   37 ++++++++++++++++++++++++++++++++++++-
+ include/linux/virtio_console.h |    1 +
+ 2 files changed, 37 insertions(+), 1 deletions(-)
 
 diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index 66875d6..3a305f8 100644
+index fe8f14f..8fac9eb 100644
 --- a/drivers/char/virtio_console.c
 +++ b/drivers/char/virtio_console.c
-@@ -168,6 +168,9 @@ struct port {
+@@ -195,6 +195,9 @@ struct port {
  
- 	/* Is the host device open */
- 	bool host_connected;
+ 	/* Have we sent out a throttle request to the Host? */
+ 	bool guest_throttled;
 +
-+	/* We should allow only one process to open a port */
-+	bool guest_connected;
++	/* Does the port want to cache data when disconnected? */
++	bool cache_buffers;
  };
  
  /* This is the very early arch-specified put chars function. */
-@@ -471,6 +474,8 @@ static int port_fops_release(struct inode *inode, struct file *filp)
+@@ -506,8 +509,25 @@ static int port_fops_release(struct inode *inode, struct file *filp)
  	/* Notify host of port being closed */
  	send_control_msg(port, VIRTIO_CONSOLE_PORT_OPEN, 0);
  
-+	port->guest_connected = false;
-+
- 	return 0;
- }
- 
-@@ -489,6 +494,15 @@ static int port_fops_open(struct inode *inode, struct file *filp)
- 	if (is_console_port(port))
- 		return -ENXIO;
- 
-+	/* Allow only one process to open a particular port at a time */
 +	spin_lock_irq(&port->readbuf_list_lock);
-+	if (port->guest_connected) {
-+		spin_unlock_irq(&port->readbuf_list_lock);
-+		return -EMFILE;
+ 	port->guest_connected = false;
+ 
++	/*
++	 * If the port doesn't want to cache buffers while closed,
++	 * flush the unread buffers queue
++	 */
++	if (!port->cache_buffers) {
++		struct port_buffer *buf, *buf2;
++
++		list_for_each_entry_safe(buf, buf2, &port->readbuf_head, list) {
++			list_del(&buf->list);
++			kfree(buf->buf);
++			kfree(buf);
++			port->nr_buffers--;
++		}
 +	}
-+	port->guest_connected = true;
 +	spin_unlock_irq(&port->readbuf_list_lock);
 +
- 	/* Notify host of port being opened */
- 	send_control_msg(filp->private_data, VIRTIO_CONSOLE_PORT_OPEN, 1);
- 
-@@ -656,6 +670,7 @@ int init_port_console(struct port *port)
- 	pdrvdata.next_vtermno++;
- 	list_add_tail(&port->cons.list, &pdrvdata.consoles);
- 	spin_unlock_irq(&pdrvdata_lock);
-+	port->guest_connected = true;
- 
  	return 0;
  }
+ 
+@@ -869,6 +889,9 @@ static void handle_control_message(struct port *port, struct port_buffer *buf)
+ 		 */
+ 		port->buffer_limit = (u32)cpkt->value * 1024 / 4;
+ 		break;
++	case VIRTIO_CONSOLE_CACHE_BUFFERS:
++		port->cache_buffers = cpkt->value;
++		break;
+ 	}
+ }
+ 
+@@ -938,7 +961,19 @@ static void rx_work_handler(struct work_struct *work)
+ 		 * e.g. before the queues were initialised.
+ 		 */
+ 		port->host_connected = true;
+-
++		/*
++		 * Don't queue up buffers if caching is disabled and
++		 * port is closed. This condition can be reached when
++		 * a console port is not yet connected (no tty is
++		 * spawned) and the host sends out data to console
++		 * ports. For generic serial ports, the host won't
++		 * send data till the guest is connected.
++		 */
++		if (!port->guest_connected && !port->cache_buffers) {
++			kfree(buf->buf);
++			kfree(buf);
++			continue;
++		}
+ 		if (port->guest_throttled) {
+ 			kfree(buf->buf);
+ 			kfree(buf);
+diff --git a/include/linux/virtio_console.h b/include/linux/virtio_console.h
+index 2aa2b42..70924a1 100644
+--- a/include/linux/virtio_console.h
++++ b/include/linux/virtio_console.h
+@@ -40,6 +40,7 @@ struct virtio_console_control {
+ #define VIRTIO_CONSOLE_PORT_NAME	4
+ #define VIRTIO_CONSOLE_THROTTLE_PORT	5
+ #define VIRTIO_CONSOLE_BUFFER_LIMIT	6
++#define VIRTIO_CONSOLE_CACHE_BUFFERS	7
+ 
+ /*
+  * This struct is put at the start of each buffer that gets passed to
 -- 
 1.6.2.5
