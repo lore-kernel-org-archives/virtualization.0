@@ -1,8 +1,8 @@
 From: Amit Shah <amit.shah@redhat.com>
-Subject: [PATCH 14/28] virtio: console: Separate out console-specific data
-	into a separate struct
-Date: Sat, 28 Nov 2009 12:20:37 +0530
-Message-ID: <1259391051-7752-15-git-send-email-amit.shah@redhat.com>
+Subject: [PATCH 28/28] virtio: console: Add debugfs files for each port to
+	expose debug info
+Date: Sat, 28 Nov 2009 12:20:51 +0530
+Message-ID: <1259391051-7752-29-git-send-email-amit.shah@redhat.com>
 References: <1259391051-7752-1-git-send-email-amit.shah@redhat.com>
 	<1259391051-7752-2-git-send-email-amit.shah@redhat.com>
 	<1259391051-7752-3-git-send-email-amit.shah@redhat.com>
@@ -17,11 +17,25 @@ References: <1259391051-7752-1-git-send-email-amit.shah@redhat.com>
 	<1259391051-7752-12-git-send-email-amit.shah@redhat.com>
 	<1259391051-7752-13-git-send-email-amit.shah@redhat.com>
 	<1259391051-7752-14-git-send-email-amit.shah@redhat.com>
+	<1259391051-7752-15-git-send-email-amit.shah@redhat.com>
+	<1259391051-7752-16-git-send-email-amit.shah@redhat.com>
+	<1259391051-7752-17-git-send-email-amit.shah@redhat.com>
+	<1259391051-7752-18-git-send-email-amit.shah@redhat.com>
+	<1259391051-7752-19-git-send-email-amit.shah@redhat.com>
+	<1259391051-7752-20-git-send-email-amit.shah@redhat.com>
+	<1259391051-7752-21-git-send-email-amit.shah@redhat.com>
+	<1259391051-7752-22-git-send-email-amit.shah@redhat.com>
+	<1259391051-7752-23-git-send-email-amit.shah@redhat.com>
+	<1259391051-7752-24-git-send-email-amit.shah@redhat.com>
+	<1259391051-7752-25-git-send-email-amit.shah@redhat.com>
+	<1259391051-7752-26-git-send-email-amit.shah@redhat.com>
+	<1259391051-7752-27-git-send-email-amit.shah@redhat.com>
+	<1259391051-7752-28-git-send-email-amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1259391051-7752-14-git-send-email-amit.shah@redhat.com>
+In-Reply-To: <1259391051-7752-28-git-send-email-amit.shah@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -35,139 +49,146 @@ To: rusty@rustcorp.com.au
 Cc: Amit Shah <amit.shah@redhat.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Move out console-specific stuff into a separate struct from 'struct
-port' as we need to maintain two lists: one for all the ports (which
-includes consoles) and one only for consoles since the hvc callbacks
-only give us the vtermno.
-
-This makes console handling cleaner.
+This is helpful in examining ports' state.
 
 Signed-off-by: Amit Shah <amit.shah@redhat.com>
 ---
- drivers/char/virtio_console.c |   57 ++++++++++++++++++++++++++--------------
- 1 files changed, 37 insertions(+), 20 deletions(-)
+ drivers/char/virtio_console.c |   78 +++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 78 insertions(+), 0 deletions(-)
 
 diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index 3111e4c..da8a3ff 100644
+index 8ed57c2..1ca9675 100644
 --- a/drivers/char/virtio_console.c
 +++ b/drivers/char/virtio_console.c
-@@ -52,6 +52,24 @@ static struct ports_driver_data pdrvdata;
+@@ -17,6 +17,7 @@
+  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+  */
+ #include <linux/cdev.h>
++#include <linux/debugfs.h>
+ #include <linux/device.h>
+ #include <linux/err.h>
+ #include <linux/fs.h>
+@@ -43,6 +44,9 @@ struct ports_driver_data {
+ 	/* Used for registering chardevs */
+ 	struct class *class;
  
- DEFINE_SPINLOCK(pdrvdata_lock);
++	/* Used for exporting per-port information to debugfs */
++	struct dentry *debugfs_dir;
++
+ 	/* Number of devices this driver is handling */
+ 	unsigned int index;
  
-+/* This struct holds information that's relevant only for console ports */
-+struct console {
-+	/* We'll place all consoles in a list in the pdrvdata struct */
-+	struct list_head list;
-+
-+	/* The hvc device associated with this console port */
-+	struct hvc_struct *hvc;
-+
-+	/*
-+	 * This number identifies the number that we used to register
-+	 * with hvc in hvc_instantiate() and hvc_alloc(); this is the
-+	 * number passed on by the hvc callbacks to us to
-+	 * differentiate between the other console ports handled by
-+	 * this driver
-+	 */
-+	u32 vtermno;
-+};
-+
- /*
-  * This is a per-device struct that stores data common to all the
-  * ports for that device (vdev->priv).
-@@ -103,15 +121,11 @@ struct port {
- 	 */
- 	spinlock_t readbuf_list_lock;
+@@ -141,6 +145,9 @@ struct port {
+ 	/* Pointer to the parent virtio_console device */
+ 	struct ports_device *portdev;
  
--	/* For console ports, hvc != NULL and these are valid. */
--	/* The hvc device */
--	struct hvc_struct *hvc;
--
--	/* We'll place all consoles in a list in the pdrvdata struct */
--	struct list_head list;
--
--	/* Our vterm number. */
--	u32 vtermno;
-+	/*
-+	 * The entries in this struct will be valid if this port is
-+	 * hooked up to an hvc console
-+	 */
-+	struct console cons;
++	/* File in the debugfs directory that exposes this port's information */
++	struct dentry *debugfs_file;
++
+ 	/* Buffer management */
+ 	struct list_head readbuf_head;
+ 
+@@ -827,6 +834,7 @@ static int remove_port_data(struct port *port)
+ 		kfree(buf);
+ 	}
+ 	spin_unlock_irq(&port->readbuf_list_lock);
++	debugfs_remove(port->debugfs_file);
+ 
+ 	kfree(port);
+ 	return 0;
+@@ -1142,9 +1150,62 @@ static struct attribute_group port_attribute_group = {
+ 	.attrs = port_sysfs_entries,
  };
  
- /* This is the very early arch-specified put chars function. */
-@@ -120,12 +134,15 @@ static int (*early_put_chars)(u32, const char *, int);
- static struct port *find_port_by_vtermno(u32 vtermno)
++static int debugfs_open(struct inode *inode, struct file *filp)
++{
++	filp->private_data = inode->i_private;
++	return 0;
++}
++
++static ssize_t debugfs_read(struct file *filp, char __user *ubuf,
++			    size_t count, loff_t *offp)
++{
++	struct port *port;
++	char *buf;
++	ssize_t ret, out_offset, out_count;
++
++	out_count = 1024;
++	buf = kmalloc(out_count, GFP_KERNEL);
++	if (!buf)
++		return -ENOMEM;
++
++	port = filp->private_data;
++	out_offset = 0;
++	out_offset += snprintf(buf + out_offset, out_count,
++			       "name: %s\n", port->name);
++	out_offset += snprintf(buf + out_offset, out_count - out_offset,
++			       "guest_connected: %d\n", port->guest_connected);
++	out_offset += snprintf(buf + out_offset, out_count - out_offset,
++			       "guest_throttled: %d\n", port->guest_throttled);
++	out_offset += snprintf(buf + out_offset, out_count - out_offset,
++			       "buffer_limit: %u\n", port->buffer_limit);
++	out_offset += snprintf(buf + out_offset, out_count - out_offset,
++			       "nr_buffers: %u\n", port->nr_buffers);
++	out_offset += snprintf(buf + out_offset, out_count - out_offset,
++			       "cache_buffers: %d\n", port->cache_buffers);
++	out_offset += snprintf(buf + out_offset, out_count - out_offset,
++			       "host_connected: %d\n", port->host_connected);
++	out_offset += snprintf(buf + out_offset, out_count - out_offset,
++			       "host_throttled: %d\n", port->host_throttled);
++	out_offset += snprintf(buf + out_offset, out_count - out_offset,
++			       "is_console: %d\n", port->cons.hvc ? 1 : 0);
++	out_offset += snprintf(buf + out_offset, out_count - out_offset,
++			       "console_vtermno: %u\n", port->cons.vtermno);
++
++	ret = simple_read_from_buffer(ubuf, count, offp, buf, out_offset);
++	kfree(buf);
++	return ret;
++}
++
++static const struct file_operations port_debugfs_ops = {
++	.owner = THIS_MODULE,
++	.open  = debugfs_open,
++	.read  = debugfs_read,
++};
++
+ static int add_port(struct ports_device *portdev, u32 id)
  {
  	struct port *port;
-+	struct console *cons;
- 	unsigned long flags;
++	char debugfs_name[8];
+ 	dev_t devt;
+ 	int err;
  
- 	spin_lock_irqsave(&pdrvdata_lock, flags);
--	list_for_each_entry(port, &pdrvdata.consoles, list) {
--		if (port->vtermno == vtermno)
-+	list_for_each_entry(cons, &pdrvdata.consoles, list) {
-+		if (cons->vtermno == vtermno) {
-+			port = container_of(cons, struct port, cons);
- 			goto out;
-+		}
- 	}
- 	port = NULL;
- out:
-@@ -297,7 +314,7 @@ static void resize_console(struct port *port)
- 		vdev->config->get(vdev,
- 				  offsetof(struct virtio_console_config, rows),
- 				  &ws.ws_row, sizeof(u16));
--		hvc_resize(port->hvc, ws);
-+		hvc_resize(port->cons.hvc, ws);
- 	}
- }
- 
-@@ -444,7 +461,7 @@ static void rx_work_handler(struct work_struct *work)
- 	struct port *port;
- 	struct port_buffer *buf;
- 	unsigned int tmplen;
--	bool activity = false;
-+	bool console_activity = false;
- 
- 	portdev = container_of(work, struct ports_device, rx_work);
- 
-@@ -458,9 +475,9 @@ static void rx_work_handler(struct work_struct *work)
- 		list_add_tail(&buf->list, &port->readbuf_head);
- 		spin_unlock_irq(&port->readbuf_list_lock);
- 
--		activity |= hvc_poll(port->hvc);
-+		console_activity |= hvc_poll(port->cons.hvc);
- 	}
--	if (activity)
-+	if (console_activity)
- 		hvc_kick();
- 
- 	fill_receive_queue(portdev);
-@@ -531,10 +548,10 @@ static int __devinit add_port(struct ports_device *portdev)
- 	 * pointers.  The final argument is the output buffer size: we
- 	 * can do any size, so we put PAGE_SIZE here.
+@@ -1201,6 +1262,18 @@ static int add_port(struct ports_device *portdev, u32 id)
  	 */
--	port->vtermno = pdrvdata.next_vtermno;
--	port->hvc = hvc_alloc(port->vtermno, 0, &hv_ops, PAGE_SIZE);
--	if (IS_ERR(port->hvc)) {
--		err = PTR_ERR(port->hvc);
-+	port->cons.vtermno = pdrvdata.next_vtermno;
-+	port->cons.hvc = hvc_alloc(port->cons.vtermno, 0, &hv_ops, PAGE_SIZE);
-+	if (IS_ERR(port->cons.hvc)) {
-+		err = PTR_ERR(port->cons.hvc);
- 		goto free;
- 	}
+ 	send_control_msg(port, VIRTIO_CONSOLE_PORT_READY, 1);
  
-@@ -544,7 +561,7 @@ static int __devinit add_port(struct ports_device *portdev)
- 	/* Add to vtermno list. */
- 	spin_lock_irq(&pdrvdata_lock);
- 	pdrvdata.next_vtermno++;
--	list_add(&port->list, &pdrvdata.consoles);
-+	list_add(&port->cons.list, &pdrvdata.consoles);
- 	spin_unlock_irq(&pdrvdata_lock);
- 
++	if (pdrvdata.debugfs_dir) {
++		/*
++		 * Finally, create the debugfs file that we can use to
++		 * inspect a port's state at any time
++		 */
++		sprintf(debugfs_name, "vport%up%u",
++			port->portdev->drv_index, id);
++		port->debugfs_file = debugfs_create_file(debugfs_name, 0444,
++							 pdrvdata.debugfs_dir,
++							 port,
++							 &port_debugfs_ops);
++	}
  	return 0;
+ 
+ free_device:
+@@ -1381,6 +1454,11 @@ static int __init init(void)
+ 		pr_err("Error %d creating virtio-ports class\n", err);
+ 		return err;
+ 	}
++	pdrvdata.debugfs_dir = debugfs_create_dir("virtio-ports", NULL);
++	if (!pdrvdata.debugfs_dir) {
++		pr_warning("Error %ld creating debugfs dir for virtio-ports\n",
++			   PTR_ERR(pdrvdata.debugfs_dir));
++	}
+ 	INIT_LIST_HEAD(&pdrvdata.consoles);
+ 
+ 	return register_virtio_driver(&virtio_console);
 -- 
 1.6.2.5
