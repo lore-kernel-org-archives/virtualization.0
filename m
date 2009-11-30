@@ -1,15 +1,16 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH 07/28] virtio: console: don't assume a single console port.
-Date: Mon, 30 Nov 2009 12:20:02 +1030
-Message-ID: <200911301220.02346.rusty@rustcorp.com.au>
+Subject: Re: [PATCH 09/28] virtio: console: struct ports for multiple ports
+	per device.
+Date: Mon, 30 Nov 2009 12:39:52 +1030
+Message-ID: <200911301239.52400.rusty@rustcorp.com.au>
 References: <1259391051-7752-1-git-send-email-amit.shah@redhat.com>
-	<1259391051-7752-7-git-send-email-amit.shah@redhat.com>
-	<1259391051-7752-8-git-send-email-amit.shah@redhat.com>
+	<1259391051-7752-9-git-send-email-amit.shah@redhat.com>
+	<1259391051-7752-10-git-send-email-amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1259391051-7752-8-git-send-email-amit.shah@redhat.com>
+In-Reply-To: <1259391051-7752-10-git-send-email-amit.shah@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -23,33 +24,35 @@ To: Amit Shah <amit.shah@redhat.com>
 Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sat, 28 Nov 2009 05:20:30 pm Amit Shah wrote:
-> Keep a list of all ports being used as a console, and provide a lock
-> and a lookup function.  The hvc callbacks only give us a vterm number,
-> so we need to map this.
+On Sat, 28 Nov 2009 05:20:32 pm Amit Shah wrote:
+> @@ -196,7 +216,9 @@ static void virtcons_apply_config(struct virtio_device *dev)
+>  		dev->config->get(dev,
+>  				 offsetof(struct virtio_console_config, rows),
+>  				 &ws.ws_row, sizeof(u16));
+> -		hvc_resize(port->hvc, ws);
+> +		/* This is the pre-multiport style: we use control messages
+> +		 * these days which specify the port.  So this means port 0. */
+> +		hvc_resize(find_port_by_vtermno(0)->hvc, ws);
+>  	}
 
-OK, I think we can do better than this.
+We end up doing this in a couple of places; perhaps we should have something
+like:
+	/*
+	 * Before multiple console support, we always had a single console.
+	 * Code paths without those features can use this.
+	 */
+	static struct port *old_style_unique_console(void)
+	{
+		return find_port_by_vtermno(0);
+	}
 
-How about we introduce a 'struct console_port', like so:
+>  	err = -ENOMEM;
+> -	port = add_port(pdrvdata.next_vtermno);
+> +	port = kzalloc(sizeof *port, GFP_KERNEL);
+>  	if (!port)
+>  		goto fail;
 
-	/* A port which is used as a console. */
-	struct console_port {
-		struct port port;
-
-		u32 vtermno;
-		struct list_head list;
-	};
-
-	static DEFINE_SPINLOCK(console_lock);
-	static LIST_HEAD(consoles);
-
-ie. now we have nicely partitioned off the console-specific parts, and
-can use ->port and container_of() to get from this to a generic port and
-vice-versa.
-
-It will make allocations a little more complex, since we need to allocate
-a 'struct console_port' or a 'struct port' depending on what we want, but the
-rest should be significantly cleaner.
+I still dislike kzalloc.  I think I've said this before :)
 
 Thanks,
 Rusty.
