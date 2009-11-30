@@ -1,18 +1,11 @@
-From: Amit Shah <amit.shah@redhat.com>
-Subject: Re: [PATCH 09/28] virtio: console: struct ports for multiple ports
-	per device.
-Date: Mon, 30 Nov 2009 11:20:25 +0530
-Message-ID: <20091130055025.GC25052@amit-x200.redhat.com>
-References: <1259391051-7752-1-git-send-email-amit.shah@redhat.com>
-	<1259391051-7752-9-git-send-email-amit.shah@redhat.com>
-	<1259391051-7752-10-git-send-email-amit.shah@redhat.com>
-	<200911301239.52400.rusty@rustcorp.com.au>
+From: Adam Litke <agl@us.ibm.com>
+Subject: virtio: Add memory statistics reporting to the balloon driver (V4)
+Date: Mon, 30 Nov 2009 10:14:15 -0600
+Message-ID: <1259597655.30369.2.camel__8575.09839484028$1259597826$gmane$org@aglitke>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <200911301239.52400.rusty@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -23,60 +16,219 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: virtualization@lists.linux-foundation.org
+Cc: linux-kernel@vger.kernel.org, Anthony Liguori <anthony@codemonkey.ws>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On (Mon) Nov 30 2009 [12:39:52], Rusty Russell wrote:
-> On Sat, 28 Nov 2009 05:20:32 pm Amit Shah wrote:
-> > @@ -196,7 +216,9 @@ static void virtcons_apply_config(struct virtio_device *dev)
-> >  		dev->config->get(dev,
-> >  				 offsetof(struct virtio_console_config, rows),
-> >  				 &ws.ws_row, sizeof(u16));
-> > -		hvc_resize(port->hvc, ws);
-> > +		/* This is the pre-multiport style: we use control messages
-> > +		 * these days which specify the port.  So this means port 0. */
-> > +		hvc_resize(find_port_by_vtermno(0)->hvc, ws);
-> >  	}
-> 
-> We end up doing this in a couple of places; perhaps we should have something
-> like:
-> 	/*
-> 	 * Before multiple console support, we always had a single console.
-> 	 * Code paths without those features can use this.
-> 	 */
-> 	static struct port *old_style_unique_console(void)
-> 	{
-> 		return find_port_by_vtermno(0);
-> 	}
+Changes since V3:
+ - Do not do endian conversions as they will be done in the host
+ - Report stats that reference a quantity of memory in bytes
+ - Minor coding style updates
 
-(Again) in a later patch, I rename the function to resize_console() and
-call that one from the config interrupt as well as from the
-hvc notifier.
+Changes since V2:
+ - Increase stat field size to 64 bits
+ - Report all sizes in kb (not pages)
+ - Drop anon_pages stat and fix endianness conversion
 
-> >  	err = -ENOMEM;
-> > -	port = add_port(pdrvdata.next_vtermno);
-> > +	port = kzalloc(sizeof *port, GFP_KERNEL);
-> >  	if (!port)
-> >  		goto fail;
-> 
-> I still dislike kzalloc.  I think I've said this before :)
+Changes since V1:
+ - Use a virtqueue instead of the device config space
 
-I remember seeing it in another thread I think (or was it in a blog post
-about you liking the ability to run it through valgrind?).
+When using ballooning to manage overcommitted memory on a host, a system for
+guests to communicate their memory usage to the host can provide information
+that will minimize the impact of ballooning on the guests.  The current method
+employs a daemon running in each guest that communicates memory statistics to a
+host daemon at a specified time interval.  The host daemon aggregates this
+information and inflates and/or deflates balloons according to the level of
+host memory pressure.  This approach is effective but overly complex since a
+daemon must be installed inside each guest and coordinated to communicate with
+the host.  A simpler approach is to collect memory statistics in the virtio
+balloon driver and communicate them directly to the hypervisor.
 
-The init function becomes a bit longer in that case, since we'll have to
-init all the known state. But I'm fine with that.
+This patch enables the guest-side support by adding stats collection and
+reporting to the virtio balloon driver.
 
-However, there's one exception: when allocating buffers, I'd prefer to
-do a kzalloc() since the buffers are sent across the guest/host boundary
-and we don't want to leak data in either direction.
+Signed-off-by: Adam Litke <agl@us.ibm.com>
+Cc: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Anthony Liguori <anthony@codemonkey.ws>
+Cc: virtualization@lists.linux-foundation.org
+Cc: linux-kernel@vger.kernel.org
 
-(Just mentioning this again since it's the last comment: I'll respin the
-series once you have a chance to review the other patches too.)
+diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+index 200c22f..f4c8cd8 100644
+--- a/drivers/virtio/virtio_balloon.c
++++ b/drivers/virtio/virtio_balloon.c
+@@ -29,7 +29,7 @@
+ struct virtio_balloon
+ {
+ 	struct virtio_device *vdev;
+-	struct virtqueue *inflate_vq, *deflate_vq;
++	struct virtqueue *inflate_vq, *deflate_vq, *stats_vq;
+ 
+ 	/* Where the ballooning thread waits for config to change. */
+ 	wait_queue_head_t config_change;
+@@ -50,6 +50,9 @@ struct virtio_balloon
+ 	/* The array of pfns we tell the Host about. */
+ 	unsigned int num_pfns;
+ 	u32 pfns[256];
++
++	/* Memory statistics */
++	struct virtio_balloon_stat stats[VIRTIO_BALLOON_S_NR];
+ };
+ 
+ static struct virtio_device_id id_table[] = {
+@@ -155,6 +158,61 @@ static void leak_balloon(struct virtio_balloon *vb, size_t num)
+ 	}
+ }
+ 
++static inline void update_stat(struct virtio_balloon *vb, int idx,
++				__le16 tag, __le64 val)
++{
++	BUG_ON(idx >= VIRTIO_BALLOON_S_NR);
++	vb->stats[idx].tag = tag;
++	vb->stats[idx].val = val;
++}
++
++#define pages_to_bytes(x) ((x) << PAGE_SHIFT)
++static void update_balloon_stats(struct virtio_balloon *vb)
++{
++	unsigned long events[NR_VM_EVENT_ITEMS];
++	struct sysinfo i;
++	int idx = 0;
++
++	all_vm_events(events);
++	si_meminfo(&i);
++
++	update_stat(vb, idx++, VIRTIO_BALLOON_S_SWAP_IN,
++				pages_to_bytes(events[PSWPIN]));
++	update_stat(vb, idx++, VIRTIO_BALLOON_S_SWAP_OUT,
++				pages_to_bytes(events[PSWPOUT]));
++	update_stat(vb, idx++, VIRTIO_BALLOON_S_MAJFLT, events[PGMAJFAULT]);
++	update_stat(vb, idx++, VIRTIO_BALLOON_S_MINFLT, events[PGFAULT]);
++	update_stat(vb, idx++, VIRTIO_BALLOON_S_MEMFREE,
++				pages_to_bytes(i.freeram));
++	update_stat(vb, idx++, VIRTIO_BALLOON_S_MEMTOT,
++				pages_to_bytes(i.totalram));
++}
++
++/*
++ * While most virtqueues communicate guest-initiated requests to the hypervisor,
++ * the stats queue operates in reverse.  The driver initializes the virtqueue
++ * with a single buffer.  From that point forward, all conversations consist of
++ * a hypervisor request (a call to this function) which directs us to refill
++ * the virtqueue with a fresh stats buffer.
++ */
++static void stats_ack(struct virtqueue *vq)
++{
++	struct virtio_balloon *vb;
++	unsigned int len;
++	struct scatterlist sg;
++
++	vb = vq->vq_ops->get_buf(vq, &len);
++	if (!vb)
++		return;
++
++	update_balloon_stats(vb);
++
++	sg_init_one(&sg, vb->stats, sizeof(vb->stats));
++	if (vq->vq_ops->add_buf(vq, &sg, 1, 0, vb) < 0)
++		BUG();
++	vq->vq_ops->kick(vq);
++}
++
+ static void virtballoon_changed(struct virtio_device *vdev)
+ {
+ 	struct virtio_balloon *vb = vdev->priv;
+@@ -205,10 +263,10 @@ static int balloon(void *_vballoon)
+ static int virtballoon_probe(struct virtio_device *vdev)
+ {
+ 	struct virtio_balloon *vb;
+-	struct virtqueue *vqs[2];
+-	vq_callback_t *callbacks[] = { balloon_ack, balloon_ack };
+-	const char *names[] = { "inflate", "deflate" };
+-	int err;
++	struct virtqueue *vqs[3];
++	vq_callback_t *callbacks[] = { balloon_ack, balloon_ack, stats_ack };
++	const char *names[] = { "inflate", "deflate", "stats" };
++	int err, nvqs;
+ 
+ 	vdev->priv = vb = kmalloc(sizeof(*vb), GFP_KERNEL);
+ 	if (!vb) {
+@@ -221,13 +279,28 @@ static int virtballoon_probe(struct virtio_device *vdev)
+ 	init_waitqueue_head(&vb->config_change);
+ 	vb->vdev = vdev;
+ 
+-	/* We expect two virtqueues. */
+-	err = vdev->config->find_vqs(vdev, 2, vqs, callbacks, names);
++	/* We expect two virtqueues: inflate and deflate,
++	 * and optionally stat. */
++	nvqs = virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_STATS_VQ) ? 3 : 2;
++	err = vdev->config->find_vqs(vdev, nvqs, vqs, callbacks, names);
+ 	if (err)
+ 		goto out_free_vb;
+ 
+ 	vb->inflate_vq = vqs[0];
+ 	vb->deflate_vq = vqs[1];
++	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_STATS_VQ)) {
++		struct scatterlist sg;
++		vb->stats_vq = vqs[2];
++
++		/*
++		 * Prime this virtqueue with one buffer so the hypervisor can
++		 * use it to signal us later.
++		 */
++		sg_init_one(&sg, vb->stats, sizeof vb->stats);
++		if (vb->stats_vq->vq_ops->add_buf(vb->stats_vq, &sg, 1, 0, vb) < 0)
++			BUG();
++		vb->stats_vq->vq_ops->kick(vb->stats_vq);
++	}
+ 
+ 	vb->thread = kthread_run(balloon, vb, "vballoon");
+ 	if (IS_ERR(vb->thread)) {
+@@ -265,7 +338,10 @@ static void virtballoon_remove(struct virtio_device *vdev)
+ 	kfree(vb);
+ }
+ 
+-static unsigned int features[] = { VIRTIO_BALLOON_F_MUST_TELL_HOST };
++static unsigned int features[] = {
++	VIRTIO_BALLOON_F_MUST_TELL_HOST,
++	VIRTIO_BALLOON_F_STATS_VQ,
++};
+ 
+ static struct virtio_driver virtio_balloon = {
+ 	.feature_table = features,
+diff --git a/include/linux/virtio_balloon.h b/include/linux/virtio_balloon.h
+index 09d7300..92d3550 100644
+--- a/include/linux/virtio_balloon.h
++++ b/include/linux/virtio_balloon.h
+@@ -6,6 +6,7 @@
+ 
+ /* The feature bitmap for virtio balloon */
+ #define VIRTIO_BALLOON_F_MUST_TELL_HOST	0 /* Tell before reclaiming pages */
++#define VIRTIO_BALLOON_F_STATS_VQ	1 /* Memory Stats virtqueue */
+ 
+ /* Size of a PFN in the balloon interface. */
+ #define VIRTIO_BALLOON_PFN_SHIFT 12
+@@ -17,4 +18,19 @@ struct virtio_balloon_config
+ 	/* Number of pages we've actually got in balloon. */
+ 	__le32 actual;
+ };
++
++#define VIRTIO_BALLOON_S_SWAP_IN  0   /* Amount of memory swapped in */
++#define VIRTIO_BALLOON_S_SWAP_OUT 1   /* Amount of memory swapped out */
++#define VIRTIO_BALLOON_S_MAJFLT   2   /* Number of major faults */
++#define VIRTIO_BALLOON_S_MINFLT   3   /* Number of minor faults */
++#define VIRTIO_BALLOON_S_MEMFREE  4   /* Total amount of free memory */
++#define VIRTIO_BALLOON_S_MEMTOT   5   /* Total amount of memory */
++#define VIRTIO_BALLOON_S_NR       6
++
++struct virtio_balloon_stat
++{
++	u16 tag;
++	u64 val;
++} __attribute__((packed));
++
+ #endif /* _LINUX_VIRTIO_BALLOON_H */
 
-Also: if you think the approach is OK and give an ACK for the approach,
-I can also proceed in parallel with the host bits for QEMU.
 
-Thanks, Rusty!
-
-		Amit
+-- 
+Thanks,
+Adam
