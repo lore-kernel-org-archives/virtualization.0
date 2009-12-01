@@ -1,14 +1,13 @@
-From: Adam Litke <agl@us.ibm.com>
+From: Avi Kivity <avi@redhat.com>
 Subject: Re: virtio: Add memory statistics reporting to the balloon driver (V4)
-Date: Tue, 01 Dec 2009 08:49:45 -0600
-Message-ID: <1259678985.2816.0.camel__30771.5048002594$1259679138$gmane$org@aglitke>
+Date: Tue, 01 Dec 2009 16:56:36 +0200
+Message-ID: <4B152EA4.7080207__24943.2092336521$1259679497$gmane$org@redhat.com>
 References: <1259597655.30369.2.camel@aglitke>
-	<200912011254.22861.rusty@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <200912011254.22861.rusty@rustcorp.com.au>
+In-Reply-To: <1259597655.30369.2.camel@aglitke>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,81 +17,41 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
+To: Adam Litke <agl@us.ibm.com>
 Cc: linux-kernel@vger.kernel.org, Anthony Liguori <anthony@codemonkey.ws>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Thanks Rusty.
+On 11/30/2009 06:14 PM, Adam Litke wrote:
+> Changes since V3:
+>   - Do not do endian conversions as they will be done in the host
+>   - Report stats that reference a quantity of memory in bytes
+>   - Minor coding style updates
+>
+> Changes since V2:
+>   - Increase stat field size to 64 bits
+>   - Report all sizes in kb (not pages)
+>   - Drop anon_pages stat and fix endianness conversion
+>
+> Changes since V1:
+>   - Use a virtqueue instead of the device config space
+>
+> When using ballooning to manage overcommitted memory on a host, a system for
+> guests to communicate their memory usage to the host can provide information
+> that will minimize the impact of ballooning on the guests.  The current method
+> employs a daemon running in each guest that communicates memory statistics to a
+> host daemon at a specified time interval.  The host daemon aggregates this
+> information and inflates and/or deflates balloons according to the level of
+> host memory pressure.  This approach is effective but overly complex since a
+> daemon must be installed inside each guest and coordinated to communicate with
+> the host.  A simpler approach is to collect memory statistics in the virtio
+> balloon driver and communicate them directly to the hypervisor.
+>
+> This patch enables the guest-side support by adding stats collection and
+> reporting to the virtio balloon driver.
+>
+>    
 
-Acked-by: Adam Litke <agl@us.ibm.com>
-
-On Tue, 2009-12-01 at 12:54 +1030, Rusty Russell wrote:
-> On Tue, 1 Dec 2009 02:44:15 am Adam Litke wrote:
-> > Changes since V3:
-> 
-> OK, I applied this.  And here's the fixes I applied afterwards (to save YA
-> round trip: please ack and I'll fold them together)
-> 
-> virtio: balloon fixes
-> 
-> 1) Tag and val args to update_stat() are no longer __le.
-> 2) pages_to_bytes() should promote to u64 so we don't truncate.
-> 3) Fix two checkpatch.pl warnings.
-> 
-> Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
-> ---
->  drivers/virtio/virtio_balloon.c |    8 +++++---
->  include/linux/virtio_balloon.h  |    3 +--
->  2 files changed, 6 insertions(+), 5 deletions(-)
-> 
-> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-> --- a/drivers/virtio/virtio_balloon.c
-> +++ b/drivers/virtio/virtio_balloon.c
-> @@ -158,14 +158,15 @@ static void leak_balloon(struct virtio_b
->  }
-> 
->  static inline void update_stat(struct virtio_balloon *vb, int idx,
-> -				__le16 tag, __le64 val)
-> +			       u16 tag, u64 val)
->  {
->  	BUG_ON(idx >= VIRTIO_BALLOON_S_NR);
->  	vb->stats[idx].tag = tag;
->  	vb->stats[idx].val = val;
->  }
-> 
-> -#define pages_to_bytes(x) ((x) << PAGE_SHIFT)
-> +#define pages_to_bytes(x) ((u64)(x) << PAGE_SHIFT)
-> +
->  static void update_balloon_stats(struct virtio_balloon *vb)
->  {
->  	unsigned long events[NR_VM_EVENT_ITEMS];
-> @@ -296,7 +297,8 @@ static int virtballoon_probe(struct virt
->  		 * use it to signal us later.
->  		 */
->  		sg_init_one(&sg, vb->stats, sizeof vb->stats);
-> -		if (vb->stats_vq->vq_ops->add_buf(vb->stats_vq, &sg, 1, 0, vb) < 0)
-> +		if (vb->stats_vq->vq_ops->add_buf(vb->stats_vq,
-> +						  &sg, 1, 0, vb) < 0)
->  			BUG();
->  		vb->stats_vq->vq_ops->kick(vb->stats_vq);
->  	}
-> diff --git a/include/linux/virtio_balloon.h b/include/linux/virtio_balloon.h
-> --- a/include/linux/virtio_balloon.h
-> +++ b/include/linux/virtio_balloon.h
-> @@ -28,8 +28,7 @@ struct virtio_balloon_config
->  #define VIRTIO_BALLOON_S_MEMTOT   5   /* Total amount of memory */
->  #define VIRTIO_BALLOON_S_NR       6
-> 
-> -struct virtio_balloon_stat
-> -{
-> +struct virtio_balloon_stat {
->  	u16 tag;
->  	u64 val;
->  } __attribute__((packed));
-> 
-> 
-
+What about a spec update?  Did that happen and I just missed it?
 
 -- 
-Thanks,
-Adam
+error compiling committee.c: too many arguments to function
