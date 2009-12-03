@@ -1,15 +1,11 @@
-From: Avi Kivity <avi@redhat.com>
-Subject: Re: [PATCH 0/3] Split up pv-ops
-Date: Thu, 03 Dec 2009 17:07:48 +0200
-Message-ID: <4B17D444.6060702__3330.53323342956$1259852962$gmane$org@redhat.com>
-References: <1258503192-14246-1-git-send-email-agraf@suse.de>
-	<4B17D0C7.1020805@suse.de> <4B17D290.9040507@redhat.com>
-	<4B17D390.5050602@suse.de>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: [RFC 0/2] macvtap, second try
+Date: Thu,  3 Dec 2009 18:51:58 +0100
+Message-ID: <1259862720-28432-1-git-send-email-arnd__633.445863104676$1259863031$gmane$org@arndb.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4B17D390.5050602@suse.de>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,22 +15,35 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Alexander Graf <agraf@suse.de>
-Cc: Nick Piggin <npiggin@suse.de>, Glauber Costa <glommer@redhat.com>, kvm list <kvm@vger.kernel.org>, virtualization@lists.linux-foundation.org
+Cc: Edge Virtual Bridging <evb@yahoogroups.com>, Herbert Xu <herbert@gondor.apana.org.au>, Arnd Bergmann <arnd@arndb.de>, "Michael S. Tsirkin" <mst@redhat.com>, "Fischer,
+	Anna" <anna.fischer@hp.com>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, "David S . Miller \"" <davem@davemloft.net>, Anthony Liguori <anthony@codemonkey.ws>, Patrick Mullaney <pmullaney@novell.com>, virtualization@lists.linux-foundation.org, Stephen Hemminger <shemminger@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 12/03/2009 05:04 PM, Alexander Graf wrote:
->> Don't think so.  I suggest you copy lkml and Ingo.
->>      
-> Sending off the complete set again?
+I did not get this ready for the merge window, but people asked what
+the status of this is so I'm posting it now to solicit feedback.
 
-Yes.
+The first patch just adds some hooks into macvlan.c and is less
+invasive than the previous version. That part should be fine
+and I'd like this to get merged into macvlan for 2.6.33 if people
+agree that the approach is right.
 
-> Rebased against what?
->    
+The second patch adds the driver using it and is not ready for
+integration unfortunately, but maybe it could get into staging
+anyway. Please look at that patch carefully and provide feedback.
 
-tip's x86/paravirt seems like a good choice (though only one patch is in 
-there at present).
+	Arnd <><
+---
 
--- 
-error compiling committee.c: too many arguments to function
+Arnd Bergmann (1):
+  macvlan: add tap device backend
+
+Patrick Mullaney (1):
+  macvlan: Allow plugging in additional backends
+
+ drivers/net/Kconfig        |   12 +
+ drivers/net/Makefile       |    1 +
+ drivers/net/macvlan.c      |  113 ++++-----
+ drivers/net/macvtap.c      |  560 ++++++++++++++++++++++++++++++++++++++++++++
+ include/linux/if_macvlan.h |   71 ++++++
+ 5 files changed, 693 insertions(+), 64 deletions(-)
+ create mode 100644 drivers/net/macvtap.c
