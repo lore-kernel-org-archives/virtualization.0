@@ -1,18 +1,13 @@
-From: Amit Shah <amit.shah@redhat.com>
-Subject: Re: [PATCH 12/28] virtio: console: Buffer data that comes in from
-	the host
-Date: Thu, 3 Dec 2009 09:13:25 +0530
-Message-ID: <20091203034325.GA5340@amit-x200.redhat.com>
-References: <1259391051-7752-1-git-send-email-amit.shah@redhat.com>
-	<200912021414.20206.rusty@rustcorp.com.au>
-	<20091202092406.GB28265@amit-x200.redhat.com>
-	<200912030924.23783.rusty@rustcorp.com.au>
+From: Avi Kivity <avi@redhat.com>
+Subject: Re: [PATCH] virtio spec: add virtio-blk max sectors feature
+Date: Thu, 03 Dec 2009 11:58:38 +0200
+Message-ID: <4B178BCE.7030003__20561.4203274765$1259834404$gmane$org@redhat.com>
+References: <OF38B713F7.02DD66D1-ONC2257681.002F3CAD-C2257681.002FDEA6@il.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <200912030924.23783.rusty@rustcorp.com.au>
+In-Reply-To: <OF38B713F7.02DD66D1-ONC2257681.002F3CAD-C2257681.002FDEA6@il.ibm.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -22,59 +17,95 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Shirley Ma <mashirle@us.ibm.com>, virtualization@lists.linux-foundation.org
+To: Avishay Traeger1 <AVISHAY@il.ibm.com>
+Cc: qemu-devel@nongnu.org, kvm@vger.kernel.org, virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On (Thu) Dec 03 2009 [09:24:23], Rusty Russell wrote:
-> On Wed, 2 Dec 2009 07:54:06 pm Amit Shah wrote:
-> > On (Wed) Dec 02 2009 [14:14:20], Rusty Russell wrote:
-> > > On Sat, 28 Nov 2009 05:20:35 pm Amit Shah wrote:
-> > > > The console could be flooded with data from the host; handle
-> > > > this situation by buffering the data.
-> > > 
-> > > All this complexity makes me really wonder if we should just
-> > > have the host say the max # ports it will ever use, and just do this
-> > > really dumbly.  Yes, it's a limitation, but it'd be much simpler.
-> > 
-> > As in make sure the max nr ports is less than 255 and have per-port vqs?
-> > And then the buffering will be done inside the vqs themselves?
-> 
-> Well < 128 (two vqs per port).  The config would say (with a feature bit)
-> how many vq pairs there are.
+On 12/03/2009 10:42 AM, Avishay Traeger1 wrote:
+> I previously submitted a patch to have the guest virtio-blk driver get the
+> value for the maximum I/O size from the host bdrv, rather than assume that
+> there is no limit.  Avi requested that I first patch the virtio spec
+> (http://ozlabs.org/~rusty/virtio-spec/).  Below is that patch.
+>
+> Please CC me on replies, as I am not subscribed.
+>
+>    
 
-Sure. This was how the previous versions behaved as well.
+Copying Rusty and virtualization@.
 
->  If we want expect sparse port numbers, it can
-> also provide an array mapping the vq pairs to the port number (65535 or
-> something meaning unused).  In practice I suspect 4 or 8 will be plenty
-> for now.
-> 
-> That makes hotplugging ports pretty simple: change the array, ping
-> config_changed.
+> Thank you,
+> Avishay
+>
+> Signed-off-by: Avishay Traeger<avishay@il.ibm.com>
+>
+> --- virtio-spec-0.8.2.lyx     2009-11-30 16:34:16.000000000 +0200
+> +++ virtio-spec-0.8.2-mod.lyx 2009-12-01 16:04:36.000000000 +0200
+> @@ -3999,6 +3999,20 @@
+>   \end_inset
+>
+>   .
+> +\change_inserted 0 1259672174
+> +
+> +\end_layout
+> +
+> +\begin_layout Description
+> +
+> +\change_inserted 0 1259672252
+> +VIRTIO_BLK_F_SECTOR_MAX
+> +\begin_inset space ~
+> +\end_inset
+> +
+> +(10) Maximum sectors in an I/O.
+> +\change_unchanged
+> +
+>   \end_layout
+>
+>   \end_deeper
+> @@ -4068,6 +4082,17 @@
+>   \begin_layout Plain Layout
+>
+>        u32 blk_size;
+> +\change_inserted 0 1259672274
+> +
+> +\end_layout
+> +
+> +\begin_layout Plain Layout
+> +
+> +\change_inserted 0 1259672305
+> +
+> +     u32 sectors_max;
+> +\change_unchanged
+> +
+>   \end_layout
+>
+>   \begin_layout Plain Layout
+> @@ -4107,6 +4132,18 @@
+>   \begin_layout Enumerate
+>   If the VIRTIO_BLK_F_RO feature is set by the device, any write requests
+>    will fail.
+> +\change_inserted 0 1259672345
+> +
+> +\end_layout
+> +
+> +\begin_layout Enumerate
+> +
+> +\change_inserted 0 1259672454
+> +If the VIRTIO_BLK_F_SECTOR_MAX feature is negotiated, the sectors_max
+> field
+> + should be read to determine the maximum I/O size for the driver to use.
+> + No requests should be submitted which go beyond this limit.
+> +\change_unchanged
+> +
+>   \end_layout
+>
+>   \begin_layout Section*
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe kvm" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>    
 
-The very early versions of this patch used this approach: a nr_ports u32
-and a bitmap...
 
-> Or we could abandon numbers and just use the names; I don't mind (we still
-> need a way to figure out what ports are active I guess, maybe a bitmap in
-> the config?)
-
-... but we dropped that approach and are now just using the 'names' as
-a means of identifying ports. Currently, there's only a 'nr_ports' entry
-in the config. For hotplug, the entry is bumped by the host and the
-guest adds the new ports.
-
-That's definitely simpler than maintaining the bitmap, and also we don't
-associate any special meaning to the port numbers themselves, which is a
-big plus. (Hot plug after hot unplug can be made to work with a control
-message as well, but that support can come in later.)
-
-Looks like we're just going back to what this patch looked like when it
-was sent out first.
-
-> But we get the vq buffering and flow control for free with this approach.
-
-I'll see if I can send out this spin today.
-
-		Amit
+-- 
+error compiling committee.c: too many arguments to function
