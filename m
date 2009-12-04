@@ -1,19 +1,14 @@
-From: Amit Shah <amit.shah@redhat.com>
-Subject: Re: [PATCH 12/28] virtio: console: Buffer data that comes in from
-	the host
-Date: Fri, 4 Dec 2009 16:32:46 +0530
-Message-ID: <20091204110246.GA16363@amit-x200.redhat.com>
-References: <1259391051-7752-1-git-send-email-amit.shah@redhat.com>
-	<200912021414.20206.rusty@rustcorp.com.au>
-	<20091202092406.GB28265@amit-x200.redhat.com>
-	<200912030924.23783.rusty@rustcorp.com.au>
-	<20091203034325.GA5340@amit-x200.redhat.com>
+From: Jesse Barnes <jbarnes@virtuousgeek.org>
+Subject: Re: [PATCH] virtio: set pci bus master enable bit
+Date: Fri, 4 Dec 2009 15:10:14 -0800
+Message-ID: <20091204151014.22a39388__41070.2579575174$1259968316$gmane$org@jbarnes-piketon>
+References: <20091129155200.GA6667@redhat.com>
+	<200912011034.02251.rusty@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20091203034325.GA5340@amit-x200.redhat.com>
+In-Reply-To: <200912011034.02251.rusty@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -24,49 +19,36 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Shirley Ma <mashirle@us.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org
+Cc: Mark McLoughlin <markmc@redhat.com>, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, Yan Vugenfirer <yvugenfi@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Anthony Liguori <anthony@codemonkey.ws>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On (Thu) Dec 03 2009 [09:13:25], Amit Shah wrote:
-> On (Thu) Dec 03 2009 [09:24:23], Rusty Russell wrote:
-> > On Wed, 2 Dec 2009 07:54:06 pm Amit Shah wrote:
-> > > On (Wed) Dec 02 2009 [14:14:20], Rusty Russell wrote:
-> > > > On Sat, 28 Nov 2009 05:20:35 pm Amit Shah wrote:
-> > > > > The console could be flooded with data from the host; handle
-> > > > > this situation by buffering the data.
-> > > > 
-> > > > All this complexity makes me really wonder if we should just
-> > > > have the host say the max # ports it will ever use, and just do this
-> > > > really dumbly.  Yes, it's a limitation, but it'd be much simpler.
-> > > 
-> > > As in make sure the max nr ports is less than 255 and have per-port vqs?
-> > > And then the buffering will be done inside the vqs themselves?
+On Tue, 1 Dec 2009 10:34:01 +1030
+Rusty Russell <rusty@rustcorp.com.au> wrote:
+
+> On Mon, 30 Nov 2009 02:22:01 am Michael S. Tsirkin wrote:
+> > As all virtio devices perform DMA, we
+> > must enable bus mastering for them to be
+> > spec compliant.
 > > 
-> > Well < 128 (two vqs per port).  The config would say (with a feature bit)
-> > how many vq pairs there are.
+> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> > ---
+> >  drivers/virtio/virtio_pci.c |    1 +
+> >  1 files changed, 1 insertions(+), 0 deletions(-)
+> > 
+> > diff --git a/drivers/virtio/virtio_pci.c
+> > b/drivers/virtio/virtio_pci.c index 28d9cf7..717bae1 100644
+> > --- a/drivers/virtio/virtio_pci.c
+> > +++ b/drivers/virtio/virtio_pci.c
+> > @@ -648,6 +648,7 @@ static int __devinit virtio_pci_probe(struct
+> > pci_dev *pci_dev, goto out_req_regions;
+> >  
+> >  	pci_set_drvdata(pci_dev, vp_dev);
+> > +	pci_set_master(pci_dev);
 > 
-> Sure. This was how the previous versions behaved as well.
+> I can believe this, but I have no idea if it's right.  I've applied
+> it, and hope Jesse will comment if there's something wrong with it.
 
-I forgot one detail:
+Nope, nothing wrong with that afaict.
 
-http://www.mail-archive.com/virtualization@lists.linux-foundation.org/msg06079.html
-
-Some API changes are needed to pre-declare the number of vqs and the
-selectively enable them as ports get added.
-
-How I think this could work is:
-
-<device drv>
-
-probe:
-- get max_nr_ports from config_get
-- declare the intent to use max_nr_ports * 2 vqs with callbacks
-  associated with half of them (so this allows us to have 512 vqs with 256
-  callbacks with the x86 MSI limit.
-
-<virtio_pci>:
-request_msix_vectors for all max_nr_ports vectors
-
-new functions to enable / disable vqs
-
-		Amit
+-- 
+Jesse Barnes, Intel Open Source Technology Center
