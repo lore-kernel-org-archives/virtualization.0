@@ -1,16 +1,14 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH 12/28] virtio: console: Buffer data that comes in from the
-	host
-Date: Tue, 8 Dec 2009 11:46:10 +1030
-Message-ID: <200912081146.11158.rusty@rustcorp.com.au>
-References: <1259391051-7752-1-git-send-email-amit.shah@redhat.com>
-	<20091203034325.GA5340@amit-x200.redhat.com>
-	<20091204110246.GA16363@amit-x200.redhat.com>
+Subject: Re: [PATCH] virtio spec: add virtio-blk max sectors feature
+Date: Tue, 8 Dec 2009 16:18:00 +1030
+Message-ID: <200912081618.00714.rusty__23961.9808075533$1260251335$gmane$org@rustcorp.com.au>
+References: <OF38B713F7.02DD66D1-ONC2257681.002F3CAD-C2257681.002FDEA6@il.ibm.com>
+	<4B178BCE.7030003@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20091204110246.GA16363@amit-x200.redhat.com>
+In-Reply-To: <4B178BCE.7030003@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,40 +18,30 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Amit Shah <amit.shah@redhat.com>
-Cc: Shirley Ma <mashirle@us.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org
+To: Avi Kivity <avi@redhat.com>
+Cc: Avishay Traeger1 <AVISHAY@il.ibm.com>, qemu-devel@nongnu.org, kvm@vger.kernel.org, virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 4 Dec 2009 09:32:46 pm Amit Shah wrote:
-> On (Thu) Dec 03 2009 [09:13:25], Amit Shah wrote:
-> > On (Thu) Dec 03 2009 [09:24:23], Rusty Russell wrote:
-> > > On Wed, 2 Dec 2009 07:54:06 pm Amit Shah wrote:
-> > > > On (Wed) Dec 02 2009 [14:14:20], Rusty Russell wrote:
-> > > > > On Sat, 28 Nov 2009 05:20:35 pm Amit Shah wrote:
-> > > > > > The console could be flooded with data from the host; handle
-> > > > > > this situation by buffering the data.
-> > > > > 
-> > > > > All this complexity makes me really wonder if we should just
-> > > > > have the host say the max # ports it will ever use, and just do this
-> > > > > really dumbly.  Yes, it's a limitation, but it'd be much simpler.
-> > > > 
-> > > > As in make sure the max nr ports is less than 255 and have per-port vqs?
-> > > > And then the buffering will be done inside the vqs themselves?
-> > > 
-> > > Well < 128 (two vqs per port).  The config would say (with a feature bit)
-> > > how many vq pairs there are.
-> > 
-> > Sure. This was how the previous versions behaved as well.
+On Thu, 3 Dec 2009 08:28:38 pm Avi Kivity wrote:
+> On 12/03/2009 10:42 AM, Avishay Traeger1 wrote:
+> > I previously submitted a patch to have the guest virtio-blk driver get the
+> > value for the maximum I/O size from the host bdrv, rather than assume that
+> > there is no limit.  Avi requested that I first patch the virtio spec
+> > (http://ozlabs.org/~rusty/virtio-spec/).  Below is that patch.
+> >
+> > Please CC me on replies, as I am not subscribed.
+> >
+> >    
 > 
-> I forgot one detail:
-> 
-> http://www.mail-archive.com/virtualization@lists.linux-foundation.org/msg06079.html
-> 
-> Some API changes are needed to pre-declare the number of vqs and the
-> selectively enable them as ports get added.
+> Copying Rusty and virtualization@.
 
-Couldn't we make it that all vqs *exist*, they're just unused unless the
-bitmap (or whatever) indicates?
+Thanks Avi...
 
-Thanks,
+Avishay; this would be the total sectors in an I/O, as separate from SIZE_MAX
+(maximum size of any single scatterlist entry) and SEG_MAX (maximum number of
+scatterlist entries)?
+
+Seems like a reasonable idea; esp if you need it.
+
+Thanks!
 Rusty.
