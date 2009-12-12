@@ -1,16 +1,15 @@
-From: Shirley Ma <mashirle@us.ibm.com>
-Subject: Re: [PATCHv9 3/3] vhost_net: a kernel-level virtio server
-Date: Fri, 11 Dec 2009 07:52:22 -0800
-Message-ID: <1260546742.3960.27.camel__5935.64222003824$1260546950$gmane$org@localhost.localdomain>
-References: <cover.1257786516.git.mst@redhat.com>
-	<20091109172230.GD4724@redhat.com>
-	<C85CEDA13AB1CF4D9D597824A86D2B901925446AB4@PDSMSX501.ccr.corp.intel.com>
-	<20091122103511.GB13644@redhat.com>
+From: Herbert Xu <herbert@gondor.apana.org.au>
+Subject: Re: [RFC] macvlan: add tap device backend
+Date: Sat, 12 Dec 2009 16:41:12 +0800
+Message-ID: <20091212084112.GA8948__49136.6089242094$1260607371$gmane$org@gondor.apana.org.au>
+References: <1259862720-28432-1-git-send-email-arnd@arndb.de>
+	<1259862720-28432-3-git-send-email-arnd@arndb.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20091122103511.GB13644@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <1259862720-28432-3-git-send-email-arnd@arndb.de>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,15 +19,29 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: "Xin, Xiaohui" <xiaohui.xin@intel.com>, Eric Dumazet <eric.dumazet@gmail.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "s.hetze@linux-ag.com" <s.hetze@linux-ag.com>, "hpa@zytor.com" <hpa@zytor.com>, Daniel Walker <dwalker@fifo99.com>, "mingo@elte.hu" <mingo@elte.hu>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Edge Virtual Bridging <evb@yahoogroups.com>, "Michael S. Tsirkin" <mst@redhat.com>, "Fischer,
+	Anna" <anna.fischer@hp.com>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, "David S. Miller" <davem@davemloft.net>, Anthony Liguori <anthony@codemonkey.ws>, virtualization@lists.linux-foundation.org, Stephen Hemminger <shemminger@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
+On Thu, Dec 03, 2009 at 06:52:00PM +0100, Arnd Bergmann wrote:
+> This is a second prototype of a new interface into the network
+> stack, to eventually replace tun/tap and the bridge driver
+> in certain virtual machine setups. The code has changed
+> significantly, but the goals still remain.
 
-On Sun, 2009-11-22 at 12:35 +0200, Michael S. Tsirkin wrote:
-> These results where sent by Shirley Ma (Cc'd).
-> I think they were with tap, host-to-guest/guest-to-host
+The idea looks pretty sound to me.
+ 
+> I'm posting this mainly to solicit feedback. Not sure how
+> chances for integration into 2.6.33 are, given that the merge
+> window is opening already.
 
-Yes, you are right.
+It's way too late for 2.6.33.  But the earlier this becomes ready
+then the earlier it can go into linux-next.
 
-Shirley
+Thanks,
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
