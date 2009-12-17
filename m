@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH] vhost: add missing architectures
-Date: Thu, 17 Dec 2009 14:50:55 +0200
-Message-ID: <20091217125055.GA26718__1528.89575479112$1261054483$gmane$org@redhat.com>
+Subject: [PATCH-cc-fixed] vhost: add missing architectures
+Date: Thu, 17 Dec 2009 15:01:46 +0200
+Message-ID: <20091217130146.GA26726__8423.82599735192$1261055181$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -17,7 +17,7 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: rusty@rustcorp.com.au, virtualization@lists.linux-foundation.org
-Cc: Fenghua Yu <fenghua.yu@intel.com>, Tony Luck <tony.luck@intel.com>, linux-ia64@vger.kernel.org, Hollis Blanchard <hollisb@us.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>, kvm-ia64@vger.kernel.org, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org, kvm-ppc@vger.kernel.org, Christian Ehrhardt <ehrhardt@linux.vnet.ibm.com>, Avi Kivity <avi@redhat.com>, kvm@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux390@de.ibm.com, Carsten Otte <cotte@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Fenghua Yu <fenghua.yu@intel.com>, Tony Luck <tony.luck@intel.com>, linux-ia64@vger.kernel.org, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, kvm-ia64@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm-ppc@vger.kernel.org, Avi Kivity <avi@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
 vhost is completely portable, but Kconfig include was missing for all
@@ -27,6 +27,11 @@ virtualization.
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
+
+Some IBM addresses seem to be bouncing. Reposting with these removed,
+please send replies to this shorter list to avoid bounces.  Sorry about
+the noise.
+
 
 Hi Rusty,
 please apply the following trivial fixup patch for 2.6.33.
