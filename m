@@ -1,13 +1,12 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH 0/3] vhost: fix use_mm usage
-Date: Mon, 21 Dec 2009 21:59:39 +1030
-Message-ID: <200912212159.39198.rusty__18634.9098025405$1261395105$gmane$org@rustcorp.com.au>
-References: <20091220171608.GA31713@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH] vhost: fix high 32 bit in FEATURES ioctls
+Date: Tue, 22 Dec 2009 13:39:33 +0200
+Message-ID: <20091222113933.GA16103@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20091220171608.GA31713@redhat.com>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -17,21 +16,49 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>, linux-kernel@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>, virtualization@lists.linux-foundation.org
+To: David Stevens <dlstevens@us.ibm.com>
+Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, 21 Dec 2009 03:46:08 am Michael S. Tsirkin wrote:
-> This patchset fixes an issue, pointed out by Al Viro, in how vhost net
-> calls use_mm, Works fine for me, and it's pretty straightforward.  If no
-> one sees any issues with it, this will be a good candidate for 2.6.33
-> (assuming vhost net itself gets pulled :( ).
+From: David Stevens <dlstevens@us.ibm.com>
+Subject: vhost: fix high 32 bit in FEATURES ioctls
 
-No, Linus didn't respond to either pull request.  Either he considers it a
-new driver and hence not in a hurry to enter merge window, or there's some
-other issue.
+VHOST_GET_FEATURES fails to initialize high-order 32 bits
+in the returned value, and VHOST_SET_FEATURES fails to check them.
+This patch fixes it to use 64 bits throughout.
 
-I've taken these fixes too, meanwhile.
+Signed-off-by: David L Stevens <dlstevens@us.ibm.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 
-Thanks,
-Rusty.
+---
+
+Rusty, can you queue this for 2.6.33 as well please?
+
+diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+index 22d5fef..d6db10c 100644
+--- a/drivers/vhost/net.c
++++ b/drivers/vhost/net.c
+@@ -563,7 +563,7 @@ static long vhost_net_ioctl(struct file *f, unsigned int ioctl,
+ {
+ 	struct vhost_net *n = f->private_data;
+ 	void __user *argp = (void __user *)arg;
+-	u32 __user *featurep = argp;
++	u64 __user *featurep = argp;
+ 	struct vhost_vring_file backend;
+ 	u64 features;
+ 	int r;
+@@ -575,10 +575,9 @@ static long vhost_net_ioctl(struct file *f, unsigned int ioctl,
+ 		return vhost_net_set_backend(n, backend.index, backend.fd);
+ 	case VHOST_GET_FEATURES:
+ 		features = VHOST_FEATURES;
+-		return put_user(features, featurep);
++		return copy_to_user(featurep, &features, sizeof features);
+ 	case VHOST_SET_FEATURES:
+-		r = get_user(features, featurep);
+-		/* No features for now */
++		r = copy_from_user(&features, featurep, sizeof features);
+ 		if (r < 0)
+ 			return r;
+ 		if (features & ~VHOST_FEATURES)
+-- 
+MST
