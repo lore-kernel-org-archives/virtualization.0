@@ -1,8 +1,8 @@
 From: Amit Shah <amit.shah@redhat.com>
-Subject: [PATCH 20/31] virtio: console: Introduce a 'header' for each buffer
-	towards supporting multiport
-Date: Tue, 22 Dec 2009 20:04:30 +0530
-Message-ID: <1261492481-19817-21-git-send-email-amit.shah@redhat.com>
+Subject: [PATCH 17/31] virtio: console: Separate out find_vqs operation into a
+	different function
+Date: Tue, 22 Dec 2009 20:04:27 +0530
+Message-ID: <1261492481-19817-18-git-send-email-amit.shah@redhat.com>
 References: <1261492481-19817-1-git-send-email-amit.shah@redhat.com>
 	<1261492481-19817-2-git-send-email-amit.shah@redhat.com>
 	<1261492481-19817-3-git-send-email-amit.shah@redhat.com>
@@ -20,14 +20,11 @@ References: <1261492481-19817-1-git-send-email-amit.shah@redhat.com>
 	<1261492481-19817-15-git-send-email-amit.shah@redhat.com>
 	<1261492481-19817-16-git-send-email-amit.shah@redhat.com>
 	<1261492481-19817-17-git-send-email-amit.shah@redhat.com>
-	<1261492481-19817-18-git-send-email-amit.shah@redhat.com>
-	<1261492481-19817-19-git-send-email-amit.shah@redhat.com>
-	<1261492481-19817-20-git-send-email-amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1261492481-19817-20-git-send-email-amit.shah@redhat.com>
+In-Reply-To: <1261492481-19817-17-git-send-email-amit.shah@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -41,122 +38,157 @@ To: rusty@rustcorp.com.au
 Cc: Amit Shah <amit.shah@redhat.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-This header can contain flags that give buffers special meaning, for
-example the first and last buffers of a single write request. This
-enables the host to send out the data to host applications in a single
-read request rather than splitting it up, which is how some applications
-like their data to be received.
-
-This header is put in by the host as well as the guest for all data
-packets.
-
-This header is currently a 0-length field. It will be populated when
-multiport support is added.
+With support for multiple ports, each port will have its own input and
+output vqs. Prepare the probe function for this change.
 
 Signed-off-by: Amit Shah <amit.shah@redhat.com>
 ---
- drivers/char/virtio_console.c  |   32 ++++++++++++++++++++++++++------
- include/linux/virtio_console.h |    7 +++++++
- 2 files changed, 33 insertions(+), 6 deletions(-)
+ drivers/char/virtio_console.c |   98 ++++++++++++++++++++++++++++++++++++-----
+ 1 files changed, 86 insertions(+), 12 deletions(-)
 
 diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index 6509e62..9d55778 100644
+index d90092f..e4b6a37 100644
 --- a/drivers/char/virtio_console.c
 +++ b/drivers/char/virtio_console.c
-@@ -161,6 +161,18 @@ out:
- 	return port;
+@@ -74,7 +74,9 @@ struct console {
+  * ports for that device (vdev->priv).
+  */
+ struct ports_device {
+-	struct virtqueue *in_vq, *out_vq;
++	/* Array of per-port IO virtqueues */
++	struct virtqueue **in_vqs, **out_vqs;
++
+ 	struct virtio_device *vdev;
+ };
+ 
+@@ -395,8 +397,8 @@ static int __devinit add_port(struct ports_device *portdev)
+ 	}
+ 
+ 	port->portdev = portdev;
+-	port->in_vq = portdev->in_vq;
+-	port->out_vq = portdev->out_vq;
++	port->in_vq = portdev->in_vqs[0];
++	port->out_vq = portdev->out_vqs[0];
+ 
+ 	port->inbuf = alloc_buf(PAGE_SIZE);
+ 	if (!port->inbuf) {
+@@ -421,15 +423,87 @@ fail:
+ 	return err;
  }
  
-+static inline bool use_multiport(struct ports_device *portdev)
++static int init_vqs(struct ports_device *portdev)
 +{
-+	/*
-+	 * This condition can be true when put_chars is called from
-+	 * early_init
-+	 */
-+	if (!portdev->vdev)
-+		return 0;
-+	/* Check for feature bit once multiport support is added */
++	vq_callback_t **io_callbacks;
++	char **io_names;
++	struct virtqueue **vqs;
++	u32 nr_ports, nr_queues;
++	int err;
++
++	/* We currently only have one port and two queues for that port */
++	nr_ports = 1;
++	nr_queues = 2;
++
++	vqs = kmalloc(nr_queues * sizeof(struct virtqueue *), GFP_KERNEL);
++	if (!vqs) {
++		err = -ENOMEM;
++		goto fail;
++	}
++	io_callbacks = kmalloc(nr_queues * sizeof(vq_callback_t *), GFP_KERNEL);
++	if (!io_callbacks) {
++		err = -ENOMEM;
++		goto free_vqs;
++	}
++	io_names = kmalloc(nr_queues * sizeof(char *), GFP_KERNEL);
++	if (!io_names) {
++		err = -ENOMEM;
++		goto free_callbacks;
++	}
++	portdev->in_vqs = kmalloc(nr_ports * sizeof(struct virtqueue *),
++				  GFP_KERNEL);
++	if (!portdev->in_vqs) {
++		err = -ENOMEM;
++		goto free_names;
++	}
++	portdev->out_vqs = kmalloc(nr_ports * sizeof(struct virtqueue *),
++				   GFP_KERNEL);
++	if (!portdev->out_vqs) {
++		err = -ENOMEM;
++		goto free_invqs;
++	}
++
++	io_callbacks[0] = hvc_handle_input;
++	io_callbacks[1] = NULL;
++	io_names[0] = "input";
++	io_names[1] = "output";
++
++	/* Find the queues. */
++	err = portdev->vdev->config->find_vqs(portdev->vdev, nr_queues, vqs,
++					      io_callbacks,
++					      (const char **)io_names);
++	if (err)
++		goto free_outvqs;
++
++	portdev->in_vqs[0] = vqs[0];
++	portdev->out_vqs[0] = vqs[1];
++
++	kfree(io_callbacks);
++	kfree(io_names);
++	kfree(vqs);
++
 +	return 0;
++
++free_names:
++	kfree(io_names);
++free_callbacks:
++	kfree(io_callbacks);
++free_outvqs:
++	kfree(portdev->out_vqs);
++free_invqs:
++	kfree(portdev->in_vqs);
++free_vqs:
++	kfree(vqs);
++fail:
++	return err;
 +}
 +
- static void free_buf(struct port_buffer *buf)
+ /*
+  * Once we're further in boot, we get probed like any other virtio
+  * device.
+  */
+ static int __devinit virtcons_probe(struct virtio_device *vdev)
  {
- 	kfree(buf->buf);
-@@ -199,7 +211,8 @@ static void *get_inbuf(struct port *port)
- 	buf = vq->vq_ops->get_buf(vq, &len);
- 	if (buf) {
- 		buf->len = len;
--		buf->offset = 0;
-+		buf->offset = use_multiport(port->portdev)
-+			? sizeof(struct virtio_console_header) : 0;
- 	}
- 	return buf;
- }
-@@ -246,27 +259,34 @@ out:
- static ssize_t send_buf(struct port *port, const char *in_buf, size_t in_count)
- {
- 	struct scatterlist sg[1];
-+	struct virtio_console_header header;
- 	struct virtqueue *out_vq;
- 	struct port_buffer *buf;
- 	size_t in_offset, copy_size;
- 	ssize_t ret;
--	unsigned int tmplen;
-+	unsigned int header_len, tmplen;
+-	vq_callback_t *callbacks[] = { hvc_handle_input, NULL};
+-	const char *names[] = { "input", "output" };
+-	struct virtqueue *vqs[2];
+ 	struct ports_device *portdev;
+ 	int err;
  
- 	out_vq = port->out_vq;
- 	buf = port->outbuf;
+@@ -443,13 +517,11 @@ static int __devinit virtcons_probe(struct virtio_device *vdev)
+ 	portdev->vdev = vdev;
+ 	vdev->priv = portdev;
  
-+	header_len = use_multiport(port->portdev) ? sizeof(header) : 0;
-+
- 	in_offset = 0; /* offset in the user buffer */
- 	while (in_offset < in_count) {
--		copy_size = min(in_count - in_offset, buf->size);
-+		copy_size = min(in_count - in_offset + header_len, buf->size);
-+		copy_size -= header_len;
- 		/*
- 		 * Since we're not sure when the host will actually
- 		 * consume the data and tell us about it, we have
- 		 * to copy the data here in case the caller
- 		 * frees the in_buf
- 		 */
--		memcpy(buf->buf, in_buf + in_offset, copy_size);
-+		memcpy(buf->buf + header_len, in_buf + in_offset, copy_size);
-+
-+		buf->len = header_len + copy_size;
+-	/* Find the queues. */
+-	err = vdev->config->find_vqs(vdev, 2, vqs, callbacks, names);
+-	if (err)
++	err = init_vqs(portdev);
++	if (err < 0) {
++		dev_err(&vdev->dev, "Error %d initializing vqs\n", err);
+ 		goto free;
+-
+-	portdev->in_vq = vqs[0];
+-	portdev->out_vq = vqs[1];
++	}
  
--		buf->len = copy_size;
-+		if (header_len)
-+			memcpy(buf->buf, &header, header_len);
+ 	/* We only have one port. */
+ 	err = add_port(portdev);
+@@ -462,6 +534,8 @@ static int __devinit virtcons_probe(struct virtio_device *vdev)
  
- 		sg_init_one(sg, buf->buf, buf->len);
- 		ret = out_vq->vq_ops->add_buf(out_vq, sg, 1, 0, buf);
-@@ -277,7 +297,7 @@ static ssize_t send_buf(struct port *port, const char *in_buf, size_t in_count)
- 		if (ret < 0)
- 			break;
- 
--		in_offset += buf->len;
-+		in_offset += buf->len - header_len;
- 		while (!out_vq->vq_ops->get_buf(out_vq, &tmplen))
- 			cpu_relax();
- 	}
-diff --git a/include/linux/virtio_console.h b/include/linux/virtio_console.h
-index 9e0da40..7ea5372 100644
---- a/include/linux/virtio_console.h
-+++ b/include/linux/virtio_console.h
-@@ -18,6 +18,13 @@ struct virtio_console_config {
- 	__u16 rows;
- } __attribute__((packed));
- 
-+/*
-+ * This struct is put at the start of each data buffer that gets
-+ * passed to Host and vice-versa.
-+ */
-+struct virtio_console_header {
-+	/* Empty till multiport support is added */
-+};
- 
- #ifdef __KERNEL__
- int __init virtio_cons_early_init(int (*put_chars)(u32, const char *, int));
+ free_vqs:
+ 	vdev->config->del_vqs(vdev);
++	kfree(portdev->in_vqs);
++	kfree(portdev->out_vqs);
+ free:
+ 	kfree(portdev);
+ fail:
 -- 
 1.6.2.5
