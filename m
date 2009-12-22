@@ -1,7 +1,7 @@
 From: Amit Shah <amit.shah@redhat.com>
-Subject: [PATCH 11/31] virtio: console: don't assume a single console port.
-Date: Tue, 22 Dec 2009 20:04:21 +0530
-Message-ID: <1261492481-19817-12-git-send-email-amit.shah@redhat.com>
+Subject: [PATCH 29/31] virtio: console: Handle port hot-plug
+Date: Tue, 22 Dec 2009 20:04:39 +0530
+Message-ID: <1261492481-19817-30-git-send-email-amit.shah@redhat.com>
 References: <1261492481-19817-1-git-send-email-amit.shah@redhat.com>
 	<1261492481-19817-2-git-send-email-amit.shah@redhat.com>
 	<1261492481-19817-3-git-send-email-amit.shah@redhat.com>
@@ -13,11 +13,29 @@ References: <1261492481-19817-1-git-send-email-amit.shah@redhat.com>
 	<1261492481-19817-9-git-send-email-amit.shah@redhat.com>
 	<1261492481-19817-10-git-send-email-amit.shah@redhat.com>
 	<1261492481-19817-11-git-send-email-amit.shah@redhat.com>
+	<1261492481-19817-12-git-send-email-amit.shah@redhat.com>
+	<1261492481-19817-13-git-send-email-amit.shah@redhat.com>
+	<1261492481-19817-14-git-send-email-amit.shah@redhat.com>
+	<1261492481-19817-15-git-send-email-amit.shah@redhat.com>
+	<1261492481-19817-16-git-send-email-amit.shah@redhat.com>
+	<1261492481-19817-17-git-send-email-amit.shah@redhat.com>
+	<1261492481-19817-18-git-send-email-amit.shah@redhat.com>
+	<1261492481-19817-19-git-send-email-amit.shah@redhat.com>
+	<1261492481-19817-20-git-send-email-amit.shah@redhat.com>
+	<1261492481-19817-21-git-send-email-amit.shah@redhat.com>
+	<1261492481-19817-22-git-send-email-amit.shah@redhat.com>
+	<1261492481-19817-23-git-send-email-amit.shah@redhat.com>
+	<1261492481-19817-24-git-send-email-amit.shah@redhat.com>
+	<1261492481-19817-25-git-send-email-amit.shah@redhat.com>
+	<1261492481-19817-26-git-send-email-amit.shah@redhat.com>
+	<1261492481-19817-27-git-send-email-amit.shah@redhat.com>
+	<1261492481-19817-28-git-send-email-amit.shah@redhat.com>
+	<1261492481-19817-29-git-send-email-amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1261492481-19817-11-git-send-email-amit.shah@redhat.com>
+In-Reply-To: <1261492481-19817-29-git-send-email-amit.shah@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -31,161 +49,139 @@ To: rusty@rustcorp.com.au
 Cc: Amit Shah <amit.shah@redhat.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Keep a list of all ports being used as a console, and provide a lock
-and a lookup function.  The hvc callbacks only give us a vterm number,
-so we need to map this.
+If the 'nr_ports' variable in the config space is updated to a higher
+value, that means new ports have been hotplugged.
+
+Introduce a new workqueue to handle such updates and create new ports.
 
 Signed-off-by: Amit Shah <amit.shah@redhat.com>
 ---
- drivers/char/virtio_console.c |   73 ++++++++++++++++++++++++++++++++++++-----
- 1 files changed, 64 insertions(+), 9 deletions(-)
+ drivers/char/virtio_console.c |   78 +++++++++++++++++++++++++++++++++++++---
+ 1 files changed, 72 insertions(+), 6 deletions(-)
 
 diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index e52ee11..fded596 100644
+index 4c9ec04..d964121 100644
 --- a/drivers/char/virtio_console.c
 +++ b/drivers/char/virtio_console.c
-@@ -17,10 +17,28 @@
-  */
- #include <linux/err.h>
- #include <linux/init.h>
-+#include <linux/list.h>
-+#include <linux/spinlock.h>
- #include <linux/virtio.h>
- #include <linux/virtio_console.h>
- #include "hvc_console.h"
+@@ -105,6 +105,7 @@ struct ports_device {
+ 	 * notification
+ 	 */
+ 	struct work_struct control_work;
++	struct work_struct config_work;
  
-+/*
-+ * This is a global struct for storing common data for all the devices
-+ * this driver handles.
-+ *
-+ * Mainly, it has a linked list for all the consoles in one place so
-+ * that callbacks from hvc for get_chars(), put_chars() work properly
-+ * across multiple devices and multiple ports per device.
-+ */
-+struct ports_driver_data {
-+	/* All the console devices handled by this driver */
-+	struct list_head consoles;
-+};
-+static struct ports_driver_data pdrvdata;
-+
-+DEFINE_SPINLOCK(pdrvdata_lock);
-+
- struct port_buffer {
- 	char *buf;
+ 	struct list_head ports;
  
-@@ -40,8 +58,15 @@ struct port {
- 	/* The current buffer from which data has to be fed to readers */
- 	struct port_buffer *inbuf;
- 
-+	/* For console ports, hvc != NULL and these are valid. */
- 	/* The hvc device */
- 	struct hvc_struct *hvc;
-+
-+	/* We'll place all consoles in a list in the pdrvdata struct */
-+	struct list_head list;
-+
-+	/* Our vterm number. */
-+	u32 vtermno;
- };
- 
- /* We have one port ready to go immediately, for a console. */
-@@ -50,6 +75,22 @@ static struct port console;
- /* This is the very early arch-specified put chars function. */
- static int (*early_put_chars)(u32, const char *, int);
- 
-+static struct port *find_port_by_vtermno(u32 vtermno)
-+{
-+	struct port *port;
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&pdrvdata_lock, flags);
-+	list_for_each_entry(port, &pdrvdata.consoles, list) {
-+		if (port->vtermno == vtermno)
-+			goto out;
-+	}
-+	port = NULL;
-+out:
-+	spin_unlock_irqrestore(&pdrvdata_lock, flags);
-+	return port;
-+}
-+
- static void free_buf(struct port_buffer *buf)
- {
- 	kfree(buf->buf);
-@@ -120,14 +161,16 @@ static void add_inbuf(struct virtqueue *vq, struct port_buffer *buf)
- static int put_chars(u32 vtermno, const char *buf, int count)
- {
- 	struct scatterlist sg[1];
--	unsigned int len;
- 	struct port *port;
-+	unsigned int len;
-+
-+	port = find_port_by_vtermno(vtermno);
-+	if (!port)
-+		return 0;
- 
- 	if (unlikely(early_put_chars))
- 		return early_put_chars(vtermno, buf, count);
- 
--	port = &console;
--
- 	/* This is a convenient routine to initialize a single-elem sg list */
- 	sg_init_one(sg, buf, count);
- 
-@@ -155,7 +198,10 @@ static int get_chars(u32 vtermno, char *buf, int count)
- {
- 	struct port *port;
- 
--	port = &console;
-+
-+	port = find_port_by_vtermno(vtermno);
-+	if (!port)
-+		return 0;
- 
- 	/* If we don't have an input queue yet, we can't get input. */
- 	BUG_ON(!port->in_vq);
-@@ -201,14 +247,17 @@ static void virtcons_apply_config(struct virtio_device *dev)
+@@ -728,11 +729,6 @@ static void resize_console(struct port *port)
  	}
  }
  
--/*
-- * we support only one console, the hvc struct is a global var We set
-- * the configuration at this point, since we now have a tty
-- */
-+/* We set the configuration at this point, since we now have a tty */
+-static void virtcons_apply_config(struct virtio_device *vdev)
+-{
+-	resize_console(find_port_by_vtermno(0));
+-}
+-
+ /* We set the configuration at this point, since we now have a tty */
  static int notifier_add_vio(struct hvc_struct *hp, int data)
  {
-+	struct port *port;
-+
-+	port = find_port_by_vtermno(hp->vtermno);
-+	if (!port)
-+		return -EINVAL;
-+
- 	hp->irq_requested = 1;
--	virtcons_apply_config(console.vdev);
-+	virtcons_apply_config(port->vdev);
- 
- 	return 0;
+@@ -994,6 +990,24 @@ static void control_intr(struct virtqueue *vq)
+ 	schedule_work(&portdev->control_work);
  }
-@@ -313,6 +362,11 @@ static int __devinit virtcons_probe(struct virtio_device *vdev)
- 		goto free_vqs;
- 	}
  
-+	/* Add to vtermno list. */
-+	spin_lock_irq(&pdrvdata_lock);
-+	list_add(&port->list, &pdrvdata.consoles);
-+	spin_unlock_irq(&pdrvdata_lock);
++static void config_intr(struct virtio_device *vdev)
++{
++	struct ports_device *portdev;
 +
- 	/* Register the input buffer the first time. */
- 	add_inbuf(port->in_vq, port->inbuf);
++	portdev = vdev->priv;
++	if (use_multiport(portdev)) {
++		/* Handle port hot-add */
++		schedule_work(&portdev->config_work);
++	}
++	/*
++	 * We'll use this way of resizing only for legacy support.
++	 * For newer userspace (VIRTIO_CONSOLE_F_MULTPORT+), use
++	 * control messages to indicate console size changes so that
++	 * it can be done per-port
++	 */
++	resize_console(find_port_by_id(portdev, 0));
++}
++
+ static void fill_queue(struct virtqueue *vq, spinlock_t *lock)
+ {
+ 	struct port_buffer *buf;
+@@ -1102,6 +1116,57 @@ fail:
+ 	return err;
+ }
  
-@@ -349,6 +403,7 @@ static struct virtio_driver virtio_console = {
++/*
++ * The workhandler for config-space updates.
++ *
++ * This is called when ports are hot-added.
++ */
++static void config_work_handler(struct work_struct *work)
++{
++	struct virtio_console_config virtconconf;
++	struct ports_device *portdev;
++	struct virtio_device *vdev;
++	int err;
++
++	portdev = container_of(work, struct ports_device, config_work);
++
++	vdev = portdev->vdev;
++	vdev->config->get(vdev,
++			  offsetof(struct virtio_console_config, nr_ports),
++			  &virtconconf.nr_ports,
++			  sizeof(virtconconf.nr_ports));
++
++	if (portdev->config.nr_ports == virtconconf.nr_ports) {
++		/*
++		 * Port 0 got hot-added.  Since we already did all the
++		 * other initialisation for it, just tell the Host
++		 * that the port is ready.
++		 */
++		struct port *port;
++
++		port = find_port_by_id(portdev, 0);
++		send_control_msg(port, VIRTIO_CONSOLE_PORT_READY, 1);
++		return;
++	}
++	if (virtconconf.nr_ports > portdev->config.max_nr_ports) {
++		dev_warn(&vdev->dev,
++			 "More ports specified (%u) than allowed (%u)",
++			 portdev->config.nr_ports + 1,
++			 portdev->config.max_nr_ports);
++		return;
++	}
++	if (virtconconf.nr_ports < portdev->config.nr_ports)
++		return;
++
++	/* Hot-add ports */
++	while (virtconconf.nr_ports - portdev->config.nr_ports) {
++		err = add_port(portdev, portdev->config.nr_ports);
++		if (err)
++			break;
++		portdev->config.nr_ports++;
++	}
++}
++
+ static int init_vqs(struct ports_device *portdev)
+ {
+ 	vq_callback_t **io_callbacks;
+@@ -1293,6 +1358,7 @@ static int __devinit virtcons_probe(struct virtio_device *vdev)
+ 	if (multiport) {
+ 		spin_lock_init(&portdev->cvq_lock);
+ 		INIT_WORK(&portdev->control_work, &control_work_handler);
++		INIT_WORK(&portdev->config_work, &config_work_handler);
+ 
+ 		portdev->outbuf = alloc_buf(PAGE_SIZE);
+ 		if (!portdev->outbuf) {
+@@ -1339,7 +1405,7 @@ static struct virtio_driver virtio_console = {
+ 	.driver.owner =	THIS_MODULE,
+ 	.id_table =	id_table,
+ 	.probe =	virtcons_probe,
+-	.config_changed = virtcons_apply_config,
++	.config_changed = config_intr,
+ };
  
  static int __init init(void)
- {
-+	INIT_LIST_HEAD(&pdrvdata.consoles);
- 	return register_virtio_driver(&virtio_console);
- }
- module_init(init);
 -- 
 1.6.2.5
