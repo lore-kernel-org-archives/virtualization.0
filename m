@@ -1,8 +1,8 @@
 From: Amit Shah <amit.shah@redhat.com>
-Subject: [PATCH 19/31] virtio: console: Introduce a send_buf function for a
-	common path for sending data to host
-Date: Tue, 22 Dec 2009 20:04:29 +0530
-Message-ID: <1261492481-19817-20-git-send-email-amit.shah@redhat.com>
+Subject: [PATCH 31/31] virtio: console: Add debugfs files for each port to
+	expose debug info
+Date: Tue, 22 Dec 2009 20:04:41 +0530
+Message-ID: <1261492481-19817-32-git-send-email-amit.shah@redhat.com>
 References: <1261492481-19817-1-git-send-email-amit.shah@redhat.com>
 	<1261492481-19817-2-git-send-email-amit.shah@redhat.com>
 	<1261492481-19817-3-git-send-email-amit.shah@redhat.com>
@@ -22,11 +22,23 @@ References: <1261492481-19817-1-git-send-email-amit.shah@redhat.com>
 	<1261492481-19817-17-git-send-email-amit.shah@redhat.com>
 	<1261492481-19817-18-git-send-email-amit.shah@redhat.com>
 	<1261492481-19817-19-git-send-email-amit.shah@redhat.com>
+	<1261492481-19817-20-git-send-email-amit.shah@redhat.com>
+	<1261492481-19817-21-git-send-email-amit.shah@redhat.com>
+	<1261492481-19817-22-git-send-email-amit.shah@redhat.com>
+	<1261492481-19817-23-git-send-email-amit.shah@redhat.com>
+	<1261492481-19817-24-git-send-email-amit.shah@redhat.com>
+	<1261492481-19817-25-git-send-email-amit.shah@redhat.com>
+	<1261492481-19817-26-git-send-email-amit.shah@redhat.com>
+	<1261492481-19817-27-git-send-email-amit.shah@redhat.com>
+	<1261492481-19817-28-git-send-email-amit.shah@redhat.com>
+	<1261492481-19817-29-git-send-email-amit.shah@redhat.com>
+	<1261492481-19817-30-git-send-email-amit.shah@redhat.com>
+	<1261492481-19817-31-git-send-email-amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1261492481-19817-19-git-send-email-amit.shah@redhat.com>
+In-Reply-To: <1261492481-19817-31-git-send-email-amit.shah@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -40,126 +52,147 @@ To: rusty@rustcorp.com.au
 Cc: Amit Shah <amit.shah@redhat.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Adding support for generic ports that will write to userspace will need
-some code changes.
-
-Consolidate the write routine into send_buf() and put_chars() now just
-calls into the new function.
+This is helpful in examining ports' state.
 
 Signed-off-by: Amit Shah <amit.shah@redhat.com>
 ---
- drivers/char/virtio_console.c |   70 +++++++++++++++++++++++++++++++----------
- 1 files changed, 53 insertions(+), 17 deletions(-)
+ drivers/char/virtio_console.c |   75 +++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 75 insertions(+), 0 deletions(-)
 
 diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index 2ab15a5..6509e62 100644
+index 48ef259..1b3f532 100644
 --- a/drivers/char/virtio_console.c
 +++ b/drivers/char/virtio_console.c
-@@ -107,6 +107,9 @@ struct port {
- 	 */
- 	spinlock_t inbuf_lock;
+@@ -17,6 +17,7 @@
+  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+  */
+ #include <linux/cdev.h>
++#include <linux/debugfs.h>
+ #include <linux/device.h>
+ #include <linux/err.h>
+ #include <linux/fs.h>
+@@ -43,6 +44,9 @@ struct ports_driver_data {
+ 	/* Used for registering chardevs */
+ 	struct class *class;
  
-+	/* Buffer that's used to pass data from the guest to the host */
-+	struct port_buffer *outbuf;
++	/* Used for exporting per-port information to debugfs */
++	struct dentry *debugfs_dir;
 +
+ 	/* Number of devices this driver is handling */
+ 	unsigned int index;
+ 
+@@ -164,6 +168,9 @@ struct port {
  	/* The IO vqs for this port */
  	struct virtqueue *in_vq, *out_vq;
  
-@@ -240,6 +243,49 @@ out:
- 	return ret;
- }
++	/* File in the debugfs directory that exposes this port's information */
++	struct dentry *debugfs_file;
++
+ 	/*
+ 	 * The entries in this struct will be valid if this port is
+ 	 * hooked up to an hvc console
+@@ -833,6 +840,53 @@ static struct attribute_group port_attribute_group = {
+ 	.attrs = port_sysfs_entries,
+ };
  
-+static ssize_t send_buf(struct port *port, const char *in_buf, size_t in_count)
++static int debugfs_open(struct inode *inode, struct file *filp)
 +{
-+	struct scatterlist sg[1];
-+	struct virtqueue *out_vq;
-+	struct port_buffer *buf;
-+	size_t in_offset, copy_size;
-+	ssize_t ret;
-+	unsigned int tmplen;
-+
-+	out_vq = port->out_vq;
-+	buf = port->outbuf;
-+
-+	in_offset = 0; /* offset in the user buffer */
-+	while (in_offset < in_count) {
-+		copy_size = min(in_count - in_offset, buf->size);
-+		/*
-+		 * Since we're not sure when the host will actually
-+		 * consume the data and tell us about it, we have
-+		 * to copy the data here in case the caller
-+		 * frees the in_buf
-+		 */
-+		memcpy(buf->buf, in_buf + in_offset, copy_size);
-+
-+		buf->len = copy_size;
-+
-+		sg_init_one(sg, buf->buf, buf->len);
-+		ret = out_vq->vq_ops->add_buf(out_vq, sg, 1, 0, buf);
-+
-+		/* Tell Host to go! */
-+		out_vq->vq_ops->kick(out_vq);
-+
-+		if (ret < 0)
-+			break;
-+
-+		in_offset += buf->len;
-+		while (!out_vq->vq_ops->get_buf(out_vq, &tmplen))
-+			cpu_relax();
-+	}
-+
-+	/* We're expected to return the amount of data we wrote */
-+	return in_offset;
++	filp->private_data = inode->i_private;
++	return 0;
 +}
 +
- /*
-  * Give out the data that's requested from the buffers that we have
-  * queued up.
-@@ -288,10 +334,7 @@ static ssize_t fill_readbuf(struct port *port, char *out_buf, size_t out_count)
-  */
- static int put_chars(u32 vtermno, const char *buf, int count)
++static ssize_t debugfs_read(struct file *filp, char __user *ubuf,
++			    size_t count, loff_t *offp)
++{
++	struct port *port;
++	char *buf;
++	ssize_t ret, out_offset, out_count;
++
++	out_count = 1024;
++	buf = kmalloc(out_count, GFP_KERNEL);
++	if (!buf)
++		return -ENOMEM;
++
++	port = filp->private_data;
++	out_offset = 0;
++	out_offset += snprintf(buf + out_offset, out_count,
++			       "name: %s\n", port->name ? port->name : "");
++	out_offset += snprintf(buf + out_offset, out_count - out_offset,
++			       "guest_connected: %d\n", port->guest_connected);
++	out_offset += snprintf(buf + out_offset, out_count - out_offset,
++			       "cache_buffers: %d\n", port->cache_buffers);
++	out_offset += snprintf(buf + out_offset, out_count - out_offset,
++			       "host_connected: %d\n", port->host_connected);
++	out_offset += snprintf(buf + out_offset, out_count - out_offset,
++			       "host_throttled: %d\n", port->host_throttled);
++	out_offset += snprintf(buf + out_offset, out_count - out_offset,
++			       "is_console: %s\n",
++			       is_console_port(port) ? "yes" : "no");
++	out_offset += snprintf(buf + out_offset, out_count - out_offset,
++			       "console_vtermno: %u\n", port->cons.vtermno);
++
++	ret = simple_read_from_buffer(ubuf, count, offp, buf, out_offset);
++	kfree(buf);
++	return ret;
++}
++
++static const struct file_operations port_debugfs_ops = {
++	.owner = THIS_MODULE,
++	.open  = debugfs_open,
++	.read  = debugfs_read,
++};
++
+ /* Remove port-specific data. */
+ static int remove_port_data(struct port *port)
  {
--	struct scatterlist sg[1];
- 	struct port *port;
--	struct virtqueue *out_vq;
--	unsigned int len;
+@@ -857,6 +911,8 @@ static int remove_port_data(struct port *port)
+ 	free_buf(port->outbuf);
+ 	kfree(port->name);
  
- 	port = find_port_by_vtermno(vtermno);
- 	if (!port)
-@@ -300,20 +343,7 @@ static int put_chars(u32 vtermno, const char *buf, int count)
- 	if (unlikely(early_put_chars))
- 		return early_put_chars(vtermno, buf, count);
- 
--	out_vq = port->out_vq;
--	/* This is a convenient routine to initialize a single-elem sg list */
--	sg_init_one(sg, buf, count);
--
--	/* This shouldn't fail: if it does, we lose chars. */
--	if (out_vq->vq_ops->add_buf(out_vq, sg, 1, 0, port) >= 0) {
--		/* Tell Host to go! */
--		out_vq->vq_ops->kick(out_vq);
--		while (!out_vq->vq_ops->get_buf(out_vq, &len))
--			cpu_relax();
--	}
--
--	/* We're expected to return the amount of data we wrote: all of it. */
--	return count;
-+	return send_buf(port, buf, count);
++	debugfs_remove(port->debugfs_file);
++
+ 	kfree(port);
+ 	return 0;
  }
+@@ -1085,6 +1141,7 @@ static void fill_queue(struct virtqueue *vq, spinlock_t *lock)
  
- /*
-@@ -501,6 +531,12 @@ static int __devinit add_port(struct ports_device *portdev)
+ static int add_port(struct ports_device *portdev, u32 id)
+ {
++	char debugfs_name[16];
+ 	struct port *port;
+ 	dev_t devt;
+ 	int err;
+@@ -1158,6 +1215,18 @@ static int add_port(struct ports_device *portdev, u32 id)
+ 	 */
+ 	send_control_msg(port, VIRTIO_CONSOLE_PORT_READY, 1);
  
- 	fill_queue(port->in_vq, &port->inbuf_lock);
++	if (pdrvdata.debugfs_dir) {
++		/*
++		 * Finally, create the debugfs file that we can use to
++		 * inspect a port's state at any time
++		 */
++		sprintf(debugfs_name, "vport%up%u",
++			port->portdev->drv_index, id);
++		port->debugfs_file = debugfs_create_file(debugfs_name, 0444,
++							 pdrvdata.debugfs_dir,
++							 port,
++							 &port_debugfs_ops);
++	}
+ 	return 0;
  
-+	port->outbuf = alloc_buf(PAGE_SIZE);
-+	if (!port->outbuf) {
-+		err = -ENOMEM;
-+		goto free_port;
+ free_device:
+@@ -1478,6 +1547,12 @@ static int __init init(void)
+ 		return err;
+ 	}
+ 
++	pdrvdata.debugfs_dir = debugfs_create_dir("virtio-ports", NULL);
++	if (!pdrvdata.debugfs_dir) {
++		pr_warning("Error %ld creating debugfs dir for virtio-ports\n",
++			   PTR_ERR(pdrvdata.debugfs_dir));
 +	}
 +
- 	err = init_port_console(port);
- 	if (err)
- 		goto free_port;
+ 	INIT_LIST_HEAD(&pdrvdata.consoles);
+ 	return register_virtio_driver(&virtio_console);
+ }
 -- 
 1.6.2.5
