@@ -1,13 +1,14 @@
 From: Amit Shah <amit.shah@redhat.com>
-Subject: [PATCH 01/31] virtio: console: comment cleanup
-Date: Tue, 22 Dec 2009 20:04:11 +0530
-Message-ID: <1261492481-19817-2-git-send-email-amit.shah@redhat.com>
+Subject: [PATCH 02/31] virtio: console: statically initialize virtio_cons
+Date: Tue, 22 Dec 2009 20:04:12 +0530
+Message-ID: <1261492481-19817-3-git-send-email-amit.shah@redhat.com>
 References: <1261492481-19817-1-git-send-email-amit.shah@redhat.com>
+	<1261492481-19817-2-git-send-email-amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1261492481-19817-1-git-send-email-amit.shah@redhat.com>
+In-Reply-To: <1261492481-19817-2-git-send-email-amit.shah@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -23,227 +24,132 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Rusty Russell <rusty@rustcorp.com.au>
 
-Remove old lguest-style comments.
+That way, we can make it const as is good kernel style.  We use a separate
+indirection for the early console, rather than mugging ops.put_chars.
 
-[Amit: - wingify comments acc. to kernel style
-       - indent comments ]
+We rename it hv_ops, too.
 
 Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 Signed-off-by: Amit Shah <amit.shah@redhat.com>
 ---
- drivers/char/virtio_console.c  |  108 ++++++++++++++++++++--------------------
- include/linux/virtio_console.h |    6 ++-
- 2 files changed, 58 insertions(+), 56 deletions(-)
+ drivers/char/virtio_console.c |   60 +++++++++++++++++++++++-----------------
+ 1 files changed, 34 insertions(+), 26 deletions(-)
 
 diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index a035ae3..26e238c 100644
+index 26e238c..1d844a4 100644
 --- a/drivers/char/virtio_console.c
 +++ b/drivers/char/virtio_console.c
-@@ -1,18 +1,5 @@
--/*D:300
-- * The Guest console driver
-- *
-- * Writing console drivers is one of the few remaining Dark Arts in Linux.
-- * Fortunately for us, the path of virtual consoles has been well-trodden by
-- * the PowerPC folks, who wrote "hvc_console.c" to generically support any
-- * virtual console.  We use that infrastructure which only requires us to write
-- * the basic put_chars and get_chars functions and call the right register
-- * functions.
-- :*/
+@@ -28,12 +28,12 @@ static struct virtio_device *vdev;
+ static unsigned int in_len;
+ static char *in, *inbuf;
+ 
+-/* The operations for our console. */
+-static struct hv_ops virtio_cons;
 -
--/*M:002 The console can be flooded: while the Guest is processing input the
-- * Host can send more.  Buffering in the Host could alleviate this, but it is a
-- * difficult problem in general. :*/
--/* Copyright (C) 2006, 2007 Rusty Russell, IBM Corporation
-+/*
-+ * Copyright (C) 2006, 2007, 2009 Rusty Russell, IBM Corporation
-  *
-  * This program is free software; you can redistribute it and/or modify
-  * it under the terms of the GNU General Public License as published by
-@@ -34,8 +21,6 @@
- #include <linux/virtio_console.h>
- #include "hvc_console.h"
- 
--/*D:340 These represent our input and output console queues, and the virtio
-- * operations for them. */
- static struct virtqueue *in_vq, *out_vq;
- static struct virtio_device *vdev;
- 
-@@ -49,12 +34,14 @@ static struct hv_ops virtio_cons;
  /* The hvc device */
  static struct hvc_struct *hvc;
  
--/*D:310 The put_chars() callback is pretty straightforward.
-+/*
-+ * The put_chars() callback is pretty straightforward.
++/* This is the very early arch-specified put chars function. */
++static int (*early_put_chars)(u32, const char *, int);
++
+ /*
+  * The put_chars() callback is pretty straightforward.
   *
-- * We turn the characters into a scatter-gather list, add it to the output
-- * queue and then kick the Host.  Then we sit here waiting for it to finish:
-- * inefficient in theory, but in practice implementations will do it
-- * immediately (lguest's Launcher does). */
-+ * We turn the characters into a scatter-gather list, add it to the
-+ * output queue and then kick the Host.  Then we sit here waiting for
-+ * it to finish: inefficient in theory, but in practice
-+ * implementations will do it immediately (lguest's Launcher does).
-+ */
- static int put_chars(u32 vtermno, const char *buf, int count)
- {
+@@ -47,6 +47,9 @@ static int put_chars(u32 vtermno, const char *buf, int count)
  	struct scatterlist sg[1];
-@@ -63,8 +50,10 @@ static int put_chars(u32 vtermno, const char *buf, int count)
+ 	unsigned int len;
+ 
++	if (unlikely(early_put_chars))
++		return early_put_chars(vtermno, buf, count);
++
  	/* This is a convenient routine to initialize a single-elem sg list */
  	sg_init_one(sg, buf, count);
  
--	/* add_buf wants a token to identify this buffer: we hand it any
--	 * non-NULL pointer, since there's only ever one buffer. */
-+	/*
-+	 * add_buf wants a token to identify this buffer: we hand it
-+	 * any non-NULL pointer, since there's only ever one buffer.
-+	 */
- 	if (out_vq->vq_ops->add_buf(out_vq, sg, 1, 0, (void *)1) >= 0) {
- 		/* Tell Host to go! */
- 		out_vq->vq_ops->kick(out_vq);
-@@ -77,8 +66,10 @@ static int put_chars(u32 vtermno, const char *buf, int count)
- 	return count;
+@@ -118,21 +121,6 @@ static int get_chars(u32 vtermno, char *buf, int count)
  }
  
--/* Create a scatter-gather list representing our input buffer and put it in the
-- * queue. */
-+/*
-+ * Create a scatter-gather list representing our input buffer and put
-+ * it in the queue.
-+ */
- static void add_inbuf(void)
- {
- 	struct scatterlist sg[1];
-@@ -90,12 +81,14 @@ static void add_inbuf(void)
- 	in_vq->vq_ops->kick(in_vq);
+ /*
+- * Console drivers are initialized very early so boot messages can go
+- * out, so we do things slightly differently from the generic virtio
+- * initialization of the net and block drivers.
+- *
+- * At this stage, the console is output-only.  It's too early to set
+- * up a virtqueue, so we let the drivers do some boutique early-output
+- * thing.
+- */
+-int __init virtio_cons_early_init(int (*put_chars)(u32, const char *, int))
+-{
+-	virtio_cons.put_chars = put_chars;
+-	return hvc_instantiate(0, 0, &virtio_cons);
+-}
+-
+-/*
+  * virtio console configuration. This supports:
+  * - console resize
+  */
+@@ -174,6 +162,30 @@ static void hvc_handle_input(struct virtqueue *vq)
+ 		hvc_kick();
  }
  
--/*D:350 get_chars() is the callback from the hvc_console infrastructure when
-- * an interrupt is received.
-+/*
-+ * get_chars() is the callback from the hvc_console infrastructure
-+ * when an interrupt is received.
-  *
-- * Most of the code deals with the fact that the hvc_console() infrastructure
-- * only asks us for 16 bytes at a time.  We keep in_offset and in_used fields
-- * for partially-filled buffers. */
-+ * Most of the code deals with the fact that the hvc_console()
-+ * infrastructure only asks us for 16 bytes at a time.  We keep
-+ * in_offset and in_used fields for partially-filled buffers.
-+ */
- static int get_chars(u32 vtermno, char *buf, int count)
- {
- 	/* If we don't have an input queue yet, we can't get input. */
-@@ -123,14 +116,16 @@ static int get_chars(u32 vtermno, char *buf, int count)
- 
- 	return count;
- }
--/*:*/
- 
--/*D:320 Console drivers are initialized very early so boot messages can go out,
-- * so we do things slightly differently from the generic virtio initialization
-- * of the net and block drivers.
++/* The operations for the console. */
++static struct hv_ops hv_ops = {
++	.get_chars = get_chars,
++	.put_chars = put_chars,
++	.notifier_add = notifier_add_vio,
++	.notifier_del = notifier_del_vio,
++	.notifier_hangup = notifier_del_vio,
++};
++
 +/*
 + * Console drivers are initialized very early so boot messages can go
 + * out, so we do things slightly differently from the generic virtio
 + * initialization of the net and block drivers.
-  *
-- * At this stage, the console is output-only.  It's too early to set up a
-- * virtqueue, so we let the drivers do some boutique early-output thing. */
++ *
 + * At this stage, the console is output-only.  It's too early to set
 + * up a virtqueue, so we let the drivers do some boutique early-output
 + * thing.
 + */
- int __init virtio_cons_early_init(int (*put_chars)(u32, const char *, int))
- {
- 	virtio_cons.put_chars = put_chars;
-@@ -157,8 +152,8 @@ static void virtcons_apply_config(struct virtio_device *dev)
- }
- 
++int __init virtio_cons_early_init(int (*put_chars)(u32, const char *, int))
++{
++	early_put_chars = put_chars;
++	return hvc_instantiate(0, 0, &hv_ops);
++}
++
  /*
-- * we support only one console, the hvc struct is a global var
-- * We set the configuration at this point, since we now have a tty
-+ * we support only one console, the hvc struct is a global var We set
-+ * the configuration at this point, since we now have a tty
-  */
- static int notifier_add_vio(struct hvc_struct *hp, int data)
- {
-@@ -179,13 +174,17 @@ static void hvc_handle_input(struct virtqueue *vq)
- 		hvc_kick();
- }
+  * Once we're further in boot, we get probed like any other virtio
+  * device.  At this stage we set up the output virtqueue.
+@@ -209,13 +221,6 @@ static int __devinit virtcons_probe(struct virtio_device *dev)
+ 	in_vq = vqs[0];
+ 	out_vq = vqs[1];
  
--/*D:370 Once we're further in boot, we get probed like any other virtio device.
-- * At this stage we set up the output virtqueue.
-+/*
-+ * Once we're further in boot, we get probed like any other virtio
-+ * device.  At this stage we set up the output virtqueue.
-  *
-- * To set up and manage our virtual console, we call hvc_alloc().  Since we
-- * never remove the console device we never need this pointer again.
-+ * To set up and manage our virtual console, we call hvc_alloc().
-+ * Since we never remove the console device we never need this pointer
-+ * again.
-  *
-- * Finally we put our input buffer in the input queue, ready to receive. */
-+ * Finally we put our input buffer in the input queue, ready to
-+ * receive.
-+ */
- static int __devinit virtcons_probe(struct virtio_device *dev)
- {
- 	vq_callback_t *callbacks[] = { hvc_handle_input, NULL};
-@@ -203,8 +202,6 @@ static int __devinit virtcons_probe(struct virtio_device *dev)
- 	}
- 
- 	/* Find the queues. */
--	/* FIXME: This is why we want to wean off hvc: we do nothing
--	 * when input comes in. */
- 	err = vdev->config->find_vqs(vdev, 2, vqs, callbacks, names);
- 	if (err)
- 		goto free;
-@@ -219,15 +216,18 @@ static int __devinit virtcons_probe(struct virtio_device *dev)
- 	virtio_cons.notifier_del = notifier_del_vio;
- 	virtio_cons.notifier_hangup = notifier_del_vio;
- 
--	/* The first argument of hvc_alloc() is the virtual console number, so
--	 * we use zero.  The second argument is the parameter for the
--	 * notification mechanism (like irq number). We currently leave this
--	 * as zero, virtqueues have implicit notifications.
-+	/*
-+	 * The first argument of hvc_alloc() is the virtual console
-+	 * number, so we use zero.  The second argument is the
-+	 * parameter for the notification mechanism (like irq
-+	 * number). We currently leave this as zero, virtqueues have
-+	 * implicit notifications.
- 	 *
--	 * The third argument is a "struct hv_ops" containing the put_chars()
--	 * get_chars(), notifier_add() and notifier_del() pointers.
--	 * The final argument is the output buffer size: we can do any size,
--	 * so we put PAGE_SIZE here. */
-+	 * The third argument is a "struct hv_ops" containing the
-+	 * put_chars(), get_chars(), notifier_add() and notifier_del()
-+	 * pointers.  The final argument is the output buffer size: we
-+	 * can do any size, so we put PAGE_SIZE here.
-+	 */
- 	hvc = hvc_alloc(0, 0, &virtio_cons, PAGE_SIZE);
+-	/* Start using the new console output. */
+-	virtio_cons.get_chars = get_chars;
+-	virtio_cons.put_chars = put_chars;
+-	virtio_cons.notifier_add = notifier_add_vio;
+-	virtio_cons.notifier_del = notifier_del_vio;
+-	virtio_cons.notifier_hangup = notifier_del_vio;
+-
+ 	/*
+ 	 * The first argument of hvc_alloc() is the virtual console
+ 	 * number, so we use zero.  The second argument is the
+@@ -228,7 +233,7 @@ static int __devinit virtcons_probe(struct virtio_device *dev)
+ 	 * pointers.  The final argument is the output buffer size: we
+ 	 * can do any size, so we put PAGE_SIZE here.
+ 	 */
+-	hvc = hvc_alloc(0, 0, &virtio_cons, PAGE_SIZE);
++	hvc = hvc_alloc(0, 0, &hv_ops, PAGE_SIZE);
  	if (IS_ERR(hvc)) {
  		err = PTR_ERR(hvc);
-diff --git a/include/linux/virtio_console.h b/include/linux/virtio_console.h
-index fe88517..9e0da40 100644
---- a/include/linux/virtio_console.h
-+++ b/include/linux/virtio_console.h
-@@ -3,8 +3,10 @@
- #include <linux/types.h>
- #include <linux/virtio_ids.h>
- #include <linux/virtio_config.h>
--/* This header, excluding the #ifdef __KERNEL__ part, is BSD licensed so
-- * anyone can use the definitions to implement compatible drivers/servers. */
-+/*
-+ * This header, excluding the #ifdef __KERNEL__ part, is BSD licensed so
-+ * anyone can use the definitions to implement compatible drivers/servers.
-+ */
+ 		goto free_vqs;
+@@ -236,6 +241,9 @@ static int __devinit virtcons_probe(struct virtio_device *dev)
  
- /* Feature bits */
- #define VIRTIO_CONSOLE_F_SIZE	0	/* Does host provide console size? */
+ 	/* Register the input buffer the first time. */
+ 	add_inbuf();
++
++	/* Start using the new console output. */
++	early_put_chars = NULL;
+ 	return 0;
+ 
+ free_vqs:
 -- 
 1.6.2.5
