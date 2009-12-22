@@ -1,7 +1,7 @@
 From: Amit Shah <amit.shah@redhat.com>
-Subject: [PATCH 29/31] virtio: console: Handle port hot-plug
-Date: Tue, 22 Dec 2009 20:04:39 +0530
-Message-ID: <1261492481-19817-30-git-send-email-amit.shah@redhat.com>
+Subject: [PATCH 30/31] virtio: console: Add ability to hot-unplug ports
+Date: Tue, 22 Dec 2009 20:04:40 +0530
+Message-ID: <1261492481-19817-31-git-send-email-amit.shah@redhat.com>
 References: <1261492481-19817-1-git-send-email-amit.shah@redhat.com>
 	<1261492481-19817-2-git-send-email-amit.shah@redhat.com>
 	<1261492481-19817-3-git-send-email-amit.shah@redhat.com>
@@ -31,11 +31,12 @@ References: <1261492481-19817-1-git-send-email-amit.shah@redhat.com>
 	<1261492481-19817-27-git-send-email-amit.shah@redhat.com>
 	<1261492481-19817-28-git-send-email-amit.shah@redhat.com>
 	<1261492481-19817-29-git-send-email-amit.shah@redhat.com>
+	<1261492481-19817-30-git-send-email-amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1261492481-19817-29-git-send-email-amit.shah@redhat.com>
+In-Reply-To: <1261492481-19817-30-git-send-email-amit.shah@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -49,139 +50,117 @@ To: rusty@rustcorp.com.au
 Cc: Amit Shah <amit.shah@redhat.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-If the 'nr_ports' variable in the config space is updated to a higher
-value, that means new ports have been hotplugged.
-
-Introduce a new workqueue to handle such updates and create new ports.
+Remove port data; deregister from the hvc core if it's a console port.
 
 Signed-off-by: Amit Shah <amit.shah@redhat.com>
 ---
- drivers/char/virtio_console.c |   78 +++++++++++++++++++++++++++++++++++++---
- 1 files changed, 72 insertions(+), 6 deletions(-)
+ drivers/char/virtio_console.c  |   63 ++++++++++++++++++++++++++++++++++++++-
+ include/linux/virtio_console.h |    1 +
+ 2 files changed, 62 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index 4c9ec04..d964121 100644
+index d964121..48ef259 100644
 --- a/drivers/char/virtio_console.c
 +++ b/drivers/char/virtio_console.c
-@@ -105,6 +105,7 @@ struct ports_device {
- 	 * notification
- 	 */
- 	struct work_struct control_work;
-+	struct work_struct config_work;
+@@ -833,6 +833,34 @@ static struct attribute_group port_attribute_group = {
+ 	.attrs = port_sysfs_entries,
+ };
  
- 	struct list_head ports;
- 
-@@ -728,11 +729,6 @@ static void resize_console(struct port *port)
++/* Remove port-specific data. */
++static int remove_port_data(struct port *port)
++{
++	spin_lock_irq(&port->portdev->ports_lock);
++	list_del(&port->list);
++	spin_unlock_irq(&port->portdev->ports_lock);
++
++	if (is_console_port(port)) {
++		spin_lock_irq(&pdrvdata_lock);
++		list_del(&port->cons.list);
++		spin_unlock_irq(&pdrvdata_lock);
++		hvc_remove(port->cons.hvc);
++	}
++	if (port->guest_connected)
++		send_control_msg(port, VIRTIO_CONSOLE_PORT_OPEN, 0);
++
++	sysfs_remove_group(&port->dev->kobj, &port_attribute_group);
++	device_destroy(pdrvdata.class, port->dev->devt);
++	cdev_del(&port->cdev);
++
++	flush_port_data(port);
++	free_buf(port->outbuf);
++	kfree(port->name);
++
++	kfree(port);
++	return 0;
++}
++
+ /* Any private messages that the Host and Guest want to share */
+ static void handle_control_message(struct ports_device *portdev,
+ 				   struct port_buffer *buf)
+@@ -919,6 +947,32 @@ static void handle_control_message(struct ports_device *portdev,
+ 	case VIRTIO_CONSOLE_CACHE_BUFFERS:
+ 		port->cache_buffers = cpkt->value;
+ 		break;
++	case VIRTIO_CONSOLE_PORT_REMOVE:
++		/*
++		 * Hot unplug the port.  We don't decrement nr_ports
++		 * since we don't want to deal with extra complexities
++		 * of using the lowest-available port id: We can just
++		 * pick up the nr_ports number as the id and not have
++		 * userspace send it to us.  This helps us in two
++		 * ways:
++		 *
++		 * - We don't need to have a 'port_id' field in the
++		 *   config space when a port is hot-added.  This is a
++		 *   good thing as we might queue up multiple hotplug
++		 *   requests issued in our workqueue.
++		 *
++		 * - Another way to deal with this would have been to
++		 *   use a bitmap of the active ports and select the
++		 *   lowest non-active port from that map.  That
++		 *   bloats the already tight config space and we
++		 *   would end up artificially limiting the
++		 *   max. number of ports to sizeof(bitmap).  Right
++		 *   now we can support 2^32 ports (as the port id is
++		 *   stored in a u32 type).
++		 *
++		 */
++		remove_port_data(port);
++		break;
  	}
  }
  
--static void virtcons_apply_config(struct virtio_device *vdev)
--{
--	resize_console(find_port_by_vtermno(0));
--}
--
- /* We set the configuration at this point, since we now have a tty */
- static int notifier_add_vio(struct hvc_struct *hp, int data)
- {
-@@ -994,6 +990,24 @@ static void control_intr(struct virtqueue *vq)
- 	schedule_work(&portdev->control_work);
- }
+@@ -1140,12 +1194,17 @@ static void config_work_handler(struct work_struct *work)
+ 		/*
+ 		 * Port 0 got hot-added.  Since we already did all the
+ 		 * other initialisation for it, just tell the Host
+-		 * that the port is ready.
++		 * that the port is ready if we find the port.  In
++		 * case the port was hot-removed earlier, we call
++		 * add_port to add the port.
+ 		 */
+ 		struct port *port;
  
-+static void config_intr(struct virtio_device *vdev)
-+{
-+	struct ports_device *portdev;
-+
-+	portdev = vdev->priv;
-+	if (use_multiport(portdev)) {
-+		/* Handle port hot-add */
-+		schedule_work(&portdev->config_work);
-+	}
-+	/*
-+	 * We'll use this way of resizing only for legacy support.
-+	 * For newer userspace (VIRTIO_CONSOLE_F_MULTPORT+), use
-+	 * control messages to indicate console size changes so that
-+	 * it can be done per-port
-+	 */
-+	resize_console(find_port_by_id(portdev, 0));
-+}
-+
- static void fill_queue(struct virtqueue *vq, spinlock_t *lock)
- {
- 	struct port_buffer *buf;
-@@ -1102,6 +1116,57 @@ fail:
- 	return err;
- }
+ 		port = find_port_by_id(portdev, 0);
+-		send_control_msg(port, VIRTIO_CONSOLE_PORT_READY, 1);
++		if (!port)
++			add_port(portdev, 0);
++		else
++			send_control_msg(port, VIRTIO_CONSOLE_PORT_READY, 1);
+ 		return;
+ 	}
+ 	if (virtconconf.nr_ports > portdev->config.max_nr_ports) {
+diff --git a/include/linux/virtio_console.h b/include/linux/virtio_console.h
+index 41ef890..cf52b9b 100644
+--- a/include/linux/virtio_console.h
++++ b/include/linux/virtio_console.h
+@@ -43,6 +43,7 @@ struct virtio_console_control {
+ #define VIRTIO_CONSOLE_PORT_NAME	4
+ #define VIRTIO_CONSOLE_THROTTLE_PORT	5
+ #define VIRTIO_CONSOLE_CACHE_BUFFERS	6
++#define VIRTIO_CONSOLE_PORT_REMOVE	7
  
-+/*
-+ * The workhandler for config-space updates.
-+ *
-+ * This is called when ports are hot-added.
-+ */
-+static void config_work_handler(struct work_struct *work)
-+{
-+	struct virtio_console_config virtconconf;
-+	struct ports_device *portdev;
-+	struct virtio_device *vdev;
-+	int err;
-+
-+	portdev = container_of(work, struct ports_device, config_work);
-+
-+	vdev = portdev->vdev;
-+	vdev->config->get(vdev,
-+			  offsetof(struct virtio_console_config, nr_ports),
-+			  &virtconconf.nr_ports,
-+			  sizeof(virtconconf.nr_ports));
-+
-+	if (portdev->config.nr_ports == virtconconf.nr_ports) {
-+		/*
-+		 * Port 0 got hot-added.  Since we already did all the
-+		 * other initialisation for it, just tell the Host
-+		 * that the port is ready.
-+		 */
-+		struct port *port;
-+
-+		port = find_port_by_id(portdev, 0);
-+		send_control_msg(port, VIRTIO_CONSOLE_PORT_READY, 1);
-+		return;
-+	}
-+	if (virtconconf.nr_ports > portdev->config.max_nr_ports) {
-+		dev_warn(&vdev->dev,
-+			 "More ports specified (%u) than allowed (%u)",
-+			 portdev->config.nr_ports + 1,
-+			 portdev->config.max_nr_ports);
-+		return;
-+	}
-+	if (virtconconf.nr_ports < portdev->config.nr_ports)
-+		return;
-+
-+	/* Hot-add ports */
-+	while (virtconconf.nr_ports - portdev->config.nr_ports) {
-+		err = add_port(portdev, portdev->config.nr_ports);
-+		if (err)
-+			break;
-+		portdev->config.nr_ports++;
-+	}
-+}
-+
- static int init_vqs(struct ports_device *portdev)
- {
- 	vq_callback_t **io_callbacks;
-@@ -1293,6 +1358,7 @@ static int __devinit virtcons_probe(struct virtio_device *vdev)
- 	if (multiport) {
- 		spin_lock_init(&portdev->cvq_lock);
- 		INIT_WORK(&portdev->control_work, &control_work_handler);
-+		INIT_WORK(&portdev->config_work, &config_work_handler);
- 
- 		portdev->outbuf = alloc_buf(PAGE_SIZE);
- 		if (!portdev->outbuf) {
-@@ -1339,7 +1405,7 @@ static struct virtio_driver virtio_console = {
- 	.driver.owner =	THIS_MODULE,
- 	.id_table =	id_table,
- 	.probe =	virtcons_probe,
--	.config_changed = virtcons_apply_config,
-+	.config_changed = config_intr,
- };
- 
- static int __init init(void)
+ /*
+  * This struct is put at the start of each data buffer that gets
 -- 
 1.6.2.5
