@@ -1,8 +1,8 @@
 From: Amit Shah <amit.shah@redhat.com>
-Subject: [PATCH 26/31] virtio: console: Register with sysfs and create a
-	'name' attribute for ports
-Date: Tue, 22 Dec 2009 20:04:36 +0530
-Message-ID: <1261492481-19817-27-git-send-email-amit.shah@redhat.com>
+Subject: [PATCH 10/31] virtio: console: use vdev->priv to avoid accessing
+	global var.
+Date: Tue, 22 Dec 2009 20:04:20 +0530
+Message-ID: <1261492481-19817-11-git-send-email-amit.shah@redhat.com>
 References: <1261492481-19817-1-git-send-email-amit.shah@redhat.com>
 	<1261492481-19817-2-git-send-email-amit.shah@redhat.com>
 	<1261492481-19817-3-git-send-email-amit.shah@redhat.com>
@@ -13,27 +13,11 @@ References: <1261492481-19817-1-git-send-email-amit.shah@redhat.com>
 	<1261492481-19817-8-git-send-email-amit.shah@redhat.com>
 	<1261492481-19817-9-git-send-email-amit.shah@redhat.com>
 	<1261492481-19817-10-git-send-email-amit.shah@redhat.com>
-	<1261492481-19817-11-git-send-email-amit.shah@redhat.com>
-	<1261492481-19817-12-git-send-email-amit.shah@redhat.com>
-	<1261492481-19817-13-git-send-email-amit.shah@redhat.com>
-	<1261492481-19817-14-git-send-email-amit.shah@redhat.com>
-	<1261492481-19817-15-git-send-email-amit.shah@redhat.com>
-	<1261492481-19817-16-git-send-email-amit.shah@redhat.com>
-	<1261492481-19817-17-git-send-email-amit.shah@redhat.com>
-	<1261492481-19817-18-git-send-email-amit.shah@redhat.com>
-	<1261492481-19817-19-git-send-email-amit.shah@redhat.com>
-	<1261492481-19817-20-git-send-email-amit.shah@redhat.com>
-	<1261492481-19817-21-git-send-email-amit.shah@redhat.com>
-	<1261492481-19817-22-git-send-email-amit.shah@redhat.com>
-	<1261492481-19817-23-git-send-email-amit.shah@redhat.com>
-	<1261492481-19817-24-git-send-email-amit.shah@redhat.com>
-	<1261492481-19817-25-git-send-email-amit.shah@redhat.com>
-	<1261492481-19817-26-git-send-email-amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1261492481-19817-26-git-send-email-amit.shah@redhat.com>
+In-Reply-To: <1261492481-19817-10-git-send-email-amit.shah@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -47,123 +31,59 @@ To: rusty@rustcorp.com.au
 Cc: Amit Shah <amit.shah@redhat.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-The host can set a name for ports so that they're easily discoverable
-instead of going by the /dev/vportNpn naming. This attribute will be
-placed in /sys/class/virtio-ports/vportNpn/name. udev scripts can then
-create symlinks to the port using the name.
+From: Rusty Russell <rusty@rustcorp.com.au>
 
+Part of removing our "one console" assumptions, use vdev->priv to point
+to the port (currently == the global console).
+
+Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 Signed-off-by: Amit Shah <amit.shah@redhat.com>
 ---
- drivers/char/virtio_console.c  |   57 ++++++++++++++++++++++++++++++++++++++++
- include/linux/virtio_console.h |    1 +
- 2 files changed, 58 insertions(+), 0 deletions(-)
+ drivers/char/virtio_console.c |   10 ++++++++--
+ 1 files changed, 8 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index abab15f..4fefa4d 100644
+index df45e5e..e52ee11 100644
 --- a/drivers/char/virtio_console.c
 +++ b/drivers/char/virtio_console.c
-@@ -176,6 +176,9 @@ struct port {
- 	/* A waitqueue for poll() or blocking read operations */
- 	wait_queue_head_t waitqueue;
- 
-+	/* The 'name' of the port that we expose via sysfs properties */
-+	char *name;
-+
- 	/* The 'id' to identify the port with the Host */
- 	u32 id;
- 
-@@ -765,12 +768,36 @@ int init_port_console(struct port *port)
- 	return 0;
- }
- 
-+static ssize_t show_port_name(struct device *dev,
-+			      struct device_attribute *attr, char *buffer)
-+{
-+	struct port *port;
-+
-+	port = dev_get_drvdata(dev);
-+
-+	return sprintf(buffer, "%s\n", port->name);
-+}
-+
-+static DEVICE_ATTR(name, S_IRUGO, show_port_name, NULL);
-+
-+static struct attribute *port_sysfs_entries[] = {
-+	&dev_attr_name.attr,
-+	NULL
-+};
-+
-+static struct attribute_group port_attribute_group = {
-+	.name = NULL,		/* put in device directory */
-+	.attrs = port_sysfs_entries,
-+};
-+
- /* Any private messages that the Host and Guest want to share */
- static void handle_control_message(struct ports_device *portdev,
- 				   struct port_buffer *buf)
+@@ -187,6 +187,7 @@ static int get_chars(u32 vtermno, char *buf, int count)
+  */
+ static void virtcons_apply_config(struct virtio_device *dev)
  {
- 	struct virtio_console_control *cpkt;
- 	struct port *port;
-+	size_t name_size;
-+	int err;
++	struct port *port = dev->priv;
+ 	struct winsize ws;
  
- 	cpkt = (struct virtio_console_control *)(buf->buf + buf->offset);
- 
-@@ -805,6 +832,35 @@ static void handle_control_message(struct ports_device *portdev,
- 		port->host_connected = cpkt->value;
- 		wake_up_interruptible(&port->waitqueue);
- 		break;
-+	case VIRTIO_CONSOLE_PORT_NAME:
-+		/*
-+		 * Skip the size of the header and the cpkt to get the size
-+		 * of the name that was sent
-+		 */
-+		name_size = buf->len - buf->offset - sizeof(*cpkt) + 1;
-+
-+		port->name = kmalloc(name_size, GFP_KERNEL);
-+		if (!port->name) {
-+			dev_err(port->dev,
-+				"Not enough space to store port name\n");
-+			break;
-+		}
-+		strncpy(port->name, buf->buf + buf->offset + sizeof(*cpkt),
-+			name_size - 1);
-+		port->name[name_size - 1] = 0;
-+
-+		/*
-+		 * Since we only have one sysfs attribute, 'name',
-+		 * create it only if we have a name for the port.
-+		 */
-+		err = sysfs_create_group(&port->dev->kobj,
-+					 &port_attribute_group);
-+		if (err)
-+			dev_err(port->dev,
-+				"Error %d creating sysfs device attributes\n",
-+				err);
-+
-+		break;
+ 	if (virtio_has_feature(dev, VIRTIO_CONSOLE_F_SIZE)) {
+@@ -196,7 +197,7 @@ static void virtcons_apply_config(struct virtio_device *dev)
+ 		dev->config->get(dev,
+ 				 offsetof(struct virtio_console_config, rows),
+ 				 &ws.ws_row, sizeof(u16));
+-		hvc_resize(console.hvc, ws);
++		hvc_resize(port->hvc, ws);
  	}
  }
  
-@@ -901,6 +957,7 @@ static int add_port(struct ports_device *portdev, u32 id)
- 	port->portdev = portdev;
- 	port->id = id;
+@@ -219,7 +220,9 @@ static void notifier_del_vio(struct hvc_struct *hp, int data)
  
-+	port->name = NULL;
- 	port->inbuf = NULL;
- 	port->cons.hvc = NULL;
+ static void hvc_handle_input(struct virtqueue *vq)
+ {
+-	if (hvc_poll(console.hvc))
++	struct port *port = vq->vdev->priv;
++
++	if (hvc_poll(port->hvc))
+ 		hvc_kick();
+ }
  
-diff --git a/include/linux/virtio_console.h b/include/linux/virtio_console.h
-index 9952b02..8e85045 100644
---- a/include/linux/virtio_console.h
-+++ b/include/linux/virtio_console.h
-@@ -40,6 +40,7 @@ struct virtio_console_control {
- #define VIRTIO_CONSOLE_CONSOLE_PORT	1
- #define VIRTIO_CONSOLE_RESIZE		2
- #define VIRTIO_CONSOLE_PORT_OPEN	3
-+#define VIRTIO_CONSOLE_PORT_NAME	4
+@@ -272,7 +275,10 @@ static int __devinit virtcons_probe(struct virtio_device *vdev)
+ 			 "Multiple virtio-console devices not supported yet\n");
+ 		return -EEXIST;
+ 	}
++
++	/* Attach this port to this virtio_device, and vice-versa. */
+ 	port->vdev = vdev;
++	vdev->priv = port;
  
- /*
-  * This struct is put at the start of each data buffer that gets
+ 	/* This is the scratch page we use to receive console input */
+ 	port->inbuf = alloc_buf(PAGE_SIZE);
 -- 
 1.6.2.5
