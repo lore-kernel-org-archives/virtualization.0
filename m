@@ -1,14 +1,15 @@
 From: Amit Shah <amit.shah@redhat.com>
-Subject: [PATCH 02/31] virtio: console: statically initialize virtio_cons
-Date: Tue, 22 Dec 2009 20:04:12 +0530
-Message-ID: <1261492481-19817-3-git-send-email-amit.shah@redhat.com>
+Subject: [PATCH 03/31] hvc_console: make the ops pointer const.
+Date: Tue, 22 Dec 2009 20:04:13 +0530
+Message-ID: <1261492481-19817-4-git-send-email-amit.shah__46347.1286384904$1261492896$gmane$org@redhat.com>
 References: <1261492481-19817-1-git-send-email-amit.shah@redhat.com>
 	<1261492481-19817-2-git-send-email-amit.shah@redhat.com>
+	<1261492481-19817-3-git-send-email-amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1261492481-19817-2-git-send-email-amit.shah@redhat.com>
+In-Reply-To: <1261492481-19817-3-git-send-email-amit.shah@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,137 +20,194 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: rusty@rustcorp.com.au
-Cc: Amit Shah <amit.shah@redhat.com>, virtualization@lists.linux-foundation.org
+Cc: Amit Shah <amit.shah@redhat.com>, linuxppc-dev@ozlabs.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
 From: Rusty Russell <rusty@rustcorp.com.au>
 
-That way, we can make it const as is good kernel style.  We use a separate
-indirection for the early console, rather than mugging ops.put_chars.
-
-We rename it hv_ops, too.
+This is nicer for modern R/O protection.  And noone needs it non-const, so
+constify the callers as well.
 
 Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 Signed-off-by: Amit Shah <amit.shah@redhat.com>
+To: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: linuxppc-dev@ozlabs.org
 ---
- drivers/char/virtio_console.c |   60 +++++++++++++++++++++++-----------------
- 1 files changed, 34 insertions(+), 26 deletions(-)
+ drivers/char/hvc_beat.c       |    2 +-
+ drivers/char/hvc_console.c    |    7 ++++---
+ drivers/char/hvc_console.h    |    7 ++++---
+ drivers/char/hvc_iseries.c    |    2 +-
+ drivers/char/hvc_iucv.c       |    2 +-
+ drivers/char/hvc_rtas.c       |    2 +-
+ drivers/char/hvc_udbg.c       |    2 +-
+ drivers/char/hvc_vio.c        |    2 +-
+ drivers/char/hvc_xen.c        |    2 +-
+ drivers/char/virtio_console.c |    2 +-
+ 10 files changed, 16 insertions(+), 14 deletions(-)
 
+diff --git a/drivers/char/hvc_beat.c b/drivers/char/hvc_beat.c
+index 0afc8b8..6913fc3 100644
+--- a/drivers/char/hvc_beat.c
++++ b/drivers/char/hvc_beat.c
+@@ -84,7 +84,7 @@ static int hvc_beat_put_chars(uint32_t vtermno, const char *buf, int cnt)
+ 	return cnt;
+ }
+ 
+-static struct hv_ops hvc_beat_get_put_ops = {
++static const struct hv_ops hvc_beat_get_put_ops = {
+ 	.get_chars = hvc_beat_get_chars,
+ 	.put_chars = hvc_beat_put_chars,
+ };
+diff --git a/drivers/char/hvc_console.c b/drivers/char/hvc_console.c
+index 416d342..d8dac58 100644
+--- a/drivers/char/hvc_console.c
++++ b/drivers/char/hvc_console.c
+@@ -125,7 +125,7 @@ static struct hvc_struct *hvc_get_by_index(int index)
+  * console interfaces but can still be used as a tty device.  This has to be
+  * static because kmalloc will not work during early console init.
+  */
+-static struct hv_ops *cons_ops[MAX_NR_HVC_CONSOLES];
++static const struct hv_ops *cons_ops[MAX_NR_HVC_CONSOLES];
+ static uint32_t vtermnos[MAX_NR_HVC_CONSOLES] =
+ 	{[0 ... MAX_NR_HVC_CONSOLES - 1] = -1};
+ 
+@@ -247,7 +247,7 @@ static void destroy_hvc_struct(struct kref *kref)
+  * vty adapters do NOT get an hvc_instantiate() callback since they
+  * appear after early console init.
+  */
+-int hvc_instantiate(uint32_t vtermno, int index, struct hv_ops *ops)
++int hvc_instantiate(uint32_t vtermno, int index, const struct hv_ops *ops)
+ {
+ 	struct hvc_struct *hp;
+ 
+@@ -749,7 +749,8 @@ static const struct tty_operations hvc_ops = {
+ };
+ 
+ struct hvc_struct __devinit *hvc_alloc(uint32_t vtermno, int data,
+-					struct hv_ops *ops, int outbuf_size)
++				       const struct hv_ops *ops,
++				       int outbuf_size)
+ {
+ 	struct hvc_struct *hp;
+ 	int i;
+diff --git a/drivers/char/hvc_console.h b/drivers/char/hvc_console.h
+index 10950ca..52ddf4d 100644
+--- a/drivers/char/hvc_console.h
++++ b/drivers/char/hvc_console.h
+@@ -55,7 +55,7 @@ struct hvc_struct {
+ 	int outbuf_size;
+ 	int n_outbuf;
+ 	uint32_t vtermno;
+-	struct hv_ops *ops;
++	const struct hv_ops *ops;
+ 	int irq_requested;
+ 	int data;
+ 	struct winsize ws;
+@@ -76,11 +76,12 @@ struct hv_ops {
+ };
+ 
+ /* Register a vterm and a slot index for use as a console (console_init) */
+-extern int hvc_instantiate(uint32_t vtermno, int index, struct hv_ops *ops);
++extern int hvc_instantiate(uint32_t vtermno, int index,
++			   const struct hv_ops *ops);
+ 
+ /* register a vterm for hvc tty operation (module_init or hotplug add) */
+ extern struct hvc_struct * __devinit hvc_alloc(uint32_t vtermno, int data,
+-				struct hv_ops *ops, int outbuf_size);
++				const struct hv_ops *ops, int outbuf_size);
+ /* remove a vterm from hvc tty operation (module_exit or hotplug remove) */
+ extern int hvc_remove(struct hvc_struct *hp);
+ 
+diff --git a/drivers/char/hvc_iseries.c b/drivers/char/hvc_iseries.c
+index 936d05b..fd02426 100644
+--- a/drivers/char/hvc_iseries.c
++++ b/drivers/char/hvc_iseries.c
+@@ -197,7 +197,7 @@ done:
+ 	return sent;
+ }
+ 
+-static struct hv_ops hvc_get_put_ops = {
++static const struct hv_ops hvc_get_put_ops = {
+ 	.get_chars = get_chars,
+ 	.put_chars = put_chars,
+ 	.notifier_add = notifier_add_irq,
+diff --git a/drivers/char/hvc_iucv.c b/drivers/char/hvc_iucv.c
+index fe62bd0..21681a8 100644
+--- a/drivers/char/hvc_iucv.c
++++ b/drivers/char/hvc_iucv.c
+@@ -922,7 +922,7 @@ static int hvc_iucv_pm_restore_thaw(struct device *dev)
+ 
+ 
+ /* HVC operations */
+-static struct hv_ops hvc_iucv_ops = {
++static const struct hv_ops hvc_iucv_ops = {
+ 	.get_chars = hvc_iucv_get_chars,
+ 	.put_chars = hvc_iucv_put_chars,
+ 	.notifier_add = hvc_iucv_notifier_add,
+diff --git a/drivers/char/hvc_rtas.c b/drivers/char/hvc_rtas.c
+index 88590d0..61c4a61 100644
+--- a/drivers/char/hvc_rtas.c
++++ b/drivers/char/hvc_rtas.c
+@@ -71,7 +71,7 @@ static int hvc_rtas_read_console(uint32_t vtermno, char *buf, int count)
+ 	return i;
+ }
+ 
+-static struct hv_ops hvc_rtas_get_put_ops = {
++static const struct hv_ops hvc_rtas_get_put_ops = {
+ 	.get_chars = hvc_rtas_read_console,
+ 	.put_chars = hvc_rtas_write_console,
+ };
+diff --git a/drivers/char/hvc_udbg.c b/drivers/char/hvc_udbg.c
+index bd63ba8..b0957e6 100644
+--- a/drivers/char/hvc_udbg.c
++++ b/drivers/char/hvc_udbg.c
+@@ -58,7 +58,7 @@ static int hvc_udbg_get(uint32_t vtermno, char *buf, int count)
+ 	return i;
+ }
+ 
+-static struct hv_ops hvc_udbg_ops = {
++static const struct hv_ops hvc_udbg_ops = {
+ 	.get_chars = hvc_udbg_get,
+ 	.put_chars = hvc_udbg_put,
+ };
+diff --git a/drivers/char/hvc_vio.c b/drivers/char/hvc_vio.c
+index 10be343..27370e9 100644
+--- a/drivers/char/hvc_vio.c
++++ b/drivers/char/hvc_vio.c
+@@ -77,7 +77,7 @@ static int filtered_get_chars(uint32_t vtermno, char *buf, int count)
+ 	return got;
+ }
+ 
+-static struct hv_ops hvc_get_put_ops = {
++static const struct hv_ops hvc_get_put_ops = {
+ 	.get_chars = filtered_get_chars,
+ 	.put_chars = hvc_put_chars,
+ 	.notifier_add = notifier_add_irq,
+diff --git a/drivers/char/hvc_xen.c b/drivers/char/hvc_xen.c
+index b1a7163..60446f8 100644
+--- a/drivers/char/hvc_xen.c
++++ b/drivers/char/hvc_xen.c
+@@ -122,7 +122,7 @@ static int read_console(uint32_t vtermno, char *buf, int len)
+ 	return recv;
+ }
+ 
+-static struct hv_ops hvc_ops = {
++static const struct hv_ops hvc_ops = {
+ 	.get_chars = read_console,
+ 	.put_chars = write_console,
+ 	.notifier_add = notifier_add_irq,
 diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index 26e238c..1d844a4 100644
+index 1d844a4..791be4e 100644
 --- a/drivers/char/virtio_console.c
 +++ b/drivers/char/virtio_console.c
-@@ -28,12 +28,12 @@ static struct virtio_device *vdev;
- static unsigned int in_len;
- static char *in, *inbuf;
- 
--/* The operations for our console. */
--static struct hv_ops virtio_cons;
--
- /* The hvc device */
- static struct hvc_struct *hvc;
- 
-+/* This is the very early arch-specified put chars function. */
-+static int (*early_put_chars)(u32, const char *, int);
-+
- /*
-  * The put_chars() callback is pretty straightforward.
-  *
-@@ -47,6 +47,9 @@ static int put_chars(u32 vtermno, const char *buf, int count)
- 	struct scatterlist sg[1];
- 	unsigned int len;
- 
-+	if (unlikely(early_put_chars))
-+		return early_put_chars(vtermno, buf, count);
-+
- 	/* This is a convenient routine to initialize a single-elem sg list */
- 	sg_init_one(sg, buf, count);
- 
-@@ -118,21 +121,6 @@ static int get_chars(u32 vtermno, char *buf, int count)
+@@ -163,7 +163,7 @@ static void hvc_handle_input(struct virtqueue *vq)
  }
  
- /*
-- * Console drivers are initialized very early so boot messages can go
-- * out, so we do things slightly differently from the generic virtio
-- * initialization of the net and block drivers.
-- *
-- * At this stage, the console is output-only.  It's too early to set
-- * up a virtqueue, so we let the drivers do some boutique early-output
-- * thing.
-- */
--int __init virtio_cons_early_init(int (*put_chars)(u32, const char *, int))
--{
--	virtio_cons.put_chars = put_chars;
--	return hvc_instantiate(0, 0, &virtio_cons);
--}
--
--/*
-  * virtio console configuration. This supports:
-  * - console resize
-  */
-@@ -174,6 +162,30 @@ static void hvc_handle_input(struct virtqueue *vq)
- 		hvc_kick();
- }
- 
-+/* The operations for the console. */
-+static struct hv_ops hv_ops = {
-+	.get_chars = get_chars,
-+	.put_chars = put_chars,
-+	.notifier_add = notifier_add_vio,
-+	.notifier_del = notifier_del_vio,
-+	.notifier_hangup = notifier_del_vio,
-+};
-+
-+/*
-+ * Console drivers are initialized very early so boot messages can go
-+ * out, so we do things slightly differently from the generic virtio
-+ * initialization of the net and block drivers.
-+ *
-+ * At this stage, the console is output-only.  It's too early to set
-+ * up a virtqueue, so we let the drivers do some boutique early-output
-+ * thing.
-+ */
-+int __init virtio_cons_early_init(int (*put_chars)(u32, const char *, int))
-+{
-+	early_put_chars = put_chars;
-+	return hvc_instantiate(0, 0, &hv_ops);
-+}
-+
- /*
-  * Once we're further in boot, we get probed like any other virtio
-  * device.  At this stage we set up the output virtqueue.
-@@ -209,13 +221,6 @@ static int __devinit virtcons_probe(struct virtio_device *dev)
- 	in_vq = vqs[0];
- 	out_vq = vqs[1];
- 
--	/* Start using the new console output. */
--	virtio_cons.get_chars = get_chars;
--	virtio_cons.put_chars = put_chars;
--	virtio_cons.notifier_add = notifier_add_vio;
--	virtio_cons.notifier_del = notifier_del_vio;
--	virtio_cons.notifier_hangup = notifier_del_vio;
--
- 	/*
- 	 * The first argument of hvc_alloc() is the virtual console
- 	 * number, so we use zero.  The second argument is the
-@@ -228,7 +233,7 @@ static int __devinit virtcons_probe(struct virtio_device *dev)
- 	 * pointers.  The final argument is the output buffer size: we
- 	 * can do any size, so we put PAGE_SIZE here.
- 	 */
--	hvc = hvc_alloc(0, 0, &virtio_cons, PAGE_SIZE);
-+	hvc = hvc_alloc(0, 0, &hv_ops, PAGE_SIZE);
- 	if (IS_ERR(hvc)) {
- 		err = PTR_ERR(hvc);
- 		goto free_vqs;
-@@ -236,6 +241,9 @@ static int __devinit virtcons_probe(struct virtio_device *dev)
- 
- 	/* Register the input buffer the first time. */
- 	add_inbuf();
-+
-+	/* Start using the new console output. */
-+	early_put_chars = NULL;
- 	return 0;
- 
- free_vqs:
+ /* The operations for the console. */
+-static struct hv_ops hv_ops = {
++static const struct hv_ops hv_ops = {
+ 	.get_chars = get_chars,
+ 	.put_chars = put_chars,
+ 	.notifier_add = notifier_add_vio,
 -- 
 1.6.2.5
