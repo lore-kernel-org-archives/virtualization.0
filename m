@@ -1,12 +1,15 @@
-From: Chris Wright <chrisw@sous-sol.org>
-Subject: [PATCH] vhost-net: defer f->private_data until setup succeeds
-Date: Tue, 22 Dec 2009 11:02:28 -0800
-Message-ID: <20091222190228.GB2095__21718.0713698783$1261508597$gmane$org@sequoia.sous-sol.org>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH] vhost-net: comment use of invalid fd when setting
+	vhost backend
+Date: Tue, 22 Dec 2009 21:37:49 +0200
+Message-ID: <20091222193749.GA20454__41295.7293949605$1261510882$gmane$org@redhat.com>
+References: <20091222181828.GA2095@sequoia.sous-sol.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
+In-Reply-To: <20091222181828.GA2095@sequoia.sous-sol.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -16,38 +19,31 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
+To: Chris Wright <chrisw@sous-sol.org>
 Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Trivial change, just for readability.  The filp is not installed on
-failure, so the current code is not incorrect (also vhost_dev_init
-currently has no failure case).  This just treats setting f->private_data
-as something with global scope (sure, true only after fd_install).
+On Tue, Dec 22, 2009 at 10:18:28AM -0800, Chris Wright wrote:
+> This looks like an error case, but it's just a special case to shutdown
+> the backend.  Clarify with a comment.
+> 
+> Signed-off-by: Chris Wright <chrisw@redhat.com>
 
-Signed-off-by: Chris Wright <chrisw@redhat.com>
----
- drivers/vhost/net.c |    4 +++-
- 1 files changed, 3 insertions(+), 1 deletions(-)
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
 
-diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-index 22d5fef..0697ab2 100644
---- a/drivers/vhost/net.c
-+++ b/drivers/vhost/net.c
-@@ -326,7 +326,6 @@ static int vhost_net_open(struct inode *inode, struct file *f)
- 	int r;
- 	if (!n)
- 		return -ENOMEM;
--	f->private_data = n;
- 	n->vqs[VHOST_NET_VQ_TX].handle_kick = handle_tx_kick;
- 	n->vqs[VHOST_NET_VQ_RX].handle_kick = handle_rx_kick;
- 	r = vhost_dev_init(&n->dev, n->vqs, VHOST_NET_VQ_MAX);
-@@ -338,6 +337,9 @@ static int vhost_net_open(struct inode *inode, struct file *f)
- 	vhost_poll_init(n->poll + VHOST_NET_VQ_TX, handle_tx_net, POLLOUT);
- 	vhost_poll_init(n->poll + VHOST_NET_VQ_RX, handle_rx_net, POLLIN);
- 	n->tx_poll_state = VHOST_NET_POLL_DISABLED;
-+
-+	f->private_data = n;
-+
- 	return 0;
- }
+> ---
+>  drivers/vhost/net.c |    1 +
+>  1 files changed, 1 insertions(+), 0 deletions(-)
+> 
+> diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+> index 22d5fef..cc92086 100644
+> --- a/drivers/vhost/net.c
+> +++ b/drivers/vhost/net.c
+> @@ -465,6 +465,7 @@ static struct socket *get_tun_socket(int fd)
+>  static struct socket *get_socket(int fd)
+>  {
+>  	struct socket *sock;
+> +	/* special case to disable backend */
+>  	if (fd == -1)
+>  		return NULL;
+>  	sock = get_raw_socket(fd);
