@@ -1,8 +1,8 @@
 From: Amit Shah <amit.shah@redhat.com>
-Subject: [PATCH 31/31] virtio: console: Add debugfs files for each port to
-	expose debug info
-Date: Tue, 22 Dec 2009 20:04:41 +0530
-Message-ID: <1261492481-19817-32-git-send-email-amit.shah@redhat.com>
+Subject: [PATCH 26/31] virtio: console: Register with sysfs and create a
+	'name' attribute for ports
+Date: Tue, 22 Dec 2009 20:04:36 +0530
+Message-ID: <1261492481-19817-27-git-send-email-amit.shah@redhat.com>
 References: <1261492481-19817-1-git-send-email-amit.shah@redhat.com>
 	<1261492481-19817-2-git-send-email-amit.shah@redhat.com>
 	<1261492481-19817-3-git-send-email-amit.shah@redhat.com>
@@ -29,16 +29,11 @@ References: <1261492481-19817-1-git-send-email-amit.shah@redhat.com>
 	<1261492481-19817-24-git-send-email-amit.shah@redhat.com>
 	<1261492481-19817-25-git-send-email-amit.shah@redhat.com>
 	<1261492481-19817-26-git-send-email-amit.shah@redhat.com>
-	<1261492481-19817-27-git-send-email-amit.shah@redhat.com>
-	<1261492481-19817-28-git-send-email-amit.shah@redhat.com>
-	<1261492481-19817-29-git-send-email-amit.shah@redhat.com>
-	<1261492481-19817-30-git-send-email-amit.shah@redhat.com>
-	<1261492481-19817-31-git-send-email-amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1261492481-19817-31-git-send-email-amit.shah@redhat.com>
+In-Reply-To: <1261492481-19817-26-git-send-email-amit.shah@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -52,147 +47,123 @@ To: rusty@rustcorp.com.au
 Cc: Amit Shah <amit.shah@redhat.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-This is helpful in examining ports' state.
+The host can set a name for ports so that they're easily discoverable
+instead of going by the /dev/vportNpn naming. This attribute will be
+placed in /sys/class/virtio-ports/vportNpn/name. udev scripts can then
+create symlinks to the port using the name.
 
 Signed-off-by: Amit Shah <amit.shah@redhat.com>
 ---
- drivers/char/virtio_console.c |   75 +++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 75 insertions(+), 0 deletions(-)
+ drivers/char/virtio_console.c  |   57 ++++++++++++++++++++++++++++++++++++++++
+ include/linux/virtio_console.h |    1 +
+ 2 files changed, 58 insertions(+), 0 deletions(-)
 
 diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index 48ef259..1b3f532 100644
+index abab15f..4fefa4d 100644
 --- a/drivers/char/virtio_console.c
 +++ b/drivers/char/virtio_console.c
-@@ -17,6 +17,7 @@
-  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-  */
- #include <linux/cdev.h>
-+#include <linux/debugfs.h>
- #include <linux/device.h>
- #include <linux/err.h>
- #include <linux/fs.h>
-@@ -43,6 +44,9 @@ struct ports_driver_data {
- 	/* Used for registering chardevs */
- 	struct class *class;
+@@ -176,6 +176,9 @@ struct port {
+ 	/* A waitqueue for poll() or blocking read operations */
+ 	wait_queue_head_t waitqueue;
  
-+	/* Used for exporting per-port information to debugfs */
-+	struct dentry *debugfs_dir;
++	/* The 'name' of the port that we expose via sysfs properties */
++	char *name;
 +
- 	/* Number of devices this driver is handling */
- 	unsigned int index;
+ 	/* The 'id' to identify the port with the Host */
+ 	u32 id;
  
-@@ -164,6 +168,9 @@ struct port {
- 	/* The IO vqs for this port */
- 	struct virtqueue *in_vq, *out_vq;
+@@ -765,12 +768,36 @@ int init_port_console(struct port *port)
+ 	return 0;
+ }
  
-+	/* File in the debugfs directory that exposes this port's information */
-+	struct dentry *debugfs_file;
-+
- 	/*
- 	 * The entries in this struct will be valid if this port is
- 	 * hooked up to an hvc console
-@@ -833,6 +840,53 @@ static struct attribute_group port_attribute_group = {
- 	.attrs = port_sysfs_entries,
- };
- 
-+static int debugfs_open(struct inode *inode, struct file *filp)
-+{
-+	filp->private_data = inode->i_private;
-+	return 0;
-+}
-+
-+static ssize_t debugfs_read(struct file *filp, char __user *ubuf,
-+			    size_t count, loff_t *offp)
++static ssize_t show_port_name(struct device *dev,
++			      struct device_attribute *attr, char *buffer)
 +{
 +	struct port *port;
-+	char *buf;
-+	ssize_t ret, out_offset, out_count;
 +
-+	out_count = 1024;
-+	buf = kmalloc(out_count, GFP_KERNEL);
-+	if (!buf)
-+		return -ENOMEM;
++	port = dev_get_drvdata(dev);
 +
-+	port = filp->private_data;
-+	out_offset = 0;
-+	out_offset += snprintf(buf + out_offset, out_count,
-+			       "name: %s\n", port->name ? port->name : "");
-+	out_offset += snprintf(buf + out_offset, out_count - out_offset,
-+			       "guest_connected: %d\n", port->guest_connected);
-+	out_offset += snprintf(buf + out_offset, out_count - out_offset,
-+			       "cache_buffers: %d\n", port->cache_buffers);
-+	out_offset += snprintf(buf + out_offset, out_count - out_offset,
-+			       "host_connected: %d\n", port->host_connected);
-+	out_offset += snprintf(buf + out_offset, out_count - out_offset,
-+			       "host_throttled: %d\n", port->host_throttled);
-+	out_offset += snprintf(buf + out_offset, out_count - out_offset,
-+			       "is_console: %s\n",
-+			       is_console_port(port) ? "yes" : "no");
-+	out_offset += snprintf(buf + out_offset, out_count - out_offset,
-+			       "console_vtermno: %u\n", port->cons.vtermno);
-+
-+	ret = simple_read_from_buffer(ubuf, count, offp, buf, out_offset);
-+	kfree(buf);
-+	return ret;
++	return sprintf(buffer, "%s\n", port->name);
 +}
 +
-+static const struct file_operations port_debugfs_ops = {
-+	.owner = THIS_MODULE,
-+	.open  = debugfs_open,
-+	.read  = debugfs_read,
++static DEVICE_ATTR(name, S_IRUGO, show_port_name, NULL);
++
++static struct attribute *port_sysfs_entries[] = {
++	&dev_attr_name.attr,
++	NULL
 +};
 +
- /* Remove port-specific data. */
- static int remove_port_data(struct port *port)
- {
-@@ -857,6 +911,8 @@ static int remove_port_data(struct port *port)
- 	free_buf(port->outbuf);
- 	kfree(port->name);
- 
-+	debugfs_remove(port->debugfs_file);
++static struct attribute_group port_attribute_group = {
++	.name = NULL,		/* put in device directory */
++	.attrs = port_sysfs_entries,
++};
 +
- 	kfree(port);
- 	return 0;
- }
-@@ -1085,6 +1141,7 @@ static void fill_queue(struct virtqueue *vq, spinlock_t *lock)
- 
- static int add_port(struct ports_device *portdev, u32 id)
+ /* Any private messages that the Host and Guest want to share */
+ static void handle_control_message(struct ports_device *portdev,
+ 				   struct port_buffer *buf)
  {
-+	char debugfs_name[16];
+ 	struct virtio_console_control *cpkt;
  	struct port *port;
- 	dev_t devt;
- 	int err;
-@@ -1158,6 +1215,18 @@ static int add_port(struct ports_device *portdev, u32 id)
- 	 */
- 	send_control_msg(port, VIRTIO_CONSOLE_PORT_READY, 1);
++	size_t name_size;
++	int err;
  
-+	if (pdrvdata.debugfs_dir) {
+ 	cpkt = (struct virtio_console_control *)(buf->buf + buf->offset);
+ 
+@@ -805,6 +832,35 @@ static void handle_control_message(struct ports_device *portdev,
+ 		port->host_connected = cpkt->value;
+ 		wake_up_interruptible(&port->waitqueue);
+ 		break;
++	case VIRTIO_CONSOLE_PORT_NAME:
 +		/*
-+		 * Finally, create the debugfs file that we can use to
-+		 * inspect a port's state at any time
++		 * Skip the size of the header and the cpkt to get the size
++		 * of the name that was sent
 +		 */
-+		sprintf(debugfs_name, "vport%up%u",
-+			port->portdev->drv_index, id);
-+		port->debugfs_file = debugfs_create_file(debugfs_name, 0444,
-+							 pdrvdata.debugfs_dir,
-+							 port,
-+							 &port_debugfs_ops);
-+	}
- 	return 0;
- 
- free_device:
-@@ -1478,6 +1547,12 @@ static int __init init(void)
- 		return err;
- 	}
- 
-+	pdrvdata.debugfs_dir = debugfs_create_dir("virtio-ports", NULL);
-+	if (!pdrvdata.debugfs_dir) {
-+		pr_warning("Error %ld creating debugfs dir for virtio-ports\n",
-+			   PTR_ERR(pdrvdata.debugfs_dir));
-+	}
++		name_size = buf->len - buf->offset - sizeof(*cpkt) + 1;
 +
- 	INIT_LIST_HEAD(&pdrvdata.consoles);
- 	return register_virtio_driver(&virtio_console);
++		port->name = kmalloc(name_size, GFP_KERNEL);
++		if (!port->name) {
++			dev_err(port->dev,
++				"Not enough space to store port name\n");
++			break;
++		}
++		strncpy(port->name, buf->buf + buf->offset + sizeof(*cpkt),
++			name_size - 1);
++		port->name[name_size - 1] = 0;
++
++		/*
++		 * Since we only have one sysfs attribute, 'name',
++		 * create it only if we have a name for the port.
++		 */
++		err = sysfs_create_group(&port->dev->kobj,
++					 &port_attribute_group);
++		if (err)
++			dev_err(port->dev,
++				"Error %d creating sysfs device attributes\n",
++				err);
++
++		break;
+ 	}
  }
+ 
+@@ -901,6 +957,7 @@ static int add_port(struct ports_device *portdev, u32 id)
+ 	port->portdev = portdev;
+ 	port->id = id;
+ 
++	port->name = NULL;
+ 	port->inbuf = NULL;
+ 	port->cons.hvc = NULL;
+ 
+diff --git a/include/linux/virtio_console.h b/include/linux/virtio_console.h
+index 9952b02..8e85045 100644
+--- a/include/linux/virtio_console.h
++++ b/include/linux/virtio_console.h
+@@ -40,6 +40,7 @@ struct virtio_console_control {
+ #define VIRTIO_CONSOLE_CONSOLE_PORT	1
+ #define VIRTIO_CONSOLE_RESIZE		2
+ #define VIRTIO_CONSOLE_PORT_OPEN	3
++#define VIRTIO_CONSOLE_PORT_NAME	4
+ 
+ /*
+  * This struct is put at the start of each data buffer that gets
 -- 
 1.6.2.5
