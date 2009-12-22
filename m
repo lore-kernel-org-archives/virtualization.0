@@ -1,8 +1,8 @@
 From: Amit Shah <amit.shah@redhat.com>
-Subject: [PATCH 25/31] virtio: console: Ensure only one process can have a
-	port open at a time
-Date: Tue, 22 Dec 2009 20:04:35 +0530
-Message-ID: <1261492481-19817-26-git-send-email-amit.shah@redhat.com>
+Subject: [PATCH 27/31] virtio: console: Add throttling support to prevent
+	flooding ports
+Date: Tue, 22 Dec 2009 20:04:37 +0530
+Message-ID: <1261492481-19817-28-git-send-email-amit.shah@redhat.com>
 References: <1261492481-19817-1-git-send-email-amit.shah@redhat.com>
 	<1261492481-19817-2-git-send-email-amit.shah@redhat.com>
 	<1261492481-19817-3-git-send-email-amit.shah@redhat.com>
@@ -28,11 +28,13 @@ References: <1261492481-19817-1-git-send-email-amit.shah@redhat.com>
 	<1261492481-19817-23-git-send-email-amit.shah@redhat.com>
 	<1261492481-19817-24-git-send-email-amit.shah@redhat.com>
 	<1261492481-19817-25-git-send-email-amit.shah@redhat.com>
+	<1261492481-19817-26-git-send-email-amit.shah@redhat.com>
+	<1261492481-19817-27-git-send-email-amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1261492481-19817-25-git-send-email-amit.shah@redhat.com>
+In-Reply-To: <1261492481-19817-27-git-send-email-amit.shah@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -46,73 +48,87 @@ To: rusty@rustcorp.com.au
 Cc: Amit Shah <amit.shah@redhat.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Add a guest_connected field that ensures only one process
-can have a port open at a time.
-
-This also ensures we don't have a race when we later add support for
-dropping buffers when closing the char dev and buffer caching is turned
-off for the particular port.
+Rogue processes on guests could pump in data to hosts and cause an OOM
+condition on the host. The host can indicate when to stop and start
+sending data via control messages.
 
 Signed-off-by: Amit Shah <amit.shah@redhat.com>
 ---
- drivers/char/virtio_console.c |   17 ++++++++++++++++-
- 1 files changed, 16 insertions(+), 1 deletions(-)
+ drivers/char/virtio_console.c  |   21 ++++++++++++++++++++-
+ include/linux/virtio_console.h |    1 +
+ 2 files changed, 21 insertions(+), 1 deletions(-)
 
 diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index c949e6c..abab15f 100644
+index 4fefa4d..2409330 100644
 --- a/drivers/char/virtio_console.c
 +++ b/drivers/char/virtio_console.c
-@@ -181,6 +181,9 @@ struct port {
+@@ -187,6 +187,9 @@ struct port {
  
- 	/* Is the host device open */
- 	bool host_connected;
+ 	/* We should allow only one process to open a port */
+ 	bool guest_connected;
 +
-+	/* We should allow only one process to open a port */
-+	bool guest_connected;
++	/* Does the Host not want to accept more data currently?  */
++	bool host_throttled;
  };
  
  /* This is the very early arch-specified put chars function. */
-@@ -565,6 +568,8 @@ static int port_fops_release(struct inode *inode, struct file *filp)
- 	/* Notify host of port being closed */
- 	send_control_msg(port, VIRTIO_CONSOLE_PORT_OPEN, 0);
+@@ -540,6 +543,9 @@ static ssize_t port_fops_write(struct file *filp, const char __user *ubuf,
  
-+	port->guest_connected = false;
+ 	port = filp->private_data;
+ 
++	if (port->host_throttled)
++		return -ENOSPC;
 +
- 	return 0;
+ 	return send_buf(port, ubuf, count, true);
  }
  
-@@ -583,6 +588,15 @@ static int port_fops_open(struct inode *inode, struct file *filp)
- 	if (is_console_port(port))
- 		return -ENXIO;
+@@ -554,7 +560,7 @@ static unsigned int port_fops_poll(struct file *filp, poll_table *wait)
+ 	ret = 0;
+ 	if (port->inbuf)
+ 		ret |= POLLIN | POLLRDNORM;
+-	if (port->host_connected)
++	if (port->host_connected && !port->host_throttled)
+ 		ret |= POLLOUT;
+ 	if (!port->host_connected)
+ 		ret |= POLLHUP;
+@@ -861,6 +867,18 @@ static void handle_control_message(struct ports_device *portdev,
+ 				err);
  
-+	/* Allow only one process to open a particular port at a time */
-+	spin_lock_irq(&port->inbuf_lock);
-+	if (port->guest_connected) {
-+		spin_unlock_irq(&port->inbuf_lock);
-+		return -EMFILE;
-+	}
-+	port->guest_connected = true;
-+	spin_unlock_irq(&port->inbuf_lock);
-+
- 	/* Notify host of port being opened */
- 	send_control_msg(filp->private_data, VIRTIO_CONSOLE_PORT_OPEN, 1);
- 
-@@ -746,6 +760,7 @@ int init_port_console(struct port *port)
- 	pdrvdata.next_vtermno++;
- 	list_add_tail(&port->cons.list, &pdrvdata.consoles);
- 	spin_unlock_irq(&pdrvdata_lock);
-+	port->guest_connected = true;
- 
- 	return 0;
+ 		break;
++	case VIRTIO_CONSOLE_THROTTLE_PORT:
++		/*
++		 * Hosts can govern some policy to disallow rogue
++		 * guest processes writing indefinitely to ports
++		 * leading to OOM situations.  If we receive this
++		 * message here, it means the Host side of the port
++		 * either reached its max. limit to cache data or
++		 * signal to us that the host is ready to accept more
++		 * data.
++		 */
++		port->host_throttled = cpkt->value;
++		break;
+ 	}
  }
-@@ -889,7 +904,7 @@ static int add_port(struct ports_device *portdev, u32 id)
- 	port->inbuf = NULL;
+ 
+@@ -962,6 +980,7 @@ static int add_port(struct ports_device *portdev, u32 id)
  	port->cons.hvc = NULL;
  
--	port->host_connected = false;
-+	port->host_connected = port->guest_connected = false;
+ 	port->host_connected = port->guest_connected = false;
++	port->host_throttled = false;
  
  	port->in_vq = portdev->in_vqs[port->id];
  	port->out_vq = portdev->out_vqs[port->id];
+diff --git a/include/linux/virtio_console.h b/include/linux/virtio_console.h
+index 8e85045..4bd57c8 100644
+--- a/include/linux/virtio_console.h
++++ b/include/linux/virtio_console.h
+@@ -41,6 +41,7 @@ struct virtio_console_control {
+ #define VIRTIO_CONSOLE_RESIZE		2
+ #define VIRTIO_CONSOLE_PORT_OPEN	3
+ #define VIRTIO_CONSOLE_PORT_NAME	4
++#define VIRTIO_CONSOLE_THROTTLE_PORT	5
+ 
+ /*
+  * This struct is put at the start of each data buffer that gets
 -- 
 1.6.2.5
