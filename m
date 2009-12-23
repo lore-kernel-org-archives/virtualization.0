@@ -1,14 +1,16 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH 00/31] virtio: console: Fixes,
-	multiple devices and generic ports
-Date: Wed, 23 Dec 2009 17:09:28 +1030
-Message-ID: <200912231709.28442.rusty@rustcorp.com.au>
+From: Amit Shah <amit.shah@redhat.com>
+Subject: Re: [PATCH 00/31] virtio: console: Fixes, multiple devices and
+	generic ports
+Date: Wed, 23 Dec 2009 12:14:05 +0530
+Message-ID: <20091223064405.GA19812@amit-x200.redhat.com>
 References: <1261492481-19817-1-git-send-email-amit.shah@redhat.com>
+	<200912231709.28442.rusty@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1261492481-19817-1-git-send-email-amit.shah@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <200912231709.28442.rusty@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,22 +20,19 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Amit Shah <amit.shah@redhat.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
 Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 23 Dec 2009 01:04:10 am Amit Shah wrote:
-> Hey Rusty,
+On (Wed) Dec 23 2009 [17:09:28], Rusty Russell wrote:
 > 
-> This series adds support for generic ports with each port getting two
-> vqs: one for input and one for output. The host notifies us via the
-> config space of the max. number of ports that can be added for a
-> particular device.
+> Hi Amit,
+> 
+>    I've just started a couple of weeks' leave, but I'll try to review these
+> in the last week of this year.
 
-Hi Amit,
+Hey Rusty,
 
-   I've just started a couple of weeks' leave, but I'll try to review these
-in the last week of this year.
+No problem; enjoy your vacations! :-)
 
-Thanks,
-Rusty.
+		Amit
