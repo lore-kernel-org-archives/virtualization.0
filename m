@@ -1,15 +1,13 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH] vhost-net: comment use of invalid fd when setting
-	vhost backend
-Date: Tue, 22 Dec 2009 21:37:49 +0200
-Message-ID: <20091222193749.GA20454__41295.7293949605$1261510882$gmane$org@redhat.com>
-References: <20091222181828.GA2095@sequoia.sous-sol.org>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH] vhost: fix high 32 bit in FEATURES ioctls
+Date: Wed, 23 Dec 2009 17:02:03 +1030
+Message-ID: <200912231702.03509.rusty__3415.94650312818$1261549982$gmane$org@rustcorp.com.au>
+References: <20091222113933.GA16103@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20091222181828.GA2095@sequoia.sous-sol.org>
+In-Reply-To: <20091222113933.GA16103@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,31 +17,14 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Chris Wright <chrisw@sous-sol.org>
-Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: David Stevens <dlstevens@us.ibm.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Dec 22, 2009 at 10:18:28AM -0800, Chris Wright wrote:
-> This looks like an error case, but it's just a special case to shutdown
-> the backend.  Clarify with a comment.
-> 
-> Signed-off-by: Chris Wright <chrisw@redhat.com>
+On Tue, 22 Dec 2009 10:09:33 pm Michael S. Tsirkin wrote:
+> From: David Stevens <dlstevens@us.ibm.com>
+> Subject: vhost: fix high 32 bit in FEATURES ioctls
 
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
+Thanks, applied.
 
-> ---
->  drivers/vhost/net.c |    1 +
->  1 files changed, 1 insertions(+), 0 deletions(-)
-> 
-> diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-> index 22d5fef..cc92086 100644
-> --- a/drivers/vhost/net.c
-> +++ b/drivers/vhost/net.c
-> @@ -465,6 +465,7 @@ static struct socket *get_tun_socket(int fd)
->  static struct socket *get_socket(int fd)
->  {
->  	struct socket *sock;
-> +	/* special case to disable backend */
->  	if (fd == -1)
->  		return NULL;
->  	sock = get_raw_socket(fd);
+Rusty.
