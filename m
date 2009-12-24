@@ -1,124 +1,121 @@
-From: Ming Zhao <zhaom@cis.fiu.edu>
-Subject: CFP: VPACT 2010: Third International Workshop on Virtualization
-	Performance: Analysis, Characterization and Tools
-Date: Wed, 23 Dec 2009 14:41:52 -0500
-Message-ID: <4B327280.8010007@cis.fiu.edu>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH] vhost: access check thinko fixes
+Date: Thu, 24 Dec 2009 08:00:58 +0200
+Message-ID: <20091224060058.GA26101@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <kvm-owner@vger.kernel.org>
+Content-Disposition: inline
+Sender: kvm-owner@vger.kernel.org
+To: "Michael S. Tsirkin" <mst@redhat.com>, rusty@rustcorp.com.au, Al Viro <viro@zeniv.linux.org.uk>, kvm@vger.kernel.org, virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-VPACT 2010  CALL FOR PAPERS
+This fixes two issues with recent access checking patch:
+1.  if (&d->vqs[i].private_data) -> if (d->vqs[i].private_data)
+2.  we can't forbid log base changes while ring is running,
+    because host needs to resize log in rare cases
+    (e.g. when memory is added with a baloon)
+    and in that case it needs to increase log size with realloc,
+    which might move the log address.
 
-Third International Workshop on
-Virtualization Performance: Analysis, Characterization and Tools
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
 
-March 28, 2010
-White Plains, New York
-(co-located with IEEE ISPASS 2010)
+Rusty, this needs to be applied on top of the access_ok patch.
+If you want me to rool it in with that one and esend, let me
+know please.
+Thanks!
 
-The International Workshop on Virtualization Performance: Analysis,
-Characterization and Tools (VPACT) is a selective venue for reporting
-and discussing new initial results in the measurement,
-characterization, analysis, and modeling of the performance of
-virtualized computer systems, including the tools to support such
-work.  VPACT is interested in results at all scales, including
-multicore/manycore processors, mobile devices, desktops, servers, data
-centers, clusters, parallel supercomputers, and distributed
-virtualized computing environments.
+ drivers/vhost/vhost.c |   39 +++++++++++++++++++++++----------------
+ 1 file changed, 23 insertions(+), 16 deletions(-)
 
-VPACT 2010 seeks papers from researchers and practitioners in both
-academia and industry.  Topics of interest include, but are not
-limited to the following, in the context of virtualized computer
-systems:
-
-- Performance measurement, characterization, analysis, and modeling
-- Power measurement characterization, analysis, and modeling
-- Workload measurement characterization, analysis, and modeling
-- Benchmarks and benchmarking
-- Evaluation of hardware virtualization features
-- Evaluation of virtualization software (VMMs, etc)
-- Evaluation of virtualization services (Clouds, etc)
-- Evaluation of scalability in virtualized environments
-- Evaluation of innovative uses of virtualization
-- Interaction of virtualization and multicore/manycore architectures
-- Interaction of virtualization and parallel computing
-- Interaction of language and OS virtual machines
-- Tools and techniques
-
-Papers should be no more than 10 pages in length, should be
-formatted according to the ACM SIG Proceedings style
-(http://www.acm.org/sigs/publications/proceedings-templates), and must
-be in PDF format.  Reviewing is single-blind.  Submission instructions
-are available on the workshop web site, http://vpact.org.
-
-DATES
-
-Submission deadline:     February 1, 2010
-Notification:            March 1, 2010
-Final form:              March 8, 2010
-Workshop:                March 28, 2010
-
-
-ORGANIZATION
-
-General Chair
-
-Mazin Yousif, IBM
-
-
-Program Chair
-
-Peter Dinda, Northwestern University
-
-
-Publicity Chair
-
-Ming Zhao, Florida International University
-
-
-Program Committee
-
-Patrick Bridges, University of New Mexico
-Ron Brightwell, Sandia National Labs
-Kshitij Doshi, Intel
-Renato Figueiredo, University of Florida
-Russ Joseph, Northwestern University
-John Lange, Northwestern University
-Arthur Maccabe, Oak Ridge National Labs
-Elmoustapha Ould-ahmed-vall, Intel
-Kevin Pedretti, Sandia National Labs
-Stephen Scott, Oak Ridge National Labs
-Tim Sherwood, UC Santa Barbara
-Seetharami Seelam, IBM Research
-Karsten Schwan, Georgia Tech
-Bhuvan Urgaonkar, Penn State
-Peter Varman, Rice University
-Dongyan Xu, Purdue
-Ming Zhao, Florida International University
-
-
-
-
-
-
-
-
-
+diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+index 2b65d9b..c8c25db 100644
+--- a/drivers/vhost/vhost.c
++++ b/drivers/vhost/vhost.c
+@@ -230,7 +230,7 @@ static int log_access_ok(void __user *log_base, u64 addr, unsigned long sz)
+ }
+ 
+ /* Caller should have vq mutex and device mutex. */
+-static int vq_memory_access_ok(struct vhost_virtqueue *vq, struct vhost_memory *mem,
++static int vq_memory_access_ok(void __user *log_base, struct vhost_memory *mem,
+ 			       int log_all)
+ {
+ 	int i;
+@@ -242,7 +242,7 @@ static int vq_memory_access_ok(struct vhost_virtqueue *vq, struct vhost_memory *
+ 		else if (!access_ok(VERIFY_WRITE, (void __user *)a,
+ 				    m->memory_size))
+ 			return 0;
+-		else if (log_all && !log_access_ok(vq->log_base,
++		else if (log_all && !log_access_ok(log_base,
+ 						   m->guest_phys_addr,
+ 						   m->memory_size))
+ 			return 0;
+@@ -259,9 +259,10 @@ static int memory_access_ok(struct vhost_dev *d, struct vhost_memory *mem,
+ 	for (i = 0; i < d->nvqs; ++i) {
+ 		int ok;
+ 		mutex_lock(&d->vqs[i].mutex);
+-		/* If ring is not running, will check when it's enabled. */
+-		if (&d->vqs[i].private_data)
+-			ok = vq_memory_access_ok(&d->vqs[i], mem, log_all);
++		/* If ring is inactive, will check when it's enabled. */
++		if (d->vqs[i].private_data)
++			ok = vq_memory_access_ok(d->vqs[i].log_base, mem,
++						 log_all);
+ 		else
+ 			ok = 1;
+ 		mutex_unlock(&d->vqs[i].mutex);
+@@ -290,18 +291,25 @@ int vhost_log_access_ok(struct vhost_dev *dev)
+ 	return memory_access_ok(dev, dev->memory, 1);
+ }
+ 
+-/* Can we start vq? */
++/* Verify access for write logging. */
+ /* Caller should have vq mutex and device mutex */
+-int vhost_vq_access_ok(struct vhost_virtqueue *vq)
++static int vq_log_access_ok(struct vhost_virtqueue *vq, void __user *log_base)
+ {
+-	return vq_access_ok(vq->num, vq->desc, vq->avail, vq->used) &&
+-		vq_memory_access_ok(vq, vq->dev->memory,
++	return vq_memory_access_ok(log_base, vq->dev->memory,
+ 			    vhost_has_feature(vq->dev, VHOST_F_LOG_ALL)) &&
+-		(!vq->log_used || log_access_ok(vq->log_base, vq->log_addr,
++		(!vq->log_used || log_access_ok(log_base, vq->log_addr,
+ 					sizeof *vq->used +
+ 					vq->num * sizeof *vq->used->ring));
+ }
+ 
++/* Can we start vq? */
++/* Caller should have vq mutex and device mutex */
++int vhost_vq_access_ok(struct vhost_virtqueue *vq)
++{
++	return vq_access_ok(vq->num, vq->desc, vq->avail, vq->used) &&
++		vq_log_access_ok(vq, vq->log_base);
++}
++
+ static long vhost_set_memory(struct vhost_dev *d, struct vhost_memory __user *m)
+ {
+ 	struct vhost_memory mem, *newmem, *oldmem;
+@@ -564,15 +572,14 @@ long vhost_dev_ioctl(struct vhost_dev *d, unsigned int ioctl, unsigned long arg)
+ 		}
+ 		for (i = 0; i < d->nvqs; ++i) {
+ 			struct vhost_virtqueue *vq;
++			void __user *base = (void __user *)(unsigned long)p;
+ 			vq = d->vqs + i;
+ 			mutex_lock(&vq->mutex);
+-			/* Moving log base with an active backend?
+-			 * You don't want to do that. */
+-			if (vq->private_data && (vq->log_used ||
+-			     vhost_has_feature(d, VHOST_F_LOG_ALL)))
+-				r = -EBUSY;
++			/* If ring is inactive, will check when it's enabled. */
++			if (vq->private_data && !vq_log_access_ok(vq, base))
++				r = -EFAULT;
+ 			else
+-				vq->log_base = (void __user *)(unsigned long)p;
++				vq->log_base = base;
+ 			mutex_unlock(&vq->mutex);
+ 		}
+ 		break;
 -- 
-Ming Zhao, Assistant Professor
-School of Computing and Information Sciences
-Florida International University
-Tel: (305) 348-2034, Fax: (305) 348-3549
-Web: http://www.cis.fiu.edu/~zhaom
+1.6.6.rc1.43.gf55cc
