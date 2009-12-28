@@ -1,7 +1,7 @@
 From: Avi Kivity <avi@redhat.com>
-Subject: [PATCH] virtio-blk physical block size
-Date: Mon, 28 Dec 2009 18:09:48 +0200
-Message-ID: <1262016588-15136-1-git-send-email-avi__15645.6957142384$1262016650$gmane$org@redhat.com>
+Subject: [PATCH v2] virtio-blk physical block size
+Date: Mon, 28 Dec 2009 18:39:23 +0200
+Message-ID: <1262018363-15871-1-git-send-email-avi__1521.31276340715$1262018410$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -36,14 +36,18 @@ predates the spec and that this is an error.
 
 Signed-off-by: Avi Kivity <avi@redhat.com>
 
+--
+
+v2: feature bit 7 was already used by an undocumented feature; use a new bit
 
 --- virtio-spec-0.8.3.lyx.orig	2009-12-28 17:42:40.000000000 +0200
-+++ virtio-spec-0.8.3.lyx	2009-12-28 18:05:17.000000000 +0200
-@@ -4131,6 +4131,19 @@
++++ virtio-spec-0.8.3.lyx	2009-12-28 18:37:39.000000000 +0200
+@@ -4138,6 +4138,19 @@
+ (10) Maximum total sectors in an I/O.
  \end_layout
  
- \begin_layout Description
-+VIRTIO_BLK_F_PHYS_BLK_SIZE(7) Physical block size of disk (writes aligned
++\begin_layout Description
++VIRTIO_BLK_F_PHYS_BLK_SIZE(11) Physical block size of disk (writes aligned
 + to this will not trigger read-modify-write cycles) is in 
 +\begin_inset Quotes erd
 +\end_inset
@@ -55,10 +59,9 @@ Signed-off-by: Avi Kivity <avi@redhat.com>
 +.
 +\end_layout
 +
-+\begin_layout Description
- VIRTIO_BLK_F_SECTOR_MAX
- \begin_inset space ~
- \end_inset
+ \end_deeper
+ \begin_layout Description
+ Device
 @@ -4214,6 +4227,11 @@
  
  \begin_layout Plain Layout
