@@ -1,31 +1,38 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH] vhost: access check thinko fixes
-Date: Mon, 4 Jan 2010 12:52:56 +1030
-Message-ID: <201001041252.57997.rusty@rustcorp.com.au>
-References: <20091224060058.GA26101@redhat.com>
+Subject: Re: [PATCH] vhost-net: defer f->private_data until setup succeeds
+Date: Mon, 4 Jan 2010 13:03:12 +1030
+Message-ID: <201001041303.12558.rusty__8003.91916786811$1262572465$gmane$org@rustcorp.com.au>
+References: <20091222190228.GB2095@sequoia.sous-sol.org>
+	<20091224060650.GA26128@redhat.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <20091224060058.GA26101@redhat.com>
-Sender: kvm-owner@vger.kernel.org
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20091224060650.GA26128@redhat.com>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Al Viro <viro@zeniv.linux.org.uk>, kvm@vger.kernel.org, virtualization@lists.osdl.org
+Cc: Chris Wright <chrisw@sous-sol.org>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 24 Dec 2009 04:30:58 pm Michael S. Tsirkin wrote:
-> This fixes two issues with recent access checking patch:
-> 1.  if (&d->vqs[i].private_data) -> if (d->vqs[i].private_data)
-> 2.  we can't forbid log base changes while ring is running,
->     because host needs to resize log in rare cases
->     (e.g. when memory is added with a baloon)
->     and in that case it needs to increase log size with realloc,
->     which might move the log address.
+On Thu, 24 Dec 2009 04:36:50 pm Michael S. Tsirkin wrote:
+> On Tue, Dec 22, 2009 at 11:02:28AM -0800, Chris Wright wrote:
+> > Trivial change, just for readability.  The filp is not installed on
+> > failure, so the current code is not incorrect (also vhost_dev_init
+> > currently has no failure case).  This just treats setting f->private_data
+> > as something with global scope (sure, true only after fd_install).
+> > 
+> > Signed-off-by: Chris Wright <chrisw@redhat.com>
 > 
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> Acked-by: Michael S. Tsirkin <mst@redhat.com>
 
 Thanks, applied.
 
 Rusty.
-
