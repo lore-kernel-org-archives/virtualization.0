@@ -1,13 +1,14 @@
-From: Avi Kivity <avi@redhat.com>
-Subject: Re: [PATCH v2] virtio-blk physical block size
-Date: Mon, 04 Jan 2010 09:02:57 +0200
-Message-ID: <4B4192A1.3030801__19711.0184505165$1262588649$gmane$org@redhat.com>
+From: Christoph Hellwig <hch@lst.de>
+Subject: Re: [Qemu-devel] Re: [PATCH v2] virtio-blk physical block size
+Date: Mon, 4 Jan 2010 09:30:35 +0100
+Message-ID: <20100104083035.GA7461__46658.4566784606$1262593890$gmane$org@lst.de>
 References: <1262018363-15871-1-git-send-email-avi@redhat.com>
 	<201001041338.52621.rusty@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
 In-Reply-To: <201001041338.52621.rusty@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,54 +20,42 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: qemu-devel@nongnu.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: virtualization@lists.linux-foundation.org, Avi Kivity <avi@redhat.com>, kvm@vger.kernel.org, qemu-devel@nongnu.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 01/04/2010 05:08 AM, Rusty Russell wrote:
-> On Tue, 29 Dec 2009 03:09:23 am Avi Kivity wrote:
->    
->> This patch adds a physical block size attribute to virtio disks,
->> corresponding to /sys/devices/.../physical_block_size.  It is defined as
->> the request alignment which will not trigger RMW cycles.  This can be
->> important for modern disks which use 4K physical sectors (though they
->> still support 512 logical sectors), and for file-backed disk images (which
->> have both the underlying filesystem block size and their own allocation
->> granularity to consider).
->>
->> Installers use this to align partitions to physical block boundaries.
->>
->> Note the spec already defined blk_size as the performance rather than
->> minimum alignment.  However the driver interpreted this as the logical
->> block size, so I updated the spec to match the driver assuming the driver
->> predates the spec and that this is an error.
->>      
+On Mon, Jan 04, 2010 at 01:38:51PM +1030, Rusty Russell wrote:
 > I thought this was what I was doing, but I have shown over and over that
 > I have no idea about block devices.
->
+> 
 > Our current driver treats BLK_SIZE as the logical and physical size (see
 > blk_queue_logical_block_size).
->    
-
-But we want them to be different.
-
+> 
 > I have no idea what "logical" vs. "physical" actually means.  Anyone?  Most
 > importantly, is it some Linux-internal difference or a real I/O-visible
 > distinction?
->    
 
-Yes.
+Those should be the same for any sane interface.  They are for classical
+disk devices with larger block sizes (MO, s390 dasd) and also for the
+now appearing 4k sector scsi disks.  But in the ide world people are
+concerned about dos/window legacy compatiblity so they came up with a
+nasty hack:
 
-Logical block size is the minimum block size the hardware will allow.  
-Try to write less than that, and the hardware will laugh in your face.
+ - there is a physical block size as used by the disk internally
+   (4k initially)
+ - all the interfaces to the operating system still happen in the
+   traditional 512 byte blocks to not break any existing assumptions
+ - to make sure modern operating systems can optimize for the larger
+   physical sectors the disks expose this size, too.
+ - even worse disks can also have alignment hacks for the traditional
+   DOS partitions tables, so that the 512 byte block zero might even
+   have an offset into the first larger physical block.  This is also
+   exposed in the ATA identify information.
 
-Physical block size is the what the logical block size would have been 
-is software didn't suck.  In theory they should be the same, but since 
-compatibility reaons clamp the logical block size to 512, they have to 
-differ.  A disk may have a physical block size of 4096 and emulate 
-logical block size of 512 on top of that using read-modify-write.
+All in all I don't think this mess is a good idea to replicate in
+virtio.  Virtio by defintion requires virtualization aware guests, so we
+should just follow the SCSI way of larger real block sizes here.
 
-Or so I understand it.
-
--- 
-I have a truly marvellous patch that fixes the bug which this
-signature is too narrow to contain.
+> 
+> Rusty.
+> 
+---end quoted text---
