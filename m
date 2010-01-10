@@ -1,14 +1,19 @@
-From: Dor Laor <dlaor@redhat.com>
-Subject: Re: Virtio ballooning support for Lguest
-Date: Sun, 10 Jan 2010 09:45:53 +0200
-Message-ID: <4B4985B1.4060300@redhat.com>
-References: <93e720dc1001081035t68b4fb8bracea5e5e61443b99@mail.gmail.com>
-Reply-To: dlaor@redhat.com
+From: Avi Kivity <avi@redhat.com>
+Subject: Re: [Qemu-devel] Re: [PATCH v2] virtio-blk physical block size
+Date: Sun, 10 Jan 2010 14:35:48 +0200
+Message-ID: <4B49C9A4.10201__31601.1638766669$1263127086$gmane$org@redhat.com>
+References: <1262018363-15871-1-git-send-email-avi@redhat.com>
+	<201001041338.52621.rusty@rustcorp.com.au>
+	<20100104083035.GA7461@lst.de>
+	<201001052326.33216.rusty@rustcorp.com.au>
+	<4B433783.6090400@redhat.com>
+	<20100105201615.GJ14376@shareable.org>
+	<20100108154044.GB14634@lst.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <93e720dc1001081035t68b4fb8bracea5e5e61443b99@mail.gmail.com>
+In-Reply-To: <20100108154044.GB14634@lst.de>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,38 +23,18 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gaurav Kukreja <mailme.gaurav@gmail.com>
-Cc: virtualization@lists.linux-foundation.org
+To: Christoph Hellwig <hch@lst.de>
+Cc: Jamie Lokier <jamie@shareable.org>, qemu-devel@nongnu.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 01/08/2010 08:35 PM, Gaurav Kukreja wrote:
-> Hi,
->
-> I am doing working on enabling Transcendent Memory(OLS '09) support on
-> lguest.
->
-> For the same, I need ballooning support for lguest. Is there an
-> implmentation of Virtio Balloon driver, that I can use for my purpose?
+On 01/08/2010 05:40 PM, Christoph Hellwig wrote:
+> Maybe we should pick one on image creation and then stick to it.  For an
+> image format we could write down this information in the image, but for
+> a raw images that's impossible.
+>    
 
-driver: http://lxr.linux.no/#linux+v2.6.32/drivers/virtio/virtio_balloon.c
+The management system should remember it (like it remembers which images 
+belong to which guest, and how to expose them).
 
-device: http://git.savannah.gnu.org/cgit/qemu.git/tree/hw/virtio-balloon.c
-
-
->
-> Could someone give me an insight, as to how to go about, for
-> implementing this myself, incase I dont find this patch...
->
-> Thankyou.
->
-> --
-> Gaurav Kukreja
->
-> +91 997 030 1257
->
->
->
-> _______________________________________________
-> Virtualization mailing list
-> Virtualization@lists.linux-foundation.org
-> https://lists.linux-foundation.org/mailman/listinfo/virtualization
+-- 
+error compiling committee.c: too many arguments to function
