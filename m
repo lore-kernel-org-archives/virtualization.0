@@ -1,7 +1,8 @@
 From: Amit Shah <amit.shah@redhat.com>
-Subject: [PATCH 30/32] virtio: console: Add ability to hot-unplug ports
-Date: Mon, 18 Jan 2010 19:15:24 +0530
-Message-ID: <1263822326-24208-31-git-send-email-amit.shah@redhat.com>
+Subject: [PATCH 25/32] virtio: console: Register with sysfs and create a
+	'name' attribute for ports
+Date: Mon, 18 Jan 2010 19:15:19 +0530
+Message-ID: <1263822326-24208-26-git-send-email-amit.shah@redhat.com>
 References: <1263822326-24208-1-git-send-email-amit.shah@redhat.com>
 	<1263822326-24208-2-git-send-email-amit.shah@redhat.com>
 	<1263822326-24208-3-git-send-email-amit.shah@redhat.com>
@@ -27,16 +28,11 @@ References: <1263822326-24208-1-git-send-email-amit.shah@redhat.com>
 	<1263822326-24208-23-git-send-email-amit.shah@redhat.com>
 	<1263822326-24208-24-git-send-email-amit.shah@redhat.com>
 	<1263822326-24208-25-git-send-email-amit.shah@redhat.com>
-	<1263822326-24208-26-git-send-email-amit.shah@redhat.com>
-	<1263822326-24208-27-git-send-email-amit.shah@redhat.com>
-	<1263822326-24208-28-git-send-email-amit.shah@redhat.com>
-	<1263822326-24208-29-git-send-email-amit.shah@redhat.com>
-	<1263822326-24208-30-git-send-email-amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1263822326-24208-30-git-send-email-amit.shah@redhat.com>
+In-Reply-To: <1263822326-24208-25-git-send-email-amit.shah@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -50,118 +46,121 @@ To: rusty@rustcorp.com.au
 Cc: Amit Shah <amit.shah@redhat.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Remove port data; deregister from the hvc core if it's a console port.
+The host can set a name for ports so that they're easily discoverable
+instead of going by the /dev/vportNpn naming. This attribute will be
+placed in /sys/class/virtio-ports/vportNpn/name. udev scripts can then
+create symlinks to the port using the name.
 
 Signed-off-by: Amit Shah <amit.shah@redhat.com>
 ---
- drivers/char/virtio_console.c  |   66 ++++++++++++++++++++++++++++++++++++++-
+ drivers/char/virtio_console.c  |   57 ++++++++++++++++++++++++++++++++++++++++
  include/linux/virtio_console.h |    1 +
- 2 files changed, 65 insertions(+), 2 deletions(-)
+ 2 files changed, 58 insertions(+), 0 deletions(-)
 
 diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index 36cd7d4..4a4eaba 100644
+index 49cd185..e76eacf 100644
 --- a/drivers/char/virtio_console.c
 +++ b/drivers/char/virtio_console.c
-@@ -803,6 +803,37 @@ static struct attribute_group port_attribute_group = {
- 	.attrs = port_sysfs_entries,
- };
+@@ -176,6 +176,9 @@ struct port {
+ 	/* A waitqueue for poll() or blocking read operations */
+ 	wait_queue_head_t waitqueue;
  
-+/* Remove all port-specific data. */
-+static int remove_port(struct port *port)
++	/* The 'name' of the port that we expose via sysfs properties */
++	char *name;
++
+ 	/* The 'id' to identify the port with the Host */
+ 	u32 id;
+ 
+@@ -746,12 +749,36 @@ int init_port_console(struct port *port)
+ 	return 0;
+ }
+ 
++static ssize_t show_port_name(struct device *dev,
++			      struct device_attribute *attr, char *buffer)
 +{
-+	spin_lock_irq(&port->portdev->ports_lock);
-+	list_del(&port->list);
-+	spin_unlock_irq(&port->portdev->ports_lock);
++	struct port *port;
 +
-+	if (is_console_port(port)) {
-+		spin_lock_irq(&pdrvdata_lock);
-+		list_del(&port->cons.list);
-+		spin_unlock_irq(&pdrvdata_lock);
-+		hvc_remove(port->cons.hvc);
-+	}
-+	if (port->guest_connected)
-+		send_control_msg(port, VIRTIO_CONSOLE_PORT_OPEN, 0);
++	port = dev_get_drvdata(dev);
 +
-+	while (port->in_vq->vq_ops->detach_unused_buf(port->in_vq))
-+		;
-+
-+	sysfs_remove_group(&port->dev->kobj, &port_attribute_group);
-+	device_destroy(pdrvdata.class, port->dev->devt);
-+	cdev_del(&port->cdev);
-+
-+	discard_port_data(port);
-+	free_buf(port->outbuf);
-+	kfree(port->name);
-+
-+	kfree(port);
-+	return 0;
++	return sprintf(buffer, "%s\n", port->name);
 +}
++
++static DEVICE_ATTR(name, S_IRUGO, show_port_name, NULL);
++
++static struct attribute *port_sysfs_entries[] = {
++	&dev_attr_name.attr,
++	NULL
++};
++
++static struct attribute_group port_attribute_group = {
++	.name = NULL,		/* put in device directory */
++	.attrs = port_sysfs_entries,
++};
 +
  /* Any private messages that the Host and Guest want to share */
  static void handle_control_message(struct ports_device *portdev,
  				   struct port_buffer *buf)
-@@ -886,6 +917,32 @@ static void handle_control_message(struct ports_device *portdev,
- 		 */
- 		port->host_throttled = cpkt->value;
+ {
+ 	struct virtio_console_control *cpkt;
+ 	struct port *port;
++	size_t name_size;
++	int err;
+ 
+ 	cpkt = (struct virtio_console_control *)(buf->buf + buf->offset);
+ 
+@@ -786,6 +813,35 @@ static void handle_control_message(struct ports_device *portdev,
+ 		port->host_connected = cpkt->value;
+ 		wake_up_interruptible(&port->waitqueue);
  		break;
-+	case VIRTIO_CONSOLE_PORT_REMOVE:
++	case VIRTIO_CONSOLE_PORT_NAME:
 +		/*
-+		 * Hot unplug the port.  We don't decrement nr_ports
-+		 * since we don't want to deal with extra complexities
-+		 * of using the lowest-available port id: We can just
-+		 * pick up the nr_ports number as the id and not have
-+		 * userspace send it to us.  This helps us in two
-+		 * ways:
-+		 *
-+		 * - We don't need to have a 'port_id' field in the
-+		 *   config space when a port is hot-added.  This is a
-+		 *   good thing as we might queue up multiple hotplug
-+		 *   requests issued in our workqueue.
-+		 *
-+		 * - Another way to deal with this would have been to
-+		 *   use a bitmap of the active ports and select the
-+		 *   lowest non-active port from that map.  That
-+		 *   bloats the already tight config space and we
-+		 *   would end up artificially limiting the
-+		 *   max. number of ports to sizeof(bitmap).  Right
-+		 *   now we can support 2^32 ports (as the port id is
-+		 *   stored in a u32 type).
-+		 *
++		 * Skip the size of the header and the cpkt to get the size
++		 * of the name that was sent
 +		 */
-+		remove_port(port);
++		name_size = buf->len - buf->offset - sizeof(*cpkt) + 1;
++
++		port->name = kmalloc(name_size, GFP_KERNEL);
++		if (!port->name) {
++			dev_err(port->dev,
++				"Not enough space to store port name\n");
++			break;
++		}
++		strncpy(port->name, buf->buf + buf->offset + sizeof(*cpkt),
++			name_size - 1);
++		port->name[name_size - 1] = 0;
++
++		/*
++		 * Since we only have one sysfs attribute, 'name',
++		 * create it only if we have a name for the port.
++		 */
++		err = sysfs_create_group(&port->dev->kobj,
++					 &port_attribute_group);
++		if (err)
++			dev_err(port->dev,
++				"Error %d creating sysfs device attributes\n",
++				err);
++
 +		break;
  	}
  }
  
-@@ -1118,12 +1175,17 @@ static void config_work_handler(struct work_struct *work)
- 		/*
- 		 * Port 0 got hot-added.  Since we already did all the
- 		 * other initialisation for it, just tell the Host
--		 * that the port is ready.
-+		 * that the port is ready if we find the port.  In
-+		 * case the port was hot-removed earlier, we call
-+		 * add_port to add the port.
- 		 */
- 		struct port *port;
+@@ -883,6 +939,7 @@ static int add_port(struct ports_device *portdev, u32 id)
+ 	port->portdev = portdev;
+ 	port->id = id;
  
- 		port = find_port_by_id(portdev, 0);
--		send_control_msg(port, VIRTIO_CONSOLE_PORT_READY, 1);
-+		if (!port)
-+			add_port(portdev, 0);
-+		else
-+			send_control_msg(port, VIRTIO_CONSOLE_PORT_READY, 1);
- 		return;
- 	}
- 	if (virtconconf.nr_ports > portdev->config.max_nr_ports) {
++	port->name = NULL;
+ 	port->inbuf = NULL;
+ 	port->cons.hvc = NULL;
+ 
 diff --git a/include/linux/virtio_console.h b/include/linux/virtio_console.h
-index c096eb2..96c5832 100644
+index 6a76a44..13e56c8 100644
 --- a/include/linux/virtio_console.h
 +++ b/include/linux/virtio_console.h
-@@ -42,6 +42,7 @@ struct virtio_console_control {
+@@ -40,6 +40,7 @@ struct virtio_console_control {
+ #define VIRTIO_CONSOLE_CONSOLE_PORT	1
+ #define VIRTIO_CONSOLE_RESIZE		2
  #define VIRTIO_CONSOLE_PORT_OPEN	3
- #define VIRTIO_CONSOLE_PORT_NAME	4
- #define VIRTIO_CONSOLE_THROTTLE_PORT	5
-+#define VIRTIO_CONSOLE_PORT_REMOVE	6
++#define VIRTIO_CONSOLE_PORT_NAME	4
  
  #ifdef __KERNEL__
  int __init virtio_cons_early_init(int (*put_chars)(u32, const char *, int));
