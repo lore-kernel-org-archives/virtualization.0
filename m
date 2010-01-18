@@ -1,13 +1,15 @@
 From: Amit Shah <amit.shah@redhat.com>
-Subject: [PATCH 01/32] virtio: console: comment cleanup
-Date: Mon, 18 Jan 2010 19:14:55 +0530
-Message-ID: <1263822326-24208-2-git-send-email-amit.shah@redhat.com>
+Subject: [PATCH 03/32] hvc_console: make the ops pointer const.
+Date: Mon, 18 Jan 2010 19:14:57 +0530
+Message-ID: <1263822326-24208-4-git-send-email-amit.shah__37356.1364053332$1263822798$gmane$org@redhat.com>
 References: <1263822326-24208-1-git-send-email-amit.shah@redhat.com>
+	<1263822326-24208-2-git-send-email-amit.shah@redhat.com>
+	<1263822326-24208-3-git-send-email-amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1263822326-24208-1-git-send-email-amit.shah@redhat.com>
+In-Reply-To: <1263822326-24208-3-git-send-email-amit.shah@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,232 +20,194 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: rusty@rustcorp.com.au
-Cc: Amit Shah <amit.shah@redhat.com>, virtualization@lists.linux-foundation.org
+Cc: Amit Shah <amit.shah@redhat.com>, linuxppc-dev@ozlabs.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
 From: Rusty Russell <rusty@rustcorp.com.au>
 
-Remove old lguest-style comments.
-
-[Amit: - wingify comments acc. to kernel style
-       - indent comments ]
+This is nicer for modern R/O protection.  And noone needs it non-const, so
+constify the callers as well.
 
 Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 Signed-off-by: Amit Shah <amit.shah@redhat.com>
+To: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: linuxppc-dev@ozlabs.org
 ---
- drivers/char/virtio_console.c  |  108 ++++++++++++++++++++--------------------
- include/linux/virtio_console.h |    6 ++-
- 2 files changed, 58 insertions(+), 56 deletions(-)
+ drivers/char/hvc_beat.c       |    2 +-
+ drivers/char/hvc_console.c    |    7 ++++---
+ drivers/char/hvc_console.h    |    7 ++++---
+ drivers/char/hvc_iseries.c    |    2 +-
+ drivers/char/hvc_iucv.c       |    2 +-
+ drivers/char/hvc_rtas.c       |    2 +-
+ drivers/char/hvc_udbg.c       |    2 +-
+ drivers/char/hvc_vio.c        |    2 +-
+ drivers/char/hvc_xen.c        |    2 +-
+ drivers/char/virtio_console.c |    2 +-
+ 10 files changed, 16 insertions(+), 14 deletions(-)
 
+diff --git a/drivers/char/hvc_beat.c b/drivers/char/hvc_beat.c
+index 0afc8b8..6913fc3 100644
+--- a/drivers/char/hvc_beat.c
++++ b/drivers/char/hvc_beat.c
+@@ -84,7 +84,7 @@ static int hvc_beat_put_chars(uint32_t vtermno, const char *buf, int cnt)
+ 	return cnt;
+ }
+ 
+-static struct hv_ops hvc_beat_get_put_ops = {
++static const struct hv_ops hvc_beat_get_put_ops = {
+ 	.get_chars = hvc_beat_get_chars,
+ 	.put_chars = hvc_beat_put_chars,
+ };
+diff --git a/drivers/char/hvc_console.c b/drivers/char/hvc_console.c
+index 416d342..d8dac58 100644
+--- a/drivers/char/hvc_console.c
++++ b/drivers/char/hvc_console.c
+@@ -125,7 +125,7 @@ static struct hvc_struct *hvc_get_by_index(int index)
+  * console interfaces but can still be used as a tty device.  This has to be
+  * static because kmalloc will not work during early console init.
+  */
+-static struct hv_ops *cons_ops[MAX_NR_HVC_CONSOLES];
++static const struct hv_ops *cons_ops[MAX_NR_HVC_CONSOLES];
+ static uint32_t vtermnos[MAX_NR_HVC_CONSOLES] =
+ 	{[0 ... MAX_NR_HVC_CONSOLES - 1] = -1};
+ 
+@@ -247,7 +247,7 @@ static void destroy_hvc_struct(struct kref *kref)
+  * vty adapters do NOT get an hvc_instantiate() callback since they
+  * appear after early console init.
+  */
+-int hvc_instantiate(uint32_t vtermno, int index, struct hv_ops *ops)
++int hvc_instantiate(uint32_t vtermno, int index, const struct hv_ops *ops)
+ {
+ 	struct hvc_struct *hp;
+ 
+@@ -749,7 +749,8 @@ static const struct tty_operations hvc_ops = {
+ };
+ 
+ struct hvc_struct __devinit *hvc_alloc(uint32_t vtermno, int data,
+-					struct hv_ops *ops, int outbuf_size)
++				       const struct hv_ops *ops,
++				       int outbuf_size)
+ {
+ 	struct hvc_struct *hp;
+ 	int i;
+diff --git a/drivers/char/hvc_console.h b/drivers/char/hvc_console.h
+index 10950ca..52ddf4d 100644
+--- a/drivers/char/hvc_console.h
++++ b/drivers/char/hvc_console.h
+@@ -55,7 +55,7 @@ struct hvc_struct {
+ 	int outbuf_size;
+ 	int n_outbuf;
+ 	uint32_t vtermno;
+-	struct hv_ops *ops;
++	const struct hv_ops *ops;
+ 	int irq_requested;
+ 	int data;
+ 	struct winsize ws;
+@@ -76,11 +76,12 @@ struct hv_ops {
+ };
+ 
+ /* Register a vterm and a slot index for use as a console (console_init) */
+-extern int hvc_instantiate(uint32_t vtermno, int index, struct hv_ops *ops);
++extern int hvc_instantiate(uint32_t vtermno, int index,
++			   const struct hv_ops *ops);
+ 
+ /* register a vterm for hvc tty operation (module_init or hotplug add) */
+ extern struct hvc_struct * __devinit hvc_alloc(uint32_t vtermno, int data,
+-				struct hv_ops *ops, int outbuf_size);
++				const struct hv_ops *ops, int outbuf_size);
+ /* remove a vterm from hvc tty operation (module_exit or hotplug remove) */
+ extern int hvc_remove(struct hvc_struct *hp);
+ 
+diff --git a/drivers/char/hvc_iseries.c b/drivers/char/hvc_iseries.c
+index 936d05b..fd02426 100644
+--- a/drivers/char/hvc_iseries.c
++++ b/drivers/char/hvc_iseries.c
+@@ -197,7 +197,7 @@ done:
+ 	return sent;
+ }
+ 
+-static struct hv_ops hvc_get_put_ops = {
++static const struct hv_ops hvc_get_put_ops = {
+ 	.get_chars = get_chars,
+ 	.put_chars = put_chars,
+ 	.notifier_add = notifier_add_irq,
+diff --git a/drivers/char/hvc_iucv.c b/drivers/char/hvc_iucv.c
+index fe62bd0..21681a8 100644
+--- a/drivers/char/hvc_iucv.c
++++ b/drivers/char/hvc_iucv.c
+@@ -922,7 +922,7 @@ static int hvc_iucv_pm_restore_thaw(struct device *dev)
+ 
+ 
+ /* HVC operations */
+-static struct hv_ops hvc_iucv_ops = {
++static const struct hv_ops hvc_iucv_ops = {
+ 	.get_chars = hvc_iucv_get_chars,
+ 	.put_chars = hvc_iucv_put_chars,
+ 	.notifier_add = hvc_iucv_notifier_add,
+diff --git a/drivers/char/hvc_rtas.c b/drivers/char/hvc_rtas.c
+index 88590d0..61c4a61 100644
+--- a/drivers/char/hvc_rtas.c
++++ b/drivers/char/hvc_rtas.c
+@@ -71,7 +71,7 @@ static int hvc_rtas_read_console(uint32_t vtermno, char *buf, int count)
+ 	return i;
+ }
+ 
+-static struct hv_ops hvc_rtas_get_put_ops = {
++static const struct hv_ops hvc_rtas_get_put_ops = {
+ 	.get_chars = hvc_rtas_read_console,
+ 	.put_chars = hvc_rtas_write_console,
+ };
+diff --git a/drivers/char/hvc_udbg.c b/drivers/char/hvc_udbg.c
+index bd63ba8..b0957e6 100644
+--- a/drivers/char/hvc_udbg.c
++++ b/drivers/char/hvc_udbg.c
+@@ -58,7 +58,7 @@ static int hvc_udbg_get(uint32_t vtermno, char *buf, int count)
+ 	return i;
+ }
+ 
+-static struct hv_ops hvc_udbg_ops = {
++static const struct hv_ops hvc_udbg_ops = {
+ 	.get_chars = hvc_udbg_get,
+ 	.put_chars = hvc_udbg_put,
+ };
+diff --git a/drivers/char/hvc_vio.c b/drivers/char/hvc_vio.c
+index 10be343..27370e9 100644
+--- a/drivers/char/hvc_vio.c
++++ b/drivers/char/hvc_vio.c
+@@ -77,7 +77,7 @@ static int filtered_get_chars(uint32_t vtermno, char *buf, int count)
+ 	return got;
+ }
+ 
+-static struct hv_ops hvc_get_put_ops = {
++static const struct hv_ops hvc_get_put_ops = {
+ 	.get_chars = filtered_get_chars,
+ 	.put_chars = hvc_put_chars,
+ 	.notifier_add = notifier_add_irq,
+diff --git a/drivers/char/hvc_xen.c b/drivers/char/hvc_xen.c
+index b1a7163..60446f8 100644
+--- a/drivers/char/hvc_xen.c
++++ b/drivers/char/hvc_xen.c
+@@ -122,7 +122,7 @@ static int read_console(uint32_t vtermno, char *buf, int len)
+ 	return recv;
+ }
+ 
+-static struct hv_ops hvc_ops = {
++static const struct hv_ops hvc_ops = {
+ 	.get_chars = read_console,
+ 	.put_chars = write_console,
+ 	.notifier_add = notifier_add_irq,
 diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index a035ae3..26e238c 100644
+index 1d844a4..791be4e 100644
 --- a/drivers/char/virtio_console.c
 +++ b/drivers/char/virtio_console.c
-@@ -1,18 +1,5 @@
--/*D:300
-- * The Guest console driver
-- *
-- * Writing console drivers is one of the few remaining Dark Arts in Linux.
-- * Fortunately for us, the path of virtual consoles has been well-trodden by
-- * the PowerPC folks, who wrote "hvc_console.c" to generically support any
-- * virtual console.  We use that infrastructure which only requires us to write
-- * the basic put_chars and get_chars functions and call the right register
-- * functions.
-- :*/
--
--/*M:002 The console can be flooded: while the Guest is processing input the
-- * Host can send more.  Buffering in the Host could alleviate this, but it is a
-- * difficult problem in general. :*/
--/* Copyright (C) 2006, 2007 Rusty Russell, IBM Corporation
-+/*
-+ * Copyright (C) 2006, 2007, 2009 Rusty Russell, IBM Corporation
-  *
-  * This program is free software; you can redistribute it and/or modify
-  * it under the terms of the GNU General Public License as published by
-@@ -34,8 +21,6 @@
- #include <linux/virtio_console.h>
- #include "hvc_console.h"
- 
--/*D:340 These represent our input and output console queues, and the virtio
-- * operations for them. */
- static struct virtqueue *in_vq, *out_vq;
- static struct virtio_device *vdev;
- 
-@@ -49,12 +34,14 @@ static struct hv_ops virtio_cons;
- /* The hvc device */
- static struct hvc_struct *hvc;
- 
--/*D:310 The put_chars() callback is pretty straightforward.
-+/*
-+ * The put_chars() callback is pretty straightforward.
-  *
-- * We turn the characters into a scatter-gather list, add it to the output
-- * queue and then kick the Host.  Then we sit here waiting for it to finish:
-- * inefficient in theory, but in practice implementations will do it
-- * immediately (lguest's Launcher does). */
-+ * We turn the characters into a scatter-gather list, add it to the
-+ * output queue and then kick the Host.  Then we sit here waiting for
-+ * it to finish: inefficient in theory, but in practice
-+ * implementations will do it immediately (lguest's Launcher does).
-+ */
- static int put_chars(u32 vtermno, const char *buf, int count)
- {
- 	struct scatterlist sg[1];
-@@ -63,8 +50,10 @@ static int put_chars(u32 vtermno, const char *buf, int count)
- 	/* This is a convenient routine to initialize a single-elem sg list */
- 	sg_init_one(sg, buf, count);
- 
--	/* add_buf wants a token to identify this buffer: we hand it any
--	 * non-NULL pointer, since there's only ever one buffer. */
-+	/*
-+	 * add_buf wants a token to identify this buffer: we hand it
-+	 * any non-NULL pointer, since there's only ever one buffer.
-+	 */
- 	if (out_vq->vq_ops->add_buf(out_vq, sg, 1, 0, (void *)1) >= 0) {
- 		/* Tell Host to go! */
- 		out_vq->vq_ops->kick(out_vq);
-@@ -77,8 +66,10 @@ static int put_chars(u32 vtermno, const char *buf, int count)
- 	return count;
+@@ -163,7 +163,7 @@ static void hvc_handle_input(struct virtqueue *vq)
  }
  
--/* Create a scatter-gather list representing our input buffer and put it in the
-- * queue. */
-+/*
-+ * Create a scatter-gather list representing our input buffer and put
-+ * it in the queue.
-+ */
- static void add_inbuf(void)
- {
- 	struct scatterlist sg[1];
-@@ -90,12 +81,14 @@ static void add_inbuf(void)
- 	in_vq->vq_ops->kick(in_vq);
- }
- 
--/*D:350 get_chars() is the callback from the hvc_console infrastructure when
-- * an interrupt is received.
-+/*
-+ * get_chars() is the callback from the hvc_console infrastructure
-+ * when an interrupt is received.
-  *
-- * Most of the code deals with the fact that the hvc_console() infrastructure
-- * only asks us for 16 bytes at a time.  We keep in_offset and in_used fields
-- * for partially-filled buffers. */
-+ * Most of the code deals with the fact that the hvc_console()
-+ * infrastructure only asks us for 16 bytes at a time.  We keep
-+ * in_offset and in_used fields for partially-filled buffers.
-+ */
- static int get_chars(u32 vtermno, char *buf, int count)
- {
- 	/* If we don't have an input queue yet, we can't get input. */
-@@ -123,14 +116,16 @@ static int get_chars(u32 vtermno, char *buf, int count)
- 
- 	return count;
- }
--/*:*/
- 
--/*D:320 Console drivers are initialized very early so boot messages can go out,
-- * so we do things slightly differently from the generic virtio initialization
-- * of the net and block drivers.
-+/*
-+ * Console drivers are initialized very early so boot messages can go
-+ * out, so we do things slightly differently from the generic virtio
-+ * initialization of the net and block drivers.
-  *
-- * At this stage, the console is output-only.  It's too early to set up a
-- * virtqueue, so we let the drivers do some boutique early-output thing. */
-+ * At this stage, the console is output-only.  It's too early to set
-+ * up a virtqueue, so we let the drivers do some boutique early-output
-+ * thing.
-+ */
- int __init virtio_cons_early_init(int (*put_chars)(u32, const char *, int))
- {
- 	virtio_cons.put_chars = put_chars;
-@@ -157,8 +152,8 @@ static void virtcons_apply_config(struct virtio_device *dev)
- }
- 
- /*
-- * we support only one console, the hvc struct is a global var
-- * We set the configuration at this point, since we now have a tty
-+ * we support only one console, the hvc struct is a global var We set
-+ * the configuration at this point, since we now have a tty
-  */
- static int notifier_add_vio(struct hvc_struct *hp, int data)
- {
-@@ -179,13 +174,17 @@ static void hvc_handle_input(struct virtqueue *vq)
- 		hvc_kick();
- }
- 
--/*D:370 Once we're further in boot, we get probed like any other virtio device.
-- * At this stage we set up the output virtqueue.
-+/*
-+ * Once we're further in boot, we get probed like any other virtio
-+ * device.  At this stage we set up the output virtqueue.
-  *
-- * To set up and manage our virtual console, we call hvc_alloc().  Since we
-- * never remove the console device we never need this pointer again.
-+ * To set up and manage our virtual console, we call hvc_alloc().
-+ * Since we never remove the console device we never need this pointer
-+ * again.
-  *
-- * Finally we put our input buffer in the input queue, ready to receive. */
-+ * Finally we put our input buffer in the input queue, ready to
-+ * receive.
-+ */
- static int __devinit virtcons_probe(struct virtio_device *dev)
- {
- 	vq_callback_t *callbacks[] = { hvc_handle_input, NULL};
-@@ -203,8 +202,6 @@ static int __devinit virtcons_probe(struct virtio_device *dev)
- 	}
- 
- 	/* Find the queues. */
--	/* FIXME: This is why we want to wean off hvc: we do nothing
--	 * when input comes in. */
- 	err = vdev->config->find_vqs(vdev, 2, vqs, callbacks, names);
- 	if (err)
- 		goto free;
-@@ -219,15 +216,18 @@ static int __devinit virtcons_probe(struct virtio_device *dev)
- 	virtio_cons.notifier_del = notifier_del_vio;
- 	virtio_cons.notifier_hangup = notifier_del_vio;
- 
--	/* The first argument of hvc_alloc() is the virtual console number, so
--	 * we use zero.  The second argument is the parameter for the
--	 * notification mechanism (like irq number). We currently leave this
--	 * as zero, virtqueues have implicit notifications.
-+	/*
-+	 * The first argument of hvc_alloc() is the virtual console
-+	 * number, so we use zero.  The second argument is the
-+	 * parameter for the notification mechanism (like irq
-+	 * number). We currently leave this as zero, virtqueues have
-+	 * implicit notifications.
- 	 *
--	 * The third argument is a "struct hv_ops" containing the put_chars()
--	 * get_chars(), notifier_add() and notifier_del() pointers.
--	 * The final argument is the output buffer size: we can do any size,
--	 * so we put PAGE_SIZE here. */
-+	 * The third argument is a "struct hv_ops" containing the
-+	 * put_chars(), get_chars(), notifier_add() and notifier_del()
-+	 * pointers.  The final argument is the output buffer size: we
-+	 * can do any size, so we put PAGE_SIZE here.
-+	 */
- 	hvc = hvc_alloc(0, 0, &virtio_cons, PAGE_SIZE);
- 	if (IS_ERR(hvc)) {
- 		err = PTR_ERR(hvc);
-diff --git a/include/linux/virtio_console.h b/include/linux/virtio_console.h
-index fe88517..9e0da40 100644
---- a/include/linux/virtio_console.h
-+++ b/include/linux/virtio_console.h
-@@ -3,8 +3,10 @@
- #include <linux/types.h>
- #include <linux/virtio_ids.h>
- #include <linux/virtio_config.h>
--/* This header, excluding the #ifdef __KERNEL__ part, is BSD licensed so
-- * anyone can use the definitions to implement compatible drivers/servers. */
-+/*
-+ * This header, excluding the #ifdef __KERNEL__ part, is BSD licensed so
-+ * anyone can use the definitions to implement compatible drivers/servers.
-+ */
- 
- /* Feature bits */
- #define VIRTIO_CONSOLE_F_SIZE	0	/* Does host provide console size? */
+ /* The operations for the console. */
+-static struct hv_ops hv_ops = {
++static const struct hv_ops hv_ops = {
+ 	.get_chars = get_chars,
+ 	.put_chars = put_chars,
+ 	.notifier_add = notifier_add_vio,
 -- 
 1.6.2.5
