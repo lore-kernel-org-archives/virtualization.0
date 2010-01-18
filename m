@@ -1,8 +1,7 @@
 From: Amit Shah <amit.shah@redhat.com>
-Subject: [PATCH 08/32] virtio: console: ensure add_inbuf can work for multiple
-	ports as well
-Date: Mon, 18 Jan 2010 19:15:02 +0530
-Message-ID: <1263822326-24208-9-git-send-email-amit.shah@redhat.com>
+Subject: [PATCH 29/32] virtio: Add ability to detach unused buffers from vrings
+Date: Mon, 18 Jan 2010 19:15:23 +0530
+Message-ID: <1263822326-24208-30-git-send-email-amit.shah@redhat.com>
 References: <1263822326-24208-1-git-send-email-amit.shah@redhat.com>
 	<1263822326-24208-2-git-send-email-amit.shah@redhat.com>
 	<1263822326-24208-3-git-send-email-amit.shah@redhat.com>
@@ -11,11 +10,32 @@ References: <1263822326-24208-1-git-send-email-amit.shah@redhat.com>
 	<1263822326-24208-6-git-send-email-amit.shah@redhat.com>
 	<1263822326-24208-7-git-send-email-amit.shah@redhat.com>
 	<1263822326-24208-8-git-send-email-amit.shah@redhat.com>
+	<1263822326-24208-9-git-send-email-amit.shah@redhat.com>
+	<1263822326-24208-10-git-send-email-amit.shah@redhat.com>
+	<1263822326-24208-11-git-send-email-amit.shah@redhat.com>
+	<1263822326-24208-12-git-send-email-amit.shah@redhat.com>
+	<1263822326-24208-13-git-send-email-amit.shah@redhat.com>
+	<1263822326-24208-14-git-send-email-amit.shah@redhat.com>
+	<1263822326-24208-15-git-send-email-amit.shah@redhat.com>
+	<1263822326-24208-16-git-send-email-amit.shah@redhat.com>
+	<1263822326-24208-17-git-send-email-amit.shah@redhat.com>
+	<1263822326-24208-18-git-send-email-amit.shah@redhat.com>
+	<1263822326-24208-19-git-send-email-amit.shah@redhat.com>
+	<1263822326-24208-20-git-send-email-amit.shah@redhat.com>
+	<1263822326-24208-21-git-send-email-amit.shah@redhat.com>
+	<1263822326-24208-22-git-send-email-amit.shah@redhat.com>
+	<1263822326-24208-23-git-send-email-amit.shah@redhat.com>
+	<1263822326-24208-24-git-send-email-amit.shah@redhat.com>
+	<1263822326-24208-25-git-send-email-amit.shah@redhat.com>
+	<1263822326-24208-26-git-send-email-amit.shah@redhat.com>
+	<1263822326-24208-27-git-send-email-amit.shah@redhat.com>
+	<1263822326-24208-28-git-send-email-amit.shah@redhat.com>
+	<1263822326-24208-29-git-send-email-amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1263822326-24208-8-git-send-email-amit.shah@redhat.com>
+In-Reply-To: <1263822326-24208-29-git-send-email-amit.shah@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -26,85 +46,87 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: rusty@rustcorp.com.au
-Cc: Amit Shah <amit.shah@redhat.com>, virtualization@lists.linux-foundation.org
+Cc: Amit Shah <amit.shah@redhat.com>, Shirley Ma <mashirle@us.ibm.com>, Shirley Ma <xma@us.ibm.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-add_inbuf() assumed one port and one inbuf per port. Remove that
-assumption.
+From: Shirley Ma <mashirle@us.ibm.com>
 
-Also move the function so that put_chars and get_chars are together.
+There's currently no way for a virtio driver to ask for unused
+buffers, so it has to keep a list itself to reclaim them at shutdown.
+This is redundant, since virtio_ring stores that information.  So
+add a new hook to do this.
 
+Signed-off-by: Shirley Ma <xma@us.ibm.com>
 Signed-off-by: Amit Shah <amit.shah@redhat.com>
 ---
- drivers/char/virtio_console.c |   35 ++++++++++++++++++-----------------
- 1 files changed, 18 insertions(+), 17 deletions(-)
+ drivers/virtio/virtio_ring.c |   25 +++++++++++++++++++++++++
+ include/linux/virtio.h       |    4 ++++
+ 2 files changed, 29 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index 699fc98..1dbd46c 100644
---- a/drivers/char/virtio_console.c
-+++ b/drivers/char/virtio_console.c
-@@ -78,6 +78,22 @@ fail:
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+index fbd2ecd..71929ee 100644
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -334,6 +334,30 @@ static bool vring_enable_cb(struct virtqueue *_vq)
+ 	return true;
  }
  
- /*
-+ * Create a scatter-gather list representing our input buffer and put
-+ * it in the queue.
-+ *
-+ * Callers should take appropriate locks.
-+ */
-+static void add_inbuf(struct virtqueue *vq, struct port_buffer *buf)
++static void *vring_detach_unused_buf(struct virtqueue *_vq)
 +{
-+	struct scatterlist sg[1];
-+	sg_init_one(sg, buf->buf, buf->size);
++	struct vring_virtqueue *vq = to_vvq(_vq);
++	unsigned int i;
++	void *buf;
 +
-+	if (vq->vq_ops->add_buf(vq, sg, 0, 1, buf) < 0)
-+		BUG();
-+	vq->vq_ops->kick(vq);
++	START_USE(vq);
++
++	for (i = 0; i < vq->vring.num; i++) {
++		if (!vq->data[i])
++			continue;
++		/* detach_buf clears data, so grab it now. */
++		buf = vq->data[i];
++		detach_buf(vq, i);
++		END_USE(vq);
++		return buf;
++	}
++	/* That should have freed everything. */
++	BUG_ON(vq->num_free != vq->vring.num);
++
++	END_USE(vq);
++	return NULL;
 +}
 +
-+/*
-  * The put_chars() callback is pretty straightforward.
+ irqreturn_t vring_interrupt(int irq, void *_vq)
+ {
+ 	struct vring_virtqueue *vq = to_vvq(_vq);
+@@ -360,6 +384,7 @@ static struct virtqueue_ops vring_vq_ops = {
+ 	.kick = vring_kick,
+ 	.disable_cb = vring_disable_cb,
+ 	.enable_cb = vring_enable_cb,
++	.detach_unused_buf = vring_detach_unused_buf,
+ };
+ 
+ struct virtqueue *vring_new_virtqueue(unsigned int num,
+diff --git a/include/linux/virtio.h b/include/linux/virtio.h
+index 057a2e0..f508c65 100644
+--- a/include/linux/virtio.h
++++ b/include/linux/virtio.h
+@@ -51,6 +51,9 @@ struct virtqueue {
+  *	This re-enables callbacks; it returns "false" if there are pending
+  *	buffers in the queue, to detect a possible race between the driver
+  *	checking for more work, and enabling callbacks.
++ * @detach_unused_buf: detach first unused buffer
++ * 	vq: the struct virtqueue we're talking about.
++ * 	Returns NULL or the "data" token handed to add_buf
   *
-  * We turn the characters into a scatter-gather list, add it to the
-@@ -112,21 +128,6 @@ static int put_chars(u32 vtermno, const char *buf, int count)
- }
+  * Locking rules are straightforward: the driver is responsible for
+  * locking.  No two operations may be invoked simultaneously, with the exception
+@@ -71,6 +74,7 @@ struct virtqueue_ops {
  
- /*
-- * Create a scatter-gather list representing our input buffer and put
-- * it in the queue.
-- */
--static void add_inbuf(struct port *port)
--{
--	struct scatterlist sg[1];
--	sg_init_one(sg, port->inbuf->buf, PAGE_SIZE);
--
--	/* Should always be able to add one buffer to an empty queue. */
--	if (port->in_vq->vq_ops->add_buf(port->in_vq, sg, 0, 1, port) < 0)
--		BUG();
--	port->in_vq->vq_ops->kick(port->in_vq);
--}
--
--/*
-  * get_chars() is the callback from the hvc_console infrastructure
-  * when an interrupt is received.
-  *
-@@ -162,7 +163,7 @@ static int get_chars(u32 vtermno, char *buf, int count)
+ 	void (*disable_cb)(struct virtqueue *vq);
+ 	bool (*enable_cb)(struct virtqueue *vq);
++	void *(*detach_unused_buf)(struct virtqueue *vq);
+ };
  
- 	/* Finished?  Re-register buffer so Host will use it again. */
- 	if (port->inbuf->offset == port->inbuf->len)
--		add_inbuf(port);
-+		add_inbuf(port->in_vq, port->inbuf);
- 
- 	return count;
- }
-@@ -294,7 +295,7 @@ static int __devinit virtcons_probe(struct virtio_device *vdev)
- 	}
- 
- 	/* Register the input buffer the first time. */
--	add_inbuf(port);
-+	add_inbuf(port->in_vq, port->inbuf);
- 
- 	/* Start using the new console output. */
- 	early_put_chars = NULL;
+ /**
 -- 
 1.6.2.5
