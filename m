@@ -1,12 +1,14 @@
 From: Amit Shah <amit.shah@redhat.com>
-Subject: [PATCH 00/32] virtio: console: Fixes,
-	multiple devices and generic ports
-Date: Mon, 18 Jan 2010 19:14:54 +0530
-Message-ID: <1263822326-24208-1-git-send-email-amit.shah@redhat.com>
+Subject: [PATCH 02/32] virtio: console: statically initialize virtio_cons
+Date: Mon, 18 Jan 2010 19:14:56 +0530
+Message-ID: <1263822326-24208-3-git-send-email-amit.shah@redhat.com>
+References: <1263822326-24208-1-git-send-email-amit.shah@redhat.com>
+	<1263822326-24208-2-git-send-email-amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1263822326-24208-2-git-send-email-amit.shah@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,82 +22,134 @@ To: rusty@rustcorp.com.au
 Cc: Amit Shah <amit.shah@redhat.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hey Rusty,
+From: Rusty Russell <rusty@rustcorp.com.au>
 
-In this version:
-- Assume only one inbuf; no input buffering for ports
-- Remove the START/END delimiters for outgoing buffers
-- Remove the header that was sent along with each buffer
-- Remove unused buffers in the vqs at port remove time
-- Send a guest port open message to the host when a console port is
-  attached
-- Remove cached buffers when ports are closed / disconnected
-- Send only one buffer in send_buf
+That way, we can make it const as is good kernel style.  We use a separate
+indirection for the early console, rather than mugging ops.put_chars.
 
-As usual, this series is passed through the testsuite that tests for
-the functionality given here.
+We rename it hv_ops, too.
 
-Amit Shah (25):
-  hvc_console: Remove __devinit annotation from hvc_alloc
-  virtio: console: We support only one device at a time
-  virtio: console: encapsulate buffer information in a struct
-  virtio: console: ensure add_inbuf can work for multiple ports as well
-  virtio: console: introduce a get_inbuf helper to fetch bufs from
-    in_vq
-  virtio: console: don't assume a single console port.
-  virtio: console: struct ports for multiple ports per device.
-  virtio: console: ensure console size is updated on hvc open
-  virtio: console: Separate out console-specific data into a separate
-    struct
-  virtio: console: Separate out console init into a new function
-  virtio: console: Separate out find_vqs operation into a different
-    function
-  virtio: console: Introduce function to hand off data from host to
-    readers
-  virtio: console: Introduce a send_buf function for a common path for
-    sending data to host
-  virtio: console: Add a new MULTIPORT feature, support for generic
-    ports
-  virtio: console: Prepare for writing to / reading from userspace
-    buffers
-  virtio: console: Associate each port with a char device
-  virtio: console: Add file operations to ports for
-    open/read/write/poll
-  virtio: console: Ensure only one process can have a port open at a
-    time
-  virtio: console: Register with sysfs and create a 'name' attribute
-    for ports
-  virtio: console: Add throttling support to prevent flooding ports
-  virtio: console: Remove cached data on port close
-  virtio: console: Handle port hot-plug
-  virtio: console: Add ability to hot-unplug ports
-  virtio: console: Add debugfs files for each port to expose debug info
-  virtio: console: show error message if hvc_alloc fails for console
-    ports
+Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+Signed-off-by: Amit Shah <amit.shah@redhat.com>
+---
+ drivers/char/virtio_console.c |   60 +++++++++++++++++++++++-----------------
+ 1 files changed, 34 insertions(+), 26 deletions(-)
 
-Rusty Russell (6):
-  virtio: console: comment cleanup
-  virtio: console: statically initialize virtio_cons
-  hvc_console: make the ops pointer const.
-  virtio: console: port encapsulation
-  virtio: console: use vdev->priv to avoid accessing global var.
-  virtio: console: remove global var
-
-Shirley Ma (1):
-  virtio: Add ability to detach unused buffers from vrings
-
- drivers/char/Kconfig           |    8 +
- drivers/char/hvc_beat.c        |    2 +-
- drivers/char/hvc_console.c     |    9 +-
- drivers/char/hvc_console.h     |    9 +-
- drivers/char/hvc_iseries.c     |    2 +-
- drivers/char/hvc_iucv.c        |    2 +-
- drivers/char/hvc_rtas.c        |    2 +-
- drivers/char/hvc_udbg.c        |    2 +-
- drivers/char/hvc_vio.c         |    2 +-
- drivers/char/hvc_xen.c         |    2 +-
- drivers/char/virtio_console.c  | 1559 ++++++++++++++++++++++++++++++++++++----
- drivers/virtio/virtio_ring.c   |   25 +
- include/linux/virtio.h         |    4 +
- include/linux/virtio_console.h |   31 +-
- 14 files changed, 1496 insertions(+), 163 deletions(-)
+diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
+index 26e238c..1d844a4 100644
+--- a/drivers/char/virtio_console.c
++++ b/drivers/char/virtio_console.c
+@@ -28,12 +28,12 @@ static struct virtio_device *vdev;
+ static unsigned int in_len;
+ static char *in, *inbuf;
+ 
+-/* The operations for our console. */
+-static struct hv_ops virtio_cons;
+-
+ /* The hvc device */
+ static struct hvc_struct *hvc;
+ 
++/* This is the very early arch-specified put chars function. */
++static int (*early_put_chars)(u32, const char *, int);
++
+ /*
+  * The put_chars() callback is pretty straightforward.
+  *
+@@ -47,6 +47,9 @@ static int put_chars(u32 vtermno, const char *buf, int count)
+ 	struct scatterlist sg[1];
+ 	unsigned int len;
+ 
++	if (unlikely(early_put_chars))
++		return early_put_chars(vtermno, buf, count);
++
+ 	/* This is a convenient routine to initialize a single-elem sg list */
+ 	sg_init_one(sg, buf, count);
+ 
+@@ -118,21 +121,6 @@ static int get_chars(u32 vtermno, char *buf, int count)
+ }
+ 
+ /*
+- * Console drivers are initialized very early so boot messages can go
+- * out, so we do things slightly differently from the generic virtio
+- * initialization of the net and block drivers.
+- *
+- * At this stage, the console is output-only.  It's too early to set
+- * up a virtqueue, so we let the drivers do some boutique early-output
+- * thing.
+- */
+-int __init virtio_cons_early_init(int (*put_chars)(u32, const char *, int))
+-{
+-	virtio_cons.put_chars = put_chars;
+-	return hvc_instantiate(0, 0, &virtio_cons);
+-}
+-
+-/*
+  * virtio console configuration. This supports:
+  * - console resize
+  */
+@@ -174,6 +162,30 @@ static void hvc_handle_input(struct virtqueue *vq)
+ 		hvc_kick();
+ }
+ 
++/* The operations for the console. */
++static struct hv_ops hv_ops = {
++	.get_chars = get_chars,
++	.put_chars = put_chars,
++	.notifier_add = notifier_add_vio,
++	.notifier_del = notifier_del_vio,
++	.notifier_hangup = notifier_del_vio,
++};
++
++/*
++ * Console drivers are initialized very early so boot messages can go
++ * out, so we do things slightly differently from the generic virtio
++ * initialization of the net and block drivers.
++ *
++ * At this stage, the console is output-only.  It's too early to set
++ * up a virtqueue, so we let the drivers do some boutique early-output
++ * thing.
++ */
++int __init virtio_cons_early_init(int (*put_chars)(u32, const char *, int))
++{
++	early_put_chars = put_chars;
++	return hvc_instantiate(0, 0, &hv_ops);
++}
++
+ /*
+  * Once we're further in boot, we get probed like any other virtio
+  * device.  At this stage we set up the output virtqueue.
+@@ -209,13 +221,6 @@ static int __devinit virtcons_probe(struct virtio_device *dev)
+ 	in_vq = vqs[0];
+ 	out_vq = vqs[1];
+ 
+-	/* Start using the new console output. */
+-	virtio_cons.get_chars = get_chars;
+-	virtio_cons.put_chars = put_chars;
+-	virtio_cons.notifier_add = notifier_add_vio;
+-	virtio_cons.notifier_del = notifier_del_vio;
+-	virtio_cons.notifier_hangup = notifier_del_vio;
+-
+ 	/*
+ 	 * The first argument of hvc_alloc() is the virtual console
+ 	 * number, so we use zero.  The second argument is the
+@@ -228,7 +233,7 @@ static int __devinit virtcons_probe(struct virtio_device *dev)
+ 	 * pointers.  The final argument is the output buffer size: we
+ 	 * can do any size, so we put PAGE_SIZE here.
+ 	 */
+-	hvc = hvc_alloc(0, 0, &virtio_cons, PAGE_SIZE);
++	hvc = hvc_alloc(0, 0, &hv_ops, PAGE_SIZE);
+ 	if (IS_ERR(hvc)) {
+ 		err = PTR_ERR(hvc);
+ 		goto free_vqs;
+@@ -236,6 +241,9 @@ static int __devinit virtcons_probe(struct virtio_device *dev)
+ 
+ 	/* Register the input buffer the first time. */
+ 	add_inbuf();
++
++	/* Start using the new console output. */
++	early_put_chars = NULL;
+ 	return 0;
+ 
+ free_vqs:
+-- 
+1.6.2.5
