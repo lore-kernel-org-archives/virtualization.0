@@ -1,8 +1,8 @@
 From: Amit Shah <amit.shah@redhat.com>
-Subject: [PATCH 10/32] virtio: console: use vdev->priv to avoid accessing
-	global var.
-Date: Mon, 18 Jan 2010 19:15:04 +0530
-Message-ID: <1263822326-24208-11-git-send-email-amit.shah@redhat.com>
+Subject: [PATCH 14/32] virtio: console: ensure console size is updated on hvc
+	open
+Date: Mon, 18 Jan 2010 19:15:08 +0530
+Message-ID: <1263822326-24208-15-git-send-email-amit.shah@redhat.com>
 References: <1263822326-24208-1-git-send-email-amit.shah@redhat.com>
 	<1263822326-24208-2-git-send-email-amit.shah@redhat.com>
 	<1263822326-24208-3-git-send-email-amit.shah@redhat.com>
@@ -13,11 +13,15 @@ References: <1263822326-24208-1-git-send-email-amit.shah@redhat.com>
 	<1263822326-24208-8-git-send-email-amit.shah@redhat.com>
 	<1263822326-24208-9-git-send-email-amit.shah@redhat.com>
 	<1263822326-24208-10-git-send-email-amit.shah@redhat.com>
+	<1263822326-24208-11-git-send-email-amit.shah@redhat.com>
+	<1263822326-24208-12-git-send-email-amit.shah@redhat.com>
+	<1263822326-24208-13-git-send-email-amit.shah@redhat.com>
+	<1263822326-24208-14-git-send-email-amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1263822326-24208-10-git-send-email-amit.shah@redhat.com>
+In-Reply-To: <1263822326-24208-14-git-send-email-amit.shah@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -31,59 +35,70 @@ To: rusty@rustcorp.com.au
 Cc: Amit Shah <amit.shah@redhat.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Rusty Russell <rusty@rustcorp.com.au>
+When multiple console support is added, ensure each port's size gets
+updated when a new one is opened via hvc.
 
-Part of removing our "one console" assumptions, use vdev->priv to point
-to the port (currently == the global console).
-
-Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 Signed-off-by: Amit Shah <amit.shah@redhat.com>
 ---
- drivers/char/virtio_console.c |   10 ++++++++--
- 1 files changed, 8 insertions(+), 2 deletions(-)
+ drivers/char/virtio_console.c |   33 +++++++++++++++++----------------
+ 1 files changed, 17 insertions(+), 16 deletions(-)
 
 diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index df45e5e..e52ee11 100644
+index 8631d43..debc865 100644
 --- a/drivers/char/virtio_console.c
 +++ b/drivers/char/virtio_console.c
-@@ -187,6 +187,7 @@ static int get_chars(u32 vtermno, char *buf, int count)
-  */
- static void virtcons_apply_config(struct virtio_device *dev)
+@@ -251,27 +251,28 @@ static int get_chars(u32 vtermno, char *buf, int count)
+ 	return count;
+ }
+ 
+-/*
+- * virtio console configuration. This supports:
+- * - console resize
+- */
+-static void virtcons_apply_config(struct virtio_device *dev)
++static void resize_console(struct port *port)
  {
-+	struct port *port = dev->priv;
++	struct virtio_device *vdev;
  	struct winsize ws;
  
- 	if (virtio_has_feature(dev, VIRTIO_CONSOLE_F_SIZE)) {
-@@ -196,7 +197,7 @@ static void virtcons_apply_config(struct virtio_device *dev)
- 		dev->config->get(dev,
- 				 offsetof(struct virtio_console_config, rows),
- 				 &ws.ws_row, sizeof(u16));
--		hvc_resize(console.hvc, ws);
+-	if (virtio_has_feature(dev, VIRTIO_CONSOLE_F_SIZE)) {
+-		dev->config->get(dev,
+-				 offsetof(struct virtio_console_config, cols),
+-				 &ws.ws_col, sizeof(u16));
+-		dev->config->get(dev,
+-				 offsetof(struct virtio_console_config, rows),
+-				 &ws.ws_row, sizeof(u16));
+-		/* This is the pre-multiport style: we use control messages
+-		 * these days which specify the port.  So this means port 0. */
+-		hvc_resize(find_port_by_vtermno(0)->hvc, ws);
++	vdev = port->portdev->vdev;
++	if (virtio_has_feature(vdev, VIRTIO_CONSOLE_F_SIZE)) {
++		vdev->config->get(vdev,
++				  offsetof(struct virtio_console_config, cols),
++				  &ws.ws_col, sizeof(u16));
++		vdev->config->get(vdev,
++				  offsetof(struct virtio_console_config, rows),
++				  &ws.ws_row, sizeof(u16));
 +		hvc_resize(port->hvc, ws);
  	}
  }
  
-@@ -219,7 +220,9 @@ static void notifier_del_vio(struct hvc_struct *hp, int data)
- 
- static void hvc_handle_input(struct virtqueue *vq)
++static void virtcons_apply_config(struct virtio_device *vdev)
++{
++	resize_console(find_port_by_vtermno(0));
++}
++
+ /* We set the configuration at this point, since we now have a tty */
+ static int notifier_add_vio(struct hvc_struct *hp, int data)
  {
--	if (hvc_poll(console.hvc))
-+	struct port *port = vq->vdev->priv;
-+
-+	if (hvc_poll(port->hvc))
- 		hvc_kick();
+@@ -282,7 +283,7 @@ static int notifier_add_vio(struct hvc_struct *hp, int data)
+ 		return -EINVAL;
+ 
+ 	hp->irq_requested = 1;
+-	virtcons_apply_config(port->portdev->vdev);
++	resize_console(port);
+ 
+ 	return 0;
  }
- 
-@@ -272,7 +275,10 @@ static int __devinit virtcons_probe(struct virtio_device *vdev)
- 			 "Multiple virtio-console devices not supported yet\n");
- 		return -EEXIST;
- 	}
-+
-+	/* Attach this port to this virtio_device, and vice-versa. */
- 	port->vdev = vdev;
-+	vdev->priv = port;
- 
- 	/* This is the scratch page we use to receive console input */
- 	port->inbuf = alloc_buf(PAGE_SIZE);
 -- 
 1.6.2.5
