@@ -1,8 +1,7 @@
 From: Amit Shah <amit.shah@redhat.com>
-Subject: [PATCH 18/32] virtio: console: Introduce function to hand off data
-	from host to readers
-Date: Mon, 18 Jan 2010 19:15:12 +0530
-Message-ID: <1263822326-24208-19-git-send-email-amit.shah@redhat.com>
+Subject: [PATCH 30/32] virtio: console: Add ability to hot-unplug ports
+Date: Mon, 18 Jan 2010 19:15:24 +0530
+Message-ID: <1263822326-24208-31-git-send-email-amit.shah@redhat.com>
 References: <1263822326-24208-1-git-send-email-amit.shah@redhat.com>
 	<1263822326-24208-2-git-send-email-amit.shah@redhat.com>
 	<1263822326-24208-3-git-send-email-amit.shah@redhat.com>
@@ -21,11 +20,23 @@ References: <1263822326-24208-1-git-send-email-amit.shah@redhat.com>
 	<1263822326-24208-16-git-send-email-amit.shah@redhat.com>
 	<1263822326-24208-17-git-send-email-amit.shah@redhat.com>
 	<1263822326-24208-18-git-send-email-amit.shah@redhat.com>
+	<1263822326-24208-19-git-send-email-amit.shah@redhat.com>
+	<1263822326-24208-20-git-send-email-amit.shah@redhat.com>
+	<1263822326-24208-21-git-send-email-amit.shah@redhat.com>
+	<1263822326-24208-22-git-send-email-amit.shah@redhat.com>
+	<1263822326-24208-23-git-send-email-amit.shah@redhat.com>
+	<1263822326-24208-24-git-send-email-amit.shah@redhat.com>
+	<1263822326-24208-25-git-send-email-amit.shah@redhat.com>
+	<1263822326-24208-26-git-send-email-amit.shah@redhat.com>
+	<1263822326-24208-27-git-send-email-amit.shah@redhat.com>
+	<1263822326-24208-28-git-send-email-amit.shah@redhat.com>
+	<1263822326-24208-29-git-send-email-amit.shah@redhat.com>
+	<1263822326-24208-30-git-send-email-amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1263822326-24208-18-git-send-email-amit.shah@redhat.com>
+In-Reply-To: <1263822326-24208-30-git-send-email-amit.shah@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -39,238 +50,120 @@ To: rusty@rustcorp.com.au
 Cc: Amit Shah <amit.shah@redhat.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-In preparation for serving data to userspace (generic ports) as well as
-in-kernel users (hvc consoles), separate out the functionality common to
-both in a 'fill_readbuf()' function.
+Remove port data; deregister from the hvc core if it's a console port.
 
 Signed-off-by: Amit Shah <amit.shah@redhat.com>
 ---
- drivers/char/virtio_console.c |  142 ++++++++++++++++++++++++++++++----------
- 1 files changed, 106 insertions(+), 36 deletions(-)
+ drivers/char/virtio_console.c  |   66 ++++++++++++++++++++++++++++++++++++++-
+ include/linux/virtio_console.h |    1 +
+ 2 files changed, 65 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index 75c5a35..5096d92 100644
+index 36cd7d4..4a4eaba 100644
 --- a/drivers/char/virtio_console.c
 +++ b/drivers/char/virtio_console.c
-@@ -100,6 +100,13 @@ struct port {
- 	/* The current buffer from which data has to be fed to readers */
- 	struct port_buffer *inbuf;
+@@ -803,6 +803,37 @@ static struct attribute_group port_attribute_group = {
+ 	.attrs = port_sysfs_entries,
+ };
  
-+	/*
-+	 * To protect the operations on the in_vq associated with this
-+	 * port.  Has to be a spinlock because it can be called from
-+	 * interrupt context (get_char()).
-+	 */
-+	spinlock_t inbuf_lock;
-+
- 	/* The IO vqs for this port */
- 	struct virtqueue *in_vq, *out_vq;
- 
-@@ -132,6 +139,25 @@ out:
- 	return port;
- }
- 
-+static struct port *find_port_by_vq(struct ports_device *portdev,
-+				    struct virtqueue *vq)
++/* Remove all port-specific data. */
++static int remove_port(struct port *port)
 +{
-+	struct port *port;
-+	struct console *cons;
-+	unsigned long flags;
++	spin_lock_irq(&port->portdev->ports_lock);
++	list_del(&port->list);
++	spin_unlock_irq(&port->portdev->ports_lock);
 +
-+	spin_lock_irqsave(&pdrvdata_lock, flags);
-+	list_for_each_entry(cons, &pdrvdata.consoles, list) {
-+		port = container_of(cons, struct port, cons);
-+		if (port->in_vq == vq || port->out_vq == vq)
-+			goto out;
++	if (is_console_port(port)) {
++		spin_lock_irq(&pdrvdata_lock);
++		list_del(&port->cons.list);
++		spin_unlock_irq(&pdrvdata_lock);
++		hvc_remove(port->cons.hvc);
 +	}
-+	port = NULL;
-+out:
-+	spin_unlock_irqrestore(&pdrvdata_lock, flags);
-+	return port;
++	if (port->guest_connected)
++		send_control_msg(port, VIRTIO_CONSOLE_PORT_OPEN, 0);
++
++	while (port->in_vq->vq_ops->detach_unused_buf(port->in_vq))
++		;
++
++	sysfs_remove_group(&port->dev->kobj, &port_attribute_group);
++	device_destroy(pdrvdata.class, port->dev->devt);
++	cdev_del(&port->cdev);
++
++	discard_port_data(port);
++	free_buf(port->outbuf);
++	kfree(port->name);
++
++	kfree(port);
++	return 0;
 +}
 +
- static void free_buf(struct port_buffer *buf)
- {
- 	kfree(buf->buf);
-@@ -181,15 +207,67 @@ static void *get_inbuf(struct port *port)
-  *
-  * Callers should take appropriate locks.
-  */
--static void add_inbuf(struct virtqueue *vq, struct port_buffer *buf)
-+static int add_inbuf(struct virtqueue *vq, struct port_buffer *buf)
- {
- 	struct scatterlist sg[1];
-+	int ret;
- 
- 	sg_init_one(sg, buf->buf, buf->size);
- 
--	if (vq->vq_ops->add_buf(vq, sg, 0, 1, buf) < 0)
--		BUG();
-+	ret = vq->vq_ops->add_buf(vq, sg, 0, 1, buf);
- 	vq->vq_ops->kick(vq);
-+	return ret;
-+}
-+
-+static bool port_has_data(struct port *port)
-+{
-+	unsigned long flags;
-+	bool ret;
-+
-+	ret = false;
-+	spin_lock_irqsave(&port->inbuf_lock, flags);
-+	if (port->inbuf)
-+		ret = true;
-+	spin_unlock_irqrestore(&port->inbuf_lock, flags);
-+
-+	return ret;
-+}
-+
-+/*
-+ * Give out the data that's requested from the buffer that we have
-+ * queued up.
-+ */
-+static ssize_t fill_readbuf(struct port *port, char *out_buf, size_t out_count)
-+{
-+	struct port_buffer *buf;
-+	unsigned long flags;
-+
-+	if (!out_count || !port_has_data(port))
-+		return 0;
-+
-+	buf = port->inbuf;
-+	if (out_count > buf->len - buf->offset)
-+		out_count = buf->len - buf->offset;
-+
-+	memcpy(out_buf, buf->buf + buf->offset, out_count);
-+
-+	/* Return the number of bytes actually copied */
-+	buf->offset += out_count;
-+
-+	if (buf->offset == buf->len) {
+ /* Any private messages that the Host and Guest want to share */
+ static void handle_control_message(struct ports_device *portdev,
+ 				   struct port_buffer *buf)
+@@ -886,6 +917,32 @@ static void handle_control_message(struct ports_device *portdev,
+ 		 */
+ 		port->host_throttled = cpkt->value;
+ 		break;
++	case VIRTIO_CONSOLE_PORT_REMOVE:
 +		/*
-+		 * We're done using all the data in this buffer.
-+		 * Re-queue so that the Host can send us more data.
++		 * Hot unplug the port.  We don't decrement nr_ports
++		 * since we don't want to deal with extra complexities
++		 * of using the lowest-available port id: We can just
++		 * pick up the nr_ports number as the id and not have
++		 * userspace send it to us.  This helps us in two
++		 * ways:
++		 *
++		 * - We don't need to have a 'port_id' field in the
++		 *   config space when a port is hot-added.  This is a
++		 *   good thing as we might queue up multiple hotplug
++		 *   requests issued in our workqueue.
++		 *
++		 * - Another way to deal with this would have been to
++		 *   use a bitmap of the active ports and select the
++		 *   lowest non-active port from that map.  That
++		 *   bloats the already tight config space and we
++		 *   would end up artificially limiting the
++		 *   max. number of ports to sizeof(bitmap).  Right
++		 *   now we can support 2^32 ports (as the port id is
++		 *   stored in a u32 type).
++		 *
 +		 */
-+		spin_lock_irqsave(&port->inbuf_lock, flags);
-+		port->inbuf = NULL;
-+
-+		if (add_inbuf(port->in_vq, buf) < 0)
-+			dev_warn(&port->portdev->vdev->dev, "failed add_buf\n");
-+
-+		spin_unlock_irqrestore(&port->inbuf_lock, flags);
-+	}
-+	return out_count;
- }
- 
- /*
-@@ -234,9 +312,8 @@ static int put_chars(u32 vtermno, const char *buf, int count)
-  * get_chars() is the callback from the hvc_console infrastructure
-  * when an interrupt is received.
-  *
-- * Most of the code deals with the fact that the hvc_console()
-- * infrastructure only asks us for 16 bytes at a time.  We keep
-- * in_offset and in_used fields for partially-filled buffers.
-+ * We call out to fill_readbuf that gets us the required data from the
-+ * buffers that are queued up.
-  */
- static int get_chars(u32 vtermno, char *buf, int count)
- {
-@@ -249,25 +326,7 @@ static int get_chars(u32 vtermno, char *buf, int count)
- 	/* If we don't have an input queue yet, we can't get input. */
- 	BUG_ON(!port->in_vq);
- 
--	/* No more in buffer?  See if they've (re)used it. */
--	if (port->inbuf->offset == port->inbuf->len) {
--		if (!get_inbuf(port))
--			return 0;
--	}
--
--	/* You want more than we have to give?  Well, try wanting less! */
--	if (port->inbuf->offset + count > port->inbuf->len)
--		count = port->inbuf->len - port->inbuf->offset;
--
--	/* Copy across to their buffer and increment offset. */
--	memcpy(buf, port->inbuf->buf + port->inbuf->offset, count);
--	port->inbuf->offset += count;
--
--	/* Finished?  Re-register buffer so Host will use it again. */
--	if (port->inbuf->offset == port->inbuf->len)
--		add_inbuf(port->in_vq, port->inbuf);
--
--	return count;
-+	return fill_readbuf(port, buf, count);
- }
- 
- static void resize_console(struct port *port)
-@@ -314,13 +373,18 @@ static void notifier_del_vio(struct hvc_struct *hp, int data)
- 
- static void hvc_handle_input(struct virtqueue *vq)
- {
--	struct console *cons;
--	bool activity = false;
-+	struct port *port;
-+	unsigned long flags;
-+
-+	port = find_port_by_vq(vq->vdev->priv, vq);
-+	if (!port)
-+		return;
- 
--	list_for_each_entry(cons, &pdrvdata.consoles, list)
--		activity |= hvc_poll(cons->hvc);
-+	spin_lock_irqsave(&port->inbuf_lock, flags);
-+	port->inbuf = get_inbuf(port);
-+	spin_unlock_irqrestore(&port->inbuf_lock, flags);
- 
--	if (activity)
-+	if (hvc_poll(port->cons.hvc))
- 		hvc_kick();
- }
- 
-@@ -388,6 +452,7 @@ int __devinit init_port_console(struct port *port)
- static int __devinit add_port(struct ports_device *portdev)
- {
- 	struct port *port;
-+	struct port_buffer *inbuf;
- 	int err;
- 
- 	port = kmalloc(sizeof(*port), GFP_KERNEL);
-@@ -397,26 +462,31 @@ static int __devinit add_port(struct ports_device *portdev)
++		remove_port(port);
++		break;
  	}
+ }
  
- 	port->portdev = portdev;
-+
-+	port->inbuf = NULL;
-+
- 	port->in_vq = portdev->in_vqs[0];
- 	port->out_vq = portdev->out_vqs[0];
+@@ -1118,12 +1175,17 @@ static void config_work_handler(struct work_struct *work)
+ 		/*
+ 		 * Port 0 got hot-added.  Since we already did all the
+ 		 * other initialisation for it, just tell the Host
+-		 * that the port is ready.
++		 * that the port is ready if we find the port.  In
++		 * case the port was hot-removed earlier, we call
++		 * add_port to add the port.
+ 		 */
+ 		struct port *port;
  
--	port->inbuf = alloc_buf(PAGE_SIZE);
--	if (!port->inbuf) {
-+	spin_lock_init(&port->inbuf_lock);
-+
-+	inbuf = alloc_buf(PAGE_SIZE);
-+	if (!inbuf) {
- 		err = -ENOMEM;
- 		goto free_port;
+ 		port = find_port_by_id(portdev, 0);
+-		send_control_msg(port, VIRTIO_CONSOLE_PORT_READY, 1);
++		if (!port)
++			add_port(portdev, 0);
++		else
++			send_control_msg(port, VIRTIO_CONSOLE_PORT_READY, 1);
+ 		return;
  	}
+ 	if (virtconconf.nr_ports > portdev->config.max_nr_ports) {
+diff --git a/include/linux/virtio_console.h b/include/linux/virtio_console.h
+index c096eb2..96c5832 100644
+--- a/include/linux/virtio_console.h
++++ b/include/linux/virtio_console.h
+@@ -42,6 +42,7 @@ struct virtio_console_control {
+ #define VIRTIO_CONSOLE_PORT_OPEN	3
+ #define VIRTIO_CONSOLE_PORT_NAME	4
+ #define VIRTIO_CONSOLE_THROTTLE_PORT	5
++#define VIRTIO_CONSOLE_PORT_REMOVE	6
  
-+	/* Register the input buffer the first time. */
-+	add_inbuf(port->in_vq, inbuf);
-+
- 	err = init_port_console(port);
- 	if (err)
- 		goto free_inbuf;
- 
--	/* Register the input buffer the first time. */
--	add_inbuf(port->in_vq, port->inbuf);
--
- 	return 0;
- 
- free_inbuf:
--	free_buf(port->inbuf);
-+	free_buf(inbuf);
- free_port:
- 	kfree(port);
- fail:
+ #ifdef __KERNEL__
+ int __init virtio_cons_early_init(int (*put_chars)(u32, const char *, int));
 -- 
 1.6.2.5
