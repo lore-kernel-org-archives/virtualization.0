@@ -1,8 +1,8 @@
 From: Amit Shah <amit.shah@redhat.com>
-Subject: [PATCH 21/32] virtio: console: Prepare for writing to / reading from
-	userspace buffers
-Date: Mon, 18 Jan 2010 19:15:15 +0530
-Message-ID: <1263822326-24208-22-git-send-email-amit.shah@redhat.com>
+Subject: [PATCH 18/32] virtio: console: Introduce function to hand off data
+	from host to readers
+Date: Mon, 18 Jan 2010 19:15:12 +0530
+Message-ID: <1263822326-24208-19-git-send-email-amit.shah@redhat.com>
 References: <1263822326-24208-1-git-send-email-amit.shah@redhat.com>
 	<1263822326-24208-2-git-send-email-amit.shah@redhat.com>
 	<1263822326-24208-3-git-send-email-amit.shah@redhat.com>
@@ -21,14 +21,11 @@ References: <1263822326-24208-1-git-send-email-amit.shah@redhat.com>
 	<1263822326-24208-16-git-send-email-amit.shah@redhat.com>
 	<1263822326-24208-17-git-send-email-amit.shah@redhat.com>
 	<1263822326-24208-18-git-send-email-amit.shah@redhat.com>
-	<1263822326-24208-19-git-send-email-amit.shah@redhat.com>
-	<1263822326-24208-20-git-send-email-amit.shah@redhat.com>
-	<1263822326-24208-21-git-send-email-amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1263822326-24208-21-git-send-email-amit.shah@redhat.com>
+In-Reply-To: <1263822326-24208-18-git-send-email-amit.shah@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -42,116 +39,238 @@ To: rusty@rustcorp.com.au
 Cc: Amit Shah <amit.shah@redhat.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-When ports get advertised as char devices, the buffers will come from
-userspace. Equip the send_buf and fill_readbuf functions with the
-ability to write to / read from userspace buffers respectively.
+In preparation for serving data to userspace (generic ports) as well as
+in-kernel users (hvc consoles), separate out the functionality common to
+both in a 'fill_readbuf()' function.
 
 Signed-off-by: Amit Shah <amit.shah@redhat.com>
 ---
- drivers/char/virtio_console.c |   45 ++++++++++++++++++++++++++--------------
- 1 files changed, 29 insertions(+), 16 deletions(-)
+ drivers/char/virtio_console.c |  142 ++++++++++++++++++++++++++++++----------
+ 1 files changed, 106 insertions(+), 36 deletions(-)
 
 diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index c0bc146..35bdd41 100644
+index 75c5a35..5096d92 100644
 --- a/drivers/char/virtio_console.c
 +++ b/drivers/char/virtio_console.c
-@@ -332,7 +332,8 @@ static ssize_t send_control_msg(struct port *port, unsigned int event,
- 	return 0;
+@@ -100,6 +100,13 @@ struct port {
+ 	/* The current buffer from which data has to be fed to readers */
+ 	struct port_buffer *inbuf;
+ 
++	/*
++	 * To protect the operations on the in_vq associated with this
++	 * port.  Has to be a spinlock because it can be called from
++	 * interrupt context (get_char()).
++	 */
++	spinlock_t inbuf_lock;
++
+ 	/* The IO vqs for this port */
+ 	struct virtqueue *in_vq, *out_vq;
+ 
+@@ -132,6 +139,25 @@ out:
+ 	return port;
  }
  
--static ssize_t send_buf(struct port *port, const char *in_buf, size_t in_count)
-+static ssize_t send_buf(struct port *port, const char *in_buf, size_t in_count,
-+			bool from_user)
++static struct port *find_port_by_vq(struct ports_device *portdev,
++				    struct virtqueue *vq)
++{
++	struct port *port;
++	struct console *cons;
++	unsigned long flags;
++
++	spin_lock_irqsave(&pdrvdata_lock, flags);
++	list_for_each_entry(cons, &pdrvdata.consoles, list) {
++		port = container_of(cons, struct port, cons);
++		if (port->in_vq == vq || port->out_vq == vq)
++			goto out;
++	}
++	port = NULL;
++out:
++	spin_unlock_irqrestore(&pdrvdata_lock, flags);
++	return port;
++}
++
+ static void free_buf(struct port_buffer *buf)
+ {
+ 	kfree(buf->buf);
+@@ -181,15 +207,67 @@ static void *get_inbuf(struct port *port)
+  *
+  * Callers should take appropriate locks.
+  */
+-static void add_inbuf(struct virtqueue *vq, struct port_buffer *buf)
++static int add_inbuf(struct virtqueue *vq, struct port_buffer *buf)
  {
  	struct scatterlist sg[1];
- 	struct virtqueue *out_vq;
-@@ -357,15 +358,19 @@ static ssize_t send_buf(struct port *port, const char *in_buf, size_t in_count)
- 	if (in_count > buf->size)
- 		in_count = buf->size;
++	int ret;
  
--	/*
--	 * Since we're not sure when the host will actually
--	 * consume the data and tell us about it, we have to
--	 * copy the data here in case the caller frees the
--	 * in_buf.
--	 */
--	memcpy(buf->buf, in_buf, in_count);
--
--	buf->len = in_count;
-+	if (from_user) {
-+		ret = copy_from_user(buf->buf, in_buf, in_count);
-+	} else {
-+		/*
-+		 * Since we're not sure when the host will actually
-+		 * consume the data and tell us about it, we have to
-+		 * copy the data here in case the caller frees the
-+		 * in_buf.
-+		 */
-+		memcpy(buf->buf, in_buf, in_count);
-+		ret = 0; /* Emulate copy_from_user behaviour */
-+	}
-+	buf->len = in_count - ret;
+ 	sg_init_one(sg, buf->buf, buf->size);
  
- 	sg_init_one(sg, buf->buf, buf->len);
- 	ret = out_vq->vq_ops->add_buf(out_vq, sg, 1, 0, buf);
-@@ -384,9 +389,11 @@ static ssize_t send_buf(struct port *port, const char *in_buf, size_t in_count)
-  * Give out the data that's requested from the buffer that we have
-  * queued up.
-  */
--static ssize_t fill_readbuf(struct port *port, char *out_buf, size_t out_count)
-+static ssize_t fill_readbuf(struct port *port, char *out_buf, size_t out_count,
-+			    bool to_user)
- {
- 	struct port_buffer *buf;
-+	ssize_t ret;
- 	unsigned long flags;
- 
- 	if (!out_count || !port_has_data(port))
-@@ -396,10 +403,16 @@ static ssize_t fill_readbuf(struct port *port, char *out_buf, size_t out_count)
- 	if (out_count > buf->len - buf->offset)
- 		out_count = buf->len - buf->offset;
- 
--	memcpy(out_buf, buf->buf + buf->offset, out_count);
-+	if (to_user) {
-+		ret = copy_to_user(out_buf, buf->buf + buf->offset, out_count);
-+	} else {
-+		memcpy(out_buf, buf->buf + buf->offset, out_count);
-+		ret = 0; /* Emulate copy_to_user behaviour */
-+	}
- 
- 	/* Return the number of bytes actually copied */
--	buf->offset += out_count;
-+	ret = out_count - ret;
-+	buf->offset += ret;
- 
- 	if (buf->offset == buf->len) {
- 		/*
-@@ -414,7 +427,7 @@ static ssize_t fill_readbuf(struct port *port, char *out_buf, size_t out_count)
- 
- 		spin_unlock_irqrestore(&port->inbuf_lock, flags);
- 	}
--	return out_count;
+-	if (vq->vq_ops->add_buf(vq, sg, 0, 1, buf) < 0)
+-		BUG();
++	ret = vq->vq_ops->add_buf(vq, sg, 0, 1, buf);
+ 	vq->vq_ops->kick(vq);
 +	return ret;
++}
++
++static bool port_has_data(struct port *port)
++{
++	unsigned long flags;
++	bool ret;
++
++	ret = false;
++	spin_lock_irqsave(&port->inbuf_lock, flags);
++	if (port->inbuf)
++		ret = true;
++	spin_unlock_irqrestore(&port->inbuf_lock, flags);
++
++	return ret;
++}
++
++/*
++ * Give out the data that's requested from the buffer that we have
++ * queued up.
++ */
++static ssize_t fill_readbuf(struct port *port, char *out_buf, size_t out_count)
++{
++	struct port_buffer *buf;
++	unsigned long flags;
++
++	if (!out_count || !port_has_data(port))
++		return 0;
++
++	buf = port->inbuf;
++	if (out_count > buf->len - buf->offset)
++		out_count = buf->len - buf->offset;
++
++	memcpy(out_buf, buf->buf + buf->offset, out_count);
++
++	/* Return the number of bytes actually copied */
++	buf->offset += out_count;
++
++	if (buf->offset == buf->len) {
++		/*
++		 * We're done using all the data in this buffer.
++		 * Re-queue so that the Host can send us more data.
++		 */
++		spin_lock_irqsave(&port->inbuf_lock, flags);
++		port->inbuf = NULL;
++
++		if (add_inbuf(port->in_vq, buf) < 0)
++			dev_warn(&port->portdev->vdev->dev, "failed add_buf\n");
++
++		spin_unlock_irqrestore(&port->inbuf_lock, flags);
++	}
++	return out_count;
  }
  
  /*
-@@ -436,7 +449,7 @@ static int put_chars(u32 vtermno, const char *buf, int count)
- 	if (unlikely(early_put_chars))
- 		return early_put_chars(vtermno, buf, count);
- 
--	return send_buf(port, buf, count);
-+	return send_buf(port, buf, count, false);
- }
- 
- /*
-@@ -457,7 +470,7 @@ static int get_chars(u32 vtermno, char *buf, int count)
+@@ -234,9 +312,8 @@ static int put_chars(u32 vtermno, const char *buf, int count)
+  * get_chars() is the callback from the hvc_console infrastructure
+  * when an interrupt is received.
+  *
+- * Most of the code deals with the fact that the hvc_console()
+- * infrastructure only asks us for 16 bytes at a time.  We keep
+- * in_offset and in_used fields for partially-filled buffers.
++ * We call out to fill_readbuf that gets us the required data from the
++ * buffers that are queued up.
+  */
+ static int get_chars(u32 vtermno, char *buf, int count)
+ {
+@@ -249,25 +326,7 @@ static int get_chars(u32 vtermno, char *buf, int count)
  	/* If we don't have an input queue yet, we can't get input. */
  	BUG_ON(!port->in_vq);
  
--	return fill_readbuf(port, buf, count);
-+	return fill_readbuf(port, buf, count, false);
+-	/* No more in buffer?  See if they've (re)used it. */
+-	if (port->inbuf->offset == port->inbuf->len) {
+-		if (!get_inbuf(port))
+-			return 0;
+-	}
+-
+-	/* You want more than we have to give?  Well, try wanting less! */
+-	if (port->inbuf->offset + count > port->inbuf->len)
+-		count = port->inbuf->len - port->inbuf->offset;
+-
+-	/* Copy across to their buffer and increment offset. */
+-	memcpy(buf, port->inbuf->buf + port->inbuf->offset, count);
+-	port->inbuf->offset += count;
+-
+-	/* Finished?  Re-register buffer so Host will use it again. */
+-	if (port->inbuf->offset == port->inbuf->len)
+-		add_inbuf(port->in_vq, port->inbuf);
+-
+-	return count;
++	return fill_readbuf(port, buf, count);
  }
  
  static void resize_console(struct port *port)
+@@ -314,13 +373,18 @@ static void notifier_del_vio(struct hvc_struct *hp, int data)
+ 
+ static void hvc_handle_input(struct virtqueue *vq)
+ {
+-	struct console *cons;
+-	bool activity = false;
++	struct port *port;
++	unsigned long flags;
++
++	port = find_port_by_vq(vq->vdev->priv, vq);
++	if (!port)
++		return;
+ 
+-	list_for_each_entry(cons, &pdrvdata.consoles, list)
+-		activity |= hvc_poll(cons->hvc);
++	spin_lock_irqsave(&port->inbuf_lock, flags);
++	port->inbuf = get_inbuf(port);
++	spin_unlock_irqrestore(&port->inbuf_lock, flags);
+ 
+-	if (activity)
++	if (hvc_poll(port->cons.hvc))
+ 		hvc_kick();
+ }
+ 
+@@ -388,6 +452,7 @@ int __devinit init_port_console(struct port *port)
+ static int __devinit add_port(struct ports_device *portdev)
+ {
+ 	struct port *port;
++	struct port_buffer *inbuf;
+ 	int err;
+ 
+ 	port = kmalloc(sizeof(*port), GFP_KERNEL);
+@@ -397,26 +462,31 @@ static int __devinit add_port(struct ports_device *portdev)
+ 	}
+ 
+ 	port->portdev = portdev;
++
++	port->inbuf = NULL;
++
+ 	port->in_vq = portdev->in_vqs[0];
+ 	port->out_vq = portdev->out_vqs[0];
+ 
+-	port->inbuf = alloc_buf(PAGE_SIZE);
+-	if (!port->inbuf) {
++	spin_lock_init(&port->inbuf_lock);
++
++	inbuf = alloc_buf(PAGE_SIZE);
++	if (!inbuf) {
+ 		err = -ENOMEM;
+ 		goto free_port;
+ 	}
+ 
++	/* Register the input buffer the first time. */
++	add_inbuf(port->in_vq, inbuf);
++
+ 	err = init_port_console(port);
+ 	if (err)
+ 		goto free_inbuf;
+ 
+-	/* Register the input buffer the first time. */
+-	add_inbuf(port->in_vq, port->inbuf);
+-
+ 	return 0;
+ 
+ free_inbuf:
+-	free_buf(port->inbuf);
++	free_buf(inbuf);
+ free_port:
+ 	kfree(port);
+ fail:
 -- 
 1.6.2.5
