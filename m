@@ -1,8 +1,8 @@
 From: Amit Shah <amit.shah@redhat.com>
-Subject: [PATCH 17/32] virtio: console: Separate out find_vqs operation into a
-	different function
-Date: Mon, 18 Jan 2010 19:15:11 +0530
-Message-ID: <1263822326-24208-18-git-send-email-amit.shah@redhat.com>
+Subject: [PATCH 21/32] virtio: console: Prepare for writing to / reading from
+	userspace buffers
+Date: Mon, 18 Jan 2010 19:15:15 +0530
+Message-ID: <1263822326-24208-22-git-send-email-amit.shah@redhat.com>
 References: <1263822326-24208-1-git-send-email-amit.shah@redhat.com>
 	<1263822326-24208-2-git-send-email-amit.shah@redhat.com>
 	<1263822326-24208-3-git-send-email-amit.shah@redhat.com>
@@ -20,11 +20,15 @@ References: <1263822326-24208-1-git-send-email-amit.shah@redhat.com>
 	<1263822326-24208-15-git-send-email-amit.shah@redhat.com>
 	<1263822326-24208-16-git-send-email-amit.shah@redhat.com>
 	<1263822326-24208-17-git-send-email-amit.shah@redhat.com>
+	<1263822326-24208-18-git-send-email-amit.shah@redhat.com>
+	<1263822326-24208-19-git-send-email-amit.shah@redhat.com>
+	<1263822326-24208-20-git-send-email-amit.shah@redhat.com>
+	<1263822326-24208-21-git-send-email-amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1263822326-24208-17-git-send-email-amit.shah@redhat.com>
+In-Reply-To: <1263822326-24208-21-git-send-email-amit.shah@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -38,157 +42,116 @@ To: rusty@rustcorp.com.au
 Cc: Amit Shah <amit.shah@redhat.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-With support for multiple ports, each port will have its own input and
-output vqs. Prepare the probe function for this change.
+When ports get advertised as char devices, the buffers will come from
+userspace. Equip the send_buf and fill_readbuf functions with the
+ability to write to / read from userspace buffers respectively.
 
 Signed-off-by: Amit Shah <amit.shah@redhat.com>
 ---
- drivers/char/virtio_console.c |   98 ++++++++++++++++++++++++++++++++++++-----
- 1 files changed, 86 insertions(+), 12 deletions(-)
+ drivers/char/virtio_console.c |   45 ++++++++++++++++++++++++++--------------
+ 1 files changed, 29 insertions(+), 16 deletions(-)
 
 diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index 11e5faf..75c5a35 100644
+index c0bc146..35bdd41 100644
 --- a/drivers/char/virtio_console.c
 +++ b/drivers/char/virtio_console.c
-@@ -74,7 +74,9 @@ struct console {
-  * ports for that device (vdev->priv).
-  */
- struct ports_device {
--	struct virtqueue *in_vq, *out_vq;
-+	/* Array of per-port IO virtqueues */
-+	struct virtqueue **in_vqs, **out_vqs;
-+
- 	struct virtio_device *vdev;
- };
- 
-@@ -395,8 +397,8 @@ static int __devinit add_port(struct ports_device *portdev)
- 	}
- 
- 	port->portdev = portdev;
--	port->in_vq = portdev->in_vq;
--	port->out_vq = portdev->out_vq;
-+	port->in_vq = portdev->in_vqs[0];
-+	port->out_vq = portdev->out_vqs[0];
- 
- 	port->inbuf = alloc_buf(PAGE_SIZE);
- 	if (!port->inbuf) {
-@@ -421,15 +423,87 @@ fail:
- 	return err;
+@@ -332,7 +332,8 @@ static ssize_t send_control_msg(struct port *port, unsigned int event,
+ 	return 0;
  }
  
-+static int init_vqs(struct ports_device *portdev)
-+{
-+	vq_callback_t **io_callbacks;
-+	char **io_names;
-+	struct virtqueue **vqs;
-+	u32 nr_ports, nr_queues;
-+	int err;
-+
-+	/* We currently only have one port and two queues for that port */
-+	nr_ports = 1;
-+	nr_queues = 2;
-+
-+	vqs = kmalloc(nr_queues * sizeof(struct virtqueue *), GFP_KERNEL);
-+	if (!vqs) {
-+		err = -ENOMEM;
-+		goto fail;
-+	}
-+	io_callbacks = kmalloc(nr_queues * sizeof(vq_callback_t *), GFP_KERNEL);
-+	if (!io_callbacks) {
-+		err = -ENOMEM;
-+		goto free_vqs;
-+	}
-+	io_names = kmalloc(nr_queues * sizeof(char *), GFP_KERNEL);
-+	if (!io_names) {
-+		err = -ENOMEM;
-+		goto free_callbacks;
-+	}
-+	portdev->in_vqs = kmalloc(nr_ports * sizeof(struct virtqueue *),
-+				  GFP_KERNEL);
-+	if (!portdev->in_vqs) {
-+		err = -ENOMEM;
-+		goto free_names;
-+	}
-+	portdev->out_vqs = kmalloc(nr_ports * sizeof(struct virtqueue *),
-+				   GFP_KERNEL);
-+	if (!portdev->out_vqs) {
-+		err = -ENOMEM;
-+		goto free_invqs;
-+	}
-+
-+	io_callbacks[0] = hvc_handle_input;
-+	io_callbacks[1] = NULL;
-+	io_names[0] = "input";
-+	io_names[1] = "output";
-+
-+	/* Find the queues. */
-+	err = portdev->vdev->config->find_vqs(portdev->vdev, nr_queues, vqs,
-+					      io_callbacks,
-+					      (const char **)io_names);
-+	if (err)
-+		goto free_outvqs;
-+
-+	portdev->in_vqs[0] = vqs[0];
-+	portdev->out_vqs[0] = vqs[1];
-+
-+	kfree(io_callbacks);
-+	kfree(io_names);
-+	kfree(vqs);
-+
-+	return 0;
-+
-+free_names:
-+	kfree(io_names);
-+free_callbacks:
-+	kfree(io_callbacks);
-+free_outvqs:
-+	kfree(portdev->out_vqs);
-+free_invqs:
-+	kfree(portdev->in_vqs);
-+free_vqs:
-+	kfree(vqs);
-+fail:
-+	return err;
-+}
-+
- /*
-  * Once we're further in boot, we get probed like any other virtio
-  * device.
-  */
- static int __devinit virtcons_probe(struct virtio_device *vdev)
+-static ssize_t send_buf(struct port *port, const char *in_buf, size_t in_count)
++static ssize_t send_buf(struct port *port, const char *in_buf, size_t in_count,
++			bool from_user)
  {
--	vq_callback_t *callbacks[] = { hvc_handle_input, NULL};
--	const char *names[] = { "input", "output" };
--	struct virtqueue *vqs[2];
- 	struct ports_device *portdev;
- 	int err;
+ 	struct scatterlist sg[1];
+ 	struct virtqueue *out_vq;
+@@ -357,15 +358,19 @@ static ssize_t send_buf(struct port *port, const char *in_buf, size_t in_count)
+ 	if (in_count > buf->size)
+ 		in_count = buf->size;
  
-@@ -443,13 +517,11 @@ static int __devinit virtcons_probe(struct virtio_device *vdev)
- 	portdev->vdev = vdev;
- 	vdev->priv = portdev;
- 
--	/* Find the queues. */
--	err = vdev->config->find_vqs(vdev, 2, vqs, callbacks, names);
--	if (err)
-+	err = init_vqs(portdev);
-+	if (err < 0) {
-+		dev_err(&vdev->dev, "Error %d initializing vqs\n", err);
- 		goto free;
+-	/*
+-	 * Since we're not sure when the host will actually
+-	 * consume the data and tell us about it, we have to
+-	 * copy the data here in case the caller frees the
+-	 * in_buf.
+-	 */
+-	memcpy(buf->buf, in_buf, in_count);
 -
--	portdev->in_vq = vqs[0];
--	portdev->out_vq = vqs[1];
+-	buf->len = in_count;
++	if (from_user) {
++		ret = copy_from_user(buf->buf, in_buf, in_count);
++	} else {
++		/*
++		 * Since we're not sure when the host will actually
++		 * consume the data and tell us about it, we have to
++		 * copy the data here in case the caller frees the
++		 * in_buf.
++		 */
++		memcpy(buf->buf, in_buf, in_count);
++		ret = 0; /* Emulate copy_from_user behaviour */
++	}
++	buf->len = in_count - ret;
+ 
+ 	sg_init_one(sg, buf->buf, buf->len);
+ 	ret = out_vq->vq_ops->add_buf(out_vq, sg, 1, 0, buf);
+@@ -384,9 +389,11 @@ static ssize_t send_buf(struct port *port, const char *in_buf, size_t in_count)
+  * Give out the data that's requested from the buffer that we have
+  * queued up.
+  */
+-static ssize_t fill_readbuf(struct port *port, char *out_buf, size_t out_count)
++static ssize_t fill_readbuf(struct port *port, char *out_buf, size_t out_count,
++			    bool to_user)
+ {
+ 	struct port_buffer *buf;
++	ssize_t ret;
+ 	unsigned long flags;
+ 
+ 	if (!out_count || !port_has_data(port))
+@@ -396,10 +403,16 @@ static ssize_t fill_readbuf(struct port *port, char *out_buf, size_t out_count)
+ 	if (out_count > buf->len - buf->offset)
+ 		out_count = buf->len - buf->offset;
+ 
+-	memcpy(out_buf, buf->buf + buf->offset, out_count);
++	if (to_user) {
++		ret = copy_to_user(out_buf, buf->buf + buf->offset, out_count);
++	} else {
++		memcpy(out_buf, buf->buf + buf->offset, out_count);
++		ret = 0; /* Emulate copy_to_user behaviour */
 +	}
  
- 	/* We only have one port. */
- 	err = add_port(portdev);
-@@ -462,6 +534,8 @@ static int __devinit virtcons_probe(struct virtio_device *vdev)
+ 	/* Return the number of bytes actually copied */
+-	buf->offset += out_count;
++	ret = out_count - ret;
++	buf->offset += ret;
  
- free_vqs:
- 	vdev->config->del_vqs(vdev);
-+	kfree(portdev->in_vqs);
-+	kfree(portdev->out_vqs);
- free:
- 	kfree(portdev);
- fail:
+ 	if (buf->offset == buf->len) {
+ 		/*
+@@ -414,7 +427,7 @@ static ssize_t fill_readbuf(struct port *port, char *out_buf, size_t out_count)
+ 
+ 		spin_unlock_irqrestore(&port->inbuf_lock, flags);
+ 	}
+-	return out_count;
++	return ret;
+ }
+ 
+ /*
+@@ -436,7 +449,7 @@ static int put_chars(u32 vtermno, const char *buf, int count)
+ 	if (unlikely(early_put_chars))
+ 		return early_put_chars(vtermno, buf, count);
+ 
+-	return send_buf(port, buf, count);
++	return send_buf(port, buf, count, false);
+ }
+ 
+ /*
+@@ -457,7 +470,7 @@ static int get_chars(u32 vtermno, char *buf, int count)
+ 	/* If we don't have an input queue yet, we can't get input. */
+ 	BUG_ON(!port->in_vq);
+ 
+-	return fill_readbuf(port, buf, count);
++	return fill_readbuf(port, buf, count, false);
+ }
+ 
+ static void resize_console(struct port *port)
 -- 
 1.6.2.5
