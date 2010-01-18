@@ -1,18 +1,16 @@
 From: Amit Shah <amit.shah@redhat.com>
-Subject: [PATCH 06/32] virtio: console: port encapsulation
-Date: Mon, 18 Jan 2010 19:15:00 +0530
-Message-ID: <1263822326-24208-7-git-send-email-amit.shah@redhat.com>
+Subject: [PATCH 04/32] hvc_console: Remove __devinit annotation from hvc_alloc
+Date: Mon, 18 Jan 2010 19:14:58 +0530
+Message-ID: <1263822326-24208-5-git-send-email-amit.shah__45158.425885211$1263823323$gmane$org@redhat.com>
 References: <1263822326-24208-1-git-send-email-amit.shah@redhat.com>
 	<1263822326-24208-2-git-send-email-amit.shah@redhat.com>
 	<1263822326-24208-3-git-send-email-amit.shah@redhat.com>
 	<1263822326-24208-4-git-send-email-amit.shah@redhat.com>
-	<1263822326-24208-5-git-send-email-amit.shah@redhat.com>
-	<1263822326-24208-6-git-send-email-amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1263822326-24208-6-git-send-email-amit.shah@redhat.com>
+In-Reply-To: <1263822326-24208-4-git-send-email-amit.shah@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -23,245 +21,53 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: rusty@rustcorp.com.au
-Cc: Amit Shah <amit.shah@redhat.com>, virtualization@lists.linux-foundation.org
+Cc: Amit Shah <amit.shah@redhat.com>, linuxppc-dev@ozlabs.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Rusty Russell <rusty@rustcorp.com.au>
+Virtio consoles can be hotplugged, so hvc_alloc gets called from
+multiple sites: from the initial probe() routine as well as later on
+from workqueue handlers which aren't __devinit code.
 
-We are heading towards a multiple-"port" system, so as part of weaning off
-globals we encapsulate the information into 'struct port'.
+So, drop the __devinit annotation for hvc_alloc.
 
-Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 Signed-off-by: Amit Shah <amit.shah@redhat.com>
+Cc: linuxppc-dev@ozlabs.org
 ---
- drivers/char/virtio_console.c |  107 ++++++++++++++++++++++-------------------
- 1 files changed, 58 insertions(+), 49 deletions(-)
+ drivers/char/hvc_console.c |    6 +++---
+ drivers/char/hvc_console.h |    4 ++--
+ 2 files changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index bfc0abf..9ea9223 100644
---- a/drivers/char/virtio_console.c
-+++ b/drivers/char/virtio_console.c
-@@ -21,15 +21,19 @@
- #include <linux/virtio_console.h>
- #include "hvc_console.h"
+diff --git a/drivers/char/hvc_console.c b/drivers/char/hvc_console.c
+index d8dac58..4c3b59b 100644
+--- a/drivers/char/hvc_console.c
++++ b/drivers/char/hvc_console.c
+@@ -748,9 +748,9 @@ static const struct tty_operations hvc_ops = {
+ 	.chars_in_buffer = hvc_chars_in_buffer,
+ };
  
--static struct virtqueue *in_vq, *out_vq;
--static struct virtio_device *vdev;
--
--/* This is our input buffer, and how much data is left in it. */
--static unsigned int in_len;
--static char *in, *inbuf;
-+struct port {
-+	struct virtqueue *in_vq, *out_vq;
-+	struct virtio_device *vdev;
-+	/* This is our input buffer, and how much data is left in it. */
-+	char *inbuf;
-+	unsigned int used_len, offset;
-+
-+	/* The hvc device */
-+	struct hvc_struct *hvc;
-+};
- 
--/* The hvc device */
--static struct hvc_struct *hvc;
-+/* We have one port ready to go immediately, for a console. */
-+static struct port console;
- 
- /* This is the very early arch-specified put chars function. */
- static int (*early_put_chars)(u32, const char *, int);
-@@ -46,22 +50,21 @@ static int put_chars(u32 vtermno, const char *buf, int count)
+-struct hvc_struct __devinit *hvc_alloc(uint32_t vtermno, int data,
+-				       const struct hv_ops *ops,
+-				       int outbuf_size)
++struct hvc_struct *hvc_alloc(uint32_t vtermno, int data,
++			     const struct hv_ops *ops,
++			     int outbuf_size)
  {
- 	struct scatterlist sg[1];
- 	unsigned int len;
-+	struct port *port;
+ 	struct hvc_struct *hp;
+ 	int i;
+diff --git a/drivers/char/hvc_console.h b/drivers/char/hvc_console.h
+index 52ddf4d..54381eb 100644
+--- a/drivers/char/hvc_console.h
++++ b/drivers/char/hvc_console.h
+@@ -80,8 +80,8 @@ extern int hvc_instantiate(uint32_t vtermno, int index,
+ 			   const struct hv_ops *ops);
  
- 	if (unlikely(early_put_chars))
- 		return early_put_chars(vtermno, buf, count);
+ /* register a vterm for hvc tty operation (module_init or hotplug add) */
+-extern struct hvc_struct * __devinit hvc_alloc(uint32_t vtermno, int data,
+-				const struct hv_ops *ops, int outbuf_size);
++extern struct hvc_struct * hvc_alloc(uint32_t vtermno, int data,
++				     const struct hv_ops *ops, int outbuf_size);
+ /* remove a vterm from hvc tty operation (module_exit or hotplug remove) */
+ extern int hvc_remove(struct hvc_struct *hp);
  
-+	port = &console;
-+
- 	/* This is a convenient routine to initialize a single-elem sg list */
- 	sg_init_one(sg, buf, count);
- 
--	/*
--	 * add_buf wants a token to identify this buffer: we hand it
--	 * any non-NULL pointer, since there's only ever one buffer.
--	 */
--	if (out_vq->vq_ops->add_buf(out_vq, sg, 1, 0, (void *)1) >= 0) {
-+	/* This shouldn't fail: if it does, we lose chars. */
-+	if (port->out_vq->vq_ops->add_buf(port->out_vq, sg, 1, 0, port) >= 0) {
- 		/* Tell Host to go! */
--		out_vq->vq_ops->kick(out_vq);
--		/* Chill out until it's done with the buffer. */
--		while (!out_vq->vq_ops->get_buf(out_vq, &len))
-+		port->out_vq->vq_ops->kick(port->out_vq);
-+		while (!port->out_vq->vq_ops->get_buf(port->out_vq, &len))
- 			cpu_relax();
- 	}
- 
-@@ -73,15 +76,15 @@ static int put_chars(u32 vtermno, const char *buf, int count)
-  * Create a scatter-gather list representing our input buffer and put
-  * it in the queue.
-  */
--static void add_inbuf(void)
-+static void add_inbuf(struct port *port)
- {
- 	struct scatterlist sg[1];
--	sg_init_one(sg, inbuf, PAGE_SIZE);
-+	sg_init_one(sg, port->inbuf, PAGE_SIZE);
- 
--	/* We should always be able to add one buffer to an empty queue. */
--	if (in_vq->vq_ops->add_buf(in_vq, sg, 0, 1, inbuf) < 0)
-+	/* Should always be able to add one buffer to an empty queue. */
-+	if (port->in_vq->vq_ops->add_buf(port->in_vq, sg, 0, 1, port) < 0)
- 		BUG();
--	in_vq->vq_ops->kick(in_vq);
-+	port->in_vq->vq_ops->kick(port->in_vq);
- }
- 
- /*
-@@ -94,28 +97,31 @@ static void add_inbuf(void)
-  */
- static int get_chars(u32 vtermno, char *buf, int count)
- {
-+	struct port *port;
-+
-+	port = &console;
-+
- 	/* If we don't have an input queue yet, we can't get input. */
--	BUG_ON(!in_vq);
-+	BUG_ON(!port->in_vq);
- 
--	/* No buffer?  Try to get one. */
--	if (!in_len) {
--		in = in_vq->vq_ops->get_buf(in_vq, &in_len);
--		if (!in)
-+	/* No more in buffer?  See if they've (re)used it. */
-+	if (port->offset == port->used_len) {
-+		if (!port->in_vq->vq_ops->get_buf(port->in_vq, &port->used_len))
- 			return 0;
-+		port->offset = 0;
- 	}
- 
- 	/* You want more than we have to give?  Well, try wanting less! */
--	if (in_len < count)
--		count = in_len;
-+	if (port->offset + count > port->used_len)
-+		count = port->used_len - port->offset;
- 
- 	/* Copy across to their buffer and increment offset. */
--	memcpy(buf, in, count);
--	in += count;
--	in_len -= count;
-+	memcpy(buf, port->inbuf + port->offset, count);
-+	port->offset += count;
- 
- 	/* Finished?  Re-register buffer so Host will use it again. */
--	if (in_len == 0)
--		add_inbuf();
-+	if (port->offset == port->used_len)
-+		add_inbuf(port);
- 
- 	return count;
- }
-@@ -135,7 +141,7 @@ static void virtcons_apply_config(struct virtio_device *dev)
- 		dev->config->get(dev,
- 				 offsetof(struct virtio_console_config, rows),
- 				 &ws.ws_row, sizeof(u16));
--		hvc_resize(hvc, ws);
-+		hvc_resize(console.hvc, ws);
- 	}
- }
- 
-@@ -146,7 +152,7 @@ static void virtcons_apply_config(struct virtio_device *dev)
- static int notifier_add_vio(struct hvc_struct *hp, int data)
- {
- 	hp->irq_requested = 1;
--	virtcons_apply_config(vdev);
-+	virtcons_apply_config(console.vdev);
- 
- 	return 0;
- }
-@@ -158,7 +164,7 @@ static void notifier_del_vio(struct hvc_struct *hp, int data)
- 
- static void hvc_handle_input(struct virtqueue *vq)
- {
--	if (hvc_poll(hvc))
-+	if (hvc_poll(console.hvc))
- 		hvc_kick();
- }
- 
-@@ -197,23 +203,26 @@ int __init virtio_cons_early_init(int (*put_chars)(u32, const char *, int))
-  * Finally we put our input buffer in the input queue, ready to
-  * receive.
-  */
--static int __devinit virtcons_probe(struct virtio_device *dev)
-+static int __devinit virtcons_probe(struct virtio_device *vdev)
- {
- 	vq_callback_t *callbacks[] = { hvc_handle_input, NULL};
- 	const char *names[] = { "input", "output" };
- 	struct virtqueue *vqs[2];
-+	struct port *port;
- 	int err;
- 
--	if (vdev) {
--		dev_warn(&vdev->dev,
-+	port = &console;
-+	if (port->vdev) {
-+		dev_warn(&port->vdev->dev,
- 			 "Multiple virtio-console devices not supported yet\n");
- 		return -EEXIST;
- 	}
--	vdev = dev;
-+	port->vdev = vdev;
- 
- 	/* This is the scratch page we use to receive console input */
--	inbuf = kmalloc(PAGE_SIZE, GFP_KERNEL);
--	if (!inbuf) {
-+	port->used_len = 0;
-+	port->inbuf = kmalloc(PAGE_SIZE, GFP_KERNEL);
-+	if (!port->inbuf) {
- 		err = -ENOMEM;
- 		goto fail;
- 	}
-@@ -223,8 +232,8 @@ static int __devinit virtcons_probe(struct virtio_device *dev)
- 	if (err)
- 		goto free;
- 
--	in_vq = vqs[0];
--	out_vq = vqs[1];
-+	port->in_vq = vqs[0];
-+	port->out_vq = vqs[1];
- 
- 	/*
- 	 * The first argument of hvc_alloc() is the virtual console
-@@ -238,14 +247,14 @@ static int __devinit virtcons_probe(struct virtio_device *dev)
- 	 * pointers.  The final argument is the output buffer size: we
- 	 * can do any size, so we put PAGE_SIZE here.
- 	 */
--	hvc = hvc_alloc(0, 0, &hv_ops, PAGE_SIZE);
--	if (IS_ERR(hvc)) {
--		err = PTR_ERR(hvc);
-+	port->hvc = hvc_alloc(0, 0, &hv_ops, PAGE_SIZE);
-+	if (IS_ERR(port->hvc)) {
-+		err = PTR_ERR(port->hvc);
- 		goto free_vqs;
- 	}
- 
- 	/* Register the input buffer the first time. */
--	add_inbuf();
-+	add_inbuf(port);
- 
- 	/* Start using the new console output. */
- 	early_put_chars = NULL;
-@@ -254,7 +263,7 @@ static int __devinit virtcons_probe(struct virtio_device *dev)
- free_vqs:
- 	vdev->config->del_vqs(vdev);
- free:
--	kfree(inbuf);
-+	kfree(port->inbuf);
- fail:
- 	return err;
- }
 -- 
 1.6.2.5
