@@ -1,8 +1,8 @@
 From: Amit Shah <amit.shah@redhat.com>
 Subject: Re: [PATCH 32/32] virtio: console: show error message if hvc_alloc
 	fails for console ports
-Date: Tue, 19 Jan 2010 10:27:30 +0530
-Message-ID: <20100119045730.GD25684@amit-x200.redhat.com>
+Date: Tue, 19 Jan 2010 22:36:27 +0530
+Message-ID: <20100119170627.GE27165@amit-x200.redhat.com>
 References: <1263822326-24208-1-git-send-email-amit.shah@redhat.com>
 	<1263822326-24208-32-git-send-email-amit.shah@redhat.com>
 	<1263822326-24208-33-git-send-email-amit.shah@redhat.com>
@@ -32,12 +32,12 @@ On (Tue) Jan 19 2010 [11:52:50], Rusty Russell wrote:
 > 
 > These all look great!  I'm not entirely convinced about the host throttling,
 > but it's harmless to have.
-> 
-> Applied, thanks!
-> Rusty.
 
-Thanks, Rusty!
+I'll rip out the throttling feature -- and ensure write(2) returns only
+when the host acks the data.
 
-Can you point me to the repo that has the patches?
+The changes will touch 3 patches in the series -- do you want me to
+resend those 3 patches, or new patches on top of my series, or send a new
+series altogether?
 
 		Amit
