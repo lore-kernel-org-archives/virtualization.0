@@ -1,14 +1,16 @@
 From: Amit Shah <amit.shah@redhat.com>
-Subject: [PATCH 19/31] virtio: console: Introduce a send_buf function for a
-	common path for sending data to host
-Date: Fri, 29 Jan 2010 19:12:38 +0530
-Message-ID: <1264772563-25517-2-git-send-email-amit.shah@redhat.com>
+Subject: [PATCH 21/31] virtio: console: Prepare for writing to userspace
+	buffers
+Date: Fri, 29 Jan 2010 19:12:40 +0530
+Message-ID: <1264772563-25517-4-git-send-email-amit.shah@redhat.com>
 References: <1264772563-25517-1-git-send-email-amit.shah@redhat.com>
+	<1264772563-25517-2-git-send-email-amit.shah@redhat.com>
+	<1264772563-25517-3-git-send-email-amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1264772563-25517-1-git-send-email-amit.shah@redhat.com>
+In-Reply-To: <1264772563-25517-3-git-send-email-amit.shah@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -22,92 +24,68 @@ To: rusty@rustcorp.com.au
 Cc: Amit Shah <amit.shah@redhat.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Adding support for generic ports that will write to userspace will need
-some code changes.
-
-Consolidate the write routine into send_buf() and put_chars() now just
-calls into the new function.
+When ports get advertised as char devices, the buffers will come from
+userspace. Equip the fill_readbuf function with the ability to write
+to userspace buffers.
 
 Signed-off-by: Amit Shah <amit.shah@redhat.com>
 ---
- drivers/char/virtio_console.c |   50 +++++++++++++++++++++++++++--------------
- 1 files changed, 33 insertions(+), 17 deletions(-)
+ drivers/char/virtio_console.c |   20 ++++++++++++++------
+ 1 files changed, 14 insertions(+), 6 deletions(-)
 
 diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index 5096d92..d010510 100644
+index 9d33239..5f61021 100644
 --- a/drivers/char/virtio_console.c
 +++ b/drivers/char/virtio_console.c
-@@ -233,6 +233,38 @@ static bool port_has_data(struct port *port)
- 	return ret;
- }
- 
-+static ssize_t send_buf(struct port *port, void *in_buf, size_t in_count)
-+{
-+	struct scatterlist sg[1];
-+	struct virtqueue *out_vq;
-+	ssize_t ret;
-+	unsigned int len;
-+
-+	out_vq = port->out_vq;
-+
-+	sg_init_one(sg, in_buf, in_count);
-+	ret = out_vq->vq_ops->add_buf(out_vq, sg, 1, 0, in_buf);
-+
-+	/* Tell Host to go! */
-+	out_vq->vq_ops->kick(out_vq);
-+
-+	if (ret < 0) {
-+		len = 0;
-+		goto fail;
-+	}
-+
-+	/*
-+	 * Wait till the host acknowledges it pushed out the data we
-+	 * sent. Also ensure we return to userspace the number of
-+	 * bytes that were successfully consumed by the host.
-+	 */
-+	while (!out_vq->vq_ops->get_buf(out_vq, &len))
-+		cpu_relax();
-+fail:
-+	/* We're expected to return the amount of data we wrote */
-+	return len;
-+}
-+
- /*
+@@ -365,7 +365,8 @@ fail:
   * Give out the data that's requested from the buffer that we have
   * queued up.
-@@ -280,10 +312,7 @@ static ssize_t fill_readbuf(struct port *port, char *out_buf, size_t out_count)
   */
- static int put_chars(u32 vtermno, const char *buf, int count)
+-static ssize_t fill_readbuf(struct port *port, char *out_buf, size_t out_count)
++static ssize_t fill_readbuf(struct port *port, char *out_buf, size_t out_count,
++			    bool to_user)
  {
--	struct scatterlist sg[1];
- 	struct port *port;
--	struct virtqueue *out_vq;
--	unsigned int len;
+ 	struct port_buffer *buf;
+ 	unsigned long flags;
+@@ -374,12 +375,18 @@ static ssize_t fill_readbuf(struct port *port, char *out_buf, size_t out_count)
+ 		return 0;
  
- 	port = find_port_by_vtermno(vtermno);
- 	if (!port)
-@@ -292,20 +321,7 @@ static int put_chars(u32 vtermno, const char *buf, int count)
- 	if (unlikely(early_put_chars))
- 		return early_put_chars(vtermno, buf, count);
+ 	buf = port->inbuf;
+-	if (out_count > buf->len - buf->offset)
+-		out_count = buf->len - buf->offset;
++	out_count = min(out_count, buf->len - buf->offset);
  
--	out_vq = port->out_vq;
--	/* This is a convenient routine to initialize a single-elem sg list */
--	sg_init_one(sg, buf, count);
--
--	/* This shouldn't fail: if it does, we lose chars. */
--	if (out_vq->vq_ops->add_buf(out_vq, sg, 1, 0, port) >= 0) {
--		/* Tell Host to go! */
--		out_vq->vq_ops->kick(out_vq);
--		while (!out_vq->vq_ops->get_buf(out_vq, &len))
--			cpu_relax();
--	}
--
--	/* We're expected to return the amount of data we wrote: all of it. */
--	return count;
-+	return send_buf(port, (void *)buf, count);
+-	memcpy(out_buf, buf->buf + buf->offset, out_count);
++	if (to_user) {
++		ssize_t ret;
++
++		ret = copy_to_user(out_buf, buf->buf + buf->offset, out_count);
++		if (ret)
++			return -EFAULT;
++	} else {
++		memcpy(out_buf, buf->buf + buf->offset, out_count);
++	}
+ 
+-	/* Return the number of bytes actually copied */
+ 	buf->offset += out_count;
+ 
+ 	if (buf->offset == buf->len) {
+@@ -395,6 +402,7 @@ static ssize_t fill_readbuf(struct port *port, char *out_buf, size_t out_count)
+ 
+ 		spin_unlock_irqrestore(&port->inbuf_lock, flags);
+ 	}
++	/* Return the number of bytes actually copied */
+ 	return out_count;
  }
  
- /*
+@@ -438,7 +446,7 @@ static int get_chars(u32 vtermno, char *buf, int count)
+ 	/* If we don't have an input queue yet, we can't get input. */
+ 	BUG_ON(!port->in_vq);
+ 
+-	return fill_readbuf(port, buf, count);
++	return fill_readbuf(port, buf, count, false);
+ }
+ 
+ static void resize_console(struct port *port)
 -- 
 1.6.2.5
