@@ -1,16 +1,18 @@
 From: Amit Shah <amit.shah@redhat.com>
-Subject: [PATCH 22/31] virtio: console: Associate each port with a char device
-Date: Fri, 29 Jan 2010 19:12:41 +0530
-Message-ID: <1264772563-25517-5-git-send-email-amit.shah@redhat.com>
+Subject: [PATCH 23/31] virtio: console: Add file operations to ports for
+	open/read/write/poll
+Date: Fri, 29 Jan 2010 19:12:42 +0530
+Message-ID: <1264772563-25517-6-git-send-email-amit.shah@redhat.com>
 References: <1264772563-25517-1-git-send-email-amit.shah@redhat.com>
 	<1264772563-25517-2-git-send-email-amit.shah@redhat.com>
 	<1264772563-25517-3-git-send-email-amit.shah@redhat.com>
 	<1264772563-25517-4-git-send-email-amit.shah@redhat.com>
+	<1264772563-25517-5-git-send-email-amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1264772563-25517-4-git-send-email-amit.shah@redhat.com>
+In-Reply-To: <1264772563-25517-5-git-send-email-amit.shah@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -24,219 +26,264 @@ To: rusty@rustcorp.com.au
 Cc: Amit Shah <amit.shah@redhat.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-The char device will be used as an interface by applications on the
-guest to communicate with apps on the host.
+Allow guest userspace applications to open, read from, write to, poll
+the ports via the char dev interface.
 
-The devices created are placed in /dev/vportNpn where N is the
-virtio-console device number and n is the port number for that device.
-
-One dynamic major device number is allocated for each device and minor
-numbers are allocated for the ports contained within that device.
-
-The file operation for the char devs will be added in the following
-commits.
+When a port gets opened, a notification is sent to the host via a
+control message indicating a connection has been established. Similarly,
+on closing of the port, a notification is sent indicating disconnection.
 
 Signed-off-by: Amit Shah <amit.shah@redhat.com>
 ---
- drivers/char/Kconfig          |    8 ++++
- drivers/char/virtio_console.c |   77 +++++++++++++++++++++++++++++++++++++++--
- 2 files changed, 82 insertions(+), 3 deletions(-)
+ drivers/char/virtio_console.c  |  164 +++++++++++++++++++++++++++++++++++++++-
+ include/linux/virtio_console.h |    1 +
+ 2 files changed, 164 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/char/Kconfig b/drivers/char/Kconfig
-index 31be3ac..bcedee1 100644
---- a/drivers/char/Kconfig
-+++ b/drivers/char/Kconfig
-@@ -666,6 +666,14 @@ config VIRTIO_CONSOLE
- 	help
- 	  Virtio console for use with lguest and other hypervisors.
- 
-+	  Also serves as a general-purpose serial device for data
-+	  transfer between the guest and host.  Character devices at
-+	  /dev/vportNpn will be created when corresponding ports are
-+	  found, where N is the device number and n is the port number
-+	  within that device.  If specified by the host, a sysfs
-+	  attribute called 'name' will be populated with a name for
-+	  the port which can be used by udev scripts to create a
-+	  symlink to the device.
- 
- config HVCS
- 	tristate "IBM Hypervisor Virtual Console Server support"
 diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index 5f61021..6aa400e 100644
+index 6aa400e..8d23c41 100644
 --- a/drivers/char/virtio_console.c
 +++ b/drivers/char/virtio_console.c
-@@ -16,6 +16,8 @@
-  * along with this program; if not, write to the Free Software
-  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-  */
-+#include <linux/cdev.h>
-+#include <linux/device.h>
+@@ -19,11 +19,15 @@
+ #include <linux/cdev.h>
+ #include <linux/device.h>
  #include <linux/err.h>
++#include <linux/fs.h>
  #include <linux/init.h>
  #include <linux/list.h>
-@@ -34,6 +36,12 @@
-  * across multiple devices and multiple ports per device.
-  */
- struct ports_driver_data {
-+	/* Used for registering chardevs */
-+	struct class *class;
-+
-+	/* Number of devices this driver is handling */
-+	unsigned int index;
-+
- 	/*
- 	 * This is used to keep track of the number of hvc consoles
- 	 * spawned by this driver.  This number is given as the first
-@@ -119,6 +127,12 @@ struct ports_device {
++#include <linux/poll.h>
++#include <linux/sched.h>
+ #include <linux/spinlock.h>
+ #include <linux/virtio.h>
+ #include <linux/virtio_console.h>
++#include <linux/wait.h>
+ #include <linux/workqueue.h>
+ #include "hvc_console.h"
  
- 	/* The control messages to the Host are sent via this buffer */
- 	struct port_buffer *outbuf;
-+
-+	/* Used for numbering devices for sysfs and debugfs */
-+	unsigned int drv_index;
-+
-+	/* Major number for this device.  Ports will be created as minors. */
-+	int chr_major;
- };
+@@ -166,8 +170,14 @@ struct port {
+ 	struct cdev cdev;
+ 	struct device *dev;
  
- /* This struct holds the per-port data */
-@@ -148,6 +162,10 @@ struct port {
- 	 */
- 	struct console cons;
- 
-+	/* Each port associates with a separate char device */
-+	struct cdev cdev;
-+	struct device *dev;
++	/* A waitqueue for poll() or blocking read operations */
++	wait_queue_head_t waitqueue;
 +
  	/* The 'id' to identify the port with the Host */
  	u32 id;
++
++	/* Is the host device open */
++	bool host_connected;
  };
-@@ -398,7 +416,7 @@ static ssize_t fill_readbuf(struct port *port, char *out_buf, size_t out_count,
- 		port->inbuf = NULL;
  
- 		if (add_inbuf(port->in_vq, buf) < 0)
--			dev_warn(&port->portdev->vdev->dev, "failed add_buf\n");
-+			dev_warn(port->dev, "failed add_buf\n");
- 
- 		spin_unlock_irqrestore(&port->inbuf_lock, flags);
- 	}
-@@ -671,6 +689,7 @@ static int add_port(struct ports_device *portdev, u32 id)
- {
- 	struct port *port;
- 	struct port_buffer *inbuf;
-+	dev_t devt;
- 	int err;
- 
- 	port = kmalloc(sizeof(*port), GFP_KERNEL);
-@@ -688,12 +707,32 @@ static int add_port(struct ports_device *portdev, u32 id)
- 	port->in_vq = portdev->in_vqs[port->id];
- 	port->out_vq = portdev->out_vqs[port->id];
- 
-+	cdev_init(&port->cdev, NULL);
-+
-+	devt = MKDEV(portdev->chr_major, id);
-+	err = cdev_add(&port->cdev, devt, 1);
-+	if (err < 0) {
-+		dev_err(&port->portdev->vdev->dev,
-+			"Error %d adding cdev for port %u\n", err, id);
-+		goto free_port;
-+	}
-+	port->dev = device_create(pdrvdata.class, &port->portdev->vdev->dev,
-+				  devt, port, "vport%up%u",
-+				  port->portdev->drv_index, id);
-+	if (IS_ERR(port->dev)) {
-+		err = PTR_ERR(port->dev);
-+		dev_err(&port->portdev->vdev->dev,
-+			"Error %d creating device for port %u\n",
-+			err, id);
-+		goto free_cdev;
-+	}
-+
- 	spin_lock_init(&port->inbuf_lock);
- 
- 	inbuf = alloc_buf(PAGE_SIZE);
- 	if (!inbuf) {
- 		err = -ENOMEM;
--		goto free_port;
-+		goto free_device;
- 	}
- 
- 	/* Register the input buffer the first time. */
-@@ -723,6 +762,10 @@ static int add_port(struct ports_device *portdev, u32 id)
- 
- free_inbuf:
- 	free_buf(inbuf);
-+free_device:
-+	device_destroy(pdrvdata.class, port->dev->devt);
-+free_cdev:
-+	cdev_del(&port->cdev);
- free_port:
- 	kfree(port);
- fail:
-@@ -835,6 +878,10 @@ fail:
- 	return err;
+ /* This is the very early arch-specified put chars function. */
+@@ -424,6 +434,146 @@ static ssize_t fill_readbuf(struct port *port, char *out_buf, size_t out_count,
+ 	return out_count;
  }
  
-+static const struct file_operations portdev_fops = {
++/* The condition that must be true for polling to end */
++static bool wait_is_over(struct port *port)
++{
++	return port_has_data(port) || !port->host_connected;
++}
++
++static ssize_t port_fops_read(struct file *filp, char __user *ubuf,
++			      size_t count, loff_t *offp)
++{
++	struct port *port;
++	ssize_t ret;
++
++	port = filp->private_data;
++
++	if (!port_has_data(port)) {
++		/*
++		 * If nothing's connected on the host just return 0 in
++		 * case of list_empty; this tells the userspace app
++		 * that there's no connection
++		 */
++		if (!port->host_connected)
++			return 0;
++		if (filp->f_flags & O_NONBLOCK)
++			return -EAGAIN;
++
++		ret = wait_event_interruptible(port->waitqueue,
++					       wait_is_over(port));
++		if (ret < 0)
++			return ret;
++	}
++	/*
++	 * We could've received a disconnection message while we were
++	 * waiting for more data.
++	 *
++	 * This check is not clubbed in the if() statement above as we
++	 * might receive some data as well as the host could get
++	 * disconnected after we got woken up from our wait.  So we
++	 * really want to give off whatever data we have and only then
++	 * check for host_connected.
++	 */
++	if (!port_has_data(port) && !port->host_connected)
++		return 0;
++
++	return fill_readbuf(port, ubuf, count, true);
++}
++
++static ssize_t port_fops_write(struct file *filp, const char __user *ubuf,
++			       size_t count, loff_t *offp)
++{
++	struct port *port;
++	char *buf;
++	ssize_t ret;
++
++	port = filp->private_data;
++
++	count = min((size_t)(32 * 1024), count);
++
++	buf = kmalloc(count, GFP_KERNEL);
++	if (!buf)
++		return -ENOMEM;
++
++	ret = copy_from_user(buf, ubuf, count);
++	if (ret) {
++		ret = -EFAULT;
++		goto free_buf;
++	}
++
++	ret = send_buf(port, buf, count);
++free_buf:
++	kfree(buf);
++	return ret;
++}
++
++static unsigned int port_fops_poll(struct file *filp, poll_table *wait)
++{
++	struct port *port;
++	unsigned int ret;
++
++	port = filp->private_data;
++	poll_wait(filp, &port->waitqueue, wait);
++
++	ret = 0;
++	if (port->inbuf)
++		ret |= POLLIN | POLLRDNORM;
++	if (port->host_connected)
++		ret |= POLLOUT;
++	if (!port->host_connected)
++		ret |= POLLHUP;
++
++	return ret;
++}
++
++static int port_fops_release(struct inode *inode, struct file *filp)
++{
++	struct port *port;
++
++	port = filp->private_data;
++
++	/* Notify host of port being closed */
++	send_control_msg(port, VIRTIO_CONSOLE_PORT_OPEN, 0);
++
++	return 0;
++}
++
++static int port_fops_open(struct inode *inode, struct file *filp)
++{
++	struct cdev *cdev = inode->i_cdev;
++	struct port *port;
++
++	port = container_of(cdev, struct port, cdev);
++	filp->private_data = port;
++
++	/*
++	 * Don't allow opening of console port devices -- that's done
++	 * via /dev/hvc
++	 */
++	if (is_console_port(port))
++		return -ENXIO;
++
++	/* Notify host of port being opened */
++	send_control_msg(filp->private_data, VIRTIO_CONSOLE_PORT_OPEN, 1);
++
++	return 0;
++}
++
++/*
++ * The file operations that we support: programs in the guest can open
++ * a console device, read from it, write to it, poll for data and
++ * close it.  The devices are at
++ *   /dev/vport<device number>p<port number>
++ */
++static const struct file_operations port_fops = {
 +	.owner = THIS_MODULE,
++	.open  = port_fops_open,
++	.read  = port_fops_read,
++	.write = port_fops_write,
++	.poll  = port_fops_poll,
++	.release = port_fops_release,
 +};
 +
  /*
-  * Once we're further in boot, we get probed like any other virtio
-  * device.
-@@ -860,6 +907,20 @@ static int __devinit virtcons_probe(struct virtio_device *vdev)
- 	portdev->vdev = vdev;
- 	vdev->priv = portdev;
+  * The put_chars() callback is pretty straightforward.
+  *
+@@ -567,6 +717,9 @@ int init_port_console(struct port *port)
+ 	list_add_tail(&port->cons.list, &pdrvdata.consoles);
+ 	spin_unlock_irq(&pdrvdata_lock);
  
-+	spin_lock_irq(&pdrvdata_lock);
-+	portdev->drv_index = pdrvdata.index++;
-+	spin_unlock_irq(&pdrvdata_lock);
++	/* Notify host of port being opened */
++	send_control_msg(port, VIRTIO_CONSOLE_PORT_OPEN, 1);
 +
-+	portdev->chr_major = register_chrdev(0, "virtio-portsdev",
-+					     &portdev_fops);
-+	if (portdev->chr_major < 0) {
-+		dev_err(&vdev->dev,
-+			"Error %d registering chrdev for device %u\n",
-+			portdev->chr_major, portdev->drv_index);
-+		err = portdev->chr_major;
-+		goto free;
-+	}
+ 	return 0;
+ }
+ 
+@@ -606,6 +759,10 @@ static void handle_control_message(struct ports_device *portdev,
+ 		port->cons.hvc->irq_requested = 1;
+ 		resize_console(port);
+ 		break;
++	case VIRTIO_CONSOLE_PORT_OPEN:
++		port->host_connected = cpkt->value;
++		wake_up_interruptible(&port->waitqueue);
++		break;
+ 	}
+ }
+ 
+@@ -652,6 +809,8 @@ static void in_intr(struct virtqueue *vq)
+ 
+ 	spin_unlock_irqrestore(&port->inbuf_lock, flags);
+ 
++	wake_up_interruptible(&port->waitqueue);
 +
- 	multiport = false;
- 	portdev->config.nr_ports = 1;
- 	portdev->config.max_nr_ports = 1;
-@@ -892,7 +953,7 @@ static int __devinit virtcons_probe(struct virtio_device *vdev)
- 	err = init_vqs(portdev);
- 	if (err < 0) {
- 		dev_err(&vdev->dev, "Error %d initializing vqs\n", err);
--		goto free;
-+		goto free_chrdev;
+ 	if (is_console_port(port) && hvc_poll(port->cons.hvc))
+ 		hvc_kick();
+ }
+@@ -704,10 +863,12 @@ static int add_port(struct ports_device *portdev, u32 id)
+ 	port->inbuf = NULL;
+ 	port->cons.hvc = NULL;
+ 
++	port->host_connected = false;
++
+ 	port->in_vq = portdev->in_vqs[port->id];
+ 	port->out_vq = portdev->out_vqs[port->id];
+ 
+-	cdev_init(&port->cdev, NULL);
++	cdev_init(&port->cdev, &port_fops);
+ 
+ 	devt = MKDEV(portdev->chr_major, id);
+ 	err = cdev_add(&port->cdev, devt, 1);
+@@ -728,6 +889,7 @@ static int add_port(struct ports_device *portdev, u32 id)
  	}
  
- 	spin_lock_init(&portdev->ports_lock);
-@@ -922,6 +983,8 @@ free_vqs:
- 	vdev->config->del_vqs(vdev);
- 	kfree(portdev->in_vqs);
- 	kfree(portdev->out_vqs);
-+free_chrdev:
-+	unregister_chrdev(portdev->chr_major, "virtio-portsdev");
- free:
- 	kfree(portdev);
- fail:
-@@ -950,6 +1013,14 @@ static struct virtio_driver virtio_console = {
+ 	spin_lock_init(&port->inbuf_lock);
++	init_waitqueue_head(&port->waitqueue);
  
- static int __init init(void)
- {
-+	int err;
-+
-+	pdrvdata.class = class_create(THIS_MODULE, "virtio-ports");
-+	if (IS_ERR(pdrvdata.class)) {
-+		err = PTR_ERR(pdrvdata.class);
-+		pr_err("Error %d creating virtio-ports class\n", err);
-+		return err;
-+	}
- 	INIT_LIST_HEAD(&pdrvdata.consoles);
+ 	inbuf = alloc_buf(PAGE_SIZE);
+ 	if (!inbuf) {
+diff --git a/include/linux/virtio_console.h b/include/linux/virtio_console.h
+index cada769..6a76a44 100644
+--- a/include/linux/virtio_console.h
++++ b/include/linux/virtio_console.h
+@@ -39,6 +39,7 @@ struct virtio_console_control {
+ #define VIRTIO_CONSOLE_PORT_READY	0
+ #define VIRTIO_CONSOLE_CONSOLE_PORT	1
+ #define VIRTIO_CONSOLE_RESIZE		2
++#define VIRTIO_CONSOLE_PORT_OPEN	3
  
- 	return register_virtio_driver(&virtio_console);
+ #ifdef __KERNEL__
+ int __init virtio_cons_early_init(int (*put_chars)(u32, const char *, int));
 -- 
 1.6.2.5
