@@ -1,12 +1,15 @@
 From: Amit Shah <amit.shah@redhat.com>
-Subject: virtio: console: Return -EFAULT on copy_xx_user errors,
-	allow larger writes
-Date: Fri, 29 Jan 2010 19:12:37 +0530
-Message-ID: <1264772563-25517-1-git-send-email-amit.shah@redhat.com>
+Subject: [PATCH 20/31] virtio: console: Add a new MULTIPORT feature,
+	support for generic ports
+Date: Fri, 29 Jan 2010 19:12:39 +0530
+Message-ID: <1264772563-25517-3-git-send-email-amit.shah@redhat.com>
+References: <1264772563-25517-1-git-send-email-amit.shah@redhat.com>
+	<1264772563-25517-2-git-send-email-amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1264772563-25517-2-git-send-email-amit.shah@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -17,225 +20,645 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: rusty@rustcorp.com.au
-Cc: virtualization@lists.linux-foundation.org
+Cc: Amit Shah <amit.shah@redhat.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hey Rusty,
+This commit adds a new feature, MULTIPORT. If the host supports this
+feature as well, the config space has the number of ports defined for
+that device. New ports are spawned according to this information.
 
-These updated patches in the series return -EFAULT on copy_xx_user
-errors and also move the copy_from_user into fops_write() instead of it
-being in send_buf. This enables send_buf to just read from kernel
-buffers, making it simpler.
+The config space also has the maximum number of ports that can be
+spawned for a particular device. This is useful in initializing the
+appropriate number of virtqueues in advance, as ports might be
+hot-plugged in later.
 
-This also allows write()s to write more to the host in one go,
-removingthe 4k limitation. I do limit the writes to 32k at once to not
-put too much pressure on the GFP_KERNEL area.
+Using this feature, generic ports can be created which are not tied to
+hvc consoles.
 
-Both of these were pointed out by Marcelo.
+We also open up a private channel between the host and the guest via
+which some "control" messages are exchanged for the ports, like whether
+the port being spawned is a console port, resizing the console window,
+etc.
 
-I'm including the relative diff between the version that's in linux-next
-and the new version below.
+Next commits will add support for hotplugging and presenting char
+devices in /dev/ for bi-directional guest-host communication.
 
-Please apply,
-Thanks.
-		Amit.
-
+Signed-off-by: Amit Shah <amit.shah@redhat.com>
+---
+ drivers/char/virtio_console.c  |  405 ++++++++++++++++++++++++++++++++++------
+ include/linux/virtio_console.h |   21 ++
+ 2 files changed, 370 insertions(+), 56 deletions(-)
 
 diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index b923b5c..2c2de35 100644
+index d010510..9d33239 100644
 --- a/drivers/char/virtio_console.c
 +++ b/drivers/char/virtio_console.c
-@@ -162,9 +162,6 @@ struct port {
- 	 */
- 	spinlock_t inbuf_lock;
- 
--	/* Buffer that's used to pass data from the guest to the host */
--	struct port_buffer *outbuf;
--
- 	/* The IO vqs for this port */
- 	struct virtqueue *in_vq, *out_vq;
- 
-@@ -399,43 +396,23 @@ static ssize_t send_control_msg(struct port *port, unsigned int event,
- 	return 0;
- }
- 
--static ssize_t send_buf(struct port *port, const char *in_buf, size_t in_count,
--			bool from_user)
-+static ssize_t send_buf(struct port *port, void *in_buf, size_t in_count)
- {
- 	struct scatterlist sg[1];
- 	struct virtqueue *out_vq;
--	struct port_buffer *buf;
- 	ssize_t ret;
--	unsigned int tmplen;
-+	unsigned int len;
- 
- 	out_vq = port->out_vq;
--	buf = port->outbuf;
- 
--	if (in_count > buf->size)
--		in_count = buf->size;
--
--	if (from_user) {
--		ret = copy_from_user(buf->buf, in_buf, in_count);
--	} else {
--		/*
--		 * Since we're not sure when the host will actually
--		 * consume the data and tell us about it, we have to
--		 * copy the data here in case the caller frees the
--		 * in_buf.
--		 */
--		memcpy(buf->buf, in_buf, in_count);
--		ret = 0; /* Emulate copy_from_user behaviour */
--	}
--	buf->len = in_count - ret;
--
--	sg_init_one(sg, buf->buf, buf->len);
--	ret = out_vq->vq_ops->add_buf(out_vq, sg, 1, 0, buf);
-+	sg_init_one(sg, in_buf, in_count);
-+	ret = out_vq->vq_ops->add_buf(out_vq, sg, 1, 0, in_buf);
- 
- 	/* Tell Host to go! */
- 	out_vq->vq_ops->kick(out_vq);
- 
- 	if (ret < 0) {
--		buf->len = 0;
-+		len = 0;
- 		goto fail;
- 	}
- 
-@@ -444,13 +421,11 @@ static ssize_t send_buf(struct port *port, const char *in_buf, size_t in_count,
- 	 * sent. Also ensure we return to userspace the number of
- 	 * bytes that were successfully consumed by the host.
- 	 */
--	while (!out_vq->vq_ops->get_buf(out_vq, &tmplen))
-+	while (!out_vq->vq_ops->get_buf(out_vq, &len))
- 		cpu_relax();
--
--	buf->len = tmplen;
- fail:
- 	/* We're expected to return the amount of data we wrote */
--	return buf->len;
-+	return len;
- }
+@@ -1,5 +1,6 @@
+ /*
+  * Copyright (C) 2006, 2007, 2009 Rusty Russell, IBM Corporation
++ * Copyright (C) 2009, Red Hat, Inc.
+  *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of the GNU General Public License as published by
+@@ -21,6 +22,7 @@
+ #include <linux/spinlock.h>
+ #include <linux/virtio.h>
+ #include <linux/virtio_console.h>
++#include <linux/workqueue.h>
+ #include "hvc_console.h"
  
  /*
-@@ -461,26 +436,25 @@ static ssize_t fill_readbuf(struct port *port, char *out_buf, size_t out_count,
- 			    bool to_user)
- {
- 	struct port_buffer *buf;
--	ssize_t ret;
- 	unsigned long flags;
+@@ -69,17 +71,6 @@ struct console {
+ 	u32 vtermno;
+ };
  
- 	if (!out_count || !port_has_data(port))
- 		return 0;
+-/*
+- * This is a per-device struct that stores data common to all the
+- * ports for that device (vdev->priv).
+- */
+-struct ports_device {
+-	/* Array of per-port IO virtqueues */
+-	struct virtqueue **in_vqs, **out_vqs;
+-
+-	struct virtio_device *vdev;
+-};
+-
+ struct port_buffer {
+ 	char *buf;
  
- 	buf = port->inbuf;
--	if (out_count > buf->len - buf->offset)
--		out_count = buf->len - buf->offset;
-+	out_count = min(out_count, buf->len - buf->offset);
+@@ -92,8 +83,49 @@ struct port_buffer {
+ 	size_t offset;
+ };
  
- 	if (to_user) {
-+		ssize_t ret;
++/*
++ * This is a per-device struct that stores data common to all the
++ * ports for that device (vdev->priv).
++ */
++struct ports_device {
++	/*
++	 * Workqueue handlers where we process deferred work after
++	 * notification
++	 */
++	struct work_struct control_work;
 +
- 		ret = copy_to_user(out_buf, buf->buf + buf->offset, out_count);
-+		if (ret)
-+			return -EFAULT;
- 	} else {
- 		memcpy(out_buf, buf->buf + buf->offset, out_count);
--		ret = 0; /* Emulate copy_to_user behaviour */
- 	}
++	struct list_head ports;
++
++	/* To protect the list of ports */
++	spinlock_t ports_lock;
++
++	/* To protect the vq operations for the control channel */
++	spinlock_t cvq_lock;
++
++	/* The current config space is stored here */
++	struct virtio_console_config config;
++
++	/* The virtio device we're associated with */
++	struct virtio_device *vdev;
++
++	/*
++	 * A couple of virtqueues for the control channel: one for
++	 * guest->host transfers, one for host->guest transfers
++	 */
++	struct virtqueue *c_ivq, *c_ovq;
++
++	/* Array of per-port IO virtqueues */
++	struct virtqueue **in_vqs, **out_vqs;
++
++	/* The control messages to the Host are sent via this buffer */
++	struct port_buffer *outbuf;
++};
++
+ /* This struct holds the per-port data */
+ struct port {
++	/* Next port in the list, head is in the ports_device */
++	struct list_head list;
++
+ 	/* Pointer to the parent virtio_console device */
+ 	struct ports_device *portdev;
  
--	/* Return the number of bytes actually copied */
--	ret = out_count - ret;
--	buf->offset += ret;
-+	buf->offset += out_count;
+@@ -115,6 +147,9 @@ struct port {
+ 	 * hooked up to an hvc console
+ 	 */
+ 	struct console cons;
++
++	/* The 'id' to identify the port with the Host */
++	u32 id;
+ };
  
- 	if (buf->offset == buf->len) {
- 		/*
-@@ -495,7 +469,8 @@ static ssize_t fill_readbuf(struct port *port, char *out_buf, size_t out_count,
- 
- 		spin_unlock_irqrestore(&port->inbuf_lock, flags);
- 	}
--	return ret;
-+	/* Return the number of bytes actually copied */
-+	return out_count;
+ /* This is the very early arch-specified put chars function. */
+@@ -139,25 +174,56 @@ out:
+ 	return port;
  }
  
- /* The condition that must be true for polling to end */
-@@ -548,10 +523,27 @@ static ssize_t port_fops_write(struct file *filp, const char __user *ubuf,
- 			       size_t count, loff_t *offp)
++static struct port *find_port_by_id(struct ports_device *portdev, u32 id)
++{
++	struct port *port;
++	unsigned long flags;
++
++	spin_lock_irqsave(&portdev->ports_lock, flags);
++	list_for_each_entry(port, &portdev->ports, list)
++		if (port->id == id)
++			goto out;
++	port = NULL;
++out:
++	spin_unlock_irqrestore(&portdev->ports_lock, flags);
++
++	return port;
++}
++
+ static struct port *find_port_by_vq(struct ports_device *portdev,
+ 				    struct virtqueue *vq)
  {
  	struct port *port;
-+	char *buf;
-+	ssize_t ret;
+-	struct console *cons;
+ 	unsigned long flags;
  
- 	port = filp->private_data;
+-	spin_lock_irqsave(&pdrvdata_lock, flags);
+-	list_for_each_entry(cons, &pdrvdata.consoles, list) {
+-		port = container_of(cons, struct port, cons);
++	spin_lock_irqsave(&portdev->ports_lock, flags);
++	list_for_each_entry(port, &portdev->ports, list)
+ 		if (port->in_vq == vq || port->out_vq == vq)
+ 			goto out;
+-	}
+ 	port = NULL;
+ out:
+-	spin_unlock_irqrestore(&pdrvdata_lock, flags);
++	spin_unlock_irqrestore(&portdev->ports_lock, flags);
+ 	return port;
+ }
  
--	return send_buf(port, ubuf, count, true);
-+	count = min((size_t)(32 * 1024), count);
++static bool is_console_port(struct port *port)
++{
++	if (port->cons.hvc)
++		return true;
++	return false;
++}
 +
-+	buf = kmalloc(count, GFP_KERNEL);
-+	if (!buf)
-+		return -ENOMEM;
++static inline bool use_multiport(struct ports_device *portdev)
++{
++	/*
++	 * This condition can be true when put_chars is called from
++	 * early_init
++	 */
++	if (!portdev->vdev)
++		return 0;
++	return portdev->vdev->features[0] & (1 << VIRTIO_CONSOLE_F_MULTIPORT);
++}
 +
-+	ret = copy_from_user(buf, ubuf, count);
-+	if (ret) {
-+		ret = -EFAULT;
-+		goto free_buf;
+ static void free_buf(struct port_buffer *buf)
+ {
+ 	kfree(buf->buf);
+@@ -233,6 +299,36 @@ static bool port_has_data(struct port *port)
+ 	return ret;
+ }
+ 
++static ssize_t send_control_msg(struct port *port, unsigned int event,
++				unsigned int value)
++{
++	struct scatterlist sg[1];
++	struct virtio_console_control cpkt;
++	struct virtqueue *vq;
++	struct port_buffer *outbuf;
++	int tmplen;
++
++	if (!use_multiport(port->portdev))
++		return 0;
++
++	cpkt.id = port->id;
++	cpkt.event = event;
++	cpkt.value = value;
++
++	vq = port->portdev->c_ovq;
++	outbuf = port->portdev->outbuf;
++
++	memcpy(outbuf->buf, (void *)&cpkt, sizeof(cpkt));
++
++	sg_init_one(sg, outbuf->buf, sizeof(cpkt));
++	if (vq->vq_ops->add_buf(vq, sg, 1, 0, outbuf) >= 0) {
++		vq->vq_ops->kick(vq);
++		while (!vq->vq_ops->get_buf(vq, &tmplen))
++			cpu_relax();
++	}
++	return 0;
++}
++
+ static ssize_t send_buf(struct port *port, void *in_buf, size_t in_count)
+ {
+ 	struct scatterlist sg[1];
+@@ -387,24 +483,7 @@ static void notifier_del_vio(struct hvc_struct *hp, int data)
+ 	hp->irq_requested = 0;
+ }
+ 
+-static void hvc_handle_input(struct virtqueue *vq)
+-{
+-	struct port *port;
+-	unsigned long flags;
+-
+-	port = find_port_by_vq(vq->vdev->priv, vq);
+-	if (!port)
+-		return;
+-
+-	spin_lock_irqsave(&port->inbuf_lock, flags);
+-	port->inbuf = get_inbuf(port);
+-	spin_unlock_irqrestore(&port->inbuf_lock, flags);
+-
+-	if (hvc_poll(port->cons.hvc))
+-		hvc_kick();
+-}
+-
+-/* The operations for the console. */
++/* The operations for console ports. */
+ static const struct hv_ops hv_ops = {
+ 	.get_chars = get_chars,
+ 	.put_chars = put_chars,
+@@ -428,7 +507,7 @@ int __init virtio_cons_early_init(int (*put_chars)(u32, const char *, int))
+ 	return hvc_instantiate(0, 0, &hv_ops);
+ }
+ 
+-int __devinit init_port_console(struct port *port)
++int init_port_console(struct port *port)
+ {
+ 	int ret;
+ 
+@@ -465,7 +544,122 @@ int __devinit init_port_console(struct port *port)
+ 	return 0;
+ }
+ 
+-static int __devinit add_port(struct ports_device *portdev)
++/* Any private messages that the Host and Guest want to share */
++static void handle_control_message(struct ports_device *portdev,
++				   struct port_buffer *buf)
++{
++	struct virtio_console_control *cpkt;
++	struct port *port;
++
++	cpkt = (struct virtio_console_control *)(buf->buf + buf->offset);
++
++	port = find_port_by_id(portdev, cpkt->id);
++	if (!port) {
++		/* No valid header at start of buffer.  Drop it. */
++		dev_dbg(&portdev->vdev->dev,
++			"Invalid index %u in control packet\n", cpkt->id);
++		return;
 +	}
 +
-+	ret = send_buf(port, buf, count);
-+free_buf:
-+	kfree(buf);
-+	return ret;
- }
- 
- static unsigned int port_fops_poll(struct file *filp, poll_table *wait)
-@@ -657,7 +649,7 @@ static int put_chars(u32 vtermno, const char *buf, int count)
- 	if (unlikely(early_put_chars))
- 		return early_put_chars(vtermno, buf, count);
- 
--	return send_buf(port, buf, count, false);
-+	return send_buf(port, (void *)buf, count);
- }
- 
- /*
-@@ -874,7 +866,6 @@ static int remove_port(struct port *port)
- 	cdev_del(&port->cdev);
- 
- 	discard_port_data(port);
--	free_buf(port->outbuf);
- 	kfree(port->name);
- 
- 	debugfs_remove(port->debugfs_file);
-@@ -1143,11 +1134,6 @@ static int add_port(struct ports_device *portdev, u32 id)
- 		err = -ENOMEM;
- 		goto free_device;
++	switch (cpkt->event) {
++	case VIRTIO_CONSOLE_CONSOLE_PORT:
++		if (!cpkt->value)
++			break;
++		if (is_console_port(port))
++			break;
++
++		init_port_console(port);
++		/*
++		 * Could remove the port here in case init fails - but
++		 * have to notify the host first.
++		 */
++		break;
++	case VIRTIO_CONSOLE_RESIZE:
++		if (!is_console_port(port))
++			break;
++		port->cons.hvc->irq_requested = 1;
++		resize_console(port);
++		break;
++	}
++}
++
++static void control_work_handler(struct work_struct *work)
++{
++	struct ports_device *portdev;
++	struct virtqueue *vq;
++	struct port_buffer *buf;
++	unsigned int len;
++
++	portdev = container_of(work, struct ports_device, control_work);
++	vq = portdev->c_ivq;
++
++	spin_lock(&portdev->cvq_lock);
++	while ((buf = vq->vq_ops->get_buf(vq, &len))) {
++		spin_unlock(&portdev->cvq_lock);
++
++		buf->len = len;
++		buf->offset = 0;
++
++		handle_control_message(portdev, buf);
++
++		spin_lock(&portdev->cvq_lock);
++		if (add_inbuf(portdev->c_ivq, buf) < 0) {
++			dev_warn(&portdev->vdev->dev,
++				 "Error adding buffer to queue\n");
++			free_buf(buf);
++		}
++	}
++	spin_unlock(&portdev->cvq_lock);
++}
++
++static void in_intr(struct virtqueue *vq)
++{
++	struct port *port;
++	unsigned long flags;
++
++	port = find_port_by_vq(vq->vdev->priv, vq);
++	if (!port)
++		return;
++
++	spin_lock_irqsave(&port->inbuf_lock, flags);
++	port->inbuf = get_inbuf(port);
++
++	spin_unlock_irqrestore(&port->inbuf_lock, flags);
++
++	if (is_console_port(port) && hvc_poll(port->cons.hvc))
++		hvc_kick();
++}
++
++static void control_intr(struct virtqueue *vq)
++{
++	struct ports_device *portdev;
++
++	portdev = vq->vdev->priv;
++	schedule_work(&portdev->control_work);
++}
++
++static void fill_queue(struct virtqueue *vq, spinlock_t *lock)
++{
++	struct port_buffer *buf;
++	int ret;
++
++	do {
++		buf = alloc_buf(PAGE_SIZE);
++		if (!buf)
++			break;
++
++		spin_lock_irq(lock);
++		ret = add_inbuf(vq, buf);
++		if (ret < 0) {
++			spin_unlock_irq(lock);
++			free_buf(buf);
++			break;
++		}
++		spin_unlock_irq(lock);
++	} while (ret > 0);
++}
++
++static int add_port(struct ports_device *portdev, u32 id)
+ {
+ 	struct port *port;
+ 	struct port_buffer *inbuf;
+@@ -478,11 +672,13 @@ static int __devinit add_port(struct ports_device *portdev)
  	}
--	port->outbuf = alloc_buf(PAGE_SIZE);
--	if (!port->outbuf) {
--		err = -ENOMEM;
--		goto free_inbuf;
--	}
  
+ 	port->portdev = portdev;
++	port->id = id;
+ 
+ 	port->inbuf = NULL;
++	port->cons.hvc = NULL;
+ 
+-	port->in_vq = portdev->in_vqs[0];
+-	port->out_vq = portdev->out_vqs[0];
++	port->in_vq = portdev->in_vqs[port->id];
++	port->out_vq = portdev->out_vqs[port->id];
+ 
+ 	spin_lock_init(&port->inbuf_lock);
+ 
+@@ -495,9 +691,25 @@ static int __devinit add_port(struct ports_device *portdev)
  	/* Register the input buffer the first time. */
  	add_inbuf(port->in_vq, inbuf);
-@@ -1158,7 +1144,7 @@ static int add_port(struct ports_device *portdev, u32 id)
- 	if (!use_multiport(port->portdev)) {
- 		err = init_port_console(port);
- 		if (err)
--			goto free_outbuf;
-+			goto free_inbuf;
- 	}
  
- 	spin_lock_irq(&portdev->ports_lock);
-@@ -1186,8 +1172,6 @@ static int add_port(struct ports_device *portdev, u32 id)
- 	}
+-	err = init_port_console(port);
+-	if (err)
+-		goto free_inbuf;
++	/*
++	 * If we're not using multiport support, this has to be a console port
++	 */
++	if (!use_multiport(port->portdev)) {
++		err = init_port_console(port);
++		if (err)
++			goto free_inbuf;
++	}
++
++	spin_lock_irq(&portdev->ports_lock);
++	list_add_tail(&port->list, &port->portdev->ports);
++	spin_unlock_irq(&portdev->ports_lock);
++
++	/*
++	 * Tell the Host we're set so that it can send us various
++	 * configuration parameters for this port (eg, port name,
++	 * caching, whether this is a console port, etc.)
++	 */
++	send_control_msg(port, VIRTIO_CONSOLE_PORT_READY, 1);
+ 
  	return 0;
  
--free_outbuf:
--	free_buf(port->outbuf);
- free_inbuf:
- 	free_buf(inbuf);
- free_device:
+@@ -514,12 +726,11 @@ static int init_vqs(struct ports_device *portdev)
+ 	vq_callback_t **io_callbacks;
+ 	char **io_names;
+ 	struct virtqueue **vqs;
+-	u32 nr_ports, nr_queues;
++	u32 i, j, nr_ports, nr_queues;
+ 	int err;
+ 
+-	/* We currently only have one port and two queues for that port */
+-	nr_ports = 1;
+-	nr_queues = 2;
++	nr_ports = portdev->config.max_nr_ports;
++	nr_queues = use_multiport(portdev) ? (nr_ports + 1) * 2 : 2;
+ 
+ 	vqs = kmalloc(nr_queues * sizeof(struct virtqueue *), GFP_KERNEL);
+ 	if (!vqs) {
+@@ -549,11 +760,32 @@ static int init_vqs(struct ports_device *portdev)
+ 		goto free_invqs;
+ 	}
+ 
+-	io_callbacks[0] = hvc_handle_input;
+-	io_callbacks[1] = NULL;
+-	io_names[0] = "input";
+-	io_names[1] = "output";
+-
++	/*
++	 * For backward compat (newer host but older guest), the host
++	 * spawns a console port first and also inits the vqs for port
++	 * 0 before others.
++	 */
++	j = 0;
++	io_callbacks[j] = in_intr;
++	io_callbacks[j + 1] = NULL;
++	io_names[j] = "input";
++	io_names[j + 1] = "output";
++	j += 2;
++
++	if (use_multiport(portdev)) {
++		io_callbacks[j] = control_intr;
++		io_callbacks[j + 1] = NULL;
++		io_names[j] = "control-i";
++		io_names[j + 1] = "control-o";
++
++		for (i = 1; i < nr_ports; i++) {
++			j += 2;
++			io_callbacks[j] = in_intr;
++			io_callbacks[j + 1] = NULL;
++			io_names[j] = "input";
++			io_names[j + 1] = "output";
++		}
++	}
+ 	/* Find the queues. */
+ 	err = portdev->vdev->config->find_vqs(portdev->vdev, nr_queues, vqs,
+ 					      io_callbacks,
+@@ -561,9 +793,20 @@ static int init_vqs(struct ports_device *portdev)
+ 	if (err)
+ 		goto free_outvqs;
+ 
++	j = 0;
+ 	portdev->in_vqs[0] = vqs[0];
+ 	portdev->out_vqs[0] = vqs[1];
+-
++	j += 2;
++	if (use_multiport(portdev)) {
++		portdev->c_ivq = vqs[j];
++		portdev->c_ovq = vqs[j + 1];
++
++		for (i = 1; i < nr_ports; i++) {
++			j += 2;
++			portdev->in_vqs[i] = vqs[j];
++			portdev->out_vqs[i] = vqs[j + 1];
++		}
++	}
+ 	kfree(io_callbacks);
+ 	kfree(io_names);
+ 	kfree(vqs);
+@@ -587,11 +830,17 @@ fail:
+ /*
+  * Once we're further in boot, we get probed like any other virtio
+  * device.
++ *
++ * If the host also supports multiple console ports, we check the
++ * config space to see how many ports the host has spawned.  We
++ * initialize each port found.
+  */
+ static int __devinit virtcons_probe(struct virtio_device *vdev)
+ {
+ 	struct ports_device *portdev;
++	u32 i;
+ 	int err;
++	bool multiport;
+ 
+ 	portdev = kmalloc(sizeof(*portdev), GFP_KERNEL);
+ 	if (!portdev) {
+@@ -603,16 +852,59 @@ static int __devinit virtcons_probe(struct virtio_device *vdev)
+ 	portdev->vdev = vdev;
+ 	vdev->priv = portdev;
+ 
++	multiport = false;
++	portdev->config.nr_ports = 1;
++	portdev->config.max_nr_ports = 1;
++	if (virtio_has_feature(vdev, VIRTIO_CONSOLE_F_MULTIPORT)) {
++		multiport = true;
++		vdev->features[0] |= 1 << VIRTIO_CONSOLE_F_MULTIPORT;
++
++		vdev->config->get(vdev, offsetof(struct virtio_console_config,
++						 nr_ports),
++				  &portdev->config.nr_ports,
++				  sizeof(portdev->config.nr_ports));
++		vdev->config->get(vdev, offsetof(struct virtio_console_config,
++						 max_nr_ports),
++				  &portdev->config.max_nr_ports,
++				  sizeof(portdev->config.max_nr_ports));
++		if (portdev->config.nr_ports > portdev->config.max_nr_ports) {
++			dev_warn(&vdev->dev,
++				 "More ports (%u) specified than allowed (%u). Will init %u ports.",
++				 portdev->config.nr_ports,
++				 portdev->config.max_nr_ports,
++				 portdev->config.max_nr_ports);
++
++			portdev->config.nr_ports = portdev->config.max_nr_ports;
++		}
++	}
++
++	/* Let the Host know we support multiple ports.*/
++	vdev->config->finalize_features(vdev);
++
+ 	err = init_vqs(portdev);
+ 	if (err < 0) {
+ 		dev_err(&vdev->dev, "Error %d initializing vqs\n", err);
+ 		goto free;
+ 	}
+ 
+-	/* We only have one port. */
+-	err = add_port(portdev);
+-	if (err)
+-		goto free_vqs;
++	spin_lock_init(&portdev->ports_lock);
++	INIT_LIST_HEAD(&portdev->ports);
++
++	if (multiport) {
++		spin_lock_init(&portdev->cvq_lock);
++		INIT_WORK(&portdev->control_work, &control_work_handler);
++
++		portdev->outbuf = alloc_buf(PAGE_SIZE);
++		if (!portdev->outbuf) {
++			err = -ENOMEM;
++			dev_err(&vdev->dev, "OOM for control outbuf\n");
++			goto free_vqs;
++		}
++		fill_queue(portdev->c_ivq, &portdev->cvq_lock);
++	}
++
++	for (i = 0; i < portdev->config.nr_ports; i++)
++		add_port(portdev, i);
+ 
+ 	/* Start using the new console output. */
+ 	early_put_chars = NULL;
+@@ -635,6 +927,7 @@ static struct virtio_device_id id_table[] = {
+ 
+ static unsigned int features[] = {
+ 	VIRTIO_CONSOLE_F_SIZE,
++	VIRTIO_CONSOLE_F_MULTIPORT,
+ };
+ 
+ static struct virtio_driver virtio_console = {
+diff --git a/include/linux/virtio_console.h b/include/linux/virtio_console.h
+index 9e0da40..cada769 100644
+--- a/include/linux/virtio_console.h
++++ b/include/linux/virtio_console.h
+@@ -6,18 +6,39 @@
+ /*
+  * This header, excluding the #ifdef __KERNEL__ part, is BSD licensed so
+  * anyone can use the definitions to implement compatible drivers/servers.
++ *
++ * Copyright (C) Red Hat, Inc., 2009
+  */
+ 
+ /* Feature bits */
+ #define VIRTIO_CONSOLE_F_SIZE	0	/* Does host provide console size? */
++#define VIRTIO_CONSOLE_F_MULTIPORT 1	/* Does host provide multiple ports? */
+ 
+ struct virtio_console_config {
+ 	/* colums of the screens */
+ 	__u16 cols;
+ 	/* rows of the screens */
+ 	__u16 rows;
++	/* max. number of ports this device can hold */
++	__u32 max_nr_ports;
++	/* number of ports added so far */
++	__u32 nr_ports;
+ } __attribute__((packed));
+ 
++/*
++ * A message that's passed between the Host and the Guest for a
++ * particular port.
++ */
++struct virtio_console_control {
++	__u32 id;		/* Port number */
++	__u16 event;		/* The kind of control event (see below) */
++	__u16 value;		/* Extra information for the key */
++};
++
++/* Some events for control messages */
++#define VIRTIO_CONSOLE_PORT_READY	0
++#define VIRTIO_CONSOLE_CONSOLE_PORT	1
++#define VIRTIO_CONSOLE_RESIZE		2
+ 
+ #ifdef __KERNEL__
+ int __init virtio_cons_early_init(int (*put_chars)(u32, const char *, int));
+-- 
+1.6.2.5
