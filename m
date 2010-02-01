@@ -1,15 +1,16 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH 1/3] net: maintain namespace isolation between vlan and real
-	device
-Date: Sat, 30 Jan 2010 23:23:03 +0100
-Message-ID: <201001302323.03933.arnd__26518.6699493372$1264891561$gmane$org@arndb.de>
-References: <201001271104.20607.arnd@arndb.de>
-	<201001302322.15237.arnd@arndb.de>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH 21/31] virtio: console: Prepare for writing to userspace
+	buffers
+Date: Mon, 1 Feb 2010 10:49:51 +1030
+Message-ID: <201002011049.52053.rusty@rustcorp.com.au>
+References: <1264772563-25517-1-git-send-email-amit.shah@redhat.com>
+	<1264772563-25517-3-git-send-email-amit.shah@redhat.com>
+	<1264772563-25517-4-git-send-email-amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <201001302322.15237.arnd@arndb.de>
+In-Reply-To: <1264772563-25517-4-git-send-email-amit.shah@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,126 +20,51 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: David Miller <davem@davemloft.net>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Stephen Hemminger <shemminger@linux-foundation.org>
+To: Amit Shah <amit.shah@redhat.com>
+Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-In the vlan and macvlan drivers, the start_xmit function forwards
-data to the dev_queue_xmit function for another device, which may
-potentially belong to a different namespace.
+On Sat, 30 Jan 2010 12:12:40 am Amit Shah wrote:
+> When ports get advertised as char devices, the buffers will come from
+> userspace. Equip the fill_readbuf function with the ability to write
+> to userspace buffers.
+> 
+> Signed-off-by: Amit Shah <amit.shah@redhat.com>
+> ---
+>  drivers/char/virtio_console.c |   20 ++++++++++++++------
+>  1 files changed, 14 insertions(+), 6 deletions(-)
+> 
+> diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
+> index 9d33239..5f61021 100644
+> --- a/drivers/char/virtio_console.c
+> +++ b/drivers/char/virtio_console.c
+> @@ -365,7 +365,8 @@ fail:
+>   * Give out the data that's requested from the buffer that we have
+>   * queued up.
+>   */
+> -static ssize_t fill_readbuf(struct port *port, char *out_buf, size_t out_count)
+> +static ssize_t fill_readbuf(struct port *port, char *out_buf, size_t out_count,
+> +			    bool to_user)
 
-To make sure that classification stays within a single namespace,
-this resets the potentially critical fields.
+This patch does not apply: your previous 19/31 "Introduce a send_buf function
+for a common path for sending data to host" made this "void *out_buf".  The
+rest I can't even sort out.
 
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
----
- drivers/net/macvlan.c     |    2 +-
- include/linux/netdevice.h |    9 +++++++++
- net/8021q/vlan_dev.c      |    2 +-
- net/core/dev.c            |   35 +++++++++++++++++++++++++++++++----
- 4 files changed, 42 insertions(+), 6 deletions(-)
+I have dropped 19/31 onwards, as listed below.  Please re-xmit privately,
+tarball is fine.
 
-diff --git a/drivers/net/macvlan.c b/drivers/net/macvlan.c
-index fa0dc51..d32e0bd 100644
---- a/drivers/net/macvlan.c
-+++ b/drivers/net/macvlan.c
-@@ -269,7 +269,7 @@ static int macvlan_queue_xmit(struct sk_buff *skb, struct net_device *dev)
- 	}
- 
- xmit_world:
--	skb->dev = vlan->lowerdev;
-+	skb_set_dev(skb, vlan->lowerdev);
- 	return dev_queue_xmit(skb);
- }
- 
-diff --git a/include/linux/netdevice.h b/include/linux/netdevice.h
-index 93a32a5..622ba5a 100644
---- a/include/linux/netdevice.h
-+++ b/include/linux/netdevice.h
-@@ -1004,6 +1004,15 @@ static inline bool netdev_uses_dsa_tags(struct net_device *dev)
- 	return 0;
- }
- 
-+#ifndef CONFIG_NET_NS
-+static inline void skb_set_dev(struct sk_buff *skb, struct net_device *dev)
-+{
-+	skb->dev = dev;
-+}
-+#else /* CONFIG_NET_NS */
-+void skb_set_dev(struct sk_buff *skb, struct net_device *dev);
-+#endif
-+
- static inline bool netdev_uses_trailer_tags(struct net_device *dev)
- {
- #ifdef CONFIG_NET_DSA_TAG_TRAILER
-diff --git a/net/8021q/vlan_dev.c b/net/8021q/vlan_dev.c
-index a9e1f17..9e83272 100644
---- a/net/8021q/vlan_dev.c
-+++ b/net/8021q/vlan_dev.c
-@@ -322,7 +322,7 @@ static netdev_tx_t vlan_dev_hard_start_xmit(struct sk_buff *skb,
- 	}
- 
- 
--	skb->dev = vlan_dev_info(dev)->real_dev;
-+	skb_set_dev(skb, vlan_dev_info(dev)->real_dev);
- 	len = skb->len;
- 	ret = dev_queue_xmit(skb);
- 
-diff --git a/net/core/dev.c b/net/core/dev.c
-index 2cba5c5..94c1eee 100644
---- a/net/core/dev.c
-+++ b/net/core/dev.c
-@@ -1448,13 +1448,10 @@ int dev_forward_skb(struct net_device *dev, struct sk_buff *skb)
- 	if (skb->len > (dev->mtu + dev->hard_header_len))
- 		return NET_RX_DROP;
- 
--	skb_dst_drop(skb);
-+	skb_set_dev(skb, dev);
- 	skb->tstamp.tv64 = 0;
- 	skb->pkt_type = PACKET_HOST;
- 	skb->protocol = eth_type_trans(skb, dev);
--	skb->mark = 0;
--	secpath_reset(skb);
--	nf_reset(skb);
- 	return netif_rx(skb);
- }
- EXPORT_SYMBOL_GPL(dev_forward_skb);
-@@ -1614,6 +1611,36 @@ static bool dev_can_checksum(struct net_device *dev, struct sk_buff *skb)
- 	return false;
- }
- 
-+/**
-+ * skb_dev_set -- assign a new device to a buffer
-+ * @skb: buffer for the new device
-+ * @dev: network device
-+ *
-+ * If an skb is owned by a device already, we have to reset
-+ * all data private to the namespace a device belongs to
-+ * before assigning it a new device.
-+ */
-+#ifdef CONFIG_NET_NS
-+void skb_set_dev(struct sk_buff *skb, struct net_device *dev)
-+{
-+	skb_dst_drop(skb);
-+	if (skb->dev && !net_eq(dev_net(skb->dev), dev_net(dev))) {
-+		secpath_reset(skb);
-+		nf_reset(skb);
-+		skb_init_secmark(skb);
-+		skb->mark = 0;
-+		skb->priority = 0;
-+		skb->nf_trace = 0;
-+		skb->ipvs_property = 0;
-+#ifdef CONFIG_NET_SCHED
-+		skb->tc_index = 0;
-+#endif
-+	}
-+	skb->dev = dev;
-+}
-+EXPORT_SYMBOL(skb_set_dev);
-+#endif /* CONFIG_NET_NS */
-+
- /*
-  * Invalidate hardware checksum when packet is to be mangled, and
-  * complete checksum manually on outgoing path.
--- 
-1.6.3.3
+Thanks,
+Rusty.
+
+Subject: virtio: console: Introduce a send_buf function for a common path for sending data to host
+Subject: virtio: console: Add a new MULTIPORT feature, support for generic ports
+Subject: virtio: console: Prepare for writing to / reading from userspace buffers
+Subject: virtio: console: Associate each port with a char device
+Subject: virtio: console: Add file operations to ports for open/read/write/poll
+Subject: virtio: console: Ensure only one process can have a port open at a time
+Subject: virtio: console: Register with sysfs and create a 'name' attribute for ports
+Subject: virtio: console: Remove cached data on port close
+Subject: virtio: console: Handle port hot-plug
+Subject: virtio: console: Add ability to hot-unplug ports
+Subject: virtio: console: Add debugfs files for each port to expose debug info
+Subject: virtio: console: show error message if hvc_alloc fails for console ports
