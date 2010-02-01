@@ -1,76 +1,96 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH] vhost-net: switch to smp barriers
-Date: Mon, 1 Feb 2010 19:21:02 +0200
-Message-ID: <20100201172101.GA10900@redhat.com>
+From: "C. Craig Ross" <ccr@linuxfoundation.org>
+Subject: Workgroup Meetings at Collaboration Summit
+Date: Mon, 1 Feb 2010 12:55:11 -0500
+Message-ID: <fb0caef71002010955g4acc4f83g84ccc20d7983aa79__32674.6192797602$1265048281$gmane$org@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, Rusty Russell <rusty@rustcorp.com.au>, kvm@vger.kernel.org, virtualization@lists.osdl.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: multipart/mixed; boundary="===============8752951661080196817=="
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Mime-version: 1.0
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: "C. Craig Ross" <ccr@linuxfoundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-vhost-net only uses memory barriers to control SMP effects
-(communication with userspace potentially running on a different CPU),
-so it should use SMP barriers and not mandatory barriers for memory
-access ordering, as suggested by Documentation/memory-barriers.txt
+--===============8752951661080196817==
+Content-Type: multipart/alternative; boundary=0016e6d78553f56dd2047e8db063
 
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
- drivers/vhost/vhost.c |   10 +++++-----
- 1 files changed, 5 insertions(+), 5 deletions(-)
+--0016e6d78553f56dd2047e8db063
+Content-Type: text/plain; charset=ISO-8859-1
 
-The above applies on top of net-next-2.6. Does not seem to give any
-measureable performance gain, but seems to generate less code
-and I think it's better to use correct APIs.
+Hello,
 
-diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-index c8c25db..6eb1525 100644
---- a/drivers/vhost/vhost.c
-+++ b/drivers/vhost/vhost.c
-@@ -685,7 +685,7 @@ int vhost_log_write(struct vhost_virtqueue *vq, struct vhost_log *log,
- 	int i, r;
- 
- 	/* Make sure data written is seen before log. */
--	wmb();
-+	smp_wmb();
- 	for (i = 0; i < log_num; ++i) {
- 		u64 l = min(log[i].len, len);
- 		r = log_write(vq->log_base, log[i].addr, l);
-@@ -884,7 +884,7 @@ unsigned vhost_get_vq_desc(struct vhost_dev *dev, struct vhost_virtqueue *vq,
- 		return vq->num;
- 
- 	/* Only get avail ring entries after they have been exposed by guest. */
--	rmb();
-+	smp_rmb();
- 
- 	/* Grab the next descriptor number they're advertising, and increment
- 	 * the index we've seen. */
-@@ -996,14 +996,14 @@ int vhost_add_used(struct vhost_virtqueue *vq, unsigned int head, int len)
- 		return -EFAULT;
- 	}
- 	/* Make sure buffer is written before we update index. */
--	wmb();
-+	smp_wmb();
- 	if (put_user(vq->last_used_idx + 1, &vq->used->idx)) {
- 		vq_err(vq, "Failed to increment used idx");
- 		return -EFAULT;
- 	}
- 	if (unlikely(vq->log_used)) {
- 		/* Make sure data is seen before log. */
--		wmb();
-+		smp_wmb();
- 		log_write(vq->log_base, vq->log_addr + sizeof *vq->used->ring *
- 			  (vq->last_used_idx % vq->num),
- 			  sizeof *vq->used->ring);
-@@ -1060,7 +1060,7 @@ bool vhost_enable_notify(struct vhost_virtqueue *vq)
- 	}
- 	/* They could have slipped one in as we were doing that: make
- 	 * sure it's written, then check again. */
--	mb();
-+	smp_mb();
- 	r = get_user(avail_idx, &vq->avail->idx);
- 	if (r) {
- 		vq_err(vq, "Failed to check avail idx at %p: %d\n",
+We are reaching out to all of our workgroups to remind you about the
+upcoming Linux Foundation Collaboration Summit being held at the Hotel
+Kabuki in San Francisco on April 14 - 16, 2010.  This is a great opportunity
+for workgroups to meet face-to-face and interact with other Linux community
+members and we strongly encourage your workgroup to participate.  If your
+workgroup would like to reserve meeting space at the venue for meetings
+please let us know as soon as possible.  Please include the length of your
+meeting (1/2 day, 1 day, 1.5 days, or 2 days), the number of people you are
+expecting and any technical requirements that you may have.  To request your
+invitation or to learn more about the 4th Annual Collaboration Summit please
+visit http://events.linuxfoundation.org/events/collaboration-summit
+
+We look forward to your participation and hope to see you in April.  If you
+have any questions please don't hesitate to contact us.  Thank you.
+
+Regards,
+
+C.
+
 -- 
-1.6.6.144.g5c3af
+C. Craig Ross
+Community Relations Manager
+The Linux Foundation
+http://www.linuxfoundation.org/
+
+--0016e6d78553f56dd2047e8db063
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+
+Hello,<div><br></div><div>We are reaching out to all of our workgroups to r=
+emind you about the upcoming=A0Linux Foundation Collaboration Summit being =
+held at the Hotel Kabuki in San Francisco on April 14 - 16, 2010. =A0This i=
+s a great opportunity for workgroups to meet face-to-face and interact with=
+ other Linux community members and we strongly encourage your workgroup to =
+participate. =A0If your workgroup would like to reserve meeting space at th=
+e venue for meetings please let us know as soon as possible. =A0Please incl=
+ude the length of your meeting (1/2 day, 1 day, 1.5 days, or 2 days), the n=
+umber of people you are expecting and any technical requirements that you m=
+ay have. =A0To request your invitation or to learn more about the 4th Annua=
+l Collaboration Summit please visit=A0<a href=3D"http://events.linuxfoundat=
+ion.org/events/collaboration-summit" target=3D"_blank">http://events.linuxf=
+oundation.org/events/collaboration-summit</a></div>
+
+
+<div><br></div><div>We look forward to your participation and hope to see y=
+ou in April. =A0If you have any questions please don&#39;t hesitate to cont=
+act us. =A0Thank you.</div><div><br></div><div>Regards,</div><div><br></div=
+>
+
+
+<div>C.</div><div><br>-- <br>C. Craig Ross<br>Community Relations Manager<b=
+r>The Linux Foundation<br><a href=3D"http://www.linuxfoundation.org/" targe=
+t=3D"_blank">http://www.linuxfoundation.org/</a><br><br>
+</div>
+
+--0016e6d78553f56dd2047e8db063--
+
+--===============8752951661080196817==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linux-foundation.org/mailman/listinfo/virtualization
+--===============8752951661080196817==--
