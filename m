@@ -1,43 +1,84 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH 0/3 v4] macvtap driver
-Date: Wed, 03 Feb 2010 20:21:04 -0800 (PST)
-Message-ID: <20100203.202104.151098461.davem__41138.7795270004$1265257571$gmane$org@davemloft.net>
-References: <201001271104.20607.arnd@arndb.de>
-	<201001302322.15237.arnd@arndb.de>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH] vhost-net: switch to smp barriers
+Date: Sun, 7 Feb 2010 11:07:49 +0200
+Message-ID: <20100207090749.GA12968@redhat.com>
+References: <20100201172101.GA10900@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <201001302322.15237.arnd@arndb.de>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: arnd@arndb.de
-Cc: herbert@gondor.apana.org.au, mst@redhat.com, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, shemminger@linux-foundation.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <kvm-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20100201172101.GA10900@redhat.com>
+Sender: kvm-owner@vger.kernel.org
+To: Rusty Russell <rusty@rustcorp.com.au>, kvm@vger.kernel.org, virtualization@lists.osdl.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, David Miller <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Arnd Bergmann <arnd@arndb.de>
-Date: Sat, 30 Jan 2010 23:22:15 +0100
-
-> This is the fourth version of the macvtap driver,
-> based on the comments I got for the last version
-> I got a few days ago. Very few changes:
+On Mon, Feb 01, 2010 at 07:21:02PM +0200, Michael S. Tsirkin wrote:
+> vhost-net only uses memory barriers to control SMP effects
+> (communication with userspace potentially running on a different CPU),
+> so it should use SMP barriers and not mandatory barriers for memory
+> access ordering, as suggested by Documentation/memory-barriers.txt
 > 
-> * release netdev in chardev open function so
->   we can destroy it properly.
-> * Implement TUNSETSNDBUF
-> * fix sleeping call in rcu_read_lock
-> * Fix comment in namespace isolation patch
-> * Fix small context difference to make it apply
->   to net-next
-> 
-> I can't really test here while travelling, so please
-> give it a go if you're interested in this driver.
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 
-All applied to net-next-2.6, thanks!
+
+Rusty, any feedback on this one?
+Thanks!
+
+> ---
+>  drivers/vhost/vhost.c |   10 +++++-----
+>  1 files changed, 5 insertions(+), 5 deletions(-)
+> 
+> The above applies on top of net-next-2.6. Does not seem to give any
+> measureable performance gain, but seems to generate less code
+> and I think it's better to use correct APIs.
+> 
+> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+> index c8c25db..6eb1525 100644
+> --- a/drivers/vhost/vhost.c
+> +++ b/drivers/vhost/vhost.c
+> @@ -685,7 +685,7 @@ int vhost_log_write(struct vhost_virtqueue *vq, struct vhost_log *log,
+>  	int i, r;
+>  
+>  	/* Make sure data written is seen before log. */
+> -	wmb();
+> +	smp_wmb();
+>  	for (i = 0; i < log_num; ++i) {
+>  		u64 l = min(log[i].len, len);
+>  		r = log_write(vq->log_base, log[i].addr, l);
+> @@ -884,7 +884,7 @@ unsigned vhost_get_vq_desc(struct vhost_dev *dev, struct vhost_virtqueue *vq,
+>  		return vq->num;
+>  
+>  	/* Only get avail ring entries after they have been exposed by guest. */
+> -	rmb();
+> +	smp_rmb();
+>  
+>  	/* Grab the next descriptor number they're advertising, and increment
+>  	 * the index we've seen. */
+> @@ -996,14 +996,14 @@ int vhost_add_used(struct vhost_virtqueue *vq, unsigned int head, int len)
+>  		return -EFAULT;
+>  	}
+>  	/* Make sure buffer is written before we update index. */
+> -	wmb();
+> +	smp_wmb();
+>  	if (put_user(vq->last_used_idx + 1, &vq->used->idx)) {
+>  		vq_err(vq, "Failed to increment used idx");
+>  		return -EFAULT;
+>  	}
+>  	if (unlikely(vq->log_used)) {
+>  		/* Make sure data is seen before log. */
+> -		wmb();
+> +		smp_wmb();
+>  		log_write(vq->log_base, vq->log_addr + sizeof *vq->used->ring *
+>  			  (vq->last_used_idx % vq->num),
+>  			  sizeof *vq->used->ring);
+> @@ -1060,7 +1060,7 @@ bool vhost_enable_notify(struct vhost_virtqueue *vq)
+>  	}
+>  	/* They could have slipped one in as we were doing that: make
+>  	 * sure it's written, then check again. */
+> -	mb();
+> +	smp_mb();
+>  	r = get_user(avail_idx, &vq->avail->idx);
+>  	if (r) {
+>  		vq_err(vq, "Failed to check avail idx at %p: %d\n",
+> -- 
+> 1.6.6.144.g5c3af
