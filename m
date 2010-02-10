@@ -1,15 +1,13 @@
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: Paravirt compile failure with gcc33
-Date: Wed, 10 Feb 2010 13:08:58 -0800
-Message-ID: <4B73206A.2030406@zytor.com>
-References: <alpine.LSU.2.01.1002101909560.29808@obet.zrqbmnf.qr>
-	<4B72FD09.1020202@goop.org>
-	<alpine.LSU.2.01.1002102019430.6708@obet.zrqbmnf.qr>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH] virtio-spec: document indirect descriptors
+Date: Thu, 11 Feb 2010 09:54:08 +1030
+Message-ID: <201002110954.09134.rusty__35576.2560306632$1265844312$gmane$org@rustcorp.com.au>
+References: <20100210130026.GA19271@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <alpine.LSU.2.01.1002102019430.6708@obet.zrqbmnf.qr>
+In-Reply-To: <20100210130026.GA19271@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,34 +17,17 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jan Engelhardt <jengelh@medozas.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization@lists.osdl.org, Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: markmc@redhat.com, kvm@vger.kernel.org, qemu-devel@nongnu.org, Anthony Liguori <anthony@codemonkey.ws>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 02/10/2010 11:20 AM, Jan Engelhardt wrote:
-> On Wednesday 2010-02-10 19:38, Jeremy Fitzhardinge wrote:
-> 
->> On 02/10/2010 10:13 AM, Jan Engelhardt wrote:
->>> As I was compile-testing 2.6.33-rc with gcc-3.3,
->>> binutils-2.19.51-10.26.4.x86_64, I observed a failure when
->>> CONFIG_PARAVIRT is turned on:
->>>   
->>
->> Yeah, there's a gcc bug of some kind there, and its very hard to see how to
->> work around it.  When we last discussed this, I think we were close to deciding
->> to obsolete gcc 3.3.
->>
->> HPA, do you remember?
-> 
-> In fact, there's such a big bug in there that I'll get a runaway 
-> allocation later on when kvm.o is to be compiled. This is getting fun,
-> but I am absolutely fine with obsoleting 3.x  :)
+On Wed, 10 Feb 2010 11:30:39 pm Michael S. Tsirkin wrote:
+> Add documentation for indirect descriptors
 
-I have heard of some people using 3.4, but I'm not sure if anyone cares
-for current kernels and for x86, in particular.  Some other
-architectures might still be stuck on 3.x.
+Thanks, that's awesome!
 
-For x86 in particular 3.x support is becoming more of a headache than a
-help.
+I added an entry to the Reserved Feature table in appendix B, and applied
+it.  We're now at 0.8.5.
 
-	-hpa
+Cheers,
+Rusty.
