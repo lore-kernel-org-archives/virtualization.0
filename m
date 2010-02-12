@@ -1,17 +1,18 @@
 From: Amit Shah <amit.shah@redhat.com>
-Subject: [PATCH 5/6] virtio: console: Fill ports' entire in_vq with buffers
-Date: Fri, 12 Feb 2010 10:32:18 +0530
-Message-ID: <1265950939-12359-6-git-send-email-amit.shah@redhat.com>
+Subject: [PATCH 6/6] Add MAINTAINERS entry for virtio_console
+Date: Fri, 12 Feb 2010 10:32:19 +0530
+Message-ID: <1265950939-12359-7-git-send-email-amit.shah@redhat.com>
 References: <1265950939-12359-1-git-send-email-amit.shah@redhat.com>
 	<1265950939-12359-2-git-send-email-amit.shah@redhat.com>
 	<1265950939-12359-3-git-send-email-amit.shah@redhat.com>
 	<1265950939-12359-4-git-send-email-amit.shah@redhat.com>
 	<1265950939-12359-5-git-send-email-amit.shah@redhat.com>
+	<1265950939-12359-6-git-send-email-amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1265950939-12359-5-git-send-email-amit.shah@redhat.com>
+In-Reply-To: <1265950939-12359-6-git-send-email-amit.shah@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -25,136 +26,30 @@ To: rusty@rustcorp.com.au
 Cc: Amit Shah <amit.shah@redhat.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Instead of allocating just one buffer for a port's in_vq, fill
-the entire in_vq with buffers so the host need not stall while
-an application consumes the data and makes the buffer available
-again for the host.
+I'm taking ownership of the virtio_console module; but I'll continue
+feeding patches via Rusty.
 
 Signed-off-by: Amit Shah <amit.shah@redhat.com>
 ---
- drivers/char/virtio_console.c |   53 ++++++++++++++++++++++++----------------
- 1 files changed, 32 insertions(+), 21 deletions(-)
+ MAINTAINERS |    6 ++++++
+ 1 files changed, 6 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index c407037..213373b 100644
---- a/drivers/char/virtio_console.c
-+++ b/drivers/char/virtio_console.c
-@@ -330,6 +330,7 @@ static void discard_port_data(struct port *port)
- 	struct port_buffer *buf;
- 	struct virtqueue *vq;
- 	unsigned int len;
-+	int ret;
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 03f38c1..3118dfa 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -2394,6 +2394,12 @@ L:	linuxppc-dev@ozlabs.org
+ S:	Odd Fixes
+ F:	drivers/char/hvc_*
  
- 	vq = port->in_vq;
- 	if (port->inbuf)
-@@ -337,16 +338,18 @@ static void discard_port_data(struct port *port)
- 	else
- 		buf = vq->vq_ops->get_buf(vq, &len);
- 
--	if (!buf)
--		return;
--
--	if (add_inbuf(vq, buf) < 0) {
--		buf->len = buf->offset = 0;
--		dev_warn(port->dev, "Error adding buffer back to vq\n");
--		return;
-+	ret = 0;
-+	while (buf) {
-+		if (add_inbuf(vq, buf) < 0) {
-+			ret++;
-+			free_buf(buf);
-+		}
-+		buf = vq->vq_ops->get_buf(vq, &len);
- 	}
--
- 	port->inbuf = NULL;
-+	if (ret)
-+		dev_warn(port->dev, "Errors adding %d buffers back to vq\n",
-+			 ret);
- }
- 
- static bool port_has_data(struct port *port)
-@@ -354,12 +357,19 @@ static bool port_has_data(struct port *port)
- 	unsigned long flags;
- 	bool ret;
- 
--	ret = false;
- 	spin_lock_irqsave(&port->inbuf_lock, flags);
--	if (port->inbuf)
-+	if (port->inbuf) {
- 		ret = true;
-+		goto out;
-+	}
-+	port->inbuf = get_inbuf(port);
-+	if (port->inbuf) {
-+		ret = true;
-+		goto out;
-+	}
-+	ret = false;
-+out:
- 	spin_unlock_irqrestore(&port->inbuf_lock, flags);
--
- 	return ret;
- }
- 
-@@ -1011,7 +1021,8 @@ static void in_intr(struct virtqueue *vq)
- 		return;
- 
- 	spin_lock_irqsave(&port->inbuf_lock, flags);
--	port->inbuf = get_inbuf(port);
-+	if (!port->inbuf)
-+		port->inbuf = get_inbuf(port);
- 
- 	/*
- 	 * Don't queue up data when port is closed.  This condition
-@@ -1087,7 +1098,7 @@ static int add_port(struct ports_device *portdev, u32 id)
- {
- 	char debugfs_name[16];
- 	struct port *port;
--	struct port_buffer *inbuf;
-+	struct port_buffer *buf;
- 	dev_t devt;
- 	int err;
- 
-@@ -1132,22 +1143,21 @@ static int add_port(struct ports_device *portdev, u32 id)
- 	spin_lock_init(&port->inbuf_lock);
- 	init_waitqueue_head(&port->waitqueue);
- 
--	inbuf = alloc_buf(PAGE_SIZE);
--	if (!inbuf) {
-+	/* Fill the in_vq with buffers so the host can send us data. */
-+	err = fill_queue(port->in_vq, &port->inbuf_lock);
-+	if (!err) {
-+		dev_err(port->dev, "Error allocating inbufs\n");
- 		err = -ENOMEM;
- 		goto free_device;
- 	}
- 
--	/* Register the input buffer the first time. */
--	add_inbuf(port->in_vq, inbuf);
--
- 	/*
- 	 * If we're not using multiport support, this has to be a console port
- 	 */
- 	if (!use_multiport(port->portdev)) {
- 		err = init_port_console(port);
- 		if (err)
--			goto free_inbuf;
-+			goto free_inbufs;
- 	}
- 
- 	spin_lock_irq(&portdev->ports_lock);
-@@ -1175,8 +1185,9 @@ static int add_port(struct ports_device *portdev, u32 id)
- 	}
- 	return 0;
- 
--free_inbuf:
--	free_buf(inbuf);
-+free_inbufs:
-+	while ((buf = port->in_vq->vq_ops->detach_unused_buf(port->in_vq)))
-+		free_buf(buf);
- free_device:
- 	device_destroy(pdrvdata.class, port->dev->devt);
- free_cdev:
++VIRTIO CONSOLE DRIVER
++M:	Amit Shah <amit.shah@redhat.com>
++L:	virtualization@lists.linux-foundation.org
++S:	Maintained
++F:	drivers/char/virtio_console.c
++
+ GSPCA FINEPIX SUBDRIVER
+ M:	Frank Zago <frank@zago.net>
+ L:	linux-media@vger.kernel.org
 -- 
 1.6.2.5
