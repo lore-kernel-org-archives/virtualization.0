@@ -1,17 +1,17 @@
 From: Amit Shah <amit.shah@redhat.com>
-Subject: [PATCH 4/6] virtio: console: Error out if we can't allocate buffers
-	for control queue
-Date: Fri, 12 Feb 2010 10:32:17 +0530
-Message-ID: <1265950939-12359-5-git-send-email-amit.shah@redhat.com>
+Subject: [PATCH 5/6] virtio: console: Fill ports' entire in_vq with buffers
+Date: Fri, 12 Feb 2010 10:32:18 +0530
+Message-ID: <1265950939-12359-6-git-send-email-amit.shah@redhat.com>
 References: <1265950939-12359-1-git-send-email-amit.shah@redhat.com>
 	<1265950939-12359-2-git-send-email-amit.shah@redhat.com>
 	<1265950939-12359-3-git-send-email-amit.shah@redhat.com>
 	<1265950939-12359-4-git-send-email-amit.shah@redhat.com>
+	<1265950939-12359-5-git-send-email-amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1265950939-12359-4-git-send-email-amit.shah@redhat.com>
+In-Reply-To: <1265950939-12359-5-git-send-email-amit.shah@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -25,84 +25,136 @@ To: rusty@rustcorp.com.au
 Cc: Amit Shah <amit.shah@redhat.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-With MULTIPORT support, the control queue is an integral part of the
-functioning of the device. If we can't get any buffers allocated, the
-host won't be able to relay important information and the device may not
-function as intended.
-
-Ensure 'probe' doesn't succeed until the control queue has at least one
-buffer allocated for its ivq.
+Instead of allocating just one buffer for a port's in_vq, fill
+the entire in_vq with buffers so the host need not stall while
+an application consumes the data and makes the buffer available
+again for the host.
 
 Signed-off-by: Amit Shah <amit.shah@redhat.com>
 ---
- drivers/char/virtio_console.c |   27 +++++++++++++++++++++------
- 1 files changed, 21 insertions(+), 6 deletions(-)
+ drivers/char/virtio_console.c |   53 ++++++++++++++++++++++++----------------
+ 1 files changed, 32 insertions(+), 21 deletions(-)
 
 diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index 0057bae..c407037 100644
+index c407037..213373b 100644
 --- a/drivers/char/virtio_console.c
 +++ b/drivers/char/virtio_console.c
-@@ -1057,25 +1057,30 @@ static void config_intr(struct virtio_device *vdev)
- 	resize_console(find_port_by_id(portdev, 0));
- }
- 
--static void fill_queue(struct virtqueue *vq, spinlock_t *lock)
-+static unsigned int fill_queue(struct virtqueue *vq, spinlock_t *lock)
- {
+@@ -330,6 +330,7 @@ static void discard_port_data(struct port *port)
  	struct port_buffer *buf;
--	int ret;
-+	unsigned int ret;
-+	int err;
+ 	struct virtqueue *vq;
+ 	unsigned int len;
++	int ret;
  
+ 	vq = port->in_vq;
+ 	if (port->inbuf)
+@@ -337,16 +338,18 @@ static void discard_port_data(struct port *port)
+ 	else
+ 		buf = vq->vq_ops->get_buf(vq, &len);
+ 
+-	if (!buf)
+-		return;
+-
+-	if (add_inbuf(vq, buf) < 0) {
+-		buf->len = buf->offset = 0;
+-		dev_warn(port->dev, "Error adding buffer back to vq\n");
+-		return;
 +	ret = 0;
- 	do {
- 		buf = alloc_buf(PAGE_SIZE);
- 		if (!buf)
- 			break;
- 
- 		spin_lock_irq(lock);
--		ret = add_inbuf(vq, buf);
--		if (ret < 0) {
-+		err = add_inbuf(vq, buf);
-+		if (err < 0) {
- 			spin_unlock_irq(lock);
- 			free_buf(buf);
- 			break;
- 		}
-+		ret++;
- 		spin_unlock_irq(lock);
--	} while (ret > 0);
-+	} while (err > 0);
-+
-+	return ret;
++	while (buf) {
++		if (add_inbuf(vq, buf) < 0) {
++			ret++;
++			free_buf(buf);
++		}
++		buf = vq->vq_ops->get_buf(vq, &len);
+ 	}
+-
+ 	port->inbuf = NULL;
++	if (ret)
++		dev_warn(port->dev, "Errors adding %d buffers back to vq\n",
++			 ret);
  }
  
- static int add_port(struct ports_device *portdev, u32 id)
-@@ -1430,7 +1435,13 @@ static int __devinit virtcons_probe(struct virtio_device *vdev)
- 		INIT_WORK(&portdev->control_work, &control_work_handler);
- 		INIT_WORK(&portdev->config_work, &config_work_handler);
+ static bool port_has_data(struct port *port)
+@@ -354,12 +357,19 @@ static bool port_has_data(struct port *port)
+ 	unsigned long flags;
+ 	bool ret;
  
--		fill_queue(portdev->c_ivq, &portdev->cvq_lock);
-+		err = fill_queue(portdev->c_ivq, &portdev->cvq_lock);
-+		if (!err) {
-+			dev_err(&vdev->dev,
-+				"Error allocating buffers for control queue\n");
-+			err = -ENOMEM;
-+			goto free_vqs;
-+		}
+-	ret = false;
+ 	spin_lock_irqsave(&port->inbuf_lock, flags);
+-	if (port->inbuf)
++	if (port->inbuf) {
+ 		ret = true;
++		goto out;
++	}
++	port->inbuf = get_inbuf(port);
++	if (port->inbuf) {
++		ret = true;
++		goto out;
++	}
++	ret = false;
++out:
+ 	spin_unlock_irqrestore(&port->inbuf_lock, flags);
+-
+ 	return ret;
+ }
+ 
+@@ -1011,7 +1021,8 @@ static void in_intr(struct virtqueue *vq)
+ 		return;
+ 
+ 	spin_lock_irqsave(&port->inbuf_lock, flags);
+-	port->inbuf = get_inbuf(port);
++	if (!port->inbuf)
++		port->inbuf = get_inbuf(port);
+ 
+ 	/*
+ 	 * Don't queue up data when port is closed.  This condition
+@@ -1087,7 +1098,7 @@ static int add_port(struct ports_device *portdev, u32 id)
+ {
+ 	char debugfs_name[16];
+ 	struct port *port;
+-	struct port_buffer *inbuf;
++	struct port_buffer *buf;
+ 	dev_t devt;
+ 	int err;
+ 
+@@ -1132,22 +1143,21 @@ static int add_port(struct ports_device *portdev, u32 id)
+ 	spin_lock_init(&port->inbuf_lock);
+ 	init_waitqueue_head(&port->waitqueue);
+ 
+-	inbuf = alloc_buf(PAGE_SIZE);
+-	if (!inbuf) {
++	/* Fill the in_vq with buffers so the host can send us data. */
++	err = fill_queue(port->in_vq, &port->inbuf_lock);
++	if (!err) {
++		dev_err(port->dev, "Error allocating inbufs\n");
+ 		err = -ENOMEM;
+ 		goto free_device;
  	}
  
- 	for (i = 0; i < portdev->config.nr_ports; i++)
-@@ -1440,6 +1451,10 @@ static int __devinit virtcons_probe(struct virtio_device *vdev)
- 	early_put_chars = NULL;
+-	/* Register the input buffer the first time. */
+-	add_inbuf(port->in_vq, inbuf);
+-
+ 	/*
+ 	 * If we're not using multiport support, this has to be a console port
+ 	 */
+ 	if (!use_multiport(port->portdev)) {
+ 		err = init_port_console(port);
+ 		if (err)
+-			goto free_inbuf;
++			goto free_inbufs;
+ 	}
+ 
+ 	spin_lock_irq(&portdev->ports_lock);
+@@ -1175,8 +1185,9 @@ static int add_port(struct ports_device *portdev, u32 id)
+ 	}
  	return 0;
  
-+free_vqs:
-+	vdev->config->del_vqs(vdev);
-+	kfree(portdev->in_vqs);
-+	kfree(portdev->out_vqs);
- free_chrdev:
- 	unregister_chrdev(portdev->chr_major, "virtio-portsdev");
- free:
+-free_inbuf:
+-	free_buf(inbuf);
++free_inbufs:
++	while ((buf = port->in_vq->vq_ops->detach_unused_buf(port->in_vq)))
++		free_buf(buf);
+ free_device:
+ 	device_destroy(pdrvdata.class, port->dev->devt);
+ free_cdev:
 -- 
 1.6.2.5
