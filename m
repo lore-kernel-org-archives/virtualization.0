@@ -1,13 +1,15 @@
 From: Amit Shah <amit.shah@redhat.com>
-Subject: [PATCH 1/6] virtio: Initialize vq->data entries to NULL
-Date: Fri, 12 Feb 2010 10:32:14 +0530
-Message-ID: <1265950939-12359-2-git-send-email-amit.shah@redhat.com>
+Subject: [PATCH 2/6] virtio: console: Ensure no memleaks in case of unused
+	buffers
+Date: Fri, 12 Feb 2010 10:32:15 +0530
+Message-ID: <1265950939-12359-3-git-send-email-amit.shah@redhat.com>
 References: <1265950939-12359-1-git-send-email-amit.shah@redhat.com>
+	<1265950939-12359-2-git-send-email-amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1265950939-12359-1-git-send-email-amit.shah@redhat.com>
+In-Reply-To: <1265950939-12359-2-git-send-email-amit.shah@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -21,33 +23,50 @@ To: rusty@rustcorp.com.au
 Cc: Amit Shah <amit.shah@redhat.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-vq operations depend on vq->data[i] being NULL to figure out if the vq
-entry is in use.
+If unused data exists in in_vq, ensure we flush that first and then
+detach unused buffers, which will ensure all buffers from the in_vq are
+removed.
 
-We have to initialize them to NULL to ensure we don't work with junk
-data and trigger false BUG_ONs.
+Also ensure we free the buffers after detaching them.
 
 Signed-off-by: Amit Shah <amit.shah@redhat.com>
 ---
- drivers/virtio/virtio_ring.c |    5 ++++-
- 1 files changed, 4 insertions(+), 1 deletions(-)
+ drivers/char/virtio_console.c |   11 ++++++++---
+ 1 files changed, 8 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index 71929ee..9bcfe95 100644
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -431,8 +431,11 @@ struct virtqueue *vring_new_virtqueue(unsigned int num,
- 	/* Put everything in free lists. */
- 	vq->num_free = num;
- 	vq->free_head = 0;
--	for (i = 0; i < num-1; i++)
-+	for (i = 0; i < num-1; i++) {
- 		vq->vring.desc[i].next = i+1;
-+		vq->data[i] = NULL;
-+	}
-+	vq->data[i] = NULL;
+diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
+index a3f1f73..69d2e61 100644
+--- a/drivers/char/virtio_console.c
++++ b/drivers/char/virtio_console.c
+@@ -838,6 +838,8 @@ static const struct file_operations port_debugfs_ops = {
+ /* Remove all port-specific data. */
+ static int remove_port(struct port *port)
+ {
++	struct port_buffer *buf;
++
+ 	spin_lock_irq(&port->portdev->ports_lock);
+ 	list_del(&port->list);
+ 	spin_unlock_irq(&port->portdev->ports_lock);
+@@ -851,14 +853,17 @@ static int remove_port(struct port *port)
+ 	if (port->guest_connected)
+ 		send_control_msg(port, VIRTIO_CONSOLE_PORT_OPEN, 0);
  
- 	return &vq->vq;
- }
+-	while (port->in_vq->vq_ops->detach_unused_buf(port->in_vq))
+-		;
+-
+ 	sysfs_remove_group(&port->dev->kobj, &port_attribute_group);
+ 	device_destroy(pdrvdata.class, port->dev->devt);
+ 	cdev_del(&port->cdev);
+ 
++	/* Remove unused data this port might have received. */
+ 	discard_port_data(port);
++
++	/* Remove buffers we queued up for the Host to send us data in. */
++	while ((buf = port->in_vq->vq_ops->detach_unused_buf(port->in_vq)))
++		free_buf(buf);
++
+ 	kfree(port->name);
+ 
+ 	debugfs_remove(port->debugfs_file);
 -- 
 1.6.2.5
