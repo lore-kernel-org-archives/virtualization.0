@@ -1,54 +1,47 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH] virtio-spec: document MSI-X
-Date: Fri, 12 Feb 2010 12:47:54 +0200
-Message-ID: <20100212104754.GD21947__24532.4651747525$1265972001$gmane$org@redhat.com>
-References: <20100211172236.GA20357@redhat.com>
-	<201002122017.55536.rusty@rustcorp.com.au>
+Subject: Re: [PATCH] vhost-net: switch to smp barriers
+Date: Sat, 13 Feb 2010 19:39:11 +0200
+Message-ID: <20100213173911.GA5040@redhat.com>
+References: <20100201172101.GA10900@redhat.com> <20100207090749.GA12968@redhat.com> <201002081849.39512.rusty@rustcorp.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <201002122017.55536.rusty@rustcorp.com.au>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
+In-Reply-To: <201002081849.39512.rusty@rustcorp.com.au>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: markmc@redhat.com, kvm@vger.kernel.org, qemu-devel@nongnu.org, Anthony Liguori <anthony@codemonkey.ws>, virtualization@lists.linux-foundation.org
+Cc: kvm@vger.kernel.org, virtualization@lists.osdl.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, David Miller <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Feb 12, 2010 at 08:17:55PM +1030, Rusty Russell wrote:
-> On Fri, 12 Feb 2010 03:52:36 am Michael S. Tsirkin wrote:
-> > This documents MSI-X support in virtio.
+On Mon, Feb 08, 2010 at 06:49:39PM +1030, Rusty Russell wrote:
+> On Sun, 7 Feb 2010 07:37:49 pm Michael S. Tsirkin wrote:
+> > On Mon, Feb 01, 2010 at 07:21:02PM +0200, Michael S. Tsirkin wrote:
+> > > vhost-net only uses memory barriers to control SMP effects
+> > > (communication with userspace potentially running on a different CPU),
+> > > so it should use SMP barriers and not mandatory barriers for memory
+> > > access ordering, as suggested by Documentation/memory-barriers.txt
+> > > 
+> > > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 > > 
-> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> > 
+> > Rusty, any feedback on this one?
+> > Thanks!
 > 
-> Wow, great!
+> Yep.  barrier() is correct on UP to guard against preemption.
 > 
-> I reworked one paragraph for better grammar.  Mainly adding "the":
+> Acked-by: Rusty Russell <rusty@rustcorp.com.au>
 > 
-> (pseudo-patch):
->     Devices report such failures by returning +the+ NO_VECTOR value
->     when the relevant Vector field is read. After mapping an event to vector,
->     +the+ driver must verify success by reading the Vector field value: on
->     success, +the+ previously written value is returned-;-+, and+ on failure,
->     NO_VECTOR -value- is returned. If +a+ mapping failure is detected, +the+
->     driver can retry mapping with +fewer+-less- vectors, or disable MSI-X.
-
-Looks good, thanks for the corrections!
-
-> I really liked the conversational style: standards can be intimidating and
-> unfriendly documents if they concentrate too much on partitioning all
-> information into precise sections.
-> 
-> That makes it 0.8.6.  I will re-read the entire document for consistency
-> before releasing 0.9.
-> 
-> Thanks!
+> Thanks,
 > Rusty.
+
+Dave, I see it's marked "not applicable":
+http://patchwork.ozlabs.org/patch/44207/
+the patch applies to net-next as of
+b3b3f04fb587ecb61b5baa6c1c5f0e666fd12d73.
+Can this be queued up please?
+Should I resubmit with Rusty's ack?
+
+Thanks!
+
+-- 
+MST
