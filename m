@@ -1,36 +1,47 @@
-From: Amit Shah <amit.shah@redhat.com>
-Subject: virtio: console: Barrier needed before dropping early_put_chars?
-Date: Tue, 23 Feb 2010 22:40:22 +0530
-Message-ID: <20100223171022.GB32564@amit-x200.redhat.com>
+From: Gleb Natapov <gleb@redhat.com>
+Subject: Re: [PATCH 3/3] vhost: fix get_user_pages_fast error handling
+Date: Tue, 23 Feb 2010 19:34:34 +0200
+Message-ID: <20100223173434.GB9834@redhat.com>
+References: <cover.1266943453.git.mst@redhat.com>
+ <82ba8c97ce55dd4bf9972ad755961cd14e6a0938.1266943453.git.mst@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: borntraeger@de.ibm.com
-Cc: hch@lst.de, Virtualization List <virtualization@lists.linux-foundation.org>
+In-Reply-To: <82ba8c97ce55dd4bf9972ad755961cd14e6a0938.1266943453.git.mst@redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Rusty Russell <rusty@rustcorp.com.au>, kvm@vger.kernel.org, virtualization@lists.osdl.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, David Miller <davem@davemloft.net>, markmc@redhat.com, herbert.xu@redhat.com, quintela@redhat.com, dlaor@redhat.com, avi@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hey Rusty, Christian,
+On Tue, Feb 23, 2010 at 06:57:58PM +0200, Michael S. Tsirkin wrote:
+> get_user_pages_fast returns number of pages on success, negative value
+> on failure, but never 0. Fix vhost code to match this logic.
+> 
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> ---
+>  drivers/vhost/vhost.c |    3 ++-
+>  1 files changed, 2 insertions(+), 1 deletions(-)
+> 
+> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+> index d4f8fdf..d003504 100644
+> --- a/drivers/vhost/vhost.c
+> +++ b/drivers/vhost/vhost.c
+> @@ -646,8 +646,9 @@ static int set_bit_to_user(int nr, void __user *addr)
+>  	int bit = nr + (log % PAGE_SIZE) * 8;
+>  	int r;
+>  	r = get_user_pages_fast(log, 1, 1, &page);
+> -	if (r)
+> +	if (r < 0)
+>  		return r;
+> +	BUG_ON(r != 1);
+Can't this be easily triggered from user space?
 
-Christoph Hellwig asked why we don't need a barrier before this code in
-virtcons_probe():
+>  	base = kmap_atomic(page, KM_USER0);
+>  	set_bit(bit, base);
+>  	kunmap_atomic(base, KM_USER0);
+> -- 
+> 1.7.0.18.g0d53a5
 
-> +     /* Start using the new console output. */
-> +     early_put_chars = NULL;
->       return 0;
-
-Since only s390 uses early_put_chars so far, you'd know why it's not
-needed / why we're safe.
-
-Thanks,
-		Amit
+--
+			Gleb.
