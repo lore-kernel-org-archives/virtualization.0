@@ -1,44 +1,54 @@
 From: Juan Quintela <quintela@redhat.com>
-Subject: Re: [PATCH 2/3] vhost: initialize log eventfd context pointer
-Date: Tue, 23 Feb 2010 20:31:11 +0100
-Message-ID: <m37hq3wxz4.fsf@trasno.mitica>
+Subject: Re: [PATCH 3/3] vhost: fix get_user_pages_fast error handling
+Date: Tue, 23 Feb 2010 20:56:56 +0100
+Message-ID: <m3ocjfsp2v.fsf@trasno.mitica>
 References: <cover.1266943453.git.mst@redhat.com>
-	<f383d82104a04b92fe2953a4d8a98425c1ff6cde.1266943453.git.mst@redhat.com>
+	<82ba8c97ce55dd4bf9972ad755961cd14e6a0938.1266943453.git.mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <f383d82104a04b92fe2953a4d8a98425c1ff6cde.1266943453.git.mst@redhat.com>
-	(Michael S. Tsirkin's message of "Tue, 23 Feb 2010 18:57:51 +0200")
+In-Reply-To: <82ba8c97ce55dd4bf9972ad755961cd14e6a0938.1266943453.git.mst@redhat.com>
+	(Michael S. Tsirkin's message of "Tue, 23 Feb 2010 18:57:58 +0200")
 Sender: linux-kernel-owner@vger.kernel.org
 To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: Rusty Russell <rusty@rustcorp.com.au>, kvm@vger.kernel.org, virtualization@lists.osdl.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, David Miller <davem@davemloft.net>, markmc@redhat.com, gleb@redhat.com, herbert.xu@redhat.com, dlaor@redhat.com, avi@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
 "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> vq log eventfd context pointer needs to be initialized, otherwise
-> operation may fail or oops if log is enabled but log eventfd not set by
-> userspace.
->
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> get_user_pages_fast returns number of pages on success, negative value
+> on failure, but never 0. Fix vhost code to match this logic.
+
+It can return 0 if you ask for 0 pages :)
+From the comment:
+
+ * Returns number of pages pinned. This may be fewer than the number
+ * requested. If nr_pages is 0 or negative, returns 0. If no pages
+ * were pinned, returns -errno.
+ */
+
+I agree that code was wrong, but the BUG_ON() is not neccessary
+IMHO. The important bit is the change in the comparison.
 
 Reviewed-by: Juan Quintela <quintela@redhat.com>
 
-When log_ctx for device is created, it is copied to the vq.  This reset
-was missing.
 
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 > ---
->  drivers/vhost/vhost.c |    1 +
->  1 files changed, 1 insertions(+), 0 deletions(-)
+>  drivers/vhost/vhost.c |    3 ++-
+>  1 files changed, 2 insertions(+), 1 deletions(-)
 >
 > diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-> index c767279..d4f8fdf 100644
+> index d4f8fdf..d003504 100644
 > --- a/drivers/vhost/vhost.c
 > +++ b/drivers/vhost/vhost.c
-> @@ -121,6 +121,7 @@ static void vhost_vq_reset(struct vhost_dev *dev,
->  	vq->kick = NULL;
->  	vq->call_ctx = NULL;
->  	vq->call = NULL;
-> +	vq->log_ctx = NULL;
->  }
->  
->  long vhost_dev_init(struct vhost_dev *dev,
+> @@ -646,8 +646,9 @@ static int set_bit_to_user(int nr, void __user *addr)
+>  	int bit = nr + (log % PAGE_SIZE) * 8;
+>  	int r;
+>  	r = get_user_pages_fast(log, 1, 1, &page);
+> -	if (r)
+> +	if (r < 0)
+>  		return r;
+> +	BUG_ON(r != 1);
+>  	base = kmap_atomic(page, KM_USER0);
+>  	set_bit(bit, base);
+>  	kunmap_atomic(base, KM_USER0);
