@@ -1,54 +1,50 @@
-From: Juan Quintela <quintela@redhat.com>
-Subject: Re: [PATCH 3/3] vhost: fix get_user_pages_fast error handling
-Date: Tue, 23 Feb 2010 20:56:56 +0100
-Message-ID: <m3ocjfsp2v.fsf@trasno.mitica>
-References: <cover.1266943453.git.mst@redhat.com>
-	<82ba8c97ce55dd4bf9972ad755961cd14e6a0938.1266943453.git.mst@redhat.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: Re: virtio: console: Barrier needed before dropping early_put_chars?
+Date: Tue, 23 Feb 2010 23:07:32 +0100
+Message-ID: <201002232307.32622.borntraeger@de.ibm.com>
+References: <20100223171022.GB32564@amit-x200.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <82ba8c97ce55dd4bf9972ad755961cd14e6a0938.1266943453.git.mst@redhat.com>
-	(Michael S. Tsirkin's message of "Tue, 23 Feb 2010 18:57:58 +0200")
-Sender: linux-kernel-owner@vger.kernel.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Rusty Russell <rusty@rustcorp.com.au>, kvm@vger.kernel.org, virtualization@lists.osdl.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, David Miller <davem@davemloft.net>, markmc@redhat.com, gleb@redhat.com, herbert.xu@redhat.com, dlaor@redhat.com, avi@redhat.com
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20100223171022.GB32564@amit-x200.redhat.com>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Amit Shah <amit.shah@redhat.com>
+Cc: hch@lst.de, Virtualization List <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-"Michael S. Tsirkin" <mst@redhat.com> wrote:
-> get_user_pages_fast returns number of pages on success, negative value
-> on failure, but never 0. Fix vhost code to match this logic.
+Am Dienstag 23 Februar 2010 18:10:22 schrieb Amit Shah:
+> Hey Rusty, Christian,
+> 
+> Christoph Hellwig asked why we don't need a barrier before this code in
+> virtcons_probe():
+> 
+> > +     /* Start using the new console output. */
+> > +     early_put_chars = NULL;
+> >       return 0;
+> 
+> Since only s390 uses early_put_chars so far, you'd know why it's not
+> needed / why we're safe.
 
-It can return 0 if you ask for 0 pages :)
-From the comment:
+lguest is also using early_put_chars. See arch/x86/lguest/boot.c
+Anyway I had to look into linux-next to see this code. I guess that is the
+version you are talking about. (I remember seeing these patches several month
+ago).
 
- * Returns number of pages pinned. This may be fewer than the number
- * requested. If nr_pages is 0 or negative, returns 0. If no pages
- * were pinned, returns -errno.
- */
+So what would a barrier do? Protect against gcc moving the early_put_chars=NULL
+before the virtqueue is fully initialized and ready?
+In practice this should not be necessary since the last thing probe might do
+is add_port which is doing send_control_msg which contains cpu_relax (which
+is a barrier). So gcc should not be able to move the early_put_chars = NULL
+before the add_port loop.
 
-I agree that code was wrong, but the BUG_ON() is not neccessary
-IMHO. The important bit is the change in the comparison.
-
-Reviewed-by: Juan Quintela <quintela@redhat.com>
-
-
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> ---
->  drivers/vhost/vhost.c |    3 ++-
->  1 files changed, 2 insertions(+), 1 deletions(-)
->
-> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-> index d4f8fdf..d003504 100644
-> --- a/drivers/vhost/vhost.c
-> +++ b/drivers/vhost/vhost.c
-> @@ -646,8 +646,9 @@ static int set_bit_to_user(int nr, void __user *addr)
->  	int bit = nr + (log % PAGE_SIZE) * 8;
->  	int r;
->  	r = get_user_pages_fast(log, 1, 1, &page);
-> -	if (r)
-> +	if (r < 0)
->  		return r;
-> +	BUG_ON(r != 1);
->  	base = kmap_atomic(page, KM_USER0);
->  	set_bit(bit, base);
->  	kunmap_atomic(base, KM_USER0);
+Anyway, an explicit barrier might be a cleaner and more future proof way of
+doing it.
