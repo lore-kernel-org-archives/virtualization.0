@@ -1,49 +1,36 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH 1/3] vhost: logging math fix
-Date: Tue, 23 Feb 2010 18:57:43 +0200
-Message-ID: <51e0f786b06c198ab355abab19f0bd11ac6a167b.1266943453.git.mst@redhat.com>
-References: <cover.1266943453.git.mst@redhat.com>
+From: Amit Shah <amit.shah@redhat.com>
+Subject: virtio: console: Barrier needed before dropping early_put_chars?
+Date: Tue, 23 Feb 2010 22:40:22 +0530
+Message-ID: <20100223171022.GB32564@amit-x200.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <cover.1266943453.git.mst@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Rusty Russell <rusty@rustcorp.com.au>, kvm@vger.kernel.org, virtualization@lists.osdl.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, David Miller <davem@davemloft.net>, ma
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: borntraeger@de.ibm.com
+Cc: hch@lst.de, Virtualization List <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-vhost was dong some complex math to get
-offset to log at, and got it wrong by a couple of bytes,
-while in fact it's simple: get address where we write,
-subtract start of buffer, add log base.
+Hey Rusty, Christian,
 
-Do it this way.
+Christoph Hellwig asked why we don't need a barrier before this code in
+virtcons_probe():
 
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
- drivers/vhost/vhost.c |   10 ++++++----
- 1 files changed, 6 insertions(+), 4 deletions(-)
+> +     /* Start using the new console output. */
+> +     early_put_chars = NULL;
+>       return 0;
 
-diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-index 6eb1525..c767279 100644
---- a/drivers/vhost/vhost.c
-+++ b/drivers/vhost/vhost.c
-@@ -1004,10 +1004,12 @@ int vhost_add_used(struct vhost_virtqueue *vq, unsigned int head, int len)
- 	if (unlikely(vq->log_used)) {
- 		/* Make sure data is seen before log. */
- 		smp_wmb();
--		log_write(vq->log_base, vq->log_addr + sizeof *vq->used->ring *
--			  (vq->last_used_idx % vq->num),
--			  sizeof *vq->used->ring);
--		log_write(vq->log_base, vq->log_addr, sizeof *vq->used->ring);
-+		log_write(vq->log_base,
-+			  vq->log_addr + ((void *)used - (void *)vq->used),
-+			  sizeof *used);
-+		log_write(vq->log_base,
-+			  vq->log_addr + offsetof(struct vring_used, idx),
-+			  sizeof vq->used->idx);
- 		if (vq->log_ctx)
- 			eventfd_signal(vq->log_ctx, 1);
- 	}
--- 
-1.7.0.18.g0d53a5
+Since only s390 uses early_put_chars so far, you'd know why it's not
+needed / why we're safe.
+
+Thanks,
+		Amit
