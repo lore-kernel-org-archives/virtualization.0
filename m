@@ -1,13 +1,11 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: virtio: console: Barrier needed before dropping early_put_chars?
-Date: Wed, 24 Feb 2010 11:37:08 +1030
-Message-ID: <201002241137.08243.rusty@rustcorp.com.au>
-References: <20100223171022.GB32564@amit-x200.redhat.com>
+Subject: [PULL] virtio & lguest
+Date: Wed, 24 Feb 2010 14:35:39 +1030
+Message-ID: <201002241435.40377.rusty__1473.20120963759$1266984451$gmane$org@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20100223171022.GB32564@amit-x200.redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -17,33 +15,100 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Amit Shah <amit.shah@redhat.com>
-Cc: borntraeger@de.ibm.com, hch@lst.de, Virtualization List <virtualization@lists.linux-foundation.org>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, Shirley Ma <mashirle@us.ibm.com>, Jamie Lokier <jamie@shareable.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Amit Shah <amit.shah@redhat.com>, hch@lst.de
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 24 Feb 2010 03:40:22 am Amit Shah wrote:
-> Hey Rusty, Christian,
-> 
-> Christoph Hellwig asked why we don't need a barrier before this code in
-> virtcons_probe():
-> 
-> > +     /* Start using the new console output. */
-> > +     early_put_chars = NULL;
-> >       return 0;
-> 
-> Since only s390 uses early_put_chars so far, you'd know why it's not
-> needed / why we're safe.
+(Will be away for a month from tomorrow, so this is an early pull request).
 
-He's right, it's sloppy.
+The following changes since commit 9f3a6284880ceea452903e2043c88d7226736318:
+  Linus Torvalds (1):
+        Merge branch 'upstream' of git://ftp.linux-mips.org/pub/scm/upstream-linus
 
-In practice the compiler checks for NULL and reuses the pointer, and we
-have no problem if this is used a couple of times after the real console is
-live.
+are available in the git repository at:
 
-The Right Way to do this is a lock in put_chars() and around this assignment.
-But do we really want to bother?
+  ssh://master.kernel.org/pub/scm/linux/kernel/git/rusty/linux-2.6-for-linus.git master
 
-Cheers,
-Rusty.
+Adam Litke (2):
+      virtio: Add memory statistics reporting to the balloon driver (V4)
+      virtio: Fix scheduling while atomic in virtio_balloon stats
+
+Amit Shah (29):
+      virtio: Initialize vq->data entries to NULL
+      virtio: console: We support only one device at a time
+      virtio: console: encapsulate buffer information in a struct
+      virtio: console: ensure add_inbuf can work for multiple ports as well
+      virtio: console: introduce a get_inbuf helper to fetch bufs from in_vq
+      virtio: console: don't assume a single console port.
+      virtio: console: struct ports for multiple ports per device.
+      virtio: console: ensure console size is updated on hvc open
+      virtio: console: Separate out console-specific data into a separate struct
+      virtio: console: Separate out console init into a new function
+      virtio: console: Separate out find_vqs operation into a different function
+      virtio: console: Introduce function to hand off data from host to readers
+      virtio: console: Introduce a send_buf function for a common path for sending data to host
+      virtio: console: Add a new MULTIPORT feature, support for generic ports
+      virtio: console: Prepare for writing to userspace buffers
+      virtio: console: Associate each port with a char device
+      virtio: console: Add file operations to ports for open/read/write/poll
+      virtio: console: Ensure only one process can have a port open at a time
+      virtio: console: Register with sysfs and create a 'name' attribute for ports
+      virtio: console: Remove cached data on port close
+      virtio: console: Handle port hot-plug
+      virtio: console: Add ability to hot-unplug ports
+      virtio: console: Add debugfs files for each port to expose debug info
+      virtio: console: show error message if hvc_alloc fails for console ports
+      virtio: console: Ensure no memleaks in case of unused buffers
+      virtio: console: Add ability to remove module
+      virtio: console: Error out if we can't allocate buffers for control queue
+      virtio: console: Fill ports' entire in_vq with buffers
+      Add MAINTAINERS entry for virtio_console
+
+Christoph Hellwig (1):
+      virtio_blk: add block topology support
+
+Jamie Lokier (1):
+      Add __devexit_p around reference to virtio_pci_remove
+
+Michael S. Tsirkin (1):
+      virtio: use smp_XX barriers on SMP
+
+Rusty Russell (9):
+      virtio: fix balloon without VIRTIO_BALLOON_F_STATS_VQ
+      lguest: remove unneeded zlib.h include in example launcher
+      virtio: remove bogus barriers from DEBUG version of virtio_ring.c
+      virtio: console: comment cleanup
+      virtio: console: statically initialize virtio_cons
+      hvc_console: make the ops pointer const.
+      virtio: console: port encapsulation
+      virtio: console: use vdev->priv to avoid accessing global var.
+      virtio: console: remove global var
+
+Shirley Ma (1):
+      virtio: Add ability to detach unused buffers from vrings
+
+ Documentation/lguest/lguest.c   |    1 -
+ MAINTAINERS                     |    6 +
+ drivers/block/virtio_blk.c      |   61 ++-
+ drivers/char/Kconfig            |    8 +
+ drivers/char/hvc_beat.c         |    2 +-
+ drivers/char/hvc_console.c      |    7 +-
+ drivers/char/hvc_console.h      |    7 +-
+ drivers/char/hvc_iseries.c      |    2 +-
+ drivers/char/hvc_iucv.c         |    2 +-
+ drivers/char/hvc_rtas.c         |    2 +-
+ drivers/char/hvc_udbg.c         |    2 +-
+ drivers/char/hvc_vio.c          |    2 +-
+ drivers/char/hvc_xen.c          |    2 +-
+ drivers/char/virtio_console.c   | 1578 +++++++++++++++++++++++++++++++++++----
+ drivers/virtio/virtio_balloon.c |  109 +++-
+ drivers/virtio/virtio_pci.c     |    2 +-
+ drivers/virtio/virtio_ring.c    |   59 ++-
+ include/linux/virtio.h          |    4 +
+ include/linux/virtio_balloon.h  |   15 +
+ include/linux/virtio_blk.h      |   13 +
+ include/linux/virtio_console.h  |   30 +-
+ 21 files changed, 1721 insertions(+), 193 deletions(-)
+
 -- 
 Away travelling 25Feb-26Mar (6 .de + 1 .pl + 17 .lt + 2 .sg)
