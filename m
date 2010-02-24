@@ -1,114 +1,38 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: [PULL] virtio & lguest
-Date: Wed, 24 Feb 2010 14:35:39 +1030
-Message-ID: <201002241435.40377.rusty__1473.20120963759$1266984451$gmane$org@rustcorp.com.au>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH 3/3] vhost: fix get_user_pages_fast error handling
+Date: Wed, 24 Feb 2010 07:37:37 +0200
+Message-ID: <20100224053737.GB27806@redhat.com>
+References: <20100223173434.GB9834@redhat.com> <20100223173258.GA25338@redhat.com> <20100223173952.GC9834@redhat.com> <20100223.144235.08984181.davem@davemloft.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, Shirley Ma <mashirle@us.ibm.com>, Jamie Lokier <jamie@shareable.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Amit Shah <amit.shah@redhat.com>, hch@lst.de
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20100223.144235.08984181.davem@davemloft.net>
+Sender: linux-kernel-owner@vger.kernel.org
+To: David Miller <davem@davemloft.net>
+Cc: gleb@redhat.com, rusty@rustcorp.com.au, kvm@vger.kernel.org, virtualization@lists.osdl.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, markmc@redhat.com, herbert.xu@redhat.com, quintela@redhat.com, dlaor@redhat.com, avi@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-(Will be away for a month from tomorrow, so this is an early pull request).
+On Tue, Feb 23, 2010 at 02:42:35PM -0800, David Miller wrote:
+> 
+> Just for the record I'm generally not interested in vhost
+> patches.
+> 
+> If it's a specific network one that will be merged via
+> the networking tree, yes please CC: me.
+> 
+> But if it's a bunch of changes to vhost.c and other pieces
+> of infrastructure, feel free to leave me out of it.  It just
+> clutters my already overflowing inbox.
+> 
+> Thanks.
 
-The following changes since commit 9f3a6284880ceea452903e2043c88d7226736318:
-  Linus Torvalds (1):
-        Merge branch 'upstream' of git://ftp.linux-mips.org/pub/scm/upstream-linus
+Dave, so while Rusty's on vacation, what's the best way to get vhost
+infrastructure fixes in? Are you ok with getting pull requests and
+merging them into net-next?  That should keep the clutter in your inbox
+to the minimum.
 
-are available in the git repository at:
-
-  ssh://master.kernel.org/pub/scm/linux/kernel/git/rusty/linux-2.6-for-linus.git master
-
-Adam Litke (2):
-      virtio: Add memory statistics reporting to the balloon driver (V4)
-      virtio: Fix scheduling while atomic in virtio_balloon stats
-
-Amit Shah (29):
-      virtio: Initialize vq->data entries to NULL
-      virtio: console: We support only one device at a time
-      virtio: console: encapsulate buffer information in a struct
-      virtio: console: ensure add_inbuf can work for multiple ports as well
-      virtio: console: introduce a get_inbuf helper to fetch bufs from in_vq
-      virtio: console: don't assume a single console port.
-      virtio: console: struct ports for multiple ports per device.
-      virtio: console: ensure console size is updated on hvc open
-      virtio: console: Separate out console-specific data into a separate struct
-      virtio: console: Separate out console init into a new function
-      virtio: console: Separate out find_vqs operation into a different function
-      virtio: console: Introduce function to hand off data from host to readers
-      virtio: console: Introduce a send_buf function for a common path for sending data to host
-      virtio: console: Add a new MULTIPORT feature, support for generic ports
-      virtio: console: Prepare for writing to userspace buffers
-      virtio: console: Associate each port with a char device
-      virtio: console: Add file operations to ports for open/read/write/poll
-      virtio: console: Ensure only one process can have a port open at a time
-      virtio: console: Register with sysfs and create a 'name' attribute for ports
-      virtio: console: Remove cached data on port close
-      virtio: console: Handle port hot-plug
-      virtio: console: Add ability to hot-unplug ports
-      virtio: console: Add debugfs files for each port to expose debug info
-      virtio: console: show error message if hvc_alloc fails for console ports
-      virtio: console: Ensure no memleaks in case of unused buffers
-      virtio: console: Add ability to remove module
-      virtio: console: Error out if we can't allocate buffers for control queue
-      virtio: console: Fill ports' entire in_vq with buffers
-      Add MAINTAINERS entry for virtio_console
-
-Christoph Hellwig (1):
-      virtio_blk: add block topology support
-
-Jamie Lokier (1):
-      Add __devexit_p around reference to virtio_pci_remove
-
-Michael S. Tsirkin (1):
-      virtio: use smp_XX barriers on SMP
-
-Rusty Russell (9):
-      virtio: fix balloon without VIRTIO_BALLOON_F_STATS_VQ
-      lguest: remove unneeded zlib.h include in example launcher
-      virtio: remove bogus barriers from DEBUG version of virtio_ring.c
-      virtio: console: comment cleanup
-      virtio: console: statically initialize virtio_cons
-      hvc_console: make the ops pointer const.
-      virtio: console: port encapsulation
-      virtio: console: use vdev->priv to avoid accessing global var.
-      virtio: console: remove global var
-
-Shirley Ma (1):
-      virtio: Add ability to detach unused buffers from vrings
-
- Documentation/lguest/lguest.c   |    1 -
- MAINTAINERS                     |    6 +
- drivers/block/virtio_blk.c      |   61 ++-
- drivers/char/Kconfig            |    8 +
- drivers/char/hvc_beat.c         |    2 +-
- drivers/char/hvc_console.c      |    7 +-
- drivers/char/hvc_console.h      |    7 +-
- drivers/char/hvc_iseries.c      |    2 +-
- drivers/char/hvc_iucv.c         |    2 +-
- drivers/char/hvc_rtas.c         |    2 +-
- drivers/char/hvc_udbg.c         |    2 +-
- drivers/char/hvc_vio.c          |    2 +-
- drivers/char/hvc_xen.c          |    2 +-
- drivers/char/virtio_console.c   | 1578 +++++++++++++++++++++++++++++++++++----
- drivers/virtio/virtio_balloon.c |  109 +++-
- drivers/virtio/virtio_pci.c     |    2 +-
- drivers/virtio/virtio_ring.c    |   59 ++-
- include/linux/virtio.h          |    4 +
- include/linux/virtio_balloon.h  |   15 +
- include/linux/virtio_blk.h      |   13 +
- include/linux/virtio_console.h  |   30 +-
- 21 files changed, 1721 insertions(+), 193 deletions(-)
+Of course network changes would still go the usual way.
 
 -- 
-Away travelling 25Feb-26Mar (6 .de + 1 .pl + 17 .lt + 2 .sg)
+MST
