@@ -1,46 +1,30 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
+From: Greg KH <greg@kroah.com>
 Subject: Re: Ringbuffer usage in Linux Hyper-V drivers
-Date: Wed, 03 Mar 2010 09:49:04 -0800
-Message-ID: <4B8EA110.1040200@goop.org>
-References: <1FB5E1D5CA062146B38059374562DF725A908A11@TK5EX14MBXC126.redmond.corp.microsoft.com>	<20100217235223.GG12197@kroah.com> <8AFC7968D54FB448A30D8F38F259C56212EE39C0@TK5EX14MBXC116.redmond.corp.microsoft.com>
+Date: Wed, 3 Mar 2010 15:39:58 -0800
+Message-ID: <20100303233958.GA16513@kroah.com>
+References: <1FB5E1D5CA062146B38059374562DF725A908A11@TK5EX14MBXC126.redmond.corp.microsoft.com>
+ <20100217235223.GG12197@kroah.com>
+ <8AFC7968D54FB448A30D8F38F259C56212EE39C0@TK5EX14MBXC116.redmond.corp.microsoft.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
 In-Reply-To: <8AFC7968D54FB448A30D8F38F259C56212EE39C0@TK5EX14MBXC116.redmond.corp.microsoft.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Hank Janssen <hjanssen@microsoft.com>
 Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>, "devel@driverdev.osuosl.org" <devel@driverdev.osuosl.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, Haiyang Zhang <haiyangz@microsoft.com>, Hashir Abdi <habdi@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 03/03/2010 08:42 AM, Hank Janssen wrote:
-> There is a pretty good chance that ring buffer on Hyper-V will change to support
-> additional functionality. I did further investigations to check on other
-> virtualization technologies. And this same things seems to be true for XEN,
-> they also implemented their own ring buffer implementation on the guest side
-> because of their host side implementation.
->    
+On Wed, Mar 03, 2010 at 04:42:27PM +0000, Hank Janssen wrote:
+> The ring buffer in the Hyper-V Linux drivers is used to communicate with the 
+> parent partition running Server 2008 Hyper-V. The ring buffer functionality on 
+> the Hyper-V Linux drivers is written to be functionally compatible with" the 
+> ring buffer functionality on the Hyper-V Server. Consequently, it is not 
+> possible to make any changes that might break the compatibility with server 
+> side ring buffer implementation.  
 
-Yes.  The cross-domain producer-consumer ringbuffer is a pretty specific 
-protocol.  Not only is the data format an ABI, but the exact protocol 
-for what pointers get updated when, etc.  Its not at all obvious how we 
-could reuse the kernel ringbuffer implementation, since it assumes its 
-implementing both the producer and consumer ends.
+Ok, that makes sense, feel free to remove that TODO item.
 
-> So my question is to the community at large, am I missing something that would
-> enable me to use an existing ring buffer functionality somehow in the kernel?
-> If not, I want to remove the line from the TODO file that is requesting to use the
-> in-kernel ring buffer functionality.
->
-> Finally, while checking this out, I looked at a bunch of non virtualization device
-> drivers currently in the kernel. And all the ones I looked at have
-> implemented their own ring buffer. Is there a reason why this might be the case?
->    
+thanks for looking into this.
 
-linux/ring_buffer.h is relatively new, and probably post-dates most of 
-the driver ringbuffers.  If the ringbuffer is entirely within the kernel 
-(say, between an ISR and the rest of the kernel) then I guess it might 
-be possible to use the standard functions.  But if half the ringbuffer 
-is being managed by the device itself, then that will define the protocol.
-
-     J
+greg k-h
