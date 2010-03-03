@@ -1,55 +1,46 @@
-From: David Stevens <dlstevens@us.ibm.com>
-Subject: Re: [RFC][ PATCH 0/3] vhost-net: Add mergeable RX buffer support	to vhost-net
-Date: Wed, 3 Mar 2010 09:28:16 -0800
-Message-ID: <OFFE6E21C9.265C1D67-ON882576DB.005DAD30-882576DB.005FF8F2@us.ibm.com>
-References: <20100303092850.GB14034@redhat.com>
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+Subject: Re: Ringbuffer usage in Linux Hyper-V drivers
+Date: Wed, 03 Mar 2010 09:49:04 -0800
+Message-ID: <4B8EA110.1040200@goop.org>
+References: <1FB5E1D5CA062146B38059374562DF725A908A11@TK5EX14MBXC126.redmond.corp.microsoft.com>	<20100217235223.GG12197@kroah.com> <8AFC7968D54FB448A30D8F38F259C56212EE39C0@TK5EX14MBXC116.redmond.corp.microsoft.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20100303092850.GB14034@redhat.com>
-Sender: netdev-owner@vger.kernel.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, netdev-owner@vger.kernel.org, rusty@rustcorp.com.au, virtualization@lists.osdl.org
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <8AFC7968D54FB448A30D8F38F259C56212EE39C0@TK5EX14MBXC116.redmond.corp.microsoft.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Hank Janssen <hjanssen@microsoft.com>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>, "devel@driverdev.osuosl.org" <devel@driverdev.osuosl.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, Haiyang Zhang <haiyangz@microsoft.com>, Hashir Abdi <habdi@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-> Interesting. Since the feature in question is billed first of all a
-> performance optimization...
+On 03/03/2010 08:42 AM, Hank Janssen wrote:
+> There is a pretty good chance that ring buffer on Hyper-V will change to support
+> additional functionality. I did further investigations to check on other
+> virtualization technologies. And this same things seems to be true for XEN,
+> they also implemented their own ring buffer implementation on the guest side
+> because of their host side implementation.
+>    
 
-By whom? Although I see some improved performance, I think its real
-benefit is improving memory utilization on the guest. Instead of using
-75K for an ARP packet, mergeable RX buffers only uses 4K. :-)
+Yes.  The cross-domain producer-consumer ringbuffer is a pretty specific 
+protocol.  Not only is the data format an ABI, but the exact protocol 
+for what pointers get updated when, etc.  Its not at all obvious how we 
+could reuse the kernel ringbuffer implementation, since it assumes its 
+implementing both the producer and consumer ends.
 
-> Since the patches affect code paths when mergeable RX buffers are
-> disabled as well, I guess the most important point would be to verify
-> whether there's increase in latency and/or CPU utilization, or bandwidth
-> cost when the feature bit is *disabled*.
+> So my question is to the community at large, am I missing something that would
+> enable me to use an existing ring buffer functionality somehow in the kernel?
+> If not, I want to remove the line from the TODO file that is requesting to use the
+> in-kernel ring buffer functionality.
+>
+> Finally, while checking this out, I looked at a bunch of non virtualization device
+> drivers currently in the kernel. And all the ones I looked at have
+> implemented their own ring buffer. Is there a reason why this might be the case?
+>    
 
-Actually, when the feature bit is disabled, it'll only get a single
-head, doesn't use the special vnet_hdr, and the codepath reduces to the
-essentially to the original. But the answer is "no"; I saw no regressions
-when using it without the feature bit. The only substantive difference in 
-that case
-is that the new code avoids copying the vnet header as the original
-does, so it should actually be faster, but I don't think that's measurable
-above the variability I already see.
+linux/ring_buffer.h is relatively new, and probably post-dates most of 
+the driver ringbuffers.  If the ringbuffer is entirely within the kernel 
+(say, between an ISR and the rest of the kernel) then I guess it might 
+be possible to use the standard functions.  But if half the ringbuffer 
+is being managed by the device itself, then that will define the protocol.
 
-> 
-> > 2 notes: I have a modified version of qemu to get the VHOST_FEATURES
-> > flags, including the mergeable RX bufs flag, passed to the guest; I'll
-> > be working with your current qemu git trees next, if any changes are
-> > needed to support it there.
-> 
-> This feature also seems to conflict with zero-copy rx patches from Xin
-> Xiaohui (subject: Provide a zero-copy method on KVM virtio-net) these
-> are not in a mergeable shape yet, so this is not a blocker, but I wonder
-> what your thoughts on the subject are: how will we do feature
-> negotiation if some backends don't support some features?
-
-        The qemu code I have basically sends the set features and get
-features all the way to vhost (ie, it's the guest negotiating with
-vhost), except, of course, for the magic qemu-only bits. I think that's
-the right model. I'll definitely take a look at the patch you mention
-and maybe comment further.
-
-                                                                +-DLS
-
+     J
