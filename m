@@ -1,37 +1,55 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: virtio over PCI
-Date: Wed, 3 Mar 2010 17:45:02 +0100
-Message-ID: <201003031745.03041.arnd@arndb.de>
-References: <1267596588.7814.159.camel@concordia>
-	<20100304003920.GA12707@ovro.caltech.edu>
+From: David Stevens <dlstevens@us.ibm.com>
+Subject: Re: [RFC][ PATCH 0/3] vhost-net: Add mergeable RX buffer support	to vhost-net
+Date: Wed, 3 Mar 2010 09:28:16 -0800
+Message-ID: <OFFE6E21C9.265C1D67-ON882576DB.005DAD30-882576DB.005FF8F2@us.ibm.com>
+References: <20100303092850.GB14034@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20100304003920.GA12707@ovro.caltech.edu>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Ira W. Snyder" <iws@ovro.caltech.edu>
-Cc: Michael Ellerman <michael@ellerman.id.au>, Grant Likely <grant.likely@secretlab.ca>, Mark Purcell <mark_purcell@ie.ibm.com>, virtualization@lists.linux-foundation.org
+Content-Type: text/plain; charset="US-ASCII"
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <20100303092850.GB14034@redhat.com>
+Sender: netdev-owner@vger.kernel.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, netdev-owner@vger.kernel.org, rusty@rustcorp.com.au, virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thursday 04 March 2010, Ira W. Snyder wrote:
+> Interesting. Since the feature in question is billed first of all a
+> performance optimization...
 
-> I'm happy to provide any help I can, including testing on
-> MPC8349EA-based system. I would suggest talking to the virtualization
-> mailing list before you get too deep in the project. They sometimes have
-> good advice. I've added them to the CC list, so maybe they can comment.
-> https://lists.linux-foundation.org/mailman/listinfo/virtualization
+By whom? Although I see some improved performance, I think its real
+benefit is improving memory utilization on the guest. Instead of using
+75K for an ARP packet, mergeable RX buffers only uses 4K. :-)
 
-You may also want to get together with Mark Purcell (if you are not
-already working with him). He may be working on the same hardware that
-you are interested in, just guessing ;-).
+> Since the patches affect code paths when mergeable RX buffers are
+> disabled as well, I guess the most important point would be to verify
+> whether there's increase in latency and/or CPU utilization, or bandwidth
+> cost when the feature bit is *disabled*.
 
-	Arnd
+Actually, when the feature bit is disabled, it'll only get a single
+head, doesn't use the special vnet_hdr, and the codepath reduces to the
+essentially to the original. But the answer is "no"; I saw no regressions
+when using it without the feature bit. The only substantive difference in 
+that case
+is that the new code avoids copying the vnet header as the original
+does, so it should actually be faster, but I don't think that's measurable
+above the variability I already see.
+
+> 
+> > 2 notes: I have a modified version of qemu to get the VHOST_FEATURES
+> > flags, including the mergeable RX bufs flag, passed to the guest; I'll
+> > be working with your current qemu git trees next, if any changes are
+> > needed to support it there.
+> 
+> This feature also seems to conflict with zero-copy rx patches from Xin
+> Xiaohui (subject: Provide a zero-copy method on KVM virtio-net) these
+> are not in a mergeable shape yet, so this is not a blocker, but I wonder
+> what your thoughts on the subject are: how will we do feature
+> negotiation if some backends don't support some features?
+
+        The qemu code I have basically sends the set features and get
+features all the way to vhost (ie, it's the guest negotiating with
+vhost), except, of course, for the magic qemu-only bits. I think that's
+the right model. I'll definitely take a look at the patch you mention
+and maybe comment further.
+
+                                                                +-DLS
+
