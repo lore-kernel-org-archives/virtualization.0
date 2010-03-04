@@ -1,28 +1,37 @@
-From: Hank Janssen <hjanssen@microsoft.com>
-Subject: RE: [PATCH 1/1] Stage: hv: Corrected all header comments to follow
- kernel-doc format
-Date: Thu, 4 Mar 2010 18:11:29 +0000
-Message-ID: <8AFC7968D54FB448A30D8F38F259C56217DBFE60@TK5EX14MBXC116.redmond.corp.microsoft.com>
+From: Randy Dunlap <rdunlap@xenotime.net>
+Subject: Re: [PATCH 1/1] Stage: hv: Corrected all header comments to follow
+ kernel-doc format-CORRECTED
+Date: Thu, 4 Mar 2010 14:37:54 -0800
+Message-ID: <20100304143754.f1d0c53e.rdunlap@xenotime.net>
 References: <1FB5E1D5CA062146B38059374562DF725A908A11@TK5EX14MBXC126.redmond.corp.microsoft.com>
-	<8AFC7968D54FB448A30D8F38F259C56217DBFDF9@TK5EX14MBXC116.redmond.corp.microsoft.com>
- <20100304100352.d7bd75fb.rdunlap@xenotime.net>
+	<8AFC7968D54FB448A30D8F38F259C56217DC1B2C@TK5EX14MBXC116.redmond.corp.microsoft.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20100304100352.d7bd75fb.rdunlap@xenotime.net>
-Content-Language: en-US
+In-Reply-To: <8AFC7968D54FB448A30D8F38F259C56217DC1B2C@TK5EX14MBXC116.redmond.corp.microsoft.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Randy Dunlap <rdunlap@xenotime.net>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>, "devel@driverdev.osuosl.org" <devel@driverdev.osuosl.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, Greg KH <greg@kroah.com>, Haiyang Zhang <haiyangz@microsoft.com>, Hashir Abdi <habdi@microsoft.com>
+To: Hank Janssen <hjanssen@microsoft.com>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>, "devel@driverdev.osuosl.org" <devel@driverdev.osuosl.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, Haiyang Zhang <haiyangz@microsoft.com>, Hashir Abdi <habdi@microsoft.com>, Greg KH <greg@kroah.com>, "joe@perches.com" <joe@perches.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
+On Thu, 4 Mar 2010 22:11:00 +0000
+Hank Janssen <hjanssen@microsoft.com> wrote:
 
+> 
+> From: Hank Janssen <hjanssen@microsoft.com>
+> 
+> Removed kerneldoc /** from functions that should not have them.
+> Added proper kerneldoc headers to functions that should have them.
+> 
+> This includes fixes as pointed out by Randy Dunlap and Joe Perches.
+> 
+> Cc: Greg Kroah-Hartman <gregkh@suse.de>
+> Cc: Joe Perches <joe@perches.com>
+> Cc: Randy Dunlap <rdunlap@xenotime.net>
+> Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
+> Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 
-Randy and Joe,
+Acked-by: Randy Dunlap <rdunlap@xenotime.net>
 
-Thanks for the feedback, let me correct it (not sure why the lines are messed up :() and resubmit!
-
-Thanks,
-
-Hank
+Thanks.
