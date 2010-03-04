@@ -1,58 +1,69 @@
-From: Hank Janssen <hjanssen@microsoft.com>
-Subject: Ringbuffer usage in Linux Hyper-V drivers
-Date: Wed, 3 Mar 2010 16:42:27 +0000
-Message-ID: <8AFC7968D54FB448A30D8F38F259C56212EE39C0@TK5EX14MBXC116.redmond.corp.microsoft.com>
-References: <1FB5E1D5CA062146B38059374562DF725A908A11@TK5EX14MBXC126.redmond.corp.microsoft.com>
- <20100217235223.GG12197@kroah.com>
+From: "Ira W. Snyder" <iws@ovro.caltech.edu>
+Subject: Re: virtio over PCI
+Date: Wed, 3 Mar 2010 16:39:20 -0800
+Message-ID: <20100304003920.GA12707@ovro.caltech.edu>
+References: <1267596588.7814.159.camel@concordia>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20100217235223.GG12197@kroah.com>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>, "devel@driverdev.osuosl.org" <devel@driverdev.osuosl.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>
-Cc: Haiyang Zhang <haiyangz@microsoft.com>, Hashir Abdi <habdi@microsoft.com>
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <1267596588.7814.159.camel@concordia>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Michael Ellerman <michael@ellerman.id.au>
+Cc: Grant Likely <grant.likely@secretlab.ca>, Arnd Bergmann <arnd@arndb.de>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
+On Wed, Mar 03, 2010 at 05:09:48PM +1100, Michael Ellerman wrote:
+> Hi guys,
+> 
+> I was looking around at virtio over PCI stuff and noticed you had
+> started some work on a driver. The last I can find via google is v2 from
+> mid last year, is that as far as it got?
+> 
+> http://lkml.org/lkml/2009/2/23/353
+> 
 
+Yep, that is pretty much as far as I got. It was more-or-less rejected
+because I hooked two instances of virtio-net together, rather than
+having a proper backend and using virtio-net as the frontend.
 
-All,
+I got started on writing a backend, which was never posted to LKML
+because I never finished it. Feel free to take the code and use it to
+start your own project. Note that vhost-net exists now, and is an
+in-kernel backend for virtio-net. It *may* be possible to use this,
+rather than writing a userspace backend as I started to do.
+http://www.mmarray.org/~iws/virtio-phys/
 
-I have been looking at one of the TODO items in the Linux Hyper-V drivers. 
+I also got started with the alacrityvm project, developing a driver for
+their virtualization framework. That project is nowhere near finished.
+The virtualization folks basically told GHaskins (alacrityvm author)
+that alacrityvm wouldn't ever make it to mainline Linux.
+http://www.mmarray.org/~iws/vbus/
 
-Specifically the one that says;
+Unfortunately, I've been pulled onto other projects for the time being.
+However, I'd really like to be able to use a virtio-over-PCI style
+driver, rather than relying on my own custom (slow, unoptimized) network
+driver (PCINet).
 
-	- remove RingBuffer.c to use in-kernel ringbuffer functions instead.
+If you get something mostly working (and mostly agreed upon by the
+virtualization guys), I will make the time to test it and get it cleaned
+up. I've had 10+ people email me privately about this kind of driver
+now. It is an area where Linux is sorely lacking.
 
-I spend some time figuring out the ring buffer capability inside of the Linux 
-Kernel to see if we could change the Hyper-V ring buffer out for the in-kernel 
-ring buffer capability.
+I'm happy to provide any help I can, including testing on
+MPC8349EA-based system. I would suggest talking to the virtualization
+mailing list before you get too deep in the project. They sometimes have
+good advice. I've added them to the CC list, so maybe they can comment.
+https://lists.linux-foundation.org/mailman/listinfo/virtualization
 
-The ring buffer in the Hyper-V Linux drivers is used to communicate with the 
-parent partition running Server 2008 Hyper-V. The ring buffer functionality on 
-the Hyper-V Linux drivers is written to be functionally compatible with" the 
-ring buffer functionality on the Hyper-V Server. Consequently, it is not 
-possible to make any changes that might break the compatibility with server 
-side ring buffer implementation.  
-
-There is a pretty good chance that ring buffer on Hyper-V will change to support 
-additional functionality. I did further investigations to check on other 
-virtualization technologies. And this same things seems to be true for XEN, 
-they also implemented their own ring buffer implementation on the guest side 
-because of their host side implementation.
-
-So my question is to the community at large, am I missing something that would 
-enable me to use an existing ring buffer functionality somehow in the kernel?  
-If not, I want to remove the line from the TODO file that is requesting to use the 
-in-kernel ring buffer functionality.
-
-Finally, while checking this out, I looked at a bunch of non virtualization device 
-drivers currently in the kernel. And all the ones I looked at have 
-implemented their own ring buffer. Is there a reason why this might be the case?
- 
-As usual, any help is appreciated.
-
-Thanks,
-
-Hank Janssen.
+Good luck, and let me know if I can help.
+Ira
