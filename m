@@ -1,398 +1,427 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [RFC][ PATCH 1/3] vhost-net: support multiple buffer heads in
-	receiver
-Date: Sun, 7 Mar 2010 17:31:30 +0200
-Message-ID: <20100307153130.GA24997@redhat.com>
-References: <OF201C1B9E.C89ADF9F-ON882576DB.00006AD7-882576DB.0001DA4E@us.ibm.com>
+Subject: Re: [RFC][ PATCH 2/3] vhost-net: handle vnet_hdr processing for
+	MRG_RX_BUF
+Date: Sun, 7 Mar 2010 18:12:29 +0200
+Message-ID: <20100307161229.GB24997@redhat.com>
+References: <OF9CBCD776.645508E4-ON882576DB.0000CB6E-882576DB.0001DED1@us.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <kvm-owner@vger.kernel.org>
+Return-path: <netdev-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <OF201C1B9E.C89ADF9F-ON882576DB.00006AD7-882576DB.0001DA4E@us.ibm.com>
-Sender: kvm-owner@vger.kernel.org
+In-Reply-To: <OF9CBCD776.645508E4-ON882576DB.0000CB6E-882576DB.0001DED1@us.ibm.com>
+Sender: netdev-owner@vger.kernel.org
 To: David Stevens <dlstevens@us.ibm.com>
 Cc: rusty@rustcorp.com.au, netdev@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Mar 02, 2010 at 05:20:15PM -0700, David Stevens wrote:
-> This patch generalizes buffer handling functions to
-> support multiple buffer heads.
+On Tue, Mar 02, 2010 at 05:20:26PM -0700, David Stevens wrote:
+> This patch adds vnet_hdr processing for mergeable buffer
+> support to vhost-net.
 > 
-> In-line for viewing, attached for applying.
 > Signed-off-by: David L Stevens <dlstevens@us.ibm.com>
-> diff -ruN net-next-p0/drivers/vhost/net.c net-next-p1/drivers/vhost/net.c
-> --- net-next-p0/drivers/vhost/net.c     2010-02-24 12:59:24.000000000 
+> 
+> diff -ruN net-next-p1/drivers/vhost/net.c net-next-p2/drivers/vhost/net.c
+
+Could you please add -p to diff flags so that it's easier
+to figure out which function is changes?
+
+> --- net-next-p1/drivers/vhost/net.c     2010-03-01 11:44:22.000000000 
 > -0800
-> +++ net-next-p1/drivers/vhost/net.c     2010-03-01 11:44:22.000000000 
+> +++ net-next-p2/drivers/vhost/net.c     2010-03-02 13:01:34.000000000 
 > -0800
-> @@ -97,7 +97,8 @@
->  static void handle_tx(struct vhost_net *net)
->  {
->         struct vhost_virtqueue *vq = &net->dev.vqs[VHOST_NET_VQ_TX];
-> -       unsigned head, out, in, s;
-> +       unsigned out, in, s;
-> +       struct iovec head;
->         struct msghdr msg = {
->                 .msg_name = NULL,
->                 .msg_namelen = 0,
-> @@ -126,12 +127,10 @@
->         hdr_size = vq->hdr_size;
+> @@ -109,7 +109,6 @@
+>         };
+>         size_t len, total_len = 0;
+>         int err, wmem;
+> -       size_t hdr_size;
+>         struct socket *sock = rcu_dereference(vq->private_data);
+>         if (!sock)
+>                 return;
+> @@ -124,7 +123,6 @@
+>  
+>         if (wmem < sock->sk->sk_sndbuf * 2)
+>                 tx_poll_stop(net);
+> -       hdr_size = vq->hdr_size;
 >  
 >         for (;;) {
-> -               head = vhost_get_vq_desc(&net->dev, vq, vq->iov,
-> -                                        ARRAY_SIZE(vq->iov),
-> -                                        &out, &in,
-> -                                        NULL, NULL);
-> +               head.iov_base = (void *)vhost_get_vq_desc(&net->dev, vq,
-> +                       vq->iov, ARRAY_SIZE(vq->iov), &out, &in, NULL, 
-> NULL);
+>                 head.iov_base = (void *)vhost_get_vq_desc(&net->dev, vq,
+> @@ -148,25 +146,45 @@
+>                                "out %d, int %d\n", out, in);
+>                         break;
+>                 }
+> +               if (vq->guest_hlen > vq->sock_hlen) {
+> +                       if (msg.msg_iov[0].iov_len == vq->guest_hlen)
+> +                               msg.msg_iov[0].iov_len = vq->sock_hlen;
+> +                       else if (out == ARRAY_SIZE(vq->iov))
+> +                               vq_err(vq, "handle_tx iov overflow!");
+> +                       else {
+> +                               int i;
+> +
+> +                               /* give header its own iov */
+> +                               for (i=out; i>0; ++i)
+> +                                       msg.msg_iov[i+1] = msg.msg_iov[i];
+> +                               msg.msg_iov[0].iov_len = vq->sock_hlen;
+> +                               msg.msg_iov[1].iov_base += vq->guest_hlen;
+> +                               msg.msg_iov[1].iov_len -= vq->guest_hlen;
+> +                               out++;
 
-Should type for head be changed so that we do not need to cast?
+We seem to spend a fair bit of code here and elsewhere trying to cover
+the diff between header size in guest and host.  In hindsight, it was
+not a good idea to put new padding between data and the header:
+virtio-net should have added it *before*. But it is what it is.
 
-I also prefer aligning descendants on the opening (.
+Wouldn't it be easier to just add an ioctl to tap so that
+vnet header size is made bigger by 4 bytes?
 
->                 /* Nothing new?  Wait for eventfd to tell us they 
-> refilled. */
-> -               if (head == vq->num) {
-> +               if (head.iov_base == (void *)vq->num) {
->                         wmem = atomic_read(&sock->sk->sk_wmem_alloc);
->                         if (wmem >= sock->sk->sk_sndbuf * 3 / 4) {
->                                 tx_poll_start(net, sock);
-> @@ -152,7 +151,7 @@
+> +                       }
+> +               }
 >                 /* Skip header. TODO: support TSO. */
->                 s = move_iovec_hdr(vq->iov, vq->hdr, hdr_size, out);
+> -               s = move_iovec_hdr(vq->iov, vq->hdr, hdr_size, out);
 >                 msg.msg_iovlen = out;
-> -               len = iov_length(vq->iov, out);
-> +               head.iov_len = len = iov_length(vq->iov, out);
+>                 head.iov_len = len = iov_length(vq->iov, out);
 >                 /* Sanity check */
 >                 if (!len) {
 >                         vq_err(vq, "Unexpected header len for TX: "
-> @@ -163,14 +162,14 @@
+>                                "%zd expected %zd\n",
+> -                              iov_length(vq->hdr, s), hdr_size);
+> +                              len, vq->guest_hlen);
+>                         break;
+>                 }
 >                 /* TODO: Check specific error and bomb out unless ENOBUFS? 
 > */
 >                 err = sock->ops->sendmsg(NULL, sock, &msg, len);
 >                 if (unlikely(err < 0)) {
-> -                       vhost_discard_vq_desc(vq);
-> +                       vhost_discard(vq, 1);
+> -                       vhost_discard(vq, 1);
+> -                       tx_poll_start(net, sock);
+> +                       if (err == -EAGAIN) {
 
-Isn't the original name a bit more descriptive?
+The comment mentions ENOBUFS. Are you sure it's EAGAIN?
 
->                         tx_poll_start(net, sock);
+> +                               tx_poll_start(net, sock);
+
+Don't we need to call discard to move the last avail header back?
+
+> +                       } else {
+> +                               vq_err(vq, "sendmsg: errno %d\n", -err);
+> +                               /* drop packet; do not discard/resend */
+> + vhost_add_used_and_signal(&net->dev,vq,&head,1);
+> +                       }
 >                         break;
->                 }
->                 if (err != len)
+> -               }
+> -               if (err != len)
+> +               } else if (err != len)
+
+
+Previous if ends with break so no need for else here.
+
 >                         pr_err("Truncated TX packet: "
 >                                " len %d != %zd\n", err, len);
-> -               vhost_add_used_and_signal(&net->dev, vq, head, 0);
-> +               vhost_add_used_and_signal(&net->dev, vq, &head, 1);
->                 total_len += len;
->                 if (unlikely(total_len >= VHOST_NET_WEIGHT)) {
->                         vhost_poll_queue(&vq->poll);
-> @@ -182,12 +181,22 @@
->         unuse_mm(net->dev.mm);
->  }
->  
-> +static int skb_head_len(struct sk_buff_head *skq)
-> +{
-> +       struct sk_buff *head;
-> +
-> +       head = skb_peek(skq);
-> +       if (head)
-> +               return head->len;
-> +       return 0;
-> +}
-> +
-
-This is done without locking, which I think can crash
-if skb is consumed after we peek it but before we read the
-length.
-
-
->  /* Expects to be always run from workqueue - which acts as
->   * read-size critical section for our kind of RCU. */
->  static void handle_rx(struct vhost_net *net)
->  {
->         struct vhost_virtqueue *vq = &net->dev.vqs[VHOST_NET_VQ_RX];
-> -       unsigned head, out, in, log, s;
-> +       unsigned in, log, s;
->         struct vhost_log *vq_log;
->         struct msghdr msg = {
->                 .msg_name = NULL,
-> @@ -204,10 +213,11 @@
+>                 vhost_add_used_and_signal(&net->dev, vq, &head, 1);
+> @@ -207,14 +225,8 @@
+>                 .msg_flags = MSG_DONTWAIT,
 >         };
 >  
+> -       struct virtio_net_hdr hdr = {
+> -               .flags = 0,
+> -               .gso_type = VIRTIO_NET_HDR_GSO_NONE
+> -       };
+> -
 >         size_t len, total_len = 0;
-> -       int err;
-> +       int err, headcount, datalen;
->         size_t hdr_size;
+>         int err, headcount, datalen;
+> -       size_t hdr_size;
 >         struct socket *sock = rcu_dereference(vq->private_data);
-> -       if (!sock || skb_queue_empty(&sock->sk->sk_receive_queue))
-> +
-> +       if (!sock || !skb_head_len(&sock->sk->sk_receive_queue))
->                 return;
 >  
-
-Isn't this equivalent? Do you expect zero len skbs in socket?
-If yes, maybe we should discard these, not stop processing ...
-
-
+>         if (!sock || !skb_head_len(&sock->sk->sk_receive_queue))
+> @@ -223,7 +235,6 @@
 >         use_mm(net->dev.mm);
-> @@ -218,13 +228,10 @@
+>         mutex_lock(&vq->mutex);
+>         vhost_disable_notify(vq);
+> -       hdr_size = vq->hdr_size;
+>  
 >         vq_log = unlikely(vhost_has_feature(&net->dev, VHOST_F_LOG_ALL)) ?
 >                 vq->log : NULL;
->  
-> -       for (;;) {
-> -               head = vhost_get_vq_desc(&net->dev, vq, vq->iov,
-> -                                        ARRAY_SIZE(vq->iov),
-> -                                        &out, &in,
-> -                                        vq_log, &log);
-> +       while ((datalen = skb_head_len(&sock->sk->sk_receive_queue))) {
-
-This peeks in the queue to figure out how much data we have.
-It's a neat trick, but it does introduce new failure modes
-where an skb is consumed after we did the peek:
-- new skb could be shorter, we should return the unconsumed part
-- new skb could be longer, this will drop a packet.
-  maybe this last is not an issue as the race should be rare in practice
-
-> +               headcount = vhost_get_heads(vq, datalen, &in, vq_log, 
+> @@ -232,25 +243,18 @@
+>                 headcount = vhost_get_heads(vq, datalen, &in, vq_log, 
 > &log);
 >                 /* OK, now we need to know about added descriptors. */
-> -               if (head == vq->num) {
-> +               if (!headcount) {
->                         if (unlikely(vhost_enable_notify(vq))) {
->                                 /* They have slipped one in as we were
->                                  * doing that: check again. */
-> @@ -235,13 +242,6 @@
->                          * they refilled. */
+>                 if (!headcount) {
+> -                       if (unlikely(vhost_enable_notify(vq))) {
+> -                               /* They have slipped one in as we were
+> -                                * doing that: check again. */
+> -                               vhost_disable_notify(vq);
+> -                               continue;
+> -                       }
+> -                       /* Nothing new?  Wait for eventfd to tell us
+> -                        * they refilled. */
+> +                       vhost_enable_notify(vq);
+
+
+You don't think this race can happen?
+
 >                         break;
 >                 }
-> -               /* We don't need to be notified again. */
-
-you find this comment unhelpful?
-
-> -               if (out) {
-> -                       vq_err(vq, "Unexpected descriptor format for RX: "
-> -                              "out %d, int %d\n",
-> -                              out, in);
-> -                       break;
-> -               }
-
-
-we still need this check, don't we?
-
 >                 /* Skip header. TODO: support TSO/mergeable rx buffers. */
->                 s = move_iovec_hdr(vq->iov, vq->hdr, hdr_size, in);
+> -               s = move_iovec_hdr(vq->iov, vq->hdr, hdr_size, in);
 >                 msg.msg_iovlen = in;
-> @@ -257,14 +257,14 @@
->                                          len, MSG_DONTWAIT | MSG_TRUNC);
->                 /* TODO: Check specific error and bomb out unless EAGAIN? 
-> */
->                 if (err < 0) {
-> -                       vhost_discard_vq_desc(vq);
-> +                       vhost_discard(vq, 1);
+>                 len = iov_length(vq->iov, in);
+> +
+>                 /* Sanity check */
+>                 if (!len) {
+>                         vq_err(vq, "Unexpected header len for RX: "
+>                                "%zd expected %zd\n",
+> -                              iov_length(vq->hdr, s), hdr_size);
+> +                              len, vq->guest_hlen);
 >                         break;
 >                 }
->                 /* TODO: Should check and handle checksum. */
->                 if (err > len) {
->                         pr_err("Discarded truncated rx packet: "
->                                " len %d > %zd\n", err, len);
-> -                       vhost_discard_vq_desc(vq);
-> +                       vhost_discard(vq, 1);
+>                 err = sock->ops->recvmsg(NULL, sock, &msg,
+> @@ -268,13 +272,7 @@
 >                         continue;
 >                 }
 >                 len = err;
-> @@ -275,7 +275,7 @@
->                         break;
->                 }
->                 len += hdr_size;
-> -               vhost_add_used_and_signal(&net->dev, vq, head, len);
-> +               vhost_add_used_and_signal(&net->dev, vq, vq->heads, 
+> -               err = memcpy_toiovec(vq->hdr, (unsigned char *)&hdr, 
+> hdr_size);
+> -               if (err) {
+> -                       vq_err(vq, "Unable to write vnet_hdr at addr %p: 
+> %d\n",
+> -                              vq->iov->iov_base, err);
+> -                       break;
+> -               }
+> -               len += hdr_size;
+> +               len += vq->guest_hlen - vq->sock_hlen;
+>                 vhost_add_used_and_signal(&net->dev, vq, vq->heads, 
 > headcount);
 >                 if (unlikely(vq_log))
 >                         vhost_log_write(vq, vq_log, log, len);
->                 total_len += len;
-> diff -ruN net-next-p0/drivers/vhost/vhost.c 
-> net-next-p1/drivers/vhost/vhost.c
-> --- net-next-p0/drivers/vhost/vhost.c   2010-02-15 20:08:35.000000000 
-> -0800
-> +++ net-next-p1/drivers/vhost/vhost.c   2010-03-01 11:44:06.000000000 
-> -0800
-> @@ -848,6 +848,38 @@
->         return 0;
+> @@ -483,6 +481,13 @@
+>         return ERR_PTR(-ENOTSOCK);
 >  }
 >  
-> +unsigned vhost_get_heads(struct vhost_virtqueue *vq, int datalen, int 
-> *iovcount,
-> +       struct vhost_log *log, unsigned int *log_num)
-
-Could you please document this function's parameters? It's not obvious
-what iovcount, log, log_num are.
-
+> +static int vhost_sock_is_raw(struct socket *sock)
 > +{
-> +       struct iovec *heads = vq->heads;
-> +       int out, in;
-> +       int hc = 0;
-> +
-> +       while (datalen > 0) {
-> +               if (hc >= VHOST_NET_MAX_SG) {
-> +                       vhost_discard(vq, hc);
-> +                       return 0;
-> +               }
-> +               heads[hc].iov_base = (void *)vhost_get_vq_desc(vq->dev, 
-> vq,
-> +                       vq->iov, ARRAY_SIZE(vq->iov), &out, &in, log, 
-> log_num);
-> +               if (heads[hc].iov_base == (void *)vq->num) {
-> +                       vhost_discard(vq, hc);
-> +                       return 0;
-> +               }
-> +               if (out || in <= 0) {
-> +                       vq_err(vq, "unexpected descriptor format for RX: "
-> +                               "out %d, in %d\n", out, in);
-> +                       vhost_discard(vq, hc);
-> +                       return 0;
-> +               }
-> +               heads[hc].iov_len = iov_length(vq->iov, in);
-> +               hc++;
-> +               datalen -= heads[hc].iov_len;
-> +       }
-> +       *iovcount = in;
-
-
-Only the last value?
-
-> +       return hc;
+> +       if (!sock || !sock->sk)
+> +               return 0;
+> +       return sock->sk->sk_type == SOCK_RAW;
 > +}
 > +
->  /* This looks in the virtqueue and for the first available buffer, and 
-> converts
->   * it to an iovec for convenient access.  Since descriptors consist of 
-> some
->   * number of output then some number of input descriptors, it's actually 
-> two
-> @@ -973,31 +1005,32 @@
->  }
->  
->  /* Reverse the effect of vhost_get_vq_desc. Useful for error handling. */
-> -void vhost_discard_vq_desc(struct vhost_virtqueue *vq)
-> +void vhost_discard(struct vhost_virtqueue *vq, int n)
+>  static long vhost_net_set_backend(struct vhost_net *n, unsigned index, 
+> int fd)
 >  {
-> -       vq->last_avail_idx--;
-> +       vq->last_avail_idx -= n;
->  }
+>         struct socket *sock, *oldsock;
+> @@ -519,6 +524,20 @@
 >  
->  /* After we've used one of their buffers, we tell them about it.  We'll 
-> then
->   * want to notify the guest, using eventfd. */
-> -int vhost_add_used(struct vhost_virtqueue *vq, unsigned int head, int 
-> len)
-> +int vhost_add_used(struct vhost_virtqueue *vq, struct iovec *heads, int 
-> count)
->  {
->         struct vring_used_elem *used;
-> +       int i;
->  
-> -       /* The virtqueue contains a ring of used buffers.  Get a pointer 
-> to the
-> -        * next entry in that used ring. */
-> -       used = &vq->used->ring[vq->last_used_idx % vq->num];
-> -       if (put_user(head, &used->id)) {
-> -               vq_err(vq, "Failed to write used id");
-> -               return -EFAULT;
-> -       }
-> -       if (put_user(len, &used->len)) {
-> -               vq_err(vq, "Failed to write used len");
-> -               return -EFAULT;
-> +       for (i=0; i<count; i++, vq->last_used_idx++) {
+>         vhost_net_disable_vq(n, vq);
+>         rcu_assign_pointer(vq->private_data, sock);
+> +
+> +       if (sock && sock->sk) {
+> +               if (!vhost_sock_is_raw(sock) ||
 
-whitespace damage: I prefer space around =, <.
-I also use ++i, etc in this driver, better be consistent?
-Also for clarity, I prefer to put vq->last_used_idx inside the loop.
+I dislike this backend-specific code, it ties us with specifics of
+backend implementations, which change without notice.  Ideally all
+backend-specific stuff should live in userspace, userspace programs
+vhost device appropriately.
 
-> +               used = &vq->used->ring[vq->last_used_idx % vq->num];
-> +               if (put_user((unsigned)heads[i].iov_base, &used->id)) {
-> +                       vq_err(vq, "Failed to write used id");
-> +                       return -EFAULT;
-> +               }
-> +               if (put_user(heads[i].iov_len, &used->len)) {
-> +                       vq_err(vq, "Failed to write used len");
-> +                       return -EFAULT;
-> +               }
+> +                   vhost_has_feature(&n->dev, 
+> VHOST_NET_F_VIRTIO_NET_HDR)) {
+> +                       vq->sock_hlen = sizeof(struct virtio_net_hdr);
+> +                       if (vhost_has_feature(&n->dev, 
+> VIRTIO_NET_F_MRG_RXBUF))
+> +                               vq->guest_hlen =
+> +                                       sizeof(struct 
+> virtio_net_hdr_mrg_rxbuf);
+> +                       else
+> +                               vq->guest_hlen = sizeof(struct 
+> virtio_net_hdr);
+> +               } else
+> +                       vq->guest_hlen = vq->sock_hlen = 0;
+> +       } else
+> +               vq_err(vq, "vhost_net_set_backend: sock->sk is NULL");
 
-If this fails, last_used_idx will still be incremented, which I think is wrong.
+As proposed above, IMO it would be nicer to add an ioctl in tap
+that let us program header size.
 
->         }
->         /* Make sure buffer is written before we update index. */
+>         vhost_net_enable_vq(n, vq);
+>         mutex_unlock(&vq->mutex);
+>  done:
+> @@ -566,8 +585,17 @@
+>         n->dev.acked_features = features;
 >         smp_wmb();
-> -       if (put_user(vq->last_used_idx + 1, &vq->used->idx)) {
-> +       if (put_user(vq->last_used_idx, &vq->used->idx)) {
-
-here, too
-
->                 vq_err(vq, "Failed to increment used idx");
->                 return -EFAULT;
+>         for (i = 0; i < VHOST_NET_VQ_MAX; ++i) {
+> -               mutex_lock(&n->vqs[i].mutex);
+> -               n->vqs[i].hdr_size = hdr_size;
+> +               struct vhost_virtqueue *vq = n->vqs + i;
+> +               struct socket *sock = vq->private_data;
+> +
+> +               mutex_lock(&vq->mutex);
+> +               if (features & (1 << VIRTIO_NET_F_MRG_RXBUF))
+> +                       vq->sock_hlen = sizeof(struct 
+> virtio_net_hdr_mrg_rxbuf);
+> +               else if (features & (1 << VHOST_NET_F_VIRTIO_NET_HDR) ||
+> +                        !vhost_sock_is_raw(sock))
+> +                       vq->sock_hlen = sizeof(struct virtio_net_hdr);
+> +               else
+> +                       vq->sock_hlen = 0;
+>                 mutex_unlock(&n->vqs[i].mutex);
 >         }
-> @@ -1011,7 +1044,6 @@
->                 if (vq->log_ctx)
->                         eventfd_signal(vq->log_ctx, 1);
->         }
-> -       vq->last_used_idx++;
+>         vhost_net_flush(n);
+> diff -ruN net-next-p1/drivers/vhost/vhost.c 
+> net-next-p2/drivers/vhost/vhost.c
+> --- net-next-p1/drivers/vhost/vhost.c   2010-03-01 11:44:06.000000000 
+> -0800
+> +++ net-next-p2/drivers/vhost/vhost.c   2010-03-02 12:53:02.000000000 
+> -0800
+> @@ -113,7 +113,8 @@
+>         vq->used_flags = 0;
+>         vq->log_used = false;
+>         vq->log_addr = -1ull;
+> -       vq->hdr_size = 0;
+> +       vq->guest_hlen = 0;
+> +       vq->sock_hlen = 0;
+>         vq->private_data = NULL;
+>         vq->log_base = NULL;
+>         vq->error_ctx = NULL;
+> @@ -848,20 +849,85 @@
 >         return 0;
 >  }
 >  
-> @@ -1038,9 +1070,9 @@
->  /* And here's the combo meal deal.  Supersize me! */
->  void vhost_add_used_and_signal(struct vhost_dev *dev,
->                                struct vhost_virtqueue *vq,
-> -                              unsigned int head, int len)
-> +                              struct iovec *heads, int count)
+> +static int
+> +vhost_get_hdr(struct vhost_virtqueue *vq, int *in, struct vhost_log *log,
+> +       int *log_num)
+> +{
+> +       struct iovec *heads = vq->heads;
+> +       struct iovec *iov = vq->iov;
+> +       int out;
+> +
+> +       *in = 0;
+> +       iov[0].iov_len = 0;
+> +
+> +       /* get buffer, starting from iov[1] */
+> +       heads[0].iov_base = (void *)vhost_get_vq_desc(vq->dev, vq,
+> +               vq->iov+1, ARRAY_SIZE(vq->iov)-1, &out, in, log, log_num);
+> +       if (out || *in <= 0) {
+> +               vq_err(vq, "unexpected descriptor format for RX: out %d, "
+> +                       "in %d\n", out, *in);
+> +               return 0;
+> +       }
+> +       if (heads[0].iov_base == (void *)vq->num)
+> +               return 0;
+> +
+> +       /* make iov[0] the header */
+> +       if (!vq->guest_hlen) {
+> +               if (vq->sock_hlen) {
+> +                       static struct virtio_net_hdr junk; /* bit bucket 
+> */
+> +
+> +                       iov[0].iov_base = &junk;
+> +                       iov[0].iov_len = sizeof(junk);
+> +               } else
+> +                       iov[0].iov_len = 0;
+> +       }
+> +       if (vq->sock_hlen < vq->guest_hlen) {
+> +               iov[0].iov_base = iov[1].iov_base;
+> +               iov[0].iov_len = vq->sock_hlen;
+> +
+> +               if (iov[1].iov_len < vq->sock_hlen) {
+> +                       vq_err(vq, "can't fit header in one buffer!");
+> +                       vhost_discard(vq, 1);
+> +                       return 0;
+> +               }
+> +               if (!vq->sock_hlen) {
+> +                       static const struct virtio_net_hdr_mrg_rxbuf hdr = 
+> {
+> +                               .hdr.flags = 0,
+> +                               .hdr.gso_type = VIRTIO_NET_HDR_GSO_NONE
+> +                       };
+> +                       memcpy(iov[0].iov_base, &hdr, vq->guest_hlen);
+> +               }
+> +               iov[1].iov_base += vq->guest_hlen;
+> +               iov[1].iov_len -= vq->guest_hlen;
+> +       }
+> +       return 1;
+
+The above looks kind of scary, lots of special-casing.  I'll send a
+patch for tap to set vnet header size, let's see if it makes life easier
+for us.
+
+> +}
+> +
+>  unsigned vhost_get_heads(struct vhost_virtqueue *vq, int datalen, int 
+> *iovcount,
+>         struct vhost_log *log, unsigned int *log_num)
 >  {
-> -       vhost_add_used(vq, head, len);
-> +       vhost_add_used(vq, heads, count);
->         vhost_signal(dev, vq);
+>         struct iovec *heads = vq->heads;
+> -       int out, in;
+> +       int out, in = 0;
+> +       int seg = 0;
+>         int hc = 0;
+
+I think it's better to stick to simple names like i
+for index variables, alternatively give it a meaningful
+name like "count".
+
+>  
+> +       if (vq->guest_hlen != vq->sock_hlen) {
+
+Sticking guest_hlen/sock_hlen in vhost is somewhat ugly.
+
+> +               seg = vhost_get_hdr(vq, &in, log, log_num);
+> +               if (!seg)
+> +                       return 0;
+> +               hc++;
+> +               datalen -= iov_length(vq->iov+seg, in);
+> +               seg += in;
+> +       }
+> +
+>         while (datalen > 0) {
+>                 if (hc >= VHOST_NET_MAX_SG) {
+>                         vhost_discard(vq, hc);
+>                         return 0;
+>                 }
+>                 heads[hc].iov_base = (void *)vhost_get_vq_desc(vq->dev, 
+> vq,
+> -                       vq->iov, ARRAY_SIZE(vq->iov), &out, &in, log, 
+> log_num);
+> +                       vq->iov+seg, ARRAY_SIZE(vq->iov)-seg, &out, &in,
+> +                       log, log_num);
+>                 if (heads[hc].iov_base == (void *)vq->num) {
+>                         vhost_discard(vq, hc);
+>                         return 0;
+> @@ -872,11 +938,12 @@
+>                         vhost_discard(vq, hc);
+>                         return 0;
+>                 }
+> -               heads[hc].iov_len = iov_length(vq->iov, in);
+> -               hc++;
+> +               heads[hc].iov_len = iov_length(vq->iov+seg, in);
+>                 datalen -= heads[hc].iov_len;
+> +               hc++;
+> +               seg += in;
+>         }
+> -       *iovcount = in;
+> +       *iovcount = seg;
+>         return hc;
 >  }
 >  
-> diff -ruN net-next-p0/drivers/vhost/vhost.h 
-> net-next-p1/drivers/vhost/vhost.h
-> --- net-next-p0/drivers/vhost/vhost.h   2010-02-15 20:08:35.000000000 
+> diff -ruN net-next-p1/drivers/vhost/vhost.h 
+> net-next-p2/drivers/vhost/vhost.h
+> --- net-next-p1/drivers/vhost/vhost.h   2010-03-01 11:42:18.000000000 
 > -0800
-> +++ net-next-p1/drivers/vhost/vhost.h   2010-03-01 11:42:18.000000000 
+> +++ net-next-p2/drivers/vhost/vhost.h   2010-03-02 13:02:03.000000000 
 > -0800
-> @@ -84,6 +84,7 @@
+> @@ -82,10 +82,9 @@
+>         u64 log_addr;
+>  
 >         struct iovec indirect[VHOST_NET_MAX_SG];
->         struct iovec iov[VHOST_NET_MAX_SG];
->         struct iovec hdr[VHOST_NET_MAX_SG];
-> +       struct iovec heads[VHOST_NET_MAX_SG];
->         size_t hdr_size;
+> -       struct iovec iov[VHOST_NET_MAX_SG];
+> -       struct iovec hdr[VHOST_NET_MAX_SG];
+> +       struct iovec iov[VHOST_NET_MAX_SG+1]; /* an extra for vnet hdr */
+>         struct iovec heads[VHOST_NET_MAX_SG];
+> -       size_t hdr_size;
+> +       size_t guest_hlen, sock_hlen;
 >         /* We use a kind of RCU to access private pointer.
 >          * All readers access it from workqueue, which makes it possible 
 > to
-> @@ -120,16 +121,18 @@
->  int vhost_vq_access_ok(struct vhost_virtqueue *vq);
->  int vhost_log_access_ok(struct vhost_dev *);
->  
-> +unsigned vhost_get_heads(struct vhost_virtqueue *, int datalen, int 
-> *iovcount,
-> +                       struct vhost_log *log, unsigned int *log_num);
->  unsigned vhost_get_vq_desc(struct vhost_dev *, struct vhost_virtqueue *,
->                            struct iovec iov[], unsigned int iov_count,
->                            unsigned int *out_num, unsigned int *in_num,
->                            struct vhost_log *log, unsigned int *log_num);
-> -void vhost_discard_vq_desc(struct vhost_virtqueue *);
-> +void vhost_discard(struct vhost_virtqueue *, int);
->  
-> -int vhost_add_used(struct vhost_virtqueue *, unsigned int head, int len);
-> -void vhost_signal(struct vhost_dev *, struct vhost_virtqueue *);
-> +int vhost_add_used(struct vhost_virtqueue *, struct iovec *heads, int 
-> count);
->  void vhost_add_used_and_signal(struct vhost_dev *, struct vhost_virtqueue 
-> *,
-> -                              unsigned int head, int len);
-> +                              struct iovec *heads, int count);
-> +void vhost_signal(struct vhost_dev *, struct vhost_virtqueue *);
->  void vhost_disable_notify(struct vhost_virtqueue *);
->  bool vhost_enable_notify(struct vhost_virtqueue *);
->  
+>          * flush the workqueue instead of synchronize_rcu. Therefore 
+> readers do
+> 
 
 
