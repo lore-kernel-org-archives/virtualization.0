@@ -1,11 +1,13 @@
 From: Amit Shah <amit.shah@redhat.com>
-Subject: [PATCH 0/2] virtio: console: Trivial fixes based on review comments
-Date: Mon,  8 Mar 2010 14:16:58 +0530
-Message-ID: <1268038020-12539-1-git-send-email-amit.shah@redhat.com>
+Subject: [PATCH 1/2] virtio: console: Fix type of 'len' as unsigned int
+Date: Mon,  8 Mar 2010 14:16:59 +0530
+Message-ID: <1268038020-12539-2-git-send-email-amit.shah@redhat.com>
+References: <1268038020-12539-1-git-send-email-amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1268038020-12539-1-git-send-email-amit.shah@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,16 +21,27 @@ To: mst@redhat.com
 Cc: Amit Shah <amit.shah@redhat.com>, virtualization@linux-foundation.org, quintela@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hello,
+We declare 'len' as int type but it should be 'unsigned int', as
+get_buf() wants it to be.
 
-Here are a couple of small fixes for the virtio_console code, it's mostly
-stylistic fixes.
+Signed-off-by: Amit Shah <amit.shah@redhat.com>
+Reported-by: Juan Quintela <quintela@redhat.com>
+---
+ drivers/char/virtio_console.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-Michael, can you push these to Linus? Thanks.
-
-Amit Shah (2):
-  virtio: console: Fix type of 'len' as unsigned int
-  virtio: console: Use better variable names for fill_queue operation
-
- drivers/char/virtio_console.c |   29 ++++++++++++++++-------------
- 1 files changed, 16 insertions(+), 13 deletions(-)
+diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
+index 213373b..2bd6a9c 100644
+--- a/drivers/char/virtio_console.c
++++ b/drivers/char/virtio_console.c
+@@ -379,7 +379,7 @@ static ssize_t send_control_msg(struct port *port, unsigned int event,
+ 	struct scatterlist sg[1];
+ 	struct virtio_console_control cpkt;
+ 	struct virtqueue *vq;
+-	int len;
++	unsigned int len;
+ 
+ 	if (!use_multiport(port->portdev))
+ 		return 0;
+-- 
+1.6.2.5
