@@ -1,82 +1,103 @@
-From: David Stevens <dlstevens@us.ibm.com>
-Subject: Re: [RFC][ PATCH 1/3] vhost-net: support multiple buffer heads in	receiver
-Date: Wed, 10 Mar 2010 14:17:19 -0800
-Message-ID: <OFB507E769.AEAC2F51-ON882576E2.007806C8-882576E2.007A6F76@us.ibm.com>
-References: <20100308074533.GA7482@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <20100308074533.GA7482@redhat.com>
-Sender: kvm-owner@vger.kernel.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, rusty@rustcorp.com.au, virtualization@lists.osdl.org
+From: Bruno Bigras <bigras.bruno@gmail.com>
+Subject: [PATCH 1/2] xen: balloon: Fix checkpatch issues
+Date: Wed, 10 Mar 2010 23:00:53 -0500
+Message-ID: <1268280054-16170-1-git-send-email-bigras.bruno@gmail.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: jeremy@xensource.com
+Cc: virtualization@lists.osdl.org, xen-devel@lists.xensource.com, linux-kernel@vger.kernel.org, Bruno Bigras <bigras.bruno@gmail.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-"Michael S. Tsirkin" <mst@redhat.com> wrote on 03/07/2010 11:45:33 PM:
+drivers/xen/balloon.c:50: WARNING: Use #include <linux/uaccess.h> instead of <asm/uaccess.h>
+drivers/xen/balloon.c:158: ERROR: else should follow close brace '}'
+drivers/xen/balloon.c:277: ERROR: do not use assignment in if condition
+drivers/xen/balloon.c:293: ERROR: code indent should use tabs where possible
+drivers/xen/balloon.c:364: ERROR: that open brace { should be on the previous line
+drivers/xen/balloon.c:463: WARNING: line over 80 characters
+drivers/xen/balloon.c:491: WARNING: line over 80 characters
 
-> > > > +static int skb_head_len(struct sk_buff_head *skq)
-> > > > +{
-> > > > +       struct sk_buff *head;
-> > > > +
-> > > > +       head = skb_peek(skq);
-> > > > +       if (head)
-> > > > +               return head->len;
-> > > > +       return 0;
-> > > > +}
-> > > > +
-> > > 
-> > > This is done without locking, which I think can crash
-> > > if skb is consumed after we peek it but before we read the
-> > > length.
-> > 
-> >         This thread is the only legitimate consumer, right? But
-> > qemu has the file descriptor and I guess we shouldn't trust
-> > that it won't give it to someone else; it'd break vhost, but
-> > a crash would be inappropriate, of course. I'd like to avoid
-> > the lock, but I have another idea here, so will investigate.
+Signed-off-by: Bruno Bigras <bigras.bruno@gmail.com>
+---
+ drivers/xen/balloon.c |   21 ++++++++++-----------
+ 1 files changed, 10 insertions(+), 11 deletions(-)
 
-        I looked at this some more and actually, I'm not sure I
-see a crash here.
-        First, without qemu, or something it calls, being broken
-as root, nothing else should ever read from the socket, in which
-case the length will be exactly right for the next packet we
-read. No problem.
-        But if by some error this skb is freed, we'll have valid
-memory address that isn't the length field of the next packet
-we'll read.
-        If the length is negative or more than available in the
-vring, we'll fail the buffer allocation, exit the loop, and
-get the new head length of the receive queue the next time
-around -- no problem.
-        If the length field is 0, we'll exit the loop even
-though we have data to read, but will get that packet the
-next time we get in here, again, with the right length.
-No problem.
-        If the length field is big enough to allocate buffer
-space for it, but smaller than the new head we have to read,
-the recvmsg will fail with EMSGSIZE, drop the packet, exit
-the loop and be back in business with the next packet. No
-problem.
-        Otherwise, the packet will fit and be delivered.
-
-        I don't much like the notion of using skb->head when
-it's garbage, but that can only happen if qemu has broken,
-and I don't see a crash unless the skb is not only freed
-but no longer a valid memory address for reading at all,
-and all within the race window.
-        Since the code handles other failure cases (not
-enough ring buffers or packet not fitting in the allocated
-buffers), the actual length value only matters in the
-sense that it prevents us from using buffers unnecessarily--
-something that isn't all that relevant if it's hosed enough
-to have unauthorized readers on the socket.
-
-        Is this case worth the performance penalty we'll no
-doubt pay for either locking the socket or always allocating
-for a max-sized packet? I'll experiment with a couple
-solutions here, but unless I've missed something, we might
-be better off just leaving it as-is.
-
-                                                        +-DLS
-
-
+diff --git a/drivers/xen/balloon.c b/drivers/xen/balloon.c
+index f6738d8..93538a8 100644
+--- a/drivers/xen/balloon.c
++++ b/drivers/xen/balloon.c
+@@ -43,11 +43,11 @@
+ #include <linux/mutex.h>
+ #include <linux/list.h>
+ #include <linux/sysdev.h>
++#include <linux/uaccess.h>
+ 
+ #include <asm/page.h>
+ #include <asm/pgalloc.h>
+ #include <asm/pgtable.h>
+-#include <asm/uaccess.h>
+ #include <asm/tlb.h>
+ 
+ #include <asm/xen/hypervisor.h>
+@@ -154,8 +154,7 @@ static struct page *balloon_retrieve(void)
+ 	if (PageHighMem(page)) {
+ 		balloon_stats.balloon_high--;
+ 		inc_totalhigh_pages();
+-	}
+-	else
++	} else
+ 		balloon_stats.balloon_low--;
+ 
+ 	totalram_pages++;
+@@ -274,7 +273,8 @@ static int decrease_reservation(unsigned long nr_pages)
+ 		nr_pages = ARRAY_SIZE(frame_list);
+ 
+ 	for (i = 0; i < nr_pages; i++) {
+-		if ((page = alloc_page(GFP_BALLOON)) == NULL) {
++		page = alloc_page(GFP_BALLOON);
++		if (!page) {
+ 			nr_pages = i;
+ 			need_sleep = 1;
+ 			break;
+@@ -290,7 +290,7 @@ static int decrease_reservation(unsigned long nr_pages)
+ 				(unsigned long)__va(pfn << PAGE_SHIFT),
+ 				__pte_ma(0), 0);
+ 			BUG_ON(ret);
+-                }
++		}
+ 
+ 	}
+ 
+@@ -360,8 +360,7 @@ static void balloon_set_new_target(unsigned long target)
+ 	schedule_work(&balloon_worker);
+ }
+ 
+-static struct xenbus_watch target_watch =
+-{
++static struct xenbus_watch target_watch = {
+ 	.node = "memory/target"
+ };
+ 
+@@ -460,8 +459,8 @@ BALLOON_SHOW(low_kb, "%lu\n", PAGES2KB(balloon_stats.balloon_low));
+ BALLOON_SHOW(high_kb, "%lu\n", PAGES2KB(balloon_stats.balloon_high));
+ BALLOON_SHOW(driver_kb, "%lu\n", PAGES2KB(balloon_stats.driver_pages));
+ 
+-static ssize_t show_target_kb(struct sys_device *dev, struct sysdev_attribute *attr,
+-			      char *buf)
++static ssize_t show_target_kb(struct sys_device *dev,
++			      struct sysdev_attribute *attr, char *buf)
+ {
+ 	return sprintf(buf, "%lu\n", PAGES2KB(balloon_stats.target_pages));
+ }
+@@ -488,8 +487,8 @@ static SYSDEV_ATTR(target_kb, S_IRUGO | S_IWUSR,
+ 		   show_target_kb, store_target_kb);
+ 
+ 
+-static ssize_t show_target(struct sys_device *dev, struct sysdev_attribute *attr,
+-			      char *buf)
++static ssize_t show_target(struct sys_device *dev,
++			   struct sysdev_attribute *attr, char *buf)
+ {
+ 	return sprintf(buf, "%llu\n",
+ 		       (unsigned long long)balloon_stats.target_pages
+-- 
+1.7.0.2
