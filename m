@@ -1,130 +1,68 @@
-From: Bruno Bigras <bigras.bruno@gmail.com>
-Subject: [PATCH 2/2] xen: events: Fix checkpatch issues
-Date: Wed, 10 Mar 2010 23:00:54 -0500
-Message-ID: <1268280054-16170-2-git-send-email-bigras.bruno@gmail.com>
-References: <1268280054-16170-1-git-send-email-bigras.bruno@gmail.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1268280054-16170-1-git-send-email-bigras.bruno@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: jeremy@xensource.com
-Cc: virtualization@lists.osdl.org, xen-devel@lists.xensource.com, linux-kernel@vger.kernel.org, Bruno Bigras <bigras.bruno@gmail.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH] vhost: fix error handling in vring ioctls
+Date: Wed, 17 Mar 2010 16:42:50 +0200
+Message-ID: <20100317144249.GA3984@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <kvm-owner@vger.kernel.org>
+Content-Disposition: inline
+Sender: kvm-owner@vger.kernel.org
+To: "Michael S. Tsirkin" <mst@redhat.com>, Jiri Slaby <jirislaby@gmail.com>, kvm@vger.kernel.org, virtualization@lists.osdl.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-drivers/xen/events.c:31: WARNING: Use #include <linux/ptrace.h> instead of <asm/ptrace.h>
-drivers/xen/events.c:76: ERROR: open brace '{' following struct go on the same line
-drivers/xen/events.c:509: WARNING: line over 80 characters
-drivers/xen/events.c:581: ERROR: space required before the open parenthesis '('
-drivers/xen/events.c:585: ERROR: space required before the open parenthesis '('
-drivers/xen/events.c:590: ERROR: space required before the open parenthesis '('
-drivers/xen/events.c:595: ERROR: space required before the open parenthesis '('
-drivers/xen/events.c:625: ERROR: code indent should use tabs where possible
-drivers/xen/events.c:625: WARNING: please, no space before tabs
-drivers/xen/events.c:666: ERROR: space required before the open parenthesis '('
-drivers/xen/events.c:802: ERROR: do not use assignment in if condition
-drivers/xen/events.c:831: ERROR: do not use assignment in if condition
+Stanse found a locking problem in vhost_set_vring:
+several returns from VHOST_SET_VRING_KICK, VHOST_SET_VRING_CALL,
+VHOST_SET_VRING_ERR with the vq->mutex held.
+Fix these up.
 
-Signed-off-by: Bruno Bigras <bigras.bruno@gmail.com>
+Reported-by: Jiri Slaby <jirislaby@gmail.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- drivers/xen/events.c |   26 ++++++++++++++------------
- 1 files changed, 14 insertions(+), 12 deletions(-)
+ drivers/vhost/vhost.c |   18 ++++++++++++------
+ 1 files changed, 12 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/xen/events.c b/drivers/xen/events.c
-index 2f84137..e86841c 100644
---- a/drivers/xen/events.c
-+++ b/drivers/xen/events.c
-@@ -27,8 +27,8 @@
- #include <linux/module.h>
- #include <linux/string.h>
- #include <linux/bootmem.h>
-+#include <linux/ptrace.h>
- 
--#include <asm/ptrace.h>
- #include <asm/irq.h>
- #include <asm/idle.h>
- #include <asm/sync_bitops.h>
-@@ -72,8 +72,7 @@ enum xen_irq_type {
-  *    IPI - IPI vector
-  *    EVTCHN -
-  */
--struct irq_info
--{
-+struct irq_info {
- 	enum xen_irq_type type;	/* type */
- 	unsigned short evtchn;	/* event channel */
- 	unsigned short cpu;	/* cpu bound */
-@@ -506,7 +505,8 @@ EXPORT_SYMBOL_GPL(bind_evtchn_to_irqhandler);
- 
- int bind_virq_to_irqhandler(unsigned int virq, unsigned int cpu,
- 			    irq_handler_t handler,
--			    unsigned long irqflags, const char *devname, void *dev_id)
-+			    unsigned long irqflags, const char *devname,
-+			    void *dev_id)
- {
- 	unsigned int irq;
- 	int retval;
-@@ -578,21 +578,21 @@ irqreturn_t xen_debug_interrupt(int irq, void *dev_id)
- 			v->evtchn_pending_sel);
- 	}
- 	printk("pending:\n   ");
--	for(i = ARRAY_SIZE(sh->evtchn_pending)-1; i >= 0; i--)
-+	for (i = ARRAY_SIZE(sh->evtchn_pending)-1; i >= 0; i--)
- 		printk("%08lx%s", sh->evtchn_pending[i],
- 			i % 8 == 0 ? "\n   " : " ");
- 	printk("\nmasks:\n   ");
--	for(i = ARRAY_SIZE(sh->evtchn_mask)-1; i >= 0; i--)
-+	for (i = ARRAY_SIZE(sh->evtchn_mask)-1; i >= 0; i--)
- 		printk("%08lx%s", sh->evtchn_mask[i],
- 			i % 8 == 0 ? "\n   " : " ");
- 
- 	printk("\nunmasked:\n   ");
--	for(i = ARRAY_SIZE(sh->evtchn_mask)-1; i >= 0; i--)
-+	for (i = ARRAY_SIZE(sh->evtchn_mask)-1; i >= 0; i--)
- 		printk("%08lx%s", sh->evtchn_pending[i] & ~sh->evtchn_mask[i],
- 			i % 8 == 0 ? "\n   " : " ");
- 
- 	printk("\npending list:\n");
--	for(i = 0; i < NR_EVENT_CHANNELS; i++) {
-+	for (i = 0; i < NR_EVENT_CHANNELS; i++) {
- 		if (sync_test_bit(i, sh->evtchn_pending)) {
- 			printk("  %d: event %d -> irq %d\n",
- 			       cpu_from_evtchn(i), i,
-@@ -622,7 +622,7 @@ void xen_evtchn_do_upcall(struct pt_regs *regs)
- 	struct pt_regs *old_regs = set_irq_regs(regs);
- 	struct shared_info *s = HYPERVISOR_shared_info;
- 	struct vcpu_info *vcpu_info = __get_cpu_var(xen_vcpu);
-- 	unsigned count;
-+	unsigned count;
- 
- 	exit_idle();
- 	irq_enter();
-@@ -663,7 +663,7 @@ void xen_evtchn_do_upcall(struct pt_regs *regs)
- 
- 		count = __get_cpu_var(xed_nesting_count);
- 		__get_cpu_var(xed_nesting_count) = 0;
--	} while(count != 1);
-+	} while (count != 1);
- 
- out:
- 	irq_exit();
-@@ -799,7 +799,8 @@ static void restore_cpu_virqs(unsigned int cpu)
- 	int virq, irq, evtchn;
- 
- 	for (virq = 0; virq < NR_VIRQS; virq++) {
--		if ((irq = per_cpu(virq_to_irq, cpu)[virq]) == -1)
-+		irq = per_cpu(virq_to_irq, cpu)[virq];
-+		if (irq == -1)
- 			continue;
- 
- 		BUG_ON(virq_from_irq(irq) != virq);
-@@ -828,7 +829,8 @@ static void restore_cpu_ipis(unsigned int cpu)
- 	int ipi, irq, evtchn;
- 
- 	for (ipi = 0; ipi < XEN_NR_IPIS; ipi++) {
--		if ((irq = per_cpu(ipi_to_irq, cpu)[ipi]) == -1)
-+		irq = per_cpu(ipi_to_irq, cpu)[ipi];
-+		if (irq == -1)
- 			continue;
- 
- 		BUG_ON(ipi_from_irq(irq) != ipi);
+diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+index 7cd55e0..7bd7a1e 100644
+--- a/drivers/vhost/vhost.c
++++ b/drivers/vhost/vhost.c
+@@ -476,8 +476,10 @@ static long vhost_set_vring(struct vhost_dev *d, int ioctl, void __user *argp)
+ 		if (r < 0)
+ 			break;
+ 		eventfp = f.fd == -1 ? NULL : eventfd_fget(f.fd);
+-		if (IS_ERR(eventfp))
+-			return PTR_ERR(eventfp);
++		if (IS_ERR(eventfp)) {
++			r = PTR_ERR(eventfp);
++			break;
++		}
+ 		if (eventfp != vq->kick) {
+ 			pollstop = filep = vq->kick;
+ 			pollstart = vq->kick = eventfp;
+@@ -489,8 +491,10 @@ static long vhost_set_vring(struct vhost_dev *d, int ioctl, void __user *argp)
+ 		if (r < 0)
+ 			break;
+ 		eventfp = f.fd == -1 ? NULL : eventfd_fget(f.fd);
+-		if (IS_ERR(eventfp))
+-			return PTR_ERR(eventfp);
++		if (IS_ERR(eventfp)) {
++			r = PTR_ERR(eventfp);
++			break;
++		}
+ 		if (eventfp != vq->call) {
+ 			filep = vq->call;
+ 			ctx = vq->call_ctx;
+@@ -505,8 +509,10 @@ static long vhost_set_vring(struct vhost_dev *d, int ioctl, void __user *argp)
+ 		if (r < 0)
+ 			break;
+ 		eventfp = f.fd == -1 ? NULL : eventfd_fget(f.fd);
+-		if (IS_ERR(eventfp))
+-			return PTR_ERR(eventfp);
++		if (IS_ERR(eventfp)) {
++			r = PTR_ERR(eventfp);
++			break;
++		}
+ 		if (eventfp != vq->error) {
+ 			filep = vq->error;
+ 			vq->error = eventfp;
 -- 
-1.7.0.2
+1.7.0.18.g0d53a5
