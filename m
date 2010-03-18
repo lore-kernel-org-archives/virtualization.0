@@ -1,101 +1,46 @@
-From: Laurent Chavey <chavey@google.com>
-Subject: Re: [PATCH] vhost: fix error handling in vring ioctls
-Date: Wed, 17 Mar 2010 11:40:23 -0700
-Message-ID: <97949e3e1003171140j530ead98k40edd8eb647a0399@mail.gmail.com>
-References: <20100317144249.GA3984@redhat.com> <97949e3e1003171054q3bee27d5yce0d92ae33e5b5ca@mail.gmail.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [GIT PULL] vhost-net fixes for issues in 2.6.34-rc1
+Date: Thu, 18 Mar 2010 11:53:55 +0200
+Message-ID: <20100318095355.GA24194@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <97949e3e1003171054q3bee27d5yce0d92ae33e5b5ca@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jiri Slaby <jirislaby@gmail.com>, kvm@vger.kernel.org, virtualization@lists.osdl.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: David Miller <davem@davemloft.net>
+Cc: samudrala@us.ibm.com, kvm@vger.kernel.org, Juan Quintela <quintela@redhat.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, Laurent Chavey <chavey@google.com>, virtualization@lists.osdl.org, Unai Uribarri <unai.uribarri@optenet.com>, Jeff Dike <jdike@linux.intel.com>, Jiri Slaby <jirislaby@gmail.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Acked-by: Laurent Chavey <chavey@google.com>
+David,
+The following tree includes patches fixing issues with vhost-net in
+2.6.34-rc1.  Please pull them for 2.6.34.
+ 
+Thanks!
 
-On Wed, Mar 17, 2010 at 10:54 AM, Laurent Chavey <chavey@google.com> wr=
-ote:
-> Acked-by: chavey@google.com
->
->
-> On Wed, Mar 17, 2010 at 7:42 AM, Michael S. Tsirkin <mst@redhat.com> =
-wrote:
->> Stanse found a locking problem in vhost_set_vring:
->> several returns from VHOST_SET_VRING_KICK, VHOST_SET_VRING_CALL,
->> VHOST_SET_VRING_ERR with the vq->mutex held.
->> Fix these up.
->>
->> Reported-by: Jiri Slaby <jirislaby@gmail.com>
->> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
->> ---
->> =A0drivers/vhost/vhost.c | =A0 18 ++++++++++++------
->> =A01 files changed, 12 insertions(+), 6 deletions(-)
->>
->> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
->> index 7cd55e0..7bd7a1e 100644
->> --- a/drivers/vhost/vhost.c
->> +++ b/drivers/vhost/vhost.c
->> @@ -476,8 +476,10 @@ static long vhost_set_vring(struct vhost_dev *d=
-, int ioctl, void __user *argp)
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0if (r < 0)
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0break;
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0eventfp =3D f.fd =3D=3D -1 ? NULL : e=
-ventfd_fget(f.fd);
->> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (IS_ERR(eventfp))
->> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 return PTR_ERR(eventfp=
-);
->> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (IS_ERR(eventfp)) {
->> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 r =3D PTR_ERR(eventfp)=
-;
->> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 break;
->> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 }
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0if (eventfp !=3D vq->kick) {
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0pollstop =3D filep =3D=
- vq->kick;
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0pollstart =3D vq->kic=
-k =3D eventfp;
->> @@ -489,8 +491,10 @@ static long vhost_set_vring(struct vhost_dev *d=
-, int ioctl, void __user *argp)
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0if (r < 0)
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0break;
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0eventfp =3D f.fd =3D=3D -1 ? NULL : e=
-ventfd_fget(f.fd);
->> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (IS_ERR(eventfp))
->> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 return PTR_ERR(eventfp=
-);
->> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (IS_ERR(eventfp)) {
->> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 r =3D PTR_ERR(eventfp)=
-;
->> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 break;
->> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 }
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0if (eventfp !=3D vq->call) {
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0filep =3D vq->call;
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0ctx =3D vq->call_ctx;
->> @@ -505,8 +509,10 @@ static long vhost_set_vring(struct vhost_dev *d=
-, int ioctl, void __user *argp)
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0if (r < 0)
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0break;
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0eventfp =3D f.fd =3D=3D -1 ? NULL : e=
-ventfd_fget(f.fd);
->> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (IS_ERR(eventfp))
->> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 return PTR_ERR(eventfp=
-);
->> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (IS_ERR(eventfp)) {
->> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 r =3D PTR_ERR(eventfp)=
-;
->> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 break;
->> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 }
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0if (eventfp !=3D vq->error) {
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0filep =3D vq->error;
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0vq->error =3D eventfp=
-;
->> --
->> 1.7.0.18.g0d53a5
->> --
->> To unsubscribe from this list: send the line "unsubscribe netdev" in
->> the body of a message to majordomo@vger.kernel.org
->> More majordomo info at =A0http://vger.kernel.org/majordomo-info.html
->>
->
+The following changes since commit a3d3203e4bb40f253b1541e310dc0f9305be7c84:
+
+  Merge branch 'release' of git://git.kernel.org/pub/scm/linux/kernel/git/lenb/linux-acpi-2.6 (2010-03-14 20:29:21 -0700)
+
+are available in the git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git vhost
+
+Jeff Dike (1):
+      vhost: fix error path in vhost_net_set_backend
+
+Michael S. Tsirkin (2):
+      vhost: fix interrupt mitigation with raw sockets
+      vhost: fix error handling in vring ioctls
+
+ drivers/vhost/net.c   |   10 ++++++----
+ drivers/vhost/vhost.c |   18 ++++++++++++------
+ 2 files changed, 18 insertions(+), 10 deletions(-)
