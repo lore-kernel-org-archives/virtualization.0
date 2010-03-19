@@ -1,12 +1,11 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [GIT PULL] vhost-net fixes for issues in 2.6.34-rc1
-Date: Thu, 18 Mar 2010 11:53:55 +0200
-Message-ID: <20100318095355.GA24194@redhat.com>
+From: Amit Shah <amit.shah@redhat.com>
+Subject: [PATCH 0/9] virtio-serial fixes, ABI updates
+Date: Fri, 19 Mar 2010 17:28:37 +0530
+Message-ID: <1268999926-29560-1-git-send-email-amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -16,31 +15,51 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: David Miller <davem@davemloft.net>
-Cc: samudrala@us.ibm.com, kvm@vger.kernel.org, Juan Quintela <quintela@redhat.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, Laurent Chavey <chavey@google.com>, virtualization@lists.osdl.org, Unai Uribarri <unai.uribarri@optenet.com>, Jeff Dike <jdike@linux.intel.com>, Jiri Slaby <jirislaby@gmail.com>
+To: qemu-devel@nongnu.org
+Cc: Amit Shah <amit.shah@redhat.com>, quintela@redhat.com, mst@redhat.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-David,
-The following tree includes patches fixing issues with vhost-net in
-2.6.34-rc1.  Please pull them for 2.6.34.
- 
-Thanks!
+Hello,
 
-The following changes since commit a3d3203e4bb40f253b1541e310dc0f9305be7c84:
+This series fixes a few issues pointed out by Avi and Juan. Avi
+pointed out we should do full scatter/gather processing of guest data
+even if current (well-behaved) guests don't send multiple iovs per
+element.
 
-  Merge branch 'release' of git://git.kernel.org/pub/scm/linux/kernel/git/lenb/linux-acpi-2.6 (2010-03-14 20:29:21 -0700)
+Juan pointed out a few migration-related bugs.
 
-are available in the git repository at:
+In handling the migration fixes, I noticed hot-plug/unplug isn't
+handled perfectly for the migration case: ports are enumerated and the
+port numbering has to be consistent with the guest's numbering. If
+there's a mismatch, control messages meant for one port could be
+interpreted for another.
 
-  git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git vhost
+To solve this issue, I go back to maintaining a bitmap in the config
+space for active ports. Hot-plug and unplug can be added easily via
+the config space as a result.
 
-Jeff Dike (1):
-      vhost: fix error path in vhost_net_set_backend
+The kernel driver has to be changed as well so that the changes are in
+sync with the changes here.
 
-Michael S. Tsirkin (2):
-      vhost: fix interrupt mitigation with raw sockets
-      vhost: fix error handling in vring ioctls
+I've tested these patches on my test suite that tests for correctness
+and also hot-plug/unplug cases and fixes presented here.
 
- drivers/vhost/net.c   |   10 ++++++----
- drivers/vhost/vhost.c |   18 ++++++++++++------
- 2 files changed, 18 insertions(+), 10 deletions(-)
+Amit Shah (9):
+  virtio-serial-bus: save/load: Ensure target has enough ports
+  virtio-serial-bus: save/load: Ensure nr_ports on src and dest are
+    same.
+  virtio-serial: save/load: Ensure we have hot-plugged ports
+    instantiated
+  virtio-serial: Handle scatter-gather buffers for control messages
+  virtio-serial: Handle scatter/gather input from the guest
+  virtio-serial: Remove redundant check for 0-sized write request
+  virtio-serial: Update copyright year to 2010
+  virtio-serial-bus: Use a bitmap in virtio config space for active
+    ports
+  virtio-serial-bus: Let the guest know of host connection changes
+    after migration
+
+ hw/virtio-console.c    |    4 +-
+ hw/virtio-serial-bus.c |  205 ++++++++++++++++++++++++++++++++++++------------
+ hw/virtio-serial.h     |    8 +-
+ 3 files changed, 161 insertions(+), 56 deletions(-)
