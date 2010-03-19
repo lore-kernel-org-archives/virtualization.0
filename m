@@ -1,11 +1,14 @@
 From: Amit Shah <amit.shah@redhat.com>
-Subject: [PATCH 0/9] virtio-serial fixes, ABI updates
-Date: Fri, 19 Mar 2010 17:28:37 +0530
-Message-ID: <1268999926-29560-1-git-send-email-amit.shah@redhat.com>
+Subject: [PATCH 1/9] virtio-serial-bus: save/load: Ensure target has enough
+	ports
+Date: Fri, 19 Mar 2010 17:28:38 +0530
+Message-ID: <1268999926-29560-2-git-send-email-amit.shah@redhat.com>
+References: <1268999926-29560-1-git-send-email-amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1268999926-29560-1-git-send-email-amit.shah@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,47 +22,50 @@ To: qemu-devel@nongnu.org
 Cc: Amit Shah <amit.shah@redhat.com>, quintela@redhat.com, mst@redhat.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hello,
+The target could be started with max_nr_ports for a virtio-serial device
+lesser than what was available on the source machine. Fail the migration
+in such a case.
 
-This series fixes a few issues pointed out by Avi and Juan. Avi
-pointed out we should do full scatter/gather processing of guest data
-even if current (well-behaved) guests don't send multiple iovs per
-element.
+Signed-off-by: Amit Shah <amit.shah@redhat.com>
+Reported-by: Juan Quintela <quintela@redhat.com>
+---
+ hw/virtio-serial-bus.c |   10 +++++++++-
+ 1 files changed, 9 insertions(+), 1 deletions(-)
 
-Juan pointed out a few migration-related bugs.
-
-In handling the migration fixes, I noticed hot-plug/unplug isn't
-handled perfectly for the migration case: ports are enumerated and the
-port numbering has to be consistent with the guest's numbering. If
-there's a mismatch, control messages meant for one port could be
-interpreted for another.
-
-To solve this issue, I go back to maintaining a bitmap in the config
-space for active ports. Hot-plug and unplug can be added easily via
-the config space as a result.
-
-The kernel driver has to be changed as well so that the changes are in
-sync with the changes here.
-
-I've tested these patches on my test suite that tests for correctness
-and also hot-plug/unplug cases and fixes presented here.
-
-Amit Shah (9):
-  virtio-serial-bus: save/load: Ensure target has enough ports
-  virtio-serial-bus: save/load: Ensure nr_ports on src and dest are
-    same.
-  virtio-serial: save/load: Ensure we have hot-plugged ports
-    instantiated
-  virtio-serial: Handle scatter-gather buffers for control messages
-  virtio-serial: Handle scatter/gather input from the guest
-  virtio-serial: Remove redundant check for 0-sized write request
-  virtio-serial: Update copyright year to 2010
-  virtio-serial-bus: Use a bitmap in virtio config space for active
-    ports
-  virtio-serial-bus: Let the guest know of host connection changes
-    after migration
-
- hw/virtio-console.c    |    4 +-
- hw/virtio-serial-bus.c |  205 ++++++++++++++++++++++++++++++++++++------------
- hw/virtio-serial.h     |    8 +-
- 3 files changed, 161 insertions(+), 56 deletions(-)
+diff --git a/hw/virtio-serial-bus.c b/hw/virtio-serial-bus.c
+index 17c1ec1..36985a1 100644
+--- a/hw/virtio-serial-bus.c
++++ b/hw/virtio-serial-bus.c
+@@ -374,6 +374,8 @@ static void virtio_serial_save(QEMUFile *f, void *opaque)
+ 
+     /* Items in struct VirtIOSerial */
+ 
++    qemu_put_be32s(f, &s->bus->max_nr_ports);
++
+     /* Do this because we might have hot-unplugged some ports */
+     nr_active_ports = 0;
+     QTAILQ_FOREACH(port, &s->ports, next)
+@@ -399,7 +401,7 @@ static int virtio_serial_load(QEMUFile *f, void *opaque, int version_id)
+ {
+     VirtIOSerial *s = opaque;
+     VirtIOSerialPort *port;
+-    uint32_t nr_active_ports;
++    uint32_t max_nr_ports, nr_active_ports;
+     unsigned int i;
+ 
+     if (version_id > 2) {
+@@ -420,6 +422,12 @@ static int virtio_serial_load(QEMUFile *f, void *opaque, int version_id)
+ 
+     /* Items in struct VirtIOSerial */
+ 
++    qemu_get_be32s(f, &max_nr_ports);
++    if (max_nr_ports > s->bus->max_nr_ports) {
++        /* Source could have more ports than us. Fail migration. */
++        return -EINVAL;
++    }
++
+     qemu_get_be32s(f, &nr_active_ports);
+ 
+     /* Items in struct VirtIOSerialPort */
+-- 
+1.6.2.5
