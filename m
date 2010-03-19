@@ -1,11 +1,14 @@
 From: Amit Shah <amit.shah@redhat.com>
-Subject: [PATCH 0/6] virtio: console: Fixes, abi update
-Date: Fri, 19 Mar 2010 17:36:42 +0530
-Message-ID: <1269000408-29962-1-git-send-email-amit.shah@redhat.com>
+Subject: [PATCH 1/6] virtio: console: Generate a kobject CHANGE event on
+	adding 'name' attribute
+Date: Fri, 19 Mar 2010 17:36:43 +0530
+Message-ID: <1269000408-29962-2-git-send-email-amit.shah@redhat.com>
+References: <1269000408-29962-1-git-send-email-amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1269000408-29962-1-git-send-email-amit.shah@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,43 +22,41 @@ To: virtualization@lists.linux-foundation.org
 Cc: Amit Shah <amit.shah@redhat.com>, quintela@redhat.com, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hello,
+When the host lets us know what 'name' a port is assigned, we create the
+sysfs 'name' attribute. Generate a 'change' event after this so that
+udev wakes up and acts on the rules for virtio-ports (currently there's
+only one rule that creates a symlink from the 'name' to the actual char
+device).
 
-These patches fix a couple of small issues: 
- - generate a kobject change event so that udev is woken up on name
-   changes
- - fix a crash after hot-unplug of the first console port and a
-   subsequent config update
+Signed-off-by: Amit Shah <amit.shah@redhat.com>
+---
+ drivers/char/virtio_console.c |   11 +++++++++--
+ 1 files changed, 9 insertions(+), 2 deletions(-)
 
-But majorly, it reworks how ports are discovered: instead of numbering
-the ports individually in the host and the guest by just incrementing
-a number, we now switch to a bitmap in the config space exposed by the
-host to identify active ports. This lets us maintain the same
-numbering used by the host and also allows for hot-unplug via the
-config space. This is needed for proper migration support after
-several hot-plug/unplug operations.
-
-I've tested these patches on my testsuite to catch any regression or
-correctness issues. I've also tested all the hotplug-related changes
-here.
-
-These should go to 2.6.34, so that we don't push out a stable release
-with the older interface. Michael, please forward these to Linus if
-everyone is OK with these. I also have a git repo at
-
-git://git.kernel.org/pub/scm/linux/kernel/git/amit/vs-kernel.git master
-
-if you prefer to pull the patches.
-
-Amit Shah (6):
-  virtio: console: Generate a kobject CHANGE event on adding 'name'
-    attribute
-  virtio: console: Check if port is valid in resize_console
-  virtio: console: Switch to using a port bitmap for port discovery
-  virtio: console: Separate out get_config in a separate function
-  virtio: console: Handle hot-plug/unplug config actions
-  virtio: console: Remove hot-unplug control message
-
- drivers/char/virtio_console.c  |  238 ++++++++++++++++++++++++----------------
- include/linux/virtio_console.h |   15 ++-
- 2 files changed, 156 insertions(+), 97 deletions(-)
+diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
+index f404ccf..67b474b 100644
+--- a/drivers/char/virtio_console.c
++++ b/drivers/char/virtio_console.c
+@@ -947,11 +947,18 @@ static void handle_control_message(struct ports_device *portdev,
+ 		 */
+ 		err = sysfs_create_group(&port->dev->kobj,
+ 					 &port_attribute_group);
+-		if (err)
++		if (err) {
+ 			dev_err(port->dev,
+ 				"Error %d creating sysfs device attributes\n",
+ 				err);
+-
++		} else {
++			/*
++			 * Generate a udev event so that appropriate
++			 * symlinks can be created based on udev
++			 * rules.
++			 */
++			kobject_uevent(&port->dev->kobj, KOBJ_CHANGE);
++		}
+ 		break;
+ 	case VIRTIO_CONSOLE_PORT_REMOVE:
+ 		/*
+-- 
+1.6.2.5
