@@ -1,20 +1,20 @@
-From: Amit Shah <amit.shah@redhat.com>
-Subject: Re: [Qemu-devel] Re: [PATCH 4/9] virtio-serial: Handle
-	scatter-gather buffers for control messages
-Date: Mon, 22 Mar 2010 10:48:02 +0530
-Message-ID: <20100322051802.GE24577@amit-x200.redhat.com>
-References: <1268999926-29560-1-git-send-email-amit.shah@redhat.com>
-	<1268999926-29560-2-git-send-email-amit.shah@redhat.com>
-	<1268999926-29560-3-git-send-email-amit.shah@redhat.com>
-	<1268999926-29560-4-git-send-email-amit.shah@redhat.com>
-	<1268999926-29560-5-git-send-email-amit.shah@redhat.com>
-	<4BA47C02.3000105@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH 3/6] virtio: console: Switch to using a port bitmap for
+	port discovery
+Date: Mon, 22 Mar 2010 10:53:36 +0200
+Message-ID: <20100322085336.GB16574@redhat.com>
+References: <1269000408-29962-1-git-send-email-amit.shah@redhat.com>
+	<1269000408-29962-2-git-send-email-amit.shah@redhat.com>
+	<1269000408-29962-3-git-send-email-amit.shah@redhat.com>
+	<1269000408-29962-4-git-send-email-amit.shah@redhat.com>
+	<20100321112945.GA12339@redhat.com>
+	<20100322040401.GA24577@amit-x200.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <4BA47C02.3000105@redhat.com>
+In-Reply-To: <20100322040401.GA24577@amit-x200.redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -24,32 +24,221 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Avi Kivity <avi@redhat.com>
-Cc: qemu-devel@nongnu.org, quintela@redhat.com, virtualization@lists.linux-foundation.org, mst@redhat.com
+To: Amit Shah <amit.shah@redhat.com>
+Cc: quintela@redhat.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On (Sat) Mar 20 2010 [09:40:50], Avi Kivity wrote:
-> On 03/19/2010 01:58 PM, Amit Shah wrote:
->> +
->> +        offset = 0;
->> +        for (i = 0; i<  elem.out_num; i++) {
->> +            memcpy(buf + offset, elem.out_sg[i].iov_base,
->> +                   elem.out_sg[i].iov_len);
->> +            offset += elem.out_sg[i].iov_len;
->> +        }
->> +        len = cur_len;
->> +
->> +        handle_control_message(vser, buf, len);
->> +        virtqueue_push(vq,&elem, len);
->> +    }
->> +    if (len) {
->> +        qemu_free(buf);
->>       }
->>       virtio_notify(vdev, vq);
->>   }
->
-> Isn't there some virtio function to linearize requests?
+On Mon, Mar 22, 2010 at 09:34:01AM +0530, Amit Shah wrote:
+> On (Sun) Mar 21 2010 [13:29:45], Michael S. Tsirkin wrote:
+> > On Fri, Mar 19, 2010 at 05:36:45PM +0530, Amit Shah wrote:
+> > > Ports are now discovered by their location as given by host instead of
+> > > just incrementing a number and expecting the host and guest numbers stay
+> > > in sync. They are needed to be the same because the control messages
+> > > identify ports using the port id.
+> > > 
+> > > This is most beneficial to management software to properly place ports
+> > > at known ids so that the ids after hot-plug/unplug operations can be
+> > > controlled. This helps migration of guests after such hot-plug/unplug
+> > > operations.
+> > > 
+> > > The support for port hot-plug is removed in this commit, will be added
+> > > in the following commits.
+> > 
+> > It might be cleaner not to split it this way, merge the following
+> > commits into this one or split it in a different way.
+> 
+> Rusty in the past indicated he was OK with such a split since it
+> simplifies things and makes for easier review.
+> 
+> I'm fine with merging the next two patches in here too.
+> 
+> > > The config space is now a variable-sized array.
+> > 
+> > I think this last bit is problematic: we won't be able to add any more data if
+> > we have to, without a lot of complexity.
+> 
+> Adding new fields before the bitmap should be fine as long as we
+> discover features and fetch the config is the right order. If, however,
+> another bitmap has to be added, that'll surely be painful.
 
-I don't see one.
+Well, we'll need two structures old_config and new_config,
+as opposed to simply extending the existing one.
 
-		Amit
+> However, I don't see the need to add another bitmap for sure, and I
+> don't think we need more config variables too. However, we have the
+> control channel in case this has to be expanded.
+
+How about using it right now?
+
+> >  Further, in the past we have
+> > also had problems running out of config space: see
+> > 3225beaba05d4f06087593f5e903ce867b6e118a.
+> 
+> How much config space is available? I guess there's enough for a ports
+> bitmap: without the ports, we're using 64 bits. And each port takes up
+> one bit. I guess we easily have 256 bits of space, so we can have 192
+> ports represented (at least) via the config space.
+
+256 bytes but we are using config space for other things as well.
+
+> > There's also
+> > a comment in handle_control_message which suggests we
+> > might want a very large number of ports at some point,
+> > if we do using config space would be a mistake.
+> 
+> [Which comment?]
+> 
+> I can't certainly predict how many ports might be needed, but I think
+> we'll have other ways of communication if we need > 200 ports.
+
+If, say, 32 bytes are sufficient, let's just reserve a fixed size
+array and everything will be simpler?
+
+> > It might be better to use a control vq for this, like virtio block ended
+> > up doing.  The comment in handle_control_message hints we don't want to
+> > pass port id in config space, but I am not sure why we can't pass it in
+> > message buffer.
+> 
+> I'm not sure which comment you're referring to really.
+
+We have this:
+
++ * Hot unplug the port. We don't decrement nr_ports
++ * since we don't want to deal with extra complexities
++ * of using the lowest-available port id: We can just
++ * pick up the nr_ports number as the id and not have
++ * userspace send it to us. This helps us in two
++ * ways:
++ *
++ * - We don't need to have a 'port_id' field in the
++ * config space when a port is hot-added. This is a
++ * good thing as we might queue up multiple hotplug
++ * requests issued in our workqueue.
++ *
++ * - Another way to deal with this would have been to
++ * use a bitmap of the active ports and select the
++ * lowest non-active port from that map. That
++ * bloats the already tight config space and we
++ * would end up artificially limiting the
++ * max. number of ports to sizeof(bitmap). Right
++ * now we can support 2^32 ports (as the port id is
++ * stored in a u32 type).
++ *
+
+Did you change your mind then?
+
+> > > +static u32 find_next_bit_in_map(u32 *map)
+> > > +{
+> > > +	u32 port_bit;
+> > > +
+> > > +	port_bit = ffs(*map);
+> > > +	port_bit--; /* ffs returns bit location */
+> > > +
+> > > +	*map &= ~(1U << port_bit);
+> > 
+> > The above only works well if map is non-zero.  This happens to be the
+> > case the way we call it, but since this means the function is not
+> > generic, it might be better to opencode it to make it obvious.
+> 
+> You're right; when I first had a bitmap-based approach, I had a
+> find_next_active_port() and returned VIRTIO_CONSOLE_BAD_ID in case ffs
+> returned 0. This is a valid case and should be fixed. I'll send out a
+> v2.
+> 
+> > > +static u32 get_ports_map_size(u32 max_nr_ports)
+> > > +{
+> > > +	return sizeof(u32) * ((max_nr_ports + 31)/ 32);
+> > 
+> > DIV_ROUND_UP here and elsewhere?
+> 
+> Ah, yes, I'll use it.
+> 
+> > > -	for (i = 0; i < portdev->config.nr_ports; i++)
+> > > -		add_port(portdev, i);
+> > > +		for (i = 0; i < (portdev->config->max_nr_ports + 31) / 32; i++) {
+> > > +			u32 map, port_nr;
+> > > +
+> > > +			map = portdev->config->ports_map[i];
+> > > +			while (map) {
+> > > +				port_nr = find_next_bit_in_map(&map) + i * 32;
+> > > +
+> > > +				add_port(portdev, port_nr);
+> > > +				/*
+> > > +				 * FIXME: Send a notification to the
+> > > +				 * host about failed port add
+> > > +				 */
+> > 
+> > This FIXME is just pointing out an existing bug, correct?
+> 
+> Yes, a control message indicating to the host something went wrong would
+> be helpful for mgmt.
+> 
+> > > diff --git a/include/linux/virtio_console.h b/include/linux/virtio_console.h
+> > > index ae4f039..287ee44 100644
+> > > --- a/include/linux/virtio_console.h
+> > > +++ b/include/linux/virtio_console.h
+> > > @@ -14,15 +14,23 @@
+> > >  #define VIRTIO_CONSOLE_F_SIZE	0	/* Does host provide console size? */
+> > >  #define VIRTIO_CONSOLE_F_MULTIPORT 1	/* Does host provide multiple ports? */
+> > >  
+> > > +/*
+> > > + * This is the config space shared between the Host and the Guest.
+> > > + * The Host indicates to us the maximum number of ports this device
+> > > + * can hold and a port map indicating which ports are active.
+> > > + *
+> > > + * The maximum number of ports is not a round number to prevent
+> > > + * wastage of MSI vectors in case MSI is enabled for this device.
+> > 
+> > What does 'round number' mean in this context?
+> 
+> Meaning restricting the 'max_nr_ports' to multiples of 32.
+
+It's an unusual use of the word :)
+
+> > > + */
+> > >  struct virtio_console_config {
+> > >  	/* colums of the screens */
+> > >  	__u16 cols;
+> > >  	/* rows of the screens */
+> > >  	__u16 rows;
+> > > -	/* max. number of ports this device can hold */
+> > > +	/* max. number of ports this device can hold. */
+> > >  	__u32 max_nr_ports;
+> > > -	/* number of ports added so far */
+> > > -	__u32 nr_ports;
+> > > +	/* locations of ports in use; variable-sized array */
+> > 
+> > It's in fact a bitmap, not an array, is it?
+> 
+> hm, yeah; I'll update.
+> 
+> > > +	__u32 ports_map[0 /* (max_nr_ports + 31) / 2 */];
+> > 
+> > The array is in the packed structure. So I am not sure
+> > we can legally take a pointer to ports_map like this patch does in
+> > multiple places above: if we do compiler might assume
+> > alignment?
+> 
+> We always reference the elements in the ports_map[] in u32-sized
+> increments. Is there a problem?
+
+Hmm I'm not sure. Maybe not.
+
+> > >  } __attribute__((packed));
+> > >
+> > Note that sizeof for variable sized structures is as far as I know a gcc
+> > extension. You are supposed to use offsetof. And since packed  structure
+> > is also an extension, we should be very careful about combining them
+> > together.
+> 
+> OK, I'll switch to offsetof(ports_map) where I use
+> sizeof(virtio_console_config) -- in the get_config() function.
+> 
+> > In fact, virtio seems to overuse packed structures: we probably can
+> > save a ton of code by carefully padding everything without using
+> > packed attribute.
+> 
+> Yeah; packing could be avoided. Maybe Rusty has an explanation for why
+> it was done this way.
+> 
+> 		Amit
