@@ -1,14 +1,13 @@
-From: Badari Pulavarty <pbadari@us.ibm.com>
-Subject: Re: [RFC] vhost-blk implementation
-Date: Tue, 23 Mar 2010 07:47:18 -0700
-Message-ID: <4BA8D476.8080003@us.ibm.com>
-References: <1269304444.7931.68.camel@badari-desktop>
-	<20100323123916.GA24750@redhat.com>
+From: =?UTF-8?Q?Fran=C3=A7ois_Diakhate?= <fdiakh@gmail.com>
+Subject: Re: Virtio_console usage of early printk
+Date: Tue, 23 Mar 2010 15:58:17 +0100
+Message-ID: <6ad07c641003230758q597559aeu1461471d1910d774__17576.1249651716$1269357623$gmane$org@mail.gmail.com>
+References: <6ad07c641003221045m10ee5c84x3a92436582600f21@mail.gmail.com>
+	<20100323085520.GF8675@amit-x200.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary=000e0cd1a3f0702a400482790c55
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20100323123916.GA24750@redhat.com>
+In-Reply-To: <20100323085520.GF8675@amit-x200.redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,38 +17,87 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org
+To: Amit Shah <amit.shah@redhat.com>
+Cc: linuxppc-dev@lists.ozlabs.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Michael S. Tsirkin wrote:
-> On Mon, Mar 22, 2010 at 05:34:04PM -0700, Badari Pulavarty wrote:
->   
->> Write Results:
->> ==============
+--000e0cd1a3f0702a400482790c55
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+On Tue, Mar 23, 2010 at 9:55 AM, Amit Shah <amit.shah@redhat.com> wrote:
+> On (Mon) Mar 22 2010 [18:45:47], Fran=C3=A7ois Diakhate wrote:
+>> Hi all,
 >>
->> I see degraded IO performance when doing sequential IO write
->> tests with vhost-blk compared to virtio-blk.
+>> As far as I can see, early_put_chars is not used by virtio_console
+>> because it checks whether there is a port available before using it.
+>> If I understand correctly, this makes it useless because once we have
+>> a port, we can use the regular virtio transport to output things to
+>> the console. Does the attached patch seem valid ? Feedback from s390
+>> and powerpc users who use this functionality would be appreciated.
 >>
->> # time dd of=/dev/vda if=/dev/zero bs=2M oflag=direct
->>
->> I get ~110MB/sec with virtio-blk, but I get only ~60MB/sec with
->> vhost-blk. Wondering why ?
->>     
+>> Thanks,
+>> Fran=C3=A7ois
 >
-> Try to look and number of interrupts and/or number of exits.
+>> From 3961f380bbe84a1036ddfc823039cbee31b44dcb Mon Sep 17 00:00:00 2001
+>> From: =3D?utf-8?q?Fran=3DC3=3DA7ois=3D20Diakhat=3DC3=3DA9?=3D <fdiakh@gm=
+ail.com>
+>> Date: Thu, 18 Mar 2010 14:48:20 +0100
+>> Subject: virtio: console: Fix early_put_chars usage
+>>
+>> Currently early_put_chars is not used by virtio_console because it can o=
+nly be used once a port has been found, at which point it's too late becaus=
+e it is no longer needed. This patch should fix it.
 >
-> It could also be that you are overrunning some queue.
->   
+> You'll have to give a signed-off-by for the patch.
+>
+> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0Amit
+>
 
-Yeah.
-> I don't see any exit mitigation strategy in your patch:
-> when there are already lots of requests in a queue, it's usually
-> a good idea to disable notifications and poll the
-> queue as requests complete. That could help performance.
->   
+Sorry, I didn't have access to my computer this morning. Here is the
+patch with a sign-off, if you still need it.
 
-Thanks for the suggestions. I will take a closer look.
+Fran=C3=A7ois
 
-Thanks,
-Badari
+--000e0cd1a3f0702a400482790c55
+Content-Type: text/x-patch; charset=UTF-8;
+	name="0001-virtio-console-Fix-early_put_chars-usage.patch"
+Content-Disposition: attachment;
+	filename="0001-virtio-console-Fix-early_put_chars-usage.patch"
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_g74tr58q0
+
+RnJvbSAyMDljNTUzMzU1YTNhYzA0ZTY4YTllOTU2MGNlYTkwODk3NTg4MzA0IE1vbiBTZXAgMTcg
+MDA6MDA6MDAgMjAwMQpGcm9tOiA9P3V0Zi04P3E/RnJhbj1DMz1BN29pcz0yMERpYWtoYXQ9QzM9
+QTk/PSA8ZmRpYWtoQGdtYWlsLmNvbT4KRGF0ZTogVGh1LCAxOCBNYXIgMjAxMCAxNDo0ODoyMCAr
+MDEwMApTdWJqZWN0OiBbUEFUQ0hdIHZpcnRpbzogY29uc29sZTogRml4IGVhcmx5X3B1dF9jaGFy
+cyB1c2FnZQpNSU1FLVZlcnNpb246IDEuMApDb250ZW50LVR5cGU6IHRleHQvcGxhaW47IGNoYXJz
+ZXQ9dXRmLTgKQ29udGVudC1UcmFuc2Zlci1FbmNvZGluZzogOGJpdAoKQ3VycmVudGx5IGVhcmx5
+X3B1dF9jaGFycyBpcyBub3QgdXNlZCBieSB2aXJ0aW9fY29uc29sZSBiZWNhdXNlIGl0IGNhbiBv
+bmx5IGJlIHVzZWQgb25jZSBhIHBvcnQgaGFzIGJlZW4gZm91bmQsIGF0IHdoaWNoIHBvaW50IGl0
+J3MgdG9vIGxhdGUgYmVjYXVzZSBpdCBpcyBubyBsb25nZXIgbmVlZGVkLiBUaGlzIHBhdGNoIHNo
+b3VsZCBmaXggaXQuCgpTaWduZWQtb2ZmLWJ5OiBGcmFuw6dvaXMgRGlha2hhdMOpIDxmZGlha2hA
+Z21haWwuY29tPgotLS0KIGRyaXZlcnMvY2hhci92aXJ0aW9fY29uc29sZS5jIHwgICAgNiArKyst
+LS0KIDEgZmlsZXMgY2hhbmdlZCwgMyBpbnNlcnRpb25zKCspLCAzIGRlbGV0aW9ucygtKQoKZGlm
+ZiAtLWdpdCBhL2RyaXZlcnMvY2hhci92aXJ0aW9fY29uc29sZS5jIGIvZHJpdmVycy9jaGFyL3Zp
+cnRpb19jb25zb2xlLmMKaW5kZXggZjQwNGNjZi4uNjkxYmEyMSAxMDA2NDQKLS0tIGEvZHJpdmVy
+cy9jaGFyL3ZpcnRpb19jb25zb2xlLmMKKysrIGIvZHJpdmVycy9jaGFyL3ZpcnRpb19jb25zb2xl
+LmMKQEAgLTY0NSwxMyArNjQ1LDEzIEBAIHN0YXRpYyBpbnQgcHV0X2NoYXJzKHUzMiB2dGVybW5v
+LCBjb25zdCBjaGFyICpidWYsIGludCBjb3VudCkKIHsKIAlzdHJ1Y3QgcG9ydCAqcG9ydDsKIAor
+CWlmICh1bmxpa2VseShlYXJseV9wdXRfY2hhcnMpKQorCQlyZXR1cm4gZWFybHlfcHV0X2NoYXJz
+KHZ0ZXJtbm8sIGJ1ZiwgY291bnQpOworCiAJcG9ydCA9IGZpbmRfcG9ydF9ieV92dGVybW5vKHZ0
+ZXJtbm8pOwogCWlmICghcG9ydCkKIAkJcmV0dXJuIDA7CiAKLQlpZiAodW5saWtlbHkoZWFybHlf
+cHV0X2NoYXJzKSkKLQkJcmV0dXJuIGVhcmx5X3B1dF9jaGFycyh2dGVybW5vLCBidWYsIGNvdW50
+KTsKLQogCXJldHVybiBzZW5kX2J1Zihwb3J0LCAodm9pZCAqKWJ1ZiwgY291bnQpOwogfQogCi0t
+IAoxLjYuMy4zCgo=
+--000e0cd1a3f0702a400482790c55
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linux-foundation.org/mailman/listinfo/virtualization
+--000e0cd1a3f0702a400482790c55--
