@@ -1,14 +1,10 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [RFC] vhost-blk implementation
-Date: Tue, 23 Mar 2010 14:39:16 +0200
-Message-ID: <20100323123916.GA24750@redhat.com>
-References: <1269304444.7931.68.camel@badari-desktop>
+From: Amit Shah <amit.shah@redhat.com>
+Subject: [PATCH 0/8] (v4) virtio: console: Fixes, new way of discovering ports
+Date: Tue, 23 Mar 2010 18:23:08 +0530
+Message-ID: <1269348796-8660-1-git-send-email-amit.shah@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============1142548487464199321=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1269304444.7931.68.camel@badari-desktop>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,31 +14,60 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Badari Pulavarty <pbadari@us.ibm.com>
-Cc: qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org
+To: virtualization@lists.linux-foundation.org
+Cc: Amit Shah <amit.shah@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Mar 22, 2010 at 05:34:04PM -0700, Badari Pulavarty wrote:
-> Write Results:
-> ==============
-> 
-> I see degraded IO performance when doing sequential IO write
-> tests with vhost-blk compared to virtio-blk.
-> 
-> # time dd of=/dev/vda if=/dev/zero bs=2M oflag=direct
-> 
-> I get ~110MB/sec with virtio-blk, but I get only ~60MB/sec with
-> vhost-blk. Wondering why ?
+--===============1142548487464199321==
+Content-Transfer-Encoding: quoted-printable
+X-MIME-Autoconverted: from 8bit to quoted-printable by smtp1.linux-foundation.org id o2NCsqRt011075
 
-Try to look and number of interrupts and/or number of exits.
+Hello,
 
-It could also be that you are overrunning some queue.
+This version addresses comments by Gerd and Michael:
+- instead of returning -EPIPE if host is not connected in the write
+  case, just block the write if it's a blocking file and return -EAGAIN
+  if it's non-blocking.
 
-I don't see any exit mitigation strategy in your patch:
-when there are already lots of requests in a queue, it's usually
-a good idea to disable notifications and poll the
-queue as requests complete. That could help performance.
+- Removes early_console_printk after the first console is found
+
+- Adds early_put_chars fix by Fran=C3=A7ois Diakhat=C3=A9. It still needs=
+ a
+  sign-off by him.
+
+Standard message: Since the ABI is being reworked, it's essential to
+push this to 2.6.34 so that we're not left supporting the older
+interface.
+
+Amit Shah (7):
+  MAINTAINERS: Put the virtio-console entry in correct alphabetical
+    order
+  virtio: console: Remove config work handler
+  virtio: console: Add a __send_control_msg() that can send messages
+    without a valid port
+  virtio: console: Move code around for future patches
+  virtio: console: Use a control message to add ports
+  virtio: console: Don't always create a port 0 if using multiport
+  virtio: console: Add partial blocking/non-blocking support to write()
+
+Fran=C3=A7ois Diakhat=C3=A9 (1):
+  virtio: console: Fix early_put_chars usage
+
+ MAINTAINERS                    |   13 +-
+ drivers/char/virtio_console.c  |  447 ++++++++++++++++++----------------=
+------
+ include/linux/virtio_console.h |   18 +-
+ 3 files changed, 215 insertions(+), 263 deletions(-)
 
 
--- 
-MST
+--===============1142548487464199321==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linux-foundation.org/mailman/listinfo/virtualization
+--===============1142548487464199321==--
