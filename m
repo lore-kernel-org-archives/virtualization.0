@@ -1,24 +1,14 @@
-From: Amit Shah <amit.shah@redhat.com>
-Subject: Re: [PATCH 7/7] virtio: console: Return -EPIPE if port on the host
-	isn't connected
-Date: Tue, 23 Mar 2010 16:51:22 +0530
-Message-ID: <20100323112122.GC3080@amit-x200.redhat.com>
-References: <1269334680-1369-6-git-send-email-amit.shah@redhat.com>
-	<1269334680-1369-7-git-send-email-amit.shah@redhat.com>
-	<1269334680-1369-8-git-send-email-amit.shah@redhat.com>
-	<20100323090023.GD22774@redhat.com>
-	<20100323091352.GI8675@amit-x200.redhat.com>
-	<4BA89C1E.7090403@redhat.com>
-	<20100323105220.GK8675@amit-x200.redhat.com>
-	<4BA8A03C.8030002@redhat.com>
-	<20100323110957.GB3080@amit-x200.redhat.com>
-	<4BA8A2C7.4070908@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [RFC] vhost-blk implementation
+Date: Tue, 23 Mar 2010 14:39:16 +0200
+Message-ID: <20100323123916.GA24750@redhat.com>
+References: <1269304444.7931.68.camel@badari-desktop>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <4BA8A2C7.4070908@redhat.com>
+In-Reply-To: <1269304444.7931.68.camel@badari-desktop>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -28,24 +18,31 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gerd Hoffmann <kraxel@redhat.com>
-Cc: virtualization@lists.linux-foundation.org, "Michael S. Tsirkin" <mst@redhat.com>
+To: Badari Pulavarty <pbadari@us.ibm.com>
+Cc: qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On (Tue) Mar 23 2010 [12:15:19], Gerd Hoffmann wrote:
-> On 03/23/10 12:09, Amit Shah wrote:
->> I didn't really look at blocking / non-blocking support in write()
->> because of the cpu_relax(), which will always block the app.
->
-> Right, the spinning again ...
->
-> When we kill this we really must care to implement blocking +  
-> non-blocking + poll + partial writes correctly.
+On Mon, Mar 22, 2010 at 05:34:04PM -0700, Badari Pulavarty wrote:
+> Write Results:
+> ==============
+> 
+> I see degraded IO performance when doing sequential IO write
+> tests with vhost-blk compared to virtio-blk.
+> 
+> # time dd of=/dev/vda if=/dev/zero bs=2M oflag=direct
+> 
+> I get ~110MB/sec with virtio-blk, but I get only ~60MB/sec with
+> vhost-blk. Wondering why ?
 
-Yes; I'm adding blocking/non-blocking right away for the host_connected
-condition.
+Try to look and number of interrupts and/or number of exits.
 
-Partial writes, blocking/non-blocking vq operations will have to come
-for 2.6.35 at the latest.
+It could also be that you are overrunning some queue.
 
-		Amit
+I don't see any exit mitigation strategy in your patch:
+when there are already lots of requests in a queue, it's usually
+a good idea to disable notifications and poll the
+queue as requests complete. That could help performance.
+
+
+-- 
+MST
