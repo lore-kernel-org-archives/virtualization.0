@@ -1,21 +1,14 @@
-From: Amit Shah <amit.shah@redhat.com>
-Subject: [PATCH 8/8] virtio: console: Add partial blocking/non-blocking
-	support to write()
-Date: Tue, 23 Mar 2010 18:23:16 +0530
-Message-ID: <1269348796-8660-9-git-send-email-amit.shah@redhat.com>
-References: <1269348796-8660-1-git-send-email-amit.shah@redhat.com>
-	<1269348796-8660-2-git-send-email-amit.shah@redhat.com>
-	<1269348796-8660-3-git-send-email-amit.shah@redhat.com>
-	<1269348796-8660-4-git-send-email-amit.shah@redhat.com>
-	<1269348796-8660-5-git-send-email-amit.shah@redhat.com>
-	<1269348796-8660-6-git-send-email-amit.shah@redhat.com>
-	<1269348796-8660-7-git-send-email-amit.shah@redhat.com>
-	<1269348796-8660-8-git-send-email-amit.shah@redhat.com>
+From: Badari Pulavarty <pbadari@us.ibm.com>
+Subject: Re: [RFC] vhost-blk implementation
+Date: Tue, 23 Mar 2010 07:47:18 -0700
+Message-ID: <4BA8D476.8080003@us.ibm.com>
+References: <1269304444.7931.68.camel@badari-desktop>
+	<20100323123916.GA24750@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1269348796-8660-8-git-send-email-amit.shah@redhat.com>
+In-Reply-To: <20100323123916.GA24750@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -25,52 +18,38 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
-Cc: Amit Shah <amit.shah@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-If the host port is not open, a write() should either just return if the
-file is opened in non-blocking mode, or block till the host port is
-opened.
+Michael S. Tsirkin wrote:
+> On Mon, Mar 22, 2010 at 05:34:04PM -0700, Badari Pulavarty wrote:
+>   
+>> Write Results:
+>> ==============
+>>
+>> I see degraded IO performance when doing sequential IO write
+>> tests with vhost-blk compared to virtio-blk.
+>>
+>> # time dd of=/dev/vda if=/dev/zero bs=2M oflag=direct
+>>
+>> I get ~110MB/sec with virtio-blk, but I get only ~60MB/sec with
+>> vhost-blk. Wondering why ?
+>>     
+>
+> Try to look and number of interrupts and/or number of exits.
+>
+> It could also be that you are overrunning some queue.
+>   
 
-This is just half of the blocking/non-blocking story.
+Yeah.
+> I don't see any exit mitigation strategy in your patch:
+> when there are already lots of requests in a queue, it's usually
+> a good idea to disable notifications and poll the
+> queue as requests complete. That could help performance.
+>   
 
-The other half will be addressed when we get rid of the cpu_relax() in
-send_buf(). Add a fixme mentioning that case.
+Thanks for the suggestions. I will take a closer look.
 
-Signed-off-by: Amit Shah <amit.shah@redhat.com>
----
- drivers/char/virtio_console.c |   18 ++++++++++++++++++
- 1 files changed, 18 insertions(+), 0 deletions(-)
-
-diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index f33ceaa..fa616aa 100644
---- a/drivers/char/virtio_console.c
-+++ b/drivers/char/virtio_console.c
-@@ -536,6 +536,24 @@ static ssize_t port_fops_write(struct file *filp, const char __user *ubuf,
- 
- 	port = filp->private_data;
- 
-+	if (!port->host_connected) {
-+		/*
-+		 * FIXME: Also check if the vq has enough room to send
-+		 * this buffer out to the guest.  Return EAGAIN or
-+		 * block in case there's no room.  Currently the vq
-+		 * always has room because we only use one buffer (and
-+		 * cpu_relax()), but when send_buf() becomes
-+		 * non-spinning, we'll use more buffers.
-+		 */
-+		if (filp->f_flags & O_NONBLOCK)
-+			return -EAGAIN;
-+
-+		ret = wait_event_interruptible(port->waitqueue,
-+					       port->host_connected);
-+		if (ret < 0)
-+			return ret;
-+	}
-+
- 	count = min((size_t)(32 * 1024), count);
- 
- 	buf = kmalloc(count, GFP_KERNEL);
--- 
-1.6.2.5
+Thanks,
+Badari
