@@ -1,19 +1,22 @@
-From: Amit Shah <amit.shah@redhat.com>
-Subject: [PATCH 6/7] virtio: console: Don't always create a port 0 if using
-	multiport
-Date: Tue, 23 Mar 2010 14:27:59 +0530
-Message-ID: <1269334680-1369-7-git-send-email-amit.shah@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH 7/7] virtio: console: Return -EPIPE if port on the host
+	isn't connected
+Date: Tue, 23 Mar 2010 11:00:23 +0200
+Message-ID: <20100323090023.GD22774@redhat.com>
 References: <1269334680-1369-1-git-send-email-amit.shah@redhat.com>
 	<1269334680-1369-2-git-send-email-amit.shah@redhat.com>
 	<1269334680-1369-3-git-send-email-amit.shah@redhat.com>
 	<1269334680-1369-4-git-send-email-amit.shah@redhat.com>
 	<1269334680-1369-5-git-send-email-amit.shah@redhat.com>
 	<1269334680-1369-6-git-send-email-amit.shah@redhat.com>
+	<1269334680-1369-7-git-send-email-amit.shah@redhat.com>
+	<1269334680-1369-8-git-send-email-amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1269334680-1369-6-git-send-email-amit.shah@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <1269334680-1369-8-git-send-email-amit.shah@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -23,61 +26,38 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
-Cc: Amit Shah <amit.shah@redhat.com>, mst@redhat.com
+To: Amit Shah <amit.shah@redhat.com>
+Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-If we're using multiport, there's no point in always creating a console
-port. Create the console port only if the host doesn't support
-multiport.
+On Tue, Mar 23, 2010 at 02:28:00PM +0530, Amit Shah wrote:
+> The virtio-serial ports are like pipes, if there's no reader on the
+> other end, sending data might get it either ignored or the host might
+> return '0', which would make guests get -EAGAIN. Since we know the state
+> of the host port connection, it's appropriate to let the application
+> know that the other end isn't connected.
+> 
+> Signed-off-by: Amit Shah <amit.shah@redhat.com>
+> ---
+>  drivers/char/virtio_console.c |    3 +++
+>  1 files changed, 3 insertions(+), 0 deletions(-)
+> 
+> diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
+> index 55de0b5..4562964 100644
+> --- a/drivers/char/virtio_console.c
+> +++ b/drivers/char/virtio_console.c
+> @@ -411,6 +411,9 @@ static ssize_t send_buf(struct port *port, void *in_buf, size_t in_count)
+>  	ssize_t ret;
+>  	unsigned int len;
+>  
+> +	if (use_multiport(port->portdev) && !port->host_connected)
+> +		return -EPIPE;
+> +
 
-Signed-off-by: Amit Shah <amit.shah@redhat.com>
----
- drivers/char/virtio_console.c |   23 ++++++++---------------
- 1 files changed, 8 insertions(+), 15 deletions(-)
+Hmm, do applications actually handle this error?
 
-diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index 8b67ff1..55de0b5 100644
---- a/drivers/char/virtio_console.c
-+++ b/drivers/char/virtio_console.c
-@@ -1044,14 +1044,8 @@ static void handle_control_message(struct ports_device *portdev,
- 	switch (cpkt->event) {
- 	case VIRTIO_CONSOLE_PORT_ADD:
- 		if (port) {
--			/*
--			 * This can happen for port 0: we have to
--			 * create a console port during probe() as was
--			 * the behaviour before the MULTIPORT feature.
--			 * On a newer host, when the host tells us
--			 * that a port 0 is available, we should just
--			 * say we have the port all set up.
--			 */
-+			dev_dbg(&portdev->vdev->dev,
-+				"Port %u already added\n", port->id);
- 			send_control_msg(port, VIRTIO_CONSOLE_PORT_READY, 1);
- 			break;
- 		}
-@@ -1395,15 +1389,14 @@ static int __devinit virtcons_probe(struct virtio_device *vdev)
- 			err = -ENOMEM;
- 			goto free_vqs;
- 		}
--
-+	} else {
-+		/*
-+		 * If we're running on an older host, we always want
-+		 * to create a console port.
-+		 */
-+		add_port(portdev, 0);
- 	}
- 
--	/*
--	 * For backward compatibility: if we're running on an older
--	 * host, we always want to create a console port.
--	 */
--	add_port(portdev, 0);
--
- 	/* Start using the new console output. */
- 	early_put_chars = NULL;
- 
--- 
-1.6.2.5
+>  	out_vq = port->out_vq;
+>  
+>  	sg_init_one(sg, in_buf, in_count);
+> -- 
+> 1.6.2.5
