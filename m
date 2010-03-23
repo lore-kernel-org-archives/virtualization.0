@@ -1,12 +1,14 @@
 From: Amit Shah <amit.shah@redhat.com>
-Subject: [PATCH 0/7] virtio: console: Fixes,
-	new flexible way of discovering ports
-Date: Tue, 23 Mar 2010 14:27:53 +0530
-Message-ID: <1269334680-1369-1-git-send-email-amit.shah@redhat.com>
+Subject: [PATCH 1/7] MAINTAINERS: Put the virtio-console entry in correct
+	alphabetical order
+Date: Tue, 23 Mar 2010 14:27:54 +0530
+Message-ID: <1269334680-1369-2-git-send-email-amit.shah@redhat.com>
+References: <1269334680-1369-1-git-send-email-amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1269334680-1369-1-git-send-email-amit.shah@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,29 +22,43 @@ To: virtualization@lists.linux-foundation.org
 Cc: Amit Shah <amit.shah@redhat.com>, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hello all,
+Move around the entry for virtio-console to keep the file sorted.
 
-This new patchset switches over to using the control queue for port
-discovery so that we can stay in sync with the host for port
-enumeration and also don't use bitmaps to limit us to config space
-sizes.
+Signed-off-by: Amit Shah <amit.shah@redhat.com>
+---
+ MAINTAINERS |   13 +++++++------
+ 1 files changed, 7 insertions(+), 6 deletions(-)
 
-This changes the ABI, so it would be better to merge this for 2.6.34
-so that we don't have to worry about released kernels with the older
-ABI.
-
-Amit Shah (7):
-  MAINTAINERS: Put the virtio-console entry in correct alphabetical
-    order
-  virtio: console: Remove config work handler
-  virtio: console: Add a __send_control_msg() that can send messages
-    without a valid port
-  virtio: console: Move code around for future patches
-  virtio: console: Use a control message to add ports
-  virtio: console: Don't always create a port 0 if using multiport
-  virtio: console: Return -EPIPE if port on the host isn't connected
-
- MAINTAINERS                    |   13 +-
- drivers/char/virtio_console.c  |  418 +++++++++++++++++-----------------------
- include/linux/virtio_console.h |   18 +-
- 3 files changed, 191 insertions(+), 258 deletions(-)
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 382eaa4..3306429 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -2465,12 +2465,6 @@ L:	linuxppc-dev@ozlabs.org
+ S:	Odd Fixes
+ F:	drivers/char/hvc_*
+ 
+-VIRTIO CONSOLE DRIVER
+-M:	Amit Shah <amit.shah@redhat.com>
+-L:	virtualization@lists.linux-foundation.org
+-S:	Maintained
+-F:	drivers/char/virtio_console.c
+-
+ iSCSI BOOT FIRMWARE TABLE (iBFT) DRIVER
+ M:	Peter Jones <pjones@redhat.com>
+ M:	Konrad Rzeszutek Wilk <konrad@kernel.org>
+@@ -5952,6 +5946,13 @@ S:	Maintained
+ F:	Documentation/filesystems/vfat.txt
+ F:	fs/fat/
+ 
++VIRTIO CONSOLE DRIVER
++M:	Amit Shah <amit.shah@redhat.com>
++L:	virtualization@lists.linux-foundation.org
++S:	Maintained
++F:	drivers/char/virtio_console.c
++F:	include/linux/virtio_console.h
++
+ VIRTIO HOST (VHOST)
+ M:	"Michael S. Tsirkin" <mst@redhat.com>
+ L:	kvm@vger.kernel.org
+-- 
+1.6.2.5
