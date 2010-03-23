@@ -1,10 +1,13 @@
-From: =?UTF-8?Q?Fran=C3=A7ois_Diakhate?= <fdiakh@gmail.com>
-Subject: Virtio_console usage of early printk
-Date: Mon, 22 Mar 2010 18:45:47 +0100
-Message-ID: <6ad07c641003221045m10ee5c84x3a92436582600f21__33223.6727270812$1269312428$gmane$org@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary=005045017e419e6ec9048267458a
+From: Alexander Graf <agraf@suse.de>
+Subject: Re: Virtio_console usage of early printk
+Date: Tue, 23 Mar 2010 08:42:56 +0100
+Message-ID: <C8492FD8-7268-4CC0-BB43-8E0B07113763__21879.787502303$1269330225$gmane$org@suse.de>
+References: <6ad07c641003221045m10ee5c84x3a92436582600f21@mail.gmail.com>
+Mime-Version: 1.0 (Apple Message framework v1077)
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <6ad07c641003221045m10ee5c84x3a92436582600f21@mail.gmail.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -14,62 +17,31 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org, linuxppc-dev@lists.ozlabs.org
-Cc: amit.shah@redhat.com, fdiakh@gmail.com
+To: =?iso-8859-1?Q?Fran=E7ois_Diakhate?= <fdiakh@gmail.com>
+Cc: amit.shah@redhat.com, linuxppc-dev@lists.ozlabs.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
---005045017e419e6ec9048267458a
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
 
-Hi all,
+On 22.03.2010, at 18:45, Fran=E7ois Diakhate wrote:
 
-As far as I can see, early_put_chars is not used by virtio_console
-because it checks whether there is a port available before using it.
-If I understand correctly, this makes it useless because once we have
-a port, we can use the regular virtio transport to output things to
-the console. Does the attached patch seem valid ? Feedback from s390
-and powerpc users who use this functionality would be appreciated.
+> Hi all,
+> =
 
-Thanks,
-Fran=C3=A7ois
+> As far as I can see, early_put_chars is not used by virtio_console
+> because it checks whether there is a port available before using it.
+> If I understand correctly, this makes it useless because once we have
+> a port, we can use the regular virtio transport to output things to
+> the console. Does the attached patch seem valid ? Feedback from s390
+> and powerpc users who use this functionality would be appreciated.
 
---005045017e419e6ec9048267458a
-Content-Type: text/x-patch; charset=US-ASCII;
-	name="0001-virtio-console-Fix-early_put_chars-usage.patch"
-Content-Disposition: attachment;
-	filename="0001-virtio-console-Fix-early_put_chars-usage.patch"
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_g73k71k70
+On S390 we use the hypercall interface with characters instead of memory ad=
+dresses as parameters. The hypervisor then decides if the character is an e=
+arly printk or a real hypercall.
 
-RnJvbSAzOTYxZjM4MGJiZTg0YTEwMzZkZGZjODIzMDM5Y2JlZTMxYjQ0ZGNiIE1vbiBTZXAgMTcg
-MDA6MDA6MDAgMjAwMQpGcm9tOiA9P3V0Zi04P3E/RnJhbj1DMz1BN29pcz0yMERpYWtoYXQ9QzM9
-QTk/PSA8ZmRpYWtoQGdtYWlsLmNvbT4KRGF0ZTogVGh1LCAxOCBNYXIgMjAxMCAxNDo0ODoyMCAr
-MDEwMApTdWJqZWN0OiB2aXJ0aW86IGNvbnNvbGU6IEZpeCBlYXJseV9wdXRfY2hhcnMgdXNhZ2UK
-CkN1cnJlbnRseSBlYXJseV9wdXRfY2hhcnMgaXMgbm90IHVzZWQgYnkgdmlydGlvX2NvbnNvbGUg
-YmVjYXVzZSBpdCBjYW4gb25seSBiZSB1c2VkIG9uY2UgYSBwb3J0IGhhcyBiZWVuIGZvdW5kLCBh
-dCB3aGljaCBwb2ludCBpdCdzIHRvbyBsYXRlIGJlY2F1c2UgaXQgaXMgbm8gbG9uZ2VyIG5lZWRl
-ZC4gVGhpcyBwYXRjaCBzaG91bGQgZml4IGl0LgotLS0KIGRyaXZlcnMvY2hhci92aXJ0aW9fY29u
-c29sZS5jIHwgICAgNiArKystLS0KIDEgZmlsZXMgY2hhbmdlZCwgMyBpbnNlcnRpb25zKCspLCAz
-IGRlbGV0aW9ucygtKQoKZGlmZiAtLWdpdCBhL2RyaXZlcnMvY2hhci92aXJ0aW9fY29uc29sZS5j
-IGIvZHJpdmVycy9jaGFyL3ZpcnRpb19jb25zb2xlLmMKaW5kZXggZjQwNGNjZi4uNjkxYmEyMSAx
-MDA2NDQKLS0tIGEvZHJpdmVycy9jaGFyL3ZpcnRpb19jb25zb2xlLmMKKysrIGIvZHJpdmVycy9j
-aGFyL3ZpcnRpb19jb25zb2xlLmMKQEAgLTY0NSwxMyArNjQ1LDEzIEBAIHN0YXRpYyBpbnQgcHV0
-X2NoYXJzKHUzMiB2dGVybW5vLCBjb25zdCBjaGFyICpidWYsIGludCBjb3VudCkKIHsKIAlzdHJ1
-Y3QgcG9ydCAqcG9ydDsKIAorCWlmICh1bmxpa2VseShlYXJseV9wdXRfY2hhcnMpKQorCQlyZXR1
-cm4gZWFybHlfcHV0X2NoYXJzKHZ0ZXJtbm8sIGJ1ZiwgY291bnQpOworCiAJcG9ydCA9IGZpbmRf
-cG9ydF9ieV92dGVybW5vKHZ0ZXJtbm8pOwogCWlmICghcG9ydCkKIAkJcmV0dXJuIDA7CiAKLQlp
-ZiAodW5saWtlbHkoZWFybHlfcHV0X2NoYXJzKSkKLQkJcmV0dXJuIGVhcmx5X3B1dF9jaGFycyh2
-dGVybW5vLCBidWYsIGNvdW50KTsKLQogCXJldHVybiBzZW5kX2J1Zihwb3J0LCAodm9pZCAqKWJ1
-ZiwgY291bnQpOwogfQogCi0tIAoxLjYuMS4zCgo=
---005045017e419e6ec9048267458a
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+I'm not sure how PPC handles that - I never used virtio console there.
 
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linux-foundation.org/mailman/listinfo/virtualization
---005045017e419e6ec9048267458a--
+Either way, early printk does work for S390. So what exactly is this patch =
+supposed to fix?
+
+
+Alex
