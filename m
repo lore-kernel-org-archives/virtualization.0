@@ -1,19 +1,19 @@
 From: Amit Shah <amit.shah@redhat.com>
-Subject: [PATCH 6/8] virtio: console: Don't always create a port 0 if using
-	multiport
-Date: Tue, 23 Mar 2010 18:23:14 +0530
-Message-ID: <1269348796-8660-7-git-send-email-amit.shah@redhat.com>
+Subject: [PATCH 7/8] virtio: console: Fix early_put_chars usage
+Date: Tue, 23 Mar 2010 18:23:15 +0530
+Message-ID: <1269348796-8660-8-git-send-email-amit.shah@redhat.com>
 References: <1269348796-8660-1-git-send-email-amit.shah@redhat.com>
 	<1269348796-8660-2-git-send-email-amit.shah@redhat.com>
 	<1269348796-8660-3-git-send-email-amit.shah@redhat.com>
 	<1269348796-8660-4-git-send-email-amit.shah@redhat.com>
 	<1269348796-8660-5-git-send-email-amit.shah@redhat.com>
 	<1269348796-8660-6-git-send-email-amit.shah@redhat.com>
+	<1269348796-8660-7-git-send-email-amit.shah@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1269348796-8660-6-git-send-email-amit.shah@redhat.com>
+In-Reply-To: <1269348796-8660-7-git-send-email-amit.shah@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -24,77 +24,28 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: virtualization@lists.linux-foundation.org
-Cc: Amit Shah <amit.shah@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Amit Shah <amit.shah@redhat.com>, =?utf-8?q?Fran=C3=A7ois=20Diakhat=C3=A9?= <fdiakh@gmail.com>, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-If we're using multiport, there's no point in always creating a console
-port. Create the console port only if the host doesn't support
-multiport.
-
-Signed-off-by: Amit Shah <amit.shah@redhat.com>
----
- drivers/char/virtio_console.c |   33 +++++++++++++++------------------
- 1 files changed, 15 insertions(+), 18 deletions(-)
-
-diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index 8b67ff1..18b1b06 100644
---- a/drivers/char/virtio_console.c
-+++ b/drivers/char/virtio_console.c
-@@ -783,6 +783,13 @@ int init_port_console(struct port *port)
- 	spin_unlock_irq(&pdrvdata_lock);
- 	port->guest_connected = true;
- 
-+	/*
-+	 * Start using the new console output if this is the first
-+	 * console to come up.
-+	 */
-+	if (early_put_chars)
-+		early_put_chars = NULL;
-+
- 	/* Notify host of port being opened */
- 	send_control_msg(port, VIRTIO_CONSOLE_PORT_OPEN, 1);
- 
-@@ -1044,14 +1051,8 @@ static void handle_control_message(struct ports_device *portdev,
- 	switch (cpkt->event) {
- 	case VIRTIO_CONSOLE_PORT_ADD:
- 		if (port) {
--			/*
--			 * This can happen for port 0: we have to
--			 * create a console port during probe() as was
--			 * the behaviour before the MULTIPORT feature.
--			 * On a newer host, when the host tells us
--			 * that a port 0 is available, we should just
--			 * say we have the port all set up.
--			 */
-+			dev_dbg(&portdev->vdev->dev,
-+				"Port %u already added\n", port->id);
- 			send_control_msg(port, VIRTIO_CONSOLE_PORT_READY, 1);
- 			break;
- 		}
-@@ -1395,18 +1396,14 @@ static int __devinit virtcons_probe(struct virtio_device *vdev)
- 			err = -ENOMEM;
- 			goto free_vqs;
- 		}
--
-+	} else {
-+		/*
-+		 * If we're running on an older host, we always want
-+		 * to create a console port.
-+		 */
-+		add_port(portdev, 0);
- 	}
- 
--	/*
--	 * For backward compatibility: if we're running on an older
--	 * host, we always want to create a console port.
--	 */
--	add_port(portdev, 0);
--
--	/* Start using the new console output. */
--	early_put_chars = NULL;
--
- 	__send_control_msg(portdev, VIRTIO_CONSOLE_BAD_ID,
- 			   VIRTIO_CONSOLE_DEVICE_READY, 1);
- 	return 0;
--- 
-1.6.2.5
+RnJvbTogRnJhbsOnb2lzIERpYWtoYXTDqSA8ZmRpYWtoQGdtYWlsLmNvbT4KCkN1cnJlbnRseSBl
+YXJseV9wdXRfY2hhcnMgaXMgbm90IHVzZWQgYnkgdmlydGlvX2NvbnNvbGUgYmVjYXVzZSBpdCBj
+YW4Kb25seSBiZSB1c2VkIG9uY2UgYSBwb3J0IGhhcyBiZWVuIGZvdW5kLCBhdCB3aGljaCBwb2lu
+dCBpdCdzIHRvbyBsYXRlCmJlY2F1c2UgaXQgaXMgbm8gbG9uZ2VyIG5lZWRlZC4gVGhpcyBwYXRj
+aCBzaG91bGQgZml4IGl0LgoKQWNrZWQtYnk6IENocmlzdGlhbiBCb3JudHJhZWdlciA8Ym9ybnRy
+YWVnZXJAZGUuaWJtLmNvbT4KU2lnbmVkLW9mZi1ieTogQW1pdCBTaGFoIDxhbWl0LnNoYWhAcmVk
+aGF0LmNvbT4KLS0tCiBkcml2ZXJzL2NoYXIvdmlydGlvX2NvbnNvbGUuYyB8ICAgIDYgKysrLS0t
+CiAxIGZpbGVzIGNoYW5nZWQsIDMgaW5zZXJ0aW9ucygrKSwgMyBkZWxldGlvbnMoLSkKCmRpZmYg
+LS1naXQgYS9kcml2ZXJzL2NoYXIvdmlydGlvX2NvbnNvbGUuYyBiL2RyaXZlcnMvY2hhci92aXJ0
+aW9fY29uc29sZS5jCmluZGV4IDE4YjFiMDYuLmYzM2NlYWEgMTAwNjQ0Ci0tLSBhL2RyaXZlcnMv
+Y2hhci92aXJ0aW9fY29uc29sZS5jCisrKyBiL2RyaXZlcnMvY2hhci92aXJ0aW9fY29uc29sZS5j
+CkBAIC02NTAsMTMgKzY1MCwxMyBAQCBzdGF0aWMgaW50IHB1dF9jaGFycyh1MzIgdnRlcm1ubywg
+Y29uc3QgY2hhciAqYnVmLCBpbnQgY291bnQpCiB7CiAJc3RydWN0IHBvcnQgKnBvcnQ7CiAKKwlp
+ZiAodW5saWtlbHkoZWFybHlfcHV0X2NoYXJzKSkKKwkJcmV0dXJuIGVhcmx5X3B1dF9jaGFycyh2
+dGVybW5vLCBidWYsIGNvdW50KTsKKwogCXBvcnQgPSBmaW5kX3BvcnRfYnlfdnRlcm1ubyh2dGVy
+bW5vKTsKIAlpZiAoIXBvcnQpCiAJCXJldHVybiAwOwogCi0JaWYgKHVubGlrZWx5KGVhcmx5X3B1
+dF9jaGFycykpCi0JCXJldHVybiBlYXJseV9wdXRfY2hhcnModnRlcm1ubywgYnVmLCBjb3VudCk7
+Ci0KIAlyZXR1cm4gc2VuZF9idWYocG9ydCwgKHZvaWQgKilidWYsIGNvdW50KTsKIH0KIAotLSAK
+MS42LjIuNQoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18K
+VmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZv
+dW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcvbWFpbG1hbi9s
+aXN0aW5mby92aXJ0dWFsaXphdGlvbg==
