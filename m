@@ -1,16 +1,12 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [RFC] vhost-blk implementation
-Date: Wed, 24 Mar 2010 13:23:36 +0200
-Message-ID: <20100324112336.GA8180@redhat.com>
-References: <1269304444.7931.68.camel@badari-desktop>
-	<20100323123916.GA24750@redhat.com> <4BA9010D.6010607@us.ibm.com>
-	<20100323180642.GA20175@redhat.com> <4BA91C9B.8070900@us.ibm.com>
+From: Amit Shah <amit.shah@redhat.com>
+Subject: Problem with multiple hvc consoles via virtio-console
+Date: Wed, 24 Mar 2010 21:04:08 +0530
+Message-ID: <20100324153408.GB18581__8752.42532133616$1269445150$gmane$org@amit-x200.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <4BA91C9B.8070900@us.ibm.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,94 +16,26 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Badari Pulavarty <pbadari@us.ibm.com>
-Cc: qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: linuxppc-dev@ozlabs.org, Virtualization List <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Mar 23, 2010 at 12:55:07PM -0700, Badari Pulavarty wrote:
-> Michael S. Tsirkin wrote:
->> On Tue, Mar 23, 2010 at 10:57:33AM -0700, Badari Pulavarty wrote:
->>   
->>> Michael S. Tsirkin wrote:
->>>     
->>>> On Mon, Mar 22, 2010 at 05:34:04PM -0700, Badari Pulavarty wrote:
->>>>         
->>>>> Write Results:
->>>>> ==============
->>>>>
->>>>> I see degraded IO performance when doing sequential IO write
->>>>> tests with vhost-blk compared to virtio-blk.
->>>>>
->>>>> # time dd of=/dev/vda if=/dev/zero bs=2M oflag=direct
->>>>>
->>>>> I get ~110MB/sec with virtio-blk, but I get only ~60MB/sec with
->>>>> vhost-blk. Wondering why ?
->>>>>             
->>>> Try to look and number of interrupts and/or number of exits.
->>>>         
->>> I checked interrupts and IO exits - there is no major noticeable   
->>> difference between
->>> vhost-blk and virtio-blk scenerios.
->>>     
->>>> It could also be that you are overrunning some queue.
->>>>
->>>> I don't see any exit mitigation strategy in your patch:
->>>> when there are already lots of requests in a queue, it's usually
->>>> a good idea to disable notifications and poll the
->>>> queue as requests complete. That could help performance.
->>>>         
->>> Do you mean poll eventfd for new requests instead of waiting for new  
->>> notifications ?
->>> Where do you do that in vhost-net code ?
->>>     
->>
->> vhost_disable_notify does this.
->>
->>   
->>> Unlike network socket, since we are dealing with a file, there is no  
->>> ->poll support for it.
->>> So I can't poll for the data. And also, Issue I am having is on the   
->>> write() side.
->>>     
->>
->> Not sure I understand.
->>
->>   
->>> I looked at it some more - I see 512K write requests on the
->>> virtio-queue  in both vhost-blk and virtio-blk cases. Both qemu or
->>> vhost is doing synchronous  writes to page cache (there is no write
->>> batching in qemu that is affecting this  case).  I still puzzled on
->>> why virtio-blk outperforms vhost-blk.
->>>
->>> Thanks,
->>> Badari
->>>     
->>
->> If you say the number of requests is the same, we are left with:
->> - requests are smaller for some reason?
->> - something is causing retries?
->>   
-> No. IO requests sizes are exactly same (512K) in both cases. There are  
-> no retries or
-> errors in both cases. One thing I am not clear is - for some reason  
-> guest kernel
-> could push more data into virtio-ring in case of virtio-blk vs  
-> vhost-blk. Is this possible ?
-> Does guest gets to run much sooner in virtio-blk case than vhost-blk ?  
-> Sorry, if its dumb question -
-> I don't understand  all the vhost details :(
->
-> Thanks,
-> Badari
+Hello,
 
-BTW, did you put the backend in non-blocking mode?
-As I said, vhost net passes non-blocking flag to
-socket backend, but vfs_write/read that you use does
-not have an option to do this.
+When multiple hvc console ports are initialised and used via the
+virtio_console driver, I can interact with only the first console, the
+2nd one doesn't respond.
 
-So we'll need to extend the backend to fix that,
-but just for demo purposes, you could set non-blocking
-mode on the file from userspace.
+If I call hvc_kick() even if hvc_poll() returns 0, the 2nd console
+becomes responsive.
 
--- 
-MST
+I've checked that hvc_poll() receives data via get_chars() and feeds it
+to tty_insert_flip_char().
+
+Any idea what could be going wrong? This is reproducible on Linus' git
+kernel as the guest kernel with the qemu.git repo.
+
+Any pointers?
+
+Thanks,
+		Amit
