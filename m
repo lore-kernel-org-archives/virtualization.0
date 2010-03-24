@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [RFC] vhost-blk implementation
-Date: Wed, 24 Mar 2010 11:52:21 +0200
-Message-ID: <20100324095221.GA7622@redhat.com>
+Date: Wed, 24 Mar 2010 13:23:36 +0200
+Message-ID: <20100324112336.GA8180@redhat.com>
 References: <1269304444.7931.68.camel@badari-desktop>
 	<20100323123916.GA24750@redhat.com> <4BA9010D.6010607@us.ibm.com>
 	<20100323180642.GA20175@redhat.com> <4BA91C9B.8070900@us.ibm.com>
@@ -99,11 +99,15 @@ On Tue, Mar 23, 2010 at 12:55:07PM -0700, Badari Pulavarty wrote:
 >
 > Thanks,
 > Badari
->
 
-You said you observed same number of requests in userspace versus kernel above.
-And request size is the same as well. But somehow more data is
-transferred? I'm confused.
+BTW, did you put the backend in non-blocking mode?
+As I said, vhost net passes non-blocking flag to
+socket backend, but vfs_write/read that you use does
+not have an option to do this.
+
+So we'll need to extend the backend to fix that,
+but just for demo purposes, you could set non-blocking
+mode on the file from userspace.
 
 -- 
 MST
