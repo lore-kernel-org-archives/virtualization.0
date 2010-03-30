@@ -1,14 +1,12 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH 0/7] virtio: console: Fixes,
-	new flexible way of discovering ports
-Date: Tue, 30 Mar 2010 15:46:14 +1030
-Message-ID: <201003301546.14309.rusty@rustcorp.com.au>
-References: <1269334680-1369-1-git-send-email-amit.shah@redhat.com>
+Subject: [PATCH 1/4] MAINTAINERS: Put the virtio-console entry in correct
+	alphabetical order
+Date: Tue, 30 Mar 2010 15:47:34 +1030
+Message-ID: <201003301547.34731.rusty@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1269334680-1369-1-git-send-email-amit.shah@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,23 +16,48 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Amit Shah <amit.shah@redhat.com>
-Cc: mst@redhat.com, virtualization@lists.linux-foundation.org
+To: virtualization@lists.linux-foundation.org
+Cc: Amit Shah <amit.shah@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 23 Mar 2010 07:27:53 pm Amit Shah wrote:
-> Hello all,
-> 
-> This new patchset switches over to using the control queue for port
-> discovery so that we can stay in sync with the host for port
-> enumeration and also don't use bitmaps to limit us to config space
-> sizes.
-> 
-> This changes the ABI, so it would be better to merge this for 2.6.34
-> so that we don't have to worry about released kernels with the older
-> ABI.
+From: Amit Shah <amit.shah@redhat.com>
 
-This looks horribly like development during the merge window.
+Move around the entry for virtio-console to keep the file sorted.
 
-Sorry,
-Rusty.
+Signed-off-by: Amit Shah <amit.shah@redhat.com>
+Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+---
+ MAINTAINERS |   13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
+
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 449d444..e3548dd 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -2474,12 +2474,6 @@ L:	linuxppc-dev@ozlabs.org
+ S:	Odd Fixes
+ F:	drivers/char/hvc_*
+ 
+-VIRTIO CONSOLE DRIVER
+-M:	Amit Shah <amit.shah@redhat.com>
+-L:	virtualization@lists.linux-foundation.org
+-S:	Maintained
+-F:	drivers/char/virtio_console.c
+-
+ iSCSI BOOT FIRMWARE TABLE (iBFT) DRIVER
+ M:	Peter Jones <pjones@redhat.com>
+ M:	Konrad Rzeszutek Wilk <konrad@kernel.org>
+@@ -5961,6 +5955,13 @@ S:	Maintained
+ F:	Documentation/filesystems/vfat.txt
+ F:	fs/fat/
+ 
++VIRTIO CONSOLE DRIVER
++M:	Amit Shah <amit.shah@redhat.com>
++L:	virtualization@lists.linux-foundation.org
++S:	Maintained
++F:	drivers/char/virtio_console.c
++F:	include/linux/virtio_console.h
++
+ VIRTIO HOST (VHOST)
+ M:	"Michael S. Tsirkin" <mst@redhat.com>
+ L:	kvm@vger.kernel.org
