@@ -1,15 +1,12 @@
-From: Amit Shah <amit.shah@redhat.com>
-Subject: Re: [PATCH 3/4] virtio: console makes incorrect assumption about
-	virtio API
-Date: Tue, 30 Mar 2010 12:00:45 +0530
-Message-ID: <20100330063044.GD28273@amit-x200.redhat.com>
-References: <201003301549.22395.rusty@rustcorp.com.au>
-Mime-Version: 1.0
+From: Michael Alexander <malexand@scaledinfra.com>
+Subject: CfP with Extended Deadline 5th Workshop on Virtualization in
+	High-Performance Cloud Computing (VHPC'10)
+Date: Tue, 30 Mar 2010 19:11:56 +0200
+Message-ID: <63A0FB0D-8C48-47EF-A40E-ED64619EA002@scaledinfra.com>
+Mime-Version: 1.0 (Apple Message framework v1078)
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <201003301549.22395.rusty@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,55 +16,178 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org
+To: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On (Tue) Mar 30 2010 [15:49:22], Rusty Russell wrote:
-> The get_buf() API sets the second arg to the number of bytes *written*
-> by the other side; in this case it should be zero as these are output buffers.
-> 
-> lguest gets this right (obviously kvm's console doesn't), resulting in
-> continual buildup of console writes.
-> 
-> Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
-> To: Amit Shah <amit.shah@redhat.com>
+Apologies if you received multiple copies of this message.
 
-Acked-by: Amit Shah <amit.shah@redhat.com>
 
-> ---
->  drivers/char/virtio_console.c |   10 +++-------
->  1 file changed, 3 insertions(+), 7 deletions(-)
-> 
-> diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-> --- a/drivers/char/virtio_console.c
-> +++ b/drivers/char/virtio_console.c
-> @@ -415,20 +415,16 @@ static ssize_t send_buf(struct port *por
->  	out_vq->vq_ops->kick(out_vq);
->  
->  	if (ret < 0) {
-> -		len = 0;
-> +		in_count = 0;
->  		goto fail;
->  	}
->  
-> -	/*
-> -	 * Wait till the host acknowledges it pushed out the data we
-> -	 * sent. Also ensure we return to userspace the number of
-> -	 * bytes that were successfully consumed by the host.
-> -	 */
-> +	/* Wait till the host acknowledges it pushed out the data we sent. */
->  	while (!out_vq->vq_ops->get_buf(out_vq, &len))
->  		cpu_relax();
->  fail:
->  	/* We're expected to return the amount of data we wrote */
-> -	return len;
-> +	return in_count;
->  }
->  
->  /*
-> 
+=================================================================
 
-		Amit
--- 
-http://log.amitshah.net/
+CALL FOR PAPERS
+
+5th Workshop on
+
+Virtualization in High-Performance Cloud Computing
+
+VHPC'10
+
+as part of Euro-Par 2010, Island of Ischia-Naples, Italy
+
+=================================================================
+
+Date: August 31, 2010
+
+Euro-Par 2009: http://www.europar2010.org/
+
+Workshop URL: http://vhpc.org
+
+SUBMISSION DEADLINE:
+
+Abstracts: April 4, 2010 (extended)
+Full Paper: June 19, 2010 (extended) 
+
+
+Scope:
+
+Virtualization has become a common abstraction layer in modern data
+centers, enabling resource owners to manage complex infrastructure
+independently of their applications. Conjointly virtualization is
+becoming a driving technology for a manifold of industry grade IT
+services. Piloted by the Amazon Elastic Computing Cloud services, the
+cloud concept includes the notion of a separation between resource
+owners and users, adding services such as hosted application
+frameworks and queuing. Utilizing the same infrastructure, clouds
+carry significant potential for use in high-performance scientific
+computing. The ability of clouds to provide for requests and releases
+of vast computing resource dynamically and close to the marginal cost
+of providing the services is unprecedented in the history of
+scientific and commercial computing.
+
+Distributed computing concepts that leverage federated resource access
+are popular within the grid community, but have not seen previously
+desired deployed levels so far. Also, many of the scientific
+datacenters have not adopted virtualization or cloud concepts yet.
+
+This workshop aims to bring together industrial providers with the
+scientific community in order to foster discussion, collaboration and
+mutual exchange of knowledge and experience.
+
+The workshop will be one day in length, composed of 20 min paper
+presentations, each followed by 10 min discussion sections.
+Presentations may be accompanied by interactive demonstrations. It
+concludes with a 30 min panel discussion by presenters.
+
+TOPICS
+
+Topics include, but are not limited to, the following subjects:
+
+- Virtualization in cloud, cluster and grid HPC environments
+- VM cloud, cluster load distribution algorithms
+- Cloud, cluster and grid filesystems
+- QoS and and service level guarantees
+- Cloud programming models, APIs and databases
+- Software as a service (SaaS)
+- Cloud provisioning
+- Virtualized I/O
+- VMMs and storage virtualization
+- MPI, PVM on virtual machines
+- High-performance network virtualization
+- High-speed interconnects
+- Hypervisor extensions
+- Tools for cluster and grid computing
+- Xen/other VMM cloud/cluster/grid tools
+- Raw device access from VMs
+- Cloud reliability, fault-tolerance, and security
+- Cloud load balancing
+- VMs - power efficiency
+- Network architectures for VM-based environments
+- VMMs/Hypervisors
+- Hardware support for virtualization
+- Fault tolerant VM environments
+- Workload characterizations for VM-based environments
+- Bottleneck management
+- Metering
+- VM-based cloud performance modeling
+- Cloud security, access control and data integrity
+- Performance management and tuning hosts and guest VMs
+- VMM performance tuning on various load types
+- Research and education use cases
+- Cloud use cases
+- Management of VM environments and clouds
+- Deployment of VM-based environments
+
+
+
+PAPER SUBMISSION
+
+Papers submitted to the workshop will be reviewed by at least two
+members of the program committee and external reviewers. Submissions
+should include abstract, key words, the e-mail address of the
+corresponding author, and must not exceed 10 pages, including tables
+and figures at a main font size no smaller than 11 point. Submission
+of a paper should be regarded as a commitment that, should the paper
+be accepted, at least one of the authors will register and attend the
+conference to present the work.
+
+Accepted papers will be published in the Springer LNCS series - the
+format must be according to the Springer LNCS Style. Initial
+submissions are in PDF, accepted papers will be requested to provided
+source files.
+
+Format Guidelines: http://www.springer.de/comp/lncs/authors.html
+
+Submission Link: http://edas.info/newPaper.php?c=8553
+
+
+IMPORTANT DATES
+
+April 4 - Abstract submission due (extended)
+May 19 - Full paper submission (extended)
+July 14 - Acceptance notification
+August 3 - Camera-ready version due
+August 31 - September 3 - conference
+
+
+CHAIR
+
+Michael Alexander (chair), scaledinfra technologies GmbH, Austria
+Gianluigi Zanetti (co-chair), CRS4, Italy
+
+
+PROGRAM COMMITTEE
+
+Padmashree Apparao, Intel Corp., USA
+Volker Buege, University of Karlsruhe, Germany
+Roberto Canonico, University of Napoli Federico II, Italy
+Tommaso Cucinotta, Scuola Superiore Sant'Anna, Italy
+Werner Fischer, Thomas Krenn AG, Germany
+William Gardner, University of Guelph, Canada
+Wolfgang Gentzsch, DEISA. Max Planck Gesellschaft, Germany
+Derek Groen, UVA, The Netherlands
+Marcus Hardt, Forschungszentrum Karlsruhe, Germany
+Sverre Jarp, CERN, Switzerland
+Shantenu Jha, Louisiana State University, USA
+Xuxian Jiang, NC State, USA
+Kenji Kaneda, Google, Japan
+Yves Kemp, DESY Hamburg, Germany
+Ignacio Llorente, Universidad Complutense de Madrid, Spain
+Naoya Maruyama, Tokyo Institute of Technology, Japan
+Jean-Marc Menaud, Ecole des Mines de Nantes, France
+Anastassios Nano, National Technical University of Athens, Greece
+Oliver Oberst, Karlsruhe Institute of Technology, Germany
+Jose Renato Santos, HP Labs, USA
+Borja Sotomayor, University of Chicago, USA
+Yoshio Turner, HP Labs, USA
+Kurt Tuschku, University of Vienna, Austria
+Lizhe Wang, Indiana University, USA
+Chao-Tung Yang, Tunghai University, Taiwan
+
+
+DURATION: Workshop Duration is one day.
+
+GENERAL INFORMATION
+
+The workshop will be held as part of Euro-Par 2010,
+Island of Ischia-Naples, Italy.
+Euro-Par 2010: http://www.europar2010.org/
