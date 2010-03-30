@@ -1,7 +1,8 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: [PATCH 2/4] virtio: console: Fix early_put_chars usage
-Date: Tue, 30 Mar 2010 15:49:02 +1030
-Message-ID: <201003301549.03101.rusty@rustcorp.com.au>
+Subject: [PATCH 3/4] virtio: console makes incorrect assumption about virtio
+	API
+Date: Tue, 30 Mar 2010 15:49:22 +1030
+Message-ID: <201003301549.22395.rusty@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -15,40 +16,46 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
-Cc: Amit Shah <amit.shah@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>
+To: Amit Shah <amit.shah@redhat.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Francois Diakhate <fdiakh@gmail.com>
+The get_buf() API sets the second arg to the number of bytes *written*
+by the other side; in this case it should be zero as these are output buffers.
 
-Currently early_put_chars is not used by virtio_console because it can
-only be used once a port has been found, at which point it's too late
-because it is no longer needed. This patch should fix it.
+lguest gets this right (obviously kvm's console doesn't), resulting in
+continual buildup of console writes.
 
-Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Signed-off-by: Amit Shah <amit.shah@redhat.com>
 Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+To: Amit Shah <amit.shah@redhat.com>
 ---
- drivers/char/virtio_console.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/char/virtio_console.c |   10 +++-------
+ 1 file changed, 3 insertions(+), 7 deletions(-)
 
 diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index 18b1b06..f33ceaa 100644
 --- a/drivers/char/virtio_console.c
 +++ b/drivers/char/virtio_console.c
-@@ -650,13 +650,13 @@ static int put_chars(u32 vtermno, const char *buf, int count)
- {
- 	struct port *port;
+@@ -415,20 +415,16 @@ static ssize_t send_buf(struct port *por
+ 	out_vq->vq_ops->kick(out_vq);
  
-+	if (unlikely(early_put_chars))
-+		return early_put_chars(vtermno, buf, count);
-+
- 	port = find_port_by_vtermno(vtermno);
- 	if (!port)
- 		return 0;
+ 	if (ret < 0) {
+-		len = 0;
++		in_count = 0;
+ 		goto fail;
+ 	}
  
--	if (unlikely(early_put_chars))
--		return early_put_chars(vtermno, buf, count);
--
- 	return send_buf(port, (void *)buf, count);
+-	/*
+-	 * Wait till the host acknowledges it pushed out the data we
+-	 * sent. Also ensure we return to userspace the number of
+-	 * bytes that were successfully consumed by the host.
+-	 */
++	/* Wait till the host acknowledges it pushed out the data we sent. */
+ 	while (!out_vq->vq_ops->get_buf(out_vq, &len))
+ 		cpu_relax();
+ fail:
+ 	/* We're expected to return the amount of data we wrote */
+-	return len;
++	return in_count;
  }
+ 
+ /*
