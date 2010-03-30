@@ -1,8 +1,7 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: [PATCH 1/4] MAINTAINERS: Put the virtio-console entry in correct
-	alphabetical order
-Date: Tue, 30 Mar 2010 15:47:34 +1030
-Message-ID: <201003301547.34731.rusty@rustcorp.com.au>
+Subject: [PATCH 2/4] virtio: console: Fix early_put_chars usage
+Date: Tue, 30 Mar 2010 15:49:02 +1030
+Message-ID: <201003301549.03101.rusty@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -17,47 +16,39 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: virtualization@lists.linux-foundation.org
-Cc: Amit Shah <amit.shah@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Amit Shah <amit.shah@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Amit Shah <amit.shah@redhat.com>
+From: Francois Diakhate <fdiakh@gmail.com>
 
-Move around the entry for virtio-console to keep the file sorted.
+Currently early_put_chars is not used by virtio_console because it can
+only be used once a port has been found, at which point it's too late
+because it is no longer needed. This patch should fix it.
 
+Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
 Signed-off-by: Amit Shah <amit.shah@redhat.com>
 Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 ---
- MAINTAINERS |   13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+ drivers/char/virtio_console.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 449d444..e3548dd 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -2474,12 +2474,6 @@ L:	linuxppc-dev@ozlabs.org
- S:	Odd Fixes
- F:	drivers/char/hvc_*
+diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
+index 18b1b06..f33ceaa 100644
+--- a/drivers/char/virtio_console.c
++++ b/drivers/char/virtio_console.c
+@@ -650,13 +650,13 @@ static int put_chars(u32 vtermno, const char *buf, int count)
+ {
+ 	struct port *port;
  
--VIRTIO CONSOLE DRIVER
--M:	Amit Shah <amit.shah@redhat.com>
--L:	virtualization@lists.linux-foundation.org
--S:	Maintained
--F:	drivers/char/virtio_console.c
--
- iSCSI BOOT FIRMWARE TABLE (iBFT) DRIVER
- M:	Peter Jones <pjones@redhat.com>
- M:	Konrad Rzeszutek Wilk <konrad@kernel.org>
-@@ -5961,6 +5955,13 @@ S:	Maintained
- F:	Documentation/filesystems/vfat.txt
- F:	fs/fat/
- 
-+VIRTIO CONSOLE DRIVER
-+M:	Amit Shah <amit.shah@redhat.com>
-+L:	virtualization@lists.linux-foundation.org
-+S:	Maintained
-+F:	drivers/char/virtio_console.c
-+F:	include/linux/virtio_console.h
++	if (unlikely(early_put_chars))
++		return early_put_chars(vtermno, buf, count);
 +
- VIRTIO HOST (VHOST)
- M:	"Michael S. Tsirkin" <mst@redhat.com>
- L:	kvm@vger.kernel.org
+ 	port = find_port_by_vtermno(vtermno);
+ 	if (!port)
+ 		return 0;
+ 
+-	if (unlikely(early_put_chars))
+-		return early_put_chars(vtermno, buf, count);
+-
+ 	return send_buf(port, (void *)buf, count);
+ }
