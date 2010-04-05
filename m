@@ -1,9 +1,9 @@
 From: "Ky Srinivasan" <ksrinivasan@novell.com>
 Subject: A clocksource driver for HyperV
-Date: Mon, 05 Apr 2010 14:30:19 -0600
-Message-ID: <4BB9F3FB0200003000082872@sinclair.provo.novell.com>
+Date: Mon, 05 Apr 2010 14:30:32 -0600
+Message-ID: <4BB9F408020000300008287C@sinclair.provo.novell.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="=__Part9AB0664B.1__="
+Content-Type: multipart/mixed; boundary="=__PartA9835578.1__="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,7 +18,7 @@ To: Greg KH <gregkh@suse.de>
 Cc: devel@driverdev.osuosl.org, Virtualization@lists.osdl.org, Haiyang Zhang <haiyangz@microsoft.com>, Ky Srinivasan <KSrinivasan@novell.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
---=__Part9AB0664B.1__=
+--=__PartA9835578.1__=
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: quoted-printable
 Content-Disposition: inline
@@ -30,7 +30,7 @@ Signed-off-by: K. Y. Srinivasan <ksrinivasan@novell.com>
 
 
 
---=__Part9AB0664B.1__=
+--=__PartA9835578.1__=
 Content-Type: text/plain; name="hyperv_clocksource.patch"
 Content-Transfer-Encoding: quoted-printable
 Content-Disposition: attachment; filename="hyperv_clocksource.patch"
@@ -125,7 +125,7 @@ Makefile	2010-04-05 13:02:13.000000000 -0600=0A@@ -1,4 +1,4 =
 ERV)		+=3D hv_vmbus.o hv_timesource.o=0A obj-$(CONFIG_HYPERV_STOR=
 AGE)	+=3D hv_storvsc.o=0A obj-$(CONFIG_HYPERV_BLOCK)	+=3D hv_blkvsc.o=0A=
  obj-$(CONFIG_HYPERV_NET)	+=3D hv_netvsc.o=0A
---=__Part9AB0664B.1__=
+--=__PartA9835578.1__=
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -135,4 +135,4 @@ _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linux-foundation.org/mailman/listinfo/virtualization
---=__Part9AB0664B.1__=--
+--=__PartA9835578.1__=--
