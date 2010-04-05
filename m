@@ -1,16 +1,17 @@
 From: Amit Shah <amit.shah@redhat.com>
-Subject: [PATCH 03/10] virtio: console: Return -EPIPE to hvc_console if we
-	lost the connection
-Date: Mon,  5 Apr 2010 19:24:07 +0530
-Message-ID: <1270475654-399-4-git-send-email-amit.shah@redhat.com>
+Subject: [PATCH 05/10] virtio: console: Remove config work handler
+Date: Mon,  5 Apr 2010 19:24:09 +0530
+Message-ID: <1270475654-399-6-git-send-email-amit.shah@redhat.com>
 References: <1270475654-399-1-git-send-email-amit.shah@redhat.com>
 	<1270475654-399-2-git-send-email-amit.shah@redhat.com>
 	<1270475654-399-3-git-send-email-amit.shah@redhat.com>
+	<1270475654-399-4-git-send-email-amit.shah@redhat.com>
+	<1270475654-399-5-git-send-email-amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1270475654-399-3-git-send-email-amit.shah@redhat.com>
+In-Reply-To: <1270475654-399-5-git-send-email-amit.shah@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -24,41 +25,117 @@ To: Virtualization List <virtualization@lists.linux-foundation.org>
 Cc: Amit Shah <amit.shah@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-hvc_console handles -EPIPE properly when the connection to the host is
-lost.
+We're going to switch to using control messages for port hot-plug and
+initial port discovery. Remove the config work handler which handled
+port hot-plug so far.
 
 Signed-off-by: Amit Shah <amit.shah@redhat.com>
 ---
- drivers/char/virtio_console.c |    8 ++++++--
- 1 files changed, 6 insertions(+), 2 deletions(-)
+ drivers/char/virtio_console.c |   64 +----------------------------------------
+ 1 files changed, 1 insertions(+), 63 deletions(-)
 
 diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index 1ae11f4..733276d 100644
+index b40b112..0473221 100644
 --- a/drivers/char/virtio_console.c
 +++ b/drivers/char/virtio_console.c
-@@ -660,7 +660,7 @@ static int put_chars(u32 vtermno, const char *buf, int count)
+@@ -109,7 +109,6 @@ struct ports_device {
+ 	 * notification
+ 	 */
+ 	struct work_struct control_work;
+-	struct work_struct config_work;
  
- 	port = find_port_by_vtermno(vtermno);
- 	if (!port)
--		return 0;
-+		return -EPIPE;
+ 	struct list_head ports;
  
- 	return send_buf(port, (void *)buf, count);
- }
-@@ -676,9 +676,13 @@ static int get_chars(u32 vtermno, char *buf, int count)
- {
- 	struct port *port;
+@@ -1091,10 +1090,7 @@ static void config_intr(struct virtio_device *vdev)
+ 	struct ports_device *portdev;
  
-+	/* If we've not set up the port yet, we have no input to give. */
-+	if (unlikely(early_put_chars))
-+		return 0;
+ 	portdev = vdev->priv;
+-	if (use_multiport(portdev)) {
+-		/* Handle port hot-add */
+-		schedule_work(&portdev->config_work);
+-	}
 +
- 	port = find_port_by_vtermno(vtermno);
- 	if (!port)
--		return 0;
-+		return -EPIPE;
+ 	/*
+ 	 * We'll use this way of resizing only for legacy support.
+ 	 * For newer userspace (VIRTIO_CONSOLE_F_MULTPORT+), use
+@@ -1237,62 +1233,6 @@ fail:
+ 	return err;
+ }
  
- 	/* If we don't have an input queue yet, we can't get input. */
- 	BUG_ON(!port->in_vq);
+-/*
+- * The workhandler for config-space updates.
+- *
+- * This is called when ports are hot-added.
+- */
+-static void config_work_handler(struct work_struct *work)
+-{
+-	struct virtio_console_config virtconconf;
+-	struct ports_device *portdev;
+-	struct virtio_device *vdev;
+-	int err;
+-
+-	portdev = container_of(work, struct ports_device, config_work);
+-
+-	vdev = portdev->vdev;
+-	vdev->config->get(vdev,
+-			  offsetof(struct virtio_console_config, nr_ports),
+-			  &virtconconf.nr_ports,
+-			  sizeof(virtconconf.nr_ports));
+-
+-	if (portdev->config.nr_ports == virtconconf.nr_ports) {
+-		/*
+-		 * Port 0 got hot-added.  Since we already did all the
+-		 * other initialisation for it, just tell the Host
+-		 * that the port is ready if we find the port.  In
+-		 * case the port was hot-removed earlier, we call
+-		 * add_port to add the port.
+-		 */
+-		struct port *port;
+-
+-		port = find_port_by_id(portdev, 0);
+-		if (!port)
+-			add_port(portdev, 0);
+-		else
+-			send_control_msg(port, VIRTIO_CONSOLE_PORT_READY, 1);
+-		return;
+-	}
+-	if (virtconconf.nr_ports > portdev->config.max_nr_ports) {
+-		dev_warn(&vdev->dev,
+-			 "More ports specified (%u) than allowed (%u)",
+-			 portdev->config.nr_ports + 1,
+-			 portdev->config.max_nr_ports);
+-		return;
+-	}
+-	if (virtconconf.nr_ports < portdev->config.nr_ports)
+-		return;
+-
+-	/* Hot-add ports */
+-	while (virtconconf.nr_ports - portdev->config.nr_ports) {
+-		err = add_port(portdev, portdev->config.nr_ports);
+-		if (err)
+-			break;
+-		portdev->config.nr_ports++;
+-	}
+-}
+-
+ static int init_vqs(struct ports_device *portdev)
+ {
+ 	vq_callback_t **io_callbacks;
+@@ -1485,7 +1425,6 @@ static int __devinit virtcons_probe(struct virtio_device *vdev)
+ 
+ 		spin_lock_init(&portdev->cvq_lock);
+ 		INIT_WORK(&portdev->control_work, &control_work_handler);
+-		INIT_WORK(&portdev->config_work, &config_work_handler);
+ 
+ 		nr_added_bufs = fill_queue(portdev->c_ivq, &portdev->cvq_lock);
+ 		if (!nr_added_bufs) {
+@@ -1528,7 +1467,6 @@ static void virtcons_remove(struct virtio_device *vdev)
+ 	portdev = vdev->priv;
+ 
+ 	cancel_work_sync(&portdev->control_work);
+-	cancel_work_sync(&portdev->config_work);
+ 
+ 	list_for_each_entry_safe(port, port2, &portdev->ports, list)
+ 		remove_port(port);
 -- 
 1.6.2.5
