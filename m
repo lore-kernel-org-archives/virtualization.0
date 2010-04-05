@@ -1,15 +1,14 @@
 From: Amit Shah <amit.shah@redhat.com>
-Subject: [PATCH 02/10] virtio: console: Let host know of port or device add
-	failures
-Date: Mon,  5 Apr 2010 19:24:06 +0530
-Message-ID: <1270475654-399-3-git-send-email-amit.shah@redhat.com>
+Subject: [PATCH 01/10] virtio: console: Add a __send_control_msg() that can
+	send messages without a valid port
+Date: Mon,  5 Apr 2010 19:24:05 +0530
+Message-ID: <1270475654-399-2-git-send-email-amit.shah@redhat.com>
 References: <1270475654-399-1-git-send-email-amit.shah@redhat.com>
-	<1270475654-399-2-git-send-email-amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1270475654-399-2-git-send-email-amit.shah@redhat.com>
+In-Reply-To: <1270475654-399-1-git-send-email-amit.shah@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -23,59 +22,59 @@ To: Virtualization List <virtualization@lists.linux-foundation.org>
 Cc: Amit Shah <amit.shah@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The host may want to know and let management apps notify of port or
-device add failures. Send a control message saying the device or port is
-not ready in this case.
+We will introduce control messages that operate on the device as a whole
+rather than just ports. Make send_control_msg() a wrapper around
+__send_control_msg() which does not need a valid port.
 
 Signed-off-by: Amit Shah <amit.shah@redhat.com>
 ---
- drivers/char/virtio_console.c  |    5 +++++
- include/linux/virtio_console.h |    3 +++
- 2 files changed, 8 insertions(+), 0 deletions(-)
+ drivers/char/virtio_console.c |   16 +++++++++++-----
+ 1 files changed, 11 insertions(+), 5 deletions(-)
 
 diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index 5d24015..1ae11f4 100644
+index 8f665bc..5d24015 100644
 --- a/drivers/char/virtio_console.c
 +++ b/drivers/char/virtio_console.c
-@@ -1217,6 +1217,8 @@ free_cdev:
- free_port:
- 	kfree(port);
- fail:
-+	/* The host might want to notify management sw about port add failure */
-+	send_control_msg(port, VIRTIO_CONSOLE_PORT_READY, 0);
- 	return err;
+@@ -373,22 +373,22 @@ out:
+ 	return ret;
  }
  
-@@ -1495,6 +1497,9 @@ free_chrdev:
- free:
- 	kfree(portdev);
- fail:
-+	/* The host might want to notify mgmt sw about device add failure */
-+	__send_control_msg(portdev, VIRTIO_CONSOLE_BAD_ID,
-+			   VIRTIO_CONSOLE_DEVICE_READY, 0);
- 	return err;
+-static ssize_t send_control_msg(struct port *port, unsigned int event,
+-				unsigned int value)
++static ssize_t __send_control_msg(struct ports_device *portdev, u32 port_id,
++				  unsigned int event, unsigned int value)
+ {
+ 	struct scatterlist sg[1];
+ 	struct virtio_console_control cpkt;
+ 	struct virtqueue *vq;
+ 	unsigned int len;
+ 
+-	if (!use_multiport(port->portdev))
++	if (!use_multiport(portdev))
+ 		return 0;
+ 
+-	cpkt.id = port->id;
++	cpkt.id = port_id;
+ 	cpkt.event = event;
+ 	cpkt.value = value;
+ 
+-	vq = port->portdev->c_ovq;
++	vq = portdev->c_ovq;
+ 
+ 	sg_init_one(sg, &cpkt, sizeof(cpkt));
+ 	if (vq->vq_ops->add_buf(vq, sg, 1, 0, &cpkt) >= 0) {
+@@ -399,6 +399,12 @@ static ssize_t send_control_msg(struct port *port, unsigned int event,
+ 	return 0;
  }
  
-diff --git a/include/linux/virtio_console.h b/include/linux/virtio_console.h
-index ae4f039..0157361 100644
---- a/include/linux/virtio_console.h
-+++ b/include/linux/virtio_console.h
-@@ -14,6 +14,8 @@
- #define VIRTIO_CONSOLE_F_SIZE	0	/* Does host provide console size? */
- #define VIRTIO_CONSOLE_F_MULTIPORT 1	/* Does host provide multiple ports? */
- 
-+#define VIRTIO_CONSOLE_BAD_ID		(~(u32)0)
++static ssize_t send_control_msg(struct port *port, unsigned int event,
++				unsigned int value)
++{
++	return __send_control_msg(port->portdev, port->id, event, value);
++}
 +
- struct virtio_console_config {
- 	/* colums of the screens */
- 	__u16 cols;
-@@ -42,6 +44,7 @@ struct virtio_console_control {
- #define VIRTIO_CONSOLE_PORT_OPEN	3
- #define VIRTIO_CONSOLE_PORT_NAME	4
- #define VIRTIO_CONSOLE_PORT_REMOVE	5
-+#define VIRTIO_CONSOLE_DEVICE_READY	6
- 
- #ifdef __KERNEL__
- int __init virtio_cons_early_init(int (*put_chars)(u32, const char *, int));
+ static ssize_t send_buf(struct port *port, void *in_buf, size_t in_count)
+ {
+ 	struct scatterlist sg[1];
 -- 
 1.6.2.5
