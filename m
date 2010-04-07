@@ -1,480 +1,545 @@
-From: Badari Pulavarty <pbadari@us.ibm.com>
-Subject: [RFC] vhost-blk implementation (v2)
-Date: Tue, 06 Apr 2010 17:36:28 -0700
-Message-ID: <1270600588.28348.36.camel__37489.3837295987$1270600796$gmane$org@badari-desktop>
-References: <1269306023.7931.72.camel@badari-desktop>
-	<4BA891E2.9040500@redhat.com> <20100324200502.GB22272@infradead.org>
-	<4BAB7AA8.8030509@shiftmail.org> <20100405195912.GA17589@infradead.org>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH v3] Add Mergeable receive buffer support to vhost_net
+Date: Wed, 7 Apr 2010 13:59:10 +0300
+Message-ID: <20100407105910.GD9550@redhat.com>
+References: <1270585973.28407.3.camel@lab1.dls>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20100405195912.GA17589@infradead.org>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, qemu-devel@nongnu.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <netdev-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1270585973.28407.3.camel@lab1.dls>
+Sender: netdev-owner@vger.kernel.org
+To: David L Stevens <dlstevens@us.ibm.com>
+Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, rusty@rustcorp.com.au, virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi All,
+On Tue, Apr 06, 2010 at 01:32:53PM -0700, David L Stevens wrote:
+> 
+> This patch adds support for the Mergeable Receive Buffers feature to
+> vhost_net.
+> 
+> 						+-DLS
+> 
+> Changes from previous revision:
+> 1) renamed:
+> 	vhost_discard_vq_desc -> vhost_discard_desc
+> 	vhost_get_heads -> vhost_get_desc_n
+> 	vhost_get_vq_desc -> vhost_get_desc
+> 2) added heads as argument to ghost_get_desc_n
+> 3) changed "vq->heads" from iovec to vring_used_elem, removed casts
+> 4) changed vhost_add_used to do multiple elements in a single
+> copy_to_user,
+> 	or two when we wrap the ring.
+> 5) removed rxmaxheadcount and available buffer checks in favor of
+> running until
+> 	an allocation failure, but making sure we break the loop if we get
+> 	two in a row, indicating we have at least 1 buffer, but not enough
+> 	for the current receive packet
+> 6) restore non-vnet header handling
+> 
+> Signed-Off-By: David L Stevens <dlstevens@us.ibm.com>
 
-Here is the latest version of vhost-blk implementation.
-Major difference from my previous implementation is that, I
-now merge all contiguous requests (both read and write), before
-submitting them. This significantly improved IO performance.
-I am still collecting performance numbers, I will be posting
-in next few days.
+Thanks!
+There's some whitespace damage, are you sending with your new
+sendmail setup? It seems to have worked for qemu patches ...
 
-Comments ?
+> diff -ruNp net-next-p0/drivers/vhost/net.c
+> net-next-v3/drivers/vhost/net.c
+> --- net-next-p0/drivers/vhost/net.c	2010-03-22 12:04:38.000000000 -0700
+> +++ net-next-v3/drivers/vhost/net.c	2010-04-06 12:54:56.000000000 -0700
+> @@ -130,9 +130,8 @@ static void handle_tx(struct vhost_net *
+>  	hdr_size = vq->hdr_size;
+>  
+>  	for (;;) {
+> -		head = vhost_get_vq_desc(&net->dev, vq, vq->iov,
+> -					 ARRAY_SIZE(vq->iov),
+> -					 &out, &in,
+> +		head = vhost_get_desc(&net->dev, vq, vq->iov,
+> +					 ARRAY_SIZE(vq->iov), &out, &in,
+>  					 NULL, NULL);
+>  		/* Nothing new?  Wait for eventfd to tell us they refilled. */
+>  		if (head == vq->num) {
+> @@ -167,8 +166,15 @@ static void handle_tx(struct vhost_net *
+>  		/* TODO: Check specific error and bomb out unless ENOBUFS? */
+>  		err = sock->ops->sendmsg(NULL, sock, &msg, len);
+>  		if (unlikely(err < 0)) {
+> -			vhost_discard_vq_desc(vq);
+> -			tx_poll_start(net, sock);
+> +			if (err == -EAGAIN) {
+> +				vhost_discard_desc(vq, 1);
+> +				tx_poll_start(net, sock);
+> +			} else {
+> +				vq_err(vq, "sendmsg: errno %d\n", -err);
+> +				/* drop packet; do not discard/resend */
+> +				vhost_add_used_and_signal(&net->dev, vq, head,
+> +							  0);
 
-Todo:
-- Address hch's comments on annontations
-- Implement per device read/write queues
-- Finish up error handling
+vhost does not currently has a consistent error handling strategy:
+if we drop packets, need to think which other errors should cause
+packet drops.  I prefer to just call vq_err for now,
+and have us look at handling segfaults etc in a consistent way
+separately.
 
-Thanks,
-Badari
+> +			}
+>  			break;
+>  		}
+>  		if (err != len)
+> @@ -186,12 +192,25 @@ static void handle_tx(struct vhost_net *
+>  	unuse_mm(net->dev.mm);
+>  }
+>  
+> +static int vhost_head_len(struct sock *sk)
+> +{
+> +	struct sk_buff *head;
+> +	int len = 0;
+> +
+> +	lock_sock(sk);
+> +	head = skb_peek(&sk->sk_receive_queue);
+> +	if (head)
+> +		len = head->len;
+> +	release_sock(sk);
+> +	return len;
+> +}
+> +
 
----
- drivers/vhost/blk.c |  445 ++++++++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 445 insertions(+)
+I wonder whether it makes sense to check
+skb_queue_empty(&sk->sk_receive_queue)
+outside the lock, to reduce the cost of this call
+on an empty queue (we know that it happens at least once
+each time we exit the loop on rx)?
 
-Index: net-next/drivers/vhost/blk.c
-===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ net-next/drivers/vhost/blk.c	2010-04-06 16:38:03.563847905 -0400
-@@ -0,0 +1,445 @@
-+ /*
-+  * virtio-block server in host kernel.
-+  * Inspired by vhost-net and shamlessly ripped code from it :)
-+  */
-+
-+#include <linux/compat.h>
-+#include <linux/eventfd.h>
-+#include <linux/vhost.h>
-+#include <linux/virtio_net.h>
-+#include <linux/virtio_blk.h>
-+#include <linux/mmu_context.h>
-+#include <linux/miscdevice.h>
-+#include <linux/module.h>
-+#include <linux/mutex.h>
-+#include <linux/workqueue.h>
-+#include <linux/rcupdate.h>
-+#include <linux/file.h>
-+
-+#include "vhost.h"
-+
-+#define VHOST_BLK_VQ_MAX 1
-+#define SECTOR_SHIFT 9
-+
-+struct vhost_blk {
-+	struct vhost_dev dev;
-+	struct vhost_virtqueue vqs[VHOST_BLK_VQ_MAX];
-+	struct vhost_poll poll[VHOST_BLK_VQ_MAX];
-+};
-+
-+struct vhost_blk_io {
-+	struct list_head list;
-+	struct work_struct work;
-+	struct vhost_blk *blk;
-+	struct file *file;
-+	int head;
-+	uint32_t type;
-+	uint32_t nvecs;
-+	uint64_t sector;
-+	uint64_t len;
-+	struct iovec iov[0];
-+};
-+
-+static struct workqueue_struct *vblk_workqueue;
-+static LIST_HEAD(write_queue);
-+static LIST_HEAD(read_queue);
-+
-+static void handle_io_work(struct work_struct *work)
-+{
-+	struct vhost_blk_io *vbio, *entry;
-+	struct vhost_virtqueue *vq;
-+	struct vhost_blk *blk;
-+	struct list_head single, *head, *node, *tmp;
-+
-+	int i, need_free, ret = 0;
-+	loff_t pos;
-+	uint8_t status = 0;
-+
-+	vbio = container_of(work, struct vhost_blk_io, work);
-+	blk = vbio->blk;
-+	vq = &blk->dev.vqs[0];
-+	pos = vbio->sector << 8;
-+
-+	use_mm(blk->dev.mm);
-+	if (vbio->type & VIRTIO_BLK_T_FLUSH)  {
-+		ret = vfs_fsync(vbio->file, vbio->file->f_path.dentry, 1);
-+	} else if (vbio->type & VIRTIO_BLK_T_OUT) {
-+		ret = vfs_writev(vbio->file, vbio->iov, vbio->nvecs, &pos);
-+	} else {
-+		ret = vfs_readv(vbio->file, vbio->iov, vbio->nvecs, &pos);
-+	}
-+	status = (ret < 0) ? VIRTIO_BLK_S_IOERR : VIRTIO_BLK_S_OK;
-+	if (vbio->head != -1) {
-+		INIT_LIST_HEAD(&single);
-+		list_add(&vbio->list, &single);
-+		head = &single;
-+		need_free = 0;
-+	} else {
-+		head = &vbio->list;
-+		need_free = 1;
-+	}
-+	list_for_each_entry(entry, head, list) {
-+		copy_to_user(entry->iov[entry->nvecs].iov_base, &status, sizeof status);
-+	}
-+	mutex_lock(&vq->mutex);
-+	list_for_each_safe(node, tmp, head) {
-+		entry = list_entry(node, struct vhost_blk_io, list);
-+		vhost_add_used_and_signal(&blk->dev, vq, entry->head, ret);
-+		list_del(node);
-+		kfree(entry);
-+	}
-+	mutex_unlock(&vq->mutex);
-+	unuse_mm(blk->dev.mm);
-+	if (need_free)
-+		kfree(vbio);
-+}
-+
-+static struct vhost_blk_io *allocate_vbio(int nvecs)
-+{
-+	struct vhost_blk_io *vbio;
-+	int size = sizeof(struct vhost_blk_io) + nvecs * sizeof(struct iovec);
-+	vbio = kmalloc(size, GFP_KERNEL);
-+	if (vbio) {
-+		INIT_WORK(&vbio->work, handle_io_work);
-+		INIT_LIST_HEAD(&vbio->list);
-+	}
-+	return vbio;
-+}
-+
-+static void merge_and_handoff_work(struct list_head *queue)
-+{
-+	struct vhost_blk_io *vbio, *entry;
-+	int nvecs = 0;
-+	int entries = 0;
-+
-+	list_for_each_entry(entry, queue, list) {
-+		nvecs += entry->nvecs;
-+		entries++;
-+	}
-+
-+	if (entries == 1) {
-+		vbio = list_first_entry(queue, struct vhost_blk_io, list);
-+		list_del(&vbio->list);
-+		queue_work(vblk_workqueue, &vbio->work);
-+		return;
-+	}
-+
-+	vbio = allocate_vbio(nvecs);
-+	if (!vbio) {
-+		/* Unable to allocate memory - submit IOs individually */
-+		list_for_each_entry(vbio, queue, list) {
-+			queue_work(vblk_workqueue, &vbio->work);
-+		}
-+		INIT_LIST_HEAD(queue);
-+		return;
-+	}
-+
-+	entry = list_first_entry(queue, struct vhost_blk_io, list);
-+	vbio->nvecs = nvecs;
-+	vbio->blk = entry->blk;
-+	vbio->file = entry->file;
-+	vbio->type = entry->type;
-+	vbio->sector = entry->sector;
-+	vbio->head = -1;
-+	vbio->len = 0;
-+	nvecs = 0;
-+
-+	list_for_each_entry(entry, queue, list) {
-+		memcpy(&vbio->iov[nvecs], entry->iov, entry->nvecs * sizeof(struct iovec));
-+		nvecs += entry->nvecs;
-+		vbio->len += entry->len;
-+	}
-+	list_replace_init(queue, &vbio->list);
-+	queue_work(vblk_workqueue, &vbio->work);
-+}
-+
-+static void start_io(struct list_head *queue)
-+{
-+	struct list_head start;
-+	struct vhost_blk_io *vbio = NULL, *entry;
-+
-+	if (list_empty(queue))
-+                return;
-+
-+	list_for_each_entry(entry, queue, list) {
-+		if (!vbio) {
-+			vbio = entry;
-+			continue;
-+		}
-+		if (vbio->sector + (vbio->len >> SECTOR_SHIFT) == entry->sector) {
-+			vbio = entry;
-+		} else {
-+			INIT_LIST_HEAD(&start);
-+			list_cut_position(&start, queue, &vbio->list);
-+			merge_and_handoff_work(&start);
-+			vbio = entry;
-+		}
-+	}
-+	if (!list_empty(queue))
-+		merge_and_handoff_work(queue);
-+}
-+
-+static uint64_t calculate_len(struct iovec *iov, int nvecs)
-+{
-+	uint64_t len = 0;
-+	int i;
-+
-+	for (i=0; i<nvecs; i++)
-+		len += iov[i].iov_len;
-+	return len;
-+}
-+
-+static void insert_to_queue(struct vhost_blk_io *vbio,
-+			struct list_head *queue)
-+{
-+	struct vhost_blk_io *entry;
-+
-+	list_for_each_entry(entry, queue, list) {
-+		if (entry->sector > vbio->sector)
-+			break;
-+	}
-+	list_add_tail(&vbio->list, &entry->list);
-+}
-+
-+static int handoff_io(struct vhost_blk *blk, int head,
-+			uint32_t type, uint64_t sector,
-+			struct iovec *iov, int nvecs)
-+{
-+	struct vhost_virtqueue *vq = &blk->dev.vqs[0];
-+	struct vhost_blk_io *vbio;
-+
-+	vbio = allocate_vbio(nvecs+1);
-+	if (!vbio) {
-+		return -ENOMEM;
-+	}
-+	vbio->blk = blk;
-+	vbio->head = head;
-+	vbio->file = vq->private_data;
-+	vbio->type = type;
-+	vbio->sector = sector;
-+	vbio->nvecs = nvecs;
-+	vbio->len = calculate_len(iov, nvecs);
-+	memcpy(vbio->iov, iov, (nvecs + 1) * sizeof(struct iovec));
-+
-+	if (vbio->type & VIRTIO_BLK_T_FLUSH) {
-+#if 0
-+		/* Sync called - do I need to submit IOs in the queue ? */
-+		start_io(&read_queue);
-+		start_io(&write_queue);
-+#endif
-+		queue_work(vblk_workqueue, &vbio->work);
-+	} else if (vbio->type & VIRTIO_BLK_T_OUT) {
-+		insert_to_queue(vbio, &write_queue);
-+	} else {
-+		insert_to_queue(vbio, &read_queue);
-+	}
-+	return 0;
-+}
-+
-+
-+static void handle_blk(struct vhost_blk *blk)
-+{
-+	struct vhost_virtqueue *vq = &blk->dev.vqs[0];
-+	unsigned head, out, in;
-+	struct virtio_blk_outhdr hdr;
-+	int nvecs;
-+
-+	use_mm(blk->dev.mm);
-+	mutex_lock(&vq->mutex);
-+
-+	vhost_disable_notify(vq);
-+
-+	for (;;) {
-+		head = vhost_get_vq_desc(&blk->dev, vq, vq->iov,
-+					 ARRAY_SIZE(vq->iov),
-+					 &out, &in, NULL, NULL);
-+		if (head == vq->num) {
-+			if (unlikely(vhost_enable_notify(vq))) {
-+				vhost_disable_notify(vq);
-+				continue;
-+			}
-+			start_io(&read_queue);
-+			start_io(&write_queue);
-+			break;
-+		}
-+
-+		BUG_ON(vq->iov[0].iov_len != 16);
-+
-+		if (copy_from_user(&hdr, vq->iov[0].iov_base, sizeof hdr)) {
-+			vhost_discard_vq_desc(vq);
-+			continue;
-+		}
-+
-+		nvecs = out - 1;
-+		if (hdr.type == VIRTIO_BLK_T_IN)
-+			nvecs = in - 1;
-+
-+		BUG_ON(vq->iov[nvecs+1].iov_len != 1);
-+		if (handoff_io(blk, head, hdr.type, hdr.sector, &vq->iov[1], nvecs) < 0) {
-+			vhost_discard_vq_desc(vq);
-+			continue;
-+		}
-+	}
-+	mutex_unlock(&vq->mutex);
-+	unuse_mm(blk->dev.mm);
-+}
-+
-+static void vhost_blk_flush(struct vhost_blk *n)
-+{
-+	vhost_poll_flush(n->poll);
-+	vhost_poll_flush(&n->dev.vqs[0].poll);
-+}
-+
-+static void handle_blk_kick(struct work_struct *work)
-+{
-+	struct vhost_virtqueue *vq;
-+	struct vhost_blk *blk;
-+	vq = container_of(work, struct vhost_virtqueue, poll.work);
-+	blk = container_of(vq->dev, struct vhost_blk, dev);
-+	handle_blk(blk);
-+}
-+
-+static void handle_rq_blk(struct work_struct *work)
-+{
-+	struct vhost_blk *blk;
-+	blk = container_of(work, struct vhost_blk, poll[0].work);
-+	handle_blk(blk);
-+}
-+
-+static int vhost_blk_open(struct inode *inode, struct file *f)
-+{
-+	struct vhost_blk *n = kmalloc(sizeof *n, GFP_KERNEL);
-+	int r;
-+	if (!n)
-+		return -ENOMEM;
-+	n->vqs[0].handle_kick = handle_blk_kick;
-+	r = vhost_dev_init(&n->dev, n->vqs, VHOST_BLK_VQ_MAX);
-+	if (r < 0) {
-+		kfree(n);
-+		return r;
-+	}
-+
-+	vhost_poll_init(n->poll, handle_rq_blk, POLLOUT|POLLIN);
-+	f->private_data = n;
-+	return 0;
-+}
-+
-+static int vhost_blk_release(struct inode *inode, struct file *f)
-+{
-+	struct vhost_blk *n = f->private_data;
-+
-+	fput(n->vqs->private_data);
-+	kfree(n);
-+	return 0;
-+}
-+
-+static long vhost_blk_set_backend(struct vhost_blk *n, unsigned index, int fd)
-+{
-+	struct file *file;
-+	struct vhost_virtqueue *vq;
-+
-+	if (index >= VHOST_BLK_VQ_MAX)
-+		return -ENOBUFS;
-+
-+	file = fget(fd);
-+	if (!file)
-+		return -EBADF;
-+
-+	vq = n->vqs + index;
-+	mutex_lock(&vq->mutex);
-+	rcu_assign_pointer(vq->private_data, file);
-+	mutex_unlock(&vq->mutex);
-+	return 0;
-+}
-+
-+
-+static long vhost_blk_ioctl(struct file *f, unsigned int ioctl,
-+                            unsigned long arg)
-+{
-+	struct vhost_blk *n = f->private_data;
-+	void __user *argp = (void __user *)arg;
-+	struct vhost_vring_file backend;
-+	int r;
-+
-+	switch (ioctl) {
-+        case VHOST_NET_SET_BACKEND:
-+		r = copy_from_user(&backend, argp, sizeof backend);
-+		if (r <	0)
-+			return r;
-+		return vhost_blk_set_backend(n, backend.index, backend.fd);
-+	default:
-+		mutex_lock(&n->dev.mutex);
-+		r = vhost_dev_ioctl(&n->dev, ioctl, arg);
-+		vhost_blk_flush(n);
-+		mutex_unlock(&n->dev.mutex);
-+		return r;
-+	}
-+}
-+
-+const static struct file_operations vhost_blk_fops = {
-+	.owner          = THIS_MODULE,
-+	.release        = vhost_blk_release,
-+	.open           = vhost_blk_open,
-+	.unlocked_ioctl = vhost_blk_ioctl,
-+};
-+
-+static struct miscdevice vhost_blk_misc = {
-+	234,
-+	"vhost-blk",
-+	&vhost_blk_fops,
-+};
-+
-+static int vhost_blk_init(void)
-+{
-+	int r = vhost_init();
-+	if (r)
-+		goto err_init;
-+
-+	vblk_workqueue = create_workqueue("vblk");
-+	if (!vblk_workqueue) {
-+		r = -ENOMEM;
-+		goto err_vblk;
-+	}
-+
-+	r = misc_register(&vhost_blk_misc);
-+	if (r)
-+		goto err_reg;
-+	return 0;
-+err_reg:
-+	destroy_workqueue(vblk_workqueue);
-+err_vblk:
-+	vhost_cleanup();
-+err_init:
-+	return r;
-+
-+}
-+module_init(vhost_blk_init);
-+
-+static void vhost_blk_exit(void)
-+{
-+	misc_deregister(&vhost_blk_misc);
-+	destroy_workqueue(vblk_workqueue);
-+	vhost_cleanup();
-+}
-+module_exit(vhost_blk_exit);
-+
-+MODULE_VERSION("0.0.2");
-+MODULE_LICENSE("GPL v2");
-+MODULE_DESCRIPTION("Host kernel accelerator for virtio blk");
+>  /* Expects to be always run from workqueue - which acts as
+>   * read-size critical section for our kind of RCU. */
+>  static void handle_rx(struct vhost_net *net)
+>  {
+>  	struct vhost_virtqueue *vq = &net->dev.vqs[VHOST_NET_VQ_RX];
+> -	unsigned head, out, in, log, s;
+> +	unsigned in, log, s;
+>  	struct vhost_log *vq_log;
+>  	struct msghdr msg = {
+>  		.msg_name = NULL,
+> @@ -202,13 +221,14 @@ static void handle_rx(struct vhost_net *
+>  		.msg_flags = MSG_DONTWAIT,
+>  	};
+>  
+> -	struct virtio_net_hdr hdr = {
+> -		.flags = 0,
+> -		.gso_type = VIRTIO_NET_HDR_GSO_NONE
+> +	struct virtio_net_hdr_mrg_rxbuf hdr = {
+> +		.hdr.flags = 0,
+> +		.hdr.gso_type = VIRTIO_NET_HDR_GSO_NONE
+>  	};
+>  
+> +	int retries = 0;
+>  	size_t len, total_len = 0;
+> -	int err;
+> +	int err, headcount, datalen;
+>  	size_t hdr_size;
+>  	struct socket *sock = rcu_dereference(vq->private_data);
+>  	if (!sock || skb_queue_empty(&sock->sk->sk_receive_queue))
+> @@ -222,31 +242,25 @@ static void handle_rx(struct vhost_net *
+>  	vq_log = unlikely(vhost_has_feature(&net->dev, VHOST_F_LOG_ALL)) ?
+>  		vq->log : NULL;
+>  
+> -	for (;;) {
+> -		head = vhost_get_vq_desc(&net->dev, vq, vq->iov,
+> -					 ARRAY_SIZE(vq->iov),
+> -					 &out, &in,
+> -					 vq_log, &log);
+> +	while ((datalen = vhost_head_len(sock->sk))) {
+> +		headcount = vhost_get_desc_n(vq, vq->heads, datalen, &in,
+> +					     vq_log, &log);
+
+This looks like a bug, I think we need to pass
+datalen + header size to vhost_get_desc_n.
+Not sure how we know the header size that backend will use though.
+Maybe just look at our features.
+
+>  		/* OK, now we need to know about added descriptors. */
+> -		if (head == vq->num) {
+> -			if (unlikely(vhost_enable_notify(vq))) {
+> +		if (!headcount) {
+> +			if (retries == 0 && unlikely(vhost_enable_notify(vq))) {
+>  				/* They have slipped one in as we were
+>  				 * doing that: check again. */
+>  				vhost_disable_notify(vq);
+> +				retries++;
+>  				continue;
+>  			}
+
+Hmm. The reason we have the code at all, as the comment says, is because
+guest could have added more buffers between the time we read last index
+and the time we enabled notification. So if we just break like this
+the race still exists. We could remember the
+last head value we observed, and have vhost_enable_notify check
+against this value?
+
+Need to think about it.
+
+Another concern here is that on retries vhost_get_desc_n
+is doing extra work, rescanning the same descriptor
+again and again. Not sure how common this is, might be
+worthwhile to add a TODO to consider this at least.
+
+> +			retries = 0;
+>  			/* Nothing new?  Wait for eventfd to tell us
+>  			 * they refilled. */
+>  			break;
+>  		}
+>  		/* We don't need to be notified again. */
+> -		if (out) {
+> -			vq_err(vq, "Unexpected descriptor format for RX: "
+> -			       "out %d, int %d\n",
+> -			       out, in);
+> -			break;
+> -		}
+> -		/* Skip header. TODO: support TSO/mergeable rx buffers. */
+> +		/* Skip header. TODO: support TSO. */
+>  		s = move_iovec_hdr(vq->iov, vq->hdr, hdr_size, in);
+>  		msg.msg_iovlen = in;
+>  		len = iov_length(vq->iov, in);
+> @@ -261,14 +275,33 @@ static void handle_rx(struct vhost_net *
+>  					 len, MSG_DONTWAIT | MSG_TRUNC);
+>  		/* TODO: Check specific error and bomb out unless EAGAIN? */
+>  		if (err < 0) {
+
+I think we need to compare err and datalen and drop packet on mismatch as well.
+The check err > len won't be needed then.
+
+> -			vhost_discard_vq_desc(vq);
+> +			vhost_discard_desc(vq, headcount);
+>  			break;
+>  		}
+>  		/* TODO: Should check and handle checksum. */
+> +		if (vhost_has_feature(&net->dev, VIRTIO_NET_F_MRG_RXBUF)) {
+> +			struct virtio_net_hdr_mrg_rxbuf *vhdr =
+> +				(struct virtio_net_hdr_mrg_rxbuf *)
+> +				vq->iov[0].iov_base;
+> +			/* add num_buffers */
+> +			if (vhost_has_feature(&net->dev,
+> +					      VHOST_NET_F_VIRTIO_NET_HDR))
+> +				hdr.num_buffers = headcount;
+
+Why is the above necessary?
+
+> +			else if (vq->iov[0].iov_len < sizeof(*vhdr)) {
+
+I think length check is already done when we copy the header. No?
+
+> +				vq_err(vq, "tiny buffers < %d unsupported",
+> +					vq->iov[0].iov_len);
+> +				vhost_discard_desc(vq, headcount);
+> +				break;
+
+Problem here is that recvmsg might modify iov.
+This is why I think we need to use vq->hdr here.
+
+> +			} else if (put_user(headcount, &vhdr->num_buffers)) {
+
+The above put_user writes out a 32 bit value, right?
+This seems wrong.
+
+How about using
+	memcpy_toiovecend(vq->hdr, &headcount,
+			  offsetof(struct virtio_net_hdr_mrg_rxbuf, num_buffers),
+			  sizeof headcount);
+
+this way we also do not make any assumptions about layout.
+
+> +				vq_err(vq, "Failed num_buffers write");
+> +				vhost_discard_desc(vq, headcount);
+> +				break;
+> +			}
+> +		}
+>  		if (err > len) {
+>  			pr_err("Discarded truncated rx packet: "
+>  			       " len %d > %zd\n", err, len);
+> -			vhost_discard_vq_desc(vq);
+> +			vhost_discard_desc(vq, headcount);
+>  			continue;
+>  		}
+>  		len = err;
+> @@ -279,7 +312,7 @@ static void handle_rx(struct vhost_net *
+>  			break;
+>  		}
+>  		len += hdr_size;
+> -		vhost_add_used_and_signal(&net->dev, vq, head, len);
+> +		vhost_add_used_and_signal_n(&net->dev, vq, vq->heads, headcount);
+>  		if (unlikely(vq_log))
+>  			vhost_log_write(vq, vq_log, log, len);
+>  		total_len += len;
+> @@ -560,9 +593,14 @@ done:
+>  
+>  static int vhost_net_set_features(struct vhost_net *n, u64 features)
+>  {
+> -	size_t hdr_size = features & (1 << VHOST_NET_F_VIRTIO_NET_HDR) ?
+> -		sizeof(struct virtio_net_hdr) : 0;
+> +	size_t hdr_size = 0;
+>  	int i;
+> +
+> +	if (features & (1 << VHOST_NET_F_VIRTIO_NET_HDR)) {
+> +		hdr_size = sizeof(struct virtio_net_hdr);
+> +		if (features & (1 << VIRTIO_NET_F_MRG_RXBUF))
+> +			hdr_size = sizeof(struct virtio_net_hdr_mrg_rxbuf);
+
+My personal style for this would be:
+  	if (!(features & (1 << VHOST_NET_F_VIRTIO_NET_HDR)))
+		hdr_size = 0
+	else if (!(features & (1 << VIRTIO_NET_F_MRG_RXBUF)))
+		hdr_size = sizeof(virtio_net_hdr);
+	else
+		hdr_size = sizeof(struct virtio_net_hdr_mrg_rxbuf);
+
+which results in more symmetry and less nesting.
+
+>  	mutex_lock(&n->dev.mutex);
+>  	if ((features & (1 << VHOST_F_LOG_ALL)) &&
+>  	    !vhost_log_access_ok(&n->dev)) {
+> diff -ruNp net-next-p0/drivers/vhost/vhost.c
+> net-next-v3/drivers/vhost/vhost.c
+> --- net-next-p0/drivers/vhost/vhost.c	2010-03-22 12:04:38.000000000
+> -0700
+> +++ net-next-v3/drivers/vhost/vhost.c	2010-04-06 12:57:51.000000000
+> -0700
+> @@ -856,6 +856,47 @@ static unsigned get_indirect(struct vhos
+>  	return 0;
+>  }
+>  
+> +/* This is a multi-buffer version of vhost_get_vq_desc
+> + * @vq		- the relevant virtqueue
+> + * datalen	- data length we'll be reading
+> + * @iovcount	- returned count of io vectors we fill
+> + * @log		- vhost log
+> + * @log_num	- log offset
+> + *	returns number of buffer heads allocated, 0 on error
+
+This is unusual. Let's return a negative error code on error.
+
+> + */
+> +int vhost_get_desc_n(struct vhost_virtqueue *vq, struct vring_used_elem
+> *heads,
+> +		     int datalen, int *iovcount, struct vhost_log *log,
+> +		     unsigned int *log_num)
+> +{
+> +	int out, in;
+> +	int seg = 0;		/* iov index */
+> +	int hc = 0;		/* head count */
+> +
+> +	while (datalen > 0) {
+> +		if (hc >= VHOST_NET_MAX_SG)
+> +			goto err;
+> +		heads[hc].id = vhost_get_desc(vq->dev, vq, vq->iov+seg,
+> +					      ARRAY_SIZE(vq->iov)-seg, &out,
+> +					      &in, log, log_num);
+> +		if (heads[hc].id == vq->num)
+> +			goto err;
+> +		if (out || in <= 0) {
+> +			vq_err(vq, "unexpected descriptor format for RX: "
+> +				"out %d, in %d\n", out, in);
+> +			goto err;
+> +		}
+> +		heads[hc].len = iov_length(vq->iov+seg, in);
+> +		datalen -= heads[hc].len;
+
+This signed/unsigned mix makes me nervuous.
+Let's make datalen unsigned, add unsigned total_len, and
+while (datalen < total_len).
+
+> +		hc++;
+> +		seg += in;
+> +	}
+> +	*iovcount = seg;
+> +	return hc;
+> +err:
+> +	vhost_discard_desc(vq, hc);
+> +	return 0;
+> +}
+> +
+>  /* This looks in the virtqueue and for the first available buffer, and
+> converts
+>   * it to an iovec for convenient access.  Since descriptors consist of
+> some
+>   * number of output then some number of input descriptors, it's
+> actually two
+> @@ -863,7 +904,7 @@ static unsigned get_indirect(struct vhos
+>   *
+>   * This function returns the descriptor number found, or vq->num (which
+>   * is never a valid descriptor number) if none was found. */
+> -unsigned vhost_get_vq_desc(struct vhost_dev *dev, struct
+> vhost_virtqueue *vq,
+> +unsigned vhost_get_desc(struct vhost_dev *dev, struct vhost_virtqueue
+> *vq,
+>  			   struct iovec iov[], unsigned int iov_size,
+>  			   unsigned int *out_num, unsigned int *in_num,
+>  			   struct vhost_log *log, unsigned int *log_num)
+> @@ -981,31 +1022,42 @@ unsigned vhost_get_vq_desc(struct vhost_
+>  }
+>  
+>  /* Reverse the effect of vhost_get_vq_desc. Useful for error handling.
+> */
+> -void vhost_discard_vq_desc(struct vhost_virtqueue *vq)
+> +void vhost_discard_desc(struct vhost_virtqueue *vq, int n)
+>  {
+> -	vq->last_avail_idx--;
+> +	vq->last_avail_idx -= n;
+>  }
+>  
+>  /* After we've used one of their buffers, we tell them about it.  We'll
+> then
+>   * want to notify the guest, using eventfd. */
+> -int vhost_add_used(struct vhost_virtqueue *vq, unsigned int head, int
+> len)
+> +int vhost_add_used(struct vhost_virtqueue *vq, struct vring_used_elem
+> *heads,
+> +		   int count)
+
+I think we are better off with vhost_add_used and vhost_add_used_n:
+the version with _n has a lot of extra complexity, and tx always
+adds them 1 by one.
+
+>  {
+>  	struct vring_used_elem *used;
+> +	int start, n;
+> +
+> +	if (count <= 0)
+> +		return -EINVAL;
+>  
+> -	/* The virtqueue contains a ring of used buffers.  Get a pointer to
+> the
+> -	 * next entry in that used ring. */
+> -	used = &vq->used->ring[vq->last_used_idx % vq->num];
+> -	if (put_user(head, &used->id)) {
+> -		vq_err(vq, "Failed to write used id");
+> +	start = vq->last_used_idx % vq->num;
+> +	if (vq->num - start < count)
+> +		n = vq->num - start;
+> +	else
+> +		n = count;
+
+use min?
+
+> +	used = vq->used->ring + start;
+> +	if (copy_to_user(used, heads, sizeof(heads[0])*n)) {
+> +		vq_err(vq, "Failed to write used");
+>  		return -EFAULT;
+>  	}
+> -	if (put_user(len, &used->len)) {
+> -		vq_err(vq, "Failed to write used len");
+> -		return -EFAULT;
+> +	if (n < count) {	/* wrapped the ring */
+> +		used = vq->used->ring;
+> +		if (copy_to_user(used, heads+n, sizeof(heads[0])*(count-n))) {
+> +			vq_err(vq, "Failed to write used");
+> +			return -EFAULT;
+> +		}
+>  	}
+>  	/* Make sure buffer is written before we update index. */
+>  	smp_wmb();
+> -	if (put_user(vq->last_used_idx + 1, &vq->used->idx)) {
+> +	if (put_user(vq->last_used_idx+count, &vq->used->idx)) {
+
+I am a bit confused ... will this write a 32 or 16 bit value?
+count is 32 bit ... Maybe we are better off with
+  u16 idx = vq->last_used_idx + count
+  put_user(idx, &vq->used->idx)
+  vq->last_used_idx = idx
+
+>  		vq_err(vq, "Failed to increment used idx");
+>  		return -EFAULT;
+>  	}
+> @@ -1023,7 +1075,7 @@ int vhost_add_used(struct vhost_virtqueu
+>  		if (vq->log_ctx)
+>  			eventfd_signal(vq->log_ctx, 1);
+>  	}
+> -	vq->last_used_idx++;
+> +	vq->last_used_idx += count;
+>  	return 0;
+>  }
+>  
+> @@ -1049,10 +1101,23 @@ void vhost_signal(struct vhost_dev *dev,
+>  
+>  /* And here's the combo meal deal.  Supersize me! */
+>  void vhost_add_used_and_signal(struct vhost_dev *dev,
+> -			       struct vhost_virtqueue *vq,
+> -			       unsigned int head, int len)
+> +			       struct vhost_virtqueue *vq, unsigned int id,
+> +			       int len)
+> +{
+> +	struct vring_used_elem head;
+> +
+> +	head.id = id;
+> +	head.len = len;
+> +	vhost_add_used(vq, &head, 1);
+> +	vhost_signal(dev, vq);
+> +}
+> +
+> +/* multi-buffer version of vhost_add_used_and_signal */
+> +void vhost_add_used_and_signal_n(struct vhost_dev *dev,
+> +				 struct vhost_virtqueue *vq,
+> +				 struct vring_used_elem *heads, int count)
+>  {
+> -	vhost_add_used(vq, head, len);
+> +	vhost_add_used(vq, heads, count);
+>  	vhost_signal(dev, vq);
+>  }
+>  
+> diff -ruNp net-next-p0/drivers/vhost/vhost.h
+> net-next-v3/drivers/vhost/vhost.h
+> --- net-next-p0/drivers/vhost/vhost.h	2010-03-22 12:04:38.000000000
+> -0700
+> +++ net-next-v3/drivers/vhost/vhost.h	2010-04-05 20:33:57.000000000
+> -0700
+> @@ -85,6 +85,7 @@ struct vhost_virtqueue {
+>  	struct iovec iov[VHOST_NET_MAX_SG];
+>  	struct iovec hdr[VHOST_NET_MAX_SG];
+>  	size_t hdr_size;
+> +	struct vring_used_elem heads[VHOST_NET_MAX_SG];
+>  	/* We use a kind of RCU to access private pointer.
+>  	 * All readers access it from workqueue, which makes it possible to
+>  	 * flush the workqueue instead of synchronize_rcu. Therefore readers
+> do
+> @@ -120,16 +121,22 @@ long vhost_dev_ioctl(struct vhost_dev *,
+>  int vhost_vq_access_ok(struct vhost_virtqueue *vq);
+>  int vhost_log_access_ok(struct vhost_dev *);
+>  
+> -unsigned vhost_get_vq_desc(struct vhost_dev *, struct vhost_virtqueue
+> *,
+> +int vhost_get_desc_n(struct vhost_virtqueue *, struct vring_used_elem
+> *heads,
+> +		     int datalen, int *iovcount, struct vhost_log *log,
+> +		     unsigned int *log_num);
+> +unsigned vhost_get_desc(struct vhost_dev *, struct vhost_virtqueue *,
+>  			   struct iovec iov[], unsigned int iov_count,
+>  			   unsigned int *out_num, unsigned int *in_num,
+>  			   struct vhost_log *log, unsigned int *log_num);
+> -void vhost_discard_vq_desc(struct vhost_virtqueue *);
+> +void vhost_discard_desc(struct vhost_virtqueue *, int);
+>  
+> -int vhost_add_used(struct vhost_virtqueue *, unsigned int head, int
+> len);
+> -void vhost_signal(struct vhost_dev *, struct vhost_virtqueue *);
+> +int vhost_add_used(struct vhost_virtqueue *, struct vring_used_elem
+> *heads,
+> +		    int count);
+>  void vhost_add_used_and_signal(struct vhost_dev *, struct
+> vhost_virtqueue *,
+> -			       unsigned int head, int len);
+> +			       unsigned int id, int len);
+> +void vhost_add_used_and_signal_n(struct vhost_dev *, struct
+> vhost_virtqueue *,
+> +			       struct vring_used_elem *heads, int count);
+> +void vhost_signal(struct vhost_dev *, struct vhost_virtqueue *);
+>  void vhost_disable_notify(struct vhost_virtqueue *);
+>  bool vhost_enable_notify(struct vhost_virtqueue *);
+>  
+> @@ -149,7 +156,8 @@ enum {
+>  	VHOST_FEATURES = (1 << VIRTIO_F_NOTIFY_ON_EMPTY) |
+>  			 (1 << VIRTIO_RING_F_INDIRECT_DESC) |
+>  			 (1 << VHOST_F_LOG_ALL) |
+> -			 (1 << VHOST_NET_F_VIRTIO_NET_HDR),
+> +			 (1 << VHOST_NET_F_VIRTIO_NET_HDR) |
+> +			 (1 << VIRTIO_NET_F_MRG_RXBUF),
+>  };
+>  
+>  static inline int vhost_has_feature(struct vhost_dev *dev, int bit)
+> 
