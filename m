@@ -1,11 +1,11 @@
 From: "Ky Srinivasan" <ksrinivasan@novell.com>
 Subject: Re: A clocksource driver for HyperV
-Date: Wed, 07 Apr 2010 12:20:29 -0600
-Message-ID: <4BBC788D0200003000082A39@sinclair.provo.novell.com>
+Date: Wed, 07 Apr 2010 12:20:42 -0600
+Message-ID: <4BBC789A0200003000082A41@sinclair.provo.novell.com>
 References: <4BBC67980200003000082A15@sinclair.provo.novell.com>
-	<4BBC788D0200003000082A39@sinclair.provo.novell.com>
+	<4BBC789A0200003000082A41@sinclair.provo.novell.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="=__PartAE8454FD.2__="
+Content-Type: multipart/mixed; boundary="=__PartB99343EA.2__="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -20,7 +20,7 @@ To: jeremy@goop.org
 Cc: devel@driverdev.osuosl.org, Virtualization@lists.osdl.org, haiyangz@microsoft.com, gregkh@suse.de
 List-Id: virtualization@lists.linuxfoundation.org
 
---=__PartAE8454FD.2__=
+--=__PartB99343EA.2__=
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: quoted-printable
 Content-Disposition: inline
@@ -213,7 +213,7 @@ Regards,
 K. Y=20
 
 
---=__PartAE8454FD.2__=
+--=__PartB99343EA.2__=
 Content-Type: text/plain; name="hyperv_clocksource.patch"
 Content-Transfer-Encoding: quoted-printable
 Content-Disposition: attachment; filename="hyperv_clocksource.patch"
@@ -307,7 +307,7 @@ s/staging/hv/Makefile=0A=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 ce.o=0A obj-$(CONFIG_HYPERV_STORAGE)	+=3D hv_storvsc.o=0A obj-$(CONFIG_H=
 YPERV_BLOCK)	+=3D hv_blkvsc.o=0A obj-$(CONFIG_HYPERV_NET)	+=3D =
 hv_netvsc.o=0A
---=__PartAE8454FD.2__=
+--=__PartB99343EA.2__=
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -317,4 +317,4 @@ _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linux-foundation.org/mailman/listinfo/virtualization
---=__PartAE8454FD.2__=--
+--=__PartB99343EA.2__=--
