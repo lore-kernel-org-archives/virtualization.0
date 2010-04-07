@@ -1,541 +1,320 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v3] Add Mergeable receive buffer support to vhost_net
-Date: Wed, 7 Apr 2010 21:09:30 +0300
-Message-ID: <20100407180929.GB26186@redhat.com>
-References: <20100407105910.GD9550@redhat.com> <OFC2D0B87C.35124B1B-ON882576FE.005ADDB2-882576FE.0060CB7B@us.ibm.com>
+From: "Ky Srinivasan" <ksrinivasan@novell.com>
+Subject: Re: A clocksource driver for HyperV
+Date: Wed, 07 Apr 2010 12:20:29 -0600
+Message-ID: <4BBC788D0200003000082A39@sinclair.provo.novell.com>
+References: <4BBC67980200003000082A15@sinclair.provo.novell.com>
+	<4BBC788D0200003000082A39@sinclair.provo.novell.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <kvm-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <OFC2D0B87C.35124B1B-ON882576FE.005ADDB2-882576FE.0060CB7B@us.ibm.com>
-Sender: kvm-owner@vger.kernel.org
-To: David Stevens <dlstevens@us.ibm.com>
-Cc: kvm@vger.kernel.org, kvm-owner@vger.kernel.org, netdev@vger.kernel.org, rusty@rustcorp.com.au, virtualization@lists.osdl.org
+Content-Type: multipart/mixed; boundary="=__PartAE8454FD.2__="
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: jeremy@goop.org
+Cc: devel@driverdev.osuosl.org, Virtualization@lists.osdl.org, haiyangz@microsoft.com, gregkh@suse.de
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Apr 07, 2010 at 10:37:17AM -0700, David Stevens wrote:
-> > 
-> > Thanks!
-> > There's some whitespace damage, are you sending with your new
-> > sendmail setup? It seems to have worked for qemu patches ...
-> 
->         Yes, I saw some line wraps in what I received, but I checked
-> the original draft to be sure and they weren't there. Possibly from
-> the relay; Sigh.
-> 
-> 
-> > > @@ -167,8 +166,15 @@ static void handle_tx(struct vhost_net *
-> > >        /* TODO: Check specific error and bomb out unless ENOBUFS? */
-> > >        err = sock->ops->sendmsg(NULL, sock, &msg, len);
-> > >        if (unlikely(err < 0)) {
-> > > -         vhost_discard_vq_desc(vq);
-> > > -         tx_poll_start(net, sock);
-> > > +         if (err == -EAGAIN) {
-> > > +            vhost_discard_desc(vq, 1);
-> > > +            tx_poll_start(net, sock);
-> > > +         } else {
-> > > +            vq_err(vq, "sendmsg: errno %d\n", -err);
-> > > +            /* drop packet; do not discard/resend */
-> > > +            vhost_add_used_and_signal(&net->dev, vq, head,
-> > > +                       0);
-> > 
-> > vhost does not currently has a consistent error handling strategy:
-> > if we drop packets, need to think which other errors should cause
-> > packet drops.  I prefer to just call vq_err for now,
-> > and have us look at handling segfaults etc in a consistent way
-> > separately.
-> 
-> I had to add this to avoid an infinite loop when I wrote a bad
-> packet on the socket. I agree error handling needs a better look,
-> but retrying a bad packet continuously while dumping in the log
-> is what it was doing when I hit an error before this code. Isn't
-> this better, at least until a second look?
-> 
-
-Hmm, what do you mean 'continuously'? Don't we only try again
-on next kick?
-
-> > > +}
-> > > +
-> > 
-> > I wonder whether it makes sense to check
-> > skb_queue_empty(&sk->sk_receive_queue)
-> > outside the lock, to reduce the cost of this call
-> > on an empty queue (we know that it happens at least once
-> > each time we exit the loop on rx)?
-> 
->         I was looking at alternatives to adding the lock in the
-> first place, but I found I couldn't measure a difference in the
-> cost with and without the lock.
-> 
-> 
-> > > +   int retries = 0;
-> > >     size_t len, total_len = 0;
-> > > -   int err;
-> > > +   int err, headcount, datalen;
-> > >     size_t hdr_size;
-> > >     struct socket *sock = rcu_dereference(vq->private_data);
-> > >     if (!sock || skb_queue_empty(&sock->sk->sk_receive_queue))
-> > > @@ -222,31 +242,25 @@ static void handle_rx(struct vhost_net *
-> > >     vq_log = unlikely(vhost_has_feature(&net->dev, VHOST_F_LOG_ALL)) ?
-> > >        vq->log : NULL;
-> > > 
-> > > -   for (;;) {
-> > > -      head = vhost_get_vq_desc(&net->dev, vq, vq->iov,
-> > > -                ARRAY_SIZE(vq->iov),
-> > > -                &out, &in,
-> > > -                vq_log, &log);
-> > > +   while ((datalen = vhost_head_len(sock->sk))) {
-> > > +      headcount = vhost_get_desc_n(vq, vq->heads, datalen, &in,
-> > > +                    vq_log, &log);
-> > 
-> > This looks like a bug, I think we need to pass
-> > datalen + header size to vhost_get_desc_n.
-> > Not sure how we know the header size that backend will use though.
-> > Maybe just look at our features.
-> 
->         Yes; we have hdr_size, so I can add it here. It'll be 0 for
-> the cases where the backend and guest both have vnet header (either
-> the regular or larger mergeable buffers one), but should be added
-> in for future raw socket support.
-
-So hdr_size is the wrong thing to add then.
-We need to add non-zero value for tap now.
-
-> > 
-> > >        /* OK, now we need to know about added descriptors. */
-> > > -      if (head == vq->num) {
-> > > -         if (unlikely(vhost_enable_notify(vq))) {
-> > > +      if (!headcount) {
-> > > +         if (retries == 0 && unlikely(vhost_enable_notify(vq))) {
-> > >              /* They have slipped one in as we were
-> > >               * doing that: check again. */
-> > >              vhost_disable_notify(vq);
-> > > +            retries++;
-> > >              continue;
-> > >           }
-> > 
-> > Hmm. The reason we have the code at all, as the comment says, is because
-> > guest could have added more buffers between the time we read last index
-> > and the time we enabled notification. So if we just break like this
-> > the race still exists. We could remember the
-> > last head value we observed, and have vhost_enable_notify check
-> > against this value?
-> 
->         This is to prevent a spin loop in the case where we have some
-> buffers available, but not enough for the current packet (ie, this
-> is the replacement code for the "rxmaxheadcount" business). If they
-> actually added something new, retrying once should see it, but what
-> vhost_enable_notify() returns non-zero on is not "new buffers" but
-> rather "not empty". In the case mentioned, we aren't empty, so
-> vhost_enable_notify() returns nonzero every time, but the guest hasn't
-> given us enough buffers to proceed, so we continuously retry; this
-> code breaks the spin loop until we've really got new buffers from
-> the guest.
-
-What about the race I point out above? It seems to potentially
-cause a deadlock.
-
-> > 
-> > Need to think about it.
-> > 
-> > Another concern here is that on retries vhost_get_desc_n
-> > is doing extra work, rescanning the same descriptor
-> > again and again. Not sure how common this is, might be
-> > worthwhile to add a TODO to consider this at least.
-> 
->         I had a printk in there to test the code and with the
-> retries counter, it happens when we fill the ring (once,
-> because of the retries checks), and then proceeds as
-> desired when the guest gives us more buffers. Without the
-> check, it spews until we hear from the guest.
-
-I don't understand whether what you write above means 'yes this happens
-and is worth optimizing for' or 'this happens very rarely
-and is not worth optimizing for'.
-
-> > > @@ -261,14 +275,33 @@ static void handle_rx(struct vhost_net *
-> > >                  len, MSG_DONTWAIT | MSG_TRUNC);
-> > >        /* TODO: Check specific error and bomb out unless EAGAIN? */
-> > >        if (err < 0) {
-> > 
-> > I think we need to compare err and datalen and drop packet on mismatch 
-> as well.
-> > The check err > len won't be needed then.
-> 
->         OK, but this is the original code, unchanged by my patch. :-)
-
-Right. original code does not know the datalen.
-
-> > > -         vhost_discard_vq_desc(vq);
-> > > +         vhost_discard_desc(vq, headcount);
-> > >           break;
-> > >        }
-> > >        /* TODO: Should check and handle checksum. */
-> > > +      if (vhost_has_feature(&net->dev, VIRTIO_NET_F_MRG_RXBUF)) {
-> > > +         struct virtio_net_hdr_mrg_rxbuf *vhdr =
-> > > +            (struct virtio_net_hdr_mrg_rxbuf *)
-> > > +            vq->iov[0].iov_base;
-> > > +         /* add num_buffers */
-> > > +         if (vhost_has_feature(&net->dev,
-> > > +                     VHOST_NET_F_VIRTIO_NET_HDR))
-> > > +            hdr.num_buffers = headcount;
-> > 
-> > Why is the above necessary?
-> 
->         This adds mergeable buffer support for the raw case.
-
-So my suggestion is to have a copy of the header
-and then same code will fill in the field for
-both raw and tap.
-
-> > 
-> > > +         else if (vq->iov[0].iov_len < sizeof(*vhdr)) {
-> > 
-> > I think length check is already done when we copy the header. No?
-> 
->         This sets num_buffers for the tap case (where hdr_size is 0).
-
-Ah, right. So let's just check the total length is > sizeof(*vhdr).
-
-> We don't copy any headers at all for this case, but we need to
-> add num_buffers at offset 10 in the user buffer already read by
-> recvmsg().
-> 
-> > 
-> > > +            vq_err(vq, "tiny buffers < %d unsupported",
-> > > +               vq->iov[0].iov_len);
-> > > +            vhost_discard_desc(vq, headcount);
-> > > +            break;
-> > 
-> > Problem here is that recvmsg might modify iov.
-> > This is why I think we need to use vq->hdr here.
-> 
->         rcvmsg() can never modify the iovec;
+--=__PartAE8454FD.2__=
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
 
-Look at af_packet code for an example where it does.
-The pointer is non-const, it's OK to modify.
-tap used to modify iovec as well, the fact it doesn't
-now is a side-effect of reusing same code for
-recvmsg and aio read.
 
-> it's the standard socket call.
-
-It's an internal API that is used to implement the call.
-iovec it gets is a kernel side copy of what user passed in.
-
-> To use vq->hdr, we'd have to copy
-> it in from user space, modify it, and then copy it back
-> in to user space, on every packet. In the normal tap case,
-> hdr_size is 0 and we read it directly from the socket to
-> user space. It is already correct for mergeable buffers,
-> except for the num_buffers value added here.
-
-
-I don't understand what you write above, sorry.
-We have iov, all we need is store the first address+length
-in the hdr field.
-This should be close to free and does not involve any copies
-from/to userspace. All the branching and special-casing
-is possibly more expensive.
-
-
-> > 
-> > > +         } else if (put_user(headcount, &vhdr->num_buffers)) {
-> > 
-> > The above put_user writes out a 32 bit value, right?
-> > This seems wrong.
-> 
->         I'll recheck this -- I'll make the type of "headcount" be
-> the type of "num_buffers" in the MRXB vnet header, if it isn't
-> already.
-
-No, I was confused Sorry about the noise.
-
-> > 
-> > How about using
-> >    memcpy_toiovecend(vq->hdr, &headcount,
-> >            offsetof(struct virtio_net_hdr_mrg_rxbuf, num_buffers),
-> >            sizeof headcount);
-> > 
-> > this way we also do not make any assumptions about layout.
-> 
->         Because this overwrites the valid vnet header we got from
-> the tap socket with a local copy that isn't correct.
-
-It does? I think that this only writes out 2 bytes at an offset.
-
-> For this to
-> work, we first need to copy_from_user() the vnet header from the
-> socket into vq->hdr (on every packet).
-
-copy_from_user from vnet header to vq->hdr does not
-seem to make any sense and is not what I suggested.
-
->         It doesn't assume anything here-- it requires (and checks)
-> that the user didn't give us a <12 byte buffer, which I think is
-> reasonable.
-> That's about the size of the descriptor for the buffer,
-> and I'd call that a broken guest.
-
-I think it's better not to assume this. virtio spec does
-mentions layout assumptions as legacy limitations.
-Guest can post descriptor consisting of 2 buffers:
-1. 10 bytes. 2. 2 bytes. and I don't see a reason
-not to support this unless this makes code simpler.
-In this case code is more complex.
+>>> On 4/5/2010 at  5:36 PM, in message <  4BBA57FB.2000406@goop.org  >, =
+Jeremy
+Fitzhardinge <  jeremy@goop.org  > wrote:=20
+> On 04/05/2010 01:30 PM, Ky Srinivasan wrote:
+>> +static cycle_t read_hv_clock(struct clocksource *arg)
+>> +{
+>> +	cycle_t current_tick;
+>> +	/*
+>> +	 * Read the partition counter to get the current tick count. This =
+count
+>> +	 * is set to 0 when the partition is created and is incremented in
+>> +	 * 100 nanosecond units.
+>> +	 */
+>> +	rdmsrl(HV_X64_MSR_TIME_REF_COUNT, current_tick);
+>> +	return current_tick;
+>> +}
+>> +
+>> +static struct clocksource clocksource_hyperv =3D {
+>> +	.name           =3D "hyperv_clocksource",
+>>   =20
+>=20
+> Seems like a redundantly long name; any use of this string is going =
+to=20
+> be in a context where it is obviously a clocksource.  How about just=20
+> "hyperv"
 
 
-> The cost of supporting those
-> tiny buffers in the general case would be a copy_from_user() and
-> copy_to_user() of the vnet_hdr on every packet, which I think is
-> not worth it (and especially since I don't expect any guest is
-> ever going to give us a <12 byte buffer in the first place).
+>=20
+>> +	.rating         =3D 400, /* use this when running on Hyperv*/
+>> +	.read           =3D read_hv_clock,
+>> +	.mask           =3D CLOCKSOURCE_MASK(64),
+>> +	.shift          =3D HV_CLOCK_SHIFT,
+>> +};
+>> +
+>> +static struct dmi_system_id __initconst
+>> +hv_timesource_dmi_table[] __maybe_unused  =3D {
+>> +	{
+>> +		.ident =3D "Hyper-V",
+>> +		.matches =3D {
+>> +			DMI_MATCH(DMI_SYS_VENDOR, "Microsoft Corporation"),=
 
-You keep saying this, but I do not see any need for extra
-copy_to_user. Just use memcpy_toiovecend instead of put_user.
+>> +			DMI_MATCH(DMI_PRODUCT_NAME, "Virtual Machine"),
+>> +			DMI_MATCH(DMI_BOARD_NAME, "Virtual Machine"),
+>> +		},
+>> +	},
+>> +	{ },
+>> +};
+>> +MODULE_DEVICE_TABLE(dmi, hv_timesource_dmi_table);
+>>   =20
+>=20
+> So you use the DMI signatures to determine whether the module is =
+needed,=20
+> but cpuid to work out if the feature is present?
+>=20
+>> +
+>> +static struct pci_device_id __initconst
+>> +hv_timesource_pci_table[] __maybe_unused =3D {
+>> +	{ PCI_DEVICE(0x1414, 0x5353) }, /* VGA compatible controller */
+>> +	{ 0 }
+>> +};
+>> +MODULE_DEVICE_TABLE(pci, hv_timesource_pci_table);
+>>   =20
+>=20
+> And/or PCI?
+>=20
+> Seems a bit... ad-hoc?  Is this the official way to determine the=20
+> presence of Hyper-V?
+
+The presence of HyperV and our ability to use the partition-wide counter =
+obviously is checked via probing the cpuid leaves. The DMI/PCI signatures =
+are used in auto-loading these modules.
+>=20
+>> +
+>> +
+>> +static int __init hv_detect_hyperv(void)
+>>   =20
+>=20
+> This looks generally useful.  Should it be hidden away in the=20
+> clocksource driver, or in some common hyper-v code?  Do other hyper-v=20
+> drivers have versions of this?
+Good point. Right now, I can think of  multiple drivers replicating this =
+code. We could include hyperV detection code in cpu/hypervisor.c . I will =
+spin up a patch for doing that shortly.=20
+>=20
+>> +{
+>> +	u32 eax, ebx, ecx, edx;
+>> +	static char hyp_signature[20];
+>>   =20
+> 20?  static?
+>=20
+>> +
+>> +	cpuid(1,&eax,&ebx,&ecx,&edx);
+>> +	if (!(ecx&  HV_HYPERVISOR_PRESENT_BIT)) {
+>> +		printk(KERN_WARNING
+>> +			"Not on a Hypervisor\n");
+>>   =20
+> This just looks like noise, especially since it doesn't identify what =
+is=20
+> generating the message.  And if you compile this code in as =3Dy=20
+> (non-modular) then it will complain every boot.
+>=20
+>> +		return 1;
+>> +	}
+>> +	cpuid(HV_CPUID_SIGNATURE,&eax,&ebx,&ecx,&edx);
+>> +	*(u32 *)(hyp_signature + 0) =3D ebx;
+>> +	*(u32 *)(hyp_signature + 4) =3D ecx;
+>> +	*(u32 *)(hyp_signature + 8) =3D edx;
+>> +	hyp_signature[12] =3D 0;
+>> +
+>> +	if ((eax<  HV_CPUID_MIN) || (strcmp("Microsoft Hv", hyp_signature))=
+) {
+>>   =20
+>=20
+> memcmp, surely?
+>=20
+>> +		printk(KERN_WARNING
+>> +			"Not on HyperV; signature %s, eax %x\n",
+>> +			hyp_signature, eax);
+>> +		return 1;
+>> +	}
+>> +	/*
+>> +	 * Extract the features, recommendations etc.
+>> +	 */
+>> +	cpuid(HV_CPUID_FEATURES,&eax,&ebx,&ecx,&edx);
+>> +	if (!(eax&  0x10)) {
+>> +		printk(KERN_WARNING "HyperV Time Ref Counter not available!=
+\n");
+>> +		return 1;
+>> +	}
+>> +
+>> +	cpuid(HV_CPUID_RECOMMENDATIONS,&eax,&ebx,&ecx,&edx);
+>> +	printk(KERN_INFO "HyperV recommendations: %x\n", eax);
+>> +	printk(KERN_INFO "HyperV spin count: %x\n", ebx);
+>> +	return 0;
+>> +}
+>> +
+>> +
+>> +static int __init init_hv_clocksource(void)
+>> +{
+>> +	if (hv_detect_hyperv())
+>> +		return -ENODEV;
 
 
-> > > @@ -560,9 +593,14 @@ done:
-> > > 
-> > >  static int vhost_net_set_features(struct vhost_net *n, u64 features)
-> > >  {
-> > > -   size_t hdr_size = features & (1 << VHOST_NET_F_VIRTIO_NET_HDR) ?
-> > > -      sizeof(struct virtio_net_hdr) : 0;
-> > > +   size_t hdr_size = 0;
-> > >     int i;
-> > > +
-> > > +   if (features & (1 << VHOST_NET_F_VIRTIO_NET_HDR)) {
-> > > +      hdr_size = sizeof(struct virtio_net_hdr);
-> > > +      if (features & (1 << VIRTIO_NET_F_MRG_RXBUF))
-> > > +         hdr_size = sizeof(struct virtio_net_hdr_mrg_rxbuf);
-> > 
-> > My personal style for this would be:
-> >      if (!(features & (1 << VHOST_NET_F_VIRTIO_NET_HDR)))
-> >       hdr_size = 0
-> >    else if (!(features & (1 << VIRTIO_NET_F_MRG_RXBUF)))
-> >       hdr_size = sizeof(virtio_net_hdr);
-> >    else
-> >       hdr_size = sizeof(struct virtio_net_hdr_mrg_rxbuf);
-> > 
-> > which results in more symmetry and less nesting.
-> 
-> OK.
-> 
-> > 
-> > >     mutex_lock(&n->dev.mutex);
-> > >     if ((features & (1 << VHOST_F_LOG_ALL)) &&
-> > >         !vhost_log_access_ok(&n->dev)) {
-> > > diff -ruNp net-next-p0/drivers/vhost/vhost.c
-> > > net-next-v3/drivers/vhost/vhost.c
-> > > --- net-next-p0/drivers/vhost/vhost.c   2010-03-22 12:04:38.000000000
-> > > -0700
-> > > +++ net-next-v3/drivers/vhost/vhost.c   2010-04-06 12:57:51.000000000
-> > > -0700
-> > > @@ -856,6 +856,47 @@ static unsigned get_indirect(struct vhos
-> > >     return 0;
-> > >  }
-> > > 
-> > > +/* This is a multi-buffer version of vhost_get_vq_desc
-> > > + * @vq      - the relevant virtqueue
-> > > + * datalen   - data length we'll be reading
-> > > + * @iovcount   - returned count of io vectors we fill
-> > > + * @log      - vhost log
-> > > + * @log_num   - log offset
-> > > + *   returns number of buffer heads allocated, 0 on error
-> > 
-> > This is unusual. Let's return a negative error code on error.
-> 
->         This is like malloc -- "0" is never a valid return value, and
-> we don't have actual error values to return and handle; they generate
-> vq_err() messages within the code itself. In all cases,
-> it is the count of buffers we allocated (which is 0 when we fail to
-> allocate). So, I don't agree with this, but can do it if you insist.
+>> +	/*
+>> +	 * The time ref counter in HyperV is in 100ns units.
+>> +	 * The definition of mult is:
+>> +	 * mult/2^shift =3D ns/cyc =3D 100
+>> +	 * mult =3D (100<<  shift)
+>> +	 */
+>> +	clocksource_hyperv.mult =3D (100<<  HV_CLOCK_SHIFT);
+>>   =20
+>=20
+> Why not initialize this in the structure?  It's just 100<<22 isn't it?
+>=20
+>> +	printk(KERN_INFO "Registering HyperV clock source\n");
+>> +	return clocksource_register(&clocksource_hyperv);
+>> +}
+>> +
+>> +module_init(init_hv_clocksource);
+>> +MODULE_DESCRIPTION("HyperV based clocksource");
+>> +MODULE_AUTHOR("K. Y. Srinivasan<  ksrinivasan@novell.com  >");
+>> +MODULE_LICENSE("GPL");
+>> Index: linux/drivers/staging/hv/Makefile
+>> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+>> --- linux.orig/drivers/staging/hv/Makefile	2010-04-05 13:02:06.0000000=
+00 -0600
+>> +++ linux/drivers/staging/hv/Makefile	2010-04-05 13:02:13.0000000=
+00 -0600
+>> @@ -1,4 +1,4 @@
+>> -obj-$(CONFIG_HYPERV)		+=3D hv_vmbus.o
+>> +obj-$(CONFIG_HYPERV)		+=3D hv_vmbus.o hv_timesource.o
+>>   obj-$(CONFIG_HYPERV_STORAGE)	+=3D hv_storvsc.o
+>>   obj-$(CONFIG_HYPERV_BLOCK)	+=3D hv_blkvsc.o
+>>   obj-$(CONFIG_HYPERV_NET)	+=3D hv_netvsc.o
+>>   =20
 
-malloc returns NULL, not zero.
-standard error handling approaches are:
-- NULL on error
-- ERR_PTR on error
-- >= 0 for success, -errno for error
-- true for success false for error
+Jeremy, thank you for your comments. I am attaching the next version of =
+this patch that addresses the comments I have gotten thus far. =20
 
-And of course
-- some custom strategy so you need to read documentation to figure out
-  how to use a function
-which is where this one gets classified.
-So I am not saying 0 won't work, just that standard stuff is better.
+Regards,
 
-> > 
-> > > + */
-> > > +int vhost_get_desc_n(struct vhost_virtqueue *vq, struct 
-> vring_used_elem
-> > > *heads,
-> > > +           int datalen, int *iovcount, struct vhost_log *log,
-> > > +           unsigned int *log_num)
-> > > +{
-> > > +   int out, in;
-> > > +   int seg = 0;      /* iov index */
-> > > +   int hc = 0;      /* head count */
-> > > +
-> > > +   while (datalen > 0) {
-> > > +      if (hc >= VHOST_NET_MAX_SG)
-> > > +         goto err;
-> > > +      heads[hc].id = vhost_get_desc(vq->dev, vq, vq->iov+seg,
-> > > +                     ARRAY_SIZE(vq->iov)-seg, &out,
-> > > +                     &in, log, log_num);
-> > > +      if (heads[hc].id == vq->num)
-> > > +         goto err;
-> > > +      if (out || in <= 0) {
-> > > +         vq_err(vq, "unexpected descriptor format for RX: "
-> > > +            "out %d, in %d\n", out, in);
-> > > +         goto err;
-> > > +      }
-> > > +      heads[hc].len = iov_length(vq->iov+seg, in);
-> > > +      datalen -= heads[hc].len;
-> > 
-> > This signed/unsigned mix makes me nervuous.
-> > Let's make datalen unsigned, add unsigned total_len, and
-> > while (datalen < total_len).
-> > 
-> > > +      hc++;
-> > > +      seg += in;
-> > > +   }
-> > > +   *iovcount = seg;
-> > > +   return hc;
-> > > +err:
-> > > +   vhost_discard_desc(vq, hc);
-> > > +   return 0;
-> > > +}
-> > > +
-> > >  /* This looks in the virtqueue and for the first available buffer, 
-> and
-> > > converts
-> > >   * it to an iovec for convenient access.  Since descriptors consist 
-> of
-> > > some
-> > >   * number of output then some number of input descriptors, it's
-> > > actually two
-> > > @@ -863,7 +904,7 @@ static unsigned get_indirect(struct vhos
-> > >   *
-> > >   * This function returns the descriptor number found, or vq->num 
-> (which
-> > >   * is never a valid descriptor number) if none was found. */
-> > > -unsigned vhost_get_vq_desc(struct vhost_dev *dev, struct
-> > > vhost_virtqueue *vq,
-> > > +unsigned vhost_get_desc(struct vhost_dev *dev, struct vhost_virtqueue
-> > > *vq,
-> > >              struct iovec iov[], unsigned int iov_size,
-> > >              unsigned int *out_num, unsigned int *in_num,
-> > >              struct vhost_log *log, unsigned int *log_num)
-> > > @@ -981,31 +1022,42 @@ unsigned vhost_get_vq_desc(struct vhost_
-> > >  }
-> > > 
-> > >  /* Reverse the effect of vhost_get_vq_desc. Useful for error 
-> handling.
-> > > */
-> > > -void vhost_discard_vq_desc(struct vhost_virtqueue *vq)
-> > > +void vhost_discard_desc(struct vhost_virtqueue *vq, int n)
-> > >  {
-> > > -   vq->last_avail_idx--;
-> > > +   vq->last_avail_idx -= n;
-> > >  }
-> > > 
-> > >  /* After we've used one of their buffers, we tell them about it. 
-> We'll
-> > > then
-> > >   * want to notify the guest, using eventfd. */
-> > > -int vhost_add_used(struct vhost_virtqueue *vq, unsigned int head, int
-> > > len)
-> > > +int vhost_add_used(struct vhost_virtqueue *vq, struct vring_used_elem
-> > > *heads,
-> > > +         int count)
-> > 
-> > I think we are better off with vhost_add_used and vhost_add_used_n:
-> > the version with _n has a lot of extra complexity, and tx always
-> > adds them 1 by one.
-> 
->         The external code only calls vhost_add_used_and_signal(), so I
-> split that. I can add a single variant of vhost_add_used() too, but
-> I was trying to avoid adding duplicate code and external interface.
-> I don't actually agree with splitting these; isn't it better to have
-> them going through the same code path whether it's single or multiple?
-> A bug in one would show up as an intermittent failure, and a change
-> to one requires changing both.
+K. Y=20
 
-It's a small function so I am not really worried about maintainance.
 
-> I don't think the multiple should just
-> do the single repeatedly, either, since the multiple variant now can
-> do the work in one or two copy_to_user()'s, without a loop;
+--=__PartAE8454FD.2__=
+Content-Type: text/plain; name="hyperv_clocksource.patch"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: attachment; filename="hyperv_clocksource.patch"
 
-Yes.
+From: K. Y. Srinivasan <ksrinivasan@novell.com>=0ASubject:  A clocksource =
+for Linux guests hosted on HyperV.=0AReferences: None=0APatch-mainline: =
+=0A=0AThis patch is a clocksource implementation suitable for guests =
+hosted on HyperV.=0ATime keeping in Linux guests hosted on HyperV is =
+unstable. This clocksource =0Adriver fixes the problem. =0A=0ASigned-off-by=
+: K. Y. Srinivasan <ksrinivasan@novell.com>=0A=0AIndex: linux/drivers/stagi=
+ng/hv/hv_timesource.c=0A=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=0A--- /dev/null	1970-01-01 00:00:00.000000000 +0000=0A+++ =
+linux/drivers/staging/hv/hv_timesource.c	2010-04-07 12:17:29.0000000=
+00 -0600=0A@@ -0,0 +1,147 @@=0A+/*=0A+ * A clocksource for Linux running =
+on HyperV.=0A+ *=0A+ *=0A+ * Copyright (C) 2010, Novell, Inc.=0A+ * Author =
+: K. Y. Srinivasan <ksrinivasan@novell.com>=0A+ *=0A+ * This program is =
+free software; you can redistribute it and/or modify=0A+ * it under the =
+terms of the GNU General Public License as published by=0A+ * the Free =
+Software Foundation; either version 2 of the License, or=0A+ * (at your =
+option) any later version.=0A+ *=0A+ * This program is distributed in the =
+hope that it will be useful, but=0A+ * WITHOUT ANY WARRANTY; without even =
+the implied warranty of=0A+ * MERCHANTABILITY OR FITNESS FOR A PARTICULAR =
+PURPOSE, GOOD TITLE or=0A+ * NON INFRINGEMENT.  See the GNU General Public =
+License for more=0A+ * details.=0A+ *=0A+ * You should have received a =
+copy of the GNU General Public License=0A+ * along with this program; if =
+not, write to the Free Software=0A+ * Foundation, Inc., 51 Franklin St, =
+Fifth Floor, Boston, MA 02110-1301 USA.=0A+ *=0A+ */=0A+=0A+#include =
+<linux/version.h>=0A+#include <linux/clocksource.h>=0A+#include <linux/init=
+.h>=0A+#include <linux/module.h>=0A+#include <linux/pci.h>=0A+#include =
+<linux/dmi.h>=0A+=0A+#define HV_CLOCK_SHIFT	22=0A+/*=0A+ * HyperV =
+defined synthetic CPUID leaves:=0A+ */=0A+#define HV_CPUID_SIGNATURE	=
+0x40000000=0A+#define HV_CPUID_MIN		0x40000005=0A+#define =
+HV_HYPERVISOR_PRESENT_BIT	0x80000000=0A+#define HV_CPUID_FEATURES	=
+0x40000003=0A+#define HV_CPUID_RECOMMENDATIONS	0x40000004=0A+=0A+/*=0A+ * =
+HyperV defined synthetic MSRs=0A+ */=0A+=0A+#define HV_X64_MSR_TIME_REF_COU=
+NT	0x40000020=0A+=0A+=0A+static cycle_t read_hv_clock(struct =
+clocksource *arg)=0A+{=0A+	cycle_t current_tick;=0A+	/*=0A+	 * =
+Read the partition counter to get the current tick count. This count=0A+	=
+ * is set to 0 when the partition is created and is incremented in=0A+	 * =
+100 nanosecond units.=0A+	 */=0A+	rdmsrl(HV_X64_MSR_TIME_REF_COUNT, =
+current_tick);=0A+	return current_tick;=0A+}=0A+=0A+static struct =
+clocksource hyperv_cs =3D {=0A+	.name           =3D "hyperv_clocksource",=
+=0A+	.rating         =3D 400, /* use this when running on Hyperv*/=0A+	=
+.read           =3D read_hv_clock,=0A+	.mask           =3D CLOCKSOURCE_MAS=
+K(64),=0A+	/*=0A+	 * The time ref counter in HyperV is in 100ns =
+units.=0A+	 * The definition of mult is:=0A+	 * mult/2^shift =
+=3D ns/cyc =3D 100=0A+	 * mult =3D (100 << shift)=0A+	 */=0A+	.mult      =
+     =3D (100 << HV_CLOCK_SHIFT),=0A+	.shift          =3D HV_CLOCK_SHIFT,=
+=0A+};=0A+=0A+static const struct dmi_system_id __initconst=0A+hv_timesourc=
+e_dmi_table[] __maybe_unused  =3D {=0A+	{=0A+		.ident =3D =
+"Hyper-V",=0A+		.matches =3D {=0A+			DMI_MATCH(D=
+MI_SYS_VENDOR, "Microsoft Corporation"),=0A+			DMI_MATCH(D=
+MI_PRODUCT_NAME, "Virtual Machine"),=0A+			DMI_MATCH(D=
+MI_BOARD_NAME, "Virtual Machine"),=0A+		},=0A+	},=0A+	{ =
+},=0A+};=0A+MODULE_DEVICE_TABLE(dmi, hv_timesource_dmi_table);=0A+=0A+stati=
+c const struct pci_device_id __initconst=0A+hv_timesource_pci_table[] =
+__maybe_unused =3D {=0A+	{ PCI_DEVICE(0x1414, 0x5353) }, /* VGA =
+compatible controller */=0A+	{ 0 }=0A+};=0A+MODULE_DEVICE_TABLE(pci, =
+hv_timesource_pci_table);=0A+=0A+=0A+static int __init hv_detect_hyperv(voi=
+d)=0A+{=0A+	u32 eax, ebx, ecx, edx;=0A+	char hyp_signature[20];=0A+=
+=0A+	cpuid(1, &eax, &ebx, &ecx, &edx);=0A+=0A+	if (!(ecx & =
+HV_HYPERVISOR_PRESENT_BIT))=0A+		return 1;=0A+=0A+	cpuid(HV_CP=
+UID_SIGNATURE, &eax, &ebx, &ecx, &edx);=0A+	*(u32 *)(hyp_signature + =
+0) =3D ebx;=0A+	*(u32 *)(hyp_signature + 4) =3D ecx;=0A+	*(u32 =
+*)(hyp_signature + 8) =3D edx;=0A+=0A+	if ((eax < HV_CPUID_MIN) ||=0A+	   =
+ (memcmp("Microsoft Hv", hyp_signature, 12))) {=0A+		printk(KERN=
+_WARNING=0A+			"Not on HyperV; signature %s, eax =
+%x\n",=0A+			hyp_signature, eax);=0A+		=
+return 1;=0A+	}=0A+	/*=0A+	 * Extract the features, recommendations =
+etc.=0A+	 */=0A+	cpuid(HV_CPUID_FEATURES, &eax, &ebx, &ecx, =
+&edx);=0A+	if (!(eax & 0x10)) {=0A+		printk(KERN_WARNING=
+ "HyperV Time Ref Counter not available!\n");=0A+		return =
+1;=0A+	}=0A+=0A+	cpuid(HV_CPUID_RECOMMENDATIONS, &eax, &ebx, &ecx, =
+&edx);=0A+	printk(KERN_INFO "HyperV recommendations: %x\n", eax);=0A+	=
+printk(KERN_INFO "HyperV spin count: %x\n", ebx);=0A+	return 0;=0A+}=0A+=
+=0A+=0A+static int __init init_hv_clocksource(void)=0A+{=0A+	if =
+(hv_detect_hyperv())=0A+		return -ENODEV;=0A+	printk(KERN=
+_INFO "Registering HyperV clock source\n");=0A+	return clocksource_register=
+(&hyperv_cs);=0A+}=0A+=0A+module_init(init_hv_clocksource);=0A+MODULE_DESCR=
+IPTION("HyperV based clocksource");=0A+MODULE_AUTHOR("K. Y. Srinivasan =
+<ksrinivasan@novell.com>");=0A+MODULE_LICENSE("GPL");=0AIndex: linux/driver=
+s/staging/hv/Makefile=0A=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=0A--- linux.orig/drivers/staging/hv/Makefile	2010-04-07 12:17:25.0000000=
+00 -0600=0A+++ linux/drivers/staging/hv/Makefile	2010-04-07 =
+12:17:29.000000000 -0600=0A@@ -1,4 +1,4 @@=0A-obj-$(CONFIG_HYPERV)		=
++=3D hv_vmbus.o=0A+obj-$(CONFIG_HYPERV)		+=3D hv_vmbus.o hv_timesour=
+ce.o=0A obj-$(CONFIG_HYPERV_STORAGE)	+=3D hv_storvsc.o=0A obj-$(CONFIG_H=
+YPERV_BLOCK)	+=3D hv_blkvsc.o=0A obj-$(CONFIG_HYPERV_NET)	+=3D =
+hv_netvsc.o=0A
+--=__PartAE8454FD.2__=
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-> so splitting
-> these just makes a special case for single to carry in code maintenance
-> with no benefit, I think.
-
-I donnu, I have a feeling all these loops and memory accesses
-on data path won't be free, and for tx this just adds overhead.
-
-> > 
-> > >  {
-> > >     struct vring_used_elem *used;
-> > > +   int start, n;
-> > > +
-> > > +   if (count <= 0)
-> > > +      return -EINVAL;
-> > > 
-> > > -   /* The virtqueue contains a ring of used buffers.  Get a pointer 
-> to
-> > > the
-> > > -    * next entry in that used ring. */
-> > > -   used = &vq->used->ring[vq->last_used_idx % vq->num];
-> > > -   if (put_user(head, &used->id)) {
-> > > -      vq_err(vq, "Failed to write used id");
-> > > +   start = vq->last_used_idx % vq->num;
-> > > +   if (vq->num - start < count)
-> > > +      n = vq->num - start;
-> > > +   else
-> > > +      n = count;
-> > 
-> > use min?
-> 
->         Sure.
-> 
-> > 
-> > > +   used = vq->used->ring + start;
-> > > +   if (copy_to_user(used, heads, sizeof(heads[0])*n)) {
-> > > +      vq_err(vq, "Failed to write used");
-> > >        return -EFAULT;
-> > >     }
-> > > -   if (put_user(len, &used->len)) {
-> > > -      vq_err(vq, "Failed to write used len");
-> > > -      return -EFAULT;
-> > > +   if (n < count) {   /* wrapped the ring */
-> > > +      used = vq->used->ring;
-> > > +      if (copy_to_user(used, heads+n, sizeof(heads[0])*(count-n))) {
-> > > +         vq_err(vq, "Failed to write used");
-> > > +         return -EFAULT;
-> > > +      }
-> > >     }
-> > >     /* Make sure buffer is written before we update index. */
-> > >     smp_wmb();
-> > > -   if (put_user(vq->last_used_idx + 1, &vq->used->idx)) {
-> > > +   if (put_user(vq->last_used_idx+count, &vq->used->idx)) {
-> > 
-> > I am a bit confused ... will this write a 32 or 16 bit value?
-> > count is 32 bit ... Maybe we are better off with
-> >   u16 idx = vq->last_used_idx + count
-> >   put_user(idx, &vq->used->idx)
-> >   vq->last_used_idx = idx
-> 
->         How about a cast?:
-> 
->         if (put_user((u16)(vq->last_used_idx+count), &vq->used->idx)) {
-> 
-> 
->                                         +-DLS
-
-No, I was confused. Code is ok (just whitespace damaged).
-
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linux-foundation.org/mailman/listinfo/virtualization
+--=__PartAE8454FD.2__=--
