@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH 5/6] virtio_net: use virtqueue_xxx wrappers
-Date: Mon, 12 Apr 2010 16:19:04 +0300
-Message-ID: <1b4845f70cf04fe46e074f7e74606105d8523e90.1271078235.git.mst@redhat.com>
+Subject: [PATCH 6/6] virtio_ring: remove a level of indirection
+Date: Mon, 12 Apr 2010 16:19:07 +0300
+Message-ID: <fc8f4156b84fbfba6130121d0472f58aa6a04cab.1271078235.git.mst@redhat.com>
 References: <cover.1271078235.git.mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,195 +21,254 @@ Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: rusty@rustcorp.com.au, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Switch virtio_net to new virtqueue_xxx wrappers.
+We have a single virtqueue_ops implementation,
+and it seems unlikely we'll get another one
+at this point. So let's remove an unnecessary
+level of indirection: it would be very easy to
+re-add it if another implementation surfaces.
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- drivers/net/virtio_net.c |   46 +++++++++++++++++++++++-----------------------
- 1 files changed, 23 insertions(+), 23 deletions(-)
+ drivers/virtio/virtio_ring.c |   36 +++++++++------------
+ include/linux/virtio.h       |   71 ++++++++++-------------------------------
+ 2 files changed, 34 insertions(+), 73 deletions(-)
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 6fb783c..e00944b 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -119,7 +119,7 @@ static void skb_xmit_done(struct virtqueue *svq)
- 	struct virtnet_info *vi = svq->vdev->priv;
- 
- 	/* Suppress further interrupts. */
--	svq->vq_ops->disable_cb(svq);
-+	virtqueue_disable_cb(svq);
- 
- 	/* We were probably waiting for more output buffers. */
- 	netif_wake_queue(vi->dev);
-@@ -207,7 +207,7 @@ static int receive_mergeable(struct virtnet_info *vi, struct sk_buff *skb)
- 			return -EINVAL;
- 		}
- 
--		page = vi->rvq->vq_ops->get_buf(vi->rvq, &len);
-+		page = virtqueue_get_buf(vi->rvq, &len);
- 		if (!page) {
- 			pr_debug("%s: rx error: %d buffers missing\n",
- 				 skb->dev->name, hdr->mhdr.num_buffers);
-@@ -338,7 +338,7 @@ static int add_recvbuf_small(struct virtnet_info *vi, gfp_t gfp)
- 
- 	skb_to_sgvec(skb, sg + 1, 0, skb->len);
- 
--	err = vi->rvq->vq_ops->add_buf(vi->rvq, sg, 0, 2, skb);
-+	err = virtqueue_add_buf(vi->rvq, sg, 0, 2, skb);
- 	if (err < 0)
- 		dev_kfree_skb(skb);
- 
-@@ -384,7 +384,7 @@ static int add_recvbuf_big(struct virtnet_info *vi, gfp_t gfp)
- 
- 	/* chain first in list head */
- 	first->private = (unsigned long)list;
--	err = vi->rvq->vq_ops->add_buf(vi->rvq, sg, 0, MAX_SKB_FRAGS + 2,
-+	err = virtqueue_add_buf(vi->rvq, sg, 0, MAX_SKB_FRAGS + 2,
- 				       first);
- 	if (err < 0)
- 		give_pages(vi, first);
-@@ -404,7 +404,7 @@ static int add_recvbuf_mergeable(struct virtnet_info *vi, gfp_t gfp)
- 
- 	sg_init_one(&sg, page_address(page), PAGE_SIZE);
- 
--	err = vi->rvq->vq_ops->add_buf(vi->rvq, &sg, 0, 1, page);
-+	err = virtqueue_add_buf(vi->rvq, &sg, 0, 1, page);
- 	if (err < 0)
- 		give_pages(vi, page);
- 
-@@ -433,7 +433,7 @@ static bool try_fill_recv(struct virtnet_info *vi, gfp_t gfp)
- 	} while (err > 0);
- 	if (unlikely(vi->num > vi->max))
- 		vi->max = vi->num;
--	vi->rvq->vq_ops->kick(vi->rvq);
-+	virtqueue_kick(vi->rvq);
- 	return !oom;
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+index 0f90634..0717b5b 100644
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -155,11 +155,11 @@ static int vring_add_indirect(struct vring_virtqueue *vq,
+ 	return head;
  }
  
-@@ -442,7 +442,7 @@ static void skb_recv_done(struct virtqueue *rvq)
- 	struct virtnet_info *vi = rvq->vdev->priv;
- 	/* Schedule NAPI, Suppress further interrupts if successful. */
- 	if (napi_schedule_prep(&vi->napi)) {
--		rvq->vq_ops->disable_cb(rvq);
-+		virtqueue_disable_cb(rvq);
- 		__napi_schedule(&vi->napi);
- 	}
- }
-@@ -471,7 +471,7 @@ static int virtnet_poll(struct napi_struct *napi, int budget)
- 
- again:
- 	while (received < budget &&
--	       (buf = vi->rvq->vq_ops->get_buf(vi->rvq, &len)) != NULL) {
-+	       (buf = virtqueue_get_buf(vi->rvq, &len)) != NULL) {
- 		receive_buf(vi->dev, buf, len);
- 		--vi->num;
- 		received++;
-@@ -485,9 +485,9 @@ again:
- 	/* Out of packets? */
- 	if (received < budget) {
- 		napi_complete(napi);
--		if (unlikely(!vi->rvq->vq_ops->enable_cb(vi->rvq)) &&
-+		if (unlikely(!virtqueue_enable_cb(vi->rvq)) &&
- 		    napi_schedule_prep(napi)) {
--			vi->rvq->vq_ops->disable_cb(vi->rvq);
-+			virtqueue_disable_cb(vi->rvq);
- 			__napi_schedule(napi);
- 			goto again;
- 		}
-@@ -501,7 +501,7 @@ static unsigned int free_old_xmit_skbs(struct virtnet_info *vi)
- 	struct sk_buff *skb;
- 	unsigned int len, tot_sgs = 0;
- 
--	while ((skb = vi->svq->vq_ops->get_buf(vi->svq, &len)) != NULL) {
-+	while ((skb = virtqueue_get_buf(vi->svq, &len)) != NULL) {
- 		pr_debug("Sent skb %p\n", skb);
- 		vi->dev->stats.tx_bytes += skb->len;
- 		vi->dev->stats.tx_packets++;
-@@ -557,7 +557,7 @@ static int xmit_skb(struct virtnet_info *vi, struct sk_buff *skb)
- 		sg_set_buf(sg, &hdr->hdr, sizeof hdr->hdr);
- 
- 	hdr->num_sg = skb_to_sgvec(skb, sg+1, 0, skb->len) + 1;
--	return vi->svq->vq_ops->add_buf(vi->svq, sg, hdr->num_sg, 0, skb);
-+	return virtqueue_add_buf(vi->svq, sg, hdr->num_sg, 0, skb);
- }
- 
- static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
-@@ -576,14 +576,14 @@ again:
- 	if (unlikely(capacity < 0)) {
- 		netif_stop_queue(dev);
- 		dev_warn(&dev->dev, "Unexpected full queue\n");
--		if (unlikely(!vi->svq->vq_ops->enable_cb(vi->svq))) {
--			vi->svq->vq_ops->disable_cb(vi->svq);
-+		if (unlikely(!virtqueue_enable_cb(vi->svq))) {
-+			virtqueue_disable_cb(vi->svq);
- 			netif_start_queue(dev);
- 			goto again;
- 		}
- 		return NETDEV_TX_BUSY;
- 	}
--	vi->svq->vq_ops->kick(vi->svq);
-+	virtqueue_kick(vi->svq);
- 
- 	/* Don't wait up for transmitted skbs to be freed. */
- 	skb_orphan(skb);
-@@ -593,12 +593,12 @@ again:
- 	 * before it gets out of hand.  Naturally, this wastes entries. */
- 	if (capacity < 2+MAX_SKB_FRAGS) {
- 		netif_stop_queue(dev);
--		if (unlikely(!vi->svq->vq_ops->enable_cb(vi->svq))) {
-+		if (unlikely(!virtqueue_enable_cb(vi->svq))) {
- 			/* More just got used, free them then recheck. */
- 			capacity += free_old_xmit_skbs(vi);
- 			if (capacity >= 2+MAX_SKB_FRAGS) {
- 				netif_start_queue(dev);
--				vi->svq->vq_ops->disable_cb(vi->svq);
-+				virtqueue_disable_cb(vi->svq);
- 			}
- 		}
- 	}
-@@ -643,7 +643,7 @@ static int virtnet_open(struct net_device *dev)
- 	 * now.  virtnet_poll wants re-enable the queue, so we disable here.
- 	 * We synchronize against interrupts via NAPI_STATE_SCHED */
- 	if (napi_schedule_prep(&vi->napi)) {
--		vi->rvq->vq_ops->disable_cb(vi->rvq);
-+		virtqueue_disable_cb(vi->rvq);
- 		__napi_schedule(&vi->napi);
- 	}
- 	return 0;
-@@ -680,15 +680,15 @@ static bool virtnet_send_command(struct virtnet_info *vi, u8 class, u8 cmd,
- 		sg_set_buf(&sg[i + 1], sg_virt(s), s->length);
- 	sg_set_buf(&sg[out + in - 1], &status, sizeof(status));
- 
--	BUG_ON(vi->cvq->vq_ops->add_buf(vi->cvq, sg, out, in, vi) < 0);
-+	BUG_ON(virtqueue_add_buf(vi->cvq, sg, out, in, vi) < 0);
- 
--	vi->cvq->vq_ops->kick(vi->cvq);
-+	virtqueue_kick(vi->cvq);
- 
- 	/*
- 	 * Spin for a response, the kick causes an ioport write, trapping
- 	 * into the hypervisor, so the request should be handled immediately.
- 	 */
--	while (!vi->cvq->vq_ops->get_buf(vi->cvq, &tmp))
-+	while (!virtqueue_get_buf(vi->cvq, &tmp))
- 		cpu_relax();
- 
- 	return status == VIRTIO_NET_OK;
-@@ -1004,13 +1004,13 @@ static void free_unused_bufs(struct virtnet_info *vi)
+-static int vring_add_buf(struct virtqueue *_vq,
+-			 struct scatterlist sg[],
+-			 unsigned int out,
+-			 unsigned int in,
+-			 void *data)
++int virtqueue_add_buf(struct virtqueue *_vq,
++		  struct scatterlist sg[],
++		  unsigned int out,
++		  unsigned int in,
++		  void *data)
  {
- 	void *buf;
- 	while (1) {
--		buf = vi->svq->vq_ops->detach_unused_buf(vi->svq);
-+		buf = virtqueue_detach_unused_buf(vi->svq);
- 		if (!buf)
- 			break;
- 		dev_kfree_skb(buf);
- 	}
- 	while (1) {
--		buf = vi->rvq->vq_ops->detach_unused_buf(vi->rvq);
-+		buf = virtqueue_detach_unused_buf(vi->rvq);
- 		if (!buf)
- 			break;
- 		if (vi->mergeable_rx_bufs || vi->big_packets)
+ 	struct vring_virtqueue *vq = to_vvq(_vq);
+ 	unsigned int i, avail, head, uninitialized_var(prev);
+@@ -232,8 +232,9 @@ add_head:
+ 		return vq->num_free ? vq->vring.num : 0;
+ 	return vq->num_free;
+ }
++EXPORT_SYMBOL_GPL(virtqueue_add_buf);
+ 
+-static void vring_kick(struct virtqueue *_vq)
++void virtqueue_kick(struct virtqueue *_vq)
+ {
+ 	struct vring_virtqueue *vq = to_vvq(_vq);
+ 	START_USE(vq);
+@@ -253,6 +254,7 @@ static void vring_kick(struct virtqueue *_vq)
+ 
+ 	END_USE(vq);
+ }
++EXPORT_SYMBOL_GPL(virtqueue_kick);
+ 
+ static void detach_buf(struct vring_virtqueue *vq, unsigned int head)
+ {
+@@ -284,7 +286,7 @@ static inline bool more_used(const struct vring_virtqueue *vq)
+ 	return vq->last_used_idx != vq->vring.used->idx;
+ }
+ 
+-static void *vring_get_buf(struct virtqueue *_vq, unsigned int *len)
++void *virtqueue_get_buf(struct virtqueue *_vq, unsigned int *len)
+ {
+ 	struct vring_virtqueue *vq = to_vvq(_vq);
+ 	void *ret;
+@@ -325,15 +327,17 @@ static void *vring_get_buf(struct virtqueue *_vq, unsigned int *len)
+ 	END_USE(vq);
+ 	return ret;
+ }
++EXPORT_SYMBOL_GPL(virtqueue_get_buf);
+ 
+-static void vring_disable_cb(struct virtqueue *_vq)
++void virtqueue_disable_cb(struct virtqueue *_vq)
+ {
+ 	struct vring_virtqueue *vq = to_vvq(_vq);
+ 
+ 	vq->vring.avail->flags |= VRING_AVAIL_F_NO_INTERRUPT;
+ }
++EXPORT_SYMBOL_GPL(virtqueue_disable_cb);
+ 
+-static bool vring_enable_cb(struct virtqueue *_vq)
++bool virtqueue_enable_cb(struct virtqueue *_vq)
+ {
+ 	struct vring_virtqueue *vq = to_vvq(_vq);
+ 
+@@ -351,8 +355,9 @@ static bool vring_enable_cb(struct virtqueue *_vq)
+ 	END_USE(vq);
+ 	return true;
+ }
++EXPORT_SYMBOL_GPL(virtqueue_enable_cb);
+ 
+-static void *vring_detach_unused_buf(struct virtqueue *_vq)
++void *virtqueue_detach_unused_buf(struct virtqueue *_vq)
+ {
+ 	struct vring_virtqueue *vq = to_vvq(_vq);
+ 	unsigned int i;
+@@ -375,6 +380,7 @@ static void *vring_detach_unused_buf(struct virtqueue *_vq)
+ 	END_USE(vq);
+ 	return NULL;
+ }
++EXPORT_SYMBOL_GPL(virtqueue_detach_unused_buf);
+ 
+ irqreturn_t vring_interrupt(int irq, void *_vq)
+ {
+@@ -396,15 +402,6 @@ irqreturn_t vring_interrupt(int irq, void *_vq)
+ }
+ EXPORT_SYMBOL_GPL(vring_interrupt);
+ 
+-static struct virtqueue_ops vring_vq_ops = {
+-	.add_buf = vring_add_buf,
+-	.get_buf = vring_get_buf,
+-	.kick = vring_kick,
+-	.disable_cb = vring_disable_cb,
+-	.enable_cb = vring_enable_cb,
+-	.detach_unused_buf = vring_detach_unused_buf,
+-};
+-
+ struct virtqueue *vring_new_virtqueue(unsigned int num,
+ 				      unsigned int vring_align,
+ 				      struct virtio_device *vdev,
+@@ -429,7 +426,6 @@ struct virtqueue *vring_new_virtqueue(unsigned int num,
+ 	vring_init(&vq->vring, num, pages, vring_align);
+ 	vq->vq.callback = callback;
+ 	vq->vq.vdev = vdev;
+-	vq->vq.vq_ops = &vring_vq_ops;
+ 	vq->vq.name = name;
+ 	vq->notify = notify;
+ 	vq->broken = false;
+diff --git a/include/linux/virtio.h b/include/linux/virtio.h
+index 18ccc68..5b0fce0 100644
+--- a/include/linux/virtio.h
++++ b/include/linux/virtio.h
+@@ -14,7 +14,6 @@
+  * @callback: the function to call when buffers are consumed (can be NULL).
+  * @name: the name of this virtqueue (mainly for debugging)
+  * @vdev: the virtio device this queue was created for.
+- * @vq_ops: the operations for this virtqueue (see below).
+  * @priv: a pointer for the virtqueue implementation to use.
+  */
+ struct virtqueue {
+@@ -22,94 +21,60 @@ struct virtqueue {
+ 	void (*callback)(struct virtqueue *vq);
+ 	const char *name;
+ 	struct virtio_device *vdev;
+-	struct virtqueue_ops *vq_ops;
+ 	void *priv;
+ };
+ 
+ /**
+- * virtqueue_ops - operations for virtqueue abstraction layer
+- * @add_buf: expose buffer to other end
++ * operations for virtqueue
++ * virtqueue_add_buf: expose buffer to other end
+  *	vq: the struct virtqueue we're talking about.
+  *	sg: the description of the buffer(s).
+  *	out_num: the number of sg readable by other side
+  *	in_num: the number of sg which are writable (after readable ones)
+  *	data: the token identifying the buffer.
+  *      Returns remaining capacity of queue (sg segments) or a negative error.
+- * @kick: update after add_buf
++ * virtqueue_kick: update after add_buf
+  *	vq: the struct virtqueue
+  *	After one or more add_buf calls, invoke this to kick the other side.
+- * @get_buf: get the next used buffer
++ * virtqueue_get_buf: get the next used buffer
+  *	vq: the struct virtqueue we're talking about.
+  *	len: the length written into the buffer
+  *	Returns NULL or the "data" token handed to add_buf.
+- * @disable_cb: disable callbacks
++ * virtqueue_disable_cb: disable callbacks
+  *	vq: the struct virtqueue we're talking about.
+  *	Note that this is not necessarily synchronous, hence unreliable and only
+  *	useful as an optimization.
+- * @enable_cb: restart callbacks after disable_cb.
++ * virtqueue_enable_cb: restart callbacks after disable_cb.
+  *	vq: the struct virtqueue we're talking about.
+  *	This re-enables callbacks; it returns "false" if there are pending
+  *	buffers in the queue, to detect a possible race between the driver
+  *	checking for more work, and enabling callbacks.
+- * @detach_unused_buf: detach first unused buffer
++ * virtqueue_detach_unused_buf: detach first unused buffer
+  * 	vq: the struct virtqueue we're talking about.
+  * 	Returns NULL or the "data" token handed to add_buf
+  *
+  * Locking rules are straightforward: the driver is responsible for
+  * locking.  No two operations may be invoked simultaneously, with the exception
+- * of @disable_cb.
++ * of virtqueue_disable_cb.
+  *
+  * All operations can be called in any context.
+  */
+-struct virtqueue_ops {
+-	int (*add_buf)(struct virtqueue *vq,
+-		       struct scatterlist sg[],
+-		       unsigned int out_num,
+-		       unsigned int in_num,
+-		       void *data);
+ 
+-	void (*kick)(struct virtqueue *vq);
++int virtqueue_add_buf(struct virtqueue *vq,
++		      struct scatterlist sg[],
++		      unsigned int out_num,
++		      unsigned int in_num,
++		      void *data);
+ 
+-	void *(*get_buf)(struct virtqueue *vq, unsigned int *len);
++void virtqueue_kick(struct virtqueue *vq);
+ 
+-	void (*disable_cb)(struct virtqueue *vq);
+-	bool (*enable_cb)(struct virtqueue *vq);
+-	void *(*detach_unused_buf)(struct virtqueue *vq);
+-};
+-
+-static inline int virtqueue_add_buf(struct virtqueue *vq,
+-				    struct scatterlist sg[],
+-				    unsigned int out_num,
+-				    unsigned int in_num,
+-				    void *data)
+-{
+-	return vq->vq_ops->add_buf(vq, sg, out_num, in_num, data);
+-}
+-
+-static inline int void virtqueue_kick(struct virtqueue *vq)
+-{
+-	return vq->vq_ops->kick(vq);
+-}
+-
+-static inline void *virtqueue_get_buf(struct virtqueue *vq, unsigned int *len)
+-{
+-	return vq->vq_ops->get_buf(vq, len);
+-}
++void *virtqueue_get_buf(struct virtqueue *vq, unsigned int *len);
+ 
+-static inline void virtqueue_disable_cb(struct virtqueue *vq)
+-{
+-	vq->vq_ops->disable_cb(vq);
+-}
++void virtqueue_disable_cb(struct virtqueue *vq);
+ 
+-static inline bool virtqueue_enable_cb(struct virtqueue *vq)
+-{
+-	return vq->vq_ops->enable_cb(vq);
+-}
++bool virtqueue_enable_cb(struct virtqueue *vq);
+ 
+-static inline void *virtqueue_detach_unused_buf(struct virtqueue *vq)
+-{
+-	return vq->vq_ops->detach_unused_buf(vq);
+-}
++void *virtqueue_detach_unused_buf(struct virtqueue *vq);
+ 
+ /**
+  * virtio_device - representation of a device using virtio
 -- 
 1.7.0.2.280.gc6f05
