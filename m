@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH 3/6] virtio_console: use virtqueue_xxx wrappers
-Date: Mon, 12 Apr 2010 16:18:32 +0300
-Message-ID: <8a35c0803fbcbc3adcec7388d94ef0487f9f1df5.1271078235.git.mst@redhat.com>
+Subject: [PATCH 2/6] virtio_balloon: use virtqueue_xxx wrappers
+Date: Mon, 12 Apr 2010 16:18:28 +0300
+Message-ID: <43367b72d188c910d6e1444c0c425ed508741dcd.1271078235.git.mst@redhat.com>
 References: <cover.1271078235.git.mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,129 +21,71 @@ Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: rusty@rustcorp.com.au, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Switch virtio_console to new virtqueue_xxx wrappers.
+Switch virtio_balloon to new virtqueue_xxx wrappers.
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- drivers/char/virtio_console.c |   32 ++++++++++++++++----------------
- 1 files changed, 16 insertions(+), 16 deletions(-)
+ drivers/virtio/virtio_balloon.c |   17 ++++++++---------
+ 1 files changed, 8 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index 196428c..48ce834 100644
---- a/drivers/char/virtio_console.c
-+++ b/drivers/char/virtio_console.c
-@@ -328,7 +328,7 @@ static void *get_inbuf(struct port *port)
+diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+index 3aed388..6caab1a 100644
+--- a/drivers/virtio/virtio_balloon.c
++++ b/drivers/virtio/virtio_balloon.c
+@@ -75,7 +75,7 @@ static void balloon_ack(struct virtqueue *vq)
+ 	struct virtio_balloon *vb;
  	unsigned int len;
  
- 	vq = port->in_vq;
--	buf = vq->vq_ops->get_buf(vq, &len);
-+	buf = virtqueue_get_buf(vq, &len);
- 	if (buf) {
- 		buf->len = len;
- 		buf->offset = 0;
-@@ -349,8 +349,8 @@ static int add_inbuf(struct virtqueue *vq, struct port_buffer *buf)
+-	vb = vq->vq_ops->get_buf(vq, &len);
++	vb = virtqueue_get_buf(vq, &len);
+ 	if (vb)
+ 		complete(&vb->acked);
+ }
+@@ -89,9 +89,9 @@ static void tell_host(struct virtio_balloon *vb, struct virtqueue *vq)
+ 	init_completion(&vb->acked);
  
- 	sg_init_one(sg, buf->buf, buf->size);
- 
--	ret = vq->vq_ops->add_buf(vq, sg, 0, 1, buf);
+ 	/* We should always be able to add one buffer to an empty queue. */
+-	if (vq->vq_ops->add_buf(vq, &sg, 1, 0, vb) < 0)
++	if (virtqueue_add_buf(vq, &sg, 1, 0, vb) < 0)
+ 		BUG();
 -	vq->vq_ops->kick(vq);
-+	ret = virtqueue_add_buf(vq, sg, 0, 1, buf);
 +	virtqueue_kick(vq);
- 	return ret;
+ 
+ 	/* When host has read buffer, this completes via balloon_ack */
+ 	wait_for_completion(&vb->acked);
+@@ -203,7 +203,7 @@ static void stats_request(struct virtqueue *vq)
+ 	struct virtio_balloon *vb;
+ 	unsigned int len;
+ 
+-	vb = vq->vq_ops->get_buf(vq, &len);
++	vb = virtqueue_get_buf(vq, &len);
+ 	if (!vb)
+ 		return;
+ 	vb->need_stats_update = 1;
+@@ -220,9 +220,9 @@ static void stats_handle_request(struct virtio_balloon *vb)
+ 
+ 	vq = vb->stats_vq;
+ 	sg_init_one(&sg, vb->stats, sizeof(vb->stats));
+-	if (vq->vq_ops->add_buf(vq, &sg, 1, 0, vb) < 0)
++	if (virtqueue_add_buf(vq, &sg, 1, 0, vb) < 0)
+ 		BUG();
+-	vq->vq_ops->kick(vq);
++	virtqueue_kick(vq);
  }
  
-@@ -366,7 +366,7 @@ static void discard_port_data(struct port *port)
- 	if (port->inbuf)
- 		buf = port->inbuf;
- 	else
--		buf = vq->vq_ops->get_buf(vq, &len);
-+		buf = virtqueue_get_buf(vq, &len);
- 
- 	ret = 0;
- 	while (buf) {
-@@ -374,7 +374,7 @@ static void discard_port_data(struct port *port)
- 			ret++;
- 			free_buf(buf);
- 		}
--		buf = vq->vq_ops->get_buf(vq, &len);
-+		buf = virtqueue_get_buf(vq, &len);
- 	}
- 	port->inbuf = NULL;
- 	if (ret)
-@@ -421,9 +421,9 @@ static ssize_t send_control_msg(struct port *port, unsigned int event,
- 	vq = port->portdev->c_ovq;
- 
- 	sg_init_one(sg, &cpkt, sizeof(cpkt));
--	if (vq->vq_ops->add_buf(vq, sg, 1, 0, &cpkt) >= 0) {
--		vq->vq_ops->kick(vq);
--		while (!vq->vq_ops->get_buf(vq, &len))
-+	if (virtqueue_add_buf(vq, sg, 1, 0, &cpkt) >= 0) {
-+		virtqueue_kick(vq);
-+		while (!virtqueue_get_buf(vq, &len))
- 			cpu_relax();
- 	}
- 	return 0;
-@@ -439,10 +439,10 @@ static ssize_t send_buf(struct port *port, void *in_buf, size_t in_count)
- 	out_vq = port->out_vq;
- 
- 	sg_init_one(sg, in_buf, in_count);
--	ret = out_vq->vq_ops->add_buf(out_vq, sg, 1, 0, in_buf);
-+	ret = virtqueue_add_buf(out_vq, sg, 1, 0, in_buf);
- 
- 	/* Tell Host to go! */
--	out_vq->vq_ops->kick(out_vq);
-+	virtqueue_kick(out_vq);
- 
- 	if (ret < 0) {
- 		in_count = 0;
-@@ -450,7 +450,7 @@ static ssize_t send_buf(struct port *port, void *in_buf, size_t in_count)
+ static void virtballoon_changed(struct virtio_device *vdev)
+@@ -313,10 +313,9 @@ static int virtballoon_probe(struct virtio_device *vdev)
+ 		 * use it to signal us later.
+ 		 */
+ 		sg_init_one(&sg, vb->stats, sizeof vb->stats);
+-		if (vb->stats_vq->vq_ops->add_buf(vb->stats_vq,
+-						  &sg, 1, 0, vb) < 0)
++		if (virtqueue_add_buf(vb->stats_vq, &sg, 1, 0, vb) < 0)
+ 			BUG();
+-		vb->stats_vq->vq_ops->kick(vb->stats_vq);
++		virtqueue_kick(vb->stats_vq);
  	}
  
- 	/* Wait till the host acknowledges it pushed out the data we sent. */
--	while (!out_vq->vq_ops->get_buf(out_vq, &len))
-+	while (!virtqueue_get_buf(out_vq, &len))
- 		cpu_relax();
- fail:
- 	/* We're expected to return the amount of data we wrote */
-@@ -901,7 +901,7 @@ static int remove_port(struct port *port)
- 	discard_port_data(port);
- 
- 	/* Remove buffers we queued up for the Host to send us data in. */
--	while ((buf = port->in_vq->vq_ops->detach_unused_buf(port->in_vq)))
-+	while ((buf = virtqueue_detach_unused_buf(port->in_vq)))
- 		free_buf(buf);
- 
- 	kfree(port->name);
-@@ -1030,7 +1030,7 @@ static void control_work_handler(struct work_struct *work)
- 	vq = portdev->c_ivq;
- 
- 	spin_lock(&portdev->cvq_lock);
--	while ((buf = vq->vq_ops->get_buf(vq, &len))) {
-+	while ((buf = virtqueue_get_buf(vq, &len))) {
- 		spin_unlock(&portdev->cvq_lock);
- 
- 		buf->len = len;
-@@ -1224,7 +1224,7 @@ static int add_port(struct ports_device *portdev, u32 id)
- 	return 0;
- 
- free_inbufs:
--	while ((buf = port->in_vq->vq_ops->detach_unused_buf(port->in_vq)))
-+	while ((buf = virtqueue_detach_unused_buf(port->in_vq)))
- 		free_buf(buf);
- free_device:
- 	device_destroy(pdrvdata.class, port->dev->devt);
-@@ -1536,10 +1536,10 @@ static void virtcons_remove(struct virtio_device *vdev)
- 
- 	unregister_chrdev(portdev->chr_major, "virtio-portsdev");
- 
--	while ((buf = portdev->c_ivq->vq_ops->get_buf(portdev->c_ivq, &len)))
-+	while ((buf = virtqueue_get_buf(portdev->c_ivq, &len)))
- 		free_buf(buf);
- 
--	while ((buf = portdev->c_ivq->vq_ops->detach_unused_buf(portdev->c_ivq)))
-+	while ((buf = virtqueue_detach_unused_buf(portdev->c_ivq)))
- 		free_buf(buf);
- 
- 	vdev->config->del_vqs(vdev);
+ 	vb->thread = kthread_run(balloon, vb, "vballoon");
 -- 
 1.7.0.2.280.gc6f05
