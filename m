@@ -1,61 +1,43 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH] trans_virtio: use virtqueue_xxx wrappers
-Date: Tue, 13 Apr 2010 16:11:50 +0300
-Message-ID: <20100413131150.GA25652@redhat.com>
-References: <20100413130604.GA25574@redhat.com>
+Subject: Re: [PATCH] vhost-net: fix vq_memory_access_ok error checking
+Date: Tue, 13 Apr 2010 18:01:21 +0300
+Message-ID: <20100413150121.GB7716@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20100413130604.GA25574@redhat.com>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: rusty@rustcorp.com.au, virtualization@lists.linux-foundation.org
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jeff Dike <jdike@addtoit.com>
+Cc: Juan Quintela <quintela@redhat.com>, Rusty Russell <rusty@rustcorp.com.au>, "David S. Miller" <davem@davemloft.net>, Laurent Chavey <chavey@google.com>, kvm@vger.kernel.org, virtualization@lists.osdl.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Switch trans_virtio to new virtqueue_xxx wrappers.
+On Wed, Apr 07, 2010 at 09:59:10AM -0400, Jeff Dike wrote:
+> vq_memory_access_ok needs to check whether mem == NULL
+> 
+> Signed-off-by: Jeff Dike <jdike@linux.intel.com>
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
- net/9p/trans_virtio.c |    6 +++---
- 1 files changed, 3 insertions(+), 3 deletions(-)
+This was already queued by me, you do not need to
+fill Dave's inbox with vhost patches.
 
-diff --git a/net/9p/trans_virtio.c b/net/9p/trans_virtio.c
-index 7eb78ec..dcfbe99 100644
---- a/net/9p/trans_virtio.c
-+++ b/net/9p/trans_virtio.c
-@@ -137,7 +137,7 @@ static void req_done(struct virtqueue *vq)
- 
- 	P9_DPRINTK(P9_DEBUG_TRANS, ": request done\n");
- 
--	while ((rc = chan->vq->vq_ops->get_buf(chan->vq, &len)) != NULL) {
-+	while ((rc = virtqueue_get_buf(chan->vq, &len)) != NULL) {
- 		P9_DPRINTK(P9_DEBUG_TRANS, ": rc %p\n", rc);
- 		P9_DPRINTK(P9_DEBUG_TRANS, ": lookup tag %d\n", rc->tag);
- 		req = p9_tag_lookup(chan->client, rc->tag);
-@@ -209,13 +209,13 @@ p9_virtio_request(struct p9_client *client, struct p9_req_t *req)
- 
- 	req->status = REQ_STATUS_SENT;
- 
--	if (chan->vq->vq_ops->add_buf(chan->vq, chan->sg, out, in, req->tc) < 0) {
-+	if (virtqueue_add_buf(chan->vq, chan->sg, out, in, req->tc) < 0) {
- 		P9_DPRINTK(P9_DEBUG_TRANS,
- 			"9p debug: virtio rpc add_buf returned failure");
- 		return -EIO;
- 	}
- 
--	chan->vq->vq_ops->kick(chan->vq);
-+	virtqueue_kick(chan->vq);
- 
- 	P9_DPRINTK(P9_DEBUG_TRANS, "9p debug: virtio request kicked\n");
- 	return 0;
--- 
-1.7.0.2.280.gc6f05
+> ---
+>  drivers/vhost/vhost.c |    4 ++++
+>  1 files changed, 4 insertions(+), 0 deletions(-)
+> 
+> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+> index 7bd7a1e..b8e1127 100644
+> --- a/drivers/vhost/vhost.c
+> +++ b/drivers/vhost/vhost.c
+> @@ -235,6 +235,10 @@ static int vq_memory_access_ok(void __user *log_base, struct vhost_memory *mem,
+>  			       int log_all)
+>  {
+>  	int i;
+> +
+> +        if (!mem)
+> +                return 0;
+> +
+>  	for (i = 0; i < mem->nregions; ++i) {
+>  		struct vhost_memory_region *m = mem->regions + i;
+>  		unsigned long a = m->userspace_addr;
+> -- 
+> 1.7.0.2.280.gc6f05
