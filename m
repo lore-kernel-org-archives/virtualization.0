@@ -1,12 +1,11 @@
-From: Amit Shah <amit.shah@redhat.com>
-Subject: Update virtio spec with new virtio console ABI information
-Date: Fri, 16 Apr 2010 12:44:48 +0530
-Message-ID: <20100416071448.GC21268@amit-x200.redhat.com>
+From: Peter Dinda <pdinda@northwestern.edu>
+Subject: HPDC 2010: Call for Participation
+Date: Sun, 18 Apr 2010 18:09:16 -0500
+Message-ID: <l2gf0e12c71004181609pf4503a0ag1de39abf6dcdbdcc@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -16,270 +15,78 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Virtualization List <virtualization@lists.linux-foundation.org>
+To: tcpp-announce@cc.gatech.edu, performance@merlot.usc.edu, infodir_SIGARCH@acm.org, sigplan-l@acm.uiuc.edu, publicity@hipeac.net, micro_publicity@crhc.uiuc.edu, hpc-announc
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hello Rusty,
+CALL FOR PARTICIPATION
 
-This patch updates the virtio spec (0.8.6) with the new ABI information
-for virtio-console.
+ACM HPDC 2010 - hpdc.org
 
-Please apply.
+19th ACM International Symposium on
+High Performance Distributed Systems
+
+Chicago, Illinois, USA
+June 20-25, 2010
 
 
---- virtio-spec-0.8.6.lyx	2010-04-16 12:06:13.416075709 +0530
-+++ virtio-spec-0.8.6-virtio-console.lyx	2010-04-16 12:41:54.656201703 +0530
-@@ -36,7 +36,7 @@
- \paperpagestyle default
- \tracking_changes true
- \output_changes false
--\author "" 
-+\author "Amit Shah" 
- \author "" 
- \end_header
- 
-@@ -4676,7 +4676,20 @@
-  The control virtqueues are used to communicate information between the
-  device and the driver about ports being opened and closed on either side
-  of the connection, indication from the host about whether a particular
-- port is a console port, port hotunplug, etc.
-+ port is a console port, 
-+\change_inserted 0 1271399891
-+adding new ports, 
-+\change_unchanged
-+port hot
-+\change_inserted 0 1271399887
-+-plug/
-+\change_unchanged
-+unplug, etc.
-+\change_inserted 0 1271399946
-+, and indication from the guest about whether a port or a device was successfull
-+y added, port open/close, etc..
-+
-+\change_unchanged
-  For data IO, one or more empty buffers are placed in the receive queue
-  for incoming data and outgoing characters are placed in the transmit queue.
- \end_layout
-@@ -4739,8 +4752,11 @@
- layout The size of the console is supplied in the configuration space if
-  the VIRTIO_CONSOLE_F_SIZE feature is set.
-  Furthermore, if the VIRTIO_CONSOLE_F_MULTIPORT feature is set, the maximum
-- number of ports supported by the device and the number of ports currently
-- active can be fetched.
-+ number of ports supported by the device
-+\change_deleted 0 1271400029
-+ and the number of ports currently active
-+\change_unchanged
-+ can be fetched.
- \begin_inset listings
- inline false
- status open
-@@ -4767,11 +4783,17 @@
- \begin_layout Plain Layout
- 
- 	u32 max_nr_ports;
-+\change_deleted 0 1271399998
-+
- \end_layout
- 
- \begin_layout Plain Layout
- 
-+\change_deleted 0 1271399993
-+
- 	u32 nr_ports;
-+\change_unchanged
-+
- \end_layout
- 
- \begin_layout Plain Layout
-@@ -4797,12 +4819,30 @@
- If the VIRTIO_CONSOLE_F_MULTIPORT feature is negotiated, the driver can
-  spawn multiple ports, not all of which may be attached to a console.
-  Some could be generic ports.
-- In this case, the control virtqueues are enabled and according to the nr_ports
-- configuration-space value, the appropriate number of ports and corresponding
-- virtqueues are spawned.
-- After creating and initializing each port, a VIRTIO_CONSOLE_PORT_READY
-- control message is sent to the host for that port so the host can let us
-- know of any additional configuration options set for that port.
-+ In this case, the control virtqueues are enabled and according to the 
-+\change_inserted 0 1271400055
-+max_
-+\change_unchanged
-+nr_ports configuration-space value, the appropriate number of 
-+\change_deleted 0 1271400070
-+ports and corresponding 
-+\change_unchanged
-+virtqueues are 
-+\change_deleted 0 1271400075
-+spawned
-+\change_inserted 0 1271400076
-+created
-+\change_unchanged
-+.
-+ 
-+\change_inserted 0 1271400112
-+A control message indicating the driver is ready is sent to the host.
-+ The host can then send control messages for adding new ports to the device.
-+ 
-+\change_unchanged
-+After creating and initializing each port, a VIRTIO_CONSOLE_PORT_READY control
-+ message is sent to the host for that port so the host can let us know of
-+ any additional configuration options set for that port.
- \end_layout
- 
- \begin_layout Enumerate
-@@ -4822,6 +4862,13 @@
- Because this is high importance and low bandwidth, the current Linux implementat
- ion polls for the buffer to be used, rather than waiting for an interrupt,
-  simplifying the implementation significantly.
-+
-+\change_inserted 0 1271400345
-+ However, for generic serial ports with the O_NONBLOCK flag set, the polling
-+ limitation is relaxed and the consumed buffers are freed upon the next
-+ write or poll call or when a port is closed or hot-unplugged.
-+\change_unchanged
-+
- \end_layout
- 
- \end_inset
-@@ -4839,12 +4886,32 @@
- If the driver negotiated the VIRTIO_CONSOLE_F_SIZE feature, a configuration
-  change interrupt may occur.
-  The updated size can be read from the configuration fields.
--\end_layout
--
--\begin_layout Enumerate
-+\change_deleted 0 1271400359
- If the driver negotiated the VIRTIO_CONSOLE_F_MULTIPORT feature, a configuration
-  change interrupt may occur that bumps up the value of nr_ports.
-  In this case, ports are hot-added.
-+\change_inserted 0 1271400879
-+
-+\end_layout
-+
-+\begin_layout Enumerate
-+
-+\change_inserted 0 1271401808
-+If the driver negotiated the VIRTIO_CONSOLE_F_MULTIPORT feature, active
-+ ports are announced by the host using the VIRTIO_CONSOLE_PORT_ADD control
-+ message.
-+ The same message is used for port hot-plug as well.
-+\end_layout
-+
-+\begin_layout Enumerate
-+
-+\change_inserted 0 1271401905
-+If the host specified a port 'name', a sysfs attribute is created with the
-+ name filled in, so that udev rules can be written that can create a symlink
-+ from the port's name to the char device for port discovery by applications
-+ in the guest.
-+\change_unchanged
-+
- \end_layout
- 
- \begin_layout Enumerate
-@@ -4892,32 +4959,102 @@
- 
- \begin_layout Plain Layout
- 
-+\change_deleted 0 1271400377
-+
- #define VIRTIO_CONSOLE_PORT_READY       0
- \end_layout
- 
- \begin_layout Plain Layout
- 
-+\change_deleted 0 1271400377
-+
- #define VIRTIO_CONSOLE_CONSOLE_PORT     1
- \end_layout
- 
- \begin_layout Plain Layout
- 
-+\change_deleted 0 1271400377
-+
- #define VIRTIO_CONSOLE_RESIZE           2
- \end_layout
- 
- \begin_layout Plain Layout
- 
-+\change_deleted 0 1271400377
-+
- #define VIRTIO_CONSOLE_PORT_OPEN        3
- \end_layout
- 
- \begin_layout Plain Layout
- 
-+\change_deleted 0 1271400377
-+
- #define VIRTIO_CONSOLE_PORT_NAME        4
- \end_layout
- 
- \begin_layout Plain Layout
- 
-+\change_deleted 0 1271400377
-+
- #define VIRTIO_CONSOLE_PORT_REMOVE      5
-+\change_inserted 0 1271400378
-+
-+\end_layout
-+
-+\begin_layout Plain Layout
-+
-+\change_inserted 0 1271400814
-+
-+#define VIRTIO_CONSOLE_DEVICE_READY     0
-+\end_layout
-+
-+\begin_layout Plain Layout
-+
-+\change_inserted 0 1271400820
-+
-+#define VIRTIO_CONSOLE_PORT_ADD         1
-+\end_layout
-+
-+\begin_layout Plain Layout
-+
-+\change_inserted 0 1271400823
-+
-+#define VIRTIO_CONSOLE_PORT_REMOVE      2
-+\end_layout
-+
-+\begin_layout Plain Layout
-+
-+\change_inserted 0 1271400827
-+
-+#define VIRTIO_CONSOLE_PORT_READY       3
-+\end_layout
-+
-+\begin_layout Plain Layout
-+
-+\change_inserted 0 1271400830
-+
-+#define VIRTIO_CONSOLE_CONSOLE_PORT     4
-+\end_layout
-+
-+\begin_layout Plain Layout
-+
-+\change_inserted 0 1271400835
-+
-+#define VIRTIO_CONSOLE_RESIZE           5
-+\end_layout
-+
-+\begin_layout Plain Layout
-+
-+\change_inserted 0 1271400839
-+
-+#define VIRTIO_CONSOLE_PORT_OPEN        6
-+\end_layout
-+
-+\begin_layout Plain Layout
-+
-+\change_inserted 0 1271400842
-+
-+#define VIRTIO_CONSOLE_PORT_NAME        7
- \end_layout
- 
- \end_inset
+Overview
+
+The ACM International Symposium on High Performance Distributed
+Computing (HPDC) is the premier venue for presenting the latest
+research on the design, implementation, evaluation, and use of
+parallel and distributed systems for high performance and high end
+computing.  The 19th installment of HPDC will take place in the heart
+of Chicago, Illinois, the third largest city in the United States and
+a major technological and cultural capital located on the shore of
+Lake Michigan, one of the largest freshwater lakes in the world.
+
+
+Highlights
+
+* 3 Keynotes: Guy Steele (Sun/Oracle), Randal Bryant (CMU), 3rd TBA
+
+* Single track presentation of 23 full papers (25% acceptance rate)
+  and 22 posters
+    Workflows, Resources and Clouds, Map Reduce and Debugging, Data
+    Centers and Virtualization, Storage and I/O, Applications and
+    Provenance, Communication and Scheduling, Best Papers
+
+* Panel on expanding parallel programming beyond the usual suspects
+
+* Industry session
+    (email hpdc2010-industry-session@presciencelab.org for participation)
+
+* Wild and crazy ideas session
+    (email hpdc2010-wild@presciencelab.org for participation)
+
+* 8 co-located workshops
+    Emerging Computational Methods for the Life Sciences, LSAP:
+    Large-Scale System and Application Performance, MDQCS: Managing
+    Data Quality for Collaborative Science, ScienceCloud: Workshop on
+    Scientific Cloud Computing, CLADE: Challenges of Large
+    Applications in Distributed Environments, DIDC: Data Intensive
+    Distributed Computing, MAPREDUCE: Map Reduce and its Applications,
+    VTDC: Virtualization Technologies for Distributed Computing
+
+* Co-located Open Grid Forum meeting (OGF29)
+
+* Full program available from web site (hpdc.org)
+
+
+Venue, Registration, Student Travel Grants, and Sponsorship
+
+All events will take place at the Doubletree Hotel Chicago Magnificent
+Mile, located within easy walking distance of numerous downtown
+Chicago attractions and Lake Michigan (including beaches), with easy
+access to the entire Chicago area via subway.
+
+Discounted registration is available through May 31.  A discounted
+room rate is available through May 21.  Student travel grant
+applications are being accepted.  For more information and to
+register, please visit hpdc.org.
+
+HPDC is pleased to acknowledge support or sponsorship from ACM, NSF,
+Intel, Google, NVIDIA, the Computation Institute at the University of
+Chicago, the Autonomic Computing Lab at the University of Arizona, and
+the Department of Electrical Engineering and Computer Science at
+Northwestern University.
