@@ -1,14 +1,14 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH 0/6] virtio: virtqueue ops cleanup
-Date: Mon, 19 Apr 2010 23:49:54 +0300
-Message-ID: <20100419204953.GA19464@redhat.com>
-References: <cover.1271078235.git.mst@redhat.com>
+Subject: Re: [PATCH] virtio-spec: document block CMD and FLUSH
+Date: Tue, 20 Apr 2010 00:26:27 +0300
+Message-ID: <20100419212627.GB19464__17630.1793115728$1271712651$gmane$org@redhat.com>
+References: <20100218222220.GA14847@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <cover.1271078235.git.mst@redhat.com>
+In-Reply-To: <20100218222220.GA14847@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,22 +18,12 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: rusty@rustcorp.com.au, virtualization@lists.linux-foundation.org
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: kvm@vger.kernel.org, hch@lst.de, qemu-devel@nongnu.org, Anthony Liguori <anthony@codemonkey.ws>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Apr 12, 2010 at 04:18:19PM +0300, Michael S. Tsirkin wrote:
-> This patchset does the following:
-> - add inline wrappers converting the above to virtqueue_kick(dev->vq)
-> - convert all users to this API
-> - remove vq_ops indirection, implementing virtqueue_xx directly
->   in virtio_ring
+On Fri, Feb 19, 2010 at 12:22:20AM +0200, Michael S. Tsirkin wrote:
+> I took a stub at documenting CMD and FLUSH request types in virtio
+> block.
 
-Ping.
-what's the thinking on this patchset?
-The reason I want it in now is because I have
-several improvements for the APIs in mind,
-and with less layers it's much easier to
-extend things.
-
--- 
-MST
+Any comments?
