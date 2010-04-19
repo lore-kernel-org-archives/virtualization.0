@@ -1,12 +1,14 @@
-From: Haiyang Zhang <haiyangz@microsoft.com>
-Subject: [PATCH 1/1] Staging: hv: Fix a bug affecting IPv6
-Date: Mon, 19 Apr 2010 15:32:11 +0000
-Message-ID: <1FB5E1D5CA062146B38059374562DF7266281C0D@TK5EX14MBXC121.redmond.corp.microsoft.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH 0/6] virtio: virtqueue ops cleanup
+Date: Mon, 19 Apr 2010 23:49:54 +0300
+Message-ID: <20100419204953.GA19464@redhat.com>
+References: <cover.1271078235.git.mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <cover.1271078235.git.mst@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -16,36 +18,22 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Greg KH <gregkh@suse.de>, "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>, "devel@driverdev.osuosl.org" <devel@driverdev.osuosl.org>, virtualiz
-Cc: Toshikazu Sakai <Toshikazu.Sakai@microsoft.com>
+To: rusty@rustcorp.com.au, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Haiyang Zhang <haiyangz@microsoft.com>
+On Mon, Apr 12, 2010 at 04:18:19PM +0300, Michael S. Tsirkin wrote:
+> This patchset does the following:
+> - add inline wrappers converting the above to virtqueue_kick(dev->vq)
+> - convert all users to this API
+> - remove vq_ops indirection, implementing virtqueue_xx directly
+>   in virtio_ring
 
-Fix a bug affecting IPv6
- Added the multicast flag for proper IPv6 function.
- Credits go to Toshikazu Sakai <toshikas@microsoft.com>
+Ping.
+what's the thinking on this patchset?
+The reason I want it in now is because I have
+several improvements for the APIs in mind,
+and with less layers it's much easier to
+extend things.
 
-Cc: Greg Kroah-Hartman <gregkh@suse.de>
-Cc: Toshikazu Sakai <toshikas@microsoft.com>
-Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
-Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
-
----
- drivers/staging/hv/RndisFilter.c |    1 +
- 1 files changed, 1 insertions(+), 0 deletions(-)
-
-diff --git a/drivers/staging/hv/RndisFilter.c b/drivers/staging/hv/RndisFilter.c
-index cd2930d..6704f64 100644
---- a/drivers/staging/hv/RndisFilter.c
-+++ b/drivers/staging/hv/RndisFilter.c
-@@ -751,6 +751,7 @@ static int RndisFilterOpenDevice(struct rndis_device *Device)
- 
- 	ret = RndisFilterSetPacketFilter(Device,
- 					 NDIS_PACKET_TYPE_BROADCAST |
-+					 NDIS_PACKET_TYPE_ALL_MULTICAST |
- 					 NDIS_PACKET_TYPE_DIRECTED);
- 	if (ret == 0)
- 		Device->State = RNDIS_DEV_DATAINITIALIZED;
 -- 
-1.6.3.2
+MST
