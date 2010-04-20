@@ -1,485 +1,347 @@
-From: David L Stevens <dlstevens@us.ibm.com>
-Subject: [PATCH v4] Add mergeable RX bufs support to vhost
-Date: Mon, 19 Apr 2010 15:12:19 -0700
-Message-ID: <1271715140.9755.14.camel@w-dls.beaverton.ibm.com>
-Reply-To: dlstevens@us.ibm.com
+From: Jamie Lokier <jamie@shareable.org>
+Subject: Re: [Qemu-devel] [PATCH] virtio-spec: document block CMD and FLUSH
+Date: Tue, 20 Apr 2010 02:46:35 +0100
+Message-ID: <20100420014635.GE21899__29788.4341366172$1271728154$gmane$org@shareable.org>
+References: <20100218222220.GA14847@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <kvm-owner@vger.kernel.org>
-Sender: kvm-owner@vger.kernel.org
-To: mst@redhat.com
-Cc: kvm@vger.kernel.org, virtualization@lists.osdl.org
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <20100218222220.GA14847@redhat.com>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: virtualization@lists.linux-foundation.org, hch@lst.de, kvm@vger.kernel.org, qemu-devel@nongnu.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch adds the mergeable RX buffers feature to vhost.
+Michael S. Tsirkin wrote:
+> I took a stub at documenting CMD and FLUSH request types in virtio
+> block.  Christoph, could you look over this please?
+> 
+> I note that the interface seems full of warts to me,
+> this might be a first step to cleaning them.
+> 
+> One issue I struggled with especially is how type
+> field mixes bits and non-bit values. I ended up
+> simply defining all legal values, so that we have
+> CMD = 2, CMD_OUT = 3 and so on.
+> 
+> I also avoided instroducing inhdr/outhdr structures
+> that virtio blk driver in linux uses, I was concerned
+> that nesting tables will confuse the reader.
+> 
+> Comments welcome.
+> 
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> 
+> --
+> 
+> diff --git a/virtio-spec.lyx b/virtio-spec.lyx
+> index d16104a..ed35893 100644
+> --- a/virtio-spec.lyx
+> +++ b/virtio-spec.lyx
+> @@ -67,7 +67,11 @@ IBM Corporation
+>  \end_layout
+>  
+>  \begin_layout Standard
+> +
+> +\change_deleted 0 1266531118
+>  FIXME: virtio block scsi passthrough section
+> +\change_unchanged
+> +
+>  \end_layout
+>  
+>  \begin_layout Standard
+> @@ -4376,7 +4380,7 @@ struct virtio_net_ctrl_mac {
+>  The device can filter incoming packets by any number of destination MAC
+>   addresses.
+>  \begin_inset Foot
+> -status open
+> +status collapsed
+>  
+>  \begin_layout Plain Layout
+>  Since there are no guarentees, it can use a hash filter orsilently switch
+> @@ -4549,6 +4553,22 @@ blk_size
+>  \end_inset
+>  
+>  .
+> +\change_inserted 0 1266444580
+> +
+> +\end_layout
+> +
+> +\begin_layout Description
+> +
+> +\change_inserted 0 1266471229
+> +VIRTIO_BLK_F_SCSI (7) Device supports scsi packet commands.
+> +\end_layout
+> +
+> +\begin_layout Description
+> +
+> +\change_inserted 0 1266444605
+> +VIRTIO_BLK_F_FLUSH (9) Cache flush command support.
+> +\change_unchanged
+> +
+>  \end_layout
+>  
+>  \begin_layout Description
+> @@ -4700,17 +4720,25 @@ struct virtio_blk_req {
+>  
+>  \begin_layout Plain Layout
+>  
+> +\change_deleted 0 1266472188
+> +
+>  #define VIRTIO_BLK_T_IN          0
+>  \end_layout
+>  
+>  \begin_layout Plain Layout
+>  
+> +\change_deleted 0 1266472188
+> +
+>  #define VIRTIO_BLK_T_OUT         1
+>  \end_layout
+>  
+>  \begin_layout Plain Layout
+>  
+> +\change_deleted 0 1266472188
+> +
+>  #define VIRTIO_BLK_T_BARRIER	 0x80000000
+> +\change_unchanged
+> +
+>  \end_layout
+>  
+>  \begin_layout Plain Layout
+> @@ -4735,11 +4763,15 @@ struct virtio_blk_req {
+>  
+>  \begin_layout Plain Layout
+>  
+> +\change_deleted 0 1266472204
+> +
+>  #define VIRTIO_BLK_S_OK        0
+>  \end_layout
+>  
+>  \begin_layout Plain Layout
+>  
+> +\change_deleted 0 1266472204
+> +
+>  #define VIRTIO_BLK_S_IOERR     1
+>  \end_layout
+>  
+> @@ -4759,32 +4791,481 @@ struct virtio_blk_req {
+>  \end_layout
+>  
+>  \begin_layout Standard
+> -The type of the request is either a read (VIRTIO_BLK_T_IN) or a write (VIRTIO_BL
+> -K_T_OUT); the high bit indicates that this request acts as a barrier and
+> - that all preceeding requests must be complete before this one, and all
+> - following requests must not be started until this is complete.
+> +
+> +\change_inserted 0 1266472490
+> +If the device has VIRTIO_BLK_F_SCSI feature, it can also support scsi packet
+> + command requests, each of these requests is of form:
+> +\begin_inset listings
+> +inline false
+> +status open
+> +
+> +\begin_layout Plain Layout
+> +
+> +\change_inserted 0 1266472395
+> +
+> +struct virtio_scsi_pc_req {
+> +\end_layout
+> +
+> +\begin_layout Plain Layout
+> +
+> +\change_inserted 0 1266472375
+> +
+> +	u32 type;
+> +\end_layout
+> +
+> +\begin_layout Plain Layout
+> +
+> +\change_inserted 0 1266472375
+> +
+> +	u32 ioprio;
+> +\end_layout
+> +
+> +\begin_layout Plain Layout
+> +
+> +\change_inserted 0 1266474298
+> +
+> +	u64 sector;
+> +\end_layout
+> +
+> +\begin_layout Plain Layout
+> +
+> +\change_inserted 0 1266474308
+> +
+> +    char cmd[];
+> +\end_layout
+> +
+> +\begin_layout Plain Layout
+> +
+> +\change_inserted 0 1266505809
+> +
+> +	char data[][512];
+> +\end_layout
+> +
+> +\begin_layout Plain Layout
+> +
+> +\change_inserted 0 1266505825
+> +
+> +#define SCSI_SENSE_BUFFERSIZE   96
+> +\end_layout
+> +
+> +\begin_layout Plain Layout
+> +
+> +\change_inserted 0 1266505848
+> +
+> +    u8 sense[SCSI_SENSE_BUFFERSIZE];
+> +\end_layout
+> +
+> +\begin_layout Plain Layout
+> +
+> +\change_inserted 0 1266472969
+> +
+> +    u32 errors;
+> +\end_layout
+> +
+> +\begin_layout Plain Layout
+> +
+> +\change_inserted 0 1266472979
+> +
+> +    u32 data_len;
+> +\end_layout
+> +
+> +\begin_layout Plain Layout
+> +
+> +\change_inserted 0 1266472984
+> +
+> +    u32 sense_len;
+> +\end_layout
+> +
+> +\begin_layout Plain Layout
+> +
+> +\change_inserted 0 1266472987
+> +
+> +    u32 residual;
+> +\end_layout
+> +
+> +\begin_layout Plain Layout
+> +
+> +\change_inserted 0 1266472375
+> +
+> +	u8 status;
+> +\end_layout
+> +
+> +\begin_layout Plain Layout
+> +
+> +\change_inserted 0 1266472375
+> +
+> +};
+> +\end_layout
+> +
+> +\end_inset
+> +
+> +
+> +\change_unchanged
+> +
+>  \end_layout
+>  
+>  \begin_layout Standard
+> -The ioprio field is a hint about the relative priorities of requests to
+> - the device: higher numbers indicate more important requests.
+> +The 
+> +\emph on
+> +type
+> +\emph default
+> + of the request is either a read (VIRTIO_BLK_T_IN)
+> +\change_inserted 0 1266495815
+> +,
+> +\change_unchanged
+> + 
+> +\change_deleted 0 1266495817
+> +or
+> +\change_unchanged
+> + a write (VIRTIO_BLK_T_OUT)
+> +\change_inserted 0 1266497316
+> +, a scsi packet command (VIRTIO_BLK_T_SCSI_CMD or VIRTIO_BLK_T_SCSI_CMD_OUT
+> +\begin_inset Foot
+> +status open
+> +
+> +\begin_layout Plain Layout
+> +
+> +\change_inserted 0 1266497390
+> +the SCSI_CMD and SCSI_CMD_OUT types are equivalent, the device does not
+> + distinguish between them
+> +\change_unchanged
+> +
+> +\end_layout
+> +
+> +\end_inset
+> +
+> +) or a flush (VIRTIO_BLK_T_FLUSH or VIRTIO_BLK_T_FLUSH_OUT
+> +\begin_inset Foot
+> +status open
+> +
+> +\begin_layout Plain Layout
+> +
+> +\change_inserted 0 1266497402
+> +the FLUSH and FLUSH_OUT types are equivalent, the device does not distinguish
+> + between them
+> +\change_unchanged
+> +
+> +\end_layout
+> +
+> +\end_inset
+> +
+> +)
+> +\change_deleted 0 1266503753
+> +;
+> +\change_inserted 0 1266503758
+> +.
+> +
+> +\change_unchanged
+> + 
+> +\change_inserted 0 1266497301
+> +If the device has VIRTIO_BLK_F_BARRIER feature
+> +\begin_inset space ~
+> +\end_inset
+> +
+> +
+> +\change_unchanged
+> +the high bit
+> +\change_inserted 0 1266497301
 
-Signed-off-by: David L Stevens <dlstevens@us.ibm.com>
+> + (VIRTIO_BLK_T_BARRIER)
+> +\change_unchanged
+> + indicates that this request acts as a barrier and that all preceeding requests
+> + must be complete before this one, and all following requests must not be
+> + started until this is complete.
+> +
+> +\change_inserted 0 1266504385
+> + Note that a barrier does not flush caches in the underlying backend device
+> + in host, and thus does not serve as data consistency guarantee.
+> + Driver must use FLUSH request to flush the host cache.
+> +\change_unchanged
+> +
 
-diff -ruNp net-next-p0/drivers/vhost/net.c net-next-v4/drivers/vhost/net.c
---- net-next-p0/drivers/vhost/net.c	2010-03-22 12:04:38.000000000 -0700
-+++ net-next-v4/drivers/vhost/net.c	2010-04-19 14:23:38.000000000 -0700
-@@ -108,7 +108,7 @@ static void handle_tx(struct vhost_net *
- 	};
- 	size_t len, total_len = 0;
- 	int err, wmem;
--	size_t hdr_size;
-+	size_t vhost_hlen;
- 	struct socket *sock = rcu_dereference(vq->private_data);
- 	if (!sock)
- 		return;
-@@ -127,13 +127,13 @@ static void handle_tx(struct vhost_net *
- 
- 	if (wmem < sock->sk->sk_sndbuf / 2)
- 		tx_poll_stop(net);
--	hdr_size = vq->hdr_size;
-+	vhost_hlen = vq->vhost_hlen;
- 
- 	for (;;) {
--		head = vhost_get_vq_desc(&net->dev, vq, vq->iov,
--					 ARRAY_SIZE(vq->iov),
--					 &out, &in,
--					 NULL, NULL);
-+		head = vhost_get_desc(&net->dev, vq, vq->iov,
-+				      ARRAY_SIZE(vq->iov),
-+				      &out, &in,
-+				      NULL, NULL);
- 		/* Nothing new?  Wait for eventfd to tell us they refilled. */
- 		if (head == vq->num) {
- 			wmem = atomic_read(&sock->sk->sk_wmem_alloc);
-@@ -154,20 +154,20 @@ static void handle_tx(struct vhost_net *
- 			break;
- 		}
- 		/* Skip header. TODO: support TSO. */
--		s = move_iovec_hdr(vq->iov, vq->hdr, hdr_size, out);
-+		s = move_iovec_hdr(vq->iov, vq->hdr, vhost_hlen, out);
- 		msg.msg_iovlen = out;
- 		len = iov_length(vq->iov, out);
- 		/* Sanity check */
- 		if (!len) {
- 			vq_err(vq, "Unexpected header len for TX: "
- 			       "%zd expected %zd\n",
--			       iov_length(vq->hdr, s), hdr_size);
-+			       iov_length(vq->hdr, s), vhost_hlen);
- 			break;
- 		}
- 		/* TODO: Check specific error and bomb out unless ENOBUFS? */
- 		err = sock->ops->sendmsg(NULL, sock, &msg, len);
- 		if (unlikely(err < 0)) {
--			vhost_discard_vq_desc(vq);
-+			vhost_discard_desc(vq, 1);
- 			tx_poll_start(net, sock);
- 			break;
- 		}
-@@ -186,12 +186,25 @@ static void handle_tx(struct vhost_net *
- 	unuse_mm(net->dev.mm);
- }
- 
-+static int vhost_head_len(struct vhost_virtqueue *vq, struct sock *sk)
-+{
-+	struct sk_buff *head;
-+	int len = 0;
-+
-+	lock_sock(sk);
-+	head = skb_peek(&sk->sk_receive_queue);
-+	if (head)
-+		len = head->len + vq->sock_hlen;
-+	release_sock(sk);
-+	return len;
-+}
-+
- /* Expects to be always run from workqueue - which acts as
-  * read-size critical section for our kind of RCU. */
- static void handle_rx(struct vhost_net *net)
- {
- 	struct vhost_virtqueue *vq = &net->dev.vqs[VHOST_NET_VQ_RX];
--	unsigned head, out, in, log, s;
-+	unsigned in, log, s;
- 	struct vhost_log *vq_log;
- 	struct msghdr msg = {
- 		.msg_name = NULL,
-@@ -202,14 +215,14 @@ static void handle_rx(struct vhost_net *
- 		.msg_flags = MSG_DONTWAIT,
- 	};
- 
--	struct virtio_net_hdr hdr = {
--		.flags = 0,
--		.gso_type = VIRTIO_NET_HDR_GSO_NONE
-+	struct virtio_net_hdr_mrg_rxbuf hdr = {
-+		.hdr.flags = 0,
-+		.hdr.gso_type = VIRTIO_NET_HDR_GSO_NONE
- 	};
- 
- 	size_t len, total_len = 0;
--	int err;
--	size_t hdr_size;
-+	int err, headcount, datalen;
-+	size_t vhost_hlen;
- 	struct socket *sock = rcu_dereference(vq->private_data);
- 	if (!sock || skb_queue_empty(&sock->sk->sk_receive_queue))
- 		return;
-@@ -217,18 +230,18 @@ static void handle_rx(struct vhost_net *
- 	use_mm(net->dev.mm);
- 	mutex_lock(&vq->mutex);
- 	vhost_disable_notify(vq);
--	hdr_size = vq->hdr_size;
-+	vhost_hlen = vq->vhost_hlen;
- 
- 	vq_log = unlikely(vhost_has_feature(&net->dev, VHOST_F_LOG_ALL)) ?
- 		vq->log : NULL;
- 
--	for (;;) {
--		head = vhost_get_vq_desc(&net->dev, vq, vq->iov,
--					 ARRAY_SIZE(vq->iov),
--					 &out, &in,
--					 vq_log, &log);
-+	while ((datalen = vhost_head_len(vq, sock->sk))) {
-+		headcount = vhost_get_desc_n(vq, vq->heads, datalen+vhost_hlen,
-+					     &in, vq_log, &log);
-+		if (headcount < 0)
-+			break;
- 		/* OK, now we need to know about added descriptors. */
--		if (head == vq->num) {
-+		if (!headcount) {
- 			if (unlikely(vhost_enable_notify(vq))) {
- 				/* They have slipped one in as we were
- 				 * doing that: check again. */
-@@ -240,46 +253,52 @@ static void handle_rx(struct vhost_net *
- 			break;
- 		}
- 		/* We don't need to be notified again. */
--		if (out) {
--			vq_err(vq, "Unexpected descriptor format for RX: "
--			       "out %d, int %d\n",
--			       out, in);
--			break;
--		}
--		/* Skip header. TODO: support TSO/mergeable rx buffers. */
--		s = move_iovec_hdr(vq->iov, vq->hdr, hdr_size, in);
-+		/* Skip header. TODO: support TSO. */
-+		s = move_iovec_hdr(vq->iov, vq->hdr, vhost_hlen, in);
- 		msg.msg_iovlen = in;
- 		len = iov_length(vq->iov, in);
- 		/* Sanity check */
- 		if (!len) {
- 			vq_err(vq, "Unexpected header len for RX: "
- 			       "%zd expected %zd\n",
--			       iov_length(vq->hdr, s), hdr_size);
-+			       iov_length(vq->hdr, s), vhost_hlen);
- 			break;
- 		}
- 		err = sock->ops->recvmsg(NULL, sock, &msg,
- 					 len, MSG_DONTWAIT | MSG_TRUNC);
- 		/* TODO: Check specific error and bomb out unless EAGAIN? */
- 		if (err < 0) {
--			vhost_discard_vq_desc(vq);
-+			vhost_discard_desc(vq, headcount);
- 			break;
- 		}
--		/* TODO: Should check and handle checksum. */
--		if (err > len) {
--			pr_err("Discarded truncated rx packet: "
--			       " len %d > %zd\n", err, len);
--			vhost_discard_vq_desc(vq);
-+		if (err != datalen) {
-+			pr_err("Discarded rx packet: "
-+			       " len %d, expected %zd\n", err, datalen);
-+			vhost_discard_desc(vq, headcount);
- 			continue;
- 		}
- 		len = err;
--		err = memcpy_toiovec(vq->hdr, (unsigned char *)&hdr, hdr_size);
-+		err = memcpy_toiovec(vq->hdr,(unsigned char *)&hdr, vhost_hlen);
- 		if (err) {
- 			vq_err(vq, "Unable to write vnet_hdr at addr %p: %d\n",
- 			       vq->iov->iov_base, err);
- 			break;
- 		}
--		len += hdr_size;
--		vhost_add_used_and_signal(&net->dev, vq, head, len);
-+		/* TODO: Should check and handle checksum. */
-+		if (vhost_has_feature(&net->dev, VIRTIO_NET_F_MRG_RXBUF)) {
-+			struct virtio_net_hdr_mrg_rxbuf hdr;
-+			struct iovec *iov = vhost_hlen ? vq->hdr : vq->iov;
-+
-+			if (memcpy_toiovecend(iov, (unsigned char *)&headcount,
-+					      offsetof(typeof(hdr),num_buffers),
-+					      sizeof(hdr.num_buffers))) {
-+				vq_err(vq, "Failed num_buffers write");
-+				vhost_discard_desc(vq, headcount);
-+				break;
-+			}
-+		}
-+		len += vhost_hlen;
-+		vhost_add_used_and_signal_n(&net->dev, vq, vq->heads, headcount);
- 		if (unlikely(vq_log))
- 			vhost_log_write(vq, vq_log, log, len);
- 		total_len += len;
-@@ -560,9 +579,24 @@ done:
- 
- static int vhost_net_set_features(struct vhost_net *n, u64 features)
- {
--	size_t hdr_size = features & (1 << VHOST_NET_F_VIRTIO_NET_HDR) ?
--		sizeof(struct virtio_net_hdr) : 0;
-+	size_t vhost_hlen;
-+	size_t sock_hlen;
- 	int i;
-+
-+	if (features & (1 << VHOST_NET_F_VIRTIO_NET_HDR)) {
-+		/* vhost provides vnet_hdr */
-+		vhost_hlen = sizeof(struct virtio_net_hdr);
-+		if (features & (1 << VIRTIO_NET_F_MRG_RXBUF))
-+			vhost_hlen = sizeof(struct virtio_net_hdr_mrg_rxbuf);
-+		sock_hlen = 0;
-+	} else {
-+		/* socket provides vnet_hdr */
-+		vhost_hlen = 0;
-+		if (features & (1 << VIRTIO_NET_F_MRG_RXBUF))
-+			sock_hlen = sizeof(struct virtio_net_hdr_mrg_rxbuf);
-+		else
-+			sock_hlen = sizeof(struct virtio_net_hdr);
-+	}
- 	mutex_lock(&n->dev.mutex);
- 	if ((features & (1 << VHOST_F_LOG_ALL)) &&
- 	    !vhost_log_access_ok(&n->dev)) {
-@@ -573,7 +607,8 @@ static int vhost_net_set_features(struct
- 	smp_wmb();
- 	for (i = 0; i < VHOST_NET_VQ_MAX; ++i) {
- 		mutex_lock(&n->vqs[i].mutex);
--		n->vqs[i].hdr_size = hdr_size;
-+		n->vqs[i].vhost_hlen = vhost_hlen;
-+		n->vqs[i].sock_hlen = sock_hlen;
- 		mutex_unlock(&n->vqs[i].mutex);
- 	}
- 	vhost_net_flush(n);
-diff -ruNp net-next-p0/drivers/vhost/vhost.c net-next-v4/drivers/vhost/vhost.c
---- net-next-p0/drivers/vhost/vhost.c	2010-03-22 12:04:38.000000000 -0700
-+++ net-next-v4/drivers/vhost/vhost.c	2010-04-19 14:29:55.000000000 -0700
-@@ -113,7 +113,8 @@ static void vhost_vq_reset(struct vhost_
- 	vq->used_flags = 0;
- 	vq->log_used = false;
- 	vq->log_addr = -1ull;
--	vq->hdr_size = 0;
-+	vq->vhost_hlen = 0;
-+	vq->sock_hlen = 0;
- 	vq->private_data = NULL;
- 	vq->log_base = NULL;
- 	vq->error_ctx = NULL;
-@@ -856,6 +857,53 @@ static unsigned get_indirect(struct vhos
- 	return 0;
- }
- 
-+/* This is a multi-buffer version of vhost_get_vq_desc
-+ * @vq		- the relevant virtqueue
-+ * datalen	- data length we'll be reading
-+ * @iovcount	- returned count of io vectors we fill
-+ * @log		- vhost log
-+ * @log_num	- log offset
-+ *	returns number of buffer heads allocated, negative on error 
-+ */
-+int vhost_get_desc_n(struct vhost_virtqueue *vq, struct vring_used_elem *heads,
-+		     int datalen, int *iovcount, struct vhost_log *log,
-+		     unsigned int *log_num)
-+{
-+	int out, in;
-+	int seg = 0;		/* iov index */
-+	int hc = 0;		/* head count */
-+	int rv;
-+
-+	while (datalen > 0) {
-+		if (hc >= VHOST_NET_MAX_SG) {
-+			rv = -ENOBUFS;
-+			goto err;
-+		}
-+		heads[hc].id = vhost_get_desc(vq->dev, vq, vq->iov+seg,
-+					      ARRAY_SIZE(vq->iov)-seg, &out,
-+					      &in, log, log_num);
-+		if (heads[hc].id == vq->num) {
-+			rv = 0;
-+			goto err;
-+		}
-+		if (out || in <= 0) {
-+			vq_err(vq, "unexpected descriptor format for RX: "
-+				"out %d, in %d\n", out, in);
-+			rv = -EINVAL;
-+			goto err;
-+		}
-+		heads[hc].len = iov_length(vq->iov+seg, in);
-+		datalen -= heads[hc].len;
-+		hc++;
-+		seg += in;
-+	}
-+	*iovcount = seg;
-+	return hc;
-+err:
-+	vhost_discard_desc(vq, hc);
-+	return rv;
-+}
-+
- /* This looks in the virtqueue and for the first available buffer, and converts
-  * it to an iovec for convenient access.  Since descriptors consist of some
-  * number of output then some number of input descriptors, it's actually two
-@@ -863,7 +911,7 @@ static unsigned get_indirect(struct vhos
-  *
-  * This function returns the descriptor number found, or vq->num (which
-  * is never a valid descriptor number) if none was found. */
--unsigned vhost_get_vq_desc(struct vhost_dev *dev, struct vhost_virtqueue *vq,
-+unsigned vhost_get_desc(struct vhost_dev *dev, struct vhost_virtqueue *vq,
- 			   struct iovec iov[], unsigned int iov_size,
- 			   unsigned int *out_num, unsigned int *in_num,
- 			   struct vhost_log *log, unsigned int *log_num)
-@@ -981,9 +1029,9 @@ unsigned vhost_get_vq_desc(struct vhost_
- }
- 
- /* Reverse the effect of vhost_get_vq_desc. Useful for error handling. */
--void vhost_discard_vq_desc(struct vhost_virtqueue *vq)
-+void vhost_discard_desc(struct vhost_virtqueue *vq, int n)
- {
--	vq->last_avail_idx--;
-+	vq->last_avail_idx -= n;
- }
- 
- /* After we've used one of their buffers, we tell them about it.  We'll then
-@@ -1012,6 +1060,54 @@ int vhost_add_used(struct vhost_virtqueu
- 	if (unlikely(vq->log_used)) {
- 		/* Make sure data is seen before log. */
- 		smp_wmb();
-+		log_write(vq->log_base, vq->log_addr + sizeof *vq->used->ring *
-+			  (vq->last_used_idx % vq->num),
-+			  sizeof *vq->used->ring);
-+		log_write(vq->log_base, vq->log_addr, sizeof *vq->used->ring);
-+		if (vq->log_ctx)
-+			eventfd_signal(vq->log_ctx, 1);
-+	}
-+	vq->last_used_idx++;
-+	return 0;
-+}
-+
-+/* After we've used one of their buffers, we tell them about it.  We'll then
-+ * want to notify the guest, using eventfd. */
-+int vhost_add_used_n(struct vhost_virtqueue *vq, struct vring_used_elem *heads,
-+		   int count)
-+{
-+	struct vring_used_elem *used;
-+	int start, n;
-+
-+	if (count <= 0)
-+		return -EINVAL;
-+
-+	start = vq->last_used_idx % vq->num;
-+	if (vq->num - start < count)
-+		n = vq->num - start;
-+	else
-+		n = count;
-+	used = vq->used->ring + start;
-+	if (copy_to_user(used, heads, sizeof(heads[0])*n)) {
-+		vq_err(vq, "Failed to write used");
-+		return -EFAULT;
-+	}
-+	if (n < count) {	/* wrapped the ring */
-+		used = vq->used->ring;
-+		if (copy_to_user(used, heads+n, sizeof(heads[0])*(count-n))) {
-+			vq_err(vq, "Failed to write used");
-+			return -EFAULT;
-+		}
-+	}
-+	/* Make sure buffer is written before we update index. */
-+	smp_wmb();
-+	if (put_user(vq->last_used_idx+count, &vq->used->idx)) {
-+		vq_err(vq, "Failed to increment used idx");
-+		return -EFAULT;
-+	}
-+	if (unlikely(vq->log_used)) {
-+		/* Make sure data is seen before log. */
-+		smp_wmb();
- 		/* Log used ring entry write. */
- 		log_write(vq->log_base,
- 			  vq->log_addr + ((void *)used - (void *)vq->used),
-@@ -1023,7 +1119,7 @@ int vhost_add_used(struct vhost_virtqueu
- 		if (vq->log_ctx)
- 			eventfd_signal(vq->log_ctx, 1);
- 	}
--	vq->last_used_idx++;
-+	vq->last_used_idx += count;
- 	return 0;
- }
- 
-@@ -1056,6 +1152,15 @@ void vhost_add_used_and_signal(struct vh
- 	vhost_signal(dev, vq);
- }
- 
-+/* multi-buffer version of vhost_add_used_and_signal */
-+void vhost_add_used_and_signal_n(struct vhost_dev *dev,
-+				 struct vhost_virtqueue *vq,
-+				 struct vring_used_elem *heads, int count)
-+{
-+	vhost_add_used_n(vq, heads, count);
-+	vhost_signal(dev, vq);
-+}
-+
- /* OK, now we need to know about added descriptors. */
- bool vhost_enable_notify(struct vhost_virtqueue *vq)
- {
-@@ -1080,7 +1185,7 @@ bool vhost_enable_notify(struct vhost_vi
- 		return false;
- 	}
- 
--	return avail_idx != vq->last_avail_idx;
-+	return avail_idx != vq->avail_idx;
- }
- 
- /* We don't need to be notified again. */
-diff -ruNp net-next-p0/drivers/vhost/vhost.h net-next-v4/drivers/vhost/vhost.h
---- net-next-p0/drivers/vhost/vhost.h	2010-03-22 12:04:38.000000000 -0700
-+++ net-next-v4/drivers/vhost/vhost.h	2010-04-19 14:15:24.000000000 -0700
-@@ -84,7 +84,9 @@ struct vhost_virtqueue {
- 	struct iovec indirect[VHOST_NET_MAX_SG];
- 	struct iovec iov[VHOST_NET_MAX_SG];
- 	struct iovec hdr[VHOST_NET_MAX_SG];
--	size_t hdr_size;
-+	size_t vhost_hlen;
-+	size_t sock_hlen;
-+	struct vring_used_elem heads[VHOST_NET_MAX_SG];
- 	/* We use a kind of RCU to access private pointer.
- 	 * All readers access it from workqueue, which makes it possible to
- 	 * flush the workqueue instead of synchronize_rcu. Therefore readers do
-@@ -120,16 +122,23 @@ long vhost_dev_ioctl(struct vhost_dev *,
- int vhost_vq_access_ok(struct vhost_virtqueue *vq);
- int vhost_log_access_ok(struct vhost_dev *);
- 
--unsigned vhost_get_vq_desc(struct vhost_dev *, struct vhost_virtqueue *,
-+int vhost_get_desc_n(struct vhost_virtqueue *, struct vring_used_elem *heads,
-+		     int datalen, int *iovcount, struct vhost_log *log,
-+		     unsigned int *log_num);
-+unsigned vhost_get_desc(struct vhost_dev *, struct vhost_virtqueue *,
- 			   struct iovec iov[], unsigned int iov_count,
- 			   unsigned int *out_num, unsigned int *in_num,
- 			   struct vhost_log *log, unsigned int *log_num);
--void vhost_discard_vq_desc(struct vhost_virtqueue *);
-+void vhost_discard_desc(struct vhost_virtqueue *, int);
- 
- int vhost_add_used(struct vhost_virtqueue *, unsigned int head, int len);
--void vhost_signal(struct vhost_dev *, struct vhost_virtqueue *);
-+int vhost_add_used_n(struct vhost_virtqueue *, struct vring_used_elem *heads,
-+		    int count);
- void vhost_add_used_and_signal(struct vhost_dev *, struct vhost_virtqueue *,
--			       unsigned int head, int len);
-+			       unsigned int id, int len);
-+void vhost_add_used_and_signal_n(struct vhost_dev *, struct vhost_virtqueue *,
-+			       struct vring_used_elem *heads, int count);
-+void vhost_signal(struct vhost_dev *, struct vhost_virtqueue *);
- void vhost_disable_notify(struct vhost_virtqueue *);
- bool vhost_enable_notify(struct vhost_virtqueue *);
- 
-@@ -149,7 +158,8 @@ enum {
- 	VHOST_FEATURES = (1 << VIRTIO_F_NOTIFY_ON_EMPTY) |
- 			 (1 << VIRTIO_RING_F_INDIRECT_DESC) |
- 			 (1 << VHOST_F_LOG_ALL) |
--			 (1 << VHOST_NET_F_VIRTIO_NET_HDR),
-+			 (1 << VHOST_NET_F_VIRTIO_NET_HDR) |
-+			 (1 << VIRTIO_NET_F_MRG_RXBUF),
- };
- 
- static inline int vhost_has_feature(struct vhost_dev *dev, int bit)
+Does this mean that virtio-blk supports all three combinations?
 
+   1. FLUSH that isn't a barrier
+   2. FLUSH that is also a barrier
+   3. Barrier that is not a flush
 
+1 is good for fsync-like operations;
+2 is good for journalling-like ordered operations.
+3 sounds like it doesn't mean a lot as the host cache provides no
+guarantees and has no ordering facility that can be used.
+
+-- Jamie
