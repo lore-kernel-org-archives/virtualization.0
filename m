@@ -1,16 +1,13 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [Qemu-devel] [PATCH] virtio-spec: document block CMD and FLUSH
-Date: Wed, 21 Apr 2010 13:39:59 +0300
-Message-ID: <20100421103959.GA31461__12070.7916249104$1271846886$gmane$org@redhat.com>
-References: <20100218222220.GA14847@redhat.com>
-	<20100420014635.GE21899@shareable.org>
-	<201004201422.58456.paul@codesourcery.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: [PATCH] virtio: Fix GFP flags passed from the virtio balloon driver
+Date: Thu, 22 Apr 2010 12:22:34 +0930
+Message-ID: <201004221222.36014.rusty__44667.727725073$1271904874$gmane$org@rustcorp.com.au>
+References: <20100421190704.GK3994@balbir.in.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <201004201422.58456.paul@codesourcery.com>
+In-Reply-To: <20100421190704.GK3994@balbir.in.ibm.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,34 +17,37 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Paul Brook <paul@codesourcery.com>
-Cc: kvm@vger.kernel.org, Jamie Lokier <jamie@shareable.org>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, hch@lst.de
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: "linux-mm@kvack.org" <linux-mm@kvack.org>, virtualization@lists.linux-foundation.org, kvm <kvm@vger.kernel.org>, balbir@linux.vnet.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Apr 20, 2010 at 02:22:58PM +0100, Paul Brook wrote:
-> > Does this mean that virtio-blk supports all three combinations?
-> > 
-> >    1. FLUSH that isn't a barrier
-> >    2. FLUSH that is also a barrier
-> >    3. Barrier that is not a flush
-> > 
-> > 1 is good for fsync-like operations;
-> > 2 is good for journalling-like ordered operations.
-> > 3 sounds like it doesn't mean a lot as the host cache provides no
-> > guarantees and has no ordering facility that can be used.
-> 
-> (3) allows the guest to queue overlapping transfers with well defined results.
-> I have no idea how useful this is in practice, but it's certainly plausible.
-> 
-> Paul
+From: Balbir Singh <balbir@linux.vnet.ibm.com>
 
-In theory, yes.
-At the moment, qemu only implements FLUSH and lguest only
-implements barrier without FLUSH.
+The virtio balloon driver can dig into the reservation pools
+of the OS to satisfy a balloon request. This is not advisable
+and other balloon drivers (drivers/xen/balloon.c) avoid this
+as well. The patch also adds changes to avoid printing a warning
+if allocation fails, since we retry after sometime anyway.
 
-If you think it's useful, maybe start by using FLUSH+barrier
-in linux guest driver, that'd demonstrate how it's used.
+Signed-off-by: Balbir Singh <balbir@linux.vnet.ibm.com>
+Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+Cc: kvm <kvm@vger.kernel.org>
+Cc: stable@kernel.org
+---
+ drivers/virtio/virtio_balloon.c |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletions(-)
 
-
--- 
-MST
+diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+index 369f2ee..f8ffe8c 100644
+--- a/drivers/virtio/virtio_balloon.c
++++ b/drivers/virtio/virtio_balloon.c
+@@ -102,7 +102,8 @@ static void fill_balloon(struct virtio_balloon *vb, size_t num)
+ 	num = min(num, ARRAY_SIZE(vb->pfns));
+ 
+ 	for (vb->num_pfns = 0; vb->num_pfns < num; vb->num_pfns++) {
+-		struct page *page = alloc_page(GFP_HIGHUSER | __GFP_NORETRY);
++		struct page *page = alloc_page(GFP_HIGHUSER | __GFP_NORETRY |
++					__GFP_NOMEMALLOC | __GFP_NOWARN);
+ 		if (!page) {
+ 			if (printk_ratelimit())
+ 				dev_printk(KERN_INFO, &vb->vdev->dev,
