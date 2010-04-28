@@ -1,7 +1,7 @@
 From: "Ky Srinivasan" <ksrinivasan@novell.com>
 Subject: A Clock source for HyperV
-Date: Wed, 28 Apr 2010 14:45:08 -0600
-Message-ID: <4BD859DD.E57C.0030.1@novell.com>
+Date: Wed, 28 Apr 2010 14:45:15 -0600
+Message-ID: <4BD859E4.E57C.0030.1@novell.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
