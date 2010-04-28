@@ -1,224 +1,516 @@
-From: "Ky Srinivasan" <ksrinivasan@novell.com>
-Subject: [virtualization-mngt] HyperV detection patch
-Date: Wed, 28 Apr 2010 14:56:54 -0600
-Message-ID: <4BD85C9F.E57C.0030.0@novell.com>
+From: David L Stevens <dlstevens@us.ibm.com>
+Subject: [PATCHv7] add mergeable buffers support to vhost_net
+Date: Wed, 28 Apr 2010 13:57:12 -0700
+Message-ID: <1272488232.11307.4.camel@w-dls.beaverton.ibm.com>
+Reply-To: dlstevens@us.ibm.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: devel@driverdev.osuosl.org, Virtualization@lists.osdl.org
-Cc: Haiyang Zhang <haiyangz@microsoft.com>, Greg KH <gregkh@suse.de>
+Return-path: <netdev-owner@vger.kernel.org>
+Sender: netdev-owner@vger.kernel.org
+To: mst@redhat.com
+Cc: netdev@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-This is a resend of a patch I had posted a couple of weeks ago. As suggested by Jeremy, I am enclosing a patch that integrates HyperV detection with the current hypervisor detection mechanism in the kernel. A patch for implementing a HyperV clock source based on this patch will be sent out shortly.
+This patch adds mergeable receive buffer support to vhost_net.
 
+Signed-off-by: David L Stevens <dlstevens@us.ibm.com>
 
-From: K. Y. Srinivasan <ksrinivasan@novell.com>
-Subject:  HyperV Detection code.
-References: None
-Patch-mainline:
-
-This patch integrates HyperV detection within the framework currently used by
-VmWare. With this patch, we can avoid having to replicate the HyperV detection
-code in each of the HyperV specific Linux drivers - MSFT Linux Integration 
-Components. 
-
-Signed-off-by: K. Y. Srinivasan <ksrinivasan@novell.com>
-
-Index: linux-2.6.34-rc4/arch/x86/include/asm/processor.h
-===================================================================
---- linux-2.6.34-rc4.orig/arch/x86/include/asm/processor.h	2010-04-12 19:41:35.000000000 -0600
-+++ linux-2.6.34-rc4/arch/x86/include/asm/processor.h	2010-04-15 10:00:18.000000000 -0600
-@@ -114,6 +114,8 @@ struct cpuinfo_x86 {
- 	u16			cpu_index;
- #endif
- 	unsigned int		x86_hyper_vendor;
-+	/* The layout of this field is hypervisor specific */
-+	unsigned int		x86_hyper_features;
- } __attribute__((__aligned__(SMP_CACHE_BYTES)));
+diff -ruNp net-next-v0/drivers/vhost/net.c net-next-v7/drivers/vhost/net.c
+--- net-next-v0/drivers/vhost/net.c	2010-04-24 21:36:54.000000000 -0700
++++ net-next-v7/drivers/vhost/net.c	2010-04-28 12:26:18.000000000 -0700
+@@ -74,6 +74,23 @@ static int move_iovec_hdr(struct iovec *
+ 	}
+ 	return seg;
+ }
++/* Copy iovec entries for len bytes from iovec. Return segments used. */
++static int copy_iovec_hdr(const struct iovec *from, struct iovec *to,
++			  size_t len, int iovcount)
++{
++	int seg = 0;
++	size_t size;
++	while (len && seg < iovcount) {
++		size = min(from->iov_len, len);
++		to->iov_base = from->iov_base;
++		to->iov_len = size;
++		len -= size;
++		++from;
++		++to;
++		++seg;
++	}
++	return seg;
++}
  
- #define X86_VENDOR_INTEL	0
-@@ -129,6 +131,7 @@ struct cpuinfo_x86 {
+ /* Caller must have TX VQ lock */
+ static void tx_poll_stop(struct vhost_net *net)
+@@ -109,7 +126,7 @@ static void handle_tx(struct vhost_net *
+ 	};
+ 	size_t len, total_len = 0;
+ 	int err, wmem;
+-	size_t hdr_size;
++	size_t vhost_hlen;
+ 	struct socket *sock = rcu_dereference(vq->private_data);
+ 	if (!sock)
+ 		return;
+@@ -128,13 +145,13 @@ static void handle_tx(struct vhost_net *
  
- #define X86_HYPER_VENDOR_NONE  0
- #define X86_HYPER_VENDOR_VMWARE 1
-+#define X86_HYPER_VENDOR_MSFT 2
+ 	if (wmem < sock->sk->sk_sndbuf / 2)
+ 		tx_poll_stop(net);
+-	hdr_size = vq->hdr_size;
++	vhost_hlen = vq->vhost_hlen;
  
- /*
-  * capabilities of CPUs
-Index: linux-2.6.34-rc4/arch/x86/kernel/cpu/Makefile
-===================================================================
---- linux-2.6.34-rc4.orig/arch/x86/kernel/cpu/Makefile	2010-04-12 19:41:35.000000000 -0600
-+++ linux-2.6.34-rc4/arch/x86/kernel/cpu/Makefile	2010-04-15 10:00:18.000000000 -0600
-@@ -14,7 +14,7 @@ CFLAGS_common.o		:= $(nostackp)
+ 	for (;;) {
+-		head = vhost_get_vq_desc(&net->dev, vq, vq->iov,
+-					 ARRAY_SIZE(vq->iov),
+-					 &out, &in,
+-					 NULL, NULL);
++		head = vhost_get_desc(&net->dev, vq, vq->iov,
++				      ARRAY_SIZE(vq->iov),
++				      &out, &in,
++				      NULL, NULL);
+ 		/* Nothing new?  Wait for eventfd to tell us they refilled. */
+ 		if (head == vq->num) {
+ 			wmem = atomic_read(&sock->sk->sk_wmem_alloc);
+@@ -155,20 +172,20 @@ static void handle_tx(struct vhost_net *
+ 			break;
+ 		}
+ 		/* Skip header. TODO: support TSO. */
+-		s = move_iovec_hdr(vq->iov, vq->hdr, hdr_size, out);
++		s = move_iovec_hdr(vq->iov, vq->hdr, vhost_hlen, out);
+ 		msg.msg_iovlen = out;
+ 		len = iov_length(vq->iov, out);
+ 		/* Sanity check */
+ 		if (!len) {
+ 			vq_err(vq, "Unexpected header len for TX: "
+ 			       "%zd expected %zd\n",
+-			       iov_length(vq->hdr, s), hdr_size);
++			       iov_length(vq->hdr, s), vhost_hlen);
+ 			break;
+ 		}
+ 		/* TODO: Check specific error and bomb out unless ENOBUFS? */
+ 		err = sock->ops->sendmsg(NULL, sock, &msg, len);
+ 		if (unlikely(err < 0)) {
+-			vhost_discard_vq_desc(vq);
++			vhost_discard_desc(vq, 1);
+ 			tx_poll_start(net, sock);
+ 			break;
+ 		}
+@@ -187,12 +204,25 @@ static void handle_tx(struct vhost_net *
+ 	unuse_mm(net->dev.mm);
+ }
  
- obj-y			:= intel_cacheinfo.o addon_cpuid_features.o
- obj-y			+= proc.o capflags.o powerflags.o common.o
--obj-y			+= vmware.o hypervisor.o sched.o
-+obj-y			+= vmware.o hypervisor.o sched.o hyperv.o
++static int vhost_head_len(struct vhost_virtqueue *vq, struct sock *sk)
++{
++	struct sk_buff *head;
++	int len = 0;
++
++	lock_sock(sk);
++	head = skb_peek(&sk->sk_receive_queue);
++	if (head)
++		len = head->len + vq->sock_hlen;
++	release_sock(sk);
++	return len;
++}
++
+ /* Expects to be always run from workqueue - which acts as
+  * read-size critical section for our kind of RCU. */
+ static void handle_rx(struct vhost_net *net)
+ {
+ 	struct vhost_virtqueue *vq = &net->dev.vqs[VHOST_NET_VQ_RX];
+-	unsigned head, out, in, log, s;
++	unsigned in, log, s;
+ 	struct vhost_log *vq_log;
+ 	struct msghdr msg = {
+ 		.msg_name = NULL,
+@@ -203,14 +233,14 @@ static void handle_rx(struct vhost_net *
+ 		.msg_flags = MSG_DONTWAIT,
+ 	};
  
- obj-$(CONFIG_X86_32)	+= bugs.o cmpxchg.o
- obj-$(CONFIG_X86_64)	+= bugs_64.o
-Index: linux-2.6.34-rc4/arch/x86/kernel/cpu/hyperv.c
-===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-2.6.34-rc4/arch/x86/kernel/cpu/hyperv.c	2010-04-15 10:00:18.000000000 -0600
-@@ -0,0 +1,66 @@
-+/*
-+ * HyperV  Detection code.
-+ *
-+ * Copyright (C) 2010, Novell, Inc.
-+ * Author : K. Y. Srinivasan <ksrinivasan@novell.com>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful, but
-+ * WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE, GOOD TITLE or
-+ * NON INFRINGEMENT.  See the GNU General Public License for more
-+ * details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
-+ *
+-	struct virtio_net_hdr hdr = {
+-		.flags = 0,
+-		.gso_type = VIRTIO_NET_HDR_GSO_NONE
++	struct virtio_net_hdr_mrg_rxbuf hdr = {
++		.hdr.flags = 0,
++		.hdr.gso_type = VIRTIO_NET_HDR_GSO_NONE
+ 	};
+ 
+ 	size_t len, total_len = 0;
+-	int err;
+-	size_t hdr_size;
++	int err, headcount, datalen;
++	size_t vhost_hlen;
+ 	struct socket *sock = rcu_dereference(vq->private_data);
+ 	if (!sock || skb_queue_empty(&sock->sk->sk_receive_queue))
+ 		return;
+@@ -218,18 +248,19 @@ static void handle_rx(struct vhost_net *
+ 	use_mm(net->dev.mm);
+ 	mutex_lock(&vq->mutex);
+ 	vhost_disable_notify(vq);
+-	hdr_size = vq->hdr_size;
++	vhost_hlen = vq->vhost_hlen;
+ 
+ 	vq_log = unlikely(vhost_has_feature(&net->dev, VHOST_F_LOG_ALL)) ?
+ 		vq->log : NULL;
+ 
+-	for (;;) {
+-		head = vhost_get_vq_desc(&net->dev, vq, vq->iov,
+-					 ARRAY_SIZE(vq->iov),
+-					 &out, &in,
+-					 vq_log, &log);
++	while ((datalen = vhost_head_len(vq, sock->sk))) {
++		headcount = vhost_get_desc_n(vq, vq->heads,
++					     datalen + vhost_hlen,
++					     &in, vq_log, &log);
++		if (headcount < 0)
++			break;
+ 		/* OK, now we need to know about added descriptors. */
+-		if (head == vq->num) {
++		if (!headcount) {
+ 			if (unlikely(vhost_enable_notify(vq))) {
+ 				/* They have slipped one in as we were
+ 				 * doing that: check again. */
+@@ -241,46 +272,53 @@ static void handle_rx(struct vhost_net *
+ 			break;
+ 		}
+ 		/* We don't need to be notified again. */
+-		if (out) {
+-			vq_err(vq, "Unexpected descriptor format for RX: "
+-			       "out %d, int %d\n",
+-			       out, in);
+-			break;
+-		}
+-		/* Skip header. TODO: support TSO/mergeable rx buffers. */
+-		s = move_iovec_hdr(vq->iov, vq->hdr, hdr_size, in);
++		if (vhost_hlen)
++			/* Skip header. TODO: support TSO. */
++			s = move_iovec_hdr(vq->iov, vq->hdr, vhost_hlen, in);
++		else
++			s = copy_iovec_hdr(vq->iov, vq->hdr, vq->sock_hlen, in);
+ 		msg.msg_iovlen = in;
+ 		len = iov_length(vq->iov, in);
+ 		/* Sanity check */
+ 		if (!len) {
+ 			vq_err(vq, "Unexpected header len for RX: "
+ 			       "%zd expected %zd\n",
+-			       iov_length(vq->hdr, s), hdr_size);
++			       iov_length(vq->hdr, s), vhost_hlen);
+ 			break;
+ 		}
+ 		err = sock->ops->recvmsg(NULL, sock, &msg,
+ 					 len, MSG_DONTWAIT | MSG_TRUNC);
+ 		/* TODO: Check specific error and bomb out unless EAGAIN? */
+ 		if (err < 0) {
+-			vhost_discard_vq_desc(vq);
++			vhost_discard_desc(vq, headcount);
+ 			break;
+ 		}
+-		/* TODO: Should check and handle checksum. */
+-		if (err > len) {
+-			pr_err("Discarded truncated rx packet: "
+-			       " len %d > %zd\n", err, len);
+-			vhost_discard_vq_desc(vq);
++		if (err != datalen) {
++			pr_err("Discarded rx packet: "
++			       " len %d, expected %zd\n", err, datalen);
++			vhost_discard_desc(vq, headcount);
+ 			continue;
+ 		}
+ 		len = err;
+-		err = memcpy_toiovec(vq->hdr, (unsigned char *)&hdr, hdr_size);
+-		if (err) {
+-			vq_err(vq, "Unable to write vnet_hdr at addr %p: %d\n",
+-			       vq->iov->iov_base, err);
++		if (vhost_hlen &&
++		    memcpy_toiovecend(vq->hdr, (unsigned char *)&hdr, 0,
++				      vhost_hlen)) {
++			vq_err(vq, "Unable to write vnet_hdr at addr %p\n",
++			       vq->iov->iov_base);
+ 			break;
+ 		}
+-		len += hdr_size;
+-		vhost_add_used_and_signal(&net->dev, vq, head, len);
++		/* TODO: Should check and handle checksum. */
++		if (vhost_has_feature(&net->dev, VIRTIO_NET_F_MRG_RXBUF) &&
++		    memcpy_toiovecend(vq->hdr, (unsigned char *)&headcount,
++				      offsetof(typeof(hdr), num_buffers),
++				      sizeof(hdr.num_buffers))) {
++			vq_err(vq, "Failed num_buffers write");
++			vhost_discard_desc(vq, headcount);
++			break;
++		}
++		len += vhost_hlen;
++		vhost_add_used_and_signal_n(&net->dev, vq, vq->heads,
++					    headcount);
+ 		if (unlikely(vq_log))
+ 			vhost_log_write(vq, vq_log, log, len);
+ 		total_len += len;
+@@ -561,9 +599,21 @@ done:
+ 
+ static int vhost_net_set_features(struct vhost_net *n, u64 features)
+ {
+-	size_t hdr_size = features & (1 << VHOST_NET_F_VIRTIO_NET_HDR) ?
+-		sizeof(struct virtio_net_hdr) : 0;
++	size_t vhost_hlen, sock_hlen, hdr_len;
+ 	int i;
++
++	hdr_len = (features & (1 << VIRTIO_NET_F_MRG_RXBUF)) ?
++			sizeof(struct virtio_net_hdr_mrg_rxbuf) :
++			sizeof(struct virtio_net_hdr);
++	if (features & (1 << VHOST_NET_F_VIRTIO_NET_HDR)) {
++		/* vhost provides vnet_hdr */
++		vhost_hlen = hdr_len;
++		sock_hlen = 0;
++	} else {
++		/* socket provides vnet_hdr */
++		vhost_hlen = 0;
++		sock_hlen = hdr_len;
++	}
+ 	mutex_lock(&n->dev.mutex);
+ 	if ((features & (1 << VHOST_F_LOG_ALL)) &&
+ 	    !vhost_log_access_ok(&n->dev)) {
+@@ -574,7 +624,8 @@ static int vhost_net_set_features(struct
+ 	smp_wmb();
+ 	for (i = 0; i < VHOST_NET_VQ_MAX; ++i) {
+ 		mutex_lock(&n->vqs[i].mutex);
+-		n->vqs[i].hdr_size = hdr_size;
++		n->vqs[i].vhost_hlen = vhost_hlen;
++		n->vqs[i].sock_hlen = sock_hlen;
+ 		mutex_unlock(&n->vqs[i].mutex);
+ 	}
+ 	vhost_net_flush(n);
+diff -ruNp net-next-v0/drivers/vhost/vhost.c net-next-v7/drivers/vhost/vhost.c
+--- net-next-v0/drivers/vhost/vhost.c	2010-04-22 11:31:57.000000000 -0700
++++ net-next-v7/drivers/vhost/vhost.c	2010-04-28 11:16:13.000000000 -0700
+@@ -114,7 +114,8 @@ static void vhost_vq_reset(struct vhost_
+ 	vq->used_flags = 0;
+ 	vq->log_used = false;
+ 	vq->log_addr = -1ull;
+-	vq->hdr_size = 0;
++	vq->vhost_hlen = 0;
++	vq->sock_hlen = 0;
+ 	vq->private_data = NULL;
+ 	vq->log_base = NULL;
+ 	vq->error_ctx = NULL;
+@@ -861,6 +862,53 @@ static unsigned get_indirect(struct vhos
+ 	return 0;
+ }
+ 
++/* This is a multi-buffer version of vhost_get_desc
++ * @vq		- the relevant virtqueue
++ * datalen	- data length we'll be reading
++ * @iovcount	- returned count of io vectors we fill
++ * @log		- vhost log
++ * @log_num	- log offset
++ *	returns number of buffer heads allocated, negative on error
 + */
-+
-+#include <linux/types.h>
-+#include <asm/processor.h>
-+#include <asm/hyperv.h>
-+
-+
-+int hyperv_platform(void)
++int vhost_get_desc_n(struct vhost_virtqueue *vq, struct vring_used_elem *heads,
++		     int datalen, unsigned *iovcount, struct vhost_log *log,
++		     unsigned int *log_num)
 +{
-+	u32 eax, ebx, ecx, edx;
-+	char hyp_signature[13];
++	unsigned int out, in;
++	int seg = 0;
++	int headcount = 0;
++	int r;
 +
-+	cpuid(1, &eax, &ebx, &ecx, &edx);
-+	if (!(ecx & HYPERV_HYPERVISOR_PRESENT_BIT))
-+		return 0;
-+
-+	cpuid(HYPERV_CPUID_VENDOR_AND_MAX_FUNCTIONS, &eax, &ebx, &ecx, &edx);
-+	*(u32 *)(hyp_signature + 0) = ebx;
-+	*(u32 *)(hyp_signature + 4) = ecx;
-+	*(u32 *)(hyp_signature + 8) = edx;
-+
-+	if ((eax < HYPERV_CPUID_MIN) || (memcmp("Microsoft Hv", hyp_signature, 12)))
-+		return 0;
-+	return 1;
++	while (datalen > 0) {
++		if (headcount >= VHOST_NET_MAX_SG) {
++			r = -ENOBUFS;
++			goto err;
++		}
++		heads[headcount].id = vhost_get_desc(vq->dev, vq, vq->iov + seg,
++					      ARRAY_SIZE(vq->iov) - seg, &out,
++					      &in, log, log_num);
++		if (heads[headcount].id == vq->num) {
++			r = 0;
++			goto err;
++		}
++		if (out || in <= 0) {
++			vq_err(vq, "unexpected descriptor format for RX: "
++				"out %d, in %d\n", out, in);
++			r = -EINVAL;
++			goto err;
++		}
++		heads[headcount].len = iov_length(vq->iov + seg, in);
++		datalen -= heads[headcount].len;
++		++headcount;
++		seg += in;
++	}
++	*iovcount = seg;
++	return headcount;
++err:
++	vhost_discard_desc(vq, headcount);
++	return r;
 +}
 +
-+void __cpuinit hyperv_set_feature_bits(struct cpuinfo_x86 *c)
+ /* This looks in the virtqueue and for the first available buffer, and converts
+  * it to an iovec for convenient access.  Since descriptors consist of some
+  * number of output then some number of input descriptors, it's actually two
+@@ -868,7 +916,7 @@ static unsigned get_indirect(struct vhos
+  *
+  * This function returns the descriptor number found, or vq->num (which
+  * is never a valid descriptor number) if none was found. */
+-unsigned vhost_get_vq_desc(struct vhost_dev *dev, struct vhost_virtqueue *vq,
++unsigned vhost_get_desc(struct vhost_dev *dev, struct vhost_virtqueue *vq,
+ 			   struct iovec iov[], unsigned int iov_size,
+ 			   unsigned int *out_num, unsigned int *in_num,
+ 			   struct vhost_log *log, unsigned int *log_num)
+@@ -986,9 +1034,9 @@ unsigned vhost_get_vq_desc(struct vhost_
+ }
+ 
+ /* Reverse the effect of vhost_get_vq_desc. Useful for error handling. */
+-void vhost_discard_vq_desc(struct vhost_virtqueue *vq)
++void vhost_discard_desc(struct vhost_virtqueue *vq, int n)
+ {
+-	vq->last_avail_idx--;
++	vq->last_avail_idx -= n;
+ }
+ 
+ /* After we've used one of their buffers, we tell them about it.  We'll then
+@@ -1033,6 +1081,68 @@ int vhost_add_used(struct vhost_virtqueu
+ 	return 0;
+ }
+ 
++static void vhost_log_used(struct vhost_virtqueue *vq,
++			   struct vring_used_elem __user *used)
 +{
-+	u32 eax, ebx, ecx, edx;
-+
-+	c->x86_hyper_features = 0;
-+	/*
-+	 * Extract the features, recommendations etc.
-+	 * The first 9 bits will be used to track hypervisor features.
-+	 * The next 6 bits will be used to track the hypervisor
-+	 * recommendations.
-+	 */
-+	cpuid(HYPERV_CPUID_FEATURES, &eax, &ebx, &ecx, &edx);
-+	c->x86_hyper_features |= (eax & 0x1ff);
-+
-+	cpuid(HYPERV_CPUID_ENLIGHTMENT_INFO, &eax, &ebx, &ecx, &edx);
-+	c->x86_hyper_features |= ((eax & 0x3f) << 9);
-+	printk(KERN_INFO "Detected HyperV with features: %x\n",
-+		c->x86_hyper_features);
++	/* Make sure data is seen before log. */
++	smp_wmb();
++	/* Log used ring entry write. */
++	log_write(vq->log_base,
++		  vq->log_addr +
++		   ((void __user *)used - (void __user *)vq->used),
++		  sizeof *used);
++	/* Log used index update. */
++	log_write(vq->log_base,
++		  vq->log_addr + offsetof(struct vring_used, idx),
++		  sizeof vq->used->idx);
++	if (vq->log_ctx)
++		eventfd_signal(vq->log_ctx, 1);
 +}
-Index: linux-2.6.34-rc4/arch/x86/kernel/cpu/hypervisor.c
-===================================================================
---- linux-2.6.34-rc4.orig/arch/x86/kernel/cpu/hypervisor.c	2010-04-12 19:41:35.000000000 -0600
-+++ linux-2.6.34-rc4/arch/x86/kernel/cpu/hypervisor.c	2010-04-15 10:00:18.000000000 -0600
-@@ -23,6 +23,7 @@
- 
- #include <asm/processor.h>
- #include <asm/vmware.h>
-+#include <asm/hyperv.h>
- #include <asm/hypervisor.h>
- 
- static inline void __cpuinit
-@@ -30,6 +31,8 @@ detect_hypervisor_vendor(struct cpuinfo_
- {
- 	if (vmware_platform())
- 		c->x86_hyper_vendor = X86_HYPER_VENDOR_VMWARE;
-+	else if (hyperv_platform())
-+		c->x86_hyper_vendor = X86_HYPER_VENDOR_MSFT;
- 	else
- 		c->x86_hyper_vendor = X86_HYPER_VENDOR_NONE;
- }
-@@ -37,10 +40,11 @@ detect_hypervisor_vendor(struct cpuinfo_
- static inline void __cpuinit
- hypervisor_set_feature_bits(struct cpuinfo_x86 *c)
- {
--	if (boot_cpu_data.x86_hyper_vendor == X86_HYPER_VENDOR_VMWARE) {
-+	if (boot_cpu_data.x86_hyper_vendor == X86_HYPER_VENDOR_VMWARE)
- 		vmware_set_feature_bits(c);
--		return;
--	}
-+	else if (boot_cpu_data.x86_hyper_vendor == X86_HYPER_VENDOR_MSFT)
-+		hyperv_set_feature_bits(c);
-+	return;
- }
- 
- void __cpuinit init_hypervisor(struct cpuinfo_x86 *c)
-Index: linux-2.6.34-rc4/arch/x86/include/asm/hyperv.h
-===================================================================
---- linux-2.6.34-rc4.orig/arch/x86/include/asm/hyperv.h	2010-04-12 19:41:35.000000000 -0600
-+++ linux-2.6.34-rc4/arch/x86/include/asm/hyperv.h	2010-04-15 13:06:58.000000000 -0600
-@@ -2,6 +2,8 @@
- #define _ASM_X86_KVM_HYPERV_H
- 
- #include <linux/types.h>
-+#include <linux/init.h>
-+#include <asm/processor.h>
- 
- /*
-  * The below CPUID leaves are present if VersionAndFeatures.HypervisorPresent
-@@ -14,6 +16,9 @@
- #define HYPERV_CPUID_ENLIGHTMENT_INFO		0x40000004
- #define HYPERV_CPUID_IMPLEMENT_LIMITS		0x40000005
- 
-+#define HYPERV_HYPERVISOR_PRESENT_BIT		0x80000000
-+#define HYPERV_CPUID_MIN			0x40000005
 +
- /*
-  * Feature identification. EAX indicates which features are available
-  * to the partition based upon the current partition privileges.
-@@ -129,6 +134,9 @@
- /* MSR used to provide vcpu index */
- #define HV_X64_MSR_VP_INDEX			0x40000002
- 
-+/* MSR used to read the per-partition time reference counter */
-+#define HV_X64_MSR_TIME_REF_COUNT       0x40000020
++static int __vhost_add_used_n(struct vhost_virtqueue *vq,
++			    struct vring_used_elem *heads,
++			    unsigned count)
++{
++	struct vring_used_elem __user *used;
++	int start;
 +
- /* Define the virtual APIC registers */
- #define HV_X64_MSR_EOI				0x40000070
- #define HV_X64_MSR_ICR				0x40000071
-@@ -183,4 +191,6 @@
- #define HV_STATUS_INVALID_HYPERCALL_INPUT	3
- #define HV_STATUS_INVALID_ALIGNMENT		4
++	start = vq->last_used_idx % vq->num;
++	used = vq->used->ring + start;
++	if (copy_to_user(used, heads, count * sizeof *used)) {
++		vq_err(vq, "Failed to write used");
++		return -EFAULT;
++	}
++	/* Make sure buffer is written before we update index. */
++	smp_wmb();
++	if (put_user(vq->last_used_idx + count, &vq->used->idx)) {
++		vq_err(vq, "Failed to increment used idx");
++		return -EFAULT;
++	}
++	if (unlikely(vq->log_used))
++		vhost_log_used(vq, used);
++	vq->last_used_idx += count;
++	return 0;
++}
++
++/* After we've used one of their buffers, we tell them about it.  We'll then
++ * want to notify the guest, using eventfd. */
++int vhost_add_used_n(struct vhost_virtqueue *vq, struct vring_used_elem *heads,
++		     unsigned count)
++{
++	int start, n, r;
++
++	start = vq->last_used_idx % vq->num;
++	n = vq->num - start;
++	if (n < count) {
++		r = __vhost_add_used_n(vq, heads, n);
++		if (r < 0)
++			return r;
++		heads += n;
++		count -= n;
++	}
++	return __vhost_add_used_n(vq, heads, count);
++}
++
+ /* This actually signals the guest, using eventfd. */
+ void vhost_signal(struct vhost_dev *dev, struct vhost_virtqueue *vq)
+ {
+@@ -1062,6 +1172,15 @@ void vhost_add_used_and_signal(struct vh
+ 	vhost_signal(dev, vq);
+ }
  
-+int hyperv_platform(void);
-+void __cpuinit hyperv_set_feature_bits(struct cpuinfo_x86 *c);
- #endif
++/* multi-buffer version of vhost_add_used_and_signal */
++void vhost_add_used_and_signal_n(struct vhost_dev *dev,
++				 struct vhost_virtqueue *vq,
++				 struct vring_used_elem *heads, unsigned count)
++{
++	vhost_add_used_n(vq, heads, count);
++	vhost_signal(dev, vq);
++}
++
+ /* OK, now we need to know about added descriptors. */
+ bool vhost_enable_notify(struct vhost_virtqueue *vq)
+ {
+@@ -1086,7 +1205,7 @@ bool vhost_enable_notify(struct vhost_vi
+ 		return false;
+ 	}
+ 
+-	return avail_idx != vq->last_avail_idx;
++	return avail_idx != vq->avail_idx;
+ }
+ 
+ /* We don't need to be notified again. */
+diff -ruNp net-next-v0/drivers/vhost/vhost.h net-next-v7/drivers/vhost/vhost.h
+--- net-next-v0/drivers/vhost/vhost.h	2010-04-24 21:37:41.000000000 -0700
++++ net-next-v7/drivers/vhost/vhost.h	2010-04-26 10:35:25.000000000 -0700
+@@ -84,7 +84,9 @@ struct vhost_virtqueue {
+ 	struct iovec indirect[VHOST_NET_MAX_SG];
+ 	struct iovec iov[VHOST_NET_MAX_SG];
+ 	struct iovec hdr[VHOST_NET_MAX_SG];
+-	size_t hdr_size;
++	size_t vhost_hlen;
++	size_t sock_hlen;
++	struct vring_used_elem heads[VHOST_NET_MAX_SG];
+ 	/* We use a kind of RCU to access private pointer.
+ 	 * All readers access it from workqueue, which makes it possible to
+ 	 * flush the workqueue instead of synchronize_rcu. Therefore readers do
+@@ -120,16 +122,23 @@ long vhost_dev_ioctl(struct vhost_dev *,
+ int vhost_vq_access_ok(struct vhost_virtqueue *vq);
+ int vhost_log_access_ok(struct vhost_dev *);
+ 
+-unsigned vhost_get_vq_desc(struct vhost_dev *, struct vhost_virtqueue *,
++int vhost_get_desc_n(struct vhost_virtqueue *, struct vring_used_elem *heads,
++		     int datalen, unsigned int *iovcount, struct vhost_log *log,
++		     unsigned int *log_num);
++unsigned vhost_get_desc(struct vhost_dev *, struct vhost_virtqueue *,
+ 			   struct iovec iov[], unsigned int iov_count,
+ 			   unsigned int *out_num, unsigned int *in_num,
+ 			   struct vhost_log *log, unsigned int *log_num);
+-void vhost_discard_vq_desc(struct vhost_virtqueue *);
++void vhost_discard_desc(struct vhost_virtqueue *, int);
+ 
+ int vhost_add_used(struct vhost_virtqueue *, unsigned int head, int len);
+-void vhost_signal(struct vhost_dev *, struct vhost_virtqueue *);
++int vhost_add_used_n(struct vhost_virtqueue *, struct vring_used_elem *heads,
++		     unsigned count);
+ void vhost_add_used_and_signal(struct vhost_dev *, struct vhost_virtqueue *,
+-			       unsigned int head, int len);
++			       unsigned int id, int len);
++void vhost_add_used_and_signal_n(struct vhost_dev *, struct vhost_virtqueue *,
++			       struct vring_used_elem *heads, unsigned count);
++void vhost_signal(struct vhost_dev *, struct vhost_virtqueue *);
+ void vhost_disable_notify(struct vhost_virtqueue *);
+ bool vhost_enable_notify(struct vhost_virtqueue *);
+ 
+@@ -149,7 +158,8 @@ enum {
+ 	VHOST_FEATURES = (1 << VIRTIO_F_NOTIFY_ON_EMPTY) |
+ 			 (1 << VIRTIO_RING_F_INDIRECT_DESC) |
+ 			 (1 << VHOST_F_LOG_ALL) |
+-			 (1 << VHOST_NET_F_VIRTIO_NET_HDR),
++			 (1 << VHOST_NET_F_VIRTIO_NET_HDR) |
++			 (1 << VIRTIO_NET_F_MRG_RXBUF),
+ };
+ 
+ static inline int vhost_has_feature(struct vhost_dev *dev, int bit)
 
-_______________________________________________
-Virtualization-Mngt mailing list
-Virtualization-Mngt@lists.novell.com
-https://lists.innerweb.novell.com/mailman/listinfo/virtualization-mngt
-Search Archives: https://lists.innerweb.novell.com/search
+
