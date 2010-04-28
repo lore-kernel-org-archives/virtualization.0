@@ -1,7 +1,7 @@
 From: "Ky Srinivasan" <ksrinivasan@novell.com>
-Subject: A Clock source for HyperV
-Date: Wed, 28 Apr 2010 14:45:15 -0600
-Message-ID: <4BD859E4.E57C.0030.1@novell.com>
+Subject: [virtualization-mngt] HyperV detection patch
+Date: Wed, 28 Apr 2010 14:56:54 -0600
+Message-ID: <4BD85C9F.E57C.0030.0@novell.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -20,28 +20,62 @@ To: devel@driverdev.osuosl.org, Virtualization@lists.osdl.org
 Cc: Haiyang Zhang <haiyangz@microsoft.com>, Greg KH <gregkh@suse.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This is a resend of a patch I posted couple of weeks ago. This patch implements a clocksource for HyperV. This patch depends on the HyperV detection patch I had posted earler.
+This is a resend of a patch I had posted a couple of weeks ago. As suggested by Jeremy, I am enclosing a patch that integrates HyperV detection with the current hypervisor detection mechanism in the kernel. A patch for implementing a HyperV clock source based on this patch will be sent out shortly.
 
 
 From: K. Y. Srinivasan <ksrinivasan@novell.com>
-Subject:  A clocksource for Linux guests hosted on HyperV.
+Subject:  HyperV Detection code.
 References: None
-Patch-mainline: 
+Patch-mainline:
 
-This patch is a clocksource implementation suitable for guests hosted on HyperV.
-Time keeping in Linux guests hosted on HyperV is unstable. This clocksource 
-driver fixes the problem. 
+This patch integrates HyperV detection within the framework currently used by
+VmWare. With this patch, we can avoid having to replicate the HyperV detection
+code in each of the HyperV specific Linux drivers - MSFT Linux Integration 
+Components. 
 
 Signed-off-by: K. Y. Srinivasan <ksrinivasan@novell.com>
 
-Index: linux-2.6.34-rc4/drivers/staging/hv/hv_timesource.c
+Index: linux-2.6.34-rc4/arch/x86/include/asm/processor.h
+===================================================================
+--- linux-2.6.34-rc4.orig/arch/x86/include/asm/processor.h	2010-04-12 19:41:35.000000000 -0600
++++ linux-2.6.34-rc4/arch/x86/include/asm/processor.h	2010-04-15 10:00:18.000000000 -0600
+@@ -114,6 +114,8 @@ struct cpuinfo_x86 {
+ 	u16			cpu_index;
+ #endif
+ 	unsigned int		x86_hyper_vendor;
++	/* The layout of this field is hypervisor specific */
++	unsigned int		x86_hyper_features;
+ } __attribute__((__aligned__(SMP_CACHE_BYTES)));
+ 
+ #define X86_VENDOR_INTEL	0
+@@ -129,6 +131,7 @@ struct cpuinfo_x86 {
+ 
+ #define X86_HYPER_VENDOR_NONE  0
+ #define X86_HYPER_VENDOR_VMWARE 1
++#define X86_HYPER_VENDOR_MSFT 2
+ 
+ /*
+  * capabilities of CPUs
+Index: linux-2.6.34-rc4/arch/x86/kernel/cpu/Makefile
+===================================================================
+--- linux-2.6.34-rc4.orig/arch/x86/kernel/cpu/Makefile	2010-04-12 19:41:35.000000000 -0600
++++ linux-2.6.34-rc4/arch/x86/kernel/cpu/Makefile	2010-04-15 10:00:18.000000000 -0600
+@@ -14,7 +14,7 @@ CFLAGS_common.o		:= $(nostackp)
+ 
+ obj-y			:= intel_cacheinfo.o addon_cpuid_features.o
+ obj-y			+= proc.o capflags.o powerflags.o common.o
+-obj-y			+= vmware.o hypervisor.o sched.o
++obj-y			+= vmware.o hypervisor.o sched.o hyperv.o
+ 
+ obj-$(CONFIG_X86_32)	+= bugs.o cmpxchg.o
+ obj-$(CONFIG_X86_64)	+= bugs_64.o
+Index: linux-2.6.34-rc4/arch/x86/kernel/cpu/hyperv.c
 ===================================================================
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-2.6.34-rc4/drivers/staging/hv/hv_timesource.c	2010-04-15 13:45:46.000000000 -0600
-@@ -0,0 +1,97 @@
++++ linux-2.6.34-rc4/arch/x86/kernel/cpu/hyperv.c	2010-04-15 10:00:18.000000000 -0600
+@@ -0,0 +1,66 @@
 +/*
-+ * A clocksource for Linux running on HyperV.
-+ *
++ * HyperV  Detection code.
 + *
 + * Copyright (C) 2010, Novell, Inc.
 + * Author : K. Y. Srinivasan <ksrinivasan@novell.com>
@@ -63,86 +97,128 @@ Index: linux-2.6.34-rc4/drivers/staging/hv/hv_timesource.c
 + *
 + */
 +
-+#include <linux/version.h>
-+#include <linux/clocksource.h>
-+#include <linux/init.h>
-+#include <linux/module.h>
-+#include <linux/pci.h>
-+#include <linux/dmi.h>
++#include <linux/types.h>
++#include <asm/processor.h>
 +#include <asm/hyperv.h>
 +
-+#define HV_CLOCK_SHIFT	22
 +
-+static cycle_t read_hv_clock(struct clocksource *arg)
++int hyperv_platform(void)
 +{
-+	cycle_t current_tick;
-+	/*
-+	 * Read the partition counter to get the current tick count. This count
-+	 * is set to 0 when the partition is created and is incremented in
-+	 * 100 nanosecond units.
-+	 */
-+	rdmsrl(HV_X64_MSR_TIME_REF_COUNT, current_tick);
-+	return current_tick;
++	u32 eax, ebx, ecx, edx;
++	char hyp_signature[13];
++
++	cpuid(1, &eax, &ebx, &ecx, &edx);
++	if (!(ecx & HYPERV_HYPERVISOR_PRESENT_BIT))
++		return 0;
++
++	cpuid(HYPERV_CPUID_VENDOR_AND_MAX_FUNCTIONS, &eax, &ebx, &ecx, &edx);
++	*(u32 *)(hyp_signature + 0) = ebx;
++	*(u32 *)(hyp_signature + 4) = ecx;
++	*(u32 *)(hyp_signature + 8) = edx;
++
++	if ((eax < HYPERV_CPUID_MIN) || (memcmp("Microsoft Hv", hyp_signature, 12)))
++		return 0;
++	return 1;
 +}
 +
-+static struct clocksource hyperv_cs = {
-+	.name           = "hyperv_clocksource",
-+	.rating         = 400, /* use this when running on Hyperv*/
-+	.read           = read_hv_clock,
-+	.mask           = CLOCKSOURCE_MASK(64),
-+	/*
-+	 * The time ref counter in HyperV is in 100ns units.
-+	 * The definition of mult is:
-+	 * mult/2^shift = ns/cyc = 100
-+	 * mult = (100 << shift)
-+	 */
-+	.mult           = (100 << HV_CLOCK_SHIFT),
-+	.shift          = HV_CLOCK_SHIFT,
-+};
-+
-+static const struct dmi_system_id __initconst
-+hv_timesource_dmi_table[] __maybe_unused  = {
-+	{
-+		.ident = "Hyper-V",
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "Microsoft Corporation"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "Virtual Machine"),
-+			DMI_MATCH(DMI_BOARD_NAME, "Virtual Machine"),
-+		},
-+	},
-+	{ },
-+};
-+MODULE_DEVICE_TABLE(dmi, hv_timesource_dmi_table);
-+
-+static const struct pci_device_id __initconst
-+hv_timesource_pci_table[] __maybe_unused = {
-+	{ PCI_DEVICE(0x1414, 0x5353) }, /* VGA compatible controller */
-+	{ 0 }
-+};
-+MODULE_DEVICE_TABLE(pci, hv_timesource_pci_table);
-+
-+
-+static int __init init_hv_clocksource(void)
++void __cpuinit hyperv_set_feature_bits(struct cpuinfo_x86 *c)
 +{
-+	if ((boot_cpu_data.x86_hyper_vendor != X86_HYPER_VENDOR_MSFT) ||
-+		!(boot_cpu_data.x86_hyper_features &
-+		HV_X64_MSR_TIME_REF_COUNT_AVAILABLE))
-+		return -ENODEV;
-+	printk(KERN_INFO "Registering HyperV clock source\n");
-+	return clocksource_register(&hyperv_cs);
-+}
++	u32 eax, ebx, ecx, edx;
 +
-+module_init(init_hv_clocksource);
-+MODULE_DESCRIPTION("HyperV based clocksource");
-+MODULE_AUTHOR("K. Y. Srinivasan <ksrinivasan@novell.com>");
-+MODULE_LICENSE("GPL");
-Index: linux-2.6.34-rc4/drivers/staging/hv/Makefile
++	c->x86_hyper_features = 0;
++	/*
++	 * Extract the features, recommendations etc.
++	 * The first 9 bits will be used to track hypervisor features.
++	 * The next 6 bits will be used to track the hypervisor
++	 * recommendations.
++	 */
++	cpuid(HYPERV_CPUID_FEATURES, &eax, &ebx, &ecx, &edx);
++	c->x86_hyper_features |= (eax & 0x1ff);
++
++	cpuid(HYPERV_CPUID_ENLIGHTMENT_INFO, &eax, &ebx, &ecx, &edx);
++	c->x86_hyper_features |= ((eax & 0x3f) << 9);
++	printk(KERN_INFO "Detected HyperV with features: %x\n",
++		c->x86_hyper_features);
++}
+Index: linux-2.6.34-rc4/arch/x86/kernel/cpu/hypervisor.c
 ===================================================================
---- linux-2.6.34-rc4.orig/drivers/staging/hv/Makefile	2010-04-12 19:41:35.000000000 -0600
-+++ linux-2.6.34-rc4/drivers/staging/hv/Makefile	2010-04-15 13:09:07.000000000 -0600
-@@ -1,4 +1,4 @@
--obj-$(CONFIG_HYPERV)		+= hv_vmbus.o
-+obj-$(CONFIG_HYPERV)		+= hv_vmbus.o hv_timesource.o
- obj-$(CONFIG_HYPERV_STORAGE)	+= hv_storvsc.o
- obj-$(CONFIG_HYPERV_BLOCK)	+= hv_blkvsc.o
- obj-$(CONFIG_HYPERV_NET)	+= hv_netvsc.o
+--- linux-2.6.34-rc4.orig/arch/x86/kernel/cpu/hypervisor.c	2010-04-12 19:41:35.000000000 -0600
++++ linux-2.6.34-rc4/arch/x86/kernel/cpu/hypervisor.c	2010-04-15 10:00:18.000000000 -0600
+@@ -23,6 +23,7 @@
+ 
+ #include <asm/processor.h>
+ #include <asm/vmware.h>
++#include <asm/hyperv.h>
+ #include <asm/hypervisor.h>
+ 
+ static inline void __cpuinit
+@@ -30,6 +31,8 @@ detect_hypervisor_vendor(struct cpuinfo_
+ {
+ 	if (vmware_platform())
+ 		c->x86_hyper_vendor = X86_HYPER_VENDOR_VMWARE;
++	else if (hyperv_platform())
++		c->x86_hyper_vendor = X86_HYPER_VENDOR_MSFT;
+ 	else
+ 		c->x86_hyper_vendor = X86_HYPER_VENDOR_NONE;
+ }
+@@ -37,10 +40,11 @@ detect_hypervisor_vendor(struct cpuinfo_
+ static inline void __cpuinit
+ hypervisor_set_feature_bits(struct cpuinfo_x86 *c)
+ {
+-	if (boot_cpu_data.x86_hyper_vendor == X86_HYPER_VENDOR_VMWARE) {
++	if (boot_cpu_data.x86_hyper_vendor == X86_HYPER_VENDOR_VMWARE)
+ 		vmware_set_feature_bits(c);
+-		return;
+-	}
++	else if (boot_cpu_data.x86_hyper_vendor == X86_HYPER_VENDOR_MSFT)
++		hyperv_set_feature_bits(c);
++	return;
+ }
+ 
+ void __cpuinit init_hypervisor(struct cpuinfo_x86 *c)
+Index: linux-2.6.34-rc4/arch/x86/include/asm/hyperv.h
+===================================================================
+--- linux-2.6.34-rc4.orig/arch/x86/include/asm/hyperv.h	2010-04-12 19:41:35.000000000 -0600
++++ linux-2.6.34-rc4/arch/x86/include/asm/hyperv.h	2010-04-15 13:06:58.000000000 -0600
+@@ -2,6 +2,8 @@
+ #define _ASM_X86_KVM_HYPERV_H
+ 
+ #include <linux/types.h>
++#include <linux/init.h>
++#include <asm/processor.h>
+ 
+ /*
+  * The below CPUID leaves are present if VersionAndFeatures.HypervisorPresent
+@@ -14,6 +16,9 @@
+ #define HYPERV_CPUID_ENLIGHTMENT_INFO		0x40000004
+ #define HYPERV_CPUID_IMPLEMENT_LIMITS		0x40000005
+ 
++#define HYPERV_HYPERVISOR_PRESENT_BIT		0x80000000
++#define HYPERV_CPUID_MIN			0x40000005
++
+ /*
+  * Feature identification. EAX indicates which features are available
+  * to the partition based upon the current partition privileges.
+@@ -129,6 +134,9 @@
+ /* MSR used to provide vcpu index */
+ #define HV_X64_MSR_VP_INDEX			0x40000002
+ 
++/* MSR used to read the per-partition time reference counter */
++#define HV_X64_MSR_TIME_REF_COUNT       0x40000020
++
+ /* Define the virtual APIC registers */
+ #define HV_X64_MSR_EOI				0x40000070
+ #define HV_X64_MSR_ICR				0x40000071
+@@ -183,4 +191,6 @@
+ #define HV_STATUS_INVALID_HYPERCALL_INPUT	3
+ #define HV_STATUS_INVALID_ALIGNMENT		4
+ 
++int hyperv_platform(void);
++void __cpuinit hyperv_set_feature_bits(struct cpuinfo_x86 *c);
+ #endif
+
+_______________________________________________
+Virtualization-Mngt mailing list
+Virtualization-Mngt@lists.novell.com
+https://lists.innerweb.novell.com/mailman/listinfo/virtualization-mngt
+Search Archives: https://lists.innerweb.novell.com/search
