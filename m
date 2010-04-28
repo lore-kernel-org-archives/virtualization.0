@@ -1,18 +1,15 @@
-From: Greg KH <greg@kroah.com>
-Subject: Re: A clocksource driver for HyperV
-Date: Tue, 27 Apr 2010 14:49:36 -0700
-Message-ID: <20100427214936.GA16895@kroah.com>
-References: <4BBC67980200003000082A15@sinclair.provo.novell.com>
-	<4BBC789A0200003000082A41@sinclair.provo.novell.com>
-	<4BBC789A0200003000082A41@sinclair.provo.novell.com>
-	<4BBCDF93.9010305@goop.org>
-	<4BC71D050200003000083226@sinclair.provo.novell.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH] virtio-spec: document block CMD and FLUSH
+Date: Wed, 28 Apr 2010 18:52:23 +0300
+Message-ID: <20100428155223.GA7467__13112.6520260752$1272470213$gmane$org@redhat.com>
+References: <20100218222220.GA14847@redhat.com>
+	<20100419212627.GB19464@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <4BC71D050200003000083226@sinclair.provo.novell.com>
+In-Reply-To: <20100419212627.GB19464@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -22,22 +19,15 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Ky Srinivasan <ksrinivasan@novell.com>
-Cc: devel@driverdev.osuosl.org, Virtualization@lists.osdl.org, haiyangz@microsoft.com, gregkh@suse.de
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: kvm@vger.kernel.org, hch@lst.de, qemu-devel@nongnu.org, Anthony Liguori <anthony@codemonkey.ws>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Apr 15, 2010 at 02:04:53PM -0600, Ky Srinivasan wrote:
-> Jeremy,
+On Tue, Apr 20, 2010 at 12:26:27AM +0300, Michael S. Tsirkin wrote:
+> On Fri, Feb 19, 2010 at 12:22:20AM +0200, Michael S. Tsirkin wrote:
+> > I took a stub at documenting CMD and FLUSH request types in virtio
+> > block.
 > 
-> As suggested by you, I am enclosing a patch that integrates HyperV detection with the  current hypervisor detection mechanism in the kernel. Also attached is a HyperV clocksource patch that uses this new functionality.
-> 
-> Signed-off-by: K. Y. Srinivasan <ksrinivasan@novell.com>
+> Any comments?
 
-What's the status of this patch?  I think it's needed for the
-clocksource HV patch, right?  Who's tree is it going to go through?
-
-I'll be glad to take it in the staging tree if I can get some ACKs.
-
-thanks,
-
-greg k-h
+Rusty?
