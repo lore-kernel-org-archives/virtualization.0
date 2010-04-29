@@ -1,634 +1,342 @@
-From: Hank Janssen <hjanssen@microsoft.com>
-Subject: [PATCH 1/1] hv: Added new hv_utils driver to hyper-v - CORRECTED
-Date: Thu, 29 Apr 2010 00:27:25 +0000
-Message-ID: <8AFC7968D54FB448A30D8F38F259C5621AFEC8AD@TK5EX14MBXC114.redmond.corp.microsoft.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCHv7] add mergeable buffers support to vhost_net
+Date: Thu, 29 Apr 2010 16:45:15 +0300
+Message-ID: <20100429134515.GA26287@redhat.com>
+References: <1272488232.11307.4.camel@w-dls.beaverton.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@driverdev.osuosl.org" <devel@driverdev.osuosl.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>
-Cc: Greg KH <gregkh@suse.de>, Haiyang Zhang <haiyangz@microsoft.com>
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <1272488232.11307.4.camel@w-dls.beaverton.ibm.com>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: David L Stevens <dlstevens@us.ibm.com>
+Cc: netdev@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
+On Wed, Apr 28, 2010 at 01:57:12PM -0700, David L Stevens wrote:
+> This patch adds mergeable receive buffer support to vhost_net.
+> 
+> Signed-off-by: David L Stevens <dlstevens@us.ibm.com>
 
-From: Hank Janssen <hjanssen@microsoft.com>
+I have applied this, thanks very much!
+I have also applied some tweaks on top,
+please take a look.
 
-Addition of new driver for Hyper-V called hv_utils.
-This driver is intended to support things like KVP, Timesync, Heartbeat etc.
+Thanks,
+MSt
 
-This first release has support for graceful shutdown.
-e.g. Select shutdown from the Hyper-V main admin screen and the
-Linux VM will do a graceful shutdown.
+commit 2809e94f5f26d89dc5232aaec753ffda95c4d95e
+Author: Michael S. Tsirkin <mst@redhat.com>
+Date:   Thu Apr 29 16:18:08 2010 +0300
 
-Cc: Greg Kroah-Hartman <gregkh@suse.de>
-Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
-Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
+    vhost-net: minor tweaks in mergeable buffer code
+    
+    Applies the following tweaks on top of mergeable buffers patch:
+    1. vhost_get_desc_n assumes that all desriptors are 'in' only.
+       It's also unlikely to be useful for any vhost frontend
+       besides vhost_net, so just move it to net.c, and rename
+       get_rx_bufs for brevity.
+    
+    2. for rx, we called iov_length within vhost_get_desc_n
+       (now get_rx_bufs) already, so we don't
+       need an extra call to iov_length to avoid overflow anymore.
+       Accordingly, copy_iovec_hdr can return void now.
+    
+    3. for rx, do some further code tweaks:
+       do not assign len = err as we check that err == len
+       handle data length in a way similar to how we handle
+       header length: datalen -> sock_len, len -> vhost_len.
+       add sock_hlen as a local variable, for symmetry with vhost_hlen.
 
----
- drivers/staging/hv/Channel.c           |   34 ++++++-
- drivers/staging/hv/ChannelMgmt.c       |  148 +++++++++++++++++++++++++++++++-
- drivers/staging/hv/Kconfig             |    6 ++
- drivers/staging/hv/Makefile            |    2 +
- drivers/staging/hv/VmbusPacketFormat.h |    1 +
- drivers/staging/hv/ext_utils.c         |   27 ++++++
- drivers/staging/hv/hyperv_utils.c      |  134 +++++++++++++++++++++++++++++
- drivers/staging/hv/utils.h             |   94 ++++++++++++++++++++
- 8 files changed, 438 insertions(+), 8 deletions(-)
- create mode 100644 drivers/staging/hv/ext_utils.c
- create mode 100644 drivers/staging/hv/hyperv_utils.c
- create mode 100644 drivers/staging/hv/utils.h
+    4. add some likely/unlikely annotations
+    
+    Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 
-diff --git a/drivers/staging/hv/Channel.c b/drivers/staging/hv/Channel.c
-index 328d3a0..de2ccb1 100644
---- a/drivers/staging/hv/Channel.c
-+++ b/drivers/staging/hv/Channel.c
-@@ -21,6 +21,7 @@
- #include <linux/kernel.h>
- #include <linux/mm.h>
- #include <linux/slab.h>
-+#include <linux/module.h>
- #include "osd.h"
- #include "logging.h"
- #include "VmbusPrivate.h"
-@@ -666,8 +667,19 @@ void VmbusChannelClose(struct vmbus_channel *Channel)
-        DPRINT_EXIT(VMBUS);
+diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+index d61d945..85519b4 100644
+--- a/drivers/vhost/net.c
++++ b/drivers/vhost/net.c
+@@ -74,9 +74,9 @@ static int move_iovec_hdr(struct iovec *from, struct iovec *to,
+ 	}
+ 	return seg;
  }
-
--/*
-- * VmbusChannelSendPacket - Send the specified buffer on the given channel
-+/**
-+ * VmbusChannelSendPacket() - Send the specified buffer on the given channel
-+ * @Channel: Pointer to vmbus_channel structure.
-+ * @Buffer: Pointer to the buffer you want to receive the data into.
-+ * @BufferLen: Maximum size of what the the buffer will hold
-+ * @RequestId: Identifier of the request
-+ * @vmbus_packet_type: Type of packet that is being send e.g. negotiate, time
-+ * packet etc.
-+ *
-+ * Sends data in @Buffer directly to hyper-v via the vmbus
-+ * This will send the data unparsed to hyper-v.
-+ *
-+ * Mainly used by Hyper-V drivers.
-  */
- int VmbusChannelSendPacket(struct vmbus_channel *Channel, const void *Buffer,
-                           u32 BufferLen, u64 RequestId,
-@@ -711,6 +723,7 @@ int VmbusChannelSendPacket(struct vmbus_channel *Channel, const void *Buffer,
-
-        return ret;
- }
-+EXPORT_SYMBOL(VmbusChannelSendPacket);
-
- /*
-  * VmbusChannelSendPacketPageBuffer - Send a range of single-page buffer
-@@ -848,10 +861,20 @@ int VmbusChannelSendPacketMultiPageBuffer(struct vmbus_channel *Channel,
-        return ret;
- }
-
--/*
-- * VmbusChannelRecvPacket - Retrieve the user packet on the specified channel
-+
-+/**
-+ * VmbusChannelRecvPacket() - Retrieve the user packet on the specified channel
-+ * @Channel: Pointer to vmbus_channel structure.
-+ * @Buffer: Pointer to the buffer you want to receive the data into.
-+ * @BufferLen: Maximum size of what the the buffer will hold
-+ * @BufferActualLen: The actual size of the data after it was received
-+ * @RequestId: Identifier of the request
-+ *
-+ * Receives directly from the hyper-v vmbus and puts the data it received
-+ * into Buffer. This will receive the data unparsed from hyper-v.
-+ *
-+ * Mainly used by Hyper-V drivers.
-  */
--/* TODO: Do we ever receive a gpa direct packet other than the ones we send ? */
- int VmbusChannelRecvPacket(struct vmbus_channel *Channel, void *Buffer,
-                           u32 BufferLen, u32 *BufferActualLen, u64 *RequestId)
+-/* Copy iovec entries for len bytes from iovec. Return segments used. */
+-static int copy_iovec_hdr(const struct iovec *from, struct iovec *to,
+-			  size_t len, int iovcount)
++/* Copy iovec entries for len bytes from iovec. */
++static void copy_iovec_hdr(const struct iovec *from, struct iovec *to,
++			   size_t len, int iovcount)
  {
-@@ -913,6 +936,7 @@ int VmbusChannelRecvPacket(struct vmbus_channel *Channel, void *Buffer,
-
-        return 0;
+ 	int seg = 0;
+ 	size_t size;
+@@ -89,7 +89,6 @@ static int copy_iovec_hdr(const struct iovec *from, struct iovec *to,
+ 		++to;
+ 		++seg;
+ 	}
+-	return seg;
  }
-+EXPORT_SYMBOL(VmbusChannelRecvPacket);
-
- /*
-  * VmbusChannelRecvPacketRaw - Retrieve the raw packet on the specified channel
-diff --git a/drivers/staging/hv/ChannelMgmt.c b/drivers/staging/hv/ChannelMgmt.c
-index 43f28f2..9c3069f 100644
---- a/drivers/staging/hv/ChannelMgmt.c
-+++ b/drivers/staging/hv/ChannelMgmt.c
-@@ -22,18 +22,22 @@
- #include <linux/mm.h>
- #include <linux/slab.h>
- #include <linux/list.h>
-+#include <linux/module.h>
- #include "osd.h"
- #include "logging.h"
- #include "VmbusPrivate.h"
-+#include "utils.h"
-
- struct vmbus_channel_message_table_entry {
-        enum vmbus_channel_message_type messageType;
-        void (*messageHandler)(struct vmbus_channel_message_header *msg);
- };
-
--#define MAX_NUM_DEVICE_CLASSES_SUPPORTED 4
-+#define MAX_MSG_TYPES                    1
-+#define MAX_NUM_DEVICE_CLASSES_SUPPORTED 5
-+
- static const struct hv_guid
--               gSupportedDeviceClasses[MAX_NUM_DEVICE_CLASSES_SUPPORTED] = {
-+       gSupportedDeviceClasses[MAX_NUM_DEVICE_CLASSES_SUPPORTED] = {
-        /* {ba6163d9-04a1-4d29-b605-72e2ffb1dc7f} */
-        /* Storage - SCSI */
-        {
-@@ -69,8 +73,127 @@ static const struct hv_guid
-                        0x9b, 0x5c, 0x50, 0xd1, 0x41, 0x73, 0x54, 0xf5
-                }
-        },
-+       /* 0E0B6031-5213-4934-818B-38D90CED39DB */
-+       /* Shutdown */
-+       {
-+               .data = {
-+                       0x31, 0x60, 0x0B, 0X0E, 0x13, 0x52, 0x34, 0x49,
-+                       0x81, 0x8B, 0x38, 0XD9, 0x0C, 0xED, 0x39, 0xDB
-+               }
-+       },
- };
-
-+
-+/**
-+ * prep_negotiate_resp() - Create default response for Hyper-V Negotiate message
-+ * @icmsghdrp: Pointer to msg header structure
-+ * @icmsg_negotiate: Pointer to negotiate message structure
-+ * @buf: Raw buffer channel data
-+ *
-+ * @icmsghdrp is of type &struct icmsg_hdr.
-+ * @negop is of type &struct icmsg_negotiate.
-+ * Set up and fill in default negotiate response message. This response can
-+ * come from both the vmbus driver and the hv_utils driver. The current api
-+ * will respond properly to both Windows 2008 and Windows 2008-R2 operating
-+ * systems.
-+ *
-+ * Mainly used by Hyper-V drivers.
-+ */
-+void prep_negotiate_resp(struct icmsg_hdr *icmsghdrp,
-+                            struct icmsg_negotiate *negop,
-+                            u8 *buf)
-+{
-+       if (icmsghdrp->icmsgtype == ICMSGTYPE_NEGOTIATE) {
-+               icmsghdrp->icmsgsize = 0x10;
-+
-+               negop = (struct icmsg_negotiate *)&buf[
-+                       sizeof(struct vmbuspipe_hdr) +
-+                       sizeof(struct icmsg_hdr)];
-+
-+               if (negop->icframe_vercnt == 2 &&
-+                  negop->icversion_data[1].major == 3) {
-+                       negop->icversion_data[0].major = 3;
-+                       negop->icversion_data[0].minor = 0;
-+                       negop->icversion_data[1].major = 3;
-+                       negop->icversion_data[1].minor = 0;
-+               } else {
-+                       negop->icversion_data[0].major = 1;
-+                       negop->icversion_data[0].minor = 0;
-+                       negop->icversion_data[1].major = 1;
-+                       negop->icversion_data[1].minor = 0;
-+               }
-+
-+               negop->icframe_vercnt = 1;
-+               negop->icmsg_vercnt = 1;
-+       }
-+}
-+EXPORT_SYMBOL(prep_negotiate_resp);
-+
-+/**
-+ * chn_cb_negotiate() - Default handler for non IDE/SCSI/NETWORK
-+ * Hyper-V requests
-+ * @context: Pointer to argument structure.
-+ *
-+ * Set up the default handler for non device driver specific requests
-+ * from Hyper-V. This stub responds to the default negotiate messages
-+ * that come in for every non IDE/SCSI/Network request.
-+ * This behavior is normally overwritten in the hv_utils driver. That
-+ * driver handles requests like gracefull shutdown, heartbeats etc.
-+ *
-+ * Mainly used by Hyper-V drivers.
-+ */
-+void chn_cb_negotiate(void *context)
-+{
-+       struct vmbus_channel *channel = context;
-+       u8 *buf;
-+       u32 buflen, recvlen;
-+       u64 requestid;
-+
-+       struct icmsg_hdr *icmsghdrp;
-+       struct icmsg_negotiate *negop = NULL;
-+
-+       buflen = PAGE_SIZE;
-+       buf = kmalloc(buflen, GFP_ATOMIC);
-+
-+       VmbusChannelRecvPacket(channel, buf, buflen, &recvlen, &requestid);
-+
-+       if (recvlen > 0) {
-+               icmsghdrp = (struct icmsg_hdr *)&buf[
-+                       sizeof(struct vmbuspipe_hdr)];
-+
-+               prep_negotiate_resp(icmsghdrp, negop, buf);
-+
-+               icmsghdrp->icflags = ICMSGHDRFLAG_TRANSACTION
-+                       | ICMSGHDRFLAG_RESPONSE;
-+
-+               VmbusChannelSendPacket(channel, buf,
-+                                      recvlen, requestid,
-+                                      VmbusPacketTypeDataInBand, 0);
-+       }
-+
-+       kfree(buf);
-+}
-+EXPORT_SYMBOL(chn_cb_negotiate);
-+
-+/*
-+ * Function table used for message responses for non IDE/SCSI/Network type
-+ * messages. (Such as KVP/Shutdown etc)
-+ */
-+struct hyperv_service_callback hv_cb_utils[MAX_MSG_TYPES] = {
-+       /* 0E0B6031-5213-4934-818B-38D90CED39DB */
-+       /* Shutdown */
-+       {
-+               .msg_type = HV_SHUTDOWN_MSG,
-+               .data = {
-+                       0x31, 0x60, 0x0B, 0X0E, 0x13, 0x52, 0x34, 0x49,
-+                       0x81, 0x8B, 0x38, 0XD9, 0x0C, 0xED, 0x39, 0xDB
-+               },
-+               .callback = chn_cb_negotiate,
-+               .log_msg = "Shutdown channel functionality initialized"
-+       },
-+};
-+EXPORT_SYMBOL(hv_cb_utils);
-+
- /*
-  * AllocVmbusChannel - Allocate and initialize a vmbus channel object
-  */
-@@ -132,7 +255,8 @@ void FreeVmbusChannel(struct vmbus_channel *Channel)
+ 
+ /* Caller must have TX VQ lock */
+@@ -204,7 +203,7 @@ static void handle_tx(struct vhost_net *net)
+ 	unuse_mm(net->dev.mm);
  }
-
- /*
-- * VmbusChannelProcessOffer - Process the offer by creating a channel/device associated with this offer
-+ * VmbusChannelProcessOffer - Process the offer by creating a channel/device
-+ * associated with this offer
-  */
- static void VmbusChannelProcessOffer(void *context)
+ 
+-static int vhost_head_len(struct vhost_virtqueue *vq, struct sock *sk)
++static int peek_head_len(struct vhost_virtqueue *vq, struct sock *sk)
  {
-@@ -140,6 +264,7 @@ static void VmbusChannelProcessOffer(void *context)
-        struct vmbus_channel *channel;
-        bool fNew = true;
-        int ret;
-+       int cnt;
-        unsigned long flags;
-
-        DPRINT_ENTER(VMBUS);
-@@ -209,6 +334,23 @@ static void VmbusChannelProcessOffer(void *context)
-                 * can cleanup properly
-                 */
-                newChannel->State = CHANNEL_OPEN_STATE;
-+               cnt = 0;
-+
-+               while (cnt != MAX_MSG_TYPES) {
-+                       if (memcmp(&newChannel->OfferMsg.Offer.InterfaceType,
-+                                  &hv_cb_utils[cnt].data,
-+                                  sizeof(struct hv_guid)) == 0) {
-+                               DPRINT_INFO(VMBUS, "%s",
-+                                           hv_cb_utils[cnt].log_msg);
-+
-+                               if (VmbusChannelOpen(newChannel, 2 * PAGE_SIZE,
-+                                                   2 * PAGE_SIZE, NULL, 0,
-+                                                   hv_cb_utils[cnt].callback,
-+                                                   newChannel) == 0)
-+                                       hv_cb_utils[cnt].channel = newChannel;
-+                       }
-+                       cnt++;
-+               }
-        }
-        DPRINT_EXIT(VMBUS);
+ 	struct sk_buff *head;
+ 	int len = 0;
+@@ -212,17 +211,70 @@ static int vhost_head_len(struct vhost_virtqueue *vq, struct sock *sk)
+ 	lock_sock(sk);
+ 	head = skb_peek(&sk->sk_receive_queue);
+ 	if (head)
+-		len = head->len + vq->sock_hlen;
++		len = head->len;
+ 	release_sock(sk);
+ 	return len;
  }
-diff --git a/drivers/staging/hv/Kconfig b/drivers/staging/hv/Kconfig
-index 4044702..79afb1e 100644
---- a/drivers/staging/hv/Kconfig
-+++ b/drivers/staging/hv/Kconfig
-@@ -29,4 +29,10 @@ config HYPERV_NET
-        help
-          Select this option to enable the Hyper-V virtual network driver.
-
-+config HYPERV_UTILS
-+       tristate "Microsoft Hyper-V Utilities driver"
-+       default HYPERV
-+       help
-+         Select this option to enable the Hyper-V Utilities.
-+
- endif
-diff --git a/drivers/staging/hv/Makefile b/drivers/staging/hv/Makefile
-index 27ebae8..d2977ab 100644
---- a/drivers/staging/hv/Makefile
-+++ b/drivers/staging/hv/Makefile
-@@ -2,6 +2,7 @@ obj-$(CONFIG_HYPERV)            += hv_vmbus.o
- obj-$(CONFIG_HYPERV_STORAGE)   += hv_storvsc.o
- obj-$(CONFIG_HYPERV_BLOCK)     += hv_blkvsc.o
- obj-$(CONFIG_HYPERV_NET)       += hv_netvsc.o
-+obj-$(CONFIG_HYPERV_UTILS)     += hv_utils.o
-
- hv_vmbus-objs := vmbus_drv.o osd.o \
-                 Vmbus.o Hv.o Connection.o Channel.o \
-@@ -9,3 +10,4 @@ hv_vmbus-objs := vmbus_drv.o osd.o \
- hv_storvsc-objs := storvsc_drv.o StorVsc.o
- hv_blkvsc-objs := blkvsc_drv.o BlkVsc.o
- hv_netvsc-objs := netvsc_drv.o NetVsc.o RndisFilter.o
-+hv_utils-objs := hyperv_utils.o ext_utils.o
-diff --git a/drivers/staging/hv/VmbusPacketFormat.h b/drivers/staging/hv/VmbusPacketFormat.h
-index 79120bc..f9f6b4b 100644
---- a/drivers/staging/hv/VmbusPacketFormat.h
-+++ b/drivers/staging/hv/VmbusPacketFormat.h
-@@ -22,6 +22,7 @@
-  */
-
- #ifndef _VMBUSPACKETFORMAT_H_
-+#define _VMBUSPACKETFORMAT_H_
-
- struct vmpacket_descriptor {
-        u16 Type;
-diff --git a/drivers/staging/hv/ext_utils.c b/drivers/staging/hv/ext_utils.c
-new file mode 100644
-index 0000000..a44cd1b
---- /dev/null
-+++ b/drivers/staging/hv/ext_utils.c
-@@ -0,0 +1,27 @@
-+/*
-+ * Copyright (c) 2010, Microsoft Corporation.
-+ *
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms and conditions of the GNU General Public License,
-+ * version 2, as published by the Free Software Foundation.
-+ *
-+ * This program is distributed in the hope it will be useful, but WITHOUT
-+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
-+ * more details.
-+ *
-+ * You should have received a copy of the GNU General Public License along with
-+ * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
-+ * Place - Suite 330, Boston, MA 02111-1307 USA.
-+ *
-+ * Authors:
-+ *   Haiyang Zhang <haiyangz@microsoft.com>
-+ *   Hank Janssen  <hjanssen@microsoft.com>
+ 
++/* This is a multi-buffer version of vhost_get_desc, that works if
++ *	vq has read descriptors only.
++ * @vq		- the relevant virtqueue
++ * @datalen	- data length we'll be reading
++ * @iovcount	- returned count of io vectors we fill
++ * @log		- vhost log
++ * @log_num	- log offset
++ *	returns number of buffer heads allocated, negative on error
 + */
-+#include <linux/reboot.h>
-+#include "utils.h"
-+
-+void shutdown_linux_system()
++static int get_rx_bufs(struct vhost_virtqueue *vq,
++		       struct vring_used_elem *heads,
++		       int datalen,
++		       unsigned *iovcount,
++		       struct vhost_log *log,
++		       unsigned *log_num)
 +{
-+       orderly_poweroff(false);
-+}
-diff --git a/drivers/staging/hv/hyperv_utils.c b/drivers/staging/hv/hyperv_utils.c
-new file mode 100644
-index 0000000..2a48647
---- /dev/null
-+++ b/drivers/staging/hv/hyperv_utils.c
-@@ -0,0 +1,134 @@
-+/*
-+ * Copyright (c) 2010, Microsoft Corporation.
-+ *
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms and conditions of the GNU General Public License,
-+ * version 2, as published by the Free Software Foundation.
-+ *
-+ * This program is distributed in the hope it will be useful, but WITHOUT
-+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
-+ * more details.
-+ *
-+ * You should have received a copy of the GNU General Public License along with
-+ * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
-+ * Place - Suite 330, Boston, MA 02111-1307 USA.
-+ *
-+ * Authors:
-+ *   Haiyang Zhang <haiyangz@microsoft.com>
-+ *   Hank Janssen  <hjanssen@microsoft.com>
-+ */
-+#include <linux/kernel.h>
-+#include <linux/init.h>
-+#include <linux/module.h>
-+#include <linux/slab.h>
-+#include <linux/sysctl.h>
-+#include <linux/version.h>
++	unsigned int out, in;
++	int seg = 0;
++	int headcount = 0;
++	unsigned d;
++	int r;
 +
-+#include "logging.h"
-+#include "osd.h"
-+#include "vmbus.h"
-+#include "VmbusPacketFormat.h"
-+#include "VmbusChannelInterface.h"
-+#include "VersionInfo.h"
-+#include "Channel.h"
-+#include "VmbusPrivate.h"
-+#include "VmbusApi.h"
-+#include "utils.h"
-+
-+
-+void shutdown_onchannelcallback(void *context)
-+{
-+       struct vmbus_channel *channel = context;
-+       u8 *buf;
-+       u32 buflen, recvlen;
-+       u64 requestid;
-+       u8  execute_shutdown = false;
-+
-+       struct shutdown_msg_data *shutdown_msg;
-+
-+       struct icmsg_hdr *icmsghdrp;
-+       struct icmsg_negotiate *negop = NULL;
-+
-+       DPRINT_ENTER(VMBUS);
-+
-+       buflen = PAGE_SIZE;
-+       buf = kmalloc(buflen, GFP_ATOMIC);
-+
-+       VmbusChannelRecvPacket(channel, buf, buflen, &recvlen, &requestid);
-+
-+       if (recvlen > 0) {
-+               DPRINT_DBG(VMBUS, "shutdown packet: len=%d, requestid=%lld",
-+                          recvlen, requestid);
-+
-+               icmsghdrp = (struct icmsg_hdr *)&buf[
-+                       sizeof(struct vmbuspipe_hdr)];
-+
-+               if (icmsghdrp->icmsgtype == ICMSGTYPE_NEGOTIATE) {
-+                       prep_negotiate_resp(icmsghdrp, negop, buf);
-+               } else {
-+                       shutdown_msg = (struct shutdown_msg_data *)&buf[
-+                               sizeof(struct vmbuspipe_hdr) +
-+                               sizeof(struct icmsg_hdr)];
-+
-+                       switch (shutdown_msg->flags) {
-+                       case 0:
-+                       case 1:
-+                               icmsghdrp->status = HV_S_OK;
-+                               execute_shutdown = true;
-+
-+                               DPRINT_INFO(VMBUS, "Shutdown request received -"
-+                                           " gracefull shutdown initiated");
-+                               break;
-+                       default:
-+                               icmsghdrp->status = HV_E_FAIL;
-+                               execute_shutdown = false;
-+
-+                               DPRINT_INFO(VMBUS, "Shutdown request received -"
-+                                           " Invalid request");
-+                               break;
-+                       };
-+               }
-+
-+               icmsghdrp->icflags = ICMSGHDRFLAG_TRANSACTION
-+                       | ICMSGHDRFLAG_RESPONSE;
-+
-+               VmbusChannelSendPacket(channel, buf,
-+                                      recvlen, requestid,
-+                                      VmbusPacketTypeDataInBand, 0);
-+       }
-+
-+       kfree(buf);
-+
-+       DPRINT_EXIT(VMBUS);
-+
-+       if (execute_shutdown == true)
-+               shutdown_linux_system();
++	while (datalen > 0) {
++		if (unlikely(headcount >= VHOST_NET_MAX_SG)) {
++			r = -ENOBUFS;
++			goto err;
++		}
++		d = vhost_get_desc(vq->dev, vq, vq->iov + seg,
++				   ARRAY_SIZE(vq->iov) - seg, &out,
++				   &in, log, log_num);
++		if (d == vq->num) {
++			r = 0;
++			goto err;
++		}
++		if (unlikely(out || in <= 0)) {
++			vq_err(vq, "unexpected descriptor format for RX: "
++				"out %d, in %d\n", out, in);
++			r = -EINVAL;
++			goto err;
++		}
++		heads[headcount].id = d;
++		heads[headcount].len = iov_length(vq->iov + seg, in);
++		datalen -= heads[headcount].len;
++		++headcount;
++		seg += in;
++	}
++	*iovcount = seg;
++	return headcount;
++err:
++	vhost_discard_desc(vq, headcount);
++	return r;
 +}
 +
-+static int __init init_hyperv_utils(void)
-+{
-+       printk(KERN_INFO "Registering HyperV Utility Driver\n");
-+
-+       hv_cb_utils[HV_SHUTDOWN_MSG].channel->OnChannelCallback =
-+               &shutdown_onchannelcallback;
-+       hv_cb_utils[HV_SHUTDOWN_MSG].callback = &shutdown_onchannelcallback;
-+
-+       return 0;
-+}
-+
-+static void exit_hyperv_utils(void)
-+{
-+       printk(KERN_INFO "De-Registered HyperV Utility Driver\n");
-+
-+       hv_cb_utils[HV_SHUTDOWN_MSG].channel->OnChannelCallback =
-+               &chn_cb_negotiate;
-+       hv_cb_utils[HV_SHUTDOWN_MSG].callback = &chn_cb_negotiate;
-+}
-+
-+module_init(init_hyperv_utils);
-+module_exit(exit_hyperv_utils);
-+
-+MODULE_DESCRIPTION("Hyper-V Utilities");
-+MODULE_VERSION(HV_DRV_VERSION);
-+MODULE_LICENSE("GPL");
-diff --git a/drivers/staging/hv/utils.h b/drivers/staging/hv/utils.h
-new file mode 100644
-index 0000000..4e09804
---- /dev/null
-+++ b/drivers/staging/hv/utils.h
-@@ -0,0 +1,94 @@
-+/*
-+ * Copyright (c) 2009, Microsoft Corporation.
-+ *
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms and conditions of the GNU General Public License,
-+ * version 2, as published by the Free Software Foundation.
-+ *
-+ * This program is distributed in the hope it will be useful, but WITHOUT
-+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
-+ * more details.
-+ *
-+ * You should have received a copy of the GNU General Public License along with
-+ * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
-+ * Place - Suite 330, Boston, MA 02111-1307 USA.
-+ *
-+ * Authors:
-+ *   Haiyang Zhang <haiyangz@microsoft.com>
-+ *   Hank Janssen  <hjanssen@microsoft.com>
-+ */
-+#ifndef _UTILS_H_
-+#define _UTILS_H_
-+
-+/*
-+ * Common header for Hyper-V ICs
-+ */
-+#define ICMSGTYPE_NEGOTIATE   0
-+#define ICMSGTYPE_HEARTBEAT   1
-+#define ICMSGTYPE_KVPEXCHANGE 2
-+#define ICMSGTYPE_SHUTDOWN    3
-+#define ICMSGTYPE_TIMESYNC    4
-+#define ICMSGTYPE_VSS         5
-+
-+#define ICMSGHDRFLAG_TRANSACTION 1
-+#define ICMSGHDRFLAG_REQUEST     2
-+#define ICMSGHDRFLAG_RESPONSE    4
-+
-+#define HV_S_OK                   0x00000000
-+#define HV_E_FAIL                 0x80004005
-+#define HV_ERROR_NOT_SUPPORTED    0x80070032
-+#define HV_ERROR_MACHINE_LOCKED   0x800704F7
-+
-+struct vmbuspipe_hdr {
-+    u32 flags;
-+    u32 msgsize;
-+} __attribute__((packed));
-+
-+struct ic_version {
-+    u16 major;
-+    u16 minor;
-+} __attribute__((packed));
-+
-+struct icmsg_hdr {
-+    struct ic_version icverframe;
-+    u16 icmsgtype;
-+    struct ic_version icvermsg;
-+    u16 icmsgsize;
-+    u32 status;
-+    u8 ictransaction_id;
-+    u8 icflags;
-+    u8 reserved[2];
-+} __attribute__((packed));
-+
-+struct icmsg_negotiate {
-+    u16 icframe_vercnt;
-+    u16 icmsg_vercnt;
-+    u32 reserved;
-+    struct ic_version icversion_data[1]; /* any size array */
-+} __attribute__((packed));
-+
-+struct shutdown_msg_data {
-+       u32 reason_code;
-+       u32 timeout_seconds;
-+       u32 flags;
-+       u8  display_message[2048];
-+} __attribute__((packed));
-+
-+#define HV_SHUTDOWN_MSG             0
-+
-+struct hyperv_service_callback {
-+       u8 msg_type;
-+       char *log_msg;
-+       unsigned char data[16];
-+       struct vmbus_channel *channel;
-+       void (*callback) (void *context);
-+};
-+
-+extern void prep_negotiate_resp(struct icmsg_hdr *,
-+                                   struct icmsg_negotiate *, u8 *);
-+extern void shutdown_linux_system(void);
-+extern void chn_cb_negotiate(void *);
-+extern struct hyperv_service_callback hv_cb_utils[];
-+
-+#endif /* _UTILS_H_ */
---
-1.6.0.2
+ /* Expects to be always run from workqueue - which acts as
+  * read-size critical section for our kind of RCU. */
+ static void handle_rx(struct vhost_net *net)
+ {
+ 	struct vhost_virtqueue *vq = &net->dev.vqs[VHOST_NET_VQ_RX];
+-	unsigned in, log, s;
++	unsigned uninitialized_var(in), log;
+ 	struct vhost_log *vq_log;
+ 	struct msghdr msg = {
+ 		.msg_name = NULL,
+@@ -238,9 +290,10 @@ static void handle_rx(struct vhost_net *net)
+ 		.hdr.gso_type = VIRTIO_NET_HDR_GSO_NONE
+ 	};
+ 
+-	size_t len, total_len = 0;
+-	int err, headcount, datalen;
+-	size_t vhost_hlen;
++	size_t total_len = 0;
++	int err, headcount;
++	size_t vhost_hlen, sock_hlen;
++	size_t vhost_len, sock_len;
+ 	struct socket *sock = rcu_dereference(vq->private_data);
+ 	if (!sock || skb_queue_empty(&sock->sk->sk_receive_queue))
+ 		return;
+@@ -249,14 +302,16 @@ static void handle_rx(struct vhost_net *net)
+ 	mutex_lock(&vq->mutex);
+ 	vhost_disable_notify(vq);
+ 	vhost_hlen = vq->vhost_hlen;
++	sock_hlen = vq->sock_hlen;
+ 
+ 	vq_log = unlikely(vhost_has_feature(&net->dev, VHOST_F_LOG_ALL)) ?
+ 		vq->log : NULL;
+ 
+-	while ((datalen = vhost_head_len(vq, sock->sk))) {
+-		headcount = vhost_get_desc_n(vq, vq->heads,
+-					     datalen + vhost_hlen,
+-					     &in, vq_log, &log);
++	while ((sock_len = peek_head_len(vq, sock->sk))) {
++		sock_len += sock_hlen;
++		vhost_len = sock_len + vhost_hlen;
++		headcount = get_rx_bufs(vq, vq->heads, vhost_len,
++					&in, vq_log, &log);
+ 		if (headcount < 0)
+ 			break;
+ 		/* OK, now we need to know about added descriptors. */
+@@ -272,34 +327,25 @@ static void handle_rx(struct vhost_net *net)
+ 			break;
+ 		}
+ 		/* We don't need to be notified again. */
+-		if (vhost_hlen)
++		if (unlikely((vhost_hlen)))
+ 			/* Skip header. TODO: support TSO. */
+-			s = move_iovec_hdr(vq->iov, vq->hdr, vhost_hlen, in);
++			move_iovec_hdr(vq->iov, vq->hdr, vhost_hlen, in);
+ 		else
+-			s = copy_iovec_hdr(vq->iov, vq->hdr, vq->sock_hlen, in);
++			copy_iovec_hdr(vq->iov, vq->hdr, sock_hlen, in);
+ 		msg.msg_iovlen = in;
+-		len = iov_length(vq->iov, in);
+-		/* Sanity check */
+-		if (!len) {
+-			vq_err(vq, "Unexpected header len for RX: "
+-			       "%zd expected %zd\n",
+-			       iov_length(vq->hdr, s), vhost_hlen);
+-			break;
+-		}
+ 		err = sock->ops->recvmsg(NULL, sock, &msg,
+-					 len, MSG_DONTWAIT | MSG_TRUNC);
++					 sock_len, MSG_DONTWAIT | MSG_TRUNC);
+ 		/* TODO: Check specific error and bomb out unless EAGAIN? */
+ 		if (err < 0) {
+ 			vhost_discard_desc(vq, headcount);
+ 			break;
+ 		}
+-		if (err != datalen) {
++		if (err != sock_len) {
+ 			pr_err("Discarded rx packet: "
+-			       " len %d, expected %zd\n", err, datalen);
++			       " len %d, expected %zd\n", err, sock_len);
+ 			vhost_discard_desc(vq, headcount);
+ 			continue;
+ 		}
+-		len = err;
+ 		if (vhost_hlen &&
+ 		    memcpy_toiovecend(vq->hdr, (unsigned char *)&hdr, 0,
+ 				      vhost_hlen)) {
+@@ -311,17 +357,16 @@ static void handle_rx(struct vhost_net *net)
+ 		if (vhost_has_feature(&net->dev, VIRTIO_NET_F_MRG_RXBUF) &&
+ 		    memcpy_toiovecend(vq->hdr, (unsigned char *)&headcount,
+ 				      offsetof(typeof(hdr), num_buffers),
+-				      sizeof(hdr.num_buffers))) {
++				      sizeof hdr.num_buffers)) {
+ 			vq_err(vq, "Failed num_buffers write");
+ 			vhost_discard_desc(vq, headcount);
+ 			break;
+ 		}
+-		len += vhost_hlen;
+ 		vhost_add_used_and_signal_n(&net->dev, vq, vq->heads,
+ 					    headcount);
+ 		if (unlikely(vq_log))
+-			vhost_log_write(vq, vq_log, log, len);
+-		total_len += len;
++			vhost_log_write(vq, vq_log, log, vhost_len);
++		total_len += vhost_len;
+ 		if (unlikely(total_len >= VHOST_NET_WEIGHT)) {
+ 			vhost_poll_queue(&vq->poll);
+ 			break;
+diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+index 8ef5e3f..4b49991 100644
+--- a/drivers/vhost/vhost.c
++++ b/drivers/vhost/vhost.c
+@@ -862,53 +862,6 @@ static unsigned get_indirect(struct vhost_dev *dev, struct vhost_virtqueue *vq,
+ 	return 0;
+ }
+ 
+-/* This is a multi-buffer version of vhost_get_desc
+- * @vq		- the relevant virtqueue
+- * datalen	- data length we'll be reading
+- * @iovcount	- returned count of io vectors we fill
+- * @log		- vhost log
+- * @log_num	- log offset
+- *	returns number of buffer heads allocated, negative on error
+- */
+-int vhost_get_desc_n(struct vhost_virtqueue *vq, struct vring_used_elem *heads,
+-		     int datalen, unsigned *iovcount, struct vhost_log *log,
+-		     unsigned int *log_num)
+-{
+-	unsigned int out, in;
+-	int seg = 0;
+-	int headcount = 0;
+-	int r;
+-
+-	while (datalen > 0) {
+-		if (headcount >= VHOST_NET_MAX_SG) {
+-			r = -ENOBUFS;
+-			goto err;
+-		}
+-		heads[headcount].id = vhost_get_desc(vq->dev, vq, vq->iov + seg,
+-					      ARRAY_SIZE(vq->iov) - seg, &out,
+-					      &in, log, log_num);
+-		if (heads[headcount].id == vq->num) {
+-			r = 0;
+-			goto err;
+-		}
+-		if (out || in <= 0) {
+-			vq_err(vq, "unexpected descriptor format for RX: "
+-				"out %d, in %d\n", out, in);
+-			r = -EINVAL;
+-			goto err;
+-		}
+-		heads[headcount].len = iov_length(vq->iov + seg, in);
+-		datalen -= heads[headcount].len;
+-		++headcount;
+-		seg += in;
+-	}
+-	*iovcount = seg;
+-	return headcount;
+-err:
+-	vhost_discard_desc(vq, headcount);
+-	return r;
+-}
+-
+ /* This looks in the virtqueue and for the first available buffer, and converts
+  * it to an iovec for convenient access.  Since descriptors consist of some
+  * number of output then some number of input descriptors, it's actually two
+diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
+index 08d740a..4c9809e 100644
+--- a/drivers/vhost/vhost.h
++++ b/drivers/vhost/vhost.h
+@@ -122,9 +122,6 @@ long vhost_dev_ioctl(struct vhost_dev *, unsigned int ioctl, unsigned long arg);
+ int vhost_vq_access_ok(struct vhost_virtqueue *vq);
+ int vhost_log_access_ok(struct vhost_dev *);
+ 
+-int vhost_get_desc_n(struct vhost_virtqueue *, struct vring_used_elem *heads,
+-		     int datalen, unsigned int *iovcount, struct vhost_log *log,
+-		     unsigned int *log_num);
+ unsigned vhost_get_desc(struct vhost_dev *, struct vhost_virtqueue *,
+ 			   struct iovec iov[], unsigned int iov_count,
+ 			   unsigned int *out_num, unsigned int *in_num,
+
+-- 
+MST
