@@ -1,43 +1,40 @@
-From: David Stevens <dlstevens@us.ibm.com>
-Subject: Re: [PATCHv7] add mergeable buffers support to vhost_net
-Date: Mon, 3 May 2010 09:19:41 -0700
-Message-ID: <OF065832F6.4C8FA06E-ON88257718.00592675-88257718.0059B163@us.ibm.com>
-References: <20100503155613.GB12449@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [GIT PULL] first round of vhost-net enhancements for net-next
+Date: Tue, 4 May 2010 00:32:45 +0300
+Message-ID: <20100503213244.GA16006@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20100503155613.GB12449@redhat.com>
-Sender: netdev-owner@vger.kernel.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, virtualization@lists.osdl.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+Sender: linux-kernel-owner@vger.kernel.org
+To: David Miller <davem@davemloft.net>
+Cc: kvm@vger.kernel.org, virtualization@lists.osdl.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-"Michael S. Tsirkin" <mst@redhat.com> wrote on 05/03/2010 08:56:14 AM:
+David,
+The following tree includes a couple of enhancements that help vhost-net.
+Please pull them for net-next. Another set of patches is under
+debugging/testing and I hope to get them ready in time for 2.6.35,
+so there may be another pull request later.
 
-> On Mon, May 03, 2010 at 08:39:08AM -0700, David Stevens wrote:
-> > "Michael S. Tsirkin" <mst@redhat.com> wrote on 05/03/2010 03:34:11 AM:
-> > 
-> > > On Wed, Apr 28, 2010 at 01:57:12PM -0700, David L Stevens wrote:
-> > > > This patch adds mergeable receive buffer support to vhost_net.
-> > > > 
-> > > > Signed-off-by: David L Stevens <dlstevens@us.ibm.com>
-> > > 
-> > > I've been doing some more testing before sending out a pull
-> > > request, and I see a drastic performance degradation in guest to 
-host
-> > > traffic when this is applied but mergeable buffers are not in used
-> > > by userspace (existing qemu-kvm userspace).
-> > 
-> >         Actually, I wouldn't expect it to work at all;
-> > the qemu-kvm
-> > patch (particularly the feature bit setting bug fix) is required.
-> 
-> Which bugfix is that?
+Thanks!
 
-        Actually, I see you put that upstream already--
-commit dc14a397812b91dd0d48b03d1b8f66a251542369  in
-Avi's tree is the one I was talking about.
-        I'll look further.
+The following changes since commit 7ef527377b88ff05fb122a47619ea506c631c914:
 
-                                                +-DLS
+  Merge branch 'master' of master.kernel.org:/pub/scm/linux/kernel/git/davem/net-2.6 (2010-05-02 22:02:06 -0700)
 
+are available in the git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git vhost
+
+Michael S. Tsirkin (2):
+      tun: add ioctl to modify vnet header size
+      macvtap: add ioctl to modify vnet header size
+
+ drivers/net/macvtap.c  |   31 +++++++++++++++++++++++++++----
+ drivers/net/tun.c      |   32 ++++++++++++++++++++++++++++----
+ include/linux/if_tun.h |    2 ++
+ 3 files changed, 57 insertions(+), 8 deletions(-)
+
+-- 
+MST
