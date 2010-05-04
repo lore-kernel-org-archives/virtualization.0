@@ -1,16 +1,15 @@
 From: Jamie Lokier <jamie@shareable.org>
 Subject: Re: [Qemu-devel] Re: [PATCH] virtio-spec: document block CMD and FLUSH
-Date: Tue, 4 May 2010 21:17:05 +0100
-Message-ID: <20100504201705.GA4360__27772.5764936351$1273004425$gmane$org@shareable.org>
+Date: Tue, 4 May 2010 21:32:55 +0100
+Message-ID: <20100504203255.GB4360__35318.6663509861$1273005321$gmane$org@shareable.org>
 References: <20100218222220.GA14847@redhat.com>
 	<201005041408.25069.rusty@rustcorp.com.au>
-	<20100504084133.GH27497@kernel.dk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20100504084133.GH27497@kernel.dk>
+In-Reply-To: <201005041408.25069.rusty@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,45 +19,50 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jens Axboe <qemu@kernel.dk>
-Cc: tytso@mit.edu, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, Neil Brown <neilb@suse.de>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, hch@lst.de
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: tytso@mit.edu, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, Neil Brown <neilb@suse.de>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Jens Axboe <jens.axboe@oracle.com>, hch@lst.de
 List-Id: virtualization@lists.linuxfoundation.org
 
-Jens Axboe wrote:
-> On Tue, May 04 2010, Rusty Russell wrote:
-> > ISTR someone mentioning a desire for such an API years ago, so CC'ing the
-> > usual I/O suspects...
+Rusty Russell wrote:
+> On Fri, 19 Feb 2010 08:52:20 am Michael S. Tsirkin wrote:
+> > I took a stub at documenting CMD and FLUSH request types in virtio
+> > block.  Christoph, could you look over this please?
+> > 
+> > I note that the interface seems full of warts to me,
+> > this might be a first step to cleaning them.
 > 
-> It would be nice to have a more fuller API for this, but the reality is
-> that only the flush approach is really workable. Even just strict
-> ordering of requests could only be supported on SCSI, and even there the
-> kernel still lacks proper guarantees on error handling to prevent
-> reordering there.
+> ISTR Christoph had withdrawn some patches in this area, and was waiting
+> for him to resubmit?
+> 
+> I've given up on figuring out the block device.  What seem to me to be sane
+> semantics along the lines of memory barriers are foreign to disk people: they
+> want (and depend on) flushing everywhere.
+> 
+> For example, tdb transactions do not require a flush, they only require what
+> I would call a barrier: that prior data be written out before any future data.
+> Surely that would be more efficient in general than a flush!  In fact, TDB
+> wants only writes to *that file* (and metadata) written out first; it has no
+> ordering issues with other I/O on the same device.
 
-There's a few I/O scheduling differences that might be useful:
+I've just posted elsewhere on this thread, that an I/O level flush can
+be more efficient than an I/O level barrier (implemented using a
+cache-flush really), because the barrier has stricter ordering
+requirements at the I/O scheduling level.
 
-1. The I/O scheduler could freely move WRITEs before a FLUSH but not
-   before a BARRIER.  That might be useful for time-critical WRITEs,
-   and those issued by high I/O priority.
+By the time you work up to tdb, another way to think of it is
+distinguishing "eager fsync" from "fsync but I'm not in a hurry -
+delay as long as is convenient".  The latter makes much more sense
+with AIO.
 
-2. The I/O scheduler could move WRITEs after a FLUSH if the FLUSH is
-   only for data belonging to a particular file (e.g. fdatasync with
-   no file size change, even on btrfs if O_DIRECT was used for the
-   writes being committed).  That would entail tagging FLUSHes and
-   WRITEs with a fs-specific identifier (such as inode number), opaque
-   to the scheduler which only checks equality.
+> A generic I/O interface would allow you to specify "this request
+> depends on these outstanding requests" and leave it at that.  It
+> might have some sync flush command for dumb applications and OSes.
 
-3. By delaying FLUSHes through reordering as above, the I/O scheduler
-   could merge multiple FLUSHes into a single command.
-
-4. On MD/RAID, BARRIER requires every backing device to quiesce before
-   sending the low-level cache-flush, and all of those to finish
-   before resuming each backing device.  FLUSH doesn't require as much
-   synchronising.  (With per-file FLUSH; see 2; it could even avoid
-   FLUSH altogether to some backing devices for small files).
-
-In other words, FLUSH can be more relaxed than BARRIER inside the
-kernel.  It's ironic that we think of fsync as stronger than
-fbarrier outside the kernel :-)
+For filesystems, it would probably be easy to label in-place
+overwrites and fdatasync data flushes when there's no file extension
+with an opqaue per-file identifier for certain operations.  Typically
+over-writing in place and fdatasync would match up and wouldn't need
+ordering against anything else.  Other operations would tend to get
+labelled as ordered against everything including these.
 
 -- Jamie
