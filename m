@@ -1,43 +1,192 @@
-From: Hank Janssen <hjanssen@microsoft.com>
-Subject: RE: [PATCH 1/1] hv: Added new hv_utils driver with shutdown as
-	first functionality - NO OUTLOOK
-Date: Tue, 4 May 2010 16:26:21 +0000
-Message-ID: <8AFC7968D54FB448A30D8F38F259C5621AFF59B6@TK5EX14MBXC114.redmond.corp.microsoft.com>
-References: <4BE0A5C9.2020409@sailtheuniverse.com>
-	<20100504152949.GA22850@kroah.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: virtio: put last_used and last_avail index into ring itself.
+Date: Tue, 4 May 2010 21:22:36 +0300
+Message-ID: <20100504182236.GA14141__36610.5056753897$1272997701$gmane$org@redhat.com>
+References: <cover.1257349249.git.mst@redhat.com>
+	<200911061529.17500.rusty@rustcorp.com.au>
+	<20091108113516.GA19016@redhat.com>
+	<200911091647.29655.rusty@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <devel-bounces@linuxdriverproject.org>
-In-Reply-To: <20100504152949.GA22850@kroah.com>
-Content-Language: en-US
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
-List-Post: <mailto:devel@linuxdriverproject.org>
-List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
-Sender: devel-bounces@linuxdriverproject.org
-Errors-To: devel-bounces@linuxdriverproject.org
-To: Greg KH <greg@kroah.com>, Hank Janssen <hjanssen@sailtheuniverse.com>
-Cc: "devel@driverdev.osuosl.org" <devel@driverdev.osuosl.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, Haiyang Zhang <haiyangz@microsoft.com>, "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <200911091647.29655.rusty@rustcorp.com.au>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Eric Dumazet <eric.dumazet@gmail.com>, kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, s.hetze@linux-ag.com, hpa@zytor.com, Daniel Walker <dwalker@fifo99.com>, mingo@elte.hu, akpm@linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
+> virtio: put last_used and last_avail index into ring itself.
+> 
+> Generally, the other end of the virtio ring doesn't need to see where
+> you're up to in consuming the ring.  However, to completely understand
+> what's going on from the outside, this information must be exposed.
+> For example, if you want to save and restore a virtio_ring, but you're
+> not the consumer because the kernel is using it directly.
+> 
+> Fortunately, we have room to expand: the ring is always a whole number
+> of pages and there's hundreds of bytes of padding after the avail ring
+> and the used ring, whatever the number of descriptors (which must be a
+> power of 2).
+> 
+> We add a feature bit so the guest can tell the host that it's writing
+> out the current value there, if it wants to use that.
+> 
+> Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 
->> Greg Wrote
->> 
->> Signed-off-by: Hank Janssen <microsoft.com
->>
->>That's not a valid email address.
->>
->>> Signed-off-by: Hank Janssen <sailtheuniverse.com>
->>
->>Neither is that.
+I've been looking at this patch some more (more on why
+later), and I wonder: would it be better to add some
+alignment to the last used index address, so that
+if we later add more stuff at the tail, it all
+fits in a single cache line?
 
-Sorry, by this time I was so frustrated arguing with lookout and Exchange that I did not properly
-Add the emails when I send it from my own server. :(
+We use a new feature bit anyway, so layout change should not be
+a problem.
 
-Thanks,
+Since I raised the question of caches: for used ring,
+the ring is not aligned to 64 bit, so on CPUs with 64 bit
+or larger cache lines, used entries will often cross
+cache line boundaries. Am I right and might it
+have been better to align ring entries to cache line boundaries?
 
-Hank.
+What do you think?
+
+> ---
+>  drivers/virtio/virtio_ring.c |   23 +++++++++++++++--------
+>  include/linux/virtio_ring.h  |   12 +++++++++++-
+>  2 files changed, 26 insertions(+), 9 deletions(-)
+> 
+> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+> --- a/drivers/virtio/virtio_ring.c
+> +++ b/drivers/virtio/virtio_ring.c
+> @@ -71,9 +71,6 @@ struct vring_virtqueue
+>  	/* Number we've added since last sync. */
+>  	unsigned int num_added;
+>  
+> -	/* Last used index we've seen. */
+> -	u16 last_used_idx;
+> -
+>  	/* How to notify other side. FIXME: commonalize hcalls! */
+>  	void (*notify)(struct virtqueue *vq);
+>  
+> @@ -278,12 +275,13 @@ static void detach_buf(struct vring_virt
+>  
+>  static inline bool more_used(const struct vring_virtqueue *vq)
+>  {
+> -	return vq->last_used_idx != vq->vring.used->idx;
+> +	return vring_last_used(&vq->vring) != vq->vring.used->idx;
+>  }
+>  
+>  static void *vring_get_buf(struct virtqueue *_vq, unsigned int *len)
+>  {
+>  	struct vring_virtqueue *vq = to_vvq(_vq);
+> +	struct vring_used_elem *u;
+>  	void *ret;
+>  	unsigned int i;
+>  
+> @@ -300,8 +298,11 @@ static void *vring_get_buf(struct virtqu
+>  		return NULL;
+>  	}
+>  
+> -	i = vq->vring.used->ring[vq->last_used_idx%vq->vring.num].id;
+> -	*len = vq->vring.used->ring[vq->last_used_idx%vq->vring.num].len;
+> +	u = &vq->vring.used->ring[vring_last_used(&vq->vring) % vq->vring.num];
+> +	i = u->id;
+> +	*len = u->len;
+> +	/* Make sure we don't reload i after doing checks. */
+> +	rmb();
+>  
+>  	if (unlikely(i >= vq->vring.num)) {
+>  		BAD_RING(vq, "id %u out of range\n", i);
+> @@ -315,7 +316,8 @@ static void *vring_get_buf(struct virtqu
+>  	/* detach_buf clears data, so grab it now. */
+>  	ret = vq->data[i];
+>  	detach_buf(vq, i);
+> -	vq->last_used_idx++;
+> +	vring_last_used(&vq->vring)++;
+> +
+>  	END_USE(vq);
+>  	return ret;
+>  }
+> @@ -402,7 +404,6 @@ struct virtqueue *vring_new_virtqueue(un
+>  	vq->vq.name = name;
+>  	vq->notify = notify;
+>  	vq->broken = false;
+> -	vq->last_used_idx = 0;
+>  	vq->num_added = 0;
+>  	list_add_tail(&vq->vq.list, &vdev->vqs);
+>  #ifdef DEBUG
+> @@ -413,6 +414,10 @@ struct virtqueue *vring_new_virtqueue(un
+>  
+>  	vq->indirect = virtio_has_feature(vdev, VIRTIO_RING_F_INDIRECT_DESC);
+>  
+> +	/* We publish indices whether they offer it or not: if not, it's junk
+> +	 * space anyway.  But calling this acknowledges the feature. */
+> +	virtio_has_feature(vdev, VIRTIO_RING_F_PUBLISH_INDICES);
+> +
+>  	/* No callback?  Tell other side not to bother us. */
+>  	if (!callback)
+>  		vq->vring.avail->flags |= VRING_AVAIL_F_NO_INTERRUPT;
+> @@ -443,6 +448,8 @@ void vring_transport_features(struct vir
+>  		switch (i) {
+>  		case VIRTIO_RING_F_INDIRECT_DESC:
+>  			break;
+> +		case VIRTIO_RING_F_PUBLISH_INDICES:
+> +			break;
+>  		default:
+>  			/* We don't understand this bit. */
+>  			clear_bit(i, vdev->features);
+> diff --git a/include/linux/virtio_ring.h b/include/linux/virtio_ring.h
+> --- a/include/linux/virtio_ring.h
+> +++ b/include/linux/virtio_ring.h
+> @@ -29,6 +29,9 @@
+>  /* We support indirect buffer descriptors */
+>  #define VIRTIO_RING_F_INDIRECT_DESC	28
+>  
+> +/* We publish our last-seen used index at the end of the avail ring. */
+> +#define VIRTIO_RING_F_PUBLISH_INDICES	29
+> +
+>  /* Virtio ring descriptors: 16 bytes.  These can chain together via "next". */
+>  struct vring_desc
+>  {
+> @@ -87,6 +90,7 @@ struct vring {
+>   *	__u16 avail_flags;
+>   *	__u16 avail_idx;
+>   *	__u16 available[num];
+> + *	__u16 last_used_idx;
+>   *
+>   *	// Padding to the next align boundary.
+>   *	char pad[];
+> @@ -95,6 +99,7 @@ struct vring {
+>   *	__u16 used_flags;
+>   *	__u16 used_idx;
+>   *	struct vring_used_elem used[num];
+> + *	__u16 last_avail_idx;
+>   * };
+>   */
+>  static inline void vring_init(struct vring *vr, unsigned int num, void *p,
+> @@ -111,9 +116,14 @@ static inline unsigned vring_size(unsign
+>  {
+>  	return ((sizeof(struct vring_desc) * num + sizeof(__u16) * (2 + num)
+>  		 + align - 1) & ~(align - 1))
+> -		+ sizeof(__u16) * 2 + sizeof(struct vring_used_elem) * num;
+> +		+ sizeof(__u16) * 2 + sizeof(struct vring_used_elem) * num + 2;
+>  }
+>  
+> +/* We publish the last-seen used index at the end of the available ring, and
+> + * vice-versa.  These are at the end for backwards compatibility. */
+> +#define vring_last_used(vr) ((vr)->avail->ring[(vr)->num])
+> +#define vring_last_avail(vr) (*(__u16 *)&(vr)->used->ring[(vr)->num])
+> +
+>  #ifdef __KERNEL__
+>  #include <linux/irqreturn.h>
+>  struct virtio_device;
