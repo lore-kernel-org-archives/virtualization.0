@@ -1,15 +1,13 @@
-From: Jens Axboe <qemu@kernel.dk>
-Subject: Re: [PATCH] virtio-spec: document block CMD and FLUSH
-Date: Tue, 4 May 2010 10:41:33 +0200
-Message-ID: <20100504084133.GH27497__3565.5161053457$1272984256$gmane$org@kernel.dk>
-References: <20100218222220.GA14847@redhat.com>
-	<201005041408.25069.rusty@rustcorp.com.au>
+From: Jens Osterkamp <jens@linux.vnet.ibm.com>
+Subject: [PATCH 1/3] consolidation of MIN and MAX macros in common.h
+Date: Tue,  4 May 2010 13:47:47 +0200
+Message-ID: <1272973669-6694-2-git-send-email-jens@linux.vnet.ibm.com>
+References: <1272973669-6694-1-git-send-email-jens@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <201005041408.25069.rusty@rustcorp.com.au>
+In-Reply-To: <1272973669-6694-1-git-send-email-jens@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,44 +17,56 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: tytso@mit.edu, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, Neil Brown <neilb@suse.de>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Anthony Liguori <anthony@codemonkey.ws>, hch@lst.de
+To: e1000-eedc@lists.sourceforge.net, virtualization@lists.linux-foundation.org, evb@yahoogroups.com
+Cc: chrisw@redhat.com, Jens Osterkamp <jens@linux.vnet.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, May 04 2010, Rusty Russell wrote:
-> On Fri, 19 Feb 2010 08:52:20 am Michael S. Tsirkin wrote:
-> > I took a stub at documenting CMD and FLUSH request types in virtio
-> > block.  Christoph, could you look over this please?
-> > 
-> > I note that the interface seems full of warts to me,
-> > this might be a first step to cleaning them.
-> 
-> ISTR Christoph had withdrawn some patches in this area, and was waiting
-> for him to resubmit?
-> 
-> I've given up on figuring out the block device.  What seem to me to be sane
-> semantics along the lines of memory barriers are foreign to disk people: they
-> want (and depend on) flushing everywhere.
-> 
-> For example, tdb transactions do not require a flush, they only require what
-> I would call a barrier: that prior data be written out before any future data.
-> Surely that would be more efficient in general than a flush!  In fact, TDB
-> wants only writes to *that file* (and metadata) written out first; it has no
-> ordering issues with other I/O on the same device.
-> 
-> A generic I/O interface would allow you to specify "this request depends on these
-> outstanding requests" and leave it at that.  It might have some sync flush
-> command for dumb applications and OSes.  The userspace API might be not be as
-> precise and only allow such a barrier against all prior writes on this fd.
-> 
-> ISTR someone mentioning a desire for such an API years ago, so CC'ing the
-> usual I/O suspects...
+This patch consolidates a modified version of the already existing MIN
+macro in lldpad to include/common.h and add a MAX macro.
 
-It would be nice to have a more fuller API for this, but the reality is
-that only the flush approach is really workable. Even just strict
-ordering of requests could only be supported on SCSI, and even there the
-kernel still lacks proper guarantees on error handling to prevent
-reordering there.
+Signed-off-by: Jens Osterkamp <jens@linux.vnet.ibm.com>
+---
+ include/common.h       |   14 ++++++++++++++
+ include/dcb_protocol.h |    4 ----
+ 2 files changed, 14 insertions(+), 4 deletions(-)
 
+diff --git a/include/common.h b/include/common.h
+index 01746ea..ab07dc2 100644
+--- a/include/common.h
++++ b/include/common.h
+@@ -387,4 +387,18 @@ typedef int socklen_t;
+ 
+ const char * wpa_ssid_txt(u8 *ssid, size_t ssid_len);
+ 
++#define MIN(x,y) \
++	({	\
++		typeof (x) __x = (x);	\
++		typeof (y) __y = (y);	\
++		__x < __y ? __x : __y;	\
++	 })
++
++#define MAX(x,y) \
++	({	\
++		typeof (x) __x = (x);	\
++		typeof (y) __y = (y);	\
++		__x > __y ? __x : __y;	\
++	 })
++
+ #endif /* COMMON_H */
+diff --git a/include/dcb_protocol.h b/include/dcb_protocol.h
+index 67f653c..c7b856f 100644
+--- a/include/dcb_protocol.h
++++ b/include/dcb_protocol.h
+@@ -58,10 +58,6 @@ typedef enum {
+ #define DUP_DCBX_TLV_LLINK         0x0020
+ #define TOO_MANY_NGHBRS            0x0040
+ 
+-//#ifndef min /*todo: change to min()
+-	#define MIN(x, y) ((x) < (y) ? x : y)
+-//#endif
+-
+ #define INIT_DCB_OUI                    {0x00,0x1b,0x21}
+ 
+ bool add_adapter(char *device_name);
 -- 
-Jens Axboe
+1.7.0.1
