@@ -1,15 +1,15 @@
-From: Stephen Hemminger <shemminger@vyatta.com>
-Subject: Re: RFC: Network Plugin Architecture (NPA) for vmxnet3
-Date: Tue, 4 May 2010 19:44:19 -0700
-Message-ID: <20100504194419.2ce32117__8013.81937130845$1273027524$gmane$org@nehalam>
-References: <20100504230225.GP8323@vmware.com>
-	<20100504170531.1e7122da@nehalam>
-	<20100505001857.GQ8323@vmware.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [Qemu-devel] Re: [PATCH] virtio-spec: document block CMD and FLUSH
+Date: Wed, 5 May 2010 14:28:41 +0930
+Message-ID: <201005051428.41735.rusty__7969.15612086213$1273035573$gmane$org@rustcorp.com.au>
+References: <20100218222220.GA14847@redhat.com>
+	<20100504084133.GH27497@kernel.dk>
+	<20100504201705.GA4360@shareable.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20100505001857.GQ8323@vmware.com>
+In-Reply-To: <20100504201705.GA4360@shareable.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,28 +19,68 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Pankaj Thakkar <pthakkar@vmware.com>
-Cc: "pv-drivers@vmware.com" <pv-drivers@vmware.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+To: Jamie Lokier <jamie@shareable.org>
+Cc: tytso@mit.edu, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, Neil Brown <neilb@suse.de>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Jens Axboe <qemu@kernel.dk>, hch@lst.de
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 4 May 2010 17:18:57 -0700
-Pankaj Thakkar <pthakkar@vmware.com> wrote:
+On Wed, 5 May 2010 05:47:05 am Jamie Lokier wrote:
+> Jens Axboe wrote:
+> > On Tue, May 04 2010, Rusty Russell wrote:
+> > > ISTR someone mentioning a desire for such an API years ago, so CC'ing the
+> > > usual I/O suspects...
+> > 
+> > It would be nice to have a more fuller API for this, but the reality is
+> > that only the flush approach is really workable. Even just strict
+> > ordering of requests could only be supported on SCSI, and even there the
+> > kernel still lacks proper guarantees on error handling to prevent
+> > reordering there.
+> 
+> There's a few I/O scheduling differences that might be useful:
+> 
+> 1. The I/O scheduler could freely move WRITEs before a FLUSH but not
+>    before a BARRIER.  That might be useful for time-critical WRITEs,
+>    and those issued by high I/O priority.
 
-> The purpose of this email is to introduce the architecture and the design principles. The overall project involves more than just changes to vmxnet3 driver and hence we though an overview email would be better. Once people agree to the design in general we intend to provide the code changes to the vmxnet3 driver.
+This is only because noone actually wants flushes or barriers, though
+I/O people seem to only offer that.  We really want "<these writes> must
+occur before <this write>".  That offers maximum choice to the I/O subsystem
+and potentially to smart (virtual?) disks.
 
-As Dave said, we care more about what the implementation looks like than the high level
-goals of the design. I think we all agree that better management of virtualized devices
-is necessary, the problem is that their are so many of them (vmware, xen, HV, Xen), 
-and vendors seem to to lean on their own specific implementation of a offloading, 
-which makes a general solution more difficult. Please, Please solve this cleanly.
+> 2. The I/O scheduler could move WRITEs after a FLUSH if the FLUSH is
+>    only for data belonging to a particular file (e.g. fdatasync with
+>    no file size change, even on btrfs if O_DIRECT was used for the
+>    writes being committed).  That would entail tagging FLUSHes and
+>    WRITEs with a fs-specific identifier (such as inode number), opaque
+>    to the scheduler which only checks equality.
 
-The little things like API's and locking semantics and handling of dynamic versus
-static control can make a good design in principle fall apart when someone does a bad
-job of implementing them.
+This is closer.  In userspace I'd be happy with a "all prior writes to this
+struct file before all future writes".  Even if the original guarantees were
+stronger (ie. inode basis).  We currently implement transactions using 4 fsync
+/msync pairs.
 
-Lastly, projects that have had multiple people involved for long periods of time
-in the dark often end up building a legacy mentality "but we convinced vendor XXX to include it
-in their Enterprise version 666" and require lots of "retraining" before the code
-becomes acceptable.
+	write_recovery_data(fd);
+	fsync(fd);
+	msync(mmap);
+	write_recovery_header(fd);
+	fsync(fd);
+	msync(mmap);
+	overwrite_with_new_data(fd);
+	fsync(fd);
+	msync(mmap);
+	remove_recovery_header(fd);
+	fsync(fd);
+	msync(mmap);
 
--- 
+Yet we really only need ordering, not guarantees about it actually hitting
+disk before returning.
+
+> In other words, FLUSH can be more relaxed than BARRIER inside the
+> kernel.  It's ironic that we think of fsync as stronger than
+> fbarrier outside the kernel :-)
+
+It's an implementation detail; barrier has less flexibility because it has
+less information about what is required. I'm saying I want to give you as
+much information as I can, even if you don't use it yet.
+
+Thanks,
+Rusty.
