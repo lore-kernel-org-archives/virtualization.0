@@ -1,15 +1,14 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [Pv-drivers] RFC: Network Plugin Architecture (NPA) for vmxnet3
-Date: Wed, 5 May 2010 22:09:48 +0200
-Message-ID: <201005052209.48465.arnd__34072.0120970674$1273094683$gmane$org@arndb.de>
-References: <20100504230225.GP8323@vmware.com>
-	<20100505173951.GA8388@infradead.org>
-	<F1354E79A137A24CBA60059AA65CB1B802A235C535@EXCH-MBX-2.vmware.com>
+From: Amit Shah <amit.shah@redhat.com>
+Subject: [PATCH 1/3] virtio: console: Resize console port 0 on config intr
+	only if multiport is off
+Date: Thu,  6 May 2010 02:05:07 +0530
+Message-ID: <1273091709-19963-2-git-send-email-amit.shah__3159.3257830993$1273094791$gmane$org@redhat.com>
+References: <1273091709-19963-1-git-send-email-amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <F1354E79A137A24CBA60059AA65CB1B802A235C535@EXCH-MBX-2.vmware.com>
+In-Reply-To: <1273091709-19963-1-git-send-email-amit.shah@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,44 +18,48 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
-Cc: Christoph Hellwig <hch@infradead.org>, Dmitry Torokhov <dtor@vmware.com>, "pv-drivers@vmware.com" <pv-drivers@vmware.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Pankaj Thakkar <pthakkar@vmware.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Amit Shah <amit.shah@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Kusanagi Kouichi <slash@ac.auone-net.jp>, linuxppc-dev@ozlabs.org, Virtualization List <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wednesday 05 May 2010 19:47:10 Pankaj Thakkar wrote:
-> > 
-> > Forget about the licensing.  Loading binary blobs written to a shim
-> > layer is a complete pain in the ass and totally unsupportable, and
-> > also uninteresting because of the overhead.
-> 
-> [PT] Why do you think it is unsupportable? How different is it from any module
-> written against a well maintained interface? What overhead are you talking about?
+When using multiport, we'll use control messages. Ensure we don't
+accidentally update port 0 size on config interrupts.
 
-We have the right number of module loaders in the kernel: one. If you
-add another one, you're doubling the amount of code that anyone
-working on that code needs to know about.
+Signed-off-by: Amit Shah <amit.shah@redhat.com>
+CC: Christian Borntraeger <borntraeger@de.ibm.com>
+CC: linuxppc-dev@ozlabs.org
+CC: Kusanagi Kouichi <slash@ac.auone-net.jp>
+---
+ drivers/char/virtio_console.c |   17 ++++++++++-------
+ 1 files changed, 10 insertions(+), 7 deletions(-)
+
+diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
+index a64558f..e2d05ea 100644
+--- a/drivers/char/virtio_console.c
++++ b/drivers/char/virtio_console.c
+@@ -1319,13 +1319,16 @@ static void config_intr(struct virtio_device *vdev)
  
-> > If you have any interesting in developing this further, do:
-> > 
-> >  (1) move the limited VF drivers directly into the kernel tree,
-> >      talk to them through a normal ops vector
-> [PT] This assumes that all the VF drivers would always be available.
-> Also we have to support windows and our current design supports it
-> nicely in an OS agnostic manner.
-
-Your approach assumes that the plugin is always available, which has
-exactly the same implications.
-
-> >  (2) get rid of the whole shim crap and instead integrate the limited
-> >      VF driver with the full VF driver we already have, instead of
-> >      duplicating the code
-> [PT] Having a full VF driver adds a lot of dependency on the guest VM
-> and this is what NPA tries to avoid.
-
-If you have the limited driver for some hardware that does not have
-the real thing, we could still ship just that. I would however guess
-that most vendors are interested in not just running in vmware but
-also other hypervisors that still require the full driver, so that
-case would be rare, especially in the long run.
-
-	Arnd
+ 	portdev = vdev->priv;
+ 
+-	/*
+-	 * We'll use this way of resizing only for legacy support.
+-	 * For newer userspace (VIRTIO_CONSOLE_F_MULTPORT+), use
+-	 * control messages to indicate console size changes so that
+-	 * it can be done per-port
+-	 */
+-	resize_console(find_port_by_id(portdev, 0));
++	if (!use_multiport(portdev)) {
++		/*
++		 * We'll use this way of resizing only for legacy
++		 * support.  For newer userspace
++		 * (VIRTIO_CONSOLE_F_MULTPORT+), use control messages
++		 * to indicate console size changes so that it can be
++		 * done per-port.
++		 */
++		resize_console(find_port_by_id(portdev, 0));
++	}
+ }
+ 
+ static int init_vqs(struct ports_device *portdev)
+-- 
+1.6.2.5
