@@ -1,17 +1,14 @@
-From: Pankaj Thakkar <pthakkar@vmware.com>
+From: Christoph Hellwig <hch@infradead.org>
 Subject: Re: RFC: Network Plugin Architecture (NPA) for vmxnet3
-Date: Tue, 4 May 2010 17:38:22 -0700
-Message-ID: <20100505003822.GR8323__18659.5639367171$1273071022$gmane$org@vmware.com>
+Date: Wed, 5 May 2010 13:23:16 -0400
+Message-ID: <20100505172316.GA25338__15756.9735464223$1273080348$gmane$org@infradead.org>
 References: <20100504230225.GP8323@vmware.com>
-	<20100504170531.1e7122da@nehalam>
-	<20100505001857.GQ8323@vmware.com>
-	<20100504.173236.104064409.davem@davemloft.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20100504.173236.104064409.davem@davemloft.net>
+In-Reply-To: <20100504230225.GP8323@vmware.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -21,39 +18,15 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: David Miller <davem@davemloft.net>
-Cc: "pv-drivers@vmware.com" <pv-drivers@vmware.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "shemminger@vyatta.com" <shemminger@vyatta.com>
+To: Pankaj Thakkar <pthakkar@vmware.com>
+Cc: pv-drivers@vmware.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Sure. We have been working on NPA for a while and have the code internally up
-and running. Let me sync up internally on how and when we can provide the
-vmxnet3 driver code so that people can look at it.
+On Tue, May 04, 2010 at 04:02:25PM -0700, Pankaj Thakkar wrote:
+> The plugin image is provided by the IHVs along with the PF driver and is
+> packaged in the hypervisor. The plugin image is OS agnostic and can be loaded
+> either into a Linux VM or a Windows VM. The plugin is written against the Shell
+> API interface which the shell is responsible for implementing. The API
 
-
-On Tue, May 04, 2010 at 05:32:36PM -0700, David Miller wrote:
-> Date: Tue, 4 May 2010 17:32:36 -0700
-> From: David Miller <davem@davemloft.net>
-> To: Pankaj Thakkar <pthakkar@vmware.com>
-> CC: "shemminger@vyatta.com" <shemminger@vyatta.com>,
-> 	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-> 	"netdev@vger.kernel.org" <netdev@vger.kernel.org>,
-> 	"virtualization@lists.linux-foundation.org"
->  <virtualization@lists.linux-foundation.org>,
-> 	"pv-drivers@vmware.com" <pv-drivers@vmware.com>,
-> 	Shreyas Bhatewara <sbhatewara@vmware.com>
-> Subject: Re: RFC: Network Plugin Architecture (NPA) for vmxnet3
-> 
-> From: Pankaj Thakkar <pthakkar@vmware.com>
-> Date: Tue, 4 May 2010 17:18:57 -0700
-> 
-> > The purpose of this email is to introduce the architecture and the
-> > design principles. The overall project involves more than just
-> > changes to vmxnet3 driver and hence we though an overview email
-> > would be better. Once people agree to the design in general we
-> > intend to provide the code changes to the vmxnet3 driver.
-> 
-> Stephen's point is that code talks and bullshit walks.
-> 
-> Talk about high level designs rarely gets any traction, and often goes
-> nowhere.  Give us an example implementation so there is something
-> concrete for us to sink our teeth into.
+We're not going to add any kind of loader for binry blobs into kernel
+space, sorry.  Don't even bother wasting your time on this.
