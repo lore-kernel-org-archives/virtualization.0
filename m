@@ -1,15 +1,15 @@
 From: Dmitry Torokhov <dtor@vmware.com>
 Subject: Re: [Pv-drivers] RFC: Network Plugin Architecture (NPA) for vmxnet3
-Date: Wed, 5 May 2010 10:35:28 -0700
-Message-ID: <201005051035.29831.dtor__33819.9134254411$1273097798$gmane$org@vmware.com>
+Date: Wed, 5 May 2010 13:36:31 -0700
+Message-ID: <201005051336.32712.dtor__21733.7731075988$1273097832$gmane$org@vmware.com>
 References: <20100504230225.GP8323@vmware.com>
-	<201005051029.42052.dtor@vmware.com>
-	<20100505173120.GA1752@infradead.org>
+	<F1354E79A137A24CBA60059AA65CB1B802A235C535@EXCH-MBX-2.vmware.com>
+	<201005052209.48465.arnd@arndb.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20100505173120.GA1752@infradead.org>
+In-Reply-To: <201005052209.48465.arnd@arndb.de>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,34 +19,25 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Christoph Hellwig <hch@infradead.org>
-Cc: "pv-drivers@vmware.com" <pv-drivers@vmware.com>, Pankaj Thakkar <pthakkar@vmware.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Christoph Hellwig <hch@infradead.org>, "pv-drivers@vmware.com" <pv-drivers@vmware.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Pankaj Thakkar <pthakkar@vmware.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wednesday 05 May 2010 10:31:20 am Christoph Hellwig wrote:
-> On Wed, May 05, 2010 at 10:29:40AM -0700, Dmitry Torokhov wrote:
-> > > We're not going to add any kind of loader for binry blobs into kernel
-> > > space, sorry.  Don't even bother wasting your time on this.
+On Wednesday 05 May 2010 01:09:48 pm Arnd Bergmann wrote:
+> > > If you have any interesting in developing this further, do:
+> > > 
+> > >  (1) move the limited VF drivers directly into the kernel tree,
+> > >      talk to them through a normal ops vector
 > > 
-> > It would not be a binary blob but software properly released under GPL.
-> > The current plan is for the shell to enforce GPL requirement on the
-> > plugin code, similar to what module loaded does for regular kernel
-> > modules.
+> > [PT] This assumes that all the VF drivers would always be available.
+> > Also we have to support windows and our current design supports it
+> > nicely in an OS agnostic manner.
 > 
-> The mechanism described in the document is loading a binary blob
-> coded to an abstract API.
+> Your approach assumes that the plugin is always available, which has
+> exactly the same implications.
 
-Yes, with the exception that the only body of code that will be
-accepted by the shell should be GPL-licensed and thus open and available
-for examining. This is not different from having a standard kernel
-module that is loaded normally and plugs into a certain subsystem.
-The difference is that the binary resides not on guest filesystem
-but elsewhere.
-
-> 
-> That's something entirely different from having normal modules for
-> the Virtual Functions, which we already have for various pieces of
-> hardware anyway.
+Since plugin[s] are carried by the host they are indeed always
+available.
 
 -- 
 Dmitry
