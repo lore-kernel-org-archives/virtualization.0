@@ -1,11 +1,15 @@
-From: Amit Shah <amit.shah@redhat.com>
-Subject: [PATCH 0/3] virtio: console: Handle multiple console port resizes
-Date: Thu,  6 May 2010 02:05:06 +0530
-Message-ID: <1273091709-19963-1-git-send-email-amit.shah@redhat.com>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [Pv-drivers] RFC: Network Plugin Architecture (NPA) for vmxnet3
+Date: Wed, 5 May 2010 23:53:15 +0200
+Message-ID: <201005052353.16544.arnd__24749.4919844486$1273096529$gmane$org@arndb.de>
+References: <20100504230225.GP8323@vmware.com>
+	<201005052209.48465.arnd@arndb.de>
+	<201005051336.32712.dtor@vmware.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <201005051336.32712.dtor@vmware.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -15,30 +19,49 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Amit Shah <amit.shah@redhat.com>, Virtualization List <virtualization@lists.linux-foundation.org>
+To: Dmitry Torokhov <dtor@vmware.com>
+Cc: Christoph Hellwig <hch@infradead.org>, "pv-drivers@vmware.com" <pv-drivers@vmware.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Pankaj Thakkar <pthakkar@vmware.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hello,
+On Wednesday 05 May 2010 22:36:31 Dmitry Torokhov wrote:
+> 
+> On Wednesday 05 May 2010 01:09:48 pm Arnd Bergmann wrote:
+> > > > If you have any interesting in developing this further, do:
+> > > > 
+> > > >  (1) move the limited VF drivers directly into the kernel tree,
+> > > >      talk to them through a normal ops vector
+> > > 
+> > > [PT] This assumes that all the VF drivers would always be available.
+> > > Also we have to support windows and our current design supports it
+> > > nicely in an OS agnostic manner.
+> > 
+> > Your approach assumes that the plugin is always available, which has
+> > exactly the same implications.
+> 
+> Since plugin[s] are carried by the host they are indeed always
+> available.
 
-This series adds resize support for multiple console ports. The size
-for each console is stored in its structure and the host informs the
-guest about size changes via the VIRTIO_CONSOLE_RESIZE control
-message.
+But what makes you think that you can build code that can be linked
+into arbitrary future kernel versions? The kernel does not define any
+calling conventions that are stable across multiple versions or
+configurations. For example, you'd have to provide different binaries
+for each combination of
 
-This is easily tested by the qemu patches provided by Kusanagi Kouichi
-with some updates, which I will shortly send to the qemu-devel list.
+- 32/64 bit code
+- gcc -mregparm=?
+- lockdep
+- tracepoints
+- stackcheck
+- NOMMU
+- highmem
+- whatever new gets merged
 
-Please apply,
+If you build the plugins only for specific versions of "enterprise" Linux
+kernels, the code becomes really hard to debug and maintain.
+If you wrap everything in your own version of the existing interfaces, your
+code gets bloated to the point of being unmaintainable.
 
-	Amit.
+So I have to correct myself: this is very different from assuming the
+driver is available in the guest, it's actually much worse.
 
-Amit Shah (3):
-  virtio: console: Resize console port 0 on config intr only if
-    multiport is off
-  virtio: console: Store each console's size in the console structure
-  virtio: console: Accept console size along with resize control
-    message
-
- drivers/char/virtio_console.c |   71 ++++++++++++++++++++++++++++++-----------
- 1 files changed, 52 insertions(+), 19 deletions(-)
+	Arnd
