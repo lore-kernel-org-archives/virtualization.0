@@ -1,37 +1,47 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [patch 7/8] Add a bootparameter to reserve high
- linear address space.
-Date: Tue, 04 May 2010 16:37:38 -0700
-Message-ID: <4BE0AFC2.2090207@goop.org>
-References: <20060803002510.634721860@xensource.com>
-	<20060803002518.595166293@xensource.com>
-	<19700101001522.GA3999@ucw.cz>
+From: Stephen Hemminger <shemminger@vyatta.com>
+Subject: Re: RFC: Network Plugin Architecture (NPA) for vmxnet3
+Date: Tue, 4 May 2010 17:05:31 -0700
+Message-ID: <20100504170531.1e7122da__43518.7344476164$1273018025$gmane$org@nehalam>
+References: <20100504230225.GP8323@vmware.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <xen-devel-bounces@lists.xensource.com>
-In-Reply-To: <19700101001522.GA3999@ucw.cz>
-List-Unsubscribe: <http://lists.xensource.com/mailman/listinfo/xen-devel>,
-	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
-List-Post: <mailto:xen-devel@lists.xensource.com>
-List-Help: <mailto:xen-devel-request@lists.xensource.com?subject=help>
-List-Subscribe: <http://lists.xensource.com/mailman/listinfo/xen-devel>,
-	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
-Sender: xen-devel-bounces@lists.xensource.com
-Errors-To: xen-devel-bounces@lists.xensource.com
-To: Pavel Machek <pavel@ucw.cz>
-Cc: akpm@osdl.org, Zachary Amsden <zach@vmware.com>, xen-devel@lists.xensource.com, Jeremy Fitzhardinge <jeremy@xensource.com>, linux-kernel@vger.kernel.org, Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20100504230225.GP8323@vmware.com>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Pankaj Thakkar <pthakkar@vmware.com>
+Cc: pv-drivers@vmware.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 12/31/1969 04:15 PM, Pavel Machek wrote:
-> Dynamically loaded hypervisor? Do we really want to support that?
->   
+On Tue, 4 May 2010 16:02:25 -0700
+Pankaj Thakkar <pthakkar@vmware.com> wrote:
 
-(Missed this because your datestamp was 1969...)
+> Device passthrough technology allows a guest to bypass the hypervisor and drive
+> the underlying physical device. VMware has been exploring various ways to
+> deliver this technology to users in a manner which is easy to adopt. In this
+> process we have prepared an architecture along with Intel - NPA (Network Plugin
+> Architecture). NPA allows the guest to use the virtualized NIC vmxnet3 to
+> passthrough to a number of physical NICs which support it. The document below
+> provides an overview of NPA.
+> 
+> We intend to upgrade the upstreamed vmxnet3 driver to implement NPA so that
+> Linux users can exploit the benefits provided by passthrough devices in a
+> seamless manner while retaining the benefits of virtualization. The document
+> below tries to answer most of the questions which we anticipated. Please let us
+> know your comments and queries.
+> 
+> Thank you.
+> 
+> Signed-off-by: Pankaj Thakkar <pthakkar@vmware.com>
 
-The idea was that you could boot a guest under VMWare fully virtualized
-then switch it to a VMI guest by loading a module.  I don't think it
-ever worked out - the transition was too trick to get right (especially
-applying all the pvops patching to a live system).
 
-    J
+Code please. Also, it has to work for all architectures not just VMware and
+Intel.
