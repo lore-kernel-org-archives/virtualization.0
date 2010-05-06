@@ -1,7 +1,7 @@
 From: Shreyas Bhatewara <sbhatewara@vmware.com>
 Subject: RE: [Pv-drivers] RFC: Network Plugin Architecture (NPA) for vmxnet3
-Date: Thu, 6 May 2010 00:25:20 -0700
-Message-ID: <89E2752CFA8EC044846EB8499819134102AF2D23E5__36745.4224652194$1273130769$gmane$org@EXCH-MBX-4.vmware.com>
+Date: Thu, 6 May 2010 00:25:24 -0700
+Message-ID: <89E2752CFA8EC044846EB8499819134102AF2D23E6__1417.71346466175$1273130785$gmane$org@EXCH-MBX-4.vmware.com>
 References: <89E2752CFA8EC044846EB8499819134102AF2896F5@EXCH-MBX-4.vmware.com>
 	<C807719A.2E910%scofeldm@cisco.com>
 Mime-Version: 1.0
@@ -22,6 +22,8 @@ Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Scott Feldman <scofeldm@cisco.com>, Arnd Bergmann <arnd@arndb.de>, Dmitry Torokhov <dtor@vmware.com>
 Cc: Pankaj Thakkar <pthakkar@vmware.com>, "pv-drivers@vmware.com" <pv-drivers@vmware.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Christoph Hellwig <hch@infradead.org>
 List-Id: virtualization@lists.linuxfoundation.org
+
+
 
 > -----Original Message-----
 > From: Scott Feldman [mailto:scofeldm@cisco.com]
@@ -51,8 +53,3 @@ List-Id: virtualization@lists.linuxfoundation.org
 > Windows vmxnet3 NDIS driver?
 > 
 > -scott
-
-Scott,
-Thanks for pointing out. This issue can be resolved by adding exception to the plugin license which allows it to link to a non-free program .(http://www.gnu.org/licenses/gpl-faq.html#GPLPluginsInNF)
-
-->Shreyas
