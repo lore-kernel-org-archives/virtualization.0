@@ -1,19 +1,14 @@
-From: Gleb Natapov <gleb@redhat.com>
-Subject: Re: [Pv-drivers] RFC: Network Plugin Architecture (NPA) for vmxnet3
-Date: Thu, 6 May 2010 11:19:33 +0300
-Message-ID: <20100506081933.GF10044__24080.0506355756$1273134022$gmane$org@redhat.com>
-References: <20100504230225.GP8323@vmware.com>
-	<201005051029.42052.dtor@vmware.com>
-	<20100505173120.GA1752@infradead.org>
-	<201005051035.29831.dtor@vmware.com>
-	<20100505173951.GA8388@infradead.org>
-	<F1354E79A137A24CBA60059AA65CB1B802A235C535@EXCH-MBX-2.vmware.com>
+From: Avi Kivity <avi@redhat.com>
+Subject: Re: RFC: Network Plugin Architecture (NPA) for vmxnet3
+Date: Thu, 06 May 2010 11:58:54 +0300
+Message-ID: <4BE284CE.7010808__15888.1703079262$1273136384$gmane$org@redhat.com>
+References: <20100504230225.GP8323@vmware.com> <4BE1B217.80600@redhat.com>
+	<20100505194417.GV8323@vmware.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <F1354E79A137A24CBA60059AA65CB1B802A235C535@EXCH-MBX-2.vmware.com>
+In-Reply-To: <20100505194417.GV8323@vmware.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -24,42 +19,78 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Pankaj Thakkar <pthakkar@vmware.com>
-Cc: Dmitry Torokhov <dtor@vmware.com>, "pv-drivers@vmware.com" <pv-drivers@vmware.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Christoph Hellwig <hch@infradead.org>
+Cc: "pv-drivers@vmware.com" <pv-drivers@vmware.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, May 05, 2010 at 10:47:10AM -0700, Pankaj Thakkar wrote:
-> 
-> 
-> > -----Original Message-----
-> > From: Christoph Hellwig [mailto:hch@infradead.org]
-> > Sent: Wednesday, May 05, 2010 10:40 AM
-> > To: Dmitry Torokhov
-> > Cc: Christoph Hellwig; pv-drivers@vmware.com; Pankaj Thakkar;
-> > netdev@vger.kernel.org; linux-kernel@vger.kernel.org;
-> > virtualization@lists.linux-foundation.org
-> > Subject: Re: [Pv-drivers] RFC: Network Plugin Architecture (NPA) for
-> > vmxnet3
-> > 
-> > On Wed, May 05, 2010 at 10:35:28AM -0700, Dmitry Torokhov wrote:
-> > > Yes, with the exception that the only body of code that will be
-> > > accepted by the shell should be GPL-licensed and thus open and
-> > available
-> > > for examining. This is not different from having a standard kernel
-> > > module that is loaded normally and plugs into a certain subsystem.
-> > > The difference is that the binary resides not on guest filesystem
-> > > but elsewhere.
-> > 
-> > Forget about the licensing.  Loading binary blobs written to a shim
-> > layer is a complete pain in the ass and totally unsupportable, and
-> > also uninteresting because of the overhead.
-> 
-> [PT] Why do you think it is unsupportable? How different is it from any module
-> written against a well maintained interface? What overhead are you talking about?
-> 
-Overhead of interpreting bytecode plugin is written in. Or are you
-saying plugin is x86 assembly (32bit or 64bit btw?) and other arches
-will have to have in kernel x86 emulator to use the plugin (like some
-of them had for vgabios)? 
+On 05/05/2010 10:44 PM, Pankaj Thakkar wrote:
+> On Wed, May 05, 2010 at 10:59:51AM -0700, Avi Kivity wrote:
+>    
+>> Date: Wed, 5 May 2010 10:59:51 -0700
+>> From: Avi Kivity<avi@redhat.com>
+>> To: Pankaj Thakkar<pthakkar@vmware.com>
+>> CC: "linux-kernel@vger.kernel.org"<linux-kernel@vger.kernel.org>,
+>> 	"netdev@vger.kernel.org"<netdev@vger.kernel.org>,
+>> 	"virtualization@lists.linux-foundation.org"
+>>   <virtualization@lists.linux-foundation.org>,
+>> 	"pv-drivers@vmware.com"<pv-drivers@vmware.com>,
+>> 	Shreyas Bhatewara<sbhatewara@vmware.com>
+>> Subject: Re: RFC: Network Plugin Architecture (NPA) for vmxnet3
+>>
+>> On 05/05/2010 02:02 AM, Pankaj Thakkar wrote:
+>>      
+>>> 2. Hypervisor control: All control operations from the guest such as programming
+>>> MAC address go through the hypervisor layer and hence can be subjected to
+>>> hypervisor policies. The PF driver can be further used to put policy decisions
+>>> like which VLAN the guest should be on.
+>>>
+>>>        
+>> Is this enforced?  Since you pass the hardware through, you can't rely
+>> on the guest actually doing this, yes?
+>>      
+> We don't pass the whole VF to the guest. Only the BAR which is responsible for
+> TX/RX/intr is mapped into guest space.
 
---
-			Gleb.
+Does the SR/IOV spec guarantee that you will have such a separation?
+
+
+
+>
+>>
+>>> We have reworked our existing Linux vmxnet3 driver to accomodate NPA by
+>>> splitting the driver into two parts: Shell and Plugin. The new split driver is
+>>>
+>>>        
+>> So the Shell would be the reworked or new bond driver, and Plugins would
+>> be ordinary Linux network drivers.
+>>      
+> In NPA we do not rely on the guest OS to provide any of these services like
+> bonding or PCI hotplug.
+
+Well the Shell does some sort of bonding (there are two links and the 
+shell selects which one to exercise) and some sort of hotplug.  Since 
+the Shell is part of the guest OS, you do rely on it.
+
+It's certainly simpler than PCI hotplug or ordinary bonding.
+
+> We don't rely on the guest OS to unmap a VF and switch
+> a VM out of passthrough. In a bonding approach that becomes an issue you can't
+> just yank a device from underneath, you have to wait for the OS to process the
+> request and switch from using VF to the emulated device and this makes the
+> hypervisor dependent on the guest OS.
+
+How can you unmap the VF without guest cooperation?  If you're executing 
+Plugin code, you can't yank anything out.
+
+Are plugins executed with preemption/interrupts disabled?
+
+> Also we don't rely on the presence of all
+> the drivers inside the guest OS (be it Linux or Windows), the ESX hypervisor
+> carries all the plugins and the PF drivers and injects the right one as needed.
+> These plugins are guest agnostic and the IHVs do not have to write plugins for
+> different OS.
+>    
+
+What ISAs do those plugins support?
+
+-- 
+error compiling committee.c: too many arguments to function
