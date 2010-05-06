@@ -1,15 +1,15 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [Qemu-devel] Re: [PATCH] virtio-spec: document block CMD and FLUSH
-Date: Thu, 6 May 2010 15:35:19 +0930
-Message-ID: <201005061535.20619.rusty__28306.6728189171$1273125980$gmane$org@rustcorp.com.au>
-References: <20100218222220.GA14847@redhat.com>
-	<201005051428.41735.rusty@rustcorp.com.au>
-	<20100505160343.264fd015@notabene.brown>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH RFC] virtio: put last seen used index into ring itself
+Date: Thu, 6 May 2010 09:19:46 +0300
+Message-ID: <20100506061945.GA8363__19500.6761969582$1273127068$gmane$org@redhat.com>
+References: <20100505205814.GA7090@redhat.com>
+	<201005061201.35223.rusty@rustcorp.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20100505160343.264fd015@notabene.brown>
+Content-Disposition: inline
+In-Reply-To: <201005061201.35223.rusty@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,95 +19,67 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Neil Brown <neilb@suse.de>
-Cc: tytso@mit.edu, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, Jamie Lokier <jamie@shareable.org>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Jens Axboe <qemu@kernel.dk>, hch@lst.de
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: qemu-devel@nongnu.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gV2VkLCA1IE1heSAyMDEwIDAzOjMzOjQzIHBtIE5laWwgQnJvd24gd3JvdGU6Cj4gT24gV2Vk
-LCA1IE1heSAyMDEwIDE0OjI4OjQxICswOTMwCj4gUnVzdHkgUnVzc2VsbCA8cnVzdHlAcnVzdGNv
-cnAuY29tLmF1PiB3cm90ZToKPiAKPiA+IE9uIFdlZCwgNSBNYXkgMjAxMCAwNTo0NzowNSBhbSBK
-YW1pZSBMb2tpZXIgd3JvdGU6Cj4gPiA+IEplbnMgQXhib2Ugd3JvdGU6Cj4gPiA+ID4gT24gVHVl
-LCBNYXkgMDQgMjAxMCwgUnVzdHkgUnVzc2VsbCB3cm90ZToKPiA+ID4gPiA+IElTVFIgc29tZW9u
-ZSBtZW50aW9uaW5nIGEgZGVzaXJlIGZvciBzdWNoIGFuIEFQSSB5ZWFycyBhZ28sIHNvIENDJ2lu
-ZyB0aGUKPiA+ID4gPiA+IHVzdWFsIEkvTyBzdXNwZWN0cy4uLgo+ID4gPiA+IAo+ID4gPiA+IEl0
-IHdvdWxkIGJlIG5pY2UgdG8gaGF2ZSBhIG1vcmUgZnVsbGVyIEFQSSBmb3IgdGhpcywgYnV0IHRo
-ZSByZWFsaXR5IGlzCj4gPiA+ID4gdGhhdCBvbmx5IHRoZSBmbHVzaCBhcHByb2FjaCBpcyByZWFs
-bHkgd29ya2FibGUuIEV2ZW4ganVzdCBzdHJpY3QKPiA+ID4gPiBvcmRlcmluZyBvZiByZXF1ZXN0
-cyBjb3VsZCBvbmx5IGJlIHN1cHBvcnRlZCBvbiBTQ1NJLCBhbmQgZXZlbiB0aGVyZSB0aGUKPiA+
-ID4gPiBrZXJuZWwgc3RpbGwgbGFja3MgcHJvcGVyIGd1YXJhbnRlZXMgb24gZXJyb3IgaGFuZGxp
-bmcgdG8gcHJldmVudAo+ID4gPiA+IHJlb3JkZXJpbmcgdGhlcmUuCj4gPiA+IAo+ID4gPiBUaGVy
-ZSdzIGEgZmV3IEkvTyBzY2hlZHVsaW5nIGRpZmZlcmVuY2VzIHRoYXQgbWlnaHQgYmUgdXNlZnVs
-Ogo+ID4gPiAKPiA+ID4gMS4gVGhlIEkvTyBzY2hlZHVsZXIgY291bGQgZnJlZWx5IG1vdmUgV1JJ
-VEVzIGJlZm9yZSBhIEZMVVNIIGJ1dCBub3QKPiA+ID4gICAgYmVmb3JlIGEgQkFSUklFUi4gIFRo
-YXQgbWlnaHQgYmUgdXNlZnVsIGZvciB0aW1lLWNyaXRpY2FsIFdSSVRFcywKPiA+ID4gICAgYW5k
-IHRob3NlIGlzc3VlZCBieSBoaWdoIEkvTyBwcmlvcml0eS4KPiA+IAo+ID4gVGhpcyBpcyBvbmx5
-IGJlY2F1c2Ugbm9vbmUgYWN0dWFsbHkgd2FudHMgZmx1c2hlcyBvciBiYXJyaWVycywgdGhvdWdo
-Cj4gPiBJL08gcGVvcGxlIHNlZW0gdG8gb25seSBvZmZlciB0aGF0LiAgV2UgcmVhbGx5IHdhbnQg
-Ijx0aGVzZSB3cml0ZXM+IG11c3QKPiA+IG9jY3VyIGJlZm9yZSA8dGhpcyB3cml0ZT4iLiAgVGhh
-dCBvZmZlcnMgbWF4aW11bSBjaG9pY2UgdG8gdGhlIEkvTyBzdWJzeXN0ZW0KPiA+IGFuZCBwb3Rl
-bnRpYWxseSB0byBzbWFydCAodmlydHVhbD8pIGRpc2tzLgo+ID4gCj4gPiA+IDIuIFRoZSBJL08g
-c2NoZWR1bGVyIGNvdWxkIG1vdmUgV1JJVEVzIGFmdGVyIGEgRkxVU0ggaWYgdGhlIEZMVVNIIGlz
-Cj4gPiA+ICAgIG9ubHkgZm9yIGRhdGEgYmVsb25naW5nIHRvIGEgcGFydGljdWxhciBmaWxlIChl
-LmcuIGZkYXRhc3luYyB3aXRoCj4gPiA+ICAgIG5vIGZpbGUgc2l6ZSBjaGFuZ2UsIGV2ZW4gb24g
-YnRyZnMgaWYgT19ESVJFQ1Qgd2FzIHVzZWQgZm9yIHRoZQo+ID4gPiAgICB3cml0ZXMgYmVpbmcg
-Y29tbWl0dGVkKS4gIFRoYXQgd291bGQgZW50YWlsIHRhZ2dpbmcgRkxVU0hlcyBhbmQKPiA+ID4g
-ICAgV1JJVEVzIHdpdGggYSBmcy1zcGVjaWZpYyBpZGVudGlmaWVyIChzdWNoIGFzIGlub2RlIG51
-bWJlciksIG9wYXF1ZQo+ID4gPiAgICB0byB0aGUgc2NoZWR1bGVyIHdoaWNoIG9ubHkgY2hlY2tz
-IGVxdWFsaXR5Lgo+ID4gCj4gPiBUaGlzIGlzIGNsb3Nlci4gIEluIHVzZXJzcGFjZSBJJ2QgYmUg
-aGFwcHkgd2l0aCBhICJhbGwgcHJpb3Igd3JpdGVzIHRvIHRoaXMKPiA+IHN0cnVjdCBmaWxlIGJl
-Zm9yZSBhbGwgZnV0dXJlIHdyaXRlcyIuICBFdmVuIGlmIHRoZSBvcmlnaW5hbCBndWFyYW50ZWVz
-IHdlcmUKPiA+IHN0cm9uZ2VyIChpZS4gaW5vZGUgYmFzaXMpLiAgV2UgY3VycmVudGx5IGltcGxl
-bWVudCB0cmFuc2FjdGlvbnMgdXNpbmcgNCBmc3luYwo+ID4gL21zeW5jIHBhaXJzLgo+ID4gCj4g
-PiAJd3JpdGVfcmVjb3ZlcnlfZGF0YShmZCk7Cj4gPiAJZnN5bmMoZmQpOwo+ID4gCW1zeW5jKG1t
-YXApOwo+ID4gCXdyaXRlX3JlY292ZXJ5X2hlYWRlcihmZCk7Cj4gPiAJZnN5bmMoZmQpOwo+ID4g
-CW1zeW5jKG1tYXApOwo+ID4gCW92ZXJ3cml0ZV93aXRoX25ld19kYXRhKGZkKTsKPiA+IAlmc3lu
-YyhmZCk7Cj4gPiAJbXN5bmMobW1hcCk7Cj4gPiAJcmVtb3ZlX3JlY292ZXJ5X2hlYWRlcihmZCk7
-Cj4gPiAJZnN5bmMoZmQpOwo+ID4gCW1zeW5jKG1tYXApOwo+IAo+IFNlZW1zIG92ZXItemVhbG91
-cy4KPiBJZiB0aGUgcmVjb3ZlcnlfaGVhZGVyIGhlbGQgYSBzdHJvbmcgY2hlY2tzdW0gb2YgdGhl
-IHJlY292ZXJ5X2RhdGEgeW91IHdvdWxkCj4gbm90IG5lZWQgdGhlIGZpcnN0IGZzeW5jLCBhbmQg
-YXMgbG9uZyBhcyB5b3UgaGF2ZSB0d28gcGxhY2VzIHRvIHdyaXRlIHJlY292ZXJ5Cj4gZGF0YSwg
-eW91IGRvbid0IG5lZWQgdGhlIDNyZCBhbmQgNHRoIHN5bmNzLgo+IEp1c3Q6Cj4gICB3cml0ZV9p
-bnRlcm5hbGx5X2NoZWNrc3VtbWVkX3JlY292ZXJ5X2RhdGFfYW5kX2hlYWRlcl90b191bnVzZWRf
-bG9nX3NwYWNlKCkKPiAgIGZzeW5jIC8gbXN5bmMKPiAgIG92ZXJ3cml0ZV93aXRoX25ld19kYXRh
-KCkKPiAKPiBUbyByZWNvdmVyeSB5b3UgY2hvb3NlIHRoZSBtb3N0IHJlY2VudCBsb2dfc3BhY2Ug
-YW5kIHJlcGxheSB0aGUgY29udGVudC4KPiBUaGF0IG1heSBiZSBhIHJlZHVuZGFudCBvcGVyYXRp
-b24sIGJ1dCB0aGF0IGlzIG5vIGxvc3MuCgpJIHRoaW5rIHlvdSBtaXNzZWQgYSBjaGVja3N1bSBm
-b3IgdGhlIG5ldyBkYXRhPyAgT3RoZXJ3aXNlIHdlIGNhbid0IHRlbGwgaWYKdGhlIG5ldyBkYXRh
-IGlzIGNvbXBsZXRlbHkgd3JpdHRlbi4gIEJ1dCB5ZXMsIEkgd2lsbCBzdGVhbCB0aGlzIHNjaGVt
-ZSBmb3IKVERCMiwgdGhhbmtzIQoKSW4gcHJhY3RpY2UsIGl0J3MgdGhlIGZpcnN0IHN5bmMgd2hp
-Y2ggaXMgZ2xhY2lhbCwgdGhlIHJlc3QgYXJlIHByZXR0eSBjaGVhcC4KCj4gQWxzbyBjYW5ub3Qg
-c2VlIHRoZSBwb2ludCBvZiBtc3luYyBpZiB5b3UgaGF2ZSBhbHJlYWR5IHBlcmZvcm1lZCBhbiBm
-c3luYywKPiBhbmQgaWYgdGhlcmUgaXMgYSBwb2ludCwgSSB3b3VsZCBleHBlY3QgeW91IHRvIGNh
-bGwgbXN5bmMgYmVmb3JlCj4gZnN5bmMuLi4gTWF5YmUgdGhlcmUgaXMgc29tZSBzdWJ0bGV0eSB0
-aGVyZSB0aGF0IEkgYW0gbm90IGF3YXJlIG9mLgoKSSBhc3N1bWUgaXQncyB0aGlzIGZyb20gdGhl
-IG1zeW5jIG1hbiBwYWdlOgoKICAgICAgIG1zeW5jKCkgIGZsdXNoZXMgIGNoYW5nZXMgIG1hZGUg
-IHRvIHRoZSBpbi1jb3JlIGNvcHkgb2YgYSBmaWxlIHRoYXQgd2FzCiAgICAgICBtYXBwZWQgaW50
-byBtZW1vcnkgdXNpbmcgbW1hcCgyKSBiYWNrIHRvIGRpc2suICAgV2l0aG91dCAgdXNlICBvZiAg
-dGhpcwogICAgICAgY2FsbCAgdGhlcmUgIGlzICBubyBndWFyYW50ZWUgdGhhdCBjaGFuZ2VzIGFy
-ZSB3cml0dGVuIGJhY2sgYmVmb3JlIG11buKAkAogICAgICAgbWFwKDIpIGlzIGNhbGxlZC4gCgo+
-ID4gSXQncyBhbiBpbXBsZW1lbnRhdGlvbiBkZXRhaWw7IGJhcnJpZXIgaGFzIGxlc3MgZmxleGli
-aWxpdHkgYmVjYXVzZSBpdCBoYXMKPiA+IGxlc3MgaW5mb3JtYXRpb24gYWJvdXQgd2hhdCBpcyBy
-ZXF1aXJlZC4gSSdtIHNheWluZyBJIHdhbnQgdG8gZ2l2ZSB5b3UgYXMKPiA+IG11Y2ggaW5mb3Jt
-YXRpb24gYXMgSSBjYW4sIGV2ZW4gaWYgeW91IGRvbid0IHVzZSBpdCB5ZXQuCj4gCj4gT25seSB3
-ZSBrbm93IHRoYXQgYXBwcm9hY2ggZG9lc24ndCB3b3JrLgo+IFBlb3BsZSB3aWxsIGxlYXJuIHRo
-YXQgdGhleSBkb24ndCBuZWVkIHRvIGdpdmUgdGhlIGV4dHJhIGluZm9ybWF0aW9uIHRvIHN0aWxs
-Cj4gYWNoaWV2ZSB0aGUgc2FtZSByZXN1bHQgLSBqdXN0IGxpa2UgdGhleSBkaWQgd2l0aCBleHQz
-IGFuZCBmc3luYy4KPiBUaGVuIHdoZW4gd2UgaW1wcm92ZSB0aGUgaW1wbGVtZW50YXRpb24gdG8g
-b25seSBwcm92aWRlIHRoZSBndWFyYW50ZWVzIHRoYXQKPiB5b3UgYXNrZWQgZm9yLCBwZW9wbGUg
-d2lsbCBjb21wbGFpbiB0aGF0IHRoZXkgYXJlIGdldHRpbmcgZW1wdHkgZmlsZXMgdGhhdAo+IHRo
-ZXkgZGlkbid0IGV4cGVjdC4KCkkgdGhpbmsgdGhhdCdzIGFuIG92ZXJzaW1wbGlmaWNhdGlvbjog
-SUlVQyB0aGF0IG9jY3VycmVkIHRvIHBlb3BsZSAqbm90Kgp1c2luZyBmc3luYygpLiAgVGhleSB3
-ZXJlbid0IHVzaW5nIGl0IGJlY2F1c2UgaXQgd2FzIHRvbyBzbG93LiAgUHJvdmlkaW5nCmEgcHJp
-bWl0aXZlIHdoaWNoIGlzIGFzIGZhc3Qgb3IgZmFzdGVyIGFuZCBtb3JlIHNwZWNpZmljIGRvZXNu
-J3QgaGF2ZSB0aGUKc2FtZSBtYWduaXR1ZGUgb2Ygc29jaWFsIGlzc3Vlcy4KCkFuZCB3ZSBjYW4n
-dCB3cml0ZSB1c2Vyc3BhY2UgaW50ZXJmYWNlcyBmb3IgaWRpb3RzIG9ubHkuCgo+IFRoZSBhYnN0
-cmFjdGlvbiBJIHdvdWxkIGxpa2UgdG8gc2VlIGlzIGEgc2ltcGxlICdiYXJyaWVyJyB0aGF0IGNv
-bnRhaW5zIG5vCj4gZGF0YSBhbmQgaGFzIGEgZmlsZXN5c3RlbS13aWRlIGVmZmVjdC4KCkkgdGhp
-bmsgeW91IGxhY2sgYW1iaXRpb24gOykKClRoaW5raW5nIGFib3V0IHRoZSBzaW5nbGUtZmlsZSB1
-c2UgY2FzZSAoZWcuIGt2bSBndWVzdCBvciB0ZGIpLCBpc24ndCB0aGF0CnN1Ym9wdGltYWwgZm9y
-IG1kPyAgU2luY2UgeW91IGhhdmUgdG8gaGFuZCB5b3VyIGJhcnJpZXIgdG8gZXZlcnkgZGV2aWNl
-CndoZXJlYXMgYSBmaWxlLXdpZGUgcHJpbWl0aXZlIG1heSB0aGVvcmV0aWNhbGx5IG9ubHkgZ28g
-dG8gc29tZS4KCkNoZWVycywKUnVzdHkuCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlv
-bkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4LWZvdW5kYXRp
-b24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+On Thu, May 06, 2010 at 12:01:34PM +0930, Rusty Russell wrote:
+> On Thu, 6 May 2010 06:28:14 am Michael S. Tsirkin wrote:
+> > Rusty,
+> > this is a simplified form of a patch you posted in the past.
+> > I have a vhost patch that, using this feature, shows external
+> > to host bandwidth grow from 5 to 7 GB/s, by avoiding
+> > an interrupt in the window after previous interrupt
+> > was sent and before interrupts were disabled for the vq.
+> > With vhost under some external to host loads I see
+> > this window being hit about 30% sometimes.
+> 
+> Fascinating.  So you use this to guess if the guest is still processing?
+
+Exactly.
+
+> I haven't thought about it hard, but is that racy?
+
+I thought about this really hard and I don't think it's
+necessarily racy, as long as (pseudo code):
+	guest:
+		start:
+			disable interrupts
+			read(used)
+			write(last used)
+			enable interrupts
+			mb()
+			if read(used)
+				goto start
+
+	host:
+		write used
+		mb()
+		if (reached(read(last used), used))
+			interrupt
+
+IOW, guest does read then write then read, host does write then read.
+
+Now, the only way to miss an interrupt is if we read last used
+value before it is written so we think guest is still processing.
+But if that happens, this means that host has written used before
+guest updated last used, and for this reason peek will see
+used value and restart polling.
+
+IOW, to miss an interrupt host must read a stale value.
+For this host must read before guest write, then
+host write already happened, so second read in
+guest will see an updated value host has written.
+
+
+Now, I also added an mb() in guest between read and write so
+that last used index write can not get ahead of used index read.
+It does feel good to have it there, but I can not say why
+it's helpful. Works fine without it, but then these
+subtle races might be hard to trigger. What do you think?
+
+
+> Obviously happy to apply this when you finalize it.
+> 
+> Thanks!
+> Rusty.
