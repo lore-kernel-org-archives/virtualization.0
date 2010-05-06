@@ -1,31 +1,34 @@
-From: Joe Perches <joe@perches.com>
-Subject: RE: [PATCH 1/1] staging: hv: Add Time Sync feature to hv_utils
- module
-Date: Wed, 05 May 2010 18:59:07 -0700
-Message-ID: <1273111147.1735.90.camel@Joe-Laptop.home>
-References: <1FB5E1D5CA062146B38059374562DF72662A6D3B@TK5EX14MBXC130.redmond.corp.microsoft.com>
-	 ,<1273107494.1735.87.camel@Joe-Laptop.home>
-	 <1FB5E1D5CA062146B38059374562DF72662A6F52@TK5EX14MBXC130.redmond.corp.microsoft.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH 0/3] virtio: console: Handle multiple console port resizes
+Date: Thu, 6 May 2010 11:57:17 +0930
+Message-ID: <201005061157.17772.rusty@rustcorp.com.au>
+References: <1273091709-19963-1-git-send-email-amit.shah@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1FB5E1D5CA062146B38059374562DF72662A6F52@TK5EX14MBXC130.redmond.corp.microsoft.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Haiyang Zhang <haiyangz@microsoft.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@driverdev.osuosl.org" <devel@driverdev.osuosl.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, "gregkh@suse.de" <gregkh@suse.de>, Hank Janssen <hjanssen@microsoft.com>
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1273091709-19963-1-git-send-email-amit.shah@redhat.com>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Amit Shah <amit.shah@redhat.com>
+Cc: Virtualization List <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 2010-05-06 at 01:42 +0000, Haiyang Zhang wrote:
-> > Why a maximum of 50 samples?
-> After reboot the flag ICTIMESYNCFLAG_SYNC is included in the 
-> first time message after the timesync channel is opened. Since the 
-> hv_utils module is loaded after hv_vmbus, the first message is usually
-> missed. The other thing is, systime is automatically set to emulated 
-> hardware clock which may not be UTC time or the same time 
-> zone. So, to override these effects, we use the first 50 time samples 
-> for initial system time setting.
+On Thu, 6 May 2010 06:05:06 am Amit Shah wrote:
+> Hello,
+> 
+> This series adds resize support for multiple console ports. The size
+> for each console is stored in its structure and the host informs the
+> guest about size changes via the VIRTIO_CONSOLE_RESIZE control
+> message.
 
-I suggest putting that in a commit message or a code comment.
+Thanks, applied!
 
-cheers, Joe
+Rusty.
