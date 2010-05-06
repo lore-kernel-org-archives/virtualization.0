@@ -1,15 +1,17 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH RFC] virtio: put last seen used index into ring itself
-Date: Thu, 6 May 2010 09:19:46 +0300
-Message-ID: <20100506061945.GA8363__19500.6761969582$1273127068$gmane$org@redhat.com>
-References: <20100505205814.GA7090@redhat.com>
-	<201005061201.35223.rusty@rustcorp.com.au>
+Subject: Re: virtio: put last_used and last_avail index into ring itself.
+Date: Thu, 6 May 2010 09:27:55 +0300
+Message-ID: <20100506062755.GC8363__16879.5542944737$1273127685$gmane$org@redhat.com>
+References: <cover.1257349249.git.mst@redhat.com>
+	<200911091647.29655.rusty@rustcorp.com.au>
+	<20100504182236.GA14141@redhat.com>
+	<201005061022.13815.rusty@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <201005061201.35223.rusty@rustcorp.com.au>
+In-Reply-To: <201005061022.13815.rusty@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,66 +22,59 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: qemu-devel@nongnu.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: Eric Dumazet <eric.dumazet@gmail.com>, kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, s.hetze@linux-ag.com, hpa@zytor.com, Daniel Walker <dwalker@fifo99.com>, mingo@elte.hu, akpm@linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, May 06, 2010 at 12:01:34PM +0930, Rusty Russell wrote:
-> On Thu, 6 May 2010 06:28:14 am Michael S. Tsirkin wrote:
-> > Rusty,
-> > this is a simplified form of a patch you posted in the past.
-> > I have a vhost patch that, using this feature, shows external
-> > to host bandwidth grow from 5 to 7 GB/s, by avoiding
-> > an interrupt in the window after previous interrupt
-> > was sent and before interrupts were disabled for the vq.
-> > With vhost under some external to host loads I see
-> > this window being hit about 30% sometimes.
+On Thu, May 06, 2010 at 10:22:12AM +0930, Rusty Russell wrote:
+> On Wed, 5 May 2010 03:52:36 am Michael S. Tsirkin wrote:
+> > > virtio: put last_used and last_avail index into ring itself.
+> > > 
+> > > Generally, the other end of the virtio ring doesn't need to see where
+> > > you're up to in consuming the ring.  However, to completely understand
+> > > what's going on from the outside, this information must be exposed.
+> > > For example, if you want to save and restore a virtio_ring, but you're
+> > > not the consumer because the kernel is using it directly.
+> > > 
+> > > Fortunately, we have room to expand: the ring is always a whole number
+> > > of pages and there's hundreds of bytes of padding after the avail ring
+> > > and the used ring, whatever the number of descriptors (which must be a
+> > > power of 2).
+> > > 
+> > > We add a feature bit so the guest can tell the host that it's writing
+> > > out the current value there, if it wants to use that.
+> > > 
+> > > Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+> > 
+> > I've been looking at this patch some more (more on why
+> > later), and I wonder: would it be better to add some
+> > alignment to the last used index address, so that
+> > if we later add more stuff at the tail, it all
+> > fits in a single cache line?
 > 
-> Fascinating.  So you use this to guess if the guest is still processing?
+> In theory, but not in practice.  We don't have many rings, so the
+> difference between 1 and 2 cache lines is not very much.
 
-Exactly.
+Fair enough.
 
-> I haven't thought about it hard, but is that racy?
-
-I thought about this really hard and I don't think it's
-necessarily racy, as long as (pseudo code):
-	guest:
-		start:
-			disable interrupts
-			read(used)
-			write(last used)
-			enable interrupts
-			mb()
-			if read(used)
-				goto start
-
-	host:
-		write used
-		mb()
-		if (reached(read(last used), used))
-			interrupt
-
-IOW, guest does read then write then read, host does write then read.
-
-Now, the only way to miss an interrupt is if we read last used
-value before it is written so we think guest is still processing.
-But if that happens, this means that host has written used before
-guest updated last used, and for this reason peek will see
-used value and restart polling.
-
-IOW, to miss an interrupt host must read a stale value.
-For this host must read before guest write, then
-host write already happened, so second read in
-guest will see an updated value host has written.
-
-
-Now, I also added an mb() in guest between read and write so
-that last used index write can not get ahead of used index read.
-It does feel good to have it there, but I can not say why
-it's helpful. Works fine without it, but then these
-subtle races might be hard to trigger. What do you think?
-
-
-> Obviously happy to apply this when you finalize it.
+> > We use a new feature bit anyway, so layout change should not be
+> > a problem.
+> > 
+> > Since I raised the question of caches: for used ring,
+> > the ring is not aligned to 64 bit, so on CPUs with 64 bit
+> > or larger cache lines, used entries will often cross
+> > cache line boundaries. Am I right and might it
+> > have been better to align ring entries to cache line boundaries?
+> > 
+> > What do you think?
 > 
-> Thanks!
+> I think everyone is settled on 128 byte cache lines for the forseeable
+> future, so it's not really an issue.
+> 
+> Cheers,
 > Rusty.
+
+You mean with 64 bit descriptors we will be bouncing a cache line
+between host and guest, anyway?
+
+-- 
+MST
