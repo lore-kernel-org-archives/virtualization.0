@@ -1,29 +1,65 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [GIT PULL] amended: first round of vhost-net enhancements for
- net-next
-Date: Thu, 06 May 2010 00:29:30 -0700 (PDT)
-Message-ID: <20100506.002930.91336110.davem@davemloft.net>
-References: <20100504112100.GA22172@redhat.com>
+From: Gleb Natapov <gleb@redhat.com>
+Subject: Re: [Pv-drivers] RFC: Network Plugin Architecture (NPA) for vmxnet3
+Date: Thu, 6 May 2010 11:19:33 +0300
+Message-ID: <20100506081933.GF10044__24080.0506355756$1273134022$gmane$org@redhat.com>
+References: <20100504230225.GP8323@vmware.com>
+	<201005051029.42052.dtor@vmware.com>
+	<20100505173120.GA1752@infradead.org>
+	<201005051035.29831.dtor@vmware.com>
+	<20100505173951.GA8388@infradead.org>
+	<F1354E79A137A24CBA60059AA65CB1B802A235C535@EXCH-MBX-2.vmware.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20100504112100.GA22172@redhat.com>
-Sender: netdev-owner@vger.kernel.org
-To: mst@redhat.com
-Cc: kvm@vger.kernel.org, virtualization@lists.osdl.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <F1354E79A137A24CBA60059AA65CB1B802A235C535@EXCH-MBX-2.vmware.com>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Pankaj Thakkar <pthakkar@vmware.com>
+Cc: Dmitry Torokhov <dtor@vmware.com>, "pv-drivers@vmware.com" <pv-drivers@vmware.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Christoph Hellwig <hch@infradead.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Date: Tue, 4 May 2010 14:21:01 +0300
-
-> This is an amended pull request: I have rebased the tree to the
-> correct patches. This has been through basic tests and seems
-> to work fine here.
+On Wed, May 05, 2010 at 10:47:10AM -0700, Pankaj Thakkar wrote:
 > 
-> The following tree includes a couple of enhancements that help vhost-net.
-> Please pull them for net-next. Another set of patches is under
-> debugging/testing and I hope to get them ready in time for 2.6.35,
-> so there may be another pull request later.
+> 
+> > -----Original Message-----
+> > From: Christoph Hellwig [mailto:hch@infradead.org]
+> > Sent: Wednesday, May 05, 2010 10:40 AM
+> > To: Dmitry Torokhov
+> > Cc: Christoph Hellwig; pv-drivers@vmware.com; Pankaj Thakkar;
+> > netdev@vger.kernel.org; linux-kernel@vger.kernel.org;
+> > virtualization@lists.linux-foundation.org
+> > Subject: Re: [Pv-drivers] RFC: Network Plugin Architecture (NPA) for
+> > vmxnet3
+> > 
+> > On Wed, May 05, 2010 at 10:35:28AM -0700, Dmitry Torokhov wrote:
+> > > Yes, with the exception that the only body of code that will be
+> > > accepted by the shell should be GPL-licensed and thus open and
+> > available
+> > > for examining. This is not different from having a standard kernel
+> > > module that is loaded normally and plugs into a certain subsystem.
+> > > The difference is that the binary resides not on guest filesystem
+> > > but elsewhere.
+> > 
+> > Forget about the licensing.  Loading binary blobs written to a shim
+> > layer is a complete pain in the ass and totally unsupportable, and
+> > also uninteresting because of the overhead.
+> 
+> [PT] Why do you think it is unsupportable? How different is it from any module
+> written against a well maintained interface? What overhead are you talking about?
+> 
+Overhead of interpreting bytecode plugin is written in. Or are you
+saying plugin is x86 assembly (32bit or 64bit btw?) and other arches
+will have to have in kernel x86 emulator to use the plugin (like some
+of them had for vgabios)? 
 
-Pulled, thanks Michael.
+--
+			Gleb.
