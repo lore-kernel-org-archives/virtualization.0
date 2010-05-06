@@ -1,17 +1,15 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: virtio: put last_used and last_avail index into ring itself.
-Date: Thu, 6 May 2010 09:27:55 +0300
-Message-ID: <20100506062755.GC8363__16879.5542944737$1273127685$gmane$org@redhat.com>
-References: <cover.1257349249.git.mst@redhat.com>
-	<200911091647.29655.rusty@rustcorp.com.au>
-	<20100504182236.GA14141@redhat.com>
-	<201005061022.13815.rusty@rustcorp.com.au>
+From: Shreyas Bhatewara <sbhatewara@vmware.com>
+Subject: RE: [Pv-drivers] RFC: Network Plugin Architecture (NPA) for vmxnet3
+Date: Thu, 6 May 2010 00:25:20 -0700
+Message-ID: <89E2752CFA8EC044846EB8499819134102AF2D23E5__36745.4224652194$1273130769$gmane$org@EXCH-MBX-4.vmware.com>
+References: <89E2752CFA8EC044846EB8499819134102AF2896F5@EXCH-MBX-4.vmware.com>
+	<C807719A.2E910%scofeldm@cisco.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <201005061022.13815.rusty@rustcorp.com.au>
+In-Reply-To: <C807719A.2E910%scofeldm@cisco.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -21,60 +19,40 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Eric Dumazet <eric.dumazet@gmail.com>, kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, s.hetze@linux-ag.com, hpa@zytor.com, Daniel Walker <dwalker@fifo99.com>, mingo@elte.hu, akpm@linux-foundation.org
+To: Scott Feldman <scofeldm@cisco.com>, Arnd Bergmann <arnd@arndb.de>, Dmitry Torokhov <dtor@vmware.com>
+Cc: Pankaj Thakkar <pthakkar@vmware.com>, "pv-drivers@vmware.com" <pv-drivers@vmware.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Christoph Hellwig <hch@infradead.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, May 06, 2010 at 10:22:12AM +0930, Rusty Russell wrote:
-> On Wed, 5 May 2010 03:52:36 am Michael S. Tsirkin wrote:
-> > > virtio: put last_used and last_avail index into ring itself.
-> > > 
-> > > Generally, the other end of the virtio ring doesn't need to see where
-> > > you're up to in consuming the ring.  However, to completely understand
-> > > what's going on from the outside, this information must be exposed.
-> > > For example, if you want to save and restore a virtio_ring, but you're
-> > > not the consumer because the kernel is using it directly.
-> > > 
-> > > Fortunately, we have room to expand: the ring is always a whole number
-> > > of pages and there's hundreds of bytes of padding after the avail ring
-> > > and the used ring, whatever the number of descriptors (which must be a
-> > > power of 2).
-> > > 
-> > > We add a feature bit so the guest can tell the host that it's writing
-> > > out the current value there, if it wants to use that.
-> > > 
-> > > Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
-> > 
-> > I've been looking at this patch some more (more on why
-> > later), and I wonder: would it be better to add some
-> > alignment to the last used index address, so that
-> > if we later add more stuff at the tail, it all
-> > fits in a single cache line?
+> -----Original Message-----
+> From: Scott Feldman [mailto:scofeldm@cisco.com]
+> Sent: Wednesday, May 05, 2010 7:04 PM
+> To: Shreyas Bhatewara; Arnd Bergmann; Dmitry Torokhov
+> Cc: Christoph Hellwig; pv-drivers@vmware.com; netdev@vger.kernel.org;
+> linux-kernel@vger.kernel.org; virtualization@lists.linux-
+> foundation.org; Pankaj Thakkar
+> Subject: Re: [Pv-drivers] RFC: Network Plugin Architecture (NPA) for
+> vmxnet3
 > 
-> In theory, but not in practice.  We don't have many rings, so the
-> difference between 1 and 2 cache lines is not very much.
-
-Fair enough.
-
-> > We use a new feature bit anyway, so layout change should not be
-> > a problem.
-> > 
-> > Since I raised the question of caches: for used ring,
-> > the ring is not aligned to 64 bit, so on CPUs with 64 bit
-> > or larger cache lines, used entries will often cross
-> > cache line boundaries. Am I right and might it
-> > have been better to align ring entries to cache line boundaries?
-> > 
-> > What do you think?
+> On 5/5/10 10:29 AM, "Dmitry Torokhov" <dtor@vmware.com> wrote:
 > 
-> I think everyone is settled on 128 byte cache lines for the forseeable
-> future, so it's not really an issue.
+> > It would not be a binary blob but software properly released under
+> GPL.
+> > The current plan is for the shell to enforce GPL requirement on the
+> > plugin code, similar to what module loaded does for regular kernel
+> > modules.
 > 
-> Cheers,
-> Rusty.
+> On 5/5/10 3:05 PM, "Shreyas Bhatewara" <sbhatewara@vmware.com> wrote:
+> 
+> > The plugin image is not linked against Linux kernel. It is OS
+> agnostic infact
+> > (Eg. same plugin works for Linux and Windows VMs)
+> 
+> Are there any issues with injecting the GPL-licensed plug-in into the
+> Windows vmxnet3 NDIS driver?
+> 
+> -scott
 
-You mean with 64 bit descriptors we will be bouncing a cache line
-between host and guest, anyway?
+Scott,
+Thanks for pointing out. This issue can be resolved by adding exception to the plugin license which allows it to link to a non-free program .(http://www.gnu.org/licenses/gpl-faq.html#GPLPluginsInNF)
 
--- 
-MST
+->Shreyas
