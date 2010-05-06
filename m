@@ -1,15 +1,15 @@
-From: Dmitry Torokhov <dtor@vmware.com>
-Subject: Re: [Pv-drivers] RFC: Network Plugin Architecture (NPA) for vmxnet3
-Date: Wed, 5 May 2010 13:36:31 -0700
-Message-ID: <201005051336.32712.dtor__21733.7731075988$1273097832$gmane$org@vmware.com>
-References: <20100504230225.GP8323@vmware.com>
-	<F1354E79A137A24CBA60059AA65CB1B802A235C535@EXCH-MBX-2.vmware.com>
-	<201005052209.48465.arnd@arndb.de>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: virtio: put last_used and last_avail index into ring itself.
+Date: Thu, 6 May 2010 10:22:12 +0930
+Message-ID: <201005061022.13815.rusty__3610.43410744077$1273107182$gmane$org@rustcorp.com.au>
+References: <cover.1257349249.git.mst@redhat.com>
+	<200911091647.29655.rusty@rustcorp.com.au>
+	<20100504182236.GA14141@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <201005052209.48465.arnd@arndb.de>
+In-Reply-To: <20100504182236.GA14141@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,25 +19,51 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Christoph Hellwig <hch@infradead.org>, "pv-drivers@vmware.com" <pv-drivers@vmware.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Pankaj Thakkar <pthakkar@vmware.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Eric Dumazet <eric.dumazet@gmail.com>, kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, s.hetze@linux-ag.com, hpa@zytor.com, Daniel Walker <dwalker@fifo99.com>, mingo@elte.hu, akpm@linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wednesday 05 May 2010 01:09:48 pm Arnd Bergmann wrote:
-> > > If you have any interesting in developing this further, do:
-> > > 
-> > >  (1) move the limited VF drivers directly into the kernel tree,
-> > >      talk to them through a normal ops vector
+On Wed, 5 May 2010 03:52:36 am Michael S. Tsirkin wrote:
+> > virtio: put last_used and last_avail index into ring itself.
 > > 
-> > [PT] This assumes that all the VF drivers would always be available.
-> > Also we have to support windows and our current design supports it
-> > nicely in an OS agnostic manner.
+> > Generally, the other end of the virtio ring doesn't need to see where
+> > you're up to in consuming the ring.  However, to completely understand
+> > what's going on from the outside, this information must be exposed.
+> > For example, if you want to save and restore a virtio_ring, but you're
+> > not the consumer because the kernel is using it directly.
+> > 
+> > Fortunately, we have room to expand: the ring is always a whole number
+> > of pages and there's hundreds of bytes of padding after the avail ring
+> > and the used ring, whatever the number of descriptors (which must be a
+> > power of 2).
+> > 
+> > We add a feature bit so the guest can tell the host that it's writing
+> > out the current value there, if it wants to use that.
+> > 
+> > Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 > 
-> Your approach assumes that the plugin is always available, which has
-> exactly the same implications.
+> I've been looking at this patch some more (more on why
+> later), and I wonder: would it be better to add some
+> alignment to the last used index address, so that
+> if we later add more stuff at the tail, it all
+> fits in a single cache line?
 
-Since plugin[s] are carried by the host they are indeed always
-available.
+In theory, but not in practice.  We don't have many rings, so the
+difference between 1 and 2 cache lines is not very much.
 
--- 
-Dmitry
+> We use a new feature bit anyway, so layout change should not be
+> a problem.
+> 
+> Since I raised the question of caches: for used ring,
+> the ring is not aligned to 64 bit, so on CPUs with 64 bit
+> or larger cache lines, used entries will often cross
+> cache line boundaries. Am I right and might it
+> have been better to align ring entries to cache line boundaries?
+> 
+> What do you think?
+
+I think everyone is settled on 128 byte cache lines for the forseeable
+future, so it's not really an issue.
+
+Cheers,
+Rusty.
