@@ -1,15 +1,11 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH RFC] virtio: put last seen used index into ring itself
-Date: Fri, 7 May 2010 13:03:28 +0930
-Message-ID: <201005071303.29129.rusty@rustcorp.com.au>
-References: <20100505205814.GA7090@redhat.com>
-	<201005061201.35223.rusty@rustcorp.com.au>
-	<20100506061945.GA8363@redhat.com>
+Subject: [PATCH] virtio: initialize earlier
+Date: Fri, 7 May 2010 14:28:34 +0930
+Message-ID: <201005071428.35127.rusty@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20100506061945.GA8363@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,30 +15,41 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: qemu-devel@nongnu.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Stijn Tintel <stijn@linux-ipv6.be>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 6 May 2010 03:49:46 pm Michael S. Tsirkin wrote:
-> Now, I also added an mb() in guest between read and write so
-> that last used index write can not get ahead of used index read.
-> It does feel good to have it there, but I can not say why
-> it's helpful. Works fine without it, but then these
-> subtle races might be hard to trigger. What do you think?
+From: Stijn Tintel <stijn@linux-ipv6.be>
 
-I couldn't see that in the patch?  I don't think it's necessary
-though, since the write of depends last_used depends on the read of
-used (and no platform we care about would reorder such a thing).
+Move initialization of the virtio framework before the initialization of
+mtd, so that block2mtd can be used on virtio-based block devices.
 
-I'm reasonably happy, but we should write some convenient test for
-missing interrupts.
+Addresses https://bugzilla.kernel.org/show_bug.cgi?id=15644
 
-I'm thinking of a sender which does a loop: blasts 1MB of UDP packets,
-then prints the time and sleep(1).  The receiver would print the time
-every 1MB of received data.  The two times should almost exactly correspond.
+Signed-off-by: Stijn Tintel <stijn@linux-ipv6.be>
+Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+Cc: stable@kernel.org
+---
+ drivers/Makefile |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Assuming that the network doesn't overflow and lose stuff, this should
-identify any missing wakeup/interrupts (depending on direction used).
-
-Cheers,
-Rusty.
+diff --git a/drivers/Makefile b/drivers/Makefile
+index 34f1e10..f42a030 100644
+--- a/drivers/Makefile
++++ b/drivers/Makefile
+@@ -17,6 +17,7 @@ obj-$(CONFIG_SFI)		+= sfi/
+ obj-$(CONFIG_PNP)		+= pnp/
+ obj-$(CONFIG_ARM_AMBA)		+= amba/
+ 
++obj-$(CONFIG_VIRTIO)		+= virtio/
+ obj-$(CONFIG_XEN)		+= xen/
+ 
+ # regulators early, since some subsystems rely on them to initialize
+@@ -108,7 +109,6 @@ obj-$(CONFIG_PPC_PS3)		+= ps3/
+ obj-$(CONFIG_OF)		+= of/
+ obj-$(CONFIG_SSB)		+= ssb/
+ obj-$(CONFIG_VHOST_NET)		+= vhost/
+-obj-$(CONFIG_VIRTIO)		+= virtio/
+ obj-$(CONFIG_VLYNQ)		+= vlynq/
+ obj-$(CONFIG_STAGING)		+= staging/
+ obj-y				+= platform/
