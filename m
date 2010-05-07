@@ -1,186 +1,82 @@
-From: KVM Forum 2010 Program Committee <KVM-Forum-2010-PC@redhat.com>
-Subject: [Reminder] KVM Forum 2010: Call for Papers
-Date: Fri, 7 May 2010 09:35:39 -0700
-Message-ID: <20100507163539.GD2216__436.384385875677$1273253222$gmane$org@x200.localdomain>
+From: "Ky Srinivasan" <ksrinivasan@novell.com>
+Subject: Patch to auto-load MSFT PV NIC driver
+Date: Fri, 07 May 2010 17:52:17 -0600
+Message-ID: <4BE453510200003000084906@sinclair.provo.novell.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: kvm@vger.kernel.org, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, libvir-list@redhat.com
+Content-Type: multipart/mixed; boundary="=__PartC1EB63A1.0__="
+Return-path: <devel-bounces@linuxdriverproject.org>
+List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
+	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
+List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
+List-Post: <mailto:devel@linuxdriverproject.org>
+List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
+List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
+	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
+Sender: devel-bounces@linuxdriverproject.org
+Errors-To: devel-bounces@linuxdriverproject.org
+To: devel@driverdev.osuosl.org, Virtualization@lists.osdl.org
+Cc: Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Just a reminder...The submission deadline is in one week.
+--=__PartC1EB63A1.0__=
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-thanks,
--KVM Forum 2010 Program Commitee
---
+I am attaching a patch to auto-load hv_netvsc.
 
-=================================================================
+Regards,
 
-CALL FOR PAPERS 
-
-KVM Forum 2010
-
-=================================================================
+K. Y
 
 
-DESCRIPTION
-
- The KVM Forum is back! After a break last year we're proud to present
- this year's gathering around KVM again.  The idea is to have everyone
- involved with KVM development come together to talk about the future
- and current state of KVM, teaching everyone some pieces of the puzzle
- they might be missing without.
- 
- So if you're a KVM developer, mark the dates in your calendar! If
- possible, also submit a talk -- we're interested in a wide variety of
- KVM topics, so don't hesitate to propose a talk on your work.
-
- If you're not a KVM developer, please read on nevertheless (or jump to
- END USER COLLABORATION).
- 
-
-DATES / LOCATION
-
- Conference: August 9 - 10, 2010
- Location: Renaissance Boston Waterfront in Boston, MA
- 
- Abstracts due: May 14th, 2010
- Notification: May 28th, 2010
- 
- Yes, we're colocated with LinuxCon.  Tickets for the KVM Forum also count
- for LinuxCon.
-
- http://events.linuxfoundation.org/component/registrationpro/?func=details&did=34
- 
- 
-PROCESS
-
- At first check if it's before May 14th.  If you're past that date, you're
- out of luck.  Now try to think hard and come up with a great idea that
- you could talk about.  Once you have that set, we need you to write up
- a short abstract (~150 words) on it.  In your submission please note
- how long your talk will take.  Slots vary in length up to one hour.
- Also include in your proposal the proposal type -- one of: technical talk,
- breakout session, or end-user talk.  Add that information to the abstract
- and submit it at the following URL:
- 
- http://events.linuxfoundation.org/cfp/cfp-add
- 
- Now, wait until May 24th.  You will receive a notification on whether
- your talk was accepted or not.
- 
- 
-SCOPE OF TALKS
-
- We have a list of suggested presentation topics below.  These suggestions
- are just for guidance, please feel free to submit a proposal on any
- of these or related topics.  In general, the more it's about backend
- infrastructure, the better.
- 
- KVM
-   - Scaling and performance
-   - Nested virtualization
-   - I/O improvements
-   - Driver domains
-   - Time keeping
-   - Memory management (page sharing, swapping, huge pages, etc)
-   - Fault tolerance
-   - VEPA, vswitch
-
-  Embedded KVM
-   - KVM on ARM, PPC, MIPS, ...?
-   - Real-time requirements host/guest
-   - Device pass-through w/o iommu
-   - Custom device/platform models
- 
- QEMU
-   - Device model improvements
-   - New devices
-   - Security model
-   - Scaling and performance
-   - Desktop virtualization
-   - Increasing robustness
-   - Management interfaces
-   - QMP protocol and implementation
-   - Live migration
- 
- Virtio
-   - Speeding up existing devices
-   - Vhost
-   - Alternatives
-   - Using virtio in non-kvm environments
-   - Virtio on non-Linux
- 
- Management infrastructure
-   - Libvirt
-   - Kvm autotest
-   - Easy networking
-   - Qemud
 
 
-BREAKOUT SESSION
+--=__PartC1EB63A1.0__=
+Content-Type: text/plain; name="hv_netvsc_autoload.patch"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: attachment; filename="hv_netvsc_autoload.patch"
 
- We will reserve some time each day to break out for working sessions.
- These sessions will be less formal than a presentation and more focused
- on developing a solution to some real development issue.  If you are
- interested in getting developers together to hack on some code, submit
- your proposal and just make it clear it's a breakout session proposal.
- 
+From: K. Y. Srinivasan <ksrinivasan@novell.com>=0ASubject: Auto-load the =
+hyperV PV net driver. =0AReferences: None=0APatch-mainline:=0A=0ASigned-off=
+-by: K. Y. Srinivasan <ksrinivasan@novell.com>=0A=0AIndex: linux/drivers/st=
+aging/hv/netvsc_drv.c=0A=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=0A--- linux.orig/drivers/staging/hv/netvsc_drv.c	2010-05-07 =
+15:29:32.000000000 -0600=0A+++ linux/drivers/staging/hv/netvsc_drv.c	=
+2010-05-07 15:30:00.000000000 -0600=0A@@ -29,6 +29,8 @@=0A #include =
+<linux/etherdevice.h>=0A #include <linux/skbuff.h>=0A #include <linux/in.h>=
+=0A+#include <linux/dmi.h>=0A+#include <linux/pci.h>=0A #include <net/arp.h=
+>=0A #include <net/route.h>=0A #include <net/sock.h>=0A@@ -592,6 +594,20 =
+@@ static int netvsc_drv_init(int (*drv_ini=0A 	return ret;=0A }=0A =
+=0A+static const struct dmi_system_id __initconst=0A+hv_netvsc_dmi_table[] =
+__maybe_unused  =3D {=0A+	{=0A+		.ident =3D "Hyper-V",=0A+	=
+	.matches =3D {=0A+			DMI_MATCH(DMI_SYS_VENDOR, =
+"Microsoft Corporation"),=0A+			DMI_MATCH(DMI_PRODUCT_NAME,=
+ "Virtual Machine"),=0A+			DMI_MATCH(DMI_BOARD_NAME, =
+"Virtual Machine"),=0A+		},=0A+	},=0A+	{ },=0A+};=0A+MODULE_DEVICE=
+_TABLE(dmi, hv_netvsc_dmi_table);=0A+=0A static int __init netvsc_init(void=
+)=0A {=0A 	int ret;=0A@@ -599,6 +615,9 @@ static int __init netvsc_ini=
+t(void)=0A 	DPRINT_ENTER(NETVSC_DRV);=0A 	DPRINT_INFO(NETVSC_DRV, =
+"Netvsc initializing....");=0A =0A+	if (!dmi_check_system(hv_netvsc_dmi=
+_table))=0A+		return -ENODEV;=0A+=0A 	ret =3D netvsc_drv_init(Net=
+VscInitialize);=0A =0A 	DPRINT_EXIT(NETVSC_DRV);=0A@@ -613,6 +632,13 @@ =
+static void __exit netvsc_exit(void)=0A 	DPRINT_EXIT(NETVSC_DRV);=0A=
+ }=0A =0A+static const struct pci_device_id __initconst=0A+hv_netvsc_pci_ta=
+ble[] __maybe_unused =3D {=0A+	{ PCI_DEVICE(0x1414, 0x5353) }, /* VGA =
+compatible controller */=0A+	{ 0 }=0A+};=0A+MODULE_DEVICE_TABLE(pci, =
+hv_netvsc_pci_table);=0A+=0A module_param(netvsc_ringbuffer_size, int, =
+S_IRUGO);=0A =0A module_init(netvsc_init);=0A
+--=__PartC1EB63A1.0__=
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-END-USER COLLABORATION
+_______________________________________________
+devel mailing list
+devel@linuxdriverproject.org
+http://driverdev.linuxdriverproject.org/mailman/listinfo/devel
 
- One of the big challenges as developers is to know what, where and how
- people actually use our software.  To solve this issue at least a little,
- there will be a few slots reserved for end users talking about their
- deployments, problems and achievements.
- 
- So if you have a KVM based deployment running in production or are about
- to roll out one, please also submit a talk (see PROCESS), and simply
- mark it asn an end-user collaboration proposal.  We would love to have
- an open discussion of fields where KVM/Qemu can still improve and you
- would have the unique chance to steer that process!
-  
- Keep in mind that most of the Forum will be focused on development though,
- so we suggest you also come with a good portion of technical interest :-).
- And of course, no product marketing please!  The purpose is to engage
- with KVM developers.
- 
- 
-LIGHTNING TALKS
-
- In addition to submitted talks we will also have some room for lightning
- talks. So if you have something you think might be done until the KVM
- Forum, but you're not sure you could fill 15 minutes with it. Or if you
- don't know if you'll make it until there, just keep in mind that you
- will still get the chance to talk about it.  Lightning talk submissions
- and scheduling will be handled on-site at KVM Forum.
-
-
-Thank you for your interest in KVM.  We're looking forward to your
-submissions and seeing you at the KVM Forum 2010 in August!  Now, start
-thinking about that talk you want to give.
-
-Thanks,
-your KVM Forum 2010 Program Commitee
-
-Alexander Graf, Novell
-Anthony Liguori, IBM
-Avi Kivity, Red Hat
-Chris Wright, Red Hat
-Dor Laor, Red Hat
-Jan Kiszka, Siemens
-
-Please contact us with any questions or comments.
-
-KVM-Forum-2010-PC@redhat.com
+--=__PartC1EB63A1.0__=--
