@@ -1,15 +1,14 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: virtio: put last_used and last_avail index into ring itself.
-Date: Fri, 7 May 2010 12:35:39 +0930
-Message-ID: <201005071235.40590.rusty__2379.69078957594$1273201653$gmane$org@rustcorp.com.au>
-References: <cover.1257349249.git.mst@redhat.com>
-	<201005061022.13815.rusty@rustcorp.com.au>
-	<20100506062755.GC8363@redhat.com>
+Subject: Re: [Qemu-devel] [PATCH RFC] virtio: put last seen used index into
+	=?iso-8859-1?q?ring=09itself?=
+Date: Fri, 7 May 2010 12:53:52 +0930
+Message-ID: <201005071253.53393.rusty__16869.3795022138$1273202793$gmane$org@rustcorp.com.au>
+References: <20100505205814.GA7090@redhat.com> <4BE29320.5090506@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20100506062755.GC8363@redhat.com>
+In-Reply-To: <4BE29320.5090506@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,31 +18,29 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Eric Dumazet <eric.dumazet@gmail.com>, kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, s.hetze@linux-ag.com, hpa@zytor.com, Daniel Walker <dwalker@fifo99.com>, mingo@elte.hu, akpm@linux-foundation.org
+To: Avi Kivity <avi@redhat.com>
+Cc: qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 6 May 2010 03:57:55 pm Michael S. Tsirkin wrote:
-> On Thu, May 06, 2010 at 10:22:12AM +0930, Rusty Russell wrote:
-> > On Wed, 5 May 2010 03:52:36 am Michael S. Tsirkin wrote:
-> > > What do you think?
-> > 
-> > I think everyone is settled on 128 byte cache lines for the forseeable
-> > future, so it's not really an issue.
+On Thu, 6 May 2010 07:30:00 pm Avi Kivity wrote:
+> On 05/05/2010 11:58 PM, Michael S. Tsirkin wrote:
+> > +	/* We publish the last-seen used index at the end of the available ring.
+> > +	 * It is at the end for backwards compatibility. */
+> > +	vr->last_used_idx =&(vr)->avail->ring[num];
+> > +	/* Verify that last used index does not spill over the used ring. */
+> > +	BUG_ON((void *)vr->last_used_idx +
+> > +	       sizeof *vr->last_used_idx>  (void *)vr->used);
+> >   }
+> >    
 > 
-> You mean with 64 bit descriptors we will be bouncing a cache line
-> between host and guest, anyway?
+> Shouldn't this be on its own cache line?
 
-I'm confused by this entire thread.
+It's next to the available ring; because that's where the guest publishes
+its data.  That whole page is guest-write, host-read.
 
-Descriptors are 16 bytes.  They are at the start, so presumably aligned to
-cache boundaries.
+Putting it on a cacheline by itself would be a slight pessimization; the host
+cpu would have to get the last_used_idx cacheline and the avail descriptor
+cacheline every time.  This way, they are sometimes the same cacheline.
 
-Available ring follows that at 2 bytes per entry, so it's also packed nicely
-into cachelines.
-
-Then there's padding to page boundary.  That puts us on a cacheline again
-for the used ring; also 2 bytes per entry.
-
-I don't see how any change in layout could be more cache friendly?
+Hope that clarifies,
 Rusty.
