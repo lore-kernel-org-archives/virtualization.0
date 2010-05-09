@@ -1,17 +1,17 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: virtio: put last_used and last_avail index into ring itself.
-Date: Sun, 9 May 2010 11:57:33 +0300
-Message-ID: <20100509085733.GD16775__32819.0707522028$1273395804$gmane$org@redhat.com>
-References: <cover.1257349249.git.mst@redhat.com>
-	<201005061022.13815.rusty@rustcorp.com.au>
-	<20100506062755.GC8363@redhat.com>
-	<201005071235.40590.rusty@rustcorp.com.au>
+Subject: Re: [PATCH RFC] virtio: put last seen used index into ring itself
+Date: Mon, 10 May 2010 00:06:52 +0300
+Message-ID: <20100509210652.GB21338__22611.0715572306$1273439586$gmane$org@redhat.com>
+References: <20100505205814.GA7090@redhat.com>
+	<201005061201.35223.rusty@rustcorp.com.au>
+	<20100506061945.GA8363@redhat.com>
+	<201005071303.29129.rusty@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <201005071235.40590.rusty@rustcorp.com.au>
+In-Reply-To: <201005071303.29129.rusty@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -22,60 +22,32 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Eric Dumazet <eric.dumazet@gmail.com>, kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, s.hetze@linux-ag.com, hpa@zytor.com, Daniel Walker <dwalker@fifo99.com>, mingo@elte.hu, akpm@linux-foundation.org
+Cc: qemu-devel@nongnu.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, May 07, 2010 at 12:35:39PM +0930, Rusty Russell wrote:
-> On Thu, 6 May 2010 03:57:55 pm Michael S. Tsirkin wrote:
-> > On Thu, May 06, 2010 at 10:22:12AM +0930, Rusty Russell wrote:
-> > > On Wed, 5 May 2010 03:52:36 am Michael S. Tsirkin wrote:
-> > > > What do you think?
-> > > 
-> > > I think everyone is settled on 128 byte cache lines for the forseeable
-> > > future, so it's not really an issue.
-> > 
-> > You mean with 64 bit descriptors we will be bouncing a cache line
-> > between host and guest, anyway?
+On Fri, May 07, 2010 at 01:03:28PM +0930, Rusty Russell wrote:
+> On Thu, 6 May 2010 03:49:46 pm Michael S. Tsirkin wrote:
+> > Now, I also added an mb() in guest between read and write so
+> > that last used index write can not get ahead of used index read.
+> > It does feel good to have it there, but I can not say why
+> > it's helpful. Works fine without it, but then these
+> > subtle races might be hard to trigger. What do you think?
 > 
-> I'm confused by this entire thread.
+> I couldn't see that in the patch?  I don't think it's necessary
+> though, since the write of depends last_used depends on the read of
+> used (and no platform we care about would reorder such a thing).
+
+Well, there's no data dependency, is there?
+
+> I'm reasonably happy, but we should write some convenient test for
+> missing interrupts.
 > 
-> Descriptors are 16 bytes.  They are at the start, so presumably aligned to
-> cache boundaries.
+> I'm thinking of a sender which does a loop: blasts 1MB of UDP packets,
+> then prints the time and sleep(1).  The receiver would print the time
+> every 1MB of received data.  The two times should almost exactly correspond.
 > 
-> Available ring follows that at 2 bytes per entry, so it's also packed nicely
-> into cachelines.
+> Assuming that the network doesn't overflow and lose stuff, this should
+> identify any missing wakeup/interrupts (depending on direction used).
 > 
-> Then there's padding to page boundary.  That puts us on a cacheline again
-> for the used ring; also 2 bytes per entry.
-> 
-
-Hmm, is used ring really 2 bytes per entry?
-
-
-/* u32 is used here for ids for padding reasons. */
-struct vring_used_elem {
-        /* Index of start of used descriptor chain. */
-        __u32 id;
-        /* Total length of the descriptor chain which was used (written to) */
-        __u32 len;
-};
-
-struct vring_used {
-        __u16 flags;
-        __u16 idx;
-        struct vring_used_elem ring[];
-};
-
-> I don't see how any change in layout could be more cache friendly?
+> Cheers,
 > Rusty.
-
-I thought that used ring has 8 bytes per entry, and that struct
-vring_used is aligned at page boundary, this
-would mean that ring element is at offset 4 bytes from page boundary.
-Thus with cacheline size 128 bytes, each 4th element crosses
-a cacheline boundary. If we had a 4 byte padding after idx, each
-used element would always be completely within a single cacheline.
-
-What am I missing?
--- 
-MST
