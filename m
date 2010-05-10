@@ -1,53 +1,66 @@
-From: Greg KH <greg@kroah.com>
-Subject: Re: Patch to auto-load MSFT PV NIC driver
-Date: Mon, 10 May 2010 10:21:25 -0700
-Message-ID: <20100510172125.GA1482@kroah.com>
-References: <4BE453510200003000084906@sinclair.provo.novell.com>
-	<8AFC7968D54FB448A30D8F38F259C5621AFFB3F9@TK5EX14MBXC114.redmond.corp.microsoft.com>
-	<20100508142716.GA32133@kroah.com>
-	<8AFC7968D54FB448A30D8F38F259C5621AFFC507@TK5EX14MBXC114.redmond.corp.microsoft.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCHv7] add mergeable buffers support to vhost_net
+Date: Mon, 10 May 2010 20:31:50 +0300
+Message-ID: <20100510173149.GE28798@redhat.com>
+References: <1272488232.11307.4.camel@w-dls.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <devel-bounces@linuxdriverproject.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <netdev-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <8AFC7968D54FB448A30D8F38F259C5621AFFC507@TK5EX14MBXC114.redmond.corp.microsoft.com>
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
-List-Post: <mailto:devel@linuxdriverproject.org>
-List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
-Sender: devel-bounces@linuxdriverproject.org
-Errors-To: devel-bounces@linuxdriverproject.org
-To: Hank Janssen <hjanssen@microsoft.com>
-Cc: "devel@driverdev.osuosl.org" <devel@driverdev.osuosl.org>, "Virtualization@lists.osdl.org" <Virtualization@lists.osdl.org>, Ky Srinivasan <ksrinivasan@novell.com>, Haiyang Zhang <haiyangz@microsoft.com>
+In-Reply-To: <1272488232.11307.4.camel@w-dls.beaverton.ibm.com>
+Sender: netdev-owner@vger.kernel.org
+To: David L Stevens <dlstevens@us.ibm.com>
+Cc: netdev@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, May 10, 2010 at 05:05:02PM +0000, Hank Janssen wrote:
-> 
-> >Sent: Saturday, May 08, 2010 7:27 AM -  Hank Janssen
-> >>On Sat, May 08, 2010 at 01:52:01PM +0000, Hank Janssen wrote:>
-> >>
-> >> I am not sure if this is the right approach. hv_netvsc takes a dependency on hv_vmbus.
-> >> hv_vmbus does have the same DMI detection logic in it. But unless hv_vmbus has loaded
-> >> up competely, hv_netvsc will fail on loadup. And I do not think we can guarantee that
-> >> hv_vmbus has loaded yet.
-> >
-> >Yes you can, the dependancies in the module will take care of it.  Try
-> >it, if you try to load the hv_netvsc module before hv_vmbus, modprobe
-> >will load hv_vmbus first.
-> 
-> In my testing I have seen issues with timing.   It takes a little while for VMBus to start
-> getting the initialization taken care of with Hyper-V. And I have seen netvsc error with
-> unresolved symbols because vmbus had not completed the initialization yet.
+On Wed, Apr 28, 2010 at 01:57:12PM -0700, David L Stevens wrote:
+> @@ -218,18 +248,19 @@ static void handle_rx(struct vhost_net *
+>  	use_mm(net->dev.mm);
+>  	mutex_lock(&vq->mutex);
+>  	vhost_disable_notify(vq);
+> -	hdr_size = vq->hdr_size;
+> +	vhost_hlen = vq->vhost_hlen;
+>  
+>  	vq_log = unlikely(vhost_has_feature(&net->dev, VHOST_F_LOG_ALL)) ?
+>  		vq->log : NULL;
+>  
+> -	for (;;) {
+> -		head = vhost_get_vq_desc(&net->dev, vq, vq->iov,
+> -					 ARRAY_SIZE(vq->iov),
+> -					 &out, &in,
+> -					 vq_log, &log);
+> +	while ((datalen = vhost_head_len(vq, sock->sk))) {
+> +		headcount = vhost_get_desc_n(vq, vq->heads,
+> +					     datalen + vhost_hlen,
+> +					     &in, vq_log, &log);
+> +		if (headcount < 0)
+> +			break;
+>  		/* OK, now we need to know about added descriptors. */
+> -		if (head == vq->num) {
+> +		if (!headcount) {
+>  			if (unlikely(vhost_enable_notify(vq))) {
+>  				/* They have slipped one in as we were
+>  				 * doing that: check again. */
 
-Odd, that shouldn't happen, unless you are loading modules in parallel.
 
-If we switch to a proper discovery type bus, this should not be an
-issue.
+So I think this breaks handling for a failure mode where
+we get an skb that is larger than the max packet guest
+can get. The right thing to do in this case is to
+drop the skb, we currently do this by passing
+truncate flag to recvmsg.
 
-thanks,
+In particular, with mergeable buffers off, if we get an skb
+that does not fit in a single packet, this code will
+spread it over multiple buffers.
 
-greg k-h
+You should be able to reproduce this fairly easily
+by disabling both indirect buffers and mergeable buffers
+on qemu command line. With current code TCP still
+works by falling back on small packets. I think
+with your code it will get stuck forever once
+we get an skb that is too large for us to handle.
+
+-- 
+MST
+
+
