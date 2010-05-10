@@ -1,50 +1,178 @@
-From: Greg KH <greg@kroah.com>
-Subject: Re: Patch to auto-load MSFT PV NIC driver
-Date: Mon, 10 May 2010 08:49:44 -0700
-Message-ID: <20100510154944.GB14703@kroah.com>
-References: <4BE453510200003000084906@sinclair.provo.novell.com>
-	<8AFC7968D54FB448A30D8F38F259C5621AFFB3F9@TK5EX14MBXC114.redmond.corp.microsoft.com>
-	<20100508142716.GA32133@kroah.com> <4BE5ED79.9080008@goop.org>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCHv7] add mergeable buffers support to vhost_net
+Date: Mon, 10 May 2010 19:43:03 +0300
+Message-ID: <20100510164303.GA28798@redhat.com>
+References: <1272488232.11307.4.camel@w-dls.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <devel-bounces@linuxdriverproject.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <kvm-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <4BE5ED79.9080008@goop.org>
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
-List-Post: <mailto:devel@linuxdriverproject.org>
-List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
-Sender: devel-bounces@linuxdriverproject.org
-Errors-To: devel-bounces@linuxdriverproject.org
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: "devel@driverdev.osuosl.org" <devel@driverdev.osuosl.org>, "Virtualization@lists.osdl.org" <Virtualization@lists.osdl.org>, Ky Srinivasan <ksrinivasan@novell.com>, Haiyang Zhang <haiyangz@microsoft.com>
+In-Reply-To: <1272488232.11307.4.camel@w-dls.beaverton.ibm.com>
+Sender: kvm-owner@vger.kernel.org
+To: David L Stevens <dlstevens@us.ibm.com>
+Cc: netdev@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sat, May 08, 2010 at 04:02:17PM -0700, Jeremy Fitzhardinge wrote:
-> On 05/08/2010 07:27 AM, Greg KH wrote:
-> > How would you do that?  The symbol resolution will not allow hv_netvsc
-> > to be loaded without hv_vmbus being around.
-> >
-> > Now I do think that just adding the same pci/dmi ids to all of the
-> > modules is a bit odd, and that something else needs to be done here, but
-> > at the moment, I can't think of anything better.
-> >   
-> 
-> Could you make hv_vmbus a real bus implementation, which knows how to
-> enumerate and probe devices hanging off it?
+On Wed, Apr 28, 2010 at 01:57:12PM -0700, David L Stevens wrote:
+> @@ -218,18 +248,19 @@ static void handle_rx(struct vhost_net *
+>  	use_mm(net->dev.mm);
+>  	mutex_lock(&vq->mutex);
+>  	vhost_disable_notify(vq);
+> -	hdr_size = vq->hdr_size;
+> +	vhost_hlen = vq->vhost_hlen;
+>  
+>  	vq_log = unlikely(vhost_has_feature(&net->dev, VHOST_F_LOG_ALL)) ?
+>  		vq->log : NULL;
+>  
+> -	for (;;) {
+> -		head = vhost_get_vq_desc(&net->dev, vq, vq->iov,
+> -					 ARRAY_SIZE(vq->iov),
+> -					 &out, &in,
+> -					 vq_log, &log);
+> +	while ((datalen = vhost_head_len(vq, sock->sk))) {
+> +		headcount = vhost_get_desc_n(vq, vq->heads,
+> +					     datalen + vhost_hlen,
+> +					     &in, vq_log, &log);
+> +		if (headcount < 0)
+> +			break;
+>  		/* OK, now we need to know about added descriptors. */
+> -		if (head == vq->num) {
+> +		if (!headcount) {
+>  			if (unlikely(vhost_enable_notify(vq))) {
+>  				/* They have slipped one in as we were
+>  				 * doing that: check again. */
+> @@ -241,46 +272,53 @@ static void handle_rx(struct vhost_net *
+>  			break;
+>  		}
+>  		/* We don't need to be notified again. */
+> -		if (out) {
+> -			vq_err(vq, "Unexpected descriptor format for RX: "
+> -			       "out %d, int %d\n",
+> -			       out, in);
+> -			break;
+> -		}
+> -		/* Skip header. TODO: support TSO/mergeable rx buffers. */
+> -		s = move_iovec_hdr(vq->iov, vq->hdr, hdr_size, in);
+> +		if (vhost_hlen)
+> +			/* Skip header. TODO: support TSO. */
+> +			s = move_iovec_hdr(vq->iov, vq->hdr, vhost_hlen, in);
+> +		else
+> +			s = copy_iovec_hdr(vq->iov, vq->hdr, vq->sock_hlen, in);
+>  		msg.msg_iovlen = in;
+>  		len = iov_length(vq->iov, in);
+>  		/* Sanity check */
+>  		if (!len) {
+>  			vq_err(vq, "Unexpected header len for RX: "
+>  			       "%zd expected %zd\n",
+> -			       iov_length(vq->hdr, s), hdr_size);
+> +			       iov_length(vq->hdr, s), vhost_hlen);
+>  			break;
+>  		}
+>  		err = sock->ops->recvmsg(NULL, sock, &msg,
+>  					 len, MSG_DONTWAIT | MSG_TRUNC);
+>  		/* TODO: Check specific error and bomb out unless EAGAIN? */
+>  		if (err < 0) {
+> -			vhost_discard_vq_desc(vq);
+> +			vhost_discard_desc(vq, headcount);
+>  			break;
+>  		}
+> -		/* TODO: Should check and handle checksum. */
+> -		if (err > len) {
+> -			pr_err("Discarded truncated rx packet: "
+> -			       " len %d > %zd\n", err, len);
+> -			vhost_discard_vq_desc(vq);
+> +		if (err != datalen) {
+> +			pr_err("Discarded rx packet: "
+> +			       " len %d, expected %zd\n", err, datalen);
+> +			vhost_discard_desc(vq, headcount);
+>  			continue;
+>  		}
+>  		len = err;
+> -		err = memcpy_toiovec(vq->hdr, (unsigned char *)&hdr, hdr_size);
+> -		if (err) {
+> -			vq_err(vq, "Unable to write vnet_hdr at addr %p: %d\n",
+> -			       vq->iov->iov_base, err);
+> +		if (vhost_hlen &&
+> +		    memcpy_toiovecend(vq->hdr, (unsigned char *)&hdr, 0,
+> +				      vhost_hlen)) {
+> +			vq_err(vq, "Unable to write vnet_hdr at addr %p\n",
+> +			       vq->iov->iov_base);
+>  			break;
+>  		}
+> -		len += hdr_size;
+> -		vhost_add_used_and_signal(&net->dev, vq, head, len);
+> +		/* TODO: Should check and handle checksum. */
+> +		if (vhost_has_feature(&net->dev, VIRTIO_NET_F_MRG_RXBUF) &&
+> +		    memcpy_toiovecend(vq->hdr, (unsigned char *)&headcount,
+> +				      offsetof(typeof(hdr), num_buffers),
+> +				      sizeof(hdr.num_buffers))) {
+> +			vq_err(vq, "Failed num_buffers write");
+> +			vhost_discard_desc(vq, headcount);
+> +			break;
+> +		}
+> +		len += vhost_hlen;
+> +		vhost_add_used_and_signal_n(&net->dev, vq, vq->heads,
+> +					    headcount);
+>  		if (unlikely(vq_log))
+>  			vhost_log_write(vq, vq_log, log, len);
+>  		total_len += len;
 
-Yes, that's the correct solution here.  I originally thought this
-couldn't be done, but in looking at the code some more, I think it can
-happen for the network driver, and perhaps some others (but not the
-block, as both devices work off of the same interface to the hypervisor,
-so which one do we load?)
+OK I think I see the bug here: vhost_add_used_and_signal_n
+does not get the actual length, it gets the iovec length from vhost.
+Guest virtio uses this as packet length, with bad results.
 
-I'll look into that later if I get the chance.
+So I have applied the follows and it seems to have fixed the problem:
 
-thanks,
+diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+index c16db02..9d7496d 100644
+--- a/drivers/vhost/net.c
++++ b/drivers/vhost/net.c
+@@ -219,7 +219,7 @@ static int peek_head_len(struct vhost_virtqueue *vq, struct sock *sk)
+ /* This is a multi-buffer version of vhost_get_desc, that works if
+  *	vq has read descriptors only.
+  * @vq		- the relevant virtqueue
+- * @datalen	- data length we'll be reading
++ * @datalen	- data length we'll be reading. must be > 0
+  * @iovcount	- returned count of io vectors we fill
+  * @log		- vhost log
+  * @log_num	- log offset
+@@ -236,9 +236,10 @@ static int get_rx_bufs(struct vhost_virtqueue *vq,
+ 	int seg = 0;
+ 	int headcount = 0;
+ 	unsigned d;
++	size_t len;
+ 	int r, nlogs = 0;
+ 
+-	while (datalen > 0) {
++	for (;;) {
+ 		if (unlikely(headcount >= VHOST_NET_MAX_SG)) {
+ 			r = -ENOBUFS;
+ 			goto err;
+@@ -260,16 +261,20 @@ static int get_rx_bufs(struct vhost_virtqueue *vq,
+ 			nlogs += *log_num;
+ 			log += *log_num;
+ 		}
++		len = iov_length(vq->iov + seg, in);
++		seg += in;
+ 		heads[headcount].id = d;
+-		heads[headcount].len = iov_length(vq->iov + seg, in);
+-		datalen -= heads[headcount].len;
++		if (datalen <= len)
++			break;
++		heads[headcount].len = len;
+ 		++headcount;
+-		seg += in;
++		datalen -= len;
+ 	}
++	heads[headcount].len = datalen;
+ 	*iovcount = seg;
+ 	if (unlikely(log))
+ 		*log_num = nlogs;
+-	return headcount;
++	return headcount + 1;
+ err:
+ 	vhost_discard_desc(vq, headcount);
+ 	return r;
 
-greg k-h
+-- 
+MST
