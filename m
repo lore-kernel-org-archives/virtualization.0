@@ -1,66 +1,43 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
+From: David Stevens <dlstevens@us.ibm.com>
 Subject: Re: [PATCHv7] add mergeable buffers support to vhost_net
-Date: Mon, 10 May 2010 20:31:50 +0300
-Message-ID: <20100510173149.GE28798@redhat.com>
-References: <1272488232.11307.4.camel@w-dls.beaverton.ibm.com>
+Date: Mon, 10 May 2010 10:46:00 -0700
+Message-ID: <OF13BEB29A.FE5BAFD2-ON8825771F.0060D8AA-8825771F.006196FE@us.ibm.com>
+References: <20100510172557.GD28798@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="US-ASCII"
 Return-path: <netdev-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1272488232.11307.4.camel@w-dls.beaverton.ibm.com>
+In-Reply-To: <20100510172557.GD28798@redhat.com>
 Sender: netdev-owner@vger.kernel.org
-To: David L Stevens <dlstevens@us.ibm.com>
-Cc: netdev@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.osdl.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: kvm@vger.kernel.org, kvm-owner@vger.kernel.org, netdev@vger.kernel.org, netdev-owner@vger.kernel.org, virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Apr 28, 2010 at 01:57:12PM -0700, David L Stevens wrote:
-> @@ -218,18 +248,19 @@ static void handle_rx(struct vhost_net *
->  	use_mm(net->dev.mm);
->  	mutex_lock(&vq->mutex);
->  	vhost_disable_notify(vq);
-> -	hdr_size = vq->hdr_size;
-> +	vhost_hlen = vq->vhost_hlen;
->  
->  	vq_log = unlikely(vhost_has_feature(&net->dev, VHOST_F_LOG_ALL)) ?
->  		vq->log : NULL;
->  
-> -	for (;;) {
-> -		head = vhost_get_vq_desc(&net->dev, vq, vq->iov,
-> -					 ARRAY_SIZE(vq->iov),
-> -					 &out, &in,
-> -					 vq_log, &log);
-> +	while ((datalen = vhost_head_len(vq, sock->sk))) {
-> +		headcount = vhost_get_desc_n(vq, vq->heads,
-> +					     datalen + vhost_hlen,
-> +					     &in, vq_log, &log);
-> +		if (headcount < 0)
-> +			break;
->  		/* OK, now we need to know about added descriptors. */
-> -		if (head == vq->num) {
-> +		if (!headcount) {
->  			if (unlikely(vhost_enable_notify(vq))) {
->  				/* They have slipped one in as we were
->  				 * doing that: check again. */
+netdev-owner@vger.kernel.org wrote on 05/10/2010 10:25:57 AM:
 
+> On Mon, May 10, 2010 at 10:09:03AM -0700, David Stevens wrote:
+> > Since "datalen" carries the difference and will be negative by that 
+amount
+> > from the original loop, what about just adding something like:
+> > 
+> >         }
+> >         if (headcount)
+> >                 heads[headcount-1].len += datalen;
+> > [and really, headcount >0 since datalen > 0, so just:
+> > 
+> >         heads[headcount-1].len += datalen;
+> > 
+> >                                                 +-DLS
+> 
+> This works too, just does more checks and comparisons.
+> I am still surprised that you were unable to reproduce the problem.
+> 
 
-So I think this breaks handling for a failure mode where
-we get an skb that is larger than the max packet guest
-can get. The right thing to do in this case is to
-drop the skb, we currently do this by passing
-truncate flag to recvmsg.
+I'm sure it happened, and probably had a performance
+penalty on my systems too, but not as much as yours.
+I didn't see any obvious performance difference running
+with the patch, though; not sure why. I'll instrument to
+see how often it's happening, I think.
+        But fixed now, good catch!
 
-In particular, with mergeable buffers off, if we get an skb
-that does not fit in a single packet, this code will
-spread it over multiple buffers.
-
-You should be able to reproduce this fairly easily
-by disabling both indirect buffers and mergeable buffers
-on qemu command line. With current code TCP still
-works by falling back on small packets. I think
-with your code it will get stuck forever once
-we get an skb that is too large for us to handle.
-
--- 
-MST
-
+                                                        +-DLS
 
