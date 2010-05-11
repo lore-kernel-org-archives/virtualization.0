@@ -1,82 +1,66 @@
-From: Joe Perches <joe@perches.com>
-Subject: Re: [PATCH 1/1] staging: hv: Optimize adj_guesttime function and
- add more detailed comments
-Date: Mon, 10 May 2010 17:02:38 -0700
-Message-ID: <1273536158.20514.31.camel@Joe-Laptop.home>
-References: <1FB5E1D5CA062146B38059374562DF72662AA29C@TK5EX14MBXC130.redmond.corp.microsoft.com>
+From: "Ky Srinivasan" <ksrinivasan@novell.com>
+Subject: Re: Patch to auto-load MSFT PV NIC driver
+Date: Tue, 11 May 2010 07:55:08 -0600
+Message-ID: <4BE90D5C0200003000084B90@sinclair.provo.novell.com>
+References: <4BE453510200003000084906@sinclair.provo.novell.com>
+	<8AFC7968D54FB448A30D8F38F259C5621AFFB3F9@TK5EX14MBXC114.redmond.corp.microsoft.com>
+	<20100508142716.GA32133@kroah.com>
+	<8AFC7968D54FB448A30D8F38F259C5621AFFC507@TK5EX14MBXC114.redmond.corp.microsoft.com>
+	<20100510172125.GA1482@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1FB5E1D5CA062146B38059374562DF72662AA29C@TK5EX14MBXC130.redmond.corp.microsoft.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Haiyang Zhang <haiyangz@microsoft.com>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>, "'devel@driverdev.osuosl.org'" <devel@driverdev.osuosl.org>, "'virtualization@lists.osdl.org'" <virtualization@lists.osdl.org>, "'gregkh@suse.de'" <gregkh@suse.de>
+Return-path: <devel-bounces@linuxdriverproject.org>
+In-Reply-To: <20100510172125.GA1482@kroah.com>
+Content-Disposition: inline
+List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
+	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
+List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
+List-Post: <mailto:devel@linuxdriverproject.org>
+List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
+List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
+	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
+Sender: devel-bounces@linuxdriverproject.org
+Errors-To: devel-bounces@linuxdriverproject.org
+To: Greg KH <greg@kroah.com>, Hank Janssen <hjanssen@microsoft.com>
+Cc: "devel@driverdev.osuosl.org" <devel@driverdev.osuosl.org>, "Virtualization@lists.osdl.org" <Virtualization@lists.osdl.org>, Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, 2010-05-10 at 18:12 +0000, Haiyang Zhang wrote:
-> diff --git a/drivers/staging/hv/hv_utils.c b/drivers/staging/hv/hv_utils.c
-> index 8f1d3ba..c0f57a1 100644
-> --- a/drivers/staging/hv/hv_utils.c
-> +++ b/drivers/staging/hv/hv_utils.c
-> @@ -106,28 +106,45 @@ static void shutdown_onchannelcallback(void *context)
->  		orderly_poweroff(false);
->  }
->  
-> -
->  /*
-> - * Synchronize time with host after reboot, restore, etc.
-> + * Set guest time to host UTC time.
->   */
-> -static void adj_guesttime(u64 hosttime, u8 flags)
-> +static inline void do_adj_guesttime(u64 hosttime)
->  {
->  	s64 host_tns;
->  	struct timespec host_ts;
-> -	static s32 scnt = 50;
->  
->  	host_tns = (hosttime - WLTIMEDELTA) * 100;
->  	host_ts = ns_to_timespec(host_tns);
->  
-> +	do_settimeofday(&host_ts);
-> +
-> +	return;
-> +}
 
-Just a couple of style nits.
 
-return at the end of a void function() is unnecessary.
+>>> On 5/10/2010 at  1:21 PM, in message <20100510172125.GA1482@kroah.com>, Greg KH
+<greg@kroah.com> wrote: 
+> On Mon, May 10, 2010 at 05:05:02PM +0000, Hank Janssen wrote:
+>> 
+>> >Sent: Saturday, May 08, 2010 7:27 AM -  Hank Janssen
+>> >>On Sat, May 08, 2010 at 01:52:01PM +0000, Hank Janssen wrote:>
+>> >>
+>> >> I am not sure if this is the right approach. hv_netvsc takes a dependency 
+> on hv_vmbus.
+>> >> hv_vmbus does have the same DMI detection logic in it. But unless hv_vmbus 
+> has loaded
+>> >> up competely, hv_netvsc will fail on loadup. And I do not think we can 
+> guarantee that
+>> >> hv_vmbus has loaded yet.
+>> >
+>> >Yes you can, the dependancies in the module will take care of it.  Try
+>> >it, if you try to load the hv_netvsc module before hv_vmbus, modprobe
+>> >will load hv_vmbus first.
+>> 
+>> In my testing I have seen issues with timing.   It takes a little while for 
+> VMBus to start
+>> getting the initialization taken care of with Hyper-V. And I have seen netvsc 
+> error with
+>> unresolved symbols because vmbus had not completed the initialization yet.
+> 
+> Odd, that shouldn't happen, unless you are loading modules in parallel.
+This is indeed strange. Given the module dependency, modprobe is supposed to load all the dependencies first before loading the dependent module. I am wondering if there is some other race in the modules that may be causing this problem.
 
-> +
-> +/*
-> + * Synchronize time with host after reboot, restore, etc.
-> + *
-> + * ICTIMESYNCFLAG_SYNC flag bit indicates reboot, restore events of the VM.
-> + * After reboot the flag ICTIMESYNCFLAG_SYNC is included in the first time
-> + * message after the timesync channel is opened. Since the hv_utils module is
-> + * loaded after hv_vmbus, the first message is usually missed. The other
-> + * thing is, systime is automatically set to emulated hardware clock which may
-> + * not be UTC time or in the same time zone. So, to override these effects, we
-> + * use the first 50 time samples for initial system time setting.
-> + */
-> +static inline void adj_guesttime(u64 hosttime, u8 flags)
-> +{
-> +	static s32 scnt = 50;
-> +
->  	if ((flags & ICTIMESYNCFLAG_SYNC) != 0) {
-> -		do_settimeofday(&host_ts);
-> +		do_adj_guesttime(hosttime);
->  		return;
->  	}
->  
-> -	if ((flags & ICTIMESYNCFLAG_SAMPLE) != 0 &&
-> -	    scnt > 0) {
-> +	if ((flags & ICTIMESYNCFLAG_SAMPLE) != 0 && scnt > 0) {
->  		scnt--;
-> -		do_settimeofday(&host_ts);
-> +		do_adj_guesttime(hosttime);
->  	}
->  
->  	return;
-
-here too
+K. Y
+> 
+> If we switch to a proper discovery type bus, this should not be an
+> issue.
+> 
+> thanks,
+> 
+> greg k-h
