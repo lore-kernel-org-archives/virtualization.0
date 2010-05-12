@@ -1,67 +1,73 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [Qemu-devel] [PATCH RFC] virtio: put last seen used index into
-	ring itself
-Date: Tue, 11 May 2010 22:52:08 +0300
-Message-ID: <20100511195208.GB10544@redhat.com>
-References: <20100505205814.GA7090@redhat.com> <4BE29320.5090506@redhat.com>
-	<201005071253.53393.rusty@rustcorp.com.au>
-	<4BE9AF9A.8080005@redhat.com>
+From: Juan Quintela <quintela@redhat.com>
+Subject: Re: [PATCH RFC] vhost: fix barrier pairing
+Date: Wed, 12 May 2010 11:22:12 +0200
+Message-ID: <m3wrv9tqyj.fsf@trasno.mitica>
+References: <20100511172633.GA9091@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <4BE9AF9A.8080005@redhat.com>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Avi Kivity <avi@redhat.com>
-Cc: qemu-devel@nongnu.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <20100511172633.GA9091@redhat.com> (Michael S. Tsirkin's message
+	of "Tue, 11 May 2010 20:26:33 +0300")
+Sender: netdev-owner@vger.kernel.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Rusty Russell <rusty@rustcorp.com.au>, "David S. Miller" <davem@davemloft.net>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, kvm@vger.kernel.org, virtualization@lists.osdl.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, May 11, 2010 at 10:27:22PM +0300, Avi Kivity wrote:
-> On 05/07/2010 06:23 AM, Rusty Russell wrote:
->> On Thu, 6 May 2010 07:30:00 pm Avi Kivity wrote:
->>    
->>> On 05/05/2010 11:58 PM, Michael S. Tsirkin wrote:
->>>      
->>>> +	/* We publish the last-seen used index at the end of the available ring.
->>>> +	 * It is at the end for backwards compatibility. */
->>>> +	vr->last_used_idx =&(vr)->avail->ring[num];
->>>> +	/* Verify that last used index does not spill over the used ring. */
->>>> +	BUG_ON((void *)vr->last_used_idx +
->>>> +	       sizeof *vr->last_used_idx>   (void *)vr->used);
->>>>    }
->>>>
->>>>        
->>> Shouldn't this be on its own cache line?
->>>      
->> It's next to the available ring; because that's where the guest publishes
->> its data.  That whole page is guest-write, host-read.
->>
->> Putting it on a cacheline by itself would be a slight pessimization; the host
->> cpu would have to get the last_used_idx cacheline and the avail descriptor
->> cacheline every time.  This way, they are sometimes the same cacheline.
->>    
+"Michael S. Tsirkin" <mst@redhat.com> wrote:
+> According to memory-barriers.txt, an smp memory barrier
+> should always be paired with another smp memory barrier,
+> and I quote "a lack of appropriate pairing is almost certainly an
+> error".
 >
-> If one peer writes the tail of the available ring, while the other reads  
-> last_used_idx, it's a false bounce, no?
+> In case of vhost, failure to flush out used index
+> update before looking at the interrupt disable flag
+> could result in missed interrupts, resulting in
+> networking hang under stress.
 >
-> Having things on the same cacheline is only worthwhile if they are  
-> accessed at the same time.
+> This might happen when flags read bypasses used index write.
+> So we see interrupts disabled and do not interrupt, at the
+> same time guest writes flags value to enable interrupt,
+> reads an old used index value, thinks that
+> used ring is empty and waits for interrupt.
+>
+> Note: the barrier we pair with here is in
+> drivers/virtio/virtio_ring.c, function
+> vring_enable_cb.
+>
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> ---
+>
+> Dave, I think this is needed in 2.6.34, I'll send a pull
+> request after doing some more testing.
+>
+> Rusty, Juan, could you take a look as well please?
+> Thanks!
 
-Yes, this is what I was trying to say.
-avail flags and used index *are* accessed at the same time, so
-there could be an advantage to sharing a cache line there.
+I would have prefered to put it:
 
-All this should be kept in mind if we ever do
-VIRTIO_RING_F_NEW_LAYOUT.
+void vhost_add_used_and_signal(struct vhost_dev *dev,
+			       struct vhost_virtqueue *vq,
+			       unsigned int head, int len)
+{
+	vhost_add_used(vq, head, len);
+>>>>    smp_mb();
+	vhost_signal(dev, vq);
+}
 
--- 
-MST
+Because it looks strange to have a barrier as the 1st instruction of a
+function.  And this way it is clearer (at least to me) what we are
+protecting.
+
+But on the other hand, we would have to put a comment explainingthat all
+users of vhost_signal() have to put that smp_mb() so .....
+
+Perhaps just improving the commet stating that the corresponding barrier
+is there?
+
+> Note: the barrier we pair with here is in
+> drivers/virtio/virtio_ring.c, function
+> vring_enable_cb.
+
+Good catch.
+
+Later, Juan.
