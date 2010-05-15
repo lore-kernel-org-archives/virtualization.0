@@ -1,13 +1,11 @@
-From: Brian Jackson <iggy@theiggy.com>
-Subject: Re: [PATCH RFC] virtio_blk: Use blk-iopoll for host->guest notify
-Date: Fri, 14 May 2010 17:30:56 -0500
-Message-ID: <201005141730.57158.iggy__49045.4187886373$1273876305$gmane$org@theiggy.com>
-References: <1273870057-4287-1-git-send-email-stefanha@linux.vnet.ibm.com>
+From: Julia Lawall <julia@diku.dk>
+Subject: [PATCH 1/4] drivers/char: Eliminate use after free
+Date: Sat, 15 May 2010 11:45:53 +0200 (CEST)
+Message-ID: <Pine.LNX.4.64.1005151145340.15566__5268.87972741878$1273916805$gmane$org@ask.diku.dk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1273870057-4287-1-git-send-email-stefanha@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -17,185 +15,82 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>
-Cc: kvm@vger.kernel.org, qemu-devel@nongnu.org, linux-kernel@vger.kernel.org, Jens Axboe <jens.axboe@oracle.com>, virtualization@lists.linux-foundation.org
+To: Amit Shah <amit.shah@redhat.com>, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Friday, May 14, 2010 03:47:37 pm Stefan Hajnoczi wrote:
-> This patch adds blk-iopoll interrupt mitigation to virtio-blk.  Instead
-> of processing completed requests inside the virtqueue interrupt handler,
-> a softirq is scheduled to process up to a maximum number of completed
-> requests in one go.
-> 
-> If the number of complete requests exceeds the maximum number, then another
-> softirq is scheduled to continue polling.  Otherwise the virtqueue
-> interrupt is enabled again and we return to interrupt-driven mode.
-> 
-> The patch sets the maximum number of completed requests (aka budget, aka
-> weight) to 4.  This is a low number but reflects the expensive context
-> switch between guest and host virtio-blk emulation.
-> 
-> The blk-iopoll infrastructure is enabled system-wide by default:
-> 
-> kernel.blk_iopoll = 1
-> 
-> It can be disabled to always use interrupt-driven mode (useful for
-> comparison):
-> 
-> kernel.blk_iopoll = 0
+From: Julia Lawall <julia@diku.dk>
 
+In each case, the first argument to send_control_msg or __send_control_msg,
+respectively, has either not been successfully allocated or has been freed
+at the point of the call.  In the first case, the first argument, port, is
+only used to access the portdev and id fields, in order to call
+__send_control_msg.  Thus it seems possible instead to call
+__send_control_msg directly.  In the second case, the call to
+__send_control_msg is moved up to a place where it seems like the first
+argument, portdev, has been initialized sufficiently to make the call to
+__send_control_msg meaningful.
 
-Any preliminary numbers? latency, throughput, cpu use? What about comparing 
-different "weights"?
+This has only been compile tested.
 
+A simplified version of the semantic match that finds this problem is as
+follows: (http://coccinelle.lip6.fr/)
 
-> 
-> Signed-off-by: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>
-> ---
-> No performance figures yet.
-> 
->  drivers/block/virtio_blk.c |   71
-> ++++++++++++++++++++++++++++++++++++++----- 1 files changed, 62
-> insertions(+), 9 deletions(-)
-> 
-> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-> index 2138a7a..1523895 100644
-> --- a/drivers/block/virtio_blk.c
-> +++ b/drivers/block/virtio_blk.c
-> @@ -6,6 +6,7 @@
->  #include <linux/virtio.h>
->  #include <linux/virtio_blk.h>
->  #include <linux/scatterlist.h>
-> +#include <linux/blk-iopoll.h>
-> 
->  #define PART_BITS 4
-> 
-> @@ -26,6 +27,9 @@ struct virtio_blk
-> 
->  	mempool_t *pool;
-> 
-> +	/* Host->guest notify mitigation */
-> +	struct blk_iopoll iopoll;
-> +
->  	/* What host tells us, plus 2 for header & tailer. */
->  	unsigned int sg_elems;
-> 
-> @@ -42,16 +46,18 @@ struct virtblk_req
->  	u8 status;
->  };
-> 
-> -static void blk_done(struct virtqueue *vq)
-> +/* Assumes vblk->lock held */
-> +static int __virtblk_end_requests(struct virtio_blk *vblk, int weight)
->  {
-> -	struct virtio_blk *vblk = vq->vdev->priv;
->  	struct virtblk_req *vbr;
->  	unsigned int len;
-> -	unsigned long flags;
-> +	int error;
-> +	int work = 0;
-> 
-> -	spin_lock_irqsave(&vblk->lock, flags);
-> -	while ((vbr = vblk->vq->vq_ops->get_buf(vblk->vq, &len)) != NULL) {
-> -		int error;
-> +	while (!weight || work < weight) {
-> +		vbr = vblk->vq->vq_ops->get_buf(vblk->vq, &len);
-> +		if (!vbr)
-> +			break;
-> 
->  		switch (vbr->status) {
->  		case VIRTIO_BLK_S_OK:
-> @@ -74,10 +80,53 @@ static void blk_done(struct virtqueue *vq)
->  		__blk_end_request_all(vbr->req, error);
->  		list_del(&vbr->list);
->  		mempool_free(vbr, vblk->pool);
-> +		work++;
->  	}
-> +
->  	/* In case queue is stopped waiting for more buffers. */
->  	blk_start_queue(vblk->disk->queue);
-> +	return work;
-> +}
-> +
-> +static int virtblk_iopoll(struct blk_iopoll *iopoll, int weight)
-> +{
-> +	struct virtio_blk *vblk =
-> +		container_of(iopoll, struct virtio_blk, iopoll);
-> +	unsigned long flags;
-> +	int work;
-> +
-> +	spin_lock_irqsave(&vblk->lock, flags);
-> +
-> +	work = __virtblk_end_requests(vblk, weight);
-> +	if (work < weight) {
-> +		/* Keep polling if there are pending requests. */
-> +		if (vblk->vq->vq_ops->enable_cb(vblk->vq))
-> +			__blk_iopoll_complete(&vblk->iopoll);
-> +		else
-> +			vblk->vq->vq_ops->disable_cb(vblk->vq);
-> +	}
-> +
->  	spin_unlock_irqrestore(&vblk->lock, flags);
-> +	return work;
-> +}
-> +
-> +static void blk_done(struct virtqueue *vq)
-> +{
-> +	struct virtio_blk *vblk = vq->vdev->priv;
-> +	unsigned long flags;
-> +
-> +	if (blk_iopoll_enabled) {
-> +		if (!blk_iopoll_sched_prep(&vblk->iopoll)) {
-> +			spin_lock_irqsave(&vblk->lock, flags);
-> +			vblk->vq->vq_ops->disable_cb(vblk->vq);
-> +			spin_unlock_irqrestore(&vblk->lock, flags);
-> +			blk_iopoll_sched(&vblk->iopoll);
-> +		}
-> +	} else {
-> +		spin_lock_irqsave(&vblk->lock, flags);
-> +		__virtblk_end_requests(vblk, 0);
-> +		spin_unlock_irqrestore(&vblk->lock, flags);
-> +	}
->  }
-> 
->  static bool do_req(struct request_queue *q, struct virtio_blk *vblk,
-> @@ -289,11 +338,14 @@ static int __devinit virtblk_probe(struct
-> virtio_device *vdev) goto out_free_vq;
->  	}
-> 
-> +	blk_iopoll_init(&vblk->iopoll, 4 /* budget */, virtblk_iopoll);
-> +	blk_iopoll_enable(&vblk->iopoll);
-> +
->  	/* FIXME: How many partitions?  How long is a piece of string? */
->  	vblk->disk = alloc_disk(1 << PART_BITS);
->  	if (!vblk->disk) {
->  		err = -ENOMEM;
-> -		goto out_mempool;
-> +		goto out_iopoll;
->  	}
-> 
->  	q = vblk->disk->queue = blk_init_queue(do_virtblk_request, &vblk->lock);
-> @@ -401,13 +453,13 @@ static int __devinit virtblk_probe(struct
-> virtio_device *vdev) if (!err && opt_io_size)
->  		blk_queue_io_opt(q, blk_size * opt_io_size);
-> 
-> -
->  	add_disk(vblk->disk);
->  	return 0;
-> 
->  out_put_disk:
->  	put_disk(vblk->disk);
-> -out_mempool:
-> +out_iopoll:
-> +	blk_iopoll_disable(&vblk->iopoll);
->  	mempool_destroy(vblk->pool);
->  out_free_vq:
->  	vdev->config->del_vqs(vdev);
-> @@ -430,6 +482,7 @@ static void __devexit virtblk_remove(struct
-> virtio_device *vdev) del_gendisk(vblk->disk);
->  	blk_cleanup_queue(vblk->disk->queue);
->  	put_disk(vblk->disk);
-> +	blk_iopoll_disable(&vblk->iopoll);
->  	mempool_destroy(vblk->pool);
->  	vdev->config->del_vqs(vdev);
->  	kfree(vblk);
+// <smpl>
+@free@
+expression E;
+position p;
+@@
+kfree@p(E)
+
+@@
+expression free.E, subE<=free.E, E1;
+position free.p;
+@@
+
+  kfree@p(E)
+  ...
+(
+  subE = E1
+|
+* E
+)
+// </smpl>
+
+Signed-off-by: Julia Lawall <julia@diku.dk>
+
+---
+ drivers/char/virtio_console.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
+index 458d907..8c99bf1 100644
+--- a/drivers/char/virtio_console.c
++++ b/drivers/char/virtio_console.c
+@@ -1090,7 +1090,7 @@ free_port:
+ 	kfree(port);
+ fail:
+ 	/* The host might want to notify management sw about port add failure */
+-	send_control_msg(port, VIRTIO_CONSOLE_PORT_READY, 0);
++	__send_control_msg(portdev, id, VIRTIO_CONSOLE_PORT_READY, 0);
+ 	return err;
+ }
+ 
+@@ -1559,6 +1559,9 @@ static int __devinit virtcons_probe(struct virtio_device *vdev)
+ 	return 0;
+ 
+ free_vqs:
++	/* The host might want to notify mgmt sw about device add failure */
++	__send_control_msg(portdev, VIRTIO_CONSOLE_BAD_ID,
++			   VIRTIO_CONSOLE_DEVICE_READY, 0);
+ 	vdev->config->del_vqs(vdev);
+ 	kfree(portdev->in_vqs);
+ 	kfree(portdev->out_vqs);
+@@ -1567,9 +1570,6 @@ free_chrdev:
+ free:
+ 	kfree(portdev);
+ fail:
+-	/* The host might want to notify mgmt sw about device add failure */
+-	__send_control_msg(portdev, VIRTIO_CONSOLE_BAD_ID,
+-			   VIRTIO_CONSOLE_DEVICE_READY, 0);
+ 	return err;
+ }
