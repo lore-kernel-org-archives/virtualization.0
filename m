@@ -1,206 +1,111 @@
-From: Hank Janssen <hjanssen@sailtheuniverse.com>
-Subject: [PATCH 1/1] staging: hv: Added heartbeat functionality to hv_utils
-Date: Sat, 15 May 2010 14:39:58 -0700
-Message-ID: <4BEF14AE.6040009@sailtheuniverse.com>
-References: <4BE0A5C9.2020409@sailtheuniverse.com>
+From: Amit Shah <amit.shah@redhat.com>
+Subject: Re: [PATCH 1/4] drivers/char: Eliminate use after free
+Date: Mon, 17 May 2010 14:31:40 +0530
+Message-ID: <20100517072337.GC3313__12381.8930158906$1274086869$gmane$org@amit-laptop.redhat.com>
+References: <Pine.LNX.4.64.1005151145340.15566@ask.diku.dk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <4BE0A5C9.2020409@sailtheuniverse.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: hjanssen@microsoft.com, linux-kernel@vger.kernel.org, devel@driverdev.osuosl.org, virtualization@lists.osdl.org, gregkh@suse.de, haiyangz@microsoft.com
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.1005151145340.15566@ask.diku.dk>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Julia Lawall <julia@diku.dk>
+Cc: kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Hank Janssen <hjanssen@microsoft.com>
-Subject: [PATCH 1/1] staging: hv: Added heartbeat functionality to hv_utils
+On (Sat) May 15 2010 [11:45:53], Julia Lawall wrote:
+> From: Julia Lawall <julia@diku.dk>
+> 
+> In each case, the first argument to send_control_msg or __send_control_msg,
+> respectively, has either not been successfully allocated or has been freed
+> at the point of the call.  In the first case, the first argument, port, is
+> only used to access the portdev and id fields, in order to call
+> __send_control_msg.  Thus it seems possible instead to call
+> __send_control_msg directly.  In the second case, the call to
+> __send_control_msg is moved up to a place where it seems like the first
+> argument, portdev, has been initialized sufficiently to make the call to
+> __send_control_msg meaningful.
+> 
+> This has only been compile tested.
+> 
+> A simplified version of the semantic match that finds this problem is as
+> follows: (http://coccinelle.lip6.fr/)
+> 
+> // <smpl>
+> @free@
+> expression E;
+> position p;
+> @@
+> kfree@p(E)
+> 
+> @@
+> expression free.E, subE<=free.E, E1;
+> position free.p;
+> @@
+> 
+>   kfree@p(E)
+>   ...
+> (
+>   subE = E1
+> |
+> * E
+> )
+> // </smpl>
+> 
+> Signed-off-by: Julia Lawall <julia@diku.dk>
 
-Add heartbeat functionality to hv_utils/Hyper-V
+Acked-by: Amit Shah <amit.shah@redhat.com>
 
-Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
-Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
+Thanks, Julia.
 
----
- drivers/staging/hv/channel_mgmt.c |   23 ++++++++++++-
- drivers/staging/hv/hv_utils.c     |   64 +++++++++++++++++++++++++++++++++++++
- drivers/staging/hv/utils.h        |    5 +++
- drivers/staging/hv/version_info.h |    3 +-
- 4 files changed, 92 insertions(+), 3 deletions(-)
+Rusty, please pick this patch. Thanks.
 
-diff --git a/drivers/staging/hv/channel_mgmt.c b/drivers/staging/hv/channel_mgmt.c
-index 6877e8e..3f53b4d 100644
---- a/drivers/staging/hv/channel_mgmt.c
-+++ b/drivers/staging/hv/channel_mgmt.c
-@@ -33,8 +33,8 @@ struct vmbus_channel_message_table_entry {
- 	void (*messageHandler)(struct vmbus_channel_message_header *msg);
- };
+> 
+> ---
+>  drivers/char/virtio_console.c |    8 ++++----
+>  1 file changed, 4 insertions(+), 4 deletions(-)
+> 
+> diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
+> index 458d907..8c99bf1 100644
+> --- a/drivers/char/virtio_console.c
+> +++ b/drivers/char/virtio_console.c
+> @@ -1090,7 +1090,7 @@ free_port:
+>  	kfree(port);
+>  fail:
+>  	/* The host might want to notify management sw about port add failure */
+> -	send_control_msg(port, VIRTIO_CONSOLE_PORT_READY, 0);
+> +	__send_control_msg(portdev, id, VIRTIO_CONSOLE_PORT_READY, 0);
+>  	return err;
+>  }
+>  
+> @@ -1559,6 +1559,9 @@ static int __devinit virtcons_probe(struct virtio_device *vdev)
+>  	return 0;
+>  
+>  free_vqs:
+> +	/* The host might want to notify mgmt sw about device add failure */
+> +	__send_control_msg(portdev, VIRTIO_CONSOLE_BAD_ID,
+> +			   VIRTIO_CONSOLE_DEVICE_READY, 0);
+>  	vdev->config->del_vqs(vdev);
+>  	kfree(portdev->in_vqs);
+>  	kfree(portdev->out_vqs);
+> @@ -1567,9 +1570,6 @@ free_chrdev:
+>  free:
+>  	kfree(portdev);
+>  fail:
+> -	/* The host might want to notify mgmt sw about device add failure */
+> -	__send_control_msg(portdev, VIRTIO_CONSOLE_BAD_ID,
+> -			   VIRTIO_CONSOLE_DEVICE_READY, 0);
+>  	return err;
+>  }
+>  
 
--#define MAX_MSG_TYPES                    2
--#define MAX_NUM_DEVICE_CLASSES_SUPPORTED 6
-+#define MAX_MSG_TYPES                    3
-+#define MAX_NUM_DEVICE_CLASSES_SUPPORTED 7
-
- static const struct hv_guid
- 	gSupportedDeviceClasses[MAX_NUM_DEVICE_CLASSES_SUPPORTED] = {
-@@ -89,6 +89,14 @@ static const struct hv_guid
- 			0xad, 0xce, 0xe8, 0x0a, 0xb0, 0x17, 0x5c, 0xaf
- 		}
- 	},
-+	/* {57164f39-9115-4e78-ab55-382f3bd5422d} */
-+	/* Heartbeat */
-+	{
-+		.data = {
-+			0x39, 0x4f, 0x16, 0x57, 0x15, 0x91, 0x78, 0x4e,
-+			0xab, 0x55, 0x38, 0x2f, 0x3b, 0xd5, 0x42, 0x2d
-+		}
-+	},
- };
-
-
-@@ -211,6 +219,17 @@ struct hyperv_service_callback hv_cb_utils[MAX_MSG_TYPES] = {
- 		.callback = chn_cb_negotiate,
- 		.log_msg = "Timesync channel functionality initialized"
- 	},
-+	/* {57164f39-9115-4e78-ab55-382f3bd5422d} */
-+	/* Heartbeat */
-+	{
-+		.msg_type = HV_HEARTBEAT_MSG,
-+		.data = {
-+			0x39, 0x4f, 0x16, 0x57, 0x15, 0x91, 0x78, 0x4e,
-+			0xab, 0x55, 0x38, 0x2f, 0x3b, 0xd5, 0x42, 0x2d
-+		},
-+		.callback = chn_cb_negotiate,
-+		.log_msg = "Heartbeat channel functionality initialized"
-+	},
- };
- EXPORT_SYMBOL(hv_cb_utils);
-
-diff --git a/drivers/staging/hv/hv_utils.c b/drivers/staging/hv/hv_utils.c
-index db45d97..8a49aaf 100644
---- a/drivers/staging/hv/hv_utils.c
-+++ b/drivers/staging/hv/hv_utils.c
-@@ -194,6 +194,62 @@ static void timesync_onchannelcallback(void *context)
- 	DPRINT_EXIT(VMBUS);
- }
-
-+/*
-+ * Heartbeat functionality.
-+ * Every two seconds, Hyper-V send us a heartbeat request message.
-+ * we respond to this message, and Hyper-V knows we are alive.
-+ */
-+static void heartbeat_onchannelcallback(void *context)
-+{
-+	struct vmbus_channel *channel = context;
-+	u8 *buf;
-+	u32 buflen, recvlen;
-+	u64 requestid;
-+	struct icmsg_hdr *icmsghdrp;
-+	struct heartbeat_msg_data *heartbeat_msg;
-+
-+	DPRINT_ENTER(VMBUS);
-+
-+	buflen = PAGE_SIZE;
-+	buf = kmalloc(buflen, GFP_ATOMIC);
-+
-+	VmbusChannelRecvPacket(channel, buf, buflen, &recvlen, &requestid);
-+
-+	if (recvlen > 0) {
-+		DPRINT_DBG(VMBUS, "heartbeat packet: len=%d, requestid=%lld",
-+			   recvlen, requestid);
-+
-+		icmsghdrp = (struct icmsg_hdr *)&buf[
-+			sizeof(struct vmbuspipe_hdr)];
-+
-+		icmsghdrp = (struct icmsg_hdr *)&buf[
-+				sizeof(struct vmbuspipe_hdr)];
-+
-+		if (icmsghdrp->icmsgtype == ICMSGTYPE_NEGOTIATE) {
-+			prep_negotiate_resp(icmsghdrp, NULL, buf);
-+		} else {
-+			heartbeat_msg = (struct heartbeat_msg_data *)&buf[
-+				sizeof(struct vmbuspipe_hdr) +
-+				sizeof(struct icmsg_hdr)];
-+
-+			DPRINT_DBG(VMBUS, "heartbeat seq = %lld",
-+				   heartbeat_msg->seq_num);
-+
-+			heartbeat_msg->seq_num += 1;
-+		}
-+
-+		icmsghdrp->icflags = ICMSGHDRFLAG_TRANSACTION
-+			| ICMSGHDRFLAG_RESPONSE;
-+
-+		VmbusChannelSendPacket(channel, buf,
-+				       recvlen, requestid,
-+				       VmbusPacketTypeDataInBand, 0);
-+	}
-+
-+	kfree(buf);
-+
-+	DPRINT_EXIT(VMBUS);
-+}
-
- static int __init init_hyperv_utils(void)
- {
-@@ -207,6 +263,10 @@ static int __init init_hyperv_utils(void)
- 		&timesync_onchannelcallback;
- 	hv_cb_utils[HV_TIMESYNC_MSG].callback = &timesync_onchannelcallback;
-
-+	hv_cb_utils[HV_HEARTBEAT_MSG].channel->OnChannelCallback =
-+		&heartbeat_onchannelcallback;
-+	hv_cb_utils[HV_HEARTBEAT_MSG].callback = &heartbeat_onchannelcallback;
-+
- 	return 0;
- }
-
-@@ -221,6 +281,10 @@ static void exit_hyperv_utils(void)
- 	hv_cb_utils[HV_TIMESYNC_MSG].channel->OnChannelCallback =
- 		&chn_cb_negotiate;
- 	hv_cb_utils[HV_TIMESYNC_MSG].callback = &chn_cb_negotiate;
-+
-+	hv_cb_utils[HV_HEARTBEAT_MSG].channel->OnChannelCallback =
-+		&chn_cb_negotiate;
-+	hv_cb_utils[HV_HEARTBEAT_MSG].callback = &chn_cb_negotiate;
- }
-
- module_init(init_hyperv_utils);
-diff --git a/drivers/staging/hv/utils.h b/drivers/staging/hv/utils.h
-index a4b9fd0..7c07499 100644
---- a/drivers/staging/hv/utils.h
-+++ b/drivers/staging/hv/utils.h
-@@ -75,6 +75,10 @@ struct shutdown_msg_data {
- 	u8  display_message[2048];
- } __attribute__((packed));
-
-+struct heartbeat_msg_data {
-+	u64 seq_num;
-+	u32 reserved[8];
-+} __attribute__((packed));
-
- /* Time Sync IC defs */
- #define ICTIMESYNCFLAG_PROBE	0
-@@ -97,6 +101,7 @@ struct ictimesync_data{
- /* Index for each IC struct in array hv_cb_utils[] */
- #define HV_SHUTDOWN_MSG		0
- #define HV_TIMESYNC_MSG		1
-+#define HV_HEARTBEAT_MSG	2
-
- struct hyperv_service_callback {
- 	u8 msg_type;
-diff --git a/drivers/staging/hv/version_info.h b/drivers/staging/hv/version_info.h
-index 82e74b1..35178f2 100644
---- a/drivers/staging/hv/version_info.h
-+++ b/drivers/staging/hv/version_info.h
-@@ -40,8 +40,9 @@
-  *	Minor Number	Changes when new functionality is added
-  *			to the Linux IC's that is not a bug fix.
-  *
-+ * 3.1 - Added completed hv_utils driver. Shutdown/Heartbeat/Timesync
-  */
--#define HV_DRV_VERSION           "3.0"
-+#define HV_DRV_VERSION           "3.1"
-
-
- #endif
--- 
-1.6.0.2
+		Amit
