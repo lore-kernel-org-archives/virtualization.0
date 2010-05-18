@@ -1,32 +1,73 @@
-From: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>
-Subject: Re: [PATCH RFC] virtio_blk: Use blk-iopoll for host->guest notify
-Date: Tue, 18 May 2010 09:07:06 +0100
-Message-ID: <20100518080705.GA2467__1406.29425081915$1274170128$gmane$org@stefan-thinkpad.transitives.com>
-References: <1273870057-4287-1-git-send-email-stefanha@linux.vnet.ibm.com>
-	<201005141730.57158.iggy@theiggy.com>
+From: Juan Quintela <quintela@redhat.com>
+Subject: Re: [PATCHv2] vhost-net: utilize PUBLISH_USED_IDX feature
+Date: Tue, 18 May 2010 13:31:29 +0200
+Message-ID: <m31vd95tv2.fsf@trasno.mitica>
+References: <20100518022105.GA23129@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <201005141730.57158.iggy@theiggy.com>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Brian Jackson <iggy@theiggy.com>
-Cc: kvm@vger.kernel.org, qemu-devel@nongnu.org, linux-kernel@vger.kernel.org, Jens Axboe <jens.axboe@oracle.com>, virtualization@lists.linux-foundation.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <20100518022105.GA23129@redhat.com> (Michael S. Tsirkin's message
+	of "Tue, 18 May 2010 05:21:05 +0300")
+Sender: netdev-owner@vger.kernel.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: davem@davemloft.net, Rusty Russell <rusty@rustcorp.com.au>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Arnd Bergmann <arnd@arndb.de>, kvm@vger.kernel.org, virtualization@lists.osdl.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, alex.williamson@redhat.com, amit.shah@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, May 14, 2010 at 05:30:56PM -0500, Brian Jackson wrote:
-> Any preliminary numbers? latency, throughput, cpu use? What about comparing 
-> different "weights"?
+"Michael S. Tsirkin" <mst@redhat.com> wrote:
+> With PUBLISH_USED_IDX, guest tells us which used entries
+> it has consumed. This can be used to reduce the number
+> of interrupts: after we write a used entry, if the guest has not yet
+> consumed the previous entry, or if the guest has already consumed the
+> new entry, we do not need to interrupt.
+> This imporves bandwidth by 30% under some workflows.
+>
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> ---
+>
+> This is on top of Rusty's tree and depends on the virtio patch.
+>
+> Changes from v1:
+> fix build
 
-I am running benchmarks and will report results when they are in.
+Minor nit if you have to respin it:
 
-Stefan
+>  /* This actually signals the guest, using eventfd. */
+> -void vhost_signal(struct vhost_dev *dev, struct vhost_virtqueue *vq)
+> +static void vhost_signal(struct vhost_dev *dev, struct vhost_virtqueue *vq)
+>  {
+>  	__u16 flags;
+> +	__u16 used;
+
+local var named "used" here
+
+>  	/* Flush out used index updates. This is paired
+>  	 * with the barrier that the Guest executes when enabling
+>  	 * interrupts. */
+> @@ -1053,6 +1057,17 @@ void vhost_signal(struct vhost_dev *dev, struct vhost_virtqueue *vq)
+>  	     !vhost_has_feature(dev, VIRTIO_F_NOTIFY_ON_EMPTY)))
+>  		return;
+>  
+> +	if (vhost_has_feature(dev, VIRTIO_RING_F_PUBLISH_USED)) {
+> +		__u16 used;
+
+and a "more" local one also named "used" :)
+
+I guess you want to remove the previous declaration, as var is only used
+in this block.
+
+> +		if (get_user(used, vq->last_used)) {
+> +			vq_err(vq, "Failed to get last used idx");
+> +			return;
+> +		}
+> +
+> +		if (used != (u16)(vq->last_used_idx - 1))
+> +			return;
+> +	}
+> +
+>  	/* Signal the Guest tell them we used something up. */
+>  	if (vq->call_ctx)
+>  		eventfd_signal(vq->call_ctx, 1);
+
+Rest of patch looks ok, and as a bonus un-export two functions.
+
+Later, Juan.
