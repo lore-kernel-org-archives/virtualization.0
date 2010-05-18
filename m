@@ -1,55 +1,40 @@
-From: David L Stevens <dlstevens@us.ibm.com>
-Subject: [PATCH] [resend] fix non-mergeable buffers packet too large error
- handling
-Date: Mon, 17 May 2010 14:16:36 -0700
-Message-ID: <1274130996.8492.7.camel@w-dls.beaverton.ibm.com>
-Reply-To: dlstevens@us.ibm.com
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH 1/4] drivers/char: Eliminate use after free
+Date: Tue, 18 May 2010 10:09:49 +0930
+Message-ID: <201005181009.50470.rusty__28216.5980352604$1274143240$gmane$org@rustcorp.com.au>
+References: <Pine.LNX.4.64.1005151145340.15566@ask.diku.dk>
+	<20100517072337.GC3313@amit-laptop.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <kvm-owner@vger.kernel.org>
-Sender: kvm-owner@vger.kernel.org
-To: mst@redhat.com
-Cc: netdev@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.osdl.org
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20100517072337.GC3313@amit-laptop.redhat.com>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Amit Shah <amit.shah@redhat.com>
+Cc: kernel-janitors@vger.kernel.org, Julia Lawall <julia@diku.dk>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch enforces single-buffer allocation when
-mergeable rx buffers is not enabled.
+On Mon, 17 May 2010 06:31:40 pm Amit Shah wrote:
+> On (Sat) May 15 2010 [11:45:53], Julia Lawall wrote:
+> > From: Julia Lawall <julia@diku.dk>
+...
+> > Signed-off-by: Julia Lawall <julia@diku.dk>
+> 
+> Acked-by: Amit Shah <amit.shah@redhat.com>
+> 
+> Thanks, Julia.
+> 
+> Rusty, please pick this patch. Thanks.
 
-Reported-by: Michael S. Tsirkin <mst@redhat.com>
-Signed-off-by: David L Stevens <dlstevens@us.ibm.com>
+Done.
 
-diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-index 309c570..c346304 100644
---- a/drivers/vhost/net.c
-+++ b/drivers/vhost/net.c
-@@ -361,13 +361,21 @@ static void handle_rx(struct vhost_net *net)
- 			break;
- 		}
- 		/* TODO: Should check and handle checksum. */
--		if (vhost_has_feature(&net->dev, VIRTIO_NET_F_MRG_RXBUF) &&
--		    memcpy_toiovecend(vq->hdr, (unsigned char *)&headcount,
--				      offsetof(typeof(hdr), num_buffers),
--				      sizeof hdr.num_buffers)) {
--			vq_err(vq, "Failed num_buffers write");
-+		if (vhost_has_feature(&net->dev, VIRTIO_NET_F_MRG_RXBUF)) {
-+			if (memcpy_toiovecend(vq->hdr,
-+					      (unsigned char *)&headcount,
-+					      offsetof(typeof(hdr),
-+					      num_buffers),
-+					      sizeof hdr.num_buffers)) {
-+				vq_err(vq, "Failed num_buffers write");
-+				vhost_discard_desc(vq, headcount);
-+				break;
-+			}
-+		} else if (headcount > 1) {
-+			vq_err(vq, "rx packet too large (%d) for guest",
-+			       sock_len);
- 			vhost_discard_desc(vq, headcount);
--			break;
-+			continue;
- 		}
- 		vhost_add_used_and_signal_n(&net->dev, vq, vq->heads,
- 					    headcount);
-
-
+Thanks!
+Rusty.
