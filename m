@@ -1,7 +1,7 @@
-From: Ming Zhao <zhaom@cis.fiu.edu>
-Subject: CFP: 2nd International Conference on Cloud Computing (CloudComp2010)
-Date: Tue, 18 May 2010 10:08:42 -0400
-Message-ID: <4BF29F6A.6040400@cis.fiu.edu>
+From: Steven Liu <lingjiujianke@gmail.com>
+Subject: [PATCH] fix a code style in drivers/char/virtio_console.c
+Date: Tue, 18 May 2010 13:17:22 +0800
+Message-ID: <AANLkTilW8zZxCOrdiefZ4ZtixprI58LzDZ6Cz03z4lFk__21298.0775432245$1274192471$gmane$org@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -15,163 +15,61 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: amit.shah@redhat.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-[Apologies if you receive multiple copies of this announcement]
+fix a code style in drivers/char/virtio_console.c
+
+Signed-off-by: Liu Qi <lingjiujianke@gmail.com>
+---
+ drivers/char/virtio_console.c |    7 +------
+ 1 files changed, 1 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
+index 196428c..61dad7e 100644
+--- a/drivers/char/virtio_console.c
++++ b/drivers/char/virtio_console.c
+@@ -1299,36 +1299,31 @@ static int init_vqs(struct ports_device *portdev)
+        char **io_names;
+        struct virtqueue **vqs;
+        u32 i, j, nr_ports, nr_queues;
+-       int err;
++       int err = -ENOMEM;
+
+        nr_ports = portdev->config.max_nr_ports;
+        nr_queues = use_multiport(portdev) ? (nr_ports + 1) * 2 : 2;
+
+        vqs = kmalloc(nr_queues * sizeof(struct virtqueue *), GFP_KERNEL);
+        if (!vqs) {
+-               err = -ENOMEM;
+                goto fail;
+        }
+        io_callbacks = kmalloc(nr_queues * sizeof(vq_callback_t *), GFP_KERNEL);
+        if (!io_callbacks) {
+-               err = -ENOMEM;
+                goto free_vqs;
+        }
+        io_names = kmalloc(nr_queues * sizeof(char *), GFP_KERNEL);
+        if (!io_names) {
+-               err = -ENOMEM;
+                goto free_callbacks;
+        }
+        portdev->in_vqs = kmalloc(nr_ports * sizeof(struct virtqueue *),
+                                  GFP_KERNEL);
+        if (!portdev->in_vqs) {
+-               err = -ENOMEM;
+                goto free_names;
+        }
+        portdev->out_vqs = kmalloc(nr_ports * sizeof(struct virtqueue *),
+                                   GFP_KERNEL);
+        if (!portdev->out_vqs) {
+-               err = -ENOMEM;
+                goto free_invqs;
+        }
+
+--
+1.7.1
 
 
 
-Reminder:
--------
-
-* Paper submission deadline: May 31, 2010
-
-
-
-
-
-========================================================================
-                            Call for Papers
-           The 2nd International Conference on Cloud Computing
-                            (CloudComp2010)
-
-                 Barcelona, Spain, October 25 - 28, 2010
-========================================================================
-
-Conference Scope:
------------------
-
-Cloud Computing is an emerging computing paradigm envisioned to change
-all IT landscape facets including technology, business, services and
-human resources. It is a consumer/delivery model that offers IT
-capabilities as services, billed based on usage. Many such cloud
-services can be envisioned, but the main ones are IaaS (Infrastructure-
-as-a-Service), PaaS (Platform-as-a-Service), and SaaS (Software-as-a-
-Service). The underlying cloud architecture includes a pool of
-virtualized compute, storage and networking resources that can be
-aggregated and launched as platforms to run workloads and satisfy their
-Service-Level Agreement (SLA). Cloud architectures also include
-provisions to best guarantee service delivery for clients and at the
-same time optimize efficiency of resources of providers. Examples of
-provisions include, but not limited to, elasticity through scaling
-resources up/down to track workload behavior, extensive monitoring,
-failure mitigation, and energy optimizations. The two main technologies
-enabling clouds are: (i) Virtualization, the foundation of clouds; and
-(ii) Manageability (autonomics), the command and control of clouds.
-
-CloudComp is intended to bring together researchers, developers, and
-industry professionals to discuss clouds, cloud computing and related
-ecosystems support. To that end, papers are solicited from all cloud
-related areas, including, but not limited to:
-
-1. Cloud architectures and provisions to optimize providers'
-    environments while guaranteeing clients' SLAs.
-2. Programming models, applications and middleware suitable for dynamic
-    cloud environments.
-3. End-to-end techniques for autonomic management of cloud resources
-    including monitoring, asset management, process automation and
-    others.
-4. New cloud delivery models, models' optimizations and associated
-    architectural changes.
-5. New cloud economic and billing models.
-6. Cloud security, privacy and compliance challenges.
-7. Toolkits, frameworks and processes to enable clouds and allow
-    seamless transitions from traditional IT environments to clouds.
-8. Experiences with existing cloud infrastructure, services and uses.
-9. Novel human interfaces and browsers for accessing clouds.
-10.Interaction of mobile computing, mCommerce and Clouds.
-
-Cloud Computing conference is sponsored by ICST (Institute for Computer
-Sciences, Social-Informatics and Telecommunications Engineering).
-
-
-
-Important Dates:
-----------------
-
-* Paper submission: May 31, 2010
-* Authors' notification: July 26, 2010
-* Final manuscripts: August 23, 2010
-
-
-
-Organization:
--------------
-
-* General Chair:
-  o Mazin Yousif, IBM Corporation, Canada
-
-
-* Program Chairs:
-  o Burkhard Neidecker-Lutz, SAP Research, Germany
-  o Christine Morin, INRIA, France
-
-
-* Program Committee:
-  o Albert Zomaya, University of Sydney, Australia
-  o Cristiana Amza, University of Toronto, Canada
-  o Daniel Mosse, University of Pittsburgh, USA
-  o Dongyan Xu, Purdue University, USA
-  o Erol Gelenbe, Imperial College, UK
-  o Franco Zambonelli, Universita di Modena e Reggio Emilia, Italy
-  o Frederic Desprez, INRIA
-  o George Galambos, IBM Canada, Canada
-  o Giovanna Di Marzo Serugendo, University of London, UK
-  o Guillaume Pierre, Vrije Universiteit Amsterdam
-  o Ignacio Llorente, Universidad Complutense de Madrid
-  o Ivona Brandic, Vienna University of Technology, Austria
-  o Jose Antonio Lozano, Telefonica I+D, Spain
-  o Jose Bernabeu-Auban, Microsoft, USA
-  o Juergen Falkner, Fraunhofer, Germany
-  o Julie McCann, Imperial College, UK
-  o Karsten Schwan, Georgia Institute of Technology, USA
-  o Keith Jeffery, Rutherford Appleton Laboratory, UK
-  o Mikhail Smirnov, Fraunhofer, Germany
-  o Omar Rana, Cardiff University, UK
-  o Ozalp Babaoglu, University of Bologna, Italy
-  o Rajkumar Buyya, Manjrasoft, Australia
-  o Renato Figueiredo, University of Florida, USA
-  o Ricardo Bianchini, Rutgers University, USA
-  o Ron Brightwell, Sandia National Labs, USA
-  o Simon Dobson, University of St Andrews, UK
-  o Tamer Aboualy, IBM Corporation, Canada
-  o Wu Feng, Virginia Tech University, USA
-
-
-* Demos/Exhibits Chair:
-  o Katerina Goulioutkina, IBM Corporation, Canada
-
-* Workshop/Tutorial Chair:
-  o Simon Dobson, University of St Andrews, UK
-
-* CloudComp Summit Chair:
-  o Duncan Johnston-Watt, Cloudsoft Corporation, UK
-
-* Publicity Chair:
-  o Ming Zhao, Florida International University, USA
-
-* Local Arrangements Chair:
-  o Joan Serrat, UPC, Barcelona, Spain
-
-* Industry Session Chair:
-  o Duncan Johnston-Watt, Cloudsoft Corporation, UK
-
-
-
-Further Information:
---------------------
-
-Web: http://www.cloudcomp.eu
-Email: cloudcomp2010@icst.org
-
-
-
-
-
-
--- 
-Ming Zhao, Assistant Professor
-School of Computing and Information Sciences
-Florida International University
-Tel: (305) 348-2034, Fax: (305) 348-3549
-Web: http://www.cis.fiu.edu/~zhaom
+Best regards
