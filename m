@@ -1,73 +1,49 @@
-From: Juan Quintela <quintela@redhat.com>
-Subject: Re: [PATCHv2] vhost-net: utilize PUBLISH_USED_IDX feature
-Date: Tue, 18 May 2010 13:31:29 +0200
-Message-ID: <m31vd95tv2.fsf@trasno.mitica>
-References: <20100518022105.GA23129@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: virtio: imply disable_cb on callbacks
+Date: Tue, 18 May 2010 14:33:17 +0300
+Message-ID: <20100518113316.GA26757__9582.05461870438$1274182671$gmane$org@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20100518022105.GA23129@redhat.com> (Michael S. Tsirkin's message
-	of "Tue, 18 May 2010 05:21:05 +0300")
-Sender: netdev-owner@vger.kernel.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: davem@davemloft.net, Rusty Russell <rusty@rustcorp.com.au>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Arnd Bergmann <arnd@arndb.de>, kvm@vger.kernel.org, virtualization@lists.osdl.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, alex.williamson@redhat.com, amit.shah@redhat.com
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-"Michael S. Tsirkin" <mst@redhat.com> wrote:
-> With PUBLISH_USED_IDX, guest tells us which used entries
-> it has consumed. This can be used to reduce the number
-> of interrupts: after we write a used entry, if the guest has not yet
-> consumed the previous entry, or if the guest has already consumed the
-> new entry, we do not need to interrupt.
-> This imporves bandwidth by 30% under some workflows.
->
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> ---
->
-> This is on top of Rusty's tree and depends on the virtio patch.
->
-> Changes from v1:
-> fix build
+Rusty, the patch "virtio: imply disable_cb on callbacks" is on your tree.
+I'd like to figure out how it works: for example:
 
-Minor nit if you have to respin it:
+diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+--- a/drivers/block/virtio_blk.c
++++ b/drivers/block/virtio_blk.c
+@@ -69,6 +69,8 @@ static void blk_done(struct virtqueue *v
+        /* In case queue is stopped waiting for more buffers. */
+        blk_start_queue(vblk->disk->queue);
+        spin_unlock_irqrestore(&vblk->lock, flags);
++
++       vq->vq_ops->enable_cb(vq);
+ }
 
->  /* This actually signals the guest, using eventfd. */
-> -void vhost_signal(struct vhost_dev *dev, struct vhost_virtqueue *vq)
-> +static void vhost_signal(struct vhost_dev *dev, struct vhost_virtqueue *vq)
->  {
->  	__u16 flags;
-> +	__u16 used;
+ static bool do_req(struct request_queue *q, struct virtio_blk *vblk,
 
-local var named "used" here
 
->  	/* Flush out used index updates. This is paired
->  	 * with the barrier that the Guest executes when enabling
->  	 * interrupts. */
-> @@ -1053,6 +1057,17 @@ void vhost_signal(struct vhost_dev *dev, struct vhost_virtqueue *vq)
->  	     !vhost_has_feature(dev, VIRTIO_F_NOTIFY_ON_EMPTY)))
->  		return;
->  
-> +	if (vhost_has_feature(dev, VIRTIO_RING_F_PUBLISH_USED)) {
-> +		__u16 used;
+Since this does not check the return status from enable_cb,
+it seems we could loose an interrupt if it arrives
+between poll and callback enable?
 
-and a "more" local one also named "used" :)
+Same might apply to other devices.
 
-I guess you want to remove the previous declaration, as var is only used
-in this block.
+Thanks,
 
-> +		if (get_user(used, vq->last_used)) {
-> +			vq_err(vq, "Failed to get last used idx");
-> +			return;
-> +		}
-> +
-> +		if (used != (u16)(vq->last_used_idx - 1))
-> +			return;
-> +	}
-> +
->  	/* Signal the Guest tell them we used something up. */
->  	if (vq->call_ctx)
->  		eventfd_signal(vq->call_ctx, 1);
-
-Rest of patch looks ok, and as a bonus un-export two functions.
-
-Later, Juan.
+-- 
+MST
