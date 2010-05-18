@@ -1,12 +1,16 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: virtio: imply disable_cb on callbacks
-Date: Tue, 18 May 2010 14:33:17 +0300
-Message-ID: <20100518113316.GA26757__9582.05461870438$1274182671$gmane$org@redhat.com>
+From: Jens Axboe <qemu@kernel.dk>
+Subject: Re: [PATCH RFC] virtio_blk: Use blk-iopoll for host->guest notify
+Date: Tue, 18 May 2010 15:07:13 +0200
+Message-ID: <20100518130712.GA25951__33413.622986018$1274188153$gmane$org@kernel.dk>
+References: <1273870057-4287-1-git-send-email-stefanha@linux.vnet.ibm.com>
+	<201005141730.57158.iggy@theiggy.com>
+	<20100518080705.GA2467@stefan-thinkpad.transitives.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
+In-Reply-To: <20100518080705.GA2467@stefan-thinkpad.transitives.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -16,34 +20,22 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>
+Cc: kvm@vger.kernel.org, qemu-devel@nongnu.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Rusty, the patch "virtio: imply disable_cb on callbacks" is on your tree.
-I'd like to figure out how it works: for example:
+On Tue, May 18 2010, Stefan Hajnoczi wrote:
+> On Fri, May 14, 2010 at 05:30:56PM -0500, Brian Jackson wrote:
+> > Any preliminary numbers? latency, throughput, cpu use? What about comparing 
+> > different "weights"?
+> 
+> I am running benchmarks and will report results when they are in.
 
-diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
---- a/drivers/block/virtio_blk.c
-+++ b/drivers/block/virtio_blk.c
-@@ -69,6 +69,8 @@ static void blk_done(struct virtqueue *v
-        /* In case queue is stopped waiting for more buffers. */
-        blk_start_queue(vblk->disk->queue);
-        spin_unlock_irqrestore(&vblk->lock, flags);
-+
-+       vq->vq_ops->enable_cb(vq);
- }
+I'm very interested as well, I have been hoping for some more adoption
+of this. I have mptsas and mpt2sas patches pending as well.
 
- static bool do_req(struct request_queue *q, struct virtio_blk *vblk,
-
-
-Since this does not check the return status from enable_cb,
-it seems we could loose an interrupt if it arrives
-between poll and callback enable?
-
-Same might apply to other devices.
-
-Thanks,
+I have not done enough and fully exhaustive weight analysis, so note me
+down for wanting such an analysis on virtio_blk as well.
 
 -- 
-MST
+Jens Axboe
