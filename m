@@ -1,23 +1,36 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH] [resend] fix non-mergeable buffers packet too large
- error handling
-Date: Mon, 17 May 2010 21:14:40 -0700 (PDT)
-Message-ID: <20100517.211440.241943039.davem@davemloft.net>
-References: <20100518031252.GA23764@redhat.com>
+From: Amit Shah <amit.shah@redhat.com>
+Subject: Re: [PATCH] fix a code style in drivers/char/virtio_console.c
+Date: Tue, 18 May 2010 10:52:30 +0530
+Message-ID: <20100518052230.GA1706__14387.4160050929$1274160183$gmane$org@amit-laptop.redhat.com>
+References: <AANLkTilW8zZxCOrdiefZ4ZtixprI58LzDZ6Cz03z4lFk@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <20100518031252.GA23764@redhat.com>
-Sender: kvm-owner@vger.kernel.org
-To: mst@redhat.com
-Cc: dlstevens@us.ibm.com, netdev@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.osdl.org
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <AANLkTilW8zZxCOrdiefZ4ZtixprI58LzDZ6Cz03z4lFk@mail.gmail.com>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Steven Liu <lingjiujianke@gmail.com>
+Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Date: Tue, 18 May 2010 06:12:52 +0300
+On (Tue) May 18 2010 [13:17:22], Steven Liu wrote:
+> fix a code style in drivers/char/virtio_console.c
+> 
+> Signed-off-by: Liu Qi <lingjiujianke@gmail.com>
 
-> DaveM, just to clarify, this patch is on top of the series
-> we are working on with David L Stevens. It's not for your net tree.
+NACK.
 
-Understood.
+This style is deliberate and follows Rusty's style: if we end up using
+'err' uninitialised in some code path, it can get flagged by source
+checkers.
+
+		Amit
