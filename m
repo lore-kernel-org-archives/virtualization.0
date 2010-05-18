@@ -1,152 +1,58 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH] vhost-net: utilize PUBLISH_USED_IDX feature
-Date: Tue, 18 May 2010 04:19:31 +0300
-Message-ID: <20100518011931.GA21918__18380.3333006383$1274145866$gmane$org@redhat.com>
+Subject: Re: [PATCH] [resend] fix non-mergeable buffers packet too large
+	error handling
+Date: Tue, 18 May 2010 04:53:34 +0300
+Message-ID: <20100518015334.GA22478@redhat.com>
+References: <1274130996.8492.7.camel@w-dls.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <netdev-owner@vger.kernel.org>
 Content-Disposition: inline
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: davem@davemloft.net, Juan Quintela <quintela@redhat.com>, Rusty Russell <rusty@rustcorp.com.au>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>Arnd Bergmann <a>
+In-Reply-To: <1274130996.8492.7.camel@w-dls.beaverton.ibm.com>
+Sender: netdev-owner@vger.kernel.org
+To: David L Stevens <dlstevens@us.ibm.com>
+Cc: netdev@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-With PUBLISH_USED_IDX, guest tells us which used entries
-it has consumed. This can be used to reduce the number
-of interrupts: after we write a used entry, if the guest has not yet
-consumed the previous entry, or if the guest has already consumed the
-new entry, we do not need to interrupt.
-This imporves bandwidth by 30% under some workflows.
+On Mon, May 17, 2010 at 02:16:36PM -0700, David L Stevens wrote:
+> This patch enforces single-buffer allocation when
+> mergeable rx buffers is not enabled.
+> 
+> Reported-by: Michael S. Tsirkin <mst@redhat.com>
+> Signed-off-by: David L Stevens <dlstevens@us.ibm.com>
 
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
+Thanks! Why are you resending?
 
-Rusty, Dave, this patch depends on the patch
-"virtio: put last seen used index into ring itself"
-which is currently destined at Rusty's tree.
-Rusty, if you are taking that one for 2.6.35, please
-take this one as well.
-Dave, any objections?
-
- drivers/vhost/vhost.c |   27 +++++++++++++++++++++------
- drivers/vhost/vhost.h |    2 ++
- 2 files changed, 23 insertions(+), 6 deletions(-)
-
-diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-index 750effe..2a66cf3 100644
---- a/drivers/vhost/vhost.c
-+++ b/drivers/vhost/vhost.c
-@@ -278,14 +278,15 @@ static int memory_access_ok(struct vhost_dev *d, struct vhost_memory *mem,
- 	return 1;
- }
- 
--static int vq_access_ok(unsigned int num,
-+static int vq_access_ok(struct vhost_dev *d, unsigned int num,
- 			struct vring_desc __user *desc,
- 			struct vring_avail __user *avail,
- 			struct vring_used __user *used)
- {
-+	size_t s = vhost_has_feature(d, VIRTIO_RING_F_PUBLISH_USED) ? 2 : 0;
- 	return access_ok(VERIFY_READ, desc, num * sizeof *desc) &&
- 	       access_ok(VERIFY_READ, avail,
--			 sizeof *avail + num * sizeof *avail->ring) &&
-+			 sizeof *avail + num * sizeof *avail->ring + s) &&
- 	       access_ok(VERIFY_WRITE, used,
- 			sizeof *used + num * sizeof *used->ring);
- }
-@@ -312,7 +313,7 @@ static int vq_log_access_ok(struct vhost_virtqueue *vq, void __user *log_base)
- /* Caller should have vq mutex and device mutex */
- int vhost_vq_access_ok(struct vhost_virtqueue *vq)
- {
--	return vq_access_ok(vq->num, vq->desc, vq->avail, vq->used) &&
-+	return vq_access_ok(vq->dev, vq->num, vq->desc, vq->avail, vq->used,) &&
- 		vq_log_access_ok(vq, vq->log_base);
- }
- 
-@@ -448,7 +449,7 @@ static long vhost_set_vring(struct vhost_dev *d, int ioctl, void __user *argp)
- 		 * If it is not, we don't as size might not have been setup.
- 		 * We will verify when backend is configured. */
- 		if (vq->private_data) {
--			if (!vq_access_ok(vq->num,
-+			if (!vq_access_ok(d, vq->num,
- 				(void __user *)(unsigned long)a.desc_user_addr,
- 				(void __user *)(unsigned long)a.avail_user_addr,
- 				(void __user *)(unsigned long)a.used_user_addr)) {
-@@ -473,6 +474,7 @@ static long vhost_set_vring(struct vhost_dev *d, int ioctl, void __user *argp)
- 		vq->log_used = !!(a.flags & (0x1 << VHOST_VRING_F_LOG));
- 		vq->desc = (void __user *)(unsigned long)a.desc_user_addr;
- 		vq->avail = (void __user *)(unsigned long)a.avail_user_addr;
-+		vq->last_used = (u16 __user *)&vq->avail->ring[vq->num];
- 		vq->log_addr = a.log_guest_addr;
- 		vq->used = (void __user *)(unsigned long)a.used_user_addr;
- 		break;
-@@ -993,7 +995,8 @@ void vhost_discard_vq_desc(struct vhost_virtqueue *vq)
- 
- /* After we've used one of their buffers, we tell them about it.  We'll then
-  * want to notify the guest, using eventfd. */
--int vhost_add_used(struct vhost_virtqueue *vq, unsigned int head, int len)
-+static int vhost_add_used(struct vhost_virtqueue *vq, unsigned int head,
-+			  int len)
- {
- 	struct vring_used_elem __user *used;
- 
-@@ -1034,9 +1037,10 @@ int vhost_add_used(struct vhost_virtqueue *vq, unsigned int head, int len)
- }
- 
- /* This actually signals the guest, using eventfd. */
--void vhost_signal(struct vhost_dev *dev, struct vhost_virtqueue *vq)
-+static void vhost_signal(struct vhost_dev *dev, struct vhost_virtqueue *vq)
- {
- 	__u16 flags;
-+	__u16 used;
- 	/* Flush out used index updates. This is paired
- 	 * with the barrier that the Guest executes when enabling
- 	 * interrupts. */
-@@ -1053,6 +1057,17 @@ void vhost_signal(struct vhost_dev *dev, struct vhost_virtqueue *vq)
- 	     !vhost_has_feature(dev, VIRTIO_F_NOTIFY_ON_EMPTY)))
- 		return;
- 
-+	if (vhost_has_feature(d, VIRTIO_RING_F_PUBLISH_USED)) {
-+		__u16 used;
-+		if (get_user(used, vq->last_used)) {
-+			vq_err(vq, "Failed to get last used idx");
-+			return;
-+		}
-+
-+		if (used != (u16)(vq->last_used_idx - 1))
-+			return;
-+	}
-+
- 	/* Signal the Guest tell them we used something up. */
- 	if (vq->call_ctx)
- 		eventfd_signal(vq->call_ctx, 1);
-diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
-index 44591ba..00e9784 100644
---- a/drivers/vhost/vhost.h
-+++ b/drivers/vhost/vhost.h
-@@ -52,6 +52,7 @@ struct vhost_virtqueue {
- 	unsigned int num;
- 	struct vring_desc __user *desc;
- 	struct vring_avail __user *avail;
-+	u16 __user *last_used;
- 	struct vring_used __user *used;
- 	struct file *kick;
- 	struct file *call;
-@@ -148,6 +149,7 @@ void vhost_cleanup(void);
- enum {
- 	VHOST_FEATURES = (1 << VIRTIO_F_NOTIFY_ON_EMPTY) |
- 			 (1 << VIRTIO_RING_F_INDIRECT_DESC) |
-+			 (1 << VIRTIO_RING_F_PUBLISH_USED) |
- 			 (1 << VHOST_F_LOG_ALL) |
- 			 (1 << VHOST_NET_F_VIRTIO_NET_HDR),
- };
--- 
-1.7.1.12.g42b7f
+> diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+> index 309c570..c346304 100644
+> --- a/drivers/vhost/net.c
+> +++ b/drivers/vhost/net.c
+> @@ -361,13 +361,21 @@ static void handle_rx(struct vhost_net *net)
+>  			break;
+>  		}
+>  		/* TODO: Should check and handle checksum. */
+> -		if (vhost_has_feature(&net->dev, VIRTIO_NET_F_MRG_RXBUF) &&
+> -		    memcpy_toiovecend(vq->hdr, (unsigned char *)&headcount,
+> -				      offsetof(typeof(hdr), num_buffers),
+> -				      sizeof hdr.num_buffers)) {
+> -			vq_err(vq, "Failed num_buffers write");
+> +		if (vhost_has_feature(&net->dev, VIRTIO_NET_F_MRG_RXBUF)) {
+> +			if (memcpy_toiovecend(vq->hdr,
+> +					      (unsigned char *)&headcount,
+> +					      offsetof(typeof(hdr),
+> +					      num_buffers),
+> +					      sizeof hdr.num_buffers)) {
+> +				vq_err(vq, "Failed num_buffers write");
+> +				vhost_discard_desc(vq, headcount);
+> +				break;
+> +			}
+> +		} else if (headcount > 1) {
+> +			vq_err(vq, "rx packet too large (%d) for guest",
+> +			       sock_len);
+>  			vhost_discard_desc(vq, headcount);
+> -			break;
+> +			continue;
+>  		}
+>  		vhost_add_used_and_signal_n(&net->dev, vq, vq->heads,
+>  					    headcount);
+> 
