@@ -1,14 +1,12 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH 1/4] drivers/char: Eliminate use after free
-Date: Tue, 18 May 2010 10:09:49 +0930
-Message-ID: <201005181009.50470.rusty__28216.5980352604$1274143240$gmane$org@rustcorp.com.au>
-References: <Pine.LNX.4.64.1005151145340.15566@ask.diku.dk>
-	<20100517072337.GC3313@amit-laptop.redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH] vhost-net: utilize PUBLISH_USED_IDX feature
+Date: Tue, 18 May 2010 04:19:31 +0300
+Message-ID: <20100518011931.GA21918__18380.3333006383$1274145866$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20100517072337.GC3313@amit-laptop.redhat.com>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,23 +16,137 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Amit Shah <amit.shah@redhat.com>
-Cc: kernel-janitors@vger.kernel.org, Julia Lawall <julia@diku.dk>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: davem@davemloft.net, Juan Quintela <quintela@redhat.com>, Rusty Russell <rusty@rustcorp.com.au>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>Arnd Bergmann <a>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, 17 May 2010 06:31:40 pm Amit Shah wrote:
-> On (Sat) May 15 2010 [11:45:53], Julia Lawall wrote:
-> > From: Julia Lawall <julia@diku.dk>
-...
-> > Signed-off-by: Julia Lawall <julia@diku.dk>
-> 
-> Acked-by: Amit Shah <amit.shah@redhat.com>
-> 
-> Thanks, Julia.
-> 
-> Rusty, please pick this patch. Thanks.
+With PUBLISH_USED_IDX, guest tells us which used entries
+it has consumed. This can be used to reduce the number
+of interrupts: after we write a used entry, if the guest has not yet
+consumed the previous entry, or if the guest has already consumed the
+new entry, we do not need to interrupt.
+This imporves bandwidth by 30% under some workflows.
 
-Done.
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
 
-Thanks!
-Rusty.
+Rusty, Dave, this patch depends on the patch
+"virtio: put last seen used index into ring itself"
+which is currently destined at Rusty's tree.
+Rusty, if you are taking that one for 2.6.35, please
+take this one as well.
+Dave, any objections?
+
+ drivers/vhost/vhost.c |   27 +++++++++++++++++++++------
+ drivers/vhost/vhost.h |    2 ++
+ 2 files changed, 23 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+index 750effe..2a66cf3 100644
+--- a/drivers/vhost/vhost.c
++++ b/drivers/vhost/vhost.c
+@@ -278,14 +278,15 @@ static int memory_access_ok(struct vhost_dev *d, struct vhost_memory *mem,
+ 	return 1;
+ }
+ 
+-static int vq_access_ok(unsigned int num,
++static int vq_access_ok(struct vhost_dev *d, unsigned int num,
+ 			struct vring_desc __user *desc,
+ 			struct vring_avail __user *avail,
+ 			struct vring_used __user *used)
+ {
++	size_t s = vhost_has_feature(d, VIRTIO_RING_F_PUBLISH_USED) ? 2 : 0;
+ 	return access_ok(VERIFY_READ, desc, num * sizeof *desc) &&
+ 	       access_ok(VERIFY_READ, avail,
+-			 sizeof *avail + num * sizeof *avail->ring) &&
++			 sizeof *avail + num * sizeof *avail->ring + s) &&
+ 	       access_ok(VERIFY_WRITE, used,
+ 			sizeof *used + num * sizeof *used->ring);
+ }
+@@ -312,7 +313,7 @@ static int vq_log_access_ok(struct vhost_virtqueue *vq, void __user *log_base)
+ /* Caller should have vq mutex and device mutex */
+ int vhost_vq_access_ok(struct vhost_virtqueue *vq)
+ {
+-	return vq_access_ok(vq->num, vq->desc, vq->avail, vq->used) &&
++	return vq_access_ok(vq->dev, vq->num, vq->desc, vq->avail, vq->used,) &&
+ 		vq_log_access_ok(vq, vq->log_base);
+ }
+ 
+@@ -448,7 +449,7 @@ static long vhost_set_vring(struct vhost_dev *d, int ioctl, void __user *argp)
+ 		 * If it is not, we don't as size might not have been setup.
+ 		 * We will verify when backend is configured. */
+ 		if (vq->private_data) {
+-			if (!vq_access_ok(vq->num,
++			if (!vq_access_ok(d, vq->num,
+ 				(void __user *)(unsigned long)a.desc_user_addr,
+ 				(void __user *)(unsigned long)a.avail_user_addr,
+ 				(void __user *)(unsigned long)a.used_user_addr)) {
+@@ -473,6 +474,7 @@ static long vhost_set_vring(struct vhost_dev *d, int ioctl, void __user *argp)
+ 		vq->log_used = !!(a.flags & (0x1 << VHOST_VRING_F_LOG));
+ 		vq->desc = (void __user *)(unsigned long)a.desc_user_addr;
+ 		vq->avail = (void __user *)(unsigned long)a.avail_user_addr;
++		vq->last_used = (u16 __user *)&vq->avail->ring[vq->num];
+ 		vq->log_addr = a.log_guest_addr;
+ 		vq->used = (void __user *)(unsigned long)a.used_user_addr;
+ 		break;
+@@ -993,7 +995,8 @@ void vhost_discard_vq_desc(struct vhost_virtqueue *vq)
+ 
+ /* After we've used one of their buffers, we tell them about it.  We'll then
+  * want to notify the guest, using eventfd. */
+-int vhost_add_used(struct vhost_virtqueue *vq, unsigned int head, int len)
++static int vhost_add_used(struct vhost_virtqueue *vq, unsigned int head,
++			  int len)
+ {
+ 	struct vring_used_elem __user *used;
+ 
+@@ -1034,9 +1037,10 @@ int vhost_add_used(struct vhost_virtqueue *vq, unsigned int head, int len)
+ }
+ 
+ /* This actually signals the guest, using eventfd. */
+-void vhost_signal(struct vhost_dev *dev, struct vhost_virtqueue *vq)
++static void vhost_signal(struct vhost_dev *dev, struct vhost_virtqueue *vq)
+ {
+ 	__u16 flags;
++	__u16 used;
+ 	/* Flush out used index updates. This is paired
+ 	 * with the barrier that the Guest executes when enabling
+ 	 * interrupts. */
+@@ -1053,6 +1057,17 @@ void vhost_signal(struct vhost_dev *dev, struct vhost_virtqueue *vq)
+ 	     !vhost_has_feature(dev, VIRTIO_F_NOTIFY_ON_EMPTY)))
+ 		return;
+ 
++	if (vhost_has_feature(d, VIRTIO_RING_F_PUBLISH_USED)) {
++		__u16 used;
++		if (get_user(used, vq->last_used)) {
++			vq_err(vq, "Failed to get last used idx");
++			return;
++		}
++
++		if (used != (u16)(vq->last_used_idx - 1))
++			return;
++	}
++
+ 	/* Signal the Guest tell them we used something up. */
+ 	if (vq->call_ctx)
+ 		eventfd_signal(vq->call_ctx, 1);
+diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
+index 44591ba..00e9784 100644
+--- a/drivers/vhost/vhost.h
++++ b/drivers/vhost/vhost.h
+@@ -52,6 +52,7 @@ struct vhost_virtqueue {
+ 	unsigned int num;
+ 	struct vring_desc __user *desc;
+ 	struct vring_avail __user *avail;
++	u16 __user *last_used;
+ 	struct vring_used __user *used;
+ 	struct file *kick;
+ 	struct file *call;
+@@ -148,6 +149,7 @@ void vhost_cleanup(void);
+ enum {
+ 	VHOST_FEATURES = (1 << VIRTIO_F_NOTIFY_ON_EMPTY) |
+ 			 (1 << VIRTIO_RING_F_INDIRECT_DESC) |
++			 (1 << VIRTIO_RING_F_PUBLISH_USED) |
+ 			 (1 << VHOST_F_LOG_ALL) |
+ 			 (1 << VHOST_NET_F_VIRTIO_NET_HDR),
+ };
+-- 
+1.7.1.12.g42b7f
