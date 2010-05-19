@@ -1,58 +1,53 @@
-From: Greg KH <gregkh@suse.de>
-Subject: Re: [PATCH 1/2] staging: hv: Fix race condition in hv_utils module
+From: Haiyang Zhang <haiyangz@microsoft.com>
+Subject: RE: [PATCH 1/2] staging: hv: Fix race condition in hv_utils module
  initialization.
-Date: Wed, 19 May 2010 13:39:01 -0700
-Message-ID: <20100519203901.GA23214@suse.de>
+Date: Wed, 19 May 2010 22:12:51 +0000
+Message-ID: <1FB5E1D5CA062146B38059374562DF7266B8951F@TK5EX14MBXC128.redmond.corp.microsoft.com>
 References: <1FB5E1D5CA062146B38059374562DF7266B8930E@TK5EX14MBXC128.redmond.corp.microsoft.com>
  <20100519161011.GA20266@suse.de>
  <1FB5E1D5CA062146B38059374562DF7266B894B0@TK5EX14MBXC128.redmond.corp.microsoft.com>
+ <20100519203901.GA23214@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1FB5E1D5CA062146B38059374562DF7266B894B0@TK5EX14MBXC128.redmond.corp.microsoft.com>
+In-Reply-To: <20100519203901.GA23214@suse.de>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Haiyang Zhang <haiyangz@microsoft.com>
+To: Greg KH <gregkh@suse.de>
 Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>, "'devel@driverdev.osuosl.org'" <devel@driverdev.osuosl.org>, "'virtualization@lists.osdl.org'" <virtualization@lists.osdl.org>, Hank Janssen <hjanssen@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, May 19, 2010 at 08:30:25PM +0000, Haiyang Zhang wrote:
-> > > +	/* Wait until all IC channels are initialized */
-> > > +	while (atomic_read(&hv_utils_initcnt) < MAX_MSG_TYPES)
-> > > +		msleep(100);
-> > 
-> > No, don't do this here, do something in your hv_vmbus core to handle
-> > registering sub-drivers properly.  Perhaps you need to sleep there
-> > before you can succeed on a initialization.
+> > Actually, we already assign a default callback function,
+> chn_cb_negotiate(),
+> > when the channels are opened in vmbus module. It's a real function
+> and can
+> > handle common negotiation messages.
 > 
-> Thanks for the recommendation. I will put the sleep into vmbus_init to 
-> ensure all channels are ready before the vmbus_init function exits.
+> Then why don't you use it here?
+
+When vmbus is loaded and channel is offered from HyperV host, the default
+callback function, chn_cb_negotiate(), is assigned to the function ptr, and
+used to do basic responses of negotiation messages. 
+
+After hv_utils modules is loaded the callback function ptr is overridden by 
+a specialized function in hv_utils module, and handles each feature (shutdown, 
+timesync, etc.) differently.
+
+> I still think there's a real problem somewhere else in the architecture
+> if such a sleep is necessary...
 > 
-> > >  	hv_cb_utils[HV_SHUTDOWN_MSG].channel->OnChannelCallback =
-> > >  		&shutdown_onchannelcallback;
-> > 
-> > The problem is that you just have a bunch of callbacks you are setting
-> > up, it's not a "real" function call.  Please change it over to a
-> > function call, like all other subsystems have.  Then, you can handle
-> > any
-> > "sleep until we are set up properly" issues in the vmbus code, not in
-> > each and every individual bus driver.
-> 
-> Actually, we already assign a default callback function, chn_cb_negotiate(),
-> when the channels are opened in vmbus module. It's a real function and can 
-> handle common negotiation messages.
+> Is the issue that the modprobe of the hv_vmbus can return before the
+> bus
+> is really all set up and ready to go?  If so, just fix that, then you
+> will not need any "sleep" calls anywhere, right?
 
-Then why don't you use it here?
+After vmbus is loaded, the channel offering will come from the host, then
+it initializes the channel. The channel offering can happen a little later
+after vmbus_init() is done and modprobe returns. So I think we should let
+vmbus_init function wait(sleep) until all channel offerings are received before
+returning. This will ensure all channels are ready before modprobe returns.
 
-> I will move the sleep into vmbus module as well.
+Thanks,
 
-I still think there's a real problem somewhere else in the architecture
-if such a sleep is necessary...
-
-Is the issue that the modprobe of the hv_vmbus can return before the bus
-is really all set up and ready to go?  If so, just fix that, then you
-will not need any "sleep" calls anywhere, right?
-
-thanks,
-
-greg k-h
+- Haiyang
