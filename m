@@ -1,71 +1,88 @@
-From: "Ky Srinivasan" <ksrinivasan@novell.com>
-Subject: RE: [PATCH 1/1] staging: hv: Fix race condition on IC channel
-	 initialization
-Date: Sat, 22 May 2010 09:21:10 -0600
-Message-ID: <4BF7A20602000030000859E3@sinclair.provo.novell.com>
-References: <1FB5E1D5CA062146B38059374562DF7266B8AE7C@TK5EX14MBXC128.redmond.corp.microsoft.com>
- <20100521201228.GA6712@suse.de>
- <1FB5E1D5CA062146B38059374562DF7266B8B5F2@TK5EX14MBXC128.redmond.corp.microsoft.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [Qemu-devel] [PATCH RFC] virtio: put last seen used index into
+	ring itself
+Date: Sun, 23 May 2010 18:31:34 +0300
+Message-ID: <20100523153134.GA14646__30666.5505086587$1274629013$gmane$org@redhat.com>
+References: <20100505205814.GA7090@redhat.com> <4BF39C12.7090407@redhat.com>
+	<201005201431.51142.rusty@rustcorp.com.au>
+	<201005201438.17010.rusty@rustcorp.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1FB5E1D5CA062146B38059374562DF7266B8B5F2@TK5EX14MBXC128.redmond.corp.microsoft.com>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-To: Haiyang Zhang <haiyangz@microsoft.com>, Greg KH <gregkh@suse.de>
-Cc: "'devel@driverdev.osuosl.org'" <devel@driverdev.osuosl.org>, "'virtualization@lists.osdl.org'" <virtualization@lists.osdl.org>, "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+In-Reply-To: <201005201438.17010.rusty@rustcorp.com.au>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Avi Kivity <avi@redhat.com>, kvm@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
+On Thu, May 20, 2010 at 02:38:16PM +0930, Rusty Russell wrote:
+> On Thu, 20 May 2010 02:31:50 pm Rusty Russell wrote:
+> > On Wed, 19 May 2010 05:36:42 pm Avi Kivity wrote:
+> > > > Note that this is a exclusive->shared->exclusive bounce only, too.
+> > > >    
+> > > 
+> > > A bounce is a bounce.
+> > 
+> > I tried to measure this to show that you were wrong, but I was only able
+> > to show that you're right.  How annoying.  Test code below.
+> 
+> This time for sure!
 
 
->>> On 5/21/2010 at  6:07 PM, in message
-<1FB5E1D5CA062146B38059374562DF7266B8B5F2@TK5EX14MBXC128.redmond.corp.microsoft.
-om>, Haiyang Zhang <haiyangz@microsoft.com> wrote: 
->>  From: Greg KH [mailto:gregkh@suse.de]
->> > +/* Counter of IC channels initialized */
->> > +atomic_t hv_utils_initcnt = ATOMIC_INIT(0);
->> 
->> This doesn't need to be an atomic variable, does it really?
->> 
->> Why not have a simple bool variable "vmbus_initialized" or something.
->> It starts out as false, and then turns true when you are up and ready.
->> Then provide a function that tests it:
->> 	bool hv_vmbus_ready(void)
->> 	{
->> 		return vmbus_initialized
->> 	}
->> 	EXPORT_SYMBOL_GPL(hv_vmbus_ready);
->> 
->> 
->> this turns into a simple function call, again, never needing to know
->> about message types or any other mess.
-> 
-> This looks good. I will add the hv_vmbus_ready() function. It doesn't even 
-> have to be exported symbol, because it's only used in vmbus module to ensure 
-> 
-> all channels are ready before vmbus_init() returns. Other modules won't get 
-> a 
-> chance to see uninitialized channels after hv_vmbus is loaded.
-> 
-> Also, I'll cleanup the printk in hv_utils load/unload.
-> 
-> Regarding the atomic variable -- the channel offer processing function is 
-> triggered by interrupts from host -- should we be concerned about "counter++" 
-> racing with each other in two interrupts happening around the same time?
-You would need to protect the increment, if interrupts are going to come in on any cpu and update the counter. While in your current implementation interrupts are only delivered on cpu0, it is still  probably good to deal with the more general case and protect the counter.
+What do you see?
+On my laptop:
+	[mst@tuck testring]$ ./rusty1 share 0 1
+	CPU 1: share cacheline: 2820410 usec
+	CPU 0: share cacheline: 2823441 usec
+	[mst@tuck testring]$ ./rusty1 unshare 0 1
+	CPU 0: unshare cacheline: 2783014 usec
+	CPU 1: unshare cacheline: 2782951 usec
+	[mst@tuck testring]$ ./rusty1 lockshare 0 1
+	CPU 1: lockshare cacheline: 1888495 usec
+	CPU 0: lockshare cacheline: 1888544 usec
+	[mst@tuck testring]$ ./rusty1 lockunshare 0 1
+	CPU 0: lockunshare cacheline: 1889854 usec
+	CPU 1: lockunshare cacheline: 1889804 usec
+So locked version seems to be faster than unlocked,
+and share/unshare not to matter?
 
-On a slightly different note, why don't you make the synchronization more explicit than what you currently have: Rather than polling the variable in a loop, why don't you put that context to sleep and the interrupt context that updates the count would be responsible for issuing the wakeup when the conditions are appropriate - when all channels are initialized.
+same on a workstation:
+[root@qus19 ~]# ./rusty1 unshare 0 1
+CPU 0: unshare cacheline: 6037002 usec
+CPU 1: unshare cacheline: 6036977 usec
+[root@qus19 ~]# ./rusty1 lockunshare 0 1
+CPU 1: lockunshare cacheline: 5734362 usec
+CPU 0: lockunshare cacheline: 5734389 usec
+[root@qus19 ~]# ./rusty1 lockshare 0 1
+CPU 1: lockshare cacheline: 5733537 usec
+CPU 0: lockshare cacheline: 5733564 usec
 
-Regards,
+using another pair of CPUs gives a more drastic
+results:
 
-K. Y 
-> 
-> Thanks,
-> 
-> - Haiyang
-> 
-> _______________________________________________
-> Virtualization mailing list
-> Virtualization@lists.linux-foundation.org
-> https://lists.linux-foundation.org/mailman/listinfo/virtualization
+[root@qus19 ~]# ./rusty1 lockshare 0 2
+CPU 2: lockshare cacheline: 4226990 usec
+CPU 0: lockshare cacheline: 4227038 usec
+[root@qus19 ~]# ./rusty1 lockunshare 0 2
+CPU 0: lockunshare cacheline: 4226707 usec
+CPU 2: lockunshare cacheline: 4226662 usec
+[root@qus19 ~]# ./rusty1 unshare 0 2
+CPU 0: unshare cacheline: 14815048 usec
+CPU 2: unshare cacheline: 14815006 usec
+
+
+The share test seems to never finish on the
+workstation. I am debugging this.
+
+-- 
+MST
