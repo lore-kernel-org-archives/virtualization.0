@@ -1,40 +1,43 @@
-From: Avi Kivity <avi@redhat.com>
-Subject: Re: [Qemu-devel] [PATCH RFC] virtio: put last seen used index into
-	ring itself
-Date: Mon, 24 May 2010 14:00:59 +0300
-Message-ID: <4BFA5C6B.5070403__21953.360111411$1274698925$gmane$org@redhat.com>
-References: <20100505205814.GA7090@redhat.com> <4BF39C12.7090407@redhat.com>
-	<201005201431.51142.rusty@rustcorp.com.au>
-	<201005201438.17010.rusty@rustcorp.com.au>
-	<20100523153134.GA14646@redhat.com> <4BF94CAD.5010504@redhat.com>
-	<20100523155132.GA14733@redhat.com> <4BF951BE.1010402@redhat.com>
-	<20100523163039.GC14733@redhat.com> <4BFA1E91.8060706@redhat.com>
-	<20100524080518.GA16115@redhat.com>
+From: Haiyang Zhang <haiyangz@microsoft.com>
+Subject: RE: [PATCH 1/1] staging: hv: Fix race condition on IC channel
+	 initialization
+Date: Tue, 25 May 2010 23:14:48 +0000
+Message-ID: <1FB5E1D5CA062146B38059374562DF7266B8C0B7@TK5EX14MBXC128.redmond.corp.microsoft.com>
+References: <1FB5E1D5CA062146B38059374562DF7266B8AE7C@TK5EX14MBXC128.redmond.corp.microsoft.com>
+ <20100521201228.GA6712@suse.de>
+ <1FB5E1D5CA062146B38059374562DF7266B8B5F2@TK5EX14MBXC128.redmond.corp.microsoft.com>
+ <4BF7A20602000030000859E3@sinclair.provo.novell.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20100524080518.GA16115@redhat.com>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: qemu-devel@nongnu.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <4BF7A20602000030000859E3@sinclair.provo.novell.com>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: Ky Srinivasan <ksrinivasan@novell.com>, Greg KH <gregkh@suse.de>
+Cc: "'devel@driverdev.osuosl.org'" <devel@driverdev.osuosl.org>, "'virtualization@lists.osdl.org'" <virtualization@lists.osdl.org>, "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 05/24/2010 11:05 AM, Michael S. Tsirkin wrote:
->
-> Okay, but why is lockunshare faster than unshare?
->
->    
+> From: Ky Srinivasan [mailto:ksrinivasan@novell.com]
+> You would need to protect the increment, if interrupts are going to
+> come in on any cpu and update the counter. While in your current
+> implementation interrupts are only delivered on cpu0, it is still
+> probably good to deal with the more general case and protect the
+> counter.
+> 
+> On a slightly different note, why don't you make the synchronization
+> more explicit than what you currently have: Rather than polling the
+> variable in a loop, why don't you put that context to sleep and the
+> interrupt context that updates the count would be responsible for
+> issuing the wakeup when the conditions are appropriate - when all
+> channels are initialized.
 
-No idea.
+Thank you for the suggestion. I will keep the counter atomic to handle 
+more general case potentially. To ensure channels are ready before 
+vmbus_init() returns, I used an event waiting mechanism instead of 
+polling the variable periodically. A modified patch will be submitted 
+soon.
 
--- 
-Do not meddle in the internals of kernels, for they are subtle and quick to panic.
+Thanks,
+
+- Haiyang
