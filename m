@@ -1,89 +1,56 @@
-From: Greg KH <gregkh@suse.de>
-Subject: Re: [PATCH 1/1] staging: hv: Fix race condition on IC channel
- initialization (modified)
-Date: Wed, 26 May 2010 14:48:42 -0700
-Message-ID: <20100526214842.GA27908@suse.de>
+From: Hank Janssen <hjanssen@microsoft.com>
+Subject: RE: [PATCH 1/1] staging: hv: Fix race condition on IC channel
+	initialization (modified)
+Date: Wed, 26 May 2010 22:03:20 +0000
+Message-ID: <8AFC7968D54FB448A30D8F38F259C5621B02619C@TK5EX14MBXC116.redmond.corp.microsoft.com>
 References: <1FB5E1D5CA062146B38059374562DF7266B8C4AC@TK5EX14MBXC128.redmond.corp.microsoft.com>
- <20100526205134.GC7343@suse.de>
- <1FB5E1D5CA062146B38059374562DF7266B8C72B@TK5EX14MBXC128.redmond.corp.microsoft.com>
+	<20100526205134.GC7343@suse.de>
+	<1FB5E1D5CA062146B38059374562DF7266B8C72B@TK5EX14MBXC128.redmond.corp.microsoft.com>
+	<20100526214842.GA27908@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1FB5E1D5CA062146B38059374562DF7266B8C72B@TK5EX14MBXC128.redmond.corp.microsoft.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Haiyang Zhang <haiyangz@microsoft.com>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>, "'devel@driverdev.osuosl.org'" <devel@driverdev.osuosl.org>, "'virtualization@lists.osdl.org'" <virtualization@lists.osdl.org>, Hank Janssen <hjanssen@microsoft.com>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <devel-bounces@linuxdriverproject.org>
+In-Reply-To: <20100526214842.GA27908@suse.de>
+Content-Language: en-US
+List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
+	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
+List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
+List-Post: <mailto:devel@linuxdriverproject.org>
+List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
+List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
+	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
+Sender: devel-bounces@linuxdriverproject.org
+Errors-To: devel-bounces@linuxdriverproject.org
+To: Greg KH <gregkh@suse.de>, Haiyang Zhang <haiyangz@microsoft.com>
+Cc: "'devel@driverdev.osuosl.org'" <devel@driverdev.osuosl.org>, "'virtualization@lists.osdl.org'" <virtualization@lists.osdl.org>, "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, May 26, 2010 at 09:25:31PM +0000, Haiyang Zhang wrote:
-> > From: Greg KH [mailto:gregkh@suse.de]
-> > > +	static atomic_t ic_channel_initcnt = ATOMIC_INIT(0);
-> > Why is this an atomic_t?
+
+
+> -----Original Message-----
+> From: Greg KH [mailto:gregkh@suse.de]
+> Sent: Wednesday, May 26, 2010 2:49 PM
+> To: Haiyang Zhang
+> Cc: 'linux-kernel@vger.kernel.org'; 'devel@driverdev.osuosl.org'; 
+> 'virtualization@lists.osdl.org'; Hank Janssen
+> Subject: Re: [PATCH 1/1] staging: hv: Fix race condition on IC channel 
+> initialization (modified)
+> On Wed, May 26, 2010 at 09:25:31PM +0000, Haiyang Zhang wrote:
+>>> From: Greg KH [mailto:gregkh@suse.de]
+>>> What's with the "ic_" naming scheme here?  It should be "hv_"
+> right?
+>> 
+>> IC stands for "integration components", such as Shutdown, Timesync,
+>> Heartbeat, etc.
 > 
-> As discussed previously, I used atomic_t to handle more general case 
-> if vmbus interrupts happen on every cpu.
+> Yes, I know what it stands for, but the rest of the world doesn't :)
 
-Ok, but then you should use a lock to protect the variable, not an atomic_t.
+Marketing in the their infinite wisdom decided that going forward they 
+should be called Linux Integration Service so IS. 
 
-> 
-> > > +			    VmbusChannelOpen(newChannel, 2 * PAGE_SIZE,
-> > > +					     2 * PAGE_SIZE, NULL, 0,
-> > > +					     hv_cb_utils[cnt].callback,
-> > > +					     newChannel) == 0) {
-> > > +				hv_cb_utils[cnt].channel = newChannel;
-> > > +				mb();
-> > 
-> > What is the mb() call for?  Why is it necessary?  (hint, if you need it,
-> > something else is really wrong...)
-> 
-> It ensures the channel assignment happens before the wakeup call: 
-> osd_WaitEventSet(ic_channel_ready), if the compiler optimization re-arrange 
-> the execution order. 
+Sigh..............
 
-If you care about this, because some other thread is looking at it, then
-you really need to protect it with a lock.  Don't rely on a mb() to get
-it all correct for you (hint, I doubt it will...)
+We will change it to hv_  :)
 
-> > Something wierd happened with your indentation here, it doesn't line up
-> > properly.  That call to VmbusChannelOpen() needs to go in a full tab,
-> > not 4 spaces.
-> > 
-> > Please always run your patch through the checkpatch.pl script before
-> > sending it to me.
-> 
-> Sure, I will replace it with TAB. I already ran checkpatch.pl on 
-> this patch -- no error:
-> staging-next-2.6> scripts/checkpatch.pl 0525-Fix-race-condition-on-IC-channel-initialization.patch
-> total: 0 errors, 0 warnings, 71 lines checked
-> 
-> 0525-Fix-race-condition-on-IC-channel-initialization.patch has no obvious style problems and is ready for submission.
-
-Looks like a bug in checkpatch.pl, go poke Andy about that please.
-
-> > > +struct osd_waitevent *ic_channel_ready;
-> > 
-> > What's with the "ic_" naming scheme here?  It should be "hv_" right?
-> 
-> IC stands for "integration components", such as Shutdown, Timesync, 
-> Heartbeat, etc.
-
-Yes, I know what it stands for, but the rest of the world doesn't :)
-
-> > As you are using this "ic_channel_ready variable only within the
-> > vmbus_bus_init() call, why not just make it local to there?  Then
-> > there's no need to do the create/init/wait/free sequence outside the
-> > init call.
-> > 
-> > The init call should just do all of this for us, right?
-> 
-> The ic_channel_ready variable is called by VmbusChannelProcessOffer /
-> osd_WaitEventSet(ic_channel_ready) to wake up vmbus_init(). So it's
-> not a local variable.
-
-But again, this logic should be within the init call, as it's part of
-the proper init sequence.  So just put it in that call please.
-
-thanks,
-
-greg k-h
+Hank.
