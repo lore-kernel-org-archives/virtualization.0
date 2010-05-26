@@ -1,131 +1,73 @@
-From: Greg KH <gregkh@suse.de>
-Subject: Re: [PATCH 1/1] staging: hv: Fix race condition on IC channel
+From: Haiyang Zhang <haiyangz@microsoft.com>
+Subject: RE: [PATCH 1/1] staging: hv: Fix race condition on IC channel
  initialization (modified)
-Date: Wed, 26 May 2010 13:51:34 -0700
-Message-ID: <20100526205134.GC7343@suse.de>
+Date: Wed, 26 May 2010 21:25:31 +0000
+Message-ID: <1FB5E1D5CA062146B38059374562DF7266B8C72B@TK5EX14MBXC128.redmond.corp.microsoft.com>
 References: <1FB5E1D5CA062146B38059374562DF7266B8C4AC@TK5EX14MBXC128.redmond.corp.microsoft.com>
+ <20100526205134.GC7343@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1FB5E1D5CA062146B38059374562DF7266B8C4AC@TK5EX14MBXC128.redmond.corp.microsoft.com>
+In-Reply-To: <20100526205134.GC7343@suse.de>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Haiyang Zhang <haiyangz@microsoft.com>
+To: Greg KH <gregkh@suse.de>
 Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>, "'devel@driverdev.osuosl.org'" <devel@driverdev.osuosl.org>, "'virtualization@lists.osdl.org'" <virtualization@lists.osdl.org>, Hank Janssen <hjanssen@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, May 26, 2010 at 04:54:39PM +0000, Haiyang Zhang wrote:
-> From: Haiyang Zhang <haiyangz@microsoft.com>
+> From: Greg KH [mailto:gregkh@suse.de]
+> > +	static atomic_t ic_channel_initcnt = ATOMIC_INIT(0);
+> Why is this an atomic_t?
+
+As discussed previously, I used atomic_t to handle more general case 
+if vmbus interrupts happen on every cpu.
+
+> > +			    VmbusChannelOpen(newChannel, 2 * PAGE_SIZE,
+> > +					     2 * PAGE_SIZE, NULL, 0,
+> > +					     hv_cb_utils[cnt].callback,
+> > +					     newChannel) == 0) {
+> > +				hv_cb_utils[cnt].channel = newChannel;
+> > +				mb();
 > 
-> Subject: [PATCH] staging: hv: Fix race condition on IC channel initialization
-> There is a possible race condition when hv_utils starts to load immediately
-> after hv_vmbus is loading - null pointer error could happen.
-> This patch added an event waiting to ensure all channels are ready before
-> vmbus_init() returns. So another module won't have any uninitialized channel.
+> What is the mb() call for?  Why is it necessary?  (hint, if you need it,
+> something else is really wrong...)
+
+It ensures the channel assignment happens before the wakeup call: 
+osd_WaitEventSet(ic_channel_ready), if the compiler optimization re-arrange 
+the execution order. 
+
+> Something wierd happened with your indentation here, it doesn't line up
+> properly.  That call to VmbusChannelOpen() needs to go in a full tab,
+> not 4 spaces.
 > 
-> Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
-> Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
+> Please always run your patch through the checkpatch.pl script before
+> sending it to me.
+
+Sure, I will replace it with TAB. I already ran checkpatch.pl on 
+this patch -- no error:
+staging-next-2.6> scripts/checkpatch.pl 0525-Fix-race-condition-on-IC-channel-initialization.patch
+total: 0 errors, 0 warnings, 71 lines checked
+
+0525-Fix-race-condition-on-IC-channel-initialization.patch has no obvious style problems and is ready for submission.
+
+> > +struct osd_waitevent *ic_channel_ready;
 > 
-> ---
->  drivers/staging/hv/channel_mgmt.c  |   23 +++++++++++++----------
->  drivers/staging/hv/vmbus_drv.c     |   10 ++++++++++
->  drivers/staging/hv/vmbus_private.h |    1 +
->  3 files changed, 24 insertions(+), 10 deletions(-)
+> What's with the "ic_" naming scheme here?  It should be "hv_" right?
+
+IC stands for "integration components", such as Shutdown, Timesync, 
+Heartbeat, etc.
+
+> As you are using this "ic_channel_ready variable only within the
+> vmbus_bus_init() call, why not just make it local to there?  Then
+> there's no need to do the create/init/wait/free sequence outside the
+> init call.
 > 
-> diff --git a/drivers/staging/hv/channel_mgmt.c b/drivers/staging/hv/channel_mgmt.c
-> index 3f53b4d..f99db1b 100644
-> --- a/drivers/staging/hv/channel_mgmt.c
-> +++ b/drivers/staging/hv/channel_mgmt.c
-> @@ -305,6 +305,7 @@ static void VmbusChannelProcessOffer(void *context)
->  	int ret;
->  	int cnt;
->  	unsigned long flags;
-> +	static atomic_t ic_channel_initcnt = ATOMIC_INIT(0);
+> The init call should just do all of this for us, right?
 
-Why is this an atomic_t?
+The ic_channel_ready variable is called by VmbusChannelProcessOffer /  osd_WaitEventSet(ic_channel_ready) to wake up vmbus_init(). So it's 
+not a local variable.
 
->  	DPRINT_ENTER(VMBUS);
->  
-> @@ -373,22 +374,24 @@ static void VmbusChannelProcessOffer(void *context)
->  		 * can cleanup properly
->  		 */
->  		newChannel->State = CHANNEL_OPEN_STATE;
-> -		cnt = 0;
->  
-> -		while (cnt != MAX_MSG_TYPES) {
-> +		/* Open IC channels */
-> +		for (cnt = 0; cnt < MAX_MSG_TYPES; cnt++) {
->  			if (memcmp(&newChannel->OfferMsg.Offer.InterfaceType,
->  				   &hv_cb_utils[cnt].data,
-> -				   sizeof(struct hv_guid)) == 0) {
-> +				   sizeof(struct hv_guid)) == 0 &&
-> +			    VmbusChannelOpen(newChannel, 2 * PAGE_SIZE,
-> +					     2 * PAGE_SIZE, NULL, 0,
-> +					     hv_cb_utils[cnt].callback,
-> +					     newChannel) == 0) {
-> +				hv_cb_utils[cnt].channel = newChannel;
-> +				mb();
+Thanks,
 
-What is the mb() call for?  Why is it necessary?  (hint, if you need it,
-something else is really wrong...)
-
-Something wierd happened with your indentation here, it doesn't line up
-properly.  That call to VmbusChannelOpen() needs to go in a full tab,
-not 4 spaces.
-
-Please always run your patch through the checkpatch.pl script before
-sending it to me.
-
-
->  				DPRINT_INFO(VMBUS, "%s",
->  					    hv_cb_utils[cnt].log_msg);
-> -
-> -				if (VmbusChannelOpen(newChannel, 2 * PAGE_SIZE,
-> -						    2 * PAGE_SIZE, NULL, 0,
-> -						    hv_cb_utils[cnt].callback,
-> -						    newChannel) == 0)
-> -					hv_cb_utils[cnt].channel = newChannel;
-> +				if (atomic_inc_return(&ic_channel_initcnt) ==
-> +				   MAX_MSG_TYPES)
-> +					osd_WaitEventSet(ic_channel_ready);
->  			}
-> -			cnt++;
->  		}
->  	}
->  	DPRINT_EXIT(VMBUS);
-> diff --git a/drivers/staging/hv/vmbus_drv.c b/drivers/staging/hv/vmbus_drv.c
-> index c21731a..3ae8981 100644
-> --- a/drivers/staging/hv/vmbus_drv.c
-> +++ b/drivers/staging/hv/vmbus_drv.c
-> @@ -989,6 +989,8 @@ static struct dmi_system_id __initdata microsoft_hv_dmi_table[] = {
->  };
->  MODULE_DEVICE_TABLE(dmi, microsoft_hv_dmi_table);
->  
-> +struct osd_waitevent *ic_channel_ready;
-
-What's with the "ic_" naming scheme here?  It should be "hv_" right?
-
-> +
->  static int __init vmbus_init(void)
->  {
->  	int ret = 0;
-> @@ -1003,8 +1005,16 @@ static int __init vmbus_init(void)
->  	if (!dmi_check_system(microsoft_hv_dmi_table))
->  		return -ENODEV;
->  
-> +	ic_channel_ready = osd_WaitEventCreate();
-> +	if (ic_channel_ready == NULL)
-> +		return -ENOMEM;
-> +
->  	ret = vmbus_bus_init(VmbusInitialize);
-
-As you are using this "ic_channel_ready variable only within the
-vmbus_bus_init() call, why not just make it local to there?  Then
-there's no need to do the create/init/wait/free sequence outside the
-init call.
-
-The init call should just do all of this for us, right?
-
-thanks,
-
-greg k-h
+- Haiyang
