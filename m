@@ -1,136 +1,131 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCHv2-RFC 2/2] virtio: publish used idx
-Date: Wed, 26 May 2010 22:50:42 +0300
-Message-ID: <0a3c79049e834e6550c880dea83becb401f25bdd.1274903330.git.mst__22100.3886465498$1274904065$gmane$org@redhat.com>
-References: <cover.1274903328.git.mst@redhat.com>
+From: Greg KH <gregkh@suse.de>
+Subject: Re: [PATCH 1/1] staging: hv: Fix race condition on IC channel
+ initialization (modified)
+Date: Wed, 26 May 2010 13:51:34 -0700
+Message-ID: <20100526205134.GC7343@suse.de>
+References: <1FB5E1D5CA062146B38059374562DF7266B8C4AC@TK5EX14MBXC128.redmond.corp.microsoft.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <cover.1274903328.git.mst@redhat.com>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, qemu-devel@nongnu.org
+In-Reply-To: <1FB5E1D5CA062146B38059374562DF7266B8C4AC@TK5EX14MBXC128.redmond.corp.microsoft.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Haiyang Zhang <haiyangz@microsoft.com>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>, "'devel@driverdev.osuosl.org'" <devel@driverdev.osuosl.org>, "'virtualization@lists.osdl.org'" <virtualization@lists.osdl.org>, Hank Janssen <hjanssen@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
- drivers/net/virtio_net.c     |    2 ++
- drivers/virtio/virtio_ring.c |   17 +++++++++++++++--
- include/linux/virtio_ring.h  |    4 ++++
- 3 files changed, 21 insertions(+), 2 deletions(-)
+On Wed, May 26, 2010 at 04:54:39PM +0000, Haiyang Zhang wrote:
+> From: Haiyang Zhang <haiyangz@microsoft.com>
+> 
+> Subject: [PATCH] staging: hv: Fix race condition on IC channel initialization
+> There is a possible race condition when hv_utils starts to load immediately
+> after hv_vmbus is loading - null pointer error could happen.
+> This patch added an event waiting to ensure all channels are ready before
+> vmbus_init() returns. So another module won't have any uninitialized channel.
+> 
+> Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
+> Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
+> 
+> ---
+>  drivers/staging/hv/channel_mgmt.c  |   23 +++++++++++++----------
+>  drivers/staging/hv/vmbus_drv.c     |   10 ++++++++++
+>  drivers/staging/hv/vmbus_private.h |    1 +
+>  3 files changed, 24 insertions(+), 10 deletions(-)
+> 
+> diff --git a/drivers/staging/hv/channel_mgmt.c b/drivers/staging/hv/channel_mgmt.c
+> index 3f53b4d..f99db1b 100644
+> --- a/drivers/staging/hv/channel_mgmt.c
+> +++ b/drivers/staging/hv/channel_mgmt.c
+> @@ -305,6 +305,7 @@ static void VmbusChannelProcessOffer(void *context)
+>  	int ret;
+>  	int cnt;
+>  	unsigned long flags;
+> +	static atomic_t ic_channel_initcnt = ATOMIC_INIT(0);
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 78eb319..30e7483 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -23,6 +23,7 @@
- #include <linux/module.h>
- #include <linux/virtio.h>
- #include <linux/virtio_net.h>
-+#include <linux/virtio_ring.h>
- #include <linux/scatterlist.h>
- #include <linux/if_vlan.h>
- #include <linux/slab.h>
-@@ -1056,6 +1057,7 @@ static unsigned int features[] = {
- 	VIRTIO_NET_F_GUEST_ECN, VIRTIO_NET_F_GUEST_UFO,
- 	VIRTIO_NET_F_MRG_RXBUF, VIRTIO_NET_F_STATUS, VIRTIO_NET_F_CTRL_VQ,
- 	VIRTIO_NET_F_CTRL_RX, VIRTIO_NET_F_CTRL_VLAN,
-+	VIRTIO_RING_F_PUBLISH_USED,
- };
- 
- static struct virtio_driver virtio_net_driver = {
-diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index 2241342..4a5458e 100644
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -92,6 +92,9 @@ struct vring_virtqueue
- 	/* Last used index we've seen. */
- 	u16 last_used_idx;
- 
-+	/* Publish last used index we've seen at this location. */
-+	u16 *publish_last_used_idx;
-+
- 	/* How to notify other side. FIXME: commonalize hcalls! */
- 	void (*notify)(struct virtqueue *vq);
- 
-@@ -325,7 +328,7 @@ void *virtqueue_get_buf(struct virtqueue *_vq, unsigned int *len)
- 	/* detach_buf clears data, so grab it now. */
- 	ret = vq->data[i];
- 	detach_buf(vq, i);
--	vq->last_used_idx++;
-+	*vq->publish_last_used_idx = ++vq->last_used_idx;
- 	END_USE(vq);
- 	return ret;
- }
-@@ -348,6 +351,8 @@ bool virtqueue_enable_cb(struct virtqueue *_vq)
- 	/* We optimistically turn back on interrupts, then check if there was
- 	 * more to do. */
- 	vq->vring.avail->flags &= ~VRING_AVAIL_F_NO_INTERRUPT;
-+	/* Besides flags write, this barrier also flushes out
-+	 * last available index write. */
- 	virtio_mb();
- 	if (unlikely(more_used(vq))) {
- 		END_USE(vq);
-@@ -425,13 +430,19 @@ struct virtqueue *vring_new_virtqueue(unsigned int num,
- 	if (!vq)
- 		return NULL;
- 
--	vring_init(&vq->vring, num, pages, vring_align, false);
-+	vring_init(&vq->vring, num, pages, vring_align,
-+		   virtio_has_feature(vdev, VIRTIO_RING_F_PUBLISH_USED));
-+	if (virtio_has_feature(vdev, VIRTIO_RING_F_PUBLISH_USED))
-+	    vq->publish_last_used_idx = &vq->vring.avail->last_used_idx;
-+	else
-+	    vq->publish_last_used_idx = &vq->last_used_idx;
- 	vq->vq.callback = callback;
- 	vq->vq.vdev = vdev;
- 	vq->vq.name = name;
- 	vq->notify = notify;
- 	vq->broken = false;
- 	vq->last_used_idx = 0;
-+	*vq->publish_last_used_idx = 0;
- 	vq->num_added = 0;
- 	list_add_tail(&vq->vq.list, &vdev->vqs);
- #ifdef DEBUG
-@@ -473,6 +484,8 @@ void vring_transport_features(struct virtio_device *vdev)
- 		switch (i) {
- 		case VIRTIO_RING_F_INDIRECT_DESC:
- 			break;
-+		case VIRTIO_RING_F_PUBLISH_USED:
-+			break;
- 		default:
- 			/* We don't understand this bit. */
- 			clear_bit(i, vdev->features);
-diff --git a/include/linux/virtio_ring.h b/include/linux/virtio_ring.h
-index c5f3ee7..0de35c5 100644
---- a/include/linux/virtio_ring.h
-+++ b/include/linux/virtio_ring.h
-@@ -29,6 +29,9 @@
- /* We support indirect buffer descriptors */
- #define VIRTIO_RING_F_INDIRECT_DESC	28
- 
-+/* The Guest publishes last-seen used index at the end of the avail ring. */
-+#define VIRTIO_RING_F_PUBLISH_USED	29
-+
- /* Virtio ring descriptors: 16 bytes.  These can chain together via "next". */
- struct vring_desc {
- 	/* Address (guest-physical). */
-@@ -50,6 +53,7 @@ struct vring_avail {
- struct vring_avail_ctrl {
- 	__u16 flags;
- 	__u16 idx;
-+	__u16 last_used_idx;
- };
- 
- /* u32 is used here for ids for padding reasons. */
--- 
-1.7.1.12.g42b7f
+Why is this an atomic_t?
+
+>  	DPRINT_ENTER(VMBUS);
+>  
+> @@ -373,22 +374,24 @@ static void VmbusChannelProcessOffer(void *context)
+>  		 * can cleanup properly
+>  		 */
+>  		newChannel->State = CHANNEL_OPEN_STATE;
+> -		cnt = 0;
+>  
+> -		while (cnt != MAX_MSG_TYPES) {
+> +		/* Open IC channels */
+> +		for (cnt = 0; cnt < MAX_MSG_TYPES; cnt++) {
+>  			if (memcmp(&newChannel->OfferMsg.Offer.InterfaceType,
+>  				   &hv_cb_utils[cnt].data,
+> -				   sizeof(struct hv_guid)) == 0) {
+> +				   sizeof(struct hv_guid)) == 0 &&
+> +			    VmbusChannelOpen(newChannel, 2 * PAGE_SIZE,
+> +					     2 * PAGE_SIZE, NULL, 0,
+> +					     hv_cb_utils[cnt].callback,
+> +					     newChannel) == 0) {
+> +				hv_cb_utils[cnt].channel = newChannel;
+> +				mb();
+
+What is the mb() call for?  Why is it necessary?  (hint, if you need it,
+something else is really wrong...)
+
+Something wierd happened with your indentation here, it doesn't line up
+properly.  That call to VmbusChannelOpen() needs to go in a full tab,
+not 4 spaces.
+
+Please always run your patch through the checkpatch.pl script before
+sending it to me.
+
+
+>  				DPRINT_INFO(VMBUS, "%s",
+>  					    hv_cb_utils[cnt].log_msg);
+> -
+> -				if (VmbusChannelOpen(newChannel, 2 * PAGE_SIZE,
+> -						    2 * PAGE_SIZE, NULL, 0,
+> -						    hv_cb_utils[cnt].callback,
+> -						    newChannel) == 0)
+> -					hv_cb_utils[cnt].channel = newChannel;
+> +				if (atomic_inc_return(&ic_channel_initcnt) ==
+> +				   MAX_MSG_TYPES)
+> +					osd_WaitEventSet(ic_channel_ready);
+>  			}
+> -			cnt++;
+>  		}
+>  	}
+>  	DPRINT_EXIT(VMBUS);
+> diff --git a/drivers/staging/hv/vmbus_drv.c b/drivers/staging/hv/vmbus_drv.c
+> index c21731a..3ae8981 100644
+> --- a/drivers/staging/hv/vmbus_drv.c
+> +++ b/drivers/staging/hv/vmbus_drv.c
+> @@ -989,6 +989,8 @@ static struct dmi_system_id __initdata microsoft_hv_dmi_table[] = {
+>  };
+>  MODULE_DEVICE_TABLE(dmi, microsoft_hv_dmi_table);
+>  
+> +struct osd_waitevent *ic_channel_ready;
+
+What's with the "ic_" naming scheme here?  It should be "hv_" right?
+
+> +
+>  static int __init vmbus_init(void)
+>  {
+>  	int ret = 0;
+> @@ -1003,8 +1005,16 @@ static int __init vmbus_init(void)
+>  	if (!dmi_check_system(microsoft_hv_dmi_table))
+>  		return -ENODEV;
+>  
+> +	ic_channel_ready = osd_WaitEventCreate();
+> +	if (ic_channel_ready == NULL)
+> +		return -ENOMEM;
+> +
+>  	ret = vmbus_bus_init(VmbusInitialize);
+
+As you are using this "ic_channel_ready variable only within the
+vmbus_bus_init() call, why not just make it local to there?  Then
+there's no need to do the create/init/wait/free sequence outside the
+init call.
+
+The init call should just do all of this for us, right?
+
+thanks,
+
+greg k-h
