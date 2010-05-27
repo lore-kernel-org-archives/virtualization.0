@@ -1,38 +1,61 @@
-From: Jiri Slaby <jirislaby@gmail.com>
-Subject: Re: [PATCH 1/1] staging: hv: Fix race condition on IC channel initialization
- (modified)
-Date: Thu, 27 May 2010 08:16:55 +0200
-Message-ID: <4BFE0E57.7050306@gmail.com>
-References: <1FB5E1D5CA062146B38059374562DF7266B8C4AC@TK5EX14MBXC128.redmond.corp.microsoft.com>	<20100526205134.GC7343@suse.de> <1FB5E1D5CA062146B38059374562DF7266B8C72B@TK5EX14MBXC128.redmond.corp.microsoft.com>
+From: Amit Shah <amit.shah@redhat.com>
+Subject: [PATCH 1/2] virtio: console: Fix crash when hot-unplugging a port and
+	read is blocked
+Date: Thu, 27 May 2010 13:24:39 +0530
+Message-ID: <712d1fa57175fb900ca6ebb133849497f4c2448b.1274946878.git.amit.shah@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1FB5E1D5CA062146B38059374562DF7266B8C72B@TK5EX14MBXC128.redmond.corp.microsoft.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Haiyang Zhang <haiyangz@microsoft.com>
-Cc: Greg KH <gregkh@suse.de>, "'devel@driverdev.osuosl.org'" <devel@driverdev.osuosl.org>, "'virtualization@lists.osdl.org'" <virtualization@lists.osdl.org>, "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Amit Shah <amit.shah@redhat.com>, Virtualization List <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 05/26/2010 11:25 PM, Haiyang Zhang wrote:
->> From: Greg KH [mailto:gregkh@suse.de]
->>> +			    VmbusChannelOpen(newChannel, 2 * PAGE_SIZE,
->>> +					     2 * PAGE_SIZE, NULL, 0,
->>> +					     hv_cb_utils[cnt].callback,
->>> +					     newChannel) == 0) {
->>> +				hv_cb_utils[cnt].channel = newChannel;
->>> +				mb();
->>
->> What is the mb() call for?  Why is it necessary?  (hint, if you need it,
->> something else is really wrong...)
-> 
-> It ensures the channel assignment happens before the wakeup call: 
-> osd_WaitEventSet(ic_channel_ready), if the compiler optimization re-arrange 
-> the execution order. 
+When removing a port we don't check if a program was blocked for read.
+This leads to a crash when SIGTERM is sent to the program after
+hot-unplugging the port.
 
-wake_up() is a barrier, you don't need the mb() there.
+Signed-off-by: Amit Shah <amit.shah@redhat.com>
+---
+ drivers/char/virtio_console.c |   10 +++++++---
+ 1 files changed, 7 insertions(+), 3 deletions(-)
 
-BTW osd_WaitEventSet et al. can be easily converted to completion.
-
+diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
+index 8c99bf1..e3fb529 100644
+--- a/drivers/char/virtio_console.c
++++ b/drivers/char/virtio_console.c
+@@ -1099,6 +1099,13 @@ static int remove_port(struct port *port)
+ {
+ 	struct port_buffer *buf;
+ 
++	if (port->guest_connected) {
++		port->guest_connected = false;
++		port->host_connected = false;
++		wake_up_interruptible(&port->waitqueue);
++		send_control_msg(port, VIRTIO_CONSOLE_PORT_OPEN, 0);
++	}
++
+ 	spin_lock_irq(&port->portdev->ports_lock);
+ 	list_del(&port->list);
+ 	spin_unlock_irq(&port->portdev->ports_lock);
+@@ -1120,9 +1127,6 @@ static int remove_port(struct port *port)
+ 		hvc_remove(port->cons.hvc);
+ #endif
+ 	}
+-	if (port->guest_connected)
+-		send_control_msg(port, VIRTIO_CONSOLE_PORT_OPEN, 0);
+-
+ 	sysfs_remove_group(&port->dev->kobj, &port_attribute_group);
+ 	device_destroy(pdrvdata.class, port->dev->devt);
+ 	cdev_del(&port->cdev);
 -- 
-js
+1.7.0.1
