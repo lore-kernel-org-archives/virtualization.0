@@ -1,40 +1,50 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [GIT PULL net-2.6] vhost-net: error handling fixes
-Date: Thu, 27 May 2010 14:57:14 +0300
-Message-ID: <20100527115714.GA7899@redhat.com>
+From: Avi Kivity <avi@redhat.com>
+Subject: Re: [PATCHv2-RFC 0/2] virtio: put last seen used index into ring
+	itself
+Date: Thu, 27 May 2010 15:07:52 +0300
+Message-ID: <4BFE6098.9010000__40042.8742440001$1274962157$gmane$org@redhat.com>
+References: <cover.1274903328.git.mst@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <netdev-owner@vger.kernel.org>
-Content-Disposition: inline
-Sender: netdev-owner@vger.kernel.org
-To: David Miller <davem@davemloft.net>
-Cc: kvm@vger.kernel.org, virtualization@lists.osdl.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, krkumar2@in.ibm.com
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <cover.1274903328.git.mst@redhat.com>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: qemu-devel@nongnu.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-David,
-The following tree includes fixes dealing with error handling
-in vhost-net. It is on top of net-2.6.
-Please merge it for 2.6.35.
-Thanks!
+On 05/26/2010 10:50 PM, Michael S. Tsirkin wrote:
+> Here's a rewrite of the original patch with a new layout.
+> I haven't tested it yet so no idea how this performs, but
+> I think this addresses the cache bounce issue raised by Avi.
+> Posting for early flames/comments.
+>
+> Generally, the Host end of the virtio ring doesn't need to see where
+> Guest is up to in consuming the ring.  However, to completely understand
+> what's going on from the outside, this information must be exposed.
+> For example, host can reduce the number of interrupts by detecting
+> that the guest is currently handling previous buffers.
+>
+> We add a feature bit so the guest can tell the host that it's writing
+> out the current value there, if it wants to use that.
+>
+> This differs from original approach in that the used index
+> is put after avail index (they are typically written out together).
+> To avoid cache bounces on descriptor access,
+> and make future extensions easier, we put the ring itself at start of
+> page, and move the control after it.
+>    
 
-The following changes since commit 8a74ad60a546b13bd1096b2a61a7a5c6fd9ae17c:
-
-  net: fix lock_sock_bh/unlock_sock_bh (2010-05-27 00:30:53 -0700)
-
-are available in the git repository at:
-  git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git vhost-net
-
-Krishna Kumar (1):
-      vhost: Fix host panic if ioctl called with wrong index
-
-Takuya Yoshikawa (3):
-      vhost: fix to check the return value of copy_to/from_user() correctly
-      vhost-net: fix to check the return value of copy_to/from_user() correctly
-      vhost: fix the memory leak which will happen when memory_access_ok fails
-
- drivers/vhost/net.c   |   14 ++++++------
- drivers/vhost/vhost.c |   57 +++++++++++++++++++++++++++---------------------
- 2 files changed, 39 insertions(+), 32 deletions(-)
+I missed the spec patch, can you repost it?
 
 -- 
-MST
+error compiling committee.c: too many arguments to function
