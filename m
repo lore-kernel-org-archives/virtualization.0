@@ -1,59 +1,60 @@
-From: Greg KH <gregkh@suse.de>
-Subject: Re: [PATCH 1/1] staging: hv: Fix race condition on IC channel
- initialization (modified)
-Date: Thu, 27 May 2010 16:22:32 -0700
-Message-ID: <20100527232232.GA15341@suse.de>
-References: <1FB5E1D5CA062146B38059374562DF7266B8C4AC@TK5EX14MBXC128.redmond.corp.microsoft.com>
- <20100526205134.GC7343@suse.de>
- <1FB5E1D5CA062146B38059374562DF7266B8C72B@TK5EX14MBXC128.redmond.corp.microsoft.com>
- <20100526214842.GA27908@suse.de>
- <1FB5E1D5CA062146B38059374562DF7266B8C775@TK5EX14MBXC128.redmond.corp.microsoft.com>
- <20100526223053.GA23521@suse.de>
- <1FB5E1D5CA062146B38059374562DF7266B8C7C4@TK5EX14MBXC128.redmond.corp.microsoft.com>
+From: Jes Sorensen <Jes.Sorensen@redhat.com>
+Subject: Re: [PATCHv2-RFC 0/2] virtio: put last seen used index into ring
+	itself
+Date: Fri, 28 May 2010 11:56:54 +0200
+Message-ID: <4BFF9366.5090103__5514.2498495572$1275040743$gmane$org@redhat.com>
+References: <cover.1274903328.git.mst@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1FB5E1D5CA062146B38059374562DF7266B8C7C4@TK5EX14MBXC128.redmond.corp.microsoft.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Haiyang Zhang <haiyangz@microsoft.com>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>, "'devel@driverdev.osuosl.org'" <devel@driverdev.osuosl.org>, "'virtualization@lists.osdl.org'" <virtualization@lists.osdl.org>, Hank Janssen <hjanssen@microsoft.com>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <cover.1274903328.git.mst@redhat.com>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: qemu-devel@nongnu.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, May 26, 2010 at 10:52:36PM +0000, Haiyang Zhang wrote:
-> > From: Greg KH [mailto:gregkh@suse.de]
-> > How about a lock!
-> > 
-> > What's so scary about a pretty little semaphore?  They are all cute and
-> > cuddley and don't bite anyone.  You should not be afraid to use them,
-> > they are here to do your bidding.
+On 05/26/10 21:50, Michael S. Tsirkin wrote:
+> Here's a rewrite of the original patch with a new layout.
+> I haven't tested it yet so no idea how this performs, but
+> I think this addresses the cache bounce issue raised by Avi.
+> Posting for early flames/comments.
 > 
-> No problem, we will add a lock here.
+> Generally, the Host end of the virtio ring doesn't need to see where
+> Guest is up to in consuming the ring.  However, to completely understand
+> what's going on from the outside, this information must be exposed.
+> For example, host can reduce the number of interrupts by detecting
+> that the guest is currently handling previous buffers.
 > 
-> > > The VmbusChannelProcessOffer() is called from interrupt context, and
-> > > initialize the channels, wake up vmbus_init when all channels are
-> > > ready. If using local variable only, how to pass the channel ready
-> > > info to vmbus_init() which is in a different context?
-> > 
-> > No, I mean move the logic you added here, into the vmbus_init() call.
+> We add a feature bit so the guest can tell the host that it's writing
+> out the current value there, if it wants to use that.
 > 
-> Do you mean:
-> Move the event creat/wait/free, which is currently in vmbus_init(),
-> into vmbus_bus_init() function.
+> This differs from original approach in that the used index
+> is put after avail index (they are typically written out together).
+> To avoid cache bounces on descriptor access,
+> and make future extensions easier, we put the ring itself at start of
+> page, and move the control after it.
 
-Yes.
+Hi Michael,
 
-> hv_channle_ready will still be a global variable.
+It looks pretty good to me, however one thing I have been thinking of
+while reading through it:
 
-That's fine.
+Rather than storing a pointer within the ring struct, pointing into a
+position within the same struct. How about storing a byte offset instead
+and using a cast to get to the pointer position? That would avoid the
+pointer dereference, which is less effective cache wise and harder for
+the CPU to predict.
 
-> And, the wakeup call -- osd_WaitEventSet() --remains in
-> VmbusChannelProcessOffer() ?
+Not sure whether it really matters performance wise, just a thought.
 
-Yes.
-
-And as Jiri pointed out, this should be a simple completion.
-
-thanks,
-
-greg k-h
+Cheers,
+Jes
