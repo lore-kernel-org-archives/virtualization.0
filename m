@@ -1,15 +1,14 @@
-From: Jes Sorensen <Jes.Sorensen@redhat.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
 Subject: Re: [PATCHv2-RFC 0/2] virtio: put last seen used index into ring
 	itself
-Date: Mon, 31 May 2010 09:36:00 +0200
-Message-ID: <4C0366E0.6040203__15948.9242746078$1275291466$gmane$org@redhat.com>
-References: <cover.1274903328.git.mst@redhat.com> <4BFF9366.5090103@redhat.com>
-	<20100530112220.GA27611@redhat.com>
+Date: Mon, 31 May 2010 17:16:42 +0930
+Message-ID: <201005311716.43573.rusty__35161.6102889695$1275292050$gmane$org@rustcorp.com.au>
+References: <cover.1274903328.git.mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20100530112220.GA27611@redhat.com>
+In-Reply-To: <cover.1274903328.git.mst@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -23,26 +22,16 @@ To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: qemu-devel@nongnu.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 05/30/10 13:22, Michael S. Tsirkin wrote:
-> On Fri, May 28, 2010 at 11:56:54AM +0200, Jes Sorensen wrote:
->> It looks pretty good to me, however one thing I have been thinking of
->> while reading through it:
->>
->> Rather than storing a pointer within the ring struct, pointing into a
->> position within the same struct. How about storing a byte offset instead
->> and using a cast to get to the pointer position? That would avoid the
->> pointer dereference, which is less effective cache wise and harder for
->> the CPU to predict.
->>
->> Not sure whether it really matters performance wise, just a thought.
-> 
-> I think this won't work: when PUBLUSH_USED_IDX is negotiated,
-> the pointer is to within the ring.
+On Thu, 27 May 2010 05:20:35 am Michael S. Tsirkin wrote:
+> Here's a rewrite of the original patch with a new layout.
+> I haven't tested it yet so no idea how this performs, but
+> I think this addresses the cache bounce issue raised by Avi.
+> Posting for early flames/comments.
 
-Hmmm shame, it would be a nice optimization.
+Sorry, not without some evidence that it'll actually reduce cacheline
+bouncing.  I *think* it will, but it's not obvious: the host may keep
+looking at avail_idx as we're updating last_seen.  Or does qemu always
+look at both together anyway?
 
-Maybe it's time to introduce the v2 ring format, rather than having
-adding more kludges to the existing one?
-
-Cheers,
-Jes
+Can someone convince me this is a win?
+Rusty.
