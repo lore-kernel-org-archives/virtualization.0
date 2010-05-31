@@ -1,14 +1,15 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCHv2-RFC 0/2] virtio: put last seen used index into ring
-	itself
-Date: Mon, 31 May 2010 17:16:42 +0930
-Message-ID: <201005311716.43573.rusty__35161.6102889695$1275292050$gmane$org@rustcorp.com.au>
-References: <cover.1274903328.git.mst@redhat.com>
+Subject: Re: [PATCH 2/2] virtio: console: Fix crash when port is unplugged and
+	blocked for write
+Date: Mon, 31 May 2010 17:25:35 +0930
+Message-ID: <201005311725.36271.rusty@rustcorp.com.au>
+References: <712d1fa57175fb900ca6ebb133849497f4c2448b.1274946878.git.amit.shah@redhat.com>
+	<db3f30b6211d5a0b4d4e0acaddc6cedf9018e749.1274946878.git.amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <cover.1274903328.git.mst@redhat.com>
+In-Reply-To: <db3f30b6211d5a0b4d4e0acaddc6cedf9018e749.1274946878.git.amit.shah@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,20 +19,18 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: qemu-devel@nongnu.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Amit Shah <amit.shah@redhat.com>
+Cc: Virtualization List <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 27 May 2010 05:20:35 am Michael S. Tsirkin wrote:
-> Here's a rewrite of the original patch with a new layout.
-> I haven't tested it yet so no idea how this performs, but
-> I think this addresses the cache bounce issue raised by Avi.
-> Posting for early flames/comments.
+On Thu, 27 May 2010 05:24:40 pm Amit Shah wrote:
+> When a program that has a virtio port opened and blocked for a write
+> operation, a port hot-unplug event will later led to a crash when
+> SIGTERM was sent to the program. Fix that.
+> 
+> Signed-off-by: Amit Shah <amit.shah@redhat.com>
 
-Sorry, not without some evidence that it'll actually reduce cacheline
-bouncing.  I *think* it will, but it's not obvious: the host may keep
-looking at avail_idx as we're updating last_seen.  Or does qemu always
-look at both together anyway?
+Thanks, both applied.
 
-Can someone convince me this is a win?
+Cheers,
 Rusty.
