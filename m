@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCHv3 2/2] virtio: publish used idx
-Date: Tue, 1 Jun 2010 17:47:16 +0300
-Message-ID: <4e79f8b2536f736f8104804eed23a0a95d0839e4.1275403477.git.mst@redhat.com>
+Subject: Re: [PATCHv3 0/2] virtio: put last seen used index into ring itself
+Date: Tue, 1 Jun 2010 18:12:57 +0300
+Message-ID: <20100601151257.GA11704__35978.2025604092$1275405465$gmane$org@redhat.com>
 References: <cover.1275403477.git.mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,142 +21,328 @@ Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, qemu-devel@nongnu.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
- drivers/net/virtio_net.c     |    2 ++
- drivers/virtio/virtio_ring.c |   15 +++++++++++++--
- include/linux/virtio_ring.h  |   10 ++++++++++
- 3 files changed, 25 insertions(+), 2 deletions(-)
+On Tue, Jun 01, 2010 at 05:47:08PM +0300, Michael S. Tsirkin wrote:
+> Changes from v2: added padding between avail idx and flags,
+> and changed virtio to only publish used index when callbacks
+> are enabled.
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 78eb319..30e7483 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -23,6 +23,7 @@
- #include <linux/module.h>
- #include <linux/virtio.h>
- #include <linux/virtio_net.h>
-+#include <linux/virtio_ring.h>
- #include <linux/scatterlist.h>
- #include <linux/if_vlan.h>
- #include <linux/slab.h>
-@@ -1056,6 +1057,7 @@ static unsigned int features[] = {
- 	VIRTIO_NET_F_GUEST_ECN, VIRTIO_NET_F_GUEST_UFO,
- 	VIRTIO_NET_F_MRG_RXBUF, VIRTIO_NET_F_STATUS, VIRTIO_NET_F_CTRL_VQ,
- 	VIRTIO_NET_F_CTRL_RX, VIRTIO_NET_F_CTRL_VLAN,
-+	VIRTIO_RING_F_PUBLISH_USED,
- };
- 
- static struct virtio_driver virtio_net_driver = {
-diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index 0f684b4..5a8c711 100644
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -92,6 +92,9 @@ struct vring_virtqueue
- 	/* Last used index we've seen. */
- 	u16 last_used_idx;
- 
-+	/* Publish last used index we've seen at this location. */
-+	u16 *publish_last_used_idx;
+Here's the updated spec patch.
+
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+
+--
+
+diff --git a/virtio-spec.lyx b/virtio-spec.lyx
+index ed35893..a2dcd76 100644
+--- a/virtio-spec.lyx
++++ b/virtio-spec.lyx
+@@ -1803,6 +1803,36 @@ next
+ \emph default
+  descriptor entry (modulo the ring size).
+  This starts at 0, and increases.
++\change_inserted 0 1274966643
 +
- 	/* How to notify other side. FIXME: commonalize hcalls! */
- 	void (*notify)(struct virtqueue *vq);
- 
-@@ -325,7 +328,7 @@ void *virtqueue_get_buf(struct virtqueue *_vq, unsigned int *len)
- 	/* detach_buf clears data, so grab it now. */
- 	ret = vq->data[i];
- 	detach_buf(vq, i);
--	vq->last_used_idx++;
-+	*vq->publish_last_used_idx = ++vq->last_used_idx;
- 	END_USE(vq);
- 	return ret;
- }
-@@ -425,13 +428,19 @@ struct virtqueue *vring_new_virtqueue(unsigned int num,
- 	if (!vq)
- 		return NULL;
- 
--	vring_init(&vq->vring, num, pages, vring_align, false);
-+	vring_init(&vq->vring, num, pages, vring_align,
-+		   virtio_has_feature(vdev, VIRTIO_RING_F_PUBLISH_USED));
-+	if (virtio_has_feature(vdev, VIRTIO_RING_F_PUBLISH_USED))
-+	    vq->publish_last_used_idx = &vq->vring.avail->last_used_idx;
-+	else
-+	    vq->publish_last_used_idx = &vq->last_used_idx;
- 	vq->vq.callback = callback;
- 	vq->vq.vdev = vdev;
- 	vq->vq.name = name;
- 	vq->notify = notify;
- 	vq->broken = false;
- 	vq->last_used_idx = 0;
-+	*vq->publish_last_used_idx = 0;
- 	vq->num_added = 0;
- 	list_add_tail(&vq->vq.list, &vdev->vqs);
- #ifdef DEBUG
-@@ -473,6 +482,8 @@ void vring_transport_features(struct virtio_device *vdev)
- 		switch (i) {
- 		case VIRTIO_RING_F_INDIRECT_DESC:
- 			break;
-+		case VIRTIO_RING_F_PUBLISH_USED:
-+			break;
- 		default:
- 			/* We don't understand this bit. */
- 			clear_bit(i, vdev->features);
-diff --git a/include/linux/virtio_ring.h b/include/linux/virtio_ring.h
-index 458ce41..87f8fd3 100644
---- a/include/linux/virtio_ring.h
-+++ b/include/linux/virtio_ring.h
-@@ -29,6 +29,9 @@
- /* We support indirect buffer descriptors */
- #define VIRTIO_RING_F_INDIRECT_DESC	28
- 
-+/* The Guest publishes last-seen used index at the end of the avail ring. */
-+#define VIRTIO_RING_F_PUBLISH_USED	29
++\end_layout
 +
- /* Virtio ring descriptors: 16 bytes.  These can chain together via "next". */
- struct vring_desc {
- 	/* Address (guest-physical). */
-@@ -51,6 +54,7 @@ struct vring_avail_ctrl {
- 	__u16 idx;
- 	__u8 pad[254];
- 	__u16 flags;
-+	__u16 last_used_idx;
++\begin_layout Standard
++
++\change_inserted 0 1274968378
++When PUBLISH_USED feature flag has 
++\emph on
++not
++\emph default
++ been negotiated, the ring follows the 
++\begin_inset Quotes eld
++\end_inset
++
++flags
++\begin_inset Quotes erd
++\end_inset
++
++ and the 
++\begin_inset Quotes eld
++\end_inset
++
++idx
++\begin_inset Quotes erd
++\end_inset
++
++ fields:
++\change_unchanged
++
+ \end_layout
+ 
+ \begin_layout Standard
+@@ -1845,7 +1875,143 @@ struct vring_avail {
+ 
+ \end_layout
+ 
++\begin_layout Standard
++
++\change_inserted 0 1274968432
++\begin_inset CommandInset label
++LatexCommand label
++name "PUBLISH_USED-feature"
++
++\end_inset
++
++When PUBLISH_USED feature flag has been negotiated, the control structure
++ including the 
++\begin_inset Quotes eld
++\end_inset
++
++flags and the 
++\begin_inset Quotes eld
++\end_inset
++
++idx
++\begin_inset Quotes erd
++\end_inset
++
++ fields follows the ring.
++ This leaves the room for the 
++\begin_inset Quotes eld
++\end_inset
++
++last_seen_used_idx
++\begin_inset Quotes erd
++\end_inset
++
++ field, which indicates the most recent 
++\begin_inset Quotes eld
++\end_inset
++
++idx
++\begin_inset Quotes erd
++\end_inset
++
++ value observed by guest in the used ring (see 
++\begin_inset CommandInset ref
++LatexCommand ref
++reference "sub:Used-Ring"
++
++\end_inset
++
++ below):
++\end_layout
++
++\begin_layout Standard
++
++\change_inserted 0 1274967396
++\begin_inset listings
++inline false
++status open
++
++\begin_layout Plain Layout
++
++\change_inserted 0 1274967404
++
++struct vring_avail {
++\end_layout
++
++\begin_layout Plain Layout
++
++\change_inserted 0 1275404889
++
++   u16 ring[qsz]; /* qsz is the Queue Size field read from device */
++\end_layout
++
++\begin_layout Plain Layout
++
++\change_inserted 0 1275404891
++
++   u16 idx;
++\end_layout
++
++\begin_layout Plain Layout
++
++\change_inserted 0 1275404921
++
++   u8 pad[254] /* Padding to avoid sharing cache line between flags and
++ idx fields.
++ */
++\end_layout
++
++\begin_layout Plain Layout
++
++\change_inserted 0 1274967533
++
++#define VRING_AVAIL_F_NO_INTERRUPT      1
++\end_layout
++
++\begin_layout Plain Layout
++
++\change_inserted 0 1274967533
++
++   u16 flags;
++\end_layout
++
++\begin_layout Plain Layout
++
++\change_inserted 0 1274968345
++
++   u16 last_seen_used_idx;
++\end_layout
++
++\begin_layout Plain Layout
++
++\change_inserted 0 1274967396
++
++}; 
++\end_layout
++
++\end_inset
++
++
++\end_layout
++
++\begin_layout Standard
++
++\change_inserted 0 1274967715
++If the ring is large enough, the second layout maintains the control and
++ ring structures on separate cache lines.
++\end_layout
++
+ \begin_layout Subsection
++
++\change_inserted 0 1274968415
++\begin_inset CommandInset label
++LatexCommand label
++name "sub:Used-Ring"
++
++\end_inset
++
++
++\change_unchanged
+ Used Ring
+ \end_layout
+ 
+@@ -2391,12 +2557,20 @@ status open
+ 
+ \begin_layout Plain Layout
+ 
+-while (vq->last_seen_used != vring->used.idx) {
++while (vq->last_seen_used
++\change_inserted 0 1274968316
++_idx
++\change_unchanged
++ != vring->used.idx) {
+ \end_layout
+ 
+ \begin_layout Plain Layout
+ 
+-    struct vring_used_elem *e = vring.used->ring[vq->last_seen_used%vsz];
++    struct vring_used_elem *e = vring.used->ring[vq->last_seen_used
++\change_inserted 0 1274968326
++_idx
++\change_unchanged
++%vsz];
+ \end_layout
+ 
+ \begin_layout Plain Layout
+@@ -2406,7 +2580,11 @@ while (vq->last_seen_used != vring->used.idx) {
+ 
+ \begin_layout Plain Layout
+ 
+-    vq->last_seen_used++;
++    vq->last_seen_used
++\change_inserted 0 1274968321
++_idx
++\change_unchanged
++++;
+ \end_layout
+ 
+ \begin_layout Plain Layout
+@@ -2419,6 +2597,15 @@ while (vq->last_seen_used != vring->used.idx) {
+ 
+ \end_layout
+ 
++\begin_layout Standard
++
++\change_inserted 0 1275405042
++If PUBLISH_USED feature is negotiated, last_seen_used value should be published
++ to the device in the avail ring.
++ This value is used by the host for interrupt mitigation, so it only need
++ to be updated when interrupts are enabled.
++\end_layout
++
+ \begin_layout Subsection
+ Dealing With Configuration Changes
+ \end_layout
+@@ -2986,6 +3173,47 @@ struct vring_avail {
+ \begin_layout Plain Layout
+ 
  };
++\change_inserted 0 1274966477
++
++\end_layout
++
++\begin_layout Plain Layout
++
++\end_layout
++
++\begin_layout Plain Layout
++
++\change_inserted 0 1274966484
++
++struct vring_avail_ctrl {
++\end_layout
++
++\begin_layout Plain Layout
++
++\change_inserted 0 1274966489
++
++        __u16 flags;
++\end_layout
++
++\begin_layout Plain Layout
++
++\change_inserted 0 1274966494
++
++        __u16 idx;
++\end_layout
++
++\begin_layout Plain Layout
++
++\change_inserted 0 1274966499
++
++        __u16 last_used_idx;
++\end_layout
++
++\begin_layout Plain Layout
++
++\change_inserted 0 1274966474
++
++};
+ \end_layout
  
- /* u32 is used here for ids for padding reasons. */
-@@ -75,6 +79,7 @@ struct vring {
- 	__u16 *avail_idx;
- 	__u16 *avail_flags;
- 	__u16 *avail_ring;
-+	__u16 *last_used_idx;
+ \begin_layout Plain Layout
+@@ -3349,6 +3577,28 @@ reference "sub:Indirect-Descriptors"
+ \end_inset
  
- 	struct vring_used *used;
- };
-@@ -100,6 +105,7 @@ struct vring {
-  *	__u16 avail_idx;
-  *	__u8 pad[254]; // Padding to align flags at cache line boundary.
-  *	__u16 avail_flags;
-+ *	__u16 last_used_idx;
-  *	// Padding to the next align boundary.
-  *	char pad[];
-  *
-@@ -120,14 +126,18 @@ static inline void vring_init(struct vring *vr, unsigned int num, void *p,
- 		vr->avail_ring = (void*)avail;
- 		vr->avail_idx = &ctrl->idx;
- 		vr->avail_flags = &ctrl->flags;
-+		vr->last_used_idx = &ctrl->last_used_idx;
- 	} else {
- 		vr->avail_idx = &avail->idx;
- 		vr->avail_flags = &avail->flags;
-+		vr->last_used_idx = NULL;
- 	}
- 	vr->used = (void *)ALIGN((unsigned long)&avail->ring[num], align);
- 	/* Verify that avail fits before used. */
- 	BUG_ON((unsigned long)(vr->avail_flags + 1) > (unsigned long)vr->used);
- 	BUG_ON((unsigned long)(vr->avail_idx + 1) > (unsigned long)vr->used);
-+	BUG_ON(vr->last_used_idx && (unsigned long)(vr->last_used_idx + 1) >
-+	       (unsigned long)vr->used);
- 	BUG_ON((unsigned long)(&vr->avail_ring[num]) > (unsigned long)vr->used);
- }
+ .
++\change_inserted 0 1274967762
++
++\end_layout
++
++\begin_layout Description
++
++\change_inserted 0 1274967926
++VIRTIO_F_RING_PUBLISH_USED
++\begin_inset space ~
++\end_inset
++
++(29) Negotiating this feature indicates that the avail ring layout includes
++ the used index observed by driver, see
++\begin_inset CommandInset ref
++LatexCommand ref
++reference "PUBLISH_USED-feature"
++
++\end_inset
++
++.
++\change_unchanged
++
+ \end_layout
  
--- 
-1.7.1.12.g42b7f
+ \begin_layout Description
