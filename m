@@ -1,16 +1,14 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCHv2-RFC 0/2] virtio: put last seen used index into ring
-	itself
-Date: Mon, 31 May 2010 16:29:50 +0300
-Message-ID: <20100531132950.GC1704__37788.3338057019$1275312994$gmane$org@redhat.com>
-References: <cover.1274903328.git.mst@redhat.com> <4BFF9366.5090103@redhat.com>
-	<20100530112220.GA27611@redhat.com> <4C0366E0.6040203@redhat.com>
+Subject: [PATCHv3 1/2] virtio: support layout with avail ring before idx
+Date: Tue, 1 Jun 2010 17:47:12 +0300
+Message-ID: <10a74b58c908bad64ff890c881e2b2de88687f0e.1275403477.git.mst__25363.8408183635$1275403960$gmane$org@redhat.com>
+References: <cover.1275403477.git.mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <4C0366E0.6040203@redhat.com>
+In-Reply-To: <cover.1275403477.git.mst@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,40 +18,149 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jes Sorensen <Jes.Sorensen@redhat.com>
-Cc: qemu-devel@nongnu.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, qemu-devel@nongnu.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, May 31, 2010 at 09:36:00AM +0200, Jes Sorensen wrote:
-> On 05/30/10 13:22, Michael S. Tsirkin wrote:
-> > On Fri, May 28, 2010 at 11:56:54AM +0200, Jes Sorensen wrote:
-> >> It looks pretty good to me, however one thing I have been thinking of
-> >> while reading through it:
-> >>
-> >> Rather than storing a pointer within the ring struct, pointing into a
-> >> position within the same struct. How about storing a byte offset instead
-> >> and using a cast to get to the pointer position? That would avoid the
-> >> pointer dereference, which is less effective cache wise and harder for
-> >> the CPU to predict.
-> >>
-> >> Not sure whether it really matters performance wise, just a thought.
-> > 
-> > I think this won't work: when PUBLUSH_USED_IDX is negotiated,
-> > the pointer is to within the ring.
-> 
-> Hmmm shame, it would be a nice optimization.
-> 
-> Maybe it's time to introduce the v2 ring format, rather than having
-> adding more kludges to the existing one?
-> 
-> Cheers,
-> Jes
+This adds an (unused) option to put available ring before control (avail
+index, flags), and adds padding between index and flags. This avoids
+cache line sharing between control and ring, and also makes it possible
+to extend avail control without incurring extra cache misses.
 
-There has been discussion about a ring format that does not
-use indexes at all. My guess is that would be a good point
-for v2 ring format. But making that a product
-and tuning might take a while. So definitely something to
-keep in mind but I would not want that to block this optimization.
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
+ drivers/virtio/virtio_ring.c |   12 ++++++------
+ include/linux/virtio_ring.h  |   40 ++++++++++++++++++++++++++++++++++------
+ 2 files changed, 40 insertions(+), 12 deletions(-)
 
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+index 1ca8890..0f684b4 100644
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -223,8 +223,8 @@ add_head:
+ 
+ 	/* Put entry in available array (but don't update avail->idx until they
+ 	 * do sync).  FIXME: avoid modulus here? */
+-	avail = (vq->vring.avail->idx + vq->num_added++) % vq->vring.num;
+-	vq->vring.avail->ring[avail] = head;
++	avail = (*vq->vring.avail_idx + vq->num_added++) % vq->vring.num;
++	vq->vring.avail_ring[avail] = head;
+ 
+ 	pr_debug("Added buffer head %i to %p\n", head, vq);
+ 	END_USE(vq);
+@@ -244,7 +244,7 @@ void virtqueue_kick(struct virtqueue *_vq)
+ 	 * new available array entries. */
+ 	virtio_wmb();
+ 
+-	vq->vring.avail->idx += vq->num_added;
++	*vq->vring.avail_idx += vq->num_added;
+ 	vq->num_added = 0;
+ 
+ 	/* Need to update avail index before checking if we should notify */
+@@ -335,7 +335,7 @@ void virtqueue_disable_cb(struct virtqueue *_vq)
+ {
+ 	struct vring_virtqueue *vq = to_vvq(_vq);
+ 
+-	vq->vring.avail->flags |= VRING_AVAIL_F_NO_INTERRUPT;
++	*vq->vring.avail_flags |= VRING_AVAIL_F_NO_INTERRUPT;
+ }
+ EXPORT_SYMBOL_GPL(virtqueue_disable_cb);
+ 
+@@ -347,7 +347,7 @@ bool virtqueue_enable_cb(struct virtqueue *_vq)
+ 
+ 	/* We optimistically turn back on interrupts, then check if there was
+ 	 * more to do. */
+-	vq->vring.avail->flags &= ~VRING_AVAIL_F_NO_INTERRUPT;
++	vq->vring.avail_flags &= ~VRING_AVAIL_F_NO_INTERRUPT;
+ 	virtio_mb();
+ 	if (unlikely(more_used(vq))) {
+ 		END_USE(vq);
+@@ -425,7 +425,7 @@ struct virtqueue *vring_new_virtqueue(unsigned int num,
+ 	if (!vq)
+ 		return NULL;
+ 
+-	vring_init(&vq->vring, num, pages, vring_align);
++	vring_init(&vq->vring, num, pages, vring_align, false);
+ 	vq->vq.callback = callback;
+ 	vq->vq.vdev = vdev;
+ 	vq->vq.name = name;
+diff --git a/include/linux/virtio_ring.h b/include/linux/virtio_ring.h
+index e4d144b..458ce41 100644
+--- a/include/linux/virtio_ring.h
++++ b/include/linux/virtio_ring.h
+@@ -47,6 +47,12 @@ struct vring_avail {
+ 	__u16 ring[];
+ };
+ 
++struct vring_avail_ctrl {
++	__u16 idx;
++	__u8 pad[254];
++	__u16 flags;
++};
++
+ /* u32 is used here for ids for padding reasons. */
+ struct vring_used_elem {
+ 	/* Index of start of used descriptor chain. */
+@@ -66,7 +72,9 @@ struct vring {
+ 
+ 	struct vring_desc *desc;
+ 
+-	struct vring_avail *avail;
++	__u16 *avail_idx;
++	__u16 *avail_flags;
++	__u16 *avail_ring;
+ 
+ 	struct vring_used *used;
+ };
+@@ -79,11 +87,19 @@ struct vring {
+  *	// The actual descriptors (16 bytes each)
+  *	struct vring_desc desc[num];
+  *
+- *	// A ring of available descriptor heads with free-running index.
++ *	// A ring of available descriptor heads with a control structure
++ *      // including a free-running index.
++ *      // The ring can come either after  (legacy) or before the control.
+  *	__u16 avail_flags;
+  *	__u16 avail_idx;
+  *	__u16 available[num];
+  *
++ * or
++ *
++ *	__u16 available[num];
++ *	__u16 avail_idx;
++ *	__u8 pad[254]; // Padding to align flags at cache line boundary.
++ *	__u16 avail_flags;
+  *	// Padding to the next align boundary.
+  *	char pad[];
+  *
+@@ -94,13 +110,25 @@ struct vring {
+  * };
+  */
+ static inline void vring_init(struct vring *vr, unsigned int num, void *p,
+-			      unsigned long align)
++			      unsigned long align, bool avail_ring_first)
+ {
++	struct vring_avail *avail = p + num * sizeof(struct vring_desc);
+ 	vr->num = num;
+ 	vr->desc = p;
+-	vr->avail = p + num*sizeof(struct vring_desc);
+-	vr->used = (void *)(((unsigned long)&vr->avail->ring[num] + align-1)
+-			    & ~(align - 1));
++	if (avail_ring_first) {
++		struct vring_avail_ctrl *ctrl = (void *)&vr->avail_ring[num];
++		vr->avail_ring = (void*)avail;
++		vr->avail_idx = &ctrl->idx;
++		vr->avail_flags = &ctrl->flags;
++	} else {
++		vr->avail_idx = &avail->idx;
++		vr->avail_flags = &avail->flags;
++	}
++	vr->used = (void *)ALIGN((unsigned long)&avail->ring[num], align);
++	/* Verify that avail fits before used. */
++	BUG_ON((unsigned long)(vr->avail_flags + 1) > (unsigned long)vr->used);
++	BUG_ON((unsigned long)(vr->avail_idx + 1) > (unsigned long)vr->used);
++	BUG_ON((unsigned long)(&vr->avail_ring[num]) > (unsigned long)vr->used);
+ }
+ 
+ static inline unsigned vring_size(unsigned int num, unsigned long align)
 -- 
-MST
+1.7.1.12.g42b7f
