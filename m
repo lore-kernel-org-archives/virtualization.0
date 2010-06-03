@@ -1,7 +1,7 @@
 From: "Bruce Rogers" <brogers@novell.com>
-Subject: [PATCH 0/3][STABLE] KVM: Various issues in virtio_net
-Date: Thu, 03 Jun 2010 16:24:18 -0600
-Message-ID: <4C07D73202000048000974FB@sinclair.provo.novell.com>
+Subject: [PATCH 1/3][STABLE] KVM: fix delayed refill checking
+Date: Thu, 03 Jun 2010 16:26:12 -0600
+Message-ID: <4C07D7A40200004800097501@sinclair.provo.novell.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -20,15 +20,50 @@ To: rusty@rustcorp.com.au
 Cc: virtualization@linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-These are patches which we have found useful for our 2.6.32 based SLES 11 SP1 release. 
+Please consider this for the 2.6.32 stable tree:
 
-The first patch is already upstream, but should be included in 2.6.32 stable tree.
+commit 39d321577405e8e269fd238b278aaf2425fa788a
+Author: Herbert Xu <herbert@gondor.apana.org.au>
+Date:   Mon Jan 25 15:51:01 2010 -0800
 
-The second patch is a subset of another upstream patch. Again, stable material, applicable to 2.6.32 and 2.6.33.
+    virtio_net: Make delayed refill more reliable
 
-The third patch solves the last remaining issue we saw when testing kvm configurations with the SUSE certification test suite. Under heavy load, we observed rx stalls (first two patches applied), and this third patch was crafted to address the issue. Please apply to 2.6.32, 2.6.33, and 2.6.34 stable trees.
-(I assume this last problem also exists in more recent kernels than 2.6.32, but I haven't validated that.)
+    I have seen RX stalls on a machine that experienced a suspected
+    OOM.  After the stall, the RX buffer is empty on the guest side
+    and there are exactly 16 entries available on the host side.  As
+    the number of entries is less than that required by a maximal
+    skb, the host cannot proceed.
 
-With these 3 patches applied we no longer see any issues with virito networking using our certification test suite.
+    The guest did not have a refill job scheduled.
 
-Signed-off-by: Bruce Rogers <brogers@novell.com>
+    My diagnosis is that an OOM had occured, with the delayed refill
+    job scheduled.  The job was able to allocate at least one skb, but
+    not enough to overcome the minimum required by the host to proceed.
+
+    As the refill job would only reschedule itself if it failed completely
+    to allocate any skbs, this would lead to an RX stall.
+
+    The following patch removes this stall possibility by always
+    rescheduling the refill job until the ring is totally refilled.
+
+    Testing has shown that the RX stall no longer occurs whereas
+    previously it would occur within a day.
+
+    Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+    Acked-by: Rusty Russell <rusty@rustcorp.com.au>
+    Signed-off-by: David S. Miller <davem@davemloft.net>
+
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index c708ecc..9ead30b 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -395,8 +395,7 @@ static void refill_work(struct work_struct *work)
+
+        vi = container_of(work, struct virtnet_info, refill.work);
+        napi_disable(&vi->napi);
+-       try_fill_recv(vi, GFP_KERNEL);
+-       still_empty = (vi->num == 0);
++       still_empty = !try_fill_recv(vi, GFP_KERNEL);
+        napi_enable(&vi->napi);
+
+        /* In theory, this can happen: if we don't get any buffers in
