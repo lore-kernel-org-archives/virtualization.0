@@ -1,13 +1,14 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH 0/3][STABLE] KVM: Various issues in virtio_net
-Date: Fri, 4 Jun 2010 10:08:49 +0930
-Message-ID: <201006041008.49840.rusty@rustcorp.com.au>
-References: <4C07D73202000048000974FB@sinclair.provo.novell.com>
+Subject: Re: [PATCHv3 1/2] virtio: support layout with avail ring before idx
+Date: Fri, 4 Jun 2010 12:04:57 +0930
+Message-ID: <201006041204.57973.rusty__29600.6505996504$1275618933$gmane$org@rustcorp.com.au>
+References: <cover.1275403477.git.mst@redhat.com>
+	<10a74b58c908bad64ff890c881e2b2de88687f0e.1275403477.git.mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4C07D73202000048000974FB@sinclair.provo.novell.com>
+In-Reply-To: <10a74b58c908bad64ff890c881e2b2de88687f0e.1275403477.git.mst@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -17,27 +18,64 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Bruce Rogers <brogers@novell.com>
-Cc: virtualization@linux-foundation.org, "Michael S. Tsirkin" <mst@redhat.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: qemu-devel@nongnu.org, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 4 Jun 2010 07:54:18 am Bruce Rogers wrote:
-> These are patches which we have found useful for our 2.6.32 based SLES 11 SP1 release. 
+On Wed, 2 Jun 2010 12:17:12 am Michael S. Tsirkin wrote:
+> This adds an (unused) option to put available ring before control (avail
+> index, flags), and adds padding between index and flags. This avoids
+> cache line sharing between control and ring, and also makes it possible
+> to extend avail control without incurring extra cache misses.
 > 
-> The first patch is already upstream, but should be included in 2.6.32 stable tree.
-> 
-> The second patch is a subset of another upstream patch. Again, stable material, applicable to 2.6.32 and 2.6.33.
-> 
-> The third patch solves the last remaining issue we saw when testing kvm configurations with the SUSE certification test suite. Under heavy load, we observed rx stalls (first two patches applied), and this third patch was crafted to address the issue. Please apply to 2.6.32, 2.6.33, and 2.6.34 stable trees.
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 
-Hi Bruce, thanks for these.
+No no no no.  254?  You're trying to Morton me![1]
 
-netdev is the right place for these patches.  I'll send the first two to
-stable@kernel.org myself; please add the following two lines to the last one
-and repost to netdev@vger.kernel.org.
+How's this (untested):
 
-Acked-by: Rusty Russell <rusty@rustcorp.com.au>
-Cc: stable@kernel.org
+diff --git a/include/linux/virtio_ring.h b/include/linux/virtio_ring.h
+--- a/include/linux/virtio_ring.h
++++ b/include/linux/virtio_ring.h
+@@ -74,8 +74,8 @@ struct vring {
+ /* The standard layout for the ring is a continuous chunk of memory which looks
+  * like this.  We assume num is a power of 2.
+  *
+- * struct vring
+- * {
++ * struct vring {
++ *	*** The driver writes to this part.
+  *	// The actual descriptors (16 bytes each)
+  *	struct vring_desc desc[num];
+  *
+@@ -84,9 +84,11 @@ struct vring {
+  *	__u16 avail_idx;
+  *	__u16 available[num];
+  *
+- *	// Padding to the next align boundary.
++ *	// Padding so used_flags is on the next align boundary.
+  *	char pad[];
++ *	__u16 last_used; // On a cacheline of its own.
+  *
++ *	*** The device writes to this part.
+  *	// A ring of used descriptor heads with free-running index.
+  *	__u16 used_flags;
+  *	__u16 used_idx;
+@@ -110,6 +112,12 @@ static inline unsigned vring_size(unsign
+ 		+ sizeof(__u16) * 2 + sizeof(struct vring_used_elem) * num;
+ }
+ 
++/* Last used index sits at the very end of the driver part of the struct */
++static inline __u16 *vring_last_used_idx(const struct vring *vr)
++{
++	return (__u16 *)vr->used - 1;
++}
++
+ #ifdef __KERNEL__
+ #include <linux/irqreturn.h>
+ struct virtio_device;
 
-Thanks!
+Cheers,
 Rusty.
+[1] Andrew Morton has this technique where he posts a solution so ugly it
+    forces others to fix it properly.  Ego-roping, basically.
