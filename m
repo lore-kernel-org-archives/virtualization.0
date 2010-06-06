@@ -1,13 +1,15 @@
-From: "Bruce Rogers" <brogers@novell.com>
-Subject: [PATCH 3/3][STABLE] KVM: add schedule check to napi_enable
-	 call
-Date: Thu, 03 Jun 2010 16:29:29 -0600
-Message-ID: <4C07D869020000480009750D@sinclair.provo.novell.com>
+From: Herbert Xu <herbert@gondor.hengli.com.au>
+Subject: Re: [PATCH] virtio_net: indicate oom when addbuf returns failure
+Date: Mon, 7 Jun 2010 08:24:41 +1000
+Message-ID: <20100606222441.GA5992__34792.7194241949$1276009767$gmane$org@gondor.apana.org.au>
+References: <201006041028.56798.rusty@rustcorp.com.au>
+	<20100606201258.GA21196@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
+In-Reply-To: <20100606201258.GA21196@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -17,69 +19,42 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: rusty@rustcorp.com.au
-Cc: virtualization@linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Bruce Rogers <brogers@novell.com>, netdev@vger.kernel.org, Shirley Ma <mashirle@us.ibm.com>, virtualization@lists.linux-foundation.org, stable@kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Please consider this patch for the 2.6.32, 2.6.33, and 2.6.34 stable trees as well as current development trees. (I've only tested on 2.6.32 however)
+On Sun, Jun 06, 2010 at 11:13:00PM +0300, Michael S. Tsirkin wrote:
+>
+> Actually this code looks strange:
+> Note that add_buf inicates out of memory
+> condition with a positive return value, and ring full
+> (which is not an error!) with -ENOSPC.
 
-    virtio_net: Add schedule check to napi_enable call
-    Under harsh testing conditions, including low memory, the guest would
-    stop receiving packets. With this patch applied we no longer see any
-    problems in the driver while performing these tests for extended periods
-    of time.
+Indeed, this ultimately came from
 
-    Make sure napi is scheduled subsequent to each napi_enable.
+commit 9ab86bbcf8be755256f0a5e994e0b38af6b4d399
+Author: Shirley Ma <mashirle@us.ibm.com>
+Date:   Fri Jan 29 03:20:04 2010 +0000
 
-    Signed-off-by: Bruce Rogers <brogers@novell.com>
-    Signed-off-by: Olaf Kirch <okir@suse.de>
+    virtio_net: Defer skb allocation in receive path Date: Wed, 13 Jan 2010 12:53:38 -0800
 
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -388,6 +388,20 @@ static void skb_recv_done(struct virtque
-        }
- }
+(Greg, please don't apply this even though I've just given you
+the upstream commit ID that you were asking for :)
 
-+static void virtnet_napi_enable(struct virtnet_info *vi)
-+{
-+       napi_enable(&vi->napi);
-+
-+       /* If all buffers were filled by other side before we napi_enabled, we
-+        * won't get another interrupt, so process any outstanding packets
-+        * now.  virtnet_poll wants re-enable the queue, so we disable here.
-+        * We synchronize against interrupts via NAPI_STATE_SCHED */
-+       if (napi_schedule_prep(&vi->napi)) {
-+               vi->rvq->vq_ops->disable_cb(vi->rvq);
-+               __napi_schedule(&vi->napi);
-+       }
-+}
-+
- static void refill_work(struct work_struct *work)
- {
-        struct virtnet_info *vi;
-@@ -397,7 +411,7 @@ static void refill_work(struct work_stru
-        napi_disable(&vi->napi);
-        try_fill_recv(vi, GFP_KERNEL);
-        still_empty = (vi->num == 0);
--       napi_enable(&vi->napi);
-+       virtnet_napi_enable(vi);
+where it confuses a memory allocation error with an add_buf failure.
 
-        /* In theory, this can happen: if we don't get any buffers in
-         * we will *never* try to fill again. */
-@@ -589,16 +603,7 @@ static int virtnet_open(struct net_devic
- {
-        struct virtnet_info *vi = netdev_priv(dev);
+> Possibly the right thing to do is to
+> 1. handle ENOMEM specially
+> 2. fix add_buf to return ENOMEM on error
 
--       napi_enable(&vi->napi);
--
--       /* If all buffers were filled by other side before we napi_enabled, we
--        * won't get another interrupt, so process any outstanding packets
--        * now.  virtnet_poll wants re-enable the queue, so we disable here.
--        * We synchronize against interrupts via NAPI_STATE_SCHED */
--       if (napi_schedule_prep(&vi->napi)) {
--               vi->rvq->vq_ops->disable_cb(vi->rvq);
--               __napi_schedule(&vi->napi);
--       }
-+       virtnet_napi_enable(vi);
-        return 0;
- }
+I think we should make it so that only a memory allocation error
+is returned as before.  There is no need for returning the add_buf
+error unless add_buf is now doing an allocation itself that needs
+to be retried.
+
+Thanks,
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
