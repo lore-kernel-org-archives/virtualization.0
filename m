@@ -1,13 +1,16 @@
-From: Jesse Barnes <jbarnes@virtuousgeek.org>
-Subject: Re: [PATCH for-2.6.35] virtio-pci: disable msi at startup
-Date: Thu, 10 Jun 2010 08:34:32 -0700
-Message-ID: <20100610083432.3c23ad6a__7663.76869655705$1276184259$gmane$org@virtuousgeek.org>
-References: <20100610152252.GA3510@redhat.com>
+From: "Bruce Rogers" <brogers@novell.com>
+Subject: Re: [PATCH] virtio_net: indicate oom when addbuf returns
+ failure
+Date: Thu, 10 Jun 2010 09:46:30 -0600
+Message-ID: <4C10B4760200004800097CA9__22220.3060788617$1276185025$gmane$org@sinclair.provo.novell.com>
+References: <201006041028.56798.rusty@rustcorp.com.au>
+	<20100606201258.GA21196@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20100610152252.GA3510@redhat.com>
+In-Reply-To: <20100606201258.GA21196@redhat.com>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -17,32 +20,40 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Anthony Liguori <aliguori@us.ibm.com>, linux-pci@vger.kernel.org, Matt Carlson <mcarlson@broadcom.com>, virtualization@lists.linux-foundation.org, "Rafael J. Wysocki" <rjw@sisk.pl>, Bjorn@smtp1.linux-foundation.org, Randy@smtp1.linux-foundation.org, Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>, Tejun Heo <tj@kernel.org>, "David S. Miller" <davem@davemloft.net>, linux-kernel@vger.kernel.org, Helgaas <bjorn.helgaas@hp.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>, Rusty Russell <rusty@rustcorp.com.au>
+Cc: Herbert Xu <herbert@gondor.hengli.com.au>, netdev@vger.kernel.org, stable@kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 10 Jun 2010 18:22:52 +0300
-"Michael S. Tsirkin" <mst@redhat.com> wrote:
-
-> virtio-pci resets the device at startup by writing to the status
-> register, but this does not clear the pci config space,
-> specifically msi enable status which affects register
-> layout.
+ >>> On 6/6/2010 at 02:13 PM, "Michael S. Tsirkin" <mst@redhat.com> wrote: 
+> On Fri, Jun 04, 2010 at 10:28:56AM +0930, Rusty Russell wrote:
+>> This patch is a subset of an already upstream patch, but this portion
+>> is useful in earlier releases.
+>> 
+>> Please consider for the 2.6.32 and 2.6.33 stable trees.
+>> 
+>> If the add_buf operation fails, indicate failure to the caller.
+>> 
+>> Signed-off-by: Bruce Rogers <brogers@novell.com>
+>> Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 > 
-> This breaks things like kdump when they try to use e.g. virtio-blk.
+> Actually this code looks strange:
+> Note that add_buf inicates out of memory
+> condition with a positive return value, and ring full
+> (which is not an error!) with -ENOSPC.
 > 
-> Fix by forcing msi off at startup. Since pci.c already has
-> a routine to do this, we export and use it instead of duplicating code.
+> So it seems that this patch (and upstream code) will fill
+> the ring and then end up setting oom = true and rescheduling the work
+> forever.  And I suspect I actually saw this at some point
+> on one of my systems: observed BW would drop
+> with high CPU usage until reboot.
+> Can't reproduce it now anymore ..
 > 
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> Tested-by: Vivek Goyal <vgoyal@redhat.com>
-> Cc: Jesse Barnes <jbarnes@virtuousgeek.org>
-> Cc: linux-pci@vger.kernel.org
-> ---
 
-Yeah, looks fine.
+Thanks for looking into this.
 
-Acked-by: Jesse Barnes <jbarnes@virtuousgeek.org>
+We've decided not to use this patch, since it is not a part of the
+solution we need. The upstream patch from whence it came at first glance seemed useful, but is problematic as you point out.
 
--- 
-Jesse Barnes, Intel Open Source Technology Center
+We've retested without that patch and are still getting good results.
+
+Bruce
