@@ -1,13 +1,14 @@
-From: Stephen Hemminger <shemminger@vyatta.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH for-2.6.35] virtio_net: fix oom handling on tx
-Date: Thu, 10 Jun 2010 10:46:53 -0700
-Message-ID: <20100610104653.1aed2ecc__6797.40640703148$1276192088$gmane$org@nehalam>
+Date: Thu, 10 Jun 2010 21:57:04 +0300
+Message-ID: <20100610185704.GB4044__8805.49417711354$1276196663$gmane$org@redhat.com>
 References: <20100610152041.GA3480@redhat.com>
 	<1276190227.22064.19.camel@w-sridhar.beaverton.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
 In-Reply-To: <1276190227.22064.19.camel@w-sridhar.beaverton.ibm.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,12 +20,10 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Sridhar Samudrala <sri@us.ibm.com>
-Cc: Shirley Ma <xma@us.ibm.com>, Jiri Pirko <jpirko@redhat.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Shirley Ma <xma@us.ibm.com>, Jiri Pirko <jpirko@redhat.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 10 Jun 2010 10:17:07 -0700
-Sridhar Samudrala <sri@us.ibm.com> wrote:
-
+On Thu, Jun 10, 2010 at 10:17:07AM -0700, Sridhar Samudrala wrote:
 > On Thu, 2010-06-10 at 18:20 +0300, Michael S. Tsirkin wrote:
 > > virtio net will never try to overflow the TX ring, so the only reason
 > > add_buf may fail is out of memory. Thus, we can not stop the
@@ -76,11 +75,13 @@ Sridhar Samudrala <sri@us.ibm.com> wrote:
 > It is not clear to me how xmit_skb() can return -ENOMEM.
 > xmit_skb() calls virtqueue_add_buf_gfp() which can return -ENOSPC.
 > Even vring_add_indirect() doesn't return -ENOMEM on kmalloc failure.
+> 
+> Thanks
+> Sridhar
 
-It makes more sense to have the device increment tx_droppped, 
-and return NETDEV_TX_OK. Skip the message (or make it a pr_debug()). 
-Network devices do not guarantee packet delivery, and if out of
-resources then holding more data in the
-queue is going to hurt not help the situation.
+A separate patch fixes vring_add_indirect to return -ENOMEM.
+-ENOSPC really means ring is full so nothing to do
+and no need to retry.
 
 -- 
+MST
