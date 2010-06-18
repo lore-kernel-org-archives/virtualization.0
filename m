@@ -1,97 +1,92 @@
-From: <gregkh@suse.de>
-Subject: patch staging-hv-fix-hv_utils-module-to-properly-autoload.patch added to gregkh-2.6 tree
-Date: Fri, 18 Jun 2010 09:53:08 -0700
-Message-ID: <12768799881800@site>
-References: <1FB5E1D5CA062146B38059374562DF7266B8931E@TK5EX14MBXC128.redmond.corp.microsoft.com>
+From: Ryan Harper <ryanh@us.ibm.com>
+Subject: [PATCH 1/2] Add 'serial' attribute to virtio-blk devices
+Date: Fri, 18 Jun 2010 13:38:02 -0500
+Message-ID: <1276886283-1571-1-git-send-email-ryanh__21394.0518013716$1276886339$gmane$org@us.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1FB5E1D5CA062146B38059374562DF7266B8931E@TK5EX14MBXC128.redmond.corp.microsoft.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: haiyangz@microsoft.com, devel@driverdev.osuosl.org, gregkh@suse.de, hjanssen@microsoft.com, linux-kernel@vger.kernel.org, stable@kernel.org, virtualization@lists.osdl.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: virtualization@lists.linux-foundation.org
+Cc: john cooper <john.cooper@redhat.com>, qemu-devel@nongnu.org, kvm@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
+Create a new attribute for virtio-blk devices that will fetch the serial number
+of the block device.  This attribute can be used by udev to create disk/by-id
+symlinks for devices that don't have a UUID (filesystem) associated with them.
 
-This is a note to let you know that I've just added the patch titled
+ATA_IDENTIFY strings are special in that they can be up to 20 chars long
+and aren't required to be NULL-terminated.  The buffer is also zero-padded
+meaning that if the serial is 19 chars or less that we get a NULL terminated
+string.  When copying this value into a string buffer, we must be careful to
+copy up to the NULL (if it present) and only 20 if it is longer and not to
+attempt to NULL terminate; this isn't needed.
 
-    Subject: Staging: hv: fix hv_utils module to properly autoload
-
-to my gregkh-2.6 tree.  Its filename is
-
-    staging-hv-fix-hv_utils-module-to-properly-autoload.patch
-
-This tree can be found at 
-    http://www.kernel.org/pub/linux/kernel/people/gregkh/gregkh-2.6/patches/
-
-
-From haiyangz@microsoft.com Wed May 19 08:56:34 2010
-From: Haiyang Zhang <haiyangz@microsoft.com>
-Date: Wed, 19 May 2010 15:56:28 +0000
-Subject: Staging: hv: fix hv_utils module to properly autoload
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>, "'devel@driverdev.osuosl.org'" <devel@driverdev.osuosl.org>, "'virtualization@lists.osdl.org'" <virtualization@lists.osdl.org>, "'gregkh@suse.de'" <gregkh@suse.de>
-Cc: Hank Janssen <hjanssen@microsoft.com>
-Message-ID: <1FB5E1D5CA062146B38059374562DF7266B8931E@TK5EX14MBXC128.redmond.corp.microsoft.com>
-
-
-From: Haiyang Zhang <haiyangz@microsoft.com>
-
-Added autoloading based on pci id and dmi strings.
-
-Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
-Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
-Cc: stable <stable@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
-
+Signed-off-by: Ryan Harper <ryanh@us.ibm.com>
+Signed-off-by: john cooper <john.cooper@redhat.com>
 ---
- drivers/staging/hv/hv_utils.c |   28 ++++++++++++++++++++++++++++
- 1 file changed, 28 insertions(+)
+ drivers/block/virtio_blk.c |   32 ++++++++++++++++++++++++++++++++
+ 1 files changed, 32 insertions(+), 0 deletions(-)
 
---- a/drivers/staging/hv/hv_utils.c
-+++ b/drivers/staging/hv/hv_utils.c
-@@ -24,6 +24,8 @@
- #include <linux/slab.h>
- #include <linux/sysctl.h>
- #include <linux/reboot.h>
-+#include <linux/dmi.h>
-+#include <linux/pci.h>
- 
- #include "logging.h"
- #include "osd.h"
-@@ -251,10 +253,36 @@ static void heartbeat_onchannelcallback(
- 	DPRINT_EXIT(VMBUS);
+diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+index 258bc2a..f1ef26f 100644
+--- a/drivers/block/virtio_blk.c
++++ b/drivers/block/virtio_blk.c
+@@ -281,6 +281,31 @@ static int index_to_minor(int index)
+ 	return index << PART_BITS;
  }
  
-+static const struct pci_device_id __initconst
-+hv_utils_pci_table[] __maybe_unused = {
-+	{ PCI_DEVICE(0x1414, 0x5353) }, /* Hyper-V emulated VGA controller */
-+	{ 0 }
-+};
-+MODULE_DEVICE_TABLE(pci, hv_utils_pci_table);
++/* Copy serial number from *s to *d.  Copy operation terminates on either
++ * encountering a nul in *s or after n bytes have been copied, whichever
++ * occurs first.  *d is not forcibly nul terminated.  Return # of bytes copied.
++ */
++static inline int serial_sysfs(char *d, char *s, int n)
++{
++	char *di = d;
 +
++	while (*s && n--)
++		*d++ = *s++;
++	return d - di;
++}
 +
-+static const struct dmi_system_id __initconst
-+hv_utils_dmi_table[] __maybe_unused  = {
-+	{
-+		.ident = "Hyper-V",
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "Microsoft Corporation"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "Virtual Machine"),
-+			DMI_MATCH(DMI_BOARD_NAME, "Virtual Machine"),
-+		},
-+	},
-+	{ },
-+};
-+MODULE_DEVICE_TABLE(dmi, hv_utils_dmi_table);
++static ssize_t virtblk_serial_show(struct device *dev,
++				struct device_attribute *attr, char *buf)
++{
++	struct gendisk *disk = dev_to_disk(dev);
++	char id_str[VIRTIO_BLK_ID_BYTES];
 +
++	if (IS_ERR(virtblk_get_id(disk, id_str)))
++		return 0;
++	return serial_sysfs(buf, id_str, min(VIRTIO_BLK_ID_BYTES, PAGE_SIZE));
++}
++DEVICE_ATTR(serial, S_IRUGO, virtblk_serial_show, NULL);
 +
- static int __init init_hyperv_utils(void)
+ static int __devinit virtblk_probe(struct virtio_device *vdev)
  {
- 	printk(KERN_INFO "Registering HyperV Utility Driver\n");
+ 	struct virtio_blk *vblk;
+@@ -445,8 +470,15 @@ static int __devinit virtblk_probe(struct virtio_device *vdev)
  
-+	if (!dmi_check_system(hv_utils_dmi_table))
-+		return -ENODEV;
+ 
+ 	add_disk(vblk->disk);
++	err = device_create_file(disk_to_dev(vblk->disk), &dev_attr_serial);
++	if (err)
++		goto out_del_disk;
 +
- 	hv_cb_utils[HV_SHUTDOWN_MSG].channel->OnChannelCallback =
- 		&shutdown_onchannelcallback;
- 	hv_cb_utils[HV_SHUTDOWN_MSG].callback = &shutdown_onchannelcallback;
+ 	return 0;
+ 
++out_del_disk:
++	del_gendisk(vblk->disk);
++	blk_cleanup_queue(vblk->disk->queue);
+ out_put_disk:
+ 	put_disk(vblk->disk);
+ out_mempool:
+-- 
+1.6.3.3
