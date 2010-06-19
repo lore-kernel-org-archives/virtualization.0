@@ -1,11 +1,12 @@
-From: Ryan Harper <ryanh@us.ibm.com>
-Subject: [PATCH 2/2] Remove virtio_blk VBID ioctl
-Date: Fri, 18 Jun 2010 13:38:03 -0500
-Message-ID: <1276886283-1571-2-git-send-email-ryanh__19136.3048427322$1276886356$gmane$org@us.ibm.com>
+From: Blue Swirl <blauwirbel@gmail.com>
+Subject: Re: [Qemu-devel] [PATCH 1/2] Add 'serial' attribute to virtio-blk
+	devices
+Date: Sat, 19 Jun 2010 08:24:46 +0000
+Message-ID: <AANLkTin7WwGhL-O4ENzG6u-2q0pYiLpyH1tfzLUxK4PQ__36892.681886866$1276936041$gmane$org@mail.gmail.com>
 References: <1276886283-1571-1-git-send-email-ryanh@us.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 In-Reply-To: <1276886283-1571-1-git-send-email-ryanh@us.ibm.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
@@ -17,39 +18,63 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
-Cc: qemu-devel@nongnu.org, kvm@vger.kernel.org
+To: Ryan Harper <ryanh@us.ibm.com>
+Cc: john cooper <john.cooper@redhat.com>, qemu-devel@nongnu.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-With the availablility of a sysfs device attribute for examining disk serial
-numbers the ioctl is no longer needed.  The user-space changes for this aren't
-upstream yet so we don't have any users to worry about.
-
-Signed-off-by: Ryan Harper <ryanh@us.ibm.com>
----
- drivers/block/virtio_blk.c |   10 ----------
- 1 files changed, 0 insertions(+), 10 deletions(-)
-
-diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-index f1ef26f..9e382dd 100644
---- a/drivers/block/virtio_blk.c
-+++ b/drivers/block/virtio_blk.c
-@@ -225,16 +225,6 @@ static int virtblk_ioctl(struct block_device *bdev, fmode_t mode,
- 	struct gendisk *disk = bdev->bd_disk;
- 	struct virtio_blk *vblk = disk->private_data;
- 
--	if (cmd == 0x56424944) { /* 'VBID' */
--		void __user *usr_data = (void __user *)data;
--		char id_str[VIRTIO_BLK_ID_BYTES];
--		int err;
--
--		err = virtblk_get_id(disk, id_str);
--		if (!err && copy_to_user(usr_data, id_str, VIRTIO_BLK_ID_BYTES))
--			err = -EFAULT;
--		return err;
--	}
- 	/*
- 	 * Only allow the generic SCSI ioctls if the host can support it.
- 	 */
--- 
-1.6.3.3
+T24gRnJpLCBKdW4gMTgsIDIwMTAgYXQgNjozOCBQTSwgUnlhbiBIYXJwZXIgPHJ5YW5oQHVzLmli
+bS5jb20+IHdyb3RlOgo+IENyZWF0ZSBhIG5ldyBhdHRyaWJ1dGUgZm9yIHZpcnRpby1ibGsgZGV2
+aWNlcyB0aGF0IHdpbGwgZmV0Y2ggdGhlIHNlcmlhbCBudW1iZXIKPiBvZiB0aGUgYmxvY2sgZGV2
+aWNlLiDCoFRoaXMgYXR0cmlidXRlIGNhbiBiZSB1c2VkIGJ5IHVkZXYgdG8gY3JlYXRlIGRpc2sv
+YnktaWQKPiBzeW1saW5rcyBmb3IgZGV2aWNlcyB0aGF0IGRvbid0IGhhdmUgYSBVVUlEIChmaWxl
+c3lzdGVtKSBhc3NvY2lhdGVkIHdpdGggdGhlbS4KPgo+IEFUQV9JREVOVElGWSBzdHJpbmdzIGFy
+ZSBzcGVjaWFsIGluIHRoYXQgdGhleSBjYW4gYmUgdXAgdG8gMjAgY2hhcnMgbG9uZwo+IGFuZCBh
+cmVuJ3QgcmVxdWlyZWQgdG8gYmUgTlVMTC10ZXJtaW5hdGVkLiDCoFRoZSBidWZmZXIgaXMgYWxz
+byB6ZXJvLXBhZGRlZAo+IG1lYW5pbmcgdGhhdCBpZiB0aGUgc2VyaWFsIGlzIDE5IGNoYXJzIG9y
+IGxlc3MgdGhhdCB3ZSBnZXQgYSBOVUxMIHRlcm1pbmF0ZWQKPiBzdHJpbmcuIMKgV2hlbiBjb3B5
+aW5nIHRoaXMgdmFsdWUgaW50byBhIHN0cmluZyBidWZmZXIsIHdlIG11c3QgYmUgY2FyZWZ1bCB0
+bwo+IGNvcHkgdXAgdG8gdGhlIE5VTEwgKGlmIGl0IHByZXNlbnQpIGFuZCBvbmx5IDIwIGlmIGl0
+IGlzIGxvbmdlciBhbmQgbm90IHRvCj4gYXR0ZW1wdCB0byBOVUxMIHRlcm1pbmF0ZTsgdGhpcyBp
+c24ndCBuZWVkZWQuCj4KPiBTaWduZWQtb2ZmLWJ5OiBSeWFuIEhhcnBlciA8cnlhbmhAdXMuaWJt
+LmNvbT4KPiBTaWduZWQtb2ZmLWJ5OiBqb2huIGNvb3BlciA8am9obi5jb29wZXJAcmVkaGF0LmNv
+bT4KPiAtLS0KPiDCoGRyaXZlcnMvYmxvY2svdmlydGlvX2Jsay5jIHwgwqAgMzIgKysrKysrKysr
+KysrKysrKysrKysrKysrKysrKysrKysKPiDCoDEgZmlsZXMgY2hhbmdlZCwgMzIgaW5zZXJ0aW9u
+cygrKSwgMCBkZWxldGlvbnMoLSkKPgo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL2Jsb2NrL3ZpcnRp
+b19ibGsuYyBiL2RyaXZlcnMvYmxvY2svdmlydGlvX2Jsay5jCj4gaW5kZXggMjU4YmMyYS4uZjFl
+ZjI2ZiAxMDA2NDQKPiAtLS0gYS9kcml2ZXJzL2Jsb2NrL3ZpcnRpb19ibGsuYwo+ICsrKyBiL2Ry
+aXZlcnMvYmxvY2svdmlydGlvX2Jsay5jCj4gQEAgLTI4MSw2ICsyODEsMzEgQEAgc3RhdGljIGlu
+dCBpbmRleF90b19taW5vcihpbnQgaW5kZXgpCj4gwqAgwqAgwqAgwqByZXR1cm4gaW5kZXggPDwg
+UEFSVF9CSVRTOwo+IMKgfQo+Cj4gKy8qIENvcHkgc2VyaWFsIG51bWJlciBmcm9tICpzIHRvICpk
+LiDCoENvcHkgb3BlcmF0aW9uIHRlcm1pbmF0ZXMgb24gZWl0aGVyCj4gKyAqIGVuY291bnRlcmlu
+ZyBhIG51bCBpbiAqcyBvciBhZnRlciBuIGJ5dGVzIGhhdmUgYmVlbiBjb3BpZWQsIHdoaWNoZXZl
+cgo+ICsgKiBvY2N1cnMgZmlyc3QuIMKgKmQgaXMgbm90IGZvcmNpYmx5IG51bCB0ZXJtaW5hdGVk
+LiDCoFJldHVybiAjIG9mIGJ5dGVzIGNvcGllZC4KPiArICovCj4gK3N0YXRpYyBpbmxpbmUgaW50
+IHNlcmlhbF9zeXNmcyhjaGFyICpkLCBjaGFyICpzLCBpbnQgbikKPiArewo+ICsgwqAgwqAgwqAg
+Y2hhciAqZGkgPSBkOwoKSSdkIGNoYW5nZSB0aGlzIHRvOgpzdGF0aWMgaW5saW5lIHNzaXplX3Qg
+c2VyaWFsX3N5c2ZzKGNoYXIgKmQsIGNvbnN0IGNoYXIgKnMsIHNzaXplX3QgbikKewogICAgICAg
+Y29uc3QgY2hhciAqZGkgPSBkOwoKPiArCj4gKyDCoCDCoCDCoCB3aGlsZSAoKnMgJiYgbi0tKQo+
+ICsgwqAgwqAgwqAgwqAgwqAgwqAgwqAgKmQrKyA9ICpzKys7Cj4gKyDCoCDCoCDCoCByZXR1cm4g
+ZCAtIGRpOwo+ICt9Cj4gKwo+ICtzdGF0aWMgc3NpemVfdCB2aXJ0YmxrX3NlcmlhbF9zaG93KHN0
+cnVjdCBkZXZpY2UgKmRldiwKPiArIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKg
+IMKgIMKgIMKgIHN0cnVjdCBkZXZpY2VfYXR0cmlidXRlICphdHRyLCBjaGFyICpidWYpCj4gK3sK
+PiArIMKgIMKgIMKgIHN0cnVjdCBnZW5kaXNrICpkaXNrID0gZGV2X3RvX2Rpc2soZGV2KTsKPiAr
+IMKgIMKgIMKgIGNoYXIgaWRfc3RyW1ZJUlRJT19CTEtfSURfQllURVNdOwo+ICsKPiArIMKgIMKg
+IMKgIGlmIChJU19FUlIodmlydGJsa19nZXRfaWQoZGlzaywgaWRfc3RyKSkpCj4gKyDCoCDCoCDC
+oCDCoCDCoCDCoCDCoCByZXR1cm4gMDsKPiArIMKgIMKgIMKgIHJldHVybiBzZXJpYWxfc3lzZnMo
+YnVmLCBpZF9zdHIsIG1pbihWSVJUSU9fQkxLX0lEX0JZVEVTLCBQQUdFX1NJWkUpKTsKPiArfQo+
+ICtERVZJQ0VfQVRUUihzZXJpYWwsIFNfSVJVR08sIHZpcnRibGtfc2VyaWFsX3Nob3csIE5VTEwp
+Owo+ICsKPiDCoHN0YXRpYyBpbnQgX19kZXZpbml0IHZpcnRibGtfcHJvYmUoc3RydWN0IHZpcnRp
+b19kZXZpY2UgKnZkZXYpCj4gwqB7Cj4gwqAgwqAgwqAgwqBzdHJ1Y3QgdmlydGlvX2JsayAqdmJs
+azsKPiBAQCAtNDQ1LDggKzQ3MCwxNSBAQCBzdGF0aWMgaW50IF9fZGV2aW5pdCB2aXJ0YmxrX3By
+b2JlKHN0cnVjdCB2aXJ0aW9fZGV2aWNlICp2ZGV2KQo+Cj4KPiDCoCDCoCDCoCDCoGFkZF9kaXNr
+KHZibGstPmRpc2spOwo+ICsgwqAgwqAgwqAgZXJyID0gZGV2aWNlX2NyZWF0ZV9maWxlKGRpc2tf
+dG9fZGV2KHZibGstPmRpc2spLCAmZGV2X2F0dHJfc2VyaWFsKTsKPiArIMKgIMKgIMKgIGlmIChl
+cnIpCj4gKyDCoCDCoCDCoCDCoCDCoCDCoCDCoCBnb3RvIG91dF9kZWxfZGlzazsKPiArCj4gwqAg
+wqAgwqAgwqByZXR1cm4gMDsKPgo+ICtvdXRfZGVsX2Rpc2s6Cj4gKyDCoCDCoCDCoCBkZWxfZ2Vu
+ZGlzayh2YmxrLT5kaXNrKTsKPiArIMKgIMKgIMKgIGJsa19jbGVhbnVwX3F1ZXVlKHZibGstPmRp
+c2stPnF1ZXVlKTsKPiDCoG91dF9wdXRfZGlzazoKPiDCoCDCoCDCoCDCoHB1dF9kaXNrKHZibGst
+PmRpc2spOwo+IMKgb3V0X21lbXBvb2w6Cj4gLS0KPiAxLjYuMy4zCj4KPgo+Cl9fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxp
+bmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczov
+L2xpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRp
+b24=
