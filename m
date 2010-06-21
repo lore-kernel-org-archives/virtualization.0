@@ -1,13 +1,16 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH 1/2] Add 'serial' attribute to virtio-blk devices
-Date: Mon, 21 Jun 2010 11:22:37 +0930
-Message-ID: <201006211122.38156.rusty__47623.9021089443$1277085196$gmane$org@rustcorp.com.au>
+From: Ryan Harper <ryanh@us.ibm.com>
+Subject: Re: [PATCH 2/2] Remove virtio_blk VBID ioctl
+Date: Sun, 20 Jun 2010 21:30:24 -0500
+Message-ID: <20100621023024.GE1647__1534.70215523175$1277087471$gmane$org@us.ibm.com>
 References: <1276886283-1571-1-git-send-email-ryanh@us.ibm.com>
+	<1276886283-1571-2-git-send-email-ryanh@us.ibm.com>
+	<201006211100.19719.rusty@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1276886283-1571-1-git-send-email-ryanh@us.ibm.com>
+Content-Disposition: inline
+In-Reply-To: <201006211100.19719.rusty@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -17,69 +20,54 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Ryan Harper <ryanh@us.ibm.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
 Cc: john cooper <john.cooper@redhat.com>, qemu-devel@nongnu.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sat, 19 Jun 2010 04:08:02 am Ryan Harper wrote:
-> Create a new attribute for virtio-blk devices that will fetch the serial number
-> of the block device.  This attribute can be used by udev to create disk/by-id
-> symlinks for devices that don't have a UUID (filesystem) associated with them.
+* Rusty Russell <rusty@rustcorp.com.au> [2010-06-20 20:31]:
+> On Sat, 19 Jun 2010 04:08:03 am Ryan Harper wrote:
+> > With the availablility of a sysfs device attribute for examining disk serial
+> > numbers the ioctl is no longer needed.  The user-space changes for this aren't
+> > upstream yet so we don't have any users to worry about.
 > 
-> ATA_IDENTIFY strings are special in that they can be up to 20 chars long
-> and aren't required to be NULL-terminated.  The buffer is also zero-padded
-> meaning that if the serial is 19 chars or less that we get a NULL terminated
-> string.  When copying this value into a string buffer, we must be careful to
-> copy up to the NULL (if it present) and only 20 if it is longer and not to
-> attempt to NULL terminate; this isn't needed.
+> If John Cooper acks this, I'll push it to Linus immediately.
 > 
-> Signed-off-by: Ryan Harper <ryanh@us.ibm.com>
-> Signed-off-by: john cooper <john.cooper@redhat.com>
-> ---
->  drivers/block/virtio_blk.c |   32 ++++++++++++++++++++++++++++++++
->  1 files changed, 32 insertions(+), 0 deletions(-)
+> Unfortunately we offered this interface in 2.6.34, and we're now removing it.
+> That's unpleasant.
+
+Yes; well.  There's a story as there always is.  John can tell it better
+than I, but it goes something like:
+
+John cooked up some patches, one of which was an example use of the
+serial string including a VBID ioctl.  No one got around to doing a
+sysfs interface and somehow the ioctl side in virtio-blk got picked up.
+
+Working with what was available, I pushed some patches to linux-hotplug
+to get this whole virtio-blk serial and disk/by-id symlinks working and
+was met with:  why does a new kernel driver have an ioctl interface and
+we don't want to collect additional single-use binaries in the udev
+tree.
+
+So now, the sysfs serial attribute patch and with it, no need and no
+users of ioctl.
+
+*whew*
+
 > 
-> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-> index 258bc2a..f1ef26f 100644
-> --- a/drivers/block/virtio_blk.c
-> +++ b/drivers/block/virtio_blk.c
-> @@ -281,6 +281,31 @@ static int index_to_minor(int index)
->  	return index << PART_BITS;
->  }
->  
-> +/* Copy serial number from *s to *d.  Copy operation terminates on either
-> + * encountering a nul in *s or after n bytes have been copied, whichever
-> + * occurs first.  *d is not forcibly nul terminated.  Return # of bytes copied.
-> + */
-> +static inline int serial_sysfs(char *d, char *s, int n)
-> +{
-> +	char *di = d;
-> +
-> +	while (*s && n--)
-> +		*d++ = *s++;
-> +	return d - di;
-> +}
-> +
-> +static ssize_t virtblk_serial_show(struct device *dev,
-> +				struct device_attribute *attr, char *buf)
-> +{
-> +	struct gendisk *disk = dev_to_disk(dev);
-> +	char id_str[VIRTIO_BLK_ID_BYTES];
-> +
-> +	if (IS_ERR(virtblk_get_id(disk, id_str)))
-> +		return 0;
+> Thanks,
+> Rusty.
+> PS.  John should have been cc'd on these patches!
 
-0?  Really?  That doesn't seem very informative.
+He's cc'ed on the others, just not on this removal one.
 
-> +	return serial_sysfs(buf, id_str, min(VIRTIO_BLK_ID_BYTES, PAGE_SIZE));
+I need to learn git-send-email better, I explicitly added him as --cc on
+when sending; next time I'll look closer at the headers during
+--dry-run.
 
-How about something like this:
 
-	BUILD_BUG_ON(PAGE_SIZE < VIRTIO_BLK_ID_BYTES + 1);
 
-	/* id_str is not necessarily nul-terminated! */
-	buf[VIRTIO_BLK_ID_BYTES] = '\0';
-	return virtblk_get_id(disk, buf);
-
-Thanks,
-Rusty.
+-- 
+Ryan Harper
+Software Engineer; Linux Technology Center
+IBM Corp., Austin, Tx
+ryanh@us.ibm.com
