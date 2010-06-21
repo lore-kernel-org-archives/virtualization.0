@@ -1,16 +1,15 @@
-From: Ryan Harper <ryanh@us.ibm.com>
-Subject: Re: [PATCH 2/2] Remove virtio_blk VBID ioctl
-Date: Sun, 20 Jun 2010 21:30:24 -0500
-Message-ID: <20100621023024.GE1647__1534.70215523175$1277087471$gmane$org@us.ibm.com>
-References: <1276886283-1571-1-git-send-email-ryanh@us.ibm.com>
-	<1276886283-1571-2-git-send-email-ryanh@us.ibm.com>
-	<201006211100.19719.rusty@rustcorp.com.au>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH for-2.6.35] virtio_net: fix oom handling on tx
+Date: Mon, 21 Jun 2010 12:13:49 +0930
+Message-ID: <201006211213.49600.rusty__45241.9052868665$1277088267$gmane$org@rustcorp.com.au>
+References: <20100610152041.GA3480@redhat.com>
+	<20100610104653.1aed2ecc@nehalam>
+	<20100610190343.GC4044@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <201006211100.19719.rusty@rustcorp.com.au>
+In-Reply-To: <20100610190343.GC4044@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,54 +19,90 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: john cooper <john.cooper@redhat.com>, qemu-devel@nongnu.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Shirley Ma <xma@us.ibm.com>, Jiri Pirko <jpirko@redhat.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Stephen Hemminger <shemminger@vyatta.com>, Sridhar Samudrala <sri@us.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-* Rusty Russell <rusty@rustcorp.com.au> [2010-06-20 20:31]:
-> On Sat, 19 Jun 2010 04:08:03 am Ryan Harper wrote:
-> > With the availablility of a sysfs device attribute for examining disk serial
-> > numbers the ioctl is no longer needed.  The user-space changes for this aren't
-> > upstream yet so we don't have any users to worry about.
+On Fri, 11 Jun 2010 04:33:43 am Michael S. Tsirkin wrote:
+> > > > @@ -572,12 +571,14 @@ again:
+> > > > 
+> > > >  	/* This can happen with OOM and indirect buffers. */
+> > > >  	if (unlikely(capacity < 0)) {
+> > > > -		netif_stop_queue(dev);
+> > > > -		dev_warn(&dev->dev, "Unexpected full queue\n");
+> > > > -		if (unlikely(!virtqueue_enable_cb(vi->svq))) {
+> > > > -			virtqueue_disable_cb(vi->svq);
+> > > > -			netif_start_queue(dev);
+> > > > -			goto again;
+> > > > +		if (net_ratelimit()) {
+> > > > +			if (likely(capacity == -ENOMEM))
+> > > > +				dev_warn(&dev->dev,
+> > > > +					 "TX queue failure: out of memory\n");
+> > > > +			else
+> > > > +				dev_warn(&dev->dev,
+> > > > +					 "Unexpected TX queue failure: %d\n",
+> > > > +					 capacity);
+...
 > 
-> If John Cooper acks this, I'll push it to Linus immediately.
-> 
-> Unfortunately we offered this interface in 2.6.34, and we're now removing it.
-> That's unpleasant.
+> Well, I only keep the existing behaviour around.
 
-Yes; well.  There's a story as there always is.  John can tell it better
-than I, but it goes something like:
+Actually, it *does* change behavior, as the comment indicates.  So let's
+fix the whole thing.  AFAICT wth TX_BUSY we'll get called again RSN, and
+that's not really useful for OOM.
 
-John cooked up some patches, one of which was an example use of the
-serial string including a VBID ioctl.  No one got around to doing a
-sysfs interface and somehow the ioctl side in virtio-blk got picked up.
+This is what I have:
 
-Working with what was available, I pushed some patches to linux-hotplug
-to get this whole virtio-blk serial and disk/by-id symlinks working and
-was met with:  why does a new kernel driver have an ioctl interface and
-we don't want to collect additional single-use binaries in the udev
-tree.
+Subject: virtio_net: fix oom handling on tx
+Date: Thu, 10 Jun 2010 18:20:41 +0300
+From: "Michael S. Tsirkin" <mst@redhat.com>
 
-So now, the sysfs serial attribute patch and with it, no need and no
-users of ioctl.
+virtio net will never try to overflow the TX ring, so the only reason
+add_buf may fail is out of memory. Thus, we can not stop the
+device until some request completes - there's no guarantee anything
+at all is outstanding.
 
-*whew*
+Make the error message clearer as well: error here does not
+indicate queue full.
 
-> 
-> Thanks,
-> Rusty.
-> PS.  John should have been cc'd on these patches!
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Signed-off-by: Rusty Russell <rusty@rustcorp.com.au> (...and avoid TX_BUSY)
+Cc: stable@kernel.org
+---
+ drivers/net/virtio_net.c |   18 ++++++++++--------
+ 1 file changed, 10 insertions(+), 8 deletions(-)
 
-He's cc'ed on the others, just not on this removal one.
-
-I need to learn git-send-email better, I explicitly added him as --cc on
-when sending; next time I'll look closer at the headers during
---dry-run.
-
-
-
--- 
-Ryan Harper
-Software Engineer; Linux Technology Center
-IBM Corp., Austin, Tx
-ryanh@us.ibm.com
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -562,7 +562,6 @@ static netdev_tx_t start_xmit(struct sk_
+ 	struct virtnet_info *vi = netdev_priv(dev);
+ 	int capacity;
+ 
+-again:
+ 	/* Free up any pending old buffers before queueing new ones. */
+ 	free_old_xmit_skbs(vi);
+ 
+@@ -571,14 +570,17 @@ again:
+ 
+ 	/* This can happen with OOM and indirect buffers. */
+ 	if (unlikely(capacity < 0)) {
+-		netif_stop_queue(dev);
+-		dev_warn(&dev->dev, "Unexpected full queue\n");
+-		if (unlikely(!virtqueue_enable_cb(vi->svq))) {
+-			virtqueue_disable_cb(vi->svq);
+-			netif_start_queue(dev);
+-			goto again;
++		if (net_ratelimit()) {
++			if (likely(capacity == -ENOMEM))
++				dev_warn(&dev->dev,
++					 "TX queue failure: out of memory\n");
++			else
++				dev_warn(&dev->dev,
++					 "Unexpected TX queue failure: %d\n",
++					 capacity);
+ 		}
+-		return NETDEV_TX_BUSY;
++		kfree_skb(skb);
++		return NETDEV_TX_OK;
+ 	}
+ 	virtqueue_kick(vi->svq);
