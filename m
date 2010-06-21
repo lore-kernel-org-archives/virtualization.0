@@ -1,17 +1,15 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH for-2.6.35] virtio_net: fix oom handling on tx
-Date: Mon, 21 Jun 2010 13:53:29 +0300
-Message-ID: <20100621105329.GA9506__18992.2802187086$1277118035$gmane$org@redhat.com>
-References: <20100610152041.GA3480@redhat.com>
-	<201006211213.49600.rusty@rustcorp.com.au>
-	<20100621083315.GA8665@redhat.com>
-	<201006211953.44724.rusty@rustcorp.com.au>
+From: Christoph Hellwig <hch@lst.de>
+Subject: Re: [Qemu-devel] [PATCH 1/2] Add 'serial' attribute to virtio-blk
+	devices
+Date: Mon, 21 Jun 2010 14:44:47 +0200
+Message-ID: <20100621124447.GA8166@lst.de>
+References: <1276886283-1571-1-git-send-email-ryanh@us.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <201006211953.44724.rusty@rustcorp.com.au>
+In-Reply-To: <1276886283-1571-1-git-send-email-ryanh@us.ibm.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -21,42 +19,22 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Shirley Ma <xma@us.ibm.com>, Jiri Pirko <jpirko@redhat.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Stephen Hemminger <shemminger@vyatta.com>, Sridhar Samudrala <sri@us.ibm.com>
+To: Ryan Harper <ryanh@us.ibm.com>
+Cc: john cooper <john.cooper@redhat.com>, qemu-devel@nongnu.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Jun 21, 2010 at 07:53:43PM +0930, Rusty Russell wrote:
-> On Mon, 21 Jun 2010 06:03:16 pm Michael S. Tsirkin wrote:
-> > On Mon, Jun 21, 2010 at 12:13:49PM +0930, Rusty Russell wrote:
-> > > -		return NETDEV_TX_BUSY;
-> > > +		kfree_skb(skb);
-> > > +		return NETDEV_TX_OK;
-> > 
-> > If we do so, let's increment the dropped counter and/or error counter?
+On Fri, Jun 18, 2010 at 01:38:02PM -0500, Ryan Harper wrote:
+> Create a new attribute for virtio-blk devices that will fetch the serial number
+> of the block device.  This attribute can be used by udev to create disk/by-id
+> symlinks for devices that don't have a UUID (filesystem) associated with them.
 > 
-> Yep, here's the extra change:
+> ATA_IDENTIFY strings are special in that they can be up to 20 chars long
+> and aren't required to be NULL-terminated.  The buffer is also zero-padded
+> meaning that if the serial is 19 chars or less that we get a NULL terminated
+> string.  When copying this value into a string buffer, we must be careful to
+> copy up to the NULL (if it present) and only 20 if it is longer and not to
+> attempt to NULL terminate; this isn't needed.
 
-Looks good to me.
-
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -571,14 +571,16 @@ static netdev_tx_t start_xmit(struct sk_
->  	/* This can happen with OOM and indirect buffers. */
->  	if (unlikely(capacity < 0)) {
->  		if (net_ratelimit()) {
-> -			if (likely(capacity == -ENOMEM))
-> +			if (likely(capacity == -ENOMEM)) {
->  				dev_warn(&dev->dev,
->  					 "TX queue failure: out of memory\n");
-> -			else
-> +			} else {
-> +				dev->stats.tx_fifo_errors++;
->  				dev_warn(&dev->dev,
->  					 "Unexpected TX queue failure: %d\n",
->  					 capacity);
->  		}
-> +		dev->stats.tx_dropped++;
->  		kfree_skb(skb);
->  		return NETDEV_TX_OK;
->  	}
+Why is this virtio-blk specific?  In a later mail you mention you want
+to use it for udev.  So please export this from scsi/libata as well and
+we have one proper interface that we can use for all devices.
