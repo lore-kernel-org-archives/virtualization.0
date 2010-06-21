@@ -1,14 +1,17 @@
-From: john cooper <john.cooper@redhat.com>
-Subject: Re: [PATCH 1/2] Add 'serial' attribute to virtio-blk devices
-Date: Mon, 21 Jun 2010 01:51:57 -0400
-Message-ID: <4C1EFDFD.5050907__39440.6182961122$1277100735$gmane$org@redhat.com>
-References: <1276886283-1571-1-git-send-email-ryanh@us.ibm.com>
-	<201006211122.38156.rusty@rustcorp.com.au>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH for-2.6.35] virtio_net: fix oom handling on tx
+Date: Mon, 21 Jun 2010 11:33:16 +0300
+Message-ID: <20100621083315.GA8665__44455.3823363551$1277109583$gmane$org@redhat.com>
+References: <20100610152041.GA3480@redhat.com>
+	<20100610104653.1aed2ecc@nehalam>
+	<20100610190343.GC4044@redhat.com>
+	<201006211213.49600.rusty@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <201006211122.38156.rusty@rustcorp.com.au>
+Content-Disposition: inline
+In-Reply-To: <201006211213.49600.rusty@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,88 +22,94 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: john.cooper@redhat.com, qemu-devel@nongnu.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: Shirley Ma <xma@us.ibm.com>, Jiri Pirko <jpirko@redhat.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Stephen Hemminger <shemminger@vyatta.com>, Sridhar Samudrala <sri@us.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Rusty Russell wrote:
-> On Sat, 19 Jun 2010 04:08:02 am Ryan Harper wrote:
->> Create a new attribute for virtio-blk devices that will fetch the serial number
->> of the block device.  This attribute can be used by udev to create disk/by-id
->> symlinks for devices that don't have a UUID (filesystem) associated with them.
->>
->> ATA_IDENTIFY strings are special in that they can be up to 20 chars long
->> and aren't required to be NULL-terminated.  The buffer is also zero-padded
->> meaning that if the serial is 19 chars or less that we get a NULL terminated
->> string.  When copying this value into a string buffer, we must be careful to
->> copy up to the NULL (if it present) and only 20 if it is longer and not to
->> attempt to NULL terminate; this isn't needed.
->>
->> Signed-off-by: Ryan Harper <ryanh@us.ibm.com>
->> Signed-off-by: john cooper <john.cooper@redhat.com>
->> ---
->>  drivers/block/virtio_blk.c |   32 ++++++++++++++++++++++++++++++++
->>  1 files changed, 32 insertions(+), 0 deletions(-)
->>
->> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
->> index 258bc2a..f1ef26f 100644
->> --- a/drivers/block/virtio_blk.c
->> +++ b/drivers/block/virtio_blk.c
->> @@ -281,6 +281,31 @@ static int index_to_minor(int index)
->>  	return index << PART_BITS;
->>  }
->>  
->> +/* Copy serial number from *s to *d.  Copy operation terminates on either
->> + * encountering a nul in *s or after n bytes have been copied, whichever
->> + * occurs first.  *d is not forcibly nul terminated.  Return # of bytes copied.
->> + */
->> +static inline int serial_sysfs(char *d, char *s, int n)
->> +{
->> +	char *di = d;
->> +
->> +	while (*s && n--)
->> +		*d++ = *s++;
->> +	return d - di;
->> +}
->> +
->> +static ssize_t virtblk_serial_show(struct device *dev,
->> +				struct device_attribute *attr, char *buf)
->> +{
->> +	struct gendisk *disk = dev_to_disk(dev);
->> +	char id_str[VIRTIO_BLK_ID_BYTES];
->> +
->> +	if (IS_ERR(virtblk_get_id(disk, id_str)))
->> +		return 0;
+On Mon, Jun 21, 2010 at 12:13:49PM +0930, Rusty Russell wrote:
+> On Fri, 11 Jun 2010 04:33:43 am Michael S. Tsirkin wrote:
+> > > > > @@ -572,12 +571,14 @@ again:
+> > > > > 
+> > > > >  	/* This can happen with OOM and indirect buffers. */
+> > > > >  	if (unlikely(capacity < 0)) {
+> > > > > -		netif_stop_queue(dev);
+> > > > > -		dev_warn(&dev->dev, "Unexpected full queue\n");
+> > > > > -		if (unlikely(!virtqueue_enable_cb(vi->svq))) {
+> > > > > -			virtqueue_disable_cb(vi->svq);
+> > > > > -			netif_start_queue(dev);
+> > > > > -			goto again;
+> > > > > +		if (net_ratelimit()) {
+> > > > > +			if (likely(capacity == -ENOMEM))
+> > > > > +				dev_warn(&dev->dev,
+> > > > > +					 "TX queue failure: out of memory\n");
+> > > > > +			else
+> > > > > +				dev_warn(&dev->dev,
+> > > > > +					 "Unexpected TX queue failure: %d\n",
+> > > > > +					 capacity);
+> ...
+> > 
+> > Well, I only keep the existing behaviour around.
 > 
-> 0?  Really?  That doesn't seem very informative.
-
-Propagating a prospective error from virtblk_get_id() should
-be possible.  Unsure if doing so is more useful from the
-user's perspective compared to just a nul id string.
-
->> +	return serial_sysfs(buf, id_str, min(VIRTIO_BLK_ID_BYTES, PAGE_SIZE));
+> Actually, it *does* change behavior, as the comment indicates.  So let's
+> fix the whole thing.  AFAICT wth TX_BUSY we'll get called again RSN, and
+> that's not really useful for OOM.
 > 
-> How about something like this:
+> This is what I have:
 > 
-> 	BUILD_BUG_ON(PAGE_SIZE < VIRTIO_BLK_ID_BYTES + 1);
+> Subject: virtio_net: fix oom handling on tx
+> Date: Thu, 10 Jun 2010 18:20:41 +0300
+> From: "Michael S. Tsirkin" <mst@redhat.com>
+> 
+> virtio net will never try to overflow the TX ring, so the only reason
+> add_buf may fail is out of memory. Thus, we can not stop the
+> device until some request completes - there's no guarantee anything
+> at all is outstanding.
+> 
+> Make the error message clearer as well: error here does not
+> indicate queue full.
+> 
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> Signed-off-by: Rusty Russell <rusty@rustcorp.com.au> (...and avoid TX_BUSY)
+> Cc: stable@kernel.org
+> ---
+>  drivers/net/virtio_net.c |   18 ++++++++++--------
+>  1 file changed, 10 insertions(+), 8 deletions(-)
+> 
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -562,7 +562,6 @@ static netdev_tx_t start_xmit(struct sk_
+>  	struct virtnet_info *vi = netdev_priv(dev);
+>  	int capacity;
+>  
+> -again:
+>  	/* Free up any pending old buffers before queueing new ones. */
+>  	free_old_xmit_skbs(vi);
+>  
+> @@ -571,14 +570,17 @@ again:
+>  
+>  	/* This can happen with OOM and indirect buffers. */
+>  	if (unlikely(capacity < 0)) {
+> -		netif_stop_queue(dev);
+> -		dev_warn(&dev->dev, "Unexpected full queue\n");
+> -		if (unlikely(!virtqueue_enable_cb(vi->svq))) {
+> -			virtqueue_disable_cb(vi->svq);
+> -			netif_start_queue(dev);
+> -			goto again;
+> +		if (net_ratelimit()) {
+> +			if (likely(capacity == -ENOMEM))
+> +				dev_warn(&dev->dev,
+> +					 "TX queue failure: out of memory\n");
+> +			else
+> +				dev_warn(&dev->dev,
+> +					 "Unexpected TX queue failure: %d\n",
+> +					 capacity);
+>  		}
+> -		return NETDEV_TX_BUSY;
+> +		kfree_skb(skb);
+> +		return NETDEV_TX_OK;
 
-Agreed, that's a better wrench in the gearworks.
-Note padding buf[] by 1 isn't necessary as indicated
-below.
+If we do so, let's increment the dropped counter and/or error counter?
 
-> 	/* id_str is not necessarily nul-terminated! */
-> 	buf[VIRTIO_BLK_ID_BYTES] = '\0';
-> 	return virtblk_get_id(disk, buf);
-
-The /sys file is rendered according to the length
-returned from this function and the trailing nul
-is not interpreted in this context.  In fact if a
-nul is added and included in the byte count of the
-string it will appear in the /sys file.
-
-Thanks,
-
--john
-
-
--- 
-john.cooper@redhat.com
+>  	}
+>  	virtqueue_kick(vi->svq);
+>  
