@@ -1,11 +1,13 @@
 From: Ryan Harper <ryanh@us.ibm.com>
-Subject: [PATCH 0/2] v2: Add 'serial' attribute to virtio-blk devices
-Date: Wed, 23 Jun 2010 22:19:56 -0500
-Message-ID: <1277349598-24559-1-git-send-email-ryanh__5342.96341143108$1277349707$gmane$org@us.ibm.com>
+Subject: [PATCH 2/2] Remove virtio_blk VBID ioctl
+Date: Wed, 23 Jun 2010 22:19:58 -0500
+Message-ID: <1277349598-24559-3-git-send-email-ryanh__11067.048731684$1277349802$gmane$org@us.ibm.com>
+References: <1277349598-24559-1-git-send-email-ryanh@us.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1277349598-24559-1-git-send-email-ryanh@us.ibm.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,12 +21,35 @@ To: virtualization@lists.linux-foundation.org
 Cc: john cooper <john.cooper@redhat.com>, qemu-devel@nongnu.org, kvm@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Using Rusty's suggestion I've respun the patch removing the special copy
-function.  I've tested this patch in a guest kernel with and without qemu
-supplying serial numbers for the block devices and it's working as expected.
-When qemu supplies serial numbers, the correct value is supplied to
-/sys/block/vdX/serial and can be used by udev for generating disk/by-id paths
-(without separate utility).  When running without serial number support the path
-still exists in sysfs but produces no output.
+With the availablility of a sysfs device attribute for examining disk serial
+numbers the ioctl is no longer needed.  The user-space changes for this aren't
+upstream yet so we don't have any users to worry about.
 
 Signed-off-by: Ryan Harper <ryanh@us.ibm.com>
+---
+ drivers/block/virtio_blk.c |   10 ----------
+ 1 files changed, 0 insertions(+), 10 deletions(-)
+
+diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+index 34411ff..04458cd 100644
+--- a/drivers/block/virtio_blk.c
++++ b/drivers/block/virtio_blk.c
+@@ -225,16 +225,6 @@ static int virtblk_ioctl(struct block_device *bdev, fmode_t mode,
+ 	struct gendisk *disk = bdev->bd_disk;
+ 	struct virtio_blk *vblk = disk->private_data;
+ 
+-	if (cmd == 0x56424944) { /* 'VBID' */
+-		void __user *usr_data = (void __user *)data;
+-		char id_str[VIRTIO_BLK_ID_BYTES];
+-		int err;
+-
+-		err = virtblk_get_id(disk, id_str);
+-		if (!err && copy_to_user(usr_data, id_str, VIRTIO_BLK_ID_BYTES))
+-			err = -EFAULT;
+-		return err;
+-	}
+ 	/*
+ 	 * Only allow the generic SCSI ioctls if the host can support it.
+ 	 */
+-- 
+1.6.3.3
