@@ -1,14 +1,12 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH RFC] vhost-net: add dhclient work-around from userspace
-Date: Sun, 27 Jun 2010 18:46:57 +0300
-Message-ID: <20100627154657.GA9723__3808.09913990579$1277653974$gmane$org@redhat.com>
-References: <20100626.200320.43025947.davem@davemloft.net>
+Subject: [PATCHv2] vhost-net: add dhclient work-around from userspace
+Date: Mon, 28 Jun 2010 13:08:07 +0300
+Message-ID: <20100628100807.GA30685__28818.6621306979$1277720046$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20100626.200320.43025947.davem@davemloft.net>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,13 +16,13 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Sridhar Samudrala <samudrala@us.ibm.com>, "David S. Miller" <davem@davemloft.net>, Arnd Bergmann <arnd@arndb.de>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, kvm@vge
+To: "Michael S. Tsirkin" <mst@redhat.com>, Aristeu Rozanski <arozansk@redhat.com>, Herbert Xu <herbert.xu@redhat.com>, Juan Quintela <quintela@redhat.com>, D
 List-Id: virtualization@lists.linuxfoundation.org
 
 Userspace virtio server has the following hack
 so guests rely on it, and we have to replicate it, too:
 
-use source port to detect incoming IPv4 DHCP response packets,
+Use port number to detect incoming IPv4 DHCP response packets,
 and fill in the checksum for these.
 
 The issue we are solving is that on linux guests, some apps
@@ -36,24 +34,26 @@ and older userspace does not use it.
 One important user of recvmsg with AF_PACKET is dhclient,
 so we add a work-around just for DHCP.
 
+Don't bother applying the hack to IPv6 as userspace virtio does not
+have a work-around for that - let's hope guests will do the right
+thing wrt IPv6.
+
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
 
-So here's what I came up with: I basically copied
-the work-around from userspace virtio.
-As suggested by Dave (assuming I understood the suggestion
-correctly) this implements the workaround in vhost-net, so
-other tun users don't start relying on it.
-Untested.
+Dave, I'm going to put this patch on the vhost tree,
+no need for you to bother merging it - you'll get
+it with a pull request.
 
- drivers/vhost/net.c |   42 +++++++++++++++++++++++++++++++++++++++++-
- 1 files changed, 41 insertions(+), 1 deletions(-)
+
+ drivers/vhost/net.c |   44 +++++++++++++++++++++++++++++++++++++++++++-
+ 1 files changed, 43 insertions(+), 1 deletions(-)
 
 diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-index 54096ee..9ed4051 100644
+index cc19595..03bba6a 100644
 --- a/drivers/vhost/net.c
 +++ b/drivers/vhost/net.c
-@@ -25,6 +25,10 @@
+@@ -24,6 +24,10 @@
  #include <linux/if_tun.h>
  #include <linux/if_macvlan.h>
  
@@ -64,55 +64,57 @@ index 54096ee..9ed4051 100644
  #include <net/sock.h>
  
  #include "vhost.h"
-@@ -191,6 +195,42 @@ static void handle_tx(struct vhost_net *net)
+@@ -186,6 +190,44 @@ static void handle_tx(struct vhost_net *net)
  	unuse_mm(net->dev.mm);
  }
  
 +static int peek_head(struct sock *sk)
 +{
-+	struct sk_buff *head;
-+	int ret;
++	struct sk_buff *skb;
 +
 +	lock_sock(sk);
-+	head = skb_peek(&sk->sk_receive_queue);
-+	if (likely(head)) {
-+		ret = 1;
-+		/* Userspace virtio server has the following hack so
-+		 * guests rely on it, and we have to replicate it, too: */
-+		/* On linux guests, some apps that use recvmsg with AF_PACKET
-+		 * sockets, don't know how to handle CHECKSUM_PARTIAL;
-+		 * The interface to return the relevant information was added in
-+		 * 8dc4194474159660d7f37c495e3fc3f10d0db8cc,
-+		 * and older userspace does not use it.
-+		 * One important user of recvmsg with AF_PACKET is dhclient,
-+		 * so we add a work-around just for DHCP. */
-+		/* We use source port to detect DHCP packets. */
-+		if (skb->ip_summed == CHECKSUM_PARTIAL &&
-+		    skb->protocol == htons(ETH_P_IP) &&
-+		    skb_network_header_len(skb) >= sizeof(struct iphdr) &&
-+		    ip_hdr(skb)->protocol == IPPRODO_UDP &&
-+		    skb_headlen(skb) >= skb_transport_offset(skb) + sizeof(struct udphdr) &&
-+		    udp_hdr(skb)->source == htons(0x67)) {
-+			skb_checksum_help(skb);
-+			/* Restore ip_summed value: tun passes it to user. */
-+			skb->ip_summed = CHECKSUM_PARTIAL;
-+		}
-+	} else {
-+		ret = 0;
++	skb = skb_peek(&sk->sk_receive_queue);
++	if (unlikely(!skb)) {
++		release_sock(sk);
++		return 0;
++	}
++	/* Userspace virtio server has the following hack so
++	 * guests rely on it, and we have to replicate it, too: */
++	/* Use port number to detect incoming IPv4 DHCP response packets,
++	 * and fill in the checksum. */
++
++	/* The issue we are solving is that on linux guests, some apps
++	 * that use recvmsg with AF_PACKET sockets, don't know how to
++	 * handle CHECKSUM_PARTIAL;
++	 * The interface to return the relevant information was added in
++	 * 8dc4194474159660d7f37c495e3fc3f10d0db8cc,
++	 * and older userspace does not use it.
++	 * One important user of recvmsg with AF_PACKET is dhclient,
++	 * so we add a work-around just for DHCP. */
++	if (skb->ip_summed == CHECKSUM_PARTIAL &&
++	    skb_headlen(skb) >= skb_transport_offset(skb) +
++				sizeof(struct udphdr) &&
++	    udp_hdr(skb)->dest == htons(68) &&
++	    skb_network_header_len(skb) >= sizeof(struct iphdr) &&
++	    ip_hdr(skb)->protocol == IPPROTO_UDP &&
++	    skb->protocol == htons(ETH_P_IP)) {
++		skb_checksum_help(skb);
++		/* Restore ip_summed value: tun passes it to user. */
++		skb->ip_summed = CHECKSUM_PARTIAL;
 +	}
 +	release_sock(sk);
-+	return len;
++	return 1;
 +}
 +
  /* Expects to be always run from workqueue - which acts as
   * read-size critical section for our kind of RCU. */
  static void handle_rx(struct vhost_net *net)
-@@ -228,7 +268,7 @@ static void handle_rx(struct vhost_net *net)
+@@ -222,7 +264,7 @@ static void handle_rx(struct vhost_net *net)
  	vq_log = unlikely(vhost_has_feature(&net->dev, VHOST_F_LOG_ALL)) ?
  		vq->log : NULL;
  
 -	for (;;) {
-+	while (peek_head(sock)) {
++	while (peek_head(sock->sk)) {
  		head = vhost_get_vq_desc(&net->dev, vq, vq->iov,
  					 ARRAY_SIZE(vq->iov),
  					 &out, &in,
