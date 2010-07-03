@@ -1,157 +1,36 @@
-From: Chetan Loke <chetanloke@gmail.com>
-Subject: Re: [PATCH] virt-what.in: Added VMware virt detection using cpuid in
-	wrapper script
-Date: Thu, 1 Jul 2010 10:20:55 -0400
-Message-ID: <AANLkTinwzS04v3jFF5oWLJynOklIFuJV5DFiws--iyDg__38670.1855612502$1278005737$gmane$org@mail.gmail.com>
-References: <AANLkTim1m-HIRMHVIkJLSZitXCh1ZwKh2eAN3UxUxJ1E@mail.gmail.com>
-	<20100701131547.GI6805@amd.home.annexia.org>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [GIT PULL net-2.6] vhost-net: more error handling fixes
+Date: Fri, 02 Jul 2010 22:29:38 -0700 (PDT)
+Message-ID: <20100702.222938.115942060.davem@davemloft.net>
+References: <20100701164127.GA3199@redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary=005045014132b0215b048a542d9b
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20100701131547.GI6805@amd.home.annexia.org>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Richard W.M. Jones" <rjones@redhat.com>
-Cc: kvm@vger.kernel.org, Tzy-Jye Daniel Lin <ephemient@gmail.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Anthony Liguori <anthony@codemonkey.ws>, virtualization@lists.linux-foundation.org
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20100701164127.GA3199@redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: mst@redhat.com
+Cc: kvm@vger.kernel.org, virtualization@lists.osdl.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, krkumar2@in.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
---005045014132b0215b048a542d9b
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Date: Thu, 1 Jul 2010 19:41:27 +0300
 
-On Thu, Jul 1, 2010 at 9:15 AM, Richard W.M. Jones <rjones@redhat.com> wrot=
-e:
-> On Tue, Jun 29, 2010 at 07:29:01PM -0400, Chetan Loke wrote:
->> Brief discussion thread - http://lkml.org/lkml/2010/6/29/355
->>
->> Added VMware detection via cpuid.Mimic'd VMware's balloon driver's init-=
-time
->> check(cpuid followed by dmi-checks). Moved the existing logic into a sim=
-ple
->> function to achieve that.
->>
->> Tested virt-what.in(ran as a script) and virt-what-cpuid-helper within
->> a Linux guest on ESX. Thanks.
->
+> David,
+> The following tree includes more fixes dealing with
+> error handling in vhost-net. It is on top of net-2.6.
+> Please merge it for 2.6.35.
+> Thanks!
+> 
+> The following changes since commit 38000a94a902e94ca8b5498f7871c6316de8957a:
+> 
+>   sky2: enable rx/tx in sky2_phy_reinit() (2010-06-23 14:37:04 -0700)
+> 
+> are available in the git repository at:
+>   git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git vhost-net
+> 
+> Michael S. Tsirkin (2):
+>       vhost: break out of polling loop on error
+>       vhost: add unlikely annotations to error path
 
-> Chetan, do you think you could send me this one again as an
-> attachment. =C2=A0Some MUA/MTA along the way has sufficiently mangled the
-> patch such that it can no longer be applied.
->
-Sure, I have attached the patch.
-
-
-> Rich.
-
-regards
-Chetan Loke
-
---005045014132b0215b048a542d9b
-Content-Type: application/octet-stream; name="virt-what.in.patch"
-Content-Disposition: attachment; filename="virt-what.in.patch"
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_gb3oms7r0
-
-QWRkZWQgVk13YXJlIGRldGVjdGlvbiB2aWEgY3B1aWQuTWltaWMnZCBWTXdhcmUncyBiYWxsb29u
-IGRyaXZlcidzIGluaXQtdGltZQpjaGVjayhjcHVpZCBmb2xsb3dlZCBieSBkbWktY2hlY2tzKS4g
-TW92ZWQgdGhlIGV4aXN0aW5nIGxvZ2ljIGludG8gYSBzaW1wbGUKZnVuY3Rpb24gdG8gYWNoaWV2
-ZSB0aGF0LiAKClRlc3RlZCB3aXRoaW4gYSBMaW51eCBndWVzdCBvbiBFU1guCgpTaWduZWQtb2Zm
-LWJ5OiBDaGV0YW4gTG9rZSA8bG9rZS5jQGFsdW1uaS5uZXUuZWR1PgoKLS0tCgp2aXJ0LXdoYXQu
-aW4gfCAxNTAgKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0gCjEgZmlsZSBjaGFuZ2VkLCA5MyBpbnNlcnRpb25zKCspLCA1NyBkZWxldGlv
-bnMoLSkKCgoKLS0tIHZpcnQtd2hhdC5pbi5vcmlnCTIwMTAtMDYtMjkgMTg6NDI6MjAuMTY2NjQ3
-NTg1IC0wNDAwCisrKyB2aXJ0LXdoYXQuaW4JMjAxMC0wNi0yOSAxODo1OTo1NC43NjU2NDc3Mzkg
-LTA0MDAKQEAgLTI1LDkgKzI1LDE5IEBACiAjCiAjIFRoZSBmb2xsb3dpbmcgcmVzb3VyY2VzIHdl
-cmUgdXNlZnVsIGluIHdyaXRpbmcgdGhpcyBzY3JpcHQ6CiAjIC4gaHR0cDovL3d3dy5kbW8uY2Ev
-YmxvZy8yMDA4MDUzMDE1MTEwNworIworIyAKKyMgQWRkZWQgVk13YXJlIGRldGVjdGlvbiB1c2lu
-ZyBjcHVpZC4KKyMgQWRkZWQgZnVuY3Rpb25zIHRvIGNoZWNrIHRoZSBlbnZpcm9ubWVudCB0eXBl
-CisjIDA2LzI5LzIwMTAgLSBDaGV0YW4gTG9rZSA8bG9rZS5jQGFsdW1uaS5uZXUuZWR1PgorIwor
-CiAKIFZFUlNJT049IkBWRVJTSU9OQCIKIAorY3B1aWQ9Citpc194ZW49MQorCiBmdW5jdGlvbiBm
-YWlsIHsKICAgICBlY2hvICJ2aXJ0LXdoYXQ6ICQxIgogICAgIGV4aXQgMQpAQCAtMzgsNyArNDgs
-OCBAQAogICAgIGVjaG8gIk9wdGlvbnM6IgogICAgIGVjaG8gIiAgLS1oZWxwICAgICAgICAgIERp
-c3BsYXkgdGhpcyBoZWxwIgogICAgIGVjaG8gIiAgLS12ZXJzaW9uICAgICAgIERpc3BsYXkgdmVy
-c2lvbiBhbmQgZXhpdCIKLSAgICBleGl0IDAKKyAgICAjIGV4aXQgYWZ0ZXIgcHJpbnRpbmcKKyAg
-ICBleGl0IDEKIH0KIAogIyBIYW5kbGUgdGhlIGNvbW1hbmQgbGluZSBhcmd1bWVudHMsIGlmIGFu
-eS4KQEAgLTcwLDc0ICs4MSw5OSBAQAogZXhlY19wcmVmaXg9QGV4ZWNfcHJlZml4QAogUEFUSD1A
-bGliZXhlY2RpckA6L3NiaW46L3Vzci9zYmluOiRQQVRICiAKLSMgQ2hlY2sgZm9yIHZhcmlvdXMg
-cHJvZHVjdHMgaW4gdGhlIEJJT1MgaW5mb3JtYXRpb24uCitkZXRlY3RfdmlydF9lbnZfdXNpbmdf
-bWlzY19pbmZvKCkgewogCi1kbWk9YGRtaWRlY29kZSAyPiYxYAorCSMgQ2hlY2sgZm9yIHZhcmlv
-dXMgcHJvZHVjdHMgaW4gdGhlIEJJT1MgaW5mb3JtYXRpb24uCiAKLWlmIGVjaG8gIiRkbWkiIHwg
-Z3JlcCAtcSAnTWFudWZhY3R1cmVyOiBWTXdhcmUnOyB0aGVuCi0gICAgZWNobyB2bXdhcmUKLWZp
-CisJZG1pPWBkbWlkZWNvZGUgMj4mMWAKIAotaWYgZWNobyAiJGRtaSIgfCBncmVwIC1xICdNYW51
-ZmFjdHVyZXI6IE1pY3Jvc29mdCBDb3Jwb3JhdGlvbic7IHRoZW4KLSAgICBlY2hvIHZpcnR1YWxw
-YwotZmkKKwlpZiBlY2hvICIkZG1pIiB8IGdyZXAgLXEgJ01hbnVmYWN0dXJlcjogVk13YXJlJzsg
-dGhlbgorCQllY2hvIHZtd2FyZQorCQlleGl0IDAKKwlmaQogCi0jIENoZWNrIGZvciBWaXJ0dWFs
-Qm94LgotIyBBZGRlZCBieSBMYXVyZW50IEzDqW9uYXJkLgotaWYgZWNobyAiJGRtaSIgfCBncmVw
-IC1xICdNYW51ZmFjdHVyZXI6IGlubm90ZWsgR21iSCc7IHRoZW4KLSAgICBlY2hvIHZpcnR1YWxi
-b3gKLWZpCisJaWYgZWNobyAiJGRtaSIgfCBncmVwIC1xICdNYW51ZmFjdHVyZXI6IE1pY3Jvc29m
-dCBDb3Jwb3JhdGlvbic7IHRoZW4KKwkJZWNobyB2aXJ0dWFscGMKKwkJZXhpdCAwCisJZmkKIAot
-IyBDaGVjayBmb3IgT3BlblZaIC8gVmlydHVvenpvLgotIyBBZGRlZCBieSBFdmdlbml5IFNva29s
-b3YuCi0jIC9wcm9jL3Z6IC0gYWx3YXlzIGV4aXN0cyBpZiBPcGVuVloga2VybmVsIGlzIHJ1bm5p
-bmcgKGluc2lkZSBhbmQgb3V0c2lkZQotIyBjb250YWluZXIpCi0jIC9wcm9jL2JjIC0gZXhpc3Rz
-IG9uIG5vZGUsIGJ1dCBub3QgaW5zaWRlIGNvbnRhaW5lci4KKwkjIENoZWNrIGZvciBWaXJ0dWFs
-Qm94LgorCSMgQWRkZWQgYnkgTGF1cmVudCBMw6lvbmFyZC4KKwlpZiBlY2hvICIkZG1pIiB8IGdy
-ZXAgLXEgJ01hbnVmYWN0dXJlcjogaW5ub3RlayBHbWJIJzsgdGhlbgorCQllY2hvIHZpcnR1YWxi
-b3gKKwkJZXhpdCAwCisJZmkKIAotaWYgWyAtZCAvcHJvYy92eiAtYSAhIC1kIC9wcm9jL2JjIF07
-IHRoZW4KLSAgICBlY2hvIG9wZW52egotZmkKKwkjIENoZWNrIGZvciBPcGVuVlogLyBWaXJ0dW96
-em8uCisJIyBBZGRlZCBieSBFdmdlbml5IFNva29sb3YuCisJIyAvcHJvYy92eiAtIGFsd2F5cyBl
-eGlzdHMgaWYgT3BlblZaIGtlcm5lbCBpcyBydW5uaW5nIChpbnNpZGUgYW5kIG91dHNpZGUKKwkj
-IGNvbnRhaW5lcikKKwkjIC9wcm9jL2JjIC0gZXhpc3RzIG9uIG5vZGUsIGJ1dCBub3QgaW5zaWRl
-IGNvbnRhaW5lci4KKworCWlmIFsgLWQgL3Byb2MvdnogLWEgISAtZCAvcHJvYy9iYyBdOyB0aGVu
-CisJCWVjaG8gb3BlbnZ6CisJCWV4aXQgMAorCWZpCiAKLSMgQ2hlY2sgZm9yIFVNTC4KLSMgQWRk
-ZWQgYnkgTGF1cmVudCBMw6lvbmFyZC4KLWlmIGdyZXAgLXEgJ1VNTCcgL3Byb2MvY3B1aW5mbzsg
-dGhlbgotCWVjaG8gdW1sCi1maQorCSMgQ2hlY2sgZm9yIFVNTC4KKwkjIEFkZGVkIGJ5IExhdXJl
-bnQgTMOpb25hcmQuCisJaWYgZ3JlcCAtcSAnVU1MJyAvcHJvYy9jcHVpbmZvOyB0aGVuCisJCWVj
-aG8gdW1sCisJCWV4aXQgMAorCWZpCisKKwlleGl0IDEKK30KIAogIyBUbyB0ZWxsIGlmIGl0IGlz
-IFhlbiBhbmQgS1ZNIEhWTSAoZnVsbHkgdmlydHVhbGl6ZWQpIHdlIGNhbiB1c2UgdGhpcwogIyBo
-ZWxwZXIgQyBwcm9ncmFtLgogCi1jcHVpZD1gdmlydC13aGF0LWNwdWlkLWhlbHBlcmAKLQotIyBD
-aGVjayBmb3IgWGVuLgorZGV0ZWN0X3ZpcnRfZW52X3VzaW5nX2NwdWlkICgpIHsKKwljcHVpZD1g
-dmlydC13aGF0LWNwdWlkLWhlbHBlcmAKKwkKKwkjIENoZWNrIGZvciBYZW4uCisKKwlpZiBbICIk
-Y3B1aWQiID0gIlhlblZNTVhlblZNTSIgXTsgdGhlbgorCQllY2hvIHhlbjsgZWNobyB4ZW4taHZt
-CisJCWV4aXQgMAorCWVsaWYgWyAtZiAvcHJvYy94ZW4vcHJpdmNtZCBdOyB0aGVuCisJCWVjaG8g
-eGVuOyBlY2hvIHhlbi1kb20wCisJCWV4aXQgMAorCWVsaWYgWyAtZiAvcHJvYy94ZW4vY2FwYWJp
-bGl0aWVzIF07IHRoZW4KKwkJZWNobyB4ZW47IGVjaG8geGVuLWRvbVUKKwkJZXhpdCAwCisJZWxp
-ZiBbIC1kIC9wcm9jL3hlbiBdOyB0aGVuCisJCSMgVGhpcyBkaXJlY3RvcnkgY2FuIGJlIHByZXNl
-bnQgd2hlbiBYZW4gcGFyYXZpcnQgZHJpdmVycyBhcmUKKwkJIyBpbnN0YWxsZWQsIGV2ZW4gb24g
-YmFyZW1ldGFsLiAgRG9uJ3QgY29uZnVzZSBwZW9wbGUgYnkKKwkJIyBwcmludGluZyBhbnl0aGlu
-Zy4KKwkJOgorCWZpCiAKLWlmIFsgIiRjcHVpZCIgPSAiWGVuVk1NWGVuVk1NIiBdOyB0aGVuCi0g
-ICAgZWNobyB4ZW47IGVjaG8geGVuLWh2bQotICAgIGlzX3hlbj0xCi1lbGlmIFsgLWYgL3Byb2Mv
-eGVuL3ByaXZjbWQgXTsgdGhlbgotICAgIGVjaG8geGVuOyBlY2hvIHhlbi1kb20wCi0gICAgaXNf
-eGVuPTEKLWVsaWYgWyAtZiAvcHJvYy94ZW4vY2FwYWJpbGl0aWVzIF07IHRoZW4KLSAgICBlY2hv
-IHhlbjsgZWNobyB4ZW4tZG9tVQotICAgIGlzX3hlbj0xCi1lbGlmIFsgLWQgL3Byb2MveGVuIF07
-IHRoZW4KLSAgICAjIFRoaXMgZGlyZWN0b3J5IGNhbiBiZSBwcmVzZW50IHdoZW4gWGVuIHBhcmF2
-aXJ0IGRyaXZlcnMgYXJlCi0gICAgIyBpbnN0YWxsZWQsIGV2ZW4gb24gYmFyZW1ldGFsLiAgRG9u
-J3QgY29uZnVzZSBwZW9wbGUgYnkKLSAgICAjIHByaW50aW5nIGFueXRoaW5nLgotICAgIDoKLWZp
-CisJIyBDaGVjayBmb3IgUUVNVS9LVk0uCiAKLSMgQ2hlY2sgZm9yIFFFTVUvS1ZNLgorCWlmIFsg
-ISAiJGlzX3hlbiIgXTsgdGhlbgorCQkjIERpc2FibGUgdGhpcyB0ZXN0IGlmIHdlIGtub3cgdGhp
-cyBpcyBYZW4gYWxyZWFkeSwgYmVjYXVzZSBYZW4KKwkJIyB1c2VzIFFFTVUgZm9yIGl0cyBkZXZp
-Y2UgbW9kZWwuCisKKwlpZiBncmVwIC1xICdRRU1VJyAvcHJvYy9jcHVpbmZvOyB0aGVuCisJCWlm
-IFsgIiRjcHVpZCIgPSAiS1ZNS1ZNS1ZNIiBdOyB0aGVuCisJCQllY2hvIGt2bQorCQkJZXhpdCAw
-CisJCWVsc2UKKwkJCWVjaG8gcWVtdQorCQkJZXhpdCAwCisJCWZpCisgICAgZmkKKwlmaQkKIAot
-aWYgWyAhICIkaXNfeGVuIiBdOyB0aGVuCi0gICAgIyBEaXNhYmxlIHRoaXMgdGVzdCBpZiB3ZSBr
-bm93IHRoaXMgaXMgWGVuIGFscmVhZHksIGJlY2F1c2UgWGVuCi0gICAgIyB1c2VzIFFFTVUgZm9y
-IGl0cyBkZXZpY2UgbW9kZWwuCi0KLSAgICBpZiBncmVwIC1xICdRRU1VJyAvcHJvYy9jcHVpbmZv
-OyB0aGVuCi0JaWYgWyAiJGNwdWlkIiA9ICJLVk1LVk1LVk0iIF07IHRoZW4KLQkgICAgZWNobyBr
-dm0KLQllbHNlCi0JICAgIGVjaG8gcWVtdQorCSMgQ2hlY2sgZm9yIFZNd2FyZQorCWlmIFsgIiRj
-cHVpZCIgPSAiVk13YXJlVk13YXJlIiBdOyB0aGVuCisJCWVjaG8gdm13YXJlCisJCWV4aXQgMAog
-CWZpCi0gICAgZmkKLWZpCit9CisKKworZGV0ZWN0X3ZpcnRfZW52X3VzaW5nX2NwdWlkCisjIElm
-IHRoZSBhYm92ZSBmYWlscyB0aGVuIGNhbGwgdGhlIG5leHQgZnVuY3Rpb24KK2RldGVjdF92aXJ0
-X2Vudl91c2luZ19taXNjX2luZm8K
---005045014132b0215b048a542d9b
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linux-foundation.org/mailman/listinfo/virtualization
---005045014132b0215b048a542d9b--
+Pulled.
