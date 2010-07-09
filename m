@@ -1,36 +1,84 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [GIT PULL net-2.6] vhost-net: more error handling fixes
-Date: Fri, 02 Jul 2010 22:29:38 -0700 (PDT)
-Message-ID: <20100702.222938.115942060.davem@davemloft.net>
-References: <20100701164127.GA3199@redhat.com>
+From: KVM Forum 2010 Program Committee <KVM-Forum-2010-PC@redhat.com>
+Subject: KVM Forum 2010: schedule and registration reminder
+Date: Fri, 9 Jul 2010 12:03:01 -0700
+Message-ID: <20100709190301.GE8319__17375.1080445529$1278702239$gmane$org@x200.localdomain>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20100701164127.GA3199@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: mst@redhat.com
-Cc: kvm@vger.kernel.org, virtualization@lists.osdl.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, krkumar2@in.ibm.com
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: kvm@vger.kernel.org, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, libvir-list@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Date: Thu, 1 Jul 2010 19:41:27 +0300
+As a reminder...the registration fees will increase on July 15th, so
+register now to save the fees.
 
-> David,
-> The following tree includes more fixes dealing with
-> error handling in vhost-net. It is on top of net-2.6.
-> Please merge it for 2.6.35.
-> Thanks!
-> 
-> The following changes since commit 38000a94a902e94ca8b5498f7871c6316de8957a:
-> 
->   sky2: enable rx/tx in sky2_phy_reinit() (2010-06-23 14:37:04 -0700)
-> 
-> are available in the git repository at:
->   git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git vhost-net
-> 
-> Michael S. Tsirkin (2):
->       vhost: break out of polling loop on error
->       vhost: add unlikely annotations to error path
+KVM Forum registration link is here:
 
-Pulled.
+http://events.linuxfoundation.org/component/registrationpro/?func=details&did=34
+
+Hotel and travel information is here (same hotel and venue as LinuxCon):
+
+http://events.linuxfoundation.org/events/linuxcon/hotel
+
+Here is the schedule (should be up on the LF site with more details shortly).
+
+Monday, August 9th
+------------------
+9:00	9:30	Welcome + Keynote
+9:30	10:15	Desktop virtualization with spice
+10:15	10:45	Developing tests for the KVM autotest framework
+10:45	11:00	- break -
+11:00	11:30	Threading the QEMU Device Model
+11:30	12:00	QEMU's new device model qdev
+12:00	12:30	KVM on Server Class PowerPC
+12:30	13:30	- lunch -
+13:30	14:00	Transparent Hugepage Support
+14:00	14:30	Migration: how to hop from machine to machine without losing state
+14:30	15:00	Sheepdog: distributed storage system for QEMU
+15:00	15:30	- break -
+15:30	16:00	How to keep time correctly, and avoid SDR-awk cab emit peek problems
+16:00	16:30	PV-DMA using IOMMU Emulation
+16:30	16:45	Network Virtualization in KVM
+16:45	17:00	Ganeti as a KVM cluster management interface
+17:00	17:15	Porting virtio to PowerVM Hypervisors
+17:15	17:30	lightning talks
+17:30	19:00	BoFs
+
+Tuesday, August 10th
+--------------------
+9:00	9:15	Keynote
+9:15	9:45	vhost-net and virtio-net: need for speed
+9:45	10:15	The QEMU Monitor Protocol (QMP)
+10:15	10:45	Integrating KVM with Linux
+10:45	11:00	- break -
+11:00	11:30	KVM in Embedded: Requirements, Experiences and Open Challenges
+11:30	12:00	Kemari: Fault Tolerant Virtual Machine Synchronization based on KVM
+12:00	12:30	Managing Resources on Over-committed Virtualization Hosts
+12:30	13:30	- lunch -
+13:30	14:00	A Walkthrough on some recent KVM performance improvements
+14:00	14:30	Examing KVM as Nested Virtualization Friendly Guest
+14:30	15:00	PCI direct device assignment: pwned! all your devices are belong to guest
+15:00	15:30	- break -
+15:30	16:00	Performance and Scalability of Server Consolidation using KVM
+16:00	16:15	WinKVM: Windows kernel-based Virtual Machine
+16:15	16:30	Nahanni: Inter-VM Shared Memory
+16:30	16:45	Asynchronous Page Faults: AIX did it.
+16:45	17:00	PCI Express support in QEmu
+17:00	17:15	lightning talks
+17:15	17:30	Closing comments
+17:30	19:00	BoFs
+
+We look forward to seeing you there.
+
+thanks,
+-KVM Forum 2010 Program Commitee
