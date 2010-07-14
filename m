@@ -1,22 +1,15 @@
-From: Pankaj Thakkar <pthakkar@vmware.com>
-Subject: RE: [Pv-drivers] RFC: Network Plugin Architecture (NPA) for vmxnet3
-Date: Wed, 14 Jul 2010 10:18:22 -0700
-Message-ID: <F1354E79A137A24CBA60059AA65CB1B802A34EEB67@EXCH-MBX-2.vmware.com>
-References: <20100504230225.GP8323@vmware.com>
-	<201005051029.42052.dtor@vmware.com>
-	<20100505173120.GA1752@infradead.org>
-	<201005051035.29831.dtor@vmware.com>
-	<20100505173951.GA8388@infradead.org>
-	<20100505105253.0a8bc465@nehalam>
-	<20100506202113.GC17922@infradead.org>
-	<1278990388.32650.22.camel@eng-rhel5-64>,
+From: David Miller <davem@davemloft.net>
+Subject: Re: [Pv-drivers] RFC: Network Plugin Architecture (NPA) for vmxnet3
+Date: Wed, 14 Jul 2010 10:54:23 -0700 (PDT)
+Message-ID: <20100714.105423.226778756.davem__23386.8937161335$1279130184$gmane$org@davemloft.net>
+References: <1278990388.32650.22.camel@eng-rhel5-64>
 	<20100714094952.GA16209@kroah.com>
+	<F1354E79A137A24CBA60059AA65CB1B802A34EEB67@EXCH-MBX-2.vmware.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20100714094952.GA16209@kroah.com>
-Content-Language: en-US
+In-Reply-To: <F1354E79A137A24CBA60059AA65CB1B802A34EEB67@EXCH-MBX-2.vmware.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -26,27 +19,24 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Greg KH <greg@kroah.com>, Shreyas Bhatewara <sbhatewara@vmware.com>
-Cc: "pv-drivers@vmware.com" <pv-drivers@vmware.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Christoph Hellwig <hch@infradead.org>, Stephen Hemminger <shemminger@vyatta.com>
+To: pthakkar@vmware.com
+Cc: pv-drivers@vmware.com, greg@kroah.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, hch@infradead.org, netdev@vger.kernel.org, shemminger@vyatta.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-The plugin is guest agnostic and hence we did not want to rely on any kernel provided functions. The plugin uses only the interface provided by the shell. The assumption is that since the plugin is really simple and straight forward (all the control/init complexity lies in the PF driver in the hypervisor) we should be able to get by for most of the things and for things like memcpy/memset the plugin can write simple functions like this.
+From: Pankaj Thakkar <pthakkar@vmware.com>
+Date: Wed, 14 Jul 2010 10:18:22 -0700
 
+> The plugin is guest agnostic and hence we did not want to rely on
+> any kernel provided functions.
 
--p
+While I disagree entirely with this kind of approach, even that
+doesn't justify what you're doing here.
 
+memcpy() and memset() are on a much more fundamental ground than
+"kernel provided functions".  They had better be available no matter
+where you build this thing.
 
-________________________________________
-From: Greg KH [greg@kroah.com]
-Sent: Wednesday, July 14, 2010 2:49 AM
-To: Shreyas Bhatewara
-Cc: Christoph Hellwig; Stephen Hemminger; Pankaj Thakkar; pv-drivers@vmware.com; netdev@vger.kernel.org; linux-kernel@vger.kernel.org; virtualization@lists.linux-foundation.org
-Subject: Re: [Pv-drivers] RFC: Network Plugin Architecture (NPA) for vmxnet3
-
-
-Is there some reason that our in-kernel functions that do this type of
-logic are not working for you to require you to reimplement this?
-
-thanks,
-
-greg k-h
+And doing what you're doing is foolish on so many levels.  One more
+duplication of code, one more place for unnecessary bugs to live, one
+more place that might need optimizations and thus require duplication
+of even more work people have done over the years.
