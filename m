@@ -1,7 +1,7 @@
 From: Stephen Hemminger <shemminger@vyatta.com>
 Subject: Re: [Pv-drivers] RFC: Network Plugin Architecture (NPA) for vmxnet3
-Date: Mon, 12 Jul 2010 22:16:55 -0700
-Message-ID: <20100712221655.1873954d__45112.0749851272$1278998278$gmane$org@nehalam>
+Date: Tue, 13 Jul 2010 17:31:00 -0700
+Message-ID: <20100713173100.1d4fb42d__15949.2311104716$1279067549$gmane$org@nehalam>
 References: <20100504230225.GP8323@vmware.com>
 	<201005051029.42052.dtor@vmware.com>
 	<20100505173120.GA1752@infradead.org>
@@ -62,11 +62,7 @@ Shreyas Bhatewara <sbhatewara@vmware.com> wrote:
 > 
 > Signed-off-by: Matthieu Bucchaineri <matthieu@vmware.com>
 > Signed-off-by: Shreyas Bhatewara <sbhatewara@vmware.com>
+> ---
 
-I think the concept won't fly.
-
-But you should really at least try running checkpatch to make sure
-the style conforms.
-
-
--- 
+I am surprised, the code seems to use lots of mixed case in places
+that don't really follow current kernel practice.
