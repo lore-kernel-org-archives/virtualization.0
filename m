@@ -1,14 +1,21 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
+From: Greg KH <greg@kroah.com>
 Subject: Re: [Pv-drivers] RFC: Network Plugin Architecture (NPA) for vmxnet3
-Date: Wed, 14 Jul 2010 11:03:17 -0700
-Message-ID: <4C3DFBE5.2020705__6217.8953121931$1279130677$gmane$org@goop.org>
-References: <1278990388.32650.22.camel@eng-rhel5-64>	<20100714094952.GA16209@kroah.com>	<F1354E79A137A24CBA60059AA65CB1B802A34EEB67@EXCH-MBX-2.vmware.com>
-	<20100714.105423.226778756.davem@davemloft.net>
+Date: Wed, 14 Jul 2010 13:20:37 -0700
+Message-ID: <20100714202037.GA28821__11425.9664355361$1279138950$gmane$org@kroah.com>
+References: <20100504230225.GP8323@vmware.com>
+	<201005051029.42052.dtor@vmware.com>
+	<20100505173120.GA1752@infradead.org>
+	<201005051035.29831.dtor@vmware.com>
+	<20100505173951.GA8388@infradead.org>
+	<20100505105253.0a8bc465@nehalam>
+	<20100506202113.GC17922@infradead.org>
+	<F1354E79A137A24CBA60059AA65CB1B802A34EEB67@EXCH-MBX-2.vmware.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20100714.105423.226778756.davem@davemloft.net>
+Content-Disposition: inline
+In-Reply-To: <F1354E79A137A24CBA60059AA65CB1B802A34EEB67@EXCH-MBX-2.vmware.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,18 +25,36 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: David Miller <davem@davemloft.net>
-Cc: hch@infradead.org, pv-drivers@vmware.com, greg@kroah.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, pthakkar@vmware.com, netdev@vger.kernel.org, shemminger@vyatta.com
+To: Pankaj Thakkar <pthakkar@vmware.com>
+Cc: "pv-drivers@vmware.com" <pv-drivers@vmware.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Christoph Hellwig <hch@infradead.org>, Stephen Hemminger <shemminger@vyatta.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 07/14/2010 10:54 AM, David Miller wrote:
-> And doing what you're doing is foolish on so many levels.  One more
-> duplication of code, one more place for unnecessary bugs to live, one
-> more place that might need optimizations and thus require duplication
-> of even more work people have done over the years.
->   
+On Wed, Jul 14, 2010 at 10:18:22AM -0700, Pankaj Thakkar wrote:
+> The plugin is guest agnostic and hence we did not want to rely on any
+> kernel provided functions. The plugin uses only the interface provided
+> by the shell.
 
-Not to mention calling a function "MoveMemory" when it doesn't do a
-memmove is just cruel.
+Really?  vmxnet3_plugin.c is no supposed to use any kernel-provided
+functions at all?  Then why have it in the kernel at all?  Seriously,
+why?
 
-    J
+> The assumption is that since the plugin is really simple and straight
+> forward (all the control/init complexity lies in the PF driver in the
+> hypervisor) we should be able to get by for most of the things and for
+> things like memcpy/memset the plugin can write simple functions like
+> this.
+
+If it's so simple, then why does it need to be separate?  Why not just
+put it in your driver as-is to handle the ring-buffer logic (as that's
+all it looks to be doing), and then you don't need any plugin code at
+all?
+
+It looks like you are linking this file into your "main" driver module,
+so I fail to see any type of separation at all happening with this
+patch.
+
+Or am I totally missing something here?
+
+thanks,
+
+greg k-h
