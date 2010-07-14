@@ -1,21 +1,13 @@
-From: Greg KH <greg@kroah.com>
-Subject: Re: [Pv-drivers] RFC: Network Plugin Architecture (NPA) for vmxnet3
-Date: Wed, 14 Jul 2010 02:49:52 -0700
-Message-ID: <20100714094952.GA16209__3048.5158473768$1279100992$gmane$org@kroah.com>
-References: <20100504230225.GP8323@vmware.com>
-	<201005051029.42052.dtor@vmware.com>
-	<20100505173120.GA1752@infradead.org>
-	<201005051035.29831.dtor@vmware.com>
-	<20100505173951.GA8388@infradead.org>
-	<20100505105253.0a8bc465@nehalam>
-	<20100506202113.GC17922@infradead.org>
-	<1278990388.32650.22.camel@eng-rhel5-64>
+From: Jes Sorensen <Jes.Sorensen@redhat.com>
+Subject: Re: Virtualization at Plumbers 2010 - Time to submit your proposals!
+Date: Wed, 14 Jul 2010 17:44:22 +0200
+Message-ID: <4C3DDB56.9060803__38298.503883607$1279122512$gmane$org@redhat.com>
+References: <4C1B5FE4.8020207@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1278990388.32650.22.camel@eng-rhel5-64>
+In-Reply-To: <4C1B5FE4.8020207@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -25,42 +17,77 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Shreyas Bhatewara <sbhatewara@vmware.com>
-Cc: Pankaj Thakkar <pthakkar@vmware.com>, "pv-drivers@vmware.com" <pv-drivers@vmware.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Christoph Hellwig <hch@infradead.org>, Stephen Hemminger <shemminger@vyatta.com>
+To: KVM General <kvm@vger.kernel.org>, QEMU Developers <qemu-devel@nongnu.org>, xen-devel@lists.xensource.com, virtualization@lists.linux-foundation.org
+Cc: Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@elte.hu>, "Zhang,
+	Yanmin" <yanmin_zhang@linux.intel.com>, jvrao@us.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Jul 12, 2010 at 08:06:28PM -0700, Shreyas Bhatewara wrote:
->  drivers/net/vmxnet3/vmxnet3_drv.c     | 1845
-> +++++++++++++++++++--------------
+Hi,
 
-Your patch is line-wrapped and can not be applied :(
+I would like to remind everybody that the deadline for submitting a
+proposal to Linux Plumbers 2010 is nearing, so this is the time to get
+your proposals in. The deadline is July 19th!
 
-Care to fix your email client?
+There has been some confusion about the submission process and I have
+only just found out myself what is the correct way to do it. You need to
+submit your proposal via the following link:
 
-One thing just jumped out at me when glancing at this:
+http://www.linuxplumbersconf.org/2010/ocw/events/LPC2010MC/proposals
 
-> +static INLINE void
-> +MoveMemory(void *dst,
-> +		void *src,
-> +		size_t length)
-> +{
-> +	size_t i;
-> +	for (i = 0; i < length; ++i)
-> +		((u8 *)dst)[i] = ((u8 *)src)[i];
-> +}
-> +
-> +static INLINE void
-> +ZeroMemory(void *memory,
-> +		size_t length)
-> +{
-> +	size_t i;
-> +	for (i = 0; i < length; ++i)
-> +		((u8 *)memory)[i] = 0;
-> +}
+If you have already submitted a Virtualization related proposal please
+check that it went in to the mini conference submission. If it didn't
+please re-submit it. I apologize for this confusion!
 
-Is there some reason that our in-kernel functions that do this type of
-logic are not working for you to require you to reimplement this?
+Hope to see plenty of proposals showing up before the deadling on the 19th!
 
-thanks,
+Best regards,
+Jes
 
-greg k-h
+
+
+
+On 06/18/10 14:00, Jes Sorensen wrote:
+> Hi,
+> 
+> I would like to remind people about the Virtualization track at Linux
+> Plumbers Conference 2010, held in Cambridge, MA, November 3-5, 2010.
+> 
+> Please note the deadline for submissions is July 19, 2010.
+> 
+> LPC is particular well suited for technical presentations, work in
+> progress and subjects that needs discussion and collaboration between
+> communities (kernel, desktop/gfx, virtualization, etc.), so if you have
+> a contentious issue you would like to bring to a wider audience, this is
+> the ideal place to do it!
+> 
+> Note that this track is focusing on general Linux Virtualization, it
+> is not hypervisor specific. Submissions related to Xen, KVM, VMware,
+> containers, etc. are encouraged. Subjects could include:
+> 
+>  - Linux Kernel Virtualization enhancements
+>  - QEMU
+>  - IO performance work
+>  - Device management, hotplug
+>  - NUMA awareness
+>  - Live migration
+>  - Support for new hardware features, and/or provide guest access to
+>    these features.
+>  - Device emulation
+>  - Para-virtual enhancements: special filesystems, PMU, Windows
+>    drivers, etc.
+>  - Debugging and analysis tools
+>  - Containers
+>  - QMP and Spice
+>  - Virtualization management, user interfaces, and desktop integration
+>    (GNOME, KDE, etc)
+> 
+> If you have a subject you would like to present, please submit it as
+> soon as possible, and no later than July 19th. Please see the full Call
+> For Papers at http://www.linuxplumbersconf.org/2010/ for how to submit.
+> 
+> You may also want to list your ideas at the LPC Virtualization session
+> wiki page at http://wiki.linuxplumbersconf.org/2010:virtualization
+> 
+> Hope to see you in Cambridge in November!
+> 
+> Jes
