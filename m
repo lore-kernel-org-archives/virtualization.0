@@ -1,27 +1,19 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
+From: Sridhar Samudrala <sri@us.ibm.com>
 Subject: Re: [PATCH] vhost-net: avoid flush under lock
-Date: Thu, 15 Jul 2010 15:37:44 +0300
-Message-ID: <20100715123744.GA7831__29559.1631941081$1279197929$gmane$org@redhat.com>
+Date: Thu, 15 Jul 2010 11:17:57 -0700
+Message-ID: <1279217878.8566.6.camel@w-sridhar.beaverton.ibm.com>
 References: <20100715121912.GA7176@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
+Return-path: <netdev-owner@vger.kernel.org>
 In-Reply-To: <20100715121912.GA7176@redhat.com>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Sridhar Samudrala <samudrala@us.ibm.com>, "David S. Miller" <davem@davemloft.net>, Arnd Bergmann <arnd@arndb.de>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, kvm@vge
+Sender: netdev-owner@vger.kernel.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: "David S. Miller" <davem@davemloft.net>, Arnd Bergmann <arnd@arndb.de>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, kvm@vger.kernel.org, virtualization@lists.osdl.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Jul 15, 2010 at 03:19:12PM +0300, Michael S. Tsirkin wrote:
+On Thu, 2010-07-15 at 15:19 +0300, Michael S. Tsirkin wrote:
 > We flush under vq mutex when changing backends.
 > This creates a deadlock as workqueue being flushed
 > needs this lock as well.
@@ -31,12 +23,14 @@ On Thu, Jul 15, 2010 at 03:19:12PM +0300, Michael S. Tsirkin wrote:
 > Drop the vq mutex before flush: we have the device mutex
 > which is sufficient to prevent another ioctl from touching
 > the vq.
+
+Why do we need to flush the vq when trying to set the backend and
+we find that it is already set. Is this just an optimization?
+
+Thanks
+Sridhar
 > 
 > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-
-Dave, just to clarify, I'll send pull request to merge it through my tree,
-there's no need for you to bother with this.
-
 > ---
 >  drivers/vhost/net.c |    5 +++++
 >  1 files changed, 5 insertions(+), 0 deletions(-)
@@ -55,12 +49,11 @@ there's no need for you to bother with this.
 >  		vhost_net_flush_vq(n, index);
 >  		fput(oldsock->file);
 >  	}
->  
+> 
 > +	mutex_unlock(&n->dev.mutex);
 > +	return 0;
 > +
 >  err_vq:
 >  	mutex_unlock(&vq->mutex);
 >  err:
-> -- 
-> 1.7.2.rc0.14.g41c1c
+
