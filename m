@@ -1,59 +1,29 @@
-From: Sridhar Samudrala <sri@us.ibm.com>
-Subject: Re: [PATCH] vhost-net: avoid flush under lock
-Date: Thu, 15 Jul 2010 11:17:57 -0700
-Message-ID: <1279217878.8566.6.camel@w-sridhar.beaverton.ibm.com>
-References: <20100715121912.GA7176@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [GIT PULL] vhost-net fixes
+Date: Fri, 16 Jul 2010 15:25:30 +0300
+Message-ID: <20100716122530.GA29478@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20100715121912.GA7176@redhat.com>
+Content-Disposition: inline
 Sender: netdev-owner@vger.kernel.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: "David S. Miller" <davem@davemloft.net>, Arnd Bergmann <arnd@arndb.de>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, kvm@vger.kernel.org, virtualization@lists.osdl.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+To: David Miller <davem@davemloft.net>
+Cc: kvm@vger.kernel.org, virtualization@lists.osdl.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 2010-07-15 at 15:19 +0300, Michael S. Tsirkin wrote:
-> We flush under vq mutex when changing backends.
-> This creates a deadlock as workqueue being flushed
-> needs this lock as well.
-> 
-> https://bugzilla.redhat.com/show_bug.cgi?id=612421
-> 
-> Drop the vq mutex before flush: we have the device mutex
-> which is sufficient to prevent another ioctl from touching
-> the vq.
+David, please pull the following fixes for 2.6.35.
+Thanks!
 
-Why do we need to flush the vq when trying to set the backend and
-we find that it is already set. Is this just an optimization?
+The following changes since commit 91a72a70594e5212c97705ca6a694bd307f7a26b:
 
-Thanks
-Sridhar
-> 
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> ---
->  drivers/vhost/net.c |    5 +++++
->  1 files changed, 5 insertions(+), 0 deletions(-)
-> 
-> diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-> index 28d7786..50df58e6 100644
-> --- a/drivers/vhost/net.c
-> +++ b/drivers/vhost/net.c
-> @@ -534,11 +534,16 @@ static long vhost_net_set_backend(struct vhost_net *n, unsigned index, int fd)
->  	rcu_assign_pointer(vq->private_data, sock);
->  	vhost_net_enable_vq(n, vq);
->  done:
-> +	mutex_unlock(&vq->mutex);
-> +
->  	if (oldsock) {
->  		vhost_net_flush_vq(n, index);
->  		fput(oldsock->file);
->  	}
-> 
-> +	mutex_unlock(&n->dev.mutex);
-> +	return 0;
-> +
->  err_vq:
->  	mutex_unlock(&vq->mutex);
->  err:
+  net/core: neighbour update Oops (2010-07-14 18:02:16 -0700)
 
+are available in the git repository at:
+  git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git vhost-net
+
+Michael S. Tsirkin (2):
+      vhost-net: avoid flush under lock
+      vhost: avoid pr_err on condition guest can trigger
+
+ drivers/vhost/net.c |   13 +++++++++----
+ 1 files changed, 9 insertions(+), 4 deletions(-)
