@@ -1,12 +1,13 @@
-From: Ming Zhao <zhaom@cis.fiu.edu>
-Subject: Call for Demos and Exhibition: The 7th International Conference on
-	Autonomic and Trusted Computing (ATC 2010)
-Date: Mon, 19 Jul 2010 21:40:23 -0400
-Message-ID: <4C44FE87.7000709@cis.fiu.edu>
+From: Jes Sorensen <Jes.Sorensen@redhat.com>
+Subject: Re: Virtualization at Plumbers 2010 - Time to submit your proposals!
+Date: Wed, 21 Jul 2010 09:18:11 +0200
+Message-ID: <4C469F33.4050909__4271.8919612982$1279696748$gmane$org@redhat.com>
+References: <4C1B5FE4.8020207@redhat.com> <4C3DDB56.9060803@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <4C3DDB56.9060803@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -16,82 +17,20 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: tcpp-announce@cc.gatech.edu, performance@merlot.usc.edu, infodir_sigarch@acm.org, vsigplan-l@acm.uiuc.edu, publicity@hipeac.net, micro_publicity@crhc.uiuc.edu, hpc-announ
+To: KVM General <kvm@vger.kernel.org>, QEMU Developers <qemu-devel@nongnu.org>, xen-devel@lists.xensource.com, virtualization@lists.linux-foundation.org
+Cc: "Zhang, Yanmin" <yanmin_zhang@linux.intel.com>, Jeffrey J Heroux <heroux@us.ibm.com>, jvrao@us.ibm.com, Khoa Huynh <khoa@us.ibm.com>, Frank Arnold <frank.arnold@amd.com>, Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Dear colleagues,
+Hi,
 
-Please note the following update for the ATC2010 demo submission below =
+There has been some confusion around the format of the tracks at Linux
+Plumbers: Presentations vs Micro Conference, so the program committee
+has extended the deadline by one week. If you didn't get your submission
+in earlier, or you were confused, this is your final chance.
 
-and forward to other interested researchers.
+Please see http://lwn.net/Articles/396629/ for details!
 
-The ATC 2010 demo/exhibition program provides researchers and engineers =
+My apologies for the spamming.
 
-with opportunities to show their cutting-edge work presented in an =
-
-interactive fashion. The live demonstrations and exhibitions may include =
-
-implementations of techniques presented in the main conference, =
-
-workshops, other conferences and venues, as well as systems and video.
-
-We encourage academic researchers as well as industry lab researchers =
-
-and companies to participate in showcasing their products and research. =
-
-Prospective applicants should submit a 4-page abstract of the =
-
-demonstration/exhibition in LNCS-format via email (atc10demo@gmail.com). =
-
-Video demonstrations are also welcome.
-
-The main selection criteria will be the expected general interest of the =
-
-demonstration to the Autonomic and Trusted Computing community.
-The accepted demo/exhibition submitted before July 30 will be included =
-
-as 4 page papers in the conference's IEEE CS proceedings (indexed by =
-
-EI); those submitted after this date will not be included in the =
-
-proceedings. As a condition for acceptance, at least one of the people =
-
-must be registered for the main conference, and present the demo in the =
-
-conference. All demos will compete for the Best Demo Award.
-
-At the conference, you will at minimum be provided with a space for your =
-
-demo, a poster stand, a table and chairs, and a power connection (220V). =
-
-Any other special equipment should be provided by yourself, including =
-
-power converters, projectors, audio amplification, wireless LAN, etc. =
-
-Please specify this with a separate page so that we can plan the demo =
-
-area accordingly.
-
-Demo/Exhibition Chairs:
-=B7 Alvin Chin, Nokia Research Center, China
-=B7 Ming Zhao, Florida International University, USA
-
-Important Dates:
-
-For demos to be included in ATC proceedings (indexed by EI)
-- Demo proposal: July 30
-- Acceptance: August 3
-- 4-page camera-ready version: August 8
-
-For demos not to be included in ATC proceedings
-- Demo proposal: August 15
-- Acceptance: August 30
-
-Further Information:
-=B7 atc10demo@gmail.com
-
-
-Thanks,
-
-Alvin Chin and Ming Zhao
-ATC2010 Demo Co-Chairs
+Best regards,
+Jes
