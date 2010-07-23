@@ -1,7 +1,7 @@
 From: Jens Osterkamp <jens@linux.vnet.ibm.com>
-Subject: [PATCH 04/17] BUGFIX: check in correct positions
-Date: Fri, 23 Jul 2010 12:34:20 +0200
-Message-ID: <1279881273-10261-5-git-send-email-jens@linux.vnet.ibm.com>
+Subject: [PATCH 01/17] consolidation of MIN and MAX macros in common.h
+Date: Fri, 23 Jul 2010 12:34:17 +0200
+Message-ID: <1279881273-10261-2-git-send-email-jens@linux.vnet.ibm.com>
 References: <1279881273-10261-1-git-send-email-jens@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,58 +21,52 @@ To: e1000-eedc@lists.sourceforge.net, virtualization@lists.linux-foundation.org,
 Cc: chrisw@redhat.com, Jens Osterkamp <jens@linux.vnet.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-There was a bug in the print function for EVB TLVs that would
-cause the wrong values to be printed.
-This patch corrects it and adds some debug statement to evb_print_cfg_tlv.
+This patch consolidates a modified version of the already existing MIN
+macro in lldpad to include/common.h and add a MAX macro.
 
 Signed-off-by: Jens Osterkamp <jens@linux.vnet.ibm.com>
 ---
- lldp_evb_clif.c |   12 ++++++------
- 1 files changed, 6 insertions(+), 6 deletions(-)
+ include/common.h       |   14 ++++++++++++++
+ include/dcb_protocol.h |    4 ----
+ 2 files changed, 14 insertions(+), 4 deletions(-)
 
-diff --git a/lldp_evb_clif.c b/lldp_evb_clif.c
-index d1773fe..d450f4b 100644
---- a/lldp_evb_clif.c
-+++ b/lldp_evb_clif.c
-@@ -108,7 +108,7 @@ void evb_print_cfg_tlv(u16 len, char *info)
- 	}
+diff --git a/include/common.h b/include/common.h
+index 01746ea..ab07dc2 100644
+--- a/include/common.h
++++ b/include/common.h
+@@ -387,4 +387,18 @@ typedef int socklen_t;
  
- 	if (!hexstr2bin(info, &smode, sizeof(smode))) {
--		printf("supported forwarding mode:");
-+		printf("supported forwarding mode: (0x%02hhx)", smode);
+ const char * wpa_ssid_txt(u8 *ssid, size_t ssid_len);
  
- 		if (smode & LLDP_EVB_CAPABILITY_FORWARD_RELAXEDRELAY)
- 			printf(" reflective relay");
-@@ -122,7 +122,7 @@ void evb_print_cfg_tlv(u16 len, char *info)
- 	}
++#define MIN(x,y) \
++	({	\
++		typeof (x) __x = (x);	\
++		typeof (y) __y = (y);	\
++		__x < __y ? __x : __y;	\
++	 })
++
++#define MAX(x,y) \
++	({	\
++		typeof (x) __x = (x);	\
++		typeof (y) __y = (y);	\
++		__x > __y ? __x : __y;	\
++	 })
++
+ #endif /* COMMON_H */
+diff --git a/include/dcb_protocol.h b/include/dcb_protocol.h
+index 63e2d3c..d7127f5 100644
+--- a/include/dcb_protocol.h
++++ b/include/dcb_protocol.h
+@@ -58,10 +58,6 @@ typedef enum {
+ #define DUP_DCBX_TLV_LLINK         0x0020
+ #define TOO_MANY_NGHBRS            0x0040
  
- 	if (!hexstr2bin(info+2, &scap, sizeof(scap))) {
--		printf("\tsupported capabilities:");
-+		printf("\tsupported capabilities: (0x%02hhx)", scap);
+-//#ifndef min /*todo: change to min()
+-	#define MIN(x, y) ((x) < (y) ? x : y)
+-//#endif
+-
+ #define INIT_DCB_OUI                    {0x00,0x1b,0x21}
  
- 		if ( scap & LLDP_EVB_CAPABILITY_PROTOCOL_RTE)
- 		     printf(" RTE");
-@@ -141,8 +141,8 @@ void evb_print_cfg_tlv(u16 len, char *info)
- 		printf("Unable to decode scap !\n");
- 	}
- 
--	if (!hexstr2bin(info, &cmode, sizeof(cmode))) {
--		printf("\tconfigured forwarding mode:");
-+	if (!hexstr2bin(info+4, &cmode, sizeof(cmode))) {
-+		printf("\tconfigured forwarding mode: (0x%02hhx)", cmode);
- 
- 		if (cmode & LLDP_EVB_CAPABILITY_FORWARD_RELAXEDRELAY)
- 			printf(" reflective relay");
-@@ -155,8 +155,8 @@ void evb_print_cfg_tlv(u16 len, char *info)
- 		printf("Unable to decode cmode !\n");
- 	}
- 
--	if (!hexstr2bin(info+4, &ccap, sizeof(ccap))) {
--		printf("\tconfigured capabilities:");
-+	if (!hexstr2bin(info+6, &ccap, sizeof(ccap))) {
-+		printf("\tconfigured capabilities: (0x%02hhx)", ccap);
- 
- 		if ( ccap & LLDP_EVB_CAPABILITY_PROTOCOL_RTE)
- 		     printf(" RTE");
+ int add_adapter(char *device_name);
 -- 
 1.7.1
