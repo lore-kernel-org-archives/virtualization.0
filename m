@@ -1,7 +1,7 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: [PATCH] virtio: fix oops on OOM
-Date: Fri, 23 Jul 2010 15:48:37 +0930
-Message-ID: <201007231548.38037.rusty__14089.5436671146$1279866056$gmane$org@rustcorp.com.au>
+From: Jens Osterkamp <jens@linux.vnet.ibm.com>
+Subject: implementation of IEEE 802.1Qbg in lldpad
+Date: Fri, 23 Jul 2010 12:34:16 +0200
+Message-ID: <1279881273-10261-1-git-send-email-jens@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -15,47 +15,40 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, Chris Mason <chris.mason@oracle.com>, virtualization@lists.linux-foundation.org
+To: e1000-eedc@lists.sourceforge.net, virtualization@lists.linux-foundation.org, evb@yahoogroups.com
+Cc: chrisw@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: "Michael S. Tsirkin" <mst@redhat.com>
+Hi,
 
-virtio ring was changed to return an error code on OOM,
-but one caller was missed and still checks for vq->vring.num.
-The fix is just to check for <0 error code.
+This set of patches contains the initial implementation of the IEEE 802.1Qbg
+standard: code for the exchange of EVB TLVs in LLDP frames to negotiate VSI
+capabalities as well as VDP VSI TLVs between a host with virtual machines
+and an adjacent switch.
 
-Long term it might make sense to change goto add_head to
-just return an error on oom instead, but let's apply
-a minimal fix for 2.6.35.
+It supports setting the parameters of the TLV exchange from the command
+line using lldptool.
 
-Reported-by: Chris Mason <chris.mason@oracle.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
-Tested-by: Chris Mason <chris.mason@oracle.com>
----
+VDP profiles consisting of mode,mgrid,typeid,typeidversion,instanceid,mac,vlan
+can be given to lldpad with lldptool or sent to lldpad via netlink messages from
+the kernel or another program, e.g. libvirt.
 
-diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index dd35b34..bffec32 100644
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -164,7 +164,8 @@ int virtqueue_add_buf_gfp(struct virtqueue *_vq,
- 			  gfp_t gfp)
- {
- 	struct vring_virtqueue *vq = to_vvq(_vq);
--	unsigned int i, avail, head, uninitialized_var(prev);
-+	unsigned int i, avail, uninitialized_var(prev);
-+	int head;
- 
- 	START_USE(vq);
- 
-@@ -174,8 +175,8 @@ int virtqueue_add_buf_gfp(struct virtqueue *_vq,
- 	 * buffers, then go indirect. FIXME: tune this threshold */
- 	if (vq->indirect && (out + in) > 1 && vq->num_free) {
- 		head = vring_add_indirect(vq, sg, out, in, gfp);
--		if (head != vq->vring.num)
-+		if (likely(head >= 0))
- 			goto add_head;
- 	}
- 
- 	BUG_ON(out + in > vq->vring.num);
+VDP profiles are processed through the VDP/VSI and ECP state machines and
+sent out in ECP frames.
+ACK frames are received and processed through ECP and VDP/VSI state machines.
+
+It implements a VDP bridge role for a port together with a lldptool command to
+switch a port to the bridge role.
+
+The patches have been rebased to lldpad 0.9.38 and still contain code to log
+low-level protocol activity more verbosely than necessary.
+
+For more information about lldpad take a look at
+
+http://sourceforge.net/projects/e1000/files/DCB%20Tools/lldpad/
+
+Please review and comment.
+
+Thanks !
+
+	                Jens
