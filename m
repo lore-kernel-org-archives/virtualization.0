@@ -1,7 +1,7 @@
 From: Jens Osterkamp <jens@linux.vnet.ibm.com>
-Subject: [PATCH 10/17] allow to set both supported forwarding modes
-Date: Fri, 23 Jul 2010 12:34:26 +0200
-Message-ID: <1279881273-10261-11-git-send-email-jens@linux.vnet.ibm.com>
+Subject: [PATCH 04/17] BUGFIX: check in correct positions
+Date: Fri, 23 Jul 2010 12:34:20 +0200
+Message-ID: <1279881273-10261-5-git-send-email-jens@linux.vnet.ibm.com>
 References: <1279881273-10261-1-git-send-email-jens@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,54 +21,58 @@ To: e1000-eedc@lists.sourceforge.net, virtualization@lists.linux-foundation.org,
 Cc: chrisw@redhat.com, Jens Osterkamp <jens@linux.vnet.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-In the previous version of lldptool, only one setting of either bridge or
-reflective relay mode was allowed whereas both modes together should be
-settable.
-This patch corrects it.
+There was a bug in the print function for EVB TLVs that would
+cause the wrong values to be printed.
+This patch corrects it and adds some debug statement to evb_print_cfg_tlv.
 
 Signed-off-by: Jens Osterkamp <jens@linux.vnet.ibm.com>
 ---
- lldp_evb_cmds.c |   20 +++++++++++++++-----
- 1 files changed, 15 insertions(+), 5 deletions(-)
+ lldp_evb_clif.c |   12 ++++++------
+ 1 files changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/lldp_evb_cmds.c b/lldp_evb_cmds.c
-index d0a9051..aa2dc7c 100644
---- a/lldp_evb_cmds.c
-+++ b/lldp_evb_cmds.c
-@@ -194,6 +194,7 @@ static int get_arg_fmode(struct cmd *cmd, char *arg, char *argvalue,
- static int set_arg_fmode(struct cmd *cmd, char *arg, char *argvalue,
- 			       char *obuf)
- {
-+	u8 smode;
- 	char arg_path[EVB_BUF_SIZE];
- 	struct evb_data *ed;
+diff --git a/lldp_evb_clif.c b/lldp_evb_clif.c
+index d1773fe..d450f4b 100644
+--- a/lldp_evb_clif.c
++++ b/lldp_evb_clif.c
+@@ -108,7 +108,7 @@ void evb_print_cfg_tlv(u16 len, char *info)
+ 	}
  
-@@ -214,12 +215,21 @@ static int set_arg_fmode(struct cmd *cmd, char *arg, char *argvalue,
- 	if (!ed)
- 		return cmd_invalid;
+ 	if (!hexstr2bin(info, &smode, sizeof(smode))) {
+-		printf("supported forwarding mode:");
++		printf("supported forwarding mode: (0x%02hhx)", smode);
  
--	if (!strcasecmp(argvalue, VAL_EVB_FMODE_BRIDGE))
--		ed->tie->smode = LLDP_EVB_CAPABILITY_FORWARD_STANDARD;
--	else if (!strcasecmp(argvalue, VAL_EVB_FMODE_REFLECTIVE_RELAY))
--		ed->tie->smode = LLDP_EVB_CAPABILITY_FORWARD_REFLECTIVE_RELAY;
--	else
-+	smode = 0;
-+
-+	if (strcasestr(argvalue, VAL_EVB_FMODE_BRIDGE)) {
-+		smode |= LLDP_EVB_CAPABILITY_FORWARD_STANDARD;
-+	}
-+
-+	if (strcasestr(argvalue, VAL_EVB_FMODE_REFLECTIVE_RELAY)) {
-+		smode |= LLDP_EVB_CAPABILITY_FORWARD_REFLECTIVE_RELAY;
-+	}
-+
-+	if (smode == 0) {
- 		return cmd_invalid;
-+	} else {
-+		ed->tie->smode = smode;
-+	}
+ 		if (smode & LLDP_EVB_CAPABILITY_FORWARD_RELAXEDRELAY)
+ 			printf(" reflective relay");
+@@ -122,7 +122,7 @@ void evb_print_cfg_tlv(u16 len, char *info)
+ 	}
  
- 	evb_changed(cmd->ifname);
+ 	if (!hexstr2bin(info+2, &scap, sizeof(scap))) {
+-		printf("\tsupported capabilities:");
++		printf("\tsupported capabilities: (0x%02hhx)", scap);
  
+ 		if ( scap & LLDP_EVB_CAPABILITY_PROTOCOL_RTE)
+ 		     printf(" RTE");
+@@ -141,8 +141,8 @@ void evb_print_cfg_tlv(u16 len, char *info)
+ 		printf("Unable to decode scap !\n");
+ 	}
+ 
+-	if (!hexstr2bin(info, &cmode, sizeof(cmode))) {
+-		printf("\tconfigured forwarding mode:");
++	if (!hexstr2bin(info+4, &cmode, sizeof(cmode))) {
++		printf("\tconfigured forwarding mode: (0x%02hhx)", cmode);
+ 
+ 		if (cmode & LLDP_EVB_CAPABILITY_FORWARD_RELAXEDRELAY)
+ 			printf(" reflective relay");
+@@ -155,8 +155,8 @@ void evb_print_cfg_tlv(u16 len, char *info)
+ 		printf("Unable to decode cmode !\n");
+ 	}
+ 
+-	if (!hexstr2bin(info+4, &ccap, sizeof(ccap))) {
+-		printf("\tconfigured capabilities:");
++	if (!hexstr2bin(info+6, &ccap, sizeof(ccap))) {
++		printf("\tconfigured capabilities: (0x%02hhx)", ccap);
+ 
+ 		if ( ccap & LLDP_EVB_CAPABILITY_PROTOCOL_RTE)
+ 		     printf(" RTE");
 -- 
 1.7.1
