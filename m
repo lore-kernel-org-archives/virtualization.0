@@ -1,13 +1,11 @@
-From: Jes Sorensen <Jes.Sorensen@redhat.com>
-Subject: Re: Virtualization at Plumbers 2010 - Time to submit your proposals!
-Date: Wed, 21 Jul 2010 09:18:11 +0200
-Message-ID: <4C469F33.4050909__4271.8919612982$1279696748$gmane$org@redhat.com>
-References: <4C1B5FE4.8020207@redhat.com> <4C3DDB56.9060803@redhat.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: [PATCH] virtio: fix oops on OOM
+Date: Fri, 23 Jul 2010 15:48:37 +0930
+Message-ID: <201007231548.38037.rusty__14089.5436671146$1279866056$gmane$org@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4C3DDB56.9060803@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -17,20 +15,47 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: KVM General <kvm@vger.kernel.org>, QEMU Developers <qemu-devel@nongnu.org>, xen-devel@lists.xensource.com, virtualization@lists.linux-foundation.org
-Cc: "Zhang, Yanmin" <yanmin_zhang@linux.intel.com>, Jeffrey J Heroux <heroux@us.ibm.com>, jvrao@us.ibm.com, Khoa Huynh <khoa@us.ibm.com>, Frank Arnold <frank.arnold@amd.com>, Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, Chris Mason <chris.mason@oracle.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi,
+From: "Michael S. Tsirkin" <mst@redhat.com>
 
-There has been some confusion around the format of the tracks at Linux
-Plumbers: Presentations vs Micro Conference, so the program committee
-has extended the deadline by one week. If you didn't get your submission
-in earlier, or you were confused, this is your final chance.
+virtio ring was changed to return an error code on OOM,
+but one caller was missed and still checks for vq->vring.num.
+The fix is just to check for <0 error code.
 
-Please see http://lwn.net/Articles/396629/ for details!
+Long term it might make sense to change goto add_head to
+just return an error on oom instead, but let's apply
+a minimal fix for 2.6.35.
 
-My apologies for the spamming.
+Reported-by: Chris Mason <chris.mason@oracle.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+Tested-by: Chris Mason <chris.mason@oracle.com>
+---
 
-Best regards,
-Jes
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+index dd35b34..bffec32 100644
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -164,7 +164,8 @@ int virtqueue_add_buf_gfp(struct virtqueue *_vq,
+ 			  gfp_t gfp)
+ {
+ 	struct vring_virtqueue *vq = to_vvq(_vq);
+-	unsigned int i, avail, head, uninitialized_var(prev);
++	unsigned int i, avail, uninitialized_var(prev);
++	int head;
+ 
+ 	START_USE(vq);
+ 
+@@ -174,8 +175,8 @@ int virtqueue_add_buf_gfp(struct virtqueue *_vq,
+ 	 * buffers, then go indirect. FIXME: tune this threshold */
+ 	if (vq->indirect && (out + in) > 1 && vq->num_free) {
+ 		head = vring_add_indirect(vq, sg, out, in, gfp);
+-		if (head != vq->vring.num)
++		if (likely(head >= 0))
+ 			goto add_head;
+ 	}
+ 
+ 	BUG_ON(out + in > vq->vring.num);
