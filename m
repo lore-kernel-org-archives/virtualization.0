@@ -1,7 +1,7 @@
 From: Jens Osterkamp <jens@linux.vnet.ibm.com>
-Subject: [PATCH 14/17] add libnl dependency to configure.ac
-Date: Fri, 23 Jul 2010 12:34:30 +0200
-Message-ID: <1279881273-10261-15-git-send-email-jens@linux.vnet.ibm.com>
+Subject: [PATCH 10/17] allow to set both supported forwarding modes
+Date: Fri, 23 Jul 2010 12:34:26 +0200
+Message-ID: <1279881273-10261-11-git-send-email-jens@linux.vnet.ibm.com>
 References: <1279881273-10261-1-git-send-email-jens@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,26 +21,54 @@ To: e1000-eedc@lists.sourceforge.net, virtualization@lists.linux-foundation.org,
 Cc: chrisw@redhat.com, Jens Osterkamp <jens@linux.vnet.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
+In the previous version of lldptool, only one setting of either bridge or
+reflective relay mode was allowed whereas both modes together should be
+settable.
+This patch corrects it.
+
 Signed-off-by: Jens Osterkamp <jens@linux.vnet.ibm.com>
 ---
- configure.ac |    5 +++++
- 1 files changed, 5 insertions(+), 0 deletions(-)
+ lldp_evb_cmds.c |   20 +++++++++++++++-----
+ 1 files changed, 15 insertions(+), 5 deletions(-)
 
-diff --git a/configure.ac b/configure.ac
-index 619c6c4..8b9d08a 100644
---- a/configure.ac
-+++ b/configure.ac
-@@ -12,6 +12,11 @@ PKG_CHECK_MODULES(LIBCONFIG, libconfig,
- AC_SUBST(LIBCONFIG_CFLAGS)
- AC_SUBST(LIBCONFIG_LIBS)
+diff --git a/lldp_evb_cmds.c b/lldp_evb_cmds.c
+index d0a9051..aa2dc7c 100644
+--- a/lldp_evb_cmds.c
++++ b/lldp_evb_cmds.c
+@@ -194,6 +194,7 @@ static int get_arg_fmode(struct cmd *cmd, char *arg, char *argvalue,
+ static int set_arg_fmode(struct cmd *cmd, char *arg, char *argvalue,
+ 			       char *obuf)
+ {
++	u8 smode;
+ 	char arg_path[EVB_BUF_SIZE];
+ 	struct evb_data *ed;
  
-+PKG_CHECK_MODULES(LIBNL, libnl-1 >= 1.1)
-+AC_SUBST(LIBNL_CFLAGS)
-+AC_SUBST(LIBNL_LIBS)
+@@ -214,12 +215,21 @@ static int set_arg_fmode(struct cmd *cmd, char *arg, char *argvalue,
+ 	if (!ed)
+ 		return cmd_invalid;
+ 
+-	if (!strcasecmp(argvalue, VAL_EVB_FMODE_BRIDGE))
+-		ed->tie->smode = LLDP_EVB_CAPABILITY_FORWARD_STANDARD;
+-	else if (!strcasecmp(argvalue, VAL_EVB_FMODE_REFLECTIVE_RELAY))
+-		ed->tie->smode = LLDP_EVB_CAPABILITY_FORWARD_REFLECTIVE_RELAY;
+-	else
++	smode = 0;
 +
-+AC_CHECK_LIB(nl, rtnl_link_get_by_name)
- AC_CONFIG_SUBDIRS([libconfig-1.3.2])
- AC_CONFIG_FILES([Makefile include/version.h lldpad.spec lldpad.pc dcbd.pc])
- AC_OUTPUT
++	if (strcasestr(argvalue, VAL_EVB_FMODE_BRIDGE)) {
++		smode |= LLDP_EVB_CAPABILITY_FORWARD_STANDARD;
++	}
++
++	if (strcasestr(argvalue, VAL_EVB_FMODE_REFLECTIVE_RELAY)) {
++		smode |= LLDP_EVB_CAPABILITY_FORWARD_REFLECTIVE_RELAY;
++	}
++
++	if (smode == 0) {
+ 		return cmd_invalid;
++	} else {
++		ed->tie->smode = smode;
++	}
+ 
+ 	evb_changed(cmd->ifname);
+ 
 -- 
 1.7.1
