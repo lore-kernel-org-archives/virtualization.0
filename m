@@ -1,7 +1,7 @@
 From: Jens Osterkamp <jens@linux.vnet.ibm.com>
-Subject: [PATCH 05/17] remove VDPL and proper config save and restore
-Date: Fri, 23 Jul 2010 12:34:21 +0200
-Message-ID: <1279881273-10261-6-git-send-email-jens@linux.vnet.ibm.com>
+Subject: [PATCH 16/17] lldpad support for libvirt netlink message
+Date: Fri, 23 Jul 2010 12:34:32 +0200
+Message-ID: <1279881273-10261-17-git-send-email-jens@linux.vnet.ibm.com>
 References: <1279881273-10261-1-git-send-email-jens@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -18,673 +18,752 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: e1000-eedc@lists.sourceforge.net, virtualization@lists.linux-foundation.org, evb@yahoogroups.com
-Cc: chrisw@redhat.com, Jens Osterkamp <jens@linux.vnet.ibm.com>
+Cc: chrisw@redhat.com, Gerhard Stenzel <gstenzel@linux.vnet.ibm.com>, Stefan Berger <stefanb@linux.vnet.ibm.com>, Jens Osterkamp <jens@linux.vnet.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch contains multiple changes to the EVB protocol implementation:
+This code receives a IEEE 802.1Qbg virtual station instance from libvirt in
+a SETLINK message. The parsed VSI is then handed over to VDP for processing.
+The VDP state machine processes the VSI while libvirt polls the result using
+GETLINK.
 
- - it completely removes the use of VDPL, which is no longer in the spec
- - it introduces a mechanism for saving and restoring the EVB setting:
-	If lldpad is loaded, and no EVB settings can be loaded from the
-	configuration file, reasonable default settings are taken.
-	If EVB settings can be loaded from the config file, these are taken.
-	If changes are made to the EVB settings, e.g. new values are
-	received by an adjacent switch or new values are set on the command
-	line using lldptool, these settings are saved into the
-	configuration.
- - it contains some janitorial changes for renaming the variable for
-   evb_data to ed rather than bd for more consistent variable naming. It
-   also renames the typo "relaxed relay" to the right "reflective relay".
- - split out printing of tlv into a separate function evb_print_tlvinfo
+Requires at least Linux kernel 2.6.35-rc1.
 
 Signed-off-by: Jens Osterkamp <jens@linux.vnet.ibm.com>
+Signed-off-by: Gerhard Stenzel <gstenzel@linux.vnet.ibm.com>
+Signed-off-by: Stefan Berger <stefanb@linux.vnet.ibm.com>
 ---
- include/lldp.h          |    7 +-
- include/lldp_evb_clif.h |    5 +-
- lldp_evb.c              |  223 +++++++++++++++++++++++------------------------
- lldp_evb_clif.c         |   10 +--
- lldp_evb_cmds.c         |   54 +++++++-----
- 5 files changed, 148 insertions(+), 151 deletions(-)
+ event_iface.c |  617 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++-
+ lldp_vdp.c    |    2 +-
+ lldpad.c      |   10 +
+ 3 files changed, 622 insertions(+), 7 deletions(-)
 
-diff --git a/include/lldp.h b/include/lldp.h
-index 21347b0..e00ba7a 100644
---- a/include/lldp.h
-+++ b/include/lldp.h
-@@ -193,12 +193,11 @@ enum {
+diff --git a/event_iface.c b/event_iface.c
+index 439e4d0..60cc2ed 100644
+--- a/event_iface.c
++++ b/event_iface.c
+@@ -3,6 +3,13 @@
+   LLDP Agent Daemon (LLDPAD) Software
+   Copyright(c) 2007-2010 Intel Corporation.
  
- /* forwarding mode */
- #define LLDP_EVB_CAPABILITY_FORWARD_STANDARD		(1 << 7)
--#define LLDP_EVB_CAPABILITY_FORWARD_RELAXEDRELAY	(1 << 6)
-+#define LLDP_EVB_CAPABILITY_FORWARD_REFLECTIVE_RELAY	(1 << 6)
++  implementation of libvirt netlink interface
++  (c) Copyright IBM Corp. 2010
++
++  Author(s): Jens Osterkamp <jens@linux.vnet.ibm.com>
++	     Stefan Berger <stefanb@linux.vnet.ibm.com>
++	     Gerhard Stenzel <gstenzel@linux.vnet.ibm.com>
++
+   This program is free software; you can redistribute it and/or modify it
+   under the terms and conditions of the GNU General Public License,
+   version 2, as published by the Free Software Foundation.
+@@ -31,12 +38,16 @@
+ #include <sys/socket.h>
+ #include <linux/rtnetlink.h>
+ #include <linux/if.h>
++#include <linux/if_link.h>
+ #include <linux/if_vlan.h>
+ #include <linux/sockios.h>
+ #include <syslog.h>
+ #include <unistd.h>
++#include <linux/netlink.h>
++#include <netlink/msg.h>
+ #include "lldpad.h"
+ #include "lldp_mod.h"
++#include "lldp_vdp.h"
+ #include "common.h"
+ #include "eloop.h"
+ #include "drv_cfg.h"
+@@ -55,6 +66,39 @@ static void event_if_decode_rta(int type, struct rtattr *rta);
+ static char *device_name = NULL;
+ static int link_status = 0;
  
- /* EVB supported protocols */
--#define LLDP_EVB_CAPABILITY_PROTOCOL_RTE		(1 << 3)
--#define LLDP_EVB_CAPABILITY_PROTOCOL_ECP		(1 << 2)
--#define LLDP_EVB_CAPABILITY_PROTOCOL_VDPL		(1 << 1)
-+#define LLDP_EVB_CAPABILITY_PROTOCOL_RTE		(1 << 2)
-+#define LLDP_EVB_CAPABILITY_PROTOCOL_ECP		(1 << 1)
- #define LLDP_EVB_CAPABILITY_PROTOCOL_VDP		(1 << 0)
- 
- /* EVB specific values */
-diff --git a/include/lldp_evb_clif.h b/include/lldp_evb_clif.h
-index 5306eca..43083f3 100644
---- a/include/lldp_evb_clif.h
-+++ b/include/lldp_evb_clif.h
-@@ -34,14 +34,13 @@ int evb_print_tlv(u32, u16, u8 *);
- 
- #define ARG_EVB_FORWARDING_MODE	"fmode"
- 
--#define VAL_EVB_FMODE_BRIDGE        "bridge"
--#define VAL_EVB_FMODE_RELAXEDRELAY	"relaxedrelay"
-+#define VAL_EVB_FMODE_BRIDGE		"bridge"
-+#define VAL_EVB_FMODE_REFLECTIVE_RELAY	"reflectiverelay"
- 
- #define ARG_EVB_CAPABILITIES	"capabilities"
- 
- #define VAL_EVB_CAPA_RTE		"rte"
- #define VAL_EVB_CAPA_ECP		"ecp"
--#define VAL_EVB_CAPA_VDPL		"vdpl"
- #define VAL_EVB_CAPA_VDP		"vdp"
- 
- #define ARG_EVB_VSIS		"vsis"
-diff --git a/lldp_evb.c b/lldp_evb.c
-index db5a11c..c9a99bc 100644
---- a/lldp_evb.c
-+++ b/lldp_evb.c
-@@ -42,64 +42,57 @@ extern struct lldp_head lldp_head;
- struct evb_data *evb_data(char *ifname)
++static struct nla_policy ifla_policy[IFLA_MAX + 1] =
++{
++  [IFLA_VFINFO_LIST] = { .type = NLA_NESTED },
++  [IFLA_IFNAME]     = { .type = NLA_STRING },
++  [IFLA_VF_PORTS]   = { .type = NLA_NESTED },
++};
++
++static struct nla_policy ifla_vf_policy[IFLA_VF_MAX + 1] =
++{
++  [IFLA_VF_MAC]     = { .minlen = sizeof(struct ifla_vf_mac),
++			.maxlen = sizeof(struct ifla_vf_mac)},
++  [IFLA_VF_VLAN]    = { .minlen = sizeof(struct ifla_vf_vlan),
++                        .maxlen = sizeof(struct ifla_vf_vlan)},
++};
++
++static struct nla_policy ifla_vf_ports_policy[IFLA_VF_PORT_MAX + 1] =
++{
++  [IFLA_VF_PORT] = { .type = NLA_NESTED },
++};
++
++static struct nla_policy ifla_port_policy[IFLA_PORT_MAX + 1] =
++{
++  [IFLA_PORT_VF]            = { .type = NLA_U32 },
++  [IFLA_PORT_PROFILE]       = { .type = NLA_STRING },
++  [IFLA_PORT_VSI_TYPE]      = { .minlen = sizeof(struct ifla_port_vsi) },
++  [IFLA_PORT_INSTANCE_UUID] = { .minlen = PORT_UUID_MAX,
++                                .maxlen = PORT_UUID_MAX, },
++  [IFLA_PORT_HOST_UUID]     = { .minlen = PORT_UUID_MAX,
++                                .maxlen = PORT_UUID_MAX, },
++  [IFLA_PORT_REQUEST]       = { .type = NLA_U8  },
++  [IFLA_PORT_RESPONSE]      = { .type = NLA_U16 },
++};
++
+ static void event_if_decode_rta(int type, struct rtattr *rta)
  {
- 	struct evb_user_data *ud;
--	struct evb_data *bd = NULL;
-+	struct evb_data *ed = NULL;
  
- 	ud = find_module_user_data_by_if(ifname, &lldp_head, LLDP_MOD_EVB);
- 	if (ud) {
--		LIST_FOREACH(bd, &ud->head, entry) {
--			if (!strncmp(ifname, bd->ifname, IFNAMSIZ))
--				return bd;
-+		LIST_FOREACH(ed, &ud->head, entry) {
-+			if (!strncmp(ifname, ed->ifname, IFNAMSIZ))
-+				return ed;
- 		}
+@@ -220,15 +264,537 @@ static void event_if_decode_nlmsg(int route_type, void *data, int len)
  	}
- 	return NULL;
  }
  
-+static void evb_print_tlvinfo(struct tlv_info_evb *tie)
+-
+ static void event_if_process_recvmsg(struct nlmsghdr *nlmsg)
+ {
+ 
+ 	/* print out details */
++	fprintf(stderr, "%s:%s: nlmsg_type: %d\n", __FILE__, __FUNCTION__, nlmsg->nlmsg_type);
+ 	event_if_decode_nlmsg(nlmsg->nlmsg_type, NLMSG_DATA(nlmsg),
+ 		NLMSG_PAYLOAD(nlmsg, 0));
+ }
+ 
++static int event_if_parse_getmsg(struct nlmsghdr *nlh, int *ifindex,
++				 char *ifname)
 +{
-+	printf("%s(%i): supported forwarding mode: %02x\n", __FILE__, __LINE__,  tie->smode);
-+	printf("%s(%i): configured forwarding mode: %02x\n", __FILE__, __LINE__,  tie->cmode);
-+	printf("%s(%i): supported capabilities: %02x\n", __FILE__, __LINE__,  tie->scap);
-+	printf("%s(%i): configured capabilities: %02x\n", __FILE__, __LINE__,  tie->ccap);
-+	printf("%s(%i): supported no. of vsis: %04i\n", __FILE__, __LINE__,  tie->svsi);
-+	printf("%s(%i): configured no. of vsis: %04i\n", __FILE__, __LINE__,  tie->cvsi);
-+	printf("%s(%i): rte: %02i\n\n", __FILE__, __LINE__,  tie->rte);
++	struct nlattr *tb[IFLA_MAX+1];
++	struct ifinfomsg *ifinfo;
++
++	fprintf(stderr, "%s:%s:%d\n", __FILE__, __FUNCTION__, __LINE__);
++
++	if (nlmsg_parse(nlh, sizeof(struct ifinfomsg),
++			(struct nlattr **)&tb, IFLA_MAX, NULL)) {
++		fprintf(stderr, "Error parsing request...\n");
++		return -EINVAL;
++	}
++
++	if (tb[IFLA_IFNAME]) {
++		ifname = (char *)RTA_DATA(tb[IFLA_IFNAME]);
++		fprintf(stderr, "IFLA_IFNAME=%s\n", ifname);
++	} else {
++		ifinfo = (struct ifinfomsg *)NLMSG_DATA(nlh);
++		*ifindex = ifinfo->ifi_index;
++		fprintf(stderr, "interface index: %d\n", ifinfo->ifi_index);
++	}
++
++	return 0;
 +}
 +
- /*
-  * evb_bld_cfg_tlv - build the EVB TLV
-- * @bd: the evb data struct
-+ * @ed: the evb data struct
-  *
-  * Returns 0 on success
-  */
--static int evb_bld_cfg_tlv(struct evb_data *bd)
-+static int evb_bld_cfg_tlv(struct evb_data *ed)
- {
- 	int rc = 0;
- 	int i;
- 	struct unpacked_tlv *tlv = NULL;
--	struct tlv_info_evb evb;
- 
--	/* free bd->evb if it exists */
--	FREE_UNPKD_TLV(bd, evb);
-+	/* free ed->evb if it exists */
-+	FREE_UNPKD_TLV(ed, evb);
- 
--	if (!is_tlv_txenabled(bd->ifname, TLVID_8021Qbg(LLDP_EVB_SUBTYPE))) {
-+	if (!is_tlv_txenabled(ed->ifname, TLVID_8021Qbg(LLDP_EVB_SUBTYPE))) {
- 		fprintf(stderr, "### %s:%s:EVB Config disabled\n",
--			__func__, bd->ifname);
-+			__func__, ed->ifname);
- 		rc = EINVAL;
- 		goto out_err;
- 	}
- 
--	/* load from config */
--	memset(&evb, 0, sizeof(evb));
--	if (get_config_tlvinfo_bin(bd->ifname, TLVID_8021Qbg(LLDP_EVB_SUBTYPE),
--			       (void *)&evb, sizeof(evb))) {
--		hton24(evb.oui, LLDP_MOD_EVB);
--		fprintf(stderr, "### %s:%s:Build EVB Config from scratch\n",
--			__func__, bd->ifname);
--		evb.sub = LLDP_EVB_SUBTYPE;
--		evb.smode = bd->tie->smode;
--		evb.scap = bd->tie->scap;
--		evb.cmode = bd->tie->cmode;
--		evb.ccap = bd->tie->ccap;
--		evb.svsi = bd->tie->svsi;
--		evb.cvsi = bd->tie->cvsi;
--		evb.rte = bd->tie->rte;
--	}
--
- 	tlv = create_tlv();
- 	if (!tlv)
- 		goto out_err;
- 
- 	tlv->type = ORG_SPECIFIC_TLV;
--	tlv->length = sizeof(evb);
-+	tlv->length = sizeof(struct tlv_info_evb);
- 	tlv->info = (u8 *)malloc(tlv->length);
- 	if(!tlv->info) {
- 		free(tlv);
-@@ -107,7 +100,7 @@ static int evb_bld_cfg_tlv(struct evb_data *bd)
- 		rc = ENOMEM;
- 		goto out_err;
- 	}
--	memcpy(tlv->info, &evb, tlv->length);
-+	memcpy(tlv->info, ed->tie, tlv->length);
- 
- 	printf("### %s:type %i, length %i, info ", __func__, tlv->type, tlv->length);
- 
-@@ -117,15 +110,15 @@ static int evb_bld_cfg_tlv(struct evb_data *bd)
- 
- 	printf("\n");
- 
--	bd->evb = tlv;
-+	ed->evb = tlv;
- out_err:
- 	return rc;
- }
- 
--static void evb_free_tlv(struct evb_data *bd)
-+static void evb_free_tlv(struct evb_data *ed)
- {
--	if (bd) {
--		FREE_UNPKD_TLV(bd, evb);
-+	if (ed) {
-+		FREE_UNPKD_TLV(ed, evb);
- 	}
- }
- 
-@@ -133,30 +126,36 @@ static void evb_free_tlv(struct evb_data *bd)
-  *
-  * fill up tlv_info_evb structure with reasonable info
-  */
--static int evb_init_cfg_tlv(struct evb_data *bd)
-+static int evb_init_cfg_tlv(struct evb_data *ed)
- {
--	bd->tie = (struct tlv_info_evb *) calloc(1, sizeof(struct tlv_info_evb));
--	if (!bd->tie)
-+	ed->tie = (struct tlv_info_evb *) calloc(1, sizeof(struct tlv_info_evb));
-+	if (!ed->tie)
- 		return ENOMEM;
- 
--	/* TODO: these should be set reasonable default, and must be able to change via config */
--	/* if possible, we request RR */
--	bd->tie->smode = LLDP_EVB_CAPABILITY_FORWARD_RELAXEDRELAY;
--	/* capabilities we support */
--	bd->tie->scap = LLDP_EVB_CAPABILITY_PROTOCOL_RTE | LLDP_EVB_CAPABILITY_PROTOCOL_ECP
--		| LLDP_EVB_CAPABILITY_PROTOCOL_VDP | LLDP_EVB_CAPABILITY_PROTOCOL_VDPL;
--	/* FIXME: for test: support something different than bridge */
--	bd->tie->svsi = LLDP_EVB_DEFAULT_SVSI;
--	bd->tie->rte = LLDP_EVB_DEFAULT_RTE;
-+	if (get_config_tlvinfo_bin(ed->ifname, TLVID_8021Qbg(LLDP_EVB_SUBTYPE),
-+			       (void *)ed->tie, sizeof(struct tlv_info_evb))) {
-+		printf("%s:%s: loading EVB config failed, using default.\n",
-+			__func__, ed->ifname);
-+		hton24(ed->tie->oui, LLDP_MOD_EVB);
-+		ed->tie->smode = LLDP_EVB_CAPABILITY_FORWARD_REFLECTIVE_RELAY | LLDP_EVB_CAPABILITY_FORWARD_STANDARD;
-+		ed->tie->cmode = 0x0;
-+		ed->tie->scap = LLDP_EVB_CAPABILITY_PROTOCOL_RTE | LLDP_EVB_CAPABILITY_PROTOCOL_ECP
-+			| LLDP_EVB_CAPABILITY_PROTOCOL_VDP;
-+		ed->tie->ccap = 0x0;
-+		ed->tie->svsi = LLDP_EVB_DEFAULT_SVSI;
-+		ed->tie->rte = LLDP_EVB_DEFAULT_RTE;
-+	} else {
-+		printf("%s(%i): loaded EVB config from file.\n", __FILE__, __LINE__);
++static int event_if_parse_setmsg(struct nlmsghdr *nlh)
++{
++	struct nlattr *tb[IFLA_MAX+1],
++		      *tb2[IFLA_VF_PORT_MAX + 1],
++		      *tb3[IFLA_PORT_MAX+1],
++		      *tb_vfinfo[IFLA_VF_MAX+1],
++		      *tb_vfinfo_list;
++	struct vsi_profile *profile, *p;
++	struct ifinfomsg *ifinfo;
++	char *ifname;
++	int rem;
++
++	fprintf(stderr, "%s:%s:%d\n", __FILE__, __FUNCTION__, __LINE__);
++
++	profile = malloc(sizeof(struct vsi_profile));
++	if (!profile)
++		return -ENOMEM;
++	memset(profile, 0, sizeof(struct vsi_profile));
++
++	if (nlmsg_parse(nlh, sizeof(struct ifinfomsg),
++			(struct nlattr **)&tb, IFLA_MAX, NULL)) {
++		fprintf(stderr, "Error parsing request...\n");
++		return -EINVAL;
 +	}
++
++	fprintf(stderr, "%s(%d): nlmsg_len %i\n", __FILE__, __LINE__, nlh->nlmsg_len);
++
++	if (tb[IFLA_IFNAME]) {
++		ifname = (char *)RTA_DATA(tb[IFLA_IFNAME]);
++		fprintf(stderr, "IFLA_IFNAME=%s\n", ifname);
++	} else {
++		ifinfo = (struct ifinfomsg *)NLMSG_DATA(nlh);
++		fprintf(stderr, "interface index: %d\n", ifinfo->ifi_index);
++	}
++
++	fprintf(stderr, "%s:%s:%d\n", __FILE__, __FUNCTION__, __LINE__);
++
++	if (!tb[IFLA_VFINFO_LIST]) {
++		fprintf(stderr, "IFLA_VFINFO_LIST missing.\n");
++		return -EINVAL;
++	} else {
++		fprintf(stderr, "FOUND IFLA_VFINFO_LIST!\n");
++	}
++
++	nla_for_each_nested(tb_vfinfo_list, tb[IFLA_VFINFO_LIST], rem) {
++		if (nla_type(tb_vfinfo_list) != IFLA_VF_INFO) {
++			fprintf(stderr, "nested parsing of IFLA_VFINFO_LIST failed.\n");
++			return -EINVAL;
++		}
++
++		if (nla_parse_nested(tb_vfinfo, IFLA_VF_MAX, tb_vfinfo_list,
++				     ifla_vf_policy)) {
++			fprintf(stderr, "nested parsing of IFLA_VF_INFO failed.\n");
++			return -EINVAL;
++		}
++	}
++
++	if (tb_vfinfo[IFLA_VF_MAC]) {
++		struct ifla_vf_mac *mac = RTA_DATA(tb_vfinfo[IFLA_VF_MAC]);
++		u8 *m = mac->mac;
++		fprintf(stderr, "IFLA_VF_MAC=%2x:%2x:%2x:%2x:%2x:%2x\n",
++			m[0], m[1], m[2], m[3], m[4], m[5]);
++		memcpy(&profile->mac, m, ETH_ALEN);
++	}
++
++	if (tb_vfinfo[IFLA_VF_VLAN]) {
++		struct ifla_vf_vlan *vlan = RTA_DATA(tb_vfinfo[IFLA_VF_VLAN]);
++		fprintf(stderr, "IFLA_VF_VLAN=%d\n", vlan->vlan);
++		profile->vlan = (u16) vlan->vlan;
++	}
++
++	if (tb[IFLA_VF_PORTS]) {
++		struct nlattr *tb_vf_ports;
++
++		fprintf(stderr,"FOUND IFLA_VF_PORTS\n");
++
++		nla_for_each_nested(tb_vf_ports, tb[IFLA_VF_PORTS], rem) {
++
++			fprintf(stderr,"ITERATING\n");
++
++			if (nla_type(tb_vf_ports) != IFLA_VF_PORT) {
++				fprintf(stderr,"not a IFLA_VF_PORT. skipping\n");
++				continue;
++			}
++
++			if (nla_parse_nested(tb3, IFLA_PORT_MAX, tb_vf_ports,
++					     ifla_port_policy)) {
++				fprintf(stderr, "nested parsing on level 2 failed.\n");
++				return -EINVAL;
++			}
++
++			fprintf(stderr, "%s:%s:%d\n", __FILE__, __FUNCTION__, __LINE__);
++
++			if (tb3[IFLA_PORT_VF]) {
++				fprintf(stderr, "IFLA_PORT_VF=%d\n", *(uint32_t*)(RTA_DATA(tb3[IFLA_PORT_VF])));
++			}
++
++			if (tb3[IFLA_PORT_PROFILE]) {
++				fprintf(stderr, "IFLA_PORT_PROFILE=%s\n", (char *)RTA_DATA(tb3[IFLA_PORT_PROFILE]));
++			}
++
++			if (tb3[IFLA_PORT_VSI_TYPE]) {
++				struct ifla_port_vsi *pvsi;
++				int tid = 0;
++
++				pvsi = (struct ifla_port_vsi*)RTA_DATA(tb3[IFLA_PORT_VSI_TYPE]);
++				tid = pvsi->vsi_type_id[2] << 16 |
++					pvsi->vsi_type_id[1] << 8 |
++					pvsi->vsi_type_id[0];
++				fprintf(stderr, "mgr_id : %d\n"
++					"type_id : %d\n"
++					"type_version : %d\n",
++					pvsi->vsi_mgr_id,
++					tid,
++					pvsi->vsi_type_version);
++
++				profile->mgrid = pvsi->vsi_mgr_id;
++				memcpy(profile->id, pvsi->vsi_type_id, 3);
++				profile->version = pvsi->vsi_type_version;
++			}
++
++			if (tb3[IFLA_PORT_INSTANCE_UUID]) {
++				int i;
++				unsigned char *uuid;
++				uuid = (unsigned char *)RTA_DATA(tb3[IFLA_PORT_INSTANCE_UUID]);
++				fprintf(stderr, "IFLA_PORT_INSTANCE_UUID=");
++
++				for (i = 0; i < 16; i++) {
++					fprintf(stderr, "%x",uuid[i]);
++				}
++
++				fprintf(stderr, "\n");
++
++				memcpy(&profile->instance,
++				       RTA_DATA(tb3[IFLA_PORT_INSTANCE_UUID]), 16);
++			}
++
++			if (tb3[IFLA_PORT_REQUEST]) {
++				fprintf(stderr, "IFLA_PORT_REQUEST=%d\n",
++					*(uint8_t*)RTA_DATA(tb3[IFLA_PORT_REQUEST]));
++					profile->mode = *(uint8_t*)RTA_DATA(tb3[IFLA_PORT_REQUEST]);
++			}
++
++			if (tb3[IFLA_PORT_RESPONSE]) {
++				fprintf(stderr, "IFLA_PORT_RESPONSE=%d\n",
++					*(uint16_t*)RTA_DATA(tb3[IFLA_PORT_RESPONSE]));
++				profile->response = *(uint16_t*)RTA_DATA(tb3[IFLA_PORT_RESPONSE]);
++			}
++		}
++	}
++
++	if (ifname) {
++		struct port *port = port_find_by_name(ifname);
++
++		if (port) {
++			profile->port = port;
++		} else {
++			printf("%s(%i): Could not find port for %s\n", __func__,
++			       __LINE__, ifname);
++			return -EEXIST;
++		}
++	}
++
++	p = vdp_add_profile(profile);
++
++	if (!p) {
++		free(profile);
++		return -EINVAL;
++	}
++
++	vdp_somethingChangedLocal(profile, VDP_PROFILE_REQ);
++	vdp_vsi_sm_station(p);
++
++	return 0;
++}
++
++static void event_if_parseResponseMsg(struct nlmsghdr *nlh)
++{
++	struct nlattr *tb[IFLA_MAX+1],
++		      *tb2[IFLA_VF_PORT_MAX + 1],
++		      *tb3[IFLA_PORT_MAX+1],
++		      *tb_vfinfo[IFLA_VF_MAX+1],
++		      *tb_vfinfo_list;
++
++	int rem;
++
++	fprintf(stderr, "%s:%s:%d\n", __FILE__, __FUNCTION__, __LINE__);
++
++	if (nlmsg_parse(nlh, sizeof(struct ifinfomsg),
++			(struct nlattr **)&tb, IFLA_MAX, NULL)) {
++		fprintf(stderr, "Error parsing response...\n");
++		return;
++	}
++
++	if (tb[IFLA_IFNAME]) {
++		fprintf(stderr, "IFLA_IFNAME=%s\n", (char *)RTA_DATA(tb[IFLA_IFNAME]));
++	} else {
++		struct ifinfomsg *ifinfo = (struct ifinfomsg *)NLMSG_DATA(nlh);
++		fprintf(stderr, "interface index: %d\n", ifinfo->ifi_index);
++	}
++
++	if (tb[IFLA_VF_PORTS]) {
++		if (nla_parse_nested(tb2, IFLA_VF_PORT_MAX, tb[IFLA_VF_PORTS],
++				     ifla_vf_ports_policy)) {
++			fprintf(stderr, "nested parsing on level 1 failed.\n");
++			return;
++		}
++
++        if (tb2[IFLA_VF_PORT]) {
++		if (nla_parse_nested(tb3, IFLA_PORT_MAX, tb2[IFLA_VF_PORT],
++				     ifla_port_policy)) {
++			fprintf(stderr, "nested parsing on level 2 failed.\n");
++			return;
++		}
++
++		if (tb3[IFLA_PORT_VF]) {
++			fprintf(stderr, "IFLA_PORT_VF=%d\n", *(uint32_t*)(RTA_DATA(tb3[IFLA_PORT_VF])));
++		}
++
++		if (tb3[IFLA_PORT_PROFILE]) {
++			fprintf(stderr, "IFLA_PORT_PROFILE=%s\n", (char *)RTA_DATA(tb3[IFLA_PORT_PROFILE]));
++		}
++
++		if (tb3[IFLA_PORT_VSI_TYPE]) {
++			struct ifla_port_vsi *pvsi;
++			int tid = 0;
++			pvsi = (struct ifla_port_vsi*)RTA_DATA(tb3[IFLA_PORT_VSI_TYPE]);
++			tid = pvsi->vsi_type_id[2] << 16 |
++				pvsi->vsi_type_id[1] << 8 |
++				pvsi->vsi_type_id[0];
++			fprintf(stderr, "mgr_id : %d\n"
++				"type_id : %d\n"
++				"type_version : %d\n",
++				pvsi->vsi_mgr_id,
++				tid,
++				pvsi->vsi_type_version);
++		}
++
++		if (tb3[IFLA_PORT_INSTANCE_UUID]) {
++			int i;
++			unsigned char *uuid;
++			uuid = (unsigned char *)RTA_DATA(tb3[IFLA_PORT_INSTANCE_UUID]);
++
++			fprintf(stderr, "IFLA_PORT_INSTANCE_UUID=");
++
++			for (i = 0; i < 16; i++) {
++				fprintf(stderr, "%x",uuid[i]);
++			}
++
++			fprintf(stderr, "\n");
++		}
++
++		if (tb3[IFLA_PORT_REQUEST]) {
++			fprintf(stderr, "IFLA_PORT_REQUEST=%d\n",
++				*(uint8_t*)RTA_DATA(tb3[IFLA_PORT_REQUEST]));
++		}
++
++		if (tb3[IFLA_PORT_RESPONSE]) {
++			fprintf(stderr, "IFLA_PORT_RESPONSE=%d\n",
++				*(uint16_t*)RTA_DATA(tb3[IFLA_PORT_RESPONSE]));
++		}
++	}
++	}
++}
++
++struct nl_msg *event_if_constructResponse(struct nlmsghdr *nlh, int ifindex)
++{
++	struct nl_msg *nl_msg;
++	struct nlattr *vf_ports = NULL, *vf_port;
++	struct ifinfomsg ifinfo;
++	struct vdp_data *vd;
++	uint32_t pid = nlh->nlmsg_pid;
++	uint32_t seq = nlh->nlmsg_seq;
++	char *ifname = malloc(IFNAMSIZ);
++	struct vsi_profile *p;
++
++	fprintf(stderr, "%s:%s:%d\n", __FILE__, __FUNCTION__, __LINE__);
++
++	nl_msg = nlmsg_alloc();
++
++	if (!nl_msg) {
++		printf("%s(%i): Unable to allocate netlink message !\n", __func__, __LINE__);
++		return NULL;
++	}
++
++	if (!if_indextoname(ifindex, ifname)) {
++		printf("%s(%i): No name found for interface with index %i !\n", __func__, __LINE__,
++		       ifindex);
++	}
++
++	vd = vdp_data(ifname);
++	if (!vd) {
++		printf("%s(%i): Could not find vdp_data for %i !\n", __func__, __LINE__,
++		       ifname);
++		return NULL;
++	}
++
++	if (nlmsg_put(nl_msg, pid, seq, NLMSG_DONE, 0, 0) == NULL)
++		goto err_exit;
++
++	ifinfo.ifi_index = ifindex;
++
++	if (nlmsg_append(nl_msg, &ifinfo, sizeof(ifinfo), NLMSG_ALIGNTO) < 0)
++		goto err_exit;
++
++	vf_ports = nla_nest_start(nl_msg, IFLA_VF_PORTS);
++
++	if (!vf_ports)
++		goto err_exit;
++
++	/* loop over all existing profiles on this interface and
++	 * put them into the nested IFLA_VF_PORT structure */
++	LIST_FOREACH(p, &vd->profile_head, profile) {
++		if (p) {
++			vdp_print_profile(p);
++
++			vf_port  = nla_nest_start(nl_msg, IFLA_VF_PORT);
++
++			if (!vf_port)
++				goto err_exit;
++
++			if (nla_put(nl_msg, IFLA_PORT_INSTANCE_UUID, 16, p->instance) < 0)
++				goto err_exit;
++
++			if (nla_put_u32(nl_msg, IFLA_PORT_VF, PORT_SELF_VF) < 0)
++				goto err_exit;
++
++			/*
++			if (nla_put_u16(nl_msg, IFLA_PORT_RESPONSE, p->response) < 0)
++				goto err_exit;
++				*/
++
++			if (nla_put_u16(nl_msg, IFLA_PORT_RESPONSE, PORT_VDP_RESPONSE_SUCCESS) < 0)
++				goto err_exit;
++
++			nla_nest_end(nl_msg, vf_port);
++		}
++	}
++
++	if (vf_ports)
++		nla_nest_end(nl_msg, vf_ports);
++
++	return nl_msg;
++
++err_exit:
++	nlmsg_free(nl_msg);
++
++	return NULL;
++}
++
++struct nl_msg *event_if_simpleResponse(uint32_t pid, uint32_t seq, int err)
++{
++	struct nl_msg *nl_msg = nlmsg_alloc();
++	struct nlmsgerr nlmsgerr;
++
++	memset(&nlmsgerr, 0x0, sizeof(nlmsgerr));
++
++	nlmsgerr.error = err;
++	fprintf(stderr,"RESPONSE ERROR CODE: %d\n",err);
++
++	if (nlmsg_put(nl_msg, pid, seq, NLMSG_ERROR, 0, 0) == NULL)
++		goto err_exit;
++
++	if (nlmsg_append(nl_msg, &nlmsgerr, sizeof(nlmsgerr), NLMSG_ALIGNTO) < 0)
++		goto err_exit;
++
++	return nl_msg;
++
++err_exit:
++	nlmsg_free(nl_msg);
++
++	return NULL;
++}
++
++static void event_iface_receive_user_space(int sock, void *eloop_ctx, void *sock_ctx)
++{
++	struct nlmsghdr *nlh;
++	struct nl_msg *nl_msg;
++	struct msghdr msg;
++	struct sockaddr_nl dest_addr;
++	char buf[MAX_MSG_SIZE];
++	socklen_t fromlen = sizeof(dest_addr);
++	struct iovec iov;
++	int result;
++	int err;
++	int ifindex;
++	char *ifname = NULL;
++
++	nlh = (struct nlmsghdr *)calloc(1,
++					NLMSG_SPACE(MAX_PAYLOAD));
++	if (!nlh) {
++		printf("%s(%i): could not allocate nlh !\n", __func__,
++		       __LINE__);
++		return;
++	}
++	memset(nlh, 0, NLMSG_SPACE(MAX_PAYLOAD));
++
++	memset(&dest_addr, 0, sizeof(dest_addr));
++	iov.iov_base = (void *)nlh;
++	iov.iov_len = NLMSG_SPACE(MAX_PAYLOAD);
++	msg.msg_name = (void *)&dest_addr;
++	msg.msg_namelen = sizeof(dest_addr);
++	msg.msg_iov = &iov;
++	msg.msg_iovlen = 1;
++	msg.msg_control = NULL;
++	msg.msg_controllen = 0;
++	msg.msg_flags = 0;
++
++	fprintf(stderr, "Waiting for message \n");
++	result = recvmsg(sock, &msg, MSG_DONTWAIT);
++
++	fprintf(stderr, "%s:%s: recvmsg received %d bytes\n", __FILE__, __FUNCTION__, result);
++
++	if(result < 0) {
++		fprintf(stderr,"Error receiving from netlink socket : %s\n", strerror(errno));
++	}
++
++	fprintf(stderr, "%s:%s: dest_addr.nl_pid: %d\n", __FILE__, __FUNCTION__, dest_addr.nl_pid);
++	fprintf(stderr, "%s:%s: nlh.nl_pid: %d\n", __FILE__, __FUNCTION__, nlh->nlmsg_pid);
++	fprintf(stderr, "%s:%s: nlh_type: %d\n", __FILE__, __FUNCTION__, nlh->nlmsg_type);
++	fprintf(stderr, "%s:%s: nlh_seq: 0x%x\n", __FILE__, __FUNCTION__, nlh->nlmsg_seq);
++	fprintf(stderr, "%s:%s: nlh_len: 0x%x\n", __FILE__, __FUNCTION__, nlh->nlmsg_len);
++
++	switch (nlh->nlmsg_type) {
++		case RTM_SETLINK:
++			fprintf(stderr,"--> RTM_SETLINK\n");
++
++			err = event_if_parse_setmsg(nlh);
++
++			/* send simple response wether profile was accepted
++			 * or not */
++			nl_msg = event_if_simpleResponse(nlh->nlmsg_pid,
++							 nlh->nlmsg_seq,
++							 err);
++			nlh = nlmsg_hdr(nl_msg);
++			break;
++		case RTM_GETLINK:
++			fprintf(stderr,"--> RTM_GETLINK\n");
++
++			err = event_if_parse_getmsg(nlh, &ifindex, ifname);
++
++			if (err) {
++				nl_msg = event_if_simpleResponse(nlh->nlmsg_pid,
++								 nlh->nlmsg_seq,
++								 err);
++			} else if (ifname) {
++				ifindex = if_nametoindex(ifname);
++				printf("%s(%i): ifname %s (%d)\n", __func__,
++				       __LINE__, ifname, ifindex);
++			} else {
++				ifname = malloc(IFNAMSIZ);
++				printf("%s(%i): ifindex %i\n", __func__,
++				       __LINE__, ifindex);
++				printf("%s(%i): ifname %s\n", __func__,
++				       __LINE__, if_indextoname(ifindex, ifname));
++			}
++
++			nl_msg = event_if_constructResponse(nlh, ifindex);
++
++			if (!nl_msg) {
++				printf("%s(%i): Unable to construct response !\n",
++				       __func__, __LINE__);
++				goto out_err;
++			}
++
++			nlh = nlmsg_hdr(nl_msg);
++
++			fprintf(stderr, "------------\nRESPONSE:\n");
++
++			event_if_parseResponseMsg(nlh);
++
++			fprintf(stderr, "------------\n");
++			break;
++	}
++
++	iov.iov_base = (void*)nlh;
++	iov.iov_len = nlh->nlmsg_len;
++
++	msg.msg_name = (void *)&dest_addr;
++	msg.msg_namelen = sizeof(dest_addr);
++	msg.msg_iov = &iov;
++	msg.msg_iovlen = 1;
++
++	result = sendmsg(sock, &msg, 0);
++
++	if (result < 0) {
++		fprintf(stderr,"Error sending on netlink socket : %s\n", strerror(errno));
++	} else {
++		fprintf(stderr,"sent %zd bytes!\n",result);
++	}
++
++out_err:
++	free(nlh);
++	nlmsg_free(nl_msg);
++}
++
+ static void event_iface_receive(int sock, void *eloop_ctx, void *sock_ctx)
+ {
+ 	struct nlmsghdr *nlh;
+@@ -236,10 +802,11 @@ static void event_iface_receive(int sock, void *eloop_ctx, void *sock_ctx)
+ 	char buf[MAX_MSG_SIZE];
+ 	socklen_t fromlen = sizeof(dest_addr);
+ 	int result;
+-	
++
+ 	result = recvfrom(sock, buf, sizeof(buf), MSG_DONTWAIT,
+ 		       (struct sockaddr *) &dest_addr, &fromlen);
  
++	fprintf(stderr, "%s:%s: result: %d\n", __FILE__, __FUNCTION__, result);
+ 	if (result < 0) {
+ 		perror("recvfrom(Event interface)");
+ 		if ((errno == ENOBUFS) || (errno == EAGAIN))
+@@ -250,10 +817,14 @@ static void event_iface_receive(int sock, void *eloop_ctx, void *sock_ctx)
+ 
+ 	TRACE("PRINT BUF info.\n")
+ 
+-	device_name = NULL;
+-	link_status = IF_OPER_UNKNOWN;
+-	nlh = (struct nlmsghdr *)buf;
+-	event_if_process_recvmsg(nlh);
++	/* Separate handler for kernel messages from userspace messages*/
++	fprintf(stderr, "%s:%s: dest_addr.nl_pid: %d\n", __FILE__, __FUNCTION__, dest_addr.nl_pid);
++	if (dest_addr.nl_pid == 0) {
++		device_name = NULL;
++		link_status = IF_OPER_UNKNOWN;
++		nlh = (struct nlmsghdr *)buf;
++		event_if_process_recvmsg(nlh);
++	}
+ }
+ 
+ int event_iface_init()
+@@ -262,6 +833,7 @@ int event_iface_init()
+ 	int rcv_size = MAX_MSG_SIZE;
+ 	struct sockaddr_nl snl;
+ 
++	fprintf(stderr, "%s:%s:%d\n", __FILE__, __FUNCTION__, __LINE__);
+ 	fd = socket(PF_NETLINK, SOCK_RAW, NETLINK_ROUTE);
+ 
+ 	if (fd < 0)
+@@ -282,6 +854,39 @@ int event_iface_init()
+ 	}
+ 
+ 	eloop_register_read_sock(fd, event_iface_receive, NULL, NULL);
++	//	event_iface_init2();
++	return 0;
++}
++
++int event_iface_init_user_space()
++{
++	int fd;
++	int rcv_size = MAX_MSG_SIZE;
++	struct sockaddr_nl snl;
++
++	fprintf(stderr, "%s:%s:%d\n", __FILE__, __FUNCTION__, __LINE__);
++	fd = socket(PF_NETLINK, SOCK_RAW, NETLINK_ROUTE);
++
++	if (fd < 0)
++		return fd;
++
++	if (setsockopt(fd, SOL_SOCKET, SO_RCVBUF, &rcv_size, sizeof(int)) < 0) {
++		close(fd);
++		return -EIO;
++	}
++
++	memset((void *)&snl, 0, sizeof(struct sockaddr_nl));
++	snl.nl_family = AF_NETLINK;
++	snl.nl_pid = getpid();  /* self pid */
++	snl.nl_groups = 0;
++
++	if (bind(fd, (struct sockaddr *)&snl, sizeof(struct sockaddr_nl)) < 0) {
++		close(fd);
++		fprintf(stderr,"Error binding to netlink socket : %s\n", strerror(errno));
++		return -EIO;
++	}
++
++	eloop_register_read_sock(fd, event_iface_receive_user_space, NULL, NULL);
  	return 0;
  }
  
--static int evb_bld_tlv(struct evb_data *bd)
-+static int evb_bld_tlv(struct evb_data *ed)
+diff --git a/lldp_vdp.c b/lldp_vdp.c
+index a511a43..95edc27 100644
+--- a/lldp_vdp.c
++++ b/lldp_vdp.c
+@@ -104,7 +104,7 @@ static void vdp_free_data(struct vdp_user_data *ud)
+  * prints the contents of a profile first to a string using the PRINT_PROFILE
+  * macro, and then to the screen. Used for debug purposes.
+  */
+-static inline void vdp_print_profile(struct vsi_profile *profile)
++void vdp_print_profile(struct vsi_profile *profile)
  {
- 	int rc = 0;
+ 	char *s, *t;
  
--	if (!port_find_by_name(bd->ifname)) {
-+	if (!port_find_by_name(ed->ifname)) {
- 		rc = EEXIST;
- 		goto out_err;
- 	}
-@@ -166,9 +165,9 @@ static int evb_bld_tlv(struct evb_data *bd)
- 		goto out_err;
- 	}
- 
--	if (evb_bld_cfg_tlv(bd)) {
-+	if (evb_bld_cfg_tlv(ed)) {
- 		fprintf(stderr, "### %s:%s:evb_bld_cfg_tlv() failed\n",
--				__func__, bd->ifname);
-+				__func__, ed->ifname);
- 		rc = EINVAL;
- 		goto out_err_destroy;
- 	}
-@@ -182,13 +181,13 @@ out_err:
- 
- static void evb_free_data(struct evb_user_data *ud)
- {
--	struct evb_data *bd;
-+	struct evb_data *ed;
- 	if (ud) {
- 		while (!LIST_EMPTY(&ud->head)) {
--			bd = LIST_FIRST(&ud->head);
--			LIST_REMOVE(bd, entry);
--			evb_free_tlv(bd);
--			free(bd);
-+			ed = LIST_FIRST(&ud->head);
-+			LIST_REMOVE(ed, entry);
-+			evb_free_tlv(ed);
-+			free(ed);
- 		}
- 	}
- }
-@@ -196,22 +195,22 @@ static void evb_free_data(struct evb_user_data *ud)
- struct packed_tlv *evb_gettlv(struct port *port)
- {
- 	int size;
--	struct evb_data *bd;
-+	struct evb_data *ed;
- 	struct packed_tlv *ptlv = NULL;
- 
--	bd = evb_data(port->ifname);
--	if (!bd)
-+	ed = evb_data(port->ifname);
-+	if (!ed)
- 		goto out_err;
- 
--	evb_free_tlv(bd);
-+	evb_free_tlv(ed);
- 
--	if (evb_bld_tlv(bd)) {
-+	if (evb_bld_tlv(ed)) {
- 		fprintf(stderr, "### %s:%s evb_bld_tlv failed\n",
- 			__func__, port->ifname);
- 		goto out_err;
+diff --git a/lldpad.c b/lldpad.c
+index c0938af..69faa29 100644
+--- a/lldpad.c
++++ b/lldpad.c
+@@ -374,6 +374,16 @@ int main(int argc, char *argv[])
+ 		exit(1);
  	}
  
--	size = TLVSIZE(bd->evb);
-+	size = TLVSIZE(ed->evb);
- 
- 	if (!size)
- 		goto out_err;
-@@ -225,7 +224,7 @@ struct packed_tlv *evb_gettlv(struct port *port)
- 		goto out_free;
- 
- 	ptlv->size = 0;
--	PACK_TLV_AFTER(bd->evb, ptlv, size, out_free);
-+	PACK_TLV_AFTER(ed->evb, ptlv, size, out_free);
- 	return ptlv;
- out_free:
- 	/* FIXME: free function returns pointer ? */
-@@ -243,13 +242,7 @@ out_err:
- int evb_check_and_fill(struct evb_data *ed, struct tlv_info_evb *tie)
- {
- 	if ((tie->smode & (LLDP_EVB_CAPABILITY_FORWARD_STANDARD |
--			  LLDP_EVB_CAPABILITY_FORWARD_RELAXEDRELAY)) == 0)
--		return TLV_ERR;
--
--	if ((tie->scap & (LLDP_EVB_CAPABILITY_PROTOCOL_RTE |
--			  LLDP_EVB_CAPABILITY_PROTOCOL_ECP |
--			  LLDP_EVB_CAPABILITY_PROTOCOL_VDP |
--			  LLDP_EVB_CAPABILITY_PROTOCOL_VDPL)) == 0)
-+			  LLDP_EVB_CAPABILITY_FORWARD_REFLECTIVE_RELAY)) == 0)
- 		return TLV_ERR;
- 
- 	if ((tie->svsi < 0) || (tie->svsi > LLDP_EVB_DEFAULT_MAX_VSI))
-@@ -258,10 +251,9 @@ int evb_check_and_fill(struct evb_data *ed, struct tlv_info_evb *tie)
- 	if ((tie->cvsi < 0) || (tie->cvsi > LLDP_EVB_DEFAULT_MAX_VSI))
- 		return TLV_ERR;
- 
--	/* If both sides support RR, set it */
--	if ((tie->smode & LLDP_EVB_CAPABILITY_FORWARD_RELAXEDRELAY) &&
--	    (ed->tie->smode & LLDP_EVB_CAPABILITY_FORWARD_RELAXEDRELAY)) {
--		ed->tie->cmode = LLDP_EVB_CAPABILITY_FORWARD_RELAXEDRELAY;
-+	if ((tie->smode & LLDP_EVB_CAPABILITY_FORWARD_REFLECTIVE_RELAY) &&
-+	    (ed->tie->smode & LLDP_EVB_CAPABILITY_FORWARD_REFLECTIVE_RELAY)) {
-+		ed->tie->cmode = LLDP_EVB_CAPABILITY_FORWARD_REFLECTIVE_RELAY;
- 	} else {
- 		ed->tie->cmode = LLDP_EVB_CAPABILITY_FORWARD_STANDARD;
- 	}
-@@ -276,11 +268,6 @@ int evb_check_and_fill(struct evb_data *ed, struct tlv_info_evb *tie)
- 	    (ed->tie->scap & LLDP_EVB_CAPABILITY_PROTOCOL_ECP))
- 		ed->tie->ccap |= LLDP_EVB_CAPABILITY_PROTOCOL_ECP;
- 
--	/* If both sides support VDPL, set it */
--	if ((tie->scap & LLDP_EVB_CAPABILITY_PROTOCOL_VDPL) &&
--	    (ed->tie->scap & LLDP_EVB_CAPABILITY_PROTOCOL_VDPL))
--		ed->tie->ccap |= LLDP_EVB_CAPABILITY_PROTOCOL_VDPL;
--
- 	/* If both sides support VDP, set it */
- 	if ((tie->scap & LLDP_EVB_CAPABILITY_PROTOCOL_VDP) &&
- 	    (ed->tie->scap & LLDP_EVB_CAPABILITY_PROTOCOL_VDP))
-@@ -296,6 +283,13 @@ int evb_check_and_fill(struct evb_data *ed, struct tlv_info_evb *tie)
- 		(tie->rte > 0))
- 		ed->tie->rte = MIN(ed->tie->svsi,tie->rte);
- 
-+	if (set_config_tlvinfo_bin(ed->ifname, TLVID_8021Qbg(LLDP_EVB_SUBTYPE),
-+			       (void *)ed->tie, sizeof(struct tlv_info_evb))) {
-+		printf("%s(%i): error saving tlv_info_evb !\n", __FILE__, __LINE__);
-+	} else {
-+		printf("%s(%i): saved tlv_info_evb to config !\n", __FILE__, __LINE__);
++	/* setup event netlink interface for user space processes.
++	 * This needs to be setup first to ensure it gets lldpads
++	 * pid as netlink address.
++	 */
++	if (event_iface_init_user_space() < 0) {
++		log_message(MSG_ERR_SERVICE_START_FAILURE,
++			"%s", "failed to register user space event interface");
++		exit(1);
 +	}
 +
- 	return TLV_OK;
- }
+ 	init_modules("");
  
-@@ -336,7 +330,7 @@ static void evb_statemachine(struct evb_data *ed, struct tlv_info_evb *tie)
- 		 *		- switch to EVB_CONFIGURE
- 		 */
- 		printf("%s: state -> EVB_OFFER_CAPABILITIES\n", __func__);
--		if (!evb_check_and_fill(ed, tie)) {
-+		if (evb_check_and_fill(ed, tie) != TLV_OK) {
- 			fprintf(stderr, "Invalid contents of EVB Cfg TLV !\n");
- 			return;
- 		}
-@@ -379,15 +373,18 @@ static int evb_rchange(struct port *port, struct unpacked_tlv *tlv)
- 	struct tlv_info_evb *tie = (struct tlv_info_evb *) tlv->info;
- 	u8 oui_subtype[OUI_SUB_SIZE] = LLDP_OUI_SUBTYPE;
  
--	ed = evb_data(port->ifname);
-+	if (!init_cfg()) {
-+		return SUBTYPE_INVALID;
-+	}
- 
--	/* TODO: disable rx if tx has been disabled by administrator ?
-+	/* disable rx if tx has been disabled by administrator
- 	if (!is_tlv_txenabled(ed->ifname, TLVID_8021(LLDP_EVB_SUBTYPE))) {
- 		fprintf(stderr, "### %s:%s:EVB Config disabled\n",
- 			__func__, ed->ifname);
- 		return TLV_OK;
--	}
--	*/
-+	} */
-+
-+	ed = evb_data(port->ifname);
- 
- 	if (!ed)
- 		return SUBTYPE_INVALID;
-@@ -411,22 +408,15 @@ static int evb_rchange(struct port *port, struct unpacked_tlv *tlv)
- 			return SUBTYPE_INVALID;
- 		}
- 
--		/* decode values */
--		fprintf(stderr, "### %s:now ready to decode values !\n", __func__);
-+		evb_print_tlvinfo(tie);
- 
- 		offset = OUI_SUB_SIZE;
- 
--		/* received valid values, save them */
--		fprintf(stderr,"### supported forwarding mode: %02x\n", tie->smode);
--		fprintf(stderr,"### configured forwarding mode: %02x\n", tie->cmode);
--		fprintf(stderr,"### supported capabilities: %02x\n", tie->scap);
--		fprintf(stderr,"### configured capabilities: %02x\n", tie->ccap);
--		fprintf(stderr,"### supported no. of vsis: %04i\n", tie->svsi);
--		fprintf(stderr,"### configured no. of vsis: %04i\n", tie->cvsi);
--		fprintf(stderr,"### rte: %02i\n", tie->rte);
--
- 		/* change state */
- 		evb_statemachine(ed, tie);
-+
-+		/* check which values have been taken over */
-+		evb_print_tlvinfo(ed->tie);
- 	}
- 
- 	return TLV_OK;
-@@ -434,15 +424,18 @@ static int evb_rchange(struct port *port, struct unpacked_tlv *tlv)
- 
- void evb_ifdown(char *ifname)
- {
--	struct evb_data *bd;
-+	struct evb_data *ed;
-+
-+	printf("%s called !\n", __func__);
- 
--	bd = evb_data(ifname);
--	if (!bd)
-+	ed = evb_data(ifname);
-+	if (!ed)
- 		goto out_err;
- 
--	LIST_REMOVE(bd, entry);
--	evb_free_tlv(bd);
--	free(bd);
-+	free(ed->tie);
-+	LIST_REMOVE(ed, entry);
-+	evb_free_tlv(ed);
-+	free(ed);
- 	fprintf(stderr, "### %s:port %s removed\n", __func__, ifname);
- 	return;
- out_err:
-@@ -453,40 +446,44 @@ out_err:
- 
- void evb_ifup(char *ifname)
- {
--	struct evb_data *bd;
-+	struct evb_data *ed;
- 	struct evb_user_data *ud;
- 
--	bd = evb_data(ifname);
--	if (bd) {
-+	ed = evb_data(ifname);
-+	if (ed) {
- 		fprintf(stderr, "### %s:%s exists\n", __func__, ifname);
- 		goto out_err;
- 	}
- 
- 	/* not found, alloc/init per-port tlv data */
--	bd = (struct evb_data *) calloc(1, sizeof(struct evb_data));
--	if (!bd) {
-+	ed = (struct evb_data *) calloc(1, sizeof(struct evb_data));
-+	if (!ed) {
- 		fprintf(stderr, "### %s:%s malloc %ld failed\n",
--			 __func__, ifname, sizeof(*bd));
-+			 __func__, ifname, sizeof(*ed));
-+		goto out_err;
-+	}
-+	strncpy(ed->ifname, ifname, IFNAMSIZ);
-+
-+	if (!init_cfg()) {
- 		goto out_err;
- 	}
--	strncpy(bd->ifname, ifname, IFNAMSIZ);
- 
--	if (evb_init_cfg_tlv(bd)) {
-+	if (evb_init_cfg_tlv(ed)) {
- 		fprintf(stderr, "### %s:%s evb_init_cfg_tlv failed\n", __func__, ifname);
--		free(bd);
-+		free(ed);
- 		goto out_err;
- 	}
- 
--	bd->state = EVB_OFFER_CAPABILITIES;
-+	ed->state = EVB_OFFER_CAPABILITIES;
- 
--	if (evb_bld_tlv(bd)) {
-+	if (evb_bld_tlv(ed)) {
- 		fprintf(stderr, "### %s:%s evb_bld_tlv failed\n", __func__, ifname);
--		free(bd);
-+		free(ed);
- 		goto out_err;
- 	}
- 
- 	ud = find_module_user_data_by_if(ifname, &lldp_head, LLDP_MOD_EVB);
--	LIST_INSERT_HEAD(&ud->head, bd, entry);
-+	LIST_INSERT_HEAD(&ud->head, ed, entry);
- 	fprintf(stderr, "### %s:port %s added\n", __func__, ifname);
- 	return;
- 
-diff --git a/lldp_evb_clif.c b/lldp_evb_clif.c
-index d450f4b..383b717 100644
---- a/lldp_evb_clif.c
-+++ b/lldp_evb_clif.c
-@@ -110,7 +110,7 @@ void evb_print_cfg_tlv(u16 len, char *info)
- 	if (!hexstr2bin(info, &smode, sizeof(smode))) {
- 		printf("supported forwarding mode: (0x%02hhx)", smode);
- 
--		if (smode & LLDP_EVB_CAPABILITY_FORWARD_RELAXEDRELAY)
-+		if (smode & LLDP_EVB_CAPABILITY_FORWARD_REFLECTIVE_RELAY)
- 			printf(" reflective relay");
- 
- 		if (smode & LLDP_EVB_CAPABILITY_FORWARD_STANDARD)
-@@ -130,9 +130,6 @@ void evb_print_cfg_tlv(u16 len, char *info)
- 		if ( scap & LLDP_EVB_CAPABILITY_PROTOCOL_ECP)
- 		     printf(" ECP");
- 
--		if ( scap & LLDP_EVB_CAPABILITY_PROTOCOL_VDPL)
--		     printf(" VDPL");
--
- 		if ( scap & LLDP_EVB_CAPABILITY_PROTOCOL_VDP)
- 		     printf(" VDP");
- 
-@@ -144,7 +141,7 @@ void evb_print_cfg_tlv(u16 len, char *info)
- 	if (!hexstr2bin(info+4, &cmode, sizeof(cmode))) {
- 		printf("\tconfigured forwarding mode: (0x%02hhx)", cmode);
- 
--		if (cmode & LLDP_EVB_CAPABILITY_FORWARD_RELAXEDRELAY)
-+		if (cmode & LLDP_EVB_CAPABILITY_FORWARD_REFLECTIVE_RELAY)
- 			printf(" reflective relay");
- 
- 		if (cmode & LLDP_EVB_CAPABILITY_FORWARD_STANDARD)
-@@ -164,9 +161,6 @@ void evb_print_cfg_tlv(u16 len, char *info)
- 		if ( ccap & LLDP_EVB_CAPABILITY_PROTOCOL_ECP)
- 		     printf(" ECP");
- 
--		if ( ccap & LLDP_EVB_CAPABILITY_PROTOCOL_VDPL)
--		     printf(" VDPL");
--
- 		if ( ccap & LLDP_EVB_CAPABILITY_PROTOCOL_VDP)
- 		     printf(" VDP");
- 
-diff --git a/lldp_evb_cmds.c b/lldp_evb_cmds.c
-index 7cef1bb..d0a9051 100644
---- a/lldp_evb_cmds.c
-+++ b/lldp_evb_cmds.c
-@@ -66,6 +66,27 @@ static struct arg_handlers arg_handlers[] = {
- 	{ NULL }
- };
- 
-+static void evb_changed(char *ifname)
-+{
-+	struct evb_data *ed;
-+
-+	ed = evb_data(ifname);
-+
-+	if (!ed)
-+		goto trigger_send;
-+
-+	if (set_config_tlvinfo_bin(ifname, TLVID_8021Qbg(LLDP_EVB_SUBTYPE),
-+			       (void *)ed->tie, sizeof(struct tlv_info_evb))) {
-+		printf("%s(%i): error saving tlv_info_evb !\n", __FILE__, __LINE__);
-+	} else {
-+		printf("%s(%i): saved tlv_info_evb to config !\n", __FILE__, __LINE__);
-+	}
-+
-+trigger_send:
-+	somethingChangedLocal(ifname);
-+
-+}
-+
- static int get_arg_tlvtxenable(struct cmd *cmd, char *arg, char *argvalue,
- 			       char *obuf)
- {
-@@ -132,7 +153,7 @@ static int set_arg_tlvtxenable(struct cmd *cmd, char *arg, char *argvalue,
- 	if (set_cfg(cmd->ifname, arg_path, (void *)&value, CONFIG_TYPE_BOOL))
- 		return cmd_failed;
- 
--	somethingChangedLocal(cmd->ifname);
-+	evb_changed(cmd->ifname);
- 
- 	return cmd_success;
- }
-@@ -160,10 +181,10 @@ static int get_arg_fmode(struct cmd *cmd, char *arg, char *argvalue,
- 	ed = evb_data((char *) &cmd->ifname);
- 	if (!ed)
- 		return cmd_invalid;
--	if (ed->tie->smode & LLDP_EVB_CAPABILITY_FORWARD_RELAXEDRELAY)
-+	if (ed->tie->smode & LLDP_EVB_CAPABILITY_FORWARD_REFLECTIVE_RELAY)
- 		s = VAL_EVB_FMODE_BRIDGE;
- 	else
--		s = VAL_EVB_FMODE_RELAXEDRELAY;
-+		s = VAL_EVB_FMODE_REFLECTIVE_RELAY;
- 
- 	sprintf(obuf, "%02x%s%04x%s", strlen(arg), arg, strlen(s), s);
- 
-@@ -195,12 +216,12 @@ static int set_arg_fmode(struct cmd *cmd, char *arg, char *argvalue,
- 
- 	if (!strcasecmp(argvalue, VAL_EVB_FMODE_BRIDGE))
- 		ed->tie->smode = LLDP_EVB_CAPABILITY_FORWARD_STANDARD;
--	else if (!strcasecmp(argvalue, VAL_EVB_FMODE_RELAXEDRELAY))
--		ed->tie->smode = LLDP_EVB_CAPABILITY_FORWARD_RELAXEDRELAY;
-+	else if (!strcasecmp(argvalue, VAL_EVB_FMODE_REFLECTIVE_RELAY))
-+		ed->tie->smode = LLDP_EVB_CAPABILITY_FORWARD_REFLECTIVE_RELAY;
- 	else
- 		return cmd_invalid;
- 
--	somethingChangedLocal(cmd->ifname);
-+	evb_changed(cmd->ifname);
- 
- 	return cmd_success;
- }
-@@ -259,14 +280,6 @@ static int get_arg_capabilities(struct cmd *cmd, char *arg, char *argvalue,
- 		s += c;
- 	}
- 
--	if (ed->tie->scap & LLDP_EVB_CAPABILITY_PROTOCOL_VDPL) {
--		c = sprintf(s, VAL_EVB_CAPA_VDPL " ");
--		if (c <= 0)
--			return cmd_invalid;
--		s += c;
--	}
--
--
- 	sprintf(obuf, "%02x%s%04x%s", strlen(arg), arg, strlen(t), t);
- 
- 	return cmd_success;
-@@ -307,14 +320,9 @@ static int set_arg_capabilities(struct cmd *cmd, char *arg, char *argvalue,
- 			scap |= LLDP_EVB_CAPABILITY_PROTOCOL_VDP;
- 		}
- 
--	if (strcasestr(argvalue, VAL_EVB_CAPA_VDPL)) {
--			scap |= LLDP_EVB_CAPABILITY_PROTOCOL_VDPL;
--		}
-+	ed->tie->scap = scap;
- 
--	if (scap != ed->tie->scap) {
--		ed->tie->scap = scap;
--		somethingChangedLocal(cmd->ifname);
--	}
-+	evb_changed(cmd->ifname);
- 
- 	return cmd_success;
- }
-@@ -380,7 +388,7 @@ static int set_arg_rte(struct cmd *cmd, char *arg, char *argvalue,
- 
- 	ed->tie->rte = value;
- 
--	somethingChangedLocal(cmd->ifname);
-+	evb_changed(cmd->ifname);
- 
- 	return cmd_success;
- }
-@@ -447,7 +455,7 @@ static int set_arg_vsis(struct cmd *cmd, char *arg, char *argvalue,
- 
- 	ed->tie->svsi = value;
- 
--	somethingChangedLocal(cmd->ifname);
-+	evb_changed(cmd->ifname);
- 
- 	return cmd_success;
- }
 -- 
 1.7.1
