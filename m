@@ -1,7 +1,7 @@
 From: Jens Osterkamp <jens@linux.vnet.ibm.com>
-Subject: [PATCH 02/17] implementation of IEEE 802.1Qbg in lldpad, part 1
-Date: Fri, 23 Jul 2010 12:34:18 +0200
-Message-ID: <1279881273-10261-3-git-send-email-jens@linux.vnet.ibm.com>
+Subject: [PATCH 12/17] implementation of vdp
+Date: Fri, 23 Jul 2010 12:34:28 +0200
+Message-ID: <1279881273-10261-13-git-send-email-jens@linux.vnet.ibm.com>
 References: <1279881273-10261-1-git-send-email-jens@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,281 +21,153 @@ To: e1000-eedc@lists.sourceforge.net, virtualization@lists.linux-foundation.org,
 Cc: chrisw@redhat.com, Jens Osterkamp <jens@linux.vnet.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch contains the first part of an initial implementation of the
-IEEE 802.1Qbg standard: It contains code for the exchange of EVB TLV
-capabilities between a host with virtual machines and an adjacent switch.
+This patch contains an initial implemention of VDP as specified in IEEE 802.1Qbg.
+VDP serves as the upper layer protocol (ULP) for TLVs communicated via the
+ECP protocol.
+For this it registers as a new module in lldpad. The VDP module supports a
+station and a bridge role. As a station, new VSI (virtual station interface)
+profiles can be registered to the VDP module using lldptool or libvirt (at a
+later point in time). These profiles are then announced to an adjacent
+bridge. Transmitted profiles are processed to the desired state by the VDP
+station state machine.
+As a bridge, the VDP module waits for new profiles received in TLVs by ECP.
+The received profiles are processed to the desired state by a VDP bridge
+state machine.
 
-Exchange of EVB TLV may be enabled or disabled on a per port basis.
-Information about the information negotiated by the protocol can be
-queried on the commandline with lldptool.
-
-The patch applies to lldpad 0.9.34 and still contains code to log protocol
-activity more verbosely than it would be necessary in the final version.
+The patch still contains a lot of debug code to allow analysis of VDP
+protocol behavior.
 
 Signed-off-by: Jens Osterkamp <jens@linux.vnet.ibm.com>
 ---
- Makefile.am             |   10 +-
- include/lldp.h          |   20 ++
- include/lldp_evb.h      |   58 +++++
- include/lldp_evb_clif.h |   33 +++
- include/lldp_evb_cmds.h |   31 +++
- include/lldp_tlv.h      |    1 +
- lldp_evb.c              |  567 +++++++++++++++++++++++++++++++++++++++++++++++
- lldp_evb_clif.c         |  232 +++++++++++++++++++
- lldp_evb_cmds.c         |  127 +++++++++++
- lldpad.c                |    2 +
- lldptool.c              |    2 +
- 11 files changed, 1079 insertions(+), 4 deletions(-)
- create mode 100644 include/lldp_evb.h
- create mode 100644 include/lldp_evb_clif.h
- create mode 100644 include/lldp_evb_cmds.h
- create mode 100644 lldp_evb.c
- create mode 100644 lldp_evb_clif.c
- create mode 100644 lldp_evb_cmds.c
+ Makefile.am    |    8 +-
+ ecp/ecp_rx.c   |    9 +-
+ ecp/ecp_tx.c   |   36 ++-
+ include/lldp.h |    1 +
+ lldp_vdp.c     | 1140 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ lldpad.c       |    2 +
+ 6 files changed, 1190 insertions(+), 6 deletions(-)
+ create mode 100644 lldp_vdp.c
 
 diff --git a/Makefile.am b/Makefile.am
-index 743e16f..d59a6fa 100644
+index 061f2ee..4b69389 100644
 --- a/Makefile.am
 +++ b/Makefile.am
-@@ -37,7 +37,7 @@ lldpad_include_HEADERS = include/dcb_types.h include/dcbtool.h \
- include/dcb_osdep.h include/clif.h include/lldp_dcbx_cmds.h include/common.h \
- include/lldpad.h include/os.h include/includes.h include/lldp_mand_cmds.h \
- include/clif_msgs.h include/lldp_basman_cmds.h include/lldp_8023_cmds.h \
--include/lldp_med_cmds.h include/lldp_dcbx_cfg.h
-+include/lldp_med_cmds.h include/lldp_dcbx_cfg.h include/lldp_evb_cmds.h
- 
- noinst_HEADERS = include/config.h include/ctrl_iface.h \
- include/dcb_driver_if_types.h include/dcb_driver_interface.h \
-@@ -47,7 +47,7 @@ include/event_iface.h include/messages.h include/parse_cli.h include/version.h \
- include/lldptool_cli.h include/list.h \
- include/lldp_mand_clif.h include/lldp_basman_clif.h include/lldp_med_clif.h \
- include/lldp_8023_clif.h include/lldp_dcbx_clif.h include/lldptool.h \
--include/lldp_rtnl.h
-+include/lldp_rtnl.h include/lldp_evb_clif.h
- 
- lldpad_SOURCES = lldpad.c config.c  drv_cfg.c ctrl_iface.c event_iface.c eloop.c \
- common.c os_unix.c lldp_dcbx_cmds.c log.c lldpad_shm.c \
-@@ -62,10 +62,12 @@ lldp_dcbx_cfg.c include/lldp_dcbx_cfg.h \
- lldp_util.c include/lldp_util.h \
- lldp_mand.c include/lldp_mand.h \
- lldp_mand_cmds.c lldp_basman_cmds.c lldp_8023_cmds.c lldp_med_cmds.c \
-+lldp_evb_cmds.c \
- lldp_tlv.c include/lldp_tlv.h \
+@@ -69,16 +69,16 @@ lldp_tlv.c include/lldp_tlv.h \
  lldp_basman.c include/lldp_basman.h	\
  lldp_med.c include/lldp_med.h \
--lldp_8023.c include/lldp_8023.h
-+lldp_8023.c include/lldp_8023.h \
-+lldp_evb.c include/lldp_evb.h
+ lldp_8023.c include/lldp_8023.h \
+-lldp_evb.c include/lldp_evb.h
+-
+-
++lldp_evb.c include/lldp_evb.h \
++lldp_vdp.c include/lldp_vdp.h
  
- 
- 
-@@ -74,7 +76,7 @@ $(lldpad_include_HEADERS) $(noinst_HEADERS)
+ dcbtool_SOURCES = dcbtool.c clif.c dcbtool_cmds.c parse_cli.l \
+ $(lldpad_include_HEADERS) $(noinst_HEADERS)
  
  lldptool_SOURCES = lldptool.c clif.c lldptool_cmds.c common.c os_unix.c \
  lldp_mand_clif.c lldp_basman_clif.c lldp_med_clif.c lldp_8023_clif.c \
--lldp_dcbx_clif.c $(lldpad_include_HEADERS) $(noinst_HEADERS)
-+lldp_dcbx_clif.c lldp_evb_clif.c $(lldpad_include_HEADERS) $(noinst_HEADERS)
+-lldp_dcbx_clif.c lldp_evb_clif.c $(lldpad_include_HEADERS) $(noinst_HEADERS)
++lldp_dcbx_clif.c lldp_evb_clif.c $(lldpad_include_HEADERS) \
++$(noinst_HEADERS)
  
  nltest_SOURCES = nltest.c nltest.h
  
+diff --git a/ecp/ecp_rx.c b/ecp/ecp_rx.c
+index d8c050f..cc54377 100644
+--- a/ecp/ecp_rx.c
++++ b/ecp/ecp_rx.c
+@@ -420,7 +420,14 @@ void ecp_rx_ProcessFrame(struct port * port)
+ 		tlv_offset += sizeof(*tlv_head_ptr) + tlv_length;
+ 
+ 		if (tlv->type == TYPE_127) { /* private TLV */
+-			/* TODO: give VSI TLV to VDP */
++			/* give VSI TLV to VDP */
++			if (!vdp_indicate(port, tlv, ecp_hdr->mode))
++				tlv_stored = true;
++			else {
++				/* TODO: put it in a list and try again later until
++				 * timer and retries have expired */
++				tlv_stored = false;
++			}
+ 		}
+ 
+ 		if ((tlv->type != TYPE_0) && !tlv_stored) {
+diff --git a/ecp/ecp_tx.c b/ecp/ecp_tx.c
+index d31edba..78a61ca 100644
+--- a/ecp/ecp_tx.c
++++ b/ecp/ecp_tx.c
+@@ -98,6 +98,13 @@ bool ecp_build_ECPDU(struct port *port, int mode)
+ 	struct vdp_data *vd;
+ 	struct vsi_profile *p;
+ 
++	vd = vdp_data(port->ifname);
++	if (!vd) {
++		printf("%s(%i): could not find vdp_data for %s !\n", __func__, __LINE__,
++		       port->ifname);
++		goto error;
++	}
++
+ 	if (port->ecp.tx.frameout) {
+ 		free(port->ecp.tx.frameout);
+ 		port->ecp.tx.frameout = NULL;
+@@ -145,7 +152,34 @@ bool ecp_build_ECPDU(struct port *port, int mode)
+ 	datasize += sizeof(struct ecp_hdr);
+ 	fb_offset += sizeof(struct ecp_hdr);
+ 
+-	/* TODO: create tlvs from profiles here */
++	/* create packed_tlvs for all profiles on this interface */
++	LIST_FOREACH(p, &vd->profile_head, profile) {
++		if(!p) {
++			printf("%s(%i): list vd->profile_head empty !\n", __func__, __LINE__);
++			continue;
++		}
++
++		if (p->localChange != mode) {
++			printf("%s(%i): not sending out profile !\n", __func__, __LINE__);
++			continue;
++		}
++
++		ptlv = vdp_gettlv(port, p);
++
++		if(!ptlv) {
++			printf("%s(%i): ptlv not created !\n", __func__, __LINE__);
++			continue;
++		}
++
++		if (ptlv) {
++			if ((ptlv->size+fb_offset) > ETH_MAX_DATA_LEN)
++				goto error;
++			memcpy(port->ecp.tx.frameout+fb_offset,
++			       ptlv->tlv, ptlv->size);
++			datasize += ptlv->size;
++			fb_offset += ptlv->size;
++		}
++	}
+ 
+ 	/* The End TLV marks the end of the LLDP PDU */
+ 	ptlv = pack_end_tlv();
 diff --git a/include/lldp.h b/include/lldp.h
-index 66532bd..21347b0 100644
+index e00ba7a..6a713b1 100644
 --- a/include/lldp.h
 +++ b/include/lldp.h
-@@ -45,6 +45,8 @@
- /* Telecommunications Industry Association TR-41 Committee */
- #define OUI_TIA_TR41	0x0012bb
+@@ -190,6 +190,7 @@ enum {
  
-+#define OUI_IEEE_8021Qbg	0x001b3f
-+
- /* IEEE 802.3AB Clause 9: TLV Types */
- #define CHASSIS_ID_TLV    1
- #define PORT_ID_TLV       2
-@@ -186,5 +188,23 @@ enum {
- #define LLDP_8023_LINKAGG_CAPABLE	(1 << 0)
- #define LLDP_8023_LINKAGG_ENABLED	(1 << 1)
+ /* IEEE 802.1Qbg subtype */
+ #define LLDP_EVB_SUBTYPE		0
++#define LLDP_VDP_SUBTYPE		0
  
-+/* IEEE 802.1Qbg subtype */
-+#define LLDP_EVB_SUBTYPE		0
-+
-+/* forwarding mode */
-+#define LLDP_EVB_CAPABILITY_FORWARD_STANDARD		(1 << 7)
-+#define LLDP_EVB_CAPABILITY_FORWARD_RELAXEDRELAY	(1 << 6)
-+
-+/* EVB supported protocols */
-+#define LLDP_EVB_CAPABILITY_PROTOCOL_RTE		(1 << 3)
-+#define LLDP_EVB_CAPABILITY_PROTOCOL_ECP		(1 << 2)
-+#define LLDP_EVB_CAPABILITY_PROTOCOL_VDPL		(1 << 1)
-+#define LLDP_EVB_CAPABILITY_PROTOCOL_VDP		(1 << 0)
-+
-+/* EVB specific values */
-+#define LLDP_EVB_DEFAULT_MAX_VSI			4096
-+#define LLDP_EVB_DEFAULT_SVSI				3295
-+#define LLDP_EVB_DEFAULT_RTE				15
-+
- void somethingChangedLocal(char *ifname);
- #endif /* _LLDP_H */
-diff --git a/include/lldp_evb.h b/include/lldp_evb.h
+ /* forwarding mode */
+ #define LLDP_EVB_CAPABILITY_FORWARD_STANDARD		(1 << 7)
+diff --git a/lldp_vdp.c b/lldp_vdp.c
 new file mode 100644
-index 0000000..3559dde
+index 0000000..a511a43
 --- /dev/null
-+++ b/include/lldp_evb.h
-@@ -0,0 +1,58 @@
++++ b/lldp_vdp.c
+@@ -0,0 +1,1140 @@
 +/*******************************************************************************
 +
-+  implementation of EVB TLVs for LLDP
-+  (c) Copyright IBM Corp. 2010
-+
-+  Author(s): Jens Osterkamp <jens@linux.vnet.ibm.com>
-+
-+  This program is free software; you can redistribute it and/or modify it
-+  under the terms and conditions of the GNU General Public License,
-+  version 2, as published by the Free Software Foundation.
-+
-+  This program is distributed in the hope it will be useful, but WITHOUT
-+  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-+  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
-+  more details.
-+
-+  You should have received a copy of the GNU General Public License along with
-+  this program; if not, write to the Free Software Foundation, Inc.,
-+  51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
-+
-+  The full GNU General Public License is included in this distribution in
-+  the file called "COPYING".
-+
-+*******************************************************************************/
-+
-+#ifndef _LLDP_EVB_H
-+#define _LLDP_EVB_H
-+
-+#include "lldp_mod.h"
-+
-+#define LLDP_MOD_EVB	OUI_IEEE_8021Qbg
-+#define LLDP_OUI_SUBTYPE	{ 0x00, 0x1b, 0x3f, 0x00 }
-+
-+typedef enum {
-+	EVB_OFFER_CAPABILITIES = 0,
-+	EVB_CONFIGURE,
-+	EVB_CONFIRMATION
-+} evb_state;
-+
-+struct evb_data {
-+	char ifname[IFNAMSIZ];
-+	struct unpacked_tlv *evb;
-+	struct tlv_info_evb *tie;
-+	int state;
-+	LIST_ENTRY(evb_data) entry;
-+};
-+
-+struct evb_user_data {
-+	LIST_HEAD(evb_head, evb_data) head;
-+};
-+
-+struct lldp_module *evb_register(void);
-+void evb_unregister(struct lldp_module *mod);
-+struct packed_tlv *evb_gettlv(struct port *port);
-+void evb_ifdown(char *);
-+void evb_ifup(char *);
-+
-+#endif /* _LLDP_EVB_H */
-diff --git a/include/lldp_evb_clif.h b/include/lldp_evb_clif.h
-new file mode 100644
-index 0000000..56011d1
---- /dev/null
-+++ b/include/lldp_evb_clif.h
-@@ -0,0 +1,33 @@
-+/*******************************************************************************
-+
-+  implementation of EVB TLVs for LLDP
-+  (c) Copyright IBM Corp. 2010
-+
-+  Author(s): Jens Osterkamp <jens@linux.vnet.ibm.com>
-+
-+  This program is free software; you can redistribute it and/or modify it
-+  under the terms and conditions of the GNU General Public License,
-+  version 2, as published by the Free Software Foundation.
-+
-+  This program is distributed in the hope it will be useful, but WITHOUT
-+  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-+  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
-+  more details.
-+
-+  You should have received a copy of the GNU General Public License along with
-+  this program; if not, write to the Free Software Foundation, Inc.,
-+  51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
-+
-+  The full GNU General Public License is included in this distribution in
-+  the file called "COPYING".
-+
-+*******************************************************************************/
-+
-+#ifndef _LLDP_EVB_CLIF_H
-+#define _LLDP_EVB_CLIF_H
-+
-+struct lldp_module *evb_cli_register(void);
-+void evb_cli_unregister(struct lldp_module *);
-+int evb_print_tlv(u32, u16, u8 *);
-+
-+#endif
-diff --git a/include/lldp_evb_cmds.h b/include/lldp_evb_cmds.h
-new file mode 100644
-index 0000000..1367e5d
---- /dev/null
-+++ b/include/lldp_evb_cmds.h
-@@ -0,0 +1,31 @@
-+/*******************************************************************************
-+
-+  implementation of EVB TLVs for LLDP
-+  (c) Copyright IBM Corp. 2010
-+
-+  Author(s): Jens Osterkamp <jens@linux.vnet.ibm.com>
-+
-+  This program is free software; you can redistribute it and/or modify it
-+  under the terms and conditions of the GNU General Public License,
-+  version 2, as published by the Free Software Foundation.
-+
-+  This program is distributed in the hope it will be useful, but WITHOUT
-+  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-+  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
-+  more details.
-+
-+  You should have received a copy of the GNU General Public License along with
-+  this program; if not, write to the Free Software Foundation, Inc.,
-+  51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
-+
-+  The full GNU General Public License is included in this distribution in
-+  the file called "COPYING".
-+
-+*******************************************************************************/
-+
-+#ifndef _LLDP_EVB_CMDS_H
-+#define _LLDP_EVB_CMDS_H
-+
-+struct arg_handlers *evb_get_arg_handlers();
-+
-+#endif
-diff --git a/include/lldp_tlv.h b/include/lldp_tlv.h
-index a32cc71..fe3a75a 100644
---- a/include/lldp_tlv.h
-+++ b/include/lldp_tlv.h
-@@ -144,6 +144,7 @@ int tlv_ok(struct unpacked_tlv *tlv);
- #define TLVID_8021(sub)		TLVID(OUI_IEEE_8021, (sub))
- #define TLVID_8023(sub)		TLVID(OUI_IEEE_8023, (sub))
- #define TLVID_MED(sub)		TLVID(OUI_TIA_TR41, (sub))
-+#define TLVID_8021Qbg(sub)	TLVID(OUI_IEEE_8021Qbg, (sub))
- 
- /* the size in bytes needed for a packed tlv from unpacked tlv */
- #define TLVSIZE(t) ((t) ? (2 + (t)->length) : 0)
-diff --git a/lldp_evb.c b/lldp_evb.c
-new file mode 100644
-index 0000000..304a9f4
---- /dev/null
-+++ b/lldp_evb.c
-@@ -0,0 +1,567 @@
-+/*******************************************************************************
-+
-+  implementation of EVB TLVs for LLDP
++  implementation of VDP according to IEEE 802.1Qbg
 +  (c) Copyright IBM Corp. 2010
 +
 +  Author(s): Jens Osterkamp <jens@linux.vnet.ibm.com>
@@ -325,95 +197,762 @@ index 0000000..304a9f4
 +#include <sys/utsname.h>
 +#include <linux/if_bridge.h>
 +#include "lldp.h"
++#include "lldp_vdp.h"
++#include "ecp/ecp.h"
 +#include "lldp_evb.h"
 +#include "messages.h"
 +#include "config.h"
 +#include "common.h"
-+#include "lldp_evb_clif.h"
-+#include "lldp_evb_cmds.h"
++#include "lldp_vdp_clif.h"
++#include "lldp_vdp_cmds.h"
 +
-+extern struct lldp_head lldp_head;
-+
-+struct tlv_info_evb {
-+	u8 oui[3];
-+	u8 sub;
-+	/* supported forwarding mode */
-+	u8 smode;
-+	/* supported capabilities */
-+	u8 scap;
-+	/* currently configured forwarding mode */
-+	u8 cmode;
-+	/* currently configured capabilities */
-+	u8 ccap;
-+	/* supported no. of vsi */
-+	u16 svsi;
-+	/* currently configured no. of vsi */
-+	u16 cvsi;
-+	/* retransmission exponent */
-+	u8 rte;
-+} __attribute__ ((__packed__));
-+
-+static struct evb_data *evb_data(const char *ifname)
++/* vdp_data - searches vdp_data in the list of modules for this port
++ * @ifname: interface name to search for
++ *
++ * returns vdp_data on success, NULL on error
++ *
++ * searches the list of user_data for the VDP module user_data.
++ */
++struct vdp_data *vdp_data(char *ifname)
 +{
-+	struct evb_user_data *ud;
-+	struct evb_data *bd = NULL;
++	struct vdp_user_data *ud;
++	struct vdp_data *vd = NULL;
 +
-+	ud = find_module_user_data_by_if(ifname, &lldp_head, LLDP_MOD_EVB);
++	ud = find_module_user_data_by_if(ifname, &lldp_head, LLDP_MOD_VDP);
 +	if (ud) {
-+		LIST_FOREACH(bd, &ud->head, entry) {
-+			if (!strncmp(ifname, bd->ifname, IFNAMSIZ))
-+				return bd;
++		LIST_FOREACH(vd, &ud->head, entry) {
++			if (!strncmp(ifname, vd->ifname, IFNAMSIZ))
++				return vd;
 +		}
 +	}
 +	return NULL;
 +}
 +
++/* vdp_free_tlv - free tlv in vdp_data
++ * @vd: vdp_data
++ *
++ * no return value
++ *
++ * frees up tlv in vdp_data. used in vdp_free_data.
++ */
++static void vdp_free_tlv(struct vdp_data *vd)
++{
++	if (vd) {
++		FREE_UNPKD_TLV(vd, vdp);
++	}
++}
++
++/* vdp_free_data - frees up vdp data
++ * @ud: user data structure
++ *
++ * no return value
++ *
++ * removes vd_structure from the user_data list. frees up tlv in vdp_data.
++ * used in vdp_unregister.
++ */
++static void vdp_free_data(struct vdp_user_data *ud)
++{
++	struct vdp_data *vd;
++	if (ud) {
++		while (!LIST_EMPTY(&ud->head)) {
++			vd = LIST_FIRST(&ud->head);
++			LIST_REMOVE(vd, entry);
++			vdp_free_tlv(vd);
++			free(vd);
++		}
++	}
++}
++
++/* vdp_print_profile - print a vsi profile
++ * @profile: profile to print
++ *
++ * no return value
++ *
++ * prints the contents of a profile first to a string using the PRINT_PROFILE
++ * macro, and then to the screen. Used for debug purposes.
++ */
++static inline void vdp_print_profile(struct vsi_profile *profile)
++{
++	char *s, *t;
++
++	s = t = malloc(VDP_BUF_SIZE);
++
++	 if (!s) {
++		printf("%s(%i): unable to allocate string !\n", __func__, __LINE__);
++	 }
++
++	PRINT_PROFILE(t, profile);
++
++	printf("profile: %s\n", s);
++
++	free(s);
++}
++
++/* vdp_somethingChangedLocal - set flag if profile has changed
++ * @profile: profile to set the flag for
++ * @mode: mode to set the flag to
++ *
++ * no return value
++ *
++ * set the localChange flag with a mode to indicate a profile has changed.
++ * used next time when a ecpdu with profiles is sent out.
++ */
++void vdp_somethingChangedLocal(struct vsi_profile *profile, int mode)
++{
++	profile->localChange = mode;
++}
++
++/* vdp_ackTimer_expired - checks for expired ack timer
++ * @profile: profile to be checked
++ *
++ * returns true or false
++ *
++ * returns value of profile->ackTimerExpired, true if ack timer has expired,
++ * false otherwise.
++ */
++static bool vdp_ackTimer_expired(struct vsi_profile *profile)
++{
++	return profile->ackTimerExpired;
++}
++
++/* vdp_timeout_handler - handles the ack timer expiry
++ * @eloop_data: data structure of event loop
++ * @user_ctx: user context, profile here
++ *
++ * no return value
++ *
++ * called when the VDP ack timer has expired. sets a flag and calls the VDP
++ * state machine.
++ */
++void vdp_timeout_handler(void *eloop_data, void *user_ctx)
++{
++	struct vsi_profile *profile;
++
++	profile = (struct vsi_profile *) user_ctx;
++
++	profile->ackTimerExpired = true;
++
++	printf("%s(%i)-%s: timer expired\n", __func__, __LINE__,
++	       profile->port->ifname);
++
++	vdp_vsi_sm_station(profile);
++}
++
++/* vdp_stop_ackTimer - stop the VDP ack timer
++ * @profile: profile to process
++ *
++ * returns the number of removed handlers
++ *
++ * stops the VDP ack timer. used when a ack frame for the profile has been
++ * received.
++ */
++static int vdp_stop_ackTimer(struct vsi_profile *profile)
++{
++	printf("%s(%i)-%s: stopping timer\n", __func__, __LINE__,
++	       profile->port->ifname);
++
++	return eloop_cancel_timeout(vdp_timeout_handler, NULL, (void *) profile);
++}
++
++/* vdp_start_ackTimer - starts the VDP ack timer
++ * @profile: profile to process
++ *
++ * returns 0 on success, -1 on error
++ *
++ * starts the ack timer when a frame has been sent out.
++ */
++static int vdp_start_ackTimer(struct vsi_profile *profile)
++{
++	unsigned int secs, usecs;
++
++	profile->ackTimerExpired = false;
++
++	secs = VDP_TRANSMISSION_TIMER / VDP_TRANSMISSION_DIVIDER;
++	usecs = VDP_TRANSMISSION_TIMER % VDP_TRANSMISSION_DIVIDER;
++
++	printf("%s(%i)-%s: starting timer\n", __func__, __LINE__,
++	       profile->port->ifname);
++
++	return eloop_register_timeout(secs, usecs, vdp_timeout_handler, NULL, (void *) profile);
++}
++
++/* vdp_vsi_change_station_state - changes the VDP station sm state
++ * @profile: profile to process
++ * @newstate: new state for the sm
++ *
++ * no return value
++ *
++ * actually changes the state of the profile
++ */
++void vdp_vsi_change_station_state(struct vsi_profile *profile, u8 newstate)
++{
++	switch(newstate) {
++	case VSI_UNASSOCIATED:
++		break;
++	case VSI_ASSOC_PROCESSING:
++		assert((profile->state == VSI_PREASSOCIATED) ||
++		       (profile->state == VSI_UNASSOCIATED));
++		break;
++	case VSI_ASSOCIATED:
++		assert(profile->state == VSI_ASSOC_PROCESSING);
++		break;
++	case VSI_PREASSOC_PROCESSING:
++		assert(profile->state == VSI_UNASSOCIATED);
++		break;
++	case VSI_PREASSOCIATED:
++		assert(profile->state == VSI_PREASSOC_PROCESSING);
++		break;
++	case VSI_DEASSOC_PROCESSING:
++		assert((profile->state == VSI_PREASSOCIATED) ||
++		       (profile->state == VSI_ASSOCIATED));
++		break;
++	case VSI_EXIT:
++		assert((profile->state == VSI_ASSOC_PROCESSING) ||
++		       (profile->state == VSI_PREASSOC_PROCESSING) ||
++		       (profile->state == VSI_DEASSOC_PROCESSING) ||
++		       (profile->state == VSI_PREASSOCIATED) ||
++		       (profile->state == VSI_ASSOCIATED));
++		break;
++	default:
++		printf("ERROR: The VDP station State Machine is broken!\n");
++		break;
++	}
++
++	printf("%s(%i)-%s: state change %s -> %s\n", __func__, __LINE__,
++	       profile->port->ifname, vsi_states[profile->state], vsi_states[newstate]);
++
++	profile->state = newstate;
++}
++
++/* vdp_vsi_set_station_state - sets the vdp sm station state
++ * @profile: profile to process
++ *
++ * returns true or false
++ *
++ * switches the state machine to the next state depending on the input
++ * variables. returns true or false depending on wether the state machine
++ * can be run again with the new state or can stop at the current state.
++ */
++static bool vdp_vsi_set_station_state(struct vsi_profile *profile)
++{
++	switch(profile->state) {
++	case VSI_UNASSOCIATED:
++		if ((profile->mode == VDP_MODE_PREASSOCIATE) ||
++		    (profile->mode == VDP_MODE_PREASSOCIATE_WITH_RR)) {
++			vdp_vsi_change_station_state(profile, VSI_PREASSOC_PROCESSING);
++			return true;
++		} else if (profile->mode == VDP_MODE_ASSOCIATE) {
++			vdp_vsi_change_station_state(profile, VSI_ASSOC_PROCESSING);
++			return true;
++		}
++		return false;
++	case VSI_ASSOC_PROCESSING:
++		if (profile->ackReceived) {
++			vdp_vsi_change_station_state(profile, VSI_ASSOCIATED);
++			return true;
++		} else if (!profile->ackReceived && vdp_ackTimer_expired(profile)) {
++			vdp_vsi_change_station_state(profile, VSI_EXIT);
++			return true;
++		}
++		return false;
++	case VSI_ASSOCIATED:
++		if (profile->mode == VDP_MODE_PREASSOCIATE) {
++			vdp_vsi_change_station_state(profile, VSI_PREASSOC_PROCESSING);
++			return true;
++		} else if (profile->mode == VDP_MODE_DEASSOCIATE) {
++			vdp_vsi_change_station_state(profile, VSI_DEASSOC_PROCESSING);
++			return true;
++		}
++		return false;
++	case VSI_PREASSOC_PROCESSING:
++		if (profile->ackReceived) {
++			vdp_vsi_change_station_state(profile, VSI_PREASSOCIATED);
++			return true;
++		} else if (vdp_ackTimer_expired(profile)) {
++			vdp_vsi_change_station_state(profile, VSI_EXIT);
++			return true;
++		}
++	case VSI_PREASSOCIATED:
++		if (profile->mode == VDP_MODE_DEASSOCIATE) {
++			vdp_vsi_change_station_state(profile, VSI_DEASSOC_PROCESSING);
++			return true;
++		}
++		if (profile->mode == VDP_MODE_ASSOCIATE) {
++			vdp_vsi_change_station_state(profile, VSI_ASSOC_PROCESSING);
++			return true;
++		}
++		return false;
++	case VSI_DEASSOC_PROCESSING:
++		if ((profile->ackReceived) || vdp_ackTimer_expired(profile)) {
++			vdp_vsi_change_station_state(profile, VSI_EXIT);
++			return true;
++		}
++		return false;
++	case VSI_EXIT:
++		return false;
++	default:
++		printf("ERROR: The VSI RX State Machine is broken!\n");
++		log_message(MSG_ERR_RX_SM_INVALID, "");
++		return false;
++	}
++}
++
++/* vdp_vsi_sm_station - state machine for vdp station role
++ * @profile: profile for which the state is processed
++ *
++ * no return value
++ *
++ * runs the state machine for the station role of VDP.
++ */
++void vdp_vsi_sm_station(struct vsi_profile *profile)
++{
++	vdp_vsi_set_station_state(profile);
++	do {
++		printf("%s(%i)-%s: station - %s\n", __func__, __LINE__,
++		       profile->port->ifname, vsi_states[profile->state]);
++
++		switch(profile->state) {
++		case VSI_UNASSOCIATED:
++			break;
++		case VSI_ASSOC_PROCESSING:
++			vdp_somethingChangedLocal(profile, VDP_PROFILE_REQ);
++			ecp_somethingChangedLocal(profile->port, VDP_PROFILE_REQ);
++			ecp_tx_run_sm(profile->port);
++			vdp_start_ackTimer(profile);
++			break;
++		case VSI_ASSOCIATED:
++			 vdp_stop_ackTimer(profile);
++			 /* TODO:
++			  * vsiError = ProcRxandSetCfg(remoteTLV, localtlv, vsistate);
++			 *       if (!vsiError) vsistate=ASSOCIATED */
++			break;
++		case VSI_PREASSOC_PROCESSING:
++			/* send out profile */
++			vdp_somethingChangedLocal(profile, VDP_PROFILE_REQ);
++			ecp_somethingChangedLocal(profile->port, VDP_PROFILE_REQ);
++			ecp_tx_run_sm(profile->port);
++			vdp_start_ackTimer(profile);
++			break;
++		case VSI_PREASSOCIATED:
++			profile->ackReceived = false;
++			vdp_somethingChangedLocal(profile, VDP_PROFILE_NOCHANGE);
++			vdp_stop_ackTimer(profile);
++			/* TODO	 vsiError = ProcRxandSetCfg(remoteTLV, localtlv, vsistate);
++			 *       if (!vsiError) vsistate=PREASSOCIATED */
++			break;
++		case VSI_DEASSOC_PROCESSING:
++			vdp_somethingChangedLocal(profile, VDP_PROFILE_REQ);
++			vdp_start_ackTimer(profile);
++			break;
++		case VSI_EXIT:
++			/* TODO: something went wrong, remove this profile */
++			break;
++		default:
++			printf("ERROR: The VSI RX station State Machine is broken!\n");
++			log_message(MSG_ERR_TX_SM_INVALID, "");
++		}
++	} while (vdp_vsi_set_station_state(profile) == true);
++
++}
++
++/* vdp_vsi_change_bridge_state - changes the VDP bridge sm state
++ * @profile: profile to process
++ * @newstate: new state for the sm
++ *
++ * no return value
++ *
++ * actually changes the state of the profile
++ */
++static void vdp_vsi_change_bridge_state(struct vsi_profile *profile, u8 newstate)
++{
++	switch(newstate) {
++	case VSI_UNASSOCIATED:
++		break;
++	case VSI_ASSOC_PROCESSING:
++		assert((profile->state == VSI_UNASSOCIATED) ||
++		      (profile->state == VSI_PREASSOCIATED) ||
++		      (profile->state == VSI_ASSOCIATED));
++		break;
++	case VSI_ASSOCIATED:
++		assert(profile->state == VSI_ASSOC_PROCESSING);
++		break;
++	case VSI_PREASSOC_PROCESSING:
++		assert((profile->state == VSI_UNASSOCIATED) ||
++		      (profile->state == VSI_PREASSOCIATED) ||
++		      (profile->state == VSI_ASSOCIATED));
++		break;
++	case VSI_PREASSOCIATED:
++		assert(profile->state == VSI_PREASSOC_PROCESSING);
++		break;
++	case VSI_DEASSOC_PROCESSING:
++		assert((profile->state == VSI_UNASSOCIATED) ||
++		      (profile->state == VSI_PREASSOCIATED) ||
++		      (profile->state == VSI_ASSOCIATED));
++		break;
++	case VSI_EXIT:
++		assert((profile->state == VSI_DEASSOC_PROCESSING) ||
++		      (profile->state == VSI_PREASSOC_PROCESSING) ||
++		      (profile->state == VSI_ASSOC_PROCESSING));
++		break;
++	default:
++		printf("ERROR: The VDP bridge State Machine is broken!\n");
++		break;
++	}
++	profile->state = newstate;
++}
++
++/* vdp_vsi_set_bridge_state - sets the vdp sm bridge state
++ * @profile: profile to process
++ *
++ * returns true or false
++ *
++ * switches the state machine to the next state depending on the input
++ * variables. returns true or false depending on wether the state machine
++ * can be run again with the new state or can stop at the current state.
++ */
++static bool vdp_vsi_set_bridge_state(struct vsi_profile *profile)
++{
++	switch(profile->state) {
++	case VSI_UNASSOCIATED:
++		if ((profile->mode == VDP_MODE_DEASSOCIATE)) /* || (INACTIVE)) */ {
++			vdp_vsi_change_bridge_state(profile, VSI_DEASSOC_PROCESSING);
++			return true;
++		} else if (profile->mode == VDP_MODE_ASSOCIATE) {
++			vdp_vsi_change_bridge_state(profile, VSI_ASSOC_PROCESSING);
++			return true;
++		} else if (profile->mode == VDP_MODE_PREASSOCIATE) {
++			vdp_vsi_change_bridge_state(profile, VSI_PREASSOC_PROCESSING);
++			return true;
++		}
++		return false;
++	case VSI_ASSOC_PROCESSING:
++		/* TODO: handle error case
++		if (!vsiError) ||
++		   (vsiError && vsiState == Assoc) {
++		   */
++		if (profile->mode == VDP_MODE_ASSOCIATE) {
++			vdp_vsi_change_bridge_state(profile, VSI_ASSOCIATED);
++			return true;
++		}
++		return false;
++	case VSI_ASSOCIATED:
++		if (profile->mode == VDP_MODE_ASSOCIATE) /* || ( INACTIVE )*/ {
++			vdp_vsi_change_bridge_state(profile, VSI_DEASSOC_PROCESSING);
++			return true;
++		} else if (profile->mode == VDP_MODE_PREASSOCIATE) {
++			vdp_vsi_change_bridge_state(profile, VSI_PREASSOC_PROCESSING);
++			return true;
++		}  else if (profile->mode == VDP_MODE_ASSOCIATE) {
++			vdp_vsi_change_bridge_state(profile, VSI_ASSOC_PROCESSING);
++			return true;
++		}
++		return false;
++	case VSI_PREASSOC_PROCESSING:
++		 if (profile->response != VDP_RESPONSE_SUCCESS) {
++			vdp_vsi_change_bridge_state(profile, VSI_EXIT);
++			return true;
++		 }
++		vdp_vsi_change_bridge_state(profile, VSI_PREASSOCIATED);
++		return false;
++	case VSI_PREASSOCIATED:
++		if (profile->mode == VDP_MODE_ASSOCIATE) {
++			vdp_vsi_change_bridge_state(profile, VSI_ASSOC_PROCESSING);
++			return true;
++		} else if (profile->mode == VDP_MODE_DEASSOCIATE ) {
++			vdp_vsi_change_bridge_state(profile, VSI_DEASSOC_PROCESSING);
++			return true;
++		}  else if (profile->mode == VDP_MODE_PREASSOCIATE ) {
++			vdp_vsi_change_bridge_state(profile, VSI_PREASSOC_PROCESSING);
++			return true;
++		}
++		return false;
++	case VSI_DEASSOC_PROCESSING:
++		vdp_vsi_change_bridge_state(profile, VSI_EXIT);
++		return false;
++	case VSI_EXIT:
++		return false;
++	default:
++		printf("ERROR: The VSI RX State Machine (bridge) is broken!\n");
++		log_message(MSG_ERR_RX_SM_INVALID, "");
++		return false;
++	}
++}
++
++/* vdp_vsi_sm_bridge - state machine for vdp bridge role
++ * @profile: profile for which the state is processed
++ *
++ * no return value
++ *
++ * runs the state machine for the bridge role of VDP.
++ */
++static void vdp_vsi_sm_bridge(struct vsi_profile *profile)
++{
++	vdp_vsi_set_bridge_state(profile);
++	do {
++		printf("%s(%i)-%s: bridge - %s\n", __func__, __LINE__,
++		       profile->port->ifname, vsi_states[profile->state]);
++		switch(profile->state) {
++		case VSI_UNASSOCIATED:
++			break;
++		case VSI_ASSOC_PROCESSING:
++			/* TODO: vsiError = ProcRxandSetCfg(remoteTLV, localtlv, vsistate);
++			 *       if (vsiError)
++			 *		txTLV(Assoc NACK)
++			 *       else
++			 *		txTLV(Assoc ACK) */
++			break;
++		case VSI_ASSOCIATED:
++			break;
++		case VSI_PREASSOC_PROCESSING:
++			/* TODO: vsiError = ProcRxandSetCfg(remoteTLV, localtlv, vsistate);
++			 *       if (vsiError)
++			 *		txTLV(PreAssoc NACK)
++			 *       else
++			 *		txTLV(PreAssoc ACK) */
++			/* for now, we always succeed */
++			profile->response = VDP_RESPONSE_SUCCESS;
++			printf("%s(%i)-%s: framein %p, sizein %i\n", __func__, __LINE__,
++			       profile->port->ifname, profile->port->ecp.rx.framein,
++			       profile->port->ecp.rx.sizein);
++			ecp_rx_send_ack_frame(profile->port);
++			break;
++		case VSI_PREASSOCIATED:
++			printf("%s(%i)-%s: \n", __func__, __LINE__, profile->port->ifname);
++			break;
++		case VSI_DEASSOC_PROCESSING:
++			/* TODO: txTLV(DeAssoc ACK) */
++			break;
++		case VSI_EXIT:
++			/* TODO: something went wrong, remove this profile */
++			break;
++		default:
++			printf("ERROR: The VSI RX bridge State Machine is broken!\n");
++			log_message(MSG_ERR_TX_SM_INVALID, "");
++		}
++	} while (vdp_vsi_set_bridge_state(profile) == true);
++
++}
++
 +/*
-+ * evb_bld_cfg_tlv - build the EVB TLV
-+ * @bd: the evb data struct
++ * vdp_print_vsi_tlv - print the raw contents of a VSI TLV
++ * @tlv: the unpacked tlv which gets printed
++ *
++ * No return value
++ *
++ * used for protocol debug purposes
++ */
++static void vdp_print_vsi_tlv(struct unpacked_tlv *tlv)
++{
++	int i;
++
++	printf("### %s:type %i, length %i, info:\n", __func__, tlv->type, tlv->length);
++
++	for (i=0; i < tlv->length; i++) {
++		printf("%02x ", tlv->info[i]);
++		if (!((i+1) % 16))
++			printf("\n");
++	}
++
++	printf("\n");
++}
++
++/*
++ * vdp_validate_tlv - validates vsi tlvs
++ * @vdp: decoded vsi tlv
++ *
++ * Returns 0 on success, 1 on error
++ *
++ * checks the contents of an already decoded vsi tlv for inconsistencies
++ */
++static int vdp_validate_tlv(struct tlv_info_vdp *vdp)
++{
++	if (ntoh24(vdp->oui) != OUI_IEEE_8021Qbg) {
++		printf("vdp->oui %06x \n", vdp->oui);
++		goto out_err;
++	}
++
++	if (vdp->sub != LLDP_VDP_SUBTYPE) {
++		printf("vdp->sub %02x \n", vdp->sub);
++		goto out_err;
++	}
++
++	if ((vdp->mode < VDP_MODE_PREASSOCIATE) ||
++		(vdp->mode > VDP_MODE_DEASSOCIATE)) {
++		printf("Unknown mode %02x in vsi tlv !\n", vdp->mode);
++		goto out_err;
++	}
++
++	if ((vdp->response < VDP_RESPONSE_SUCCESS) ||
++		(vdp->response > VDP_RESPONSE_OUT_OF_SYNC)) {
++		printf("Unknown response %02x \n", vdp->response);
++		goto out_err;
++	}
++
++	if (vdp->format != VDP_MACVLAN_FORMAT_1) {
++		printf("Unknown format %02x in vsi tlv !\n", vdp->format);
++		goto out_err;
++	}
++
++	if (vdp->entries != 1) {
++		printf("Multiple entries %02x in vsi tlv !\n", vdp->entries);
++		goto out_err;
++	}
++
++	return 0;
++
++out_err:
++	return 1;
++}
++
++/*
++ * vdp_indicate - receive VSI TLVs from ECP
++ * @port: the port on which the tlv was received
++ * @tlv: the unpacked tlv to receive
++ * @ecp_mode: the mode under which the tlv was received (ACK or REQ)
 + *
 + * Returns 0 on success
++ *
++ * receives a vsi tlv and creates a profile. Take appropriate action
++ * depending on the role of the (receive) port
 + */
-+static int evb_bld_cfg_tlv(struct evb_data *bd)
++int vdp_indicate(struct port *port, struct unpacked_tlv *tlv, int ecp_mode)
++{
++	char *s, *t;
++	struct vdp_data *vd;
++	struct tlv_info_vdp *vdp;
++	struct vsi_profile *p, *profile;
++
++	vd = vdp_data(port->ifname);
++	if (!vd) {
++		fprintf(stderr, "### %s:%s does not exist !\n", __func__,
++			port->ifname);
++		goto out_err;
++	}
++
++	vdp = malloc(sizeof(struct tlv_info_vdp));
++
++	if (!vdp) {
++		printf("%s(%i): unable to allocate vdp !\n", __func__, __LINE__);
++		goto out_err;
++	}
++
++	memset(vdp, 0, sizeof(struct tlv_info_vdp));
++	memcpy(vdp, tlv->info, tlv->length);
++
++	if (vdp_validate_tlv(vdp)) {
++		printf("%s(%i): Invalid TLV received !\n", __func__, __LINE__);
++		goto out_err;
++	}
++
++	profile = malloc(sizeof(struct vsi_profile));
++
++	 if (!profile) {
++		printf("%s(%i): unable to allocate profile !\n", __func__, __LINE__);
++		goto out_vdp;
++	 }
++
++	memset(profile, 0, sizeof(struct vsi_profile));
++
++	profile->mode = vdp->mode;
++	profile->response = vdp->response;
++
++	profile->mgrid = vdp->mgrid;
++	memcpy(&profile->id, &vdp->id, 3);
++	profile->version = vdp->version;
++	memcpy(&profile->instance, &vdp->instance, 16);
++	memcpy(&profile->mac, &vdp->mac_vlan.mac, MAC_ADDR_LEN);
++	profile->vlan = vdp->mac_vlan.vlan;
++
++	profile->port = port;
++	printf("%s(%i):\n", __func__, __LINE__);
++
++	if (vd->role == VDP_ROLE_STATION) {
++		/* do we have the profile already ? */
++		LIST_FOREACH(p, &vd->profile_head, profile) {
++			if (vdp_profile_equal(p, profile)) {
++				printf("%s(%i): station: profile found, localChange %i ackReceived %i!\n",
++				       __func__, __LINE__, p->localChange, p->ackReceived);
++
++				if (ecp_mode == ECP_ACK)
++					p->ackReceived = true;
++
++				vdp_vsi_sm_station(p);
++			} else {
++				printf("%s(%i): station: profile not found !\n", __func__, __LINE__);
++				/* ignore profile */
++			}
++		}
++	}
++
++	if (vd->role == VDP_ROLE_BRIDGE) {
++		/* do we have the profile already ? */
++		LIST_FOREACH(p, &vd->profile_head, profile) {
++			if (vdp_profile_equal(p, profile)) {
++				break;
++			}
++		}
++
++		if (p) {
++			printf("%s(%i): bridge: profile found !\n", __func__, __LINE__);
++		} else {
++			printf("%s(%i): bridge: profile not found !\n", __func__, __LINE__);
++			/* put it in the list  */
++			profile->state = VSI_UNASSOCIATED;
++			LIST_INSERT_HEAD(&vd->profile_head, profile, profile );
++		}
++
++		vdp_vsi_sm_bridge(profile);
++	}
++
++	return 0;
++
++out_vdp:
++	free(vdp);
++out_err:
++	printf("%s(%i): error !\n", __func__, __LINE__);
++	return 1;
++
++}
++
++/*
++ * vdp_bld_vsi_tlv - build the VDP VSI TLV
++ * @vd: vdp_data structure for this port
++ * @profile: profile the vsi tlv is created from
++ *
++ * Returns 0 on success, ENOMEM otherwise
++ *
++ * creates a vdp structure from an existing profile
++ */
++static int vdp_bld_vsi_tlv(struct vdp_data *vd, struct vsi_profile *profile)
 +{
 +	int rc = 0;
 +	int i;
 +	struct unpacked_tlv *tlv = NULL;
-+	struct tlv_info_evb evb;
++	struct tlv_info_vdp vdp;
 +
-+	/* free bd->evb if it exists */
-+	FREE_UNPKD_TLV(bd, evb);
++	FREE_UNPKD_TLV(vd, vdp);
 +
-+	if (!is_tlv_txenabled(bd->ifname, TLVID_8021Qbg(LLDP_EVB_SUBTYPE))) {
-+		fprintf(stderr, "### %s:%s:EVB Config disabled\n",
-+			__func__, bd->ifname);
-+		rc = EINVAL;
-+		goto out_err;
-+	}
++	memset(&vdp, 0, sizeof(vdp));
 +
-+	/* load from config */
-+	memset(&evb, 0, sizeof(evb));
-+	if (get_config_tlvinfo_bin(bd->ifname, TLVID_8021Qbg(LLDP_EVB_SUBTYPE),
-+			       (void *)&evb, sizeof(evb))) {
-+		hton24(evb.oui, LLDP_MOD_EVB);
-+		fprintf(stderr, "### %s:%s:Build EVB Config from scratch\n",
-+			__func__, bd->ifname);
-+		evb.sub = LLDP_EVB_SUBTYPE;
-+		evb.smode = bd->tie->smode;
-+		evb.scap = bd->tie->scap;
-+		evb.cmode = bd->tie->cmode;
-+		evb.ccap = bd->tie->ccap;
-+		evb.svsi = bd->tie->svsi;
-+		evb.cvsi = bd->tie->cvsi;
-+		evb.rte = bd->tie->rte;
-+	}
++	hton24(vdp.oui, OUI_IEEE_8021Qbg);
++	vdp.sub = LLDP_VDP_SUBTYPE;
++	vdp.mode = profile->mode;
++	vdp.response = 0;
++	vdp.mgrid = profile->mgrid;
++	memcpy(&vdp.id,&profile->id, 3);
++	vdp.version = profile->version;
++	memcpy(&vdp.instance,&profile->instance, 16);
++	vdp.format = VDP_MACVLAN_FORMAT_1;
++	vdp.entries = 1;
++	memcpy(&vdp.mac_vlan.mac,&profile->mac, MAC_ADDR_LEN);
++	vdp.mac_vlan.vlan = profile->vlan;
 +
 +	tlv = create_tlv();
 +	if (!tlv)
 +		goto out_err;
 +
 +	tlv->type = ORG_SPECIFIC_TLV;
-+	tlv->length = sizeof(evb);
++	tlv->length = sizeof(vdp);
 +	tlv->info = (u8 *)malloc(tlv->length);
 +	if(!tlv->info) {
 +		free(tlv);
@@ -421,56 +960,29 @@ index 0000000..304a9f4
 +		rc = ENOMEM;
 +		goto out_err;
 +	}
-+	memcpy(tlv->info, &evb, tlv->length);
++	memcpy(tlv->info, &vdp, tlv->length);
 +
-+	printf("### %s:type %i, length %i, info ", __func__, tlv->type, tlv->length);
++	vd->vdp = tlv;
 +
-+	for (i=0; i < tlv->length; i++) {
-+		printf("%02x ", tlv->info[i]);
-+	}
-+
-+	printf("\n");
-+
-+	bd->evb = tlv;
 +out_err:
 +	return rc;
 +}
 +
-+static void evb_free_tlv(struct evb_data *bd)
-+{
-+	if (bd) {
-+		FREE_UNPKD_TLV(bd, evb);
-+	}
-+}
-+
-+/* evb_init_cfg_tlv:
++/* vdp_bld_tlv - builds a tlv from a profile
++ * @vd: vdp_data structure for this port
++ * @profile: profile the vsi tlv is created from
 + *
-+ * fill up tlv_info_evb structure with reasonable info
-+ */
-+static int evb_init_cfg_tlv(struct evb_data *bd)
-+{
-+	bd->tie = (struct tlv_info_evb *) calloc(1, sizeof(struct tlv_info_evb));
-+	if (!bd->tie)
-+		return ENOMEM;
++ * returns 0 on success, != 0 on error
++ *
++ * wrapper function around vdp_bld_vsi_tlv. adds some checks and calls
++ * vdp_bld_vsi_tlv.
++*/
 +
-+	/* TODO: these should be set reasonable default, and must be able to change via config */
-+	/* if possible, we request RR */
-+	bd->tie->smode = LLDP_EVB_CAPABILITY_FORWARD_RELAXEDRELAY;
-+	/* capabilities we support */
-+	bd->tie->scap = LLDP_EVB_CAPABILITY_PROTOCOL_RTE | LLDP_EVB_CAPABILITY_PROTOCOL_ECP
-+		| LLDP_EVB_CAPABILITY_PROTOCOL_VDP | LLDP_EVB_CAPABILITY_PROTOCOL_VDPL;
-+	/* FIXME: for test: support something different than bridge */
-+	bd->tie->svsi = LLDP_EVB_DEFAULT_SVSI;
-+	bd->tie->rte = LLDP_EVB_DEFAULT_RTE;
-+
-+	return 0;
-+}
-+
-+static int evb_bld_tlv(struct evb_data *bd)
++static int vdp_bld_tlv(struct vdp_data *vd, struct vsi_profile *profile)
 +{
 +	int rc = 0;
 +
-+	if (!port_find_by_name(bd->ifname)) {
++	if (!port_find_by_name(vd->ifname)) {
 +		rc = EEXIST;
 +		goto out_err;
 +	}
@@ -480,9 +992,9 @@ index 0000000..304a9f4
 +		goto out_err;
 +	}
 +
-+	if (evb_bld_cfg_tlv(bd)) {
-+		fprintf(stderr, "### %s:%s:evb_bld_cfg_tlv() failed\n",
-+				__func__, bd->ifname);
++	if (vdp_bld_vsi_tlv(vd, profile)) {
++		fprintf(stderr, "### %s:%s:vdp_bld_cfg_tlv() failed\n",
++				__func__, vd->ifname);
 +		rc = EINVAL;
 +		goto out_err_destroy;
 +	}
@@ -494,41 +1006,45 @@ index 0000000..304a9f4
 +	return rc;
 +}
 +
-+static void evb_free_data(struct evb_user_data *ud)
-+{
-+	struct evb_data *bd;
-+	if (ud) {
-+		while (!LIST_EMPTY(&ud->head)) {
-+			bd = LIST_FIRST(&ud->head);
-+			LIST_REMOVE(bd, entry);
-+			evb_free_tlv(bd);
-+			free(bd);
-+		}
-+	}
-+}
-+
-+struct packed_tlv *evb_gettlv(struct port *port)
++/* vdp_gettlv - get the tlv for a profile
++ * @port: the port on which the tlv was received
++ * @profile: profile the vsi tlv is created from
++ *
++ * returns 0 on success
++ *
++ * this is the interface function called from ecp_build_ECPDU. It returns the
++ * packed tlv for a profile.
++ */
++struct packed_tlv *vdp_gettlv(struct port *port, struct vsi_profile *profile)
 +{
 +	int size;
-+	struct evb_data *bd;
++	struct vdp_data *vd;
 +	struct packed_tlv *ptlv = NULL;
 +
-+	bd = evb_data(port->ifname);
-+	if (!bd)
++	vd = vdp_data(port->ifname);
++	if (!vd) {
++		printf("%s(%i): Could not find vdp_data for %s !\n", __func__, __LINE__,
++		       port->ifname);
 +		goto out_err;
++	}
 +
-+	evb_free_tlv(bd);
++	/* frees the unpacked_tlv in vdp_data
++	 * also done in vdp_bld_vsi_tlv */
++	vdp_free_tlv(vd);
 +
-+	if (evb_bld_tlv(bd)) {
-+		fprintf(stderr, "### %s:%s evb_bld_tlv failed\n",
++	if (vdp_bld_tlv(vd, profile)) {
++		fprintf(stderr, "### %s:%s vdp_bld_tlv failed\n",
 +			__func__, port->ifname);
 +		goto out_err;
 +	}
 +
-+	size = TLVSIZE(bd->evb);
++	size = TLVSIZE(vd->vdp);
 +
-+	if (!size)
++	if (!size) {
++		printf("%s(%i): size %i of unpacked_tlv not correct !\n", __func__, __LINE__,
++		       size);
 +		goto out_err;
++	}
 +
 +	ptlv = create_ptlv();
 +	if (!ptlv)
@@ -539,224 +1055,125 @@ index 0000000..304a9f4
 +		goto out_free;
 +
 +	ptlv->size = 0;
-+	PACK_TLV_AFTER(bd->evb, ptlv, size, out_free);
++	PACK_TLV_AFTER(vd->vdp, ptlv, size, out_free);
++
 +	return ptlv;
++
 +out_free:
-+	/* FIXME: free function returns pointer ? */
 +	ptlv = free_pkd_tlv(ptlv);
 +out_err:
 +	fprintf(stderr,"### %s:%s: failed\n", __func__, port->ifname);
 +	return NULL;
-+
 +}
 +
-+/* evb_check_and_fill
++/* vdp_profile_equal - checks for equality of 2 profiles
++ * @p1: profile 1
++ * @p2: profile 2
 + *
-+ * checks values received in TLV and takes over some values
-+ */
-+int evb_check_and_fill(struct evb_data *ed, struct tlv_info_evb *tie)
-+{
-+	if ((tie->smode & (LLDP_EVB_CAPABILITY_FORWARD_STANDARD |
-+			  LLDP_EVB_CAPABILITY_FORWARD_RELAXEDRELAY)) == 0)
-+		return TLV_ERR;
-+
-+	if ((tie->scap & (LLDP_EVB_CAPABILITY_PROTOCOL_RTE |
-+			  LLDP_EVB_CAPABILITY_PROTOCOL_ECP |
-+			  LLDP_EVB_CAPABILITY_PROTOCOL_VDP |
-+			  LLDP_EVB_CAPABILITY_PROTOCOL_VDPL)) == 0)
-+		return TLV_ERR;
-+
-+	if ((tie->svsi < 0) || (tie->svsi > LLDP_EVB_DEFAULT_MAX_VSI))
-+		return TLV_ERR;
-+
-+	if ((tie->cvsi < 0) || (tie->cvsi > LLDP_EVB_DEFAULT_MAX_VSI))
-+		return TLV_ERR;
-+
-+	/* If both sides support RR, set it */
-+	if ((tie->smode & LLDP_EVB_CAPABILITY_FORWARD_RELAXEDRELAY) &&
-+	    (ed->tie->smode & LLDP_EVB_CAPABILITY_FORWARD_RELAXEDRELAY)) {
-+		ed->tie->cmode = LLDP_EVB_CAPABILITY_FORWARD_RELAXEDRELAY;
-+	} else {
-+		ed->tie->cmode = LLDP_EVB_CAPABILITY_FORWARD_STANDARD;
-+	}
-+
-+	/* If both sides support RTE, set it */
-+	if ((tie->scap & LLDP_EVB_CAPABILITY_PROTOCOL_RTE) &&
-+	    (ed->tie->scap & LLDP_EVB_CAPABILITY_PROTOCOL_RTE))
-+		ed->tie->ccap |= LLDP_EVB_CAPABILITY_PROTOCOL_RTE;
-+
-+	/* If both sides support ECP, set it */
-+	if ((tie->scap & LLDP_EVB_CAPABILITY_PROTOCOL_ECP) &&
-+	    (ed->tie->scap & LLDP_EVB_CAPABILITY_PROTOCOL_ECP))
-+		ed->tie->ccap |= LLDP_EVB_CAPABILITY_PROTOCOL_ECP;
-+
-+	/* If both sides support VDPL, set it */
-+	if ((tie->scap & LLDP_EVB_CAPABILITY_PROTOCOL_VDPL) &&
-+	    (ed->tie->scap & LLDP_EVB_CAPABILITY_PROTOCOL_VDPL))
-+		ed->tie->ccap |= LLDP_EVB_CAPABILITY_PROTOCOL_VDPL;
-+
-+	/* If both sides support VDP, set it */
-+	if ((tie->scap & LLDP_EVB_CAPABILITY_PROTOCOL_VDP) &&
-+	    (ed->tie->scap & LLDP_EVB_CAPABILITY_PROTOCOL_VDP))
-+		ed->tie->ccap |= LLDP_EVB_CAPABILITY_PROTOCOL_VDP;
-+
-+	/* If supported caps include VDP take over min value of both */
-+	if (tie->scap & LLDP_EVB_CAPABILITY_PROTOCOL_VDP)
-+		ed->tie->cvsi = MIN(ed->tie->svsi,tie->svsi);
-+
-+	/* If both sides support RTE and value offer is > 0, set it */
-+	if ((tie->scap & LLDP_EVB_CAPABILITY_PROTOCOL_RTE) &&
-+	    (ed->tie->scap & LLDP_EVB_CAPABILITY_PROTOCOL_RTE) &&
-+		(tie->rte > 0))
-+		ed->tie->rte = MIN(ed->tie->svsi,tie->rte);
-+
-+	return TLV_OK;
-+}
-+
-+/* evb_compare
++ * returns 1 on success, 0 on error
 + *
-+ * compare our own and received tlv_info_evb
++ * compares mgrid, id, version, instance, mac and vlan of 2 profiles to find
++ * out if they are equal.
 + */
-+static int evb_compare(struct evb_data *ed, struct tlv_info_evb *tie)
++int vdp_profile_equal(struct vsi_profile *p1, struct vsi_profile *p2)
 +{
-+	if ((ed->tie->smode == tie->smode) &&
-+	    (ed->tie->scap == tie->scap) &&
-+	    (ed->tie->cmode == tie->cmode) &&
-+	    (ed->tie->ccap == tie->ccap) &&
-+	    (ed->tie->svsi == tie->svsi) &&
-+	    (ed->tie->cvsi == tie->cvsi))
++	if (p1->mgrid != p2->mgrid)
 +		return 0;
-+	else
-+		return 1;
++
++	if (memcmp(p1->id, p2->id, 3))
++		return 0;
++
++	if (p1->version != p2->version)
++		return 0;
++
++	if (memcmp(p1->instance, p2->instance, 16))
++		return 0;
++
++	if (memcmp(p1->mac, p2->mac, MAC_ADDR_LEN))
++		return 0;
++
++	if (p1->vlan != p2->vlan)
++		return 0;
++
++	return 1;
 +}
 +
-+/* evb_statemachine:
++/* vdp_add_profile - adds a profile to a per port list
++ * @profile: profile to add
 + *
-+ * handle possible states during EVB capabilities exchange
++ * returns the profile that has been found or added
 + *
-+ * possible states:	EVB_OFFER_CAPABILITIES
-+ *			EVB_CONFIGURE
-+ *			EVB_CONFIRMATION
++ * main interface function which adds a profile to a list kept on a per-port
++ * basis. Checks if the profile is already in the list, adds it if necessary.
 + */
-+static void evb_statemachine(struct evb_data *ed, struct tlv_info_evb *tie)
++struct vsi_profile *vdp_add_profile(struct vsi_profile *profile)
 +{
-+	switch(ed->state) {
-+	case EVB_OFFER_CAPABILITIES:
-+		/* waiting for valid packets to pour in
-+		 * if valid packet was received,
-+		 *		- check parameters with what we have offered for this if,
-+		 *		- fill structure with data,
-+		 *		- enable local tx
-+		 *		- switch to EVB_CONFIGURE
-+		 */
-+		printf("%s: state -> EVB_OFFER_CAPABILITIES\n", __func__);
-+		if (!evb_check_and_fill(ed, tie)) {
-+			fprintf(stderr, "Invalid contents of EVB Cfg TLV !\n");
-+			return;
-+		}
-+		somethingChangedLocal(ed->ifname); /* trigger tx with new values */
-+		ed->state = EVB_CONFIGURE;
-+		break;
-+	case EVB_CONFIGURE:
-+		/* we received a valid packet, if contents is same with our local settings
-+		 * we can switch state to EVB_CONFIRMATION.*/
-+		printf("%s: state -> EVB_CONFIGURE\n", __func__);
-+		if (evb_compare(ed, tie)) {
-+			ed->state= EVB_OFFER_CAPABILITIES;
-+		} else {
-+			printf("tlv_info_evb now equal !\n");
-+			ed->state = EVB_CONFIRMATION;
-+		}
-+		somethingChangedLocal(ed->ifname);
-+		break;
-+	case EVB_CONFIRMATION:
-+		/* we are already in confirmation and received a new packet with
-+		 * different parameters ? Check parameters. switch state back to
-+		 * EVB_CONFIGURE ? */
-+		printf("%s: state -> EVB_CONFIRMATION\n", __func__);
-+		break;
-+	default:
-+		fprintf(stderr, "EVB statemachine reached invalid state !\n");
-+		break;
++	struct port *port;
++	struct vsi_profile *p;
++	struct vdp_data *vd;
++
++	vd = vdp_data(profile->port->ifname);
++	if (!vd) {
++		printf("%s(%i): Could not find vdp_data for %i !\n", __func__, __LINE__,
++		       profile->port->ifname);
++		return NULL;
 +	}
++
++	vdp_print_profile(profile);
++
++	/* loop over all existing profiles and check wether
++	 * one for this combination already exists. If yes, check,
++	 * if the MAC/VLAN pair already exists. If not, add it.
++	 * Note: currently only one MAC/VLAN pair supported ! */
++	LIST_FOREACH(p, &vd->profile_head, profile) {
++		if (p) {
++			vdp_print_profile(p);
++			if (vdp_profile_equal(p, profile)) {
++				if (p->mode == profile->mode) {
++					printf("%s(%i): profile already exists, ignoring !\n",
++					       __func__, __LINE__);
++					return NULL;
++				} else {
++					printf("%s(%i): taking new mode !\n", __func__,
++					       __LINE__);
++					p->mode = profile->mode;
++					return p;
++				}
++			}
++		}
++	}
++
++	LIST_INSERT_HEAD(&vd->profile_head, profile, profile );
++
++	return profile;
 +}
 +
-+/*
-+ * evb_rchange: process RX TLV LLDPDU
++/* vdp_ifdown - tear down vdp structures for a interface
++ * @ifname: name of the interface
 + *
-+ * TLV not consumed on error
++ * no return value
++ *
++ * interface function to lldpad. tears down vdp specific structures if
++ * interface "ifname" goes down.
 + */
-+static int evb_rchange(struct port *port, struct unpacked_tlv *tlv)
++void vdp_ifdown(char *ifname)
 +{
-+	int i, offset;
-+	struct evb_data *ed;
-+	struct tlv_info_evb *tie = (struct tlv_info_evb *) tlv->info;
-+	u8 oui_subtype[OUI_SUB_SIZE] = LLDP_OUI_SUBTYPE;
++	struct vdp_data *vd;
++	struct vsi_tlv *vtlv;
++	struct vsi_profile *p;
 +
-+	ed = evb_data(port->ifname);
-+
-+	/* TODO: disable rx if tx has been disabled by administrator ?
-+	if (!is_tlv_txenabled(ed->ifname, TLVID_8021(LLDP_EVB_SUBTYPE))) {
-+		fprintf(stderr, "### %s:%s:EVB Config disabled\n",
-+			__func__, ed->ifname);
-+		return TLV_OK;
-+	}
-+	*/
-+
-+	if (!ed)
-+		return SUBTYPE_INVALID;
-+
-+	fprintf(stderr, "%s:type %i, length %i, info ", __func__, tlv->type, tlv->length);
-+
-+	for (i=0; i < tlv->length; i++) {
-+		fprintf(stderr, "%02x ", tlv->info[i]);
-+	}
-+
-+	printf("\n");
-+
-+	if (tlv->type == TYPE_127) {
-+		/* check for length */
-+		if (tlv->length < (OUI_SUB_SIZE)) {
-+			return TLV_ERR;
-+		}
-+
-+		/* check for oui */
-+		if (memcmp(tlv->info, &oui_subtype, OUI_SUB_SIZE)) {
-+			return SUBTYPE_INVALID;
-+		}
-+
-+		/* decode values */
-+		fprintf(stderr, "### %s:now ready to decode values !\n", __func__);
-+
-+		offset = OUI_SUB_SIZE;
-+
-+		/* received valid values, save them */
-+		fprintf(stderr,"### supported forwarding mode: %02x\n", tie->smode);
-+		fprintf(stderr,"### configured forwarding mode: %02x\n", tie->cmode);
-+		fprintf(stderr,"### supported capabilities: %02x\n", tie->scap);
-+		fprintf(stderr,"### configured capabilities: %02x\n", tie->ccap);
-+		fprintf(stderr,"### supported no. of vsis: %04i\n", tie->svsi);
-+		fprintf(stderr,"### configured no. of vsis: %04i\n", tie->cvsi);
-+		fprintf(stderr,"### rte: %02i\n", tie->rte);
-+
-+		/* change state */
-+		evb_statemachine(ed, tie);
-+	}
-+
-+	return TLV_OK;
-+}
-+
-+void evb_ifdown(char *ifname)
-+{
-+	struct evb_data *bd;
-+
-+	bd = evb_data(ifname);
-+	if (!bd)
++	vd = vdp_data(ifname);
++	if (!vd)
 +		goto out_err;
 +
-+	LIST_REMOVE(bd, entry);
-+	evb_free_tlv(bd);
-+	free(bd);
++	LIST_REMOVE(vd, entry);
++
++	LIST_FOREACH(p, &vd->profile_head, profile) {
++		free(p);
++		LIST_REMOVE(p, profile);
++	}
++	vdp_free_tlv(vd);
++	free(vd);
 +	fprintf(stderr, "### %s:port %s removed\n", __func__, ifname);
 +	return;
 +out_err:
@@ -765,42 +1182,55 @@ index 0000000..304a9f4
 +	return;
 +}
 +
-+void evb_ifup(char *ifname)
++/* vdp_ifup - build up vdp structures for a interface
++ * @ifname: name of the interface
++ *
++ * no return value
++ *
++ * interface function to lldpad. builds up vdp specific structures if
++ * interface "ifname" goes down.
++ */
++void vdp_ifup(char *ifname)
 +{
-+	struct evb_data *bd;
-+	struct evb_user_data *ud;
++	struct vdp_data *vd;
++	struct vdp_user_data *ud;
++	char arg_path[VDP_BUF_SIZE];
 +
-+	bd = evb_data(ifname);
-+	if (bd) {
++	vd = vdp_data(ifname);
++	if (vd) {
 +		fprintf(stderr, "### %s:%s exists\n", __func__, ifname);
 +		goto out_err;
 +	}
 +
-+	/* not found, alloc/init per-port tlv data */
-+	bd = (struct evb_data *) calloc(1, sizeof(struct evb_data));
-+	if (!bd) {
++	/* not found, alloc/init per-port module data */
++	vd = (struct vdp_data *) calloc(1, sizeof(struct vdp_data));
++	if (!vd) {
 +		fprintf(stderr, "### %s:%s malloc %ld failed\n",
-+			 __func__, ifname, sizeof(*bd));
++			 __func__, ifname, sizeof(*vd));
 +		goto out_err;
 +	}
-+	strncpy(bd->ifname, ifname, IFNAMSIZ);
++	strncpy(vd->ifname, ifname, IFNAMSIZ);
 +
-+	if (evb_init_cfg_tlv(bd)) {
-+		fprintf(stderr, "### %s:%s evb_init_cfg_tlv failed\n", __func__, ifname);
-+		free(bd);
++	if (!init_cfg())
 +		goto out_err;
++
++	if (get_config_setting(ifname, ARG_VDP_ROLE,
++			(void *)&vd->role, CONFIG_TYPE_INT)) {
++		vd->role = VDP_ROLE_STATION;
 +	}
 +
-+	bd->state = EVB_OFFER_CAPABILITIES;
++	if (vd->role == VDP_ROLE_BRIDGE)
++		printf("### %s: configured for bridge mode (%i)!\n", ifname, vd->role);
++	else
++		printf("### %s: configured for station mode (%i)!\n", ifname, vd->role);
 +
-+	if (evb_bld_tlv(bd)) {
-+		fprintf(stderr, "### %s:%s evb_bld_tlv failed\n", __func__, ifname);
-+		free(bd);
-+		goto out_err;
-+	}
++	LIST_INIT(&vd->profile_head);
 +
-+	ud = find_module_user_data_by_if(ifname, &lldp_head, LLDP_MOD_EVB);
-+	LIST_INSERT_HEAD(&ud->head, bd, entry);
++	ud = find_module_user_data_by_if(ifname, &lldp_head, LLDP_MOD_VDP);
++	LIST_INSERT_HEAD(&ud->head, vd, entry);
++
++	ecp_init(ifname);
++
 +	fprintf(stderr, "### %s:port %s added\n", __func__, ifname);
 +	return;
 +
@@ -809,20 +1239,26 @@ index 0000000..304a9f4
 +	return;
 +}
 +
-+static const struct lldp_mod_ops evb_ops =  {
-+	.lldp_mod_register	= evb_register,
-+	.lldp_mod_unregister	= evb_unregister,
-+	.lldp_mod_gettlv	= evb_gettlv,
-+	.lldp_mod_rchange	= evb_rchange,
-+	.lldp_mod_ifup		= evb_ifup,
-+	.lldp_mod_ifdown	= evb_ifdown,
-+	.get_arg_handler	= evb_get_arg_handlers,
++static const struct lldp_mod_ops vdp_ops =  {
++	.lldp_mod_register	= vdp_register,
++	.lldp_mod_unregister	= vdp_unregister,
++	.lldp_mod_ifup		= vdp_ifup,
++	.lldp_mod_ifdown	= vdp_ifdown,
++	.get_arg_handler	= vdp_get_arg_handlers,
 +};
 +
-+struct lldp_module *evb_register(void)
++/* vdp_register - register vdp module to lldpad
++ * @none
++ *
++ * returns lldp_module struct on success, NULL on error
++ *
++ * allocates a module structure with vdp module information and returns it
++ * to lldpad.
++ */
++struct lldp_module *vdp_register(void)
 +{
 +	struct lldp_module *mod;
-+	struct evb_user_data *ud;
++	struct vdp_user_data *ud;
 +
 +	mod = malloc(sizeof(*mod));
 +	if (!mod) {
@@ -831,7 +1267,7 @@ index 0000000..304a9f4
 +			"%s", "failed to malloc module data");
 +		goto out_err;
 +	}
-+	ud = malloc(sizeof(struct evb_user_data));
++	ud = malloc(sizeof(struct vdp_user_data));
 +	if (!ud) {
 +		free(mod);
 +		fprintf(stderr, "failed to malloc module user data\n");
@@ -840,8 +1276,8 @@ index 0000000..304a9f4
 +		goto out_err;
 +	}
 +	LIST_INIT(&ud->head);
-+	mod->id = LLDP_MOD_EVB;
-+	mod->ops = &evb_ops;
++	mod->id = LLDP_MOD_VDP;
++	mod->ops = &vdp_ops;
 +	mod->data = ud;
 +	fprintf(stderr, "### %s:done\n", __func__);
 +	return mod;
@@ -851,423 +1287,41 @@ index 0000000..304a9f4
 +	return NULL;
 +}
 +
-+void evb_unregister(struct lldp_module *mod)
++/* vdp_unregister - unregister vdp module from lldpad
++ * @none
++ *
++ * no return value
++ *
++ * frees vdp module structure.
++ */
++void vdp_unregister(struct lldp_module *mod)
 +{
 +	if (mod->data) {
-+		evb_free_data((struct evb_user_data *) mod->data);
++		vdp_free_data((struct vdp_user_data *) mod->data);
 +		free(mod->data);
 +	}
 +	free(mod);
 +	fprintf(stderr, "### %s:done\n", __func__);
 +}
-diff --git a/lldp_evb_clif.c b/lldp_evb_clif.c
-new file mode 100644
-index 0000000..d1773fe
---- /dev/null
-+++ b/lldp_evb_clif.c
-@@ -0,0 +1,232 @@
-+/*******************************************************************************
 +
-+  implementation of EVB TLVs for LLDP
-+  (c) Copyright IBM Corp. 2010
 +
-+  Author(s): Jens Osterkamp <jens@linux.vnet.ibm.com>
-+
-+  This program is free software; you can redistribute it and/or modify it
-+  under the terms and conditions of the GNU General Public License,
-+  version 2, as published by the Free Software Foundation.
-+
-+  This program is distributed in the hope it will be useful, but WITHOUT
-+  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-+  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
-+  more details.
-+
-+  You should have received a copy of the GNU General Public License along with
-+  this program; if not, write to the Free Software Foundation, Inc.,
-+  51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
-+
-+  The full GNU General Public License is included in this distribution in
-+  the file called "COPYING".
-+
-+*******************************************************************************/
-+
-+#include "includes.h"
-+#include "common.h"
-+#include <stdio.h>
-+#include <syslog.h>
-+#include <sys/un.h>
-+#include <sys/stat.h>
-+#include "lldp_mod.h"
-+#include "lldptool.h"
-+#include "lldp.h"
-+#include "lldp_evb.h"
-+#include "lldp_evb_clif.h"
-+
-+void evb_print_cfg_tlv(u16, char *info);
-+int evb_print_help();
-+
-+u32 evb_lookup_tlv_name(char *tlvid_str);
-+
-+static const struct lldp_mod_ops evb_ops_clif = {
-+	.lldp_mod_register	= evb_cli_register,
-+	.lldp_mod_unregister	= evb_cli_unregister,
-+	.print_tlv		= evb_print_tlv,
-+	.lookup_tlv_name	= evb_lookup_tlv_name,
-+	.print_help		= evb_print_help,
-+};
-+
-+struct type_name_info evb_tlv_names[] = {
-+	{ (LLDP_MOD_EVB << 8) | LLDP_EVB_SUBTYPE,
-+		"EVB Configuration TLV",
-+		"evbCfg", evb_print_cfg_tlv },
-+	{ INVALID_TLVID,     NULL,        NULL }
-+};
-+
-+int evb_print_help()
-+{
-+	struct type_name_info *tn = &evb_tlv_names[0];
-+
-+	while (tn->type != INVALID_TLVID) {
-+		if (tn->key && strlen(tn->key) && tn->name) {
-+			printf("   %s", tn->key);
-+			if (strlen(tn->key)+3 <= 8)
-+				printf("\t");
-+			printf("\t: %s\n", tn->name);
-+		}
-+		tn++;
-+	}
-+
-+	return 0;
-+}
-+
-+struct lldp_module *evb_cli_register(void)
-+{
-+	struct lldp_module *mod;
-+
-+	mod = malloc(sizeof(*mod));
-+	if (!mod) {
-+		fprintf(stderr, "failed to malloc module data\n");
-+		return NULL;
-+	}
-+	mod->id = LLDP_MOD_EVB;
-+	mod->ops = &evb_ops_clif;
-+
-+	return mod;
-+}
-+
-+void evb_cli_unregister(struct lldp_module *mod)
-+{
-+	free(mod);
-+}
-+
-+void evb_print_cfg_tlv(u16 len, char *info)
-+{
-+	u8 smode;
-+	u8 scap;
-+	u8 cmode;
-+	u8 ccap;
-+	u16 svsi;
-+	u16 cvsi;
-+	u8 rte;
-+
-+	if (len != 9) {
-+		printf("Bad Cfg TLV: %s\n", info);
-+		return;
-+	}
-+
-+	if (!hexstr2bin(info, &smode, sizeof(smode))) {
-+		printf("supported forwarding mode:");
-+
-+		if (smode & LLDP_EVB_CAPABILITY_FORWARD_RELAXEDRELAY)
-+			printf(" reflective relay");
-+
-+		if (smode & LLDP_EVB_CAPABILITY_FORWARD_STANDARD)
-+			printf(" standard 802.1Q");
-+
-+		printf("\n");
-+	} else {
-+		printf("Unable to decode smode !\n");
-+	}
-+
-+	if (!hexstr2bin(info+2, &scap, sizeof(scap))) {
-+		printf("\tsupported capabilities:");
-+
-+		if ( scap & LLDP_EVB_CAPABILITY_PROTOCOL_RTE)
-+		     printf(" RTE");
-+
-+		if ( scap & LLDP_EVB_CAPABILITY_PROTOCOL_ECP)
-+		     printf(" ECP");
-+
-+		if ( scap & LLDP_EVB_CAPABILITY_PROTOCOL_VDPL)
-+		     printf(" VDPL");
-+
-+		if ( scap & LLDP_EVB_CAPABILITY_PROTOCOL_VDP)
-+		     printf(" VDP");
-+
-+		printf("\n");
-+	} else {
-+		printf("Unable to decode scap !\n");
-+	}
-+
-+	if (!hexstr2bin(info, &cmode, sizeof(cmode))) {
-+		printf("\tconfigured forwarding mode:");
-+
-+		if (cmode & LLDP_EVB_CAPABILITY_FORWARD_RELAXEDRELAY)
-+			printf(" reflective relay");
-+
-+		if (cmode & LLDP_EVB_CAPABILITY_FORWARD_STANDARD)
-+			printf(" standard 802.1Q");
-+
-+		printf("\n");
-+	} else {
-+		printf("Unable to decode cmode !\n");
-+	}
-+
-+	if (!hexstr2bin(info+4, &ccap, sizeof(ccap))) {
-+		printf("\tconfigured capabilities:");
-+
-+		if ( ccap & LLDP_EVB_CAPABILITY_PROTOCOL_RTE)
-+		     printf(" RTE");
-+
-+		if ( ccap & LLDP_EVB_CAPABILITY_PROTOCOL_ECP)
-+		     printf(" ECP");
-+
-+		if ( ccap & LLDP_EVB_CAPABILITY_PROTOCOL_VDPL)
-+		     printf(" VDPL");
-+
-+		if ( ccap & LLDP_EVB_CAPABILITY_PROTOCOL_VDP)
-+		     printf(" VDP");
-+
-+		printf("\n");
-+	} else {
-+		printf("Unable to decode ccap !\n");
-+	}
-+
-+	if (!hexstr2bin(info+8, (u16 *)&svsi, sizeof(svsi))) {
-+		printf("\tno. of supported VSIs: %04i\n",svsi);
-+	} else {
-+		printf("Unable to decode svsi !\n");
-+	}
-+
-+	if (!hexstr2bin(info+12, (u16 *)&cvsi, sizeof(cvsi))) {
-+		printf("\tno. of configured VSIs: %04i\n",cvsi);
-+	} else {
-+		printf("Unable to decode cvsi !\n");
-+	}
-+
-+	if (!hexstr2bin(info+16, &rte, sizeof(rte))) {
-+		printf("\tRTE: %i\n",rte);
-+	} else {
-+		printf("Unable to decode cvsi !\n");
-+	}
-+
-+	printf("\n");
-+}
-+
-+/* return 1: if it printed the TLV
-+ *        0: if it did not
-+ */
-+int evb_print_tlv(u32 tlvid, u16 len, u8 *info)
-+{
-+	struct type_name_info *tn = &evb_tlv_names[0];
-+
-+	while (tn->type != INVALID_TLVID) {
-+		if (tlvid == tn->type) {
-+			printf("%s\n", tn->name);
-+			if (tn->print_info) {
-+				printf("\t");
-+				tn->print_info(len-4, info);
-+			}
-+			return 1;
-+		}
-+		tn++;
-+	}
-+
-+	return 0;
-+}
-+
-+u32 evb_lookup_tlv_name(char *tlvid_str)
-+{
-+	struct type_name_info *tn = &evb_tlv_names[0];
-+
-+	while (tn->type != INVALID_TLVID) {
-+		if (!strcasecmp(tn->key, tlvid_str))
-+			return tn->type;
-+		tn++;
-+	}
-+	return INVALID_TLVID;
-+}
-+
-diff --git a/lldp_evb_cmds.c b/lldp_evb_cmds.c
-new file mode 100644
-index 0000000..b6f6ad5
---- /dev/null
-+++ b/lldp_evb_cmds.c
-@@ -0,0 +1,127 @@
-+/*******************************************************************************
-+
-+  implementation of EVB TLVs for LLDP
-+  (c) Copyright IBM Corp. 2010
-+
-+  Author(s): Jens Osterkamp <jens@linux.vnet.ibm.com>
-+
-+  This program is free software; you can redistribute it and/or modify it
-+  under the terms and conditions of the GNU General Public License,
-+  version 2, as published by the Free Software Foundation.
-+
-+  This program is distributed in the hope it will be useful, but WITHOUT
-+  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-+  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
-+  more details.
-+
-+  You should have received a copy of the GNU General Public License along with
-+  this program; if not, write to the Free Software Foundation, Inc.,
-+  51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
-+
-+  The full GNU General Public License is included in this distribution in
-+  the file called "COPYING".
-+
-+*******************************************************************************/
-+
-+#include "includes.h"
-+#include "common.h"
-+#include <stdio.h>
-+#include <syslog.h>
-+#include <sys/un.h>
-+#include <sys/stat.h>
-+#include <arpa/inet.h>
-+#include "lldpad.h"
-+#include "ctrl_iface.h"
-+#include "lldp.h"
-+#include "lldp_evb.h"
-+#include "lldp_mand_clif.h"
-+#include "lldp_evb_clif.h"
-+#include "lldp/ports.h"
-+#include "libconfig.h"
-+#include "config.h"
-+#include "clif_msgs.h"
-+#include "lldp/states.h"
-+
-+static int get_arg_tlvtxenable(struct cmd *, char *, char *, char *);
-+static int set_arg_tlvtxenable(struct cmd *, char *, char *, char *);
-+
-+static struct arg_handlers arg_handlers[] = {
-+	{ ARG_TLVTXENABLE, get_arg_tlvtxenable, set_arg_tlvtxenable },
-+	{ NULL }
-+};
-+
-+static int get_arg_tlvtxenable(struct cmd *cmd, char *arg, char *argvalue,
-+			       char *obuf)
-+{
-+	int value;
-+	char *s;
-+	char arg_path[256];
-+
-+	if (cmd->cmd != cmd_gettlv)
-+		return cmd_invalid;
-+
-+	switch (cmd->tlvid) {
-+	case (LLDP_MOD_EVB << 8) | LLDP_EVB_SUBTYPE:
-+		snprintf(arg_path, sizeof(arg_path), "%s%08x.%s",
-+			 TLVID_PREFIX, cmd->tlvid, arg);
-+
-+		if (get_config_setting(cmd->ifname, arg_path, (void *)&value,
-+					CONFIG_TYPE_BOOL))
-+			value = false;
-+		break;
-+	case INVALID_TLVID:
-+		return cmd_invalid;
-+	default:
-+		return cmd_not_applicable;
-+	}
-+
-+	if (value)
-+		s = VAL_YES;
-+	else
-+		s = VAL_NO;
-+
-+	sprintf(obuf, "%02x%s%04x%s", strlen(arg), arg, strlen(s), s);
-+
-+	return cmd_success;
-+}
-+
-+static int set_arg_tlvtxenable(struct cmd *cmd, char *arg, char *argvalue,
-+			       char *obuf)
-+{
-+	int value;
-+	char arg_path[256];
-+
-+	if (cmd->cmd != cmd_settlv)
-+		return cmd_invalid;
-+
-+	switch (cmd->tlvid) {
-+	case (LLDP_MOD_EVB << 8) | LLDP_EVB_SUBTYPE:
-+		break;
-+	case INVALID_TLVID:
-+		return cmd_invalid;
-+	default:
-+		return cmd_not_applicable;
-+	}
-+
-+	if (!strcasecmp(argvalue, VAL_YES))
-+		value = 1;
-+	else if (!strcasecmp(argvalue, VAL_NO))
-+		value = 0;
-+	else
-+		return cmd_invalid;
-+
-+	snprintf(arg_path, sizeof(arg_path), "%s%08x.%s", TLVID_PREFIX,
-+		 cmd->tlvid, arg);
-+
-+	if (set_cfg(cmd->ifname, arg_path, (void *)&value, CONFIG_TYPE_BOOL))
-+		return cmd_failed;
-+
-+	somethingChangedLocal(cmd->ifname);
-+
-+	return cmd_success;
-+}
-+
-+struct arg_handlers *evb_get_arg_handlers()
-+{
-+	return &arg_handlers[0];
-+}
 diff --git a/lldpad.c b/lldpad.c
-index a89b5a4..571da31 100644
+index 571da31..c0938af 100644
 --- a/lldpad.c
 +++ b/lldpad.c
-@@ -49,6 +49,7 @@
- #include "lldp_dcbx.h"
+@@ -50,6 +50,7 @@
  #include "lldp_med.h"
  #include "lldp_8023.h"
-+#include "lldp_evb.h"
+ #include "lldp_evb.h"
++#include "lldp_vdp.h"
  #include "config.h"
  #include "lldpad_shm.h"
  #include "clif.h"
-@@ -63,6 +64,7 @@ struct lldp_module *(*register_tlv_table[])(void) = {
- 	dcbx_register,
+@@ -65,6 +66,7 @@ struct lldp_module *(*register_tlv_table[])(void) = {
  	med_register,
  	ieee8023_register,
-+	evb_register,
- 	NULL,
- };
- 
-diff --git a/lldptool.c b/lldptool.c
-index 5cf2846..7e166fe 100644
---- a/lldptool.c
-+++ b/lldptool.c
-@@ -39,6 +39,7 @@
- #include "lldp_med_clif.h"
- #include "lldp_8023_clif.h"
- #include "lldp_dcbx_clif.h"
-+#include "lldp_evb_clif.h"
- #include "lldptool.h"
- #include "lldptool_cli.h"
- #include "lldp_mod.h"
-@@ -156,6 +157,7 @@ struct lldp_module *(*register_tlv_table[])(void) = {
- 	ieee8023_cli_register,
- 	med_cli_register,
- 	dcbx_cli_register,
-+	evb_cli_register,
+ 	evb_register,
++	vdp_register,
  	NULL,
  };
  
