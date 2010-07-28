@@ -1,102 +1,46 @@
-From: Ming Zhao <zhaom@cis.fiu.edu>
-Subject: Call for Demos and Exhibition: The 7th International Conference on
-	Autonomic and Trusted Computing (ATC 2010)
-Date: Wed, 28 Jul 2010 08:27:18 -0400
-Message-ID: <4C502226.3030405@cis.fiu.edu>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [GIT PULL net-next-2.6] vhost-net patchset for 2.6.36
+Date: Wed, 28 Jul 2010 16:32:31 +0300
+Message-ID: <20100728133231.GA1932@redhat.com>
+References: <20100701164127.GA3199@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: tcpp-announce@cc.gatech.edu, performance@merlot.usc.edu, infodir_sigarch@acm.org, vsigplan-l@acm.uiuc.edu, publicity@hipeac.net, micro_publicity@crhc.uiuc.edu, hpc-announ
+Content-Type: text/plain; charset=us-ascii
+Return-path: <kvm-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20100701164127.GA3199@redhat.com>
+Sender: kvm-owner@vger.kernel.org
+To: David Miller <davem@davemloft.net>
+Cc: kvm@vger.kernel.org, virtualization@lists.osdl.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, krkumar2@in.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-The 7th International Conference on Autonomic and Trusted Computing (ATC =
+David,
+The following tree includes the current vhost-net patchset.
+Please merge it for 2.6.36.
+Thanks!
 
-2010)
-                      Call for Demos and Exhibition
+The following changes since commit 4cfa580e7eebb8694b875d2caff3b989ada2efac:
 
-Highlight: ATC demos will be published on IEEE CS proceedings (indexed =
+  r6040: Fix args to phy_mii_ioctl(). (2010-07-21 21:10:49 -0700)
 
-by EI)!
+are available in the git repository at:
+  git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git vhost-net-next
 
+David Stevens (1):
+      vhost-net: mergeable buffers support
 
+Michael S. Tsirkin (1):
+      vhost: apply cgroup to vhost workers
 
-The ATC 2010 demo/exhibition program provides researchers and engineers =
+Sridhar Samudrala (1):
+      cgroups: Add an API to attach a task to current task's cgroup
 
-with opportunities to show their cutting-edge work presented in an =
+Tejun Heo (1):
+      vhost: replace vhost_workqueue with per-vhost kthread
 
-interactive fashion. The live demonstrations and exhibitions may include =
+ drivers/vhost/net.c    |  293 +++++++++++++++++++++++++++++++++++++++++-------
+ drivers/vhost/vhost.c  |  228 ++++++++++++++++++++++++++++++++-----
+ drivers/vhost/vhost.h  |   55 ++++++---
+ include/linux/cgroup.h |    7 +
+ kernel/cgroup.c        |   23 ++++
+ 5 files changed, 515 insertions(+), 91 deletions(-)
 
-implementations of techniques presented in the main conference, =
-
-workshops, other conferences and venues, as well as systems and video.
-
-We encourage academic researchers as well as industry lab researchers =
-
-and companies to participate in showcasing their products and research. =
-
-Prospective applicants should submit a 4-page abstract of the =
-
-demonstration/exhibition in LNCS-format via email (atc10demo@gmail.com). =
-
-Video demonstrations are also welcome.
-
-The main selection criteria will be the expected general interest of the =
-
-demonstration to the Autonomic and Trusted Computing community.
-The accepted demo/exhibition submitted before July 30 will be included =
-
-as 4 page papers in the conference's IEEE CS proceedings (indexed by =
-
-EI); those submitted after this date will not be included in the =
-
-proceedings. As a condition for acceptance, at least one of the people =
-
-must be registered for the main conference, and present the demo in the =
-
-conference. All demos will compete for the Best Demo Award.
-
-At the conference, you will at minimum be provided with a space for your =
-
-demo, a poster stand, a table and chairs, and a power connection (220V). =
-
-Any other special equipment should be provided by yourself, including =
-
-power converters, projectors, audio amplification, wireless LAN, etc. =
-
-Please specify this with a separate page so that we can plan the demo =
-
-area accordingly.
-
-Demo/Exhibition Chairs:
-=B7 Alvin Chin, Nokia Research Center, China
-=B7 Ming Zhao, Florida International University, USA
-
-Important Dates:
-
-For demos to be included in ATC proceedings (indexed by EI)
-- Demo proposal: July 30
-- Acceptance: August 3
-- 4-page camera-ready version: August 8
-
-For demos not to be included in ATC proceedings
-- Demo proposal: August 15
-- Acceptance: August 30
-
-Further Information:
-=B7 atc10demo@gmail.com
-
-
-Thanks,
-
-Alvin Chin and Ming Zhao
-ATC2010 Demo Co-Chairs
