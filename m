@@ -1,13 +1,12 @@
-From: Chuck Ebbert <cebbert@redhat.com>
-Subject: Re: [stable] [PATCH] virtio: fix oops on OOM
-Date: Fri, 23 Jul 2010 10:52:35 -0400
-Message-ID: <20100723105235.35bf9969__2454.75775232098$1280156932$gmane$org@katamari>
-References: <201007231548.38037.rusty@rustcorp.com.au>
+From: Ming Zhao <zhaom@cis.fiu.edu>
+Subject: Call for Demos and Exhibition: The 7th International Conference on
+	Autonomic and Trusted Computing (ATC 2010)
+Date: Wed, 28 Jul 2010 08:27:18 -0400
+Message-ID: <4C502226.3030405@cis.fiu.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <201007231548.38037.rusty@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -17,56 +16,87 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Linus Torvalds <torvalds@linux-foundation.org>, stable@kernel.org, Chris Mason <chris.mason@oracle.com>
+To: tcpp-announce@cc.gatech.edu, performance@merlot.usc.edu, infodir_sigarch@acm.org, vsigplan-l@acm.uiuc.edu, publicity@hipeac.net, micro_publicity@crhc.uiuc.edu, hpc-announ
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 23 Jul 2010 15:48:37 +0930
-Rusty Russell <rusty@rustcorp.com.au> wrote:
+The 7th International Conference on Autonomic and Trusted Computing (ATC =
 
-Note that commit 686d363786a53ed28ee875b84ef24e6d5126ef6f,
-which caused this problem, is already queued for -stable,
-so it should either be removed or this should be sent for
--stable as well.
+2010)
+                      Call for Demos and Exhibition
 
-> From: "Michael S. Tsirkin" <mst@redhat.com>
-> 
-> virtio ring was changed to return an error code on OOM,
-> but one caller was missed and still checks for vq->vring.num.
-> The fix is just to check for <0 error code.
-> 
-> Long term it might make sense to change goto add_head to
-> just return an error on oom instead, but let's apply
-> a minimal fix for 2.6.35.
-> 
-> Reported-by: Chris Mason <chris.mason@oracle.com>
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
-> Tested-by: Chris Mason <chris.mason@oracle.com>
-> ---
-> 
-> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> index dd35b34..bffec32 100644
-> --- a/drivers/virtio/virtio_ring.c
-> +++ b/drivers/virtio/virtio_ring.c
-> @@ -164,7 +164,8 @@ int virtqueue_add_buf_gfp(struct virtqueue *_vq,
->  			  gfp_t gfp)
->  {
->  	struct vring_virtqueue *vq = to_vvq(_vq);
-> -	unsigned int i, avail, head, uninitialized_var(prev);
-> +	unsigned int i, avail, uninitialized_var(prev);
-> +	int head;
->  
->  	START_USE(vq);
->  
-> @@ -174,8 +175,8 @@ int virtqueue_add_buf_gfp(struct virtqueue *_vq,
->  	 * buffers, then go indirect. FIXME: tune this threshold */
->  	if (vq->indirect && (out + in) > 1 && vq->num_free) {
->  		head = vring_add_indirect(vq, sg, out, in, gfp);
-> -		if (head != vq->vring.num)
-> +		if (likely(head >= 0))
->  			goto add_head;
->  	}
->  
->  	BUG_ON(out + in > vq->vring.num);
-> --
+Highlight: ATC demos will be published on IEEE CS proceedings (indexed =
+
+by EI)!
+
+
+
+The ATC 2010 demo/exhibition program provides researchers and engineers =
+
+with opportunities to show their cutting-edge work presented in an =
+
+interactive fashion. The live demonstrations and exhibitions may include =
+
+implementations of techniques presented in the main conference, =
+
+workshops, other conferences and venues, as well as systems and video.
+
+We encourage academic researchers as well as industry lab researchers =
+
+and companies to participate in showcasing their products and research. =
+
+Prospective applicants should submit a 4-page abstract of the =
+
+demonstration/exhibition in LNCS-format via email (atc10demo@gmail.com). =
+
+Video demonstrations are also welcome.
+
+The main selection criteria will be the expected general interest of the =
+
+demonstration to the Autonomic and Trusted Computing community.
+The accepted demo/exhibition submitted before July 30 will be included =
+
+as 4 page papers in the conference's IEEE CS proceedings (indexed by =
+
+EI); those submitted after this date will not be included in the =
+
+proceedings. As a condition for acceptance, at least one of the people =
+
+must be registered for the main conference, and present the demo in the =
+
+conference. All demos will compete for the Best Demo Award.
+
+At the conference, you will at minimum be provided with a space for your =
+
+demo, a poster stand, a table and chairs, and a power connection (220V). =
+
+Any other special equipment should be provided by yourself, including =
+
+power converters, projectors, audio amplification, wireless LAN, etc. =
+
+Please specify this with a separate page so that we can plan the demo =
+
+area accordingly.
+
+Demo/Exhibition Chairs:
+=B7 Alvin Chin, Nokia Research Center, China
+=B7 Ming Zhao, Florida International University, USA
+
+Important Dates:
+
+For demos to be included in ATC proceedings (indexed by EI)
+- Demo proposal: July 30
+- Acceptance: August 3
+- 4-page camera-ready version: August 8
+
+For demos not to be included in ATC proceedings
+- Demo proposal: August 15
+- Acceptance: August 30
+
+Further Information:
+=B7 atc10demo@gmail.com
+
+
+Thanks,
+
+Alvin Chin and Ming Zhao
+ATC2010 Demo Co-Chairs
