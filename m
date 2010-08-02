@@ -1,62 +1,101 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH] vhost: locking/rcu cleanup
-Date: Sun, 1 Aug 2010 11:41:36 +0300
-Message-ID: <20100801084136.GC16158@redhat.com>
-References: <20100729122325.GA24337@redhat.com>
- <4C52E692.3070405@kernel.org>
+From: Haiyang Zhang <haiyangz@microsoft.com>
+Subject: [PATCH 1/1] staging: hv: Fix missing functions for net_device_ops
+Date: Mon, 2 Aug 2010 17:00:33 +0000
+Message-ID: <1FB5E1D5CA062146B38059374562DF7280E8547C__23267.5734012902$1280768819$gmane$org@TK5EX14MBXC121.redmond.corp.microsoft.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <4C52E692.3070405@kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Tejun Heo <tj@kernel.org>
-Cc: "David S. Miller" <davem@davemloft.net>, Sridhar Samudrala <samudrala@us.ibm.com>, Jeff Dike <jdike@linux.intel.com>, Juan Quintela <quintela@redhat.com>, Rusty Russell <rusty@rustcorp.com.au>, Takuya Yoshikawa <yoshikawa.takuya@oss.ntt.co.jp>, David Stevens <dlstevens@us.ibm.com>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, kvm@vger.kernel.org, virtualization@lists.osdl.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: multipart/mixed;
+	boundary="_002_1FB5E1D5CA062146B38059374562DF7280E8547CTK5EX14MBXC121r_"
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Language: en-US
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>, "'devel@driverdev.osuosl.org'" <devel@driverdev.osuosl.org>, "'virtualization@lists.osdl.org'" <virtualiz>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Jul 30, 2010 at 04:49:54PM +0200, Tejun Heo wrote:
-> Hello,
-> 
-> On 07/29/2010 02:23 PM, Michael S. Tsirkin wrote:
-> > I saw WARN_ON(!list_empty(&dev->work_list)) trigger
-> > so our custom flush is not as airtight as need be.
-> 
-> Could be but it's also possible that something has queued something
-> after the last flush?
-> Is the problem reproducible?
+--_002_1FB5E1D5CA062146B38059374562DF7280E8547CTK5EX14MBXC121r_
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 
-Well, We do requeue from the job itself. So need to be careful with what
-we do with indexes here. Bug seemed to happen all the time when qemu was
-killed under stress but now I can't reproduce anymore :(
-Will try again later.
+From: Haiyang Zhang <haiyangz@microsoft.com>
 
-> > This patch switches to a simple atomic counter + srcu instead of
-> > the custom locked queue + flush implementation.
-> > 
-> > This will slow down the setup ioctls, which should not matter -
-> > it's slow path anyway. We use the expedited flush to at least
-> > make sure it has a sane time bound.
-> > 
-> > Works fine for me. I got reports that with many guests,
-> > work lock is highly contended, and this patch should in theory
-> > fix this as well - but I haven't tested this yet.
-> 
-> Hmmm... vhost_poll_flush() becomes synchronize_srcu_expedited().  Can
-> you please explain how it works?  synchronize_srcu_expedited() is an
-> extremely heavy operation involving scheduling the cpu_stop task on
-> all cpus.  I'm not quite sure whether doing it from every flush is a
-> good idea.  Is flush supposed to be a very rare operation?
+Subject: staging: hv: Fix missing functions for net_device_ops
+  Unlike in older kernels, ether_setup() no longer sets default
+functions. We need to put them into net_device_ops. For example,
+eth_change_mtu prevents setting MTU beyond 1500. This is necessary
+because we don't support jumbo frame at this time.
 
-It is rare - happens on guest reboot typically. I guess I will
-switch to regular synchronize_srcu.
+Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
+Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 
-> Having custom implementation is fine too but let's try to implement
-> something generic if at all possible.
-> 
-> Thanks.
+---
+ drivers/staging/hv/netvsc_drv.c |    3 +++
+ 1 files changed, 3 insertions(+), 0 deletions(-)
 
-Sure. It does seem that avoiding list lock would be pretty hard
-in generic code though.
+diff --git a/drivers/staging/hv/netvsc_drv.c b/drivers/staging/hv/netvsc_dr=
+v.c
+index 56e1157..64a0114 100644
+--- a/drivers/staging/hv/netvsc_drv.c
++++ b/drivers/staging/hv/netvsc_drv.c
+@@ -327,6 +327,9 @@ static const struct net_device_ops device_ops =3D {
+ 	.ndo_stop =3D			netvsc_close,
+ 	.ndo_start_xmit =3D		netvsc_start_xmit,
+ 	.ndo_set_multicast_list =3D	netvsc_set_multicast_list,
++	.ndo_change_mtu =3D		eth_change_mtu,
++	.ndo_validate_addr =3D		eth_validate_addr,
++	.ndo_set_mac_address =3D		eth_mac_addr,
+ };
+=20
+ static int netvsc_probe(struct device *device)
+--=20
+1.6.3.2
 
-> -- 
-> tejun
+
+--_002_1FB5E1D5CA062146B38059374562DF7280E8547CTK5EX14MBXC121r_
+Content-Type: application/octet-stream;
+	name="0729-fix-missing-functions-for-net_device_ops.patch"
+Content-Description: 0729-fix-missing-functions-for-net_device_ops.patch
+Content-Disposition: attachment;
+	filename="0729-fix-missing-functions-for-net_device_ops.patch"; size=1131;
+	creation-date="Thu, 29 Jul 2010 21:11:11 GMT";
+	modification-date="Thu, 29 Jul 2010 22:05:04 GMT"
+Content-Transfer-Encoding: base64
+
+RnJvbTogSGFpeWFuZyBaaGFuZyA8aGFpeWFuZ3pAbWljcm9zb2Z0LmNvbT4KClN1YmplY3Q6IHN0
+YWdpbmc6IGh2OiBGaXggbWlzc2luZyBmdW5jdGlvbnMgZm9yIG5ldF9kZXZpY2Vfb3BzCiAgVW5s
+aWtlIGluIG9sZGVyIGtlcm5lbHMsIGV0aGVyX3NldHVwKCkgbm8gbG9uZ2VyIHNldHMgZGVmYXVs
+dApmdW5jdGlvbnMuIFdlIG5lZWQgdG8gcHV0IHRoZW0gaW50byBuZXRfZGV2aWNlX29wcy4gRm9y
+IGV4YW1wbGUsCmV0aF9jaGFuZ2VfbXR1IHByZXZlbnRzIHNldHRpbmcgTVRVIGJleW9uZCAxNTAw
+LiBUaGlzIGlzIG5lY2Vzc2FyeQpiZWNhdXNlIHdlIGRvbid0IHN1cHBvcnQganVtYm8gZnJhbWUg
+YXQgdGhpcyB0aW1lLgoKU2lnbmVkLW9mZi1ieTogSGFpeWFuZyBaaGFuZyA8aGFpeWFuZ3pAbWlj
+cm9zb2Z0LmNvbT4KU2lnbmVkLW9mZi1ieTogSGFuayBKYW5zc2VuIDxoamFuc3NlbkBtaWNyb3Nv
+ZnQuY29tPgoKLS0tCiBkcml2ZXJzL3N0YWdpbmcvaHYvbmV0dnNjX2Rydi5jIHwgICAgMyArKysK
+IDEgZmlsZXMgY2hhbmdlZCwgMyBpbnNlcnRpb25zKCspLCAwIGRlbGV0aW9ucygtKQoKZGlmZiAt
+LWdpdCBhL2RyaXZlcnMvc3RhZ2luZy9odi9uZXR2c2NfZHJ2LmMgYi9kcml2ZXJzL3N0YWdpbmcv
+aHYvbmV0dnNjX2Rydi5jCmluZGV4IDU2ZTExNTcuLjY0YTAxMTQgMTAwNjQ0Ci0tLSBhL2RyaXZl
+cnMvc3RhZ2luZy9odi9uZXR2c2NfZHJ2LmMKKysrIGIvZHJpdmVycy9zdGFnaW5nL2h2L25ldHZz
+Y19kcnYuYwpAQCAtMzI3LDYgKzMyNyw5IEBAIHN0YXRpYyBjb25zdCBzdHJ1Y3QgbmV0X2Rldmlj
+ZV9vcHMgZGV2aWNlX29wcyA9IHsKIAkubmRvX3N0b3AgPQkJCW5ldHZzY19jbG9zZSwKIAkubmRv
+X3N0YXJ0X3htaXQgPQkJbmV0dnNjX3N0YXJ0X3htaXQsCiAJLm5kb19zZXRfbXVsdGljYXN0X2xp
+c3QgPQluZXR2c2Nfc2V0X211bHRpY2FzdF9saXN0LAorCS5uZG9fY2hhbmdlX210dSA9CQlldGhf
+Y2hhbmdlX210dSwKKwkubmRvX3ZhbGlkYXRlX2FkZHIgPQkJZXRoX3ZhbGlkYXRlX2FkZHIsCisJ
+Lm5kb19zZXRfbWFjX2FkZHJlc3MgPQkJZXRoX21hY19hZGRyLAogfTsKIAogc3RhdGljIGludCBu
+ZXR2c2NfcHJvYmUoc3RydWN0IGRldmljZSAqZGV2aWNlKQotLSAKMS42LjMuMgoK
+
+--_002_1FB5E1D5CA062146B38059374562DF7280E8547CTK5EX14MBXC121r_
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linux-foundation.org/mailman/listinfo/virtualization
+--_002_1FB5E1D5CA062146B38059374562DF7280E8547CTK5EX14MBXC121r_--
