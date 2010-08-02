@@ -1,55 +1,28 @@
-From: Haiyang Zhang <haiyangz@microsoft.com>
-Subject: [PATCH 1/1] staging: hv: Fix missing functions for net_device_ops
-	(resubmit)
-Date: Mon, 2 Aug 2010 17:46:01 +0000
-Message-ID: <1FB5E1D5CA062146B38059374562DF7280E8556B__43212.4727908105$1280771254$gmane$org@TK5EX14MBXC121.redmond.corp.microsoft.com>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [GIT PULL net-next-2.6] vhost-net patchset for 2.6.36
+Date: Mon, 02 Aug 2010 15:54:29 -0700 (PDT)
+Message-ID: <20100802.155429.52193174.davem@davemloft.net>
+References: <20100701164127.GA3199@redhat.com>
+	<20100728133231.GA1932@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Language: en-US
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>, "'devel@driverdev.osuosl.org'" <devel@driverdev.osuosl.org>, "'virtualization@lists.osdl.org'" <virtualiz>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20100728133231.GA1932@redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: mst@redhat.com
+Cc: kvm@vger.kernel.org, virtualization@lists.osdl.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, krkumar2@in.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Haiyang Zhang <haiyangz@microsoft.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Date: Wed, 28 Jul 2010 16:32:31 +0300
 
-Subject: staging: hv: Fix missing functions for net_device_ops
-  Unlike in older kernels, ether_setup() no longer sets default
-functions. We need to put them into net_device_ops. For example,
-eth_change_mtu prevents setting MTU beyond 1500. This is necessary
-because we don't support jumbo frame at this time.
-  It affects kernel 2.6.32 and later, which are all versions
-containing Hyper-V drivers.
+> The following changes since commit 4cfa580e7eebb8694b875d2caff3b989ada2efac:
+> 
+>   r6040: Fix args to phy_mii_ioctl(). (2010-07-21 21:10:49 -0700)
+> 
+> are available in the git repository at:
+>   git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git vhost-net-next
+> 
 
-Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
-Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
-
----
- drivers/staging/hv/netvsc_drv.c |    3 +++
- 1 files changed, 3 insertions(+), 0 deletions(-)
-
-diff --git a/drivers/staging/hv/netvsc_drv.c b/drivers/staging/hv/netvsc_drv.c
-index 56e1157..64a0114 100644
---- a/drivers/staging/hv/netvsc_drv.c
-+++ b/drivers/staging/hv/netvsc_drv.c
-@@ -327,6 +327,9 @@ static const struct net_device_ops device_ops = {
- 	.ndo_stop =			netvsc_close,
- 	.ndo_start_xmit =		netvsc_start_xmit,
- 	.ndo_set_multicast_list =	netvsc_set_multicast_list,
-+	.ndo_change_mtu =		eth_change_mtu,
-+	.ndo_validate_addr =		eth_validate_addr,
-+	.ndo_set_mac_address =		eth_mac_addr,
- };
- 
- static int netvsc_probe(struct device *device)
--- 
-1.6.3.2
+Pulled, thanks Michael.
