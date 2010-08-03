@@ -1,61 +1,55 @@
-From: Greg KH <gregkh@suse.de>
-Subject: Re: [PATCH 1/1] staging: hv: Fix missing functions for
- net_device_ops (resubmit)
-Date: Tue, 3 Aug 2010 11:43:13 -0700
-Message-ID: <20100803184312.GA6150@suse.de>
-References: <1FB5E1D5CA062146B38059374562DF7280E8556B@TK5EX14MBXC121.redmond.corp.microsoft.com>
- <20100803013013.GC3814@kroah.com>
- <1FB5E1D5CA062146B38059374562DF728380C2F4@TK5EX14MBXC126.redmond.corp.microsoft.com>
+From: Haiyang Zhang <haiyangz@microsoft.com>
+Subject: [PATCH 1/1] staging: hv: Fix missing functions for net_device_ops
+	(submit again)
+Date: Tue, 3 Aug 2010 18:25:53 +0000
+Message-ID: <1FB5E1D5CA062146B38059374562DF728380C30F__35827.866374939$1280862070$gmane$org@TK5EX14MBXC126.redmond.corp.microsoft.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1FB5E1D5CA062146B38059374562DF728380C2F4@TK5EX14MBXC126.redmond.corp.microsoft.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Haiyang Zhang <haiyangz@microsoft.com>
-Cc: Greg KH <greg@kroah.com>, "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>, "'devel@driverdev.osuosl.org'" <devel@driverdev.osuosl.org>, "'virtualization@lists.osdl.org'" <virtualization@lists.osdl.org>, Hank Janssen <hjanssen@microsoft.com>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Language: en-US
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>, "'devel@driverdev.osuosl.org'" <devel@driverdev.osuosl.org>, "'virtualization@lists.osdl.org'" <virtualiz>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Aug 03, 2010 at 06:21:50PM +0000, Haiyang Zhang wrote:
-> > From: Greg KH [mailto:greg@kroah.com]
-> > Sent: Monday, August 02, 2010 9:30 PM
-> > Why put the subject in the body of the email?  This forces me to edit
-> > it again :(
-> 
-> Sure, I'll remove it.
+From: Haiyang Zhang <haiyangz@microsoft.com>
 
-thanks.
+Fix missing functions for net_device_ops.
+Unlike in older kernels, ether_setup() no longer sets default
+functions. We need to put them into net_device_ops. For example,
+eth_change_mtu prevents setting MTU beyond 1500. This is necessary
+because we don't support jumbo frame at this time.
+It affects kernel 2.6.32 and later, which are all versions
+containing Hyper-V drivers.
 
-> > > functions. We need to put them into net_device_ops. For example,
-> > > eth_change_mtu prevents setting MTU beyond 1500. This is necessary
-> > > because we don't support jumbo frame at this time.
-> > 
-> > What does this mean?  Is it a bug?  Just not going as fast as possible?
-> > Something else?
-> 
-> Yes, it's a bug when porting Linux IC from 2.6.27 to 2.6.32. In 2.6.27,
-> the default functions for Ethernet, like eth_change_mtu(), were assigned
-> by ether_setup(). But in 2.6.32, these function pointers moved to
-> net_device_ops structure and no longer be assigned in ether_setup(). So we
-> need to set these functions in our driver code. It will ensure the MTU won't
-> be set beyong 1500. Otherwise, this can cause an error on the server side,
-> because the HyperV linux driver doesn't support jumbo frame yet.
+Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
+Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 
-Wonderful, why not put this type of full information in the patch itself
-so that people can understand and rememeber what is going on when they
-look at it in a few months time?
+---
+ drivers/staging/hv/netvsc_drv.c |    3 +++
+ 1 files changed, 3 insertions(+), 0 deletions(-)
 
-> > >   It affects kernel 2.6.32 and later, which are all versions
-> > > containing Hyper-V drivers.
-> > 
-> > So is this fixing a bug that needs to be backported to these older
-> > kernels (i.e. the staging tree?)  Is this something that is causing
-> > people problems?
-> 
-> Yes it should be backported. The bug can cause error on guest and host.
-
-Than please ask for it to be backported in the future.
-
-thanks,
-
-greg k-h
+diff --git a/drivers/staging/hv/netvsc_drv.c b/drivers/staging/hv/netvsc_drv.c
+index 56e1157..64a0114 100644
+--- a/drivers/staging/hv/netvsc_drv.c
++++ b/drivers/staging/hv/netvsc_drv.c
+@@ -327,6 +327,9 @@ static const struct net_device_ops device_ops = {
+ 	.ndo_stop =			netvsc_close,
+ 	.ndo_start_xmit =		netvsc_start_xmit,
+ 	.ndo_set_multicast_list =	netvsc_set_multicast_list,
++	.ndo_change_mtu =		eth_change_mtu,
++	.ndo_validate_addr =		eth_validate_addr,
++	.ndo_set_mac_address =		eth_mac_addr,
+ };
+ 
+ static int netvsc_probe(struct device *device)
+-- 
+1.6.3.2
