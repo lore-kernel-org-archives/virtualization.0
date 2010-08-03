@@ -1,50 +1,58 @@
-From: John Fastabend <john.r.fastabend@intel.com>
-Subject: Re: [E1000-eedc] [PATCH 16/17] lldpad support for libvirt netlink
-	message
-Date: Tue, 03 Aug 2010 00:52:46 -0700
-Message-ID: <4C57CACE.2070202@intel.com>
-References: <1279881273-10261-1-git-send-email-jens@linux.vnet.ibm.com>
-	<1279881273-10261-17-git-send-email-jens@linux.vnet.ibm.com>
+From: Hank Janssen <hjanssen@microsoft.com>
+Subject: [PATCH 1/6] staging: hv: Fixed bounce kmap problem by using correct
+	index
+Date: Tue, 3 Aug 2010 17:31:51 +0000
+Message-ID: <8AFC7968D54FB448A30D8F38F259C56223FD0D21@TK5EX14MBXC114.redmond.corp.microsoft.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1279881273-10261-17-git-send-email-jens@linux.vnet.ibm.com>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jens Osterkamp <jens@linux.vnet.ibm.com>
-Cc: "chrisw@redhat.com" <chrisw@redhat.com>, Stefan Berger <stefanb@linux.vnet.ibm.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Gerhard Stenzel <gstenzel@linux.vnet.ibm.com>, "evb@yahoogroups.com" <evb@yahoogroups.com>, "e1000-eedc@lists.sourceforge.net" <e1000-eedc@lists.sourceforge.net>
+Return-path: <devel-bounces@linuxdriverproject.org>
+Content-Language: en-US
+List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
+	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
+List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
+List-Post: <mailto:devel@linuxdriverproject.org>
+List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
+List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
+	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
+Sender: devel-bounces@linuxdriverproject.org
+Errors-To: devel-bounces@linuxdriverproject.org
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>, "'devel@driverdev.osuosl.org'" <devel@driverdev.osuosl.org>, "'virtualization@lists.osdl.org'" <virtualization@lists.osdl.org>
+Cc: Haiyang Zhang <haiyangz@microsoft.com>, "'gregkh@suse.de'" <gregkh@suse.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Jens Osterkamp wrote:
-> This code receives a IEEE 802.1Qbg virtual station instance from libvirt in
-> a SETLINK message. The parsed VSI is then handed over to VDP for processing.
-> The VDP state machine processes the VSI while libvirt polls the result using
-> GETLINK.
-> 
-> Requires at least Linux kernel 2.6.35-rc1.
-> 
-> Signed-off-by: Jens Osterkamp <jens@linux.vnet.ibm.com>
-> Signed-off-by: Gerhard Stenzel <gstenzel@linux.vnet.ibm.com>
-> Signed-off-by: Stefan Berger <stefanb@linux.vnet.ibm.com>
-> ---
->  event_iface.c |  617 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++-
->  lldp_vdp.c    |    2 +-
->  lldpad.c      |   10 +
->  3 files changed, 622 insertions(+), 7 deletions(-)
-> 
+From: Hank Janssen <hjanssen@microsoft.com> 
 
-Jens,
+Fixed bounce offset kmap problem by using correct index
 
-Can you explain why this interface is needed?  There is already a kernel 
-interface for this how come libvirt and lldpad can not use the kernel interface?
+Signed-off-by:Hank Janssen <hjanssen@microsoft.com>
+Signed-off-by:Haiyang Zhang <haiyangz@microsoft.com>
 
-Thanks,
-John.
+---
+ drivers/staging/hv/storvsc_drv.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
+index 075b61b..3b9ccb0 100644
+--- a/drivers/staging/hv/storvsc_drv.c
++++ b/drivers/staging/hv/storvsc_drv.c
+@@ -495,7 +495,7 @@ static unsigned int copy_to_bounce_buffer(struct scatterlist *orig_sgl,
+ 
+ 		/* ASSERT(orig_sgl[i].offset + orig_sgl[i].length <= PAGE_SIZE); */
+ 
+-		if (j == 0)
++		if (bounce_addr == 0)
+ 			bounce_addr = (unsigned long)kmap_atomic(sg_page((&bounce_sgl[j])), KM_IRQ0);
+ 
+ 		while (srclen) {
+@@ -556,7 +556,7 @@ static unsigned int copy_from_bounce_buffer(struct scatterlist *orig_sgl,
+ 		destlen = orig_sgl[i].length;
+ 		/* ASSERT(orig_sgl[i].offset + orig_sgl[i].length <= PAGE_SIZE); */
+ 
+-		if (j == 0)
++		if (bounce_addr == 0)
+ 			bounce_addr = (unsigned long)kmap_atomic(sg_page((&bounce_sgl[j])), KM_IRQ0);
+ 
+ 		while (destlen) {
+--
+1.6.0.2
