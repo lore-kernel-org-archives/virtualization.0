@@ -1,32 +1,52 @@
-From: Greg KH <gregkh@suse.de>
-Subject: Re: [PATCH 5/6] staging: hv: Increased storvsc ringbuffer and
- max_io_requests
-Date: Tue, 3 Aug 2010 10:40:05 -0700
-Message-ID: <20100803174005.GC1455@suse.de>
-References: <8AFC7968D54FB448A30D8F38F259C56223FD1D36@TK5EX14MBXC114.redmond.corp.microsoft.com>
+From: Haiyang Zhang <haiyangz@microsoft.com>
+Subject: RE: [PATCH 1/1] staging: hv: Fix missing functions for
+ net_device_ops (resubmit)
+Date: Tue, 3 Aug 2010 18:21:50 +0000
+Message-ID: <1FB5E1D5CA062146B38059374562DF728380C2F4@TK5EX14MBXC126.redmond.corp.microsoft.com>
+References: <1FB5E1D5CA062146B38059374562DF7280E8556B@TK5EX14MBXC121.redmond.corp.microsoft.com>
+ <20100803013013.GC3814@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <8AFC7968D54FB448A30D8F38F259C56223FD1D36@TK5EX14MBXC114.redmond.corp.microsoft.com>
+In-Reply-To: <20100803013013.GC3814@kroah.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Hank Janssen <hjanssen@microsoft.com>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>, "'devel@driverdev.osuosl.org'" <devel@driverdev.osuosl.org>, "'virtualization@lists.osdl.org'" <virtualization@lists.osdl.org>, Haiyang Zhang <haiyangz@microsoft.com>
+To: Greg KH <greg@kroah.com>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>, "'devel@driverdev.osuosl.org'" <devel@driverdev.osuosl.org>, "'virtualization@lists.osdl.org'" <virtualization@lists.osdl.org>, "'gregkh@suse.de'" <gregkh@suse.de>, Hank Janssen <hjanssen@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Aug 03, 2010 at 05:31:55PM +0000, Hank Janssen wrote:
-> From: Hank Janssen <hjanssen@microsoft.com>
+> From: Greg KH [mailto:greg@kroah.com]
+> Sent: Monday, August 02, 2010 9:30 PM
+> Why put the subject in the body of the email?  This forces me to edit
+> it again :(
+
+Sure, I'll remove it.
+
+> > functions. We need to put them into net_device_ops. For example,
+> > eth_change_mtu prevents setting MTU beyond 1500. This is necessary
+> > because we don't support jumbo frame at this time.
 > 
-> Increased storvsc ringbuffer and max_io_requests. This now more closely mimics 
-> the numbers on Hyper-V.
+> What does this mean?  Is it a bug?  Just not going as fast as possible?
+> Something else?
 
-What do you mean by this?  The max provided by the hypervisor?
+Yes, it's a bug when porting Linux IC from 2.6.27 to 2.6.32. In 2.6.27,
+the default functions for Ethernet, like eth_change_mtu(), were assigned
+by ether_setup(). But in 2.6.32, these function pointers moved to
+net_device_ops structure and no longer be assigned in ether_setup(). So we
+need to set these functions in our driver code. It will ensure the MTU won't
+be set beyong 1500. Otherwise, this can cause an error on the server side,
+because the HyperV linux driver doesn't support jumbo frame yet.
 
-> And will allow more IO requests to take place for the SCSI driver.
+> >   It affects kernel 2.6.32 and later, which are all versions
+> > containing Hyper-V drivers.
+> 
+> So is this fixing a bug that needs to be backported to these older
+> kernels (i.e. the staging tree?)  Is this something that is causing
+> people problems?
 
-Which means what, better throughput?  Or just more outstanding requests
-and the same speed overall?
+Yes it should be backported. The bug can cause error on guest and host.
 
-thanks,
+Thanks,
 
-greg k-h
+- Haiyang
