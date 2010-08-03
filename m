@@ -1,44 +1,93 @@
-From: Greg KH <greg@kroah.com>
-Subject: Re: [PATCH 1/1] staging: hv: Fix missing functions for
- net_device_ops (resubmit)
-Date: Mon, 2 Aug 2010 18:30:14 -0700
-Message-ID: <20100803013013.GC3814@kroah.com>
-References: <1FB5E1D5CA062146B38059374562DF7280E8556B@TK5EX14MBXC121.redmond.corp.microsoft.com>
+From: Jens Osterkamp <jens@linux.vnet.ibm.com>
+Subject: Re: [E1000-eedc] [PATCH 16/17] lldpad support for libvirt netlink
+	message
+Date: Tue, 3 Aug 2010 13:59:54 +0200
+Message-ID: <201008031359.54190.jens@linux.vnet.ibm.com>
+References: <1279881273-10261-1-git-send-email-jens@linux.vnet.ibm.com>
+	<1279881273-10261-17-git-send-email-jens@linux.vnet.ibm.com>
+	<4C57CACE.2070202@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <4C57CACE.2070202@intel.com>
 Content-Disposition: inline
-In-Reply-To: <1FB5E1D5CA062146B38059374562DF7280E8556B@TK5EX14MBXC121.redmond.corp.microsoft.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Haiyang Zhang <haiyangz@microsoft.com>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>, "'devel@driverdev.osuosl.org'" <devel@driverdev.osuosl.org>, "'virtualization@lists.osdl.org'" <virtualization@lists.osdl.org>, "'gregkh@suse.de'" <gregkh@suse.de>, Hank Janssen <hjanssen@microsoft.com>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: John Fastabend <john.r.fastabend@intel.com>
+Cc: "chrisw@redhat.com" <chrisw@redhat.com>, arnd@arndb.de, Stefan Berger <stefanb@linux.vnet.ibm.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Gerhard Stenzel <gstenzel@linux.vnet.ibm.com>, "evb@yahoogroups.com" <evb@yahoogroups.com>, "e1000-eedc@lists.sourceforge.net" <e1000-eedc@lists.sourceforge.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Aug 02, 2010 at 05:46:01PM +0000, Haiyang Zhang wrote:
-> From: Haiyang Zhang <haiyangz@microsoft.com>
-> 
-> Subject: staging: hv: Fix missing functions for net_device_ops
->   Unlike in older kernels, ether_setup() no longer sets default
+On Tuesday 03 August 2010, John Fastabend wrote:
+> Jens Osterkamp wrote:
+> > This code receives a IEEE 802.1Qbg virtual station instance from libvir=
+t in
+> > a SETLINK message. The parsed VSI is then handed over to VDP for proces=
+sing.
+> > The VDP state machine processes the VSI while libvirt polls the result =
+using
+> > GETLINK.
+> > =
 
-Why put the subject in the body of the email?  This forces me to edit it
-again :(
+> > Requires at least Linux kernel 2.6.35-rc1.
+> > =
 
-> functions. We need to put them into net_device_ops. For example,
-> eth_change_mtu prevents setting MTU beyond 1500. This is necessary
-> because we don't support jumbo frame at this time.
+> > Signed-off-by: Jens Osterkamp <jens@linux.vnet.ibm.com>
+> > Signed-off-by: Gerhard Stenzel <gstenzel@linux.vnet.ibm.com>
+> > Signed-off-by: Stefan Berger <stefanb@linux.vnet.ibm.com>
+> > ---
+> >  event_iface.c |  617 +++++++++++++++++++++++++++++++++++++++++++++++++=
++++++++-
+> >  lldp_vdp.c    |    2 +-
+> >  lldpad.c      |   10 +
+> >  3 files changed, 622 insertions(+), 7 deletions(-)
+> > =
 
-What does this mean?  Is it a bug?  Just not going as fast as possible?
-Something else?
+> =
 
->   It affects kernel 2.6.32 and later, which are all versions
-> containing Hyper-V drivers.
+> Jens,
+> =
 
-So is this fixing a bug that needs to be backported to these older
-kernels (i.e. the staging tree?)  Is this something that is causing
-people problems?
+> Can you explain why this interface is needed?  There is already a kernel =
 
-Third time's a charm?
 
-thanks,
+We needed a way in libvirt to associate the virtual network interface(s) of=
+ a
+guest with an adjacent switch. The protocol to do this could be implemented
+both in userspace (e.g. in lldpad) or in the adapter firmware. You could ha=
+ve
+different drivers for both ways in libvirt but to keep it simple we decided
+to use netlink for both.
 
-greg k-h
+The original mailthread on netdev started here
+
+http://marc.info/?l=3Dlinux-netdev&m=3D127242976205746&w=3D2
+
+> interface for this how come libvirt and lldpad can not use the kernel int=
+erface?
+
+In fact we are using the kernel interface for this, e.g. the definitions of=
+ the
+netlink attributes are in the kernel header files.
+The only difference is that in the userspace case, the netlink messages
+are addressed to the pid of lldpad whereas in the firmware case, the netlink
+messages go to pid 0 (kernel).
+
+Best regards, =
+
+
+Jens Osterkamp
+---------------------------------------------------------------------------=
+-----
+IBM Deutschland Research & Development GmbH
+Vorsitzender des Aufsichtsrats: Martin Jetter
+Gesch=E4ftsf=FChrung: Dirk Wittkopp
+Sitz der Gesellschaft: B=F6blingen
+Registergericht: Amtsgericht Stuttgart, HRB 243294
