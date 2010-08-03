@@ -1,8 +1,8 @@
 From: Haiyang Zhang <haiyangz@microsoft.com>
 Subject: [PATCH 1/1] staging: hv: Fix missing functions for net_device_ops
-	(submit again)
-Date: Tue, 3 Aug 2010 18:25:53 +0000
-Message-ID: <1FB5E1D5CA062146B38059374562DF728380C30F__35827.866374939$1280862070$gmane$org@TK5EX14MBXC126.redmond.corp.microsoft.com>
+	(with detailed comments)
+Date: Tue, 3 Aug 2010 19:15:31 +0000
+Message-ID: <1FB5E1D5CA062146B38059374562DF728380C37B__23567.8009609275$1280864890$gmane$org@TK5EX14MBXC126.redmond.corp.microsoft.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -23,12 +23,16 @@ List-Id: virtualization@lists.linuxfoundation.org
 From: Haiyang Zhang <haiyangz@microsoft.com>
 
 Fix missing functions for net_device_ops.
-Unlike in older kernels, ether_setup() no longer sets default
-functions. We need to put them into net_device_ops. For example,
-eth_change_mtu prevents setting MTU beyond 1500. This is necessary
-because we don't support jumbo frame at this time.
-It affects kernel 2.6.32 and later, which are all versions
-containing Hyper-V drivers.
+It's a bug when porting Linux IC from 2.6.27 to 2.6.32. In 2.6.27,
+the default functions for Ethernet, like eth_change_mtu(), were assigned
+by ether_setup(). But in 2.6.32, these function pointers moved to
+net_device_ops structure and no longer be assigned in ether_setup(). So we
+need to set these functions in our driver code. It will ensure the MTU won't
+be set beyond 1500. Otherwise, this can cause an error on the server side,
+because the HyperV linux driver doesn't support jumbo frame yet.
+
+Requesting it to be backported to kernel 2.6.32 and later, which are all
+versions containing Hyper-V drivers.
 
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
