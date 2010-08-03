@@ -1,8 +1,7 @@
 From: Hank Janssen <hjanssen@microsoft.com>
-Subject: [PATCH 4/6] staging: hv: Removed TODO for VMBUS, it mirrors HYPER-V
-	behavior to closely
-Date: Tue, 3 Aug 2010 17:31:54 +0000
-Message-ID: <8AFC7968D54FB448A30D8F38F259C56223FD1D2F@TK5EX14MBXC114.redmond.corp.microsoft.com>
+Subject: [PATCH 6/6] staging: hv: Gracefully handle SCSI resets
+Date: Tue, 3 Aug 2010 17:31:56 +0000
+Message-ID: <8AFC7968D54FB448A30D8F38F259C56223FD1D3C@TK5EX14MBXC114.redmond.corp.microsoft.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -23,27 +22,111 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Hank Janssen <hjanssen@microsoft.com>
 
-Removed TODO for VMBUS, it mirrors HYPER-V behaviour to closely and does not really share any 
-usable functionality of the Linux kernel facilities. There is not really an easy way to combine functionality.
+If we get a SCSI host bus reset we now gracefully handle it, and we take the device offline. 
+This before sometimes caused hangs.
 
 Signed-off-by:Hank Janssen <hjanssen@microsoft.com>
 Signed-off-by:Haiyang Zhang <haiyangz@microsoft.com>
 
----
- drivers/staging/hv/TODO |    2 --
- 1 files changed, 0 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/staging/hv/TODO b/drivers/staging/hv/TODO index 66a89c8..8ca2947 100644
---- a/drivers/staging/hv/TODO
-+++ b/drivers/staging/hv/TODO
-@@ -4,8 +4,6 @@ TODO:
- 	  driver model
- 	- convert vmbus driver interface function pointer tables
-           to constant, a.k.a vmbus_ops
--	- see if the vmbus can be merged with the other virtual busses
--	  in the kernel
- 	- audit the network driver
- 	  - checking for carrier inside open is wrong, network device API
-             confusion??
+---
+ drivers/staging/hv/storvsc.c |   36 +++++++++++++++++++++++++++++++++++-
+ 1 files changed, 35 insertions(+), 1 deletions(-)
+
+diff --git a/drivers/staging/hv/storvsc.c b/drivers/staging/hv/storvsc.c index 6bd2ff1..5f222cf 100644
+--- a/drivers/staging/hv/storvsc.c
++++ b/drivers/staging/hv/storvsc.c
+@@ -48,7 +48,9 @@ struct storvsc_device {
+ 
+ 	/* 0 indicates the device is being destroyed */
+ 	atomic_t RefCount;
+-
++	
++	int reset;
++	spinlock_t lock;
+ 	atomic_t NumOutstandingRequests;
+ 
+ 	/*
+@@ -93,6 +95,9 @@ static inline struct storvsc_device *AllocStorDevice(struct hv_device *Device)
+ 	atomic_cmpxchg(&storDevice->RefCount, 0, 2);
+ 
+ 	storDevice->Device = Device;
++	storDevice->reset  = 0;
++	spin_lock_init(&storDevice->lock);
++
+ 	Device->Extension = storDevice;
+ 
+ 	return storDevice;
+@@ -101,6 +106,7 @@ static inline struct storvsc_device *AllocStorDevice(struct hv_device *Device)  static inline void FreeStorDevice(struct storvsc_device *Device)  {
+ 	/* ASSERT(atomic_read(&Device->RefCount) == 0); */
++	/*kfree(Device->lock);*/
+ 	kfree(Device);
+ }
+ 
+@@ -108,13 +114,24 @@ static inline void FreeStorDevice(struct storvsc_device *Device)  static inline struct storvsc_device *GetStorDevice(struct hv_device *Device)  {
+ 	struct storvsc_device *storDevice;
++	unsigned long flags;
+ 
+ 	storDevice = (struct storvsc_device *)Device->Extension;
++
++	spin_lock_irqsave(&storDevice->lock, flags);
++
++	if (storDevice->reset == 1) {
++		spin_unlock_irqrestore(&storDevice->lock, flags);
++		return NULL;
++	}
++
+ 	if (storDevice && atomic_read(&storDevice->RefCount) > 1)
+ 		atomic_inc(&storDevice->RefCount);
+ 	else
+ 		storDevice = NULL;
+ 
++	spin_unlock_irqrestore(&storDevice->lock, flags);
++
+ 	return storDevice;
+ }
+ 
+@@ -122,13 +139,19 @@ static inline struct storvsc_device *GetStorDevice(struct hv_device *Device)  static inline struct storvsc_device *MustGetStorDevice(struct hv_device *Device)  {
+ 	struct storvsc_device *storDevice;
++	unsigned long flags;
+ 
+ 	storDevice = (struct storvsc_device *)Device->Extension;
++
++	spin_lock_irqsave(&storDevice->lock, flags);
++
+ 	if (storDevice && atomic_read(&storDevice->RefCount))
+ 		atomic_inc(&storDevice->RefCount);
+ 	else
+ 		storDevice = NULL;
+ 
++	spin_unlock_irqrestore(&storDevice->lock, flags);
++
+ 	return storDevice;
+ }
+ 
+@@ -614,6 +637,7 @@ int StorVscOnHostReset(struct hv_device *Device)
+ 	struct storvsc_device *storDevice;
+ 	struct storvsc_request_extension *request;
+ 	struct vstor_packet *vstorPacket;
++	unsigned long flags;
+ 	int ret;
+ 
+ 	DPRINT_INFO(STORVSC, "resetting host adapter..."); @@ -625,6 +649,16 @@ int StorVscOnHostReset(struct hv_device *Device)
+ 		return -1;
+ 	}
+ 
++	spin_lock_irqsave(&storDevice->lock, flags);
++	storDevice->reset = 1;
++	spin_unlock_irqrestore(&storDevice->lock, flags);
++
++	/*
++	 * Wait for traffic in transit to complete
++	 */
++	while (atomic_read(&storDevice->NumOutstandingRequests))
++		udelay(1000);
++
+ 	request = &storDevice->ResetRequest;
+ 	vstorPacket = &request->VStorPacket;
+ 
 --
 1.6.0.2
