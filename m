@@ -1,132 +1,46 @@
 From: Hank Janssen <hjanssen@microsoft.com>
-Subject: [PATCH 6/6] staging: hv: Gracefully handle SCSI resets
-Date: Tue, 3 Aug 2010 17:31:56 +0000
-Message-ID: <8AFC7968D54FB448A30D8F38F259C56223FD1D3C@TK5EX14MBXC114.redmond.corp.microsoft.com>
+Subject: [PATCH 5/6] staging: hv: Increased storvsc ringbuffer and
+ max_io_requests
+Date: Tue, 3 Aug 2010 17:31:55 +0000
+Message-ID: <8AFC7968D54FB448A30D8F38F259C56223FD1D36@TK5EX14MBXC114.redmond.corp.microsoft.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <devel-bounces@linuxdriverproject.org>
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Language: en-US
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
-List-Post: <mailto:devel@linuxdriverproject.org>
-List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
-Sender: devel-bounces@linuxdriverproject.org
-Errors-To: devel-bounces@linuxdriverproject.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>, "'devel@driverdev.osuosl.org'" <devel@driverdev.osuosl.org>, "'virtualization@lists.osdl.org'" <virtualization@lists.osdl.org>
 Cc: Haiyang Zhang <haiyangz@microsoft.com>, "'gregkh@suse.de'" <gregkh@suse.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
 From: Hank Janssen <hjanssen@microsoft.com>
 
-If we get a SCSI host bus reset we now gracefully handle it, and we take the device offline. 
-This before sometimes caused hangs.
+Increased storvsc ringbuffer and max_io_requests. This now more closely mimics 
+the numbers on Hyper-V. And will allow more IO requests to take place for the SCSI driver.
 
 Signed-off-by:Hank Janssen <hjanssen@microsoft.com>
-Signed-off-by:Haiyang Zhang <haiyangz@microsoft.com>
-
+Signed-off-by:Haiyang Zhang <haiyangz@microsoft.com> 
 
 ---
- drivers/staging/hv/storvsc.c |   36 +++++++++++++++++++++++++++++++++++-
- 1 files changed, 35 insertions(+), 1 deletions(-)
+ drivers/staging/hv/storvsc_api.h |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/staging/hv/storvsc.c b/drivers/staging/hv/storvsc.c index 6bd2ff1..5f222cf 100644
---- a/drivers/staging/hv/storvsc.c
-+++ b/drivers/staging/hv/storvsc.c
-@@ -48,7 +48,9 @@ struct storvsc_device {
+diff --git a/drivers/staging/hv/storvsc_api.h b/drivers/staging/hv/storvsc_api.h
+index 0063bde..8505a1c 100644
+--- a/drivers/staging/hv/storvsc_api.h
++++ b/drivers/staging/hv/storvsc_api.h
+@@ -28,10 +28,10 @@
+ #include "vmbus_api.h"
  
- 	/* 0 indicates the device is being destroyed */
- 	atomic_t RefCount;
--
-+	
-+	int reset;
-+	spinlock_t lock;
- 	atomic_t NumOutstandingRequests;
+ /* Defines */
+-#define STORVSC_RING_BUFFER_SIZE			(10*PAGE_SIZE)
++#define STORVSC_RING_BUFFER_SIZE			(20*PAGE_SIZE)
+ #define BLKVSC_RING_BUFFER_SIZE				(20*PAGE_SIZE)
  
- 	/*
-@@ -93,6 +95,9 @@ static inline struct storvsc_device *AllocStorDevice(struct hv_device *Device)
- 	atomic_cmpxchg(&storDevice->RefCount, 0, 2);
+-#define STORVSC_MAX_IO_REQUESTS				64
++#define STORVSC_MAX_IO_REQUESTS				128
  
- 	storDevice->Device = Device;
-+	storDevice->reset  = 0;
-+	spin_lock_init(&storDevice->lock);
-+
- 	Device->Extension = storDevice;
- 
- 	return storDevice;
-@@ -101,6 +106,7 @@ static inline struct storvsc_device *AllocStorDevice(struct hv_device *Device)  static inline void FreeStorDevice(struct storvsc_device *Device)  {
- 	/* ASSERT(atomic_read(&Device->RefCount) == 0); */
-+	/*kfree(Device->lock);*/
- 	kfree(Device);
- }
- 
-@@ -108,13 +114,24 @@ static inline void FreeStorDevice(struct storvsc_device *Device)  static inline struct storvsc_device *GetStorDevice(struct hv_device *Device)  {
- 	struct storvsc_device *storDevice;
-+	unsigned long flags;
- 
- 	storDevice = (struct storvsc_device *)Device->Extension;
-+
-+	spin_lock_irqsave(&storDevice->lock, flags);
-+
-+	if (storDevice->reset == 1) {
-+		spin_unlock_irqrestore(&storDevice->lock, flags);
-+		return NULL;
-+	}
-+
- 	if (storDevice && atomic_read(&storDevice->RefCount) > 1)
- 		atomic_inc(&storDevice->RefCount);
- 	else
- 		storDevice = NULL;
- 
-+	spin_unlock_irqrestore(&storDevice->lock, flags);
-+
- 	return storDevice;
- }
- 
-@@ -122,13 +139,19 @@ static inline struct storvsc_device *GetStorDevice(struct hv_device *Device)  static inline struct storvsc_device *MustGetStorDevice(struct hv_device *Device)  {
- 	struct storvsc_device *storDevice;
-+	unsigned long flags;
- 
- 	storDevice = (struct storvsc_device *)Device->Extension;
-+
-+	spin_lock_irqsave(&storDevice->lock, flags);
-+
- 	if (storDevice && atomic_read(&storDevice->RefCount))
- 		atomic_inc(&storDevice->RefCount);
- 	else
- 		storDevice = NULL;
- 
-+	spin_unlock_irqrestore(&storDevice->lock, flags);
-+
- 	return storDevice;
- }
- 
-@@ -614,6 +637,7 @@ int StorVscOnHostReset(struct hv_device *Device)
- 	struct storvsc_device *storDevice;
- 	struct storvsc_request_extension *request;
- 	struct vstor_packet *vstorPacket;
-+	unsigned long flags;
- 	int ret;
- 
- 	DPRINT_INFO(STORVSC, "resetting host adapter..."); @@ -625,6 +649,16 @@ int StorVscOnHostReset(struct hv_device *Device)
- 		return -1;
- 	}
- 
-+	spin_lock_irqsave(&storDevice->lock, flags);
-+	storDevice->reset = 1;
-+	spin_unlock_irqrestore(&storDevice->lock, flags);
-+
-+	/*
-+	 * Wait for traffic in transit to complete
-+	 */
-+	while (atomic_read(&storDevice->NumOutstandingRequests))
-+		udelay(1000);
-+
- 	request = &storDevice->ResetRequest;
- 	vstorPacket = &request->VStorPacket;
- 
+ /*
+  * In Hyper-V, each port/path/target maps to 1 scsi host adapter.  In
 --
 1.6.0.2
