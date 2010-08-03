@@ -1,28 +1,44 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [GIT PULL net-next-2.6] vhost-net patchset for 2.6.36
-Date: Mon, 02 Aug 2010 15:54:29 -0700 (PDT)
-Message-ID: <20100802.155429.52193174.davem@davemloft.net>
-References: <20100701164127.GA3199@redhat.com>
-	<20100728133231.GA1932@redhat.com>
+From: Greg KH <greg@kroah.com>
+Subject: Re: [PATCH 1/1] staging: hv: Fix missing functions for
+ net_device_ops (resubmit)
+Date: Mon, 2 Aug 2010 18:30:14 -0700
+Message-ID: <20100803013013.GC3814@kroah.com>
+References: <1FB5E1D5CA062146B38059374562DF7280E8556B@TK5EX14MBXC121.redmond.corp.microsoft.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20100728133231.GA1932@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <1FB5E1D5CA062146B38059374562DF7280E8556B@TK5EX14MBXC121.redmond.corp.microsoft.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: mst@redhat.com
-Cc: kvm@vger.kernel.org, virtualization@lists.osdl.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, krkumar2@in.ibm.com
+To: Haiyang Zhang <haiyangz@microsoft.com>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>, "'devel@driverdev.osuosl.org'" <devel@driverdev.osuosl.org>, "'virtualization@lists.osdl.org'" <virtualization@lists.osdl.org>, "'gregkh@suse.de'" <gregkh@suse.de>, Hank Janssen <hjanssen@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Date: Wed, 28 Jul 2010 16:32:31 +0300
+On Mon, Aug 02, 2010 at 05:46:01PM +0000, Haiyang Zhang wrote:
+> From: Haiyang Zhang <haiyangz@microsoft.com>
+> 
+> Subject: staging: hv: Fix missing functions for net_device_ops
+>   Unlike in older kernels, ether_setup() no longer sets default
 
-> The following changes since commit 4cfa580e7eebb8694b875d2caff3b989ada2efac:
-> 
->   r6040: Fix args to phy_mii_ioctl(). (2010-07-21 21:10:49 -0700)
-> 
-> are available in the git repository at:
->   git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git vhost-net-next
-> 
+Why put the subject in the body of the email?  This forces me to edit it
+again :(
 
-Pulled, thanks Michael.
+> functions. We need to put them into net_device_ops. For example,
+> eth_change_mtu prevents setting MTU beyond 1500. This is necessary
+> because we don't support jumbo frame at this time.
+
+What does this mean?  Is it a bug?  Just not going as fast as possible?
+Something else?
+
+>   It affects kernel 2.6.32 and later, which are all versions
+> containing Hyper-V drivers.
+
+So is this fixing a bug that needs to be backported to these older
+kernels (i.e. the staging tree?)  Is this something that is causing
+people problems?
+
+Third time's a charm?
+
+thanks,
+
+greg k-h
