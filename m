@@ -1,59 +1,47 @@
-From: Haiyang Zhang <haiyangz@microsoft.com>
-Subject: [PATCH 1/1] staging: hv: Fix missing functions for net_device_ops
-	(with detailed comments)
-Date: Tue, 3 Aug 2010 19:15:31 +0000
-Message-ID: <1FB5E1D5CA062146B38059374562DF728380C37B__23567.8009609275$1280864890$gmane$org@TK5EX14MBXC126.redmond.corp.microsoft.com>
+From: Hank Janssen <hjanssen@microsoft.com>
+Subject: RE: [PATCH 5/6] staging: hv: Increased storvsc ringbuffer and
+ max_io_requests
+Date: Wed, 4 Aug 2010 03:23:09 +0000
+Message-ID: <8AFC7968D54FB448A30D8F38F259C56223FE59CB@TK5EX14MBXC114.redmond.corp.microsoft.com>
+References: <8AFC7968D54FB448A30D8F38F259C56223FD1D36@TK5EX14MBXC114.redmond.corp.microsoft.com>
+ <20100803174005.GC1455@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20100803174005.GC1455@suse.de>
 Content-Language: en-US
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>, "'devel@driverdev.osuosl.org'" <devel@driverdev.osuosl.org>, "'virtualization@lists.osdl.org'" <virtualiz>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Greg KH <gregkh@suse.de>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>, "'devel@driverdev.osuosl.org'" <devel@driverdev.osuosl.org>, "'virtualization@lists.osdl.org'" <virtualization@lists.osdl.org>, Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Haiyang Zhang <haiyangz@microsoft.com>
 
-Fix missing functions for net_device_ops.
-It's a bug when porting Linux IC from 2.6.27 to 2.6.32. In 2.6.27,
-the default functions for Ethernet, like eth_change_mtu(), were assigned
-by ether_setup(). But in 2.6.32, these function pointers moved to
-net_device_ops structure and no longer be assigned in ether_setup(). So we
-need to set these functions in our driver code. It will ensure the MTU won't
-be set beyond 1500. Otherwise, this can cause an error on the server side,
-because the HyperV linux driver doesn't support jumbo frame yet.
+>>And than Greg KH spoke these words:
+>>On Tue, Aug 03, 2010 at 05:31:55PM +0000, Hank Janssen wrote:
+> >From: Hank Janssen <hjanssen@microsoft.com>
+> >
+> >Increased storvsc ringbuffer and max_io_requests. This now more 
+> >closely mimics the numbers on Hyper-V.
+>
+>What do you mean by this?  The max provided by the hypervisor?
 
-Requesting it to be backported to kernel 2.6.32 and later, which are all
-versions containing Hyper-V drivers.
+Max_IO is set to double from what it was before, Hyper-V allows it and
+We have had appliance builder requests to see if it was a problem to increase
+The number.
 
-Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
-Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
+Ringbuffer size for storvsc is now increased because I have seen 
+A few buffer problems on extremely busy systems. They where 
+Set pretty low before. And since max_io_requests is increased I
+Really needed to increase the buffer as well.
 
----
- drivers/staging/hv/netvsc_drv.c |    3 +++
- 1 files changed, 3 insertions(+), 0 deletions(-)
+>> And will allow more IO requests to take place for the SCSI driver.
+>
+>Which means what, better throughput?  Or just more outstanding requests and the same speed overall?
 
-diff --git a/drivers/staging/hv/netvsc_drv.c b/drivers/staging/hv/netvsc_drv.c
-index 56e1157..64a0114 100644
---- a/drivers/staging/hv/netvsc_drv.c
-+++ b/drivers/staging/hv/netvsc_drv.c
-@@ -327,6 +327,9 @@ static const struct net_device_ops device_ops = {
- 	.ndo_stop =			netvsc_close,
- 	.ndo_start_xmit =		netvsc_start_xmit,
- 	.ndo_set_multicast_list =	netvsc_set_multicast_list,
-+	.ndo_change_mtu =		eth_change_mtu,
-+	.ndo_validate_addr =		eth_validate_addr,
-+	.ndo_set_mac_address =		eth_mac_addr,
- };
- 
- static int netvsc_probe(struct device *device)
--- 
-1.6.3.2
+It means better throughput of high load systems, else you get buffer
+Contention. 
+
+Thanks,
+
+Hank.
