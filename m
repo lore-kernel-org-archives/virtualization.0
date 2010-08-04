@@ -1,44 +1,91 @@
-From: Greg KH <gregkh@suse.de>
-Subject: Re: [PATCH 1/6] staging: hv: Fixed bounce kmap problem by using
- correct index
-Date: Wed, 4 Aug 2010 12:28:39 -0700
-Message-ID: <20100804192839.GA29851@suse.de>
-References: <8AFC7968D54FB448A30D8F38F259C56223FD0D21@TK5EX14MBXC114.redmond.corp.microsoft.com>
- <20100803173732.GA1455@suse.de>
- <8AFC7968D54FB448A30D8F38F259C56223FE8B19@TK5EX14MBXC114.redmond.corp.microsoft.com>
- <20100804170406.GA28217@suse.de>
- <8AFC7968D54FB448A30D8F38F259C56223FE8EF5@TK5EX14MBXC114.redmond.corp.microsoft.com>
- <20100804182318.GB29046@suse.de>
- <81D58C97-B9A7-4217-9912-7EE6A3FE7DD0@microsoft.com>
+From: "Ira W. Snyder" <iws@ovro.caltech.edu>
+Subject: Using virtio as a physical (wire-level) transport
+Date: Wed, 4 Aug 2010 16:04:41 -0700
+Message-ID: <20100804230441.GJ23951@ovro.caltech.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <81D58C97-B9A7-4217-9912-7EE6A3FE7DD0@microsoft.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Hank Janssen <hjanssen@microsoft.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@driverdev.osuosl.org" <devel@driverdev.osuosl.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, Haiyang Zhang <haiyangz@microsoft.com>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>, Rusty Russell <rusty@rustcorp.com.au>
+Cc: netdev@vger.kernel.org, Zang Roy <r61911@freescale.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Aug 04, 2010 at 06:50:24PM +0000, Hank Janssen wrote:
-> On Aug 4, 2010, at 11:26, Greg KH <gregkh@suse.de> wrote:
-> > On Wed, Aug 04, 2010 at 05:17:21PM +0000, Hank Janssen wrote:
-> >>> 
-> >> 
-> >> I will re-submit all 5 patches and CC the stable mailing list on it as well.
-> > 
-> > 5?  I see 6 of them here :)
-> > 
-> > thanks,
-> > 
-> > greg k-h
-> > 
-> 
-> True but anise you rejected the todo patch there will only be 5.
-> Unless you are willing to take the todo patch. :)
+Hello Michael, Rusty,
 
-Doh, you are right, nevermind :)
+I'm trying to figure out how to use virtio-net and vhost-net to
+communicate over a physical transport (PCI bus) instead of shared
+memory (for example, qemu/kvm guest).
 
-thanks,
+We've talked about this several times in the past, and I currently have
+some time to devote to this again. I'm trying to figure out if virtio is
+still a viable solution, or if it has been evolved such that it is
+unusable for this application.
 
-greg k-h
+I am trying to create a generic system to allow the  type of
+communications described below. I would like to create something that
+can be easily ported to any slave computer which meets the following
+requirements:
+
+1) it is a PCI slave (agent) (it acts like any other PCI card)
+2) it has an inter-processor communications mechanism
+3) it has a DMA engine
+
+There is a reasonable amount of demand for such a system. I get
+inquiries about the prototype code I posted to linux-netdev at least
+once a month. This sort of system is used regularly in the
+telecommunications industry, among others.
+
+Here is a quick drawing of the system I work with. Please forgive my
+poor ascii art skills.
+
++-----------------+
+| master computer |
+|                 |                             +-------------------+
+| PCI slot #1     | <-- physical connection --> | slave computer #1 |
+| virtio-net if#1 |                             | vhost-net if#1    |
+|                 |                             +-------------------+
+|                 |
+|                 |                             +-------------------+
+| PCI slot #2     | <-- physical connection --> | slave computer #2 |
+| virtio-net if#2 |                             | vhost-net if#2    |
+|                 |                             +-------------------+
+|                 |
+|                 |                             +-------------------+
+| PCI slot #n     | <-- physical connection --> | slave computer #n |
+| virtio-net if#n |                             | vhost-net if#n    |
+|                 |                             +-------------------+
++-----------------+
+
+The reason for using vhost-net on the "slave" side is because vhost-net
+is the component that performs data copies. In most cases, the slave
+computers are non-x86 and have DMA controllers. DMA is an absolute
+necessity when copying data across the PCI bus.
+
+Do you think virtio is a viable solution to solve this problem? If not,
+can you suggest anything else?
+
+Another reason I ask this question is that I have previously invested
+several months implementing a similar solution, only to have it outright
+rejected for "not being the right way". If you don't think something
+like this has any hope, I'd rather not waste another month of my life.
+If you can think of a solution that is likely to be "the right way", I'd
+rather you told me before I implement any code.
+
+Making my life harder since the last time I tried this, mainline commit
+7c5e9ed0c (virtio_ring: remove a level of indirection) has removed the
+possibility of using an alternative virtqueue implementation. The commit
+message suggests that you might be willing to add this capability back.
+Would this be an option?
+
+Thanks for your time,
+Ira
