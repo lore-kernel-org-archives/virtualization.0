@@ -1,51 +1,45 @@
-From: Greg KH <gregkh@suse.de>
-Subject: Re: [PATCH 5/6] staging: hv: Increased storvsc ringbuffer and
- max_io_requests
-Date: Wed, 4 Aug 2010 10:08:38 -0700
-Message-ID: <20100804170838.GE28217@suse.de>
-References: <8AFC7968D54FB448A30D8F38F259C56223FD1D36@TK5EX14MBXC114.redmond.corp.microsoft.com>
- <20100803174005.GC1455@suse.de>
- <8AFC7968D54FB448A30D8F38F259C56223FE59CB@TK5EX14MBXC114.redmond.corp.microsoft.com>
+From: Hank Janssen <hjanssen@microsoft.com>
+Subject: RE: [PATCH 1/6] staging: hv: Fixed bounce kmap problem by using
+ correct index
+Date: Wed, 4 Aug 2010 17:17:21 +0000
+Message-ID: <8AFC7968D54FB448A30D8F38F259C56223FE8EF5@TK5EX14MBXC114.redmond.corp.microsoft.com>
+References: <8AFC7968D54FB448A30D8F38F259C56223FD0D21@TK5EX14MBXC114.redmond.corp.microsoft.com>
+ <20100803173732.GA1455@suse.de>
+ <8AFC7968D54FB448A30D8F38F259C56223FE8B19@TK5EX14MBXC114.redmond.corp.microsoft.com>
+ <20100804170406.GA28217@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <8AFC7968D54FB448A30D8F38F259C56223FE59CB@TK5EX14MBXC114.redmond.corp.microsoft.com>
+In-Reply-To: <20100804170406.GA28217@suse.de>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Hank Janssen <hjanssen@microsoft.com>
+To: Greg KH <gregkh@suse.de>
 Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>, "'devel@driverdev.osuosl.org'" <devel@driverdev.osuosl.org>, "'virtualization@lists.osdl.org'" <virtualization@lists.osdl.org>, Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Aug 04, 2010 at 03:23:09AM +0000, Hank Janssen wrote:
-> 
-> >>And than Greg KH spoke these words:
-> >>On Tue, Aug 03, 2010 at 05:31:55PM +0000, Hank Janssen wrote:
-> > >From: Hank Janssen <hjanssen@microsoft.com>
-> > >
-> > >Increased storvsc ringbuffer and max_io_requests. This now more 
-> > >closely mimics the numbers on Hyper-V.
-> >
-> >What do you mean by this?  The max provided by the hypervisor?
-> 
-> Max_IO is set to double from what it was before, Hyper-V allows it and
-> We have had appliance builder requests to see if it was a problem to increase
-> The number.
-> 
-> Ringbuffer size for storvsc is now increased because I have seen 
-> A few buffer problems on extremely busy systems. They where 
-> Set pretty low before. And since max_io_requests is increased I
-> Really needed to increase the buffer as well.
-> 
-> >> And will allow more IO requests to take place for the SCSI driver.
-> >
-> >Which means what, better throughput?  Or just more outstanding requests and the same speed overall?
-> 
-> It means better throughput of high load systems, else you get buffer
-> Contention. 
 
-All good, care to included this in the changelog comment when you resend
-this whole series?
+>And then Greg spoke:
+>> And then Greg spoke:
+> >>>On Tue, Aug 03, 2010 at 05:31:51PM +0000, Hank Janssen wrote:
+> >>> From: Hank Janssen <hjanssen@microsoft.com>
+> >>> 
+> >> >Fixed bounce offset kmap problem by using correct index
+> >>
 
-thanks,
+SNIP
 
-greg k-h
+> > I actually goofed up in my previous code and used an incorrect index 
+> > number For this part of the code. It should have shown up in more 
+> > situations than what I have seen oddly enough.
+>
+>Please provide this type of information in the changelog section.
+>
+>If you want something backported to older stable kernels, add a:
+>	Cc: stable <stable@kernel.org>
+
+I will re-submit all 5 patches and CC the stable mailing list on it as well.
+
+Thanks!
+
+Hank.
