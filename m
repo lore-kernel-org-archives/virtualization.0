@@ -1,124 +1,160 @@
-From: Hank Janssen <hjanssen@microsoft.com>
-Subject: [PATCH 5/5] staging: hv: Gracefully handle SCSI resets
-Date: Thu, 5 Aug 2010 19:30:37 +0000
-Message-ID: <8AFC7968D54FB448A30D8F38F259C56223FEC8AF@TK5EX14MBXC114.redmond.corp.microsoft.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH RFC] vhost: max s/g to match qemu
+Date: Thu, 5 Aug 2010 23:03:44 +0300
+Message-ID: <20100805200344.GA24008__15689.7668996409$1281039137$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>, "'devel@driverdev.osuosl.org'" <devel@driverdev.osuosl.org>, "'virtualization@lists.osdl.org'" <virtualization@lists.osdl.org>
-Cc: Haiyang Zhang <haiyangz@microsoft.com>, "'gregkh@suse.de'" <gregkh@suse.de>
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>, Aristeu Rozanski <arozansk@redhat.com>, Juan Quintela <quintela@redhat.com>, Herbert Xu <herbert.xu@redhat.com>, D
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Hank Janssen <hjanssen@microsoft.com>
+qemu supports up to UIO_MAXIOV s/g so we have to match that.
+Apparently windows guests rely on this (more precisely,
+they want to fill all of vq with s/g entries of a single
+descriptor).
 
-If we get a SCSI host bus reset we now gracefully handle it, and we take the
-device offline. This before sometimes caused hangs.
+Allocate indirect and log arrays dynamically to avoid
+using too much contigious memory.
+hdr array is used to store the virtio header.
+Since each iovec entry has >= 1 byte length, we never need
+more than header length entries to store the header.
 
-Signed-off-by:Hank Janssen <hjanssen@microsoft.com>
-Signed-off-by:Haiyang Zhang <haiyangz@microsoft.com>
-Cc: stable <stable@kernel.org>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 
 ---
- drivers/staging/hv/storvsc.c |   36 +++++++++++++++++++++++++++++++++++-
- 1 files changed, 35 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/staging/hv/storvsc.c b/drivers/staging/hv/storvsc.c index 6bd2ff1..5f222cf 100644
---- a/drivers/staging/hv/storvsc.c
-+++ b/drivers/staging/hv/storvsc.c
-@@ -48,7 +48,9 @@ struct storvsc_device {
- 
- 	/* 0 indicates the device is being destroyed */
- 	atomic_t RefCount;
--
-+	
-+	int reset;
-+	spinlock_t lock;
- 	atomic_t NumOutstandingRequests;
- 
- 	/*
-@@ -93,6 +95,9 @@ static inline struct storvsc_device *AllocStorDevice(struct hv_device *Device)
- 	atomic_cmpxchg(&storDevice->RefCount, 0, 2);
- 
- 	storDevice->Device = Device;
-+	storDevice->reset  = 0;
-+	spin_lock_init(&storDevice->lock);
-+
- 	Device->Extension = storDevice;
- 
- 	return storDevice;
-@@ -101,6 +106,7 @@ static inline struct storvsc_device *AllocStorDevice(struct hv_device *Device)  static inline void FreeStorDevice(struct storvsc_device *Device)  {
- 	/* ASSERT(atomic_read(&Device->RefCount) == 0); */
-+	/*kfree(Device->lock);*/
- 	kfree(Device);
+This fixes Red Hat bugzilla 619002.
+Dave, I'll queue this through the vhost tree so there's no
+need for you to apply this.
+Labeling RFC to make this explicit.
+
+
+ drivers/vhost/vhost.c |   32 ++++++++++++++++++++++++++++++--
+ drivers/vhost/vhost.h |   17 ++++++++---------
+ 2 files changed, 38 insertions(+), 11 deletions(-)
+
+diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+index e519950..b21a5e5 100644
+--- a/drivers/vhost/vhost.c
++++ b/drivers/vhost/vhost.c
+@@ -123,10 +123,31 @@ static void vhost_vq_reset(struct vhost_dev *dev,
+ 	vq->log_ctx = NULL;
  }
  
-@@ -108,13 +114,24 @@ static inline void FreeStorDevice(struct storvsc_device *Device)  static inline struct storvsc_device *GetStorDevice(struct hv_device *Device)  {
- 	struct storvsc_device *storDevice;
-+	unsigned long flags;
- 
- 	storDevice = (struct storvsc_device *)Device->Extension;
-+
-+	spin_lock_irqsave(&storDevice->lock, flags);
-+
-+	if (storDevice->reset == 1) {
-+		spin_unlock_irqrestore(&storDevice->lock, flags);
-+		return NULL;
++/* Helper to allocate iovec buffers for all vqs. */
++static long vhost_dev_alloc_iovecs(struct vhost_dev *dev)
++{
++	int i;
++	for (i = 0; i < dev->nvqs; ++i) {
++		dev->vqs[i].indirect = kmalloc(GFP_KERNEL, UIO_MAXIOV *
++					       sizeof *dev->vqs[i].indirect);
++		dev->vqs[i].log = kmalloc(GFP_KERNEL, UIO_MAXIOV *
++					  sizeof *dev->vqs[i].log);
++		if (!dev->vqs[i].indirect || !dev->vqs[i].log)
++			goto err_nomem;
 +	}
++	return 0;
++err_nomem:
++	for (; i >= 0; --i) {
++		kfree(dev->vqs[i].indirect);
++		kfree(dev->vqs[i].log);
++	}
++	return -ENOMEM;
++}
 +
- 	if (storDevice && atomic_read(&storDevice->RefCount) > 1)
- 		atomic_inc(&storDevice->RefCount);
- 	else
- 		storDevice = NULL;
+ long vhost_dev_init(struct vhost_dev *dev,
+ 		    struct vhost_virtqueue *vqs, int nvqs)
+ {
+-	int i;
++	int i, ret;
+ 	dev->vqs = vqs;
+ 	dev->nvqs = nvqs;
+ 	mutex_init(&dev->mutex);
+@@ -136,6 +157,10 @@ long vhost_dev_init(struct vhost_dev *dev,
+ 	dev->mm = NULL;
+ 	dev->wq = NULL;
  
-+	spin_unlock_irqrestore(&storDevice->lock, flags);
++	ret = vhost_dev_alloc_iovecs(dev);
++	if (ret)
++		return ret;
 +
- 	return storDevice;
- }
- 
-@@ -122,13 +139,19 @@ static inline struct storvsc_device *GetStorDevice(struct hv_device *Device)  static inline struct storvsc_device *MustGetStorDevice(struct hv_device *Device)  {
- 	struct storvsc_device *storDevice;
-+	unsigned long flags;
- 
- 	storDevice = (struct storvsc_device *)Device->Extension;
+ 	for (i = 0; i < dev->nvqs; ++i) {
+ 		dev->vqs[i].dev = dev;
+ 		mutex_init(&dev->vqs[i].mutex);
+@@ -222,6 +247,9 @@ void vhost_dev_cleanup(struct vhost_dev *dev)
+ 		if (dev->vqs[i].call)
+ 			fput(dev->vqs[i].call);
+ 		vhost_vq_reset(dev, dev->vqs + i);
 +
-+	spin_lock_irqsave(&storDevice->lock, flags);
-+
- 	if (storDevice && atomic_read(&storDevice->RefCount))
- 		atomic_inc(&storDevice->RefCount);
- 	else
- 		storDevice = NULL;
- 
-+	spin_unlock_irqrestore(&storDevice->lock, flags);
-+
- 	return storDevice;
- }
- 
-@@ -614,6 +637,7 @@ int StorVscOnHostReset(struct hv_device *Device)
- 	struct storvsc_device *storDevice;
- 	struct storvsc_request_extension *request;
- 	struct vstor_packet *vstorPacket;
-+	unsigned long flags;
- 	int ret;
- 
- 	DPRINT_INFO(STORVSC, "resetting host adapter..."); @@ -625,6 +649,16 @@ int StorVscOnHostReset(struct hv_device *Device)
- 		return -1;
++		kfree(dev->vqs[i].indirect);
++		kfree(dev->vqs[i].log);
+ 	}
+ 	if (dev->log_ctx)
+ 		eventfd_ctx_put(dev->log_ctx);
+@@ -824,7 +852,7 @@ static int get_indirect(struct vhost_dev *dev, struct vhost_virtqueue *vq,
  	}
  
-+	spin_lock_irqsave(&storDevice->lock, flags);
-+	storDevice->reset = 1;
-+	spin_unlock_irqrestore(&storDevice->lock, flags);
-+
-+	/*
-+	 * Wait for traffic in transit to complete
-+	 */
-+	while (atomic_read(&storDevice->NumOutstandingRequests))
-+		udelay(1000);
-+
- 	request = &storDevice->ResetRequest;
- 	vstorPacket = &request->VStorPacket;
+ 	ret = translate_desc(dev, indirect->addr, indirect->len, vq->indirect,
+-			     ARRAY_SIZE(vq->indirect));
++			     UIO_MAXIOV);
+ 	if (unlikely(ret < 0)) {
+ 		vq_err(vq, "Translation failure %d in indirect.\n", ret);
+ 		return ret;
+diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
+index 19f4334..61b1a6e 100644
+--- a/drivers/vhost/vhost.h
++++ b/drivers/vhost/vhost.h
+@@ -12,14 +12,10 @@
+ #include <linux/uio.h>
+ #include <linux/virtio_config.h>
+ #include <linux/virtio_ring.h>
++#include <linux/virtio_net.h>
  
---
-1.6.0.2
+ struct vhost_device;
+ 
+-enum {
+-	/* Enough place for all fragments, head, and virtio net header. */
+-	VHOST_NET_MAX_SG = MAX_SKB_FRAGS + 2,
+-};
+-
+ /* Poll a file (eventfd or socket) */
+ /* Note: there's nothing vhost specific about this structure. */
+ struct vhost_poll {
+@@ -83,9 +79,12 @@ struct vhost_virtqueue {
+ 	bool log_used;
+ 	u64 log_addr;
+ 
+-	struct iovec indirect[VHOST_NET_MAX_SG];
+-	struct iovec iov[VHOST_NET_MAX_SG];
+-	struct iovec hdr[VHOST_NET_MAX_SG];
++	struct iovec iov[UIO_MAXIOV];
++	/* hdr is used to store the virtio header.
++	 * Since each iovec entry has >= 1 byte length, we never need more than
++	 * header length entries to store the header. */
++	struct iovec hdr[sizeof(struct virtio_net_hdr_mrg_rxbuf)];
++	struct iovec *indirect;
+ 	size_t hdr_size;
+ 	/* We use a kind of RCU to access private pointer.
+ 	 * All readers access it from workqueue, which makes it possible to
+@@ -97,7 +96,7 @@ struct vhost_virtqueue {
+ 	void *private_data;
+ 	/* Log write descriptors */
+ 	void __user *log_base;
+-	struct vhost_log log[VHOST_NET_MAX_SG];
++	struct vhost_log *log;
+ };
+ 
+ struct vhost_dev {
+-- 
+1.7.2.rc0.14.g41c1c
