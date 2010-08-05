@@ -1,8 +1,8 @@
 From: Hank Janssen <hjanssen@microsoft.com>
-Subject: [PATCH 3/5] staging: hv: Fixed the value of the 64bit-hole inside
- ring buffer
-Date: Thu, 5 Aug 2010 19:30:01 +0000
-Message-ID: <8AFC7968D54FB448A30D8F38F259C56223FEC892@TK5EX14MBXC114.redmond.corp.microsoft.com>
+Subject: [PATCH 4/5] staging: hv: Increased storvsc ringbuffer and
+ max_io_requests
+Date: Thu, 5 Aug 2010 19:30:31 +0000
+Message-ID: <8AFC7968D54FB448A30D8F38F259C56223FEC89F@TK5EX14MBXC114.redmond.corp.microsoft.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 8BIT
@@ -13,38 +13,45 @@ To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>, "'devel@dri
 Cc: Haiyang Zhang <haiyangz@microsoft.com>, "'gregkh@suse.de'" <gregkh@suse.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Haiyang Zhang <haiyangz@microsoft.com>
+From: Hank Janssen <hjanssen@microsoft.com>
 
-Fixed the value of the 64bit-hole inside ring buffer, this
-caused a problem on Hyper-V when running checked Windows builds.
+Increased storvsc ringbuffer and max_io_requests. This now more
+closely mimics the numbers on Hyper-V. And will allow more IO requests
+to take place for the SCSI driver.
 
-Checked builds of Windows are used internally and given to external system
-integrators at times. They are builds that for example that all elements in a
-structure follow the definition of that Structure. The bug this fixed was for a
-field that we did not fill in at all (Because we do Not use it on the Linux side),
-and the checked build of windows gives errors on it internally to the Windows logs.
+Max_IO is set to double from what it was before, Hyper-V allows it and
+we have had appliance builder requests to see if it was a problem to
+increase the number.
 
-This fixes that error.
+Ringbuffer size for storvsc is now increased because I have seen A few buffer
+problems on extremely busy systems. They were Set pretty low before.
+And since max_io_requests is increased I Really needed to increase the buffer
+as well.
+
 
 Signed-off-by:Hank Janssen <hjanssen@microsoft.com>
 Signed-off-by:Haiyang Zhang <haiyangz@microsoft.com>
 Cc: stable <stable@kernel.org>
 ---
- drivers/staging/hv/ring_buffer.c |    3 +--
- 1 files changed, 1 insertions(+), 2 deletions(-)
+ drivers/staging/hv/storvsc_api.h |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/staging/hv/ring_buffer.c b/drivers/staging/hv/ring_buffer.c
-index 66a4974..133f909 100644
---- a/drivers/staging/hv/ring_buffer.c
-+++ b/drivers/staging/hv/ring_buffer.c
-@@ -192,8 +192,7 @@ Description:
- static inline u64
- GetRingBufferIndices(RING_BUFFER_INFO *RingInfo)  {
--	return ((u64)RingInfo->RingBuffer->WriteIndex << 32)
--	|| RingInfo->RingBuffer->ReadIndex;
-+	return (u64)RingInfo->RingBuffer->WriteIndex << 32;
- }
+diff --git a/drivers/staging/hv/storvsc_api.h b/drivers/staging/hv/storvsc_api.h
+index 0063bde..8505a1c 100644
+--- a/drivers/staging/hv/storvsc_api.h
++++ b/drivers/staging/hv/storvsc_api.h
+@@ -28,10 +28,10 @@
+ #include "vmbus_api.h"
  
+ /* Defines */
+-#define STORVSC_RING_BUFFER_SIZE			(10*PAGE_SIZE)
++#define STORVSC_RING_BUFFER_SIZE			(20*PAGE_SIZE)
+ #define BLKVSC_RING_BUFFER_SIZE				(20*PAGE_SIZE)
  
+-#define STORVSC_MAX_IO_REQUESTS				64
++#define STORVSC_MAX_IO_REQUESTS				128
+ 
+ /*
+  * In Hyper-V, each port/path/target maps to 1 scsi host adapter.  In
 --
 1.6.0.2
