@@ -1,8 +1,8 @@
 From: Hank Janssen <hjanssen@microsoft.com>
-Subject: [PATCH 1/5] staging: hv: Fixed bounce kmap problem by using correct
- index
-Date: Thu, 5 Aug 2010 19:29:44 +0000
-Message-ID: <8AFC7968D54FB448A30D8F38F259C56223FEC87F@TK5EX14MBXC114.redmond.corp.microsoft.com>
+Subject: [PATCH 2/5] staging: hv: Fixed lockup problem with bounce_buffer
+ scatter list
+Date: Thu, 5 Aug 2010 19:29:53 +0000
+Message-ID: <8AFC7968D54FB448A30D8F38F259C56223FEC88B@TK5EX14MBXC114.redmond.corp.microsoft.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 8BIT
@@ -10,44 +10,59 @@ Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>, "'devel@driverdev.osuosl.org'" <devel@driverdev.osuosl.org>, "'virtualization@lists.osdl.org'" <virtualization@lists.osdl.org>
-Cc: "'gregkh@suse.de'" <gregkh@suse.de>, Haiyang Zhang <haiyangz@microsoft.com>
+Cc: Haiyang Zhang <haiyangz@microsoft.com>, "'gregkh@suse.de'" <gregkh@suse.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Hank Janssen <hjanssen@microsoft.com> 
+From: Hank Janssen <hjanssen@microsoft.com>
 
-Fixed bounce offset kmap problem by using correct index.
-The symptom of the problem is that in some NAS appliances this problem
-represents Itself by a unresponsive VM under a load with many clients writing
-small files.
+Fixed lockup problem with bounce_buffer scatter list which caused
+crashes in heavy loads. Under heavy loads with many clients we this
+problem appear, it causes a kernel Panic.
 
 Signed-off-by:Hank Janssen <hjanssen@microsoft.com>
 Signed-off-by:Haiyang Zhang <haiyangz@microsoft.com>
 Cc: stable <stable@kernel.org>
 ---
- drivers/staging/hv/storvsc_drv.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/staging/hv/storvsc_drv.c |    9 ++++++---
+ 1 files changed, 6 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
-index 075b61b..3b9ccb0 100644
+index 3b9ccb0..169d701 100644
 --- a/drivers/staging/hv/storvsc_drv.c
 +++ b/drivers/staging/hv/storvsc_drv.c
-@@ -495,7 +495,7 @@ static unsigned int copy_to_bounce_buffer(struct scatterlist *orig_sgl,
+@@ -615,6 +615,7 @@ static int storvsc_queuecommand(struct scsi_cmnd *scmnd,
+ 	unsigned int request_size = 0;
+ 	int i;
+ 	struct scatterlist *sgl;
++	unsigned int sg_count = 0;
  
- 		/* ASSERT(orig_sgl[i].offset + orig_sgl[i].length <= PAGE_SIZE); */
+ 	DPRINT_DBG(STORVSC_DRV, "scmnd %p dir %d, use_sg %d buf %p len %d "
+ 		   "queue depth %d tagged %d", scmnd, scmnd->sc_data_direction, @@ -697,6 +698,7 @@ static int storvsc_queuecommand(struct scsi_cmnd *scmnd,
+ 	request->DataBuffer.Length = scsi_bufflen(scmnd);
+ 	if (scsi_sg_count(scmnd)) {
+ 		sgl = (struct scatterlist *)scsi_sglist(scmnd);
++		sg_count = scsi_sg_count(scmnd);
  
--		if (j == 0)
-+		if (bounce_addr == 0)
- 			bounce_addr = (unsigned long)kmap_atomic(sg_page((&bounce_sgl[j])), KM_IRQ0);
+ 		/* check if we need to bounce the sgl */
+ 		if (do_bounce_buffer(sgl, scsi_sg_count(scmnd)) != -1) { @@ -731,15 +733,16 @@ static int storvsc_queuecommand(struct scsi_cmnd *scmnd,
+ 					      scsi_sg_count(scmnd));
  
- 		while (srclen) {
-@@ -556,7 +556,7 @@ static unsigned int copy_from_bounce_buffer(struct scatterlist *orig_sgl,
- 		destlen = orig_sgl[i].length;
- 		/* ASSERT(orig_sgl[i].offset + orig_sgl[i].length <= PAGE_SIZE); */
+ 			sgl = cmd_request->bounce_sgl;
++			sg_count = cmd_request->bounce_sgl_count;
+ 		}
  
--		if (j == 0)
-+		if (bounce_addr == 0)
- 			bounce_addr = (unsigned long)kmap_atomic(sg_page((&bounce_sgl[j])), KM_IRQ0);
+ 		request->DataBuffer.Offset = sgl[0].offset;
  
- 		while (destlen) {
+-		for (i = 0; i < scsi_sg_count(scmnd); i++) {
++		for (i = 0; i < sg_count; i++) {
+ 			DPRINT_DBG(STORVSC_DRV, "sgl[%d] len %d offset %d\n",
+ 				   i, sgl[i].length, sgl[i].offset);
+-			request->DataBuffer.PfnArray[i] =
+-					page_to_pfn(sg_page((&sgl[i])));
++			request->DataBuffer.PfnArray[i] =
++				page_to_pfn(sg_page((&sgl[i])));
+ 		}
+ 	} else if (scsi_sglist(scmnd)) {
+ 		/* ASSERT(scsi_bufflen(scmnd) <= PAGE_SIZE); */
 --
 1.6.0.2
