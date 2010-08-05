@@ -1,8 +1,7 @@
 From: Hank Janssen <hjanssen@microsoft.com>
-Subject: [PATCH 4/5] staging: hv: Increased storvsc ringbuffer and
- max_io_requests
-Date: Thu, 5 Aug 2010 19:30:31 +0000
-Message-ID: <8AFC7968D54FB448A30D8F38F259C56223FEC89F@TK5EX14MBXC114.redmond.corp.microsoft.com>
+Subject: [PATCH 5/5] staging: hv: Gracefully handle SCSI resets
+Date: Thu, 5 Aug 2010 19:30:37 +0000
+Message-ID: <8AFC7968D54FB448A30D8F38F259C56223FEC8AF@TK5EX14MBXC114.redmond.corp.microsoft.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 8BIT
@@ -15,43 +14,111 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Hank Janssen <hjanssen@microsoft.com>
 
-Increased storvsc ringbuffer and max_io_requests. This now more
-closely mimics the numbers on Hyper-V. And will allow more IO requests
-to take place for the SCSI driver.
-
-Max_IO is set to double from what it was before, Hyper-V allows it and
-we have had appliance builder requests to see if it was a problem to
-increase the number.
-
-Ringbuffer size for storvsc is now increased because I have seen A few buffer
-problems on extremely busy systems. They were Set pretty low before.
-And since max_io_requests is increased I Really needed to increase the buffer
-as well.
-
+If we get a SCSI host bus reset we now gracefully handle it, and we take the
+device offline. This before sometimes caused hangs.
 
 Signed-off-by:Hank Janssen <hjanssen@microsoft.com>
 Signed-off-by:Haiyang Zhang <haiyangz@microsoft.com>
 Cc: stable <stable@kernel.org>
----
- drivers/staging/hv/storvsc_api.h |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/staging/hv/storvsc_api.h b/drivers/staging/hv/storvsc_api.h
-index 0063bde..8505a1c 100644
---- a/drivers/staging/hv/storvsc_api.h
-+++ b/drivers/staging/hv/storvsc_api.h
-@@ -28,10 +28,10 @@
- #include "vmbus_api.h"
+---
+ drivers/staging/hv/storvsc.c |   36 +++++++++++++++++++++++++++++++++++-
+ 1 files changed, 35 insertions(+), 1 deletions(-)
+
+diff --git a/drivers/staging/hv/storvsc.c b/drivers/staging/hv/storvsc.c index 6bd2ff1..5f222cf 100644
+--- a/drivers/staging/hv/storvsc.c
++++ b/drivers/staging/hv/storvsc.c
+@@ -48,7 +48,9 @@ struct storvsc_device {
  
- /* Defines */
--#define STORVSC_RING_BUFFER_SIZE			(10*PAGE_SIZE)
-+#define STORVSC_RING_BUFFER_SIZE			(20*PAGE_SIZE)
- #define BLKVSC_RING_BUFFER_SIZE				(20*PAGE_SIZE)
+ 	/* 0 indicates the device is being destroyed */
+ 	atomic_t RefCount;
+-
++	
++	int reset;
++	spinlock_t lock;
+ 	atomic_t NumOutstandingRequests;
  
--#define STORVSC_MAX_IO_REQUESTS				64
-+#define STORVSC_MAX_IO_REQUESTS				128
+ 	/*
+@@ -93,6 +95,9 @@ static inline struct storvsc_device *AllocStorDevice(struct hv_device *Device)
+ 	atomic_cmpxchg(&storDevice->RefCount, 0, 2);
  
- /*
-  * In Hyper-V, each port/path/target maps to 1 scsi host adapter.  In
+ 	storDevice->Device = Device;
++	storDevice->reset  = 0;
++	spin_lock_init(&storDevice->lock);
++
+ 	Device->Extension = storDevice;
+ 
+ 	return storDevice;
+@@ -101,6 +106,7 @@ static inline struct storvsc_device *AllocStorDevice(struct hv_device *Device)  static inline void FreeStorDevice(struct storvsc_device *Device)  {
+ 	/* ASSERT(atomic_read(&Device->RefCount) == 0); */
++	/*kfree(Device->lock);*/
+ 	kfree(Device);
+ }
+ 
+@@ -108,13 +114,24 @@ static inline void FreeStorDevice(struct storvsc_device *Device)  static inline struct storvsc_device *GetStorDevice(struct hv_device *Device)  {
+ 	struct storvsc_device *storDevice;
++	unsigned long flags;
+ 
+ 	storDevice = (struct storvsc_device *)Device->Extension;
++
++	spin_lock_irqsave(&storDevice->lock, flags);
++
++	if (storDevice->reset == 1) {
++		spin_unlock_irqrestore(&storDevice->lock, flags);
++		return NULL;
++	}
++
+ 	if (storDevice && atomic_read(&storDevice->RefCount) > 1)
+ 		atomic_inc(&storDevice->RefCount);
+ 	else
+ 		storDevice = NULL;
+ 
++	spin_unlock_irqrestore(&storDevice->lock, flags);
++
+ 	return storDevice;
+ }
+ 
+@@ -122,13 +139,19 @@ static inline struct storvsc_device *GetStorDevice(struct hv_device *Device)  static inline struct storvsc_device *MustGetStorDevice(struct hv_device *Device)  {
+ 	struct storvsc_device *storDevice;
++	unsigned long flags;
+ 
+ 	storDevice = (struct storvsc_device *)Device->Extension;
++
++	spin_lock_irqsave(&storDevice->lock, flags);
++
+ 	if (storDevice && atomic_read(&storDevice->RefCount))
+ 		atomic_inc(&storDevice->RefCount);
+ 	else
+ 		storDevice = NULL;
+ 
++	spin_unlock_irqrestore(&storDevice->lock, flags);
++
+ 	return storDevice;
+ }
+ 
+@@ -614,6 +637,7 @@ int StorVscOnHostReset(struct hv_device *Device)
+ 	struct storvsc_device *storDevice;
+ 	struct storvsc_request_extension *request;
+ 	struct vstor_packet *vstorPacket;
++	unsigned long flags;
+ 	int ret;
+ 
+ 	DPRINT_INFO(STORVSC, "resetting host adapter..."); @@ -625,6 +649,16 @@ int StorVscOnHostReset(struct hv_device *Device)
+ 		return -1;
+ 	}
+ 
++	spin_lock_irqsave(&storDevice->lock, flags);
++	storDevice->reset = 1;
++	spin_unlock_irqrestore(&storDevice->lock, flags);
++
++	/*
++	 * Wait for traffic in transit to complete
++	 */
++	while (atomic_read(&storDevice->NumOutstandingRequests))
++		udelay(1000);
++
+ 	request = &storDevice->ResetRequest;
+ 	vstorPacket = &request->VStorPacket;
+ 
 --
 1.6.0.2
