@@ -1,16 +1,17 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
+From: "Ira W. Snyder" <iws@ovro.caltech.edu>
 Subject: Re: Using virtio as a physical (wire-level) transport
-Date: Fri, 6 Aug 2010 02:20:42 +0300
-Message-ID: <20100805232042.GA27651__22746.8873061754$1281050838$gmane$org@redhat.com>
+Date: Fri, 6 Aug 2010 08:34:28 -0700
+Message-ID: <20100806153427.GB12392__20688.8585621074$1281109185$gmane$org@ovro.caltech.edu>
 References: <20100804230441.GJ23951@ovro.caltech.edu>
 	<20100805213050.GA24984@redhat.com>
 	<20100805230102.GD4757@ovro.caltech.edu>
+	<20100805232042.GA27651@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20100805230102.GD4757@ovro.caltech.edu>
+In-Reply-To: <20100805232042.GA27651@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,59 +21,76 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Ira W. Snyder" <iws@ovro.caltech.edu>
+To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: netdev@vger.kernel.org, Zang Roy <r61911@freescale.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Aug 05, 2010 at 04:01:03PM -0700, Ira W. Snyder wrote:
-> On Fri, Aug 06, 2010 at 12:30:50AM +0300, Michael S. Tsirkin wrote:
-> > Hi Ira,
+On Fri, Aug 06, 2010 at 02:20:42AM +0300, Michael S. Tsirkin wrote:
+> On Thu, Aug 05, 2010 at 04:01:03PM -0700, Ira W. Snyder wrote:
+> > On Fri, Aug 06, 2010 at 12:30:50AM +0300, Michael S. Tsirkin wrote:
+> > > Hi Ira,
+> > > 
+> > > > Making my life harder since the last time I tried this, mainline commit
+> > > > 7c5e9ed0c (virtio_ring: remove a level of indirection) has removed the
+> > > > possibility of using an alternative virtqueue implementation. The commit
+> > > > message suggests that you might be willing to add this capability back.
+> > > > Would this be an option?
+> > > 
+> > > Sorry about that.
+> > > 
+> > > With respect to this commit, we only had one implementation upstream
+> > > and extra levels of indirection made extending the API
+> > > much harder for no apparent benefit.
+> > > 
+> > > When there's more than one ring implementation with very small amount of
+> > > common code, I think that it might make sense to readd the indirection
+> > > back, to separate the code cleanly.
+> > > 
+> > > OTOH if the two implementations share a lot of code, I think that it
+> > > might be better to just add a couple of if statements here and there.
+> > > This way compiler even might have a chance to compile the code out if
+> > > the feature is disabled in kernel config.
+> > > 
 > > 
-> > > Making my life harder since the last time I tried this, mainline commit
-> > > 7c5e9ed0c (virtio_ring: remove a level of indirection) has removed the
-> > > possibility of using an alternative virtqueue implementation. The commit
-> > > message suggests that you might be willing to add this capability back.
-> > > Would this be an option?
+> > The virtqueue implementation I envision will be almost identical to the
+> > current virtio_ring virtqueue implementation, with the following
+> > exceptions:
 > > 
-> > Sorry about that.
+> > * the "shared memory" will actually be remote, on the PCI BAR of a device
+> > * iowrite32(), ioread32() and friends will be needed to access the memory
+> > * there will only be a fixed number of virtqueues available, due to PCI
+> >   BAR size
+> > * cross-endian virtqueues must work
+> > * kick needs to be cross-machine (using PCI IRQ's)
 > > 
-> > With respect to this commit, we only had one implementation upstream
-> > and extra levels of indirection made extending the API
-> > much harder for no apparent benefit.
-> > 
-> > When there's more than one ring implementation with very small amount of
-> > common code, I think that it might make sense to readd the indirection
-> > back, to separate the code cleanly.
-> > 
-> > OTOH if the two implementations share a lot of code, I think that it
-> > might be better to just add a couple of if statements here and there.
-> > This way compiler even might have a chance to compile the code out if
-> > the feature is disabled in kernel config.
-> > 
+> > I don't think it is feasible to add this to the existing implementation.
+> > I think the requirement of being cross-endian will be the hardest to
+> > overcome. Rusty did not envision the cross-endian use case when he
+> > designed this, and it shows, in virtio_ring, virtio_net and vhost. I
+> > have no idea what to do about this. Do you have any ideas?
 > 
-> The virtqueue implementation I envision will be almost identical to the
-> current virtio_ring virtqueue implementation, with the following
-> exceptions:
+> My guess is sticking an if around each access in virtio would hurt,
+> if this is what you are asking about.
 > 
-> * the "shared memory" will actually be remote, on the PCI BAR of a device
-> * iowrite32(), ioread32() and friends will be needed to access the memory
-> * there will only be a fixed number of virtqueues available, due to PCI
->   BAR size
-> * cross-endian virtqueues must work
-> * kick needs to be cross-machine (using PCI IRQ's)
+
+Yes, I think so too. I think using le32 byte order everywhere in virtio
+would be a good thing. In addition, it means that on all x86, things
+continue to work as-is. It would also have no overhead in the most
+common case: x86-on-x86.
+
+This problem is not limited to my new use of virtio. Virtio is
+completely useless in a relatively common virtualization scenario:
+x86 host with qemu-ppc guest. Or any other big endian guest system.
+
+> Just a crazy idea: vhost already uses wrappers like get_user etc,
+> maybe when building kernel for your board you could
+> redefine these to also byteswap?
 > 
-> I don't think it is feasible to add this to the existing implementation.
-> I think the requirement of being cross-endian will be the hardest to
-> overcome. Rusty did not envision the cross-endian use case when he
-> designed this, and it shows, in virtio_ring, virtio_net and vhost. I
-> have no idea what to do about this. Do you have any ideas?
 
-My guess is sticking an if around each access in virtio would hurt,
-if this is what you are asking about.
+I think idea is clever, but also psychotic :) I'm sure it would work,
+but that only solves the problem of virtio ring descriptors. The
+virtio-net header contains several __u16 fields which would also need
+to be fixed-endianness.
 
-Just a crazy idea: vhost already uses wrappers like get_user etc,
-maybe when building kernel for your board you could
-redefine these to also byteswap?
-
--- 
-MST
+Thanks,
+Ira
