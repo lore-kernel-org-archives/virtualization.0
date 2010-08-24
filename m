@@ -1,14 +1,11 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: Re: [PATCH 1/2] S390: take a full byte as ext_param indicator
-Date: Tue, 24 Aug 2010 15:24:16 +0200
-Message-ID: <4C73C800.4020000__21931.2844485559$1282657372$gmane$org@de.ibm.com>
-References: <1282599077-29857-1-git-send-email-agraf@suse.de>
-	<4C736EAF.9020107@de.ibm.com> <4C73B5C1.5040603@suse.de>
-	<4C73B78C.2030003@de.ibm.com> <4C73B97E.2060303@redhat.com>
+From: Alexander Graf <agraf@suse.de>
+Subject: [PATCH 1/3] S390: take a full byte as ext_param indicator
+Date: Tue, 24 Aug 2010 15:48:50 +0200
+Message-ID: <1282657732-20902-1-git-send-email-agraf@suse.de>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="------------030805050604000504000201"
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4C73B97E.2060303@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,252 +15,84 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Avi Kivity <avi@redhat.com>
-Cc: KVM list <kvm@vger.kernel.org>, Carsten Otte <carsteno@de.ibm.com>, virtualization@lists.linux-foundation.org, Christian Ehrhardt <ehrhardt@linux.vnet.ibm.com>
+To: virtualization@lists.linux-foundation.org
+Cc: linux-s390@vger.kernel.org, KVM list <kvm@vger.kernel.org>, borntraeger@de.ibm.com, Carsten Otte <carsteno@de.ibm.com>, Christian Ehrhardt <ehrhardt@linux.vnet.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This is a multi-part message in MIME format.
---------------030805050604000504000201
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Currenty the ext_param field only distinguishes between "config change" and
+"vring interrupt". We can do a lot more with it though, so let's enable a
+full byte of possible values and constants to #defines while at it.
 
-Am 24.08.2010 14:22, schrieb Avi Kivity:
-> First of all we need a virtio/s390 specification, like we have a
-> virtio/pci spec.
+Signed-off-by: Alexander Graf <agraf@suse.de>
 
-Here is something that I started a year ago but never finished.
+---
 
-Christian
+v1 -> v2:
 
+  - move defines to virtio_s390.h
+---
+ arch/s390/include/asm/kvm_virtio.h |    6 ++++++
+ drivers/s390/kvm/kvm_virtio.c      |   19 +++++++++++++------
+ 2 files changed, 19 insertions(+), 6 deletions(-)
 
-
-
-
---------------030805050604000504000201
-Content-Type: text/plain;
- name="virtio.txt"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
- filename="virtio.txt"
-
-guest/host interface for s390/virtio devices
-
-            KVM_DEVICE_DESCRIPTOR PAGE
-                0        8        16       24    31
-              +--------+--------+--------+--------+
-            0 | type   | num_vq | featlen| conflen|
-              +--------+--------+--------+--------+
-            1 | status |                          |
-              +--------+                          +------>+
-            2 |                 config            |       |
-              +                                   +       |
-                            ...                           |
-                                                          |
-    +-----------------------------------------------------+
-    |
-    |       CONFIG ARRAY
-    |           0        8        16       24    31
-    +-------->+--------+--------+--------+--------+
-            0 |                                   |
-              +                                   +
-            1 |                                   |
-              +                                   +
-            2 |                                   |
-              +    virtqueue 0                    +------>+
-            3 |                                   |       |
-              +                                   +       |
-            4 |                                   |       |
-              +                                   +       |
-            5 |                                   |       |
-              +--------+--------+--------+--------+       |
-              |///////////////////////////////////+       |
-              |///////////////////////////////////+       |
-              +--------+--------+--------+--------+       |
-              |                                   |       |
-              +                                   +       |
-              |                                   |       |
-              +                                   +       |
-              |                                   |       |
-              +    virtqueue num_vq - 1           +------>+
-              |                                   |       |
-              +                                   +       |
-              |                                   |       |
-              +                                   +       |
-              |                                   |       |
-              +--------+--------+--------+--------+       |
-     num_vq*6 | feature bits  (featlen * 2 Bytes) |       |
-              +                 +--------+--------+       |
-              |                 |                 |       |
-              +--------+--------+                 +       |
-              | config space (conflen Bytes)      |       |
-              +                          +--------+       |
-              |                          |                |
-              +--------+--------+--------+                |
-                                                          |
-                                                          |
-    +-----------------------------------------------------+
-    |
-    |       VIRTQUEUE
-    |          0        8        16       24    31
-    |-------->+--------+--------+--------+--------+
-            0 |     interrupt token ...           |
-              +                                   +
-            1 |     ... set by guest              |
-              +--------+--------+--------+--------+
-            2 |     virtio ring address           |
-              +                                   +
-            3 |     ... set by host               |
-              +--------+--------+--------+--------+
-            4 | number of elems |/////////////////+
-              +--------+--------+/////////////////+
-            5 |///////////////////////////////////+
-              +--------+--------+--------+--------+
-
-
-
-            COMPLETE KVM_DEVICE_DESCRIPTOR PAGE
-                0        8        16       24    31
-              +--------+--------+--------+--------+
-            0 | type   | num_vq | featlen| conflen|
-              +--------+--------+--------+--------+
-            1 | status |  interrupt token         |
-              +--------+                          +
-            2 | virtqueue 0(set by guest)         |
-              +        +--------+--------+--------+
-            3 |        | virtio ring address      |
-              +--------+                          +
-            4 | virtqueue 0 (set by host)         |
-              +        +--------+--------+--------+
-            5 |        | number of descr |////////|
-              +--------+--------+--------+////////+
-            6 |///////////////////////////////////|
-              +////////+--------+--------+--------+
-            7 |////////|   interrupt token        |
-              +--------+                          +
-            8 | virtqueue 1(set by guest)         |
-              +        +--------+--------+--------+
-            9 |        | virtio ring address      |
-              +--------+                          +
-           10 | virtqueue 1 (set by host)         |
-              +        +--------+--------+--------+
-           11 |        | number of descr |////////|
-              +--------+--------+--------+////////+
-           12 |///////////////////////////////////|
-              +////////+--------+--------+--------+
-           13 |////////|
-              +--------+      .....
-
-            ? |///////////////////////////////////|
-              +////////+--------+--------+--------+
-            ? |////////| feature bits             |
-              +--------+ (size multiple  +--------+
-              |          of 2 bytes)     |        |
-              +--------+--------+--------+        +
-              | config space (size of any length) |
-              +                 +++++++++++++++++++
-              |                 |
-              +--------+--------+
-
-
-
-
-Host->Guest notification:
--------------------------
-
-via external interrupt with
-- real storage 0x86-0x87 : 0x2603  --> host interrupt
-- real storage 0x84: 0xd --> VIRTIO_SUBCODE_64
-- real storage 0x11B8-0x11bf: the interrupt token (is a pointer to a struct virtqueue -> set by guest)
-- real storage 0x83:
-   0: normal interrupt
-   1: config change
-
-Guest->Host notification:
--------------------------
-via  diagnose call:
-
-diag 2,4,0x500\n"
-
- The calling convention is similar to the
- * s390 ABI, so we use R2-R6 for parameters 1-5. In addition we use R1
- * as hypercall number and R7 as parameter 6. The return value is
- * written to R2. We use the diagnose instru
-
-hypercall numbers are
-#define KVM_S390_VIRTIO_NOTIFY          0
-#define KVM_S390_VIRTIO_RESET           1
-#define KVM_S390_VIRTIO_SET_STATUS      2
-
-
-
-Virtio Ring: (3Pages)
----------------------
-
-                0        8        16       24    31
-              +--------+--------+--------+--------+\
-            0 |  Desriptor 0:                     | \
-              +  guest physical address           +  \
-            1 |                                   |   \
-              +--------+--------+--------+--------+     one descriptor
-            2 | Descriptor 0: Length              |   /
-              +--------+--------+--------+--------+  /
-            3 |   D0: Flags     |   D0: Next      | /
-              +--------+--------+--------+--------+/
-              |                                   |
-                              ...
-              |                                   |
-              +--------+--------+--------+--------+
-            0 |       Descriptor num -1           |
-              +  - guest physical address 64bit   +
-            1 |  - Length 32bit                   |
-              +  - flags 16 bit                   +
-            2 |  - next 16 bit                    |
-              +                                   +
-            3 |                                   |
-              +--------+--------+--------+--------+
-              |///////////////////////////////////|
-                                ...
-              |///////////////////////////////////|
-              +--------+--------+--------+--------+
-         4096 |   avail_flags   |    avail_idx    |
-              +--------+--------+--------+--------+
-         4097 |  available 0    |   available 1   |
-              +--------+--------+--------+--------+
-              |                                   |
-                               ...
-              |                                   |
-              +--------+--------+--------+--------+
-              | available num-2 | available num-1 |
-              +--------+--------+--------+--------+
-              |///////////////////////////////////|
-                                ...
-              |///////////////////////////////////|
-              +--------+--------+--------+--------+
-         8192 |   used_flags    | used_idx        |
-              +--------+--------+--------+--------+
-              | used_elem_id 0                    |
-              +--------+--------+--------+--------+
-              | used_elem_len 0                   |
-              +--------+--------+--------+--------+
-              |                                   |
-                               ...
-              |                                   |
-              +--------+--------+--------+--------+
-              | used_elem_id num-1                |
-              +--------+--------+--------+--------+
-              | used_elem_len num-1               |
-              +--------+--------+--------+--------+
-
-
-
---------------030805050604000504000201
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linux-foundation.org/mailman/listinfo/virtualization
---------------030805050604000504000201--
+diff --git a/arch/s390/include/asm/kvm_virtio.h b/arch/s390/include/asm/kvm_virtio.h
+index acdfdff..3f5d100 100644
+--- a/arch/s390/include/asm/kvm_virtio.h
++++ b/arch/s390/include/asm/kvm_virtio.h
+@@ -54,4 +54,10 @@ struct kvm_vqconfig {
+  * This is pagesize for historical reasons. */
+ #define KVM_S390_VIRTIO_RING_ALIGN	4096
+ 
++
++/* These values are supposed to be in ext_params on an interrupt */
++#define VIRTIO_PARAM_MASK		0xff
++#define VIRTIO_PARAM_VRING_INTERRUPT	0x0
++#define VIRTIO_PARAM_CONFIG_CHANGED	0x1
++
+ #endif
+diff --git a/drivers/s390/kvm/kvm_virtio.c b/drivers/s390/kvm/kvm_virtio.c
+index 4e298bc..68cef4d 100644
+--- a/drivers/s390/kvm/kvm_virtio.c
++++ b/drivers/s390/kvm/kvm_virtio.c
+@@ -334,7 +334,7 @@ static void kvm_extint_handler(u16 code)
+ {
+ 	struct virtqueue *vq;
+ 	u16 subcode;
+-	int config_changed;
++	u32 param;
+ 
+ 	subcode = S390_lowcore.cpu_addr;
+ 	if ((subcode & 0xff00) != VIRTIO_SUBCODE_64)
+@@ -343,18 +343,25 @@ static void kvm_extint_handler(u16 code)
+ 	/* The LSB might be overloaded, we have to mask it */
+ 	vq = (struct virtqueue *)(S390_lowcore.ext_params2 & ~1UL);
+ 
+-	/* We use the LSB of extparam, to decide, if this interrupt is a config
+-	 * change or a "standard" interrupt */
+-	config_changed = S390_lowcore.ext_params & 1;
++	/* We use ext_params to decide what this interrupt means */
++	param = S390_lowcore.ext_params & VIRTIO_PARAM_MASK;
+ 
+-	if (config_changed) {
++	switch (param) {
++	case VIRTIO_PARAM_CONFIG_CHANGED:
++	{
+ 		struct virtio_driver *drv;
+ 		drv = container_of(vq->vdev->dev.driver,
+ 				   struct virtio_driver, driver);
+ 		if (drv->config_changed)
+ 			drv->config_changed(vq->vdev);
+-	} else
++
++		break;
++	}
++	case VIRTIO_PARAM_VRING_INTERRUPT:
++	default:
+ 		vring_interrupt(0, vq);
++		break;
++	}
+ }
+ 
+ /*
+-- 
+1.6.0.2
