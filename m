@@ -1,34 +1,41 @@
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: Removing VMI kernel support from 2.6.37
-Date: Mon, 23 Aug 2010 16:39:27 -0700
-Message-ID: <4C7306AF.4030202@zytor.com>
-References: <1282600151.19396.22.camel@ank32.eng.vmware.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: Re: [PATCH 1/2] S390: take a full byte as ext_param indicator
+Date: Tue, 24 Aug 2010 09:03:11 +0200
+Message-ID: <4C736EAF.9020107__13501.8348148607$1282633524$gmane$org@de.ibm.com>
+References: <1282599077-29857-1-git-send-email-agraf@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1282600151.19396.22.camel@ank32.eng.vmware.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: akataria@vmware.com
-Cc: Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>, Jeremy Fitzhardinge <jeremy@xensource.com>, Chris Wright <chrisw@sous-sol.org>, Rusty Russell <rusty@rustcorp.com.au>, virtualization@lists.osdl.org, the arch/x86 maintainers <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1282599077-29857-1-git-send-email-agraf@suse.de>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Alexander Graf <agraf@suse.de>
+Cc: Carsten Otte <carsteno@de.ibm.com>, Christian Ehrhardt <ehrhardt@linux.vnet.ibm.com>, KVM list <kvm@vger.kernel.org>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 08/23/2010 02:49 PM, Alok Kataria wrote:
-> Hi Peter,
-> 
-> Removal of VMI(VMware's para-virtualization technique) is scheduled for
-> 2.6.37, I was wondering what would be the right time frame for
-> submitting a patch which does that. Does the x86-tip tree have any next
-> branch where we can park this patch ?
-> 
-> Below is the patch for your reference which just removes VMI specific
-> bits, applies on top of x86-tip.
-> 
-> There is also an opportunity to remove the alloc_pmd_clone hook from
-> paravirt side of the things. This interface is only used for VMI, will
-> send a follow-on patch later on to do that though.
-> 
+Am 23.08.2010 23:31, schrieb Alexander Graf:
+> Currenty the ext_param field only distinguishes between "config change" and
+> "vring interrupt". We can do a lot more with it though, so let's enable a
+> full byte of possible values and constants to #defines while at it.
 
-That would be nice.  In the meantime I have queued up your patch.
+Makes a lot of sense.
+[...]
 
-	-hpa
+>  #define VIRTIO_SUBCODE_64 0x0D00
+> +#define VIRTIO_PARAM_MASK		0xff
+> +#define VIRTIO_PARAM_VRING_INTERRUPT	0x0
+> +#define VIRTIO_PARAM_CONFIG_CHANGED	0x1
+
+Maybe this should be exported in a header, something like 
+arch/s390/include/asm/kvm_virtio.h? In that case this file
+must be added to Kbuild for make headers_install.
+
+Christian
