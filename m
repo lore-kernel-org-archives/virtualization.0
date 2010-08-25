@@ -1,19 +1,13 @@
-From: Alexander Graf <agraf@suse.de>
-Subject: Re: [PATCH 2/3] S390: Add virtio hotplug add support
-Date: Wed, 25 Aug 2010 10:52:12 +0200
-Message-ID: <022B7A3D-FF5E-43A0-929D-C898382B840B__35161.0596910634$1282726366$gmane$org@suse.de>
-References: <1282657732-20902-1-git-send-email-agraf@suse.de>
-	<1282657732-20902-2-git-send-email-agraf@suse.de>
-	<20100825081630.GE2153@osiris.boeblingen.de.ibm.com>
-	<FA6CB344-B4ED-45C1-8478-367038F5F95F@suse.de>
-	<20100825083525.GF2153@osiris.boeblingen.de.ibm.com>
-	<8A4DFC49-AAB9-4426-8124-583E448B6C98@suse.de>
-	<20100825084849.GG2153@osiris.boeblingen.de.ibm.com>
-Mime-Version: 1.0 (Apple Message framework v1081)
+From: Jens Osterkamp <jens@linux.vnet.ibm.com>
+Subject: [PATCH 03/10] BUGFIX: check for existence of ifup
+Date: Wed, 25 Aug 2010 14:27:35 +0200
+Message-ID: <1282739262-14968-4-git-send-email-jens@linux.vnet.ibm.com>
+References: <1282739262-14968-1-git-send-email-jens@linux.vnet.ibm.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20100825084849.GG2153@osiris.boeblingen.de.ibm.com>
+In-Reply-To: <1282739262-14968-1-git-send-email-jens@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -23,46 +17,34 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: linux-s390@vger.kernel.org, KVM list <kvm@vger.kernel.org>, borntraeger@de.ibm.com, Carsten Otte <carsteno@de.ibm.com>, virtualization@lists.linux-foundation.org, Christian Ehrhardt <ehrhardt@linux.vnet.ibm.com>
+To: e1000-eedc@lists.sourceforge.net, virtualization@lists.linux-foundation.org, evb@yahoogroups.com
+Cc: chrisw@redhat.com, Jens Osterkamp <jens@linux.vnet.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
+added an additional check for existence of the ifup operation.
+If it does not exist, just skip it.
 
-On 25.08.2010, at 10:48, Heiko Carstens wrote:
+Signed-off-by: Jens Osterkamp <jens@linux.vnet.ibm.com>
+---
+ config.c |    6 ++++--
+ 1 files changed, 4 insertions(+), 2 deletions(-)
 
-> On Wed, Aug 25, 2010 at 10:34:29AM +0200, Alexander Graf wrote:
->> On 25.08.2010, at 10:35, Heiko Carstens wrote:
->>> On Wed, Aug 25, 2010 at 10:20:03AM +0200, Alexander Graf wrote:
->>>> On 25.08.2010, at 10:16, Heiko Carstens wrote:
->>>>> On Tue, Aug 24, 2010 at 03:48:51PM +0200, Alexander Graf wrote:
->>>>>> +static void hotplug_devices(struct work_struct *dummy)
->>>>>> +{
->>>>>> +	unsigned int i;
->>>>>> +	struct kvm_device_desc *d;
->>>>>> +	struct device *dev;
->>>>>> +
->>>>>> +	for (i = 0; i < PAGE_SIZE; i += desc_size(d)) {
->>>>> 
->>>>> This should be 
->>>>> 
->>>>> 	for (i = 0; i + desc_size(d) <= PAGE_SIZE; i += desc_size(d)) {
->>>>> 
->>>>> otherwise you might have memory accesses beyond the device page...
->>>> 
->>>> Oh, this is a simple copy&paste from the original search method.
->>>> Is d valid in the first part of the loop already?
->>> 
->>> No, you would need to initialize it with kvm_devices if you change
->>> the loop.
->> 
->> But even then it would take the size of the current entry, not the next
->> one we're actually looking for, no? Maybe it'd be easier to just convert
->> this into a while loop and explicitly open code everything.
-> 
-> Yes indeed. It's going to be quite ugly if you want to make sure that at
-> no time you're going to access memory beyond the device page. Eeek.. :)
-
-Thinking about this a bit more ... it's no problem to access beyond the device page. After the device page follow the rings and we always have rings because we always have a virtio console :).
-
-
-Alex
+diff --git a/config.c b/config.c
+index 5cfac83..26afe3b 100644
+--- a/config.c
++++ b/config.c
+@@ -370,8 +370,10 @@ void init_ports(void)
+ 		} else if (check_link_status(p->if_name)) {
+ 			add_adapter(p->if_name);
+ 
+-			LIST_FOREACH(np, &lldp_head, lldp)
+-				np->ops->lldp_mod_ifup(p->if_name);
++			LIST_FOREACH(np, &lldp_head, lldp) {
++				if (np->ops->lldp_mod_ifup)
++					np->ops->lldp_mod_ifup(p->if_name);
++			}
+ 			set_lldp_port_enable_state(p->if_name, 1);
+ 		}
+ 		p++;
+-- 
+1.7.1
