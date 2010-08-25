@@ -1,7 +1,7 @@
 From: Jens Osterkamp <jens@linux.vnet.ibm.com>
-Subject: [PATCH 07/10] add libnl dependency to configure.ac
-Date: Wed, 25 Aug 2010 14:27:39 +0200
-Message-ID: <1282739262-14968-8-git-send-email-jens@linux.vnet.ibm.com>
+Subject: [PATCH 08/10] use connect instead of bind
+Date: Wed, 25 Aug 2010 14:27:40 +0200
+Message-ID: <1282739262-14968-9-git-send-email-jens@linux.vnet.ibm.com>
 References: <1282739262-14968-1-git-send-email-jens@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -18,29 +18,43 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: e1000-eedc@lists.sourceforge.net, virtualization@lists.linux-foundation.org, evb@yahoogroups.com
-Cc: chrisw@redhat.com, Jens Osterkamp <jens@linux.vnet.ibm.com>
+Cc: chrisw@redhat.com, Gerhard Stenzel <gstenzel@linux.vnet.ibm.com>, Jens Osterkamp <jens@linux.vnet.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Signed-off-by: Jens Osterkamp <jens@linux.vnet.ibm.com>
----
- configure.ac |    5 +++++
- 1 files changed, 5 insertions(+), 0 deletions(-)
+modifies the setup of the netlink socket in drv_cfg.c to use pid 0 instead
+of the processes pid.
+Also replaces bind with connect to allow the reception of netlink messages
+from libvirt.
+Preparation patch for communication between libvirt and lldpad.
 
-diff --git a/configure.ac b/configure.ac
-index 619c6c4..8b9d08a 100644
---- a/configure.ac
-+++ b/configure.ac
-@@ -12,6 +12,11 @@ PKG_CHECK_MODULES(LIBCONFIG, libconfig,
- AC_SUBST(LIBCONFIG_CFLAGS)
- AC_SUBST(LIBCONFIG_LIBS)
+Signed-off-by: Gerhard Stenzel <gstenzel@linux.vnet.ibm.com>
+---
+ drv_cfg.c |    5 +++--
+ 1 files changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/drv_cfg.c b/drv_cfg.c
+index 6c02555..23c11f3 100644
+--- a/drv_cfg.c
++++ b/drv_cfg.c
+@@ -71,9 +71,9 @@ static int init_socket(void)
  
-+PKG_CHECK_MODULES(LIBNL, libnl-1 >= 1.1)
-+AC_SUBST(LIBNL_CFLAGS)
-+AC_SUBST(LIBNL_LIBS)
-+
-+AC_CHECK_LIB(nl, rtnl_link_get_by_name)
- AC_CONFIG_SUBDIRS([libconfig-1.3.2])
- AC_CONFIG_FILES([Makefile include/version.h lldpad.spec lldpad.pc dcbd.pc])
- AC_OUTPUT
+ 	memset((void *)&snl, 0, sizeof(struct sockaddr_nl));
+ 	snl.nl_family = AF_NETLINK;
+-	snl.nl_pid = getpid();
++	snl.nl_pid = 0;
+ 
+-	if (bind(sd, (struct sockaddr *)&snl, sizeof(struct sockaddr_nl)) < 0) {
++	if (connect(sd, (struct sockaddr *)&snl, sizeof(struct sockaddr_nl)) < 0) {
+ 		close(sd);
+ 		return -EIO;
+ 	}
+@@ -195,6 +195,7 @@ static struct nlmsghdr *get_msg(unsigned int seq)
+ 			nlh = NULL;
+ 			break;
+ 		}
++		fprintf(stderr, "%s:%s: nlmsg_type: %d\n", __FILE__, __FUNCTION__, nlh->nlmsg_type);
+ 		if ((nlh->nlmsg_type == RTM_GETDCB ||
+ 			nlh->nlmsg_type == RTM_SETDCB) &&
+ 			nlh->nlmsg_seq == seq) {
 -- 
 1.7.1
