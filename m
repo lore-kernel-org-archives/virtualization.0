@@ -1,7 +1,7 @@
 From: Jens Osterkamp <jens@linux.vnet.ibm.com>
-Subject: [PATCH 09/10] lldpad support for libvirt netlink message
-Date: Wed, 25 Aug 2010 14:27:41 +0200
-Message-ID: <1282739262-14968-10-git-send-email-jens@linux.vnet.ibm.com>
+Subject: [PATCH 06/10] VDP commandline interface
+Date: Wed, 25 Aug 2010 14:27:38 +0200
+Message-ID: <1282739262-14968-7-git-send-email-jens@linux.vnet.ibm.com>
 References: <1282739262-14968-1-git-send-email-jens@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -18,771 +18,735 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: e1000-eedc@lists.sourceforge.net, virtualization@lists.linux-foundation.org, evb@yahoogroups.com
-Cc: chrisw@redhat.com, Gerhard Stenzel <gstenzel@linux.vnet.ibm.com>, Stefan Berger <stefanb@linux.vnet.ibm.com>, Jens Osterkamp <jens@linux.vnet.ibm.com>
+Cc: chrisw@redhat.com, Jens Osterkamp <jens@linux.vnet.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This code receives a IEEE 802.1Qbg virtual station instance from libvirt in
-a SETLINK message. The parsed VSI is then handed over to VDP for processing.
-The VDP state machine processes the VSI while libvirt polls the result using
-GETLINK.
-
-Requires at least Linux kernel 2.6.35-rc1.
+This patch implements the command line interface to control the VDP module.
+In station role, it allows to register a new VSI (guest interface) profile
+and query its state. In bridge role, it allows to query the state of all
+registered profiles.
+With lldptool it is possible to set the role from default "station" to
+"bridge".
+The configuration of the role for a port is saved to lldpads config file.
 
 Signed-off-by: Jens Osterkamp <jens@linux.vnet.ibm.com>
-Signed-off-by: Gerhard Stenzel <gstenzel@linux.vnet.ibm.com>
-Signed-off-by: Stefan Berger <stefanb@linux.vnet.ibm.com>
 ---
- event_iface.c         |  609 ++++++++++++++++++++++++++++++++++++++++++++++++-
- include/event_iface.h |    1 +
- include/lldp_vdp.h    |    2 +
- lldp_vdp.c            |    2 +-
- lldpad.c              |   10 +
- 5 files changed, 617 insertions(+), 7 deletions(-)
+ Makefile.am             |   12 +-
+ include/lldp_vdp_clif.h |   39 +++++
+ include/lldp_vdp_cmds.h |   44 ++++++
+ lldp_vdp_clif.c         |  136 ++++++++++++++++
+ lldp_vdp_cmds.c         |  394 +++++++++++++++++++++++++++++++++++++++++++++++
+ lldptool.c              |    2 +
+ 6 files changed, 622 insertions(+), 5 deletions(-)
+ create mode 100644 include/lldp_vdp_clif.h
+ create mode 100644 include/lldp_vdp_cmds.h
+ create mode 100644 lldp_vdp_clif.c
+ create mode 100644 lldp_vdp_cmds.c
 
-diff --git a/event_iface.c b/event_iface.c
-index 439e4d0..2685210 100644
---- a/event_iface.c
-+++ b/event_iface.c
-@@ -3,6 +3,13 @@
-   LLDP Agent Daemon (LLDPAD) Software
-   Copyright(c) 2007-2010 Intel Corporation.
+diff --git a/Makefile.am b/Makefile.am
+index 4b69389..9a3baf4 100644
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -37,7 +37,8 @@ lldpad_include_HEADERS = include/dcb_types.h include/dcbtool.h \
+ include/dcb_osdep.h include/clif.h include/lldp_dcbx_cmds.h include/common.h \
+ include/lldpad.h include/os.h include/includes.h include/lldp_mand_cmds.h \
+ include/clif_msgs.h include/lldp_basman_cmds.h include/lldp_8023_cmds.h \
+-include/lldp_med_cmds.h include/lldp_dcbx_cfg.h include/lldp_evb_cmds.h
++include/lldp_med_cmds.h include/lldp_dcbx_cfg.h include/lldp_evb_cmds.h \
++include/lldp_vdp_cmds.h
  
-+  implementation of libvirt netlink interface
+ noinst_HEADERS = include/config.h include/ctrl_iface.h \
+ include/dcb_driver_if_types.h include/dcb_driver_interface.h \
+@@ -47,7 +48,7 @@ include/event_iface.h include/messages.h include/parse_cli.h include/version.h \
+ include/lldptool_cli.h include/list.h \
+ include/lldp_mand_clif.h include/lldp_basman_clif.h include/lldp_med_clif.h \
+ include/lldp_8023_clif.h include/lldp_dcbx_clif.h include/lldptool.h \
+-include/lldp_rtnl.h include/lldp_evb_clif.h
++include/lldp_rtnl.h include/lldp_evb_clif.h include/lldp_vdp_clif.h
+ 
+ lldpad_SOURCES = lldpad.c config.c  drv_cfg.c ctrl_iface.c event_iface.c eloop.c \
+ common.c os_unix.c lldp_dcbx_cmds.c log.c lldpad_shm.c \
+@@ -64,20 +65,21 @@ lldp_dcbx_cfg.c include/lldp_dcbx_cfg.h \
+ lldp_util.c include/lldp_util.h \
+ lldp_mand.c include/lldp_mand.h \
+ lldp_mand_cmds.c lldp_basman_cmds.c lldp_8023_cmds.c lldp_med_cmds.c \
+-lldp_evb_cmds.c \
++lldp_evb_cmds.c lldp_vdp_cmds.c \
+ lldp_tlv.c include/lldp_tlv.h \
+ lldp_basman.c include/lldp_basman.h	\
+ lldp_med.c include/lldp_med.h \
+ lldp_8023.c include/lldp_8023.h \
+ lldp_evb.c include/lldp_evb.h \
+-lldp_vdp.c include/lldp_vdp.h
++lldp_vdp.c include/lldp_vdp.h \
++lldp_vdp_cmds.h
+ 
+ dcbtool_SOURCES = dcbtool.c clif.c dcbtool_cmds.c parse_cli.l \
+ $(lldpad_include_HEADERS) $(noinst_HEADERS)
+ 
+ lldptool_SOURCES = lldptool.c clif.c lldptool_cmds.c common.c os_unix.c \
+ lldp_mand_clif.c lldp_basman_clif.c lldp_med_clif.c lldp_8023_clif.c \
+-lldp_dcbx_clif.c lldp_evb_clif.c $(lldpad_include_HEADERS) \
++lldp_dcbx_clif.c lldp_evb_clif.c lldp_vdp_clif.c $(lldpad_include_HEADERS) \
+ $(noinst_HEADERS)
+ 
+ nltest_SOURCES = nltest.c nltest.h
+diff --git a/include/lldp_vdp_clif.h b/include/lldp_vdp_clif.h
+new file mode 100644
+index 0000000..adb6333
+--- /dev/null
++++ b/include/lldp_vdp_clif.h
+@@ -0,0 +1,39 @@
++/*******************************************************************************
++
++  implementation of VDP according to IEEE 802.1Qbg
 +  (c) Copyright IBM Corp. 2010
 +
 +  Author(s): Jens Osterkamp <jens@linux.vnet.ibm.com>
-+	     Stefan Berger <stefanb@linux.vnet.ibm.com>
-+	     Gerhard Stenzel <gstenzel@linux.vnet.ibm.com>
 +
-   This program is free software; you can redistribute it and/or modify it
-   under the terms and conditions of the GNU General Public License,
-   version 2, as published by the Free Software Foundation.
-@@ -31,12 +38,16 @@
- #include <sys/socket.h>
- #include <linux/rtnetlink.h>
- #include <linux/if.h>
-+#include <linux/if_link.h>
- #include <linux/if_vlan.h>
- #include <linux/sockios.h>
- #include <syslog.h>
- #include <unistd.h>
-+#include <linux/netlink.h>
-+#include <netlink/msg.h>
- #include "lldpad.h"
- #include "lldp_mod.h"
++  This program is free software; you can redistribute it and/or modify it
++  under the terms and conditions of the GNU General Public License,
++  version 2, as published by the Free Software Foundation.
++
++  This program is distributed in the hope it will be useful, but WITHOUT
++  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
++  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
++  more details.
++
++  You should have received a copy of the GNU General Public License along with
++  this program; if not, write to the Free Software Foundation, Inc.,
++  51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
++
++  The full GNU General Public License is included in this distribution in
++  the file called "COPYING".
++
++*******************************************************************************/
++
++#ifndef _LLDP_VDP_CLIF_H
++#define _LLDP_VDP_CLIF_H
++
++struct lldp_module *vdp_cli_register(void);
++void vdp_cli_unregister(struct lldp_module *);
++int vdp_print_tlv(u32, u16, char *);
++
++#define VDP_BUF_SIZE			256
++
++#define VDP_PREFIX			"vdp"
++#define ARG_VDP_MODE			"mode"
++#define ARG_VDP_ROLE			"role"
++
++#endif
+diff --git a/include/lldp_vdp_cmds.h b/include/lldp_vdp_cmds.h
+new file mode 100644
+index 0000000..5e64c27
+--- /dev/null
++++ b/include/lldp_vdp_cmds.h
+@@ -0,0 +1,44 @@
++/*******************************************************************************
++
++  implementation of VDP according to IEEE 802.1Qbg
++  (c) Copyright IBM Corp. 2010
++
++  Author(s): Jens Osterkamp <jens@linux.vnet.ibm.com>
++
++  This program is free software; you can redistribute it and/or modify it
++  under the terms and conditions of the GNU General Public License,
++  version 2, as published by the Free Software Foundation.
++
++  This program is distributed in the hope it will be useful, but WITHOUT
++  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
++  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
++  more details.
++
++  You should have received a copy of the GNU General Public License along with
++  this program; if not, write to the Free Software Foundation, Inc.,
++  51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
++
++  The full GNU General Public License is included in this distribution in
++  the file called "COPYING".
++
++*******************************************************************************/
++
++#ifndef _LLDP_VDP_CMDS_H
++#define _LLDP_VDP_CMDS_H
++
++struct arg_handlers *vdp_get_arg_handlers();
++
++enum {
++	MODE = 0,
++	MGRID,
++	TYPEID,
++	TYPEIDVERSION,
++	INSTANCEID,
++	MAC,
++	VLAN,
++};
++
++#define VAL_STATION	"station"
++#define VAL_BRIDGE	"bridge"
++
++#endif
+diff --git a/lldp_vdp_clif.c b/lldp_vdp_clif.c
+new file mode 100644
+index 0000000..aa357e9
+--- /dev/null
++++ b/lldp_vdp_clif.c
+@@ -0,0 +1,136 @@
++/*******************************************************************************
++
++  implementation of VDP according to IEEE 802.1Qbg
++  (c) Copyright IBM Corp. 2010
++
++  Author(s): Jens Osterkamp <jens@linux.vnet.ibm.com>
++
++  This program is free software; you can redistribute it and/or modify it
++  under the terms and conditions of the GNU General Public License,
++  version 2, as published by the Free Software Foundation.
++
++  This program is distributed in the hope it will be useful, but WITHOUT
++  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
++  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
++  more details.
++
++  You should have received a copy of the GNU General Public License along with
++  this program; if not, write to the Free Software Foundation, Inc.,
++  51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
++
++  The full GNU General Public License is included in this distribution in
++  the file called "COPYING".
++
++*******************************************************************************/
++
++#include "includes.h"
++#include "common.h"
++#include <stdio.h>
++#include <syslog.h>
++#include <sys/un.h>
++#include <sys/stat.h>
++#include "lldp_mod.h"
++#include "lldptool.h"
++#include "lldp.h"
 +#include "lldp_vdp.h"
- #include "common.h"
- #include "eloop.h"
- #include "drv_cfg.h"
-@@ -55,6 +66,32 @@ static void event_if_decode_rta(int type, struct rtattr *rta);
- static char *device_name = NULL;
- static int link_status = 0;
- 
-+static struct nla_policy ifla_vf_policy[IFLA_VF_MAX + 1] =
-+{
-+  [IFLA_VF_MAC]     = { .minlen = sizeof(struct ifla_vf_mac),
-+			.maxlen = sizeof(struct ifla_vf_mac)},
-+  [IFLA_VF_VLAN]    = { .minlen = sizeof(struct ifla_vf_vlan),
-+                        .maxlen = sizeof(struct ifla_vf_vlan)},
++#include "lldp_vdp_clif.h"
++
++void vdp_print_cfg_tlv(u16, char *info);
++int vdp_print_help();
++
++u32 vdp_lookup_tlv_name(char *tlvid_str);
++
++static const struct lldp_mod_ops vdp_ops_clif = {
++	.lldp_mod_register	= vdp_cli_register,
++	.lldp_mod_unregister	= vdp_cli_unregister,
++	.print_tlv		= vdp_print_tlv,
++	.lookup_tlv_name	= vdp_lookup_tlv_name,
++	.print_help		= vdp_print_help,
 +};
 +
-+static struct nla_policy ifla_vf_ports_policy[IFLA_VF_PORT_MAX + 1] =
-+{
-+  [IFLA_VF_PORT] = { .type = NLA_NESTED },
++struct type_name_info vdp_tlv_names[] = {
++	{ ((LLDP_MOD_VDP) << 8) | LLDP_VDP_SUBTYPE,
++		"VDP protocol configuration",
++		"vdp", vdp_print_cfg_tlv },
++	{ INVALID_TLVID,     NULL,        NULL }
 +};
 +
-+static struct nla_policy ifla_port_policy[IFLA_PORT_MAX + 1] =
++int vdp_print_help()
 +{
-+  [IFLA_PORT_VF]            = { .type = NLA_U32 },
-+  [IFLA_PORT_PROFILE]       = { .type = NLA_STRING },
-+  [IFLA_PORT_VSI_TYPE]      = { .minlen = sizeof(struct ifla_port_vsi) },
-+  [IFLA_PORT_INSTANCE_UUID] = { .minlen = PORT_UUID_MAX,
-+                                .maxlen = PORT_UUID_MAX, },
-+  [IFLA_PORT_HOST_UUID]     = { .minlen = PORT_UUID_MAX,
-+                                .maxlen = PORT_UUID_MAX, },
-+  [IFLA_PORT_REQUEST]       = { .type = NLA_U8  },
-+  [IFLA_PORT_RESPONSE]      = { .type = NLA_U16 },
-+};
++	struct type_name_info *tn = &vdp_tlv_names[0];
 +
- static void event_if_decode_rta(int type, struct rtattr *rta)
- {
- 
-@@ -220,15 +257,536 @@ static void event_if_decode_nlmsg(int route_type, void *data, int len)
- 	}
- }
- 
--
- static void event_if_process_recvmsg(struct nlmsghdr *nlmsg)
- {
- 
- 	/* print out details */
-+	fprintf(stderr, "%s:%s: nlmsg_type: %d\n", __FILE__, __FUNCTION__, nlmsg->nlmsg_type);
- 	event_if_decode_nlmsg(nlmsg->nlmsg_type, NLMSG_DATA(nlmsg),
- 		NLMSG_PAYLOAD(nlmsg, 0));
- }
- 
-+static int event_if_parse_getmsg(struct nlmsghdr *nlh, int *ifindex,
-+				 char *ifname)
-+{
-+	struct nlattr *tb[IFLA_MAX+1];
-+	struct ifinfomsg *ifinfo;
-+
-+	fprintf(stderr, "%s:%s:%d\n", __FILE__, __FUNCTION__, __LINE__);
-+
-+	if (nlmsg_parse(nlh, sizeof(struct ifinfomsg),
-+			(struct nlattr **)&tb, IFLA_MAX, NULL)) {
-+		fprintf(stderr, "Error parsing request...\n");
-+		return -EINVAL;
-+	}
-+
-+	if (tb[IFLA_IFNAME]) {
-+		ifname = (char *)RTA_DATA(tb[IFLA_IFNAME]);
-+		fprintf(stderr, "IFLA_IFNAME=%s\n", ifname);
-+	} else {
-+		ifinfo = (struct ifinfomsg *)NLMSG_DATA(nlh);
-+		*ifindex = ifinfo->ifi_index;
-+		fprintf(stderr, "interface index: %d\n", ifinfo->ifi_index);
++	while (tn->type != INVALID_TLVID) {
++		if (tn->key && strlen(tn->key) && tn->name) {
++			printf("   %s", tn->key);
++			if (strlen(tn->key)+3 <= 8)
++				printf("\t");
++			printf("\t: %s\n", tn->name);
++		}
++		tn++;
 +	}
 +
 +	return 0;
 +}
 +
-+static int event_if_parse_setmsg(struct nlmsghdr *nlh)
++struct lldp_module *vdp_cli_register(void)
 +{
-+	struct nlattr *tb[IFLA_MAX+1],
-+		      *tb3[IFLA_PORT_MAX+1],
-+		      *tb_vfinfo[IFLA_VF_MAX+1],
-+		      *tb_vfinfo_list;
-+	struct vsi_profile *profile, *p;
-+	struct ifinfomsg *ifinfo;
-+	char *ifname;
-+	int rem;
++	struct lldp_module *mod;
 +
-+	fprintf(stderr, "%s:%s:%d\n", __FILE__, __FUNCTION__, __LINE__);
++	mod = malloc(sizeof(*mod));
++	if (!mod) {
++		fprintf(stderr, "failed to malloc module data\n");
++		return NULL;
++	}
++	mod->id = LLDP_MOD_VDP;
++	mod->ops = &vdp_ops_clif;
++
++	return mod;
++}
++
++void vdp_cli_unregister(struct lldp_module *mod)
++{
++	free(mod);
++}
++
++void vdp_print_cfg_tlv(u16 len, char *info)
++{
++	/* TODO: this should print out all associated VSI mac/vlan pairs */
++	printf("This should print out all associated VSI mac/vlan pairs !\n");
++
++	return;
++}
++
++/* return 1: if it printed the TLV
++ *        0: if it did not
++ */
++int vdp_print_tlv(u32 tlvid, u16 len, char *info)
++{
++	struct type_name_info *tn = &vdp_tlv_names[0];
++
++	while (tn->type != INVALID_TLVID) {
++		if (tlvid == tn->type) {
++			printf("%s\n", tn->name);
++			if (tn->print_info) {
++				printf("\t");
++				tn->print_info(len-4, info);
++			}
++			return 1;
++		}
++		tn++;
++	}
++
++	return 0;
++}
++
++u32 vdp_lookup_tlv_name(char *tlvid_str)
++{
++	struct type_name_info *tn = &vdp_tlv_names[0];
++
++	while (tn->type != INVALID_TLVID) {
++		if (!strcasecmp(tn->key, tlvid_str))
++			return tn->type;
++		tn++;
++	}
++	return INVALID_TLVID;
++}
++
+diff --git a/lldp_vdp_cmds.c b/lldp_vdp_cmds.c
+new file mode 100644
+index 0000000..519371c
+--- /dev/null
++++ b/lldp_vdp_cmds.c
+@@ -0,0 +1,394 @@
++/*******************************************************************************
++
++  implementation of VDP according to IEEE 802.1Qbg
++  (c) Copyright IBM Corp. 2010
++
++  Author(s): Jens Osterkamp <jens@linux.vnet.ibm.com>
++
++  This program is free software; you can redistribute it and/or modify it
++  under the terms and conditions of the GNU General Public License,
++  version 2, as published by the Free Software Foundation.
++
++  This program is distributed in the hope it will be useful, but WITHOUT
++  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
++  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
++  more details.
++
++  You should have received a copy of the GNU General Public License along with
++  this program; if not, write to the Free Software Foundation, Inc.,
++  51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
++
++  The full GNU General Public License is included in this distribution in
++  the file called "COPYING".
++
++*******************************************************************************/
++
++#include "includes.h"
++#include "common.h"
++#include <stdio.h>
++#include <syslog.h>
++#include <sys/un.h>
++#include <sys/stat.h>
++#include <arpa/inet.h>
++#include "lldpad.h"
++#include "ctrl_iface.h"
++#include "lldp.h"
++#include "lldp_vdp.h"
++#include "lldp_mand_clif.h"
++#include "lldp_vdp_clif.h"
++#include "lldp_vdp_cmds.h"
++#include "lldp/ports.h"
++#include "libconfig.h"
++#include "config.h"
++#include "clif_msgs.h"
++#include "lldp/states.h"
++
++static int get_arg_tlvtxenable(struct cmd *, char *, char *, char *);
++static int set_arg_tlvtxenable(struct cmd *, char *, char *, char *);
++
++static int get_arg_mode(struct cmd *, char *, char *, char *);
++static int set_arg_mode(struct cmd *, char *, char *, char *);
++
++static int get_arg_role(struct cmd *, char *, char *, char *);
++static int set_arg_role(struct cmd *, char *, char *, char *);
++
++static struct arg_handlers arg_handlers[] = {
++	{ ARG_VDP_MODE, get_arg_mode, set_arg_mode },
++	{ ARG_VDP_ROLE, get_arg_role, set_arg_role },
++	{ ARG_TLVTXENABLE, get_arg_tlvtxenable, set_arg_tlvtxenable },
++	{ NULL }
++};
++
++static int get_arg_tlvtxenable(struct cmd *cmd, char *arg, char *argvalue,
++			       char *obuf)
++{
++	int value;
++	char *s;
++	char arg_path[VDP_BUF_SIZE];
++
++	if (cmd->cmd != cmd_gettlv)
++		return cmd_invalid;
++
++	switch (cmd->tlvid) {
++	case ((LLDP_MOD_VDP) << 8) | LLDP_VDP_SUBTYPE:
++		snprintf(arg_path, sizeof(arg_path), "%s.%s",
++			 VDP_PREFIX, arg);
++
++		if (get_cfg(cmd->ifname, arg_path, (void *)&value,
++					CONFIG_TYPE_BOOL))
++			value = false;
++		break;
++	case INVALID_TLVID:
++		return cmd_invalid;
++	default:
++		return cmd_not_applicable;
++	}
++
++	if (value)
++		s = VAL_YES;
++	else
++		s = VAL_NO;
++
++	sprintf(obuf, "%02x%s%04x%s", (unsigned int) strlen(arg), arg,
++		(unsigned int) strlen(s), s);
++
++	return cmd_success;
++}
++
++static int set_arg_tlvtxenable(struct cmd *cmd, char *arg, char *argvalue,
++			       char *obuf)
++{
++	int value;
++	char arg_path[VDP_BUF_SIZE];
++
++	if (cmd->cmd != cmd_settlv)
++		return cmd_invalid;
++
++	switch (cmd->tlvid) {
++	case ((LLDP_MOD_VDP) << 8) | LLDP_VDP_SUBTYPE:
++		break;
++	case INVALID_TLVID:
++		return cmd_invalid;
++	default:
++		return cmd_not_applicable;
++	}
++
++	if (!strcasecmp(argvalue, VAL_YES))
++		value = 1;
++	else if (!strcasecmp(argvalue, VAL_NO))
++		value = 0;
++	else
++		return cmd_invalid;
++
++	snprintf(arg_path, sizeof(arg_path), "%s.%s", VDP_PREFIX, arg);
++
++	if (set_cfg(cmd->ifname, arg_path, (void *)&value, CONFIG_TYPE_BOOL))
++		return cmd_failed;
++
++	return cmd_success;
++}
++
++static int get_arg_mode(struct cmd *cmd, char *arg, char *argvalue,
++			       char *obuf)
++{
++	char *s, *t;
++	struct vsi_profile *np;
++	struct vdp_data *vd;
++
++	if (cmd->cmd != cmd_gettlv)
++		return cmd_invalid;
++
++	switch (cmd->tlvid) {
++	case ((LLDP_MOD_VDP) << 8) | LLDP_VDP_SUBTYPE:
++		break;
++	case INVALID_TLVID:
++		return cmd_invalid;
++	default:
++		return cmd_not_applicable;
++	}
++
++	s = t = malloc(VDP_BUF_SIZE);
++	if (!s)
++		return cmd_invalid;
++	memset(s, 0, VDP_BUF_SIZE);
++
++	vd = vdp_data(cmd->ifname);
++	if (!vd) {
++		printf("%s(%i): vdp_data for %s not found !\n", __func__, __LINE__,
++		       cmd->ifname);
++		return cmd_invalid;
++	}
++
++	LIST_FOREACH(np, &vd->profile_head, profile) {
++		PRINT_PROFILE(t, np);
++	}
++
++	sprintf(obuf, "%02x%s%04x%s", (unsigned int) strlen(arg), arg,
++		(unsigned int) strlen(s), s);
++
++	return cmd_success;
++}
++
++static void str2instance(struct vsi_profile *profile, char *buffer)
++{
++	int i, j = 0;
++
++	for(i=0; i <= strlen(buffer); i++) {
++		if (buffer[i] == '-') {
++			continue;
++		}
++
++		if ((sscanf(&buffer[i], "%02x", &profile->instance[j]) == 1) ||
++		    (sscanf(&buffer[i], "%02X", &profile->instance[j]) == 1)) {
++			i++;
++			j++;
++			continue;
++		}
++	}
++
++}
++
++/* INSTANCE_STRLEN = strlen("fa9b7fff-b0a0-4893e-beef4ff18f8f") */
++#define INSTANCE_STRLEN 32
++
++int instance2str(const u8 *p, char *dst, size_t size)
++{
++	if (dst && size > INSTANCE_STRLEN) {
++		snprintf(dst, size, "%02x%02x%02x%02x-%02x%02x-%02x%02x-%02x%02x-%02x%02x%02x%02x%02x%02x",
++			 p[0], p[1], p[2], p[3],
++			 p[4], p[5], p[6], p[7],
++			 p[8], p[9], p[10], p[11],
++			 p[12], p[13], p[14], p[15]);
++		return 0;
++	}
++	return -1;
++}
++
++static void vdp_fill_profile(struct vsi_profile *profile, char *buffer, int field)
++{
++	switch(field) {
++		case MODE:
++			profile->mode = atoi(buffer);
++			break;
++		case MGRID:
++			profile->mgrid = atoi(buffer);
++			break;
++		case TYPEID:
++			profile->id = atoi(buffer);
++			break;
++		case TYPEIDVERSION:
++			profile->version = atoi(buffer);
++			break;
++		case INSTANCEID:
++			str2instance(profile, buffer);
++			break;
++		case MAC:
++			str2mac(buffer, &profile->mac[0], MAC_ADDR_LEN);
++			break;
++		case VLAN:
++			profile->vlan = atoi(buffer);
++			break;
++		default:
++			printf("Unknown field in buffer !\n");
++			break;
++	}
++}
++
++static struct vsi_profile *vdp_parse_mode_line(char * argvalue)
++{
++	int i, arglen, field;
++	char *cmdstring, *buf;
++	char *buffer;
++	struct vsi_profile *profile;
 +
 +	profile = malloc(sizeof(struct vsi_profile));
 +	if (!profile)
-+		return -ENOMEM;
++		return NULL;
 +	memset(profile, 0, sizeof(struct vsi_profile));
 +
-+	if (nlmsg_parse(nlh, sizeof(struct ifinfomsg),
-+			(struct nlattr **)&tb, IFLA_MAX, NULL)) {
-+		fprintf(stderr, "Error parsing request...\n");
-+		return -EINVAL;
-+	}
++	arglen = strlen(argvalue);
++	cmdstring = argvalue;
++	buffer = malloc(arglen);
++	if (!buffer)
++		goto out_free;
++	buf = buffer;
++	field = 0;
 +
-+	fprintf(stderr, "%s(%d): nlmsg_len %i\n", __FILE__, __LINE__, nlh->nlmsg_len);
++	for (i=0; i <= arglen; i++) {
++		*buffer = *cmdstring;
 +
-+	if (tb[IFLA_IFNAME]) {
-+		ifname = (char *)RTA_DATA(tb[IFLA_IFNAME]);
-+		fprintf(stderr, "IFLA_IFNAME=%s\n", ifname);
-+	} else {
-+		ifinfo = (struct ifinfomsg *)NLMSG_DATA(nlh);
-+		fprintf(stderr, "interface index: %d\n", ifinfo->ifi_index);
-+	}
-+
-+	fprintf(stderr, "%s:%s:%d\n", __FILE__, __FUNCTION__, __LINE__);
-+
-+	if (!tb[IFLA_VFINFO_LIST]) {
-+		fprintf(stderr, "IFLA_VFINFO_LIST missing.\n");
-+		return -EINVAL;
-+	} else {
-+		fprintf(stderr, "FOUND IFLA_VFINFO_LIST!\n");
-+	}
-+
-+	nla_for_each_nested(tb_vfinfo_list, tb[IFLA_VFINFO_LIST], rem) {
-+		if (nla_type(tb_vfinfo_list) != IFLA_VF_INFO) {
-+			fprintf(stderr, "nested parsing of IFLA_VFINFO_LIST failed.\n");
-+			return -EINVAL;
++		if ((*cmdstring == ',') || (*cmdstring == '\0')) {
++			*buffer++ = '\0';
++			vdp_fill_profile(profile, buf, field);
++			field++;
++			buffer = buf;
++			memset(buffer, 0, arglen);
++			cmdstring++;
++			continue;
 +		}
 +
-+		if (nla_parse_nested(tb_vfinfo, IFLA_VF_MAX, tb_vfinfo_list,
-+				     ifla_vf_policy)) {
-+			fprintf(stderr, "nested parsing of IFLA_VF_INFO failed.\n");
-+			return -EINVAL;
-+		}
++		buffer++;
++		cmdstring++;
 +	}
 +
-+	if (tb_vfinfo[IFLA_VF_MAC]) {
-+		struct ifla_vf_mac *mac = RTA_DATA(tb_vfinfo[IFLA_VF_MAC]);
-+		u8 *m = mac->mac;
-+		fprintf(stderr, "IFLA_VF_MAC=%2x:%2x:%2x:%2x:%2x:%2x\n",
-+			m[0], m[1], m[2], m[3], m[4], m[5]);
-+		memcpy(&profile->mac, m, ETH_ALEN);
++	return profile;
++
++out_free:
++	free(profile);
++	return NULL;
++}
++
++static int set_arg_mode(struct cmd *cmd, char *arg, char *argvalue,
++			       char *obuf)
++{
++	int arglen;
++	struct vsi_profile *profile, *p;
++
++	arglen = strlen(argvalue);
++
++	if (cmd->cmd != cmd_settlv)
++		return cmd_invalid;
++
++	switch (cmd->tlvid) {
++	case ((LLDP_MOD_VDP) << 8) | LLDP_VDP_SUBTYPE:
++		break;
++	case INVALID_TLVID:
++		return cmd_invalid;
++	default:
++		return cmd_not_applicable;
 +	}
 +
-+	if (tb_vfinfo[IFLA_VF_VLAN]) {
-+		struct ifla_vf_vlan *vlan = RTA_DATA(tb_vfinfo[IFLA_VF_VLAN]);
-+		fprintf(stderr, "IFLA_VF_VLAN=%d\n", vlan->vlan);
-+		profile->vlan = (u16) vlan->vlan;
-+	}
-+
-+	if (tb[IFLA_VF_PORTS]) {
-+		struct nlattr *tb_vf_ports;
-+
-+		fprintf(stderr,"FOUND IFLA_VF_PORTS\n");
-+
-+		nla_for_each_nested(tb_vf_ports, tb[IFLA_VF_PORTS], rem) {
-+
-+			fprintf(stderr,"ITERATING\n");
-+
-+			if (nla_type(tb_vf_ports) != IFLA_VF_PORT) {
-+				fprintf(stderr,"not a IFLA_VF_PORT. skipping\n");
-+				continue;
-+			}
-+
-+			if (nla_parse_nested(tb3, IFLA_PORT_MAX, tb_vf_ports,
-+					     ifla_port_policy)) {
-+				fprintf(stderr, "nested parsing on level 2 failed.\n");
-+				return -EINVAL;
-+			}
-+
-+			fprintf(stderr, "%s:%s:%d\n", __FILE__, __FUNCTION__, __LINE__);
-+
-+			if (tb3[IFLA_PORT_VF]) {
-+				fprintf(stderr, "IFLA_PORT_VF=%d\n", *(uint32_t*)(RTA_DATA(tb3[IFLA_PORT_VF])));
-+			}
-+
-+			if (tb3[IFLA_PORT_PROFILE]) {
-+				fprintf(stderr, "IFLA_PORT_PROFILE=%s\n", (char *)RTA_DATA(tb3[IFLA_PORT_PROFILE]));
-+			}
-+
-+			if (tb3[IFLA_PORT_VSI_TYPE]) {
-+				struct ifla_port_vsi *pvsi;
-+				int tid = 0;
-+
-+				pvsi = (struct ifla_port_vsi*)RTA_DATA(tb3[IFLA_PORT_VSI_TYPE]);
-+				tid = pvsi->vsi_type_id[2] << 16 |
-+					pvsi->vsi_type_id[1] << 8 |
-+					pvsi->vsi_type_id[0];
-+				fprintf(stderr, "mgr_id : %d\n"
-+					"type_id : %d\n"
-+					"type_version : %d\n",
-+					pvsi->vsi_mgr_id,
-+					tid,
-+					pvsi->vsi_type_version);
-+
-+				profile->mgrid = pvsi->vsi_mgr_id;
-+				profile->id = tid;
-+				profile->version = pvsi->vsi_type_version;
-+			}
-+
-+			if (tb3[IFLA_PORT_INSTANCE_UUID]) {
-+				int i;
-+				unsigned char *uuid;
-+				uuid = (unsigned char *)RTA_DATA(tb3[IFLA_PORT_INSTANCE_UUID]);
-+				fprintf(stderr, "IFLA_PORT_INSTANCE_UUID=");
-+
-+				for (i = 0; i < 16; i++) {
-+					fprintf(stderr, "%x",uuid[i]);
-+				}
-+
-+				fprintf(stderr, "\n");
-+
-+				memcpy(&profile->instance,
-+				       RTA_DATA(tb3[IFLA_PORT_INSTANCE_UUID]), 16);
-+			}
-+
-+			if (tb3[IFLA_PORT_REQUEST]) {
-+				fprintf(stderr, "IFLA_PORT_REQUEST=%d\n",
-+					*(uint8_t*)RTA_DATA(tb3[IFLA_PORT_REQUEST]));
-+					profile->mode = *(uint8_t*)RTA_DATA(tb3[IFLA_PORT_REQUEST]);
-+			}
-+
-+			if (tb3[IFLA_PORT_RESPONSE]) {
-+				fprintf(stderr, "IFLA_PORT_RESPONSE=%d\n",
-+					*(uint16_t*)RTA_DATA(tb3[IFLA_PORT_RESPONSE]));
-+				profile->response = *(uint16_t*)RTA_DATA(tb3[IFLA_PORT_RESPONSE]);
-+			}
-+		}
-+	}
-+
-+	if (ifname) {
-+		struct port *port = port_find_by_name(ifname);
-+
-+		if (port) {
-+			profile->port = port;
-+		} else {
-+			printf("%s(%i): Could not find port for %s\n", __func__,
-+			       __LINE__, ifname);
-+			return -EEXIST;
-+		}
-+	}
++	profile = vdp_parse_mode_line(argvalue);
++	profile->port = port_find_by_name(cmd->ifname);
 +
 +	p = vdp_add_profile(profile);
 +
 +	if (!p) {
 +		free(profile);
-+		return -EINVAL;
++		return cmd_invalid;
 +	}
 +
 +	vdp_somethingChangedLocal(profile, VDP_PROFILE_REQ);
 +	vdp_vsi_sm_station(p);
 +
-+	return 0;
++	return cmd_success;
 +}
 +
-+static void event_if_parseResponseMsg(struct nlmsghdr *nlh)
++static int get_arg_role(struct cmd *cmd, char *arg, char *argvalue,
++			       char *obuf)
 +{
-+	struct nlattr *tb[IFLA_MAX+1],
-+		      *tb2[IFLA_VF_PORT_MAX + 1],
-+		      *tb3[IFLA_PORT_MAX+1];
++	char *p;
++	char arg_path[VDP_BUF_SIZE];
 +
-+	fprintf(stderr, "%s:%s:%d\n", __FILE__, __FUNCTION__, __LINE__);
++	if (cmd->cmd != cmd_gettlv)
++		return cmd_invalid;
 +
-+	if (nlmsg_parse(nlh, sizeof(struct ifinfomsg),
-+			(struct nlattr **)&tb, IFLA_MAX, NULL)) {
-+		fprintf(stderr, "Error parsing response...\n");
-+		return;
++	switch (cmd->tlvid) {
++	case ((LLDP_MOD_VDP) << 8) | LLDP_VDP_SUBTYPE:
++		snprintf(arg_path, sizeof(arg_path), "%s.%s",
++			 VDP_PREFIX, arg);
++
++		if (get_cfg(cmd->ifname, arg_path, (void *)&p,
++					CONFIG_TYPE_STRING))
++			return cmd_failed;
++		break;
++	case INVALID_TLVID:
++		return cmd_invalid;
++	default:
++		return cmd_not_applicable;
 +	}
 +
-+	if (tb[IFLA_IFNAME]) {
-+		fprintf(stderr, "IFLA_IFNAME=%s\n", (char *)RTA_DATA(tb[IFLA_IFNAME]));
-+	} else {
-+		struct ifinfomsg *ifinfo = (struct ifinfomsg *)NLMSG_DATA(nlh);
-+		fprintf(stderr, "interface index: %d\n", ifinfo->ifi_index);
-+	}
++	sprintf(obuf, "%02x%s%04x%s", (unsigned int) strlen(arg), arg,
++		(unsigned int) strlen(p), p);
 +
-+	if (tb[IFLA_VF_PORTS]) {
-+		if (nla_parse_nested(tb2, IFLA_VF_PORT_MAX, tb[IFLA_VF_PORTS],
-+				     ifla_vf_ports_policy)) {
-+			fprintf(stderr, "nested parsing on level 1 failed.\n");
-+			return;
-+		}
-+
-+        if (tb2[IFLA_VF_PORT]) {
-+		if (nla_parse_nested(tb3, IFLA_PORT_MAX, tb2[IFLA_VF_PORT],
-+				     ifla_port_policy)) {
-+			fprintf(stderr, "nested parsing on level 2 failed.\n");
-+			return;
-+		}
-+
-+		if (tb3[IFLA_PORT_VF]) {
-+			fprintf(stderr, "IFLA_PORT_VF=%d\n", *(uint32_t*)(RTA_DATA(tb3[IFLA_PORT_VF])));
-+		}
-+
-+		if (tb3[IFLA_PORT_PROFILE]) {
-+			fprintf(stderr, "IFLA_PORT_PROFILE=%s\n", (char *)RTA_DATA(tb3[IFLA_PORT_PROFILE]));
-+		}
-+
-+		if (tb3[IFLA_PORT_VSI_TYPE]) {
-+			struct ifla_port_vsi *pvsi;
-+			int tid = 0;
-+			pvsi = (struct ifla_port_vsi*)RTA_DATA(tb3[IFLA_PORT_VSI_TYPE]);
-+			tid = pvsi->vsi_type_id[2] << 16 |
-+				pvsi->vsi_type_id[1] << 8 |
-+				pvsi->vsi_type_id[0];
-+			fprintf(stderr, "mgr_id : %d\n"
-+				"type_id : %d\n"
-+				"type_version : %d\n",
-+				pvsi->vsi_mgr_id,
-+				tid,
-+				pvsi->vsi_type_version);
-+		}
-+
-+		if (tb3[IFLA_PORT_INSTANCE_UUID]) {
-+			int i;
-+			unsigned char *uuid;
-+			uuid = (unsigned char *)RTA_DATA(tb3[IFLA_PORT_INSTANCE_UUID]);
-+
-+			fprintf(stderr, "IFLA_PORT_INSTANCE_UUID=");
-+
-+			for (i = 0; i < 16; i++) {
-+				fprintf(stderr, "%x",uuid[i]);
-+			}
-+
-+			fprintf(stderr, "\n");
-+		}
-+
-+		if (tb3[IFLA_PORT_REQUEST]) {
-+			fprintf(stderr, "IFLA_PORT_REQUEST=%d\n",
-+				*(uint8_t*)RTA_DATA(tb3[IFLA_PORT_REQUEST]));
-+		}
-+
-+		if (tb3[IFLA_PORT_RESPONSE]) {
-+			fprintf(stderr, "IFLA_PORT_RESPONSE=%d\n",
-+				*(uint16_t*)RTA_DATA(tb3[IFLA_PORT_RESPONSE]));
-+		}
-+	}
-+	}
++	return cmd_success;
 +}
 +
-+struct nl_msg *event_if_constructResponse(struct nlmsghdr *nlh, int ifindex)
++static int set_arg_role(struct cmd *cmd, char *arg, char *argvalue,
++			       char *obuf)
 +{
-+	struct nl_msg *nl_msg;
-+	struct nlattr *vf_ports = NULL, *vf_port;
-+	struct ifinfomsg ifinfo;
 +	struct vdp_data *vd;
-+	uint32_t pid = nlh->nlmsg_pid;
-+	uint32_t seq = nlh->nlmsg_seq;
-+	char *ifname = malloc(IFNAMSIZ);
-+	struct vsi_profile *p;
++	char arg_path[VDP_BUF_SIZE];
 +
-+	fprintf(stderr, "%s:%s:%d\n", __FILE__, __FUNCTION__, __LINE__);
++	if (cmd->cmd != cmd_settlv)
++		return cmd_invalid;
 +
-+	nl_msg = nlmsg_alloc();
-+
-+	if (!nl_msg) {
-+		printf("%s(%i): Unable to allocate netlink message !\n", __func__, __LINE__);
-+		return NULL;
++	switch (cmd->tlvid) {
++	case ((LLDP_MOD_VDP) << 8) | LLDP_VDP_SUBTYPE:
++		break;
++	case INVALID_TLVID:
++		return cmd_invalid;
++	default:
++		return cmd_not_applicable;
 +	}
 +
-+	if (!if_indextoname(ifindex, ifname)) {
-+		printf("%s(%i): No name found for interface with index %i !\n", __func__, __LINE__,
-+		       ifindex);
-+	}
++	vd = vdp_data(cmd->ifname);
 +
-+	vd = vdp_data(ifname);
 +	if (!vd) {
-+		printf("%s(%i): Could not find vdp_data for %s !\n", __func__, __LINE__,
-+		       ifname);
-+		return NULL;
++		printf("%s(%i): could not find vdp_data for %s !\n",
++		       __FILE__, __LINE__, cmd->ifname);
++		return cmd_invalid;
 +	}
 +
-+	if (nlmsg_put(nl_msg, pid, seq, NLMSG_DONE, 0, 0) == NULL)
-+		goto err_exit;
-+
-+	ifinfo.ifi_index = ifindex;
-+
-+	if (nlmsg_append(nl_msg, &ifinfo, sizeof(ifinfo), NLMSG_ALIGNTO) < 0)
-+		goto err_exit;
-+
-+	vf_ports = nla_nest_start(nl_msg, IFLA_VF_PORTS);
-+
-+	if (!vf_ports)
-+		goto err_exit;
-+
-+	/* loop over all existing profiles on this interface and
-+	 * put them into the nested IFLA_VF_PORT structure */
-+	LIST_FOREACH(p, &vd->profile_head, profile) {
-+		if (p) {
-+			vdp_print_profile(p);
-+
-+			vf_port  = nla_nest_start(nl_msg, IFLA_VF_PORT);
-+
-+			if (!vf_port)
-+				goto err_exit;
-+
-+			if (nla_put(nl_msg, IFLA_PORT_INSTANCE_UUID, 16, p->instance) < 0)
-+				goto err_exit;
-+
-+			if (nla_put_u32(nl_msg, IFLA_PORT_VF, PORT_SELF_VF) < 0)
-+				goto err_exit;
-+
-+			if (p->mode == p->state) {
-+				if (nla_put_u16(nl_msg, IFLA_PORT_RESPONSE,
-+						PORT_VDP_RESPONSE_SUCCESS) < 0)
-+					goto err_exit;
-+			} else {
-+				if (p->state == VSI_EXIT) {
-+					if (p->response > PORT_VDP_RESPONSE_SUCCESS) {
-+						if (nla_put_u16(nl_msg, IFLA_PORT_RESPONSE, p->response) < 0)
-+							goto err_exit;
-+					} else {
-+						if (nla_put_u16(nl_msg, IFLA_PORT_RESPONSE,
-+								PORT_VDP_RESPONSE_INSUFFICIENT_RESOURCES) < 0)
-+							goto err_exit;
-+					}
-+				}
-+			}
-+
-+			nla_nest_end(nl_msg, vf_port);
-+		}
-+	}
-+
-+	if (vf_ports)
-+		nla_nest_end(nl_msg, vf_ports);
-+
-+	return nl_msg;
-+
-+err_exit:
-+	nlmsg_free(nl_msg);
-+
-+	return NULL;
-+}
-+
-+struct nl_msg *event_if_simpleResponse(uint32_t pid, uint32_t seq, int err)
-+{
-+	struct nl_msg *nl_msg = nlmsg_alloc();
-+	struct nlmsgerr nlmsgerr;
-+
-+	memset(&nlmsgerr, 0x0, sizeof(nlmsgerr));
-+
-+	nlmsgerr.error = err;
-+	fprintf(stderr,"RESPONSE ERROR CODE: %d\n",err);
-+
-+	if (nlmsg_put(nl_msg, pid, seq, NLMSG_ERROR, 0, 0) == NULL)
-+		goto err_exit;
-+
-+	if (nlmsg_append(nl_msg, &nlmsgerr, sizeof(nlmsgerr), NLMSG_ALIGNTO) < 0)
-+		goto err_exit;
-+
-+	return nl_msg;
-+
-+err_exit:
-+	nlmsg_free(nl_msg);
-+
-+	return NULL;
-+}
-+
-+static void event_iface_receive_user_space(int sock, void *eloop_ctx, void *sock_ctx)
-+{
-+	struct nlmsghdr *nlh;
-+	struct nl_msg *nl_msg;
-+	struct msghdr msg;
-+	struct sockaddr_nl dest_addr;
-+	struct iovec iov;
-+	int result;
-+	int err;
-+	int ifindex = 0;
-+	char *ifname = NULL;
-+
-+	nlh = (struct nlmsghdr *)calloc(1,
-+					NLMSG_SPACE(MAX_PAYLOAD));
-+	if (!nlh) {
-+		printf("%s(%i): could not allocate nlh !\n", __func__,
-+		       __LINE__);
-+		return;
-+	}
-+	memset(nlh, 0, NLMSG_SPACE(MAX_PAYLOAD));
-+
-+	memset(&dest_addr, 0, sizeof(dest_addr));
-+	iov.iov_base = (void *)nlh;
-+	iov.iov_len = NLMSG_SPACE(MAX_PAYLOAD);
-+	msg.msg_name = (void *)&dest_addr;
-+	msg.msg_namelen = sizeof(dest_addr);
-+	msg.msg_iov = &iov;
-+	msg.msg_iovlen = 1;
-+	msg.msg_control = NULL;
-+	msg.msg_controllen = 0;
-+	msg.msg_flags = 0;
-+
-+	fprintf(stderr, "Waiting for message \n");
-+	result = recvmsg(sock, &msg, MSG_DONTWAIT);
-+
-+	fprintf(stderr, "%s:%s: recvmsg received %d bytes\n", __FILE__, __FUNCTION__, result);
-+
-+	if(result < 0) {
-+		fprintf(stderr,"Error receiving from netlink socket : %s\n", strerror(errno));
-+	}
-+
-+	fprintf(stderr, "%s:%s: dest_addr.nl_pid: %d\n", __FILE__, __FUNCTION__, dest_addr.nl_pid);
-+	fprintf(stderr, "%s:%s: nlh.nl_pid: %d\n", __FILE__, __FUNCTION__, nlh->nlmsg_pid);
-+	fprintf(stderr, "%s:%s: nlh_type: %d\n", __FILE__, __FUNCTION__, nlh->nlmsg_type);
-+	fprintf(stderr, "%s:%s: nlh_seq: 0x%x\n", __FILE__, __FUNCTION__, nlh->nlmsg_seq);
-+	fprintf(stderr, "%s:%s: nlh_len: 0x%x\n", __FILE__, __FUNCTION__, nlh->nlmsg_len);
-+
-+	switch (nlh->nlmsg_type) {
-+		case RTM_SETLINK:
-+			fprintf(stderr,"--> RTM_SETLINK\n");
-+
-+			err = event_if_parse_setmsg(nlh);
-+
-+			/* send simple response wether profile was accepted
-+			 * or not */
-+			nl_msg = event_if_simpleResponse(nlh->nlmsg_pid,
-+							 nlh->nlmsg_seq,
-+							 err);
-+			nlh = nlmsg_hdr(nl_msg);
-+			break;
-+		case RTM_GETLINK:
-+			fprintf(stderr,"--> RTM_GETLINK\n");
-+
-+			err = event_if_parse_getmsg(nlh, &ifindex, ifname);
-+
-+			if (err) {
-+				nl_msg = event_if_simpleResponse(nlh->nlmsg_pid,
-+								 nlh->nlmsg_seq,
-+								 err);
-+			} else if (ifname) {
-+				ifindex = if_nametoindex(ifname);
-+				printf("%s(%i): ifname %s (%d)\n", __func__,
-+				       __LINE__, ifname, ifindex);
-+			} else {
-+				ifname = malloc(IFNAMSIZ);
-+				printf("%s(%i): ifindex %i\n", __func__,
-+				       __LINE__, ifindex);
-+			}
-+
-+			nl_msg = event_if_constructResponse(nlh, ifindex);
-+
-+			if (!nl_msg) {
-+				printf("%s(%i): Unable to construct response !\n",
-+				       __func__, __LINE__);
-+				goto out_err;
-+			}
-+
-+			nlh = nlmsg_hdr(nl_msg);
-+
-+			fprintf(stderr, "------------\nRESPONSE:\n");
-+
-+			event_if_parseResponseMsg(nlh);
-+
-+			fprintf(stderr, "------------\n");
-+			break;
-+	}
-+
-+	iov.iov_base = (void*)nlh;
-+	iov.iov_len = nlh->nlmsg_len;
-+
-+	msg.msg_name = (void *)&dest_addr;
-+	msg.msg_namelen = sizeof(dest_addr);
-+	msg.msg_iov = &iov;
-+	msg.msg_iovlen = 1;
-+
-+	result = sendmsg(sock, &msg, 0);
-+
-+	if (result < 0) {
-+		fprintf(stderr,"Error sending on netlink socket : %s\n", strerror(errno));
++	if (!strcasecmp(argvalue, VAL_BRIDGE)) {
++		vd->role = VDP_ROLE_BRIDGE;
++	} else if (!strcasecmp(argvalue, VAL_STATION)) {
++		vd->role = VDP_ROLE_STATION;
 +	} else {
-+		fprintf(stderr,"sent %d bytes!\n",result);
++		return cmd_invalid;
 +	}
 +
-+out_err:
-+	free(nlh);
++	snprintf(arg_path, sizeof(arg_path), "%s.%s", VDP_PREFIX, arg);
++
++	char *p = &argvalue[0];
++	if (set_cfg(cmd->ifname, arg_path, (void *)&p, CONFIG_TYPE_STRING))
++		return cmd_failed;
++
++	return cmd_success;
 +}
 +
- static void event_iface_receive(int sock, void *eloop_ctx, void *sock_ctx)
- {
- 	struct nlmsghdr *nlh;
-@@ -236,10 +794,11 @@ static void event_iface_receive(int sock, void *eloop_ctx, void *sock_ctx)
- 	char buf[MAX_MSG_SIZE];
- 	socklen_t fromlen = sizeof(dest_addr);
- 	int result;
--	
 +
- 	result = recvfrom(sock, buf, sizeof(buf), MSG_DONTWAIT,
- 		       (struct sockaddr *) &dest_addr, &fromlen);
- 
-+	fprintf(stderr, "%s:%s: result: %d\n", __FILE__, __FUNCTION__, result);
- 	if (result < 0) {
- 		perror("recvfrom(Event interface)");
- 		if ((errno == ENOBUFS) || (errno == EAGAIN))
-@@ -250,10 +809,14 @@ static void event_iface_receive(int sock, void *eloop_ctx, void *sock_ctx)
- 
- 	TRACE("PRINT BUF info.\n")
- 
--	device_name = NULL;
--	link_status = IF_OPER_UNKNOWN;
--	nlh = (struct nlmsghdr *)buf;
--	event_if_process_recvmsg(nlh);
-+	/* Separate handler for kernel messages from userspace messages*/
-+	fprintf(stderr, "%s:%s: dest_addr.nl_pid: %d\n", __FILE__, __FUNCTION__, dest_addr.nl_pid);
-+	if (dest_addr.nl_pid == 0) {
-+		device_name = NULL;
-+		link_status = IF_OPER_UNKNOWN;
-+		nlh = (struct nlmsghdr *)buf;
-+		event_if_process_recvmsg(nlh);
-+	}
- }
- 
- int event_iface_init()
-@@ -262,6 +825,7 @@ int event_iface_init()
- 	int rcv_size = MAX_MSG_SIZE;
- 	struct sockaddr_nl snl;
- 
-+	fprintf(stderr, "%s:%s:%d\n", __FILE__, __FUNCTION__, __LINE__);
- 	fd = socket(PF_NETLINK, SOCK_RAW, NETLINK_ROUTE);
- 
- 	if (fd < 0)
-@@ -282,6 +846,39 @@ int event_iface_init()
- 	}
- 
- 	eloop_register_read_sock(fd, event_iface_receive, NULL, NULL);
-+	//	event_iface_init2();
-+	return 0;
-+}
-+
-+int event_iface_init_user_space()
++struct arg_handlers *vdp_get_arg_handlers()
 +{
-+	int fd;
-+	int rcv_size = MAX_MSG_SIZE;
-+	struct sockaddr_nl snl;
-+
-+	fprintf(stderr, "%s:%s:%d\n", __FILE__, __FUNCTION__, __LINE__);
-+	fd = socket(PF_NETLINK, SOCK_RAW, NETLINK_ROUTE);
-+
-+	if (fd < 0)
-+		return fd;
-+
-+	if (setsockopt(fd, SOL_SOCKET, SO_RCVBUF, &rcv_size, sizeof(int)) < 0) {
-+		close(fd);
-+		return -EIO;
-+	}
-+
-+	memset((void *)&snl, 0, sizeof(struct sockaddr_nl));
-+	snl.nl_family = AF_NETLINK;
-+	snl.nl_pid = getpid();  /* self pid */
-+	snl.nl_groups = 0;
-+
-+	if (bind(fd, (struct sockaddr *)&snl, sizeof(struct sockaddr_nl)) < 0) {
-+		close(fd);
-+		fprintf(stderr,"Error binding to netlink socket : %s\n", strerror(errno));
-+		return -EIO;
-+	}
-+
-+	eloop_register_read_sock(fd, event_iface_receive_user_space, NULL, NULL);
- 	return 0;
- }
- 
-diff --git a/include/event_iface.h b/include/event_iface.h
-index b2c93f0..d80158d 100644
---- a/include/event_iface.h
-+++ b/include/event_iface.h
-@@ -29,6 +29,7 @@
- #define  _EVENT_IFACE_H_
- 
- int event_iface_init(void);
-+int event_iface_init_user_space(void);
- int event_iface_deinit(void);
- int oper_add_device(char *device_name);
- 
-diff --git a/include/lldp_vdp.h b/include/lldp_vdp.h
-index b97d8c0..53f814c 100644
---- a/include/lldp_vdp.h
-+++ b/include/lldp_vdp.h
-@@ -134,6 +134,8 @@ struct vdp_data *vdp_data(char *ifname);
- struct packed_tlv *vdp_gettlv(struct vdp_data *vd, struct vsi_profile *profile);
- void vdp_vsi_sm_station(struct vsi_profile *profile);
- struct vsi_profile *vdp_add_profile(struct vsi_profile *profile);
-+void vdp_somethingChangedLocal(struct vsi_profile *profile, int mode);
-+void vdp_print_profile(struct vsi_profile *profile);
- 
- #define MAC_ADDR_STRLEN		18
- #define INSTANCE_STRLEN		32
-diff --git a/lldp_vdp.c b/lldp_vdp.c
-index 7d5936b..b8690a6 100644
---- a/lldp_vdp.c
-+++ b/lldp_vdp.c
-@@ -105,7 +105,7 @@ static void vdp_free_data(struct vdp_user_data *ud)
-  * prints the contents of a profile first to a string using the PRINT_PROFILE
-  * macro, and then to the screen. Used for debug purposes.
-  */
--static inline void vdp_print_profile(struct vsi_profile *profile)
-+void vdp_print_profile(struct vsi_profile *profile)
- {
- 	char *s, *t;
- 
-diff --git a/lldpad.c b/lldpad.c
-index c0938af..69faa29 100644
---- a/lldpad.c
-+++ b/lldpad.c
-@@ -374,6 +374,16 @@ int main(int argc, char *argv[])
- 		exit(1);
- 	}
- 
-+	/* setup event netlink interface for user space processes.
-+	 * This needs to be setup first to ensure it gets lldpads
-+	 * pid as netlink address.
-+	 */
-+	if (event_iface_init_user_space() < 0) {
-+		log_message(MSG_ERR_SERVICE_START_FAILURE,
-+			"%s", "failed to register user space event interface");
-+		exit(1);
-+	}
-+
- 	init_modules("");
- 
++	return &arg_handlers[0];
++}
+diff --git a/lldptool.c b/lldptool.c
+index 7e166fe..bfed101 100644
+--- a/lldptool.c
++++ b/lldptool.c
+@@ -40,6 +40,7 @@
+ #include "lldp_8023_clif.h"
+ #include "lldp_dcbx_clif.h"
+ #include "lldp_evb_clif.h"
++#include "lldp_vdp_clif.h"
+ #include "lldptool.h"
+ #include "lldptool_cli.h"
+ #include "lldp_mod.h"
+@@ -158,6 +159,7 @@ struct lldp_module *(*register_tlv_table[])(void) = {
+ 	med_cli_register,
+ 	dcbx_cli_register,
+ 	evb_cli_register,
++	vdp_cli_register,
+ 	NULL,
+ };
  
 -- 
 1.7.1
