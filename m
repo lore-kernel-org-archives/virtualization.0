@@ -1,13 +1,11 @@
 From: Jens Osterkamp <jens@linux.vnet.ibm.com>
-Subject: [PATCH 01/10] consolidation of MIN and MAX macros in common.h
-Date: Wed, 25 Aug 2010 14:27:33 +0200
-Message-ID: <1282739262-14968-2-git-send-email-jens@linux.vnet.ibm.com>
-References: <1282739262-14968-1-git-send-email-jens@linux.vnet.ibm.com>
+Subject: implementation of IEEE 802.1Qbg in lldpad
+Date: Wed, 25 Aug 2010 14:27:32 +0200
+Message-ID: <1282739262-14968-1-git-send-email-jens@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1282739262-14968-1-git-send-email-jens@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,55 +16,64 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: e1000-eedc@lists.sourceforge.net, virtualization@lists.linux-foundation.org, evb@yahoogroups.com
-Cc: chrisw@redhat.com, Jens Osterkamp <jens@linux.vnet.ibm.com>
+Cc: chrisw@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch consolidates a modified version of the already existing MIN
-macro in lldpad to include/common.h and add a MAX macro.
+Hi,
 
-Signed-off-by: Jens Osterkamp <jens@linux.vnet.ibm.com>
----
- include/common.h       |   14 ++++++++++++++
- include/dcb_protocol.h |    4 ----
- 2 files changed, 14 insertions(+), 4 deletions(-)
+this set of patches contains the initial implementation of the IEEE 802.1Qbg
+standard: code for the exchange of EVB TLVs in LLDP frames to negotiate VSI
+capabalities as well as VDP VSI TLVs between a host with virtual machines
+and an adjacent switch.
 
-diff --git a/include/common.h b/include/common.h
-index 01746ea..ab07dc2 100644
---- a/include/common.h
-+++ b/include/common.h
-@@ -387,4 +387,18 @@ typedef int socklen_t;
- 
- const char * wpa_ssid_txt(u8 *ssid, size_t ssid_len);
- 
-+#define MIN(x,y) \
-+	({	\
-+		typeof (x) __x = (x);	\
-+		typeof (y) __y = (y);	\
-+		__x < __y ? __x : __y;	\
-+	 })
-+
-+#define MAX(x,y) \
-+	({	\
-+		typeof (x) __x = (x);	\
-+		typeof (y) __y = (y);	\
-+		__x > __y ? __x : __y;	\
-+	 })
-+
- #endif /* COMMON_H */
-diff --git a/include/dcb_protocol.h b/include/dcb_protocol.h
-index 63e2d3c..d7127f5 100644
---- a/include/dcb_protocol.h
-+++ b/include/dcb_protocol.h
-@@ -58,10 +58,6 @@ typedef enum {
- #define DUP_DCBX_TLV_LLINK         0x0020
- #define TOO_MANY_NGHBRS            0x0040
- 
--//#ifndef min /*todo: change to min()
--	#define MIN(x, y) ((x) < (y) ? x : y)
--//#endif
--
- #define INIT_DCB_OUI                    {0x00,0x1b,0x21}
- 
- int add_adapter(char *device_name);
--- 
-1.7.1
+It supports setting the parameters of the TLV exchange from the command
+line using lldptool.
+
+VDP profiles consisting of mode,mgrid,typeid,typeidversion,instanceid,mac,vlan
+can be given to lldpad with lldptool or sent to lldpad via netlink messages from
+the kernel or another program, e.g. libvirt.
+
+VDP profiles are processed through the VDP/VSI and ECP state machines and
+sent out in ECP frames.
+ACK frames are received and processed through ECP and VDP/VSI state machines.
+
+It implements a VDP bridge role for a port together with a lldptool command to
+switch a port to the bridge role.
+
+The patches have been rebased to lldpad 0.9.38 and still contain code to log
+low-level protocol activity more verbosely than necessary.
+
+In comparison to the last posted series, several changes have been made:
+
+ - all EVB TLV patches have been folded into one
+
+ - ECP and VDP implementation now only consists of 3 patches: ECP, VDP and VDP
+   commandline interface
+
+ - the protocol specific ecp structure has been moved away from the general
+   port structure
+
+ - the non-standard ECP_TX_IDLE state has been removed from the ECP TX state
+   machine which causes ecp frames to be sent out immediately to allow sequence
+   synchronization
+
+ - VDP subtype has changed from 0 to 2
+
+ - some network byte order in the VSI tlv have been fixed
+
+ - vdp config variables are now saved in subsection "vdp" under the interface
+   in lldpad.conf
+
+ - some compiler warnings have been fixed
+
+ - many other small bug fixes
+
+For more information about lldpad take a look at
+
+http://sourceforge.net/projects/e1000/files/DCB%20Tools/lldpad/
+
+Please review and comment.
+
+Thanks !
+
+                        Jens
