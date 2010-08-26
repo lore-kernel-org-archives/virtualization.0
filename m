@@ -1,7 +1,7 @@
 From: Amit Shah <amit.shah@redhat.com>
-Subject: [PATCH 1/4] virtio: console: Un-block reads on chardev close
-Date: Thu, 26 Aug 2010 10:34:05 +0530
-Message-ID: <c532756703e7e8fc26fc75c391ff92b4a52a321b.1282798831.git.amit.shah@redhat.com>
+Subject: [PATCH 2/4] virtio: console: Annotate virtcons_remove with __devexit_p
+Date: Thu, 26 Aug 2010 10:34:06 +0530
+Message-ID: <f5ebecbcedd69e45c5a60ee0e5c5ffe02e52b333.1282798831.git.amit.shah@redhat.com>
 References: <cover.1282798831.git.amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -23,28 +23,34 @@ To: Rusty Russell <rusty@rustcorp.com.au>
 Cc: Amit Shah <amit.shah@redhat.com>, Virtualization List <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-If a chardev is closed, any blocked read / poll calls should just return
-and not attempt to use other state.
+virtcons_remove is called on device unplug. Mark with __devexit_p.
 
 Signed-off-by: Amit Shah <amit.shah@redhat.com>
 ---
- drivers/char/virtio_console.c |    4 ++++
- 1 files changed, 4 insertions(+), 0 deletions(-)
+ drivers/char/virtio_console.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index 942a982..92ae3f8 100644
+index 92ae3f8..a34f40e 100644
 --- a/drivers/char/virtio_console.c
 +++ b/drivers/char/virtio_console.c
-@@ -522,6 +522,10 @@ static ssize_t fill_readbuf(struct port *port, char *out_buf, size_t out_count,
- /* The condition that must be true for polling to end */
- static bool will_read_block(struct port *port)
- {
-+	if (!port->guest_connected) {
-+		/* Port got hot-unplugged. Let's exit. */
-+		return false;
-+	}
- 	return !port_has_data(port) && port->host_connected;
+@@ -1585,7 +1585,7 @@ fail:
+ 	return err;
  }
+ 
+-static void virtcons_remove(struct virtio_device *vdev)
++static void __devexit virtcons_remove(struct virtio_device *vdev)
+ {
+ 	struct ports_device *portdev;
+ 	struct port *port, *port2;
+@@ -1631,7 +1631,7 @@ static struct virtio_driver virtio_console = {
+ 	.driver.owner =	THIS_MODULE,
+ 	.id_table =	id_table,
+ 	.probe =	virtcons_probe,
+-	.remove =	virtcons_remove,
++	.remove =	__devexit_p(virtcons_remove),
+ 	.config_changed = config_intr,
+ };
  
 -- 
 1.7.2.2
