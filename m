@@ -1,14 +1,11 @@
-From: Marcelo Tosatti <mtosatti@redhat.com>
-Subject: Re: [PATCH 1/3] S390: take a full byte as ext_param indicator
-Date: Wed, 25 Aug 2010 18:20:20 -0300
-Message-ID: <20100825212020.GA2345__4907.80602344802$1282771545$gmane$org@amt.cnet>
-References: <1282657732-20902-1-git-send-email-agraf@suse.de>
+From: Amit Shah <amit.shah@redhat.com>
+Subject: [PATCH 0/4] virtio: console: fixes, SIGIO
+Date: Thu, 26 Aug 2010 10:34:04 +0530
+Message-ID: <cover.1282798831.git.amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1282657732-20902-1-git-send-email-agraf@suse.de>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,25 +15,34 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Alexander Graf <agraf@suse.de>
-Cc: linux-s390@vger.kernel.org, KVM list <kvm@vger.kernel.org>, borntraeger@de.ibm.com, Carsten Otte <carsteno@de.ibm.com>, virtualization@lists.linux-foundation.org, Christian Ehrhardt <ehrhardt@linux.vnet.ibm.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Amit Shah <amit.shah@redhat.com>, Virtualization List <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Aug 24, 2010 at 03:48:50PM +0200, Alexander Graf wrote:
-> Currenty the ext_param field only distinguishes between "config change" and
-> "vring interrupt". We can do a lot more with it though, so let's enable a
-> full byte of possible values and constants to #defines while at it.
-> 
-> Signed-off-by: Alexander Graf <agraf@suse.de>
-> 
-> ---
-> 
-> v1 -> v2:
-> 
->   - move defines to virtio_s390.h
-> ---
->  arch/s390/include/asm/kvm_virtio.h |    6 ++++++
->  drivers/s390/kvm/kvm_virtio.c      |   19 +++++++++++++------
->  2 files changed, 19 insertions(+), 6 deletions(-)
+Hi Rusty,
 
-Applied, thanks.
+The main thing in these patches is the introduction of injecting SIGIO
+on host-side connect/disconnect events and when new data is available
+for ports.
+
+The first two patches fix bugs that I haven't seen, but look like the
+right thing to do.
+
+These have been tested extensively using the test-virtserial test
+suite.
+
+Please apply,
+		Amit.
+
+Amit Shah (4):
+  virtio: console: Un-block reads on chardev close
+  virtio: console: Annotate virtcons_remove with __devexit_p
+  virtio: console: Send SIGIO to processes that request it for host
+    events
+  virtio: console: Send SIGIO on new data arrival on ports
+
+ drivers/char/virtio_console.c |   32 ++++++++++++++++++++++++++++++--
+ 1 files changed, 30 insertions(+), 2 deletions(-)
+
+-- 
+1.7.2.2
