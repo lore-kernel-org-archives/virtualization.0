@@ -1,11 +1,15 @@
 From: Amit Shah <amit.shah@redhat.com>
-Subject: [PATCH 0/4] virtio: console: fixes, SIGIO
-Date: Thu, 26 Aug 2010 10:34:04 +0530
-Message-ID: <cover.1282798831.git.amit.shah@redhat.com>
+Subject: [PATCH 1/4] virtio: console: Un-block reads on chardev close
+Date: Thu, 26 Aug 2010 10:34:05 +0530
+Message-ID: <c532756703e7e8fc26fc75c391ff92b4a52a321b.1282798831.git.amit.shah@redhat.com>
+References: <cover.1282798831.git.amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <cover.1282798831.git.amit.shah@redhat.com>
+In-Reply-To: <cover.1282798831.git.amit.shah@redhat.com>
+References: <cover.1282798831.git.amit.shah@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,30 +23,28 @@ To: Rusty Russell <rusty@rustcorp.com.au>
 Cc: Amit Shah <amit.shah@redhat.com>, Virtualization List <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Rusty,
+If a chardev is closed, any blocked read / poll calls should just return
+and not attempt to use other state.
 
-The main thing in these patches is the introduction of injecting SIGIO
-on host-side connect/disconnect events and when new data is available
-for ports.
+Signed-off-by: Amit Shah <amit.shah@redhat.com>
+---
+ drivers/char/virtio_console.c |    4 ++++
+ 1 files changed, 4 insertions(+), 0 deletions(-)
 
-The first two patches fix bugs that I haven't seen, but look like the
-right thing to do.
-
-These have been tested extensively using the test-virtserial test
-suite.
-
-Please apply,
-		Amit.
-
-Amit Shah (4):
-  virtio: console: Un-block reads on chardev close
-  virtio: console: Annotate virtcons_remove with __devexit_p
-  virtio: console: Send SIGIO to processes that request it for host
-    events
-  virtio: console: Send SIGIO on new data arrival on ports
-
- drivers/char/virtio_console.c |   32 ++++++++++++++++++++++++++++++--
- 1 files changed, 30 insertions(+), 2 deletions(-)
-
+diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
+index 942a982..92ae3f8 100644
+--- a/drivers/char/virtio_console.c
++++ b/drivers/char/virtio_console.c
+@@ -522,6 +522,10 @@ static ssize_t fill_readbuf(struct port *port, char *out_buf, size_t out_count,
+ /* The condition that must be true for polling to end */
+ static bool will_read_block(struct port *port)
+ {
++	if (!port->guest_connected) {
++		/* Port got hot-unplugged. Let's exit. */
++		return false;
++	}
+ 	return !port_has_data(port) && port->host_connected;
+ }
+ 
 -- 
 1.7.2.2
