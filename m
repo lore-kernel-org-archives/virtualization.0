@@ -1,50 +1,36 @@
-From: Amit Shah <amit.shah@redhat.com>
-Subject: [PATCH 4/4] virtio: console: Send SIGIO on new data arrival on ports
-Date: Thu, 26 Aug 2010 10:34:08 +0530
-Message-ID: <f4a194ea20c82ee34c532f0cda074faaed3c9fde.1282798831.git.amit.shah@redhat.com>
-References: <cover.1282798831.git.amit.shah@redhat.com>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: hv block drivers
+Date: Mon, 30 Aug 2010 16:43:42 +0200
+Message-ID: <201008301643.42253.arnd@arndb.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <cover.1282798831.git.amit.shah@redhat.com>
-In-Reply-To: <cover.1282798831.git.amit.shah@redhat.com>
-References: <cover.1282798831.git.amit.shah@redhat.com>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Amit Shah <amit.shah@redhat.com>, Virtualization List <virtualization@lists.linux-foundation.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Hank Janssen <hjanssen@microsoft.com>
+Cc: linux-kernel@vger.kernel.org, "'virtualization@lists.osdl.org'" <virtualization@lists.osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Send a SIGIO signal when new data arrives on a port. This is sent only
-when the process has requested for the signal to be sent using fcntl().
+Hi Hank,
 
-Signed-off-by: Amit Shah <amit.shah@redhat.com>
----
- drivers/char/virtio_console.c |    4 ++++
- 1 files changed, 4 insertions(+), 0 deletions(-)
+I wanted to follow up on the block device driver discussion we had at
+LinuxCon, based on some other input I got.
 
-diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index b74d097..be0a8e4 100644
---- a/drivers/char/virtio_console.c
-+++ b/drivers/char/virtio_console.c
-@@ -1350,6 +1350,10 @@ static void in_intr(struct virtqueue *vq)
- 
- 	wake_up_interruptible(&port->waitqueue);
- 
-+	/* Send a SIGIO indicating new data in case the process asked for it */
-+	if (port->async_queue && port->guest_connected)
-+		kill_fasync(&port->async_queue, SIGIO, POLL_IN);
-+
- 	if (is_console_port(port) && hvc_poll(port->cons.hvc))
- 		hvc_kick();
- }
--- 
-1.7.2.2
+What most people recommended was to make both the hv scsi and the
+hv ata code scsi device drivers, *not* make them standalone block
+drivers as I originally recommended.
+
+The main reason for this is consistent naming of the devices. We
+have a lot of user code that can deal with /dev/sd* devices, but
+introducing the /dev/vd* devices for virtio caused a lot of pain
+that you probably shouldn't have to go through.
+
+I'm not sure whether the two should be one or two drivers. My
+feeling here is that it might be nice to have a single scsi
+host driver for both that has two modes of driving the device,
+one sending the SCSI commands down the virtual bus, the other
+one interpreting the SCSI commands in the same way that libata
+does.
+
+	Arnd
