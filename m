@@ -1,37 +1,45 @@
-From: Alexander Graf <agraf@suse.de>
-Subject: Re: hv block drivers
-Date: Tue, 31 Aug 2010 12:46:30 +0200
-Message-ID: <DA48E656-CCCF-4B2B-B930-8AAB92E08108@suse.de>
-References: <201008301643.42253.arnd@arndb.de> <8AFC7968D54FB448A30D8F38F259C56224274727@TK5EX14MBXC118.redmond.corp.microsoft.com> <4C7BEBE7.8060502@goop.org> <201008302119.00069.arnd@arndb.de>
-Mime-Version: 1.0 (Apple Message framework v1081)
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <201008302119.00069.arnd@arndb.de>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: virtualization@lists.linux-foundation.org, "Xen-devel@lists.xensource.com" <Xen-devel@lists.xensource.com>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "'virtualization@lists.osdl.org'" <virtualization@lists.osdl.org>
+From: Amit Shah <amit.shah@redhat.com>
+Subject: Re: [PATCH 0/4] virtio: console: fixes, SIGIO
+Date: Tue, 31 Aug 2010 17:06:48 +0530
+Message-ID: <20100831102802.GD25022@amit-laptop.redhat.com>
+References: <cover.1282798831.git.amit.shah@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <cover.1282798831.git.amit.shah@redhat.com>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Virtualization List <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-
-On 30.08.2010, at 21:18, Arnd Bergmann wrote:
-
-> On Monday 30 August 2010 19:35:35 Jeremy Fitzhardinge wrote:
->> On 08/30/2010 10:31 AM, Hank Janssen wrote:
->>> For a more general question, When/if we make it out of staging, where should these drivers live?
->>> 
->>>      drivers/hyper-v or drivers/scsi and drivers/ide.
->>> 
->>> Is there a standard that is being followed?
->> 
->> If they're not actually scsi/ide subsystem drivers, then drivers/block
->> would seem like the best place (and drivers/ide is truly ancient stuff,
->> I think).
+On (Thu) Aug 26 2010 [10:34:04], Amit Shah wrote:
+> Hi Rusty,
 > 
-> Agreed, although I was suggesting to make them SCSI drivers, so they
-> would go to drivers/scsi/ or a subdirectory of it in that case.
+> The main thing in these patches is the introduction of injecting SIGIO
+> on host-side connect/disconnect events and when new data is available
+> for ports.
+> 
+> The first two patches fix bugs that I haven't seen, but look like the
+> right thing to do.
+> 
+> These have been tested extensively using the test-virtserial test
+> suite.
+> 
+> Please apply,
 
-It's basically the same as the VMware PV SCSI driver, no? And that one is in drivers/scsi/vmw_pvscsi.c.
+Since you haven't picked this up already, I'll send a new series that
+has more fixes and another call to SIGIO. I'll also split up the series
+in two patchsets, one for hot-unplug related fixes and one for the
+SIGIO.
 
-
-Alex
+		Amit
