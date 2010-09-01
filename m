@@ -1,49 +1,80 @@
-From: Amit Shah <amit.shah@redhat.com>
-Subject: [PATCH 3/3] virtio: console: Send SIGIO in case of port unplug
-Date: Thu,  2 Sep 2010 18:47:54 +0530
-Message-ID: <04e7f90d7eed7f18c9f0cae4de96253d0a8dc532.1283433264.git.amit.shah@redhat.com>
-References: <cover.1283433264.git.amit.shah@redhat.com>
+From: Hank Janssen <hjanssen@sailtheuniverse.com>
+Subject: [PATCH 2/5] staging: hv: Fixed lockup problem with bounce_buffer
+	scatter list - Cleaned up
+Date: Wed, 01 Sep 2010 11:10:41 -0700
+Message-ID: <4C7E9721.2050405@sailtheuniverse.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <cover.1283433264.git.amit.shah@redhat.com>
-In-Reply-To: <cover.1283433264.git.amit.shah@redhat.com>
-References: <cover.1283433264.git.amit.shah@redhat.com>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Amit Shah <amit.shah@redhat.com>, Virtualization List <virtualization@lists.linux-foundation.org>
+Return-path: <devel-bounces@linuxdriverproject.org>
+List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
+	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
+List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
+List-Post: <mailto:devel@linuxdriverproject.org>
+List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
+List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
+	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
+Sender: devel-bounces@linuxdriverproject.org
+Errors-To: devel-bounces@linuxdriverproject.org
+To: hjanssen@microsoft.com, gregkh@suse.de, devel@driverdev.osuosl.org, virtualization@lists.osdl.org, linux-kernel@vger.kernel.org, Haiyang Zhang <haiyangz@microsoft.com>
+Cc: Joe Perches <joe@perches.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-If a port has registered for SIGIO signals, let the application
-know that the port is getting unplugged.
 
-Signed-off-by: Amit Shah <amit.shah@redhat.com>
+
+Fixed lockup problem with bounce_buffer scatter list which caused 
+crashes in heavy loads. And minor code indentation cleanup in effected
+area. 
+
+Removed whitespace and noted minor indentation changes in description as 
+pointed out by Joe Perches. (Thanks for reviewing Joe)
+
+Signed-off-by:Hank Janssen <hjanssen@microsoft.com
+Signed-off-by:Haiyang Zhang <haiyangz@microsoft.com
+
 ---
- drivers/char/virtio_console.c |    3 +++
- 1 files changed, 3 insertions(+), 0 deletions(-)
+ drivers/staging/hv/storvsc_drv.c |    9 ++++++---
+ 1 files changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index a750d2b..f7adfd3 100644
---- a/drivers/char/virtio_console.c
-+++ b/drivers/char/virtio_console.c
-@@ -1244,6 +1244,9 @@ static void unplug_port(struct port *port)
- 		port->guest_connected = false;
- 		port->host_connected = false;
- 		wake_up_interruptible(&port->waitqueue);
-+
-+		/* Let the app know the port is going down. */
-+		send_sigio_to_port(port);
- 	}
+diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
+index 3b9ccb0..169d701 100644
+--- a/drivers/staging/hv/storvsc_drv.c
++++ b/drivers/staging/hv/storvsc_drv.c
+@@ -615,6 +615,7 @@ static int storvsc_queuecommand(struct scsi_cmnd *scmnd,
+ 	unsigned int request_size = 0;
+ 	int i;
+ 	struct scatterlist *sgl;
++	unsigned int sg_count = 0;
  
- 	if (is_console_port(port)) {
+ 	DPRINT_DBG(STORVSC_DRV, "scmnd %p dir %d, use_sg %d buf %p len %d "
+ 		   "queue depth %d tagged %d", scmnd, scmnd->sc_data_direction,
+@@ -697,6 +698,7 @@ static int storvsc_queuecommand(struct scsi_cmnd *scmnd,
+ 	request->DataBuffer.Length = scsi_bufflen(scmnd);
+ 	if (scsi_sg_count(scmnd)) {
+ 		sgl = (struct scatterlist *)scsi_sglist(scmnd);
++		sg_count = scsi_sg_count(scmnd);
+ 
+ 		/* check if we need to bounce the sgl */
+ 		if (do_bounce_buffer(sgl, scsi_sg_count(scmnd)) != -1) {
+@@ -731,15 +733,16 @@ static int storvsc_queuecommand(struct scsi_cmnd *scmnd,
+ 					      scsi_sg_count(scmnd));
+ 
+ 			sgl = cmd_request->bounce_sgl;
++			sg_count = cmd_request->bounce_sgl_count;
+ 		}
+ 
+ 		request->DataBuffer.Offset = sgl[0].offset;
+ 
+-		for (i = 0; i < scsi_sg_count(scmnd); i++) {
++		for (i = 0; i < sg_count; i++) {
+ 			DPRINT_DBG(STORVSC_DRV, "sgl[%d] len %d offset %d\n",
+ 				   i, sgl[i].length, sgl[i].offset);
+-			request->DataBuffer.PfnArray[i] =
+-					page_to_pfn(sg_page((&sgl[i])));
++			request->DataBuffer.PfnArray[i] =
++				page_to_pfn(sg_page((&sgl[i])));
+ 		}
+ 	} else if (scsi_sglist(scmnd)) {
+ 		/* ASSERT(scsi_bufflen(scmnd) <= PAGE_SIZE); */
 -- 
-1.7.2.2
+1.6.0.2
