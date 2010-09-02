@@ -1,94 +1,60 @@
-From: Joe Perches <joe@perches.com>
-Subject: Re: [PATCH 2/5] staging: hv: Fixed lockup problem with
- bounce_buffer scatter list - RESEND
-Date: Wed, 01 Sep 2010 15:45:28 -0700
-Message-ID: <1283381128.1797.238.camel@Joe-Laptop>
-References: <4C7D4667.5040102@sailtheuniverse.com>
-	 <1283359091.1797.179.camel@Joe-Laptop>
-	 <4C7D601B.3060708@sailtheuniverse.com>
+From: Amit Shah <amit.shah@redhat.com>
+Subject: [PATCH 00/14] virtio: console: Hot-unplug fixes
+Date: Thu,  2 Sep 2010 18:11:39 +0530
+Message-ID: <cover.1283430900.git.amit.shah@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <4C7D601B.3060708@sailtheuniverse.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Hank Janssen <hjanssen@sailtheuniverse.com>
-Cc: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@driverdev.osuosl.org, virtualization@lists.osdl.org, Haiyang Zhang <haiyangz@microsoft.com>
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Amit Shah <amit.shah@redhat.com>, Virtualization List <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 2010-08-31 at 13:03 -0700, Hank Janssen wrote:
-> On 09/01/2010 09:38 AM, Joe Perches wrote:
-> > On Tue, 2010-08-31 at 11:13 -0700, Hank Janssen wrote:
-> >> diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
-> >> -			request->DataBuffer.PfnArray[i] =
-> >> -					page_to_pfn(sg_page((&sgl[i])));
-> >> +			request->DataBuffer.PfnArray[i] = 
-> >> +				page_to_pfn(sg_page((&sgl[i])));
-> > I did a bit of a doubletake reading this last change.
-> > This isn't actually a part of your fix and it introduces
-> > a whitespace error.
-> I will resubmit this patch and clean up the whitespace error.
-> 
-> When change the code I normally also change the indentation to the
-> correct format for that area of the code. That is how the whitespace
-> snuck in there.
+Hey Rusty,
 
-At least mention the whitespace change in the description
-or perhaps use a different coding style for readability
-that uses temporaries to avoid the split lines.
+These are the patches that rework a few bits to make hot-unplug while
+ports are open not crash apps (or kernels).
 
-Something like:
+The problem is when hot-unplug is performed when a port is open, the
+cdev struct is kept around by the file pointers and when the app later
+does a 'close', things go boom-boom.
 
- drivers/staging/hv/storvsc_drv.c |   17 +++++++++--------
- 1 files changed, 9 insertions(+), 8 deletions(-)
+This patch series makes sure port as well as device hot-unplug is now
+safe to perform at any time: when ports are open, not open, hvc
+consoles are active, inactive, module removal, applications doing
+blocking read/write/poll calls while port / devices are going away...
 
-diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
-index 075b61b..874891b 100644
---- a/drivers/staging/hv/storvsc_drv.c
-+++ b/drivers/staging/hv/storvsc_drv.c
-@@ -611,6 +611,8 @@ static int storvsc_queuecommand(struct scsi_cmnd *scmnd,
- 	struct storvsc_driver_object *storvsc_drv_obj =
- 		&storvsc_drv_ctx->drv_obj;
- 	struct hv_storvsc_request *request;
-+	struct hv_multipage_buffer *rmpb;
-+	u64 *rmpba;
- 	struct storvsc_cmd_request *cmd_request;
- 	unsigned int request_size = 0;
- 	int i;
-@@ -693,8 +695,10 @@ static int storvsc_queuecommand(struct scsi_cmnd *scmnd,
- 	request->SenseBuffer = scmnd->sense_buffer;
- 	request->SenseBufferSize = SCSI_SENSE_BUFFERSIZE;
- 
-+	rmpb = &request->DataBuffer;
-+	rmpba = rmpb->PfnArray;
- 
--	request->DataBuffer.Length = scsi_bufflen(scmnd);
-+	rmpb->Length = scsi_bufflen(scmnd);
- 	if (scsi_sg_count(scmnd)) {
- 		sgl = (struct scatterlist *)scsi_sglist(scmnd);
- 
-@@ -733,20 +737,17 @@ static int storvsc_queuecommand(struct scsi_cmnd *scmnd,
- 			sgl = cmd_request->bounce_sgl;
- 		}
- 
--		request->DataBuffer.Offset = sgl[0].offset;
-+		rmpb->Offset = sgl[0].offset;
- 
- 		for (i = 0; i < scsi_sg_count(scmnd); i++) {
- 			DPRINT_DBG(STORVSC_DRV, "sgl[%d] len %d offset %d\n",
- 				   i, sgl[i].length, sgl[i].offset);
--			request->DataBuffer.PfnArray[i] =
--					page_to_pfn(sg_page((&sgl[i])));
-+			*rmpba++ = page_to_pfn(sg_page((&sgl[i])));
- 		}
- 	} else if (scsi_sglist(scmnd)) {
- 		/* ASSERT(scsi_bufflen(scmnd) <= PAGE_SIZE); */
--		request->DataBuffer.Offset =
--			virt_to_phys(scsi_sglist(scmnd)) & (PAGE_SIZE-1);
--		request->DataBuffer.PfnArray[0] =
--			virt_to_phys(scsi_sglist(scmnd)) >> PAGE_SHIFT;
-+		rmpb->Offset = virt_to_phys(scsi_sglist(scmnd)) & (PAGE_SIZE-1);
-+		*rmpba = virt_to_phys(scsi_sglist(scmnd)) >> PAGE_SHIFT;
- 	}
- 
- retry_request:
+Ideally this patchset would be applicable for 2.6.36 as well as
+2.6.35, but I'll let you decide as it's quite big.
+
+Amit Shah (14):
+  virtio: console: Reset vdev before removing device
+  virtio: console: Remove control vq data only if using multiport
+    support
+  virtio: console: Check if portdev is valid in send_control_msg()
+  virtio: console: Unblock reads on chardev close
+  virtio: console: Unblock poll on port hot-unplug
+  virtio: console: Make read() return -ENODEV on hot-unplug
+  virtio: console: Make write() return -ENODEV on hot-unplug
+  virtio: console: remove_port() should return void
+  virtio: console: open: Use a common path for error handling
+  virtio: console: Add a list of portdevs that are active
+  virtio: console: Add a find_port_by_devt() function
+  virtio: console: Use cdev_alloc() instead of cdev_init()
+  virtio: console: Add reference counting for port struct
+  virtio: console: Reference counting portdev structs is not needed
+
+ drivers/char/virtio_console.c |  206 ++++++++++++++++++++++++++++++++++-------
+ 1 files changed, 173 insertions(+), 33 deletions(-)
+
+-- 
+1.7.2.2
