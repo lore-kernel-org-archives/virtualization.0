@@ -1,8 +1,7 @@
 From: Amit Shah <amit.shah@redhat.com>
-Subject: [PATCH 09/14] virtio: console: open: Use a common path for error
-	handling
-Date: Thu,  2 Sep 2010 18:11:48 +0530
-Message-ID: <19bc55e93639c45bb01334be698692903b71975d.1283430900.git.amit.shah@redhat.com>
+Subject: [PATCH 10/14] virtio: console: Add a list of portdevs that are active
+Date: Thu,  2 Sep 2010 18:11:49 +0530
+Message-ID: <178ca01934094d370d542bed75844e1700d77b2c.1283430900.git.amit.shah@redhat.com>
 References: <cover.1283430900.git.amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -24,54 +23,67 @@ To: Rusty Russell <rusty@rustcorp.com.au>
 Cc: Amit Shah <amit.shah@redhat.com>, Virtualization List <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Just re-arrange code for future patches.
+The virtio_console.c driver is capable of handling multiple devices at a
+time. Maintain a list of devices for future traversal.
 
 Signed-off-by: Amit Shah <amit.shah@redhat.com>
 ---
- drivers/char/virtio_console.c |   12 +++++++++---
- 1 files changed, 9 insertions(+), 3 deletions(-)
+ drivers/char/virtio_console.c |   15 +++++++++++++++
+ 1 files changed, 15 insertions(+), 0 deletions(-)
 
 diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index 0c4ee9b1..d689c76 100644
+index d689c76..a37a868 100644
 --- a/drivers/char/virtio_console.c
 +++ b/drivers/char/virtio_console.c
-@@ -696,6 +696,7 @@ static int port_fops_open(struct inode *inode, struct file *filp)
- {
- 	struct cdev *cdev = inode->i_cdev;
- 	struct port *port;
-+	int ret;
+@@ -48,6 +48,9 @@ struct ports_driver_data {
+ 	/* Used for exporting per-port information to debugfs */
+ 	struct dentry *debugfs_dir;
  
- 	port = container_of(cdev, struct port, cdev);
- 	filp->private_data = port;
-@@ -704,14 +705,17 @@ static int port_fops_open(struct inode *inode, struct file *filp)
- 	 * Don't allow opening of console port devices -- that's done
- 	 * via /dev/hvc
- 	 */
--	if (is_console_port(port))
--		return -ENXIO;
-+	if (is_console_port(port)) {
-+		ret = -ENXIO;
-+		goto out;
-+	}
++	/* List of all the devices we're handling */
++	struct list_head portdevs;
++
+ 	/* Number of devices this driver is handling */
+ 	unsigned int index;
  
- 	/* Allow only one process to open a particular port at a time */
- 	spin_lock_irq(&port->inbuf_lock);
- 	if (port->guest_connected) {
- 		spin_unlock_irq(&port->inbuf_lock);
--		return -EMFILE;
-+		ret = -EMFILE;
-+		goto out;
+@@ -108,6 +111,9 @@ struct port_buffer {
+  * ports for that device (vdev->priv).
+  */
+ struct ports_device {
++	/* Next portdev in the list, head is in the pdrvdata struct */
++	struct list_head list;
++
+ 	/*
+ 	 * Workqueue handlers where we process deferred work after
+ 	 * notification
+@@ -1584,6 +1590,10 @@ static int __devinit virtcons_probe(struct virtio_device *vdev)
+ 		add_port(portdev, 0);
  	}
  
- 	port->guest_connected = true;
-@@ -730,6 +734,8 @@ static int port_fops_open(struct inode *inode, struct file *filp)
- 	send_control_msg(filp->private_data, VIRTIO_CONSOLE_PORT_OPEN, 1);
- 
++	spin_lock_irq(&pdrvdata_lock);
++	list_add_tail(&portdev->list, &pdrvdata.portdevs);
++	spin_unlock_irq(&pdrvdata_lock);
++
+ 	__send_control_msg(portdev, VIRTIO_CONSOLE_BAD_ID,
+ 			   VIRTIO_CONSOLE_DEVICE_READY, 1);
  	return 0;
-+out:
-+	return ret;
- }
+@@ -1610,6 +1620,10 @@ static void virtcons_remove(struct virtio_device *vdev)
  
- /*
+ 	portdev = vdev->priv;
+ 
++	spin_lock_irq(&pdrvdata_lock);
++	list_del(&portdev->list);
++	spin_unlock_irq(&pdrvdata_lock);
++
+ 	/* Disable interrupts for vqs */
+ 	vdev->config->reset(vdev);
+ 	/* Finish up work that's lined up */
+@@ -1676,6 +1690,7 @@ static int __init init(void)
+ 			   PTR_ERR(pdrvdata.debugfs_dir));
+ 	}
+ 	INIT_LIST_HEAD(&pdrvdata.consoles);
++	INIT_LIST_HEAD(&pdrvdata.portdevs);
+ 
+ 	return register_virtio_driver(&virtio_console);
+ }
 -- 
 1.7.2.2
