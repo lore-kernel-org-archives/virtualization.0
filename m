@@ -1,7 +1,7 @@
 From: Amit Shah <amit.shah@redhat.com>
-Subject: [PATCH 04/14] virtio: console: Un-block reads on chardev close
-Date: Thu,  2 Sep 2010 18:11:43 +0530
-Message-ID: <caad0ae70198e1b3d366b83423e3306fe2120c46.1283430900.git.amit.shah@redhat.com>
+Subject: [PATCH 05/14] virtio: console: Unblock poll on port hot-unplug
+Date: Thu,  2 Sep 2010 18:11:44 +0530
+Message-ID: <6c1e8d3ce78d70f0b55c7fa8ac7c0481da7b7942.1283430900.git.amit.shah@redhat.com>
 References: <cover.1283430900.git.amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -23,8 +23,8 @@ To: Rusty Russell <rusty@rustcorp.com.au>
 Cc: Amit Shah <amit.shah@redhat.com>, Virtualization List <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-If a chardev is closed, any blocked read / poll calls should just return
-and not attempt to use other state.
+When a port is hot-unplugged while an app is blocked on poll(), unblock
+the poll() and return.
 
 Signed-off-by: Amit Shah <amit.shah@redhat.com>
 ---
@@ -32,19 +32,19 @@ Signed-off-by: Amit Shah <amit.shah@redhat.com>
  1 files changed, 4 insertions(+), 0 deletions(-)
 
 diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index 5cd5374..488d250 100644
+index 488d250..c8a5678 100644
 --- a/drivers/char/virtio_console.c
 +++ b/drivers/char/virtio_console.c
-@@ -525,6 +525,10 @@ static ssize_t fill_readbuf(struct port *port, char *out_buf, size_t out_count,
- /* The condition that must be true for polling to end */
- static bool will_read_block(struct port *port)
- {
-+	if (!port->guest_connected) {
-+		/* Port got hot-unplugged. Let's exit. */
-+		return false;
-+	}
- 	return !port_has_data(port) && port->host_connected;
- }
+@@ -648,6 +648,10 @@ static unsigned int port_fops_poll(struct file *filp, poll_table *wait)
+ 	port = filp->private_data;
+ 	poll_wait(filp, &port->waitqueue, wait);
  
++	if (!port->guest_connected) {
++		/* Port got unplugged */
++		return POLLHUP;
++	}
+ 	ret = 0;
+ 	if (port->inbuf)
+ 		ret |= POLLIN | POLLRDNORM;
 -- 
 1.7.2.2
