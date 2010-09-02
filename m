@@ -1,12 +1,15 @@
-From: Hank Janssen <hjanssen@sailtheuniverse.com>
-Subject: [PATCH 2/5] staging: hv: Fixed lockup problem with bounce_buffer
-	scatter list - Cleaned up
-Date: Wed, 01 Sep 2010 11:10:41 -0700
-Message-ID: <4C7E9721.2050405@sailtheuniverse.com>
+From: Greg KH <greg@kroah.com>
+Subject: Re: [PATCH 5/5] staging: hv: Gracefully handle SCSI resets - RESEND
+Date: Thu, 2 Sep 2010 13:08:39 -0700
+Message-ID: <20100902200839.GD16897@kroah.com>
+References: <4C7D4848.6090409@sailtheuniverse.com>
+	<1283358535.1797.174.camel@Joe-Laptop>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <devel-bounces@linuxdriverproject.org>
+Content-Disposition: inline
+In-Reply-To: <1283358535.1797.174.camel@Joe-Laptop>
 List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
 	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
 List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
@@ -16,65 +19,32 @@ List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>
 	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
 Sender: devel-bounces@linuxdriverproject.org
 Errors-To: devel-bounces@linuxdriverproject.org
-To: hjanssen@microsoft.com, gregkh@suse.de, devel@driverdev.osuosl.org, virtualization@lists.osdl.org, linux-kernel@vger.kernel.org, Haiyang Zhang <haiyangz@microsoft.com>
-Cc: Joe Perches <joe@perches.com>
+To: Joe Perches <joe@perches.com>
+Cc: devel@driverdev.osuosl.org, haiyangz@microsoft.com, gregkh@suse.de, Hank Janssen <hjanssen@sailtheuniverse.com>, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
+On Wed, Sep 01, 2010 at 09:28:53AM -0700, Joe Perches wrote:
+> On Tue, 2010-08-31 at 11:22 -0700, Hank Janssen wrote:
+> > If we get a SCSI host bus reset we now gracefully handle it, and we 
+> > take the device offline. This before sometimes caused hangs.
+> > ---
+> >  drivers/staging/hv/storvsc.c |   36 +++++++++++++++++++++++++++++++++++-
+> []
+> > +	/*
+> > +	 * Wait for traffic in transit to complete
+> > +	 */
+> > +	while (atomic_read(&storDevice->NumOutstandingRequests))
+> > +		udelay(1000);
+> > +
+> 
+> Is it useful to have a maximum check or timeout?
+> Maybe use usleep_range?
 
+Yeah, that's not good, you need to have some way to get out of here in
+case something bad happens and that number never goes down.
 
-Fixed lockup problem with bounce_buffer scatter list which caused 
-crashes in heavy loads. And minor code indentation cleanup in effected
-area. 
+Why not just use a completion function instead of a busy loop?
 
-Removed whitespace and noted minor indentation changes in description as 
-pointed out by Joe Perches. (Thanks for reviewing Joe)
+thanks,
 
-Signed-off-by:Hank Janssen <hjanssen@microsoft.com
-Signed-off-by:Haiyang Zhang <haiyangz@microsoft.com
-
----
- drivers/staging/hv/storvsc_drv.c |    9 ++++++---
- 1 files changed, 6 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
-index 3b9ccb0..169d701 100644
---- a/drivers/staging/hv/storvsc_drv.c
-+++ b/drivers/staging/hv/storvsc_drv.c
-@@ -615,6 +615,7 @@ static int storvsc_queuecommand(struct scsi_cmnd *scmnd,
- 	unsigned int request_size = 0;
- 	int i;
- 	struct scatterlist *sgl;
-+	unsigned int sg_count = 0;
- 
- 	DPRINT_DBG(STORVSC_DRV, "scmnd %p dir %d, use_sg %d buf %p len %d "
- 		   "queue depth %d tagged %d", scmnd, scmnd->sc_data_direction,
-@@ -697,6 +698,7 @@ static int storvsc_queuecommand(struct scsi_cmnd *scmnd,
- 	request->DataBuffer.Length = scsi_bufflen(scmnd);
- 	if (scsi_sg_count(scmnd)) {
- 		sgl = (struct scatterlist *)scsi_sglist(scmnd);
-+		sg_count = scsi_sg_count(scmnd);
- 
- 		/* check if we need to bounce the sgl */
- 		if (do_bounce_buffer(sgl, scsi_sg_count(scmnd)) != -1) {
-@@ -731,15 +733,16 @@ static int storvsc_queuecommand(struct scsi_cmnd *scmnd,
- 					      scsi_sg_count(scmnd));
- 
- 			sgl = cmd_request->bounce_sgl;
-+			sg_count = cmd_request->bounce_sgl_count;
- 		}
- 
- 		request->DataBuffer.Offset = sgl[0].offset;
- 
--		for (i = 0; i < scsi_sg_count(scmnd); i++) {
-+		for (i = 0; i < sg_count; i++) {
- 			DPRINT_DBG(STORVSC_DRV, "sgl[%d] len %d offset %d\n",
- 				   i, sgl[i].length, sgl[i].offset);
--			request->DataBuffer.PfnArray[i] =
--					page_to_pfn(sg_page((&sgl[i])));
-+			request->DataBuffer.PfnArray[i] =
-+				page_to_pfn(sg_page((&sgl[i])));
- 		}
- 	} else if (scsi_sglist(scmnd)) {
- 		/* ASSERT(scsi_bufflen(scmnd) <= PAGE_SIZE); */
--- 
-1.6.0.2
+greg k-h
