@@ -1,8 +1,7 @@
 From: Amit Shah <amit.shah@redhat.com>
-Subject: [PATCH 03/14] virtio: console: Check if portdev is valid in
-	send_control_msg()
-Date: Thu,  2 Sep 2010 18:11:42 +0530
-Message-ID: <0d1071314f4858dd2daaace27abadc0b43059d05.1283430900.git.amit.shah@redhat.com>
+Subject: [PATCH 04/14] virtio: console: Un-block reads on chardev close
+Date: Thu,  2 Sep 2010 18:11:43 +0530
+Message-ID: <caad0ae70198e1b3d366b83423e3306fe2120c46.1283430900.git.amit.shah@redhat.com>
 References: <cover.1283430900.git.amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -24,29 +23,28 @@ To: Rusty Russell <rusty@rustcorp.com.au>
 Cc: Amit Shah <amit.shah@redhat.com>, Virtualization List <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-A portdev may have been hot-unplugged while a port was open()ed.  Skip
-sending control messages when the portdev isn't valid.
+If a chardev is closed, any blocked read / poll calls should just return
+and not attempt to use other state.
 
 Signed-off-by: Amit Shah <amit.shah@redhat.com>
 ---
- drivers/char/virtio_console.c |    5 ++++-
- 1 files changed, 4 insertions(+), 1 deletions(-)
+ drivers/char/virtio_console.c |    4 ++++
+ 1 files changed, 4 insertions(+), 0 deletions(-)
 
 diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index 0f115b4..5cd5374 100644
+index 5cd5374..488d250 100644
 --- a/drivers/char/virtio_console.c
 +++ b/drivers/char/virtio_console.c
-@@ -410,7 +410,10 @@ static ssize_t __send_control_msg(struct ports_device *portdev, u32 port_id,
- static ssize_t send_control_msg(struct port *port, unsigned int event,
- 				unsigned int value)
+@@ -525,6 +525,10 @@ static ssize_t fill_readbuf(struct port *port, char *out_buf, size_t out_count,
+ /* The condition that must be true for polling to end */
+ static bool will_read_block(struct port *port)
  {
--	return __send_control_msg(port->portdev, port->id, event, value);
-+	/* Did the port get unplugged before userspace closed it? */
-+	if (port->portdev)
-+		return __send_control_msg(port->portdev, port->id, event, value);
-+	return 0;
++	if (!port->guest_connected) {
++		/* Port got hot-unplugged. Let's exit. */
++		return false;
++	}
+ 	return !port_has_data(port) && port->host_connected;
  }
  
- /* Callers must take the port->outvq_lock */
 -- 
 1.7.2.2
