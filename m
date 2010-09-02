@@ -1,7 +1,7 @@
 From: Amit Shah <amit.shah@redhat.com>
-Subject: [PATCH 12/14] virtio: console: Use cdev_alloc() instead of cdev_init()
-Date: Thu,  2 Sep 2010 18:20:59 +0530
-Message-ID: <d9d93cad417ea875a1bff1dab58f2bd4222bbba7.1283430900.git.amit.shah@redhat.com>
+Subject: [PATCH 13/14] virtio: console: Add reference counting for port struct
+Date: Thu,  2 Sep 2010 18:38:29 +0530
+Message-ID: <12635d929246d77f0b221bff39ec1b0b3c04756a.1283430900.git.amit.shah@redhat.com>
 References: <cover.1283430900.git.amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -23,78 +23,190 @@ To: Rusty Russell <rusty@rustcorp.com.au>
 Cc: Amit Shah <amit.shah@redhat.com>, Virtualization List <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This moves to using cdev on the heap instead of it being embedded in the
-ports struct. This helps individual refcounting and will allow us to
-properly remove cdev structs after hot-unplugs and close operations.
+When a port got hot-unplugged, when a port was open, any file operation
+after the unplugging resulted in a crash. This is fixed by ref-counting
+the port structure, and releasing it only when the file is closed.
+
+This splits the unplug operation in two parts: first marks the port
+as unavailable, removes all the buffers in the vqs and removes the port
+from the per-device list of ports. The second stage, invoked when all
+references drop to zero, releases the chardev and frees all other memory.
 
 Signed-off-by: Amit Shah <amit.shah@redhat.com>
 ---
- drivers/char/virtio_console.c |   20 +++++++++++++-------
- 1 files changed, 13 insertions(+), 7 deletions(-)
+ drivers/char/virtio_console.c |   80 ++++++++++++++++++++++++++++++++--------
+ 1 files changed, 64 insertions(+), 16 deletions(-)
 
 diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index af44332..0c4dc26 100644
+index 0c4dc26..1e00221 100644
 --- a/drivers/char/virtio_console.c
 +++ b/drivers/char/virtio_console.c
-@@ -184,7 +184,7 @@ struct port {
- 	struct console cons;
- 
- 	/* Each port associates with a separate char device */
--	struct cdev cdev;
-+	struct cdev *cdev;
+@@ -187,6 +187,9 @@ struct port {
+ 	struct cdev *cdev;
  	struct device *dev;
  
++	/* Reference-counting to handle port hot-unplugs and file operations */
++	struct kref kref;
++
  	/* A waitqueue for poll() or blocking read operations */
-@@ -235,7 +235,7 @@ static struct port *find_port_by_devt_in_portdev(struct ports_device *portdev,
+ 	wait_queue_head_t waitqueue;
  
- 	spin_lock_irqsave(&portdev->ports_lock, flags);
- 	list_for_each_entry(port, &portdev->ports, list)
--		if (port->cdev.dev == dev)
-+		if (port->cdev->dev == dev)
- 			goto out;
- 	port = NULL;
+@@ -710,6 +713,8 @@ static unsigned int port_fops_poll(struct file *filp, poll_table *wait)
+ 	return ret;
+ }
+ 
++static void remove_port(struct kref *kref);
++
+ static int port_fops_release(struct inode *inode, struct file *filp)
+ {
+ 	struct port *port;
+@@ -730,6 +735,16 @@ static int port_fops_release(struct inode *inode, struct file *filp)
+ 	reclaim_consumed_buffers(port);
+ 	spin_unlock_irq(&port->outvq_lock);
+ 
++	/*
++	 * Locks aren't necessary here as a port can't be opened after
++	 * unplug, and if a port isn't unplugged, a kref would already
++	 * exist for the port.  Plus, taking ports_lock here would
++	 * create a dependency on other locks taken by functions
++	 * inside remove_port if we're the last holder of the port,
++	 * creating many problems.
++	 */
++	kref_put(&port->kref, remove_port);
++
+ 	return 0;
+ }
+ 
+@@ -742,6 +757,11 @@ static int port_fops_open(struct inode *inode, struct file *filp)
+ 	port = find_port_by_devt(cdev->dev);
+ 	filp->private_data = port;
+ 
++	/* Prevent against a port getting hot-unplugged at the same time */
++	spin_lock_irq(&port->portdev->ports_lock);
++	kref_get(&port->kref);
++	spin_unlock_irq(&port->portdev->ports_lock);
++
+ 	/*
+ 	 * Don't allow opening of console port devices -- that's done
+ 	 * via /dev/hvc
+@@ -776,6 +796,7 @@ static int port_fops_open(struct inode *inode, struct file *filp)
+ 
+ 	return 0;
  out:
-@@ -1081,14 +1081,20 @@ static int add_port(struct ports_device *portdev, u32 id)
- 	port->in_vq = portdev->in_vqs[port->id];
- 	port->out_vq = portdev->out_vqs[port->id];
++	kref_put(&port->kref, remove_port);
+ 	return ret;
+ }
  
--	cdev_init(&port->cdev, &port_fops);
-+	port->cdev = cdev_alloc();
-+	if (!port->cdev) {
-+		dev_err(&port->portdev->vdev->dev, "Error allocating cdev\n");
-+		err = -ENOMEM;
-+		goto free_port;
-+	}
-+	port->cdev->ops = &port_fops;
+@@ -1064,6 +1085,7 @@ static int add_port(struct ports_device *portdev, u32 id)
+ 		err = -ENOMEM;
+ 		goto fail;
+ 	}
++	kref_init(&port->kref);
  
- 	devt = MKDEV(portdev->chr_major, id);
--	err = cdev_add(&port->cdev, devt, 1);
-+	err = cdev_add(port->cdev, devt, 1);
- 	if (err < 0) {
- 		dev_err(&port->portdev->vdev->dev,
- 			"Error %d adding cdev for port %u\n", err, id);
--		goto free_port;
-+		goto free_cdev;
- 	}
- 	port->dev = device_create(pdrvdata.class, &port->portdev->vdev->dev,
- 				  devt, port, "vport%up%u",
-@@ -1153,7 +1159,7 @@ free_inbufs:
- free_device:
- 	device_destroy(pdrvdata.class, port->dev->devt);
- free_cdev:
--	cdev_del(&port->cdev);
+ 	port->portdev = portdev;
+ 	port->id = id;
+@@ -1168,22 +1190,43 @@ fail:
+ 	return err;
+ }
+ 
+-/* Remove all port-specific data. */
+-static void remove_port(struct port *port)
++/* No users remain, remove all port-specific data. */
++static void remove_port(struct kref *kref)
++{
++	struct port *port;
++
++	port = container_of(kref, struct port, kref);
++
++	sysfs_remove_group(&port->dev->kobj, &port_attribute_group);
++	device_destroy(pdrvdata.class, port->dev->devt);
 +	cdev_del(port->cdev);
- free_port:
- 	kfree(port);
- fail:
-@@ -1197,7 +1203,7 @@ static void remove_port(struct port *port)
++
++	kfree(port->name);
++
++	debugfs_remove(port->debugfs_file);
++
++	kfree(port);
++}
++
++/*
++ * Port got unplugged.  Remove port from portdev's list and drop the
++ * kref reference.  If no userspace has this port opened, it will
++ * result in immediate removal the port.
++ */
++static void unplug_port(struct port *port)
+ {
+ 	struct port_buffer *buf;
+ 
++	spin_lock_irq(&port->portdev->ports_lock);
++	list_del(&port->list);
++	spin_unlock_irq(&port->portdev->ports_lock);
++
+ 	if (port->guest_connected) {
+ 		port->guest_connected = false;
+ 		port->host_connected = false;
+ 		wake_up_interruptible(&port->waitqueue);
+-		send_control_msg(port, VIRTIO_CONSOLE_PORT_OPEN, 0);
  	}
- 	sysfs_remove_group(&port->dev->kobj, &port_attribute_group);
- 	device_destroy(pdrvdata.class, port->dev->devt);
--	cdev_del(&port->cdev);
-+	cdev_del(port->cdev);
+ 
+-	spin_lock_irq(&port->portdev->ports_lock);
+-	list_del(&port->list);
+-	spin_unlock_irq(&port->portdev->ports_lock);
+-
+ 	if (is_console_port(port)) {
+ 		spin_lock_irq(&pdrvdata_lock);
+ 		list_del(&port->cons.list);
+@@ -1201,9 +1244,6 @@ static void remove_port(struct port *port)
+ 		hvc_remove(port->cons.hvc);
+ #endif
+ 	}
+-	sysfs_remove_group(&port->dev->kobj, &port_attribute_group);
+-	device_destroy(pdrvdata.class, port->dev->devt);
+-	cdev_del(port->cdev);
  
  	/* Remove unused data this port might have received. */
  	discard_port_data(port);
+@@ -1214,11 +1254,19 @@ static void remove_port(struct port *port)
+ 	while ((buf = virtqueue_detach_unused_buf(port->in_vq)))
+ 		free_buf(buf);
+ 
+-	kfree(port->name);
+-
+-	debugfs_remove(port->debugfs_file);
++	/*
++	 * We should just assume the device itself has gone off --
++	 * else a close on an open port later will try to send out a
++	 * control message.
++	 */
++	port->portdev = NULL;
+ 
+-	kfree(port);
++	/*
++	 * Locks around here are not necessary - a port can't be
++	 * opened after we removed the port struct from ports_list
++	 * above.
++	 */
++	kref_put(&port->kref, remove_port);
+ }
+ 
+ /* Any private messages that the Host and Guest want to share */
+@@ -1257,7 +1305,7 @@ static void handle_control_message(struct ports_device *portdev,
+ 		add_port(portdev, cpkt->id);
+ 		break;
+ 	case VIRTIO_CONSOLE_PORT_REMOVE:
+-		remove_port(port);
++		unplug_port(port);
+ 		break;
+ 	case VIRTIO_CONSOLE_CONSOLE_PORT:
+ 		if (!cpkt->value)
+@@ -1671,7 +1719,7 @@ static void virtcons_remove(struct virtio_device *vdev)
+ 	cancel_work_sync(&portdev->control_work);
+ 
+ 	list_for_each_entry_safe(port, port2, &portdev->ports, list)
+-		remove_port(port);
++		unplug_port(port);
+ 
+ 	unregister_chrdev(portdev->chr_major, "virtio-portsdev");
+ 
 -- 
 1.7.2.2
