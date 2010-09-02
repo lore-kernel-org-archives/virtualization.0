@@ -1,7 +1,7 @@
 From: Amit Shah <amit.shah@redhat.com>
-Subject: [PATCH 2/3] virtio: console: Send SIGIO on new data arrival on ports
-Date: Thu,  2 Sep 2010 18:47:53 +0530
-Message-ID: <364ba2c4c9dbccf4303dc90ec656b172df20fc61.1283433264.git.amit.shah@redhat.com>
+Subject: [PATCH 3/3] virtio: console: Send SIGIO in case of port unplug
+Date: Thu,  2 Sep 2010 18:47:54 +0530
+Message-ID: <04e7f90d7eed7f18c9f0cae4de96253d0a8dc532.1283433264.git.amit.shah@redhat.com>
 References: <cover.1283433264.git.amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -23,8 +23,8 @@ To: Rusty Russell <rusty@rustcorp.com.au>
 Cc: Amit Shah <amit.shah@redhat.com>, Virtualization List <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Send a SIGIO signal when new data arrives on a port. This is sent only
-when the process has requested for the signal to be sent using fcntl().
+If a port has registered for SIGIO signals, let the application
+know that the port is getting unplugged.
 
 Signed-off-by: Amit Shah <amit.shah@redhat.com>
 ---
@@ -32,18 +32,18 @@ Signed-off-by: Amit Shah <amit.shah@redhat.com>
  1 files changed, 3 insertions(+), 0 deletions(-)
 
 diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index afbbc54..a750d2b 100644
+index a750d2b..f7adfd3 100644
 --- a/drivers/char/virtio_console.c
 +++ b/drivers/char/virtio_console.c
-@@ -1468,6 +1468,9 @@ static void in_intr(struct virtqueue *vq)
- 
- 	wake_up_interruptible(&port->waitqueue);
- 
-+	/* Send a SIGIO indicating new data in case the process asked for it */
-+	send_sigio_to_port(port);
+@@ -1244,6 +1244,9 @@ static void unplug_port(struct port *port)
+ 		port->guest_connected = false;
+ 		port->host_connected = false;
+ 		wake_up_interruptible(&port->waitqueue);
 +
- 	if (is_console_port(port) && hvc_poll(port->cons.hvc))
- 		hvc_kick();
- }
++		/* Let the app know the port is going down. */
++		send_sigio_to_port(port);
+ 	}
+ 
+ 	if (is_console_port(port)) {
 -- 
 1.7.2.2
