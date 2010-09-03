@@ -1,50 +1,49 @@
-From: Greg KH <greg@kroah.com>
-Subject: Re: [PATCH 5/5] staging: hv: Gracefully handle SCSI resets - RESEND
-Date: Thu, 2 Sep 2010 13:08:39 -0700
-Message-ID: <20100902200839.GD16897@kroah.com>
-References: <4C7D4848.6090409@sailtheuniverse.com>
-	<1283358535.1797.174.camel@Joe-Laptop>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH] vhost: error handling fix
+Date: Fri, 3 Sep 2010 13:25:43 +0300
+Message-ID: <20100903102543.GA31883__32766.2970209078$1283510050$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <devel-bounces@linuxdriverproject.org>
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1283358535.1797.174.camel@Joe-Laptop>
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
-List-Post: <mailto:devel@linuxdriverproject.org>
-List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
-Sender: devel-bounces@linuxdriverproject.org
-Errors-To: devel-bounces@linuxdriverproject.org
-To: Joe Perches <joe@perches.com>
-Cc: devel@driverdev.osuosl.org, haiyangz@microsoft.com, gregkh@suse.de, Hank Janssen <hjanssen@sailtheuniverse.com>, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>, Tejun Heo <tj@kernel.org>, Eric Dumazet <eric.dumazet@gmail.com>, Ingo Molnar <mingo@elte.hu>, kvm@vger.kernel.org, virtualization@
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Sep 01, 2010 at 09:28:53AM -0700, Joe Perches wrote:
-> On Tue, 2010-08-31 at 11:22 -0700, Hank Janssen wrote:
-> > If we get a SCSI host bus reset we now gracefully handle it, and we 
-> > take the device offline. This before sometimes caused hangs.
-> > ---
-> >  drivers/staging/hv/storvsc.c |   36 +++++++++++++++++++++++++++++++++++-
-> []
-> > +	/*
-> > +	 * Wait for traffic in transit to complete
-> > +	 */
-> > +	while (atomic_read(&storDevice->NumOutstandingRequests))
-> > +		udelay(1000);
-> > +
-> 
-> Is it useful to have a maximum check or timeout?
-> Maybe use usleep_range?
+vhost should set worker to NULL on cgroups attach failure,
+so that we won't try to destroy the worker again on close.
 
-Yeah, that's not good, you need to have some way to get out of here in
-case something bad happens and that number never goes down.
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
 
-Why not just use a completion function instead of a busy loop?
+Dave, no need to bother with this one unless you really want to -
+I'll put it on my tree.
 
-thanks,
+This is a follow up to Eric's patch - fixes error handling in a similar way.
 
-greg k-h
+ drivers/vhost/vhost.c |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
+
+diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+index 7c75dce..666aa36 100644
+--- a/drivers/vhost/vhost.c
++++ b/drivers/vhost/vhost.c
+@@ -298,6 +298,7 @@ static long vhost_dev_set_owner(struct vhost_dev *dev)
+ 	return 0;
+ err_cgroup:
+ 	kthread_stop(worker);
++	dev->worker = NULL;
+ err_worker:
+ 	if (dev->mm)
+ 		mmput(dev->mm);
+-- 
+1.7.2.rc0.14.g41c1c
