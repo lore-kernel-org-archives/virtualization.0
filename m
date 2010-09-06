@@ -1,17 +1,19 @@
-From: Amit Shah <amit.shah@redhat.com>
-Subject: Re: [PATCH 02/14] virtio: console: Remove control vq data only if
-	using multiport support
-Date: Mon, 6 Sep 2010 15:52:08 +0530
-Message-ID: <20100906102208.GA4088@amit-laptop.redhat.com>
-References: <cover.1283430900.git.amit.shah@redhat.com>
-	<c7259c88e3dc036806629cd31f08e8b54fa1c345.1283430900.git.amit.shah@redhat.com>
-	<201009061759.40423.rusty@rustcorp.com.au>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: Using virtio as a physical (wire-level) transport
+Date: Mon, 6 Sep 2010 14:19:36 +0300
+Message-ID: <20100906111936.GB15608__26842.1330758885$1283772382$gmane$org@redhat.com>
+References: <20100804230441.GJ23951@ovro.caltech.edu>
+	<20100805213050.GA24984@redhat.com>
+	<20100805230102.GD4757@ovro.caltech.edu>
+	<20100805232042.GA27651@redhat.com>
+	<20100806153427.GB12392@ovro.caltech.edu>
+	<4C336074-FC8C-4BDF-B945-5295133CDB38@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <201009061759.40423.rusty@rustcorp.com.au>
+In-Reply-To: <4C336074-FC8C-4BDF-B945-5295133CDB38@suse.de>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -21,28 +23,20 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Virtualization List <virtualization@lists.linux-foundation.org>
+To: Alexander Graf <agraf@suse.de>
+Cc: "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Zang Roy <r61911@freescale.com>, "Ira W. Snyder" <iws@ovro.caltech.edu>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On (Mon) Sep 06 2010 [17:59:39], Rusty Russell wrote:
-> On Thu, 2 Sep 2010 10:11:41 pm Amit Shah wrote:
-> > If a portdev isn't using multiport support, it won't have any control vq
-> > data to remove.
-> > 
-> > Signed-off-by: Amit Shah <amit.shah@redhat.com>
-> 
-> So previously it would crash if it was ever removed?  If so, it'd be
-> nice to see that in the patch description :)
+On Sat, Aug 14, 2010 at 07:34:19AM -0400, Alexander Graf wrote:
+> I'd vote for defining virtio v2 that makes everything LE. Maybe we
+> could even have an LE capability with a grace period of phasing out
+> non-LE capable hosts and guests.
 
-Well, yeah.  If any module remove or port / device remove was performed
-earlier, there would be crashes in multiple places (as noted in the
-0/14) message.  I didn't want to scare away people by repeating it for
-each patch ;-)
+So there are multiple ideas floating for modifying the ring,
+and together they might warrant virtio2.
+This includes removing available ring, publishing consumer indexes,
+possibly some interrupt mitigation ideas, and we can put
+endian-ness there.
 
-You're right, though, I should've mentioned it.  The 0/N message gets
-lost and the commit history won't reflect that info.
-
-Thanks for picking them up!
-
-		Amit
+-- 
+MST
