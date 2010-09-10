@@ -1,37 +1,23 @@
-From: Haiyang Zhang <haiyangz@microsoft.com>
-Subject: RE: [PATCH 1/1] staging: hv: Convert vmbus driver interface
- function pointer table to constant
-Date: Thu, 9 Sep 2010 14:53:03 +0000
-Message-ID: <1FB5E1D5CA062146B38059374562DF72854C94CE@TK5EX14MBXC130.redmond.corp.microsoft.com>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [GIT PULL net-2.6] vhost-net: 2.6.36 regression fixes
+Date: Thu, 09 Sep 2010 22:00:03 -0700 (PDT)
+Message-ID: <20100909.220003.57449843.davem@davemloft.net>
+References: <20100906113606.GA16143@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Language: en-US
+In-Reply-To: <20100906113606.GA16143@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Greg KH <gregkh@suse.de>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>, "'devel@driverdev.osuosl.org'" <devel@driverdev.osuosl.org>, "'virtualization@lists.osdl.org'" <virtualization@lists.osdl.org>, Hank Janssen <hjanssen@microsoft.com>
+To: mst@redhat.com
+Cc: kvm@vger.kernel.org, virtualization@lists.osdl.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-> From: Greg KH [mailto:gregkh@suse.de]
-> Sent: Wednesday, September 08, 2010 6:44 PM
-> > Convert vmbus driver interface function pointer table to constant
-> > The vmbus interface functions are assigned to a constant - vmbus_ops.
-> 
-> You also remove a function pointer in this patch, why?  Please break up
-> the patch into logical parts, one patch, one thing.
-> 
-> This looks like it should be 2 patches, right?
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Date: Mon, 6 Sep 2010 14:36:06 +0300
 
-Because the vmbus interface function pointer table is converted to a
-constant variable -- vmbus_ops, the function GetChannelInterface(),
-VmbusGetChannelInterface() and pointer GetChannelInterface are no longer
-in use. The deprecated function's work is done by the initialization of
-the newly added constant variable vmbus_ops.
+> The following tree includes more regression fixes for vhost-net
+> in 2.6.36.  It is on top of net-2.6.
+> Please merge it for 2.6.36.
 
-I created the new constant variable vmbus_ops and removed the deprecated
-function pointer GetChannelInterface in one patch.
-
-Thanks,
-
-- Haiyang
+Pulled, thanks Michael.
