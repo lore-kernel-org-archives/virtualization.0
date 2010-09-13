@@ -1,13 +1,14 @@
-From: Jens Osterkamp <jens@linux.vnet.ibm.com>
-Subject: Re: Fwd: RE: Virtualization Digest, Vol 60, Issue 17
-Date: Mon, 13 Sep 2010 11:22:25 +0200
-Message-ID: <201009131122.26253.jens@linux.vnet.ibm.com>
-References: <201009131105.17870.arnd@arndb.de>
+From: Avi Kivity <avi@redhat.com>
+Subject: Re: [PATCH 2/3] S390: Add virtio hotplug add support
+Date: Mon, 13 Sep 2010 11:41:56 +0200
+Message-ID: <4C8DF1E4.7020604__8498.64806882597$1284371135$gmane$org@redhat.com>
+References: <1282657732-20902-1-git-send-email-agraf@suse.de>	<72A751CE-3F46-4D98-9FAF-BA1C1A95B6EE@suse.de>	<4C8C96BB.2010804@redhat.com>	<201009131305.58893.rusty@rustcorp.com.au>
+	<20100913094113.3c0ee732@mschwide.boeblingen.de.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <201009131105.17870.arnd@arndb.de>
+In-Reply-To: <20100913094113.3c0ee732@mschwide.boeblingen.de.ibm.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -17,26 +18,24 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Arpit Patel <Arpit.Patel@exar.com>
-Cc: Arnd Bergmann <arnd@arndb.de>, virtualization@lists.linux-foundation.org
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: linux-s390@vger.kernel.org, KVM list <kvm@vger.kernel.org>, Christian Ehrhardt <ehrhardt@linux.vnet.ibm.com>, Carsten Otte <carsteno@de.ibm.com>, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-PiAtLS0tLS0tLS0tICBGb3J3YXJkZWQgTWVzc2FnZSAgLS0tLS0tLS0tLQo+IAo+IFN1YmplY3Q6
-IFJFOiBWaXJ0dWFsaXphdGlvbiBEaWdlc3QsIFZvbCA2MCwgSXNzdWUgMTcKPiBEYXRlOiBGcmlk
-YXkgMTAgU2VwdGVtYmVyIDIwMTAKPiBGcm9tOiBBcnBpdCBQYXRlbCA8QXJwaXQuUGF0ZWxAZXhh
-ci5jb20+Cj4gVG86ICJ2aXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZyIg
-PHZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnPgo+IAo+IEhpLAo+IENh
-biBzb21lb25lIHBsZWFzZSBwb2ludCBtZSB0byB3aGVyZSBJIGNhbiBmaW5kIHRoaXMgZWFybHkg
-dmVyc2lvbiBvZiB0aGUgSUVFRTgwMi4xUWJnIGltcGxlbWVudGF0aW9uPyBXaGVuIEkgZG93bmxv
-YWRlZCB0aGUgMC45LjM4IHZlcnNpb24gb2YgbGxkcGFkLCBpdCBkb2VzIG5vdCBoYXZlIHRoZSBs
-YXRlc3Qgc2V0IG9mIGNvZGUgbWVudGlvbmVkIGJlbG93LgoKSGkgQXJwaXQsCgp0aGUgODAyLjFR
-YmcgYXJlIG5vdCBpbmNsdWRlZCBpbiBsbGRwYWQuIE15IHBhdGNoZXMgYXBwbHkgYWdhaW5zdCBs
-bGRwYWQgMC45LjM4IHRvIGVuYWJsZSA4MDIuMVFiZy4KCkplbnMKCltSZXN0IG9mIERpZ2VzdCBk
-ZWxldGVkXQoKLS0KCklCTSBEZXV0c2NobGFuZCBSZXNlYXJjaCAmIERldmVsb3BtZW50IEdtYkgg
-Vm9yc2l0emVuZGVyIGRlcyBBdWZzaWNodHNyYXRzOiBNYXJ0aW4gSmV0dGVyCkdlc2Now6RmdHNm
-w7xocnVuZzogRGlyayBXaXR0a29wcApTaXR6IGRlciBHZXNlbGxzY2hhZnQ6IELDtmJsaW5nZW4K
-UmVnaXN0ZXJnZXJpY2h0OiBBbXRzZ2VyaWNodCBTdHV0dGdhcnQsIEhSQiAyNDMyOTQKX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24g
-bWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0
-dHBzOi8vbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFs
-aXphdGlvbg==
+  On 09/13/2010 09:41 AM, Martin Schwidefsky wrote:
+>>> Actually Marcelo applied it.  But the natural place for it is Rusty's
+>>> virtio tree.  Rusty, if you want to take it, let me know and I'll drop
+>>> it from kvm.git.
+>> I thought it would be in the s390 tree, which is why I didn't take it...
+>>
+>> But I'm *always* happy to let do the work!
+> I didn't pick them up after I saw that Marcelo took them. If others want
+> to do the work, be my guest..
+>
+
+I just hope that all this generosity doesn't lead to merge conflicts 
+later, or people basing their stuff on stale code.  But it isn't like 
+this is a high churn area.
+
+-- 
+error compiling committee.c: too many arguments to function
