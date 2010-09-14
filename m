@@ -1,47 +1,43 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [PATCH 1/4] x86: remove cast from void*
-Date: Tue, 14 Sep 2010 11:46:47 -0700
-Message-ID: <4C8FC317.8080408@goop.org>
-References: <1284441511-11511-1-git-send-email-mfm@muteddisk.com>
-	<4C8FB5C3.3050806@goop.org> <4C8FBD01.40900@zytor.com>
+From: Greg KH <greg@kroah.com>
+Subject: Re: [PATCH 1/1] staging: hv: Convert vmbus driver interface
+ function pointer table to constant
+Date: Tue, 14 Sep 2010 16:26:24 -0700
+Message-ID: <20100914232624.GA1350@kroah.com>
+References: <1FB5E1D5CA062146B38059374562DF72854C94CE@TK5EX14MBXC130.redmond.corp.microsoft.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <xen-devel-bounces@lists.xensource.com>
-In-Reply-To: <4C8FBD01.40900@zytor.com>
-List-Unsubscribe: <http://lists.xensource.com/mailman/listinfo/xen-devel>,
-	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
-List-Post: <mailto:xen-devel@lists.xensource.com>
-List-Help: <mailto:xen-devel-request@lists.xensource.com?subject=help>
-List-Subscribe: <http://lists.xensource.com/mailman/listinfo/xen-devel>,
-	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
-Sender: xen-devel-bounces@lists.xensource.com
-Errors-To: xen-devel-bounces@lists.xensource.com
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: xen-devel@lists.xensource.com, Jeremy Fitzhardinge <jeremy@xensource.com>, matt mooney <mfm@muteddisk.com>, x86@kernel.org, kernel-janitors@vger.kernel.org, Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, Ingo Molnar <mingo@redhat.com>, Tejun Heo <tj@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, Ian Campbell <ian.campbell@citrix.com>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1FB5E1D5CA062146B38059374562DF72854C94CE@TK5EX14MBXC130.redmond.corp.microsoft.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Haiyang Zhang <haiyangz@microsoft.com>
+Cc: Greg KH <gregkh@suse.de>, "'devel@driverdev.osuosl.org'" <devel@driverdev.osuosl.org>, "'virtualization@lists.osdl.org'" <virtualization@lists.osdl.org>, "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
- On 09/14/2010 11:20 AM, H. Peter Anvin wrote:
-> On 09/14/2010 10:49 AM, Jeremy Fitzhardinge wrote:
->>  On 09/13/2010 10:18 PM, matt mooney wrote:
->>> Unnecessary cast from void* in assignment.
->> Not very keen on this.  The cast may not be strictly required, but it
->> does document what's going on there.
->>
-> But unnecessary casts are problematic in that if the type changes, they
-> can hide a real bug in the future.
+On Thu, Sep 09, 2010 at 02:53:03PM +0000, Haiyang Zhang wrote:
+> > From: Greg KH [mailto:gregkh@suse.de]
+> > Sent: Wednesday, September 08, 2010 6:44 PM
+> > > Convert vmbus driver interface function pointer table to constant
+> > > The vmbus interface functions are assigned to a constant - vmbus_ops.
+> > 
+> > You also remove a function pointer in this patch, why?  Please break up
+> > the patch into logical parts, one patch, one thing.
+> > 
+> > This looks like it should be 2 patches, right?
+> 
+> Because the vmbus interface function pointer table is converted to a
+> constant variable -- vmbus_ops, the function GetChannelInterface(),
+> VmbusGetChannelInterface() and pointer GetChannelInterface are no longer
+> in use. The deprecated function's work is done by the initialization of
+> the newly added constant variable vmbus_ops.
+> 
+> I created the new constant variable vmbus_ops and removed the deprecated
+> function pointer GetChannelInterface in one patch.
 
-If page->private changes in a way which invalidates this kind of usage,
-I would hope it would also change name to something more descriptive of
-its new role.  If it changes type but is broadly compatible with this
-usage (say, void * -> unsigned long), then the cast won't matter, or
-will become a requirement.
+Great, next time say that in the patch please :)
 
-I'm more concerned about "user_ptr" changing type, in which case the
-cast will highlight the problem.
+I'll go edit the wording and apply this...
 
-In general, the casts from these kinds of generic/polymorphic fields let
-you easily eyeball how they're being used, without having to work out
-what the type of the other side is.
+thanks,
 
-    J
+greg k-h
