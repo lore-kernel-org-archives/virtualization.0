@@ -1,52 +1,49 @@
-From: Amit Shah <amit.shah@redhat.com>
-Subject: [PATCH] virtio: console: Prevent userspace from submitting NULL
-	buffers
-Date: Tue, 14 Sep 2010 13:26:16 +0530
-Message-ID: <e1ecf51b7dbcc8147709e0dd2fab83f437e62e68.1284450973.git.amit.shah@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH] vhost-net: fix range checking in mrg bufs case
+Date: Tue, 14 Sep 2010 15:15:52 +0200
+Message-ID: <20100914131552.GA1937@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Amit Shah <amit.shah@redhat.com>, stable@kernel.org, Virtualization List <virtualization@lists.linux-foundation.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <kvm-owner@vger.kernel.org>
+Content-Disposition: inline
+Sender: kvm-owner@vger.kernel.org
+To: "Michael S. Tsirkin" <mst@redhat.com>, kvm@vger.kernel.org, virtualization@lists.osdl.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-A userspace could submit a buffer with 0 length to be written to the
-host.  Prevent such a situation.
+In mergeable buffer case, we use headcount, log_num
+and seg as indexes in same-size arrays, and
+we know that headcount <= seg and
+log_num equals either 0 or seg.
 
-This was not needed previously, but recent changes in the way write()
-works exposed this condition to trigger a virtqueue event to the host,
-causing a NULL buffer to be sent across.
+Therefore, the right thing to do is range-check seg,
+not headcount as we do now: these will be different
+if guest chains s/g descriptors (this does not
+happen now, but we can not trust the guest).
 
-Signed-off-by: Amit Shah <amit.shah@redhat.com>
-CC: stable@kernel.org
+Long term, we should add BUG_ON checks to verify
+two other indexes are what we think they should be.
+
+Reported-by: Jason Wang <jasowang@redhat.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- drivers/char/virtio_console.c |    4 ++++
- 1 files changed, 4 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index f7adfd3..be67d6b 100644
---- a/drivers/char/virtio_console.c
-+++ b/drivers/char/virtio_console.c
-@@ -653,6 +653,10 @@ static ssize_t port_fops_write(struct file *filp, const char __user *ubuf,
- 	ssize_t ret;
- 	bool nonblock;
+Dave, I'll queue this on my tree, no need to bother.
+
+ drivers/vhost/net.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+index 6400cd5..f095de6 100644
+--- a/drivers/vhost/net.c
++++ b/drivers/vhost/net.c
+@@ -245,7 +245,7 @@ static int get_rx_bufs(struct vhost_virtqueue *vq,
+ 	int r, nlogs = 0;
  
-+	/* Userspace could be out to fool us */
-+	if (!count)
-+		return 0;
-+
- 	port = filp->private_data;
- 
- 	nonblock = filp->f_flags & O_NONBLOCK;
+ 	while (datalen > 0) {
+-		if (unlikely(headcount >= VHOST_NET_MAX_SG)) {
++		if (unlikely(seg >= VHOST_NET_MAX_SG)) {
+ 			r = -ENOBUFS;
+ 			goto err;
+ 		}
 -- 
-1.7.2.2
+1.7.3.rc1.5.ge5969
