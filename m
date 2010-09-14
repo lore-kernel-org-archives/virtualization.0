@@ -1,49 +1,43 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH] vhost-net: fix range checking in mrg bufs case
-Date: Tue, 14 Sep 2010 15:15:52 +0200
-Message-ID: <20100914131552.GA1937@redhat.com>
+From: matt mooney <mfm@muteddisk.com>
+Subject: [PATCH 1/4] x86: remove cast from void*
+Date: Mon, 13 Sep 2010 22:18:31 -0700
+Message-ID: <1284441511-11511-1-git-send-email-mfm@muteddisk.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <kvm-owner@vger.kernel.org>
-Content-Disposition: inline
-Sender: kvm-owner@vger.kernel.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, kvm@vger.kernel.org, virtualization@lists.osdl.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Jeremy Fitzhardinge <jeremy@xensource.com>
+Cc: Ian Campbell <ian.campbell@citrix.com>, matt mooney <mfm@muteddisk.com>, x86@kernel.org, kernel-janitors@vger.kernel.org, Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, Tejun Heo <tj@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, xen-devel@lists.xensource.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-In mergeable buffer case, we use headcount, log_num
-and seg as indexes in same-size arrays, and
-we know that headcount <= seg and
-log_num equals either 0 or seg.
+Unnecessary cast from void* in assignment.
 
-Therefore, the right thing to do is range-check seg,
-not headcount as we do now: these will be different
-if guest chains s/g descriptors (this does not
-happen now, but we can not trust the guest).
-
-Long term, we should add BUG_ON checks to verify
-two other indexes are what we think they should be.
-
-Reported-by: Jason Wang <jasowang@redhat.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Signed-off-by: matt mooney <mfm@muteddisk.com>
 ---
-
-Dave, I'll queue this on my tree, no need to bother.
-
- drivers/vhost/net.c |    2 +-
+ arch/x86/xen/mmu.c |    2 +-
  1 files changed, 1 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-index 6400cd5..f095de6 100644
---- a/drivers/vhost/net.c
-+++ b/drivers/vhost/net.c
-@@ -245,7 +245,7 @@ static int get_rx_bufs(struct vhost_virtqueue *vq,
- 	int r, nlogs = 0;
+diff --git a/arch/x86/xen/mmu.c b/arch/x86/xen/mmu.c
+index 42086ac..7436283 100644
+--- a/arch/x86/xen/mmu.c
++++ b/arch/x86/xen/mmu.c
+@@ -737,7 +737,7 @@ pgd_t *xen_get_user_pgd(pgd_t *pgd)
  
- 	while (datalen > 0) {
--		if (unlikely(headcount >= VHOST_NET_MAX_SG)) {
-+		if (unlikely(seg >= VHOST_NET_MAX_SG)) {
- 			r = -ENOBUFS;
- 			goto err;
- 		}
+ 	if (offset < pgd_index(USER_LIMIT)) {
+ 		struct page *page = virt_to_page(pgd_page);
+-		user_ptr = (pgd_t *)page->private;
++		user_ptr = page->private;
+ 		if (user_ptr)
+ 			user_ptr += offset;
+ 	}
 -- 
-1.7.3.rc1.5.ge5969
+1.7.2.1
