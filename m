@@ -1,15 +1,11 @@
 From: Hans de Goede <hdegoede@redhat.com>
-Subject: Re: PATCH: virtio_console: Fix poll blocking even though there is
-	data to read
-Date: Wed, 15 Sep 2010 15:37:21 +0200
-Message-ID: <4C90CC11.70202__7765.70327948338$1284570808$gmane$org@redhat.com>
-References: <4C90C475.4010809@redhat.com>
-	<20100915132536.GA12320@amit-laptop.redhat.com>
+Subject: PATCH: virtio_console: Fix poll blocking even though there is data
+	to read (version 2)
+Date: Wed, 15 Sep 2010 17:18:23 +0200
+Message-ID: <4C90E3BF.4000408__41394.4909502336$1284570810$gmane$org@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: multipart/mixed; boundary="------------090706050007060400080403"
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20100915132536.GA12320@amit-laptop.redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,51 +15,86 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Amit Shah <amit.shah@redhat.com>
-Cc: spice-devel@lists.freedesktop.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: virtualization@lists.linux-foundation.org
+Cc: amit.shah@redhat.com, spice-devel@lists.freedesktop.org, kvm@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-SGksCgpPbiAwOS8xNS8yMDEwIDAzOjI1IFBNLCBBbWl0IFNoYWggd3JvdGU6Cj4gT24gKFdlZCkg
-U2VwIDE1IDIwMTAgWzE1OjA0OjUzXSwgSGFucyBkZSBHb2VkZSB3cm90ZToKPj4gSGkgQWxsLAo+
-Pgo+PiBJIGZvdW5kIHRoaXMgd2hpbGUgd29ya2luZyBvbiBhIExpbnV4IGFnZW50IGZvciBzcGlj
-ZSwgdGhlIHN5bXB0b20gSSB3YXMKPj4gc2VlaW5nIHdhcyBzZWxlY3QgYmxvY2tpbmcgb24gdGhl
-IHNwaWNlIHZkYWdlbnQgdmlydGlvIHNlcmlhbCBwb3J0IGV2ZW4KPj4gdGhvdWdoIHRoZXJlIHdl
-cmUgbWVzc2FnZXMgcXVldWVkIHVwIHRoZXJlLgo+Pgo+PiBJIGZvdW5kIHRoaXMgd2hpbGUgd29y
-a2luZyBvbiBhIExpbnV4IGFnZW50IGZvciBzcGljZSwgdGhlIHN5bXB0b20gSSB3YXMKPj4gc2Vl
-aW5nIHdhcyBzZWxlY3QgYmxvY2tpbmcgb24gdGhlIHNwaWNlIHZkYWdlbnQgdmlydGlvIHNlcmlh
-bCBwb3J0IGV2ZW4KPj4gdGhvdWdoIHRoZXJlIHdlcmUgbWVzc2FnZXMgcXVldWVkIHVwIHRoZXJl
-Lgo+Pgo+PiB2aXJ0aW9fY29uc29sZSdzIHBvcnRfZm9wc19wb2xsIGNoZWNrcyBwb3J0LT5pbmJ1
-ZiAhPSBOVUxMIHRvIGRldGVybWluZSBpZgo+PiByZWFkIHdvbid0IGJsb2NrLiBIb3dldmVyIGlm
-IGFuIGFwcGxpY2F0aW9uIHJlYWRzIGVub3VnaCBieXRlcyBmcm9tIGluYnVmCj4+IHRocm91Z2gg
-cG9ydF9mb3BzX3JlYWQsIHRvIGVtcHR5IHRoZSBjdXJyZW50IHBvcnQtPmluYnVmLCBwb3J0LT5p
-bmJ1Zgo+PiB3aWxsIGJlIE5VTEwgZXZlbiB0aG91Z2ggdGhlcmUgbWF5IGJlIGJ1ZmZlcnMgbGVm
-dCBpbiB0aGUgdmlydHF1ZXVlLgo+Pgo+PiBUaGlzIGNhdXNlcyBwb2xsKCkgdG8gYmxvY2sgZXZl
-biB0aG91Z2ggdGhlcmUgaXMgZGF0YSB0byBiZSByZWFkLCB0aGlzIHBhdGNoCj4+IGZpeGVzIHRo
-aXMgYnkgdXNpbmcgdGhlIGFscmVkeSBkZWZpbmVkIHdpbGxfcmVhZF9ibG9jayB1dGlsaXR5IGZ1
-bmN0aW9uCj4+IGluc3RlYWQgb2YgdGhlIHBvcnQtPmluYnVmICE9IE5VTEwgY2hlY2suCj4+Cj4+
-IFNpZ25lZC1vZmYtQnk6IEhhbnMgZGUgR29lZGU8aGRlZ29lZGVAcmVkaGF0LmNvbT4KPj4KPj4g
-UmVnYXJkcywKPj4KPj4gSGFucwo+Cj4+IGRpZmYgLXVwIGxpbnV4LTIuNi4zNS54ODZfNjQvZHJp
-dmVycy9jaGFyL3ZpcnRpb19jb25zb2xlLmN+IGxpbnV4LTIuNi4zNS54ODZfNjQvZHJpdmVycy9j
-aGFyL3ZpcnRpb19jb25zb2xlLmMKPj4gLS0tIGxpbnV4LTIuNi4zNS54ODZfNjQvZHJpdmVycy9j
-aGFyL3ZpcnRpb19jb25zb2xlLmN+CTIwMTAtMDgtMDIgMDA6MTE6MTQuMDAwMDAwMDAwICswMjAw
-Cj4+ICsrKyBsaW51eC0yLjYuMzUueDg2XzY0L2RyaXZlcnMvY2hhci92aXJ0aW9fY29uc29sZS5j
-CTIwMTAtMDktMTUgMTM6Mzk6MjkuMDQzNTA1MDAwICswMjAwCj4+IEBAIC02NDIsNyArNjQyLDcg
-QEAgc3RhdGljIHVuc2lnbmVkIGludCBwb3J0X2ZvcHNfcG9sbChzdHJ1Ywo+PiAgIAlwb2xsX3dh
-aXQoZmlscCwmcG9ydC0+d2FpdHF1ZXVlLCB3YWl0KTsKPj4KPj4gICAJcmV0ID0gMDsKPj4gLQlp
-ZiAocG9ydC0+aW5idWYpCj4+ICsJaWYgKCF3aWxsX3JlYWRfYmxvY2socG9ydCkpCj4KPiBMb29r
-cyBjb3JyZWN0LCBidXQgdGhpcyBzaG91bGQgYmUKPgo+IAlpZiAocG9ydF9oYXNfZGF0YShwb3J0
-KSkKPgo+IGluc3RlYWQuCgpUaGF0IGNlcnRhaW5seSB3b3JrcyBmb3IgbWUgKGFzIGluIHdpbGwg
-c3RpbGwgZml4IHRoZSBidWcgSSdtIGhpdHRpbmcpLCBidXQKcXVvdGluZyBmcm9tICJtYW4gMiBz
-ZWxlY3QiOgoKICAgICAgICBUaHJlZSAgaW5kZXBlbmRlbnQgIHNldHMgb2YgZmlsZSBkZXNjcmlw
-dG9ycyBhcmUgd2F0Y2hlZC4gIFRob3NlIGxpc3RlZAogICAgICAgIGluIHJlYWRmZHMgd2lsbCBi
-ZSB3YXRjaGVkIHRvIHNlZSBpZiBjaGFyYWN0ZXJzICBiZWNvbWUgIGF2YWlsYWJsZSAgZm9yCiAg
-ICAgICAgcmVhZGluZyAgKG1vcmUgIHByZWNpc2VseSwgdG8gc2VlIGlmIGEgcmVhZCB3aWxsIG5v
-dCBibG9jazsgaW4gcGFydGljdeKAkAogICAgICAgIGxhciwgYSBmaWxlIGRlc2NyaXB0b3IgaXMg
-YWxzbyByZWFkeSBvbiBlbmQtb2YtZmlsZSkKCk5vdGljZSB0aGUgImEgZmlsZSBkZXNjcmlwdG9y
-IGlzIGFsc28gcmVhZHkgb24gZW5kLW9mLWZpbGUiLCBhbmQKcG9ydF9mb3BzX3JlYWQgdHJlYXRz
-IHRoZSBob3N0IG5vdCBiZWluZyBjb25uZWN0ZWQgYXMgZW9mIChpdCByZXR1cm5zIDAKaW4gdGhh
-dCBjYXNlKS4gU28gZnJvbSBhbiBBUEkgcG92IEknbSBub3Qgc3VyZSB3aGF0IGlzIGNvcnJlY3Qu
-CgpSZWdhcmRzLAoKSGFucwpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMu
-bGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZy9t
-YWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+This is a multi-part message in MIME format.
+--------------090706050007060400080403
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+
+Hi All,
+
+I found this while working on a Linux agent for spice, the symptom I was
+seeing was select blocking on the spice vdagent virtio serial port even
+though there were messages queued up there.
+
+I found this while working on a Linux agent for spice, the symptom I was
+seeing was select blocking on the spice vdagent virtio serial port even
+though there were messages queued up there.
+
+virtio_console's port_fops_poll checks port->inbuf != NULL to determine if
+read won't block. However if an application reads enough bytes from inbuf
+through port_fops_read, to empty the current port->inbuf, port->inbuf
+will be NULL even though there may be buffers left in the virtqueue.
+
+This causes poll() to block even though there is data ready to be read, this
+patch fixes this by using port_has_data(port) instead of the
+port->inbuf != NULL check.
+
+Signed-off-By: Hans de Goede <hdegoede@redhat.com>
+
+Regards,
+
+Hans
+
+
+--------------090706050007060400080403
+Content-Type: text/plain;
+ name="linux-2.6.35.4-virtio_console-fix-poll.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename="linux-2.6.35.4-virtio_console-fix-poll.patch"
+
+Subject: virtio_console: Fix poll blocking even though there is data to read (version 2)
+From: Hans de Goede <hdegoede@redhat.com>
+
+I found this while working on a Linux agent for spice, the symptom I was
+seeing was select blocking on the spice vdagent virtio serial port even
+though there were messages queued up there.
+
+virtio_console's port_fops_poll checks port->inbuf != NULL to determine if
+read won't block. However if an application reads enough bytes from inbuf
+through port_fops_read, to empty the current port->inbuf, port->inbuf
+will be NULL even though there may be buffers left in the virtqueue.
+
+This causes poll() to block even though there is data ready to be read, this
+patch fixes this by using port_has_data(port) instead of the
+port->inbuf != NULL check.
+
+Signed-off-By: Hans de Goede <hdegoede@redhat.com>
+diff -up linux-2.6.35.x86_64/drivers/char/virtio_console.c~ linux-2.6.35.x86_64/drivers/char/virtio_console.c
+--- linux-2.6.35.x86_64/drivers/char/virtio_console.c~	2010-08-02 00:11:14.000000000 +0200
++++ linux-2.6.35.x86_64/drivers/char/virtio_console.c	2010-09-15 13:39:29.043505000 +0200
+@@ -642,7 +642,7 @@ static unsigned int port_fops_poll(struc
+ 	poll_wait(filp, &port->waitqueue, wait);
+ 
+ 	ret = 0;
+-	if (port->inbuf)
++	if (port_has_data(port))
+ 		ret |= POLLIN | POLLRDNORM;
+ 	if (!will_write_block(port))
+ 		ret |= POLLOUT;
+
+--------------090706050007060400080403
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linux-foundation.org/mailman/listinfo/virtualization
+--------------090706050007060400080403--
