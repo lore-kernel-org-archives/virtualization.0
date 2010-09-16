@@ -1,61 +1,77 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH] vhost-net: fix range checking in mrg bufs case
-Date: Thu, 16 Sep 2010 02:12:45 -0400 (EDT)
-Message-ID: <1191794336.2270351284617565643.JavaMail.root@zmail05.collab.prod.int.phx2.redhat.com>
-References: <20100914131552.GA1937@redhat.com>
+From: Amit Shah <amit.shah@redhat.com>
+Subject: Re: PATCH: virtio_console: Fix poll blocking even though there is
+	data to read
+Date: Thu, 16 Sep 2010 11:52:01 +0530
+Message-ID: <20100916062201.GC2429__7670.32847875289$1284618169$gmane$org@amit-laptop.redhat.com>
+References: <4C90C475.4010809@redhat.com> <4C90CC11.70202@redhat.com>
+	<20100915134624.GB12320@amit-laptop.redhat.com>
+	<201009161532.55462.rusty@rustcorp.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20100914131552.GA1937@redhat.com>
-Sender: netdev-owner@vger.kernel.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: kvm@vger.kernel.org, virtualization@lists.osdl.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <201009161532.55462.rusty@rustcorp.com.au>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Hans de Goede <hdegoede@redhat.com>, Michael Kerrisk <mtk.manpages@googlemail.com>, spice-devel@lists.freedesktop.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Tested-by: Jason Wang <jasowang@redhat.com>
-
------ "Michael S. Tsirkin" <mst@redhat.com> wrote:
-
-> In mergeable buffer case, we use headcount, log_num
-> and seg as indexes in same-size arrays, and
-> we know that headcount <= seg and
-> log_num equals either 0 or seg.
-> 
-> Therefore, the right thing to do is range-check seg,
-> not headcount as we do now: these will be different
-> if guest chains s/g descriptors (this does not
-> happen now, but we can not trust the guest).
-> 
-> Long term, we should add BUG_ON checks to verify
-> two other indexes are what we think they should be.
-> 
-> Reported-by: Jason Wang <jasowang@redhat.com>
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> ---
-> 
-> Dave, I'll queue this on my tree, no need to bother.
-> 
->  drivers/vhost/net.c |    2 +-
->  1 files changed, 1 insertions(+), 1 deletions(-)
-> 
-> diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-> index 6400cd5..f095de6 100644
-> --- a/drivers/vhost/net.c
-> +++ b/drivers/vhost/net.c
-> @@ -245,7 +245,7 @@ static int get_rx_bufs(struct vhost_virtqueue
-> *vq,
->  	int r, nlogs = 0;
->  
->  	while (datalen > 0) {
-> -		if (unlikely(headcount >= VHOST_NET_MAX_SG)) {
-> +		if (unlikely(seg >= VHOST_NET_MAX_SG)) {
->  			r = -ENOBUFS;
->  			goto err;
->  		}
-> -- 
-> 1.7.3.rc1.5.ge5969
-> _______________________________________________
-> Virtualization mailing list
-> Virtualization@lists.linux-foundation.org
-> https://lists.linux-foundation.org/mailman/listinfo/virtualization
+T24gKFRodSkgU2VwIDE2IDIwMTAgWzE1OjMyOjU0XSwgUnVzdHkgUnVzc2VsbCB3cm90ZToKPiBP
+biBXZWQsIDE1IFNlcCAyMDEwIDExOjE2OjI0IHBtIEFtaXQgU2hhaCB3cm90ZToKPiA+IE9uIChX
+ZWQpIFNlcCAxNSAyMDEwIFsxNTozNzoyMV0sIEhhbnMgZGUgR29lZGUgd3JvdGU6Cj4gPiA+ID4+
+LS0tIGxpbnV4LTIuNi4zNS54ODZfNjQvZHJpdmVycy9jaGFyL3ZpcnRpb19jb25zb2xlLmN+CTIw
+MTAtMDgtMDIgMDA6MTE6MTQuMDAwMDAwMDAwICswMjAwCj4gPiA+ID4+KysrIGxpbnV4LTIuNi4z
+NS54ODZfNjQvZHJpdmVycy9jaGFyL3ZpcnRpb19jb25zb2xlLmMJMjAxMC0wOS0xNSAxMzozOToy
+OS4wNDM1MDUwMDAgKzAyMDAKPiA+ID4gPj5AQCAtNjQyLDcgKzY0Miw3IEBAIHN0YXRpYyB1bnNp
+Z25lZCBpbnQgcG9ydF9mb3BzX3BvbGwoc3RydWMKPiA+ID4gPj4gIAlwb2xsX3dhaXQoZmlscCwm
+cG9ydC0+d2FpdHF1ZXVlLCB3YWl0KTsKPiA+ID4gPj4KPiA+ID4gPj4gIAlyZXQgPSAwOwo+ID4g
+PiA+Pi0JaWYgKHBvcnQtPmluYnVmKQo+ID4gPiA+PisJaWYgKCF3aWxsX3JlYWRfYmxvY2socG9y
+dCkpCj4gPiA+ID4KPiA+ID4gPkxvb2tzIGNvcnJlY3QsIGJ1dCB0aGlzIHNob3VsZCBiZQo+ID4g
+PiA+Cj4gPiA+ID4JaWYgKHBvcnRfaGFzX2RhdGEocG9ydCkpCj4gPiA+ID4KPiA+ID4gPmluc3Rl
+YWQuCj4gPiA+IAo+ID4gPiBUaGF0IGNlcnRhaW5seSB3b3JrcyBmb3IgbWUgKGFzIGluIHdpbGwg
+c3RpbGwgZml4IHRoZSBidWcgSSdtIGhpdHRpbmcpLCBidXQKPiA+ID4gcXVvdGluZyBmcm9tICJt
+YW4gMiBzZWxlY3QiOgo+ID4gPiAKPiA+ID4gICAgICAgIFRocmVlICBpbmRlcGVuZGVudCAgc2V0
+cyBvZiBmaWxlIGRlc2NyaXB0b3JzIGFyZSB3YXRjaGVkLiAgVGhvc2UgbGlzdGVkCj4gPiA+ICAg
+ICAgICBpbiByZWFkZmRzIHdpbGwgYmUgd2F0Y2hlZCB0byBzZWUgaWYgY2hhcmFjdGVycyAgYmVj
+b21lICBhdmFpbGFibGUgIGZvcgo+ID4gPiAgICAgICAgcmVhZGluZyAgKG1vcmUgIHByZWNpc2Vs
+eSwgdG8gc2VlIGlmIGEgcmVhZCB3aWxsIG5vdCBibG9jazsgaW4gcGFydGljdeKAkAo+ID4gPiAg
+ICAgICAgbGFyLCBhIGZpbGUgZGVzY3JpcHRvciBpcyBhbHNvIHJlYWR5IG9uIGVuZC1vZi1maWxl
+KQo+ID4gPiAKPiA+ID4gTm90aWNlIHRoZSAiYSBmaWxlIGRlc2NyaXB0b3IgaXMgYWxzbyByZWFk
+eSBvbiBlbmQtb2YtZmlsZSIsIGFuZAo+ID4gPiBwb3J0X2ZvcHNfcmVhZCB0cmVhdHMgdGhlIGhv
+c3Qgbm90IGJlaW5nIGNvbm5lY3RlZCBhcyBlb2YgKGl0IHJldHVybnMgMAo+ID4gPiBpbiB0aGF0
+IGNhc2UpLiBTbyBmcm9tIGFuIEFQSSBwb3YgSSdtIG5vdCBzdXJlIHdoYXQgaXMgY29ycmVjdC4K
+PiA+IAo+ID4gcG9sbCgyKSBzYXlzOgo+ID4gCj4gPiAgICAgICAgICAgICAgIFBPTExJTiBUaGVy
+ZSBpcyBkYXRhIHRvIHJlYWQuCj4gPiAKPiA+IFRoYXQgbWFrZXMgaXQgc2ltcGxlLgo+IAo+IFRo
+YXQncyBhIGRvY3VtZW50YXRpb24gYnVnLiAgT24gYSBwaXBlLCBQT0xMSU4gaXMgc2V0IHdoZW4g
+dGhlIG90aGVyIGVuZAo+IGNsb3Nlcy4gIHJlYWQoKSB0aGVuIHJldHVybnMgMCBpbW1lZGlhdGVs
+eS4KCkN1cnJlbnRseSB3ZSBkb24ndCBzZXQgUE9MTElOIHdoZW4gaG9zdCBnb2VzIGRvd24uICBJ
+J2xsIGRvIGEgc2Vjb25kCnBhdGNoIGZvciB0aGF0LgoKPiBwb2xsKCkgc2V0cyBQT0xMSU4gd2hl
+biByZWFkKCkgd29uJ3QgYmxvY2ssIGFuZCBwZW9wbGUgY291bnQgb24gaXQuCgpZZXMsIHRoYXQn
+cyB0aGUgYmVoYXZpb3VyIHdpdGggSGFucydzIG5ldyBwYXRjaCBhcyB3ZWxsIC0tIHRoYXQncyBu
+b3QKY2hhbmdpbmcuCgpUaGUgd2lsbF9yZWFkX2Jsb2NrKCkgZnVuY3Rpb24gKGFuZCB0aGUgY29t
+bWVudCBvbiB0b3Agb2YgaXQpIGFyZQpjYXVzaW5nIHRoaXMgY29uZnVzaW9uOgoKCi8qIFRoZSBj
+b25kaXRpb24gdGhhdCBtdXN0IGJlIHRydWUgZm9yIHBvbGxpbmcgdG8gZW5kICovCnN0YXRpYyBi
+b29sIHdpbGxfcmVhZF9ibG9jayhzdHJ1Y3QgcG9ydCAqcG9ydCkKewoJaWYgKCFwb3J0LT5ndWVz
+dF9jb25uZWN0ZWQpIHsKCQkvKiBQb3J0IGdvdCBob3QtdW5wbHVnZ2VkLiBMZXQncyBleGl0LiAq
+LwoJCXJldHVybiBmYWxzZTsKCX0KCXJldHVybiAhcG9ydF9oYXNfZGF0YShwb3J0KSAmJiBwb3J0
+LT5ob3N0X2Nvbm5lY3RlZDsKfQoKVGhpcyBmdW5jdGlvbiBpcyBvbmx5IGNhbGxlZCB0byB1bmJs
+b2NrIGEgYmxvY2tpbmcgcmVhZCgpIGNhbGwuICBTbyB0aGUKY29tbWVudCB0aGVyZSBoYXMgdG8g
+YmUgY2hhbmdlZCB0byByZWFkICd3YWl0aW5nJyB0byBlbmQgaW5zdGVhZCBvZgoncG9sbGluZycg
+dG8gZW5kLgoKcmVhZCgpIGRvZXMgcmV0dXJuIDAgaW1tZWRpYXRlbHkgd2hlbiB0aGUgb3RoZXIg
+ZW5kIGlzIG5vdCBjb25uZWN0ZWQKKGFuZCB0aGVyZSdzIG5vIGRhdGEgdG8gcmVhZCkuCgpJbiBl
+ZmZlY3QsIHdlIG5lZWQ6Ci0gSGFucydzIHBhdGNoCi0gYSBwYXRjaCB0byBzZXQgUE9MTElOIHdo
+ZW4gaG9zdCBnb2VzIGRvd24gKGluIGFkZGl0aW9uIHRvIFBPTExIVVAgYW5kCiAgU0lHSU8pCi0g
+YSBwYXRjaCB0byBjaGFuZ2UgdGhlIGNvbW1lbnQgZm9yIHdpbGxfcmVhZF9ibG9jay4KClRoYW5r
+cywKCgkJQW1pdApfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+XwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgt
+Zm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZy9tYWlsbWFu
+L2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
