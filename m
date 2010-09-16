@@ -1,18 +1,12 @@
 From: Amit Shah <amit.shah@redhat.com>
-Subject: Re: PATCH: virtio_console: Fix poll blocking even though there is
+Subject: [PATCH 1/2] virtio: console: Fix poll blocking even though there is
 	data to read
-Date: Thu, 16 Sep 2010 12:46:57 +0530
-Message-ID: <20100916071657.GF2429__22119.7214130827$1284621469$gmane$org@amit-laptop.redhat.com>
-References: <4C90C475.4010809@redhat.com> <4C90CC11.70202@redhat.com>
-	<20100915134624.GB12320@amit-laptop.redhat.com>
-	<201009161532.55462.rusty@rustcorp.com.au>
-	<20100916062201.GC2429@amit-laptop.redhat.com>
+Date: Thu, 16 Sep 2010 14:43:08 +0530
+Message-ID: <6c7c2590a114d65ec52689be7cda7ada5ee876d5.1284628364.git.amit.shah@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20100916062201.GC2429@amit-laptop.redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -23,64 +17,43 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Hans de Goede <hdegoede@redhat.com>, Michael Kerrisk <mtk.manpages@googlemail.com>, spice-devel@lists.freedesktop.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: Amit Shah <amit.shah@redhat.com>, Hans de Goede <hdegoede@redhat.com>, Virtualization List <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gKFRodSkgU2VwIDE2IDIwMTAgWzExOjUyOjAxXSwgQW1pdCBTaGFoIHdyb3RlOgo+IE9uIChU
-aHUpIFNlcCAxNiAyMDEwIFsxNTozMjo1NF0sIFJ1c3R5IFJ1c3NlbGwgd3JvdGU6Cj4gPiBPbiBX
-ZWQsIDE1IFNlcCAyMDEwIDExOjE2OjI0IHBtIEFtaXQgU2hhaCB3cm90ZToKPiA+ID4gT24gKFdl
-ZCkgU2VwIDE1IDIwMTAgWzE1OjM3OjIxXSwgSGFucyBkZSBHb2VkZSB3cm90ZToKPiA+ID4gPiA+
-Pi0tLSBsaW51eC0yLjYuMzUueDg2XzY0L2RyaXZlcnMvY2hhci92aXJ0aW9fY29uc29sZS5jfgky
-MDEwLTA4LTAyIDAwOjExOjE0LjAwMDAwMDAwMCArMDIwMAo+ID4gPiA+ID4+KysrIGxpbnV4LTIu
-Ni4zNS54ODZfNjQvZHJpdmVycy9jaGFyL3ZpcnRpb19jb25zb2xlLmMJMjAxMC0wOS0xNSAxMzoz
-OToyOS4wNDM1MDUwMDAgKzAyMDAKPiA+ID4gPiA+PkBAIC02NDIsNyArNjQyLDcgQEAgc3RhdGlj
-IHVuc2lnbmVkIGludCBwb3J0X2ZvcHNfcG9sbChzdHJ1Ywo+ID4gPiA+ID4+ICAJcG9sbF93YWl0
-KGZpbHAsJnBvcnQtPndhaXRxdWV1ZSwgd2FpdCk7Cj4gPiA+ID4gPj4KPiA+ID4gPiA+PiAgCXJl
-dCA9IDA7Cj4gPiA+ID4gPj4tCWlmIChwb3J0LT5pbmJ1ZikKPiA+ID4gPiA+PisJaWYgKCF3aWxs
-X3JlYWRfYmxvY2socG9ydCkpCj4gPiA+ID4gPgo+ID4gPiA+ID5Mb29rcyBjb3JyZWN0LCBidXQg
-dGhpcyBzaG91bGQgYmUKPiA+ID4gPiA+Cj4gPiA+ID4gPglpZiAocG9ydF9oYXNfZGF0YShwb3J0
-KSkKPiA+ID4gPiA+Cj4gPiA+ID4gPmluc3RlYWQuCj4gPiA+ID4gCj4gPiA+ID4gVGhhdCBjZXJ0
-YWlubHkgd29ya3MgZm9yIG1lIChhcyBpbiB3aWxsIHN0aWxsIGZpeCB0aGUgYnVnIEknbSBoaXR0
-aW5nKSwgYnV0Cj4gPiA+ID4gcXVvdGluZyBmcm9tICJtYW4gMiBzZWxlY3QiOgo+ID4gPiA+IAo+
-ID4gPiA+ICAgICAgICBUaHJlZSAgaW5kZXBlbmRlbnQgIHNldHMgb2YgZmlsZSBkZXNjcmlwdG9y
-cyBhcmUgd2F0Y2hlZC4gIFRob3NlIGxpc3RlZAo+ID4gPiA+ICAgICAgICBpbiByZWFkZmRzIHdp
-bGwgYmUgd2F0Y2hlZCB0byBzZWUgaWYgY2hhcmFjdGVycyAgYmVjb21lICBhdmFpbGFibGUgIGZv
-cgo+ID4gPiA+ICAgICAgICByZWFkaW5nICAobW9yZSAgcHJlY2lzZWx5LCB0byBzZWUgaWYgYSBy
-ZWFkIHdpbGwgbm90IGJsb2NrOyBpbiBwYXJ0aWN14oCQCj4gPiA+ID4gICAgICAgIGxhciwgYSBm
-aWxlIGRlc2NyaXB0b3IgaXMgYWxzbyByZWFkeSBvbiBlbmQtb2YtZmlsZSkKPiA+ID4gPiAKPiA+
-ID4gPiBOb3RpY2UgdGhlICJhIGZpbGUgZGVzY3JpcHRvciBpcyBhbHNvIHJlYWR5IG9uIGVuZC1v
-Zi1maWxlIiwgYW5kCj4gPiA+ID4gcG9ydF9mb3BzX3JlYWQgdHJlYXRzIHRoZSBob3N0IG5vdCBi
-ZWluZyBjb25uZWN0ZWQgYXMgZW9mIChpdCByZXR1cm5zIDAKPiA+ID4gPiBpbiB0aGF0IGNhc2Up
-LiBTbyBmcm9tIGFuIEFQSSBwb3YgSSdtIG5vdCBzdXJlIHdoYXQgaXMgY29ycmVjdC4KPiA+ID4g
-Cj4gPiA+IHBvbGwoMikgc2F5czoKPiA+ID4gCj4gPiA+ICAgICAgICAgICAgICAgUE9MTElOIFRo
-ZXJlIGlzIGRhdGEgdG8gcmVhZC4KPiA+ID4gCj4gPiA+IFRoYXQgbWFrZXMgaXQgc2ltcGxlLgo+
-ID4gCj4gPiBUaGF0J3MgYSBkb2N1bWVudGF0aW9uIGJ1Zy4gIE9uIGEgcGlwZSwgUE9MTElOIGlz
-IHNldCB3aGVuIHRoZSBvdGhlciBlbmQKPiA+IGNsb3Nlcy4gIHJlYWQoKSB0aGVuIHJldHVybnMg
-MCBpbW1lZGlhdGVseS4KPiAKPiBDdXJyZW50bHkgd2UgZG9uJ3Qgc2V0IFBPTExJTiB3aGVuIGhv
-c3QgZ29lcyBkb3duLiAgSSdsbCBkbyBhIHNlY29uZAo+IHBhdGNoIGZvciB0aGF0Lgo+IAo+ID4g
-cG9sbCgpIHNldHMgUE9MTElOIHdoZW4gcmVhZCgpIHdvbid0IGJsb2NrLCBhbmQgcGVvcGxlIGNv
-dW50IG9uIGl0Lgo+IAo+IFllcywgdGhhdCdzIHRoZSBiZWhhdmlvdXIgd2l0aCBIYW5zJ3MgbmV3
-IHBhdGNoIGFzIHdlbGwgLS0gdGhhdCdzIG5vdAo+IGNoYW5naW5nLgo+IAo+IFRoZSB3aWxsX3Jl
-YWRfYmxvY2soKSBmdW5jdGlvbiAoYW5kIHRoZSBjb21tZW50IG9uIHRvcCBvZiBpdCkgYXJlCj4g
-Y2F1c2luZyB0aGlzIGNvbmZ1c2lvbjoKPiAKPiAKPiAvKiBUaGUgY29uZGl0aW9uIHRoYXQgbXVz
-dCBiZSB0cnVlIGZvciBwb2xsaW5nIHRvIGVuZCAqLwo+IHN0YXRpYyBib29sIHdpbGxfcmVhZF9i
-bG9jayhzdHJ1Y3QgcG9ydCAqcG9ydCkKPiB7Cj4gCWlmICghcG9ydC0+Z3Vlc3RfY29ubmVjdGVk
-KSB7Cj4gCQkvKiBQb3J0IGdvdCBob3QtdW5wbHVnZ2VkLiBMZXQncyBleGl0LiAqLwo+IAkJcmV0
-dXJuIGZhbHNlOwo+IAl9Cj4gCXJldHVybiAhcG9ydF9oYXNfZGF0YShwb3J0KSAmJiBwb3J0LT5o
-b3N0X2Nvbm5lY3RlZDsKPiB9Cj4gCj4gVGhpcyBmdW5jdGlvbiBpcyBvbmx5IGNhbGxlZCB0byB1
-bmJsb2NrIGEgYmxvY2tpbmcgcmVhZCgpIGNhbGwuICBTbyB0aGUKPiBjb21tZW50IHRoZXJlIGhh
-cyB0byBiZSBjaGFuZ2VkIHRvIHJlYWQgJ3dhaXRpbmcnIHRvIGVuZCBpbnN0ZWFkIG9mCj4gJ3Bv
-bGxpbmcnIHRvIGVuZC4KPiAKPiByZWFkKCkgZG9lcyByZXR1cm4gMCBpbW1lZGlhdGVseSB3aGVu
-IHRoZSBvdGhlciBlbmQgaXMgbm90IGNvbm5lY3RlZAo+IChhbmQgdGhlcmUncyBubyBkYXRhIHRv
-IHJlYWQpLgo+IAo+IEluIGVmZmVjdCwgd2UgbmVlZDoKPiAtIEhhbnMncyBwYXRjaAo+IC0gYSBw
-YXRjaCB0byBzZXQgUE9MTElOIHdoZW4gaG9zdCBnb2VzIGRvd24gKGluIGFkZGl0aW9uIHRvIFBP
-TExIVVAgYW5kCj4gICBTSUdJTykKPiAtIGEgcGF0Y2ggdG8gY2hhbmdlIHRoZSBjb21tZW50IGZv
-ciB3aWxsX3JlYWRfYmxvY2suCgpVaCwgc29ycnkgZm9yIGJsYWJiZXJpbmcuCgp3aWxsX3JlYWRf
-YmxvY2soKSB3YXMgd3JpdHRlbiB0byBiZSB1c2VkIGluIHBvbGwoKSwgYW5kIHRoZSBjb21tZW50
-IHNheXMKYXMgbXVjaC4gIEkgc2hvdWxkJ3ZlIHVzZWQgaXQgcmlnaHQgZnJvbSB0aGUgc3RhcnQu
-ICBIYW5zJ3MgZmlyc3QgcGF0Y2gKd2FzIGNvcnJlY3QsIEknbGwgcGljayB0aGF0IHVwIGFuZCB0
-aGF0IGFkZHJlc3NlcyBhbGwgdGhlICJpc3N1ZXMiIHRoYXQKYXJlIHByZXNlbnQuCgpTb3JyeSBh
-Z2FpbiEKCgkJQW1pdApfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGlu
-dXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZy9tYWls
-bWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+From: Hans de Goede <hdegoede@redhat.com>
+
+I found this while working on a Linux agent for spice, the symptom I was
+seeing was select blocking on the spice vdagent virtio serial port even
+though there were messages queued up there.
+
+virtio_console's port_fops_poll checks port->inbuf != NULL to determine
+if read won't block. However if an application reads enough bytes from
+inbuf through port_fops_read, to empty the current port->inbuf,
+port->inbuf will be NULL even though there may be buffers left in the
+virtqueue.
+
+This causes poll() to block even though there is data to be read,
+this patch fixes this by using will_read_block(port) instead of the
+port->inbuf != NULL check.
+
+Signed-off-By: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Amit Shah <amit.shah@redhat.com>
+---
+ drivers/char/virtio_console.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
+index be67d6b..2dbcd41 100644
+--- a/drivers/char/virtio_console.c
++++ b/drivers/char/virtio_console.c
+@@ -710,7 +710,7 @@ static unsigned int port_fops_poll(struct file *filp, poll_table *wait)
+ 		return POLLHUP;
+ 	}
+ 	ret = 0;
+-	if (port->inbuf)
++	if (!will_read_block(port))
+ 		ret |= POLLIN | POLLRDNORM;
+ 	if (!will_write_block(port))
+ 		ret |= POLLOUT;
+-- 
+1.7.2.3
