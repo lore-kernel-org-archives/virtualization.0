@@ -1,56 +1,61 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: PATCH: virtio_console: Fix poll blocking even though there is
-	data to read
-Date: Thu, 16 Sep 2010 15:32:54 +0930
-Message-ID: <201009161532.55462.rusty__484.581015962426$1284617023$gmane$org@rustcorp.com.au>
-References: <4C90C475.4010809@redhat.com> <4C90CC11.70202@redhat.com>
-	<20100915134624.GB12320@amit-laptop.redhat.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH] vhost-net: fix range checking in mrg bufs case
+Date: Thu, 16 Sep 2010 02:12:45 -0400 (EDT)
+Message-ID: <1191794336.2270351284617565643.JavaMail.root@zmail05.collab.prod.int.phx2.redhat.com>
+References: <20100914131552.GA1937@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20100915134624.GB12320@amit-laptop.redhat.com>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Amit Shah <amit.shah@redhat.com>
-Cc: Hans de Goede <hdegoede@redhat.com>, Michael Kerrisk <mtk.manpages@googlemail.com>, spice-devel@lists.freedesktop.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <20100914131552.GA1937@redhat.com>
+Sender: netdev-owner@vger.kernel.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: kvm@vger.kernel.org, virtualization@lists.osdl.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gV2VkLCAxNSBTZXAgMjAxMCAxMToxNjoyNCBwbSBBbWl0IFNoYWggd3JvdGU6Cj4gT24gKFdl
-ZCkgU2VwIDE1IDIwMTAgWzE1OjM3OjIxXSwgSGFucyBkZSBHb2VkZSB3cm90ZToKPiA+ID4+LS0t
-IGxpbnV4LTIuNi4zNS54ODZfNjQvZHJpdmVycy9jaGFyL3ZpcnRpb19jb25zb2xlLmN+CTIwMTAt
-MDgtMDIgMDA6MTE6MTQuMDAwMDAwMDAwICswMjAwCj4gPiA+PisrKyBsaW51eC0yLjYuMzUueDg2
-XzY0L2RyaXZlcnMvY2hhci92aXJ0aW9fY29uc29sZS5jCTIwMTAtMDktMTUgMTM6Mzk6MjkuMDQz
-NTA1MDAwICswMjAwCj4gPiA+PkBAIC02NDIsNyArNjQyLDcgQEAgc3RhdGljIHVuc2lnbmVkIGlu
-dCBwb3J0X2ZvcHNfcG9sbChzdHJ1Ywo+ID4gPj4gIAlwb2xsX3dhaXQoZmlscCwmcG9ydC0+d2Fp
-dHF1ZXVlLCB3YWl0KTsKPiA+ID4+Cj4gPiA+PiAgCXJldCA9IDA7Cj4gPiA+Pi0JaWYgKHBvcnQt
-PmluYnVmKQo+ID4gPj4rCWlmICghd2lsbF9yZWFkX2Jsb2NrKHBvcnQpKQo+ID4gPgo+ID4gPkxv
-b2tzIGNvcnJlY3QsIGJ1dCB0aGlzIHNob3VsZCBiZQo+ID4gPgo+ID4gPglpZiAocG9ydF9oYXNf
-ZGF0YShwb3J0KSkKPiA+ID4KPiA+ID5pbnN0ZWFkLgo+ID4gCj4gPiBUaGF0IGNlcnRhaW5seSB3
-b3JrcyBmb3IgbWUgKGFzIGluIHdpbGwgc3RpbGwgZml4IHRoZSBidWcgSSdtIGhpdHRpbmcpLCBi
-dXQKPiA+IHF1b3RpbmcgZnJvbSAibWFuIDIgc2VsZWN0IjoKPiA+IAo+ID4gICAgICAgIFRocmVl
-ICBpbmRlcGVuZGVudCAgc2V0cyBvZiBmaWxlIGRlc2NyaXB0b3JzIGFyZSB3YXRjaGVkLiAgVGhv
-c2UgbGlzdGVkCj4gPiAgICAgICAgaW4gcmVhZGZkcyB3aWxsIGJlIHdhdGNoZWQgdG8gc2VlIGlm
-IGNoYXJhY3RlcnMgIGJlY29tZSAgYXZhaWxhYmxlICBmb3IKPiA+ICAgICAgICByZWFkaW5nICAo
-bW9yZSAgcHJlY2lzZWx5LCB0byBzZWUgaWYgYSByZWFkIHdpbGwgbm90IGJsb2NrOyBpbiBwYXJ0
-aWN14oCQCj4gPiAgICAgICAgbGFyLCBhIGZpbGUgZGVzY3JpcHRvciBpcyBhbHNvIHJlYWR5IG9u
-IGVuZC1vZi1maWxlKQo+ID4gCj4gPiBOb3RpY2UgdGhlICJhIGZpbGUgZGVzY3JpcHRvciBpcyBh
-bHNvIHJlYWR5IG9uIGVuZC1vZi1maWxlIiwgYW5kCj4gPiBwb3J0X2ZvcHNfcmVhZCB0cmVhdHMg
-dGhlIGhvc3Qgbm90IGJlaW5nIGNvbm5lY3RlZCBhcyBlb2YgKGl0IHJldHVybnMgMAo+ID4gaW4g
-dGhhdCBjYXNlKS4gU28gZnJvbSBhbiBBUEkgcG92IEknbSBub3Qgc3VyZSB3aGF0IGlzIGNvcnJl
-Y3QuCj4gCj4gcG9sbCgyKSBzYXlzOgo+IAo+ICAgICAgICAgICAgICAgUE9MTElOIFRoZXJlIGlz
-IGRhdGEgdG8gcmVhZC4KPiAKPiBUaGF0IG1ha2VzIGl0IHNpbXBsZS4KClRoYXQncyBhIGRvY3Vt
-ZW50YXRpb24gYnVnLiAgT24gYSBwaXBlLCBQT0xMSU4gaXMgc2V0IHdoZW4gdGhlIG90aGVyIGVu
-ZApjbG9zZXMuICByZWFkKCkgdGhlbiByZXR1cm5zIDAgaW1tZWRpYXRlbHkuCgpwb2xsKCkgc2V0
-cyBQT0xMSU4gd2hlbiByZWFkKCkgd29uJ3QgYmxvY2ssIGFuZCBwZW9wbGUgY291bnQgb24gaXQu
-CgpMZXQncyBkbyB0aGF0LCBwbGVhc2UuClJ1c3R5LgpfX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVh
-bGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eC1m
-b3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+Tested-by: Jason Wang <jasowang@redhat.com>
+
+----- "Michael S. Tsirkin" <mst@redhat.com> wrote:
+
+> In mergeable buffer case, we use headcount, log_num
+> and seg as indexes in same-size arrays, and
+> we know that headcount <= seg and
+> log_num equals either 0 or seg.
+> 
+> Therefore, the right thing to do is range-check seg,
+> not headcount as we do now: these will be different
+> if guest chains s/g descriptors (this does not
+> happen now, but we can not trust the guest).
+> 
+> Long term, we should add BUG_ON checks to verify
+> two other indexes are what we think they should be.
+> 
+> Reported-by: Jason Wang <jasowang@redhat.com>
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> ---
+> 
+> Dave, I'll queue this on my tree, no need to bother.
+> 
+>  drivers/vhost/net.c |    2 +-
+>  1 files changed, 1 insertions(+), 1 deletions(-)
+> 
+> diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+> index 6400cd5..f095de6 100644
+> --- a/drivers/vhost/net.c
+> +++ b/drivers/vhost/net.c
+> @@ -245,7 +245,7 @@ static int get_rx_bufs(struct vhost_virtqueue
+> *vq,
+>  	int r, nlogs = 0;
+>  
+>  	while (datalen > 0) {
+> -		if (unlikely(headcount >= VHOST_NET_MAX_SG)) {
+> +		if (unlikely(seg >= VHOST_NET_MAX_SG)) {
+>  			r = -ENOBUFS;
+>  			goto err;
+>  		}
+> -- 
+> 1.7.3.rc1.5.ge5969
+> _______________________________________________
+> Virtualization mailing list
+> Virtualization@lists.linux-foundation.org
+> https://lists.linux-foundation.org/mailman/listinfo/virtualization
