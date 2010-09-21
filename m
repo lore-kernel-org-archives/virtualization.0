@@ -1,37 +1,44 @@
-From: Haiyang Zhang <haiyangz@microsoft.com>
-Subject: RE: [PATCH 2/2] staging: hv: Remove camel cases from vmbus channel
- functions
-Date: Tue, 21 Sep 2010 15:10:50 +0000
-Message-ID: <1FB5E1D5CA062146B38059374562DF7289E6554F@TK5EX14MBXC121.redmond.corp.microsoft.com>
-References: <1FB5E1D5CA062146B38059374562DF7289E499E4@TK5EX14MBXC121.redmond.corp.microsoft.com>
- <20100920232921.GA31204@kroah.com>
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+Subject: Re: [PATCH 1/4] x86: remove cast from void*
+Date: Tue, 21 Sep 2010 11:39:23 -0700
+Message-ID: <4C98FBDB.6030601@goop.org>
+References: <1284441511-11511-1-git-send-email-mfm@muteddisk.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20100920232921.GA31204@kroah.com>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Greg KH <greg@kroah.com>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>, "'devel@driverdev.osuosl.org'" <devel@driverdev.osuosl.org>, "'virtualization@lists.osdl.org'" <virtualization@lists.osdl.org>, "'gregkh@suse.de'" <gregkh@suse.de>, Hank Janssen <hjanssen@microsoft.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <xen-devel-bounces@lists.xensource.com>
+In-Reply-To: <1284441511-11511-1-git-send-email-mfm@muteddisk.com>
+List-Unsubscribe: <http://lists.xensource.com/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
+List-Post: <mailto:xen-devel@lists.xensource.com>
+List-Help: <mailto:xen-devel-request@lists.xensource.com?subject=help>
+List-Subscribe: <http://lists.xensource.com/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
+Sender: xen-devel-bounces@lists.xensource.com
+Errors-To: xen-devel-bounces@lists.xensource.com
+To: matt mooney <mfm@muteddisk.com>
+Cc: xen-devel@lists.xensource.com, Jeremy Fitzhardinge <jeremy@xensource.com>, x86@kernel.org, kernel-janitors@vger.kernel.org, Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, Tejun Heo <tj@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, Ian Campbell <ian.campbell@citrix.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-> From: Greg KH [mailto:greg@kroah.com]
-> Sent: Monday, September 20, 2010 7:29 PM
-> Function name changes are one thing.
-> 
-> Variable names are another thing.
-> 
-> Again, one patch per thing please.
-> 
-> It's easier to read and verify that everything is sane.
-> 
-> Please try this one again.
+ On 09/13/2010 10:18 PM, matt mooney wrote:
+> Unnecessary cast from void* in assignment.
+>
+> Signed-off-by: matt mooney <mfm@muteddisk.com>
+> ---
+>  arch/x86/xen/mmu.c |    2 +-
+>  1 files changed, 1 insertions(+), 1 deletions(-)
+>
+> diff --git a/arch/x86/xen/mmu.c b/arch/x86/xen/mmu.c
+> index 42086ac..7436283 100644
+> --- a/arch/x86/xen/mmu.c
+> +++ b/arch/x86/xen/mmu.c
+> @@ -737,7 +737,7 @@ pgd_t *xen_get_user_pgd(pgd_t *pgd)
+>  
+>  	if (offset < pgd_index(USER_LIMIT)) {
+>  		struct page *page = virt_to_page(pgd_page);
+> -		user_ptr = (pgd_t *)page->private;
+> +		user_ptr = page->private;
 
-I will separate the variable names and function names into two patches,
-And, incorporate your suggestions like - naming the functions as vmbus_*
-instead of vmbus_channel_*, updating the comments, and etc..
+Um, page->private is unsigned long anyway, so this is needed either way.
 
-Thanks,
-
-- Haiyang
+    J
