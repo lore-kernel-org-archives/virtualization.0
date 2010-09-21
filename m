@@ -1,41 +1,37 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: [PULL] virtio console fixes and lguest comment fix
-Date: Tue, 21 Sep 2010 10:56:34 +0930
-Message-ID: <201009211056.37323.rusty__8039.85839379511$1285032528$gmane$org@rustcorp.com.au>
+From: Haiyang Zhang <haiyangz@microsoft.com>
+Subject: RE: [PATCH 2/2] staging: hv: Remove camel cases from vmbus channel
+ functions
+Date: Tue, 21 Sep 2010 15:10:50 +0000
+Message-ID: <1FB5E1D5CA062146B38059374562DF7289E6554F@TK5EX14MBXC121.redmond.corp.microsoft.com>
+References: <1FB5E1D5CA062146B38059374562DF7289E499E4@TK5EX14MBXC121.redmond.corp.microsoft.com>
+ <20100920232921.GA31204@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Amit Shah <amit.shah@redhat.com>, Eviatar Khen <eviatarkhen@gmail.com>, linux-kernel@vger.kernel.org, Virtualization List <virtualization@lists.linux-foundation.org>
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20100920232921.GA31204@kroah.com>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: Greg KH <greg@kroah.com>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>, "'devel@driverdev.osuosl.org'" <devel@driverdev.osuosl.org>, "'virtualization@lists.osdl.org'" <virtualization@lists.osdl.org>, "'gregkh@suse.de'" <gregkh@suse.de>, Hank Janssen <hjanssen@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The following changes since commit 2422084a94fcd5038406261b331672a13c92c050:
-  Linus Torvalds (1):
-        Merge branch 'for-linus' of git://git.kernel.org/.../mattst88/alpha-2.6
+> From: Greg KH [mailto:greg@kroah.com]
+> Sent: Monday, September 20, 2010 7:29 PM
+> Function name changes are one thing.
+> 
+> Variable names are another thing.
+> 
+> Again, one patch per thing please.
+> 
+> It's easier to read and verify that everything is sane.
+> 
+> Please try this one again.
 
-are available in the git repository at:
+I will separate the variable names and function names into two patches,
+And, incorporate your suggestions like - naming the functions as vmbus_*
+instead of vmbus_channel_*, updating the comments, and etc..
 
-  ssh://master.kernel.org/pub/scm/linux/kernel/git/rusty/linux-2.6-for-linus.git master
+Thanks,
 
-Amit Shah (1):
-      virtio: console: Prevent userspace from submitting NULL buffers
-
-Hans de Goede (1):
-      virtio: console: Fix poll blocking even though there is data to read
-
-Rusty Russell (1):
-      lguest: update comments to reflect LHCALL_LOAD_GDT_ENTRY.
-
- arch/x86/lguest/boot.c        |   13 ++++++++-----
- drivers/char/virtio_console.c |    6 +++++-
- 2 files changed, 13 insertions(+), 6 deletions(-)
+- Haiyang
