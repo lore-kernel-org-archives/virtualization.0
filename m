@@ -1,161 +1,41 @@
-From: Greg KH <greg@kroah.com>
-Subject: Re: [PATCH 2/2] staging: hv: Remove camel cases from vmbus channel
- functions
-Date: Mon, 20 Sep 2010 16:29:21 -0700
-Message-ID: <20100920232921.GA31204@kroah.com>
-References: <1FB5E1D5CA062146B38059374562DF7289E499E4@TK5EX14MBXC121.redmond.corp.microsoft.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: [PULL] virtio console fixes and lguest comment fix
+Date: Tue, 21 Sep 2010 10:56:34 +0930
+Message-ID: <201009211056.37323.rusty__8039.85839379511$1285032528$gmane$org@rustcorp.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1FB5E1D5CA062146B38059374562DF7289E499E4@TK5EX14MBXC121.redmond.corp.microsoft.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Haiyang Zhang <haiyangz@microsoft.com>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>, "'devel@driverdev.osuosl.org'" <devel@driverdev.osuosl.org>, "'virtualization@lists.osdl.org'" <virtualization@lists.osdl.org>, "'gregkh@suse.de'" <gregkh@suse.de>, Hank Janssen <hjanssen@microsoft.com>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Amit Shah <amit.shah@redhat.com>, Eviatar Khen <eviatarkhen@gmail.com>, linux-kernel@vger.kernel.org, Virtualization List <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Sep 20, 2010 at 09:13:39PM +0000, Haiyang Zhang wrote:
-> From: Haiyang Zhang <haiyangz@microsoft.com>
-> 
-> Remove camel cases from vmbus channel functions
-> Converted the function names, local variables to lower cases.
+The following changes since commit 2422084a94fcd5038406261b331672a13c92c050:
+  Linus Torvalds (1):
+        Merge branch 'for-linus' of git://git.kernel.org/.../mattst88/alpha-2.6
 
-Nice try, but you can do better :)
+are available in the git repository at:
 
->  /* Internal routines */
-> -static int VmbusChannelCreateGpadlHeader(
-> -	void *Kbuffer,	/* must be phys and virt contiguous */
-> -	u32 Size,	/* page-size multiple */
-> -	struct vmbus_channel_msginfo **msgInfo,
-> -	u32 *MessageCount);
-> -static void DumpVmbusChannel(struct vmbus_channel *channel);
-> -static void VmbusChannelSetEvent(struct vmbus_channel *channel);
-> +static int vmbuschannel_creategpadlheader(
-> +	void *kbuffer,	/* must be phys and virt contiguous */
-> +	u32 size,	/* page-size multiple */
-> +	struct vmbus_channel_msginfo **msginfo,
-> +	u32 *messagecount);
-> +static void dumpvmbuschannel(struct vmbus_channel *channel);
-> +static void vmbuschannel_setevent(struct vmbus_channel *channel);
+  ssh://master.kernel.org/pub/scm/linux/kernel/git/rusty/linux-2.6-for-linus.git master
 
-Internal functions are that, internal, why the verbosity for them?  Why
-not try the following:
-	create_gpad_header()
-	dump_channel()
-	set_event()
+Amit Shah (1):
+      virtio: console: Prevent userspace from submitting NULL buffers
 
-Looks almost readable, right?
+Hans de Goede (1):
+      virtio: console: Fix poll blocking even though there is data to read
 
-> -#if 0
-> -static void DumpMonitorPage(struct hv_monitor_page *MonitorPage)
-> -{
-> -	int i = 0;
-> -	int j = 0;
-> -
-> -	DPRINT_DBG(VMBUS, "monitorPage - %p, trigger state - %d",
-> -		   MonitorPage, MonitorPage->TriggerState);
-> -
-> -	for (i = 0; i < 4; i++)
-> -		DPRINT_DBG(VMBUS, "trigger group (%d) - %llx", i,
-> -			   MonitorPage->TriggerGroup[i].AsUINT64);
-> -
-> -	for (i = 0; i < 4; i++) {
-> -		for (j = 0; j < 32; j++) {
-> -			DPRINT_DBG(VMBUS, "latency (%d)(%d) - %llx", i, j,
-> -				   MonitorPage->Latency[i][j]);
-> -		}
-> -	}
-> -	for (i = 0; i < 4; i++) {
-> -		for (j = 0; j < 32; j++) {
-> -			DPRINT_DBG(VMBUS, "param-conn id (%d)(%d) - %d", i, j,
-> -			       MonitorPage->Parameter[i][j].ConnectionId.Asu32);
-> -			DPRINT_DBG(VMBUS, "param-flag (%d)(%d) - %d", i, j,
-> -				MonitorPage->Parameter[i][j].FlagNumber);
-> -		}
-> -	}
-> -}
-> -#endif
+Rusty Russell (1):
+      lguest: update comments to reflect LHCALL_LOAD_GDT_ENTRY.
 
-Nice fix, but, it has nothing to do with the camelcase changes in this
-file.
-
-Please, again, one-patch-per-logical-change.  I'm getting tired of
-repeating this...
-
-
->  /*
->   * VmbusChannelSetEvent - Trigger an event notification on the specified
->   * channel.
->   */
-> -static void VmbusChannelSetEvent(struct vmbus_channel *Channel)
-> +static void vmbuschannel_setevent(struct vmbus_channel *Channel)
-
-You forgot to change the function comment name as well.
-
-> -#if 0
-> -static void VmbusChannelClearEvent(struct vmbus_channel *channel)
-> -{
-> -	struct hv_monitor_page *monitorPage;
-> -
-> -	if (Channel->OfferMsg.MonitorAllocated) {
-> -		/* Each u32 represents 32 channels */
-> -		clear_bit(Channel->OfferMsg.ChildRelId & 31,
-> -			  (unsigned long *)gVmbusConnection.SendInterruptPage +
-> -			  (Channel->OfferMsg.ChildRelId >> 5));
-> -
-> -		monitorPage =
-> -			(struct hv_monitor_page *)gVmbusConnection.MonitorPages;
-> -		monitorPage++; /* Get the child to parent monitor page */
-> -
-> -		clear_bit(Channel->MonitorBit,
-> -			  (unsigned long *)&monitorPage->TriggerGroup
-> -					[Channel->MonitorGroup].Pending);
-> -	}
-> -}
-> -
-> -#endif
-
-Again a different thing than the case changing.
-
->  /*
-> - * VmbusChannelGetDebugInfo -Retrieve various channel debug info
-> + * vmbuschannel_getdebuginfo -Retrieve various channel debug info
->   */
-> -void VmbusChannelGetDebugInfo(struct vmbus_channel *Channel,
-> -			      struct vmbus_channel_debug_info *DebugInfo)
-> +void vmbuschannel_getdebuginfo(struct vmbus_channel *channel,
-> +			      struct vmbus_channel_debug_info *debuginfo)
-
-Do you really need the vmbuschannel prefix here?
-
-How about hyperv_get_debuginfo()?
-Or vmbus_get_debuginfo()?
-
-Although you might get vmbus confused with the vme bus, right?  Care to
-find a consistant prefix for all hyperv bus functions and stick to it?
-
-Oh, and what's wrong with "debug_info" instead of "debuginfo"?  You
-alredy have it split up in the structure name, consistancy is good.
-
-
->  {
->  	struct hv_monitor_page *monitorPage;
-> -	u8 monitorGroup = (u8)Channel->OfferMsg.MonitorId / 32;
-> -	u8 monitorOffset = (u8)Channel->OfferMsg.MonitorId % 32;
-> +	u8 monitorGroup = (u8)channel->OfferMsg.MonitorId / 32;
-> +	u8 monitorOffset = (u8)channel->OfferMsg.MonitorId % 32;
->  	/* u32 monitorBit	= 1 << monitorOffset; */
-
-Function name changes are one thing.
-
-Variable names are another thing.
-
-Again, one patch per thing please.
-
-It's easier to read and verify that everything is sane.
-
-Please try this one again.
-
-thanks,
-
-greg k-h
+ arch/x86/lguest/boot.c        |   13 ++++++++-----
+ drivers/char/virtio_console.c |    6 +++++-
+ 2 files changed, 13 insertions(+), 6 deletions(-)
