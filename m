@@ -1,203 +1,1879 @@
-From: =?iso-8859-2?Q?Pawe=B3?= Zuzelski <pawelz@pld-linux.org>
-Subject: PROBLEM: [BISECTED] 2.6.35.5 xen domU panics just after the boot
-Date: Tue, 21 Sep 2010 21:05:25 +0200
-Message-ID: <20100921190525.GD4573@davabel.touk.pl>
+From: John Fastabend <john.r.fastabend@intel.com>
+Subject: Re: [E1000-eedc] [PATCH 02/10] implementation of IEEE 802.1Qbg in
+	lldpad, part 1
+Date: Wed, 22 Sep 2010 17:50:03 -0700
+Message-ID: <4C9AA43B.9000702@intel.com>
+References: <1282739262-14968-1-git-send-email-jens@linux.vnet.ibm.com>
+	<1282739262-14968-3-git-send-email-jens@linux.vnet.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>
-Cc: lkml <linux-kernel@vger.kernel.org>, virtualization@lists.osdl.org, xen-devel@lists.xensource.com
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1282739262-14968-3-git-send-email-jens@linux.vnet.ibm.com>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Jens Osterkamp <jens@linux.vnet.ibm.com>
+Cc: "chrisw@redhat.com" <chrisw@redhat.com>, "evb@yahoogroups.com" <evb@yahoogroups.com>, "e1000-eedc@lists.sourceforge.net" <e1000-eedc@lists.sourceforge.net>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hello,
+On 8/25/2010 5:27 AM, Jens Osterkamp wrote:
+> This patch contains the first part of an initial implementation of the
+> IEEE 802.1Qbg standard: it implements code for the exchange of EVB
+> capabilities between a host with virtual machines and an adjacent switch.
+> For this it adds a new EVB TLV to LLDP.
+> 
+> Exchange of EVB TLV may be enabled or disabled on a per port basis.
+> Information about the information negotiated by the protocol can be
+> queried on the commandline with lldptool.
+> 
+> This patch adds support for querying and setting parameters used in
+> the exchange of EVB TLV messages.
+> The parameters that can be set are:
+> 
+>         - forwarding mode
+>         - host protocol capabilities (RTE, ECP, VDP)
+>         - no. of supported VSIs
+>         - retransmission timer exponent (RTE)
+> 
+> The parameters are implemented as a local policy: all frames received by
+> an adjacent switch are validated against this policy and taken over where
+> appropriate. Negotiated parameters are stored in lldpads config, picked up
+> again and used at the next start.
+> 
+> The patch applies to lldpad 0.9.38 and still contains code to log protocol
+> activity more verbosely than it would be necessary in the final version.
+> 
+> Signed-off-by: Jens Osterkamp <jens@linux.vnet.ibm.com>
+> ---
+>  Makefile.am             |   10 +-
+>  include/lldp.h          |   19 ++
+>  include/lldp_evb.h      |   80 ++++++
+>  include/lldp_evb_clif.h |   51 ++++
+>  include/lldp_evb_cmds.h |   31 +++
+>  include/lldp_tlv.h      |    1 +
+>  lldp_evb.c              |  658 +++++++++++++++++++++++++++++++++++++++++++++++
+>  lldp_evb_clif.c         |  226 ++++++++++++++++
+>  lldp_evb_cmds.c         |  512 ++++++++++++++++++++++++++++++++++++
+>  lldpad.c                |    2 +
+>  lldptool.c              |    2 +
+>  11 files changed, 1588 insertions(+), 4 deletions(-)
+>  create mode 100644 include/lldp_evb.h
+>  create mode 100644 include/lldp_evb_clif.h
+>  create mode 100644 include/lldp_evb_cmds.h
+>  create mode 100644 lldp_evb.c
+>  create mode 100644 lldp_evb_clif.c
+>  create mode 100644 lldp_evb_cmds.c
+> 
+> diff --git a/Makefile.am b/Makefile.am
+> index 743e16f..d59a6fa 100644
+> --- a/Makefile.am
+> +++ b/Makefile.am
+> @@ -37,7 +37,7 @@ lldpad_include_HEADERS = include/dcb_types.h include/dcbtool.h \
+>  include/dcb_osdep.h include/clif.h include/lldp_dcbx_cmds.h include/common.h \
+>  include/lldpad.h include/os.h include/includes.h include/lldp_mand_cmds.h \
+>  include/clif_msgs.h include/lldp_basman_cmds.h include/lldp_8023_cmds.h \
+> -include/lldp_med_cmds.h include/lldp_dcbx_cfg.h
+> +include/lldp_med_cmds.h include/lldp_dcbx_cfg.h include/lldp_evb_cmds.h
+> 
+>  noinst_HEADERS = include/config.h include/ctrl_iface.h \
+>  include/dcb_driver_if_types.h include/dcb_driver_interface.h \
+> @@ -47,7 +47,7 @@ include/event_iface.h include/messages.h include/parse_cli.h include/version.h \
+>  include/lldptool_cli.h include/list.h \
+>  include/lldp_mand_clif.h include/lldp_basman_clif.h include/lldp_med_clif.h \
+>  include/lldp_8023_clif.h include/lldp_dcbx_clif.h include/lldptool.h \
+> -include/lldp_rtnl.h
+> +include/lldp_rtnl.h include/lldp_evb_clif.h
+> 
+>  lldpad_SOURCES = lldpad.c config.c  drv_cfg.c ctrl_iface.c event_iface.c eloop.c \
+>  common.c os_unix.c lldp_dcbx_cmds.c log.c lldpad_shm.c \
+> @@ -62,10 +62,12 @@ lldp_dcbx_cfg.c include/lldp_dcbx_cfg.h \
+>  lldp_util.c include/lldp_util.h \
+>  lldp_mand.c include/lldp_mand.h \
+>  lldp_mand_cmds.c lldp_basman_cmds.c lldp_8023_cmds.c lldp_med_cmds.c \
+> +lldp_evb_cmds.c \
+>  lldp_tlv.c include/lldp_tlv.h \
+>  lldp_basman.c include/lldp_basman.h    \
+>  lldp_med.c include/lldp_med.h \
+> -lldp_8023.c include/lldp_8023.h
+> +lldp_8023.c include/lldp_8023.h \
+> +lldp_evb.c include/lldp_evb.h
+> 
+> 
+> 
+> @@ -74,7 +76,7 @@ $(lldpad_include_HEADERS) $(noinst_HEADERS)
+> 
+>  lldptool_SOURCES = lldptool.c clif.c lldptool_cmds.c common.c os_unix.c \
+>  lldp_mand_clif.c lldp_basman_clif.c lldp_med_clif.c lldp_8023_clif.c \
+> -lldp_dcbx_clif.c $(lldpad_include_HEADERS) $(noinst_HEADERS)
+> +lldp_dcbx_clif.c lldp_evb_clif.c $(lldpad_include_HEADERS) $(noinst_HEADERS)
+> 
+>  nltest_SOURCES = nltest.c nltest.h
+> 
+> diff --git a/include/lldp.h b/include/lldp.h
+> index 66532bd..e00ba7a 100644
+> --- a/include/lldp.h
+> +++ b/include/lldp.h
+> @@ -45,6 +45,8 @@
+>  /* Telecommunications Industry Association TR-41 Committee */
+>  #define OUI_TIA_TR41   0x0012bb
+> 
+> +#define OUI_IEEE_8021Qbg       0x001b3f
+> +
+>  /* IEEE 802.3AB Clause 9: TLV Types */
+>  #define CHASSIS_ID_TLV    1
+>  #define PORT_ID_TLV       2
+> @@ -186,5 +188,22 @@ enum {
+>  #define LLDP_8023_LINKAGG_CAPABLE      (1 << 0)
+>  #define LLDP_8023_LINKAGG_ENABLED      (1 << 1)
+> 
+> +/* IEEE 802.1Qbg subtype */
+> +#define LLDP_EVB_SUBTYPE               0
+> +
+> +/* forwarding mode */
+> +#define LLDP_EVB_CAPABILITY_FORWARD_STANDARD           (1 << 7)
+> +#define LLDP_EVB_CAPABILITY_FORWARD_REFLECTIVE_RELAY   (1 << 6)
+> +
+> +/* EVB supported protocols */
+> +#define LLDP_EVB_CAPABILITY_PROTOCOL_RTE               (1 << 2)
+> +#define LLDP_EVB_CAPABILITY_PROTOCOL_ECP               (1 << 1)
+> +#define LLDP_EVB_CAPABILITY_PROTOCOL_VDP               (1 << 0)
+> +
+> +/* EVB specific values */
+> +#define LLDP_EVB_DEFAULT_MAX_VSI                       4096
+> +#define LLDP_EVB_DEFAULT_SVSI                          3295
+> +#define LLDP_EVB_DEFAULT_RTE                           15
+> +
+>  void somethingChangedLocal(char *ifname);
+>  #endif /* _LLDP_H */
+> diff --git a/include/lldp_evb.h b/include/lldp_evb.h
+> new file mode 100644
+> index 0000000..667f9ad
+> --- /dev/null
+> +++ b/include/lldp_evb.h
+> @@ -0,0 +1,80 @@
+> +/*******************************************************************************
+> +
+> +  implementation of EVB TLVs for LLDP
+> +  (c) Copyright IBM Corp. 2010
+> +
+> +  Author(s): Jens Osterkamp <jens@linux.vnet.ibm.com>
+> +
+> +  This program is free software; you can redistribute it and/or modify it
+> +  under the terms and conditions of the GNU General Public License,
+> +  version 2, as published by the Free Software Foundation.
+> +
+> +  This program is distributed in the hope it will be useful, but WITHOUT
+> +  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+> +  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+> +  more details.
+> +
+> +  You should have received a copy of the GNU General Public License along with
+> +  this program; if not, write to the Free Software Foundation, Inc.,
+> +  51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
+> +
+> +  The full GNU General Public License is included in this distribution in
+> +  the file called "COPYING".
+> +
+> +*******************************************************************************/
+> +
+> +#ifndef _LLDP_EVB_H
+> +#define _LLDP_EVB_H
+> +
+> +#include "lldp_mod.h"
+> +
+> +#define LLDP_MOD_EVB   OUI_IEEE_8021Qbg
+> +#define LLDP_OUI_SUBTYPE       { 0x00, 0x1b, 0x3f, 0x00 }
+> +
+> +typedef enum {
+> +       EVB_OFFER_CAPABILITIES = 0,
+> +       EVB_CONFIGURE,
+> +       EVB_CONFIRMATION
+> +} evb_state;
+> +
+> +struct tlv_info_evb {
+> +       u8 oui[3];
+> +       u8 sub;
+> +       /* supported forwarding mode */
+> +       u8 smode;
+> +       /* supported capabilities */
+> +       u8 scap;
+> +       /* currently configured forwarding mode */
+> +       u8 cmode;
+> +       /* currently configured capabilities */
+> +       u8 ccap;
+> +       /* supported no. of vsi */
+> +       u16 svsi;
+> +       /* currently configured no. of vsi */
+> +       u16 cvsi;
+> +       /* retransmission exponent */
+> +       u8 rte;
+> +} __attribute__ ((__packed__));
+> +
+> +struct evb_data {
+> +       char ifname[IFNAMSIZ];
+> +       struct unpacked_tlv *evb;
+> +       struct tlv_info_evb *tie;
+> +       /* local policy */
+> +       struct tlv_info_evb *policy;
+> +       int state;
+> +       LIST_ENTRY(evb_data) entry;
+> +};
+> +
+> +struct evb_user_data {
+> +       LIST_HEAD(evb_head, evb_data) head;
+> +};
+> +
+> +struct lldp_module *evb_register(void);
+> +void evb_unregister(struct lldp_module *mod);
+> +struct packed_tlv *evb_gettlv(struct port *port);
+> +void evb_ifdown(char *);
+> +void evb_ifup(char *);
+> +struct evb_data *evb_data(char *ifname);
+> +
+> +#endif /* _LLDP_EVB_H */
+> diff --git a/include/lldp_evb_clif.h b/include/lldp_evb_clif.h
+> new file mode 100644
+> index 0000000..acaee5e
+> --- /dev/null
+> +++ b/include/lldp_evb_clif.h
+> @@ -0,0 +1,51 @@
+> +/*******************************************************************************
+> +
+> +  implementation of EVB TLVs for LLDP
+> +  (c) Copyright IBM Corp. 2010
+> +
+> +  Author(s): Jens Osterkamp <jens@linux.vnet.ibm.com>
+> +
+> +  This program is free software; you can redistribute it and/or modify it
+> +  under the terms and conditions of the GNU General Public License,
+> +  version 2, as published by the Free Software Foundation.
+> +
+> +  This program is distributed in the hope it will be useful, but WITHOUT
+> +  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+> +  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+> +  more details.
+> +
+> +  You should have received a copy of the GNU General Public License along with
+> +  this program; if not, write to the Free Software Foundation, Inc.,
+> +  51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
+> +
+> +  The full GNU General Public License is included in this distribution in
+> +  the file called "COPYING".
+> +
+> +*******************************************************************************/
+> +
+> +#ifndef _LLDP_EVB_CLIF_H
+> +#define _LLDP_EVB_CLIF_H
+> +
+> +struct lldp_module *evb_cli_register(void);
+> +void evb_cli_unregister(struct lldp_module *);
+> +int evb_print_tlv(u32, u16, char *);
+> +
+> +#define EVB_BUF_SIZE                   256
+> +
+> +#define ARG_EVB_FORWARDING_MODE                "fmode"
+> +
+> +#define VAL_EVB_FMODE_BRIDGE           "bridge"
+> +#define VAL_EVB_FMODE_REFLECTIVE_RELAY "reflectiverelay"
+> +
+> +#define ARG_EVB_CAPABILITIES           "capabilities"
+> +
+> +#define VAL_EVB_CAPA_RTE               "rte"
+> +#define VAL_EVB_CAPA_ECP               "ecp"
+> +#define VAL_EVB_CAPA_VDP               "vdp"
+> +#define VAL_EVB_CAPA_NONE              "none"
+> +
+> +#define ARG_EVB_VSIS                   "vsis"
+> +
+> +#define ARG_EVB_RTE                    "rte"
+> +
+> +#endif
+> diff --git a/include/lldp_evb_cmds.h b/include/lldp_evb_cmds.h
+> new file mode 100644
+> index 0000000..1367e5d
+> --- /dev/null
+> +++ b/include/lldp_evb_cmds.h
+> @@ -0,0 +1,31 @@
+> +/*******************************************************************************
+> +
+> +  implementation of EVB TLVs for LLDP
+> +  (c) Copyright IBM Corp. 2010
+> +
+> +  Author(s): Jens Osterkamp <jens@linux.vnet.ibm.com>
+> +
+> +  This program is free software; you can redistribute it and/or modify it
+> +  under the terms and conditions of the GNU General Public License,
+> +  version 2, as published by the Free Software Foundation.
+> +
+> +  This program is distributed in the hope it will be useful, but WITHOUT
+> +  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+> +  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+> +  more details.
+> +
+> +  You should have received a copy of the GNU General Public License along with
+> +  this program; if not, write to the Free Software Foundation, Inc.,
+> +  51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
+> +
+> +  The full GNU General Public License is included in this distribution in
+> +  the file called "COPYING".
+> +
+> +*******************************************************************************/
+> +
+> +#ifndef _LLDP_EVB_CMDS_H
+> +#define _LLDP_EVB_CMDS_H
+> +
+> +struct arg_handlers *evb_get_arg_handlers();
+> +
+> +#endif
+> diff --git a/include/lldp_tlv.h b/include/lldp_tlv.h
+> index a32cc71..fe3a75a 100644
+> --- a/include/lldp_tlv.h
+> +++ b/include/lldp_tlv.h
+> @@ -144,6 +144,7 @@ int tlv_ok(struct unpacked_tlv *tlv);
+>  #define TLVID_8021(sub)                TLVID(OUI_IEEE_8021, (sub))
+>  #define TLVID_8023(sub)                TLVID(OUI_IEEE_8023, (sub))
+>  #define TLVID_MED(sub)         TLVID(OUI_TIA_TR41, (sub))
+> +#define TLVID_8021Qbg(sub)     TLVID(OUI_IEEE_8021Qbg, (sub))
+> 
+>  /* the size in bytes needed for a packed tlv from unpacked tlv */
+>  #define TLVSIZE(t) ((t) ? (2 + (t)->length) : 0)
+> diff --git a/lldp_evb.c b/lldp_evb.c
+> new file mode 100644
+> index 0000000..4213137
+> --- /dev/null
+> +++ b/lldp_evb.c
+> @@ -0,0 +1,658 @@
+> +/*******************************************************************************
+> +
+> +  implementation of EVB TLVs for LLDP
+> +  (c) Copyright IBM Corp. 2010
+> +
+> +  Author(s): Jens Osterkamp <jens@linux.vnet.ibm.com>
+> +
+> +  This program is free software; you can redistribute it and/or modify it
+> +  under the terms and conditions of the GNU General Public License,
+> +  version 2, as published by the Free Software Foundation.
+> +
+> +  This program is distributed in the hope it will be useful, but WITHOUT
+> +  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+> +  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+> +  more details.
+> +
+> +  You should have received a copy of the GNU General Public License along with
+> +  this program; if not, write to the Free Software Foundation, Inc.,
+> +  51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
+> +
+> +  The full GNU General Public License is included in this distribution in
+> +  the file called "COPYING".
+> +
+> +*******************************************************************************/
+> +
+> +#include <net/if.h>
+> +#include <sys/queue.h>
+> +#include <sys/socket.h>
+> +#include <sys/ioctl.h>
+> +#include <sys/utsname.h>
+> +#include <linux/if_bridge.h>
+> +#include <string.h>
+> +#include "lldp.h"
+> +#include "lldp_evb.h"
+> +#include "messages.h"
+> +#include "config.h"
+> +#include "common.h"
+> +#include "lldp_mand_clif.h"
+> +#include "lldp_evb_clif.h"
+> +#include "lldp_evb_cmds.h"
+> +
+> +extern struct lldp_head lldp_head;
+> +
+> +struct evb_data *evb_data(char *ifname)
+> +{
+> +       struct evb_user_data *ud;
+> +       struct evb_data *ed = NULL;
+> +
+> +       ud = find_module_user_data_by_if(ifname, &lldp_head, LLDP_MOD_EVB);
+> +       if (ud) {
+> +               LIST_FOREACH(ed, &ud->head, entry) {
+> +                       if (!strncmp(ifname, ed->ifname, IFNAMSIZ))
+> +                               return ed;
+> +               }
+> +       }
+> +       return NULL;
+> +}
+> +
+> +static void evb_print_tlvinfo(struct tlv_info_evb *tie)
+> +{
+> +       printf("%s(%i): supported forwarding mode: %02x\n", __FILE__, __LINE__,  tie->smode);
+> +       printf("%s(%i): configured forwarding mode: %02x\n", __FILE__, __LINE__,  tie->cmode);
+> +       printf("%s(%i): supported capabilities: %02x\n", __FILE__, __LINE__,  tie->scap);
+> +       printf("%s(%i): configured capabilities: %02x\n", __FILE__, __LINE__,  tie->ccap);
+> +       printf("%s(%i): supported no. of vsis: %04i\n", __FILE__, __LINE__,  tie->svsi);
+> +       printf("%s(%i): configured no. of vsis: %04i\n", __FILE__, __LINE__,  tie->cvsi);
+> +       printf("%s(%i): rte: %02i\n\n", __FILE__, __LINE__,  tie->rte);
+> +}
+> +
+> +/*
+> + * evb_bld_cfg_tlv - build the EVB TLV
+> + * @ed: the evb data struct
+> + *
+> + * Returns 0 on success
+> + */
+> +static int evb_bld_cfg_tlv(struct evb_data *ed)
+> +{
+> +       int rc = 0;
+> +       int i;
+> +       struct unpacked_tlv *tlv = NULL;
+> +
+> +       /* free ed->evb if it exists */
+> +       FREE_UNPKD_TLV(ed, evb);
+> +
+> +       if (!is_tlv_txenabled(ed->ifname, TLVID_8021Qbg(LLDP_EVB_SUBTYPE))) {
+> +               fprintf(stderr, "%s:%s:EVB tx is currently disabled !\n",
+> +                       __func__, ed->ifname);
+> +               rc = EINVAL;
+> +               goto out_err;
+> +       }
+> +
+> +       tlv = create_tlv();
+> +       if (!tlv)
+> +               goto out_err;
+> +
+> +       tlv->type = ORG_SPECIFIC_TLV;
+> +       tlv->length = sizeof(struct tlv_info_evb);
+> +       tlv->info = (u8 *)malloc(tlv->length);
+> +       if(!tlv->info) {
+> +               free(tlv);
+> +               tlv = NULL;
+> +               rc = ENOMEM;
+> +               goto out_err;
+> +       }
+> +       memcpy(tlv->info, ed->tie, tlv->length);
+> +
+> +       printf("### %s:type %i, length %i, info ", __func__, tlv->type, tlv->length);
+> +
+> +       for (i=0; i < tlv->length; i++) {
+> +               printf("%02x ", tlv->info[i]);
+> +       }
+> +
 
-kernels 2.6.35.5 and 2.6.32.22 xen domU panics at the very begining of =
-the
-boot process.
+Remove the extra braces around the for statement. Granted the rest of
+lldpad may not follow a consistent coding style but lets try going
+forward and hopefully I get around to lldpad soon.
 
-I have bisected it to a single commit, and the first bad commit is:
-[fb412a178502dc498430723b082a932f797e4763] xen: use percpu interrupts f=
-or IPIs and VIRQs
 
-kernel v2.6.35.5 with reverted this commit works for me.
+> +       printf("\n");
+> +
+> +       ed->evb = tlv;
+> +out_err:
+> +       return rc;
+> +}
+> +
+> +static void evb_free_tlv(struct evb_data *ed)
+> +{
+> +       if (ed) {
+> +               FREE_UNPKD_TLV(ed, evb);
+> +       }
 
-Here are the kernel configs I was using:
-http://carme.pld-linux.org/~pawelz/kernel-2.6.35.5-domU-config
-http://carme.pld-linux.org/~pawelz/kernel-2.6.32.22-domU-config
-As you can see they are stripped down configs, intended to run in domU =
-only.
+Same here extra braces.
 
-I was testing it with the very simple domU configuration:
+> +}
+> +
+> +/* evb_init_cfg_tlv:
+> + *
+> + * fill up tlv_info_evb structure with reasonable info
+> + */
+> +static int evb_init_cfg_tlv(struct evb_data *ed)
+> +{
+> +       char arg_path[EVB_BUF_SIZE];
+> +       char *param;
+> +
+> +       /* load policy from config */
+> +       ed->policy = (struct tlv_info_evb *) calloc(1, sizeof(struct tlv_info_evb));
 
-kernel  =3D '/srv/xen/bzImage'
-memory  =3D '128'
-vcpus =3D 2
-name    =3D 'test'
-on_poweroff =3D 'destroy'
-on_reboot   =3D 'restart'
-on_crash    =3D 'restart'
+Use malloc instead of callod() of one.
 
-Here is the full output of kernel 2.6.35.5:
+> +
+> +       if (!ed->policy)
+> +               return ENOMEM;
+> +
+> +       /* set defaults */
+> +       hton24(ed->policy->oui, LLDP_MOD_EVB);
+> +       ed->policy->smode = LLDP_EVB_CAPABILITY_FORWARD_STANDARD;
+> +       ed->policy->scap = 0;
+> +       ed->policy->cmode = 0;
+> +       ed->policy->ccap = 0;
+> +       ed->policy->svsi = 0 /*LLDP_EVB_DEFAULT_SVSI*/;
+> +       ed->policy->rte = 0 /*LLDP_EVB_DEFAULT_RTE*/;
+> +
+> +       /* pull forwarding mode into policy */
+> +       snprintf(arg_path, sizeof(arg_path), "%s%08x.fmode",
+> +                TLVID_PREFIX, TLVID_8021Qbg(LLDP_EVB_SUBTYPE));
+> +
+> +       if (get_cfg(ed->ifname, arg_path, (void *) &param, CONFIG_TYPE_STRING)) {
+> +               printf("%s:%s: loading EVB policy for forwarding mode failed, using default.\n",
+> +                       __func__, ed->ifname);
+> +       } else {
+> +               if (strcasestr(param, VAL_EVB_FMODE_BRIDGE)) {
+> +                       ed->policy->smode = LLDP_EVB_CAPABILITY_FORWARD_STANDARD;
+> +               }
+> +
+> +               if (strcasestr(param, VAL_EVB_FMODE_REFLECTIVE_RELAY)) {
+> +                       ed->policy->smode = LLDP_EVB_CAPABILITY_FORWARD_REFLECTIVE_RELAY;
+> +               }
+> +
+> +               printf("%s:%s: policy param fmode = %s.\n", __func__, ed->ifname, param);
+> +               printf("%s:%s: policy param smode = %x.\n", __func__, ed->ifname, ed->policy->smode);
+> +       }
+> +
+> +       /* pull capabilities into policy */
+> +       snprintf(arg_path, sizeof(arg_path), "%s%08x.capabilities",
+> +                TLVID_PREFIX, TLVID_8021Qbg(LLDP_EVB_SUBTYPE));
+> +
+> +       if (get_cfg(ed->ifname, arg_path, (void *) &param, CONFIG_TYPE_STRING)) {
+> +               printf("%s:%s: loading EVB policy for capabilities failed, using default.\n",
+> +                       __func__, ed->ifname);
+> +       } else {
+> +               if (strcasestr(param, VAL_EVB_CAPA_RTE)) {
+> +                       ed->policy->scap |= LLDP_EVB_CAPABILITY_PROTOCOL_RTE;
+> +               }
+> +
+> +               if (strcasestr(param, VAL_EVB_CAPA_ECP)) {
+> +                       ed->policy->scap |= LLDP_EVB_CAPABILITY_PROTOCOL_ECP;
+> +               }
+> +
+> +               if (strcasestr(param, VAL_EVB_CAPA_VDP)) {
+> +                       ed->policy->scap |= LLDP_EVB_CAPABILITY_PROTOCOL_VDP;
+> +               }
+> +
+> +               printf("%s:%s: policy param capabilities = %s.\n", __func__, ed->ifname, param);
+> +               printf("%s:%s: policy param scap = %x.\n", __func__, ed->ifname, ed->policy->scap);
+> +       }
+> +
+> +       /* pull rte into policy */
+> +       snprintf(arg_path, sizeof(arg_path), "%s%08x.rte",
+> +                TLVID_PREFIX, TLVID_8021Qbg(LLDP_EVB_SUBTYPE));
+> +
+> +       if (get_cfg(ed->ifname, arg_path, (void *) &param, CONFIG_TYPE_STRING)) {
+> +               printf("%s:%s: loading EVB policy for rte failed, using default.\n",
+> +                       __func__, ed->ifname);
+> +       } else {
+> +               ed->policy->rte = atoi(param);
+> +
+> +               printf("%s:%s: policy param rte = %s.\n", __func__, ed->ifname, param);
+> +               printf("%s:%s: policy param rte = %i.\n", __func__, ed->ifname, ed->policy->rte);
+> +       }
+> +
+> +       /* pull vsis into policy */
+> +       snprintf(arg_path, sizeof(arg_path), "%s%08x.vsis",
+> +                TLVID_PREFIX, TLVID_8021Qbg(LLDP_EVB_SUBTYPE));
+> +
+> +       if (get_cfg(ed->ifname, arg_path, (void *) &param, CONFIG_TYPE_STRING)) {
+> +               printf("%s:%s: loading EVB policy for vsis failed, using default.\n",
+> +                       __func__, ed->ifname);
+> +       } else {
+> +               ed->policy->svsi = atoi(param);
+> +
+> +               printf("%s:%s: policy param vsis = %s.\n", __func__, ed->ifname, param);
+> +               printf("%s:%s: policy param vsis = %i.\n", __func__, ed->ifname, ed->policy->svsi);
+> +       }
+> +
+> +       /* load last used EVB TLV ... */
+> +       ed->tie = (struct tlv_info_evb *) calloc(1, sizeof(struct tlv_info_evb));
+> +
+> +       if (!ed->tie)
+> +               return ENOMEM;
+> +
+> +       if (get_config_tlvinfo_bin(ed->ifname, TLVID_8021Qbg(LLDP_EVB_SUBTYPE),
+> +                              (void *)ed->tie, sizeof(struct tlv_info_evb))) {
+> +               printf("%s:%s: loading last used EVB TLV failed, using default.\n",
+> +                       __func__, ed->ifname);
+> +               hton24(ed->tie->oui, LLDP_MOD_EVB);
+> +               ed->tie->smode = LLDP_EVB_CAPABILITY_FORWARD_REFLECTIVE_RELAY | LLDP_EVB_CAPABILITY_FORWARD_STANDARD;
+> +               ed->tie->cmode = 0x0;
+> +               ed->tie->scap = LLDP_EVB_CAPABILITY_PROTOCOL_RTE | LLDP_EVB_CAPABILITY_PROTOCOL_ECP
+> +                       | LLDP_EVB_CAPABILITY_PROTOCOL_VDP;
+> +               ed->tie->ccap = 0x0;
+> +               ed->tie->svsi = LLDP_EVB_DEFAULT_SVSI;
+> +               ed->tie->cvsi = 0x0;
+> +               ed->tie->rte = LLDP_EVB_DEFAULT_RTE;
+> +       } else {
+> +               printf("%s(%i): loaded last used EVB TLV from file.\n", __FILE__, __LINE__);
+> +       }
+> +
+> +       return 0;
+> +}
+> +
+> +static int evb_bld_tlv(struct evb_data *ed)
+> +{
+> +       int rc = 0;
+> +
+> +       if (!port_find_by_name(ed->ifname)) {
+> +               rc = EEXIST;
+> +               goto out_err;
+> +       }
+> +
+> +       if (!init_cfg()) {
+> +               rc = ENOENT;
+> +               goto out_err;
+> +       }
+> +
+> +       if (evb_bld_cfg_tlv(ed)) {
+> +               fprintf(stderr, "### %s:%s:evb_bld_cfg_tlv() failed\n",
+> +                               __func__, ed->ifname);
+> +               rc = EINVAL;
+> +               goto out_err_destroy;
+> +       }
+> +
 
-Using config file "/etc/xen/test".
-Started domain test
-[    0.000000] Policy zone: DMA32
-[    0.000000] Kernel command line:=20
-[    0.000000] PID hash table entries: 512 (order: 0, 4096 bytes)
-[    0.000000] Subtract (33 early reservations)
-[    0.000000]   #1 [0001976000 - 0001987000]  XEN PAGETABLES
-[    0.000000]   #2 [0001000000 - 00019125f8]   TEXT DATA BSS
-[    0.000000]   #3 [0001933000 - 0001976000]  XEN START INFO
-[    0.000000]   #4 [0000010000 - 0000012000]      TRAMPOLINE
-[    0.000000]   #5 [0000012000 - 0000040000]         PGTABLE
-[    0.000000]   #6 [0001912600 - 0001917600]       NODE_DATA
-[    0.000000]   #7 [0001917600 - 0001918600]         BOOTMEM
-[    0.000000]   #8 [0001918600 - 0001918618]         BOOTMEM
-[    0.000000]   #9 [0001919000 - 000191a000]         BOOTMEM
-[    0.000000]   #10 [000191a000 - 000191b000]         BOOTMEM
-[    0.000000]   #11 [000191b000 - 000191c000]         BOOTMEM
-[    0.000000]   #12 [0002200000 - 00023c0000]        MEMMAP 0
-[    0.000000]   #13 [0001918640 - 00019187c0]         BOOTMEM
-[    0.000000]   #14 [000191c000 - 000191cc00]         BOOTMEM
-[    0.000000]   #15 [000191d000 - 000191e000]         BOOTMEM
-[    0.000000]   #16 [000191e000 - 000191f000]         BOOTMEM
-[    0.000000]   #17 [000191f000 - 0001920000]         BOOTMEM
-[    0.000000]   #18 [00019187c0 - 00019188a0]         BOOTMEM
-[    0.000000]   #19 [00019188c0 - 0001918928]         BOOTMEM
-[    0.000000]   #20 [0001918940 - 00019189a8]         BOOTMEM
-[    0.000000]   #21 [00019189c0 - 0001918a28]         BOOTMEM
-[    0.000000]   #22 [0001918a40 - 0001918a41]         BOOTMEM
-[    0.000000]   #23 [0001918a80 - 0001918a81]         BOOTMEM
-[    0.000000]   #24 [0001987000 - 00019c1000]         BOOTMEM
-[    0.000000]   #25 [0001918ac0 - 0001918ac8]         BOOTMEM
-[    0.000000]   #26 [0001918b00 - 0001918b08]         BOOTMEM
-[    0.000000]   #27 [0001918b40 - 0001918b48]         BOOTMEM
-[    0.000000]   #28 [0001918b80 - 0001918b90]         BOOTMEM
-[    0.000000]   #29 [0001918bc0 - 0001918cc0]         BOOTMEM
-[    0.000000]   #30 [0001918cc0 - 0001918d08]         BOOTMEM
-[    0.000000]   #31 [0001918d40 - 0001918d88]         BOOTMEM
-[    0.000000]   #32 [0001920000 - 0001921000]         BOOTMEM
-[    0.000000] Memory: 118724k/131072k available (3327k kernel code, 44=
-8k absent, 11900k reserved, 3931k data, 440k init)
-[    0.000000] SLUB: Genslabs=3D14, HWalign=3D64, Order=3D0-3, MinObjec=
-ts=3D0, CPUs=3D2, Nodes=3D1
-[    0.000000] Hierarchical RCU implementation.
-[    0.000000] 	RCU-based detection of stalled CPUs is disabled.
-[    0.000000] 	Verbose stalled-CPUs detection is disabled.
-[    0.000000] NR_IRQS:2304
-[    0.000000] Console: colour dummy device 80x25
-[    0.000000] console [tty0] enabled
-[    0.000000] console [hvc0] enabled
-[    0.000000] installing Xen timer for CPU 0
-[    0.000000] BUG: unable to handle kernel NULL pointer dereference at=
- (null)
-[    0.000000] IP: [<(null)>] (null)
-[    0.000000] PGD 0=20
-[    0.000000] Oops: 0010 [#1] SMP=20
-[    0.000000] last sysfs file:=20
-[    0.000000] CPU 0=20
-[    0.000000] Modules linked in:
-[    0.000000]=20
-[    0.000000] Pid: 0, comm: swapper Not tainted 2.6.35.5 #1 /
-[    0.000000] RIP: e030:[<0000000000000000>]  [<(null)>] (null)
-[    0.000000] RSP: e02b:ffffffff81601d70  EFLAGS: 00010082
-[    0.000000] RAX: ffffffff818fdb50 RBX: 0000000000000000 RCX: 0000000=
-000000000
-[    0.000000] RDX: 0000000000000000 RSI: ffffffff818c7958 RDI: 0000000=
-000000000
-[    0.000000] RBP: ffffffff81601d88 R08: ffffea00001b22d8 R09: 0000000=
-00000001a
-[    0.000000] R10: 0000000000000000 R11: 0000000000006477 R12: fffffff=
-f81623280
-[    0.000000] R13: 0000000000000000 R14: 00000000ffffffea R15: 0000000=
-000000000
-[    0.000000] FS:  0000000000000000(0000) GS:ffff880001987000(0000) kn=
-lGS:0000000000000000
-[    0.000000] CS:  e033 DS: 0000 ES: 0000 CR0: 000000008005003b
-[    0.000000] CR2: 0000000000000000 CR3: 00000000016b9000 CR4: 0000000=
-000002620
-[    0.000000] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000=
-000000000
-[    0.000000] DR3: 0000000000000000 DR6: 00000000ffff0ff0 DR7: 0000000=
-000000400
-[    0.000000] Process swapper (pid: 0, threadinfo ffffffff81600000, ta=
-sk ffffffff816c1020)
-[    0.000000] Stack:
-[    0.000000]  ffffffff8107c849 0000000000000000 ffff880007c0d000 ffff=
-ffff81601da8
-[    0.000000] <0> ffffffff8107c829 ffffffff8133d3fb ffffffff81623280 f=
-fffffff81601df8
-[    0.000000] <0> ffffffff8107c033 ffffffff816202e4 ffffffff816232e4 f=
-fffffff8100572f
-[    0.000000] Call Trace:
-[    0.000000]  [<ffffffff8107c849>] ? default_enable+0x1a/0x28
-[    0.000000]  [<ffffffff8107c829>] default_startup+0x19/0x1f
-[    0.000000]  [<ffffffff8133d3fb>] ? _raw_spin_lock_irqsave+0xd/0x24
-[    0.000000]  [<ffffffff8107c033>] __setup_irq+0x1ab/0x2d8
-[    0.000000]  [<ffffffff8100572f>] ? xen_restore_fl_direct_end+0x0/0x=
-1
-[    0.000000]  [<ffffffff810052bb>] ? xen_timer_interrupt+0x0/0x17a
-[    0.000000]  [<ffffffff8107c278>] request_threaded_irq+0x118/0x146
-[    0.000000]  [<ffffffff8125dda5>] bind_virq_to_irqhandler+0x146/0x16=
-8
-[    0.000000]  [<ffffffff810052bb>] ? xen_timer_interrupt+0x0/0x17a
-[    0.000000]  [<ffffffff810055ee>] xen_setup_timer+0x59/0x9d
-[    0.000000]  [<ffffffff81731b68>] xen_time_init+0x7b/0x89
-[    0.000000]  [<ffffffff81731ead>] x86_late_time_init+0xa/0x11
-[    0.000000]  [<ffffffff8172eb49>] start_kernel+0x30b/0x38d
-[    0.000000]  [<ffffffff8172e2c6>] x86_64_start_reservations+0xb1/0xb=
-5
-[    0.000000]  [<ffffffff817313e8>] xen_start_kernel+0x508/0x50f
-[    0.000000] Code:  Bad RIP value.
-[    0.000000] RIP  [<(null)>] (null)
-[    0.000000]  RSP <ffffffff81601d70>
-[    0.000000] CR2: 0000000000000000
-[    0.000000] ---[ end trace 4eaa2a86a8e2da22 ]---
-[    0.000000] Kernel panic - not syncing: Attempted to kill the idle t=
-ask!
-[    0.000000] Pid: 0, comm: swapper Tainted: G      D     2.6.35.5 #1
-[    0.000000] Call Trace:
-[    0.000000]  [<ffffffff8133bae9>] panic+0x86/0xfa
-[    0.000000]  [<ffffffff8103c5c6>] do_exit+0x6d/0x77e
-[    0.000000]  [<ffffffff8133d43f>] ? _raw_spin_unlock_irqrestore+0x11=
-/0x13
-[    0.000000]  [<ffffffff8103ac55>] ? kmsg_dump+0x11e/0x139
-[    0.000000]  [<ffffffff8100b936>] oops_end+0x8f/0x94
-[    0.000000]  [<ffffffff810239cc>] no_context+0x1f4/0x203
-[    0.000000]  [<ffffffff81023b65>] __bad_area_nosemaphore+0x18a/0x1ad
-[    0.000000]  [<ffffffff81023b96>] bad_area_nosemaphore+0xe/0x10
-[    0.000000]  [<ffffffff81023f10>] do_page_fault+0x115/0x229
-[    0.000000]  [<ffffffff8133daf5>] page_fault+0x25/0x30
-[    0.000000]  [<ffffffff8107c849>] ? default_enable+0x1a/0x28
-[    0.000000]  [<ffffffff8107c829>] default_startup+0x19/0x1f
-[    0.000000]  [<ffffffff8133d3fb>] ? _raw_spin_lock_irqsave+0xd/0x24
-[    0.000000]  [<ffffffff8107c033>] __setup_irq+0x1ab/0x2d8
-[    0.000000]  [<ffffffff8100572f>] ? xen_restore_fl_direct_end+0x0/0x=
-1
-[    0.000000]  [<ffffffff810052bb>] ? xen_timer_interrupt+0x0/0x17a
-[    0.000000]  [<ffffffff8107c278>] request_threaded_irq+0x118/0x146
-[    0.000000]  [<ffffffff8125dda5>] bind_virq_to_irqhandler+0x146/0x16=
-8
-[    0.000000]  [<ffffffff810052bb>] ? xen_timer_interrupt+0x0/0x17a
-[    0.000000]  [<ffffffff810055ee>] xen_setup_timer+0x59/0x9d
-[    0.000000]  [<ffffffff81731b68>] xen_time_init+0x7b/0x89
-[    0.000000]  [<ffffffff81731ead>] x86_late_time_init+0xa/0x11
-[    0.000000]  [<ffffffff8172eb49>] start_kernel+0x30b/0x38d
-[    0.000000]  [<ffffffff8172e2c6>] x86_64_start_reservations+0xb1/0xb=
-5
-[    0.000000]  [<ffffffff817313e8>] xen_start_kernel+0x508/0x50f
+Looks like you need 'return rc;' here.
 
-Additional info:
-  arch: x86_64
-  cpu:  Intel(R) Xeon(R) CPU           E5345  @ 2.33GHz
-  xen:  3.2.1
-  dom0: Linux version 2.6.26-2-xen-amd64 (Debian 2.6.26-24lenny1)
-		(dannf@debian.org) (gcc version 4.1.3 20080704 (prerelease)
-		(Debian 4.1.2-25)) #1 SMP Thu Aug 19 01:12:45 UTC 2010
+This code falls through to destroy_cfg() if this is the case the 'goto
+out_err_destroy' is unneeded above. It really looks like a missed return
+code though
 
---=20
-Regards,
-Pawe=B3 Zuzelski
+> +out_err_destroy:
+> +       destroy_cfg();
+> +
+> +out_err:
+> +       return rc;
+> +}
+> +
+> +static void evb_free_data(struct evb_user_data *ud)
+> +{
+> +       struct evb_data *ed;
+> +       if (ud) {
+> +               while (!LIST_EMPTY(&ud->head)) {
+> +                       ed = LIST_FIRST(&ud->head);
+> +                       LIST_REMOVE(ed, entry);
+> +                       evb_free_tlv(ed);
+> +                       free(ed);
+> +               }
+> +       }
+> +}
+> +
+> +struct packed_tlv *evb_gettlv(struct port *port)
+> +{
+> +       int size;
+> +       struct evb_data *ed;
+> +       struct packed_tlv *ptlv = NULL;
+> +
+> +       ed = evb_data(port->ifname);
+> +       if (!ed)
+> +               goto out_err;
+> +
+> +       evb_free_tlv(ed);
+> +
+> +       if (evb_bld_tlv(ed)) {
+> +               fprintf(stderr, "### %s:%s evb_bld_tlv failed\n",
+> +                       __func__, port->ifname);
+> +               goto out_err;
+> +       }
+> +
+> +       size = TLVSIZE(ed->evb);
+> +
+> +       if (!size)
+> +               goto out_err;
+> +
+> +       ptlv = create_ptlv();
+> +       if (!ptlv)
+> +               goto out_err;
+> +
+> +       ptlv->tlv = malloc(size);
+> +       if (!ptlv->tlv)
+> +               goto out_free;
+> +
+> +       ptlv->size = 0;
+> +       PACK_TLV_AFTER(ed->evb, ptlv, size, out_free);
+> +       return ptlv;
+> +out_free:
+> +       /* FIXME: free function returns pointer ? */
+> +       ptlv = free_pkd_tlv(ptlv);
+> +out_err:
+> +       fprintf(stderr,"### %s:%s: failed\n", __func__, port->ifname);
+> +       return NULL;
+> +
+
+remove extra line between return and closing brace.
+
+> +}
+> +
+> +/* evb_check_and_fill
+> + *
+> + * checks values received in TLV and takes over some values
+> + */
+> +int evb_check_and_fill(struct evb_data *ed, struct tlv_info_evb *tie)
+> +{
+> +       /* sanity check of received data in tie */
+> +       if ((tie->smode & (LLDP_EVB_CAPABILITY_FORWARD_STANDARD |
+> +                         LLDP_EVB_CAPABILITY_FORWARD_REFLECTIVE_RELAY)) == 0)
+> +               return TLV_ERR;
+> +
+> +       if ((tie->svsi < 0) || (tie->svsi > LLDP_EVB_DEFAULT_MAX_VSI))
+> +               return TLV_ERR;
+> +
+> +       if ((tie->cvsi < 0) || (tie->cvsi > LLDP_EVB_DEFAULT_MAX_VSI))
+> +               return TLV_ERR;
+> +
+> +       /* check bridge capabilities against local policy*/
+> +       /* if bridge supports RR and we support it as well, request it
+> +        * by setting smode in tlv to be sent out (ed->tie->smode) */
+> +       if ( (tie->smode & ed->policy->smode) ==
+> +            LLDP_EVB_CAPABILITY_FORWARD_REFLECTIVE_RELAY ) {
+> +               ed->tie->smode = LLDP_EVB_CAPABILITY_FORWARD_REFLECTIVE_RELAY;
+> +       } else {
+> +               ed->tie->smode = LLDP_EVB_CAPABILITY_FORWARD_STANDARD;
+> +       }
+> +
+> +       /* If both sides support RTE, set it */
+> +       if ((tie->scap & ed->policy->scap) & LLDP_EVB_CAPABILITY_PROTOCOL_RTE)
+> +               ed->tie->scap |= LLDP_EVB_CAPABILITY_PROTOCOL_RTE;
+> +
+> +       /* If both sides support ECP, set it */
+> +       if ((tie->scap & ed->policy->scap) & LLDP_EVB_CAPABILITY_PROTOCOL_ECP)
+> +               ed->tie->scap |= LLDP_EVB_CAPABILITY_PROTOCOL_ECP;
+> +
+> +       /* If both sides support VDP, set it */
+> +       if ((tie->scap & ed->policy->scap) & LLDP_EVB_CAPABILITY_PROTOCOL_VDP)
+> +               ed->tie->scap |= LLDP_EVB_CAPABILITY_PROTOCOL_VDP;
+> +
+> +       /* If supported caps include VDP take over min value of both */
+> +       if (ed->tie->scap & LLDP_EVB_CAPABILITY_PROTOCOL_VDP)
+> +               ed->tie->cvsi = MIN(ed->policy->svsi,tie->svsi);
+> +
+> +       /* If both sides support RTE and value offer is > 0, set it */
+> +       if ((ed->tie->scap & LLDP_EVB_CAPABILITY_PROTOCOL_RTE) &&
+> +               (tie->rte > 0) && (ed->policy->rte > 0))
+> +               ed->tie->rte = MAX(ed->policy->rte,tie->rte);
+> +
+> +       if (set_config_tlvinfo_bin(ed->ifname, TLVID_8021Qbg(LLDP_EVB_SUBTYPE),
+> +                              (void *)ed->tie, sizeof(struct tlv_info_evb))) {
+> +               printf("%s(%i): error saving tlv_info_evb !\n", __FILE__, __LINE__);
+> +       } else {
+> +               printf("%s(%i): saved tlv_info_evb to config !\n", __FILE__, __LINE__);
+> +       }
+> +
+> +       /* maybe switch has already set the mode based on the saved info sent
+> +        * out on ifup */
+> +
+> +       if (tie->cmode == ed->tie->smode) {
+> +               ed->tie->cmode = tie->cmode;
+> +       }
+> +
+
+remove the unneeded braces in the if statements above.
+
+> +       /* only look at the mode for now
+> +       if (tie->ccap == ed->tie->ccap) {
+> +               ed->tie->ccap = tie->ccap;
+> +       }
+> +
+> +       if (tie->cvsi == ed->tie->cvsi) {
+> +               ed->tie->cvsi = tie->cvsi;
+> +       }
+> +       */
+
+Why is this commented out? I will review the spec shortly, but please
+remind me. If its not needed remove it and add it later in a clean
+patch
+
+> +
+> +       return TLV_OK;
+> +}
+> +
+> +/* evb_compare
+> + *
+> + * compare our own and received tlv_info_evb
+> + */
+> +static int evb_compare(struct evb_data *ed, struct tlv_info_evb *tie)
+> +{
+> +       printf("%s(%i): \n", __func__, __LINE__);
+> +
+> +       if ((ed->tie->cmode == tie->cmode) /* &&
+> +            (ed->tie->ccap == tie->ccap) &&
+> +           (ed->tie->cvsi == tie->cvsi)*/)
+
+Same here if its going to be commented out lets remove it for now.
+
+> +               return 0;
+> +       else
+> +               return 1;
+> +}
+> +
+> +/* evb_statemachine:
+> + *
+> + * handle possible states during EVB capabilities exchange
+> + *
+> + * possible states:    EVB_OFFER_CAPABILITIES
+> + *                     EVB_CONFIGURE
+> + *                     EVB_CONFIRMATION
+> + */
+> +static void evb_statemachine(struct evb_data *ed, struct tlv_info_evb *tie)
+> +{
+> +       switch(ed->state) {
+> +       case EVB_OFFER_CAPABILITIES:
+> +               /* waiting for valid packets to pour in
+> +                * if valid packet was received,
+> +                *              - check parameters with what we have offered for this if,
+> +                *              - fill structure with data,
+> +                *              - enable local tx
+> +                *              - switch to EVB_CONFIGURE
+> +                */
+> +               printf("%s: state -> EVB_OFFER_CAPABILITIES\n", __func__);
+> +               if (evb_check_and_fill(ed, tie) != TLV_OK) {
+> +                       fprintf(stderr, "Invalid contents of EVB Cfg TLV !\n");
+> +                       return;
+> +               }
+> +               somethingChangedLocal(ed->ifname); /* trigger tx with new values */
+> +               ed->state = EVB_CONFIGURE;
+> +               break;
+> +       case EVB_CONFIGURE:
+> +               /* we received a valid packet, if contents is same with our local settings
+> +                * we can switch state to EVB_CONFIRMATION.*/
+> +               printf("%s: state -> EVB_CONFIGURE\n", __func__);
+> +               if (evb_compare(ed, tie)) {
+> +                       ed->state= EVB_OFFER_CAPABILITIES;
+> +               } else {
+> +                       printf("tlv_info_evb now equal !\n");
+> +                       ed->state = EVB_CONFIRMATION;
+> +               }
+> +               somethingChangedLocal(ed->ifname);
+> +               break;
+> +       case EVB_CONFIRMATION:
+> +               /* we are already in confirmation and received a new packet with
+> +                * different parameters ? Check parameters. switch state back to
+> +                * EVB_CONFIGURE ? */
+> +               printf("%s: state -> EVB_CONFIRMATION\n", __func__);
+> +#if 0
+> +               if (ed->tie->scap & LLDP_EVB_CAPABILITY_PROTOCOL_ECP)
+> +                       ecp_init(ed->ifname);
+> +#endif
+
+remove the #if 0/endif it is never used.
+
+> +               break;
+> +       default:
+> +               fprintf(stderr, "EVB statemachine reached invalid state !\n");
+> +               break;
+> +       }
+> +}
+> +
+> +/*
+> + * evb_rchange: process RX TLV LLDPDU
+> + *
+> + * TLV not consumed on error
+> + */
+> +static int evb_rchange(struct port *port, struct unpacked_tlv *tlv)
+> +{
+> +       int i;
+> +       struct evb_data *ed;
+> +       struct tlv_info_evb *tie = (struct tlv_info_evb *) tlv->info;
+> +       u8 oui_subtype[OUI_SUB_SIZE] = LLDP_OUI_SUBTYPE;
+> +
+> +       if (!init_cfg()) {
+> +               return SUBTYPE_INVALID;
+> +       }
+> +
+> +       ed = evb_data(port->ifname);
+> +
+> +       if (!ed)
+> +               return SUBTYPE_INVALID;
+> +
+> +       if (tlv->type == TYPE_127) {
+> +               /* check for length */
+> +               if (tlv->length < (OUI_SUB_SIZE)) {
+> +                       return TLV_ERR;
+> +               }
+> +
+> +               /* check for oui */
+> +               if (memcmp(tlv->info, &oui_subtype, OUI_SUB_SIZE)) {
+> +                       return SUBTYPE_INVALID;
+> +               }
+> +
+> +               /* disable rx if tx has been disabled by administrator */
+> +               if (!is_tlv_txenabled(ed->ifname, TLVID_8021Qbg(LLDP_EVB_SUBTYPE))) {
+> +                       fprintf(stderr, "### %s:%s:EVB Config disabled\n",
+> +                               __func__, ed->ifname);
+> +                       return TLV_OK;
+> +               }
+> +
+> +               fprintf(stderr, "%s:type %i, length %i, info ", __func__, tlv->type, tlv->length);
+> +
+> +               for (i=0; i < tlv->length; i++) {
+> +                       fprintf(stderr, "%02x ", tlv->info[i]);
+> +               }
+> +
+> +               printf("\n");
+> +
+> +               evb_print_tlvinfo(tie);
+> +
+> +               /* change state */
+> +               evb_statemachine(ed, tie);
+> +
+> +               /* check which values have been taken over */
+> +               evb_print_tlvinfo(ed->tie);
+> +       }
+> +
+> +       return TLV_OK;
+> +}
+> +
+> +void evb_ifdown(char *ifname)
+> +{
+> +       struct evb_data *ed;
+> +
+> +       printf("%s called !\n", __func__);
+> +
+> +       ed = evb_data(ifname);
+> +       if (!ed)
+> +               goto out_err;
+> +
+> +       free(ed->tie);
+> +       LIST_REMOVE(ed, entry);
+> +       evb_free_tlv(ed);
+> +       free(ed);
+> +       fprintf(stderr, "### %s:port %s removed\n", __func__, ifname);
+> +       return;
+> +out_err:
+> +       fprintf(stderr, "### %s:port %s adding failed\n", __func__, ifname);
+> +
+
+This error message is a cut and paste error from ifup? Nothing is being added here suspect "port %s remove failed" would be more accurate.
+
+> +       return;
+> +}
+> +
+> +void evb_ifup(char *ifname)
+> +{
+> +       struct evb_data *ed;
+> +       struct evb_user_data *ud;
+> +
+> +       ed = evb_data(ifname);
+> +       if (ed) {
+> +               fprintf(stderr, "### %s:%s exists\n", __func__, ifname);
+> +               goto out_err;
+> +       }
+> +
+> +       /* not found, alloc/init per-port tlv data */
+> +       ed = (struct evb_data *) calloc(1, sizeof(struct evb_data));
+
+Use malloc for calloc of one.
+
+> +       if (!ed) {
+> +               fprintf(stderr, "### %s:%s malloc %ld failed\n",
+> +                        __func__, ifname, sizeof(*ed));
+> +               goto out_err;
+> +       }
+> +       strncpy(ed->ifname, ifname, IFNAMSIZ);
+> +
+> +       if (!init_cfg()) {
+> +               goto out_err;
+> +       }
+> +
+> +       if (evb_init_cfg_tlv(ed)) {
+> +               fprintf(stderr, "### %s:%s evb_init_cfg_tlv failed\n", __func__, ifname);
+> +               free(ed);
+> +               goto out_err;
+> +       }
+> +
+> +       ed->state = EVB_OFFER_CAPABILITIES;
+> +
+> +       if (evb_bld_tlv(ed)) {
+> +               fprintf(stderr, "### %s:%s evb_bld_tlv failed\n", __func__, ifname);
+> +               free(ed);
+> +               goto out_err;
+> +       }
+> +
+> +       ud = find_module_user_data_by_if(ifname, &lldp_head, LLDP_MOD_EVB);
+> +       LIST_INSERT_HEAD(&ud->head, ed, entry);
+> +       fprintf(stderr, "### %s:port %s added\n", __func__, ifname);
+> +       return;
+> +
+> +out_err:
+> +       fprintf(stderr, "### %s:port %s adding failed\n", __func__, ifname);
+
+This error message is a bit misleading if it comes from ed already existing.
+
+> +       return;
+> +}
+> +
+> +static const struct lldp_mod_ops evb_ops =  {
+> +       .lldp_mod_register      = evb_register,
+> +       .lldp_mod_unregister    = evb_unregister,
+> +       .lldp_mod_gettlv        = evb_gettlv,
+> +       .lldp_mod_rchange       = evb_rchange,
+> +       .lldp_mod_ifup          = evb_ifup,
+> +       .lldp_mod_ifdown        = evb_ifdown,
+> +       .get_arg_handler        = evb_get_arg_handlers,
+> +};
+> +
+> +struct lldp_module *evb_register(void)
+> +{
+> +       struct lldp_module *mod;
+> +       struct evb_user_data *ud;
+> +
+> +       mod = malloc(sizeof(*mod));
+> +       if (!mod) {
+> +               fprintf(stderr, "failed to malloc module data\n");
+> +               log_message(MSG_ERR_SERVICE_START_FAILURE,
+> +                       "%s", "failed to malloc module data");
+> +               goto out_err;
+> +       }
+> +       ud = malloc(sizeof(struct evb_user_data));
+> +       if (!ud) {
+> +               free(mod);
+> +               fprintf(stderr, "failed to malloc module user data\n");
+> +               log_message(MSG_ERR_SERVICE_START_FAILURE,
+> +                       "%s", "failed to malloc module user data");
+> +               goto out_err;
+> +       }
+> +       LIST_INIT(&ud->head);
+> +       mod->id = LLDP_MOD_EVB;
+> +       mod->ops = &evb_ops;
+> +       mod->data = ud;
+> +       fprintf(stderr, "### %s:done\n", __func__);
+> +       return mod;
+> +
+> +out_err:
+> +       fprintf(stderr, "### %s:failed\n", __func__);
+> +       return NULL;
+> +}
+> +
+> +void evb_unregister(struct lldp_module *mod)
+> +{
+> +       if (mod->data) {
+> +               evb_free_data((struct evb_user_data *) mod->data);
+> +               free(mod->data);
+> +       }
+> +       free(mod);
+> +       fprintf(stderr, "### %s:done\n", __func__);
+> +}
+> diff --git a/lldp_evb_clif.c b/lldp_evb_clif.c
+> new file mode 100644
+> index 0000000..7479d74
+> --- /dev/null
+> +++ b/lldp_evb_clif.c
+> @@ -0,0 +1,226 @@
+> +/*******************************************************************************
+> +
+> +  implementation of EVB TLVs for LLDP
+> +  (c) Copyright IBM Corp. 2010
+> +
+> +  Author(s): Jens Osterkamp <jens@linux.vnet.ibm.com>
+> +
+> +  This program is free software; you can redistribute it and/or modify it
+> +  under the terms and conditions of the GNU General Public License,
+> +  version 2, as published by the Free Software Foundation.
+> +
+> +  This program is distributed in the hope it will be useful, but WITHOUT
+> +  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+> +  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+> +  more details.
+> +
+> +  You should have received a copy of the GNU General Public License along with
+> +  this program; if not, write to the Free Software Foundation, Inc.,
+> +  51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
+> +
+> +  The full GNU General Public License is included in this distribution in
+> +  the file called "COPYING".
+> +
+> +*******************************************************************************/
+> +
+> +#include "includes.h"
+> +#include "common.h"
+> +#include <stdio.h>
+> +#include <syslog.h>
+> +#include <sys/un.h>
+> +#include <sys/stat.h>
+> +#include "lldp_mod.h"
+> +#include "lldptool.h"
+> +#include "lldp.h"
+> +#include "lldp_evb.h"
+> +#include "lldp_evb_clif.h"
+> +
+> +void evb_print_cfg_tlv(u16, char *info);
+> +int evb_print_help();
+> +
+> +u32 evb_lookup_tlv_name(char *tlvid_str);
+> +
+> +static const struct lldp_mod_ops evb_ops_clif = {
+> +       .lldp_mod_register      = evb_cli_register,
+> +       .lldp_mod_unregister    = evb_cli_unregister,
+> +       .print_tlv              = evb_print_tlv,
+> +       .lookup_tlv_name        = evb_lookup_tlv_name,
+> +       .print_help             = evb_print_help,
+> +};
+> +
+> +struct type_name_info evb_tlv_names[] = {
+> +       { (LLDP_MOD_EVB << 8) | LLDP_EVB_SUBTYPE,
+> +               "EVB Configuration TLV",
+> +               "evbCfg", evb_print_cfg_tlv },
+> +       { INVALID_TLVID,     NULL,        NULL }
+> +};
+> +
+> +int evb_print_help()
+> +{
+> +       struct type_name_info *tn = &evb_tlv_names[0];
+> +
+> +       while (tn->type != INVALID_TLVID) {
+> +               if (tn->key && strlen(tn->key) && tn->name) {
+> +                       printf("   %s", tn->key);
+> +                       if (strlen(tn->key)+3 <= 8)
+> +                               printf("\t");
+> +                       printf("\t: %s\n", tn->name);
+> +               }
+> +               tn++;
+> +       }
+> +
+> +       return 0;
+> +}
+> +
+> +struct lldp_module *evb_cli_register(void)
+> +{
+> +       struct lldp_module *mod;
+> +
+> +       mod = malloc(sizeof(*mod));
+> +       if (!mod) {
+> +               fprintf(stderr, "failed to malloc module data\n");
+> +               return NULL;
+> +       }
+> +       mod->id = LLDP_MOD_EVB;
+> +       mod->ops = &evb_ops_clif;
+> +
+> +       return mod;
+> +}
+> +
+> +void evb_cli_unregister(struct lldp_module *mod)
+> +{
+> +       free(mod);
+> +}
+> +
+> +void evb_print_cfg_tlv(u16 len, char *info)
+> +{
+> +       u8 smode;
+> +       u8 scap;
+> +       u8 cmode;
+> +       u8 ccap;
+> +       u16 svsi;
+> +       u16 cvsi;
+> +       u8 rte;
+> +
+> +       if (len != 9) {
+> +               printf("Bad Cfg TLV: %s\n", info);
+> +               return;
+> +       }
+> +
+> +       if (!hexstr2bin(info, &smode, sizeof(smode))) {
+> +               printf("supported forwarding mode: (0x%02hhx)", smode);
+> +
+> +               if (smode & LLDP_EVB_CAPABILITY_FORWARD_REFLECTIVE_RELAY)
+> +                       printf(" reflective relay");
+> +
+> +               if (smode & LLDP_EVB_CAPABILITY_FORWARD_STANDARD)
+> +                       printf(" standard 802.1Q");
+> +
+> +               printf("\n");
+> +       } else {
+> +               printf("Unable to decode smode !\n");
+> +       }
+> +
+> +       if (!hexstr2bin(info+2, &scap, sizeof(scap))) {
+> +               printf("\tsupported capabilities: (0x%02hhx)", scap);
+> +
+> +               if ( scap & LLDP_EVB_CAPABILITY_PROTOCOL_RTE)
+> +                    printf(" RTE");
+> +
+> +               if ( scap & LLDP_EVB_CAPABILITY_PROTOCOL_ECP)
+> +                    printf(" ECP");
+> +
+> +               if ( scap & LLDP_EVB_CAPABILITY_PROTOCOL_VDP)
+> +                    printf(" VDP");
+> +
+> +               printf("\n");
+> +       } else {
+> +               printf("Unable to decode scap !\n");
+> +       }
+> +
+> +       if (!hexstr2bin(info+4, &cmode, sizeof(cmode))) {
+> +               printf("\tconfigured forwarding mode: (0x%02hhx)", cmode);
+> +
+> +               if (cmode & LLDP_EVB_CAPABILITY_FORWARD_REFLECTIVE_RELAY)
+> +                       printf(" reflective relay");
+> +
+> +               if (cmode & LLDP_EVB_CAPABILITY_FORWARD_STANDARD)
+> +                       printf(" standard 802.1Q");
+> +
+> +               printf("\n");
+> +       } else {
+> +               printf("Unable to decode cmode !\n");
+> +       }
+> +
+> +       if (!hexstr2bin(info+6, &ccap, sizeof(ccap))) {
+> +               printf("\tconfigured capabilities: (0x%02hhx)", ccap);
+> +
+> +               if ( ccap & LLDP_EVB_CAPABILITY_PROTOCOL_RTE)
+> +                    printf(" RTE");
+> +
+> +               if ( ccap & LLDP_EVB_CAPABILITY_PROTOCOL_ECP)
+> +                    printf(" ECP");
+> +
+> +               if ( ccap & LLDP_EVB_CAPABILITY_PROTOCOL_VDP)
+> +                    printf(" VDP");
+> +
+> +               printf("\n");
+> +       } else {
+> +               printf("Unable to decode ccap !\n");
+> +       }
+> +
+> +       if (!hexstr2bin(info+8, (u8 *)&svsi, sizeof(svsi))) {
+> +               printf("\tno. of supported VSIs: %04i\n",svsi);
+> +       } else {
+> +               printf("Unable to decode svsi !\n");
+> +       }
+> +
+> +       if (!hexstr2bin(info+12, (u8 *)&cvsi, sizeof(cvsi))) {
+> +               printf("\tno. of configured VSIs: %04i\n",cvsi);
+> +       } else {
+> +               printf("Unable to decode cvsi !\n");
+> +       }
+> +
+> +       if (!hexstr2bin(info+16, &rte, sizeof(rte))) {
+> +               printf("\tRTE: %i\n",rte);
+> +       } else {
+> +               printf("Unable to decode cvsi !\n");
+> +       }
+> +
+> +       printf("\n");
+> +}
+> +
+> +/* return 1: if it printed the TLV
+> + *        0: if it did not
+> + */
+> +int evb_print_tlv(u32 tlvid, u16 len, char *info)
+> +{
+> +       struct type_name_info *tn = &evb_tlv_names[0];
+> +
+> +       while (tn->type != INVALID_TLVID) {
+> +               if (tlvid == tn->type) {
+> +                       printf("%s\n", tn->name);
+> +                       if (tn->print_info) {
+> +                               printf("\t");
+> +                               tn->print_info(len-4, info);
+> +                       }
+> +                       return 1;
+> +               }
+> +               tn++;
+> +       }
+> +
+> +       return 0;
+> +}
+> +
+> +u32 evb_lookup_tlv_name(char *tlvid_str)
+> +{
+> +       struct type_name_info *tn = &evb_tlv_names[0];
+> +
+> +       while (tn->type != INVALID_TLVID) {
+> +               if (!strcasecmp(tn->key, tlvid_str))
+> +                       return tn->type;
+> +               tn++;
+> +       }
+> +       return INVALID_TLVID;
+> +}
+> +
+> diff --git a/lldp_evb_cmds.c b/lldp_evb_cmds.c
+> new file mode 100644
+> index 0000000..095a32c
+> --- /dev/null
+> +++ b/lldp_evb_cmds.c
+> @@ -0,0 +1,512 @@
+> +/*******************************************************************************
+> +
+> +  implementation of EVB TLVs for LLDP
+> +  (c) Copyright IBM Corp. 2010
+> +
+> +  Author(s): Jens Osterkamp <jens@linux.vnet.ibm.com>
+> +
+> +  This program is free software; you can redistribute it and/or modify it
+> +  under the terms and conditions of the GNU General Public License,
+> +  version 2, as published by the Free Software Foundation.
+> +
+> +  This program is distributed in the hope it will be useful, but WITHOUT
+> +  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+> +  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+> +  more details.
+> +
+> +  You should have received a copy of the GNU General Public License along with
+> +  this program; if not, write to the Free Software Foundation, Inc.,
+> +  51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
+> +
+> +  The full GNU General Public License is included in this distribution in
+> +  the file called "COPYING".
+> +
+> +*******************************************************************************/
+> +
+> +#include "includes.h"
+> +#include "common.h"
+> +#include <stdio.h>
+> +#include <syslog.h>
+> +#include <sys/un.h>
+> +#include <sys/stat.h>
+> +#include <arpa/inet.h>
+> +#include <string.h>
+> +#include "lldpad.h"
+> +#include "ctrl_iface.h"
+> +#include "lldp.h"
+> +#include "lldp_evb.h"
+> +#include "lldp_mand_clif.h"
+> +#include "lldp_evb_clif.h"
+> +#include "lldp/ports.h"
+> +#include "libconfig.h"
+> +#include "config.h"
+> +#include "clif_msgs.h"
+> +#include "lldp/states.h"
+> +
+> +static int get_arg_tlvtxenable(struct cmd *, char *, char *, char *);
+> +static int set_arg_tlvtxenable(struct cmd *, char *, char *, char *);
+> +
+> +static int get_arg_fmode(struct cmd *, char *, char *, char *);
+> +static int set_arg_fmode(struct cmd *, char *, char *, char *);
+> +
+> +static int get_arg_rte(struct cmd *, char *, char *, char *);
+> +static int set_arg_rte(struct cmd *, char *, char *, char *);
+> +
+> +static int get_arg_vsis(struct cmd *, char *, char *, char *);
+> +static int set_arg_vsis(struct cmd *, char *, char *, char *);
+> +
+> +static int get_arg_capabilities(struct cmd *, char *, char *, char *);
+> +static int set_arg_capabilities(struct cmd *, char *, char *, char *);
+> +
+> +static struct arg_handlers arg_handlers[] = {
+> +       { ARG_EVB_FORWARDING_MODE, get_arg_fmode, set_arg_fmode },
+> +       { ARG_EVB_CAPABILITIES, get_arg_capabilities, set_arg_capabilities },
+> +       { ARG_EVB_VSIS, get_arg_vsis, set_arg_vsis },
+> +       { ARG_EVB_RTE, get_arg_rte, set_arg_rte },
+> +       { ARG_TLVTXENABLE, get_arg_tlvtxenable, set_arg_tlvtxenable },
+> +       { NULL }
+> +};
+> +
+> +static int get_arg_tlvtxenable(struct cmd *cmd, char *arg, char *argvalue,
+> +                              char *obuf)
+> +{
+> +       int value;
+> +       char *s;
+> +       char arg_path[EVB_BUF_SIZE];
+> +
+> +       if (cmd->cmd != cmd_gettlv)
+> +               return cmd_invalid;
+> +
+> +       switch (cmd->tlvid) {
+> +       case (LLDP_MOD_EVB << 8) | LLDP_EVB_SUBTYPE:
+> +               snprintf(arg_path, sizeof(arg_path), "%s%08x.%s",
+> +                        TLVID_PREFIX, cmd->tlvid, arg);
+> +
+> +               if (get_cfg(cmd->ifname, arg_path, (void *)&value,
+> +                                       CONFIG_TYPE_BOOL))
+> +                       value = false;
+> +               break;
+> +       case INVALID_TLVID:
+> +               return cmd_invalid;
+> +       default:
+> +               return cmd_not_applicable;
+> +       }
+> +
+> +       if (value)
+> +               s = VAL_YES;
+> +       else
+> +               s = VAL_NO;
+> +
+> +       sprintf(obuf, "%02x%s%04x%s", (unsigned int) strlen(arg), arg,
+> +               (unsigned int) strlen(s), s);
+> +
+> +       return cmd_success;
+> +}
+> +
+> +static int set_arg_tlvtxenable(struct cmd *cmd, char *arg, char *argvalue,
+> +                              char *obuf)
+> +{
+> +       int value;
+> +       char arg_path[EVB_BUF_SIZE];
+> +
+> +       if (cmd->cmd != cmd_settlv)
+> +               return cmd_invalid;
+> +
+> +       switch (cmd->tlvid) {
+> +       case (LLDP_MOD_EVB << 8) | LLDP_EVB_SUBTYPE:
+> +               break;
+> +       case INVALID_TLVID:
+> +               return cmd_invalid;
+> +       default:
+> +               return cmd_not_applicable;
+> +       }
+> +
+> +       if (!strcasecmp(argvalue, VAL_YES))
+> +               value = 1;
+> +       else if (!strcasecmp(argvalue, VAL_NO))
+> +               value = 0;
+> +       else
+> +               return cmd_invalid;
+> +
+> +       snprintf(arg_path, sizeof(arg_path), "%s%08x.%s",
+> +                TLVID_PREFIX, cmd->tlvid, arg);
+> +
+> +       if (set_cfg(cmd->ifname, arg_path, (void *)&value, CONFIG_TYPE_BOOL))
+> +               return cmd_failed;
+> +
+> +       return cmd_success;
+> +}
+> +
+> +static int get_arg_fmode(struct cmd *cmd, char *arg, char *argvalue,
+> +                              char *obuf)
+> +{
+> +       char *s;
+> +       struct evb_data *ed;
+> +
+> +       if (cmd->cmd != cmd_gettlv)
+> +               return cmd_invalid;
+> +
+> +       switch (cmd->tlvid) {
+> +       case (LLDP_MOD_EVB << 8) | LLDP_EVB_SUBTYPE:
+> +               break;
+> +       case INVALID_TLVID:
+> +               return cmd_invalid;
+> +       default:
+> +               return cmd_not_applicable;
+> +       }
+> +
+> +       ed = evb_data((char *) &cmd->ifname);
+> +       if (!ed)
+> +               return cmd_invalid;
+> +       if (ed->policy->smode & LLDP_EVB_CAPABILITY_FORWARD_REFLECTIVE_RELAY)
+> +               s = VAL_EVB_FMODE_BRIDGE;
+> +       else
+> +               s = VAL_EVB_FMODE_REFLECTIVE_RELAY;
+> +
+> +       sprintf(obuf, "%02x%s%04x%s", (unsigned int) strlen(arg), arg,
+> +               (unsigned int) strlen(s), s);
+> +
+> +       return cmd_success;
+> +}
+> +
+> +static int set_arg_fmode(struct cmd *cmd, char *arg, char *argvalue,
+> +                              char *obuf)
+> +{
+> +       u8 smode;
+> +       char arg_path[EVB_BUF_SIZE];
+> +       struct evb_data *ed;
+> +
+> +       if (cmd->cmd != cmd_settlv)
+> +               return cmd_invalid;
+> +
+> +       switch (cmd->tlvid) {
+> +       case (LLDP_MOD_EVB << 8) | LLDP_EVB_SUBTYPE:
+> +               break;
+> +       case INVALID_TLVID:
+> +               return cmd_invalid;
+> +       default:
+> +               return cmd_not_applicable;
+> +       }
+> +
+> +       ed = evb_data((char *) &cmd->ifname);
+> +
+> +       if (!ed)
+> +               return cmd_invalid;
+> +
+> +       smode = 0;
+> +
+> +       if (!strcasecmp(argvalue, VAL_EVB_FMODE_BRIDGE)) {
+> +               smode = LLDP_EVB_CAPABILITY_FORWARD_STANDARD;
+> +       }
+> +
+> +       if (!strcasecmp(argvalue, VAL_EVB_FMODE_REFLECTIVE_RELAY)) {
+> +               smode = LLDP_EVB_CAPABILITY_FORWARD_REFLECTIVE_RELAY;
+> +       }
+> +
+> +       if (smode == 0) {
+> +               return cmd_invalid;
+> +       } else {
+> +               ed->policy->smode = smode;
+> +       }
+> +
+> +       snprintf(arg_path, sizeof(arg_path), "%s%08x.fmode",
+> +                TLVID_PREFIX, cmd->tlvid);
+> +
+> +       if (set_cfg(ed->ifname, arg_path, (void *) &argvalue, CONFIG_TYPE_STRING)) {
+> +               printf("%s:%s: saving EVB forwarding mode failed.\n",
+> +                       __func__, ed->ifname);
+> +               return cmd_invalid;
+> +       }
+> +
+> +       return cmd_success;
+> +}
+> +
+> +static int get_arg_capabilities(struct cmd *cmd, char *arg, char *argvalue,
+> +                              char *obuf)
+> +{
+> +       int c;
+> +       char *s, *t;
+> +       struct evb_data *ed;
+> +
+> +       printf("%s(%i): arg %s, argvalue %s !\n", __func__, __LINE__, arg, argvalue);
+> +
+> +       s = t = malloc(EVB_BUF_SIZE);
+> +
+
+This looks like a memory leak? Where does s or t get free'd.
+
+> +       if (!s)
+> +               return cmd_invalid;
+> +
+> +       memset(s, 0, EVB_BUF_SIZE);
+> +
+> +       if (cmd->cmd != cmd_gettlv)
+> +               return cmd_invalid;
+
+certainly a memory leak if 'cmd != cmd_gettlv'.
+
+> +
+> +       switch (cmd->tlvid) {
+> +       case (LLDP_MOD_EVB << 8) | LLDP_EVB_SUBTYPE:
+> +               break;
+> +       case INVALID_TLVID:
+> +               return cmd_invalid;
+> +       default:
+> +               return cmd_not_applicable;
+> +       }
+> +
+> +       ed = evb_data((char *) &cmd->ifname);
+> +       if (!ed)
+> +               return cmd_invalid;
+> +
+> +       if (ed->policy->scap & LLDP_EVB_CAPABILITY_PROTOCOL_RTE) {
+> +               c = sprintf(s, VAL_EVB_CAPA_RTE " ");
+> +               if (c <= 0)
+> +                       return cmd_invalid;
+> +               s += c;
+> +       }
+> +
+> +       if (ed->policy->scap & LLDP_EVB_CAPABILITY_PROTOCOL_ECP) {
+> +               c = sprintf(s, VAL_EVB_CAPA_ECP " ");
+> +               if (c <= 0)
+> +                       return cmd_invalid;
+> +               s += c;
+> +       }
+> +
+> +       if (ed->policy->scap & LLDP_EVB_CAPABILITY_PROTOCOL_VDP) {
+> +               c = sprintf(s, VAL_EVB_CAPA_VDP " ");
+> +               if (c <= 0)
+> +                       return cmd_invalid;
+> +               s += c;
+> +       }
+> +
+> +       sprintf(obuf, "%02x%s%04x%s", (unsigned int) strlen(arg), arg,
+> +               (unsigned int) strlen(t), t);
+> +
+> +       return cmd_success;
+> +}
+> +
+> +static int set_arg_capabilities(struct cmd *cmd, char *arg, char *argvalue,
+> +                              char *obuf)
+> +{
+> +       u8 scap = 0;
+> +       char arg_path[EVB_BUF_SIZE];
+> +       struct evb_data *ed;
+> +
+> +       if (cmd->cmd != cmd_settlv)
+> +               return cmd_invalid;
+> +
+> +       switch (cmd->tlvid) {
+> +       case (LLDP_MOD_EVB << 8) | LLDP_EVB_SUBTYPE:
+> +               break;
+> +       case INVALID_TLVID:
+> +               return cmd_invalid;
+> +       default:
+> +               return cmd_not_applicable;
+> +       }
+> +
+> +       ed = evb_data((char *) &cmd->ifname);
+> +
+> +       if (!ed)
+> +               return cmd_invalid;
+> +
+> +       if (strcasestr(argvalue, VAL_EVB_CAPA_RTE)) {
+> +                       scap |= LLDP_EVB_CAPABILITY_PROTOCOL_RTE;
+> +               }
+> +
+> +       if (strcasestr(argvalue, VAL_EVB_CAPA_ECP)) {
+> +                       scap |= LLDP_EVB_CAPABILITY_PROTOCOL_ECP;
+> +               }
+> +
+> +       if (strcasestr(argvalue, VAL_EVB_CAPA_VDP)) {
+> +                       scap |= LLDP_EVB_CAPABILITY_PROTOCOL_VDP;
+> +               }
+
+Fix the above indentation scap has one too many tabs. Remove the extra braces as well.
+
+> +
+> +       ed->policy->scap = scap;
+> +
+> +       snprintf(arg_path, sizeof(arg_path), "%s%08x.capabilities",
+> +                TLVID_PREFIX, cmd->tlvid);
+> +
+> +       if (set_cfg(ed->ifname, arg_path, (void *) &argvalue, CONFIG_TYPE_STRING)) {
+> +               printf("%s:%s: saving EVB capabilities failed.\n",
+> +                       __func__, ed->ifname);
+> +               return cmd_invalid;
+> +       }
+> +
+> +       return cmd_success;
+> +}
+> +
+> +static int get_arg_rte(struct cmd *cmd, char *arg, char *argvalue,
+> +                              char *obuf)
+> +{
+> +       char s[EVB_BUF_SIZE];
+> +       struct evb_data *ed;
+> +
+> +       if (cmd->cmd != cmd_gettlv)
+> +               return cmd_invalid;
+> +
+> +       switch (cmd->tlvid) {
+> +       case (LLDP_MOD_EVB << 8) | LLDP_EVB_SUBTYPE:
+> +               break;
+> +       case INVALID_TLVID:
+> +               return cmd_invalid;
+> +       default:
+> +               return cmd_not_applicable;
+> +       }
+> +
+> +       ed = evb_data((char *) &cmd->ifname);
+> +       if (!ed)
+> +               return cmd_invalid;
+> +
+> +       if (sprintf(s, "%i", ed->policy->rte) <= 0)
+> +               return cmd_invalid;
+> +
+> +       sprintf(obuf, "%02x%s%04x%s", (unsigned int) strlen(arg), arg,
+> +               (unsigned int) strlen(s), s);
+> +
+> +       return cmd_success;
+> +}
+> +
+> +static int set_arg_rte(struct cmd *cmd, char *arg, char *argvalue,
+> +                              char *obuf)
+> +{
+> +       int value, err;
+> +       char arg_path[EVB_BUF_SIZE];
+> +       char svalue[10];
+> +       char *sv;
+> +       struct evb_data *ed = NULL;
+> +
+> +       if (cmd->cmd != cmd_settlv)
+> +               goto out_err;
+> +
+> +       switch (cmd->tlvid) {
+> +       case (LLDP_MOD_EVB << 8) | LLDP_EVB_SUBTYPE:
+> +               break;
+> +       case INVALID_TLVID:
+> +               goto out_err;
+> +       default:
+> +               return cmd_not_applicable;
+> +       }
+> +
+> +       ed = evb_data((char *) &cmd->ifname);
+> +
+> +       if (!ed)
+> +               goto out_err;
+
+'goto out_err' will cause a null pointer dereference on ed->ifname below.
+
+> +
+> +       value = atoi(argvalue);
+> +
+> +       if ((value < 0))
+> +               goto out_err;
+> +
+> +       ed->policy->rte = value;
+> +
+> +       err = snprintf(arg_path, sizeof(arg_path), "%s%08x.rte",
+> +                      TLVID_PREFIX, cmd->tlvid);
+> +
+> +       if (err < 0)
+> +               goto out_err;
+> +
+> +       err = snprintf(svalue, sizeof(svalue), "%i", value);
+> +
+> +       if (err < 0)
+> +               goto out_err;
+> +
+> +       sv = &svalue[0];
+> +
+> +       if (set_cfg(ed->ifname, arg_path, (void *) &sv, CONFIG_TYPE_STRING)) {
+> +               goto out_err;
+> +       }
+
+Is this correct '&sv' why not just use svalue.
+
+> +
+> +       return cmd_success;
+> +
+> +out_err:
+> +       printf("%s:%s: saving EVB rte failed.\n", __func__, ed->ifname);
+> +       return cmd_invalid;
+> +}
+> +
+> +static int get_arg_vsis(struct cmd *cmd, char *arg, char *argvalue,
+> +                              char *obuf)
+> +{
+> +       char s[EVB_BUF_SIZE];
+> +       struct evb_data *ed;
+> +
+> +       if (cmd->cmd != cmd_gettlv)
+> +               return cmd_invalid;
+> +
+> +       switch (cmd->tlvid) {
+> +       case (LLDP_MOD_EVB << 8) | LLDP_EVB_SUBTYPE:
+> +               break;
+> +       case INVALID_TLVID:
+> +               return cmd_invalid;
+> +       default:
+> +               return cmd_not_applicable;
+> +       }
+> +
+> +       ed = evb_data((char *) &cmd->ifname);
+> +       if (!ed)
+> +               return cmd_invalid;
+> +
+> +       if (sprintf(s, "%04i", ed->policy->svsi) <= 0)
+> +               return cmd_invalid;
+> +
+> +       sprintf(obuf, "%02x%s%04x%s", (unsigned int) strlen(arg), arg,
+> +               (unsigned int) strlen(s), s);
+> +
+> +       return cmd_success;
+> +}
+> +
+> +static int set_arg_vsis(struct cmd *cmd, char *arg, char *argvalue,
+> +                              char *obuf)
+> +{
+> +       int value, err;
+> +       char arg_path[EVB_BUF_SIZE];
+> +       char svalue[10];
+> +       char *sv;
+> +       struct evb_data *ed = NULL;
+> +
+> +       if (cmd->cmd != cmd_settlv)
+> +               goto out_err;
+> +
+> +       switch (cmd->tlvid) {
+> +       case (LLDP_MOD_EVB << 8) | LLDP_EVB_SUBTYPE:
+> +               break;
+> +       case INVALID_TLVID:
+> +               goto out_err;
+> +       default:
+> +               return cmd_not_applicable;
+> +       }
+> +
+> +       ed = evb_data((char *) &cmd->ifname);
+> +
+> +       if (!ed)
+> +               goto out_err;
+> +
+> +       value = atoi(argvalue);
+> +
+> +       if ((value < 0) || (value > LLDP_EVB_DEFAULT_MAX_VSI))
+> +               goto out_err;
+> +
+> +       ed->policy->svsi = value;
+> +
+> +       err = snprintf(arg_path, sizeof(arg_path), "%s%08x.vsis",
+> +                      TLVID_PREFIX, cmd->tlvid);
+> +
+> +       if (err < 0)
+> +               goto out_err;
+> +
+> +       err = snprintf(svalue, sizeof(svalue), "%i", value);
+> +
+> +       if (err < 0)
+> +               goto out_err;
+> +
+> +       sv = &svalue[0];
+> +
+> +       if (set_cfg(ed->ifname, arg_path, (void *) &sv, CONFIG_TYPE_STRING)) {
+> +               goto out_err;
+> +       }
+> +
+> +       return cmd_success;
+> +
+> +out_err:
+> +       printf("%s:%s: saving EVB vsis failed.\n", __func__, ed->ifname);
+
+'goto out_err' is used above twice before ed has been initialized.
+
+> +       return cmd_invalid;
+> +}
+> +
+> +struct arg_handlers *evb_get_arg_handlers()
+> +{
+> +       return &arg_handlers[0];
+> +}
+> diff --git a/lldpad.c b/lldpad.c
+> index a89b5a4..571da31 100644
+> --- a/lldpad.c
+> +++ b/lldpad.c
+> @@ -49,6 +49,7 @@
+>  #include "lldp_dcbx.h"
+>  #include "lldp_med.h"
+>  #include "lldp_8023.h"
+> +#include "lldp_evb.h"
+>  #include "config.h"
+>  #include "lldpad_shm.h"
+>  #include "clif.h"
+> @@ -63,6 +64,7 @@ struct lldp_module *(*register_tlv_table[])(void) = {
+>         dcbx_register,
+>         med_register,
+>         ieee8023_register,
+> +       evb_register,
+>         NULL,
+>  };
+> 
+> diff --git a/lldptool.c b/lldptool.c
+> index 5cf2846..7e166fe 100644
+> --- a/lldptool.c
+> +++ b/lldptool.c
+> @@ -39,6 +39,7 @@
+>  #include "lldp_med_clif.h"
+>  #include "lldp_8023_clif.h"
+>  #include "lldp_dcbx_clif.h"
+> +#include "lldp_evb_clif.h"
+>  #include "lldptool.h"
+>  #include "lldptool_cli.h"
+>  #include "lldp_mod.h"
+> @@ -156,6 +157,7 @@ struct lldp_module *(*register_tlv_table[])(void) = {
+>         ieee8023_cli_register,
+>         med_cli_register,
+>         dcbx_cli_register,
+> +       evb_cli_register,
+>         NULL,
+>  };
+> 
+
+Jens, in general this looks OK. Can you fix the coding style throughout
+I prefer for single line if statements,
+
+if (x)
+	a_line;
+else (y)
+	b_line;
+
+The intent here is to use the same coding style as linux kernel where it
+is reasonable to do so. Like I said before I know lldpad is not at all
+consistent in this regard, but I want to get the rest of the code in
+order and certainly have new code be consistent.
+
+Thanks!
+John
