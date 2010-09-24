@@ -1,80 +1,35 @@
-From: Jens Osterkamp <jens@linux.vnet.ibm.com>
-Subject: Re: [E1000-eedc] [PATCH 05/10] implementation of VDP
-Date: Fri, 24 Sep 2010 16:15:17 +0200
-Message-ID: <201009241615.17923.jens@linux.vnet.ibm.com>
-References: <1282739262-14968-1-git-send-email-jens@linux.vnet.ibm.com>
-	<1282739262-14968-6-git-send-email-jens@linux.vnet.ibm.com>
-	<4C9AA580.2010102@intel.com>
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+Subject: Re: [Xen-devel] PROBLEM: [BISECTED] 2.6.35.5 xen domU panics just
+ after	the boot
+Date: Fri, 24 Sep 2010 11:00:03 -0700
+Message-ID: <4C9CE723.5090308@goop.org>
+References: <20100921190525.GD4573@davabel.touk.pl> <4C9BEA8C.2030808@goop.org> <20100924054000.GA4689@pzz.touk.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4C9AA580.2010102@intel.com>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: John Fastabend <john.r.fastabend@intel.com>
-Cc: "chrisw@redhat.com" <chrisw@redhat.com>, "evb@yahoogroups.com" <evb@yahoogroups.com>, "e1000-eedc@lists.sourceforge.net" <e1000-eedc@lists.sourceforge.net>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+Content-Type: text/plain; charset=ISO-8859-2
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20100924054000.GA4689@pzz.touk.pl>
+Sender: linux-kernel-owner@vger.kernel.org
+To: =?ISO-8859-2?Q?Pawe=B3_Zuzelski?= <pawelz@pld-linux.org>
+Cc: Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, lkml <linux-kernel@vger.kernel.org>, James Dingwall <james.dingwall@amdocs.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thursday 23 September 2010, John Fastabend wrote:
-> On 8/25/2010 5:27 AM, Jens Osterkamp wrote:
-> > This patch contains an initial implemention of VDP as specified in IEEE
-> > 802.1Qbg.
-> > VDP serves as the upper layer protocol (ULP) for TLVs communicated via =
-the
-> > ECP protocol.
-> > For this it registers as a new module in lldpad. The VDP module support=
-s a
-> > station and a bridge role. As a station, new VSI (virtual station inter=
-face)
-> > profiles can be registered to the VDP module using lldptool or libvirt.
-> > These profiles are then announced to an adjacent switch. Transmitted pr=
-ofiles
-> > are processed to the desired state by the VDP station state machine.
-> > As a bridge, the VDP module waits for new profiles received in TLVs by =
-ECP.
-> > The received profiles are processed to the desired state by a VDP bridge
-> > state machine.
-> > =
+ On 09/23/2010 10:40 PM, Pawe=B3 Zuzelski wrote:
+> Have you seen the message from James Dingwall?
+>
+> He had found the typo in fb412a178502dc498430723b082a932f797e4763
+> commit and sent the patch to lkml that fixes it.
+>
+> Please, see https://patchwork.kernel.org/patch/202282/ if you have
+> not received James' mail. That patch resolves the problem for me and
+> for James.
+>
 
-> > VDP module parameters are stored in the "vdp" section under the appropr=
-iate
-> > interface.
-> > =
+(!) Oh, well.  Yes, that would explain it. I'd noticed the missing 'x',
+but assumed I'd just done it with an editor fat-finger...
 
-> > The patch still contains a lot of debug code to allow analysis of VDP
-> > protocol behavior.
-> > =
+Looks like upstream is OK, so it crept in with the stable
+cherry-pick/backport to both stable-2.6.32/master and stable-2.6.35/mas=
+ter.
 
-> > Signed-off-by: Jens Osterkamp <jens@linux.vnet.ibm.com>
-
-snip
-
-> =
-
-> =
-
-> Few minor nits otherwise looks good. Please merge relevant parts with pat=
-ch 4 though.
-
-I will address all your comments in my next posting of the series.
-
-Thanks !
-
-Jens
-
--- =
-
-
-IBM Deutschland Research & Development GmbH
-Vorsitzender des Aufsichtsrats: Martin Jetter
-Gesch=E4ftsf=FChrung: Dirk Wittkopp
-Sitz der Gesellschaft: B=F6blingen
-Registergericht: Amtsgericht Stuttgart, HRB 243294
+    J
