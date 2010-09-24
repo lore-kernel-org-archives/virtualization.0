@@ -1,15 +1,16 @@
 From: Jens Osterkamp <jens@linux.vnet.ibm.com>
-Subject: Re: [E1000-eedc] [PATCH 04/10] ECP implementation
-Date: Fri, 24 Sep 2010 16:18:26 +0200
-Message-ID: <201009241618.26482.jens@linux.vnet.ibm.com>
+Subject: Re: [E1000-eedc] [PATCH 02/10] implementation of IEEE 802.1Qbg in
+	lldpad, part 1
+Date: Fri, 24 Sep 2010 16:23:03 +0200
+Message-ID: <201009241623.04502.jens@linux.vnet.ibm.com>
 References: <1282739262-14968-1-git-send-email-jens@linux.vnet.ibm.com>
-	<1282739262-14968-5-git-send-email-jens@linux.vnet.ibm.com>
-	<4C9AA46D.2040802@intel.com>
+	<1282739262-14968-3-git-send-email-jens@linux.vnet.ibm.com>
+	<4C9AA43B.9000702@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4C9AA46D.2040802@intel.com>
+In-Reply-To: <4C9AA43B.9000702@intel.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -25,92 +26,150 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 On Thursday 23 September 2010, John Fastabend wrote:
 > On 8/25/2010 5:27 AM, Jens Osterkamp wrote:
-> > This is the implementation of the edge control protocol (ECP) as specif=
-ied
-> > in IEEE 802.1Qbg.
+> > This patch contains the first part of an initial implementation of the
+> > IEEE 802.1Qbg standard: it implements code for the exchange of EVB
+> > capabilities between a host with virtual machines and an adjacent switc=
+h.
+> > For this it adds a new EVB TLV to LLDP.
 > > =
 
-> > For this it extends the infrastructure defined lldpad to send and recei=
-ve
-> > ECP frames with a new (yet to be defined) ethertype.
-> > Received frames are validated and analyzed before the content is handed=
- to the
-> > upper layer protocol (ULP, VDP in this case) for further processing. Fr=
-ames
-> > to be transmitted are compiled from VSI (guest interface) profiles regi=
-stered
-> > on a interface.
-> > Reception and transmission of ECP frames is controlled by RX and TX sta=
-te
-> > machines, timeouts are handled timeout functions.
-> > The patch still contains a lot of debug code to allow low-level protocol
-> > analysis.
+> > Exchange of EVB TLV may be enabled or disabled on a per port basis.
+> > Information about the information negotiated by the protocol can be
+> > queried on the commandline with lldptool.
+> > =
+
+> > This patch adds support for querying and setting parameters used in
+> > the exchange of EVB TLV messages.
+> > The parameters that can be set are:
+> > =
+
+> >         - forwarding mode
+> >         - host protocol capabilities (RTE, ECP, VDP)
+> >         - no. of supported VSIs
+> >         - retransmission timer exponent (RTE)
+> > =
+
+> > The parameters are implemented as a local policy: all frames received by
+> > an adjacent switch are validated against this policy and taken over whe=
+re
+> > appropriate. Negotiated parameters are stored in lldpads config, picked=
+ up
+> > again and used at the next start.
+> > =
+
+> > The patch applies to lldpad 0.9.38 and still contains code to log proto=
+col
+> > activity more verbosely than it would be necessary in the final version.
 > > =
 
 > > Signed-off-by: Jens Osterkamp <jens@linux.vnet.ibm.com>
-> =
-
-> I am hesitant to apply these without a defined ethertype. Presumably this=
- will come out of the IEEE DCB task group.
-
-I am not familiar with the IEEE process, but my current understanding is th=
-at the ethertype is defined towards the
-end of the standardization process, and the extended ethertype together wit=
-h the OUI has to be used until then.
-
-> =
-
-> > ---
-> >  Makefile.am        |    2 +
-> >  ecp/ecp.c          |   77 +++++++
-> >  ecp/ecp.h          |   92 ++++++++
-> >  ecp/ecp_rx.c       |  597 ++++++++++++++++++++++++++++++++++++++++++++=
-++++++++
-> >  ecp/ecp_tx.c       |  467 ++++++++++++++++++++++++++++++++++++++++
-> >  include/lldp_evb.h |    6 +
-> >  include/lldp_vdp.h |  157 ++++++++++++++
-> >  lldp/l2_packet.h   |    2 +
-> >  lldp/ports.h       |   25 ++-
-> >  9 files changed, 1422 insertions(+), 3 deletions(-)
-> >  create mode 100644 ecp/ecp.c
-> >  create mode 100644 ecp/ecp.h
-> >  create mode 100644 ecp/ecp_rx.c
-> >  create mode 100644 ecp/ecp_tx.c
-> >  create mode 100644 include/lldp_vdp.h
-> > =
-
-> > diff --git a/Makefile.am b/Makefile.am
-> > index d59a6fa..061f2ee 100644
-> > --- a/Makefile.am
-> > +++ b/Makefile.am
-> > @@ -56,6 +56,8 @@ $(lldpad_include_HEADERS) $(noinst_HEADERS) \
-> >  lldp/ports.c lldp/agent.c lldp/l2_packet_linux.c lldp/tx.c \
-> >  lldp/rx.c lldp/agent.h lldp/l2_packet.h lldp/mibdata.h lldp/ports.h \
-> >  lldp/states.h \
-> > +ecp/ecp.c ecp/ecp_tx.c \
-> > +ecp/ecp_rx.c \
-> >  include/lldp.h include/lldp_mod.h \
-> >  lldp_dcbx.c include/lldp_dcbx.h tlv_dcbx.c include/tlv_dcbx.h \
-> >  lldp_dcbx_cfg.c include/lldp_dcbx_cfg.h \
-> > diff --git a/ecp/ecp.c b/ecp/ecp.c
-> > new file mode 100644
-> > index 0000000..ecf68f9
-> > --- /dev/null
-> > +++ b/ecp/ecp.c
-> > @@ -0,0 +1,77 @@
-> =
-
-> snip snip
-> =
 
 snip
 
-> Please merge the relevant pieces of this patch with the following patch s=
-o it does not add 'struct ecp' to the port structure then immediately move =
-it to vdp_data in the following patch.
+> remove the unneeded braces in the if statements above.
+> =
 
-I will address your comments in my next posting of the series and merge the=
- relevant pieces to the previous patch.
+> > +       /* only look at the mode for now
+> > +       if (tie->ccap =3D=3D ed->tie->ccap) {
+> > +               ed->tie->ccap =3D tie->ccap;
+> > +       }
+> > +
+> > +       if (tie->cvsi =3D=3D ed->tie->cvsi) {
+> > +               ed->tie->cvsi =3D tie->cvsi;
+> > +       }
+> > +       */
+> =
+
+> Why is this commented out? I will review the spec shortly, but please
+> remind me. If its not needed remove it and add it later in a clean
+> patch
+
+Its not used right now, so its commented out. I removed it for now.
+
+> =
+
+> > +
+> > +       return TLV_OK;
+> > +}
+> > +
+> > +/* evb_compare
+> > + *
+> > + * compare our own and received tlv_info_evb
+> > + */
+> > +static int evb_compare(struct evb_data *ed, struct tlv_info_evb *tie)
+> > +{
+> > +       printf("%s(%i): \n", __func__, __LINE__);
+> > +
+> > +       if ((ed->tie->cmode =3D=3D tie->cmode) /* &&
+> > +            (ed->tie->ccap =3D=3D tie->ccap) &&
+> > +           (ed->tie->cvsi =3D=3D tie->cvsi)*/)
+> =
+
+> Same here if its going to be commented out lets remove it for now.
+
+Removed it.
+
+> =
+
+> > +               return 0;
+> > +       else
+> > +               return 1;
+> > +}
+> > +
+> > +/* evb_statemachine:
+> > + *
+> > + * handle possible states during EVB capabilities exchange
+> > + *
+> > + * possible states:    EVB_OFFER_CAPABILITIES
+> > + *                     EVB_CONFIGURE
+> > + *                     EVB_CONFIRMATION
+> > + */
+> > +static void evb_statemachine(struct evb_data *ed, struct tlv_info_evb =
+*tie)
+
+snip
+
+> > diff --git a/lldptool.c b/lldptool.c
+> > index 5cf2846..7e166fe 100644
+> > --- a/lldptool.c
+> > +++ b/lldptool.c
+> > @@ -39,6 +39,7 @@
+> >  #include "lldp_med_clif.h"
+> >  #include "lldp_8023_clif.h"
+> >  #include "lldp_dcbx_clif.h"
+> > +#include "lldp_evb_clif.h"
+> >  #include "lldptool.h"
+> >  #include "lldptool_cli.h"
+> >  #include "lldp_mod.h"
+> > @@ -156,6 +157,7 @@ struct lldp_module *(*register_tlv_table[])(void) =
+=3D {
+> >         ieee8023_cli_register,
+> >         med_cli_register,
+> >         dcbx_cli_register,
+> > +       evb_cli_register,
+> >         NULL,
+> >  };
+> > =
+
+> =
+
+> Jens, in general this looks OK. Can you fix the coding style throughout
+> I prefer for single line if statements,
+> =
+
+> if (x)
+> 	a_line;
+> else (y)
+> 	b_line;
+> =
+
+> The intent here is to use the same coding style as linux kernel where it
+> is reasonable to do so. Like I said before I know lldpad is not at all
+> consistent in this regard, but I want to get the rest of the code in
+> order and certainly have new code be consistent.
+
+fixed this in all the places I could find.
+I will address the rest your comments in my next posting of the series.
 
 Thanks !
 
