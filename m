@@ -1,53 +1,30 @@
-From: Greg KH <gregkh@suse.de>
-Subject: Re: [PATCH 1/1] Rename camel case variables in channel.c  (updated
-	again)
-Date: Sun, 26 Sep 2010 23:10:29 -0700
-Message-ID: <20100927061029.GC22319@suse.de>
-References: <1FB5E1D5CA062146B38059374562DF7289ED89CF@TK5EX14MBXC130.redmond.corp.microsoft.com> <1FB5E1D5CA062146B38059374562DF7289EDBC9E@TK5EX14MBXC130.redmond.corp.microsoft.com> <20100927011943.GA6936@kroah.com> <1FB5E1D5CA062146B38059374562DF7289F076BD@TK5EX14MBXC128.redmond.corp.microsoft.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [GIT PULL net-2.6] vhost-net: last minute fix
+Date: Mon, 27 Sep 2010 15:34:13 +0200
+Message-ID: <20100927133411.GA4033@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <netdev-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1FB5E1D5CA062146B38059374562DF7289F076BD@TK5EX14MBXC128.redmond.corp.microsoft.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Haiyang Zhang <haiyangz@microsoft.com>
-Cc: Greg KH <greg@kroah.com>, "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>, "'devel@driverdev.osuosl.org'" <devel@driverdev.osuosl.org>, "'virtualization@lists.osdl.org'" <virtualization@lists.osdl.org>, Hank Janssen <hjanssen@microsoft.com>
+Sender: netdev-owner@vger.kernel.org
+To: David Miller <davem@davemloft.net>
+Cc: kvm@vger.kernel.org, virtualization@lists.osdl.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Sep 27, 2010 at 02:52:20AM +0000, Haiyang Zhang wrote:
-> > From: Greg KH [mailto:greg@kroah.com]
-> > This patch is mime-encoded and I'm getting tired of having to convert
-> > it
-> > before I can apply it.
-> > 
-> > Can you please fix up your email client/server to not do this?  I
-> > should
-> > be able to take the raw email and apply the patch with the 'patch'
-> > command.
-> > 
-> > And yes, I know git-am handles mime messages and I use it to apply the
-> > patch, but I still use 'patch' to verify things are sane before
-> > commiting the patch for real.
-> > 
-> > Care to resend?
-> 
-> I checked the email I sent on Friday, it was in "Plain Text" format.
-> This was the same format I used for my patches which were accepted
-> previously. Maybe Outlook server converted this one to MIME format?
-> I'm not sure.
-> 
-> I have attached the patch in Linux text format, which I have verified
-> with 'patch' command. No error:
-> 
-> linux-next> patch -p1 <0924.2-Rename-camel-case-variables-in-channel.c.patch
-> patching file drivers/staging/hv/channel.c
-> linux-next>
-> 
-> Could you try the attached patch on your side?
+David,
+The following tree includes a last minute bugfix for vhost-net.
+It is on top of net-2.6.  Please merge it for 2.6.36.
+Thanks!
 
-Yes, that worked, but you do realize you attached it in base64 mode,
-right?  That sure isn't going to work...
+The following changes since commit 2cc6d2bf3d6195fabcf0febc192c01f99519a8f3:
 
-thanks,
+  ipv6: add a missing unregister_pernet_subsys call (2010-09-26 19:09:25 -0700)
 
-greg k-h
+are available in the git repository at:
+  git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git vhost-net
+
+Michael S. Tsirkin (1):
+      vhost: fix log ctx signalling
+
+ drivers/vhost/vhost.c |    7 ++++---
+ 1 files changed, 4 insertions(+), 3 deletions(-)
