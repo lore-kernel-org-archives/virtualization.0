@@ -1,30 +1,53 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [GIT PULL net-2.6] vhost-net: last minute fix
-Date: Mon, 27 Sep 2010 15:34:13 +0200
-Message-ID: <20100927133411.GA4033@redhat.com>
+From: Haiyang Zhang <haiyangz@microsoft.com>
+Subject: RE: [PATCH 1/1] Rename camel case variables in channel.c  (updated
+ again)
+Date: Mon, 27 Sep 2010 17:57:32 +0000
+Message-ID: <1FB5E1D5CA062146B38059374562DF7289F13EFE@TK5EX14MBXC128.redmond.corp.microsoft.com>
+References: <1FB5E1D5CA062146B38059374562DF7289ED89CF@TK5EX14MBXC130.redmond.corp.microsoft.com>
+ <1FB5E1D5CA062146B38059374562DF7289EDBC9E@TK5EX14MBXC130.redmond.corp.microsoft.com>
+ <20100927011943.GA6936@kroah.com>
+ <1FB5E1D5CA062146B38059374562DF7289F076BD@TK5EX14MBXC128.redmond.corp.microsoft.com>
+ <20100927061029.GC22319@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <netdev-owner@vger.kernel.org>
-Content-Disposition: inline
-Sender: netdev-owner@vger.kernel.org
-To: David Miller <davem@davemloft.net>
-Cc: kvm@vger.kernel.org, virtualization@lists.osdl.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="Windows-1252"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20100927061029.GC22319@suse.de>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: Greg KH <gregkh@suse.de>
+Cc: Greg KH <greg@kroah.com>, "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>, "'devel@driverdev.osuosl.org'" <devel@driverdev.osuosl.org>, "'virtualization@lists.osdl.org'" <virtualization@lists.osdl.org>, Hank Janssen <hjanssen@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-David,
-The following tree includes a last minute bugfix for vhost-net.
-It is on top of net-2.6.  Please merge it for 2.6.36.
-Thanks!
+> From: Greg KH [mailto:gregkh@suse.de]
+> Sent: Monday, September 27, 2010 2:10 AM
+> >
+> > I checked the email I sent on Friday, it was in "Plain Text" format.
+> > This was the same format I used for my patches which were accepted
+> > previously. Maybe Outlook server converted this one to MIME format?
+> > I'm not sure.
+> >
+> > I have attached the patch in Linux text format, which I have verified
+> > with 'patch' command. No error:
+> >
+> > linux-next> patch -p1 <0924.2-Rename-camel-case-variables-in-
+> channel.c.patch
+> > patching file drivers/staging/hv/channel.c
+> > linux-next>
+> >
+> > Could you try the attached patch on your side?
+> 
+> Yes, that worked, but you do realize you attached it in base64 mode,
+> right?  That sure isn't going to work...
 
-The following changes since commit 2cc6d2bf3d6195fabcf0febc192c01f99519a8f3:
+While we are setting up a new mail server for sending patches, could you
+apply attached patches in the meanwhile? So I can continue to work on
+more patches.
 
-  ipv6: add a missing unregister_pernet_subsys call (2010-09-26 19:09:25 -0700)
+This attachment can also be downloaded by this Linux command as plain text
+without any encoding:
+  wget http://driverdev.linuxdriverproject.org/pipermail/devel/attachments/20100927/51d954b0/attachment.obj
 
-are available in the git repository at:
-  git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git vhost-net
+Thanks,
 
-Michael S. Tsirkin (1):
-      vhost: fix log ctx signalling
-
- drivers/vhost/vhost.c |    7 ++++---
- 1 files changed, 4 insertions(+), 3 deletions(-)
+- Haiyang
