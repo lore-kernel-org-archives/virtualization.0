@@ -1,7 +1,7 @@
 From: Jens Osterkamp <jens@linux.vnet.ibm.com>
-Subject: [PATCH 1/9] consolidation of MIN and MAX macros in common.h
-Date: Tue, 28 Sep 2010 17:10:54 +0200
-Message-ID: <1285686662-8561-2-git-send-email-jens@linux.vnet.ibm.com>
+Subject: [PATCH 9/9] do not use macv[tap/lan] interfaces as ports
+Date: Tue, 28 Sep 2010 17:11:02 +0200
+Message-ID: <1285686662-8561-10-git-send-email-jens@linux.vnet.ibm.com>
 References: <1285686662-8561-1-git-send-email-jens@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,52 +21,162 @@ To: e1000-eedc@lists.sourceforge.net, virtualization@lists.linux-foundation.org,
 Cc: chrisw@redhat.com, Jens Osterkamp <jens@linux.vnet.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch consolidates a modified version of the already existing MIN
-macro in lldpad to include/common.h and add a MAX macro.
+At startup lldpad walks through all network interfaces in the system and
+creates internal data structures for them. Some interfaces as e.g. vlan
+and wlan are skipped in the walkthrough, some have to be treated special
+(e.g. bond devices).
+This patch adds macvtap and macvlan interfaces to the list of devices that
+are skipped as we do not want to send out EVB/ECP frames on them.
 
 Signed-off-by: Jens Osterkamp <jens@linux.vnet.ibm.com>
 ---
- include/common.h       |   14 ++++++++++++++
- include/dcb_protocol.h |    4 ----
- 2 files changed, 14 insertions(+), 4 deletions(-)
+ config.c            |    2 +
+ include/lldp_util.h |    1 +
+ lldp_util.c         |   86 +++++++++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 89 insertions(+), 0 deletions(-)
 
-diff --git a/include/common.h b/include/common.h
-index 01746ea..ab07dc2 100644
---- a/include/common.h
-+++ b/include/common.h
-@@ -387,4 +387,18 @@ typedef int socklen_t;
+diff --git a/config.c b/config.c
+index 26afe3b..fdb63f7 100644
+--- a/config.c
++++ b/config.c
+@@ -365,6 +365,8 @@ void init_ports(void)
+ 					p->if_name);
+ 		} else if (is_vlan(p->if_name)) {
+ 			;
++		} else if (is_macvtap(p->if_name)) {
++			;
+ 		} else if (is_bridge(p->if_name)) {
+ 			; /* ignore bridge device */
+ 		} else if (check_link_status(p->if_name)) {
+diff --git a/include/lldp_util.h b/include/lldp_util.h
+index 3353067..ef2c562 100644
+--- a/include/lldp_util.h
++++ b/include/lldp_util.h
+@@ -40,6 +40,7 @@ int is_bridge(const char *ifname);
+ int is_vlan(const char *ifname);
+ int is_vlan_capable(const char *ifname);
+ int is_wlan(const char *ifname);
++int is_macvtap(const char *ifname);
+ int is_valid_mac(const u8 *mac);
+ int is_san_mac(u8 *addr);
+ int is_ether(const char *ifname);
+diff --git a/lldp_util.c b/lldp_util.c
+index f39fe6b..522c7ee 100644
+--- a/lldp_util.c
++++ b/lldp_util.c
+@@ -34,6 +34,7 @@
+ #include <sys/types.h>
+ #include <sys/socket.h>
+ #include <net/if_arp.h>
++#include <netlink/msg.h>
+ #include <arpa/inet.h>
+ #include <linux/if.h>
+ #include <linux/if_bonding.h>
+@@ -42,6 +43,7 @@
+ #include <linux/wireless.h>
+ #include <linux/sockios.h>
+ #include <linux/ethtool.h>
++#include <linux/rtnetlink.h>
+ #include <dirent.h>
+ #include "lldp.h"
+ #include "lldp_util.h"
+@@ -57,6 +59,8 @@ int is_valid_lldp_device(const char *device_name)
+ 		return 0;
+ 	if (is_bridge(device_name))
+ 		return 0;
++	if (is_macvtap(device_name))
++		return 0;
+ 	return 1;
+ }
  
- const char * wpa_ssid_txt(u8 *ssid, size_t ssid_len);
+@@ -534,6 +538,88 @@ int is_wlan(const char *ifname)
+ 	return rc;
+ }
  
-+#define MIN(x,y) \
-+	({	\
-+		typeof (x) __x = (x);	\
-+		typeof (y) __y = (y);	\
-+		__x < __y ? __x : __y;	\
-+	 })
++#define NLMSG_SIZE 1024
 +
-+#define MAX(x,y) \
-+	({	\
-+		typeof (x) __x = (x);	\
-+		typeof (y) __y = (y);	\
-+		__x > __y ? __x : __y;	\
-+	 })
++static struct nla_policy ifla_info_policy[IFLA_INFO_MAX + 1] =
++{
++  [IFLA_INFO_KIND]       = { .type = NLA_STRING},
++  [IFLA_INFO_DATA]       = { .type = NLA_NESTED },
++};
 +
- #endif /* COMMON_H */
-diff --git a/include/dcb_protocol.h b/include/dcb_protocol.h
-index 63e2d3c..d7127f5 100644
---- a/include/dcb_protocol.h
-+++ b/include/dcb_protocol.h
-@@ -58,10 +58,6 @@ typedef enum {
- #define DUP_DCBX_TLV_LLINK         0x0020
- #define TOO_MANY_NGHBRS            0x0040
- 
--//#ifndef min /*todo: change to min()
--	#define MIN(x, y) ((x) < (y) ? x : y)
--//#endif
--
- #define INIT_DCB_OUI                    {0x00,0x1b,0x21}
- 
- int add_adapter(char *device_name);
++int is_macvtap(const char *ifname)
++{
++	int ret, s;
++	struct nlmsghdr *nlh;
++	struct ifinfomsg *ifinfo;
++	struct nlattr *tb[IFLA_MAX+1],
++		      *tb2[IFLA_INFO_MAX+1];
++
++	s = socket(PF_NETLINK, SOCK_DGRAM, NETLINK_ROUTE);
++
++	if (s < 0) {
++		goto out;
++	}
++
++	nlh = malloc(NLMSG_SIZE);
++
++	if (!nlh) {
++		goto out;
++	}
++
++	nlh->nlmsg_len = NLMSG_LENGTH(sizeof(struct ifinfomsg));
++        nlh->nlmsg_type = RTM_GETLINK;
++        nlh->nlmsg_flags = NLM_F_REQUEST;
++
++	ifinfo = NLMSG_DATA(nlh);
++	ifinfo->ifi_family = AF_UNSPEC;
++	ifinfo->ifi_index = get_ifidx(ifname);
++
++	ret = send(s, nlh, nlh->nlmsg_len, 0);
++
++	if (ret < 0) {
++		goto out;
++	}
++
++	memset(nlh, 0, NLMSG_SIZE);
++
++	do {
++		ret = recv(s, (void *) nlh, NLMSG_SIZE, MSG_DONTWAIT);
++	} while ((ret < 0) && errno == EINTR);
++
++	if (nlmsg_parse(nlh, sizeof(struct ifinfomsg),
++			(struct nlattr **)&tb, IFLA_MAX, NULL)) {
++		goto out;
++	}
++
++	if (tb[IFLA_IFNAME]) {
++		ifname = (char *)RTA_DATA(tb[IFLA_IFNAME]);
++	} else {
++		ifinfo = (struct ifinfomsg *)NLMSG_DATA(nlh);
++	}
++
++	if (tb[IFLA_LINKINFO]) {
++		if (nla_parse_nested(tb2, IFLA_INFO_MAX, tb[IFLA_LINKINFO],
++				     ifla_info_policy)) {
++			goto out;
++		}
++
++		if (tb2[IFLA_INFO_KIND]) {
++			char *kind = (char*)(RTA_DATA(tb2[IFLA_INFO_KIND]));
++			if (!(strcmp("macvtap", kind) && strcmp("macvlan", kind))) {
++				close(s);
++				return true;
++			}
++		}
++
++	} else {
++		goto out;
++	}
++
++out:
++	close(s);
++	return false;
++}
++
+ int is_router(const char *ifname)
+ {
+ 	int rc = 0;
 -- 
 1.7.1
