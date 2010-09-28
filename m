@@ -1,17 +1,13 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: BUG - qdev - partial loss of network connectivity
-Date: Tue, 28 Sep 2010 11:50:58 +0200
-Message-ID: <20100928095058.GI12472__47317.5015337349$1285668106$gmane$org@redhat.com>
-References: <20100922171832.GA28721@moo.pl> <4C9A3FAF.9090503@codemonkey.ws>
-	<20100922182049.GA29263@moo.pl> <4C9A4C77.2080806@codemonkey.ws>
-	<20100923140437.GA9256@moo.pl> <20100926154324.GD21843@redhat.com>
-	<20100927213203.GA28089@moo.pl>
+From: Jens Osterkamp <jens@linux.vnet.ibm.com>
+Subject: [PATCH 6/9] add libnl dependency to configure.ac
+Date: Tue, 28 Sep 2010 17:10:59 +0200
+Message-ID: <1285686662-8561-7-git-send-email-jens@linux.vnet.ibm.com>
+References: <1285686662-8561-1-git-send-email-jens@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20100927213203.GA28089@moo.pl>
+In-Reply-To: <1285686662-8561-1-git-send-email-jens@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -21,36 +17,30 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Leszek Urbanski <tygrys@moo.pl>
-Cc: netdev@vger.kernel.org, linux-nfs@vger.kernel.org, qemu-devel@nongnu.org, Anthony Liguori <anthony@codemonkey.ws>, virtualization@lists.linux-foundation.org
+To: e1000-eedc@lists.sourceforge.net, virtualization@lists.linux-foundation.org, evb@yahoogroups.com
+Cc: chrisw@redhat.com, Jens Osterkamp <jens@linux.vnet.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Sep 27, 2010 at 11:32:03PM +0200, Leszek Urbanski wrote:
-> <20100926154324.GD21843@redhat.com>; from Michael S. Tsirkin on Sun, Sep 26, 2010 at 17:43:24 +0200
-> 
-> > > > >It's vanilla 2.6.32.22, but I also reproduced this on Debian's 2.6.32-23
-> > > > >(based on 2.6.32.21).
-> > > > >
-> > > > >If offload is the only difference, I'll play with different offload
-> > > > >options and check which one causes it.
-> > > > >   
-> > > > 
-> > > > It's not technically the only difference but it's the most likely 
-> > > > culprit IMHO.
-> > > 
-> > > udp fragmentation offload is definitely the culprit.
-> > 
-> > I see. Most likely guest bug - won't be the first bug around UFO.
-> > If so pls copy netdev linux-nfs and virtualization.
-> > Do you see anything in dmesg? Can try 2.6.36-rc5?
-> 
-> (for reference: first post is at:
-> http://lists.nongnu.org/archive/html/qemu-devel/2010-09/msg01685.html )
-> 
-> I can't reproduce it on 2.6.36-rc5. Do you have an idea which patch may have
-> fixed it, or should I dissect?
+Signed-off-by: Jens Osterkamp <jens@linux.vnet.ibm.com>
+---
+ configure.ac |    5 +++++
+ 1 files changed, 5 insertions(+), 0 deletions(-)
 
-bisect, yes: there were many UFO related patches since 2.6.32.
-
+diff --git a/configure.ac b/configure.ac
+index 619c6c4..8b9d08a 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -12,6 +12,11 @@ PKG_CHECK_MODULES(LIBCONFIG, libconfig,
+ AC_SUBST(LIBCONFIG_CFLAGS)
+ AC_SUBST(LIBCONFIG_LIBS)
+ 
++PKG_CHECK_MODULES(LIBNL, libnl-1 >= 1.1)
++AC_SUBST(LIBNL_CFLAGS)
++AC_SUBST(LIBNL_LIBS)
++
++AC_CHECK_LIB(nl, rtnl_link_get_by_name)
+ AC_CONFIG_SUBDIRS([libconfig-1.3.2])
+ AC_CONFIG_FILES([Makefile include/version.h lldpad.spec lldpad.pc dcbd.pc])
+ AC_OUTPUT
 -- 
-MST
+1.7.1
