@@ -1,11 +1,13 @@
 From: Jens Osterkamp <jens@linux.vnet.ibm.com>
-Subject: implementation of IEEE 802.1Qbg in lldpad
-Date: Tue, 28 Sep 2010 17:10:53 +0200
-Message-ID: <1285686662-8561-1-git-send-email-jens@linux.vnet.ibm.com>
+Subject: [PATCH 3/9] BUGFIX: check for existence of ifup
+Date: Tue, 28 Sep 2010 17:10:56 +0200
+Message-ID: <1285686662-8561-4-git-send-email-jens@linux.vnet.ibm.com>
+References: <1285686662-8561-1-git-send-email-jens@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1285686662-8561-1-git-send-email-jens@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -16,53 +18,33 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: e1000-eedc@lists.sourceforge.net, virtualization@lists.linux-foundation.org, evb@yahoogroups.com
-Cc: chrisw@redhat.com
+Cc: chrisw@redhat.com, Jens Osterkamp <jens@linux.vnet.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi,
+added an additional check for existence of the ifup operation.
+If it does not exist, just skip it.
 
-this set of patches contains the initial implementation of the IEEE 802.1Qbg
-standard: code for the exchange of EVB TLVs in LLDP frames to negotiate VSI
-capabalities as well as VDP VSI TLVs between a host with virtual machines
-and an adjacent switch.
+Signed-off-by: Jens Osterkamp <jens@linux.vnet.ibm.com>
+---
+ config.c |    6 ++++--
+ 1 files changed, 4 insertions(+), 2 deletions(-)
 
-It supports setting the parameters of the TLV exchange from the command
-line using lldptool.
-
-VDP profiles consisting of mode,mgrid,typeid,typeidversion,instanceid,mac,vlan
-can be given to lldpad with lldptool or sent to lldpad via netlink messages from
-the kernel or another program, e.g. libvirt.
-
-VDP profiles are processed through the VDP/VSI and ECP state machines and
-sent out in ECP frames.
-ACK frames are received and processed through ECP and VDP/VSI state machines.
-
-It implements a VDP bridge role for a port together with a lldptool command to
-switch a port to the bridge role.
-
-These patches apply against lldpad 0.9.38 and still contain code to log
-low-level protocol activity more verbosely than necessary.
-
-In comparison to the last posted series, several changes have been made:
-
- - ECP and VDP implementation patches have been merged. Now ECP/VDP only consists
-   of 2 patches: ECP/VDP and VDP commandline interface
- - VDP sequence numbering has been fixed
- - profile is removed in case VDP state machine reaches VSI_EXIT
- - reduced debug verbosity in VDP code
- - network byte order in sequence numbering was fixed
- - fixed bug in profile comparison
- - fixed default values for EVB supported mode and capabilities
- - increased test coverage
- - addressed John's comments on my last series
- - many other small bug fixes
-
-For more information about lldpad take a look at
-
-http://sourceforge.net/projects/e1000/files/DCB%20Tools/lldpad/
-
-Please review and comment.
-
-Thanks !
-
-                        Jens
+diff --git a/config.c b/config.c
+index 5cfac83..26afe3b 100644
+--- a/config.c
++++ b/config.c
+@@ -370,8 +370,10 @@ void init_ports(void)
+ 		} else if (check_link_status(p->if_name)) {
+ 			add_adapter(p->if_name);
+ 
+-			LIST_FOREACH(np, &lldp_head, lldp)
+-				np->ops->lldp_mod_ifup(p->if_name);
++			LIST_FOREACH(np, &lldp_head, lldp) {
++				if (np->ops->lldp_mod_ifup)
++					np->ops->lldp_mod_ifup(p->if_name);
++			}
+ 			set_lldp_port_enable_state(p->if_name, 1);
+ 		}
+ 		p++;
+-- 
+1.7.1
