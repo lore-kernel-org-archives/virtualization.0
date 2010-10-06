@@ -1,14 +1,17 @@
-From: devi thapa <devi.thapa@gmail.com>
-Subject: Re: vhost_net_ioctl
-Date: Wed, 6 Oct 2010 17:04:39 +0530
-Message-ID: <AANLkTik2kogJ1ibqwOt7RhUPev9ANHYaixr9dm7b7-zZ@mail.gmail.com>
-References: <AANLkTimzGqmS=YOsJjdM_-d1sJDd4w1t2Cyjk57xrQZo@mail.gmail.com>
-	<AANLkTikMK3fsoY5urLEoOT7XEj+03x2qMNO_h2EmSJFD@mail.gmail.com>
+From: Amit Shah <amit.shah@redhat.com>
+Subject: Re: [RFC PATCH] virtio: (Partially) enable suspend/resume support
+Date: Wed, 6 Oct 2010 17:24:18 +0530
+Message-ID: <20101006115418.GI8207@amit-laptop.redhat.com>
+References: <da50daa251eb982c43fa474de8d4f1303f1ad57f.1285762305.git.amit.shah@redhat.com>
+	<20101003155359.GB20285@redhat.com>
+	<20101005134531.GD8207@amit-laptop.redhat.com>
+	<20101005152319.GA22056@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <AANLkTikMK3fsoY5urLEoOT7XEj+03x2qMNO_h2EmSJFD@mail.gmail.com>
+Content-Disposition: inline
+In-Reply-To: <20101005152319.GA22056@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,42 +21,59 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Anthony Liguori <anthony@codemonkey.ws>, Virtualization List <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The arg value is being used to get the fd of the backend, in my case,
-I prefer tap as a backend device.
+On (Tue) Oct 05 2010 [17:23:19], Michael S. Tsirkin wrote:
+> On Tue, Oct 05, 2010 at 07:15:31PM +0530, Amit Shah wrote:
+> > > > +
+> > > > +	spin_lock_irqsave(&vp_dev->lock, flags);
+> > > > +	list_for_each_entry(info, &vp_dev->virtqueues, node) {
+> > > > +		/* Select the queue we're interested in */
+> > > > +		iowrite16(info->queue_index,
+> > > > +			  vp_dev->ioaddr + VIRTIO_PCI_QUEUE_SEL);
+> > > > +
+> > > > +		/* Update the last idx we sent data in */
+> > > > +		iowrite16(virtqueue_get_avail_idx(info->vq),
+> > > > +			  vp_dev->ioaddr + VIRTIO_PCI_AVAIL_IDX);
+> > > 
+> > > Interesting. Could we just reset the ring instead?
+> > > I think this would also solve the qemu problem you
+> > > outline, won't it?
+> > 
+> > The problem here is qemu doesn't "know" we went into suspend and came
+> > out of it.  When going to suspend, qemu could've received a kick
+> > notification and would've been just about to process some queue entries.
+> > Now when we resume and reset the ring, qemu could crash anyway seeing
+> > invalid index values.
+> 
+> Hmm, I don't completely understand this.  When there's a reset I expect
+> this to discard any previous kicks. No?
 
-And the same arg value is being used to get the features of backend device.
-
-I am actually going only through net.c  and in this module they
-haven't specified anywhere, where this value is coming from.
-
-So, you mean that kernel vhost code is connected  to QEMU userspace code.
-
-I request to guide me in following the code.
-
-With hope,
-Devi.
+I'm talking of a situation like this:
 
 
+	Guest					Host
+
+   virtqueue_add_buf()
+   virtqueue_kick()
+					virtqueue_pop() (in progress)
+
+    -->   suspend
 
 
+Now there will be some buffers in the virtqueue but the host wouldn't
+know on the next resume.  So we want to keep the ring state in the
+current state so that the host continues consuming from where it left
+off.  
 
+Now this wouldn't crash on resume for virtio-net, but for virtio-serial
+(which uses chardevs) and also for virtio-block, I guess there are more
+problems.
 
-On 10/6/10, Stefan Hajnoczi <stefanha@gmail.com> wrote:
-> On Wed, Oct 6, 2010 at 11:16 AM, devi thapa <devi.thapa@gmail.com> wrote:
->>           What's the role or value of the third argument in the
->> vhost_net_ioctl function in /drivers/vhost/net.c .
->
-> Read the code.  There is the kernel vhost code and the QEMU vhost
-> userspace code to look at.  By studying both sides you can figure this
-> out.
->
-> Look at how arg is used in vhost_net_ioctl().
->
-> Please spend more time learning how things work before sending
-> questions to the mailing list.
->
-> Stefan
->
+For example, for virtio-serial, if the machine is re-started with a
+chardev connected, the virtqueue_num_heads() function gets called, which
+results in the 'Guest moved used index' message.
+
+		Amit
