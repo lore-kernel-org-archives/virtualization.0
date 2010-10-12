@@ -1,36 +1,34 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [patch 2/2] vhost: fix return code for log_access_ok()
-Date: Tue, 12 Oct 2010 14:28:24 +0200
-Message-ID: <20101012122824.GB25446@redhat.com>
-References: <20101011172419.GG5851@bicker>
+From: Dan Carpenter <error27@gmail.com>
+Subject: Re: [patch 1/2] vhost: potential integer overflows
+Date: Tue, 12 Oct 2010 16:51:20 +0200
+Message-ID: <20101012145120.GC6742@bicker>
+References: <20101011172256.GF5851@bicker> <20101012122548.GA25446@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <kvm-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20101011172419.GG5851@bicker>
+In-Reply-To: <20101012122548.GA25446@redhat.com>
 Sender: kvm-owner@vger.kernel.org
-To: Dan Carpenter <error27@gmail.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: Juan Quintela <quintela@redhat.com>, "David S. Miller" <davem@davemloft.net>, Rusty Russell <rusty@rustcorp.com.au>, kvm@vger.kernel.org, virtualization@lists.osdl.org, netdev@vger.kernel.org, kernel-janitors@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Oct 11, 2010 at 07:24:19PM +0200, Dan Carpenter wrote:
-> access_ok() returns 1 if it's OK otherwise it should return 0.
+On Tue, Oct 12, 2010 at 02:25:48PM +0200, Michael S. Tsirkin wrote:
 > 
-> Signed-off-by: Dan Carpenter <error27@gmail.com>
+> As far as I can see, maximum value for num is 64K - 1:
+> 
+>                 if (!s.num || s.num > 0xffff || (s.num & (s.num - 1))) {
+>                         r = -EINVAL;
+>                         break;
+>                 }
+> 
+> How can any of the above two trigger?
+> It seems easier to check value for sanity at a single place where it's
+> passed from userspace to kernel.
+> 
 
-Good catch, thanks!
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
+Gar.  Sorry for that.  My mistake.
 
-> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-> index c2aa12c..f82fe57 100644
-> --- a/drivers/vhost/vhost.c
-> +++ b/drivers/vhost/vhost.c
-> @@ -371,7 +371,7 @@ static int log_access_ok(void __user *log_base, u64 addr, unsigned long sz)
->  	/* Make sure 64 bit math will not overflow. */
->  	if (a > ULONG_MAX - (unsigned long)log_base ||
->  	    a + (unsigned long)log_base > ULONG_MAX)
-> -		return -EFAULT;
-> +		return 0;
->  
->  	return access_ok(VERIFY_WRITE, log_base + a,
->  			 (sz + VHOST_PAGE_SIZE * 8 - 1) / VHOST_PAGE_SIZE / 8);
+regards,
+dan carpenter
+
