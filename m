@@ -1,38 +1,39 @@
-From: Andi Kleen <andi@firstfloor.org>
-Subject: Re: netlink versus pid namespaces
-Date: Fri, 15 Oct 2010 17:23:11 +0200
-Message-ID: <20101015152311.GC25620__42090.2399033823$1287156325$gmane$org@basil.fritz.box>
-References: <20101015142357.GA29321@basil.fritz.box>
-	<20101015151903.GA3487@ms2.inr.ac.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20101015151903.GA3487@ms2.inr.ac.ru>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
-Cc: netdev@vger.kernel.org, Andi Kleen <andi@firstfloor.org>, virtualization@lists.linux-foundation.org, xemul@openvz.org
+From: Haiyang Zhang <haiyangz@linuxonhyperv.com>
+Subject: [PATCH 3/5] staging: hv: Convert camel cased parameter in channel_interface.h to lower case
+Date: Fri, 15 Oct 2010 10:14:05 -0700
+Message-ID: <1287162847-27536-3-git-send-email-haiyangz@linuxonhyperv.com>
+References: <1287162847-27536-1-git-send-email-haiyangz@linuxonhyperv.com>
+ <1287162847-27536-2-git-send-email-haiyangz@linuxonhyperv.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1287162847-27536-2-git-send-email-haiyangz@linuxonhyperv.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: haiyangz@microsoft.com, hjanssen@microsoft.com, gregkh@suse.de, linux-kernel@vger.kernel.org, devel@driverdev.osuosl.org, virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Oct 15, 2010 at 07:19:03PM +0400, Alexey Kuznetsov wrote:
-> Hello!
-> 
-> > netlink uses pids (or really tids I hope?) to address sockets
-> > associated with processes.
-> 
-> Not really. It uses port number which is called "pid" occasionally. Bad name.
-> Autobind function simply selects tgid of calling process as the first guess.
+From: Haiyang Zhang <haiyangz@microsoft.com>
 
-Thanks for the clarification, Alexey. I guess I should have read more
-code :/
+Convert camel cased parameter in channel_interface.h to lower case
 
--Andi
+Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
+Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
+
+---
+ drivers/staging/hv/channel_interface.h |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/staging/hv/channel_interface.h b/drivers/staging/hv/channel_interface.h
+index 1007612..82cff3d 100644
+--- a/drivers/staging/hv/channel_interface.h
++++ b/drivers/staging/hv/channel_interface.h
+@@ -27,7 +27,7 @@
+ 
+ #include "vmbus_api.h"
+ 
+-void get_channel_info(struct hv_device *Device,
+-		    struct hv_device_info *DeviceInfo);
++void get_channel_info(struct hv_device *device,
++		    struct hv_device_info *info);
+ 
+ #endif /* _CHANNEL_INTERFACE_H_ */
+-- 
+1.6.3.2
