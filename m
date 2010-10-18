@@ -1,167 +1,179 @@
-From: Haiyang Zhang <haiyangz@linuxonhyperv.com>
-Subject: [PATCH 2/5] staging: hv: Convert camel cased function names in channel_interface.c to lower cases
-Date: Fri, 15 Oct 2010 10:14:04 -0700
-Message-ID: <1287162847-27536-2-git-send-email-haiyangz@linuxonhyperv.com>
-References: <1287162847-27536-1-git-send-email-haiyangz@linuxonhyperv.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1287162847-27536-1-git-send-email-haiyangz@linuxonhyperv.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: haiyangz@microsoft.com, hjanssen@microsoft.com, gregkh@suse.de, linux-kernel@vger.kernel.org, devel@driverdev.osuosl.org, virtualization@lists.osdl.org
+From: Ming Zhao <zhaom@cis.fiu.edu>
+Subject: CFP: 7th IEEE International Workshop on Storage Network Architecture
+	and Parallel I/Os (SNAPI 2011)
+Date: Mon, 18 Oct 2010 00:37:27 -0400
+Message-ID: <4CBBCF07.4050002@cis.fiu.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="windows-1252"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: access@ncsa.uiuc.edu, acf-members@autonomic-communication-forum.org, admin@ai-gakkai.or.jp, agents@cs.umbc.edu, ahsntc-mailing-list@list.trlab.ca, ai-stats@icarus.math.uw
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Haiyang Zhang <haiyangz@microsoft.com>
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+                           Call for Papers
+                   7th IEEE International Workshop on
+             Storage Network Architecture and Parallel I/Os
+                             (SNAPI 2011)
+                     http://snapi2011.cis.fiu.edu
 
-Convert camel cased function names in channel_interface.c to lower cases
+                  May 25, 2011  Denver, Colorado, USA
+             In conjunction with the 27th IEEE Conference on
+            Mass Storage Systems and Technologies (MSST 2011)
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
 
-Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
-Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
+SCOPE:
+------
 
----
- drivers/staging/hv/channel_interface.c |   40 ++++++++++++++++----------------
- drivers/staging/hv/channel_interface.h |    2 +-
- drivers/staging/hv/vmbus.c             |    2 +-
- 3 files changed, 22 insertions(+), 22 deletions(-)
+The 7th IEEE Storage Networking Architecture and Parallel I/O (SNAPI
+2011) Workshop aims to highlight the latest research in the =
 
-diff --git a/drivers/staging/hv/channel_interface.c b/drivers/staging/hv/channel_interface.c
-index d9d345e..abd7f7f 100644
---- a/drivers/staging/hv/channel_interface.c
-+++ b/drivers/staging/hv/channel_interface.c
-@@ -25,7 +25,7 @@
- #include "osd.h"
- #include "vmbus_private.h"
- 
--static int IVmbusChannelOpen(struct hv_device *device, u32 sendbuffer_size,
-+static int ivmbus_open(struct hv_device *device, u32 sendbuffer_size,
- 			     u32 recv_ringbuffer_size, void *userdata,
- 			     u32 userdatalen,
- 			     void (*channel_callback)(void *context),
-@@ -36,12 +36,12 @@ static int IVmbusChannelOpen(struct hv_device *device, u32 sendbuffer_size,
- 				channel_callback, context);
- }
- 
--static void IVmbusChannelClose(struct hv_device *device)
-+static void ivmbus_close(struct hv_device *device)
- {
- 	vmbus_close(device->context);
- }
- 
--static int IVmbusChannelSendPacket(struct hv_device *device, const void *buffer,
-+static int ivmbus_sendpacket(struct hv_device *device, const void *buffer,
- 				   u32 bufferlen, u64 requestid, u32 type,
- 				   u32 flags)
- {
-@@ -49,7 +49,7 @@ static int IVmbusChannelSendPacket(struct hv_device *device, const void *buffer,
- 				      requestid, type, flags);
- }
- 
--static int IVmbusChannelSendPacketPageBuffer(struct hv_device *device,
-+static int ivmbus_sendpacket_pagebuffer(struct hv_device *device,
- 				struct hv_page_buffer pagebuffers[],
- 				u32 pagecount, void *buffer,
- 				u32 bufferlen, u64 requestid)
-@@ -59,7 +59,7 @@ static int IVmbusChannelSendPacketPageBuffer(struct hv_device *device,
- 						requestid);
- }
- 
--static int IVmbusChannelSendPacketMultiPageBuffer(struct hv_device *device,
-+static int ivmbus_sendpacket_multipagebuffer(struct hv_device *device,
- 				struct hv_multipage_buffer *multi_pagebuffer,
- 				void *buffer, u32 bufferlen, u64 requestid)
- {
-@@ -68,7 +68,7 @@ static int IVmbusChannelSendPacketMultiPageBuffer(struct hv_device *device,
- 						     bufferlen, requestid);
- }
- 
--static int IVmbusChannelRecvPacket(struct hv_device *device, void *buffer,
-+static int ivmbus_recvpacket(struct hv_device *device, void *buffer,
- 				   u32 bufferlen, u32 *buffer_actuallen,
- 				   u64 *requestid)
- {
-@@ -76,7 +76,7 @@ static int IVmbusChannelRecvPacket(struct hv_device *device, void *buffer,
- 				      buffer_actuallen, requestid);
- }
- 
--static int IVmbusChannelRecvPacketRaw(struct hv_device *device, void *buffer,
-+static int ivmbus_recvpacket_raw(struct hv_device *device, void *buffer,
- 				      u32 bufferlen, u32 *buffer_actuallen,
- 				      u64 *requestid)
- {
-@@ -84,14 +84,14 @@ static int IVmbusChannelRecvPacketRaw(struct hv_device *device, void *buffer,
- 					 buffer_actuallen, requestid);
- }
- 
--static int IVmbusChannelEstablishGpadl(struct hv_device *device, void *buffer,
-+static int ivmbus_establish_gpadl(struct hv_device *device, void *buffer,
- 				       u32 bufferlen, u32 *gpadl_handle)
- {
- 	return vmbus_establish_gpadl(device->context, buffer, bufferlen,
- 					  gpadl_handle);
- }
- 
--static int IVmbusChannelTeardownGpadl(struct hv_device *device,
-+static int ivmbus_teardown_gpadl(struct hv_device *device,
- 				      u32 gpadl_handle)
- {
- 	return vmbus_teardown_gpadl(device->context, gpadl_handle);
-@@ -99,7 +99,7 @@ static int IVmbusChannelTeardownGpadl(struct hv_device *device,
- }
- 
- 
--void GetChannelInfo(struct hv_device *device, struct hv_device_info *info)
-+void get_channel_info(struct hv_device *device, struct hv_device_info *info)
- {
- 	struct vmbus_channel_debug_info debug_info;
- 
-@@ -142,14 +142,14 @@ void GetChannelInfo(struct hv_device *device, struct hv_device_info *info)
- 
- /* vmbus interface function pointer table */
- const struct vmbus_channel_interface vmbus_ops = {
--	.Open = IVmbusChannelOpen,
--	.Close = IVmbusChannelClose,
--	.SendPacket = IVmbusChannelSendPacket,
--	.SendPacketPageBuffer = IVmbusChannelSendPacketPageBuffer,
--	.SendPacketMultiPageBuffer = IVmbusChannelSendPacketMultiPageBuffer,
--	.RecvPacket = IVmbusChannelRecvPacket,
--	.RecvPacketRaw	= IVmbusChannelRecvPacketRaw,
--	.EstablishGpadl = IVmbusChannelEstablishGpadl,
--	.TeardownGpadl = IVmbusChannelTeardownGpadl,
--	.GetInfo = GetChannelInfo,
-+	.Open = ivmbus_open,
-+	.Close = ivmbus_close,
-+	.SendPacket = ivmbus_sendpacket,
-+	.SendPacketPageBuffer = ivmbus_sendpacket_pagebuffer,
-+	.SendPacketMultiPageBuffer = ivmbus_sendpacket_multipagebuffer,
-+	.RecvPacket = ivmbus_recvpacket,
-+	.RecvPacketRaw	= ivmbus_recvpacket_raw,
-+	.EstablishGpadl = ivmbus_establish_gpadl,
-+	.TeardownGpadl = ivmbus_teardown_gpadl,
-+	.GetInfo = get_channel_info,
- };
-diff --git a/drivers/staging/hv/channel_interface.h b/drivers/staging/hv/channel_interface.h
-index ec88219..1007612 100644
---- a/drivers/staging/hv/channel_interface.h
-+++ b/drivers/staging/hv/channel_interface.h
-@@ -27,7 +27,7 @@
- 
- #include "vmbus_api.h"
- 
--void GetChannelInfo(struct hv_device *Device,
-+void get_channel_info(struct hv_device *Device,
- 		    struct hv_device_info *DeviceInfo);
- 
- #endif /* _CHANNEL_INTERFACE_H_ */
-diff --git a/drivers/staging/hv/vmbus.c b/drivers/staging/hv/vmbus.c
-index ea2698c..0f2e1be 100644
---- a/drivers/staging/hv/vmbus.c
-+++ b/drivers/staging/hv/vmbus.c
-@@ -66,7 +66,7 @@ static void VmbusGetChannelOffers(void)
- static void VmbusGetChannelInfo(struct hv_device *DeviceObject,
- 				struct hv_device_info *DeviceInfo)
- {
--	GetChannelInfo(DeviceObject, DeviceInfo);
-+	get_channel_info(DeviceObject, DeviceInfo);
- }
- 
- /*
--- 
-1.6.3.2
+architecture, design, implementation, and evaluation of local and =
+
+networked storage and parallel I/O systems. The workshop is co-located =
+
+with the 27th IEEE Conference on Mass Storage Systems and Technologies =
+
+(MSST2011) that features a full week dedicated to "all things storage". =
+
+The SNAPI 2011 workshop, held in the middle of the MSST week, will =
+
+feature a full day of technical papers that showcase the latest work =
+
+from the academia, the labs, and the industry.
+
+This year we would like to encourage a variety of submissions including
+novel idea papers, real system experience papers, as well as analysis
+and evaluation papers. Topics of interest include, but are not limited
+to:
+
+* Caching, replication, and consistency
+* Energy-efficient storage
+* Evaluation of networked storage architectures
+* Experiences with real systems
+* File and block based network storage
+* Integration and evaluation of emerging storage technology
+* I/O quality of service
+* New abstractions/protocols for data, storage, and I/O
+* Parallel I/O
+* Performance, scalability, and manageability of networked storage
+* SSD-based storage architectures and tiered storage
+* Storage device and workload characterization
+* Storage networking
+* Storage reliability and failure management
+* Storage virtualization
+* Thin provisioning, consolidation, compression, and deduplication
+* Wide-area networked storage
+
+
+
+SUBMISSIONS INSTRUCTIONS:
+-------------------------
+
+Submissions should not exceed 8 single-space pages including all text,
+figures, and references. Submissions must be typeset as double-column
+text, using no less than 10 pt font, and using a text block that does
+not exceed 6.5" width and 9" height.
+
+The reviewing is double-blind. Authors must not be identified in the
+submission either directly or indirectly. Please be careful so as to not
+refer to your own work in the first person or leak authorship in any way
+within the text of the paper. Reviewing will be performed by the members
+of the SNAPI=9211 Program Committee. Each paper will receive at least
+three reviews from members of the Program Committee.
+
+The final version of the paper prepared after incorporating reviewer
+feedback should be submitted by April 1st, 2011. At least one author of
+each accepted paper will be expected to attend the workshop and present
+their work in a 25 minute talk.
+
+
+
+BEST PAPER AWARD:
+-----------------
+
+Authors of the best paper, chosen by the Program Committee, will be
+presented an award at the workshop.
+
+
+
+Important dates:
+----------------
+
+* Full paper submission: January 28, 2011
+* Notification of acceptance: March 4, 2011
+* Final manuscripts due: April 1, 2011
+* Workshop: May 25, 2011
+
+
+
+Organization:
+-------------
+
+* Program Chair:
+  o Raju Rangaswami, Florida International University
+
+* Program Committee:
+  o Angelos Bilas, FORTH and University of Crete
+  o Randal Burns, Johns Hopkins University
+  o Dan Feng, Huazhong University of Science and Technology
+  o Dirk Grunwald, University of Colorado, Boulder
+  o Ajay Gulati, VMware
+  o Ron Oldfield, Sandia National Laboratory
+  o Vijayan Prabhakaran, Microsoft Research
+  o Himabindu Pucha, IBM Research - Almaden
+  o A. L. Narasimha Reddy, Texas A&M University
+  o Alma Riska, College of William and Mary
+  o Philip Roth, Oak Ridge National Laboratory
+  o Jiri Schindler, NetApp
+  o Rajeev Thakur, Argonne National Laboratory
+  o Bhuvan Urgaonkar, Pennsylvania State University
+  o Youjip Won, Hanyang University
+  o Ming Zhao, Florida International University
+
+* Web and Publicity Chair:
+  o Ming Zhao, Florida International University
+
+* Steering Committee:
+  o Qing Yang, University of Rhode Island
+  o Hong Jiang, University of Nebraska-Lincoln
+  o Xubin He, Tennessee Tech University
+
+
+
+SPONSORSHIP:
+------------
+IEEE Mass Storage Systems Technical Committee (MSSTC)
+
+
+
+Information:
+------------
+* SNAPI 2001 Web: http://snapi2011.cis.fiu.edu
+* MSST 2011 Web: http://storageconference.org
+* Email: snapi2011@cis.fiu.edu
+
+
+
+
+
+-- =
+
+Ming Zhao, Assistant Professor
+School of Computing and Information Sciences
+Florida International University
+Tel: (305) 348-2034, Fax: (305) 348-3549
+Web: http://visa.cs.fiu.edu/ming
