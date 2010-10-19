@@ -1,70 +1,34 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: Re: [PATCH] virtio: console: Don't block entire guest if host doesn't
-	read data
-Date: Tue, 19 Oct 2010 10:03:48 +0200
-Message-ID: <4CBD50E4.7090308@redhat.com>
-References: <baecf865292e0cc96914d30fc601e3a96fad9845.1287467155.git.amit.shah@redhat.com>
-	<4CBD40D4.9050106@redhat.com>
-	<20101019071021.GB2505@amit-laptop.redhat.com>
-	<4CBD4754.5030504@redhat.com>
-	<20101019073216.GA8896@amit-laptop.redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [GIT PULL net-2.6] vhost-net: access_ok fix
+Date: Tue, 19 Oct 2010 16:59:01 +0200
+Message-ID: <20101019145901.GA16025@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20101019073216.GA8896@amit-laptop.redhat.com>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Amit Shah <amit.shah@redhat.com>
-Cc: stable@kernel.org, Virtualization List <virtualization@lists.linux-foundation.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+Sender: linux-kernel-owner@vger.kernel.org
+To: David Miller <davem@davemloft.net>
+Cc: kvm@vger.kernel.org, virtualization@lists.osdl.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi,
+David,
+Not sure if it's too late for 2.6.36 - in case it's not, the following tree
+includes a last minute bugfix for vhost-net, found by code inspection.
+It is on top of net-2.6.
+Thanks!
 
-On 10/19/2010 09:32 AM, Amit Shah wrote:
-> On (Tue) Oct 19 2010 [09:23:00], Hans de Goede wrote:
->>>> 3) This patch will cause processes filling the virtqueue fast enough to block
->>>>     to never wake up again, due to a missing waitqueue wakeup, see:
->>>>     https://bugzilla.redhat.com/show_bug.cgi?id=643750
->>>
->>> Doesn't happen in my testcase, but this patch shouldn't cause that
->>> problem if it exists -- it's a problem that exists even now for
->>> nonblocking ports.  So if such a bug exists, it needs to be fixed
->>> independently.
->>
->> First of all lets agree that this is a real problem,
->
-> Sure, got a testcase for the test-virtserial or kvm-autotest projects?
-> ;-)
->
-> I did try it and POLLOUT gets set for me immediately when I read one
-> buffer from the host.
->
+The following changes since commit b0057c51db66c5f0f38059f242c57d61c4741d89:
 
-Ok, weird but ok :)
+  tg3: restore rx_dropped accounting (2010-10-11 16:06:24 -0700)
 
-<snip>
+are available in the git repository at:
+  git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git vhost-net
 
->> I agree it is an independent problem, and should be fixed in a separate
->> patch, but that patch should be part of the same set and become *before*
->> this one, as this patch now extends the problem to ports opened in blocking
->> mode too.
->
-> Strongly disagree.  This patch fixes a problem wherein blocking-mode
-> writes to a port freeze the entire guest.  That's a much uglier problem
-> to have than poll not indicating a port is writable again.
+Dan Carpenter (1):
+      vhost: fix return code for log_access_ok()
 
-Ack, you're right.
+ drivers/vhost/vhost.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-Acked-by: Hans de Goede <hdegoede@redhat.com>
-
-Regards,
-
-Hans
+-- 
+MST
