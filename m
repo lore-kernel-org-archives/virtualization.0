@@ -1,34 +1,34 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [GIT PULL net-2.6] vhost-net: access_ok fix
-Date: Tue, 19 Oct 2010 16:59:01 +0200
-Message-ID: <20101019145901.GA16025@redhat.com>
+From: Chris Wright <chrisw@redhat.com>
+Subject: KVM Forum 2010: videos online [was Re: KVM Forum 2010: presentations
+	online]
+Date: Tue, 19 Oct 2010 10:14:27 -0700
+Message-ID: <20101019171427.GC24673__15396.831444423$1287508666$gmane$org@x200.localdomain>
+References: <20100816215039.GI17935@x200.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-To: David Miller <davem@davemloft.net>
-Cc: kvm@vger.kernel.org, virtualization@lists.osdl.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20100816215039.GI17935@x200.localdomain>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: kvm@vger.kernel.org, qemu-devel@nongnu.org
+Cc: libvir-list@redhat.com, Chris Wright <chrisw@redhat.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-David,
-Not sure if it's too late for 2.6.36 - in case it's not, the following tree
-includes a last minute bugfix for vhost-net, found by code inspection.
-It is on top of net-2.6.
-Thanks!
+* Chris Wright (chrisw@redhat.com) wrote:
+> We were also able to video the speakers, and will send a note when the
+> videos are available.
+> (and thanks again to Andrew Cathrow for making this happen)
 
-The following changes since commit b0057c51db66c5f0f38059f242c57d61c4741d89:
+I don't think a note went out yet.  The videos are available as well.
 
-  tg3: restore rx_dropped accounting (2010-10-11 16:06:24 -0700)
-
-are available in the git repository at:
-  git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git vhost-net
-
-Dan Carpenter (1):
-      vhost: fix return code for log_access_ok()
-
- drivers/vhost/vhost.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
-
--- 
-MST
+thanks,
+-chris
