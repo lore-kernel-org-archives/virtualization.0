@@ -1,80 +1,103 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: virtio: console: Don't block entire guest if host doesn't read data
-Date: Wed, 20 Oct 2010 13:45:43 +1030
-Message-ID: <201010201345.44255.rusty@rustcorp.com.au>
+From: Dan Magenheimer <dan.magenheimer@oracle.com>
+Subject: RE: [Xen-devel] Re: xen PV on HVM and initial domain merge in
+ linux-next
+Date: Wed, 20 Oct 2010 08:11:29 -0700 (PDT)
+Message-ID: <5d143f14-26a1-4452-8b44-dae2a8b6df11@default>
+References: <alpine.DEB.2.00.1010191254460.2423@kaball-desktop>
+ <alpine.DEB.2.00.1010191847290.10348@kaball-desktop
+ 20101020113256.3647b1d9.sfr@canb.auug.org.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Amit Shah <amit.shah@redhat.com>, Hans de Goede <hdegoede@redhat.com>, virtualization@lists.linux-foundation.org
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20101020113256.3647b1d9.sfr@canb.auug.org.au>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Stephen Rothwell <sfr@canb.auug.org.au>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>
+Cc: xen-devel@lists.xensource.com, Jeremy Fitzhardinge <jeremy@xensource.com>, Konrad Wilk <konrad.wilk@oracle.com>, linux-kernel@vger.kernel.org, Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, linux-next@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Amit Shah <amit.shah@redhat.com>
+> Not following the Xen develpment at all, I would like to have a
+> positive reply from the listed Xen contacts, please,
 
-If the host is slow in reading data or doesn't read data at all,
-blocking write calls not only blocked the program that called write()
-but the entire guest itself.
+I am not officially listed as a maintainer for Xen, but fwiw:
 
-To overcome this, let's not block till the host signals it has given
-back the virtio ring element we passed it.  Instead, send the buffer to
-the host and return to userspace.  This operation then becomes similar
-to how non-blocking writes work, so let's use the existing code for this
-path as well.
+Acked-by: Dan Magenheimer <dan.magenheimer@oracle.com>
 
-This code change also ensures blocking write calls do get blocked if
-there's not enough room in the virtio ring as well as they don't return
--EAGAIN to userspace.
+And, Stephen, I think Chris Wright and virtualization@lists.osdl.org
+are stale entries in the MAINTAINERS file for Xen development,
+so you are unlikely to receive replies from him/them.
+(Chris, virtualization@lists.osdl.org ... please feel free
+to correct me if I am wrong.)
 
-Signed-off-by: Amit Shah <amit.shah@redhat.com>
-Acked-by: Hans de Goede <hdegoede@redhat.com>
-CC: stable@kernel.org
-Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
----
- drivers/char/virtio_console.c |   17 ++++++++++++++---
- 1 file changed, 14 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index c810481..0f69c5e 100644
---- a/drivers/char/virtio_console.c
-+++ b/drivers/char/virtio_console.c
-@@ -459,9 +459,12 @@ static ssize_t send_buf(struct port *port, void *in_buf, size_t in_count,
- 
- 	/*
- 	 * Wait till the host acknowledges it pushed out the data we
--	 * sent.  This is done for ports in blocking mode or for data
--	 * from the hvc_console; the tty operations are performed with
--	 * spinlocks held so we can't sleep here.
-+	 * sent.  This is done for data from the hvc_console; the tty
-+	 * operations are performed with spinlocks held so we can't
-+	 * sleep here.  An alternative would be to copy the data to a
-+	 * buffer and relax the spinning requirement.  The downside is
-+	 * we need to kmalloc a GFP_ATOMIC buffer each time the
-+	 * console driver writes something out.
- 	 */
- 	while (!virtqueue_get_buf(out_vq, &len))
- 		cpu_relax();
-@@ -626,6 +629,14 @@ static ssize_t port_fops_write(struct file *filp, const char __user *ubuf,
- 		goto free_buf;
- 	}
- 
-+	/*
-+	 * We now ask send_buf() to not spin for generic ports -- we
-+	 * can re-use the same code path that non-blocking file
-+	 * descriptors take for blocking file descriptors since the
-+	 * wait is already done and we're certain the write will go
-+	 * through to the host.
-+	 */
-+	nonblock = true;
- 	ret = send_buf(port, buf, count, nonblock);
- 
- 	if (nonblock && ret > 0)
+> -----Original Message-----
+> From: Stephen Rothwell [mailto:sfr@canb.auug.org.au]
+> Sent: Tuesday, October 19, 2010 6:33 PM
+> To: Stefano Stabellini
+> Cc: xen-devel@lists.xensource.com; Jeremy Fitzhardinge; Konrad
+> Rzeszutek Wilk; linux-kernel@vger.kernel.org; Chris Wright;
+> virtualization@lists.osdl.org; linux-next@vger.kernel.org; Andrew
+> Morton
+> Subject: [Xen-devel] Re: xen PV on HVM and initial domain merge in
+> linux-next
+> 
+> Hi Stefano,
+> 
+> [just casting the net a bit wider ...]
+> 
+> On Tue, 19 Oct 2010 18:51:47 +0100 Stefano Stabellini
+> <stefano.stabellini@eu.citrix.com> wrote:
+> >
+> > I forgot to CC the LKML and linux-next...
+> >
+> > On Tue, 19 Oct 2010, Stefano Stabellini wrote:
+> > > Stephen,
+> > > I have two patch series to merge in linux-next:
+> > >
+> > > PV on HVM: receive interrupts as xen events
+> > > xen: initial domain support
+> > >
+> > > they have all the acked-by needed and are both stable since several
+> > > weeks, however they depend on Konrad's xen-pcifront series and for
+> this
+> > > reason I waited until now to ask for a merge in linux-next.
+> > >
+> > > Could you please pull:
+> > >
+> > > git://xenbits.xen.org/people/sstabellini/linux-pvhvm.git linux-
+> next-initial-domain-v4
+> > >
+> > > it contains both series rebased on Konrad's pcifront series merged
+> on
+> > > linux-next (warning: it still contains the merge commit of
+> > > xen-pcifront-0.8.2 in linux-next).
+> > > Let me know if you have any conflicts or if you need me to change
+> the
+> > > branch somehow.
+> 
+> Not following the Xen develpment at all, I would like to have a
+> positive
+> reply from the listed Xen contacts, please,
+> 
+> I do have concerns that this is turning up so late, but I realise that
+> that is mainly due to a misunderstanding on the part of some of the Xen
+> community.
+> 
+> Also, the above tree is based on next-20101019 which means that I
+> cannot
+> use it as is.  All the trees merged into linux-next must be base on
+> some
+> other stable tree (almost always Linus' tree).  linux-next is rebuilt
+> from scratch every day, so I cannot ever include a previous day's
+> version.
+> 
+> Merging in other stable trees is OK (as long as the other maintainer is
+> aware of that and makes sure that their tree does not reabse).
+> 
+> Basically what you send to me should be what you intend to send to
+> Linus
+> during the next merge window.
+> 
+> --
+> Cheers,
+> Stephen Rothwell                    sfr@canb.auug.org.au
+> http://www.canb.auug.org.au/~sfr/
