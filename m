@@ -1,114 +1,54 @@
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-Subject: Re: xen PV on HVM and initial domain merge in linux-next
-Date: Thu, 21 Oct 2010 10:45:41 +1100
-Message-ID: <20101021104541.8e10159a.sfr@canb.auug.org.au>
-References: <alpine.DEB.2.00.1010191254460.2423@kaball-desktop>
-	<alpine.DEB.2.00.1010191847290.10348@kaball-desktop>
-	<20101020113256.3647b1d9.sfr@canb.auug.org.au>
-	<alpine.DEB.2.00.1010201455160.10348@kaball-desktop>
-	<20101020152808.GA22328@dumpdata.com>
-	<alpine.DEB.2.00.1010201644380.10348@kaball-desktop>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: [PULL] virtio (console and one block)
+Date: Thu, 21 Oct 2010 17:52:27 +1030
+Message-ID: <201010211752.27742.rusty@rustcorp.com.au>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============0146554102=="
-Return-path: <xen-devel-bounces@lists.xensource.com>
-In-Reply-To: <alpine.DEB.2.00.1010201644380.10348@kaball-desktop>
-List-Unsubscribe: <http://lists.xensource.com/mailman/listinfo/xen-devel>,
-	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
-List-Post: <mailto:xen-devel@lists.xensource.com>
-List-Help: <mailto:xen-devel-request@lists.xensource.com?subject=help>
-List-Subscribe: <http://lists.xensource.com/mailman/listinfo/xen-devel>,
-	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
-Sender: xen-devel-bounces@lists.xensource.com
-Errors-To: xen-devel-bounces@lists.xensource.com
-To: Stefano Stabellini <stefano.stabellini@eu.citrix.com>
-Cc: Jeremy Fitzhardinge <Jeremy.Fitzhardinge@citrix.com>, Stefano Stabellini <Stefano.Stabellini@eu.citrix.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Chris Wright <chrisw@sous-sol.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, "linux-next@vger.kernel.org" <linux-next@vger.kernel.org>, Andrew Morton <akpm@linux-foundation.org>, "xen-devel@lists.xensource.com" <xen-devel@lists.xensource.com>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Amit Shah <amit.shah@redhat.com>, Christoph Hellwig <hch@lst.de>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
---===============0146554102==
-Content-Type: multipart/signed; protocol="application/pgp-signature";
-	micalg="PGP-SHA1";
-	boundary="Signature=_Thu__21_Oct_2010_10_45_41_+1100_aOZ1O+a0EbuxnsNc"
+The following changes since commit f6f94e2ab1b33f0082ac22d71f66385a60d8157f:
 
---Signature=_Thu__21_Oct_2010_10_45_41_+1100_aOZ1O+a0EbuxnsNc
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+  Linux 2.6.36 (2010-10-20 13:30:22 -0700)
 
-Hi Stefano,
+are available in the git repository at:
+  ssh://master.kernel.org/pub/scm/linux/kernel/git/rusty/linux-2.6-for-linus.git virtio
 
-On Wed, 20 Oct 2010 16:47:51 +0100 Stefano Stabellini <stefano.stabellini@e=
-u.citrix.com> wrote:
->
-> Good idea, I have created a link called linux-next to
-> 2.6.36-rc8-initial-domain-v5 so the following should also work:
->=20
-> git://xenbits.xen.org/people/sstabellini/linux-pvhvm.git linux-next
+Amit Shah (18):
+      virtio: console: Reset vdev before removing device
+      virtio: console: Remove control vq data only if using multiport support
+      virtio: console: Check if portdev is valid in send_control_msg()
+      virtio: console: Un-block reads on chardev close
+      virtio: console: Unblock poll on port hot-unplug
+      virtio: console: Make read() return -ENODEV on hot-unplug
+      virtio: console: Make write() return -ENODEV on hot-unplug
+      virtio: console: remove_port() should return void
+      virtio: console: open: Use a common path for error handling
+      virtio: console: Add a list of portdevs that are active
+      virtio: console: Add a find_port_by_devt() function
+      virtio: console: Use cdev_alloc() instead of cdev_init()
+      virtio: console: Add reference counting for port struct
+      virtio: console: Reference counting portdev structs is not needed
+      virtio: console: Send SIGIO to processes that request it for host events
+      virtio: console: Send SIGIO on new data arrival on ports
+      virtio: console: Send SIGIO in case of port unplug
+      virtio: console: Disable lseek(2) for port file operations
 
-I have added that branch from today with just you listed as the contact
-(if you ant anyone else (even a mailing list) listed as a contact, just
-let me know.
+Christoph Hellwig (1):
+      virtio_blk: remove BKL leftovers
 
-Thanks for adding your subsystem tree as a participant of linux-next.  As
-you may know, this is not a judgment of your code.  The purpose of
-linux-next is for integration testing and to lower the impact of
-conflicts between subsystems in the next merge window.=20
-
-You will need to ensure that the patches/commits in your tree/series have
-been:
-     * submitted under GPL v2 (or later) and include the Contributor's
-	Signed-off-by,
-     * posted to the relevant mailing list,
-     * reviewed by you (or another maintainer of your subsystem tree),
-     * successfully unit tested, and=20
-     * destined for the current or next Linux merge window.
-
-Basically, this should be just what you would send to Linus (or ask him
-to fetch).  It is allowed to be rebased if you deem it necessary.
-
---=20
-Cheers,
-Stephen Rothwell=20
-sfr@canb.auug.org.au
-
-Legal Stuff:
-By participating in linux-next, your subsystem tree contributions are
-public and will be included in the linux-next trees.  You may be sent
-e-mail messages indicating errors or other issues when the
-patches/commits from your subsystem tree are merged and tested in
-linux-next.  These messages may also be cross-posted to the linux-next
-mailing list, the linux-kernel mailing list, etc.  The linux-next tree
-project and IBM (my employer) make no warranties regarding the linux-next
-project, the testing procedures, the results, the e-mails, etc.  If you
-don't agree to these ground rules, let me know and I'll remove your tree
-from participation in linux-next.
-
---Signature=_Thu__21_Oct_2010_10_45_41_+1100_aOZ1O+a0EbuxnsNc
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.10 (GNU/Linux)
-
-iQEcBAEBAgAGBQJMv38lAAoJEDMEi1NhKgbssYcH/Rgoe/X3hHmTyxgC9NHtLPPH
-NJB4HMSj7XUq1IA9ZBodDDhHVnjht20Dgo0ZBX8VU/HLunyHcrWjJ5PqQ4IPaTXm
-KfakafvDOByNQSZ9iFDYRIAFin1EcvjXExJaSNbWqqlzeqZ/Pu1MPTavq+VQwlUM
-+LaSc++JhMzs435lswNiS1UxvbofAkSTH/qu+JPh2kJnK/URF47petNPHLeEg9EK
-RA6xfNiyw24n4ACEJgV2XNGF40nMUWhRNxx2T/1TwWwwEG2KtIW7RmjcuP5BrtnO
-EFX/MRnEc7hE3UPVDDbKr+SH6yFDfNc2aPdyQGTZ0Cm3Ht6sSarn2IfRnGP66lc=
-=3G9U
------END PGP SIGNATURE-----
-
---Signature=_Thu__21_Oct_2010_10_45_41_+1100_aOZ1O+a0EbuxnsNc--
-
-
---===============0146554102==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Xen-devel mailing list
-Xen-devel@lists.xensource.com
-http://lists.xensource.com/xen-devel
-
---===============0146554102==--
+ drivers/block/virtio_blk.c    |   17 +---
+ drivers/char/virtio_console.c |  240 +++++++++++++++++++++++++++++++++++------
+ 2 files changed, 209 insertions(+), 48 deletions(-)
