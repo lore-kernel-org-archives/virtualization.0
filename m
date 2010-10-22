@@ -1,11 +1,13 @@
 From: Jens Osterkamp <jens@linux.vnet.ibm.com>
-Subject: implementation of IEEE 802.1Qbg in lldpad
-Date: Fri, 22 Oct 2010 13:26:51 +0200
-Message-ID: <1287746820-6036-1-git-send-email-jens@linux.vnet.ibm.com>
+Subject: [PATCH 6/9] add libnl dependency to configure.ac
+Date: Fri, 22 Oct 2010 13:26:57 +0200
+Message-ID: <1287746820-6036-7-git-send-email-jens@linux.vnet.ibm.com>
+References: <1287746820-6036-1-git-send-email-jens@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1287746820-6036-1-git-send-email-jens@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -16,48 +18,29 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: e1000-eedc@lists.sourceforge.net, virtualization@lists.linux-foundation.org, evb@yahoogroups.com
-Cc: chrisw@redhat.com
+Cc: chrisw@redhat.com, Jens Osterkamp <jens@linux.vnet.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi,
+Signed-off-by: Jens Osterkamp <jens@linux.vnet.ibm.com>
+---
+ configure.ac |    5 +++++
+ 1 files changed, 5 insertions(+), 0 deletions(-)
 
-this set of patches contains the initial implementation of the IEEE 802.1Qbg
-standard: code for the exchange of EVB TLVs in LLDP frames to negotiate VSI
-capabalities as well as VDP VSI TLVs between a host with virtual machines
-and an adjacent switch.
-
-It supports setting the parameters of the TLV exchange from the command
-line using lldptool.
-
-VDP profiles consisting of mode,mgrid,typeid,typeidversion,instanceid,mac,vlan
-can be given to lldpad with lldptool or sent to lldpad via netlink messages from
-the kernel or another program, e.g. libvirt.
-
-VDP profiles are processed through the VDP/VSI and ECP state machines and
-sent out in ECP frames.
-ACK frames are received and processed through ECP and VDP/VSI state machines.
-
-It implements a VDP bridge role for a port together with a lldptool command to
-switch a port to the bridge role.
-
-These patches apply against lldpad 0.9.38. Protocol debug messages are now logged
-to syslog via LLDPAD_* macros and no longer to console. If you want to see them,
-configure your syslog daemon to collect debug messages and start lldpad with -V 7.
-
- - improved cleanup in case of interface down
- - improved checking if a port really exists
- - converted all our code to use LLDPAD_ log messages
- - addressed Johns comments
- - modified EVB TLV defaults
- - increase max number of VSIs to 64k
- - fixed a number of bugs and memleaks
-
-For more information about lldpad take a look at
-
-http://sourceforge.net/projects/e1000/files/DCB%20Tools/lldpad/
-
-Please review and comment.
-
-Thank you !
-
-                        Jens
+diff --git a/configure.ac b/configure.ac
+index 619c6c4..8b9d08a 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -12,6 +12,11 @@ PKG_CHECK_MODULES(LIBCONFIG, libconfig,
+ AC_SUBST(LIBCONFIG_CFLAGS)
+ AC_SUBST(LIBCONFIG_LIBS)
+ 
++PKG_CHECK_MODULES(LIBNL, libnl-1 >= 1.1)
++AC_SUBST(LIBNL_CFLAGS)
++AC_SUBST(LIBNL_LIBS)
++
++AC_CHECK_LIB(nl, rtnl_link_get_by_name)
+ AC_CONFIG_SUBDIRS([libconfig-1.3.2])
+ AC_CONFIG_FILES([Makefile include/version.h lldpad.spec lldpad.pc dcbd.pc])
+ AC_OUTPUT
+-- 
+1.7.1
