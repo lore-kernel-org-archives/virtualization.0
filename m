@@ -1,7 +1,7 @@
 From: Jens Osterkamp <jens@linux.vnet.ibm.com>
-Subject: [PATCH 7/9] use connect instead of bind
-Date: Fri, 22 Oct 2010 13:26:58 +0200
-Message-ID: <1287746820-6036-8-git-send-email-jens@linux.vnet.ibm.com>
+Subject: [PATCH 1/9] consolidation of MIN and MAX macros in common.h
+Date: Fri, 22 Oct 2010 13:26:52 +0200
+Message-ID: <1287746820-6036-2-git-send-email-jens@linux.vnet.ibm.com>
 References: <1287746820-6036-1-git-send-email-jens@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -18,43 +18,55 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: e1000-eedc@lists.sourceforge.net, virtualization@lists.linux-foundation.org, evb@yahoogroups.com
-Cc: chrisw@redhat.com, Gerhard Stenzel <gstenzel@linux.vnet.ibm.com>, Jens Osterkamp <jens@linux.vnet.ibm.com>
+Cc: chrisw@redhat.com, Jens Osterkamp <jens@linux.vnet.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-modifies the setup of the netlink socket in drv_cfg.c to use pid 0 instead
-of the processes pid.
-Also replaces bind with connect to allow the reception of netlink messages
-from libvirt.
-Preparation patch for communication between libvirt and lldpad.
+This patch consolidates a modified version of the already existing MIN
+macro in lldpad to include/common.h and add a MAX macro.
 
-Signed-off-by: Gerhard Stenzel <gstenzel@linux.vnet.ibm.com>
+Signed-off-by: Jens Osterkamp <jens@linux.vnet.ibm.com>
 ---
- drv_cfg.c |    5 +++--
- 1 files changed, 3 insertions(+), 2 deletions(-)
+ include/common.h       |   14 ++++++++++++++
+ include/dcb_protocol.h |    4 ----
+ 2 files changed, 14 insertions(+), 4 deletions(-)
 
-diff --git a/drv_cfg.c b/drv_cfg.c
-index 6c02555..23c11f3 100644
---- a/drv_cfg.c
-+++ b/drv_cfg.c
-@@ -71,9 +71,9 @@ static int init_socket(void)
+diff --git a/include/common.h b/include/common.h
+index 01746ea..ab07dc2 100644
+--- a/include/common.h
++++ b/include/common.h
+@@ -387,4 +387,18 @@ typedef int socklen_t;
  
- 	memset((void *)&snl, 0, sizeof(struct sockaddr_nl));
- 	snl.nl_family = AF_NETLINK;
--	snl.nl_pid = getpid();
-+	snl.nl_pid = 0;
+ const char * wpa_ssid_txt(u8 *ssid, size_t ssid_len);
  
--	if (bind(sd, (struct sockaddr *)&snl, sizeof(struct sockaddr_nl)) < 0) {
-+	if (connect(sd, (struct sockaddr *)&snl, sizeof(struct sockaddr_nl)) < 0) {
- 		close(sd);
- 		return -EIO;
- 	}
-@@ -195,6 +195,7 @@ static struct nlmsghdr *get_msg(unsigned int seq)
- 			nlh = NULL;
- 			break;
- 		}
-+		fprintf(stderr, "%s:%s: nlmsg_type: %d\n", __FILE__, __FUNCTION__, nlh->nlmsg_type);
- 		if ((nlh->nlmsg_type == RTM_GETDCB ||
- 			nlh->nlmsg_type == RTM_SETDCB) &&
- 			nlh->nlmsg_seq == seq) {
++#define MIN(x,y) \
++	({	\
++		typeof (x) __x = (x);	\
++		typeof (y) __y = (y);	\
++		__x < __y ? __x : __y;	\
++	 })
++
++#define MAX(x,y) \
++	({	\
++		typeof (x) __x = (x);	\
++		typeof (y) __y = (y);	\
++		__x > __y ? __x : __y;	\
++	 })
++
+ #endif /* COMMON_H */
+diff --git a/include/dcb_protocol.h b/include/dcb_protocol.h
+index 63e2d3c..d7127f5 100644
+--- a/include/dcb_protocol.h
++++ b/include/dcb_protocol.h
+@@ -58,10 +58,6 @@ typedef enum {
+ #define DUP_DCBX_TLV_LLINK         0x0020
+ #define TOO_MANY_NGHBRS            0x0040
+ 
+-//#ifndef min /*todo: change to min()
+-	#define MIN(x, y) ((x) < (y) ? x : y)
+-//#endif
+-
+ #define INIT_DCB_OUI                    {0x00,0x1b,0x21}
+ 
+ int add_adapter(char *device_name);
 -- 
 1.7.1
