@@ -1,78 +1,68 @@
-From: Anthony Liguori <anthony@codemonkey.ws>
+From: Ian Molton <ian.molton@collabora.co.uk>
 Subject: Re: [Qemu-devel] Re: [PATCH] Implement a virtio GPU transport
-Date: Thu, 28 Oct 2010 09:43:49 -0500
-Message-ID: <4CC98C25.9010207@codemonkey.ws>
-References: <4CAC9CD1.2050601@collabora.co.uk>	<4CB1D79A.6070805@redhat.com>	<4CBD739A.2010500@collabora.co.uk>	<4CBD7560.6080207@redhat.com> <4CC8226F.5080807@collabora.co.uk>	<4CC94203.1080207@redhat.com> <4CC9647A.50108@collabora.co.uk> <4CC98784.7020907@redhat.com>
+Date: Thu, 28 Oct 2010 20:50:27 +0100
+Message-ID: <4CC9D403.2010805@collabora.co.uk>
+References: <4CAC9CD1.2050601@collabora.co.uk>	<4CB1D79A.6070805@redhat.com>	<4CBD739A.2010500@collabora.co.uk>	<4CBD7560.6080207@redhat.com> <4CC8226F.5080807@collabora.co.uk>	<4CC94203.1080207@redhat.com> <4CC9647A.50108@collabora.co.uk> <4CC98784.7020907@redhat.com> <4CC98C25.9010207@codemonkey.ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <4CC98784.7020907@redhat.com>
+In-Reply-To: <4CC98C25.9010207@codemonkey.ws>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Avi Kivity <avi@redhat.com>
-Cc: Ian Molton <ian.molton@collabora.co.uk>, virtualization@lists.osdl.org, linux-kernel@vger.kernel.org, QEMU Developers <qemu-devel@nongnu.org>
+To: Anthony Liguori <anthony@codemonkey.ws>
+Cc: Avi Kivity <avi@redhat.com>, virtualization@lists.osdl.org, linux-kernel@vger.kernel.org, QEMU Developers <qemu-devel@nongnu.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 10/28/2010 09:24 AM, Avi Kivity wrote:
->  On 10/28/2010 01:54 PM, Ian Molton wrote:
->>> Well, I like to review an implementation against a spec.
->>
->>
->> True, but then all that would prove is that I can write a spec to 
->> match the code.
+On 28/10/10 15:43, Anthony Liguori wrote:
+> On 10/28/2010 09:24 AM, Avi Kivity wrote:
+>> On 10/28/2010 01:54 PM, Ian Molton wrote:
 >
-> It would also allow us to check that the spec matches the 
-> requirements.  Those two steps are easier than checking that the code 
-> matches the requirements.
+>>> True, but then all that would prove is that I can write a spec to
+>>> match the code.
+>>
+>> It would also allow us to check that the spec matches the
+>> requirements. Those two steps are easier than checking that the code
+>> matches the requirements.
 
-I'm extremely sceptical of any GL passthrough proposal.  There have 
-literally been half a dozen over the years and they never seem to leave 
-proof-of-concept phase.  My (limited) understanding is that it's a 
-fundamentally hard problem that no one has adequately solved yet.
+There was no formal spec for this. The code was written to replace nasty 
+undefined-instruction based data transport hacks in the (already 
+existing) GL passthrough code.
 
-A specifically matters an awful lot less than an explanation of how the 
-problem is being solved in a robust fashion such that it can be reviewed 
-by people with a deeper understanding of the problem space.
+> I'm extremely sceptical of any GL passthrough proposal. There have
+> literally been half a dozen over the years and they never seem to leave
+> proof-of-concept phase. My (limited) understanding is that it's a
+> fundamentally hard problem that no one has adequately solved yet.
 
-Regards,
+The code in this case has been presented as a patch to qemu nearly 3 
+years ago. I've taken the patches and refactored them to use virtio 
+rather than an undefined instruction (which fails under KVM, unlike my 
+approach).
 
-Anthony Liguori
+Its in use testing meego images and seems to be fairly reliable. it can 
+handle compositing window managers, games, video, etc. We're currently 
+supporting OpenGL 1.4 including shaders.
 
->> The code is proof of concept. the kernel bit is pretty simple, but 
->> I'd like to get some idea of whether the rest of the code will be 
->> accepted given that theres not much point in having any one (or two) 
->> of these components exist without the other.
->
-> I guess some graphics people need to be involved.
->
->>
->>> Better, but still unsatisfying. If the server is busy, the caller would
->>> block. I guess it's expected since it's called from ->fsync(). I'm not
->>> sure whether that's the best interface, perhaps aio_writev is better.
->>
->> The caller is intended to block as the host must perform GL rendering 
->> before allowing the guests process to continue.
->
-> Why is that?  Can't we pipeline the process?
->
->>
->> The only real bottleneck is that processes will block trying to 
->> submit data if another process is performing rendering, but that will 
->> only be solved when the renderer is made multithreaded. The same 
->> would happen on a real GPU if it had only one queue too.
->>
->> If you look at the host code, you can see that the data is already 
->> buffered per-process, in a pretty sensible way. if the renderer 
->> itself were made a seperate thread, then this problem magically 
->> disappears (the queuing code on the host is pretty fast).
->
-> Well, this is out of my area of expertise.  I don't like it, but if 
-> it's acceptable to the gpu people, okay.
->
->>
->> In testing, the overhead of this was pretty small anyway. Running a 
->> few dozen glxgears and a copy of ioquake3 simultaneously on an intel 
->> video card managed the same framerate with the same CPU utilisation, 
->> both with the old code and the version I just posted. Contention 
->> during rendering just isn't much of an issue.
->
+> A specifically matters an awful lot less than an explanation of how the
+> problem is being solved in a robust fashion such that it can be reviewed
+> by people with a deeper understanding of the problem space.
+
+I'm not sure there is a way to prevent nefarious tasks upsetting the 
+hosts OpenGL with carefully crafted strings of commands, short of 
+inspecting every single command, which is insane.
+
+Really this needs to be done at a lower level by presenting a virtual 
+GPU to the guest OS but I am not in a position to code that right now.
+
+The code as it is is useful, and can always be superceeded by a virtual 
+GPU implementation in future.
+
+At least this breaks the chicken / egg cycle of people wanting GL 
+support on virtual machines, but not writing stuff to take advantage of 
+it because the support isn't there. its also a neatly encapsulated 
+solution - if you dont want people to have access to the passthrough, 
+simply tell qemu not to present the virtio-gl device to the guest, via 
+qemus existing commandline options.
+
+If this code was invasive to qemus core, I'd say 'no way' but its just 
+not. and as the GL device is versioned, we can keep using it even if the 
+passthrough is replaced by a virtual GPU.
