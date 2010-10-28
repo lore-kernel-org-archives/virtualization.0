@@ -1,57 +1,49 @@
-From: Avi Kivity <avi@redhat.com>
-Subject: Re: [Qemu-devel] Re: [PATCH] Implement a virtio GPU transport
-Date: Thu, 28 Oct 2010 11:27:31 +0200
-Message-ID: <4CC94203.1080207@redhat.com>
-References: <4CAC9CD1.2050601@collabora.co.uk> <4CB1D79A.6070805@redhat.com>	<4CBD739A.2010500@collabora.co.uk> <4CBD7560.6080207@redhat.com> <4CC8226F.5080807@collabora.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+From: Vasiliy Kulikov <segooon@gmail.com>
+Subject: [PATCH] xen: xenfs: privcmd: check put_user() return code
+Date: Thu, 28 Oct 2010 15:39:02 +0400
+Message-ID: <1288265942-12581-1-git-send-email-segooon@gmail.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <4CC8226F.5080807@collabora.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Ian Molton <ian.molton@collabora.co.uk>
-Cc: linux-kernel@vger.kernel.org, QEMU Developers <qemu-devel@nongnu.org>, virtualization@lists.osdl.org
+To: kernel-janitors@vger.kernel.org
+Cc: Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Ian Campbell <ian.campbell@citrix.com>, xen-devel@lists.xen.org, virtualization@lists.osdl.org, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-  On 10/27/2010 03:00 PM, Ian Molton wrote:
-> On 19/10/10 11:39, Avi Kivity wrote:
->> On 10/19/2010 12:31 PM, Ian Molton wrote:
->
->>>> 2. should start with a patch to the virtio-pci spec to document what
->>>> you're doing
->>>
->>> Where can I find that spec?
->>
->> http://ozlabs.org/~rusty/virtio-spec/
->
-> Ok, but I'm not patching that until theres been some review.
+put_user() may fail.  In this case propagate error code from
+privcmd_ioctl_mmap_batch().
 
-Well, I like to review an implementation against a spec.
+Signed-off-by: Vasiliy Kulikov <segooon@gmail.com>
+---
+ Compile tested.
 
->
-> There are links to the associated qemu and guest OS changes in my 
-> original email.
->
->>> It doesnt, at present... It could be changed fairly easily ithout
->>> breaking anything if that happens though.
->>
->> The hypervisor and the guest can be changed independently. The driver
->> should be coded so that it doesn't depend on hypervisor implementation
->> details.
->
-> Fixed - updated patch tested and attached.
-> +
-> +	/* Transfer data */
-> +	if (virtqueue_add_buf(vq, sg_list, o_page, i_page, gldata)>= 0) {
-> +		virtqueue_kick(vq);
-> +		/* Chill out until it's done with the buffer. */
-> +		wait_for_completion(&gldata->done);
-> +	}
-> +
+ drivers/xen/xenfs/privcmd.c |    8 ++------
+ 1 files changed, 2 insertions(+), 6 deletions(-)
 
-Better, but still unsatisfying.  If the server is busy, the caller would 
-block.  I guess it's expected since it's called from ->fsync().  I'm not 
-sure whether that's the best interface, perhaps aio_writev is better.
-
+diff --git a/drivers/xen/xenfs/privcmd.c b/drivers/xen/xenfs/privcmd.c
+index f80be7f..2eb04c8 100644
+--- a/drivers/xen/xenfs/privcmd.c
++++ b/drivers/xen/xenfs/privcmd.c
+@@ -266,9 +266,7 @@ static int mmap_return_errors(void *data, void *state)
+ 	xen_pfn_t *mfnp = data;
+ 	struct mmap_batch_state *st = state;
+ 
+-	put_user(*mfnp, st->user++);
+-
+-	return 0;
++	return put_user(*mfnp, st->user++);
+ }
+ 
+ static struct vm_operations_struct privcmd_vm_ops;
+@@ -323,10 +321,8 @@ static long privcmd_ioctl_mmap_batch(void __user *udata)
+ 	up_write(&mm->mmap_sem);
+ 
+ 	if (state.err > 0) {
+-		ret = 0;
+-
+ 		state.user = m.arr;
+-		traverse_pages(m.num, sizeof(xen_pfn_t),
++		ret = traverse_pages(m.num, sizeof(xen_pfn_t),
+ 			       &pagelist,
+ 			       mmap_return_errors, &state);
+ 	}
 -- 
-error compiling committee.c: too many arguments to function
+1.7.0.4
