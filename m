@@ -1,49 +1,63 @@
-From: Vasiliy Kulikov <segooon@gmail.com>
-Subject: [PATCH] xen: xenfs: privcmd: check put_user() return code
-Date: Thu, 28 Oct 2010 15:39:02 +0400
-Message-ID: <1288265942-12581-1-git-send-email-segooon@gmail.com>
+From: Ian Molton <ian.molton@collabora.co.uk>
+Subject: Re: [Qemu-devel] Re: [PATCH] Implement a virtio GPU transport
+Date: Thu, 28 Oct 2010 12:54:34 +0100
+Message-ID: <4CC9647A.50108@collabora.co.uk>
+References: <4CAC9CD1.2050601@collabora.co.uk> <4CB1D79A.6070805@redhat.com>	<4CBD739A.2010500@collabora.co.uk> <4CBD7560.6080207@redhat.com> <4CC8226F.5080807@collabora.co.uk> <4CC94203.1080207@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <4CC94203.1080207@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: kernel-janitors@vger.kernel.org
-Cc: Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Ian Campbell <ian.campbell@citrix.com>, xen-devel@lists.xen.org, virtualization@lists.osdl.org, linux-kernel@vger.kernel.org
+To: Avi Kivity <avi@redhat.com>
+Cc: linux-kernel@vger.kernel.org, QEMU Developers <qemu-devel@nongnu.org>, virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-put_user() may fail.  In this case propagate error code from
-privcmd_ioctl_mmap_batch().
+On 28/10/10 10:27, Avi Kivity wrote:
+> On 10/27/2010 03:00 PM, Ian Molton wrote:
+>> On 19/10/10 11:39, Avi Kivity wrote:
+>>> On 10/19/2010 12:31 PM, Ian Molton wrote:
+>>
+>>>>> 2. should start with a patch to the virtio-pci spec to document what
+>>>>> you're doing
+>>>>
+>>>> Where can I find that spec?
+>>>
+>>> http://ozlabs.org/~rusty/virtio-spec/
+>>
+>> Ok, but I'm not patching that until theres been some review.
+>
+> Well, I like to review an implementation against a spec.
 
-Signed-off-by: Vasiliy Kulikov <segooon@gmail.com>
----
- Compile tested.
+True, but then all that would prove is that I can write a spec to match 
+the code.
 
- drivers/xen/xenfs/privcmd.c |    8 ++------
- 1 files changed, 2 insertions(+), 6 deletions(-)
+The code is proof of concept. the kernel bit is pretty simple, but I'd 
+like to get some idea of whether the rest of the code will be accepted 
+given that theres not much point in having any one (or two) of these 
+components exist without the other.
 
-diff --git a/drivers/xen/xenfs/privcmd.c b/drivers/xen/xenfs/privcmd.c
-index f80be7f..2eb04c8 100644
---- a/drivers/xen/xenfs/privcmd.c
-+++ b/drivers/xen/xenfs/privcmd.c
-@@ -266,9 +266,7 @@ static int mmap_return_errors(void *data, void *state)
- 	xen_pfn_t *mfnp = data;
- 	struct mmap_batch_state *st = state;
- 
--	put_user(*mfnp, st->user++);
--
--	return 0;
-+	return put_user(*mfnp, st->user++);
- }
- 
- static struct vm_operations_struct privcmd_vm_ops;
-@@ -323,10 +321,8 @@ static long privcmd_ioctl_mmap_batch(void __user *udata)
- 	up_write(&mm->mmap_sem);
- 
- 	if (state.err > 0) {
--		ret = 0;
--
- 		state.user = m.arr;
--		traverse_pages(m.num, sizeof(xen_pfn_t),
-+		ret = traverse_pages(m.num, sizeof(xen_pfn_t),
- 			       &pagelist,
- 			       mmap_return_errors, &state);
- 	}
--- 
-1.7.0.4
+> Better, but still unsatisfying. If the server is busy, the caller would
+> block. I guess it's expected since it's called from ->fsync(). I'm not
+> sure whether that's the best interface, perhaps aio_writev is better.
+
+The caller is intended to block as the host must perform GL rendering 
+before allowing the guests process to continue.
+
+The only real bottleneck is that processes will block trying to submit 
+data if another process is performing rendering, but that will only be 
+solved when the renderer is made multithreaded. The same would happen on 
+a real GPU if it had only one queue too.
+
+If you look at the host code, you can see that the data is already 
+buffered per-process, in a pretty sensible way. if the renderer itself 
+were made a seperate thread, then this problem magically disappears (the 
+queuing code on the host is pretty fast).
+
+In testing, the overhead of this was pretty small anyway. Running a few 
+dozen glxgears and a copy of ioquake3 simultaneously on an intel video 
+card managed the same framerate with the same CPU utilisation, both with 
+the old code and the version I just posted. Contention during rendering 
+just isn't much of an issue.
+
+-Ian
