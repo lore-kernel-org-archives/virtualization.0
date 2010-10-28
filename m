@@ -1,63 +1,66 @@
-From: Ian Molton <ian.molton@collabora.co.uk>
+From: Avi Kivity <avi@redhat.com>
 Subject: Re: [Qemu-devel] Re: [PATCH] Implement a virtio GPU transport
-Date: Thu, 28 Oct 2010 12:54:34 +0100
-Message-ID: <4CC9647A.50108@collabora.co.uk>
-References: <4CAC9CD1.2050601@collabora.co.uk> <4CB1D79A.6070805@redhat.com>	<4CBD739A.2010500@collabora.co.uk> <4CBD7560.6080207@redhat.com> <4CC8226F.5080807@collabora.co.uk> <4CC94203.1080207@redhat.com>
+Date: Thu, 28 Oct 2010 16:24:04 +0200
+Message-ID: <4CC98784.7020907@redhat.com>
+References: <4CAC9CD1.2050601@collabora.co.uk> <4CB1D79A.6070805@redhat.com>	<4CBD739A.2010500@collabora.co.uk> <4CBD7560.6080207@redhat.com> <4CC8226F.5080807@collabora.co.uk> <4CC94203.1080207@redhat.com> <4CC9647A.50108@collabora.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <4CC94203.1080207@redhat.com>
+In-Reply-To: <4CC9647A.50108@collabora.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Avi Kivity <avi@redhat.com>
+To: Ian Molton <ian.molton@collabora.co.uk>
 Cc: linux-kernel@vger.kernel.org, QEMU Developers <qemu-devel@nongnu.org>, virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 28/10/10 10:27, Avi Kivity wrote:
-> On 10/27/2010 03:00 PM, Ian Molton wrote:
->> On 19/10/10 11:39, Avi Kivity wrote:
->>> On 10/19/2010 12:31 PM, Ian Molton wrote:
->>
->>>>> 2. should start with a patch to the virtio-pci spec to document what
->>>>> you're doing
->>>>
->>>> Where can I find that spec?
->>>
->>> http://ozlabs.org/~rusty/virtio-spec/
->>
->> Ok, but I'm not patching that until theres been some review.
+  On 10/28/2010 01:54 PM, Ian Molton wrote:
+>> Well, I like to review an implementation against a spec.
 >
-> Well, I like to review an implementation against a spec.
+>
+> True, but then all that would prove is that I can write a spec to 
+> match the code.
 
-True, but then all that would prove is that I can write a spec to match 
-the code.
+It would also allow us to check that the spec matches the requirements.  
+Those two steps are easier than checking that the code matches the 
+requirements.
 
-The code is proof of concept. the kernel bit is pretty simple, but I'd 
-like to get some idea of whether the rest of the code will be accepted 
-given that theres not much point in having any one (or two) of these 
-components exist without the other.
+> The code is proof of concept. the kernel bit is pretty simple, but I'd 
+> like to get some idea of whether the rest of the code will be accepted 
+> given that theres not much point in having any one (or two) of these 
+> components exist without the other.
 
-> Better, but still unsatisfying. If the server is busy, the caller would
-> block. I guess it's expected since it's called from ->fsync(). I'm not
-> sure whether that's the best interface, perhaps aio_writev is better.
+I guess some graphics people need to be involved.
 
-The caller is intended to block as the host must perform GL rendering 
-before allowing the guests process to continue.
+>
+>> Better, but still unsatisfying. If the server is busy, the caller would
+>> block. I guess it's expected since it's called from ->fsync(). I'm not
+>> sure whether that's the best interface, perhaps aio_writev is better.
+>
+> The caller is intended to block as the host must perform GL rendering 
+> before allowing the guests process to continue.
 
-The only real bottleneck is that processes will block trying to submit 
-data if another process is performing rendering, but that will only be 
-solved when the renderer is made multithreaded. The same would happen on 
-a real GPU if it had only one queue too.
+Why is that?  Can't we pipeline the process?
 
-If you look at the host code, you can see that the data is already 
-buffered per-process, in a pretty sensible way. if the renderer itself 
-were made a seperate thread, then this problem magically disappears (the 
-queuing code on the host is pretty fast).
+>
+> The only real bottleneck is that processes will block trying to submit 
+> data if another process is performing rendering, but that will only be 
+> solved when the renderer is made multithreaded. The same would happen 
+> on a real GPU if it had only one queue too.
+>
+> If you look at the host code, you can see that the data is already 
+> buffered per-process, in a pretty sensible way. if the renderer itself 
+> were made a seperate thread, then this problem magically disappears 
+> (the queuing code on the host is pretty fast).
 
-In testing, the overhead of this was pretty small anyway. Running a few 
-dozen glxgears and a copy of ioquake3 simultaneously on an intel video 
-card managed the same framerate with the same CPU utilisation, both with 
-the old code and the version I just posted. Contention during rendering 
-just isn't much of an issue.
+Well, this is out of my area of expertise.  I don't like it, but if it's 
+acceptable to the gpu people, okay.
 
--Ian
+>
+> In testing, the overhead of this was pretty small anyway. Running a 
+> few dozen glxgears and a copy of ioquake3 simultaneously on an intel 
+> video card managed the same framerate with the same CPU utilisation, 
+> both with the old code and the version I just posted. Contention 
+> during rendering just isn't much of an issue.
+
+-- 
+error compiling committee.c: too many arguments to function
