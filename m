@@ -1,53 +1,57 @@
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: [Xen-devel] Re: [PATCH] x86/pvclock-xen: zero last_value on resume
-Date: Wed, 27 Oct 2010 13:59:54 -0700
-Message-ID: <95805e88-b6d5-4ae2-9351-9e458656cfb8__14678.236997179$1288213352$gmane$org@email.android.com>
-References: <4CC708DE.1070000@goop.org>
-	<1288115334.3530.7.camel@mothafucka.localdomain>
-	<4CC8751E.40306@goop.org>
+From: Avi Kivity <avi@redhat.com>
+Subject: Re: [Qemu-devel] Re: [PATCH] Implement a virtio GPU transport
+Date: Thu, 28 Oct 2010 11:27:31 +0200
+Message-ID: <4CC94203.1080207@redhat.com>
+References: <4CAC9CD1.2050601@collabora.co.uk> <4CB1D79A.6070805@redhat.com>	<4CBD739A.2010500@collabora.co.uk> <4CBD7560.6080207@redhat.com> <4CC8226F.5080807@collabora.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4CC8751E.40306@goop.org>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jeremy Fitzhardinge <jeremy@goop.org>, Glauber Costa <glommer@redhat.com>
-Cc: "Xen-devel@lists.xensource.com" <Xen-devel@lists.xensource.com>, kvm-devel <kvm@vger.kernel.org>, Eelco Dolstra <e.dolstra@tudelft.nl>, the arch/x86 maintainers <x86@kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Olivier Hanesse <olivier.hanesse@gmail.com>, Avi Kivity <avi@redhat.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <4CC8226F.5080807@collabora.co.uk>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Ian Molton <ian.molton@collabora.co.uk>
+Cc: linux-kernel@vger.kernel.org, QEMU Developers <qemu-devel@nongnu.org>, virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-I'll check it this evening when I'm at a working network again :(
-
-"Jeremy Fitzhardinge" <jeremy@goop.org> wrote:
-
-> On 10/26/2010 10:48 AM, Glauber Costa wrote:
->> On Tue, 2010-10-26 at 09:59 -0700, Jeremy Fitzhardinge wrote:
->>> If the guest domain has been suspend/resumed or migrated, then the
->>> system clock backing the pvclock clocksource may revert to a smaller
->>> value (ie, can be non-monotonic across the migration/save-restore).
->>> Make sure we zero last_value in that case so that the domain
->>> continues to see clock updates.
+  On 10/27/2010 03:00 PM, Ian Molton wrote:
+> On 19/10/10 11:39, Avi Kivity wrote:
+>> On 10/19/2010 12:31 PM, Ian Molton wrote:
+>
+>>>> 2. should start with a patch to the virtio-pci spec to document what
+>>>> you're doing
 >>>
->>> [ I don't know if kvm needs an analogous fix or not. ]
->> After migration, save/restore, etc, we issue an ioctl where we tell
->> the host the last clock value. That (in theory) guarantees
->monotonicity.
+>>> Where can I find that spec?
 >>
->> I am not opposed to this patch in any way, however.
+>> http://ozlabs.org/~rusty/virtio-spec/
 >
->Thanks.
+> Ok, but I'm not patching that until theres been some review.
+
+Well, I like to review an implementation against a spec.
+
 >
->HPA, do you want to take this, or shall I send it on?
+> There are links to the associated qemu and guest OS changes in my 
+> original email.
 >
->Thanks,
->    J
+>>> It doesnt, at present... It could be changed fairly easily ithout
+>>> breaking anything if that happens though.
+>>
+>> The hypervisor and the guest can be changed independently. The driver
+>> should be coded so that it doesn't depend on hypervisor implementation
+>> details.
+>
+> Fixed - updated patch tested and attached.
+> +
+> +	/* Transfer data */
+> +	if (virtqueue_add_buf(vq, sg_list, o_page, i_page, gldata)>= 0) {
+> +		virtqueue_kick(vq);
+> +		/* Chill out until it's done with the buffer. */
+> +		wait_for_completion(&gldata->done);
+> +	}
+> +
+
+Better, but still unsatisfying.  If the server is busy, the caller would 
+block.  I guess it's expected since it's called from ->fsync().  I'm not 
+sure whether that's the best interface, perhaps aio_writev is better.
 
 -- 
-Sent from my mobile phone.  Please pardon any lack of formatting.
+error compiling committee.c: too many arguments to function
