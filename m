@@ -1,92 +1,56 @@
-From: Ian Campbell <Ian.Campbell@eu.citrix.com>
-Subject: Re: [PATCH] xen: xenfs: privcmd: check put_user() return code
-Date: Fri, 29 Oct 2010 18:57:14 +0100
-Message-ID: <1288375034.8069.66.camel@localhost.localdomain>
-References: <1288265942-12581-1-git-send-email-segooon@gmail.com>
-	 <4CCB01C9.4020007@goop.org>
-	 <1288374270.8069.41.camel@localhost.localdomain>
-	 <4CCB09FB.8050906@goop.org>
+From: Simon Horman <horms@verge.net.au>
+Subject: Re: [ovs-dev] Flow Control and Port Mirroring
+Date: Sat, 30 Oct 2010 11:59:33 +0900
+Message-ID: <20101030025932.GG12842@verge.net.au>
+References: <20101028115403.GA16206@verge.net.au>
+ <AANLkTi=QXBi4wmJS1TY0P=s+11Vjp0v=AfWOdFb4vrCj@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <4CCB09FB.8050906@goop.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Vasiliy Kulikov <segooon@gmail.com>, "kernel-janitors@vger.kernel.org" <kernel-janitors@vger.kernel.org>, Jeremy Fitzhardinge <Jeremy.Fitzhardinge@citrix.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "xen-devel@lists.xen.org" <xen-devel@lists.xen.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <kvm-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <AANLkTi=QXBi4wmJS1TY0P=s+11Vjp0v=AfWOdFb4vrCj@mail.gmail.com>
+Sender: kvm-owner@vger.kernel.org
+To: Jesse Gross <jesse@nicira.com>
+Cc: dev@openvswitch.org, "Michael S. Tsirkin" <mst@redhat.com>, kvm@vger.kernel.org, virtualization@lists.osdl.org, netdev@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 2010-10-29 at 18:52 +0100, Jeremy Fitzhardinge wrote:
-> On 10/29/2010 10:44 AM, Ian Campbell wrote:
-> > On Fri, 2010-10-29 at 18:18 +0100, Jeremy Fitzhardinge wrote:
-> >> On 10/28/2010 04:39 AM, Vasiliy Kulikov wrote:
-> >>> put_user() may fail.  In this case propagate error code from
-> >>> privcmd_ioctl_mmap_batch().
-> >> Thanks for looking at this.  I'm in two minds about this; the existing
-> >> logic is such that these put_users can only fail if something else has
-> >> already failed and its returning an error.  I guess it would be useful
-> >> to get an EFAULT if you've got a problem writing back the results.
-> >>
-> >> IanC, any opinion?
-> > Not a strong one.
-> >
-> > Perhaps what we really want in this case is for traverse_pages to return
-> > the total number of callback failures it encountered rather than
-> > aborting after the first failure?
-> >
-> > On the other hand you are correct that gather_array() has already
-> > touched all the pages which we are going to be touching here so how
-> > likely is a new failure at this point anyway?
-> 
-> I could think of two cases: the array is mapped RO, so only the
-> writeback fails, or someone changes the mapping under our feet from
-> another thread.
+[ CCed VHOST contacts ]
 
-I guess in that case returning EFAULT and leaving the array in whatever
-partially updated state we got to is the right thing to do and the
-proposed patch is therefore correct.
+On Thu, Oct 28, 2010 at 01:22:02PM -0700, Jesse Gross wrote:
+> On Thu, Oct 28, 2010 at 4:54 AM, Simon Horman <horms@verge.net.au> wrote:
+> > My reasoning is that in the non-mirroring case the guest is
+> > limited by the external interface through wich the packets
+> > eventually flow - that is 1Gbit/s. But in the mirrored either
+> > there is no flow control or the flow control is acting on the
+> > rate of dummy0, which is essentailly infinate.
+> >
+> > Before investigating this any further I wanted to ask if
+> > this behaviour is intentional.
+> 
+> It's not intentional but I can take a guess at what is happening.
+> 
+> When we send the packet to a mirror, the skb is cloned but only the
+> original skb is charged to the sender.  If the original packet is
+> delivered to localhost then it will be freed quickly and no longer
+> accounted for, despite the fact that the "real" packet is still
+> sitting in the transmit queue on the NIC.  The UDP stack will then
+> send the next packet, limited only by the speed of the CPU.
 
-> 
->     J
-> 
-> > Ian.
-> >
-> >> Thanks,
-> >>     J
-> >>
-> >>> Signed-off-by: Vasiliy Kulikov <segooon@gmail.com>
-> >>> ---
-> >>>  Compile tested.
-> >>>
-> >>>  drivers/xen/xenfs/privcmd.c |    8 ++------
-> >>>  1 files changed, 2 insertions(+), 6 deletions(-)
-> >>>
-> >>> diff --git a/drivers/xen/xenfs/privcmd.c b/drivers/xen/xenfs/privcmd.c
-> >>> index f80be7f..2eb04c8 100644
-> >>> --- a/drivers/xen/xenfs/privcmd.c
-> >>> +++ b/drivers/xen/xenfs/privcmd.c
-> >>> @@ -266,9 +266,7 @@ static int mmap_return_errors(void *data, void *state)
-> >>>  	xen_pfn_t *mfnp = data;
-> >>>  	struct mmap_batch_state *st = state;
-> >>>  
-> >>> -	put_user(*mfnp, st->user++);
-> >>> -
-> >>> -	return 0;
-> >>> +	return put_user(*mfnp, st->user++);
-> >>>  }
-> >>>  
-> >>>  static struct vm_operations_struct privcmd_vm_ops;
-> >>> @@ -323,10 +321,8 @@ static long privcmd_ioctl_mmap_batch(void __user *udata)
-> >>>  	up_write(&mm->mmap_sem);
-> >>>  
-> >>>  	if (state.err > 0) {
-> >>> -		ret = 0;
-> >>> -
-> >>>  		state.user = m.arr;
-> >>> -		traverse_pages(m.num, sizeof(xen_pfn_t),
-> >>> +		ret = traverse_pages(m.num, sizeof(xen_pfn_t),
-> >>>  			       &pagelist,
-> >>>  			       mmap_return_errors, &state);
-> >>>  	}
-> >
-> 
+That would explain what I have observed.
+
+> Normally, this would be tracked by accounting for the memory charged
+> to the socket.  However, I know that Xen tracks whether the actual
+> pages of memory have been freed, which should avoid this problem since
+> the memory won't be released util the last packet has been sent.  I
+> don't know what KVM virtio does but I'm guessing that it similar to
+> the former, since this problem is occurring.
+
+I am also familiar of how Xen tracks pages but less sure of the
+virtio side of things.
+
+> While it would be easy to charge the socket for all clones, I also
+> want to be careful about over accounting of the same data, leading to
+> a very small effective socket buffer.
+
+Agreed, we don't want to see over-charging.
+
