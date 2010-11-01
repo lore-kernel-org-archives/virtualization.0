@@ -1,55 +1,134 @@
-From: Greg KH <gregkh@suse.de>
-Subject: Re: [PATCH 03/10] staging: hv: Convert camel cased struct fields
-	in hv.h to lower cases
-Date: Mon, 1 Nov 2010 11:39:18 -0700
-Message-ID: <20101101183918.GA453@suse.de>
-References: <1288630429-12330-1-git-send-email-haiyangz@linuxonhyperv.com> <20101101174310.GA12632@suse.de> <1FB5E1D5CA062146B38059374562DF728BA19E86@TK5EX14MBXC128.redmond.corp.microsoft.com>
+From: Haiyang Zhang <haiyangz@linuxonhyperv.com>
+Subject: [PATCH 06/10] staging: hv: Convert camel cased local variables in
+	osd.c to lower cases
+Date: Mon,  1 Nov 2010 13:46:05 -0700
+Message-ID: <1288644369-12958-6-git-send-email-haiyangz@linuxonhyperv.com>
+References: <1288644369-12958-1-git-send-email-haiyangz@linuxonhyperv.com>
+	<1288644369-12958-2-git-send-email-haiyangz@linuxonhyperv.com>
+	<1288644369-12958-3-git-send-email-haiyangz@linuxonhyperv.com>
+	<1288644369-12958-4-git-send-email-haiyangz@linuxonhyperv.com>
+	<1288644369-12958-5-git-send-email-haiyangz@linuxonhyperv.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1FB5E1D5CA062146B38059374562DF728BA19E86@TK5EX14MBXC128.redmond.corp.microsoft.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Haiyang Zhang <haiyangz@microsoft.com>
-Cc: Hank Janssen <hjanssen@microsoft.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <devel-bounces@linuxdriverproject.org>
+In-Reply-To: <1288644369-12958-5-git-send-email-haiyangz@linuxonhyperv.com>
+List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
+	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
+List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
+List-Post: <mailto:devel@linuxdriverproject.org>
+List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
+List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
+	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
+Sender: devel-bounces@linuxdriverproject.org
+Errors-To: devel-bounces@linuxdriverproject.org
+To: haiyangz@microsoft.com, hjanssen@microsoft.com, gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Nov 01, 2010 at 06:27:04PM +0000, Haiyang Zhang wrote:
-> > From: Greg KH [mailto:gregkh@suse.de]
-> > Sent: Monday, November 01, 2010 1:43 PM
-> > Why did I get two different copies of some of these patches?  Are they
-> > different?
-> 
-> They are the same.
-> Initially, I sent all 10 patches out at the same time, but I only saw 5 of them in my mail box. So I re-sent the 5 missing ones. Half hour later, I found the 5 previous missing emails were not lost, and received again at a later time.
+From: Haiyang Zhang <haiyangz@microsoft.com>
 
-Ah, ok.
+Convert camel cased local variables in osd.c to lower cases
 
-Oh, please wrap your emails properly :)
+Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
+Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 
-> > >  /* The one and only */
-> > > -struct hv_context gHvContext = {
-> > > -	.SynICInitialized	= false,
-> > > -	.HypercallPage		= NULL,
-> > > -	.SignalEventParam	= NULL,
-> > > -	.SignalEventBuffer	= NULL,
-> > > +struct hv_context g_hv_context = {
-> > 
-> > What is the "g_" for?  Why are you keeping the unneeded, and unwanted
-> > hungarian notation around?  Please don't do that.
-> 
-> The "g_" was used for global variables. I also saw some other global
-> variables with the hungarian notation. Since this notation is not
-> related to camel case conversion, how about we remove the hungarian
-> notations in a separate patch?
+---
+ drivers/staging/hv/osd.c |   40 ++++++++++++++++++++--------------------
+ 1 files changed, 20 insertions(+), 20 deletions(-)
 
-How about you fix this patch in the series and resend them?
-
-And if you look at the kernel, there is no "g_" for global variable
-names, so I don't want to see that as part of the history at all.
-
-I'll drop these series and wait for an updated one.
-
-thanks,
-
-greg k-h
+diff --git a/drivers/staging/hv/osd.c b/drivers/staging/hv/osd.c
+index 8c3eb27..b39ec25 100644
+--- a/drivers/staging/hv/osd.c
++++ b/drivers/staging/hv/osd.c
+@@ -130,9 +130,9 @@ EXPORT_SYMBOL_GPL(osd_WaitEventCreate);
+ 
+ /**
+  * osd_WaitEventSet() - Wake up the process
+- * @waitEvent: Structure to event to be woken up
++ * @wait_event: Structure to event to be woken up
+  *
+- * @waitevent is of type &struct osd_waitevent
++ * @wait_event is of type &struct osd_waitevent
+  *
+  * Wake up the sleeping process so it can do some work.
+  * And set condition indicator in &struct osd_waitevent to indicate
+@@ -140,18 +140,18 @@ EXPORT_SYMBOL_GPL(osd_WaitEventCreate);
+  *
+  * Only used by Network and Storage Hyper-V drivers.
+  */
+-void osd_WaitEventSet(struct osd_waitevent *waitEvent)
++void osd_WaitEventSet(struct osd_waitevent *wait_event)
+ {
+-	waitEvent->condition = 1;
+-	wake_up_interruptible(&waitEvent->event);
++	wait_event->condition = 1;
++	wake_up_interruptible(&wait_event->event);
+ }
+ EXPORT_SYMBOL_GPL(osd_WaitEventSet);
+ 
+ /**
+  * osd_WaitEventWait() - Wait for event till condition is true
+- * @waitEvent: Structure to event to be put to sleep
++ * @wait_event: Structure to event to be put to sleep
+  *
+- * @waitevent is of type &struct osd_waitevent
++ * @wait_event is of type &struct osd_waitevent
+  *
+  * Set up the process to sleep until waitEvent->condition get true.
+  * And set condition indicator in &struct osd_waitevent to indicate
+@@ -161,25 +161,25 @@ EXPORT_SYMBOL_GPL(osd_WaitEventSet);
+  *
+  * Mainly used by Hyper-V drivers.
+  */
+-int osd_WaitEventWait(struct osd_waitevent *waitEvent)
++int osd_WaitEventWait(struct osd_waitevent *wait_event)
+ {
+ 	int ret = 0;
+ 
+-	ret = wait_event_interruptible(waitEvent->event,
+-				       waitEvent->condition);
+-	waitEvent->condition = 0;
++	ret = wait_event_interruptible(wait_event->event,
++				       wait_event->condition);
++	wait_event->condition = 0;
+ 	return ret;
+ }
+ EXPORT_SYMBOL_GPL(osd_WaitEventWait);
+ 
+ /**
+  * osd_WaitEventWaitEx() - Wait for event or timeout for process wakeup
+- * @waitEvent: Structure to event to be put to sleep
+- * @TimeoutInMs:       Total number of Milliseconds to wait before waking up
++ * @wait_event: Structure to event to be put to sleep
++ * @timeout_in_ms:       Total number of Milliseconds to wait before waking up
+  *
+- * @waitevent is of type &struct osd_waitevent
++ * @wait_event is of type &struct osd_waitevent
+  * Set up the process to sleep until @waitEvent->condition get true or
+- * @TimeoutInMs (Time out in Milliseconds) has been reached.
++ * @timeout_in_ms (Time out in Milliseconds) has been reached.
+  * And set condition indicator in &struct osd_waitevent to indicate
+  * the process is in a sleeping state.
+  *
+@@ -187,14 +187,14 @@ EXPORT_SYMBOL_GPL(osd_WaitEventWait);
+  *
+  * Mainly used by Hyper-V drivers.
+  */
+-int osd_WaitEventWaitEx(struct osd_waitevent *waitEvent, u32 TimeoutInMs)
++int osd_WaitEventWaitEx(struct osd_waitevent *wait_event, u32 timeout_in_ms)
+ {
+ 	int ret = 0;
+ 
+-	ret = wait_event_interruptible_timeout(waitEvent->event,
+-					       waitEvent->condition,
+-					       msecs_to_jiffies(TimeoutInMs));
+-	waitEvent->condition = 0;
++	ret = wait_event_interruptible_timeout(wait_event->event,
++					       wait_event->condition,
++					       msecs_to_jiffies(timeout_in_ms));
++	wait_event->condition = 0;
+ 	return ret;
+ }
+ EXPORT_SYMBOL_GPL(osd_WaitEventWaitEx);
+-- 
+1.6.3.2
