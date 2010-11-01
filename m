@@ -1,341 +1,325 @@
 From: Haiyang Zhang <haiyangz@linuxonhyperv.com>
-Subject: [PATCH 03/10] staging: hv: Convert camel cased struct fields in hv.h to lower cases
-Date: Mon,  1 Nov 2010 13:46:02 -0700
-Message-ID: <1288644369-12958-3-git-send-email-haiyangz@linuxonhyperv.com>
+Subject: [PATCH 08/10] staging: hv: Convert camel cased struct fields in ring_buffer.h to lower cases
+Date: Mon,  1 Nov 2010 13:46:07 -0700
+Message-ID: <1288644369-12958-8-git-send-email-haiyangz@linuxonhyperv.com>
 References: <1288644369-12958-1-git-send-email-haiyangz@linuxonhyperv.com>
  <1288644369-12958-2-git-send-email-haiyangz@linuxonhyperv.com>
+ <1288644369-12958-3-git-send-email-haiyangz@linuxonhyperv.com>
+ <1288644369-12958-4-git-send-email-haiyangz@linuxonhyperv.com>
+ <1288644369-12958-5-git-send-email-haiyangz@linuxonhyperv.com>
+ <1288644369-12958-6-git-send-email-haiyangz@linuxonhyperv.com>
+ <1288644369-12958-7-git-send-email-haiyangz@linuxonhyperv.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1288644369-12958-2-git-send-email-haiyangz@linuxonhyperv.com>
+In-Reply-To: <1288644369-12958-7-git-send-email-haiyangz@linuxonhyperv.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: haiyangz@microsoft.com, hjanssen@microsoft.com, gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
 From: Haiyang Zhang <haiyangz@microsoft.com>
 
-Convert camel cased struct fields in hv.h to lower cases
+Convert camel cased struct fields in ring_buffer.h to lower cases
 
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 
 ---
- drivers/staging/hv/hv.c    |   95 +++++++++++++++++++++++---------------------
- drivers/staging/hv/hv.h    |   20 +++++-----
- drivers/staging/hv/vmbus.c |    6 +-
- 3 files changed, 63 insertions(+), 58 deletions(-)
+ drivers/staging/hv/channel.c     |   10 +++---
+ drivers/staging/hv/ring_buffer.c |   58 ++++++++++++++++++++-----------------
+ drivers/staging/hv/ring_buffer.h |   30 ++++++++++----------
+ drivers/staging/hv/vmbus_drv.c   |   25 +++++++++-------
+ 4 files changed, 65 insertions(+), 58 deletions(-)
 
-diff --git a/drivers/staging/hv/hv.c b/drivers/staging/hv/hv.c
-index ab03327..d0e8c85 100644
---- a/drivers/staging/hv/hv.c
-+++ b/drivers/staging/hv/hv.c
-@@ -28,11 +28,11 @@
- #include "vmbus_private.h"
+diff --git a/drivers/staging/hv/channel.c b/drivers/staging/hv/channel.c
+index abc2988..0e554e9 100644
+--- a/drivers/staging/hv/channel.c
++++ b/drivers/staging/hv/channel.c
+@@ -213,7 +213,7 @@ int vmbus_open(struct vmbus_channel *newchannel, u32 send_ringbuffer_size,
+ 	newchannel->ringbuffer_gpadlhandle = 0;
  
- /* The one and only */
--struct hv_context gHvContext = {
--	.SynICInitialized	= false,
--	.HypercallPage		= NULL,
--	.SignalEventParam	= NULL,
--	.SignalEventBuffer	= NULL,
-+struct hv_context hv_context = {
-+	.synic_initialized	= false,
-+	.hypercall_page		= NULL,
-+	.signal_event_param	= NULL,
-+	.signal_event_buffer	= NULL,
+ 	ret = vmbus_establish_gpadl(newchannel,
+-					 newchannel->outbound.RingBuffer,
++					 newchannel->outbound.ring_buffer,
+ 					 send_ringbuffer_size +
+ 					 recv_ringbuffer_size,
+ 					 &newchannel->ringbuffer_gpadlhandle);
+@@ -227,10 +227,10 @@ int vmbus_open(struct vmbus_channel *newchannel, u32 send_ringbuffer_size,
+ 		   "size %d recv ring %p size %d, downstreamoffset %d>",
+ 		   newchannel, newchannel->offermsg.child_relid,
+ 		   newchannel->ringbuffer_gpadlhandle,
+-		   newchannel->outbound.RingBuffer,
+-		   newchannel->outbound.RingSize,
+-		   newchannel->inbound.RingBuffer,
+-		   newchannel->inbound.RingSize,
++		   newchannel->outbound.ring_buffer,
++		   newchannel->outbound.ring_size,
++		   newchannel->inbound.ring_buffer,
++		   newchannel->inbound.ring_size,
+ 		   send_ringbuffer_size);
+ 
+ 	/* Create and init the channel open message */
+diff --git a/drivers/staging/hv/ring_buffer.c b/drivers/staging/hv/ring_buffer.c
+index d78c569..6095cc5 100644
+--- a/drivers/staging/hv/ring_buffer.c
++++ b/drivers/staging/hv/ring_buffer.c
+@@ -51,11 +51,11 @@ GetRingBufferAvailBytes(struct hv_ring_buffer_info *rbi, u32 *read, u32 *write)
+ 	u32 read_loc, write_loc;
+ 
+ 	/* Capture the read/write indices before they changed */
+-	read_loc = rbi->RingBuffer->ReadIndex;
+-	write_loc = rbi->RingBuffer->WriteIndex;
++	read_loc = rbi->ring_buffer->read_index;
++	write_loc = rbi->ring_buffer->write_index;
+ 
+-	*write = BYTES_AVAIL_TO_WRITE(read_loc, write_loc, rbi->RingDataSize);
+-	*read = rbi->RingDataSize - *write;
++	*write = BYTES_AVAIL_TO_WRITE(read_loc, write_loc, rbi->ring_datasize);
++	*read = rbi->ring_datasize - *write;
+ }
+ 
+ /*++
+@@ -70,7 +70,7 @@ Description:
+ static inline u32
+ GetNextWriteLocation(struct hv_ring_buffer_info *RingInfo)
+ {
+-	u32 next = RingInfo->RingBuffer->WriteIndex;
++	u32 next = RingInfo->ring_buffer->write_index;
+ 
+ 	/* ASSERT(next < RingInfo->RingDataSize); */
+ 
+@@ -90,7 +90,7 @@ static inline void
+ SetNextWriteLocation(struct hv_ring_buffer_info *RingInfo,
+ 		     u32 NextWriteLocation)
+ {
+-	RingInfo->RingBuffer->WriteIndex = NextWriteLocation;
++	RingInfo->ring_buffer->write_index = NextWriteLocation;
+ }
+ 
+ /*++
+@@ -105,7 +105,7 @@ Description:
+ static inline u32
+ GetNextReadLocation(struct hv_ring_buffer_info *RingInfo)
+ {
+-	u32 next = RingInfo->RingBuffer->ReadIndex;
++	u32 next = RingInfo->ring_buffer->read_index;
+ 
+ 	/* ASSERT(next < RingInfo->RingDataSize); */
+ 
+@@ -125,11 +125,11 @@ Description:
+ static inline u32
+ GetNextReadLocationWithOffset(struct hv_ring_buffer_info *RingInfo, u32 Offset)
+ {
+-	u32 next = RingInfo->RingBuffer->ReadIndex;
++	u32 next = RingInfo->ring_buffer->read_index;
+ 
+ 	/* ASSERT(next < RingInfo->RingDataSize); */
+ 	next += Offset;
+-	next %= RingInfo->RingDataSize;
++	next %= RingInfo->ring_datasize;
+ 
+ 	return next;
+ }
+@@ -146,7 +146,7 @@ Description:
+ static inline void
+ SetNextReadLocation(struct hv_ring_buffer_info *RingInfo, u32 NextReadLocation)
+ {
+-	RingInfo->RingBuffer->ReadIndex = NextReadLocation;
++	RingInfo->ring_buffer->read_index = NextReadLocation;
+ }
+ 
+ 
+@@ -162,7 +162,7 @@ Description:
+ static inline void *
+ GetRingBuffer(struct hv_ring_buffer_info *RingInfo)
+ {
+-	return (void *)RingInfo->RingBuffer->Buffer;
++	return (void *)RingInfo->ring_buffer->buffer;
+ }
+ 
+ 
+@@ -178,7 +178,7 @@ Description:
+ static inline u32
+ GetRingBufferSize(struct hv_ring_buffer_info *RingInfo)
+ {
+-	return RingInfo->RingDataSize;
++	return RingInfo->ring_datasize;
+ }
+ 
+ /*++
+@@ -193,7 +193,7 @@ Description:
+ static inline u64
+ GetRingBufferIndices(struct hv_ring_buffer_info *RingInfo)
+ {
+-	return (u64)RingInfo->RingBuffer->WriteIndex << 32;
++	return (u64)RingInfo->ring_buffer->write_index << 32;
+ }
+ 
+ 
+@@ -221,11 +221,11 @@ void DumpRingInfo(struct hv_ring_buffer_info *RingInfo, char *Prefix)
+ 		"avail read %u read idx %u write idx %u>>",
+ 		Prefix,
+ 		RingInfo,
+-		RingInfo->RingBuffer->Buffer,
++		RingInfo->ring_buffer->buffer,
+ 		bytesAvailToWrite,
+ 		bytesAvailToRead,
+-		RingInfo->RingBuffer->ReadIndex,
+-		RingInfo->RingBuffer->WriteIndex);
++		RingInfo->ring_buffer->read_index,
++		RingInfo->ring_buffer->write_index);
+ }
+ 
+ 
+@@ -262,16 +262,19 @@ void RingBufferGetDebugInfo(struct hv_ring_buffer_info *RingInfo,
+ 	u32 bytesAvailToWrite;
+ 	u32 bytesAvailToRead;
+ 
+-	if (RingInfo->RingBuffer) {
++	if (RingInfo->ring_buffer) {
+ 		GetRingBufferAvailBytes(RingInfo,
+ 					&bytesAvailToRead,
+ 					&bytesAvailToWrite);
+ 
+-		debug_info->BytesAvailToRead = bytesAvailToRead;
+-		debug_info->BytesAvailToWrite = bytesAvailToWrite;
+-		debug_info->CurrentReadIndex = RingInfo->RingBuffer->ReadIndex;
+-		debug_info->CurrentWriteIndex = RingInfo->RingBuffer->WriteIndex;
+-		debug_info->CurrentInterruptMask = RingInfo->RingBuffer->InterruptMask;
++		debug_info->bytes_avail_toread = bytesAvailToRead;
++		debug_info->bytes_avail_towrite = bytesAvailToWrite;
++		debug_info->current_read_index =
++			RingInfo->ring_buffer->read_index;
++		debug_info->current_write_index =
++			RingInfo->ring_buffer->write_index;
++		debug_info->current_interrupt_mask =
++			RingInfo->ring_buffer->interrupt_mask;
+ 	}
+ }
+ 
+@@ -287,7 +290,7 @@ Description:
+ --*/
+ u32 GetRingBufferInterruptMask(struct hv_ring_buffer_info *rbi)
+ {
+-	return rbi->RingBuffer->InterruptMask;
++	return rbi->ring_buffer->interrupt_mask;
+ }
+ 
+ /*++
+@@ -306,11 +309,12 @@ int RingBufferInit(struct hv_ring_buffer_info *RingInfo, void *Buffer, u32 Buffe
+ 
+ 	memset(RingInfo, 0, sizeof(struct hv_ring_buffer_info));
+ 
+-	RingInfo->RingBuffer = (struct hv_ring_buffer *)Buffer;
+-	RingInfo->RingBuffer->ReadIndex = RingInfo->RingBuffer->WriteIndex = 0;
++	RingInfo->ring_buffer = (struct hv_ring_buffer *)Buffer;
++	RingInfo->ring_buffer->read_index =
++		RingInfo->ring_buffer->write_index = 0;
+ 
+-	RingInfo->RingSize = BufferLen;
+-	RingInfo->RingDataSize = BufferLen - sizeof(struct hv_ring_buffer);
++	RingInfo->ring_size = BufferLen;
++	RingInfo->ring_datasize = BufferLen - sizeof(struct hv_ring_buffer);
+ 
+ 	spin_lock_init(&RingInfo->ring_lock);
+ 
+diff --git a/drivers/staging/hv/ring_buffer.h b/drivers/staging/hv/ring_buffer.h
+index a7f1717..bb4c5bc 100644
+--- a/drivers/staging/hv/ring_buffer.h
++++ b/drivers/staging/hv/ring_buffer.h
+@@ -29,18 +29,18 @@
+ 
+ struct hv_ring_buffer {
+ 	/* Offset in bytes from the start of ring data below */
+-	volatile u32 WriteIndex;
++	volatile u32 write_index;
+ 
+ 	/* Offset in bytes from the start of ring data below */
+-	volatile u32 ReadIndex;
++	volatile u32 read_index;
+ 
+-	volatile u32 InterruptMask;
++	volatile u32 interrupt_mask;
+ 
+ 	/* Pad it to PAGE_SIZE so that data starts on page boundary */
+-	u8	Reserved[4084];
++	u8	reserved[4084];
+ 
+ 	/* NOTE:
+-	 * The InterruptMask field is used only for channels but since our
++	 * The interrupt_mask field is used only for channels but since our
+ 	 * vmbus connection also uses this data structure and its data starts
+ 	 * here, we commented out this field.
+ 	 */
+@@ -50,24 +50,24 @@ struct hv_ring_buffer {
+ 	 * Ring data starts here + RingDataStartOffset
+ 	 * !!! DO NOT place any fields below this !!!
+ 	 */
+-	u8 Buffer[0];
++	u8 buffer[0];
+ } __attribute__((packed));
+ 
+ struct hv_ring_buffer_info {
+-	struct hv_ring_buffer *RingBuffer;
+-	u32 RingSize;			/* Include the shared header */
++	struct hv_ring_buffer *ring_buffer;
++	u32 ring_size;			/* Include the shared header */
+ 	spinlock_t ring_lock;
+ 
+-	u32 RingDataSize;		/* < ringSize */
+-	u32 RingDataStartOffset;
++	u32 ring_datasize;		/* < ring_size */
++	u32 ring_data_startoffset;
  };
+ 
+ struct hv_ring_buffer_debug_info {
+-	u32 CurrentInterruptMask;
+-	u32 CurrentReadIndex;
+-	u32 CurrentWriteIndex;
+-	u32 BytesAvailToRead;
+-	u32 BytesAvailToWrite;
++	u32 current_interrupt_mask;
++	u32 current_read_index;
++	u32 current_write_index;
++	u32 bytes_avail_toread;
++	u32 bytes_avail_towrite;
+ };
+ 
+ 
+diff --git a/drivers/staging/hv/vmbus_drv.c b/drivers/staging/hv/vmbus_drv.c
+index 2bbf4ec..0965875 100644
+--- a/drivers/staging/hv/vmbus_drv.c
++++ b/drivers/staging/hv/vmbus_drv.c
+@@ -156,18 +156,21 @@ static void get_channel_info(struct hv_device *device,
+ 	info->ClientMonitorLatency = debug_info.clientmonitor_latency;
+ 	info->ClientMonitorConnectionId = debug_info.clientmonitor_connectionid;
+ 
+-	info->Inbound.InterruptMask = debug_info.inbound.CurrentInterruptMask;
+-	info->Inbound.ReadIndex = debug_info.inbound.CurrentReadIndex;
+-	info->Inbound.WriteIndex = debug_info.inbound.CurrentWriteIndex;
+-	info->Inbound.BytesAvailToRead = debug_info.inbound.BytesAvailToRead;
+-	info->Inbound.BytesAvailToWrite = debug_info.inbound.BytesAvailToWrite;
+-
+-	info->Outbound.InterruptMask = debug_info.outbound.CurrentInterruptMask;
+-	info->Outbound.ReadIndex = debug_info.outbound.CurrentReadIndex;
+-	info->Outbound.WriteIndex = debug_info.outbound.CurrentWriteIndex;
+-	info->Outbound.BytesAvailToRead = debug_info.outbound.BytesAvailToRead;
++	info->Inbound.InterruptMask = debug_info.inbound.current_interrupt_mask;
++	info->Inbound.ReadIndex = debug_info.inbound.current_read_index;
++	info->Inbound.WriteIndex = debug_info.inbound.current_write_index;
++	info->Inbound.BytesAvailToRead = debug_info.inbound.bytes_avail_toread;
++	info->Inbound.BytesAvailToWrite =
++		debug_info.inbound.bytes_avail_towrite;
++
++	info->Outbound.InterruptMask =
++		debug_info.outbound.current_interrupt_mask;
++	info->Outbound.ReadIndex = debug_info.outbound.current_read_index;
++	info->Outbound.WriteIndex = debug_info.outbound.current_write_index;
++	info->Outbound.BytesAvailToRead =
++		debug_info.outbound.bytes_avail_toread;
+ 	info->Outbound.BytesAvailToWrite =
+-		debug_info.outbound.BytesAvailToWrite;
++		debug_info.outbound.bytes_avail_towrite;
+ }
  
  /*
-@@ -134,7 +134,7 @@ static u64 HvDoHypercall(u64 Control, void *Input, void *Output)
- 	u64 hvStatus = 0;
- 	u64 inputAddress = (Input) ? virt_to_phys(Input) : 0;
- 	u64 outputAddress = (Output) ? virt_to_phys(Output) : 0;
--	volatile void *hypercallPage = gHvContext.HypercallPage;
-+	volatile void *hypercallPage = hv_context.hypercall_page;
- 
- 	DPRINT_DBG(VMBUS, "Hypercall <control %llx input phys %llx virt %p "
- 		   "output phys %llx virt %p hypercall %p>",
-@@ -162,7 +162,7 @@ static u64 HvDoHypercall(u64 Control, void *Input, void *Output)
- 	u64 outputAddress = (Output) ? virt_to_phys(Output) : 0;
- 	u32 outputAddressHi = outputAddress >> 32;
- 	u32 outputAddressLo = outputAddress & 0xFFFFFFFF;
--	volatile void *hypercallPage = gHvContext.HypercallPage;
-+	volatile void *hypercallPage = hv_context.hypercall_page;
- 
- 	DPRINT_DBG(VMBUS, "Hypercall <control %llx input %p output %p>",
- 		   Control, Input, Output);
-@@ -192,8 +192,9 @@ int HvInit(void)
- 	union hv_x64_msr_hypercall_contents hypercallMsr;
- 	void *virtAddr = NULL;
- 
--	memset(gHvContext.synICEventPage, 0, sizeof(void *) * MAX_NUM_CPUS);
--	memset(gHvContext.synICMessagePage, 0, sizeof(void *) * MAX_NUM_CPUS);
-+	memset(hv_context.synic_event_page, 0, sizeof(void *) * MAX_NUM_CPUS);
-+	memset(hv_context.synic_message_page, 0,
-+	       sizeof(void *) * MAX_NUM_CPUS);
- 
- 	if (!HvQueryHypervisorPresence()) {
- 		DPRINT_ERR(VMBUS, "No Windows hypervisor detected!!");
-@@ -209,17 +210,17 @@ int HvInit(void)
- 	/*
- 	 * We only support running on top of Hyper-V
- 	 */
--	rdmsrl(HV_X64_MSR_GUEST_OS_ID, gHvContext.GuestId);
-+	rdmsrl(HV_X64_MSR_GUEST_OS_ID, hv_context.guestid);
- 
--	if (gHvContext.GuestId != 0) {
-+	if (hv_context.guestid != 0) {
- 		DPRINT_ERR(VMBUS, "Unknown guest id (0x%llx)!!",
--				gHvContext.GuestId);
-+				hv_context.guestid);
- 		goto Cleanup;
- 	}
- 
- 	/* Write our OS info */
- 	wrmsrl(HV_X64_MSR_GUEST_OS_ID, HV_LINUX_GUEST_ID);
--	gHvContext.GuestId = HV_LINUX_GUEST_ID;
-+	hv_context.guestid = HV_LINUX_GUEST_ID;
- 
- 	/* See if the hypercall page is already set */
- 	rdmsrl(HV_X64_MSR_HYPERCALL, hypercallMsr.as_uint64);
-@@ -250,28 +251,29 @@ int HvInit(void)
- 		goto Cleanup;
- 	}
- 
--	gHvContext.HypercallPage = virtAddr;
-+	hv_context.hypercall_page = virtAddr;
- 
- 	DPRINT_INFO(VMBUS, "Hypercall page VA=%p, PA=0x%0llx",
--		    gHvContext.HypercallPage,
-+		    hv_context.hypercall_page,
- 		    (u64)hypercallMsr.guest_physical_address << PAGE_SHIFT);
- 
- 	/* Setup the global signal event param for the signal event hypercall */
--	gHvContext.SignalEventBuffer =
-+	hv_context.signal_event_buffer =
- 			kmalloc(sizeof(struct hv_input_signal_event_buffer),
- 				GFP_KERNEL);
--	if (!gHvContext.SignalEventBuffer)
-+	if (!hv_context.signal_event_buffer)
- 		goto Cleanup;
- 
--	gHvContext.SignalEventParam =
-+	hv_context.signal_event_param =
- 		(struct hv_input_signal_event *)
--			(ALIGN_UP((unsigned long)gHvContext.SignalEventBuffer,
-+			(ALIGN_UP((unsigned long)
-+				  hv_context.signal_event_buffer,
- 				  HV_HYPERCALL_PARAM_ALIGN));
--	gHvContext.SignalEventParam->connectionid.asu32 = 0;
--	gHvContext.SignalEventParam->connectionid.u.id =
-+	hv_context.signal_event_param->connectionid.asu32 = 0;
-+	hv_context.signal_event_param->connectionid.u.id =
- 						VMBUS_EVENT_CONNECTION_ID;
--	gHvContext.SignalEventParam->flag_number = 0;
--	gHvContext.SignalEventParam->rsvdz = 0;
-+	hv_context.signal_event_param->flag_number = 0;
-+	hv_context.signal_event_param->rsvdz = 0;
- 
- 	return ret;
- 
-@@ -297,15 +299,15 @@ void HvCleanup(void)
- {
- 	union hv_x64_msr_hypercall_contents hypercallMsr;
- 
--	kfree(gHvContext.SignalEventBuffer);
--	gHvContext.SignalEventBuffer = NULL;
--	gHvContext.SignalEventParam = NULL;
-+	kfree(hv_context.signal_event_buffer);
-+	hv_context.signal_event_buffer = NULL;
-+	hv_context.signal_event_param = NULL;
- 
--	if (gHvContext.HypercallPage) {
-+	if (hv_context.hypercall_page) {
- 		hypercallMsr.as_uint64 = 0;
- 		wrmsrl(HV_X64_MSR_HYPERCALL, hypercallMsr.as_uint64);
--		vfree(gHvContext.HypercallPage);
--		gHvContext.HypercallPage = NULL;
-+		vfree(hv_context.hypercall_page);
-+		hv_context.hypercall_page = NULL;
- 	}
- }
- 
-@@ -359,7 +361,8 @@ u16 HvSignalEvent(void)
- {
- 	u16 status;
- 
--	status = HvDoHypercall(HVCALL_SIGNAL_EVENT, gHvContext.SignalEventParam,
-+	status = HvDoHypercall(HVCALL_SIGNAL_EVENT,
-+			       hv_context.signal_event_param,
- 			       NULL) & 0xFFFF;
- 	return status;
- }
-@@ -382,7 +385,7 @@ void HvSynicInit(void *irqarg)
- 	u32 irqVector = *((u32 *)(irqarg));
- 	int cpu = smp_processor_id();
- 
--	if (!gHvContext.HypercallPage)
-+	if (!hv_context.hypercall_page)
- 		return;
- 
- 	/* Check the version */
-@@ -390,17 +393,19 @@ void HvSynicInit(void *irqarg)
- 
- 	DPRINT_INFO(VMBUS, "SynIC version: %llx", version);
- 
--	gHvContext.synICMessagePage[cpu] = (void *)get_zeroed_page(GFP_ATOMIC);
-+	hv_context.synic_message_page[cpu] =
-+		(void *)get_zeroed_page(GFP_ATOMIC);
- 
--	if (gHvContext.synICMessagePage[cpu] == NULL) {
-+	if (hv_context.synic_message_page[cpu] == NULL) {
- 		DPRINT_ERR(VMBUS,
- 			   "unable to allocate SYNIC message page!!");
- 		goto Cleanup;
- 	}
- 
--	gHvContext.synICEventPage[cpu] = (void *)get_zeroed_page(GFP_ATOMIC);
-+	hv_context.synic_event_page[cpu] =
-+		(void *)get_zeroed_page(GFP_ATOMIC);
- 
--	if (gHvContext.synICEventPage[cpu] == NULL) {
-+	if (hv_context.synic_event_page[cpu] == NULL) {
- 		DPRINT_ERR(VMBUS,
- 			   "unable to allocate SYNIC event page!!");
- 		goto Cleanup;
-@@ -409,7 +414,7 @@ void HvSynicInit(void *irqarg)
- 	/* Setup the Synic's message page */
- 	rdmsrl(HV_X64_MSR_SIMP, simp.as_uint64);
- 	simp.simp_enabled = 1;
--	simp.base_simp_gpa = virt_to_phys(gHvContext.synICMessagePage[cpu])
-+	simp.base_simp_gpa = virt_to_phys(hv_context.synic_message_page[cpu])
- 		>> PAGE_SHIFT;
- 
- 	DPRINT_DBG(VMBUS, "HV_X64_MSR_SIMP msr set to: %llx", simp.as_uint64);
-@@ -419,7 +424,7 @@ void HvSynicInit(void *irqarg)
- 	/* Setup the Synic's event page */
- 	rdmsrl(HV_X64_MSR_SIEFP, siefp.as_uint64);
- 	siefp.siefp_enabled = 1;
--	siefp.base_siefp_gpa = virt_to_phys(gHvContext.synICEventPage[cpu])
-+	siefp.base_siefp_gpa = virt_to_phys(hv_context.synic_event_page[cpu])
- 		>> PAGE_SHIFT;
- 
- 	DPRINT_DBG(VMBUS, "HV_X64_MSR_SIEFP msr set to: %llx", siefp.as_uint64);
-@@ -449,15 +454,15 @@ void HvSynicInit(void *irqarg)
- 
- 	wrmsrl(HV_X64_MSR_SCONTROL, sctrl.as_uint64);
- 
--	gHvContext.SynICInitialized = true;
-+	hv_context.synic_initialized = true;
- 	return;
- 
- Cleanup:
--	if (gHvContext.synICEventPage[cpu])
--		osd_PageFree(gHvContext.synICEventPage[cpu], 1);
-+	if (hv_context.synic_event_page[cpu])
-+		osd_PageFree(hv_context.synic_event_page[cpu], 1);
- 
--	if (gHvContext.synICMessagePage[cpu])
--		osd_PageFree(gHvContext.synICMessagePage[cpu], 1);
-+	if (hv_context.synic_message_page[cpu])
-+		osd_PageFree(hv_context.synic_message_page[cpu], 1);
- 	return;
- }
- 
-@@ -471,7 +476,7 @@ void HvSynicCleanup(void *arg)
- 	union hv_synic_siefp siefp;
- 	int cpu = smp_processor_id();
- 
--	if (!gHvContext.SynICInitialized)
-+	if (!hv_context.synic_initialized)
- 		return;
- 
- 	rdmsrl(HV_X64_MSR_SINT0 + VMBUS_MESSAGE_SINT, sharedSint.as_uint64);
-@@ -494,6 +499,6 @@ void HvSynicCleanup(void *arg)
- 
- 	wrmsrl(HV_X64_MSR_SIEFP, siefp.as_uint64);
- 
--	osd_PageFree(gHvContext.synICMessagePage[cpu], 1);
--	osd_PageFree(gHvContext.synICEventPage[cpu], 1);
-+	osd_PageFree(hv_context.synic_message_page[cpu], 1);
-+	osd_PageFree(hv_context.synic_event_page[cpu], 1);
- }
-diff --git a/drivers/staging/hv/hv.h b/drivers/staging/hv/hv.h
-index 41f5ebb..6e396fc 100644
---- a/drivers/staging/hv/hv.h
-+++ b/drivers/staging/hv/hv.h
-@@ -92,33 +92,33 @@ static const struct hv_guid VMBUS_SERVICE_ID = {
- 
- 
- struct hv_input_signal_event_buffer {
--	u64 Align8;
--	struct hv_input_signal_event Event;
-+	u64 align8;
-+	struct hv_input_signal_event event;
- };
- 
- struct hv_context {
- 	/* We only support running on top of Hyper-V
- 	* So at this point this really can only contain the Hyper-V ID
- 	*/
--	u64 GuestId;
-+	u64 guestid;
- 
--	void *HypercallPage;
-+	void *hypercall_page;
- 
--	bool SynICInitialized;
-+	bool synic_initialized;
- 
- 	/*
- 	 * This is used as an input param to HvCallSignalEvent hypercall. The
- 	 * input param is immutable in our usage and must be dynamic mem (vs
- 	 * stack or global). */
--	struct hv_input_signal_event_buffer *SignalEventBuffer;
-+	struct hv_input_signal_event_buffer *signal_event_buffer;
- 	/* 8-bytes aligned of the buffer above */
--	struct hv_input_signal_event *SignalEventParam;
-+	struct hv_input_signal_event *signal_event_param;
- 
--	void *synICMessagePage[MAX_NUM_CPUS];
--	void *synICEventPage[MAX_NUM_CPUS];
-+	void *synic_message_page[MAX_NUM_CPUS];
-+	void *synic_event_page[MAX_NUM_CPUS];
- };
- 
--extern struct hv_context gHvContext;
-+extern struct hv_context hv_context;
- 
- 
- /* Hv Interface */
-diff --git a/drivers/staging/hv/vmbus.c b/drivers/staging/hv/vmbus.c
-index 7c54ca9..b1ec876 100644
---- a/drivers/staging/hv/vmbus.c
-+++ b/drivers/staging/hv/vmbus.c
-@@ -147,7 +147,7 @@ static void VmbusOnCleanup(struct hv_driver *drv)
- static void VmbusOnMsgDPC(struct hv_driver *drv)
- {
- 	int cpu = smp_processor_id();
--	void *page_addr = gHvContext.synICMessagePage[cpu];
-+	void *page_addr = hv_context.synic_message_page[cpu];
- 	struct hv_message *msg = (struct hv_message *)page_addr +
- 				  VMBUS_MESSAGE_SINT;
- 	struct hv_message *copied;
-@@ -208,7 +208,7 @@ static int VmbusOnISR(struct hv_driver *drv)
- 	struct hv_message *msg;
- 	union hv_synic_event_flags *event;
- 
--	page_addr = gHvContext.synICMessagePage[cpu];
-+	page_addr = hv_context.synic_message_page[cpu];
- 	msg = (struct hv_message *)page_addr + VMBUS_MESSAGE_SINT;
- 
- 	/* Check if there are actual msgs to be process */
-@@ -220,7 +220,7 @@ static int VmbusOnISR(struct hv_driver *drv)
- 	}
- 
- 	/* TODO: Check if there are events to be process */
--	page_addr = gHvContext.synICEventPage[cpu];
-+	page_addr = hv_context.synic_event_page[cpu];
- 	event = (union hv_synic_event_flags *)page_addr + VMBUS_MESSAGE_SINT;
- 
- 	/* Since we are a child, we only need to check bit 0 */
 -- 
 1.6.3.2
