@@ -1,82 +1,31 @@
-From: Anthony Liguori <anthony@codemonkey.ws>
+From: Ian Molton <ian.molton@collabora.co.uk>
 Subject: Re: [Qemu-devel] Re: [PATCH] Implement a virtio GPU transport
-Date: Mon, 01 Nov 2010 08:28:48 -0500
-Message-ID: <4CCEC090.3050009@codemonkey.ws>
-References: <1097264455.965471288612409433.JavaMail.root@zmail06.collab.prod.int.phx2.redhat.com>
+Date: Mon, 01 Nov 2010 15:49:06 +0000
+Message-ID: <4CCEE172.2010600@collabora.co.uk>
+References: <4CAC9CD1.2050601@collabora.co.uk>	<4CB1D79A.6070805@redhat.com>	<4CBD739A.2010500@collabora.co.uk>	<4CBD7560.6080207@redhat.com>	<4CC8226F.5080807@collabora.co.uk>	<4CC94203.1080207@redhat.com>	<4CC9647A.50108@collabora.co.uk> <4CC98784.7020907@redhat.com>	<4CC9D472.2080109@collabora.co.uk> <4CCE9989.2010809@redhat.com> <4CCEBEE2.8010404@codemonkey.ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1097264455.965471288612409433.JavaMail.root@zmail06.collab.prod.int.phx2.redhat.com>
+In-Reply-To: <4CCEBEE2.8010404@codemonkey.ws>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Alon Levy <alevy@redhat.com>
-Cc: Ian Molton <ian.molton@collabora.co.uk>, QEMU Developers <qemu-devel@nongnu.org>, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org, Avi Kivity <avi@redhat.com>, virtualization@lists.linux-foundation.org, Rusty Russell <rusty@rustcorp.com.au>
+To: Anthony Liguori <anthony@codemonkey.ws>
+Cc: Avi Kivity <avi@redhat.com>, virtualization@lists.osdl.org, linux-kernel@vger.kernel.org, QEMU Developers <qemu-devel@nongnu.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 11/01/2010 06:53 AM, Alon Levy wrote:
->> The alternative proposal is Spice which so far noone has mentioned.
->> Right now, Spice seems to be taking the right approach to guest 3d
->> support.
->>
->>      
-> While we (speaking as part of the SPICE developers) want to have the same
-> support in our virtual GPU for 3d as we have for 2d, we just don't at this
-> point of time.
->    
+On 01/11/10 13:21, Anthony Liguori wrote:
+> On 11/01/2010 05:42 AM, Avi Kivity wrote:
+>> On 10/28/2010 03:52 PM, Ian Molton wrote:
+>>> On 28/10/10 15:24, Avi Kivity wrote:
 
-Yes, but I think the point is that are two general approaches to 
-supporting 3d that are being proposed.  One approach is to an RPC layer 
-at the OpenGL level which essentially passes through the host OpenGL 
-stack.  That's what virtio-gl is.  This has existed for quite a while 
-and there are multiple transports for it.  It supports serial ports, TCP 
-sockets, a custom ISA extension for x86, and now a custom virtio transport.
+>> Waiting for a response is fine, but can't the guest issue a second
+>> batch while waiting for the first?
 
-Another approach would be to have a virtual GPU and to implement 
-GPU-level commands for 3d.  I have been repeated told that much of the 
-complexity of Spice is absolutely needed for 3d and that that's a major 
-part of the design.
+> The other scenario would be multiple applications trying to use GL but
+> AFAICT, this is not supported in the current model.
 
-GPU-level support for 3d operations has a number of advantages mainly 
-that it's more reasonably portable to things like Windows since the 3d 
-commands can be a superset of both OpenGL and Direct3d.
+It very much is. It supports fully visually integrated rendering (no 
+overlay windows) and even compositing GL window managers work fine, even 
+if running 3D apps under them.
 
-Also, Spice has an abstraction layer that doesn't simply passthrough 
-graphics commands, but translates/sanitizes them first.   That's another 
-advantage over OpenGL passthrough.  Without a layer to sanitize 
-commands, a guest can do funky things with the host or other guests.
-
-I think a Spice-like approach is the best thing long term.  In the short 
-term, I think doing the GL marshalling over virtio-serial makes a ton of 
-sense since the kernel driver is already present upstream.  It exists 
-exactly for things like this.
-
-In the very, very short term, I think an external backend to QEMU also 
-makes a lot of sense because that's something that Just Works today.  I 
-think we can consider integrating it into QEMU (or at least simplifying 
-the execution of the backend) but integrating into QEMU is going to 
-require an awful lot of the existing code to be rewritten.  Keeping it 
-separate has the advantage of allowing something to Just Work as an 
-interim solution as we wait for proper support in Spice.
-
-Regards,
-
-Anthony Liguori
-
->    
->> Regards,
->>
->> Anthony Liguori
->>
->>      
->>>     I understand others are skeptical,
->>> but this seems simple and if it works and you're happy to maintain
->>>        
->> it I'm
->>      
->>> happy to let you do it :)
->>>
->>> Cheers,
->>> Rusty.
->>>
->>>
->>>        
+-Ian
