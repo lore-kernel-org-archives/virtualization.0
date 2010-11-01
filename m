@@ -1,50 +1,42 @@
-From: Greg KH <gregkh@suse.de>
-Subject: Re: [PATCH 03/10] staging: hv: Convert camel cased struct fields
-	in hv.h to lower cases
-Date: Mon, 1 Nov 2010 10:43:10 -0700
-Message-ID: <20101101174310.GA12632@suse.de>
+From: Haiyang Zhang <haiyangz@microsoft.com>
+Subject: RE: [PATCH 03/10] staging: hv: Convert camel cased struct fields	in
+ hv.h to lower cases
+Date: Mon, 1 Nov 2010 18:27:04 +0000
+Message-ID: <1FB5E1D5CA062146B38059374562DF728BA19E86@TK5EX14MBXC128.redmond.corp.microsoft.com>
 References: <1288630429-12330-1-git-send-email-haiyangz@linuxonhyperv.com>
+ <20101101174310.GA12632@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <devel-bounces@linuxdriverproject.org>
-Content-Disposition: inline
-In-Reply-To: <1288630429-12330-1-git-send-email-haiyangz@linuxonhyperv.com>
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
-List-Post: <mailto:devel@linuxdriverproject.org>
-List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
-Sender: devel-bounces@linuxdriverproject.org
-Errors-To: devel-bounces@linuxdriverproject.org
-To: Haiyang Zhang <haiyangz@linuxonhyperv.com>
-Cc: devel@linuxdriverproject.org, haiyangz@microsoft.com, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20101101174310.GA12632@suse.de>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: Greg KH <gregkh@suse.de>
+Cc: Hank Janssen <hjanssen@microsoft.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Nov 01, 2010 at 09:53:45AM -0700, Haiyang Zhang wrote:
-> From: Haiyang Zhang <haiyangz@microsoft.com>
+> From: Greg KH [mailto:gregkh@suse.de]
+> Sent: Monday, November 01, 2010 1:43 PM
+> Why did I get two different copies of some of these patches?  Are they
+> different?
+
+They are the same.
+Initially, I sent all 10 patches out at the same time, but I only saw 5 of them in my mail box. So I re-sent the 5 missing ones. Half hour later, I found the 5 previous missing emails were not lost, and received again at a later time.
+
+> >  /* The one and only */
+> > -struct hv_context gHvContext = {
+> > -	.SynICInitialized	= false,
+> > -	.HypercallPage		= NULL,
+> > -	.SignalEventParam	= NULL,
+> > -	.SignalEventBuffer	= NULL,
+> > +struct hv_context g_hv_context = {
 > 
-> Convert camel cased struct fields in hv.h to lower cases
-> 
-> Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
-> Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
+> What is the "g_" for?  Why are you keeping the unneeded, and unwanted
+> hungarian notation around?  Please don't do that.
 
-Why did I get two different copies of some of these patches?  Are they
-different?
+The "g_" was used for global variables. I also saw some other global variables with the hungarian notation. Since this notation is not related to camel case conversion, how about we remove the hungarian notations in a separate patch?
 
->  /* The one and only */
-> -struct hv_context gHvContext = {
-> -	.SynICInitialized	= false,
-> -	.HypercallPage		= NULL,
-> -	.SignalEventParam	= NULL,
-> -	.SignalEventBuffer	= NULL,
-> +struct hv_context g_hv_context = {
+Thanks,
 
-What is the "g_" for?  Why are you keeping the unneeded, and unwanted
-hungarian notation around?  Please don't do that.
-
-thanks,
-
-greg k-h
+- Haiyang
