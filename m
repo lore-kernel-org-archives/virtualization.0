@@ -1,41 +1,56 @@
-From: Ian Molton <ian.molton@collabora.co.uk>
-Subject: Re: [Qemu-devel] Re: [PATCH] Implement a virtio GPU transport
-Date: Wed, 03 Nov 2010 17:50:31 +0000
-Message-ID: <4CD1A0E7.8050602@collabora.co.uk>
-References: <4CAC9CD1.2050601@collabora.co.uk> <4CBD7560.6080207@redhat.com> <4CC8226F.5080807@collabora.co.uk> <201010292148.01167.rusty@rustcorp.com.au>
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+Subject: Re: [PATCH 03/20] x86/ticketlock: Use C for __ticket_spin_unlock
+Date: Wed, 03 Nov 2010 14:00:30 -0400
+Message-ID: <4CD1A33E.6040105__14226.1029141538$1288807357$gmane$org@goop.org>
+References: <cover.1288794124.git.jeremy.fitzhardinge@citrix.com>	
+	<20092775a9df07a5a75820ac250194b535279d51.1288794124.git.jeremy.fitzhardinge@citrix.com>
+	<1288797218.2511.143.camel@edumazet-laptop>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <201010292148.01167.rusty@rustcorp.com.au>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: virtualization@lists.linux-foundation.org, Avi Kivity <avi@redhat.com>, virtualization@lists.osdl.org, linux-kernel@vger.kernel.org, QEMU Developers <qemu-devel@nongnu.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1288797218.2511.143.camel@edumazet-laptop>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Eric Dumazet <eric.dumazet@gmail.com>
+Cc: Xen-devel <xen-devel@lists.xensource.com>, Peter Zijlstra <peterz@infradead.org>, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Jan Beulich <JBeulich@novell.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, Avi Kivity <avi@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 29/10/10 12:18, Rusty Russell wrote:
-> On Wed, 27 Oct 2010 11:30:31 pm Ian Molton wrote:
->> On 19/10/10 11:39, Avi Kivity wrote:
->>> On 10/19/2010 12:31 PM, Ian Molton wrote:
->>
->>>>> 2. should start with a patch to the virtio-pci spec to document what
->>>>> you're doing
->>>>
->>>> Where can I find that spec?
->>>
->>> http://ozlabs.org/~rusty/virtio-spec/
->>
->> Ok, but I'm not patching that until theres been some review.
->
-> Fair enough; it's a bit of a PITA to patch, so it makes sense to get the
-> details nailed down first.
-
-I thought so :)
-
->> Fixed - updated patch tested and attached.
->
-> OK. FWIW, I think this is an awesome idea.  I understand others are skeptical,
-> but this seems simple and if it works and you're happy to maintain it I'm
-> happy to let you do it :)
-
-Awesoe, thanks Rusty :)
+T24gMTEvMDMvMjAxMCAxMToxMyBBTSwgRXJpYyBEdW1hemV0IHdyb3RlOgo+IExlIG1lcmNyZWRp
+IDAzIG5vdmVtYnJlIDIwMTAgw6AgMTA6NTkgLTA0MDAsIEplcmVteSBGaXR6aGFyZGluZ2UgYQo+
+IMOpY3JpdCA6Cj4+IEZyb206IEplcmVteSBGaXR6aGFyZGluZ2UgPGplcmVteS5maXR6aGFyZGlu
+Z2VAY2l0cml4LmNvbT4KPj4KPj4gSWYgd2UgZG9uJ3QgbmVlZCB0byB1c2UgYSBsb2NrZWQgaW5j
+IGZvciB1bmxvY2ssIHRoZW4gaW1wbGVtZW50IGl0IGluIEMuCj4+Cj4+IFNpZ25lZC1vZmYtYnk6
+IEplcmVteSBGaXR6aGFyZGluZ2UgPGplcmVteS5maXR6aGFyZGluZ2VAY2l0cml4LmNvbT4KPj4g
+LS0tCj4+ICBhcmNoL3g4Ni9pbmNsdWRlL2FzbS9zcGlubG9jay5oIHwgICAzMyArKysrKysrKysr
+KysrKysrKystLS0tLS0tLS0tLS0tLS0KPj4gIDEgZmlsZXMgY2hhbmdlZCwgMTggaW5zZXJ0aW9u
+cygrKSwgMTUgZGVsZXRpb25zKC0pCj4+Cj4+IGRpZmYgLS1naXQgYS9hcmNoL3g4Ni9pbmNsdWRl
+L2FzbS9zcGlubG9jay5oIGIvYXJjaC94ODYvaW5jbHVkZS9hc20vc3BpbmxvY2suaAo+PiBpbmRl
+eCA2NzExZDM2Li4wODI5OTBhIDEwMDY0NAo+PiAtLS0gYS9hcmNoL3g4Ni9pbmNsdWRlL2FzbS9z
+cGlubG9jay5oCj4+ICsrKyBiL2FyY2gveDg2L2luY2x1ZGUvYXNtL3NwaW5sb2NrLmgKPj4gQEAg
+LTMzLDkgKzMzLDIzIEBACj4+ICAgKiBPbiBQUHJvIFNNUCBvciBpZiB3ZSBhcmUgdXNpbmcgT09T
+VE9SRSwgd2UgdXNlIGEgbG9ja2VkIG9wZXJhdGlvbiB0byB1bmxvY2sKPj4gICAqIChQUHJvIGVy
+cmF0YSA2NiwgOTIpCj4+ICAgKi8KPj4gLSMgZGVmaW5lIFVOTE9DS19MT0NLX1BSRUZJWCBMT0NL
+X1BSRUZJWAo+PiArc3RhdGljIF9fYWx3YXlzX2lubGluZSB2b2lkIF9fdGlja2V0X3VubG9ja19y
+ZWxlYXNlKHN0cnVjdCBhcmNoX3NwaW5sb2NrICpsb2NrKQo+PiArewo+PiArCWlmIChzaXplb2Yo
+bG9jay0+dGlja2V0cy5oZWFkKSA9PSBzaXplb2YodTgpKQo+PiArCQlhc20gKExPQ0tfUFJFRklY
+ICJpbmNiICUwIgo+PiArCQkgICAgIDogIittIiAobG9jay0+dGlja2V0cy5oZWFkKSA6IDogIm1l
+bW9yeSIpOwo+PiArCWVsc2UKPj4gKwkJYXNtIChMT0NLX1BSRUZJWCAiaW5jdyAlMCIKPj4gKwkJ
+ICAgICA6ICIrbSIgKGxvY2stPnRpY2tldHMuaGVhZCkgOiA6ICJtZW1vcnkiKTsKPj4gKwo+PiAr
+fQo+PiAgI2Vsc2UKPj4gLSMgZGVmaW5lIFVOTE9DS19MT0NLX1BSRUZJWAo+PiArc3RhdGljIF9f
+YWx3YXlzX2lubGluZSB2b2lkIF9fdGlja2V0X3VubG9ja19yZWxlYXNlKHN0cnVjdCBhcmNoX3Nw
+aW5sb2NrICpsb2NrKQo+PiArewo+PiArCWJhcnJpZXIoKTsKPiB0ZWNobmljYWxseSBzcGVha2lu
+ZywgaXQgc2hvdWxkIGJlIDogc21wX3dtYigpCgpQZXJoYXBzLiAgSW4gcHJhY3Rpc2UgaXQgd29u
+J3QgbWFrZSBhIGRpZmZlcmVuY2UgYmVjYXVzZSBpdCBpcyBkZWZpbmVkCmFzIGJhcnJpZXIoKSB1
+bmxlc3MgT09TVE9SRSBpcyBkZWZpbmVkLCBpbiB3aGljaCBjYXNlIHdlIG5lZWQgdG8gZG8gYQps
+b2NrZWQgaW5jcmVtZW50IGFueXdheS4KClRoYW5rcywKICAgIEoKX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0
+ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMu
+bGludXgtZm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
