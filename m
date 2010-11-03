@@ -1,8 +1,8 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [PATCH 16/20] x86/ticketlock: don't inline _spin_unlock when using
-	paravirt spinlocks
-Date: Wed,  3 Nov 2010 10:59:57 -0400
-Message-ID: <c64c8997be40816f3215227ccbd2111399411285.1288794124.git.jeremy.fitzhardinge__9118.00299441001$1288797386$gmane$org@citrix.com>
+Subject: [PATCH 15/20] x86/ticketlock: prevent compiler reordering into locked
+	region
+Date: Wed,  3 Nov 2010 10:59:56 -0400
+Message-ID: <12a3251ccc2f0265678e3d1a3ad2faf6fb7f4725.1288794124.git.jeremy.fitzhardinge__44859.1227796443$1288797510$gmane$org@citrix.com>
 References: <cover.1288794124.git.jeremy.fitzhardinge@citrix.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -26,41 +26,28 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>
 
-The code size expands somewhat, and its probably better to just call
-a function rather than inline it.
+Add a barrier() at the end of __raw_spin_unlock() to prevent instructions
+from after the locked region from being reordered into it.  In theory doing
+so shouldn't cause any problems, but in practice, the system locks up
+under load...
 
 Signed-off-by: Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>
 ---
- arch/x86/Kconfig     |    3 +++
- kernel/Kconfig.locks |    2 +-
- 2 files changed, 4 insertions(+), 1 deletions(-)
+ arch/x86/include/asm/spinlock.h |    2 ++
+ 1 files changed, 2 insertions(+), 0 deletions(-)
 
-diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
-index cea0cd9..e67bf49 100644
---- a/arch/x86/Kconfig
-+++ b/arch/x86/Kconfig
-@@ -577,6 +577,9 @@ config PARAVIRT_SPINLOCKS
- 
- 	  If you are unsure how to answer this question, answer N.
- 
-+config ARCH_NOINLINE_SPIN_UNLOCK
-+       def_bool PARAVIRT_SPINLOCKS
+diff --git a/arch/x86/include/asm/spinlock.h b/arch/x86/include/asm/spinlock.h
+index d6de5e7..158b330 100644
+--- a/arch/x86/include/asm/spinlock.h
++++ b/arch/x86/include/asm/spinlock.h
+@@ -189,6 +189,8 @@ static __always_inline void arch_spin_unlock(arch_spinlock_t *lock)
+ 	next = lock->tickets.head + 1;
+ 	__ticket_unlock_release(lock);
+ 	__ticket_unlock_kick(lock, next);
 +
- config PARAVIRT_CLOCK
- 	bool
++	barrier();		/* prevent reordering into locked region */
+ }
  
-diff --git a/kernel/Kconfig.locks b/kernel/Kconfig.locks
-index 88c92fb..3216c22 100644
---- a/kernel/Kconfig.locks
-+++ b/kernel/Kconfig.locks
-@@ -125,7 +125,7 @@ config INLINE_SPIN_LOCK_IRQSAVE
- 		 ARCH_INLINE_SPIN_LOCK_IRQSAVE
- 
- config INLINE_SPIN_UNLOCK
--	def_bool !DEBUG_SPINLOCK && (!PREEMPT || ARCH_INLINE_SPIN_UNLOCK)
-+	def_bool !DEBUG_SPINLOCK && (!PREEMPT || ARCH_INLINE_SPIN_UNLOCK) && !ARCH_NOINLINE_SPIN_UNLOCK
- 
- config INLINE_SPIN_UNLOCK_BH
- 	def_bool !DEBUG_SPINLOCK && ARCH_INLINE_SPIN_UNLOCK_BH
+ static inline int arch_spin_is_locked(arch_spinlock_t *lock)
 -- 
 1.7.2.3
