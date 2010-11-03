@@ -1,16 +1,16 @@
-From: Ian Campbell <ijc@hellion.org.uk>
-Subject: Re: [Xen-devel] Re: [PATCH] x86/pvclock-xen: zero last_value on resume
-Date: Wed, 03 Nov 2010 12:46:34 +0000
-Message-ID: <1288788394.9309.2.camel__49368.0475083694$1288788492$gmane$org@cthulhu.hellion.org.uk>
-References: <4CC708DE.1070000@goop.org>
-	<1288115334.3530.7.camel@mothafucka.localdomain>
-	<4CC8751E.40306@goop.org>
-	<95805e88-b6d5-4ae2-9351-9e458656cfb8@email.android.com>
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+Subject: [PATCH 04/20] x86/ticketlock: make large and small ticket versions of
+	spin_lock the same
+Date: Wed,  3 Nov 2010 10:59:45 -0400
+Message-ID: <5b3cbff3a6e96a085651f140a0525be80a4df8ba.1288794124.git.jeremy.fitzhardinge__29789.2333976508$1288796626$gmane$org@citrix.com>
+References: <cover.1288794124.git.jeremy.fitzhardinge@citrix.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <95805e88-b6d5-4ae2-9351-9e458656cfb8@email.android.com>
+In-Reply-To: <cover.1288794124.git.jeremy.fitzhardinge@citrix.com>
+In-Reply-To: <cover.1288794124.git.jeremy.fitzhardinge@citrix.com>
+References: <cover.1288794124.git.jeremy.fitzhardinge@citrix.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,49 +20,73 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: "Xen-devel@lists.xensource.com" <Xen-devel@lists.xensource.com>, kvm-devel <kvm@vger.kernel.org>, Dolstra <e.dolstra@tudelft.nl>, the arch/x86 maintainers <x86@kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Virtualization <virtualization@lists.linux-foundation.org>, Hanesse <olivier.hanesse@gmail.com>, Eelco@smtp1.linux-foundation.org, Olivier@smtp1.linux-foundation.org, Linux@smtp1.linux-foundation.org, Glauber Costa <glommer@redhat.com>, Avi Kivity <avi@redhat.com>
+To: Peter Zijlstra <peterz@infradead.org>
+Cc: Nick Piggin <npiggin@suse.de>, Xen-devel <xen-devel@lists.xensource.com>, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Jan Beulich <JBeulich@novell.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, Avi Kivity <avi@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 2010-10-27 at 13:59 -0700, H. Peter Anvin wrote:
-> I'll check it this evening when I'm at a working network again :(
+From: Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>
 
-Did this get applied? It seems to affect 2.6.32.x too
-(http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=602273) so can we tag
-it for stable as well?
+Make the bulk of __ticket_spin_lock look identical for large and small
+number of cpus.
 
-Thanks,
-Ian.
+Signed-off-by: Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>
+---
+ arch/x86/include/asm/spinlock.h |   23 ++++++++---------------
+ 1 files changed, 8 insertions(+), 15 deletions(-)
 
-> 
-> "Jeremy Fitzhardinge" <jeremy@goop.org> wrote:
-> 
-> > On 10/26/2010 10:48 AM, Glauber Costa wrote:
-> >> On Tue, 2010-10-26 at 09:59 -0700, Jeremy Fitzhardinge wrote:
-> >>> If the guest domain has been suspend/resumed or migrated, then the
-> >>> system clock backing the pvclock clocksource may revert to a smaller
-> >>> value (ie, can be non-monotonic across the migration/save-restore).
-> >>> Make sure we zero last_value in that case so that the domain
-> >>> continues to see clock updates.
-> >>>
-> >>> [ I don't know if kvm needs an analogous fix or not. ]
-> >> After migration, save/restore, etc, we issue an ioctl where we tell
-> >> the host the last clock value. That (in theory) guarantees
-> >monotonicity.
-> >>
-> >> I am not opposed to this patch in any way, however.
-> >
-> >Thanks.
-> >
-> >HPA, do you want to take this, or shall I send it on?
-> >
-> >Thanks,
-> >    J
-> 
-
+diff --git a/arch/x86/include/asm/spinlock.h b/arch/x86/include/asm/spinlock.h
+index 082990a..7586d7a 100644
+--- a/arch/x86/include/asm/spinlock.h
++++ b/arch/x86/include/asm/spinlock.h
+@@ -72,19 +72,16 @@ static __always_inline void __ticket_unlock_release(struct arch_spinlock *lock)
+ #if (NR_CPUS < 256)
+ static __always_inline void __ticket_spin_lock(arch_spinlock_t *lock)
+ {
+-	register union {
+-		struct __raw_tickets tickets;
+-		unsigned short slock;
+-	} inc = { .slock = 1 << TICKET_SHIFT };
++	register struct __raw_tickets inc = { .tail = 1 };
+ 
+ 	asm volatile (LOCK_PREFIX "xaddw %w0, %1\n"
+-		      : "+Q" (inc), "+m" (lock->slock) : : "memory", "cc");
++		      : "+r" (inc), "+m" (lock->tickets) : : "memory", "cc");
+ 
+ 	for (;;) {
+-		if (inc.tickets.head == inc.tickets.tail)
++		if (inc.head == inc.tail)
+ 			return;
+ 		cpu_relax();
+-		inc.tickets.head = ACCESS_ONCE(lock->tickets.head);
++		inc.head = ACCESS_ONCE(lock->tickets.head);
+ 	}
+ 	barrier();		/* make sure nothing creeps before the lock is taken */
+ }
+@@ -110,21 +107,17 @@ static __always_inline int __ticket_spin_trylock(arch_spinlock_t *lock)
+ #else
+ static __always_inline void __ticket_spin_lock(arch_spinlock_t *lock)
+ {
+-	unsigned inc = 1 << TICKET_SHIFT;
+-	__ticket_t tmp;
++	register struct __raw_tickets inc = { .tickets.tail = 1 };
+ 
+ 	asm volatile(LOCK_PREFIX "xaddl %0, %1\n\t"
+-		     : "+r" (inc), "+m" (lock->slock)
++		     : "+r" (inc), "+m" (lock->tickets)
+ 		     : : "memory", "cc");
+ 
+-	tmp = inc;
+-	inc >>= TICKET_SHIFT;
+-
+ 	for (;;) {
+-		if ((__ticket_t)inc == tmp)
++		if (inc.head == inc.tail)
+ 			return;
+ 		cpu_relax();
+-		tmp = ACCESS_ONCE(lock->tickets.head);
++		inc.head = ACCESS_ONCE(lock->tickets.head);
+ 	}
+ 	barrier();		/* make sure nothing creeps before the lock is taken */
+ }
 -- 
-Ian Campbell
-
-BOFH excuse #191:
-
-Just type 'mv * /dev/null'.
+1.7.2.3
