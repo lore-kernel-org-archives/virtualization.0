@@ -1,39 +1,72 @@
-From: Jiri Slaby <jslaby@suse.cz>
-Subject: [PATCH 3/3] VIDEO: xen-fb, switch to for_each_console
-Date: Wed,  3 Nov 2010 16:28:34 +0100
-Message-ID: <1288798114-23206-3-git-send-email-jslaby@suse.cz>
-References: <1288798114-23206-1-git-send-email-jslaby@suse.cz>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1288798114-23206-1-git-send-email-jslaby@suse.cz>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: linux-kernel@vger.kernel.org, jirislaby@gmail.com, Jeremy Fitzhardinge <jeremy@xensource.com>, Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, linux-fbdev@vger.kernel.org
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+Subject: Re: [PATCH 02/20] x86/ticketlock: convert spin loop to C
+Date: Wed, 03 Nov 2010 11:38:59 -0400
+Message-ID: <4CD18213.4030105__15641.4267993116$1288798840$gmane$org@goop.org>
+References: <cover.1288794124.git.jeremy.fitzhardinge@citrix.com>	
+	<3d9083892c28a7d3ed5a0191b0b4cd013022a186.1288794124.git.jeremy.fitzhardinge@citrix.com>
+	<1288797092.2511.141.camel@edumazet-laptop>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1288797092.2511.141.camel@edumazet-laptop>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Eric Dumazet <eric.dumazet@gmail.com>
+Cc: Nick Piggin <npiggin@suse.de>, Xen-devel <xen-devel@lists.xensource.com>, Peter Zijlstra <peterz@infradead.org>, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Jan Beulich <JBeulich@novell.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, Avi Kivity <avi@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Use newly added for_each_console for iterating consoles.
-
-Signed-off-by: Jiri Slaby <jslaby@suse.cz>
-Cc: Jeremy Fitzhardinge <jeremy@xensource.com>
-Cc: Chris Wright <chrisw@sous-sol.org>
-Cc: virtualization@lists.osdl.org
-Cc: xen-devel@lists.xensource.com
-Cc: linux-fbdev@vger.kernel.org
----
- drivers/video/xen-fbfront.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
-
-diff --git a/drivers/video/xen-fbfront.c b/drivers/video/xen-fbfront.c
-index 428d273..4abb0b9 100644
---- a/drivers/video/xen-fbfront.c
-+++ b/drivers/video/xen-fbfront.c
-@@ -492,7 +492,7 @@ xenfb_make_preferred_console(void)
- 		return;
- 
- 	acquire_console_sem();
--	for (c = console_drivers; c; c = c->next) {
-+	for_each_console(c) {
- 		if (!strcmp(c->name, "tty") && c->index == 0)
- 			break;
- 	}
--- 
-1.7.3.1
+T24gMTEvMDMvMjAxMCAxMToxMSBBTSwgRXJpYyBEdW1hemV0IHdyb3RlOgo+IExlIG1lcmNyZWRp
+IDAzIG5vdmVtYnJlIDIwMTAgw6AgMTA6NTkgLTA0MDAsIEplcmVteSBGaXR6aGFyZGluZ2UgYQo+
+IMOpY3JpdCA6Cj4+IEZyb206IEplcmVteSBGaXR6aGFyZGluZ2UgPGplcmVteS5maXR6aGFyZGlu
+Z2VAY2l0cml4LmNvbT4KPj4KPj4gVGhlIGlubmVyIGxvb3Agb2YgX190aWNrZXRfc3Bpbl9sb2Nr
+IGlzbid0IGRvaW5nIGFueXRoaW5nIHZlcnkgc3BlY2lhbCwKPj4gc28gcmVpbXBsZW1lbnQgaXQg
+aW4gQy4KPj4KPj4gRm9yIHRoZSA4IGJpdCB0aWNrZXQgbG9jayB2YXJpYW50LCB3ZSB1c2UgYSBy
+ZWdpc3RlciB1bmlvbiB0byBnZXQgZGlyZWN0Cj4+IGFjY2VzcyB0byB0aGUgbG93ZXIgYW5kIHVw
+cGVyIGJ5dGVzIGluIHRoZSB0aWNrZXRzLCBidXQgdW5mb3J0dW5hdGVseSBnY2MKPj4gd29uJ3Qg
+Z2VuZXJhdGUgYSBkaXJlY3QgY29tcGFyaXNvbiBiZXR3ZWVuIHRoZSB0d28gaGFsdmVzIG9mIHRo
+ZSByZWdpc3RlciwKPj4gc28gdGhlIGdlbmVyYXRlZCBhc20gaXNuJ3QgcXVpdGUgYXMgcHJldHR5
+IGFzIHRoZSBoYW5kLWNvZGVkIHZlcnNpb24uCj4+IEhvd2V2ZXIgYmVuY2htYXJraW5nIHNob3dz
+IHRoYXQgdGhpcyBpcyBhY3R1YWxseSBhIHNtYWxsIGltcHJvdmVtZW50IGluCj4+IHJ1bnRpbWUg
+cGVyZm9ybWFuY2Ugb24gc29tZSBiZW5jaG1hcmtzLCBhbmQgbmV2ZXIgYSBzbG93ZG93bi4KPj4K
+Pj4gV2UgYWxzbyBuZWVkIHRvIG1ha2Ugc3VyZSB0aGVyZSdzIGEgYmFycmllciBhdCB0aGUgZW5k
+IG9mIHRoZSBsb2NrIGxvb3AKPj4gdG8gbWFrZSBzdXJlIHRoYXQgdGhlIGNvbXBpbGVyIGRvZXNu
+J3QgbW92ZSBhbnkgaW5zdHJ1Y3Rpb25zIGZyb20gd2l0aGluCj4+IHRoZSBsb2NrZWQgcmVnaW9u
+IGludG8gdGhlIHJlZ2lvbiB3aGVyZSB3ZSBkb24ndCB5ZXQgb3duIHRoZSBsb2NrLgo+Pgo+PiBT
+aWduZWQtb2ZmLWJ5OiBKZXJlbXkgRml0emhhcmRpbmdlIDxqZXJlbXkuZml0emhhcmRpbmdlQGNp
+dHJpeC5jb20+Cj4+IC0tLQo+PiAgYXJjaC94ODYvaW5jbHVkZS9hc20vc3BpbmxvY2suaCB8ICAg
+NTggKysrKysrKysrKysrKysrKysrKy0tLS0tLS0tLS0tLS0tLS0tLS0KPj4gIDEgZmlsZXMgY2hh
+bmdlZCwgMjkgaW5zZXJ0aW9ucygrKSwgMjkgZGVsZXRpb25zKC0pCj4+Cj4+IGRpZmYgLS1naXQg
+YS9hcmNoL3g4Ni9pbmNsdWRlL2FzbS9zcGlubG9jay5oIGIvYXJjaC94ODYvaW5jbHVkZS9hc20v
+c3BpbmxvY2suaAo+PiBpbmRleCBkNmQ1Nzg0Li42NzExZDM2IDEwMDY0NAo+PiAtLS0gYS9hcmNo
+L3g4Ni9pbmNsdWRlL2FzbS9zcGlubG9jay5oCj4+ICsrKyBiL2FyY2gveDg2L2luY2x1ZGUvYXNt
+L3NwaW5sb2NrLmgKPj4gQEAgLTU4LDIxICs1OCwyMSBAQAo+PiAgI2lmIChOUl9DUFVTIDwgMjU2
+KQo+PiAgc3RhdGljIF9fYWx3YXlzX2lubGluZSB2b2lkIF9fdGlja2V0X3NwaW5fbG9jayhhcmNo
+X3NwaW5sb2NrX3QgKmxvY2spCj4+ICB7Cj4+IC0JdW5zaWduZWQgc2hvcnQgaW5jID0gMSA8PCBU
+SUNLRVRfU0hJRlQ7Cj4+IC0KPj4gLQlhc20gdm9sYXRpbGUgKAo+PiAtCQlMT0NLX1BSRUZJWCAi
+eGFkZHcgJXcwLCAlMVxuIgo+PiAtCQkiMTpcdCIKPj4gLQkJImNtcGIgJWgwLCAlYjBcblx0Igo+
+PiAtCQkiamUgMmZcblx0Igo+PiAtCQkicmVwIDsgbm9wXG5cdCIKPj4gLQkJIm1vdmIgJTEsICVi
+MFxuXHQiCj4+IC0JCS8qIGRvbid0IG5lZWQgbGZlbmNlIGhlcmUsIGJlY2F1c2UgbG9hZHMgYXJl
+IGluLW9yZGVyICovCj4+IC0JCSJqbXAgMWJcbiIKPj4gLQkJIjI6Igo+PiAtCQk6ICIrUSIgKGlu
+YyksICIrbSIgKGxvY2stPnNsb2NrKQo+PiAtCQk6Cj4+IC0JCTogIm1lbW9yeSIsICJjYyIpOwo+
+PiArCXJlZ2lzdGVyIHVuaW9uIHsKPj4gKwkJc3RydWN0IF9fcmF3X3RpY2tldHMgdGlja2V0czsK
+Pj4gKwkJdW5zaWduZWQgc2hvcnQgc2xvY2s7Cj4+ICsJfSBpbmMgPSB7IC5zbG9jayA9IDEgPDwg
+VElDS0VUX1NISUZUIH07Cj4+ICsKPj4gKwlhc20gdm9sYXRpbGUgKExPQ0tfUFJFRklYICJ4YWRk
+dyAldzAsICUxXG4iCj4+ICsJCSAgICAgIDogIitRIiAoaW5jKSwgIittIiAobG9jay0+c2xvY2sp
+IDogOiAibWVtb3J5IiwgImNjIik7Cj4+ICsKPj4gKwlmb3IgKDs7KSB7Cj4+ICsJCWlmIChpbmMu
+dGlja2V0cy5oZWFkID09IGluYy50aWNrZXRzLnRhaWwpCj4+ICsJCQlyZXR1cm47Cj4+ICsJCWNw
+dV9yZWxheCgpOwo+PiArCQlpbmMudGlja2V0cy5oZWFkID0gQUNDRVNTX09OQ0UobG9jay0+dGlj
+a2V0cy5oZWFkKTsKPj4gKwl9Cj4+ICsJYmFycmllcigpOwkJLyogbWFrZSBzdXJlIG5vdGhpbmcg
+Y3JlZXBzIGJlZm9yZSB0aGUgbG9jayBpcyB0YWtlbiAqLwo+IElzbnQgdGhpcyBiYXJyaWVyKCkg
+bmV2ZXIgcmVhY2hlZCA/CgpTb3JyeSwgYSBsYXRlciBwYXRjaCBtYWtlcyB0aGlzIGNsZWFyZXIu
+ICBJIHNob3VsZCBoYXZlIGZvbGRlZCBpdCBpbi4KCiAgICBKCl9fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApW
+aXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxp
+bnV4LWZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
