@@ -1,56 +1,100 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [PATCH 03/20] x86/ticketlock: Use C for __ticket_spin_unlock
-Date: Wed, 03 Nov 2010 14:00:30 -0400
-Message-ID: <4CD1A33E.6040105__14226.1029141538$1288807357$gmane$org@goop.org>
-References: <cover.1288794124.git.jeremy.fitzhardinge@citrix.com>	
-	<20092775a9df07a5a75820ac250194b535279d51.1288794124.git.jeremy.fitzhardinge@citrix.com>
-	<1288797218.2511.143.camel@edumazet-laptop>
+From: Ian Molton <ian.molton@collabora.co.uk>
+Subject: Re: [Qemu-devel] Re: [PATCH] Implement a virtio GPU transport
+Date: Wed, 03 Nov 2010 18:03:50 +0000
+Message-ID: <4CD1A406.3090909@collabora.co.uk>
+References: <1097264455.965471288612409433.JavaMail.root@zmail06.collab.prod.int.phx2.redhat.com> <4CCEC090.3050009@codemonkey.ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1288797218.2511.143.camel@edumazet-laptop>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Eric Dumazet <eric.dumazet@gmail.com>
-Cc: Xen-devel <xen-devel@lists.xensource.com>, Peter Zijlstra <peterz@infradead.org>, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Jan Beulich <JBeulich@novell.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, Avi Kivity <avi@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <4CCEC090.3050009@codemonkey.ws>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Anthony Liguori <anthony@codemonkey.ws>
+Cc: Alon Levy <alevy@redhat.com>, QEMU Developers <qemu-devel@nongnu.org>, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org, Avi Kivity <avi@redhat.com>, virtualization@lists.linux-foundation.org, Rusty Russell <rusty@rustcorp.com.au>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gMTEvMDMvMjAxMCAxMToxMyBBTSwgRXJpYyBEdW1hemV0IHdyb3RlOgo+IExlIG1lcmNyZWRp
-IDAzIG5vdmVtYnJlIDIwMTAgw6AgMTA6NTkgLTA0MDAsIEplcmVteSBGaXR6aGFyZGluZ2UgYQo+
-IMOpY3JpdCA6Cj4+IEZyb206IEplcmVteSBGaXR6aGFyZGluZ2UgPGplcmVteS5maXR6aGFyZGlu
-Z2VAY2l0cml4LmNvbT4KPj4KPj4gSWYgd2UgZG9uJ3QgbmVlZCB0byB1c2UgYSBsb2NrZWQgaW5j
-IGZvciB1bmxvY2ssIHRoZW4gaW1wbGVtZW50IGl0IGluIEMuCj4+Cj4+IFNpZ25lZC1vZmYtYnk6
-IEplcmVteSBGaXR6aGFyZGluZ2UgPGplcmVteS5maXR6aGFyZGluZ2VAY2l0cml4LmNvbT4KPj4g
-LS0tCj4+ICBhcmNoL3g4Ni9pbmNsdWRlL2FzbS9zcGlubG9jay5oIHwgICAzMyArKysrKysrKysr
-KysrKysrKystLS0tLS0tLS0tLS0tLS0KPj4gIDEgZmlsZXMgY2hhbmdlZCwgMTggaW5zZXJ0aW9u
-cygrKSwgMTUgZGVsZXRpb25zKC0pCj4+Cj4+IGRpZmYgLS1naXQgYS9hcmNoL3g4Ni9pbmNsdWRl
-L2FzbS9zcGlubG9jay5oIGIvYXJjaC94ODYvaW5jbHVkZS9hc20vc3BpbmxvY2suaAo+PiBpbmRl
-eCA2NzExZDM2Li4wODI5OTBhIDEwMDY0NAo+PiAtLS0gYS9hcmNoL3g4Ni9pbmNsdWRlL2FzbS9z
-cGlubG9jay5oCj4+ICsrKyBiL2FyY2gveDg2L2luY2x1ZGUvYXNtL3NwaW5sb2NrLmgKPj4gQEAg
-LTMzLDkgKzMzLDIzIEBACj4+ICAgKiBPbiBQUHJvIFNNUCBvciBpZiB3ZSBhcmUgdXNpbmcgT09T
-VE9SRSwgd2UgdXNlIGEgbG9ja2VkIG9wZXJhdGlvbiB0byB1bmxvY2sKPj4gICAqIChQUHJvIGVy
-cmF0YSA2NiwgOTIpCj4+ICAgKi8KPj4gLSMgZGVmaW5lIFVOTE9DS19MT0NLX1BSRUZJWCBMT0NL
-X1BSRUZJWAo+PiArc3RhdGljIF9fYWx3YXlzX2lubGluZSB2b2lkIF9fdGlja2V0X3VubG9ja19y
-ZWxlYXNlKHN0cnVjdCBhcmNoX3NwaW5sb2NrICpsb2NrKQo+PiArewo+PiArCWlmIChzaXplb2Yo
-bG9jay0+dGlja2V0cy5oZWFkKSA9PSBzaXplb2YodTgpKQo+PiArCQlhc20gKExPQ0tfUFJFRklY
-ICJpbmNiICUwIgo+PiArCQkgICAgIDogIittIiAobG9jay0+dGlja2V0cy5oZWFkKSA6IDogIm1l
-bW9yeSIpOwo+PiArCWVsc2UKPj4gKwkJYXNtIChMT0NLX1BSRUZJWCAiaW5jdyAlMCIKPj4gKwkJ
-ICAgICA6ICIrbSIgKGxvY2stPnRpY2tldHMuaGVhZCkgOiA6ICJtZW1vcnkiKTsKPj4gKwo+PiAr
-fQo+PiAgI2Vsc2UKPj4gLSMgZGVmaW5lIFVOTE9DS19MT0NLX1BSRUZJWAo+PiArc3RhdGljIF9f
-YWx3YXlzX2lubGluZSB2b2lkIF9fdGlja2V0X3VubG9ja19yZWxlYXNlKHN0cnVjdCBhcmNoX3Nw
-aW5sb2NrICpsb2NrKQo+PiArewo+PiArCWJhcnJpZXIoKTsKPiB0ZWNobmljYWxseSBzcGVha2lu
-ZywgaXQgc2hvdWxkIGJlIDogc21wX3dtYigpCgpQZXJoYXBzLiAgSW4gcHJhY3Rpc2UgaXQgd29u
-J3QgbWFrZSBhIGRpZmZlcmVuY2UgYmVjYXVzZSBpdCBpcyBkZWZpbmVkCmFzIGJhcnJpZXIoKSB1
-bmxlc3MgT09TVE9SRSBpcyBkZWZpbmVkLCBpbiB3aGljaCBjYXNlIHdlIG5lZWQgdG8gZG8gYQps
-b2NrZWQgaW5jcmVtZW50IGFueXdheS4KClRoYW5rcywKICAgIEoKX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0
-ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMu
-bGludXgtZm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+On 01/11/10 13:28, Anthony Liguori wrote:
+> On 11/01/2010 06:53 AM, Alon Levy wrote:
+
+>> While we (speaking as part of the SPICE developers) want to have the same
+>> support in our virtual GPU for 3d as we have for 2d, we just don't at
+>> this point of time.
+
+Would it be helpful to you to have /something/ that works in the 
+interim? I'm happy to work with you guys so that we dont need to 
+reinvent the wheel ;-)
+
+> Yes, but I think the point is that are two general approaches to
+> supporting 3d that are being proposed. One approach is to an RPC layer
+> at the OpenGL level which essentially passes through the host OpenGL
+> stack. That's what virtio-gl is. This has existed for quite a while and
+> there are multiple transports for it.
+
+Well, sort of. this version is heavily modified and only the virtio 
+transport is supported in it. Its quite a large code cleanup.
+
+> It supports serial ports, TCP sockets, a custom ISA extension for x86,
+
+The custom ISA idea is cut too since it fails to play nice with KVM. 
+Virtio-gl offers better security too.
+
+> Another approach would be to have a virtual GPU and to implement
+> GPU-level commands for 3d. I have been repeated told that much of the
+> complexity of Spice is absolutely needed for 3d and that that's a major
+> part of the design.
+
+I've not seen any implementations of this type that are even close to 
+useable.
+
+> GPU-level support for 3d operations has a number of advantages mainly
+> that it's more reasonably portable to things like Windows since the 3d
+> commands can be a superset of both OpenGL and Direct3d.
+
+Agreed.
+
+> Also, Spice has an abstraction layer that doesn't simply passthrough
+> graphics commands, but translates/sanitizes them first. That's another
+> advantage over OpenGL passthrough.
+
+I'm not sure that thats actually needed if you are careful about what 
+commands you implement on the virtual GPU (and how)
+
+> Without a layer to sanitize commands,
+> a guest can do funky things with the host or other guests.
+
+It shouldnt be possible for the guest to hurt other guests actual GL 
+rendering (or the hosts) as each PID is handed a context (or contexts) 
+of its own. It is possible for the guest to cause the host problems 
+though. this is a design flaw in the whole idea of GL RPC. It *isnt* 
+reasonable to make it secure, but it certainly is useful right now since 
+theres no alternative available.
+
+> I think a Spice-like approach is the best thing long term. In the short
+> term, I think doing the GL marshalling over virtio-serial makes a ton of
+> sense since the kernel driver is already present upstream. It exists
+> exactly for things like this.
+
+The virtio driver enfoces the PID field and understands the packet 
+format used. Its better than using serial. Its also just one driver - 
+which doesnt have any special interdependencies and can be extended or 
+got rid of in future if and when better things come along.
+
+> In the very, very short term, I think an external backend to QEMU also
+> makes a lot of sense because that's something that Just Works today.
+
+Whos written that? The 2007 patch I've been working on and updating 
+simply fails to work altogether without huge alterations on current qemu.
+
+My current patch touches a tiny part of the qemu sources. It works today.
+
+> I
+> think we can consider integrating it into QEMU (or at least simplifying
+> the execution of the backend) but integrating into QEMU is going to
+> require an awful lot of the existing code to be rewritten. Keeping it
+> separate has the advantage of allowing something to Just Work as an
+> interim solution as we wait for proper support in Spice.
+
+I dont know why you think integrating it into qemu is hard? I've already 
+done it. I added one virtio driver and a seperate offscreen renderer. it 
+touches the qemu code in *one* place. There should be no need to rewrite 
+anything.
