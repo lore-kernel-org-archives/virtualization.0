@@ -1,55 +1,27 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [PATCH 18/20] x86/ticketlock: remove .slock
-Date: Wed,  3 Nov 2010 10:59:59 -0400
-Message-ID: <ccf130fbd386ce6c7cbd2c5c0704d7ff2e67a716.1288794124.git.jeremy.fitzhardinge__38083.8150428191$1288799491$gmane$org@citrix.com>
-References: <cover.1288794124.git.jeremy.fitzhardinge@citrix.com>
+From: Ian Molton <ian.molton@collabora.co.uk>
+Subject: Re: [Qemu-devel] Re: [PATCH] Implement a virtio GPU transport
+Date: Wed, 03 Nov 2010 17:49:22 +0000
+Message-ID: <4CD1A0A2.5080507@collabora.co.uk>
+References: <4CAC9CD1.2050601@collabora.co.uk>	<4CB1D79A.6070805@redhat.com>	<4CBD739A.2010500@collabora.co.uk>	<4CBD7560.6080207@redhat.com>	<4CC8226F.5080807@collabora.co.uk>	<4CC94203.1080207@redhat.com>	<4CC9647A.50108@collabora.co.uk>	<4CC98784.7020907@redhat.com>	<4CC9D472.2080109@collabora.co.uk>	<4CCE9989.2010809@redhat.com> <4CCEBEE2.8010404@codemonkey.ws>	<4CCEE172.2010600@collabora.co.uk> <4CCEE374.4050805@codemonkey.ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <cover.1288794124.git.jeremy.fitzhardinge@citrix.com>
-In-Reply-To: <cover.1288794124.git.jeremy.fitzhardinge@citrix.com>
-References: <cover.1288794124.git.jeremy.fitzhardinge@citrix.com>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Peter Zijlstra <peterz@infradead.org>
-Cc: Nick Piggin <npiggin@suse.de>, Xen-devel <xen-devel@lists.xensource.com>, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Jan Beulich <JBeulich@novell.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, Avi Kivity <avi@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <4CCEE374.4050805@codemonkey.ws>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Anthony Liguori <anthony@codemonkey.ws>
+Cc: QEMU Developers <qemu-devel@nongnu.org>, virtualization@lists.osdl.org, Avi Kivity <avi@redhat.com>, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>
+On 01/11/10 15:57, Anthony Liguori wrote:
 
-Signed-off-by: Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>
----
- arch/x86/include/asm/spinlock_types.h |    3 +--
- 1 files changed, 1 insertions(+), 2 deletions(-)
+>> It very much is. It supports fully visually integrated rendering (no
+>> overlay windows) and even compositing GL window managers work fine,
+>> even if running 3D apps under them.
+>
+> Does the kernel track userspace pid and pass that information to qemu?
 
-diff --git a/arch/x86/include/asm/spinlock_types.h b/arch/x86/include/asm/spinlock_types.h
-index b396ed5..def8010 100644
---- a/arch/x86/include/asm/spinlock_types.h
-+++ b/arch/x86/include/asm/spinlock_types.h
-@@ -20,7 +20,6 @@ typedef u32 __ticketpair_t;
- 
- typedef struct arch_spinlock {
- 	union {
--		unsigned int slock;
- 		__ticketpair_t ticketpair;
- 		struct __raw_tickets {
- 			__ticket_t head, tail;
-@@ -31,7 +30,7 @@ typedef struct arch_spinlock {
- #endif
- } arch_spinlock_t;
- 
--#define __ARCH_SPIN_LOCK_UNLOCKED	{ { .slock = 0 } }
-+#define __ARCH_SPIN_LOCK_UNLOCKED	{ { .tickets = {0, 0} } }
- 
- typedef struct {
- 	unsigned int lock;
--- 
-1.7.2.3
+Yes. And the qemu code tracks the PIDs and keeps multiple queues (one 
+per pid).
+
+-Ian
