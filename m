@@ -1,15 +1,14 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [PATCH 05/20] x86/ticketlock: make __ticket_spin_lock common
-Date: Wed,  3 Nov 2010 10:59:46 -0400
-Message-ID: <2080b3702fad2a4ec3647efe2cfef19140da8086.1288794124.git.jeremy.fitzhardinge__18439.3460666344$1288797930$gmane$org@citrix.com>
+From: Eric Dumazet <eric.dumazet@gmail.com>
+Subject: Re: [PATCH 02/20] x86/ticketlock: convert spin loop to C
+Date: Wed, 03 Nov 2010 16:11:32 +0100
+Message-ID: <1288797092.2511.141.camel__5345.32320821217$1288798010$gmane$org@edumazet-laptop>
 References: <cover.1288794124.git.jeremy.fitzhardinge@citrix.com>
+	<3d9083892c28a7d3ed5a0191b0b4cd013022a186.1288794124.git.jeremy.fitzhardinge@citrix.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <cover.1288794124.git.jeremy.fitzhardinge@citrix.com>
-In-Reply-To: <cover.1288794124.git.jeremy.fitzhardinge@citrix.com>
-References: <cover.1288794124.git.jeremy.fitzhardinge@citrix.com>
+In-Reply-To: <3d9083892c28a7d3ed5a0191b0b4cd013022a186.1288794124.git.jeremy.fitzhardinge@citrix.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,88 +18,73 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Peter Zijlstra <peterz@infradead.org>
-Cc: Nick Piggin <npiggin@suse.de>, Xen-devel <xen-devel@lists.xensource.com>, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Jan Beulich <JBeulich@novell.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, Avi Kivity <avi@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Nick Piggin <npiggin@suse.de>, Xen-devel <xen-devel@lists.xensource.com>, Peter Zijlstra <peterz@infradead.org>, Srivatsa@smtp1.linux-foundation.org, Linux@smtp1.linux-foundation.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Jan Beulich <JBeulich@novell.com>, Virtualization <virtualization@lists.linux-foundation.org>, Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, Vaddagiri <vatsa@linux.vnet.ibm.com>, Avi Kivity <avi@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>
-
-Aside from the particular form of the xadd instruction, they're identical.
-So factor out the xadd and use common code for the rest.
-
-Signed-off-by: Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>
----
- arch/x86/include/asm/spinlock.h |   42 ++++++++++++++++++--------------------
- 1 files changed, 20 insertions(+), 22 deletions(-)
-
-diff --git a/arch/x86/include/asm/spinlock.h b/arch/x86/include/asm/spinlock.h
-index 7586d7a..4f9fa24 100644
---- a/arch/x86/include/asm/spinlock.h
-+++ b/arch/x86/include/asm/spinlock.h
-@@ -69,13 +69,27 @@ static __always_inline void __ticket_unlock_release(struct arch_spinlock *lock)
-  * save some instructions and make the code more elegant. There really isn't
-  * much between them in performance though, especially as locks are out of line.
-  */
--#if (NR_CPUS < 256)
--static __always_inline void __ticket_spin_lock(arch_spinlock_t *lock)
-+static __always_inline struct __raw_tickets __ticket_spin_claim(struct arch_spinlock *lock)
- {
--	register struct __raw_tickets inc = { .tail = 1 };
-+	register struct __raw_tickets tickets = { .tail = 1 };
-+
-+	if (sizeof(lock->tickets.head) == sizeof(u8))
-+		asm volatile (LOCK_PREFIX "xaddw %w0, %1\n"
-+			      : "+r" (tickets), "+m" (lock->tickets)
-+			      : : "memory", "cc");
-+	else
-+		asm volatile (LOCK_PREFIX "xaddl %0, %1\n"
-+			     : "+r" (tickets), "+m" (lock->tickets)
-+			     : : "memory", "cc");
- 
--	asm volatile (LOCK_PREFIX "xaddw %w0, %1\n"
--		      : "+r" (inc), "+m" (lock->tickets) : : "memory", "cc");
-+	return tickets;
-+}
-+
-+static __always_inline void __ticket_spin_lock(struct arch_spinlock *lock)
-+{
-+	register struct __raw_tickets inc;
-+
-+	inc = __ticket_spin_claim(lock);
- 
- 	for (;;) {
- 		if (inc.head == inc.tail)
-@@ -86,6 +100,7 @@ static __always_inline void __ticket_spin_lock(arch_spinlock_t *lock)
- 	barrier();		/* make sure nothing creeps before the lock is taken */
- }
- 
-+#if (NR_CPUS < 256)
- static __always_inline int __ticket_spin_trylock(arch_spinlock_t *lock)
- {
- 	unsigned int tmp, new;
-@@ -105,23 +120,6 @@ static __always_inline int __ticket_spin_trylock(arch_spinlock_t *lock)
- 	return tmp;
- }
- #else
--static __always_inline void __ticket_spin_lock(arch_spinlock_t *lock)
--{
--	register struct __raw_tickets inc = { .tickets.tail = 1 };
--
--	asm volatile(LOCK_PREFIX "xaddl %0, %1\n\t"
--		     : "+r" (inc), "+m" (lock->tickets)
--		     : : "memory", "cc");
--
--	for (;;) {
--		if (inc.head == inc.tail)
--			return;
--		cpu_relax();
--		inc.head = ACCESS_ONCE(lock->tickets.head);
--	}
--	barrier();		/* make sure nothing creeps before the lock is taken */
--}
--
- static __always_inline int __ticket_spin_trylock(arch_spinlock_t *lock)
- {
- 	unsigned tmp;
--- 
-1.7.2.3
+TGUgbWVyY3JlZGkgMDMgbm92ZW1icmUgMjAxMCDDoCAxMDo1OSAtMDQwMCwgSmVyZW15IEZpdHpo
+YXJkaW5nZSBhCsOpY3JpdCA6Cj4gRnJvbTogSmVyZW15IEZpdHpoYXJkaW5nZSA8amVyZW15LmZp
+dHpoYXJkaW5nZUBjaXRyaXguY29tPgo+IAo+IFRoZSBpbm5lciBsb29wIG9mIF9fdGlja2V0X3Nw
+aW5fbG9jayBpc24ndCBkb2luZyBhbnl0aGluZyB2ZXJ5IHNwZWNpYWwsCj4gc28gcmVpbXBsZW1l
+bnQgaXQgaW4gQy4KPiAKPiBGb3IgdGhlIDggYml0IHRpY2tldCBsb2NrIHZhcmlhbnQsIHdlIHVz
+ZSBhIHJlZ2lzdGVyIHVuaW9uIHRvIGdldCBkaXJlY3QKPiBhY2Nlc3MgdG8gdGhlIGxvd2VyIGFu
+ZCB1cHBlciBieXRlcyBpbiB0aGUgdGlja2V0cywgYnV0IHVuZm9ydHVuYXRlbHkgZ2NjCj4gd29u
+J3QgZ2VuZXJhdGUgYSBkaXJlY3QgY29tcGFyaXNvbiBiZXR3ZWVuIHRoZSB0d28gaGFsdmVzIG9m
+IHRoZSByZWdpc3RlciwKPiBzbyB0aGUgZ2VuZXJhdGVkIGFzbSBpc24ndCBxdWl0ZSBhcyBwcmV0
+dHkgYXMgdGhlIGhhbmQtY29kZWQgdmVyc2lvbi4KPiBIb3dldmVyIGJlbmNobWFya2luZyBzaG93
+cyB0aGF0IHRoaXMgaXMgYWN0dWFsbHkgYSBzbWFsbCBpbXByb3ZlbWVudCBpbgo+IHJ1bnRpbWUg
+cGVyZm9ybWFuY2Ugb24gc29tZSBiZW5jaG1hcmtzLCBhbmQgbmV2ZXIgYSBzbG93ZG93bi4KPiAK
+PiBXZSBhbHNvIG5lZWQgdG8gbWFrZSBzdXJlIHRoZXJlJ3MgYSBiYXJyaWVyIGF0IHRoZSBlbmQg
+b2YgdGhlIGxvY2sgbG9vcAo+IHRvIG1ha2Ugc3VyZSB0aGF0IHRoZSBjb21waWxlciBkb2Vzbid0
+IG1vdmUgYW55IGluc3RydWN0aW9ucyBmcm9tIHdpdGhpbgo+IHRoZSBsb2NrZWQgcmVnaW9uIGlu
+dG8gdGhlIHJlZ2lvbiB3aGVyZSB3ZSBkb24ndCB5ZXQgb3duIHRoZSBsb2NrLgo+IAo+IFNpZ25l
+ZC1vZmYtYnk6IEplcmVteSBGaXR6aGFyZGluZ2UgPGplcmVteS5maXR6aGFyZGluZ2VAY2l0cml4
+LmNvbT4KPiAtLS0KPiAgYXJjaC94ODYvaW5jbHVkZS9hc20vc3BpbmxvY2suaCB8ICAgNTggKysr
+KysrKysrKysrKysrKysrKy0tLS0tLS0tLS0tLS0tLS0tLS0KPiAgMSBmaWxlcyBjaGFuZ2VkLCAy
+OSBpbnNlcnRpb25zKCspLCAyOSBkZWxldGlvbnMoLSkKPiAKPiBkaWZmIC0tZ2l0IGEvYXJjaC94
+ODYvaW5jbHVkZS9hc20vc3BpbmxvY2suaCBiL2FyY2gveDg2L2luY2x1ZGUvYXNtL3NwaW5sb2Nr
+LmgKPiBpbmRleCBkNmQ1Nzg0Li42NzExZDM2IDEwMDY0NAo+IC0tLSBhL2FyY2gveDg2L2luY2x1
+ZGUvYXNtL3NwaW5sb2NrLmgKPiArKysgYi9hcmNoL3g4Ni9pbmNsdWRlL2FzbS9zcGlubG9jay5o
+Cj4gQEAgLTU4LDIxICs1OCwyMSBAQAo+ICAjaWYgKE5SX0NQVVMgPCAyNTYpCj4gIHN0YXRpYyBf
+X2Fsd2F5c19pbmxpbmUgdm9pZCBfX3RpY2tldF9zcGluX2xvY2soYXJjaF9zcGlubG9ja190ICps
+b2NrKQo+ICB7Cj4gLQl1bnNpZ25lZCBzaG9ydCBpbmMgPSAxIDw8IFRJQ0tFVF9TSElGVDsKPiAt
+Cj4gLQlhc20gdm9sYXRpbGUgKAo+IC0JCUxPQ0tfUFJFRklYICJ4YWRkdyAldzAsICUxXG4iCj4g
+LQkJIjE6XHQiCj4gLQkJImNtcGIgJWgwLCAlYjBcblx0Igo+IC0JCSJqZSAyZlxuXHQiCj4gLQkJ
+InJlcCA7IG5vcFxuXHQiCj4gLQkJIm1vdmIgJTEsICViMFxuXHQiCj4gLQkJLyogZG9uJ3QgbmVl
+ZCBsZmVuY2UgaGVyZSwgYmVjYXVzZSBsb2FkcyBhcmUgaW4tb3JkZXIgKi8KPiAtCQkiam1wIDFi
+XG4iCj4gLQkJIjI6Igo+IC0JCTogIitRIiAoaW5jKSwgIittIiAobG9jay0+c2xvY2spCj4gLQkJ
+Ogo+IC0JCTogIm1lbW9yeSIsICJjYyIpOwo+ICsJcmVnaXN0ZXIgdW5pb24gewo+ICsJCXN0cnVj
+dCBfX3Jhd190aWNrZXRzIHRpY2tldHM7Cj4gKwkJdW5zaWduZWQgc2hvcnQgc2xvY2s7Cj4gKwl9
+IGluYyA9IHsgLnNsb2NrID0gMSA8PCBUSUNLRVRfU0hJRlQgfTsKPiArCj4gKwlhc20gdm9sYXRp
+bGUgKExPQ0tfUFJFRklYICJ4YWRkdyAldzAsICUxXG4iCj4gKwkJICAgICAgOiAiK1EiIChpbmMp
+LCAiK20iIChsb2NrLT5zbG9jaykgOiA6ICJtZW1vcnkiLCAiY2MiKTsKPiArCj4gKwlmb3IgKDs7
+KSB7Cj4gKwkJaWYgKGluYy50aWNrZXRzLmhlYWQgPT0gaW5jLnRpY2tldHMudGFpbCkKPiArCQkJ
+cmV0dXJuOwo+ICsJCWNwdV9yZWxheCgpOwo+ICsJCWluYy50aWNrZXRzLmhlYWQgPSBBQ0NFU1Nf
+T05DRShsb2NrLT50aWNrZXRzLmhlYWQpOwo+ICsJfQo+ICsJYmFycmllcigpOwkJLyogbWFrZSBz
+dXJlIG5vdGhpbmcgY3JlZXBzIGJlZm9yZSB0aGUgbG9jayBpcyB0YWtlbiAqLwoKSXNudCB0aGlz
+IGJhcnJpZXIoKSBuZXZlciByZWFjaGVkID8KCgo+ICB9Cj4gIAo+ICBzdGF0aWMgX19hbHdheXNf
+aW5saW5lIGludCBfX3RpY2tldF9zcGluX3RyeWxvY2soYXJjaF9zcGlubG9ja190ICpsb2NrKQo+
+IEBAIC0xMDUsMjIgKzEwNSwyMiBAQCBzdGF0aWMgX19hbHdheXNfaW5saW5lIHZvaWQgX190aWNr
+ZXRfc3Bpbl91bmxvY2soYXJjaF9zcGlubG9ja190ICpsb2NrKQo+ICBzdGF0aWMgX19hbHdheXNf
+aW5saW5lIHZvaWQgX190aWNrZXRfc3Bpbl9sb2NrKGFyY2hfc3BpbmxvY2tfdCAqbG9jaykKPiAg
+ewo+ICAJdW5zaWduZWQgaW5jID0gMSA8PCBUSUNLRVRfU0hJRlQ7Cj4gLQl1bnNpZ25lZCB0bXA7
+Cj4gKwlfX3RpY2tldF90IHRtcDsKPiAgCj4gLQlhc20gdm9sYXRpbGUoTE9DS19QUkVGSVggInhh
+ZGRsICUwLCAlMVxuIgo+IC0JCSAgICAgIm1vdnp3bCAldzAsICUyXG5cdCIKPiAtCQkgICAgICJz
+aHJsICQxNiwgJTBcblx0Igo+IC0JCSAgICAgIjE6XHQiCj4gLQkJICAgICAiY21wbCAlMCwgJTJc
+blx0Igo+IC0JCSAgICAgImplIDJmXG5cdCIKPiAtCQkgICAgICJyZXAgOyBub3Bcblx0Igo+IC0J
+CSAgICAgIm1vdnp3bCAlMSwgJTJcblx0Igo+IC0JCSAgICAgLyogZG9uJ3QgbmVlZCBsZmVuY2Ug
+aGVyZSwgYmVjYXVzZSBsb2FkcyBhcmUgaW4tb3JkZXIgKi8KPiAtCQkgICAgICJqbXAgMWJcbiIK
+PiAtCQkgICAgICIyOiIKPiAtCQkgICAgIDogIityIiAoaW5jKSwgIittIiAobG9jay0+c2xvY2sp
+LCAiPSZyIiAodG1wKQo+IC0JCSAgICAgOgo+IC0JCSAgICAgOiAibWVtb3J5IiwgImNjIik7Cj4g
+Kwlhc20gdm9sYXRpbGUoTE9DS19QUkVGSVggInhhZGRsICUwLCAlMVxuXHQiCj4gKwkJICAgICA6
+ICIrciIgKGluYyksICIrbSIgKGxvY2stPnNsb2NrKQo+ICsJCSAgICAgOiA6ICJtZW1vcnkiLCAi
+Y2MiKTsKPiArCj4gKwl0bXAgPSBpbmM7Cj4gKwlpbmMgPj49IFRJQ0tFVF9TSElGVDsKPiArCj4g
+Kwlmb3IgKDs7KSB7Cj4gKwkJaWYgKChfX3RpY2tldF90KWluYyA9PSB0bXApCj4gKwkJCXJldHVy
+bjsKPiArCQljcHVfcmVsYXgoKTsKPiArCQl0bXAgPSBBQ0NFU1NfT05DRShsb2NrLT50aWNrZXRz
+LmhlYWQpOwo+ICsJfQo+ICsJYmFycmllcigpOwkJLyogbWFrZSBzdXJlIG5vdGhpbmcgY3JlZXBz
+IGJlZm9yZSB0aGUgbG9jayBpcyB0YWtlbiAqLwoKc2FtZSBoZXJlCgo+ICB9Cj4gIAo+ICBzdGF0
+aWMgX19hbHdheXNfaW5saW5lIGludCBfX3RpY2tldF9zcGluX3RyeWxvY2soYXJjaF9zcGlubG9j
+a190ICpsb2NrKQoKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51
+eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnL21haWxt
+YW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
