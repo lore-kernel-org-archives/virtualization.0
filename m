@@ -1,8 +1,7 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [PATCH 04/20] x86/ticketlock: make large and small ticket versions of
-	spin_lock the same
-Date: Wed,  3 Nov 2010 10:59:45 -0400
-Message-ID: <5b3cbff3a6e96a085651f140a0525be80a4df8ba.1288794124.git.jeremy.fitzhardinge__29789.2333976508$1288796626$gmane$org@citrix.com>
+Subject: [PATCH 03/20] x86/ticketlock: Use C for __ticket_spin_unlock
+Date: Wed,  3 Nov 2010 10:59:44 -0400
+Message-ID: <20092775a9df07a5a75820ac250194b535279d51.1288794124.git.jeremy.fitzhardinge__46374.5222580203$1288797009$gmane$org@citrix.com>
 References: <cover.1288794124.git.jeremy.fitzhardinge@citrix.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -26,67 +25,75 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>
 
-Make the bulk of __ticket_spin_lock look identical for large and small
-number of cpus.
+If we don't need to use a locked inc for unlock, then implement it in C.
 
 Signed-off-by: Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>
 ---
- arch/x86/include/asm/spinlock.h |   23 ++++++++---------------
- 1 files changed, 8 insertions(+), 15 deletions(-)
+ arch/x86/include/asm/spinlock.h |   33 ++++++++++++++++++---------------
+ 1 files changed, 18 insertions(+), 15 deletions(-)
 
 diff --git a/arch/x86/include/asm/spinlock.h b/arch/x86/include/asm/spinlock.h
-index 082990a..7586d7a 100644
+index 6711d36..082990a 100644
 --- a/arch/x86/include/asm/spinlock.h
 +++ b/arch/x86/include/asm/spinlock.h
-@@ -72,19 +72,16 @@ static __always_inline void __ticket_unlock_release(struct arch_spinlock *lock)
- #if (NR_CPUS < 256)
- static __always_inline void __ticket_spin_lock(arch_spinlock_t *lock)
- {
--	register union {
--		struct __raw_tickets tickets;
--		unsigned short slock;
--	} inc = { .slock = 1 << TICKET_SHIFT };
-+	register struct __raw_tickets inc = { .tail = 1 };
+@@ -33,9 +33,23 @@
+  * On PPro SMP or if we are using OOSTORE, we use a locked operation to unlock
+  * (PPro errata 66, 92)
+  */
+-# define UNLOCK_LOCK_PREFIX LOCK_PREFIX
++static __always_inline void __ticket_unlock_release(struct arch_spinlock *lock)
++{
++	if (sizeof(lock->tickets.head) == sizeof(u8))
++		asm (LOCK_PREFIX "incb %0"
++		     : "+m" (lock->tickets.head) : : "memory");
++	else
++		asm (LOCK_PREFIX "incw %0"
++		     : "+m" (lock->tickets.head) : : "memory");
++
++}
+ #else
+-# define UNLOCK_LOCK_PREFIX
++static __always_inline void __ticket_unlock_release(struct arch_spinlock *lock)
++{
++	barrier();
++	lock->tickets.head++;
++	barrier();
++}
+ #endif
  
- 	asm volatile (LOCK_PREFIX "xaddw %w0, %1\n"
--		      : "+Q" (inc), "+m" (lock->slock) : : "memory", "cc");
-+		      : "+r" (inc), "+m" (lock->tickets) : : "memory", "cc");
+ /*
+@@ -93,14 +107,6 @@ static __always_inline int __ticket_spin_trylock(arch_spinlock_t *lock)
  
- 	for (;;) {
--		if (inc.tickets.head == inc.tickets.tail)
-+		if (inc.head == inc.tail)
- 			return;
- 		cpu_relax();
--		inc.tickets.head = ACCESS_ONCE(lock->tickets.head);
-+		inc.head = ACCESS_ONCE(lock->tickets.head);
- 	}
- 	barrier();		/* make sure nothing creeps before the lock is taken */
+ 	return tmp;
  }
-@@ -110,21 +107,17 @@ static __always_inline int __ticket_spin_trylock(arch_spinlock_t *lock)
+-
+-static __always_inline void __ticket_spin_unlock(arch_spinlock_t *lock)
+-{
+-	asm volatile(UNLOCK_LOCK_PREFIX "incb %0"
+-		     : "+m" (lock->slock)
+-		     :
+-		     : "memory", "cc");
+-}
  #else
  static __always_inline void __ticket_spin_lock(arch_spinlock_t *lock)
  {
--	unsigned inc = 1 << TICKET_SHIFT;
--	__ticket_t tmp;
-+	register struct __raw_tickets inc = { .tickets.tail = 1 };
+@@ -144,15 +150,12 @@ static __always_inline int __ticket_spin_trylock(arch_spinlock_t *lock)
  
- 	asm volatile(LOCK_PREFIX "xaddl %0, %1\n\t"
--		     : "+r" (inc), "+m" (lock->slock)
-+		     : "+r" (inc), "+m" (lock->tickets)
- 		     : : "memory", "cc");
- 
--	tmp = inc;
--	inc >>= TICKET_SHIFT;
--
- 	for (;;) {
--		if ((__ticket_t)inc == tmp)
-+		if (inc.head == inc.tail)
- 			return;
- 		cpu_relax();
--		tmp = ACCESS_ONCE(lock->tickets.head);
-+		inc.head = ACCESS_ONCE(lock->tickets.head);
- 	}
- 	barrier();		/* make sure nothing creeps before the lock is taken */
+ 	return tmp;
  }
++#endif
+ 
+ static __always_inline void __ticket_spin_unlock(arch_spinlock_t *lock)
+ {
+-	asm volatile(UNLOCK_LOCK_PREFIX "incw %0"
+-		     : "+m" (lock->slock)
+-		     :
+-		     : "memory", "cc");
++	__ticket_unlock_release(lock);
+ }
+-#endif
+ 
+ static inline int __ticket_spin_is_locked(arch_spinlock_t *lock)
+ {
 -- 
 1.7.2.3
