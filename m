@@ -1,7 +1,7 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [PATCH 19/20] x86/ticketlocks: use overlapping read to eliminate mb()
-Date: Wed,  3 Nov 2010 11:00:00 -0400
-Message-ID: <5cae33878054a27869fdaa20f1265226be9d8c1b.1288794124.git.jeremy.fitzhardinge__33686.223315499$1288797720$gmane$org@citrix.com>
+Subject: [PATCH 14/20] x86/ticketlock: loosen ordering restraints on unlock
+Date: Wed,  3 Nov 2010 10:59:55 -0400
+Message-ID: <1de42e70d22a5078d65d6d943da06c9ea0f4691b.1288794124.git.jeremy.fitzhardinge__46183.7967312478$1288797728$gmane$org@citrix.com>
 References: <cover.1288794124.git.jeremy.fitzhardinge@citrix.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -25,86 +25,41 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>
 
-When reading the 'waiting' counter, use a longer-than-necessary read
-which also overlaps 'head'.  This read is guaranteed to be in-order
-with respect to and unlock writes to 'head', thereby eliminating the
-need for an explicit mb() to enforce the read-after-write ordering.
+It's only necessary to prevent the compiler from reordering code out of
+the locked region past the unlock.  Putting too many barriers in prevents
+the compiler from generating the best code when PV spinlocks are enabled.
 
 Signed-off-by: Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>
 ---
- arch/x86/include/asm/spinlock.h       |   14 +++++++-------
- arch/x86/include/asm/spinlock_types.h |   24 ++++++++++++++++++++----
- 2 files changed, 27 insertions(+), 11 deletions(-)
+ arch/x86/include/asm/spinlock.h |    8 +++++---
+ 1 files changed, 5 insertions(+), 3 deletions(-)
 
 diff --git a/arch/x86/include/asm/spinlock.h b/arch/x86/include/asm/spinlock.h
-index c7455e1..a16b6e4 100644
+index b9a1aae..d6de5e7 100644
 --- a/arch/x86/include/asm/spinlock.h
 +++ b/arch/x86/include/asm/spinlock.h
-@@ -86,14 +86,14 @@ static inline void __ticket_sub_waiting(struct arch_spinlock *lock)
- 
- static __always_inline bool __ticket_lock_waiters(const struct arch_spinlock *lock)
+@@ -46,9 +46,7 @@ static __always_inline void __ticket_unlock_release(struct arch_spinlock *lock)
+ #else
+ static __always_inline void __ticket_unlock_release(struct arch_spinlock *lock)
  {
--	/*
--	 * Make sure everyone sees the unlock write before we check the
--	 * waiting count.  The processor ordering doesn't guarantee this
--	 * because they're different memory locations.
-+	/* 
-+	 * lock->waiting_head is a union element which aliases both
-+	 * 'waiting' and 'head'.  Since the memory access overlaps
-+	 * 'head', the read is forced to be in-order with respect to
-+	 * unlock writes to 'head', eliminating the need for an
-+	 * explicit mb(). (Intel memory ordering rules.)
- 	 */
--	mb();
--
--	return ACCESS_ONCE(lock->waiting) != 0;
-+	return ((__ticket_t)ACCESS_ONCE(lock->waiting_head)) != 0;
+-	barrier();
+ 	lock->tickets.head++;
+-	barrier();
  }
- #endif	/* CONFIG_PARAVIRT_SPINLOCKS */
+ #endif
  
-diff --git a/arch/x86/include/asm/spinlock_types.h b/arch/x86/include/asm/spinlock_types.h
-index def8010..307ef0b 100644
---- a/arch/x86/include/asm/spinlock_types.h
-+++ b/arch/x86/include/asm/spinlock_types.h
-@@ -18,6 +18,24 @@ typedef u32 __ticketpair_t;
- #define TICKET_SHIFT	(sizeof(__ticket_t) * 8)
- #define TICKET_MASK	((1 << TICKET_SHIFT) - 1)
+@@ -184,7 +182,11 @@ static __always_inline int arch_spin_trylock(arch_spinlock_t *lock)
  
-+#ifdef CONFIG_PARAVIRT_SPINLOCKS
-+typedef struct arch_spinlock {
-+	union {
-+		struct {
-+			__ticket_t waiting;
-+			union {
-+				__ticketpair_t ticketpair;
-+				struct __raw_tickets {
-+					__ticket_t head, tail;
-+				} tickets;
-+			};
-+		};
-+		__ticketpair_t waiting_head; /* aliases waiting and head */
-+	};
-+} arch_spinlock_t;
+ static __always_inline void arch_spin_unlock(arch_spinlock_t *lock)
+ {
+-	__ticket_t next = lock->tickets.head + 1;
++	__ticket_t next;
 +
-+#define __ARCH_SPIN_LOCK_UNLOCKED	{ { { 0, { 0 } } } }
-+#else
- typedef struct arch_spinlock {
- 	union {
- 		__ticketpair_t ticketpair;
-@@ -25,12 +43,10 @@ typedef struct arch_spinlock {
- 			__ticket_t head, tail;
- 		} tickets;
- 	};
--#ifdef CONFIG_PARAVIRT_SPINLOCKS
--	__ticket_t waiting;
--#endif
- } arch_spinlock_t;
- 
--#define __ARCH_SPIN_LOCK_UNLOCKED	{ { .tickets = {0, 0} } }
-+#define __ARCH_SPIN_LOCK_UNLOCKED	{ { 0 } }
-+#endif
- 
- typedef struct {
- 	unsigned int lock;
++	barrier();		/* prevent reordering out of locked region */
++
++	next = lock->tickets.head + 1;
+ 	__ticket_unlock_release(lock);
+ 	__ticket_unlock_kick(lock, next);
+ }
 -- 
 1.7.2.3
