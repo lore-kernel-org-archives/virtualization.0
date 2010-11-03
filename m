@@ -1,7 +1,7 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [PATCH 14/20] x86/ticketlock: loosen ordering restraints on unlock
-Date: Wed,  3 Nov 2010 10:59:55 -0400
-Message-ID: <1de42e70d22a5078d65d6d943da06c9ea0f4691b.1288794124.git.jeremy.fitzhardinge__46183.7967312478$1288797728$gmane$org@citrix.com>
+Subject: [PATCH 20/20] x86/ticketlock: rename ticketpair to head_tail
+Date: Wed,  3 Nov 2010 11:00:01 -0400
+Message-ID: <4c3a64ecac8b57d715238bb1ae55c0079879430d.1288794124.git.jeremy.fitzhardinge__2119.37487260929$1288797734$gmane$org@citrix.com>
 References: <cover.1288794124.git.jeremy.fitzhardinge@citrix.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -25,41 +25,48 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>
 
-It's only necessary to prevent the compiler from reordering code out of
-the locked region past the unlock.  Putting too many barriers in prevents
-the compiler from generating the best code when PV spinlocks are enabled.
+Make it clearer what fields head_tail is actually overlapping with.
 
 Signed-off-by: Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>
 ---
- arch/x86/include/asm/spinlock.h |    8 +++++---
- 1 files changed, 5 insertions(+), 3 deletions(-)
+ arch/x86/include/asm/spinlock.h       |    2 +-
+ arch/x86/include/asm/spinlock_types.h |    4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
 diff --git a/arch/x86/include/asm/spinlock.h b/arch/x86/include/asm/spinlock.h
-index b9a1aae..d6de5e7 100644
+index a16b6e4..6850884 100644
 --- a/arch/x86/include/asm/spinlock.h
 +++ b/arch/x86/include/asm/spinlock.h
-@@ -46,9 +46,7 @@ static __always_inline void __ticket_unlock_release(struct arch_spinlock *lock)
+@@ -174,7 +174,7 @@ static __always_inline int arch_spin_trylock(arch_spinlock_t *lock)
+ 
+ 	new.slock = tmp.slock + (1 << TICKET_SHIFT);
+ 
+-	ret = cmpxchg(&lock->ticketpair, tmp.slock, new.slock) == tmp.slock;
++	ret = cmpxchg(&lock->head_tail, tmp.slock, new.slock) == tmp.slock;
+ 	barrier();		/* just make nothing creeps before lock is claimed */
+ 
+ 	return ret;
+diff --git a/arch/x86/include/asm/spinlock_types.h b/arch/x86/include/asm/spinlock_types.h
+index 307ef0b..df031ec 100644
+--- a/arch/x86/include/asm/spinlock_types.h
++++ b/arch/x86/include/asm/spinlock_types.h
+@@ -24,7 +24,7 @@ typedef struct arch_spinlock {
+ 		struct {
+ 			__ticket_t waiting;
+ 			union {
+-				__ticketpair_t ticketpair;
++				__ticketpair_t head_tail;
+ 				struct __raw_tickets {
+ 					__ticket_t head, tail;
+ 				} tickets;
+@@ -38,7 +38,7 @@ typedef struct arch_spinlock {
  #else
- static __always_inline void __ticket_unlock_release(struct arch_spinlock *lock)
- {
--	barrier();
- 	lock->tickets.head++;
--	barrier();
- }
- #endif
- 
-@@ -184,7 +182,11 @@ static __always_inline int arch_spin_trylock(arch_spinlock_t *lock)
- 
- static __always_inline void arch_spin_unlock(arch_spinlock_t *lock)
- {
--	__ticket_t next = lock->tickets.head + 1;
-+	__ticket_t next;
-+
-+	barrier();		/* prevent reordering out of locked region */
-+
-+	next = lock->tickets.head + 1;
- 	__ticket_unlock_release(lock);
- 	__ticket_unlock_kick(lock, next);
- }
+ typedef struct arch_spinlock {
+ 	union {
+-		__ticketpair_t ticketpair;
++		__ticketpair_t head_tail;
+ 		struct __raw_tickets {
+ 			__ticket_t head, tail;
+ 		} tickets;
 -- 
 1.7.2.3
