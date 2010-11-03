@@ -1,52 +1,68 @@
-From: Greg KH <greg@kroah.com>
-Subject: Re: [PATCH 05/10] staging: hv: Convert camel cased functions in
-	hv.c to lower cases
-Date: Wed, 3 Nov 2010 04:36:03 -0700
-Message-ID: <20101103113603.GA13276@kroah.com>
-References: <1288644369-12958-1-git-send-email-haiyangz@linuxonhyperv.com>
-	<1288644369-12958-2-git-send-email-haiyangz@linuxonhyperv.com>
-	<1288644369-12958-3-git-send-email-haiyangz@linuxonhyperv.com>
-	<1288644369-12958-4-git-send-email-haiyangz@linuxonhyperv.com>
-	<1288644369-12958-5-git-send-email-haiyangz@linuxonhyperv.com>
-	<20101102170406.GA4557@jenkins.home.ifup.org>
-	<1FB5E1D5CA062146B38059374562DF728BA55BD7@TK5EX14MBXC126.redmond.corp.microsoft.com>
+From: Ian Campbell <ijc@hellion.org.uk>
+Subject: Re: [Xen-devel] Re: [PATCH] x86/pvclock-xen: zero last_value on resume
+Date: Wed, 03 Nov 2010 12:46:34 +0000
+Message-ID: <1288788394.9309.2.camel__49368.0475083694$1288788492$gmane$org@cthulhu.hellion.org.uk>
+References: <4CC708DE.1070000@goop.org>
+	<1288115334.3530.7.camel@mothafucka.localdomain>
+	<4CC8751E.40306@goop.org>
+	<95805e88-b6d5-4ae2-9351-9e458656cfb8@email.android.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <devel-bounces@linuxdriverproject.org>
-Content-Disposition: inline
-In-Reply-To: <1FB5E1D5CA062146B38059374562DF728BA55BD7@TK5EX14MBXC126.redmond.corp.microsoft.com>
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
-List-Post: <mailto:devel@linuxdriverproject.org>
-List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
-Sender: devel-bounces@linuxdriverproject.org
-Errors-To: devel-bounces@linuxdriverproject.org
-To: Haiyang Zhang <haiyangz@microsoft.com>
-Cc: "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <95805e88-b6d5-4ae2-9351-9e458656cfb8@email.android.com>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: "Xen-devel@lists.xensource.com" <Xen-devel@lists.xensource.com>, kvm-devel <kvm@vger.kernel.org>, Dolstra <e.dolstra@tudelft.nl>, the arch/x86 maintainers <x86@kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Virtualization <virtualization@lists.linux-foundation.org>, Hanesse <olivier.hanesse@gmail.com>, Eelco@smtp1.linux-foundation.org, Olivier@smtp1.linux-foundation.org, Linux@smtp1.linux-foundation.org, Glauber Costa <glommer@redhat.com>, Avi Kivity <avi@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Nov 02, 2010 at 09:06:56PM +0000, Haiyang Zhang wrote:
-> > From: Brandon Philips [mailto:brandon@ifup.org]
-> > Sent: Tuesday, November 02, 2010 1:04 PM
-> > > -static int HvQueryHypervisorInfo(void)
-> > > +static int hvquery_hypervisor_info(void)
-> > > -static u64 HvDoHypercall(u64 control, void *input, void *output)
-> > > +static u64 hvdo_hypercall(u64 control, void *input, void *output)
-> > 
-> > Should these be hv_do_hypercall and hv_query_hypervisor? That seems to
-> > be the style in the rest of the patch:
+On Wed, 2010-10-27 at 13:59 -0700, H. Peter Anvin wrote:
+> I'll check it this evening when I'm at a working network again :(
+
+Did this get applied? It seems to affect 2.6.32.x too
+(http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=602273) so can we tag
+it for stable as well?
+
+Thanks,
+Ian.
+
 > 
-> I didn't insert underscore between every word, for example, it's not
-> added between two short words.
+> "Jeremy Fitzhardinge" <jeremy@goop.org> wrote:
+> 
+> > On 10/26/2010 10:48 AM, Glauber Costa wrote:
+> >> On Tue, 2010-10-26 at 09:59 -0700, Jeremy Fitzhardinge wrote:
+> >>> If the guest domain has been suspend/resumed or migrated, then the
+> >>> system clock backing the pvclock clocksource may revert to a smaller
+> >>> value (ie, can be non-monotonic across the migration/save-restore).
+> >>> Make sure we zero last_value in that case so that the domain
+> >>> continues to see clock updates.
+> >>>
+> >>> [ I don't know if kvm needs an analogous fix or not. ]
+> >> After migration, save/restore, etc, we issue an ioctl where we tell
+> >> the host the last clock value. That (in theory) guarantees
+> >monotonicity.
+> >>
+> >> I am not opposed to this patch in any way, however.
+> >
+> >Thanks.
+> >
+> >HPA, do you want to take this, or shall I send it on?
+> >
+> >Thanks,
+> >    J
+> 
 
-But you should.  Remember, be consistent.
+-- 
+Ian Campbell
 
-Care to redo these again?
+BOFH excuse #191:
 
-thanks,
-
-greg k-h
+Just type 'mv * /dev/null'.
