@@ -1,52 +1,39 @@
-From: Eric Dumazet <eric.dumazet@gmail.com>
-Subject: Re: [PATCH 03/20] x86/ticketlock: Use C for __ticket_spin_unlock
-Date: Wed, 03 Nov 2010 16:13:38 +0100
-Message-ID: <1288797218.2511.143.camel__36747.2348887988$1288798090$gmane$org@edumazet-laptop>
-References: <cover.1288794124.git.jeremy.fitzhardinge@citrix.com>
-	<20092775a9df07a5a75820ac250194b535279d51.1288794124.git.jeremy.fitzhardinge@citrix.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20092775a9df07a5a75820ac250194b535279d51.1288794124.git.jeremy.fitzhardinge@citrix.com>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Nick Piggin <npiggin@suse.de>, Xen-devel <xen-devel@lists.xensource.com>, Peter Zijlstra <peterz@infradead.org>, Srivatsa@smtp1.linux-foundation.org, Linux@smtp1.linux-foundation.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Jan Beulich <JBeulich@novell.com>, Virtualization <virtualization@lists.linux-foundation.org>, Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, Vaddagiri <vatsa@linux.vnet.ibm.com>, Avi Kivity <avi@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>
+From: Jiri Slaby <jslaby@suse.cz>
+Subject: [PATCH 3/3] VIDEO: xen-fb, switch to for_each_console
+Date: Wed,  3 Nov 2010 16:28:34 +0100
+Message-ID: <1288798114-23206-3-git-send-email-jslaby@suse.cz>
+References: <1288798114-23206-1-git-send-email-jslaby@suse.cz>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1288798114-23206-1-git-send-email-jslaby@suse.cz>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: linux-kernel@vger.kernel.org, jirislaby@gmail.com, Jeremy Fitzhardinge <jeremy@xensource.com>, Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, linux-fbdev@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-TGUgbWVyY3JlZGkgMDMgbm92ZW1icmUgMjAxMCDDoCAxMDo1OSAtMDQwMCwgSmVyZW15IEZpdHpo
-YXJkaW5nZSBhCsOpY3JpdCA6Cj4gRnJvbTogSmVyZW15IEZpdHpoYXJkaW5nZSA8amVyZW15LmZp
-dHpoYXJkaW5nZUBjaXRyaXguY29tPgo+IAo+IElmIHdlIGRvbid0IG5lZWQgdG8gdXNlIGEgbG9j
-a2VkIGluYyBmb3IgdW5sb2NrLCB0aGVuIGltcGxlbWVudCBpdCBpbiBDLgo+IAo+IFNpZ25lZC1v
-ZmYtYnk6IEplcmVteSBGaXR6aGFyZGluZ2UgPGplcmVteS5maXR6aGFyZGluZ2VAY2l0cml4LmNv
-bT4KPiAtLS0KPiAgYXJjaC94ODYvaW5jbHVkZS9hc20vc3BpbmxvY2suaCB8ICAgMzMgKysrKysr
-KysrKysrKysrKysrLS0tLS0tLS0tLS0tLS0tCj4gIDEgZmlsZXMgY2hhbmdlZCwgMTggaW5zZXJ0
-aW9ucygrKSwgMTUgZGVsZXRpb25zKC0pCj4gCj4gZGlmZiAtLWdpdCBhL2FyY2gveDg2L2luY2x1
-ZGUvYXNtL3NwaW5sb2NrLmggYi9hcmNoL3g4Ni9pbmNsdWRlL2FzbS9zcGlubG9jay5oCj4gaW5k
-ZXggNjcxMWQzNi4uMDgyOTkwYSAxMDA2NDQKPiAtLS0gYS9hcmNoL3g4Ni9pbmNsdWRlL2FzbS9z
-cGlubG9jay5oCj4gKysrIGIvYXJjaC94ODYvaW5jbHVkZS9hc20vc3BpbmxvY2suaAo+IEBAIC0z
-Myw5ICszMywyMyBAQAo+ICAgKiBPbiBQUHJvIFNNUCBvciBpZiB3ZSBhcmUgdXNpbmcgT09TVE9S
-RSwgd2UgdXNlIGEgbG9ja2VkIG9wZXJhdGlvbiB0byB1bmxvY2sKPiAgICogKFBQcm8gZXJyYXRh
-IDY2LCA5MikKPiAgICovCj4gLSMgZGVmaW5lIFVOTE9DS19MT0NLX1BSRUZJWCBMT0NLX1BSRUZJ
-WAo+ICtzdGF0aWMgX19hbHdheXNfaW5saW5lIHZvaWQgX190aWNrZXRfdW5sb2NrX3JlbGVhc2Uo
-c3RydWN0IGFyY2hfc3BpbmxvY2sgKmxvY2spCj4gK3sKPiArCWlmIChzaXplb2YobG9jay0+dGlj
-a2V0cy5oZWFkKSA9PSBzaXplb2YodTgpKQo+ICsJCWFzbSAoTE9DS19QUkVGSVggImluY2IgJTAi
-Cj4gKwkJICAgICA6ICIrbSIgKGxvY2stPnRpY2tldHMuaGVhZCkgOiA6ICJtZW1vcnkiKTsKPiAr
-CWVsc2UKPiArCQlhc20gKExPQ0tfUFJFRklYICJpbmN3ICUwIgo+ICsJCSAgICAgOiAiK20iIChs
-b2NrLT50aWNrZXRzLmhlYWQpIDogOiAibWVtb3J5Iik7Cj4gKwo+ICt9Cj4gICNlbHNlCj4gLSMg
-ZGVmaW5lIFVOTE9DS19MT0NLX1BSRUZJWAo+ICtzdGF0aWMgX19hbHdheXNfaW5saW5lIHZvaWQg
-X190aWNrZXRfdW5sb2NrX3JlbGVhc2Uoc3RydWN0IGFyY2hfc3BpbmxvY2sgKmxvY2spCj4gK3sK
-PiArCWJhcnJpZXIoKTsKCnRlY2huaWNhbGx5IHNwZWFraW5nLCBpdCBzaG91bGQgYmUgOiBzbXBf
-d21iKCkKCj4gKwlsb2NrLT50aWNrZXRzLmhlYWQrKzsKPiArCWJhcnJpZXIoKTsKCk5vdCBzdXJl
-IHlvdSBuZWVkIHRoaXMgb25lLgoKPiArfQo+ICAjZW5kaWYKPiAgCgpfX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxp
-c3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0
-cy5saW51eC1mb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+Use newly added for_each_console for iterating consoles.
+
+Signed-off-by: Jiri Slaby <jslaby@suse.cz>
+Cc: Jeremy Fitzhardinge <jeremy@xensource.com>
+Cc: Chris Wright <chrisw@sous-sol.org>
+Cc: virtualization@lists.osdl.org
+Cc: xen-devel@lists.xensource.com
+Cc: linux-fbdev@vger.kernel.org
+---
+ drivers/video/xen-fbfront.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/drivers/video/xen-fbfront.c b/drivers/video/xen-fbfront.c
+index 428d273..4abb0b9 100644
+--- a/drivers/video/xen-fbfront.c
++++ b/drivers/video/xen-fbfront.c
+@@ -492,7 +492,7 @@ xenfb_make_preferred_console(void)
+ 		return;
+ 
+ 	acquire_console_sem();
+-	for (c = console_drivers; c; c = c->next) {
++	for_each_console(c) {
+ 		if (!strcmp(c->name, "tty") && c->index == 0)
+ 			break;
+ 	}
+-- 
+1.7.3.1
