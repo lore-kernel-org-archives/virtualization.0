@@ -1,7 +1,8 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [PATCH 17/20] x86/ticketlock: clarify barrier in arch_spin_lock
-Date: Wed,  3 Nov 2010 10:59:58 -0400
-Message-ID: <ba397357a160b73c800a608a52256544904c6324.1288794124.git.jeremy.fitzhardinge__16900.8183795542$1288797271$gmane$org@citrix.com>
+Subject: [PATCH 16/20] x86/ticketlock: don't inline _spin_unlock when using
+	paravirt spinlocks
+Date: Wed,  3 Nov 2010 10:59:57 -0400
+Message-ID: <c64c8997be40816f3215227ccbd2111399411285.1288794124.git.jeremy.fitzhardinge__9118.00299441001$1288797386$gmane$org@citrix.com>
 References: <cover.1288794124.git.jeremy.fitzhardinge@citrix.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -25,32 +26,41 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>
 
-Make sure the barrier in arch_spin_lock is definitely in the code path.
+The code size expands somewhat, and its probably better to just call
+a function rather than inline it.
 
 Signed-off-by: Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>
 ---
- arch/x86/include/asm/spinlock.h |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+ arch/x86/Kconfig     |    3 +++
+ kernel/Kconfig.locks |    2 +-
+ 2 files changed, 4 insertions(+), 1 deletions(-)
 
-diff --git a/arch/x86/include/asm/spinlock.h b/arch/x86/include/asm/spinlock.h
-index 158b330..c7455e1 100644
---- a/arch/x86/include/asm/spinlock.h
-+++ b/arch/x86/include/asm/spinlock.h
-@@ -151,13 +151,13 @@ static __always_inline void arch_spin_lock(struct arch_spinlock *lock)
+diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
+index cea0cd9..e67bf49 100644
+--- a/arch/x86/Kconfig
++++ b/arch/x86/Kconfig
+@@ -577,6 +577,9 @@ config PARAVIRT_SPINLOCKS
  
- 		do {
- 			if (inc.head == inc.tail)
--				return;
-+				goto out;
- 			cpu_relax();
- 			inc.head = ACCESS_ONCE(lock->tickets.head);
- 		} while (--count);
- 		__ticket_lock_spinning(lock, inc.tail);
- 	}
--	barrier();		/* make sure nothing creeps before the lock is taken */
-+out:	barrier();		/* make sure nothing creeps before the lock is taken */
- }
+ 	  If you are unsure how to answer this question, answer N.
  
- static __always_inline int arch_spin_trylock(arch_spinlock_t *lock)
++config ARCH_NOINLINE_SPIN_UNLOCK
++       def_bool PARAVIRT_SPINLOCKS
++
+ config PARAVIRT_CLOCK
+ 	bool
+ 
+diff --git a/kernel/Kconfig.locks b/kernel/Kconfig.locks
+index 88c92fb..3216c22 100644
+--- a/kernel/Kconfig.locks
++++ b/kernel/Kconfig.locks
+@@ -125,7 +125,7 @@ config INLINE_SPIN_LOCK_IRQSAVE
+ 		 ARCH_INLINE_SPIN_LOCK_IRQSAVE
+ 
+ config INLINE_SPIN_UNLOCK
+-	def_bool !DEBUG_SPINLOCK && (!PREEMPT || ARCH_INLINE_SPIN_UNLOCK)
++	def_bool !DEBUG_SPINLOCK && (!PREEMPT || ARCH_INLINE_SPIN_UNLOCK) && !ARCH_NOINLINE_SPIN_UNLOCK
+ 
+ config INLINE_SPIN_UNLOCK_BH
+ 	def_bool !DEBUG_SPINLOCK && ARCH_INLINE_SPIN_UNLOCK_BH
 -- 
 1.7.2.3
