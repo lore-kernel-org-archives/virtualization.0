@@ -1,33 +1,57 @@
-From: Alon Levy <alevy@redhat.com>
-Subject: Re: [Qemu-devel] Re: [PATCH] Implement a virtio GPU transport
-Date: Thu, 4 Nov 2010 11:13:58 +0200
-Message-ID: <20101104091358.GA28832@playa.tlv.redhat.com>
-References: <1097264455.965471288612409433.JavaMail.root@zmail06.collab.prod.int.phx2.redhat.com>
- <4CCEC090.3050009@codemonkey.ws>
- <4CD1A406.3090909@collabora.co.uk>
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+Subject: Re: [PATCH 3/3] VIDEO: xen-fb,
+	switch to for_each_console
+Date: Thu, 04 Nov 2010 11:20:42 -0400
+Message-ID: <4CD2CF4A.9080503@goop.org>
+References: <1288798114-23206-1-git-send-email-jslaby@suse.cz>
+	<1288798114-23206-3-git-send-email-jslaby@suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <4CD1A406.3090909@collabora.co.uk>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Ian Molton <ian.molton@collabora.co.uk>
-Cc: Anthony Liguori <anthony@codemonkey.ws>, QEMU Developers <qemu-devel@nongnu.org>, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org, Avi Kivity <avi@redhat.com>, virtualization@lists.linux-foundation.org, Rusty Russell <rusty@rustcorp.com.au>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <xen-devel-bounces@lists.xensource.com>
+In-Reply-To: <1288798114-23206-3-git-send-email-jslaby@suse.cz>
+List-Unsubscribe: <http://lists.xensource.com/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
+List-Post: <mailto:xen-devel@lists.xensource.com>
+List-Help: <mailto:xen-devel-request@lists.xensource.com?subject=help>
+List-Subscribe: <http://lists.xensource.com/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
+Sender: xen-devel-bounces@lists.xensource.com
+Errors-To: xen-devel-bounces@lists.xensource.com
+To: Jiri Slaby <jslaby@suse.cz>
+Cc: linux-fbdev@vger.kernel.org, xen-devel@lists.xensource.com, jirislaby@gmail.com, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, linux-kernel@vger.kernel.org, Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Nov 03, 2010 at 06:03:50PM +0000, Ian Molton wrote:
-> On 01/11/10 13:28, Anthony Liguori wrote:
-> >On 11/01/2010 06:53 AM, Alon Levy wrote:
-> 
-> >>While we (speaking as part of the SPICE developers) want to have the same
-> >>support in our virtual GPU for 3d as we have for 2d, we just don't at
-> >>this point of time.
-> 
-> Would it be helpful to you to have /something/ that works in the
-> interim? I'm happy to work with you guys so that we dont need to
-> reinvent the wheel ;-)
-> 
+On 11/03/2010 11:28 AM, Jiri Slaby wrote:
+> Use newly added for_each_console for iterating consoles.
+>
+> Signed-off-by: Jiri Slaby <jslaby@suse.cz>
+> Cc: Jeremy Fitzhardinge <jeremy@xensource.com>
 
-In case it wasn't clear, I think putting virtio-gl is a good idea, exactly because it works right now.
+Sure, if that's what all the kids are doing these days.
 
-[Snip]
+Acked-by: Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>
+
+    J
+
+> Cc: Chris Wright <chrisw@sous-sol.org>
+> Cc: virtualization@lists.osdl.org
+> Cc: xen-devel@lists.xensource.com
+> Cc: linux-fbdev@vger.kernel.org
+> ---
+>  drivers/video/xen-fbfront.c |    2 +-
+>  1 files changed, 1 insertions(+), 1 deletions(-)
+>
+> diff --git a/drivers/video/xen-fbfront.c b/drivers/video/xen-fbfront.c
+> index 428d273..4abb0b9 100644
+> --- a/drivers/video/xen-fbfront.c
+> +++ b/drivers/video/xen-fbfront.c
+> @@ -492,7 +492,7 @@ xenfb_make_preferred_console(void)
+>  		return;
+>  
+>  	acquire_console_sem();
+> -	for (c = console_drivers; c; c = c->next) {
+> +	for_each_console(c) {
+>  		if (!strcmp(c->name, "tty") && c->index == 0)
+>  			break;
+>  	}
