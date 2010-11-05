@@ -1,33 +1,72 @@
 From: Ian Molton <ian.molton@collabora.co.uk>
 Subject: Re: [Qemu-devel] Re: [PATCH] Implement a virtio GPU transport
-Date: Fri, 05 Nov 2010 17:57:27 +0000
-Message-ID: <4CD44587.2050001@collabora.co.uk>
-References: <1097264455.965471288612409433.JavaMail.root@zmail06.collab.prod.int.phx2.redhat.com> <4CCEC090.3050009@codemonkey.ws> <4CD1A406.3090909@collabora.co.uk> <20101104091358.GA28832@playa.tlv.redhat.com>
+Date: Fri, 05 Nov 2010 18:05:13 +0000
+Message-ID: <4CD44759.5020500@collabora.co.uk>
+References: <1097264455.965471288612409433.JavaMail.root@zmail06.collab.prod.int.phx2.redhat.com>	<4CCEC090.3050009@codemonkey.ws> <4CD1A406.3090909@collabora.co.uk> <4CD1A73B.2010406@codemonkey.ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20101104091358.GA28832@playa.tlv.redhat.com>
+In-Reply-To: <4CD1A73B.2010406@codemonkey.ws>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Alon Levy <alevy@redhat.com>
-Cc: Anthony Liguori <anthony@codemonkey.ws>, QEMU Developers <qemu-devel@nongnu.org>, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org, Avi Kivity <avi@redhat.com>, virtualization@lists.linux-foundation.org, Rusty Russell <rusty@rustcorp.com.au>
+To: Anthony Liguori <anthony@codemonkey.ws>
+Cc: linux-kernel@vger.kernel.org, Rusty Russell <rusty@rustcorp.com.au>, QEMU Developers <qemu-devel@nongnu.org>, virtualization@lists.linux-foundation.org, virtualization@lists.osdl.org, Alon Levy <alevy@redhat.com>, Avi Kivity <avi@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 04/11/10 09:13, Alon Levy wrote:
-> On Wed, Nov 03, 2010 at 06:03:50PM +0000, Ian Molton wrote:
->> On 01/11/10 13:28, Anthony Liguori wrote:
->>> On 11/01/2010 06:53 AM, Alon Levy wrote:
->>
->>>> While we (speaking as part of the SPICE developers) want to have the same
->>>> support in our virtual GPU for 3d as we have for 2d, we just don't at
->>>> this point of time.
->>
->> Would it be helpful to you to have /something/ that works in the
->> interim? I'm happy to work with you guys so that we dont need to
->> reinvent the wheel ;-)
->
-> In case it wasn't clear, I think putting virtio-gl is a good idea, exactly because it works right now.
+On 03/11/10 18:17, Anthony Liguori wrote:
+> On 11/03/2010 01:03 PM, Ian Molton wrote:
 
-Thanks :)
+> Why is it better than using virtio-serial?
+
+For one thing, it enforces the PID in kernel so the guests processes 
+cant screw each other over by forging the PID passed to qemu.
+
+>> My current patch touches a tiny part of the qemu sources. It works today.
+>
+> But it's not at all mergable in the current form. If you want to do the
+> work of getting it into a mergable state (cleaning up the coding style,
+> moving it to hw/, etc.) than I'm willing to consider it. But I don't
+> think a custom virtio transport is the right thing to do here.
+
+Hm, I thought I'd indented everything in qemus odd way... Is there a 
+codingstyle document or a checkpatch-like tool for qemu?
+
+I'm happy to make the code meet qemus coding style.
+
+> However, if you want something that Just Works with the least amount of
+> code possible, just split it into a separate process and we can stick it
+> in a contrib/ directory or something.
+
+I dont see what splitting it into a seperate process buys us given we 
+still need the virtio-gl driver in order to enforce the PID. The virtio 
+driver is probably quite a bit more efficient at marshalling the data 
+too, given that it was designed alongside the userspace code.
+
+>>> I
+>>> think we can consider integrating it into QEMU (or at least simplifying
+>>> the execution of the backend) but integrating into QEMU is going to
+>>> require an awful lot of the existing code to be rewritten.
+
+Why? aside from codingstyle, whats massively wrong with it thats going 
+to demand a total rewrite?
+
+>>> Keeping it
+>>> separate has the advantage of allowing something to Just Work as an
+>>> interim solution as we wait for proper support in Spice.
+
+Why does keeping it seperate make life easier? qemu is in a git repo. 
+when the time comes, if it reall is a total replacement, git-rm will 
+nuke it all.
+
+>> I dont know why you think integrating it into qemu is hard? I've
+>> already done it.
+>
+> Adding a file that happens to compile as part of qemu even though it
+> doesn't actually integrate with qemu in any meaningful way is not
+> integrating. That's just build system manipulation.
+
+Uh? Either it compiles and works as part of qemu (which it does) or it 
+doesnt. How is that not integrated? I've added it to the configure 
+script too.
 
 -Ian
