@@ -1,72 +1,115 @@
-From: Ian Molton <ian.molton@collabora.co.uk>
-Subject: Re: [Qemu-devel] Re: [PATCH] Implement a virtio GPU transport
-Date: Fri, 05 Nov 2010 18:05:13 +0000
-Message-ID: <4CD44759.5020500@collabora.co.uk>
-References: <1097264455.965471288612409433.JavaMail.root@zmail06.collab.prod.int.phx2.redhat.com>	<4CCEC090.3050009@codemonkey.ws> <4CD1A406.3090909@collabora.co.uk> <4CD1A73B.2010406@codemonkey.ws>
+From: Jiri Slaby <jslaby@suse.cz>
+Subject: [PATCH] Char: virtio_console, fix memory leak
+Date: Sat,  6 Nov 2010 10:06:50 +0100
+Message-ID: <1289034412-24278-2-git-send-email-jslaby__3443.0299456746$1289034486$gmane$org@suse.cz>
+References: <1289034412-24278-1-git-send-email-jslaby@suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <4CD1A73B.2010406@codemonkey.ws>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Anthony Liguori <anthony@codemonkey.ws>
-Cc: linux-kernel@vger.kernel.org, Rusty Russell <rusty@rustcorp.com.au>, QEMU Developers <qemu-devel@nongnu.org>, virtualization@lists.linux-foundation.org, virtualization@lists.osdl.org, Alon Levy <alevy@redhat.com>, Avi Kivity <avi@redhat.com>
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1289034412-24278-1-git-send-email-jslaby@suse.cz>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: jirislaby@gmail.com
+Cc: Amit Shah <amit.shah@redhat.com>, Greg Kroah-Hartman <gregkh@suse.de>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 03/11/10 18:17, Anthony Liguori wrote:
-> On 11/03/2010 01:03 PM, Ian Molton wrote:
+Stanse found that in init_vqs, memory is leaked under certain
+circumstanses (the fail path order is incorrect). Fix that by checking
+allocations in one turn and free all of them at once if some fails
+(some may be NULL, but this is OK).
 
-> Why is it better than using virtio-serial?
+Signed-off-by: Jiri Slaby <jslaby@suse.cz>
+Cc: Amit Shah <amit.shah@redhat.com>
+Cc: virtualization@lists.linux-foundation.org
+Cc: Greg Kroah-Hartman <gregkh@suse.de>
+---
+ drivers/char/virtio_console.c |   37 +++++++++----------------------------
+ 1 files changed, 9 insertions(+), 28 deletions(-)
 
-For one thing, it enforces the PID in kernel so the guests processes 
-cant screw each other over by forging the PID passed to qemu.
-
->> My current patch touches a tiny part of the qemu sources. It works today.
->
-> But it's not at all mergable in the current form. If you want to do the
-> work of getting it into a mergable state (cleaning up the coding style,
-> moving it to hw/, etc.) than I'm willing to consider it. But I don't
-> think a custom virtio transport is the right thing to do here.
-
-Hm, I thought I'd indented everything in qemus odd way... Is there a 
-codingstyle document or a checkpatch-like tool for qemu?
-
-I'm happy to make the code meet qemus coding style.
-
-> However, if you want something that Just Works with the least amount of
-> code possible, just split it into a separate process and we can stick it
-> in a contrib/ directory or something.
-
-I dont see what splitting it into a seperate process buys us given we 
-still need the virtio-gl driver in order to enforce the PID. The virtio 
-driver is probably quite a bit more efficient at marshalling the data 
-too, given that it was designed alongside the userspace code.
-
->>> I
->>> think we can consider integrating it into QEMU (or at least simplifying
->>> the execution of the backend) but integrating into QEMU is going to
->>> require an awful lot of the existing code to be rewritten.
-
-Why? aside from codingstyle, whats massively wrong with it thats going 
-to demand a total rewrite?
-
->>> Keeping it
->>> separate has the advantage of allowing something to Just Work as an
->>> interim solution as we wait for proper support in Spice.
-
-Why does keeping it seperate make life easier? qemu is in a git repo. 
-when the time comes, if it reall is a total replacement, git-rm will 
-nuke it all.
-
->> I dont know why you think integrating it into qemu is hard? I've
->> already done it.
->
-> Adding a file that happens to compile as part of qemu even though it
-> doesn't actually integrate with qemu in any meaningful way is not
-> integrating. That's just build system manipulation.
-
-Uh? Either it compiles and works as part of qemu (which it does) or it 
-doesnt. How is that not integrated? I've added it to the configure 
-script too.
-
--Ian
+diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
+index 6c1b676..896a2ce 100644
+--- a/drivers/char/virtio_console.c
++++ b/drivers/char/virtio_console.c
+@@ -1547,31 +1547,16 @@ static int init_vqs(struct ports_device *portdev)
+ 	nr_queues = use_multiport(portdev) ? (nr_ports + 1) * 2 : 2;
+ 
+ 	vqs = kmalloc(nr_queues * sizeof(struct virtqueue *), GFP_KERNEL);
+-	if (!vqs) {
+-		err = -ENOMEM;
+-		goto fail;
+-	}
+ 	io_callbacks = kmalloc(nr_queues * sizeof(vq_callback_t *), GFP_KERNEL);
+-	if (!io_callbacks) {
+-		err = -ENOMEM;
+-		goto free_vqs;
+-	}
+ 	io_names = kmalloc(nr_queues * sizeof(char *), GFP_KERNEL);
+-	if (!io_names) {
+-		err = -ENOMEM;
+-		goto free_callbacks;
+-	}
+ 	portdev->in_vqs = kmalloc(nr_ports * sizeof(struct virtqueue *),
+ 				  GFP_KERNEL);
+-	if (!portdev->in_vqs) {
+-		err = -ENOMEM;
+-		goto free_names;
+-	}
+ 	portdev->out_vqs = kmalloc(nr_ports * sizeof(struct virtqueue *),
+ 				   GFP_KERNEL);
+-	if (!portdev->out_vqs) {
++	if (!vqs || !io_callbacks || !io_names || !portdev->in_vqs ||
++			!portdev->out_vqs) {
+ 		err = -ENOMEM;
+-		goto free_invqs;
++		goto free;
+ 	}
+ 
+ 	/*
+@@ -1605,7 +1590,7 @@ static int init_vqs(struct ports_device *portdev)
+ 					      io_callbacks,
+ 					      (const char **)io_names);
+ 	if (err)
+-		goto free_outvqs;
++		goto free;
+ 
+ 	j = 0;
+ 	portdev->in_vqs[0] = vqs[0];
+@@ -1621,23 +1606,19 @@ static int init_vqs(struct ports_device *portdev)
+ 			portdev->out_vqs[i] = vqs[j + 1];
+ 		}
+ 	}
+-	kfree(io_callbacks);
+ 	kfree(io_names);
++	kfree(io_callbacks);
+ 	kfree(vqs);
+ 
+ 	return 0;
+ 
+-free_names:
+-	kfree(io_names);
+-free_callbacks:
+-	kfree(io_callbacks);
+-free_outvqs:
++free:
+ 	kfree(portdev->out_vqs);
+-free_invqs:
+ 	kfree(portdev->in_vqs);
+-free_vqs:
++	kfree(io_names);
++	kfree(io_callbacks);
+ 	kfree(vqs);
+-fail:
++
+ 	return err;
+ }
+ 
+-- 
+1.7.3.1
