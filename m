@@ -1,7 +1,7 @@
 From: Jens Osterkamp <jens@linux.vnet.ibm.com>
-Subject: [PATCH 1/9] consolidation of MIN and MAX macros in common.h
-Date: Mon,  8 Nov 2010 17:11:52 +0100
-Message-ID: <1289232720-27443-2-git-send-email-jens@linux.vnet.ibm.com>
+Subject: [PATCH 3/9] BUGFIX: check for existence of ifup
+Date: Mon,  8 Nov 2010 17:11:54 +0100
+Message-ID: <1289232720-27443-4-git-send-email-jens@linux.vnet.ibm.com>
 References: <1289232720-27443-1-git-send-email-jens@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,52 +21,30 @@ To: e1000-eedc@lists.sourceforge.net, virtualization@lists.linux-foundation.org,
 Cc: chrisw@redhat.com, Jens Osterkamp <jens@linux.vnet.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch consolidates a modified version of the already existing MIN
-macro in lldpad to include/common.h and add a MAX macro.
+added an additional check for existence of the ifup operation.
+If it does not exist, just skip it.
 
 Signed-off-by: Jens Osterkamp <jens@linux.vnet.ibm.com>
 ---
- include/common.h       |   14 ++++++++++++++
- include/dcb_protocol.h |    4 ----
- 2 files changed, 14 insertions(+), 4 deletions(-)
+ config.c |    6 ++++--
+ 1 files changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/include/common.h b/include/common.h
-index 01746ea..ab07dc2 100644
---- a/include/common.h
-+++ b/include/common.h
-@@ -387,4 +387,18 @@ typedef int socklen_t;
+diff --git a/config.c b/config.c
+index 5cfac83..26afe3b 100644
+--- a/config.c
++++ b/config.c
+@@ -370,8 +370,10 @@ void init_ports(void)
+ 		} else if (check_link_status(p->if_name)) {
+ 			add_adapter(p->if_name);
  
- const char * wpa_ssid_txt(u8 *ssid, size_t ssid_len);
- 
-+#define MIN(x,y) \
-+	({	\
-+		typeof (x) __x = (x);	\
-+		typeof (y) __y = (y);	\
-+		__x < __y ? __x : __y;	\
-+	 })
-+
-+#define MAX(x,y) \
-+	({	\
-+		typeof (x) __x = (x);	\
-+		typeof (y) __y = (y);	\
-+		__x > __y ? __x : __y;	\
-+	 })
-+
- #endif /* COMMON_H */
-diff --git a/include/dcb_protocol.h b/include/dcb_protocol.h
-index 63e2d3c..d7127f5 100644
---- a/include/dcb_protocol.h
-+++ b/include/dcb_protocol.h
-@@ -58,10 +58,6 @@ typedef enum {
- #define DUP_DCBX_TLV_LLINK         0x0020
- #define TOO_MANY_NGHBRS            0x0040
- 
--//#ifndef min /*todo: change to min()
--	#define MIN(x, y) ((x) < (y) ? x : y)
--//#endif
--
- #define INIT_DCB_OUI                    {0x00,0x1b,0x21}
- 
- int add_adapter(char *device_name);
+-			LIST_FOREACH(np, &lldp_head, lldp)
+-				np->ops->lldp_mod_ifup(p->if_name);
++			LIST_FOREACH(np, &lldp_head, lldp) {
++				if (np->ops->lldp_mod_ifup)
++					np->ops->lldp_mod_ifup(p->if_name);
++			}
+ 			set_lldp_port_enable_state(p->if_name, 1);
+ 		}
+ 		p++;
 -- 
 1.7.1
