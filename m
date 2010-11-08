@@ -1,14 +1,15 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH] Char: virtio_console, fix memory leak
-Date: Mon, 8 Nov 2010 09:58:22 +1030
-Message-ID: <201011080958.23163.rusty__31836.0370737084$1289172657$gmane$org@rustcorp.com.au>
-References: <1289034412-24278-1-git-send-email-jslaby@suse.cz>
-	<1289034412-24278-2-git-send-email-jslaby@suse.cz>
+Subject: Re: [ovs-dev] Flow Control and Port Mirroring
+Date: Mon, 8 Nov 2010 13:41:23 +1030
+Message-ID: <201011081341.23529.rusty@rustcorp.com.au>
+References: <20101028115403.GA16206@verge.net.au>
+	<AANLkTi=QXBi4wmJS1TY0P=s+11Vjp0v=AfWOdFb4vrCj@mail.gmail.com>
+	<20101030025932.GG12842@verge.net.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1289034412-24278-2-git-send-email-jslaby@suse.cz>
+In-Reply-To: <20101030025932.GG12842@verge.net.au>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,19 +20,39 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: virtualization@lists.linux-foundation.org
-Cc: Amit Shah <amit.shah@redhat.com>, Greg Kroah-Hartman <gregkh@suse.de>, Jiri Slaby <jslaby@suse.cz>, jirislaby@gmail.com, linux-kernel@vger.kernel.org
+Cc: dev@openvswitch.org, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, Jesse Gross <jesse@nicira.com>, virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sat, 6 Nov 2010 07:36:50 pm Jiri Slaby wrote:
-> Stanse found that in init_vqs, memory is leaked under certain
-> circumstanses (the fail path order is incorrect). Fix that by checking
-> allocations in one turn and free all of them at once if some fails
-> (some may be NULL, but this is OK).
+On Sat, 30 Oct 2010 01:29:33 pm Simon Horman wrote:
+> [ CCed VHOST contacts ]
+> 
+> On Thu, Oct 28, 2010 at 01:22:02PM -0700, Jesse Gross wrote:
+> > On Thu, Oct 28, 2010 at 4:54 AM, Simon Horman <horms@verge.net.au> wrote:
+> > > My reasoning is that in the non-mirroring case the guest is
+> > > limited by the external interface through wich the packets
+> > > eventually flow - that is 1Gbit/s. But in the mirrored either
+> > > there is no flow control or the flow control is acting on the
+> > > rate of dummy0, which is essentailly infinate.
+> > >
+> > > Before investigating this any further I wanted to ask if
+> > > this behaviour is intentional.
+> > 
+> > It's not intentional but I can take a guess at what is happening.
+> > 
+> > When we send the packet to a mirror, the skb is cloned but only the
+> > original skb is charged to the sender.  If the original packet is
+> > delivered to localhost then it will be freed quickly and no longer
+> > accounted for, despite the fact that the "real" packet is still
+> > sitting in the transmit queue on the NIC.  The UDP stack will then
+> > send the next packet, limited only by the speed of the CPU.
+> 
+> That would explain what I have observed.
 
-Good catch, thanks!
+I can't find the thread (what is ovs-dev?), but I think the tap device
+has this fundamental feature: you can blast as many packets as you want
+through it.
 
-I generally prefer the static rather than lazy method of cleanup, but
-in this case it's ugly both before and after...
+If that's a bad thing, we have to look harder...
 
-Applied,
+Cheers,
 Rusty.
