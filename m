@@ -1,785 +1,341 @@
-From: Jens Osterkamp <jens@linux.vnet.ibm.com>
-Subject: [PATCH 8/9] lldpad support for libvirt netlink message
-Date: Mon,  8 Nov 2010 17:11:59 +0100
-Message-ID: <1289232720-27443-9-git-send-email-jens@linux.vnet.ibm.com>
-References: <1289232720-27443-1-git-send-email-jens@linux.vnet.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1289232720-27443-1-git-send-email-jens@linux.vnet.ibm.com>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: e1000-eedc@lists.sourceforge.net, virtualization@lists.linux-foundation.org, evb@yahoogroups.com
-Cc: chrisw@redhat.com, Gerhard Stenzel <gstenzel@linux.vnet.ibm.com>, Stefan Berger <stefanb@linux.vnet.ibm.com>, Jens Osterkamp <jens@linux.vnet.ibm.com>
+From: Haiyang Zhang <haiyangz@linuxonhyperv.com>
+Subject: [PATCH 03/10] staging: hv: Convert camel cased struct fields in hv.h to lower cases
+Date: Mon,  8 Nov 2010 14:04:40 -0800
+Message-ID: <1289253887-2596-3-git-send-email-haiyangz@linuxonhyperv.com>
+References: <1289253887-2596-1-git-send-email-haiyangz@linuxonhyperv.com>
+ <1289253887-2596-2-git-send-email-haiyangz@linuxonhyperv.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1289253887-2596-2-git-send-email-haiyangz@linuxonhyperv.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: haiyangz@microsoft.com, hjanssen@microsoft.com, gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-This code receives a IEEE 802.1Qbg virtual station instance from libvirt in
-a SETLINK message. The parsed VSI is then handed over to VDP for processing.
-The VDP state machine processes the VSI while libvirt polls the result using
-GETLINK.
+From: Haiyang Zhang <haiyangz@microsoft.com>
 
-Requires at least Linux kernel 2.6.35-rc1.
+staging: hv: Convert camel cased struct fields in hv.h to lower cases
 
-Signed-off-by: Jens Osterkamp <jens@linux.vnet.ibm.com>
-Signed-off-by: Gerhard Stenzel <gstenzel@linux.vnet.ibm.com>
-Signed-off-by: Stefan Berger <stefanb@linux.vnet.ibm.com>
+Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
+Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
+
 ---
- event_iface.c         |  600 ++++++++++++++++++++++++++++++++++++++++++++++++-
- include/event_iface.h |    1 +
- include/lldp_vdp.h    |    2 +
- lldp_vdp.c            |    2 +-
- lldpad.c              |   10 +
- 5 files changed, 604 insertions(+), 11 deletions(-)
+ drivers/staging/hv/hv.c    |   95 +++++++++++++++++++++++---------------------
+ drivers/staging/hv/hv.h    |   20 +++++-----
+ drivers/staging/hv/vmbus.c |    6 +-
+ 3 files changed, 63 insertions(+), 58 deletions(-)
 
-diff --git a/event_iface.c b/event_iface.c
-index 439e4d0..00ac3b1 100644
---- a/event_iface.c
-+++ b/event_iface.c
-@@ -3,6 +3,13 @@
-   LLDP Agent Daemon (LLDPAD) Software
-   Copyright(c) 2007-2010 Intel Corporation.
+diff --git a/drivers/staging/hv/hv.c b/drivers/staging/hv/hv.c
+index ab03327..d0e8c85 100644
+--- a/drivers/staging/hv/hv.c
++++ b/drivers/staging/hv/hv.c
+@@ -28,11 +28,11 @@
+ #include "vmbus_private.h"
  
-+  implementation of libvirt netlink interface
-+  (c) Copyright IBM Corp. 2010
-+
-+  Author(s): Jens Osterkamp <jens@linux.vnet.ibm.com>
-+	     Stefan Berger <stefanb@linux.vnet.ibm.com>
-+	     Gerhard Stenzel <gstenzel@linux.vnet.ibm.com>
-+
-   This program is free software; you can redistribute it and/or modify it
-   under the terms and conditions of the GNU General Public License,
-   version 2, as published by the Free Software Foundation.
-@@ -31,12 +38,16 @@
- #include <sys/socket.h>
- #include <linux/rtnetlink.h>
- #include <linux/if.h>
-+#include <linux/if_link.h>
- #include <linux/if_vlan.h>
- #include <linux/sockios.h>
- #include <syslog.h>
- #include <unistd.h>
-+#include <linux/netlink.h>
-+#include <netlink/msg.h>
- #include "lldpad.h"
- #include "lldp_mod.h"
-+#include "lldp_vdp.h"
- #include "common.h"
- #include "eloop.h"
- #include "drv_cfg.h"
-@@ -47,6 +58,7 @@
- #include "lldp/l2_packet.h"
- #include "config.h"
- #include "lldp/states.h"
-+#include "messages.h"
+ /* The one and only */
+-struct hv_context gHvContext = {
+-	.SynICInitialized	= false,
+-	.HypercallPage		= NULL,
+-	.SignalEventParam	= NULL,
+-	.SignalEventBuffer	= NULL,
++struct hv_context hv_context = {
++	.synic_initialized	= false,
++	.hypercall_page		= NULL,
++	.signal_event_param	= NULL,
++	.signal_event_buffer	= NULL,
+ };
  
- static void event_if_decode_rta(int type, struct rtattr *rta);
+ /*
+@@ -134,7 +134,7 @@ static u64 HvDoHypercall(u64 Control, void *Input, void *Output)
+ 	u64 hvStatus = 0;
+ 	u64 inputAddress = (Input) ? virt_to_phys(Input) : 0;
+ 	u64 outputAddress = (Output) ? virt_to_phys(Output) : 0;
+-	volatile void *hypercallPage = gHvContext.HypercallPage;
++	volatile void *hypercallPage = hv_context.hypercall_page;
  
-@@ -55,6 +67,32 @@ static void event_if_decode_rta(int type, struct rtattr *rta);
- static char *device_name = NULL;
- static int link_status = 0;
+ 	DPRINT_DBG(VMBUS, "Hypercall <control %llx input phys %llx virt %p "
+ 		   "output phys %llx virt %p hypercall %p>",
+@@ -162,7 +162,7 @@ static u64 HvDoHypercall(u64 Control, void *Input, void *Output)
+ 	u64 outputAddress = (Output) ? virt_to_phys(Output) : 0;
+ 	u32 outputAddressHi = outputAddress >> 32;
+ 	u32 outputAddressLo = outputAddress & 0xFFFFFFFF;
+-	volatile void *hypercallPage = gHvContext.HypercallPage;
++	volatile void *hypercallPage = hv_context.hypercall_page;
  
-+static struct nla_policy ifla_vf_policy[IFLA_VF_MAX + 1] =
-+{
-+  [IFLA_VF_MAC]     = { .minlen = sizeof(struct ifla_vf_mac),
-+			.maxlen = sizeof(struct ifla_vf_mac)},
-+  [IFLA_VF_VLAN]    = { .minlen = sizeof(struct ifla_vf_vlan),
-+                        .maxlen = sizeof(struct ifla_vf_vlan)},
-+};
-+
-+static struct nla_policy ifla_vf_ports_policy[IFLA_VF_PORT_MAX + 1] =
-+{
-+  [IFLA_VF_PORT] = { .type = NLA_NESTED },
-+};
-+
-+static struct nla_policy ifla_port_policy[IFLA_PORT_MAX + 1] =
-+{
-+  [IFLA_PORT_VF]            = { .type = NLA_U32 },
-+  [IFLA_PORT_PROFILE]       = { .type = NLA_STRING },
-+  [IFLA_PORT_VSI_TYPE]      = { .minlen = sizeof(struct ifla_port_vsi) },
-+  [IFLA_PORT_INSTANCE_UUID] = { .minlen = PORT_UUID_MAX,
-+                                .maxlen = PORT_UUID_MAX, },
-+  [IFLA_PORT_HOST_UUID]     = { .minlen = PORT_UUID_MAX,
-+                                .maxlen = PORT_UUID_MAX, },
-+  [IFLA_PORT_REQUEST]       = { .type = NLA_U8  },
-+  [IFLA_PORT_RESPONSE]      = { .type = NLA_U16 },
-+};
-+
- static void event_if_decode_rta(int type, struct rtattr *rta)
+ 	DPRINT_DBG(VMBUS, "Hypercall <control %llx input %p output %p>",
+ 		   Control, Input, Output);
+@@ -192,8 +192,9 @@ int HvInit(void)
+ 	union hv_x64_msr_hypercall_contents hypercallMsr;
+ 	void *virtAddr = NULL;
+ 
+-	memset(gHvContext.synICEventPage, 0, sizeof(void *) * MAX_NUM_CPUS);
+-	memset(gHvContext.synICMessagePage, 0, sizeof(void *) * MAX_NUM_CPUS);
++	memset(hv_context.synic_event_page, 0, sizeof(void *) * MAX_NUM_CPUS);
++	memset(hv_context.synic_message_page, 0,
++	       sizeof(void *) * MAX_NUM_CPUS);
+ 
+ 	if (!HvQueryHypervisorPresence()) {
+ 		DPRINT_ERR(VMBUS, "No Windows hypervisor detected!!");
+@@ -209,17 +210,17 @@ int HvInit(void)
+ 	/*
+ 	 * We only support running on top of Hyper-V
+ 	 */
+-	rdmsrl(HV_X64_MSR_GUEST_OS_ID, gHvContext.GuestId);
++	rdmsrl(HV_X64_MSR_GUEST_OS_ID, hv_context.guestid);
+ 
+-	if (gHvContext.GuestId != 0) {
++	if (hv_context.guestid != 0) {
+ 		DPRINT_ERR(VMBUS, "Unknown guest id (0x%llx)!!",
+-				gHvContext.GuestId);
++				hv_context.guestid);
+ 		goto Cleanup;
+ 	}
+ 
+ 	/* Write our OS info */
+ 	wrmsrl(HV_X64_MSR_GUEST_OS_ID, HV_LINUX_GUEST_ID);
+-	gHvContext.GuestId = HV_LINUX_GUEST_ID;
++	hv_context.guestid = HV_LINUX_GUEST_ID;
+ 
+ 	/* See if the hypercall page is already set */
+ 	rdmsrl(HV_X64_MSR_HYPERCALL, hypercallMsr.as_uint64);
+@@ -250,28 +251,29 @@ int HvInit(void)
+ 		goto Cleanup;
+ 	}
+ 
+-	gHvContext.HypercallPage = virtAddr;
++	hv_context.hypercall_page = virtAddr;
+ 
+ 	DPRINT_INFO(VMBUS, "Hypercall page VA=%p, PA=0x%0llx",
+-		    gHvContext.HypercallPage,
++		    hv_context.hypercall_page,
+ 		    (u64)hypercallMsr.guest_physical_address << PAGE_SHIFT);
+ 
+ 	/* Setup the global signal event param for the signal event hypercall */
+-	gHvContext.SignalEventBuffer =
++	hv_context.signal_event_buffer =
+ 			kmalloc(sizeof(struct hv_input_signal_event_buffer),
+ 				GFP_KERNEL);
+-	if (!gHvContext.SignalEventBuffer)
++	if (!hv_context.signal_event_buffer)
+ 		goto Cleanup;
+ 
+-	gHvContext.SignalEventParam =
++	hv_context.signal_event_param =
+ 		(struct hv_input_signal_event *)
+-			(ALIGN_UP((unsigned long)gHvContext.SignalEventBuffer,
++			(ALIGN_UP((unsigned long)
++				  hv_context.signal_event_buffer,
+ 				  HV_HYPERCALL_PARAM_ALIGN));
+-	gHvContext.SignalEventParam->connectionid.asu32 = 0;
+-	gHvContext.SignalEventParam->connectionid.u.id =
++	hv_context.signal_event_param->connectionid.asu32 = 0;
++	hv_context.signal_event_param->connectionid.u.id =
+ 						VMBUS_EVENT_CONNECTION_ID;
+-	gHvContext.SignalEventParam->flag_number = 0;
+-	gHvContext.SignalEventParam->rsvdz = 0;
++	hv_context.signal_event_param->flag_number = 0;
++	hv_context.signal_event_param->rsvdz = 0;
+ 
+ 	return ret;
+ 
+@@ -297,15 +299,15 @@ void HvCleanup(void)
  {
+ 	union hv_x64_msr_hypercall_contents hypercallMsr;
  
-@@ -220,15 +258,517 @@ static void event_if_decode_nlmsg(int route_type, void *data, int len)
+-	kfree(gHvContext.SignalEventBuffer);
+-	gHvContext.SignalEventBuffer = NULL;
+-	gHvContext.SignalEventParam = NULL;
++	kfree(hv_context.signal_event_buffer);
++	hv_context.signal_event_buffer = NULL;
++	hv_context.signal_event_param = NULL;
+ 
+-	if (gHvContext.HypercallPage) {
++	if (hv_context.hypercall_page) {
+ 		hypercallMsr.as_uint64 = 0;
+ 		wrmsrl(HV_X64_MSR_HYPERCALL, hypercallMsr.as_uint64);
+-		vfree(gHvContext.HypercallPage);
+-		gHvContext.HypercallPage = NULL;
++		vfree(hv_context.hypercall_page);
++		hv_context.hypercall_page = NULL;
  	}
  }
  
--
- static void event_if_process_recvmsg(struct nlmsghdr *nlmsg)
+@@ -359,7 +361,8 @@ u16 HvSignalEvent(void)
  {
--
--	/* print out details */
-+	LLDPAD_DBG("%s:%s: nlmsg_type: %d", __FILE__, __FUNCTION__, nlmsg->nlmsg_type);
- 	event_if_decode_nlmsg(nlmsg->nlmsg_type, NLMSG_DATA(nlmsg),
- 		NLMSG_PAYLOAD(nlmsg, 0));
+ 	u16 status;
+ 
+-	status = HvDoHypercall(HVCALL_SIGNAL_EVENT, gHvContext.SignalEventParam,
++	status = HvDoHypercall(HVCALL_SIGNAL_EVENT,
++			       hv_context.signal_event_param,
+ 			       NULL) & 0xFFFF;
+ 	return status;
  }
+@@ -382,7 +385,7 @@ void HvSynicInit(void *irqarg)
+ 	u32 irqVector = *((u32 *)(irqarg));
+ 	int cpu = smp_processor_id();
  
-+static int event_if_parse_getmsg(struct nlmsghdr *nlh, int *ifindex,
-+				 char *ifname)
-+{
-+	struct nlattr *tb[IFLA_MAX+1];
-+	struct ifinfomsg *ifinfo;
-+
-+	if (nlmsg_parse(nlh, sizeof(struct ifinfomsg),
-+			(struct nlattr **)&tb, IFLA_MAX, NULL)) {
-+		LLDPAD_ERR("Error parsing GETLINK request...");
-+		return -EINVAL;
-+	}
-+
-+	if (tb[IFLA_IFNAME]) {
-+		ifname = (char *)RTA_DATA(tb[IFLA_IFNAME]);
-+		LLDPAD_DBG("IFLA_IFNAME=%s", ifname);
-+	} else {
-+		ifinfo = (struct ifinfomsg *)NLMSG_DATA(nlh);
-+		*ifindex = ifinfo->ifi_index;
-+		LLDPAD_DBG("interface index: %d", ifinfo->ifi_index);
-+	}
-+
-+	return 0;
-+}
-+
-+static int event_if_parse_setmsg(struct nlmsghdr *nlh)
-+{
-+	struct nlattr *tb[IFLA_MAX+1],
-+		      *tb3[IFLA_PORT_MAX+1],
-+		      *tb_vfinfo[IFLA_VF_MAX+1],
-+		      *tb_vfinfo_list;
-+	struct vsi_profile *profile, *p;
-+	struct ifinfomsg *ifinfo;
-+	char *ifname;
-+	int rem;
-+
-+	profile = malloc(sizeof(struct vsi_profile));
-+	if (!profile)
-+		return -ENOMEM;
-+	memset(profile, 0, sizeof(struct vsi_profile));
-+
-+	if (nlmsg_parse(nlh, sizeof(struct ifinfomsg),
-+			(struct nlattr **)&tb, IFLA_MAX, NULL)) {
-+		LLDPAD_ERR("Error parsing request...\n");
-+		return -EINVAL;
-+	}
-+
-+	LLDPAD_DBG("%s(%d): nlmsg_len %i", __FILE__, __LINE__, nlh->nlmsg_len);
-+
-+	if (tb[IFLA_IFNAME]) {
-+		ifname = (char *)RTA_DATA(tb[IFLA_IFNAME]);
-+		LLDPAD_DBG("IFLA_IFNAME=%s", ifname);
-+	} else {
-+		ifinfo = (struct ifinfomsg *)NLMSG_DATA(nlh);
-+		LLDPAD_DBG("interface index: %d", ifinfo->ifi_index);
-+	}
-+
-+	if (!tb[IFLA_VFINFO_LIST]) {
-+		LLDPAD_ERR("IFLA_VFINFO_LIST missing.");
-+		return -EINVAL;
-+	} else {
-+		LLDPAD_DBG("FOUND IFLA_VFINFO_LIST!");
-+	}
-+
-+	nla_for_each_nested(tb_vfinfo_list, tb[IFLA_VFINFO_LIST], rem) {
-+		if (nla_type(tb_vfinfo_list) != IFLA_VF_INFO) {
-+			LLDPAD_ERR("nested parsing of IFLA_VFINFO_LIST failed.");
-+			return -EINVAL;
-+		}
-+
-+		if (nla_parse_nested(tb_vfinfo, IFLA_VF_MAX, tb_vfinfo_list,
-+				     ifla_vf_policy)) {
-+			LLDPAD_ERR("nested parsing of IFLA_VF_INFO failed.");
-+			return -EINVAL;
-+		}
-+	}
-+
-+	if (tb_vfinfo[IFLA_VF_MAC]) {
-+		struct ifla_vf_mac *mac = RTA_DATA(tb_vfinfo[IFLA_VF_MAC]);
-+		u8 *m = mac->mac;
-+		LLDPAD_DBG("IFLA_VF_MAC=%2x:%2x:%2x:%2x:%2x:%2x",
-+			m[0], m[1], m[2], m[3], m[4], m[5]);
-+		memcpy(&profile->mac, m, ETH_ALEN);
-+	}
-+
-+	if (tb_vfinfo[IFLA_VF_VLAN]) {
-+		struct ifla_vf_vlan *vlan = RTA_DATA(tb_vfinfo[IFLA_VF_VLAN]);
-+		LLDPAD_DBG("IFLA_VF_VLAN=%d", vlan->vlan);
-+		profile->vlan = (u16) vlan->vlan;
-+	}
-+
-+	if (tb[IFLA_VF_PORTS]) {
-+		struct nlattr *tb_vf_ports;
-+
-+		LLDPAD_DBG("FOUND IFLA_VF_PORTS");
-+
-+		nla_for_each_nested(tb_vf_ports, tb[IFLA_VF_PORTS], rem) {
-+
-+			LLDPAD_DBG("ITERATING");
-+
-+			if (nla_type(tb_vf_ports) != IFLA_VF_PORT) {
-+				LLDPAD_DBG("not a IFLA_VF_PORT. skipping");
-+				continue;
-+			}
-+
-+			if (nla_parse_nested(tb3, IFLA_PORT_MAX, tb_vf_ports,
-+					     ifla_port_policy)) {
-+				LLDPAD_ERR("nested parsing on level 2 failed.");
-+				return -EINVAL;
-+			}
-+
-+			if (tb3[IFLA_PORT_VF]) {
-+				LLDPAD_DBG("IFLA_PORT_VF=%d", *(uint32_t*)(RTA_DATA(tb3[IFLA_PORT_VF])));
-+			}
-+
-+			if (tb3[IFLA_PORT_PROFILE]) {
-+				LLDPAD_DBG("IFLA_PORT_PROFILE=%s", (char *)RTA_DATA(tb3[IFLA_PORT_PROFILE]));
-+			}
-+
-+			if (tb3[IFLA_PORT_VSI_TYPE]) {
-+				struct ifla_port_vsi *pvsi;
-+				int tid = 0;
-+
-+				pvsi = (struct ifla_port_vsi*)RTA_DATA(tb3[IFLA_PORT_VSI_TYPE]);
-+				tid = pvsi->vsi_type_id[2] << 16 |
-+					pvsi->vsi_type_id[1] << 8 |
-+					pvsi->vsi_type_id[0];
-+
-+				LLDPAD_DBG("mgr_id : %d", pvsi->vsi_mgr_id);
-+				LLDPAD_DBG("type_id : %d", tid);
-+				LLDPAD_DBG("type_version : %d",	pvsi->vsi_type_version);
-+
-+				profile->mgrid = pvsi->vsi_mgr_id;
-+				profile->id = tid;
-+				profile->version = pvsi->vsi_type_version;
-+			}
-+
-+			if (tb3[IFLA_PORT_INSTANCE_UUID]) {
-+				int i;
-+				unsigned char *uuid;
-+				uuid = (unsigned char *)RTA_DATA(tb3[IFLA_PORT_INSTANCE_UUID]);
-+
-+				char instance[INSTANCE_STRLEN+2];
-+				instance2str(uuid, instance, sizeof(instance));
-+				LLDPAD_DBG("IFLA_PORT_INSTANCE_UUID=%s", &instance[0]);
-+
-+				memcpy(&profile->instance,
-+				       RTA_DATA(tb3[IFLA_PORT_INSTANCE_UUID]), 16);
-+			}
-+
-+			if (tb3[IFLA_PORT_REQUEST]) {
-+				LLDPAD_DBG("IFLA_PORT_REQUEST=%d",
-+					*(uint8_t*)RTA_DATA(tb3[IFLA_PORT_REQUEST]));
-+					profile->mode = *(uint8_t*)RTA_DATA(tb3[IFLA_PORT_REQUEST]);
-+			}
-+
-+			if (tb3[IFLA_PORT_RESPONSE]) {
-+				LLDPAD_DBG("IFLA_PORT_RESPONSE=%d",
-+					*(uint16_t*)RTA_DATA(tb3[IFLA_PORT_RESPONSE]));
-+				profile->response = *(uint16_t*)RTA_DATA(tb3[IFLA_PORT_RESPONSE]);
-+			}
-+		}
-+	}
-+
-+	if (ifname) {
-+		struct port *port = port_find_by_name(ifname);
-+
-+		if (port) {
-+			profile->port = port;
-+		} else {
-+			LLDPAD_ERR("%s(%i): Could not find port for %s", __func__,
-+			       __LINE__, ifname);
-+			return -EEXIST;
-+		}
-+	}
-+
-+	p = vdp_add_profile(profile);
-+
-+	if (!p) {
-+		free(profile);
-+		return -EINVAL;
-+	}
-+
-+	vdp_somethingChangedLocal(profile, VDP_PROFILE_REQ);
-+	vdp_vsi_sm_station(p);
-+
-+	return 0;
-+}
-+
-+static void event_if_parseResponseMsg(struct nlmsghdr *nlh)
-+{
-+	struct nlattr *tb[IFLA_MAX+1],
-+		      *tb2[IFLA_VF_PORT_MAX + 1],
-+		      *tb3[IFLA_PORT_MAX+1];
-+
-+	if (nlmsg_parse(nlh, sizeof(struct ifinfomsg),
-+			(struct nlattr **)&tb, IFLA_MAX, NULL)) {
-+		LLDPAD_ERR("Error parsing netlink response...");
-+		return;
-+	}
-+
-+	if (tb[IFLA_IFNAME]) {
-+		LLDPAD_DBG("IFLA_IFNAME=%s", (char *)RTA_DATA(tb[IFLA_IFNAME]));
-+	} else {
-+		struct ifinfomsg *ifinfo = (struct ifinfomsg *)NLMSG_DATA(nlh);
-+		LLDPAD_DBG("interface index: %d", ifinfo->ifi_index);
-+	}
-+
-+	if (tb[IFLA_VF_PORTS]) {
-+		if (nla_parse_nested(tb2, IFLA_VF_PORT_MAX, tb[IFLA_VF_PORTS],
-+				     ifla_vf_ports_policy)) {
-+			LLDPAD_ERR("nested parsing on level 1 failed.");
-+			return;
-+		}
-+
-+        if (tb2[IFLA_VF_PORT]) {
-+		if (nla_parse_nested(tb3, IFLA_PORT_MAX, tb2[IFLA_VF_PORT],
-+				     ifla_port_policy)) {
-+			LLDPAD_ERR("nested parsing on level 2 failed.");
-+			return;
-+		}
-+
-+		if (tb3[IFLA_PORT_VF]) {
-+			LLDPAD_DBG("IFLA_PORT_VF=%d", *(uint32_t*)(RTA_DATA(tb3[IFLA_PORT_VF])));
-+		}
-+
-+		if (tb3[IFLA_PORT_PROFILE]) {
-+			LLDPAD_DBG("IFLA_PORT_PROFILE=%s", (char *)RTA_DATA(tb3[IFLA_PORT_PROFILE]));
-+		}
-+
-+		if (tb3[IFLA_PORT_VSI_TYPE]) {
-+			struct ifla_port_vsi *pvsi;
-+			int tid = 0;
-+			pvsi = (struct ifla_port_vsi*)RTA_DATA(tb3[IFLA_PORT_VSI_TYPE]);
-+			tid = pvsi->vsi_type_id[2] << 16 |
-+				pvsi->vsi_type_id[1] << 8 |
-+				pvsi->vsi_type_id[0];
-+			LLDPAD_DBG("mgr_id : %d"
-+				"type_id : %d"
-+				"type_version : %d",
-+				pvsi->vsi_mgr_id,
-+				tid,
-+				pvsi->vsi_type_version);
-+		}
-+
-+		if (tb3[IFLA_PORT_INSTANCE_UUID]) {
-+			int i;
-+			unsigned char *uuid;
-+			uuid = (unsigned char *)RTA_DATA(tb3[IFLA_PORT_INSTANCE_UUID]);
-+
-+			char instance[INSTANCE_STRLEN+2];
-+			instance2str(uuid, instance, sizeof(instance));
-+			LLDPAD_DBG("IFLA_PORT_INSTANCE_UUID=%s", &instance[0]);
-+		}
-+
-+		if (tb3[IFLA_PORT_REQUEST]) {
-+			LLDPAD_DBG("IFLA_PORT_REQUEST=%d",
-+				*(uint8_t*)RTA_DATA(tb3[IFLA_PORT_REQUEST]));
-+		}
-+
-+		if (tb3[IFLA_PORT_RESPONSE]) {
-+			LLDPAD_DBG("IFLA_PORT_RESPONSE=%d",
-+				*(uint16_t*)RTA_DATA(tb3[IFLA_PORT_RESPONSE]));
-+		}
-+	}
-+	}
-+}
-+
-+struct nl_msg *event_if_constructResponse(struct nlmsghdr *nlh, int ifindex)
-+{
-+	struct nl_msg *nl_msg;
-+	struct nlattr *vf_ports = NULL, *vf_port;
-+	struct ifinfomsg ifinfo;
-+	struct vdp_data *vd;
-+	uint32_t pid = nlh->nlmsg_pid;
-+	uint32_t seq = nlh->nlmsg_seq;
-+	char *ifname = malloc(IFNAMSIZ);
-+	struct vsi_profile *p;
-+
-+	nl_msg = nlmsg_alloc();
-+
-+	if (!nl_msg) {
-+		LLDPAD_ERR("%s(%i): Unable to allocate netlink message !", __func__, __LINE__);
-+		return NULL;
-+	}
-+
-+	if (!if_indextoname(ifindex, ifname)) {
-+		LLDPAD_ERR("%s(%i): No name found for interface with index %i !", __func__, __LINE__,
-+		       ifindex);
-+	}
-+
-+	vd = vdp_data(ifname);
-+	if (!vd) {
-+		LLDPAD_ERR("%s(%i): Could not find vdp_data for %s !", __func__, __LINE__,
-+		       ifname);
-+		return NULL;
-+	}
-+
-+	free(ifname);
-+
-+	if (nlmsg_put(nl_msg, pid, seq, NLMSG_DONE, 0, 0) == NULL)
-+		goto err_exit;
-+
-+	ifinfo.ifi_index = ifindex;
-+
-+	if (nlmsg_append(nl_msg, &ifinfo, sizeof(ifinfo), NLMSG_ALIGNTO) < 0)
-+		goto err_exit;
-+
-+	vf_ports = nla_nest_start(nl_msg, IFLA_VF_PORTS);
-+
-+	if (!vf_ports)
-+		goto err_exit;
-+
-+	/* loop over all existing profiles on this interface and
-+	 * put them into the nested IFLA_VF_PORT structure */
-+	LIST_FOREACH(p, &vd->profile_head, profile) {
-+		if (p) {
-+			vdp_print_profile(p);
-+
-+			vf_port  = nla_nest_start(nl_msg, IFLA_VF_PORT);
-+
-+			if (!vf_port)
-+				goto err_exit;
-+
-+			if (nla_put(nl_msg, IFLA_PORT_INSTANCE_UUID, 16, p->instance) < 0)
-+				goto err_exit;
-+
-+			if (nla_put_u32(nl_msg, IFLA_PORT_VF, PORT_SELF_VF) < 0)
-+				goto err_exit;
-+
-+			if (p->mode == p->state) {
-+				if (nla_put_u16(nl_msg, IFLA_PORT_RESPONSE,
-+						PORT_VDP_RESPONSE_SUCCESS) < 0)
-+					goto err_exit;
-+			} else {
-+				if (p->state == VSI_EXIT) {
-+					if (p->response > PORT_VDP_RESPONSE_SUCCESS) {
-+						if (nla_put_u16(nl_msg, IFLA_PORT_RESPONSE, p->response) < 0)
-+							goto err_exit;
-+					} else {
-+						if (nla_put_u16(nl_msg, IFLA_PORT_RESPONSE,
-+								PORT_VDP_RESPONSE_INSUFFICIENT_RESOURCES) < 0)
-+							goto err_exit;
-+					}
-+				}
-+			}
-+
-+			nla_nest_end(nl_msg, vf_port);
-+		}
-+	}
-+
-+	if (vf_ports)
-+		nla_nest_end(nl_msg, vf_ports);
-+
-+	return nl_msg;
-+
-+err_exit:
-+	nlmsg_free(nl_msg);
-+
-+	return NULL;
-+}
-+
-+struct nl_msg *event_if_simpleResponse(uint32_t pid, uint32_t seq, int err)
-+{
-+	struct nl_msg *nl_msg = nlmsg_alloc();
-+	struct nlmsgerr nlmsgerr;
-+
-+	memset(&nlmsgerr, 0x0, sizeof(nlmsgerr));
-+
-+	nlmsgerr.error = err;
-+	LLDPAD_DBG("RESPONSE error code: %d",err);
-+
-+	if (nlmsg_put(nl_msg, pid, seq, NLMSG_ERROR, 0, 0) == NULL)
-+		goto err_exit;
-+
-+	if (nlmsg_append(nl_msg, &nlmsgerr, sizeof(nlmsgerr), NLMSG_ALIGNTO) < 0)
-+		goto err_exit;
-+
-+	return nl_msg;
-+
-+err_exit:
-+	nlmsg_free(nl_msg);
-+
-+	return NULL;
-+}
-+
-+static void event_iface_receive_user_space(int sock, void *eloop_ctx, void *sock_ctx)
-+{
-+	struct nlmsghdr *nlh, *nlh2;
-+	struct nl_msg *nl_msg;
-+	struct msghdr msg;
-+	struct sockaddr_nl dest_addr;
-+	struct iovec iov;
-+	int result;
-+	int err;
-+	int ifindex = 0;
-+	char *ifname = NULL;
-+
-+	nlh = (struct nlmsghdr *)calloc(1,
-+					NLMSG_SPACE(MAX_PAYLOAD));
-+	if (!nlh) {
-+		LLDPAD_ERR("%s(%i): could not allocate nlh !", __func__,
-+		       __LINE__);
-+		return;
-+	}
-+	memset(nlh, 0, NLMSG_SPACE(MAX_PAYLOAD));
-+
-+	memset(&dest_addr, 0, sizeof(dest_addr));
-+	iov.iov_base = (void *)nlh;
-+	iov.iov_len = NLMSG_SPACE(MAX_PAYLOAD);
-+	msg.msg_name = (void *)&dest_addr;
-+	msg.msg_namelen = sizeof(dest_addr);
-+	msg.msg_iov = &iov;
-+	msg.msg_iovlen = 1;
-+	msg.msg_control = NULL;
-+	msg.msg_controllen = 0;
-+	msg.msg_flags = 0;
-+
-+	LLDPAD_DBG("Waiting for message");
-+	result = recvmsg(sock, &msg, MSG_DONTWAIT);
-+
-+	LLDPAD_DBG("%s(%i): ", __func__, __LINE__);
-+	LLDPAD_DBG("recvmsg received %d bytes", result);
-+
-+	if(result < 0) {
-+		LLDPAD_ERR("Error receiving from netlink socket : %s", strerror(errno));
-+	}
-+
-+	LLDPAD_DBG("dest_addr.nl_pid: %d", dest_addr.nl_pid);
-+	LLDPAD_DBG("nlh.nl_pid: %d", nlh->nlmsg_pid);
-+	LLDPAD_DBG("nlh_type: %d", nlh->nlmsg_type);
-+	LLDPAD_DBG("nlh_seq: 0x%x", nlh->nlmsg_seq);
-+	LLDPAD_DBG("nlh_len: 0x%x", nlh->nlmsg_len);
-+
-+	switch (nlh->nlmsg_type) {
-+		case RTM_SETLINK:
-+			LLDPAD_DBG("RTM_SETLINK");
-+
-+			err = event_if_parse_setmsg(nlh);
-+
-+			/* send simple response wether profile was accepted
-+			 * or not */
-+			nl_msg = event_if_simpleResponse(nlh->nlmsg_pid,
-+							 nlh->nlmsg_seq,
-+							 err);
-+			nlh2 = nlmsg_hdr(nl_msg);
-+			break;
-+		case RTM_GETLINK:
-+			LLDPAD_DBG("RTM_GETLINK");
-+
-+			err = event_if_parse_getmsg(nlh, &ifindex, ifname);
-+
-+			if (err) {
-+				nl_msg = event_if_simpleResponse(nlh->nlmsg_pid,
-+								 nlh->nlmsg_seq,
-+								 err);
-+			} else if (ifname) {
-+				ifindex = if_nametoindex(ifname);
-+				LLDPAD_DBG("%s(%i): ifname %s (%d)", __func__,
-+				       __LINE__, ifname, ifindex);
-+			} else {
-+				LLDPAD_DBG("%s(%i): ifindex %i", __func__,
-+				       __LINE__, ifindex);
-+			}
-+
-+			nl_msg = event_if_constructResponse(nlh, ifindex);
-+
-+			if (!nl_msg) {
-+				LLDPAD_ERR("%s(%i): Unable to construct response !",
-+				       __func__, __LINE__);
-+				goto out_err;
-+			}
-+
-+			nlh2 = nlmsg_hdr(nl_msg);
-+
-+			LLDPAD_DBG("RESPONSE:");
-+
-+			event_if_parseResponseMsg(nlh2);
-+
-+			break;
-+	}
-+
-+	iov.iov_base = (void*)nlh2;
-+	iov.iov_len = nlh2->nlmsg_len;
-+
-+	msg.msg_name = (void *)&dest_addr;
-+	msg.msg_namelen = sizeof(dest_addr);
-+	msg.msg_iov = &iov;
-+	msg.msg_iovlen = 1;
-+
-+	result = sendmsg(sock, &msg, 0);
-+
-+	if (result < 0) {
-+		LLDPAD_ERR("Error sending on netlink socket (%s) !", strerror(errno));
-+	} else {
-+		LLDPAD_DBG("Sent %d bytes !",result);
-+	}
-+
-+out_err:
-+	free(nlh);
-+	nlmsg_free(nl_msg);
-+
-+	return;
-+}
-+
- static void event_iface_receive(int sock, void *eloop_ctx, void *sock_ctx)
- {
- 	struct nlmsghdr *nlh;
-@@ -236,12 +776,14 @@ static void event_iface_receive(int sock, void *eloop_ctx, void *sock_ctx)
- 	char buf[MAX_MSG_SIZE];
- 	socklen_t fromlen = sizeof(dest_addr);
- 	int result;
--	
-+
- 	result = recvfrom(sock, buf, sizeof(buf), MSG_DONTWAIT,
- 		       (struct sockaddr *) &dest_addr, &fromlen);
+-	if (!gHvContext.HypercallPage)
++	if (!hv_context.hypercall_page)
+ 		return;
  
-+	LLDPAD_DBG("%s:%s: result from receive: %d", __FILE__, __FUNCTION__, result);
-+
- 	if (result < 0) {
--		perror("recvfrom(Event interface)");
-+		LLDPAD_ERR("recvfrom(event interface): %s", strerror(errno));
- 		if ((errno == ENOBUFS) || (errno == EAGAIN))
- 			eloop_register_timeout(INI_TIMER, 0, scan_port,
- 					       NULL, NULL);
-@@ -250,10 +792,15 @@ static void event_iface_receive(int sock, void *eloop_ctx, void *sock_ctx)
+ 	/* Check the version */
+@@ -390,17 +393,19 @@ void HvSynicInit(void *irqarg)
  
- 	TRACE("PRINT BUF info.\n")
+ 	DPRINT_INFO(VMBUS, "SynIC version: %llx", version);
  
--	device_name = NULL;
--	link_status = IF_OPER_UNKNOWN;
--	nlh = (struct nlmsghdr *)buf;
--	event_if_process_recvmsg(nlh);
-+	/* Separate handler for kernel messages from userspace messages*/
-+	LLDPAD_DBG("%s:%s: dest_addr.nl_pid: %d", __FILE__, __FUNCTION__, dest_addr.nl_pid);
-+
-+	if (dest_addr.nl_pid == 0) {
-+		device_name = NULL;
-+		link_status = IF_OPER_UNKNOWN;
-+		nlh = (struct nlmsghdr *)buf;
-+		event_if_process_recvmsg(nlh);
-+	}
- }
+-	gHvContext.synICMessagePage[cpu] = (void *)get_zeroed_page(GFP_ATOMIC);
++	hv_context.synic_message_page[cpu] =
++		(void *)get_zeroed_page(GFP_ATOMIC);
  
- int event_iface_init()
-@@ -261,7 +808,7 @@ int event_iface_init()
- 	int fd;
- 	int rcv_size = MAX_MSG_SIZE;
- 	struct sockaddr_nl snl;
--
-+	fprintf(stderr, "%s:%s:%d\n", __FILE__, __FUNCTION__, __LINE__);
- 	fd = socket(PF_NETLINK, SOCK_RAW, NETLINK_ROUTE);
- 
- 	if (fd < 0)
-@@ -282,6 +829,39 @@ int event_iface_init()
+-	if (gHvContext.synICMessagePage[cpu] == NULL) {
++	if (hv_context.synic_message_page[cpu] == NULL) {
+ 		DPRINT_ERR(VMBUS,
+ 			   "unable to allocate SYNIC message page!!");
+ 		goto Cleanup;
  	}
  
- 	eloop_register_read_sock(fd, event_iface_receive, NULL, NULL);
-+
-+	return 0;
-+}
-+
-+int event_iface_init_user_space()
-+{
-+	int fd;
-+	int rcv_size = MAX_MSG_SIZE;
-+	struct sockaddr_nl snl;
-+
-+	fd = socket(PF_NETLINK, SOCK_RAW, NETLINK_ROUTE);
-+
-+	if (fd < 0)
-+		return fd;
-+
-+	if (setsockopt(fd, SOL_SOCKET, SO_RCVBUF, &rcv_size, sizeof(int)) < 0) {
-+		close(fd);
-+		return -EIO;
-+	}
-+
-+	memset((void *)&snl, 0, sizeof(struct sockaddr_nl));
-+	snl.nl_family = AF_NETLINK;
-+	snl.nl_pid = getpid();  /* self pid */
-+	snl.nl_groups = 0;
-+
-+	if (bind(fd, (struct sockaddr *)&snl, sizeof(struct sockaddr_nl)) < 0) {
-+		close(fd);
-+		LLDPAD_ERR("Error binding to netlink socket (%s) !", strerror(errno));
-+		return -EIO;
-+	}
-+
-+	eloop_register_read_sock(fd, event_iface_receive_user_space, NULL, NULL);
-+
- 	return 0;
+-	gHvContext.synICEventPage[cpu] = (void *)get_zeroed_page(GFP_ATOMIC);
++	hv_context.synic_event_page[cpu] =
++		(void *)get_zeroed_page(GFP_ATOMIC);
+ 
+-	if (gHvContext.synICEventPage[cpu] == NULL) {
++	if (hv_context.synic_event_page[cpu] == NULL) {
+ 		DPRINT_ERR(VMBUS,
+ 			   "unable to allocate SYNIC event page!!");
+ 		goto Cleanup;
+@@ -409,7 +414,7 @@ void HvSynicInit(void *irqarg)
+ 	/* Setup the Synic's message page */
+ 	rdmsrl(HV_X64_MSR_SIMP, simp.as_uint64);
+ 	simp.simp_enabled = 1;
+-	simp.base_simp_gpa = virt_to_phys(gHvContext.synICMessagePage[cpu])
++	simp.base_simp_gpa = virt_to_phys(hv_context.synic_message_page[cpu])
+ 		>> PAGE_SHIFT;
+ 
+ 	DPRINT_DBG(VMBUS, "HV_X64_MSR_SIMP msr set to: %llx", simp.as_uint64);
+@@ -419,7 +424,7 @@ void HvSynicInit(void *irqarg)
+ 	/* Setup the Synic's event page */
+ 	rdmsrl(HV_X64_MSR_SIEFP, siefp.as_uint64);
+ 	siefp.siefp_enabled = 1;
+-	siefp.base_siefp_gpa = virt_to_phys(gHvContext.synICEventPage[cpu])
++	siefp.base_siefp_gpa = virt_to_phys(hv_context.synic_event_page[cpu])
+ 		>> PAGE_SHIFT;
+ 
+ 	DPRINT_DBG(VMBUS, "HV_X64_MSR_SIEFP msr set to: %llx", siefp.as_uint64);
+@@ -449,15 +454,15 @@ void HvSynicInit(void *irqarg)
+ 
+ 	wrmsrl(HV_X64_MSR_SCONTROL, sctrl.as_uint64);
+ 
+-	gHvContext.SynICInitialized = true;
++	hv_context.synic_initialized = true;
+ 	return;
+ 
+ Cleanup:
+-	if (gHvContext.synICEventPage[cpu])
+-		osd_PageFree(gHvContext.synICEventPage[cpu], 1);
++	if (hv_context.synic_event_page[cpu])
++		osd_PageFree(hv_context.synic_event_page[cpu], 1);
+ 
+-	if (gHvContext.synICMessagePage[cpu])
+-		osd_PageFree(gHvContext.synICMessagePage[cpu], 1);
++	if (hv_context.synic_message_page[cpu])
++		osd_PageFree(hv_context.synic_message_page[cpu], 1);
+ 	return;
  }
  
-diff --git a/include/event_iface.h b/include/event_iface.h
-index b2c93f0..d80158d 100644
---- a/include/event_iface.h
-+++ b/include/event_iface.h
-@@ -29,6 +29,7 @@
- #define  _EVENT_IFACE_H_
+@@ -471,7 +476,7 @@ void HvSynicCleanup(void *arg)
+ 	union hv_synic_siefp siefp;
+ 	int cpu = smp_processor_id();
  
- int event_iface_init(void);
-+int event_iface_init_user_space(void);
- int event_iface_deinit(void);
- int oper_add_device(char *device_name);
+-	if (!gHvContext.SynICInitialized)
++	if (!hv_context.synic_initialized)
+ 		return;
  
-diff --git a/include/lldp_vdp.h b/include/lldp_vdp.h
-index b97d8c0..53f814c 100644
---- a/include/lldp_vdp.h
-+++ b/include/lldp_vdp.h
-@@ -134,6 +134,8 @@ struct vdp_data *vdp_data(char *ifname);
- struct packed_tlv *vdp_gettlv(struct vdp_data *vd, struct vsi_profile *profile);
- void vdp_vsi_sm_station(struct vsi_profile *profile);
- struct vsi_profile *vdp_add_profile(struct vsi_profile *profile);
-+void vdp_somethingChangedLocal(struct vsi_profile *profile, int mode);
-+void vdp_print_profile(struct vsi_profile *profile);
+ 	rdmsrl(HV_X64_MSR_SINT0 + VMBUS_MESSAGE_SINT, sharedSint.as_uint64);
+@@ -494,6 +499,6 @@ void HvSynicCleanup(void *arg)
  
- #define MAC_ADDR_STRLEN		18
- #define INSTANCE_STRLEN		32
-diff --git a/lldp_vdp.c b/lldp_vdp.c
-index 01bcbf7..3a507e9 100644
---- a/lldp_vdp.c
-+++ b/lldp_vdp.c
-@@ -105,7 +105,7 @@ static void vdp_free_data(struct vdp_user_data *ud)
-  * prints the contents of a profile first to a string using the PRINT_PROFILE
-  * macro, and then to the screen. Used for debug purposes.
-  */
--static inline void vdp_print_profile(struct vsi_profile *profile)
-+void vdp_print_profile(struct vsi_profile *profile)
+ 	wrmsrl(HV_X64_MSR_SIEFP, siefp.as_uint64);
+ 
+-	osd_PageFree(gHvContext.synICMessagePage[cpu], 1);
+-	osd_PageFree(gHvContext.synICEventPage[cpu], 1);
++	osd_PageFree(hv_context.synic_message_page[cpu], 1);
++	osd_PageFree(hv_context.synic_event_page[cpu], 1);
+ }
+diff --git a/drivers/staging/hv/hv.h b/drivers/staging/hv/hv.h
+index 41f5ebb..6e396fc 100644
+--- a/drivers/staging/hv/hv.h
++++ b/drivers/staging/hv/hv.h
+@@ -92,33 +92,33 @@ static const struct hv_guid VMBUS_SERVICE_ID = {
+ 
+ 
+ struct hv_input_signal_event_buffer {
+-	u64 Align8;
+-	struct hv_input_signal_event Event;
++	u64 align8;
++	struct hv_input_signal_event event;
+ };
+ 
+ struct hv_context {
+ 	/* We only support running on top of Hyper-V
+ 	* So at this point this really can only contain the Hyper-V ID
+ 	*/
+-	u64 GuestId;
++	u64 guestid;
+ 
+-	void *HypercallPage;
++	void *hypercall_page;
+ 
+-	bool SynICInitialized;
++	bool synic_initialized;
+ 
+ 	/*
+ 	 * This is used as an input param to HvCallSignalEvent hypercall. The
+ 	 * input param is immutable in our usage and must be dynamic mem (vs
+ 	 * stack or global). */
+-	struct hv_input_signal_event_buffer *SignalEventBuffer;
++	struct hv_input_signal_event_buffer *signal_event_buffer;
+ 	/* 8-bytes aligned of the buffer above */
+-	struct hv_input_signal_event *SignalEventParam;
++	struct hv_input_signal_event *signal_event_param;
+ 
+-	void *synICMessagePage[MAX_NUM_CPUS];
+-	void *synICEventPage[MAX_NUM_CPUS];
++	void *synic_message_page[MAX_NUM_CPUS];
++	void *synic_event_page[MAX_NUM_CPUS];
+ };
+ 
+-extern struct hv_context gHvContext;
++extern struct hv_context hv_context;
+ 
+ 
+ /* Hv Interface */
+diff --git a/drivers/staging/hv/vmbus.c b/drivers/staging/hv/vmbus.c
+index 7c54ca9..b1ec876 100644
+--- a/drivers/staging/hv/vmbus.c
++++ b/drivers/staging/hv/vmbus.c
+@@ -147,7 +147,7 @@ static void VmbusOnCleanup(struct hv_driver *drv)
+ static void VmbusOnMsgDPC(struct hv_driver *drv)
  {
- 	LLDPAD_DBG("profile:\n");
+ 	int cpu = smp_processor_id();
+-	void *page_addr = gHvContext.synICMessagePage[cpu];
++	void *page_addr = hv_context.synic_message_page[cpu];
+ 	struct hv_message *msg = (struct hv_message *)page_addr +
+ 				  VMBUS_MESSAGE_SINT;
+ 	struct hv_message *copied;
+@@ -208,7 +208,7 @@ static int VmbusOnISR(struct hv_driver *drv)
+ 	struct hv_message *msg;
+ 	union hv_synic_event_flags *event;
  
-diff --git a/lldpad.c b/lldpad.c
-index c0938af..69faa29 100644
---- a/lldpad.c
-+++ b/lldpad.c
-@@ -374,6 +374,16 @@ int main(int argc, char *argv[])
- 		exit(1);
+-	page_addr = gHvContext.synICMessagePage[cpu];
++	page_addr = hv_context.synic_message_page[cpu];
+ 	msg = (struct hv_message *)page_addr + VMBUS_MESSAGE_SINT;
+ 
+ 	/* Check if there are actual msgs to be process */
+@@ -220,7 +220,7 @@ static int VmbusOnISR(struct hv_driver *drv)
  	}
  
-+	/* setup event netlink interface for user space processes.
-+	 * This needs to be setup first to ensure it gets lldpads
-+	 * pid as netlink address.
-+	 */
-+	if (event_iface_init_user_space() < 0) {
-+		log_message(MSG_ERR_SERVICE_START_FAILURE,
-+			"%s", "failed to register user space event interface");
-+		exit(1);
-+	}
-+
- 	init_modules("");
+ 	/* TODO: Check if there are events to be process */
+-	page_addr = gHvContext.synICEventPage[cpu];
++	page_addr = hv_context.synic_event_page[cpu];
+ 	event = (union hv_synic_event_flags *)page_addr + VMBUS_MESSAGE_SINT;
  
- 
+ 	/* Since we are a child, we only need to check bit 0 */
 -- 
-1.7.1
+1.6.3.2
