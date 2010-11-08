@@ -1,706 +1,951 @@
 From: Haiyang Zhang <haiyangz@linuxonhyperv.com>
-Subject: [PATCH 07/10] staging: hv: Convert camel cased functions in osd.c to lower cases
-Date: Mon,  8 Nov 2010 14:04:44 -0800
-Message-ID: <1289253887-2596-7-git-send-email-haiyangz@linuxonhyperv.com>
+Subject: [PATCH 02/10] staging: hv: Convert camel cased struct fields in
+	hv_api.h to lower cases
+Date: Mon,  8 Nov 2010 14:04:39 -0800
+Message-ID: <1289253887-2596-2-git-send-email-haiyangz@linuxonhyperv.com>
 References: <1289253887-2596-1-git-send-email-haiyangz@linuxonhyperv.com>
- <1289253887-2596-2-git-send-email-haiyangz@linuxonhyperv.com>
- <1289253887-2596-3-git-send-email-haiyangz@linuxonhyperv.com>
- <1289253887-2596-4-git-send-email-haiyangz@linuxonhyperv.com>
- <1289253887-2596-5-git-send-email-haiyangz@linuxonhyperv.com>
- <1289253887-2596-6-git-send-email-haiyangz@linuxonhyperv.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1289253887-2596-6-git-send-email-haiyangz@linuxonhyperv.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <devel-bounces@linuxdriverproject.org>
+In-Reply-To: <1289253887-2596-1-git-send-email-haiyangz@linuxonhyperv.com>
+List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
+	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
+List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
+List-Post: <mailto:devel@linuxdriverproject.org>
+List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
+List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
+	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
+Sender: devel-bounces@linuxdriverproject.org
+Errors-To: devel-bounces@linuxdriverproject.org
 To: haiyangz@microsoft.com, hjanssen@microsoft.com, gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
 From: Haiyang Zhang <haiyangz@microsoft.com>
 
-staging: hv: Convert camel cased functions in osd.c to lower cases
+staging: hv: Convert camel cased struct fields in hv_api.h to lower cases
 
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 
 ---
- drivers/staging/hv/channel.c      |   20 +++++++++---------
- drivers/staging/hv/channel_mgmt.c |   12 +++++-----
- drivers/staging/hv/connection.c   |   14 ++++++------
- drivers/staging/hv/hv.c           |   12 +++++-----
- drivers/staging/hv/netvsc.c       |   24 +++++++++++-----------
- drivers/staging/hv/osd.c          |   40 ++++++++++++++++++------------------
- drivers/staging/hv/osd.h          |   18 ++++++++--------
- drivers/staging/hv/rndis_filter.c |   10 ++++----
- drivers/staging/hv/storvsc.c      |   16 +++++++-------
- 9 files changed, 83 insertions(+), 83 deletions(-)
+ drivers/staging/hv/channel.c      |   32 ++--
+ drivers/staging/hv/channel_mgmt.c |    6 +-
+ drivers/staging/hv/connection.c   |    4 +-
+ drivers/staging/hv/hv.c           |  120 ++++++++--------
+ drivers/staging/hv/hv_api.h       |  274 ++++++++++++++++++------------------
+ drivers/staging/hv/vmbus.c        |   18 ++--
+ 6 files changed, 227 insertions(+), 227 deletions(-)
 
 diff --git a/drivers/staging/hv/channel.c b/drivers/staging/hv/channel.c
-index 7c15c40..abc2988 100644
+index 9fa0fe1..7c15c40 100644
 --- a/drivers/staging/hv/channel.c
 +++ b/drivers/staging/hv/channel.c
-@@ -180,7 +180,7 @@ int vmbus_open(struct vmbus_channel *newchannel, u32 send_ringbuffer_size,
- 	newchannel->channel_callback_context = context;
+@@ -43,24 +43,24 @@ static void DumpMonitorPage(struct hv_monitor_page *MonitorPage)
+ 	int j = 0;
  
- 	/* Allocate the ring buffer */
--	out = osd_PageAlloc((send_ringbuffer_size + recv_ringbuffer_size)
-+	out = osd_page_alloc((send_ringbuffer_size + recv_ringbuffer_size)
- 			     >> PAGE_SHIFT);
- 	if (!out)
- 		return -ENOMEM;
-@@ -242,7 +242,7 @@ int vmbus_open(struct vmbus_channel *newchannel, u32 send_ringbuffer_size,
- 		goto errorout;
- 	}
+ 	DPRINT_DBG(VMBUS, "monitorPage - %p, trigger state - %d",
+-		   MonitorPage, MonitorPage->TriggerState);
++		   MonitorPage, MonitorPage->trigger_state);
  
--	openInfo->waitevent = osd_WaitEventCreate();
-+	openInfo->waitevent = osd_waitevent_create();
- 	if (!openInfo->waitevent) {
- 		err = -ENOMEM;
- 		goto errorout;
-@@ -280,7 +280,7 @@ int vmbus_open(struct vmbus_channel *newchannel, u32 send_ringbuffer_size,
- 	}
+ 	for (i = 0; i < 4; i++)
+ 		DPRINT_DBG(VMBUS, "trigger group (%d) - %llx", i,
+-			   MonitorPage->TriggerGroup[i].AsUINT64);
++			   MonitorPage->trigger_group[i].as_uint64);
  
- 	/* FIXME: Need to time-out here */
--	osd_WaitEventWait(openInfo->waitevent);
-+	osd_waitevent_wait(openInfo->waitevent);
- 
- 	if (openInfo->response.open_result.status == 0)
- 		DPRINT_INFO(VMBUS, "channel <%p> open success!!", newchannel);
-@@ -300,7 +300,7 @@ Cleanup:
- errorout:
- 	RingBufferCleanup(&newchannel->outbound);
- 	RingBufferCleanup(&newchannel->inbound);
--	osd_PageFree(out, (send_ringbuffer_size + recv_ringbuffer_size)
-+	osd_page_free(out, (send_ringbuffer_size + recv_ringbuffer_size)
- 		     >> PAGE_SHIFT);
- 	kfree(openInfo);
- 	return err;
-@@ -508,7 +508,7 @@ int vmbus_establish_gpadl(struct vmbus_channel *channel, void *kbuffer,
- 	if (ret)
- 		return ret;
- 
--	msginfo->waitevent = osd_WaitEventCreate();
-+	msginfo->waitevent = osd_waitevent_create();
- 	if (!msginfo->waitevent) {
- 		ret = -ENOMEM;
- 		goto Cleanup;
-@@ -565,7 +565,7 @@ int vmbus_establish_gpadl(struct vmbus_channel *channel, void *kbuffer,
- 
+ 	for (i = 0; i < 4; i++) {
+ 		for (j = 0; j < 32; j++) {
+ 			DPRINT_DBG(VMBUS, "latency (%d)(%d) - %llx", i, j,
+-				   MonitorPage->Latency[i][j]);
++				   MonitorPage->latency[i][j]);
  		}
  	}
--	osd_WaitEventWait(msginfo->waitevent);
-+	osd_waitevent_wait(msginfo->waitevent);
- 
- 	/* At this point, we received the gpadl created msg */
- 	DPRINT_DBG(VMBUS, "Received GPADL created "
-@@ -604,7 +604,7 @@ int vmbus_teardown_gpadl(struct vmbus_channel *channel, u32 gpadl_handle)
- 	if (!info)
- 		return -ENOMEM;
- 
--	info->waitevent = osd_WaitEventCreate();
-+	info->waitevent = osd_waitevent_create();
- 	if (!info->waitevent) {
- 		kfree(info);
- 		return -ENOMEM;
-@@ -628,7 +628,7 @@ int vmbus_teardown_gpadl(struct vmbus_channel *channel, u32 gpadl_handle)
- 		/* something... */
+ 	for (i = 0; i < 4; i++) {
+ 		for (j = 0; j < 32; j++) {
+ 			DPRINT_DBG(VMBUS, "param-conn id (%d)(%d) - %d", i, j,
+-			       MonitorPage->Parameter[i][j].ConnectionId.Asu32);
++			       MonitorPage->parameter[i][j].connectionid.asu32);
+ 			DPRINT_DBG(VMBUS, "param-flag (%d)(%d) - %d", i, j,
+-				MonitorPage->Parameter[i][j].FlagNumber);
++				MonitorPage->parameter[i][j].flag_number);
+ 		}
  	}
+ }
+@@ -84,8 +84,8 @@ static void vmbus_setevent(struct vmbus_channel *channel)
+ 		monitorpage++; /* Get the child to parent monitor page */
  
--	osd_WaitEventWait(info->waitevent);
-+	osd_waitevent_wait(info->waitevent);
+ 		set_bit(channel->monitor_bit,
+-			(unsigned long *)&monitorpage->TriggerGroup
+-					[channel->monitor_grp].Pending);
++			(unsigned long *)&monitorpage->trigger_group
++					[channel->monitor_grp].pending);
  
- 	/* Received a torndown response */
- 	spin_lock_irqsave(&gVmbusConnection.channelmsg_lock, flags);
-@@ -663,7 +663,7 @@ void vmbus_close(struct vmbus_channel *channel)
- 	if (!info)
- 		return;
+ 	} else {
+ 		VmbusSetEvent(channel->offermsg.child_relid);
+@@ -108,7 +108,7 @@ static void VmbusChannelClearEvent(struct vmbus_channel *channel)
+ 		monitorPage++; /* Get the child to parent monitor page */
  
--	/* info->waitEvent = osd_WaitEventCreate(); */
-+	/* info->waitEvent = osd_waitevent_create(); */
+ 		clear_bit(Channel->monitor_bit,
+-			  (unsigned long *)&monitorPage->TriggerGroup
++			  (unsigned long *)&monitorPage->trigger_group
+ 					[Channel->monitor_grp].Pending);
+ 	}
+ }
+@@ -138,22 +138,22 @@ void vmbus_get_debug_info(struct vmbus_channel *channel,
+ 	debuginfo->monitorid = channel->offermsg.monitorid;
  
- 	msg = (struct vmbus_channel_close_channel *)info->msg;
- 	msg->header.msgtype = CHANNELMSG_CLOSECHANNEL;
-@@ -686,7 +686,7 @@ void vmbus_close(struct vmbus_channel *channel)
- 	RingBufferCleanup(&channel->outbound);
- 	RingBufferCleanup(&channel->inbound);
+ 	debuginfo->servermonitor_pending =
+-			monitorpage->TriggerGroup[monitor_group].Pending;
++			monitorpage->trigger_group[monitor_group].pending;
+ 	debuginfo->servermonitor_latency =
+-			monitorpage->Latency[monitor_group][monitor_offset];
++			monitorpage->latency[monitor_group][monitor_offset];
+ 	debuginfo->servermonitor_connectionid =
+-			monitorpage->Parameter[monitor_group]
+-					[monitor_offset].ConnectionId.u.Id;
++			monitorpage->parameter[monitor_group]
++					[monitor_offset].connectionid.u.id;
  
--	osd_PageFree(channel->ringbuffer_pages, channel->ringbuffer_pagecount);
-+	osd_page_free(channel->ringbuffer_pages, channel->ringbuffer_pagecount);
+ 	monitorpage++;
  
- 	kfree(info);
+ 	debuginfo->clientmonitor_pending =
+-			monitorpage->TriggerGroup[monitor_group].Pending;
++			monitorpage->trigger_group[monitor_group].pending;
+ 	debuginfo->clientmonitor_latency =
+-			monitorpage->Latency[monitor_group][monitor_offset];
++			monitorpage->latency[monitor_group][monitor_offset];
+ 	debuginfo->clientmonitor_connectionid =
+-			monitorpage->Parameter[monitor_group]
+-					[monitor_offset].ConnectionId.u.Id;
++			monitorpage->parameter[monitor_group]
++					[monitor_offset].connectionid.u.id;
  
+ 	RingBufferGetDebugInfo(&channel->inbound, &debuginfo->inbound);
+ 	RingBufferGetDebugInfo(&channel->outbound, &debuginfo->outbound);
 diff --git a/drivers/staging/hv/channel_mgmt.c b/drivers/staging/hv/channel_mgmt.c
-index be34e38..ae830f2 100644
+index dbfe0f2..be34e38 100644
 --- a/drivers/staging/hv/channel_mgmt.c
 +++ b/drivers/staging/hv/channel_mgmt.c
-@@ -566,7 +566,7 @@ static void vmbus_onopen_result(struct vmbus_channel_message_header *hdr)
- 				memcpy(&msginfo->response.open_result,
- 				       result,
- 				       sizeof(struct vmbus_channel_open_result));
--				osd_WaitEventSet(msginfo->waitevent);
-+				osd_waitevent_set(msginfo->waitevent);
- 				break;
- 			}
- 		}
-@@ -616,7 +616,7 @@ static void vmbus_ongpadl_created(struct vmbus_channel_message_header *hdr)
- 				memcpy(&msginfo->response.gpadl_created,
- 				       gpadlcreated,
- 				       sizeof(struct vmbus_channel_gpadl_created));
--				osd_WaitEventSet(msginfo->waitevent);
-+				osd_waitevent_set(msginfo->waitevent);
- 				break;
- 			}
- 		}
-@@ -662,7 +662,7 @@ static void vmbus_ongpadl_torndown(
- 				memcpy(&msginfo->response.gpadl_torndown,
- 				       gpadl_torndown,
- 				       sizeof(struct vmbus_channel_gpadl_torndown));
--				osd_WaitEventSet(msginfo->waitevent);
-+				osd_waitevent_set(msginfo->waitevent);
- 				break;
- 			}
- 		}
-@@ -703,7 +703,7 @@ static void vmbus_onversion_response(
- 			memcpy(&msginfo->response.version_response,
- 			      version_response,
- 			      sizeof(struct vmbus_channel_version_response));
--			osd_WaitEventSet(msginfo->waitevent);
-+			osd_waitevent_set(msginfo->waitevent);
- 		}
+@@ -742,8 +742,8 @@ void vmbus_onmessage(void *context)
+ 	struct vmbus_channel_message_header *hdr;
+ 	int size;
+ 
+-	hdr = (struct vmbus_channel_message_header *)msg->u.Payload;
+-	size = msg->Header.PayloadSize;
++	hdr = (struct vmbus_channel_message_header *)msg->u.payload;
++	size = msg->header.payload_size;
+ 
+ 	DPRINT_DBG(VMBUS, "message type %d size %d", hdr->msgtype, size);
+ 
+@@ -752,7 +752,7 @@ void vmbus_onmessage(void *context)
+ 			   "Received invalid channel message type %d size %d",
+ 			   hdr->msgtype, size);
+ 		print_hex_dump_bytes("", DUMP_PREFIX_NONE,
+-				     (unsigned char *)msg->u.Payload, size);
++				     (unsigned char *)msg->u.payload, size);
+ 		kfree(msg);
+ 		return;
  	}
- 	spin_unlock_irqrestore(&gVmbusConnection.channelmsg_lock, flags);
-@@ -782,7 +782,7 @@ int vmbus_request_offers(void)
- 	if (!msginfo)
- 		return -ENOMEM;
- 
--	msginfo->waitevent = osd_WaitEventCreate();
-+	msginfo->waitevent = osd_waitevent_create();
- 	if (!msginfo->waitevent) {
- 		kfree(msginfo);
- 		return -ENOMEM;
-@@ -808,7 +808,7 @@ int vmbus_request_offers(void)
- 
- 		goto Cleanup;
- 	}
--	/* osd_WaitEventWait(msgInfo->waitEvent); */
-+	/* osd_waitevent_wait(msgInfo->waitEvent); */
- 
- 	/*SpinlockAcquire(gVmbusConnection.channelMsgLock);
- 	REMOVE_ENTRY_LIST(&msgInfo->msgListEntry);
 diff --git a/drivers/staging/hv/connection.c b/drivers/staging/hv/connection.c
-index 97321d1..c2e298f 100644
+index 6f3f525..ba50dd8 100644
 --- a/drivers/staging/hv/connection.c
 +++ b/drivers/staging/hv/connection.c
-@@ -66,7 +66,7 @@ int VmbusConnect(void)
- 	 * Setup the vmbus event connection for channel interrupt
- 	 * abstraction stuff
- 	 */
--	gVmbusConnection.InterruptPage = osd_PageAlloc(1);
-+	gVmbusConnection.InterruptPage = osd_page_alloc(1);
- 	if (gVmbusConnection.InterruptPage == NULL) {
- 		ret = -1;
- 		goto Cleanup;
-@@ -81,7 +81,7 @@ int VmbusConnect(void)
- 	 * Setup the monitor notification facility. The 1st page for
- 	 * parent->child and the 2nd page for child->parent
- 	 */
--	gVmbusConnection.MonitorPages = osd_PageAlloc(2);
-+	gVmbusConnection.MonitorPages = osd_page_alloc(2);
- 	if (gVmbusConnection.MonitorPages == NULL) {
- 		ret = -1;
- 		goto Cleanup;
-@@ -95,7 +95,7 @@ int VmbusConnect(void)
- 		goto Cleanup;
- 	}
+@@ -309,8 +309,8 @@ int VmbusPostMessage(void *buffer, size_t bufferLen)
+ {
+ 	union hv_connection_id connId;
  
--	msgInfo->waitevent = osd_WaitEventCreate();
-+	msgInfo->waitevent = osd_waitevent_create();
- 	if (!msgInfo->waitevent) {
- 		ret = -ENOMEM;
- 		goto Cleanup;
-@@ -134,7 +134,7 @@ int VmbusConnect(void)
- 	}
+-	connId.Asu32 = 0;
+-	connId.u.Id = VMBUS_MESSAGE_CONNECTION_ID;
++	connId.asu32 = 0;
++	connId.u.id = VMBUS_MESSAGE_CONNECTION_ID;
+ 	return HvPostMessage(connId, 1, buffer, bufferLen);
+ }
  
- 	/* Wait for the connection response */
--	osd_WaitEventWait(msgInfo->waitevent);
-+	osd_waitevent_wait(msgInfo->waitevent);
- 
- 	list_del(&msgInfo->msglistentry);
- 
-@@ -162,12 +162,12 @@ Cleanup:
- 		destroy_workqueue(gVmbusConnection.WorkQueue);
- 
- 	if (gVmbusConnection.InterruptPage) {
--		osd_PageFree(gVmbusConnection.InterruptPage, 1);
-+		osd_page_free(gVmbusConnection.InterruptPage, 1);
- 		gVmbusConnection.InterruptPage = NULL;
- 	}
- 
- 	if (gVmbusConnection.MonitorPages) {
--		osd_PageFree(gVmbusConnection.MonitorPages, 2);
-+		osd_page_free(gVmbusConnection.MonitorPages, 2);
- 		gVmbusConnection.MonitorPages = NULL;
- 	}
- 
-@@ -202,7 +202,7 @@ int VmbusDisconnect(void)
- 	if (ret != 0)
- 		goto Cleanup;
- 
--	osd_PageFree(gVmbusConnection.InterruptPage, 1);
-+	osd_page_free(gVmbusConnection.InterruptPage, 1);
- 
- 	/* TODO: iterate thru the msg list and free up */
- 	destroy_workqueue(gVmbusConnection.WorkQueue);
 diff --git a/drivers/staging/hv/hv.c b/drivers/staging/hv/hv.c
-index 66f04d8..a34d713 100644
+index 86b1ddd..ab03327 100644
 --- a/drivers/staging/hv/hv.c
 +++ b/drivers/staging/hv/hv.c
-@@ -228,9 +228,9 @@ int hv_init(void)
+@@ -50,7 +50,7 @@ static int HvQueryHypervisorPresence(void)
+ 	ebx = 0;
+ 	ecx = 0;
+ 	edx = 0;
+-	op = HvCpuIdFunctionVersionAndFeatures;
++	op = HVCPUID_VERSION_FEATURES;
+ 	cpuid(op, &eax, &ebx, &ecx, &edx);
+ 
+ 	return ecx & HV_PRESENT_BIT;
+@@ -76,7 +76,7 @@ static int HvQueryHypervisorInfo(void)
+ 	ebx = 0;
+ 	ecx = 0;
+ 	edx = 0;
+-	op = HvCpuIdFunctionHvVendorAndMaxFunction;
++	op = HVCPUID_VENDOR_MAXFUNCTION;
+ 	cpuid(op, &eax, &ebx, &ecx, &edx);
+ 
+ 	DPRINT_INFO(VMBUS, "Vendor ID: %c%c%c%c%c%c%c%c%c%c%c%c",
+@@ -98,7 +98,7 @@ static int HvQueryHypervisorInfo(void)
+ 	ebx = 0;
+ 	ecx = 0;
+ 	edx = 0;
+-	op = HvCpuIdFunctionHvInterface;
++	op = HVCPUID_INTERFACE;
+ 	cpuid(op, &eax, &ebx, &ecx, &edx);
+ 
+ 	DPRINT_INFO(VMBUS, "Interface ID: %c%c%c%c",
+@@ -107,12 +107,12 @@ static int HvQueryHypervisorInfo(void)
+ 		    ((eax >> 16) & 0xFF),
+ 		    ((eax >> 24) & 0xFF));
+ 
+-	if (maxLeaf >= HvCpuIdFunctionMsHvVersion) {
++	if (maxLeaf >= HVCPUID_VERSION) {
+ 		eax = 0;
+ 		ebx = 0;
+ 		ecx = 0;
+ 		edx = 0;
+-		op = HvCpuIdFunctionMsHvVersion;
++		op = HVCPUID_VERSION;
+ 		cpuid(op, &eax, &ebx, &ecx, &edx);
+ 		DPRINT_INFO(VMBUS, "OS Build:%d-%d.%d-%d-%d.%d",\
+ 			    eax,
+@@ -222,7 +222,7 @@ int HvInit(void)
+ 	gHvContext.GuestId = HV_LINUX_GUEST_ID;
+ 
+ 	/* See if the hypercall page is already set */
+-	rdmsrl(HV_X64_MSR_HYPERCALL, hypercallMsr.AsUINT64);
++	rdmsrl(HV_X64_MSR_HYPERCALL, hypercallMsr.as_uint64);
  
  	/*
  	* Allocate the hypercall page memory
--	* virtaddr = osd_PageAlloc(1);
-+	* virtaddr = osd_page_alloc(1);
- 	*/
--	virtaddr = osd_VirtualAllocExec(PAGE_SIZE);
-+	virtaddr = osd_virtual_alloc_exec(PAGE_SIZE);
+@@ -236,16 +236,16 @@ int HvInit(void)
+ 		goto Cleanup;
+ 	}
  
- 	if (!virtaddr) {
- 		DPRINT_ERR(VMBUS,
-@@ -462,10 +462,10 @@ void hv_synic_init(void *irqarg)
+-	hypercallMsr.Enable = 1;
++	hypercallMsr.enable = 1;
+ 
+-	hypercallMsr.GuestPhysicalAddress = vmalloc_to_pfn(virtAddr);
+-	wrmsrl(HV_X64_MSR_HYPERCALL, hypercallMsr.AsUINT64);
++	hypercallMsr.guest_physical_address = vmalloc_to_pfn(virtAddr);
++	wrmsrl(HV_X64_MSR_HYPERCALL, hypercallMsr.as_uint64);
+ 
+ 	/* Confirm that hypercall page did get setup. */
+-	hypercallMsr.AsUINT64 = 0;
+-	rdmsrl(HV_X64_MSR_HYPERCALL, hypercallMsr.AsUINT64);
++	hypercallMsr.as_uint64 = 0;
++	rdmsrl(HV_X64_MSR_HYPERCALL, hypercallMsr.as_uint64);
+ 
+-	if (!hypercallMsr.Enable) {
++	if (!hypercallMsr.enable) {
+ 		DPRINT_ERR(VMBUS, "unable to set hypercall page!!");
+ 		goto Cleanup;
+ 	}
+@@ -254,7 +254,7 @@ int HvInit(void)
+ 
+ 	DPRINT_INFO(VMBUS, "Hypercall page VA=%p, PA=0x%0llx",
+ 		    gHvContext.HypercallPage,
+-		    (u64)hypercallMsr.GuestPhysicalAddress << PAGE_SHIFT);
++		    (u64)hypercallMsr.guest_physical_address << PAGE_SHIFT);
+ 
+ 	/* Setup the global signal event param for the signal event hypercall */
+ 	gHvContext.SignalEventBuffer =
+@@ -267,19 +267,19 @@ int HvInit(void)
+ 		(struct hv_input_signal_event *)
+ 			(ALIGN_UP((unsigned long)gHvContext.SignalEventBuffer,
+ 				  HV_HYPERCALL_PARAM_ALIGN));
+-	gHvContext.SignalEventParam->ConnectionId.Asu32 = 0;
+-	gHvContext.SignalEventParam->ConnectionId.u.Id =
++	gHvContext.SignalEventParam->connectionid.asu32 = 0;
++	gHvContext.SignalEventParam->connectionid.u.id =
+ 						VMBUS_EVENT_CONNECTION_ID;
+-	gHvContext.SignalEventParam->FlagNumber = 0;
+-	gHvContext.SignalEventParam->RsvdZ = 0;
++	gHvContext.SignalEventParam->flag_number = 0;
++	gHvContext.SignalEventParam->rsvdz = 0;
+ 
+ 	return ret;
  
  Cleanup:
- 	if (hv_context.synic_event_page[cpu])
--		osd_PageFree(hv_context.synic_event_page[cpu], 1);
-+		osd_page_free(hv_context.synic_event_page[cpu], 1);
- 
- 	if (hv_context.synic_message_page[cpu])
--		osd_PageFree(hv_context.synic_message_page[cpu], 1);
-+		osd_page_free(hv_context.synic_message_page[cpu], 1);
- 	return;
- }
- 
-@@ -502,6 +502,6 @@ void hv_synic_cleanup(void *arg)
- 
- 	wrmsrl(HV_X64_MSR_SIEFP, siefp.as_uint64);
- 
--	osd_PageFree(hv_context.synic_message_page[cpu], 1);
--	osd_PageFree(hv_context.synic_event_page[cpu], 1);
-+	osd_page_free(hv_context.synic_message_page[cpu], 1);
-+	osd_page_free(hv_context.synic_event_page[cpu], 1);
- }
-diff --git a/drivers/staging/hv/netvsc.c b/drivers/staging/hv/netvsc.c
-index 4c2632c..8022781 100644
---- a/drivers/staging/hv/netvsc.c
-+++ b/drivers/staging/hv/netvsc.c
-@@ -221,7 +221,7 @@ static int NetVscInitializeReceiveBufferWithNetVsp(struct hv_device *Device)
- 	/* ASSERT((netDevice->ReceiveBufferSize & (PAGE_SIZE - 1)) == 0); */
- 
- 	netDevice->ReceiveBuffer =
--		osd_PageAlloc(netDevice->ReceiveBufferSize >> PAGE_SHIFT);
-+		osd_page_alloc(netDevice->ReceiveBufferSize >> PAGE_SHIFT);
- 	if (!netDevice->ReceiveBuffer) {
- 		DPRINT_ERR(NETVSC,
- 			   "unable to allocate receive buffer of size %d",
-@@ -249,7 +249,7 @@ static int NetVscInitializeReceiveBufferWithNetVsp(struct hv_device *Device)
- 		goto Cleanup;
- 	}
- 
--	/* osd_WaitEventWait(ext->ChannelInitEvent); */
-+	/* osd_waitevent_wait(ext->ChannelInitEvent); */
- 
- 	/* Notify the NetVsp of the gpadl handle */
- 	DPRINT_INFO(NETVSC, "Sending NvspMessage1TypeSendReceiveBuffer...");
-@@ -274,7 +274,7 @@ static int NetVscInitializeReceiveBufferWithNetVsp(struct hv_device *Device)
- 		goto Cleanup;
- 	}
- 
--	osd_WaitEventWait(netDevice->ChannelInitEvent);
-+	osd_waitevent_wait(netDevice->ChannelInitEvent);
- 
- 	/* Check the response */
- 	if (initPacket->Messages.Version1Messages.SendReceiveBufferComplete.Status != NvspStatusSuccess) {
-@@ -350,7 +350,7 @@ static int NetVscInitializeSendBufferWithNetVsp(struct hv_device *Device)
- 	/* ASSERT((netDevice->SendBufferSize & (PAGE_SIZE - 1)) == 0); */
- 
- 	netDevice->SendBuffer =
--		osd_PageAlloc(netDevice->SendBufferSize >> PAGE_SHIFT);
-+		osd_page_alloc(netDevice->SendBufferSize >> PAGE_SHIFT);
- 	if (!netDevice->SendBuffer) {
- 		DPRINT_ERR(NETVSC, "unable to allocate send buffer of size %d",
- 			   netDevice->SendBufferSize);
-@@ -375,7 +375,7 @@ static int NetVscInitializeSendBufferWithNetVsp(struct hv_device *Device)
- 		goto Cleanup;
- 	}
- 
--	/* osd_WaitEventWait(ext->ChannelInitEvent); */
-+	/* osd_waitevent_wait(ext->ChannelInitEvent); */
- 
- 	/* Notify the NetVsp of the gpadl handle */
- 	DPRINT_INFO(NETVSC, "Sending NvspMessage1TypeSendSendBuffer...");
-@@ -400,7 +400,7 @@ static int NetVscInitializeSendBufferWithNetVsp(struct hv_device *Device)
- 		goto Cleanup;
- 	}
- 
--	osd_WaitEventWait(netDevice->ChannelInitEvent);
-+	osd_waitevent_wait(netDevice->ChannelInitEvent);
- 
- 	/* Check the response */
- 	if (initPacket->Messages.Version1Messages.SendSendBufferComplete.Status != NvspStatusSuccess) {
-@@ -480,7 +480,7 @@ static int NetVscDestroyReceiveBuffer(struct netvsc_device *NetDevice)
- 		DPRINT_INFO(NETVSC, "Freeing up receive buffer...");
- 
- 		/* Free up the receive buffer */
--		osd_PageFree(NetDevice->ReceiveBuffer,
-+		osd_page_free(NetDevice->ReceiveBuffer,
- 			     NetDevice->ReceiveBufferSize >> PAGE_SHIFT);
- 		NetDevice->ReceiveBuffer = NULL;
- 	}
-@@ -553,7 +553,7 @@ static int NetVscDestroySendBuffer(struct netvsc_device *NetDevice)
- 		DPRINT_INFO(NETVSC, "Freeing up send buffer...");
- 
- 		/* Free up the receive buffer */
--		osd_PageFree(NetDevice->SendBuffer,
-+		osd_page_free(NetDevice->SendBuffer,
- 			     NetDevice->SendBufferSize >> PAGE_SHIFT);
- 		NetDevice->SendBuffer = NULL;
- 	}
-@@ -597,7 +597,7 @@ static int NetVscConnectToVsp(struct hv_device *Device)
- 		goto Cleanup;
- 	}
- 
--	osd_WaitEventWait(netDevice->ChannelInitEvent);
-+	osd_waitevent_wait(netDevice->ChannelInitEvent);
- 
- 	/* Now, check the response */
- 	/* ASSERT(initPacket->Messages.InitMessages.InitComplete.MaximumMdlChainLength <= MAX_MULTIPAGE_BUFFER_COUNT); */
-@@ -651,7 +651,7 @@ static int NetVscConnectToVsp(struct hv_device *Device)
- 	 * packet) since our Vmbus always set the
- 	 * VMBUS_DATA_PACKET_FLAG_COMPLETION_REQUESTED flag
- 	 */
--	 /* osd_WaitEventWait(NetVscChannel->ChannelInitEvent); */
-+	 /* osd_waitevent_wait(NetVscChannel->ChannelInitEvent); */
- 
- 	/* Post the big receive buffer to NetVSP */
- 	ret = NetVscInitializeReceiveBufferWithNetVsp(Device);
-@@ -710,7 +710,7 @@ static int NetVscOnDeviceAdd(struct hv_device *Device, void *AdditionalInfo)
- 		list_add_tail(&packet->ListEntry,
- 			      &netDevice->ReceivePacketList);
- 	}
--	netDevice->ChannelInitEvent = osd_WaitEventCreate();
-+	netDevice->ChannelInitEvent = osd_waitevent_create();
- 	if (!netDevice->ChannelInitEvent) {
- 		ret = -ENOMEM;
- 		goto Cleanup;
-@@ -855,7 +855,7 @@ static void NetVscOnSendCompletion(struct hv_device *Device,
- 		/* Copy the response back */
- 		memcpy(&netDevice->ChannelInitPacket, nvspPacket,
- 		       sizeof(struct nvsp_message));
--		osd_WaitEventSet(netDevice->ChannelInitEvent);
-+		osd_waitevent_set(netDevice->ChannelInitEvent);
- 	} else if (nvspPacket->Header.MessageType ==
- 		   NvspMessage1TypeSendRNDISPacketComplete) {
- 		/* Get the send context */
-diff --git a/drivers/staging/hv/osd.c b/drivers/staging/hv/osd.c
-index b39ec25..b699ee2 100644
---- a/drivers/staging/hv/osd.c
-+++ b/drivers/staging/hv/osd.c
-@@ -49,7 +49,7 @@ struct osd_callback_struct {
- 	void *data;
- };
- 
--void *osd_VirtualAllocExec(unsigned int size)
-+void *osd_virtual_alloc_exec(unsigned int size)
- {
- #ifdef __x86_64__
- 	return __vmalloc(size, GFP_KERNEL, PAGE_KERNEL_EXEC);
-@@ -60,7 +60,7 @@ void *osd_VirtualAllocExec(unsigned int size)
- }
- 
- /**
-- * osd_PageAlloc() - Allocate pages
-+ * osd_page_alloc() - Allocate pages
-  * @count:      Total number of Kernel pages you want to allocate
-  *
-  * Tries to allocate @count number of consecutive free kernel pages.
-@@ -68,7 +68,7 @@ void *osd_VirtualAllocExec(unsigned int size)
-  * If successfull it will return pointer to the @count pages.
-  * Mainly used by Hyper-V drivers.
-  */
--void *osd_PageAlloc(unsigned int count)
-+void *osd_page_alloc(unsigned int count)
- {
- 	void *p;
- 
-@@ -85,26 +85,26 @@ void *osd_PageAlloc(unsigned int count)
- 	/* if (p) memset(p, 0, PAGE_SIZE); */
- 	/* return p; */
- }
--EXPORT_SYMBOL_GPL(osd_PageAlloc);
-+EXPORT_SYMBOL_GPL(osd_page_alloc);
- 
- /**
-- * osd_PageFree() - Free pages
-+ * osd_page_free() - Free pages
-  * @page:       Pointer to the first page to be freed
-  * @count:      Total number of Kernel pages you free
-  *
-- * Frees the pages allocated by osd_PageAlloc()
-+ * Frees the pages allocated by osd_page_alloc()
-  * Mainly used by Hyper-V drivers.
-  */
--void osd_PageFree(void *page, unsigned int count)
-+void osd_page_free(void *page, unsigned int count)
- {
- 	free_pages((unsigned long)page, get_order(count * PAGE_SIZE));
- 	/*struct page* p = virt_to_page(page);
- 	__free_page(p);*/
- }
--EXPORT_SYMBOL_GPL(osd_PageFree);
-+EXPORT_SYMBOL_GPL(osd_page_free);
- 
- /**
-- * osd_WaitEventCreate() - Create the event queue
-+ * osd_waitevent_create() - Create the event queue
-  *
-  * Allocates memory for a &struct osd_waitevent. And then calls
-  * init_waitqueue_head to set up the wait queue for the event.
-@@ -114,7 +114,7 @@ EXPORT_SYMBOL_GPL(osd_PageFree);
-  * Returns pointer to &struct osd_waitevent
-  * Mainly used by Hyper-V drivers.
-  */
--struct osd_waitevent *osd_WaitEventCreate(void)
-+struct osd_waitevent *osd_waitevent_create(void)
- {
- 	struct osd_waitevent *wait = kmalloc(sizeof(struct osd_waitevent),
- 					     GFP_KERNEL);
-@@ -125,11 +125,11 @@ struct osd_waitevent *osd_WaitEventCreate(void)
- 	init_waitqueue_head(&wait->event);
- 	return wait;
- }
--EXPORT_SYMBOL_GPL(osd_WaitEventCreate);
-+EXPORT_SYMBOL_GPL(osd_waitevent_create);
- 
- 
- /**
-- * osd_WaitEventSet() - Wake up the process
-+ * osd_waitevent_set() - Wake up the process
-  * @wait_event: Structure to event to be woken up
-  *
-  * @wait_event is of type &struct osd_waitevent
-@@ -140,15 +140,15 @@ EXPORT_SYMBOL_GPL(osd_WaitEventCreate);
-  *
-  * Only used by Network and Storage Hyper-V drivers.
-  */
--void osd_WaitEventSet(struct osd_waitevent *wait_event)
-+void osd_waitevent_set(struct osd_waitevent *wait_event)
- {
- 	wait_event->condition = 1;
- 	wake_up_interruptible(&wait_event->event);
- }
--EXPORT_SYMBOL_GPL(osd_WaitEventSet);
-+EXPORT_SYMBOL_GPL(osd_waitevent_set);
- 
- /**
-- * osd_WaitEventWait() - Wait for event till condition is true
-+ * osd_waitevent_wait() - Wait for event till condition is true
-  * @wait_event: Structure to event to be put to sleep
-  *
-  * @wait_event is of type &struct osd_waitevent
-@@ -161,7 +161,7 @@ EXPORT_SYMBOL_GPL(osd_WaitEventSet);
-  *
-  * Mainly used by Hyper-V drivers.
-  */
--int osd_WaitEventWait(struct osd_waitevent *wait_event)
-+int osd_waitevent_wait(struct osd_waitevent *wait_event)
- {
- 	int ret = 0;
- 
-@@ -170,10 +170,10 @@ int osd_WaitEventWait(struct osd_waitevent *wait_event)
- 	wait_event->condition = 0;
- 	return ret;
- }
--EXPORT_SYMBOL_GPL(osd_WaitEventWait);
-+EXPORT_SYMBOL_GPL(osd_waitevent_wait);
- 
- /**
-- * osd_WaitEventWaitEx() - Wait for event or timeout for process wakeup
-+ * osd_waitevent_waitex() - Wait for event or timeout for process wakeup
-  * @wait_event: Structure to event to be put to sleep
-  * @timeout_in_ms:       Total number of Milliseconds to wait before waking up
-  *
-@@ -187,7 +187,7 @@ EXPORT_SYMBOL_GPL(osd_WaitEventWait);
-  *
-  * Mainly used by Hyper-V drivers.
-  */
--int osd_WaitEventWaitEx(struct osd_waitevent *wait_event, u32 timeout_in_ms)
-+int osd_waitevent_waitex(struct osd_waitevent *wait_event, u32 timeout_in_ms)
- {
- 	int ret = 0;
- 
-@@ -197,7 +197,7 @@ int osd_WaitEventWaitEx(struct osd_waitevent *wait_event, u32 timeout_in_ms)
- 	wait_event->condition = 0;
- 	return ret;
- }
--EXPORT_SYMBOL_GPL(osd_WaitEventWaitEx);
-+EXPORT_SYMBOL_GPL(osd_waitevent_waitex);
- 
- static void osd_callback_work(struct work_struct *work)
- {
-diff --git a/drivers/staging/hv/osd.h b/drivers/staging/hv/osd.h
-index ce064e8..cae126f 100644
---- a/drivers/staging/hv/osd.h
-+++ b/drivers/staging/hv/osd.h
-@@ -50,18 +50,18 @@ struct osd_waitevent {
- 
- /* Osd routines */
- 
--extern void *osd_VirtualAllocExec(unsigned int size);
-+extern void *osd_virtual_alloc_exec(unsigned int size);
- 
--extern void *osd_PageAlloc(unsigned int count);
--extern void osd_PageFree(void *page, unsigned int count);
-+extern void *osd_page_alloc(unsigned int count);
-+extern void osd_page_free(void *page, unsigned int count);
- 
--extern struct osd_waitevent *osd_WaitEventCreate(void);
--extern void osd_WaitEventSet(struct osd_waitevent *waitEvent);
--extern int osd_WaitEventWait(struct osd_waitevent *waitEvent);
-+extern struct osd_waitevent *osd_waitevent_create(void);
-+extern void osd_waitevent_set(struct osd_waitevent *wait_event);
-+extern int osd_waitevent_wait(struct osd_waitevent *wait_event);
- 
--/* If >0, waitEvent got signaled. If ==0, timeout. If < 0, error */
--extern int osd_WaitEventWaitEx(struct osd_waitevent *waitEvent,
--			       u32 TimeoutInMs);
-+/* If >0, wait_event got signaled. If ==0, timeout. If < 0, error */
-+extern int osd_waitevent_waitex(struct osd_waitevent *wait_event,
-+			       u32 timeout_in_ms);
- 
- int osd_schedule_callback(struct workqueue_struct *wq,
- 			  void (*func)(void *),
-diff --git a/drivers/staging/hv/rndis_filter.c b/drivers/staging/hv/rndis_filter.c
-index fa2141f..b85c825 100644
---- a/drivers/staging/hv/rndis_filter.c
-+++ b/drivers/staging/hv/rndis_filter.c
-@@ -129,7 +129,7 @@ static struct rndis_request *GetRndisRequest(struct rndis_device *Device,
- 	if (!request)
- 		return NULL;
- 
--	request->WaitEvent = osd_WaitEventCreate();
-+	request->WaitEvent = osd_waitevent_create();
- 	if (!request->WaitEvent) {
- 		kfree(request);
- 		return NULL;
-@@ -313,7 +313,7 @@ static void RndisFilterReceiveResponse(struct rndis_device *Device,
- 			}
+ 	if (virtAddr) {
+-		if (hypercallMsr.Enable) {
+-			hypercallMsr.AsUINT64 = 0;
+-			wrmsrl(HV_X64_MSR_HYPERCALL, hypercallMsr.AsUINT64);
++		if (hypercallMsr.enable) {
++			hypercallMsr.as_uint64 = 0;
++			wrmsrl(HV_X64_MSR_HYPERCALL, hypercallMsr.as_uint64);
  		}
  
--		osd_WaitEventSet(request->WaitEvent);
-+		osd_waitevent_set(request->WaitEvent);
- 	} else {
- 		DPRINT_ERR(NETVSC, "no rndis request found for this response "
- 			   "(id 0x%x res type 0x%x)",
-@@ -497,7 +497,7 @@ static int RndisFilterQueryDevice(struct rndis_device *Device, u32 Oid,
- 	if (ret != 0)
- 		goto Cleanup;
+ 		vfree(virtAddr);
+@@ -302,8 +302,8 @@ void HvCleanup(void)
+ 	gHvContext.SignalEventParam = NULL;
  
--	osd_WaitEventWait(request->WaitEvent);
-+	osd_waitevent_wait(request->WaitEvent);
+ 	if (gHvContext.HypercallPage) {
+-		hypercallMsr.AsUINT64 = 0;
+-		wrmsrl(HV_X64_MSR_HYPERCALL, hypercallMsr.AsUINT64);
++		hypercallMsr.as_uint64 = 0;
++		wrmsrl(HV_X64_MSR_HYPERCALL, hypercallMsr.as_uint64);
+ 		vfree(gHvContext.HypercallPage);
+ 		gHvContext.HypercallPage = NULL;
+ 	}
+@@ -337,12 +337,12 @@ u16 HvPostMessage(union hv_connection_id connectionId,
+ 	alignedMsg = (struct hv_input_post_message *)
+ 			(ALIGN_UP(addr, HV_HYPERCALL_PARAM_ALIGN));
  
- 	/* Copy the response back */
- 	queryComplete = &request->ResponseMessage.Message.QueryComplete;
-@@ -572,7 +572,7 @@ static int RndisFilterSetPacketFilter(struct rndis_device *Device,
- 	if (ret != 0)
- 		goto Cleanup;
+-	alignedMsg->ConnectionId = connectionId;
+-	alignedMsg->MessageType = messageType;
+-	alignedMsg->PayloadSize = payloadSize;
+-	memcpy((void *)alignedMsg->Payload, payload, payloadSize);
++	alignedMsg->connectionid = connectionId;
++	alignedMsg->message_type = messageType;
++	alignedMsg->payload_size = payloadSize;
++	memcpy((void *)alignedMsg->payload, payload, payloadSize);
  
--	ret = osd_WaitEventWaitEx(request->WaitEvent, 2000/*2sec*/);
-+	ret = osd_waitevent_waitex(request->WaitEvent, 2000/*2sec*/);
- 	if (!ret) {
- 		ret = -1;
- 		DPRINT_ERR(NETVSC, "timeout before we got a set response...");
-@@ -665,7 +665,7 @@ static int RndisFilterInitDevice(struct rndis_device *Device)
- 		goto Cleanup;
+-	status = HvDoHypercall(HvCallPostMessage, alignedMsg, NULL) & 0xFFFF;
++	status = HvDoHypercall(HVCALL_POST_MESSAGE, alignedMsg, NULL) & 0xFFFF;
+ 
+ 	kfree((void *)addr);
+ 
+@@ -359,7 +359,7 @@ u16 HvSignalEvent(void)
+ {
+ 	u16 status;
+ 
+-	status = HvDoHypercall(HvCallSignalEvent, gHvContext.SignalEventParam,
++	status = HvDoHypercall(HVCALL_SIGNAL_EVENT, gHvContext.SignalEventParam,
+ 			       NULL) & 0xFFFF;
+ 	return status;
+ }
+@@ -407,47 +407,47 @@ void HvSynicInit(void *irqarg)
  	}
  
--	osd_WaitEventWait(request->WaitEvent);
-+	osd_waitevent_wait(request->WaitEvent);
+ 	/* Setup the Synic's message page */
+-	rdmsrl(HV_X64_MSR_SIMP, simp.AsUINT64);
+-	simp.SimpEnabled = 1;
+-	simp.BaseSimpGpa = virt_to_phys(gHvContext.synICMessagePage[cpu])
++	rdmsrl(HV_X64_MSR_SIMP, simp.as_uint64);
++	simp.simp_enabled = 1;
++	simp.base_simp_gpa = virt_to_phys(gHvContext.synICMessagePage[cpu])
+ 		>> PAGE_SHIFT;
  
- 	initComplete = &request->ResponseMessage.Message.InitializeComplete;
- 	status = initComplete->Status;
-diff --git a/drivers/staging/hv/storvsc.c b/drivers/staging/hv/storvsc.c
-index 19e87f6..525c8ee 100644
---- a/drivers/staging/hv/storvsc.c
-+++ b/drivers/staging/hv/storvsc.c
-@@ -198,7 +198,7 @@ static int StorVscChannelInit(struct hv_device *Device)
- 	 * channel
+-	DPRINT_DBG(VMBUS, "HV_X64_MSR_SIMP msr set to: %llx", simp.AsUINT64);
++	DPRINT_DBG(VMBUS, "HV_X64_MSR_SIMP msr set to: %llx", simp.as_uint64);
+ 
+-	wrmsrl(HV_X64_MSR_SIMP, simp.AsUINT64);
++	wrmsrl(HV_X64_MSR_SIMP, simp.as_uint64);
+ 
+ 	/* Setup the Synic's event page */
+-	rdmsrl(HV_X64_MSR_SIEFP, siefp.AsUINT64);
+-	siefp.SiefpEnabled = 1;
+-	siefp.BaseSiefpGpa = virt_to_phys(gHvContext.synICEventPage[cpu])
++	rdmsrl(HV_X64_MSR_SIEFP, siefp.as_uint64);
++	siefp.siefp_enabled = 1;
++	siefp.base_siefp_gpa = virt_to_phys(gHvContext.synICEventPage[cpu])
+ 		>> PAGE_SHIFT;
+ 
+-	DPRINT_DBG(VMBUS, "HV_X64_MSR_SIEFP msr set to: %llx", siefp.AsUINT64);
++	DPRINT_DBG(VMBUS, "HV_X64_MSR_SIEFP msr set to: %llx", siefp.as_uint64);
+ 
+-	wrmsrl(HV_X64_MSR_SIEFP, siefp.AsUINT64);
++	wrmsrl(HV_X64_MSR_SIEFP, siefp.as_uint64);
+ 
+ 	/* Setup the interception SINT. */
+ 	/* wrmsrl((HV_X64_MSR_SINT0 + HV_SYNIC_INTERCEPTION_SINT_INDEX), */
+-	/*	  interceptionSint.AsUINT64); */
++	/*	  interceptionSint.as_uint64); */
+ 
+ 	/* Setup the shared SINT. */
+-	rdmsrl(HV_X64_MSR_SINT0 + VMBUS_MESSAGE_SINT, sharedSint.AsUINT64);
++	rdmsrl(HV_X64_MSR_SINT0 + VMBUS_MESSAGE_SINT, sharedSint.as_uint64);
+ 
+-	sharedSint.AsUINT64 = 0;
+-	sharedSint.Vector = irqVector; /* HV_SHARED_SINT_IDT_VECTOR + 0x20; */
+-	sharedSint.Masked = false;
+-	sharedSint.AutoEoi = true;
++	sharedSint.as_uint64 = 0;
++	sharedSint.vector = irqVector; /* HV_SHARED_SINT_IDT_VECTOR + 0x20; */
++	sharedSint.masked = false;
++	sharedSint.auto_eoi = true;
+ 
+ 	DPRINT_DBG(VMBUS, "HV_X64_MSR_SINT1 msr set to: %llx",
+-		   sharedSint.AsUINT64);
++		   sharedSint.as_uint64);
+ 
+-	wrmsrl(HV_X64_MSR_SINT0 + VMBUS_MESSAGE_SINT, sharedSint.AsUINT64);
++	wrmsrl(HV_X64_MSR_SINT0 + VMBUS_MESSAGE_SINT, sharedSint.as_uint64);
+ 
+ 	/* Enable the global synic bit */
+-	rdmsrl(HV_X64_MSR_SCONTROL, sctrl.AsUINT64);
+-	sctrl.Enable = 1;
++	rdmsrl(HV_X64_MSR_SCONTROL, sctrl.as_uint64);
++	sctrl.enable = 1;
+ 
+-	wrmsrl(HV_X64_MSR_SCONTROL, sctrl.AsUINT64);
++	wrmsrl(HV_X64_MSR_SCONTROL, sctrl.as_uint64);
+ 
+ 	gHvContext.SynICInitialized = true;
+ 	return;
+@@ -474,25 +474,25 @@ void HvSynicCleanup(void *arg)
+ 	if (!gHvContext.SynICInitialized)
+ 		return;
+ 
+-	rdmsrl(HV_X64_MSR_SINT0 + VMBUS_MESSAGE_SINT, sharedSint.AsUINT64);
++	rdmsrl(HV_X64_MSR_SINT0 + VMBUS_MESSAGE_SINT, sharedSint.as_uint64);
+ 
+-	sharedSint.Masked = 1;
++	sharedSint.masked = 1;
+ 
+ 	/* Need to correctly cleanup in the case of SMP!!! */
+ 	/* Disable the interrupt */
+-	wrmsrl(HV_X64_MSR_SINT0 + VMBUS_MESSAGE_SINT, sharedSint.AsUINT64);
++	wrmsrl(HV_X64_MSR_SINT0 + VMBUS_MESSAGE_SINT, sharedSint.as_uint64);
+ 
+-	rdmsrl(HV_X64_MSR_SIMP, simp.AsUINT64);
+-	simp.SimpEnabled = 0;
+-	simp.BaseSimpGpa = 0;
++	rdmsrl(HV_X64_MSR_SIMP, simp.as_uint64);
++	simp.simp_enabled = 0;
++	simp.base_simp_gpa = 0;
+ 
+-	wrmsrl(HV_X64_MSR_SIMP, simp.AsUINT64);
++	wrmsrl(HV_X64_MSR_SIMP, simp.as_uint64);
+ 
+-	rdmsrl(HV_X64_MSR_SIEFP, siefp.AsUINT64);
+-	siefp.SiefpEnabled = 0;
+-	siefp.BaseSiefpGpa = 0;
++	rdmsrl(HV_X64_MSR_SIEFP, siefp.as_uint64);
++	siefp.siefp_enabled = 0;
++	siefp.base_siefp_gpa = 0;
+ 
+-	wrmsrl(HV_X64_MSR_SIEFP, siefp.AsUINT64);
++	wrmsrl(HV_X64_MSR_SIEFP, siefp.as_uint64);
+ 
+ 	osd_PageFree(gHvContext.synICMessagePage[cpu], 1);
+ 	osd_PageFree(gHvContext.synICEventPage[cpu], 1);
+diff --git a/drivers/staging/hv/hv_api.h b/drivers/staging/hv/hv_api.h
+index 9eb818e..9df6472 100644
+--- a/drivers/staging/hv/hv_api.h
++++ b/drivers/staging/hv/hv_api.h
+@@ -510,21 +510,21 @@
+ 
+ /*
+  * The below CPUID leaves are present if VersionAndFeatures.HypervisorPresent
+- * is set by CPUID(HvCpuIdFunctionVersionAndFeatures).
++ * is set by CPUID(HVCPUID_VERSION_FEATURES).
+  */
+ enum hv_cpuid_function {
+-	HvCpuIdFunctionVersionAndFeatures		= 0x00000001,
+-	HvCpuIdFunctionHvVendorAndMaxFunction		= 0x40000000,
+-	HvCpuIdFunctionHvInterface			= 0x40000001,
++	HVCPUID_VERSION_FEATURES		= 0x00000001,
++	HVCPUID_VENDOR_MAXFUNCTION		= 0x40000000,
++	HVCPUID_INTERFACE			= 0x40000001,
+ 
+ 	/*
+ 	 * The remaining functions depend on the value of
+-	 * HvCpuIdFunctionInterface
++	 * HVCPUID_INTERFACE
  	 */
- 	memset(request, 0, sizeof(struct storvsc_request_extension));
--	request->WaitEvent = osd_WaitEventCreate();
-+	request->WaitEvent = osd_waitevent_create();
- 	if (!request->WaitEvent) {
- 		ret = -ENOMEM;
- 		goto nomem;
-@@ -224,7 +224,7 @@ static int StorVscChannelInit(struct hv_device *Device)
- 		goto Cleanup;
+-	HvCpuIdFunctionMsHvVersion			= 0x40000002,
+-	HvCpuIdFunctionMsHvFeatures			= 0x40000003,
+-	HvCpuIdFunctionMsHvEnlightenmentInformation	= 0x40000004,
+-	HvCpuIdFunctionMsHvImplementationLimits		= 0x40000005,
++	HVCPUID_VERSION			= 0x40000002,
++	HVCPUID_FEATURES			= 0x40000003,
++	HVCPUID_ENLIGHTENMENT_INFO	= 0x40000004,
++	HVCPUID_IMPLEMENTATION_LIMITS		= 0x40000005,
+ };
+ 
+ /* Define the virtual APIC registers */
+@@ -575,30 +575,30 @@ enum hv_cpuid_function {
+ 
+ /* Define hypervisor message types. */
+ enum hv_message_type {
+-	HvMessageTypeNone			= 0x00000000,
++	HVMSG_NONE			= 0x00000000,
+ 
+ 	/* Memory access messages. */
+-	HvMessageTypeUnmappedGpa		= 0x80000000,
+-	HvMessageTypeGpaIntercept		= 0x80000001,
++	HVMSG_UNMAPPED_GPA		= 0x80000000,
++	HVMSG_GPA_INTERCEPT		= 0x80000001,
+ 
+ 	/* Timer notification messages. */
+-	HvMessageTimerExpired			= 0x80000010,
++	HVMSG_TIMER_EXPIRED			= 0x80000010,
+ 
+ 	/* Error messages. */
+-	HvMessageTypeInvalidVpRegisterValue	= 0x80000020,
+-	HvMessageTypeUnrecoverableException	= 0x80000021,
+-	HvMessageTypeUnsupportedFeature		= 0x80000022,
++	HVMSG_INVALID_VP_REGISTER_VALUE	= 0x80000020,
++	HVMSG_UNRECOVERABLE_EXCEPTION	= 0x80000021,
++	HVMSG_UNSUPPORTED_FEATURE		= 0x80000022,
+ 
+ 	/* Trace buffer complete messages. */
+-	HvMessageTypeEventLogBufferComplete	= 0x80000040,
++	HVMSG_EVENTLOG_BUFFERCOMPLETE	= 0x80000040,
+ 
+ 	/* Platform-specific processor intercept messages. */
+-	HvMessageTypeX64IoPortIntercept		= 0x80010000,
+-	HvMessageTypeX64MsrIntercept		= 0x80010001,
+-	HvMessageTypeX64CpuidIntercept		= 0x80010002,
+-	HvMessageTypeX64ExceptionIntercept	= 0x80010003,
+-	HvMessageTypeX64ApicEoi			= 0x80010004,
+-	HvMessageTypeX64LegacyFpError		= 0x80010005
++	HVMSG_X64_IOPORT_INTERCEPT		= 0x80010000,
++	HVMSG_X64_MSR_INTERCEPT		= 0x80010001,
++	HVMSG_X64_CPUID_INTERCEPT		= 0x80010002,
++	HVMSG_X64_EXCEPTION_INTERCEPT	= 0x80010003,
++	HVMSG_X64_APIC_EOI			= 0x80010004,
++	HVMSG_X64_LEGACY_FP_ERROR		= 0x80010005
+ };
+ 
+ /* Define the number of synthetic interrupt sources. */
+@@ -610,103 +610,103 @@ enum hv_message_type {
+ 
+ /* Define connection identifier type. */
+ union hv_connection_id {
+-	u32 Asu32;
++	u32 asu32;
+ 	struct {
+-		u32 Id:24;
+-		u32 Reserved:8;
++		u32 id:24;
++		u32 reserved:8;
+ 	} u;
+ };
+ 
+ /* Define port identifier type. */
+ union hv_port_id {
+-	u32 Asu32;
++	u32 asu32;
+ 	struct {
+-		u32 Id:24;
+-		u32 Reserved:8;
++		u32 id:24;
++		u32 reserved:8;
+ 	} u ;
+ };
+ 
+ /* Define port type. */
+ enum hv_port_type {
+-	HvPortTypeMessage	= 1,
+-	HvPortTypeEvent		= 2,
+-	HvPortTypeMonitor	= 3
++	HVPORT_MSG	= 1,
++	HVPORT_EVENT		= 2,
++	HVPORT_MONITOR	= 3
+ };
+ 
+ /* Define port information structure. */
+ struct hv_port_info {
+-	enum hv_port_type PortType;
+-	u32 Padding;
++	enum hv_port_type port_type;
++	u32 padding;
+ 	union {
+ 		struct {
+-			u32 TargetSint;
+-			u32 TargetVp;
+-			u64 RsvdZ;
+-		} MessagePortInfo;
++			u32 target_sint;
++			u32 target_vp;
++			u64 rsvdz;
++		} message_port_info;
+ 		struct {
+-			u32 TargetSint;
+-			u32 TargetVp;
+-			u16 BaseFlagNumber;
+-			u16 FlagCount;
+-			u32 RsvdZ;
+-		} EventPortInfo;
++			u32 target_sint;
++			u32 target_vp;
++			u16 base_flag_bumber;
++			u16 flag_count;
++			u32 rsvdz;
++		} event_port_info;
+ 		struct {
+-			u64 MonitorAddress;
+-			u64 RsvdZ;
+-		} MonitorPortInfo;
++			u64 monitor_address;
++			u64 rsvdz;
++		} monitor_port_info;
+ 	};
+ };
+ 
+ struct hv_connection_info {
+-	enum hv_port_type PortType;
+-	u32 Padding;
++	enum hv_port_type port_type;
++	u32 padding;
+ 	union {
+ 		struct {
+-			u64 RsvdZ;
+-		} MessageConnectionInfo;
++			u64 rsvdz;
++		} message_connection_info;
+ 		struct {
+-			u64 RsvdZ;
+-		} EventConnectionInfo;
++			u64 rsvdz;
++		} event_connection_info;
+ 		struct {
+-			u64 MonitorAddress;
+-		} MonitorConnectionInfo;
++			u64 monitor_address;
++		} monitor_connection_info;
+ 	};
+ };
+ 
+ /* Define synthetic interrupt controller message flags. */
+ union hv_message_flags {
+-	u8 Asu8;
++	u8 asu8;
+ 	struct {
+-		u8 MessagePending:1;
+-		u8 Reserved:7;
++		u8 msg_pending:1;
++		u8 reserved:7;
+ 	};
+ };
+ 
+ /* Define synthetic interrupt controller message header. */
+ struct hv_message_header {
+-	enum hv_message_type MessageType;
+-	u8 PayloadSize;
+-	union hv_message_flags MessageFlags;
+-	u8 Reserved[2];
++	enum hv_message_type message_type;
++	u8 payload_size;
++	union hv_message_flags message_flags;
++	u8 reserved[2];
+ 	union {
+-		u64 Sender;
+-		union hv_port_id Port;
++		u64 sender;
++		union hv_port_id port;
+ 	};
+ };
+ 
+ /* Define timer message payload structure. */
+ struct hv_timer_message_payload {
+-	u32 TimerIndex;
+-	u32 Reserved;
+-	u64 ExpirationTime;	/* When the timer expired */
+-	u64 DeliveryTime;	/* When the message was delivered */
++	u32 timer_index;
++	u32 reserved;
++	u64 expiration_time;	/* When the timer expired */
++	u64 delivery_time;	/* When the message was delivered */
+ };
+ 
+ /* Define synthetic interrupt controller message format. */
+ struct hv_message {
+-	struct hv_message_header Header;
++	struct hv_message_header header;
+ 	union {
+-		u64 Payload[HV_MESSAGE_PAYLOAD_QWORD_COUNT];
++		u64 payload[HV_MESSAGE_PAYLOAD_QWORD_COUNT];
+ 	} u ;
+ };
+ 
+@@ -715,82 +715,82 @@ struct hv_message {
+ 
+ /* Define the synthetic interrupt message page layout. */
+ struct hv_message_page {
+-	struct hv_message SintMessage[HV_SYNIC_SINT_COUNT];
++	struct hv_message sint_message[HV_SYNIC_SINT_COUNT];
+ };
+ 
+ /* Define the synthetic interrupt controller event flags format. */
+ union hv_synic_event_flags {
+-	u8 Flags8[HV_EVENT_FLAGS_BYTE_COUNT];
+-	u32 Flags32[HV_EVENT_FLAGS_DWORD_COUNT];
++	u8 flags8[HV_EVENT_FLAGS_BYTE_COUNT];
++	u32 flags32[HV_EVENT_FLAGS_DWORD_COUNT];
+ };
+ 
+ /* Define the synthetic interrupt flags page layout. */
+ struct hv_synic_event_flags_page {
+-	union hv_synic_event_flags SintEventFlags[HV_SYNIC_SINT_COUNT];
++	union hv_synic_event_flags sintevent_flags[HV_SYNIC_SINT_COUNT];
+ };
+ 
+ /* Define SynIC control register. */
+ union hv_synic_scontrol {
+-	u64 AsUINT64;
++	u64 as_uint64;
+ 	struct {
+-		u64 Enable:1;
+-		u64 Reserved:63;
++		u64 enable:1;
++		u64 reserved:63;
+ 	};
+ };
+ 
+ /* Define synthetic interrupt source. */
+ union hv_synic_sint {
+-	u64 AsUINT64;
++	u64 as_uint64;
+ 	struct {
+-		u64 Vector:8;
+-		u64 Reserved1:8;
+-		u64 Masked:1;
+-		u64 AutoEoi:1;
+-		u64 Reserved2:46;
++		u64 vector:8;
++		u64 reserved1:8;
++		u64 masked:1;
++		u64 auto_eoi:1;
++		u64 reserved2:46;
+ 	};
+ };
+ 
+ /* Define the format of the SIMP register */
+ union hv_synic_simp {
+-	u64 AsUINT64;
++	u64 as_uint64;
+ 	struct {
+-		u64 SimpEnabled:1;
+-		u64 Preserved:11;
+-		u64 BaseSimpGpa:52;
++		u64 simp_enabled:1;
++		u64 preserved:11;
++		u64 base_simp_gpa:52;
+ 	};
+ };
+ 
+ /* Define the format of the SIEFP register */
+ union hv_synic_siefp {
+-	u64 AsUINT64;
++	u64 as_uint64;
+ 	struct {
+-		u64 SiefpEnabled:1;
+-		u64 Preserved:11;
+-		u64 BaseSiefpGpa:52;
++		u64 siefp_enabled:1;
++		u64 preserved:11;
++		u64 base_siefp_gpa:52;
+ 	};
+ };
+ 
+ /* Definitions for the monitored notification facility */
+ union hv_monitor_trigger_group {
+-	u64 AsUINT64;
++	u64 as_uint64;
+ 	struct {
+-		u32 Pending;
+-		u32 Armed;
++		u32 pending;
++		u32 armed;
+ 	};
+ };
+ 
+ struct hv_monitor_parameter {
+-	union hv_connection_id ConnectionId;
+-	u16 FlagNumber;
+-	u16 RsvdZ;
++	union hv_connection_id connectionid;
++	u16 flagnumber;
++	u16 rsvdz;
+ };
+ 
+ union hv_monitor_trigger_state {
+-	u32 Asu32;
++	u32 asu32;
+ 
+ 	struct {
+-		u32 GroupEnable:4;
+-		u32 RsvdZ:28;
++		u32 group_enable:4;
++		u32 rsvdz:28;
+ 	};
+ };
+ 
+@@ -814,42 +814,42 @@ union hv_monitor_trigger_state {
+ /* | 840 | Rsvd4[0]                                     | */
+ /* ------------------------------------------------------ */
+ struct hv_monitor_page {
+-	union hv_monitor_trigger_state TriggerState;
+-	u32 RsvdZ1;
++	union hv_monitor_trigger_state trigger_state;
++	u32 rsvdz1;
+ 
+-	union hv_monitor_trigger_group TriggerGroup[4];
+-	u64 RsvdZ2[3];
++	union hv_monitor_trigger_group trigger_group[4];
++	u64 rsvdz2[3];
+ 
+-	s32 NextCheckTime[4][32];
++	s32 next_checktime[4][32];
+ 
+-	u16 Latency[4][32];
+-	u64 RsvdZ3[32];
++	u16 latency[4][32];
++	u64 rsvdz3[32];
+ 
+-	struct hv_monitor_parameter Parameter[4][32];
++	struct hv_monitor_parameter parameter[4][32];
+ 
+-	u8 RsvdZ4[1984];
++	u8 rsvdz4[1984];
+ };
+ 
+ /* Declare the various hypercall operations. */
+ enum hv_call_code {
+-	HvCallPostMessage	= 0x005c,
+-	HvCallSignalEvent	= 0x005d,
++	HVCALL_POST_MESSAGE	= 0x005c,
++	HVCALL_SIGNAL_EVENT	= 0x005d,
+ };
+ 
+ /* Definition of the HvPostMessage hypercall input structure. */
+ struct hv_input_post_message {
+-	union hv_connection_id ConnectionId;
+-	u32 Reserved;
+-	enum hv_message_type MessageType;
+-	u32 PayloadSize;
+-	u64 Payload[HV_MESSAGE_PAYLOAD_QWORD_COUNT];
++	union hv_connection_id connectionid;
++	u32 reserved;
++	enum hv_message_type message_type;
++	u32 payload_size;
++	u64 payload[HV_MESSAGE_PAYLOAD_QWORD_COUNT];
+ };
+ 
+ /* Definition of the HvSignalEvent hypercall input structure. */
+ struct hv_input_signal_event {
+-	union hv_connection_id ConnectionId;
+-	u16 FlagNumber;
+-	u16 RsvdZ;
++	union hv_connection_id connectionid;
++	u16 flag_number;
++	u16 rsvdz;
+ };
+ 
+ /*
+@@ -859,16 +859,16 @@ struct hv_input_signal_event {
+ 
+ /* Version info reported by guest OS's */
+ enum hv_guest_os_vendor {
+-	HvGuestOsVendorMicrosoft	= 0x0001
++	HVGUESTOS_VENDOR_MICROSOFT	= 0x0001
+ };
+ 
+ enum hv_guest_os_microsoft_ids {
+-	HvGuestOsMicrosoftUndefined	= 0x00,
+-	HvGuestOsMicrosoftMSDOS		= 0x01,
+-	HvGuestOsMicrosoftWindows3x	= 0x02,
+-	HvGuestOsMicrosoftWindows9x	= 0x03,
+-	HvGuestOsMicrosoftWindowsNT	= 0x04,
+-	HvGuestOsMicrosoftWindowsCE	= 0x05
++	HVGUESTOS_MICROSOFT_UNDEFINED	= 0x00,
++	HVGUESTOS_MICROSOFT_MSDOS		= 0x01,
++	HVGUESTOS_MICROSOFT_WINDOWS3X	= 0x02,
++	HVGUESTOS_MICROSOFT_WINDOWS9X	= 0x03,
++	HVGUESTOS_MICROSOFT_WINDOWSNT	= 0x04,
++	HVGUESTOS_MICROSOFT_WINDOWSCE	= 0x05
+ };
+ 
+ /*
+@@ -877,14 +877,14 @@ enum hv_guest_os_microsoft_ids {
+ #define HV_X64_MSR_GUEST_OS_ID	0x40000000
+ 
+ union hv_x64_msr_guest_os_id_contents {
+-	u64 AsUINT64;
++	u64 as_uint64;
+ 	struct {
+-		u64 BuildNumber:16;
+-		u64 ServiceVersion:8; /* Service Pack, etc. */
+-		u64 MinorVersion:8;
+-		u64 MajorVersion:8;
+-		u64 OsId:8; /* enum hv_guest_os_microsoft_ids (if Vendor=MS) */
+-		u64 VendorId:16; /* enum hv_guest_os_vendor */
++		u64 build_number:16;
++		u64 service_version:8; /* Service Pack, etc. */
++		u64 minor_version:8;
++		u64 major_version:8;
++		u64 os_id:8; /* enum hv_guest_os_microsoft_ids (if Vendor=MS) */
++		u64 vendor_id:16; /* enum hv_guest_os_vendor */
+ 	};
+ };
+ 
+@@ -894,11 +894,11 @@ union hv_x64_msr_guest_os_id_contents {
+ #define HV_X64_MSR_HYPERCALL	0x40000001
+ 
+ union hv_x64_msr_hypercall_contents {
+-	u64 AsUINT64;
++	u64 as_uint64;
+ 	struct {
+-		u64 Enable:1;
+-		u64 Reserved:11;
+-		u64 GuestPhysicalAddress:52;
++		u64 enable:1;
++		u64 reserved:11;
++		u64 guest_physical_address:52;
+ 	};
+ };
+ 
+diff --git a/drivers/staging/hv/vmbus.c b/drivers/staging/hv/vmbus.c
+index d449daf..7c54ca9 100644
+--- a/drivers/staging/hv/vmbus.c
++++ b/drivers/staging/hv/vmbus.c
+@@ -153,7 +153,7 @@ static void VmbusOnMsgDPC(struct hv_driver *drv)
+ 	struct hv_message *copied;
+ 
+ 	while (1) {
+-		if (msg->Header.MessageType == HvMessageTypeNone) {
++		if (msg->header.message_type == HVMSG_NONE) {
+ 			/* no msg */
+ 			break;
+ 		} else {
+@@ -166,18 +166,18 @@ static void VmbusOnMsgDPC(struct hv_driver *drv)
+ 					      (void *)copied);
+ 		}
+ 
+-		msg->Header.MessageType = HvMessageTypeNone;
++		msg->header.message_type = HVMSG_NONE;
+ 
+ 		/*
+ 		 * Make sure the write to MessageType (ie set to
+-		 * HvMessageTypeNone) happens before we read the
++		 * HVMSG_NONE) happens before we read the
+ 		 * MessagePending and EOMing. Otherwise, the EOMing
+ 		 * will not deliver any more messages since there is
+ 		 * no empty slot
+ 		 */
+ 		mb();
+ 
+-		if (msg->Header.MessageFlags.MessagePending) {
++		if (msg->header.message_flags.msg_pending) {
+ 			/*
+ 			 * This will cause message queue rescan to
+ 			 * possibly deliver another msg from the
+@@ -212,10 +212,10 @@ static int VmbusOnISR(struct hv_driver *drv)
+ 	msg = (struct hv_message *)page_addr + VMBUS_MESSAGE_SINT;
+ 
+ 	/* Check if there are actual msgs to be process */
+-	if (msg->Header.MessageType != HvMessageTypeNone) {
++	if (msg->header.message_type != HVMSG_NONE) {
+ 		DPRINT_DBG(VMBUS, "received msg type %d size %d",
+-				msg->Header.MessageType,
+-				msg->Header.PayloadSize);
++				msg->header.message_type,
++				msg->header.payload_size);
+ 		ret |= 0x1;
  	}
  
--	osd_WaitEventWait(request->WaitEvent);
-+	osd_waitevent_wait(request->WaitEvent);
+@@ -224,8 +224,8 @@ static int VmbusOnISR(struct hv_driver *drv)
+ 	event = (union hv_synic_event_flags *)page_addr + VMBUS_MESSAGE_SINT;
  
- 	if (vstorPacket->Operation != VStorOperationCompleteIo ||
- 	    vstorPacket->Status != 0) {
-@@ -255,7 +255,7 @@ static int StorVscChannelInit(struct hv_device *Device)
- 		goto Cleanup;
+ 	/* Since we are a child, we only need to check bit 0 */
+-	if (test_and_clear_bit(0, (unsigned long *) &event->Flags32[0])) {
+-		DPRINT_DBG(VMBUS, "received event %d", event->Flags32[0]);
++	if (test_and_clear_bit(0, (unsigned long *) &event->flags32[0])) {
++		DPRINT_DBG(VMBUS, "received event %d", event->flags32[0]);
+ 		ret |= 0x2;
  	}
  
--	osd_WaitEventWait(request->WaitEvent);
-+	osd_waitevent_wait(request->WaitEvent);
- 
- 	/* TODO: Check returned version */
- 	if (vstorPacket->Operation != VStorOperationCompleteIo ||
-@@ -287,7 +287,7 @@ static int StorVscChannelInit(struct hv_device *Device)
- 		goto Cleanup;
- 	}
- 
--	osd_WaitEventWait(request->WaitEvent);
-+	osd_waitevent_wait(request->WaitEvent);
- 
- 	/* TODO: Check returned version */
- 	if (vstorPacket->Operation != VStorOperationCompleteIo ||
-@@ -323,7 +323,7 @@ static int StorVscChannelInit(struct hv_device *Device)
- 		goto Cleanup;
- 	}
- 
--	osd_WaitEventWait(request->WaitEvent);
-+	osd_waitevent_wait(request->WaitEvent);
- 
- 	if (vstorPacket->Operation != VStorOperationCompleteIo ||
- 	    vstorPacket->Status != 0) {
-@@ -473,7 +473,7 @@ static void StorVscOnChannelCallback(void *context)
- 				memcpy(&request->VStorPacket, packet,
- 				       sizeof(struct vstor_packet));
- 
--				osd_WaitEventSet(request->WaitEvent);
-+				osd_waitevent_set(request->WaitEvent);
- 			} else {
- 				StorVscOnReceive(device,
- 						(struct vstor_packet *)packet,
-@@ -622,7 +622,7 @@ int StorVscOnHostReset(struct hv_device *Device)
- 	request = &storDevice->ResetRequest;
- 	vstorPacket = &request->VStorPacket;
- 
--	request->WaitEvent = osd_WaitEventCreate();
-+	request->WaitEvent = osd_waitevent_create();
- 	if (!request->WaitEvent) {
- 		ret = -ENOMEM;
- 		goto Cleanup;
-@@ -644,7 +644,7 @@ int StorVscOnHostReset(struct hv_device *Device)
- 	}
- 
- 	/* FIXME: Add a timeout */
--	osd_WaitEventWait(request->WaitEvent);
-+	osd_waitevent_wait(request->WaitEvent);
- 
- 	kfree(request->WaitEvent);
- 	DPRINT_INFO(STORVSC, "host adapter reset completed");
 -- 
 1.6.3.2
