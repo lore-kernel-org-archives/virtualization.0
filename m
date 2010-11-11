@@ -1,12 +1,13 @@
-From: Stephen Hemminger <shemminger@vyatta.com>
+From: Greg KH <greg@kroah.com>
 Subject: Re: [PATCH]: An implementation of HyperV  KVP  functionality
-Date: Thu, 11 Nov 2010 12:49:04 -0800
-Message-ID: <20101111124904.24010ee5@nehalam>
+Date: Thu, 11 Nov 2010 13:19:04 -0800
+Message-ID: <20101111211904.GB31373@kroah.com>
 References: <4CDBE98E02000030000902C9@novprvoes0310.provo.novell.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <devel-bounces@linuxdriverproject.org>
+Content-Disposition: inline
 In-Reply-To: <4CDBE98E02000030000902C9@novprvoes0310.provo.novell.com>
 List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
 	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
@@ -21,65 +22,34 @@ To: Ky Srinivasan <ksrinivasan@novell.com>
 Cc: devel@driverdev.osuosl.org, Virtualization@lists.osdl.org, Haiyang Zhang <haiyangz@microsoft.com>, Greg KH <gregkh@suse.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 11 Nov 2010 13:03:10 -0700
-"Ky Srinivasan" <ksrinivasan@novell.com> wrote:
+On Thu, Nov 11, 2010 at 01:03:10PM -0700, Ky Srinivasan wrote:
+> +/*
+> + * Array of keys we support in Linux.
+
+Not really, you can support "any" number of keys as the kernel shouldn't
+care, or did I get it wrong?
+
+> + *
+> + */
+> +#define KVP_MAX_KEY	10
+> +#define KVP_LIC_VERSION 1
+
+Um, this is a nice magic number, care to explain it a bit more?
 
 > +static char *kvp_keys[KVP_MAX_KEY] = {"FullyQualifiedDomainName",
 > +				"IntegrationServicesVersion",
-> +				"NetworkAddressIPv4",
-> +				"NetworkAddressIPv6",
-> +				"OSBuildNumber",
-> +				"OSName",
-> +				"OSMajorVersion",
-> +				"OSMinorVersion",
-> +				"OSVersion",
-> +				"ProcessorArchitecture",
-> +				};
 
-Minor nit:
-static const char *kvp_keys[KVP_MAX_KEY] = {
-	"FullQualifiedDomainName",
-...
+Looks like it matches up with this, right?  You might want to make that
+a bit more "tied" together.
 
-+/*
-+ * Global state maintained for transaction that is being processed.
-+ * Note that only one transaction can be active at any point in time.
-+ *
-+ * This state is set when we receive a request from the host; we
-+ * cleanup this state when the transaction is completed - when we respond
-+ * to the host with the key value.
-+ */
-+
-+static u8 *recv_buffer; /* the receive buffer that we allocated */
-+static int recv_len; /* number of bytes received. */
-+static struct vmbus_channel *recv_channel; /*chn on which we got the request*/
-+static u64 recv_req_id; /* request ID. */
-+static int kvp_current_index;
-+
+> +			case (KVP_LIC_VERSION):
+> +				kvp_transaction_active = true;
+> +				kvp_respond_to_host(kvp_data->index,
+> +						HV_DRV_VERSION);
 
-I would put all the state variables for the transaction in one
-structure, 
+Why are you doing this in the kernel?  Why not do it from userspace like
+all other messages?
 
-+static void kvp_timer_func(unsigned long __data)
-+{
-+	u32	key = *((u32 *)__data);
-+	/*
-+	 * If the timer fires, the user-mode component has not responded;
-+	 * process the pending transaction.
-+	 */
-+	kvp_respond_to_host(key, "Guest timed out");
-+}
+thanks,
 
-delayed_work is sometimes better for things like this, since it
-runs in user context and can sleep.
-
-+			case (KVP_MAX_KEY):
-+				/*
-+				 * We don't support this key
-+				 * and any key beyond this.
-+				 */
-+				icmsghdrp->status = HV_E_FAIL;
-+				goto callback_done;
-+
-
-case labels do not need parens
+greg k-h
