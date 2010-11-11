@@ -1,7 +1,7 @@
 From: Greg KH <greg@kroah.com>
 Subject: Re: [PATCH]: An implementation of HyperV  KVP  functionality
-Date: Thu, 11 Nov 2010 13:19:04 -0800
-Message-ID: <20101111211904.GB31373@kroah.com>
+Date: Thu, 11 Nov 2010 13:15:48 -0800
+Message-ID: <20101111211548.GA31373@kroah.com>
 References: <4CDBE98E02000030000902C9@novprvoes0310.provo.novell.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -24,31 +24,179 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 On Thu, Nov 11, 2010 at 01:03:10PM -0700, Ky Srinivasan wrote:
 > +/*
-> + * Array of keys we support in Linux.
+> + * An implementation of key value pair (KVP) functionality for Linux.
+> + *
+> + *
+> + * Copyright (C) 2010, Novell, Inc.
+> + * Author : K. Y. Srinivasan <ksrinivasan@novell.com>
+> + *
+> + * This program is free software; you can redistribute it and/or modify it
+> + * under the terms of the GNU General Public License version 2 as published
+> + * by the Free Software Foundation.
 
-Not really, you can support "any" number of keys as the kernel shouldn't
-care, or did I get it wrong?
+This is all that is needed.
 
 > + *
-> + */
-> +#define KVP_MAX_KEY	10
-> +#define KVP_LIC_VERSION 1
+> + * This program is distributed in the hope that it will be useful, but
+> + * WITHOUT ANY WARRANTY; without even the implied warranty of
+> + * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE, GOOD TITLE or
+> + * NON INFRINGEMENT.  See the GNU General Public License for more
+> + * details.
+> + *
+> + * You should have received a copy of the GNU General Public License
+> + * along with this program; if not, write to the Free Software
+> + * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
 
-Um, this is a nice magic number, care to explain it a bit more?
+You can delete this chunk.
+
+> +/*
+> + * KVP protocol: The user mode component first registers with the
+> + * the kernel component. Subsequently, the kernel component requests, data
+> + * for the specified keys. In response to this message the user mode component
+> + * fills in the value corresponding to the specified key. We overload the
+> + * sequence field in the cn_msg header to define our KVP message types.
+> + *
+> + * XXXKYS: Have a shared header file between the user and kernel (TODO)
+> + */
+> +
+> +enum kvp_op {
+> +	KVP_REGISTER = 0, /* Register the user mode component */
+> +	KVP_KERNEL_GET,/*Kernel is requesting the value for the specified key*/
+> +	KVP_KERNEL_SET, /*Kernel is providing the value for the specified key*/
+> +	KVP_USER_GET, /*User is requesting the value for the specified key*/
+> +	KVP_USER_SET /*User is providing the value for the specified key*/
+> +};
+
+As these values are shared between the kernel and userspace, you should
+specifically define them.
+
+Also, your spaces with the /* stuff is incorrect.
+
+And, "KVP"?  That's very generic, how about, "HYPERV_KVP_..." instead?
+That fits the global namespace much better.
+
+s/kvp_op/hyperv_kvp_op/ as well.
+
+> +#define KVP_KEY_SIZE    512
+> +#define KVP_VALUE_SIZE  2048
+> +
+> +
+> +typedef struct kvp_msg {
+> +	__u32 kvp_key; /* Key */
+> +	__u8  kvp_value[0]; /* Corresponding value */
+> +} kvp_msg_t;
+
+I thought that kvp_value was really KVP_VALUE_SIZE?
+
+And no typedefs, you did run your code through checkpatch.pl, right?
+Why ignore the stuff it spits back at you?
+
 
 > +static char *kvp_keys[KVP_MAX_KEY] = {"FullyQualifiedDomainName",
 > +				"IntegrationServicesVersion",
+> +				"NetworkAddressIPv4",
+> +				"NetworkAddressIPv6",
+> +				"OSBuildNumber",
+> +				"OSName",
+> +				"OSMajorVersion",
+> +				"OSMinorVersion",
+> +				"OSVersion",
+> +				"ProcessorArchitecture",
+> +				};
 
-Looks like it matches up with this, right?  You might want to make that
-a bit more "tied" together.
+Why list these at all, as more might come in the future, and the kernel
+really doesn't care about them, right?
 
-> +			case (KVP_LIC_VERSION):
-> +				kvp_transaction_active = true;
-> +				kvp_respond_to_host(kvp_data->index,
-> +						HV_DRV_VERSION);
+> +int
+> +kvp_init(void)
 
-Why are you doing this in the kernel?  Why not do it from userspace like
-all other messages?
+All of your global symbols should have "hyperv_" on the front of them.
+
+> --- linux.trees.git.orig/drivers/staging/hv/Makefile	2010-11-10 14:01:55.000000000 -0500
+> +++ linux.trees.git/drivers/staging/hv/Makefile	2010-11-11 11:24:54.000000000 -0500
+> @@ -2,7 +2,7 @@ obj-$(CONFIG_HYPERV)		+= hv_vmbus.o hv_t
+>  obj-$(CONFIG_HYPERV_STORAGE)	+= hv_storvsc.o
+>  obj-$(CONFIG_HYPERV_BLOCK)	+= hv_blkvsc.o
+>  obj-$(CONFIG_HYPERV_NET)	+= hv_netvsc.o
+> -obj-$(CONFIG_HYPERV_UTILS)	+= hv_utils.o
+> +obj-$(CONFIG_HYPERV_UTILS)	+= hv_util.o
+
+Ick, you just renamed the kernel module.  Did you really mean to do
+this?  What tools are now going to break because you did this?  (I'm
+thinking installers here...)
+
+>  
+>  hv_vmbus-y := vmbus_drv.o osd.o \
+>  		 vmbus.o hv.o connection.o channel.o \
+> @@ -10,3 +10,4 @@ hv_vmbus-y := vmbus_drv.o osd.o \
+>  hv_storvsc-y := storvsc_drv.o storvsc.o
+>  hv_blkvsc-y := blkvsc_drv.o blkvsc.o
+>  hv_netvsc-y := netvsc_drv.o netvsc.o rndis_filter.o
+> +hv_util-y :=  hv_utils.o kvp.o
+> Index: linux.trees.git/drivers/staging/hv/kvp.h
+> ===================================================================
+> --- /dev/null	1970-01-01 00:00:00.000000000 +0000
+> +++ linux.trees.git/drivers/staging/hv/kvp.h	2010-11-10 14:03:47.000000000 -0500
+
+hyperv_kvp.h as this is going to be a global header file, right?
+
+> +typedef enum {
+> +	ICKvpExchangeOperationGet = 0,
+> +	ICKvpExchangeOperationSet,
+> +	ICKvpExchangeOperationDelete,
+> +	ICKvpExchangeOperationEnumerate,
+> +	ICKvpExchangeOperationCount /* Number of operations, must be last. */
+> +} IC_KVP_EXCHANGE_OPERATION;
+> +
+> +typedef enum {
+> +	ICKvpExchangePoolExternal = 0,
+> +	ICKvpExchangePoolGuest,
+> +	ICKvpExchangePoolAuto,
+> +	ICKvpExchangePoolAutoExternal,
+> +	ICKvpExchangePoolInternal,
+> +	ICKvpExchangePoolCount /* Number of pools, must be last. */
+> +} IC_KVP_EXCHANGE_POOL;
+> +
+> +typedef struct ic_kvp_hdr {
+> +	u8 operation;
+> +	u8 pool;
+> +} ic_kvp_hdr_t;
+> +
+> +typedef struct ic_kvp_exchg_msg_value {
+> +	u32 value_type;
+> +	u32 key_size;
+> +	u32 value_size;
+> +	u8 key[IC_KVP_EXCHANGE_MAX_KEY_SIZE];
+> +	u8 value[IC_KVP_EXCHANGE_MAX_VALUE_SIZE];
+> +} ic_kvp_exchg_msg_value_t;
+> +
+> +typedef struct ic_kvp__msg_enumerate {
+> +	u32 index;
+> +	ic_kvp_exchg_msg_value_t data;
+> +} ic_kvp_msg_enumerate_t;
+> +
+> +typedef struct ic_kvp_msg {
+> +	ic_kvp_hdr_t	kvp_hdr;
+> +	ic_kvp_msg_enumerate_t	kvp_data;
+> +} ic_kvp_msg_t;
+
+Again, no typedefs, and fix up the names of these structures to be
+understandable :)
+
+> --- linux.trees.git.orig/include/linux/connector.h	2010-11-09 17:22:15.000000000 -0500
+> +++ linux.trees.git/include/linux/connector.h	2010-11-11 13:14:52.000000000 -0500
+> @@ -42,8 +42,9 @@
+>  #define CN_VAL_DM_USERSPACE_LOG		0x1
+>  #define CN_IDX_DRBD			0x8
+>  #define CN_VAL_DRBD			0x1
+> +#define CN_KVP_IDX			0x9     /* MSFT KVP functionality */
+
+Did you reserve this number with anyone?  Who?
+
+> -#define CN_NETLINK_USERS		8
+> +#define CN_NETLINK_USERS		10
+
+Are you sure you incremented this properly?
 
 thanks,
 
