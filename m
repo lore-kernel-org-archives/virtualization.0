@@ -1,7 +1,7 @@
 From: "Ky Srinivasan" <ksrinivasan@novell.com>
 Subject: Re: [PATCH]: An implementation of HyperV  KVP  functionality
-Date: Fri, 12 Nov 2010 09:57:25 -0700
-Message-ID: <4CDD0F850200003000090379@novprvoes0310.provo.novell.com>
+Date: Fri, 12 Nov 2010 09:57:37 -0700
+Message-ID: <4CDD0F910200003000090383@novprvoes0310.provo.novell.com>
 References: <4CDBE98E02000030000902C9@novprvoes0310.provo.novell.com>
 	<20101111124904.24010ee5@nehalam>
 Mime-Version: 1.0
