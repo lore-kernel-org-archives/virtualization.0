@@ -1,24 +1,24 @@
 From: "Ky Srinivasan" <ksrinivasan@novell.com>
 Subject: Re: [PATCH]: An implementation of HyperV  KVP  functionality
-Date: Fri, 12 Nov 2010 09:57:37 -0700
-Message-ID: <4CDD0F910200003000090383@novprvoes0310.provo.novell.com>
+Date: Fri, 12 Nov 2010 09:57:50 -0700
+Message-ID: <4CDD0F9E020000300009038D@novprvoes0310.provo.novell.com>
 References: <4CDBE98E02000030000902C9@novprvoes0310.provo.novell.com>
 	<20101111124904.24010ee5@nehalam>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <devel-bounces@linuxdriverproject.org>
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
 In-Reply-To: <20101111124904.24010ee5@nehalam>
 Content-Disposition: inline
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
-List-Post: <mailto:devel@linuxdriverproject.org>
-List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
-Sender: devel-bounces@linuxdriverproject.org
-Errors-To: devel-bounces@linuxdriverproject.org
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Stephen Hemminger <shemminger@vyatta.com>
 Cc: devel@driverdev.osuosl.org, Virtualization@lists.osdl.org, HaiyangZhang <haiyangz@microsoft.com>, Greg KH <gregkh@suse.de>
 List-Id: virtualization@lists.linuxfoundation.org
