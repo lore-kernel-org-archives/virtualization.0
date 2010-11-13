@@ -1,43 +1,71 @@
-From: Tony Finch <dot@dotat.at>
-Subject: Re: [PATCH -next] xen: fix header export to userspace
-Date: Mon, 15 Nov 2010 10:23:48 +0000
-Message-ID: <alpine.LSU.2.00.1011151017570.8553@hermes-2.csi.cam.ac.uk>
-References: <20101112130547.c2a3c2c1.sfr@canb.auug.org.au> <20101113084439.d21bd0f0.randy.dunlap@oracle.com>
+From: =?utf-8?Q?Am=C3=A9rico?= Wang <xiyou.wangcong@gmail.com>
+Subject: Re: [PATCH 01/20] x86/ticketlock: clean up types and accessors
+Date: Sat, 13 Nov 2010 17:57:32 +0800
+Message-ID: <20101113095732.GF3837__39533.667258411$1289837679$gmane$org@hack>
+References: <cover.1288794124.git.jeremy.fitzhardinge@citrix.com>
+	<742be99eb6d64784dbc3e446d22df78b7a55fc0c.1288794124.git.jeremy.fitzhardinge@citrix.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-next-owner@vger.kernel.org>
-In-Reply-To: <20101113084439.d21bd0f0.randy.dunlap@oracle.com>
-Sender: linux-next-owner@vger.kernel.org
-To: Randy Dunlap <randy.dunlap@oracle.com>
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>, akpm <akpm@linux-foundation.org>, linux-next@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, xen-devel@lists.xensource.com, virtualization@lists.osdl.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <742be99eb6d64784dbc3e446d22df78b7a55fc0c.1288794124.git.jeremy.fitzhardinge@citrix.com>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Nick Piggin <npiggin@suse.de>, Xen-devel <xen-devel@lists.xensource.com>, Peter Zijlstra <peterz@infradead.org>, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Jan Beulich <JBeulich@novell.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, Avi Kivity <avi@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sat, 13 Nov 2010, Randy Dunlap wrote:
+On Wed, Nov 03, 2010 at 10:59:42AM -0400, Jeremy Fitzhardinge wrote:
+...
+> static __always_inline void __ticket_spin_lock(arch_spinlock_t *lock)
+> {
+>-	int inc = 0x00010000;
+>-	int tmp;
+>+	unsigned inc = 1 << TICKET_SHIFT;
+>+	unsigned tmp;
 
-> From: Randy Dunlap <randy.dunlap@oracle.com>
->
-> scripts/headers_install.pl prevents "__user" from being exported
-> to userspace headers, so just use compiler.h to make sure that
-> __user is defined and avoid the error.
->
-> unifdef: linux-next-20101112/xx64/usr/include/xen/privcmd.h.tmp: 79: Premature EOF (#if line 33 depth 1)
+Please don't use old implicit-int.
 
-I suggest the following slightly more informative message
+> 
+>-	return (((tmp >> TICKET_SHIFT) - tmp) & ((1 << TICKET_SHIFT) - 1)) > 1;
+>+	return ((tmp.tail - tmp.head) & TICKET_MASK) > 1;
 
-> scripts/headers_install.pl strips "__user" when exporting headers to
-> userspace and can introduce a syntax error (detected by unifdef) if
-> "__user" appears in an unexpected place. Simplify by using compiler.h to
-> make sure that __user is defined and avoid the error.
->
-> unifdef: linux-next-20101112/xx64/usr/include/xen/privcmd.h.tmp: 79: Premature EOF (#if line 33 depth 1)
 
-In any case,
+There is a type promotion here.
 
-Acked-By:	Tony Finch <dot@dotat.at>
 
-Tony.
--- 
-f.anthony.n.finch  <dot@dotat.at>  http://dotat.at/
-HUMBER THAMES DOVER WIGHT PORTLAND: NORTH BACKING WEST OR NORTHWEST, 5 TO 7,
-DECREASING 4 OR 5, OCCASIONALLY 6 LATER IN HUMBER AND THAMES. MODERATE OR
-ROUGH. RAIN THEN FAIR. GOOD.
+> }
+> 
+> #ifndef CONFIG_PARAVIRT_SPINLOCKS
+>diff --git a/arch/x86/include/asm/spinlock_types.h b/arch/x86/include/asm/spinlock_types.h
+>index dcb48b2..4582640 100644
+>--- a/arch/x86/include/asm/spinlock_types.h
+>+++ b/arch/x86/include/asm/spinlock_types.h
+>@@ -5,11 +5,27 @@
+> # error "please don't include this file directly"
+> #endif
+> 
+>+#include <linux/types.h>
+>+
+>+#if (CONFIG_NR_CPUS < 256)
+>+typedef u8  __ticket_t;
+>+#else
+>+typedef u16 __ticket_t;
+>+#endif
+>+
+>+#define TICKET_SHIFT	(sizeof(__ticket_t) * 8)
+>+#define TICKET_MASK	((1 << TICKET_SHIFT) - 1)
+
+
+So here you may need to cast the result to __ticket_t.
+
+
+Thanks.
