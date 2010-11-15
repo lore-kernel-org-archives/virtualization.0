@@ -1,15 +1,16 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [PATCH 03/20] x86/ticketlock: Use C for __ticket_spin_unlock
-Date: Mon, 15 Nov 2010 11:38:33 -0800
-Message-ID: <4CE18C39.4050206__47349.2485042245$1289850091$gmane$org@goop.org>
-References: <cover.1288794124.git.jeremy.fitzhardinge@citrix.com>
-	<20092775a9df07a5a75820ac250194b535279d51.1288794124.git.jeremy.fitzhardinge@citrix.com>
-	<20101113100527.GG3837@hack>
+Subject: Re: [PATCH 06/20] x86/ticketlock: make __ticket_spin_trylock common
+Date: Mon, 15 Nov 2010 11:39:03 -0800
+Message-ID: <4CE18C57.9070805__7578.39081711626$1289850315$gmane$org@goop.org>
+References: <cover.1288794124.git.jeremy.fitzhardinge@citrix.com>	
+	<4cea7b0804de5a2c1249034fc5c4840ade043ff4.1288794124.git.jeremy.fitzhardinge@citrix.com>	
+	<20101113101732.GH3837@hack>
+	<1289645321.2743.21.camel@edumazet-laptop>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20101113100527.GG3837@hack>
+In-Reply-To: <1289645321.2743.21.camel@edumazet-laptop>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,46 +20,25 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: =?ISO-8859-1?Q?Am=E9rico_Wang?= <xiyou.wangcong@gmail.com>
-Cc: Nick Piggin <npiggin@suse.de>, Xen-devel <xen-devel@lists.xensource.com>, Peter Zijlstra <peterz@infradead.org>, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Jan Beulich <JBeulich@novell.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, Avi Kivity <avi@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>
+To: Eric Dumazet <eric.dumazet@gmail.com>
+Cc: Nick Piggin <npiggin@suse.de>, Xen-devel <xen-devel@lists.xensource.com>, Peter Zijlstra <peterz@infradead.org>, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Jan Beulich <JBeulich@novell.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, Avi Kivity <avi@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, =?UTF-8?B?QW3DqXJpY28gV2FuZw==?= <xiyou.wangcong@gmail.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 11/13/2010 02:05 AM, Am=E9rico Wang wrote:
-> On Wed, Nov 03, 2010 at 10:59:44AM -0400, Jeremy Fitzhardinge wrote:
->>  * On PPro SMP or if we are using OOSTORE, we use a locked operation to =
-unlock
->>  * (PPro errata 66, 92)
->>  */
->> -# define UNLOCK_LOCK_PREFIX LOCK_PREFIX
->> +static __always_inline void __ticket_unlock_release(struct arch_spinloc=
-k *lock)
->> +{
->> +	if (sizeof(lock->tickets.head) =3D=3D sizeof(u8))
->> +		asm (LOCK_PREFIX "incb %0"
->> +		     : "+m" (lock->tickets.head) : : "memory");
->> +	else
->> +		asm (LOCK_PREFIX "incw %0"
->> +		     : "+m" (lock->tickets.head) : : "memory");
-> This 'if/else' really should be done with #ifdef, even though
-> the compiler may be smart enough to remove it.
-
-No, we depend on if/else with constant arguments doing the right thing
-all over the kernel.  It is always preferable to use it instead of
-#ifdef where possible, so that the two branches of code are always
-subjected to compiler checking, even if they're not being used.
-
->> +
->> +}
->> #else
->> -# define UNLOCK_LOCK_PREFIX
->> +static __always_inline void __ticket_unlock_release(struct arch_spinloc=
-k *lock)
->> +{
->> +	barrier();
->> +	lock->tickets.head++;
->> +	barrier();
-> The second barrier() is not needed.
-
-Agreed.  It gets removed in a later patch.
-
-    J
+T24gMTEvMTMvMjAxMCAwMjo0OCBBTSwgRXJpYyBEdW1hemV0IHdyb3RlOgo+IExlIHNhbWVkaSAx
+MyBub3ZlbWJyZSAyMDEwIMOgIDE4OjE3ICswODAwLCBBbcOpcmljbyBXYW5nIGEgw6ljcml0IDoK
+Pj4gT24gV2VkLCBOb3YgMDMsIDIwMTAgYXQgMTA6NTk6NDdBTSAtMDQwMCwgSmVyZW15IEZpdHpo
+YXJkaW5nZSB3cm90ZToKPj4KPj4+ICsJdW5pb24gewo+Pj4gKwkJc3RydWN0IF9fcmF3X3RpY2tl
+dHMgdGlja2V0czsKPj4+ICsJCV9fdGlja2V0cGFpcl90IHNsb2NrOwo+Pj4gKwl9IHRtcCwgbmV3
+Owo+Pj4gKwlpbnQgcmV0Owo+Pj4gKwo+Pj4gKwl0bXAudGlja2V0cyA9IEFDQ0VTU19PTkNFKGxv
+Y2stPnRpY2tldHMpOwo+Pj4gKwlpZiAodG1wLnRpY2tldHMuaGVhZCAhPSB0bXAudGlja2V0cy50
+YWlsKQo+Pj4gKwkJcmV0dXJuIDA7Cj4+PiArCj4+PiArCW5ldy5zbG9jayA9IHRtcC5zbG9jayAr
+ICgxIDw8IFRJQ0tFVF9TSElGVCk7Cj4+PiArCj4+PiArCXJldCA9IGNtcHhjaGcoJmxvY2stPnRp
+Y2tldHBhaXIsIHRtcC5zbG9jaywgbmV3LnNsb2NrKSA9PSB0bXAuc2xvY2s7Cj4+PiArCWJhcnJp
+ZXIoKTsJCS8qIGp1c3QgbWFrZSBub3RoaW5nIGNyZWVwcyBiZWZvcmUgbG9jayBpcyBjbGFpbWVk
+ICovCj4+IFRoaXMgb25lIHNob3VsZCBiZSBzbXBfd21iKCksIHJpZ2h0PyBObyBDT05GSUdfWDg2
+X09PU1RPUkUgcHJvdGVjdGVkLgo+IGNtcHhjaGcoKSBpcyBhIGZ1bGwgbWVtb3J5IGJhcnJpZXIs
+IG5vIG5lZWQgZm9yIHNtcF93bWIoKSBvciBiYXJyaWVyKCkKCkFncmVlZC4KCiAgICBKCl9fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9u
+IG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpo
+dHRwczovL2xpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVh
+bGl6YXRpb24=
