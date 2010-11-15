@@ -1,48 +1,65 @@
-From: Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [PATCH 03/20] x86/ticketlock: Use C for __ticket_spin_unlock
-Date: Sat, 13 Nov 2010 23:34:06 +0100
-Message-ID: <4CDF125E.3050803__41756.3424948186$1289837789$gmane$org@redhat.com>
-References: <cover.1288794124.git.jeremy.fitzhardinge@citrix.com>
-	<20092775a9df07a5a75820ac250194b535279d51.1288794124.git.jeremy.fitzhardinge@citrix.com>
-	<20101113100527.GG3837@hack>
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+Subject: Re: [PATCH -next] xen: fix header export to userspace
+Date: Mon, 15 Nov 2010 10:15:43 -0800
+Message-ID: <4CE178CF.3020308@goop.org>
+References: <20101112130547.c2a3c2c1.sfr@canb.auug.org.au>
+	<20101113084439.d21bd0f0.randy.dunlap@oracle.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20101113100527.GG3837@hack>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: =?ISO-8859-1?Q?Am=E9rico_Wang?= <xiyou.wangcong@gmail.com>
-Cc: Nick Piggin <npiggin@suse.de>, Xen-devel <xen-devel@lists.xensource.com>, Peter Zijlstra <peterz@infradead.org>, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Jan Beulich <JBeulich@novell.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, Avi Kivity <avi@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <xen-devel-bounces@lists.xensource.com>
+In-Reply-To: <20101113084439.d21bd0f0.randy.dunlap@oracle.com>
+List-Unsubscribe: <http://lists.xensource.com/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
+List-Post: <mailto:xen-devel@lists.xensource.com>
+List-Help: <mailto:xen-devel-request@lists.xensource.com?subject=help>
+List-Subscribe: <http://lists.xensource.com/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
+Sender: xen-devel-bounces@lists.xensource.com
+Errors-To: xen-devel-bounces@lists.xensource.com
+To: Randy Dunlap <randy.dunlap@oracle.com>
+Cc: Stephen Rothwell <sfr@canb.auug.org.au>, "xen-devel@lists.xensource.com" <xen-devel@lists.xensource.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Tony Finch <dot@dotat.at>, LKML <linux-kernel@vger.kernel.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, "linux-next@vger.kernel.org" <linux-next@vger.kernel.org>, akpm <akpm@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 11/13/2010 11:05 AM, Am=E9rico Wang wrote:
-> On Wed, Nov 03, 2010 at 10:59:44AM -0400, Jeremy Fitzhardinge wrote:
->>   * On PPro SMP or if we are using OOSTORE, we use a locked operation to=
- unlock
->>   * (PPro errata 66, 92)
->>   */
->> -# define UNLOCK_LOCK_PREFIX LOCK_PREFIX
->> +static __always_inline void __ticket_unlock_release(struct arch_spinloc=
-k *lock)
->> +{
->> +	if (sizeof(lock->tickets.head) =3D=3D sizeof(u8))
->> +		asm (LOCK_PREFIX "incb %0"
->> +		     : "+m" (lock->tickets.head) : : "memory");
->> +	else
->> +		asm (LOCK_PREFIX "incw %0"
->> +		     : "+m" (lock->tickets.head) : : "memory");
+On 11/13/2010 08:44 AM, Randy Dunlap wrote:
+> From: Randy Dunlap <randy.dunlap@oracle.com>
 >
-> This 'if/else' really should be done with #ifdef, even though
-> the compiler may be smart enough to remove it.
+> scripts/headers_install.pl prevents "__user" from being exported
+> to userspace headers, so just use compiler.h to make sure that
+> __user is defined and avoid the error.
+>
+> unifdef: linux-next-20101112/xx64/usr/include/xen/privcmd.h.tmp: 79: Premature EOF (#if line 33 depth 1)
 
-That's a sure path to bitrot.
+Ah, OK, thanks.  I was wondering what the proper fix for this was.  I'll
+stick this in my tree.
 
-Paolo
+Thanks,
+    J
+
+> Signed-off-by: Randy Dunlap <randy.dunlap@oracle.com>
+> Cc:	Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>
+> Cc:	Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+> Cc:	xen-devel@lists.xensource.com (moderated for non-subscribers)
+> Cc:	virtualization@lists.osdl.org
+> Cc:	Tony Finch <dot@dotat.at>
+> ---
+>  include/xen/privcmd.h |    5 +----
+>  1 file changed, 1 insertion(+), 4 deletions(-)
+>
+> --- linux-next-20101112.orig/include/xen/privcmd.h
+> +++ linux-next-20101112/include/xen/privcmd.h
+> @@ -34,13 +34,10 @@
+>  #define __LINUX_PUBLIC_PRIVCMD_H__
+>  
+>  #include <linux/types.h>
+> +#include <linux/compiler.h>
+>  
+>  typedef unsigned long xen_pfn_t;
+>  
+> -#ifndef __user
+> -#define __user
+> -#endif
+> -
+>  struct privcmd_hypercall {
+>  	__u64 op;
+>  	__u64 arg[5];
