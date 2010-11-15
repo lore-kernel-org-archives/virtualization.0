@@ -1,16 +1,15 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [PATCH 06/20] x86/ticketlock: make __ticket_spin_trylock common
-Date: Mon, 15 Nov 2010 11:39:03 -0800
-Message-ID: <4CE18C57.9070805__7578.39081711626$1289850315$gmane$org@goop.org>
-References: <cover.1288794124.git.jeremy.fitzhardinge@citrix.com>	
-	<4cea7b0804de5a2c1249034fc5c4840ade043ff4.1288794124.git.jeremy.fitzhardinge@citrix.com>	
-	<20101113101732.GH3837@hack>
-	<1289645321.2743.21.camel@edumazet-laptop>
+Subject: Re: [PATCH 00/20] x86: ticket lock rewrite and paravirtualization
+Date: Mon, 15 Nov 2010 12:00:31 -0800
+Message-ID: <4CE1915F.60507__33513.0062689588$1289851272$gmane$org@goop.org>
+References: <cover.1288794124.git.jeremy.fitzhardinge@citrix.com>
+	<4CDDBBD3.5050903@zytor.com> <4CDDBCE4.80906@goop.org>
+	<4CDDBDB5.8000800@zytor.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1289645321.2743.21.camel@edumazet-laptop>
+In-Reply-To: <4CDDBDB5.8000800@zytor.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,25 +19,60 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Eric Dumazet <eric.dumazet@gmail.com>
-Cc: Nick Piggin <npiggin@suse.de>, Xen-devel <xen-devel@lists.xensource.com>, Peter Zijlstra <peterz@infradead.org>, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Jan Beulich <JBeulich@novell.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, Avi Kivity <avi@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, =?UTF-8?B?QW3DqXJpY28gV2FuZw==?= <xiyou.wangcong@gmail.com>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Xen-devel <xen-devel@lists.xensource.com>, Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>, Peter Zijlstra <peterz@infradead.org>, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Jan Beulich <JBeulich@novell.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Avi Kivity <avi@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gMTEvMTMvMjAxMCAwMjo0OCBBTSwgRXJpYyBEdW1hemV0IHdyb3RlOgo+IExlIHNhbWVkaSAx
-MyBub3ZlbWJyZSAyMDEwIMOgIDE4OjE3ICswODAwLCBBbcOpcmljbyBXYW5nIGEgw6ljcml0IDoK
-Pj4gT24gV2VkLCBOb3YgMDMsIDIwMTAgYXQgMTA6NTk6NDdBTSAtMDQwMCwgSmVyZW15IEZpdHpo
-YXJkaW5nZSB3cm90ZToKPj4KPj4+ICsJdW5pb24gewo+Pj4gKwkJc3RydWN0IF9fcmF3X3RpY2tl
-dHMgdGlja2V0czsKPj4+ICsJCV9fdGlja2V0cGFpcl90IHNsb2NrOwo+Pj4gKwl9IHRtcCwgbmV3
-Owo+Pj4gKwlpbnQgcmV0Owo+Pj4gKwo+Pj4gKwl0bXAudGlja2V0cyA9IEFDQ0VTU19PTkNFKGxv
-Y2stPnRpY2tldHMpOwo+Pj4gKwlpZiAodG1wLnRpY2tldHMuaGVhZCAhPSB0bXAudGlja2V0cy50
-YWlsKQo+Pj4gKwkJcmV0dXJuIDA7Cj4+PiArCj4+PiArCW5ldy5zbG9jayA9IHRtcC5zbG9jayAr
-ICgxIDw8IFRJQ0tFVF9TSElGVCk7Cj4+PiArCj4+PiArCXJldCA9IGNtcHhjaGcoJmxvY2stPnRp
-Y2tldHBhaXIsIHRtcC5zbG9jaywgbmV3LnNsb2NrKSA9PSB0bXAuc2xvY2s7Cj4+PiArCWJhcnJp
-ZXIoKTsJCS8qIGp1c3QgbWFrZSBub3RoaW5nIGNyZWVwcyBiZWZvcmUgbG9jayBpcyBjbGFpbWVk
-ICovCj4+IFRoaXMgb25lIHNob3VsZCBiZSBzbXBfd21iKCksIHJpZ2h0PyBObyBDT05GSUdfWDg2
-X09PU1RPUkUgcHJvdGVjdGVkLgo+IGNtcHhjaGcoKSBpcyBhIGZ1bGwgbWVtb3J5IGJhcnJpZXIs
-IG5vIG5lZWQgZm9yIHNtcF93bWIoKSBvciBiYXJyaWVyKCkKCkFncmVlZC4KCiAgICBKCl9fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9u
-IG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpo
-dHRwczovL2xpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVh
-bGl6YXRpb24=
+On 11/12/2010 02:20 PM, H. Peter Anvin wrote:
+> On 11/12/2010 02:17 PM, Jeremy Fitzhardinge wrote:
+>> On 11/12/2010 02:12 PM, H. Peter Anvin wrote:
+>>> On 11/03/2010 07:59 AM, Jeremy Fitzhardinge wrote:
+>>>>       - with an unmodified struct spinlock, it can check to see if
+>>>>         head == tail after unlock; if not, then there's someone else
+>>>>         trying to lock, and we can do a kick.  Unfortunately this
+>>>>         generates very high level of redundant kicks, because the
+>>>>         waiting CPU might not have blocked yet (which is the common
+>>>>         case)
+>>>>
+>>> How high is "very high" here -- most of the time (so that any mitigation
+>>> on the slow patch is useless)?
+>> I'll need to remeasure, but I think around 90% of the slowpath entries
+>> were spurious without this.  In other words, when spinlocks do contend,
+>> most of the time it isn't very serious and the other cpu doesn't spend
+>> much time spinning.
+>>
+> 90% of the slowpath entries is one thing, my real question is the
+> fraction of fastpath entries that get diverted to the slowpath.  It
+> affects where mitigation needs to happen.
+
+There are two questions: how many unlock events *must* go into the
+slowpath for correctness reasons (ie, because the corresponding lock
+also went slowpath and got blocked there), and how many end up going
+into the slowpath due to imperfect heuristics?
+
+The number of lock events which go slowpath is very dependent on the
+workload of the kernel in question and of the machine overall.  On a
+system with no CPU overcommit it should be zero (assuming that in the
+native case no Linux spinlock remains contended for so long that it will
+trigger the slowpath).  On a very overcommitted system, it comes down to
+what the likelihood that a VCPU will get preempted while running in a
+critical region: Tcrit * Phz, where Tcrit is the critical section time
+in S and Phz is the preemption rate of the VCPU scheduler in Hz.  So,
+for example, a lock with a 10uS critical section and a 100Hz preemption
+rate will have a .1% chance of getting preempted and possibly causing
+the other lockers to enter the slow path.
+
+On the unlock side, it needs to test whether lock has any waiters in a
+slowpath state.  A conservative test is whether there are any
+outstanding tickets, but in my measurements 90% of CPUs which spun on a
+lock ended up getting it without having to take the slowpath.  This lead
+me to investigate more precise tests, which is currently a count of
+slowpath-entering CPUs waiting on the lock.
+
+Another approach I discussed with PeterZ and Mathieu is to steal the LSB
+of the ticket counters (halving the max CPU count) to use as a "there is
+someone in slowpath waiting on this lock".  But I haven't spent the time
+to work out an algorithm to maintain that flag (or flags, since there
+are bits available) in a correct and efficient way.
+
+    J
