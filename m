@@ -1,65 +1,74 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [PATCH -next] xen: fix header export to userspace
-Date: Mon, 15 Nov 2010 10:15:43 -0800
-Message-ID: <4CE178CF.3020308@goop.org>
-References: <20101112130547.c2a3c2c1.sfr@canb.auug.org.au>
-	<20101113084439.d21bd0f0.randy.dunlap@oracle.com>
+Subject: Re: [PATCH 01/20] x86/ticketlock: clean up types and accessors
+Date: Mon, 15 Nov 2010 11:36:54 -0800
+Message-ID: <4CE18BD6.40809__1036.01712403378$1289849951$gmane$org@goop.org>
+References: <cover.1288794124.git.jeremy.fitzhardinge@citrix.com>
+	<742be99eb6d64784dbc3e446d22df78b7a55fc0c.1288794124.git.jeremy.fitzhardinge@citrix.com>
+	<20101113095732.GF3837@hack>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <xen-devel-bounces@lists.xensource.com>
-In-Reply-To: <20101113084439.d21bd0f0.randy.dunlap@oracle.com>
-List-Unsubscribe: <http://lists.xensource.com/mailman/listinfo/xen-devel>,
-	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
-List-Post: <mailto:xen-devel@lists.xensource.com>
-List-Help: <mailto:xen-devel-request@lists.xensource.com?subject=help>
-List-Subscribe: <http://lists.xensource.com/mailman/listinfo/xen-devel>,
-	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
-Sender: xen-devel-bounces@lists.xensource.com
-Errors-To: xen-devel-bounces@lists.xensource.com
-To: Randy Dunlap <randy.dunlap@oracle.com>
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>, "xen-devel@lists.xensource.com" <xen-devel@lists.xensource.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Tony Finch <dot@dotat.at>, LKML <linux-kernel@vger.kernel.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, "linux-next@vger.kernel.org" <linux-next@vger.kernel.org>, akpm <akpm@linux-foundation.org>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20101113095732.GF3837@hack>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: =?ISO-8859-1?Q?Am=E9rico_Wang?= <xiyou.wangcong@gmail.com>
+Cc: Xen-devel <xen-devel@lists.xensource.com>, Peter Zijlstra <peterz@infradead.org>, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Jan Beulich <JBeulich@novell.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, Avi Kivity <avi@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 11/13/2010 08:44 AM, Randy Dunlap wrote:
-> From: Randy Dunlap <randy.dunlap@oracle.com>
->
-> scripts/headers_install.pl prevents "__user" from being exported
-> to userspace headers, so just use compiler.h to make sure that
-> __user is defined and avoid the error.
->
-> unifdef: linux-next-20101112/xx64/usr/include/xen/privcmd.h.tmp: 79: Premature EOF (#if line 33 depth 1)
+On 11/13/2010 01:57 AM, Am=E9rico Wang wrote:
+> On Wed, Nov 03, 2010 at 10:59:42AM -0400, Jeremy Fitzhardinge wrote:
+> ...
+>> static __always_inline void __ticket_spin_lock(arch_spinlock_t *lock)
+>> {
+>> -	int inc =3D 0x00010000;
+>> -	int tmp;
+>> +	unsigned inc =3D 1 << TICKET_SHIFT;
+>> +	unsigned tmp;
+> Please don't use old implicit-int.
 
-Ah, OK, thanks.  I was wondering what the proper fix for this was.  I'll
-stick this in my tree.
+I don't mind much either way, but I don't think I've seen anyone worry
+about this before.
 
-Thanks,
+>> -	return (((tmp >> TICKET_SHIFT) - tmp) & ((1 << TICKET_SHIFT) - 1)) > 1;
+>> +	return ((tmp.tail - tmp.head) & TICKET_MASK) > 1;
+>
+> There is a type promotion here.
+
+...
+
+>> }
+>>
+>> #ifndef CONFIG_PARAVIRT_SPINLOCKS
+>> diff --git a/arch/x86/include/asm/spinlock_types.h b/arch/x86/include/as=
+m/spinlock_types.h
+>> index dcb48b2..4582640 100644
+>> --- a/arch/x86/include/asm/spinlock_types.h
+>> +++ b/arch/x86/include/asm/spinlock_types.h
+>> @@ -5,11 +5,27 @@
+>> # error "please don't include this file directly"
+>> #endif
+>>
+>> +#include <linux/types.h>
+>> +
+>> +#if (CONFIG_NR_CPUS < 256)
+>> +typedef u8  __ticket_t;
+>> +#else
+>> +typedef u16 __ticket_t;
+>> +#endif
+>> +
+>> +#define TICKET_SHIFT	(sizeof(__ticket_t) * 8)
+>> +#define TICKET_MASK	((1 << TICKET_SHIFT) - 1)
+>
+> So here you may need to cast the result to __ticket_t.
+
+OK.
+
     J
-
-> Signed-off-by: Randy Dunlap <randy.dunlap@oracle.com>
-> Cc:	Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>
-> Cc:	Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-> Cc:	xen-devel@lists.xensource.com (moderated for non-subscribers)
-> Cc:	virtualization@lists.osdl.org
-> Cc:	Tony Finch <dot@dotat.at>
-> ---
->  include/xen/privcmd.h |    5 +----
->  1 file changed, 1 insertion(+), 4 deletions(-)
->
-> --- linux-next-20101112.orig/include/xen/privcmd.h
-> +++ linux-next-20101112/include/xen/privcmd.h
-> @@ -34,13 +34,10 @@
->  #define __LINUX_PUBLIC_PRIVCMD_H__
->  
->  #include <linux/types.h>
-> +#include <linux/compiler.h>
->  
->  typedef unsigned long xen_pfn_t;
->  
-> -#ifndef __user
-> -#define __user
-> -#endif
-> -
->  struct privcmd_hypercall {
->  	__u64 op;
->  	__u64 arg[5];
