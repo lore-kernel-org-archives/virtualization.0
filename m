@@ -1,8 +1,7 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [PATCH 12/14] x86/ticketlocks: when paravirtualizing ticket locks,
-	increment by 2
-Date: Tue, 16 Nov 2010 13:08:43 -0800
-Message-ID: <75f11d2bdabf99a17811e8b352595d69d19be3db.1289940821.git.jeremy.fitzhardinge__9719.34799240462$1289944557$gmane$org@citrix.com>
+Subject: [PATCH 10/14] x86/pvticketlock: use callee-save for lock_spinning
+Date: Tue, 16 Nov 2010 13:08:41 -0800
+Message-ID: <598aba88fd8411b063884264e1521e8e64b3cb15.1289940821.git.jeremy.fitzhardinge__47235.2506164045$1289944572$gmane$org@citrix.com>
 References: <cover.1289940821.git.jeremy.fitzhardinge@citrix.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -26,109 +25,80 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>
 
-Increment ticket head/tails by 2 rather than 1 to leave the LSB free
-to store a "is in slowpath state" bit.  This halves the number
-of possible CPUs for a given ticket size, but this shouldn't matter
-in practice - kernels built for 32k+ CPU systems are probably
-specially built for the hardware rather than a generic distro
-kernel.
+Although the lock_spinning calls in the spinlock code are on the
+uncommon path, their presence can cause the compiler to generate many
+more register save/restores in the function pre/postamble, which is in
+the fast path.  To avoid this, convert it to using the pvops callee-save
+calling convention, which defers all the save/restores until the actual
+function is called, keeping the fastpath clean.
 
 Signed-off-by: Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>
 ---
- arch/x86/include/asm/spinlock.h       |   18 +++++++++---------
- arch/x86/include/asm/spinlock_types.h |   10 +++++++++-
- 2 files changed, 18 insertions(+), 10 deletions(-)
+ arch/x86/include/asm/paravirt.h       |    2 +-
+ arch/x86/include/asm/paravirt_types.h |    2 +-
+ arch/x86/kernel/paravirt-spinlocks.c  |    2 +-
+ arch/x86/xen/spinlock.c               |    3 ++-
+ 4 files changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/arch/x86/include/asm/spinlock.h b/arch/x86/include/asm/spinlock.h
-index cfa80b5..9e1c7ce 100644
---- a/arch/x86/include/asm/spinlock.h
-+++ b/arch/x86/include/asm/spinlock.h
-@@ -36,17 +36,17 @@
- static __always_inline void __ticket_unlock_release(struct arch_spinlock *lock)
- {
- 	if (sizeof(lock->tickets.head) == sizeof(u8))
--		asm (LOCK_PREFIX "incb %0"
--		     : "+m" (lock->tickets.head) : : "memory");
-+		asm (LOCK_PREFIX "addb %1, %0"
-+		     : "+m" (lock->tickets.head) : "i" (TICKET_LOCK_INC) : "memory");
- 	else
--		asm (LOCK_PREFIX "incw %0"
--		     : "+m" (lock->tickets.head) : : "memory");
-+		asm (LOCK_PREFIX "addw %1, %0"
-+		     : "+m" (lock->tickets.head) : "i" (TICKET_LOCK_INC) : "memory");
+diff --git a/arch/x86/include/asm/paravirt.h b/arch/x86/include/asm/paravirt.h
+index c864775..6f275ca 100644
+--- a/arch/x86/include/asm/paravirt.h
++++ b/arch/x86/include/asm/paravirt.h
+@@ -719,7 +719,7 @@ static inline void __set_fixmap(unsigned /* enum fixed_addresses */ idx,
  
- }
- #else
- static __always_inline void __ticket_unlock_release(struct arch_spinlock *lock)
+ static inline void __ticket_lock_spinning(struct arch_spinlock *lock, unsigned ticket)
  {
--	lock->tickets.head++;
-+	lock->tickets.head += TICKET_LOCK_INC;
+-	PVOP_VCALL2(pv_lock_ops.lock_spinning, lock, ticket);
++	PVOP_VCALLEE2(pv_lock_ops.lock_spinning, lock, ticket);
  }
+ 
+ static inline void ____ticket_unlock_kick(struct arch_spinlock *lock, unsigned ticket)
+diff --git a/arch/x86/include/asm/paravirt_types.h b/arch/x86/include/asm/paravirt_types.h
+index 1078474..53f249a 100644
+--- a/arch/x86/include/asm/paravirt_types.h
++++ b/arch/x86/include/asm/paravirt_types.h
+@@ -315,7 +315,7 @@ struct pv_mmu_ops {
+ 
+ struct arch_spinlock;
+ struct pv_lock_ops {
+-	void (*lock_spinning)(struct arch_spinlock *lock, unsigned ticket);
++	struct paravirt_callee_save lock_spinning;
+ 	void (*unlock_kick)(struct arch_spinlock *lock, unsigned ticket);
+ };
+ 
+diff --git a/arch/x86/kernel/paravirt-spinlocks.c b/arch/x86/kernel/paravirt-spinlocks.c
+index c2e010e..4251c1d 100644
+--- a/arch/x86/kernel/paravirt-spinlocks.c
++++ b/arch/x86/kernel/paravirt-spinlocks.c
+@@ -9,7 +9,7 @@
+ 
+ struct pv_lock_ops pv_lock_ops = {
+ #ifdef CONFIG_SMP
+-	.lock_spinning = paravirt_nop,
++	.lock_spinning = __PV_IS_CALLEE_SAVE(paravirt_nop),
+ 	.unlock_kick = paravirt_nop,
  #endif
- 
-@@ -84,7 +84,7 @@ static __always_inline void ____ticket_unlock_kick(struct arch_spinlock *lock, u
-  */
- static __always_inline struct __raw_tickets __ticket_spin_claim(struct arch_spinlock *lock)
- {
--	register struct __raw_tickets tickets = { .tail = 1 };
-+	register struct __raw_tickets tickets = { .tail = TICKET_LOCK_INC };
- 
- 	if (sizeof(lock->tickets.head) == sizeof(u8))
- 		asm volatile (LOCK_PREFIX "xaddw %w0, %1\n"
-@@ -136,7 +136,7 @@ static __always_inline int arch_spin_trylock(arch_spinlock_t *lock)
- 	if (old.tickets.head != old.tickets.tail)
- 		return 0;
- 
--	new.head_tail = old.head_tail + (1 << TICKET_SHIFT);
-+	new.head_tail = old.head_tail + (TICKET_LOCK_INC << TICKET_SHIFT);
- 
- 	/* cmpxchg is a full barrier, so nothing can move before it */
- 	return cmpxchg(&lock->head_tail, old.head_tail, new.head_tail) == old.head_tail;
-@@ -144,7 +144,7 @@ static __always_inline int arch_spin_trylock(arch_spinlock_t *lock)
- 
- static __always_inline void arch_spin_unlock(arch_spinlock_t *lock)
- {
--	__ticket_t next = lock->tickets.head + 1;
-+	__ticket_t next = lock->tickets.head + TICKET_LOCK_INC;
- 	__ticket_unlock_release(lock);
- 	__ticket_unlock_kick(lock, next);
- 	barrier();		/* prevent reordering into locked region */
-@@ -161,7 +161,7 @@ static inline int arch_spin_is_contended(arch_spinlock_t *lock)
- {
- 	struct __raw_tickets tmp = ACCESS_ONCE(lock->tickets);
- 
--	return ((tmp.tail - tmp.head) & TICKET_MASK) > 1;
-+	return ((tmp.tail - tmp.head) & TICKET_MASK) > TICKET_LOCK_INC;
+ };
+diff --git a/arch/x86/xen/spinlock.c b/arch/x86/xen/spinlock.c
+index 5feb897..c31c5a3 100644
+--- a/arch/x86/xen/spinlock.c
++++ b/arch/x86/xen/spinlock.c
+@@ -137,6 +137,7 @@ out:
+ 	w->lock = NULL;
+ 	spin_time_accum_blocked(start);
  }
- #define arch_spin_is_contended	arch_spin_is_contended
++PV_CALLEE_SAVE_REGS_THUNK(xen_lock_spinning);
  
-diff --git a/arch/x86/include/asm/spinlock_types.h b/arch/x86/include/asm/spinlock_types.h
-index 72e154e..0553c0b 100644
---- a/arch/x86/include/asm/spinlock_types.h
-+++ b/arch/x86/include/asm/spinlock_types.h
-@@ -7,7 +7,13 @@
+ static void xen_unlock_kick(struct arch_spinlock *lock, unsigned next)
+ {
+@@ -189,7 +190,7 @@ void xen_uninit_lock_cpu(int cpu)
  
- #include <linux/types.h>
- 
--#if (CONFIG_NR_CPUS < 256)
-+#ifdef CONFIG_PARAVIRT_SPINLOCKS
-+#define __TICKET_LOCK_INC	2
-+#else
-+#define __TICKET_LOCK_INC	1
-+#endif
-+
-+#if (CONFIG_NR_CPUS < (256 / __TICKET_LOCK_INC))
- typedef u8  __ticket_t;
- typedef u16 __ticketpair_t;
- #else
-@@ -15,6 +21,8 @@ typedef u16 __ticket_t;
- typedef u32 __ticketpair_t;
- #endif
- 
-+#define TICKET_LOCK_INC	((__ticket_t)__TICKET_LOCK_INC)
-+
- #define TICKET_SHIFT	(sizeof(__ticket_t) * 8)
- #define TICKET_MASK	((__ticket_t)((1 << TICKET_SHIFT) - 1))
+ void __init xen_init_spinlocks(void)
+ {
+-	pv_lock_ops.lock_spinning = xen_lock_spinning;
++	pv_lock_ops.lock_spinning = PV_CALLEE_SAVE(xen_lock_spinning);
+ 	pv_lock_ops.unlock_kick = xen_unlock_kick;
+ }
  
 -- 
 1.7.2.3
