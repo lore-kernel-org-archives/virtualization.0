@@ -1,8 +1,7 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [PATCH 11/14] x86/ticketlock: don't inline _spin_unlock when using
-	paravirt spinlocks
-Date: Tue, 16 Nov 2010 13:08:42 -0800
-Message-ID: <29b74fea105eb37bd80d5fd1ccfa8514c8b09ee7.1289940821.git.jeremy.fitzhardinge__6784.31998608193$1289943968$gmane$org@citrix.com>
+Subject: [PATCH 06/14] x86/ticketlock: make __ticket_spin_trylock common
+Date: Tue, 16 Nov 2010 13:08:37 -0800
+Message-ID: <731eebc252279f51d331f05f353c5ca03bcd99ca.1289940821.git.jeremy.fitzhardinge__31380.6878556081$1289944094$gmane$org@citrix.com>
 References: <cover.1289940821.git.jeremy.fitzhardinge@citrix.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -26,41 +25,108 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>
 
-The code size expands somewhat, and its probably better to just call
-a function rather than inline it.
+Make trylock code common regardless of ticket size.
 
 Signed-off-by: Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>
 ---
- arch/x86/Kconfig     |    3 +++
- kernel/Kconfig.locks |    2 +-
- 2 files changed, 4 insertions(+), 1 deletions(-)
+ arch/x86/include/asm/spinlock.h       |   49 +++++++--------------------------
+ arch/x86/include/asm/spinlock_types.h |    6 +++-
+ 2 files changed, 14 insertions(+), 41 deletions(-)
 
-diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
-index e832768..a615c9c 100644
---- a/arch/x86/Kconfig
-+++ b/arch/x86/Kconfig
-@@ -531,6 +531,9 @@ config PARAVIRT_SPINLOCKS
+diff --git a/arch/x86/include/asm/spinlock.h b/arch/x86/include/asm/spinlock.h
+index f722f96..3afb1a7 100644
+--- a/arch/x86/include/asm/spinlock.h
++++ b/arch/x86/include/asm/spinlock.h
+@@ -98,48 +98,19 @@ static __always_inline void __ticket_spin_lock(struct arch_spinlock *lock)
+ out:	barrier();		/* make sure nothing creeps before the lock is taken */
+ }
  
- 	  If you are unsure how to answer this question, answer N.
- 
-+config ARCH_NOINLINE_SPIN_UNLOCK
-+       def_bool PARAVIRT_SPINLOCKS
+-#if (NR_CPUS < 256)
+ static __always_inline int __ticket_spin_trylock(arch_spinlock_t *lock)
+ {
+-	unsigned int tmp, new;
+-
+-	asm volatile("movzwl %2, %0\n\t"
+-		     "cmpb %h0,%b0\n\t"
+-		     "leal 0x100(%" REG_PTR_MODE "0), %1\n\t"
+-		     "jne 1f\n\t"
+-		     LOCK_PREFIX "cmpxchgw %w1,%2\n\t"
+-		     "1:"
+-		     "sete %b1\n\t"
+-		     "movzbl %b1,%0\n\t"
+-		     : "=&a" (tmp), "=&q" (new), "+m" (lock->slock)
+-		     :
+-		     : "memory", "cc");
+-
+-	return tmp;
+-}
+-#else
+-static __always_inline int __ticket_spin_trylock(arch_spinlock_t *lock)
+-{
+-	unsigned tmp;
+-	unsigned new;
+-
+-	asm volatile("movl %2,%0\n\t"
+-		     "movl %0,%1\n\t"
+-		     "roll $16, %0\n\t"
+-		     "cmpl %0,%1\n\t"
+-		     "leal 0x00010000(%" REG_PTR_MODE "0), %1\n\t"
+-		     "jne 1f\n\t"
+-		     LOCK_PREFIX "cmpxchgl %1,%2\n\t"
+-		     "1:"
+-		     "sete %b1\n\t"
+-		     "movzbl %b1,%0\n\t"
+-		     : "=&a" (tmp), "=&q" (new), "+m" (lock->slock)
+-		     :
+-		     : "memory", "cc");
+-
+-	return tmp;
++	arch_spinlock_t old, new;
 +
- config PARAVIRT_CLOCK
- 	bool
++	old.tickets = ACCESS_ONCE(lock->tickets);
++	if (old.tickets.head != old.tickets.tail)
++		return 0;
++
++	new.head_tail = old.head_tail + (1 << TICKET_SHIFT);
++
++	/* cmpxchg is a full barrier, so nothing can move before it */
++	return cmpxchg(&lock->head_tail, old.head_tail, new.head_tail) == old.head_tail;
+ }
+-#endif
  
-diff --git a/kernel/Kconfig.locks b/kernel/Kconfig.locks
-index 88c92fb..3216c22 100644
---- a/kernel/Kconfig.locks
-+++ b/kernel/Kconfig.locks
-@@ -125,7 +125,7 @@ config INLINE_SPIN_LOCK_IRQSAVE
- 		 ARCH_INLINE_SPIN_LOCK_IRQSAVE
+ static __always_inline void __ticket_spin_unlock(arch_spinlock_t *lock)
+ {
+diff --git a/arch/x86/include/asm/spinlock_types.h b/arch/x86/include/asm/spinlock_types.h
+index e3ad1e3..72e154e 100644
+--- a/arch/x86/include/asm/spinlock_types.h
++++ b/arch/x86/include/asm/spinlock_types.h
+@@ -9,8 +9,10 @@
  
- config INLINE_SPIN_UNLOCK
--	def_bool !DEBUG_SPINLOCK && (!PREEMPT || ARCH_INLINE_SPIN_UNLOCK)
-+	def_bool !DEBUG_SPINLOCK && (!PREEMPT || ARCH_INLINE_SPIN_UNLOCK) && !ARCH_NOINLINE_SPIN_UNLOCK
+ #if (CONFIG_NR_CPUS < 256)
+ typedef u8  __ticket_t;
++typedef u16 __ticketpair_t;
+ #else
+ typedef u16 __ticket_t;
++typedef u32 __ticketpair_t;
+ #endif
  
- config INLINE_SPIN_UNLOCK_BH
- 	def_bool !DEBUG_SPINLOCK && ARCH_INLINE_SPIN_UNLOCK_BH
+ #define TICKET_SHIFT	(sizeof(__ticket_t) * 8)
+@@ -18,14 +20,14 @@ typedef u16 __ticket_t;
+ 
+ typedef struct arch_spinlock {
+ 	union {
+-		unsigned int slock;
++		__ticketpair_t head_tail;
+ 		struct __raw_tickets {
+ 			__ticket_t head, tail;
+ 		} tickets;
+ 	};
+ } arch_spinlock_t;
+ 
+-#define __ARCH_SPIN_LOCK_UNLOCKED	{ { .slock = 0 } }
++#define __ARCH_SPIN_LOCK_UNLOCKED	{ { 0 } }
+ 
+ typedef struct {
+ 	unsigned int lock;
 -- 
 1.7.2.3
