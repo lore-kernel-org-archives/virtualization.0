@@ -1,14 +1,18 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [Xen-devel] Re: [PATCH 13/14] x86/ticketlock: add slowpath logic
-Date: Wed, 17 Nov 2010 07:25:33 -0800
-Message-ID: <4CE3F3ED.2060501__41840.5784447261$1290007668$gmane$org@goop.org>
-References: <cover.1289940821.git.jeremy.fitzhardinge@citrix.com>	<97ed99ae9160bdb6477284b333bd6708fb7a19cb.1289940821.git.jeremy.fitzhardinge@citrix.com>
-	<1289996503.2109.728.camel@laptop>
+Subject: Re: [Xen-devel] Re: [PATCH 09/14] xen/pvticketlock: Xen	
+	implementation for PV ticket locks
+Date: Wed, 17 Nov 2010 09:41:07 -0800
+Message-ID: <4CE413B3.3010207__17385.375701315$1290015808$gmane$org@goop.org>
+References: <cover.1289940821.git.jeremy.fitzhardinge@citrix.com><cover.1289940821.git.jeremy.fitzhardinge@citrix.com>
+	<aa32da076143b8e13c23c1f589d7e6cbedb22907.1289940821.git.jeremy.fitzhardinge@citrix.com>
+	<4CE39C3C0200007800022AE2@vpn.id2.novell.com>
+	<4CE397E7.2010107@goop.org> <4CE3A714.9010509@goop.org>
+	<4CE3BDCF0200007800022BF1@vpn.id2.novell.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1289996503.2109.728.camel@laptop>
+In-Reply-To: <4CE3BDCF0200007800022BF1@vpn.id2.novell.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,39 +22,46 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Peter Zijlstra <peterz@infradead.org>
-Cc: Xen-devel <xen-devel@lists.xensource.com>, Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>, Nick Piggin <npiggin@kernel.dk>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Jan Beulich <JBeulich@novell.com>, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, Avi Kivity <avi@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, =?UTF-8?B?QW3DqXJpY28gV2FuZw==?= <xiyou.wangcong@gmail.com>, Eric Dumazet <dada1@cosmosbay.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>
+To: Jan Beulich <JBeulich@novell.com>
+Cc: Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>, Nick Piggin <npiggin@kernel.dk>, Peter Zijlstra <peterz@infradead.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, Eric Dumazet <dada1@cosmosbay.com>, Xen-devel <xen-devel@lists.xensource.com>, Avi Kivity <avi@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, xiyou.wangcong@gmail.com, Linux Virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 11/17/2010 04:21 AM, Peter Zijlstra wrote:
-> On Tue, 2010-11-16 at 13:08 -0800, Jeremy Fitzhardinge wrote:
->> Maintain a flag in both LSBs of the ticket lock which indicates whether
->> anyone is in the lock slowpath and may need kicking when the current
->> holder unlocks.  The flags are set when the first locker enters
->> the slowpath, and cleared when unlocking to an empty queue.
-> So here you say you set both LSBs in order to keep head == tail working,
-> but the code seems to suggest you only use the tail LSB.
->
-> I think I see why using only one LSB is sufficient, but some consistency
-> would be nice :-)
+On 11/17/2010 02:34 AM, Jan Beulich wrote:
+>> Actually, on second thoughts, maybe it doesn't matter so much.  The main
+>> issue is making sure that the interrupt will make the VCPU drop out of
+>> xen_poll_irq() - if it happens before xen_poll_irq(), it should leave
+>> the event pending, which will cause the poll to return immediately.  I
+>> hope.  Certainly disabling interrupts for some of the function will make
+>> it easier to analyze with respect to interrupt nesting.
+> That's not my main concern. Instead, what if you get interrupted
+> anywhere here, the interrupt handler tries to acquire another
+> spinlock and also has to go into the slow path? It'll overwrite part
+> or all of the outer context's state.
 
-I tried that initially, but it turned out more messy.  The problem is
-that the flag can change while you're spinning on the lock, so you need
-to mask it out every time you read tail before you can compare it to
-head; if head has the flag set too, you just need to mask it out of
-there as well:
+That doesn't matter if the outer context doesn't end up blocking.  If it
+has already blocked then it will unblock as a result of the interrupt;
+if it hasn't yet blocked, then the inner context will leave the event
+pending and cause it to not block.  Either way, it no longer uses or
+needs that per-cpu state: it will return to the spin loop and (maybe)
+get re-entered, setting it all up again.
 
-	ticket = xadd(lock, 2 << TICKET_SHIFT);
-	ticket.tail &= ~TICKET_SLOW_FLAGS;
+I think there is a problem with the code as posted because it sets up
+the percpu data before clearing the pending event, so it can end up
+blocking with bad percpu data.
 
-	while (ticket.head != ticket.tail) {
-		relax();
-		ticket.head = lock->head /* & ~TICKET_SLOW_FLAGS */;
-	}
+>> Another issue may be making sure the writes and reads of "w->want" and
+>> "w->lock" are ordered properly to make sure that xen_unlock_kick() never
+>> sees an inconsistent view of the (lock,want) tuple.  The risk being that
+>> xen_unlock_kick() sees a random, spurious (lock,want) pairing and sends
+>> the kick event to the wrong VCPU, leaving the deserving one hung.
+> Yes, proper operation sequence (and barriers) is certainly
+> required here. If you allowed nesting, this may even become
+> simpler (as you'd have a single write making visible the new
+> "head" pointer, after having written all relevant fields of the
+> new "head" structure).
 
-IOW setting both doesn't help anything, and just requires an extra mask
-in the spin loop (and anywhere else that uses 'head').
-
-And hey, extra bit.  Bound to be useful for something.
+Yes, simple nesting should be quite straightforward (ie allowing an
+interrupt handler to take some other lock than the one the outer context
+is waiting on).
 
     J
