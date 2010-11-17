@@ -1,13 +1,16 @@
 From: Avi Kivity <avi@redhat.com>
-Subject: Re: [PATCH 00/14] PV ticket locks without expanding spinlock
-Date: Wed, 17 Nov 2010 10:56:29 +0200
-Message-ID: <4CE398BD.7080708__40128.793687518$1289984283$gmane$org@redhat.com>
-References: <cover.1289940821.git.jeremy.fitzhardinge@citrix.com>
+Subject: Re: [PATCH 13/14] x86/ticketlock: add slowpath logic
+Date: Wed, 17 Nov 2010 10:58:22 +0200
+Message-ID: <4CE3992E.2070406@redhat.com>
+References: <cover.1289940821.git.jeremy.fitzhardinge@citrix.com><cover.1289940821.git.jeremy.fitzhardinge@citrix.com>
+	<97ed99ae9160bdb6477284b333bd6708fb7a19cb.1289940821.git.jeremy.fitzhardinge@citrix.com>
+	<4CE3A1060200007800022B04@vpn.id2.novell.com>
+	<4CE397C8.9040901@goop.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <cover.1289940821.git.jeremy.fitzhardinge@citrix.com>
+In-Reply-To: <4CE397C8.9040901@goop.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,48 +21,36 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Xen-devel <xen-devel@lists.xensource.com>, Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>, Nick Piggin <npiggin@kernel.dk>, Peter Zijlstra <peterz@infradead.org>, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Jan Beulich <JBeulich@novell.com>, Eric Dumazet <dada1@cosmosbay.com>, Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, "H. Peter Anvin" <hpa@zytor.com>, =?ISO-8859-1?Q?Am=E9rico_Wang?= <xiyou.wangcong@gmail.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>
+Cc: Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>, Nick Piggin <npiggin@kernel.dk>, Peter Zijlstra <peterz@infradead.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, Jan Beulich <JBeulich@novell.com>, Eric Dumazet <dada1@cosmosbay.com>, Xen-devel <xen-devel@lists.xensource.com>, "H. Peter Anvin" <hpa@zytor.com>, xiyou.wangcong@gmail.com, Linux Virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 11/16/2010 11:08 PM, Jeremy Fitzhardinge wrote:
-> From: Jeremy Fitzhardinge<jeremy.fitzhardinge@citrix.com>
+On 11/17/2010 10:52 AM, Jeremy Fitzhardinge wrote:
+> On 11/17/2010 12:31 AM, Jan Beulich wrote:
+> >>>>  On 16.11.10 at 22:08, Jeremy Fitzhardinge<jeremy@goop.org>  wrote:
+> >>  +static inline void __ticket_enter_slowpath(struct arch_spinlock *lock)
+> >>  +{
+> >>  +	if (sizeof(lock->tickets.tail) == sizeof(u8))
+> >>  +		asm (LOCK_PREFIX "orb %1, %0"
+> >>  +		     : "+m" (lock->tickets.tail)
+> >>  +		     : "i" (TICKET_SLOWPATH_FLAG) : "memory");
+> >>  +	else
+> >>  +		asm (LOCK_PREFIX "orw %1, %0"
+> >>  +		     : "+m" (lock->tickets.tail)
+> >>  +		     : "i" (TICKET_SLOWPATH_FLAG) : "memory");
+> >>  +}
+> >  Came only now to mind: Here and elsewhere, did you try using
+> >  %z0 to have gcc produce the opcode suffix character, rather
+> >  than having these somewhat ugly if()-s?
 >
-> Hi all,
+> Actually in this case I'm pretty sure there's already a "set bit"
+> function which will do the job.  set_bit(), I guess, though it takes a
+> bit number rather than a mask...
 >
-> This is a revised version of the pvticket lock series.
->
-> The early part of the series is mostly unchanged: it converts the bulk
-> of the ticket lock code into C and makes the "small" and "large"
-> ticket code common.  The only changes are the incorporation of various
-> review comments.
->
-> The latter part of the series converts from pv spinlocks to pv ticket
-> locks (ie, using the ticket lock fastpath as-is, but adding pv ops for
-> the ticketlock slowpaths).
->
-> The significant difference here is that rather than adding a new
-> ticket_t-sized element to arch_spinlock_t - effectively doubling the
-> size - I steal the LSB of the tickets themselves to store a bit.  This
-> allows the structure to remain the same size, but at the cost of
-> halving the max number of CPUs (127 for a 8-bit ticket, and a hard max
-> of 32767 overall).
->
-> The extra bit (well, two, but one is unused) in indicates whether the
-> lock has gone into "slowpath state", which means one of its lockers
-> has entered its slowpath and has blocked in the hypervisor.  This
-> means the current lock-holder needs to make sure it gets kicked out of
-> the hypervisor on unlock.
->
-> The spinlock remains in slowpath state until the last unlock happens
-> (ie there are no more queued lockers).
->
-> This code survives for a while with moderate testing, (make -j 100 on
-> 8 VCPUs on a 4 PCPU system), but locks up after about 20 iterations,
-> so there's still some race/deadlock in there (probably something
-> misordered), but I think the basic approach is sound.
 
-This is going to be very useful for kvm; I'd like to see the fixed 
-version gets merged.
+set_bit() operates on a long, while the intel manuals recommend against 
+operating on operands of different size, especially with locked 
+operations.  I think newer processors have more relaxed requirements, 
+though.
 
 -- 
 error compiling committee.c: too many arguments to function
