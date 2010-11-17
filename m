@@ -1,18 +1,15 @@
-From: "Jan Beulich" <JBeulich@novell.com>
-Subject: Re: [PATCH 13/14] x86/ticketlock: add slowpath logic
-Date: Wed, 17 Nov 2010 09:34:40 +0000
-Message-ID: <4CE3AFC00200007800022B85__25282.742168247$1289986620$gmane$org@vpn.id2.novell.com>
-References: <cover.1289940821.git.jeremy.fitzhardinge@citrix.com><cover.1289940821.git.jeremy.fitzhardinge@citrix.com>
-	<97ed99ae9160bdb6477284b333bd6708fb7a19cb.1289940821.git.jeremy.fitzhardinge@citrix.com>
-	<4CE3A1060200007800022B04@vpn.id2.novell.com>
-	<4CE397C8.9040901@goop.org>
-	<4CE398A0.3040105@goop.org> <4CE39B7A.1080706@goop.org>
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+Subject: Re: [Xen-devel] Re: [PATCH 09/14] xen/pvticketlock: Xen implementation
+	for PV	 ticket locks
+Date: Wed, 17 Nov 2010 01:57:40 -0800
+Message-ID: <4CE3A714.9010509__45384.594894904$1289988000$gmane$org@goop.org>
+References: <cover.1289940821.git.jeremy.fitzhardinge@citrix.com><cover.1289940821.git.jeremy.fitzhardinge@citrix.com>	<aa32da076143b8e13c23c1f589d7e6cbedb22907.1289940821.git.jeremy.fitzhardinge@citrix.com>	<4CE39C3C0200007800022AE2@vpn.id2.novell.com>
+	<4CE397E7.2010107@goop.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4CE39B7A.1080706@goop.org>
-Content-Disposition: inline
+In-Reply-To: <4CE397E7.2010107@goop.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -22,30 +19,53 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>, Nick Piggin <npiggin@kernel.dk>, Peter Zijlstra <peterz@infradead.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, Eric Dumazet <dada1@cosmosbay.com>, Xen-devel <xen-devel@lists.xensource.com>, Avi Kivity <avi@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, xiyou.wangcong@gmail.com, Linux Virtualization <virtualization@lists.linux-foundation.org>
+To: Jan Beulich <JBeulich@novell.com>
+Cc: Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>, Nick Piggin <npiggin@kernel.dk>, Peter Zijlstra <peterz@infradead.org>, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Xen-devel <xen-devel@lists.xensource.com>, Avi Kivity <avi@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, xiyou.wangcong@gmail.com, Eric Dumazet <dada1@cosmosbay.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
->>> On 17.11.10 at 10:08, Jeremy Fitzhardinge <jeremy@goop.org> wrote:
-> On 11/17/2010 12:56 AM, Jeremy Fitzhardinge wrote:
->> On 11/17/2010 12:52 AM, Jeremy Fitzhardinge wrote:
->>> But, yes, %z0 sounds interesting.  Is it documented anywhere?  I think
->>> I've tried to use it in the past and run into gcc bugs.
->> This one: http://gcc.gnu.org/bugzilla/show_bug.cgi?id=39590 
->>
->> Should be OK in this case because there's no 64-bit values to be seen...
-> Hm, it fails when __ticket_t is 16 bits:
-> 
-> /home/jeremy/git/linux/arch/x86/include/asm/spinlock.h: Assembler messages:
-> /home/jeremy/git/linux/arch/x86/include/asm/spinlock.h:73: Error: suffix
-> or operands invalid for `or'
-> 
->         lock; ors $1, 2(%rbx)   #,
-> 
-> 
-> So I don't think that's going to work out...
+On 11/17/2010 12:52 AM, Jeremy Fitzhardinge wrote:
+> On 11/17/2010 12:11 AM, Jan Beulich wrote:
+>>>>> On 16.11.10 at 22:08, Jeremy Fitzhardinge <jeremy@goop.org> wrote:
+>>> +static void xen_lock_spinning(struct arch_spinlock *lock, unsigned want)
+>>>  {
+>>> -	struct xen_spinlock *xl = (struct xen_spinlock *)lock;
+>>> -	struct xen_spinlock *prev;
+>>>  	int irq = __get_cpu_var(lock_kicker_irq);
+>>> -	int ret;
+>>> +	struct xen_lock_waiting *w = &__get_cpu_var(lock_waiting);
+>>> +	int cpu = smp_processor_id();
+>>>  	u64 start;
+>>>  
+>>>  	/* If kicker interrupts not initialized yet, just spin */
+>>>  	if (irq == -1)
+>>> -		return 0;
+>>> +		return;
+>>>  
+>>>  	start = spin_time_start();
+>>>  
+>>> -	/* announce we're spinning */
+>>> -	prev = spinning_lock(xl);
+>>> +	w->want = want;
+>>> +	w->lock = lock;
+>>> +
+>>> +	/* This uses set_bit, which atomic and therefore a barrier */
+>>> +	cpumask_set_cpu(cpu, &waiting_cpus);
+>> Since you don't allow nesting, don't you need to disable
+>> interrupts before you touch per-CPU state?
+> Yes, I think you're right - interrupts need to be disabled for the bulk
+> of this function.
 
-Indeed, it's only with 4.5 that non-float operands are properly
-supported here. Sad.
+Actually, on second thoughts, maybe it doesn't matter so much.  The main
+issue is making sure that the interrupt will make the VCPU drop out of
+xen_poll_irq() - if it happens before xen_poll_irq(), it should leave
+the event pending, which will cause the poll to return immediately.  I
+hope.  Certainly disabling interrupts for some of the function will make
+it easier to analyze with respect to interrupt nesting.
 
-Jan
+Another issue may be making sure the writes and reads of "w->want" and
+"w->lock" are ordered properly to make sure that xen_unlock_kick() never
+sees an inconsistent view of the (lock,want) tuple.  The risk being that
+xen_unlock_kick() sees a random, spurious (lock,want) pairing and sends
+the kick event to the wrong VCPU, leaving the deserving one hung.
+
+    J
