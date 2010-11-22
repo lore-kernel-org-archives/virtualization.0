@@ -1,67 +1,43 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [PATCH] x86/pvclock-xen: zero last_value on resume
-Date: Mon, 22 Nov 2010 12:16:43 -0800
-Message-ID: <4CEACFAB.90503__30015.5703713701$1290457143$gmane$org@goop.org>
-References: <4CC708DE.1070000@goop.org>
+From: "Ky Srinivasan" <ksrinivasan@novell.com>
+Subject: [PATCH 1/3]: An implementation of HyperV KVP functionality
+Date: Mon, 22 Nov 2010 13:21:20 -0700
+Message-ID: <4CEA6E500200003000090BB1@novprvoes0310.provo.novell.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4CC708DE.1070000@goop.org>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: "Xen-devel@lists.xensource.com" <Xen-devel@lists.xensource.com>, kvm-devel <kvm@vger.kernel.org>, Glauber Costa <glommer@redhat.com>, the arch/x86 maintainers <x86@kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Olivier Hanesse <olivier.hanesse@gmail.com>, Avi Kivity <avi@redhat.com>, Eelco Dolstra <e.dolstra@tudelft.nl>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <devel-bounces@linuxdriverproject.org>
+Content-Disposition: inline
+List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
+	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
+List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
+List-Post: <mailto:devel@linuxdriverproject.org>
+List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
+List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
+	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
+Sender: devel-bounces@linuxdriverproject.org
+Errors-To: devel-bounces@linuxdriverproject.org
+To: devel@driverdev.osuosl.org, Virtualization@lists.osdl.org
+Cc: Zbr@ioremap.net, Haiyang Zhang <haiyangz@microsoft.com>, Stephen Hemminger <shemminger@vyatta.com>, Greg KH <gregkh@suse.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gMTAvMjYvMjAxMCAwOTo1OSBBTSwgSmVyZW15IEZpdHpoYXJkaW5nZSB3cm90ZToKPgo+IElm
-IHRoZSBndWVzdCBkb21haW4gaGFzIGJlZW4gc3VzcGVuZC9yZXN1bWVkIG9yIG1pZ3JhdGVkLCB0
-aGVuIHRoZQo+IHN5c3RlbSBjbG9jayBiYWNraW5nIHRoZSBwdmNsb2NrIGNsb2Nrc291cmNlIG1h
-eSByZXZlcnQgdG8gYSBzbWFsbGVyCj4gdmFsdWUgKGllLCBjYW4gYmUgbm9uLW1vbm90b25pYyBh
-Y3Jvc3MgdGhlIG1pZ3JhdGlvbi9zYXZlLXJlc3RvcmUpLgo+IE1ha2Ugc3VyZSB3ZSB6ZXJvIGxh
-c3RfdmFsdWUgaW4gdGhhdCBjYXNlIHNvIHRoYXQgdGhlIGRvbWFpbgo+IGNvbnRpbnVlcyB0byBz
-ZWUgY2xvY2sgdXBkYXRlcy4KClBpbmc/ICBMb29rcyBsaWtlIHRoaXMgZmVsbCB0aHJvdWdoIHRo
-ZSBnYXBzLgoKICAgIEoKCj4gWyBJIGRvbid0IGtub3cgaWYga3ZtIG5lZWRzIGFuIGFuYWxvZ291
-cyBmaXggb3Igbm90LiBdCj4KPiBTaWduZWQtb2ZmLWJ5OiBKZXJlbXkgRml0emhhcmRpbmdlIDxq
-ZXJlbXkuZml0emhhcmRpbmdlQGNpdHJpeC5jb20+Cj4gQ2M6IFN0YWJsZSBLZXJuZWwgPHN0YWJs
-ZUBrZXJuZWwub3JnPgo+IFJlcG9ydGVkLWJ5OiBFZWxjbyBEb2xzdHJhIDxlLmRvbHN0cmFAdHVk
-ZWxmdC5ubD4KPiBSZXBvcnRlZC1ieTogT2xpdmllciBIYW5lc3NlIDxvbGl2aWVyLmhhbmVzc2VA
-Z21haWwuY29tPgo+IEJpc2VjdGVkLWJ5OiBDw6lkcmljIFNjaGllbGkgPGNzY2hpZWxpQGdtYWls
-LmNvbT4KPiBUZXN0ZWQtYnk6IEPDqWRyaWMgU2NoaWVsaSA8Y3NjaGllbGlAZ21haWwuY29tPgo+
-Cj4gZGlmZiAtLWdpdCBhL2FyY2gveDg2L2luY2x1ZGUvYXNtL3B2Y2xvY2suaCBiL2FyY2gveDg2
-L2luY2x1ZGUvYXNtL3B2Y2xvY2suaAo+IGluZGV4IGNkMDJmMzIuLjYyMjY4NzAgMTAwNjQ0Cj4g
-LS0tIGEvYXJjaC94ODYvaW5jbHVkZS9hc20vcHZjbG9jay5oCj4gKysrIGIvYXJjaC94ODYvaW5j
-bHVkZS9hc20vcHZjbG9jay5oCj4gQEAgLTExLDUgKzExLDYgQEAgdW5zaWduZWQgbG9uZyBwdmNs
-b2NrX3RzY19raHooc3RydWN0IHB2Y2xvY2tfdmNwdV90aW1lX2luZm8gKnNyYyk7Cj4gIHZvaWQg
-cHZjbG9ja19yZWFkX3dhbGxjbG9jayhzdHJ1Y3QgcHZjbG9ja193YWxsX2Nsb2NrICp3YWxsLAo+
-ICAJCQkgICAgc3RydWN0IHB2Y2xvY2tfdmNwdV90aW1lX2luZm8gKnZjcHUsCj4gIAkJCSAgICBz
-dHJ1Y3QgdGltZXNwZWMgKnRzKTsKPiArdm9pZCBwdmNsb2NrX3Jlc3VtZSh2b2lkKTsKPiAgCj4g
-ICNlbmRpZiAvKiBfQVNNX1g4Nl9QVkNMT0NLX0ggKi8KPiBkaWZmIC0tZ2l0IGEvYXJjaC94ODYv
-a2VybmVsL3B2Y2xvY2suYyBiL2FyY2gveDg2L2tlcm5lbC9wdmNsb2NrLmMKPiBpbmRleCAyMzk0
-MjdjLi5hNGYwN2MxIDEwMDY0NAo+IC0tLSBhL2FyY2gveDg2L2tlcm5lbC9wdmNsb2NrLmMKPiAr
-KysgYi9hcmNoL3g4Ni9rZXJuZWwvcHZjbG9jay5jCj4gQEAgLTEyMCw2ICsxMjAsMTEgQEAgdW5z
-aWduZWQgbG9uZyBwdmNsb2NrX3RzY19raHooc3RydWN0IHB2Y2xvY2tfdmNwdV90aW1lX2luZm8g
-KnNyYykKPiAgCj4gIHN0YXRpYyBhdG9taWM2NF90IGxhc3RfdmFsdWUgPSBBVE9NSUM2NF9JTklU
-KDApOwo+ICAKPiArdm9pZCBwdmNsb2NrX3Jlc3VtZSh2b2lkKQo+ICt7Cj4gKwlhdG9taWM2NF9z
-ZXQoJmxhc3RfdmFsdWUsIDApOwo+ICt9Cj4gKwo+ICBjeWNsZV90IHB2Y2xvY2tfY2xvY2tzb3Vy
-Y2VfcmVhZChzdHJ1Y3QgcHZjbG9ja192Y3B1X3RpbWVfaW5mbyAqc3JjKQo+ICB7Cj4gIAlzdHJ1
-Y3QgcHZjbG9ja19zaGFkb3dfdGltZSBzaGFkb3c7Cj4gZGlmZiAtLWdpdCBhL2FyY2gveDg2L3hl
-bi90aW1lLmMgYi9hcmNoL3g4Ni94ZW4vdGltZS5jCj4gaW5kZXggYjJiYjVhYS4uNWRhNWU1MyAx
-MDA2NDQKPiAtLS0gYS9hcmNoL3g4Ni94ZW4vdGltZS5jCj4gKysrIGIvYXJjaC94ODYveGVuL3Rp
-bWUuYwo+IEBAIC00MjYsNiArNDI2LDggQEAgdm9pZCB4ZW5fdGltZXJfcmVzdW1lKHZvaWQpCj4g
-IHsKPiAgCWludCBjcHU7Cj4gIAo+ICsJcHZjbG9ja19yZXN1bWUoKTsKPiArCj4gIAlpZiAoeGVu
-X2Nsb2NrZXZlbnQgIT0gJnhlbl92Y3B1b3BfY2xvY2tldmVudCkKPiAgCQlyZXR1cm47Cj4gIAo+
-Cj4KPgo+Cj4gX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18K
-PiBWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKPiBWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51
-eC1mb3VuZGF0aW9uLm9yZwo+IGh0dHBzOi8vbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcvbWFp
-bG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbgoKX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxp
-emF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXgtZm91
-bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+From: K. Y. Srinivasan <ksrinivasan@novell.com>
+Subject: Reserve a connector index for implementing HyperV Key Value Pair
+(KVP) functionality.
+
+Signed-off-by: K. Y. Srinivasan <ksrinivasan@novell.com>
+
+Index: linux.trees.git/include/linux/connector.h
+===================================================================
+--- linux.trees.git.orig/include/linux/connector.h	2010-11-15 06:50:30.000000000 -0500
++++ linux.trees.git/include/linux/connector.h	2010-11-15 07:00:52.000000000 -0500
+@@ -42,8 +42,9 @@
+ #define CN_VAL_DM_USERSPACE_LOG		0x1
+ #define CN_IDX_DRBD			0x8
+ #define CN_VAL_DRBD			0x1
++#define CN_KVP_IDX			0x9	/* HyperV KVP */
+ 
+-#define CN_NETLINK_USERS		8
++#define CN_NETLINK_USERS		9
+ 
+ /*
+  * Maximum connector's message size.
