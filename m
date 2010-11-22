@@ -1,13 +1,11 @@
 From: Jens Osterkamp <jens@linux.vnet.ibm.com>
-Subject: [PATCH 01/10] consolidation of MIN and MAX macros in common.h
-Date: Mon, 22 Nov 2010 16:50:48 +0100
-Message-ID: <1290441057-16729-2-git-send-email-jens@linux.vnet.ibm.com>
-References: <1290441057-16729-1-git-send-email-jens@linux.vnet.ibm.com>
+Subject: implementation of IEEE 802.1Qbg in lldpad
+Date: Mon, 22 Nov 2010 16:50:47 +0100
+Message-ID: <1290441057-16729-1-git-send-email-jens@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1290441057-16729-1-git-send-email-jens@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,55 +16,53 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: e1000-eedc@lists.sourceforge.net, virtualization@lists.linux-foundation.org, evb@yahoogroups.com
-Cc: chrisw@redhat.com, Jens Osterkamp <jens@linux.vnet.ibm.com>
+Cc: chrisw@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch consolidates a modified version of the already existing MIN
-macro in lldpad to include/common.h and add a MAX macro.
+Hi,
 
-Signed-off-by: Jens Osterkamp <jens@linux.vnet.ibm.com>
----
- include/common.h       |   14 ++++++++++++++
- include/dcb_protocol.h |    4 ----
- 2 files changed, 14 insertions(+), 4 deletions(-)
+this set of patches contains the initial implementation of the IEEE 802.1Qbg
+standard: code for the exchange of EVB TLVs in LLDP frames to negotiate VSI
+capabalities as well as VDP VSI TLVs between a host with virtual machines
+and an adjacent switch.
 
-diff --git a/include/common.h b/include/common.h
-index 01746ea..ab07dc2 100644
---- a/include/common.h
-+++ b/include/common.h
-@@ -387,4 +387,18 @@ typedef int socklen_t;
- 
- const char * wpa_ssid_txt(u8 *ssid, size_t ssid_len);
- 
-+#define MIN(x,y) \
-+	({	\
-+		typeof (x) __x = (x);	\
-+		typeof (y) __y = (y);	\
-+		__x < __y ? __x : __y;	\
-+	 })
-+
-+#define MAX(x,y) \
-+	({	\
-+		typeof (x) __x = (x);	\
-+		typeof (y) __y = (y);	\
-+		__x > __y ? __x : __y;	\
-+	 })
-+
- #endif /* COMMON_H */
-diff --git a/include/dcb_protocol.h b/include/dcb_protocol.h
-index 63e2d3c..d7127f5 100644
---- a/include/dcb_protocol.h
-+++ b/include/dcb_protocol.h
-@@ -58,10 +58,6 @@ typedef enum {
- #define DUP_DCBX_TLV_LLINK         0x0020
- #define TOO_MANY_NGHBRS            0x0040
- 
--//#ifndef min /*todo: change to min()
--	#define MIN(x, y) ((x) < (y) ? x : y)
--//#endif
--
- #define INIT_DCB_OUI                    {0x00,0x1b,0x21}
- 
- int add_adapter(char *device_name);
--- 
-1.7.2.3
+It supports setting the parameters of the TLV exchange from the command
+line using lldptool.
+
+VDP profiles consisting of mode,mgrid,typeid,typeidversion,instanceid,mac,vlan
+can be given to lldpad with lldptool or sent to lldpad via netlink messages from
+the kernel or another program, e.g. libvirt.
+
+VDP profiles are processed through the VDP/VSI and ECP state machines and
+sent out in ECP frames.
+ACK frames are received and processed through ECP and VDP/VSI state machines.
+
+It implements a VDP bridge role for a port together with a lldptool command to
+switch a port to the bridge role.
+
+These patches apply against lldpad 0.9.38. Protocol debug messages are now logged
+to syslog via LLDPAD_* macros and no longer to console. If you want to see them,
+configure your syslog daemon to collect debug messages and start lldpad with -V 7.
+
+Changes since last posting:
+
+ - implementation of VDP keepalive
+ - better handling of response/reason codes by the switch
+ - better handling of deassoc frame sent by switch
+ - improved (human readable) printout of profile
+ - bugfix to corrected wrong instance strlen
+ - cleanup of vdp state machine
+ - zero out unused part of ack frame
+ - simplify handling of pending profile changes
+ - simplify handling of response to libvirt
+ - bugfix to prevent duplicate sending of TLVs
+
+For more information about lldpad take a look at
+
+http://sourceforge.net/projects/e1000/files/DCB%20Tools/lldpad/
+
+Please review and comment.
+
+Thanks !
+
+                        Jens
