@@ -1,7 +1,7 @@
 From: Jens Osterkamp <jens@linux.vnet.ibm.com>
-Subject: [PATCH 06/10] add libnl dependency to configure.ac
-Date: Mon, 22 Nov 2010 16:50:53 +0100
-Message-ID: <1290441057-16729-7-git-send-email-jens@linux.vnet.ibm.com>
+Subject: [PATCH 03/10] BUGFIX: check for existence of ifup
+Date: Mon, 22 Nov 2010 16:50:50 +0100
+Message-ID: <1290441057-16729-4-git-send-email-jens@linux.vnet.ibm.com>
 References: <1290441057-16729-1-git-send-email-jens@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,26 +21,30 @@ To: e1000-eedc@lists.sourceforge.net, virtualization@lists.linux-foundation.org,
 Cc: chrisw@redhat.com, Jens Osterkamp <jens@linux.vnet.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
+added an additional check for existence of the ifup operation.
+If it does not exist, just skip it.
+
 Signed-off-by: Jens Osterkamp <jens@linux.vnet.ibm.com>
 ---
- configure.ac |    5 +++++
- 1 files changed, 5 insertions(+), 0 deletions(-)
+ config.c |    6 ++++--
+ 1 files changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/configure.ac b/configure.ac
-index 619c6c4..8b9d08a 100644
---- a/configure.ac
-+++ b/configure.ac
-@@ -12,6 +12,11 @@ PKG_CHECK_MODULES(LIBCONFIG, libconfig,
- AC_SUBST(LIBCONFIG_CFLAGS)
- AC_SUBST(LIBCONFIG_LIBS)
+diff --git a/config.c b/config.c
+index 5cfac83..26afe3b 100644
+--- a/config.c
++++ b/config.c
+@@ -370,8 +370,10 @@ void init_ports(void)
+ 		} else if (check_link_status(p->if_name)) {
+ 			add_adapter(p->if_name);
  
-+PKG_CHECK_MODULES(LIBNL, libnl-1 >= 1.1)
-+AC_SUBST(LIBNL_CFLAGS)
-+AC_SUBST(LIBNL_LIBS)
-+
-+AC_CHECK_LIB(nl, rtnl_link_get_by_name)
- AC_CONFIG_SUBDIRS([libconfig-1.3.2])
- AC_CONFIG_FILES([Makefile include/version.h lldpad.spec lldpad.pc dcbd.pc])
- AC_OUTPUT
+-			LIST_FOREACH(np, &lldp_head, lldp)
+-				np->ops->lldp_mod_ifup(p->if_name);
++			LIST_FOREACH(np, &lldp_head, lldp) {
++				if (np->ops->lldp_mod_ifup)
++					np->ops->lldp_mod_ifup(p->if_name);
++			}
+ 			set_lldp_port_enable_state(p->if_name, 1);
+ 		}
+ 		p++;
 -- 
 1.7.2.3
