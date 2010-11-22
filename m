@@ -1,18 +1,19 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [Xen-devel] Re: [PATCH 09/14] xen/pvticketlock: Xen	
-	implementation for PV ticket locks
-Date: Wed, 17 Nov 2010 09:41:07 -0800
-Message-ID: <4CE413B3.3010207__17385.375701315$1290015808$gmane$org@goop.org>
-References: <cover.1289940821.git.jeremy.fitzhardinge@citrix.com><cover.1289940821.git.jeremy.fitzhardinge@citrix.com>
-	<aa32da076143b8e13c23c1f589d7e6cbedb22907.1289940821.git.jeremy.fitzhardinge@citrix.com>
-	<4CE39C3C0200007800022AE2@vpn.id2.novell.com>
-	<4CE397E7.2010107@goop.org> <4CE3A714.9010509@goop.org>
-	<4CE3BDCF0200007800022BF1@vpn.id2.novell.com>
+From: Amit Shah <amit.shah@redhat.com>
+Subject: Re: [RFC PATCH] virtio: (Partially) enable suspend/resume support
+Date: Mon, 22 Nov 2010 19:15:37 +0530
+Message-ID: <20101122134537.GB6979@amit-x200.redhat.com>
+References: <da50daa251eb982c43fa474de8d4f1303f1ad57f.1285762305.git.amit.shah@redhat.com>
+	<20101003155359.GB20285@redhat.com>
+	<20101005134531.GD8207@amit-laptop.redhat.com>
+	<20101005152319.GA22056@redhat.com>
+	<20101006115418.GI8207@amit-laptop.redhat.com>
+	<20101105101536.GA15514@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4CE3BDCF0200007800022BF1@vpn.id2.novell.com>
+Content-Disposition: inline
+In-Reply-To: <20101105101536.GA15514@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -22,46 +23,54 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jan Beulich <JBeulich@novell.com>
-Cc: Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>, Nick Piggin <npiggin@kernel.dk>, Peter Zijlstra <peterz@infradead.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, Eric Dumazet <dada1@cosmosbay.com>, Xen-devel <xen-devel@lists.xensource.com>, Avi Kivity <avi@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, xiyou.wangcong@gmail.com, Linux Virtualization <virtualization@lists.linux-foundation.org>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Matthew Garrett <mjg@redhat.com>, Anthony Liguori <anthony@codemonkey.ws>, Virtualization List <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 11/17/2010 02:34 AM, Jan Beulich wrote:
->> Actually, on second thoughts, maybe it doesn't matter so much.  The main
->> issue is making sure that the interrupt will make the VCPU drop out of
->> xen_poll_irq() - if it happens before xen_poll_irq(), it should leave
->> the event pending, which will cause the poll to return immediately.  I
->> hope.  Certainly disabling interrupts for some of the function will make
->> it easier to analyze with respect to interrupt nesting.
-> That's not my main concern. Instead, what if you get interrupted
-> anywhere here, the interrupt handler tries to acquire another
-> spinlock and also has to go into the slow path? It'll overwrite part
-> or all of the outer context's state.
+(Adding Matthew Garrett and Vadim Rosenfeld)
 
-That doesn't matter if the outer context doesn't end up blocking.  If it
-has already blocked then it will unblock as a result of the interrupt;
-if it hasn't yet blocked, then the inner context will leave the event
-pending and cause it to not block.  Either way, it no longer uses or
-needs that per-cpu state: it will return to the spin loop and (maybe)
-get re-entered, setting it all up again.
+On (Fri) Nov 05 2010 [12:15:36], Michael S. Tsirkin wrote:
+> I still don't see it.  why don't we reset on resume?
+> If there's a reset host must either discard or
+> flush out operations in progress.
 
-I think there is a problem with the code as posted because it sets up
-the percpu data before clearing the pending event, so it can end up
-blocking with bad percpu data.
+OK, let me list how virtio-serial works, then let's see how Windows and
+Linux differ in their suspend/resume implementations and then discuss
+solutions.
 
->> Another issue may be making sure the writes and reads of "w->want" and
->> "w->lock" are ordered properly to make sure that xen_unlock_kick() never
->> sees an inconsistent view of the (lock,want) tuple.  The risk being that
->> xen_unlock_kick() sees a random, spurious (lock,want) pairing and sends
->> the kick event to the wrong VCPU, leaving the deserving one hung.
-> Yes, proper operation sequence (and barriers) is certainly
-> required here. If you allowed nesting, this may even become
-> simpler (as you'd have a single write making visible the new
-> "head" pointer, after having written all relevant fields of the
-> new "head" structure).
+virtio-serial, in its probe routine, exchanges some information over a
+control vq and per-port vqs -- the number of ports, the number of open
+ports, the names assigned to the ports, etc.
 
-Yes, simple nesting should be quite straightforward (ie allowing an
-interrupt handler to take some other lock than the one the outer context
-is waiting on).
+When Linux starts up, it goes about doing the regular init, calling the
+probe routine.  Later, when it detects there is a suspended image
+available, it restores that image.
 
-    J
+After the image is restored, the vring counts in qemu reflect the
+transfer that's taken place in the probe routine, whereas the vring
+counts in the guest kernel reflect the pre-suspend values.
+
+The Linux kernel's suspend/resume notifiers currently offer the
+following notifications:
+- Preparing to go to suspended state (tasks will be frozen now)
+- Preparing to restore the image saved at hibernate-time
+- Restore succeeded (called after user-space threads are thawed)
+
+
+What the Windows driver does is destroy all the virtqueues before
+suspend and re-init all of them on restore.  This works well, but in the
+Linux case, we don't have a notifier that gets called after restore
+succeeds and before user-space tasks are thawed, which means for an open
+virtio-serial port, a userspace app doing non-stop writes may find the
+communication channel broken because the underlying vq vanished.
+
+Windows has one problem with the balloon driver too -- inflate a
+balloon, hibernate.  Start the machine, restore image.  Windows thinks
+balloon is inflated.  qemu thinks it's deflated.  This can be solved by
+Windows providing a balloon size update to qemu but will most perhaps
+need a change to qemu.
+
+For network ports, I guess it'll be the same situation - getting the
+network up before userspace notices.
+
+		Amit
