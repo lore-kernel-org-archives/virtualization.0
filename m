@@ -1,7 +1,7 @@
 From: Jens Osterkamp <jens@linux.vnet.ibm.com>
-Subject: [PATCH 03/10] BUGFIX: check for existence of ifup
-Date: Mon, 22 Nov 2010 16:50:50 +0100
-Message-ID: <1290441057-16729-4-git-send-email-jens@linux.vnet.ibm.com>
+Subject: [PATCH 07/10] use connect instead of bind
+Date: Mon, 22 Nov 2010 16:50:54 +0100
+Message-ID: <1290441057-16729-8-git-send-email-jens@linux.vnet.ibm.com>
 References: <1290441057-16729-1-git-send-email-jens@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -18,33 +18,43 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: e1000-eedc@lists.sourceforge.net, virtualization@lists.linux-foundation.org, evb@yahoogroups.com
-Cc: chrisw@redhat.com, Jens Osterkamp <jens@linux.vnet.ibm.com>
+Cc: chrisw@redhat.com, Gerhard Stenzel <gstenzel@linux.vnet.ibm.com>, Jens Osterkamp <jens@linux.vnet.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-added an additional check for existence of the ifup operation.
-If it does not exist, just skip it.
+modifies the setup of the netlink socket in drv_cfg.c to use pid 0 instead
+of the processes pid.
+Also replaces bind with connect to allow the reception of netlink messages
+from libvirt.
+Preparation patch for communication between libvirt and lldpad.
 
-Signed-off-by: Jens Osterkamp <jens@linux.vnet.ibm.com>
+Signed-off-by: Gerhard Stenzel <gstenzel@linux.vnet.ibm.com>
 ---
- config.c |    6 ++++--
- 1 files changed, 4 insertions(+), 2 deletions(-)
+ drv_cfg.c |    5 +++--
+ 1 files changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/config.c b/config.c
-index 5cfac83..26afe3b 100644
---- a/config.c
-+++ b/config.c
-@@ -370,8 +370,10 @@ void init_ports(void)
- 		} else if (check_link_status(p->if_name)) {
- 			add_adapter(p->if_name);
+diff --git a/drv_cfg.c b/drv_cfg.c
+index 6c02555..23c11f3 100644
+--- a/drv_cfg.c
++++ b/drv_cfg.c
+@@ -71,9 +71,9 @@ static int init_socket(void)
  
--			LIST_FOREACH(np, &lldp_head, lldp)
--				np->ops->lldp_mod_ifup(p->if_name);
-+			LIST_FOREACH(np, &lldp_head, lldp) {
-+				if (np->ops->lldp_mod_ifup)
-+					np->ops->lldp_mod_ifup(p->if_name);
-+			}
- 			set_lldp_port_enable_state(p->if_name, 1);
+ 	memset((void *)&snl, 0, sizeof(struct sockaddr_nl));
+ 	snl.nl_family = AF_NETLINK;
+-	snl.nl_pid = getpid();
++	snl.nl_pid = 0;
+ 
+-	if (bind(sd, (struct sockaddr *)&snl, sizeof(struct sockaddr_nl)) < 0) {
++	if (connect(sd, (struct sockaddr *)&snl, sizeof(struct sockaddr_nl)) < 0) {
+ 		close(sd);
+ 		return -EIO;
+ 	}
+@@ -195,6 +195,7 @@ static struct nlmsghdr *get_msg(unsigned int seq)
+ 			nlh = NULL;
+ 			break;
  		}
- 		p++;
++		fprintf(stderr, "%s:%s: nlmsg_type: %d\n", __FILE__, __FUNCTION__, nlh->nlmsg_type);
+ 		if ((nlh->nlmsg_type == RTM_GETDCB ||
+ 			nlh->nlmsg_type == RTM_SETDCB) &&
+ 			nlh->nlmsg_seq == seq) {
 -- 
 1.7.2.3
