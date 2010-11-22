@@ -1,21 +1,13 @@
-From: Matthew Garrett <mjg@redhat.com>
-Subject: Re: [RFC PATCH] virtio: (Partially) enable suspend/resume support
-Date: Mon, 22 Nov 2010 15:01:31 +0000
-Message-ID: <20101122150131.GA8783@srcf.ucam.org>
-References: <da50daa251eb982c43fa474de8d4f1303f1ad57f.1285762305.git.amit.shah@redhat.com>
-	<20101003155359.GB20285@redhat.com>
-	<20101005134531.GD8207@amit-laptop.redhat.com>
-	<20101005152319.GA22056@redhat.com>
-	<20101006115418.GI8207@amit-laptop.redhat.com>
-	<20101105101536.GA15514@redhat.com>
-	<20101122134537.GB6979@amit-x200.redhat.com>
-	<20101122145454.GB30157@redhat.com>
+From: Jens Osterkamp <jens@linux.vnet.ibm.com>
+Subject: [PATCH 01/10] consolidation of MIN and MAX macros in common.h
+Date: Mon, 22 Nov 2010 16:50:48 +0100
+Message-ID: <1290441057-16729-2-git-send-email-jens@linux.vnet.ibm.com>
+References: <1290441057-16729-1-git-send-email-jens@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20101122145454.GB30157@redhat.com>
+In-Reply-To: <1290441057-16729-1-git-send-email-jens@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -25,22 +17,56 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Amit Shah <amit.shah@redhat.com>, Anthony Liguori <anthony@codemonkey.ws>, Virtualization List <virtualization@lists.linux-foundation.org>
+To: e1000-eedc@lists.sourceforge.net, virtualization@lists.linux-foundation.org, evb@yahoogroups.com
+Cc: chrisw@redhat.com, Jens Osterkamp <jens@linux.vnet.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Nov 22, 2010 at 04:54:54PM +0200, Michael S. Tsirkin wrote:
+This patch consolidates a modified version of the already existing MIN
+macro in lldpad to include/common.h and add a MAX macro.
 
-> > What the Windows driver does is destroy all the virtqueues before
-> > suspend and re-init all of them on restore.  This works well, but in the
-> > Linux case, we don't have a notifier that gets called after restore
-> > succeeds and before user-space tasks are thawed,
-> 
-> Let's add one?
+Signed-off-by: Jens Osterkamp <jens@linux.vnet.ibm.com>
+---
+ include/common.h       |   14 ++++++++++++++
+ include/dcb_protocol.h |    4 ----
+ 2 files changed, 14 insertions(+), 4 deletions(-)
 
-May be difficult while retaining kABI, but it's certainly something that 
-can go upstream. If it's not possible within kABI constraints then we'll 
-need a workaround for 6.
-
+diff --git a/include/common.h b/include/common.h
+index 01746ea..ab07dc2 100644
+--- a/include/common.h
++++ b/include/common.h
+@@ -387,4 +387,18 @@ typedef int socklen_t;
+ 
+ const char * wpa_ssid_txt(u8 *ssid, size_t ssid_len);
+ 
++#define MIN(x,y) \
++	({	\
++		typeof (x) __x = (x);	\
++		typeof (y) __y = (y);	\
++		__x < __y ? __x : __y;	\
++	 })
++
++#define MAX(x,y) \
++	({	\
++		typeof (x) __x = (x);	\
++		typeof (y) __y = (y);	\
++		__x > __y ? __x : __y;	\
++	 })
++
+ #endif /* COMMON_H */
+diff --git a/include/dcb_protocol.h b/include/dcb_protocol.h
+index 63e2d3c..d7127f5 100644
+--- a/include/dcb_protocol.h
++++ b/include/dcb_protocol.h
+@@ -58,10 +58,6 @@ typedef enum {
+ #define DUP_DCBX_TLV_LLINK         0x0020
+ #define TOO_MANY_NGHBRS            0x0040
+ 
+-//#ifndef min /*todo: change to min()
+-	#define MIN(x, y) ((x) < (y) ? x : y)
+-//#endif
+-
+ #define INIT_DCB_OUI                    {0x00,0x1b,0x21}
+ 
+ int add_adapter(char *device_name);
 -- 
-Matthew Garrett | mjg59@srcf.ucam.org
+1.7.2.3
