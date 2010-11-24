@@ -1,11 +1,15 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: [PULL] virtio fixes (and one trivial module cleanup)
-Date: Wed, 24 Nov 2010 15:28:06 +1030
-Message-ID: <201011241528.06934.rusty__49381.4077265144$1290574865$gmane$org@rustcorp.com.au>
+From: =?UTF-8?B?4KSF4KSo4KWB4KSc?= <anuj01@gmail.com>
+Subject: Re: [PATCH RFC] tools/virtio: virtio_ring testing tool
+Date: Wed, 24 Nov 2010 11:40:40 +0530
+Message-ID: <AANLkTinx3g1LnMSVLfoZRVQCTFtTvBspyjDgd8JJN5J3@mail.gmail.com>
+References: <20101116123455.GA22446@redhat.com>
+	<AANLkTimUw6R9dH2SmPAAyht_mp7aLKpYDqG-ystFM3Rg@mail.gmail.com>
+	<20101124050228.GA18883@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20101124050228.GA18883@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -15,34 +19,32 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, Anders Kaseorg <andersk@ksplice.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Stephen Hemminger <shemminger@vyatta.com>, Jiri Slaby <jslaby@suse.cz>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-(lguest is currently broken, but timed out chasing it; expect a patch next
- week once I get back).
-
-The following changes since commit 3561d43fd289f590fdae672e5eb831b8d5cf0bf6:
-
-  Linux 2.6.37-rc3 (2010-11-21 15:18:56 -0800)
-
-are available in the git repository at:
-  ssh://master.kernel.org/pub/scm/linux/kernel/git/rusty/linux-2.6-for-linus.git master
-
-Anders Kaseorg (1):
-      module: Update prototype for ref_module (formerly use_module)
-
-Jiri Slaby (1):
-      Char: virtio_console, fix memory leak
-
-Michael S. Tsirkin (1):
-      virtio: return correct capacity to users
-
-Stephen Hemminger (1):
-      virtio: fix format of sysfs driver/vendor files
-
- drivers/char/virtio_console.c |   37 +++++++++----------------------------
- drivers/virtio/virtio.c       |    6 +++---
- drivers/virtio/virtio_ring.c  |    3 ---
- include/linux/module.h        |    2 +-
- 4 files changed, 13 insertions(+), 35 deletions(-)
+SGkgTWljaGFlbAoKMjAxMC8xMS8yNCBNaWNoYWVsIFMuIFRzaXJraW4gPG1zdEByZWRoYXQuY29t
+PjoKPiBPbiBXZWQsIE5vdiAyNCwgMjAxMCBhdCAwOTo0MToyMEFNICswNTMwLCDgpIXgpKjgpYHg
+pJwgd3JvdGU6Cj4+IEhpIE1pY2hhZWwsCj4+Cj4+ID4gVGhpcyBpbXBsZW1lbnRzIGEgdmlydGlv
+IHNpbXVsYXRvcjoKPj4gPiAtIGFkZHMgc3R1YnMgZm9yIGVub3VnaCBzdXBwb3J0IGZ1bmN0aW9u
+cyB0byBjb21waWxlCj4+ID4gwqB2aXJ0aW8gcmluZyBpbiB1c2Vyc3BhY2UuCj4+ID4gLSBBZGRz
+IGEgc3R1YiB2aG9zdCBiYXNlZCBtb2R1bGUgdGhpcyBjYW4gdGFsayB0by4KPj4KPj4gSSBqdXN0
+IHdhbnQgdG8ga25vdyBjYW4gSSB1c2UgdGhpcyB2aXJ0aW8gc2ltdWxhdG9yIGluIHRoaXMgY2Fz
+ZSA6Cj4+Cj4+IDEuIHVzaW5nIHFlbXUta3ZtIGFzIGEgVk1NIG9uIExpbnV4IEhvc3QuCj4+IDIu
+IHVzaW5nIGEgcHJvcHJpZXRhcnkgT1MgYXMgYSBndWVzdC4KPj4KPj4gSSBhbSBkZXZlbG9waW5n
+IHZpcnRpbyBmcmFtZXdvcmsgYW5kIHZpcnRpbyBkcml2ZXJzIChuZXR3b3JrICYKPj4gU0NTSS9C
+bG9jaykgZm9yIHRoaXMgZ3Vlc3QgT1MuCj4+IFBsZWFzZSBleHBsYWluIGhvdyBjYW4gSSB1c2Ug
+dGhpcyB2aXJ0aW8gc2ltdWxhdG9yIGZvciB0ZXN0aW5nIGFuZAo+PiBvcHRpbWl6aW5nIG15IHZp
+cnRpbyBmcmFtZXdvcmsgYW5kIHZpcnRpbyBkcml2ZXJzLgo+PiBBbmQgYWxzbyBwbGVhc2UgbGV0
+IG1lIGtub3cgd2hldGhlciBJIGNhbiBjb21waWxlIGFuZCB0ZXN0IG15IHZpcnRpbwo+PiB0aGlu
+Z3Mgd2l0aG91dCB1c2luZyBHdWVzdCBPUy4KPgo+PiBUaGFua3MgYSBsb3QuCj4+Cj4+IFJlZ2Fy
+ZHMsCj4+IC0tCj4+IEFudWogQWdnYXJ3YWwKPj4KPj4gwqAuJydgLgo+PiA6IDrikrYgOsKgwqAg
+IyBhcHQtZ2V0IGluc3RhbGwgaGFrdW5hLW1hdGF0YQo+PiBgLiBgJ2AKPj4gwqDCoCBgLQo+Cj4g
+UGxlYXNlIGNvcHkgYWxsIG1haWwgcmVsYXRlZCB0byB2aXJ0aW8gdG8KPiB2aXJ0dWFsaXphdGlv
+bkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwoKSSB3aWxsIHRha2UgY2FyZSBvZiB0aGlzIGlu
+IGZ1dHVyZS4KCj4KPiBUaGFua3MhCj4KPiAtLQo+IE1TVAo+CgoKUmVnYXJkcywKLS0gCkFudWog
+QWdnYXJ3YWwKCsKgLicnYC4KOiA64pK2IDrCoMKgICMgYXB0LWdldCBpbnN0YWxsIGhha3VuYS1t
+YXRhdGEKYC4gYCdgCsKgwqAgYC0KX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxp
+c3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXgtZm91bmRhdGlvbi5v
+cmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
