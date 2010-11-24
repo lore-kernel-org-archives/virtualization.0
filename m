@@ -1,50 +1,53 @@
-From: =?UTF-8?B?4KSF4KSo4KWB4KSc?= <anuj01@gmail.com>
-Subject: Re: [PATCH RFC] tools/virtio: virtio_ring testing tool
-Date: Wed, 24 Nov 2010 11:40:40 +0530
-Message-ID: <AANLkTinx3g1LnMSVLfoZRVQCTFtTvBspyjDgd8JJN5J3@mail.gmail.com>
-References: <20101116123455.GA22446@redhat.com>
-	<AANLkTimUw6R9dH2SmPAAyht_mp7aLKpYDqG-ystFM3Rg@mail.gmail.com>
-	<20101124050228.GA18883@redhat.com>
+From: Evgeniy Polyakov <zbr@ioremap.net>
+Subject: Re: [PATCH 2/3]: An Implementation of HyperV KVP functionality
+Date: Wed, 24 Nov 2010 17:56:17 +0300
+Message-ID: <20101124145617.GA11133@ioremap.net>
+References: <4CEA6FBE0200003000090BC0@novprvoes0310.provo.novell.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20101124050228.GA18883@redhat.com>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: virtualization@lists.linux-foundation.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <devel-bounces@linuxdriverproject.org>
+Content-Disposition: inline
+In-Reply-To: <4CEA6FBE0200003000090BC0@novprvoes0310.provo.novell.com>
+List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
+	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
+List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
+List-Post: <mailto:devel@linuxdriverproject.org>
+List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
+List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
+	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
+Sender: devel-bounces@linuxdriverproject.org
+Errors-To: devel-bounces@linuxdriverproject.org
+To: Ky Srinivasan <ksrinivasan@novell.com>
+Cc: devel@driverdev.osuosl.org, Haiyang Zhang <haiyangz@microsoft.com>, Greg KH <gregkh@suse.de>, Virtualization@lists.osdl.org, Stephen Hemminger <shemminger@vyatta.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-SGkgTWljaGFlbAoKMjAxMC8xMS8yNCBNaWNoYWVsIFMuIFRzaXJraW4gPG1zdEByZWRoYXQuY29t
-PjoKPiBPbiBXZWQsIE5vdiAyNCwgMjAxMCBhdCAwOTo0MToyMEFNICswNTMwLCDgpIXgpKjgpYHg
-pJwgd3JvdGU6Cj4+IEhpIE1pY2hhZWwsCj4+Cj4+ID4gVGhpcyBpbXBsZW1lbnRzIGEgdmlydGlv
-IHNpbXVsYXRvcjoKPj4gPiAtIGFkZHMgc3R1YnMgZm9yIGVub3VnaCBzdXBwb3J0IGZ1bmN0aW9u
-cyB0byBjb21waWxlCj4+ID4gwqB2aXJ0aW8gcmluZyBpbiB1c2Vyc3BhY2UuCj4+ID4gLSBBZGRz
-IGEgc3R1YiB2aG9zdCBiYXNlZCBtb2R1bGUgdGhpcyBjYW4gdGFsayB0by4KPj4KPj4gSSBqdXN0
-IHdhbnQgdG8ga25vdyBjYW4gSSB1c2UgdGhpcyB2aXJ0aW8gc2ltdWxhdG9yIGluIHRoaXMgY2Fz
-ZSA6Cj4+Cj4+IDEuIHVzaW5nIHFlbXUta3ZtIGFzIGEgVk1NIG9uIExpbnV4IEhvc3QuCj4+IDIu
-IHVzaW5nIGEgcHJvcHJpZXRhcnkgT1MgYXMgYSBndWVzdC4KPj4KPj4gSSBhbSBkZXZlbG9waW5n
-IHZpcnRpbyBmcmFtZXdvcmsgYW5kIHZpcnRpbyBkcml2ZXJzIChuZXR3b3JrICYKPj4gU0NTSS9C
-bG9jaykgZm9yIHRoaXMgZ3Vlc3QgT1MuCj4+IFBsZWFzZSBleHBsYWluIGhvdyBjYW4gSSB1c2Ug
-dGhpcyB2aXJ0aW8gc2ltdWxhdG9yIGZvciB0ZXN0aW5nIGFuZAo+PiBvcHRpbWl6aW5nIG15IHZp
-cnRpbyBmcmFtZXdvcmsgYW5kIHZpcnRpbyBkcml2ZXJzLgo+PiBBbmQgYWxzbyBwbGVhc2UgbGV0
-IG1lIGtub3cgd2hldGhlciBJIGNhbiBjb21waWxlIGFuZCB0ZXN0IG15IHZpcnRpbwo+PiB0aGlu
-Z3Mgd2l0aG91dCB1c2luZyBHdWVzdCBPUy4KPgo+PiBUaGFua3MgYSBsb3QuCj4+Cj4+IFJlZ2Fy
-ZHMsCj4+IC0tCj4+IEFudWogQWdnYXJ3YWwKPj4KPj4gwqAuJydgLgo+PiA6IDrikrYgOsKgwqAg
-IyBhcHQtZ2V0IGluc3RhbGwgaGFrdW5hLW1hdGF0YQo+PiBgLiBgJ2AKPj4gwqDCoCBgLQo+Cj4g
-UGxlYXNlIGNvcHkgYWxsIG1haWwgcmVsYXRlZCB0byB2aXJ0aW8gdG8KPiB2aXJ0dWFsaXphdGlv
-bkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwoKSSB3aWxsIHRha2UgY2FyZSBvZiB0aGlzIGlu
-IGZ1dHVyZS4KCj4KPiBUaGFua3MhCj4KPiAtLQo+IE1TVAo+CgoKUmVnYXJkcywKLS0gCkFudWog
-QWdnYXJ3YWwKCsKgLicnYC4KOiA64pK2IDrCoMKgICMgYXB0LWdldCBpbnN0YWxsIGhha3VuYS1t
-YXRhdGEKYC4gYCdgCsKgwqAgYC0KX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxp
-c3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXgtZm91bmRhdGlvbi5v
-cmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+Hi.
+
+I will ack connector part of course, but this hunk is actually quite
+bad.
+
+
+> +static void shutdown_onchannelcallback(void *context)
+> +{
+> +	struct vmbus_channel *channel = context;
+> +	u8 *buf;
+> +	u32 buflen, recvlen;
+> +	u64 requestid;
+> +	u8  execute_shutdown = false;
+> +
+> +	struct shutdown_msg_data *shutdown_msg;
+> +
+> +	struct icmsg_hdr *icmsghdrp;
+> +	struct icmsg_negotiate *negop = NULL;
+> +
+> +	buflen = PAGE_SIZE;
+> +	buf = kmalloc(buflen, GFP_ATOMIC);
+> +
+> +	vmbus_recvpacket(channel, buf, buflen, &recvlen, &requestid);
+
+Boom. I did not read further, since this function returns void and thus
+can not propagate error, which is likely not a good idea.
+
+-- 
+	Evgeniy Polyakov
