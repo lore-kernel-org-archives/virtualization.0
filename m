@@ -1,30 +1,34 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [GIT PULL net-2.6] vhost-net: rcu fixup
-Date: Thu, 25 Nov 2010 14:23:01 +0200
-Message-ID: <20101125122301.GA15990@redhat.com>
+From: Stefan Hajnoczi <stefanha@gmail.com>
+Subject: Re: transport between guest and host
+Date: Thu, 25 Nov 2010 15:00:57 +0000
+Message-ID: <AANLkTi=47msiiexrmSX_xQHJsJ=oG5JhwDGWta29npm2@mail.gmail.com>
+References: <AANLkTin7L0OY_Z-RxuSY1TqjfQSK6aCPYgSnTwX1h7ht@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <netdev-owner@vger.kernel.org>
-Content-Disposition: inline
-Sender: netdev-owner@vger.kernel.org
-To: David Miller <davem@davemloft.net>
-Cc: kvm@vger.kernel.org, virtualization@lists.osdl.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <AANLkTin7L0OY_Z-RxuSY1TqjfQSK6aCPYgSnTwX1h7ht@mail.gmail.com>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: devi thapa <devi.thapa@gmail.com>
+Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Please merge the following fix for 2.6.36.
-Thanks!
+On Thu, Nov 25, 2010 at 11:37 AM, devi thapa <devi.thapa@gmail.com> wrote:
+> =A0 =A0 =A0 =A0 =A0I have 2 queries.
+> 1. =A0Is virtio-serial or virtio-console data transfer kernel level and
+> efficient than vhostnet networking.
+> 2. =A0Is 9p efficient for communicating between guests and a host
+> using a virtio based transport. =A0Is this also kernel level transport.
 
-The following changes since commit a27e13d370415add3487949c60810e36069a23a6:
+The right choice depends on what you are trying to do.  What are you
+trying to do :)?
 
-  econet: fix CVE-2010-3848 (2010-11-24 11:51:47 -0800)
-
-are available in the git repository at:
-  git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git vhost-net
-
-Michael S. Tsirkin (1):
-      vhost/net: fix rcu check usage
-
- drivers/vhost/net.c |    5 +++--
- 1 files changed, 3 insertions(+), 2 deletions(-)
--- 
-MST
+Stefan
