@@ -1,17 +1,14 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH RFC] tools/virtio: virtio_ring testing tool
-Date: Thu, 25 Nov 2010 18:35:23 +0200
-Message-ID: <20101125163523.GA18525@redhat.com>
-References: <20101116123455.GA22446@redhat.com>
-	<AANLkTimUw6R9dH2SmPAAyht_mp7aLKpYDqG-ystFM3Rg@mail.gmail.com>
-	<20101124050228.GA18883@redhat.com>
-	<AANLkTinx3g1LnMSVLfoZRVQCTFtTvBspyjDgd8JJN5J3@mail.gmail.com>
+From: devi thapa <devi.thapa@gmail.com>
+Subject: Re: transport between guest and host
+Date: Thu, 25 Nov 2010 22:13:18 +0530
+Message-ID: <AANLkTimgiSxZsjC+kaNST_Gw4Fw+tEp7+UZTyfb6-k+E@mail.gmail.com>
+References: <AANLkTin7L0OY_Z-RxuSY1TqjfQSK6aCPYgSnTwX1h7ht@mail.gmail.com>
+	<AANLkTi=47msiiexrmSX_xQHJsJ=oG5JhwDGWta29npm2@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <AANLkTinx3g1LnMSVLfoZRVQCTFtTvBspyjDgd8JJN5J3@mail.gmail.com>
+In-Reply-To: <AANLkTi=47msiiexrmSX_xQHJsJ=oG5JhwDGWta29npm2@mail.gmail.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -21,50 +18,28 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: =?utf-8?B?4KSF4KSo4KWB4KSc?= <anuj01@gmail.com>
+To: Stefan Hajnoczi <stefanha@gmail.com>
 Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gV2VkLCBOb3YgMjQsIDIwMTAgYXQgMTE6NDA6NDBBTSArMDUzMCwg4KSF4KSo4KWB4KScIHdy
-b3RlOgo+IEhpIE1pY2hhZWwKPiAKPiAyMDEwLzExLzI0IE1pY2hhZWwgUy4gVHNpcmtpbiA8bXN0
-QHJlZGhhdC5jb20+Ogo+ID4gT24gV2VkLCBOb3YgMjQsIDIwMTAgYXQgMDk6NDE6MjBBTSArMDUz
-MCwg4KSF4KSo4KWB4KScIHdyb3RlOgo+ID4+IEhpIE1pY2hhZWwsCj4gPj4KPiA+PiA+IFRoaXMg
-aW1wbGVtZW50cyBhIHZpcnRpbyBzaW11bGF0b3I6Cj4gPj4gPiAtIGFkZHMgc3R1YnMgZm9yIGVu
-b3VnaCBzdXBwb3J0IGZ1bmN0aW9ucyB0byBjb21waWxlCj4gPj4gPiDCoHZpcnRpbyByaW5nIGlu
-IHVzZXJzcGFjZS4KPiA+PiA+IC0gQWRkcyBhIHN0dWIgdmhvc3QgYmFzZWQgbW9kdWxlIHRoaXMg
-Y2FuIHRhbGsgdG8uCj4gPj4KPiA+PiBJIGp1c3Qgd2FudCB0byBrbm93IGNhbiBJIHVzZSB0aGlz
-IHZpcnRpbyBzaW11bGF0b3IgaW4gdGhpcyBjYXNlIDoKPiA+Pgo+ID4+IDEuIHVzaW5nIHFlbXUt
-a3ZtIGFzIGEgVk1NIG9uIExpbnV4IEhvc3QuCj4gPj4gMi4gdXNpbmcgYSBwcm9wcmlldGFyeSBP
-UyBhcyBhIGd1ZXN0Lgo+ID4+Cj4gPj4gSSBhbSBkZXZlbG9waW5nIHZpcnRpbyBmcmFtZXdvcmsg
-YW5kIHZpcnRpbyBkcml2ZXJzIChuZXR3b3JrICYKPiA+PiBTQ1NJL0Jsb2NrKSBmb3IgdGhpcyBn
-dWVzdCBPUy4KPiA+PiBQbGVhc2UgZXhwbGFpbiBob3cgY2FuIEkgdXNlIHRoaXMgdmlydGlvIHNp
-bXVsYXRvciBmb3IgdGVzdGluZyBhbmQKPiA+PiBvcHRpbWl6aW5nIG15IHZpcnRpbyBmcmFtZXdv
-cmsgYW5kIHZpcnRpbyBkcml2ZXJzLgoKV2hhdCB0aGlzIHRvb2wgaW5jbHVkZXMgaXMKMS4gdmly
-dGlvIHJpbmcgYml0cyBmcm9tIGxpbnV4IGd1ZXN0IGNvbXBpbGVkIGluIHVzZXJzcGFjZQoJdG9v
-bHMvdmlydGlvL2xpbnV4LwoyLiB2aXJ0aW8gaG9zdCBiaXRzIGNvbXBpbGVkIGFzIGEgbGludXgg
-a2VybmVsIG1vZHVsZQoJdG9vbHMvdmlydGlvL3Zob3N0X251bGwKMy4gc29tZSBiaXRzIHRvIGNv
-bm5lY3QgdGhlIHR3byBhbmQgdGVzdAoJdG9vbHMvdmlydGlvL3ZpcnRpb190ZXN0LmMKCkknbSB1
-c2luZyBpdCB0byB0dW5lIGxpbnV4IGd1ZXN0IGFuZCBob3N0IGNvZGUuCklmIHlvdSBoYXZlIHNv
-bWUgb3RoZXIgZ3Vlc3QgY29kZSwgeW91IGNvdWxkIHN0aWxsIHVzZSB0aGUgbW9kdWxlICgyKSwK
-YW5kIGlmIHlvdSBtYWtlIHRoZSBBUEkgY29tcGF0aWJsZSwgcG9zc2libHkgcmV1c2UgdGhlIHRl
-c3QgKDMpIHBhcnRzIG9mIGl0LgpJdCB3b3VsZCBiZSBuaWNlIGlmIHlvdSBwdWJsaXNoIGNoYW5n
-ZXMgdG8gdGhlIGNvbW1vbiBmaWxlcywgaWYgYW55LCBvbgp0aGUgbGlzdC4KCklmIHlvdSB3YW50
-IHRvIGRpc3RyaWJ1dGUgdGhlIHJlc3VsdCwgdGhlIHJ1bGVzIGZvciB0aGlzCmFyZSBpbiB0aGUg
-ZmlsZSBDT1BZSU5HIHVuZGVyIHRoZSBsaW51eCBzb3VyY2UgdHJlZS4KCj4gPj4gQW5kIGFsc28g
-cGxlYXNlIGxldCBtZSBrbm93IHdoZXRoZXIgSSBjYW4gY29tcGlsZSBhbmQgdGVzdCBteSB2aXJ0
-aW8KPiA+PiB0aGluZ3Mgd2l0aG91dCB1c2luZyBHdWVzdCBPUy4KCk5vIGlkZWEuCgo+ID4+IFRo
-YW5rcyBhIGxvdC4KPiA+Pgo+ID4+IFJlZ2FyZHMsCj4gPj4gLS0KPiA+PiBBbnVqIEFnZ2Fyd2Fs
-Cj4gPj4KPiA+PiDCoC4nJ2AuCj4gPj4gOiA64pK2IDrCoMKgICMgYXB0LWdldCBpbnN0YWxsIGhh
-a3VuYS1tYXRhdGEKPiA+PiBgLiBgJ2AKPiA+PiDCoMKgIGAtCj4gPgo+ID4gUGxlYXNlIGNvcHkg
-YWxsIG1haWwgcmVsYXRlZCB0byB2aXJ0aW8gdG8KPiA+IHZpcnR1YWxpemF0aW9uQGxpc3RzLmxp
-bnV4LWZvdW5kYXRpb24ub3JnCj4gCj4gSSB3aWxsIHRha2UgY2FyZSBvZiB0aGlzIGluIGZ1dHVy
-ZS4KPiAKPiA+Cj4gPiBUaGFua3MhCj4gPgo+ID4gLS0KPiA+IE1TVAo+ID4KPiAKPiAKPiBSZWdh
-cmRzLAo+IC0tIAo+IEFudWogQWdnYXJ3YWwKPiAKPiDCoC4nJ2AuCj4gOiA64pK2IDrCoMKgICMg
-YXB0LWdldCBpbnN0YWxsIGhha3VuYS1tYXRhdGEKPiBgLiBgJ2AKPiDCoMKgIGAtCj4gX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KPiBWaXJ0dWFsaXphdGlv
-biBtYWlsaW5nIGxpc3QKPiBWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9y
-Zwo+IGh0dHBzOi8vbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92
-aXJ0dWFsaXphdGlvbgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGlu
-dXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZy9tYWls
-bWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+Hi Stefan,
+
+      I want to transport modules from host and insert in guest and
+transport the result back to host.
+
+ Regards,
+ Devi.
+
+On Thu, Nov 25, 2010 at 8:30 PM, Stefan Hajnoczi <stefanha@gmail.com> wrote:
+> On Thu, Nov 25, 2010 at 11:37 AM, devi thapa <devi.thapa@gmail.com> wrote:
+>> =A0 =A0 =A0 =A0 =A0I have 2 queries.
+>> 1. =A0Is virtio-serial or virtio-console data transfer kernel level and
+>> efficient than vhostnet networking.
+>> 2. =A0Is 9p efficient for communicating between guests and a host
+>> using a virtio based transport. =A0Is this also kernel level transport.
+>
+> The right choice depends on what you are trying to do. =A0What are you
+> trying to do :)?
+>
+> Stefan
+>
