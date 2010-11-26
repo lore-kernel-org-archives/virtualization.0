@@ -1,15 +1,15 @@
-From: Stefan Hajnoczi <stefanha@gmail.com>
-Subject: Re: transport between guest and host
-Date: Thu, 25 Nov 2010 21:07:28 +0000
-Message-ID: <AANLkTinXKKZAoMYBK4Q+6HPuUJbg3E4BjefbwDHBHnLV@mail.gmail.com>
-References: <AANLkTin7L0OY_Z-RxuSY1TqjfQSK6aCPYgSnTwX1h7ht@mail.gmail.com>
-	<AANLkTi=47msiiexrmSX_xQHJsJ=oG5JhwDGWta29npm2@mail.gmail.com>
-	<AANLkTimgiSxZsjC+kaNST_Gw4Fw+tEp7+UZTyfb6-k+E@mail.gmail.com>
+From: Ingo Molnar <mingo@elte.hu>
+Subject: Re: [PATCH] x86/pvclock-xen: zero last_value on resume
+Date: Fri, 26 Nov 2010 11:40:47 +0100
+Message-ID: <20101126104047.GA9798__17280.1987770528$1290768274$gmane$org@elte.hu>
+References: <4CC708DE.1070000@goop.org>
+ <4CEACFAB.90503@goop.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <AANLkTimgiSxZsjC+kaNST_Gw4Fw+tEp7+UZTyfb6-k+E@mail.gmail.com>
+Content-Disposition: inline
+In-Reply-To: <4CEACFAB.90503@goop.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,17 +19,25 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: devi thapa <devi.thapa@gmail.com>
-Cc: virtualization@lists.linux-foundation.org
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: "Xen-devel@lists.xensource.com" <Xen-devel@lists.xensource.com>, kvm-devel <kvm@vger.kernel.org>, Glauber Costa <glommer@redhat.com>, the arch/x86 maintainers <x86@kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Olivier Hanesse <olivier.hanesse@gmail.com>, Avi Kivity <avi@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, Thomas Gleixner <tglx@linutronix.de>, Eelco Dolstra <e.dolstra@tudelft.nl>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Nov 25, 2010 at 4:43 PM, devi thapa <devi.thapa@gmail.com> wrote:
-> =A0 =A0 =A0I want to transport modules from host and insert in guest and
-> transport the result back to host.
 
-Linux kernel modules?
+* Jeremy Fitzhardinge <jeremy@goop.org> wrote:
 
-If you describe the problem you're trying to solve in more detail
-you'll get more helpful feedback.
+> On 10/26/2010 09:59 AM, Jeremy Fitzhardinge wrote:
+> >
+> > If the guest domain has been suspend/resumed or migrated, then the
+> > system clock backing the pvclock clocksource may revert to a smaller
+> > value (ie, can be non-monotonic across the migration/save-restore).
+> > Make sure we zero last_value in that case so that the domain
+> > continues to see clock updates.
+> 
+> Ping?  Looks like this fell through the gaps.
 
-Stefan
+Does not apply cleanly here - mind resending the latest version?
+
+Thanks,
+
+	Ingo
