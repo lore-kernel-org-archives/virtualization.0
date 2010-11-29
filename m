@@ -1,71 +1,52 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH] vhost: correctly set bits of dirty pages
-Date: Mon, 29 Nov 2010 21:50:06 +0800
-Message-ID: <19699.44942.204823.848838@gargle.gargle.HOWL>
-References: <20101129054819.24923.26439.stgit@dhcp-91-7.nay.redhat.com.englab.nay.redhat.com>
-	<20101129081840.GB25496@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH 0/2] tools/virtio: virtio_ring testing tool
+Date: Mon, 29 Nov 2010 19:04:31 +0200
+Message-ID: <20101129170431.GA4027__16756.1139482588$1291050347$gmane$org@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20101129081840.GB25496@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jason Wang <jasowang@redhat.com>, virtualization@lists.osdl.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, rusty@rustcorp.com.au
+Cc: linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Michael S. Tsirkin writes:
- > On Mon, Nov 29, 2010 at 01:48:20PM +0800, Jason Wang wrote:
- > > When counting pages we should increase it by 1 instead of VHOST_PAGE_SIZE,
- > > and also make log_write() can correctly process the request across
- > > pages with write_address not start at page boundary.
- > > 
- > > Signed-off-by: Jason Wang <jasowang@redhat.com>
- > 
- > dd
- > Thanks, good catch!
- > But let's to it in small steps: first, a small patch to fix the bug:
- > I think this is equivalent, right?
- > 
+This implements a virtio simulator:
+ - adds stubs for enough support functions to compile
+   virtio ring in userspace.
+ - Adds a stub vhost based module this can talk to.
+ 
+This should help us decide things like which ring layout
+works best.
+ 
+Communication is currently done using an eventfd descriptor.
+This means there's a shared spinlock there: what I would like to do
+in the future, is run this under kvm and use interrupt injection and
+io for communication, to make it more real-life and avoid lock
+contention.
 
-Yes.
+This patchset applies on top of vhost-net-next branch in my tree.
+In particular you must have commits:
+commit 64e1c80748afca3b4818ebb232a9668bf529886d
+    vhost-net: batch use/unuse mm
+commit 533a19b4b88fcf81da3106b94f0ac4ac8b33a248
+    vhost: put mm after thread stop
+ 
+I think it's probably best to keep this part of kernel tree,
+to avoid version skew and so we don't need to commit to
+any kind of API.
 
- > Subject: vhost: correctly set bits of dirty pages
- > 
- > When counting pages we should increase address by 1 instead of
- > VHOST_PAGE_SIZE, and also make log_write() can correctly process the
- > request across pages with write_address not starting at page boundary.
- > 
- > Reported-by: Jason Wang <jasowang@redhat.com>
- > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
- > 
+Since there's a dependency on vhost here it's easiest
+to merge this through my vhost tree, so that's what
+I intend to do unless someone complains, soon.
 
-I'm fine with this, thanks!
-
- > ---
- > 
- > diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
- > index 568eb70..d0a3552 100644
- > --- a/drivers/vhost/vhost.c
- > +++ b/drivers/vhost/vhost.c
- > @@ -887,6 +887,7 @@ static int log_write(void __user *log_base,
- >  	int r;
- >  	if (!write_length)
- >  		return 0;
- > +	write_length += write_address % VHOST_PAGE_SIZE;
- >  	write_address /= VHOST_PAGE_SIZE;
- >  	for (;;) {
- >  		u64 base = (u64)(unsigned long)log_base;
- > @@ -900,7 +901,7 @@ static int log_write(void __user *log_base,
- >  		if (write_length <= VHOST_PAGE_SIZE)
- >  			break;
- >  		write_length -= VHOST_PAGE_SIZE;
- > -		write_address += VHOST_PAGE_SIZE;
- > +		write_address += 1;
- >  	}
- >  	return r;
- >  }
- > --
- > To unsubscribe from this list: send the line "unsubscribe kvm" in
- > the body of a message to majordomo@vger.kernel.org
- > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
