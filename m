@@ -1,49 +1,65 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH 2/2] tools/virtio: virtio_test tool
-Date: Mon, 6 Dec 2010 15:23:02 +1030
-Message-ID: <201012061523.03108.rusty__45349.7399030768$1291611250$gmane$org@rustcorp.com.au>
-References: <20101129170431.GA4027@redhat.com>
-	<20101129171637.GC4027@redhat.com>
+From: Hank Janssen <hjanssen@microsoft.com>
+Subject: [PATCH 7/8] staging: hv: Convert camel case function names in
+	blkvsc.c to lowercase
+Date: Mon,  6 Dec 2010 12:26:50 -0800
+Message-ID: <1291667211-1865-7-git-send-email-hjanssen@microsoft.com>
+References: <1291667211-1865-1-git-send-email-hjanssen@microsoft.com>
+	<1291667211-1865-2-git-send-email-hjanssen@microsoft.com>
+	<1291667211-1865-3-git-send-email-hjanssen@microsoft.com>
+	<1291667211-1865-4-git-send-email-hjanssen@microsoft.com>
+	<1291667211-1865-5-git-send-email-hjanssen@microsoft.com>
+	<1291667211-1865-6-git-send-email-hjanssen@microsoft.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20101129171637.GC4027@redhat.com>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+Return-path: <devel-bounces@linuxdriverproject.org>
+In-Reply-To: <1291667211-1865-6-git-send-email-hjanssen@microsoft.com>
+List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
+	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
+List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
+List-Post: <mailto:devel@linuxdriverproject.org>
+List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
+List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
+	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
+Sender: devel-bounces@linuxdriverproject.org
+Errors-To: devel-bounces@linuxdriverproject.org
+To: hjanssen@microsoft.com, gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org
+Cc: Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 30 Nov 2010 03:46:37 am Michael S. Tsirkin wrote:
-> This is the userspace part of the tool: it includes a bunch of stubs for
-> linux APIs, somewhat simular to linuxsched. This makes it possible to
-> recompile the ring code in userspace.
-> 
-> A small test example is implemented combining this with vhost_test
-> module.
-> 
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+From: Hank Janssen <hjanssen@microsoft.com> 
 
-Hi Michael,
+Convert camel case function names in blkvsc.c to lowercase
+ 
+Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
+Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
+Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 
-  I'm not sure what the point is of this work?  You'll still need to
-benchmark on real systems, but it's not low-level enough to measure
-things like cache misses.
+---
+ drivers/staging/hv/blkvsc.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
-I'm assuming you're thinking of playing with layout to measure cache
-behaviour.  I was thinking of a complete userspace implementation where
-either it was run under cachegrind, or each access was wrapped to allow
-tracking of cachelines to give an exact measure of cache movement under
-various scenarios (esp. ring mostly empty, ring in steady state, ring
-mostly full).
-
-Cheers,
-Rusty.
+diff --git a/drivers/staging/hv/blkvsc.c b/drivers/staging/hv/blkvsc.c
+index 208492c..4f4a65c 100644
+--- a/drivers/staging/hv/blkvsc.c
++++ b/drivers/staging/hv/blkvsc.c
+@@ -35,7 +35,7 @@ static const struct hv_guid gBlkVscDeviceType = {
+ 	}
+ };
+ 
+-static int BlkVscOnDeviceAdd(struct hv_device *Device, void *AdditionalInfo)
++static int blk_vsc_on_device_add(struct hv_device *Device, void *AdditionalInfo)
+ {
+ 	struct storvsc_device_info *deviceInfo;
+ 	int ret = 0;
+@@ -93,7 +93,7 @@ int blk_vsc_initialize(struct hv_driver *Driver)
+ 		    storDriver->max_outstanding_req_per_channel);
+ 
+ 	/* Setup the dispatch table */
+-	storDriver->base.OnDeviceAdd = BlkVscOnDeviceAdd;
++	storDriver->base.OnDeviceAdd = blk_vsc_on_device_add;
+ 	storDriver->base.OnDeviceRemove = stor_vsc_on_device_remove;
+ 	storDriver->base.OnCleanup = stor_vsc_on_cleanup;
+ 	storDriver->on_io_request = stor_vsc_on_io_request;
+-- 
+1.6.0.2
