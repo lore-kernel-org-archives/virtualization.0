@@ -1,19 +1,15 @@
 From: Hank Janssen <hjanssen@microsoft.com>
-Subject: [PATCH 7/8] staging: hv: Convert camel case function names in
-	blkvsc.c to lowercase
-Date: Mon,  6 Dec 2010 12:26:50 -0800
-Message-ID: <1291667211-1865-7-git-send-email-hjanssen@microsoft.com>
+Subject: [PATCH 3/8] staging: hv: Convert camel case functions in
+	storvsc_api.h to lowercase
+Date: Mon,  6 Dec 2010 12:26:46 -0800
+Message-ID: <1291667211-1865-3-git-send-email-hjanssen@microsoft.com>
 References: <1291667211-1865-1-git-send-email-hjanssen@microsoft.com>
 	<1291667211-1865-2-git-send-email-hjanssen@microsoft.com>
-	<1291667211-1865-3-git-send-email-hjanssen@microsoft.com>
-	<1291667211-1865-4-git-send-email-hjanssen@microsoft.com>
-	<1291667211-1865-5-git-send-email-hjanssen@microsoft.com>
-	<1291667211-1865-6-git-send-email-hjanssen@microsoft.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <devel-bounces@linuxdriverproject.org>
-In-Reply-To: <1291667211-1865-6-git-send-email-hjanssen@microsoft.com>
+In-Reply-To: <1291667211-1865-2-git-send-email-hjanssen@microsoft.com>
 List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
 	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
 List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
@@ -29,37 +25,108 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Hank Janssen <hjanssen@microsoft.com> 
 
-Convert camel case function names in blkvsc.c to lowercase
- 
+Convert camel case functions in storvsc_api.h to lowercase
+
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 
 ---
- drivers/staging/hv/blkvsc.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/staging/hv/blkvsc.c      |    2 +-
+ drivers/staging/hv/blkvsc_drv.c  |    2 +-
+ drivers/staging/hv/storvsc.c     |    6 +++---
+ drivers/staging/hv/storvsc_api.h |    6 +++---
+ drivers/staging/hv/storvsc_drv.c |    4 ++--
+ 5 files changed, 10 insertions(+), 10 deletions(-)
 
 diff --git a/drivers/staging/hv/blkvsc.c b/drivers/staging/hv/blkvsc.c
-index 208492c..4f4a65c 100644
+index 9ac04c3..e62c922 100644
 --- a/drivers/staging/hv/blkvsc.c
 +++ b/drivers/staging/hv/blkvsc.c
-@@ -35,7 +35,7 @@ static const struct hv_guid gBlkVscDeviceType = {
- 	}
+@@ -62,7 +62,7 @@ static int BlkVscOnDeviceAdd(struct hv_device *Device, void *AdditionalInfo)
+ 	return ret;
+ }
+ 
+-int BlkVscInitialize(struct hv_driver *Driver)
++int blk_vsc_initialize(struct hv_driver *Driver)
+ {
+ 	struct storvsc_driver_object *storDriver;
+ 	int ret = 0;
+diff --git a/drivers/staging/hv/blkvsc_drv.c b/drivers/staging/hv/blkvsc_drv.c
+index d65d69e..b3d05fc 100644
+--- a/drivers/staging/hv/blkvsc_drv.c
++++ b/drivers/staging/hv/blkvsc_drv.c
+@@ -1487,7 +1487,7 @@ static int __init blkvsc_init(void)
+ 
+ 	DPRINT_INFO(BLKVSC_DRV, "Blkvsc initializing....");
+ 
+-	ret = blkvsc_drv_init(BlkVscInitialize);
++	ret = blkvsc_drv_init(blk_vsc_initialize);
+ 
+ 	return ret;
+ }
+diff --git a/drivers/staging/hv/storvsc.c b/drivers/staging/hv/storvsc.c
+index c4346c6..7704131 100644
+--- a/drivers/staging/hv/storvsc.c
++++ b/drivers/staging/hv/storvsc.c
+@@ -605,7 +605,7 @@ static int StorVscOnDeviceRemove(struct hv_device *Device)
+ 	return 0;
+ }
+ 
+-int StorVscOnHostReset(struct hv_device *Device)
++int stor_vsc_on_host_reset(struct hv_device *Device)
+ {
+ 	struct storvsc_device *storDevice;
+ 	struct storvsc_request_extension *request;
+@@ -762,9 +762,9 @@ static void StorVscOnCleanup(struct hv_driver *Driver)
+ }
+ 
+ /*
+- * StorVscInitialize - Main entry point
++ * stor_vsc_initialize - Main entry point
+  */
+-int StorVscInitialize(struct hv_driver *Driver)
++int stor_vsc_initialize(struct hv_driver *Driver)
+ {
+ 	struct storvsc_driver_object *storDriver;
+ 
+diff --git a/drivers/staging/hv/storvsc_api.h b/drivers/staging/hv/storvsc_api.h
+index 46f031e..fbf5755 100644
+--- a/drivers/staging/hv/storvsc_api.h
++++ b/drivers/staging/hv/storvsc_api.h
+@@ -103,8 +103,8 @@ struct storvsc_device_info {
  };
  
--static int BlkVscOnDeviceAdd(struct hv_device *Device, void *AdditionalInfo)
-+static int blk_vsc_on_device_add(struct hv_device *Device, void *AdditionalInfo)
- {
- 	struct storvsc_device_info *deviceInfo;
- 	int ret = 0;
-@@ -93,7 +93,7 @@ int blk_vsc_initialize(struct hv_driver *Driver)
- 		    storDriver->max_outstanding_req_per_channel);
+ /* Interface */
+-int StorVscInitialize(struct hv_driver *driver);
+-int StorVscOnHostReset(struct hv_device *device);
+-int BlkVscInitialize(struct hv_driver *driver);
++int stor_vsc_initialize(struct hv_driver *driver);
++int stor_vsc_on_host_reset(struct hv_device *device);
++int blk_vsc_initialize(struct hv_driver *driver);
  
- 	/* Setup the dispatch table */
--	storDriver->base.OnDeviceAdd = BlkVscOnDeviceAdd;
-+	storDriver->base.OnDeviceAdd = blk_vsc_on_device_add;
- 	storDriver->base.OnDeviceRemove = stor_vsc_on_device_remove;
- 	storDriver->base.OnCleanup = stor_vsc_on_cleanup;
- 	storDriver->on_io_request = stor_vsc_on_io_request;
+ #endif /* _STORVSC_API_H_ */
+diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
+index 03695ce..0d96878 100644
+--- a/drivers/staging/hv/storvsc_drv.c
++++ b/drivers/staging/hv/storvsc_drv.c
+@@ -846,7 +846,7 @@ static int storvsc_host_reset_handler(struct scsi_cmnd *scmnd)
+ 		    scmnd->device, &device_ctx->device_obj);
+ 
+ 	/* Invokes the vsc to reset the host/bus */
+-	ret = StorVscOnHostReset(&device_ctx->device_obj);
++	ret = stor_vsc_on_host_reset(&device_ctx->device_obj);
+ 	if (ret != 0)
+ 		return ret;
+ 
+@@ -941,7 +941,7 @@ static int __init storvsc_init(void)
+ 	int ret;
+ 
+ 	DPRINT_INFO(STORVSC_DRV, "Storvsc initializing....");
+-	ret = storvsc_drv_init(StorVscInitialize);
++	ret = storvsc_drv_init(stor_vsc_initialize);
+ 	return ret;
+ }
+ 
 -- 
 1.6.0.2
