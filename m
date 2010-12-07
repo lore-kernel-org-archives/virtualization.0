@@ -1,39 +1,86 @@
-From: Thiago Farina <tfransosi@gmail.com>
-Subject: Re: [PATCH 2/2] tools/virtio: virtio_test tool
-Date: Mon, 6 Dec 2010 14:37:05 -0200
-Message-ID: <AANLkTinSia0yt3xmNusXezVsmembv9NKoymN+rrBn_pY__8592.84183611653$1291736165$gmane$org@mail.gmail.com>
-References: <20101129170431.GA4027@redhat.com>
-	<20101129171637.GC4027@redhat.com>
+From: "Ky Srinivasan" <ksrinivasan@novell.com>
+Subject: [PATCH 1/3]: An implementation of HyperV KVP functionality
+Date: Tue, 07 Dec 2010 15:09:52 -0700
+Message-ID: <4CFE4E40020000300009170B@novprvoes0310.provo.novell.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20101129171637.GC4027@redhat.com>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+Content-Type: multipart/mixed; boundary="=__PartCAE775A0.0__="
+Return-path: <devel-bounces@linuxdriverproject.org>
+List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
+	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
+List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
+List-Post: <mailto:devel@linuxdriverproject.org>
+List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
+List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
+	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
+Sender: devel-bounces@linuxdriverproject.org
+Errors-To: devel-bounces@linuxdriverproject.org
+To: devel@driverdev.osuosl.org, Virtualization@lists.osdl.org
+Cc: Zbr@ioremap.net, Haiyang Zhang <haiyangz@microsoft.com>, Stephen Hemminger <shemminger@vyatta.com>, Greg KH <gregkh@suse.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gTW9uLCBOb3YgMjksIDIwMTAgYXQgMzoxNiBQTSwgTWljaGFlbCBTLiBUc2lya2luIDxtc3RA
-cmVkaGF0LmNvbT4gd3JvdGU6Cj4gKyNkZWZpbmUgY29udGFpbmVyX29mKHB0ciwgdHlwZSwgbWVt
-YmVyKSAoeyDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCBcCj4gKyDCoCDCoCDCoCBjb25z
-dCB0eXBlb2YoICgodHlwZSAqKTApLT5tZW1iZXIgKSAqX19tcHRyID0gKHB0cik7IMKgIMKgXAo+
-ICsgwqAgwqAgwqAgKHR5cGUgKikoIChjaGFyICopX19tcHRyIC0gb2Zmc2V0b2YodHlwZSxtZW1i
-ZXIpICk7fSkKPiArCj4gKyNkZWZpbmUgdW5pbml0aWFsaXplZF92YXIoeCkgeCA9IHgKPiArCj4g
-KyMgaWZuZGVmIGxpa2VseQo+ICsjIMKgZGVmaW5lIGxpa2VseSh4KSDCoCDCoChfX2J1aWx0aW5f
-ZXhwZWN0KCEhKHgpLCAxKSkKPiArIyBlbmRpZgo+ICsjIGlmbmRlZiB1bmxpa2VseQo+ICsjIMKg
-ZGVmaW5lIHVubGlrZWx5KHgpIMKgKF9fYnVpbHRpbl9leHBlY3QoISEoeCksIDApKQo+ICsjIGVu
-ZGlmCgpJdCBzZWVtcyB5b3UgYXJlIG5vdCB1c2luZyB0aGVzZSBtYWNyb3MuIERvIHlvdSByZWFs
-bHkgbmVlZCB0aGVtIGhlcmU/CkNhbid0IHlvdSBpbmNsdWRlIHRoZSByaWdodCBsaW51eCBoZWFk
-ZXIgZmlsZXMgZm9yIHRoZXNlIG1hY3JvcwppbnN0ZWFkPwpfX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmly
-dHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51
-eC1mb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+--=__PartCAE775A0.0__=
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
+
+This patch is re-based on the latest linux-next tree.
+
+From: K. Y. Srinivasan <ksrinivasan@novell.com>
+Subject: Reserve a connector index for implementing HyperV Key Value Pair
+(KVP) functionality.
+
+Signed-off-by: K. Y. Srinivasan <ksrinivasan@novell.com>
+
+Index: linux.trees.git/include/linux/connector.h
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- linux.trees.git.orig/include/linux/connector.h	2010-11-05 =
+16:45:32.000000000 -0400
++++ linux.trees.git/include/linux/connector.h	2010-12-07 06:58:34.0000000=
+00 -0500
+@@ -42,8 +42,9 @@
+ #define CN_VAL_DM_USERSPACE_LOG		0x1
+ #define CN_IDX_DRBD			0x8
+ #define CN_VAL_DRBD			0x1
++#define CN_KVP_IDX			0x9	/* HyperV KVP */
+=20
+-#define CN_NETLINK_USERS		8
++#define CN_NETLINK_USERS		9
+=20
+ /*
+  * Maximum connector's message size.
+
+
+
+--=__PartCAE775A0.0__=
+Content-Type: text/plain; name="kvp_connector.patch"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: attachment; filename="kvp_connector.patch"
+
+From: K. Y. Srinivasan <ksrinivasan@novell.com>=0ASubject: Reserve a =
+connector index for implementing HyperV Key Value Pair=0A(KVP) functionalit=
+y.=0A=0ASigned-off-by: K. Y. Srinivasan <ksrinivasan@novell.com>=0A=0AIndex=
+: linux.trees.git/include/linux/connector.h=0A=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=0A--- linux.trees.git.orig/include/linux/connector=
+.h	2010-11-05 16:45:32.000000000 -0400=0A+++ linux.trees.git/include/l=
+inux/connector.h	2010-12-07 06:58:34.000000000 -0500=0A@@ -42,8 =
++42,9 @@=0A #define CN_VAL_DM_USERSPACE_LOG		0x1=0A #define =
+CN_IDX_DRBD			0x8=0A #define CN_VAL_DRBD			=
+0x1=0A+#define CN_KVP_IDX			0x9	/* HyperV KVP =
+*/=0A =0A-#define CN_NETLINK_USERS		8=0A+#define CN_NETLINK_USE=
+RS		9=0A =0A /*=0A  * Maximum connector's message size.=0A
+--=__PartCAE775A0.0__=
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+devel mailing list
+devel@linuxdriverproject.org
+http://driverdev.linuxdriverproject.org/mailman/listinfo/devel
+
+--=__PartCAE775A0.0__=--
