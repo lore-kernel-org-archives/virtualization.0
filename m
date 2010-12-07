@@ -1,54 +1,60 @@
 From: Greg KH <gregkh@suse.de>
-Subject: Re: [PATCH 1/3]: An implementation of HyperV KVP functionality
-Date: Tue, 7 Dec 2010 15:10:42 -0800
-Message-ID: <20101207231042.GD27918@suse.de>
-References: <4CFE4E40020000300009170B@novprvoes0310.provo.novell.com>
+Subject: Re: [PATCH 2/3]: An implementation of HyperV KVP functionality
+Date: Tue, 7 Dec 2010 15:12:54 -0800
+Message-ID: <20101207231254.GA27988@suse.de>
+References: <4CFE5204020000300009174C@novprvoes0310.provo.novell.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <devel-bounces@linuxdriverproject.org>
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <4CFE4E40020000300009170B@novprvoes0310.provo.novell.com>
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
-List-Post: <mailto:devel@linuxdriverproject.org>
-List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
-Sender: devel-bounces@linuxdriverproject.org
-Errors-To: devel-bounces@linuxdriverproject.org
+In-Reply-To: <4CFE5204020000300009174C@novprvoes0310.provo.novell.com>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Ky Srinivasan <ksrinivasan@novell.com>
 Cc: devel@driverdev.osuosl.org, Haiyang Zhang <haiyangz@microsoft.com>, Virtualization@lists.osdl.org, Zbr@ioremap.net, Stephen Hemminger <shemminger@vyatta.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Dec 07, 2010 at 03:09:52PM -0700, Ky Srinivasan wrote:
+On Tue, Dec 07, 2010 at 03:25:56PM -0700, Ky Srinivasan wrote:
 > This patch is re-based on the latest linux-next tree.
 > 
 > From: K. Y. Srinivasan <ksrinivasan@novell.com>
-> Subject: Reserve a connector index for implementing HyperV Key Value Pair
-> (KVP) functionality.
-
-A hint, this is not how you submit a patch.  Please put the Subject line
-up above in the real Subject for the email.
-
-Also provide a bit of a description in the body of the email that
-explains what is going on.
-
+> 
+> Subject: The hv_utils module will be composed of more than one file;
+> rename hv_utils.c to accommodate this without changing the module name.
 > 
 > Signed-off-by: K. Y. Srinivasan <ksrinivasan@novell.com>
 > 
-> Index: linux.trees.git/include/linux/connector.h
+
+
+Please put the diffstat of the patch in below the signed-off-by: and
+after a --- line.
+
+
+> Index: linux.trees.git/drivers/staging/hv/Makefile
 > ===================================================================
+> --- linux.trees.git.orig/drivers/staging/hv/Makefile	2010-12-07 07:04:41.000000000 -0500
+> +++ linux.trees.git/drivers/staging/hv/Makefile	2010-12-07 08:00:10.000000000 -0500
+> @@ -10,3 +10,4 @@ hv_vmbus-y := vmbus_drv.o osd.o \
+>  hv_storvsc-y := storvsc_drv.o storvsc.o
+>  hv_blkvsc-y := blkvsc_drv.o blkvsc.o
+>  hv_netvsc-y := netvsc_drv.o netvsc.o rndis_filter.o
+> +hv_utils-y := hv_util.o
+> Index: linux.trees.git/drivers/staging/hv/hv_util.c
+> ===================================================================
+> --- /dev/null	1970-01-01 00:00:00.000000000 +0000
+> +++ linux.trees.git/drivers/staging/hv/hv_util.c	2010-12-07 08:00:10.000000000 -0500
 
-What are these lines from?  Surely you aren't using cvs these days, are
-you?
-
-I should be able to take the email and directly feed it to 'git am' to
-apply it, without editing it at all.
-
-Care to fix this, and address the connector issues, and then resend them
-all?
+Are you renaming the file here?  Are you using git?  If so, it should
+produce a patch that shows the rename happened, not this big 'remove it
+all and then add it back' type thing.
 
 thanks,
 
