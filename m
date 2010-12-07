@@ -1,14 +1,15 @@
-From: Greg KH <gregkh@suse.de>
+From: "Ky Srinivasan" <ksrinivasan@novell.com>
 Subject: Re: [PATCH 2/3]: An implementation of HyperV KVP functionality
-Date: Tue, 7 Dec 2010 15:12:54 -0800
-Message-ID: <20101207231254.GA27988@suse.de>
+Date: Tue, 07 Dec 2010 16:19:03 -0700
+Message-ID: <4CFE5E770200003000091778@novprvoes0310.provo.novell.com>
 References: <4CFE5204020000300009174C@novprvoes0310.provo.novell.com>
+	<20101207222933.GA10431@ioremap.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20101207222933.GA10431@ioremap.net>
 Content-Disposition: inline
-In-Reply-To: <4CFE5204020000300009174C@novprvoes0310.provo.novell.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,44 +19,40 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Ky Srinivasan <ksrinivasan@novell.com>
-Cc: devel@driverdev.osuosl.org, Haiyang Zhang <haiyangz@microsoft.com>, Virtualization@lists.osdl.org, Zbr@ioremap.net, Stephen Hemminger <shemminger@vyatta.com>
+To: Evgeniy Polyakov <zbr@ioremap.net>
+Cc: devel@driverdev.osuosl.org, Haiyang Zhang <haiyangz@microsoft.com>, Greg KH <gregkh@suse.de>, Virtualization@lists.osdl.org, Stephen Hemminger <shemminger@vyatta.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Dec 07, 2010 at 03:25:56PM -0700, Ky Srinivasan wrote:
-> This patch is re-based on the latest linux-next tree.
+
+
+>>> On 12/7/2010 at  5:29 PM, in message <20101207222933.GA10431@ioremap.net>,
+Evgeniy Polyakov <zbr@ioremap.net> wrote: 
+> On Tue, Dec 07, 2010 at 03:25:56PM -0700, Ky Srinivasan 
+> (ksrinivasan@novell.com) wrote:
+>> +static void shutdown_onchannelcallback(void *context)
+>> +{
+>> +	struct vmbus_channel *channel = context;
+>> +	u8 *buf;
+>> +	u32 buflen, recvlen;
+>> +	u64 requestid;
+>> +	u8  execute_shutdown = false;
+>> +
+>> +	struct shutdown_msg_data *shutdown_msg;
+>> +
+>> +	struct icmsg_hdr *icmsghdrp;
+>> +	struct icmsg_negotiate *negop = NULL;
+>> +
+>> +	buflen = PAGE_SIZE;
+>> +	buf = kmalloc(buflen, GFP_ATOMIC);
+>> +
+>> +	vmbus_recvpacket(channel, buf, buflen, &recvlen, &requestid);
 > 
-> From: K. Y. Srinivasan <ksrinivasan@novell.com>
+> This did not change since previous review and this is wrong.
+> It is the right way to crash kernel.
 > 
-> Subject: The hv_utils module will be composed of more than one file;
-> rename hv_utils.c to accommodate this without changing the module name.
-> 
-> Signed-off-by: K. Y. Srinivasan <ksrinivasan@novell.com>
-> 
+> I did not read further since this is a show-stopper imo.
+Hank, do you want to respond to this comment.
 
+Regards,
 
-Please put the diffstat of the patch in below the signed-off-by: and
-after a --- line.
-
-
-> Index: linux.trees.git/drivers/staging/hv/Makefile
-> ===================================================================
-> --- linux.trees.git.orig/drivers/staging/hv/Makefile	2010-12-07 07:04:41.000000000 -0500
-> +++ linux.trees.git/drivers/staging/hv/Makefile	2010-12-07 08:00:10.000000000 -0500
-> @@ -10,3 +10,4 @@ hv_vmbus-y := vmbus_drv.o osd.o \
->  hv_storvsc-y := storvsc_drv.o storvsc.o
->  hv_blkvsc-y := blkvsc_drv.o blkvsc.o
->  hv_netvsc-y := netvsc_drv.o netvsc.o rndis_filter.o
-> +hv_utils-y := hv_util.o
-> Index: linux.trees.git/drivers/staging/hv/hv_util.c
-> ===================================================================
-> --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-> +++ linux.trees.git/drivers/staging/hv/hv_util.c	2010-12-07 08:00:10.000000000 -0500
-
-Are you renaming the file here?  Are you using git?  If so, it should
-produce a patch that shows the rename happened, not this big 'remove it
-all and then add it back' type thing.
-
-thanks,
-
-greg k-h
+K. Y
