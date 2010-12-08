@@ -1,14 +1,15 @@
-From: Greg KH <gregkh@suse.de>
-Subject: Re: [PATCH 4/4] A daemon to gather guest specific information for KVP
-Date: Wed, 8 Dec 2010 14:37:00 -0800
-Message-ID: <20101208223700.GA7068@suse.de>
-References: <4CFFA57702000030000918E9@novprvoes0310.provo.novell.com>
+From: "Ky Srinivasan" <ksrinivasan@novell.com>
+Subject: Re: [PATCH 2/4] Rename the file hv_utils.c
+Date: Wed, 08 Dec 2010 15:44:08 -0700
+Message-ID: <4CFFA7C802000030000918FC@novprvoes0310.provo.novell.com>
+References: <4CFFA39202000030000918CC@novprvoes0310.provo.novell.com>
+	<20101208223400.GB6714@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <devel-bounces@linuxdriverproject.org>
+In-Reply-To: <20101208223400.GB6714@suse.de>
 Content-Disposition: inline
-In-Reply-To: <4CFFA57702000030000918E9@novprvoes0310.provo.novell.com>
 List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
 	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
 List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
@@ -18,62 +19,41 @@ List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>
 	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
 Sender: devel-bounces@linuxdriverproject.org
 Errors-To: devel-bounces@linuxdriverproject.org
-To: Ky Srinivasan <ksrinivasan@novell.com>
-Cc: devel@driverdev.osuosl.org, Haiyang Zhang <haiyangz@microsoft.com>, Virtualization@lists.osdl.org, Zbr@ioremap.net, Stephen Hemminger <shemminger@vyatta.com>
+To: Greg KH <gregkh@suse.de>
+Cc: devel@driverdev.osuosl.org, Zbr@ioremap.net, Haiyang Zhang <haiyangz@microsoft.com>, Stephen Hemminger <shemminger@vyatta.com>, Virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-How about:
-	Subject: [PATCH 4/4] Staging: hv: add userspace daemon code to control key/value connection to the kernel
 
-On Wed, Dec 08, 2010 at 03:34:15PM -0700, Ky Srinivasan wrote:
-> >From 718eed47e4c2eb740dc04a6729c8853424ac6965 Mon Sep 17 00:00:00 2001
-> From: ksrinivasan <ksrinivasan@novell.com>
-> Date: Wed, 8 Dec 2010 14:10:35 -0700
+
+>>> On 12/8/2010 at  5:34 PM, in message <20101208223400.GB6714@suse.de>, Greg KH
+<gregkh@suse.de> wrote: 
+> For the subject on the rest of the patches they would look like:
+> 	Subject: [PATCH 2/4] Staging: hv: rename hv_utils.c to hv_util.c
 > 
-> This daemon gathers all the guest specific information needed to support the
-> HyperV KVP functionality. This daemon communicates with the kernel
-> component via a netlink channel.
+> Note the "Staging: hv:" prefix.
 > 
+> On Wed, Dec 08, 2010 at 03:26:10PM -0700, Ky Srinivasan wrote:
+>> >From 453acddcf55f1e68c5baf9dc5e8f601d18de15b0 Mon Sep 17 00:00:00 2001
+>> From: ksrinivasan <ksrinivasan@novell.com>
+>> Date: Wed, 8 Dec 2010 12:24:58 -0700
+>> 
+>> The hv_utils module will be composed of more than one file.
+>> Rename hv_utils.c to accommodate this without changing the module name.
+>> 
+>> 
+>> Signed-off-by: ksrinivasan <ksrinivasan@novell.com>
 > 
-> Signed-off-by: ksrinivasan <ksrinivasan@novell.com>
+> Again, use your full name.
+I will resend the patch.
 
-Wrong name :(
+Thanks,
 
-
-> ---
->  drivers/staging/hv/tools/hv_kvp_daemon.c |  470 ++++++++++++++++++++++++++++++
->  1 files changed, 470 insertions(+), 0 deletions(-)
->  create mode 100644 drivers/staging/hv/tools/hv_kvp_daemon.c
+K. Y
 > 
-> diff --git a/drivers/staging/hv/tools/hv_kvp_daemon.c b/drivers/staging/hv/tools/hv_kvp_daemon.c
-> new file mode 100644
-> index 0000000..f5a2dd6
-> --- /dev/null
-> +++ b/drivers/staging/hv/tools/hv_kvp_daemon.c
-> @@ -0,0 +1,470 @@
-> +/*
-> + * An implementation of key value pair (KVP) functionality for Linux.
-> + *
-> + *
-> + * Copyright (C) 2010, Novell, Inc.
-> + * Author : K. Y. Srinivasan <ksrinivasan@novell.com>
-> + *
-> + * This program is free software; you can redistribute it and/or modify it
-> + * under the terms of the GNU General Public License version 2 as published
-> + * by the Free Software Foundation.
-> + *
-> + * This program is distributed in the hope that it will be useful, but
-> + * WITHOUT ANY WARRANTY; without even the implied warranty of
-> + * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE, GOOD TITLE or
-> + * NON INFRINGEMENT.  See the GNU General Public License for more
-> + * details.
-> + *
-> + * You should have received a copy of the GNU General Public License
-> + * along with this program; if not, write to the Free Software
-> + * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
-
-You left in these two paragraphs, which aren't needed.
-
-thanks,
-
-greg k-h
+> thanks,
+> 
+> greg k-h
+> _______________________________________________
+> Virtualization mailing list
+> Virtualization@lists.linux-foundation.org
+> https://lists.linux-foundation.org/mailman/listinfo/virtualization
