@@ -1,57 +1,45 @@
 From: Greg KH <gregkh@suse.de>
-Subject: Re: [PATCH 1/4] Add a connector Index to support HyperV KVP
-	functionality
-Date: Wed, 8 Dec 2010 14:32:59 -0800
-Message-ID: <20101208223259.GA6714@suse.de>
-References: <4CFFA25B02000030000918BE@novprvoes0310.provo.novell.com>
+Subject: Re: [PATCH 2/4] Rename the file hv_utils.c
+Date: Wed, 8 Dec 2010 14:34:00 -0800
+Message-ID: <20101208223400.GB6714@suse.de>
+References: <4CFFA39202000030000918CC@novprvoes0310.provo.novell.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Return-path: <devel-bounces@linuxdriverproject.org>
 Content-Disposition: inline
-In-Reply-To: <4CFFA25B02000030000918BE@novprvoes0310.provo.novell.com>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
+In-Reply-To: <4CFFA39202000030000918CC@novprvoes0310.provo.novell.com>
+List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
+	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
+List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
+List-Post: <mailto:devel@linuxdriverproject.org>
+List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
+List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
+	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
+Sender: devel-bounces@linuxdriverproject.org
+Errors-To: devel-bounces@linuxdriverproject.org
 To: Ky Srinivasan <ksrinivasan@novell.com>
-Cc: Haiyang Zhang <haiyangz@microsoft.com>, Virtualization@lists.osdl.org, Zbr@ioremap.net, devel@linuxdriverproject.org, Stephen Hemminger <shemminger@vyatta.com>
+Cc: devel@driverdev.osuosl.org, Haiyang Zhang <haiyangz@microsoft.com>, Virtualization@lists.osdl.org, Zbr@ioremap.net, Stephen Hemminger <shemminger@vyatta.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Please make your subject a bit more descriptive, for this one, it would
-be:
-	Subject: [PATCH 1/4] Connector: add index to support HyperV
+For the subject on the rest of the patches they would look like:
+	Subject: [PATCH 2/4] Staging: hv: rename hv_utils.c to hv_util.c
 
-And what is a "KVP"?
+Note the "Staging: hv:" prefix.
 
-On Wed, Dec 08, 2010 at 03:20:59PM -0700, Ky Srinivasan wrote:
-> >From 5b7c16baf2f310a1e7e119c3df8fd976ca0e2f57 Mon Sep 17 00:00:00 2001
+On Wed, Dec 08, 2010 at 03:26:10PM -0700, Ky Srinivasan wrote:
+> >From 453acddcf55f1e68c5baf9dc5e8f601d18de15b0 Mon Sep 17 00:00:00 2001
 > From: ksrinivasan <ksrinivasan@novell.com>
-
-I doubt that's your full name you want as the changelog author
-information :)
-
-> Date: Wed, 8 Dec 2010 09:35:13 -0700
-
-Why is this in the body of your message?
-
+> Date: Wed, 8 Dec 2010 12:24:58 -0700
 > 
-> Added a connector index to support key value/pair (KVP) functionality
-> for Linux guests hosted on a HyperV platform. All KVP related
-> data gathering will be done in a user-level daemon. The kernel 
-> component of KVP communicates with the data gathering daemon using this
-> connector index.
+> The hv_utils module will be composed of more than one file.
+> Rename hv_utils.c to accommodate this without changing the module name.
 > 
 > 
 > Signed-off-by: ksrinivasan <ksrinivasan@novell.com>
 
-Same error here with your name :(
+Again, use your full name.
 
-Third time's a charm?
+thanks,
 
 greg k-h
