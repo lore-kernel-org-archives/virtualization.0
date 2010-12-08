@@ -1,516 +1,57 @@
-From: "Ky Srinivasan" <ksrinivasan@novell.com>
-Subject: [PATCH 4/4] A daemon to gather guest specific information for
- KVP
-Date: Wed, 08 Dec 2010 15:34:15 -0700
-Message-ID: <4CFFA57702000030000918E9@novprvoes0310.provo.novell.com>
+From: Greg KH <gregkh@suse.de>
+Subject: Re: [PATCH 1/4] Add a connector Index to support HyperV KVP
+	functionality
+Date: Wed, 8 Dec 2010 14:32:59 -0800
+Message-ID: <20101208223259.GA6714@suse.de>
+References: <4CFFA25B02000030000918BE@novprvoes0310.provo.novell.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <devel-bounces@linuxdriverproject.org>
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
-List-Post: <mailto:devel@linuxdriverproject.org>
-List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
-Sender: devel-bounces@linuxdriverproject.org
-Errors-To: devel-bounces@linuxdriverproject.org
-To: devel@driverdev.osuosl.org, Virtualization@lists.osdl.org
-Cc: Zbr@ioremap.net, Haiyang Zhang <haiyangz@microsoft.com>, Stephen Hemminger <shemminger@vyatta.com>, Greg KH <gregkh@suse.de>
+In-Reply-To: <4CFFA25B02000030000918BE@novprvoes0310.provo.novell.com>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Ky Srinivasan <ksrinivasan@novell.com>
+Cc: Haiyang Zhang <haiyangz@microsoft.com>, Virtualization@lists.osdl.org, Zbr@ioremap.net, devel@linuxdriverproject.org, Stephen Hemminger <shemminger@vyatta.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From 718eed47e4c2eb740dc04a6729c8853424ac6965 Mon Sep 17 00:00:00 2001
-From: ksrinivasan <ksrinivasan@novell.com>
-Date: Wed, 8 Dec 2010 14:10:35 -0700
+Please make your subject a bit more descriptive, for this one, it would
+be:
+	Subject: [PATCH 1/4] Connector: add index to support HyperV
 
-This daemon gathers all the guest specific information needed to support the
-HyperV KVP functionality. This daemon communicates with the kernel
-component via a netlink channel.
+And what is a "KVP"?
 
+On Wed, Dec 08, 2010 at 03:20:59PM -0700, Ky Srinivasan wrote:
+> >From 5b7c16baf2f310a1e7e119c3df8fd976ca0e2f57 Mon Sep 17 00:00:00 2001
+> From: ksrinivasan <ksrinivasan@novell.com>
 
-Signed-off-by: ksrinivasan <ksrinivasan@novell.com>
----
- drivers/staging/hv/tools/hv_kvp_daemon.c |  470 ++++++++++++++++++++++++++++++
- 1 files changed, 470 insertions(+), 0 deletions(-)
- create mode 100644 drivers/staging/hv/tools/hv_kvp_daemon.c
+I doubt that's your full name you want as the changelog author
+information :)
 
-diff --git a/drivers/staging/hv/tools/hv_kvp_daemon.c b/drivers/staging/hv/tools/hv_kvp_daemon.c
-new file mode 100644
-index 0000000..f5a2dd6
---- /dev/null
-+++ b/drivers/staging/hv/tools/hv_kvp_daemon.c
-@@ -0,0 +1,470 @@
-+/*
-+ * An implementation of key value pair (KVP) functionality for Linux.
-+ *
-+ *
-+ * Copyright (C) 2010, Novell, Inc.
-+ * Author : K. Y. Srinivasan <ksrinivasan@novell.com>
-+ *
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License version 2 as published
-+ * by the Free Software Foundation.
-+ *
-+ * This program is distributed in the hope that it will be useful, but
-+ * WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE, GOOD TITLE or
-+ * NON INFRINGEMENT.  See the GNU General Public License for more
-+ * details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
-+ *
-+ */
-+
-+
-+#include <sys/types.h>
-+#include <sys/socket.h>
-+#include <sys/poll.h>
-+#include <sys/utsname.h>
-+#include <linux/types.h>
-+#include <stdio.h>
-+#include <stdlib.h>
-+#include <unistd.h>
-+#include <string.h>
-+#include <errno.h>
-+#include <arpa/inet.h>
-+#include <linux/connector.h>
-+#include <linux/netlink.h>
-+#include <sys/socket.h>
-+#include <ifaddrs.h>
-+#include <netdb.h>
-+#include <syslog.h>
-+
-+/*
-+ * KYS: TODO. Need to register these in the kernel.
-+ *
-+ * The following definitions are shared with the in-kernel component; do not
-+ * change any of this without making the corresponding changes in
-+ * the KVP kernel component.
-+ */
-+#define CN_KVP_IDX		0x9     /* MSFT KVP functionality */
-+#define CN_KVP_VAL		0x1 /* This supports queries from the kernel */
-+#define CN_KVP_USER_VAL		0x2 /* This supports queries from the user  */
-+
-+/*
-+ * KVP protocol: The user mode component first registers with the
-+ * the kernel component. Subsequently, the kernel component requests, data
-+ * for the specified keys. In response to this message the user mode component
-+ * fills in the value corresponding to the specified key. We overload the
-+ * sequence field in the cn_msg header to define our KVP message types.
-+ *
-+ * We use this infrastructure for also supporting queries from user mode
-+ * application for state that may be maintained in the KVP kernel component.
-+ *
-+ * XXXKYS: Have a shared header file between the user and kernel (TODO)
-+ */
-+
-+enum kvp_op {
-+	KVP_REGISTER = 0, /* Register the user mode component*/
-+	KVP_KERNEL_GET, /*Kernel is requesting the value for the specified key*/
-+	KVP_KERNEL_SET, /*Kernel is providing the value for the specified key*/
-+	KVP_USER_GET, /*User is requesting the value for the specified key*/
-+	KVP_USER_SET /*User is providing the value for the specified key*/
-+};
-+
-+#define HV_KVP_EXCHANGE_MAX_KEY_SIZE	512
-+#define HV_KVP_EXCHANGE_MAX_VALUE_SIZE	2048
-+
-+struct hv_ku_msg {
-+	__u32	kvp_index;
-+	__u8  kvp_key[HV_KVP_EXCHANGE_MAX_KEY_SIZE]; /* Key name */
-+	__u8  kvp_value[HV_KVP_EXCHANGE_MAX_VALUE_SIZE]; /* Key  value */
-+};
-+
-+enum key_index {
-+	FullyQualifiedDomainName = 0,
-+	IntegrationServicesVersion, /*This key is serviced in the kernel*/
-+	NetworkAddressIPv4,
-+	NetworkAddressIPv6,
-+	OSBuildNumber,
-+	OSName,
-+	OSMajorVersion,
-+	OSMinorVersion,
-+	OSVersion,
-+	ProcessorArchitecture
-+};
-+
-+/*
-+ * End of shared definitions.
-+ */
-+
-+static char kvp_send_buffer[4096];
-+static char kvp_recv_buffer[4096];
-+static struct sockaddr_nl addr;
-+
-+static char os_name[100];
-+static char os_major[50];
-+static char os_minor[50];
-+static char processor_arch[50];
-+static char os_build[100];
-+static char *lic_version;
-+
-+void kvp_get_os_info(void)
-+{
-+	FILE	*file;
-+	char	*eol;
-+	struct utsname buf;
-+
-+	uname(&buf);
-+	strcpy(os_build, buf.release);
-+	strcpy(processor_arch, buf.machine);
-+
-+	file = fopen("/etc/SuSE-release", "r");
-+	if (file != NULL)
-+		goto kvp_osinfo_found;
-+	file  = fopen("/etc/redhat-release", "r");
-+	if (file != NULL)
-+		goto kvp_osinfo_found;
-+	/*
-+	 * Add code for other supported platforms.
-+	 */
-+
-+	/*
-+	 * We don't have information about the os.
-+	 */
-+	strcpy(os_name, "Linux");
-+	strcpy(os_major, "0");
-+	strcpy(os_minor, "0");
-+	return;
-+
-+kvp_osinfo_found:
-+	fgets(os_name, 99, file);
-+	eol = index(os_name, '\n');
-+	*eol = '\0';
-+	fgets(os_major, 49, file);
-+	eol = index(os_major, '\n');
-+	*eol = '\0';
-+	fgets(os_minor, 49, file);
-+	eol = index(os_minor, '\n');
-+	*eol = '\0';
-+	fclose(file);
-+	return;
-+}
-+
-+static int
-+kvp_get_ip_address(int family, char *buffer, int length)
-+{
-+	struct ifaddrs *ifap;
-+	struct ifaddrs *curp;
-+	int ipv4_len = strlen("255.255.255.255") + 1;
-+	int ipv6_len = strlen("ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff")+1;
-+	int offset = 0;
-+	const char *str;
-+	char tmp[50];
-+	int error = 0;
-+
-+	/*
-+	 * On entry into this function, the buffer is capable of holding the
-+	 * maximum key value (2048 bytes).
-+	 */
-+
-+	if (getifaddrs(&ifap)) {
-+		strcpy(buffer, "getifaddrs failed\n");
-+		return 1;
-+	}
-+
-+	curp = ifap;
-+	while (curp != NULL) {
-+		if ((curp->ifa_addr != NULL) &&
-+		   (curp->ifa_addr->sa_family == family)) {
-+			if (family == AF_INET) {
-+				struct sockaddr_in *addr =
-+				(struct sockaddr_in *) curp->ifa_addr;
-+
-+				str = inet_ntop(family, &addr->sin_addr,
-+						tmp, 50);
-+				if (str == NULL) {
-+					strcpy(buffer, "inet_ntop failed\n");
-+					error = 1;
-+					goto getaddr_done;
-+				}
-+				if (offset == 0)
-+					strcpy(buffer, tmp);
-+				else
-+					strcat(buffer, tmp);
-+				strcat(buffer, ";");
-+
-+				offset += strlen(str) + 1;
-+				if ((length - offset) < (ipv4_len + 1))
-+					goto getaddr_done;
-+
-+			} else {
-+
-+			/*
-+			 * We only support AF_INET and AF_INET6
-+			 * and the list of addresses is seperated by a ";".
-+			 */
-+				struct sockaddr_in6 *addr =
-+				(struct sockaddr_in6 *) curp->ifa_addr;
-+
-+				str = inet_ntop(family,
-+					&addr->sin6_addr.s6_addr,
-+					tmp, 50);
-+				if (str == NULL) {
-+					strcpy(buffer, "inet_ntop failed\n");
-+					error = 1;
-+					goto getaddr_done;
-+				}
-+				if (offset == 0)
-+					strcpy(buffer, tmp);
-+				else
-+					strcat(buffer, tmp);
-+				strcat(buffer, ";");
-+				offset += strlen(str) + 1;
-+				if ((length - offset) < (ipv6_len + 1))
-+					goto getaddr_done;
-+
-+			}
-+
-+		}
-+		curp = curp->ifa_next;
-+	}
-+
-+getaddr_done:
-+	freeifaddrs(ifap);
-+	return error;
-+}
-+
-+
-+static int
-+kvp_get_domain_name(char *buffer, int length)
-+{
-+	struct addrinfo	hints, *info ;
-+	gethostname(buffer, length);
-+	int error = 0;
-+
-+	memset(&hints, 0, sizeof(hints));
-+	hints.ai_family = AF_INET; /*Get only ipv4 addrinfo. */
-+	hints.ai_socktype = SOCK_STREAM;
-+	hints.ai_flags = AI_CANONNAME;
-+
-+	error = getaddrinfo(buffer, "http", &hints, &info);
-+	if (error != 0) {
-+		strcpy(buffer, "getaddrinfo failed\n");
-+		error = 1;
-+		goto get_domain_done;
-+	}
-+	strcpy(buffer, info->ai_canonname);
-+get_domain_done:
-+	freeaddrinfo(info);
-+	return error;
-+}
-+
-+static int
-+netlink_send(int fd, struct cn_msg *msg)
-+{
-+	struct nlmsghdr *nlh;
-+	unsigned int size;
-+	struct msghdr message;
-+	char buffer[64];
-+	struct iovec iov[2];
-+
-+	size = NLMSG_SPACE(sizeof(struct cn_msg) + msg->len);
-+
-+	nlh = (struct nlmsghdr *)buffer;
-+	nlh->nlmsg_seq = 0;
-+	nlh->nlmsg_pid = getpid();
-+	nlh->nlmsg_type = NLMSG_DONE;
-+	nlh->nlmsg_len = NLMSG_LENGTH(size - sizeof(*nlh));
-+	nlh->nlmsg_flags = 0;
-+
-+	iov[0].iov_base = nlh;
-+	iov[0].iov_len = sizeof(*nlh);
-+
-+	iov[1].iov_base = msg;
-+	iov[1].iov_len = size;
-+
-+	memset(&message, 0, sizeof(message));
-+	message.msg_name = &addr;
-+	message.msg_namelen = sizeof(addr);
-+	message.msg_iov = iov;
-+	message.msg_iovlen = 2;
-+
-+	return sendmsg(fd, &message, 0);
-+}
-+
-+main(void)
-+{
-+	int fd, len, sock_opt;
-+	int error;
-+	struct cn_msg *message;
-+	struct pollfd pfd;
-+	struct nlmsghdr *incoming_msg;
-+	struct cn_msg	*incoming_cn_msg;
-+	char	*key_value;
-+	char	*key_name;
-+	int	 key_index;
-+
-+	daemon(1, 0);
-+	openlog("KVP", 0, LOG_USER);
-+	syslog(LOG_INFO, "KVP starting; pid is:%d", getpid());
-+	/*
-+	 * Retrieve OS release information.
-+	 */
-+	kvp_get_os_info();
-+
-+	fd = socket(AF_NETLINK, SOCK_DGRAM, NETLINK_CONNECTOR);
-+	if (fd < 0) {
-+		syslog(LOG_ERR, "netlink socket creation failed; error:%d", fd);
-+		exit(-1);
-+	}
-+	addr.nl_family = AF_NETLINK;
-+	addr.nl_pad = 0;
-+	addr.nl_pid = 0;
-+	addr.nl_groups = CN_KVP_IDX;
-+
-+
-+	error = bind(fd, (struct sockaddr *)&addr, sizeof(addr));
-+	if (error < 0) {
-+		syslog(LOG_ERR, "bind failed; error:%d", error);
-+		close(fd);
-+		exit(-1);
-+	}
-+	sock_opt = addr.nl_groups;
-+	setsockopt(fd, 270, 1, &sock_opt, sizeof(sock_opt));
-+	/*
-+	 * Register ourselves with the kernel.
-+	 */
-+	message = (struct cn_msg *)kvp_send_buffer;
-+	message->id.idx = CN_KVP_IDX;
-+	message->id.val = CN_KVP_VAL;
-+	message->seq = KVP_REGISTER;
-+	message->ack = 0;
-+	message->len = 0;
-+
-+	len = netlink_send(fd, message);
-+	if (len < 0) {
-+		syslog(LOG_ERR, "netlink_send failed; error:%d", len);
-+		close(fd);
-+		exit(-1);
-+	}
-+
-+	pfd.fd = fd;
-+
-+	while (1) {
-+		pfd.events = POLLIN;
-+		pfd.revents = 0;
-+		poll(&pfd, 1, -1);
-+
-+		len = recv(fd, kvp_recv_buffer, sizeof(kvp_recv_buffer), 0);
-+
-+		if (len < 0) {
-+			syslog(LOG_ERR, "recv failed; error:%d", len);
-+			close(fd);
-+			return -1;
-+		}
-+
-+		incoming_msg = (struct nlmsghdr *)kvp_recv_buffer;
-+		incoming_cn_msg = (struct cn_msg *)NLMSG_DATA(incoming_msg);
-+
-+		switch (incoming_cn_msg->seq) {
-+		case KVP_REGISTER:
-+			/*
-+			 * Driver is registering with us; stash away the version
-+			 * information.
-+			 */
-+			lic_version = malloc(strlen(incoming_cn_msg->data) + 1);
-+			if (lic_version) {
-+				strcpy(lic_version, incoming_cn_msg->data);
-+				syslog(LOG_INFO, "KVP LIC Version: %s",
-+					lic_version);
-+			} else {
-+				syslog(LOG_ERR, "malloc failed");
-+			}
-+			continue;
-+
-+		case KVP_KERNEL_GET:
-+			break;
-+		default:
-+			continue;
-+		}
-+
-+		key_index =
-+		((struct hv_ku_msg *)incoming_cn_msg->data)->kvp_index;
-+		key_name =
-+		((struct hv_ku_msg *)incoming_cn_msg->data)->kvp_key;
-+		key_value =
-+		((struct hv_ku_msg *)incoming_cn_msg->data)->kvp_value;
-+
-+		switch (key_index) {
-+		case FullyQualifiedDomainName:
-+			kvp_get_domain_name(key_value,
-+					HV_KVP_EXCHANGE_MAX_VALUE_SIZE);
-+			strcpy(key_name, "FullyQualifiedDomainName");
-+			break;
-+		case IntegrationServicesVersion:
-+			strcpy(key_name, "IntegrationServicesVersion");
-+			strcpy(key_value, lic_version);
-+			break;
-+		case NetworkAddressIPv4:
-+			kvp_get_ip_address(AF_INET, key_value,
-+					HV_KVP_EXCHANGE_MAX_VALUE_SIZE);
-+			strcpy(key_name, "NetworkAddressIPv4");
-+			break;
-+		case NetworkAddressIPv6:
-+			kvp_get_ip_address(AF_INET6, key_value,
-+					HV_KVP_EXCHANGE_MAX_VALUE_SIZE);
-+			strcpy(key_name, "NetworkAddressIPv6");
-+			break;
-+		case OSBuildNumber:
-+			strcpy(key_value, os_build);
-+			strcpy(key_name, "OSBuildNumber");
-+			break;
-+		case OSName:
-+			strcpy(key_value, os_name);
-+			strcpy(key_name, "OSName");
-+			break;
-+		case OSMajorVersion:
-+			strcpy(key_value, os_major);
-+			strcpy(key_name, "OSMajorVersion");
-+			break;
-+		case OSMinorVersion:
-+			strcpy(key_value, os_minor);
-+			strcpy(key_name, "OSMinorVersion");
-+			break;
-+		case OSVersion:
-+			strcpy(key_value, os_build);
-+			strcpy(key_name, "OSVersion");
-+			break;
-+		case ProcessorArchitecture:
-+			strcpy(key_value, processor_arch);
-+			strcpy(key_name, "ProcessorArchitecture");
-+			break;
-+		default:
-+			strcpy(key_value, "Unknown Key");
-+			/*
-+			 * We use a null key name to terminate enumeration.
-+			 */
-+			strcpy(key_name, "");
-+			break;
-+		}
-+		/*
-+		 * Send the value back to the kernel. The response is
-+		 * already in the receive buffer. Update the cn_msg header to
-+		 * reflect the key value that has been added to the message
-+		 */
-+
-+		incoming_cn_msg->id.idx = CN_KVP_IDX;
-+		incoming_cn_msg->id.val = CN_KVP_VAL;
-+		incoming_cn_msg->seq = KVP_USER_SET;
-+		incoming_cn_msg->ack = 0;
-+		incoming_cn_msg->len = sizeof(struct hv_ku_msg);
-+
-+		len = netlink_send(fd, incoming_cn_msg);
-+		if (len < 0) {
-+			syslog(LOG_ERR, "net_link send failed; error:%d", len);
-+			exit(-1);
-+		}
-+	}
-+
-+}
--- 
-1.7.1
+> Date: Wed, 8 Dec 2010 09:35:13 -0700
+
+Why is this in the body of your message?
+
+> 
+> Added a connector index to support key value/pair (KVP) functionality
+> for Linux guests hosted on a HyperV platform. All KVP related
+> data gathering will be done in a user-level daemon. The kernel 
+> component of KVP communicates with the data gathering daemon using this
+> connector index.
+> 
+> 
+> Signed-off-by: ksrinivasan <ksrinivasan@novell.com>
+
+Same error here with your name :(
+
+Third time's a charm?
+
+greg k-h
