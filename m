@@ -1,14 +1,15 @@
 From: "Ky Srinivasan" <ksrinivasan@novell.com>
-Subject: Re: [PATCH 2/4] Rename the file hv_utils.c
-Date: Wed, 08 Dec 2010 15:44:08 -0700
-Message-ID: <4CFFA7C802000030000918FC@novprvoes0310.provo.novell.com>
-References: <4CFFA39202000030000918CC@novprvoes0310.provo.novell.com>
-	<20101208223400.GB6714@suse.de>
+Subject: Re: [PATCH 1/4] Add a connector Index to support HyperV KVP
+	functionality
+Date: Wed, 08 Dec 2010 15:45:02 -0700
+Message-ID: <4CFFA7FE020000300009190A@novprvoes0310.provo.novell.com>
+References: <4CFFA25B02000030000918BE@novprvoes0310.provo.novell.com>
+	<20101208223259.GA6714@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <devel-bounces@linuxdriverproject.org>
-In-Reply-To: <20101208223400.GB6714@suse.de>
+In-Reply-To: <20101208223259.GA6714@suse.de>
 Content-Disposition: inline
 List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
 	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
@@ -20,37 +21,48 @@ List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>
 Sender: devel-bounces@linuxdriverproject.org
 Errors-To: devel-bounces@linuxdriverproject.org
 To: Greg KH <gregkh@suse.de>
-Cc: devel@driverdev.osuosl.org, Zbr@ioremap.net, Haiyang Zhang <haiyangz@microsoft.com>, Stephen Hemminger <shemminger@vyatta.com>, Virtualization@lists.osdl.org
+Cc: Zbr@ioremap.net, Haiyang Zhang <haiyangz@microsoft.com>, Stephen Hemminger <shemminger@vyatta.com>, Virtualization@lists.osdl.org, devel@linuxdriverproject.org
 List-Id: virtualization@lists.linuxfoundation.org
 
 
 
->>> On 12/8/2010 at  5:34 PM, in message <20101208223400.GB6714@suse.de>, Greg KH
+>>> On 12/8/2010 at  5:32 PM, in message <20101208223259.GA6714@suse.de>, Greg KH
 <gregkh@suse.de> wrote: 
-> For the subject on the rest of the patches they would look like:
-> 	Subject: [PATCH 2/4] Staging: hv: rename hv_utils.c to hv_util.c
+> Please make your subject a bit more descriptive, for this one, it would
+> be:
+> 	Subject: [PATCH 1/4] Connector: add index to support HyperV
 > 
-> Note the "Staging: hv:" prefix.
+> And what is a "KVP"?
 > 
-> On Wed, Dec 08, 2010 at 03:26:10PM -0700, Ky Srinivasan wrote:
->> >From 453acddcf55f1e68c5baf9dc5e8f601d18de15b0 Mon Sep 17 00:00:00 2001
+> On Wed, Dec 08, 2010 at 03:20:59PM -0700, Ky Srinivasan wrote:
+>> >From 5b7c16baf2f310a1e7e119c3df8fd976ca0e2f57 Mon Sep 17 00:00:00 2001
 >> From: ksrinivasan <ksrinivasan@novell.com>
->> Date: Wed, 8 Dec 2010 12:24:58 -0700
+> 
+> I doubt that's your full name you want as the changelog author
+> information :)
+> 
+>> Date: Wed, 8 Dec 2010 09:35:13 -0700
+> 
+> Why is this in the body of your message?
+> 
 >> 
->> The hv_utils module will be composed of more than one file.
->> Rename hv_utils.c to accommodate this without changing the module name.
+>> Added a connector index to support key value/pair (KVP) functionality
+>> for Linux guests hosted on a HyperV platform. All KVP related
+>> data gathering will be done in a user-level daemon. The kernel 
+>> component of KVP communicates with the data gathering daemon using this
+>> connector index.
 >> 
 >> 
 >> Signed-off-by: ksrinivasan <ksrinivasan@novell.com>
 > 
-> Again, use your full name.
-I will resend the patch.
+> Same error here with your name :(
+> 
+> Third time's a charm?
+I hope so! I will resend all the patches.
 
 Thanks,
 
 K. Y
-> 
-> thanks,
 > 
 > greg k-h
 > _______________________________________________
