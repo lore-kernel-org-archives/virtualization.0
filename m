@@ -1,1009 +1,849 @@
 From: Haiyang Zhang <haiyangz@microsoft.com>
-Subject: [PATCH 7/7] staging: hv: Convert camel cased struct fields in rndis.h
-	to lower cases
-Date: Fri, 10 Dec 2010 12:04:00 -0800
-Message-ID: <1292011440-21174-7-git-send-email-haiyangz@microsoft.com>
+Subject: [PATCH 5/7] staging: hv: Convert camel cased struct fields in netvsc_api.h to lower cases
+Date: Fri, 10 Dec 2010 12:03:58 -0800
+Message-ID: <1292011440-21174-5-git-send-email-haiyangz@microsoft.com>
 References: <1292011440-21174-1-git-send-email-haiyangz@microsoft.com>
-	<1292011440-21174-2-git-send-email-haiyangz@microsoft.com>
-	<1292011440-21174-3-git-send-email-haiyangz@microsoft.com>
-	<1292011440-21174-4-git-send-email-haiyangz@microsoft.com>
-	<1292011440-21174-5-git-send-email-haiyangz@microsoft.com>
-	<1292011440-21174-6-git-send-email-haiyangz@microsoft.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <devel-bounces@linuxdriverproject.org>
-In-Reply-To: <1292011440-21174-6-git-send-email-haiyangz@microsoft.com>
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
-List-Post: <mailto:devel@linuxdriverproject.org>
-List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
-Sender: devel-bounces@linuxdriverproject.org
-Errors-To: devel-bounces@linuxdriverproject.org
+ <1292011440-21174-2-git-send-email-haiyangz@microsoft.com>
+ <1292011440-21174-3-git-send-email-haiyangz@microsoft.com>
+ <1292011440-21174-4-git-send-email-haiyangz@microsoft.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1292011440-21174-4-git-send-email-haiyangz@microsoft.com>
+Sender: linux-kernel-owner@vger.kernel.org
 To: haiyangz@microsoft.com, hjanssen@microsoft.com, gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/rndis.h        |  353 +++++++++++++++++++------------------
- drivers/staging/hv/rndis_filter.c |  204 +++++++++++-----------
- 2 files changed, 279 insertions(+), 278 deletions(-)
+ drivers/staging/hv/netvsc.c       |  104 +++++++++++++++++-----------------
+ drivers/staging/hv/netvsc_api.h   |   58 ++++++++++----------
+ drivers/staging/hv/netvsc_drv.c   |   74 ++++++++++++------------
+ drivers/staging/hv/rndis_filter.c |  112 ++++++++++++++++++------------------
+ 4 files changed, 174 insertions(+), 174 deletions(-)
 
-diff --git a/drivers/staging/hv/rndis.h b/drivers/staging/hv/rndis.h
-index 723e1f1..014de04 100644
---- a/drivers/staging/hv/rndis.h
-+++ b/drivers/staging/hv/rndis.h
-@@ -288,24 +288,24 @@
- #define RNDIS_DF_RAW_DATA			0x00000004
+diff --git a/drivers/staging/hv/netvsc.c b/drivers/staging/hv/netvsc.c
+index 5c327fc..d678bf5 100644
+--- a/drivers/staging/hv/netvsc.c
++++ b/drivers/staging/hv/netvsc.c
+@@ -196,11 +196,11 @@ int netvsc_initialize(struct hv_driver *drv)
+ 	/* ASSERT(driver->OnLinkStatusChanged); */
  
- /*  Remote NDIS medium types. */
--#define RNdisMedium802_3			0x00000000
--#define RNdisMedium802_5			0x00000001
--#define RNdisMediumFddi				0x00000002
--#define RNdisMediumWan				0x00000003
--#define RNdisMediumLocalTalk			0x00000004
--#define RNdisMediumArcnetRaw			0x00000006
--#define RNdisMediumArcnet878_2			0x00000007
--#define RNdisMediumAtm				0x00000008
--#define RNdisMediumWirelessWan			0x00000009
--#define RNdisMediumIrda				0x0000000a
--#define RNdisMediumCoWan			0x0000000b
-+#define RNDIS_MEDIUM_802_3			0x00000000
-+#define RNDIS_MEDIUM_802_5			0x00000001
-+#define RNDIS_MEDIUM_FDDI				0x00000002
-+#define RNDIS_MEDIUM_WAN				0x00000003
-+#define RNDIS_MEDIUM_LOCAL_TALK			0x00000004
-+#define RNDIS_MEDIUM_ARCNET_RAW			0x00000006
-+#define RNDIS_MEDIUM_ARCNET_878_2			0x00000007
-+#define RNDIS_MEDIUM_ATM				0x00000008
-+#define RNDIS_MEDIUM_WIRELESS_WAN			0x00000009
-+#define RNDIS_MEDIUM_IRDA				0x0000000a
-+#define RNDIS_MEDIUM_CO_WAN			0x0000000b
- /* Not a real medium, defined as an upper-bound */
--#define RNdisMediumMax				0x0000000d
-+#define RNDIS_MEDIUM_MAX				0x0000000d
+ 	/* Setup the dispatch table */
+-	driver->Base.OnDeviceAdd	= netvsc_device_add;
+-	driver->Base.OnDeviceRemove	= netvsc_device_remove;
+-	driver->Base.OnCleanup		= netvsc_cleanup;
++	driver->base.OnDeviceAdd	= netvsc_device_add;
++	driver->base.OnDeviceRemove	= netvsc_device_remove;
++	driver->base.OnCleanup		= netvsc_cleanup;
  
+-	driver->OnSend			= netvsc_send;
++	driver->send			= netvsc_send;
  
- /* Remote NDIS medium connection states. */
--#define RNdisMediaStateConnected		0x00000000
--#define RNdisMediaStateDisconnected		0x00000001
-+#define RNDIS_MEDIA_STATE_CONNECTED		0x00000000
-+#define RNDIS_MEDIA_STATE_DISCONNECTED		0x00000001
+ 	rndis_filter_init(driver);
+ 	return 0;
+@@ -736,7 +736,7 @@ static int netvsc_device_add(struct hv_device *device, void *additional_info)
+ 				   NETVSC_RECEIVE_PACKETLIST_COUNT, i);
+ 			break;
+ 		}
+-		list_add_tail(&packet->ListEntry,
++		list_add_tail(&packet->list_ent,
+ 			      &net_device->ReceivePacketList);
+ 	}
+ 	net_device->ChannelInitEvent = osd_waitevent_create();
+@@ -746,8 +746,8 @@ static int netvsc_device_add(struct hv_device *device, void *additional_info)
+ 	}
  
- /*  Remote NDIS version numbers */
- #define RNDIS_MAJOR_VERSION			0x00000001
-@@ -314,106 +314,106 @@
+ 	/* Open the channel */
+-	ret = vmbus_open(device->channel, net_driver->RingBufferSize,
+-			 net_driver->RingBufferSize, NULL, 0,
++	ret = vmbus_open(device->channel, net_driver->ring_buf_size,
++			 net_driver->ring_buf_size, NULL, 0,
+ 			 netvsc_channel_cb, device);
  
- /* NdisInitialize message */
- struct rndis_initialize_request {
--	u32 RequestId;
--	u32 MajorVersion;
--	u32 MinorVersion;
--	u32 MaxTransferSize;
-+	u32 req_id;
-+	u32 major_ver;
-+	u32 minor_ver;
-+	u32 max_xfer_size;
+ 	if (ret != 0) {
+@@ -783,8 +783,8 @@ Cleanup:
+ 
+ 		list_for_each_entry_safe(packet, pos,
+ 					 &net_device->ReceivePacketList,
+-					 ListEntry) {
+-			list_del(&packet->ListEntry);
++					 list_ent) {
++			list_del(&packet->list_ent);
+ 			kfree(packet);
+ 		}
+ 
+@@ -840,8 +840,8 @@ static int netvsc_device_remove(struct hv_device *device)
+ 
+ 	/* Release all resources */
+ 	list_for_each_entry_safe(netvsc_packet, pos,
+-				 &net_device->ReceivePacketList, ListEntry) {
+-		list_del(&netvsc_packet->ListEntry);
++				 &net_device->ReceivePacketList, list_ent) {
++		list_del(&netvsc_packet->list_ent);
+ 		kfree(netvsc_packet);
+ 	}
+ 
+@@ -894,8 +894,8 @@ static void netvsc_send_completion(struct hv_device *device,
+ 		/* ASSERT(nvscPacket); */
+ 
+ 		/* Notify the layer above us */
+-		nvsc_packet->Completion.Send.OnSendCompletion(
+-			nvsc_packet->Completion.Send.SendCompletionContext);
++		nvsc_packet->completion.send.send_completion(
++			nvsc_packet->completion.send.send_completion_ctx);
+ 
+ 		atomic_dec(&net_device->NumOutstandingSends);
+ 	} else {
+@@ -922,7 +922,7 @@ static int netvsc_send(struct hv_device *device,
+ 	}
+ 
+ 	sendMessage.Header.MessageType = NvspMessage1TypeSendRNDISPacket;
+-	if (packet->IsDataPacket) {
++	if (packet->is_data_pkt) {
+ 		/* 0 is RMC_DATA; */
+ 		sendMessage.Messages.Version1Messages.SendRNDISPacket.ChannelType = 0;
+ 	} else {
+@@ -934,10 +934,10 @@ static int netvsc_send(struct hv_device *device,
+ 	sendMessage.Messages.Version1Messages.SendRNDISPacket.SendBufferSectionIndex = 0xFFFFFFFF;
+ 	sendMessage.Messages.Version1Messages.SendRNDISPacket.SendBufferSectionSize = 0;
+ 
+-	if (packet->PageBufferCount) {
++	if (packet->page_buf_cnt) {
+ 		ret = vmbus_sendpacket_pagebuffer(device->channel,
+-						  packet->PageBuffers,
+-						  packet->PageBufferCount,
++						  packet->page_buf,
++						  packet->page_buf_cnt,
+ 						  &sendMessage,
+ 						  sizeof(struct nvsp_message),
+ 						  (unsigned long)packet);
+@@ -1063,82 +1063,82 @@ static void netvsc_receive(struct hv_device *device,
+ 
+ 	/* Remove the 1st packet to represent the xfer page packet itself */
+ 	xferpage_packet = (struct xferpage_packet *)listHead.next;
+-	list_del(&xferpage_packet->ListEntry);
++	list_del(&xferpage_packet->list_ent);
+ 
+ 	/* This is how much we can satisfy */
+-	xferpage_packet->Count = count - 1;
++	xferpage_packet->count = count - 1;
+ 	/* ASSERT(xferpagePacket->Count > 0 && xferpagePacket->Count <= */
+ 	/* 	vmxferpagePacket->RangeCount); */
+ 
+-	if (xferpage_packet->Count != vmxferpage_packet->RangeCount) {
++	if (xferpage_packet->count != vmxferpage_packet->RangeCount) {
+ 		DPRINT_INFO(NETVSC, "Needed %d netvsc pkts to satisy this xfer "
+ 			    "page...got %d", vmxferpage_packet->RangeCount,
+-			    xferpage_packet->Count);
++			    xferpage_packet->count);
+ 	}
+ 
+ 	/* Each range represents 1 RNDIS pkt that contains 1 ethernet frame */
+ 	for (i = 0; i < (count - 1); i++) {
+ 		netvsc_packet = (struct hv_netvsc_packet *)listHead.next;
+-		list_del(&netvsc_packet->ListEntry);
++		list_del(&netvsc_packet->list_ent);
+ 
+ 		/* Initialize the netvsc packet */
+-		netvsc_packet->XferPagePacket = xferpage_packet;
+-		netvsc_packet->Completion.Recv.OnReceiveCompletion =
++		netvsc_packet->xfer_page_pkt = xferpage_packet;
++		netvsc_packet->completion.recv.recv_completion =
+ 					netvsc_receive_completion;
+-		netvsc_packet->Completion.Recv.ReceiveCompletionContext =
++		netvsc_packet->completion.recv.recv_completion_ctx =
+ 					netvsc_packet;
+-		netvsc_packet->Device = device;
++		netvsc_packet->device = device;
+ 		/* Save this so that we can send it back */
+-		netvsc_packet->Completion.Recv.ReceiveCompletionTid =
++		netvsc_packet->completion.recv.recv_completion_tid =
+ 					vmxferpage_packet->d.TransactionId;
+ 
+-		netvsc_packet->TotalDataBufferLength =
++		netvsc_packet->total_data_buflen =
+ 					vmxferpage_packet->Ranges[i].ByteCount;
+-		netvsc_packet->PageBufferCount = 1;
++		netvsc_packet->page_buf_cnt = 1;
+ 
+ 		/* ASSERT(vmxferpagePacket->Ranges[i].ByteOffset + */
+ 		/* 	vmxferpagePacket->Ranges[i].ByteCount < */
+ 		/* 	netDevice->ReceiveBufferSize); */
+ 
+-		netvsc_packet->PageBuffers[0].Length =
++		netvsc_packet->page_buf[0].Length =
+ 					vmxferpage_packet->Ranges[i].ByteCount;
+ 
+ 		start = virt_to_phys((void *)((unsigned long)net_device->
+ 		ReceiveBuffer + vmxferpage_packet->Ranges[i].ByteOffset));
+ 
+-		netvsc_packet->PageBuffers[0].Pfn = start >> PAGE_SHIFT;
++		netvsc_packet->page_buf[0].Pfn = start >> PAGE_SHIFT;
+ 		end_virtual = (unsigned long)net_device->ReceiveBuffer
+ 		    + vmxferpage_packet->Ranges[i].ByteOffset
+ 		    + vmxferpage_packet->Ranges[i].ByteCount - 1;
+ 		end = virt_to_phys((void *)end_virtual);
+ 
+ 		/* Calculate the page relative offset */
+-		netvsc_packet->PageBuffers[0].Offset =
++		netvsc_packet->page_buf[0].Offset =
+ 			vmxferpage_packet->Ranges[i].ByteOffset &
+ 			(PAGE_SIZE - 1);
+ 		if ((end >> PAGE_SHIFT) != (start >> PAGE_SHIFT)) {
+ 			/* Handle frame across multiple pages: */
+-			netvsc_packet->PageBuffers[0].Length =
+-				(netvsc_packet->PageBuffers[0].Pfn <<
++			netvsc_packet->page_buf[0].Length =
++				(netvsc_packet->page_buf[0].Pfn <<
+ 				 PAGE_SHIFT)
+ 				+ PAGE_SIZE - start;
+-			bytes_remain = netvsc_packet->TotalDataBufferLength -
+-					netvsc_packet->PageBuffers[0].Length;
++			bytes_remain = netvsc_packet->total_data_buflen -
++					netvsc_packet->page_buf[0].Length;
+ 			for (j = 1; j < NETVSC_PACKET_MAXPAGE; j++) {
+-				netvsc_packet->PageBuffers[j].Offset = 0;
++				netvsc_packet->page_buf[j].Offset = 0;
+ 				if (bytes_remain <= PAGE_SIZE) {
+-					netvsc_packet->PageBuffers[j].Length =
++					netvsc_packet->page_buf[j].Length =
+ 						bytes_remain;
+ 					bytes_remain = 0;
+ 				} else {
+-					netvsc_packet->PageBuffers[j].Length =
++					netvsc_packet->page_buf[j].Length =
+ 						PAGE_SIZE;
+ 					bytes_remain -= PAGE_SIZE;
+ 				}
+-				netvsc_packet->PageBuffers[j].Pfn =
++				netvsc_packet->page_buf[j].Pfn =
+ 				    virt_to_phys((void *)(end_virtual -
+ 						bytes_remain)) >> PAGE_SHIFT;
+-				netvsc_packet->PageBufferCount++;
++				netvsc_packet->page_buf_cnt++;
+ 				if (bytes_remain == 0)
+ 					break;
+ 			}
+@@ -1148,16 +1148,16 @@ static void netvsc_receive(struct hv_device *device,
+ 			   "(pfn %llx, offset %u, len %u)", i,
+ 			   vmxferpage_packet->Ranges[i].ByteOffset,
+ 			   vmxferpage_packet->Ranges[i].ByteCount,
+-			   netvsc_packet->PageBuffers[0].Pfn,
+-			   netvsc_packet->PageBuffers[0].Offset,
+-			   netvsc_packet->PageBuffers[0].Length);
++			   netvsc_packet->page_buf[0].Pfn,
++			   netvsc_packet->page_buf[0].Offset,
++			   netvsc_packet->page_buf[0].Length);
+ 
+ 		/* Pass it to the upper layer */
+ 		((struct netvsc_driver *)device->Driver)->
+-			OnReceiveCallback(device, netvsc_packet);
++			recv_cb(device, netvsc_packet);
+ 
+ 		netvsc_receive_completion(netvsc_packet->
+-				Completion.Recv.ReceiveCompletionContext);
++				completion.recv.recv_completion_ctx);
+ 	}
+ 
+ 	/* ASSERT(list_empty(&listHead)); */
+@@ -1213,7 +1213,7 @@ retry_send_cmplt:
+ static void netvsc_receive_completion(void *context)
+ {
+ 	struct hv_netvsc_packet *packet = context;
+-	struct hv_device *device = (struct hv_device *)packet->Device;
++	struct hv_device *device = (struct hv_device *)packet->device;
+ 	struct netvsc_device *net_device;
+ 	u64 transaction_id = 0;
+ 	bool fsend_receive_comp = false;
+@@ -1237,22 +1237,22 @@ static void netvsc_receive_completion(void *context)
+ 	spin_lock_irqsave(&net_device->receive_packet_list_lock, flags);
+ 
+ 	/* ASSERT(packet->XferPagePacket->Count > 0); */
+-	packet->XferPagePacket->Count--;
++	packet->xfer_page_pkt->count--;
+ 
+ 	/*
+ 	 * Last one in the line that represent 1 xfer page packet.
+ 	 * Return the xfer page packet itself to the freelist
+ 	 */
+-	if (packet->XferPagePacket->Count == 0) {
++	if (packet->xfer_page_pkt->count == 0) {
+ 		fsend_receive_comp = true;
+-		transaction_id = packet->Completion.Recv.ReceiveCompletionTid;
+-		list_add_tail(&packet->XferPagePacket->ListEntry,
++		transaction_id = packet->completion.recv.recv_completion_tid;
++		list_add_tail(&packet->xfer_page_pkt->list_ent,
+ 			      &net_device->ReceivePacketList);
+ 
+ 	}
+ 
+ 	/* Put the packet back */
+-	list_add_tail(&packet->ListEntry, &net_device->ReceivePacketList);
++	list_add_tail(&packet->list_ent, &net_device->ReceivePacketList);
+ 	spin_unlock_irqrestore(&net_device->receive_packet_list_lock, flags);
+ 
+ 	/* Send a receive completion for the xfer page packet */
+diff --git a/drivers/staging/hv/netvsc_api.h b/drivers/staging/hv/netvsc_api.h
+index 315271d..ac40db5 100644
+--- a/drivers/staging/hv/netvsc_api.h
++++ b/drivers/staging/hv/netvsc_api.h
+@@ -32,10 +32,10 @@ struct hv_netvsc_packet;
+ 
+ /* Represent the xfer page packet which contains 1 or more netvsc packet */
+ struct xferpage_packet {
+-	struct list_head ListEntry;
++	struct list_head list_ent;
+ 
+ 	/* # of netvsc packets this xfer packet contains */
+-	u32 Count;
++	u32 count;
  };
  
- /* Response to NdisInitialize */
- struct rndis_initialize_complete {
--	u32 RequestId;
--	u32 Status;
--	u32 MajorVersion;
--	u32 MinorVersion;
--	u32 DeviceFlags;
--	u32 Medium;
--	u32 MaxPacketsPerMessage;
--	u32 MaxTransferSize;
--	u32 PacketAlignmentFactor;
--	u32 AFListOffset;
--	u32 AFListSize;
-+	u32 req_id;
-+	u32 status;
-+	u32 major_ver;
-+	u32 minor_ver;
-+	u32 dev_flags;
-+	u32 medium;
-+	u32 max_pkt_per_msg;
-+	u32 max_xfer_size;
-+	u32 pkt_alignment_factor;
-+	u32 af_list_offset;
-+	u32 af_list_size;
- };
- 
- /* Call manager devices only: Information about an address family */
- /* supported by the device is appended to the response to NdisInitialize. */
- struct rndis_co_address_family {
--	u32 AddressFamily;
--	u32 MajorVersion;
--	u32 MinorVersion;
-+	u32 address_family;
-+	u32 major_ver;
-+	u32 minor_ver;
- };
- 
- /* NdisHalt message */
- struct rndis_halt_request {
--	u32 RequestId;
-+	u32 req_id;
- };
- 
- /* NdisQueryRequest message */
- struct rndis_query_request {
--	u32 RequestId;
--	u32 Oid;
--	u32 InformationBufferLength;
--	u32 InformationBufferOffset;
--	u32 DeviceVcHandle;
-+	u32 req_id;
-+	u32 oid;
-+	u32 info_buflen;
-+	u32 info_buf_offset;
-+	u32 dev_vc_handle;
- };
- 
- /* Response to NdisQueryRequest */
- struct rndis_query_complete {
--	u32 RequestId;
--	u32 Status;
--	u32 InformationBufferLength;
--	u32 InformationBufferOffset;
-+	u32 req_id;
-+	u32 status;
-+	u32 info_buflen;
-+	u32 info_buf_offset;
- };
- 
- /* NdisSetRequest message */
- struct rndis_set_request {
--	u32 RequestId;
--	u32 Oid;
--	u32 InformationBufferLength;
--	u32 InformationBufferOffset;
--	u32 DeviceVcHandle;
-+	u32 req_id;
-+	u32 oid;
-+	u32 info_buflen;
-+	u32 info_buf_offset;
-+	u32 dev_vc_handle;
- };
- 
- /* Response to NdisSetRequest */
- struct rndis_set_complete {
--	u32 RequestId;
--	u32 Status;
-+	u32 req_id;
-+	u32 status;
- };
- 
- /* NdisReset message */
- struct rndis_reset_request {
--	u32 Reserved;
-+	u32 reserved;
- };
- 
- /* Response to NdisReset */
- struct rndis_reset_complete {
--	u32 Status;
--	u32 AddressingReset;
-+	u32 status;
-+	u32 addressing_reset;
- };
- 
- /* NdisMIndicateStatus message */
- struct rndis_indicate_status {
--	u32 Status;
--	u32 StatusBufferLength;
--	u32 StatusBufferOffset;
-+	u32 status;
-+	u32 status_buflen;
-+	u32 status_buf_offset;
- };
- 
- /* Diagnostic information passed as the status buffer in */
- /* struct rndis_indicate_status messages signifying error conditions. */
- struct rndis_diagnostic_info {
--	u32 DiagStatus;
--	u32 ErrorOffset;
-+	u32 diag_status;
-+	u32 error_offset;
- };
- 
- /* NdisKeepAlive message */
- struct rndis_keepalive_request {
--	u32 RequestId;
-+	u32 req_id;
- };
- 
- /* Response to NdisKeepAlive */
- struct rndis_keepalive_complete {
--	u32 RequestId;
--	u32 Status;
-+	u32 req_id;
-+	u32 status;
- };
- 
- /*
-@@ -422,39 +422,39 @@ struct rndis_keepalive_complete {
-  * to 0 for connectionless data, otherwise it contains the VC handle.
+ /* The number of pages which are enough to cover jumbo frame buffer. */
+@@ -47,65 +47,65 @@ struct xferpage_packet {
   */
- struct rndis_packet {
--	u32 DataOffset;
--	u32 DataLength;
--	u32 OOBDataOffset;
--	u32 OOBDataLength;
--	u32 NumOOBDataElements;
--	u32 PerPacketInfoOffset;
--	u32 PerPacketInfoLength;
--	u32 VcHandle;
--	u32 Reserved;
-+	u32 data_offset;
-+	u32 data_len;
-+	u32 oob_data_offset;
-+	u32 oob_data_len;
-+	u32 num_oob_data_elements;
-+	u32 per_pkt_info_offset;
-+	u32 per_pkt_info_len;
-+	u32 vc_handle;
-+	u32 reserved;
+ struct hv_netvsc_packet {
+ 	/* Bookkeeping stuff */
+-	struct list_head ListEntry;
++	struct list_head list_ent;
+ 
+-	struct hv_device *Device;
+-	bool IsDataPacket;
++	struct hv_device *device;
++	bool is_data_pkt;
+ 
+ 	/*
+ 	 * Valid only for receives when we break a xfer page packet
+ 	 * into multiple netvsc packets
+ 	 */
+-	struct xferpage_packet *XferPagePacket;
++	struct xferpage_packet *xfer_page_pkt;
+ 
+ 	union {
+ 		struct{
+-			u64 ReceiveCompletionTid;
+-			void *ReceiveCompletionContext;
+-			void (*OnReceiveCompletion)(void *context);
+-		} Recv;
++			u64 recv_completion_tid;
++			void *recv_completion_ctx;
++			void (*recv_completion)(void *context);
++		} recv;
+ 		struct{
+-			u64 SendCompletionTid;
+-			void *SendCompletionContext;
+-			void (*OnSendCompletion)(void *context);
+-		} Send;
+-	} Completion;
++			u64 send_completion_tid;
++			void *send_completion_ctx;
++			void (*send_completion)(void *context);
++		} send;
++	} completion;
+ 
+-	/* This points to the memory after PageBuffers */
+-	void *Extension;
++	/* This points to the memory after page_buf */
++	void *extension;
+ 
+-	u32 TotalDataBufferLength;
++	u32 total_data_buflen;
+ 	/* Points to the send/receive buffer where the ethernet frame is */
+-	u32 PageBufferCount;
+-	struct hv_page_buffer PageBuffers[NETVSC_PACKET_MAXPAGE];
++	u32 page_buf_cnt;
++	struct hv_page_buffer page_buf[NETVSC_PACKET_MAXPAGE];
  };
  
- /* Optional Out of Band data associated with a Data message. */
- struct rndis_oobd {
--	u32 Size;
--	u32 Type;
--	u32 ClassInformationOffset;
-+	u32 size;
-+	u32 type;
-+	u32 class_info_offset;
+ /* Represents the net vsc driver */
+ struct netvsc_driver {
+ 	/* Must be the first field */
+ 	/* Which is a bug FIXME! */
+-	struct hv_driver Base;
++	struct hv_driver base;
+ 
+-	u32 RingBufferSize;
+-	u32 RequestExtSize;
++	u32 ring_buf_size;
++	u32 req_ext_size;
+ 
+ 	/*
+ 	 * This is set by the caller to allow us to callback when we
+ 	 * receive a packet from the "wire"
+ 	 */
+-	int (*OnReceiveCallback)(struct hv_device *dev,
++	int (*recv_cb)(struct hv_device *dev,
+ 				 struct hv_netvsc_packet *packet);
+-	void (*OnLinkStatusChanged)(struct hv_device *dev, u32 Status);
++	void (*link_status_change)(struct hv_device *dev, u32 Status);
+ 
+ 	/* Specific to this driver */
+-	int (*OnSend)(struct hv_device *dev, struct hv_netvsc_packet *packet);
++	int (*send)(struct hv_device *dev, struct hv_netvsc_packet *packet);
+ 
+-	void *Context;
++	void *ctx;
  };
  
- /* Packet extension field contents associated with a Data message. */
- struct rndis_per_packet_info {
--	u32 Size;
--	u32 Type;
--	u32 PerPacketInformationOffset;
-+	u32 size;
-+	u32 type;
-+	u32 per_pkt_info_offset;
+ struct netvsc_device_info {
+-    unsigned char MacAddr[6];
+-    bool LinkState;	/* 0 - link up, 1 - link down */
++	unsigned char mac_adr[6];
++	bool link_state;	/* 0 - link up, 1 - link down */
  };
  
- /* Format of Information buffer passed in a SetRequest for the OID */
- /* OID_GEN_RNDIS_CONFIG_PARAMETER. */
- struct rndis_config_parameter_info {
--	u32 ParameterNameOffset;
--	u32 ParameterNameLength;
--	u32 ParameterType;
--	u32 ParameterValueOffset;
--	u32 ParameterValueLength;
-+	u32 parameter_name_offset;
-+	u32 parameter_name_length;
-+	u32 parameter_type;
-+	u32 parameter_value_offset;
-+	u32 parameter_value_length;
- };
+ /* Interface */
+diff --git a/drivers/staging/hv/netvsc_drv.c b/drivers/staging/hv/netvsc_drv.c
+index e47681e..0147b40 100644
+--- a/drivers/staging/hv/netvsc_drv.c
++++ b/drivers/staging/hv/netvsc_drv.c
+@@ -115,7 +115,7 @@ static void netvsc_xmit_completion(void *context)
+ {
+ 	struct hv_netvsc_packet *packet = (struct hv_netvsc_packet *)context;
+ 	struct sk_buff *skb = (struct sk_buff *)
+-		(unsigned long)packet->Completion.Send.SendCompletionTid;
++		(unsigned long)packet->completion.send.send_completion_tid;
  
- /* Values for ParameterType in struct rndis_config_parameter_info */
-@@ -466,187 +466,188 @@ struct rndis_config_parameter_info {
+ 	kfree(packet);
  
- /* CoNdisMiniportCreateVc message */
- struct rcondis_mp_create_vc {
--	u32 RequestId;
--	u32 NdisVcHandle;
-+	u32 req_id;
-+	u32 ndis_vc_handle;
- };
+@@ -154,7 +154,7 @@ static int netvsc_start_xmit(struct sk_buff *skb, struct net_device *net)
+ 	/* Allocate a netvsc packet based on # of frags. */
+ 	packet = kzalloc(sizeof(struct hv_netvsc_packet) +
+ 			 (num_pages * sizeof(struct hv_page_buffer)) +
+-			 net_drv_obj->RequestExtSize, GFP_ATOMIC);
++			 net_drv_obj->req_ext_size, GFP_ATOMIC);
+ 	if (!packet) {
+ 		/* out of memory, silently drop packet */
+ 		DPRINT_ERR(NETVSC_DRV, "unable to allocate hv_netvsc_packet");
+@@ -164,40 +164,40 @@ static int netvsc_start_xmit(struct sk_buff *skb, struct net_device *net)
+ 		return NETDEV_TX_OK;
+ 	}
  
- /* Response to CoNdisMiniportCreateVc */
- struct rcondis_mp_create_vc_complete {
--	u32 RequestId;
--	u32 DeviceVcHandle;
--	u32 Status;
-+	u32 req_id;
-+	u32 dev_vc_handle;
-+	u32 status;
- };
+-	packet->Extension = (void *)(unsigned long)packet +
++	packet->extension = (void *)(unsigned long)packet +
+ 				sizeof(struct hv_netvsc_packet) +
+ 				    (num_pages * sizeof(struct hv_page_buffer));
  
- /* CoNdisMiniportDeleteVc message */
- struct rcondis_mp_delete_vc {
--	u32 RequestId;
--	u32 DeviceVcHandle;
-+	u32 req_id;
-+	u32 dev_vc_handle;
- };
+ 	/* Setup the rndis header */
+-	packet->PageBufferCount = num_pages;
++	packet->page_buf_cnt = num_pages;
  
- /* Response to CoNdisMiniportDeleteVc */
- struct rcondis_mp_delete_vc_complete {
--	u32 RequestId;
--	u32 Status;
-+	u32 req_id;
-+	u32 status;
- };
+ 	/* TODO: Flush all write buffers/ memory fence ??? */
+ 	/* wmb(); */
  
- /* CoNdisMiniportQueryRequest message */
- struct rcondis_mp_query_request {
--	u32 RequestId;
--	u32 RequestType;
--	u32 Oid;
--	u32 DeviceVcHandle;
--	u32 InformationBufferLength;
--	u32 InformationBufferOffset;
-+	u32 req_id;
-+	u32 request_type;
-+	u32 oid;
-+	u32 dev_vc_handle;
-+	u32 info_buflen;
-+	u32 info_buf_offset;
- };
+ 	/* Initialize it from the skb */
+-	packet->TotalDataBufferLength	= skb->len;
++	packet->total_data_buflen	= skb->len;
  
- /* CoNdisMiniportSetRequest message */
- struct rcondis_mp_set_request {
--	u32 RequestId;
--	u32 RequestType;
--	u32 Oid;
--	u32 DeviceVcHandle;
--	u32 InformationBufferLength;
--	u32 InformationBufferOffset;
-+	u32 req_id;
-+	u32 request_type;
-+	u32 oid;
-+	u32 dev_vc_handle;
-+	u32 info_buflen;
-+	u32 info_buf_offset;
- };
+ 	/* Start filling in the page buffers starting after RNDIS buffer. */
+-	packet->PageBuffers[1].Pfn = virt_to_phys(skb->data) >> PAGE_SHIFT;
+-	packet->PageBuffers[1].Offset
++	packet->page_buf[1].Pfn = virt_to_phys(skb->data) >> PAGE_SHIFT;
++	packet->page_buf[1].Offset
+ 		= (unsigned long)skb->data & (PAGE_SIZE - 1);
+-	packet->PageBuffers[1].Length = skb_headlen(skb);
++	packet->page_buf[1].Length = skb_headlen(skb);
  
- /* CoNdisIndicateStatus message */
- struct rcondis_indicate_status {
--	u32 NdisVcHandle;
--	u32 Status;
--	u32 StatusBufferLength;
--	u32 StatusBufferOffset;
-+	u32 ndis_vc_handle;
-+	u32 status;
-+	u32 status_buflen;
-+	u32 status_buf_offset;
- };
+ 	/* Additional fragments are after SKB data */
+ 	for (i = 0; i < skb_shinfo(skb)->nr_frags; i++) {
+ 		skb_frag_t *f = &skb_shinfo(skb)->frags[i];
  
- /* CONDIS Call/VC parameters */
- struct rcondis_specific_parameters {
--	u32 ParameterType;
--	u32 ParameterLength;
--	u32 ParameterOffset;
-+	u32 parameter_type;
-+	u32 parameter_length;
-+	u32 parameter_lffset;
- };
+-		packet->PageBuffers[i+2].Pfn = page_to_pfn(f->page);
+-		packet->PageBuffers[i+2].Offset = f->page_offset;
+-		packet->PageBuffers[i+2].Length = f->size;
++		packet->page_buf[i+2].Pfn = page_to_pfn(f->page);
++		packet->page_buf[i+2].Offset = f->page_offset;
++		packet->page_buf[i+2].Length = f->size;
+ 	}
  
- struct rcondis_media_parameters {
--	u32 Flags;
--	u32 Reserved1;
--	u32 Reserved2;
--	struct rcondis_specific_parameters MediaSpecific;
-+	u32 flags;
-+	u32 reserved1;
-+	u32 reserved2;
-+	struct rcondis_specific_parameters media_specific;
- };
+ 	/* Set the completion routine */
+-	packet->Completion.Send.OnSendCompletion = netvsc_xmit_completion;
+-	packet->Completion.Send.SendCompletionContext = packet;
+-	packet->Completion.Send.SendCompletionTid = (unsigned long)skb;
++	packet->completion.send.send_completion = netvsc_xmit_completion;
++	packet->completion.send.send_completion_ctx = packet;
++	packet->completion.send.send_completion_tid = (unsigned long)skb;
  
- struct rndis_flowspec {
--	u32 TokenRate;
--	u32 TokenBucketSize;
--	u32 PeakBandwidth;
--	u32 Latency;
--	u32 DelayVariation;
--	u32 ServiceType;
--	u32 MaxSduSize;
--	u32 MinimumPolicedSize;
-+	u32 token_rate;
-+	u32 token_bucket_size;
-+	u32 peak_bandwidth;
-+	u32 latency;
-+	u32 delay_variation;
-+	u32 service_type;
-+	u32 max_sdu_size;
-+	u32 minimum_policed_size;
- };
+-	ret = net_drv_obj->OnSend(&net_device_ctx->device_ctx->device_obj,
++	ret = net_drv_obj->send(&net_device_ctx->device_ctx->device_obj,
+ 				  packet);
+ 	if (ret == 0) {
+ 		net->stats.tx_bytes += skb->len;
+@@ -263,7 +263,7 @@ static int netvsc_recv_callback(struct hv_device *device_obj,
+ 	}
  
- struct rcondis_call_manager_parameters {
--	struct rndis_flowspec Transmit;
--	struct rndis_flowspec Receive;
--	struct rcondis_specific_parameters CallMgrSpecific;
-+	struct rndis_flowspec transmit;
-+	struct rndis_flowspec receive;
-+	struct rcondis_specific_parameters call_mgr_specific;
- };
+ 	/* Allocate a skb - TODO direct I/O to pages? */
+-	skb = netdev_alloc_skb_ip_align(net, packet->TotalDataBufferLength);
++	skb = netdev_alloc_skb_ip_align(net, packet->total_data_buflen);
+ 	if (unlikely(!skb)) {
+ 		++net->stats.rx_dropped;
+ 		return 0;
+@@ -276,17 +276,17 @@ static int netvsc_recv_callback(struct hv_device *device_obj,
+ 	 * Copy to skb. This copy is needed here since the memory pointed by
+ 	 * hv_netvsc_packet cannot be deallocated
+ 	 */
+-	for (i = 0; i < packet->PageBufferCount; i++) {
+-		data = kmap_atomic(pfn_to_page(packet->PageBuffers[i].Pfn),
++	for (i = 0; i < packet->page_buf_cnt; i++) {
++		data = kmap_atomic(pfn_to_page(packet->page_buf[i].Pfn),
+ 					       KM_IRQ1);
+ 		data = (void *)(unsigned long)data +
+-				packet->PageBuffers[i].Offset;
++				packet->page_buf[i].Offset;
  
- /* CoNdisMiniportActivateVc message */
- struct rcondis_mp_activate_vc_request {
--	u32 RequestId;
--	u32 Flags;
--	u32 DeviceVcHandle;
--	u32 MediaParamsOffset;
--	u32 MediaParamsLength;
--	u32 CallMgrParamsOffset;
--	u32 CallMgrParamsLength;
-+	u32 req_id;
-+	u32 flags;
-+	u32 dev_vc_handle;
-+	u32 media_params_offset;
-+	u32 media_params_length;
-+	u32 call_mgr_params_offset;
-+	u32 call_mgr_params_length;
- };
+-		memcpy(skb_put(skb, packet->PageBuffers[i].Length), data,
+-		       packet->PageBuffers[i].Length);
++		memcpy(skb_put(skb, packet->page_buf[i].Length), data,
++		       packet->page_buf[i].Length);
  
- /* Response to CoNdisMiniportActivateVc */
- struct rcondis_mp_activate_vc_complete {
--	u32 RequestId;
--	u32 Status;
-+	u32 req_id;
-+	u32 status;
- };
+ 		kunmap_atomic((void *)((unsigned long)data -
+-				       packet->PageBuffers[i].Offset), KM_IRQ1);
++				       packet->page_buf[i].Offset), KM_IRQ1);
+ 	}
  
- /* CoNdisMiniportDeactivateVc message */
- struct rcondis_mp_deactivate_vc_request {
--	u32 RequestId;
--	u32 Flags;
--	u32 DeviceVcHandle;
-+	u32 req_id;
-+	u32 flags;
-+	u32 dev_vc_handle;
- };
+ 	local_irq_restore(flags);
+@@ -349,7 +349,7 @@ static int netvsc_probe(struct device *device)
+ 	struct netvsc_device_info device_info;
+ 	int ret;
  
- /* Response to CoNdisMiniportDeactivateVc */
- struct rcondis_mp_deactivate_vc_complete {
--	u32 RequestId;
--	u32 Status;
-+	u32 req_id;
-+	u32 status;
- };
+-	if (!net_drv_obj->Base.OnDeviceAdd)
++	if (!net_drv_obj->base.OnDeviceAdd)
+ 		return -1;
  
+ 	net = alloc_etherdev(sizeof(struct net_device_context));
+@@ -366,7 +366,7 @@ static int netvsc_probe(struct device *device)
+ 	dev_set_drvdata(device, net);
  
- /* union with all of the RNDIS messages */
- union rndis_message_container {
--	struct rndis_packet Packet;
--	struct rndis_initialize_request InitializeRequest;
--	struct rndis_halt_request HaltRequest;
--	struct rndis_query_request QueryRequest;
--	struct rndis_set_request SetRequest;
--	struct rndis_reset_request ResetRequest;
--	struct rndis_keepalive_request KeepaliveRequest;
--	struct rndis_indicate_status IndicateStatus;
--	struct rndis_initialize_complete InitializeComplete;
--	struct rndis_query_complete QueryComplete;
--	struct rndis_set_complete SetComplete;
--	struct rndis_reset_complete ResetComplete;
--	struct rndis_keepalive_complete KeepaliveComplete;
--	struct rcondis_mp_create_vc CoMiniportCreateVc;
--	struct rcondis_mp_delete_vc CoMiniportDeleteVc;
--	struct rcondis_indicate_status CoIndicateStatus;
--	struct rcondis_mp_activate_vc_request CoMiniportActivateVc;
--	struct rcondis_mp_deactivate_vc_request CoMiniportDeactivateVc;
--	struct rcondis_mp_create_vc_complete CoMiniportCreateVcComplete;
--	struct rcondis_mp_delete_vc_complete CoMiniportDeleteVcComplete;
--	struct rcondis_mp_activate_vc_complete CoMiniportActivateVcComplete;
--	struct rcondis_mp_deactivate_vc_complete CoMiniportDeactivateVcComplete;
-+	struct rndis_packet pkt;
-+	struct rndis_initialize_request init_req;
-+	struct rndis_halt_request halt_req;
-+	struct rndis_query_request query_req;
-+	struct rndis_set_request set_req;
-+	struct rndis_reset_request reset_req;
-+	struct rndis_keepalive_request keep_alive_req;
-+	struct rndis_indicate_status indicate_status;
-+	struct rndis_initialize_complete init_complete;
-+	struct rndis_query_complete query_complete;
-+	struct rndis_set_complete set_complete;
-+	struct rndis_reset_complete reset_complete;
-+	struct rndis_keepalive_complete keep_alive_complete;
-+	struct rcondis_mp_create_vc co_miniport_create_vc;
-+	struct rcondis_mp_delete_vc co_miniport_delete_vc;
-+	struct rcondis_indicate_status co_indicate_status;
-+	struct rcondis_mp_activate_vc_request co_miniport_activate_vc;
-+	struct rcondis_mp_deactivate_vc_request co_miniport_deactivate_vc;
-+	struct rcondis_mp_create_vc_complete co_miniport_create_vc_complete;
-+	struct rcondis_mp_delete_vc_complete co_miniport_delete_vc_complete;
-+	struct rcondis_mp_activate_vc_complete co_miniport_activate_vc_complete;
-+	struct rcondis_mp_deactivate_vc_complete
-+		co_miniport_deactivate_vc_complete;
- };
+ 	/* Notify the netvsc driver of the new device */
+-	ret = net_drv_obj->Base.OnDeviceAdd(device_obj, &device_info);
++	ret = net_drv_obj->base.OnDeviceAdd(device_obj, &device_info);
+ 	if (ret != 0) {
+ 		free_netdev(net);
+ 		dev_set_drvdata(device, NULL);
+@@ -385,10 +385,10 @@ static int netvsc_probe(struct device *device)
+ 	 * out of sync with the device's link status
+ 	 */
+ 	if (!netif_carrier_ok(net))
+-		if (!device_info.LinkState)
++		if (!device_info.link_state)
+ 			netif_carrier_on(net);
  
- /* Remote NDIS message format */
- struct rndis_message {
--	u32 NdisMessageType;
-+	u32 ndis_msg_type;
+-	memcpy(net->dev_addr, device_info.MacAddr, ETH_ALEN);
++	memcpy(net->dev_addr, device_info.mac_adr, ETH_ALEN);
  
- 	/* Total length of this message, from the beginning */
- 	/* of the sruct rndis_message, in bytes. */
--	u32 MessageLength;
-+	u32 msg_len;
+ 	net->netdev_ops = &device_ops;
  
- 	/* Actual message */
--	union rndis_message_container Message;
-+	union rndis_message_container msg;
- };
+@@ -401,7 +401,7 @@ static int netvsc_probe(struct device *device)
+ 	ret = register_netdev(net);
+ 	if (ret != 0) {
+ 		/* Remove the device and release the resource */
+-		net_drv_obj->Base.OnDeviceRemove(device_obj);
++		net_drv_obj->base.OnDeviceRemove(device_obj);
+ 		free_netdev(net);
+ 	}
  
- /* Handy macros */
+@@ -425,7 +425,7 @@ static int netvsc_remove(struct device *device)
+ 		return 0;
+ 	}
  
- /* get the size of an RNDIS message. Pass in the message type, */
- /* struct rndis_set_request, struct rndis_packet for example */
--#define RNDIS_MESSAGE_SIZE(Message)				\
--	(sizeof(Message) + (sizeof(struct rndis_message) -	\
-+#define RNDIS_MESSAGE_SIZE(msg)				\
-+	(sizeof(msg) + (sizeof(struct rndis_message) -	\
- 	 sizeof(union rndis_message_container)))
+-	if (!net_drv_obj->Base.OnDeviceRemove)
++	if (!net_drv_obj->base.OnDeviceRemove)
+ 		return -1;
  
- /* get pointer to info buffer with message pointer */
--#define MESSAGE_TO_INFO_BUFFER(Message)				\
--	(((unsigned char *)(Message)) + Message->InformationBufferOffset)
-+#define MESSAGE_TO_INFO_BUFFER(msg)				\
-+	(((unsigned char *)(msg)) + msg->info_buf_offset)
+ 	/* Stop outbound asap */
+@@ -438,7 +438,7 @@ static int netvsc_remove(struct device *device)
+ 	 * Call to the vsc driver to let it know that the device is being
+ 	 * removed
+ 	 */
+-	ret = net_drv_obj->Base.OnDeviceRemove(device_obj);
++	ret = net_drv_obj->base.OnDeviceRemove(device_obj);
+ 	if (ret != 0) {
+ 		/* TODO: */
+ 		DPRINT_ERR(NETVSC, "unable to remove vsc device (ret %d)", ret);
+@@ -484,8 +484,8 @@ static void netvsc_drv_exit(void)
+ 		device_unregister(current_dev);
+ 	}
  
- /* get pointer to status buffer with message pointer */
--#define MESSAGE_TO_STATUS_BUFFER(Message)			\
--	(((unsigned char *)(Message)) + Message->StatusBufferOffset)
-+#define MESSAGE_TO_STATUS_BUFFER(msg)			\
-+	(((unsigned char *)(msg)) + msg->status_buf_offset)
+-	if (netvsc_drv_obj->Base.OnCleanup)
+-		netvsc_drv_obj->Base.OnCleanup(&netvsc_drv_obj->Base);
++	if (netvsc_drv_obj->base.OnCleanup)
++		netvsc_drv_obj->base.OnCleanup(&netvsc_drv_obj->base);
  
- /* get pointer to OOBD buffer with message pointer */
--#define MESSAGE_TO_OOBD_BUFFER(Message)				\
--	(((unsigned char *)(Message)) + Message->OOBDataOffset)
-+#define MESSAGE_TO_OOBD_BUFFER(msg)				\
-+	(((unsigned char *)(msg)) + msg->oob_data_offset)
+ 	vmbus_child_driver_unregister(drv_ctx);
  
- /* get pointer to data buffer with message pointer */
--#define MESSAGE_TO_DATA_BUFFER(Message)				\
--	(((unsigned char *)(Message)) + Message->PerPacketInfoOffset)
-+#define MESSAGE_TO_DATA_BUFFER(msg)				\
-+	(((unsigned char *)(msg)) + msg->per_pkt_info_offset)
+@@ -498,15 +498,15 @@ static int netvsc_drv_init(int (*drv_init)(struct hv_driver *drv))
+ 	struct driver_context *drv_ctx = &g_netvsc_drv.drv_ctx;
+ 	int ret;
  
- /* get pointer to contained message from NDIS_MESSAGE pointer */
--#define RNDIS_MESSAGE_PTR_TO_MESSAGE_PTR(RndisMessage)		\
--	((void *) &RndisMessage->Message)
-+#define RNDIS_MESSAGE_PTR_TO_MESSAGE_PTR(rndis_msg)		\
-+	((void *) &rndis_msg->msg)
+-	net_drv_obj->RingBufferSize = ring_size * PAGE_SIZE;
+-	net_drv_obj->OnReceiveCallback = netvsc_recv_callback;
+-	net_drv_obj->OnLinkStatusChanged = netvsc_linkstatus_callback;
++	net_drv_obj->ring_buf_size = ring_size * PAGE_SIZE;
++	net_drv_obj->recv_cb = netvsc_recv_callback;
++	net_drv_obj->link_status_change = netvsc_linkstatus_callback;
  
- /* get pointer to contained message from NDIS_MESSAGE pointer */
--#define RNDIS_MESSAGE_RAW_PTR_TO_MESSAGE_PTR(RndisMessage)	\
--	((void *) RndisMessage)
-+#define RNDIS_MESSAGE_RAW_PTR_TO_MESSAGE_PTR(rndis_msg)	\
-+	((void *) rndis_msg)
+ 	/* Callback to client driver to complete the initialization */
+-	drv_init(&net_drv_obj->Base);
++	drv_init(&net_drv_obj->base);
  
- #endif /* _RNDIS_H_ */
+-	drv_ctx->driver.name = net_drv_obj->Base.name;
+-	memcpy(&drv_ctx->class_id, &net_drv_obj->Base.deviceType,
++	drv_ctx->driver.name = net_drv_obj->base.name;
++	memcpy(&drv_ctx->class_id, &net_drv_obj->base.deviceType,
+ 	       sizeof(struct hv_guid));
+ 
+ 	drv_ctx->probe = netvsc_probe;
 diff --git a/drivers/staging/hv/rndis_filter.c b/drivers/staging/hv/rndis_filter.c
-index 63d24c6..53676dc 100644
+index e560f38..dffcc03 100644
 --- a/drivers/staging/hv/rndis_filter.c
 +++ b/drivers/staging/hv/rndis_filter.c
-@@ -136,16 +136,16 @@ static struct rndis_request *get_rndis_request(struct rndis_device *dev,
- 	}
- 
- 	rndis_msg = &request->request_msg;
--	rndis_msg->NdisMessageType = msg_type;
--	rndis_msg->MessageLength = msg_len;
-+	rndis_msg->ndis_msg_type = msg_type;
-+	rndis_msg->msg_len = msg_len;
- 
- 	/*
- 	 * Set the request id. This field is always after the rndis header for
- 	 * request/response packet types so we just used the SetRequest as a
- 	 * template
- 	 */
--	set = &rndis_msg->Message.SetRequest;
--	set->RequestId = atomic_inc_return(&dev->new_req_id);
-+	set = &rndis_msg->msg.set_req;
-+	set->req_id = atomic_inc_return(&dev->new_req_id);
- 
- 	/* Add to the request list */
- 	spin_lock_irqsave(&dev->request_lock, flags);
-@@ -170,20 +170,20 @@ static void put_rndis_request(struct rndis_device *dev,
- 
- static void dump_rndis_message(struct rndis_message *rndis_msg)
- {
--	switch (rndis_msg->NdisMessageType) {
-+	switch (rndis_msg->ndis_msg_type) {
- 	case REMOTE_NDIS_PACKET_MSG:
- 		DPRINT_DBG(NETVSC, "REMOTE_NDIS_PACKET_MSG (len %u, "
- 			   "data offset %u data len %u, # oob %u, "
- 			   "oob offset %u, oob len %u, pkt offset %u, "
- 			   "pkt len %u",
--			   rndis_msg->MessageLength,
--			   rndis_msg->Message.Packet.DataOffset,
--			   rndis_msg->Message.Packet.DataLength,
--			   rndis_msg->Message.Packet.NumOOBDataElements,
--			   rndis_msg->Message.Packet.OOBDataOffset,
--			   rndis_msg->Message.Packet.OOBDataLength,
--			   rndis_msg->Message.Packet.PerPacketInfoOffset,
--			   rndis_msg->Message.Packet.PerPacketInfoLength);
-+			   rndis_msg->msg_len,
-+			   rndis_msg->msg.pkt.data_offset,
-+			   rndis_msg->msg.pkt.data_len,
-+			   rndis_msg->msg.pkt.num_oob_data_elements,
-+			   rndis_msg->msg.pkt.oob_data_offset,
-+			   rndis_msg->msg.pkt.oob_data_len,
-+			   rndis_msg->msg.pkt.per_pkt_info_offset,
-+			   rndis_msg->msg.pkt.per_pkt_info_len);
- 		break;
- 
- 	case REMOTE_NDIS_INITIALIZE_CMPLT:
-@@ -191,53 +191,53 @@ static void dump_rndis_message(struct rndis_message *rndis_msg)
- 			"(len %u, id 0x%x, status 0x%x, major %d, minor %d, "
- 			"device flags %d, max xfer size 0x%x, max pkts %u, "
- 			"pkt aligned %u)",
--			rndis_msg->MessageLength,
--			rndis_msg->Message.InitializeComplete.RequestId,
--			rndis_msg->Message.InitializeComplete.Status,
--			rndis_msg->Message.InitializeComplete.MajorVersion,
--			rndis_msg->Message.InitializeComplete.MinorVersion,
--			rndis_msg->Message.InitializeComplete.DeviceFlags,
--			rndis_msg->Message.InitializeComplete.MaxTransferSize,
--			rndis_msg->Message.InitializeComplete.
--			   MaxPacketsPerMessage,
--			rndis_msg->Message.InitializeComplete.
--			   PacketAlignmentFactor);
-+			rndis_msg->msg_len,
-+			rndis_msg->msg.init_complete.req_id,
-+			rndis_msg->msg.init_complete.status,
-+			rndis_msg->msg.init_complete.major_ver,
-+			rndis_msg->msg.init_complete.minor_ver,
-+			rndis_msg->msg.init_complete.dev_flags,
-+			rndis_msg->msg.init_complete.max_xfer_size,
-+			rndis_msg->msg.init_complete.
-+			   max_pkt_per_msg,
-+			rndis_msg->msg.init_complete.
-+			   pkt_alignment_factor);
- 		break;
- 
- 	case REMOTE_NDIS_QUERY_CMPLT:
- 		DPRINT_DBG(NETVSC, "REMOTE_NDIS_QUERY_CMPLT "
- 			"(len %u, id 0x%x, status 0x%x, buf len %u, "
- 			"buf offset %u)",
--			rndis_msg->MessageLength,
--			rndis_msg->Message.QueryComplete.RequestId,
--			rndis_msg->Message.QueryComplete.Status,
--			rndis_msg->Message.QueryComplete.
--			   InformationBufferLength,
--			rndis_msg->Message.QueryComplete.
--			   InformationBufferOffset);
-+			rndis_msg->msg_len,
-+			rndis_msg->msg.query_complete.req_id,
-+			rndis_msg->msg.query_complete.status,
-+			rndis_msg->msg.query_complete.
-+			   info_buflen,
-+			rndis_msg->msg.query_complete.
-+			   info_buf_offset);
- 		break;
- 
- 	case REMOTE_NDIS_SET_CMPLT:
- 		DPRINT_DBG(NETVSC,
- 			"REMOTE_NDIS_SET_CMPLT (len %u, id 0x%x, status 0x%x)",
--			rndis_msg->MessageLength,
--			rndis_msg->Message.SetComplete.RequestId,
--			rndis_msg->Message.SetComplete.Status);
-+			rndis_msg->msg_len,
-+			rndis_msg->msg.set_complete.req_id,
-+			rndis_msg->msg.set_complete.status);
- 		break;
- 
- 	case REMOTE_NDIS_INDICATE_STATUS_MSG:
- 		DPRINT_DBG(NETVSC, "REMOTE_NDIS_INDICATE_STATUS_MSG "
- 			"(len %u, status 0x%x, buf len %u, buf offset %u)",
--			rndis_msg->MessageLength,
--			rndis_msg->Message.IndicateStatus.Status,
--			rndis_msg->Message.IndicateStatus.StatusBufferLength,
--			rndis_msg->Message.IndicateStatus.StatusBufferOffset);
-+			rndis_msg->msg_len,
-+			rndis_msg->msg.indicate_status.status,
-+			rndis_msg->msg.indicate_status.status_buflen,
-+			rndis_msg->msg.indicate_status.status_buf_offset);
- 		break;
- 
- 	default:
- 		DPRINT_DBG(NETVSC, "0x%x (len %u)",
--			rndis_msg->NdisMessageType,
--			rndis_msg->MessageLength);
-+			rndis_msg->ndis_msg_type,
-+			rndis_msg->msg_len);
- 		break;
- 	}
- }
-@@ -252,12 +252,12 @@ static int rndis_filter_send_request(struct rndis_device *dev,
+@@ -251,22 +251,22 @@ static int rndis_filter_send_request(struct rndis_device *dev,
+ 	/* Setup the packet to send it */
  	packet = &req->pkt;
  
- 	packet->is_data_pkt = false;
--	packet->total_data_buflen = req->request_msg.MessageLength;
-+	packet->total_data_buflen = req->request_msg.msg_len;
- 	packet->page_buf_cnt = 1;
+-	packet->IsDataPacket = false;
+-	packet->TotalDataBufferLength = req->request_msg.MessageLength;
+-	packet->PageBufferCount = 1;
++	packet->is_data_pkt = false;
++	packet->total_data_buflen = req->request_msg.MessageLength;
++	packet->page_buf_cnt = 1;
  
- 	packet->page_buf[0].Pfn = virt_to_phys(&req->request_msg) >>
+-	packet->PageBuffers[0].Pfn = virt_to_phys(&req->request_msg) >>
++	packet->page_buf[0].Pfn = virt_to_phys(&req->request_msg) >>
  					PAGE_SHIFT;
--	packet->page_buf[0].Length = req->request_msg.MessageLength;
-+	packet->page_buf[0].Length = req->request_msg.msg_len;
- 	packet->page_buf[0].Offset =
+-	packet->PageBuffers[0].Length = req->request_msg.MessageLength;
+-	packet->PageBuffers[0].Offset =
++	packet->page_buf[0].Length = req->request_msg.MessageLength;
++	packet->page_buf[0].Offset =
  		(unsigned long)&req->request_msg & (PAGE_SIZE - 1);
  
-@@ -283,15 +283,15 @@ static void rndis_filter_receive_response(struct rndis_device *dev,
- 		 * All request/response message contains RequestId as the 1st
- 		 * field
- 		 */
--		if (request->request_msg.Message.InitializeRequest.RequestId
--		    == resp->Message.InitializeComplete.RequestId) {
-+		if (request->request_msg.msg.init_req.req_id
-+		    == resp->msg.init_complete.req_id) {
- 			DPRINT_DBG(NETVSC, "found rndis request for "
- 				"this response (id 0x%x req type 0x%x res "
- 				"type 0x%x)",
--				request->request_msg.Message.
--				   InitializeRequest.RequestId,
--				request->request_msg.NdisMessageType,
--				resp->NdisMessageType);
-+				request->request_msg.msg.
-+				   init_req.req_id,
-+				request->request_msg.ndis_msg_type,
-+				resp->ndis_msg_type);
+-	packet->Completion.Send.SendCompletionContext = req;/* packet; */
+-	packet->Completion.Send.OnSendCompletion =
++	packet->completion.send.send_completion_ctx = req;/* packet; */
++	packet->completion.send.send_completion =
+ 		rndis_filter_send_request_completion;
+-	packet->Completion.Send.SendCompletionTid = (unsigned long)dev;
++	packet->completion.send.send_completion_tid = (unsigned long)dev;
  
- 			found = true;
- 			break;
-@@ -300,23 +300,23 @@ static void rndis_filter_receive_response(struct rndis_device *dev,
- 	spin_unlock_irqrestore(&dev->request_lock, flags);
- 
- 	if (found) {
--		if (resp->MessageLength <= sizeof(struct rndis_message)) {
-+		if (resp->msg_len <= sizeof(struct rndis_message)) {
- 			memcpy(&request->response_msg, resp,
--			       resp->MessageLength);
-+			       resp->msg_len);
- 		} else {
- 			DPRINT_ERR(NETVSC, "rndis response buffer overflow "
- 				  "detected (size %u max %zu)",
--				  resp->MessageLength,
-+				  resp->msg_len,
- 				  sizeof(struct rndis_filter_packet));
- 
--			if (resp->NdisMessageType ==
-+			if (resp->ndis_msg_type ==
- 			    REMOTE_NDIS_RESET_CMPLT) {
- 				/* does not have a request id field */
--				request->response_msg.Message.ResetComplete.
--					Status = STATUS_BUFFER_OVERFLOW;
-+				request->response_msg.msg.reset_complete.
-+					status = STATUS_BUFFER_OVERFLOW;
- 			} else {
--				request->response_msg.Message.
--				InitializeComplete.Status =
-+				request->response_msg.msg.
-+				init_complete.status =
- 					STATUS_BUFFER_OVERFLOW;
- 			}
- 		}
-@@ -325,8 +325,8 @@ static void rndis_filter_receive_response(struct rndis_device *dev,
- 	} else {
- 		DPRINT_ERR(NETVSC, "no rndis request found for this response "
- 			   "(id 0x%x res type 0x%x)",
--			   resp->Message.InitializeComplete.RequestId,
--			   resp->NdisMessageType);
-+			   resp->msg.init_complete.req_id,
-+			   resp->ndis_msg_type);
- 	}
+-	ret = rndis_filter.inner_drv.OnSend(dev->net_dev->Device, packet);
++	ret = rndis_filter.inner_drv.send(dev->net_dev->Device, packet);
+ 	return ret;
  }
  
-@@ -334,12 +334,12 @@ static void rndis_filter_receive_indicate_status(struct rndis_device *dev,
- 					     struct rndis_message *resp)
- {
- 	struct rndis_indicate_status *indicate =
--			&resp->Message.IndicateStatus;
-+			&resp->msg.indicate_status;
+@@ -337,10 +337,10 @@ static void rndis_filter_receive_indicate_status(struct rndis_device *dev,
+ 			&resp->Message.IndicateStatus;
  
--	if (indicate->Status == RNDIS_STATUS_MEDIA_CONNECT) {
-+	if (indicate->status == RNDIS_STATUS_MEDIA_CONNECT) {
- 		rndis_filter.inner_drv.link_status_change(
- 			dev->net_dev->dev, 1);
--	} else if (indicate->Status == RNDIS_STATUS_MEDIA_DISCONNECT) {
-+	} else if (indicate->status == RNDIS_STATUS_MEDIA_DISCONNECT) {
- 		rndis_filter.inner_drv.link_status_change(
- 			dev->net_dev->dev, 0);
+ 	if (indicate->Status == RNDIS_STATUS_MEDIA_CONNECT) {
+-		rndis_filter.inner_drv.OnLinkStatusChanged(
++		rndis_filter.inner_drv.link_status_change(
+ 			dev->net_dev->Device, 1);
+ 	} else if (indicate->Status == RNDIS_STATUS_MEDIA_DISCONNECT) {
+-		rndis_filter.inner_drv.OnLinkStatusChanged(
++		rndis_filter.inner_drv.link_status_change(
+ 			dev->net_dev->Device, 0);
  	} else {
-@@ -360,7 +360,7 @@ static void rndis_filter_receive_data(struct rndis_device *dev,
- 	/* ASSERT(Packet->PageBuffers[0].Length > */
- 	/* 	RNDIS_MESSAGE_SIZE(struct rndis_packet)); */
- 
--	rndis_pkt = &msg->Message.Packet;
-+	rndis_pkt = &msg->msg.pkt;
- 
- 	/*
- 	 * FIXME: Handle multiple rndis pkt msgs that maybe enclosed in this
-@@ -368,7 +368,7 @@ static void rndis_filter_receive_data(struct rndis_device *dev,
- 	 */
- 
+ 		/*
+@@ -370,13 +370,13 @@ static void rndis_filter_receive_data(struct rndis_device *dev,
  	/* Remove the rndis header and pass it back up the stack */
--	data_offset = RNDIS_HEADER_SIZE + rndis_pkt->DataOffset;
-+	data_offset = RNDIS_HEADER_SIZE + rndis_pkt->data_offset;
+ 	data_offset = RNDIS_HEADER_SIZE + rndis_pkt->DataOffset;
  
- 	pkt->total_data_buflen -= data_offset;
- 	pkt->page_buf[0].Offset += data_offset;
-@@ -418,36 +418,36 @@ static int rndis_filter_receive(struct hv_device *dev,
+-	pkt->TotalDataBufferLength -= data_offset;
+-	pkt->PageBuffers[0].Offset += data_offset;
+-	pkt->PageBuffers[0].Length -= data_offset;
++	pkt->total_data_buflen -= data_offset;
++	pkt->page_buf[0].Offset += data_offset;
++	pkt->page_buf[0].Length -= data_offset;
+ 
+-	pkt->IsDataPacket = true;
++	pkt->is_data_pkt = true;
+ 
+-	rndis_filter.inner_drv.OnReceiveCallback(dev->net_dev->Device,
++	rndis_filter.inner_drv.recv_cb(dev->net_dev->Device,
+ 						   pkt);
+ }
+ 
+@@ -406,10 +406,10 @@ static int rndis_filter_receive(struct hv_device *dev,
+ 	}
+ 
+ 	rndis_hdr = (struct rndis_message *)kmap_atomic(
+-			pfn_to_page(pkt->PageBuffers[0].Pfn), KM_IRQ0);
++			pfn_to_page(pkt->page_buf[0].Pfn), KM_IRQ0);
+ 
+ 	rndis_hdr = (void *)((unsigned long)rndis_hdr +
+-			pkt->PageBuffers[0].Offset);
++			pkt->page_buf[0].Offset);
+ 
+ 	/* Make sure we got a valid rndis message */
+ 	/*
+@@ -418,14 +418,14 @@ static int rndis_filter_receive(struct hv_device *dev,
  	 * range shows 52 bytes
  	 * */
  #if 0
--	if (pkt->total_data_buflen != rndis_hdr->MessageLength) {
-+	if (pkt->total_data_buflen != rndis_hdr->msg_len) {
- 		kunmap_atomic(rndis_hdr - pkt->page_buf[0].Offset,
+-	if (pkt->TotalDataBufferLength != rndis_hdr->MessageLength) {
+-		kunmap_atomic(rndis_hdr - pkt->PageBuffers[0].Offset,
++	if (pkt->total_data_buflen != rndis_hdr->MessageLength) {
++		kunmap_atomic(rndis_hdr - pkt->page_buf[0].Offset,
  			      KM_IRQ0);
  
  		DPRINT_ERR(NETVSC, "invalid rndis message? (expected %u "
  			   "bytes got %u)...dropping this message!",
--			   rndis_hdr->MessageLength,
-+			   rndis_hdr->msg_len,
- 			   pkt->total_data_buflen);
+ 			   rndis_hdr->MessageLength,
+-			   pkt->TotalDataBufferLength);
++			   pkt->total_data_buflen);
  		return -1;
  	}
  #endif
- 
--	if ((rndis_hdr->NdisMessageType != REMOTE_NDIS_PACKET_MSG) &&
--	    (rndis_hdr->MessageLength > sizeof(struct rndis_message))) {
-+	if ((rndis_hdr->ndis_msg_type != REMOTE_NDIS_PACKET_MSG) &&
-+	    (rndis_hdr->msg_len > sizeof(struct rndis_message))) {
- 		DPRINT_ERR(NETVSC, "incoming rndis message buffer overflow "
- 			   "detected (got %u, max %zu)...marking it an error!",
--			   rndis_hdr->MessageLength,
-+			   rndis_hdr->msg_len,
- 			   sizeof(struct rndis_message));
- 	}
- 
- 	memcpy(&rndis_msg, rndis_hdr,
--		(rndis_hdr->MessageLength > sizeof(struct rndis_message)) ?
-+		(rndis_hdr->msg_len > sizeof(struct rndis_message)) ?
+@@ -443,7 +443,7 @@ static int rndis_filter_receive(struct hv_device *dev,
  			sizeof(struct rndis_message) :
--			rndis_hdr->MessageLength);
-+			rndis_hdr->msg_len);
+ 			rndis_hdr->MessageLength);
  
- 	kunmap_atomic(rndis_hdr - pkt->page_buf[0].Offset, KM_IRQ0);
+-	kunmap_atomic(rndis_hdr - pkt->PageBuffers[0].Offset, KM_IRQ0);
++	kunmap_atomic(rndis_hdr - pkt->page_buf[0].Offset, KM_IRQ0);
  
  	dump_rndis_message(&rndis_msg);
  
--	switch (rndis_msg.NdisMessageType) {
-+	switch (rndis_msg.ndis_msg_type) {
- 	case REMOTE_NDIS_PACKET_MSG:
- 		/* data msg */
- 		rndis_filter_receive_data(rndis_dev, &rndis_msg, pkt);
-@@ -468,8 +468,8 @@ static int rndis_filter_receive(struct hv_device *dev,
- 		break;
- 	default:
- 		DPRINT_ERR(NETVSC, "unhandled rndis message (type %u len %u)",
--			   rndis_msg.NdisMessageType,
--			   rndis_msg.MessageLength);
-+			   rndis_msg.ndis_msg_type,
-+			   rndis_msg.msg_len);
- 		break;
- 	}
+@@ -610,7 +610,7 @@ int rndis_filter_init(struct netvsc_driver *drv)
+ 	DPRINT_DBG(NETVSC, "sizeof(struct rndis_filter_packet) == %zd",
+ 		   sizeof(struct rndis_filter_packet));
  
-@@ -497,11 +497,11 @@ static int rndis_filter_query_device(struct rndis_device *dev, u32 oid,
- 	}
+-	drv->RequestExtSize = sizeof(struct rndis_filter_packet);
++	drv->req_ext_size = sizeof(struct rndis_filter_packet);
  
- 	/* Setup the rndis query */
--	query = &request->request_msg.Message.QueryRequest;
--	query->Oid = oid;
--	query->InformationBufferOffset = sizeof(struct rndis_query_request);
--	query->InformationBufferLength = 0;
--	query->DeviceVcHandle = 0;
-+	query = &request->request_msg.msg.query_req;
-+	query->oid = oid;
-+	query->info_buf_offset = sizeof(struct rndis_query_request);
-+	query->info_buflen = 0;
-+	query->dev_vc_handle = 0;
+ 	/* Driver->Context = rndisDriver; */
  
- 	ret = rndis_filter_send_request(dev, request);
- 	if (ret != 0)
-@@ -510,19 +510,19 @@ static int rndis_filter_query_device(struct rndis_device *dev, u32 oid,
- 	osd_waitevent_wait(request->waitevent);
+@@ -622,25 +622,25 @@ int rndis_filter_init(struct netvsc_driver *drv)
+ 	rndisDriver->OnLinkStatusChanged = Driver->OnLinkStatusChanged;*/
  
- 	/* Copy the response back */
--	query_complete = &request->response_msg.Message.QueryComplete;
-+	query_complete = &request->response_msg.msg.query_complete;
+ 	/* Save the original dispatch handlers before we override it */
+-	rndis_filter.inner_drv.Base.OnDeviceAdd = drv->Base.OnDeviceAdd;
+-	rndis_filter.inner_drv.Base.OnDeviceRemove =
+-					drv->Base.OnDeviceRemove;
+-	rndis_filter.inner_drv.Base.OnCleanup = drv->Base.OnCleanup;
++	rndis_filter.inner_drv.base.OnDeviceAdd = drv->base.OnDeviceAdd;
++	rndis_filter.inner_drv.base.OnDeviceRemove =
++					drv->base.OnDeviceRemove;
++	rndis_filter.inner_drv.base.OnCleanup = drv->base.OnCleanup;
  
--	if (query_complete->InformationBufferLength > inresult_size) {
-+	if (query_complete->info_buflen > inresult_size) {
- 		ret = -1;
- 		goto Cleanup;
- 	}
+ 	/* ASSERT(Driver->OnSend); */
+ 	/* ASSERT(Driver->OnReceiveCallback); */
+-	rndis_filter.inner_drv.OnSend = drv->OnSend;
+-	rndis_filter.inner_drv.OnReceiveCallback = drv->OnReceiveCallback;
+-	rndis_filter.inner_drv.OnLinkStatusChanged =
+-					drv->OnLinkStatusChanged;
++	rndis_filter.inner_drv.send = drv->send;
++	rndis_filter.inner_drv.recv_cb = drv->recv_cb;
++	rndis_filter.inner_drv.link_status_change =
++					drv->link_status_change;
  
- 	memcpy(result,
- 	       (void *)((unsigned long)query_complete +
--			 query_complete->InformationBufferOffset),
--	       query_complete->InformationBufferLength);
-+			 query_complete->info_buf_offset),
-+	       query_complete->info_buflen);
+ 	/* Override */
+-	drv->Base.OnDeviceAdd = rndis_filte_device_add;
+-	drv->Base.OnDeviceRemove = rndis_filter_device_remove;
+-	drv->Base.OnCleanup = rndis_filter_cleanup;
+-	drv->OnSend = rndis_filter_send;
++	drv->base.OnDeviceAdd = rndis_filte_device_add;
++	drv->base.OnDeviceRemove = rndis_filter_device_remove;
++	drv->base.OnCleanup = rndis_filter_cleanup;
++	drv->send = rndis_filter_send;
+ 	/* Driver->QueryLinkStatus = RndisFilterQueryDeviceLinkStatus; */
+-	drv->OnReceiveCallback = rndis_filter_receive;
++	drv->recv_cb = rndis_filter_receive;
  
--	*result_size = query_complete->InformationBufferLength;
-+	*result_size = query_complete->info_buflen;
+ 	return 0;
+ }
+@@ -770,7 +770,7 @@ static int rndis_filte_device_add(struct hv_device *dev,
+ 	 * NOTE! Once the channel is created, we may get a receive callback
+ 	 * (RndisFilterOnReceive()) before this call is completed
+ 	 */
+-	ret = rndis_filter.inner_drv.Base.OnDeviceAdd(dev, additional_info);
++	ret = rndis_filter.inner_drv.base.OnDeviceAdd(dev, additional_info);
+ 	if (ret != 0) {
+ 		kfree(rndisDevice);
+ 		return ret;
+@@ -805,13 +805,13 @@ static int rndis_filte_device_add(struct hv_device *dev,
+ 	DPRINT_INFO(NETVSC, "Device 0x%p mac addr %pM",
+ 		    rndisDevice, rndisDevice->hw_mac_adr);
  
- Cleanup:
- 	if (request)
-@@ -570,10 +570,10 @@ static int rndis_filter_set_packet_filter(struct rndis_device *dev,
- 	}
+-	memcpy(deviceInfo->MacAddr, rndisDevice->hw_mac_adr, ETH_ALEN);
++	memcpy(deviceInfo->mac_adr, rndisDevice->hw_mac_adr, ETH_ALEN);
  
- 	/* Setup the rndis set */
--	set = &request->request_msg.Message.SetRequest;
--	set->Oid = RNDIS_OID_GEN_CURRENT_PACKET_FILTER;
--	set->InformationBufferLength = sizeof(u32);
--	set->InformationBufferOffset = sizeof(struct rndis_set_request);
-+	set = &request->request_msg.msg.set_req;
-+	set->oid = RNDIS_OID_GEN_CURRENT_PACKET_FILTER;
-+	set->info_buflen = sizeof(u32);
-+	set->info_buf_offset = sizeof(struct rndis_set_request);
+ 	rndis_filter_query_device_link_status(rndisDevice);
  
- 	memcpy((void *)(unsigned long)set + sizeof(struct rndis_set_request),
- 	       &new_filter, sizeof(u32));
-@@ -594,8 +594,8 @@ static int rndis_filter_set_packet_filter(struct rndis_device *dev,
- 	} else {
- 		if (ret > 0)
- 			ret = 0;
--		set_complete = &request->response_msg.Message.SetComplete;
--		status = set_complete->Status;
-+		set_complete = &request->response_msg.msg.set_complete;
-+		status = set_complete->status;
- 	}
+-	deviceInfo->LinkState = rndisDevice->link_stat;
++	deviceInfo->link_state = rndisDevice->link_stat;
+ 	DPRINT_INFO(NETVSC, "Device 0x%p link state %s", rndisDevice,
+-		    ((deviceInfo->LinkState) ? ("down") : ("up")));
++		    ((deviceInfo->link_state) ? ("down") : ("up")));
  
- Cleanup:
-@@ -661,11 +661,11 @@ static int rndis_filter_init_device(struct rndis_device *dev)
- 	}
+ 	return ret;
+ }
+@@ -828,7 +828,7 @@ static int rndis_filter_device_remove(struct hv_device *dev)
+ 	net_dev->Extension = NULL;
  
- 	/* Setup the rndis set */
--	init = &request->request_msg.Message.InitializeRequest;
--	init->MajorVersion = RNDIS_MAJOR_VERSION;
--	init->MinorVersion = RNDIS_MINOR_VERSION;
-+	init = &request->request_msg.msg.init_req;
-+	init->major_ver = RNDIS_MAJOR_VERSION;
-+	init->minor_ver = RNDIS_MINOR_VERSION;
- 	/* FIXME: Use 1536 - rounded ethernet frame size */
--	init->MaxTransferSize = 2048;
-+	init->max_xfer_size = 2048;
+ 	/* Pass control to inner driver to remove the device */
+-	rndis_filter.inner_drv.Base.OnDeviceRemove(dev);
++	rndis_filter.inner_drv.base.OnDeviceRemove(dev);
  
- 	dev->state = RNDIS_DEV_INITIALIZING;
+ 	return 0;
+ }
+@@ -867,7 +867,7 @@ static int rndis_filter_send(struct hv_device *dev,
+ 	u32 rndisMessageSize;
  
-@@ -677,8 +677,8 @@ static int rndis_filter_init_device(struct rndis_device *dev)
+ 	/* Add the rndis header */
+-	filterPacket = (struct rndis_filter_packet *)pkt->Extension;
++	filterPacket = (struct rndis_filter_packet *)pkt->extension;
+ 	/* ASSERT(filterPacket); */
  
- 	osd_waitevent_wait(request->waitevent);
- 
--	init_complete = &request->response_msg.Message.InitializeComplete;
--	status = init_complete->Status;
-+	init_complete = &request->response_msg.msg.init_complete;
-+	status = init_complete->status;
- 	if (status == RNDIS_STATUS_SUCCESS) {
- 		dev->state = RNDIS_DEV_INITIALIZED;
- 		ret = 0;
-@@ -706,8 +706,8 @@ static void rndis_filter_halt_device(struct rndis_device *dev)
- 		goto Cleanup;
- 
- 	/* Setup the rndis set */
--	halt = &request->request_msg.Message.HaltRequest;
--	halt->RequestId = atomic_inc_return(&dev->new_req_id);
-+	halt = &request->request_msg.msg.halt_req;
-+	halt->req_id = atomic_inc_return(&dev->new_req_id);
- 
- 	/* Ignore return since this msg is optional. */
- 	rndis_filter_send_request(dev, request);
-@@ -875,13 +875,13 @@ static int rndis_filter_send(struct hv_device *dev,
- 	rndisMessage = &filterPacket->msg;
+ 	memset(filterPacket, 0, sizeof(struct rndis_filter_packet));
+@@ -876,37 +876,37 @@ static int rndis_filter_send(struct hv_device *dev,
  	rndisMessageSize = RNDIS_MESSAGE_SIZE(struct rndis_packet);
  
--	rndisMessage->NdisMessageType = REMOTE_NDIS_PACKET_MSG;
--	rndisMessage->MessageLength = pkt->total_data_buflen +
-+	rndisMessage->ndis_msg_type = REMOTE_NDIS_PACKET_MSG;
-+	rndisMessage->msg_len = pkt->total_data_buflen +
+ 	rndisMessage->NdisMessageType = REMOTE_NDIS_PACKET_MSG;
+-	rndisMessage->MessageLength = pkt->TotalDataBufferLength +
++	rndisMessage->MessageLength = pkt->total_data_buflen +
  				      rndisMessageSize;
  
--	rndisPacket = &rndisMessage->Message.Packet;
--	rndisPacket->DataOffset = sizeof(struct rndis_packet);
--	rndisPacket->DataLength = pkt->total_data_buflen;
-+	rndisPacket = &rndisMessage->msg.pkt;
-+	rndisPacket->data_offset = sizeof(struct rndis_packet);
-+	rndisPacket->data_len = pkt->total_data_buflen;
+ 	rndisPacket = &rndisMessage->Message.Packet;
+ 	rndisPacket->DataOffset = sizeof(struct rndis_packet);
+-	rndisPacket->DataLength = pkt->TotalDataBufferLength;
++	rndisPacket->DataLength = pkt->total_data_buflen;
  
- 	pkt->is_data_pkt = true;
- 	pkt->page_buf[0].Pfn = virt_to_phys(rndisMessage) >> PAGE_SHIFT;
+-	pkt->IsDataPacket = true;
+-	pkt->PageBuffers[0].Pfn = virt_to_phys(rndisMessage) >> PAGE_SHIFT;
+-	pkt->PageBuffers[0].Offset =
++	pkt->is_data_pkt = true;
++	pkt->page_buf[0].Pfn = virt_to_phys(rndisMessage) >> PAGE_SHIFT;
++	pkt->page_buf[0].Offset =
+ 			(unsigned long)rndisMessage & (PAGE_SIZE-1);
+-	pkt->PageBuffers[0].Length = rndisMessageSize;
++	pkt->page_buf[0].Length = rndisMessageSize;
+ 
+ 	/* Save the packet send completion and context */
+-	filterPacket->completion = pkt->Completion.Send.OnSendCompletion;
++	filterPacket->completion = pkt->completion.send.send_completion;
+ 	filterPacket->completion_ctx =
+-				pkt->Completion.Send.SendCompletionContext;
++				pkt->completion.send.send_completion_ctx;
+ 
+ 	/* Use ours */
+-	pkt->Completion.Send.OnSendCompletion = rndis_filter_send_completion;
+-	pkt->Completion.Send.SendCompletionContext = filterPacket;
++	pkt->completion.send.send_completion = rndis_filter_send_completion;
++	pkt->completion.send.send_completion_ctx = filterPacket;
+ 
+-	ret = rndis_filter.inner_drv.OnSend(dev, pkt);
++	ret = rndis_filter.inner_drv.send(dev, pkt);
+ 	if (ret != 0) {
+ 		/*
+ 		 * Reset the completion to originals to allow retries from
+ 		 * above
+ 		 */
+-		pkt->Completion.Send.OnSendCompletion =
++		pkt->completion.send.send_completion =
+ 				filterPacket->completion;
+-		pkt->Completion.Send.SendCompletionContext =
++		pkt->completion.send.send_completion_ctx =
+ 				filterPacket->completion_ctx;
+ 	}
+ 
 -- 
 1.6.3.2
