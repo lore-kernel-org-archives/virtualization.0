@@ -1,27 +1,47 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [GIT PULL net-2.6] vhost-net: logging fixup
-Date: Sun, 12 Dec 2010 14:21:42 -0800 (PST)
-Message-ID: <20101212.142142.115944338.davem@davemloft.net>
-References: <20101212100943.GA12725@redhat.com>
+From: =?UTF-8?B?4KSF4KSo4KWB4KSc?= <anuj01@gmail.com>
+Subject: SCSI Command support over VirtIO Block device
+Date: Mon, 13 Dec 2010 10:44:12 +0530
+Message-ID: <AANLkTi=kae=14C3fV+fyA-tEa_f8yf2hU1BsMKT=h4rA__29723.7861123451$1292217322$gmane$org@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <20101212100943.GA12725@redhat.com>
-Sender: kvm-owner@vger.kernel.org
-To: mst@redhat.com
-Cc: kvm@vger.kernel.org, virtualization@lists.osdl.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, stable@kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, rusty@rustcorp.com.au
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Date: Sun, 12 Dec 2010 12:09:43 +0200
-
-> Please merge the following fix for 2.6.37.
-> It is also applicable to -stable.
-> Thanks!
-> 
-> The following changes since commit a19faf0250e09b16cac169354126404bc8aa342b:
-> 
->   net: fix skb_defer_rx_timestamp() (2010-12-10 16:20:56 -0800)
-
-Pulled, thanks.
+SGkKCkkgYW0gdHJ5aW5nIHRvIGltcGxlbWVudCBWaXJ0SU8gc3VwcG9ydCBmb3IgYSBwcm9wcmll
+dGFyeSBPUy4gQW5kIEl0CndvdWxkIGJlIGdyZWF0IGlmIEkgYW0gYWJsZSB0byBwcm9jZXNzIFND
+U0kgY29tbWFuZHMgb3ZlciBWaXJ0SU8gQmxvY2sKZGV2aWNlLgoKSSB0cmllZCB0byBleGVjdXRl
+IElOUVVJUlkgY29tbWFuZCBidXQgdGhlIHN0YXR1cyByZXR1cm5lZCBpcyBVTlNVUFBPUlRFRC4K
+SWYgYW55b25lIHByb3ZpZGUgZXhhbXBsZSBWaXJ0SU8gU0NTSSBDb21tYW5kIHJlcXVlc3Qgc3Ry
+dWN0dXJlIGZvcgpJTlFVSVJZIGNvbW1hbmQgYXMgcGVyIFZpcnRJTyBzcGVjIEFwcGVuZGl4IEQg
+d291bGQgYmUgYSBncmVhdCBoZWxwLgoKQW5kIGFsc28sIHRoZSBwYXJhZ3JhcGggZnJvbSBWaXJ0
+SU8gc3BlYyAtIDAuOC45IGlzIGNvbmZ1c2luZyBmb3IgbWUgOgoKIkhpc3RvcmljYWxseSwgZGV2
+aWNlcyBhc3N1bWVkIHRoYXQgdGhlICBmaWVsZHMgdHlwZSwgaW9wcmlvIGFuZApzZWN0b3IgcmVz
+aWRlIGluCmEgc2luZ2xlLCBzZXBhcmF0ZSByZWFkLW9ubHkgYnVmZmVyOyB0aGUgIGZpZWxkcyBl
+cnJvcnMsIGRhdGFfbGVuLCBzZW5zZV9sZW4gYW5kCnJlc2lkdWFsIHJlc2lkZSBpbiBhIHNpbmds
+ZSwgc2VwYXJhdGUgd3JpdGUtb25seSBidWZmZXI7IHRoZSBzZW5zZQogZWxkIGluIGEgc2VwYXJh
+dGUKd3JpdGUtb25seSBidWZmZXIgb2Ygc2l6ZSA5NiBieXRlcywgYnkgaXRzZWxmOyB0aGUgZmll
+bGRzIGVycm9ycywKZGF0YV9sZW4sIHNlbnNlX2xlbgphbmQgcmVzaWR1YWwgaW4gYSBzaW5nbGUg
+d3JpdGUtb25seSBidWZmZXI7IGFuZCB0aGUgc3RhdHVzIGZpZWxkIGlzIGEKc2VwYXJhdGUgcmVh
+ZG9ubHkKYnVmZmVyIG9mIHNpemUgMSBieXRlLCBieSBpdHNlbGYuIgoKSGVyZSAnc3RhdHVzIGZp
+ZWxkIG9mIGJ1ZmZlciBzaXplIDEgYnl0ZScgaXMgd2hldGhlciByZWFkb25seSBvciB3cml0ZW9u
+bHk/CgpJIHdhbnQgdG8ga25vdyBmcm9tIHdoaWNoIHZlcnNpb24gb2YgUWVtdS1rdm0gc3VwcG9y
+dHMgcHJvY2Vzc2luZyBvZgpzY3NpIGNvbW1hbmRzIG92ZXIgVmlydElPIGJsb2NrIGRldmljZSBh
+cyBhIGJhY2tlbmQuCkFsdGhvdWdoIEkgY2hlY2tlZCB0aGUgSG9zdCBGZWF0dXJlIGZpZWxkcyBp
+biB3aGljaCBWSVJUSU9fQkxLX0ZfU0NTSQpiaXQgaXMgc2V0LiBJIGFtIHVzaW5nIHFlbXUta3Zt
+IHZlcnNpb24gMC4xMi4zLgoKLS0gCkFudWogQWdnYXJ3YWwKCsKgLicnYC4KOiA64pK2IDrCoMKg
+ICMgYXB0LWdldCBpbnN0YWxsIGhha3VuYS1tYXRhdGEKYC4gYCdgCsKgwqAgYC0KX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFp
+bGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBz
+Oi8vbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXph
+dGlvbg==
