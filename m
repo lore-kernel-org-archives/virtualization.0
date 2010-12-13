@@ -1,10 +1,9 @@
-From: =?UTF-8?B?4KSF4KSo4KWB4KSc?= <anuj01@gmail.com>
-Subject: SCSI Command support over VirtIO Block device
-Date: Mon, 13 Dec 2010 10:44:12 +0530
-Message-ID: <AANLkTi=kae=14C3fV+fyA-tEa_f8yf2hU1BsMKT=h4rA__29723.7861123451$1292217322$gmane$org@mail.gmail.com>
+From: Stefan Hajnoczi <stefanha@gmail.com>
+Subject: Re: [Qemu-devel] SCSI Command support over VirtIO Block device
+Date: Mon, 13 Dec 2010 07:42:15 +0000
+Message-ID: <AANLkTi=MVouwpAu5Zfxexx-yOZa3p0SpQ4OrO+_ax-Ew@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: multipart/mixed; boundary="===============5278717429763121343=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -13,35 +12,148 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Mime-version: 1.0
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, rusty@rustcorp.com.au
+To: =?UTF-8?B?4KSF4KSo4KWB4KSc?= <anuj01@gmail.com>
+Cc: qemu-devel@nongnu.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-SGkKCkkgYW0gdHJ5aW5nIHRvIGltcGxlbWVudCBWaXJ0SU8gc3VwcG9ydCBmb3IgYSBwcm9wcmll
-dGFyeSBPUy4gQW5kIEl0CndvdWxkIGJlIGdyZWF0IGlmIEkgYW0gYWJsZSB0byBwcm9jZXNzIFND
-U0kgY29tbWFuZHMgb3ZlciBWaXJ0SU8gQmxvY2sKZGV2aWNlLgoKSSB0cmllZCB0byBleGVjdXRl
-IElOUVVJUlkgY29tbWFuZCBidXQgdGhlIHN0YXR1cyByZXR1cm5lZCBpcyBVTlNVUFBPUlRFRC4K
-SWYgYW55b25lIHByb3ZpZGUgZXhhbXBsZSBWaXJ0SU8gU0NTSSBDb21tYW5kIHJlcXVlc3Qgc3Ry
-dWN0dXJlIGZvcgpJTlFVSVJZIGNvbW1hbmQgYXMgcGVyIFZpcnRJTyBzcGVjIEFwcGVuZGl4IEQg
-d291bGQgYmUgYSBncmVhdCBoZWxwLgoKQW5kIGFsc28sIHRoZSBwYXJhZ3JhcGggZnJvbSBWaXJ0
-SU8gc3BlYyAtIDAuOC45IGlzIGNvbmZ1c2luZyBmb3IgbWUgOgoKIkhpc3RvcmljYWxseSwgZGV2
-aWNlcyBhc3N1bWVkIHRoYXQgdGhlICBmaWVsZHMgdHlwZSwgaW9wcmlvIGFuZApzZWN0b3IgcmVz
-aWRlIGluCmEgc2luZ2xlLCBzZXBhcmF0ZSByZWFkLW9ubHkgYnVmZmVyOyB0aGUgIGZpZWxkcyBl
-cnJvcnMsIGRhdGFfbGVuLCBzZW5zZV9sZW4gYW5kCnJlc2lkdWFsIHJlc2lkZSBpbiBhIHNpbmds
-ZSwgc2VwYXJhdGUgd3JpdGUtb25seSBidWZmZXI7IHRoZSBzZW5zZQogZWxkIGluIGEgc2VwYXJh
-dGUKd3JpdGUtb25seSBidWZmZXIgb2Ygc2l6ZSA5NiBieXRlcywgYnkgaXRzZWxmOyB0aGUgZmll
-bGRzIGVycm9ycywKZGF0YV9sZW4sIHNlbnNlX2xlbgphbmQgcmVzaWR1YWwgaW4gYSBzaW5nbGUg
-d3JpdGUtb25seSBidWZmZXI7IGFuZCB0aGUgc3RhdHVzIGZpZWxkIGlzIGEKc2VwYXJhdGUgcmVh
-ZG9ubHkKYnVmZmVyIG9mIHNpemUgMSBieXRlLCBieSBpdHNlbGYuIgoKSGVyZSAnc3RhdHVzIGZp
-ZWxkIG9mIGJ1ZmZlciBzaXplIDEgYnl0ZScgaXMgd2hldGhlciByZWFkb25seSBvciB3cml0ZW9u
-bHk/CgpJIHdhbnQgdG8ga25vdyBmcm9tIHdoaWNoIHZlcnNpb24gb2YgUWVtdS1rdm0gc3VwcG9y
-dHMgcHJvY2Vzc2luZyBvZgpzY3NpIGNvbW1hbmRzIG92ZXIgVmlydElPIGJsb2NrIGRldmljZSBh
-cyBhIGJhY2tlbmQuCkFsdGhvdWdoIEkgY2hlY2tlZCB0aGUgSG9zdCBGZWF0dXJlIGZpZWxkcyBp
-biB3aGljaCBWSVJUSU9fQkxLX0ZfU0NTSQpiaXQgaXMgc2V0LiBJIGFtIHVzaW5nIHFlbXUta3Zt
-IHZlcnNpb24gMC4xMi4zLgoKLS0gCkFudWogQWdnYXJ3YWwKCsKgLicnYC4KOiA64pK2IDrCoMKg
-ICMgYXB0LWdldCBpbnN0YWxsIGhha3VuYS1tYXRhdGEKYC4gYCdgCsKgwqAgYC0KX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFp
-bGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBz
-Oi8vbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXph
-dGlvbg==
+--===============5278717429763121343==
+Content-Type: multipart/alternative; boundary=001636499c3fc496fe049745d79f
+
+--001636499c3fc496fe049745d79f
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+On Dec 13, 2010 5:14 AM, "=E0=A4=85=E0=A4=A8=E0=A5=81=E0=A4=9C" <anuj01@gma=
+il.com> wrote:
+>
+> Hi
+>
+> I am trying to implement VirtIO support for a proprietary OS. And It
+> would be great if I am able to process SCSI commands over VirtIO Block
+> device.
+>
+> I tried to execute INQUIRY command but the status returned is UNSUPPORTED=
+.
+> If anyone provide example VirtIO SCSI Command request structure for
+> INQUIRY command as per VirtIO spec Appendix D would be a great help.
+>
+> And also, the paragraph from VirtIO spec - 0.8.9 is confusing for me :
+>
+> "Historically, devices assumed that the  fields type, ioprio and
+> sector reside in
+> a single, separate read-only buffer; the  fields errors, data_len,
+sense_len and
+> residual reside in a single, separate write-only buffer; the sense
+>  eld in a separate
+> write-only buffer of size 96 bytes, by itself; the fields errors,
+> data_len, sense_len
+> and residual in a single write-only buffer; and the status field is a
+> separate readonly
+> buffer of size 1 byte, by itself."
+>
+> Here 'status field of buffer size 1 byte' is whether readonly or
+writeonly?
+
+Writeonly
+
+>
+> I want to know from which version of Qemu-kvm supports processing of
+> scsi commands over VirtIO block device as a backend.
+> Although I checked the Host Feature fields in which VIRTIO_BLK_F_SCSI
+> bit is set. I am using qemu-kvm version 0.12.3.
+
+Make sure you have a scsi-generic block device in qemu-kvm, not just a
+regular file or physical block device. Open /dev/sg.
+
+Look at hw/virtio-blk.c in qemu-kvm for host implementation details.
+
+>
+> --
+> Anuj Aggarwal
+>
+>  .''`.
+> : :=E2=92=B6 :   # apt-get install hakuna-matata
+> `. `'`
+>    `-
+>
+
+--001636499c3fc496fe049745d79f
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+<p><br>
+On Dec 13, 2010 5:14 AM, &quot;=E0=A4=85=E0=A4=A8=E0=A5=81=E0=A4=9C&quot; &=
+lt;<a href=3D"mailto:anuj01@gmail.com">anuj01@gmail.com</a>&gt; wrote:<br>
+&gt;<br>
+&gt; Hi<br>
+&gt;<br>
+&gt; I am trying to implement VirtIO support for a proprietary OS. And It<b=
+r>
+&gt; would be great if I am able to process SCSI commands over VirtIO Block=
+<br>
+&gt; device.<br>
+&gt;<br>
+&gt; I tried to execute INQUIRY command but the status returned is UNSUPPOR=
+TED.<br>
+&gt; If anyone provide example VirtIO SCSI Command request structure for<br=
+>
+&gt; INQUIRY command as per VirtIO spec Appendix D would be a great help.<b=
+r>
+&gt;<br>
+&gt; And also, the paragraph from VirtIO spec - 0.8.9 is confusing for me :=
+<br>
+&gt;<br>
+&gt; &quot;Historically, devices assumed that the =C2=A0fields type, ioprio=
+ and<br>
+&gt; sector reside in<br>
+&gt; a single, separate read-only buffer; the =C2=A0fields errors, data_len=
+, sense_len and<br>
+&gt; residual reside in a single, separate write-only buffer; the sense<br>
+&gt; =C2=A0eld in a separate<br>
+&gt; write-only buffer of size 96 bytes, by itself; the fields errors,<br>
+&gt; data_len, sense_len<br>
+&gt; and residual in a single write-only buffer; and the status field is a<=
+br>
+&gt; separate readonly<br>
+&gt; buffer of size 1 byte, by itself.&quot;<br>
+&gt;<br>
+&gt; Here &#39;status field of buffer size 1 byte&#39; is whether readonly =
+or writeonly?</p>
+<p>Writeonly</p>
+<p>&gt;<br>
+&gt; I want to know from which version of Qemu-kvm supports processing of<b=
+r>
+&gt; scsi commands over VirtIO block device as a backend.<br>
+&gt; Although I checked the Host Feature fields in which VIRTIO_BLK_F_SCSI<=
+br>
+&gt; bit is set. I am using qemu-kvm version 0.12.3.</p>
+<p>Make sure you have a scsi-generic block device in qemu-kvm, not just a r=
+egular file or physical block device. Open /dev/sg.</p>
+<p>Look at hw/virtio-blk.c in qemu-kvm for host implementation details.</p>
+<p>&gt;<br>
+&gt; --<br>
+&gt; Anuj Aggarwal<br>
+&gt;<br>
+&gt; =C2=A0.&#39;&#39;`.<br>
+&gt; : :=E2=92=B6 :=C2=A0=C2=A0 # apt-get install hakuna-matata<br>
+&gt; `. `&#39;`<br>
+&gt; =C2=A0=C2=A0 `-<br>
+&gt;<br>
+</p>
+
+--001636499c3fc496fe049745d79f--
+
+--===============5278717429763121343==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linux-foundation.org/mailman/listinfo/virtualization
+--===============5278717429763121343==--
