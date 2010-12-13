@@ -1,92 +1,73 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH 2/2] tools/virtio: virtio_test tool
-Date: Mon, 13 Dec 2010 19:14:32 +0200
-Message-ID: <20101213171432.GB7182@redhat.com>
-References: <20101129170431.GA4027@redhat.com>
-	<20101129171637.GC4027@redhat.com>
-	<201012061523.03108.rusty@rustcorp.com.au>
+Subject: Re: [GIT PULL net-next-2.6] vhost-net: tools, cleanups, optimizations
+Date: Mon, 13 Dec 2010 19:24:47 +0200
+Message-ID: <20101213172447.GA8560@redhat.com>
+References: <20101213104413.GA678@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <201012061523.03108.rusty@rustcorp.com.au>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+In-Reply-To: <20101213104413.GA678@redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: David Miller <davem@davemloft.net>
+Cc: kvm@vger.kernel.org, virtualization@lists.osdl.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, Rusty Russell <rusty@rustcorp.com.au>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Dec 06, 2010 at 03:23:02PM +1030, Rusty Russell wrote:
-> On Tue, 30 Nov 2010 03:46:37 am Michael S. Tsirkin wrote:
-> > This is the userspace part of the tool: it includes a bunch of stubs for
-> > linux APIs, somewhat simular to linuxsched. This makes it possible to
-> > recompile the ring code in userspace.
-> > 
-> > A small test example is implemented combining this with vhost_test
-> > module.
-> > 
-> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+On Mon, Dec 13, 2010 at 12:44:13PM +0200, Michael S. Tsirkin wrote:
+> Please merge the following tree for 2.6.38.
+> Thanks!
+
+Um, I sent this out before I noticed the mail from Rusty
+with some questions on the test code. I missed that and
+assumed no comments -> no issues, perhaps wrongly.
+
+Rusty - I tried answering the questions there - any issues
+with merging this? It's just a test so won't be hard to remove
+later if it's not helpful ...
+
+> The following changes since commit ad1184c6cf067a13e8cb2a4e7ccc407f947027d0:
 > 
-> Hi Michael,
+>   net: au1000_eth: remove unused global variable. (2010-12-11 12:01:48 -0800)
 > 
->   I'm not sure what the point is of this work?  You'll still need to
-> benchmark on real systems, but it's not low-level enough to measure
-> things like cache misses.
-
-The point is to be able to create easy to test workloads:
-(just running the single test included here produces a
- result that seems repeatable to a high degree)
-while still staying as close as possible to what we might expect in real
-life.
-
-I also want to be able to measure just the overhead of the ring,
-without involving block or network core in guest and host.
-
-In other words, it's a synthetic benchmark.
-
-> I'm assuming you're thinking of playing with layout to measure cache
-> behaviour.
-
-In one example, using this test I saw that different publish
-used index layouts don't seem to behave at all differently.
-
-But I also saw that the extra pointer hasing
-added by my publish used index patches did add
-measureable overhead.
-
-Plan to look into that.
-
->  I was thinking of a complete userspace implementation
-
-The disadvantage is that any work done there needs to be
-redone in real life, though. And implementation details often matter.
-What I did let me actually use the virtio/vhost code that we have and see how
-it performs.
-
-> where
-> either it was run under cachegrind, or each access was wrapped to allow
-> tracking of cachelines to give an exact measure of cache movement
-
-perf stat not good enough?
-
-> under
-> various scenarios (esp. ring mostly empty, ring in steady state, ring
-> mostly full).
-
-Yes, I do want to add tests to stress various scenarios.
-
+> are available in the git repository at:
+>   git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git vhost-net-next
 > 
-> Cheers,
-> Rusty.
-
-
--- 
-MST
+> Jason Wang (1):
+>       vhost: fix typos in comment
+> 
+> Julia Lawall (1):
+>       drivers/vhost/vhost.c: delete double assignment
+> 
+> Michael S. Tsirkin (9):
+>       vhost: put mm after thread stop
+>       vhost-net: batch use/unuse mm
+>       vhost: copy_to_user -> __copy_to_user
+>       vhost: get/put_user -> __get/__put_user
+>       vhost: remove unused include
+>       vhost: correctly set bits of dirty pages
+>       vhost: better variable name in logging
+>       vhost test module
+>       tools/virtio: virtio_test tool
+> 
+>  drivers/vhost/net.c                  |    9 +-
+>  drivers/vhost/test.c                 |  320 ++++++++++++++++++++++++++++++++++
+>  drivers/vhost/test.h                 |    7 +
+>  drivers/vhost/vhost.c                |   44 +++---
+>  drivers/vhost/vhost.h                |    2 +-
+>  tools/virtio/Makefile                |   12 ++
+>  tools/virtio/linux/device.h          |    2 +
+>  tools/virtio/linux/slab.h            |    2 +
+>  tools/virtio/linux/virtio.h          |  223 +++++++++++++++++++++++
+>  tools/virtio/vhost_test/Makefile     |    2 +
+>  tools/virtio/vhost_test/vhost_test.c |    1 +
+>  tools/virtio/virtio_test.c           |  248 ++++++++++++++++++++++++++
+>  12 files changed, 842 insertions(+), 30 deletions(-)
+>  create mode 100644 drivers/vhost/test.c
+>  create mode 100644 drivers/vhost/test.h
+>  create mode 100644 tools/virtio/Makefile
+>  create mode 100644 tools/virtio/linux/device.h
+>  create mode 100644 tools/virtio/linux/slab.h
+>  create mode 100644 tools/virtio/linux/virtio.h
+>  create mode 100644 tools/virtio/vhost_test/Makefile
+>  create mode 100644 tools/virtio/vhost_test/vhost_test.c
+>  create mode 100644 tools/virtio/virtio_test.c
