@@ -1,13 +1,16 @@
-From: =?UTF-8?B?4KSF4KSo4KWB4KSc?= <anuj01@gmail.com>
-Subject: Re: [Qemu-devel] SCSI Command support over VirtIO Block device
-Date: Mon, 13 Dec 2010 16:17:16 +0530
-Message-ID: <AANLkTiknOQ-rfO5krbqnxj64x=UoXXNuoY=hyq2BF3O=__1699.23492144353$1292237292$gmane$org@mail.gmail.com>
-References: <AANLkTi=MVouwpAu5Zfxexx-yOZa3p0SpQ4OrO+_ax-Ew@mail.gmail.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH 2/2] tools/virtio: virtio_test tool
+Date: Mon, 13 Dec 2010 18:58:28 +0200
+Message-ID: <20101213165828.GA7182__15273.6185155392$1292259588$gmane$org@redhat.com>
+References: <20101129170431.GA4027@redhat.com>
+	<20101129171637.GC4027@redhat.com>
+	<AANLkTinSia0yt3xmNusXezVsmembv9NKoymN+rrBn_pY@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <AANLkTi=MVouwpAu5Zfxexx-yOZa3p0SpQ4OrO+_ax-Ew@mail.gmail.com>
+Content-Disposition: inline
+In-Reply-To: <AANLkTinSia0yt3xmNusXezVsmembv9NKoymN+rrBn_pY@mail.gmail.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -17,51 +20,42 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Stefan Hajnoczi <stefanha@gmail.com>
-Cc: qemu-devel@nongnu.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Thiago Farina <tfransosi@gmail.com>
+Cc: linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-SGkKCjIwMTAvMTIvMTMgU3RlZmFuIEhham5vY3ppIDxzdGVmYW5oYUBnbWFpbC5jb20+Ogo+Cj4g
-T24gRGVjIDEzLCAyMDEwIDU6MTQgQU0sICLgpIXgpKjgpYHgpJwiIDxhbnVqMDFAZ21haWwuY29t
-PiB3cm90ZToKPj4KPj4gSGkKPj4KPj4gSSBhbSB0cnlpbmcgdG8gaW1wbGVtZW50IFZpcnRJTyBz
-dXBwb3J0IGZvciBhIHByb3ByaWV0YXJ5IE9TLiBBbmQgSXQKPj4gd291bGQgYmUgZ3JlYXQgaWYg
-SSBhbSBhYmxlIHRvIHByb2Nlc3MgU0NTSSBjb21tYW5kcyBvdmVyIFZpcnRJTyBCbG9jawo+PiBk
-ZXZpY2UuCj4+Cj4+IEkgdHJpZWQgdG8gZXhlY3V0ZSBJTlFVSVJZIGNvbW1hbmQgYnV0IHRoZSBz
-dGF0dXMgcmV0dXJuZWQgaXMgVU5TVVBQT1JURUQuCj4+IElmIGFueW9uZSBwcm92aWRlIGV4YW1w
-bGUgVmlydElPIFNDU0kgQ29tbWFuZCByZXF1ZXN0IHN0cnVjdHVyZSBmb3IKPj4gSU5RVUlSWSBj
-b21tYW5kIGFzIHBlciBWaXJ0SU8gc3BlYyBBcHBlbmRpeCBEIHdvdWxkIGJlIGEgZ3JlYXQgaGVs
-cC4KPj4KPj4gQW5kIGFsc28sIHRoZSBwYXJhZ3JhcGggZnJvbSBWaXJ0SU8gc3BlYyAtIDAuOC45
-IGlzIGNvbmZ1c2luZyBmb3IgbWUgOgo+Pgo+PiAiSGlzdG9yaWNhbGx5LCBkZXZpY2VzIGFzc3Vt
-ZWQgdGhhdCB0aGUgwqBmaWVsZHMgdHlwZSwgaW9wcmlvIGFuZAo+PiBzZWN0b3IgcmVzaWRlIGlu
-Cj4+IGEgc2luZ2xlLCBzZXBhcmF0ZSByZWFkLW9ubHkgYnVmZmVyOyB0aGUgwqBmaWVsZHMgZXJy
-b3JzLCBkYXRhX2xlbiwKPj4gc2Vuc2VfbGVuIGFuZAo+PiByZXNpZHVhbCByZXNpZGUgaW4gYSBz
-aW5nbGUsIHNlcGFyYXRlIHdyaXRlLW9ubHkgYnVmZmVyOyB0aGUgc2Vuc2UKPj4gwqBlbGQgaW4g
-YSBzZXBhcmF0ZQo+PiB3cml0ZS1vbmx5IGJ1ZmZlciBvZiBzaXplIDk2IGJ5dGVzLCBieSBpdHNl
-bGY7IHRoZSBmaWVsZHMgZXJyb3JzLAo+PiBkYXRhX2xlbiwgc2Vuc2VfbGVuCj4+IGFuZCByZXNp
-ZHVhbCBpbiBhIHNpbmdsZSB3cml0ZS1vbmx5IGJ1ZmZlcjsgYW5kIHRoZSBzdGF0dXMgZmllbGQg
-aXMgYQo+PiBzZXBhcmF0ZSByZWFkb25seQo+PiBidWZmZXIgb2Ygc2l6ZSAxIGJ5dGUsIGJ5IGl0
-c2VsZi4iCj4+Cj4+IEhlcmUgJ3N0YXR1cyBmaWVsZCBvZiBidWZmZXIgc2l6ZSAxIGJ5dGUnIGlz
-IHdoZXRoZXIgcmVhZG9ubHkgb3IKPj4gd3JpdGVvbmx5Pwo+Cj4gV3JpdGVvbmx5Cj4KPj4KPj4g
-SSB3YW50IHRvIGtub3cgZnJvbSB3aGljaCB2ZXJzaW9uIG9mIFFlbXUta3ZtIHN1cHBvcnRzIHBy
-b2Nlc3Npbmcgb2YKPj4gc2NzaSBjb21tYW5kcyBvdmVyIFZpcnRJTyBibG9jayBkZXZpY2UgYXMg
-YSBiYWNrZW5kLgo+PiBBbHRob3VnaCBJIGNoZWNrZWQgdGhlIEhvc3QgRmVhdHVyZSBmaWVsZHMg
-aW4gd2hpY2ggVklSVElPX0JMS19GX1NDU0kKPj4gYml0IGlzIHNldC4gSSBhbSB1c2luZyBxZW11
-LWt2bSB2ZXJzaW9uIDAuMTIuMy4KPgo+IE1ha2Ugc3VyZSB5b3UgaGF2ZSBhIHNjc2ktZ2VuZXJp
-YyBibG9jayBkZXZpY2UgaW4gcWVtdS1rdm0sIG5vdCBqdXN0IGEKPiByZWd1bGFyIGZpbGUgb3Ig
-cGh5c2ljYWwgYmxvY2sgZGV2aWNlLiBPcGVuIC9kZXYvc2cuCgpZZXMsIEkgaGF2ZSBnaXZlbiBh
-IGZpbGUgbmFtZSBpbnN0ZWFkIG9mIC9kZXYvc2cwLiBOb3cgaXQncyB3b3JraW5nIGFzIGEgY2hh
-cm0uCgpUaGF0IG1lYW5zIEkgY2FuIHVzZSBwaHlzaWNhbCBkaXNrIGFzIGEgVmlydElPIGRpc2sg
-aW4gZ3Vlc3QgT1MuIHJpZ2h0PwpTbyBpdCdzIGtpbmQgb2YgcGFzc3Rocm91Z2ggZm9yIGEgcGh5
-c2ljYWwgZGlzay4gQnV0IGhvdyBjYW4gSQpkaXN0aW5ndWlzaCBhbW9uZyBkaWZmZXJlbnQgcGh5
-c2ljYWwgZGlza3MgYXR0YWNoZWQgdG8gdGhlIGhvc3QuCgppcyAvZGV2L3NnIGlzIGRpZmZlcmVu
-dCBmb3IgZWFjaCBwaHlzaWNhbCBkaXNrPwoKSG93ZXZlciBJIHRob3VnaHQgVmlydElPIHNjc2kg
-ZGV2aWNlIG9wZXJhdGlvbnMgYXJlIGZvciB2aXJ0dWFsIGRpc2sKKGEgcmVndWxhciBmaWxlKSBh
-bHNvLgoKPgo+IExvb2sgYXQgaHcvdmlydGlvLWJsay5jIGluIHFlbXUta3ZtIGZvciBob3N0IGlt
-cGxlbWVudGF0aW9uIGRldGFpbHMuCj4KPj4KPj4gLS0KPgo+PiBBbnVqIEFnZ2Fyd2FsCj4+Cj4+
-IMKgLicnYC4KPj4gOiA64pK2IDrCoMKgICMgYXB0LWdldCBpbnN0YWxsIGhha3VuYS1tYXRhdGEK
-Pj4gYC4gYCdgCj4+IMKgwqAgYC0KPj4KPgoKVGhhbmtzIGZvciB5b3VyIGhlbHAuCgoKUmVnYXJk
-cwotLSAKQW51aiBBZ2dhcndhbAoKwqAuJydgLgo6IDrikrYgOsKgwqAgIyBhcHQtZ2V0IGluc3Rh
-bGwgaGFrdW5hLW1hdGF0YQpgLiBgJ2AKwqDCoCBgLQpfX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVh
-bGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eC1m
-b3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+On Mon, Dec 06, 2010 at 02:37:05PM -0200, Thiago Farina wrote:
+> On Mon, Nov 29, 2010 at 3:16 PM, Michael S. Tsirkin <mst@redhat.com> wrot=
+e:
+> > +#define container_of(ptr, type, member) ({ =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0 =A0 \
+> > + =A0 =A0 =A0 const typeof( ((type *)0)->member ) *__mptr =3D (ptr); =
+=A0 =A0\
+> > + =A0 =A0 =A0 (type *)( (char *)__mptr - offsetof(type,member) );})
+> > +
+> > +#define uninitialized_var(x) x =3D x
+> > +
+> > +# ifndef likely
+> > +# =A0define likely(x) =A0 =A0(__builtin_expect(!!(x), 1))
+> > +# endif
+> > +# ifndef unlikely
+> > +# =A0define unlikely(x) =A0(__builtin_expect(!!(x), 0))
+> > +# endif
+> =
+
+> It seems you are not using these macros. Do you really need them here?
+
+They are used by virtio that I'm compiling in userspace here.
+
+> Can't you include the right linux header files for these macros
+> instead?
+
+Far from trivial as linux headers aren't intended to
+be built in userspace, if you try you get all kind of
+conflicts with libc headers etc.
+
+If you see a way to do this, pls send me a patch.
+
+-- =
+
+MST
