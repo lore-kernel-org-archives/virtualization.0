@@ -1,62 +1,67 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [GIT PULL net-next-2.6] vhost-net: tools, cleanups, optimizations
-Date: Mon, 13 Dec 2010 12:44:13 +0200
-Message-ID: <20101213104413.GA678@redhat.com>
+From: =?UTF-8?B?4KSF4KSo4KWB4KSc?= <anuj01@gmail.com>
+Subject: Re: [Qemu-devel] SCSI Command support over VirtIO Block device
+Date: Mon, 13 Dec 2010 16:17:16 +0530
+Message-ID: <AANLkTiknOQ-rfO5krbqnxj64x=UoXXNuoY=hyq2BF3O=__1699.23492144353$1292237292$gmane$org@mail.gmail.com>
+References: <AANLkTi=MVouwpAu5Zfxexx-yOZa3p0SpQ4OrO+_ax-Ew@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-To: David Miller <davem@davemloft.net>
-Cc: kvm@vger.kernel.org, virtualization@lists.osdl.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <AANLkTi=MVouwpAu5Zfxexx-yOZa3p0SpQ4OrO+_ax-Ew@mail.gmail.com>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Stefan Hajnoczi <stefanha@gmail.com>
+Cc: qemu-devel@nongnu.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Please merge the following tree for 2.6.38.
-Thanks!
-
-The following changes since commit ad1184c6cf067a13e8cb2a4e7ccc407f947027d0:
-
-  net: au1000_eth: remove unused global variable. (2010-12-11 12:01:48 -0800)
-
-are available in the git repository at:
-  git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git vhost-net-next
-
-Jason Wang (1):
-      vhost: fix typos in comment
-
-Julia Lawall (1):
-      drivers/vhost/vhost.c: delete double assignment
-
-Michael S. Tsirkin (9):
-      vhost: put mm after thread stop
-      vhost-net: batch use/unuse mm
-      vhost: copy_to_user -> __copy_to_user
-      vhost: get/put_user -> __get/__put_user
-      vhost: remove unused include
-      vhost: correctly set bits of dirty pages
-      vhost: better variable name in logging
-      vhost test module
-      tools/virtio: virtio_test tool
-
- drivers/vhost/net.c                  |    9 +-
- drivers/vhost/test.c                 |  320 ++++++++++++++++++++++++++++++++++
- drivers/vhost/test.h                 |    7 +
- drivers/vhost/vhost.c                |   44 +++---
- drivers/vhost/vhost.h                |    2 +-
- tools/virtio/Makefile                |   12 ++
- tools/virtio/linux/device.h          |    2 +
- tools/virtio/linux/slab.h            |    2 +
- tools/virtio/linux/virtio.h          |  223 +++++++++++++++++++++++
- tools/virtio/vhost_test/Makefile     |    2 +
- tools/virtio/vhost_test/vhost_test.c |    1 +
- tools/virtio/virtio_test.c           |  248 ++++++++++++++++++++++++++
- 12 files changed, 842 insertions(+), 30 deletions(-)
- create mode 100644 drivers/vhost/test.c
- create mode 100644 drivers/vhost/test.h
- create mode 100644 tools/virtio/Makefile
- create mode 100644 tools/virtio/linux/device.h
- create mode 100644 tools/virtio/linux/slab.h
- create mode 100644 tools/virtio/linux/virtio.h
- create mode 100644 tools/virtio/vhost_test/Makefile
- create mode 100644 tools/virtio/vhost_test/vhost_test.c
- create mode 100644 tools/virtio/virtio_test.c
+SGkKCjIwMTAvMTIvMTMgU3RlZmFuIEhham5vY3ppIDxzdGVmYW5oYUBnbWFpbC5jb20+Ogo+Cj4g
+T24gRGVjIDEzLCAyMDEwIDU6MTQgQU0sICLgpIXgpKjgpYHgpJwiIDxhbnVqMDFAZ21haWwuY29t
+PiB3cm90ZToKPj4KPj4gSGkKPj4KPj4gSSBhbSB0cnlpbmcgdG8gaW1wbGVtZW50IFZpcnRJTyBz
+dXBwb3J0IGZvciBhIHByb3ByaWV0YXJ5IE9TLiBBbmQgSXQKPj4gd291bGQgYmUgZ3JlYXQgaWYg
+SSBhbSBhYmxlIHRvIHByb2Nlc3MgU0NTSSBjb21tYW5kcyBvdmVyIFZpcnRJTyBCbG9jawo+PiBk
+ZXZpY2UuCj4+Cj4+IEkgdHJpZWQgdG8gZXhlY3V0ZSBJTlFVSVJZIGNvbW1hbmQgYnV0IHRoZSBz
+dGF0dXMgcmV0dXJuZWQgaXMgVU5TVVBQT1JURUQuCj4+IElmIGFueW9uZSBwcm92aWRlIGV4YW1w
+bGUgVmlydElPIFNDU0kgQ29tbWFuZCByZXF1ZXN0IHN0cnVjdHVyZSBmb3IKPj4gSU5RVUlSWSBj
+b21tYW5kIGFzIHBlciBWaXJ0SU8gc3BlYyBBcHBlbmRpeCBEIHdvdWxkIGJlIGEgZ3JlYXQgaGVs
+cC4KPj4KPj4gQW5kIGFsc28sIHRoZSBwYXJhZ3JhcGggZnJvbSBWaXJ0SU8gc3BlYyAtIDAuOC45
+IGlzIGNvbmZ1c2luZyBmb3IgbWUgOgo+Pgo+PiAiSGlzdG9yaWNhbGx5LCBkZXZpY2VzIGFzc3Vt
+ZWQgdGhhdCB0aGUgwqBmaWVsZHMgdHlwZSwgaW9wcmlvIGFuZAo+PiBzZWN0b3IgcmVzaWRlIGlu
+Cj4+IGEgc2luZ2xlLCBzZXBhcmF0ZSByZWFkLW9ubHkgYnVmZmVyOyB0aGUgwqBmaWVsZHMgZXJy
+b3JzLCBkYXRhX2xlbiwKPj4gc2Vuc2VfbGVuIGFuZAo+PiByZXNpZHVhbCByZXNpZGUgaW4gYSBz
+aW5nbGUsIHNlcGFyYXRlIHdyaXRlLW9ubHkgYnVmZmVyOyB0aGUgc2Vuc2UKPj4gwqBlbGQgaW4g
+YSBzZXBhcmF0ZQo+PiB3cml0ZS1vbmx5IGJ1ZmZlciBvZiBzaXplIDk2IGJ5dGVzLCBieSBpdHNl
+bGY7IHRoZSBmaWVsZHMgZXJyb3JzLAo+PiBkYXRhX2xlbiwgc2Vuc2VfbGVuCj4+IGFuZCByZXNp
+ZHVhbCBpbiBhIHNpbmdsZSB3cml0ZS1vbmx5IGJ1ZmZlcjsgYW5kIHRoZSBzdGF0dXMgZmllbGQg
+aXMgYQo+PiBzZXBhcmF0ZSByZWFkb25seQo+PiBidWZmZXIgb2Ygc2l6ZSAxIGJ5dGUsIGJ5IGl0
+c2VsZi4iCj4+Cj4+IEhlcmUgJ3N0YXR1cyBmaWVsZCBvZiBidWZmZXIgc2l6ZSAxIGJ5dGUnIGlz
+IHdoZXRoZXIgcmVhZG9ubHkgb3IKPj4gd3JpdGVvbmx5Pwo+Cj4gV3JpdGVvbmx5Cj4KPj4KPj4g
+SSB3YW50IHRvIGtub3cgZnJvbSB3aGljaCB2ZXJzaW9uIG9mIFFlbXUta3ZtIHN1cHBvcnRzIHBy
+b2Nlc3Npbmcgb2YKPj4gc2NzaSBjb21tYW5kcyBvdmVyIFZpcnRJTyBibG9jayBkZXZpY2UgYXMg
+YSBiYWNrZW5kLgo+PiBBbHRob3VnaCBJIGNoZWNrZWQgdGhlIEhvc3QgRmVhdHVyZSBmaWVsZHMg
+aW4gd2hpY2ggVklSVElPX0JMS19GX1NDU0kKPj4gYml0IGlzIHNldC4gSSBhbSB1c2luZyBxZW11
+LWt2bSB2ZXJzaW9uIDAuMTIuMy4KPgo+IE1ha2Ugc3VyZSB5b3UgaGF2ZSBhIHNjc2ktZ2VuZXJp
+YyBibG9jayBkZXZpY2UgaW4gcWVtdS1rdm0sIG5vdCBqdXN0IGEKPiByZWd1bGFyIGZpbGUgb3Ig
+cGh5c2ljYWwgYmxvY2sgZGV2aWNlLiBPcGVuIC9kZXYvc2cuCgpZZXMsIEkgaGF2ZSBnaXZlbiBh
+IGZpbGUgbmFtZSBpbnN0ZWFkIG9mIC9kZXYvc2cwLiBOb3cgaXQncyB3b3JraW5nIGFzIGEgY2hh
+cm0uCgpUaGF0IG1lYW5zIEkgY2FuIHVzZSBwaHlzaWNhbCBkaXNrIGFzIGEgVmlydElPIGRpc2sg
+aW4gZ3Vlc3QgT1MuIHJpZ2h0PwpTbyBpdCdzIGtpbmQgb2YgcGFzc3Rocm91Z2ggZm9yIGEgcGh5
+c2ljYWwgZGlzay4gQnV0IGhvdyBjYW4gSQpkaXN0aW5ndWlzaCBhbW9uZyBkaWZmZXJlbnQgcGh5
+c2ljYWwgZGlza3MgYXR0YWNoZWQgdG8gdGhlIGhvc3QuCgppcyAvZGV2L3NnIGlzIGRpZmZlcmVu
+dCBmb3IgZWFjaCBwaHlzaWNhbCBkaXNrPwoKSG93ZXZlciBJIHRob3VnaHQgVmlydElPIHNjc2kg
+ZGV2aWNlIG9wZXJhdGlvbnMgYXJlIGZvciB2aXJ0dWFsIGRpc2sKKGEgcmVndWxhciBmaWxlKSBh
+bHNvLgoKPgo+IExvb2sgYXQgaHcvdmlydGlvLWJsay5jIGluIHFlbXUta3ZtIGZvciBob3N0IGlt
+cGxlbWVudGF0aW9uIGRldGFpbHMuCj4KPj4KPj4gLS0KPgo+PiBBbnVqIEFnZ2Fyd2FsCj4+Cj4+
+IMKgLicnYC4KPj4gOiA64pK2IDrCoMKgICMgYXB0LWdldCBpbnN0YWxsIGhha3VuYS1tYXRhdGEK
+Pj4gYC4gYCdgCj4+IMKgwqAgYC0KPj4KPgoKVGhhbmtzIGZvciB5b3VyIGhlbHAuCgoKUmVnYXJk
+cwotLSAKQW51aiBBZ2dhcndhbAoKwqAuJydgLgo6IDrikrYgOsKgwqAgIyBhcHQtZ2V0IGluc3Rh
+bGwgaGFrdW5hLW1hdGF0YQpgLiBgJ2AKwqDCoCBgLQpfX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVh
+bGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eC1m
+b3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
