@@ -1,33 +1,29 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [GIT PULL net-next-2.6] vhost-net: tools, cleanups, optimizations
-Date: Tue, 14 Dec 2010 16:18:03 +1030
-Message-ID: <201012141618.03567.rusty@rustcorp.com.au>
-References: <20101213104413.GA678@redhat.com> <20101213172447.GA8560@redhat.com>
+From: devi thapa <devi.thapa@gmail.com>
+Subject: virtqueue_add_buf
+Date: Tue, 14 Dec 2010 11:29:15 +0530
+Message-ID: <AANLkTi=4POnSD1mv_NbFhRa=KtNuNtbzNvOGMnYdSw4y@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20101213172447.GA8560@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: David Miller <davem@davemloft.net>, kvm@vger.kernel.org, virtualization@lists.osdl.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 14 Dec 2010 03:54:47 am Michael S. Tsirkin wrote:
-> On Mon, Dec 13, 2010 at 12:44:13PM +0200, Michael S. Tsirkin wrote:
-> > Please merge the following tree for 2.6.38.
-> > Thanks!
-> 
-> Um, I sent this out before I noticed the mail from Rusty
-> with some questions on the test code. I missed that and
-> assumed no comments -> no issues, perhaps wrongly.
-> 
-> Rusty - I tried answering the questions there - any issues
-> with merging this? It's just a test so won't be hard to remove
-> later if it's not helpful ...
+Hi Everybody,
 
-Traditionally this stuff has not gone in tree.  However, I think it
-should be...
+          How to simulate the export function "virtqueue_add_buf"?
+I tried to invoke it by pinging to the host machine, but failed.
 
-Rusty.
+Awaiting your replies !
+
+Regards,
+Devi.
