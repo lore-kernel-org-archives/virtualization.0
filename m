@@ -1,11 +1,10 @@
-From: Ming Zhao <zhaom@cis.fiu.edu>
-Subject: SNAPI 2011 CFP: 7th IEEE International Workshop on Storage Network
-	Architecture and Parallel I/Os
-Date: Sun, 19 Dec 2010 22:05:45 -0500
-Message-ID: <4D0EC809.8080607@cis.fiu.edu>
+From: Toralf =?utf-8?q?F=C3=B6rster?= <toralf.foerster@gmx.de>
+Subject: unmet direct dependencies (VIRTUALIZATION && VIRTIO)
+Date: Mon, 27 Dec 2010 12:42:53 +0100
+Message-ID: <201012271242.53835.toralf.foerster@gmx.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,149 +15,23 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-[Just a gentle reminder that the deadline is less than two months away; =
-
-Apologies if you receive multiple copies of this announcement]
-
-
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-                           Call for Papers
-                   7th IEEE International Workshop on
-             Storage Network Architecture and Parallel I/Os
-                             (SNAPI 2011)
-                     http://snapi2011.cis.fiu.edu
-
-                  May 25, 2011  Denver, Colorado, USA
-             In conjunction with the 27th IEEE Conference on
-            Mass Storage Systems and Technologies (MSST 2011)
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-
-SCOPE:
-------
-
-The 7th IEEE Storage Networking Architecture and Parallel I/O (SNAPI
-2011) Workshop aims to highlight the latest research in the
-architecture, design, implementation, and evaluation of local and
-networked storage and parallel I/O systems. The workshop is co-located
-with the 27th IEEE Conference on Mass Storage Systems and Technologies
-(MSST2011) that features a full week dedicated to "all things storage".
-The SNAPI 2011 workshop, held in the middle of the MSST week, will
-feature a full day of technical papers that showcase the latest work
-from the academia, the labs, and the industry.
-
-This year we would like to encourage a variety of submissions including
-novel idea papers, real system experience papers, as well as analysis
-and evaluation papers. Topics of interest include, but are not limited
-to:
-
-* Caching, replication, and consistency
-* Energy-efficient storage
-* Evaluation of networked storage architectures
-* Experiences with real systems
-* File and block based network storage
-* Integration and evaluation of emerging storage technology
-* I/O quality of service
-* New abstractions/protocols for data, storage, and I/O
-* Parallel I/O
-* Performance, scalability, and manageability of networked storage
-* SSD-based storage architectures and tiered storage
-* Storage device and workload characterization
-* Storage networking
-* Storage reliability and failure management
-* Storage virtualization
-* Thin provisioning, consolidation, compression, and deduplication
-* Wide-area networked storage
-
-
-
-SUBMISSIONS INSTRUCTIONS:
--------------------------
-
-Submissions should not exceed 8 single-space pages including all text,
-figures, and references. Submissions must be typeset as double-column
-text, using no less than 10 pt font, and using a text block that does
-not exceed 6.5" width and 9" height.
-
-The reviewing is double-blind. Authors must not be identified in the
-submission either directly or indirectly. Please be careful so as to not
-refer to your own work in the first person or leak authorship in any way
-within the text of the paper. Reviewing will be performed by the members
-of the SNAPI=9211 Program Committee. Each paper will receive at least
-three reviews from members of the Program Committee.
-
-The final version of the paper prepared after incorporating reviewer
-feedback should be submitted by April 1st, 2011. At least one author of
-each accepted paper will be expected to attend the workshop and present
-their work in a 25 minute talk.
-
-
-
-BEST PAPER AWARD:
------------------
-
-Authors of the best paper, chosen by the Program Committee, will be
-presented an award at the workshop.
-
-
-
-Important dates:
-----------------
-
-* Full paper submission: January 28, 2011
-* Notification of acceptance: March 4, 2011
-* Final manuscripts due: April 1, 2011
-* Workshop: May 25, 2011
-
-
-
-Organization:
--------------
-
-* Program Chair:
-  o Raju Rangaswami, Florida International University
-
-* Program Committee:
-  o Angelos Bilas, FORTH and University of Crete
-  o Randal Burns, Johns Hopkins University
-  o Dan Feng, Huazhong University of Science and Technology
-  o Dirk Grunwald, University of Colorado, Boulder
-  o Ajay Gulati, VMware
-  o Ron Oldfield, Sandia National Laboratory
-  o Vijayan Prabhakaran, Microsoft Research
-  o Himabindu Pucha, IBM Research - Almaden
-  o A. L. Narasimha Reddy, Texas A&M University
-  o Alma Riska, College of William and Mary
-  o Philip Roth, Oak Ridge National Laboratory
-  o Jiri Schindler, NetApp
-  o Rajeev Thakur, Argonne National Laboratory
-  o Bhuvan Urgaonkar, Pennsylvania State University
-  o Youjip Won, Hanyang University
-  o Ming Zhao, Florida International University
-
-* Web and Publicity Chair:
-  o Ming Zhao, Florida International University
-
-* Steering Committee:
-  o Qing Yang, University of Rhode Island
-  o Hong Jiang, University of Nebraska-Lincoln
-  o Xubin He, Tennessee Tech University
-
-
-
-SPONSORSHIP:
-------------
-IEEE Mass Storage Systems Technical Committee (MSSTC)
-
-
-
-Information:
-------------
-* SNAPI 2001 Web: http://snapi2011.cis.fiu.edu
-* MSST 2011 Web: http://storageconference.org
-* Email: snapi2011@cis.fiu.edu
+SGVsbG8sCgphICJtYWtlIHJhbmRjb25maWcgMT4vZGV2L251bGwiIGdhdmUgdG9kYXkgOgoKd2Fy
+bmluZzogKExHVUVTVF9HVUVTVCAmJiBQQVJBVklSVF9HVUVTVCAmJiBYODZfMzIgfHwgVklSVElP
+X1BDSSAmJiBWSVJUVUFMSVpBVElPTiAmJiBQQ0kgJiYgRVhQRVJJTUVOVEFMIHx8IFZJUlRJT19C
+QUxMT09OICYmIApWSVJUVUFMSVpBVElPTikgc2VsZWN0cyBWSVJUSU8gd2hpY2ggaGFzIHVubWV0
+IGRpcmVjdCBkZXBlbmRlbmNpZXMgKFZJUlRVQUxJWkFUSU9OKQp3YXJuaW5nOiAoR1BJT19WWDg1
+NSAmJiBHUElPTElCKSBzZWxlY3RzIE1GRF9WWDg1NSB3aGljaCBoYXMgdW5tZXQgZGlyZWN0IGRl
+cGVuZGVuY2llcyAoTUZEX1NVUFBPUlQgJiYgUENJKQp3YXJuaW5nOiAoTEdVRVNUX0dVRVNUICYm
+IFBBUkFWSVJUX0dVRVNUICYmIFg4Nl8zMiB8fCBWSVJUSU9fUENJICYmIFZJUlRVQUxJWkFUSU9O
+ICYmIFBDSSAmJiBFWFBFUklNRU5UQUwgfHwgVklSVElPX0JBTExPT04gJiYgClZJUlRVQUxJWkFU
+SU9OKSBzZWxlY3RzIFZJUlRJT19SSU5HIHdoaWNoIGhhcyB1bm1ldCBkaXJlY3QgZGVwZW5kZW5j
+aWVzIChWSVJUVUFMSVpBVElPTiAmJiBWSVJUSU8pCgpmb3IgdGhlIGN1cnJlbnQgZ2l0IGtlcm5l
+bCBzb3VyY2VzLgpJcyB0aGlzIGFuIGFscmVhZHkga25vd24gaXNzdWUgPwoKLS0gCk1mRy9LaW5k
+IHJlZ2FyZHMKVG9yYWxmIEbDtnJzdGVyCgpwZ3AgZmluZ2VyIHByaW50OiA3QjFBIDA3RjQgRUM4
+MiAwRjkwIEQ0QzIgODkzNiA4NzJBIEU1MDggN0RCNiA5REEzCgpfX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QK
+VmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5s
+aW51eC1mb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
