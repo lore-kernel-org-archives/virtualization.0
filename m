@@ -1,11 +1,14 @@
-From: Toralf =?utf-8?q?F=C3=B6rster?= <toralf.foerster@gmx.de>
-Subject: unmet direct dependencies (VIRTUALIZATION && VIRTIO)
-Date: Mon, 27 Dec 2010 12:42:53 +0100
-Message-ID: <201012271242.53835.toralf.foerster@gmx.de>
+From: Randy Dunlap <rdunlap@xenotime.net>
+Subject: [PATCH] LGUEST_GUEST: fix unmet direct dependencies (VIRTUALIZATION
+	&& VIRTIO)
+Date: Sat, 1 Jan 2011 11:08:46 -0800
+Message-ID: <20110101110846.6a88bf7e.rdunlap@xenotime.net>
+References: <201012271242.53835.toralf.foerster@gmx.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <201012271242.53835.toralf.foerster@gmx.de>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -15,23 +18,31 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.osdl.org
+To: Toralf =?ISO-8859-1?Q?F=F6rster?= <toralf.foerster@gmx.de>, Rusty Russell <rusty@rustcorp.com.au>
+Cc: virtualization@lists.osdl.org, lguest@lists.ozlabs.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-SGVsbG8sCgphICJtYWtlIHJhbmRjb25maWcgMT4vZGV2L251bGwiIGdhdmUgdG9kYXkgOgoKd2Fy
-bmluZzogKExHVUVTVF9HVUVTVCAmJiBQQVJBVklSVF9HVUVTVCAmJiBYODZfMzIgfHwgVklSVElP
-X1BDSSAmJiBWSVJUVUFMSVpBVElPTiAmJiBQQ0kgJiYgRVhQRVJJTUVOVEFMIHx8IFZJUlRJT19C
-QUxMT09OICYmIApWSVJUVUFMSVpBVElPTikgc2VsZWN0cyBWSVJUSU8gd2hpY2ggaGFzIHVubWV0
-IGRpcmVjdCBkZXBlbmRlbmNpZXMgKFZJUlRVQUxJWkFUSU9OKQp3YXJuaW5nOiAoR1BJT19WWDg1
-NSAmJiBHUElPTElCKSBzZWxlY3RzIE1GRF9WWDg1NSB3aGljaCBoYXMgdW5tZXQgZGlyZWN0IGRl
-cGVuZGVuY2llcyAoTUZEX1NVUFBPUlQgJiYgUENJKQp3YXJuaW5nOiAoTEdVRVNUX0dVRVNUICYm
-IFBBUkFWSVJUX0dVRVNUICYmIFg4Nl8zMiB8fCBWSVJUSU9fUENJICYmIFZJUlRVQUxJWkFUSU9O
-ICYmIFBDSSAmJiBFWFBFUklNRU5UQUwgfHwgVklSVElPX0JBTExPT04gJiYgClZJUlRVQUxJWkFU
-SU9OKSBzZWxlY3RzIFZJUlRJT19SSU5HIHdoaWNoIGhhcyB1bm1ldCBkaXJlY3QgZGVwZW5kZW5j
-aWVzIChWSVJUVUFMSVpBVElPTiAmJiBWSVJUSU8pCgpmb3IgdGhlIGN1cnJlbnQgZ2l0IGtlcm5l
-bCBzb3VyY2VzLgpJcyB0aGlzIGFuIGFscmVhZHkga25vd24gaXNzdWUgPwoKLS0gCk1mRy9LaW5k
-IHJlZ2FyZHMKVG9yYWxmIEbDtnJzdGVyCgpwZ3AgZmluZ2VyIHByaW50OiA3QjFBIDA3RjQgRUM4
-MiAwRjkwIEQ0QzIgODkzNiA4NzJBIEU1MDggN0RCNiA5REEzCgpfX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QK
-VmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5s
-aW51eC1mb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+From: Randy Dunlap <randy.dunlap@oracle.com>
+
+Honor the kconfig menu hierarchy to remove kconfig dependency warnings:
+VIRTIO and VIRTIO_RING are subordinate to VIRTUALIZATION.
+
+warning: (LGUEST_GUEST) selects VIRTIO which has unmet direct dependencies (VIRTUALIZATION)
+warning: (LGUEST_GUEST && VIRTIO_PCI && VIRTIO_BALLOON) selects VIRTIO_RING which has unmet direct dependencies (VIRTUALIZATION && VIRTIO)
+
+Reported-by: Toralf F_rster <toralf.foerster@gmx.de>
+Signed-off-by: Randy Dunlap <randy.dunlap@oracle.com>
+---
+ arch/x86/lguest/Kconfig |    1 +
+ 1 file changed, 1 insertion(+)
+
+--- linux-next-20101231.orig/arch/x86/lguest/Kconfig
++++ linux-next-20101231/arch/x86/lguest/Kconfig
+@@ -2,6 +2,7 @@ config LGUEST_GUEST
+ 	bool "Lguest guest support"
+ 	select PARAVIRT
+ 	depends on X86_32
++	select VIRTUALIZATION
+ 	select VIRTIO
+ 	select VIRTIO_RING
+ 	select VIRTIO_CONSOLE
