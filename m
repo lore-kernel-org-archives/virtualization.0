@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH] virtio-pci: add softlinks between virtio and pci
-Date: Wed, 5 Jan 2011 21:38:49 +0200
-Message-ID: <20110105193849.GB28688__24614.9398306899$1294256469$gmane$org@redhat.com>
+Date: Wed, 5 Jan 2011 22:05:02 +0200
+Message-ID: <20110105200501.GA3224__41693.4529938318$1294258052$gmane$org@redhat.com>
 References: <20110105191711.GA27489@redhat.com>
 	<4D24C662.9070804@codemonkey.ws>
 Mime-Version: 1.0
@@ -39,14 +39,9 @@ On Wed, Jan 05, 2011 at 01:28:34PM -0600, Anthony Liguori wrote:
 > 
 > Or is it querying geometry information and then trying to find the
 > best match block device?
-
-I think it's the former.
-
+> 
 > If it's the former, I don't really understand the need for a
 > backlink since the PCI address gives you a link to the block device.
-
-It does? How does it?
-
 > OTOH, if it's the later, it would make sense but then your
 > description doesn't really make much sense.
 > 
@@ -56,7 +51,16 @@ It does? How does it?
 > Regards,
 > 
 > Anthony Liguori
-> 
+
+OK just to clarify: we get pci address from BIOS
+and need the virtio device to get at the linux device
+(e.g. block) in the end.  Thus the link from pci to virtio.
+I also added a backlink since I thought it's handy.
+
+Does this answer the questions?
+
+Rusty rewrites my commit logs anyway, he has better style :)
+
 > >Supply softlinks between these to make it possible.
 > >
 > >Signed-off-by: Michael S. Tsirkin<mst@redhat.com>
