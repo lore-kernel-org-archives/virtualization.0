@@ -1,15 +1,14 @@
 From: Anthony Liguori <anthony@codemonkey.ws>
 Subject: Re: [PATCH] virtio-pci: add softlinks between virtio and pci
-Date: Wed, 05 Jan 2011 14:06:41 -0600
-Message-ID: <4D24CF51.3050207__41073.8243292601$1294258175$gmane$org@codemonkey.ws>
+Date: Wed, 05 Jan 2011 14:08:33 -0600
+Message-ID: <4D24CFC1.9020305__36697.7919861258$1294258292$gmane$org@codemonkey.ws>
 References: <20110105191711.GA27489@redhat.com>
-	<4D24C662.9070804@codemonkey.ws>
-	<20110105193849.GB28688@redhat.com>
+	<4D24C662.9070804@codemonkey.ws> <20110105200501.GA3224@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20110105193849.GB28688@redhat.com>
+In-Reply-To: <20110105200501.GA3224@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -23,7 +22,7 @@ To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: Jamie Lokier <jamie@shareable.org>, Thomas Weber <swirl@gmx.li>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 01/05/2011 01:38 PM, Michael S. Tsirkin wrote:
+On 01/05/2011 02:05 PM, Michael S. Tsirkin wrote:
 > On Wed, Jan 05, 2011 at 01:28:34PM -0600, Anthony Liguori wrote:
 >    
 >> On 01/05/2011 01:17 PM, Michael S. Tsirkin wrote:
@@ -42,35 +41,9 @@ On 01/05/2011 01:38 PM, Michael S. Tsirkin wrote:
 >>
 >> Or is it querying geometry information and then trying to find the
 >> best match block device?
->>      
-> I think it's the former.
->
->    
+>>
 >> If it's the former, I don't really understand the need for a
 >> backlink since the PCI address gives you a link to the block device.
->>      
-> It does? How does it?
->    
-
-Okay, after some more discussion, I think I better understand what's 
-going on here.
-
-The installer needs to figure out the boot device.  It does this by 
-querying the BIOS and the BIOS can only give it back a PCI address.  
-Right now, if you follow the PCI sysfs path, you cannot reach the actual 
-virtio device because the PCI device only refers to the bus.  This is 
-because virtio has a separate struct device than the PCI struct device.  
-These explicit links establish the relationship.
-
-A lot of this would be cleaner if virtio didn't force an independent 
-struct device and could simply make use of an already existing struct 
-device.
-
-Regards,
-
-Anthony Liguori
-
->    
 >> OTOH, if it's the later, it would make sense but then your
 >> description doesn't really make much sense.
 >>
@@ -80,8 +53,31 @@ Anthony Liguori
 >> Regards,
 >>
 >> Anthony Liguori
->>
 >>      
+> OK just to clarify: we get pci address from BIOS
+> and need the virtio device to get at the linux device
+> (e.g. block) in the end.  Thus the link from pci to virtio.
+> I also added a backlink since I thought it's handy.
+>
+> Does this answer the questions?
+>
+> Rusty rewrites my commit logs anyway, he has better style :)
+>    
+
+It helps.  The real reason this is needed is because in a normal device, 
+there is only one struct device whereas with virtio-pci, the virtio-pci 
+device has a struct device and then the actual virtio device has another 
+one.  There's probably a better way to handle this in sysfs making 
+virtio-pci a proper bus with only a single device as a child or 
+something like that.
+
+But the links are probably an easier solution.
+
+Regards,
+
+Anthony Liguori
+
+>    
 >>> Supply softlinks between these to make it possible.
 >>>
 >>> Signed-off-by: Michael S. Tsirkin<mst@redhat.com>
