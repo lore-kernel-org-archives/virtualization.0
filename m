@@ -1,40 +1,85 @@
-From: Rusty Russell <rusty-8n+1lVoiYb80n/F98K4Iww@public.gmane.org>
-Subject: Re: [PATCH] LGUEST_GUEST: fix unmet direct dependencies
-	(VIRTUALIZATION && VIRTIO)
-Date: Tue, 4 Jan 2011 12:42:54 +1030
-Message-ID: <201101041242.55157.rusty@rustcorp.com.au>
-References: <201012271242.53835.toralf.foerster@gmx.de>
-	<20110101110846.6a88bf7e.rdunlap@xenotime.net>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH] virtio-pci: add softlinks between virtio and pci
+Date: Wed, 5 Jan 2011 21:17:11 +0200
+Message-ID: <20110105191711.GA27489__20739.4207631753$1294255105$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <lguest-bounces+glkvl-lguest=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
-In-Reply-To: <20110101110846.6a88bf7e.rdunlap-/UHa2rfvQTnk1uMJSBkQmQ@public.gmane.org>
-List-Unsubscribe: <https://lists.ozlabs.org/options/lguest>,
-	<mailto:lguest-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.ozlabs.org/pipermail/lguest>
-List-Post: <mailto:lguest-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
-List-Help: <mailto:lguest-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.ozlabs.org/listinfo/lguest>,
-	<mailto:lguest-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=subscribe>
-Sender: lguest-bounces+glkvl-lguest=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
-Errors-To: lguest-bounces+glkvl-lguest=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
-To: Randy Dunlap <rdunlap-/UHa2rfvQTnk1uMJSBkQmQ@public.gmane.org>
-Cc: Toralf =?iso-8859-1?q?F=F6rster?= <toralf.foerster-Mmb7MZpHnFY@public.gmane.org>, lguest-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, virtualization-qjLDD68F18O7TbgM5vRIOg@public.gmane.org
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>, Rusty Russell <rusty@rustcorp.com.au>, Anthony Liguori <aliguori@us.ibm.com>, Jamie Lokier <jamie@shareable.org>, Thomas
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sun, 2 Jan 2011 05:38:46 am Randy Dunlap wrote:
-> From: Randy Dunlap <randy.dunlap-QHcLZuEGTsvQT0dZR+AlfA@public.gmane.org>
-> 
-> Honor the kconfig menu hierarchy to remove kconfig dependency warnings:
-> VIRTIO and VIRTIO_RING are subordinate to VIRTUALIZATION.
-> 
-> warning: (LGUEST_GUEST) selects VIRTIO which has unmet direct dependencies (VIRTUALIZATION)
-> warning: (LGUEST_GUEST && VIRTIO_PCI && VIRTIO_BALLOON) selects VIRTIO_RING which has unmet direct dependencies (VIRTUALIZATION && VIRTIO)
-> 
-> Reported-by: Toralf F_rster <toralf.foerster-Mmb7MZpHnFY@public.gmane.org>
-> Signed-off-by: Randy Dunlap <randy.dunlap-QHcLZuEGTsvQT0dZR+AlfA@public.gmane.org>
+We sometimes need to map between the virtio device and
+the given pci device. One such use is OS installer that
+gets the boot pci device from BIOS and needs to
+find the relevant block device. Since it can't,
+installation fails.
 
-Thanks, applied!
+Supply softlinks between these to make it possible.
 
-Rusty.
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
+
+Gleb, could you please ack that this patch below
+will be enough to fix the installer issue that
+you see?
+
+ drivers/virtio/virtio_pci.c |   18 +++++++++++++++++-
+ 1 files changed, 17 insertions(+), 1 deletions(-)
+
+diff --git a/drivers/virtio/virtio_pci.c b/drivers/virtio/virtio_pci.c
+index ef8d9d5..06eb2f8 100644
+--- a/drivers/virtio/virtio_pci.c
++++ b/drivers/virtio/virtio_pci.c
+@@ -25,6 +25,7 @@
+ #include <linux/virtio_pci.h>
+ #include <linux/highmem.h>
+ #include <linux/spinlock.h>
++#include <linux/sysfs.h>
+ 
+ MODULE_AUTHOR("Anthony Liguori <aliguori@us.ibm.com>");
+ MODULE_DESCRIPTION("virtio-pci");
+@@ -667,8 +668,21 @@ static int __devinit virtio_pci_probe(struct pci_dev *pci_dev,
+ 	if (err)
+ 		goto out_set_drvdata;
+ 
+-	return 0;
++	err = sysfs_create_link(&pci_dev->dev.kobj, &vp_dev->vdev.dev.kobj,
++				"virtio_device");
++	if (err)
++		goto out_register_device;
++
++	err = sysfs_create_link(&vp_dev->vdev.dev.kobj, &pci_dev->dev.kobj,
++				"bus_device");
++	if (err)
++		goto out_create_link;
+ 
++	return 0;
++out_create_link:
++	sysfs_remove_link(&pci_dev->dev.kobj, "virtio_device");
++out_register_device:
++	unregister_virtio_device(&vp_dev->vdev);
+ out_set_drvdata:
+ 	pci_set_drvdata(pci_dev, NULL);
+ 	pci_iounmap(pci_dev, vp_dev->ioaddr);
+@@ -685,6 +699,8 @@ static void __devexit virtio_pci_remove(struct pci_dev *pci_dev)
+ {
+ 	struct virtio_pci_device *vp_dev = pci_get_drvdata(pci_dev);
+ 
++	sysfs_remove_link(&vp_dev->vdev.dev.kobj, "bus_device");
++	sysfs_remove_link(&pci_dev->dev.kobj, "virtio_device");
+ 	unregister_virtio_device(&vp_dev->vdev);
+ }
+ 
+-- 
+1.7.3.2.91.g446ac
