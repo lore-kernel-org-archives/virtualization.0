@@ -1,43 +1,49 @@
-From: Stephen Hemminger <shemminger@vyatta.com>
-Subject: [PATCH] hv: don't enable Scatter/Gather
-Date: Thu, 6 Jan 2011 12:28:27 -0800
-Message-ID: <20110106122827.733b5438__23005.6278560825$1294345761$gmane$org@nehalam>
-References: <20101210180954.58441856@nehalam>
-	<8AFC7968D54FB448A30D8F38F259C5622C0BD044@TK5EX14MBXC116.redmond.corp.microsoft.com>
-	<1FB5E1D5CA062146B38059374562DF7292CCE678@TK5EX14MBXC121.redmond.corp.microsoft.com>
-	<1FB5E1D5CA062146B38059374562DF729555F841@TK5EX14MBXC121.redmond.corp.microsoft.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1FB5E1D5CA062146B38059374562DF729555F841@TK5EX14MBXC121.redmond.corp.microsoft.com>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: David Miller <davem@davemloft.net>
-Cc: netdev@vger.kernel.org, Haiyang Zhang <haiyangz@microsoft.com>, Mike Sterling <Mike.Sterling@microsoft.com>, virtualization@lists.linux-foundation.org
+From: Greg Kroah-Hartman <gregkh@suse.de>
+Subject: [PATCH 10/36] VIDEO: xen-fb, switch to for_each_console
+Date: Thu,  6 Jan 2011 14:22:59 -0800
+Message-ID: <1294352605-31906-10-git-send-email-gregkh@suse.de>
+References: <20110106215404.GA30624@kroah.com>
+Return-path: <xen-devel-bounces@lists.xensource.com>
+In-Reply-To: <20110106215404.GA30624@kroah.com>
+List-Unsubscribe: <http://lists.xensource.com/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
+List-Post: <mailto:xen-devel@lists.xensource.com>
+List-Help: <mailto:xen-devel-request@lists.xensource.com?subject=help>
+List-Subscribe: <http://lists.xensource.com/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
+Sender: xen-devel-bounces@lists.xensource.com
+Errors-To: xen-devel-bounces@lists.xensource.com
+To: linux-kernel@vger.kernel.org
+Cc: linux-fbdev@vger.kernel.org, xen-devel@lists.xensource.com, Jeremy Fitzhardinge <jeremy@xensource.com>, Greg Kroah-Hartman <gregkh@suse.de>, Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, Jiri Slaby <jslaby@suse.cz>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The HyperV network driver can do scatter/gather but does not
-do checksum offload. Since the network stack requires checksum offload
-to do direct transmit (sendfile), netdev_register produces a message
-when driver is loaded.
+From: Jiri Slaby <jslaby@suse.cz>
 
-Signed-off-by: Stephen Hemminger <shemminger@vyatta.com>
+Use newly added for_each_console for iterating consoles.
 
---- a/drivers/staging/hv/netvsc_drv.c	2011-01-06 12:23:48.143333212 -0800
-+++ b/drivers/staging/hv/netvsc_drv.c	2011-01-06 12:24:10.447744121 -0800
-@@ -390,8 +390,6 @@ static int netvsc_probe(struct device *d
- 	net->netdev_ops = &device_ops;
+Signed-off-by: Jiri Slaby <jslaby@suse.cz>
+Cc: Jeremy Fitzhardinge <jeremy@xensource.com>
+Cc: Chris Wright <chrisw@sous-sol.org>
+Cc: virtualization@lists.osdl.org
+Cc: xen-devel@lists.xensource.com
+Cc: linux-fbdev@vger.kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+---
+ drivers/video/xen-fbfront.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/drivers/video/xen-fbfront.c b/drivers/video/xen-fbfront.c
+index 428d273..4abb0b9 100644
+--- a/drivers/video/xen-fbfront.c
++++ b/drivers/video/xen-fbfront.c
+@@ -492,7 +492,7 @@ xenfb_make_preferred_console(void)
+ 		return;
  
- 	/* TODO: Add GSO and Checksum offload */
--	net->features = NETIF_F_SG;
--
- 	SET_ETHTOOL_OPS(net, &ethtool_ops);
- 	SET_NETDEV_DEV(net, device);
+ 	acquire_console_sem();
+-	for (c = console_drivers; c; c = c->next) {
++	for_each_console(c) {
+ 		if (!strcmp(c->name, "tty") && c->index == 0)
+ 			break;
+ 	}
+-- 
+1.7.3.2
