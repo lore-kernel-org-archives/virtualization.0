@@ -1,64 +1,43 @@
-From: Eric Dumazet <eric.dumazet@gmail.com>
-Subject: Re: Flow Control and Port Mirroring Revisited
-Date: Thu, 06 Jan 2011 14:28:18 +0100
-Message-ID: <1294320498.3074.36.camel@edumazet-laptop>
-References: <20110106093312.GA1564@verge.net.au>
-	 <1294309362.3074.11.camel@edumazet-laptop>
-	 <20110106124439.GA17004@verge.net.au>
+From: Stephen Hemminger <shemminger@vyatta.com>
+Subject: [PATCH] hv: don't enable Scatter/Gather
+Date: Thu, 6 Jan 2011 12:28:27 -0800
+Message-ID: <20110106122827.733b5438__23005.6278560825$1294345761$gmane$org@nehalam>
+References: <20101210180954.58441856@nehalam>
+	<8AFC7968D54FB448A30D8F38F259C5622C0BD044@TK5EX14MBXC116.redmond.corp.microsoft.com>
+	<1FB5E1D5CA062146B38059374562DF7292CCE678@TK5EX14MBXC121.redmond.corp.microsoft.com>
+	<1FB5E1D5CA062146B38059374562DF729555F841@TK5EX14MBXC121.redmond.corp.microsoft.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20110106124439.GA17004@verge.net.au>
-Sender: netdev-owner@vger.kernel.org
-To: Simon Horman <horms@verge.net.au>
-Cc: Rusty Russell <rusty@rustcorp.com.au>, virtualization@lists.linux-foundation.org, Jesse Gross <jesse@nicira.com>, dev@openvswitch.org, virtualization@lists.osdl.org, netdev@vger.kernel.org, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1FB5E1D5CA062146B38059374562DF729555F841@TK5EX14MBXC121.redmond.corp.microsoft.com>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: David Miller <davem@davemloft.net>
+Cc: netdev@vger.kernel.org, Haiyang Zhang <haiyangz@microsoft.com>, Mike Sterling <Mike.Sterling@microsoft.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Le jeudi 06 janvier 2011 =C3=A0 21:44 +0900, Simon Horman a =C3=A9crit =
-:
+The HyperV network driver can do scatter/gather but does not
+do checksum offload. Since the network stack requires checksum offload
+to do direct transmit (sendfile), netdev_register produces a message
+when driver is loaded.
 
-> Hi Eric !
->=20
-> Thanks for the advice. I had thought about the socket buffer but at s=
-ome
-> point it slipped my mind.
->=20
-> In any case the following patch seems to implement the change that I =
-had in
-> mind. However my discussions Michael Tsirkin elsewhere in this thread=
- are
-> beginning to make me think that think that perhaps this change isn't =
-the
-> best solution.
->=20
-> diff --git a/datapath/actions.c b/datapath/actions.c
-> index 5e16143..505f13f 100644
-> --- a/datapath/actions.c
-> +++ b/datapath/actions.c
-> @@ -384,7 +384,12 @@ static int do_execute_actions(struct datapath *d=
-p, struct sk_buff *skb,
-> =20
->  	for (a =3D actions, rem =3D actions_len; rem > 0; a =3D nla_next(a,=
- &rem)) {
->  		if (prev_port !=3D -1) {
-> -			do_output(dp, skb_clone(skb, GFP_ATOMIC), prev_port);
-> +			struct sk_buff *nskb =3D skb_clone(skb, GFP_ATOMIC);
-> +			if (nskb) {
-> +				if (skb->sk)
-> +					skb_set_owner_w(nskb, skb->sk);
-> +				do_output(dp, nskb, prev_port);
-> +			}
->  			prev_port =3D -1;
->  		}
->=20
-> I got a rather nasty panic without the if (skb->sk),
-> I guess some skbs don't have a socket.
+Signed-off-by: Stephen Hemminger <shemminger@vyatta.com>
 
-Indeed, some packets are not linked to a socket.
-
-(ARP packets for example)
-
-Sorry, I should have mentioned it :)
-
-
+--- a/drivers/staging/hv/netvsc_drv.c	2011-01-06 12:23:48.143333212 -0800
++++ b/drivers/staging/hv/netvsc_drv.c	2011-01-06 12:24:10.447744121 -0800
+@@ -390,8 +390,6 @@ static int netvsc_probe(struct device *d
+ 	net->netdev_ops = &device_ops;
+ 
+ 	/* TODO: Add GSO and Checksum offload */
+-	net->features = NETIF_F_SG;
+-
+ 	SET_ETHTOOL_OPS(net, &ethtool_ops);
+ 	SET_NETDEV_DEV(net, device);
