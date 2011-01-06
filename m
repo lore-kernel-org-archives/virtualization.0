@@ -1,95 +1,54 @@
-From: Gleb Natapov <gleb@redhat.com>
-Subject: Re: [PATCH] virtio-pci: add softlinks between virtio and pci
-Date: Thu, 6 Jan 2011 10:51:52 +0200
-Message-ID: <20110106085152.GJ23389__18052.6552991525$1294303970$gmane$org@redhat.com>
-References: <20110105191711.GA27489@redhat.com>
+From: Simon Horman <horms@verge.net.au>
+Subject: Flow Control and Port Mirroring Revisited
+Date: Thu, 6 Jan 2011 18:33:12 +0900
+Message-ID: <20110106093312.GA1564@verge.net.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <netdev-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20110105191711.GA27489@redhat.com>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Anthony Liguori <aliguori@us.ibm.com>, Jamie Lokier <jamie@shareable.org>, Thomas Weber <swirl@gmx.li>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+Sender: netdev-owner@vger.kernel.org
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: virtualization@lists.linux-foundation.org, Jesse Gross <jesse@nicira.com>, dev@openvswitch.org, virtualization@lists.osdl.org, netdev@vger.kernel.org, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Jan 05, 2011 at 09:17:11PM +0200, Michael S. Tsirkin wrote:
-> We sometimes need to map between the virtio device and
-> the given pci device. One such use is OS installer that
-> gets the boot pci device from BIOS and needs to
-> find the relevant block device. Since it can't,
-> installation fails.
-> 
-> Supply softlinks between these to make it possible.
-> 
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> ---
-> 
-> Gleb, could you please ack that this patch below
-> will be enough to fix the installer issue that
-> you see?
-> 
-ACK. With this patch given PCI address from EDD I can find device node
-by looking at /sys/devices/pci0000:00/0000:edd_bdf/virtio_device/block/
+Hi,
 
->  drivers/virtio/virtio_pci.c |   18 +++++++++++++++++-
->  1 files changed, 17 insertions(+), 1 deletions(-)
-> 
-> diff --git a/drivers/virtio/virtio_pci.c b/drivers/virtio/virtio_pci.c
-> index ef8d9d5..06eb2f8 100644
-> --- a/drivers/virtio/virtio_pci.c
-> +++ b/drivers/virtio/virtio_pci.c
-> @@ -25,6 +25,7 @@
->  #include <linux/virtio_pci.h>
->  #include <linux/highmem.h>
->  #include <linux/spinlock.h>
-> +#include <linux/sysfs.h>
->  
->  MODULE_AUTHOR("Anthony Liguori <aliguori@us.ibm.com>");
->  MODULE_DESCRIPTION("virtio-pci");
-> @@ -667,8 +668,21 @@ static int __devinit virtio_pci_probe(struct pci_dev *pci_dev,
->  	if (err)
->  		goto out_set_drvdata;
->  
-> -	return 0;
-> +	err = sysfs_create_link(&pci_dev->dev.kobj, &vp_dev->vdev.dev.kobj,
-> +				"virtio_device");
-> +	if (err)
-> +		goto out_register_device;
-> +
-> +	err = sysfs_create_link(&vp_dev->vdev.dev.kobj, &pci_dev->dev.kobj,
-> +				"bus_device");
-> +	if (err)
-> +		goto out_create_link;
->  
-> +	return 0;
-> +out_create_link:
-> +	sysfs_remove_link(&pci_dev->dev.kobj, "virtio_device");
-> +out_register_device:
-> +	unregister_virtio_device(&vp_dev->vdev);
->  out_set_drvdata:
->  	pci_set_drvdata(pci_dev, NULL);
->  	pci_iounmap(pci_dev, vp_dev->ioaddr);
-> @@ -685,6 +699,8 @@ static void __devexit virtio_pci_remove(struct pci_dev *pci_dev)
->  {
->  	struct virtio_pci_device *vp_dev = pci_get_drvdata(pci_dev);
->  
-> +	sysfs_remove_link(&vp_dev->vdev.dev.kobj, "bus_device");
-> +	sysfs_remove_link(&pci_dev->dev.kobj, "virtio_device");
->  	unregister_virtio_device(&vp_dev->vdev);
->  }
->  
-> -- 
-> 1.7.3.2.91.g446ac
+Back in October I reported that I noticed a problem whereby flow control
+breaks down when openvswitch is configured to mirror a port[1].
 
---
-			Gleb.
+I have (finally) looked into this further and the problem appears to relate
+to cloning of skbs, as Jesse Gross originally suspected.
+
+More specifically, in do_execute_actions[2] the first n-1 times that an skb
+needs to be transmitted it is cloned first and the final time the original
+skb is used.
+
+In the case that there is only one action, which is the normal case, then
+the original skb will be used. But in the case of mirroring the cloning
+comes into effect. And in my case the cloned skb seems to go to the (slow)
+eth1 interface while the original skb goes to the (fast) dummy0 interface
+that I set up to be a mirror. The result is that dummy0 "paces" the flow,
+and its a cracking pace at that.
+
+As an experiment I hacked do_execute_actions() to use the original skb
+for the first action instead of the last one.  In my case the result was
+that eth1 "paces" the flow, and things work reasonably nicely.
+
+Well, sort of. Things work well for non-GSO skbs but extremely poorly for
+GSO skbs where only 3 (yes 3, not 3%) end up at the remote host running
+netserv. I'm unsure why, but I digress.
+
+It seems to me that my hack illustrates the point that the flow ends up
+being "paced" by one interface. However I think that what would be
+desirable is that the flow is "paced" by the slowest link. Unfortunately
+I'm unsure how to achieve that.
+
+One idea that I had was to skb_get() the original skb each time it is
+cloned - that is easy enough. But unfortunately it seems to me that
+approach would require some sort of callback mechanism in kfree_skb() so
+that the cloned skbs can kfree_skb() the original skb.
+
+Ideas would be greatly appreciated.
+
+[1] http://openvswitch.org/pipermail/dev_openvswitch.org/2010-October/003806.html
+[2] http://openvswitch.org/cgi-bin/gitweb.cgi?p=openvswitch;a=blob;f=datapath/actions.c;h=5e16143ca402f7da0ee8fc18ee5eb16c3b7598e6;hb=HEAD
