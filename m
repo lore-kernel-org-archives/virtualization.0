@@ -1,39 +1,38 @@
-From: Greg KH <gregkh@suse.de>
-Subject: Re: [PATCH 1/1] staging: hv: Removed unneeded call to
+From: Hank Janssen <hjanssen@microsoft.com>
+Subject: RE: [PATCH 1/1] staging: hv: Removed unneeded call to
  netif_stop_queue() in hv_netvsc
-Date: Fri, 7 Jan 2011 09:31:39 -0800
-Message-ID: <20110107173139.GA12343@suse.de>
+Date: Fri, 7 Jan 2011 17:48:11 +0000
+Message-ID: <8AFC7968D54FB448A30D8F38F259C56233F397CF@TK5EX14MBXC114.redmond.corp.microsoft.com>
 References: <1294421139-18657-1-git-send-email-hjanssen@microsoft.com>
+ <20110107173139.GA12343@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1294421139-18657-1-git-send-email-hjanssen@microsoft.com>
+In-Reply-To: <20110107173139.GA12343@suse.de>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Hank Janssen <hjanssen@microsoft.com>
-Cc: linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org, Abhishek Kane <v-abkane@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>
+To: Greg KH <gregkh@suse.de>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, "Abhishek Kane (Mindtree Consulting PVT LTD)" <v-abkane@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Jan 07, 2011 at 09:25:39AM -0800, Hank Janssen wrote:
-> From: Hank Janssen <hjanssen@microsoft.com>
-> 
-> Removed the call to netif_stop_queue() in netvsc_probe() as
-> the queue is not initialized at that point and further call
-> to it after queue initialization is really not necessary.
-> 
-> This change was prompted after an upstream change went into 
-> 2.6.37 (netif_tx_stop_queue) that now checks if netif_stop_queue
-> is called before register with netdev is done.
-> 
-> This will eliminate the warning message to the log when hv_netvsc
-> driver starts up.
-> 
-> Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
-> Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
-> Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 
-What kernel is this needed for, .37?  .38?  older than .37?
 
-thanks,
+> -----Original Message-----
+> From: Greg KH [mailto:gregkh@suse.de]
+> Sent: Friday, January 07, 2011 9:32 AM
+> 
+> What kernel is this needed for, .37?  .38?  older than .37?
+> 
+> thanks,
+> 
+> greg k-h
 
-greg k-h
+This is needed for kernels 2.6.37 and newer.
+
+Btw, I have not seen KVP patches that where submitted in linux next yet.
+I have not seen any other requests for changes to them, is there anything else needed for acceptance?
+
+Thanks,
+
+Hank.
