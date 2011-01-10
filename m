@@ -1,119 +1,67 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH] virtio: remove virtio-pci root device
-Date: Sun, 9 Jan 2011 17:18:21 +0200
-Message-ID: <20110109151821.GA9063__10106.1692614623$1294586399$gmane$org@redhat.com>
-References: <20110105191711.GA27489@redhat.com>
-	<virtio-pci-whynotsimplify@mdm.bga.com>
-	<virtio-pci-noroot@mdm.bga.com>
+Subject: [PATCH] vhost: fix signed/unsigned comparison
+Date: Mon, 10 Jan 2011 10:03:21 +0200
+Message-ID: <20110110080320.GA10846@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <virtio-pci-noroot@mdm.bga.com>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Milton Miller <miltonm@bga.com>
-Cc: Anthony Liguori <aliguori@us.ibm.com>, Jamie Lokier <jamie@shareable.org>, Thomas Weber <swirl@gmx.li>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+Sender: linux-kernel-owner@vger.kernel.org
+To: "Michael S. Tsirkin" <mst@redhat.com>, kvm@vger.kernel.org, virtualization@lists.osdl.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, Jes.Sorensen@redhat.com, stable@kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Jan 07, 2011 at 02:55:06AM -0600, Milton Miller wrote:
-> We sometimes need to map between the virtio device and
-> the given pci device. One such use is OS installer that
-> gets the boot pci device from BIOS and needs to
-> find the relevant block device. Since it can't,
-> installation fails.
-> 
-> Instead of creating a top-level devices/virtio-pci
-> directory, create each device under the corresponding
-> pci device node.  Symlinks to all virtio-pci
-> devices can be found under the pci driver link in
-> bus/pci/drivers/virtio-pci/devices, and all virtio
-> devices under drivers/bus/virtio/devices.
-> 
-> Signed-off-by: Milton Miller <miltonm@bga.com>
+To detect that a sequence number is done, we are doing math on unsigned
+integers so the result is unsigned too. Not what was intended for the <=
+comparison. The result is user stuck forever in flush call.
+Convert to int to fix this.
 
-OK, this works fine for me.  I played with options to add compat
-softlinks under devices/virtio-pci but we still don't get exactly the
-same layout and since I don't think anyone actually uses them, it's
-probably ok to just to the simple thing.
+Further, get rid of ({}) to make code clearer.
 
-Tested/Acked-by: Michael S. Tsirkin <mst@redhat.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
 
-Rusty, since this help fix at least one user, any chance this can be put
-in 2.6.38? OK to backport to -stable?
+I've put this on my vhost.git tree.
 
-Gleb, could you try this out too?
+ drivers/vhost/vhost.c |   18 +++++++++++-------
+ 1 files changed, 11 insertions(+), 7 deletions(-)
 
-> ---
-> 
-> This is an alternative to the patch by Michael S. Tsirkin
-> titled "virtio-pci: add softlinks between virtio and pci"
-> https://patchwork.kernel.org/patch/454581/
-> 
-> It creates simpler code, uses less memory, and should
-> be even easier use by the installer as it won't have to
-> know a virtio symlink to follow (just follow none).
-> 
-> Compile tested only as I don't have kvm setup.
-> 
-> 
-> diff --git a/drivers/virtio/virtio_pci.c b/drivers/virtio/virtio_pci.c
-> index ef8d9d5..4fb5b2b 100644
-> --- a/drivers/virtio/virtio_pci.c
-> +++ b/drivers/virtio/virtio_pci.c
-> @@ -96,11 +96,6 @@ static struct pci_device_id virtio_pci_id_table[] = {
->  
->  MODULE_DEVICE_TABLE(pci, virtio_pci_id_table);
->  
-> -/* A PCI device has it's own struct device and so does a virtio device so
-> - * we create a place for the virtio devices to show up in sysfs.  I think it
-> - * would make more sense for virtio to not insist on having it's own device. */
-> -static struct device *virtio_pci_root;
-> -
->  /* Convert a generic virtio device to our structure */
->  static struct virtio_pci_device *to_vp_device(struct virtio_device *vdev)
->  {
-> @@ -629,7 +624,7 @@ static int __devinit virtio_pci_probe(struct pci_dev *pci_dev,
->  	if (vp_dev == NULL)
->  		return -ENOMEM;
->  
-> -	vp_dev->vdev.dev.parent = virtio_pci_root;
-> +	vp_dev->vdev.dev.parent = &pci_dev->dev;
->  	vp_dev->vdev.dev.release = virtio_pci_release_dev;
->  	vp_dev->vdev.config = &virtio_pci_config_ops;
->  	vp_dev->pci_dev = pci_dev;
-> @@ -717,17 +712,7 @@ static struct pci_driver virtio_pci_driver = {
->  
->  static int __init virtio_pci_init(void)
->  {
-> -	int err;
-> -
-> -	virtio_pci_root = root_device_register("virtio-pci");
-> -	if (IS_ERR(virtio_pci_root))
-> -		return PTR_ERR(virtio_pci_root);
-> -
-> -	err = pci_register_driver(&virtio_pci_driver);
-> -	if (err)
-> -		root_device_unregister(virtio_pci_root);
-> -
-> -	return err;
-> +	return pci_register_driver(&virtio_pci_driver);
->  }
->  
->  module_init(virtio_pci_init);
-> @@ -735,7 +720,6 @@ module_init(virtio_pci_init);
->  static void __exit virtio_pci_exit(void)
->  {
->  	pci_unregister_driver(&virtio_pci_driver);
-> -	root_device_unregister(virtio_pci_root);
->  }
->  
->  module_exit(virtio_pci_exit);
+diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+index 159c77a..522b8fc 100644
+--- a/drivers/vhost/vhost.c
++++ b/drivers/vhost/vhost.c
+@@ -98,22 +98,26 @@ void vhost_poll_stop(struct vhost_poll *poll)
+ 	remove_wait_queue(poll->wqh, &poll->wait);
+ }
+ 
++static bool vhost_work_seq_done(struct vhost_dev *dev, struct vhost_work *work,
++				unsigned seq)
++{
++	int left;
++	spin_lock_irq(&dev->work_lock);
++	left = seq - work->done_seq;
++	spin_unlock_irq(&dev->work_lock);
++	return left <= 0;
++}
++
+ static void vhost_work_flush(struct vhost_dev *dev, struct vhost_work *work)
+ {
+ 	unsigned seq;
+-	int left;
+ 	int flushing;
+ 
+ 	spin_lock_irq(&dev->work_lock);
+ 	seq = work->queue_seq;
+ 	work->flushing++;
+ 	spin_unlock_irq(&dev->work_lock);
+-	wait_event(work->done, ({
+-		   spin_lock_irq(&dev->work_lock);
+-		   left = seq - work->done_seq <= 0;
+-		   spin_unlock_irq(&dev->work_lock);
+-		   left;
+-	}));
++	wait_event(work->done, vhost_work_seq_done(dev, work, seq));
+ 	spin_lock_irq(&dev->work_lock);
+ 	flushing = --work->flushing;
+ 	spin_unlock_irq(&dev->work_lock);
+-- 
+1.7.3.2.91.g446ac
