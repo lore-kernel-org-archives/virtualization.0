@@ -1,53 +1,35 @@
 From: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Subject: Re: [PATCH] xen: fix non-ANSI function warning in irq.c
-Date: Tue, 11 Jan 2011 10:15:05 -0500
-Message-ID: <20110111151505.GA10897@dumpdata.com>
-References: <20110108200036.20ab98c7.randy.dunlap@oracle.com>
+Subject: Re: [Xen-devel] [PATCH 01/14] x86/ticketlock: clean up types and
+	accessors
+Date: Tue, 11 Jan 2011 12:21:00 -0500
+Message-ID: <20110111172100.GA14017__9078.69761945239$1294766735$gmane$org@dumpdata.com>
+References: <cover.1289940821.git.jeremy.fitzhardinge@citrix.com>
+	<92d21a90d4e27db4b46dbacd58ef67719acd0185.1289940821.git.jeremy.fitzhardinge@citrix.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <xen-devel-bounces@lists.xensource.com>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20110108200036.20ab98c7.randy.dunlap@oracle.com>
-List-Unsubscribe: <http://lists.xensource.com/mailman/listinfo/xen-devel>,
-	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
-List-Post: <mailto:xen-devel@lists.xensource.com>
-List-Help: <mailto:xen-devel-request@lists.xensource.com?subject=help>
-List-Subscribe: <http://lists.xensource.com/mailman/listinfo/xen-devel>,
-	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
-Sender: xen-devel-bounces@lists.xensource.com
-Errors-To: xen-devel-bounces@lists.xensource.com
-To: Randy Dunlap <randy.dunlap@oracle.com>
-Cc: virtualization@lists.osdl.org, xen-devel@lists.xensource.com, Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>
+In-Reply-To: <92d21a90d4e27db4b46dbacd58ef67719acd0185.1289940821.git.jeremy.fitzhardinge@citrix.com>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Xen-devel <xen-devel@lists.xensource.com>, Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>, Nick Piggin <npiggin@kernel.dk>, Peter Zijlstra <peterz@infradead.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Jan Beulich <JBeulich@novell.com>, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, Avi Kivity <avi@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, =?iso-8859-1?Q?Am=E9rico?= Wang <xiyou.wangcong@gmail.com>, Eric Dumazet <dada1@cosmosbay.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sat, Jan 08, 2011 at 08:00:36PM -0800, Randy Dunlap wrote:
-> From: Randy Dunlap <randy.dunlap@oracle.com>
-> 
-> Fix sparse warning for non-ANSI function declaration:
-> 
-> arch/x86/xen/irq.c:129:30: warning: non-ANSI function declaration of function 'xen_init_irq_ops'
-
-Thanks, queued up for rc1.
-> 
-> Signed-off-by: Randy Dunlap <randy.dunlap@oracle.com>
-> Cc:	Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>
-> ---
->  arch/x86/xen/irq.c |    2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> --- lnx0107.orig/arch/x86/xen/irq.c
-> +++ lnx0107/arch/x86/xen/irq.c
-> @@ -126,7 +126,7 @@ static const struct pv_irq_ops xen_irq_o
->  #endif
->  };
->  
-> -void __init xen_init_irq_ops()
-> +void __init xen_init_irq_ops(void)
+>  static inline int __ticket_spin_is_locked(arch_spinlock_t *lock)
 >  {
->  	pv_irq_ops = xen_irq_ops;
->  	x86_init.irqs.intr_init = xen_init_IRQ;
-> 
-> _______________________________________________
-> Xen-devel mailing list
-> Xen-devel@lists.xensource.com
-> http://lists.xensource.com/xen-devel
+> -	int tmp = ACCESS_ONCE(lock->slock);
+> +	struct __raw_tickets tmp = ACCESS_ONCE(lock->tickets);
+>  
+> -	return !!(((tmp >> TICKET_SHIFT) ^ tmp) & ((1 << TICKET_SHIFT) - 1));
+> +	return !!(tmp.tail ^ tmp.head);
+
+Does it make sense to mask it here it here with TICKET_MASK as it was done before?
