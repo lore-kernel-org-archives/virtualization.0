@@ -1,35 +1,73 @@
-From: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Subject: Re: [Xen-devel] [PATCH 01/14] x86/ticketlock: clean up types and
-	accessors
-Date: Tue, 11 Jan 2011 12:21:00 -0500
-Message-ID: <20110111172100.GA14017__9078.69761945239$1294766735$gmane$org@dumpdata.com>
-References: <cover.1289940821.git.jeremy.fitzhardinge@citrix.com>
-	<92d21a90d4e27db4b46dbacd58ef67719acd0185.1289940821.git.jeremy.fitzhardinge@citrix.com>
+From: Simon Horman <horms@verge.net.au>
+Subject: Re: Flow Control and Port Mirroring Revisited
+Date: Thu, 13 Jan 2011 15:47:19 +0900
+Message-ID: <20110113064718.GA17905@verge.net.au>
+References: <20110106093312.GA1564@verge.net.au>
+ <1294309362.3074.11.camel@edumazet-laptop>
+ <20110106124439.GA17004@verge.net.au>
+ <AANLkTinJK-nbkP5_ee2cuS8RA7jTB4-bcWmAf4bjSouP@mail.gmail.com>
+ <20110107012356.GA1257@verge.net.au>
+ <20110110093155.GB13420@verge.net.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <kvm-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <92d21a90d4e27db4b46dbacd58ef67719acd0185.1289940821.git.jeremy.fitzhardinge@citrix.com>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Xen-devel <xen-devel@lists.xensource.com>, Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>, Nick Piggin <npiggin@kernel.dk>, Peter Zijlstra <peterz@infradead.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Jan Beulich <JBeulich@novell.com>, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, Avi Kivity <avi@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, =?iso-8859-1?Q?Am=E9rico?= Wang <xiyou.wangcong@gmail.com>, Eric Dumazet <dada1@cosmosbay.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>
+In-Reply-To: <20110110093155.GB13420@verge.net.au>
+Sender: kvm-owner@vger.kernel.org
+To: Jesse Gross <jesse@nicira.com>
+Cc: Eric Dumazet <eric.dumazet@gmail.com>, Rusty Russell <rusty@rustcorp.com.au>, virtualization@lists.linux-foundation.org, dev@openvswitch.org, virtualization@lists.osdl.org, netdev@vger.kernel.org, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
->  static inline int __ticket_spin_is_locked(arch_spinlock_t *lock)
->  {
-> -	int tmp = ACCESS_ONCE(lock->slock);
-> +	struct __raw_tickets tmp = ACCESS_ONCE(lock->tickets);
->  
-> -	return !!(((tmp >> TICKET_SHIFT) ^ tmp) & ((1 << TICKET_SHIFT) - 1));
-> +	return !!(tmp.tail ^ tmp.head);
+On Mon, Jan 10, 2011 at 06:31:55PM +0900, Simon Horman wrote:
+> On Fri, Jan 07, 2011 at 10:23:58AM +0900, Simon Horman wrote:
+> > On Thu, Jan 06, 2011 at 05:38:01PM -0500, Jesse Gross wrote:
+> > 
+> > [ snip ]
+> > > 
+> > > I know that everyone likes a nice netperf result but I agree with
+> > > Michael that this probably isn't the right question to be asking.  I
+> > > don't think that socket buffers are a real solution to the flow
+> > > control problem: they happen to provide that functionality but it's
+> > > more of a side effect than anything.  It's just that the amount of
+> > > memory consumed by packets in the queue(s) doesn't really have any
+> > > implicit meaning for flow control (think multiple physical adapters,
+> > > all with the same speed instead of a virtual device and a physical
+> > > device with wildly different speeds).  The analog in the physical
+> > > world that you're looking for would be Ethernet flow control.
+> > > Obviously, if the question is limiting CPU or memory consumption then
+> > > that's a different story.
+> > 
+> > Point taken. I will see if I can control CPU (and thus memory) consumption
+> > using cgroups and/or tc.
+> 
+> I have found that I can successfully control the throughput using
+> the following techniques
+> 
+> 1) Place a tc egress filter on dummy0
+> 
+> 2) Use ovs-ofctl to add a flow that sends skbs to dummy0 and then eth1,
+>    this is effectively the same as one of my hacks to the datapath
+>    that I mentioned in an earlier mail. The result is that eth1
+>    "paces" the connection.
 
-Does it make sense to mask it here it here with TICKET_MASK as it was done before?
+Further to this, I wonder if there is any interest in providing
+a method to switch the action order - using ovs-ofctl is a hack imho -
+and/or switching the default action order for mirroring.
+
+> 3) 2) + place a tc egress filter on eth1
+> 
+> Which mostly makes sense to me although I am a little confused about
+> why 1) needs a filter on dummy0 (a filter on eth1 has no effect)
+> but 3) needs a filter on eth1 (a filter on dummy0 has no effect,
+> even if the skb is sent to dummy0 last.
+> 
+> I also had some limited success using CPU cgroups, though obviously
+> that targets CPU usage and thus the effect on throughput is fairly course.
+> In short, its a useful technique but not one that bares further
+> discussion here.
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe kvm" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
