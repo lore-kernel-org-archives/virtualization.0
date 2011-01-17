@@ -1,54 +1,54 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH] virtio: remove virtio-pci root device
-Date: Mon, 17 Jan 2011 11:03:51 +1030
-Message-ID: <201101171103.51778.rusty__8276.31426877833$1295224489$gmane$org@rustcorp.com.au>
-References: <20110105191711.GA27489@redhat.com>
-	<20110110171046.GB27292@redhat.com>
-	<20110110171904.GA30058@redhat.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: [PATCH 1/3] vhost-net: check the support of mergeable buffer outside
+	the receive loop
+Date: Mon, 17 Jan 2011 16:10:59 +0800
+Message-ID: <20110117081058.18900.67456.stgit@dhcp-91-7.nay.redhat.com.englab.nay.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20110110171904.GA30058@redhat.com>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Anthony Liguori <aliguori@us.ibm.com>, Jamie Lokier <jamie@shareable.org>, Thomas Weber <swirl@gmx.li>, linux-kernel@vger.kernel.org, Milton Miller <miltonm@bga.com>, virtualization@lists.linux-foundation.org
+Return-path: <netdev-owner@vger.kernel.org>
+Sender: netdev-owner@vger.kernel.org
+To: virtualization@lists.osdl.org, netdev@vger.kernel.org, kvm@vger.kernel.org, mst@redhat.com
+Cc: linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 11 Jan 2011 03:49:04 am Michael S. Tsirkin wrote:
-> On Mon, Jan 10, 2011 at 07:10:46PM +0200, Gleb Natapov wrote:
-> > On Fri, Jan 07, 2011 at 02:55:06AM -0600, Milton Miller wrote:
-> > > We sometimes need to map between the virtio device and
-> > > the given pci device. One such use is OS installer that
-> > > gets the boot pci device from BIOS and needs to
-> > > find the relevant block device. Since it can't,
-> > > installation fails.
-> > > 
-> > > Instead of creating a top-level devices/virtio-pci
-> > > directory, create each device under the corresponding
-> > > pci device node.  Symlinks to all virtio-pci
-> > > devices can be found under the pci driver link in
-> > > bus/pci/drivers/virtio-pci/devices, and all virtio
-> > > devices under drivers/bus/virtio/devices.
-> > > 
-> > > Signed-off-by: Milton Miller <miltonm@bga.com>
-> > Acked-by: Gleb Natapov <gleb@redhat.com>
-> 
-> Rusty, any comments?
-> We are going to tell the installer guys that this
-> is the interface, would be nice to know that the
-> patch is queued before we do.
+No need to check the support of mergeable buffer inside the recevie
+loop as the whole handle_rx()_xx is in the read critical region.  So
+this patch move it ahead of the receiving loop.
 
-Yep, I've applied it.  Sorry, took a week off to work on my linux.conf.au
-talk...
+Signed-off-by: Jason Wang <jasowang@redhat.com>
+---
+ drivers/vhost/net.c |    5 +++--
+ 1 files changed, 3 insertions(+), 2 deletions(-)
 
-Cheers,
-Rusty.
+diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+index 14fc189..95e49de 100644
+--- a/drivers/vhost/net.c
++++ b/drivers/vhost/net.c
+@@ -411,7 +411,7 @@ static void handle_rx_mergeable(struct vhost_net *net)
+ 	};
+ 
+ 	size_t total_len = 0;
+-	int err, headcount;
++	int err, headcount, mergeable;
+ 	size_t vhost_hlen, sock_hlen;
+ 	size_t vhost_len, sock_len;
+ 	struct socket *sock = rcu_dereference(vq->private_data);
+@@ -425,6 +425,7 @@ static void handle_rx_mergeable(struct vhost_net *net)
+ 
+ 	vq_log = unlikely(vhost_has_feature(&net->dev, VHOST_F_LOG_ALL)) ?
+ 		vq->log : NULL;
++	mergeable = vhost_has_feature(&net->dev, VIRTIO_NET_F_MRG_RXBUF);
+ 
+ 	while ((sock_len = peek_head_len(sock->sk))) {
+ 		sock_len += sock_hlen;
+@@ -474,7 +475,7 @@ static void handle_rx_mergeable(struct vhost_net *net)
+ 			break;
+ 		}
+ 		/* TODO: Should check and handle checksum. */
+-		if (vhost_has_feature(&net->dev, VIRTIO_NET_F_MRG_RXBUF) &&
++		if (likely(mergeable) &&
+ 		    memcpy_toiovecend(vq->hdr, (unsigned char *)&headcount,
+ 				      offsetof(typeof(hdr), num_buffers),
+ 				      sizeof hdr.num_buffers)) {
+
