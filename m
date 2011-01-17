@@ -1,79 +1,47 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH] virtio-net: fix a typo
-Date: Mon, 17 Jan 2011 11:42:29 +0200
-Message-ID: <20110117094228.GE23479__10120.8016662442$1295257740$gmane$org@redhat.com>
-References: <1295252059-27438-1-git-send-email-aurelien@aurel32.net>
+Subject: Re: [PATCH 3/3] vhost-net: use lock_sock_fast() in peek_head_len()
+Date: Mon, 17 Jan 2011 11:57:38 +0200
+Message-ID: <20110117095738.GG23479@redhat.com>
+References: <20110117081058.18900.67456.stgit@dhcp-91-7.nay.redhat.com.englab.nay.redhat.com>
+ <20110117081117.18900.48672.stgit@dhcp-91-7.nay.redhat.com.englab.nay.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1295252059-27438-1-git-send-email-aurelien@aurel32.net>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Aurelien Jarno <aurelien@aurel32.net>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+In-Reply-To: <20110117081117.18900.48672.stgit@dhcp-91-7.nay.redhat.com.englab.nay.redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jason Wang <jasowang@redhat.com>
+Cc: virtualization@lists.osdl.org, netdev@vger.kernel.org, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, eric.dumazet@gmail.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Jan 17, 2011 at 09:14:19AM +0100, Aurelien Jarno wrote:
-> fitler -> filter
+On Mon, Jan 17, 2011 at 04:11:17PM +0800, Jason Wang wrote:
+> We can use lock_sock_fast() instead of lock_sock() in order to get
+> speedup in peek_head_len().
 > 
-> Cc: netdev@vger.kernel.org
-> Cc: Michael S. Tsirkin <mst@redhat.com>
-> Signed-off-by: Aurelien Jarno <aurelien@aurel32.net>
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
 
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
-obviously.
+Queued for 2.6.39, thanks everyone.
 
-Cc:
-virtualization@lists.linux-foundation.org
-rusty@rustcorp.com.au
-as well.
-
-BTW Rusty, ./scripts/get_maintainer.pl doesn't work
-for most of virtio since there is no entry in MAINTAINERS for virtio
-net/block/core.  Adding it will help people know whom to contact
-with issues/patches. It will also help if
-I am Cc'd on patches as this way I won't forget to
-review them.
-
---->
-Add MAINTAINERS entry for virtio core, net, block
-
-Patches should keep coming through Rusty but it
-helps if I'm Cc'd as well.
-
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-
-----
-
-Comments?
-
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 23d0436..7de75ad 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -6439,6 +6439,16 @@ S:	Maintained
- F:	drivers/char/virtio_console.c
- F:	include/linux/virtio_console.h
- 
-+VIRTIO CORE, NET AND BLOCK DRIVERS
-+M:	Rusty Russell <rusty@rustcorp.com.au>
-+M:	"Michael S. Tsirkin" <mst@redhat.com>
-+L:	virtualization@lists.linux-foundation.org
-+S:	Maintained
-+F:	drivers/virtio/
-+F:	drivers/net/virtio_net.c
-+F:	drivers/block/virtio_blk.c
-+F:	include/linux/virtio_*.h
-+
- VIRTIO HOST (VHOST)
- M:	"Michael S. Tsirkin" <mst@redhat.com>
- L:	kvm@vger.kernel.org
+> ---
+>  drivers/vhost/net.c |    4 ++--
+>  1 files changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+> index c32a2e4..50b622a 100644
+> --- a/drivers/vhost/net.c
+> +++ b/drivers/vhost/net.c
+> @@ -211,12 +211,12 @@ static int peek_head_len(struct sock *sk)
+>  {
+>  	struct sk_buff *head;
+>  	int len = 0;
+> +	bool slow = lock_sock_fast(sk);
+>  
+> -	lock_sock(sk);
+>  	head = skb_peek(&sk->sk_receive_queue);
+>  	if (head)
+>  		len = head->len;
+> -	release_sock(sk);
+> +	unlock_sock_fast(sk, slow);
+>  	return len;
+>  }
+>  
