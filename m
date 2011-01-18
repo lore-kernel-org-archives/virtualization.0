@@ -1,69 +1,84 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH] vhost: rcu annotation fixup
-Date: Tue, 18 Jan 2011 19:55:00 +0200
-Message-ID: <20110118175500.GA6935@redhat.com>
-References: <20110118110845.GA11555@redhat.com>
- <20110118174834.GF2193@linux.vnet.ibm.com>
+Subject: [PATCHv2] vhost: rcu annotation fixup
+Date: Tue, 18 Jan 2011 20:08:13 +0200
+Message-ID: <20110118180813.GA18757@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20110118174834.GF2193@linux.vnet.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
-Cc: Jason Wang <jasowang@redhat.com>, kvm@vger.kernel.org, virtualization@lists.osdl.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+To: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, jasowang@redhat.com
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, kvm@vger.kernel.org, virtualization@lists.osdl.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jan 18, 2011 at 09:48:34AM -0800, Paul E. McKenney wrote:
-> On Tue, Jan 18, 2011 at 01:08:45PM +0200, Michael S. Tsirkin wrote:
-> > When built with rcu checks enabled, vhost triggers
-> > bogus warnings as vhost features are read without
-> > dev->mutex sometimes.
-> > Fixing it properly is not trivial as vhost.h does not
-> > know which lockdep classes it will be used under.
-> > Disable the warning by stubbing out the check for now.
-> > 
-> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> > ---
-> >  drivers/vhost/vhost.h |    4 +---
-> >  1 files changed, 1 insertions(+), 3 deletions(-)
-> > 
-> > diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
-> > index 2af44b7..2d03a31 100644
-> > --- a/drivers/vhost/vhost.h
-> > +++ b/drivers/vhost/vhost.h
-> > @@ -173,9 +173,7 @@ static inline int vhost_has_feature(struct vhost_dev *dev, int bit)
-> >  {
-> >  	unsigned acked_features;
-> > 
-> > -	acked_features =
-> > -		rcu_dereference_index_check(dev->acked_features,
-> > -					    lockdep_is_held(&dev->mutex));
-> > +	acked_features = rcu_dereference_index_check(dev->acked_features, 1);
-> 
-> Ouch!!!
-> 
-> Could you please at least add a comment?
+When built with rcu checks enabled, vhost triggers
+bogus warnings as vhost features are read without
+dev->mutex sometimes, and private pointer is read
+with our kind of rcu where work serves as a
+read side critical section.
 
-Yes, OK.
+Fixing it properly is not trivial.
+Disable the warnings by stubbing out the checks for now.
 
-> Alternatively, pass in the lock that is held and check for that?  Given
-> that this is a static inline, the compiler should be able to optimize
-> the argument away when !PROVE_RCU, correct?
-> 
-> 							Thanx, Paul
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
 
-Hopefully, yes. We don't always have a lock: the idea was
-to create a lockdep for these cases. But we can't pass
-the pointer to that ...
+Changes from v1: add TODO, fix more warnings.
 
-> >  	return acked_features & (1 << bit);
-> >  }
-> > 
-> > -- 
-> > 1.7.3.2.91.g446ac
-> > --
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
+ drivers/vhost/net.c   |    9 +++++----
+ drivers/vhost/vhost.h |    6 +++---
+ 2 files changed, 8 insertions(+), 7 deletions(-)
+
+diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+index 9b3ca10..f616cef 100644
+--- a/drivers/vhost/net.c
++++ b/drivers/vhost/net.c
+@@ -128,8 +128,7 @@ static void handle_tx(struct vhost_net *net)
+ 	size_t hdr_size;
+ 	struct socket *sock;
+ 
+-	/* TODO: check that we are running from vhost_worker?
+-	 * Not sure it's worth it, it's straight-forward enough. */
++	/* TODO: check that we are running from vhost_worker? */
+ 	sock = rcu_dereference_check(vq->private_data, 1);
+ 	if (!sock)
+ 		return;
+@@ -306,7 +305,8 @@ static void handle_rx_big(struct vhost_net *net)
+ 	size_t len, total_len = 0;
+ 	int err;
+ 	size_t hdr_size;
+-	struct socket *sock = rcu_dereference(vq->private_data);
++	/* TODO: check that we are running from vhost_worker? */
++	struct socket *sock = rcu_dereference_check(vq->private_data, 1);
+ 	if (!sock || skb_queue_empty(&sock->sk->sk_receive_queue))
+ 		return;
+ 
+@@ -415,7 +415,8 @@ static void handle_rx_mergeable(struct vhost_net *net)
+ 	int err, headcount;
+ 	size_t vhost_hlen, sock_hlen;
+ 	size_t vhost_len, sock_len;
+-	struct socket *sock = rcu_dereference(vq->private_data);
++	/* TODO: check that we are running from vhost_worker? */
++	struct socket *sock = rcu_dereference_check(vq->private_data, 1);
+ 	if (!sock || skb_queue_empty(&sock->sk->sk_receive_queue))
+ 		return;
+ 
+diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
+index 2af44b7..b3363ae 100644
+--- a/drivers/vhost/vhost.h
++++ b/drivers/vhost/vhost.h
+@@ -173,9 +173,9 @@ static inline int vhost_has_feature(struct vhost_dev *dev, int bit)
+ {
+ 	unsigned acked_features;
+ 
+-	acked_features =
+-		rcu_dereference_index_check(dev->acked_features,
+-					    lockdep_is_held(&dev->mutex));
++	/* TODO: check that we are running from vhost_worker or dev mutex is
++	 * held? */
++	acked_features = rcu_dereference_index_check(dev->acked_features, 1);
+ 	return acked_features & (1 << bit);
+ }
+ 
+-- 
+1.7.3.2.91.g446ac
