@@ -1,100 +1,56 @@
-From: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
-Subject: Re: [PATCH] vhost: rcu annotation fixup
-Date: Tue, 18 Jan 2011 12:28:46 -0800
-Message-ID: <20110118202846.GN2193@linux.vnet.ibm.com>
-References: <20110118110845.GA11555@redhat.com>
- <20110118174834.GF2193@linux.vnet.ibm.com>
- <20110118175500.GA6935@redhat.com>
- <20110118190232.GM2193@linux.vnet.ibm.com>
- <20110118201031.GC18760@redhat.com>
-Reply-To: paulmck@linux.vnet.ibm.com
+From: Rick Jones <rick.jones2@hp.com>
+Subject: Re: Flow Control and Port Mirroring Revisited
+Date: Tue, 18 Jan 2011 13:28:58 -0800
+Message-ID: <4D36061A.5060108@hp.com>
+References: <20110110093155.GB13420@verge.net.au>	<20110113064718.GA17905@verge.net.au>	<AANLkTimO=5HmTJO1kmHGAWa-HTac+3d0TbrmJX5W4hVu@mail.gmail.com>	<20110113234135.GC8426@verge.net.au>	<20110114045818.GA29738@redhat.com>	<20110114063528.GB10957@verge.net.au>	<20110114065415.GA30300@redhat.com>	<20110116223728.GA6279@verge.net.au>	<20110117102655.GH23479@redhat.com> <4D35ECE2.4040901@hp.com> <20110118201333.GD18760@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20110118201031.GC18760@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <20110118201333.GD18760@redhat.com>
+Sender: kvm-owner@vger.kernel.org
 To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jason Wang <jasowang@redhat.com>, kvm@vger.kernel.org, virtualization@lists.osdl.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Simon Horman <horms@verge.net.au>, Jesse Gross <jesse@nicira.com>, Eric Dumazet <eric.dumazet@gmail.com>, Rusty Russell <rusty@rustcorp.com.au>, virtualization@lists.linux-foundation.org, dev@openvswitch.org, virtualization@lists.osdl.org, netdev@vger.kernel.org, kvm@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jan 18, 2011 at 10:10:31PM +0200, Michael S. Tsirkin wrote:
-> On Tue, Jan 18, 2011 at 11:02:33AM -0800, Paul E. McKenney wrote:
-> > On Tue, Jan 18, 2011 at 07:55:00PM +0200, Michael S. Tsirkin wrote:
-> > > On Tue, Jan 18, 2011 at 09:48:34AM -0800, Paul E. McKenney wrote:
-> > > > On Tue, Jan 18, 2011 at 01:08:45PM +0200, Michael S. Tsirkin wrote:
-> > > > > When built with rcu checks enabled, vhost triggers
-> > > > > bogus warnings as vhost features are read without
-> > > > > dev->mutex sometimes.
-> > > > > Fixing it properly is not trivial as vhost.h does not
-> > > > > know which lockdep classes it will be used under.
-> > > > > Disable the warning by stubbing out the check for now.
-> > > > > 
-> > > > > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> > > > > ---
-> > > > >  drivers/vhost/vhost.h |    4 +---
-> > > > >  1 files changed, 1 insertions(+), 3 deletions(-)
-> > > > > 
-> > > > > diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
-> > > > > index 2af44b7..2d03a31 100644
-> > > > > --- a/drivers/vhost/vhost.h
-> > > > > +++ b/drivers/vhost/vhost.h
-> > > > > @@ -173,9 +173,7 @@ static inline int vhost_has_feature(struct vhost_dev *dev, int bit)
-> > > > >  {
-> > > > >  	unsigned acked_features;
-> > > > > 
-> > > > > -	acked_features =
-> > > > > -		rcu_dereference_index_check(dev->acked_features,
-> > > > > -					    lockdep_is_held(&dev->mutex));
-> > > > > +	acked_features = rcu_dereference_index_check(dev->acked_features, 1);
-> > > > 
-> > > > Ouch!!!
-> > > > 
-> > > > Could you please at least add a comment?
-> > > 
-> > > Yes, OK.
-> > > 
-> > > > Alternatively, pass in the lock that is held and check for that?  Given
-> > > > that this is a static inline, the compiler should be able to optimize
-> > > > the argument away when !PROVE_RCU, correct?
-> > > > 
-> > > > 							Thanx, Paul
-> > > 
-> > > Hopefully, yes. We don't always have a lock: the idea was
-> > > to create a lockdep for these cases. But we can't pass
-> > > the pointer to that ...
-> > 
-> > I suppose you could pass a pointer to the lockdep map structure.
-> > Not sure if this makes sense, but it would handle the situation.
+Michael S. Tsirkin wrote:
+> On Tue, Jan 18, 2011 at 11:41:22AM -0800, Rick Jones wrote:
 > 
-> Will it compile with lockdep disabled too? What will the pointer be?
-
-One (crude) approach would be to make the pointer void* if lockdep
-is disabled.
-
-> > Alternatively, create a helper function that checks the possibilities
-> > and screams if none of them are in effect.
-> > 
-> > 							Thanx, Paul
+>>PS - the enhanced latency statistics from -j are only available in
+>>the "omni" version of the TCP_RR test.  To get that add a
+>>--enable-omni to the ./configure - and in this case both netperf and
+>>netserver have to be recompiled.
 > 
-> The problem here is the callee needs to know about all callers.
+> Is this TCP only? I would love to get latency data from UDP as well.
 
-As does the guy reading the code.  ;-)
+I believe it will work with UDP request response as well.  The omni test code 
+strives to be protocol agnostic.  (I'm sure there are bugs of course, there 
+always are.)
 
-							Thanx, Paul
+There is though the added complication of there being no specific matching of 
+requests to responses.  The code as written takes advantage of TCP's in-order 
+semantics and recovery from packet loss.  In a "plain" UDP_RR test, with one at 
+a time transactions, if either the request or response are lost, data flow 
+effectively stops there until the timer expires.  So, one has "reasonable" RTT 
+numbers from before that point.  In a burst UDP RR test, the code doesn't know 
+which request/response was lost and so the matching being done to get RTTs will 
+be off by each lost datagram.  And if something were re-ordered the timstamps 
+would be off even without a datagram loss event.
 
-> > > > >  	return acked_features & (1 << bit);
-> > > > >  }
-> > > > > 
-> > > > > -- 
-> > > > > 1.7.3.2.91.g446ac
-> > > > > --
-> > > > > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > > > > the body of a message to majordomo@vger.kernel.org
-> > > > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > > > > Please read the FAQ at  http://www.tux.org/lkml/
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+To "fix" that would require netperf do something it has not yet done in 18-odd 
+years :)  That is actually echo something back from the netserver on the RR test 
+- either an id, or a timestamp.  That means "dirtying" the buffers which means 
+still more cache misses, from places other than the actual stack. Not beyond the 
+realm of the possible, but it would be a bit of departure for "normal" operation 
+(*) and could enforce a minimum request/response size beyond the present single 
+byte (ok, perhaps only two or four bytes :).  But that, perhaps, is a discussion 
+best left to netperf-talk at netperf.org.
+
+happy benchmarking,
+
+rick jones
+
+(*) netperf does have the concept of reading from and/or dirtying buffers, 
+put-in back in the days of COW/page-remapping in HP-UX 9.0, but that was mainly 
+to force COW and/or show the effect of the required data cache purges/flushes. 
+As such it was made conditional on DIRTY being defined.
