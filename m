@@ -1,54 +1,60 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH] vhost: rcu annotation fixup
-Date: Wed, 19 Jan 2011 07:18:40 +0200
-Message-ID: <20110119051839.GA29467@redhat.com>
-References: <20110118110845.GA11555@redhat.com>
- <20110119004040.GE18984@csn.ul.ie>
+From: Simon Horman <horms@verge.net.au>
+Subject: Re: Flow Control and Port Mirroring Revisited
+Date: Wed, 19 Jan 2011 18:11:36 +0900
+Message-ID: <20110119091135.GF1960@verge.net.au>
+References: <20110113064718.GA17905@verge.net.au>
+ <AANLkTimO=5HmTJO1kmHGAWa-HTac+3d0TbrmJX5W4hVu@mail.gmail.com>
+ <20110113234135.GC8426@verge.net.au>
+ <20110114045818.GA29738@redhat.com>
+ <20110114063528.GB10957@verge.net.au>
+ <20110114065415.GA30300@redhat.com>
+ <20110116223728.GA6279@verge.net.au>
+ <20110117102655.GH23479@redhat.com>
+ <4D35ECE2.4040901@hp.com>
+ <20110118201333.GD18760@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <netdev-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20110119004040.GE18984@csn.ul.ie>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Mel Gorman <mel@csn.ul.ie>
-Cc: Jason Wang <jasowang@redhat.com>, kvm@vger.kernel.org, virtualization@lists.osdl.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20110118201333.GD18760@redhat.com>
+Sender: netdev-owner@vger.kernel.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Rick Jones <rick.jones2@hp.com>, Jesse Gross <jesse@nicira.com>, Eric Dumazet <eric.dumazet@gmail.com>, Rusty Russell <rusty@rustcorp.com.au>, virtualization@lists.linux-foundation.org, dev@openvswitch.org, virtualization@lists.osdl.org, netdev@vger.kernel.org, kvm@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Jan 19, 2011 at 12:40:40AM +0000, Mel Gorman wrote:
-> On Tue, Jan 18, 2011 at 01:08:45PM +0200, Michael S. Tsirkin wrote:
-> > When built with rcu checks enabled, vhost triggers
-> > bogus warnings as vhost features are read without
-> > dev->mutex sometimes.
-> > Fixing it properly is not trivial as vhost.h does not
-> > know which lockdep classes it will be used under.
-> > Disable the warning by stubbing out the check for now.
+On Tue, Jan 18, 2011 at 10:13:33PM +0200, Michael S. Tsirkin wrote:
+> On Tue, Jan 18, 2011 at 11:41:22AM -0800, Rick Jones wrote:
+> > >So it won't be all that simple to implement well, and before we try,
+> > >I'd like to know whether there are applications that are helped
+> > >by it. For example, we could try to measure latency at various
+> > >pps and see whether the backpressure helps. netperf has -b, -w
+> > >flags which might help these measurements.
 > > 
+> > Those options are enabled when one adds --enable-burst to the
+> > pre-compilation ./configure  of netperf (one doesn't have to
+> > recompile netserver).  However, if one is also looking at latency
+> > statistics via the -j option in the top-of-trunk, or simply at the
+> > histogram with --enable-histogram on the ./configure and a verbosity
+> > level of 2 (global -v 2) then one wants the very top of trunk
+> > netperf from:
+> > 
+> > http://www.netperf.org/svn/netperf2/trunk
+> > 
+> > to get the recently added support for accurate (netperf level) RTT
+> > measuremnts on burst-mode request/response tests.
+> > 
+> > happy benchmarking,
+> > 
+> > rick jones
+
+Thanks Rick, that is really helpful.
+
+> > PS - the enhanced latency statistics from -j are only available in
+> > the "omni" version of the TCP_RR test.  To get that add a
+> > --enable-omni to the ./configure - and in this case both netperf and
+> > netserver have to be recompiled.
 > 
-> What is the harm in leaving the bogus warnings until the difficult fix
-> happens? RCU checks enabled does not seem like something that is enabled
-> in production.
+> 
+> Is this TCP only? I would love to get latency data from UDP as well.
 
-I would like to run with rcu checks enabled sometimes to debug kvm,
-which has an elaborate rcu strategy.  Bogus warnings in the log
-make it easy to overlook the real ones. Further, the rcu macros
-used are a form of documentation. If we have
--               rcu_dereference_index_check(dev->acked_features,
--                                           lockdep_is_held(&dev->mutex));
-this means 'taken in rcu read side critical section or under mutex',
-
-+       acked_features = rcu_dereference_index_check(dev->acked_features, 1);
-means 'not checked'.
-
-> If this patch is applied, there is always the risk that
-> it'll be simply forgotten about.
-
-Well, that's why I put in a TODO.
-If there's a demand for that, I can add a Kconfig option to
-trigger a warning at each unchecked rcu call in vhost-net
-but I doubt it'll get a lof of use :)
-
-
-> -- 
-> Mel Gorman
-> Part-time Phd Student                          Linux Technology Center
-> University of Limerick                         IBM Dublin Software Lab
+At a glance, -- -T UDP is what you are after.
