@@ -1,7 +1,7 @@
 From: Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>
-Subject: [PATCH 1/3] debugfs: Add support to print u32 array
-Date: Wed, 19 Jan 2011 22:37:11 +0530
-Message-ID: <20110119170710.GA726__13225.6942023107$1295457947$gmane$org@linux.vnet.ibm.com>
+Subject: [PATCH 3/3] kvm guest : Add support for pv-ticketlocks
+Date: Wed, 19 Jan 2011 22:47:57 +0530
+Message-ID: <20110119171757.GC726__46232.7556837865$1295458449$gmane$org@linux.vnet.ibm.com>
 References: <cover.1289940821.git.jeremy.fitzhardinge@citrix.com>
 	<20110119164432.GA30669@linux.vnet.ibm.com>
 Reply-To: vatsa@linux.vnet.ibm.com
@@ -24,343 +24,296 @@ To: Jeremy Fitzhardinge <jeremy@goop.org>
 Cc: Xen-devel <xen-devel@lists.xensource.com>, Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>, Nick Piggin <npiggin@kernel.dk>, kvm@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Jan Beulich <JBeulich@novell.com>, Eric Dumazet <dada1@cosmosbay.com>, Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, suzuki@in.ibm.com, Avi Kivity <avi@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, =?iso-8859-1?Q?Am=E9rico?= Wang <xiyou.wangcong@gmail.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Add debugfs support to print u32-arrays.
-
-Most of this comes from Xen-hypervisor sources, which has been refactored to
-make the code common for other users as well.
+This patch extends Linux guests running on KVM hypervisor to support
+pv-ticketlocks. Very early during bootup, paravirtualied KVM guest detects if 
+the hypervisor has required feature (KVM_FEATURE_WAIT_FOR_KICK) to support 
+pv-ticketlocks. If so, support for pv-ticketlocks is registered via pv_lock_ops.
 
 Signed-off-by: Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>
 Signed-off-by: Suzuki Poulose <suzuki@in.ibm.com>
 
 ---
- arch/x86/xen/debugfs.c    |  104 --------------------------------------------
- arch/x86/xen/debugfs.h    |    4 -
- arch/x86/xen/mmu.c        |    2 
- arch/x86/xen/multicalls.c |    6 +-
- arch/x86/xen/spinlock.c   |    2 
- fs/debugfs/file.c         |  108 ++++++++++++++++++++++++++++++++++++++++++++++
- include/linux/debugfs.h   |   11 ++++
- 7 files changed, 124 insertions(+), 113 deletions(-)
+ arch/x86/Kconfig                |    9 +
+ arch/x86/include/asm/kvm_para.h |    8 +
+ arch/x86/kernel/head64.c        |    3 
+ arch/x86/kernel/kvm.c           |  208 ++++++++++++++++++++++++++++++++++++++++
+ 4 files changed, 228 insertions(+)
 
-Index: linux-2.6.37/arch/x86/xen/debugfs.c
+Index: linux-2.6.37/arch/x86/Kconfig
 ===================================================================
---- linux-2.6.37.orig/arch/x86/xen/debugfs.c
-+++ linux-2.6.37/arch/x86/xen/debugfs.c
-@@ -19,107 +19,3 @@ struct dentry * __init xen_init_debugfs(
- 	return d_xen_debug;
+--- linux-2.6.37.orig/arch/x86/Kconfig
++++ linux-2.6.37/arch/x86/Kconfig
+@@ -508,6 +508,15 @@ config KVM_GUEST
+ 	  This option enables various optimizations for running under the KVM
+ 	  hypervisor.
+ 
++config KVM_DEBUG_FS
++	bool "Enable debug information for KVM Guests in debugfs"
++	depends on KVM_GUEST
++	default n
++	---help---
++	  This option enables collection of various statistics for KVM guest.
++   	  Statistics are displayed in debugfs filesystem. Enabling this option
++	  may incur significant overhead.
++
+ source "arch/x86/lguest/Kconfig"
+ 
+ config PARAVIRT
+Index: linux-2.6.37/arch/x86/include/asm/kvm_para.h
+===================================================================
+--- linux-2.6.37.orig/arch/x86/include/asm/kvm_para.h
++++ linux-2.6.37/arch/x86/include/asm/kvm_para.h
+@@ -162,8 +162,16 @@ static inline unsigned int kvm_arch_para
+ 
+ #ifdef CONFIG_KVM_GUEST
+ void __init kvm_guest_init(void);
++
++#ifdef CONFIG_PARAVIRT_SPINLOCKS
++void __init kvm_guest_early_init(void);
++#else
++#define kvm_guest_early_init() do { } while (0)
++#endif
++
+ #else
+ #define kvm_guest_init() do { } while (0)
++#define kvm_guest_early_init() do { } while (0)
+ #endif
+ 
+ #endif /* __KERNEL__ */
+Index: linux-2.6.37/arch/x86/kernel/head64.c
+===================================================================
+--- linux-2.6.37.orig/arch/x86/kernel/head64.c
++++ linux-2.6.37/arch/x86/kernel/head64.c
+@@ -13,6 +13,7 @@
+ #include <linux/start_kernel.h>
+ #include <linux/io.h>
+ #include <linux/memblock.h>
++#include <linux/kvm_para.h>
+ 
+ #include <asm/processor.h>
+ #include <asm/proto.h>
+@@ -118,6 +119,8 @@ void __init x86_64_start_reservations(ch
+ 
+ 	reserve_ebda_region();
+ 
++	kvm_guest_early_init();
++
+ 	/*
+ 	 * At this point everything still needed from the boot loader
+ 	 * or BIOS or kernel text should be early reserved or marked not
+Index: linux-2.6.37/arch/x86/kernel/kvm.c
+===================================================================
+--- linux-2.6.37.orig/arch/x86/kernel/kvm.c
++++ linux-2.6.37/arch/x86/kernel/kvm.c
+@@ -238,3 +238,211 @@ void __init kvm_guest_init(void)
+ 
+ 	paravirt_ops_setup();
  }
- 
--struct array_data
--{
--	void *array;
--	unsigned elements;
--};
--
--static int u32_array_open(struct inode *inode, struct file *file)
--{
--	file->private_data = NULL;
--	return nonseekable_open(inode, file);
--}
--
--static size_t format_array(char *buf, size_t bufsize, const char *fmt,
--			   u32 *array, unsigned array_size)
--{
--	size_t ret = 0;
--	unsigned i;
--
--	for(i = 0; i < array_size; i++) {
--		size_t len;
--
--		len = snprintf(buf, bufsize, fmt, array[i]);
--		len++;	/* ' ' or '\n' */
--		ret += len;
--
--		if (buf) {
--			buf += len;
--			bufsize -= len;
--			buf[-1] = (i == array_size-1) ? '\n' : ' ';
--		}
--	}
--
--	ret++;		/* \0 */
--	if (buf)
--		*buf = '\0';
--
--	return ret;
--}
--
--static char *format_array_alloc(const char *fmt, u32 *array, unsigned array_size)
--{
--	size_t len = format_array(NULL, 0, fmt, array, array_size);
--	char *ret;
--
--	ret = kmalloc(len, GFP_KERNEL);
--	if (ret == NULL)
--		return NULL;
--
--	format_array(ret, len, fmt, array, array_size);
--	return ret;
--}
--
--static ssize_t u32_array_read(struct file *file, char __user *buf, size_t len,
--			      loff_t *ppos)
--{
--	struct inode *inode = file->f_path.dentry->d_inode;
--	struct array_data *data = inode->i_private;
--	size_t size;
--
--	if (*ppos == 0) {
--		if (file->private_data) {
--			kfree(file->private_data);
--			file->private_data = NULL;
--		}
--
--		file->private_data = format_array_alloc("%u", data->array, data->elements);
--	}
--
--	size = 0;
--	if (file->private_data)
--		size = strlen(file->private_data);
--
--	return simple_read_from_buffer(buf, len, ppos, file->private_data, size);
--}
--
--static int xen_array_release(struct inode *inode, struct file *file)
--{
--	kfree(file->private_data);
--
--	return 0;
--}
--
--static const struct file_operations u32_array_fops = {
--	.owner	= THIS_MODULE,
--	.open	= u32_array_open,
--	.release= xen_array_release,
--	.read	= u32_array_read,
--	.llseek = no_llseek,
--};
--
--struct dentry *xen_debugfs_create_u32_array(const char *name, mode_t mode,
--					    struct dentry *parent,
--					    u32 *array, unsigned elements)
--{
--	struct array_data *data = kmalloc(sizeof(*data), GFP_KERNEL);
--
--	if (data == NULL)
--		return NULL;
--
--	data->array = array;
--	data->elements = elements;
--
--	return debugfs_create_file(name, mode, parent, data, &u32_array_fops);
--}
-Index: linux-2.6.37/arch/x86/xen/debugfs.h
-===================================================================
---- linux-2.6.37.orig/arch/x86/xen/debugfs.h
-+++ linux-2.6.37/arch/x86/xen/debugfs.h
-@@ -3,8 +3,4 @@
- 
- struct dentry * __init xen_init_debugfs(void);
- 
--struct dentry *xen_debugfs_create_u32_array(const char *name, mode_t mode,
--					    struct dentry *parent,
--					    u32 *array, unsigned elements);
--
- #endif /* _XEN_DEBUGFS_H */
-Index: linux-2.6.37/arch/x86/xen/mmu.c
-===================================================================
---- linux-2.6.37.orig/arch/x86/xen/mmu.c
-+++ linux-2.6.37/arch/x86/xen/mmu.c
-@@ -2757,7 +2757,7 @@ static int __init xen_mmu_debugfs(void)
- 	debugfs_create_u32("mmu_update", 0444, d_mmu_debug, &mmu_stats.mmu_update);
- 	debugfs_create_u32("mmu_update_extended", 0444, d_mmu_debug,
- 			   &mmu_stats.mmu_update_extended);
--	xen_debugfs_create_u32_array("mmu_update_histo", 0444, d_mmu_debug,
-+	debugfs_create_u32_array("mmu_update_histo", 0444, d_mmu_debug,
- 				     mmu_stats.mmu_update_histo, 20);
- 
- 	debugfs_create_u32("set_pte_at", 0444, d_mmu_debug, &mmu_stats.set_pte_at);
-Index: linux-2.6.37/arch/x86/xen/multicalls.c
-===================================================================
---- linux-2.6.37.orig/arch/x86/xen/multicalls.c
-+++ linux-2.6.37/arch/x86/xen/multicalls.c
-@@ -269,11 +269,11 @@ static int __init xen_mc_debugfs(void)
- 	debugfs_create_u32("hypercalls", 0444, d_mc_debug, &mc_stats.hypercalls);
- 	debugfs_create_u32("arg_total", 0444, d_mc_debug, &mc_stats.arg_total);
- 
--	xen_debugfs_create_u32_array("batch_histo", 0444, d_mc_debug,
-+	debugfs_create_u32_array("batch_histo", 0444, d_mc_debug,
- 				     mc_stats.histo, MC_BATCH);
--	xen_debugfs_create_u32_array("hypercall_histo", 0444, d_mc_debug,
-+	debugfs_create_u32_array("hypercall_histo", 0444, d_mc_debug,
- 				     mc_stats.histo_hypercalls, NHYPERCALLS);
--	xen_debugfs_create_u32_array("flush_reasons", 0444, d_mc_debug,
-+	debugfs_create_u32_array("flush_reasons", 0444, d_mc_debug,
- 				     mc_stats.flush, FL_N_REASONS);
- 
- 	return 0;
-Index: linux-2.6.37/arch/x86/xen/spinlock.c
-===================================================================
---- linux-2.6.37.orig/arch/x86/xen/spinlock.c
-+++ linux-2.6.37/arch/x86/xen/spinlock.c
-@@ -228,7 +228,7 @@ static int __init xen_spinlock_debugfs(v
- 	debugfs_create_u64("time_blocked", 0444, d_spin_debug,
- 			   &spinlock_stats.time_blocked);
- 
--	xen_debugfs_create_u32_array("histo_blocked", 0444, d_spin_debug,
++
++#ifdef CONFIG_PARAVIRT_SPINLOCKS
++
++#ifdef CONFIG_KVM_DEBUG_FS
++
++#include <linux/debugfs.h>
++#include <linux/sched.h>
++
++static struct kvm_spinlock_stats
++{
++	u32 taken_slow;
++	u32 taken_slow_pickup;
++
++	u32 released_slow;
++	u32 released_slow_kicked;
++
++#define HISTO_BUCKETS	30
++	u32 histo_spin_blocked[HISTO_BUCKETS+1];
++
++	u64 time_blocked;
++} spinlock_stats;
++
++static u8 zero_stats;
++
++static inline void check_zero(void)
++{
++	if (unlikely(zero_stats)) {
++		memset(&spinlock_stats, 0, sizeof(spinlock_stats));
++		zero_stats = 0;
++	}
++}
++
++#define ADD_STATS(elem, val)			\
++	do { check_zero(); spinlock_stats.elem += (val); } while (0)
++
++static inline u64 spin_time_start(void)
++{
++	return sched_clock();
++}
++
++static void __spin_time_accum(u64 delta, u32 *array)
++{
++	unsigned index = ilog2(delta);
++
++	check_zero();
++
++	if (index < HISTO_BUCKETS)
++		array[index]++;
++	else
++		array[HISTO_BUCKETS]++;
++}
++
++static inline void spin_time_accum_blocked(u64 start)
++{
++	u32 delta = sched_clock() - start;
++
++	__spin_time_accum(delta, spinlock_stats.histo_spin_blocked);
++	spinlock_stats.time_blocked += delta;
++}
++
++static struct dentry *d_spin_debug;
++static struct dentry *d_kvm_debug;
++
++struct dentry *kvm_init_debugfs(void)
++{
++	d_kvm_debug = debugfs_create_dir("kvm", NULL);
++	if (!d_kvm_debug)
++		printk(KERN_WARNING "Could not create 'kvm' debugfs directory\n");
++
++	return d_kvm_debug;
++}
++
++static int __init kvm_spinlock_debugfs(void)
++{
++	struct dentry *d_kvm = kvm_init_debugfs();
++
++	if (d_kvm == NULL)
++		return -ENOMEM;
++
++	d_spin_debug = debugfs_create_dir("spinlocks", d_kvm);
++
++	debugfs_create_u8("zero_stats", 0644, d_spin_debug, &zero_stats);
++
++	debugfs_create_u32("taken_slow", 0444, d_spin_debug,
++			   &spinlock_stats.taken_slow);
++	debugfs_create_u32("taken_slow_pickup", 0444, d_spin_debug,
++			   &spinlock_stats.taken_slow_pickup);
++
++	debugfs_create_u32("released_slow", 0444, d_spin_debug,
++			   &spinlock_stats.released_slow);
++	debugfs_create_u32("released_slow_kicked", 0444, d_spin_debug,
++			   &spinlock_stats.released_slow_kicked);
++
++	debugfs_create_u64("time_blocked", 0444, d_spin_debug,
++			   &spinlock_stats.time_blocked);
++
 +	debugfs_create_u32_array("histo_blocked", 0444, d_spin_debug,
- 				     spinlock_stats.histo_spin_blocked, HISTO_BUCKETS + 1);
- 
- 	return 0;
-Index: linux-2.6.37/fs/debugfs/file.c
-===================================================================
---- linux-2.6.37.orig/fs/debugfs/file.c
-+++ linux-2.6.37/fs/debugfs/file.c
-@@ -18,6 +18,7 @@
- #include <linux/pagemap.h>
- #include <linux/namei.h>
- #include <linux/debugfs.h>
-+#include <linux/slab.h>
- 
- static ssize_t default_read_file(struct file *file, char __user *buf,
- 				 size_t count, loff_t *ppos)
-@@ -534,3 +535,110 @@ struct dentry *debugfs_create_blob(const
- 	return debugfs_create_file(name, mode, parent, blob, &fops_blob);
- }
- EXPORT_SYMBOL_GPL(debugfs_create_blob);
-+
-+struct array_data {
-+	void *array;
-+	unsigned elements;
-+};
-+
-+static int u32_array_open(struct inode *inode, struct file *file)
-+{
-+	file->private_data = NULL;
-+	return nonseekable_open(inode, file);
-+}
-+
-+static size_t format_array(char *buf, size_t bufsize, const char *fmt,
-+			   u32 *array, unsigned array_size)
-+{
-+	size_t ret = 0;
-+	unsigned i;
-+
-+	for (i = 0; i < array_size; i++) {
-+		size_t len;
-+
-+		len = snprintf(buf, bufsize, fmt, array[i]);
-+		len++;	/* ' ' or '\n' */
-+		ret += len;
-+
-+		if (buf) {
-+			buf += len;
-+			bufsize -= len;
-+			buf[-1] = (i == array_size-1) ? '\n' : ' ';
-+		}
-+	}
-+
-+	ret++;		/* \0 */
-+	if (buf)
-+		*buf = '\0';
-+
-+	return ret;
-+}
-+
-+static char *
-+format_array_alloc(const char *fmt, u32 *array, unsigned array_size)
-+{
-+	size_t len = format_array(NULL, 0, fmt, array, array_size);
-+	char *ret;
-+
-+	ret = kmalloc(len, GFP_KERNEL);
-+	if (ret == NULL)
-+		return NULL;
-+
-+	format_array(ret, len, fmt, array, array_size);
-+	return ret;
-+}
-+
-+static ssize_t u32_array_read(struct file *file, char __user *buf, size_t len,
-+			      loff_t *ppos)
-+{
-+	struct inode *inode = file->f_path.dentry->d_inode;
-+	struct array_data *data = inode->i_private;
-+	size_t size;
-+
-+	if (*ppos == 0) {
-+		if (file->private_data) {
-+			kfree(file->private_data);
-+			file->private_data = NULL;
-+		}
-+
-+		file->private_data =
-+			 format_array_alloc("%u", data->array, data->elements);
-+	}
-+
-+	size = 0;
-+	if (file->private_data)
-+		size = strlen(file->private_data);
-+
-+	return simple_read_from_buffer(buf, len, ppos,
-+					 file->private_data, size);
-+}
-+
-+static int u32_array_release(struct inode *inode, struct file *file)
-+{
-+	kfree(file->private_data);
++		     spinlock_stats.histo_spin_blocked, HISTO_BUCKETS + 1);
 +
 +	return 0;
 +}
++fs_initcall(kvm_spinlock_debugfs);
++#else  /* !CONFIG_KVM_DEBUG_FS */
++#define TIMEOUT			(1 << 10)
++#define ADD_STATS(elem, val)	do { (void)(val); } while (0)
 +
-+static const struct file_operations u32_array_fops = {
-+	.owner	 = THIS_MODULE,
-+	.open	 = u32_array_open,
-+	.release = u32_array_release,
-+	.read	 = u32_array_read,
-+	.llseek  = no_llseek,
++static inline u64 spin_time_start(void)
++{
++	return 0;
++}
++
++static inline void spin_time_accum_blocked(u64 start)
++{
++}
++#endif  /* CONFIG_KVM_DEBUG_FS */
++
++struct kvm_lock_waiting {
++	struct arch_spinlock *lock;
++	__ticket_t want;
 +};
 +
-+struct dentry *debugfs_create_u32_array(const char *name, mode_t mode,
-+					    struct dentry *parent,
-+					    u32 *array, unsigned elements)
++/* cpus 'waiting' on a spinlock to become available */
++static cpumask_t waiting_cpus;
++
++/* Track spinlock on which a cpu is waiting */
++static DEFINE_PER_CPU(struct kvm_lock_waiting, lock_waiting);
++
++static inline void kvm_wait_for_kick(void)
 +{
-+	struct array_data *data = kmalloc(sizeof(*data), GFP_KERNEL);
-+
-+	if (data == NULL)
-+		return NULL;
-+
-+	data->array = array;
-+	data->elements = elements;
-+
-+	return debugfs_create_file(name, mode, parent, data, &u32_array_fops);
++	kvm_hypercall0(KVM_HC_WAIT_FOR_KICK);
 +}
-Index: linux-2.6.37/include/linux/debugfs.h
-===================================================================
---- linux-2.6.37.orig/include/linux/debugfs.h
-+++ linux-2.6.37/include/linux/debugfs.h
-@@ -74,6 +74,10 @@ struct dentry *debugfs_create_blob(const
- 				  struct dentry *parent,
- 				  struct debugfs_blob_wrapper *blob);
- 
-+struct dentry *debugfs_create_u32_array(const char *name, mode_t mode,
-+					    struct dentry *parent,
-+					    u32 *array, unsigned elements);
 +
- bool debugfs_initialized(void);
- 
- #else
-@@ -187,6 +191,13 @@ static inline struct dentry *debugfs_cre
- {
- 	return ERR_PTR(-ENODEV);
- }
-+
-+struct dentry *debugfs_create_u32_array(const char *name, mode_t mode,
-+					    struct dentry *parent,
-+					    u32 *array, unsigned elements)
++static void kvm_lock_spinning(struct arch_spinlock *lock, unsigned want)
 +{
-+	return ERR_PTR(-ENODEV);
++	struct kvm_lock_waiting *w = &__get_cpu_var(lock_waiting);
++	int cpu = smp_processor_id();
++	u64 start;
++
++	start = spin_time_start();
++
++	w->want = want;
++	w->lock = lock;
++
++	ADD_STATS(taken_slow, 1);
++
++	cpumask_set_cpu(cpu, &waiting_cpus);
++
++	/* Mark entry to slowpath before doing the pickup test to make
++	   sure we don't deadlock with an unlocker. */
++	__ticket_enter_slowpath(lock);
++
++	/* check again make sure it didn't become free while
++	   we weren't looking  */
++	if (ACCESS_ONCE(lock->tickets.head) == want) {
++		ADD_STATS(taken_slow_pickup, 1);
++		goto out;
++	}
++
++	kvm_wait_for_kick();
++
++out:
++	cpumask_clear_cpu(cpu, &waiting_cpus);
++	w->lock = NULL;
++	spin_time_accum_blocked(start);
 +}
- 
- static inline bool debugfs_initialized(void)
- {
++PV_CALLEE_SAVE_REGS_THUNK(kvm_lock_spinning);
++
++/* Kick a cpu */
++static inline void kvm_kick_cpu(int cpu)
++{
++	kvm_hypercall1(KVM_HC_KICK_CPU, cpu);
++}
++
++/* Kick vcpu waiting on @lock->head to reach value @ticket */
++static void kvm_unlock_kick(struct arch_spinlock *lock, unsigned ticket)
++{
++	int cpu;
++
++	ADD_STATS(released_slow, 1);
++
++	for_each_cpu(cpu, &waiting_cpus) {
++		const struct kvm_lock_waiting *w = &per_cpu(lock_waiting, cpu);
++		if (w->lock == lock && w->want == ticket) {
++			ADD_STATS(released_slow_kicked, 1);
++			kvm_kick_cpu(cpu);
++			break;
++		}
++	}
++}
++
++/*
++ * Setup pv_lock_ops to exploit KVM_FEATURE_WAIT_FOR_KICK if present.
++ * This needs to be setup really early in boot, before the first call to
++ * spinlock is issued!
++ */
++void __init kvm_guest_early_init(void)
++{
++	if (!kvm_para_available())
++		return;
++
++	/* Does host kernel support KVM_FEATURE_WAIT_FOR_KICK? */
++	if (!kvm_para_has_feature(KVM_FEATURE_WAIT_FOR_KICK))
++		return;
++
++	pv_lock_ops.lock_spinning = PV_CALLEE_SAVE(kvm_lock_spinning);
++	pv_lock_ops.unlock_kick = kvm_unlock_kick;
++}
++#endif	/* CONFIG_PARAVIRT_SPINLOCKS */
