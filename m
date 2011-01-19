@@ -1,17 +1,15 @@
 From: Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>
-Subject: Re: [PATCH 13/14] x86/ticketlock: add slowpath logic
-Date: Wed, 19 Jan 2011 21:53:48 +0530
-Message-ID: <20110119162348.GA29900__43345.327609177$1295455122$gmane$org@linux.vnet.ibm.com>
+Subject: Re: [PATCH 00/14] PV ticket locks without expanding spinlock
+Date: Wed, 19 Jan 2011 22:14:33 +0530
+Message-ID: <20110119164432.GA30669__18749.481769237$1295456438$gmane$org@linux.vnet.ibm.com>
 References: <cover.1289940821.git.jeremy.fitzhardinge@citrix.com>
-	<97ed99ae9160bdb6477284b333bd6708fb7a19cb.1289940821.git.jeremy.fitzhardinge@citrix.com>
-	<20110117152222.GA19233@linux.vnet.ibm.com>
 Reply-To: vatsa@linux.vnet.ibm.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20110117152222.GA19233@linux.vnet.ibm.com>
+In-Reply-To: <cover.1289940821.git.jeremy.fitzhardinge@citrix.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -22,107 +20,25 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Xen-devel <xen-devel@lists.xensource.com>, Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>, Nick Piggin <npiggin@kernel.dk>, Peter Zijlstra <peterz@infradead.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Jan Beulich <JBeulich@novell.com>, Eric Dumazet <dada1@cosmosbay.com>, Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, suzuki@in.ibm.com, Avi Kivity <avi@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, =?iso-8859-1?Q?Am=E9rico?= Wang <xiyou.wangcong@gmail.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>
+Cc: Xen-devel <xen-devel@lists.xensource.com>, Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>, Nick Piggin <npiggin@kernel.dk>, kvm@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Jan Beulich <JBeulich@novell.com>, Eric Dumazet <dada1@cosmosbay.com>, Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, suzuki@in.ibm.com, Avi Kivity <avi@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, =?iso-8859-1?Q?Am=E9rico?= Wang <xiyou.wangcong@gmail.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Jan 17, 2011 at 08:52:22PM +0530, Srivatsa Vaddagiri wrote:
-> I think this is still racy ..
+On Tue, Nov 16, 2010 at 01:08:31PM -0800, Jeremy Fitzhardinge wrote:
+> From: Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>
 > 
-> Unlocker				Locker
+> Hi all,
 > 
-> 				
-> test slowpath
-> 	-> false
-> 		
-> 				set slowpath flag
-> 				test for lock pickup
-> 					-> fail
-> 				block
-> 
-> 
-> unlock
-> 
-> unlock needs to happen first before testing slowpath? I have made that change
-> for my KVM guest and it seems to be working well with that change .. Will
-> cleanup and post my patches shortly
+> This is a revised version of the pvticket lock series.
 
-Patch below fixes the race described above. You can fold this to your patch
-13/14 if you agree this is in right direction.
+The 3-patch series to follow this email extends KVM-hypervisor and Linux guest 
+running on KVM-hypervisor to support pv-ticket spinlocks.
 
+Two hypercalls are being introduced in KVM hypervisor, one that allows a
+vcpu (spinning on a lock) to block and another that allows a vcpu to kick
+another out of blocking state.
 
-Signed-off-by: Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>
+Patches are against 2.6.37 mainline kernel. I also don't yet have numbers 
+at this time to show benefit of pv-ticketlocks - I would think the benefit
+should be similar across hypervisors (Xen and KVM in this case).
 
----
- arch/x86/include/asm/spinlock.h      |    7 +++----
- arch/x86/kernel/paravirt-spinlocks.c |   22 +++++-----------------
- 2 files changed, 8 insertions(+), 21 deletions(-)
-
-Index: linux-2.6.37/arch/x86/include/asm/spinlock.h
-===================================================================
---- linux-2.6.37.orig/arch/x86/include/asm/spinlock.h
-+++ linux-2.6.37/arch/x86/include/asm/spinlock.h
-@@ -55,7 +55,7 @@ static __always_inline void __ticket_unl
- 
- /* Only defined when CONFIG_PARAVIRT_SPINLOCKS defined, but may as
-  * well leave the prototype always visible.  */
--extern void __ticket_unlock_release_slowpath(struct arch_spinlock *lock);
-+extern void __ticket_unlock_slowpath(struct arch_spinlock *lock);
- 
- #ifdef CONFIG_PARAVIRT_SPINLOCKS
- 
-@@ -166,10 +166,9 @@ static __always_inline int arch_spin_try
- static __always_inline void arch_spin_unlock(arch_spinlock_t *lock)
- {
- 	barrier();		/* prevent reordering out of locked region */
-+	__ticket_unlock_release(lock);
- 	if (unlikely(__ticket_in_slowpath(lock)))
--		__ticket_unlock_release_slowpath(lock);
--	else
--		__ticket_unlock_release(lock);
-+		__ticket_unlock_slowpath(lock);
- 	barrier();		/* prevent reordering into locked region */
- }
- 
-Index: linux-2.6.37/arch/x86/kernel/paravirt-spinlocks.c
-===================================================================
---- linux-2.6.37.orig/arch/x86/kernel/paravirt-spinlocks.c
-+++ linux-2.6.37/arch/x86/kernel/paravirt-spinlocks.c
-@@ -22,33 +22,21 @@ EXPORT_SYMBOL(pv_lock_ops);
-  * bits.  However, we need to be careful about this because someone
-  * may just be entering as we leave, and enter the slowpath.
-  */
--void __ticket_unlock_release_slowpath(struct arch_spinlock *lock)
-+void __ticket_unlock_slowpath(struct arch_spinlock *lock)
- {
- 	struct arch_spinlock old, new;
- 
- 	BUILD_BUG_ON(((__ticket_t)NR_CPUS) != NR_CPUS);
- 
- 	old = ACCESS_ONCE(*lock);
--
- 	new = old;
--	new.tickets.head += TICKET_LOCK_INC;
- 
- 	/* Clear the slowpath flag */
- 	new.tickets.tail &= ~TICKET_SLOWPATH_FLAG;
-+	if (new.tickets.head == new.tickets.tail)
-+		cmpxchg(&lock->head_tail, old.head_tail, new.head_tail);
- 
--	/*
--	 * If there's currently people waiting or someone snuck in
--	 * since we read the lock above, then do a normal unlock and
--	 * kick.  If we managed to unlock with no queued waiters, then
--	 * we can clear the slowpath flag.
--	 */
--	if (new.tickets.head != new.tickets.tail ||
--	    cmpxchg(&lock->head_tail,
--		    old.head_tail, new.head_tail) != old.head_tail) {
--		/* still people waiting */
--		__ticket_unlock_release(lock);
--	}
--
-+	/* Wake up an appropriate waiter */
- 	__ticket_unlock_kick(lock, new.tickets.head);
- }
--EXPORT_SYMBOL(__ticket_unlock_release_slowpath);
-+EXPORT_SYMBOL(__ticket_unlock_slowpath);
+- vatsa
