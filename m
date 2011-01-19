@@ -1,60 +1,128 @@
-From: Simon Horman <horms@verge.net.au>
-Subject: Re: Flow Control and Port Mirroring Revisited
-Date: Wed, 19 Jan 2011 18:11:36 +0900
-Message-ID: <20110119091135.GF1960@verge.net.au>
-References: <20110113064718.GA17905@verge.net.au>
- <AANLkTimO=5HmTJO1kmHGAWa-HTac+3d0TbrmJX5W4hVu@mail.gmail.com>
- <20110113234135.GC8426@verge.net.au>
- <20110114045818.GA29738@redhat.com>
- <20110114063528.GB10957@verge.net.au>
- <20110114065415.GA30300@redhat.com>
- <20110116223728.GA6279@verge.net.au>
- <20110117102655.GH23479@redhat.com>
- <4D35ECE2.4040901@hp.com>
- <20110118201333.GD18760@redhat.com>
+From: Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>
+Subject: Re: [PATCH 13/14] x86/ticketlock: add slowpath logic
+Date: Wed, 19 Jan 2011 21:53:48 +0530
+Message-ID: <20110119162348.GA29900__43345.327609177$1295455122$gmane$org@linux.vnet.ibm.com>
+References: <cover.1289940821.git.jeremy.fitzhardinge@citrix.com>
+	<97ed99ae9160bdb6477284b333bd6708fb7a19cb.1289940821.git.jeremy.fitzhardinge@citrix.com>
+	<20110117152222.GA19233@linux.vnet.ibm.com>
+Reply-To: vatsa@linux.vnet.ibm.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <netdev-owner@vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20110118201333.GD18760@redhat.com>
-Sender: netdev-owner@vger.kernel.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Rick Jones <rick.jones2@hp.com>, Jesse Gross <jesse@nicira.com>, Eric Dumazet <eric.dumazet@gmail.com>, Rusty Russell <rusty@rustcorp.com.au>, virtualization@lists.linux-foundation.org, dev@openvswitch.org, virtualization@lists.osdl.org, netdev@vger.kernel.org, kvm@vger.kernel.org
+In-Reply-To: <20110117152222.GA19233@linux.vnet.ibm.com>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Xen-devel <xen-devel@lists.xensource.com>, Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>, Nick Piggin <npiggin@kernel.dk>, Peter Zijlstra <peterz@infradead.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Jan Beulich <JBeulich@novell.com>, Eric Dumazet <dada1@cosmosbay.com>, Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, suzuki@in.ibm.com, Avi Kivity <avi@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, =?iso-8859-1?Q?Am=E9rico?= Wang <xiyou.wangcong@gmail.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jan 18, 2011 at 10:13:33PM +0200, Michael S. Tsirkin wrote:
-> On Tue, Jan 18, 2011 at 11:41:22AM -0800, Rick Jones wrote:
-> > >So it won't be all that simple to implement well, and before we try,
-> > >I'd like to know whether there are applications that are helped
-> > >by it. For example, we could try to measure latency at various
-> > >pps and see whether the backpressure helps. netperf has -b, -w
-> > >flags which might help these measurements.
-> > 
-> > Those options are enabled when one adds --enable-burst to the
-> > pre-compilation ./configure  of netperf (one doesn't have to
-> > recompile netserver).  However, if one is also looking at latency
-> > statistics via the -j option in the top-of-trunk, or simply at the
-> > histogram with --enable-histogram on the ./configure and a verbosity
-> > level of 2 (global -v 2) then one wants the very top of trunk
-> > netperf from:
-> > 
-> > http://www.netperf.org/svn/netperf2/trunk
-> > 
-> > to get the recently added support for accurate (netperf level) RTT
-> > measuremnts on burst-mode request/response tests.
-> > 
-> > happy benchmarking,
-> > 
-> > rick jones
-
-Thanks Rick, that is really helpful.
-
-> > PS - the enhanced latency statistics from -j are only available in
-> > the "omni" version of the TCP_RR test.  To get that add a
-> > --enable-omni to the ./configure - and in this case both netperf and
-> > netserver have to be recompiled.
+On Mon, Jan 17, 2011 at 08:52:22PM +0530, Srivatsa Vaddagiri wrote:
+> I think this is still racy ..
+> 
+> Unlocker				Locker
+> 
+> 				
+> test slowpath
+> 	-> false
+> 		
+> 				set slowpath flag
+> 				test for lock pickup
+> 					-> fail
+> 				block
 > 
 > 
-> Is this TCP only? I would love to get latency data from UDP as well.
+> unlock
+> 
+> unlock needs to happen first before testing slowpath? I have made that change
+> for my KVM guest and it seems to be working well with that change .. Will
+> cleanup and post my patches shortly
 
-At a glance, -- -T UDP is what you are after.
+Patch below fixes the race described above. You can fold this to your patch
+13/14 if you agree this is in right direction.
+
+
+Signed-off-by: Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>
+
+---
+ arch/x86/include/asm/spinlock.h      |    7 +++----
+ arch/x86/kernel/paravirt-spinlocks.c |   22 +++++-----------------
+ 2 files changed, 8 insertions(+), 21 deletions(-)
+
+Index: linux-2.6.37/arch/x86/include/asm/spinlock.h
+===================================================================
+--- linux-2.6.37.orig/arch/x86/include/asm/spinlock.h
++++ linux-2.6.37/arch/x86/include/asm/spinlock.h
+@@ -55,7 +55,7 @@ static __always_inline void __ticket_unl
+ 
+ /* Only defined when CONFIG_PARAVIRT_SPINLOCKS defined, but may as
+  * well leave the prototype always visible.  */
+-extern void __ticket_unlock_release_slowpath(struct arch_spinlock *lock);
++extern void __ticket_unlock_slowpath(struct arch_spinlock *lock);
+ 
+ #ifdef CONFIG_PARAVIRT_SPINLOCKS
+ 
+@@ -166,10 +166,9 @@ static __always_inline int arch_spin_try
+ static __always_inline void arch_spin_unlock(arch_spinlock_t *lock)
+ {
+ 	barrier();		/* prevent reordering out of locked region */
++	__ticket_unlock_release(lock);
+ 	if (unlikely(__ticket_in_slowpath(lock)))
+-		__ticket_unlock_release_slowpath(lock);
+-	else
+-		__ticket_unlock_release(lock);
++		__ticket_unlock_slowpath(lock);
+ 	barrier();		/* prevent reordering into locked region */
+ }
+ 
+Index: linux-2.6.37/arch/x86/kernel/paravirt-spinlocks.c
+===================================================================
+--- linux-2.6.37.orig/arch/x86/kernel/paravirt-spinlocks.c
++++ linux-2.6.37/arch/x86/kernel/paravirt-spinlocks.c
+@@ -22,33 +22,21 @@ EXPORT_SYMBOL(pv_lock_ops);
+  * bits.  However, we need to be careful about this because someone
+  * may just be entering as we leave, and enter the slowpath.
+  */
+-void __ticket_unlock_release_slowpath(struct arch_spinlock *lock)
++void __ticket_unlock_slowpath(struct arch_spinlock *lock)
+ {
+ 	struct arch_spinlock old, new;
+ 
+ 	BUILD_BUG_ON(((__ticket_t)NR_CPUS) != NR_CPUS);
+ 
+ 	old = ACCESS_ONCE(*lock);
+-
+ 	new = old;
+-	new.tickets.head += TICKET_LOCK_INC;
+ 
+ 	/* Clear the slowpath flag */
+ 	new.tickets.tail &= ~TICKET_SLOWPATH_FLAG;
++	if (new.tickets.head == new.tickets.tail)
++		cmpxchg(&lock->head_tail, old.head_tail, new.head_tail);
+ 
+-	/*
+-	 * If there's currently people waiting or someone snuck in
+-	 * since we read the lock above, then do a normal unlock and
+-	 * kick.  If we managed to unlock with no queued waiters, then
+-	 * we can clear the slowpath flag.
+-	 */
+-	if (new.tickets.head != new.tickets.tail ||
+-	    cmpxchg(&lock->head_tail,
+-		    old.head_tail, new.head_tail) != old.head_tail) {
+-		/* still people waiting */
+-		__ticket_unlock_release(lock);
+-	}
+-
++	/* Wake up an appropriate waiter */
+ 	__ticket_unlock_kick(lock, new.tickets.head);
+ }
+-EXPORT_SYMBOL(__ticket_unlock_release_slowpath);
++EXPORT_SYMBOL(__ticket_unlock_slowpath);
