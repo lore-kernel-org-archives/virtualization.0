@@ -1,17 +1,11 @@
-From: "Jan Beulich" <JBeulich@novell.com>
-Subject: Re: [PATCH 13/14] x86/ticketlock: add slowpath logic
-Date: Thu, 20 Jan 2011 09:52:21 +0000
-Message-ID: <4D3813E5020000780002D5FA__35834.9744500176$1295517172$gmane$org@vpn.id2.novell.com>
-References: <cover.1289940821.git.jeremy.fitzhardinge@citrix.com>
-	<97ed99ae9160bdb6477284b333bd6708fb7a19cb.1289940821.git.jeremy.fitzhardinge@citrix.com>
-	<20110117152222.GA19233@linux.vnet.ibm.com> <4D372DEA.1060004@goop.org>
-	<20110119183914.GB7235@linux.vnet.ibm.com> <4D37338E.8030509@goop.org>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: [PULL] lguest and virtio.
+Date: Thu, 20 Jan 2011 21:43:31 +1030
+Message-ID: <201101202143.32012.rusty__47139.2166022726$1295522157$gmane$org@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4D37338E.8030509@goop.org>
-Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -21,24 +15,40 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>, Nick Piggin <npiggin@kernel.dk>, Peter Zijlstra <peterz@infradead.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, vatsa@linux.vnet.ibm.com, Eric Dumazet <dada1@cosmosbay.com>, Xen-devel <xen-devel@lists.xensource.com>, suzuki@in.ibm.com, Avi Kivity <avi@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, xiyou.wangcong@gmail.com, Linux Virtualization <virtualization@lists.linux-foundation.org>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: lguest <lguest@ozlabs.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
->>> On 19.01.11 at 19:55, Jeremy Fitzhardinge <jeremy@goop.org> wrote:
-> On 01/19/2011 10:39 AM, Srivatsa Vaddagiri wrote:
->> I have tested quite extensively with booting a 16-vcpu guest (on a 16-pcpu 
-> host)
->> and running kernel compine (with 32-threads). Without this patch, I had
->> difficulty booting/shutting-down successfully (it would hang mid-way).
-> 
-> Sounds good.  But I like to test with "make -j 100-200" to really give
-> things a workout.
+The following changes since commit 8a335bc631ac9c43675821580c26ebf95a3044ba:
 
-Hmm, in my experience, heavily over-committing CPUs (e.g. a
-domain with double or more the vCPU-s that the system has
-pCPU-s, or the pCPU-s the domain is allowed to run on) is a
-much better test for eventual problems in the spin lock code
-paths.
+  Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/nab/scsi-post-merge-2.6 (2011-01-16 15:06:43 -0800)
 
-Jan
+are available in the git repository at:
+
+  ssh://master.kernel.org/pub/scm/linux/kernel/git/rusty/linux-2.6-for-linus.git master
+
+Christoph Lameter (1):
+      lguest: Use this_cpu_ops
+
+Milton Miller (1):
+      virtio: remove virtio-pci root device
+
+Philip Sanderson (3):
+      lguest: --username and --chroot options
+      lguest: example launcher to use guard pages, drop PROT_EXEC, fix limit logic
+      lguest: document --rng in example Launcher
+
+Randy Dunlap (1):
+      LGUEST_GUEST: fix unmet direct dependencies (VIRTUALIZATION && VIRTIO)
+
+Rusty Russell (1):
+      lguest: compile fixes
+
+ Documentation/lguest/lguest.c   |   73 ++++++++++++++++++++++++++++++++++----
+ Documentation/lguest/lguest.txt |    5 +++
+ arch/x86/lguest/Kconfig         |    1 +
+ arch/x86/lguest/boot.c          |    2 +-
+ drivers/lguest/page_tables.c    |    2 +-
+ drivers/lguest/x86/core.c       |    4 +-
+ drivers/virtio/virtio_pci.c     |   20 +---------
+ 7 files changed, 77 insertions(+), 30 deletions(-)
