@@ -1,21 +1,15 @@
-From: Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>
-Subject: Re: [PATCH 2/3] kvm hypervisor : Add hypercalls to support
-	pv-ticketlock
-Date: Thu, 20 Jan 2011 20:04:30 +0530
-Message-ID: <20110120143430.GA17815__21205.437629442$1295534215$gmane$org@linux.vnet.ibm.com>
-References: <cover.1289940821.git.jeremy.fitzhardinge@citrix.com>
-	<20110119164432.GA30669@linux.vnet.ibm.com>
-	<20110119171239.GB726@linux.vnet.ibm.com>
-	<1295457672.28776.144.camel@laptop> <4D373340.60608@goop.org>
-	<20110120115958.GB11177@linux.vnet.ibm.com>
-	<1295530906.28776.171.camel@laptop>
-Reply-To: vatsa@linux.vnet.ibm.com
+From: Greg KH <gregkh@suse.de>
+Subject: Re: [PATCH] change acquire/release_console_sem() to
+	console_lock/unlock()
+Date: Thu, 20 Jan 2011 08:34:48 -0800
+Message-ID: <20110120163448.GA30588@suse.de>
+References: <1295539104-13210-1-git-send-email-torbenh@gmx.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1295530906.28776.171.camel@laptop>
+In-Reply-To: <1295539104-13210-1-git-send-email-torbenh@gmx.de>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -25,26 +19,31 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Peter Zijlstra <peterz@infradead.org>
-Cc: Xen-devel <xen-devel@lists.xensource.com>, Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>, Nick Piggin <npiggin@kernel.dk>, kvm@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Jan Beulich <JBeulich@novell.com>, Eric Dumazet <dada1@cosmosbay.com>, Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, suzuki@in.ibm.com, Avi Kivity <avi@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, =?iso-8859-1?Q?Am=E9rico?= Wang <xiyou.wangcong@gmail.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>
+To: Torben Hohn <torbenh@gmx.de>
+Cc: xen-devel@lists.xensource.com, Kees Cook <kees.cook@canonical.com>, linux-fbdev@vger.kernel.org, Sascha Hauer <s.hauer@pengutronix.de>, James Hogan <james@albanarts.com>, David Airlie <airlied@linux.ie>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Jesse Barnes <jbarnes@virtuousgeek.org>, James Morris <jmorris@namei.org>, Grant Likely <grant.likely@secretlab.ca>, Paul Mackerras <paulus@samba.org>, linux-parisc@vger.kernel.org, Magnus Damm <damm@opensource.se>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, devel@driverdev.osuosl.org, Guy Martin <gmsoft@tuxicoman.be>, Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>, Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, Russell King <linux@arm.linux.org.uk>, Thomas Gleixner <tglx@tglx.de>, Wu
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Jan 20, 2011 at 02:41:46PM +0100, Peter Zijlstra wrote:
-> On Thu, 2011-01-20 at 17:29 +0530, Srivatsa Vaddagiri wrote:
-> > 
-> > If we had a yield-to [1] sort of interface _and_ information on which vcpu
-> > owns a lock, then lock-spinners can yield-to the owning vcpu, 
+On Thu, Jan 20, 2011 at 04:58:13PM +0100, Torben Hohn wrote:
+> the -rt patches change the console_semaphore to console_mutex.
+> so a quite large chunk of the patches changes all
+> acquire/release_console_sem() to acquire/release_console_mutex()
+
+Why not just change the functionality of the existing function to be a
+mutex in the rt patches, instead of having to rename it everywhere?
+
+> this commit makes things use more neutral function names
+> which dont make implications about the underlying lock.
 > 
-> and then I'd nak it for being stupid ;-)
+> the only real change is the return value of console_trylock
+> which is inverted from try_acquire_console_sem()
 > 
-> really, yield*() is retarded, never even consider using it. If you've
-> got the actual owner you can do full blown PI, which is tons better than
-> a 'do-something-random' call.
+> Signed-off-by: Torben Hohn <torbenh@gmx.de>
+> CC: Thomas Gleixner <tglx@tglx.de>
 
-Yes definitely that would be much better than yield-to.
+I don't mind this rename, but is it really going to help anything out?
+What's the odds of the -rt portion of this patch ever making it to
+mainline?
 
-> The only reason the whole non-virt pause loop filtering muck uses it is
-> because it really doesn't know anything, and do-something is pretty much
-> all it can do. Its a broken interface.
+thanks,
 
-- vatsa
+greg k-h
