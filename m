@@ -1,20 +1,12 @@
-From: Rik van Riel <riel@redhat.com>
-Subject: Re: [PATCH 2/3] kvm hypervisor : Add hypercalls to support
-	pv-ticketlock
-Date: Fri, 21 Jan 2011 09:48:29 -0500
-Message-ID: <4D399CBD.10506__30459.177416242$1295621553$gmane$org@redhat.com>
-References: <cover.1289940821.git.jeremy.fitzhardinge@citrix.com>
-	<20110119164432.GA30669@linux.vnet.ibm.com>
-	<20110119171239.GB726@linux.vnet.ibm.com>
-	<1295457672.28776.144.camel@laptop> <4D373340.60608@goop.org>
-	<20110120115958.GB11177@linux.vnet.ibm.com>
-	<4D38774B.6070704@goop.org>
-	<20110121140208.GA13609@linux.vnet.ibm.com>
+From: Ming Zhao <zhaom@cis.fiu.edu>
+Subject: SNAPI2011 deadline in 1 week (7th IEEE International Workshop on
+	Storage Network Architecture and Parallel I/Os)
+Date: Fri, 21 Jan 2011 07:04:19 -0500
+Message-ID: <20110121161042.D46A3B8860C@cheetah.cs.fiu.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20110121140208.GA13609@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -24,29 +16,159 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: vatsa@linux.vnet.ibm.com
-Cc: Xen-devel <xen-devel@lists.xensource.com>, Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>, Nick Piggin <npiggin@kernel.dk>, kvm@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Jan Beulich <JBeulich@novell.com>, Eric Dumazet <dada1@cosmosbay.com>, Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, suzuki@in.ibm.com, Avi Kivity <avi@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, =?UTF-8?B?QW3DqXJpY28g?= =?UTF-8?B?V2FuZw==?= <xiyou.wangcong@gmail.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>
+To: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 01/21/2011 09:02 AM, Srivatsa Vaddagiri wrote:
-> On Thu, Jan 20, 2011 at 09:56:27AM -0800, Jeremy Fitzhardinge wrote:
->>>   The key here is not to
->>> sleep when waiting for locks (as implemented by current patch-series, which can
->>> put other VMs at an advantage by giving them more time than they are entitled
->>> to)
->>
->> Why?  If a VCPU can't make progress because its waiting for some
->> resource, then why not schedule something else instead?
->
-> In the process, "something else" can get more share of cpu resource than its
-> entitled to and that's where I was bit concerned. I guess one could
-> employ hard-limits to cap "something else's" bandwidth where it is of real
-> concern (like clouds).
+[Just a gentle reminder that the deadline is only one week away]
 
-I'd like to think I fixed those things in my yield_task_fair +
-yield_to + kvm_vcpu_on_spin patch series from yesterday.
 
-https://lkml.org/lkml/2011/1/20/403
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+                          Call for Papers
+                  7th IEEE International Workshop on
+            Storage Network Architecture and Parallel I/Os
+                            (SNAPI 2011)
+                    http://snapi2011.cis.fiu.edu
 
--- 
-All rights reversed
+                 May 25, 2011  Denver, Colorado, USA
+            In conjunction with the 27th IEEE Conference on
+           Mass Storage Systems and Technologies (MSST 2011)
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+
+SCOPE:
+------
+
+The 7th IEEE Storage Networking Architecture and Parallel I/O (SNAPI
+2011) Workshop aims to highlight the latest research in the
+architecture, design, implementation, and evaluation of local and
+networked storage and parallel I/O systems. The workshop is co-located
+with the 27th IEEE Conference on Mass Storage Systems and Technologies
+(MSST2011) that features a full week dedicated to "all things storage".
+The SNAPI 2011 workshop, held in the middle of the MSST week, will
+feature a full day of technical papers that showcase the latest work
+from the academia, the labs, and the industry.
+
+This year we would like to encourage a variety of submissions including
+novel idea papers, real system experience papers, as well as analysis
+and evaluation papers. Topics of interest include, but are not limited
+to:
+
+* Caching, replication, and consistency
+* Energy-efficient storage
+* Evaluation of networked storage architectures
+* Experiences with real systems
+* File and block based network storage
+* Integration and evaluation of emerging storage technology
+* I/O quality of service
+* New abstractions/protocols for data, storage, and I/O
+* Parallel I/O
+* Performance, scalability, and manageability of networked storage
+* SSD-based storage architectures and tiered storage
+* Storage device and workload characterization
+* Storage networking
+* Storage reliability and failure management
+* Storage virtualization
+* Thin provisioning, consolidation, compression, and deduplication
+* Wide-area networked storage
+
+
+
+SUBMISSIONS INSTRUCTIONS:
+-------------------------
+
+Submissions should not exceed 8 single-space pages including all text,
+figures, and references. Submissions must be typeset as double-column
+text, using no less than 10 pt font, and using a text block that does
+not exceed 6.5" width and 9" height.
+
+The reviewing is double-blind. Authors must not be identified in the
+submission either directly or indirectly. Please be careful so as to not
+refer to your own work in the first person or leak authorship in any way
+within the text of the paper. Reviewing will be performed by the members
+of the SNAPI=E2=80=9911 Program Committee. Each paper will receive at least
+three reviews from members of the Program Committee.
+
+The final version of the paper prepared after incorporating reviewer
+feedback should be submitted by April 1st, 2011. At least one author of
+each accepted paper will be expected to attend the workshop and present
+their work in a 25 minute talk.
+
+
+
+BEST PAPER AWARD:
+-----------------
+
+Authors of the best paper, chosen by the Program Committee, will be
+presented an award at the workshop.
+
+
+
+Important dates:
+----------------
+
+* Full paper submission: January 28, 2011
+* Notification of acceptance: March 4, 2011
+* Final manuscripts due: April 1, 2011
+* Workshop: May 25, 2011
+
+
+
+Organization:
+-------------
+
+* Program Chair:
+ o Raju Rangaswami, Florida International University
+
+* Program Committee:
+ o Angelos Bilas, FORTH and University of Crete
+ o Randal Burns, Johns Hopkins University
+ o Dan Feng, Huazhong University of Science and Technology
+ o Dirk Grunwald, University of Colorado, Boulder
+ o Ajay Gulati, VMware
+ o Ron Oldfield, Sandia National Laboratory
+ o Vijayan Prabhakaran, Microsoft Research
+ o Himabindu Pucha, IBM Research - Almaden
+ o A. L. Narasimha Reddy, Texas A&M University
+ o Alma Riska, College of William and Mary
+ o Philip Roth, Oak Ridge National Laboratory
+ o Jiri Schindler, NetApp
+ o Rajeev Thakur, Argonne National Laboratory
+ o Bhuvan Urgaonkar, Pennsylvania State University
+ o Youjip Won, Hanyang University
+ o Ming Zhao, Florida International University
+
+* Web and Publicity Chair:
+ o Ming Zhao, Florida International University
+
+* Steering Committee:
+ o Qing Yang, University of Rhode Island
+ o Hong Jiang, University of Nebraska-Lincoln
+ o Xubin He, Tennessee Tech University
+
+
+
+SPONSORSHIP:
+------------
+IEEE Mass Storage Systems Technical Committee (MSSTC)
+
+
+
+Information:
+------------
+* SNAPI 2001 Web: http://snapi2011.cis.fiu.edu
+* MSST 2011 Web: http://storageconference.org
+* Email: snapi2011@cis.fiu.edu
+
+
+
+
+-- =
+
+Ming Zhao, Assistant Professor
+School of Computing and Information Sciences
+Florida International University
+Tel: (305) 348-2034, Fax: (305) 348-3549
+Web: http://visa.cs.fiu.edu/ming =
