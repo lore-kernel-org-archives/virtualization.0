@@ -1,131 +1,78 @@
-From: Rick Jones <rick.jones2@hp.com>
-Subject: Re: Flow Control and Port Mirroring Revisited
-Date: Mon, 24 Jan 2011 11:01:45 -0800
-Message-ID: <4D3DCC99.5050101@hp.com>
-References: <20110116223728.GA6279@verge.net.au>	<20110117102655.GH23479@redhat.com> <4D35ECE2.4040901@hp.com>	<20110120083727.GA1807@verge.net.au>	<20110121095929.GE26070@redhat.com>	<20110121231149.GI2195@verge.net.au>	<20110122215742.GC5617@redhat.com>	<20110123063849.GB2673@verge.net.au>	<20110123103902.GA28585@redhat.com> <4D3DC4AB.1000207@hp.com> <20110124183626.GB29941@redhat.com>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: Re: [PATCH] change acquire/release_console_sem() to
+	console_lock/unlock()
+Date: Fri, 21 Jan 2011 09:10:06 +0100
+Message-ID: <AANLkTinN2+pNGk1hwrcMhH5qDNZK=Egrw7P6c-cdJTmH__6277.517687022$1295896141$gmane$org@mail.gmail.com>
+References: <1295539104-13210-1-git-send-email-torbenh@gmx.de>
+	<20110120163448.GA30588@suse.de> <20110120165502.GA10832@siel.b>
+	<20110120123507.ac89c034.akpm@linux-foundation.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20110124183626.GB29941@redhat.com>
-Sender: netdev-owner@vger.kernel.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Simon Horman <horms@verge.net.au>, Jesse Gross <jesse@nicira.com>, Rusty Russell <rusty@rustcorp.com.au>, virtualization@lists.linux-foundation.org, dev@openvswitch.org, virtualization@lists.osdl.org, netdev@vger.kernel.org, kvm@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20110120123507.ac89c034.akpm@linux-foundation.org>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: linux-fbdev@vger.kernel.org, Greg KH <gregkh@suse.de>, Lars-Peter Clausen <lars@metafoo.de>, James Hogan <james@albanarts.com>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel.vetter@ffwll.ch>, linux-omap@vger.kernel.org, Jesse Barnes <jbarnes@virtuousgeek.org>, "James E.J. Bottomley" <jejb@parisc-linux.org>, "David S. Miller" <davem@davemloft.net>, Paul Mackerras <paulus@samba.org>, Liam Girdwood <lrg@slimlogic.co.uk>, Kyle McMartin <kyle@mcmartin.ca>, Jiri Slaby <jslaby@suse.cz>, Thomas Gleixner <tglx@linutronix.de>, Caglar Akyuz <caglar@bilkon-kontrol.com.tr>, devel@driverdev.osuosl.org, Alberto Panizzo <maramaopercheseimorto@gmail.com>, Phil Edworthy <phil.edworthy@renesas.com>, xen-devel@lists.xensource.com, Russell King <linux@arm.linux.org.uk>, Kuninor
 List-Id: virtualization@lists.linuxfoundation.org
 
-Michael S. Tsirkin wrote:
-> On Mon, Jan 24, 2011 at 10:27:55AM -0800, Rick Jones wrote:
-> 
->>>Just to block netperf you can send it SIGSTOP :)
->>>
->>
->>Clever :)  One could I suppose achieve the same result by making the
->>remote receive socket buffer size smaller than the UDP message size
->>and then not worry about having to learn the netserver's PID to send
->>it the SIGSTOP.  I *think* the semantics will be substantially the
->>same?
-> 
-> 
-> If you could set, it, yes. But at least linux ignores
-> any value substantially smaller than 1K, and then
-> multiplies that by 2:
-> 
->         case SO_RCVBUF:
->                 /* Don't error on this BSD doesn't and if you think
->                    about it this is right. Otherwise apps have to
->                    play 'guess the biggest size' games. RCVBUF/SNDBUF
->                    are treated in BSD as hints */
-> 
->                 if (val > sysctl_rmem_max)
->                         val = sysctl_rmem_max;
-> set_rcvbuf:     
->                 sk->sk_userlocks |= SOCK_RCVBUF_LOCK;
-> 
->                 /*
->                  * We double it on the way in to account for
->                  * "struct sk_buff" etc. overhead.   Applications
->                  * assume that the SO_RCVBUF setting they make will
->                  * allow that much actual data to be received on that
->                  * socket.
->                  *
->                  * Applications are unaware that "struct sk_buff" and
->                  * other overheads allocate from the receive buffer
->                  * during socket buffer allocation. 
->                  *
->                  * And after considering the possible alternatives,
->                  * returning the value we actually used in getsockopt
->                  * is the most desirable behavior.
->                  */ 
->                 if ((val * 2) < SOCK_MIN_RCVBUF)
->                         sk->sk_rcvbuf = SOCK_MIN_RCVBUF;
->                 else
->                         sk->sk_rcvbuf = val * 2;
-> 
-> and
-> 
-> /*                      
->  * Since sk_rmem_alloc sums skb->truesize, even a small frame might need
->  * sizeof(sk_buff) + MTU + padding, unless net driver perform copybreak
->  */             
-> #define SOCK_MIN_RCVBUF (2048 + sizeof(struct sk_buff))
-
-Pity - seems to work back on 2.6.26:
-
-raj@tardy:~/netperf2_trunk$ src/netperf -t UDP_STREAM -- -S 1 -m 1024
-MIGRATED UDP STREAM TEST from 0.0.0.0 (0.0.0.0) port 0 AF_INET to localhost 
-(127.0.0.1) port 0 AF_INET : histogram
-Socket  Message  Elapsed      Messages
-Size    Size     Time         Okay Errors   Throughput
-bytes   bytes    secs            #      #   10^6bits/sec
-
-124928    1024   10.00     2882334      0    2361.17
-    256           10.00           0              0.00
-
-raj@tardy:~/netperf2_trunk$ uname -a
-Linux tardy 2.6.26-2-amd64 #1 SMP Sun Jun 20 20:16:30 UTC 2010 x86_64 GNU/Linux
-
-Still, even with that (or SIGSTOP) we don't really know where the packets were 
-dropped right?  There is no guarantee they weren't dropped before they got to 
-the socket buffer
-
-happy benchmarking,
-rick jones
-
-PS - here is with a -S 1024 option:
-
-raj@tardy:~/netperf2_trunk$ src/netperf -t UDP_STREAM -- -S 1024 -m 1024
-MIGRATED UDP STREAM TEST from 0.0.0.0 (0.0.0.0) port 0 AF_INET to localhost 
-(127.0.0.1) port 0 AF_INET : histogram
-Socket  Message  Elapsed      Messages
-Size    Size     Time         Okay Errors   Throughput
-bytes   bytes    secs            #      #   10^6bits/sec
-
-124928    1024   10.00     1679269      0    1375.64
-   2048           10.00     1490662           1221.13
-
-showing that there is a decent chance that many of the frames were dropped at 
-the socket buffer, but not all - I suppose I could/should be checking netstat 
-stats... :)
-
-And just a little more, only because I was curious :)
-
-raj@tardy:~/netperf2_trunk$ src/netperf -t UDP_STREAM -- -S 1M -m 257
-MIGRATED UDP STREAM TEST from 0.0.0.0 (0.0.0.0) port 0 AF_INET to localhost 
-(127.0.0.1) port 0 AF_INET : histogram
-Socket  Message  Elapsed      Messages
-Size    Size     Time         Okay Errors   Throughput
-bytes   bytes    secs            #      #   10^6bits/sec
-
-124928     257   10.00     1869134      0     384.29
-262142           10.00     1869134            384.29
-
-raj@tardy:~/netperf2_trunk$ src/netperf -t UDP_STREAM -- -S 1 -m 257
-MIGRATED UDP STREAM TEST from 0.0.0.0 (0.0.0.0) port 0 AF_INET to localhost 
-(127.0.0.1) port 0 AF_INET : histogram
-Socket  Message  Elapsed      Messages
-Size    Size     Time         Okay Errors   Throughput
-bytes   bytes    secs            #      #   10^6bits/sec
-
-124928     257   10.00     3076363      0     632.49
-    256           10.00           0              0.00
-
+T24gVGh1LCBKYW4gMjAsIDIwMTEgYXQgMjE6MzUsIEFuZHJldyBNb3J0b24gPGFrcG1AbGludXgt
+Zm91bmRhdGlvbi5vcmc+IHdyb3RlOgo+IE9uIFRodSwgMjAgSmFuIDIwMTEgMTc6NTU6MDIgKzAx
+MDAKPiB0b3JiZW5oIDx0b3JiZW5oQGdteC5kZT4gd3JvdGU6Cj4KPj4gT24gVGh1LCBKYW4gMjAs
+IDIwMTEgYXQgMDg6MzQ6NDhBTSAtMDgwMCwgR3JlZyBLSCB3cm90ZToKPj4gPiBPbiBUaHUsIEph
+biAyMCwgMjAxMSBhdCAwNDo1ODoxM1BNICswMTAwLCBUb3JiZW4gSG9obiB3cm90ZToKPj4gPiA+
+IHRoZSAtcnQgcGF0Y2hlcyBjaGFuZ2UgdGhlIGNvbnNvbGVfc2VtYXBob3JlIHRvIGNvbnNvbGVf
+bXV0ZXguCj4+ID4gPiBzbyBhIHF1aXRlIGxhcmdlIGNodW5rIG9mIHRoZSBwYXRjaGVzIGNoYW5n
+ZXMgYWxsCj4+ID4gPiBhY3F1aXJlL3JlbGVhc2VfY29uc29sZV9zZW0oKSB0byBhY3F1aXJlL3Jl
+bGVhc2VfY29uc29sZV9tdXRleCgpCj4+ID4KPj4gPiBXaHkgbm90IGp1c3QgY2hhbmdlIHRoZSBm
+dW5jdGlvbmFsaXR5IG9mIHRoZSBleGlzdGluZyBmdW5jdGlvbiB0byBiZSBhCj4+ID4gbXV0ZXgg
+aW4gdGhlIHJ0IHBhdGNoZXMsIGluc3RlYWQgb2YgaGF2aW5nIHRvIHJlbmFtZSBpdCBldmVyeXdo
+ZXJlPwo+Pgo+PiBpIGhvcGUgdGhhdCBUaG9tYXMgYWxyZWFkeSBkaWQgdGhpcyBpbiBoaXMgdXBj
+b21pbmcgLXJ0IHNlcmllcy4KPj4KPj4gPgo+PiA+ID4gdGhpcyBjb21taXQgbWFrZXMgdGhpbmdz
+IHVzZSBtb3JlIG5ldXRyYWwgZnVuY3Rpb24gbmFtZXMKPj4gPiA+IHdoaWNoIGRvbnQgbWFrZSBp
+bXBsaWNhdGlvbnMgYWJvdXQgdGhlIHVuZGVybHlpbmcgbG9jay4KPj4gPiA+Cj4+ID4gPiB0aGUg
+b25seSByZWFsIGNoYW5nZSBpcyB0aGUgcmV0dXJuIHZhbHVlIG9mIGNvbnNvbGVfdHJ5bG9jawo+
+PiA+ID4gd2hpY2ggaXMgaW52ZXJ0ZWQgZnJvbSB0cnlfYWNxdWlyZV9jb25zb2xlX3NlbSgpCj4+
+ID4gPgo+PiA+ID4gU2lnbmVkLW9mZi1ieTogVG9yYmVuIEhvaG4gPHRvcmJlbmhAZ214LmRlPgo+
+PiA+ID4gQ0M6IFRob21hcyBHbGVpeG5lciA8dGdseEB0Z2x4LmRlPgo+PiA+Cj4+ID4gSSBkb24n
+dCBtaW5kIHRoaXMgcmVuYW1lLCBidXQgaXMgaXQgcmVhbGx5IGdvaW5nIHRvIGhlbHAgYW55dGhp
+bmcgb3V0Pwo+PiA+IFdoYXQncyB0aGUgb2RkcyBvZiB0aGUgLXJ0IHBvcnRpb24gb2YgdGhpcyBw
+YXRjaCBldmVyIG1ha2luZyBpdCB0bwo+PiA+IG1haW5saW5lPwo+Pgo+PiB0aGUgLXJ0IHBvcnRp
+b24gb25seSBjaGFuZ2VzIHRoZSBzZW1hcGhvcmUgdG8gYSBtdXRleC4KPj4gc2luY2UgdGhlIGNv
+bnNvbGVfc2VtIGlzIHVzZWQgd2l0aCBtdXRleCBzZW1hbnRpY3MsIGkgZG9udCBzZWUgYW55Cj4+
+IHJlYXNvbiwgbm90IHRvIG1lcmdlIHRoYXQgcG9ydGlvbiB0b28uCj4+Cj4+IGkgYW0ganVzdCB0
+cnlpbmcgdG8gc2hyaW5rIHRoZSAtcnQgcGF0Y2ggdG8gbWFrZSBpdCBtb3JlIG1haW50YW5hYmxl
+IDopCj4+Cj4KPiBZZWFoLCBJIHRoaW5rIGl0J3MgYSBiZXR0ZXIgbmFtZSBhbmQgaWYgd2UgY2Fu
+IGluZGVlZCBzd2l0Y2ggdGhhdAo+IHNlbWFwaG9yZSB0byBhIG11dGV4IHRoZW4gdGhhdCdzIGEg
+Z29vZCB0aGluZyB0byBkby4KCmluY2x1ZGUvbGludXgvbXV0ZXguaDoKCi8qCiAqIE5PVEU6IG11
+dGV4X3RyeWxvY2soKSBmb2xsb3dzIHRoZSBzcGluX3RyeWxvY2soKSBjb252ZW50aW9uLAogKiAg
+ICAgICBub3QgdGhlIGRvd25fdHJ5bG9jaygpIGNvbnZlbnRpb24hCiAqCiAqIFJldHVybnMgMSBp
+ZiB0aGUgbXV0ZXggaGFzIGJlZW4gYWNxdWlyZWQgc3VjY2Vzc2Z1bGx5LCBhbmQgMCBvbiBjb250
+ZW50aW9uLgogKi8KZXh0ZXJuIGludCBtdXRleF90cnlsb2NrKHN0cnVjdCBtdXRleCAqbG9jayk7
+CgpTbyB0aGF0J3Mgd2h5IHRoZSByZXR1cm4gdmFsdWUgd2FzIGludmVydGVkICh3aGVuIHRyZWF0
+aW5nIGl0IGFzIGEgYm9vbGVhbikuCkkgY2FuIHVuZGVyc3RhbmQgdGhhdC4KCkhvd2V2ZXI6Cgor
+LyoqCisgKiBjb25zb2xlX3RyeWxvY2sgLSB0cnkgdG8gbG9jayB0aGUgY29uc29sZSBzeXN0ZW0g
+Zm9yIGV4Y2x1c2l2ZSB1c2UuCisgKgorICogVHJpZWQgdG8gYWNxdWlyZSBhIGxvY2sgd2hpY2gg
+Z3VhcmFudGVlcyB0aGF0IHRoZSBjYWxsZXIgaGFzCisgKiBleGNsdXNpdmUgYWNjZXNzIHRvIHRo
+ZSBjb25zb2xlIHN5c3RlbSBhbmQgdGhlIGNvbnNvbGVfZHJpdmVycyBsaXN0LgorICoKKyAqIHJl
+dHVybnMgLTEgb24gc3VjY2VzcywgYW5kIDAgb24gZmFpbHVyZSB0byBhY3F1aXJlIHRoZSBsb2Nr
+LgorICovCitpbnQgY29uc29sZV90cnlsb2NrKHZvaWQpCgpTbyB0aGlzIG9uZSByZXR1cm5zIC0x
+IG9uIHN1Y2Nlc3MsIG5vdCAxPyBXaHk/CgpHcntvZXRqZSxlZXRpbmd9cywKCsKgIMKgIMKgIMKg
+IMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIEdlZXJ0CgotLQpHZWVydCBVeXR0ZXJob2V2ZW4gLS0g
+VGhlcmUncyBsb3RzIG9mIExpbnV4IGJleW9uZCBpYTMyIC0tIGdlZXJ0QGxpbnV4LW02OGsub3Jn
+CgpJbiBwZXJzb25hbCBjb252ZXJzYXRpb25zIHdpdGggdGVjaG5pY2FsIHBlb3BsZSwgSSBjYWxs
+IG15c2VsZiBhIGhhY2tlci4gQnV0CndoZW4gSSdtIHRhbGtpbmcgdG8gam91cm5hbGlzdHMgSSBq
+dXN0IHNheSAicHJvZ3JhbW1lciIgb3Igc29tZXRoaW5nIGxpa2UgdGhhdC4KwqAgwqAgwqAgwqAg
+wqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqDCoCDCoMKgIC0tIExpbnVzIFRvcnZhbGRzCl9f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0
+aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9y
+ZwpodHRwczovL2xpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmly
+dHVhbGl6YXRpb24=
