@@ -1,79 +1,83 @@
-From: Andrew Morton <akpm@linux-foundation.org>
-Subject: Re: [PATCH] change acquire/release_console_sem() to
-	console_lock/unlock()
-Date: Fri, 21 Jan 2011 00:23:23 -0800
-Message-ID: <20110121002323.e9cbf9ae.akpm@linux-foundation.org>
-References: <1295539104-13210-1-git-send-email-torbenh@gmx.de>
-	<20110120163448.GA30588@suse.de> <20110120165502.GA10832@siel.b>
-	<20110120123507.ac89c034.akpm@linux-foundation.org>
-	<AANLkTinN2+pNGk1hwrcMhH5qDNZK=Egrw7P6c-cdJTmH@mail.gmail.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: Flow Control and Port Mirroring Revisited
+Date: Fri, 21 Jan 2011 11:59:30 +0200
+Message-ID: <20110121095929.GE26070@redhat.com>
+References: <20110113064718.GA17905@verge.net.au>
+ <AANLkTimO=5HmTJO1kmHGAWa-HTac+3d0TbrmJX5W4hVu@mail.gmail.com>
+ <20110113234135.GC8426@verge.net.au>
+ <20110114045818.GA29738@redhat.com>
+ <20110114063528.GB10957@verge.net.au>
+ <20110114065415.GA30300@redhat.com>
+ <20110116223728.GA6279@verge.net.au>
+ <20110117102655.GH23479@redhat.com>
+ <4D35ECE2.4040901@hp.com>
+ <20110120083727.GA1807@verge.net.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <AANLkTinN2+pNGk1hwrcMhH5qDNZK=Egrw7P6c-cdJTmH@mail.gmail.com>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: linux-fbdev@vger.kernel.org, Greg KH <gregkh@suse.de>, Lars-Peter Clausen <lars@metafoo.de>, James Hogan <james@albanarts.com>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel.vetter@ffwll.ch>, linux-omap@vger.kernel.org, Jesse Barnes <jbarnes@virtuousgeek.org>, "James E.J. Bottomley" <jejb@parisc-linux.org>, "David S. Miller" <davem@davemloft.net>, Paul Mackerras <paulus@samba.org>, Liam Girdwood <lrg@slimlogic.co.uk>, Kyle McMartin <kyle@mcmartin.ca>, Jiri Slaby <jslaby@suse.cz>, Thomas Gleixner <tglx@linutronix.de>, Caglar Akyuz <caglar@bilkon-kontrol.com.tr>, devel@driverdev.osuosl.org, Alberto Panizzo <maramaopercheseimorto@gmail.com>, Phil Edworthy <phil.edworthy@renesas.com>, xen-devel@lists.xensource.com, Russell King <linux@arm.linux.org.uk>, Kuninor
+Content-Type: text/plain; charset=us-ascii
+Return-path: <netdev-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20110120083727.GA1807@verge.net.au>
+Sender: netdev-owner@vger.kernel.org
+To: Simon Horman <horms@verge.net.au>
+Cc: Rick Jones <rick.jones2@hp.com>, Jesse Gross <jesse@nicira.com>, Rusty Russell <rusty@rustcorp.com.au>, virtualization@lists.linux-foundation.org, dev@openvswitch.org, virtualization@lists.osdl.org, netdev@vger.kernel.org, kvm@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 21 Jan 2011 09:10:06 +0100 Geert Uytterhoeven <geert@linux-m68k.org> wrote:
+On Thu, Jan 20, 2011 at 05:38:33PM +0900, Simon Horman wrote:
+> [ Trimmed Eric from CC list as vger was complaining that it is too long ]
+> 
+> On Tue, Jan 18, 2011 at 11:41:22AM -0800, Rick Jones wrote:
+> > >So it won't be all that simple to implement well, and before we try,
+> > >I'd like to know whether there are applications that are helped
+> > >by it. For example, we could try to measure latency at various
+> > >pps and see whether the backpressure helps. netperf has -b, -w
+> > >flags which might help these measurements.
+> > 
+> > Those options are enabled when one adds --enable-burst to the
+> > pre-compilation ./configure  of netperf (one doesn't have to
+> > recompile netserver).  However, if one is also looking at latency
+> > statistics via the -j option in the top-of-trunk, or simply at the
+> > histogram with --enable-histogram on the ./configure and a verbosity
+> > level of 2 (global -v 2) then one wants the very top of trunk
+> > netperf from:
+> 
+> Hi,
+> 
+> I have constructed a test where I run an un-paced  UDP_STREAM test in
+> one guest and a paced omni rr test in another guest at the same time.
 
-> include/linux/mutex.h:
-> 
-> /*
->  * NOTE: mutex_trylock() follows the spin_trylock() convention,
->  *       not the down_trylock() convention!
->  *
->  * Returns 1 if the mutex has been acquired successfully, and 0 on contention.
->  */
-> extern int mutex_trylock(struct mutex *lock);
-> 
-> So that's why the return value was inverted (when treating it as a boolean).
-> I can understand that.
-> 
-> However:
-> 
-> +/**
-> + * console_trylock - try to lock the console system for exclusive use.
-> + *
-> + * Tried to acquire a lock which guarantees that the caller has
-> + * exclusive access to the console system and the console_drivers list.
-> + *
-> + * returns -1 on success, and 0 on failure to acquire the lock.
-> + */
-> +int console_trylock(void)
-> 
-> So this one returns -1 on success, not 1? Why?
+Hmm, what is this supposed to measure?  Basically each time you run an
+un-paced UDP_STREAM you get some random load on the network.
+You can't tell what it was exactly, only that it was between
+the send and receive throughput.
 
-Yup.  All callers just test for non-zero, so...
-
---- a/kernel/printk.c~change-acquire-release_console_sem-to-console_lock-unlock-fix-2
-+++ a/kernel/printk.c
-@@ -1058,7 +1058,7 @@ EXPORT_SYMBOL(console_lock);
-  * Tried to acquire a lock which guarantees that the caller has
-  * exclusive access to the console system and the console_drivers list.
-  *
-- * returns -1 on success, and 0 on failure to acquire the lock.
-+ * returns 1 on success, and 0 on failure to acquire the lock.
-  */
- int console_trylock(void)
- {
-@@ -1070,7 +1070,7 @@ int console_trylock(void)
- 	}
- 	console_locked = 1;
- 	console_may_schedule = 0;
--	return -1;
-+	return 1;
- }
- EXPORT_SYMBOL(console_trylock);
- 
-_
+> Breifly I get the following results from the omni test..
+> 
+> 1. Omni test only:		MEAN_LATENCY=272.00
+> 2. Omni and stream test:	MEAN_LATENCY=3423.00
+> 3. cpu and net_cls group:	MEAN_LATENCY=493.00
+>    As per 2 plus cgoups are created for each guest
+>    and guest tasks added to the groups
+> 4. 100Mbit/s class:		MEAN_LATENCY=273.00
+>    As per 3 plus the net_cls groups each have a 100MBit/s HTB class
+> 5. cpu.shares=128:		MEAN_LATENCY=652.00
+>    As per 4 plus the cpu groups have cpu.shares set to 128
+> 6. Busy CPUS:			MEAN_LATENCY=15126.00
+>    As per 5 but the CPUs are made busy using a simple shell while loop
+> 
+> There is a bit of noise in the results as the two netperf invocations
+> aren't started at exactly the same moment
+> 
+> For reference, my netperf invocations are:
+> netperf -c -C -t UDP_STREAM -H 172.17.60.216 -l 12
+> netperf.omni -p 12866 -D -c -C -H 172.17.60.216 -t omni -j -v 2 -- -r 1 -d rr -k foo -b 1 -w 200 -m 200
+> 
+> foo contains
+> PROTOCOL
+> THROUGHPUT,THROUGHPUT_UNITS
+> LOCAL_SEND_THROUGHPUT
+> LOCAL_RECV_THROUGHPUT
+> REMOTE_SEND_THROUGHPUT
+> REMOTE_RECV_THROUGHPUT
+> RT_LATENCY,MIN_LATENCY,MEAN_LATENCY,MAX_LATENCY
+> P50_LATENCY,P90_LATENCY,P99_LATENCY,STDDEV_LATENCY
+> LOCAL_CPU_UTIL,REMOTE_CPU_UTIL
