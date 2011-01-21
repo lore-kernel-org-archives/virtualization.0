@@ -1,174 +1,30 @@
-From: Ming Zhao <zhaom@cis.fiu.edu>
-Subject: SNAPI2011 deadline in 1 week (7th IEEE International Workshop on
-	Storage Network Architecture and Parallel I/Os)
-Date: Fri, 21 Jan 2011 07:04:19 -0500
-Message-ID: <20110121161042.D46A3B8860C@cheetah.cs.fiu.edu>
+From: Rick Jones <rick.jones2@hp.com>
+Subject: Re: Flow Control and Port Mirroring Revisited
+Date: Fri, 21 Jan 2011 10:04:43 -0800
+Message-ID: <4D39CABB.8030300@hp.com>
+References: <20110113064718.GA17905@verge.net.au>	<AANLkTimO=5HmTJO1kmHGAWa-HTac+3d0TbrmJX5W4hVu@mail.gmail.com>	<20110113234135.GC8426@verge.net.au>	<20110114045818.GA29738@redhat.com>	<20110114063528.GB10957@verge.net.au>	<20110114065415.GA30300@redhat.com>	<20110116223728.GA6279@verge.net.au>	<20110117102655.GH23479@redhat.com> <4D35ECE2.4040901@hp.com>	<20110120083727.GA1807@verge.net.au> <20110121095929.GE26070@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <20110121095929.GE26070@redhat.com>
+Sender: netdev-owner@vger.kernel.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Simon Horman <horms@verge.net.au>, Jesse Gross <jesse@nicira.com>, Rusty Russell <rusty@rustcorp.com.au>, virtualization@lists.linux-foundation.org, dev@openvswitch.org, virtualization@lists.osdl.org, netdev@vger.kernel.org, kvm@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-[Just a gentle reminder that the deadline is only one week away]
+>>I have constructed a test where I run an un-paced  UDP_STREAM test in
+>>one guest and a paced omni rr test in another guest at the same time.
+> 
+> 
+> Hmm, what is this supposed to measure?  Basically each time you run an
+> un-paced UDP_STREAM you get some random load on the network.
 
+Well, if the netperf is (effectively) pinned to a given CPU, presumably it would 
+be trying to generate UDP datagrams at the same rate each time.  Indeed though, 
+no guarantee that rate would consistently get through each time.
 
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-                          Call for Papers
-                  7th IEEE International Workshop on
-            Storage Network Architecture and Parallel I/Os
-                            (SNAPI 2011)
-                    http://snapi2011.cis.fiu.edu
+But then, that is where one can use the confidence intervals options to get an 
+idea by how much the rate varied.
 
-                 May 25, 2011  Denver, Colorado, USA
-            In conjunction with the 27th IEEE Conference on
-           Mass Storage Systems and Technologies (MSST 2011)
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-
-SCOPE:
-------
-
-The 7th IEEE Storage Networking Architecture and Parallel I/O (SNAPI
-2011) Workshop aims to highlight the latest research in the
-architecture, design, implementation, and evaluation of local and
-networked storage and parallel I/O systems. The workshop is co-located
-with the 27th IEEE Conference on Mass Storage Systems and Technologies
-(MSST2011) that features a full week dedicated to "all things storage".
-The SNAPI 2011 workshop, held in the middle of the MSST week, will
-feature a full day of technical papers that showcase the latest work
-from the academia, the labs, and the industry.
-
-This year we would like to encourage a variety of submissions including
-novel idea papers, real system experience papers, as well as analysis
-and evaluation papers. Topics of interest include, but are not limited
-to:
-
-* Caching, replication, and consistency
-* Energy-efficient storage
-* Evaluation of networked storage architectures
-* Experiences with real systems
-* File and block based network storage
-* Integration and evaluation of emerging storage technology
-* I/O quality of service
-* New abstractions/protocols for data, storage, and I/O
-* Parallel I/O
-* Performance, scalability, and manageability of networked storage
-* SSD-based storage architectures and tiered storage
-* Storage device and workload characterization
-* Storage networking
-* Storage reliability and failure management
-* Storage virtualization
-* Thin provisioning, consolidation, compression, and deduplication
-* Wide-area networked storage
-
-
-
-SUBMISSIONS INSTRUCTIONS:
--------------------------
-
-Submissions should not exceed 8 single-space pages including all text,
-figures, and references. Submissions must be typeset as double-column
-text, using no less than 10 pt font, and using a text block that does
-not exceed 6.5" width and 9" height.
-
-The reviewing is double-blind. Authors must not be identified in the
-submission either directly or indirectly. Please be careful so as to not
-refer to your own work in the first person or leak authorship in any way
-within the text of the paper. Reviewing will be performed by the members
-of the SNAPI=E2=80=9911 Program Committee. Each paper will receive at least
-three reviews from members of the Program Committee.
-
-The final version of the paper prepared after incorporating reviewer
-feedback should be submitted by April 1st, 2011. At least one author of
-each accepted paper will be expected to attend the workshop and present
-their work in a 25 minute talk.
-
-
-
-BEST PAPER AWARD:
------------------
-
-Authors of the best paper, chosen by the Program Committee, will be
-presented an award at the workshop.
-
-
-
-Important dates:
-----------------
-
-* Full paper submission: January 28, 2011
-* Notification of acceptance: March 4, 2011
-* Final manuscripts due: April 1, 2011
-* Workshop: May 25, 2011
-
-
-
-Organization:
--------------
-
-* Program Chair:
- o Raju Rangaswami, Florida International University
-
-* Program Committee:
- o Angelos Bilas, FORTH and University of Crete
- o Randal Burns, Johns Hopkins University
- o Dan Feng, Huazhong University of Science and Technology
- o Dirk Grunwald, University of Colorado, Boulder
- o Ajay Gulati, VMware
- o Ron Oldfield, Sandia National Laboratory
- o Vijayan Prabhakaran, Microsoft Research
- o Himabindu Pucha, IBM Research - Almaden
- o A. L. Narasimha Reddy, Texas A&M University
- o Alma Riska, College of William and Mary
- o Philip Roth, Oak Ridge National Laboratory
- o Jiri Schindler, NetApp
- o Rajeev Thakur, Argonne National Laboratory
- o Bhuvan Urgaonkar, Pennsylvania State University
- o Youjip Won, Hanyang University
- o Ming Zhao, Florida International University
-
-* Web and Publicity Chair:
- o Ming Zhao, Florida International University
-
-* Steering Committee:
- o Qing Yang, University of Rhode Island
- o Hong Jiang, University of Nebraska-Lincoln
- o Xubin He, Tennessee Tech University
-
-
-
-SPONSORSHIP:
-------------
-IEEE Mass Storage Systems Technical Committee (MSSTC)
-
-
-
-Information:
-------------
-* SNAPI 2001 Web: http://snapi2011.cis.fiu.edu
-* MSST 2011 Web: http://storageconference.org
-* Email: snapi2011@cis.fiu.edu
-
-
-
-
--- =
-
-Ming Zhao, Assistant Professor
-School of Computing and Information Sciences
-Florida International University
-Tel: (305) 348-2034, Fax: (305) 348-3549
-Web: http://visa.cs.fiu.edu/ming =
+rick jones
