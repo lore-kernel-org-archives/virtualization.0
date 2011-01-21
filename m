@@ -1,83 +1,64 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: Flow Control and Port Mirroring Revisited
-Date: Fri, 21 Jan 2011 11:59:30 +0200
-Message-ID: <20110121095929.GE26070@redhat.com>
-References: <20110113064718.GA17905@verge.net.au>
- <AANLkTimO=5HmTJO1kmHGAWa-HTac+3d0TbrmJX5W4hVu@mail.gmail.com>
- <20110113234135.GC8426@verge.net.au>
- <20110114045818.GA29738@redhat.com>
- <20110114063528.GB10957@verge.net.au>
- <20110114065415.GA30300@redhat.com>
- <20110116223728.GA6279@verge.net.au>
- <20110117102655.GH23479@redhat.com>
- <4D35ECE2.4040901@hp.com>
- <20110120083727.GA1807@verge.net.au>
+From: Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>
+Subject: Re: [PATCH 2/3] kvm hypervisor : Add hypercalls to support
+	pv-ticketlock
+Date: Fri, 21 Jan 2011 19:32:08 +0530
+Message-ID: <20110121140208.GA13609__6944.15268158099$1295618684$gmane$org@linux.vnet.ibm.com>
+References: <cover.1289940821.git.jeremy.fitzhardinge@citrix.com>
+	<20110119164432.GA30669@linux.vnet.ibm.com>
+	<20110119171239.GB726@linux.vnet.ibm.com>
+	<1295457672.28776.144.camel@laptop> <4D373340.60608@goop.org>
+	<20110120115958.GB11177@linux.vnet.ibm.com>
+	<4D38774B.6070704@goop.org>
+Reply-To: vatsa@linux.vnet.ibm.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <netdev-owner@vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20110120083727.GA1807@verge.net.au>
-Sender: netdev-owner@vger.kernel.org
-To: Simon Horman <horms@verge.net.au>
-Cc: Rick Jones <rick.jones2@hp.com>, Jesse Gross <jesse@nicira.com>, Rusty Russell <rusty@rustcorp.com.au>, virtualization@lists.linux-foundation.org, dev@openvswitch.org, virtualization@lists.osdl.org, netdev@vger.kernel.org, kvm@vger.kernel.org
+In-Reply-To: <4D38774B.6070704@goop.org>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Xen-devel <xen-devel@lists.xensource.com>, Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>, Nick Piggin <npiggin@kernel.dk>, kvm@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Jan Beulich <JBeulich@novell.com>, Eric Dumazet <dada1@cosmosbay.com>, Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, suzuki@in.ibm.com, Avi Kivity <avi@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, =?iso-8859-1?Q?Am=E9rico?= Wang <xiyou.wangcong@gmail.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Jan 20, 2011 at 05:38:33PM +0900, Simon Horman wrote:
-> [ Trimmed Eric from CC list as vger was complaining that it is too long ]
+On Thu, Jan 20, 2011 at 09:56:27AM -0800, Jeremy Fitzhardinge wrote:
+> >  The key here is not to
+> > sleep when waiting for locks (as implemented by current patch-series, which can 
+> > put other VMs at an advantage by giving them more time than they are entitled 
+> > to)
 > 
-> On Tue, Jan 18, 2011 at 11:41:22AM -0800, Rick Jones wrote:
-> > >So it won't be all that simple to implement well, and before we try,
-> > >I'd like to know whether there are applications that are helped
-> > >by it. For example, we could try to measure latency at various
-> > >pps and see whether the backpressure helps. netperf has -b, -w
-> > >flags which might help these measurements.
-> > 
-> > Those options are enabled when one adds --enable-burst to the
-> > pre-compilation ./configure  of netperf (one doesn't have to
-> > recompile netserver).  However, if one is also looking at latency
-> > statistics via the -j option in the top-of-trunk, or simply at the
-> > histogram with --enable-histogram on the ./configure and a verbosity
-> > level of 2 (global -v 2) then one wants the very top of trunk
-> > netperf from:
-> 
-> Hi,
-> 
-> I have constructed a test where I run an un-paced  UDP_STREAM test in
-> one guest and a paced omni rr test in another guest at the same time.
+> Why?  If a VCPU can't make progress because its waiting for some
+> resource, then why not schedule something else instead?
 
-Hmm, what is this supposed to measure?  Basically each time you run an
-un-paced UDP_STREAM you get some random load on the network.
-You can't tell what it was exactly, only that it was between
-the send and receive throughput.
+In the process, "something else" can get more share of cpu resource than its 
+entitled to and that's where I was bit concerned. I guess one could
+employ hard-limits to cap "something else's" bandwidth where it is of real 
+concern (like clouds).
 
-> Breifly I get the following results from the omni test..
+> Presumably when
+> the VCPU does become runnable, the scheduler will credit its previous
+> blocked state and let it run in preference to something else.
+
+which may not be sufficient for it to gain back bandwidth lost while blocked
+(speaking of mainline scheduler atleast).
+
+> > Is there a way we can dynamically expand the size of lock only upon contention
+> > to include additional information like owning vcpu? Have the lock point to a
+> > per-cpu area upon contention where additional details can be stored perhaps?
 > 
-> 1. Omni test only:		MEAN_LATENCY=272.00
-> 2. Omni and stream test:	MEAN_LATENCY=3423.00
-> 3. cpu and net_cls group:	MEAN_LATENCY=493.00
->    As per 2 plus cgoups are created for each guest
->    and guest tasks added to the groups
-> 4. 100Mbit/s class:		MEAN_LATENCY=273.00
->    As per 3 plus the net_cls groups each have a 100MBit/s HTB class
-> 5. cpu.shares=128:		MEAN_LATENCY=652.00
->    As per 4 plus the cpu groups have cpu.shares set to 128
-> 6. Busy CPUS:			MEAN_LATENCY=15126.00
->    As per 5 but the CPUs are made busy using a simple shell while loop
-> 
-> There is a bit of noise in the results as the two netperf invocations
-> aren't started at exactly the same moment
-> 
-> For reference, my netperf invocations are:
-> netperf -c -C -t UDP_STREAM -H 172.17.60.216 -l 12
-> netperf.omni -p 12866 -D -c -C -H 172.17.60.216 -t omni -j -v 2 -- -r 1 -d rr -k foo -b 1 -w 200 -m 200
-> 
-> foo contains
-> PROTOCOL
-> THROUGHPUT,THROUGHPUT_UNITS
-> LOCAL_SEND_THROUGHPUT
-> LOCAL_RECV_THROUGHPUT
-> REMOTE_SEND_THROUGHPUT
-> REMOTE_RECV_THROUGHPUT
-> RT_LATENCY,MIN_LATENCY,MEAN_LATENCY,MAX_LATENCY
-> P50_LATENCY,P90_LATENCY,P99_LATENCY,STDDEV_LATENCY
-> LOCAL_CPU_UTIL,REMOTE_CPU_UTIL
+> As soon as you add a pointer to the lock, you're increasing its size. 
+
+I didn't really mean to expand size statically. Rather have some bits of the 
+lock word store pointer to a per-cpu area when there is contention (somewhat 
+similar to how bits of rt_mutex.owner are used). I haven't thought thr' this in
+detail to see if that is possible though.
+
+- vatsa
