@@ -1,79 +1,79 @@
-From: Rick Jones <rick.jones2@hp.com>
-Subject: Re: Flow Control and Port Mirroring Revisited
-Date: Thu, 20 Jan 2011 18:30:14 -0800
-Message-ID: <4D38EFB6.8000207@hp.com>
-References: <20110110093155.GB13420@verge.net.au>	<20110113064718.GA17905@verge.net.au>	<AANLkTimO=5HmTJO1kmHGAWa-HTac+3d0TbrmJX5W4hVu@mail.gmail.com>	<20110113234135.GC8426@verge.net.au>	<20110114045818.GA29738@redhat.com>	<20110114063528.GB10957@verge.net.au>	<20110114065415.GA30300@redhat.com>	<20110116223728.GA6279@verge.net.au>	<20110117102655.GH23479@redhat.com> <4D35ECE2.4040901@hp.com> <20110120083727.GA1807@verge.net.au>
+From: Andrew Morton <akpm@linux-foundation.org>
+Subject: Re: [PATCH] change acquire/release_console_sem() to
+	console_lock/unlock()
+Date: Fri, 21 Jan 2011 00:23:23 -0800
+Message-ID: <20110121002323.e9cbf9ae.akpm@linux-foundation.org>
+References: <1295539104-13210-1-git-send-email-torbenh@gmx.de>
+	<20110120163448.GA30588@suse.de> <20110120165502.GA10832@siel.b>
+	<20110120123507.ac89c034.akpm@linux-foundation.org>
+	<AANLkTinN2+pNGk1hwrcMhH5qDNZK=Egrw7P6c-cdJTmH@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <20110120083727.GA1807@verge.net.au>
-Sender: kvm-owner@vger.kernel.org
-To: Simon Horman <horms@verge.net.au>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jesse Gross <jesse@nicira.com>, Rusty Russell <rusty@rustcorp.com.au>, virtualization@lists.linux-foundation.org, dev@openvswitch.org, virtualization@lists.osdl.org, netdev@vger.kernel.org, kvm@vger.kernel.org
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <AANLkTinN2+pNGk1hwrcMhH5qDNZK=Egrw7P6c-cdJTmH@mail.gmail.com>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: linux-fbdev@vger.kernel.org, Greg KH <gregkh@suse.de>, Lars-Peter Clausen <lars@metafoo.de>, James Hogan <james@albanarts.com>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel.vetter@ffwll.ch>, linux-omap@vger.kernel.org, Jesse Barnes <jbarnes@virtuousgeek.org>, "James E.J. Bottomley" <jejb@parisc-linux.org>, "David S. Miller" <davem@davemloft.net>, Paul Mackerras <paulus@samba.org>, Liam Girdwood <lrg@slimlogic.co.uk>, Kyle McMartin <kyle@mcmartin.ca>, Jiri Slaby <jslaby@suse.cz>, Thomas Gleixner <tglx@linutronix.de>, Caglar Akyuz <caglar@bilkon-kontrol.com.tr>, devel@driverdev.osuosl.org, Alberto Panizzo <maramaopercheseimorto@gmail.com>, Phil Edworthy <phil.edworthy@renesas.com>, xen-devel@lists.xensource.com, Russell King <linux@arm.linux.org.uk>, Kuninor
 List-Id: virtualization@lists.linuxfoundation.org
 
-Simon Horman wrote:
-> [ Trimmed Eric from CC list as vger was complaining that it is too long ]
->...
-> I have constructed a test where I run an un-paced  UDP_STREAM test in
-> one guest and a paced omni rr test in another guest at the same time.
-> Breifly I get the following results from the omni test..
+On Fri, 21 Jan 2011 09:10:06 +0100 Geert Uytterhoeven <geert@linux-m68k.org> wrote:
+
+> include/linux/mutex.h:
 > 
->...
- >
-> There is a bit of noise in the results as the two netperf invocations
-> aren't started at exactly the same moment
+> /*
+>  * NOTE: mutex_trylock() follows the spin_trylock() convention,
+>  *       not the down_trylock() convention!
+>  *
+>  * Returns 1 if the mutex has been acquired successfully, and 0 on contention.
+>  */
+> extern int mutex_trylock(struct mutex *lock);
 > 
-> For reference, my netperf invocations are:
-> netperf -c -C -t UDP_STREAM -H 172.17.60.216 -l 12
-> netperf.omni -p 12866 -D -c -C -H 172.17.60.216 -t omni -j -v 2 -- -r 1 -d rr -k foo -b 1 -w 200 -m 200
+> So that's why the return value was inverted (when treating it as a boolean).
+> I can understand that.
+> 
+> However:
+> 
+> +/**
+> + * console_trylock - try to lock the console system for exclusive use.
+> + *
+> + * Tried to acquire a lock which guarantees that the caller has
+> + * exclusive access to the console system and the console_drivers list.
+> + *
+> + * returns -1 on success, and 0 on failure to acquire the lock.
+> + */
+> +int console_trylock(void)
+> 
+> So this one returns -1 on success, not 1? Why?
 
-Since the -b and -w are in the test-specific portion, this test was not actually 
-  paced. The -w will have been ignored entirely (IIRC) and the -b will have 
-attempted to set the "burst" size of a --enable-burst ./configured netperf.  If 
-netperf was ./configured that way, it will have had two rr transactions in 
-flight at one time - the "regular" one and then the one additional from the -b 
-option.  If netperf was not ./configured with --enable-burst then a warning 
-message should have been emitted.
+Yup.  All callers just test for non-zero, so...
 
-Also, I am guessing you wanted TCP_NODELAY set, and that is -D but not a global 
--D.  I'm reasonably confident the -m 200 will have been ignored, but it would be 
-best to drop it. So, I think your second line needs to be:
-
-netperf.omni -p 12866 -c -C -H  172.17.60.216 -t omni -j -v 2 -b 1 -w 200 -- -r 
-1 -d rr -k foo -D
-
-If you want the request and response sizes to be 200 bytes, use -r 200 
-(test-specific).
-
-Also, if you ./configure with --enable-omni first, that netserver will 
-understand both omni and non-omni tests at the same time and you don't have to 
-have a second netserver on a different control port.  You can also go-in to 
-config.h after the ./configure and unset WANT_MIGRATION and then UDP_STREAM in 
-netperf will be the "true" classic UDP_STREAM code rather than the migrated to 
-omni path.
-
-> foo contains
-> PROTOCOL
-> THROUGHPUT,THROUGHPUT_UNITS
-> LOCAL_SEND_THROUGHPUT
-> LOCAL_RECV_THROUGHPUT
-> REMOTE_SEND_THROUGHPUT
-> REMOTE_RECV_THROUGHPUT
-> RT_LATENCY,MIN_LATENCY,MEAN_LATENCY,MAX_LATENCY
-> P50_LATENCY,P90_LATENCY,P99_LATENCY,STDDEV_LATENCY
-> LOCAL_CPU_UTIL,REMOTE_CPU_UTIL
-
-As the -k file parsing option didn't care until recently (within the hour or 
-so), I think it didn't matter that you had more than four lines (assuming that 
-is a verbatim cat of foo).  However, if you pull the *current* top of trunk, it 
-will probably start to care - I'm in the midst of adding support for "direct 
-output selection" in the -k, -o and -O options and also cleaning-up the omni 
-printing code to the point where there is only the one routing parsing the 
-output selection file.  Currently that is the one for "human" output, which has 
-a four line restriction.  I will try to make it smarter as I go.
-
-happy benchmarking,
-
-rick jones
+--- a/kernel/printk.c~change-acquire-release_console_sem-to-console_lock-unlock-fix-2
++++ a/kernel/printk.c
+@@ -1058,7 +1058,7 @@ EXPORT_SYMBOL(console_lock);
+  * Tried to acquire a lock which guarantees that the caller has
+  * exclusive access to the console system and the console_drivers list.
+  *
+- * returns -1 on success, and 0 on failure to acquire the lock.
++ * returns 1 on success, and 0 on failure to acquire the lock.
+  */
+ int console_trylock(void)
+ {
+@@ -1070,7 +1070,7 @@ int console_trylock(void)
+ 	}
+ 	console_locked = 1;
+ 	console_may_schedule = 0;
+-	return -1;
++	return 1;
+ }
+ EXPORT_SYMBOL(console_trylock);
+ 
+_
