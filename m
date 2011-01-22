@@ -1,52 +1,77 @@
-From: Rik van Riel <riel@redhat.com>
-Subject: Re: [PATCH 2/3] kvm hypervisor : Add hypercalls to support
-	pv-ticketlock
-Date: Sat, 22 Jan 2011 09:53:46 -0500
-Message-ID: <4D3AEF7A.1050709__18045.0635999025$1295708128$gmane$org@redhat.com>
-References: <cover.1289940821.git.jeremy.fitzhardinge@citrix.com>
-	<20110119164432.GA30669@linux.vnet.ibm.com>
-	<20110119171239.GB726@linux.vnet.ibm.com>
-	<1295457672.28776.144.camel@laptop> <4D373340.60608@goop.org>
-	<20110120115958.GB11177@linux.vnet.ibm.com>
-	<4D38774B.6070704@goop.org>
-	<20110121140208.GA13609@linux.vnet.ibm.com>
-	<4D399CBD.10506@redhat.com>
-	<20110122061417.GA7258@linux.vnet.ibm.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: Flow Control and Port Mirroring Revisited
+Date: Sat, 22 Jan 2011 23:57:42 +0200
+Message-ID: <20110122215742.GC5617@redhat.com>
+References: <20110113234135.GC8426@verge.net.au>
+ <20110114045818.GA29738@redhat.com>
+ <20110114063528.GB10957@verge.net.au>
+ <20110114065415.GA30300@redhat.com>
+ <20110116223728.GA6279@verge.net.au>
+ <20110117102655.GH23479@redhat.com>
+ <4D35ECE2.4040901@hp.com>
+ <20110120083727.GA1807@verge.net.au>
+ <20110121095929.GE26070@redhat.com>
+ <20110121231149.GI2195@verge.net.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20110122061417.GA7258@linux.vnet.ibm.com>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: vatsa@linux.vnet.ibm.com
-Cc: Xen-devel <xen-devel@lists.xensource.com>, Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>, Nick Piggin <npiggin@kernel.dk>, kvm@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Jan Beulich <JBeulich@novell.com>, Eric Dumazet <dada1@cosmosbay.com>, Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, suzuki@in.ibm.com, Avi Kivity <avi@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, =?UTF-8?B?QW3DqXJpY28g?= =?UTF-8?B?V2FuZw==?= <xiyou.wangcong@gmail.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <kvm-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20110121231149.GI2195@verge.net.au>
+Sender: kvm-owner@vger.kernel.org
+To: Simon Horman <horms@verge.net.au>
+Cc: Rick Jones <rick.jones2@hp.com>, Jesse Gross <jesse@nicira.com>, Rusty Russell <rusty@rustcorp.com.au>, virtualization@lists.linux-foundation.org, dev@openvswitch.org, virtualization@lists.osdl.org, netdev@vger.kernel.org, kvm@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 01/22/2011 01:14 AM, Srivatsa Vaddagiri wrote:
+On Sat, Jan 22, 2011 at 10:11:52AM +1100, Simon Horman wrote:
+> On Fri, Jan 21, 2011 at 11:59:30AM +0200, Michael S. Tsirkin wrote:
+> > On Thu, Jan 20, 2011 at 05:38:33PM +0900, Simon Horman wrote:
+> > > [ Trimmed Eric from CC list as vger was complaining that it is too long ]
+> > > 
+> > > On Tue, Jan 18, 2011 at 11:41:22AM -0800, Rick Jones wrote:
+> > > > >So it won't be all that simple to implement well, and before we try,
+> > > > >I'd like to know whether there are applications that are helped
+> > > > >by it. For example, we could try to measure latency at various
+> > > > >pps and see whether the backpressure helps. netperf has -b, -w
+> > > > >flags which might help these measurements.
+> > > > 
+> > > > Those options are enabled when one adds --enable-burst to the
+> > > > pre-compilation ./configure  of netperf (one doesn't have to
+> > > > recompile netserver).  However, if one is also looking at latency
+> > > > statistics via the -j option in the top-of-trunk, or simply at the
+> > > > histogram with --enable-histogram on the ./configure and a verbosity
+> > > > level of 2 (global -v 2) then one wants the very top of trunk
+> > > > netperf from:
+> > > 
+> > > Hi,
+> > > 
+> > > I have constructed a test where I run an un-paced  UDP_STREAM test in
+> > > one guest and a paced omni rr test in another guest at the same time.
+> > 
+> > Hmm, what is this supposed to measure?  Basically each time you run an
+> > un-paced UDP_STREAM you get some random load on the network.
+> > You can't tell what it was exactly, only that it was between
+> > the send and receive throughput.
+> 
+> Rick mentioned in another email that I messed up my test parameters a bit,
+> so I will re-run the tests, incorporating his suggestions.
+> 
+> What I was attempting to measure was the effect of an unpaced UDP_STREAM
+> on the latency of more moderated traffic. Because I am interested in
+> what effect an abusive guest has on other guests and how that my be
+> mitigated.
+> 
+> Could you suggest some tests that you feel are more appropriate?
 
-> Also it may be possible for the pv-ticketlocks to track owning vcpu and make use
-> of a yield-to interface as further optimization to avoid the
-> "others-get-more-time" problem, but Peterz rightly pointed that PI would be a
-> better solution there than yield-to. So overall IMO kvm_vcpu_on_spin+yield_to
-> could be the best solution for unmodified guests, while paravirtualized
-> ticketlocks + some sort of PI would be a better solution where we have the
-> luxury of modifying guest sources!
+Yes. To refraze my concern in these terms, besides the malicious guest
+you have another software in host (netperf) that interferes with
+the traffic, and it cooperates with the malicious guest.
+Right?
 
-Agreed, for unmodified guests (which is what people will mostly be
-running for the next couple of years), we have little choice but
-to use PLE + kvm_vcpu_on_spin + yield_to.
+IMO for a malicious guest you would send
+UDP packets that then get dropped by the host.
 
-The main question that remains is whether the PV ticketlocks are
-a large enough improvement to also merge those.  I expect they
-will be, and we'll see so in the benchmark numbers.
+For example block netperf in host so that
+it does not consume packets from the socket.
 
--- 
-All rights reversed
+
+
