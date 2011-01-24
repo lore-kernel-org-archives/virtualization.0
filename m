@@ -1,135 +1,109 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [PATCH 13/14] x86/ticketlock: add slowpath logic
-Date: Mon, 24 Jan 2011 13:56:53 -0800
-Message-ID: <4D3DF5A5.7070301__5610.486950218$1295906353$gmane$org@goop.org>
-References: <cover.1289940821.git.jeremy.fitzhardinge@citrix.com>
-	<97ed99ae9160bdb6477284b333bd6708fb7a19cb.1289940821.git.jeremy.fitzhardinge@citrix.com>
-	<20110117152222.GA19233@linux.vnet.ibm.com>
-	<20110119162348.GA29900@linux.vnet.ibm.com>
+From: Ralf Baechle <ralf-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org>
+Subject: Re: [PATCH] sched: provide scheduler_ipi()
+ callback in response to smp_send_reschedule()
+Date: Tue, 25 Jan 2011 00:03:26 +0100
+Message-ID: <20110124230326.GA9121@linux-mips.org>
+References: <1295262433.30950.53.camel@laptop>
+	<20110117112637.GA18599@n2100.arm.linux.org.uk>
+	<1295263884.30950.54.camel@laptop>
+	<1295264509.30950.59.camel@laptop>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20110119162348.GA29900@linux.vnet.ibm.com>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: vatsa@linux.vnet.ibm.com
-Cc: Xen-devel <xen-devel@lists.xensource.com>, Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>, Nick Piggin <npiggin@kernel.dk>, Peter Zijlstra <peterz@infradead.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Jan Beulich <JBeulich@novell.com>, Eric Dumazet <dada1@cosmosbay.com>, Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, suzuki@in.ibm.com, Avi Kivity <avi@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, =?ISO-8859-1?Q?Am=E9rico_Wang?= <xiyou.wangcong@gmail.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>
+Return-path: <uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1295264509.30950.59.camel@laptop>
+List-Unsubscribe: <https://blackfin.uclinux.org/mailman/options/uclinux-dist-devel>,
+	<mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://blackfin.uclinux.org/pipermail/uclinux-dist-devel>
+List-Post: <mailto:uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org>
+List-Help: <mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=help>
+List-Subscribe: <https://blackfin.uclinux.org/mailman/listinfo/uclinux-dist-devel>,
+	<mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=subscribe>
+Sender: uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org
+Errors-To: uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org
+To: Peter Zijlstra <peterz-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>, David Daney <ddaney-M3mlKVOIwJVv6pq1l3V1OdBPR1lH4CV8@public.gmane.org>
+Cc: linux-mips-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org, linux-ia64-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Benjamin Herrenschmidt <benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>, "H. Peter Anvin" <hpa-YMNOUZJC4hwAvxtiuMwx3w@public.gmane.org>, Heiko Carstens <heiko.carstens-tA70FqPdS9bQT0dZR+AlfA@public.gmane.org>, David Howells <dhowells-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Paul Mackerras <paulus-eUNUBHrolfbYtjvyW6yDsg@public.gmane.org>, Helge Deller <deller-Mmb7MZpHnFY@public.gmane.org>, sparclinux-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Linux-Arch <linux-arch-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-s390-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jesper Nilsson <jesper.nilsson-VrBV9hrLPhE@public.gmane.org>, Jeremy Fitzhardinge <jeremy.fitzhardinge-Sxgqhf6Nn4DQT0dZR+AlfA@public.gmane.org>, Russell King - ARM Linux <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Hirokazu Takata <takata-TMSiXQfHlQjsTix1lMzHGQ@public.gmane.org>, x86-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, "James E.J. Bottomley" <jejb-6jwH94ZQLHl74goWV3ctuw@public.gmane.org>, virtualization-qjLDD68F18O7TbgM5vRIOg@public.gmane.org, Ingo Molnar <mingo-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Matt Turner <mattst88-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Fenghua Yu <fenghua.yu@int>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 01/19/2011 08:23 AM, Srivatsa Vaddagiri wrote:
-> On Mon, Jan 17, 2011 at 08:52:22PM +0530, Srivatsa Vaddagiri wrote:
->> I think this is still racy ..
->>
->> Unlocker				Locker
->>
->> 				
->> test slowpath
->> 	-> false
->> 		
->> 				set slowpath flag
->> 				test for lock pickup
->> 					-> fail
->> 				block
->>
->>
->> unlock
->>
->> unlock needs to happen first before testing slowpath? I have made that change
->> for my KVM guest and it seems to be working well with that change .. Will
->> cleanup and post my patches shortly
-> Patch below fixes the race described above. You can fold this to your patch
-> 13/14 if you agree this is in right direction.
->
->
-> Signed-off-by: Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>
->
-> ---
->  arch/x86/include/asm/spinlock.h      |    7 +++----
->  arch/x86/kernel/paravirt-spinlocks.c |   22 +++++-----------------
->  2 files changed, 8 insertions(+), 21 deletions(-)
->
-> Index: linux-2.6.37/arch/x86/include/asm/spinlock.h
-> ===================================================================
-> --- linux-2.6.37.orig/arch/x86/include/asm/spinlock.h
-> +++ linux-2.6.37/arch/x86/include/asm/spinlock.h
-> @@ -55,7 +55,7 @@ static __always_inline void __ticket_unl
->  
->  /* Only defined when CONFIG_PARAVIRT_SPINLOCKS defined, but may as
->   * well leave the prototype always visible.  */
-> -extern void __ticket_unlock_release_slowpath(struct arch_spinlock *lock);
-> +extern void __ticket_unlock_slowpath(struct arch_spinlock *lock);
->  
->  #ifdef CONFIG_PARAVIRT_SPINLOCKS
->  
-> @@ -166,10 +166,9 @@ static __always_inline int arch_spin_try
->  static __always_inline void arch_spin_unlock(arch_spinlock_t *lock)
->  {
->  	barrier();		/* prevent reordering out of locked region */
-> +	__ticket_unlock_release(lock);
->  	if (unlikely(__ticket_in_slowpath(lock)))
-> -		__ticket_unlock_release_slowpath(lock);
-> -	else
-> -		__ticket_unlock_release(lock);
-> +		__ticket_unlock_slowpath(lock);
->  	barrier();		/* prevent reordering into locked region */
->  }
->  
-> Index: linux-2.6.37/arch/x86/kernel/paravirt-spinlocks.c
-> ===================================================================
-> --- linux-2.6.37.orig/arch/x86/kernel/paravirt-spinlocks.c
-> +++ linux-2.6.37/arch/x86/kernel/paravirt-spinlocks.c
-> @@ -22,33 +22,21 @@ EXPORT_SYMBOL(pv_lock_ops);
->   * bits.  However, we need to be careful about this because someone
->   * may just be entering as we leave, and enter the slowpath.
->   */
-> -void __ticket_unlock_release_slowpath(struct arch_spinlock *lock)
-> +void __ticket_unlock_slowpath(struct arch_spinlock *lock)
->  {
->  	struct arch_spinlock old, new;
->  
->  	BUILD_BUG_ON(((__ticket_t)NR_CPUS) != NR_CPUS);
->  
->  	old = ACCESS_ONCE(*lock);
-> -
->  	new = old;
-> -	new.tickets.head += TICKET_LOCK_INC;
->  
->  	/* Clear the slowpath flag */
->  	new.tickets.tail &= ~TICKET_SLOWPATH_FLAG;
-> +	if (new.tickets.head == new.tickets.tail)
-> +		cmpxchg(&lock->head_tail, old.head_tail, new.head_tail);
->  
-> -	/*
-> -	 * If there's currently people waiting or someone snuck in
-> -	 * since we read the lock above, then do a normal unlock and
-> -	 * kick.  If we managed to unlock with no queued waiters, then
-> -	 * we can clear the slowpath flag.
-> -	 */
-> -	if (new.tickets.head != new.tickets.tail ||
-> -	    cmpxchg(&lock->head_tail,
-> -		    old.head_tail, new.head_tail) != old.head_tail) {
-> -		/* still people waiting */
-> -		__ticket_unlock_release(lock);
-> -	}
-> -
-> +	/* Wake up an appropriate waiter */
->  	__ticket_unlock_kick(lock, new.tickets.head);
+On Mon, Jan 17, 2011 at 12:41:49PM +0100, Peter Zijlstra wrote:
 
-Does the __ticket_unlock_kick need to be unconditional?  If the
-cmpxchg() fails, then it means someone else has come in and changed the
-lock under our feet, and presumably they'll do the kick as needed?
+> I visited existing smp_send_reschedule() implementations and tried to
+> add a call to scheduler_ipi() in their handler part, but esp. for MIPS
+> I'm not quite sure I actually got all of them.
 
-Or is there the possibility that the kick will get lost?
+No, you didn't.  Here are a few more for you to fold into the existing patch.
 
-There's certainly no harm in doing a redundant kick, and I'd expect that
-case to be pretty rare...
+  Ralf
 
-    J
+Signed-off-by: Ralf Baechle <ralf-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org>
+
+ arch/mips/cavium-octeon/smp.c       |    2 ++
+ arch/mips/mti-malta/malta-int.c     |    2 ++
+ arch/mips/pmc-sierra/yosemite/smp.c |    4 ++++
+ arch/mips/sgi-ip27/ip27-irq.c       |    2 ++
+ 4 files changed, 10 insertions(+), 0 deletions(-)
+
+diff --git a/arch/mips/cavium-octeon/smp.c b/arch/mips/cavium-octeon/smp.c
+index 391cefe..170684a 100644
+--- a/arch/mips/cavium-octeon/smp.c
++++ b/arch/mips/cavium-octeon/smp.c
+@@ -44,6 +44,8 @@ static irqreturn_t mailbox_interrupt(int irq, void *dev_id)
+ 
+ 	if (action & SMP_CALL_FUNCTION)
+ 		smp_call_function_interrupt();
++	if (action & SMP_RESCHEDULE_YOURSELF)
++		scheduler_ipi();
+ 
+ 	/* Check if we've been told to flush the icache */
+ 	if (action & SMP_ICACHE_FLUSH)
+diff --git a/arch/mips/mti-malta/malta-int.c b/arch/mips/mti-malta/malta-int.c
+index b79b24a..fc7571f 100644
+--- a/arch/mips/mti-malta/malta-int.c
++++ b/arch/mips/mti-malta/malta-int.c
+@@ -309,6 +309,8 @@ static void ipi_call_dispatch(void)
+ 
+ static irqreturn_t ipi_resched_interrupt(int irq, void *dev_id)
+ {
++	scheduler_ipi();
++
+ 	return IRQ_HANDLED;
+ }
+ 
+diff --git a/arch/mips/pmc-sierra/yosemite/smp.c b/arch/mips/pmc-sierra/yosemite/smp.c
+index efc9e88..2608752 100644
+--- a/arch/mips/pmc-sierra/yosemite/smp.c
++++ b/arch/mips/pmc-sierra/yosemite/smp.c
+@@ -55,6 +55,8 @@ void titan_mailbox_irq(void)
+ 
+ 		if (status & 0x2)
+ 			smp_call_function_interrupt();
++		if (status & 0x4)
++			scheduler_ipi();
+ 		break;
+ 
+ 	case 1:
+@@ -63,6 +65,8 @@ void titan_mailbox_irq(void)
+ 
+ 		if (status & 0x2)
+ 			smp_call_function_interrupt();
++		if (status & 0x4)
++			scheduler_ipi();
+ 		break;
+ 	}
+ }
+diff --git a/arch/mips/sgi-ip27/ip27-irq.c b/arch/mips/sgi-ip27/ip27-irq.c
+index 6a123ea..81d6548 100644
+--- a/arch/mips/sgi-ip27/ip27-irq.c
++++ b/arch/mips/sgi-ip27/ip27-irq.c
+@@ -147,8 +147,10 @@ static void ip27_do_irq_mask0(void)
+ #ifdef CONFIG_SMP
+ 	if (pend0 & (1UL << CPU_RESCHED_A_IRQ)) {
+ 		LOCAL_HUB_CLR_INTR(CPU_RESCHED_A_IRQ);
++		scheduler_ipi();
+ 	} else if (pend0 & (1UL << CPU_RESCHED_B_IRQ)) {
+ 		LOCAL_HUB_CLR_INTR(CPU_RESCHED_B_IRQ);
++		scheduler_ipi();
+ 	} else if (pend0 & (1UL << CPU_CALL_A_IRQ)) {
+ 		LOCAL_HUB_CLR_INTR(CPU_CALL_A_IRQ);
+ 		smp_call_function_interrupt();
