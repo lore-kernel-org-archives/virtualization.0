@@ -1,162 +1,127 @@
 From: Haiyang Zhang <haiyangz@microsoft.com>
-Subject: [PATCH 6/8] staging: hv: Convert camel cased struct fields in
-	vmbus_channel_interface.h to lower cases
-Date: Wed, 26 Jan 2011 09:50:04 -0800
-Message-ID: <1296064206-11372-6-git-send-email-haiyangz@microsoft.com>
+Subject: [PATCH 4/8] staging: hv: Convert camel cased functions in vmbus_drv.c to lower cases
+Date: Wed, 26 Jan 2011 09:50:02 -0800
+Message-ID: <1296064206-11372-4-git-send-email-haiyangz@microsoft.com>
 References: <1296064206-11372-1-git-send-email-haiyangz@microsoft.com>
-	<1296064206-11372-2-git-send-email-haiyangz@microsoft.com>
-	<1296064206-11372-3-git-send-email-haiyangz@microsoft.com>
-	<1296064206-11372-4-git-send-email-haiyangz@microsoft.com>
-	<1296064206-11372-5-git-send-email-haiyangz@microsoft.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <devel-bounces@linuxdriverproject.org>
-In-Reply-To: <1296064206-11372-5-git-send-email-haiyangz@microsoft.com>
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
-List-Post: <mailto:devel@linuxdriverproject.org>
-List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
-Sender: devel-bounces@linuxdriverproject.org
-Errors-To: devel-bounces@linuxdriverproject.org
+ <1296064206-11372-2-git-send-email-haiyangz@microsoft.com>
+ <1296064206-11372-3-git-send-email-haiyangz@microsoft.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1296064206-11372-3-git-send-email-haiyangz@microsoft.com>
+Sender: linux-kernel-owner@vger.kernel.org
 To: haiyangz@microsoft.com, hjanssen@microsoft.com, gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/channel.c                 |    4 ++--
- drivers/staging/hv/channel_mgmt.c            |   20 ++++++++++----------
- drivers/staging/hv/vmbus_channel_interface.h |   26 +++++++++++++-------------
- 3 files changed, 25 insertions(+), 25 deletions(-)
+ drivers/staging/hv/channel_mgmt.c  |    4 ++--
+ drivers/staging/hv/vmbus_drv.c     |   22 +++++++++++-----------
+ drivers/staging/hv/vmbus_private.h |    6 +++---
+ 3 files changed, 16 insertions(+), 16 deletions(-)
 
-diff --git a/drivers/staging/hv/channel.c b/drivers/staging/hv/channel.c
-index 960e155..711548f 100644
---- a/drivers/staging/hv/channel.c
-+++ b/drivers/staging/hv/channel.c
-@@ -128,9 +128,9 @@ void vmbus_get_debug_info(struct vmbus_channel *channel,
- 	debuginfo->relid = channel->offermsg.child_relid;
- 	debuginfo->state = channel->state;
- 	memcpy(&debuginfo->interfacetype,
--	       &channel->offermsg.offer.InterfaceType, sizeof(struct hv_guid));
-+	       &channel->offermsg.offer.if_type, sizeof(struct hv_guid));
- 	memcpy(&debuginfo->interface_instance,
--	       &channel->offermsg.offer.InterfaceInstance,
-+	       &channel->offermsg.offer.if_instance,
- 	       sizeof(struct hv_guid));
- 
- 	monitorpage = (struct hv_monitor_page *)vmbus_connection.MonitorPages;
 diff --git a/drivers/staging/hv/channel_mgmt.c b/drivers/staging/hv/channel_mgmt.c
-index b4a8561..3e229fa 100644
+index 0ce8f54..732a457 100644
 --- a/drivers/staging/hv/channel_mgmt.c
 +++ b/drivers/staging/hv/channel_mgmt.c
-@@ -364,11 +364,11 @@ static void vmbus_process_offer(struct work_struct *work)
- 	spin_lock_irqsave(&vmbus_connection.channel_lock, flags);
- 
- 	list_for_each_entry(channel, &vmbus_connection.ChannelList, listentry) {
--		if (!memcmp(&channel->offermsg.offer.InterfaceType,
--			    &newchannel->offermsg.offer.InterfaceType,
-+		if (!memcmp(&channel->offermsg.offer.if_type,
-+			    &newchannel->offermsg.offer.if_type,
- 			    sizeof(struct hv_guid)) &&
--		    !memcmp(&channel->offermsg.offer.InterfaceInstance,
--			    &newchannel->offermsg.offer.InterfaceInstance,
-+		    !memcmp(&channel->offermsg.offer.if_instance,
-+			    &newchannel->offermsg.offer.if_instance,
- 			    sizeof(struct hv_guid))) {
- 			fnew = false;
- 			break;
-@@ -394,8 +394,8 @@ static void vmbus_process_offer(struct work_struct *work)
- 	 * vmbus_child_dev_add()
+@@ -391,7 +391,7 @@ static void vmbus_process_offer(struct work_struct *work)
+ 	/*
+ 	 * Start the process of binding this offer to the driver
+ 	 * We need to set the DeviceObject field before calling
+-	 * VmbusChildDeviceAdd()
++	 * vmbus_child_dev_add()
  	 */
  	newchannel->device_obj = vmbus_child_device_create(
--		&newchannel->offermsg.offer.InterfaceType,
--		&newchannel->offermsg.offer.InterfaceInstance,
-+		&newchannel->offermsg.offer.if_type,
-+		&newchannel->offermsg.offer.if_instance,
- 		newchannel);
+ 		&newchannel->offermsg.offer.InterfaceType,
+@@ -406,7 +406,7 @@ static void vmbus_process_offer(struct work_struct *work)
+ 	 * binding which eventually invokes the device driver's AddDevice()
+ 	 * method.
+ 	 */
+-	ret = VmbusChildDeviceAdd(newchannel->device_obj);
++	ret = vmbus_child_dev_add(newchannel->device_obj);
+ 	if (ret != 0) {
+ 		DPRINT_ERR(VMBUS,
+ 			   "unable to add child device object (relid %d)",
+diff --git a/drivers/staging/hv/vmbus_drv.c b/drivers/staging/hv/vmbus_drv.c
+index 99686f0..0c0aadb 100644
+--- a/drivers/staging/hv/vmbus_drv.c
++++ b/drivers/staging/hv/vmbus_drv.c
+@@ -148,17 +148,17 @@ static const struct hv_guid device_id = {
+ static struct hv_device *vmbus_device; /* vmbus root device */
  
- 	DPRINT_DBG(VMBUS, "child device object allocated - %p",
-@@ -427,7 +427,7 @@ static void vmbus_process_offer(struct work_struct *work)
- 
- 		/* Open IC channels */
- 		for (cnt = 0; cnt < MAX_MSG_TYPES; cnt++) {
--			if (memcmp(&newchannel->offermsg.offer.InterfaceType,
-+			if (memcmp(&newchannel->offermsg.offer.if_type,
- 				   &hv_cb_utils[cnt].data,
- 				   sizeof(struct hv_guid)) == 0 &&
- 				vmbus_open(newchannel, 2 * PAGE_SIZE,
-@@ -461,7 +461,7 @@ static void vmbus_onoffer(struct vmbus_channel_message_header *hdr)
- 
- 	offer = (struct vmbus_channel_offer_channel *)hdr;
- 	for (i = 0; i < MAX_NUM_DEVICE_CLASSES_SUPPORTED; i++) {
--		if (memcmp(&offer->offer.InterfaceType,
-+		if (memcmp(&offer->offer.if_type,
- 		    &gSupportedDeviceClasses[i], sizeof(struct hv_guid)) == 0) {
- 			fsupported = 1;
- 			break;
-@@ -474,8 +474,8 @@ static void vmbus_onoffer(struct vmbus_channel_message_header *hdr)
- 		return;
- 	}
- 
--	guidtype = &offer->offer.InterfaceType;
--	guidinstance = &offer->offer.InterfaceInstance;
-+	guidtype = &offer->offer.if_type;
-+	guidinstance = &offer->offer.if_instance;
- 
- 	DPRINT_INFO(VMBUS, "Channel offer notification - "
- 		    "child relid %d monitor id %d allocated %d, "
-diff --git a/drivers/staging/hv/vmbus_channel_interface.h b/drivers/staging/hv/vmbus_channel_interface.h
-index 2674282..fbfad5e 100644
---- a/drivers/staging/hv/vmbus_channel_interface.h
-+++ b/drivers/staging/hv/vmbus_channel_interface.h
-@@ -48,19 +48,19 @@
-  * struct contains the fundamental information about an offer.
+ /*
+- * VmbusChildDeviceAdd - Registers the child device with the vmbus
++ * vmbus_child_dev_add - Registers the child device with the vmbus
   */
- struct vmbus_channel_offer {
--	struct hv_guid InterfaceType;
--	struct hv_guid InterfaceInstance;
--	u64 InterruptLatencyIn100nsUnits;
--	u32 InterfaceRevision;
--	u32 ServerContextAreaSize;	/* in bytes */
--	u16 ChannelFlags;
--	u16 MmioMegabytes;		/* in bytes * 1024 * 1024 */
-+	struct hv_guid if_type;
-+	struct hv_guid if_instance;
-+	u64 int_latency; /* in 100ns units */
-+	u32 if_revision;
-+	u32 server_ctx_size;	/* in bytes */
-+	u16 chn_flags;
-+	u16 mmio_megabytes;		/* in bytes * 1024 * 1024 */
+-int VmbusChildDeviceAdd(struct hv_device *child_dev)
++int vmbus_child_dev_add(struct hv_device *child_dev)
+ {
+ 	return vmbus_child_device_register(vmbus_device, child_dev);
+ }
  
- 	union {
- 		/* Non-pipes: The user has MAX_USER_DEFINED_BYTES bytes. */
- 		struct {
--			unsigned char UserDefined[MAX_USER_DEFINED_BYTES];
--		} Standard;
-+			unsigned char user_def[MAX_USER_DEFINED_BYTES];
-+		} std;
+ /*
+- * VmbusOnDeviceAdd - Callback when the root bus device is added
++ * vmbus_dev_add - Callback when the root bus device is added
+  */
+-static int VmbusOnDeviceAdd(struct hv_device *dev, void *info)
++static int vmbus_dev_add(struct hv_device *dev, void *info)
+ {
+ 	u32 *irqvector = info;
+ 	int ret;
+@@ -181,9 +181,9 @@ static int VmbusOnDeviceAdd(struct hv_device *dev, void *info)
+ }
  
- 		/*
- 		 * Pipes:
-@@ -70,11 +70,11 @@ struct vmbus_channel_offer {
- 		 * use.
- 		 */
- 		struct {
--			u32  PipeMode;
--			unsigned char UserDefined[MAX_PIPE_USER_DEFINED_BYTES];
--		} Pipe;
-+			u32  pipe_mode;
-+			unsigned char user_def[MAX_PIPE_USER_DEFINED_BYTES];
-+		} pipe;
- 	} u;
--	u32 Padding;
-+	u32 padding;
- } __attribute__((packed));
+ /*
+- * VmbusOnDeviceRemove - Callback when the root bus device is removed
++ * vmbus_dev_rm - Callback when the root bus device is removed
+  */
+-static int VmbusOnDeviceRemove(struct hv_device *dev)
++static int vmbus_dev_rm(struct hv_device *dev)
+ {
+ 	int ret = 0;
  
- /* Server Flags */
+@@ -194,9 +194,9 @@ static int VmbusOnDeviceRemove(struct hv_device *dev)
+ }
+ 
+ /*
+- * VmbusOnCleanup - Perform any cleanup when the driver is removed
++ * vmbus_cleanup - Perform any cleanup when the driver is removed
+  */
+-static void VmbusOnCleanup(struct hv_driver *drv)
++static void vmbus_cleanup(struct hv_driver *drv)
+ {
+ 	/* struct vmbus_driver *driver = (struct vmbus_driver *)drv; */
+ 
+@@ -482,9 +482,9 @@ static int vmbus_bus_init(void)
+ 	memcpy(&driver->deviceType, &device_type, sizeof(struct hv_guid));
+ 
+ 	/* Setup dispatch table */
+-	driver->OnDeviceAdd	= VmbusOnDeviceAdd;
+-	driver->OnDeviceRemove	= VmbusOnDeviceRemove;
+-	driver->OnCleanup	= VmbusOnCleanup;
++	driver->OnDeviceAdd	= vmbus_dev_add;
++	driver->OnDeviceRemove	= vmbus_dev_rm;
++	driver->OnCleanup	= vmbus_cleanup;
+ 
+ 	/* Hypervisor initialization...setup hypercall page..etc */
+ 	ret = hv_init();
+diff --git a/drivers/staging/hv/vmbus_private.h b/drivers/staging/hv/vmbus_private.h
+index e3b0663..0ab404e 100644
+--- a/drivers/staging/hv/vmbus_private.h
++++ b/drivers/staging/hv/vmbus_private.h
+@@ -102,11 +102,11 @@ extern struct VMBUS_CONNECTION vmbus_connection;
+ 
+ /* General vmbus interface */
+ 
+-struct hv_device *vmbus_child_device_create(struct hv_guid *deviceType,
+-					 struct hv_guid *deviceInstance,
++struct hv_device *vmbus_child_device_create(struct hv_guid *type,
++					 struct hv_guid *instance,
+ 					 struct vmbus_channel *channel);
+ 
+-int VmbusChildDeviceAdd(struct hv_device *Device);
++int vmbus_child_dev_add(struct hv_device *device);
+ int vmbus_child_device_register(struct hv_device *root_device_obj,
+ 				struct hv_device *child_device_obj);
+ void vmbus_child_device_unregister(struct hv_device *device_obj);
 -- 
 1.6.3.2
