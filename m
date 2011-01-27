@@ -1,174 +1,185 @@
-From: Ming Zhao <zhaom@cis.fiu.edu>
-Subject: SNAPI2011 deadline extended to Feb 4 (7th IEEE International Workshop
-	on Storage Network Architecture and Parallel I/O)
-Date: Wed, 26 Jan 2011 19:15:35 -0500
-Message-ID: <20110127042204.240D8B8861D@cheetah.cs.fiu.edu>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH] virtio_blk: allow re-reading config space at runtime
+Date: Thu, 27 Jan 2011 17:32:21 +0200
+Message-ID: <20110127153220.GB4898@redhat.com>
+References: <20110114160137.GA18721@lst.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20110114160137.GA18721@lst.de>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Christoph Hellwig <hch@lst.de>
+Cc: Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org, kvm@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Update: Deadline is extended to Feb 4th, 2011, 23:59 EST (FIRM)
+On Fri, Jan 14, 2011 at 05:01:37PM +0100, Christoph Hellwig wrote:
+> Wire up the virtio_driver config_changed method to get notified about
+> config changes raised by the host.  For now we just re-read the device
+> size to support online resizing of devices, but once we add more
+> attributes that might be changeable they could be added as well.
+> 
+> Note that the config_changed method is called from irq context, so
+> we'll have to use the workqueue infrastructure to provide us a proper
+> user context for our changes.
+> 
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
+> 
+> Index: xfs/drivers/block/virtio_blk.c
+> ===================================================================
+> --- xfs.orig/drivers/block/virtio_blk.c	2011-01-13 18:17:23.730254665 +0100
+> +++ xfs/drivers/block/virtio_blk.c	2011-01-14 16:57:50.572032906 +0100
+> @@ -6,10 +6,12 @@
+>  #include <linux/virtio.h>
+>  #include <linux/virtio_blk.h>
+>  #include <linux/scatterlist.h>
+> +#include <linux/string_helpers.h>
+>  
+>  #define PART_BITS 4
+>  
+>  static int major, index;
+> +struct workqueue_struct *virtblk_wq;
+>  
+>  struct virtio_blk
+>  {
+> @@ -42,6 +44,11 @@ struct virtblk_req
+>  	u8 status;
+>  };
+>  
+> +struct virtblk_config_change {
+> +	struct virtio_device *vdev;
+> +	struct work_struct work;
+> +};
+> +
+>  static void blk_done(struct virtqueue *vq)
+>  {
+>  	struct virtio_blk *vblk = vq->vdev->priv;
+> @@ -291,6 +298,57 @@ static ssize_t virtblk_serial_show(struc
+>  }
+>  DEVICE_ATTR(serial, S_IRUGO, virtblk_serial_show, NULL);
+>  
+> +static void virtblk_config_changed_work(struct work_struct *work)
+> +{
+> +	struct virtblk_config_change *cfg =
+> +		container_of(work, struct virtblk_config_change, work);
+> +	struct virtio_device *vdev = cfg->vdev;
+> +	struct virtio_blk *vblk = vdev->priv;
+> +	struct request_queue *q = vblk->disk->queue;
+> +	char cap_str_2[10], cap_str_10[10];
+> +	u64 capacity, size;
+> +
+> +	/* Host must always specify the capacity. */
+> +	vdev->config->get(vdev, offsetof(struct virtio_blk_config, capacity),
+> +			  &capacity, sizeof(capacity));
+> +
+> +	/* If capacity is too big, truncate with warning. */
+> +	if ((sector_t)capacity != capacity) {
+> +		dev_warn(&vdev->dev, "Capacity %llu too large: truncating\n",
+> +			 (unsigned long long)capacity);
+> +		capacity = (sector_t)-1;
+> +	}
+> +
+> +	size = capacity * queue_logical_block_size(q);
+> +	string_get_size(size, STRING_UNITS_2, cap_str_2, sizeof(cap_str_2));
+> +	string_get_size(size, STRING_UNITS_10, cap_str_10, sizeof(cap_str_10));
+> +
+> +	dev_notice(&vdev->dev,
+> +		  "new size: %llu %d-byte logical blocks (%s/%s)\n",
+> +		  (unsigned long long)capacity,
+> +		  queue_logical_block_size(q),
+> +		  cap_str_10, cap_str_2);
+> +
+> +	set_capacity(vblk->disk, capacity);
+> +
+> +}
+> +
+> +static void virtblk_config_changed(struct virtio_device *vdev)
+> +{
+> +	struct virtblk_config_change *cfg;
+> +
+> +	cfg = kmalloc(sizeof(*cfg), GFP_ATOMIC);
+> +	if (!cfg) {
+> +		dev_info(&vdev->dev, "skipping config change\n");
+> +		return;
+> +	}
+> +
+> +	cfg->vdev = vdev;
+> +	INIT_WORK(&cfg->work, virtblk_config_changed_work);
+> +	queue_work(virtblk_wq, &cfg->work);
 
+This needs to be flushed on device removal, I think,
+otherwise the vdev pointer will go stale.
 
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-                          Call for Papers
-                  7th IEEE International Workshop on
-            Storage Network Architecture and Parallel I/Os
-                            (SNAPI 2011)
-                    http://snapi2011.cis.fiu.edu
+> +}
+> +
+> +
 
-                 May 25, 2011  Denver, Colorado, USA
-            In conjunction with the 27th IEEE Conference on
-           Mass Storage Systems and Technologies (MSST 2011)
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+Two empty lines :)
 
-SCOPE:
-------
-
-The 7th IEEE Storage Networking Architecture and Parallel I/O (SNAPI
-2011) Workshop aims to highlight the latest research in the
-architecture, design, implementation, and evaluation of local and
-networked storage and parallel I/O systems. The workshop is co-located
-with the 27th IEEE Conference on Mass Storage Systems and Technologies
-(MSST2011) that features a full week dedicated to "all things storage".
-The SNAPI 2011 workshop, held in the middle of the MSST week, will
-feature a full day of technical papers that showcase the latest work
-from the academia, the labs, and the industry.
-
-This year we would like to encourage a variety of submissions including
-novel idea papers, real system experience papers, as well as analysis
-and evaluation papers. Topics of interest include, but are not limited
-to:
-
-* Caching, replication, and consistency
-* Energy-efficient storage
-* Evaluation of networked storage architectures
-* Experiences with real systems
-* File and block based network storage
-* Integration and evaluation of emerging storage technology
-* I/O quality of service
-* New abstractions/protocols for data, storage, and I/O
-* Parallel I/O
-* Performance, scalability, and manageability of networked storage
-* SSD-based storage architectures and tiered storage
-* Storage device and workload characterization
-* Storage networking
-* Storage reliability and failure management
-* Storage virtualization
-* Thin provisioning, consolidation, compression, and deduplication
-* Wide-area networked storage
-
-
-
-SUBMISSIONS INSTRUCTIONS:
--------------------------
-
-Submissions should not exceed 8 single-space pages including all text,
-figures, and references. Submissions must be typeset as double-column
-text, using no less than 10 pt font, and using a text block that does
-not exceed 6.5" width and 9" height.
-
-The reviewing is double-blind. Authors must not be identified in the
-submission either directly or indirectly. Please be careful so as to not
-refer to your own work in the first person or leak authorship in any way
-within the text of the paper. Reviewing will be performed by the members
-of the SNAPI=E2=80=9911 Program Committee. Each paper will receive at least
-three reviews from members of the Program Committee.
-
-The final version of the paper prepared after incorporating reviewer
-feedback should be submitted by April 1st, 2011. At least one author of
-each accepted paper will be expected to attend the workshop and present
-their work in a 25 minute talk.
-
-
-
-BEST PAPER AWARD:
------------------
-
-Authors of the best paper, chosen by the Program Committee, will be
-presented an award at the workshop.
-
-
-
-Important dates:
-----------------
-
-* Full paper submission: Feb 4th, 2011, 23:59 EST
-* Notification of acceptance: March 4, 2011
-* Final manuscripts due: April 1, 2011
-* Workshop: May 25, 2011
-
-
-
-Organization:
--------------
-
-* Program Chair:
- o Raju Rangaswami, Florida International University
-
-* Program Committee:
- o Angelos Bilas, FORTH and University of Crete
- o Randal Burns, Johns Hopkins University
- o Dan Feng, Huazhong University of Science and Technology
- o Dirk Grunwald, University of Colorado, Boulder
- o Ajay Gulati, VMware
- o Ron Oldfield, Sandia National Laboratory
- o Vijayan Prabhakaran, Microsoft Research
- o Himabindu Pucha, IBM Research - Almaden
- o A. L. Narasimha Reddy, Texas A&M University
- o Alma Riska, College of William and Mary
- o Philip Roth, Oak Ridge National Laboratory
- o Jiri Schindler, NetApp
- o Rajeev Thakur, Argonne National Laboratory
- o Bhuvan Urgaonkar, Pennsylvania State University
- o Youjip Won, Hanyang University
- o Ming Zhao, Florida International University
-
-* Web and Publicity Chair:
- o Ming Zhao, Florida International University
-
-* Steering Committee:
- o Qing Yang, University of Rhode Island
- o Hong Jiang, University of Nebraska-Lincoln
- o Xubin He, Tennessee Tech University
-
-
-
-SPONSORSHIP:
-------------
-IEEE Mass Storage Systems Technical Committee (MSSTC)
-
-
-
-Information:
-------------
-* SNAPI 2001 Web: http://snapi2011.cis.fiu.edu
-* MSST 2011 Web: http://storageconference.org
-* Email: snapi2011@cis.fiu.edu
-
-
-
-
--- =
-
-Ming Zhao, Assistant Professor
-School of Computing and Information Sciences
-Florida International University
-Tel: (305) 348-2034, Fax: (305) 348-3549
-Web: http://visa.cs.fiu.edu/ming =
+>  static int __devinit virtblk_probe(struct virtio_device *vdev)
+>  {
+>  	struct virtio_blk *vblk;
+> @@ -508,27 +566,47 @@ static unsigned int features[] = {
+>   * Use __refdata to avoid this warning.
+>   */
+>  static struct virtio_driver __refdata virtio_blk = {
+> -	.feature_table = features,
+> -	.feature_table_size = ARRAY_SIZE(features),
+> -	.driver.name =	KBUILD_MODNAME,
+> -	.driver.owner =	THIS_MODULE,
+> -	.id_table =	id_table,
+> -	.probe =	virtblk_probe,
+> -	.remove =	__devexit_p(virtblk_remove),
+> +	.feature_table		= features,
+> +	.feature_table_size	= ARRAY_SIZE(features),
+> +	.driver.name		= KBUILD_MODNAME,
+> +	.driver.owner		= THIS_MODULE,
+> +	.id_table		= id_table,
+> +	.probe			= virtblk_probe,
+> +	.remove			= __devexit_p(virtblk_remove),
+> +	.config_changed		= virtblk_config_changed,
+>  };
+>  
+>  static int __init init(void)
+>  {
+> +	int error;
+> +
+> +	virtblk_wq = alloc_workqueue("md_misc", 0, 0);
+> +	if (!virtblk_wq)
+> +		return -ENOMEM;
+> +
+>  	major = register_blkdev(0, "virtblk");
+> -	if (major < 0)
+> -		return major;
+> -	return register_virtio_driver(&virtio_blk);
+> +	if (major < 0) {
+> +		error = major;
+> +		goto out_destroy_workqueue;
+> +	}
+> +
+> +	error = register_virtio_driver(&virtio_blk);
+> +	if (error)
+> +		goto out_unregister_blkdev;
+> +	return 0;
+> +
+> +out_unregister_blkdev:
+> +	unregister_blkdev(major, "virtblk");
+> +out_destroy_workqueue:
+> +	destroy_workqueue(virtblk_wq);
+> +	return error;
+>  }
+>  
+>  static void __exit fini(void)
+>  {
+>  	unregister_blkdev(major, "virtblk");
+>  	unregister_virtio_driver(&virtio_blk);
+> +	destroy_workqueue(virtblk_wq);
+>  }
+>  module_init(init);
+>  module_exit(fini);
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
