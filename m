@@ -1,14 +1,13 @@
-From: Amit Shah <amit.shah@redhat.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
 Subject: Re: [PATCH 1/2] virtio: console: Wake up outvq on host notifications
-Date: Mon, 31 Jan 2011 15:58:06 +0530
-Message-ID: <20110131102806.GA9982__5871.00072666562$1296470574$gmane$org@amit-x200.redhat.com>
+Date: Mon, 31 Jan 2011 20:59:12 +1030
+Message-ID: <201101312059.12732.rusty@rustcorp.com.au>
 References: <eb504880dbb2b70d51c62a63012b69408b80d070.1296459389.git.amit.shah@redhat.com>
 	<201101312033.15623.rusty@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
 In-Reply-To: <201101312033.15623.rusty@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,11 +18,11 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Hans de Goede <hdegoede@redhat.com>, stable@kernel.org, Virtualization List <virtualization@lists.linux-foundation.org>
+To: Amit Shah <amit.shah@redhat.com>
+Cc: Hans de Goede <hdegoede@redhat.com>, Virtualization List <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On (Mon) Jan 31 2011 [20:33:15], Rusty Russell wrote:
+On Mon, 31 Jan 2011 08:33:15 pm Rusty Russell wrote:
 > On Mon, 31 Jan 2011 06:06:36 pm Amit Shah wrote:
 > > The outvq needs to be woken up on host notifications so that buffers
 > > consumed by the host can be reclaimed, outvq freed, and application
@@ -34,8 +33,7 @@ On (Mon) Jan 31 2011 [20:33:15], Rusty Russell wrote:
 > 
 > What about -stable?
 
-Yes, it's needed (I added the CC: stable@kernel.org tag -- that should
-be enough, right?)
+Sorry, I missed the CC...
 
 Thanks,
-		Amit
+Rusty.
