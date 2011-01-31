@@ -1,14 +1,13 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH 1/2] virtio: console: Wake up outvq on host notifications
-Date: Mon, 31 Jan 2011 20:59:12 +1030
-Message-ID: <201101312059.12732.rusty@rustcorp.com.au>
-References: <eb504880dbb2b70d51c62a63012b69408b80d070.1296459389.git.amit.shah@redhat.com>
-	<201101312033.15623.rusty@rustcorp.com.au>
+From: Linus Torvalds <torvalds@linux-foundation.org>
+Subject: Re: [PATCH] virtio: update MAINTAINERS
+Date: Tue, 1 Feb 2011 08:11:44 +1000
+Message-ID: <AANLkTi=m5AFmRPRESfbXUFqUv3Pom5x4X2LKX8DD0x=3__17597.4758727991$1296512087$gmane$org@mail.gmail.com>
+References: <201101311646.20873.rusty@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <201101312033.15623.rusty@rustcorp.com.au>
+In-Reply-To: <201101311646.20873.rusty@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,22 +17,20 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Amit Shah <amit.shah@redhat.com>
-Cc: Hans de Goede <hdegoede@redhat.com>, Virtualization List <virtualization@lists.linux-foundation.org>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, 31 Jan 2011 08:33:15 pm Rusty Russell wrote:
-> On Mon, 31 Jan 2011 06:06:36 pm Amit Shah wrote:
-> > The outvq needs to be woken up on host notifications so that buffers
-> > consumed by the host can be reclaimed, outvq freed, and application
-> > writes may proceed again.
-> > 
-> > The need for this is now finally noticed when I have qemu patches ready
-> > to use nonblocking IO and flow control.
-> 
-> What about -stable?
+On Mon, Jan 31, 2011 at 4:16 PM, Rusty Russell <rusty@rustcorp.com.au> wrote:
+> Patches should keep coming through Rusty but it
+> helps if I'm Cc'd as well.
 
-Sorry, I missed the CC...
+This commit log makes no sense as being yours. It's clearly frm
+Michael, but you're missing that vital piece of information, ie the
+"From: Michael S Tsirkin .." line at the top.
 
-Thanks,
-Rusty.
+Please don't drop patch authorship attributions.
+
+Tssk.
+
+                     Linus
