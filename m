@@ -1,30 +1,30 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PULL] vhost-net: 2.6.38 - warning fix
-Date: Tue, 1 Feb 2011 17:44:40 +0200
-Message-ID: <20110201154440.GA22819@redhat.com>
+From: Christoph Hellwig <hch@lst.de>
+Subject: Re: [PATCH] virtio_blk: allow re-reading config space at runtime
+Date: Tue, 1 Feb 2011 18:33:12 +0100
+Message-ID: <20110201173312.GD16883@lst.de>
+References: <20110114160137.GA18721@lst.de> <20110127153220.GB4898@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <kvm-owner@vger.kernel.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-Sender: kvm-owner@vger.kernel.org
-To: David Miller <davem@davemloft.net>
-Cc: kvm@vger.kernel.org, virtualization@lists.osdl.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20110127153220.GB4898@redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Christoph Hellwig <hch@lst.de>, Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org, kvm@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Please merge for 2.6.38. Not the most elegant fix,
-but it does fix the noise in dmesg that interferes with
-kvm debugging, and probably the best we can do for 2.6.38.
+On Thu, Jan 27, 2011 at 05:32:21PM +0200, Michael S. Tsirkin wrote:
+> This needs to be flushed on device removal, I think,
+> otherwise the vdev pointer will go stale.
 
-The following changes since commit fca540ab5f4718c6133f71f7be1793066008bf89:
+Indeed.
 
-  enc28j60: Fix reading of transmit status vector (2011-01-31 20:56:54 -0800)
+> 
+> > +}
+> > +
+> > +
+> 
+> Two empty lines :)
 
-are available in the git repository at:
-  git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git vhost-net
 
-Michael S. Tsirkin (1):
-      vhost: rcu annotation fixup
-
- drivers/vhost/net.c   |    9 +++++----
- drivers/vhost/vhost.h |    6 +++---
- 2 files changed, 8 insertions(+), 7 deletions(-)
+I'll fix it up.
