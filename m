@@ -1,21 +1,38 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PULL] vhost-net: 2.6.38 - warning fix
-Date: Tue, 01 Feb 2011 12:58:01 -0800 (PST)
-Message-ID: <20110201.125801.104059155.davem@davemloft.net>
-References: <20110201154440.GA22819@redhat.com>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+From: Haiyang Zhang <haiyangz@microsoft.com>
+Subject: [PATCH] staging: hv: Enable sending GARP packet after live migration
+Date: Wed,  2 Feb 2011 13:42:58 -0800
+Message-ID: <1296682978-19223-1-git-send-email-haiyangz@microsoft.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20110201154440.GA22819@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: mst@redhat.com
-Cc: kvm@vger.kernel.org, virtualization@lists.osdl.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+To: haiyangz@microsoft.com, hjanssen@microsoft.com, gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org
+Cc: stable <stable@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Date: Tue, 1 Feb 2011 17:44:40 +0200
+The hv_netvsc gets RNDIS_STATUS_MEDIA_CONNECT event after the VM
+is live migrated. Adding call to netif_notify_peers() for this event
+to send GARP (Gratuitous ARP) to notify network peers. Otherwise,
+the VM's network connection may stop after a live migration.
 
-> git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git vhost-net
+This patch should also be applied to stable kernel 2.6.32 and later.
 
-Pulled, thanks Michael.
+Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
+Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
+Cc: stable <stable@kernel.org>
+---
+ drivers/staging/hv/netvsc_drv.c |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
+
+diff --git a/drivers/staging/hv/netvsc_drv.c b/drivers/staging/hv/netvsc_drv.c
+index 54706a1..b41c964 100644
+--- a/drivers/staging/hv/netvsc_drv.c
++++ b/drivers/staging/hv/netvsc_drv.c
+@@ -236,6 +236,7 @@ static void netvsc_linkstatus_callback(struct hv_device *device_obj,
+ 	if (status == 1) {
+ 		netif_carrier_on(net);
+ 		netif_wake_queue(net);
++		netif_notify_peers(net);
+ 	} else {
+ 		netif_carrier_off(net);
+ 		netif_stop_queue(net);
+-- 
+1.5.5.6
