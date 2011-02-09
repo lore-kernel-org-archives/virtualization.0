@@ -1,136 +1,60 @@
-From: Ming Zhao <zhaom@cis.fiu.edu>
-Subject: ICAC2011 Call for Posters and Workshop Papers
-Date: Mon, 7 Feb 2011 20:11:09 -0500
-Message-ID: <20110208051749.2F08AB88600@cheetah.cs.fiu.edu>
+From: Benjamin Herrenschmidt <benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>
+Subject: Re: [PATCH] sched: provide scheduler_ipi()
+ callback in response to smp_send_reschedule()
+Date: Wed, 09 Feb 2011 17:14:14 +1100
+Message-ID: <1297232054.14982.346.camel@pasglop>
+References: <1295262433.30950.53.camel@laptop>
+	<1297034792.14982.10.camel@pasglop> <1297086859.13327.16.camel@laptop>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
+Return-path: <uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org>
+In-Reply-To: <1297086859.13327.16.camel@laptop>
+List-Unsubscribe: <https://blackfin.uclinux.org/mailman/options/uclinux-dist-devel>,
+	<mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://blackfin.uclinux.org/pipermail/uclinux-dist-devel>
+List-Post: <mailto:uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org>
+List-Help: <mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=help>
+List-Subscribe: <https://blackfin.uclinux.org/mailman/listinfo/uclinux-dist-devel>,
+	<mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=subscribe>
+Sender: uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org
+Errors-To: uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org
+To: Peter Zijlstra <peterz-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>
+Cc: linux-m32r-ja-rQhvJZKUsGBRYuoOT4C5/9i2O/JbrIOy@public.gmane.org, linux-mips-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org, linux-m32r-rQhvJZKUsGBRYuoOT4C5/9i2O/JbrIOy@public.gmane.org, linux-ia64-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Heiko Carstens <heiko.carstens-tA70FqPdS9bQT0dZR+AlfA@public.gmane.org>, Howells <dhowells-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Paul Mackerras <paulus-eUNUBHrolfbYtjvyW6yDsg@public.gmane.org>, "H. Peter
+	Anvin" <hpa-YMNOUZJC4hwAvxtiuMwx3w@public.gmane.org>, sparclinux-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Linux-Arch <linux-arch-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-s390-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jesper Nilsson <jesper.nilsson-VrBV9hrLPhE@public.gmane.org>, Mikael-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Takata <takata-TMSiXQfHlQjsTix1lMzHGQ@public.gmane.org>, x86-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, "James E.J. Bottomley" <jejb-6jwH94ZQLHl74goWV3ctuw@public.gmane.org>, virtualization-qjLDD68F18O7TbgM5vRIOg@public.gmane.org, Ingo Molnar <mingo-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, xen-devel-GuqFBffKawuULHF6PoxzQEEOCMrvLtNR@public.gmane.org, Chris-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org, Matt Turner <mattst88-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org, Fen
 List-Id: virtualization@lists.linuxfoundation.org
 
---------------------------------------------------------------------
-8th International Conference on Autonomic Computing Call for Posters
---------------------------------------------------------------------
+On Mon, 2011-02-07 at 14:54 +0100, Peter Zijlstra wrote:
+> On Mon, 2011-02-07 at 10:26 +1100, Benjamin Herrenschmidt wrote:
+> > You missed:
+> > 
+> > diff --git a/arch/powerpc/kernel/smp.c b/arch/powerpc/kernel/smp.c
+> > index 9813605..467d122 100644
+> > --- a/arch/powerpc/kernel/smp.c
+> > +++ b/arch/powerpc/kernel/smp.c
+> > @@ -98,6 +98,7 @@ void smp_message_recv(int msg)
+> >                 break;
+> >         case PPC_MSG_RESCHEDULE:
+> >                 /* we notice need_resched on exit */
+> > +               scheduler_ipi();
+> >                 break;
+> >         case PPC_MSG_CALL_FUNC_SINGLE:
+> >                 generic_smp_call_function_single_interrupt();
+> > 
+> > Fold that in and add:
+> > 
+> > Acked-by: Benjamin Herrenschmidt <benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>
+> 
+> Thanks Ben!
 
-Posters are an excellent opportunity for presenting innovative research
-ideas, projects and results. Accepted papers for posters (2 page) will
-be published in proceedings by ACM, which will be distributed at the
-conference. Posters will be displayed at the conference.
+BTW. I we lurking at some of our CPU hotplug code and I think I cannot
+totally guarantee that this won't be called on an offline CPU. If that's
+a problem, you may want to add a test for that.
 
-Topics of interest:
+IE. The call function IPIs are normally not going to be sent to an
+offlined CPU, and stop_machine should be a good enough fence here, but
+we do abuse reschedule for a number of things (including in some case
+to wake up a sleeping CPU that was pseudo-offlined :-)
 
-* Applications of autonomic computing
-* Autonomic computing components and services
-* Algorithms, theory and foundations of autonomic computing
-
-Submission deadline: March 25 2011
-
-More information: http://icac2011.cs.fiu.edu/workshop#poster
-
-
-
-----------------------------------------------------------
-1st IEEE/ACM Workshop on Autonomic Computing for Economics
-----------------------------------------------------------
-
-This workshop is intended as a venue for researchers interested in 
-economic models for autonomic systems, the use of autonomic computing to
-simulate and/or create novel economic models and mechanisms and where 
-autonomic capabilities play a critical role in (business) applications 
-that fuel or require economically-driven decisions.
-
-Important Dates:
-
-* Paper submission: February 21, 2011
-* Author notification: March 14, 2011
-* Camera-ready final paper: April 2011
-
-More Information: http://www.im.uni-karlsruhe.de/ICAC-ACE
-
-
-
-------------------------------------------------------------------
-3rd Workshop on Bio-Inspired and Self-* Algorithms for Distributed 
-Systems
-------------------------------------------------------------------
-
-This full day workshop aims to gather scientists, engineers, and 
-practitioners to share and exchange their experiences, discuss 
-challenges, and report state-of-the-art and in-progress research on 
-bio-inspired algorithms and systems.
-
-Important Dates:
-
-* Paper submission: February 21, 2011
-* Author notification: March 2011
-* Camera-ready final paper: April 2011
-
-More Information: http://bads.icar.cnr.it/
-
-
-
------------------------------------------------------------------
-6th International Workshop on Feedback Control Implementation and 
-Design in Computing Systems and Networks
------------------------------------------------------------------
-
-The workshop aims to bring together researchers, practitioners, system 
-administrators, system programmers, and others interested in the latest 
-advances in the control of computer systems and networks. The focus of 
-the workshop is on novel, practical, systems-oriented work.
-
-Important Dates:
-
-* Paper submission: February 21, 2011
-* Author notification: March 14, 2011
-* Camera-ready final paper: April 15, 2011
-
-More Information: http://controlofsystems.org/febid2011/
-
-
-
----------------------------------------------
-First International E-Energy Market Challenge
----------------------------------------------
-
-The worksohp asks for submission of agent-based models and corresponding 
-papers describing the design of trading agents for retail energy 
-markets.
-
-Important Dates:
-
-* Paper submission: February 28, 2011
-* Author notification: March 15, 2011
-* Camera-ready final paper: April 15, 2011
-
-More Information: http://controlofsystems.org/febid2011/
-
-
-
------------------------------
-Workshop on Organic Computing
------------------------------
-
-This workshop will be a platform for the presentation of results of the 
-SPP projects as well as projects from the Autonomic Computing community. 
-These presentations will be the basis for a panel discussion on the 
-future directions of OC. The workshop is open for contributions with 
-OC-related topics from inside and outside the SPP.
-
-Important Dates:
-
-* Paper submission: February 21, 2011
-* Author notification: March 14, 2011
-* Camera-ready final paper: April 15, 2011
-
-More Information: http://www.sra.uni-hannover.de/orgcomp/news/date/2010/12/07/workshop-organic-computing
+Cheers,
+Ben.
