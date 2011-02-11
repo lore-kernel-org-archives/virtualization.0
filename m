@@ -1,40 +1,26 @@
-From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH]: Staging: hv: Cleanup vmalloc calls
-Date: Fri, 11 Feb 2011 14:48:45 -0800
-Message-ID: <1297464525-23254-1-git-send-email-kys@microsoft.com>
+From: Greg KH <gregkh@suse.de>
+Subject: Re: [PATCH]: Staging: hv: Cleanup vmalloc calls
+Date: Fri, 11 Feb 2011 14:53:31 -0800
+Message-ID: <20110211225331.GA32412@suse.de>
+References: <1297464525-23254-1-git-send-email-kys@microsoft.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1297464525-23254-1-git-send-email-kys@microsoft.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org
-Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Hank Janssen <hjanssen@microsoft.com>
+To: "K. Y. Srinivasan" <kys@microsoft.com>
+Cc: linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org, Hank Janssen <hjanssen@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The subject says it all. There is no need to
-specify different page protection bits based
-on the architecture.
+On Fri, Feb 11, 2011 at 02:48:45PM -0800, K. Y. Srinivasan wrote:
+> The subject says it all. There is no need to
+> specify different page protection bits based
+> on the architecture.
 
+Wonderful, thanks for doing this.  I'll queue it up after your previous
+patches sometime next week.
 
-Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
-Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
----
- drivers/staging/hv/hv.c |    5 -----
- 1 files changed, 0 insertions(+), 5 deletions(-)
+thanks,
 
-diff --git a/drivers/staging/hv/hv.c b/drivers/staging/hv/hv.c
-index 31b9073..2d492ad 100644
---- a/drivers/staging/hv/hv.c
-+++ b/drivers/staging/hv/hv.c
-@@ -230,12 +230,7 @@ int hv_init(void)
- 	* Allocate the hypercall page memory
- 	* virtaddr = osd_page_alloc(1);
- 	*/
--#ifdef __x86_64__
- 	virtaddr = __vmalloc(PAGE_SIZE, GFP_KERNEL, PAGE_KERNEL_EXEC);
--#else
--	virtaddr =  __vmalloc(PAGE_SIZE, GFP_KERNEL,
--			__pgprot(__PAGE_KERNEL & (~_PAGE_NX)));
--#endif
- 
- 	if (!virtaddr) {
- 		DPRINT_ERR(VMBUS,
--- 
-1.5.5.6
+greg k-h
