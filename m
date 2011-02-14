@@ -1,47 +1,88 @@
-From: Greg KH <gregkh@suse.de>
-Subject: Re: [PATCH] Staging: hv: Use list_entry for msg_info and remove
- associated comment
-Date: Mon, 14 Feb 2011 10:33:22 -0800
-Message-ID: <20110214183322.GA27858@suse.de>
-References: <1297708537-15981-1-git-send-email-hjanssen@microsoft.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Haiyang Zhang <haiyangz@microsoft.com>
+Subject: [PATCH 2/2] staging: hv: Remove dead code from rndis_filter.c
+Date: Mon, 14 Feb 2011 14:51:42 -0800
+Message-ID: <1297723902-18176-2-git-send-email-haiyangz@microsoft.com>
+References: <1297723902-18176-1-git-send-email-haiyangz@microsoft.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1297708537-15981-1-git-send-email-hjanssen@microsoft.com>
+In-Reply-To: <1297723902-18176-1-git-send-email-haiyangz@microsoft.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Hank Janssen <hjanssen@microsoft.com>
-Cc: haiyangz@microsoft.com, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org, Abhishek Kane <v-abkane@microsoft.com>, "K.Y. Srinivasan" <kys@microsoft.com>
+To: haiyangz@microsoft.com, hjanssen@microsoft.com, gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org
+Cc: "K. Y. Srinivasan" <kys@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Feb 14, 2011 at 10:35:37AM -0800, Hank Janssen wrote:
-> Change code to use list_entry api. And removed comment
-> suggesting that change.
-> 
-> Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
-> Signed-off-by: K.Y. Srinivasan <kys@microsoft.com>
-> Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
-> 
-> ---
->  drivers/staging/hv/channel_mgmt.c |   17 +++++++++--------
->  1 files changed, 9 insertions(+), 8 deletions(-)
-> 
-> diff --git a/drivers/staging/hv/channel_mgmt.c b/drivers/staging/hv/channel_mgmt.c
-> index a9c9d49..6c497e9 100644
-> --- a/drivers/staging/hv/channel_mgmt.c
-> +++ b/drivers/staging/hv/channel_mgmt.c
-> @@ -580,8 +580,9 @@ static void vmbus_onopen_result(struct vmbus_channel_message_header *hdr)
->  	spin_lock_irqsave(&vmbus_connection.channelmsg_lock, flags);
->  
->  	list_for_each(curr, &vmbus_connection.chn_msg_list) {
-> -/* FIXME: this should probably use list_entry() instead */
-> -		msginfo = (struct vmbus_channel_msginfo *)curr;
-> +		msginfo = list_entry(curr, struct vmbus_channel_msginfo,
-> +				msglistentry);
+Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
+Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
+---
+ drivers/staging/hv/rndis_filter.c |   15 ---------------
+ 1 files changed, 0 insertions(+), 15 deletions(-)
 
-How about using list_for_each_entry() instead?  That's the "preferred"
-way to do things these days, and it saves you an extra line of code :)
-
-thanks,
-
-greg k-h
+diff --git a/drivers/staging/hv/rndis_filter.c b/drivers/staging/hv/rndis_filter.c
+index 9dde936..e7189cd 100644
+--- a/drivers/staging/hv/rndis_filter.c
++++ b/drivers/staging/hv/rndis_filter.c
+@@ -355,10 +355,6 @@ static void rndis_filter_receive_data(struct rndis_device *dev,
+ 	struct rndis_packet *rndis_pkt;
+ 	u32 data_offset;
+ 
+-	/* empty ethernet frame ?? */
+-	/* ASSERT(Packet->PageBuffers[0].Length > */
+-	/* 	RNDIS_MESSAGE_SIZE(struct rndis_packet)); */
+-
+ 	rndis_pkt = &msg->msg.pkt;
+ 
+ 	/*
+@@ -455,8 +451,6 @@ static int rndis_filter_receive(struct hv_device *dev,
+ 	case REMOTE_NDIS_INITIALIZE_CMPLT:
+ 	case REMOTE_NDIS_QUERY_CMPLT:
+ 	case REMOTE_NDIS_SET_CMPLT:
+-	/* case REMOTE_NDIS_RESET_CMPLT: */
+-	/* case REMOTE_NDIS_KEEPALIVE_CMPLT: */
+ 		/* completion msgs */
+ 		rndis_filter_receive_response(rndis_dev, &rndis_msg);
+ 		break;
+@@ -563,9 +557,6 @@ static int rndis_filter_set_packet_filter(struct rndis_device *dev,
+ 	u32 status;
+ 	int ret;
+ 
+-	/* ASSERT(RNDIS_MESSAGE_SIZE(struct rndis_set_request) + sizeof(u32) <= */
+-	/* 	sizeof(struct rndis_message)); */
+-
+ 	request = get_rndis_request(dev, REMOTE_NDIS_SET_MSG,
+ 			RNDIS_MESSAGE_SIZE(struct rndis_set_request) +
+ 			sizeof(u32));
+@@ -634,8 +625,6 @@ int rndis_filter_init(struct netvsc_driver *drv)
+ 					drv->base.dev_rm;
+ 	rndis_filter.inner_drv.base.cleanup = drv->base.cleanup;
+ 
+-	/* ASSERT(Driver->OnSend); */
+-	/* ASSERT(Driver->OnReceiveCallback); */
+ 	rndis_filter.inner_drv.send = drv->send;
+ 	rndis_filter.inner_drv.recv_cb = drv->recv_cb;
+ 	rndis_filter.inner_drv.link_status_change =
+@@ -646,7 +635,6 @@ int rndis_filter_init(struct netvsc_driver *drv)
+ 	drv->base.dev_rm = rndis_filter_device_remove;
+ 	drv->base.cleanup = rndis_filter_cleanup;
+ 	drv->send = rndis_filter_send;
+-	/* Driver->QueryLinkStatus = RndisFilterQueryDeviceLinkStatus; */
+ 	drv->recv_cb = rndis_filter_receive;
+ 
+ 	return 0;
+@@ -793,8 +781,6 @@ static int rndis_filte_device_add(struct hv_device *dev,
+ 
+ 	/* Initialize the rndis device */
+ 	netDevice = dev->ext;
+-	/* ASSERT(netDevice); */
+-	/* ASSERT(netDevice->Device); */
+ 
+ 	netDevice->extension = rndisDevice;
+ 	rndisDevice->net_dev = netDevice;
+@@ -882,7 +868,6 @@ static int rndis_filter_send(struct hv_device *dev,
+ 
+ 	/* Add the rndis header */
+ 	filterPacket = (struct rndis_filter_packet *)pkt->extension;
+-	/* ASSERT(filterPacket); */
+ 
+ 	memset(filterPacket, 0, sizeof(struct rndis_filter_packet));
+ 
+-- 
+1.6.3.2
