@@ -1,50 +1,136 @@
-From: Hank Janssen <hjanssen@microsoft.com>
-Subject: RE: [PATCH ]:Staging: hv: Allocate the vmbus irq dynamically
-Date: Tue, 15 Feb 2011 17:28:32 +0000
-Message-ID: <8AFC7968D54FB448A30D8F38F259C56233F97247@TK5EX14MBXC114.redmond.corp.microsoft.com>
-References: <1297782937-24082-1-git-send-email-kys@microsoft.com>
-	<20110215155954.GA32313@suse.de>
-	<FB42D5CCD7B5934EB1827DB5ED9B850E07085DA1@TK5EX14MBXC104.redmond.corp.microsoft.com>
-	<8AFC7968D54FB448A30D8F38F259C56233F9714A@TK5EX14MBXC114.redmond.corp.microsoft.com>
-	<20110215172253.GB18437@suse.de>
+From: KY Srinivasan <kys@microsoft.com>
+Subject: RE: [PATCH 2/3]: Staging: hv: Use native wait primitives
+Date: Tue, 15 Feb 2011 17:52:46 +0000
+Message-ID: <FB42D5CCD7B5934EB1827DB5ED9B850E07085DE6@TK5EX14MBXC104.redmond.corp.microsoft.com>
+References: <1297447183-21807-1-git-send-email-kys@microsoft.com>
+ <4D5A4565.5030501@gmail.com>
+ <FB42D5CCD7B5934EB1827DB5ED9B850E07085CF8@TK5EX14MBXC104.redmond.corp.microsoft.com>
+ <20110215140305.GA10301@suse.de>
+ <FB42D5CCD7B5934EB1827DB5ED9B850E07085D7F@TK5EX14MBXC104.redmond.corp.microsoft.com>
+ <20110215162933.GA30626@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <devel-bounces@linuxdriverproject.org>
-In-Reply-To: <20110215172253.GB18437@suse.de>
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20110215162933.GA30626@suse.de>
 Content-Language: en-US
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
-List-Post: <mailto:devel@linuxdriverproject.org>
-List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
-Sender: devel-bounces@linuxdriverproject.org
-Errors-To: devel-bounces@linuxdriverproject.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: Greg KH <gregkh@suse.de>
-Cc: Hashir Abdi <habdi@microsoft.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, Mike Sterling <Mike.Sterling@microsoft.com>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>
+Cc: Jiri Slaby <jirislaby@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
 
 
 > -----Original Message-----
 > From: Greg KH [mailto:gregkh@suse.de]
-> Sent: Tuesday, February 15, 2011 9:23 AM
-> > Before the end of the week I will submit two patches for this;
+> Sent: Tuesday, February 15, 2011 11:30 AM
+> To: KY Srinivasan
+> Cc: Jiri Slaby; linux-kernel@vger.kernel.org; devel@linuxdriverproject.org;
+> virtualization@lists.osdl.org
+> Subject: Re: [PATCH 2/3]: Staging: hv: Use native wait primitives
+> 
+> On Tue, Feb 15, 2011 at 04:22:20PM +0000, KY Srinivasan wrote:
 > >
-> > 	Remove DPRINT and change it to printk
+> >
+> > > -----Original Message-----
+> > > From: Greg KH [mailto:gregkh@suse.de]
+> > > Sent: Tuesday, February 15, 2011 9:03 AM
+> > > To: KY Srinivasan
+> > > Cc: Jiri Slaby; linux-kernel@vger.kernel.org; devel@linuxdriverproject.org;
+> > > virtualization@lists.osdl.org
+> > > Subject: Re: [PATCH 2/3]: Staging: hv: Use native wait primitives
+> > >
+> > > On Tue, Feb 15, 2011 at 01:35:56PM +0000, KY Srinivasan wrote:
+> > > >
+> > > >
+> > > > > -----Original Message-----
+> > > > > From: Jiri Slaby [mailto:jirislaby@gmail.com]
+> > > > > Sent: Tuesday, February 15, 2011 4:21 AM
+> > > > > To: KY Srinivasan
+> > > > > Cc: gregkh@suse.de; linux-kernel@vger.kernel.org;
+> > > > > devel@linuxdriverproject.org; virtualization@lists.osdl.org
+> > > > > Subject: Re: [PATCH 2/3]: Staging: hv: Use native wait primitives
+> > > > >
+> > > > > On 02/11/2011 06:59 PM, K. Y. Srinivasan wrote:
+> > > > > > In preperation for getting rid of the osd layer; change
+> > > > > > the code to use native wait interfaces. As part of this,
+> > > > > > fixed the buggy implementation in the osd_wait_primitive
+> > > > > > where the condition was cleared potentially after the
+> > > > > > condition was signalled.
+> > > > > ...
+> > > > > > @@ -566,7 +567,11 @@ int vmbus_establish_gpadl(struct
+> vmbus_channel
+> > > > > *channel, void *kbuffer,
+> > > > > >
+> > > > > >  		}
+> > > > > >  	}
+> > > > > > -	osd_waitevent_wait(msginfo->waitevent);
+> > > > > > +	wait_event_timeout(msginfo->waitevent,
+> > > > > > +				msginfo->wait_condition,
+> > > > > > +				msecs_to_jiffies(1000));
+> > > > > > +	BUG_ON(msginfo->wait_condition == 0);
+> > > > >
+> > > > > The added BUG_ONs all over the code look scary. These shouldn't be
+> > > > > BUG_ONs at all. You should maybe warn and bail out, but not kill the
+> > > > > whole machine.
+> > > >
+> > > > This is Linux code running as a guest on a Windows host; and so the guest
+> > > cannot
+> > > > tolerate a failure of the host. In the cases where I have chosen to BUG_ON,
+> > > there
+> > > > is no reasonable recovery possible when the host is non-functional (as
+> > > determined
+> > > > by a non-responsive host).
+> > >
+> > > If you have a non-responsive host, wouldn't that imply that this guest
+> > > code wouldn't run at all?  :)
+> >
+> > The fact  that on a particular transaction the host has not responded within an
+> expected
+> > time interval does not necessarily  mean that the guest code would not be
+> running. There may be
+> > issues on the host side that may be either transient or permanent that may
+> cause problems like
+> > this. Keep in mind, HyperV is a type 1 hypervisor that would schedule all VMs
+> including the host
+> > and so, guest would get scheduled.
+> >
+> > >
+> > > Having BUG_ON() in drivers is not a good idea either way.  Please remove
+> > > these in future patches.
+> >
+> > In situations where there is not a reasonable rollback strategy (for
+> > instance in one of the cases, we are granting access to the guest
+> > physical pages to the host) we really have only 2 options:
+> >
+> > 1) Wait until the host responds. This wait could potentially be unbounded
+> > and in fact this  was the way the code was to begin with. One of the reviewers
+> > had suggested that unbounded wait was to be corrected.
+> > 2) Wait for a specific period and if the host does not respond
+> > within a reasonable period, kill the guest since there is no recovery
+> > possible.
 > 
-> No, use dev_dbg() and friends instead of "raw" printk() calls.
+> Killing the guest is a very serious thing, causing all sorts of possible
+> problems with it, right?
+If there was a reasonable rollback strategy, I would not
+be killing the guest.
 > 
-
-Will do, you caught me just as I was starting the conversion :)
-
-> > 	Remove excessive printouts on startup of vmbus
+> > I chose option 2, as part of addressing some of the prior review
+> > comments. If the consensus now is to go back to option 1, I am fine with that;
 > 
-> That would be nice to see.  There should be almost nothing outputed by
-> these drivers on "normal" operation.
+> Unbounded waits aren't ok either, you need some sort of timeout.
+> 
+> But, as this is a bit preferable to dieing, I suggest doing this, and
+> comment the heck out of it to explain all of this for anyone who reads
+> it.
 
-Agreed.
+If I understand you correctly, you would be prefer to have unbounded waiting with comments 
+justifying why we cannot have timeouts. I will roll out a patch once the tree stabilizes.
 
-Hank.
+Regards,
+
+K. Y 
+> 
+> thanks,
+> 
+> greg k-h
