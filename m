@@ -1,12 +1,15 @@
 From: Michal Hocko <mhocko@suse.cz>
-Subject: [PATCH] virtio: use __GFP_NOWARN for try_fill_recv in virtnet_poll
-Date: Tue, 15 Feb 2011 10:35:27 +0100
-Message-ID: <20110215093527.GB8341__16155.9364911684$1297931061$gmane$org@tiehlicka.suse.cz>
+Subject: Re: [PATCH] virtio: use __GFP_NOWARN for try_fill_recv in virtnet_poll
+Date: Tue, 15 Feb 2011 11:25:50 +0100
+Message-ID: <20110215102549.GD8341__46003.4204683781$1297931087$gmane$org@tiehlicka.suse.cz>
+References: <20110215093527.GB8341@tiehlicka.suse.cz>
+	<201102152041.29179.rusty@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
+In-Reply-To: <201102152041.29179.rusty@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,53 +23,21 @@ To: Rusty Russell <rusty@rustcorp.com.au>
 Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi,
-we have started seeing a lot of allocator messages complaining about
-failed allocations from virtnet_poll in soft IRQ. Could you consider the
-following patch, please?
+On Tue 15-02-11 20:41:29, Rusty Russell wrote:
+> On Tue, 15 Feb 2011 08:05:27 pm Michal Hocko wrote:
+> > Hi,
+> > we have started seeing a lot of allocator messages complaining about
+> > failed allocations from virtnet_poll in soft IRQ. Could you consider the
+> > following patch, please?
+> 
+> Do we really want to silence this?  Isn't warning about it kind of the
+> point?  Your network is probably sucking if this happens...
 
-The patch is based on 2.6.38-rc4.
---- 
-From aabc19f22915dafeac0f1f6aa7cb7e49a8021ba1 Mon Sep 17 00:00:00 2001
-From: Michal Hocko <mhocko@suse.cz>
-Date: Tue, 15 Feb 2011 10:20:59 +0100
-Subject: [PATCH] virtio: use __GFP_NOWARN for try_fill_recv in virtnet_poll
+What can user do about it? Is the low level memory allocator message
+very much usefull for him?  Maybe we can add a printk_once in the fail
+path with some more useful and virtio specific message.
 
-virtnet_poll is called from soft IRQ and it tries to allocate GFP_ATOMIC
-memory (through try_fill_recv). This allocation can fail and we are
-falling back to schedule_delayed_work in that case.
-
-Let's add __GFP_NOWARN to the allocation flags to get rid of the
-allocator complains for failed allocations:
-
-[22798.508903] The following is only an harmless informational message.
-[22798.508909] Unless you get a _continuous_flood_ of these messages it means
-[22798.508911] everything is working fine. Allocations from irqs cannot be
-[22798.508913] perfectly reliable and the kernel is designed to handle that.
-[22798.508917] loop3: page allocation failure. order:0, mode:0x20, alloc_flags:0x30 pflags:0x80208040
-
-Signed-off-by: Michal Hocko <mhocko@suse.cz>
----
- drivers/net/virtio_net.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
-
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 90a23e4..aea1e51 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -477,7 +477,7 @@ again:
- 	}
- 
- 	if (vi->num < vi->max / 2) {
--		if (!try_fill_recv(vi, GFP_ATOMIC))
-+		if (!try_fill_recv(vi, GFP_ATOMIC|__GFP_NOWARN))
- 			schedule_delayed_work(&vi->refill, 0);
- 	}
- 
--- 
-1.7.2.3
-
-
+Thanks
 -- 
 Michal Hocko
 SUSE Labs
