@@ -1,85 +1,105 @@
-From: Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>
-Subject: Re: [PATCH 13/14] x86/ticketlock: add slowpath logic
-Date: Fri, 18 Feb 2011 22:33:46 +0530
-Message-ID: <20110218170346.GA30264__7872.15845562077$1298058110$gmane$org@linux.vnet.ibm.com>
-References: <cover.1289940821.git.jeremy.fitzhardinge@citrix.com>
-	<97ed99ae9160bdb6477284b333bd6708fb7a19cb.1289940821.git.jeremy.fitzhardinge@citrix.com>
-	<20110117152222.GA19233@linux.vnet.ibm.com>
-	<20110119162348.GA29900@linux.vnet.ibm.com>
-	<4D3DF5A5.7070301@goop.org>
-Reply-To: vatsa@linux.vnet.ibm.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <4D3DF5A5.7070301@goop.org>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Xen-devel <xen-devel@lists.xensource.com>, Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>, Nick Piggin <npiggin@kernel.dk>, Peter Zijlstra <peterz@infradead.org>, vsrivatsa@gmail.com, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Jan Beulich <JBeulich@novell.com>, Eric Dumazet <dada1@cosmosbay.com>, Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, suzuki@in.ibm.com, Avi Kivity <avi@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, =?iso-8859-1?Q?Am=E9rico?= Wang <xiyou.wangcong@gmail.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>
+From: Hank Janssen <hjanssen@microsoft.com>
+Subject: [PATCH] Staging: hv: Fixed FIXME comments by using list_for_each_entry
+Date: Fri, 18 Feb 2011 12:39:57 -0800
+Message-ID: <1298061597-22305-1-git-send-email-hjanssen@microsoft.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: hjanssen@microsoft.com, haiyangz@microsoft.com, gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org
+Cc: "K.Y. Srinivasan" <kys@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-> On Mon, Jan 24, 2011 at 01:56:53PM -0800, Jeremy Fitzhardinge wrote:
+Fixed FIXME requests in channel_mgmt.c by using 
+list_for_each_entry.
 
-For some reason, I seem to be missing emails from your id/domain and hence had
-missed this completely!
+Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
+Signed-off-by: K.Y. Srinivasan <kys@microsoft.com>
+---
+ drivers/staging/hv/channel_mgmt.c |   24 ++++++++----------------
+ 1 files changed, 8 insertions(+), 16 deletions(-)
 
-> >   * bits.  However, we need to be careful about this because someone
-> >   * may just be entering as we leave, and enter the slowpath.
-> >   */
-> > -void __ticket_unlock_release_slowpath(struct arch_spinlock *lock)
-> > +void __ticket_unlock_slowpath(struct arch_spinlock *lock)
-> >  {
-> >  	struct arch_spinlock old, new;
-> >  
-> >  	BUILD_BUG_ON(((__ticket_t)NR_CPUS) != NR_CPUS);
-> >  
-> >  	old = ACCESS_ONCE(*lock);
-> > -
-> >  	new = old;
-> > -	new.tickets.head += TICKET_LOCK_INC;
-> >  
-> >  	/* Clear the slowpath flag */
-> >  	new.tickets.tail &= ~TICKET_SLOWPATH_FLAG;
-> > +	if (new.tickets.head == new.tickets.tail)
-> > +		cmpxchg(&lock->head_tail, old.head_tail, new.head_tail);
-> >  
-> > -	/*
-> > -	 * If there's currently people waiting or someone snuck in
-> > -	 * since we read the lock above, then do a normal unlock and
-> > -	 * kick.  If we managed to unlock with no queued waiters, then
-> > -	 * we can clear the slowpath flag.
-> > -	 */
-> > -	if (new.tickets.head != new.tickets.tail ||
-> > -	    cmpxchg(&lock->head_tail,
-> > -		    old.head_tail, new.head_tail) != old.head_tail) {
-> > -		/* still people waiting */
-> > -		__ticket_unlock_release(lock);
-> > -	}
-> > -
-> > +	/* Wake up an appropriate waiter */
-> >  	__ticket_unlock_kick(lock, new.tickets.head);
-> 
-> Does the __ticket_unlock_kick need to be unconditional?
-
-I recall having tried optimizing it to be conditional, something along these
-lines:
-
-	if (new.ticket.head == new.tickets.tail) {
-		cmpxchg();	
-	} else {
-		__ticket_unlock_kick(lock, new.tickets.head);
-	}
-
-but it didn't work for some reason. I left the call unconditional as was the
-case previously based on that experiment.
-
-- vatsa
+diff --git a/drivers/staging/hv/channel_mgmt.c b/drivers/staging/hv/channel_mgmt.c
+index 325e0bc..0781c0e 100644
+--- a/drivers/staging/hv/channel_mgmt.c
++++ b/drivers/staging/hv/channel_mgmt.c
+@@ -567,7 +567,6 @@ static void vmbus_onoffers_delivered(
+ static void vmbus_onopen_result(struct vmbus_channel_message_header *hdr)
+ {
+ 	struct vmbus_channel_open_result *result;
+-	struct list_head *curr;
+ 	struct vmbus_channel_msginfo *msginfo;
+ 	struct vmbus_channel_message_header *requestheader;
+ 	struct vmbus_channel_open_channel *openmsg;
+@@ -581,9 +580,8 @@ static void vmbus_onopen_result(struct vmbus_channel_message_header *hdr)
+ 	 */
+ 	spin_lock_irqsave(&vmbus_connection.channelmsg_lock, flags);
+ 
+-	list_for_each(curr, &vmbus_connection.chn_msg_list) {
+-/* FIXME: this should probably use list_entry() instead */
+-		msginfo = (struct vmbus_channel_msginfo *)curr;
++	list_for_each_entry(msginfo, &vmbus_connection.chn_msg_list,
++				msglistentry) {
+ 		requestheader =
+ 			(struct vmbus_channel_message_header *)msginfo->msg;
+ 
+@@ -614,7 +612,6 @@ static void vmbus_onopen_result(struct vmbus_channel_message_header *hdr)
+ static void vmbus_ongpadl_created(struct vmbus_channel_message_header *hdr)
+ {
+ 	struct vmbus_channel_gpadl_created *gpadlcreated;
+-	struct list_head *curr;
+ 	struct vmbus_channel_msginfo *msginfo;
+ 	struct vmbus_channel_message_header *requestheader;
+ 	struct vmbus_channel_gpadl_header *gpadlheader;
+@@ -630,9 +627,8 @@ static void vmbus_ongpadl_created(struct vmbus_channel_message_header *hdr)
+ 	 */
+ 	spin_lock_irqsave(&vmbus_connection.channelmsg_lock, flags);
+ 
+-	list_for_each(curr, &vmbus_connection.chn_msg_list) {
+-/* FIXME: this should probably use list_entry() instead */
+-		msginfo = (struct vmbus_channel_msginfo *)curr;
++	list_for_each_entry(msginfo, &vmbus_connection.chn_msg_list,
++				msglistentry) {
+ 		requestheader =
+ 			(struct vmbus_channel_message_header *)msginfo->msg;
+ 
+@@ -666,7 +662,6 @@ static void vmbus_ongpadl_torndown(
+ 			struct vmbus_channel_message_header *hdr)
+ {
+ 	struct vmbus_channel_gpadl_torndown *gpadl_torndown;
+-	struct list_head *curr;
+ 	struct vmbus_channel_msginfo *msginfo;
+ 	struct vmbus_channel_message_header *requestheader;
+ 	struct vmbus_channel_gpadl_teardown *gpadl_teardown;
+@@ -679,9 +674,8 @@ static void vmbus_ongpadl_torndown(
+ 	 */
+ 	spin_lock_irqsave(&vmbus_connection.channelmsg_lock, flags);
+ 
+-	list_for_each(curr, &vmbus_connection.chn_msg_list) {
+-/* FIXME: this should probably use list_entry() instead */
+-		msginfo = (struct vmbus_channel_msginfo *)curr;
++	list_for_each_entry(msginfo, &vmbus_connection.chn_msg_list,
++				msglistentry) {
+ 		requestheader =
+ 			(struct vmbus_channel_message_header *)msginfo->msg;
+ 
+@@ -712,7 +706,6 @@ static void vmbus_ongpadl_torndown(
+ static void vmbus_onversion_response(
+ 		struct vmbus_channel_message_header *hdr)
+ {
+-	struct list_head *curr;
+ 	struct vmbus_channel_msginfo *msginfo;
+ 	struct vmbus_channel_message_header *requestheader;
+ 	struct vmbus_channel_initiate_contact *initiate;
+@@ -722,9 +715,8 @@ static void vmbus_onversion_response(
+ 	version_response = (struct vmbus_channel_version_response *)hdr;
+ 	spin_lock_irqsave(&vmbus_connection.channelmsg_lock, flags);
+ 
+-	list_for_each(curr, &vmbus_connection.chn_msg_list) {
+-/* FIXME: this should probably use list_entry() instead */
+-		msginfo = (struct vmbus_channel_msginfo *)curr;
++	list_for_each_entry(msginfo, &vmbus_connection.chn_msg_list,
++				msglistentry) {
+ 		requestheader =
+ 			(struct vmbus_channel_message_header *)msginfo->msg;
+ 
+-- 
+1.6.0.2
