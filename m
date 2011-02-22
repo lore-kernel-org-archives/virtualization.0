@@ -1,14 +1,13 @@
 From: Hank Janssen <hjanssen@microsoft.com>
-Subject: [PATCH 6/6] Staging: hv: connection.c Removed DPRINT replaced with pr_XX
-Date: Tue, 22 Feb 2011 15:32:45 -0800
-Message-ID: <1298417565-12356-6-git-send-email-hjanssen@microsoft.com>
+Subject: [PATCH 5/6] Staging: hv: ring_buffer.c Removed DPRINT replaced with pr_XX
+Date: Tue, 22 Feb 2011 15:32:44 -0800
+Message-ID: <1298417565-12356-5-git-send-email-hjanssen@microsoft.com>
 References: <1298417565-12356-1-git-send-email-hjanssen@microsoft.com>
  <1298417565-12356-2-git-send-email-hjanssen@microsoft.com>
  <1298417565-12356-3-git-send-email-hjanssen@microsoft.com>
  <1298417565-12356-4-git-send-email-hjanssen@microsoft.com>
- <1298417565-12356-5-git-send-email-hjanssen@microsoft.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1298417565-12356-5-git-send-email-hjanssen@microsoft.com>
+In-Reply-To: <1298417565-12356-4-git-send-email-hjanssen@microsoft.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: hjanssen@microsoft.com, haiyangz@microsoft.com, gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org
 Cc: "K. Y. Srinivasan" <kys@microsoft.com>
@@ -24,83 +23,85 @@ been removed outright.
 The amount of clutter this driver prints has been
 significantly reduced.
 
+Several DPRINT calls remain in this file, they will be removed
+in a subsequent patch. They are designed to print out a common
+debug stream that will be implemented differently.
+
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 
 ---
- drivers/staging/hv/connection.c |   27 ++++++++++++---------------
- 1 files changed, 12 insertions(+), 15 deletions(-)
+ drivers/staging/hv/ring_buffer.c |   25 ++++++++++---------------
+ 1 files changed, 10 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/staging/hv/connection.c b/drivers/staging/hv/connection.c
-index f7df479..2e9c0b7 100644
---- a/drivers/staging/hv/connection.c
-+++ b/drivers/staging/hv/connection.c
-@@ -121,11 +121,6 @@ int vmbus_connect(void)
+diff --git a/drivers/staging/hv/ring_buffer.c b/drivers/staging/hv/ring_buffer.c
+index 66688fb..95dd75c 100644
+--- a/drivers/staging/hv/ring_buffer.c
++++ b/drivers/staging/hv/ring_buffer.c
+@@ -372,19 +372,16 @@ int ringbuffer_write(struct hv_ring_buffer_info *outring_info,
+ 				&bytes_avail_toread,
+ 				&bytes_avail_towrite);
  
- 	spin_unlock_irqrestore(&vmbus_connection.channelmsg_lock, flags);
- 
--	DPRINT_DBG(VMBUS, "Vmbus connection - interrupt pfn %llx, "
--		   "monitor1 pfn %llx,, monitor2 pfn %llx",
--		   msg->interrupt_page, msg->monitor_page1, msg->monitor_page2);
+-	DPRINT_DBG(VMBUS, "Writing %u bytes...", totalbytes_towrite);
 -
--	DPRINT_DBG(VMBUS, "Sending channel initiate msg...");
- 	ret = vmbus_post_msg(msg,
- 			       sizeof(struct vmbus_channel_initiate_contact));
- 	if (ret != 0) {
-@@ -156,13 +151,12 @@ int vmbus_connect(void)
+ 	/* Dumpring_info(Outring_info, "BEFORE "); */
  
- 	/* Check if successful */
- 	if (msginfo->response.version_response.version_supported) {
--		DPRINT_INFO(VMBUS, "Vmbus connected!!");
-+		pr_info("%s: Connected to Hyper-V.", VMBUS_MOD);
- 		vmbus_connection.conn_state = CONNECTED;
+ 	/* If there is only room for the packet, assume it is full. */
+ 	/* Otherwise, the next time around, we think the ring buffer */
+ 	/* is empty since the read index == write index */
+ 	if (bytes_avail_towrite <= totalbytes_towrite) {
+-		DPRINT_DBG(VMBUS,
+-			"No more space left on outbound ring buffer "
++		pr_debug("%s: %s No more space left on outbound ring buffer "
+ 			"(needed %u, avail %u)",
+-			totalbytes_towrite,
+-			bytes_avail_towrite);
++			 VMBUS_MOD, __func__, totalbytes_towrite,
++			 bytes_avail_towrite);
+ 
+ 		spin_unlock_irqrestore(&outring_info->ring_lock, flags);
+ 		return -1;
+@@ -499,17 +496,13 @@ int ringbuffer_read(struct hv_ring_buffer_info *inring_info, void *buffer,
+ 				&bytes_avail_toread,
+ 				&bytes_avail_towrite);
+ 
+-	DPRINT_DBG(VMBUS, "Reading %u bytes...", buflen);
 -
- 	} else {
--		DPRINT_ERR(VMBUS, "Vmbus connection failed!!..."
--			   "current version (%d) not supported",
--			   VMBUS_REVISION_NUMBER);
-+		pr_err("%s: %s Unable to connect, "
-+		       "Version %d not supported by Hyper-V ",
-+		       VMBUS_MOD, __func__, VMBUS_REVISION_NUMBER);
- 		ret = -1;
- 		goto Cleanup;
- 	}
-@@ -225,7 +219,7 @@ int vmbus_disconnect(void)
+ 	/* Dumpring_info(Inring_info, "BEFORE "); */
  
- 	vmbus_connection.conn_state = DISCONNECTED;
+ 	/* Make sure there is something to read */
+ 	if (bytes_avail_toread < buflen) {
+-		DPRINT_DBG(VMBUS,
+-			"got callback but not enough to read "
+-			"<avail to read %d read size %d>!!",
+-			bytes_avail_toread,
+-			buflen);
++		pr_debug("%s: %s got callback but not enough to read "
++			"<avail to read %d read size %d>",
++			 VMBUS_MOD, __func__, bytes_avail_toread, buflen);
  
--	DPRINT_INFO(VMBUS, "Vmbus disconnected!!");
-+	pr_info("%s: Vmbus disconnected.", VMBUS_MOD);
+ 		spin_unlock_irqrestore(&inring_info->ring_lock, flags);
  
- Cleanup:
- 	kfree(msg);
-@@ -278,7 +272,8 @@ static void process_chn_event(void *context)
- 		 *			  (void*)channel);
- 		 */
- 	} else {
--		DPRINT_ERR(VMBUS, "channel not found for relid - %d.", relid);
-+		pr_err("%s: %s channel not found for relid - %d.",
-+		       VMBUS_MOD, __func__, relid);
- 	}
- }
+@@ -568,7 +561,8 @@ copyto_ringbuffer(
  
-@@ -302,11 +297,13 @@ void vmbus_on_event(void)
- 						(unsigned long *)
- 						&recv_int_page[dword])) {
- 						relid = (dword << 5) + bit;
--						DPRINT_DBG(VMBUS, "event detected for relid - %d", relid);
+ 	/* wrap-around detected! */
+ 	if (srclen > ring_buffer_size - start_write_offset) {
+-		DPRINT_DBG(VMBUS, "wrap-around detected!");
++		pr_debug("%s: %s destination wrap-around detected!",
++			 VMBUS_MOD, __func__);
  
- 						if (relid == 0) {
--							/* special case - vmbus channel protocol msg */
--							DPRINT_DBG(VMBUS, "invalid relid - %d", relid);
-+							/*
-+							 * special case -
-+							 * vmbus channel
-+							 * protocol msg
-+							 */
- 							continue;
- 						} else {
- 							/* QueueWorkItem(VmbusProcessEvent, (void*)relid); */
+ 		frag_len = ring_buffer_size - start_write_offset;
+ 		memcpy(ring_buffer + start_write_offset, src, frag_len);
+@@ -607,7 +601,8 @@ copyfrom_ringbuffer(
+ 
+ 	/* wrap-around detected at the src */
+ 	if (destlen > ring_buffer_size - start_read_offset) {
+-		DPRINT_DBG(VMBUS, "src wrap-around detected!");
++		pr_debug("%s: %s source wrap-around detected!",
++			 VMBUS_MOD, __func__);
+ 
+ 		frag_len = ring_buffer_size - start_read_offset;
+ 
 -- 
 1.6.0.2
