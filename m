@@ -1,79 +1,106 @@
-From: Greg KH <gregkh@suse.de>
-Subject: Re: [PATCH]: Staging: hv: Allocate the vmbus irq dynamically
-Date: Mon, 21 Feb 2011 07:43:11 -0800
-Message-ID: <20110221154311.GA446@suse.de>
-References: <1297799735-25917-1-git-send-email-kys@microsoft.com>
- <alpine.LFD.2.00.1102191046220.2701@localhost6.localdomain6>
- <6E21E5352C11B742B20C142EB499E048011738@TK5EX14MBXC124.redmond.corp.microsoft.com>
- <alpine.LFD.2.00.1102191540290.2701@localhost6.localdomain6>
- <6E21E5352C11B742B20C142EB499E048011787@TK5EX14MBXC124.redmond.corp.microsoft.com>
- <alpine.LFD.2.00.1102201705380.2701@localhost6.localdomain6>
- <6E21E5352C11B742B20C142EB499E04801191C@TK5EX14MBXC124.redmond.corp.microsoft.com>
- <alpine.LFD.2.00.1102211200270.2701@localhost6.localdomain6>
- <6E21E5352C11B742B20C142EB499E048013C67@TK5EX14MBXC128.redmond.corp.microsoft.com>
- <alpine.LFD.2.00.1102211549340.2701@localhost6.localdomain6>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Hank Janssen <hjanssen@microsoft.com>
+Subject: [PATCH 6/6] Staging: hv: connection.c Removed DPRINT replaced with pr_XX
+Date: Tue, 22 Feb 2011 15:32:45 -0800
+Message-ID: <1298417565-12356-6-git-send-email-hjanssen@microsoft.com>
+References: <1298417565-12356-1-git-send-email-hjanssen@microsoft.com>
+ <1298417565-12356-2-git-send-email-hjanssen@microsoft.com>
+ <1298417565-12356-3-git-send-email-hjanssen@microsoft.com>
+ <1298417565-12356-4-git-send-email-hjanssen@microsoft.com>
+ <1298417565-12356-5-git-send-email-hjanssen@microsoft.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <alpine.LFD.2.00.1102211549340.2701@localhost6.localdomain6>
+In-Reply-To: <1298417565-12356-5-git-send-email-hjanssen@microsoft.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Thomas Gleixner <tglx@linutronix.de>
-Cc: KY Srinivasan <kys@microsoft.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, Haiyang Zhang <haiyangz@microsoft.com>, Hank Janssen <hjanssen@microsoft.com>
+To: hjanssen@microsoft.com, haiyangz@microsoft.com, gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org
+Cc: "K. Y. Srinivasan" <kys@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Feb 21, 2011 at 03:51:56PM +0100, Thomas Gleixner wrote:
-> On Mon, 21 Feb 2011, KY Srinivasan wrote:
-> > > > > There are various ways to solve that proper.
-> > > > >
-> > > > >  - You can provide the interrupt number from ACPI/PCI or whatever your HV
-> > > > >    provides as enumeration.
-> > > > >
-> > > > >  - Use a fixed vector like XEN does for the event channel
-> > > > >
-> > > > >  - Use dynamic allocation in the IOAPIC space like the kernel does for
-> > > > >    MSI(-X)
-> > > > >
-> > > > > Thanks,
-> > > > >
-> > > > > 	tglx
-> > > >
-> > > > I am not claiming that what I have done here is the best possible solution.
-> > > > However, I will submit to you that it is better than what we had here
-> > > > prior to this patch.  I will address this and a  whole lot of other issues
-> > > > in future patches.
-> > > 
-> > > No, it's _NOT_ better in any way. You trade breaking your PV thing
-> > > against breaking random other drivers. Care to explain why you think
-> > > that's better ?
-> > 
-> > The root device for the VM is bound to the PV driver on some distributions.
-> > So, if we cannot load the PV drivers, we do not have a system that boots.
-> > In general, the system performance without these PV drivers is so poor that
-> > for all practical purposes, having the PV drivers is almost a requirement
-> > for having a useable system. While the platform supports configuration of the VM with
-> > some emulated devices, it is not a recommended configuration (because of
-> > performance reasons) for Linux virtual machines on the Hyper-V platform.
-> 
-> It does not matter whether it's recommended or not. If it results in a
-> non usable emulated device it's broken. Just imagine you grab the
-> serial interrupt, which results in not having a debug console. Not at
-> all acceptable.
->  
-> > I have spent significantly more time debating this patch than
-> > developing this patch that I still think improves the current
-> > driver. I will leave it to Greg and other powers that be to decide
-> > if this patch will be accepted. Let me know what your verdict is.
-> 
-> As I said, any other clean solution (and I pointed out 3) over this
-> hack.
+This group of patches removes all DPRINT from hv_vmbus.ko.
+It is divided in several patches due to size.
 
-Yeah, that sounds like the best solution, let's not cause accidental
-breakage of systems that were working already.
+All DPRINT calls have been removed, and where needed have been
+replaced with pr_XX native calls. Many debug DPRINT calls have
+been removed outright.
 
-KY, care to fix this up properly now?  There's no rush to take your
-previous patch, as that is working ok for now, right?
+The amount of clutter this driver prints has been
+significantly reduced.
 
-thanks,
+Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
+Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
+Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 
-greg k-h
+---
+ drivers/staging/hv/connection.c |   27 ++++++++++++---------------
+ 1 files changed, 12 insertions(+), 15 deletions(-)
+
+diff --git a/drivers/staging/hv/connection.c b/drivers/staging/hv/connection.c
+index f7df479..2e9c0b7 100644
+--- a/drivers/staging/hv/connection.c
++++ b/drivers/staging/hv/connection.c
+@@ -121,11 +121,6 @@ int vmbus_connect(void)
+ 
+ 	spin_unlock_irqrestore(&vmbus_connection.channelmsg_lock, flags);
+ 
+-	DPRINT_DBG(VMBUS, "Vmbus connection - interrupt pfn %llx, "
+-		   "monitor1 pfn %llx,, monitor2 pfn %llx",
+-		   msg->interrupt_page, msg->monitor_page1, msg->monitor_page2);
+-
+-	DPRINT_DBG(VMBUS, "Sending channel initiate msg...");
+ 	ret = vmbus_post_msg(msg,
+ 			       sizeof(struct vmbus_channel_initiate_contact));
+ 	if (ret != 0) {
+@@ -156,13 +151,12 @@ int vmbus_connect(void)
+ 
+ 	/* Check if successful */
+ 	if (msginfo->response.version_response.version_supported) {
+-		DPRINT_INFO(VMBUS, "Vmbus connected!!");
++		pr_info("%s: Connected to Hyper-V.", VMBUS_MOD);
+ 		vmbus_connection.conn_state = CONNECTED;
+-
+ 	} else {
+-		DPRINT_ERR(VMBUS, "Vmbus connection failed!!..."
+-			   "current version (%d) not supported",
+-			   VMBUS_REVISION_NUMBER);
++		pr_err("%s: %s Unable to connect, "
++		       "Version %d not supported by Hyper-V ",
++		       VMBUS_MOD, __func__, VMBUS_REVISION_NUMBER);
+ 		ret = -1;
+ 		goto Cleanup;
+ 	}
+@@ -225,7 +219,7 @@ int vmbus_disconnect(void)
+ 
+ 	vmbus_connection.conn_state = DISCONNECTED;
+ 
+-	DPRINT_INFO(VMBUS, "Vmbus disconnected!!");
++	pr_info("%s: Vmbus disconnected.", VMBUS_MOD);
+ 
+ Cleanup:
+ 	kfree(msg);
+@@ -278,7 +272,8 @@ static void process_chn_event(void *context)
+ 		 *			  (void*)channel);
+ 		 */
+ 	} else {
+-		DPRINT_ERR(VMBUS, "channel not found for relid - %d.", relid);
++		pr_err("%s: %s channel not found for relid - %d.",
++		       VMBUS_MOD, __func__, relid);
+ 	}
+ }
+ 
+@@ -302,11 +297,13 @@ void vmbus_on_event(void)
+ 						(unsigned long *)
+ 						&recv_int_page[dword])) {
+ 						relid = (dword << 5) + bit;
+-						DPRINT_DBG(VMBUS, "event detected for relid - %d", relid);
+ 
+ 						if (relid == 0) {
+-							/* special case - vmbus channel protocol msg */
+-							DPRINT_DBG(VMBUS, "invalid relid - %d", relid);
++							/*
++							 * special case -
++							 * vmbus channel
++							 * protocol msg
++							 */
+ 							continue;
+ 						} else {
+ 							/* QueueWorkItem(VmbusProcessEvent, (void*)relid); */
+-- 
+1.6.0.2
