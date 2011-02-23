@@ -1,55 +1,85 @@
-From: Hank Janssen <hjanssen@microsoft.com>
-Subject: RE: [PATCH 1/6] Staging: hv: vmbus_drv.c Replaced DPRINT with
-	native pr_XXX
-Date: Wed, 23 Feb 2011 20:20:32 +0000
-Message-ID: <8AFC7968D54FB448A30D8F38F259C56233FADBBA@TK5EX14MBXC118.redmond.corp.microsoft.com>
-References: <1298417565-12356-1-git-send-email-hjanssen@microsoft.com>
-	<20110223191135.GA1030@kroah.com>
+From: Haiyang Zhang <haiyangz@microsoft.com>
+Subject: [PATCH 4/4] staging: hv: Fix the code depending on struct
+	storvsc_driver_context data order
+Date: Wed, 23 Feb 2011 12:19:58 -0800
+Message-ID: <1298492398-16522-4-git-send-email-haiyangz__5042.8299386569$1298492497$gmane$org@microsoft.com>
+References: <1298492398-16522-1-git-send-email-haiyangz@microsoft.com>
+	<1298492398-16522-2-git-send-email-haiyangz@microsoft.com>
+	<1298492398-16522-3-git-send-email-haiyangz@microsoft.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <devel-bounces@linuxdriverproject.org>
-In-Reply-To: <20110223191135.GA1030@kroah.com>
-Content-Language: en-US
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
-List-Post: <mailto:devel@linuxdriverproject.org>
-List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
-Sender: devel-bounces@linuxdriverproject.org
-Errors-To: devel-bounces@linuxdriverproject.org
-To: Greg KH <greg@kroah.com>
-Cc: "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1298492398-16522-3-git-send-email-haiyangz@microsoft.com>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: haiyangz@microsoft.com, hjanssen@microsoft.com, kys@microsoft.com, v-abkane@microsoft.com, gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, vir
 List-Id: virtualization@lists.linuxfoundation.org
 
+The patch fixed the code depending on the exact order of fields in the
+struct storvsc_driver_context. Now, we use container_of() instead of type
+casting from the first field to the container struct.
 
+Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
+Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
+Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 
-> -----Original Message-----
-> From: Greg KH [mailto:greg@kroah.com]
-> Sent: Wednesday, February 23, 2011 11:12 AM
-> To: Hank Janssen
-> Why say this in the 1/6 patch?  It should be in the 0/6 introduction.
-> 
-> >
-> > All DPRINT calls have been removed, and where needed have been
-> > replaced with pr_XX native calls. Many debug DPRINT calls have
-> > been removed outright.
-> 
-> I think a lot of these pr_XX calls can be switched to dev_XX calls
-> instead, right?
+---
+ drivers/staging/hv/storvsc_drv.c |   14 ++++++--------
+ 1 files changed, 6 insertions(+), 8 deletions(-)
 
-Not in this case, this patch set is for vmbus only. The next patch
-set will use netdev_* and dev* for netvsc, scsi and IDE.
-
-> How about you break this up into a different series of patches to make
-> it more readable:
-> 	- remove unneeded DPRINT calls
-> 	- convert remaining DPRINT calls to pr_XX or dev_XX as needed
-> 
-> That would make it easier to review, as it is, it's quite difficult.
-
-Will do.
-
-Hank.
+diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
+index 33acee5..a364627 100644
+--- a/drivers/staging/hv/storvsc_drv.c
++++ b/drivers/staging/hv/storvsc_drv.c
+@@ -64,8 +64,6 @@ struct storvsc_cmd_request {
+ };
+ 
+ struct storvsc_driver_context {
+-	/* !! These must be the first 2 fields !! */
+-	/* FIXME this is a bug... */
+ 	struct driver_context drv_ctx;
+ 	struct storvsc_driver_object drv_obj;
+ };
+@@ -223,8 +221,8 @@ static int storvsc_probe(struct device *device)
+ 	int ret;
+ 	struct driver_context *driver_ctx =
+ 				driver_to_driver_context(device->driver);
+-	struct storvsc_driver_context *storvsc_drv_ctx =
+-				(struct storvsc_driver_context *)driver_ctx;
++	struct storvsc_driver_context *storvsc_drv_ctx = container_of(
++		driver_ctx, struct storvsc_driver_context, drv_ctx);
+ 	struct storvsc_driver_object *storvsc_drv_obj =
+ 				&storvsc_drv_ctx->drv_obj;
+ 	struct vm_device *device_ctx = device_to_vm_device(device);
+@@ -308,8 +306,8 @@ static int storvsc_remove(struct device *device)
+ 	int ret;
+ 	struct driver_context *driver_ctx =
+ 			driver_to_driver_context(device->driver);
+-	struct storvsc_driver_context *storvsc_drv_ctx =
+-			(struct storvsc_driver_context *)driver_ctx;
++	struct storvsc_driver_context *storvsc_drv_ctx = container_of(
++		driver_ctx, struct storvsc_driver_context, drv_ctx);
+ 	struct storvsc_driver_object *storvsc_drv_obj =
+ 			&storvsc_drv_ctx->drv_obj;
+ 	struct vm_device *device_ctx = device_to_vm_device(device);
+@@ -606,8 +604,8 @@ static int storvsc_queuecommand_lck(struct scsi_cmnd *scmnd,
+ 	struct vm_device *device_ctx = host_device_ctx->device_ctx;
+ 	struct driver_context *driver_ctx =
+ 		driver_to_driver_context(device_ctx->device.driver);
+-	struct storvsc_driver_context *storvsc_drv_ctx =
+-		(struct storvsc_driver_context *)driver_ctx;
++	struct storvsc_driver_context *storvsc_drv_ctx = container_of(
++		driver_ctx, struct storvsc_driver_context, drv_ctx);
+ 	struct storvsc_driver_object *storvsc_drv_obj =
+ 		&storvsc_drv_ctx->drv_obj;
+ 	struct hv_storvsc_request *request;
+-- 
+1.6.3.2
