@@ -1,44 +1,44 @@
-From: Greg KH <greg@kroah.com>
-Subject: Re: [PATCH 1/4] staging: hv: Fix the code depending on struct
- vmbus_driver_context data order
-Date: Wed, 23 Feb 2011 15:06:54 -0800
-Message-ID: <20110223230654.GA18829@kroah.com>
-References: <1298492398-16522-1-git-send-email-haiyangz@microsoft.com>
- <20110223212644.GC23766@kroah.com>
- <6E21E5352C11B742B20C142EB499E048014F2C@TK5EX14MBXC128.redmond.corp.microsoft.com>
- <20110223224829.GA7175@kroah.com>
- <A1F3067C9B68744AA19F6802BAB8FFDC060EE9@TK5EX14MBXC227.redmond.corp.microsoft.com>
+From: Hank Janssen <hjanssen@microsoft.com>
+Subject: RE: [PATCH 2/6] Staging: hv: hv.c Removed all DPRINT and debug -
+ using pr_err now
+Date: Wed, 23 Feb 2011 23:17:54 +0000
+Message-ID: <8AFC7968D54FB448A30D8F38F259C56233FAE0E8@TK5EX14MBXC118.redmond.corp.microsoft.com>
+References: <1298417565-12356-1-git-send-email-hjanssen@microsoft.com>
+ <1298417565-12356-2-git-send-email-hjanssen@microsoft.com>
+ <20110223191533.GB1030@kroah.com>
+ <8AFC7968D54FB448A30D8F38F259C56233FADA94@TK5EX14MBXC118.redmond.corp.microsoft.com>
+ <20110223215658.GB16908@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <A1F3067C9B68744AA19F6802BAB8FFDC060EE9@TK5EX14MBXC227.redmond.corp.microsoft.com>
+In-Reply-To: <20110223215658.GB16908@kroah.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Haiyang Zhang <haiyangz@microsoft.com>
-Cc: KY Srinivasan <kys@microsoft.com>, Hank Janssen <hjanssen@microsoft.com>, "Abhishek Kane (Mindtree Consulting PVT LTD)" <v-abkane@microsoft.com>, "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>
+To: Greg KH <greg@kroah.com>
+Cc: Haiyang Zhang <haiyangz@microsoft.com>, "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, KY Srinivasan <kys@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Feb 23, 2011 at 10:55:12PM +0000, Haiyang Zhang wrote:
-> > From: Greg KH [mailto:greg@kroah.com]
-> > The layering is almost ok, there is still one more layer here than is
-> > needed, and it should be removed (I already removed lots of layers that
-> > were not needed, just didn't get to this one.)  But the naming also
-> > needs to be fixed up as it is wrong from a "driver model" standpoint
-> > with the rest of the kernel.
+
+
+> -----Original Message-----
+> From: Greg KH [mailto:greg@kroah.com]
+> Sent: Wednesday, February 23, 2011 1:57 PM
+> They where compile and run tested. And syslog was not a mess. What did
+> > I mess up here? The amount of printouts now are a fraction of what
+> > they where before.
 > 
-> So, how about rename the "struct driver_context" to "struct gen_drv_ctx"
-> in this patch? We can deal with the layering in next round of patches.
+> You forgot to put '\n' at the end of all of your pr_XXX lines, so they will be
+> merged with the next one, messing up your syslog.  Joe also pointed this
+> problem out.
+> 
+> Take a look at your syslog to see what I am talking about...
 
-No, it's not a "driver context" at all.  It is a "hyperv driver", so
-name it as such.
+I am trying to get some of these patches corrected and out today, but it might
+be tomorrow. So far I have lost power for a minutes or so twice this afternoon.
 
-A "context" is a void pointer or something that the driver uses
-privately.  And you already have a pointer to the context in the base
-structure so you don't need your own.
+It seems that the threat of snow is enough to lose power where I am in the PNW.
 
-You should work on removing the layering now, that will clean this all
-up.
+Sigh......
 
-thanks,
-
-greg k-h
+Hank.
