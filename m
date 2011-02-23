@@ -1,114 +1,130 @@
-From: Greg KH <greg@kroah.com>
-Subject: Re: [PATCH 2/6] Staging: hv: hv.c Removed all DPRINT and debug -
- using pr_err now
-Date: Wed, 23 Feb 2011 13:56:58 -0800
-Message-ID: <20110223215658.GB16908@kroah.com>
-References: <1298417565-12356-1-git-send-email-hjanssen@microsoft.com>
- <1298417565-12356-2-git-send-email-hjanssen@microsoft.com>
- <20110223191533.GB1030@kroah.com>
- <8AFC7968D54FB448A30D8F38F259C56233FADA94@TK5EX14MBXC118.redmond.corp.microsoft.com>
+From: KY Srinivasan <kys@microsoft.com>
+Subject: RE: [PATCH 1/4] staging: hv: Fix the code depending on struct
+ vmbus_driver_context data order
+Date: Wed, 23 Feb 2011 22:44:37 +0000
+Message-ID: <6E21E5352C11B742B20C142EB499E048014F2C@TK5EX14MBXC128.redmond.corp.microsoft.com>
+References: <1298492398-16522-1-git-send-email-haiyangz@microsoft.com>
+ <20110223212644.GC23766@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <8AFC7968D54FB448A30D8F38F259C56233FADA94@TK5EX14MBXC118.redmond.corp.microsoft.com>
+In-Reply-To: <20110223212644.GC23766@kroah.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Hank Janssen <hjanssen@microsoft.com>
-Cc: Haiyang Zhang <haiyangz@microsoft.com>, "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, KY Srinivasan <kys@microsoft.com>
+To: Greg KH <greg@kroah.com>, Haiyang Zhang <haiyangz@microsoft.com>
+Cc: Hank Janssen <hjanssen@microsoft.com>, "Abhishek Kane (Mindtree Consulting PVT LTD)" <v-abkane@microsoft.com>, "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Feb 23, 2011 at 07:41:28PM +0000, Hank Janssen wrote:
+
+
+> -----Original Message-----
+> From: Greg KH [mailto:greg@kroah.com]
+> Sent: Wednesday, February 23, 2011 4:27 PM
+> To: Haiyang Zhang
+> Cc: Hank Janssen; KY Srinivasan; Abhishek Kane (Mindtree Consulting PVT LTD);
+> gregkh@suse.de; linux-kernel@vger.kernel.org; devel@linuxdriverproject.org;
+> virtualization@lists.osdl.org
+> Subject: Re: [PATCH 1/4] staging: hv: Fix the code depending on struct
+> vmbus_driver_context data order
 > 
+> On Wed, Feb 23, 2011 at 12:19:55PM -0800, Haiyang Zhang wrote:
+> > The patch fixed the code depending on the exact order of fields in the
+> > struct vmbus_driver_context, so the unused field drv_ctx can be removed,
+> > and drv_obj doesn't have to be the second field in this structure.
+> >
+> > Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
+> > Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
+> > Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
+> >
+> > ---
+> >  drivers/staging/hv/blkvsc_drv.c  |    2 ++
+> >  drivers/staging/hv/netvsc_drv.c  |    2 ++
+> >  drivers/staging/hv/storvsc_drv.c |    2 ++
+> >  drivers/staging/hv/vmbus.h       |    2 +-
+> >  drivers/staging/hv/vmbus_drv.c   |   14 +-------------
+> >  5 files changed, 8 insertions(+), 14 deletions(-)
+> >
+> > diff --git a/drivers/staging/hv/blkvsc_drv.c b/drivers/staging/hv/blkvsc_drv.c
+> > index 36a0adb..293ab8e 100644
+> > --- a/drivers/staging/hv/blkvsc_drv.c
+> > +++ b/drivers/staging/hv/blkvsc_drv.c
+> > @@ -177,6 +177,8 @@ static int blkvsc_drv_init(int (*drv_init)(struct hv_driver
+> *drv))
+> >  	struct driver_context *drv_ctx = &g_blkvsc_drv.drv_ctx;
+> >  	int ret;
+> >
+> > +	drv_ctx->hv_drv = &storvsc_drv_obj->base;
+> > +
+> >  	storvsc_drv_obj->ring_buffer_size = blkvsc_ringbuffer_size;
+> >
+> >  	/* Callback to client driver to complete the initialization */
+> > diff --git a/drivers/staging/hv/netvsc_drv.c b/drivers/staging/hv/netvsc_drv.c
+> > index 03f9740..364b6c7 100644
+> > --- a/drivers/staging/hv/netvsc_drv.c
+> > +++ b/drivers/staging/hv/netvsc_drv.c
+> > @@ -500,6 +500,8 @@ static int netvsc_drv_init(int (*drv_init)(struct hv_driver
+> *drv))
+> >  	struct driver_context *drv_ctx = &g_netvsc_drv.drv_ctx;
+> >  	int ret;
+> >
+> > +	drv_ctx->hv_drv = &net_drv_obj->base;
+> > +
+> >  	net_drv_obj->ring_buf_size = ring_size * PAGE_SIZE;
+> >  	net_drv_obj->recv_cb = netvsc_recv_callback;
+> >  	net_drv_obj->link_status_change = netvsc_linkstatus_callback;
+> > diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
+> > index a8427ff..33acee5 100644
+> > --- a/drivers/staging/hv/storvsc_drv.c
+> > +++ b/drivers/staging/hv/storvsc_drv.c
+> > @@ -140,6 +140,8 @@ static int storvsc_drv_init(int (*drv_init)(struct hv_driver
+> *drv))
+> >  	struct storvsc_driver_object *storvsc_drv_obj = &g_storvsc_drv.drv_obj;
+> >  	struct driver_context *drv_ctx = &g_storvsc_drv.drv_ctx;
+> >
+> > +	drv_ctx->hv_drv = &storvsc_drv_obj->base;
+> > +
+> >  	storvsc_drv_obj->ring_buffer_size = storvsc_ringbuffer_size;
+> >
+> >  	/* Callback to client driver to complete the initialization */
+> > diff --git a/drivers/staging/hv/vmbus.h b/drivers/staging/hv/vmbus.h
+> > index 42f2adb..fd9d00f 100644
+> > --- a/drivers/staging/hv/vmbus.h
+> > +++ b/drivers/staging/hv/vmbus.h
+> > @@ -30,8 +30,8 @@
+> >
+> >  struct driver_context {
+> >  	struct hv_guid class_id;
+> > -
+> >  	struct device_driver driver;
+> > +	struct hv_driver *hv_drv;
 > 
-> > -----Original Message-----
-> > From: Greg KH [mailto:greg@kroah.com]
-> > Sent: Wednesday, February 23, 2011 11:16 AM
-> > 
-> > On Tue, Feb 22, 2011 at 03:32:41PM -0800, Hank Janssen wrote:
-> > > This group of patches removes all DPRINT from hv_vmbus.ko.
-> > > It is divided in several patches due to size.
-> > >
-> > > All DPRINT calls have been removed, and where needed have been
-> > > replaced with pr_XX native calls. Many debug DPRINT calls have
-> > > been removed outright.
-> > >
-> > > The amount of clutter this driver prints has been
-> > > significantly reduced.
-> > >
-> > > Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
-> > > Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
-> > > Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
-> > >
-> > > ---
-> > >  drivers/staging/hv/hv.c |   88 +++++++++++--------------------------
-> > ---------
-> > >  1 files changed, 21 insertions(+), 67 deletions(-)
+> If you have a pointer to hv_driver, why do you need a full 'struct
+> device_driver' here?  That sounds really wrong.
 > 
-> > > -		DPRINT_INFO(VMBUS, "OS Build:%d-%d.%d-%d-%d.%d",\
-> > > -			    eax,
-> > > -			    ebx >> 16,
-> > > -			    ebx & 0xFFFF,
-> > > -			    ecx,
-> > > -			    edx >> 24,
-> > > -			    edx & 0xFFFFFF);
-> > > +
-> > > +		pr_info("%s: Hyper-V Host OS Build:%d-%d.%d-%d-%d.%d",
-> > > +			VMBUS_MOD,
-> > > +			eax,
-> > > +			ebx >> 16,
-> > > +			ebx & 0xFFFF,
-> > > +			ecx,
-> > > +			edx >> 24,
-> > > +			edx & 0xFFFFFF);
-> > 
-> > Why did you keep this one?  Why is it needed?
+> Actually, having 'struct device_driver' within a structure called
+> "driver_context" seems wrong, this should be what 'struct hv_driver'
+> really is, right?
+
+We could certainly use better names to describe the layering here: 
+Think of driver_context as a representation of a generic hyperV device 
+driver. So, this structure will embed the generic struct device_driver.
+The pointer to hv_drv allows for further specialization based on 
+the device type. For instance the block driver has its own hv_driver while
+the network driver has its own instance of hv_driver. I am not defending
+this layering, and I agree we could name these abstractions to be more 
+intuitive and also considerably improve the layering.
+
+ 
+
+Regards,
+
+K. Y
+
 > 
-> This tells me what version the host is running. I frequently ask customers if 
-> they are running on Host version X or Y. This tells me that with certainty 
-> what they are running. The number of times I got from a customer that
-> they are running X while I knew that would not be possible has been pretty
-> high.
-
-Ok, fair enough.
-
-> > >  	if (!query_hypervisor_presence()) {
-> > > -		DPRINT_ERR(VMBUS, "No Windows hypervisor detected!!");
-> > > +		pr_err("%s: %s No Hyper-V detected", VMBUS_MOD, __func__);
-> > 
-> > Why the __func__?  That should never be needed as it is trivial to see
-> > what is happening, the user doesn't need to know the function name,
-> > right?
-> > 
-> > Please remove them from all of these calls.
+> So no, I can't take this patch, as it isn't solving the root problem
+> here.
 > 
-> The new patch will have these removed. When I checked other drivers 
-> in the drivers subdirectory the __func__ is used 15455 times most
-> of these are in print, debug or error lines. The __func__ in this
-> case only shows up if an error occurs. 
+> thanks,
 > 
-> But as requested, I will remove them.
-
-Thanks.
-
-> > Oh, and you obviously didn't test these patches as your syslog would be
-> > a mess if you did.  Which is NOT ok, and makes me grumpy:
-> > 	http://www.kroah.com/log/linux/maintainer-05.html
-> > 
-> > bah, I should just make a numbered list and just start saying: "This
-> > patch fails point #4" or something like that, it would save me in
-> > typing...
-> > 
-> 
-> They where compile and run tested. And syslog was not a mess. What did
-> I mess up here? The amount of printouts now are a fraction of what they
-> where before.
-
-You forgot to put '\n' at the end of all of your pr_XXX lines, so they
-will be merged with the next one, messing up your syslog.  Joe also
-pointed this problem out.
-
-Take a look at your syslog to see what I am talking about...
-
-thanks,
-
-greg k-h
+> greg k-h
