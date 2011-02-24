@@ -1,59 +1,44 @@
-From: Greg KH <greg@kroah.com>
-Subject: Re: [PATCH 2/6] Staging: hv: hv.c Removed all DPRINT and debug -
- using pr_err now
-Date: Wed, 23 Feb 2011 17:29:24 -0800
-Message-ID: <20110224012924.GA16496@kroah.com>
-References: <1298417565-12356-1-git-send-email-hjanssen@microsoft.com>
- <1298417565-12356-2-git-send-email-hjanssen@microsoft.com>
- <20110223191533.GB1030@kroah.com>
- <8AFC7968D54FB448A30D8F38F259C56233FADA94@TK5EX14MBXC118.redmond.corp.microsoft.com>
- <20110223215658.GB16908@kroah.com>
- <8AFC7968D54FB448A30D8F38F259C56233FAE0E8@TK5EX14MBXC118.redmond.corp.microsoft.com>
- <1298509049.32283.21.camel@Joe-Laptop>
+From: Chuck Ebbert <cebbert@redhat.com>
+Subject: Can't build in the virtio console driver on x86_64 when the other
+	virtio drivers are modular
+Date: Thu, 24 Feb 2011 11:28:19 -0500
+Message-ID: <20110224112819.10f59f68__47468.9393690371$1298565168$gmane$org@katamari>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1298509049.32283.21.camel@Joe-Laptop>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Joe Perches <joe@perches.com>
-Cc: Hank Janssen <hjanssen@microsoft.com>, "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: virtualization@lists.linux-foundation.org
+Cc: Amit Shah <amit.shah@redhat.com>, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Feb 23, 2011 at 04:57:29PM -0800, Joe Perches wrote:
-> On Wed, 2011-02-23 at 23:17 +0000, Hank Janssen wrote:
-> > > -----Original Message-----
-> > > From: Greg KH [mailto:greg@kroah.com]
-> > > Sent: Wednesday, February 23, 2011 1:57 PM
-> > > They where compile and run tested. And syslog was not a mess. What did
-> > > > I mess up here? The amount of printouts now are a fraction of what
-> > > > they where before.
-> > > You forgot to put '\n' at the end of all of your pr_XXX lines, so they will be
-> > > merged with the next one, messing up your syslog.  Joe also pointed this
-> > > problem out.
-> > > Take a look at your syslog to see what I am talking about...
-> 
-> Greg, there probably isn't any problem with his syslog.
-> 
-> Running together of messages without terminating newlines
-> did used to happen though until commit
-> 5fd29d6ccbc98884569d6f3105aeca70858b3e0f
-> ("printk: clean up handling of log-levels and newlines")
-> changed behavior so that newlines are emitted if necessary
-> before every "<.>" loglevel but "<c>".
-> 
-> That means that adding trailing newlines to pr_<level>
-> calls aren't _really_ necessary unless the pr_<level>
-> is followed by a bare printk without KERN_<LEVEL>.
+The virtio configuration options are inconsistent. According to this,
+every options that needs virtio will select it:
 
-Ah, I didn't realize that this had changed, my mistake, nevermind :)
+ # Virtio always gets selected by whoever wants it.
+ config VIRTIO
+        tristate
 
-> I still think it's better from a style perspective to keep
-> adding terminating newlines until most all of the printks
-> are converted to pr_<level>.
+Note that it's not user-selectable, so any config file that tries to
+set it will be ignored when kconfig loads those options. And yet we
+have a whole set of options that depend on VIRTIO, like VIRTIO_CONSOLE
+for example. This makes it impossible to have VIRTIO_PCI modular and
+VIRTIO_CONSOLE built-in on x86_64, because:
 
-Yes, that would be good to have done.
+1. VIRTIO_PCI selects VIRTIO and sets it to M
+2. VIRTIO_CONSOLE gets forced to M because one of its dependencies is M
 
-thanks,
+So either VIRTIO (and VIRTIO_RING) need to be user-selectable, or all
+of the options that depend on VIRTIO need to be changed to select it
+instead.
 
-greg k-h
+(For even more fun, LGUEST_GUEST on i386 forces VIRTIO, VIRTIO_RING and
+VIRTIO_CONSOLE all to Y.)
