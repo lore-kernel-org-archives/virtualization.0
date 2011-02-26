@@ -1,42 +1,70 @@
 From: KY Srinivasan <kys@microsoft.com>
-Subject: RE: [PATCH 1/6] Staging: hv: Unify hyper-v device abstractions
-Date: Sat, 26 Feb 2011 17:13:34 +0000
-Message-ID: <6E21E5352C11B742B20C142EB499E048015786@TK5EX14MBXC128.redmond.corp.microsoft.com>
-References: <1298685930-30806-1-git-send-email-kys@microsoft.com>
- <20110226032122.GA25737@home.goodmis.org>
+Subject: RE: [PATCH 3/6] Staging: hv: Cleanup hyperv_device variable names
+Date: Sat, 26 Feb 2011 17:13:31 +0000
+Message-ID: <6E21E5352C11B742B20C142EB499E048015780@TK5EX14MBXC128.redmond.corp.microsoft.com>
+References: <1298685992-30864-1-git-send-email-kys@microsoft.com>
+ <20110226033323.GD18043@bicker>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 8BIT
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20110226032122.GA25737@home.goodmis.org>
+In-Reply-To: <20110226033323.GD18043@bicker>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Steven Rostedt <rostedt@goodmis.org>, "r@home.goodmis.org" <r@home.goodmis.org>
-Cc: "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, Haiyang Zhang <haiyangz@microsoft.com>, Hank Janssen <hjanssen@microsoft.com>
+To: Dan Carpenter <error27@gmail.com>
+Cc: "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
 
 
 > -----Original Message-----
-> From: Steven Rostedt [mailto:rostedt@goodmis.org]
-> Sent: Friday, February 25, 2011 10:21 PM
-> To: KY Srinivasan; r@home.goodmis.org
+> From: Dan Carpenter [mailto:error27@gmail.com]
+> Sent: Friday, February 25, 2011 10:33 PM
+> To: KY Srinivasan
 > Cc: gregkh@suse.de; linux-kernel@vger.kernel.org;
-> devel@linuxdriverproject.org; virtualization@lists.osdl.org; Haiyang Zhang; Hank
-> Janssen
-> Subject: Re: [PATCH 1/6] Staging: hv: Unify hyper-v device abstractions
+> devel@linuxdriverproject.org; virtualization@lists.osdl.org
+> Subject: Re: [PATCH 3/6] Staging: hv: Cleanup hyperv_device variable names
 > 
-> Hi!
+> On Fri, Feb 25, 2011 at 06:06:32PM -0800, K. Y. Srinivasan wrote:
+> > Cleanup the names of variables that refer to the
+> > hyperv_device abstraction.
+> >
 > 
-> Just an FYI,
+> I have a script I run on rename patches.  For this patch the
+> command would be:
 > 
-> When sending out patch series, could you send out a [PATCH 0/6] first,
-> and have all other patches a reply to that patch. Both git and quilt
-> have ways to do this.
+> rename_rev.pl -nc -e 's/device_ctx/device_obj/g' -e 's/\bdev_ctx/dev/g'
+> 
+> It show one variable was missed in storvsc_probe().
+> 
+> >  	memset(host_device_ctx, 0, sizeof(struct host_device_context));
+> >
+> >  	host_device_ctx->port = host->host_no;
+> > -	host_device_ctx->device_ctx = device_obj;
+> > +	host_device_ctx->device_obj = device_obj;
+> >
+> >  	host_device_ctx->request_pool =
+> >  				kmem_cache_create(dev_name(&device_obj-
+> >device),
+> > @@ -271,7 +271,7 @@ static int storvsc_probe(struct device *device)
+> >  		return -1;
+> >  	}
+> >
+> > -	/* host_device_ctx->port = device_info.PortNumber; */
+> > +	/* host_hyperv_dev->port = device_info.PortNumber; */
+> >  	host_device_ctx->path = device_info.path_id;
+> >  	host_device_ctx->target = device_info.target_id;
+> >
+> 
+> All the other host_device_ctx variables were renamed to host_device_obj.
 
-My mistake; I numbered the patches 1 through 6 as opposed to 0 through 5.
-Sorry for the confusion.
+host_device_ctx is a scsi abstraction built on top of the hyperv_device
+abstraction. My goal was not to change the names of higher level scsi
+abstractions.
 
 Regards,
 
 K. Y
+> 
+> regards,
+> dan carpenter
