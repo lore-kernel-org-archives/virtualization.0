@@ -1,86 +1,137 @@
 From: Greg KH <greg@kroah.com>
-Subject: Re: [PATCH 2/6] Staging: hv: Rename vm_device to hyperv_device
-Date: Mon, 28 Feb 2011 18:32:48 -0800
-Message-ID: <20110301023248.GB1663@kroah.com>
-References: <1298685963-30831-1-git-send-email-kys@microsoft.com>
+Subject: Re: [PATCH 3/6] Staging: hv: Cleanup hyperv_device variable names
+Date: Mon, 28 Feb 2011 18:44:03 -0800
+Message-ID: <20110301024403.GD1663@kroah.com>
+References: <1298685992-30864-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <devel-bounces@linuxdriverproject.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1298685963-30831-1-git-send-email-kys@microsoft.com>
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
-List-Post: <mailto:devel@linuxdriverproject.org>
-List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
-Sender: devel-bounces@linuxdriverproject.org
-Errors-To: devel-bounces@linuxdriverproject.org
+In-Reply-To: <1298685992-30864-1-git-send-email-kys@microsoft.com>
+Sender: linux-kernel-owner@vger.kernel.org
 To: "K. Y. Srinivasan" <kys@microsoft.com>
-Cc: gregkh@suse.de, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org, devel@linuxdriverproject.org
+Cc: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org, Haiyang Zhang <haiyangz@microsoft.com>, Hank Janssen <hjanssen@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Feb 25, 2011 at 06:06:03PM -0800, K. Y. Srinivasan wrote:
-> Rename the vm_device abstraction as hyperv_device.
+On Fri, Feb 25, 2011 at 06:06:32PM -0800, K. Y. Srinivasan wrote:
+> Cleanup the names of variables that refer to the
+> hyperv_device abstraction.
 
-That's a nice name, but it's the first one with a "hyperv_" prefix in
-this subsystem.  Ok, second, but hyperv_service_context doesn't really
-count as it's not really used.
-
-Everything else is named "hv_" here.  Which is it going to be, "hv_" or
-"hyperv_"?
-
-Either is fine, just be aware of the work involved if you pick
-"hyperv_"...
-
-You also rename vm_device_info to hyperv_device_info here, doing more
-than one thing in a single patch.
-
-Please don't do that, this should be 2 patches.
-
+Clean them up to be what?  Shorter?  Nice?  Full of rounded edges so
+that when we bump into them in the dark they don't poke us and cause us
+to shreak in pain?
 
 > 
+> 
 > Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
+> Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
+
+Sweet, you cloned yourself, I thought only Alan Cox had achieved that
+goal...
+
 > Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 > Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 > 
 > ---
->  drivers/staging/hv/blkvsc.c        |    4 +-
->  drivers/staging/hv/blkvsc_drv.c    |    8 ++--
->  drivers/staging/hv/channel_mgmt.h  |    2 +-
->  drivers/staging/hv/netvsc.c        |   56 +++++++++++++++++++----------------
->  drivers/staging/hv/netvsc.h        |    2 +-
->  drivers/staging/hv/netvsc_api.h    |   12 ++++----
->  drivers/staging/hv/netvsc_drv.c    |   14 ++++----
->  drivers/staging/hv/rndis_filter.c  |   18 ++++++------
->  drivers/staging/hv/storvsc.c       |   36 ++++++++++++-----------
->  drivers/staging/hv/storvsc_api.h   |    4 +-
->  drivers/staging/hv/storvsc_drv.c   |   10 +++---
->  drivers/staging/hv/vmbus.h         |    6 ++--
->  drivers/staging/hv/vmbus_api.h     |    8 ++--
->  drivers/staging/hv/vmbus_drv.c     |   50 ++++++++++++++++----------------
->  drivers/staging/hv/vmbus_private.h |   12 ++++----
->  15 files changed, 124 insertions(+), 118 deletions(-)
+>  drivers/staging/hv/blkvsc_drv.c  |   12 ++--
+>  drivers/staging/hv/netvsc.c      |    4 +-
+>  drivers/staging/hv/netvsc_drv.c  |   36 ++++----
+>  drivers/staging/hv/storvsc_drv.c |   44 +++++-----
+>  drivers/staging/hv/vmbus_drv.c   |  164 +++++++++++++++++++-------------------
+>  5 files changed, 130 insertions(+), 130 deletions(-)
 > 
-> diff --git a/drivers/staging/hv/blkvsc.c b/drivers/staging/hv/blkvsc.c
-> index ecface3..47ccec2 100644
-> --- a/drivers/staging/hv/blkvsc.c
-> +++ b/drivers/staging/hv/blkvsc.c
-> @@ -35,8 +35,8 @@ static const struct hv_guid g_blk_device_type = {
->  	}
->  };
->  
-> -static int blk_vsc_on_device_add(struct vm_device *device,
-> -				void *additional_info)
+> diff --git a/drivers/staging/hv/blkvsc_drv.c b/drivers/staging/hv/blkvsc_drv.c
+> index 58ab0e8..305a665 100644
+> --- a/drivers/staging/hv/blkvsc_drv.c
+> +++ b/drivers/staging/hv/blkvsc_drv.c
+> @@ -95,7 +95,7 @@ struct blkvsc_request {
+>  /* Per device structure */
+>  struct block_device_context {
+>  	/* point back to our device context */
+> -	struct hyperv_device *device_ctx;
+> +	struct hyperv_device *device_obj;
+
+Hey, I was right, it does have more rounded edges, nicely done.
+
+
+> -static int netvsc_device_add(struct hyperv_device *device,
+> -			void *additional_info);
 > +static int
-> +blk_vsc_on_device_add(struct hyperv_device *device, void *additional_info)
+> +netvsc_device_add(struct hyperv_device *device, void *additional_info);
 
-Ick, why break the formatting like this?  Please keep the return type on
-the same line as the function name.
+Again with the function return value hiding.  Please don't.
 
-You do that in a number of places, please don't.
+> --- a/drivers/staging/hv/storvsc_drv.c
+> +++ b/drivers/staging/hv/storvsc_drv.c
+> @@ -43,7 +43,7 @@ struct host_device_context {
+>  	/* must be 1st field
+>  	 * FIXME this is a bug */
+>  	/* point back to our device context */
+> -	struct hyperv_device *device_ctx;
+> +	struct hyperv_device *device_obj;
+
+I really don't understand this change at all.  "obj" is just as vapid
+and clueless as "ctx" is, and it seems very gratuitous to change this.
+And I should know, I have made a lot of gratuitous renames in my time in
+the kernel...
+
+>  static int vmbus_uevent(struct device *device, struct kobj_uevent_env *env)
+>  {
+> -	struct hyperv_device *device_ctx = device_to_hyperv_device(device);
+> +	struct hyperv_device *device_obj = device_to_hyperv_device(device);
+>  	int ret;
+>  
+>  	DPRINT_INFO(VMBUS_DRV, "generating uevent - VMBUS_DEVICE_CLASS_GUID={"
+>  		    "%02x%02x%02x%02x-%02x%02x-%02x%02x-"
+>  		    "%02x%02x%02x%02x%02x%02x%02x%02x}",
+> -		    device_ctx->class_id.data[3], device_ctx->class_id.data[2],
+> -		    device_ctx->class_id.data[1], device_ctx->class_id.data[0],
+> -		    device_ctx->class_id.data[5], device_ctx->class_id.data[4],
+> -		    device_ctx->class_id.data[7], device_ctx->class_id.data[6],
+> -		    device_ctx->class_id.data[8], device_ctx->class_id.data[9],
+> -		    device_ctx->class_id.data[10],
+> -		    device_ctx->class_id.data[11],
+> -		    device_ctx->class_id.data[12],
+> -		    device_ctx->class_id.data[13],
+> -		    device_ctx->class_id.data[14],
+> -		    device_ctx->class_id.data[15]);
+> +		    device_obj->class_id.data[3], device_obj->class_id.data[2],
+> +		    device_obj->class_id.data[1], device_obj->class_id.data[0],
+> +		    device_obj->class_id.data[5], device_obj->class_id.data[4],
+> +		    device_obj->class_id.data[7], device_obj->class_id.data[6],
+> +		    device_obj->class_id.data[8], device_obj->class_id.data[9],
+> +		    device_obj->class_id.data[10],
+> +		    device_obj->class_id.data[11],
+> +		    device_obj->class_id.data[12],
+> +		    device_obj->class_id.data[13],
+> +		    device_obj->class_id.data[14],
+> +		    device_obj->class_id.data[15]);
+
+After seeing this stuff so many times I'm waiting for a helper function
+to be added for it in this subsystem.  I'm sure you really don't want to
+edit GUID printk-like functions ever again, right?
+
+>  static void vmbus_device_release(struct device *device)
+>  {
+> -	struct hyperv_device *device_ctx = device_to_hyperv_device(device);
+> +	struct hyperv_device *device_obj = device_to_hyperv_device(device);
+>  
+> -	kfree(device_ctx);
+> +	kfree(device_obj);
+>  
+> -	/* !!DO NOT REFERENCE device_ctx anymore at this point!! */
+> +	/* !!DO NOT REFERENCE device_obj anymore at this point!! */
+>  }
+
+I think by virtue of the kfree() right above this comment, it should be
+deleted.  Especially as it is at the end of the function, making it
+pretty much impossible to make any sense here...
+
+Come on, global search-and-replace needs to be done in a sane manner,
+other wise you can just send me a vi macro to run on the code, it would
+be the same thing in the end (hint, don't do that, only one person has
+ever gotten away with doing that in the history of the kernel, in an act
+never to be ever repeated again.)
 
 thanks,
 
