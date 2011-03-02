@@ -1,7 +1,8 @@
 From: Amit Shah <amit.shah@redhat.com>
-Subject: [PATCH 1/2] virtio: console: Don't access vqs if device was unplugged
-Date: Wed,  2 Mar 2011 13:53:07 +0530
-Message-ID: <3427b13fbaeeb6e0ac0430169bdce957e7871918.1299054025.git.amit.shah__47455.1849918955$1299054271$gmane$org@redhat.com>
+Subject: [PATCH 2/2] virtio: console: Don't call device_destroy() on port
+	device
+Date: Wed,  2 Mar 2011 13:53:08 +0530
+Message-ID: <5e342b496e09358d09b2101e5f68067af918da68.1299054025.git.amit.shah__45156.8279685036$1299054278$gmane$org@redhat.com>
 References: <cover.1299054025.git.amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -23,46 +24,27 @@ To: Virtualization List <virtualization@lists.linux-foundation.org>
 Cc: Amit Shah <amit.shah@redhat.com>, stable@kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-If a virtio-console device gets unplugged while a port is open, a
-subsequent close() call on the port accesses vqs to free up buffers.
-This can lead to a crash.
+This results in a warning mentioning the region being removed is already
+gone.
 
-The buffers are already freed up as a result of the call to
-unplug_ports() from virtcons_remove().  The fix is to simply not access
-vq information if port->portdev is NULL.
-
-Reported-by: juzhang <juzhang@redhat.com>
 CC: stable@kernel.org
 Signed-off-by: Amit Shah <amit.shah@redhat.com>
 ---
- drivers/char/virtio_console.c |    8 ++++++++
- 1 files changed, 8 insertions(+), 0 deletions(-)
+ drivers/char/virtio_console.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
 diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index 4903931..84b164d 100644
+index 84b164d..5ac9fd9 100644
 --- a/drivers/char/virtio_console.c
 +++ b/drivers/char/virtio_console.c
-@@ -388,6 +388,10 @@ static void discard_port_data(struct port *port)
- 	unsigned int len;
- 	int ret;
+@@ -1244,7 +1244,7 @@ static void remove_port(struct kref *kref)
+ 	port = container_of(kref, struct port, kref);
  
-+	if (!port->portdev) {
-+		/* Device has been unplugged.  vqs are already gone. */
-+		return;
-+	}
- 	vq = port->in_vq;
- 	if (port->inbuf)
- 		buf = port->inbuf;
-@@ -470,6 +474,10 @@ static void reclaim_consumed_buffers(struct port *port)
- 	void *buf;
- 	unsigned int len;
+ 	sysfs_remove_group(&port->dev->kobj, &port_attribute_group);
+-	device_destroy(pdrvdata.class, port->dev->devt);
++
+ 	cdev_del(port->cdev);
  
-+	if (!port->portdev) {
-+		/* Device has been unplugged.  vqs are already gone. */
-+		return;
-+	}
- 	while ((buf = virtqueue_get_buf(port->out_vq, &len))) {
- 		kfree(buf);
- 		port->outvq_full = false;
+ 	kfree(port->name);
 -- 
 1.7.4
