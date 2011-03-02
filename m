@@ -1,70 +1,37 @@
-From: Greg KH <greg@kroah.com>
-Subject: Re: [PATCH 6/6] Staging: hv: Cleanup hyperv_driver variable names
-Date: Wed, 2 Mar 2011 00:42:49 -0500
-Message-ID: <20110302054249.GC28382@kroah.com>
-References: <1298686078-30945-1-git-send-email-kys@microsoft.com>
- <20110301025859.GG1663@kroah.com>
- <6E21E5352C11B742B20C142EB499E048016633@TK5EX14MBXC128.redmond.corp.microsoft.com>
+From: Dan Carpenter <error27@gmail.com>
+Subject: Re: [PATCH 1/6] Staging: hv: Unify hyper-v device abstractions
+Date: Wed, 2 Mar 2011 09:35:02 +0300
+Message-ID: <20110302063502.GD18043@bicker>
+References: <1298685930-30806-1-git-send-email-kys@microsoft.com>
+ <20110301023449.GC1663@kroah.com>
+ <6E21E5352C11B742B20C142EB499E0480165E6@TK5EX14MBXC128.redmond.corp.microsoft.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <6E21E5352C11B742B20C142EB499E048016633@TK5EX14MBXC128.redmond.corp.microsoft.com>
+In-Reply-To: <6E21E5352C11B742B20C142EB499E0480165E6@TK5EX14MBXC128.redmond.corp.microsoft.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: KY Srinivasan <kys@microsoft.com>
-Cc: "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, Haiyang Zhang <haiyangz@microsoft.com>, Hank Janssen <hjanssen@microsoft.com>
+Cc: Greg KH <greg@kroah.com>, "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Mar 02, 2011 at 01:44:11AM +0000, KY Srinivasan wrote:
-> 
-> 
-> > -----Original Message-----
-> > From: Greg KH [mailto:greg@kroah.com]
-> > Sent: Monday, February 28, 2011 9:59 PM
-> > To: KY Srinivasan
-> > Cc: gregkh@suse.de; linux-kernel@vger.kernel.org;
-> > devel@linuxdriverproject.org; virtualization@lists.osdl.org; Haiyang Zhang; Hank
-> > Janssen
-> > Subject: Re: [PATCH 6/6] Staging: hv: Cleanup hyperv_driver variable names
-> > 
-> > On Fri, Feb 25, 2011 at 06:07:58PM -0800, K. Y. Srinivasan wrote:
-> > > The title says it all.
-> > 
-> > That's a horrible changelog comment.  So bad that I would rather see an
-> > empty message than this one.  Seriously, it give no description, and
-> > makes us think that the whole patch is obvious, when it really isn't.
-> > 
-> > What did you change them to?
-> > What did you change them from?
-> > What was your motivation in changing them?
-> > How were you feeling when the names changed?
-> > 
-> > Ok, maybe not the last one, but you get the idea.
-> 
-> Greg, these changes (patches 1 through 6) change so much in this
-> sub-system that until these changes go in, our cleanup efforts are
-> stalled.
+The problem is that everyone reading [patch 1/6] thinks you're renaming
+hv_device to vm_device or introducing a new struct vm_device.  That
+makes people annoyed.  If you had written the patch description like this:
 
-Ok, but that's not my issue, it's yours :)
+    In the original code, the structs vm_device included a struct
+    hv_device.  This patch moves the members from hv_device directly
+    into struct vm_device.
 
-And what's the rush?
+    The members ->dev_type and ->dev_instance from hv_device were
+    the same as ->class_id and ->device_id in vm_device so those
+    were not copied over.
 
-> That is the main reason I was so hasty in submitting these patches.
-> Clearly, I need to provide a better changelog comment; and I will.
-> Looking at your other comments, I am wondering if the granularity I
-> chose for breaking up the changes that had to be done  is also a
-> significant part of the problem. If it is ok with you, I could
-> generate a  patch that deals with all device related issues and a
-> patch that deals with all driver related issues. These patches
-> obviously will  do more than one thing (however they will all be
-> related); but at least they won't have intermediate state that would
-> be objectionable. Let me know.
+    Now that everything is included into vm_device directly, 
+    hv_device is unused and we can delete the definition.
 
-Ick, no, you need to break these up into smaller pieces than just the 6
-you did here, as you were still doing more than one thing per patch.
+There still might be issues with the patch, but at least you would be
+talking about the same thing.
 
-Please make them simpler, not more complex.
-
-thanks,
-
-greg k-h
+regards,
+dan carpenter
