@@ -1,16 +1,13 @@
-From: Amit Shah <amit.shah@redhat.com>
-Subject: [PATCH 2/2] virtio: console: Don't call device_destroy() on port
-	device
-Date: Wed,  2 Mar 2011 13:53:08 +0530
-Message-ID: <5e342b496e09358d09b2101e5f68067af918da68.1299054025.git.amit.shah__45156.8279685036$1299054278$gmane$org@redhat.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH 0/2] Fix hot-unplug: device removal while port in use
+Date: Wed, 02 Mar 2011 21:38:08 +1030
+Message-ID: <87aahdn5k7.fsf@rustcorp.com.au>
 References: <cover.1299054025.git.amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 In-Reply-To: <cover.1299054025.git.amit.shah@redhat.com>
-In-Reply-To: <cover.1299054025.git.amit.shah@redhat.com>
-References: <cover.1299054025.git.amit.shah@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -21,30 +18,19 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Virtualization List <virtualization@lists.linux-foundation.org>
-Cc: Amit Shah <amit.shah@redhat.com>, stable@kernel.org
+Cc: Amit Shah <amit.shah@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This results in a warning mentioning the region being removed is already
-gone.
+On Wed,  2 Mar 2011 13:53:06 +0530, Amit Shah <amit.shah@redhat.com> wrote:
+> A crash was observed when a device gets removed while a port is in
+> use.  When the port gets removed, we tried to free vq buffers.  The vq
+> no longer exists at this stage, just ensure we don't access it.
+> 
+> The second patch fixes a warning where the pci region is already
+> freed.  I'm not sure what or how the region gets freed, any clues
+> there will be helpful.
 
-CC: stable@kernel.org
-Signed-off-by: Amit Shah <amit.shah@redhat.com>
----
- drivers/char/virtio_console.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+Put a printk and WARN_ON() in the pci region freeing code, look through
+the backtraces?
 
-diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index 84b164d..5ac9fd9 100644
---- a/drivers/char/virtio_console.c
-+++ b/drivers/char/virtio_console.c
-@@ -1244,7 +1244,7 @@ static void remove_port(struct kref *kref)
- 	port = container_of(kref, struct port, kref);
- 
- 	sysfs_remove_group(&port->dev->kobj, &port_attribute_group);
--	device_destroy(pdrvdata.class, port->dev->devt);
-+
- 	cdev_del(port->cdev);
- 
- 	kfree(port->name);
--- 
-1.7.4
+Rusty.
