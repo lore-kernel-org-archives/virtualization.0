@@ -1,37 +1,41 @@
-From: Dan Carpenter <error27@gmail.com>
-Subject: Re: [PATCH 1/6] Staging: hv: Unify hyper-v device abstractions
-Date: Wed, 2 Mar 2011 09:35:02 +0300
-Message-ID: <20110302063502.GD18043@bicker>
-References: <1298685930-30806-1-git-send-email-kys@microsoft.com>
- <20110301023449.GC1663@kroah.com>
- <6E21E5352C11B742B20C142EB499E0480165E6@TK5EX14MBXC128.redmond.corp.microsoft.com>
+From: Amit Shah <amit.shah@redhat.com>
+Subject: [PATCH 0/2] Fix hot-unplug: device removal while port in use
+Date: Wed,  2 Mar 2011 13:53:06 +0530
+Message-ID: <cover.1299054025.git.amit.shah@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <6E21E5352C11B742B20C142EB499E0480165E6@TK5EX14MBXC128.redmond.corp.microsoft.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: KY Srinivasan <kys@microsoft.com>
-Cc: Greg KH <greg@kroah.com>, "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Virtualization List <virtualization@lists.linux-foundation.org>
+Cc: Amit Shah <amit.shah@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The problem is that everyone reading [patch 1/6] thinks you're renaming
-hv_device to vm_device or introducing a new struct vm_device.  That
-makes people annoyed.  If you had written the patch description like this:
+A crash was observed when a device gets removed while a port is in
+use.  When the port gets removed, we tried to free vq buffers.  The vq
+no longer exists at this stage, just ensure we don't access it.
 
-    In the original code, the structs vm_device included a struct
-    hv_device.  This patch moves the members from hv_device directly
-    into struct vm_device.
+The second patch fixes a warning where the pci region is already
+freed.  I'm not sure what or how the region gets freed, any clues
+there will be helpful.
 
-    The members ->dev_type and ->dev_instance from hv_device were
-    the same as ->class_id and ->device_id in vm_device so those
-    were not copied over.
+Thanks,
+		Amit
 
-    Now that everything is included into vm_device directly, 
-    hv_device is unused and we can delete the definition.
+Amit Shah (2):
+  virtio: console: Don't access vqs if device was unplugged
+  virtio: console: Don't call device_destroy() on port device
 
-There still might be issues with the patch, but at least you would be
-talking about the same thing.
+ drivers/char/virtio_console.c |   10 +++++++++-
+ 1 files changed, 9 insertions(+), 1 deletions(-)
 
-regards,
-dan carpenter
+-- 
+1.7.4
