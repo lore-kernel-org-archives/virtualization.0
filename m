@@ -1,95 +1,63 @@
 From: KY Srinivasan <kys@microsoft.com>
-Subject: RE: [PATCH 4/6] Staging: hv:  Unify the hyperv driver abstractions
-Date: Wed, 2 Mar 2011 01:43:13 +0000
-Message-ID: <6E21E5352C11B742B20C142EB499E04801661A@TK5EX14MBXC128.redmond.corp.microsoft.com>
-References: <1298686023-30892-1-git-send-email-kys@microsoft.com>
- <20110301025230.GE1663@kroah.com>
+Subject: RE: [PATCH 6/6] Staging: hv: Cleanup hyperv_driver variable names
+Date: Wed, 2 Mar 2011 01:44:11 +0000
+Message-ID: <6E21E5352C11B742B20C142EB499E048016633@TK5EX14MBXC128.redmond.corp.microsoft.com>
+References: <1298686078-30945-1-git-send-email-kys@microsoft.com>
+	<20110301025859.GG1663@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20110301025230.GE1663@kroah.com>
+Content-Transfer-Encoding: 7bit
+Return-path: <devel-bounces@linuxdriverproject.org>
+In-Reply-To: <20110301025859.GG1663@kroah.com>
 Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
+List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
+	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
+List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
+List-Post: <mailto:devel@linuxdriverproject.org>
+List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
+List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
+	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
+Sender: devel-bounces@linuxdriverproject.org
+Errors-To: devel-bounces@linuxdriverproject.org
 To: Greg KH <greg@kroah.com>
-Cc: "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, Haiyang Zhang <haiyangz@microsoft.com>, Hank Janssen <hjanssen@microsoft.com>
+Cc: "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
 
 
 > -----Original Message-----
 > From: Greg KH [mailto:greg@kroah.com]
-> Sent: Monday, February 28, 2011 9:53 PM
+> Sent: Monday, February 28, 2011 9:59 PM
 > To: KY Srinivasan
 > Cc: gregkh@suse.de; linux-kernel@vger.kernel.org;
 > devel@linuxdriverproject.org; virtualization@lists.osdl.org; Haiyang Zhang; Hank
 > Janssen
-> Subject: Re: [PATCH 4/6] Staging: hv: Unify the hyperv driver abstractions
+> Subject: Re: [PATCH 6/6] Staging: hv: Cleanup hyperv_driver variable names
 > 
-> On Fri, Feb 25, 2011 at 06:07:03PM -0800, K. Y. Srinivasan wrote:
-> > This patch combines the two driver abstractions into
-> > a single driver abstraction.
+> On Fri, Feb 25, 2011 at 06:07:58PM -0800, K. Y. Srinivasan wrote:
+> > The title says it all.
 > 
-> Ah, how sweet.  Unfortunatly you don't say "how" you did this.
+> That's a horrible changelog comment.  So bad that I would rather see an
+> empty message than this one.  Seriously, it give no description, and
+> makes us think that the whole patch is obvious, when it really isn't.
 > 
-> Nor do you describe _what_ those two driver abstractions were.  Are we
-> talking i2c and usb abstractions?  gpio and spi?  Driver core and
-> platform?  We want to know exactly what is going on here.
+> What did you change them to?
+> What did you change them from?
+> What was your motivation in changing them?
+> How were you feeling when the names changed?
+> 
+> Ok, maybe not the last one, but you get the idea.
 
-My mistake; I will have a more descriptive comment.
-
-> 
-> Think of writing something that when you look back, in 3 years, while
-> staring at a Linux hyperv driver originally written for the 2.6.9
-> kernel, that somehow never got forward ported and you are tasked with
-> doing this, that you can just do a simple 'git log drivers/staging/hv/'
-> and instantly know just from the changelog comments exactly what you
-> need to do to your driver to clean it up and properly get it to work on
-> the new 8.2.2 kernel release.
-> 
-> This changelog entry, would require you to go and dig through the guts
-> of the patch itself, trying to figure out what abstractions you are
-> talking about, and exactly how they were combined, all the while
-> wondering _why_ they were combined.
-> 
-> Please, think of your future self, you will thank him in the years to
-> come by doing this properly.  Not to mention making other's lives easier
-> if you happen to have escaped this dire task by then.
-> 
-> Oh, you have an extra space up there in the subject, please fix it next
-> time.
-> 
-> > -int blk_vsc_initialize(struct hv_driver *driver)
-> > +int blk_vsc_initialize(struct driver_context *driver)
-> 
-> "struct driver_context"?  Oh please no.
-
-Greg; this is the patch that consolidates the state in  struct hv_driver into 
-struct driver_context. In the spirit of doing one thing in a patch;
-other relevant changes are made in:
-Patch[5/6]: Changes the name driver_context to hyperv_driver
-Patch[6/6]: Cleanup all variable names that refer to struct hyperv_driver.
- 
-> 
-> I realize that you are hopefully going to later rename this to something
-> else, but remember, a few patches back you thought that the "ctx" name
-> wasn't nice.  And here you go resuscitating it from the graveyard of
-> pointy bits.
-
-As I noted in a different email, may be the granularity I chose in breaking up
-these patches is causing all this confusion.
- 
-> 
-> And what happens if your future patch is rejected?  You are stuck with a
-> "driver_context" structure in a subsystem?  That's a pretty big abuse of
-> the global namespace, don't you think?  It sounds like something that
-> should go into include/linux/device.h
-> 
-> Please be careful about names, they mean things, even when you think
-> they don't.
-
-Greg, would it be better if I just had one patch for dealing with all device related issues and a
-Separate patch for dealing all driver related issues?
+Greg, these changes (patches 1 through 6) change so much in this
+sub-system that until these changes go in, our cleanup efforts are stalled. That
+is the main reason I was so hasty in submitting these patches.
+Clearly, I need to provide a better changelog comment; and I will. Looking at your 
+other comments, I am wondering if the granularity I chose for breaking up the 
+changes that had to be done  is also a significant part of the problem. If it is ok with you,
+I could generate a  patch that deals with all device related issues and a patch that deals with
+all driver related issues. These patches obviously will  do more than one thing (however
+they will all be related); but at least they
+won't have intermediate state that would be objectionable. Let me know.
 
 Regards,
 
