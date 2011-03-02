@@ -1,64 +1,117 @@
-From: KY Srinivasan <kys@microsoft.com>
-Subject: RE: [PATCH 6/6] Staging: hv: Cleanup hyperv_driver variable names
-Date: Wed, 2 Mar 2011 01:44:11 +0000
-Message-ID: <6E21E5352C11B742B20C142EB499E048016633@TK5EX14MBXC128.redmond.corp.microsoft.com>
-References: <1298686078-30945-1-git-send-email-kys@microsoft.com>
-	<20110301025859.GG1663@kroah.com>
+From: Greg KH <greg@kroah.com>
+Subject: Re: [PATCH 3/6] Staging: hv: Cleanup hyperv_device variable names
+Date: Wed, 2 Mar 2011 00:39:20 -0500
+Message-ID: <20110302053920.GA28382@kroah.com>
+References: <1298685992-30864-1-git-send-email-kys@microsoft.com>
+ <20110301024403.GD1663@kroah.com>
+ <6E21E5352C11B742B20C142EB499E04801660E@TK5EX14MBXC128.redmond.corp.microsoft.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <devel-bounces@linuxdriverproject.org>
-In-Reply-To: <20110301025859.GG1663@kroah.com>
-Content-Language: en-US
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
-List-Post: <mailto:devel@linuxdriverproject.org>
-List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
-Sender: devel-bounces@linuxdriverproject.org
-Errors-To: devel-bounces@linuxdriverproject.org
-To: Greg KH <greg@kroah.com>
-Cc: "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <6E21E5352C11B742B20C142EB499E04801660E@TK5EX14MBXC128.redmond.corp.microsoft.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: KY Srinivasan <kys@microsoft.com>
+Cc: "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, Haiyang Zhang <haiyangz@microsoft.com>, Hank Janssen <hjanssen@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-
-
-> -----Original Message-----
-> From: Greg KH [mailto:greg@kroah.com]
-> Sent: Monday, February 28, 2011 9:59 PM
-> To: KY Srinivasan
-> Cc: gregkh@suse.de; linux-kernel@vger.kernel.org;
-> devel@linuxdriverproject.org; virtualization@lists.osdl.org; Haiyang Zhang; Hank
-> Janssen
-> Subject: Re: [PATCH 6/6] Staging: hv: Cleanup hyperv_driver variable names
+On Wed, Mar 02, 2011 at 01:42:37AM +0000, KY Srinivasan wrote:
 > 
-> On Fri, Feb 25, 2011 at 06:07:58PM -0800, K. Y. Srinivasan wrote:
-> > The title says it all.
 > 
-> That's a horrible changelog comment.  So bad that I would rather see an
-> empty message than this one.  Seriously, it give no description, and
-> makes us think that the whole patch is obvious, when it really isn't.
+> > -----Original Message-----
+> > From: Greg KH [mailto:greg@kroah.com]
+> > Sent: Monday, February 28, 2011 9:44 PM
+> > To: KY Srinivasan
+> > Cc: gregkh@suse.de; linux-kernel@vger.kernel.org;
+> > devel@linuxdriverproject.org; virtualization@lists.osdl.org; Haiyang Zhang; Hank
+> > Janssen
+> > Subject: Re: [PATCH 3/6] Staging: hv: Cleanup hyperv_device variable names
+> > 
+> > On Fri, Feb 25, 2011 at 06:06:32PM -0800, K. Y. Srinivasan wrote:
+> > > Cleanup the names of variables that refer to the
+> > > hyperv_device abstraction.
+> > 
+> > Clean them up to be what?  Shorter?  Nice?  Full of rounded edges so
+> > that when we bump into them in the dark they don't poke us and cause us
+> > to shreak in pain?
+> > 
+> > >
+> > >
+> > > Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
+> > > Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
+> > 
+> > Sweet, you cloned yourself, I thought only Alan Cox had achieved that
+> > goal...
+> > 
+> > > Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
+> > > Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
+> > >
+> > > ---
+> > >  drivers/staging/hv/blkvsc_drv.c  |   12 ++--
+> > >  drivers/staging/hv/netvsc.c      |    4 +-
+> > >  drivers/staging/hv/netvsc_drv.c  |   36 ++++----
+> > >  drivers/staging/hv/storvsc_drv.c |   44 +++++-----
+> > >  drivers/staging/hv/vmbus_drv.c   |  164 +++++++++++++++++++-----------------
+> > --
+> > >  5 files changed, 130 insertions(+), 130 deletions(-)
+> > >
+> > > diff --git a/drivers/staging/hv/blkvsc_drv.c b/drivers/staging/hv/blkvsc_drv.c
+> > > index 58ab0e8..305a665 100644
+> > > --- a/drivers/staging/hv/blkvsc_drv.c
+> > > +++ b/drivers/staging/hv/blkvsc_drv.c
+> > > @@ -95,7 +95,7 @@ struct blkvsc_request {
+> > >  /* Per device structure */
+> > >  struct block_device_context {
+> > >  	/* point back to our device context */
+> > > -	struct hyperv_device *device_ctx;
+> > > +	struct hyperv_device *device_obj;
+> > 
+> > Hey, I was right, it does have more rounded edges, nicely done.
+> > 
+> > 
+> > > -static int netvsc_device_add(struct hyperv_device *device,
+> > > -			void *additional_info);
+> > > +static int
+> > > +netvsc_device_add(struct hyperv_device *device, void *additional_info);
+> > 
+> > Again with the function return value hiding.  Please don't.
+> > 
+> > > --- a/drivers/staging/hv/storvsc_drv.c
+> > > +++ b/drivers/staging/hv/storvsc_drv.c
+> > > @@ -43,7 +43,7 @@ struct host_device_context {
+> > >  	/* must be 1st field
+> > >  	 * FIXME this is a bug */
+> > >  	/* point back to our device context */
+> > > -	struct hyperv_device *device_ctx;
+> > > +	struct hyperv_device *device_obj;
+> > 
+> > I really don't understand this change at all.  "obj" is just as vapid
+> > and clueless as "ctx" is, and it seems very gratuitous to change this.
+> > And I should know, I have made a lot of gratuitous renames in my time in
+> > the kernel...
 > 
-> What did you change them to?
-> What did you change them from?
-> What was your motivation in changing them?
-> How were you feeling when the names changed?
+> Greg, there are not that many options here. As I recall there was universal
+> objection to the use of  *context/*ctx to refer to device or driver objects.
+> The name I chose is fairly descriptive of what it represents. If there is consensus 
+> on a better name, I will  use it. 
+
+Do it like other subsystems, call it a device with the prefix for the
+type.  So for this one, it would be:
+	struct hyperv_device *hyperv_device;
+or
+	struct hyperv_device *hyperv_dev;
+
+> > Come on, global search-and-replace needs to be done in a sane manner,
+> > other wise you can just send me a vi macro to run on the code, it would
+> > be the same thing in the end (hint, don't do that, only one person has
+> > ever gotten away with doing that in the history of the kernel, in an act
+> > never to be ever repeated again.)
 > 
-> Ok, maybe not the last one, but you get the idea.
+> Greg, apart from your objection to the name I picked to refer to variable 
+> referring to struct hyperv_device; what else is the problem here. 
 
-Greg, these changes (patches 1 through 6) change so much in this
-sub-system that until these changes go in, our cleanup efforts are stalled. That
-is the main reason I was so hasty in submitting these patches.
-Clearly, I need to provide a better changelog comment; and I will. Looking at your 
-other comments, I am wondering if the granularity I chose for breaking up the 
-changes that had to be done  is also a significant part of the problem. If it is ok with you,
-I could generate a  patch that deals with all device related issues and a patch that deals with
-all driver related issues. These patches obviously will  do more than one thing (however
-they will all be related); but at least they
-won't have intermediate state that would be objectionable. Let me know.
+Changing the comment that should be removed instead.
 
-Regards,
+thanks,
 
-K. Y
+greg k-h
