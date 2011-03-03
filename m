@@ -1,73 +1,117 @@
-From: Greg KH <gregkh@suse.de>
-Subject: Re: [PATCH 4/6] Staging: hv:  Unify the hyperv driver abstractions
-Date: Wed, 2 Mar 2011 22:10:02 -0800
-Message-ID: <20110303061002.GD32209@suse.de>
-References: <1298686023-30892-1-git-send-email-kys@microsoft.com>
- <20110301025230.GE1663@kroah.com>
- <6E21E5352C11B742B20C142EB499E04801661A@TK5EX14MBXC128.redmond.corp.microsoft.com>
- <20110302054125.GB28382@kroah.com>
- <6E21E5352C11B742B20C142EB499E048016A13@TK5EX14MBXC128.redmond.corp.microsoft.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: Bug inkvm_set_irq
+Date: Thu, 3 Mar 2011 16:47:15 +0200
+Message-ID: <20110303144715.GA12400__39831.0797791511$1299163787$gmane$org@redhat.com>
+References: <4D67714A.2050100@univ-nantes.fr>
+	<20110227170031.GC17973@redhat.com>
+	<4D6B634E.9090801@univ-nantes.fr>
+	<20110228101139.GD28006@redhat.com>
+	<4D6B7BAB.9070907@univ-nantes.fr>
+	<20110228113939.GH28006@redhat.com>
+	<4D6BBB88.5060709@univ-nantes.fr> <4D6C22E8.2020007@univ-nantes.fr>
+	<20110301070333.GA5972@redhat.com>
+	<4D6D0510.4060300@univ-nantes.fr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <6E21E5352C11B742B20C142EB499E048016A13@TK5EX14MBXC128.redmond.corp.microsoft.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: KY Srinivasan <kys@microsoft.com>
-Cc: Greg KH <greg@kroah.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, Haiyang Zhang <haiyangz@microsoft.com>, Hank Janssen <hjanssen@microsoft.com>
+In-Reply-To: <4D6D0510.4060300@univ-nantes.fr>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Jean-Philippe Menil <jean-philippe.menil@univ-nantes.fr>
+Cc: netdev@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Mar 03, 2011 at 02:50:00AM +0000, KY Srinivasan wrote:
-> > > > "struct driver_context"?  Oh please no.
-> > >
-> > > Greg; this is the patch that consolidates the state in  struct hv_driver into
-> > > struct driver_context. In the spirit of doing one thing in a patch;
-> > > other relevant changes are made in:
-> > > Patch[5/6]: Changes the name driver_context to hyperv_driver
-> > > Patch[6/6]: Cleanup all variable names that refer to struct hyperv_driver.
-> > 
-> > Yes, but on its own, this patch is wrong, that is not a valid name, even
-> > if it is a "temporary" name.
+On Tue, Mar 01, 2011 at 03:39:12PM +0100, Jean-Philippe Menil wrote:
+> so this time the bug is:
 > 
-> Greg, the temporary name happens to be the name currently in use in the 
-> code - this is not the name I introduced.
-
-There is not a "struct driver_context" in the code that I see today, or
-am I missing something?  That's my objection here, please don't use that
-name, it's not valid for a subsystem to use, even for a tiny bit.
-
-> Think of this as the surviving data structure after  the hv_driver
-> state is consolidated into (the existing) driver_context data
-> structure.  I did this in the spirit of doing one thing at a time. If
-> I am going to be picking a more appropriate name for the consolidated
-> data structure; I might as well pick the final name that we want this
-> unified driver abstraction to be called. 
-
-Your final name is fine, it's the intermediate one I'm objecting to.
-
-How about 'struct hv_driver_context' instead?
-
-> > > > I realize that you are hopefully going to later rename this to something
-> > > > else, but remember, a few patches back you thought that the "ctx" name
-> > > > wasn't nice.  And here you go resuscitating it from the graveyard of
-> > > > pointy bits.
-> > >
-> > > As I noted in a different email, may be the granularity I chose in breaking up
-> > > these patches is causing all this confusion.
-> > 
-> > Yes, as I think you need to go much finer as you were doing more than
-> > one thing in these patches, and not describing them properly at all.
-> > 
-> > Please try to redo them in a simpler manner, probably breaking it into
-> > more steps, so we can properly review them.
+> [17882.612303] BUG: unable to handle kernel paging request at
+> 0000000000002458
+> [17882.612342] IP: [<ffffffffa03898a0>] kvm_set_irq+0x30/0x140 [kvm]
 > 
-> Based on your comments on intermediate names, would you recommend that
-> as part  of consolidating the driver abstractions, I also rename this combined 
-> state. 
+> markup_oops give me this:
+> 
+> root@ayrshire:~# cat bug-0103.txt | perl markup_oops.pl -m
+> /lib/modules/2.6.37.2-dsiun-110105+/kernel/arch/x86/kvm/kvm.ko
+> /boot/vmlinuz-2.6.37.2-dsiun-110105+
+> vmaoffset = 18446744072102621184 ffffffffa0389871:	48 89 e5   	mov
+> %rsp,%rbp
+>  ffffffffa0389874:	41 57                	push   %r15
+>  ffffffffa0389876:	41 89 cf             	mov    %ecx,%r15d  |  %r15
+> => 1  %ecx = 1
+>  ffffffffa0389879:	41 56                	push   %r14        |  %r14
+> => ffffffffa038aad0
+>  ffffffffa038987b:	41 55                	push   %r13
+>  ffffffffa038987d:	49 89 fd             	mov    %rdi,%r13   |  %edi
+> = 0  %r13 => 0
+>  ffffffffa0389880:	41 54                	push   %r12        |  %r12 => 0
+>  ffffffffa0389882:	53                   	push   %rbx
+>  ffffffffa0389883:	89 d3                	mov    %edx,%ebx   |  %ebx => 1a
+>  ffffffffa0389885:	48 81 ec a8 00 00 00 	sub    $0xa8,%rsp
+>  ffffffffa038988c:	8b 15 00 00 00 00    	mov    0x0(%rip),%edx
+> # ffffffffa0389892 <kvm_set_irq+0x22>
+>  ffffffffa0389892:	89 b5 3c ff ff ff    	mov    %esi,-0xc4(%rbp) |
+> %esi = 0
+>  ffffffffa0389898:	85 d2                	test   %edx,%edx   |  %edx => 0
+>  ffffffffa038989a:	0f 85 d5 00 00 00    	jne    ffffffffa0389975
+> <kvm_set_irq+0x105>
+> *ffffffffa03898a0:	49 8b 85 58 24 00 00 	mov    0x2458(%r13),%rax |
+> %eax = 0  %r13 = 0 <--- faulting instruction
+>  ffffffffa03898a7:	3b 98 28 01 00 00    	cmp    0x128(%rax),%ebx
+>  ffffffffa03898ad:	73 61                	jae    ffffffffa0389910
+> <kvm_set_irq+0xa0>
+>  ffffffffa03898af:	89 db                	mov    %ebx,%ebx
+>  ffffffffa03898b1:	48 8b 84 d8 30 01 00 	mov    0x130(%rax,%rbx,8),%rax
+>  ffffffffa03898b8:	00
+>  ffffffffa03898b9:	48 85 c0             	test   %rax,%rax
+>  ffffffffa03898bc:	74 52                	je     ffffffffa0389910
+> <kvm_set_irq+0xa0>
+>  ffffffffa03898be:	48 8d 95 40 ff ff ff 	lea    -0xc0(%rbp),%rdx
+>  ffffffffa03898c5:	31 db                	xor    %ebx,%ebx
+>  ffffffffa03898c7:	48 8b 08             	mov    (%rax),%rcx
+>  ffffffffa03898ca:	83 c3 01             	add    $0x1,%ebx
+>  ffffffffa03898cd:	0f 18 09             	prefetcht0 (%rcx)
+>  ffffffffa03898d0:	48 8b 48 e0          	mov    -0x20(%rax),%rcx
+>  ffffffffa03898d4:	48 89 0a             	mov    %rcx,(%rdx)
+>  ffffffffa03898d7:	48 8b 48 e8          	mov    -0x18(%rax),%rcx
+>  ffffffffa03898db:	48 89 4a 08          	mov    %rcx,0x8(%rdx)
+>  ffffffffa03898df:	48 8b 48 f0          	mov    -0x10(%rax),%rcx
+>  ffffffffa03898e3:	48 89 4a 10          	mov    %rcx,0x10(%rdx)
+>  ffffffffa03898e7:	48 8b 48 f8          	mov    -0x8(%rax),%rcx
+>  ffffffffa03898eb:	48 89 4a 18          	mov    %rcx,0x18(%rdx)
+> 
+> wich correspond to offset 68a0 (from objdump):
+> 
+> kvm_set_irq():
+> /usr/src/GIT/linux-2.6-stable/arch/x86/kvm/../../../virt/kvm/irq_comm.c:161
+>     68a0:       49 8b 85 58 24 00 00    mov    0x2458(%r13),%rax
+> /usr/src/GIT/linux-2.6-stable/arch/x86/kvm/../../../virt/kvm/irq_comm.c:162
+>     68a7:       3b 98 28 01 00 00       cmp    0x128(%rax),%ebx
+> 
+> root@ayrshire:~# addr2line -e
+> /lib/modules/2.6.37.2-dsiun-110105+/kernel/arch/x86/kvm/kvm.ko
+> 0x68a0
+> /usr/src/GIT/linux-2.6-stable/arch/x86/kvm/../../../virt/kvm/irq_comm.c:161
+> 
+> So here kvm->irq_routing is null.
+> 
+> How can it be?
+> 
+> Regards.
 
-Probably, if I understand what you are referring to.  Please post code
-so that I really know what you are doing :)
+Not null, this seems to be invalid.
+I suspect use after free where the kvm pointer is
+pointing at some random memory. Use after free?
+Could you please try enabling a slab debugger,
+recompile and rerun the test?
 
-thanks,
-
-greg k-h
+-- 
+MST
