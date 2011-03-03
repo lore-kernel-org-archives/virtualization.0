@@ -1,47 +1,122 @@
-From: Amit Shah <amit.shah@redhat.com>
-Subject: Re: [PATCH 0/2] Fix hot-unplug: device removal while port in use
-Date: Wed, 2 Mar 2011 19:08:35 +0530
-Message-ID: <20110302133835.GA3055@amit-x200.redhat.com>
-References: <cover.1299054025.git.amit.shah@redhat.com>
-	<87aahdn5k7.fsf@rustcorp.com.au>
+From: KY Srinivasan <kys@microsoft.com>
+Subject: RE: [PATCH 4/6] Staging: hv:  Unify the hyperv driver abstractions
+Date: Thu, 3 Mar 2011 02:50:00 +0000
+Message-ID: <6E21E5352C11B742B20C142EB499E048016A13@TK5EX14MBXC128.redmond.corp.microsoft.com>
+References: <1298686023-30892-1-git-send-email-kys@microsoft.com>
+ <20110301025230.GE1663@kroah.com>
+ <6E21E5352C11B742B20C142EB499E04801661A@TK5EX14MBXC128.redmond.corp.microsoft.com>
+ <20110302054125.GB28382@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <87aahdn5k7.fsf@rustcorp.com.au>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Virtualization List <virtualization@lists.linux-foundation.org>
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20110302054125.GB28382@kroah.com>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: Greg KH <greg@kroah.com>
+Cc: "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, Haiyang Zhang <haiyangz@microsoft.com>, Hank Janssen <hjanssen@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On (Wed) 02 Mar 2011 [21:38:08], Rusty Russell wrote:
-> On Wed,  2 Mar 2011 13:53:06 +0530, Amit Shah <amit.shah@redhat.com> wrote:
-> > A crash was observed when a device gets removed while a port is in
-> > use.  When the port gets removed, we tried to free vq buffers.  The vq
-> > no longer exists at this stage, just ensure we don't access it.
-> > 
-> > The second patch fixes a warning where the pci region is already
-> > freed.  I'm not sure what or how the region gets freed, any clues
-> > there will be helpful.
+
+
+> -----Original Message-----
+> From: Greg KH [mailto:greg@kroah.com]
+> Sent: Wednesday, March 02, 2011 12:41 AM
+> To: KY Srinivasan
+> Cc: gregkh@suse.de; linux-kernel@vger.kernel.org;
+> devel@linuxdriverproject.org; virtualization@lists.osdl.org; Haiyang Zhang; Hank
+> Janssen
+> Subject: Re: [PATCH 4/6] Staging: hv: Unify the hyperv driver abstractions
 > 
-> Put a printk and WARN_ON() in the pci region freeing code, look through
-> the backtraces?
+> On Wed, Mar 02, 2011 at 01:43:13AM +0000, KY Srinivasan wrote:
+> >
+> >
+> > > -----Original Message-----
+> > > From: Greg KH [mailto:greg@kroah.com]
+> > > Sent: Monday, February 28, 2011 9:53 PM
+> > > To: KY Srinivasan
+> > > Cc: gregkh@suse.de; linux-kernel@vger.kernel.org;
+> > > devel@linuxdriverproject.org; virtualization@lists.osdl.org; Haiyang Zhang;
+> Hank
+> > > Janssen
+> > > Subject: Re: [PATCH 4/6] Staging: hv: Unify the hyperv driver abstractions
+> > >
+> > > On Fri, Feb 25, 2011 at 06:07:03PM -0800, K. Y. Srinivasan wrote:
+> > > > This patch combines the two driver abstractions into
+> > > > a single driver abstraction.
+> > >
+> > > Ah, how sweet.  Unfortunatly you don't say "how" you did this.
+> > >
+> > > Nor do you describe _what_ those two driver abstractions were.  Are we
+> > > talking i2c and usb abstractions?  gpio and spi?  Driver core and
+> > > platform?  We want to know exactly what is going on here.
+> >
+> > My mistake; I will have a more descriptive comment.
+> >
+> > >
+> > > Think of writing something that when you look back, in 3 years, while
+> > > staring at a Linux hyperv driver originally written for the 2.6.9
+> > > kernel, that somehow never got forward ported and you are tasked with
+> > > doing this, that you can just do a simple 'git log drivers/staging/hv/'
+> > > and instantly know just from the changelog comments exactly what you
+> > > need to do to your driver to clean it up and properly get it to work on
+> > > the new 8.2.2 kernel release.
+> > >
+> > > This changelog entry, would require you to go and dig through the guts
+> > > of the patch itself, trying to figure out what abstractions you are
+> > > talking about, and exactly how they were combined, all the while
+> > > wondering _why_ they were combined.
+> > >
+> > > Please, think of your future self, you will thank him in the years to
+> > > come by doing this properly.  Not to mention making other's lives easier
+> > > if you happen to have escaped this dire task by then.
+> > >
+> > > Oh, you have an extra space up there in the subject, please fix it next
+> > > time.
+> > >
+> > > > -int blk_vsc_initialize(struct hv_driver *driver)
+> > > > +int blk_vsc_initialize(struct driver_context *driver)
+> > >
+> > > "struct driver_context"?  Oh please no.
+> >
+> > Greg; this is the patch that consolidates the state in  struct hv_driver into
+> > struct driver_context. In the spirit of doing one thing in a patch;
+> > other relevant changes are made in:
+> > Patch[5/6]: Changes the name driver_context to hyperv_driver
+> > Patch[6/6]: Cleanup all variable names that refer to struct hyperv_driver.
+> 
+> Yes, but on its own, this patch is wrong, that is not a valid name, even
+> if it is a "temporary" name.
 
-Well what seems to be happening is kref_put() in port_fops_release()
-calls remove_port(), which calls device_destroy().  Now this triggers
-another fput() on the same file, causing port_fops_release() to be
-called again, which leads to device_destroy() being called on the same
-region.
+Greg, the temporary name happens to be the name currently in use in the 
+code - this is not the name I introduced. Think of this as the surviving 
+data structure after  the hv_driver state is consolidated into 
+(the existing) driver_context data structure.  I did this in the spirit of 
+doing one thing at a time. If I am going to be
+picking a more appropriate name for the consolidated data structure; I 
+might as well pick the final name that we want this unified driver abstraction 
+to be called. 
 
-Slightly more clueful, but still clueless as to why this happens.
 
-		Amit
+> 
+> > > I realize that you are hopefully going to later rename this to something
+> > > else, but remember, a few patches back you thought that the "ctx" name
+> > > wasn't nice.  And here you go resuscitating it from the graveyard of
+> > > pointy bits.
+> >
+> > As I noted in a different email, may be the granularity I chose in breaking up
+> > these patches is causing all this confusion.
+> 
+> Yes, as I think you need to go much finer as you were doing more than
+> one thing in these patches, and not describing them properly at all.
+> 
+> Please try to redo them in a simpler manner, probably breaking it into
+> more steps, so we can properly review them.
+
+Based on your comments on intermediate names, would you recommend that
+as part  of consolidating the driver abstractions, I also rename this combined 
+state. 
+
+Regards,
+
+K. Y
