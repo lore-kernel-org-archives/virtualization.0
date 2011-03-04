@@ -1,82 +1,65 @@
-From: KY Srinivasan <kys@microsoft.com>
-Subject: RE: [PATCH 4/6] Staging: hv:  Unify the hyperv driver abstractions
-Date: Fri, 4 Mar 2011 15:18:14 +0000
-Message-ID: <6E21E5352C11B742B20C142EB499E048016D92@TK5EX14MBXC128.redmond.corp.microsoft.com>
-References: <1298686023-30892-1-git-send-email-kys@microsoft.com>
- <20110301025230.GE1663@kroah.com>
- <6E21E5352C11B742B20C142EB499E04801661A@TK5EX14MBXC128.redmond.corp.microsoft.com>
- <20110302054125.GB28382@kroah.com>
- <6E21E5352C11B742B20C142EB499E048016A13@TK5EX14MBXC128.redmond.corp.microsoft.com>
- <20110303061002.GD32209@suse.de>
- <6E21E5352C11B742B20C142EB499E048016CD9@TK5EX14MBXC128.redmond.corp.microsoft.com>
- <20110303212212.GA507@suse.de>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: [PATCH] virtio: console: Don't access vqs if device was unplugged
+Date: Fri, 04 Mar 2011 14:04:33 +1030
+Message-ID: <871v2n4kza.fsf@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20110303212212.GA507@suse.de>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Greg KH <gregkh@suse.de>
-Cc: Greg KH <greg@kroah.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, Haiyang Zhang <haiyangz@microsoft.com>, Hank Janssen <hjanssen@microsoft.com>
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Amit Shah <amit.shah@redhat.com>, virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
+From: Amit Shah <amit.shah@redhat.com>
 
+If a virtio-console device gets unplugged while a port is open, a
+subsequent close() call on the port accesses vqs to free up buffers.
+This can lead to a crash.
 
-> -----Original Message-----
-> From: Greg KH [mailto:gregkh@suse.de]
-> Sent: Thursday, March 03, 2011 4:22 PM
-> To: KY Srinivasan
-> Cc: Greg KH; linux-kernel@vger.kernel.org; devel@linuxdriverproject.org;
-> virtualization@lists.osdl.org; Haiyang Zhang; Hank Janssen
-> Subject: Re: [PATCH 4/6] Staging: hv: Unify the hyperv driver abstractions
-> 
-> On Thu, Mar 03, 2011 at 09:16:29PM +0000, KY Srinivasan wrote:
-> >
-> >
-> > > -----Original Message-----
-> > > From: Greg KH [mailto:gregkh@suse.de]
-> > > Sent: Thursday, March 03, 2011 1:10 AM
-> > > To: KY Srinivasan
-> > > Cc: Greg KH; linux-kernel@vger.kernel.org; devel@linuxdriverproject.org;
-> > > virtualization@lists.osdl.org; Haiyang Zhang; Hank Janssen
-> > > Subject: Re: [PATCH 4/6] Staging: hv: Unify the hyperv driver abstractions
-> > >
-> > > On Thu, Mar 03, 2011 at 02:50:00AM +0000, KY Srinivasan wrote:
-> > > > > > > "struct driver_context"?  Oh please no.
-> > > > > >
-> > > > > > Greg; this is the patch that consolidates the state in  struct hv_driver into
-> > > > > > struct driver_context. In the spirit of doing one thing in a patch;
-> > > > > > other relevant changes are made in:
-> > > > > > Patch[5/6]: Changes the name driver_context to hyperv_driver
-> > > > > > Patch[6/6]: Cleanup all variable names that refer to struct
-> hyperv_driver.
-> > > > >
-> > > > > Yes, but on its own, this patch is wrong, that is not a valid name, even
-> > > > > if it is a "temporary" name.
-> > > >
-> > > > Greg, the temporary name happens to be the name currently in use in the
-> > > > code - this is not the name I introduced.
-> > >
-> > > There is not a "struct driver_context" in the code that I see today, or
-> > > am I missing something?  That's my objection here, please don't use that
-> > > name, it's not valid for a subsystem to use, even for a tiny bit.
-> >
-> > Look at the file vmbus.h  you will see struct driver_context. This has
-> > been there for as long as I have seen this code.
-> 
-> Ok, I am rightly corrected, I totally missed that, you are right.
-> 
-> Feel free to resend after addressing the other issues.
-> 
-> I'll fix up the hv_mouse driver, you don't have to worry about that one
-> if you don't want to, just ignore it please.
+The buffers are already freed up as a result of the call to
+unplug_ports() from virtcons_remove().  The fix is to simply not access
+vq information if port->portdev is NULL.
 
-Greg, I am working on a patch-set that hopefully will address all
-the concerns that were raised. As part of this effort, I will also
-deal with the mouse driver. I should have these patches out next week.
-Thanks for your patience here.
+Reported-by: juzhang <juzhang@redhat.com>
+CC: stable@kernel.org
+Signed-off-by: Amit Shah <amit.shah@redhat.com>
+Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+---
+ drivers/char/virtio_console.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-Regards,
-
-K. Y 
+diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
+index 4903931..84b164d 100644
+--- a/drivers/char/virtio_console.c
++++ b/drivers/char/virtio_console.c
+@@ -388,6 +388,10 @@ static void discard_port_data(struct port *port)
+ 	unsigned int len;
+ 	int ret;
+ 
++	if (!port->portdev) {
++		/* Device has been unplugged.  vqs are already gone. */
++		return;
++	}
+ 	vq = port->in_vq;
+ 	if (port->inbuf)
+ 		buf = port->inbuf;
+@@ -470,6 +474,10 @@ static void reclaim_consumed_buffers(struct port *port)
+ 	void *buf;
+ 	unsigned int len;
+ 
++	if (!port->portdev) {
++		/* Device has been unplugged.  vqs are already gone. */
++		return;
++	}
+ 	while ((buf = virtqueue_get_buf(port->out_vq, &len))) {
+ 		kfree(buf);
+ 		port->outvq_full = false;
