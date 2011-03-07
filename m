@@ -1,40 +1,46 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH] vhost: copy_from_user -> __copy_from_user
-Date: Mon, 7 Mar 2011 08:30:15 +0200
-Message-ID: <20110307063014.GA11330__6296.94302701882$1299479482$gmane$org@redhat.com>
-References: <20110306113349.GA24333@redhat.com>
-	<20110306.180339.193718218.davem@davemloft.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20110306.180339.193718218.davem@davemloft.net>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: David Miller <davem@davemloft.net>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+From: "K. Y. Srinivasan" <kys@microsoft.com>
+Subject: [PATCH 00/16] Staging: hv: Consolidate driver and device abstractions
+Date: Mon,  7 Mar 2011 13:01:35 -0800
+Message-ID: <1299531695-22352-1-git-send-email-kys@microsoft.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: kys@microsoft.com, gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sun, Mar 06, 2011 at 06:03:39PM -0800, David Miller wrote:
-> From: "Michael S. Tsirkin" <mst@redhat.com>
-> Date: Sun, 6 Mar 2011 13:33:49 +0200
-> 
-> > copy_from_user is pretty high on perf top profile,
-> > replacing it with __copy_from_user helps.
-> > It's also safe because we do access_ok checks during setup.
-> > 
-> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> 
-> Is Rusty going to take this or should I?
+Hyper-V has maintained both its class independent driver and 
+device state in two independent data structures:
+Driver state: struct driver_context (vmbus.h) and struct hv_driver
+(vmbus_api.h)
+Device state: struct vm_device (vmbus.h) and struct hv_device (vmbus_api.h)
 
-Sorry about not making this clear.  I'll give it a day or two for review
-then put it on the vhost tree myself.
-Thanks!
+While sruct driver_context and struct vm_device embed generic 
+Linux abstractions of struct device_driver and struct device respectively; 
+the lower level hyperv abstraction: struct hv_driver and struct hv_device
+have maintained state needed to communicate with the host. This partitioning
+made sense at a point in time when it was not clear how much of 
+the hypervisor interaction would be open sourced. Given where we are
+today, there is no reason to keep this layering. This patchset 
+consolidates all the driver state into a single structure: 
+struct hv_driver while all the device state is consolidated into
+a single structure: struct hv_device. This consolidation simplifies
+the code while simultaneously getting rid of redundant state -
+for instance in the current code, both struct driver_context and
+struct hv_driver both have state to represent the class as well as
+instance id. We do this consolidation by moving state from higher
+level structures (struct driver_context and struct vm_device) to
+lower level structures (struct hv_driver and hv_device) respectively.
+
+While it has not been a goal of this effort to cleanup structure and 
+variable names, this consolidation effort has resulted in some cleanup
+with regards to structure and variable names: a) Some of the badly
+named structures have been eliminated (struct driver_context etc.) 
+while hopefully all newly introduced names are acceptable.  
+
+Patches 1 through 11 deal with consolidating the device driver
+state while patches 12 through 16  deal with consolidating
+device state.
+
+
+Regards,
+
+K. Y
