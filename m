@@ -1,46 +1,84 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 00/16] Staging: hv: Consolidate driver and device abstractions
-Date: Mon,  7 Mar 2011 14:09:04 -0800
-Message-ID: <1299535744-23047-1-git-send-email-kys@microsoft.com>
+Subject: [PATCH 09/16] Staging: hv: Eliminate mousevsc_driver_context
+Date: Mon,  7 Mar 2011 14:16:46 -0800
+Message-ID: <1299536206-23102-1-git-send-email-kys@microsoft.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 To: kys@microsoft.com, gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org
+Cc: Abhishek Kane <v-abkane@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Hank Janssen <hjanssen@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hyper-V has maintained both its class independent driver and 
-device state in two independent data structures:
-Driver state: struct driver_context (vmbus.h) and struct hv_driver
-(vmbus_api.h)
-Device state: struct vm_device (vmbus.h) and struct hv_device (vmbus_api.h)
+With the consolidation of all driver state into one data structure;
+mousevsc_driver_context structure is not needed; get rid of it.
 
-While sruct driver_context and struct vm_device embed generic 
-Linux abstractions of struct device_driver and struct device respectively; 
-the lower level hyperv abstraction: struct hv_driver and struct hv_device
-have maintained state needed to communicate with the host. This partitioning
-made sense at a point in time when it was not clear how much of 
-the hypervisor interaction would be open sourced. Given where we are
-today, there is no reason to keep this layering. This patchset 
-consolidates all the driver state into a single structure: 
-struct hv_driver while all the device state is consolidated into
-a single structure: struct hv_device. This consolidation simplifies
-the code while simultaneously getting rid of redundant state -
-for instance in the current code, both struct driver_context and
-struct hv_driver both have state to represent the class as well as
-instance id. We do this consolidation by moving state from higher
-level structures (struct driver_context and struct vm_device) to
-lower level structures (struct hv_driver and hv_device) respectively.
+Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
+Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
+Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
+Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
+---
+ drivers/staging/hv/hv_mouse.c |   21 +++++++--------------
+ 1 files changed, 7 insertions(+), 14 deletions(-)
 
-While it has not been a goal of this effort to cleanup structure and 
-variable names, this consolidation effort has resulted in some cleanup
-with regards to structure and variable names: a) Some of the badly
-named structures have been eliminated (struct driver_context etc.) 
-while hopefully all newly introduced names are acceptable.  
-
-Patches 1 through 11 deal with consolidating the device driver
-state while patches 12 through 16  deal with consolidating
-device state.
-
-
-Regards,
-
-K. Y
+diff --git a/drivers/staging/hv/hv_mouse.c b/drivers/staging/hv/hv_mouse.c
+index f762a8a..6c5c00d 100644
+--- a/drivers/staging/hv/hv_mouse.c
++++ b/drivers/staging/hv/hv_mouse.c
+@@ -777,11 +777,8 @@ struct input_device_context {
+ 	int			connected;
+ };
+ 
+-struct mousevsc_driver_context {
+-	struct mousevsc_drv_obj	drv_obj;
+-};
+ 
+-static struct mousevsc_driver_context g_mousevsc_drv;
++static struct  mousevsc_drv_obj g_mousevsc_drv;
+ 
+ static void deviceinfo_callback(struct hv_device *dev, struct hv_input_dev_info *info)
+ {
+@@ -824,9 +821,7 @@ static int mousevsc_probe(struct device *device)
+ 
+ 	struct hv_driver *drv =
+ 		drv_to_hv_drv(device->driver);
+-	struct mousevsc_driver_context *mousevsc_drv_ctx =
+-		(struct mousevsc_driver_context *)drv->priv;
+-	struct mousevsc_drv_obj *mousevsc_drv_obj = &mousevsc_drv_ctx->drv_obj;
++	struct mousevsc_drv_obj *mousevsc_drv_obj = drv->priv;
+ 
+ 	struct vm_device *device_ctx = device_to_vm_device(device);
+ 	struct hv_device *device_obj = &device_ctx->device_obj;
+@@ -855,9 +850,7 @@ static int mousevsc_remove(struct device *device)
+ 
+ 	struct hv_driver *drv =
+ 		drv_to_hv_drv(device->driver);
+-	struct mousevsc_driver_context *mousevsc_drv_ctx =
+-		(struct mousevsc_driver_context *)drv->priv;
+-	struct mousevsc_drv_obj *mousevsc_drv_obj = &mousevsc_drv_ctx->drv_obj;
++	struct mousevsc_drv_obj *mousevsc_drv_obj = drv->priv;
+ 
+ 	struct vm_device *device_ctx = device_to_vm_device(device);
+ 	struct hv_device *device_obj = &device_ctx->device_obj;
+@@ -956,8 +949,8 @@ static int mousevsc_drv_exit_cb(struct device *dev, void *data)
+ 
+ static void mousevsc_drv_exit(void)
+ {
+-	struct mousevsc_drv_obj *mousevsc_drv_obj = &g_mousevsc_drv.drv_obj;
+-	struct hv_driver *drv = &g_mousevsc_drv.drv_obj.Base;
++	struct mousevsc_drv_obj *mousevsc_drv_obj = &g_mousevsc_drv;
++	struct hv_driver *drv = &g_mousevsc_drv.Base;
+ 	int ret;
+ 
+ 	struct device *current_dev = NULL;
+@@ -1008,8 +1001,8 @@ static int mouse_vsc_initialize(struct hv_driver *Driver)
+ 
+ static int __init mousevsc_init(void)
+ {
+-	struct mousevsc_drv_obj *input_drv_obj = &g_mousevsc_drv.drv_obj;
+-	struct hv_driver *drv = &g_mousevsc_drv.drv_obj.Base;
++	struct mousevsc_drv_obj *input_drv_obj = &g_mousevsc_drv;
++	struct hv_driver *drv = &g_mousevsc_drv.Base;
+ 
+ 	DPRINT_INFO(INPUTVSC_DRV, "Hyper-V Mouse driver initializing.");
+ 
+-- 
+1.5.5.6
