@@ -1,13 +1,15 @@
-From: David Miller <davem@davemloft.net>
+From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH] vhost: copy_from_user -> __copy_from_user
-Date: Sun, 06 Mar 2011 18:03:39 -0800 (PST)
-Message-ID: <20110306.180339.193718218.davem__25308.884206652$1299463524$gmane$org@davemloft.net>
+Date: Mon, 7 Mar 2011 08:30:15 +0200
+Message-ID: <20110307063014.GA11330__6296.94302701882$1299479482$gmane$org@redhat.com>
 References: <20110306113349.GA24333@redhat.com>
+	<20110306.180339.193718218.davem@davemloft.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20110306113349.GA24333@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <20110306.180339.193718218.davem@davemloft.net>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -17,17 +19,22 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: mst@redhat.com
+To: David Miller <davem@davemloft.net>
 Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Date: Sun, 6 Mar 2011 13:33:49 +0200
-
-> copy_from_user is pretty high on perf top profile,
-> replacing it with __copy_from_user helps.
-> It's also safe because we do access_ok checks during setup.
+On Sun, Mar 06, 2011 at 06:03:39PM -0800, David Miller wrote:
+> From: "Michael S. Tsirkin" <mst@redhat.com>
+> Date: Sun, 6 Mar 2011 13:33:49 +0200
 > 
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> > copy_from_user is pretty high on perf top profile,
+> > replacing it with __copy_from_user helps.
+> > It's also safe because we do access_ok checks during setup.
+> > 
+> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> 
+> Is Rusty going to take this or should I?
 
-Is Rusty going to take this or should I?
+Sorry about not making this clear.  I'll give it a day or two for review
+then put it on the vhost tree myself.
+Thanks!
