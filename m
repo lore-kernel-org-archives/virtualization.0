@@ -1,144 +1,105 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 05/16] Staging: hv: Change the signature for
-	vmbus_child_driver_register
-Date: Mon,  7 Mar 2011 13:23:43 -0800
-Message-ID: <1299533023-22609-1-git-send-email-kys@microsoft.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <devel-bounces@linuxdriverproject.org>
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
-List-Post: <mailto:devel@linuxdriverproject.org>
-List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
-Sender: devel-bounces@linuxdriverproject.org
-Errors-To: devel-bounces@linuxdriverproject.org
+Subject: [PATCH 08/16] Staging: hv: Eliminate blkvsc_driver_context structure
+Date: Mon,  7 Mar 2011 13:32:58 -0800
+Message-ID: <1299533578-22718-1-git-send-email-kys@microsoft.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
 To: kys@microsoft.com, gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org
-Cc: Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>
+Cc: Abhishek Kane <v-abkane@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Hank Janssen <hjanssen@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-In preparation for moving the element driver from the
-struct driver_context to struct hv_driver, change the
-signature for the function vmbus_child_driver_register()
-to take a pointer to struct device_driver.
+With the consolidation of all driver state into one data structure;
+blkvsc_driver_context structure is not needed; get rid of it.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/blkvsc_drv.c  |    2 +-
- drivers/staging/hv/hv_mouse.c    |    2 +-
- drivers/staging/hv/netvsc_drv.c  |    2 +-
- drivers/staging/hv/storvsc_drv.c |    2 +-
- drivers/staging/hv/vmbus.h       |    2 +-
- drivers/staging/hv/vmbus_drv.c   |   11 +++++------
- 6 files changed, 10 insertions(+), 11 deletions(-)
+ drivers/staging/hv/blkvsc_drv.c |   26 ++++++++------------------
+ 1 files changed, 8 insertions(+), 18 deletions(-)
 
 diff --git a/drivers/staging/hv/blkvsc_drv.c b/drivers/staging/hv/blkvsc_drv.c
-index 9ccd5dc..d5e1881 100644
+index af0a529..0f9fb05 100644
 --- a/drivers/staging/hv/blkvsc_drv.c
 +++ b/drivers/staging/hv/blkvsc_drv.c
-@@ -191,7 +191,7 @@ static int blkvsc_drv_init(int (*drv_init)(struct hv_driver *drv))
- 	drv_ctx->driver.shutdown = blkvsc_shutdown;
+@@ -115,10 +115,6 @@ struct block_device_context {
+ 	int users;
+ };
  
- 	/* The driver belongs to vmbus */
--	ret = vmbus_child_driver_register(drv_ctx);
-+	ret = vmbus_child_driver_register(&drv_ctx->driver);
+-/* Per driver */
+-struct blkvsc_driver_context {
+-	struct storvsc_driver_object drv_obj;
+-};
  
- 	return ret;
- }
-diff --git a/drivers/staging/hv/hv_mouse.c b/drivers/staging/hv/hv_mouse.c
-index 6e2a937..d2290f8 100644
---- a/drivers/staging/hv/hv_mouse.c
-+++ b/drivers/staging/hv/hv_mouse.c
-@@ -1025,7 +1025,7 @@ static int __init mousevsc_init(void)
- 	drv_ctx->driver.remove = mousevsc_remove;
+ /* Static decl */
+ static DEFINE_MUTEX(blkvsc_mutex);
+@@ -153,7 +149,7 @@ module_param(blkvsc_ringbuffer_size, int, S_IRUGO);
+ MODULE_PARM_DESC(ring_size, "Ring buffer size (in bytes)");
  
- 	/* The driver belongs to vmbus */
--	vmbus_child_driver_register(drv_ctx);
-+	vmbus_child_driver_register(&drv_ctx->driver);
+ /* The one and only one */
+-static struct blkvsc_driver_context g_blkvsc_drv;
++static  struct storvsc_driver_object g_blkvsc_drv;
  
- 	return 0;
- }
-diff --git a/drivers/staging/hv/netvsc_drv.c b/drivers/staging/hv/netvsc_drv.c
-index e2013b5..a50a9a6 100644
---- a/drivers/staging/hv/netvsc_drv.c
-+++ b/drivers/staging/hv/netvsc_drv.c
-@@ -515,7 +515,7 @@ static int netvsc_drv_init(int (*drv_init)(struct hv_driver *drv))
- 	drv_ctx->driver.remove = netvsc_remove;
- 
- 	/* The driver belongs to vmbus */
--	ret = vmbus_child_driver_register(drv_ctx);
-+	ret = vmbus_child_driver_register(&drv_ctx->driver);
- 
- 	return ret;
- }
-diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
-index 3855271..8ab8df5 100644
---- a/drivers/staging/hv/storvsc_drv.c
-+++ b/drivers/staging/hv/storvsc_drv.c
-@@ -168,7 +168,7 @@ static int storvsc_drv_init(int (*drv_init)(struct hv_driver *drv))
- 	drv_ctx->driver.remove = storvsc_remove;
- 
- 	/* The driver belongs to vmbus */
--	ret = vmbus_child_driver_register(drv_ctx);
-+	ret = vmbus_child_driver_register(&drv_ctx->driver);
- 
- 	return ret;
- }
-diff --git a/drivers/staging/hv/vmbus.h b/drivers/staging/hv/vmbus.h
-index 8bcfb40..2295fe2 100644
---- a/drivers/staging/hv/vmbus.h
-+++ b/drivers/staging/hv/vmbus.h
-@@ -61,7 +61,7 @@ static inline struct driver_context *driver_to_driver_context(struct device_driv
- 
- 
- /* Vmbus interface */
--int vmbus_child_driver_register(struct driver_context *driver_ctx);
-+int vmbus_child_driver_register(struct device_driver *drv);
- void vmbus_child_driver_unregister(struct driver_context *driver_ctx);
- 
- extern struct completion hv_channel_ready;
-diff --git a/drivers/staging/hv/vmbus_drv.c b/drivers/staging/hv/vmbus_drv.c
-index 6ef5bee..685376b 100644
---- a/drivers/staging/hv/vmbus_drv.c
-+++ b/drivers/staging/hv/vmbus_drv.c
-@@ -617,9 +617,8 @@ static void vmbus_bus_exit(void)
- 
- /**
-  * vmbus_child_driver_register() - Register a vmbus's child driver
-- * @driver_ctx:        Pointer to driver structure you want to register
-+ * @drv:        Pointer to driver structure you want to register
-  *
-- * @driver_ctx is of type &struct driver_context
-  *
-  * Registers the given driver with Linux through the 'driver_register()' call
-  * And sets up the hyper-v vmbus handling for this driver.
-@@ -627,17 +626,17 @@ static void vmbus_bus_exit(void)
-  *
-  * Mainly used by Hyper-V drivers.
+ static const struct block_device_operations block_ops = {
+ 	.owner = THIS_MODULE,
+@@ -170,8 +166,8 @@ static const struct block_device_operations block_ops = {
   */
--int vmbus_child_driver_register(struct driver_context *driver_ctx)
-+int vmbus_child_driver_register(struct device_driver *drv)
+ static int blkvsc_drv_init(int (*drv_init)(struct hv_driver *drv))
  {
+-	struct storvsc_driver_object *storvsc_drv_obj = &g_blkvsc_drv.drv_obj;
+-	struct hv_driver *drv = &g_blkvsc_drv.drv_obj.base;
++	struct storvsc_driver_object *storvsc_drv_obj = &g_blkvsc_drv;
++	struct hv_driver *drv = &g_blkvsc_drv.base;
  	int ret;
  
- 	DPRINT_INFO(VMBUS_DRV, "child driver (%p) registering - name %s",
--		    driver_ctx, driver_ctx->driver.name);
-+		    drv, drv->name);
+ 	storvsc_drv_obj->ring_buffer_size = blkvsc_ringbuffer_size;
+@@ -202,8 +198,8 @@ static int blkvsc_drv_exit_cb(struct device *dev, void *data)
  
- 	/* The child driver on this vmbus */
--	driver_ctx->driver.bus = &vmbus_drv.bus;
-+	drv->bus = &vmbus_drv.bus;
+ static void blkvsc_drv_exit(void)
+ {
+-	struct storvsc_driver_object *storvsc_drv_obj = &g_blkvsc_drv.drv_obj;
+-	struct hv_driver *drv = &g_blkvsc_drv.drv_obj.base;
++	struct storvsc_driver_object *storvsc_drv_obj = &g_blkvsc_drv;
++	struct hv_driver *drv = &g_blkvsc_drv.base;
+ 	struct device *current_dev;
+ 	int ret;
  
--	ret = driver_register(&driver_ctx->driver);
-+	ret = driver_register(drv);
+@@ -242,10 +238,8 @@ static int blkvsc_probe(struct device *device)
+ {
+ 	struct hv_driver *drv =
+ 				drv_to_hv_drv(device->driver);
+-	struct blkvsc_driver_context *blkvsc_drv_ctx =
+-				(struct blkvsc_driver_context *)drv->priv;
+ 	struct storvsc_driver_object *storvsc_drv_obj =
+-				&blkvsc_drv_ctx->drv_obj;
++				drv->priv;
+ 	struct vm_device *device_ctx = device_to_vm_device(device);
+ 	struct hv_device *device_obj = &device_ctx->device_obj;
  
- 	vmbus_request_offers();
+@@ -727,10 +721,8 @@ static int blkvsc_remove(struct device *device)
+ {
+ 	struct hv_driver *drv =
+ 				drv_to_hv_drv(device->driver);
+-	struct blkvsc_driver_context *blkvsc_drv_ctx =
+-				(struct blkvsc_driver_context *)drv->priv;
+ 	struct storvsc_driver_object *storvsc_drv_obj =
+-				&blkvsc_drv_ctx->drv_obj;
++				drv->priv;
+ 	struct vm_device *device_ctx = device_to_vm_device(device);
+ 	struct hv_device *device_obj = &device_ctx->device_obj;
+ 	struct block_device_context *blkdev = dev_get_drvdata(device);
+@@ -850,10 +842,8 @@ static int blkvsc_submit_request(struct blkvsc_request *blkvsc_req,
+ 	struct vm_device *device_ctx = blkdev->device_ctx;
+ 	struct hv_driver *drv =
+ 			drv_to_hv_drv(device_ctx->device.driver);
+-	struct blkvsc_driver_context *blkvsc_drv_ctx =
+-			(struct blkvsc_driver_context *)drv->priv;
+ 	struct storvsc_driver_object *storvsc_drv_obj =
+-			&blkvsc_drv_ctx->drv_obj;
++			drv->priv;
+ 	struct hv_storvsc_request *storvsc_req;
+ 	int ret;
  
 -- 
 1.5.5.6
