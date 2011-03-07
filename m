@@ -1,49 +1,72 @@
-From: Greg KH <greg@kroah.com>
-Subject: Re: [PATCH 00/16] Staging: hv: Consolidate driver and device
+From: KY Srinivasan <kys@microsoft.com>
+Subject: RE: [PATCH 00/16] Staging: hv: Consolidate driver and device
  abstractions
-Date: Mon, 7 Mar 2011 15:00:14 -0800
-Message-ID: <20110307230014.GA9873@kroah.com>
+Date: Mon, 7 Mar 2011 23:17:19 +0000
+Message-ID: <6E21E5352C11B742B20C142EB499E048017443@TK5EX14MBXC128.redmond.corp.microsoft.com>
 References: <1299531695-22352-1-git-send-email-kys@microsoft.com>
  <20110307222356.GA25714@kroah.com>
  <6E21E5352C11B742B20C142EB499E0480173E9@TK5EX14MBXC128.redmond.corp.microsoft.com>
+ <20110307230014.GA9873@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <6E21E5352C11B742B20C142EB499E0480173E9@TK5EX14MBXC128.redmond.corp.microsoft.com>
+In-Reply-To: <20110307230014.GA9873@kroah.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: KY Srinivasan <kys@microsoft.com>
+To: Greg KH <greg@kroah.com>
 Cc: "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Mar 07, 2011 at 10:45:15PM +0000, KY Srinivasan wrote:
-> > I'm guessing that you will have follow-on patches now to complete the
-> > migration to the correct driver core use (i.e. proper driver and device
-> > usage?)  Or do you want me to look into doing this?
+
+
+> -----Original Message-----
+> From: Greg KH [mailto:greg@kroah.com]
+> Sent: Monday, March 07, 2011 6:00 PM
+> To: KY Srinivasan
+> Cc: gregkh@suse.de; linux-kernel@vger.kernel.org;
+> devel@linuxdriverproject.org; virtualization@lists.osdl.org
+> Subject: Re: [PATCH 00/16] Staging: hv: Consolidate driver and device
+> abstractions
 > 
-> My immediate goal is to get the vmbus driver to exit staging. To that
-> end I am working on a patch-set to cleanup vmbus_drv.c. I should have this
-> patch-set fairly soon.  Once that is
-> done, I think we would have addressed all the structural/architectural issues
-> of the vmbus driver that is preventing us from exiting staging. 
+> On Mon, Mar 07, 2011 at 10:45:15PM +0000, KY Srinivasan wrote:
+> > > I'm guessing that you will have follow-on patches now to complete the
+> > > migration to the correct driver core use (i.e. proper driver and device
+> > > usage?)  Or do you want me to look into doing this?
+> >
+> > My immediate goal is to get the vmbus driver to exit staging. To that
+> > end I am working on a patch-set to cleanup vmbus_drv.c. I should have this
+> > patch-set fairly soon.  Once that is
+> > done, I think we would have addressed all the structural/architectural issues
+> > of the vmbus driver that is preventing us from exiting staging.
+> 
+> Well, perhaps, let's not get ahead of ourselves here :)
 
-Well, perhaps, let's not get ahead of ourselves here :)
+Certainly. I was being presumptuous when I said  "we would have
+addressed all the structural/architectural issues ..".  What I meant 
+to say was that I would have addressed  the problems that I know about.
+After I am done with the current cleanup, I will work on the remaining 
+issues.
 
-> We are planning to address the issues with other drivers after we are done
-> with the vmbus driver. As always, your help is greatly appreciated.
+> 
+> > We are planning to address the issues with other drivers after we are done
+> > with the vmbus driver. As always, your help is greatly appreciated.
+> 
+> The issue I am referring to above still has to do with the vmbus core.
+> 
+> The goal is to have the vmbus work like all other busses in the kernel.
+> You register a hv_driver with some probe and disconnect callbacks, and
+> the vmbus calls into the drivers when it needs to.
+> 
+> You are almost there, using the struct device pointers directly, but a
+> few more steps remain.
+> 
+> I'll look into the details after your remaining cleanups, I don't want
+> to get in the way of them.
 
-The issue I am referring to above still has to do with the vmbus core.
+Thank you. You should have my patches fairly soon. Hopefully, I would 
+have addressed the issues you have raised.  
 
-The goal is to have the vmbus work like all other busses in the kernel.
-You register a hv_driver with some probe and disconnect callbacks, and
-the vmbus calls into the drivers when it needs to.
+Regards,
 
-You are almost there, using the struct device pointers directly, but a
-few more steps remain.
-
-I'll look into the details after your remaining cleanups, I don't want
-to get in the way of them.
-
-thanks,
-
-greg k-h
+K. Y
