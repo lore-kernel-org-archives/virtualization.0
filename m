@@ -1,72 +1,94 @@
-From: KY Srinivasan <kys@microsoft.com>
-Subject: RE: [PATCH 00/16] Staging: hv: Consolidate driver and device
- abstractions
-Date: Mon, 7 Mar 2011 23:17:19 +0000
-Message-ID: <6E21E5352C11B742B20C142EB499E048017443@TK5EX14MBXC128.redmond.corp.microsoft.com>
-References: <1299531695-22352-1-git-send-email-kys@microsoft.com>
- <20110307222356.GA25714@kroah.com>
- <6E21E5352C11B742B20C142EB499E0480173E9@TK5EX14MBXC128.redmond.corp.microsoft.com>
- <20110307230014.GA9873@kroah.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: Bug inkvm_set_irq
+Date: Tue, 8 Mar 2011 13:13:20 +0200
+Message-ID: <20110308111320.GA8002__33947.325559757$1299582960$gmane$org@redhat.com>
+References: <4D6BBB88.5060709@univ-nantes.fr> <4D6C22E8.2020007@univ-nantes.fr>
+	<20110301070333.GA5972@redhat.com>
+	<4D6D0510.4060300@univ-nantes.fr>
+	<20110303144715.GA12400@redhat.com>
+	<4D6FB313.1010400@univ-nantes.fr>
+	<20110303155533.GA13310@redhat.com>
+	<4D70AF3B.5080007@univ-nantes.fr>
+	<20110304093500.GA31844@redhat.com>
+	<4D70B339.3080001@univ-nantes.fr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20110307230014.GA9873@kroah.com>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Greg KH <greg@kroah.com>
-Cc: "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <4D70B339.3080001@univ-nantes.fr>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Jean-Philippe Menil <jean-philippe.menil@univ-nantes.fr>
+Cc: netdev@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-
-
-> -----Original Message-----
-> From: Greg KH [mailto:greg@kroah.com]
-> Sent: Monday, March 07, 2011 6:00 PM
-> To: KY Srinivasan
-> Cc: gregkh@suse.de; linux-kernel@vger.kernel.org;
-> devel@linuxdriverproject.org; virtualization@lists.osdl.org
-> Subject: Re: [PATCH 00/16] Staging: hv: Consolidate driver and device
-> abstractions
-> 
-> On Mon, Mar 07, 2011 at 10:45:15PM +0000, KY Srinivasan wrote:
-> > > I'm guessing that you will have follow-on patches now to complete the
-> > > migration to the correct driver core use (i.e. proper driver and device
-> > > usage?)  Or do you want me to look into doing this?
-> >
-> > My immediate goal is to get the vmbus driver to exit staging. To that
-> > end I am working on a patch-set to cleanup vmbus_drv.c. I should have this
-> > patch-set fairly soon.  Once that is
-> > done, I think we would have addressed all the structural/architectural issues
-> > of the vmbus driver that is preventing us from exiting staging.
-> 
-> Well, perhaps, let's not get ahead of ourselves here :)
-
-Certainly. I was being presumptuous when I said  "we would have
-addressed all the structural/architectural issues ..".  What I meant 
-to say was that I would have addressed  the problems that I know about.
-After I am done with the current cleanup, I will work on the remaining 
-issues.
-
-> 
-> > We are planning to address the issues with other drivers after we are done
-> > with the vmbus driver. As always, your help is greatly appreciated.
-> 
-> The issue I am referring to above still has to do with the vmbus core.
-> 
-> The goal is to have the vmbus work like all other busses in the kernel.
-> You register a hv_driver with some probe and disconnect callbacks, and
-> the vmbus calls into the drivers when it needs to.
-> 
-> You are almost there, using the struct device pointers directly, but a
-> few more steps remain.
-> 
-> I'll look into the details after your remaining cleanups, I don't want
-> to get in the way of them.
-
-Thank you. You should have my patches fairly soon. Hopefully, I would 
-have addressed the issues you have raised.  
-
-Regards,
-
-K. Y
+T24gRnJpLCBNYXIgMDQsIDIwMTEgYXQgMTA6Mzk6MDVBTSArMDEwMCwgSmVhbi1QaGlsaXBwZSBN
+ZW5pbCB3cm90ZToKPiBZZXMsIGl0J3MgYSAyLjYuMzcuMiBrZXJuZWwuCgpPSywgaGVyZSdzIGEg
+ZGVidWdnaW5nIHBhdGNoLgpQbGVhc2UgcnVuIHdpdGggc2xhYiBkZWJ1Z2dpbmcgYXMgcHJldmlv
+dXNseSB1bnRpbCB5b3Ugc2VlCidldmVudGZkIGJ1ZyBkZXRlY3RlZCEnIGluIGRtZXNnIG9yIHVu
+dGlsIHRoZXJlIGlzIGEgY3Jhc2guCkl0IG1pZ2h0IGJlIGFsc28gdXNlZnVsIHRvIGVuYWJsZSB0
+aW1lc3RhbXB0cyBvbiBwcmludGsgd2l0aAogU3ltYm9sOiBQUklOVEtfVElNRSBbPXldCiAg4pSC
+IFR5cGUgIDogYm9vbGVhbgogIOKUgiBQcm9tcHQ6IFNob3cgdGltaW5nIGluZm9ybWF0aW9uIG9u
+IHByaW50a3MKIApvbmNlIHlvdSBzZWUgdGhlIGVycm9yLCBwbGVhc2UgdXBsb2FkIHRoZQpmdWxs
+IGRtZXNnIG91dHB1dCBzb21ld2hlcmUgdG8gd2UgY2FuIHRyYWNrIHdoYXQKZ29lcyBvbi4KCkhv
+cGVmdWxseSB0aGVyZSB3b24ndCBiZSBhbiBvb3BzIHRoaXMgdGltZSB3aGljaApzaG91bGQgbWFr
+ZSBpdCBlYXNpZXIgZm9yIHlvdSB0byB0ZXN0IChubyBuZWVkIHRvCnJlYm9vdCkuCgoKZGlmZiAt
+LWdpdCBhL3ZpcnQva3ZtL2V2ZW50ZmQuYyBiL3ZpcnQva3ZtL2V2ZW50ZmQuYwppbmRleCBjMWYx
+ZTNjLi4zY2I2NzliIDEwMDY0NAotLS0gYS92aXJ0L2t2bS9ldmVudGZkLmMKKysrIGIvdmlydC9r
+dm0vZXZlbnRmZC5jCkBAIC0zMiw2ICszMiw3IEBACiAjaW5jbHVkZSA8bGludXgvZXZlbnRmZC5o
+PgogI2luY2x1ZGUgPGxpbnV4L2tlcm5lbC5oPgogI2luY2x1ZGUgPGxpbnV4L3NsYWIuaD4KKyNp
+bmNsdWRlIDxsaW51eC9ubWkuaD4KIAogI2luY2x1ZGUgImlvZGV2LmgiCiAKQEAgLTQzLDYgKzQ0
+LDggQEAKICAqIC0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tCiAgKi8KIAorI2RlZmluZSBLVk1fQkFEX1BUUiAoKHZvaWQq
+KShsb25nKSgweDZiNmI2YjZiNmI2YjZiNmJ1bGwpKQorCiBzdHJ1Y3QgX2lycWZkIHsKIAlzdHJ1
+Y3Qga3ZtICAgICAgICAgICAgICAgKmt2bTsKIAlzdHJ1Y3QgZXZlbnRmZF9jdHggICAgICAgKmV2
+ZW50ZmQ7CkBAIC02MSw2ICs2NCwxMyBAQCBpcnFmZF9pbmplY3Qoc3RydWN0IHdvcmtfc3RydWN0
+ICp3b3JrKQogewogCXN0cnVjdCBfaXJxZmQgKmlycWZkID0gY29udGFpbmVyX29mKHdvcmssIHN0
+cnVjdCBfaXJxZmQsIGluamVjdCk7CiAJc3RydWN0IGt2bSAqa3ZtID0gaXJxZmQtPmt2bTsKKwlp
+ZiAoa3ZtID09IEtWTV9CQURfUFRSKSB7CisJCXByaW50ayhLRVJOX0VSUiAiRXZlbnRmZCBidWcg
+ZGV0ZWN0ZWQhXG4iKTsKKwkJcHJpbnRrKEtFUk5fRVJSICIlcyh3b3JrPSVwLGlycWZkPSVwLGt2
+bT0lcCxnc2k9JWQpXG4iLCBfX2Z1bmNfXywKKwkJCXdvcmssIGlycWZkLCBrdm0sIGlycWZkLT5n
+c2kpOworCQl0cmlnZ2VyX2FsbF9jcHVfYmFja3RyYWNlKCk7CisJCXJldHVybjsKKwl9CiAKIAlr
+dm1fc2V0X2lycShrdm0sIEtWTV9VU0VSU1BBQ0VfSVJRX1NPVVJDRV9JRCwgaXJxZmQtPmdzaSwg
+MSk7CiAJa3ZtX3NldF9pcnEoa3ZtLCBLVk1fVVNFUlNQQUNFX0lSUV9TT1VSQ0VfSUQsIGlycWZk
+LT5nc2ksIDApOwpAQCAtNzUsNiArODUsOCBAQCBpcnFmZF9zaHV0ZG93bihzdHJ1Y3Qgd29ya19z
+dHJ1Y3QgKndvcmspCiAJc3RydWN0IF9pcnFmZCAqaXJxZmQgPSBjb250YWluZXJfb2Yod29yaywg
+c3RydWN0IF9pcnFmZCwgc2h1dGRvd24pOwogCXU2NCBjbnQ7CiAKKwlwcmludGsoS0VSTl9FUlIg
+IiVzKHdvcms9JXAsaXJxZmQ9JXAsa3ZtPSVwLCBnc2k9JWQpXG4iLCBfX2Z1bmNfXywKKwkgICAg
+ICAgd29yaywgaXJxZmQsIGlycWZkLT5rdm0sIGlycWZkLT5nc2kpOwogCS8qCiAJICogU3luY2hy
+b25pemUgd2l0aCB0aGUgd2FpdC1xdWV1ZSBhbmQgdW5ob29rIG91cnNlbHZlcyB0byBwcmV2ZW50
+CiAJICogZnVydGhlciBldmVudHMuCkBAIC05MSw2ICsxMDMsOCBAQCBpcnFmZF9zaHV0ZG93bihz
+dHJ1Y3Qgd29ya19zdHJ1Y3QgKndvcmspCiAJICogSXQgaXMgbm93IHNhZmUgdG8gcmVsZWFzZSB0
+aGUgb2JqZWN0J3MgcmVzb3VyY2VzCiAJICovCiAJZXZlbnRmZF9jdHhfcHV0KGlycWZkLT5ldmVu
+dGZkKTsKKwlwcmludGsoS0VSTl9FUlIgImtmcmVlIGF0ICVzKHdvcms9JXAsaXJxZmQ9JXApXG4i
+LCBfX2Z1bmNfXywKKwkgICAgICAgd29yaywgaXJxZmQpOwogCWtmcmVlKGlycWZkKTsKIH0KIApA
+QCAtMTExLDYgKzEyNSw4IEBAIHN0YXRpYyB2b2lkCiBpcnFmZF9kZWFjdGl2YXRlKHN0cnVjdCBf
+aXJxZmQgKmlycWZkKQogewogCUJVR19PTighaXJxZmRfaXNfYWN0aXZlKGlycWZkKSk7CisJcHJp
+bnRrKEtFUk5fRVJSICIlcyhpcnFmZD0lcCxrdm09JXAsIGdzaT0lZClcbiIsIF9fZnVuY19fLAor
+CSAgICAgICBpcnFmZCwgaXJxZmQtPmt2bSwgaXJxZmQtPmdzaSk7CiAKIAlsaXN0X2RlbF9pbml0
+KCZpcnFmZC0+bGlzdCk7CiAKQEAgLTE3OCw2ICsxOTQsOCBAQCBrdm1faXJxZmRfYXNzaWduKHN0
+cnVjdCBrdm0gKmt2bSwgaW50IGZkLCBpbnQgZ3NpKQogCiAJaXJxZmQtPmt2bSA9IGt2bTsKIAlp
+cnFmZC0+Z3NpID0gZ3NpOworCXByaW50ayhLRVJOX0VSUiAiJXMoaXJxZmQ9JXAsa3ZtPSVwLCBn
+c2k9JWQpXG4iLCBfX2Z1bmNfXywKKwkgICAgICAgaXJxZmQsIGt2bSwgZ3NpKTsKIAlJTklUX0xJ
+U1RfSEVBRCgmaXJxZmQtPmxpc3QpOwogCUlOSVRfV09SSygmaXJxZmQtPmluamVjdCwgaXJxZmRf
+aW5qZWN0KTsKIAlJTklUX1dPUksoJmlycWZkLT5zaHV0ZG93biwgaXJxZmRfc2h1dGRvd24pOwpA
+QCAtMjY0LDYgKzI4Miw4IEBAIGt2bV9pcnFmZF9kZWFzc2lnbihzdHJ1Y3Qga3ZtICprdm0sIGlu
+dCBmZCwgaW50IGdzaSkKIAlzdHJ1Y3QgX2lycWZkICppcnFmZCwgKnRtcDsKIAlzdHJ1Y3QgZXZl
+bnRmZF9jdHggKmV2ZW50ZmQ7CiAKKwlwcmludGsoS0VSTl9FUlIgIiVzKGt2bT0lcCwgZ3NpPSVk
+KVxuIiwgX19mdW5jX18sCisJICAgICAgIGt2bSwgZ3NpKTsKIAlldmVudGZkID0gZXZlbnRmZF9j
+dHhfZmRnZXQoZmQpOwogCWlmIChJU19FUlIoZXZlbnRmZCkpCiAJCXJldHVybiBQVFJfRVJSKGV2
+ZW50ZmQpOwpAQCAtMzA1LDYgKzMyNSw3IEBAIHZvaWQKIGt2bV9pcnFmZF9yZWxlYXNlKHN0cnVj
+dCBrdm0gKmt2bSkKIHsKIAlzdHJ1Y3QgX2lycWZkICppcnFmZCwgKnRtcDsKKwlwcmludGsoS0VS
+Tl9FUlIgIiVzKGt2bT0lcClcbiIsIF9fZnVuY19fLCBrdm0pOwogCiAJc3Bpbl9sb2NrX2lycSgm
+a3ZtLT5pcnFmZHMubG9jayk7CiAKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxp
+c3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXgtZm91bmRhdGlvbi5v
+cmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
