@@ -1,7 +1,7 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 09/21] Staging: hv: Get rid of vmbus_child_dev_add()
-Date: Thu, 10 Mar 2011 14:07:44 -0800
-Message-ID: <1299794864-1165-1-git-send-email-kys@microsoft.com>
+Subject: [PATCH 13/21] [PATCH 13/21] Staging: hv: Rename vmbus_driver_context structure
+Date: Thu, 10 Mar 2011 14:12:11 -0800
+Message-ID: <1299795131-1335-1-git-send-email-kys@microsoft.com>
 References: <[PATCH 00/21] Staging: hv: Cleanup vmbus driver>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <[PATCH 00/21] Staging: hv: Cleanup vmbus driver>
@@ -10,8 +10,9 @@ To: kys@microsoft.com, gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linux
 Cc: Haiyang Zhang <haiyangz@microsoft.com>, Mike Sterling <mike.sterling@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>, Hank Janssen <hjanssen@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The function vmbus_child_dev_add() is a wrapper that can be
-eliminated; get rid of it.
+Now that struct vmbus_driver_context is properly
+cleaned up, rename this structure appropriately and
+cleanup the code.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
@@ -19,62 +20,146 @@ Signed-off-by: Mike Sterling <mike.sterling@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/channel_mgmt.c  |    2 +-
- drivers/staging/hv/vmbus_drv.c     |    9 +--------
- drivers/staging/hv/vmbus_private.h |    1 -
- 3 files changed, 2 insertions(+), 10 deletions(-)
+ drivers/staging/hv/vmbus_drv.c |   36 ++++++++++++++++--------------------
+ 1 files changed, 16 insertions(+), 20 deletions(-)
 
-diff --git a/drivers/staging/hv/channel_mgmt.c b/drivers/staging/hv/channel_mgmt.c
-index 0781c0e..3368809 100644
---- a/drivers/staging/hv/channel_mgmt.c
-+++ b/drivers/staging/hv/channel_mgmt.c
-@@ -408,7 +408,7 @@ static void vmbus_process_offer(struct work_struct *work)
- 	 * binding which eventually invokes the device driver's AddDevice()
- 	 * method.
- 	 */
--	ret = vmbus_child_dev_add(newchannel->device_obj);
-+	ret = vmbus_child_device_register(newchannel->device_obj);
- 	if (ret != 0) {
- 		DPRINT_ERR(VMBUS,
- 			   "unable to add child device object (relid %d)",
 diff --git a/drivers/staging/hv/vmbus_drv.c b/drivers/staging/hv/vmbus_drv.c
-index 0b91eda..b473f46 100644
+index 4e45016..7b9a2c8 100644
 --- a/drivers/staging/hv/vmbus_drv.c
 +++ b/drivers/staging/hv/vmbus_drv.c
-@@ -139,13 +139,6 @@ static const struct hv_guid device_id = {
+@@ -44,12 +44,10 @@ static struct device *root_dev; /* Root device */
+ struct pci_dev *hv_pci_dev;
  
- static struct hv_device *vmbus_device; /* vmbus root device */
+ /* Main vmbus driver data structure */
+-struct vmbus_driver_context {
+-
++struct hv_bus {
+ 	struct bus_type bus;
+ 	struct tasklet_struct msg_dpc;
+ 	struct tasklet_struct event_dpc;
+-
+ };
  
--/*
-- * vmbus_child_dev_add - Registers the child device with the vmbus
-- */
--int vmbus_child_dev_add(struct hv_device *child_dev)
--{
--	return vmbus_child_device_register(child_dev);
--}
+ static int vmbus_match(struct device *device, struct device_driver *driver);
+@@ -104,7 +102,7 @@ static struct device_attribute vmbus_device_attrs[] = {
+ };
  
- /*
-  * vmbus_dev_add - Callback when the root bus device is added
-@@ -662,7 +655,7 @@ struct hv_device *vmbus_child_device_create(struct hv_guid *type,
+ /* The one and only one */
+-static struct vmbus_driver_context vmbus_drv = {
++static struct hv_bus  hv_bus = {
+ 	.bus.name =		"vmbus",
+ 	.bus.match =		vmbus_match,
+ 	.bus.shutdown =		vmbus_shutdown,
+@@ -374,7 +372,6 @@ static ssize_t vmbus_show_device_attr(struct device *dev,
+  */
+ static int vmbus_bus_init(struct pci_dev *pdev)
+ {
+-	struct vmbus_driver_context *vmbus_drv_ctx = &vmbus_drv;
+ 	int ret;
+ 	unsigned int vector;
+ 
+@@ -399,16 +396,16 @@ static int vmbus_bus_init(struct pci_dev *pdev)
+ 	}
+ 
+ 
+-	vmbus_drv_ctx->bus.name = driver_name;
++	hv_bus.bus.name = driver_name;
+ 
+ 	/* Initialize the bus context */
+-	tasklet_init(&vmbus_drv_ctx->msg_dpc, vmbus_on_msg_dpc,
++	tasklet_init(&hv_bus.msg_dpc, vmbus_on_msg_dpc,
+ 		     (unsigned long)NULL);
+-	tasklet_init(&vmbus_drv_ctx->event_dpc, vmbus_on_event,
++	tasklet_init(&hv_bus.event_dpc, vmbus_on_event,
+ 		     (unsigned long)NULL);
+ 
+ 	/* Now, register the bus  with LDM */
+-	ret = bus_register(&vmbus_drv_ctx->bus);
++	ret = bus_register(&hv_bus.bus);
+ 	if (ret) {
+ 		ret = -1;
+ 		goto cleanup;
+@@ -423,7 +420,7 @@ static int vmbus_bus_init(struct pci_dev *pdev)
+ 		DPRINT_ERR(VMBUS_DRV, "ERROR - Unable to request IRQ %d",
+ 			   pdev->irq);
+ 
+-		bus_unregister(&vmbus_drv_ctx->bus);
++		bus_unregister(&hv_bus.bus);
+ 
+ 		ret = -1;
+ 		goto cleanup;
+@@ -441,7 +438,7 @@ static int vmbus_bus_init(struct pci_dev *pdev)
+ 			   "ERROR - Unable to register vmbus root device");
+ 
+ 		free_irq(pdev->irq, pdev);
+-		bus_unregister(&vmbus_drv_ctx->bus);
++		bus_unregister(&hv_bus.bus);
+ 
+ 		ret = PTR_ERR(root_dev);
+ 		goto cleanup;
+@@ -456,7 +453,7 @@ static int vmbus_bus_init(struct pci_dev *pdev)
+ 	if (ret) {
+ 		root_device_unregister(root_dev);
+ 		free_irq(pdev->irq, pdev);
+-		bus_unregister(&vmbus_drv_ctx->bus);
++		bus_unregister(&hv_bus.bus);
+ 		goto cleanup;
+ 	}
+ 
+@@ -475,7 +472,6 @@ cleanup:
+  */
+ static void vmbus_bus_exit(void)
+ {
+-	struct vmbus_driver_context *vmbus_drv_ctx = &vmbus_drv;
+ 
+ 
+ 	vmbus_release_unattached_channels();
+@@ -487,12 +483,12 @@ static void vmbus_bus_exit(void)
+ 	/* Unregister the root bus device */
+ 	root_device_unregister(root_dev);
+ 
+-	bus_unregister(&vmbus_drv_ctx->bus);
++	bus_unregister(&hv_bus.bus);
+ 
+ 	free_irq(hv_pci_dev->irq, hv_pci_dev);
+ 
+-	tasklet_kill(&vmbus_drv_ctx->msg_dpc);
+-	tasklet_kill(&vmbus_drv_ctx->event_dpc);
++	tasklet_kill(&hv_bus.msg_dpc);
++	tasklet_kill(&hv_bus.event_dpc);
  }
  
- /*
-- * vmbus_child_device_register - Register the child device on the specified bus
-+ * vmbus_child_device_register - Register the child device
-  */
- int vmbus_child_device_register(struct hv_device *child_device_obj)
- {
-diff --git a/drivers/staging/hv/vmbus_private.h b/drivers/staging/hv/vmbus_private.h
-index c176773..ca050a4 100644
---- a/drivers/staging/hv/vmbus_private.h
-+++ b/drivers/staging/hv/vmbus_private.h
-@@ -107,7 +107,6 @@ struct hv_device *vmbus_child_device_create(struct hv_guid *type,
- 					 struct hv_guid *instance,
- 					 struct vmbus_channel *channel);
  
--int vmbus_child_dev_add(struct hv_device *device);
- int vmbus_child_device_register(struct hv_device *child_device_obj);
- void vmbus_child_device_unregister(struct hv_device *device_obj);
+@@ -515,7 +511,7 @@ int vmbus_child_driver_register(struct device_driver *drv)
+ 		    drv, drv->name);
  
+ 	/* The child driver on this vmbus */
+-	drv->bus = &vmbus_drv.bus;
++	drv->bus = &hv_bus.bus;
+ 
+ 	ret = driver_register(drv);
+ 
+@@ -609,7 +605,7 @@ int vmbus_child_device_register(struct hv_device *child_device_obj)
+ 		     atomic_inc_return(&device_num));
+ 
+ 	/* The new device belongs to this bus */
+-	child_device_obj->device.bus = &vmbus_drv.bus; /* device->dev.bus; */
++	child_device_obj->device.bus = &hv_bus.bus; /* device->dev.bus; */
+ 	child_device_obj->device.parent = root_dev;
+ 	child_device_obj->device.release = vmbus_device_release;
+ 
+@@ -877,10 +873,10 @@ static irqreturn_t vmbus_isr(int irq, void *dev_id)
+ 	/* Schedules a dpc if necessary */
+ 	if (ret > 0) {
+ 		if (test_bit(0, (unsigned long *)&ret))
+-			tasklet_schedule(&vmbus_drv.msg_dpc);
++			tasklet_schedule(&hv_bus.msg_dpc);
+ 
+ 		if (test_bit(1, (unsigned long *)&ret))
+-			tasklet_schedule(&vmbus_drv.event_dpc);
++			tasklet_schedule(&hv_bus.event_dpc);
+ 
+ 		return IRQ_HANDLED;
+ 	} else {
 -- 
 1.5.5.6
