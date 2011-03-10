@@ -1,165 +1,123 @@
-From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 13/21] [PATCH 13/21] Staging: hv: Rename vmbus_driver_context structure
-Date: Thu, 10 Mar 2011 14:12:11 -0800
-Message-ID: <1299795131-1335-1-git-send-email-kys@microsoft.com>
-References: <[PATCH 00/21] Staging: hv: Cleanup vmbus driver>
+From: KY Srinivasan <kys@microsoft.com>
+Subject: RE: [PATCH 11/21] Staging: hv: Make vmbus driver a platform pci
+ driver
+Date: Thu, 10 Mar 2011 22:36:57 +0000
+Message-ID: <6E21E5352C11B742B20C142EB499E048018ACF@TK5EX14MBXC128.redmond.corp.microsoft.com>
+References: <1299794912-1233-1-git-send-email-kys@microsoft.com>
+ <20110310222034.GA19323@suse.de>
+ <6E21E5352C11B742B20C142EB499E048018AA3@TK5EX14MBXC128.redmond.corp.microsoft.com>
+ <20110310223256.GA8669@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <[PATCH 00/21] Staging: hv: Cleanup vmbus driver>
+In-Reply-To: <20110310223256.GA8669@suse.de>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: kys@microsoft.com, gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org
-Cc: Haiyang Zhang <haiyangz@microsoft.com>, Mike Sterling <mike.sterling@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>, Hank Janssen <hjanssen@microsoft.com>
+To: Greg KH <gregkh@suse.de>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, Haiyang Zhang <haiyangz@microsoft.com>, Mike Sterling <Mike.Sterling@microsoft.com>, "Abhishek Kane (Mindtree Consulting PVT LTD)" <v-abkane@microsoft.com>, Hank Janssen <hjanssen@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Now that struct vmbus_driver_context is properly
-cleaned up, rename this structure appropriately and
-cleanup the code.
 
-Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
-Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
-Signed-off-by: Mike Sterling <mike.sterling@microsoft.com>
-Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
-Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
----
- drivers/staging/hv/vmbus_drv.c |   36 ++++++++++++++++--------------------
- 1 files changed, 16 insertions(+), 20 deletions(-)
 
-diff --git a/drivers/staging/hv/vmbus_drv.c b/drivers/staging/hv/vmbus_drv.c
-index 4e45016..7b9a2c8 100644
---- a/drivers/staging/hv/vmbus_drv.c
-+++ b/drivers/staging/hv/vmbus_drv.c
-@@ -44,12 +44,10 @@ static struct device *root_dev; /* Root device */
- struct pci_dev *hv_pci_dev;
- 
- /* Main vmbus driver data structure */
--struct vmbus_driver_context {
--
-+struct hv_bus {
- 	struct bus_type bus;
- 	struct tasklet_struct msg_dpc;
- 	struct tasklet_struct event_dpc;
--
- };
- 
- static int vmbus_match(struct device *device, struct device_driver *driver);
-@@ -104,7 +102,7 @@ static struct device_attribute vmbus_device_attrs[] = {
- };
- 
- /* The one and only one */
--static struct vmbus_driver_context vmbus_drv = {
-+static struct hv_bus  hv_bus = {
- 	.bus.name =		"vmbus",
- 	.bus.match =		vmbus_match,
- 	.bus.shutdown =		vmbus_shutdown,
-@@ -374,7 +372,6 @@ static ssize_t vmbus_show_device_attr(struct device *dev,
-  */
- static int vmbus_bus_init(struct pci_dev *pdev)
- {
--	struct vmbus_driver_context *vmbus_drv_ctx = &vmbus_drv;
- 	int ret;
- 	unsigned int vector;
- 
-@@ -399,16 +396,16 @@ static int vmbus_bus_init(struct pci_dev *pdev)
- 	}
- 
- 
--	vmbus_drv_ctx->bus.name = driver_name;
-+	hv_bus.bus.name = driver_name;
- 
- 	/* Initialize the bus context */
--	tasklet_init(&vmbus_drv_ctx->msg_dpc, vmbus_on_msg_dpc,
-+	tasklet_init(&hv_bus.msg_dpc, vmbus_on_msg_dpc,
- 		     (unsigned long)NULL);
--	tasklet_init(&vmbus_drv_ctx->event_dpc, vmbus_on_event,
-+	tasklet_init(&hv_bus.event_dpc, vmbus_on_event,
- 		     (unsigned long)NULL);
- 
- 	/* Now, register the bus  with LDM */
--	ret = bus_register(&vmbus_drv_ctx->bus);
-+	ret = bus_register(&hv_bus.bus);
- 	if (ret) {
- 		ret = -1;
- 		goto cleanup;
-@@ -423,7 +420,7 @@ static int vmbus_bus_init(struct pci_dev *pdev)
- 		DPRINT_ERR(VMBUS_DRV, "ERROR - Unable to request IRQ %d",
- 			   pdev->irq);
- 
--		bus_unregister(&vmbus_drv_ctx->bus);
-+		bus_unregister(&hv_bus.bus);
- 
- 		ret = -1;
- 		goto cleanup;
-@@ -441,7 +438,7 @@ static int vmbus_bus_init(struct pci_dev *pdev)
- 			   "ERROR - Unable to register vmbus root device");
- 
- 		free_irq(pdev->irq, pdev);
--		bus_unregister(&vmbus_drv_ctx->bus);
-+		bus_unregister(&hv_bus.bus);
- 
- 		ret = PTR_ERR(root_dev);
- 		goto cleanup;
-@@ -456,7 +453,7 @@ static int vmbus_bus_init(struct pci_dev *pdev)
- 	if (ret) {
- 		root_device_unregister(root_dev);
- 		free_irq(pdev->irq, pdev);
--		bus_unregister(&vmbus_drv_ctx->bus);
-+		bus_unregister(&hv_bus.bus);
- 		goto cleanup;
- 	}
- 
-@@ -475,7 +472,6 @@ cleanup:
-  */
- static void vmbus_bus_exit(void)
- {
--	struct vmbus_driver_context *vmbus_drv_ctx = &vmbus_drv;
- 
- 
- 	vmbus_release_unattached_channels();
-@@ -487,12 +483,12 @@ static void vmbus_bus_exit(void)
- 	/* Unregister the root bus device */
- 	root_device_unregister(root_dev);
- 
--	bus_unregister(&vmbus_drv_ctx->bus);
-+	bus_unregister(&hv_bus.bus);
- 
- 	free_irq(hv_pci_dev->irq, hv_pci_dev);
- 
--	tasklet_kill(&vmbus_drv_ctx->msg_dpc);
--	tasklet_kill(&vmbus_drv_ctx->event_dpc);
-+	tasklet_kill(&hv_bus.msg_dpc);
-+	tasklet_kill(&hv_bus.event_dpc);
- }
- 
- 
-@@ -515,7 +511,7 @@ int vmbus_child_driver_register(struct device_driver *drv)
- 		    drv, drv->name);
- 
- 	/* The child driver on this vmbus */
--	drv->bus = &vmbus_drv.bus;
-+	drv->bus = &hv_bus.bus;
- 
- 	ret = driver_register(drv);
- 
-@@ -609,7 +605,7 @@ int vmbus_child_device_register(struct hv_device *child_device_obj)
- 		     atomic_inc_return(&device_num));
- 
- 	/* The new device belongs to this bus */
--	child_device_obj->device.bus = &vmbus_drv.bus; /* device->dev.bus; */
-+	child_device_obj->device.bus = &hv_bus.bus; /* device->dev.bus; */
- 	child_device_obj->device.parent = root_dev;
- 	child_device_obj->device.release = vmbus_device_release;
- 
-@@ -877,10 +873,10 @@ static irqreturn_t vmbus_isr(int irq, void *dev_id)
- 	/* Schedules a dpc if necessary */
- 	if (ret > 0) {
- 		if (test_bit(0, (unsigned long *)&ret))
--			tasklet_schedule(&vmbus_drv.msg_dpc);
-+			tasklet_schedule(&hv_bus.msg_dpc);
- 
- 		if (test_bit(1, (unsigned long *)&ret))
--			tasklet_schedule(&vmbus_drv.event_dpc);
-+			tasklet_schedule(&hv_bus.event_dpc);
- 
- 		return IRQ_HANDLED;
- 	} else {
--- 
-1.5.5.6
+> -----Original Message-----
+> From: Greg KH [mailto:gregkh@suse.de]
+> Sent: Thursday, March 10, 2011 5:33 PM
+> To: KY Srinivasan
+> Cc: linux-kernel@vger.kernel.org; devel@linuxdriverproject.org;
+> virtualization@lists.osdl.org; Haiyang Zhang; Mike Sterling; Abhishek Kane
+> (Mindtree Consulting PVT LTD); Hank Janssen
+> Subject: Re: [PATCH 11/21] Staging: hv: Make vmbus driver a platform pci driver
+> 
+> On Thu, Mar 10, 2011 at 10:28:27PM +0000, KY Srinivasan wrote:
+> >
+> >
+> > > -----Original Message-----
+> > > From: Greg KH [mailto:gregkh@suse.de]
+> > > Sent: Thursday, March 10, 2011 5:21 PM
+> > > To: KY Srinivasan
+> > > Cc: linux-kernel@vger.kernel.org; devel@linuxdriverproject.org;
+> > > virtualization@lists.osdl.org; Haiyang Zhang; Mike Sterling; Abhishek Kane
+> > > (Mindtree Consulting PVT LTD); Hank Janssen
+> > > Subject: Re: [PATCH 11/21] Staging: hv: Make vmbus driver a platform pci
+> driver
+> > >
+> > > On Thu, Mar 10, 2011 at 02:08:32PM -0800, K. Y. Srinivasan wrote:
+> > > > Make vmbus driver a platform pci driver. This is
+> > > > in preparation to cleaning up irq allocation for this
+> > > > driver.
+> > >
+> > > The idea is nice, but the nameing is a bit confusing.
+> > >
+> > > We have "platform drivers" which are much different from what you are
+> > > doing here, you are just creating a "normal" pci driver.
+> > >
+> > > Very minor comments below.
+> > >
+> > > >
+> > > > Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
+> > > > Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
+> > > > Signed-off-by: Mike Sterling <mike.sterling@microsoft.com>
+> > > > Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
+> > > > Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
+> > > > ---
+> > > >  drivers/staging/hv/vmbus_drv.c |   63 +++++++++++++++++++++++--------
+> -----
+> > > ----
+> > > >  1 files changed, 36 insertions(+), 27 deletions(-)
+> > > >
+> > > > diff --git a/drivers/staging/hv/vmbus_drv.c
+> b/drivers/staging/hv/vmbus_drv.c
+> > > > index 8b9394a..e4855ac 100644
+> > > > --- a/drivers/staging/hv/vmbus_drv.c
+> > > > +++ b/drivers/staging/hv/vmbus_drv.c
+> > > > @@ -43,6 +43,8 @@
+> > > >
+> > > >  static struct device *root_dev; /* Root device */
+> > > >
+> > > > +struct pci_dev *hv_pci_dev;
+> > > > +
+> > > >  /* Main vmbus driver data structure */
+> > > >  struct vmbus_driver_context {
+> > > >
+> > > > @@ -887,36 +889,24 @@ static irqreturn_t vmbus_isr(int irq, void *dev_id)
+> > > >  	}
+> > > >  }
+> > > >
+> > > > -static struct dmi_system_id __initdata microsoft_hv_dmi_table[] = {
+> > > > -	{
+> > > > -		.ident = "Hyper-V",
+> > > > -		.matches = {
+> > > > -			DMI_MATCH(DMI_SYS_VENDOR, "Microsoft
+> > > Corporation"),
+> > > > -			DMI_MATCH(DMI_PRODUCT_NAME, "Virtual Machine"),
+> > > > -			DMI_MATCH(DMI_BOARD_NAME, "Virtual Machine"),
+> > > > -		},
+> > > > -	},
+> > > > -	{ },
+> > > > -};
+> > > > -MODULE_DEVICE_TABLE(dmi, microsoft_hv_dmi_table);
+> > >
+> > > You're sure it's safe to delete this now and just rely on the PCI ids,
+> > > right?  For some wierd reason I thought we needed both to catch all
+> > > types of systems, but I can't remember why.
+> > I have tested this; I don't think we need the dmi table.
+> 
+> Ok, if you are sure, that's fine with me.
+> 
+> > > How about "hv_bus" as a name, as that's what this really is.  It's a
+> > > "bus adapter", like USB, Firewire, and all sorts of other bus
+> > > controllers.
+> >
+> > Sure; I will make these changes. Would you mind if I submit these name
+> changes as a separate patch.
+> 
+> How about just redo this patch?  I haven't reviewed the others yet, so
+> you might want to wait a day to see if I don't like any of them either
+> :)
+
+Ok; I will wait for the reviews.
+
+Regards,
+
+K. Y
