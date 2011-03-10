@@ -1,65 +1,58 @@
-From: KY Srinivasan <kys@microsoft.com>
-Subject: RE: [PATCH 11/21] Staging: hv: Make vmbus driver a platform pci
- driver
-Date: Mon, 14 Mar 2011 12:43:33 +0000
-Message-ID: <6E21E5352C11B742B20C142EB499E0480191D2@TK5EX14MBXC128.redmond.corp.microsoft.com>
-References: <1299794912-1233-1-git-send-email-kys@microsoft.com>
- <20110310222034.GA19323@suse.de>
- <6E21E5352C11B742B20C142EB499E048018AA3@TK5EX14MBXC128.redmond.corp.microsoft.com>
- <20110310223256.GA8669@suse.de>
- <6E21E5352C11B742B20C142EB499E048018F4D@TK5EX14MBXC128.redmond.corp.microsoft.com>
- <20110314032437.GA18645@suse.de>
+From: Magnus Damm <magnus.damm@gmail.com>
+Subject: [PATCH 00/02] virtio: Virtio platform driver
+Date: Thu, 10 Mar 2011 16:05:41 +0900
+Message-ID: <20110310070541.27327.52089.sendpatchset__2930.81568456746$1300116111$gmane$org@t400s>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20110314032437.GA18645@suse.de>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Greg KH <gregkh@suse.de>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, Haiyang Zhang <haiyangz@microsoft.com>, Mike Sterling <Mike.Sterling@microsoft.com>, "Abhishek Kane (Mindtree Consulting PVT LTD)" <v-abkane@microsoft.com>, Hank Janssen <hjanssen@microsoft.com>
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: linux-kernel@vger.kernel.org
+Cc: Magnus Damm <magnus.damm@gmail.com>, mst@redhat.com, virtualization@lists.linux-foundation.org, linux-sh@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
+virtio: Virtio platform driver
 
+[PATCH 01/02] virtio: Break out lguest virtio code to virtio_lguest.c
+[PATCH 02/02] virtio: Add virtio platform driver
 
-> -----Original Message-----
-> From: Greg KH [mailto:gregkh@suse.de]
-> Sent: Sunday, March 13, 2011 11:25 PM
-> To: KY Srinivasan
-> Cc: linux-kernel@vger.kernel.org; devel@linuxdriverproject.org;
-> virtualization@lists.osdl.org; Haiyang Zhang; Mike Sterling; Abhishek Kane
-> (Mindtree Consulting PVT LTD); Hank Janssen
-> Subject: Re: [PATCH 11/21] Staging: hv: Make vmbus driver a platform pci driver
-> 
-> On Sat, Mar 12, 2011 at 11:23:05PM +0000, KY Srinivasan wrote:
-> > Greg, I have redone this patch as well as [PATCH 12/21]. Do you want
-> > me send you just these two patches or the entire series including
-> > these two.
-> 
-> Just resend those two patches if that is easier.
+These patches add a virtio platform driver to the Linux kernel. This
+platform driver has the same role as the virtio_pci driver, but instead
+of building on top of emulated PCI this driver is making use of the
+platform bus together with driver specific callbacks.
 
-Will do.
-> 
-> > Also, does this patch-set address all of architectural issues you had
-> > noted earlier in the vmbus core. Please let us know what else needs to
-> > be done to exit staging as far as the vmbus driver is concerned. I
-> > want get a head start before the new week begins! Also, we have
-> > patches ready for all DPRINT cleanup. Hank is holding them off until
-> > we finish addressing the architectural issues first.
-> 
-> I do not know if this addresses everything, sorry, I have not had the
-> time to review all of them yet.  Give me a few days at the least to go
-> over them and apply them before I will be able to tell you this.
+The virtio platform driver can be seen as a reusable implementation of
+the lguest virtio driver - in fact, most code is just taken directly
+from lguest_device.c and reworked to fit the platform device driver
+abstraction. The first patch breaks out code that can be shared between
+lguest and the virtio platform driver.
 
-Thanks for taking the time to look at this.
+This code has been used to implement a mailbox interface between the
+two processor cores included in the sh7372 SoC. The sh7372 contains
+one ARM Cortex-A8 and one SH4AL-DSP core, and in the prototype two
+Linux kernels are running in parallel on the same chip. Virtio serves
+as a communication link between the two cores.
 
-> 
-> Also note that there shouldn't be anything holding back the DPRINT
-> stuff, why wait?  If they apply on top of yours that should be fine,
-> right?
+Tested on the SH architecture, but should work on any architecture.
 
-You are right. We will submit the DPRINT patches soon.
+Signed-off-by: Magnus Damm <damm@opensource.se>
+---
 
-Regards,
-
-K. Y 
+ arch/x86/lguest/Kconfig          |    1 
+ drivers/lguest/lguest_device.c   |  209 ----------------------------
+ drivers/virtio/Kconfig           |   13 +
+ drivers/virtio/Makefile          |    2 
+ drivers/virtio/virtio_lguest.c   |  205 ++++++++++++++++++++++++++++
+ drivers/virtio/virtio_platform.c |  282 +++++++++++++++++++++++++++++++++++++++
+ include/linux/lguest.h           |    1 
+ include/linux/lguest_device.h    |   46 ++++++
+ include/linux/virtio_platform.h  |   12 +
+ 9 files changed, 564 insertions(+), 207 deletions(-)
