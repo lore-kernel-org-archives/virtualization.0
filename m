@@ -1,52 +1,56 @@
 From: KY Srinivasan <kys@microsoft.com>
-Subject: RE: [PATCH 12/21] Staging: hv: Cleanup irq management
-Date: Fri, 11 Mar 2011 02:09:15 +0000
-Message-ID: <6E21E5352C11B742B20C142EB499E048018B3E@TK5EX14MBXC128.redmond.corp.microsoft.com>
+Subject: RE: [PATCH 13/21] [PATCH 13/21] Staging: hv: Rename
+ vmbus_driver_context structure
+Date: Fri, 11 Mar 2011 03:17:46 +0000
+Message-ID: <6E21E5352C11B742B20C142EB499E048018BBD@TK5EX14MBXC128.redmond.corp.microsoft.com>
 References: <[PATCH 00/21] Staging: hv: Cleanup vmbus driver>
- <1299794933-1259-1-git-send-email-kys@microsoft.com>,<alpine.LFD.2.00.1103102338230.2787@localhost6.localdomain6>
- <E2765C4D-2B98-4D06-8007-3416952F19FD@microsoft.com>
+ <1299795131-1335-1-git-send-email-kys@microsoft.com>
+ <alpine.LFD.2.00.1103102347450.2787@localhost6.localdomain6>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 8BIT
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <E2765C4D-2B98-4D06-8007-3416952F19FD@microsoft.com>
+In-Reply-To: <alpine.LFD.2.00.1103102347450.2787@localhost6.localdomain6>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Hank Janssen <hjanssen@microsoft.com>, Thomas Gleixner <tglx@linutronix.de>
-Cc: "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, Haiyang Zhang <haiyangz@microsoft.com>, Mike Sterling <Mike.Sterling@microsoft.com>, "Abhishek Kane (Mindtree Consulting PVT LTD)" <v-abkane@microsoft.com>
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, Haiyang Zhang <haiyangz@microsoft.com>, Mike Sterling <Mike.Sterling@microsoft.com>, "Abhishek Kane (Mindtree Consulting PVT LTD)" <v-abkane@microsoft.com>, Hank Janssen <hjanssen@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
 
 
 > -----Original Message-----
-> From: Hank Janssen
-> Sent: Thursday, March 10, 2011 5:54 PM
-> To: Thomas Gleixner
-> Cc: KY Srinivasan; gregkh@suse.de; linux-kernel@vger.kernel.org;
+> From: Thomas Gleixner [mailto:tglx@linutronix.de]
+> Sent: Thursday, March 10, 2011 5:50 PM
+> To: KY Srinivasan
+> Cc: gregkh@suse.de; linux-kernel@vger.kernel.org;
 > devel@linuxdriverproject.org; virtualization@lists.osdl.org; Haiyang Zhang; Mike
-> Sterling; Abhishek Kane (Mindtree Consulting PVT LTD)
-> Subject: Re: [PATCH 12/21] Staging: hv: Cleanup irq management
+> Sterling; Abhishek Kane (Mindtree Consulting PVT LTD); Hank Janssen
+> Subject: Re: [PATCH 13/21] [PATCH 13/21] Staging: hv: Rename
+> vmbus_driver_context structure
 > 
+> On Thu, 10 Mar 2011, K. Y. Srinivasan wrote:
+> > Now that struct vmbus_driver_context is properly
+> > cleaned up, rename this structure appropriately and
+> > cleanup the code.
 > 
-> 
-> 
-> 
-> 
-> On Mar 10, 2011, at 14:46, "Thomas Gleixner" <tglx@linutronix.de> wrote:
-> >>
+> > @@ -877,10 +873,10 @@ static irqreturn_t vmbus_isr(int irq, void *dev_id)
+> >  	/* Schedules a dpc if necessary */
+> >  	if (ret > 0) {
+> >  		if (test_bit(0, (unsigned long *)&ret))
+> > -			tasklet_schedule(&vmbus_drv.msg_dpc);
+> > +			tasklet_schedule(&hv_bus.msg_dpc);
 > >
-> >>    }
-> >> -    vector = VMBUS_IRQ_VECTOR;
-> >>
-> >> -    DPRINT_INFO(VMBUS_DRV, "irq 0x%x vector 0x%x", vmbus_irq, vector);
-> >> +    vector = IRQ0_VECTOR + pdev->irq;
-> >> +    DPRINT_INFO(VMBUS_DRV, "irq 0x%x vector 0x%x", pdev->irq,
-> >> +            IRQ0_VECTOR + pdev->irq);
-> >
-> > Why evaluating vector first and then not using it for that debug print
-> > thingy?
-Good point; I will fix this before Hank gets rid of the DPRINT_INFO altogether.
+> >  		if (test_bit(1, (unsigned long *)&ret))
+> > -			tasklet_schedule(&vmbus_drv.event_dpc);
+> > +			tasklet_schedule(&hv_bus.event_dpc);
+> 
+> What's the plan to convert that tasklet/work stuff to threaded irqs ?
+
+
+This is on my plate; I was going to work on this after I addressed all other issues 
+preventing the vmbus driver from exiting staging.
 
 Regards,
 
-K. Y
+K. Y 
