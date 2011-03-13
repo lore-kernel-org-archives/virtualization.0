@@ -1,128 +1,75 @@
-From: KY Srinivasan <kys@microsoft.com>
-Subject: RE: [PATCH 11/21] Staging: hv: Make vmbus driver a platform pci
- driver
-Date: Sat, 12 Mar 2011 23:23:05 +0000
-Message-ID: <6E21E5352C11B742B20C142EB499E048018F4D@TK5EX14MBXC128.redmond.corp.microsoft.com>
-References: <1299794912-1233-1-git-send-email-kys@microsoft.com>
- <20110310222034.GA19323@suse.de>
- <6E21E5352C11B742B20C142EB499E048018AA3@TK5EX14MBXC128.redmond.corp.microsoft.com>
- <20110310223256.GA8669@suse.de>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH 3/3] vhost-net: use lock_sock_fast() in peek_head_len()
+Date: Sun, 13 Mar 2011 17:06:47 +0200
+Message-ID: <20110313150646.GA30494@redhat.com>
+References: <20110117081058.18900.67456.stgit@dhcp-91-7.nay.redhat.com.englab.nay.redhat.com>
+ <20110117081117.18900.48672.stgit@dhcp-91-7.nay.redhat.com.englab.nay.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20110310223256.GA8669@suse.de>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Greg KH <gregkh@suse.de>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, Haiyang Zhang <haiyangz@microsoft.com>, Mike Sterling <Mike.Sterling@microsoft.com>, "Abhishek Kane (Mindtree Consulting PVT LTD)" <v-abkane@microsoft.com>, Hank Janssen <hjanssen@microsoft.com>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <kvm-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20110117081117.18900.48672.stgit@dhcp-91-7.nay.redhat.com.englab.nay.redhat.com>
+Sender: kvm-owner@vger.kernel.org
+To: Jason Wang <jasowang@redhat.com>
+Cc: virtualization@lists.osdl.org, netdev@vger.kernel.org, kvm@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-
-
-> -----Original Message-----
-> From: Greg KH [mailto:gregkh@suse.de]
-> Sent: Thursday, March 10, 2011 5:33 PM
-> To: KY Srinivasan
-> Cc: linux-kernel@vger.kernel.org; devel@linuxdriverproject.org;
-> virtualization@lists.osdl.org; Haiyang Zhang; Mike Sterling; Abhishek Kane
-> (Mindtree Consulting PVT LTD); Hank Janssen
-> Subject: Re: [PATCH 11/21] Staging: hv: Make vmbus driver a platform pci driver
+On Mon, Jan 17, 2011 at 04:11:17PM +0800, Jason Wang wrote:
+> We can use lock_sock_fast() instead of lock_sock() in order to get
+> speedup in peek_head_len().
 > 
-> On Thu, Mar 10, 2011 at 10:28:27PM +0000, KY Srinivasan wrote:
-> >
-> >
-> > > -----Original Message-----
-> > > From: Greg KH [mailto:gregkh@suse.de]
-> > > Sent: Thursday, March 10, 2011 5:21 PM
-> > > To: KY Srinivasan
-> > > Cc: linux-kernel@vger.kernel.org; devel@linuxdriverproject.org;
-> > > virtualization@lists.osdl.org; Haiyang Zhang; Mike Sterling; Abhishek Kane
-> > > (Mindtree Consulting PVT LTD); Hank Janssen
-> > > Subject: Re: [PATCH 11/21] Staging: hv: Make vmbus driver a platform pci
-> driver
-> > >
-> > > On Thu, Mar 10, 2011 at 02:08:32PM -0800, K. Y. Srinivasan wrote:
-> > > > Make vmbus driver a platform pci driver. This is
-> > > > in preparation to cleaning up irq allocation for this
-> > > > driver.
-> > >
-> > > The idea is nice, but the nameing is a bit confusing.
-> > >
-> > > We have "platform drivers" which are much different from what you are
-> > > doing here, you are just creating a "normal" pci driver.
-> > >
-> > > Very minor comments below.
-> > >
-> > > >
-> > > > Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
-> > > > Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
-> > > > Signed-off-by: Mike Sterling <mike.sterling@microsoft.com>
-> > > > Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
-> > > > Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
-> > > > ---
-> > > >  drivers/staging/hv/vmbus_drv.c |   63 +++++++++++++++++++++++--------
-> -----
-> > > ----
-> > > >  1 files changed, 36 insertions(+), 27 deletions(-)
-> > > >
-> > > > diff --git a/drivers/staging/hv/vmbus_drv.c
-> b/drivers/staging/hv/vmbus_drv.c
-> > > > index 8b9394a..e4855ac 100644
-> > > > --- a/drivers/staging/hv/vmbus_drv.c
-> > > > +++ b/drivers/staging/hv/vmbus_drv.c
-> > > > @@ -43,6 +43,8 @@
-> > > >
-> > > >  static struct device *root_dev; /* Root device */
-> > > >
-> > > > +struct pci_dev *hv_pci_dev;
-> > > > +
-> > > >  /* Main vmbus driver data structure */
-> > > >  struct vmbus_driver_context {
-> > > >
-> > > > @@ -887,36 +889,24 @@ static irqreturn_t vmbus_isr(int irq, void *dev_id)
-> > > >  	}
-> > > >  }
-> > > >
-> > > > -static struct dmi_system_id __initdata microsoft_hv_dmi_table[] = {
-> > > > -	{
-> > > > -		.ident = "Hyper-V",
-> > > > -		.matches = {
-> > > > -			DMI_MATCH(DMI_SYS_VENDOR, "Microsoft
-> > > Corporation"),
-> > > > -			DMI_MATCH(DMI_PRODUCT_NAME, "Virtual Machine"),
-> > > > -			DMI_MATCH(DMI_BOARD_NAME, "Virtual Machine"),
-> > > > -		},
-> > > > -	},
-> > > > -	{ },
-> > > > -};
-> > > > -MODULE_DEVICE_TABLE(dmi, microsoft_hv_dmi_table);
-> > >
-> > > You're sure it's safe to delete this now and just rely on the PCI ids,
-> > > right?  For some wierd reason I thought we needed both to catch all
-> > > types of systems, but I can't remember why.
-> > I have tested this; I don't think we need the dmi table.
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
+> ---
+>  drivers/vhost/net.c |    4 ++--
+>  1 files changed, 2 insertions(+), 2 deletions(-)
 > 
-> Ok, if you are sure, that's fine with me.
-> 
-> > > How about "hv_bus" as a name, as that's what this really is.  It's a
-> > > "bus adapter", like USB, Firewire, and all sorts of other bus
-> > > controllers.
-> >
-> > Sure; I will make these changes. Would you mind if I submit these name
-> changes as a separate patch.
-> 
-> How about just redo this patch?  I haven't reviewed the others yet, so
-> you might want to wait a day to see if I don't like any of them either
-> :)
+> diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+> index c32a2e4..50b622a 100644
+> --- a/drivers/vhost/net.c
+> +++ b/drivers/vhost/net.c
+> @@ -211,12 +211,12 @@ static int peek_head_len(struct sock *sk)
+>  {
+>  	struct sk_buff *head;
+>  	int len = 0;
+> +	bool slow = lock_sock_fast(sk);
+>  
+> -	lock_sock(sk);
+>  	head = skb_peek(&sk->sk_receive_queue);
+>  	if (head)
+>  		len = head->len;
+> -	release_sock(sk);
+> +	unlock_sock_fast(sk, slow);
+>  	return len;
+>  }
+>  
 
-Greg, I have redone this patch as well as [PATCH 12/21]. Do you want me send you just these two 
-patches or the entire series including these two. Also, does this patch-set address all of architectural 
-issues you had noted earlier in the vmbus core. Please let us know what else needs to be done to 
-exit staging as far as the vmbus driver is concerned. I want get a head start before the new week
-begins! Also, we have patches ready for all DPRINT cleanup. Hank is holding them off until
-we finish addressing the architectural issues first.
+Wanted to apply this, but looking at the code I think the lock_sock here
+is wrong. What we really need is to handle the case where the skb is
+pulled from the receive queue after skb_peek.  However this is not the
+right lock to use for that, sk_receive_queue.lock is.
+So I expect the following is the right way to handle this.
+Comments?
 
-Regards,
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 
-K. Y
+diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+index 0329c41..5720301 100644
+--- a/drivers/vhost/net.c
++++ b/drivers/vhost/net.c
+@@ -213,12 +213,13 @@ static int peek_head_len(struct sock *sk)
+ {
+ 	struct sk_buff *head;
+ 	int len = 0;
++	unsigned long flags;
+ 
+-	lock_sock(sk);
++	spin_lock_irqsave(&sk->sk_receive_queue.lock, flags);
+ 	head = skb_peek(&sk->sk_receive_queue);
+-	if (head)
++	if (likely(head))
+ 		len = head->len;
+-	release_sock(sk);
++	spin_unlock_irqrestore(&sk->sk_receive_queue.lock, flags);
+ 	return len;
+ }
+ 
