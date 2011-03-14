@@ -1,63 +1,65 @@
-From: Amit Shah <amit.shah@redhat.com>
-Subject: [PATCH] virtio: console: Enable call to hvc_remove() on console port
-	remove
-Date: Mon, 14 Mar 2011 17:45:48 +0530
-Message-ID: <9c2f9e719157c3330a60963a1da96f68589aa0f4.1300104945.git.amit.shah@redhat.com>
+From: KY Srinivasan <kys@microsoft.com>
+Subject: RE: [PATCH 11/21] Staging: hv: Make vmbus driver a platform pci
+ driver
+Date: Mon, 14 Mar 2011 12:43:33 +0000
+Message-ID: <6E21E5352C11B742B20C142EB499E0480191D2@TK5EX14MBXC128.redmond.corp.microsoft.com>
+References: <1299794912-1233-1-git-send-email-kys@microsoft.com>
+ <20110310222034.GA19323@suse.de>
+ <6E21E5352C11B742B20C142EB499E048018AA3@TK5EX14MBXC128.redmond.corp.microsoft.com>
+ <20110310223256.GA8669@suse.de>
+ <6E21E5352C11B742B20C142EB499E048018F4D@TK5EX14MBXC128.redmond.corp.microsoft.com>
+ <20110314032437.GA18645@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Amit Shah <amit.shah@redhat.com>, Virtualization List <virtualization@lists.linux-foundation.org>
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20110314032437.GA18645@suse.de>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: Greg KH <gregkh@suse.de>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, Haiyang Zhang <haiyangz@microsoft.com>, Mike Sterling <Mike.Sterling@microsoft.com>, "Abhishek Kane (Mindtree Consulting PVT LTD)" <v-abkane@microsoft.com>, Hank Janssen <hjanssen@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This call was disabled as hot-unplugging one virtconsole port led to
-another virtconsole port freezing.
 
-Upon testing it again, this now works, so enable it.
 
-In addition, a bug was found in qemu wherein removing a port of one type
-caused the guest output from another port to stop working.  I doubt it
-was just this bug that caused it (since disabling the hvc_remove() call
-did allow other ports to continue working), but since it's all solved
-now, we're fine with hot-unplugging of virtconsole ports.
+> -----Original Message-----
+> From: Greg KH [mailto:gregkh@suse.de]
+> Sent: Sunday, March 13, 2011 11:25 PM
+> To: KY Srinivasan
+> Cc: linux-kernel@vger.kernel.org; devel@linuxdriverproject.org;
+> virtualization@lists.osdl.org; Haiyang Zhang; Mike Sterling; Abhishek Kane
+> (Mindtree Consulting PVT LTD); Hank Janssen
+> Subject: Re: [PATCH 11/21] Staging: hv: Make vmbus driver a platform pci driver
+> 
+> On Sat, Mar 12, 2011 at 11:23:05PM +0000, KY Srinivasan wrote:
+> > Greg, I have redone this patch as well as [PATCH 12/21]. Do you want
+> > me send you just these two patches or the entire series including
+> > these two.
+> 
+> Just resend those two patches if that is easier.
 
-Signed-off-by: Amit Shah <amit.shah@redhat.com>
----
- drivers/char/virtio_console.c |   11 -----------
- 1 files changed, 0 insertions(+), 11 deletions(-)
+Will do.
+> 
+> > Also, does this patch-set address all of architectural issues you had
+> > noted earlier in the vmbus core. Please let us know what else needs to
+> > be done to exit staging as far as the vmbus driver is concerned. I
+> > want get a head start before the new week begins! Also, we have
+> > patches ready for all DPRINT cleanup. Hank is holding them off until
+> > we finish addressing the architectural issues first.
+> 
+> I do not know if this addresses everything, sorry, I have not had the
+> time to review all of them yet.  Give me a few days at the least to go
+> over them and apply them before I will be able to tell you this.
 
-diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index 84b164d..838568a 100644
---- a/drivers/char/virtio_console.c
-+++ b/drivers/char/virtio_console.c
-@@ -1280,18 +1280,7 @@ static void unplug_port(struct port *port)
- 		spin_lock_irq(&pdrvdata_lock);
- 		list_del(&port->cons.list);
- 		spin_unlock_irq(&pdrvdata_lock);
--#if 0
--		/*
--		 * hvc_remove() not called as removing one hvc port
--		 * results in other hvc ports getting frozen.
--		 *
--		 * Once this is resolved in hvc, this functionality
--		 * will be enabled.  Till that is done, the -EPIPE
--		 * return from get_chars() above will help
--		 * hvc_console.c to clean up on ports we remove here.
--		 */
- 		hvc_remove(port->cons.hvc);
--#endif
- 	}
- 
- 	/* Remove unused data this port might have received. */
--- 
-1.7.4
+Thanks for taking the time to look at this.
+
+> 
+> Also note that there shouldn't be anything holding back the DPRINT
+> stuff, why wait?  If they apply on top of yours that should be fine,
+> right?
+
+You are right. We will submit the DPRINT patches soon.
+
+Regards,
+
+K. Y 
