@@ -1,8 +1,8 @@
 From: Amit Shah <amit.shah@redhat.com>
-Subject: [PATCH] virtio_pci: Prevent double-free of pci regions after device
-	hot-unplug
-Date: Mon, 14 Mar 2011 17:45:02 +0530
-Message-ID: <f3e00b6450ee110e9dbe794d42ae058758e64d07.1300104900.git.amit.shah@redhat.com>
+Subject: [PATCH] virtio: console: Enable call to hvc_remove() on console port
+	remove
+Date: Mon, 14 Mar 2011 17:45:48 +0530
+Message-ID: <9c2f9e719157c3330a60963a1da96f68589aa0f4.1300104945.git.amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -17,70 +17,47 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Amit Shah <amit.shah@redhat.com>, Mark McLoughlin <markmc@redhat.com>, Virtualization List <virtualization@lists.linux-foundation.org>, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Amit Shah <amit.shah@redhat.com>, Virtualization List <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-In the case where a virtio-console port is in use (opened by a program)
-and a virtio-console device is removed, the port is kept around but all
-the virtio-related state is assumed to be gone.
+This call was disabled as hot-unplugging one virtconsole port led to
+another virtconsole port freezing.
 
-When the port is finally released (close() called), we call
-device_destroy() on the port's device.  This results in the parent
-device's structures to be freed as well.  This includes the PCI regions
-for the virtio-console PCI device.
+Upon testing it again, this now works, so enable it.
 
-Once this is done, however, virtio_pci_release_dev() kicks in, as the
-last ref to the virtio device is now gone, and attempts to do
-
-     pci_iounmap(pci_dev, vp_dev->ioaddr);
-     pci_release_regions(pci_dev);
-     pci_disable_device(pci_dev);
-
-which results in a double-free warning.
-
-Move the code that releases regions, etc., to the virtio_pci_remove()
-function, and all that's now left in release_dev is the final freeing of
-the vp_dev.
+In addition, a bug was found in qemu wherein removing a port of one type
+caused the guest output from another port to stop working.  I doubt it
+was just this bug that caused it (since disabling the hvc_remove() call
+did allow other ports to continue working), but since it's all solved
+now, we're fine with hot-unplugging of virtconsole ports.
 
 Signed-off-by: Amit Shah <amit.shah@redhat.com>
 ---
- drivers/virtio/virtio_pci.c |   15 ++++++++-------
- 1 files changed, 8 insertions(+), 7 deletions(-)
+ drivers/char/virtio_console.c |   11 -----------
+ 1 files changed, 0 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/virtio/virtio_pci.c b/drivers/virtio/virtio_pci.c
-index 4fb5b2b..4bcc8b8 100644
---- a/drivers/virtio/virtio_pci.c
-+++ b/drivers/virtio/virtio_pci.c
-@@ -590,15 +590,10 @@ static struct virtio_config_ops virtio_pci_config_ops = {
+diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
+index 84b164d..838568a 100644
+--- a/drivers/char/virtio_console.c
++++ b/drivers/char/virtio_console.c
+@@ -1280,18 +1280,7 @@ static void unplug_port(struct port *port)
+ 		spin_lock_irq(&pdrvdata_lock);
+ 		list_del(&port->cons.list);
+ 		spin_unlock_irq(&pdrvdata_lock);
+-#if 0
+-		/*
+-		 * hvc_remove() not called as removing one hvc port
+-		 * results in other hvc ports getting frozen.
+-		 *
+-		 * Once this is resolved in hvc, this functionality
+-		 * will be enabled.  Till that is done, the -EPIPE
+-		 * return from get_chars() above will help
+-		 * hvc_console.c to clean up on ports we remove here.
+-		 */
+ 		hvc_remove(port->cons.hvc);
+-#endif
+ 	}
  
- static void virtio_pci_release_dev(struct device *_d)
- {
--	struct virtio_device *dev = container_of(_d, struct virtio_device, dev);
-+	struct virtio_device *dev = container_of(_d, struct virtio_device,
-+						 dev);
- 	struct virtio_pci_device *vp_dev = to_vp_device(dev);
--	struct pci_dev *pci_dev = vp_dev->pci_dev;
- 
--	vp_del_vqs(dev);
--	pci_set_drvdata(pci_dev, NULL);
--	pci_iounmap(pci_dev, vp_dev->ioaddr);
--	pci_release_regions(pci_dev);
--	pci_disable_device(pci_dev);
- 	kfree(vp_dev);
- }
- 
-@@ -681,6 +676,12 @@ static void __devexit virtio_pci_remove(struct pci_dev *pci_dev)
- 	struct virtio_pci_device *vp_dev = pci_get_drvdata(pci_dev);
- 
- 	unregister_virtio_device(&vp_dev->vdev);
-+
-+	vp_del_vqs(&vp_dev->vdev);
-+	pci_set_drvdata(pci_dev, NULL);
-+	pci_iounmap(pci_dev, vp_dev->ioaddr);
-+	pci_release_regions(pci_dev);
-+	pci_disable_device(pci_dev);
- }
- 
- #ifdef CONFIG_PM
+ 	/* Remove unused data this port might have received. */
 -- 
 1.7.4
