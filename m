@@ -1,8 +1,8 @@
-From: KY Srinivasan <kys@microsoft.com>
-Subject: RE: [PATCH 05/12] Staging: hv: Get rid of the forward declaration
+From: Greg KH <greg@kroah.com>
+Subject: Re: [PATCH 05/12] Staging: hv: Get rid of the forward declaration
  for vmbus_uevent
-Date: Tue, 15 Mar 2011 22:39:07 +0000
-Message-ID: <6E21E5352C11B742B20C142EB499E048019AB1@TK5EX14MBXC128.redmond.corp.microsoft.com>
+Date: Tue, 15 Mar 2011 15:51:09 -0700
+Message-ID: <20110315225109.GA16783@kroah.com>
 References: <1300226527-26933-1-git-send-email-kys@microsoft.com>
  <1300226624-27004-1-git-send-email-kys@microsoft.com>
  <1300226624-27004-2-git-send-email-kys@microsoft.com>
@@ -11,46 +11,49 @@ References: <1300226527-26933-1-git-send-email-kys@microsoft.com>
  <1300226624-27004-5-git-send-email-kys@microsoft.com>
  <1300226624-27004-6-git-send-email-kys@microsoft.com>
  <20110315222246.GA2339@kroah.com>
+ <6E21E5352C11B742B20C142EB499E048019AB1@TK5EX14MBXC128.redmond.corp.microsoft.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20110315222246.GA2339@kroah.com>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <6E21E5352C11B742B20C142EB499E048019AB1@TK5EX14MBXC128.redmond.corp.microsoft.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Greg KH <greg@kroah.com>
+To: KY Srinivasan <kys@microsoft.com>
 Cc: "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, Haiyang Zhang <haiyangz@microsoft.com>, Mike Sterling <Mike.Sterling@microsoft.com>, "Abhishek Kane (Mindtree Consulting PVT LTD)" <v-abkane@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-
-
-> -----Original Message-----
-> From: Greg KH [mailto:greg@kroah.com]
-> Sent: Tuesday, March 15, 2011 6:23 PM
-> To: KY Srinivasan
-> Cc: gregkh@suse.de; linux-kernel@vger.kernel.org;
-> devel@linuxdriverproject.org; virtualization@lists.osdl.org; Haiyang Zhang; Mike
-> Sterling; Abhishek Kane (Mindtree Consulting PVT LTD)
-> Subject: Re: [PATCH 05/12] Staging: hv: Get rid of the forward declaration for
-> vmbus_uevent
+On Tue, Mar 15, 2011 at 10:39:07PM +0000, KY Srinivasan wrote:
 > 
-> On Tue, Mar 15, 2011 at 03:03:37PM -0700, K. Y. Srinivasan wrote:
-> > Get rid of the forward declaration of vmbus_uevent by moving
-> > the code around.
 > 
-> There are 2 05/12 patches and they are different.
-Sorry about that Greg; I had an incorrect commit message that I fixed,
-but forgot to delete that patch that was generated with the 
-incorrect commit message. Loose the patch that has the subject line:
+> > -----Original Message-----
+> > From: Greg KH [mailto:greg@kroah.com]
+> > Sent: Tuesday, March 15, 2011 6:23 PM
+> > To: KY Srinivasan
+> > Cc: gregkh@suse.de; linux-kernel@vger.kernel.org;
+> > devel@linuxdriverproject.org; virtualization@lists.osdl.org; Haiyang Zhang; Mike
+> > Sterling; Abhishek Kane (Mindtree Consulting PVT LTD)
+> > Subject: Re: [PATCH 05/12] Staging: hv: Get rid of the forward declaration for
+> > vmbus_uevent
+> > 
+> > On Tue, Mar 15, 2011 at 03:03:37PM -0700, K. Y. Srinivasan wrote:
+> > > Get rid of the forward declaration of vmbus_uevent by moving
+> > > the code around.
+> > 
+> > There are 2 05/12 patches and they are different.
+> Sorry about that Greg; I had an incorrect commit message that I fixed,
+> but forgot to delete that patch that was generated with the 
+> incorrect commit message. Loose the patch that has the subject line:
+> 
+> [PATCH 05/12] Get rid of the forward declaration for vmbus_uevent
+> 
+> You want to keep the one that has the following subject line:
+> 
+> [PATCH 05/12] Staging: hv: Get rid of the forward declaration for vmbus_uevent
+> 
+> I could resend, if you prefer.
 
-[PATCH 05/12] Get rid of the forward declaration for vmbus_uevent
+No I got it, that's fine.
 
-You want to keep the one that has the following subject line:
+thanks,
 
-[PATCH 05/12] Staging: hv: Get rid of the forward declaration for vmbus_uevent
-
-I could resend, if you prefer.
-
-Regards,
-
-K. Y
+greg k-h
