@@ -1,28 +1,37 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 03/12] Staging: hv: Cleanup irq management
-Date: Tue, 15 Mar 2011 15:03:34 -0700
-Message-ID: <1300226624-27004-3-git-send-email-kys@microsoft.com>
+Subject: [PATCH 08/12] Staging: hv: Get rid of the forward declaration for
+	vmbus_remove
+Date: Tue, 15 Mar 2011 15:03:40 -0700
+Message-ID: <1300226624-27004-9-git-send-email-kys@microsoft.com>
 References: <1300226527-26933-1-git-send-email-kys@microsoft.com>
- <1300226624-27004-1-git-send-email-kys@microsoft.com>
- <1300226624-27004-2-git-send-email-kys@microsoft.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1300226624-27004-2-git-send-email-kys@microsoft.com>
-Sender: linux-kernel-owner@vger.kernel.org
+	<1300226624-27004-1-git-send-email-kys@microsoft.com>
+	<1300226624-27004-2-git-send-email-kys@microsoft.com>
+	<1300226624-27004-3-git-send-email-kys@microsoft.com>
+	<1300226624-27004-4-git-send-email-kys@microsoft.com>
+	<1300226624-27004-5-git-send-email-kys@microsoft.com>
+	<1300226624-27004-6-git-send-email-kys@microsoft.com>
+	<1300226624-27004-7-git-send-email-kys@microsoft.com>
+	<1300226624-27004-8-git-send-email-kys@microsoft.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <devel-bounces@linuxdriverproject.org>
+In-Reply-To: <1300226624-27004-8-git-send-email-kys@microsoft.com>
+List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
+	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
+List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
+List-Post: <mailto:devel@linuxdriverproject.org>
+List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
+List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
+	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
+Sender: devel-bounces@linuxdriverproject.org
+Errors-To: devel-bounces@linuxdriverproject.org
 To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org
-Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Mike Sterling <mike.sterling@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>, Hank Janssen <hjanssen@microsoft.com>
+Cc: Haiyang Zhang <haiyangz@microsoft.com>, Mike Sterling <mike.sterling@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Now that vmbus_driver is a  pci driver,
-cleanup the irq allocation mess by using the standard
-irq allocation mechanisms.
-
-Note that this patch generates an error when the checkpatch
-script is run because of the IRQF_SAMPLE_RANDOM flag used in
-request_irq() function. This interrupt may be the only
-external event this VM will get and consequently if this
-flag (IRQF_SAMPLE_RANDOM) is not  specified, experimentally
-we have shown that the entropy in the VM will very very low.
-
+Get rid of the forward declaration of vmbus_remove by moving
+the code around.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
@@ -30,113 +39,92 @@ Signed-off-by: Mike Sterling <mike.sterling@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/vmbus_drv.c |   28 +++++++++++++---------------
- 1 files changed, 13 insertions(+), 15 deletions(-)
+ drivers/staging/hv/vmbus_drv.c |   59 +++++++++++++++++++--------------------
+ 1 files changed, 29 insertions(+), 30 deletions(-)
 
 diff --git a/drivers/staging/hv/vmbus_drv.c b/drivers/staging/hv/vmbus_drv.c
-index 3d2789b..239b91c 100644
+index 8153a4d..3feed10 100644
 --- a/drivers/staging/hv/vmbus_drv.c
 +++ b/drivers/staging/hv/vmbus_drv.c
-@@ -17,6 +17,8 @@
-  * Authors:
-  *   Haiyang Zhang <haiyangz@microsoft.com>
-  *   Hank Janssen  <hjanssen@microsoft.com>
-+ *
-+ * 3/9/2011: K. Y. Srinivasan	- Significant restructuring and cleanup
-  */
- #include <linux/init.h>
- #include <linux/module.h>
-@@ -36,10 +38,6 @@
- #include "vmbus_private.h"
+@@ -47,7 +47,6 @@ struct hv_bus {
+ 	struct tasklet_struct event_dpc;
+ };
  
+-static int vmbus_remove(struct device *device);
+ static void vmbus_shutdown(struct device *device);
  
--/* FIXME! We need to do this dynamically for PIC and APIC system */
--#define VMBUS_IRQ		0x5
--#define VMBUS_IRQ_VECTOR	IRQ5_VECTOR
+ static irqreturn_t vmbus_isr(int irq, void *dev_id);
+@@ -248,6 +247,35 @@ static int vmbus_probe(struct device *child_device)
+ 	return ret;
+ }
+ 
++/*
++ * vmbus_remove - Remove a vmbus device
++ */
++static int vmbus_remove(struct device *child_device)
++{
++	int ret;
++	struct hv_driver *drv;
++
++
++	if (child_device->driver) {
++		drv = drv_to_hv_drv(child_device->driver);
++
++		/*
++		 * Let the specific open-source driver handles the removal if
++		 * it can
++		 */
++		if (drv->driver.remove) {
++			ret = drv->driver.remove(child_device);
++		} else {
++			DPRINT_ERR(VMBUS_DRV,
++				   "remove() method not set for driver - %s",
++				   child_device->driver->name);
++			ret = -1;
++		}
++	}
++
++	return 0;
++}
++
+ /* The one and only one */
+ static struct hv_bus  hv_bus = {
+ 	.bus.name =		"vmbus",
+@@ -777,35 +805,6 @@ void vmbus_child_device_unregister(struct hv_device *device_obj)
+ }
+ 
+ /*
+- * vmbus_remove - Remove a vmbus device
+- */
+-static int vmbus_remove(struct device *child_device)
+-{
+-	int ret;
+-	struct hv_driver *drv;
 -
- struct pci_dev *hv_pci_dev;
- 
- /* Main vmbus driver data structure */
-@@ -69,7 +67,6 @@ EXPORT_SYMBOL(vmbus_loglevel);
- 	/* (ALL_MODULES << 16 | DEBUG_LVL_ENTEREXIT); */
- 	/* (((VMBUS | VMBUS_DRV)<<16) | DEBUG_LVL_ENTEREXIT); */
- 
--static int vmbus_irq = VMBUS_IRQ;
- 
- /* Set up per device attributes in /sys/bus/vmbus/devices/<bus device> */
- static struct device_attribute vmbus_device_attrs[] = {
-@@ -369,7 +366,7 @@ static ssize_t vmbus_show_device_attr(struct device *dev,
-  *	- get the irq resource
-  *	- retrieve the channel offers
+-
+-	if (child_device->driver) {
+-		drv = drv_to_hv_drv(child_device->driver);
+-
+-		/*
+-		 * Let the specific open-source driver handles the removal if
+-		 * it can
+-		 */
+-		if (drv->driver.remove) {
+-			ret = drv->driver.remove(child_device);
+-		} else {
+-			DPRINT_ERR(VMBUS_DRV,
+-				   "remove() method not set for driver - %s",
+-				   child_device->driver->name);
+-			ret = -1;
+-		}
+-	}
+-
+-	return 0;
+-}
+-
+-/*
+  * vmbus_shutdown - Shutdown a vmbus device
   */
--static int vmbus_bus_init(void)
-+static int vmbus_bus_init(struct pci_dev *pdev)
- {
- 	struct vmbus_driver_context *vmbus_drv_ctx = &vmbus_drv;
- 	int ret;
-@@ -412,21 +409,23 @@ static int vmbus_bus_init(void)
- 	}
- 
- 	/* Get the interrupt resource */
--	ret = request_irq(vmbus_irq, vmbus_isr, IRQF_SAMPLE_RANDOM,
--			  driver_name, NULL);
-+	ret = request_irq(pdev->irq, vmbus_isr,
-+			  IRQF_SHARED | IRQF_SAMPLE_RANDOM,
-+			  driver_name, pdev);
- 
- 	if (ret != 0) {
- 		DPRINT_ERR(VMBUS_DRV, "ERROR - Unable to request IRQ %d",
--			   vmbus_irq);
-+			   pdev->irq);
- 
- 		bus_unregister(&vmbus_drv_ctx->bus);
- 
- 		ret = -1;
- 		goto cleanup;
- 	}
--	vector = VMBUS_IRQ_VECTOR;
- 
--	DPRINT_INFO(VMBUS_DRV, "irq 0x%x vector 0x%x", vmbus_irq, vector);
-+	vector = IRQ0_VECTOR + pdev->irq;
-+	DPRINT_INFO(VMBUS_DRV, "irq 0x%x vector 0x%x", pdev->irq,
-+			vector);
- 
- 	/*
- 	 * Notify the hypervisor of our irq and
-@@ -435,7 +434,7 @@ static int vmbus_bus_init(void)
- 	on_each_cpu(hv_synic_init, (void *)&vector, 1);
- 	ret = vmbus_connect();
- 	if (ret) {
--		free_irq(vmbus_irq, NULL);
-+		free_irq(pdev->irq, pdev);
- 		bus_unregister(&vmbus_drv_ctx->bus);
- 		goto cleanup;
- 	}
-@@ -466,7 +465,7 @@ static void vmbus_bus_exit(void)
- 
- 	bus_unregister(&vmbus_drv_ctx->bus);
- 
--	free_irq(vmbus_irq, NULL);
-+	free_irq(hv_pci_dev->irq, hv_pci_dev);
- 
- 	tasklet_kill(&vmbus_drv_ctx->msg_dpc);
- 	tasklet_kill(&vmbus_drv_ctx->event_dpc);
-@@ -878,7 +877,7 @@ static int __devinit hv_pci_probe(struct pci_dev *pdev,
- 	if (err)
- 		return err;
- 
--	err = vmbus_bus_init();
-+	err = vmbus_bus_init(pdev);
- 	if (err)
- 		pci_disable_device(pdev);
- 
-@@ -918,7 +917,6 @@ static void __exit hv_pci_exit(void)
- 
- MODULE_LICENSE("GPL");
- MODULE_VERSION(HV_DRV_VERSION);
--module_param(vmbus_irq, int, S_IRUGO);
- module_param(vmbus_loglevel, int, S_IRUGO);
- 
- module_init(hv_pci_init);
+ static void vmbus_shutdown(struct device *child_device)
 -- 
 1.5.5.6
