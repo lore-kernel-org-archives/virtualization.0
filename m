@@ -1,8 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 10/12] Staging: hv: Get rid of the forward declaration for
-	vmbus_device_release
-Date: Tue, 15 Mar 2011 15:03:42 -0700
-Message-ID: <1300226624-27004-11-git-send-email-kys@microsoft.com>
+Subject: [PATCH 09/12] Staging: hv: Get rid of the forward declaration for
+	vmbus_shutdown
+Date: Tue, 15 Mar 2011 15:03:41 -0700
+Message-ID: <1300226624-27004-10-git-send-email-kys@microsoft.com>
 References: <1300226527-26933-1-git-send-email-kys@microsoft.com>
 	<1300226624-27004-1-git-send-email-kys@microsoft.com>
 	<1300226624-27004-2-git-send-email-kys@microsoft.com>
@@ -13,12 +13,11 @@ References: <1300226527-26933-1-git-send-email-kys@microsoft.com>
 	<1300226624-27004-7-git-send-email-kys@microsoft.com>
 	<1300226624-27004-8-git-send-email-kys@microsoft.com>
 	<1300226624-27004-9-git-send-email-kys@microsoft.com>
-	<1300226624-27004-10-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <devel-bounces@linuxdriverproject.org>
-In-Reply-To: <1300226624-27004-10-git-send-email-kys@microsoft.com>
+In-Reply-To: <1300226624-27004-9-git-send-email-kys@microsoft.com>
 List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
 	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
 List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
@@ -32,7 +31,7 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>, Mike Sterling <mike.sterling@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Get rid of the forward declaration of vmbus_device_release by moving
+Get rid of the forward declaration of vmbus_shutdown by moving
 the code around.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
@@ -41,60 +40,77 @@ Signed-off-by: Mike Sterling <mike.sterling@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/vmbus_drv.c |   27 ++++++++++++---------------
- 1 files changed, 12 insertions(+), 15 deletions(-)
+ drivers/staging/hv/vmbus_drv.c |   44 ++++++++++++++++++++--------------------
+ 1 files changed, 22 insertions(+), 22 deletions(-)
 
 diff --git a/drivers/staging/hv/vmbus_drv.c b/drivers/staging/hv/vmbus_drv.c
-index 671632c..976175b 100644
+index 3feed10..671632c 100644
 --- a/drivers/staging/hv/vmbus_drv.c
 +++ b/drivers/staging/hv/vmbus_drv.c
-@@ -50,8 +50,6 @@ struct hv_bus {
+@@ -47,7 +47,6 @@ struct hv_bus {
+ 	struct tasklet_struct event_dpc;
+ };
+ 
+-static void vmbus_shutdown(struct device *device);
  
  static irqreturn_t vmbus_isr(int irq, void *dev_id);
  
--static void vmbus_device_release(struct device *device);
--
- static ssize_t vmbus_show_device_attr(struct device *dev,
- 				      struct device_attribute *dev_attr,
- 				      char *buf);
-@@ -297,6 +295,18 @@ static void vmbus_shutdown(struct device *child_device)
- 	return;
+@@ -276,6 +275,28 @@ static int vmbus_remove(struct device *child_device)
+ 	return 0;
  }
  
 +
 +/*
-+ * vmbus_device_release - Final callback release of the vmbus child device
++ * vmbus_shutdown - Shutdown a vmbus device
 + */
-+static void vmbus_device_release(struct device *device)
++static void vmbus_shutdown(struct device *child_device)
 +{
-+	struct hv_device *device_ctx = device_to_hv_device(device);
++	struct hv_driver *drv;
 +
-+	kfree(device_ctx);
 +
++	/* The device may not be attached yet */
++	if (!child_device->driver)
++		return;
++
++	drv = drv_to_hv_drv(child_device->driver);
++
++	/* Let the specific open-source driver handles the removal if it can */
++	if (drv->driver.shutdown)
++		drv->driver.shutdown(child_device);
++
++	return;
 +}
 +
  /* The one and only one */
  static struct hv_bus  hv_bus = {
  	.bus.name =		"vmbus",
-@@ -826,19 +836,6 @@ void vmbus_child_device_unregister(struct hv_device *device_obj)
+@@ -804,27 +825,6 @@ void vmbus_child_device_unregister(struct hv_device *device_obj)
+ 		    &device_obj->device);
  }
  
- 
 -/*
-- * vmbus_device_release - Final callback release of the vmbus child device
+- * vmbus_shutdown - Shutdown a vmbus device
 - */
--static void vmbus_device_release(struct device *device)
+-static void vmbus_shutdown(struct device *child_device)
 -{
--	struct hv_device *device_ctx = device_to_hv_device(device);
+-	struct hv_driver *drv;
 -
--	kfree(device_ctx);
 -
--	/* !!DO NOT REFERENCE device_ctx anymore at this point!! */
+-	/* The device may not be attached yet */
+-	if (!child_device->driver)
+-		return;
+-
+-	drv = drv_to_hv_drv(child_device->driver);
+-
+-	/* Let the specific open-source driver handles the removal if it can */
+-	if (drv->driver.shutdown)
+-		drv->driver.shutdown(child_device);
+-
+-	return;
 -}
 -
--
  
- static irqreturn_t vmbus_isr(int irq, void *dev_id)
- {
+ /*
+  * vmbus_device_release - Final callback release of the vmbus child device
 -- 
 1.5.5.6
