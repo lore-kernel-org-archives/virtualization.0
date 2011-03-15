@@ -1,130 +1,49 @@
-From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 08/12] Staging: hv: Get rid of the forward declaration for
-	vmbus_remove
-Date: Tue, 15 Mar 2011 15:03:40 -0700
-Message-ID: <1300226624-27004-9-git-send-email-kys@microsoft.com>
+From: KY Srinivasan <kys@microsoft.com>
+Subject: RE: [PATCH 00/12] Staging: hv: Cleanup vmbus driver - Phase II
+Date: Tue, 15 Mar 2011 22:24:41 +0000
+Message-ID: <6E21E5352C11B742B20C142EB499E048019A87@TK5EX14MBXC128.redmond.corp.microsoft.com>
 References: <1300226527-26933-1-git-send-email-kys@microsoft.com>
-	<1300226624-27004-1-git-send-email-kys@microsoft.com>
-	<1300226624-27004-2-git-send-email-kys@microsoft.com>
-	<1300226624-27004-3-git-send-email-kys@microsoft.com>
-	<1300226624-27004-4-git-send-email-kys@microsoft.com>
-	<1300226624-27004-5-git-send-email-kys@microsoft.com>
-	<1300226624-27004-6-git-send-email-kys@microsoft.com>
-	<1300226624-27004-7-git-send-email-kys@microsoft.com>
-	<1300226624-27004-8-git-send-email-kys@microsoft.com>
+ <20110315220454.GC30390@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <devel-bounces@linuxdriverproject.org>
-In-Reply-To: <1300226624-27004-8-git-send-email-kys@microsoft.com>
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
-List-Post: <mailto:devel@linuxdriverproject.org>
-List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
-Sender: devel-bounces@linuxdriverproject.org
-Errors-To: devel-bounces@linuxdriverproject.org
-To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org
-Cc: Haiyang Zhang <haiyangz@microsoft.com>, Mike Sterling <mike.sterling@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20110315220454.GC30390@suse.de>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: Greg KH <gregkh@suse.de>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Get rid of the forward declaration of vmbus_remove by moving
-the code around.
 
-Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
-Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
-Signed-off-by: Mike Sterling <mike.sterling@microsoft.com>
-Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
-Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
----
- drivers/staging/hv/vmbus_drv.c |   59 +++++++++++++++++++--------------------
- 1 files changed, 29 insertions(+), 30 deletions(-)
 
-diff --git a/drivers/staging/hv/vmbus_drv.c b/drivers/staging/hv/vmbus_drv.c
-index 8153a4d..3feed10 100644
---- a/drivers/staging/hv/vmbus_drv.c
-+++ b/drivers/staging/hv/vmbus_drv.c
-@@ -47,7 +47,6 @@ struct hv_bus {
- 	struct tasklet_struct event_dpc;
- };
+> -----Original Message-----
+> From: Greg KH [mailto:gregkh@suse.de]
+> Sent: Tuesday, March 15, 2011 6:05 PM
+> To: KY Srinivasan
+> Cc: linux-kernel@vger.kernel.org; devel@linuxdriverproject.org;
+> virtualization@lists.osdl.org
+> Subject: Re: [PATCH 00/12] Staging: hv: Cleanup vmbus driver - Phase II
+> 
+> On Tue, Mar 15, 2011 at 03:02:07PM -0700, K. Y. Srinivasan wrote:
+> > This patch-set fixes the following issues in the vmbus driver (vmbus_drv.c):
+> 
+> <snip>
+> 
+> Thanks for the patches, but as the .39 merge window is closed, I'll be
+> holding on to these until after .39-rc1 is out before I can do anything
+> with them.
+> 
+> So don't be surprised if I don't respond to them for a few weeks.  Don't
+> worry, they aren't lost. :)
+
+If possible, I would love to get your feedback even if you cannot check 
+in these patches. Also, if you can give me feedback as to what else
+would need to be fixed to exit staging  as far as the vmbus driver is 
+concerned, I can work on those over the next couple of weeks
+until the tree opens up. If it is ok with you we will send the
+DPRINT cleanup patches in the next couple of days.
  
--static int vmbus_remove(struct device *device);
- static void vmbus_shutdown(struct device *device);
- 
- static irqreturn_t vmbus_isr(int irq, void *dev_id);
-@@ -248,6 +247,35 @@ static int vmbus_probe(struct device *child_device)
- 	return ret;
- }
- 
-+/*
-+ * vmbus_remove - Remove a vmbus device
-+ */
-+static int vmbus_remove(struct device *child_device)
-+{
-+	int ret;
-+	struct hv_driver *drv;
-+
-+
-+	if (child_device->driver) {
-+		drv = drv_to_hv_drv(child_device->driver);
-+
-+		/*
-+		 * Let the specific open-source driver handles the removal if
-+		 * it can
-+		 */
-+		if (drv->driver.remove) {
-+			ret = drv->driver.remove(child_device);
-+		} else {
-+			DPRINT_ERR(VMBUS_DRV,
-+				   "remove() method not set for driver - %s",
-+				   child_device->driver->name);
-+			ret = -1;
-+		}
-+	}
-+
-+	return 0;
-+}
-+
- /* The one and only one */
- static struct hv_bus  hv_bus = {
- 	.bus.name =		"vmbus",
-@@ -777,35 +805,6 @@ void vmbus_child_device_unregister(struct hv_device *device_obj)
- }
- 
- /*
-- * vmbus_remove - Remove a vmbus device
-- */
--static int vmbus_remove(struct device *child_device)
--{
--	int ret;
--	struct hv_driver *drv;
--
--
--	if (child_device->driver) {
--		drv = drv_to_hv_drv(child_device->driver);
--
--		/*
--		 * Let the specific open-source driver handles the removal if
--		 * it can
--		 */
--		if (drv->driver.remove) {
--			ret = drv->driver.remove(child_device);
--		} else {
--			DPRINT_ERR(VMBUS_DRV,
--				   "remove() method not set for driver - %s",
--				   child_device->driver->name);
--			ret = -1;
--		}
--	}
--
--	return 0;
--}
--
--/*
-  * vmbus_shutdown - Shutdown a vmbus device
-  */
- static void vmbus_shutdown(struct device *child_device)
--- 
-1.5.5.6
+Regards,
+
+K. Y
