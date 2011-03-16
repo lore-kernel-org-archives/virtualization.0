@@ -1,14 +1,10 @@
-From: Magnus Damm <magnus.damm@gmail.com>
-Subject: Re: [PATCH 00/02] virtio: Virtio platform driver
-Date: Wed, 16 Mar 2011 14:17:15 +0900
-Message-ID: <AANLkTi=zjGubKx0vV+hqEYiVFVNTAEoGwxEfL4oprxk8__39025.9741958745$1300252676$gmane$org@mail.gmail.com>
-References: <20110310070541.27327.52089.sendpatchset@t400s>
-	<87d3lriv7e.fsf@rustcorp.com.au>
+From: =?UTF-8?B?4KSF4KSo4KWB4KSc?= <anuj01@gmail.com>
+Subject: Developing custom PCI devices in qemu
+Date: Wed, 16 Mar 2011 15:49:21 +0530
+Message-ID: <AANLkTikF9e4eB3xH08a0PdirWNQrkz8wp1g8jR5ZrWrK__24250.6246235736$1300270877$gmane$org@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============0555585558141046702=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <87d3lriv7e.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -16,50 +12,70 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Mime-version: 1.0
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, mst@redhat.com, linux-kernel@vger.kernel.org, linux-sh@vger.kernel.org
+To: qemu-devel <qemu-devel@nongnu.org>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Rusty,
+--===============0555585558141046702==
+Content-Type: multipart/alternative; boundary=20cf3071c90a04ac84049e96e2cf
 
-On Wed, Mar 16, 2011 at 12:46 PM, Rusty Russell <rusty@rustcorp.com.au> wrote:
-> On Thu, 10 Mar 2011 16:05:41 +0900, Magnus Damm <magnus.damm@gmail.com> wrote:
->> virtio: Virtio platform driver
->>
->> [PATCH 01/02] virtio: Break out lguest virtio code to virtio_lguest.c
->> [PATCH 02/02] virtio: Add virtio platform driver
->
-> I have no problem with these patches, but it's just churn until we see
-> your actual drivers.
+--20cf3071c90a04ac84049e96e2cf
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-Well, actually this platform driver is used together with already
-existing drivers, so there are no new virtio drivers to wait for.
+Hi All
 
-The drivers that have been tested are so far:
+I am interested in developing a custom PCI device for qemu.
+For learning purpose, It could be just a very basic device e.g. a device
+which just loopbacks the contents from device memory to some system buffer.
 
-CONFIG_VIRTIO_CONSOLE=y
-CONFIG_VIRTIO_NET=y
+Please guide me how such a device can be developed in qemu.
+Do qemu have some device model or device framework for developing custom
+virtual devices?
 
-At this point there are four different pieces of code working together
+Any documentation and samples will be very helpful.
 
-1) Virtio platform driver patches (for guest)
-2) SH4AL-DSP guest kernel patch
-3) ARM UIO driver patches (for host)
-4) User space backing code for ARM based on lguest.c
 
-These patches in this mail thread are 1), and I decided to brush up
-that portion and submit upstream because it's the part that is easiest
-to break out. I intend to post the rest bit by bit over time, but if
-someone is interested then I can post everything at once too.
 
-> The S/390 devs might be interested, as their bus is very similar too...
+Thanks & Regards
+--=20
+Anuj Aggarwal
 
-The lguest device code is very similar as well, perhaps it's worth
-refactoring that a bit to build on top of the platform driver. Not
-sure if you see that as a move in the right direction though.
+ .''`.
+: :=E2=92=B6 :   # apt-get install hakuna-matata
+`. `'`
+   `-
 
-Thanks for your feedback!
+--20cf3071c90a04ac84049e96e2cf
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-/ magnus
+Hi All<br><br>I am interested in developing a custom PCI device for qemu. <=
+br>For learning purpose, It could be just a very basic device e.g. a device=
+ which just loopbacks the contents from device memory to some system buffer=
+.<br>
+
+<br>Please guide me how such a device can be developed in qemu. <br>Do qemu=
+ have some device model or device framework for developing custom virtual d=
+evices?<br><br>Any documentation and samples will be very helpful.<br>
+<br>
+<br><br>Thanks &amp; Regards<br clear=3D"all">-- <br>Anuj Aggarwal=C2=A0 =
+=C2=A0 =C2=A0 =C2=A0 <br><br>=C2=A0.&#39;&#39;`. <br>: :=E2=92=B6 :=C2=A0=
+=C2=A0 # apt-get install hakuna-matata<br>`. `&#39;` <br>=C2=A0=C2=A0 `-=C2=
+=A0=C2=A0 <br>
+
+--20cf3071c90a04ac84049e96e2cf--
+
+--===============0555585558141046702==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linux-foundation.org/mailman/listinfo/virtualization
+--===============0555585558141046702==--
