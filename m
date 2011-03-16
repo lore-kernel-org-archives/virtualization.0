@@ -1,11 +1,16 @@
-From: Amit Shah <amit.shah@redhat.com>
-Subject: [PATCH] virtio: Decrement avail idx on buffer detach
-Date: Wed, 16 Mar 2011 19:12:10 +0530
-Message-ID: <a2fe5813ccecf1e762670702cba8ccb2a4cb8cfc.1300282928.git.amit.shah__49606.6326195889$1300283092$gmane$org@redhat.com>
+From: "Ira W. Snyder" <iws@ovro.caltech.edu>
+Subject: Re: [PATCH 00/02] virtio: Virtio platform driver
+Date: Wed, 16 Mar 2011 08:40:47 -0700
+Message-ID: <20110316154047.GB21758__14250.1244591132$1300290104$gmane$org@ovro.caltech.edu>
+References: <20110310070541.27327.52089.sendpatchset@t400s>
+	<87d3lriv7e.fsf@rustcorp.com.au>
+	<AANLkTi=zjGubKx0vV+hqEYiVFVNTAEoGwxEfL4oprxk8@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <AANLkTi=zjGubKx0vV+hqEYiVFVNTAEoGwxEfL4oprxk8@mail.gmail.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -15,39 +20,61 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Virtualization List <virtualization@lists.linux-foundation.org>
-Cc: Amit Shah <amit.shah@redhat.com>, stable@kernel.org
+To: Magnus Damm <magnus.damm@gmail.com>
+Cc: linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-When detaching a buffer from a vq, the avail.idx value should be
-decremented as well.
+On Wed, Mar 16, 2011 at 02:17:15PM +0900, Magnus Damm wrote:
+> Hi Rusty,
+> 
+> On Wed, Mar 16, 2011 at 12:46 PM, Rusty Russell <rusty@rustcorp.com.au> wrote:
+> > On Thu, 10 Mar 2011 16:05:41 +0900, Magnus Damm <magnus.damm@gmail.com> wrote:
+> >> virtio: Virtio platform driver
+> >>
+> >> [PATCH 01/02] virtio: Break out lguest virtio code to virtio_lguest.c
+> >> [PATCH 02/02] virtio: Add virtio platform driver
+> >
+> > I have no problem with these patches, but it's just churn until we see
+> > your actual drivers.
+> 
+> Well, actually this platform driver is used together with already
+> existing drivers, so there are no new virtio drivers to wait for.
+> 
+> The drivers that have been tested are so far:
+> 
+> CONFIG_VIRTIO_CONSOLE=y
+> CONFIG_VIRTIO_NET=y
+> 
+> At this point there are four different pieces of code working together
+> 
+> 1) Virtio platform driver patches (for guest)
+> 2) SH4AL-DSP guest kernel patch
+> 3) ARM UIO driver patches (for host)
+> 4) User space backing code for ARM based on lguest.c
+> 
+> These patches in this mail thread are 1), and I decided to brush up
+> that portion and submit upstream because it's the part that is easiest
+> to break out. I intend to post the rest bit by bit over time, but if
+> someone is interested then I can post everything at once too.
+> 
 
-This was noticed by hot-unplugging a virtio console port and then
-plugging in a new one on the same number (re-using the vqs which were
-just 'disowned').  qemu reported
+I'm very interested in the full series of patches. I want to do
+something similar to talk between two Linux kernels (x86 and PowerPC)
+connected by a PCI bus.
 
-   'Guest moved used index from 0 to 256'
+Thanks,
+Ira
 
-when any IO was attempted on the new port.
-
-CC: stable@kernel.org
-Reported-by: juzhang <juzhang@redhat.com>
-Signed-off-by: Amit Shah <amit.shah@redhat.com>
----
- drivers/virtio/virtio_ring.c |    1 +
- 1 files changed, 1 insertions(+), 0 deletions(-)
-
-diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index cc2f73e..b0043fb 100644
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -371,6 +371,7 @@ void *virtqueue_detach_unused_buf(struct virtqueue *_vq)
- 		/* detach_buf clears data, so grab it now. */
- 		buf = vq->data[i];
- 		detach_buf(vq, i);
-+		vq->vring.avail->idx--;
- 		END_USE(vq);
- 		return buf;
- 	}
--- 
-1.7.4
+> > The S/390 devs might be interested, as their bus is very similar too...
+> 
+> The lguest device code is very similar as well, perhaps it's worth
+> refactoring that a bit to build on top of the platform driver. Not
+> sure if you see that as a move in the right direction though.
+> 
+> Thanks for your feedback!
+> 
+> / magnus
+> _______________________________________________
+> Virtualization mailing list
+> Virtualization@lists.linux-foundation.org
+> https://lists.linux-foundation.org/mailman/listinfo/virtualization
