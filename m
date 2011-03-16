@@ -1,59 +1,52 @@
-From: Greg KH <greg@kroah.com>
-Subject: Re: [PATCH 05/12] Staging: hv: Get rid of the forward declaration
- for vmbus_uevent
-Date: Tue, 15 Mar 2011 15:51:09 -0700
-Message-ID: <20110315225109.GA16783@kroah.com>
-References: <1300226527-26933-1-git-send-email-kys@microsoft.com>
- <1300226624-27004-1-git-send-email-kys@microsoft.com>
- <1300226624-27004-2-git-send-email-kys@microsoft.com>
- <1300226624-27004-3-git-send-email-kys@microsoft.com>
- <1300226624-27004-4-git-send-email-kys@microsoft.com>
- <1300226624-27004-5-git-send-email-kys@microsoft.com>
- <1300226624-27004-6-git-send-email-kys@microsoft.com>
- <20110315222246.GA2339@kroah.com>
- <6E21E5352C11B742B20C142EB499E048019AB1@TK5EX14MBXC128.redmond.corp.microsoft.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH] virtio_pci: Prevent double-free of pci regions after
+	device hot-unplug
+Date: Wed, 16 Mar 2011 14:34:58 +1030
+Message-ID: <871v27iuc5.fsf@rustcorp.com.au>
+References: <f3e00b6450ee110e9dbe794d42ae058758e64d07.1300104900.git.amit.shah@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <6E21E5352C11B742B20C142EB499E048019AB1@TK5EX14MBXC128.redmond.corp.microsoft.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: KY Srinivasan <kys@microsoft.com>
-Cc: "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, Haiyang Zhang <haiyangz@microsoft.com>, Mike Sterling <Mike.Sterling@microsoft.com>, "Abhishek Kane (Mindtree Consulting PVT LTD)" <v-abkane@microsoft.com>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <f3e00b6450ee110e9dbe794d42ae058758e64d07.1300104900.git.amit.shah@redhat.com>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Cc: Amit Shah <amit.shah@redhat.com>, Mark McLoughlin <markmc@redhat.com>, Virtualization List <virtualization@lists.linux-foundation.org>, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Mar 15, 2011 at 10:39:07PM +0000, KY Srinivasan wrote:
+On Mon, 14 Mar 2011 17:45:02 +0530, Amit Shah <amit.shah@redhat.com> wrote:
+> In the case where a virtio-console port is in use (opened by a program)
+> and a virtio-console device is removed, the port is kept around but all
+> the virtio-related state is assumed to be gone.
 > 
+> When the port is finally released (close() called), we call
+> device_destroy() on the port's device.  This results in the parent
+> device's structures to be freed as well.  This includes the PCI regions
+> for the virtio-console PCI device.
 > 
-> > -----Original Message-----
-> > From: Greg KH [mailto:greg@kroah.com]
-> > Sent: Tuesday, March 15, 2011 6:23 PM
-> > To: KY Srinivasan
-> > Cc: gregkh@suse.de; linux-kernel@vger.kernel.org;
-> > devel@linuxdriverproject.org; virtualization@lists.osdl.org; Haiyang Zhang; Mike
-> > Sterling; Abhishek Kane (Mindtree Consulting PVT LTD)
-> > Subject: Re: [PATCH 05/12] Staging: hv: Get rid of the forward declaration for
-> > vmbus_uevent
-> > 
-> > On Tue, Mar 15, 2011 at 03:03:37PM -0700, K. Y. Srinivasan wrote:
-> > > Get rid of the forward declaration of vmbus_uevent by moving
-> > > the code around.
-> > 
-> > There are 2 05/12 patches and they are different.
-> Sorry about that Greg; I had an incorrect commit message that I fixed,
-> but forgot to delete that patch that was generated with the 
-> incorrect commit message. Loose the patch that has the subject line:
+> Once this is done, however, virtio_pci_release_dev() kicks in, as the
+> last ref to the virtio device is now gone, and attempts to do
 > 
-> [PATCH 05/12] Get rid of the forward declaration for vmbus_uevent
+>      pci_iounmap(pci_dev, vp_dev->ioaddr);
+>      pci_release_regions(pci_dev);
+>      pci_disable_device(pci_dev);
 > 
-> You want to keep the one that has the following subject line:
+> which results in a double-free warning.
 > 
-> [PATCH 05/12] Staging: hv: Get rid of the forward declaration for vmbus_uevent
+> Move the code that releases regions, etc., to the virtio_pci_remove()
+> function, and all that's now left in release_dev is the final freeing of
+> the vp_dev.
 > 
-> I could resend, if you prefer.
+> Signed-off-by: Amit Shah <amit.shah@redhat.com>
 
-No I got it, that's fine.
+Applied.
 
-thanks,
-
-greg k-h
+Thanks,
+Rusty.
