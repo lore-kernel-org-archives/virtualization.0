@@ -1,14 +1,13 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH 0/2] Fix hot-unplug: device removal while port in use
-Date: Wed, 16 Mar 2011 14:31:03 +1030
-Message-ID: <877hbziuio.fsf@rustcorp.com.au>
-References: <cover.1299054025.git.amit.shah@redhat.com>
-	<20110311111628.GC8908@amit-x200.redhat.com>
+Subject: Re: [PATCH 00/02] virtio: Virtio platform driver
+Date: Wed, 16 Mar 2011 14:16:13 +1030
+Message-ID: <87d3lriv7e.fsf__7462.00891812823$1300249948$gmane$org@rustcorp.com.au>
+References: <20110310070541.27327.52089.sendpatchset@t400s>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20110311111628.GC8908@amit-x200.redhat.com>
+In-Reply-To: <20110310070541.27327.52089.sendpatchset@t400s>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,30 +17,20 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Amit Shah <amit.shah@redhat.com>, Virtualization List <virtualization@lists.linux-foundation.org>
-Cc: markmc@redhat.com, "Michael S. Tsirkin" <mst@redhat.com>
+To: linux-kernel@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, Magnus Damm <magnus.damm@gmail.com>, mst@redhat.com, linux-sh@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 11 Mar 2011 16:46:28 +0530, Amit Shah <amit.shah@redhat.com> wrote:
-> Ideally virtio_pci_release_dev() shouldn't be needed at all; all that
-> work can be moved to virtio_pci_remove().  virtio_pci_release_dev()
-> was added in 29f9f12e to curb a warning:
+On Thu, 10 Mar 2011 16:05:41 +0900, Magnus Damm <magnus.damm@gmail.com> wrote:
+> virtio: Virtio platform driver
 > 
->     virtio: add PCI device release() function
->     
->     Add a release() function for virtio_pci devices so as to avoid:
->     
->       Device 'virtio0' does not have a release() function, it is
->       broken and must be fixed
->     
-> 
-> So we could have an empty release() function that does nothing, and
-> all of the current functionality be moved to virtio_pci_remove(), as
-> it was earlier.  This should keep everyone happy.
-> 
-> Is that fine?
+> [PATCH 01/02] virtio: Break out lguest virtio code to virtio_lguest.c
+> [PATCH 02/02] virtio: Add virtio platform driver
 
-Greg K-H needs to be asked this question, I think.
+I have no problem with these patches, but it's just churn until we see
+your actual drivers.
+
+The S/390 devs might be interested, as their bus is very similar too...
 
 Cheers,
 Rusty.
