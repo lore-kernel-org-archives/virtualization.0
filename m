@@ -1,46 +1,42 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PULL net-2.6] vhost: cleanups and fixes
-Date: Thu, 17 Mar 2011 16:04:04 +0200
-Message-ID: <20110317140403.GA16390@redhat.com>
+From: Valdis.Kletnieks@vt.edu
+Subject: Re: [PATCH 00/12] Staging: hv: Cleanup vmbus driver - Phase II
+Date: Thu, 17 Mar 2011 17:39:27 -0400
+Message-ID: <30255.1300397967@localhost>
+References: <1300226527-26933-1-git-send-email-kys@microsoft.com>
+            <20110315220454.GC30390@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; boundary="==_Exmh_1300397967_5386P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
+In-Reply-To: Your message of "Tue, 15 Mar 2011 15:04:54 PDT."
+             <20110315220454.GC30390@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
-To: David Miller <davem@davemloft.net>
-Cc: kvm@vger.kernel.org, virtualization@lists.osdl.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, eric.dumazet@gmail.com, jasowang@redhat.com, krkumar2@in.ibm.com, mst@redhat.com
+To: Greg KH <gregkh@suse.de>
+Cc: "K. Y. Srinivasan" <kys@microsoft.com>, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-The following tree has fixes for vhost-net for 2.6.39.
-These are easier to apply on top of Jason's and Krishna's
-cleanups, and they got tested this way, so I thought it's
-better for everyone to include that, and the trivial
-copy_from_user optimization.
+--==_Exmh_1300397967_5386P
+Content-Type: text/plain; charset=us-ascii
 
-But if you think it's too late for that, pls let me know
-and I'll try to untangle that dependency.
+On Tue, 15 Mar 2011 15:04:54 PDT, Greg KH said:
 
-Thanks!
+> Thanks for the patches, but as the .39 merge window is closed, I'll be
+> holding on to these until after .39-rc1 is out before I can do anything
+> with them.
 
-The following changes since commit 1fc050a13473348f5c439de2bb41c8e92dba5588:
+Is that Linus's merge window, or your window to freeze a for-linus tree?
 
-  ipv4: Cache source address in nexthop entries. (2011-03-07 20:54:48 -0800)
+--==_Exmh_1300397967_5386P
+Content-Type: application/pgp-signature
 
-are available in the git repository at:
-  git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git vhost-net-next
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-Jason Wang (3):
-      vhost-net: check the support of mergeable buffer outside the receive loop
-      vhost-net: Unify the code of mergeable and big buffer handling
-      vhost: lock receive queue, not the socket
+iD8DBQFNgn+PcC3lWbTT17ARAhE7AJ0UvEBqZb7eMr6KmPWOLnpRUulmzACg6tHl
+0BkKVdlmxGhEf6orzK2Jlug=
+=B5tM
+-----END PGP SIGNATURE-----
 
-Krishna Kumar (1):
-      vhost: Cleanup vhost.c and net.c
-
-Michael S. Tsirkin (2):
-      vhost: copy_from_user -> __copy_from_user
-      vhost-net: remove unlocked use of receive_queue
-
- drivers/vhost/net.c   |  159 ++++++++-----------------------------------------
- drivers/vhost/vhost.c |   55 ++++++++++++-----
- 2 files changed, 64 insertions(+), 150 deletions(-)
+--==_Exmh_1300397967_5386P--
