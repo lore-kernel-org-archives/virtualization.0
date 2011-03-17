@@ -1,50 +1,46 @@
-From: Amit Shah <amit.shah@redhat.com>
-Subject: Re: [PATCH] virtio: Decrement avail idx on buffer detach
-Date: Thu, 17 Mar 2011 17:56:59 +0530
-Message-ID: <20110317122659.GB18382@amit-x200.redhat.com>
-References: <a2fe5813ccecf1e762670702cba8ccb2a4cb8cfc.1300282928.git.amit.shah@redhat.com>
-	<87aagugxab.fsf@rustcorp.com.au>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PULL net-2.6] vhost: cleanups and fixes
+Date: Thu, 17 Mar 2011 16:04:04 +0200
+Message-ID: <20110317140403.GA16390@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <87aagugxab.fsf@rustcorp.com.au>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Virtualization List <virtualization@lists.linux-foundation.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: David Miller <davem@davemloft.net>
+Cc: kvm@vger.kernel.org, virtualization@lists.osdl.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, eric.dumazet@gmail.com, jasowang@redhat.com, krkumar2@in.ibm.com, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On (Thu) 17 Mar 2011 [15:26:28], Rusty Russell wrote:
-> On Wed, 16 Mar 2011 19:12:10 +0530, Amit Shah <amit.shah@redhat.com> wrote:
-> > When detaching a buffer from a vq, the avail.idx value should be
-> > decremented as well.
-> > 
-> > This was noticed by hot-unplugging a virtio console port and then
-> > plugging in a new one on the same number (re-using the vqs which were
-> > just 'disowned').  qemu reported
-> > 
-> >    'Guest moved used index from 0 to 256'
-> > 
-> > when any IO was attempted on the new port.
-> 
-> Yech... detach_unused_buf cannot be used on a live virtqueue; it assumes
-> we will reset the vq (usually by resetting the entire device).
-> 
-> You've partially violated that assumption by reusing the vq after
-> calling detach_unused_buf.  So I'm not entirely sure this is the only
-> bug lurking; safer would be to re-initialize the vq somehow when you
-> plug back in...
+The following tree has fixes for vhost-net for 2.6.39.
+These are easier to apply on top of Jason's and Krishna's
+cleanups, and they got tested this way, so I thought it's
+better for everyone to include that, and the trivial
+copy_from_user optimization.
 
-Right; and then that will need host changes too (re-init the vqs on
-the host side), which then gets us into compat problems...
+But if you think it's too late for that, pls let me know
+and I'll try to untangle that dependency.
 
-		Amit
+Thanks!
+
+The following changes since commit 1fc050a13473348f5c439de2bb41c8e92dba5588:
+
+  ipv4: Cache source address in nexthop entries. (2011-03-07 20:54:48 -0800)
+
+are available in the git repository at:
+  git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git vhost-net-next
+
+Jason Wang (3):
+      vhost-net: check the support of mergeable buffer outside the receive loop
+      vhost-net: Unify the code of mergeable and big buffer handling
+      vhost: lock receive queue, not the socket
+
+Krishna Kumar (1):
+      vhost: Cleanup vhost.c and net.c
+
+Michael S. Tsirkin (2):
+      vhost: copy_from_user -> __copy_from_user
+      vhost-net: remove unlocked use of receive_queue
+
+ drivers/vhost/net.c   |  159 ++++++++-----------------------------------------
+ drivers/vhost/vhost.c |   55 ++++++++++++-----
+ 2 files changed, 64 insertions(+), 150 deletions(-)
