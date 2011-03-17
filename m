@@ -1,42 +1,42 @@
-From: Valdis.Kletnieks@vt.edu
+From: Greg KH <gregkh@suse.de>
 Subject: Re: [PATCH 00/12] Staging: hv: Cleanup vmbus driver - Phase II
-Date: Thu, 17 Mar 2011 17:39:27 -0400
-Message-ID: <30255.1300397967@localhost>
+Date: Thu, 17 Mar 2011 14:45:37 -0700
+Message-ID: <20110317214537.GA28608@suse.de>
 References: <1300226527-26933-1-git-send-email-kys@microsoft.com>
-            <20110315220454.GC30390@suse.de>
+ <20110315220454.GC30390@suse.de>
+ <30255.1300397967@localhost>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1300397967_5386P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: Your message of "Tue, 15 Mar 2011 15:04:54 PDT."
-             <20110315220454.GC30390@suse.de>
+Content-Disposition: inline
+In-Reply-To: <30255.1300397967@localhost>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Greg KH <gregkh@suse.de>
+To: Valdis.Kletnieks@vt.edu
 Cc: "K. Y. Srinivasan" <kys@microsoft.com>, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
---==_Exmh_1300397967_5386P
-Content-Type: text/plain; charset=us-ascii
+On Thu, Mar 17, 2011 at 05:39:27PM -0400, Valdis.Kletnieks@vt.edu wrote:
+> On Tue, 15 Mar 2011 15:04:54 PDT, Greg KH said:
+> 
+> > Thanks for the patches, but as the .39 merge window is closed, I'll be
+> > holding on to these until after .39-rc1 is out before I can do anything
+> > with them.
+> 
+> Is that Linus's merge window, or your window to freeze a for-linus tree?
 
-On Tue, 15 Mar 2011 15:04:54 PDT, Greg KH said:
+My window.
 
-> Thanks for the patches, but as the .39 merge window is closed, I'll be
-> holding on to these until after .39-rc1 is out before I can do anything
-> with them.
+Linus's merge window is for the subsystem maintainers.  Everything that
+is to be sent during Linus's merge window had to be in the linux-next
+tree for a bit of time before the merge window opens.
 
-Is that Linus's merge window, or your window to freeze a for-linus tree?
+It's been this way for a number of years now, nothing new happening
+here...
 
---==_Exmh_1300397967_5386P
-Content-Type: application/pgp-signature
+I also posted the "my tree is now closed for .39 stuff" message to the
+devel mailing list, so there shouldn't have been any questions about
+this.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+thanks,
 
-iD8DBQFNgn+PcC3lWbTT17ARAhE7AJ0UvEBqZb7eMr6KmPWOLnpRUulmzACg6tHl
-0BkKVdlmxGhEf6orzK2Jlug=
-=B5tM
------END PGP SIGNATURE-----
-
---==_Exmh_1300397967_5386P--
+greg k-h
