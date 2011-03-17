@@ -1,22 +1,13 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: Bug inkvm_set_irq
-Date: Thu, 17 Mar 2011 10:21:59 +0200
-Message-ID: <20110317082159.GB6459__15593.499018769$1300350300$gmane$org@redhat.com>
-References: <4D70B339.3080001@univ-nantes.fr>
-	<20110308111320.GA8002@redhat.com>
-	<4D77727B.2000207@univ-nantes.fr>
-	<20110309130000.GA30297@redhat.com>
-	<4D777CDA.3050500@univ-nantes.fr>
-	<20110309135918.GA31019@redhat.com>
-	<4D788EF4.7040807@univ-nantes.fr>
-	<20110315143230.GA6911@redhat.com>
-	<4D7F7E82.4000600@univ-nantes.fr> <4D81BF9E.5090503@univ-nantes.fr>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH] virtio: Decrement avail idx on buffer detach
+Date: Thu, 17 Mar 2011 15:26:28 +1030
+Message-ID: <87aagugxab.fsf@rustcorp.com.au>
+References: <a2fe5813ccecf1e762670702cba8ccb2a4cb8cfc.1300282928.git.amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <4D81BF9E.5090503@univ-nantes.fr>
+In-Reply-To: <a2fe5813ccecf1e762670702cba8ccb2a4cb8cfc.1300282928.git.amit.shah@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -26,75 +17,31 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jean-Philippe Menil <jean-philippe.menil@univ-nantes.fr>
-Cc: netdev@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Virtualization List <virtualization@lists.linux-foundation.org>
+Cc: Amit Shah <amit.shah@redhat.com>, stable@kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Mar 17, 2011 at 09:00:30AM +0100, Jean-Philippe Menil wrote:
-> >>Are you running a preemptible kernel?
-> >>Does the following help at all?
-> >>
-> >>diff --git a/virt/kvm/eventfd.c b/virt/kvm/eventfd.c
-> >>index 2ca4535..cdf51c9 100644
-> >>--- a/virt/kvm/eventfd.c
-> >>+++ b/virt/kvm/eventfd.c
-> >>@@ -90,7 +90,7 @@ irqfd_shutdown(struct work_struct *work)
-> >>   	 * We know no new events will be scheduled at this point, so block
-> >>   	 * until all previously outstanding events have completed
-> >>   	 */
-> >>-	flush_work(&irqfd->inject);
-> >>+	flush_work_sync(&irqfd->inject);
-> >>
-> >>   	/*
-> >>   	 * It is now safe to release the object's resources
-> >>
-> >Hi,
-> >
-> >thanks for the response.
-> >
-> >root@ayrshire:~# zcat /proc/config.gz | grep -i preempt
-> ># CONFIG_PREEMPT_RCU is not set
-> >CONFIG_PREEMPT_NOTIFIERS=y
-> >CONFIG_PREEMPT_NONE=y
-> ># CONFIG_PREEMPT_VOLUNTARY is not set
-> ># CONFIG_PREEMPT is not set
-> >
-> >It does not seem to be a preemptible kernel.
-> >
-> >I will test tour patch, and report the result.
-> >
-> >Regards.
-> >
-> Hi,
+On Wed, 16 Mar 2011 19:12:10 +0530, Amit Shah <amit.shah@redhat.com> wrote:
+> When detaching a buffer from a vq, the avail.idx value should be
+> decremented as well.
 > 
-> i reboot the host with the "flush_work_sync", yesterday at lunchtime.
-> I haven't see "Eventfd bug detected" or  "Wakeup bug detected" until now.
+> This was noticed by hot-unplugging a virtio console port and then
+> plugging in a new one on the same number (re-using the vqs which were
+> just 'disowned').  qemu reported
 > 
-> The modification seem to do the trick.
+>    'Guest moved used index from 0 to 256'
 > 
-> So, if my understand is correct, flush_work flush the last irqfd,
-> but in my case, antoher irqfd was still queued to a cpu?
-> Is that right?
-> 
-> Regards.
+> when any IO was attempted on the new port.
 
-Yes, it says:
+Yech... detach_unused_buf cannot be used on a live virtqueue; it assumes
+we will reset the vq (usually by resetting the entire device).
 
- * flush_work - wait for a work to finish executing the last queueing instance
- * @work: the work to flush
- *
- * Wait until @work has finished execution.  This function considers
- * only the last queueing instance of @work.  If @work has been
- * enqueued across different CPUs on a non-reentrant workqueue or on
- * multiple workqueues, @work might still be executing on return on
- * some of the CPUs from earlier queueing.
- *
- * If @work was queued only on a non-reentrant, ordered or unbound
- * workqueue, @work is guaranteed to be idle on return if it hasn't
- * been requeued since flush started.
+You've partially violated that assumption by reusing the vq after
+calling detach_unused_buf.  So I'm not entirely sure this is the only
+bug lurking; safer would be to re-initialize the vq somehow when you
+plug back in...
 
-kvm uses the default workqueue which is non-reentrant.
-Thanks to Gleb for the suggestion!
+(Though this patch is minimal, and may be better -stable material).
 
--- 
-MST
+Thanks,
+Rusty.
