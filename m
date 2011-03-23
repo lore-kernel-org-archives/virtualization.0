@@ -1,88 +1,101 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 12/16] Staging: hv: Cleanup initialization of blkvsc driver
-Date: Wed, 23 Mar 2011 10:50:30 -0700
-Message-ID: <1300902635-1347-12-git-send-email-kys@microsoft.com>
+Subject: [PATCH 03/16] Staging: hv: Move the definition of struct storvsc_device
+Date: Wed, 23 Mar 2011 10:50:21 -0700
+Message-ID: <1300902635-1347-3-git-send-email-kys@microsoft.com>
 References: <1300902537-1290-1-git-send-email-kys@microsoft.com>
-	<1300902635-1347-1-git-send-email-kys@microsoft.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <devel-bounces@linuxdriverproject.org>
+ <1300902635-1347-1-git-send-email-kys@microsoft.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1300902635-1347-1-git-send-email-kys@microsoft.com>
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
-List-Post: <mailto:devel@linuxdriverproject.org>
-List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
-Sender: devel-bounces@linuxdriverproject.org
-Errors-To: devel-bounces@linuxdriverproject.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org
-Cc: Haiyang Zhang <haiyangz@microsoft.com>
+Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Hank Janssen <hjanssen@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Cleanup the initialization sequence for the block driver.
+In preparation for getting rid of the inclusion of storvsc.c from
+blkvsc.c, move the definition of struct storvsc_device
+from storvsc.c to storvsc_api.h.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/blkvsc_drv.c  |    8 ++++----
- drivers/staging/hv/storvsc_api.h |    1 -
- 2 files changed, 4 insertions(+), 5 deletions(-)
+ drivers/staging/hv/storvsc.c     |   26 --------------------------
+ drivers/staging/hv/storvsc_api.h |   26 ++++++++++++++++++++++++++
+ 2 files changed, 26 insertions(+), 26 deletions(-)
 
-diff --git a/drivers/staging/hv/blkvsc_drv.c b/drivers/staging/hv/blkvsc_drv.c
-index 1d602a1..824080d 100644
---- a/drivers/staging/hv/blkvsc_drv.c
-+++ b/drivers/staging/hv/blkvsc_drv.c
-@@ -155,7 +155,7 @@ static int blk_vsc_on_device_add(struct hv_device *device,
- }
+diff --git a/drivers/staging/hv/storvsc.c b/drivers/staging/hv/storvsc.c
+index 56f3cc9..be1c77a 100644
+--- a/drivers/staging/hv/storvsc.c
++++ b/drivers/staging/hv/storvsc.c
+@@ -33,32 +33,6 @@
+ #include "channel.h"
  
  
--int blk_vsc_initialize(struct hv_driver *driver)
-+static int blk_vsc_initialize(struct hv_driver *driver)
- {
- 	struct storvsc_driver_object *stor_driver;
- 	int ret = 0;
-@@ -243,7 +243,7 @@ static const struct block_device_operations block_ops = {
- /*
-  * blkvsc_drv_init -  BlkVsc driver initialization.
-  */
--static int blkvsc_drv_init(int (*drv_init)(struct hv_driver *drv))
-+static int blkvsc_drv_init(void)
- {
- 	struct storvsc_driver_object *storvsc_drv_obj = &g_blkvsc_drv;
- 	struct hv_driver *drv = &g_blkvsc_drv.base;
-@@ -254,7 +254,7 @@ static int blkvsc_drv_init(int (*drv_init)(struct hv_driver *drv))
- 	drv->priv = storvsc_drv_obj;
+-/* A storvsc device is a device object that contains a vmbus channel */
+-struct storvsc_device {
+-	struct hv_device *device;
+-
+-	/* 0 indicates the device is being destroyed */
+-	atomic_t ref_count;
+-
+-	atomic_t num_outstanding_req;
+-
+-	/*
+-	 * Each unique Port/Path/Target represents 1 channel ie scsi
+-	 * controller. In reality, the pathid, targetid is always 0
+-	 * and the port is set by us
+-	 */
+-	unsigned int port_number;
+-	unsigned char path_id;
+-	unsigned char target_id;
+-
+-	/* LIST_ENTRY OutstandingRequestList; */
+-	/* HANDLE OutstandingRequestLock; */
+-
+-	/* Used for vsc/vsp channel reset process */
+-	struct storvsc_request_extension init_request;
+-	struct storvsc_request_extension reset_request;
+-};
+-
  
- 	/* Callback to client driver to complete the initialization */
--	drv_init(&storvsc_drv_obj->base);
-+	blk_vsc_initialize(&storvsc_drv_obj->base);
+ static const char *g_driver_name = "storvsc";
  
- 	drv->driver.name = storvsc_drv_obj->base.name;
- 
-@@ -1552,7 +1552,7 @@ static int __init blkvsc_init(void)
- 
- 	DPRINT_INFO(BLKVSC_DRV, "Blkvsc initializing....");
- 
--	ret = blkvsc_drv_init(blk_vsc_initialize);
-+	ret = blkvsc_drv_init();
- 
- 	return ret;
- }
 diff --git a/drivers/staging/hv/storvsc_api.h b/drivers/staging/hv/storvsc_api.h
-index 9a452f2..d985bbf 100644
+index 629144c..2b814bd 100644
 --- a/drivers/staging/hv/storvsc_api.h
 +++ b/drivers/staging/hv/storvsc_api.h
-@@ -139,7 +139,6 @@ struct storvsc_device {
+@@ -114,6 +114,32 @@ struct storvsc_request_extension {
+ 	struct vstor_packet vstor_packet;
+ };
  
++/* A storvsc device is a device object that contains a vmbus channel */
++struct storvsc_device {
++	struct hv_device *device;
++
++	/* 0 indicates the device is being destroyed */
++	atomic_t ref_count;
++
++	atomic_t num_outstanding_req;
++
++	/*
++	 * Each unique Port/Path/Target represents 1 channel ie scsi
++	 * controller. In reality, the pathid, targetid is always 0
++	 * and the port is set by us
++	 */
++	unsigned int port_number;
++	unsigned char path_id;
++	unsigned char target_id;
++
++	/* LIST_ENTRY OutstandingRequestList; */
++	/* HANDLE OutstandingRequestLock; */
++
++	/* Used for vsc/vsp channel reset process */
++	struct storvsc_request_extension init_request;
++	struct storvsc_request_extension reset_request;
++};
++
  /* Interface */
+ int stor_vsc_initialize(struct hv_driver *driver);
  int stor_vsc_on_host_reset(struct hv_device *device);
--int blk_vsc_initialize(struct hv_driver *driver);
- 
- int stor_vsc_on_device_add(struct hv_device *device,
- 				void *additional_info);
 -- 
 1.7.4.1
