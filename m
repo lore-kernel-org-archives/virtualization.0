@@ -1,184 +1,128 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 06/16] Staging: hv: Get rid of dead code in storvsc.c
-Date: Wed, 23 Mar 2011 10:50:24 -0700
-Message-ID: <1300902635-1347-6-git-send-email-kys@microsoft.com>
+Subject: [PATCH 10/16] Staging: hv: Move the contents of blkvsc.c to blkvsc_drv.c
+Date: Wed, 23 Mar 2011 10:50:28 -0700
+Message-ID: <1300902635-1347-10-git-send-email-kys@microsoft.com>
 References: <1300902537-1290-1-git-send-email-kys@microsoft.com>
-	<1300902635-1347-1-git-send-email-kys@microsoft.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <devel-bounces@linuxdriverproject.org>
+ <1300902635-1347-1-git-send-email-kys@microsoft.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1300902635-1347-1-git-send-email-kys@microsoft.com>
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
-List-Post: <mailto:devel@linuxdriverproject.org>
-List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
-Sender: devel-bounces@linuxdriverproject.org
-Errors-To: devel-bounces@linuxdriverproject.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org
-Cc: Haiyang Zhang <haiyangz@microsoft.com>
+Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Hank Janssen <hjanssen@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Get rid of some "dead code" from storvsc.c
+In preparation for getting rid of the file blkvsc.c, move its contents
+to the appropriate file.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/storvsc.c |   33 ---------------------------------
- 1 files changed, 0 insertions(+), 33 deletions(-)
+ drivers/staging/hv/Makefile     |    2 +-
+ drivers/staging/hv/blkvsc_drv.c |   79 +++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 80 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/staging/hv/storvsc.c b/drivers/staging/hv/storvsc.c
-index c8d7ff7..1f05aa6 100644
---- a/drivers/staging/hv/storvsc.c
-+++ b/drivers/staging/hv/storvsc.c
-@@ -65,7 +65,6 @@ static inline struct storvsc_device *alloc_stor_device(struct hv_device *device)
+diff --git a/drivers/staging/hv/Makefile b/drivers/staging/hv/Makefile
+index a733154..3004674 100644
+--- a/drivers/staging/hv/Makefile
++++ b/drivers/staging/hv/Makefile
+@@ -9,6 +9,6 @@ hv_vmbus-y := vmbus_drv.o \
+ 		 hv.o connection.o channel.o \
+ 		 channel_mgmt.o ring_buffer.o
+ hv_storvsc-y := storvsc_drv.o storvsc.o
+-hv_blkvsc-y := blkvsc_drv.o blkvsc.o storvsc.o
++hv_blkvsc-y := blkvsc_drv.o  storvsc.o
+ hv_netvsc-y := netvsc_drv.o netvsc.o rndis_filter.o
+ hv_utils-y := hv_util.o hv_kvp.o
+diff --git a/drivers/staging/hv/blkvsc_drv.c b/drivers/staging/hv/blkvsc_drv.c
+index 6e02f1b..1d602a1 100644
+--- a/drivers/staging/hv/blkvsc_drv.c
++++ b/drivers/staging/hv/blkvsc_drv.c
+@@ -116,6 +116,85 @@ struct block_device_context {
+ };
  
- static inline void free_stor_device(struct storvsc_device *device)
- {
--	/* ASSERT(atomic_read(&device->ref_count) == 0); */
- 	kfree(device);
- }
  
-@@ -103,10 +102,8 @@ static inline void put_stor_device(struct hv_device *device)
- 	struct storvsc_device *stor_device;
- 
- 	stor_device = (struct storvsc_device *)device->ext;
--	/* ASSERT(stor_device); */
- 
- 	atomic_dec(&stor_device->ref_count);
--	/* ASSERT(atomic_read(&stor_device->ref_count)); */
- }
- 
- /* Drop ref count to 1 to effectively disable get_stor_device() */
-@@ -116,7 +113,6 @@ static inline struct storvsc_device *release_stor_device(
- 	struct storvsc_device *stor_device;
- 
- 	stor_device = (struct storvsc_device *)device->ext;
--	/* ASSERT(stor_device); */
- 
- 	/* Busy wait until the ref drop to 2, then set it to 1 */
- 	while (atomic_cmpxchg(&stor_device->ref_count, 2, 1) != 2)
-@@ -132,7 +128,6 @@ static inline struct storvsc_device *final_release_stor_device(
- 	struct storvsc_device *stor_device;
- 
- 	stor_device = (struct storvsc_device *)device->ext;
--	/* ASSERT(stor_device); */
- 
- 	/* Busy wait until the ref drop to 1, then set it to 0 */
- 	while (atomic_cmpxchg(&stor_device->ref_count, 1, 0) != 1)
-@@ -341,12 +336,8 @@ static void stor_vsc_on_io_completion(struct hv_device *device,
- 		   "completed bytes xfer %u", request_ext,
- 		   vstor_packet->vm_srb.data_transfer_length);
- 
--	/* ASSERT(request_ext != NULL); */
--	/* ASSERT(request_ext->request != NULL); */
--
- 	request = request_ext->request;
- 
--	/* ASSERT(request->OnIOCompletion != NULL); */
- 
- 	/* Copy over the status...etc */
- 	request->status = vstor_packet->vm_srb.scsi_status;
-@@ -366,8 +357,6 @@ static void stor_vsc_on_io_completion(struct hv_device *device,
- 				    "valid - len %d\n", request_ext,
- 				    vstor_packet->vm_srb.sense_info_length);
- 
--			/* ASSERT(vstor_packet->vm_srb.sense_info_length <= */
--			/* 	request->SenseBufferSize); */
- 			memcpy(request->sense_buffer,
- 			       vstor_packet->vm_srb.sense_data,
- 			       vstor_packet->vm_srb.sense_info_length);
-@@ -418,7 +407,6 @@ static void stor_vsc_on_channel_callback(void *context)
- 	struct storvsc_request_extension *request;
- 	int ret;
- 
--	/* ASSERT(device); */
- 
- 	stor_device = must_get_stor_device(device);
- 	if (!stor_device) {
-@@ -435,21 +423,12 @@ static void stor_vsc_on_channel_callback(void *context)
- 			DPRINT_DBG(STORVSC, "receive %d bytes - tid %llx",
- 				   bytes_recvd, request_id);
- 
--			/* ASSERT(bytes_recvd ==
--					sizeof(struct vstor_packet)); */
- 
- 			request = (struct storvsc_request_extension *)
- 					(unsigned long)request_id;
--			/* ASSERT(request);c */
- 
--			/* if (vstor_packet.Flags & SYNTHETIC_FLAG) */
- 			if ((request == &stor_device->init_request) ||
- 			    (request == &stor_device->reset_request)) {
--				/* DPRINT_INFO(STORVSC,
--				 *             "reset completion - operation "
--				 *             "%u status %u",
--				 *             vstor_packet.Operation,
--				 *             vstor_packet.Status); */
- 
- 				memcpy(&request->vstor_packet, packet,
- 				       sizeof(struct vstor_packet));
-@@ -461,7 +440,6 @@ static void stor_vsc_on_channel_callback(void *context)
- 						request);
- 			}
- 		} else {
--			/* DPRINT_DBG(STORVSC, "nothing else to read..."); */
- 			break;
- 		}
- 	} while (1);
-@@ -508,7 +486,6 @@ int stor_vsc_on_device_add(struct hv_device *device,
- 					void *additional_info)
- {
- 	struct storvsc_device *stor_device;
--	/* struct vmstorage_channel_properties *props; */
- 	struct storvsc_device_info *device_info;
- 	int ret = 0;
- 
-@@ -520,8 +497,6 @@ int stor_vsc_on_device_add(struct hv_device *device,
- 	}
- 
- 	/* Save the channel properties to our storvsc channel */
--	/* props = (struct vmstorage_channel_properties *)
--	 *		channel->offerMsg.Offer.u.Standard.UserDefined; */
- 
- 	/* FIXME: */
- 	/*
-@@ -530,15 +505,10 @@ int stor_vsc_on_device_add(struct hv_device *device,
- 	 * scsi channel prior to the bus scan
- 	 */
- 
--	/* storChannel->PortNumber = 0;
--	storChannel->PathId = props->PathId;
--	storChannel->TargetId = props->TargetId; */
--
- 	stor_device->port_number = device_info->port_number;
- 	/* Send it back up */
- 	ret = stor_vsc_connect_to_vsp(device);
- 
--	/* device_info->PortNumber = stor_device->PortNumber; */
- 	device_info->path_id = stor_device->path_id;
- 	device_info->target_id = stor_device->target_id;
- 
-@@ -673,8 +643,6 @@ int stor_vsc_on_io_request(struct hv_device *device,
- 		return -2;
- 	}
- 
--	/* print_hex_dump_bytes("", DUMP_PREFIX_NONE, request->Cdb,
--	 *			request->CdbLen); */
- 
- 	request_extension->request = request;
- 	request_extension->device  = device;
-@@ -762,7 +730,6 @@ int stor_vsc_initialize(struct hv_driver *driver)
- 		   sizeof(struct vmscsi_request));
- 
- 	/* Make sure we are at least 2 pages since 1 page is used for control */
--	/* ASSERT(stor_driver->RingBufferSize >= (PAGE_SIZE << 1)); */
- 
- 	driver->name = g_driver_name;
- 	memcpy(&driver->dev_type, &gStorVscDeviceType,
++static const char *g_blk_driver_name = "blkvsc";
++
++/* {32412632-86cb-44a2-9b5c-50d1417354f5} */
++static const struct hv_guid g_blk_device_type = {
++	.data = {
++		0x32, 0x26, 0x41, 0x32, 0xcb, 0x86, 0xa2, 0x44,
++		0x9b, 0x5c, 0x50, 0xd1, 0x41, 0x73, 0x54, 0xf5
++	}
++};
++
++static int blk_vsc_on_device_add(struct hv_device *device,
++				void *additional_info)
++{
++	struct storvsc_device_info *device_info;
++	int ret = 0;
++
++	device_info = (struct storvsc_device_info *)additional_info;
++
++	ret = stor_vsc_on_device_add(device, additional_info);
++	if (ret != 0)
++		return ret;
++
++	/*
++	 * We need to use the device instance guid to set the path and target
++	 * id. For IDE devices, the device instance id is formatted as
++	 * <bus id> * - <device id> - 8899 - 000000000000.
++	 */
++	device_info->path_id = device->dev_instance.data[3] << 24 |
++			     device->dev_instance.data[2] << 16 |
++			     device->dev_instance.data[1] << 8  |
++			     device->dev_instance.data[0];
++
++	device_info->target_id = device->dev_instance.data[5] << 8 |
++			       device->dev_instance.data[4];
++
++	return ret;
++}
++
++
++int blk_vsc_initialize(struct hv_driver *driver)
++{
++	struct storvsc_driver_object *stor_driver;
++	int ret = 0;
++
++	stor_driver = (struct storvsc_driver_object *)driver;
++
++	/* Make sure we are at least 2 pages since 1 page is used for control */
++	/* ASSERT(stor_driver->RingBufferSize >= (PAGE_SIZE << 1)); */
++
++	driver->name = g_blk_driver_name;
++	memcpy(&driver->dev_type, &g_blk_device_type, sizeof(struct hv_guid));
++
++	stor_driver->request_ext_size =
++	sizeof(struct storvsc_request_extension);
++
++	/*
++	 * Divide the ring buffer data size (which is 1 page less than the ring
++	 * buffer size since that page is reserved for the ring buffer indices)
++	 * by the max request size (which is
++	 * vmbus_channel_packet_multipage_buffer + struct vstor_packet + u64)
++	 */
++	stor_driver->max_outstanding_req_per_channel =
++		((stor_driver->ring_buffer_size - PAGE_SIZE) /
++		  ALIGN(MAX_MULTIPAGE_BUFFER_PACKET +
++			   sizeof(struct vstor_packet) + sizeof(u64),
++			   sizeof(u64)));
++
++	DPRINT_INFO(BLKVSC, "max io outstd %u",
++		    stor_driver->max_outstanding_req_per_channel);
++
++	/* Setup the dispatch table */
++	stor_driver->base.dev_add = blk_vsc_on_device_add;
++	stor_driver->base.dev_rm = stor_vsc_on_device_remove;
++	stor_driver->base.cleanup = stor_vsc_on_cleanup;
++	stor_driver->on_io_request = stor_vsc_on_io_request;
++
++	return ret;
++}
++
+ /* Static decl */
+ static DEFINE_MUTEX(blkvsc_mutex);
+ static int blkvsc_probe(struct device *dev);
 -- 
 1.7.4.1
