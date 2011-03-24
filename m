@@ -1,11 +1,13 @@
-From: Randy Dunlap <randy.dunlap@oracle.com>
-Subject: [PATCH] xen: fix p2m section mismatches
-Date: Thu, 24 Mar 2011 13:34:32 -0700
-Message-ID: <20110324133432.544092e4.randy.dunlap@oracle.com>
+From: Stephen Hemminger <shemminger@vyatta.com>
+Subject: Re: [PATCH] xen: fix p2m section mismatches
+Date: Thu, 24 Mar 2011 14:48:02 -0700
+Message-ID: <20110324144802.1def1400@nehalam>
+References: <20110324133432.544092e4.randy.dunlap@oracle.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20110324133432.544092e4.randy.dunlap@oracle.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -15,53 +17,47 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: xen-devel@lists.xensource.com, virtualization@lists.linux-foundation.org, akpm <akpm@linux-foundation.org>
-Cc: Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+To: Randy Dunlap <randy.dunlap@oracle.com>
+Cc: akpm <akpm@linux-foundation.org>, xen-devel@lists.xensource.com, Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Randy Dunlap <randy.dunlap@oracle.com>
+On Thu, 24 Mar 2011 13:34:32 -0700
+Randy Dunlap <randy.dunlap@oracle.com> wrote:
 
-Fix section mismatch warnings:
-set_phys_range_identity() is called by __init xen_set_identity(),
-so also mark set_phys_range_identity() as __init.
-then:
-__early_alloc_p2m() is called set_phys_range_identity(), so also mark
-__early_alloc_p2m() as __init.
+> From: Randy Dunlap <randy.dunlap@oracle.com>
+> 
+> Fix section mismatch warnings:
+> set_phys_range_identity() is called by __init xen_set_identity(),
+> so also mark set_phys_range_identity() as __init.
+> then:
+> __early_alloc_p2m() is called set_phys_range_identity(), so also mark
+> __early_alloc_p2m() as __init.
+> 
+> WARNING: arch/x86/built-in.o(.text+0x7856): Section mismatch in reference from the function __early_alloc_p2m() to the function .init.text:extend_brk()
+> The function __early_alloc_p2m() references
+> the function __init extend_brk().
+> This is often because __early_alloc_p2m lacks a __init 
+> annotation or the annotation of extend_brk is wrong.
+> 
+> WARNING: arch/x86/built-in.o(.text+0x7967): Section mismatch in reference from the function set_phys_range_identity() to the function .init.text:extend_brk()
+> The function set_phys_range_identity() references
+> the function __init extend_brk().
+> This is often because set_phys_range_identity lacks a __init 
+> annotation or the annotation of extend_brk is wrong.
+> 
+> Signed-off-by: Randy Dunlap <randy.dunlap@oracle.com>
+> ---
+>  arch/x86/xen/p2m.c |    4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> --- linux-2.6.38-git13.orig/arch/x86/xen/p2m.c
+> +++ linux-2.6.38-git13/arch/x86/xen/p2m.c
+> @@ -497,7 +497,7 @@ static bool alloc_p2m(unsigned long pfn)
+>  	return true;
+>  }
+>  
+> -bool __early_alloc_p2m(unsigned long pfn)
+> +bool __init __early_alloc_p2m(unsigned long pfn)
 
-WARNING: arch/x86/built-in.o(.text+0x7856): Section mismatch in reference from the function __early_alloc_p2m() to the function .init.text:extend_brk()
-The function __early_alloc_p2m() references
-the function __init extend_brk().
-This is often because __early_alloc_p2m lacks a __init 
-annotation or the annotation of extend_brk is wrong.
-
-WARNING: arch/x86/built-in.o(.text+0x7967): Section mismatch in reference from the function set_phys_range_identity() to the function .init.text:extend_brk()
-The function set_phys_range_identity() references
-the function __init extend_brk().
-This is often because set_phys_range_identity lacks a __init 
-annotation or the annotation of extend_brk is wrong.
-
-Signed-off-by: Randy Dunlap <randy.dunlap@oracle.com>
----
- arch/x86/xen/p2m.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
---- linux-2.6.38-git13.orig/arch/x86/xen/p2m.c
-+++ linux-2.6.38-git13/arch/x86/xen/p2m.c
-@@ -497,7 +497,7 @@ static bool alloc_p2m(unsigned long pfn)
- 	return true;
- }
- 
--bool __early_alloc_p2m(unsigned long pfn)
-+bool __init __early_alloc_p2m(unsigned long pfn)
- {
- 	unsigned topidx, mididx, idx;
- 
-@@ -530,7 +530,7 @@ bool __early_alloc_p2m(unsigned long pfn
- 	}
- 	return idx != 0;
- }
--unsigned long set_phys_range_identity(unsigned long pfn_s,
-+unsigned long __init set_phys_range_identity(unsigned long pfn_s,
- 				      unsigned long pfn_e)
- {
- 	unsigned long pfn;
+__early_alloc_p2m could be static as well.
+-- 
