@@ -1,8 +1,7 @@
-From: Ming Zhao <zhaom@cis.fiu.edu>
-Subject: ICAC2011 Poster Deadline Extended to April 1 (8th International
-	Conference on Autonomic Computing)
-Date: Thu, 24 Mar 2011 07:33:31 -0400
-Message-ID: <20110324154127.972ABB88613@cheetah.cs.fiu.edu>
+From: Randy Dunlap <randy.dunlap@oracle.com>
+Subject: [PATCH] xen: fix p2m section mismatches
+Date: Thu, 24 Mar 2011 13:34:32 -0700
+Message-ID: <20110324133432.544092e4.randy.dunlap@oracle.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -16,64 +15,53 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
+To: xen-devel@lists.xensource.com, virtualization@lists.linux-foundation.org, akpm <akpm@linux-foundation.org>
+Cc: Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-NOTE: The deadline for poster submissions to the ICAC 2011 has 
-been extended by one week. New deadline is April 1, 2011. Below
-you will find the call for posters.
+From: Randy Dunlap <randy.dunlap@oracle.com>
 
-***************************************************************
-*       8th International Conference on Autonomic Computing   *
-*                           ICAC 2011                         *
-*                   Karlsruhe, June 14-18, 2011               *
-*                   http://icac2011.cs.fiu.edu                *
-*                                                             *
-*                      CALL FOR POSTERS                       *
-*                                                             *
-********************** Deadline April 1 ***********************
+Fix section mismatch warnings:
+set_phys_range_identity() is called by __init xen_set_identity(),
+so also mark set_phys_range_identity() as __init.
+then:
+__early_alloc_p2m() is called set_phys_range_identity(), so also mark
+__early_alloc_p2m() as __init.
 
-ICAC is the leading conference on autonomic computing applications,
-technology and foundations. Autonomic computing refers to methods and
-means for reducing the human burden of managing computing systems.
-Systems introducing new autonomic features are becoming increasingly
-prevalent, motivating research that spans a variety of areas, from
-computer systems, architecture, databases and networks to machine
-learning, control theory, and bio-inspired computing.
+WARNING: arch/x86/built-in.o(.text+0x7856): Section mismatch in reference from the function __early_alloc_p2m() to the function .init.text:extend_brk()
+The function __early_alloc_p2m() references
+the function __init extend_brk().
+This is often because __early_alloc_p2m lacks a __init 
+annotation or the annotation of extend_brk is wrong.
 
-Posters are an excellent opportunity for presenting innovative research
-ideas, projects and results. Accepted papers for posters (2 page) will
-be published in proceedings by ACM, which will be distributed at the
-conference. Posters will be displayed at the conference.
+WARNING: arch/x86/built-in.o(.text+0x7967): Section mismatch in reference from the function set_phys_range_identity() to the function .init.text:extend_brk()
+The function set_phys_range_identity() references
+the function __init extend_brk().
+This is often because set_phys_range_identity lacks a __init 
+annotation or the annotation of extend_brk is wrong.
 
-Posters are invited on a wide variety of topics relating to autonomic
-computing:
+Signed-off-by: Randy Dunlap <randy.dunlap@oracle.com>
+---
+ arch/x86/xen/p2m.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-** Applications of autonomic computing **
-Contributions and experiences are sought with prototyped or deployed
-systems and applications that focus on advancing system independence and
-increasing system ability to adapt to an unpredictable environment.
-
-** Autonomic computing components and services **
-Descriptions of protocols, system-level support, services, or
-application components that enhance aspects of system autonomy,
-self-management, self-tuning, self-configuration, self-diagnosis, and
-self-healing, or improve adaptive capabilities.
-
-** Algorithms, theory and foundations of autonomic computing **
-Analytic foundations for building efficient autonomic systems,
-predicting their behavior, quantifying their performance, analyzing
-their stability, guaranteeing their specifications, or optimizing their
-efficacy
-
-Poster manuscripts will be reviewed and judged on merits including
-correctness, originality, technical strength, quality of presentation,
-and relevance to the conference themes. Submitted posters must include
-original work, and may not be under consideration for another conference
-or journal.
-They should also not be under review to another forum during the ICAC
-review process. Authors of accepted posters are expected to present
-their poster at the conference.
-
-Detailed submission instructions are available at the ICAC 2011 web
-site (http://icac2011.cs.fiu.edu). 
+--- linux-2.6.38-git13.orig/arch/x86/xen/p2m.c
++++ linux-2.6.38-git13/arch/x86/xen/p2m.c
+@@ -497,7 +497,7 @@ static bool alloc_p2m(unsigned long pfn)
+ 	return true;
+ }
+ 
+-bool __early_alloc_p2m(unsigned long pfn)
++bool __init __early_alloc_p2m(unsigned long pfn)
+ {
+ 	unsigned topidx, mididx, idx;
+ 
+@@ -530,7 +530,7 @@ bool __early_alloc_p2m(unsigned long pfn
+ 	}
+ 	return idx != 0;
+ }
+-unsigned long set_phys_range_identity(unsigned long pfn_s,
++unsigned long __init set_phys_range_identity(unsigned long pfn_s,
+ 				      unsigned long pfn_e)
+ {
+ 	unsigned long pfn;
