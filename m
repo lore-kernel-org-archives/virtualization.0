@@ -1,170 +1,79 @@
-From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 15/16] Staging: hv: Move the definition of the function stor_vsc_on_host_reset()
-Date: Wed, 23 Mar 2011 10:50:33 -0700
-Message-ID: <1300902635-1347-15-git-send-email-kys@microsoft.com>
-References: <1300902537-1290-1-git-send-email-kys@microsoft.com>
- <1300902635-1347-1-git-send-email-kys@microsoft.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1300902635-1347-1-git-send-email-kys@microsoft.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org
-Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Hank Janssen <hjanssen@microsoft.com>
+From: Ming Zhao <zhaom@cis.fiu.edu>
+Subject: ICAC2011 Poster Deadline Extended to April 1 (8th International
+	Conference on Autonomic Computing)
+Date: Thu, 24 Mar 2011 07:33:31 -0400
+Message-ID: <20110324154127.972ABB88613@cheetah.cs.fiu.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-stor_vsc_on_host_reset() function is only used in storvsc_drv.c.
-Move this function from storvsc.c to storvsc_drv.c
+NOTE: The deadline for poster submissions to the ICAC 2011 has 
+been extended by one week. New deadline is April 1, 2011. Below
+you will find the call for posters.
 
-Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
-Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
-Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
----
- drivers/staging/hv/storvsc.c     |   56 ------------------------------------
- drivers/staging/hv/storvsc_drv.c |   59 ++++++++++++++++++++++++++++++++++++++
- 2 files changed, 59 insertions(+), 56 deletions(-)
+***************************************************************
+*       8th International Conference on Autonomic Computing   *
+*                           ICAC 2011                         *
+*                   Karlsruhe, June 14-18, 2011               *
+*                   http://icac2011.cs.fiu.edu                *
+*                                                             *
+*                      CALL FOR POSTERS                       *
+*                                                             *
+********************** Deadline April 1 ***********************
 
-diff --git a/drivers/staging/hv/storvsc.c b/drivers/staging/hv/storvsc.c
-index c576e7b..6801e37 100644
---- a/drivers/staging/hv/storvsc.c
-+++ b/drivers/staging/hv/storvsc.c
-@@ -522,62 +522,6 @@ int stor_vsc_on_device_remove(struct hv_device *device)
- 	return 0;
- }
- 
--int stor_vsc_on_host_reset(struct hv_device *device)
--{
--	struct storvsc_device *stor_device;
--	struct storvsc_request_extension *request;
--	struct vstor_packet *vstor_packet;
--	int ret;
--
--	DPRINT_INFO(STORVSC, "resetting host adapter...");
--
--	stor_device = get_stor_device(device);
--	if (!stor_device) {
--		DPRINT_ERR(STORVSC, "unable to get stor device..."
--			   "device being destroyed?");
--		return -1;
--	}
--
--	request = &stor_device->reset_request;
--	vstor_packet = &request->vstor_packet;
--
--	init_waitqueue_head(&request->wait_event);
--
--	vstor_packet->operation = VSTOR_OPERATION_RESET_BUS;
--	vstor_packet->flags = REQUEST_COMPLETION_FLAG;
--	vstor_packet->vm_srb.path_id = stor_device->path_id;
--
--	request->wait_condition = 0;
--	ret = vmbus_sendpacket(device->channel, vstor_packet,
--			       sizeof(struct vstor_packet),
--			       (unsigned long)&stor_device->reset_request,
--			       VM_PKT_DATA_INBAND,
--			       VMBUS_DATA_PACKET_FLAG_COMPLETION_REQUESTED);
--	if (ret != 0) {
--		DPRINT_ERR(STORVSC, "Unable to send reset packet %p ret %d",
--			   vstor_packet, ret);
--		goto cleanup;
--	}
--
--	wait_event_timeout(request->wait_event, request->wait_condition,
--			msecs_to_jiffies(1000));
--	if (request->wait_condition == 0) {
--		ret = -ETIMEDOUT;
--		goto cleanup;
--	}
--
--	DPRINT_INFO(STORVSC, "host adapter reset completed");
--
--	/*
--	 * At this point, all outstanding requests in the adapter
--	 * should have been flushed out and return to us
--	 */
--
--cleanup:
--	put_stor_device(device);
--	return ret;
--}
--
- /*
-  * stor_vsc_on_io_request - Callback to initiate an I/O request
-  */
-diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
-index 2c51a07..e0a1195 100644
---- a/drivers/staging/hv/storvsc_drv.c
-+++ b/drivers/staging/hv/storvsc_drv.c
-@@ -36,6 +36,8 @@
- #include "version_info.h"
- #include "vmbus.h"
- #include "storvsc_api.h"
-+#include "vstorage.h"
-+#include "channel.h"
- 
- 
- static const char *g_driver_name = "storvsc";
-@@ -230,6 +232,63 @@ static int storvsc_drv_init(void)
- 	return ret;
- }
- 
-+
-+int stor_vsc_on_host_reset(struct hv_device *device)
-+{
-+	struct storvsc_device *stor_device;
-+	struct storvsc_request_extension *request;
-+	struct vstor_packet *vstor_packet;
-+	int ret;
-+
-+	DPRINT_INFO(STORVSC, "resetting host adapter...");
-+
-+	stor_device = get_stor_device(device);
-+	if (!stor_device) {
-+		DPRINT_ERR(STORVSC, "unable to get stor device..."
-+			   "device being destroyed?");
-+		return -1;
-+	}
-+
-+	request = &stor_device->reset_request;
-+	vstor_packet = &request->vstor_packet;
-+
-+	init_waitqueue_head(&request->wait_event);
-+
-+	vstor_packet->operation = VSTOR_OPERATION_RESET_BUS;
-+	vstor_packet->flags = REQUEST_COMPLETION_FLAG;
-+	vstor_packet->vm_srb.path_id = stor_device->path_id;
-+
-+	request->wait_condition = 0;
-+	ret = vmbus_sendpacket(device->channel, vstor_packet,
-+			       sizeof(struct vstor_packet),
-+			       (unsigned long)&stor_device->reset_request,
-+			       VM_PKT_DATA_INBAND,
-+			       VMBUS_DATA_PACKET_FLAG_COMPLETION_REQUESTED);
-+	if (ret != 0) {
-+		DPRINT_ERR(STORVSC, "Unable to send reset packet %p ret %d",
-+			   vstor_packet, ret);
-+		goto cleanup;
-+	}
-+
-+	wait_event_timeout(request->wait_event, request->wait_condition,
-+			msecs_to_jiffies(1000));
-+	if (request->wait_condition == 0) {
-+		ret = -ETIMEDOUT;
-+		goto cleanup;
-+	}
-+
-+	DPRINT_INFO(STORVSC, "host adapter reset completed");
-+
-+	/*
-+	 * At this point, all outstanding requests in the adapter
-+	 * should have been flushed out and return to us
-+	 */
-+
-+cleanup:
-+	put_stor_device(device);
-+	return ret;
-+}
-+
- static int storvsc_drv_exit_cb(struct device *dev, void *data)
- {
- 	struct device **curr = (struct device **)data;
--- 
-1.7.4.1
+ICAC is the leading conference on autonomic computing applications,
+technology and foundations. Autonomic computing refers to methods and
+means for reducing the human burden of managing computing systems.
+Systems introducing new autonomic features are becoming increasingly
+prevalent, motivating research that spans a variety of areas, from
+computer systems, architecture, databases and networks to machine
+learning, control theory, and bio-inspired computing.
+
+Posters are an excellent opportunity for presenting innovative research
+ideas, projects and results. Accepted papers for posters (2 page) will
+be published in proceedings by ACM, which will be distributed at the
+conference. Posters will be displayed at the conference.
+
+Posters are invited on a wide variety of topics relating to autonomic
+computing:
+
+** Applications of autonomic computing **
+Contributions and experiences are sought with prototyped or deployed
+systems and applications that focus on advancing system independence and
+increasing system ability to adapt to an unpredictable environment.
+
+** Autonomic computing components and services **
+Descriptions of protocols, system-level support, services, or
+application components that enhance aspects of system autonomy,
+self-management, self-tuning, self-configuration, self-diagnosis, and
+self-healing, or improve adaptive capabilities.
+
+** Algorithms, theory and foundations of autonomic computing **
+Analytic foundations for building efficient autonomic systems,
+predicting their behavior, quantifying their performance, analyzing
+their stability, guaranteeing their specifications, or optimizing their
+efficacy
+
+Poster manuscripts will be reviewed and judged on merits including
+correctness, originality, technical strength, quality of presentation,
+and relevance to the conference themes. Submitted posters must include
+original work, and may not be under consideration for another conference
+or journal.
+They should also not be under review to another forum during the ICAC
+review process. Authors of accepted posters are expected to present
+their poster at the conference.
+
+Detailed submission instructions are available at the ICAC 2011 web
+site (http://icac2011.cs.fiu.edu). 
