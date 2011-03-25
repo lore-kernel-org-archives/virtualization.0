@@ -1,13 +1,15 @@
-From: Stephen Hemminger <shemminger@vyatta.com>
-Subject: Re: [PATCH] xen: fix p2m section mismatches
-Date: Thu, 24 Mar 2011 14:48:02 -0700
-Message-ID: <20110324144802.1def1400@nehalam>
-References: <20110324133432.544092e4.randy.dunlap@oracle.com>
+From: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Subject: Re: [Xen-devel] [patch 2/2] xen-gntdev: unlock on error path in
+	gntdev_mmap()
+Date: Fri, 25 Mar 2011 11:04:10 -0400
+Message-ID: <20110325150410.GF27651__22940.275775227$1301065656$gmane$org@dumpdata.com>
+References: <20110319054543.GE2008@bicker>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20110324133432.544092e4.randy.dunlap@oracle.com>
+Content-Disposition: inline
+In-Reply-To: <20110319054543.GE2008@bicker>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -17,47 +19,44 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Randy Dunlap <randy.dunlap@oracle.com>
-Cc: akpm <akpm@linux-foundation.org>, xen-devel@lists.xensource.com, Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, virtualization@lists.linux-foundation.org
+To: Dan Carpenter <error27@gmail.com>
+Cc: Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, kernel-janitors@vger.kernel.org, xen-devel@lists.xensource.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 24 Mar 2011 13:34:32 -0700
-Randy Dunlap <randy.dunlap@oracle.com> wrote:
-
-> From: Randy Dunlap <randy.dunlap@oracle.com>
+On Sat, Mar 19, 2011 at 08:45:43AM +0300, Dan Carpenter wrote:
+> We should unlock here and also decrement the number of &map->users.
 > 
-> Fix section mismatch warnings:
-> set_phys_range_identity() is called by __init xen_set_identity(),
-> so also mark set_phys_range_identity() as __init.
-> then:
-> __early_alloc_p2m() is called set_phys_range_identity(), so also mark
-> __early_alloc_p2m() as __init.
-> 
-> WARNING: arch/x86/built-in.o(.text+0x7856): Section mismatch in reference from the function __early_alloc_p2m() to the function .init.text:extend_brk()
-> The function __early_alloc_p2m() references
-> the function __init extend_brk().
-> This is often because __early_alloc_p2m lacks a __init 
-> annotation or the annotation of extend_brk is wrong.
-> 
-> WARNING: arch/x86/built-in.o(.text+0x7967): Section mismatch in reference from the function set_phys_range_identity() to the function .init.text:extend_brk()
-> The function set_phys_range_identity() references
-> the function __init extend_brk().
-> This is often because set_phys_range_identity lacks a __init 
-> annotation or the annotation of extend_brk is wrong.
-> 
-> Signed-off-by: Randy Dunlap <randy.dunlap@oracle.com>
+> Signed-off-by: Dan Carpenter <error27@gmail.com>
 > ---
->  arch/x86/xen/p2m.c |    4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
-> 
-> --- linux-2.6.38-git13.orig/arch/x86/xen/p2m.c
-> +++ linux-2.6.38-git13/arch/x86/xen/p2m.c
-> @@ -497,7 +497,7 @@ static bool alloc_p2m(unsigned long pfn)
->  	return true;
->  }
->  
-> -bool __early_alloc_p2m(unsigned long pfn)
-> +bool __init __early_alloc_p2m(unsigned long pfn)
+> I'm not very familiar with this code.  Please review carefully.
 
-__early_alloc_p2m could be static as well.
--- 
+It looks right. -EINVAL is still returned so that is OK. Put it
+on the rc1 train.
+> 
+> diff --git a/drivers/xen/gntdev.c b/drivers/xen/gntdev.c
+> index 017ce60..b0f9e8f 100644
+> --- a/drivers/xen/gntdev.c
+> +++ b/drivers/xen/gntdev.c
+> @@ -662,7 +662,7 @@ static int gntdev_mmap(struct file *flip, struct vm_area_struct *vma)
+>  	if (map->flags) {
+>  		if ((vma->vm_flags & VM_WRITE) &&
+>  				(map->flags & GNTMAP_readonly))
+> -			return -EINVAL;
+> +			goto out_unlock_put;
+>  	} else {
+>  		map->flags = GNTMAP_host_map;
+>  		if (!(vma->vm_flags & VM_WRITE))
+> @@ -700,6 +700,8 @@ unlock_out:
+>  	spin_unlock(&priv->lock);
+>  	return err;
+>  
+> +out_unlock_put:
+> +	spin_unlock(&priv->lock);
+>  out_put_map:
+>  	if (use_ptemod)
+>  		map->vma = NULL;
+> 
+> _______________________________________________
+> Xen-devel mailing list
+> Xen-devel@lists.xensource.com
+> http://lists.xensource.com/xen-devel
