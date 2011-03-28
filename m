@@ -1,8 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 15/22] Staging: hv: Get rid of the forward declaration of
-	blkvsc_revalidate_disk()
-Date: Mon, 28 Mar 2011 10:00:46 -0700
-Message-ID: <1301331653-26265-15-git-send-email-kys@microsoft.com>
+Subject: [PATCH 19/22] Staging: hv: Get rid of the forward declaration for
+	blkvsc_request()
+Date: Mon, 28 Mar 2011 10:00:50 -0700
+Message-ID: <1301331653-26265-19-git-send-email-kys@microsoft.com>
 References: <1301331615-26226-1-git-send-email-kys@microsoft.com>
 	<1301331653-26265-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -23,64 +23,118 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Get rid of the forward declaration of blkvsc_revalidate_disk() by moving
-the code around.
+Get rid of the forward declaration for blkvsc_request() by moving the code
+around.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/blkvsc_drv.c |   32 +++++++++++++++-----------------
- 1 files changed, 15 insertions(+), 17 deletions(-)
+ drivers/staging/hv/blkvsc_drv.c |   86 +++++++++++++++++++-------------------
+ 1 files changed, 43 insertions(+), 43 deletions(-)
 
 diff --git a/drivers/staging/hv/blkvsc_drv.c b/drivers/staging/hv/blkvsc_drv.c
-index 86a7587..5079859 100644
+index 535f315..c45677b 100644
 --- a/drivers/staging/hv/blkvsc_drv.c
 +++ b/drivers/staging/hv/blkvsc_drv.c
-@@ -858,9 +858,23 @@ static int blkvsc_do_read_capacity16(struct block_device_context *blkdev)
- 	return 0;
+@@ -1167,9 +1167,51 @@ static int blkvsc_do_pending_reqs(struct block_device_context *blkdev)
+ 	return ret;
  }
  
-+static int blkvsc_revalidate_disk(struct gendisk *gd)
++
++static void blkvsc_request(struct request_queue *queue)
 +{
-+	struct block_device_context *blkdev = gd->private_data;
++	struct block_device_context *blkdev = NULL;
++	struct request *req;
++	int ret = 0;
 +
 +	DPRINT_DBG(BLKVSC_DRV, "- enter\n");
++	while ((req = blk_peek_request(queue)) != NULL) {
++		DPRINT_DBG(BLKVSC_DRV, "- req %p\n", req);
 +
-+	if (blkdev->device_type == DVD_TYPE) {
-+		blkvsc_do_read_capacity(blkdev);
-+		set_capacity(blkdev->gd, blkdev->capacity *
-+			    (blkdev->sector_size/512));
-+		blk_queue_logical_block_size(gd->queue, blkdev->sector_size);
++		blkdev = req->rq_disk->private_data;
++		if (blkdev->shutting_down || req->cmd_type != REQ_TYPE_FS ||
++		    blkdev->media_not_present) {
++			__blk_end_request_cur(req, 0);
++			continue;
++		}
++
++		ret = blkvsc_do_pending_reqs(blkdev);
++
++		if (ret != 0) {
++			DPRINT_DBG(BLKVSC_DRV,
++				   "- stop queue - pending_list not empty\n");
++			blk_stop_queue(queue);
++			break;
++		}
++
++		blk_start_request(req);
++
++		ret = blkvsc_do_request(blkdev, req);
++		if (ret > 0) {
++			DPRINT_DBG(BLKVSC_DRV, "- stop queue - no room\n");
++			blk_stop_queue(queue);
++			break;
++		} else if (ret < 0) {
++			DPRINT_DBG(BLKVSC_DRV, "- stop queue - no mem\n");
++			blk_requeue_request(queue, req);
++			blk_stop_queue(queue);
++			break;
++		}
 +	}
-+	return 0;
 +}
 +
  /* Static decl */
  static int blkvsc_probe(struct device *dev);
--static int blkvsc_revalidate_disk(struct gendisk *gd);
- static void blkvsc_request(struct request_queue *queue);
- static void blkvsc_request_completion(struct hv_storvsc_request *request);
- static int blkvsc_do_request(struct block_device_context *blkdev,
-@@ -1509,22 +1523,6 @@ static void blkvsc_request(struct request_queue *queue)
- 	}
+-static void blkvsc_request(struct request_queue *queue);
+ 
+ static int blkvsc_ringbuffer_size = BLKVSC_RING_BUFFER_SIZE;
+ module_param(blkvsc_ringbuffer_size, int, S_IRUGO);
+@@ -1496,48 +1538,6 @@ static void blkvsc_request_completion(struct hv_storvsc_request *request)
+ 	spin_unlock_irqrestore(&blkdev->lock, flags);
  }
  
--
--static int blkvsc_revalidate_disk(struct gendisk *gd)
+-static void blkvsc_request(struct request_queue *queue)
 -{
--	struct block_device_context *blkdev = gd->private_data;
+-	struct block_device_context *blkdev = NULL;
+-	struct request *req;
+-	int ret = 0;
 -
 -	DPRINT_DBG(BLKVSC_DRV, "- enter\n");
+-	while ((req = blk_peek_request(queue)) != NULL) {
+-		DPRINT_DBG(BLKVSC_DRV, "- req %p\n", req);
 -
--	if (blkdev->device_type == DVD_TYPE) {
--		blkvsc_do_read_capacity(blkdev);
--		set_capacity(blkdev->gd, blkdev->capacity *
--			    (blkdev->sector_size/512));
--		blk_queue_logical_block_size(gd->queue, blkdev->sector_size);
+-		blkdev = req->rq_disk->private_data;
+-		if (blkdev->shutting_down || req->cmd_type != REQ_TYPE_FS ||
+-		    blkdev->media_not_present) {
+-			__blk_end_request_cur(req, 0);
+-			continue;
+-		}
+-
+-		ret = blkvsc_do_pending_reqs(blkdev);
+-
+-		if (ret != 0) {
+-			DPRINT_DBG(BLKVSC_DRV,
+-				   "- stop queue - pending_list not empty\n");
+-			blk_stop_queue(queue);
+-			break;
+-		}
+-
+-		blk_start_request(req);
+-
+-		ret = blkvsc_do_request(blkdev, req);
+-		if (ret > 0) {
+-			DPRINT_DBG(BLKVSC_DRV, "- stop queue - no room\n");
+-			blk_stop_queue(queue);
+-			break;
+-		} else if (ret < 0) {
+-			DPRINT_DBG(BLKVSC_DRV, "- stop queue - no mem\n");
+-			blk_requeue_request(queue, req);
+-			blk_stop_queue(queue);
+-			break;
+-		}
 -	}
--	return 0;
 -}
 -
  static int __init blkvsc_init(void)
