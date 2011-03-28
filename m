@@ -1,118 +1,180 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 22/22] Staging: hv: Get rid of some dead code in blkvsc_drv.c
-Date: Mon, 28 Mar 2011 10:00:53 -0700
-Message-ID: <1301331653-26265-22-git-send-email-kys@microsoft.com>
+Subject: [PATCH 05/22] Staging: hv: Get rid of the forward declaration of
+	blkvsc_init_rw()
+Date: Mon, 28 Mar 2011 10:00:36 -0700
+Message-ID: <1301331653-26265-5-git-send-email-kys@microsoft.com>
 References: <1301331615-26226-1-git-send-email-kys@microsoft.com>
- <1301331653-26265-1-git-send-email-kys@microsoft.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+	<1301331653-26265-1-git-send-email-kys@microsoft.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <devel-bounces@linuxdriverproject.org>
 In-Reply-To: <1301331653-26265-1-git-send-email-kys@microsoft.com>
-Sender: linux-kernel-owner@vger.kernel.org
+List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
+	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
+List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
+List-Post: <mailto:devel@linuxdriverproject.org>
+List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
+List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
+	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
+Sender: devel-bounces@linuxdriverproject.org
+Errors-To: devel-bounces@linuxdriverproject.org
 To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org
-Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>, Hank Janssen <hjanssen@microsoft.com>
+Cc: Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Get rid of some dead code in blkvsc_drv.c.
+Get rid of the forward declaration of blkvsc_init_rw() by moving the
+code around.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/blkvsc_drv.c |   26 --------------------------
- 1 files changed, 0 insertions(+), 26 deletions(-)
+ drivers/staging/hv/blkvsc_drv.c |  117 ++++++++++++++++++++-------------------
+ 1 files changed, 59 insertions(+), 58 deletions(-)
 
 diff --git a/drivers/staging/hv/blkvsc_drv.c b/drivers/staging/hv/blkvsc_drv.c
-index 14cc2ed..9faccbe 100644
+index a0c1fe8..e9d45eb 100644
 --- a/drivers/staging/hv/blkvsc_drv.c
 +++ b/drivers/staging/hv/blkvsc_drv.c
-@@ -172,7 +172,6 @@ static int blk_vsc_initialize(struct hv_driver *driver)
- 	stor_driver = hvdr_to_stordr(driver);
+@@ -353,6 +353,65 @@ static int blkvsc_getgeo(struct block_device *bd, struct hd_geometry *hg)
+ 	return 0;
+ }
  
- 	/* Make sure we are at least 2 pages since 1 page is used for control */
--	/* ASSERT(stor_driver->RingBufferSize >= (PAGE_SIZE << 1)); */
++
++static void blkvsc_init_rw(struct blkvsc_request *blkvsc_req)
++{
++	/* ASSERT(blkvsc_req->req); */
++	/* ASSERT(blkvsc_req->sector_count <=
++	   (MAX_MULTIPAGE_BUFFER_COUNT*8)); */
++
++	blkvsc_req->cmd_len = 16;
++
++	if (blkvsc_req->sector_start > 0xffffffff) {
++		if (rq_data_dir(blkvsc_req->req)) {
++			blkvsc_req->write = 1;
++			blkvsc_req->cmnd[0] = WRITE_16;
++		} else {
++			blkvsc_req->write = 0;
++			blkvsc_req->cmnd[0] = READ_16;
++		}
++
++		blkvsc_req->cmnd[1] |=
++			(blkvsc_req->req->cmd_flags & REQ_FUA) ? 0x8 : 0;
++
++		*(unsigned long long *)&blkvsc_req->cmnd[2] =
++				cpu_to_be64(blkvsc_req->sector_start);
++		*(unsigned int *)&blkvsc_req->cmnd[10] =
++				cpu_to_be32(blkvsc_req->sector_count);
++	} else if ((blkvsc_req->sector_count > 0xff) ||
++		   (blkvsc_req->sector_start > 0x1fffff)) {
++		if (rq_data_dir(blkvsc_req->req)) {
++			blkvsc_req->write = 1;
++			blkvsc_req->cmnd[0] = WRITE_10;
++		} else {
++			blkvsc_req->write = 0;
++			blkvsc_req->cmnd[0] = READ_10;
++		}
++
++		blkvsc_req->cmnd[1] |=
++			(blkvsc_req->req->cmd_flags & REQ_FUA) ? 0x8 : 0;
++
++		*(unsigned int *)&blkvsc_req->cmnd[2] =
++				cpu_to_be32(blkvsc_req->sector_start);
++		*(unsigned short *)&blkvsc_req->cmnd[7] =
++				cpu_to_be16(blkvsc_req->sector_count);
++	} else {
++		if (rq_data_dir(blkvsc_req->req)) {
++			blkvsc_req->write = 1;
++			blkvsc_req->cmnd[0] = WRITE_6;
++		} else {
++			blkvsc_req->write = 0;
++			blkvsc_req->cmnd[0] = READ_6;
++		}
++
++		*(unsigned int *)&blkvsc_req->cmnd[1] =
++				cpu_to_be32(blkvsc_req->sector_start) >> 8;
++		blkvsc_req->cmnd[1] &= 0x1f;
++		blkvsc_req->cmnd[4] = (unsigned char)blkvsc_req->sector_count;
++	}
++}
++
++
+ /* Static decl */
+ static int blkvsc_probe(struct device *dev);
+ static int blkvsc_remove(struct device *device);
+@@ -366,7 +425,6 @@ static void blkvsc_request(struct request_queue *queue);
+ static void blkvsc_request_completion(struct hv_storvsc_request *request);
+ static int blkvsc_do_request(struct block_device_context *blkdev,
+ 			     struct request *req);
+-static void blkvsc_init_rw(struct blkvsc_request *blkvsc_req);
+ static void blkvsc_cmd_completion(struct hv_storvsc_request *request);
+ static int blkvsc_do_inquiry(struct block_device_context *blkdev);
+ static int blkvsc_do_read_capacity(struct block_device_context *blkdev);
+@@ -996,63 +1054,6 @@ static int blkvsc_remove(struct device *device)
+ 	return ret;
+ }
  
- 	driver->name = g_blk_driver_name;
- 	memcpy(&driver->dev_type, &g_blk_device_type, sizeof(struct hv_guid));
-@@ -224,14 +223,6 @@ static int blkvsc_submit_request(struct blkvsc_request *blkvsc_req,
- 		   blkvsc_req->sector_count,
- 		   blkvsc_req->request.data_buffer.offset,
- 		   blkvsc_req->request.data_buffer.len);
--#if 0
--	for (i = 0; i < (blkvsc_req->request.data_buffer.len >> 12); i++) {
--		DPRINT_DBG(BLKVSC_DRV, "blkvsc_submit_request() - "
--			   "req %p pfn[%d] %llx\n",
--			   blkvsc_req, i,
--			   blkvsc_req->request.data_buffer.pfn_array[i]);
--	}
--#endif
- 
- 	storvsc_req = &blkvsc_req->request;
- 	vm_srb = &storvsc_req->vstor_packet.vm_srb;
-@@ -373,9 +364,6 @@ static int blkvsc_getgeo(struct block_device *bd, struct hd_geometry *hg)
- 
- static void blkvsc_init_rw(struct blkvsc_request *blkvsc_req)
- {
+-static void blkvsc_init_rw(struct blkvsc_request *blkvsc_req)
+-{
 -	/* ASSERT(blkvsc_req->req); */
--	/* ASSERT(blkvsc_req->sector_count <=
--	   (MAX_MULTIPAGE_BUFFER_COUNT*8)); */
- 
- 	blkvsc_req->cmd_len = 16;
- 
-@@ -432,7 +420,6 @@ static void blkvsc_init_rw(struct blkvsc_request *blkvsc_req)
- static int blkvsc_ioctl(struct block_device *bd, fmode_t mode,
- 			unsigned cmd, unsigned long argument)
- {
--/*	struct block_device_context *blkdev = bd->bd_disk->private_data; */
- 	int ret;
- 
- 	switch (cmd) {
-@@ -859,13 +846,6 @@ static int blkvsc_do_read_capacity16(struct block_device_context *blkdev)
- 	blkdev->capacity = be64_to_cpu(*(unsigned long long *) &buf[0]) + 1;
- 	blkdev->sector_size = be32_to_cpu(*(unsigned int *)&buf[8]);
- 
--#if 0
--	blkdev->capacity = ((buf[0] << 24) | (buf[1] << 16) |
--			    (buf[2] << 8) | buf[3]) + 1;
--	blkdev->sector_size = (buf[4] << 24) | (buf[5] << 16) |
--			      (buf[6] << 8) | buf[7];
--#endif
+-	/* ASSERT(blkvsc_req->sector_count <= (MAX_MULTIPAGE_BUFFER_COUNT*8)); */
 -
- 	kunmap(page_buf);
- 
- 	__free_page(page_buf);
-@@ -937,7 +917,6 @@ static int blkvsc_do_inquiry(struct block_device_context *blkdev)
- 
- 	buf = kmap(page_buf);
- 
--	/* print_hex_dump_bytes("", DUMP_PREFIX_NONE, buf, 64); */
- 	/* be to le */
- 	device_type = buf[0] & 0x1F;
- 
-@@ -957,8 +936,6 @@ static int blkvsc_do_inquiry(struct block_device_context *blkdev)
- 		blkdev->device_id_len = 64;
- 
- 	memcpy(blkdev->device_id, &buf[8], blkdev->device_id_len);
--	/* printk_hex_dump_bytes("", DUMP_PREFIX_NONE, blkdev->device_id,
--	 * blkdev->device_id_len); */
- 
- 	kunmap(page_buf);
- 
-@@ -1343,8 +1320,6 @@ static int blkvsc_probe(struct device *device)
- 	/* Initialize what we can here */
- 	spin_lock_init(&blkdev->lock);
- 
--	/* ASSERT(sizeof(struct blkvsc_request_group) <= */
--	/* 	sizeof(struct blkvsc_request)); */
- 
- 	blkdev->request_pool = kmem_cache_create(dev_name(&device_obj->device),
- 					sizeof(struct blkvsc_request), 0,
-@@ -1480,7 +1455,6 @@ static void blkvsc_request_completion(struct hv_storvsc_request *request)
- 	struct blkvsc_request *comp_req, *tmp;
- 	struct vmscsi_request *vm_srb;
- 
--	/* ASSERT(blkvsc_req->group); */
- 
- 	DPRINT_DBG(BLKVSC_DRV, "blkdev %p blkvsc_req %p group %p type %s "
- 		   "sect_start %lu sect_count %ld len %d group outstd %d "
+-	blkvsc_req->cmd_len = 16;
+-
+-	if (blkvsc_req->sector_start > 0xffffffff) {
+-		if (rq_data_dir(blkvsc_req->req)) {
+-			blkvsc_req->write = 1;
+-			blkvsc_req->cmnd[0] = WRITE_16;
+-		} else {
+-			blkvsc_req->write = 0;
+-			blkvsc_req->cmnd[0] = READ_16;
+-		}
+-
+-		blkvsc_req->cmnd[1] |=
+-			(blkvsc_req->req->cmd_flags & REQ_FUA) ? 0x8 : 0;
+-
+-		*(unsigned long long *)&blkvsc_req->cmnd[2] =
+-				cpu_to_be64(blkvsc_req->sector_start);
+-		*(unsigned int *)&blkvsc_req->cmnd[10] =
+-				cpu_to_be32(blkvsc_req->sector_count);
+-	} else if ((blkvsc_req->sector_count > 0xff) ||
+-		   (blkvsc_req->sector_start > 0x1fffff)) {
+-		if (rq_data_dir(blkvsc_req->req)) {
+-			blkvsc_req->write = 1;
+-			blkvsc_req->cmnd[0] = WRITE_10;
+-		} else {
+-			blkvsc_req->write = 0;
+-			blkvsc_req->cmnd[0] = READ_10;
+-		}
+-
+-		blkvsc_req->cmnd[1] |=
+-			(blkvsc_req->req->cmd_flags & REQ_FUA) ? 0x8 : 0;
+-
+-		*(unsigned int *)&blkvsc_req->cmnd[2] =
+-				cpu_to_be32(blkvsc_req->sector_start);
+-		*(unsigned short *)&blkvsc_req->cmnd[7] =
+-				cpu_to_be16(blkvsc_req->sector_count);
+-	} else {
+-		if (rq_data_dir(blkvsc_req->req)) {
+-			blkvsc_req->write = 1;
+-			blkvsc_req->cmnd[0] = WRITE_6;
+-		} else {
+-			blkvsc_req->write = 0;
+-			blkvsc_req->cmnd[0] = READ_6;
+-		}
+-
+-		*(unsigned int *)&blkvsc_req->cmnd[1] =
+-				cpu_to_be32(blkvsc_req->sector_start) >> 8;
+-		blkvsc_req->cmnd[1] &= 0x1f;
+-		blkvsc_req->cmnd[4] = (unsigned char)blkvsc_req->sector_count;
+-	}
+-}
+-
+-
+ /*
+  * We break the request into 1 or more blkvsc_requests and submit
+  * them.  If we cant submit them all, we put them on the
 -- 
 1.7.4.1
