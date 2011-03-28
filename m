@@ -1,8 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 05/22] Staging: hv: Get rid of the forward declaration of
-	blkvsc_init_rw()
-Date: Mon, 28 Mar 2011 10:00:36 -0700
-Message-ID: <1301331653-26265-5-git-send-email-kys@microsoft.com>
+Subject: [PATCH 15/22] Staging: hv: Get rid of the forward declaration of
+	blkvsc_revalidate_disk()
+Date: Mon, 28 Mar 2011 10:00:46 -0700
+Message-ID: <1301331653-26265-15-git-send-email-kys@microsoft.com>
 References: <1301331615-26226-1-git-send-email-kys@microsoft.com>
 	<1301331653-26265-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -23,158 +23,68 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Get rid of the forward declaration of blkvsc_init_rw() by moving the
-code around.
+Get rid of the forward declaration of blkvsc_revalidate_disk() by moving
+the code around.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/blkvsc_drv.c |  117 ++++++++++++++++++++-------------------
- 1 files changed, 59 insertions(+), 58 deletions(-)
+ drivers/staging/hv/blkvsc_drv.c |   32 +++++++++++++++-----------------
+ 1 files changed, 15 insertions(+), 17 deletions(-)
 
 diff --git a/drivers/staging/hv/blkvsc_drv.c b/drivers/staging/hv/blkvsc_drv.c
-index a0c1fe8..e9d45eb 100644
+index 86a7587..5079859 100644
 --- a/drivers/staging/hv/blkvsc_drv.c
 +++ b/drivers/staging/hv/blkvsc_drv.c
-@@ -353,6 +353,65 @@ static int blkvsc_getgeo(struct block_device *bd, struct hd_geometry *hg)
+@@ -858,9 +858,23 @@ static int blkvsc_do_read_capacity16(struct block_device_context *blkdev)
  	return 0;
  }
  
-+
-+static void blkvsc_init_rw(struct blkvsc_request *blkvsc_req)
++static int blkvsc_revalidate_disk(struct gendisk *gd)
 +{
-+	/* ASSERT(blkvsc_req->req); */
-+	/* ASSERT(blkvsc_req->sector_count <=
-+	   (MAX_MULTIPAGE_BUFFER_COUNT*8)); */
++	struct block_device_context *blkdev = gd->private_data;
 +
-+	blkvsc_req->cmd_len = 16;
++	DPRINT_DBG(BLKVSC_DRV, "- enter\n");
 +
-+	if (blkvsc_req->sector_start > 0xffffffff) {
-+		if (rq_data_dir(blkvsc_req->req)) {
-+			blkvsc_req->write = 1;
-+			blkvsc_req->cmnd[0] = WRITE_16;
-+		} else {
-+			blkvsc_req->write = 0;
-+			blkvsc_req->cmnd[0] = READ_16;
-+		}
-+
-+		blkvsc_req->cmnd[1] |=
-+			(blkvsc_req->req->cmd_flags & REQ_FUA) ? 0x8 : 0;
-+
-+		*(unsigned long long *)&blkvsc_req->cmnd[2] =
-+				cpu_to_be64(blkvsc_req->sector_start);
-+		*(unsigned int *)&blkvsc_req->cmnd[10] =
-+				cpu_to_be32(blkvsc_req->sector_count);
-+	} else if ((blkvsc_req->sector_count > 0xff) ||
-+		   (blkvsc_req->sector_start > 0x1fffff)) {
-+		if (rq_data_dir(blkvsc_req->req)) {
-+			blkvsc_req->write = 1;
-+			blkvsc_req->cmnd[0] = WRITE_10;
-+		} else {
-+			blkvsc_req->write = 0;
-+			blkvsc_req->cmnd[0] = READ_10;
-+		}
-+
-+		blkvsc_req->cmnd[1] |=
-+			(blkvsc_req->req->cmd_flags & REQ_FUA) ? 0x8 : 0;
-+
-+		*(unsigned int *)&blkvsc_req->cmnd[2] =
-+				cpu_to_be32(blkvsc_req->sector_start);
-+		*(unsigned short *)&blkvsc_req->cmnd[7] =
-+				cpu_to_be16(blkvsc_req->sector_count);
-+	} else {
-+		if (rq_data_dir(blkvsc_req->req)) {
-+			blkvsc_req->write = 1;
-+			blkvsc_req->cmnd[0] = WRITE_6;
-+		} else {
-+			blkvsc_req->write = 0;
-+			blkvsc_req->cmnd[0] = READ_6;
-+		}
-+
-+		*(unsigned int *)&blkvsc_req->cmnd[1] =
-+				cpu_to_be32(blkvsc_req->sector_start) >> 8;
-+		blkvsc_req->cmnd[1] &= 0x1f;
-+		blkvsc_req->cmnd[4] = (unsigned char)blkvsc_req->sector_count;
++	if (blkdev->device_type == DVD_TYPE) {
++		blkvsc_do_read_capacity(blkdev);
++		set_capacity(blkdev->gd, blkdev->capacity *
++			    (blkdev->sector_size/512));
++		blk_queue_logical_block_size(gd->queue, blkdev->sector_size);
 +	}
++	return 0;
 +}
-+
 +
  /* Static decl */
  static int blkvsc_probe(struct device *dev);
- static int blkvsc_remove(struct device *device);
-@@ -366,7 +425,6 @@ static void blkvsc_request(struct request_queue *queue);
+-static int blkvsc_revalidate_disk(struct gendisk *gd);
+ static void blkvsc_request(struct request_queue *queue);
  static void blkvsc_request_completion(struct hv_storvsc_request *request);
  static int blkvsc_do_request(struct block_device_context *blkdev,
- 			     struct request *req);
--static void blkvsc_init_rw(struct blkvsc_request *blkvsc_req);
- static void blkvsc_cmd_completion(struct hv_storvsc_request *request);
- static int blkvsc_do_inquiry(struct block_device_context *blkdev);
- static int blkvsc_do_read_capacity(struct block_device_context *blkdev);
-@@ -996,63 +1054,6 @@ static int blkvsc_remove(struct device *device)
- 	return ret;
+@@ -1509,22 +1523,6 @@ static void blkvsc_request(struct request_queue *queue)
+ 	}
  }
  
--static void blkvsc_init_rw(struct blkvsc_request *blkvsc_req)
+-
+-static int blkvsc_revalidate_disk(struct gendisk *gd)
 -{
--	/* ASSERT(blkvsc_req->req); */
--	/* ASSERT(blkvsc_req->sector_count <= (MAX_MULTIPAGE_BUFFER_COUNT*8)); */
+-	struct block_device_context *blkdev = gd->private_data;
 -
--	blkvsc_req->cmd_len = 16;
+-	DPRINT_DBG(BLKVSC_DRV, "- enter\n");
 -
--	if (blkvsc_req->sector_start > 0xffffffff) {
--		if (rq_data_dir(blkvsc_req->req)) {
--			blkvsc_req->write = 1;
--			blkvsc_req->cmnd[0] = WRITE_16;
--		} else {
--			blkvsc_req->write = 0;
--			blkvsc_req->cmnd[0] = READ_16;
--		}
--
--		blkvsc_req->cmnd[1] |=
--			(blkvsc_req->req->cmd_flags & REQ_FUA) ? 0x8 : 0;
--
--		*(unsigned long long *)&blkvsc_req->cmnd[2] =
--				cpu_to_be64(blkvsc_req->sector_start);
--		*(unsigned int *)&blkvsc_req->cmnd[10] =
--				cpu_to_be32(blkvsc_req->sector_count);
--	} else if ((blkvsc_req->sector_count > 0xff) ||
--		   (blkvsc_req->sector_start > 0x1fffff)) {
--		if (rq_data_dir(blkvsc_req->req)) {
--			blkvsc_req->write = 1;
--			blkvsc_req->cmnd[0] = WRITE_10;
--		} else {
--			blkvsc_req->write = 0;
--			blkvsc_req->cmnd[0] = READ_10;
--		}
--
--		blkvsc_req->cmnd[1] |=
--			(blkvsc_req->req->cmd_flags & REQ_FUA) ? 0x8 : 0;
--
--		*(unsigned int *)&blkvsc_req->cmnd[2] =
--				cpu_to_be32(blkvsc_req->sector_start);
--		*(unsigned short *)&blkvsc_req->cmnd[7] =
--				cpu_to_be16(blkvsc_req->sector_count);
--	} else {
--		if (rq_data_dir(blkvsc_req->req)) {
--			blkvsc_req->write = 1;
--			blkvsc_req->cmnd[0] = WRITE_6;
--		} else {
--			blkvsc_req->write = 0;
--			blkvsc_req->cmnd[0] = READ_6;
--		}
--
--		*(unsigned int *)&blkvsc_req->cmnd[1] =
--				cpu_to_be32(blkvsc_req->sector_start) >> 8;
--		blkvsc_req->cmnd[1] &= 0x1f;
--		blkvsc_req->cmnd[4] = (unsigned char)blkvsc_req->sector_count;
+-	if (blkdev->device_type == DVD_TYPE) {
+-		blkvsc_do_read_capacity(blkdev);
+-		set_capacity(blkdev->gd, blkdev->capacity *
+-			    (blkdev->sector_size/512));
+-		blk_queue_logical_block_size(gd->queue, blkdev->sector_size);
 -	}
+-	return 0;
 -}
 -
--
- /*
-  * We break the request into 1 or more blkvsc_requests and submit
-  * them.  If we cant submit them all, we put them on the
+ static int __init blkvsc_init(void)
+ {
+ 	int ret;
 -- 
 1.7.4.1
