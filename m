@@ -1,144 +1,175 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 19/22] Staging: hv: Get rid of the forward declaration for
-	blkvsc_request()
-Date: Mon, 28 Mar 2011 10:00:50 -0700
-Message-ID: <1301331653-26265-19-git-send-email-kys@microsoft.com>
+Subject: [PATCH 10/22] Staging: hv: Get rid of the forward declaration of blkvsc_remove()
+Date: Mon, 28 Mar 2011 10:00:41 -0700
+Message-ID: <1301331653-26265-10-git-send-email-kys@microsoft.com>
 References: <1301331615-26226-1-git-send-email-kys@microsoft.com>
-	<1301331653-26265-1-git-send-email-kys@microsoft.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <devel-bounces@linuxdriverproject.org>
+ <1301331653-26265-1-git-send-email-kys@microsoft.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1301331653-26265-1-git-send-email-kys@microsoft.com>
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
-List-Post: <mailto:devel@linuxdriverproject.org>
-List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
-Sender: devel-bounces@linuxdriverproject.org
-Errors-To: devel-bounces@linuxdriverproject.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org
-Cc: Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>
+Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>, Hank Janssen <hjanssen@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Get rid of the forward declaration for blkvsc_request() by moving the code
-around.
+Get rid of the forward declaration of blkvsc_remove() by moving the code around.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/blkvsc_drv.c |   86 +++++++++++++++++++-------------------
- 1 files changed, 43 insertions(+), 43 deletions(-)
+ drivers/staging/hv/blkvsc_drv.c |  130 +++++++++++++++++++-------------------
+ 1 files changed, 65 insertions(+), 65 deletions(-)
 
 diff --git a/drivers/staging/hv/blkvsc_drv.c b/drivers/staging/hv/blkvsc_drv.c
-index 535f315..c45677b 100644
+index c1e673b..f67d983 100644
 --- a/drivers/staging/hv/blkvsc_drv.c
 +++ b/drivers/staging/hv/blkvsc_drv.c
-@@ -1167,9 +1167,51 @@ static int blkvsc_do_pending_reqs(struct block_device_context *blkdev)
+@@ -577,9 +577,73 @@ out:
  	return ret;
  }
  
 +
-+static void blkvsc_request(struct request_queue *queue)
++/*
++ * blkvsc_remove() - Callback when our device is removed
++ */
++static int blkvsc_remove(struct device *device)
 +{
-+	struct block_device_context *blkdev = NULL;
-+	struct request *req;
-+	int ret = 0;
++	struct hv_driver *drv =
++				drv_to_hv_drv(device->driver);
++	struct storvsc_driver_object *storvsc_drv_obj =
++				drv->priv;
++	struct hv_device *device_obj = device_to_hv_device(device);
++	struct block_device_context *blkdev = dev_get_drvdata(device);
++	unsigned long flags;
++	int ret;
 +
-+	DPRINT_DBG(BLKVSC_DRV, "- enter\n");
-+	while ((req = blk_peek_request(queue)) != NULL) {
-+		DPRINT_DBG(BLKVSC_DRV, "- req %p\n", req);
++	DPRINT_DBG(BLKVSC_DRV, "blkvsc_remove()\n");
 +
-+		blkdev = req->rq_disk->private_data;
-+		if (blkdev->shutting_down || req->cmd_type != REQ_TYPE_FS ||
-+		    blkdev->media_not_present) {
-+			__blk_end_request_cur(req, 0);
-+			continue;
-+		}
++	if (!storvsc_drv_obj->base.dev_rm)
++		return -1;
 +
-+		ret = blkvsc_do_pending_reqs(blkdev);
-+
-+		if (ret != 0) {
-+			DPRINT_DBG(BLKVSC_DRV,
-+				   "- stop queue - pending_list not empty\n");
-+			blk_stop_queue(queue);
-+			break;
-+		}
-+
-+		blk_start_request(req);
-+
-+		ret = blkvsc_do_request(blkdev, req);
-+		if (ret > 0) {
-+			DPRINT_DBG(BLKVSC_DRV, "- stop queue - no room\n");
-+			blk_stop_queue(queue);
-+			break;
-+		} else if (ret < 0) {
-+			DPRINT_DBG(BLKVSC_DRV, "- stop queue - no mem\n");
-+			blk_requeue_request(queue, req);
-+			blk_stop_queue(queue);
-+			break;
-+		}
++	/*
++	 * Call to the vsc driver to let it know that the device is being
++	 * removed
++	 */
++	ret = storvsc_drv_obj->base.dev_rm(device_obj);
++	if (ret != 0) {
++		/* TODO: */
++		DPRINT_ERR(BLKVSC_DRV,
++			   "unable to remove blkvsc device (ret %d)", ret);
 +	}
++
++	/* Get to a known state */
++	spin_lock_irqsave(&blkdev->lock, flags);
++
++	blkdev->shutting_down = 1;
++
++	blk_stop_queue(blkdev->gd->queue);
++
++	spin_unlock_irqrestore(&blkdev->lock, flags);
++
++	while (blkdev->num_outstanding_reqs) {
++		DPRINT_INFO(STORVSC, "waiting for %d requests to complete...",
++			    blkdev->num_outstanding_reqs);
++		udelay(100);
++	}
++
++	blkvsc_do_flush(blkdev);
++
++	spin_lock_irqsave(&blkdev->lock, flags);
++
++	blkvsc_cancel_pending_reqs(blkdev);
++
++	spin_unlock_irqrestore(&blkdev->lock, flags);
++
++	blk_cleanup_queue(blkdev->gd->queue);
++
++	del_gendisk(blkdev->gd);
++
++	kmem_cache_destroy(blkdev->request_pool);
++
++	kfree(blkdev);
++
++	return ret;
 +}
 +
  /* Static decl */
  static int blkvsc_probe(struct device *dev);
--static void blkvsc_request(struct request_queue *queue);
+-static int blkvsc_remove(struct device *device);
+ static void blkvsc_shutdown(struct device *device);
  
- static int blkvsc_ringbuffer_size = BLKVSC_RING_BUFFER_SIZE;
- module_param(blkvsc_ringbuffer_size, int, S_IRUGO);
-@@ -1496,48 +1538,6 @@ static void blkvsc_request_completion(struct hv_storvsc_request *request)
- 	spin_unlock_irqrestore(&blkdev->lock, flags);
+ static int blkvsc_release(struct gendisk *disk, fmode_t mode);
+@@ -1116,70 +1180,6 @@ static int blkvsc_do_read_capacity16(struct block_device_context *blkdev)
  }
  
--static void blkvsc_request(struct request_queue *queue)
+ /*
+- * blkvsc_remove() - Callback when our device is removed
+- */
+-static int blkvsc_remove(struct device *device)
 -{
--	struct block_device_context *blkdev = NULL;
--	struct request *req;
--	int ret = 0;
+-	struct hv_driver *drv =
+-				drv_to_hv_drv(device->driver);
+-	struct storvsc_driver_object *storvsc_drv_obj =
+-				drv->priv;
+-	struct hv_device *device_obj = device_to_hv_device(device);
+-	struct block_device_context *blkdev = dev_get_drvdata(device);
+-	unsigned long flags;
+-	int ret;
 -
--	DPRINT_DBG(BLKVSC_DRV, "- enter\n");
--	while ((req = blk_peek_request(queue)) != NULL) {
--		DPRINT_DBG(BLKVSC_DRV, "- req %p\n", req);
+-	DPRINT_DBG(BLKVSC_DRV, "blkvsc_remove()\n");
 -
--		blkdev = req->rq_disk->private_data;
--		if (blkdev->shutting_down || req->cmd_type != REQ_TYPE_FS ||
--		    blkdev->media_not_present) {
--			__blk_end_request_cur(req, 0);
--			continue;
--		}
+-	if (!storvsc_drv_obj->base.dev_rm)
+-		return -1;
 -
--		ret = blkvsc_do_pending_reqs(blkdev);
--
--		if (ret != 0) {
--			DPRINT_DBG(BLKVSC_DRV,
--				   "- stop queue - pending_list not empty\n");
--			blk_stop_queue(queue);
--			break;
--		}
--
--		blk_start_request(req);
--
--		ret = blkvsc_do_request(blkdev, req);
--		if (ret > 0) {
--			DPRINT_DBG(BLKVSC_DRV, "- stop queue - no room\n");
--			blk_stop_queue(queue);
--			break;
--		} else if (ret < 0) {
--			DPRINT_DBG(BLKVSC_DRV, "- stop queue - no mem\n");
--			blk_requeue_request(queue, req);
--			blk_stop_queue(queue);
--			break;
--		}
+-	/*
+-	 * Call to the vsc driver to let it know that the device is being
+-	 * removed
+-	 */
+-	ret = storvsc_drv_obj->base.dev_rm(device_obj);
+-	if (ret != 0) {
+-		/* TODO: */
+-		DPRINT_ERR(BLKVSC_DRV,
+-			   "unable to remove blkvsc device (ret %d)", ret);
 -	}
+-
+-	/* Get to a known state */
+-	spin_lock_irqsave(&blkdev->lock, flags);
+-
+-	blkdev->shutting_down = 1;
+-
+-	blk_stop_queue(blkdev->gd->queue);
+-
+-	spin_unlock_irqrestore(&blkdev->lock, flags);
+-
+-	while (blkdev->num_outstanding_reqs) {
+-		DPRINT_INFO(STORVSC, "waiting for %d requests to complete...",
+-			    blkdev->num_outstanding_reqs);
+-		udelay(100);
+-	}
+-
+-	blkvsc_do_flush(blkdev);
+-
+-	spin_lock_irqsave(&blkdev->lock, flags);
+-
+-	blkvsc_cancel_pending_reqs(blkdev);
+-
+-	spin_unlock_irqrestore(&blkdev->lock, flags);
+-
+-	blk_cleanup_queue(blkdev->gd->queue);
+-
+-	del_gendisk(blkdev->gd);
+-
+-	kmem_cache_destroy(blkdev->request_pool);
+-
+-	kfree(blkdev);
+-
+-	return ret;
 -}
 -
- static int __init blkvsc_init(void)
- {
- 	int ret;
+-/*
+  * We break the request into 1 or more blkvsc_requests and submit
+  * them.  If we cant submit them all, we put them on the
+  * pending_list. The blkvsc_request() will work on the pending_list.
 -- 
 1.7.4.1
