@@ -1,8 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 12/20] Staging: hv: Get rid of cdb from struct
-	hv_storvsc_request
-Date: Mon, 28 Mar 2011 09:33:37 -0700
-Message-ID: <1301330025-25542-12-git-send-email-kys@microsoft.com>
+Subject: [PATCH 02/20] Staging: hv: Embed struct storvsc_request_extension
+	into hv_storvsc_request
+Date: Mon, 28 Mar 2011 09:33:27 -0700
+Message-ID: <1301330025-25542-2-git-send-email-kys@microsoft.com>
 References: <1301329950-25490-1-git-send-email-kys@microsoft.com>
 	<1301330025-25542-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -23,84 +23,96 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-In preparation for consolidating all I/O request state, get rid of the
-cdb field from struct hv_storvsc_request and instead
-directly copy the command into struct vmscsi_request.
+Embed struct storvsc_request_extension into hv_storvsc_request.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/blkvsc_drv.c  |    3 ++-
- drivers/staging/hv/storvsc.c     |    6 ++----
- drivers/staging/hv/storvsc_api.h |    1 -
- drivers/staging/hv/storvsc_drv.c |    3 ++-
- 4 files changed, 6 insertions(+), 7 deletions(-)
+ drivers/staging/hv/blkvsc_drv.c  |    8 --------
+ drivers/staging/hv/storvsc.c     |    3 +--
+ drivers/staging/hv/storvsc_api.h |    3 +--
+ drivers/staging/hv/storvsc_drv.c |    6 ------
+ 4 files changed, 2 insertions(+), 18 deletions(-)
 
 diff --git a/drivers/staging/hv/blkvsc_drv.c b/drivers/staging/hv/blkvsc_drv.c
-index 3db622d..a156930 100644
+index 824080d..9ceaa99 100644
 --- a/drivers/staging/hv/blkvsc_drv.c
 +++ b/drivers/staging/hv/blkvsc_drv.c
-@@ -947,7 +947,8 @@ static int blkvsc_submit_request(struct blkvsc_request *blkvsc_req,
- 	vm_srb->lun = 0;	 /* this is not really used at all */
+@@ -84,12 +84,6 @@ struct blkvsc_request {
+ 	unsigned char cmnd[MAX_COMMAND_SIZE];
  
- 	vm_srb->cdb_length = blkvsc_req->cmd_len;
--	storvsc_req->cdb = blkvsc_req->cmnd;
-+
-+	memcpy(vm_srb->cdb, blkvsc_req->cmnd, vm_srb->cdb_length);
- 
- 	storvsc_req->sense_buffer = blkvsc_req->sense_buffer;
- 	storvsc_req->sense_buffer_size = SCSI_SENSE_BUFFERSIZE;
-diff --git a/drivers/staging/hv/storvsc.c b/drivers/staging/hv/storvsc.c
-index 5a5065c..ca41c05 100644
---- a/drivers/staging/hv/storvsc.c
-+++ b/drivers/staging/hv/storvsc.c
-@@ -301,7 +301,8 @@ static void stor_vsc_on_io_completion(struct hv_device *device,
- 	if (request->status != 0 || vstor_packet->vm_srb.srb_status != 1) {
- 		DPRINT_WARN(STORVSC,
- 			    "cmd 0x%x scsi status 0x%x srb status 0x%x\n",
--			    request->cdb[0], vstor_packet->vm_srb.scsi_status,
-+			    vstor_packet->vm_srb.cdb[0],
-+			    vstor_packet->vm_srb.scsi_status,
- 			    vstor_packet->vm_srb.srb_status);
- 	}
- 
-@@ -551,9 +552,6 @@ int stor_vsc_on_io_request(struct hv_device *device,
- 
- 	vstor_packet->vm_srb.sense_info_length = SENSE_BUFFER_SIZE;
- 
--	/* Copy over the scsi command descriptor block */
--	memcpy(&vstor_packet->vm_srb.cdb, request->cdb,
--		 vstor_packet->vm_srb.cdb_length);
- 
- 	vstor_packet->vm_srb.data_transfer_length = request->data_buffer.len;
- 
-diff --git a/drivers/staging/hv/storvsc_api.h b/drivers/staging/hv/storvsc_api.h
-index fd3af2b..55c5cc6 100644
---- a/drivers/staging/hv/storvsc_api.h
-+++ b/drivers/staging/hv/storvsc_api.h
-@@ -66,7 +66,6 @@ struct storvsc_request_extension {
+ 	struct hv_storvsc_request request;
+-	/*
+-	 * !!!DO NOT ADD ANYTHING BELOW HERE!!! Otherwise, memory can overlap,
+-	 * because - The extension buffer falls right here and is pointed to by
+-	 * request.Extension;
+-	 * Which sounds like a horrible idea, who designed this?
+-	 */
  };
  
- struct hv_storvsc_request {
--	u8 *cdb;
- 	u32 status;
- 	u32 bytes_xfer;
+ /* Per device structure */
+@@ -942,8 +936,6 @@ static int blkvsc_submit_request(struct blkvsc_request *blkvsc_req,
+ #endif
  
+ 	storvsc_req = &blkvsc_req->request;
+-	storvsc_req->extension = (void *)((unsigned long)blkvsc_req +
+-					  sizeof(struct blkvsc_request));
+ 
+ 	storvsc_req->type = blkvsc_req->write ? WRITE_TYPE : READ_TYPE;
+ 
+diff --git a/drivers/staging/hv/storvsc.c b/drivers/staging/hv/storvsc.c
+index 6801e37..5cea331 100644
+--- a/drivers/staging/hv/storvsc.c
++++ b/drivers/staging/hv/storvsc.c
+@@ -533,8 +533,7 @@ int stor_vsc_on_io_request(struct hv_device *device,
+ 	struct vstor_packet *vstor_packet;
+ 	int ret = 0;
+ 
+-	request_extension =
+-		(struct storvsc_request_extension *)request->extension;
++	request_extension = &request->extension;
+ 	vstor_packet = &request_extension->vstor_packet;
+ 	stor_device = get_stor_device(device);
+ 
+diff --git a/drivers/staging/hv/storvsc_api.h b/drivers/staging/hv/storvsc_api.h
+index 800ebbf..e41b68b 100644
+--- a/drivers/staging/hv/storvsc_api.h
++++ b/drivers/staging/hv/storvsc_api.h
+@@ -83,8 +83,7 @@ struct hv_storvsc_request {
+ 
+ 	void (*on_io_completion)(struct hv_storvsc_request *request);
+ 
+-	/* This points to the memory after DataBuffer */
+-	void *extension;
++	struct storvsc_request_extension extension;
+ 
+ 	struct hv_multipage_buffer data_buffer;
+ };
 diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
-index c0ccae2..08c2df4 100644
+index 127d122..58d12e0 100644
 --- a/drivers/staging/hv/storvsc_drv.c
 +++ b/drivers/staging/hv/storvsc_drv.c
-@@ -781,7 +781,8 @@ static int storvsc_queuecommand_lck(struct scsi_cmnd *scmnd,
+@@ -69,10 +69,6 @@ struct storvsc_cmd_request {
+ 	struct scatterlist *bounce_sgl;
  
- 	/* ASSERT(scmnd->cmd_len <= 16); */
- 	vm_srb->cdb_length = scmnd->cmd_len;
--	request->cdb = scmnd->cmnd;
-+
-+	memcpy(vm_srb->cdb, scmnd->cmnd, vm_srb->cdb_length);
+ 	struct hv_storvsc_request request;
+-	/* !!!DO NOT ADD ANYTHING BELOW HERE!!! */
+-	/* The extension buffer falls right here and is pointed to by
+-	 * request.Extension;
+-	 * Which sounds like a very bad design... */
+ };
  
- 	request->sense_buffer = scmnd->sense_buffer;
- 	request->sense_buffer_size = SCSI_SENSE_BUFFERSIZE;
+ 
+@@ -763,8 +759,6 @@ static int storvsc_queuecommand_lck(struct scsi_cmnd *scmnd,
+ 
+ 	request = &cmd_request->request;
+ 
+-	request->extension =
+-		(void *)((unsigned long)cmd_request + request_size);
+ 	DPRINT_DBG(STORVSC_DRV, "req %p size %d ext %d", request, request_size,
+ 		   storvsc_drv_obj->request_ext_size);
+ 
 -- 
 1.7.4.1
