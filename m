@@ -1,215 +1,118 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 13/22] Staging: hv: Get rid of the forward declaration for
-	blkvsc_do_read_capacity()
-Date: Mon, 28 Mar 2011 10:00:44 -0700
-Message-ID: <1301331653-26265-13-git-send-email-kys@microsoft.com>
+Subject: [PATCH 22/22] Staging: hv: Get rid of some dead code in blkvsc_drv.c
+Date: Mon, 28 Mar 2011 10:00:53 -0700
+Message-ID: <1301331653-26265-22-git-send-email-kys@microsoft.com>
 References: <1301331615-26226-1-git-send-email-kys@microsoft.com>
-	<1301331653-26265-1-git-send-email-kys@microsoft.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <devel-bounces@linuxdriverproject.org>
+ <1301331653-26265-1-git-send-email-kys@microsoft.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1301331653-26265-1-git-send-email-kys@microsoft.com>
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
-List-Post: <mailto:devel@linuxdriverproject.org>
-List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
-Sender: devel-bounces@linuxdriverproject.org
-Errors-To: devel-bounces@linuxdriverproject.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org
-Cc: Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>
+Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>, Hank Janssen <hjanssen@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Get rid of the forward declaration for blkvsc_do_read_capacity() by moving
-the code around.
+Get rid of some dead code in blkvsc_drv.c.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/blkvsc_drv.c |  152 +++++++++++++++++++-------------------
- 1 files changed, 76 insertions(+), 76 deletions(-)
+ drivers/staging/hv/blkvsc_drv.c |   26 --------------------------
+ 1 files changed, 0 insertions(+), 26 deletions(-)
 
 diff --git a/drivers/staging/hv/blkvsc_drv.c b/drivers/staging/hv/blkvsc_drv.c
-index 720d54b..b93c8b7 100644
+index 14cc2ed..9faccbe 100644
 --- a/drivers/staging/hv/blkvsc_drv.c
 +++ b/drivers/staging/hv/blkvsc_drv.c
-@@ -698,6 +698,82 @@ static int blkvsc_release(struct gendisk *disk, fmode_t mode)
- 	return 0;
- }
+@@ -172,7 +172,6 @@ static int blk_vsc_initialize(struct hv_driver *driver)
+ 	stor_driver = hvdr_to_stordr(driver);
  
-+
-+/* Do a scsi READ_CAPACITY cmd here to get the size of the disk */
-+static int blkvsc_do_read_capacity(struct block_device_context *blkdev)
-+{
-+	struct blkvsc_request *blkvsc_req;
-+	struct page *page_buf;
-+	unsigned char *buf;
-+	struct scsi_sense_hdr sense_hdr;
-+	struct vmscsi_request *vm_srb;
-+
-+	DPRINT_DBG(BLKVSC_DRV, "blkvsc_do_read_capacity()\n");
-+
-+	blkdev->sector_size = 0;
-+	blkdev->capacity = 0;
-+	blkdev->media_not_present = 0; /* assume a disk is present */
-+
-+	blkvsc_req = kmem_cache_zalloc(blkdev->request_pool, GFP_KERNEL);
-+	if (!blkvsc_req)
-+		return -ENOMEM;
-+
-+	memset(blkvsc_req, 0, sizeof(struct blkvsc_request));
-+	page_buf = alloc_page(GFP_KERNEL);
-+	if (!page_buf) {
-+		kmem_cache_free(blkvsc_req->dev->request_pool, blkvsc_req);
-+		return -ENOMEM;
-+	}
-+
-+	vm_srb = &blkvsc_req->request.vstor_packet.vm_srb;
-+	init_completion(&blkvsc_req->request.wait_event);
-+	blkvsc_req->dev = blkdev;
-+	blkvsc_req->req = NULL;
-+	blkvsc_req->write = 0;
-+
-+	blkvsc_req->request.data_buffer.pfn_array[0] =
-+	page_to_pfn(page_buf);
-+	blkvsc_req->request.data_buffer.offset = 0;
-+	blkvsc_req->request.data_buffer.len = 8;
-+
-+	blkvsc_req->cmnd[0] = READ_CAPACITY;
-+	blkvsc_req->cmd_len = 16;
-+
-+	blkvsc_submit_request(blkvsc_req, blkvsc_cmd_completion);
-+
-+	DPRINT_DBG(BLKVSC_DRV, "waiting %p to complete\n",
-+		   blkvsc_req);
-+
-+	wait_for_completion_interruptible(&blkvsc_req->request.wait_event);
-+
-+	/* check error */
-+	if (vm_srb->scsi_status) {
-+		scsi_normalize_sense(blkvsc_req->sense_buffer,
-+				     SCSI_SENSE_BUFFERSIZE, &sense_hdr);
-+
-+		if (sense_hdr.asc == 0x3A) {
-+			/* Medium not present */
-+			blkdev->media_not_present = 1;
-+		}
-+		return 0;
-+	}
-+	buf = kmap(page_buf);
-+
-+	/* be to le */
-+	blkdev->capacity = ((buf[0] << 24) | (buf[1] << 16) |
-+			    (buf[2] << 8) | buf[3]) + 1;
-+	blkdev->sector_size = (buf[4] << 24) | (buf[5] << 16) |
-+			      (buf[6] << 8) | buf[7];
-+
-+	kunmap(page_buf);
-+
-+	__free_page(page_buf);
-+
-+	kmem_cache_free(blkvsc_req->dev->request_pool, blkvsc_req);
-+
-+	return 0;
-+}
-+
- /* Static decl */
- static int blkvsc_probe(struct device *dev);
- static int blkvsc_revalidate_disk(struct gendisk *gd);
-@@ -706,7 +782,6 @@ static void blkvsc_request_completion(struct hv_storvsc_request *request);
- static int blkvsc_do_request(struct block_device_context *blkdev,
- 			     struct request *req);
- static int blkvsc_do_inquiry(struct block_device_context *blkdev);
--static int blkvsc_do_read_capacity(struct block_device_context *blkdev);
- static int blkvsc_do_read_capacity16(struct block_device_context *blkdev);
- static int blkvsc_do_pending_reqs(struct block_device_context *blkdev);
+ 	/* Make sure we are at least 2 pages since 1 page is used for control */
+-	/* ASSERT(stor_driver->RingBufferSize >= (PAGE_SIZE << 1)); */
  
-@@ -1040,81 +1115,6 @@ static int blkvsc_do_inquiry(struct block_device_context *blkdev)
- 	return 0;
- }
- 
--/* Do a scsi READ_CAPACITY cmd here to get the size of the disk */
--static int blkvsc_do_read_capacity(struct block_device_context *blkdev)
--{
--	struct blkvsc_request *blkvsc_req;
--	struct page *page_buf;
--	unsigned char *buf;
--	struct scsi_sense_hdr sense_hdr;
--	struct vmscsi_request *vm_srb;
--
--	DPRINT_DBG(BLKVSC_DRV, "blkvsc_do_read_capacity()\n");
--
--	blkdev->sector_size = 0;
--	blkdev->capacity = 0;
--	blkdev->media_not_present = 0; /* assume a disk is present */
--
--	blkvsc_req = kmem_cache_zalloc(blkdev->request_pool, GFP_KERNEL);
--	if (!blkvsc_req)
--		return -ENOMEM;
--
--	memset(blkvsc_req, 0, sizeof(struct blkvsc_request));
--	page_buf = alloc_page(GFP_KERNEL);
--	if (!page_buf) {
--		kmem_cache_free(blkvsc_req->dev->request_pool, blkvsc_req);
--		return -ENOMEM;
+ 	driver->name = g_blk_driver_name;
+ 	memcpy(&driver->dev_type, &g_blk_device_type, sizeof(struct hv_guid));
+@@ -224,14 +223,6 @@ static int blkvsc_submit_request(struct blkvsc_request *blkvsc_req,
+ 		   blkvsc_req->sector_count,
+ 		   blkvsc_req->request.data_buffer.offset,
+ 		   blkvsc_req->request.data_buffer.len);
+-#if 0
+-	for (i = 0; i < (blkvsc_req->request.data_buffer.len >> 12); i++) {
+-		DPRINT_DBG(BLKVSC_DRV, "blkvsc_submit_request() - "
+-			   "req %p pfn[%d] %llx\n",
+-			   blkvsc_req, i,
+-			   blkvsc_req->request.data_buffer.pfn_array[i]);
 -	}
--
--	vm_srb = &blkvsc_req->request.vstor_packet.vm_srb;
--	init_completion(&blkvsc_req->request.wait_event);
--	blkvsc_req->dev = blkdev;
--	blkvsc_req->req = NULL;
--	blkvsc_req->write = 0;
--
--	blkvsc_req->request.data_buffer.pfn_array[0] =
--	page_to_pfn(page_buf);
--	blkvsc_req->request.data_buffer.offset = 0;
--	blkvsc_req->request.data_buffer.len = 8;
--
--	blkvsc_req->cmnd[0] = READ_CAPACITY;
--	blkvsc_req->cmd_len = 16;
--
--	blkvsc_submit_request(blkvsc_req, blkvsc_cmd_completion);
--
--	DPRINT_DBG(BLKVSC_DRV, "waiting %p to complete\n",
--		   blkvsc_req);
--
--	wait_for_completion_interruptible(&blkvsc_req->request.wait_event);
--
--	/* check error */
--	if (vm_srb->scsi_status) {
--		scsi_normalize_sense(blkvsc_req->sense_buffer,
--				     SCSI_SENSE_BUFFERSIZE, &sense_hdr);
--
--		if (sense_hdr.asc == 0x3A) {
--			/* Medium not present */
--			blkdev->media_not_present = 1;
--		}
--		return 0;
--	}
--	buf = kmap(page_buf);
--
--	/* be to le */
+-#endif
+ 
+ 	storvsc_req = &blkvsc_req->request;
+ 	vm_srb = &storvsc_req->vstor_packet.vm_srb;
+@@ -373,9 +364,6 @@ static int blkvsc_getgeo(struct block_device *bd, struct hd_geometry *hg)
+ 
+ static void blkvsc_init_rw(struct blkvsc_request *blkvsc_req)
+ {
+-	/* ASSERT(blkvsc_req->req); */
+-	/* ASSERT(blkvsc_req->sector_count <=
+-	   (MAX_MULTIPAGE_BUFFER_COUNT*8)); */
+ 
+ 	blkvsc_req->cmd_len = 16;
+ 
+@@ -432,7 +420,6 @@ static void blkvsc_init_rw(struct blkvsc_request *blkvsc_req)
+ static int blkvsc_ioctl(struct block_device *bd, fmode_t mode,
+ 			unsigned cmd, unsigned long argument)
+ {
+-/*	struct block_device_context *blkdev = bd->bd_disk->private_data; */
+ 	int ret;
+ 
+ 	switch (cmd) {
+@@ -859,13 +846,6 @@ static int blkvsc_do_read_capacity16(struct block_device_context *blkdev)
+ 	blkdev->capacity = be64_to_cpu(*(unsigned long long *) &buf[0]) + 1;
+ 	blkdev->sector_size = be32_to_cpu(*(unsigned int *)&buf[8]);
+ 
+-#if 0
 -	blkdev->capacity = ((buf[0] << 24) | (buf[1] << 16) |
 -			    (buf[2] << 8) | buf[3]) + 1;
 -	blkdev->sector_size = (buf[4] << 24) | (buf[5] << 16) |
 -			      (buf[6] << 8) | buf[7];
+-#endif
 -
--	kunmap(page_buf);
--
--	__free_page(page_buf);
--
--	kmem_cache_free(blkvsc_req->dev->request_pool, blkvsc_req);
--
--	return 0;
--}
--
- static int blkvsc_do_read_capacity16(struct block_device_context *blkdev)
- {
- 	struct blkvsc_request *blkvsc_req;
+ 	kunmap(page_buf);
+ 
+ 	__free_page(page_buf);
+@@ -937,7 +917,6 @@ static int blkvsc_do_inquiry(struct block_device_context *blkdev)
+ 
+ 	buf = kmap(page_buf);
+ 
+-	/* print_hex_dump_bytes("", DUMP_PREFIX_NONE, buf, 64); */
+ 	/* be to le */
+ 	device_type = buf[0] & 0x1F;
+ 
+@@ -957,8 +936,6 @@ static int blkvsc_do_inquiry(struct block_device_context *blkdev)
+ 		blkdev->device_id_len = 64;
+ 
+ 	memcpy(blkdev->device_id, &buf[8], blkdev->device_id_len);
+-	/* printk_hex_dump_bytes("", DUMP_PREFIX_NONE, blkdev->device_id,
+-	 * blkdev->device_id_len); */
+ 
+ 	kunmap(page_buf);
+ 
+@@ -1343,8 +1320,6 @@ static int blkvsc_probe(struct device *device)
+ 	/* Initialize what we can here */
+ 	spin_lock_init(&blkdev->lock);
+ 
+-	/* ASSERT(sizeof(struct blkvsc_request_group) <= */
+-	/* 	sizeof(struct blkvsc_request)); */
+ 
+ 	blkdev->request_pool = kmem_cache_create(dev_name(&device_obj->device),
+ 					sizeof(struct blkvsc_request), 0,
+@@ -1480,7 +1455,6 @@ static void blkvsc_request_completion(struct hv_storvsc_request *request)
+ 	struct blkvsc_request *comp_req, *tmp;
+ 	struct vmscsi_request *vm_srb;
+ 
+-	/* ASSERT(blkvsc_req->group); */
+ 
+ 	DPRINT_DBG(BLKVSC_DRV, "blkdev %p blkvsc_req %p group %p type %s "
+ 		   "sect_start %lu sect_count %ld len %d group outstd %d "
 -- 
 1.7.4.1
