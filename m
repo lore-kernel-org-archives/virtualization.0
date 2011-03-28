@@ -1,7 +1,7 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 07/22] Staging: hv: Get rid of the forward declaration of blkvsc_cmd_completion()
-Date: Mon, 28 Mar 2011 10:00:38 -0700
-Message-ID: <1301331653-26265-7-git-send-email-kys@microsoft.com>
+Subject: [PATCH 02/22] Staging: hv: Get rid of the forward declaration of blkvsc_media_changed()
+Date: Mon, 28 Mar 2011 10:00:33 -0700
+Message-ID: <1301331653-26265-2-git-send-email-kys@microsoft.com>
 References: <1301331615-26226-1-git-send-email-kys@microsoft.com>
  <1301331653-26265-1-git-send-email-kys@microsoft.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
@@ -11,89 +11,52 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>, Hank Janssen <hjanssen@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Get rid of the forward declaration of blkvsc_cmd_completion() by moving the
-code  around.
+Get rid of the forward declaration of blkvsc_media_changed() by moving the code
+around.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/blkvsc_drv.c |   48 +++++++++++++++++++-------------------
- 1 files changed, 24 insertions(+), 24 deletions(-)
+ drivers/staging/hv/blkvsc_drv.c |   11 +++++------
+ 1 files changed, 5 insertions(+), 6 deletions(-)
 
 diff --git a/drivers/staging/hv/blkvsc_drv.c b/drivers/staging/hv/blkvsc_drv.c
-index 30a37a2..8e575d9 100644
+index a931e4c..4b97348 100644
 --- a/drivers/staging/hv/blkvsc_drv.c
 +++ b/drivers/staging/hv/blkvsc_drv.c
-@@ -439,6 +439,30 @@ static int blkvsc_ioctl(struct block_device *bd, fmode_t mode,
+@@ -242,6 +242,11 @@ static int blkvsc_submit_request(struct blkvsc_request *blkvsc_req,
  	return ret;
  }
  
-+static void blkvsc_cmd_completion(struct hv_storvsc_request *request)
++static int blkvsc_media_changed(struct gendisk *gd)
 +{
-+	struct blkvsc_request *blkvsc_req =
-+			(struct blkvsc_request *)request->context;
-+	struct block_device_context *blkdev =
-+			(struct block_device_context *)blkvsc_req->dev;
-+	struct scsi_sense_hdr sense_hdr;
-+	struct vmscsi_request *vm_srb;
-+
-+	DPRINT_DBG(BLKVSC_DRV, "blkvsc_cmd_completion() - req %p\n",
-+		   blkvsc_req);
-+
-+	vm_srb = &blkvsc_req->request.vstor_packet.vm_srb;
-+	blkdev->num_outstanding_reqs--;
-+
-+	if (vm_srb->scsi_status)
-+		if (scsi_normalize_sense(blkvsc_req->sense_buffer,
-+					 SCSI_SENSE_BUFFERSIZE, &sense_hdr))
-+			scsi_print_sense_hdr("blkvsc", &sense_hdr);
-+
-+	complete(&blkvsc_req->request.wait_event);
++	DPRINT_DBG(BLKVSC_DRV, "- enter\n");
++	return 1;
 +}
-+
-+
+ 
  /* Static decl */
- static int blkvsc_probe(struct device *dev);
- static int blkvsc_remove(struct device *device);
-@@ -450,7 +474,6 @@ static void blkvsc_request(struct request_queue *queue);
- static void blkvsc_request_completion(struct hv_storvsc_request *request);
- static int blkvsc_do_request(struct block_device_context *blkdev,
- 			     struct request *req);
--static void blkvsc_cmd_completion(struct hv_storvsc_request *request);
- static int blkvsc_do_inquiry(struct block_device_context *blkdev);
- static int blkvsc_do_read_capacity(struct block_device_context *blkdev);
- static int blkvsc_do_read_capacity16(struct block_device_context *blkdev);
-@@ -1253,29 +1276,6 @@ static int blkvsc_do_request(struct block_device_context *blkdev,
- 	return pending;
+ static DEFINE_MUTEX(blkvsc_mutex);
+@@ -251,7 +256,6 @@ static void blkvsc_shutdown(struct device *device);
+ 
+ static int blkvsc_open(struct block_device *bdev,  fmode_t mode);
+ static int blkvsc_release(struct gendisk *disk, fmode_t mode);
+-static int blkvsc_media_changed(struct gendisk *gd);
+ static int blkvsc_revalidate_disk(struct gendisk *gd);
+ static int blkvsc_getgeo(struct block_device *bd, struct hd_geometry *hg);
+ static int blkvsc_ioctl(struct block_device *bd, fmode_t mode,
+@@ -1405,11 +1409,6 @@ static int blkvsc_release(struct gendisk *disk, fmode_t mode)
+ 	return 0;
  }
  
--static void blkvsc_cmd_completion(struct hv_storvsc_request *request)
+-static int blkvsc_media_changed(struct gendisk *gd)
 -{
--	struct blkvsc_request *blkvsc_req =
--			(struct blkvsc_request *)request->context;
--	struct block_device_context *blkdev =
--			(struct block_device_context *)blkvsc_req->dev;
--	struct scsi_sense_hdr sense_hdr;
--	struct vmscsi_request *vm_srb;
--
--	DPRINT_DBG(BLKVSC_DRV, "blkvsc_cmd_completion() - req %p\n",
--		   blkvsc_req);
--
--	vm_srb = &blkvsc_req->request.vstor_packet.vm_srb;
--	blkdev->num_outstanding_reqs--;
--
--	if (vm_srb->scsi_status)
--		if (scsi_normalize_sense(blkvsc_req->sense_buffer,
--					 SCSI_SENSE_BUFFERSIZE, &sense_hdr))
--			scsi_print_sense_hdr("blkvsc", &sense_hdr);
--
--	complete(&blkvsc_req->request.wait_event);
+-	DPRINT_DBG(BLKVSC_DRV, "- enter\n");
+-	return 1;
 -}
--
- static void blkvsc_request_completion(struct hv_storvsc_request *request)
+ 
+ static int blkvsc_revalidate_disk(struct gendisk *gd)
  {
- 	struct blkvsc_request *blkvsc_req =
 -- 
 1.7.4.1
