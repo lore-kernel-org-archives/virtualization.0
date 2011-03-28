@@ -1,212 +1,134 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 04/22] Staging: hv: Get rid of the forward declaration of blkvsc_getgeo()
-Date: Mon, 28 Mar 2011 10:00:35 -0700
-Message-ID: <1301331653-26265-4-git-send-email-kys@microsoft.com>
+Subject: [PATCH 08/22] Staging: hv: Get rid of the forward declaration of
+	blkvsc_do_flush()
+Date: Mon, 28 Mar 2011 10:00:39 -0700
+Message-ID: <1301331653-26265-8-git-send-email-kys@microsoft.com>
 References: <1301331615-26226-1-git-send-email-kys@microsoft.com>
- <1301331653-26265-1-git-send-email-kys@microsoft.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+	<1301331653-26265-1-git-send-email-kys@microsoft.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <devel-bounces@linuxdriverproject.org>
 In-Reply-To: <1301331653-26265-1-git-send-email-kys@microsoft.com>
-Sender: linux-kernel-owner@vger.kernel.org
+List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
+	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
+List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
+List-Post: <mailto:devel@linuxdriverproject.org>
+List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
+List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
+	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
+Sender: devel-bounces@linuxdriverproject.org
+Errors-To: devel-bounces@linuxdriverproject.org
 To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org
-Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>, Hank Janssen <hjanssen@microsoft.com>
+Cc: Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Get rid of the forward declaration of blkvsc_getgeo() by moving the code around.
+Get rid of the forward declaration of blkvsc_do_flush() by moving the code 
+around.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/blkvsc_drv.c |  162 +++++++++++++++++++-------------------
- 1 files changed, 81 insertions(+), 81 deletions(-)
+ drivers/staging/hv/blkvsc_drv.c |   71 +++++++++++++++++++--------------------
+ 1 files changed, 35 insertions(+), 36 deletions(-)
 
 diff --git a/drivers/staging/hv/blkvsc_drv.c b/drivers/staging/hv/blkvsc_drv.c
-index cd3a019..a0c1fe8 100644
+index 8e575d9..f673337 100644
 --- a/drivers/staging/hv/blkvsc_drv.c
 +++ b/drivers/staging/hv/blkvsc_drv.c
-@@ -272,6 +272,87 @@ static int blkvsc_open(struct block_device *bdev, fmode_t mode)
- 	return 0;
+@@ -462,6 +462,41 @@ static void blkvsc_cmd_completion(struct hv_storvsc_request *request)
+ 	complete(&blkvsc_req->request.wait_event);
  }
  
-+
-+static int blkvsc_getgeo(struct block_device *bd, struct hd_geometry *hg)
++static int blkvsc_do_flush(struct block_device_context *blkdev)
 +{
-+	sector_t total_sectors = get_capacity(bd->bd_disk);
-+	sector_t cylinder_times_heads = 0;
-+	sector_t temp = 0;
++	struct blkvsc_request *blkvsc_req;
 +
-+	int sectors_per_track = 0;
-+	int heads = 0;
-+	int cylinders = 0;
-+	int rem = 0;
++	DPRINT_DBG(BLKVSC_DRV, "blkvsc_do_flush()\n");
 +
-+	if (total_sectors > (65535 * 16 * 255))
-+		total_sectors = (65535 * 16 * 255);
++	if (blkdev->device_type != HARDDISK_TYPE)
++		return 0;
 +
-+	if (total_sectors >= (65535 * 16 * 63)) {
-+		sectors_per_track = 255;
-+		heads = 16;
++	blkvsc_req = kmem_cache_zalloc(blkdev->request_pool, GFP_KERNEL);
++	if (!blkvsc_req)
++		return -ENOMEM;
 +
-+		cylinder_times_heads = total_sectors;
-+		/* sector_div stores the quotient in cylinder_times_heads */
-+		rem = sector_div(cylinder_times_heads, sectors_per_track);
-+	} else {
-+		sectors_per_track = 17;
++	memset(blkvsc_req, 0, sizeof(struct blkvsc_request));
++	init_completion(&blkvsc_req->request.wait_event);
++	blkvsc_req->dev = blkdev;
++	blkvsc_req->req = NULL;
++	blkvsc_req->write = 0;
 +
-+		cylinder_times_heads = total_sectors;
-+		/* sector_div stores the quotient in cylinder_times_heads */
-+		rem = sector_div(cylinder_times_heads, sectors_per_track);
++	blkvsc_req->request.data_buffer.pfn_array[0] = 0;
++	blkvsc_req->request.data_buffer.offset = 0;
++	blkvsc_req->request.data_buffer.len = 0;
 +
-+		temp = cylinder_times_heads + 1023;
-+		/* sector_div stores the quotient in temp */
-+		rem = sector_div(temp, 1024);
++	blkvsc_req->cmnd[0] = SYNCHRONIZE_CACHE;
++	blkvsc_req->cmd_len = 10;
 +
-+		heads = temp;
++	blkvsc_submit_request(blkvsc_req, blkvsc_cmd_completion);
 +
-+		if (heads < 4)
-+			heads = 4;
++	wait_for_completion_interruptible(&blkvsc_req->request.wait_event);
 +
-+
-+		if (cylinder_times_heads >= (heads * 1024) || (heads > 16)) {
-+			sectors_per_track = 31;
-+			heads = 16;
-+
-+			cylinder_times_heads = total_sectors;
-+			/*
-+			 * sector_div stores the quotient in
-+			 * cylinder_times_heads
-+			 */
-+			rem = sector_div(cylinder_times_heads,
-+					 sectors_per_track);
-+		}
-+
-+		if (cylinder_times_heads >= (heads * 1024)) {
-+			sectors_per_track = 63;
-+			heads = 16;
-+
-+			cylinder_times_heads = total_sectors;
-+			/*
-+			 * sector_div stores the quotient in
-+			 * cylinder_times_heads
-+			 */
-+			rem = sector_div(cylinder_times_heads,
-+					 sectors_per_track);
-+		}
-+	}
-+
-+	temp = cylinder_times_heads;
-+	/* sector_div stores the quotient in temp */
-+	rem = sector_div(temp, heads);
-+	cylinders = temp;
-+
-+	hg->heads = heads;
-+	hg->sectors = sectors_per_track;
-+	hg->cylinders = cylinders;
-+
-+	DPRINT_INFO(BLKVSC_DRV, "CHS (%d, %d, %d)", cylinders, heads,
-+		    sectors_per_track);
++	kmem_cache_free(blkvsc_req->dev->request_pool, blkvsc_req);
 +
 +	return 0;
 +}
 +
+ 
  /* Static decl */
  static int blkvsc_probe(struct device *dev);
- static int blkvsc_remove(struct device *device);
-@@ -279,7 +360,6 @@ static void blkvsc_shutdown(struct device *device);
+@@ -477,7 +512,6 @@ static int blkvsc_do_request(struct block_device_context *blkdev,
+ static int blkvsc_do_inquiry(struct block_device_context *blkdev);
+ static int blkvsc_do_read_capacity(struct block_device_context *blkdev);
+ static int blkvsc_do_read_capacity16(struct block_device_context *blkdev);
+-static int blkvsc_do_flush(struct block_device_context *blkdev);
+ static int blkvsc_cancel_pending_reqs(struct block_device_context *blkdev);
+ static int blkvsc_do_pending_reqs(struct block_device_context *blkdev);
  
- static int blkvsc_release(struct gendisk *disk, fmode_t mode);
- static int blkvsc_revalidate_disk(struct gendisk *gd);
--static int blkvsc_getgeo(struct block_device *bd, struct hd_geometry *hg);
- static int blkvsc_ioctl(struct block_device *bd, fmode_t mode,
- 			unsigned cmd, unsigned long argument);
- static void blkvsc_request(struct request_queue *queue);
-@@ -1424,86 +1504,6 @@ static int blkvsc_revalidate_disk(struct gendisk *gd)
- 	return 0;
+@@ -767,41 +801,6 @@ static void blkvsc_shutdown(struct device *device)
+ 	spin_unlock_irqrestore(&blkdev->lock, flags);
  }
  
--static int blkvsc_getgeo(struct block_device *bd, struct hd_geometry *hg)
+-static int blkvsc_do_flush(struct block_device_context *blkdev)
 -{
--	sector_t total_sectors = get_capacity(bd->bd_disk);
--	sector_t cylinder_times_heads = 0;
--	sector_t temp = 0;
+-	struct blkvsc_request *blkvsc_req;
 -
--	int sectors_per_track = 0;
--	int heads = 0;
--	int cylinders = 0;
--	int rem = 0;
+-	DPRINT_DBG(BLKVSC_DRV, "blkvsc_do_flush()\n");
 -
--	if (total_sectors > (65535 * 16 * 255))
--		total_sectors = (65535 * 16 * 255);
+-	if (blkdev->device_type != HARDDISK_TYPE)
+-		return 0;
 -
--	if (total_sectors >= (65535 * 16 * 63)) {
--		sectors_per_track = 255;
--		heads = 16;
+-	blkvsc_req = kmem_cache_zalloc(blkdev->request_pool, GFP_KERNEL);
+-	if (!blkvsc_req)
+-		return -ENOMEM;
 -
--		cylinder_times_heads = total_sectors;
--		/* sector_div stores the quotient in cylinder_times_heads */
--		rem = sector_div(cylinder_times_heads, sectors_per_track);
--	} else {
--		sectors_per_track = 17;
+-	memset(blkvsc_req, 0, sizeof(struct blkvsc_request));
+-	init_completion(&blkvsc_req->request.wait_event);
+-	blkvsc_req->dev = blkdev;
+-	blkvsc_req->req = NULL;
+-	blkvsc_req->write = 0;
 -
--		cylinder_times_heads = total_sectors;
--		/* sector_div stores the quotient in cylinder_times_heads */
--		rem = sector_div(cylinder_times_heads, sectors_per_track);
+-	blkvsc_req->request.data_buffer.pfn_array[0] = 0;
+-	blkvsc_req->request.data_buffer.offset = 0;
+-	blkvsc_req->request.data_buffer.len = 0;
 -
--		temp = cylinder_times_heads + 1023;
--		/* sector_div stores the quotient in temp */
--		rem = sector_div(temp, 1024);
+-	blkvsc_req->cmnd[0] = SYNCHRONIZE_CACHE;
+-	blkvsc_req->cmd_len = 10;
 -
--		heads = temp;
+-	blkvsc_submit_request(blkvsc_req, blkvsc_cmd_completion);
 -
--		if (heads < 4)
--			heads = 4;
+-	wait_for_completion_interruptible(&blkvsc_req->request.wait_event);
 -
+-	kmem_cache_free(blkvsc_req->dev->request_pool, blkvsc_req);
 -
--		if (cylinder_times_heads >= (heads * 1024) || (heads > 16)) {
--			sectors_per_track = 31;
--			heads = 16;
--
--			cylinder_times_heads = total_sectors;
--			/*
--			 * sector_div stores the quotient in
--			 * cylinder_times_heads
--			 */
--			rem = sector_div(cylinder_times_heads,
--					 sectors_per_track);
--		}
--
--		if (cylinder_times_heads >= (heads * 1024)) {
--			sectors_per_track = 63;
--			heads = 16;
--
--			cylinder_times_heads = total_sectors;
--			/*
--			 * sector_div stores the quotient in
--			 * cylinder_times_heads
--			 */
--			rem = sector_div(cylinder_times_heads,
--					 sectors_per_track);
--		}
--	}
--
--	temp = cylinder_times_heads;
--	/* sector_div stores the quotient in temp */
--	rem = sector_div(temp, heads);
--	cylinders = temp;
--
--	hg->heads = heads;
--	hg->sectors = sectors_per_track;
--	hg->cylinders = cylinders;
--
--	DPRINT_INFO(BLKVSC_DRV, "CHS (%d, %d, %d)", cylinders, heads,
--		    sectors_per_track);
--
--    return 0;
+-	return 0;
 -}
 -
- static int blkvsc_ioctl(struct block_device *bd, fmode_t mode,
- 			unsigned cmd, unsigned long argument)
+ /* Do a scsi INQUIRY cmd here to get the device type (ie disk or dvd) */
+ static int blkvsc_do_inquiry(struct block_device_context *blkdev)
  {
 -- 
 1.7.4.1
