@@ -1,8 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 11/20] Staging: hv: Get rid of the cdb_len from struct
+Subject: [PATCH 16/20] Staging: hv: Move on_io_completion() from struct
 	hv_storvsc_request
-Date: Mon, 28 Mar 2011 09:33:36 -0700
-Message-ID: <1301330025-25542-11-git-send-email-kys@microsoft.com>
+Date: Mon, 28 Mar 2011 09:33:41 -0700
+Message-ID: <1301330025-25542-16-git-send-email-kys@microsoft.com>
 References: <1301329950-25490-1-git-send-email-kys@microsoft.com>
 	<1301330025-25542-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -23,9 +23,9 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-In preparation for consolidating all I/O request state, get rid of the
-cdb_len field from struct hv_storvsc_request and instead use the
-equivalent  state in struct vmscsi_request - cdb_length field.
+In preparation of consolidating all I/O request state, move
+the on_io_completion() field from struct hv_storvsc_request to
+struct storvsc_request_extension.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
@@ -33,75 +33,69 @@ Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
  drivers/staging/hv/blkvsc_drv.c  |    2 +-
- drivers/staging/hv/storvsc.c     |    9 ++++-----
- drivers/staging/hv/storvsc_api.h |    1 -
+ drivers/staging/hv/storvsc.c     |    2 +-
+ drivers/staging/hv/storvsc_api.h |    2 +-
  drivers/staging/hv/storvsc_drv.c |    2 +-
- 4 files changed, 6 insertions(+), 8 deletions(-)
+ 4 files changed, 4 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/staging/hv/blkvsc_drv.c b/drivers/staging/hv/blkvsc_drv.c
-index f440734..3db622d 100644
+index 83c4ba3..0e3b193 100644
 --- a/drivers/staging/hv/blkvsc_drv.c
 +++ b/drivers/staging/hv/blkvsc_drv.c
-@@ -946,7 +946,7 @@ static int blkvsc_submit_request(struct blkvsc_request *blkvsc_req,
- 	vm_srb->target_id = blkdev->target;
- 	vm_srb->lun = 0;	 /* this is not really used at all */
+@@ -938,7 +938,7 @@ static int blkvsc_submit_request(struct blkvsc_request *blkvsc_req,
  
--	storvsc_req->cdb_len = blkvsc_req->cmd_len;
-+	vm_srb->cdb_length = blkvsc_req->cmd_len;
- 	storvsc_req->cdb = blkvsc_req->cmnd;
+ 	vm_srb->data_in = blkvsc_req->write ? WRITE_TYPE : READ_TYPE;
  
- 	storvsc_req->sense_buffer = blkvsc_req->sense_buffer;
+-	storvsc_req->on_io_completion = request_completion;
++	storvsc_req->extension.on_io_completion = request_completion;
+ 	storvsc_req->extension.context = blkvsc_req;
+ 
+ 	vm_srb->port_number = blkdev->port;
 diff --git a/drivers/staging/hv/storvsc.c b/drivers/staging/hv/storvsc.c
-index 849b467..5a5065c 100644
+index 33943ed..d444cc9 100644
 --- a/drivers/staging/hv/storvsc.c
 +++ b/drivers/staging/hv/storvsc.c
-@@ -531,9 +531,8 @@ int stor_vsc_on_io_request(struct hv_device *device,
- 		   "Extension %p", device, stor_device, request,
- 		   request_extension);
+@@ -324,7 +324,7 @@ static void stor_vsc_on_io_completion(struct hv_device *device,
+ 	/* TODO: */
+ 	request->bytes_xfer = vstor_packet->vm_srb.data_transfer_length;
  
--	DPRINT_DBG(STORVSC, "req %p len %d cdblen %d",
--		   request, request->data_buffer.len,
--		   request->cdb_len);
-+	DPRINT_DBG(STORVSC, "req %p len %d",
-+		   request, request->data_buffer.len);
+-	request->on_io_completion(request);
++	request->extension.on_io_completion(request);
  
- 	if (!stor_device) {
- 		DPRINT_ERR(STORVSC, "unable to get stor device..."
-@@ -553,8 +552,8 @@ int stor_vsc_on_io_request(struct hv_device *device,
- 	vstor_packet->vm_srb.sense_info_length = SENSE_BUFFER_SIZE;
- 
- 	/* Copy over the scsi command descriptor block */
--	vstor_packet->vm_srb.cdb_length = request->cdb_len;
--	memcpy(&vstor_packet->vm_srb.cdb, request->cdb, request->cdb_len);
-+	memcpy(&vstor_packet->vm_srb.cdb, request->cdb,
-+		 vstor_packet->vm_srb.cdb_length);
- 
- 	vstor_packet->vm_srb.data_transfer_length = request->data_buffer.len;
+ 	atomic_dec(&stor_device->num_outstanding_req);
  
 diff --git a/drivers/staging/hv/storvsc_api.h b/drivers/staging/hv/storvsc_api.h
-index 940cf98..fd3af2b 100644
+index 68c5036..89fa155 100644
 --- a/drivers/staging/hv/storvsc_api.h
 +++ b/drivers/staging/hv/storvsc_api.h
-@@ -67,7 +67,6 @@ struct storvsc_request_extension {
+@@ -64,6 +64,7 @@ struct storvsc_request_extension {
  
- struct hv_storvsc_request {
- 	u8 *cdb;
--	u32 cdb_len;
+ 	unsigned char *sense_buffer;
+ 	void *context;
++	void (*on_io_completion)(struct hv_storvsc_request *request);
+ 
+ 	struct vstor_packet vstor_packet;
+ };
+@@ -72,7 +73,6 @@ struct hv_storvsc_request {
  	u32 status;
  	u32 bytes_xfer;
  
+-	void (*on_io_completion)(struct hv_storvsc_request *request);
+ 
+ 	struct storvsc_request_extension extension;
+ 
 diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
-index d30d745..c0ccae2 100644
+index 65e03e6..e3e0486 100644
 --- a/drivers/staging/hv/storvsc_drv.c
 +++ b/drivers/staging/hv/storvsc_drv.c
-@@ -780,7 +780,7 @@ static int storvsc_queuecommand_lck(struct scsi_cmnd *scmnd,
- 	vm_srb->lun = scmnd->device->lun;
+@@ -770,7 +770,7 @@ static int storvsc_queuecommand_lck(struct scsi_cmnd *scmnd,
+ 		break;
+ 	}
  
- 	/* ASSERT(scmnd->cmd_len <= 16); */
--	request->cdb_len = scmnd->cmd_len;
-+	vm_srb->cdb_length = scmnd->cmd_len;
- 	request->cdb = scmnd->cmnd;
+-	request->on_io_completion = storvsc_commmand_completion;
++	request->extension.on_io_completion = storvsc_commmand_completion;
+ 	request->extension.context = cmd_request;/* scmnd; */
  
- 	request->sense_buffer = scmnd->sense_buffer;
+ 	/* request->PortId = scmnd->device->channel; */
 -- 
 1.7.4.1
