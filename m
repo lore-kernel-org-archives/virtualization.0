@@ -1,13 +1,14 @@
-From: Stefan Hajnoczi <stefanha@gmail.com>
-Subject: Re: virtio-blk.c handling of i/o which is not a 512 multiple
-Date: Wed, 30 Mar 2011 09:45:24 +0100
-Message-ID: <AANLkTi=zK4y2zXvC_0=bKcEucx5awW2VA8h2jSA2L9iM__33006.9948257462$1301474860$gmane$org@mail.gmail.com>
-References: <loom.20110330T100043-284@post.gmane.org>
+From: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Subject: Re: [PATCH] xen: events: fix error checks in bind_*_to_irqhandler()
+Date: Wed, 30 Mar 2011 15:31:36 -0400
+Message-ID: <20110330193136.GA19522__39184.8757201389$1301513674$gmane$org@dumpdata.com>
+References: <20110330211426.13f182d6@absol.kitzblitz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <loom.20110330T100043-284@post.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20110330211426.13f182d6@absol.kitzblitz>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -17,47 +18,53 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Conor Murphy <conor_murphy_virt@hotmail.com>
-Cc: qemu-devel <qemu-devel@nongnu.org>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Nicolas Kaiser <nikai@nikai.net>, Ian Campbell <Ian.Campbell@eu.citrix.com>
+Cc: linux-kernel@vger.kernel.org, Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, xen-devel@lists.xensource.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Mar 30, 2011 at 9:15 AM, Conor Murphy
-<conor_murphy_virt@hotmail.com> wrote:
-> I'm trying to write a virtio-blk driver for Solaris. I've gotten it to the point
-> where Solaris can see the device and create a ZFS file system on it.
->
-> However when I try and create a UFS filesystem on the device, the VM crashed
-> with the error
-> *** glibc detected *** /usr/bin/qemu-kvm: double free or corruption (!prev):
-> 0x00007f2d38000a00 ***
+On Wed, Mar 30, 2011 at 09:14:26PM +0200, Nicolas Kaiser wrote:
+> Checking 'irq < 0' doesn't work when 'irq' is unsigned.
+> 
+> The assigned bind_evtchn_to_irq() and bind_virq_to_irq()
+> return int, so using int appears appropriate.
 
-This is a bug in QEMU.  A guest must not be able to trigger a crash.
+Whoops. Good check. Will have it queue up for rc2.
 
-> I can reproduce the problem with a simple dd, i.e.
-> dd if=/dev/zero of=/dev/rdsk/c2d10p0 bs=5000 count=1
-
-I think this a raw character device, which is why you're even able to
-perform non-blocksize accesses?  Have you looked at how other drivers
-(like the Xen pv blkfront) handle this?
-
-> My driver will create a virtio-blk request with two elements in the sg list, one
-> for the first 4096 byes and the other for the remaining 904.
->
-> From stepping through with gdb, virtio_blk_handle_write will sets n_sectors to 9
-> (5000 / 512). Later on the code, n_sectors is used the calculate the size of the
-> buffer required but 9 * 512 is too small and so when the request is process it
-> ends up writing past the end of the buffer and I guest this triggers the glibc
-> error.
-
-We need to validate that (qiov->size % BDRV_SECTOR_SIZE) == 0 and
-reject invalid requests.
-
-> Is there a requirement for virtio-blk guest drivers that all i/o requests are
-> sized in multiples of 512 bytes?
-
-There is no strict requirement according to the virtio specification,
-but maybe there should be:
-
-http://ozlabs.org/~rusty/virtio-spec/virtio-spec-0.8.9.pdf
-
-Stefan
+Will fix up the bind_virq_to_irqhandler case as well.
+> 
+> Signed-off-by: Nicolas Kaiser <nikai@nikai.net>
+> ---
+>  drivers/xen/events.c |    6 ++----
+>  1 files changed, 2 insertions(+), 4 deletions(-)
+> 
+> diff --git a/drivers/xen/events.c b/drivers/xen/events.c
+> index 036343b..589f0a5 100644
+> --- a/drivers/xen/events.c
+> +++ b/drivers/xen/events.c
+> @@ -912,8 +912,7 @@ int bind_evtchn_to_irqhandler(unsigned int evtchn,
+>  			      unsigned long irqflags,
+>  			      const char *devname, void *dev_id)
+>  {
+> -	unsigned int irq;
+> -	int retval;
+> +	int irq, retval;
+>  
+>  	irq = bind_evtchn_to_irq(evtchn);
+>  	if (irq < 0)
+> @@ -955,8 +954,7 @@ int bind_virq_to_irqhandler(unsigned int virq, unsigned int cpu,
+>  			    irq_handler_t handler,
+>  			    unsigned long irqflags, const char *devname, void *dev_id)
+>  {
+> -	unsigned int irq;
+> -	int retval;
+> +	int irq, retval;
+>  
+>  	irq = bind_virq_to_irq(virq, cpu);
+>  	if (irq < 0)
+> -- 
+> 1.7.3.4
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
