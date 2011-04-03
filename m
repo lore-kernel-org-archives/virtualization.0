@@ -1,14 +1,12 @@
-From: Eric Dumazet <eric.dumazet@gmail.com>
-Subject: [PATCH] xen: netfront: fix declaration order
-Date: Sun, 03 Apr 2011 13:07:19 +0200
-Message-ID: <1301828839.2837.143.camel__29122.1383413815$1301828902$gmane$org@edumazet-laptop>
-References: <20110331110136.03A1A13A6A@rere.qmqm.pl>
-	<20110401.205455.70198735.davem@davemloft.net>
+From: "Dr. David Alan Gilbert" <linux@treblig.org>
+Subject: Signed bit field; int have_hotplug_status_watch:1
+Date: Sun, 3 Apr 2011 22:32:41 +0100
+Message-ID: <20110403213241.GA25913@gallifrey>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20110401.205455.70198735.davem@davemloft.net>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,65 +16,28 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: David Miller <davem@davemloft.net>
-Cc: xen-devel@lists.xensource.com, Ian.Campbell@citrix.com, konrad.wilk@oracle.com, netdev@vger.kernel.org, mirq-linux@rere.qmqm.pl, jeremy.fitzhardinge@citrix.com, virtualization@lists.linux-foundation.org
+To: Ian.Campbell@citrix.com, virtualization@lists.linux-foundation.org
+Cc: jeremy.fitzhardinge@citrix.com, konrad.wilk@oracle.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-TGUgdmVuZHJlZGkgMDEgYXZyaWwgMjAxMSDDoCAyMDo1NCAtMDcwMCwgRGF2aWQgTWlsbGVyIGEg
-w6ljcml0IDoKPiBGcm9tOiBNaWNoYcWCIE1pcm9zxYJhdyA8bWlycS1saW51eEByZXJlLnFtcW0u
-cGw+Cj4gRGF0ZTogVGh1LCAzMSBNYXIgMjAxMSAxMzowMTozNSArMDIwMCAoQ0VTVCkKPiAKPiA+
-IE5vdCB0ZXN0ZWQgaW4gYW55IHdheS4gVGhlIG9yaWdpbmFsIGNvZGUgZm9yIG9mZmxvYWQgc2V0
-dGluZyBzZWVtcyBicm9rZW4KPiA+IGFzIGl0IHJlc2V0cyB0aGUgZmVhdHVyZXMgb24gZXZlcnkg
-bmV0YmFjayByZWNvbm5lY3QuCj4gPiAKPiA+IFRoaXMgd2lsbCBzZXQgR1NPX1JPQlVTVCBhdCBk
-ZXZpY2UgY3JlYXRpb24gdGltZSAoZWFybGllciB0aGFuIGNvbm5lY3QgdGltZSkuCj4gPiAKPiA+
-IFJYIGNoZWNrc3VtIG9mZmxvYWQgaXMgZm9yY2VkIG9uIC0gc28gYWR2ZXJ0aXNlIGFzIGl0IGlz
-Lgo+ID4gCj4gPiBTaWduZWQtb2ZmLWJ5OiBNaWNoYcWCIE1pcm9zxYJhdyA8bWlycS1saW51eEBy
-ZXJlLnFtcW0ucGw+Cj4gCj4gQXBwbGllZC4KCkhtbS4uLiBJIGhhZCB0byBhcHBseSBmb2xsb3dp
-bmcgcGF0Y2ggdG8gbWFrZSBpdCBhY3R1YWxseSBjb21waWxlLgoKVGhhbmtzCgpbUEFUQ0hdIHhl
-bjogbmV0ZnJvbnQ6IGZpeCBkZWNsYXJhdGlvbiBvcmRlcgoKTXVzdCBkZWNsYXJlIHhlbm5ldF9m
-aXhfZmVhdHVyZXMoKSBhbmQgeGVubmV0X3NldF9mZWF0dXJlcygpIGJlZm9yZQp1c2luZyB0aGVt
-LgoKU2lnbmVkLW9mZi1ieTogRXJpYyBEdW1hemV0IDxlcmljLmR1bWF6ZXRAZ21haWwuY29tPgpD
-YzogTWljaGHFgiBNaXJvc8WCYXcgPG1pcnEtbGludXhAcmVyZS5xbXFtLnBsPgotLS0KIGRyaXZl
-cnMvbmV0L3hlbi1uZXRmcm9udC5jIHwgICA3MiArKysrKysrKysrKysrKysrKy0tLS0tLS0tLS0t
-LS0tLS0tLQogMSBmaWxlIGNoYW5nZWQsIDM2IGluc2VydGlvbnMoKyksIDM2IGRlbGV0aW9ucygt
-KQoKZGlmZiAtLWdpdCBhL2RyaXZlcnMvbmV0L3hlbi1uZXRmcm9udC5jIGIvZHJpdmVycy9uZXQv
-eGVuLW5ldGZyb250LmMKaW5kZXggZjZlN2UyNy4uMGNmZTRjYyAxMDA2NDQKLS0tIGEvZHJpdmVy
-cy9uZXQveGVuLW5ldGZyb250LmMKKysrIGIvZHJpdmVycy9uZXQveGVuLW5ldGZyb250LmMKQEAg
-LTExNDAsNiArMTE0MCw0MiBAQCBzdGF0aWMgdm9pZCB4ZW5uZXRfdW5pbml0KHN0cnVjdCBuZXRf
-ZGV2aWNlICpkZXYpCiAJZ250dGFiX2ZyZWVfZ3JhbnRfcmVmZXJlbmNlcyhucC0+Z3JlZl9yeF9o
-ZWFkKTsKIH0KIAorc3RhdGljIHUzMiB4ZW5uZXRfZml4X2ZlYXR1cmVzKHN0cnVjdCBuZXRfZGV2
-aWNlICpkZXYsIHUzMiBmZWF0dXJlcykKK3sKKwlzdHJ1Y3QgbmV0ZnJvbnRfaW5mbyAqbnAgPSBu
-ZXRkZXZfcHJpdihkZXYpOworCWludCB2YWw7CisKKwlpZiAoZmVhdHVyZXMgJiBORVRJRl9GX1NH
-KSB7CisJCWlmICh4ZW5idXNfc2NhbmYoWEJUX05JTCwgbnAtPnhiZGV2LT5vdGhlcmVuZCwgImZl
-YXR1cmUtc2ciLAorCQkJCSAiJWQiLCAmdmFsKSA8IDApCisJCQl2YWwgPSAwOworCisJCWlmICgh
-dmFsKQorCQkJZmVhdHVyZXMgJj0gfk5FVElGX0ZfU0c7CisJfQorCisJaWYgKGZlYXR1cmVzICYg
-TkVUSUZfRl9UU08pIHsKKwkJaWYgKHhlbmJ1c19zY2FuZihYQlRfTklMLCBucC0+eGJkZXYtPm90
-aGVyZW5kLAorCQkJCSAiZmVhdHVyZS1nc28tdGNwdjQiLCAiJWQiLCAmdmFsKSA8IDApCisJCQl2
-YWwgPSAwOworCisJCWlmICghdmFsKQorCQkJZmVhdHVyZXMgJj0gfk5FVElGX0ZfVFNPOworCX0K
-KworCXJldHVybiBmZWF0dXJlczsKK30KKworc3RhdGljIGludCB4ZW5uZXRfc2V0X2ZlYXR1cmVz
-KHN0cnVjdCBuZXRfZGV2aWNlICpkZXYsIHUzMiBmZWF0dXJlcykKK3sKKwlpZiAoIShmZWF0dXJl
-cyAmIE5FVElGX0ZfU0cpICYmIGRldi0+bXR1ID4gRVRIX0RBVEFfTEVOKSB7CisJCW5ldGRldl9p
-bmZvKGRldiwgIlJlZHVjaW5nIE1UVSBiZWNhdXNlIG5vIFNHIG9mZmxvYWQiKTsKKwkJZGV2LT5t
-dHUgPSBFVEhfREFUQV9MRU47CisJfQorCisJcmV0dXJuIDA7Cit9CisKIHN0YXRpYyBjb25zdCBz
-dHJ1Y3QgbmV0X2RldmljZV9vcHMgeGVubmV0X25ldGRldl9vcHMgPSB7CiAJLm5kb19vcGVuICAg
-ICAgICAgICAgPSB4ZW5uZXRfb3BlbiwKIAkubmRvX3VuaW5pdCAgICAgICAgICA9IHhlbm5ldF91
-bmluaXQsCkBAIC0xNTEzLDQyICsxNTQ5LDYgQEAgYWdhaW46CiAJcmV0dXJuIGVycjsKIH0KIAot
-c3RhdGljIHUzMiB4ZW5uZXRfZml4X2ZlYXR1cmVzKHN0cnVjdCBuZXRfZGV2aWNlICpkZXYsIHUz
-MiBmZWF0dXJlcykKLXsKLQlzdHJ1Y3QgbmV0ZnJvbnRfaW5mbyAqbnAgPSBuZXRkZXZfcHJpdihk
-ZXYpOwotCWludCB2YWw7Ci0KLQlpZiAoZmVhdHVyZXMgJiBORVRJRl9GX1NHKSB7Ci0JCWlmICh4
-ZW5idXNfc2NhbmYoWEJUX05JTCwgbnAtPnhiZGV2LT5vdGhlcmVuZCwgImZlYXR1cmUtc2ciLAot
-CQkJCSAiJWQiLCAmdmFsKSA8IDApCi0JCQl2YWwgPSAwOwotCi0JCWlmICghdmFsKQotCQkJZmVh
-dHVyZXMgJj0gfk5FVElGX0ZfU0c7Ci0JfQotCi0JaWYgKGZlYXR1cmVzICYgTkVUSUZfRl9UU08p
-IHsKLQkJaWYgKHhlbmJ1c19zY2FuZihYQlRfTklMLCBucC0+eGJkZXYtPm90aGVyZW5kLAotCQkJ
-CSAiZmVhdHVyZS1nc28tdGNwdjQiLCAiJWQiLCAmdmFsKSA8IDApCi0JCQl2YWwgPSAwOwotCi0J
-CWlmICghdmFsKQotCQkJZmVhdHVyZXMgJj0gfk5FVElGX0ZfVFNPOwotCX0KLQotCXJldHVybiBm
-ZWF0dXJlczsKLX0KLQotc3RhdGljIGludCB4ZW5uZXRfc2V0X2ZlYXR1cmVzKHN0cnVjdCBuZXRf
-ZGV2aWNlICpkZXYsIHUzMiBmZWF0dXJlcykKLXsKLQlpZiAoIShmZWF0dXJlcyAmIE5FVElGX0Zf
-U0cpICYmIGRldi0+bXR1ID4gRVRIX0RBVEFfTEVOKSB7Ci0JCW5ldGRldl9pbmZvKGRldiwgIlJl
-ZHVjaW5nIE1UVSBiZWNhdXNlIG5vIFNHIG9mZmxvYWQiKTsKLQkJZGV2LT5tdHUgPSBFVEhfREFU
-QV9MRU47Ci0JfQotCi0JcmV0dXJuIDA7Ci19Ci0KIHN0YXRpYyBpbnQgeGVubmV0X2Nvbm5lY3Qo
-c3RydWN0IG5ldF9kZXZpY2UgKmRldikKIHsKIAlzdHJ1Y3QgbmV0ZnJvbnRfaW5mbyAqbnAgPSBu
-ZXRkZXZfcHJpdihkZXYpOwoKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0
-cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3Jn
-L21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+Hi Ian,
+   I've been going through some sparse scans of the kernel and
+it threw up:
+
+  CHECK   drivers/net/xen-netback/xenbus.c
+drivers/net/xen-netback/xenbus.c:29:40: error: dubious one-bit signed bitfield
+
+        int have_hotplug_status_watch:1;
+
+from your patch f942dc2552b8bfdee607be867b12a8971bb9cd85 
+
+It does look like that should be an unsigned (given it's assigned
+0 and 1)
+
+Dave
+
+-- 
+ -----Open up your eyes, open up your mind, open up your code -------   
+/ Dr. David Alan Gilbert    |       Running GNU/Linux       | Happy  \ 
+\ gro.gilbert @ treblig.org |                               | In Hex /
+ \ _________________________|_____ http://www.treblig.org   |_______/
