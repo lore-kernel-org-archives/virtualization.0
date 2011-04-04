@@ -1,72 +1,96 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 09/22] Staging: hv: Get rid of the function
-	blkvsc_revalidate_disk()
-Date: Mon,  4 Apr 2011 15:47:58 -0700
-Message-ID: <1301957291-8035-9-git-send-email-kys@microsoft.com>
+Subject: [PATCH 10/22] Staging: hv: Simplify blkvsc_init_rw
+Date: Mon,  4 Apr 2011 15:47:59 -0700
+Message-ID: <1301957291-8035-10-git-send-email-kys@microsoft.com>
 References: <1301957186-7853-1-git-send-email-kys@microsoft.com>
-	<1301957291-8035-1-git-send-email-kys@microsoft.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <devel-bounces@linuxdriverproject.org>
+ <1301957291-8035-1-git-send-email-kys@microsoft.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1301957291-8035-1-git-send-email-kys@microsoft.com>
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
-List-Post: <mailto:devel@linuxdriverproject.org>
-List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
-Sender: devel-bounces@linuxdriverproject.org
-Errors-To: devel-bounces@linuxdriverproject.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org
-Cc: Haiyang Zhang <haiyangz@microsoft.com>
+Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Hank Janssen <hjanssen@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The block driver in Hyper-V does not support removable media, get rid of the 
-blkvsc_revalidate_disk().
+Simplyfify blkvsc_init_rw() by using a single scsi command independent of
+the start sector
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/blkvsc_drv.c |   17 -----------------
- 1 files changed, 0 insertions(+), 17 deletions(-)
+ drivers/staging/hv/blkvsc_drv.c |   58 +++++++++------------------------------
+ 1 files changed, 13 insertions(+), 45 deletions(-)
 
 diff --git a/drivers/staging/hv/blkvsc_drv.c b/drivers/staging/hv/blkvsc_drv.c
-index 1ea5f9c..da7fd38 100644
+index da7fd38..69b6290 100644
 --- a/drivers/staging/hv/blkvsc_drv.c
 +++ b/drivers/staging/hv/blkvsc_drv.c
-@@ -721,22 +721,6 @@ static int blkvsc_release(struct gendisk *disk, fmode_t mode)
+@@ -304,53 +304,21 @@ static void blkvsc_init_rw(struct blkvsc_request *blkvsc_req)
+ 
+ 	blkvsc_req->cmd_len = 16;
+ 
+-	if (blkvsc_req->sector_start > 0xffffffff) {
+-		if (rq_data_dir(blkvsc_req->req)) {
+-			blkvsc_req->write = 1;
+-			blkvsc_req->cmnd[0] = WRITE_16;
+-		} else {
+-			blkvsc_req->write = 0;
+-			blkvsc_req->cmnd[0] = READ_16;
+-		}
+-
+-		blkvsc_req->cmnd[1] |=
+-			(blkvsc_req->req->cmd_flags & REQ_FUA) ? 0x8 : 0;
+-
+-		*(unsigned long long *)&blkvsc_req->cmnd[2] =
+-				cpu_to_be64(blkvsc_req->sector_start);
+-		*(unsigned int *)&blkvsc_req->cmnd[10] =
+-				cpu_to_be32(blkvsc_req->sector_count);
+-	} else if ((blkvsc_req->sector_count > 0xff) ||
+-		   (blkvsc_req->sector_start > 0x1fffff)) {
+-		if (rq_data_dir(blkvsc_req->req)) {
+-			blkvsc_req->write = 1;
+-			blkvsc_req->cmnd[0] = WRITE_10;
+-		} else {
+-			blkvsc_req->write = 0;
+-			blkvsc_req->cmnd[0] = READ_10;
+-		}
+-
+-		blkvsc_req->cmnd[1] |=
+-			(blkvsc_req->req->cmd_flags & REQ_FUA) ? 0x8 : 0;
+-
+-		*(unsigned int *)&blkvsc_req->cmnd[2] =
+-				cpu_to_be32(blkvsc_req->sector_start);
+-		*(unsigned short *)&blkvsc_req->cmnd[7] =
+-				cpu_to_be16(blkvsc_req->sector_count);
++	if (rq_data_dir(blkvsc_req->req)) {
++		blkvsc_req->write = 1;
++		blkvsc_req->cmnd[0] = WRITE_16;
+ 	} else {
+-		if (rq_data_dir(blkvsc_req->req)) {
+-			blkvsc_req->write = 1;
+-			blkvsc_req->cmnd[0] = WRITE_6;
+-		} else {
+-			blkvsc_req->write = 0;
+-			blkvsc_req->cmnd[0] = READ_6;
+-		}
+-
+-		*(unsigned int *)&blkvsc_req->cmnd[1] =
+-				cpu_to_be32(blkvsc_req->sector_start) >> 8;
+-		blkvsc_req->cmnd[1] &= 0x1f;
+-		blkvsc_req->cmnd[4] = (unsigned char)blkvsc_req->sector_count;
++		blkvsc_req->write = 0;
++		blkvsc_req->cmnd[0] = READ_16;
+ 	}
++
++	blkvsc_req->cmnd[1] |=
++	(blkvsc_req->req->cmd_flags & REQ_FUA) ? 0x8 : 0;
++
++	*(unsigned long long *)&blkvsc_req->cmnd[2] =
++	cpu_to_be64(blkvsc_req->sector_start);
++	*(unsigned int *)&blkvsc_req->cmnd[10] =
++	cpu_to_be32(blkvsc_req->sector_count);
  }
  
  
--static int blkvsc_revalidate_disk(struct gendisk *gd)
--{
--	struct block_device_context *blkdev = gd->private_data;
--
--	DPRINT_DBG(BLKVSC_DRV, "- enter\n");
--
--	if (blkdev->device_type == DVD_TYPE) {
--		blkvsc_do_operation(blkdev, DO_CAPACITY);
--		set_capacity(blkdev->gd, blkdev->capacity *
--			    (blkdev->sector_size/512));
--		blk_queue_logical_block_size(gd->queue, blkdev->sector_size);
--	}
--	return 0;
--}
--
--
- /*
-  * We break the request into 1 or more blkvsc_requests and submit
-  * them.  If we cant submit them all, we put them on the
-@@ -996,7 +980,6 @@ static const struct block_device_operations block_ops = {
- 	.owner = THIS_MODULE,
- 	.open = blkvsc_open,
- 	.release = blkvsc_release,
--	.revalidate_disk = blkvsc_revalidate_disk,
- 	.getgeo = blkvsc_getgeo,
- 	.ioctl  = blkvsc_ioctl,
- };
 -- 
 1.7.4.1
