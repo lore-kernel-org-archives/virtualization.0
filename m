@@ -1,7 +1,7 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 20/22] Staging: hv: Fix a jump label (Remove) in blkvsc_drv.c
-Date: Mon,  4 Apr 2011 15:48:09 -0700
-Message-ID: <1301957291-8035-20-git-send-email-kys@microsoft.com>
+Subject: [PATCH 12/22] Staging: hv: Get rid of some DPRINT_DBG() calls
+Date: Mon,  4 Apr 2011 15:48:01 -0700
+Message-ID: <1301957291-8035-12-git-send-email-kys@microsoft.com>
 References: <1301957186-7853-1-git-send-email-kys@microsoft.com>
  <1301957291-8035-1-git-send-email-kys@microsoft.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
@@ -11,45 +11,267 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Hank Janssen <hjanssen@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-One of the jump labels was named Remove; change it to remove.
+Get rid of some of the DPRINT_DBG() statements.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/blkvsc_drv.c |    6 +++---
- 1 files changed, 3 insertions(+), 3 deletions(-)
+ drivers/staging/hv/blkvsc_drv.c |   84 ---------------------------------------
+ 1 files changed, 0 insertions(+), 84 deletions(-)
 
 diff --git a/drivers/staging/hv/blkvsc_drv.c b/drivers/staging/hv/blkvsc_drv.c
-index 0891bc2..8874654 100644
+index 1f4dd69..32d542d 100644
 --- a/drivers/staging/hv/blkvsc_drv.c
 +++ b/drivers/staging/hv/blkvsc_drv.c
-@@ -1004,7 +1004,7 @@ static int blkvsc_probe(struct device *device)
- 				DPRINT_ERR(BLKVSC_DRV,
- 					   "register_blkdev() failed! ret %d",
- 					   ret);
--				goto Remove;
-+				goto remove;
+@@ -220,14 +220,6 @@ static int blkvsc_submit_request(struct blkvsc_request *blkvsc_req,
+ 	struct vmscsi_request *vm_srb;
+ 	int ret;
+ 
+-	DPRINT_DBG(BLKVSC_DRV, "blkvsc_submit_request() - "
+-		   "req %p type %s start_sector %lu count %ld offset %d "
+-		   "len %d\n", blkvsc_req,
+-		   (blkvsc_req->write) ? "WRITE" : "READ",
+-		   (unsigned long) blkvsc_req->sector_start,
+-		   blkvsc_req->sector_count,
+-		   blkvsc_req->request.data_buffer.offset,
+-		   blkvsc_req->request.data_buffer.len);
+ 
+ 	storvsc_req = &blkvsc_req->request;
+ 	vm_srb = &storvsc_req->vstor_packet.vm_srb;
+@@ -260,8 +252,6 @@ static int blkvsc_open(struct block_device *bdev, fmode_t mode)
+ {
+ 	struct block_device_context *blkdev = bdev->bd_disk->private_data;
+ 
+-	DPRINT_DBG(BLKVSC_DRV, "- users %d disk %s\n", blkdev->users,
+-		   blkdev->gd->disk_name);
+ 
+ 	mutex_lock(&blkvsc_mutex);
+ 	spin_lock(&blkdev->lock);
+@@ -351,8 +341,6 @@ static void blkvsc_cmd_completion(struct hv_storvsc_request *request)
+ 	struct scsi_sense_hdr sense_hdr;
+ 	struct vmscsi_request *vm_srb;
+ 
+-	DPRINT_DBG(BLKVSC_DRV, "blkvsc_cmd_completion() - req %p\n",
+-		   blkvsc_req);
+ 
+ 	vm_srb = &blkvsc_req->request.vstor_packet.vm_srb;
+ 	blkdev->num_outstanding_reqs--;
+@@ -495,7 +483,6 @@ static int blkvsc_cancel_pending_reqs(struct block_device_context *blkdev)
+ 
+ 	int ret = 0;
+ 
+-	DPRINT_DBG(BLKVSC_DRV, "blkvsc_cancel_pending_reqs()");
+ 
+ 	/* Flush the pending list first */
+ 	list_for_each_entry_safe(pend_req, tmp, &blkdev->pending_list,
+@@ -508,11 +495,6 @@ static int blkvsc_cancel_pending_reqs(struct block_device_context *blkdev)
+ 		list_for_each_entry_safe(comp_req, tmp2,
+ 					 &pend_req->group->blkvsc_req_list,
+ 					 req_entry) {
+-			DPRINT_DBG(BLKVSC_DRV, "completing blkvsc_req %p "
+-				   "sect_start %lu sect_count %ld\n",
+-				   comp_req,
+-				   (unsigned long) comp_req->sector_start,
+-				   comp_req->sector_count);
+ 
+ 			if (comp_req == pend_req)
+ 				break;
+@@ -536,9 +518,6 @@ static int blkvsc_cancel_pending_reqs(struct block_device_context *blkdev)
+ 			kmem_cache_free(blkdev->request_pool, comp_req);
+ 		}
+ 
+-		DPRINT_DBG(BLKVSC_DRV, "cancelling pending request - %p\n",
+-			   pend_req);
+-
+ 		list_del(&pend_req->pend_entry);
+ 
+ 		list_del(&pend_req->req_entry);
+@@ -551,9 +530,6 @@ static int blkvsc_cancel_pending_reqs(struct block_device_context *blkdev)
+ 				 * All the sectors have been xferred ie the
+ 				 * request is done
+ 				 */
+-				DPRINT_DBG(BLKVSC_DRV,
+-					   "blkvsc_cancel_pending_reqs() - "
+-					   "req %p COMPLETED\n", pend_req->req);
+ 				kmem_cache_free(blkdev->request_pool,
+ 						pend_req->group);
+ 			}
+@@ -581,7 +557,6 @@ static int blkvsc_remove(struct device *device)
+ 	unsigned long flags;
+ 	int ret;
+ 
+-	DPRINT_DBG(BLKVSC_DRV, "blkvsc_remove()\n");
+ 
+ 	if (!storvsc_drv_obj->base.dev_rm)
+ 		return -1;
+@@ -639,9 +614,6 @@ static void blkvsc_shutdown(struct device *device)
+ 	if (!blkdev)
+ 		return;
+ 
+-	DPRINT_DBG(BLKVSC_DRV, "blkvsc_shutdown - users %d disk %s\n",
+-		   blkdev->users, blkdev->gd->disk_name);
+-
+ 	spin_lock_irqsave(&blkdev->lock, flags);
+ 
+ 	blkdev->shutting_down = 1;
+@@ -669,9 +641,6 @@ static int blkvsc_release(struct gendisk *disk, fmode_t mode)
+ {
+ 	struct block_device_context *blkdev = disk->private_data;
+ 
+-	DPRINT_DBG(BLKVSC_DRV, "- users %d disk %s\n", blkdev->users,
+-		   blkdev->gd->disk_name);
+-
+ 	mutex_lock(&blkvsc_mutex);
+ 	spin_lock(&blkdev->lock);
+ 	if (blkdev->users == 1) {
+@@ -709,9 +678,6 @@ static int blkvsc_do_request(struct block_device_context *blkdev,
+ 	int pending = 0;
+ 	struct blkvsc_request_group *group = NULL;
+ 
+-	DPRINT_DBG(BLKVSC_DRV, "blkdev %p req %p sect %lu\n", blkdev, req,
+-		  (unsigned long)blk_rq_pos(req));
+-
+ 	/* Create a group to tie req to list of blkvsc_reqs */
+ 	group = kmem_cache_zalloc(blkdev->request_pool, GFP_ATOMIC);
+ 	if (!group)
+@@ -729,11 +695,6 @@ static int blkvsc_do_request(struct block_device_context *blkdev,
+ 			 * Map this bio into an existing or new storvsc request
+ 			 */
+ 			bio_for_each_segment(bvec, bio, seg_idx) {
+-				DPRINT_DBG(BLKVSC_DRV, "bio_for_each_segment() "
+-					   "- req %p bio %p bvec %p seg_idx %d "
+-					   "databuf_idx %d\n", req, bio, bvec,
+-					   seg_idx, databuf_idx);
+-
+ 				/* Get a new storvsc request */
+ 				/* 1st-time */
+ 				if ((!blkvsc_req) ||
+@@ -826,10 +787,6 @@ static int blkvsc_do_request(struct block_device_context *blkdev,
+ 
+ 	/* Handle the last one */
+ 	if (blkvsc_req) {
+-		DPRINT_DBG(BLKVSC_DRV, "blkdev %p req %p group %p count %d\n",
+-			   blkdev, req, blkvsc_req->group,
+-			   blkvsc_req->group->outstanding);
+-
+ 		blkvsc_req->sector_start = start_sector;
+ 		sector_div(blkvsc_req->sector_start,
+ 			   (blkdev->sector_size >> 9));
+@@ -842,13 +799,6 @@ static int blkvsc_do_request(struct block_device_context *blkdev,
+ 
+ 	list_for_each_entry(blkvsc_req, &group->blkvsc_req_list, req_entry) {
+ 		if (pending) {
+-			DPRINT_DBG(BLKVSC_DRV, "adding blkvsc_req to "
+-				   "pending_list - blkvsc_req %p start_sect %lu"
+-				   " sect_count %ld (%lu %ld)\n", blkvsc_req,
+-				   (unsigned long)blkvsc_req->sector_start,
+-				   blkvsc_req->sector_count,
+-				   (unsigned long)start_sector,
+-				   (unsigned long)num_sectors);
+ 
+ 			list_add_tail(&blkvsc_req->pend_entry,
+ 				      &blkdev->pending_list);
+@@ -861,13 +811,6 @@ static int blkvsc_do_request(struct block_device_context *blkdev,
+ 					      &blkdev->pending_list);
  			}
  
- 			ide0_registered = 1;
-@@ -1019,7 +1019,7 @@ static int blkvsc_probe(struct device *device)
- 				DPRINT_ERR(BLKVSC_DRV,
- 					   "register_blkdev() failed! ret %d",
- 					   ret);
--				goto Remove;
-+				goto remove;
+-			DPRINT_DBG(BLKVSC_DRV, "submitted blkvsc_req %p "
+-				   "start_sect %lu sect_count %ld (%lu %ld) "
+-				   "ret %d\n", blkvsc_req,
+-				   (unsigned long)blkvsc_req->sector_start,
+-				   blkvsc_req->sector_count,
+-				   (unsigned long)start_sector,
+-				   num_sectors, ret);
+ 		}
+ 	}
+ 
+@@ -882,8 +825,6 @@ static int blkvsc_do_pending_reqs(struct block_device_context *blkdev)
+ 	/* Flush the pending list first */
+ 	list_for_each_entry_safe(pend_req, tmp, &blkdev->pending_list,
+ 				 pend_entry) {
+-		DPRINT_DBG(BLKVSC_DRV, "working off pending_list - %p\n",
+-			   pend_req);
+ 
+ 		ret = blkvsc_submit_request(pend_req,
+ 					    blkvsc_request_completion);
+@@ -903,9 +844,7 @@ static void blkvsc_request(struct request_queue *queue)
+ 	struct request *req;
+ 	int ret = 0;
+ 
+-	DPRINT_DBG(BLKVSC_DRV, "- enter\n");
+ 	while ((req = blk_peek_request(queue)) != NULL) {
+-		DPRINT_DBG(BLKVSC_DRV, "- req %p\n", req);
+ 
+ 		blkdev = req->rq_disk->private_data;
+ 		if (blkdev->shutting_down || req->cmd_type != REQ_TYPE_FS) {
+@@ -916,8 +855,6 @@ static void blkvsc_request(struct request_queue *queue)
+ 		ret = blkvsc_do_pending_reqs(blkdev);
+ 
+ 		if (ret != 0) {
+-			DPRINT_DBG(BLKVSC_DRV,
+-				   "- stop queue - pending_list not empty\n");
+ 			blk_stop_queue(queue);
+ 			break;
+ 		}
+@@ -926,11 +863,9 @@ static void blkvsc_request(struct request_queue *queue)
+ 
+ 		ret = blkvsc_do_request(blkdev, req);
+ 		if (ret > 0) {
+-			DPRINT_DBG(BLKVSC_DRV, "- stop queue - no room\n");
+ 			blk_stop_queue(queue);
+ 			break;
+ 		} else if (ret < 0) {
+-			DPRINT_DBG(BLKVSC_DRV, "- stop queue - no mem\n");
+ 			blk_requeue_request(queue, req);
+ 			blk_stop_queue(queue);
+ 			break;
+@@ -1040,7 +975,6 @@ static int blkvsc_probe(struct device *device)
+ 	static int ide0_registered;
+ 	static int ide1_registered;
+ 
+-	DPRINT_DBG(BLKVSC_DRV, "blkvsc_probe - enter");
+ 
+ 	if (!storvsc_drv_obj->base.dev_add) {
+ 		DPRINT_ERR(BLKVSC_DRV, "OnDeviceAdd() not set");
+@@ -1194,17 +1128,6 @@ static void blkvsc_request_completion(struct hv_storvsc_request *request)
+ 	struct vmscsi_request *vm_srb;
+ 
+ 
+-	DPRINT_DBG(BLKVSC_DRV, "blkdev %p blkvsc_req %p group %p type %s "
+-		   "sect_start %lu sect_count %ld len %d group outstd %d "
+-		   "total outstd %d\n",
+-		   blkdev, blkvsc_req, blkvsc_req->group,
+-		   (blkvsc_req->write) ? "WRITE" : "READ",
+-		   (unsigned long)blkvsc_req->sector_start,
+-		   blkvsc_req->sector_count,
+-		   blkvsc_req->request.data_buffer.len,
+-		   blkvsc_req->group->outstanding,
+-		   blkdev->num_outstanding_reqs);
+-
+ 	spin_lock_irqsave(&blkdev->lock, flags);
+ 
+ 	blkdev->num_outstanding_reqs--;
+@@ -1219,11 +1142,6 @@ static void blkvsc_request_completion(struct hv_storvsc_request *request)
+ 		list_for_each_entry_safe(comp_req, tmp,
+ 					 &blkvsc_req->group->blkvsc_req_list,
+ 					 req_entry) {
+-			DPRINT_DBG(BLKVSC_DRV, "completing blkvsc_req %p "
+-				   "sect_start %lu sect_count %ld\n",
+-				   comp_req,
+-				   (unsigned long)comp_req->sector_start,
+-				   comp_req->sector_count);
+ 
+ 			list_del(&comp_req->req_entry);
+ 
+@@ -1236,8 +1154,6 @@ static void blkvsc_request_completion(struct hv_storvsc_request *request)
+ 				 * All the sectors have been xferred ie the
+ 				 * request is done
+ 				 */
+-				DPRINT_DBG(BLKVSC_DRV, "req %p COMPLETED\n",
+-					   comp_req->req);
+ 				kmem_cache_free(blkdev->request_pool,
+ 						comp_req->group);
  			}
- 
- 			ide1_registered = 1;
-@@ -1069,7 +1069,7 @@ static int blkvsc_probe(struct device *device)
- 
- 	return ret;
- 
--Remove:
-+remove:
- 	storvsc_drv_obj->base.dev_rm(device_obj);
- 
- cleanup:
 -- 
 1.7.4.1
