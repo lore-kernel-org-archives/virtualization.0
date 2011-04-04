@@ -1,16 +1,13 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH] virtio: Decrement avail idx on buffer detach
-Date: Mon, 04 Apr 2011 16:04:40 +0930
-Message-ID: <87bp0mbk3j.fsf@rustcorp.com.au>
-References: <a2fe5813ccecf1e762670702cba8ccb2a4cb8cfc.1300282928.git.amit.shah@redhat.com>
-	<87aagugxab.fsf@rustcorp.com.au>
-	<20110317122659.GB18382@amit-x200.redhat.com>
-	<20110328142706.GA2949@amit-x200.redhat.com>
+From: Ian Campbell <Ian.Campbell@eu.citrix.com>
+Subject: Re: Signed bit field; int have_hotplug_status_watch:1
+Date: Mon, 4 Apr 2011 09:26:24 +0100
+Message-ID: <1301905584.23887.49.camel__19809.4233674512$1301905634$gmane$org@zakaz.uk.xensource.com>
+References: <20110403213241.GA25913@gallifrey>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20110328142706.GA2949@amit-x200.redhat.com>
+In-Reply-To: <20110403213241.GA25913@gallifrey>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,43 +17,60 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Amit Shah <amit.shah@redhat.com>
-Cc: Virtualization List <virtualization@lists.linux-foundation.org>
+To: "Dr. David Alan Gilbert" <linux@treblig.org>
+Cc: netdev@vger.kernel.org, Jeremy Fitzhardinge <Jeremy.Fitzhardinge@citrix.com>, xen-devel <xen-devel@lists.xensource.com>, "konrad.wilk@oracle.com" <konrad.wilk@oracle.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, 28 Mar 2011 19:57:06 +0530, Amit Shah <amit.shah@redhat.com> wrote:
-> On (Thu) 17 Mar 2011 [17:56:59], Amit Shah wrote:
-> > On (Thu) 17 Mar 2011 [15:26:28], Rusty Russell wrote:
-> > > On Wed, 16 Mar 2011 19:12:10 +0530, Amit Shah <amit.shah@redhat.com> wrote:
-> > > > When detaching a buffer from a vq, the avail.idx value should be
-> > > > decremented as well.
-> > > > 
-> > > > This was noticed by hot-unplugging a virtio console port and then
-> > > > plugging in a new one on the same number (re-using the vqs which were
-> > > > just 'disowned').  qemu reported
-> > > > 
-> > > >    'Guest moved used index from 0 to 256'
-> > > > 
-> > > > when any IO was attempted on the new port.
-> > > 
-> > > Yech... detach_unused_buf cannot be used on a live virtqueue; it assumes
-> > > we will reset the vq (usually by resetting the entire device).
-> > > 
-> > > You've partially violated that assumption by reusing the vq after
-> > > calling detach_unused_buf.  So I'm not entirely sure this is the only
-> > > bug lurking; safer would be to re-initialize the vq somehow when you
-> > > plug back in...
-> > 
-> > Right; and then that will need host changes too (re-init the vqs on
-> > the host side), which then gets us into compat problems...
+On Sun, 2011-04-03 at 22:32 +0100, Dr. David Alan Gilbert wrote:
+> Hi Ian,
+>    I've been going through some sparse scans of the kernel and
+> it threw up:
 > 
-> Rusty, any thoughts on this?
+>   CHECK   drivers/net/xen-netback/xenbus.c
+> drivers/net/xen-netback/xenbus.c:29:40: error: dubious one-bit signed bitfield
 > 
-> 		Amit
+>         int have_hotplug_status_watch:1;
 > 
+> from your patch f942dc2552b8bfdee607be867b12a8971bb9cd85 
+> 
+> It does look like that should be an unsigned (given it's assigned
+> 0 and 1)
 
-Yes... I've applied your patch for the moment, and will send to Linus
-with cc' stable.
+I agree.
 
-Thanks,
-Rusty.
+8<----------------------------------
+
+From 38fdb7199a0c3c5eb18ec27d2380e21116c97e29 Mon Sep 17 00:00:00 2001
+From: Ian Campbell <ian.campbell@citrix.com>
+Date: Mon, 4 Apr 2011 09:18:35 +0100
+Subject: [PATCH] xen: netback: use unsigned type for one-bit bitfield.
+
+Fixes error from sparse:
+  CHECK   drivers/net/xen-netback/xenbus.c
+drivers/net/xen-netback/xenbus.c:29:40: error: dubious one-bit signed bitfield
+
+        int have_hotplug_status_watch:1;
+
+Reported-by: Dr. David Alan Gilbert <linux@treblig.org>
+Signed-off-by: Ian Campbell <ian.campbell@citrix.com>
+Cc: netdev@vger.kernel.org
+Cc: xen-devel@lists.xensource.com
+---
+ drivers/net/xen-netback/xenbus.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/drivers/net/xen-netback/xenbus.c b/drivers/net/xen-netback/xenbus.c
+index 22b8c35..1ce729d 100644
+--- a/drivers/net/xen-netback/xenbus.c
++++ b/drivers/net/xen-netback/xenbus.c
+@@ -26,7 +26,7 @@ struct backend_info {
+ 	struct xenvif *vif;
+ 	enum xenbus_state frontend_state;
+ 	struct xenbus_watch hotplug_status_watch;
+-	int have_hotplug_status_watch:1;
++	u8 have_hotplug_status_watch:1;
+ };
+ 
+ static int connect_rings(struct backend_info *);
+-- 
+1.7.2.5
