@@ -1,8 +1,7 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 21/22] Staging: hv: Introduce a function to map channel
-	properties onto block device info
-Date: Mon,  4 Apr 2011 15:48:10 -0700
-Message-ID: <1301957291-8035-21-git-send-email-kys@microsoft.com>
+Subject: [PATCH 06/22] Staging: hv: Get rid of blkvsc_do_read_capacity16()
+Date: Mon,  4 Apr 2011 15:47:55 -0700
+Message-ID: <1301957291-8035-6-git-send-email-kys@microsoft.com>
 References: <1301957186-7853-1-git-send-email-kys@microsoft.com>
 	<1301957291-8035-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -23,130 +22,114 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-In preparation for removing the IDE details from the block driver, implement
-a function that maps channel properties to block device information.
-
+Get rid of blkvsc_do_read_capacity16() and instead use the common function
+for retrieving capacity.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/storvsc.c     |   68 ++++++++++++++++++++++++++++++++++++++
- drivers/staging/hv/storvsc_api.h |   10 +++++
- 2 files changed, 78 insertions(+), 0 deletions(-)
+ drivers/staging/hv/blkvsc_drv.c |   81 +--------------------------------------
+ 1 files changed, 2 insertions(+), 79 deletions(-)
 
-diff --git a/drivers/staging/hv/storvsc.c b/drivers/staging/hv/storvsc.c
-index d7ce393..e2b3410 100644
---- a/drivers/staging/hv/storvsc.c
-+++ b/drivers/staging/hv/storvsc.c
-@@ -17,6 +17,8 @@
-  * Authors:
-  *   Haiyang Zhang <haiyangz@microsoft.com>
-  *   Hank Janssen  <hjanssen@microsoft.com>
-+ *
-+ * 4/3/2011: K. Y. Srinivasan - Significant restructuring and cleanup.
-  */
- #include <linux/kernel.h>
- #include <linux/sched.h>
-@@ -593,6 +595,72 @@ int stor_vsc_on_io_request(struct hv_device *device,
+diff --git a/drivers/staging/hv/blkvsc_drv.c b/drivers/staging/hv/blkvsc_drv.c
+index 925b898..4da42c9 100644
+--- a/drivers/staging/hv/blkvsc_drv.c
++++ b/drivers/staging/hv/blkvsc_drv.c
+@@ -751,82 +751,6 @@ static int blkvsc_release(struct gendisk *disk, fmode_t mode)
  }
  
- /*
-+ * The channel properties uniquely specify how the device is to be
-+ * presented to the guest. Map this information for use by the block
-+ * driver. For Linux guests on Hyper-V, we emulate a scsi HBA in the guest
-+ * (storvsc_drv) and so scsi devices in the guest  are handled by
-+ * native upper level Linux drivers. Consequently, Hyper-V
-+ * block driver, while being a generic block driver, presently does not
-+ * deal with anything other than devices that would need to be presented
-+ * to the guest as an IDE disk.
-+ *
-+ * This function maps the channel properties as embedded in the input
-+ * parameter device_info onto information necessary to register the
-+ * corresponding block device.
-+ *
-+ * Currently, there is no way to stop the emulation of the block device
-+ * on the host side. And so, to prevent the native IDE drivers in Linux
-+ * from taking over these devices (to be managedby Hyper-V block
-+ * driver), we will take over if need be the major of the IDE controllers.
-+ *
-+ */
-+
-+int stor_vsc_get_major_info(struct storvsc_device_info *device_info,
-+			    struct storvsc_major_info *major_info)
-+{
-+	static bool ide0_registered;
-+	static bool ide1_registered;
-+
-+	/*
-+	 * For now we only support IDE disks.
-+	 */
-+	major_info->devname = "ide";
-+	major_info->diskname = "hd";
-+
-+	if (device_info->path_id) {
-+		major_info->major = 22;
-+		if (!ide1_registered)
-+			major_info->do_register = true;
-+		else {
-+			major_info->do_register = false;
-+			ide1_registered = true;
-+		}
-+		if (device_info->target_id)
-+			major_info->index = 3;
-+		 else
-+			major_info->index = 2;
-+
-+		return 0;
-+	} else {
-+		major_info->major = 3;
-+		if (!ide0_registered)
-+			major_info->do_register = true;
-+		else {
-+			major_info->do_register = false;
-+			ide0_registered = true;
-+		}
-+		if (device_info->target_id)
-+			major_info->index = 1;
-+		else
-+			major_info->index = 0;
-+
-+		return 0;
-+	}
-+
-+	return -ENODEV;
-+}
-+
-+/*
-  * stor_vsc_on_cleanup - Perform any cleanup when the driver is removed
-  */
- void stor_vsc_on_cleanup(struct hv_driver *driver)
-diff --git a/drivers/staging/hv/storvsc_api.h b/drivers/staging/hv/storvsc_api.h
-index f6b7cde..630710d 100644
---- a/drivers/staging/hv/storvsc_api.h
-+++ b/drivers/staging/hv/storvsc_api.h
-@@ -91,6 +91,14 @@ struct storvsc_device_info {
- 	unsigned char target_id;
- };
  
-+struct storvsc_major_info {
-+	int major;
-+	int index;
-+	bool do_register;
-+	char *devname;
-+	char *diskname;
-+};
-+
- /* A storvsc device is a device object that contains a vmbus channel */
- struct storvsc_device {
- 	struct hv_device *device;
-@@ -154,5 +162,7 @@ int stor_vsc_on_io_request(struct hv_device *device,
- 				struct hv_storvsc_request *request);
- void stor_vsc_on_cleanup(struct hv_driver *driver);
+-static int blkvsc_do_read_capacity16(struct block_device_context *blkdev)
+-{
+-	struct blkvsc_request *blkvsc_req;
+-	struct page *page_buf;
+-	unsigned char *buf;
+-	struct scsi_sense_hdr sense_hdr;
+-	struct vmscsi_request *vm_srb;
+-
+-	DPRINT_DBG(BLKVSC_DRV, "blkvsc_do_read_capacity16()\n");
+-
+-	blkdev->sector_size = 0;
+-	blkdev->capacity = 0;
+-	blkdev->media_not_present = 0; /* assume a disk is present */
+-
+-	blkvsc_req = kmem_cache_zalloc(blkdev->request_pool, GFP_KERNEL);
+-	if (!blkvsc_req)
+-		return -ENOMEM;
+-
+-	memset(blkvsc_req, 0, sizeof(struct blkvsc_request));
+-	vm_srb = &blkvsc_req->request.vstor_packet.vm_srb;
+-	page_buf = alloc_page(GFP_KERNEL);
+-	if (!page_buf) {
+-		kmem_cache_free(blkvsc_req->dev->request_pool, blkvsc_req);
+-		return -ENOMEM;
+-	}
+-
+-	init_completion(&blkvsc_req->request.wait_event);
+-	blkvsc_req->dev = blkdev;
+-	blkvsc_req->req = NULL;
+-	blkvsc_req->write = 0;
+-
+-	blkvsc_req->request.data_buffer.pfn_array[0] =
+-	page_to_pfn(page_buf);
+-	blkvsc_req->request.data_buffer.offset = 0;
+-	blkvsc_req->request.data_buffer.len = 12;
+-
+-	blkvsc_req->cmnd[0] = 0x9E; /* READ_CAPACITY16; */
+-	blkvsc_req->cmd_len = 16;
+-
+-	/*
+-	 * Set this here since the completion routine may be invoked
+-	 * and completed before we return
+-	 */
+-
+-	blkvsc_submit_request(blkvsc_req, blkvsc_cmd_completion);
+-
+-	DPRINT_DBG(BLKVSC_DRV, "waiting %p to complete\n",
+-		   blkvsc_req);
+-
+-	wait_for_completion_interruptible(&blkvsc_req->request.wait_event);
+-
+-	/* check error */
+-	if (vm_srb->scsi_status) {
+-		scsi_normalize_sense(blkvsc_req->sense_buffer,
+-				     SCSI_SENSE_BUFFERSIZE, &sense_hdr);
+-		if (sense_hdr.asc == 0x3A) {
+-			/* Medium not present */
+-			blkdev->media_not_present = 1;
+-		}
+-		return 0;
+-	}
+-	buf = kmap(page_buf);
+-
+-	/* be to le */
+-	blkdev->capacity = be64_to_cpu(*(unsigned long long *) &buf[0]) + 1;
+-	blkdev->sector_size = be32_to_cpu(*(unsigned int *)&buf[8]);
+-
+-	kunmap(page_buf);
+-
+-	__free_page(page_buf);
+-
+-	kmem_cache_free(blkvsc_req->dev->request_pool, blkvsc_req);
+-
+-	return 0;
+-}
+-
+ static int blkvsc_revalidate_disk(struct gendisk *gd)
+ {
+ 	struct block_device_context *blkdev = gd->private_data;
+@@ -1310,9 +1234,8 @@ static int blkvsc_probe(struct device *device)
+ 		set_disk_ro(blkdev->gd, 1);
+ 		blkdev->gd->flags |= GENHD_FL_REMOVABLE;
+ 		blkvsc_do_operation(blkdev, DO_CAPACITY);
+-	} else {
+-		blkvsc_do_read_capacity16(blkdev);
+-	}
++	} else
++		blkvsc_do_operation(blkdev, DO_CAPACITY);
  
-+int stor_vsc_get_major_info(struct storvsc_device_info *device_info,
-+				struct storvsc_major_info *major_info);
- 
- #endif /* _STORVSC_API_H_ */
+ 	set_capacity(blkdev->gd, blkdev->capacity * (blkdev->sector_size/512));
+ 	blk_queue_logical_block_size(blkdev->gd->queue, blkdev->sector_size);
 -- 
 1.7.4.1
