@@ -1,14 +1,13 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 13/22] Staging: hv: Cleanup blkvsc_remove()
-Date: Mon,  4 Apr 2011 15:48:02 -0700
-Message-ID: <1301957291-8035-13-git-send-email-kys@microsoft.com>
+Subject: [PATCH 01/22] Staging: hv: Get rid of blkvsc_media_changed()
+Date: Mon,  4 Apr 2011 15:47:50 -0700
+Message-ID: <1301957291-8035-1-git-send-email-kys@microsoft.com>
 References: <1301957186-7853-1-git-send-email-kys@microsoft.com>
-	<1301957291-8035-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <devel-bounces@linuxdriverproject.org>
-In-Reply-To: <1301957291-8035-1-git-send-email-kys@microsoft.com>
+In-Reply-To: <1301957186-7853-1-git-send-email-kys@microsoft.com>
 List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
 	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
 List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
@@ -22,52 +21,40 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-blkvsc_remove() cannot fail. Clean it up accordingly.
+We don't support removable media in Hyper-V block driver.
+Get rid of blkvsc_media_changed() as it is efectively "dead code".
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/blkvsc_drv.c |   15 +++------------
- 1 files changed, 3 insertions(+), 12 deletions(-)
+ drivers/staging/hv/blkvsc_drv.c |    7 -------
+ 1 files changed, 0 insertions(+), 7 deletions(-)
 
 diff --git a/drivers/staging/hv/blkvsc_drv.c b/drivers/staging/hv/blkvsc_drv.c
-index 32d542d..c0a7acd 100644
+index 9faccbe..1203049 100644
 --- a/drivers/staging/hv/blkvsc_drv.c
 +++ b/drivers/staging/hv/blkvsc_drv.c
-@@ -555,22 +555,12 @@ static int blkvsc_remove(struct device *device)
- 	struct hv_device *device_obj = device_to_hv_device(device);
- 	struct block_device_context *blkdev = dev_get_drvdata(device);
- 	unsigned long flags;
--	int ret;
--
--
--	if (!storvsc_drv_obj->base.dev_rm)
--		return -1;
- 
- 	/*
- 	 * Call to the vsc driver to let it know that the device is being
- 	 * removed
- 	 */
--	ret = storvsc_drv_obj->base.dev_rm(device_obj);
--	if (ret != 0) {
--		/* TODO: */
--		DPRINT_ERR(BLKVSC_DRV,
--			   "unable to remove blkvsc device (ret %d)", ret);
--	}
-+	storvsc_drv_obj->base.dev_rm(device_obj);
- 
- 	/* Get to a known state */
- 	spin_lock_irqsave(&blkdev->lock, flags);
-@@ -603,7 +593,8 @@ static int blkvsc_remove(struct device *device)
- 
- 	kfree(blkdev);
- 
--	return ret;
-+	return 0;
-+
+@@ -251,12 +251,6 @@ static int blkvsc_submit_request(struct blkvsc_request *blkvsc_req,
+ 	return ret;
  }
  
- static void blkvsc_shutdown(struct device *device)
+-static int blkvsc_media_changed(struct gendisk *gd)
+-{
+-	DPRINT_DBG(BLKVSC_DRV, "- enter\n");
+-	return 1;
+-}
+-
+ static int blkvsc_open(struct block_device *bdev, fmode_t mode)
+ {
+ 	struct block_device_context *blkdev = bdev->bd_disk->private_data;
+@@ -1206,7 +1200,6 @@ static const struct block_device_operations block_ops = {
+ 	.owner = THIS_MODULE,
+ 	.open = blkvsc_open,
+ 	.release = blkvsc_release,
+-	.media_changed = blkvsc_media_changed,
+ 	.revalidate_disk = blkvsc_revalidate_disk,
+ 	.getgeo = blkvsc_getgeo,
+ 	.ioctl  = blkvsc_ioctl,
 -- 
 1.7.4.1
