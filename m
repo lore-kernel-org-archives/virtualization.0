@@ -1,18 +1,15 @@
-From: Amit Shah <amit.shah@redhat.com>
-Subject: Re: [PATCH] virtio: Decrement avail idx on buffer detach
-Date: Mon, 4 Apr 2011 20:31:54 +0530
-Message-ID: <20110404150153.GA3102@amit-x200.redhat.com>
-References: <a2fe5813ccecf1e762670702cba8ccb2a4cb8cfc.1300282928.git.amit.shah@redhat.com>
-	<87aagugxab.fsf@rustcorp.com.au>
-	<20110317122659.GB18382@amit-x200.redhat.com>
-	<20110328142706.GA2949@amit-x200.redhat.com>
-	<87bp0mbk3j.fsf@rustcorp.com.au>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH RESEND] net: convert xen-netfront to hw_features
+Date: Mon, 04 Apr 2011 11:08:12 -0700 (PDT)
+Message-ID: <20110404.110812.90805188.davem__2308.87546572394$1301940570$gmane$org@davemloft.net>
+References: <20110331110136.03A1A13A6A@rere.qmqm.pl>
+	<20110401.205455.70198735.davem@davemloft.net>
+	<1301920159.23887.96.camel@zakaz.uk.xensource.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <87bp0mbk3j.fsf@rustcorp.com.au>
+In-Reply-To: <1301920159.23887.96.camel@zakaz.uk.xensource.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -22,42 +19,23 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Virtualization List <virtualization@lists.linux-foundation.org>
+To: Ian.Campbell@eu.citrix.com
+Cc: Jeremy.Fitzhardinge@citrix.com, konrad.wilk@oracle.com, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, xen-devel@lists.xensource.com, mirq-linux@rere.qmqm.pl
 List-Id: virtualization@lists.linuxfoundation.org
 
-On (Mon) 04 Apr 2011 [16:04:40], Rusty Russell wrote:
-> On Mon, 28 Mar 2011 19:57:06 +0530, Amit Shah <amit.shah@redhat.com> wrote:
-> > On (Thu) 17 Mar 2011 [17:56:59], Amit Shah wrote:
-> > > On (Thu) 17 Mar 2011 [15:26:28], Rusty Russell wrote:
-> > > > On Wed, 16 Mar 2011 19:12:10 +0530, Amit Shah <amit.shah@redhat.com> wrote:
-> > > > > When detaching a buffer from a vq, the avail.idx value should be
-> > > > > decremented as well.
-> > > > > 
-> > > > > This was noticed by hot-unplugging a virtio console port and then
-> > > > > plugging in a new one on the same number (re-using the vqs which were
-> > > > > just 'disowned').  qemu reported
-> > > > > 
-> > > > >    'Guest moved used index from 0 to 256'
-> > > > > 
-> > > > > when any IO was attempted on the new port.
-> > > > 
-> > > > Yech... detach_unused_buf cannot be used on a live virtqueue; it assumes
-> > > > we will reset the vq (usually by resetting the entire device).
-> > > > 
-> > > > You've partially violated that assumption by reusing the vq after
-> > > > calling detach_unused_buf.  So I'm not entirely sure this is the only
-> > > > bug lurking; safer would be to re-initialize the vq somehow when you
-> > > > plug back in...
-> > > 
-> > > Right; and then that will need host changes too (re-init the vqs on
-> > > the host side), which then gets us into compat problems...
-> > 
-> > Rusty, any thoughts on this?
+From: Ian Campbell <Ian.Campbell@eu.citrix.com>
+Date: Mon, 4 Apr 2011 13:29:19 +0100
+
+>>From 0b56469abe56efae415b4603ef508ce9aec0e4c1 Mon Sep 17 00:00:00 2001
+> From: Ian Campbell <ian.campbell@citrix.com>
+> Date: Mon, 4 Apr 2011 10:58:50 +0100
+> Subject: [PATCH] xen: netfront: assume all hw features are available until backend connection setup
 > 
-> Yes... I've applied your patch for the moment, and will send to Linus
-> with cc' stable.
+> We need to assume that all features will be available when registering the
+> netdev otherwise they are ommitted from the initial set of
+> dev->wanted_features. When we connect to the backed we reduce the set as
+> necessary due to the call to netdev_update_features() in xennet_connect().
+> 
+> Signed-off-by: Ian Campbell <ian.campbell@citrix.com>
 
-OK, thanks!
-
-		Amit
+I've applied this, thanks Ian.
