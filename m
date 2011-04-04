@@ -1,7 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 08/22] Staging hv: Get rid of the state media_not_present
-Date: Mon,  4 Apr 2011 15:47:57 -0700
-Message-ID: <1301957291-8035-8-git-send-email-kys@microsoft.com>
+Subject: [PATCH 21/22] Staging: hv: Introduce a function to map channel
+	properties onto block device info
+Date: Mon,  4 Apr 2011 15:48:10 -0700
+Message-ID: <1301957291-8035-21-git-send-email-kys@microsoft.com>
 References: <1301957186-7853-1-git-send-email-kys@microsoft.com>
 	<1301957291-8035-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -22,56 +23,130 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The block driver in Hyper-V does not handle removable media, get rid of the
-media_not_present state.
+In preparation for removing the IDE details from the block driver, implement
+a function that maps channel properties to block device information.
+
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/blkvsc_drv.c |    9 +--------
- 1 files changed, 1 insertions(+), 8 deletions(-)
+ drivers/staging/hv/storvsc.c     |   68 ++++++++++++++++++++++++++++++++++++++
+ drivers/staging/hv/storvsc_api.h |   10 +++++
+ 2 files changed, 78 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/staging/hv/blkvsc_drv.c b/drivers/staging/hv/blkvsc_drv.c
-index 0715cba..1ea5f9c 100644
---- a/drivers/staging/hv/blkvsc_drv.c
-+++ b/drivers/staging/hv/blkvsc_drv.c
-@@ -103,7 +103,6 @@ struct block_device_context {
- 	unsigned int device_id_len;
- 	int num_outstanding_reqs;
- 	int shutting_down;
--	int media_not_present;
- 	unsigned int sector_size;
- 	sector_t capacity;
- 	unsigned int port;
-@@ -445,7 +444,6 @@ static int blkvsc_do_operation(struct block_device_context *blkdev,
- 	case DO_CAPACITY:
- 		blkdev->sector_size = 0;
- 		blkdev->capacity = 0;
--		blkdev->media_not_present = 0; /* assume a disk is present */
+diff --git a/drivers/staging/hv/storvsc.c b/drivers/staging/hv/storvsc.c
+index d7ce393..e2b3410 100644
+--- a/drivers/staging/hv/storvsc.c
++++ b/drivers/staging/hv/storvsc.c
+@@ -17,6 +17,8 @@
+  * Authors:
+  *   Haiyang Zhang <haiyangz@microsoft.com>
+  *   Hank Janssen  <hjanssen@microsoft.com>
++ *
++ * 4/3/2011: K. Y. Srinivasan - Significant restructuring and cleanup.
+  */
+ #include <linux/kernel.h>
+ #include <linux/sched.h>
+@@ -593,6 +595,72 @@ int stor_vsc_on_io_request(struct hv_device *device,
+ }
  
- 		blkvsc_req->cmnd[0] = READ_CAPACITY;
- 		blkvsc_req->cmd_len = 16;
-@@ -472,10 +470,6 @@ static int blkvsc_do_operation(struct block_device_context *blkdev,
- 		scsi_normalize_sense(blkvsc_req->sense_buffer,
- 				     SCSI_SENSE_BUFFERSIZE, &sense_hdr);
+ /*
++ * The channel properties uniquely specify how the device is to be
++ * presented to the guest. Map this information for use by the block
++ * driver. For Linux guests on Hyper-V, we emulate a scsi HBA in the guest
++ * (storvsc_drv) and so scsi devices in the guest  are handled by
++ * native upper level Linux drivers. Consequently, Hyper-V
++ * block driver, while being a generic block driver, presently does not
++ * deal with anything other than devices that would need to be presented
++ * to the guest as an IDE disk.
++ *
++ * This function maps the channel properties as embedded in the input
++ * parameter device_info onto information necessary to register the
++ * corresponding block device.
++ *
++ * Currently, there is no way to stop the emulation of the block device
++ * on the host side. And so, to prevent the native IDE drivers in Linux
++ * from taking over these devices (to be managedby Hyper-V block
++ * driver), we will take over if need be the major of the IDE controllers.
++ *
++ */
++
++int stor_vsc_get_major_info(struct storvsc_device_info *device_info,
++			    struct storvsc_major_info *major_info)
++{
++	static bool ide0_registered;
++	static bool ide1_registered;
++
++	/*
++	 * For now we only support IDE disks.
++	 */
++	major_info->devname = "ide";
++	major_info->diskname = "hd";
++
++	if (device_info->path_id) {
++		major_info->major = 22;
++		if (!ide1_registered)
++			major_info->do_register = true;
++		else {
++			major_info->do_register = false;
++			ide1_registered = true;
++		}
++		if (device_info->target_id)
++			major_info->index = 3;
++		 else
++			major_info->index = 2;
++
++		return 0;
++	} else {
++		major_info->major = 3;
++		if (!ide0_registered)
++			major_info->do_register = true;
++		else {
++			major_info->do_register = false;
++			ide0_registered = true;
++		}
++		if (device_info->target_id)
++			major_info->index = 1;
++		else
++			major_info->index = 0;
++
++		return 0;
++	}
++
++	return -ENODEV;
++}
++
++/*
+  * stor_vsc_on_cleanup - Perform any cleanup when the driver is removed
+  */
+ void stor_vsc_on_cleanup(struct hv_driver *driver)
+diff --git a/drivers/staging/hv/storvsc_api.h b/drivers/staging/hv/storvsc_api.h
+index f6b7cde..630710d 100644
+--- a/drivers/staging/hv/storvsc_api.h
++++ b/drivers/staging/hv/storvsc_api.h
+@@ -91,6 +91,14 @@ struct storvsc_device_info {
+ 	unsigned char target_id;
+ };
  
--		if (sense_hdr.asc == 0x3A)
--			/* Medium not present */
--			blkdev->media_not_present = 1;
--
- 		return 0;
- 	}
++struct storvsc_major_info {
++	int major;
++	int index;
++	bool do_register;
++	char *devname;
++	char *diskname;
++};
++
+ /* A storvsc device is a device object that contains a vmbus channel */
+ struct storvsc_device {
+ 	struct hv_device *device;
+@@ -154,5 +162,7 @@ int stor_vsc_on_io_request(struct hv_device *device,
+ 				struct hv_storvsc_request *request);
+ void stor_vsc_on_cleanup(struct hv_driver *driver);
  
-@@ -963,8 +957,7 @@ static void blkvsc_request(struct request_queue *queue)
- 		DPRINT_DBG(BLKVSC_DRV, "- req %p\n", req);
++int stor_vsc_get_major_info(struct storvsc_device_info *device_info,
++				struct storvsc_major_info *major_info);
  
- 		blkdev = req->rq_disk->private_data;
--		if (blkdev->shutting_down || req->cmd_type != REQ_TYPE_FS ||
--		    blkdev->media_not_present) {
-+		if (blkdev->shutting_down || req->cmd_type != REQ_TYPE_FS) {
- 			__blk_end_request_cur(req, 0);
- 			continue;
- 		}
+ #endif /* _STORVSC_API_H_ */
 -- 
 1.7.4.1
