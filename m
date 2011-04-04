@@ -1,7 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 16/22] Staging: hv: Get rid of some DPRINT_ERR() calls
-Date: Mon,  4 Apr 2011 15:48:05 -0700
-Message-ID: <1301957291-8035-16-git-send-email-kys@microsoft.com>
+Subject: [PATCH 17/22] Staging: hv: Get rid of an unnecessary check in
+	blkvsc_probe()
+Date: Mon,  4 Apr 2011 15:48:06 -0700
+Message-ID: <1301957291-8035-17-git-send-email-kys@microsoft.com>
 References: <1301957186-7853-1-git-send-email-kys@microsoft.com>
 	<1301957291-8035-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -22,63 +23,31 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Get rid of some DPRINT_ERR() calls.
+It is never the case that the dev_add function pointer will not be set
+(we set it in this code!). Get rid of this meaningless check.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/blkvsc_drv.c |    9 +++------
- 1 files changed, 3 insertions(+), 6 deletions(-)
+ drivers/staging/hv/blkvsc_drv.c |    5 -----
+ 1 files changed, 0 insertions(+), 5 deletions(-)
 
 diff --git a/drivers/staging/hv/blkvsc_drv.c b/drivers/staging/hv/blkvsc_drv.c
-index 03aebfc..aff6356 100644
+index aff6356..7f511ee 100644
 --- a/drivers/staging/hv/blkvsc_drv.c
 +++ b/drivers/staging/hv/blkvsc_drv.c
-@@ -17,6 +17,8 @@
-  * Authors:
-  *   Haiyang Zhang <haiyangz@microsoft.com>
-  *   Hank Janssen  <hjanssen@microsoft.com>
-+ *
-+ * 4/3/2011: K. Y. Srinivasan - Significant restructuring and cleanup.
-  */
- #include <linux/init.h>
- #include <linux/module.h>
-@@ -966,7 +968,6 @@ static int blkvsc_probe(struct device *device)
+@@ -967,11 +967,6 @@ static int blkvsc_probe(struct device *device)
+ 	static int ide1_registered;
  
  
- 	if (!storvsc_drv_obj->base.dev_add) {
--		DPRINT_ERR(BLKVSC_DRV, "OnDeviceAdd() not set");
- 		ret = -1;
- 		goto Cleanup;
- 	}
-@@ -994,10 +995,8 @@ static int blkvsc_probe(struct device *device)
- 
- 	/* Call to the vsc driver to add the device */
- 	ret = storvsc_drv_obj->base.dev_add(device_obj, &device_info);
--	if (ret != 0) {
--		DPRINT_ERR(BLKVSC_DRV, "unable to add blkvsc device");
-+	if (ret != 0)
- 		goto Cleanup;
+-	if (!storvsc_drv_obj->base.dev_add) {
+-		ret = -1;
+-		goto Cleanup;
 -	}
- 
- 	blkdev->device_ctx = device_obj;
- 	/* this identified the device 0 or 1 */
-@@ -1039,7 +1038,6 @@ static int blkvsc_probe(struct device *device)
- 			ide1_registered = 1;
- 		}
- 	} else {
--		DPRINT_ERR(BLKVSC_DRV, "invalid pathid");
- 		ret = -1;
- 		goto Cleanup;
- 	}
-@@ -1048,7 +1046,6 @@ static int blkvsc_probe(struct device *device)
- 
- 	blkdev->gd = alloc_disk(BLKVSC_MINORS);
- 	if (!blkdev->gd) {
--		DPRINT_ERR(BLKVSC_DRV, "register_blkdev() failed! ret %d", ret);
- 		ret = -1;
- 		goto Cleanup;
- 	}
+-
+ 	blkdev = kzalloc(sizeof(struct block_device_context), GFP_KERNEL);
+ 	if (!blkdev) {
+ 		ret = -ENOMEM;
 -- 
 1.7.4.1
