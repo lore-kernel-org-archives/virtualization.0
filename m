@@ -1,7 +1,7 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 02/22] Staging: hv: Enable blkvsc_ioctl()
-Date: Mon,  4 Apr 2011 15:47:51 -0700
-Message-ID: <1301957291-8035-2-git-send-email-kys@microsoft.com>
+Subject: [PATCH 18/22] Staging: hv: Cleanup blkvsc_open()
+Date: Mon,  4 Apr 2011 15:48:07 -0700
+Message-ID: <1301957291-8035-18-git-send-email-kys@microsoft.com>
 References: <1301957186-7853-1-git-send-email-kys@microsoft.com>
 	<1301957291-8035-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -22,45 +22,41 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-We can support HDIO_GET_IDENTITY ioctl, enable blkvsc_ioctl(). 
+Given that we don't support removable media, cleanup blkvsc_open()
+
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/blkvsc_drv.c |   11 +++--------
- 1 files changed, 3 insertions(+), 8 deletions(-)
+ drivers/staging/hv/blkvsc_drv.c |   10 +---------
+ 1 files changed, 1 insertions(+), 9 deletions(-)
 
 diff --git a/drivers/staging/hv/blkvsc_drv.c b/drivers/staging/hv/blkvsc_drv.c
-index 1203049..12a9083 100644
+index 7f511ee..05a0e87 100644
 --- a/drivers/staging/hv/blkvsc_drv.c
 +++ b/drivers/staging/hv/blkvsc_drv.c
-@@ -412,23 +412,18 @@ static void blkvsc_init_rw(struct blkvsc_request *blkvsc_req)
- 
- 
- static int blkvsc_ioctl(struct block_device *bd, fmode_t mode,
--			unsigned cmd, unsigned long argument)
-+			unsigned cmd, unsigned long arg)
+@@ -254,20 +254,12 @@ static int blkvsc_open(struct block_device *bdev, fmode_t mode)
  {
--	int ret;
-+	struct block_device_context *blkdev = bd->bd_disk->private_data;
-+	int ret = 0;
+ 	struct block_device_context *blkdev = bdev->bd_disk->private_data;
  
- 	switch (cmd) {
--	/*
--	 * TODO: I think there is certain format for HDIO_GET_IDENTITY rather
--	 * than just a GUID. Commented it out for now.
--	 */
--#if 0
- 	case HDIO_GET_IDENTITY:
- 		DPRINT_INFO(BLKVSC_DRV, "HDIO_GET_IDENTITY\n");
- 		if (copy_to_user((void __user *)arg, blkdev->device_id,
- 				 blkdev->device_id_len))
- 			ret = -EFAULT;
- 		break;
--#endif
- 	default:
- 		ret = -EINVAL;
- 		break;
+-
+-	mutex_lock(&blkvsc_mutex);
+ 	spin_lock(&blkdev->lock);
+ 
+-	if (!blkdev->users && blkdev->device_type == DVD_TYPE) {
+-		spin_unlock(&blkdev->lock);
+-		check_disk_change(bdev);
+-		spin_lock(&blkdev->lock);
+-	}
+-
+ 	blkdev->users++;
+ 
+ 	spin_unlock(&blkdev->lock);
+-	mutex_unlock(&blkvsc_mutex);
++
+ 	return 0;
+ }
+ 
 -- 
 1.7.4.1
