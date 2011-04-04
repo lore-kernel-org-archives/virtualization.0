@@ -1,8 +1,7 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 04/22] Staging: hv: Introduce a common function for issuing
-	commands to the device
-Date: Mon,  4 Apr 2011 15:47:53 -0700
-Message-ID: <1301957291-8035-4-git-send-email-kys@microsoft.com>
+Subject: [PATCH 14/22] Staging: hv: Cleanup storvsc_remove()
+Date: Mon,  4 Apr 2011 15:48:03 -0700
+Message-ID: <1301957291-8035-14-git-send-email-kys@microsoft.com>
 References: <1301957186-7853-1-git-send-email-kys@microsoft.com>
 	<1301957291-8035-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -23,219 +22,57 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-There are multiple functions to either get info about the device
-(INQUIRY, CAPACITY etc) or to FLUSH the device cache. The majority of the 
-code for these functions is identical. Introduce a common function for
-doing all these operations.
+storvsc_remove() cannot fail, clean it up accordingly.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/blkvsc_drv.c |  163 ++++++++++++++++++++------------------
- 1 files changed, 86 insertions(+), 77 deletions(-)
+ drivers/staging/hv/storvsc_drv.c |   14 ++------------
+ 1 files changed, 2 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/staging/hv/blkvsc_drv.c b/drivers/staging/hv/blkvsc_drv.c
-index ad09917..8094c5e 100644
---- a/drivers/staging/hv/blkvsc_drv.c
-+++ b/drivers/staging/hv/blkvsc_drv.c
-@@ -46,6 +46,10 @@ enum blkvsc_device_type {
- 	DVD_TYPE,
- };
- 
-+enum blkvsc_op_type {
-+	DO_INQUIRY,
-+};
-+
- /*
-  * This request ties the struct request and struct
-  * blkvsc_request/hv_storvsc_request together A struct request may be
-@@ -393,6 +397,86 @@ static void blkvsc_cmd_completion(struct hv_storvsc_request *request)
- 	complete(&blkvsc_req->request.wait_event);
- }
- 
-+
-+static int blkvsc_do_operation(struct block_device_context *blkdev,
-+				enum blkvsc_op_type op)
-+{
-+	struct blkvsc_request *blkvsc_req;
-+	struct page *page_buf;
-+	unsigned char *buf;
-+	unsigned char device_type;
-+	int ret = 0;
-+
-+	blkvsc_req = kmem_cache_zalloc(blkdev->request_pool, GFP_KERNEL);
-+	if (!blkvsc_req)
-+		return -ENOMEM;
-+
-+	page_buf = alloc_page(GFP_KERNEL);
-+	if (!page_buf) {
-+		kmem_cache_free(blkvsc_req->dev->request_pool, blkvsc_req);
-+		return -ENOMEM;
-+	}
-+
-+	init_completion(&blkvsc_req->request.wait_event);
-+	blkvsc_req->dev = blkdev;
-+	blkvsc_req->req = NULL;
-+	blkvsc_req->write = 0;
-+
-+	blkvsc_req->request.data_buffer.pfn_array[0] =
-+	page_to_pfn(page_buf);
-+	blkvsc_req->request.data_buffer.offset = 0;
-+
-+	switch (op) {
-+	case DO_INQUIRY:
-+		blkvsc_req->cmnd[0] = INQUIRY;
-+		blkvsc_req->cmnd[1] = 0x1;		/* Get product data */
-+		blkvsc_req->cmnd[2] = 0x83;		/* mode page 83 */
-+		blkvsc_req->cmnd[4] = 64;
-+		blkvsc_req->cmd_len = 6;
-+		blkvsc_req->request.data_buffer.len = 64;
-+		break;
-+
-+	default:
-+		ret = -EINVAL;
-+		goto cleanup;
-+	}
-+
-+	blkvsc_submit_request(blkvsc_req, blkvsc_cmd_completion);
-+
-+	wait_for_completion_interruptible(&blkvsc_req->request.wait_event);
-+
-+	buf = kmap(page_buf);
-+
-+	switch (op) {
-+	case DO_INQUIRY:
-+		device_type = buf[0] & 0x1F;
-+
-+		if (device_type == 0x0)
-+			blkdev->device_type = HARDDISK_TYPE;
-+		 else if (device_type == 0x5)
-+			blkdev->device_type = DVD_TYPE;
-+		 else
-+			blkdev->device_type = UNKNOWN_DEV_TYPE;
-+
-+		blkdev->device_id_len = buf[7];
-+		if (blkdev->device_id_len > 64)
-+			blkdev->device_id_len = 64;
-+
-+		memcpy(blkdev->device_id, &buf[8], blkdev->device_id_len);
-+		break;
-+	}
-+
-+cleanup:
-+
-+	kunmap(page_buf);
-+
-+	__free_page(page_buf);
-+
-+	kmem_cache_free(blkvsc_req->dev->request_pool, blkvsc_req);
-+
-+	return ret;
-+}
-+
- static int blkvsc_do_flush(struct block_device_context *blkdev)
+diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
+index ae61735..f819c6a 100644
+--- a/drivers/staging/hv/storvsc_drv.c
++++ b/drivers/staging/hv/storvsc_drv.c
+@@ -404,7 +404,6 @@ static int storvsc_probe(struct device *device)
+  */
+ static int storvsc_remove(struct device *device)
  {
- 	struct blkvsc_request *blkvsc_req;
-@@ -798,82 +882,6 @@ static int blkvsc_revalidate_disk(struct gendisk *gd)
+-	int ret;
+ 	struct hv_driver *drv =
+ 			drv_to_hv_drv(device->driver);
+ 	struct storvsc_driver_object *storvsc_drv_obj = drv->priv;
+@@ -413,20 +412,11 @@ static int storvsc_remove(struct device *device)
+ 	struct host_device_context *host_device_ctx =
+ 			(struct host_device_context *)host->hostdata;
+ 
+-
+-	if (!storvsc_drv_obj->base.dev_rm)
+-		return -1;
+-
+ 	/*
+ 	 * Call to the vsc driver to let it know that the device is being
+ 	 * removed
+ 	 */
+-	ret = storvsc_drv_obj->base.dev_rm(device_obj);
+-	if (ret != 0) {
+-		/* TODO: */
+-		DPRINT_ERR(STORVSC, "unable to remove vsc device (ret %d)",
+-			   ret);
+-	}
++	storvsc_drv_obj->base.dev_rm(device_obj);
+ 
+ 	if (host_device_ctx->request_pool) {
+ 		kmem_cache_destroy(host_device_ctx->request_pool);
+@@ -438,7 +428,7 @@ static int storvsc_remove(struct device *device)
+ 
+ 	DPRINT_INFO(STORVSC, "releasing host adapter (%p)...", host);
+ 	scsi_host_put(host);
+-	return ret;
++	return 0;
  }
  
- 
--/* Do a scsi INQUIRY cmd here to get the device type (ie disk or dvd) */
--static int blkvsc_do_inquiry(struct block_device_context *blkdev)
--{
--	struct blkvsc_request *blkvsc_req;
--	struct page *page_buf;
--	unsigned char *buf;
--	unsigned char device_type;
--
--	DPRINT_DBG(BLKVSC_DRV, "blkvsc_do_inquiry()\n");
--
--	blkvsc_req = kmem_cache_zalloc(blkdev->request_pool, GFP_KERNEL);
--	if (!blkvsc_req)
--		return -ENOMEM;
--
--	memset(blkvsc_req, 0, sizeof(struct blkvsc_request));
--	page_buf = alloc_page(GFP_KERNEL);
--	if (!page_buf) {
--		kmem_cache_free(blkvsc_req->dev->request_pool, blkvsc_req);
--		return -ENOMEM;
--	}
--
--	init_completion(&blkvsc_req->request.wait_event);
--	blkvsc_req->dev = blkdev;
--	blkvsc_req->req = NULL;
--	blkvsc_req->write = 0;
--
--	blkvsc_req->request.data_buffer.pfn_array[0] =
--	page_to_pfn(page_buf);
--	blkvsc_req->request.data_buffer.offset = 0;
--	blkvsc_req->request.data_buffer.len = 64;
--
--	blkvsc_req->cmnd[0] = INQUIRY;
--	blkvsc_req->cmnd[1] = 0x1;		/* Get product data */
--	blkvsc_req->cmnd[2] = 0x83;		/* mode page 83 */
--	blkvsc_req->cmnd[4] = 64;
--	blkvsc_req->cmd_len = 6;
--
--	blkvsc_submit_request(blkvsc_req, blkvsc_cmd_completion);
--
--	DPRINT_DBG(BLKVSC_DRV, "waiting %p to complete\n",
--		   blkvsc_req);
--
--	wait_for_completion_interruptible(&blkvsc_req->request.wait_event);
--
--	buf = kmap(page_buf);
--
--	/* be to le */
--	device_type = buf[0] & 0x1F;
--
--	if (device_type == 0x0) {
--		blkdev->device_type = HARDDISK_TYPE;
--	} else if (device_type == 0x5) {
--		blkdev->device_type = DVD_TYPE;
--	} else {
--		/* TODO: this is currently unsupported device type */
--		blkdev->device_type = UNKNOWN_DEV_TYPE;
--	}
--
--	DPRINT_DBG(BLKVSC_DRV, "device type %d\n", device_type);
--
--	blkdev->device_id_len = buf[7];
--	if (blkdev->device_id_len > 64)
--		blkdev->device_id_len = 64;
--
--	memcpy(blkdev->device_id, &buf[8], blkdev->device_id_len);
--
--	kunmap(page_buf);
--
--	__free_page(page_buf);
--
--	kmem_cache_free(blkvsc_req->dev->request_pool, blkvsc_req);
--
--	return 0;
--}
--
--
  /*
-  * We break the request into 1 or more blkvsc_requests and submit
-  * them.  If we cant submit them all, we put them on the
-@@ -1126,6 +1134,7 @@ static void blkvsc_request(struct request_queue *queue)
- }
- 
- 
-+
- /* The one and only one */
- static  struct storvsc_driver_object g_blkvsc_drv;
- 
-@@ -1335,7 +1344,7 @@ static int blkvsc_probe(struct device *device)
- 	blkdev->gd->driverfs_dev = &(blkdev->device_ctx->device);
- 	sprintf(blkdev->gd->disk_name, "hd%c", 'a' + devnum);
- 
--	blkvsc_do_inquiry(blkdev);
-+	blkvsc_do_operation(blkdev, DO_INQUIRY);
- 	if (blkdev->device_type == DVD_TYPE) {
- 		set_disk_ro(blkdev->gd, 1);
- 		blkdev->gd->flags |= GENHD_FL_REMOVABLE;
 -- 
 1.7.4.1
