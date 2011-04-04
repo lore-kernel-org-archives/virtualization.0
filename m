@@ -1,14 +1,18 @@
-From: Ian Campbell <Ian.Campbell@eu.citrix.com>
-Subject: Re: [PATCH RESEND] net: convert xen-netfront to hw_features
-Date: Mon, 4 Apr 2011 13:29:19 +0100
-Message-ID: <1301920159.23887.96.camel__6084.76845450259$1301920314$gmane$org@zakaz.uk.xensource.com>
-References: <20110331110136.03A1A13A6A@rere.qmqm.pl>
-	<20110401.205455.70198735.davem@davemloft.net>
+From: Amit Shah <amit.shah@redhat.com>
+Subject: Re: [PATCH] virtio: Decrement avail idx on buffer detach
+Date: Mon, 4 Apr 2011 20:31:54 +0530
+Message-ID: <20110404150153.GA3102@amit-x200.redhat.com>
+References: <a2fe5813ccecf1e762670702cba8ccb2a4cb8cfc.1300282928.git.amit.shah@redhat.com>
+	<87aagugxab.fsf@rustcorp.com.au>
+	<20110317122659.GB18382@amit-x200.redhat.com>
+	<20110328142706.GA2949@amit-x200.redhat.com>
+	<87bp0mbk3j.fsf@rustcorp.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20110401.205455.70198735.davem@davemloft.net>
+Content-Disposition: inline
+In-Reply-To: <87bp0mbk3j.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,67 +22,42 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: David Miller <davem@davemloft.net>
-Cc: Jeremy Fitzhardinge <Jeremy.Fitzhardinge@citrix.com>, "konrad.wilk@oracle.com" <konrad.wilk@oracle.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "xen-devel@lists.xensource.com" <xen-devel@lists.xensource.com>, "mirq-linux@rere.qmqm.pl" <mirq-linux@rere.qmqm.pl>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Virtualization List <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gU2F0LCAyMDExLTA0LTAyIGF0IDA0OjU0ICswMTAwLCBEYXZpZCBNaWxsZXIgd3JvdGU6Cj4g
-RnJvbTogTWljaGHFgiBNaXJvc8WCYXcgPG1pcnEtbGludXhAcmVyZS5xbXFtLnBsPgo+IERhdGU6
-IFRodSwgMzEgTWFyIDIwMTEgMTM6MDE6MzUgKzAyMDAgKENFU1QpCj4gCj4gPiBOb3QgdGVzdGVk
-IGluIGFueSB3YXkuIFRoZSBvcmlnaW5hbCBjb2RlIGZvciBvZmZsb2FkIHNldHRpbmcgc2VlbXMg
-YnJva2VuCj4gPiBhcyBpdCByZXNldHMgdGhlIGZlYXR1cmVzIG9uIGV2ZXJ5IG5ldGJhY2sgcmVj
-b25uZWN0Lgo+ID4gCj4gPiBUaGlzIHdpbGwgc2V0IEdTT19ST0JVU1QgYXQgZGV2aWNlIGNyZWF0
-aW9uIHRpbWUgKGVhcmxpZXIgdGhhbiBjb25uZWN0IHRpbWUpLgo+ID4gCj4gPiBSWCBjaGVja3N1
-bSBvZmZsb2FkIGlzIGZvcmNlZCBvbiAtIHNvIGFkdmVydGlzZSBhcyBpdCBpcy4KPiA+IAo+ID4g
-U2lnbmVkLW9mZi1ieTogTWljaGHFgiBNaXJvc8WCYXcgPG1pcnEtbGludXhAcmVyZS5xbXFtLnBs
-Pgo+IAo+IEFwcGxpZWQuCgpUaGFua3MsIGJ1dCB1bmZvcnR1bmF0ZWx5IHRoZSBwYXRjaCByZXN1
-bHRzIGluIHRoZSBmZWF0dXJlcyBhbGwgYmVpbmcKZGlzYWJsZWQgYnkgZGVmYXVsdCwgc2luY2Ug
-dGhleSBhcmUgbm90IHNldCBpbiB0aGUgaW5pdGlhbCBkZXYtPmZlYXR1cmVzCmFuZCB0aGUgaW5p
-dGlhbCBkZXYtPndhbnRlZF9mZWF0dXJlcyBpcyBiYXNlZCBvbiBmZWF0dXJlcyAmIGh3X2ZlYXR1
-cmVzLgpUaGUgbmRvX2ZpeF9mZWF0dXJlcyBob29rIG9ubHkgY2xlYXJzIGZlYXR1cmVzIGFuZCBk
-b2Vzbid0IGFkZCBuZXcKZmVhdHVyZXMgKG5vciBzaG91bGQgaXQgQUZBSUNUKS4KCkZlYXR1cmVz
-IGNhbm5vdCBiZSBuZWdvdGlhdGVkIHdpdGggdGhlIGJhY2tlbmQgdW50aWwgeGVubmV0X2Nvbm5l
-Y3QoKS4KVGhlIGNhcnJpZXIgaXMgbm90IGVuYWJsZWQgdW50aWwgdGhlIGVuZCBvZiB0aGF0IGZ1
-bmN0aW9uLCB0aGVyZWZvcmUgSQp0aGluayBpdCBpcyBzYWZlIHRvIHN0YXJ0IHdpdGggYSBmdWxs
-IHNldCBvZiBmZWF0dXJlcyBpbiBkZXYtPmZlYXR1cmVzCmFuZCByZWx5IG9uIHRoZSBjYWxsIHRv
-IG5ldGRldl91cGRhdGVfZmVhdHVyZXMoKSBpbiB4ZW5uZXRfY29ubmVjdCgpIHRvCmNsZWFyIHRo
-b3NlIHdoaWNoIHR1cm4gb3V0IHRvIGJlIHVuYXZhaWxhYmxlLgoKVGhlIGZvbGxvd2luZyB3b3Jr
-cyBmb3IgbWUsIEkgZ3Vlc3MgdGhlIGFsdGVybmF0aXZlIGlzIGZvcgp4ZW5uZXRfY29ubmVjdCgp
-IHRvIGV4cGFuZCBkZXYtPmZlYXR1cmVzIGJhc2VkIG9uIHdoYXQgaXQgZGV0ZWN0cz8gT3IgaXMK
-dGhlcmUgYSBtZWNoYW5pc20gZm9yIGEgZHJpdmVyIHRvIGluZm9ybSB0aGUgY29yZSB0aGF0IGEg
-bmV3IGhhcmR3YXJlCmZlYXR1cmUgaGFzIGJlY29tZSBhdmFpbGFibGUgKEkgZG91YnQgdGhhdCBy
-ZWFsbHkgaGFwcGVucyBvbiBwaHlzaWNhbApoL3cgc28gSSBndWVzcyBub3QpLgoKSWFuLgoKODwt
-LS0tLS0tLS0tLS0tLS0tLQoKRnJvbSAwYjU2NDY5YWJlNTZlZmFlNDE1YjQ2MDNlZjUwOGNlOWFl
-YzBlNGMxIE1vbiBTZXAgMTcgMDA6MDA6MDAgMjAwMQpGcm9tOiBJYW4gQ2FtcGJlbGwgPGlhbi5j
-YW1wYmVsbEBjaXRyaXguY29tPgpEYXRlOiBNb24sIDQgQXByIDIwMTEgMTA6NTg6NTAgKzAxMDAK
-U3ViamVjdDogW1BBVENIXSB4ZW46IG5ldGZyb250OiBhc3N1bWUgYWxsIGh3IGZlYXR1cmVzIGFy
-ZSBhdmFpbGFibGUgdW50aWwgYmFja2VuZCBjb25uZWN0aW9uIHNldHVwCgpXZSBuZWVkIHRvIGFz
-c3VtZSB0aGF0IGFsbCBmZWF0dXJlcyB3aWxsIGJlIGF2YWlsYWJsZSB3aGVuIHJlZ2lzdGVyaW5n
-IHRoZQpuZXRkZXYgb3RoZXJ3aXNlIHRoZXkgYXJlIG9tbWl0dGVkIGZyb20gdGhlIGluaXRpYWwg
-c2V0IG9mCmRldi0+d2FudGVkX2ZlYXR1cmVzLiBXaGVuIHdlIGNvbm5lY3QgdG8gdGhlIGJhY2tl
-ZCB3ZSByZWR1Y2UgdGhlIHNldCBhcwpuZWNlc3NhcnkgZHVlIHRvIHRoZSBjYWxsIHRvIG5ldGRl
-dl91cGRhdGVfZmVhdHVyZXMoKSBpbiB4ZW5uZXRfY29ubmVjdCgpLgoKU2lnbmVkLW9mZi1ieTog
-SWFuIENhbXBiZWxsIDxpYW4uY2FtcGJlbGxAY2l0cml4LmNvbT4KQ2M6IG1pcnEtbGludXhAcmVy
-ZS5xbXFtLnBsCkNjOiBuZXRkZXZAdmdlci5rZXJuZWwub3JnIDxuZXRkZXZAdmdlci5rZXJuZWwu
-b3JnPgpDYzogSmVyZW15IEZpdHpoYXJkaW5nZSA8amVyZW15QGdvb3Aub3JnPgpDYzoga29ucmFk
-LndpbGtAb3JhY2xlLmNvbQpDYzogRXJpYyBEdW1hemV0IDxlcmljLmR1bWF6ZXRAZ21haWwuY29t
-PgpDYzogeGVuLWRldmVsQGxpc3RzLnhlbnNvdXJjZS5jb20KLS0tCiBkcml2ZXJzL25ldC94ZW4t
-bmV0ZnJvbnQuYyB8ICAgIDggKysrKysrKysKIDEgZmlsZXMgY2hhbmdlZCwgOCBpbnNlcnRpb25z
-KCspLCAwIGRlbGV0aW9ucygtKQoKZGlmZiAtLWdpdCBhL2RyaXZlcnMvbmV0L3hlbi1uZXRmcm9u
-dC5jIGIvZHJpdmVycy9uZXQveGVuLW5ldGZyb250LmMKaW5kZXggMGNmZTRjYy4uZGI5YTc2MyAx
-MDA2NDQKLS0tIGEvZHJpdmVycy9uZXQveGVuLW5ldGZyb250LmMKKysrIGIvZHJpdmVycy9uZXQv
-eGVuLW5ldGZyb250LmMKQEAgLTEyNTEsNiArMTI1MSwxNCBAQCBzdGF0aWMgc3RydWN0IG5ldF9k
-ZXZpY2UgKiBfX2RldmluaXQgeGVubmV0X2NyZWF0ZV9kZXYoc3RydWN0IHhlbmJ1c19kZXZpY2Ug
-KmRldgogCQkJCSAgTkVUSUZfRl9HU09fUk9CVVNUOwogCW5ldGRldi0+aHdfZmVhdHVyZXMJPSBO
-RVRJRl9GX0lQX0NTVU0gfCBORVRJRl9GX1NHIHwgTkVUSUZfRl9UU087CiAKKwkvKgorICAgICAg
-ICAgKiBBc3N1bWUgdGhhdCBhbGwgaHcgZmVhdHVyZXMgYXJlIGF2YWlsYWJsZSBmb3Igbm93LiBU
-aGlzIHNldAorICAgICAgICAgKiB3aWxsIGJlIGFkanVzdGVkIGJ5IHRoZSBjYWxsIHRvIG5ldGRl
-dl91cGRhdGVfZmVhdHVyZXMoKSBpbgorICAgICAgICAgKiB4ZW5uZXRfY29ubmVjdCgpIHdoaWNo
-IGlzIHRoZSBlYXJsaWVzdCBwb2ludCB3aGVyZSB3ZSBjYW4KKyAgICAgICAgICogbmVnb3RpYXRl
-IHdpdGggdGhlIGJhY2tlbmQgcmVnYXJkaW5nIHN1cHBvcnRlZCBmZWF0dXJlcy4KKyAgICAgICAg
-ICovCisJbmV0ZGV2LT5mZWF0dXJlcyB8PSBuZXRkZXYtPmh3X2ZlYXR1cmVzOworCiAJU0VUX0VU
-SFRPT0xfT1BTKG5ldGRldiwgJnhlbm5ldF9ldGh0b29sX29wcyk7CiAJU0VUX05FVERFVl9ERVYo
-bmV0ZGV2LCAmZGV2LT5kZXYpOwogCi0tIAoxLjcuMi41CgoKCl9fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApW
-aXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxp
-bnV4LWZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+On (Mon) 04 Apr 2011 [16:04:40], Rusty Russell wrote:
+> On Mon, 28 Mar 2011 19:57:06 +0530, Amit Shah <amit.shah@redhat.com> wrote:
+> > On (Thu) 17 Mar 2011 [17:56:59], Amit Shah wrote:
+> > > On (Thu) 17 Mar 2011 [15:26:28], Rusty Russell wrote:
+> > > > On Wed, 16 Mar 2011 19:12:10 +0530, Amit Shah <amit.shah@redhat.com> wrote:
+> > > > > When detaching a buffer from a vq, the avail.idx value should be
+> > > > > decremented as well.
+> > > > > 
+> > > > > This was noticed by hot-unplugging a virtio console port and then
+> > > > > plugging in a new one on the same number (re-using the vqs which were
+> > > > > just 'disowned').  qemu reported
+> > > > > 
+> > > > >    'Guest moved used index from 0 to 256'
+> > > > > 
+> > > > > when any IO was attempted on the new port.
+> > > > 
+> > > > Yech... detach_unused_buf cannot be used on a live virtqueue; it assumes
+> > > > we will reset the vq (usually by resetting the entire device).
+> > > > 
+> > > > You've partially violated that assumption by reusing the vq after
+> > > > calling detach_unused_buf.  So I'm not entirely sure this is the only
+> > > > bug lurking; safer would be to re-initialize the vq somehow when you
+> > > > plug back in...
+> > > 
+> > > Right; and then that will need host changes too (re-init the vqs on
+> > > the host side), which then gets us into compat problems...
+> > 
+> > Rusty, any thoughts on this?
+> 
+> Yes... I've applied your patch for the moment, and will send to Linus
+> with cc' stable.
+
+OK, thanks!
+
+		Amit
