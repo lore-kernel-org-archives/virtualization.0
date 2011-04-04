@@ -1,7 +1,7 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 14/22] Staging: hv: Cleanup storvsc_remove()
-Date: Mon,  4 Apr 2011 15:48:03 -0700
-Message-ID: <1301957291-8035-14-git-send-email-kys@microsoft.com>
+Subject: [PATCH 13/22] Staging: hv: Cleanup blkvsc_remove()
+Date: Mon,  4 Apr 2011 15:48:02 -0700
+Message-ID: <1301957291-8035-13-git-send-email-kys@microsoft.com>
 References: <1301957186-7853-1-git-send-email-kys@microsoft.com>
 	<1301957291-8035-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -22,35 +22,29 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-storvsc_remove() cannot fail, clean it up accordingly.
+blkvsc_remove() cannot fail. Clean it up accordingly.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/storvsc_drv.c |   14 ++------------
- 1 files changed, 2 insertions(+), 12 deletions(-)
+ drivers/staging/hv/blkvsc_drv.c |   15 +++------------
+ 1 files changed, 3 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
-index ae61735..f819c6a 100644
---- a/drivers/staging/hv/storvsc_drv.c
-+++ b/drivers/staging/hv/storvsc_drv.c
-@@ -404,7 +404,6 @@ static int storvsc_probe(struct device *device)
-  */
- static int storvsc_remove(struct device *device)
- {
+diff --git a/drivers/staging/hv/blkvsc_drv.c b/drivers/staging/hv/blkvsc_drv.c
+index 32d542d..c0a7acd 100644
+--- a/drivers/staging/hv/blkvsc_drv.c
++++ b/drivers/staging/hv/blkvsc_drv.c
+@@ -555,22 +555,12 @@ static int blkvsc_remove(struct device *device)
+ 	struct hv_device *device_obj = device_to_hv_device(device);
+ 	struct block_device_context *blkdev = dev_get_drvdata(device);
+ 	unsigned long flags;
 -	int ret;
- 	struct hv_driver *drv =
- 			drv_to_hv_drv(device->driver);
- 	struct storvsc_driver_object *storvsc_drv_obj = drv->priv;
-@@ -413,20 +412,11 @@ static int storvsc_remove(struct device *device)
- 	struct host_device_context *host_device_ctx =
- 			(struct host_device_context *)host->hostdata;
- 
+-
 -
 -	if (!storvsc_drv_obj->base.dev_rm)
 -		return -1;
--
+ 
  	/*
  	 * Call to the vsc driver to let it know that the device is being
  	 * removed
@@ -58,21 +52,22 @@ index ae61735..f819c6a 100644
 -	ret = storvsc_drv_obj->base.dev_rm(device_obj);
 -	if (ret != 0) {
 -		/* TODO: */
--		DPRINT_ERR(STORVSC, "unable to remove vsc device (ret %d)",
--			   ret);
+-		DPRINT_ERR(BLKVSC_DRV,
+-			   "unable to remove blkvsc device (ret %d)", ret);
 -	}
 +	storvsc_drv_obj->base.dev_rm(device_obj);
  
- 	if (host_device_ctx->request_pool) {
- 		kmem_cache_destroy(host_device_ctx->request_pool);
-@@ -438,7 +428,7 @@ static int storvsc_remove(struct device *device)
+ 	/* Get to a known state */
+ 	spin_lock_irqsave(&blkdev->lock, flags);
+@@ -603,7 +593,8 @@ static int blkvsc_remove(struct device *device)
  
- 	DPRINT_INFO(STORVSC, "releasing host adapter (%p)...", host);
- 	scsi_host_put(host);
+ 	kfree(blkdev);
+ 
 -	return ret;
 +	return 0;
++
  }
  
- /*
+ static void blkvsc_shutdown(struct device *device)
 -- 
 1.7.4.1
