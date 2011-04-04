@@ -1,158 +1,56 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 22/22] Staging: hv: Get rid of IDE details from blkvsc_drv.c
-Date: Mon,  4 Apr 2011 15:48:11 -0700
-Message-ID: <1301957291-8035-22-git-send-email-kys@microsoft.com>
+Subject: [PATCH 11/22] Staging: hv: Get rid of some DPRINT_INFO() statements
+Date: Mon,  4 Apr 2011 15:48:00 -0700
+Message-ID: <1301957291-8035-11-git-send-email-kys@microsoft.com>
 References: <1301957186-7853-1-git-send-email-kys@microsoft.com>
- <1301957291-8035-1-git-send-email-kys@microsoft.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+	<1301957291-8035-1-git-send-email-kys@microsoft.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <devel-bounces@linuxdriverproject.org>
 In-Reply-To: <1301957291-8035-1-git-send-email-kys@microsoft.com>
-Sender: linux-kernel-owner@vger.kernel.org
+List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
+	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
+List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
+List-Post: <mailto:devel@linuxdriverproject.org>
+List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
+List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
+	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
+Sender: devel-bounces@linuxdriverproject.org
+Errors-To: devel-bounces@linuxdriverproject.org
 To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org
-Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Hank Janssen <hjanssen@microsoft.com>
+Cc: Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Now get rid of IDE details from blkvsc_drv.c.
+Get rid of some of the DPRINT_INFO() statements.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/blkvsc_drv.c |   56 ++++++++++++---------------------------
- drivers/staging/hv/storvsc.c    |   18 ++++++------
- 2 files changed, 26 insertions(+), 48 deletions(-)
+ drivers/staging/hv/blkvsc_drv.c |    3 ---
+ 1 files changed, 0 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/staging/hv/blkvsc_drv.c b/drivers/staging/hv/blkvsc_drv.c
-index 8874654..ca71cf5 100644
+index 69b6290..1f4dd69 100644
 --- a/drivers/staging/hv/blkvsc_drv.c
 +++ b/drivers/staging/hv/blkvsc_drv.c
-@@ -952,11 +952,8 @@ static int blkvsc_probe(struct device *device)
+@@ -330,7 +330,6 @@ static int blkvsc_ioctl(struct block_device *bd, fmode_t mode,
  
- 	struct block_device_context *blkdev = NULL;
- 	struct storvsc_device_info device_info;
--	int major = 0;
--	int devnum = 0;
-+	struct storvsc_major_info major_info;
- 	int ret = 0;
--	static int ide0_registered;
--	static int ide1_registered;
+ 	switch (cmd) {
+ 	case HDIO_GET_IDENTITY:
+-		DPRINT_INFO(BLKVSC_DRV, "HDIO_GET_IDENTITY\n");
+ 		if (copy_to_user((void __user *)arg, blkdev->device_id,
+ 				 blkdev->device_id_len))
+ 			ret = -EFAULT;
+@@ -1262,8 +1261,6 @@ static int __init blkvsc_init(void)
  
+ 	BUILD_BUG_ON(sizeof(sector_t) != 8);
  
- 	blkdev = kzalloc(sizeof(struct block_device_context), GFP_KERNEL);
-@@ -993,43 +990,23 @@ static int blkvsc_probe(struct device *device)
- 
- 	dev_set_drvdata(device, blkdev);
- 
--	/* Calculate the major and device num */
--	if (blkdev->path == 0) {
--		major = IDE0_MAJOR;
--		devnum = blkdev->path + blkdev->target;		/* 0 or 1 */
+-	DPRINT_INFO(BLKVSC_DRV, "Blkvsc initializing....");
 -
--		if (!ide0_registered) {
--			ret = register_blkdev(major, "ide");
--			if (ret != 0) {
--				DPRINT_ERR(BLKVSC_DRV,
--					   "register_blkdev() failed! ret %d",
--					   ret);
--				goto remove;
--			}
-+	ret = stor_vsc_get_major_info(&device_info, &major_info);
+ 	ret = blkvsc_drv_init();
  
--			ide0_registered = 1;
--		}
--	} else if (blkdev->path == 1) {
--		major = IDE1_MAJOR;
--		devnum = blkdev->path + blkdev->target + 1; /* 2 or 3 */
--
--		if (!ide1_registered) {
--			ret = register_blkdev(major, "ide");
--			if (ret != 0) {
--				DPRINT_ERR(BLKVSC_DRV,
--					   "register_blkdev() failed! ret %d",
--					   ret);
--				goto remove;
--			}
-+	if (ret)
-+		goto cleanup;
-+
-+	if (major_info.do_register) {
-+		ret = register_blkdev(major_info.major, major_info.devname);
- 
--			ide1_registered = 1;
-+		if (ret != 0) {
-+			DPRINT_ERR(BLKVSC_DRV,
-+				   "register_blkdev() failed! ret %d", ret);
-+			goto remove;
- 		}
--	} else {
--		ret = -1;
--		goto cleanup;
- 	}
- 
--	DPRINT_INFO(BLKVSC_DRV, "blkvsc registered for major %d!!", major);
-+	DPRINT_INFO(BLKVSC_DRV, "blkvsc registered for major %d!!",
-+			major_info.major);
- 
- 	blkdev->gd = alloc_disk(BLKVSC_MINORS);
- 	if (!blkdev->gd) {
-@@ -1045,15 +1022,16 @@ static int blkvsc_probe(struct device *device)
- 	blk_queue_bounce_limit(blkdev->gd->queue, BLK_BOUNCE_ANY);
- 	blk_queue_dma_alignment(blkdev->gd->queue, 511);
- 
--	blkdev->gd->major = major;
--	if (devnum == 1 || devnum == 3)
-+	blkdev->gd->major = major_info.major;
-+
-+	if (major_info.index == 1 || major_info.index == 3)
- 		blkdev->gd->first_minor = BLKVSC_MINORS;
- 	else
- 		blkdev->gd->first_minor = 0;
- 	blkdev->gd->fops = &block_ops;
- 	blkdev->gd->private_data = blkdev;
- 	blkdev->gd->driverfs_dev = &(blkdev->device_ctx->device);
--	sprintf(blkdev->gd->disk_name, "hd%c", 'a' + devnum);
-+	sprintf(blkdev->gd->disk_name, "hd%c", 'a' + major_info.index);
- 
- 	blkvsc_do_operation(blkdev, DO_INQUIRY);
- 	blkvsc_do_operation(blkdev, DO_CAPACITY);
-diff --git a/drivers/staging/hv/storvsc.c b/drivers/staging/hv/storvsc.c
-index e2b3410..85bae5a 100644
---- a/drivers/staging/hv/storvsc.c
-+++ b/drivers/staging/hv/storvsc.c
-@@ -629,26 +629,26 @@ int stor_vsc_get_major_info(struct storvsc_device_info *device_info,
- 
- 	if (device_info->path_id) {
- 		major_info->major = 22;
--		if (!ide1_registered)
-+		if (!ide1_registered) {
- 			major_info->do_register = true;
--		else {
--			major_info->do_register = false;
- 			ide1_registered = true;
--		}
-+		} else
-+			major_info->do_register = false;
-+
- 		if (device_info->target_id)
- 			major_info->index = 3;
--		 else
-+		else
- 			major_info->index = 2;
- 
- 		return 0;
- 	} else {
- 		major_info->major = 3;
--		if (!ide0_registered)
-+		if (!ide0_registered) {
- 			major_info->do_register = true;
--		else {
--			major_info->do_register = false;
- 			ide0_registered = true;
--		}
-+		} else
-+			major_info->do_register = false;
-+
- 		if (device_info->target_id)
- 			major_info->index = 1;
- 		else
+ 	return ret;
 -- 
 1.7.4.1
