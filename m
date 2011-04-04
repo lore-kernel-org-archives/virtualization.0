@@ -1,8 +1,7 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 17/22] Staging: hv: Get rid of an unnecessary check in
-	blkvsc_probe()
-Date: Mon,  4 Apr 2011 15:48:06 -0700
-Message-ID: <1301957291-8035-17-git-send-email-kys@microsoft.com>
+Subject: [PATCH 08/22] Staging hv: Get rid of the state media_not_present
+Date: Mon,  4 Apr 2011 15:47:57 -0700
+Message-ID: <1301957291-8035-8-git-send-email-kys@microsoft.com>
 References: <1301957186-7853-1-git-send-email-kys@microsoft.com>
 	<1301957291-8035-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -23,31 +22,56 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-It is never the case that the dev_add function pointer will not be set
-(we set it in this code!). Get rid of this meaningless check.
+The block driver in Hyper-V does not handle removable media, get rid of the
+media_not_present state.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/blkvsc_drv.c |    5 -----
- 1 files changed, 0 insertions(+), 5 deletions(-)
+ drivers/staging/hv/blkvsc_drv.c |    9 +--------
+ 1 files changed, 1 insertions(+), 8 deletions(-)
 
 diff --git a/drivers/staging/hv/blkvsc_drv.c b/drivers/staging/hv/blkvsc_drv.c
-index aff6356..7f511ee 100644
+index 0715cba..1ea5f9c 100644
 --- a/drivers/staging/hv/blkvsc_drv.c
 +++ b/drivers/staging/hv/blkvsc_drv.c
-@@ -967,11 +967,6 @@ static int blkvsc_probe(struct device *device)
- 	static int ide1_registered;
+@@ -103,7 +103,6 @@ struct block_device_context {
+ 	unsigned int device_id_len;
+ 	int num_outstanding_reqs;
+ 	int shutting_down;
+-	int media_not_present;
+ 	unsigned int sector_size;
+ 	sector_t capacity;
+ 	unsigned int port;
+@@ -445,7 +444,6 @@ static int blkvsc_do_operation(struct block_device_context *blkdev,
+ 	case DO_CAPACITY:
+ 		blkdev->sector_size = 0;
+ 		blkdev->capacity = 0;
+-		blkdev->media_not_present = 0; /* assume a disk is present */
  
+ 		blkvsc_req->cmnd[0] = READ_CAPACITY;
+ 		blkvsc_req->cmd_len = 16;
+@@ -472,10 +470,6 @@ static int blkvsc_do_operation(struct block_device_context *blkdev,
+ 		scsi_normalize_sense(blkvsc_req->sense_buffer,
+ 				     SCSI_SENSE_BUFFERSIZE, &sense_hdr);
  
--	if (!storvsc_drv_obj->base.dev_add) {
--		ret = -1;
--		goto Cleanup;
--	}
+-		if (sense_hdr.asc == 0x3A)
+-			/* Medium not present */
+-			blkdev->media_not_present = 1;
 -
- 	blkdev = kzalloc(sizeof(struct block_device_context), GFP_KERNEL);
- 	if (!blkdev) {
- 		ret = -ENOMEM;
+ 		return 0;
+ 	}
+ 
+@@ -963,8 +957,7 @@ static void blkvsc_request(struct request_queue *queue)
+ 		DPRINT_DBG(BLKVSC_DRV, "- req %p\n", req);
+ 
+ 		blkdev = req->rq_disk->private_data;
+-		if (blkdev->shutting_down || req->cmd_type != REQ_TYPE_FS ||
+-		    blkdev->media_not_present) {
++		if (blkdev->shutting_down || req->cmd_type != REQ_TYPE_FS) {
+ 			__blk_end_request_cur(req, 0);
+ 			continue;
+ 		}
 -- 
 1.7.4.1
