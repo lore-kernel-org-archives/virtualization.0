@@ -1,53 +1,57 @@
-From: Stefan Hajnoczi <stefanha@gmail.com>
-Subject: Re: [PATCH] virtio: decrement dev_index when device is unregistered
-Date: Tue, 5 Apr 2011 07:21:56 +0100
-Message-ID: <BANLkTi=DGfKuapLhvt62UVG_h7fzsRRo3g__32829.8665503555$1301984576$gmane$org@mail.gmail.com>
-References: <1457566934.641329.1301903526622.JavaMail.root@zmail07.collab.prod.int.phx2.redhat.com>
-	<66015840.659833.1301978966706.JavaMail.root@zmail07.collab.prod.int.phx2.redhat.com>
+From: Greg KH <greg@kroah.com>
+Subject: Re: [PATCH 01/12] Staging: hv: Make vmbus driver a  pci driver
+Date: Mon, 4 Apr 2011 21:16:00 -0700
+Message-ID: <20110405041600.GA8090@kroah.com>
+References: <1300226527-26933-1-git-send-email-kys@microsoft.com>
+	<1300226624-27004-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <66015840.659833.1301978966706.JavaMail.root@zmail07.collab.prod.int.phx2.redhat.com>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Takuma Umeya <tumeya@redhat.com>
-Cc: Stephen Hemminger <shemminger@vyatta.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <devel-bounces@linuxdriverproject.org>
+Content-Disposition: inline
+In-Reply-To: <1300226624-27004-1-git-send-email-kys@microsoft.com>
+List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
+	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
+List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
+List-Post: <mailto:devel@linuxdriverproject.org>
+List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
+List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
+	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
+Sender: devel-bounces@linuxdriverproject.org
+Errors-To: devel-bounces@linuxdriverproject.org
+To: "K. Y. Srinivasan" <kys@microsoft.com>
+Cc: Abhishek Kane <v-abkane@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, gregkh@suse.de, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org, Mike Sterling <mike.sterling@microsoft.com>, devel@linuxdriverproject.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Apr 5, 2011 at 5:49 AM, Takuma Umeya <tumeya@redhat.com> wrote:
-> When virtio device is removed, dev_index does not get decremented.
-> The next device hotplug event results in consuming the next pci to
-> the one that is suppose to be available.
->
-> Signed-off-by: Takuma Umeya <tumeya@redhat.com>
->
-> diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-> index efb35aa..67fe71d 100644
-> --- a/drivers/virtio/virtio.c
-> +++ b/drivers/virtio/virtio.c
-> @@ -216,6 +216,7 @@ EXPORT_SYMBOL_GPL(register_virtio_device);
-> =A0void unregister_virtio_device(struct virtio_device *dev)
-> =A0{
-> =A0 =A0 =A0 =A0device_unregister(&dev->dev);
-> + =A0 =A0 =A0 dev_index--;
+On Tue, Mar 15, 2011 at 03:03:32PM -0700, K. Y. Srinivasan wrote:
+> Make vmbus driver a pci driver. This is
+> in preparation to cleaning up the root device
+> management as well as the  irq allocation for this
+> driver.
+> 
+> Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
+> Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
+> Signed-off-by: Mike Sterling <mike.sterling@microsoft.com>
+> Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
+> Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
+> ---
+>  drivers/staging/hv/vmbus_drv.c |   63 +++++++++++++++++++++++-----------------
+>  1 files changed, 36 insertions(+), 27 deletions(-)
+> 
+> diff --git a/drivers/staging/hv/vmbus_drv.c b/drivers/staging/hv/vmbus_drv.c
+> index b473f46..1ef2f0f 100644
+> --- a/drivers/staging/hv/vmbus_drv.c
+> +++ b/drivers/staging/hv/vmbus_drv.c
+> @@ -40,6 +40,8 @@
+>  #define VMBUS_IRQ		0x5
+>  #define VMBUS_IRQ_VECTOR	IRQ5_VECTOR
+>  
+> +struct pci_dev *hv_pci_dev;
 
-I don't think there is any guarantee that virtio devices are
-added/removed in first-in-last-out order.
+Why is this global?
 
-That means I could add a virtio-net device (index 0) followed by a
-virtio-blk device (index 1).  Now I remove the virtio-net device
-(index 0) which causes me to decrement dev_index and hand index 1 out
-again to the next device.  This leaves us with virtio-blk (index 1)
-and the new device with index 1, which is not unique.
+Have you forgot to run 'sparse' on your changes?
 
-Perhaps I missed a constraint which prevents this from occurring?
+thanks,
 
-Stefan
+greg k-h
