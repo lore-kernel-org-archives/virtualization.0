@@ -1,13 +1,13 @@
 From: Takuma Umeya <tumeya@redhat.com>
-Subject: [PATCH] virtio: decrement dev_index when device is unregistered
-Date: Tue, 5 Apr 2011 00:49:26 -0400 (EDT)
-Message-ID: <66015840.659833.1301978966706.JavaMail.root__17926.1627178223$1301979110$gmane$org@zmail07.collab.prod.int.phx2.redhat.com>
-References: <1457566934.641329.1301903526622.JavaMail.root@zmail07.collab.prod.int.phx2.redhat.com>
+Subject: [PATCH] virtio_blk: decrement index when blockdevice is removed
+Date: Tue, 5 Apr 2011 00:49:41 -0400 (EDT)
+Message-ID: <1969774563.659835.1301978981017.JavaMail.root__37502.0178304569$1301979453$gmane$org@zmail07.collab.prod.int.phx2.redhat.com>
+References: <1099995365.641718.1301903899721.JavaMail.root@zmail07.collab.prod.int.phx2.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1457566934.641329.1301903526622.JavaMail.root@zmail07.collab.prod.int.phx2.redhat.com>
+In-Reply-To: <1099995365.641718.1301903899721.JavaMail.root@zmail07.collab.prod.int.phx2.redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,27 +18,27 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: virtualization@lists.linux-foundation.org
-Cc: Stephen Hemminger <shemminger@vyatta.com>, linux-kernel@vger.kernel.org
+Cc: john cooper <john.cooper@redhat.com>, Jens Axboe <jaxboe@fusionio.com>, linux-kernel@vger.kernel.org, Tejun Heo <tj@kernel.org>, Christoph Hellwig <hch@lst.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-When virtio device is removed, dev_index does not get decremented. 
-The next device hotplug event results in consuming the next pci to 
-the one that is suppose to be available. 
+When virtio block device is removed, index does not get decremented. When 
+another virtio disk is attached it uses the next device letter to the 
+one that is suppose to be available. 
 
 Signed-off-by: Takuma Umeya <tumeya@redhat.com>
 
-diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-index efb35aa..67fe71d 100644
---- a/drivers/virtio/virtio.c
-+++ b/drivers/virtio/virtio.c
-@@ -216,6 +216,7 @@ EXPORT_SYMBOL_GPL(register_virtio_device);
- void unregister_virtio_device(struct virtio_device *dev)
- {
-        device_unregister(&dev->dev);
-+       dev_index--;
+diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+index 6ecf89c..730e7af 100644
+--- a/drivers/block/virtio_blk.c
++++ b/drivers/block/virtio_blk.c
+@@ -489,6 +489,7 @@ static void __devexit virtblk_remove(struct virtio_device *vdev)
+        mempool_destroy(vblk->pool);
+        vdev->config->del_vqs(vdev);
+        kfree(vblk);
++       index--;
  }
- EXPORT_SYMBOL_GPL(unregister_virtio_device);
  
+ static const struct virtio_device_id id_table[] = {
 
 -- 
 Umeya, Takuma
