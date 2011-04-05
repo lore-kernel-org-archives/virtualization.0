@@ -1,7 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 06/22] Staging: hv: Allocate request structures zeroed out.
-Date: Tue,  5 Apr 2011 07:04:50 -0700
-Message-ID: <1302012306-21277-6-git-send-email-kys@microsoft.com>
+Subject: [PATCH 22/22] Staging: hv: Get rid of synch primitive in struct
+	blkvsc_request
+Date: Tue,  5 Apr 2011 07:05:06 -0700
+Message-ID: <1302012306-21277-22-git-send-email-kys@microsoft.com>
 References: <1302012261-21236-1-git-send-email-kys@microsoft.com>
 	<1302012306-21277-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -22,103 +23,154 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-In preparation for moving state out of struct hv_storvsc_request, allocate
-request structures so that they zeroed out to begin with.
+Get rid of synch primitive in struct blkvsc_request and instead use the
+synch primitive already embedded in the struct hv_storvsc_request structure.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/blkvsc_drv.c  |   14 ++++++++------
- drivers/staging/hv/storvsc.c     |    1 -
- drivers/staging/hv/storvsc_drv.c |    2 +-
- 3 files changed, 9 insertions(+), 8 deletions(-)
+ drivers/staging/hv/blkvsc_drv.c |   52 +++++++++++---------------------------
+ 1 files changed, 15 insertions(+), 37 deletions(-)
 
 diff --git a/drivers/staging/hv/blkvsc_drv.c b/drivers/staging/hv/blkvsc_drv.c
-index 1e5320e..2661356 100644
+index 86e0506..9af5347 100644
 --- a/drivers/staging/hv/blkvsc_drv.c
 +++ b/drivers/staging/hv/blkvsc_drv.c
-@@ -510,7 +510,7 @@ static int blkvsc_do_flush(struct block_device_context *blkdev)
- 	if (blkdev->device_type != HARDDISK_TYPE)
- 		return 0;
+@@ -72,9 +72,6 @@ struct blkvsc_request {
+ 	/* The group this request is part of. Maybe null */
+ 	struct blkvsc_request_group *group;
  
--	blkvsc_req = kmem_cache_alloc(blkdev->request_pool, GFP_KERNEL);
-+	blkvsc_req = kmem_cache_zalloc(blkdev->request_pool, GFP_KERNEL);
- 	if (!blkvsc_req)
+-	wait_queue_head_t wevent;
+-	int cond;
+-
+ 	int write;
+ 	sector_t sector_start;
+ 	unsigned long sector_count;
+@@ -515,7 +512,7 @@ static int blkvsc_do_flush(struct block_device_context *blkdev)
  		return -ENOMEM;
  
-@@ -551,7 +551,7 @@ static int blkvsc_do_inquiry(struct block_device_context *blkdev)
+ 	memset(blkvsc_req, 0, sizeof(struct blkvsc_request));
+-	init_waitqueue_head(&blkvsc_req->wevent);
++	init_completion(&blkvsc_req->request.wait_event);
+ 	blkvsc_req->dev = blkdev;
+ 	blkvsc_req->req = NULL;
+ 	blkvsc_req->write = 0;
+@@ -527,14 +524,9 @@ static int blkvsc_do_flush(struct block_device_context *blkdev)
+ 	blkvsc_req->cmnd[0] = SYNCHRONIZE_CACHE;
+ 	blkvsc_req->cmd_len = 10;
  
- 	DPRINT_DBG(BLKVSC_DRV, "blkvsc_do_inquiry()\n");
+-	/*
+-	 * Set this here since the completion routine may be invoked and
+-	 * completed before we return
+-	 */
+-	blkvsc_req->cond = 0;
+ 	blkvsc_submit_request(blkvsc_req, blkvsc_cmd_completion);
  
--	blkvsc_req = kmem_cache_alloc(blkdev->request_pool, GFP_KERNEL);
-+	blkvsc_req = kmem_cache_zalloc(blkdev->request_pool, GFP_KERNEL);
- 	if (!blkvsc_req)
+-	wait_event_interruptible(blkvsc_req->wevent, blkvsc_req->cond);
++	wait_for_completion_interruptible(&blkvsc_req->request.wait_event);
+ 
+ 	kmem_cache_free(blkvsc_req->dev->request_pool, blkvsc_req);
+ 
+@@ -562,7 +554,7 @@ static int blkvsc_do_inquiry(struct block_device_context *blkdev)
  		return -ENOMEM;
+ 	}
  
-@@ -638,7 +638,7 @@ static int blkvsc_do_read_capacity(struct block_device_context *blkdev)
- 	blkdev->capacity = 0;
- 	blkdev->media_not_present = 0; /* assume a disk is present */
+-	init_waitqueue_head(&blkvsc_req->wevent);
++	init_completion(&blkvsc_req->request.wait_event);
+ 	blkvsc_req->dev = blkdev;
+ 	blkvsc_req->req = NULL;
+ 	blkvsc_req->write = 0;
+@@ -578,18 +570,12 @@ static int blkvsc_do_inquiry(struct block_device_context *blkdev)
+ 	blkvsc_req->cmnd[4] = 64;
+ 	blkvsc_req->cmd_len = 6;
  
--	blkvsc_req = kmem_cache_alloc(blkdev->request_pool, GFP_KERNEL);
-+	blkvsc_req = kmem_cache_zalloc(blkdev->request_pool, GFP_KERNEL);
- 	if (!blkvsc_req)
+-	/*
+-	 * Set this here since the completion routine may be invoked and
+-	 * completed before we return
+-	 */
+-	blkvsc_req->cond = 0;
+-
+ 	blkvsc_submit_request(blkvsc_req, blkvsc_cmd_completion);
+ 
+-	DPRINT_DBG(BLKVSC_DRV, "waiting %p to complete - cond %d\n",
+-		   blkvsc_req, blkvsc_req->cond);
++	DPRINT_DBG(BLKVSC_DRV, "waiting %p to complete\n",
++		   blkvsc_req);
+ 
+-	wait_event_interruptible(blkvsc_req->wevent, blkvsc_req->cond);
++	wait_for_completion_interruptible(&blkvsc_req->request.wait_event);
+ 
+ 	buf = kmap(page_buf);
+ 
+@@ -652,7 +638,7 @@ static int blkvsc_do_read_capacity(struct block_device_context *blkdev)
+ 	}
+ 
+ 	vm_srb = &blkvsc_req->request.vstor_packet.vm_srb;
+-	init_waitqueue_head(&blkvsc_req->wevent);
++	init_completion(&blkvsc_req->request.wait_event);
+ 	blkvsc_req->dev = blkdev;
+ 	blkvsc_req->req = NULL;
+ 	blkvsc_req->write = 0;
+@@ -665,18 +651,12 @@ static int blkvsc_do_read_capacity(struct block_device_context *blkdev)
+ 	blkvsc_req->cmnd[0] = READ_CAPACITY;
+ 	blkvsc_req->cmd_len = 16;
+ 
+-	/*
+-	 * Set this here since the completion routine may be invoked
+-	 * and completed before we return
+-	 */
+-	blkvsc_req->cond = 0;
+-
+ 	blkvsc_submit_request(blkvsc_req, blkvsc_cmd_completion);
+ 
+-	DPRINT_DBG(BLKVSC_DRV, "waiting %p to complete - cond %d\n",
+-		   blkvsc_req, blkvsc_req->cond);
++	DPRINT_DBG(BLKVSC_DRV, "waiting %p to complete\n",
++		   blkvsc_req);
+ 
+-	wait_event_interruptible(blkvsc_req->wevent, blkvsc_req->cond);
++	wait_for_completion_interruptible(&blkvsc_req->request.wait_event);
+ 
+ 	/* check error */
+ 	if (vm_srb->scsi_status) {
+@@ -732,7 +712,7 @@ static int blkvsc_do_read_capacity16(struct block_device_context *blkdev)
  		return -ENOMEM;
+ 	}
  
-@@ -715,7 +715,7 @@ static int blkvsc_do_read_capacity16(struct block_device_context *blkdev)
- 	blkdev->capacity = 0;
- 	blkdev->media_not_present = 0; /* assume a disk is present */
+-	init_waitqueue_head(&blkvsc_req->wevent);
++	init_completion(&blkvsc_req->request.wait_event);
+ 	blkvsc_req->dev = blkdev;
+ 	blkvsc_req->req = NULL;
+ 	blkvsc_req->write = 0;
+@@ -749,14 +729,13 @@ static int blkvsc_do_read_capacity16(struct block_device_context *blkdev)
+ 	 * Set this here since the completion routine may be invoked
+ 	 * and completed before we return
+ 	 */
+-	blkvsc_req->cond = 0;
  
--	blkvsc_req = kmem_cache_alloc(blkdev->request_pool, GFP_KERNEL);
-+	blkvsc_req = kmem_cache_zalloc(blkdev->request_pool, GFP_KERNEL);
- 	if (!blkvsc_req)
- 		return -ENOMEM;
+ 	blkvsc_submit_request(blkvsc_req, blkvsc_cmd_completion);
  
-@@ -983,7 +983,7 @@ static int blkvsc_do_request(struct block_device_context *blkdev,
- 		  (unsigned long)blk_rq_pos(req));
+-	DPRINT_DBG(BLKVSC_DRV, "waiting %p to complete - cond %d\n",
+-		   blkvsc_req, blkvsc_req->cond);
++	DPRINT_DBG(BLKVSC_DRV, "waiting %p to complete\n",
++		   blkvsc_req);
  
- 	/* Create a group to tie req to list of blkvsc_reqs */
--	group = kmem_cache_alloc(blkdev->request_pool, GFP_ATOMIC);
-+	group = kmem_cache_zalloc(blkdev->request_pool, GFP_ATOMIC);
- 	if (!group)
- 		return -ENOMEM;
+-	wait_event_interruptible(blkvsc_req->wevent, blkvsc_req->cond);
++	wait_for_completion_interruptible(&blkvsc_req->request.wait_event);
  
-@@ -1026,7 +1026,9 @@ static int blkvsc_do_request(struct block_device_context *blkdev,
- 					 * Create new blkvsc_req to represent
- 					 * the current bvec
- 					 */
--					blkvsc_req = kmem_cache_alloc(blkdev->request_pool, GFP_ATOMIC);
-+					blkvsc_req =
-+					kmem_cache_zalloc(
-+					blkdev->request_pool, GFP_ATOMIC);
- 					if (!blkvsc_req) {
- 						/* free up everything */
- 						list_for_each_entry_safe(
-diff --git a/drivers/staging/hv/storvsc.c b/drivers/staging/hv/storvsc.c
-index 8dc17b9..e02622d 100644
---- a/drivers/staging/hv/storvsc.c
-+++ b/drivers/staging/hv/storvsc.c
-@@ -545,7 +545,6 @@ int stor_vsc_on_io_request(struct hv_device *device,
- 	request_extension->request = request;
- 	request_extension->device  = device;
+ 	/* check error */
+ 	if (vm_srb->scsi_status) {
+@@ -1161,8 +1140,7 @@ static void blkvsc_cmd_completion(struct hv_storvsc_request *request)
+ 					 SCSI_SENSE_BUFFERSIZE, &sense_hdr))
+ 			scsi_print_sense_hdr("blkvsc", &sense_hdr);
  
--	memset(vstor_packet, 0 , sizeof(struct vstor_packet));
+-	blkvsc_req->cond = 1;
+-	wake_up_interruptible(&blkvsc_req->wevent);
++	complete(&blkvsc_req->request.wait_event);
+ }
  
- 	vstor_packet->flags |= REQUEST_COMPLETION_FLAG;
- 
-diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
-index c2a3a5b..fd1416d 100644
---- a/drivers/staging/hv/storvsc_drv.c
-+++ b/drivers/staging/hv/storvsc_drv.c
-@@ -735,7 +735,7 @@ static int storvsc_queuecommand_lck(struct scsi_cmnd *scmnd,
- 
- 	request_size = sizeof(struct storvsc_cmd_request);
- 
--	cmd_request = kmem_cache_alloc(host_device_ctx->request_pool,
-+	cmd_request = kmem_cache_zalloc(host_device_ctx->request_pool,
- 				       GFP_ATOMIC);
- 	if (!cmd_request) {
- 		DPRINT_ERR(STORVSC_DRV, "scmnd (%p) - unable to allocate "
+ static void blkvsc_request_completion(struct hv_storvsc_request *request)
 -- 
 1.7.4.1
