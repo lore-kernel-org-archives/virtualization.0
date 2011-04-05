@@ -1,33 +1,33 @@
 From: Greg KH <greg@kroah.com>
-Subject: Re: [PATCH 01/12] Staging: hv: Make vmbus driver a  pci driver
-Date: Mon, 4 Apr 2011 21:16:00 -0700
-Message-ID: <20110405041600.GA8090@kroah.com>
+Subject: Re: [PATCH 03/12] Staging: hv: Cleanup irq management
+Date: Mon, 4 Apr 2011 21:19:50 -0700
+Message-ID: <20110405041950.GB8090@kroah.com>
 References: <1300226527-26933-1-git-send-email-kys@microsoft.com>
-	<1300226624-27004-1-git-send-email-kys@microsoft.com>
+ <1300226624-27004-1-git-send-email-kys@microsoft.com>
+ <1300226624-27004-2-git-send-email-kys@microsoft.com>
+ <1300226624-27004-3-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <devel-bounces@linuxdriverproject.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1300226624-27004-1-git-send-email-kys@microsoft.com>
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
-List-Post: <mailto:devel@linuxdriverproject.org>
-List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
-Sender: devel-bounces@linuxdriverproject.org
-Errors-To: devel-bounces@linuxdriverproject.org
+In-Reply-To: <1300226624-27004-3-git-send-email-kys@microsoft.com>
+Sender: linux-kernel-owner@vger.kernel.org
 To: "K. Y. Srinivasan" <kys@microsoft.com>
-Cc: Abhishek Kane <v-abkane@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, gregkh@suse.de, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org, Mike Sterling <mike.sterling@microsoft.com>, devel@linuxdriverproject.org
+Cc: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org, Haiyang Zhang <haiyangz@microsoft.com>, Mike Sterling <mike.sterling@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Mar 15, 2011 at 03:03:32PM -0700, K. Y. Srinivasan wrote:
-> Make vmbus driver a pci driver. This is
-> in preparation to cleaning up the root device
-> management as well as the  irq allocation for this
-> driver.
+On Tue, Mar 15, 2011 at 03:03:34PM -0700, K. Y. Srinivasan wrote:
+> Now that vmbus_driver is a  pci driver,
+> cleanup the irq allocation mess by using the standard
+> irq allocation mechanisms.
+> 
+> Note that this patch generates an error when the checkpatch
+> script is run because of the IRQF_SAMPLE_RANDOM flag used in
+> request_irq() function. This interrupt may be the only
+> external event this VM will get and consequently if this
+> flag (IRQF_SAMPLE_RANDOM) is not  specified, experimentally
+> we have shown that the entropy in the VM will very very low.
+> 
 > 
 > Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 > Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
@@ -35,22 +35,23 @@ On Tue, Mar 15, 2011 at 03:03:32PM -0700, K. Y. Srinivasan wrote:
 > Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 > Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 > ---
->  drivers/staging/hv/vmbus_drv.c |   63 +++++++++++++++++++++++-----------------
->  1 files changed, 36 insertions(+), 27 deletions(-)
+>  drivers/staging/hv/vmbus_drv.c |   28 +++++++++++++---------------
+>  1 files changed, 13 insertions(+), 15 deletions(-)
 > 
 > diff --git a/drivers/staging/hv/vmbus_drv.c b/drivers/staging/hv/vmbus_drv.c
-> index b473f46..1ef2f0f 100644
+> index 3d2789b..239b91c 100644
 > --- a/drivers/staging/hv/vmbus_drv.c
 > +++ b/drivers/staging/hv/vmbus_drv.c
-> @@ -40,6 +40,8 @@
->  #define VMBUS_IRQ		0x5
->  #define VMBUS_IRQ_VECTOR	IRQ5_VECTOR
->  
-> +struct pci_dev *hv_pci_dev;
+> @@ -17,6 +17,8 @@
+>   * Authors:
+>   *   Haiyang Zhang <haiyangz@microsoft.com>
+>   *   Hank Janssen  <hjanssen@microsoft.com>
+> + *
+> + * 3/9/2011: K. Y. Srinivasan	- Significant restructuring and cleanup
 
-Why is this global?
-
-Have you forgot to run 'sparse' on your changes?
+Changelog comments never belong in the file itself.  If you consider
+yourself an author of the file now, then put your name in it with the
+others.
 
 thanks,
 
