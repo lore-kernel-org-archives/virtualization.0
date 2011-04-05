@@ -1,99 +1,50 @@
-From: Haiyang Zhang <haiyangz@microsoft.com>
-Subject: [PATCH] staging: hv: Fix GARP not sent after Quick Migration
-Date: Tue,  5 Apr 2011 08:27:48 -0700
-Message-ID: <1302017268-22913-1-git-send-email-haiyangz__29392.4837060787$1302016796$gmane$org@microsoft.com>
+From: KY Srinivasan <kys@microsoft.com>
+Subject: RE: [PATCH 00/22] Staging: hv: Cleanup-storage-drivers-phase-III
+Date: Tue, 5 Apr 2011 15:29:56 +0000
+Message-ID: <6E21E5352C11B742B20C142EB499E04802C0F5@TK5EX14MBXC122.redmond.corp.microsoft.com>
+References: <1301331615-26226-1-git-send-email-kys@microsoft.com>
+ <20110405045904.GA4635@kroah.com>
+ <6E21E5352C11B742B20C142EB499E04802BFE3@TK5EX14MBXC122.redmond.corp.microsoft.com>
+ <20110405151046.GF28289@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: haiyangz@microsoft.com, hjanssen@microsoft.com, kys@microsoft.com, v-abkane@microsoft.com, gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, vir
-Cc: stable <stable@kernel.org>, Mike Surcouf <mike@surcouf.co.uk>
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20110405151046.GF28289@kroah.com>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: Greg KH <greg@kroah.com>
+Cc: "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-After Quick Migration, the network is not immediately operational in the
-current context when receiving RNDIS_STATUS_MEDIA_CONNECT event. So, I put
-the netif_notify_peers() into a scheduled work, otherwise GARP packet will
-not be sent after quick migration, and cause network disconnection.
 
-Thanks to Mike Surcouf <mike@surcouf.co.uk> for reporting the bug and
-testing the patch.
 
-This patch should also be backported to stable kernel 2.6.32 and later.
+> -----Original Message-----
+> From: Greg KH [mailto:greg@kroah.com]
+> Sent: Tuesday, April 05, 2011 11:11 AM
+> To: KY Srinivasan
+> Cc: gregkh@suse.de; linux-kernel@vger.kernel.org;
+> devel@linuxdriverproject.org; virtualization@lists.osdl.org
+> Subject: Re: [PATCH 00/22] Staging: hv: Cleanup-storage-drivers-phase-III
+> 
+> 
+> A: No.
+> Q: Should I include quotations after my reply?
+> 
+> http://daringfireball.net/2007/07/on_top
+> 
+> 
+> On Tue, Apr 05, 2011 at 01:58:37PM +0000, KY Srinivasan wrote:
+> > Sorry for the confusion Greg. I reworked some patches in Phase-II
+> > cleanup and I was meaning to resend them before you began applying the
+> > patches, That is the reason for the problem you are encountering.
+> 
+> Huh?  I applied them in the order you sent them to me, how would that
+> cause a patch to fail to apply properly?
 
-Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
-Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
-Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
-Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
-Cc: Mike Surcouf <mike@surcouf.co.uk>
-Cc: stable <stable@kernel.org>
----
- drivers/staging/hv/netvsc_drv.c |   17 ++++++++++++++++-
- 1 files changed, 16 insertions(+), 1 deletions(-)
+I fixed the bug after I sent the patches initially. My subsequent patches were based on this bug fix. My mistake that I did not resend 
+the corrected patch-set earlier.
 
-diff --git a/drivers/staging/hv/netvsc_drv.c b/drivers/staging/hv/netvsc_drv.c
-index 2d40f5f..417e5f7 100644
---- a/drivers/staging/hv/netvsc_drv.c
-+++ b/drivers/staging/hv/netvsc_drv.c
-@@ -46,6 +46,7 @@ struct net_device_context {
- 	/* point back to our device context */
- 	struct hv_device *device_ctx;
- 	unsigned long avail;
-+	struct work_struct work;
- };
- 
- 
-@@ -219,6 +220,7 @@ static void netvsc_linkstatus_callback(struct hv_device *device_obj,
- 				       unsigned int status)
- {
- 	struct net_device *net = dev_get_drvdata(&device_obj->device);
-+	struct net_device_context *ndev_ctx;
- 
- 	if (!net) {
- 		DPRINT_ERR(NETVSC_DRV, "got link status but net device "
-@@ -229,7 +231,8 @@ static void netvsc_linkstatus_callback(struct hv_device *device_obj,
- 	if (status == 1) {
- 		netif_carrier_on(net);
- 		netif_wake_queue(net);
--		netif_notify_peers(net);
-+		ndev_ctx = netdev_priv(net);
-+		schedule_work(&ndev_ctx->work);
- 	} else {
- 		netif_carrier_off(net);
- 		netif_stop_queue(net);
-@@ -328,6 +331,17 @@ static const struct net_device_ops device_ops = {
- 	.ndo_set_mac_address =		eth_mac_addr,
- };
- 
-+static void netvsc_send_garp(struct work_struct *w)
-+{
-+	struct net_device_context *ndev_ctx;
-+	struct net_device *net;
-+
-+	ndev_ctx = container_of(w, struct net_device_context, work);
-+	net = dev_get_drvdata(&ndev_ctx->device_ctx->device);
-+	netif_notify_peers(net);
-+}
-+
-+
- static int netvsc_probe(struct device *device)
- {
- 	struct hv_driver *drv =
-@@ -353,6 +367,7 @@ static int netvsc_probe(struct device *device)
- 	net_device_ctx->device_ctx = device_obj;
- 	net_device_ctx->avail = ring_size;
- 	dev_set_drvdata(device, net);
-+	INIT_WORK(&net_device_ctx->work, netvsc_send_garp);
- 
- 	/* Notify the netvsc driver of the new device */
- 	ret = net_drv_obj->base.dev_add(device_obj, &device_info);
--- 
-1.6.3.2
+Regards,
+
+K. Y
