@@ -1,106 +1,40 @@
-From: Haiyang Zhang <haiyangz@microsoft.com>
-Subject: [PATCH] staging: hv: Fix GARP not sent after Quick Migration
-Date: Tue,  5 Apr 2011 09:24:15 -0700
-Message-ID: <1302020655-27133-1-git-send-email-haiyangz__18483.788384083$1302020126$gmane$org@microsoft.com>
+From: Greg KH <gregkh@suse.de>
+Subject: Re: [PATCH] staging: hv: Fix GARP not sent after Quick Migration
+Date: Tue, 5 Apr 2011 09:19:45 -0700
+Message-ID: <20110405161945.GA1674@suse.de>
+References: <1302017268-22913-1-git-send-email-haiyangz@microsoft.com>
+ <20110405154133.GA30923@suse.de>
+ <A1F3067C9B68744AA19F6802BAB8FFDC03FB03A6@TK5EX14MBXC223.redmond.corp.microsoft.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: haiyangz@microsoft.com, hjanssen@microsoft.com, kys@microsoft.com, v-abkane@microsoft.com, gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, vir
-Cc: stable <stable@kernel.org>, Mike Surcouf <mike@surcouf.co.uk>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <A1F3067C9B68744AA19F6802BAB8FFDC03FB03A6@TK5EX14MBXC223.redmond.corp.microsoft.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Haiyang Zhang <haiyangz@microsoft.com>
+Cc: Hank Janssen <hjanssen@microsoft.com>, KY Srinivasan <kys@microsoft.com>, "Abhishek Kane (Mindtree Consulting PVT LTD)" <v-abkane@microsoft.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, Mike Surcouf <mike@surcouf.co.uk>, stable <stable@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-After Quick Migration, the network is not immediately operational in the
-current context when receiving RNDIS_STATUS_MEDIA_CONNECT event. So, I put
-the netif_notify_peers() into a scheduled work, otherwise GARP packet will
-not be sent after quick migration, and cause network disconnection.
+On Tue, Apr 05, 2011 at 03:54:54PM +0000, Haiyang Zhang wrote:
+> > -----Original Message-----
+> > From: Greg KH [mailto:gregkh@suse.de]
+> > Sent: Tuesday, April 05, 2011 11:42 AM
+> > But that's a hypervisor bug, right?  It shouldn't be sending a "connect"
+> > event on the ethernet device if the network really isn't present.  How
+> > about getting it fixed there, which will resolve the issues for all
+> > guest operating systems, not just Linux.
+> >
+> > Or, if this is something that the hyperv developers are not going to
+> > fix, we need to document it in the code itself so that people don't try
+> > to remove it in a few years as an "optimization".
+> 
+> Fix on the Hyper-V side is not available for now at least. I will add the
+> comments into code.
 
-Thanks to Mike Surcouf <mike@surcouf.co.uk> for reporting the bug and
-testing the patch.
+What happens when the hyperv code is fixed?  Will this be removed?  Or
+will all guests have this delay in them for no reason and the older
+"unfixed" guests suddenly work faster?  That seems odd...
 
-This patch should also be backported to stable kernel 2.6.32 and later.
+thanks,
 
-Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
-Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
-Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
-Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
-Cc: Mike Surcouf <mike@surcouf.co.uk>
-Cc: stable <stable@kernel.org>
----
- drivers/staging/hv/netvsc_drv.c |   24 +++++++++++++++++++++++-
- 1 files changed, 23 insertions(+), 1 deletions(-)
-
-diff --git a/drivers/staging/hv/netvsc_drv.c b/drivers/staging/hv/netvsc_drv.c
-index 2d40f5f..3566456 100644
---- a/drivers/staging/hv/netvsc_drv.c
-+++ b/drivers/staging/hv/netvsc_drv.c
-@@ -46,6 +46,7 @@ struct net_device_context {
- 	/* point back to our device context */
- 	struct hv_device *device_ctx;
- 	unsigned long avail;
-+	struct work_struct work;
- };
- 
- 
-@@ -219,6 +220,7 @@ static void netvsc_linkstatus_callback(struct hv_device *device_obj,
- 				       unsigned int status)
- {
- 	struct net_device *net = dev_get_drvdata(&device_obj->device);
-+	struct net_device_context *ndev_ctx;
- 
- 	if (!net) {
- 		DPRINT_ERR(NETVSC_DRV, "got link status but net device "
-@@ -229,7 +231,8 @@ static void netvsc_linkstatus_callback(struct hv_device *device_obj,
- 	if (status == 1) {
- 		netif_carrier_on(net);
- 		netif_wake_queue(net);
--		netif_notify_peers(net);
-+		ndev_ctx = netdev_priv(net);
-+		schedule_work(&ndev_ctx->work);
- 	} else {
- 		netif_carrier_off(net);
- 		netif_stop_queue(net);
-@@ -328,6 +331,24 @@ static const struct net_device_ops device_ops = {
- 	.ndo_set_mac_address =		eth_mac_addr,
- };
- 
-+/*
-+ * Send GARP packet to network peers after migrations.
-+ * After Quick Migration, the network is not immediately operational in the
-+ * current context when receiving RNDIS_STATUS_MEDIA_CONNECT event. So, I put
-+ * the netif_notify_peers() into a scheduled work, otherwise GARP packet will
-+ * not be sent after quick migration, and cause network disconnection.
-+ */
-+static void netvsc_send_garp(struct work_struct *w)
-+{
-+	struct net_device_context *ndev_ctx;
-+	struct net_device *net;
-+
-+	ndev_ctx = container_of(w, struct net_device_context, work);
-+	net = dev_get_drvdata(&ndev_ctx->device_ctx->device);
-+	netif_notify_peers(net);
-+}
-+
-+
- static int netvsc_probe(struct device *device)
- {
- 	struct hv_driver *drv =
-@@ -353,6 +374,7 @@ static int netvsc_probe(struct device *device)
- 	net_device_ctx->device_ctx = device_obj;
- 	net_device_ctx->avail = ring_size;
- 	dev_set_drvdata(device, net);
-+	INIT_WORK(&net_device_ctx->work, netvsc_send_garp);
- 
- 	/* Notify the netvsc driver of the new device */
- 	ret = net_drv_obj->base.dev_add(device_obj, &device_info);
--- 
-1.7.4.1
+greg k-h
