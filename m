@@ -1,96 +1,48 @@
-From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 10/22] Staging: hv: Simplify blkvsc_init_rw
-Date: Mon,  4 Apr 2011 15:47:59 -0700
-Message-ID: <1301957291-8035-10-git-send-email-kys@microsoft.com>
-References: <1301957186-7853-1-git-send-email-kys@microsoft.com>
- <1301957291-8035-1-git-send-email-kys@microsoft.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1301957291-8035-1-git-send-email-kys@microsoft.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org
-Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Hank Janssen <hjanssen@microsoft.com>
+From: Takuma Umeya <tumeya@redhat.com>
+Subject: [PATCH] virtio: decrement dev_index when device is unregistered
+Date: Tue, 5 Apr 2011 00:49:26 -0400 (EDT)
+Message-ID: <66015840.659833.1301978966706.JavaMail.root__17926.1627178223$1301979110$gmane$org@zmail07.collab.prod.int.phx2.redhat.com>
+References: <1457566934.641329.1301903526622.JavaMail.root@zmail07.collab.prod.int.phx2.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1457566934.641329.1301903526622.JavaMail.root@zmail07.collab.prod.int.phx2.redhat.com>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: virtualization@lists.linux-foundation.org
+Cc: Stephen Hemminger <shemminger@vyatta.com>, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Simplyfify blkvsc_init_rw() by using a single scsi command independent of
-the start sector
+When virtio device is removed, dev_index does not get decremented. 
+The next device hotplug event results in consuming the next pci to 
+the one that is suppose to be available. 
 
-Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
-Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
-Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
----
- drivers/staging/hv/blkvsc_drv.c |   58 +++++++++------------------------------
- 1 files changed, 13 insertions(+), 45 deletions(-)
+Signed-off-by: Takuma Umeya <tumeya@redhat.com>
 
-diff --git a/drivers/staging/hv/blkvsc_drv.c b/drivers/staging/hv/blkvsc_drv.c
-index da7fd38..69b6290 100644
---- a/drivers/staging/hv/blkvsc_drv.c
-+++ b/drivers/staging/hv/blkvsc_drv.c
-@@ -304,53 +304,21 @@ static void blkvsc_init_rw(struct blkvsc_request *blkvsc_req)
- 
- 	blkvsc_req->cmd_len = 16;
- 
--	if (blkvsc_req->sector_start > 0xffffffff) {
--		if (rq_data_dir(blkvsc_req->req)) {
--			blkvsc_req->write = 1;
--			blkvsc_req->cmnd[0] = WRITE_16;
--		} else {
--			blkvsc_req->write = 0;
--			blkvsc_req->cmnd[0] = READ_16;
--		}
--
--		blkvsc_req->cmnd[1] |=
--			(blkvsc_req->req->cmd_flags & REQ_FUA) ? 0x8 : 0;
--
--		*(unsigned long long *)&blkvsc_req->cmnd[2] =
--				cpu_to_be64(blkvsc_req->sector_start);
--		*(unsigned int *)&blkvsc_req->cmnd[10] =
--				cpu_to_be32(blkvsc_req->sector_count);
--	} else if ((blkvsc_req->sector_count > 0xff) ||
--		   (blkvsc_req->sector_start > 0x1fffff)) {
--		if (rq_data_dir(blkvsc_req->req)) {
--			blkvsc_req->write = 1;
--			blkvsc_req->cmnd[0] = WRITE_10;
--		} else {
--			blkvsc_req->write = 0;
--			blkvsc_req->cmnd[0] = READ_10;
--		}
--
--		blkvsc_req->cmnd[1] |=
--			(blkvsc_req->req->cmd_flags & REQ_FUA) ? 0x8 : 0;
--
--		*(unsigned int *)&blkvsc_req->cmnd[2] =
--				cpu_to_be32(blkvsc_req->sector_start);
--		*(unsigned short *)&blkvsc_req->cmnd[7] =
--				cpu_to_be16(blkvsc_req->sector_count);
-+	if (rq_data_dir(blkvsc_req->req)) {
-+		blkvsc_req->write = 1;
-+		blkvsc_req->cmnd[0] = WRITE_16;
- 	} else {
--		if (rq_data_dir(blkvsc_req->req)) {
--			blkvsc_req->write = 1;
--			blkvsc_req->cmnd[0] = WRITE_6;
--		} else {
--			blkvsc_req->write = 0;
--			blkvsc_req->cmnd[0] = READ_6;
--		}
--
--		*(unsigned int *)&blkvsc_req->cmnd[1] =
--				cpu_to_be32(blkvsc_req->sector_start) >> 8;
--		blkvsc_req->cmnd[1] &= 0x1f;
--		blkvsc_req->cmnd[4] = (unsigned char)blkvsc_req->sector_count;
-+		blkvsc_req->write = 0;
-+		blkvsc_req->cmnd[0] = READ_16;
- 	}
-+
-+	blkvsc_req->cmnd[1] |=
-+	(blkvsc_req->req->cmd_flags & REQ_FUA) ? 0x8 : 0;
-+
-+	*(unsigned long long *)&blkvsc_req->cmnd[2] =
-+	cpu_to_be64(blkvsc_req->sector_start);
-+	*(unsigned int *)&blkvsc_req->cmnd[10] =
-+	cpu_to_be32(blkvsc_req->sector_count);
+diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
+index efb35aa..67fe71d 100644
+--- a/drivers/virtio/virtio.c
++++ b/drivers/virtio/virtio.c
+@@ -216,6 +216,7 @@ EXPORT_SYMBOL_GPL(register_virtio_device);
+ void unregister_virtio_device(struct virtio_device *dev)
+ {
+        device_unregister(&dev->dev);
++       dev_index--;
  }
+ EXPORT_SYMBOL_GPL(unregister_virtio_device);
  
- 
+
 -- 
-1.7.4.1
+Umeya, Takuma
+Technical Account Manager
+Red Hat GSS APAC
++81.3.5798.8584 (direct)
+tumeya@redhat.com
