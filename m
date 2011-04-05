@@ -1,8 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 17/22] Staging: hv: Move on_io_completion() from struct
+Subject: [PATCH 14/22] Staging: hv: Get rid of sense_buffer_size from struct
 	hv_storvsc_request
-Date: Tue,  5 Apr 2011 07:05:01 -0700
-Message-ID: <1302012306-21277-17-git-send-email-kys@microsoft.com>
+Date: Tue,  5 Apr 2011 07:04:58 -0700
+Message-ID: <1302012306-21277-14-git-send-email-kys@microsoft.com>
 References: <1302012261-21236-1-git-send-email-kys@microsoft.com>
 	<1302012306-21277-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -23,79 +23,79 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-In preparation of consolidating all I/O request state, move
-the on_io_completion() field from struct hv_storvsc_request to
-struct storvsc_request_extension.
+In preparation for consolidating all I/O request state, get rid of the
+sense_buffer_size field from struct hv_storvsc_request and instead
+hardcode this value as is currently done.
+
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/blkvsc_drv.c  |    2 +-
- drivers/staging/hv/storvsc.c     |    2 +-
- drivers/staging/hv/storvsc_api.h |    2 +-
- drivers/staging/hv/storvsc_drv.c |    2 +-
- 4 files changed, 4 insertions(+), 4 deletions(-)
+ drivers/staging/hv/blkvsc_drv.c  |    1 -
+ drivers/staging/hv/storvsc.c     |    2 --
+ drivers/staging/hv/storvsc_api.h |    1 -
+ drivers/staging/hv/storvsc_drv.c |    3 +--
+ 4 files changed, 1 insertions(+), 6 deletions(-)
 
 diff --git a/drivers/staging/hv/blkvsc_drv.c b/drivers/staging/hv/blkvsc_drv.c
-index 83c4ba3..0e3b193 100644
+index a156930..04117be 100644
 --- a/drivers/staging/hv/blkvsc_drv.c
 +++ b/drivers/staging/hv/blkvsc_drv.c
-@@ -938,7 +938,7 @@ static int blkvsc_submit_request(struct blkvsc_request *blkvsc_req,
+@@ -951,7 +951,6 @@ static int blkvsc_submit_request(struct blkvsc_request *blkvsc_req,
+ 	memcpy(vm_srb->cdb, blkvsc_req->cmnd, vm_srb->cdb_length);
  
- 	vm_srb->data_in = blkvsc_req->write ? WRITE_TYPE : READ_TYPE;
+ 	storvsc_req->sense_buffer = blkvsc_req->sense_buffer;
+-	storvsc_req->sense_buffer_size = SCSI_SENSE_BUFFERSIZE;
  
--	storvsc_req->on_io_completion = request_completion;
-+	storvsc_req->extension.on_io_completion = request_completion;
- 	storvsc_req->extension.context = blkvsc_req;
- 
- 	vm_srb->port_number = blkdev->port;
+ 	ret = storvsc_drv_obj->on_io_request(blkdev->device_ctx,
+ 					   &blkvsc_req->request);
 diff --git a/drivers/staging/hv/storvsc.c b/drivers/staging/hv/storvsc.c
-index e0d635f..8649044 100644
+index c551595..e12a760 100644
 --- a/drivers/staging/hv/storvsc.c
 +++ b/drivers/staging/hv/storvsc.c
-@@ -324,7 +324,7 @@ static void stor_vsc_on_io_completion(struct hv_device *device,
- 	/* TODO: */
- 	request->bytes_xfer = vstor_packet->vm_srb.data_transfer_length;
+@@ -318,8 +318,6 @@ static void stor_vsc_on_io_completion(struct hv_device *device,
+ 			       vstor_packet->vm_srb.sense_data,
+ 			       vstor_packet->vm_srb.sense_info_length);
  
--	request->on_io_completion(request);
-+	request->extension.on_io_completion(request);
- 
- 	atomic_dec(&stor_device->num_outstanding_req);
- 
-diff --git a/drivers/staging/hv/storvsc_api.h b/drivers/staging/hv/storvsc_api.h
-index 68c5036..89fa155 100644
---- a/drivers/staging/hv/storvsc_api.h
-+++ b/drivers/staging/hv/storvsc_api.h
-@@ -64,6 +64,7 @@ struct storvsc_request_extension {
- 
- 	unsigned char *sense_buffer;
- 	void *context;
-+	void (*on_io_completion)(struct hv_storvsc_request *request);
- 
- 	struct vstor_packet vstor_packet;
- };
-@@ -72,7 +73,6 @@ struct hv_storvsc_request {
- 	u32 status;
- 	u32 bytes_xfer;
- 
--	void (*on_io_completion)(struct hv_storvsc_request *request);
- 
- 	struct storvsc_request_extension extension;
- 
-diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
-index e0e349e..25b25b3 100644
---- a/drivers/staging/hv/storvsc_drv.c
-+++ b/drivers/staging/hv/storvsc_drv.c
-@@ -770,7 +770,7 @@ static int storvsc_queuecommand_lck(struct scsi_cmnd *scmnd,
- 		break;
+-			request->sense_buffer_size =
+-					vstor_packet->vm_srb.sense_info_length;
+ 		}
  	}
  
--	request->on_io_completion = storvsc_commmand_completion;
-+	request->extension.on_io_completion = storvsc_commmand_completion;
- 	request->extension.context = cmd_request;/* scmnd; */
+diff --git a/drivers/staging/hv/storvsc_api.h b/drivers/staging/hv/storvsc_api.h
+index 55c5cc6..3eccc27 100644
+--- a/drivers/staging/hv/storvsc_api.h
++++ b/drivers/staging/hv/storvsc_api.h
+@@ -70,7 +70,6 @@ struct hv_storvsc_request {
+ 	u32 bytes_xfer;
  
- 	/* request->PortId = scmnd->device->channel; */
+ 	unsigned char *sense_buffer;
+-	u32 sense_buffer_size;
+ 
+ 	void *context;
+ 
+diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
+index 6bf999d..22709a2 100644
+--- a/drivers/staging/hv/storvsc_drv.c
++++ b/drivers/staging/hv/storvsc_drv.c
+@@ -477,7 +477,7 @@ static void storvsc_commmand_completion(struct hv_storvsc_request *request)
+ 
+ 	if (scmnd->result) {
+ 		if (scsi_normalize_sense(scmnd->sense_buffer,
+-				request->sense_buffer_size, &sense_hdr))
++				SCSI_SENSE_BUFFERSIZE, &sense_hdr))
+ 			scsi_print_sense_hdr("storvsc", &sense_hdr);
+ 	}
+ 
+@@ -785,7 +785,6 @@ static int storvsc_queuecommand_lck(struct scsi_cmnd *scmnd,
+ 	memcpy(vm_srb->cdb, scmnd->cmnd, vm_srb->cdb_length);
+ 
+ 	request->sense_buffer = scmnd->sense_buffer;
+-	request->sense_buffer_size = SCSI_SENSE_BUFFERSIZE;
+ 
+ 
+ 	request->data_buffer.len = scsi_bufflen(scmnd);
 -- 
 1.7.4.1
