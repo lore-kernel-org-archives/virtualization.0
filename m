@@ -1,50 +1,33 @@
-From: KY Srinivasan <kys@microsoft.com>
-Subject: RE: [PATCH 00/22] Staging: hv: Cleanup-storage-drivers-phase-III
-Date: Tue, 5 Apr 2011 15:29:56 +0000
-Message-ID: <6E21E5352C11B742B20C142EB499E04802C0F5@TK5EX14MBXC122.redmond.corp.microsoft.com>
-References: <1301331615-26226-1-git-send-email-kys@microsoft.com>
- <20110405045904.GA4635@kroah.com>
- <6E21E5352C11B742B20C142EB499E04802BFE3@TK5EX14MBXC122.redmond.corp.microsoft.com>
- <20110405151046.GF28289@kroah.com>
+From: Greg KH <gregkh@suse.de>
+Subject: Re: [PATCH] staging: hv: Fix GARP not sent after Quick Migration
+Date: Tue, 5 Apr 2011 08:41:33 -0700
+Message-ID: <20110405154133.GA30923@suse.de>
+References: <1302017268-22913-1-git-send-email-haiyangz@microsoft.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20110405151046.GF28289@kroah.com>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <1302017268-22913-1-git-send-email-haiyangz@microsoft.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Greg KH <greg@kroah.com>
-Cc: "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>
+To: Haiyang Zhang <haiyangz@microsoft.com>
+Cc: hjanssen@microsoft.com, kys@microsoft.com, v-abkane@microsoft.com, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org, Mike Surcouf <mike@surcouf.co.uk>, stable <stable@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
+On Tue, Apr 05, 2011 at 08:27:48AM -0700, Haiyang Zhang wrote:
+> After Quick Migration, the network is not immediately operational in the
+> current context when receiving RNDIS_STATUS_MEDIA_CONNECT event. So, I put
+> the netif_notify_peers() into a scheduled work, otherwise GARP packet will
+> not be sent after quick migration, and cause network disconnection.
 
+But that's a hypervisor bug, right?  It shouldn't be sending a "connect"
+event on the ethernet device if the network really isn't present.  How
+about getting it fixed there, which will resolve the issues for all
+guest operating systems, not just Linux.
 
-> -----Original Message-----
-> From: Greg KH [mailto:greg@kroah.com]
-> Sent: Tuesday, April 05, 2011 11:11 AM
-> To: KY Srinivasan
-> Cc: gregkh@suse.de; linux-kernel@vger.kernel.org;
-> devel@linuxdriverproject.org; virtualization@lists.osdl.org
-> Subject: Re: [PATCH 00/22] Staging: hv: Cleanup-storage-drivers-phase-III
-> 
-> 
-> A: No.
-> Q: Should I include quotations after my reply?
-> 
-> http://daringfireball.net/2007/07/on_top
-> 
-> 
-> On Tue, Apr 05, 2011 at 01:58:37PM +0000, KY Srinivasan wrote:
-> > Sorry for the confusion Greg. I reworked some patches in Phase-II
-> > cleanup and I was meaning to resend them before you began applying the
-> > patches, That is the reason for the problem you are encountering.
-> 
-> Huh?  I applied them in the order you sent them to me, how would that
-> cause a patch to fail to apply properly?
+Or, if this is something that the hyperv developers are not going to
+fix, we need to document it in the code itself so that people don't try
+to remove it in a few years as an "optimization".
 
-I fixed the bug after I sent the patches initially. My subsequent patches were based on this bug fix. My mistake that I did not resend 
-the corrected patch-set earlier.
+thanks,
 
-Regards,
-
-K. Y
+greg k-h
