@@ -1,93 +1,47 @@
-From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 1/2] Staging: hv: Properly capture the error state
-Date: Wed,  6 Apr 2011 11:25:38 -0700
-Message-ID: <1302114339-2198-1-git-send-email-kys@microsoft.com>
-References: <1302114286-2127-1-git-send-email-kys@microsoft.com>
+From: Jens Axboe <jaxboe@fusionio.com>
+Subject: Re: [PATCH] virtio_blk: decrement index when blockdevice is removed
+Date: Tue, 05 Apr 2011 07:08:12 +0200
+Message-ID: <4D9AA3BC.6030907__28147.4101510414$1302114643$gmane$org@fusionio.com>
+References: <1969774563.659835.1301978981017.JavaMail.root@zmail07.collab.prod.int.phx2.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <devel-bounces@linuxdriverproject.org>
-In-Reply-To: <1302114286-2127-1-git-send-email-kys@microsoft.com>
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
-List-Post: <mailto:devel@linuxdriverproject.org>
-List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
-Sender: devel-bounces@linuxdriverproject.org
-Errors-To: devel-bounces@linuxdriverproject.org
-To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1969774563.659835.1301978981017.JavaMail.root@zmail07.collab.prod.int.phx2.redhat.com>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Takuma Umeya <tumeya@redhat.com>
+Cc: john cooper <john.cooper@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Tejun Heo <tj@kernel.org>, Christoph Hellwig <hch@lst.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Properly capture the error state after the completion of I/O. This fixes a bug
-that was introduced in the patch-set titled:
-Staging: hv: Cleanup-storage-drivers-phase-II.
-A corrected version of this patch-set was sent out earlier, however
-the earlier (buggy) version of this patch-set was already applied.
-This patch fixes the problem.
+On 2011-04-05 06:49, Takuma Umeya wrote:
+> When virtio block device is removed, index does not get decremented. When 
+> another virtio disk is attached it uses the next device letter to the 
+> one that is suppose to be available. 
+> 
+> Signed-off-by: Takuma Umeya <tumeya@redhat.com>
+> 
+> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+> index 6ecf89c..730e7af 100644
+> --- a/drivers/block/virtio_blk.c
+> +++ b/drivers/block/virtio_blk.c
+> @@ -489,6 +489,7 @@ static void __devexit virtblk_remove(struct virtio_device *vdev)
+>         mempool_destroy(vblk->pool);
+>         vdev->config->del_vqs(vdev);
+>         kfree(vblk);
+> +       index--;
+>  }
+>  
+>  static const struct virtio_device_id id_table[] = {
 
-Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
-Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
----
- drivers/staging/hv/storvsc.c |   13 +++++++++++--
- 1 files changed, 11 insertions(+), 2 deletions(-)
+What happens when you delete a device that isn't the last one?
 
-diff --git a/drivers/staging/hv/storvsc.c b/drivers/staging/hv/storvsc.c
-index 55865fa..d7ce393 100644
---- a/drivers/staging/hv/storvsc.c
-+++ b/drivers/staging/hv/storvsc.c
-@@ -279,6 +279,7 @@ static void stor_vsc_on_io_completion(struct hv_device *device,
- 				  struct hv_storvsc_request *request)
- {
- 	struct storvsc_device *stor_device;
-+	struct vstor_packet *stor_pkt;
- 
- 	stor_device = must_get_stor_device(device);
- 	if (!stor_device) {
-@@ -287,19 +288,24 @@ static void stor_vsc_on_io_completion(struct hv_device *device,
- 		return;
- 	}
- 
--	DPRINT_DBG(STORVSC, "IO_COMPLETE_OPERATION - request  %p "
-+	DPRINT_DBG(STORVSC, "IO_COMPLETE_OPERATION - request %p "
- 		   "completed bytes xfer %u", request,
- 		   vstor_packet->vm_srb.data_transfer_length);
- 
-+	stor_pkt = &request->vstor_packet;
- 
- 
- 	/* Copy over the status...etc */
-+	stor_pkt->vm_srb.scsi_status = vstor_packet->vm_srb.scsi_status;
-+	stor_pkt->vm_srb.srb_status = vstor_packet->vm_srb.srb_status;
-+	stor_pkt->vm_srb.sense_info_length =
-+	vstor_packet->vm_srb.sense_info_length;
- 
- 	if (vstor_packet->vm_srb.scsi_status != 0 ||
- 		vstor_packet->vm_srb.srb_status != 1) {
- 		DPRINT_WARN(STORVSC,
- 			    "cmd 0x%x scsi status 0x%x srb status 0x%x\n",
--			    vstor_packet->vm_srb.cdb[0],
-+			    stor_pkt->vm_srb.cdb[0],
- 			    vstor_packet->vm_srb.scsi_status,
- 			    vstor_packet->vm_srb.srb_status);
- 	}
-@@ -319,6 +325,8 @@ static void stor_vsc_on_io_completion(struct hv_device *device,
- 		}
- 	}
- 
-+	stor_pkt->vm_srb.data_transfer_length =
-+	vstor_packet->vm_srb.data_transfer_length;
- 
- 	request->on_io_completion(request);
- 
-@@ -535,6 +543,7 @@ int stor_vsc_on_io_request(struct hv_device *device,
- 
- 	request->device  = device;
- 
-+
- 	vstor_packet->flags |= REQUEST_COMPLETION_FLAG;
- 
- 	vstor_packet->vm_srb.length = sizeof(struct vmscsi_request);
 -- 
-1.7.4.1
+Jens Axboe
