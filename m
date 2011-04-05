@@ -1,7 +1,7 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 08/22] Staging: hv: Get rid of the host field from struct hv_storvsc_request
-Date: Tue,  5 Apr 2011 07:04:52 -0700
-Message-ID: <1302012306-21277-8-git-send-email-kys@microsoft.com>
+Subject: [PATCH 04/22] Staging: hv: Add a function to map a hv_driver pointer to storvsc driver
+Date: Tue,  5 Apr 2011 07:04:48 -0700
+Message-ID: <1302012306-21277-4-git-send-email-kys@microsoft.com>
 References: <1302012261-21236-1-git-send-email-kys@microsoft.com>
  <1302012306-21277-1-git-send-email-kys@microsoft.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
@@ -11,9 +11,8 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>, Hank Janssen <hjanssen@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-In preparation for consolidating all I/O request state, get rid of the
-host field from struct hv_storvsc_request and instead use the
-equivalent  state in struct vmscsi_request - port_number field.
+Get rid of the need for struct hv_device to be the first
+element of struct host_device_context.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
@@ -21,60 +20,68 @@ Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
  drivers/staging/hv/blkvsc_drv.c  |    2 +-
- drivers/staging/hv/storvsc.c     |    1 -
- drivers/staging/hv/storvsc_api.h |    1 -
+ drivers/staging/hv/storvsc_api.h |    8 ++++++--
  drivers/staging/hv/storvsc_drv.c |    2 +-
- 4 files changed, 2 insertions(+), 4 deletions(-)
+ 3 files changed, 8 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/staging/hv/blkvsc_drv.c b/drivers/staging/hv/blkvsc_drv.c
-index 00bc226..eb184ff 100644
+index 3672e15..1e5320e 100644
 --- a/drivers/staging/hv/blkvsc_drv.c
 +++ b/drivers/staging/hv/blkvsc_drv.c
-@@ -941,7 +941,7 @@ static int blkvsc_submit_request(struct blkvsc_request *blkvsc_req,
- 	storvsc_req->on_io_completion = request_completion;
- 	storvsc_req->context = blkvsc_req;
+@@ -154,7 +154,7 @@ static int blk_vsc_initialize(struct hv_driver *driver)
+ 	struct storvsc_driver_object *stor_driver;
+ 	int ret = 0;
  
--	storvsc_req->host = blkdev->port;
-+	vm_srb->port_number = blkdev->port;
- 	storvsc_req->bus = blkdev->path;
- 	storvsc_req->target_id = blkdev->target;
- 	storvsc_req->lun_id = 0;	 /* this is not really used at all */
-diff --git a/drivers/staging/hv/storvsc.c b/drivers/staging/hv/storvsc.c
-index c1faf46..21ca3db 100644
---- a/drivers/staging/hv/storvsc.c
-+++ b/drivers/staging/hv/storvsc.c
-@@ -550,7 +550,6 @@ int stor_vsc_on_io_request(struct hv_device *device,
+-	stor_driver = (struct storvsc_driver_object *)driver;
++	stor_driver = hvdr_to_stordr(driver);
  
- 	vstor_packet->vm_srb.length = sizeof(struct vmscsi_request);
- 
--	vstor_packet->vm_srb.port_number = request->host;
- 	vstor_packet->vm_srb.path_id = request->bus;
- 	vstor_packet->vm_srb.target_id = request->target_id;
- 	vstor_packet->vm_srb.lun = request->lun_id;
+ 	/* Make sure we are at least 2 pages since 1 page is used for control */
+ 	/* ASSERT(stor_driver->RingBufferSize >= (PAGE_SIZE << 1)); */
 diff --git a/drivers/staging/hv/storvsc_api.h b/drivers/staging/hv/storvsc_api.h
-index 27781f4..f9dc4f1 100644
+index eeaeaef..5c80cdb 100644
 --- a/drivers/staging/hv/storvsc_api.h
 +++ b/drivers/staging/hv/storvsc_api.h
-@@ -66,7 +66,6 @@ struct storvsc_request_extension {
- };
+@@ -25,6 +25,7 @@
+ #ifndef _STORVSC_API_H_
+ #define _STORVSC_API_H_
  
- struct hv_storvsc_request {
--	u32 host;
- 	u32 bus;
- 	u32 target_id;
- 	u32 lun_id;
++#include <linux/kernel.h>
+ #include "vstorage.h"
+ #include "vmbus_api.h"
+ 
+@@ -90,8 +91,6 @@ struct hv_storvsc_request {
+ 
+ /* Represents the block vsc driver */
+ struct storvsc_driver_object {
+-	/* Must be the first field */
+-	/* Which is a bug FIXME! */
+ 	struct hv_driver base;
+ 
+ 	/* Set by caller (in bytes) */
+@@ -159,6 +158,11 @@ static inline void put_stor_device(struct hv_device *device)
+ 	atomic_dec(&stor_device->ref_count);
+ }
+ 
++static inline struct storvsc_driver_object *hvdr_to_stordr(struct hv_driver *d)
++{
++	return container_of(d, struct storvsc_driver_object, base);
++}
++
+ /* Interface */
+ 
+ int stor_vsc_on_device_add(struct hv_device *device,
 diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
-index 9df723c..e772822 100644
+index 1d13f1b..268c607 100644
 --- a/drivers/staging/hv/storvsc_drv.c
 +++ b/drivers/staging/hv/storvsc_drv.c
-@@ -774,7 +774,7 @@ static int storvsc_queuecommand_lck(struct scsi_cmnd *scmnd,
- 	request->context = cmd_request;/* scmnd; */
+@@ -79,7 +79,7 @@ static int stor_vsc_initialize(struct hv_driver *driver)
+ {
+ 	struct storvsc_driver_object *stor_driver;
  
- 	/* request->PortId = scmnd->device->channel; */
--	request->host = host_device_ctx->port;
-+	vm_srb->port_number = host_device_ctx->port;
- 	request->bus = scmnd->device->channel;
- 	request->target_id = scmnd->device->id;
- 	request->lun_id = scmnd->device->lun;
+-	stor_driver = (struct storvsc_driver_object *)driver;
++	stor_driver = hvdr_to_stordr(driver);
+ 
+ 	DPRINT_DBG(STORVSC, "sizeof(STORVSC_REQUEST)=%zd "
+ 		   "sizeof(struct storvsc_request_extension)=%zd "
 -- 
 1.7.4.1
