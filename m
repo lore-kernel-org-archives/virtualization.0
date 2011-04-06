@@ -1,72 +1,139 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 09/22] Staging: hv: Get rid of the function
-	blkvsc_revalidate_disk()
-Date: Wed,  6 Apr 2011 16:05:09 -0700
-Message-ID: <1302131122-15530-9-git-send-email-kys@microsoft.com>
+Subject: [PATCH 21/22] Staging: hv: Introduce a function to map channel properties onto block device info
+Date: Wed,  6 Apr 2011 16:05:21 -0700
+Message-ID: <1302131122-15530-21-git-send-email-kys@microsoft.com>
 References: <1302131006-15411-1-git-send-email-kys@microsoft.com>
-	<1302131122-15530-1-git-send-email-kys@microsoft.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <devel-bounces@linuxdriverproject.org>
+ <1302131122-15530-1-git-send-email-kys@microsoft.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1302131122-15530-1-git-send-email-kys@microsoft.com>
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
-List-Post: <mailto:devel@linuxdriverproject.org>
-List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
-Sender: devel-bounces@linuxdriverproject.org
-Errors-To: devel-bounces@linuxdriverproject.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org
-Cc: Haiyang Zhang <haiyangz@microsoft.com>
+Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Hank Janssen <hjanssen@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The block driver in Hyper-V does not support removable media, get rid of the
-blkvsc_revalidate_disk().
+In preparation for removing the IDE details from the block driver, implement
+a function that maps channel properties to block device information.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/blkvsc_drv.c |   17 -----------------
- 1 files changed, 0 insertions(+), 17 deletions(-)
+ drivers/staging/hv/storvsc.c     |   68 ++++++++++++++++++++++++++++++++++++++
+ drivers/staging/hv/storvsc_api.h |   10 +++++
+ 2 files changed, 78 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/staging/hv/blkvsc_drv.c b/drivers/staging/hv/blkvsc_drv.c
-index 4c248b7..b2cd04a 100644
---- a/drivers/staging/hv/blkvsc_drv.c
-+++ b/drivers/staging/hv/blkvsc_drv.c
-@@ -722,22 +722,6 @@ static int blkvsc_release(struct gendisk *disk, fmode_t mode)
+diff --git a/drivers/staging/hv/storvsc.c b/drivers/staging/hv/storvsc.c
+index d7ce393..e2b3410 100644
+--- a/drivers/staging/hv/storvsc.c
++++ b/drivers/staging/hv/storvsc.c
+@@ -17,6 +17,8 @@
+  * Authors:
+  *   Haiyang Zhang <haiyangz@microsoft.com>
+  *   Hank Janssen  <hjanssen@microsoft.com>
++ *
++ * 4/3/2011: K. Y. Srinivasan - Significant restructuring and cleanup.
+  */
+ #include <linux/kernel.h>
+ #include <linux/sched.h>
+@@ -593,6 +595,72 @@ int stor_vsc_on_io_request(struct hv_device *device,
  }
  
- 
--static int blkvsc_revalidate_disk(struct gendisk *gd)
--{
--	struct block_device_context *blkdev = gd->private_data;
--
--	DPRINT_DBG(BLKVSC_DRV, "- enter\n");
--
--	if (blkdev->device_type == DVD_TYPE) {
--		blkvsc_do_operation(blkdev, DO_CAPACITY);
--		set_capacity(blkdev->gd, blkdev->capacity *
--			    (blkdev->sector_size/512));
--		blk_queue_logical_block_size(gd->queue, blkdev->sector_size);
--	}
--	return 0;
--}
--
--
  /*
-  * We break the request into 1 or more blkvsc_requests and submit
-  * them.  If we cant submit them all, we put them on the
-@@ -997,7 +981,6 @@ static const struct block_device_operations block_ops = {
- 	.owner = THIS_MODULE,
- 	.open = blkvsc_open,
- 	.release = blkvsc_release,
--	.revalidate_disk = blkvsc_revalidate_disk,
- 	.getgeo = blkvsc_getgeo,
- 	.ioctl  = blkvsc_ioctl,
++ * The channel properties uniquely specify how the device is to be
++ * presented to the guest. Map this information for use by the block
++ * driver. For Linux guests on Hyper-V, we emulate a scsi HBA in the guest
++ * (storvsc_drv) and so scsi devices in the guest  are handled by
++ * native upper level Linux drivers. Consequently, Hyper-V
++ * block driver, while being a generic block driver, presently does not
++ * deal with anything other than devices that would need to be presented
++ * to the guest as an IDE disk.
++ *
++ * This function maps the channel properties as embedded in the input
++ * parameter device_info onto information necessary to register the
++ * corresponding block device.
++ *
++ * Currently, there is no way to stop the emulation of the block device
++ * on the host side. And so, to prevent the native IDE drivers in Linux
++ * from taking over these devices (to be managedby Hyper-V block
++ * driver), we will take over if need be the major of the IDE controllers.
++ *
++ */
++
++int stor_vsc_get_major_info(struct storvsc_device_info *device_info,
++			    struct storvsc_major_info *major_info)
++{
++	static bool ide0_registered;
++	static bool ide1_registered;
++
++	/*
++	 * For now we only support IDE disks.
++	 */
++	major_info->devname = "ide";
++	major_info->diskname = "hd";
++
++	if (device_info->path_id) {
++		major_info->major = 22;
++		if (!ide1_registered)
++			major_info->do_register = true;
++		else {
++			major_info->do_register = false;
++			ide1_registered = true;
++		}
++		if (device_info->target_id)
++			major_info->index = 3;
++		 else
++			major_info->index = 2;
++
++		return 0;
++	} else {
++		major_info->major = 3;
++		if (!ide0_registered)
++			major_info->do_register = true;
++		else {
++			major_info->do_register = false;
++			ide0_registered = true;
++		}
++		if (device_info->target_id)
++			major_info->index = 1;
++		else
++			major_info->index = 0;
++
++		return 0;
++	}
++
++	return -ENODEV;
++}
++
++/*
+  * stor_vsc_on_cleanup - Perform any cleanup when the driver is removed
+  */
+ void stor_vsc_on_cleanup(struct hv_driver *driver)
+diff --git a/drivers/staging/hv/storvsc_api.h b/drivers/staging/hv/storvsc_api.h
+index d7db949..c98139c 100644
+--- a/drivers/staging/hv/storvsc_api.h
++++ b/drivers/staging/hv/storvsc_api.h
+@@ -92,6 +92,14 @@ struct storvsc_device_info {
+ 	unsigned char target_id;
  };
+ 
++struct storvsc_major_info {
++	int major;
++	int index;
++	bool do_register;
++	char *devname;
++	char *diskname;
++};
++
+ /* A storvsc device is a device object that contains a vmbus channel */
+ struct storvsc_device {
+ 	struct hv_device *device;
+@@ -155,5 +163,7 @@ int stor_vsc_on_io_request(struct hv_device *device,
+ 				struct hv_storvsc_request *request);
+ void stor_vsc_on_cleanup(struct hv_driver *driver);
+ 
++int stor_vsc_get_major_info(struct storvsc_device_info *device_info,
++				struct storvsc_major_info *major_info);
+ 
+ #endif /* _STORVSC_API_H_ */
 -- 
 1.7.4.1
