@@ -1,66 +1,42 @@
-From: Ryan Harper <ryanh@us.ibm.com>
-Subject: Re: [PATCH] virtio_blk: decrement index when blockdevice is removed
-Date: Wed, 6 Apr 2011 14:17:25 -0500
-Message-ID: <20110406191725.GJ5445__11550.1845757992$1302117495$gmane$org@us.ibm.com>
-References: <1099995365.641718.1301903899721.JavaMail.root@zmail07.collab.prod.int.phx2.redhat.com>
-	<1969774563.659835.1301978981017.JavaMail.root@zmail07.collab.prod.int.phx2.redhat.com>
+From: "K. Y. Srinivasan" <kys@microsoft.com>
+Subject: [RESEND] [PATCH 00/22] Staging: hv: Cleanup-storage-drivers-phase-III
+Date: Wed,  6 Apr 2011 14:34:15 -0700
+Message-ID: <1302125655-10741-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1969774563.659835.1301978981017.JavaMail.root@zmail07.collab.prod.int.phx2.redhat.com>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Takuma Umeya <tumeya@redhat.com>
-Cc: john cooper <john.cooper@redhat.com>, Jens Axboe <jaxboe@fusionio.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Tejun Heo <tj@kernel.org>, Christoph Hellwig <hch@lst.de>
+Return-path: <devel-bounces@linuxdriverproject.org>
+List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
+	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
+List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
+List-Post: <mailto:devel@linuxdriverproject.org>
+List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
+List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
+	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
+Sender: devel-bounces@linuxdriverproject.org
+Errors-To: devel-bounces@linuxdriverproject.org
+To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-* Takuma Umeya <tumeya@redhat.com> [2011-04-05 00:00]:
-> When virtio block device is removed, index does not get decremented. When 
-> another virtio disk is attached it uses the next device letter to the 
-> one that is suppose to be available. 
-> 
-> Signed-off-by: Takuma Umeya <tumeya@redhat.com>
-> 
-> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-> index 6ecf89c..730e7af 100644
-> --- a/drivers/block/virtio_blk.c
-> +++ b/drivers/block/virtio_blk.c
-> @@ -489,6 +489,7 @@ static void __devexit virtblk_remove(struct virtio_device *vdev)
->         mempool_destroy(vblk->pool);
->         vdev->config->del_vqs(vdev);
->         kfree(vblk);
-> +       index--;
->  }
+The latest upstream merge changed struct block_device_operations:
+This merge got rid of blkvsc_media_changed and introduced the
+function blkvsc_check_events. This broke all the patches that
+were sent after the tree was closed the last time. This is a resend of
+this patch-set to account for this change in the kernel.
 
-What about referencing /dev/disk/by-id  and using drive serial numbers?
-How much do we care about re-using minor numbers?  IIRC, virtio-blk can
-go out to vdxxx; that's a lot of disks or add/removes.
+This patch-set deals with some of the style isues in blkvsc_drv.c. We also
+get rid most of the "dead code" in this file:
 
-> 
->  static const struct virtio_device_id id_table[] = {
-> 
-> -- 
-> Umeya, Takuma
-> Technical Account Manager
-> Red Hat GSS APAC
-> +81.3.5798.8584 (direct)
-> tumeya@redhat.com
-> _______________________________________________
-> Virtualization mailing list
-> Virtualization@lists.linux-foundation.org
-> https://lists.linux-foundation.org/mailman/listinfo/virtualization
+	1) Get rid of most of the forward declarations in this file.
+	   The only remaining forward declarations are to deal with 
+	   circular dependencies.
 
--- 
-Ryan Harper
-Software Engineer; Linux Technology Center
-IBM Corp., Austin, Tx
-ryanh@us.ibm.com
+	2) Get rid of most of the dead code in the file. Some of
+	   the functions in this file are place holders - they are not
+	   fuly implementedi yet (blkvsc_ioctl(), blkvsc_media_changed(). 
+	   We have retained some comments/dead code, to help us in the
+	   final implementation.
+
+Regads,
+
+K. Y 
