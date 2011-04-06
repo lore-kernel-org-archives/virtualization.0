@@ -1,7 +1,7 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 10/22] Staging: hv: Simplify blkvsc_init_rw()
-Date: Wed,  6 Apr 2011 16:05:10 -0700
-Message-ID: <1302131122-15530-10-git-send-email-kys@microsoft.com>
+Subject: [PATCH 22/22] Staging: hv: Get rid of IDE details from blkvsc_drv.c
+Date: Wed,  6 Apr 2011 16:05:22 -0700
+Message-ID: <1302131122-15530-22-git-send-email-kys@microsoft.com>
 References: <1302131006-15411-1-git-send-email-kys@microsoft.com>
 	<1302131122-15530-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -22,86 +22,148 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Simplyfify blkvsc_init_rw() by using a single scsi command independent of
-the start sector.
+Now get rid of IDE details from blkvsc_drv.c.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/blkvsc_drv.c |   58 +++++++++------------------------------
- 1 files changed, 13 insertions(+), 45 deletions(-)
+ drivers/staging/hv/blkvsc_drv.c |   55 +++++++++++---------------------------
+ drivers/staging/hv/storvsc.c    |   18 ++++++------
+ 2 files changed, 25 insertions(+), 48 deletions(-)
 
 diff --git a/drivers/staging/hv/blkvsc_drv.c b/drivers/staging/hv/blkvsc_drv.c
-index b2cd04a..5cf82f0 100644
+index 3229ebc..acc5435 100644
 --- a/drivers/staging/hv/blkvsc_drv.c
 +++ b/drivers/staging/hv/blkvsc_drv.c
-@@ -305,53 +305,21 @@ static void blkvsc_init_rw(struct blkvsc_request *blkvsc_req)
+@@ -953,11 +953,8 @@ static int blkvsc_probe(struct device *device)
  
- 	blkvsc_req->cmd_len = 16;
+ 	struct block_device_context *blkdev = NULL;
+ 	struct storvsc_device_info device_info;
+-	int major = 0;
+-	int devnum = 0;
++	struct storvsc_major_info major_info;
+ 	int ret = 0;
+-	static int ide0_registered;
+-	static int ide1_registered;
  
--	if (blkvsc_req->sector_start > 0xffffffff) {
--		if (rq_data_dir(blkvsc_req->req)) {
--			blkvsc_req->write = 1;
--			blkvsc_req->cmnd[0] = WRITE_16;
--		} else {
--			blkvsc_req->write = 0;
--			blkvsc_req->cmnd[0] = READ_16;
+ 
+ 	blkdev = kzalloc(sizeof(struct block_device_context), GFP_KERNEL);
+@@ -994,43 +991,23 @@ static int blkvsc_probe(struct device *device)
+ 
+ 	dev_set_drvdata(device, blkdev);
+ 
+-	/* Calculate the major and device num */
+-	if (blkdev->path == 0) {
+-		major = IDE0_MAJOR;
+-		devnum = blkdev->path + blkdev->target;		/* 0 or 1 */
+-
+-		if (!ide0_registered) {
+-			ret = register_blkdev(major, "ide");
+-			if (ret != 0) {
+-				DPRINT_ERR(BLKVSC_DRV,
+-					   "register_blkdev() failed! ret %d",
+-					   ret);
+-				goto remove;
+-			}
++	ret = stor_vsc_get_major_info(&device_info, &major_info);
+ 
+-			ide0_registered = 1;
 -		}
+-	} else if (blkdev->path == 1) {
+-		major = IDE1_MAJOR;
+-		devnum = blkdev->path + blkdev->target + 1; /* 2 or 3 */
 -
--		blkvsc_req->cmnd[1] |=
--			(blkvsc_req->req->cmd_flags & REQ_FUA) ? 0x8 : 0;
--
--		*(unsigned long long *)&blkvsc_req->cmnd[2] =
--				cpu_to_be64(blkvsc_req->sector_start);
--		*(unsigned int *)&blkvsc_req->cmnd[10] =
--				cpu_to_be32(blkvsc_req->sector_count);
--	} else if ((blkvsc_req->sector_count > 0xff) ||
--		   (blkvsc_req->sector_start > 0x1fffff)) {
--		if (rq_data_dir(blkvsc_req->req)) {
--			blkvsc_req->write = 1;
--			blkvsc_req->cmnd[0] = WRITE_10;
--		} else {
--			blkvsc_req->write = 0;
--			blkvsc_req->cmnd[0] = READ_10;
--		}
--
--		blkvsc_req->cmnd[1] |=
--			(blkvsc_req->req->cmd_flags & REQ_FUA) ? 0x8 : 0;
--
--		*(unsigned int *)&blkvsc_req->cmnd[2] =
--				cpu_to_be32(blkvsc_req->sector_start);
--		*(unsigned short *)&blkvsc_req->cmnd[7] =
--				cpu_to_be16(blkvsc_req->sector_count);
-+	if (rq_data_dir(blkvsc_req->req)) {
-+		blkvsc_req->write = 1;
-+		blkvsc_req->cmnd[0] = WRITE_16;
- 	} else {
--		if (rq_data_dir(blkvsc_req->req)) {
--			blkvsc_req->write = 1;
--			blkvsc_req->cmnd[0] = WRITE_6;
--		} else {
--			blkvsc_req->write = 0;
--			blkvsc_req->cmnd[0] = READ_6;
--		}
--
--		*(unsigned int *)&blkvsc_req->cmnd[1] =
--				cpu_to_be32(blkvsc_req->sector_start) >> 8;
--		blkvsc_req->cmnd[1] &= 0x1f;
--		blkvsc_req->cmnd[4] = (unsigned char)blkvsc_req->sector_count;
-+		blkvsc_req->write = 0;
-+		blkvsc_req->cmnd[0] = READ_16;
+-		if (!ide1_registered) {
+-			ret = register_blkdev(major, "ide");
+-			if (ret != 0) {
+-				DPRINT_ERR(BLKVSC_DRV,
+-					   "register_blkdev() failed! ret %d",
+-					   ret);
+-				goto remove;
+-			}
++	if (ret)
++		goto cleanup;
++
++	if (major_info.do_register) {
++		ret = register_blkdev(major_info.major, major_info.devname);
+ 
+-			ide1_registered = 1;
++		if (ret != 0) {
++			DPRINT_ERR(BLKVSC_DRV,
++				   "register_blkdev() failed! ret %d", ret);
++			goto remove;
+ 		}
+-	} else {
+-		ret = -1;
+-		goto cleanup;
  	}
-+
-+	blkvsc_req->cmnd[1] |=
-+	(blkvsc_req->req->cmd_flags & REQ_FUA) ? 0x8 : 0;
-+
-+	*(unsigned long long *)&blkvsc_req->cmnd[2] =
-+	cpu_to_be64(blkvsc_req->sector_start);
-+	*(unsigned int *)&blkvsc_req->cmnd[10] =
-+	cpu_to_be32(blkvsc_req->sector_count);
- }
  
+-	DPRINT_INFO(BLKVSC_DRV, "blkvsc registered for major %d!!", major);
++	DPRINT_INFO(BLKVSC_DRV, "blkvsc registered for major %d!!",
++			major_info.major);
  
+ 	blkdev->gd = alloc_disk(BLKVSC_MINORS);
+ 	if (!blkdev->gd) {
+@@ -1046,8 +1023,8 @@ static int blkvsc_probe(struct device *device)
+ 	blk_queue_bounce_limit(blkdev->gd->queue, BLK_BOUNCE_ANY);
+ 	blk_queue_dma_alignment(blkdev->gd->queue, 511);
+ 
+-	blkdev->gd->major = major;
+-	if (devnum == 1 || devnum == 3)
++	blkdev->gd->major = major_info.major;
++	if (major_info.index == 1 || major_info.index == 3)
+ 		blkdev->gd->first_minor = BLKVSC_MINORS;
+ 	else
+ 		blkdev->gd->first_minor = 0;
+@@ -1055,7 +1032,7 @@ static int blkvsc_probe(struct device *device)
+ 	blkdev->gd->events = DISK_EVENT_MEDIA_CHANGE;
+ 	blkdev->gd->private_data = blkdev;
+ 	blkdev->gd->driverfs_dev = &(blkdev->device_ctx->device);
+-	sprintf(blkdev->gd->disk_name, "hd%c", 'a' + devnum);
++	sprintf(blkdev->gd->disk_name, "hd%c", 'a' + major_info.index);
+ 
+ 	blkvsc_do_operation(blkdev, DO_INQUIRY);
+ 	blkvsc_do_operation(blkdev, DO_CAPACITY);
+diff --git a/drivers/staging/hv/storvsc.c b/drivers/staging/hv/storvsc.c
+index e2b3410..85bae5a 100644
+--- a/drivers/staging/hv/storvsc.c
++++ b/drivers/staging/hv/storvsc.c
+@@ -629,26 +629,26 @@ int stor_vsc_get_major_info(struct storvsc_device_info *device_info,
+ 
+ 	if (device_info->path_id) {
+ 		major_info->major = 22;
+-		if (!ide1_registered)
++		if (!ide1_registered) {
+ 			major_info->do_register = true;
+-		else {
+-			major_info->do_register = false;
+ 			ide1_registered = true;
+-		}
++		} else
++			major_info->do_register = false;
++
+ 		if (device_info->target_id)
+ 			major_info->index = 3;
+-		 else
++		else
+ 			major_info->index = 2;
+ 
+ 		return 0;
+ 	} else {
+ 		major_info->major = 3;
+-		if (!ide0_registered)
++		if (!ide0_registered) {
+ 			major_info->do_register = true;
+-		else {
+-			major_info->do_register = false;
+ 			ide0_registered = true;
+-		}
++		} else
++			major_info->do_register = false;
++
+ 		if (device_info->target_id)
+ 			major_info->index = 1;
+ 		else
 -- 
 1.7.4.1
