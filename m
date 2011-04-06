@@ -1,84 +1,60 @@
-From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 16/22] Staging: hv: Get rid of some DPRINT_ERR() calls
-Date: Wed,  6 Apr 2011 16:05:16 -0700
-Message-ID: <1302131122-15530-16-git-send-email-kys@microsoft.com>
-References: <1302131006-15411-1-git-send-email-kys@microsoft.com>
-	<1302131122-15530-1-git-send-email-kys@microsoft.com>
+From: KY Srinivasan <kys@microsoft.com>
+Subject: RE: [PATCH 00/22] Staging: hv: Cleanup-storage-drivers-phase-III
+Date: Wed, 6 Apr 2011 22:59:27 +0000
+Message-ID: <6E21E5352C11B742B20C142EB499E04802C5A7@TK5EX14MBXC122.redmond.corp.microsoft.com>
+References: <1301331615-26226-1-git-send-email-kys@microsoft.com>
+ <20110405045904.GA4635@kroah.com>
+ <6E21E5352C11B742B20C142EB499E04802BFE3@TK5EX14MBXC122.redmond.corp.microsoft.com>
+ <20110405151046.GF28289@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <devel-bounces@linuxdriverproject.org>
-In-Reply-To: <1302131122-15530-1-git-send-email-kys@microsoft.com>
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
-List-Post: <mailto:devel@linuxdriverproject.org>
-List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
-Sender: devel-bounces@linuxdriverproject.org
-Errors-To: devel-bounces@linuxdriverproject.org
-To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org
-Cc: Haiyang Zhang <haiyangz@microsoft.com>
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20110405151046.GF28289@kroah.com>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: Greg KH <greg@kroah.com>
+Cc: "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Get rid of some DPRINT_ERR() calls.
 
-Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
-Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
-Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
----
- drivers/staging/hv/blkvsc_drv.c |    9 +++------
- 1 files changed, 3 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/staging/hv/blkvsc_drv.c b/drivers/staging/hv/blkvsc_drv.c
-index 92614d5..35ad3d5 100644
---- a/drivers/staging/hv/blkvsc_drv.c
-+++ b/drivers/staging/hv/blkvsc_drv.c
-@@ -17,6 +17,8 @@
-  * Authors:
-  *   Haiyang Zhang <haiyangz@microsoft.com>
-  *   Hank Janssen  <hjanssen@microsoft.com>
-+ *
-+ * 4/3/2011: K. Y. Srinivasan - Significant restructuring and cleanup.
-  */
- #include <linux/init.h>
- #include <linux/module.h>
-@@ -967,7 +969,6 @@ static int blkvsc_probe(struct device *device)
- 
- 
- 	if (!storvsc_drv_obj->base.dev_add) {
--		DPRINT_ERR(BLKVSC_DRV, "OnDeviceAdd() not set");
- 		ret = -1;
- 		goto Cleanup;
- 	}
-@@ -995,10 +996,8 @@ static int blkvsc_probe(struct device *device)
- 
- 	/* Call to the vsc driver to add the device */
- 	ret = storvsc_drv_obj->base.dev_add(device_obj, &device_info);
--	if (ret != 0) {
--		DPRINT_ERR(BLKVSC_DRV, "unable to add blkvsc device");
-+	if (ret != 0)
- 		goto Cleanup;
--	}
- 
- 	blkdev->device_ctx = device_obj;
- 	/* this identified the device 0 or 1 */
-@@ -1040,7 +1039,6 @@ static int blkvsc_probe(struct device *device)
- 			ide1_registered = 1;
- 		}
- 	} else {
--		DPRINT_ERR(BLKVSC_DRV, "invalid pathid");
- 		ret = -1;
- 		goto Cleanup;
- 	}
-@@ -1049,7 +1047,6 @@ static int blkvsc_probe(struct device *device)
- 
- 	blkdev->gd = alloc_disk(BLKVSC_MINORS);
- 	if (!blkdev->gd) {
--		DPRINT_ERR(BLKVSC_DRV, "register_blkdev() failed! ret %d", ret);
- 		ret = -1;
- 		goto Cleanup;
- 	}
--- 
-1.7.4.1
+> -----Original Message-----
+> From: Greg KH [mailto:greg@kroah.com]
+> Sent: Tuesday, April 05, 2011 11:11 AM
+> To: KY Srinivasan
+> Cc: gregkh@suse.de; linux-kernel@vger.kernel.org;
+> devel@linuxdriverproject.org; virtualization@lists.osdl.org
+> Subject: Re: [PATCH 00/22] Staging: hv: Cleanup-storage-drivers-phase-III
+> 
+> 
+> A: No.
+> Q: Should I include quotations after my reply?
+> 
+> http://daringfireball.net/2007/07/on_top
+> 
+> 
+> On Tue, Apr 05, 2011 at 01:58:37PM +0000, KY Srinivasan wrote:
+> > Sorry for the confusion Greg. I reworked some patches in Phase-II
+> > cleanup and I was meaning to resend them before you began applying the
+> > patches, That is the reason for the problem you are encountering.
+> 
+> Huh?  I applied them in the order you sent them to me, how would that
+> cause a patch to fail to apply properly?
+> 
+> > I
+> > just resent the Phase II series. If you can back out the phase II that
+> > you have applied and apply the ones I resent, everything should apply
+> > cleanly. Once again, I sorry for creating additional work for you.
+> 
+> I can't back out anything, sorry.  I'll drop any pending patches you
+> have sent me now.  Please resync with my staging git tree and resend
+> them to properly apply and work.
+
+Greg,
+
+An upstream merge that occurred after the last tree closure was the cause of some of my patches not applying. I have fixed up all the patches and resent them for your consideration.
+
+Regards,
+
+K. Y
