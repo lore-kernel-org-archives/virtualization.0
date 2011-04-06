@@ -1,106 +1,111 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 06/22] Staging: hv: Get rid of the forward declaration of blkvsc_ioctl()
-Date: Wed,  6 Apr 2011 14:35:04 -0700
-Message-ID: <1302125720-10808-6-git-send-email-kys@microsoft.com>
+Subject: [PATCH 07/22] Staging: hv: Get rid of the forward declaration of
+	blkvsc_cmd_completion()
+Date: Wed,  6 Apr 2011 14:35:05 -0700
+Message-ID: <1302125720-10808-7-git-send-email-kys@microsoft.com>
 References: <1302125655-10741-1-git-send-email-kys@microsoft.com>
- <1302125720-10808-1-git-send-email-kys@microsoft.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+	<1302125720-10808-1-git-send-email-kys@microsoft.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <devel-bounces@linuxdriverproject.org>
 In-Reply-To: <1302125720-10808-1-git-send-email-kys@microsoft.com>
-Sender: linux-kernel-owner@vger.kernel.org
+List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
+	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
+List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
+List-Post: <mailto:devel@linuxdriverproject.org>
+List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
+List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
+	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
+Sender: devel-bounces@linuxdriverproject.org
+Errors-To: devel-bounces@linuxdriverproject.org
 To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org
-Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>, Hank Janssen <hjanssen@microsoft.com>
+Cc: Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Get rid of the forward declaration of blkvsc_ioctl() by moving the code around.
+Get rid of the forward declaration of blkvsc_cmd_completion() by moving the
+code  around.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/blkvsc_drv.c |   56 ++++++++++++++++++--------------------
- 1 files changed, 27 insertions(+), 29 deletions(-)
+ drivers/staging/hv/blkvsc_drv.c |   48 +++++++++++++++++++-------------------
+ 1 files changed, 24 insertions(+), 24 deletions(-)
 
 diff --git a/drivers/staging/hv/blkvsc_drv.c b/drivers/staging/hv/blkvsc_drv.c
-index 5f14bb6..a16f38c 100644
+index a16f38c..068daee 100644
 --- a/drivers/staging/hv/blkvsc_drv.c
 +++ b/drivers/staging/hv/blkvsc_drv.c
-@@ -415,6 +415,33 @@ static void blkvsc_init_rw(struct blkvsc_request *blkvsc_req)
+@@ -442,6 +442,30 @@ static int blkvsc_ioctl(struct block_device *bd, fmode_t mode,
+ 	return ret;
  }
  
- 
-+static int blkvsc_ioctl(struct block_device *bd, fmode_t mode,
-+			unsigned cmd, unsigned long argument)
++static void blkvsc_cmd_completion(struct hv_storvsc_request *request)
 +{
-+/*	struct block_device_context *blkdev = bd->bd_disk->private_data; */
-+	int ret;
++	struct blkvsc_request *blkvsc_req =
++			(struct blkvsc_request *)request->context;
++	struct block_device_context *blkdev =
++			(struct block_device_context *)blkvsc_req->dev;
++	struct scsi_sense_hdr sense_hdr;
++	struct vmscsi_request *vm_srb;
 +
-+	switch (cmd) {
-+	/*
-+	 * TODO: I think there is certain format for HDIO_GET_IDENTITY rather
-+	 * than just a GUID. Commented it out for now.
-+	 */
-+#if 0
-+	case HDIO_GET_IDENTITY:
-+		DPRINT_INFO(BLKVSC_DRV, "HDIO_GET_IDENTITY\n");
-+		if (copy_to_user((void __user *)arg, blkdev->device_id,
-+				 blkdev->device_id_len))
-+			ret = -EFAULT;
-+		break;
-+#endif
-+	default:
-+		ret = -EINVAL;
-+		break;
-+	}
++	DPRINT_DBG(BLKVSC_DRV, "blkvsc_cmd_completion() - req %p\n",
++		   blkvsc_req);
 +
-+	return ret;
++	vm_srb = &blkvsc_req->request.vstor_packet.vm_srb;
++	blkdev->num_outstanding_reqs--;
++
++	if (vm_srb->scsi_status)
++		if (scsi_normalize_sense(blkvsc_req->sense_buffer,
++					 SCSI_SENSE_BUFFERSIZE, &sense_hdr))
++			scsi_print_sense_hdr("blkvsc", &sense_hdr);
++
++	complete(&blkvsc_req->request.wait_event);
 +}
++
 +
  /* Static decl */
  static int blkvsc_probe(struct device *dev);
  static int blkvsc_remove(struct device *device);
-@@ -422,8 +449,6 @@ static void blkvsc_shutdown(struct device *device);
- 
- static int blkvsc_release(struct gendisk *disk, fmode_t mode);
- static int blkvsc_revalidate_disk(struct gendisk *gd);
--static int blkvsc_ioctl(struct block_device *bd, fmode_t mode,
--			unsigned cmd, unsigned long argument);
- static void blkvsc_request(struct request_queue *queue);
+@@ -453,7 +477,6 @@ static void blkvsc_request(struct request_queue *queue);
  static void blkvsc_request_completion(struct hv_storvsc_request *request);
  static int blkvsc_do_request(struct block_device_context *blkdev,
-@@ -1508,33 +1533,6 @@ static int blkvsc_revalidate_disk(struct gendisk *gd)
- 	return 0;
+ 			     struct request *req);
+-static void blkvsc_cmd_completion(struct hv_storvsc_request *request);
+ static int blkvsc_do_inquiry(struct block_device_context *blkdev);
+ static int blkvsc_do_read_capacity(struct block_device_context *blkdev);
+ static int blkvsc_do_read_capacity16(struct block_device_context *blkdev);
+@@ -1257,29 +1280,6 @@ static int blkvsc_do_request(struct block_device_context *blkdev,
+ 	return pending;
  }
  
--static int blkvsc_ioctl(struct block_device *bd, fmode_t mode,
--			unsigned cmd, unsigned long argument)
+-static void blkvsc_cmd_completion(struct hv_storvsc_request *request)
 -{
--/*	struct block_device_context *blkdev = bd->bd_disk->private_data; */
--	int ret;
+-	struct blkvsc_request *blkvsc_req =
+-			(struct blkvsc_request *)request->context;
+-	struct block_device_context *blkdev =
+-			(struct block_device_context *)blkvsc_req->dev;
+-	struct scsi_sense_hdr sense_hdr;
+-	struct vmscsi_request *vm_srb;
 -
--	switch (cmd) {
--	/*
--	 * TODO: I think there is certain format for HDIO_GET_IDENTITY rather
--	 * than just a GUID. Commented it out for now.
--	 */
--#if 0
--	case HDIO_GET_IDENTITY:
--		DPRINT_INFO(BLKVSC_DRV, "HDIO_GET_IDENTITY\n");
--		if (copy_to_user((void __user *)arg, blkdev->device_id,
--				 blkdev->device_id_len))
--			ret = -EFAULT;
--		break;
--#endif
--	default:
--		ret = -EINVAL;
--		break;
--	}
+-	DPRINT_DBG(BLKVSC_DRV, "blkvsc_cmd_completion() - req %p\n",
+-		   blkvsc_req);
 -
--	return ret;
+-	vm_srb = &blkvsc_req->request.vstor_packet.vm_srb;
+-	blkdev->num_outstanding_reqs--;
+-
+-	if (vm_srb->scsi_status)
+-		if (scsi_normalize_sense(blkvsc_req->sense_buffer,
+-					 SCSI_SENSE_BUFFERSIZE, &sense_hdr))
+-			scsi_print_sense_hdr("blkvsc", &sense_hdr);
+-
+-	complete(&blkvsc_req->request.wait_event);
 -}
 -
- static int __init blkvsc_init(void)
+ static void blkvsc_request_completion(struct hv_storvsc_request *request)
  {
- 	int ret;
+ 	struct blkvsc_request *blkvsc_req =
 -- 
 1.7.4.1
