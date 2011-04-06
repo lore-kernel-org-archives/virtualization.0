@@ -1,44 +1,64 @@
-From: Hank Janssen <hjanssen@microsoft.com>
-Subject: RE: [PATCH 07/07] Replaced printk with pr_info in hv_timesource
-Date: Wed, 6 Apr 2011 00:14:08 +0000
-Message-ID: <8AFC7968D54FB448A30D8F38F259C5624984B5C0@TK5EX14MBXC120.redmond.corp.microsoft.com>
-References: <1301432330-1705-1-git-send-email-hjanssen@microsoft.com>
- <1301432330-1705-8-git-send-email-hjanssen@microsoft.com>
- <20110405050045.GA4663@kroah.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH] virtio_blk: decrement index when blockdevice is removed
+Date: Wed, 06 Apr 2011 11:02:08 +0930
+Message-ID: <87hbacw4fb.fsf__15613.0099938766$1302057560$gmane$org@rustcorp.com.au>
+References: <1969774563.659835.1301978981017.JavaMail.root@zmail07.collab.prod.int.phx2.redhat.com>
+	<4D9AA3BC.6030907@fusionio.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20110405050045.GA4663@kroah.com>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Greg KH <greg@kroah.com>
-Cc: Haiyang Zhang <haiyangz@microsoft.com>, "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, KY Srinivasan <kys@microsoft.com>
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <4D9AA3BC.6030907@fusionio.com>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Jens Axboe <jaxboe@fusionio.com>, Takuma Umeya <tumeya@redhat.com>
+Cc: john cooper <john.cooper@redhat.com>, Tejun Heo <tj@kernel.org>, Christoph Hellwig <hch@lst.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-
-
-> -----Original Message-----
-> From: Greg KH [mailto:greg@kroah.com]
-> Sent: Monday, April 04, 2011 10:01 PM
-> To: Hank Janssen
-> Cc: Haiyang Zhang; gregkh@suse.de; linux-kernel@vger.kernel.org;
-> devel@linuxdriverproject.org; virtualization@lists.osdl.org; KY Srinivasan
-> Subject: Re: [PATCH 07/07] Replaced printk with pr_info in hv_timesource
+On Tue, 05 Apr 2011 07:08:12 +0200, Jens Axboe <jaxboe@fusionio.com> wrote:
+> On 2011-04-05 06:49, Takuma Umeya wrote:
+> > When virtio block device is removed, index does not get decremented. When 
+> > another virtio disk is attached it uses the next device letter to the 
+> > one that is suppose to be available. 
+> > 
+> > Signed-off-by: Takuma Umeya <tumeya@redhat.com>
+> > 
+> > diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+> > index 6ecf89c..730e7af 100644
+> > --- a/drivers/block/virtio_blk.c
+> > +++ b/drivers/block/virtio_blk.c
+> > @@ -489,6 +489,7 @@ static void __devexit virtblk_remove(struct virtio_device *vdev)
+> >         mempool_destroy(vblk->pool);
+> >         vdev->config->del_vqs(vdev);
+> >         kfree(vblk);
+> > +       index--;
+> >  }
+> >  
+> >  static const struct virtio_device_id id_table[] = {
 > 
-> >  #include <linux/version.h>
-> >  #include <linux/clocksource.h>
-> > @@ -91,7 +92,7 @@ static int __init init_hv_clocksource(void)
-> >  	if (!dmi_check_system(hv_timesource_dmi_table))
-> >  		return -ENODEV;
-> >
-> > -	printk(KERN_INFO "Registering HyperV clock source\n");
-> > +	pr_info("Registering HyperV clock source\n");
-> 
-> Why is this line even needed at all?  Please remove it in future patches.
-> 
+> What happens when you delete a device that isn't the last one?
 
-Of course, since there have been so many changes I will wait a day or two 
-To get stuff settled in staging and I will send the patch to remove it.
+Obviously we should do something cleverer for assigning drives.
 
-Hank.
+It might be a cute if genhd gave us a function to get the next free
+index for a given major number, and format it for us, like so:
+
+      /* Return the next available minor for a given @major, at least
+       * @spacing after the previous and, and append appropriate letters
+       * to @name if it's not NULL.  -ve errno on fail (-ENOSPC?). */
+      int disk_next_minor(int major, unsigned spacing, char *name);
+
+A trivial optimization would be to remember the last major and max minor
+(resetting that if any disks are removed).
+
+This could clean up other code, too.
+
+Cheers,
+Rusty.
