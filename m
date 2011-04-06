@@ -1,68 +1,22 @@
-From: Jens Axboe <jaxboe@fusionio.com>
-Subject: Re: [PATCH] virtio_blk: decrement index when blockdevice is removed
-Date: Wed, 6 Apr 2011 05:05:48 +0200
-Message-ID: <4D9BD88C.3030807__38538.4038709619$1302115309$gmane$org@fusionio.com>
-References: <1969774563.659835.1301978981017.JavaMail.root@zmail07.collab.prod.int.phx2.redhat.com>
-	<4D9AA3BC.6030907@fusionio.com> <87hbacw4fb.fsf@rustcorp.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <87hbacw4fb.fsf@rustcorp.com.au>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: john cooper <john.cooper@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Tejun Heo <tj@kernel.org>, Christoph Hellwig <hch@lst.de>
+From: "K. Y. Srinivasan" <kys@microsoft.com>
+Subject: [PATCH 0/2] Staging: hv: Fixup Phase II storage driver cleanup
+Date: Wed,  6 Apr 2011 11:24:46 -0700
+Message-ID: <1302114286-2127-1-git-send-email-kys@microsoft.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org
+Cc: "K. Y. Srinivasan" <kys@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 2011-04-06 03:32, Rusty Russell wrote:
-> On Tue, 05 Apr 2011 07:08:12 +0200, Jens Axboe <jaxboe@fusionio.com> wrote:
->> On 2011-04-05 06:49, Takuma Umeya wrote:
->>> When virtio block device is removed, index does not get decremented. When 
->>> another virtio disk is attached it uses the next device letter to the 
->>> one that is suppose to be available. 
->>>
->>> Signed-off-by: Takuma Umeya <tumeya@redhat.com>
->>>
->>> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
->>> index 6ecf89c..730e7af 100644
->>> --- a/drivers/block/virtio_blk.c
->>> +++ b/drivers/block/virtio_blk.c
->>> @@ -489,6 +489,7 @@ static void __devexit virtblk_remove(struct virtio_device *vdev)
->>>         mempool_destroy(vblk->pool);
->>>         vdev->config->del_vqs(vdev);
->>>         kfree(vblk);
->>> +       index--;
->>>  }
->>>  
->>>  static const struct virtio_device_id id_table[] = {
->>
->> What happens when you delete a device that isn't the last one?
-> 
-> Obviously we should do something cleverer for assigning drives.
-> 
-> It might be a cute if genhd gave us a function to get the next free
-> index for a given major number, and format it for us, like so:
-> 
->       /* Return the next available minor for a given @major, at least
->        * @spacing after the previous and, and append appropriate letters
->        * to @name if it's not NULL.  -ve errno on fail (-ENOSPC?). */
->       int disk_next_minor(int major, unsigned spacing, char *name);
-> 
-> A trivial optimization would be to remember the last major and max minor
-> (resetting that if any disks are removed).
-> 
-> This could clean up other code, too.
+This fixes a couple of bugs  that was introduced in the patch-set titled:
 
-Something like idr would be a good fit for this. But yes, adding some
-helpers for this might not hurt...
+Staging: hv: Cleanup storage drivers phase II.
 
--- 
-Jens Axboe
+A corrected version of this patch-set was sent out earlier, however
+the earlier (buggy) version of this patch-set was already applied.
+This patch set  fixes this problem..
+
+
+Regards,
+
+K. Y
