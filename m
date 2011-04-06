@@ -1,7 +1,7 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 10/22] Staging: hv: Get rid of the forward declaration of blkvsc_remove()
-Date: Wed,  6 Apr 2011 14:35:08 -0700
-Message-ID: <1302125720-10808-10-git-send-email-kys@microsoft.com>
+Subject: [PATCH 06/22] Staging: hv: Get rid of the forward declaration of blkvsc_ioctl()
+Date: Wed,  6 Apr 2011 14:35:04 -0700
+Message-ID: <1302125720-10808-6-git-send-email-kys@microsoft.com>
 References: <1302125655-10741-1-git-send-email-kys@microsoft.com>
  <1302125720-10808-1-git-send-email-kys@microsoft.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
@@ -11,165 +11,96 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>, Hank Janssen <hjanssen@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Get rid of the forward declaration of blkvsc_remove() by moving the code around.
+Get rid of the forward declaration of blkvsc_ioctl() by moving the code around.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/blkvsc_drv.c |  130 +++++++++++++++++++-------------------
- 1 files changed, 65 insertions(+), 65 deletions(-)
+ drivers/staging/hv/blkvsc_drv.c |   56 ++++++++++++++++++--------------------
+ 1 files changed, 27 insertions(+), 29 deletions(-)
 
 diff --git a/drivers/staging/hv/blkvsc_drv.c b/drivers/staging/hv/blkvsc_drv.c
-index 2829266..a98ed8f 100644
+index 5f14bb6..a16f38c 100644
 --- a/drivers/staging/hv/blkvsc_drv.c
 +++ b/drivers/staging/hv/blkvsc_drv.c
-@@ -580,9 +580,73 @@ out:
- 	return ret;
+@@ -415,6 +415,33 @@ static void blkvsc_init_rw(struct blkvsc_request *blkvsc_req)
  }
  
-+
-+/*
-+ * blkvsc_remove() - Callback when our device is removed
-+ */
-+static int blkvsc_remove(struct device *device)
+ 
++static int blkvsc_ioctl(struct block_device *bd, fmode_t mode,
++			unsigned cmd, unsigned long argument)
 +{
-+	struct hv_driver *drv =
-+				drv_to_hv_drv(device->driver);
-+	struct storvsc_driver_object *storvsc_drv_obj =
-+				drv->priv;
-+	struct hv_device *device_obj = device_to_hv_device(device);
-+	struct block_device_context *blkdev = dev_get_drvdata(device);
-+	unsigned long flags;
++/*	struct block_device_context *blkdev = bd->bd_disk->private_data; */
 +	int ret;
 +
-+	DPRINT_DBG(BLKVSC_DRV, "blkvsc_remove()\n");
-+
-+	if (!storvsc_drv_obj->base.dev_rm)
-+		return -1;
-+
++	switch (cmd) {
 +	/*
-+	 * Call to the vsc driver to let it know that the device is being
-+	 * removed
++	 * TODO: I think there is certain format for HDIO_GET_IDENTITY rather
++	 * than just a GUID. Commented it out for now.
 +	 */
-+	ret = storvsc_drv_obj->base.dev_rm(device_obj);
-+	if (ret != 0) {
-+		/* TODO: */
-+		DPRINT_ERR(BLKVSC_DRV,
-+			   "unable to remove blkvsc device (ret %d)", ret);
++#if 0
++	case HDIO_GET_IDENTITY:
++		DPRINT_INFO(BLKVSC_DRV, "HDIO_GET_IDENTITY\n");
++		if (copy_to_user((void __user *)arg, blkdev->device_id,
++				 blkdev->device_id_len))
++			ret = -EFAULT;
++		break;
++#endif
++	default:
++		ret = -EINVAL;
++		break;
 +	}
-+
-+	/* Get to a known state */
-+	spin_lock_irqsave(&blkdev->lock, flags);
-+
-+	blkdev->shutting_down = 1;
-+
-+	blk_stop_queue(blkdev->gd->queue);
-+
-+	spin_unlock_irqrestore(&blkdev->lock, flags);
-+
-+	while (blkdev->num_outstanding_reqs) {
-+		DPRINT_INFO(STORVSC, "waiting for %d requests to complete...",
-+			    blkdev->num_outstanding_reqs);
-+		udelay(100);
-+	}
-+
-+	blkvsc_do_flush(blkdev);
-+
-+	spin_lock_irqsave(&blkdev->lock, flags);
-+
-+	blkvsc_cancel_pending_reqs(blkdev);
-+
-+	spin_unlock_irqrestore(&blkdev->lock, flags);
-+
-+	blk_cleanup_queue(blkdev->gd->queue);
-+
-+	del_gendisk(blkdev->gd);
-+
-+	kmem_cache_destroy(blkdev->request_pool);
-+
-+	kfree(blkdev);
 +
 +	return ret;
 +}
 +
  /* Static decl */
  static int blkvsc_probe(struct device *dev);
--static int blkvsc_remove(struct device *device);
- static void blkvsc_shutdown(struct device *device);
+ static int blkvsc_remove(struct device *device);
+@@ -422,8 +449,6 @@ static void blkvsc_shutdown(struct device *device);
  
  static int blkvsc_release(struct gendisk *disk, fmode_t mode);
-@@ -1120,70 +1184,6 @@ static int blkvsc_do_read_capacity16(struct block_device_context *blkdev)
+ static int blkvsc_revalidate_disk(struct gendisk *gd);
+-static int blkvsc_ioctl(struct block_device *bd, fmode_t mode,
+-			unsigned cmd, unsigned long argument);
+ static void blkvsc_request(struct request_queue *queue);
+ static void blkvsc_request_completion(struct hv_storvsc_request *request);
+ static int blkvsc_do_request(struct block_device_context *blkdev,
+@@ -1508,33 +1533,6 @@ static int blkvsc_revalidate_disk(struct gendisk *gd)
+ 	return 0;
  }
  
- /*
-- * blkvsc_remove() - Callback when our device is removed
-- */
--static int blkvsc_remove(struct device *device)
+-static int blkvsc_ioctl(struct block_device *bd, fmode_t mode,
+-			unsigned cmd, unsigned long argument)
 -{
--	struct hv_driver *drv =
--				drv_to_hv_drv(device->driver);
--	struct storvsc_driver_object *storvsc_drv_obj =
--				drv->priv;
--	struct hv_device *device_obj = device_to_hv_device(device);
--	struct block_device_context *blkdev = dev_get_drvdata(device);
--	unsigned long flags;
+-/*	struct block_device_context *blkdev = bd->bd_disk->private_data; */
 -	int ret;
 -
--	DPRINT_DBG(BLKVSC_DRV, "blkvsc_remove()\n");
--
--	if (!storvsc_drv_obj->base.dev_rm)
--		return -1;
--
+-	switch (cmd) {
 -	/*
--	 * Call to the vsc driver to let it know that the device is being
--	 * removed
+-	 * TODO: I think there is certain format for HDIO_GET_IDENTITY rather
+-	 * than just a GUID. Commented it out for now.
 -	 */
--	ret = storvsc_drv_obj->base.dev_rm(device_obj);
--	if (ret != 0) {
--		/* TODO: */
--		DPRINT_ERR(BLKVSC_DRV,
--			   "unable to remove blkvsc device (ret %d)", ret);
+-#if 0
+-	case HDIO_GET_IDENTITY:
+-		DPRINT_INFO(BLKVSC_DRV, "HDIO_GET_IDENTITY\n");
+-		if (copy_to_user((void __user *)arg, blkdev->device_id,
+-				 blkdev->device_id_len))
+-			ret = -EFAULT;
+-		break;
+-#endif
+-	default:
+-		ret = -EINVAL;
+-		break;
 -	}
--
--	/* Get to a known state */
--	spin_lock_irqsave(&blkdev->lock, flags);
--
--	blkdev->shutting_down = 1;
--
--	blk_stop_queue(blkdev->gd->queue);
--
--	spin_unlock_irqrestore(&blkdev->lock, flags);
--
--	while (blkdev->num_outstanding_reqs) {
--		DPRINT_INFO(STORVSC, "waiting for %d requests to complete...",
--			    blkdev->num_outstanding_reqs);
--		udelay(100);
--	}
--
--	blkvsc_do_flush(blkdev);
--
--	spin_lock_irqsave(&blkdev->lock, flags);
--
--	blkvsc_cancel_pending_reqs(blkdev);
--
--	spin_unlock_irqrestore(&blkdev->lock, flags);
--
--	blk_cleanup_queue(blkdev->gd->queue);
--
--	del_gendisk(blkdev->gd);
--
--	kmem_cache_destroy(blkdev->request_pool);
--
--	kfree(blkdev);
 -
 -	return ret;
 -}
 -
--/*
-  * We break the request into 1 or more blkvsc_requests and submit
-  * them.  If we cant submit them all, we put them on the
-  * pending_list. The blkvsc_request() will work on the pending_list.
+ static int __init blkvsc_init(void)
+ {
+ 	int ret;
 -- 
 1.7.4.1
