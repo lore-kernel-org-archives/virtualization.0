@@ -1,15 +1,11 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH] xen: drop anti-dependency on X86_VISWS
-Date: Wed, 06 Apr 2011 14:45:15 -0700 (PDT)
-Message-ID: <20110406.144515.235693855.davem__29041.9918056161$1302126678$gmane$org@davemloft.net>
-References: <1301828839.2837.143.camel@edumazet-laptop>
-	<20110403.172407.91341067.davem@davemloft.net>
-	<1301910955.23887.75.camel@zakaz.uk.xensource.com>
+From: Haiyang Zhang <haiyangz@microsoft.com>
+Subject: [PATCH] staging: hv: Fix GARP not sent after Quick Migration
+Date: Wed,  6 Apr 2011 15:18:00 -0700
+Message-ID: <1302128280-14390-1-git-send-email-haiyangz__34969.3872187801$1302127662$gmane$org@microsoft.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1301910955.23887.75.camel@zakaz.uk.xensource.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,16 +15,92 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Ian.Campbell@eu.citrix.com
-Cc: randy.dunlap@oracle.com, Jeremy.Fitzhardinge@citrix.com, eric.dumazet@gmail.com, konrad.wilk@oracle.com, netdev@vger.kernel.org, mirq-linux@rere.qmqm.pl, xen-devel@lists.xensource.com, hpa@zytor.com, linux-visws-devel@lists.sf.net, tglx@linutronix.de, virtualization@lists.linux-foundation.org, pazke@donpac.ru, mingo@redhat.com
+To: haiyangz@microsoft.com, hjanssen@microsoft.com, kys@microsoft.com, v-abkane@microsoft.com, gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, vir
+Cc: stable <stable@kernel.org>, Mike Surcouf <mike@surcouf.co.uk>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Ian Campbell <Ian.Campbell@eu.citrix.com>
-Date: Mon, 4 Apr 2011 10:55:55 +0100
+After Quick Migration, the network is not immediately operational in the
+current context when receiving RNDIS_STATUS_MEDIA_CONNECT event. So, I added
+another netif_notify_peers() into a scheduled work, otherwise GARP packet will
+not be sent after quick migration, and cause network disconnection.
 
-> You mean the "!X86_VISWS" I presume? It doesn't make sense to me either.
+Thanks to Mike Surcouf <mike@surcouf.co.uk> for reporting the bug and
+testing the patch.
 
-No, I think 32-bit x86 allmodconfig elides XEN because of it's X86_TSC dependency.
+This patch should also be backported to stable kernel 2.6.32 and later.
 
-And, well, you could type "make allmodconfig" on your tree and see for
-yourself instead of asking me :-)
+Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
+Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
+Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
+Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
+Cc: Mike Surcouf <mike@surcouf.co.uk>
+Cc: stable <stable@kernel.org>
+---
+ drivers/staging/hv/netvsc_drv.c |   24 ++++++++++++++++++++++++
+ 1 files changed, 24 insertions(+), 0 deletions(-)
+
+diff --git a/drivers/staging/hv/netvsc_drv.c b/drivers/staging/hv/netvsc_drv.c
+index 54a203b..258233d 100644
+--- a/drivers/staging/hv/netvsc_drv.c
++++ b/drivers/staging/hv/netvsc_drv.c
+@@ -48,6 +48,7 @@ struct net_device_context {
+ 	/* point back to our device context */
+ 	struct hv_device *device_ctx;
+ 	unsigned long avail;
++	struct work_struct work;
+ };
+ 
+ 
+@@ -214,6 +215,7 @@ static void netvsc_linkstatus_callback(struct hv_device *device_obj,
+ 				       unsigned int status)
+ {
+ 	struct net_device *net = dev_get_drvdata(&device_obj->device);
++	struct net_device_context *ndev_ctx;
+ 
+ 	if (!net) {
+ 		netdev_err(net, "got link status but net device "
+@@ -225,6 +227,8 @@ static void netvsc_linkstatus_callback(struct hv_device *device_obj,
+ 		netif_carrier_on(net);
+ 		netif_wake_queue(net);
+ 		netif_notify_peers(net);
++		ndev_ctx = netdev_priv(net);
++		schedule_work(&ndev_ctx->work);
+ 	} else {
+ 		netif_carrier_off(net);
+ 		netif_stop_queue(net);
+@@ -320,6 +324,25 @@ static const struct net_device_ops device_ops = {
+ 	.ndo_set_mac_address =		eth_mac_addr,
+ };
+ 
++/*
++ * Send GARP packet to network peers after migrations.
++ * After Quick Migration, the network is not immediately operational in the
++ * current context when receiving RNDIS_STATUS_MEDIA_CONNECT event. So, add
++ * another netif_notify_peers() into a scheduled work, otherwise GARP packet
++ * will not be sent after quick migration, and cause network disconnection.
++ */
++static void netvsc_send_garp(struct work_struct *w)
++{
++	struct net_device_context *ndev_ctx;
++	struct net_device *net;
++
++	msleep(20);
++	ndev_ctx = container_of(w, struct net_device_context, work);
++	net = dev_get_drvdata(&ndev_ctx->device_ctx->device);
++	netif_notify_peers(net);
++}
++
++
+ static int netvsc_probe(struct device *device)
+ {
+ 	struct hv_driver *drv =
+@@ -345,6 +368,7 @@ static int netvsc_probe(struct device *device)
+ 	net_device_ctx->device_ctx = device_obj;
+ 	net_device_ctx->avail = ring_size;
+ 	dev_set_drvdata(device, net);
++	INIT_WORK(&net_device_ctx->work, netvsc_send_garp);
+ 
+ 	/* Notify the netvsc driver of the new device */
+ 	ret = net_drv_obj->base.dev_add(device_obj, &device_info);
+-- 
+1.7.4.1
