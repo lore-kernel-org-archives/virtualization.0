@@ -1,7 +1,7 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 02/22] Staging: hv: Enable blkvsc_ioctl()
-Date: Wed,  6 Apr 2011 16:05:02 -0700
-Message-ID: <1302131122-15530-2-git-send-email-kys@microsoft.com>
+Subject: [PATCH 08/22] Staging: hv: Get rid of the state media_not_present
+Date: Wed,  6 Apr 2011 16:05:08 -0700
+Message-ID: <1302131122-15530-8-git-send-email-kys@microsoft.com>
 References: <1302131006-15411-1-git-send-email-kys@microsoft.com>
 	<1302131122-15530-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -22,45 +22,56 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-We can support HDIO_GET_IDENTITY ioctl, enable blkvsc_ioctl().
+The block driver in Hyper-V does not handle removable media, get rid of the
+media_not_present state.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/blkvsc_drv.c |   11 +++--------
- 1 files changed, 3 insertions(+), 8 deletions(-)
+ drivers/staging/hv/blkvsc_drv.c |    9 +--------
+ 1 files changed, 1 insertions(+), 8 deletions(-)
 
 diff --git a/drivers/staging/hv/blkvsc_drv.c b/drivers/staging/hv/blkvsc_drv.c
-index 3a344d2..3b47495 100644
+index a7ae437..4c248b7 100644
 --- a/drivers/staging/hv/blkvsc_drv.c
 +++ b/drivers/staging/hv/blkvsc_drv.c
-@@ -413,23 +413,18 @@ static void blkvsc_init_rw(struct blkvsc_request *blkvsc_req)
+@@ -103,7 +103,6 @@ struct block_device_context {
+ 	unsigned int device_id_len;
+ 	int num_outstanding_reqs;
+ 	int shutting_down;
+-	int media_not_present;
+ 	unsigned int sector_size;
+ 	sector_t capacity;
+ 	unsigned int port;
+@@ -446,7 +445,6 @@ static int blkvsc_do_operation(struct block_device_context *blkdev,
+ 	case DO_CAPACITY:
+ 		blkdev->sector_size = 0;
+ 		blkdev->capacity = 0;
+-		blkdev->media_not_present = 0; /* assume a disk is present */
  
+ 		blkvsc_req->cmnd[0] = READ_CAPACITY;
+ 		blkvsc_req->cmd_len = 16;
+@@ -473,10 +471,6 @@ static int blkvsc_do_operation(struct block_device_context *blkdev,
+ 		scsi_normalize_sense(blkvsc_req->sense_buffer,
+ 				     SCSI_SENSE_BUFFERSIZE, &sense_hdr);
  
- static int blkvsc_ioctl(struct block_device *bd, fmode_t mode,
--			unsigned cmd, unsigned long argument)
-+			unsigned cmd, unsigned long arg)
- {
--	int ret;
-+	struct block_device_context *blkdev = bd->bd_disk->private_data;
-+	int ret = 0;
+-		if (sense_hdr.asc == 0x3A)
+-			/* Medium not present */
+-			blkdev->media_not_present = 1;
+-
+ 		return 0;
+ 	}
  
- 	switch (cmd) {
--	/*
--	 * TODO: I think there is certain format for HDIO_GET_IDENTITY rather
--	 * than just a GUID. Commented it out for now.
--	 */
--#if 0
- 	case HDIO_GET_IDENTITY:
- 		DPRINT_INFO(BLKVSC_DRV, "HDIO_GET_IDENTITY\n");
- 		if (copy_to_user((void __user *)arg, blkdev->device_id,
- 				 blkdev->device_id_len))
- 			ret = -EFAULT;
- 		break;
--#endif
- 	default:
- 		ret = -EINVAL;
- 		break;
+@@ -964,8 +958,7 @@ static void blkvsc_request(struct request_queue *queue)
+ 		DPRINT_DBG(BLKVSC_DRV, "- req %p\n", req);
+ 
+ 		blkdev = req->rq_disk->private_data;
+-		if (blkdev->shutting_down || req->cmd_type != REQ_TYPE_FS ||
+-		    blkdev->media_not_present) {
++		if (blkdev->shutting_down || req->cmd_type != REQ_TYPE_FS) {
+ 			__blk_end_request_cur(req, 0);
+ 			continue;
+ 		}
 -- 
 1.7.4.1
