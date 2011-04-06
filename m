@@ -1,80 +1,77 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 02/22] Staging: hv: Get rid of the forward declaration of
-	blkvsc_check_events()
-Date: Wed,  6 Apr 2011 14:35:00 -0700
-Message-ID: <1302125720-10808-2-git-send-email-kys@microsoft.com>
+Subject: [PATCH 15/22] Staging: hv: Get rid of the forward declaration of blkvsc_revalidate_disk()
+Date: Wed,  6 Apr 2011 14:35:13 -0700
+Message-ID: <1302125720-10808-15-git-send-email-kys@microsoft.com>
 References: <1302125655-10741-1-git-send-email-kys@microsoft.com>
-	<1302125720-10808-1-git-send-email-kys@microsoft.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <devel-bounces@linuxdriverproject.org>
+ <1302125720-10808-1-git-send-email-kys@microsoft.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1302125720-10808-1-git-send-email-kys@microsoft.com>
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
-List-Post: <mailto:devel@linuxdriverproject.org>
-List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
-Sender: devel-bounces@linuxdriverproject.org
-Errors-To: devel-bounces@linuxdriverproject.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org
-Cc: Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>
+Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>, Hank Janssen <hjanssen@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Get rid of the forward declaration of  blkvsc_check_events()  
-by moving the code around.
+Get rid of the forward declaration of blkvsc_revalidate_disk() by moving
+the code around.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/blkvsc_drv.c |   17 ++++++++---------
- 1 files changed, 8 insertions(+), 9 deletions(-)
+ drivers/staging/hv/blkvsc_drv.c |   31 +++++++++++++++----------------
+ 1 files changed, 15 insertions(+), 16 deletions(-)
 
 diff --git a/drivers/staging/hv/blkvsc_drv.c b/drivers/staging/hv/blkvsc_drv.c
-index efcc916..4452700 100644
+index 49caad7..35dacf0 100644
 --- a/drivers/staging/hv/blkvsc_drv.c
 +++ b/drivers/staging/hv/blkvsc_drv.c
-@@ -243,6 +243,14 @@ static int blkvsc_submit_request(struct blkvsc_request *blkvsc_req,
- }
- 
- 
-+static unsigned int blkvsc_check_events(struct gendisk *gd,
-+					unsigned int clearing)
-+{
-+	DPRINT_DBG(BLKVSC_DRV, "- enter\n");
-+	return DISK_EVENT_MEDIA_CHANGE;
-+}
-+
-+
- /* Static decl */
- static DEFINE_MUTEX(blkvsc_mutex);
- static int blkvsc_probe(struct device *dev);
-@@ -251,8 +259,6 @@ static void blkvsc_shutdown(struct device *device);
- 
- static int blkvsc_open(struct block_device *bdev,  fmode_t mode);
- static int blkvsc_release(struct gendisk *disk, fmode_t mode);
--static unsigned int blkvsc_check_events(struct gendisk *gd,
--					unsigned int clearing);
- static int blkvsc_revalidate_disk(struct gendisk *gd);
- static int blkvsc_getgeo(struct block_device *bd, struct hd_geometry *hg);
- static int blkvsc_ioctl(struct block_device *bd, fmode_t mode,
-@@ -1407,13 +1413,6 @@ static int blkvsc_release(struct gendisk *disk, fmode_t mode)
+@@ -861,9 +861,23 @@ static int blkvsc_do_read_capacity16(struct block_device_context *blkdev)
  	return 0;
  }
  
--static unsigned int blkvsc_check_events(struct gendisk *gd,
--					unsigned int clearing)
++static int blkvsc_revalidate_disk(struct gendisk *gd)
++{
++	struct block_device_context *blkdev = gd->private_data;
++
++	DPRINT_DBG(BLKVSC_DRV, "- enter\n");
++
++	if (blkdev->device_type == DVD_TYPE) {
++		blkvsc_do_read_capacity(blkdev);
++		set_capacity(blkdev->gd, blkdev->capacity *
++			    (blkdev->sector_size/512));
++		blk_queue_logical_block_size(gd->queue, blkdev->sector_size);
++	}
++	return 0;
++}
++
+ /* Static decl */
+ static int blkvsc_probe(struct device *dev);
+-static int blkvsc_revalidate_disk(struct gendisk *gd);
+ static void blkvsc_request(struct request_queue *queue);
+ static void blkvsc_request_completion(struct hv_storvsc_request *request);
+ static int blkvsc_do_request(struct block_device_context *blkdev,
+@@ -1513,21 +1527,6 @@ static void blkvsc_request(struct request_queue *queue)
+ 	}
+ }
+ 
+-static int blkvsc_revalidate_disk(struct gendisk *gd)
 -{
+-	struct block_device_context *blkdev = gd->private_data;
+-
 -	DPRINT_DBG(BLKVSC_DRV, "- enter\n");
--	return DISK_EVENT_MEDIA_CHANGE;
+-
+-	if (blkdev->device_type == DVD_TYPE) {
+-		blkvsc_do_read_capacity(blkdev);
+-		set_capacity(blkdev->gd, blkdev->capacity *
+-			    (blkdev->sector_size/512));
+-		blk_queue_logical_block_size(gd->queue, blkdev->sector_size);
+-	}
+-	return 0;
 -}
 -
- static int blkvsc_revalidate_disk(struct gendisk *gd)
+ static int __init blkvsc_init(void)
  {
- 	struct block_device_context *blkdev = gd->private_data;
+ 	int ret;
 -- 
 1.7.4.1
