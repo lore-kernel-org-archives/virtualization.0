@@ -1,8 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 08/22] Staging: hv: Get rid of the forward declaration of
-	blkvsc_do_flush()
-Date: Wed,  6 Apr 2011 14:35:06 -0700
-Message-ID: <1302125720-10808-8-git-send-email-kys@microsoft.com>
+Subject: [PATCH 11/22] Staging: hv: Get rid of the forward declaration of
+	blkvsc_shutdown()
+Date: Wed,  6 Apr 2011 14:35:09 -0700
+Message-ID: <1302125720-10808-11-git-send-email-kys@microsoft.com>
 References: <1302125655-10741-1-git-send-email-kys@microsoft.com>
 	<1302125720-10808-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -23,108 +23,102 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Get rid of the forward declaration of blkvsc_do_flush() by moving the code
-around.
+Get rid of the forward declaration of blkvsc_shutdown() by moving the
+code around.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/blkvsc_drv.c |   71 +++++++++++++++++++--------------------
- 1 files changed, 35 insertions(+), 36 deletions(-)
+ drivers/staging/hv/blkvsc_drv.c |   70 +++++++++++++++++++--------------------
+ 1 files changed, 34 insertions(+), 36 deletions(-)
 
 diff --git a/drivers/staging/hv/blkvsc_drv.c b/drivers/staging/hv/blkvsc_drv.c
-index 068daee..94f090e 100644
+index a98ed8f..1fb68b7 100644
 --- a/drivers/staging/hv/blkvsc_drv.c
 +++ b/drivers/staging/hv/blkvsc_drv.c
-@@ -465,6 +465,41 @@ static void blkvsc_cmd_completion(struct hv_storvsc_request *request)
- 	complete(&blkvsc_req->request.wait_event);
+@@ -645,10 +645,42 @@ static int blkvsc_remove(struct device *device)
+ 	return ret;
  }
  
-+static int blkvsc_do_flush(struct block_device_context *blkdev)
++static void blkvsc_shutdown(struct device *device)
 +{
-+	struct blkvsc_request *blkvsc_req;
++	struct block_device_context *blkdev = dev_get_drvdata(device);
++	unsigned long flags;
 +
-+	DPRINT_DBG(BLKVSC_DRV, "blkvsc_do_flush()\n");
++	if (!blkdev)
++		return;
 +
-+	if (blkdev->device_type != HARDDISK_TYPE)
-+		return 0;
++	DPRINT_DBG(BLKVSC_DRV, "blkvsc_shutdown - users %d disk %s\n",
++		   blkdev->users, blkdev->gd->disk_name);
 +
-+	blkvsc_req = kmem_cache_zalloc(blkdev->request_pool, GFP_KERNEL);
-+	if (!blkvsc_req)
-+		return -ENOMEM;
++	spin_lock_irqsave(&blkdev->lock, flags);
 +
-+	memset(blkvsc_req, 0, sizeof(struct blkvsc_request));
-+	init_completion(&blkvsc_req->request.wait_event);
-+	blkvsc_req->dev = blkdev;
-+	blkvsc_req->req = NULL;
-+	blkvsc_req->write = 0;
++	blkdev->shutting_down = 1;
 +
-+	blkvsc_req->request.data_buffer.pfn_array[0] = 0;
-+	blkvsc_req->request.data_buffer.offset = 0;
-+	blkvsc_req->request.data_buffer.len = 0;
++	blk_stop_queue(blkdev->gd->queue);
 +
-+	blkvsc_req->cmnd[0] = SYNCHRONIZE_CACHE;
-+	blkvsc_req->cmd_len = 10;
++	spin_unlock_irqrestore(&blkdev->lock, flags);
 +
-+	blkvsc_submit_request(blkvsc_req, blkvsc_cmd_completion);
++	while (blkdev->num_outstanding_reqs) {
++		DPRINT_INFO(STORVSC, "waiting for %d requests to complete...",
++			    blkdev->num_outstanding_reqs);
++		udelay(100);
++	}
 +
-+	wait_for_completion_interruptible(&blkvsc_req->request.wait_event);
++	blkvsc_do_flush(blkdev);
 +
-+	kmem_cache_free(blkvsc_req->dev->request_pool, blkvsc_req);
++	spin_lock_irqsave(&blkdev->lock, flags);
 +
-+	return 0;
++	blkvsc_cancel_pending_reqs(blkdev);
++
++	spin_unlock_irqrestore(&blkdev->lock, flags);
 +}
 +
- 
  /* Static decl */
  static int blkvsc_probe(struct device *dev);
-@@ -480,7 +515,6 @@ static int blkvsc_do_request(struct block_device_context *blkdev,
- static int blkvsc_do_inquiry(struct block_device_context *blkdev);
- static int blkvsc_do_read_capacity(struct block_device_context *blkdev);
- static int blkvsc_do_read_capacity16(struct block_device_context *blkdev);
--static int blkvsc_do_flush(struct block_device_context *blkdev);
- static int blkvsc_cancel_pending_reqs(struct block_device_context *blkdev);
- static int blkvsc_do_pending_reqs(struct block_device_context *blkdev);
- 
-@@ -771,41 +805,6 @@ static void blkvsc_shutdown(struct device *device)
- 	spin_unlock_irqrestore(&blkdev->lock, flags);
+-static void blkvsc_shutdown(struct device *device);
+-
+ static int blkvsc_release(struct gendisk *disk, fmode_t mode);
+ static int blkvsc_revalidate_disk(struct gendisk *gd);
+ static void blkvsc_request(struct request_queue *queue);
+@@ -913,40 +945,6 @@ Cleanup:
+ 	return ret;
  }
  
--static int blkvsc_do_flush(struct block_device_context *blkdev)
+-static void blkvsc_shutdown(struct device *device)
 -{
--	struct blkvsc_request *blkvsc_req;
+-	struct block_device_context *blkdev = dev_get_drvdata(device);
+-	unsigned long flags;
 -
--	DPRINT_DBG(BLKVSC_DRV, "blkvsc_do_flush()\n");
+-	if (!blkdev)
+-		return;
 -
--	if (blkdev->device_type != HARDDISK_TYPE)
--		return 0;
+-	DPRINT_DBG(BLKVSC_DRV, "blkvsc_shutdown - users %d disk %s\n",
+-		   blkdev->users, blkdev->gd->disk_name);
 -
--	blkvsc_req = kmem_cache_zalloc(blkdev->request_pool, GFP_KERNEL);
--	if (!blkvsc_req)
--		return -ENOMEM;
+-	spin_lock_irqsave(&blkdev->lock, flags);
 -
--	memset(blkvsc_req, 0, sizeof(struct blkvsc_request));
--	init_completion(&blkvsc_req->request.wait_event);
--	blkvsc_req->dev = blkdev;
--	blkvsc_req->req = NULL;
--	blkvsc_req->write = 0;
+-	blkdev->shutting_down = 1;
 -
--	blkvsc_req->request.data_buffer.pfn_array[0] = 0;
--	blkvsc_req->request.data_buffer.offset = 0;
--	blkvsc_req->request.data_buffer.len = 0;
+-	blk_stop_queue(blkdev->gd->queue);
 -
--	blkvsc_req->cmnd[0] = SYNCHRONIZE_CACHE;
--	blkvsc_req->cmd_len = 10;
+-	spin_unlock_irqrestore(&blkdev->lock, flags);
 -
--	blkvsc_submit_request(blkvsc_req, blkvsc_cmd_completion);
+-	while (blkdev->num_outstanding_reqs) {
+-		DPRINT_INFO(STORVSC, "waiting for %d requests to complete...",
+-			    blkdev->num_outstanding_reqs);
+-		udelay(100);
+-	}
 -
--	wait_for_completion_interruptible(&blkvsc_req->request.wait_event);
+-	blkvsc_do_flush(blkdev);
 -
--	kmem_cache_free(blkvsc_req->dev->request_pool, blkvsc_req);
+-	spin_lock_irqsave(&blkdev->lock, flags);
 -
--	return 0;
+-	blkvsc_cancel_pending_reqs(blkdev);
+-
+-	spin_unlock_irqrestore(&blkdev->lock, flags);
 -}
 -
  /* Do a scsi INQUIRY cmd here to get the device type (ie disk or dvd) */
