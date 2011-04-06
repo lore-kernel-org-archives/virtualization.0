@@ -1,7 +1,7 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 14/22] Staging: hv: Cleanup storvsc_remove()
-Date: Wed,  6 Apr 2011 16:05:14 -0700
-Message-ID: <1302131122-15530-14-git-send-email-kys@microsoft.com>
+Subject: [PATCH 20/22] Staging: hv: Fix a jump label (Remove) in blkvsc_drv.c
+Date: Wed,  6 Apr 2011 16:05:20 -0700
+Message-ID: <1302131122-15530-20-git-send-email-kys@microsoft.com>
 References: <1302131006-15411-1-git-send-email-kys@microsoft.com>
 	<1302131122-15530-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -22,57 +22,45 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-storvsc_remove() cannot fail, clean it up accordingly.
+One of the jump labels was named Remove; change it to remove.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/storvsc_drv.c |   14 ++------------
- 1 files changed, 2 insertions(+), 12 deletions(-)
+ drivers/staging/hv/blkvsc_drv.c |    6 +++---
+ 1 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
-index ae61735..f819c6a 100644
---- a/drivers/staging/hv/storvsc_drv.c
-+++ b/drivers/staging/hv/storvsc_drv.c
-@@ -404,7 +404,6 @@ static int storvsc_probe(struct device *device)
-  */
- static int storvsc_remove(struct device *device)
- {
--	int ret;
- 	struct hv_driver *drv =
- 			drv_to_hv_drv(device->driver);
- 	struct storvsc_driver_object *storvsc_drv_obj = drv->priv;
-@@ -413,20 +412,11 @@ static int storvsc_remove(struct device *device)
- 	struct host_device_context *host_device_ctx =
- 			(struct host_device_context *)host->hostdata;
+diff --git a/drivers/staging/hv/blkvsc_drv.c b/drivers/staging/hv/blkvsc_drv.c
+index a47581c..3229ebc 100644
+--- a/drivers/staging/hv/blkvsc_drv.c
++++ b/drivers/staging/hv/blkvsc_drv.c
+@@ -1005,7 +1005,7 @@ static int blkvsc_probe(struct device *device)
+ 				DPRINT_ERR(BLKVSC_DRV,
+ 					   "register_blkdev() failed! ret %d",
+ 					   ret);
+-				goto Remove;
++				goto remove;
+ 			}
  
--
--	if (!storvsc_drv_obj->base.dev_rm)
--		return -1;
--
- 	/*
- 	 * Call to the vsc driver to let it know that the device is being
- 	 * removed
- 	 */
--	ret = storvsc_drv_obj->base.dev_rm(device_obj);
--	if (ret != 0) {
--		/* TODO: */
--		DPRINT_ERR(STORVSC, "unable to remove vsc device (ret %d)",
--			   ret);
--	}
-+	storvsc_drv_obj->base.dev_rm(device_obj);
+ 			ide0_registered = 1;
+@@ -1020,7 +1020,7 @@ static int blkvsc_probe(struct device *device)
+ 				DPRINT_ERR(BLKVSC_DRV,
+ 					   "register_blkdev() failed! ret %d",
+ 					   ret);
+-				goto Remove;
++				goto remove;
+ 			}
  
- 	if (host_device_ctx->request_pool) {
- 		kmem_cache_destroy(host_device_ctx->request_pool);
-@@ -438,7 +428,7 @@ static int storvsc_remove(struct device *device)
+ 			ide1_registered = 1;
+@@ -1071,7 +1071,7 @@ static int blkvsc_probe(struct device *device)
  
- 	DPRINT_INFO(STORVSC, "releasing host adapter (%p)...", host);
- 	scsi_host_put(host);
--	return ret;
-+	return 0;
- }
+ 	return ret;
  
- /*
+-Remove:
++remove:
+ 	storvsc_drv_obj->base.dev_rm(device_obj);
+ 
+ cleanup:
 -- 
 1.7.4.1
