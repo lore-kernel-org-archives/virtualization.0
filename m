@@ -1,7 +1,7 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 07/22] Staging: hv: Get rid of the function blkvsc_do_flush()
-Date: Wed,  6 Apr 2011 16:05:07 -0700
-Message-ID: <1302131122-15530-7-git-send-email-kys@microsoft.com>
+Subject: [PATCH 16/22] Staging: hv: Get rid of some DPRINT_ERR() calls
+Date: Wed,  6 Apr 2011 16:05:16 -0700
+Message-ID: <1302131122-15530-16-git-send-email-kys@microsoft.com>
 References: <1302131006-15411-1-git-send-email-kys@microsoft.com>
 	<1302131122-15530-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -22,120 +22,63 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Get rid of the function blkvsc_do_flush() and instead use the common function
-to force a device flush.
+Get rid of some DPRINT_ERR() calls.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/blkvsc_drv.c |   52 ++++++++++----------------------------
- 1 files changed, 14 insertions(+), 38 deletions(-)
+ drivers/staging/hv/blkvsc_drv.c |    9 +++------
+ 1 files changed, 3 insertions(+), 6 deletions(-)
 
 diff --git a/drivers/staging/hv/blkvsc_drv.c b/drivers/staging/hv/blkvsc_drv.c
-index 7fab3c7..a7ae437 100644
+index 92614d5..35ad3d5 100644
 --- a/drivers/staging/hv/blkvsc_drv.c
 +++ b/drivers/staging/hv/blkvsc_drv.c
-@@ -49,6 +49,7 @@ enum blkvsc_device_type {
- enum blkvsc_op_type {
- 	DO_INQUIRY,
- 	DO_CAPACITY,
-+	DO_FLUSH,
- };
+@@ -17,6 +17,8 @@
+  * Authors:
+  *   Haiyang Zhang <haiyangz@microsoft.com>
+  *   Hank Janssen  <hjanssen@microsoft.com>
++ *
++ * 4/3/2011: K. Y. Srinivasan - Significant restructuring and cleanup.
+  */
+ #include <linux/init.h>
+ #include <linux/module.h>
+@@ -967,7 +969,6 @@ static int blkvsc_probe(struct device *device)
  
- /*
-@@ -451,6 +452,13 @@ static int blkvsc_do_operation(struct block_device_context *blkdev,
- 		blkvsc_req->cmd_len = 16;
- 		blkvsc_req->request.data_buffer.len = 8;
- 		break;
-+
-+	case DO_FLUSH:
-+		blkvsc_req->cmnd[0] = SYNCHRONIZE_CACHE;
-+		blkvsc_req->cmd_len = 10;
-+		blkvsc_req->request.data_buffer.pfn_array[0] = 0;
-+		blkvsc_req->request.data_buffer.len = 0;
-+		break;
- 	default:
- 		ret = -EINVAL;
- 		goto cleanup;
-@@ -502,6 +510,9 @@ static int blkvsc_do_operation(struct block_device_context *blkdev,
- 		(buf[4] << 24) | (buf[5] << 16) |
- 		(buf[6] << 8) | buf[7];
- 		break;
-+	default:
-+		break;
-+
+ 
+ 	if (!storvsc_drv_obj->base.dev_add) {
+-		DPRINT_ERR(BLKVSC_DRV, "OnDeviceAdd() not set");
+ 		ret = -1;
+ 		goto Cleanup;
  	}
+@@ -995,10 +996,8 @@ static int blkvsc_probe(struct device *device)
  
- cleanup:
-@@ -515,41 +526,6 @@ cleanup:
- 	return ret;
- }
+ 	/* Call to the vsc driver to add the device */
+ 	ret = storvsc_drv_obj->base.dev_add(device_obj, &device_info);
+-	if (ret != 0) {
+-		DPRINT_ERR(BLKVSC_DRV, "unable to add blkvsc device");
++	if (ret != 0)
+ 		goto Cleanup;
+-	}
  
--static int blkvsc_do_flush(struct block_device_context *blkdev)
--{
--	struct blkvsc_request *blkvsc_req;
--
--	DPRINT_DBG(BLKVSC_DRV, "blkvsc_do_flush()\n");
--
--	if (blkdev->device_type != HARDDISK_TYPE)
--		return 0;
--
--	blkvsc_req = kmem_cache_zalloc(blkdev->request_pool, GFP_KERNEL);
--	if (!blkvsc_req)
--		return -ENOMEM;
--
--	memset(blkvsc_req, 0, sizeof(struct blkvsc_request));
--	init_completion(&blkvsc_req->request.wait_event);
--	blkvsc_req->dev = blkdev;
--	blkvsc_req->req = NULL;
--	blkvsc_req->write = 0;
--
--	blkvsc_req->request.data_buffer.pfn_array[0] = 0;
--	blkvsc_req->request.data_buffer.offset = 0;
--	blkvsc_req->request.data_buffer.len = 0;
--
--	blkvsc_req->cmnd[0] = SYNCHRONIZE_CACHE;
--	blkvsc_req->cmd_len = 10;
--
--	blkvsc_submit_request(blkvsc_req, blkvsc_cmd_completion);
--
--	wait_for_completion_interruptible(&blkvsc_req->request.wait_event);
--
--	kmem_cache_free(blkvsc_req->dev->request_pool, blkvsc_req);
--
--	return 0;
--}
--
- 
- static int blkvsc_cancel_pending_reqs(struct block_device_context *blkdev)
- {
-@@ -676,7 +652,7 @@ static int blkvsc_remove(struct device *device)
- 		udelay(100);
+ 	blkdev->device_ctx = device_obj;
+ 	/* this identified the device 0 or 1 */
+@@ -1040,7 +1039,6 @@ static int blkvsc_probe(struct device *device)
+ 			ide1_registered = 1;
+ 		}
+ 	} else {
+-		DPRINT_ERR(BLKVSC_DRV, "invalid pathid");
+ 		ret = -1;
+ 		goto Cleanup;
  	}
+@@ -1049,7 +1047,6 @@ static int blkvsc_probe(struct device *device)
  
--	blkvsc_do_flush(blkdev);
-+	blkvsc_do_operation(blkdev, DO_FLUSH);
- 
- 	spin_lock_irqsave(&blkdev->lock, flags);
- 
-@@ -720,7 +696,7 @@ static void blkvsc_shutdown(struct device *device)
- 		udelay(100);
+ 	blkdev->gd = alloc_disk(BLKVSC_MINORS);
+ 	if (!blkdev->gd) {
+-		DPRINT_ERR(BLKVSC_DRV, "register_blkdev() failed! ret %d", ret);
+ 		ret = -1;
+ 		goto Cleanup;
  	}
- 
--	blkvsc_do_flush(blkdev);
-+	blkvsc_do_operation(blkdev, DO_FLUSH);
- 
- 	spin_lock_irqsave(&blkdev->lock, flags);
- 
-@@ -740,7 +716,7 @@ static int blkvsc_release(struct gendisk *disk, fmode_t mode)
- 	spin_lock(&blkdev->lock);
- 	if (blkdev->users == 1) {
- 		spin_unlock(&blkdev->lock);
--		blkvsc_do_flush(blkdev);
-+		blkvsc_do_operation(blkdev, DO_FLUSH);
- 		spin_lock(&blkdev->lock);
- 	}
- 
 -- 
 1.7.4.1
