@@ -1,8 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 07/22] Staging: hv: Get rid of the forward declaration of
-	blkvsc_cmd_completion()
-Date: Wed,  6 Apr 2011 14:35:05 -0700
-Message-ID: <1302125720-10808-7-git-send-email-kys@microsoft.com>
+Subject: [PATCH 21/22] Staging: hv: Move module parameter to earlier in the
+	file
+Date: Wed,  6 Apr 2011 14:35:19 -0700
+Message-ID: <1302125720-10808-21-git-send-email-kys@microsoft.com>
 References: <1302125655-10741-1-git-send-email-kys@microsoft.com>
 	<1302125720-10808-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -23,89 +23,39 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Get rid of the forward declaration of blkvsc_cmd_completion() by moving the
-code  around.
+Move module parameter to be earlier in the file.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/blkvsc_drv.c |   48 +++++++++++++++++++-------------------
- 1 files changed, 24 insertions(+), 24 deletions(-)
+ drivers/staging/hv/blkvsc_drv.c |    6 +++---
+ 1 files changed, 3 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/staging/hv/blkvsc_drv.c b/drivers/staging/hv/blkvsc_drv.c
-index a16f38c..068daee 100644
+index 865b4dc..6ad1cad 100644
 --- a/drivers/staging/hv/blkvsc_drv.c
 +++ b/drivers/staging/hv/blkvsc_drv.c
-@@ -442,6 +442,30 @@ static int blkvsc_ioctl(struct block_device *bd, fmode_t mode,
- 	return ret;
+@@ -126,6 +126,9 @@ static void blkvsc_request_completion(struct hv_storvsc_request *request);
+ 
+ static int blkvsc_ringbuffer_size = BLKVSC_RING_BUFFER_SIZE;
+ 
++module_param(blkvsc_ringbuffer_size, int, S_IRUGO);
++MODULE_PARM_DESC(ring_size, "Ring buffer size (in bytes)");
++
+ /*
+  * There is a circular dependency involving blkvsc_probe()
+  * and block_ops.
+@@ -1222,9 +1225,6 @@ static void blkvsc_request(struct request_queue *queue)
  }
  
-+static void blkvsc_cmd_completion(struct hv_storvsc_request *request)
-+{
-+	struct blkvsc_request *blkvsc_req =
-+			(struct blkvsc_request *)request->context;
-+	struct block_device_context *blkdev =
-+			(struct block_device_context *)blkvsc_req->dev;
-+	struct scsi_sense_hdr sense_hdr;
-+	struct vmscsi_request *vm_srb;
-+
-+	DPRINT_DBG(BLKVSC_DRV, "blkvsc_cmd_completion() - req %p\n",
-+		   blkvsc_req);
-+
-+	vm_srb = &blkvsc_req->request.vstor_packet.vm_srb;
-+	blkdev->num_outstanding_reqs--;
-+
-+	if (vm_srb->scsi_status)
-+		if (scsi_normalize_sense(blkvsc_req->sense_buffer,
-+					 SCSI_SENSE_BUFFERSIZE, &sense_hdr))
-+			scsi_print_sense_hdr("blkvsc", &sense_hdr);
-+
-+	complete(&blkvsc_req->request.wait_event);
-+}
-+
-+
- /* Static decl */
- static int blkvsc_probe(struct device *dev);
- static int blkvsc_remove(struct device *device);
-@@ -453,7 +477,6 @@ static void blkvsc_request(struct request_queue *queue);
- static void blkvsc_request_completion(struct hv_storvsc_request *request);
- static int blkvsc_do_request(struct block_device_context *blkdev,
- 			     struct request *req);
--static void blkvsc_cmd_completion(struct hv_storvsc_request *request);
- static int blkvsc_do_inquiry(struct block_device_context *blkdev);
- static int blkvsc_do_read_capacity(struct block_device_context *blkdev);
- static int blkvsc_do_read_capacity16(struct block_device_context *blkdev);
-@@ -1257,29 +1280,6 @@ static int blkvsc_do_request(struct block_device_context *blkdev,
- 	return pending;
- }
  
--static void blkvsc_cmd_completion(struct hv_storvsc_request *request)
--{
--	struct blkvsc_request *blkvsc_req =
--			(struct blkvsc_request *)request->context;
--	struct block_device_context *blkdev =
--			(struct block_device_context *)blkvsc_req->dev;
--	struct scsi_sense_hdr sense_hdr;
--	struct vmscsi_request *vm_srb;
+-module_param(blkvsc_ringbuffer_size, int, S_IRUGO);
+-MODULE_PARM_DESC(ring_size, "Ring buffer size (in bytes)");
 -
--	DPRINT_DBG(BLKVSC_DRV, "blkvsc_cmd_completion() - req %p\n",
--		   blkvsc_req);
--
--	vm_srb = &blkvsc_req->request.vstor_packet.vm_srb;
--	blkdev->num_outstanding_reqs--;
--
--	if (vm_srb->scsi_status)
--		if (scsi_normalize_sense(blkvsc_req->sense_buffer,
--					 SCSI_SENSE_BUFFERSIZE, &sense_hdr))
--			scsi_print_sense_hdr("blkvsc", &sense_hdr);
--
--	complete(&blkvsc_req->request.wait_event);
--}
--
- static void blkvsc_request_completion(struct hv_storvsc_request *request)
- {
- 	struct blkvsc_request *blkvsc_req =
+ /* The one and only one */
+ static  struct storvsc_driver_object g_blkvsc_drv;
+ 
 -- 
 1.7.4.1
