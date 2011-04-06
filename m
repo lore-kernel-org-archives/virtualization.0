@@ -1,7 +1,7 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 20/22] Staging: hv: Fix a jump label (Remove) in blkvsc_drv.c
-Date: Wed,  6 Apr 2011 16:05:20 -0700
-Message-ID: <1302131122-15530-20-git-send-email-kys@microsoft.com>
+Subject: [PATCH 13/22] Staging: hv: Cleanup blkvsc_remove()
+Date: Wed,  6 Apr 2011 16:05:13 -0700
+Message-ID: <1302131122-15530-13-git-send-email-kys@microsoft.com>
 References: <1302131006-15411-1-git-send-email-kys@microsoft.com>
 	<1302131122-15530-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -22,45 +22,52 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-One of the jump labels was named Remove; change it to remove.
+blkvsc_remove() cannot fail. Clean it up accordingly.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/blkvsc_drv.c |    6 +++---
- 1 files changed, 3 insertions(+), 3 deletions(-)
+ drivers/staging/hv/blkvsc_drv.c |   15 +++------------
+ 1 files changed, 3 insertions(+), 12 deletions(-)
 
 diff --git a/drivers/staging/hv/blkvsc_drv.c b/drivers/staging/hv/blkvsc_drv.c
-index a47581c..3229ebc 100644
+index 58d4a2d..7974e6c 100644
 --- a/drivers/staging/hv/blkvsc_drv.c
 +++ b/drivers/staging/hv/blkvsc_drv.c
-@@ -1005,7 +1005,7 @@ static int blkvsc_probe(struct device *device)
- 				DPRINT_ERR(BLKVSC_DRV,
- 					   "register_blkdev() failed! ret %d",
- 					   ret);
--				goto Remove;
-+				goto remove;
- 			}
+@@ -556,22 +556,12 @@ static int blkvsc_remove(struct device *device)
+ 	struct hv_device *device_obj = device_to_hv_device(device);
+ 	struct block_device_context *blkdev = dev_get_drvdata(device);
+ 	unsigned long flags;
+-	int ret;
+-
+-
+-	if (!storvsc_drv_obj->base.dev_rm)
+-		return -1;
  
- 			ide0_registered = 1;
-@@ -1020,7 +1020,7 @@ static int blkvsc_probe(struct device *device)
- 				DPRINT_ERR(BLKVSC_DRV,
- 					   "register_blkdev() failed! ret %d",
- 					   ret);
--				goto Remove;
-+				goto remove;
- 			}
+ 	/*
+ 	 * Call to the vsc driver to let it know that the device is being
+ 	 * removed
+ 	 */
+-	ret = storvsc_drv_obj->base.dev_rm(device_obj);
+-	if (ret != 0) {
+-		/* TODO: */
+-		DPRINT_ERR(BLKVSC_DRV,
+-			   "unable to remove blkvsc device (ret %d)", ret);
+-	}
++	storvsc_drv_obj->base.dev_rm(device_obj);
  
- 			ide1_registered = 1;
-@@ -1071,7 +1071,7 @@ static int blkvsc_probe(struct device *device)
+ 	/* Get to a known state */
+ 	spin_lock_irqsave(&blkdev->lock, flags);
+@@ -604,7 +594,8 @@ static int blkvsc_remove(struct device *device)
  
- 	return ret;
+ 	kfree(blkdev);
  
--Remove:
-+remove:
- 	storvsc_drv_obj->base.dev_rm(device_obj);
+-	return ret;
++	return 0;
++
+ }
  
- cleanup:
+ static void blkvsc_shutdown(struct device *device)
 -- 
 1.7.4.1
