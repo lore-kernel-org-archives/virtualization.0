@@ -1,7 +1,7 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 17/22] Staging: hv: Get rid of the forward declaration for blkvsc_do_request()
-Date: Wed,  6 Apr 2011 14:35:15 -0700
-Message-ID: <1302125720-10808-17-git-send-email-kys@microsoft.com>
+Subject: [PATCH 13/22] Staging: hv: Get rid of the forward declaration for blkvsc_do_read_capacity()
+Date: Wed,  6 Apr 2011 14:35:11 -0700
+Message-ID: <1302125720-10808-13-git-send-email-kys@microsoft.com>
 References: <1302125655-10741-1-git-send-email-kys@microsoft.com>
  <1302125720-10808-1-git-send-email-kys@microsoft.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
@@ -11,414 +11,193 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>, Hank Janssen <hjanssen@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Get rid of the forward declaration for blkvsc_do_request() by moving the
-code around.
+Get rid of the forward declaration for blkvsc_do_read_capacity() by moving
+the code around.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/blkvsc_drv.c |  370 ++++++++++++++++++++-------------------
- 1 files changed, 193 insertions(+), 177 deletions(-)
+ drivers/staging/hv/blkvsc_drv.c |  152 +++++++++++++++++++-------------------
+ 1 files changed, 76 insertions(+), 76 deletions(-)
 
 diff --git a/drivers/staging/hv/blkvsc_drv.c b/drivers/staging/hv/blkvsc_drv.c
-index f7bf42f..9d4fcbd 100644
+index 799f5ad..dedb5a36 100644
 --- a/drivers/staging/hv/blkvsc_drv.c
 +++ b/drivers/staging/hv/blkvsc_drv.c
-@@ -118,6 +118,12 @@ static const struct hv_guid g_blk_device_type = {
- 	}
- };
- 
-+/*
-+ * There is a circular dependency involving blkvsc_request_completion()
-+ * and blkvsc_do_request().
-+ */
-+static void blkvsc_request_completion(struct hv_storvsc_request *request);
-+
- static int blk_vsc_on_device_add(struct hv_device *device,
- 				void *additional_info)
- {
-@@ -955,12 +961,196 @@ static int blkvsc_do_inquiry(struct block_device_context *blkdev)
+@@ -701,6 +701,82 @@ static int blkvsc_release(struct gendisk *disk, fmode_t mode)
  	return 0;
  }
  
 +
-+/*
-+ * We break the request into 1 or more blkvsc_requests and submit
-+ * them.  If we cant submit them all, we put them on the
-+ * pending_list. The blkvsc_request() will work on the pending_list.
-+ */
-+static int blkvsc_do_request(struct block_device_context *blkdev,
-+			     struct request *req)
++/* Do a scsi READ_CAPACITY cmd here to get the size of the disk */
++static int blkvsc_do_read_capacity(struct block_device_context *blkdev)
 +{
-+	struct bio *bio = NULL;
-+	struct bio_vec *bvec = NULL;
-+	struct bio_vec *prev_bvec = NULL;
-+	struct blkvsc_request *blkvsc_req = NULL;
-+	struct blkvsc_request *tmp;
-+	int databuf_idx = 0;
-+	int seg_idx = 0;
-+	sector_t start_sector;
-+	unsigned long num_sectors = 0;
-+	int ret = 0;
-+	int pending = 0;
-+	struct blkvsc_request_group *group = NULL;
++	struct blkvsc_request *blkvsc_req;
++	struct page *page_buf;
++	unsigned char *buf;
++	struct scsi_sense_hdr sense_hdr;
++	struct vmscsi_request *vm_srb;
 +
-+	DPRINT_DBG(BLKVSC_DRV, "blkdev %p req %p sect %lu\n", blkdev, req,
-+		  (unsigned long)blk_rq_pos(req));
++	DPRINT_DBG(BLKVSC_DRV, "blkvsc_do_read_capacity()\n");
 +
-+	/* Create a group to tie req to list of blkvsc_reqs */
-+	group = kmem_cache_zalloc(blkdev->request_pool, GFP_ATOMIC);
-+	if (!group)
++	blkdev->sector_size = 0;
++	blkdev->capacity = 0;
++	blkdev->media_not_present = 0; /* assume a disk is present */
++
++	blkvsc_req = kmem_cache_zalloc(blkdev->request_pool, GFP_KERNEL);
++	if (!blkvsc_req)
 +		return -ENOMEM;
 +
-+	INIT_LIST_HEAD(&group->blkvsc_req_list);
-+	group->outstanding = group->status = 0;
-+
-+	start_sector = blk_rq_pos(req);
-+
-+	/* foreach bio in the request */
-+	if (req->bio) {
-+		for (bio = req->bio; bio; bio = bio->bi_next) {
-+			/*
-+			 * Map this bio into an existing or new storvsc request
-+			 */
-+			bio_for_each_segment(bvec, bio, seg_idx) {
-+				DPRINT_DBG(BLKVSC_DRV, "bio_for_each_segment() "
-+					   "- req %p bio %p bvec %p seg_idx %d "
-+					   "databuf_idx %d\n", req, bio, bvec,
-+					   seg_idx, databuf_idx);
-+
-+				/* Get a new storvsc request */
-+				/* 1st-time */
-+				if ((!blkvsc_req) ||
-+				    (databuf_idx >= MAX_MULTIPAGE_BUFFER_COUNT)
-+				    /* hole at the begin of page */
-+				    || (bvec->bv_offset != 0) ||
-+				    /* hold at the end of page */
-+				    (prev_bvec &&
-+				     (prev_bvec->bv_len != PAGE_SIZE))) {
-+					/* submit the prev one */
-+					if (blkvsc_req) {
-+						blkvsc_req->sector_start =
-+						start_sector;
-+						sector_div(
-+						blkvsc_req->sector_start,
-+						(blkdev->sector_size >> 9));
-+
-+						blkvsc_req->sector_count =
-+						num_sectors /
-+						(blkdev->sector_size >> 9);
-+						blkvsc_init_rw(blkvsc_req);
-+					}
-+
-+					/*
-+					 * Create new blkvsc_req to represent
-+					 * the current bvec
-+					 */
-+					blkvsc_req =
-+					kmem_cache_zalloc(
-+					blkdev->request_pool, GFP_ATOMIC);
-+					if (!blkvsc_req) {
-+						/* free up everything */
-+						list_for_each_entry_safe(
-+							blkvsc_req, tmp,
-+							&group->blkvsc_req_list,
-+							req_entry) {
-+							list_del(
-+							&blkvsc_req->req_entry);
-+							kmem_cache_free(
-+							blkdev->request_pool,
-+							blkvsc_req);
-+						}
-+
-+						kmem_cache_free(
-+						blkdev->request_pool, group);
-+						return -ENOMEM;
-+					}
-+
-+					memset(blkvsc_req, 0,
-+					       sizeof(struct blkvsc_request));
-+
-+					blkvsc_req->dev = blkdev;
-+					blkvsc_req->req = req;
-+					blkvsc_req->request.
-+					data_buffer.offset
-+					= bvec->bv_offset;
-+					blkvsc_req->request.
-+					data_buffer.len = 0;
-+
-+					/* Add to the group */
-+					blkvsc_req->group = group;
-+					blkvsc_req->group->outstanding++;
-+					list_add_tail(&blkvsc_req->req_entry,
-+					&blkvsc_req->group->blkvsc_req_list);
-+
-+					start_sector += num_sectors;
-+					num_sectors = 0;
-+					databuf_idx = 0;
-+				}
-+
-+				/*
-+				 * Add the curr bvec/segment to the curr
-+				 * blkvsc_req
-+				 */
-+				blkvsc_req->request.data_buffer.
-+					pfn_array[databuf_idx]
-+						= page_to_pfn(bvec->bv_page);
-+				blkvsc_req->request.data_buffer.len
-+					+= bvec->bv_len;
-+
-+				prev_bvec = bvec;
-+
-+				databuf_idx++;
-+				num_sectors += bvec->bv_len >> 9;
-+
-+			} /* bio_for_each_segment */
-+
-+		} /* rq_for_each_bio */
++	memset(blkvsc_req, 0, sizeof(struct blkvsc_request));
++	page_buf = alloc_page(GFP_KERNEL);
++	if (!page_buf) {
++		kmem_cache_free(blkvsc_req->dev->request_pool, blkvsc_req);
++		return -ENOMEM;
 +	}
 +
-+	/* Handle the last one */
-+	if (blkvsc_req) {
-+		DPRINT_DBG(BLKVSC_DRV, "blkdev %p req %p group %p count %d\n",
-+			   blkdev, req, blkvsc_req->group,
-+			   blkvsc_req->group->outstanding);
++	vm_srb = &blkvsc_req->request.vstor_packet.vm_srb;
++	init_completion(&blkvsc_req->request.wait_event);
++	blkvsc_req->dev = blkdev;
++	blkvsc_req->req = NULL;
++	blkvsc_req->write = 0;
 +
-+		blkvsc_req->sector_start = start_sector;
-+		sector_div(blkvsc_req->sector_start,
-+			   (blkdev->sector_size >> 9));
++	blkvsc_req->request.data_buffer.pfn_array[0] =
++	page_to_pfn(page_buf);
++	blkvsc_req->request.data_buffer.offset = 0;
++	blkvsc_req->request.data_buffer.len = 8;
 +
-+		blkvsc_req->sector_count = num_sectors /
-+					   (blkdev->sector_size >> 9);
++	blkvsc_req->cmnd[0] = READ_CAPACITY;
++	blkvsc_req->cmd_len = 16;
 +
-+		blkvsc_init_rw(blkvsc_req);
-+	}
++	blkvsc_submit_request(blkvsc_req, blkvsc_cmd_completion);
 +
-+	list_for_each_entry(blkvsc_req, &group->blkvsc_req_list, req_entry) {
-+		if (pending) {
-+			DPRINT_DBG(BLKVSC_DRV, "adding blkvsc_req to "
-+				   "pending_list - blkvsc_req %p start_sect %lu"
-+				   " sect_count %ld (%lu %ld)\n", blkvsc_req,
-+				   (unsigned long)blkvsc_req->sector_start,
-+				   blkvsc_req->sector_count,
-+				   (unsigned long)start_sector,
-+				   (unsigned long)num_sectors);
++	DPRINT_DBG(BLKVSC_DRV, "waiting %p to complete\n",
++		   blkvsc_req);
 +
-+			list_add_tail(&blkvsc_req->pend_entry,
-+				      &blkdev->pending_list);
-+		} else {
-+			ret = blkvsc_submit_request(blkvsc_req,
-+						    blkvsc_request_completion);
-+			if (ret == -1) {
-+				pending = 1;
-+				list_add_tail(&blkvsc_req->pend_entry,
-+					      &blkdev->pending_list);
-+			}
++	wait_for_completion_interruptible(&blkvsc_req->request.wait_event);
 +
-+			DPRINT_DBG(BLKVSC_DRV, "submitted blkvsc_req %p "
-+				   "start_sect %lu sect_count %ld (%lu %ld) "
-+				   "ret %d\n", blkvsc_req,
-+				   (unsigned long)blkvsc_req->sector_start,
-+				   blkvsc_req->sector_count,
-+				   (unsigned long)start_sector,
-+				   num_sectors, ret);
++	/* check error */
++	if (vm_srb->scsi_status) {
++		scsi_normalize_sense(blkvsc_req->sense_buffer,
++				     SCSI_SENSE_BUFFERSIZE, &sense_hdr);
++
++		if (sense_hdr.asc == 0x3A) {
++			/* Medium not present */
++			blkdev->media_not_present = 1;
 +		}
++		return 0;
 +	}
++	buf = kmap(page_buf);
 +
-+	return pending;
++	/* be to le */
++	blkdev->capacity = ((buf[0] << 24) | (buf[1] << 16) |
++			    (buf[2] << 8) | buf[3]) + 1;
++	blkdev->sector_size = (buf[4] << 24) | (buf[5] << 16) |
++			      (buf[6] << 8) | buf[7];
++
++	kunmap(page_buf);
++
++	__free_page(page_buf);
++
++	kmem_cache_free(blkvsc_req->dev->request_pool, blkvsc_req);
++
++	return 0;
 +}
 +
  /* Static decl */
  static int blkvsc_probe(struct device *dev);
- static void blkvsc_request(struct request_queue *queue);
--static void blkvsc_request_completion(struct hv_storvsc_request *request);
--static int blkvsc_do_request(struct block_device_context *blkdev,
--			     struct request *req);
+ static int blkvsc_revalidate_disk(struct gendisk *gd);
+@@ -709,7 +785,6 @@ static void blkvsc_request_completion(struct hv_storvsc_request *request);
+ static int blkvsc_do_request(struct block_device_context *blkdev,
+ 			     struct request *req);
+ static int blkvsc_do_inquiry(struct block_device_context *blkdev);
+-static int blkvsc_do_read_capacity(struct block_device_context *blkdev);
+ static int blkvsc_do_read_capacity16(struct block_device_context *blkdev);
  static int blkvsc_do_pending_reqs(struct block_device_context *blkdev);
  
- static int blkvsc_ringbuffer_size = BLKVSC_RING_BUFFER_SIZE;
-@@ -1216,180 +1406,6 @@ Cleanup:
- 	return ret;
+@@ -1044,81 +1119,6 @@ static int blkvsc_do_inquiry(struct block_device_context *blkdev)
+ 	return 0;
  }
  
--/*
-- * We break the request into 1 or more blkvsc_requests and submit
-- * them.  If we cant submit them all, we put them on the
-- * pending_list. The blkvsc_request() will work on the pending_list.
-- */
--static int blkvsc_do_request(struct block_device_context *blkdev,
--			     struct request *req)
+-/* Do a scsi READ_CAPACITY cmd here to get the size of the disk */
+-static int blkvsc_do_read_capacity(struct block_device_context *blkdev)
 -{
--	struct bio *bio = NULL;
--	struct bio_vec *bvec = NULL;
--	struct bio_vec *prev_bvec = NULL;
--	struct blkvsc_request *blkvsc_req = NULL;
--	struct blkvsc_request *tmp;
--	int databuf_idx = 0;
--	int seg_idx = 0;
--	sector_t start_sector;
--	unsigned long num_sectors = 0;
--	int ret = 0;
--	int pending = 0;
--	struct blkvsc_request_group *group = NULL;
+-	struct blkvsc_request *blkvsc_req;
+-	struct page *page_buf;
+-	unsigned char *buf;
+-	struct scsi_sense_hdr sense_hdr;
+-	struct vmscsi_request *vm_srb;
 -
--	DPRINT_DBG(BLKVSC_DRV, "blkdev %p req %p sect %lu\n", blkdev, req,
--		  (unsigned long)blk_rq_pos(req));
+-	DPRINT_DBG(BLKVSC_DRV, "blkvsc_do_read_capacity()\n");
 -
--	/* Create a group to tie req to list of blkvsc_reqs */
--	group = kmem_cache_zalloc(blkdev->request_pool, GFP_ATOMIC);
--	if (!group)
+-	blkdev->sector_size = 0;
+-	blkdev->capacity = 0;
+-	blkdev->media_not_present = 0; /* assume a disk is present */
+-
+-	blkvsc_req = kmem_cache_zalloc(blkdev->request_pool, GFP_KERNEL);
+-	if (!blkvsc_req)
 -		return -ENOMEM;
 -
--	INIT_LIST_HEAD(&group->blkvsc_req_list);
--	group->outstanding = group->status = 0;
--
--	start_sector = blk_rq_pos(req);
--
--	/* foreach bio in the request */
--	if (req->bio) {
--		for (bio = req->bio; bio; bio = bio->bi_next) {
--			/*
--			 * Map this bio into an existing or new storvsc request
--			 */
--			bio_for_each_segment(bvec, bio, seg_idx) {
--				DPRINT_DBG(BLKVSC_DRV, "bio_for_each_segment() "
--					   "- req %p bio %p bvec %p seg_idx %d "
--					   "databuf_idx %d\n", req, bio, bvec,
--					   seg_idx, databuf_idx);
--
--				/* Get a new storvsc request */
--				/* 1st-time */
--				if ((!blkvsc_req) ||
--				    (databuf_idx >= MAX_MULTIPAGE_BUFFER_COUNT)
--				    /* hole at the begin of page */
--				    || (bvec->bv_offset != 0) ||
--				    /* hold at the end of page */
--				    (prev_bvec &&
--				     (prev_bvec->bv_len != PAGE_SIZE))) {
--					/* submit the prev one */
--					if (blkvsc_req) {
--						blkvsc_req->sector_start = start_sector;
--						sector_div(blkvsc_req->sector_start, (blkdev->sector_size >> 9));
--
--						blkvsc_req->sector_count = num_sectors / (blkdev->sector_size >> 9);
--						blkvsc_init_rw(blkvsc_req);
--					}
--
--					/*
--					 * Create new blkvsc_req to represent
--					 * the current bvec
--					 */
--					blkvsc_req =
--					kmem_cache_zalloc(
--					blkdev->request_pool, GFP_ATOMIC);
--					if (!blkvsc_req) {
--						/* free up everything */
--						list_for_each_entry_safe(
--							blkvsc_req, tmp,
--							&group->blkvsc_req_list,
--							req_entry) {
--							list_del(&blkvsc_req->req_entry);
--							kmem_cache_free(blkdev->request_pool, blkvsc_req);
--						}
--
--						kmem_cache_free(blkdev->request_pool, group);
--						return -ENOMEM;
--					}
--
--					memset(blkvsc_req, 0,
--					       sizeof(struct blkvsc_request));
--
--					blkvsc_req->dev = blkdev;
--					blkvsc_req->req = req;
--					blkvsc_req->request.
--					data_buffer.offset
--					= bvec->bv_offset;
--					blkvsc_req->request.
--					data_buffer.len = 0;
--
--					/* Add to the group */
--					blkvsc_req->group = group;
--					blkvsc_req->group->outstanding++;
--					list_add_tail(&blkvsc_req->req_entry,
--						&blkvsc_req->group->blkvsc_req_list);
--
--					start_sector += num_sectors;
--					num_sectors = 0;
--					databuf_idx = 0;
--				}
--
--				/* Add the curr bvec/segment to the curr blkvsc_req */
--				blkvsc_req->request.data_buffer.
--					pfn_array[databuf_idx]
--						= page_to_pfn(bvec->bv_page);
--				blkvsc_req->request.data_buffer.len
--					+= bvec->bv_len;
--
--				prev_bvec = bvec;
--
--				databuf_idx++;
--				num_sectors += bvec->bv_len >> 9;
--
--			} /* bio_for_each_segment */
--
--		} /* rq_for_each_bio */
+-	memset(blkvsc_req, 0, sizeof(struct blkvsc_request));
+-	page_buf = alloc_page(GFP_KERNEL);
+-	if (!page_buf) {
+-		kmem_cache_free(blkvsc_req->dev->request_pool, blkvsc_req);
+-		return -ENOMEM;
 -	}
 -
--	/* Handle the last one */
--	if (blkvsc_req) {
--		DPRINT_DBG(BLKVSC_DRV, "blkdev %p req %p group %p count %d\n",
--			   blkdev, req, blkvsc_req->group,
--			   blkvsc_req->group->outstanding);
+-	vm_srb = &blkvsc_req->request.vstor_packet.vm_srb;
+-	init_completion(&blkvsc_req->request.wait_event);
+-	blkvsc_req->dev = blkdev;
+-	blkvsc_req->req = NULL;
+-	blkvsc_req->write = 0;
 -
--		blkvsc_req->sector_start = start_sector;
--		sector_div(blkvsc_req->sector_start,
--			   (blkdev->sector_size >> 9));
+-	blkvsc_req->request.data_buffer.pfn_array[0] =
+-	page_to_pfn(page_buf);
+-	blkvsc_req->request.data_buffer.offset = 0;
+-	blkvsc_req->request.data_buffer.len = 8;
 -
--		blkvsc_req->sector_count = num_sectors /
--					   (blkdev->sector_size >> 9);
+-	blkvsc_req->cmnd[0] = READ_CAPACITY;
+-	blkvsc_req->cmd_len = 16;
 -
--		blkvsc_init_rw(blkvsc_req);
--	}
+-	blkvsc_submit_request(blkvsc_req, blkvsc_cmd_completion);
 -
--	list_for_each_entry(blkvsc_req, &group->blkvsc_req_list, req_entry) {
--		if (pending) {
--			DPRINT_DBG(BLKVSC_DRV, "adding blkvsc_req to "
--				   "pending_list - blkvsc_req %p start_sect %lu"
--				   " sect_count %ld (%lu %ld)\n", blkvsc_req,
--				   (unsigned long)blkvsc_req->sector_start,
--				   blkvsc_req->sector_count,
--				   (unsigned long)start_sector,
--				   (unsigned long)num_sectors);
+-	DPRINT_DBG(BLKVSC_DRV, "waiting %p to complete\n",
+-		   blkvsc_req);
 -
--			list_add_tail(&blkvsc_req->pend_entry,
--				      &blkdev->pending_list);
--		} else {
--			ret = blkvsc_submit_request(blkvsc_req,
--						    blkvsc_request_completion);
--			if (ret == -1) {
--				pending = 1;
--				list_add_tail(&blkvsc_req->pend_entry,
--					      &blkdev->pending_list);
--			}
+-	wait_for_completion_interruptible(&blkvsc_req->request.wait_event);
 -
--			DPRINT_DBG(BLKVSC_DRV, "submitted blkvsc_req %p "
--				   "start_sect %lu sect_count %ld (%lu %ld) "
--				   "ret %d\n", blkvsc_req,
--				   (unsigned long)blkvsc_req->sector_start,
--				   blkvsc_req->sector_count,
--				   (unsigned long)start_sector,
--				   num_sectors, ret);
+-	/* check error */
+-	if (vm_srb->scsi_status) {
+-		scsi_normalize_sense(blkvsc_req->sense_buffer,
+-				     SCSI_SENSE_BUFFERSIZE, &sense_hdr);
+-
+-		if (sense_hdr.asc == 0x3A) {
+-			/* Medium not present */
+-			blkdev->media_not_present = 1;
 -		}
+-		return 0;
 -	}
+-	buf = kmap(page_buf);
 -
--	return pending;
+-	/* be to le */
+-	blkdev->capacity = ((buf[0] << 24) | (buf[1] << 16) |
+-			    (buf[2] << 8) | buf[3]) + 1;
+-	blkdev->sector_size = (buf[4] << 24) | (buf[5] << 16) |
+-			      (buf[6] << 8) | buf[7];
+-
+-	kunmap(page_buf);
+-
+-	__free_page(page_buf);
+-
+-	kmem_cache_free(blkvsc_req->dev->request_pool, blkvsc_req);
+-
+-	return 0;
 -}
 -
- static void blkvsc_request_completion(struct hv_storvsc_request *request)
+ static int blkvsc_do_read_capacity16(struct block_device_context *blkdev)
  {
- 	struct blkvsc_request *blkvsc_req =
+ 	struct blkvsc_request *blkvsc_req;
 -- 
 1.7.4.1
