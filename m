@@ -1,103 +1,39 @@
-From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 12/22] Staging: hv: Get rid of the forward declaration for
-	blkvsc_release()
-Date: Wed,  6 Apr 2011 14:35:10 -0700
-Message-ID: <1302125720-10808-12-git-send-email-kys@microsoft.com>
-References: <1302125655-10741-1-git-send-email-kys@microsoft.com>
-	<1302125720-10808-1-git-send-email-kys@microsoft.com>
+From: David Miller <davem@davemloft.net>
+Subject: Re: Signed bit field; int have_hotplug_status_watch:1
+Date: Wed, 06 Apr 2011 14:43:57 -0700 (PDT)
+Message-ID: <20110406.144357.186323091.davem__23726.7777709805$1302126582$gmane$org@davemloft.net>
+References: <20110403213241.GA25913@gallifrey>
+	<1301905584.23887.49.camel@zakaz.uk.xensource.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <devel-bounces@linuxdriverproject.org>
-In-Reply-To: <1302125720-10808-1-git-send-email-kys@microsoft.com>
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
-List-Post: <mailto:devel@linuxdriverproject.org>
-List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
-Sender: devel-bounces@linuxdriverproject.org
-Errors-To: devel-bounces@linuxdriverproject.org
-To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org
-Cc: Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1301905584.23887.49.camel@zakaz.uk.xensource.com>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Ian.Campbell@eu.citrix.com
+Cc: Jeremy.Fitzhardinge@citrix.com, konrad.wilk@oracle.com, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, xen-devel@lists.xensource.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Get rid of the forward declaration for blkvsc_release() by moving the code
-around.
+From: Ian Campbell <Ian.Campbell@eu.citrix.com>
+Date: Mon, 4 Apr 2011 09:26:24 +0100
 
-Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
-Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
-Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
-Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
----
- drivers/staging/hv/blkvsc_drv.c |   45 +++++++++++++++++++--------------------
- 1 files changed, 22 insertions(+), 23 deletions(-)
+> Subject: [PATCH] xen: netback: use unsigned type for one-bit bitfield.
+> 
+> Fixes error from sparse:
+>   CHECK   drivers/net/xen-netback/xenbus.c
+> drivers/net/xen-netback/xenbus.c:29:40: error: dubious one-bit signed bitfield
+> 
+>         int have_hotplug_status_watch:1;
+> 
+> Reported-by: Dr. David Alan Gilbert <linux@treblig.org>
+> Signed-off-by: Ian Campbell <ian.campbell@citrix.com>
 
-diff --git a/drivers/staging/hv/blkvsc_drv.c b/drivers/staging/hv/blkvsc_drv.c
-index 1fb68b7..799f5ad 100644
---- a/drivers/staging/hv/blkvsc_drv.c
-+++ b/drivers/staging/hv/blkvsc_drv.c
-@@ -679,9 +679,30 @@ static void blkvsc_shutdown(struct device *device)
- 	spin_unlock_irqrestore(&blkdev->lock, flags);
- }
- 
-+static int blkvsc_release(struct gendisk *disk, fmode_t mode)
-+{
-+	struct block_device_context *blkdev = disk->private_data;
-+
-+	DPRINT_DBG(BLKVSC_DRV, "- users %d disk %s\n", blkdev->users,
-+		   blkdev->gd->disk_name);
-+
-+	mutex_lock(&blkvsc_mutex);
-+	spin_lock(&blkdev->lock);
-+	if (blkdev->users == 1) {
-+		spin_unlock(&blkdev->lock);
-+		blkvsc_do_flush(blkdev);
-+		spin_lock(&blkdev->lock);
-+	}
-+
-+	blkdev->users--;
-+
-+	spin_unlock(&blkdev->lock);
-+	mutex_unlock(&blkvsc_mutex);
-+	return 0;
-+}
-+
- /* Static decl */
- static int blkvsc_probe(struct device *dev);
--static int blkvsc_release(struct gendisk *disk, fmode_t mode);
- static int blkvsc_revalidate_disk(struct gendisk *gd);
- static void blkvsc_request(struct request_queue *queue);
- static void blkvsc_request_completion(struct hv_storvsc_request *request);
-@@ -1492,28 +1513,6 @@ static void blkvsc_request(struct request_queue *queue)
- 	}
- }
- 
--static int blkvsc_release(struct gendisk *disk, fmode_t mode)
--{
--	struct block_device_context *blkdev = disk->private_data;
--
--	DPRINT_DBG(BLKVSC_DRV, "- users %d disk %s\n", blkdev->users,
--		   blkdev->gd->disk_name);
--
--	mutex_lock(&blkvsc_mutex);
--	spin_lock(&blkdev->lock);
--	if (blkdev->users == 1) {
--		spin_unlock(&blkdev->lock);
--		blkvsc_do_flush(blkdev);
--		spin_lock(&blkdev->lock);
--	}
--
--	blkdev->users--;
--
--	spin_unlock(&blkdev->lock);
--	mutex_unlock(&blkvsc_mutex);
--	return 0;
--}
--
- static int blkvsc_revalidate_disk(struct gendisk *gd)
- {
- 	struct block_device_context *blkdev = gd->private_data;
--- 
-1.7.4.1
+Applied to net-next-2.6, thanks.
