@@ -1,131 +1,28 @@
-From: Haiyang Zhang <haiyangz@microsoft.com>
-Subject: [PATCH] staging: hv: use sync_bitops when interacting with the
-	hypervisor
-Date: Thu,  7 Apr 2011 15:49:58 -0700
-Message-ID: <1302216598-686-1-git-send-email-haiyangz__28702.287891838$1302216192$gmane$org@microsoft.com>
+From: Greg KH <gregkh@suse.de>
+Subject: Re: [PATCH] staging: hv: use sync_bitops when interacting with the
+ hypervisor
+Date: Thu, 7 Apr 2011 15:46:29 -0700
+Message-ID: <20110407224629.GA28700@suse.de>
+References: <1302216598-686-1-git-send-email-haiyangz@microsoft.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: haiyangz@microsoft.com, hjanssen@microsoft.com, kys@microsoft.com, v-abkane@microsoft.com, gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, vir
-Cc: Olaf Hering <olaf@aepfle.de>, stable <stable@kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1302216598-686-1-git-send-email-haiyangz@microsoft.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Haiyang Zhang <haiyangz@microsoft.com>
+Cc: hjanssen@microsoft.com, kys@microsoft.com, v-abkane@microsoft.com, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org, Olaf Hering <olaf@aepfle.de>, stable <stable@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Olaf Hering <olaf@aepfle.de>
+On Thu, Apr 07, 2011 at 03:49:58PM -0700, Haiyang Zhang wrote:
+> From: Olaf Hering <olaf@aepfle.de>
+> 
+> Locking is required when tweaking bits located in a shared page, use the
+> sync_ version of bitops. Without this change vmbus_on_event() will miss
+> events and as a result, vmbus_isr() will not schedule the receive tasklet.
+> 
+> Backported to 2.6.32 stable kernel by Haiyang Zhang <haiyangz@microsoft.com>
 
-Locking is required when tweaking bits located in a shared page, use the
-sync_ version of bitops. Without this change vmbus_on_event() will miss
-events and as a result, vmbus_isr() will not schedule the receive tasklet.
+Thanks for the backport, now queued up.
 
-Backported to 2.6.32 stable kernel by Haiyang Zhang <haiyangz@microsoft.com>
-
-Signed-off-by: Olaf Hering <olaf@aepfle.de>
-Cc: stable <stable@kernel.org>
-Acked-by: Haiyang Zhang <haiyangz@microsoft.com>
-Acked-by: Hank Janssen <hjanssen@microsoft.com>
----
- drivers/staging/hv/Channel.c      |    8 ++++----
- drivers/staging/hv/Connection.c   |    6 ++++--
- drivers/staging/hv/Vmbus.c        |    2 +-
- drivers/staging/hv/VmbusPrivate.h |    1 +
- 4 files changed, 10 insertions(+), 7 deletions(-)
-
-diff --git a/drivers/staging/hv/Channel.c b/drivers/staging/hv/Channel.c
-index 746370e..366dc95 100644
---- a/drivers/staging/hv/Channel.c
-+++ b/drivers/staging/hv/Channel.c
-@@ -75,14 +75,14 @@ static void VmbusChannelSetEvent(struct vmbus_channel *Channel)
- 
- 	if (Channel->OfferMsg.MonitorAllocated) {
- 		/* Each u32 represents 32 channels */
--		set_bit(Channel->OfferMsg.ChildRelId & 31,
-+		sync_set_bit(Channel->OfferMsg.ChildRelId & 31,
- 			(unsigned long *) gVmbusConnection.SendInterruptPage +
- 			(Channel->OfferMsg.ChildRelId >> 5));
- 
- 		monitorPage = gVmbusConnection.MonitorPages;
- 		monitorPage++; /* Get the child to parent monitor page */
- 
--		set_bit(Channel->MonitorBit,
-+		sync_set_bit(Channel->MonitorBit,
- 			(unsigned long *)&monitorPage->TriggerGroup
- 					[Channel->MonitorGroup].Pending);
- 
-@@ -102,7 +102,7 @@ static void VmbusChannelClearEvent(struct vmbus_channel *channel)
- 
- 	if (Channel->OfferMsg.MonitorAllocated) {
- 		/* Each u32 represents 32 channels */
--		clear_bit(Channel->OfferMsg.ChildRelId & 31,
-+		sync_clear_bit(Channel->OfferMsg.ChildRelId & 31,
- 			  (unsigned long *)gVmbusConnection.SendInterruptPage +
- 			  (Channel->OfferMsg.ChildRelId >> 5));
- 
-@@ -110,7 +110,7 @@ static void VmbusChannelClearEvent(struct vmbus_channel *channel)
- 			(struct hv_monitor_page *)gVmbusConnection.MonitorPages;
- 		monitorPage++; /* Get the child to parent monitor page */
- 
--		clear_bit(Channel->MonitorBit,
-+		sync_clear_bit(Channel->MonitorBit,
- 			  (unsigned long *)&monitorPage->TriggerGroup
- 					[Channel->MonitorGroup].Pending);
- 	}
-diff --git a/drivers/staging/hv/Connection.c b/drivers/staging/hv/Connection.c
-index 43c2e68..c8d073a 100644
---- a/drivers/staging/hv/Connection.c
-+++ b/drivers/staging/hv/Connection.c
-@@ -284,7 +284,9 @@ void VmbusOnEvents(void)
- 		for (dword = 0; dword < maxdword; dword++) {
- 			if (recvInterruptPage[dword]) {
- 				for (bit = 0; bit < 32; bit++) {
--					if (test_and_clear_bit(bit, (unsigned long *)&recvInterruptPage[dword])) {
-+					if (sync_test_and_clear_bit(bit,
-+						(unsigned long *)
-+						&recvInterruptPage[dword])) {
- 						relid = (dword << 5) + bit;
- 						DPRINT_DBG(VMBUS, "event detected for relid - %d", relid);
- 
-@@ -329,7 +331,7 @@ int VmbusSetEvent(u32 childRelId)
- 	DPRINT_ENTER(VMBUS);
- 
- 	/* Each u32 represents 32 channels */
--	set_bit(childRelId & 31,
-+	sync_set_bit(childRelId & 31,
- 		(unsigned long *)gVmbusConnection.SendInterruptPage +
- 		(childRelId >> 5));
- 
-diff --git a/drivers/staging/hv/Vmbus.c b/drivers/staging/hv/Vmbus.c
-index 35a023e..2a4ba03 100644
---- a/drivers/staging/hv/Vmbus.c
-+++ b/drivers/staging/hv/Vmbus.c
-@@ -254,7 +254,7 @@ static int VmbusOnISR(struct hv_driver *drv)
- 	event = (union hv_synic_event_flags *)page_addr + VMBUS_MESSAGE_SINT;
- 
- 	/* Since we are a child, we only need to check bit 0 */
--	if (test_and_clear_bit(0, (unsigned long *) &event->Flags32[0])) {
-+	if (sync_test_and_clear_bit(0, (unsigned long *) &event->Flags32[0])) {
- 		DPRINT_DBG(VMBUS, "received event %d", event->Flags32[0]);
- 		ret |= 0x2;
- 	}
-diff --git a/drivers/staging/hv/VmbusPrivate.h b/drivers/staging/hv/VmbusPrivate.h
-index 05ad2c9..5a37cce 100644
---- a/drivers/staging/hv/VmbusPrivate.h
-+++ b/drivers/staging/hv/VmbusPrivate.h
-@@ -32,6 +32,7 @@
- #include "ChannelInterface.h"
- #include "RingBuffer.h"
- #include <linux/list.h>
-+#include <asm/sync_bitops.h>
- 
- 
- /*
--- 
-1.7.4.1
+greg k-h
