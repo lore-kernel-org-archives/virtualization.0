@@ -1,14 +1,12 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [PATCH] xen: drop anti-dependency on X86_VISWS
-Date: Thu, 07 Apr 2011 11:07:38 -0700
-Message-ID: <4D9DFD6A.1060200__1815.37929825044$1302199724$gmane$org@goop.org>
-References: <1301828839.2837.143.camel@edumazet-laptop>	<20110403.172407.91341067.davem@davemloft.net>	<1301910955.23887.75.camel@zakaz.uk.xensource.com>	<20110406.144515.235693855.davem@davemloft.net>
-	<1302159483.31620.36.camel@localhost.localdomain>
+From: Haiyang Zhang <haiyangz@microsoft.com>
+Subject: [PATCH] staging: hv: use sync_bitops when interacting with the
+	hypervisor
+Date: Thu,  7 Apr 2011 15:49:58 -0700
+Message-ID: <1302216598-686-1-git-send-email-haiyangz__28702.287891838$1302216192$gmane$org@microsoft.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1302159483.31620.36.camel@localhost.localdomain>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,21 +16,116 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Ian Campbell <Ian.Campbell@eu.citrix.com>
-Cc: "randy.dunlap@oracle.com" <randy.dunlap@oracle.com>, Jeremy Fitzhardinge <Jeremy.Fitzhardinge@citrix.com>, "eric.dumazet@gmail.com" <eric.dumazet@gmail.com>, "konrad.wilk@oracle.com" <konrad.wilk@oracle.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "mirq-linux@rere.qmqm.pl" <mirq-linux@rere.qmqm.pl>, "mingo@redhat.com" <mingo@redhat.com>, "xen-devel@lists.xensource.com" <xen-devel@lists.xensource.com>, "hpa@zytor.com" <hpa@zytor.com>, "linux-visws-devel@lists.sf.net" <linux-visws-devel@lists.sf.net>, "tglx@linutronix.de" <tglx@linutronix.de>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "pazke@donpac.ru" <pazke@donpac.ru>, David Miller <davem@davemloft.net>
+To: haiyangz@microsoft.com, hjanssen@microsoft.com, kys@microsoft.com, v-abkane@microsoft.com, gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, vir
+Cc: Olaf Hering <olaf@aepfle.de>, stable <stable@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 04/06/2011 11:58 PM, Ian Campbell wrote:
-> On Wed, 2011-04-06 at 22:45 +0100, David Miller wrote:
->> From: Ian Campbell <Ian.Campbell@eu.citrix.com>
->> Date: Mon, 4 Apr 2011 10:55:55 +0100
->>
->>> You mean the "!X86_VISWS" I presume? It doesn't make sense to me either.
->> No, I think 32-bit x86 allmodconfig elides XEN because of it's X86_TSC dependency.
-> TSC is a real dependency of the Xen interfaces.
+From: Olaf Hering <olaf@aepfle.de>
 
-Not really.  The TSC register is a requirement, but that's going to be
-present on any CPU which can boot Xen.  We don't need any of the
-kernel's TSC machinery though.
+Locking is required when tweaking bits located in a shared page, use the
+sync_ version of bitops. Without this change vmbus_on_event() will miss
+events and as a result, vmbus_isr() will not schedule the receive tasklet.
 
-    J
+Backported to 2.6.32 stable kernel by Haiyang Zhang <haiyangz@microsoft.com>
+
+Signed-off-by: Olaf Hering <olaf@aepfle.de>
+Cc: stable <stable@kernel.org>
+Acked-by: Haiyang Zhang <haiyangz@microsoft.com>
+Acked-by: Hank Janssen <hjanssen@microsoft.com>
+---
+ drivers/staging/hv/Channel.c      |    8 ++++----
+ drivers/staging/hv/Connection.c   |    6 ++++--
+ drivers/staging/hv/Vmbus.c        |    2 +-
+ drivers/staging/hv/VmbusPrivate.h |    1 +
+ 4 files changed, 10 insertions(+), 7 deletions(-)
+
+diff --git a/drivers/staging/hv/Channel.c b/drivers/staging/hv/Channel.c
+index 746370e..366dc95 100644
+--- a/drivers/staging/hv/Channel.c
++++ b/drivers/staging/hv/Channel.c
+@@ -75,14 +75,14 @@ static void VmbusChannelSetEvent(struct vmbus_channel *Channel)
+ 
+ 	if (Channel->OfferMsg.MonitorAllocated) {
+ 		/* Each u32 represents 32 channels */
+-		set_bit(Channel->OfferMsg.ChildRelId & 31,
++		sync_set_bit(Channel->OfferMsg.ChildRelId & 31,
+ 			(unsigned long *) gVmbusConnection.SendInterruptPage +
+ 			(Channel->OfferMsg.ChildRelId >> 5));
+ 
+ 		monitorPage = gVmbusConnection.MonitorPages;
+ 		monitorPage++; /* Get the child to parent monitor page */
+ 
+-		set_bit(Channel->MonitorBit,
++		sync_set_bit(Channel->MonitorBit,
+ 			(unsigned long *)&monitorPage->TriggerGroup
+ 					[Channel->MonitorGroup].Pending);
+ 
+@@ -102,7 +102,7 @@ static void VmbusChannelClearEvent(struct vmbus_channel *channel)
+ 
+ 	if (Channel->OfferMsg.MonitorAllocated) {
+ 		/* Each u32 represents 32 channels */
+-		clear_bit(Channel->OfferMsg.ChildRelId & 31,
++		sync_clear_bit(Channel->OfferMsg.ChildRelId & 31,
+ 			  (unsigned long *)gVmbusConnection.SendInterruptPage +
+ 			  (Channel->OfferMsg.ChildRelId >> 5));
+ 
+@@ -110,7 +110,7 @@ static void VmbusChannelClearEvent(struct vmbus_channel *channel)
+ 			(struct hv_monitor_page *)gVmbusConnection.MonitorPages;
+ 		monitorPage++; /* Get the child to parent monitor page */
+ 
+-		clear_bit(Channel->MonitorBit,
++		sync_clear_bit(Channel->MonitorBit,
+ 			  (unsigned long *)&monitorPage->TriggerGroup
+ 					[Channel->MonitorGroup].Pending);
+ 	}
+diff --git a/drivers/staging/hv/Connection.c b/drivers/staging/hv/Connection.c
+index 43c2e68..c8d073a 100644
+--- a/drivers/staging/hv/Connection.c
++++ b/drivers/staging/hv/Connection.c
+@@ -284,7 +284,9 @@ void VmbusOnEvents(void)
+ 		for (dword = 0; dword < maxdword; dword++) {
+ 			if (recvInterruptPage[dword]) {
+ 				for (bit = 0; bit < 32; bit++) {
+-					if (test_and_clear_bit(bit, (unsigned long *)&recvInterruptPage[dword])) {
++					if (sync_test_and_clear_bit(bit,
++						(unsigned long *)
++						&recvInterruptPage[dword])) {
+ 						relid = (dword << 5) + bit;
+ 						DPRINT_DBG(VMBUS, "event detected for relid - %d", relid);
+ 
+@@ -329,7 +331,7 @@ int VmbusSetEvent(u32 childRelId)
+ 	DPRINT_ENTER(VMBUS);
+ 
+ 	/* Each u32 represents 32 channels */
+-	set_bit(childRelId & 31,
++	sync_set_bit(childRelId & 31,
+ 		(unsigned long *)gVmbusConnection.SendInterruptPage +
+ 		(childRelId >> 5));
+ 
+diff --git a/drivers/staging/hv/Vmbus.c b/drivers/staging/hv/Vmbus.c
+index 35a023e..2a4ba03 100644
+--- a/drivers/staging/hv/Vmbus.c
++++ b/drivers/staging/hv/Vmbus.c
+@@ -254,7 +254,7 @@ static int VmbusOnISR(struct hv_driver *drv)
+ 	event = (union hv_synic_event_flags *)page_addr + VMBUS_MESSAGE_SINT;
+ 
+ 	/* Since we are a child, we only need to check bit 0 */
+-	if (test_and_clear_bit(0, (unsigned long *) &event->Flags32[0])) {
++	if (sync_test_and_clear_bit(0, (unsigned long *) &event->Flags32[0])) {
+ 		DPRINT_DBG(VMBUS, "received event %d", event->Flags32[0]);
+ 		ret |= 0x2;
+ 	}
+diff --git a/drivers/staging/hv/VmbusPrivate.h b/drivers/staging/hv/VmbusPrivate.h
+index 05ad2c9..5a37cce 100644
+--- a/drivers/staging/hv/VmbusPrivate.h
++++ b/drivers/staging/hv/VmbusPrivate.h
+@@ -32,6 +32,7 @@
+ #include "ChannelInterface.h"
+ #include "RingBuffer.h"
+ #include <linux/list.h>
++#include <asm/sync_bitops.h>
+ 
+ 
+ /*
+-- 
+1.7.4.1
