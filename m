@@ -1,13 +1,14 @@
-From: Takuma Umeya <tumeya@redhat.com>
-Subject: Re: [PATCH] virtio: decrement dev_index when device is unregistered
-Date: Mon, 11 Apr 2011 05:11:28 -0400 (EDT)
-Message-ID: <1526578879.12280.1302513088278.JavaMail.root__44591.3985990503$1302513233$gmane$org@zmail07.collab.prod.int.phx2.redhat.com>
-References: <BANLkTi=DGfKuapLhvt62UVG_h7fzsRRo3g@mail.gmail.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [RFC][PATCH] virtio balloon: kill tell-host-first logic
+Date: Mon, 11 Apr 2011 14:01:31 +0300
+Message-ID: <20110411110131.GA23123__21192.918418865$1302519774$gmane$org@redhat.com>
+References: <20110407174325.ED21C82B@kernel>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <BANLkTi=DGfKuapLhvt62UVG_h7fzsRRo3g@mail.gmail.com>
+Content-Disposition: inline
+In-Reply-To: <20110407174325.ED21C82B@kernel>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -17,61 +18,83 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Stefan Hajnoczi <stefanha@gmail.com>
-Cc: Stephen Hemminger <shemminger@vyatta.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Dave Hansen <dave@linux.vnet.ibm.com>
+Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-LS0tLS0gT3JpZ2luYWwgTWVzc2FnZSAtLS0tLQo+IE9uIFR1ZSwgQXByIDUsIDIwMTEgYXQgNTo0
-OSBBTSwgVGFrdW1hIFVtZXlhIDx0dW1leWFAcmVkaGF0LmNvbT4KPiB3cm90ZToKPiA+IFdoZW4g
-dmlydGlvIGRldmljZSBpcyByZW1vdmVkLCBkZXZfaW5kZXggZG9lcyBub3QgZ2V0IGRlY3JlbWVu
-dGVkLgo+ID4gVGhlIG5leHQgZGV2aWNlIGhvdHBsdWcgZXZlbnQgcmVzdWx0cyBpbiBjb25zdW1p
-bmcgdGhlIG5leHQgcGNpIHRvCj4gPiB0aGUgb25lIHRoYXQgaXMgc3VwcG9zZSB0byBiZSBhdmFp
-bGFibGUuCj4gPgo+ID4gU2lnbmVkLW9mZi1ieTogVGFrdW1hIFVtZXlhIDx0dW1leWFAcmVkaGF0
-LmNvbT4KPiA+Cj4gPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy92aXJ0aW8vdmlydGlvLmMgYi9kcml2
-ZXJzL3ZpcnRpby92aXJ0aW8uYwo+ID4gaW5kZXggZWZiMzVhYS4uNjdmZTcxZCAxMDA2NDQKPiA+
-IC0tLSBhL2RyaXZlcnMvdmlydGlvL3ZpcnRpby5jCj4gPiArKysgYi9kcml2ZXJzL3ZpcnRpby92
-aXJ0aW8uYwo+ID4gQEAgLTIxNiw2ICsyMTYsNyBAQCBFWFBPUlRfU1lNQk9MX0dQTChyZWdpc3Rl
-cl92aXJ0aW9fZGV2aWNlKTsKPiA+IMKgdm9pZCB1bnJlZ2lzdGVyX3ZpcnRpb19kZXZpY2Uoc3Ry
-dWN0IHZpcnRpb19kZXZpY2UgKmRldikKPiA+IMKgewo+ID4gwqAgwqAgwqAgwqBkZXZpY2VfdW5y
-ZWdpc3RlcigmZGV2LT5kZXYpOwo+ID4gKyBkZXZfaW5kZXgtLTsKPiAKPiBJIGRvbid0IHRoaW5r
-IHRoZXJlIGlzIGFueSBndWFyYW50ZWUgdGhhdCB2aXJ0aW8gZGV2aWNlcyBhcmUKPiBhZGRlZC9y
-ZW1vdmVkIGluIGZpcnN0LWluLWxhc3Qtb3V0IG9yZGVyLgo+IAo+IFRoYXQgbWVhbnMgSSBjb3Vs
-ZCBhZGQgYSB2aXJ0aW8tbmV0IGRldmljZSAoaW5kZXggMCkgZm9sbG93ZWQgYnkgYQo+IHZpcnRp
-by1ibGsgZGV2aWNlIChpbmRleCAxKS4gTm93IEkgcmVtb3ZlIHRoZSB2aXJ0aW8tbmV0IGRldmlj
-ZQo+IChpbmRleCAwKSB3aGljaCBjYXVzZXMgbWUgdG8gZGVjcmVtZW50IGRldl9pbmRleCBhbmQg
-aGFuZCBpbmRleCAxIG91dAo+IGFnYWluIHRvIHRoZSBuZXh0IGRldmljZS4gVGhpcyBsZWF2ZXMg
-dXMgd2l0aCB2aXJ0aW8tYmxrIChpbmRleCAxKQo+IGFuZCB0aGUgbmV3IGRldmljZSB3aXRoIGlu
-ZGV4IDEsIHdoaWNoIGlzIG5vdCB1bmlxdWUuCj4gCj4gUGVyaGFwcyBJIG1pc3NlZCBhIGNvbnN0
-cmFpbnQgd2hpY2ggcHJldmVudHMgdGhpcyBmcm9tIG9jY3VycmluZz8KSSBiZWxpZXZlIHRoZSBh
-ZGRyZXNzIGlzIGFzc2lnbmVkIHVwIHRvIDFmIHNvIHVzaW5nIHUzMiB2YWx1ZSAKdG8gdHJhY2sg
-dXNlL2ZyZWUuIFRoaXMgc2hvdWxkIG1ha2UgdGhlIGNvZGUgaW1tdW5lIHRvIHRoZSBzY2VuYXJp
-by4gCldvdWxkIHRoaXMgYmUgYWRlcXVhdGU/IAoKZGlmZiAtLWdpdCBhL2RyaXZlcnMvdmlydGlv
-L3ZpcnRpby5jIGIvZHJpdmVycy92aXJ0aW8vdmlydGlvLmMKaW5kZXggZWZiMzVhYS4uMGM3MzUw
-NyAxMDA2NDQKLS0tIGEvZHJpdmVycy92aXJ0aW8vdmlydGlvLmMKKysrIGIvZHJpdmVycy92aXJ0
-aW8vdmlydGlvLmMKQEAgLTMsNyArMyw3IEBACiAjaW5jbHVkZSA8bGludXgvdmlydGlvX2NvbmZp
-Zy5oPgogCiAvKiBVbmlxdWUgbnVtYmVyaW5nIGZvciB2aXJ0aW8gZGV2aWNlcy4gKi8KLXN0YXRp
-YyB1bnNpZ25lZCBpbnQgZGV2X2luZGV4Oworc3RhdGljIHUzMiBkZXZfaW5kZXg7CiAKIHN0YXRp
-YyBzc2l6ZV90IGRldmljZV9zaG93KHN0cnVjdCBkZXZpY2UgKl9kLAogICAgICAgICAgICAgICAg
-ICAgICAgICAgICBzdHJ1Y3QgZGV2aWNlX2F0dHJpYnV0ZSAqYXR0ciwgY2hhciAqYnVmKQpAQCAt
-MTg3LDEyICsxODcsMjMgQEAgRVhQT1JUX1NZTUJPTF9HUEwodW5yZWdpc3Rlcl92aXJ0aW9fZHJp
-dmVyKTsKIAogaW50IHJlZ2lzdGVyX3ZpcnRpb19kZXZpY2Uoc3RydWN0IHZpcnRpb19kZXZpY2Ug
-KmRldikKIHsKLSAgICAgICBpbnQgZXJyOworICAgICAgIGludCBlcnIsIGNvdW50OworICAgICAg
-IHUzMiB0ZXN0Yml0OworCisgICAgICAgY291bnQgPSAwOyAKIAogICAgICAgIGRldi0+ZGV2LmJ1
-cyA9ICZ2aXJ0aW9fYnVzOwogCiAgICAgICAgLyogQXNzaWduIGEgdW5pcXVlIGRldmljZSBpbmRl
-eCBhbmQgaGVuY2UgbmFtZS4gKi8KLSAgICAgICBkZXYtPmluZGV4ID0gZGV2X2luZGV4Kys7Cisg
-ICAgICAgd2hpbGUgKGNvdW50IDwgMzIpeworICAgICAgICAgICAgdGVzdGJpdCA9IDFVTCA8PCBj
-b3VudDsKKyAgICAgICAgICAgIGlmKCEoZGV2X2luZGV4ICYgdGVzdGJpdCkpeworICAgICAgICAg
-ICAgICAgIGRldi0+aW5kZXggPSBjb3VudDsKKyAgICAgICAgICAgICAgICBkZXZfaW5kZXggfD0g
-dGVzdGJpdDsKKyAgICAgICAgICAgICAgICBicmVhazsKKyAgICAgICAgICAgIH0KKyAgICAgICAg
-ICAgIGNvdW50Kys7CisgICAgICAgIH0KICAgICAgICBkZXZfc2V0X25hbWUoJmRldi0+ZGV2LCAi
-dmlydGlvJXUiLCBkZXYtPmluZGV4KTsKIAogICAgICAgIC8qIFdlIGFsd2F5cyBzdGFydCBieSBy
-ZXNldHRpbmcgdGhlIGRldmljZSwgaW4gY2FzZSBhIHByZXZpb3VzCkBAIC0yMTUsNyArMjI2LDEz
-IEBAIEVYUE9SVF9TWU1CT0xfR1BMKHJlZ2lzdGVyX3ZpcnRpb19kZXZpY2UpOwogCiB2b2lkIHVu
-cmVnaXN0ZXJfdmlydGlvX2RldmljZShzdHJ1Y3QgdmlydGlvX2RldmljZSAqZGV2KQogeworICAg
-ICAgIHUzMiByZW1vdmViaXQ7CisKKyAgICAgICAgcmVtb3ZlYml0ID0gMVVMIDw8IChkZXYtPmlu
-ZGV4KTsKKwogICAgICAgIGRldmljZV91bnJlZ2lzdGVyKCZkZXYtPmRldik7CisKKyAgICAgICBk
-ZXZfaW5kZXggXj0gcmVtb3ZlYml0OwogfQogRVhQT1JUX1NZTUJPTF9HUEwodW5yZWdpc3Rlcl92
-aXJ0aW9fZGV2aWNlKTsKIAo+IAo+IFN0ZWZhbgpfX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6
-YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eC1mb3Vu
-ZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+On Thu, Apr 07, 2011 at 10:43:25AM -0700, Dave Hansen wrote:
+> 
+> The virtio balloon driver has a VIRTIO_BALLOON_F_MUST_TELL_HOST
+> feature bit.  Whenever the bit is set, we must always tell the
+> host before we free pages back to the allocator.  Without this
+> we might free a page (and have another user touch it) while the
+> hypervisor is unprepared for it.
+> 
+> But, if the bit is _not_ set, we are under no obligation to
+> reverse the order.  Furthermore, all modern qemus set this bit.
+
+Which qemus do this, specifically?  Amit Shah just pointed out to me
+that upstream qemu.git and qemu-kvm.git don't seem to do this.
+
+Which qemu did you test this with?
+
+> So, the "tell second" code is completely unused and untestable.
+> Quoting Anthony: "untested code is broken code".
+> 
+> This _also_ means that we don't have to preserve a pfn list
+> after the pages are freed, which should let us get rid of some
+> temporary storage (vb->pfns) eventually.
+> 
+> 
+> Signed-off-by: Dave Hansen <dave@linux.vnet.ibm.com>
+> ---
+> 
+>  linux-2.6.git-dave/drivers/virtio/virtio_balloon.c |   21 ++++++++-------------
+>  1 file changed, 8 insertions(+), 13 deletions(-)
+> 
+> diff -puN drivers/virtio/virtio_balloon.c~kill-tell-host-first-logic drivers/virtio/virtio_balloon.c
+> --- linux-2.6.git/drivers/virtio/virtio_balloon.c~kill-tell-host-first-logic	2011-04-07 10:23:12.016343374 -0700
+> +++ linux-2.6.git-dave/drivers/virtio/virtio_balloon.c	2011-04-07 10:23:12.024343370 -0700
+> @@ -40,9 +40,6 @@ struct virtio_balloon
+>  	/* Waiting for host to ack the pages we released. */
+>  	struct completion acked;
+>  
+> -	/* Do we have to tell Host *before* we reuse pages? */
+> -	bool tell_host_first;
+> -
+>  	/* The pages we've told the Host we're not using. */
+>  	unsigned int num_pages;
+>  	struct list_head pages;
+> @@ -151,13 +148,14 @@ static void leak_balloon(struct virtio_b
+>  		vb->num_pages--;
+>  	}
+>  
+> -	if (vb->tell_host_first) {
+> -		tell_host(vb, vb->deflate_vq);
+> -		release_pages_by_pfn(vb->pfns, vb->num_pfns);
+> -	} else {
+> -		release_pages_by_pfn(vb->pfns, vb->num_pfns);
+> -		tell_host(vb, vb->deflate_vq);
+> -	}
+> +
+> +	/*
+> +	 * Note that if
+> +	 * virtio_has_feature(vdev, VIRTIO_BALLOON_F_MUST_TELL_HOST);
+> +	 * is true, we *have* to do it in this order
+> +	 */
+> +	tell_host(vb, vb->deflate_vq);
+> +	release_pages_by_pfn(vb->pfns, vb->num_pfns);
+>  }
+>  
+>  static inline void update_stat(struct virtio_balloon *vb, int idx,
+> @@ -325,9 +323,6 @@ static int virtballoon_probe(struct virt
+>  		goto out_del_vqs;
+>  	}
+>  
+> -	vb->tell_host_first
+> -		= virtio_has_feature(vdev, VIRTIO_BALLOON_F_MUST_TELL_HOST);
+> -
+>  	return 0;
+>  
+>  out_del_vqs:
+> _
