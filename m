@@ -1,14 +1,13 @@
-From: Stefan Hajnoczi <stefanha@gmail.com>
-Subject: Re: [PATCH] virtio: decrement dev_index when device is unregistered
-Date: Tue, 12 Apr 2011 10:09:12 +0100
-Message-ID: <BANLkTim9jfB1fNq23n9FG4VuJJawTXj-6g__24532.844630494$1302599405$gmane$org@mail.gmail.com>
-References: <BANLkTi=DGfKuapLhvt62UVG_h7fzsRRo3g@mail.gmail.com>
-	<1526578879.12280.1302513088278.JavaMail.root@zmail07.collab.prod.int.phx2.redhat.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: Re: [RFC][PATCH] virtio: 64 bit features
+Date: Tue, 12 Apr 2011 16:04:56 +0200
+Message-ID: <4DA45C08.4070304__7986.70601002431$1302617259$gmane$org@de.ibm.com>
+References: <20110411165525.GA1395@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1526578879.12280.1302513088278.JavaMail.root@zmail07.collab.prod.int.phx2.redhat.com>
+In-Reply-To: <20110411165525.GA1395@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,49 +17,33 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Takuma Umeya <tumeya@redhat.com>
-Cc: Stephen Hemminger <shemminger@vyatta.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Carsten Otte <cotte@de.ibm.com>, lguest@lists.ozlabs.org, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux390@de.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Apr 11, 2011 at 10:11 AM, Takuma Umeya <tumeya@redhat.com> wrote:
-> ----- Original Message -----
->> On Tue, Apr 5, 2011 at 5:49 AM, Takuma Umeya <tumeya@redhat.com>
->> wrote:
->> > When virtio device is removed, dev_index does not get decremented.
->> > The next device hotplug event results in consuming the next pci to
->> > the one that is suppose to be available.
->> >
->> > Signed-off-by: Takuma Umeya <tumeya@redhat.com>
->> >
->> > diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
->> > index efb35aa..67fe71d 100644
->> > --- a/drivers/virtio/virtio.c
->> > +++ b/drivers/virtio/virtio.c
->> > @@ -216,6 +216,7 @@ EXPORT_SYMBOL_GPL(register_virtio_device);
->> > =A0void unregister_virtio_device(struct virtio_device *dev)
->> > =A0{
->> > =A0 =A0 =A0 =A0device_unregister(&dev->dev);
->> > + dev_index--;
->>
->> I don't think there is any guarantee that virtio devices are
->> added/removed in first-in-last-out order.
->>
->> That means I could add a virtio-net device (index 0) followed by a
->> virtio-blk device (index 1). Now I remove the virtio-net device
->> (index 0) which causes me to decrement dev_index and hand index 1 out
->> again to the next device. This leaves us with virtio-blk (index 1)
->> and the new device with index 1, which is not unique.
->>
->> Perhaps I missed a constraint which prevents this from occurring?
-> I believe the address is assigned up to 1f so using u32 value
-> to track use/free. This should make the code immune to the scenario.
-> Would this be adequate?
+Am 11.04.2011 18:55, schrieb Michael S. Tsirkin:
 
-This issue was also brought up by Jens Axboe on your other patch for
-virtio block devices.  He suggested using idr.  I think that would be
-a nicer solution than a u32 bitfield.
+Looks mostly good, but 
 
-I'm not sure where you got 0x1f from but that seems like an artifical
-limitation.  Nothing should stop us from having more virtio devices.
 
-Stefan
+> --- a/drivers/s390/kvm/kvm_virtio.c
+> +++ b/drivers/s390/kvm/kvm_virtio.c
+> @@ -82,13 +82,13 @@ static unsigned desc_size(const struct kvm_device_desc *desc)
+>  static u32 kvm_get_features(struct virtio_device *vdev)
+
+This should be u64.
+
+>  {
+>  	unsigned int i;
+> -	u32 features = 0;
+> +	u64 features = 0;
+>  	struct kvm_device_desc *desc = to_kvmdev(vdev)->desc;
+>  	u8 *in_features = kvm_vq_features(desc);
+> 
+> -	for (i = 0; i < min(desc->feature_len * 8, 32); i++)
+> +	for (i = 0; i < min(desc->feature_len * 8, 64); i++)
+>  		if (in_features[i / 8] & (1 << (i % 8)))
+> -			features |= (1 << i);
+> +			features |= (1ull << i);
+>  	return features;
+>  }
