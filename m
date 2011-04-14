@@ -1,23 +1,18 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [Xen-devel] Re: [PATCH] xen: drop anti-dependency on X86_VISWS
-Date: Thu, 14 Apr 2011 01:20:22 -0700
-Message-ID: <4DA6AE46.8060205__27863.3648100824$1302769383$gmane$org@goop.org>
-References: <1301828839.2837.143.camel@edumazet-laptop>	
-	<20110403.172407.91341067.davem@davemloft.net>	
-	<1301910955.23887.75.camel@zakaz.uk.xensource.com>	
-	<20110406.144515.235693855.davem@davemloft.net>	
-	<1302159483.31620.36.camel@localhost.localdomain>	
-	<4D9DFD6A.1060200@goop.org>	
-	<1302244694.31620.44.camel@localhost.localdomain>	
-	<4D9F28FE.9000803@goop.org>
-	<4D9F48E8020000780003AA48@vpn.id2.novell.com>	
-	<4D9F52D4.6030700@goop.org>
-	<1302345292.10419.15.camel@localhost.localdomain>
+From: Dave Hansen <dave@linux.vnet.ibm.com>
+Subject: Re: [RFC][PATCH] virtio balloon: kill tell-host-first logic
+Date: Thu, 14 Apr 2011 13:28:17 -0700
+Message-ID: <1302812897.16562.809.camel__42529.1993808516$1302813043$gmane$org@nimitz>
+References: <20110407174325.ED21C82B@kernel>
+	<20110411110131.GA23123@redhat.com>
+	<1302559871.7286.16749.camel@nimitz>
+	<20110412054330.GH26678@amit-x200.redhat.com>
+	<1302625352.8321.2126.camel@nimitz>
+	<20110412164341.GQ13631@amit-x200.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1302345292.10419.15.camel@localhost.localdomain>
+In-Reply-To: <20110412164341.GQ13631@amit-x200.redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -27,17 +22,23 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Ian Campbell <Ian.Campbell@eu.citrix.com>
-Cc: "randy.dunlap@oracle.com" <randy.dunlap@oracle.com>, Jeremy Fitzhardinge <Jeremy.Fitzhardinge@citrix.com>, "eric.dumazet@gmail.com" <eric.dumazet@gmail.com>, "konrad.wilk@oracle.com" <konrad.wilk@oracle.com>, David Miller <davem@davemloft.net>, Jan Beulich <JBeulich@novell.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "mingo@redhat.com" <mingo@redhat.com>, "hpa@zytor.com" <hpa@zytor.com>, "tglx@linutronix.de" <tglx@linutronix.de>, "mirq-linux@rere.qmqm.pl" <mirq-linux@rere.qmqm.pl>, "pazke@donpac.ru" <pazke@donpac.ru>, "xen-devel@lists.xensource.com" <xen-devel@lists.xensource.com>
+To: Amit Shah <amit.shah@redhat.com>
+Cc: Anthony Liguori <aliguori@linux.vnet.ibm.com>, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 04/09/2011 03:34 AM, Ian Campbell wrote:
->>> Actually it does - see the "#ifndef CONFIG_X86_CMPXCHG" section
->>> in asm/cmpxchg_32.h.
->> Hm, OK.  Still, I'm happiest with that dependency in case someone
->> knobbles the cpu to exclude cmpxchg and breaks things.
-> Dropping the TSC patch is sensible though?
+On Tue, 2011-04-12 at 22:13 +0530, Amit Shah wrote:
+> On (Tue) 12 Apr 2011 [09:22:32], Dave Hansen wrote:
+> > On Tue, 2011-04-12 at 11:13 +0530, Amit Shah wrote:
+> > > Sure, the only contention was on the commit message, where you stated
+> > > modern qemus set this... qemu doesn't, and it should.  Care to do a
+> > > patch for that? 
+> > 
+> > If Rusty hasn't pushed the commit out anywhere, we can still amend the
+> > commit.  Otherwise, we're in a _bit_ of a pickle since you can't patch
+> > git logs. :)
+> 
+> I should've been clearer: care to do the qemu patch? :-)
 
-You mean dropping the TSC dependency?  Yes, I think so.
+What do we want to do to qemu, though?  Set the bit?
 
-    J
+-- Dave
