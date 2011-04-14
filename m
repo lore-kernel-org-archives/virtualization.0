@@ -1,30 +1,44 @@
-From: KY Srinivasan <kys@microsoft.com>
-Subject: RE: irq allocation for pci drivers
-Date: Fri, 15 Apr 2011 18:07:12 +0000
-Message-ID: <6E21E5352C11B742B20C142EB499E0481CBBD5@TK5EX14MBXC126.redmond.corp.microsoft.com>
-References: <6E21E5352C11B742B20C142EB499E0481CB17E@TK5EX14MBXC126.redmond.corp.microsoft.com>
- <20110413034043.GA813@suse.de>
+From: Rusty Russell <rusty@ozlabs.org>
+Subject: Re: [RFC][PATCH] virtio balloon: kill tell-host-first logic
+Date: Thu, 14 Apr 2011 21:07:41 +0930
+Message-ID: <878vvdawsa.fsf__1554.74729040197$1302905929$gmane$org@rustcorp.com.au>
+References: <20110407174325.ED21C82B@kernel>
+	<20110411110131.GA23123@redhat.com>
+	<1302559871.7286.16749.camel@nimitz>
+	<20110412054330.GH26678@amit-x200.redhat.com>
+	<1302625352.8321.2126.camel@nimitz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20110413034043.GA813@suse.de>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Greg KH <gregkh@suse.de>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1302625352.8321.2126.camel@nimitz>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Dave Hansen <dave@linux.vnet.ibm.com>, Amit Shah <amit.shah@redhat.com>
+Cc: Anthony Liguori <aliguori@linux.vnet.ibm.com>, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogR3JlZyBLSCBbbWFpbHRv
-OmdyZWdraEBzdXNlLmRlXQ0KPiBTZW50OiBUdWVzZGF5LCBBcHJpbCAxMiwgMjAxMSAxMTo0MSBQ
-TQ0KPiBUbzogS1kgU3Jpbml2YXNhbg0KPiBDYzogbGludXgta2VybmVsQHZnZXIua2VybmVsLm9y
-ZzsgZGV2ZWxAbGludXhkcml2ZXJwcm9qZWN0Lm9yZzsNCj4gdmlydHVhbGl6YXRpb25AbGlzdHMu
-b3NkbC5vcmcNCj4gU3ViamVjdDogUmU6IGlycSBhbGxvY2F0aW9uIGZvciBwY2kgZHJpdmVycw0K
-PiANCj4gT24gVHVlLCBBcHIgMTIsIDIwMTEgYXQgMTE6NTc6MjJQTSArMDAwMCwgS1kgU3Jpbml2
-YXNhbiB3cm90ZToNCj4gPiBHcmVnLA0KPiANCj4gQW55d2F5LCBJIGhhdmUgbm8gaWRlYSwgcGxl
-YXNlIHVzZSAnZ2l0IGJpc2VjdCcgdG8gdHJhY2sgZG93biB0aGUNCj4gcHJvYmxlbSBjb21taXQg
-dGhhdCBjYXVzZXMgdGhpcy4NCg0KR3JlZywNCg0KVGhpcyBwcm9ibGVtIHR1cm5lZCBvdXQgdG8g
-YmUgb24gdGhlIGhvc3Qgc2lkZS4gV2UgZG9uJ3QgaGF2ZSBhbnkgaXNzdWUgd2l0aCBkeW5hbWlj
-DQppcnEgYWxsb2NhdGlvbiBvbiB0aGUgd2luMms4IHIyIGhvc3RzLiBTb21lIG9sZGVyIGhvc3Rz
-IGhhdmUgYW4gaXNzdWUgYW5kIGluIGFueSBldmVudA0KaXQgZG9lcyBub3QgbG9vayBsaWtlIGl0
-IGlzIGEgIExpbnV4IGlzc3VlLg0KDQpSZWdhcmRzLA0KDQpLLiBZDQo=
+On Tue, 12 Apr 2011 09:22:32 -0700, Dave Hansen <dave@linux.vnet.ibm.com> wrote:
+> On Tue, 2011-04-12 at 11:13 +0530, Amit Shah wrote:
+> > Sure, the only contention was on the commit message, where you stated
+> > modern qemus set this... qemu doesn't, and it should.  Care to do a
+> > patch for that? 
+> 
+> If Rusty hasn't pushed the commit out anywhere, we can still amend the
+> commit.  Otherwise, we're in a _bit_ of a pickle since you can't patch
+> git logs. :)
+
+I only use git to send patches to Linus, and even if I did, I certainly
+wouldn't try to publish an non-rebasing tree for exactly this reason.
+
+So send me the new commit, or just the new message...
+
+Thanks,
+Rusty.
