@@ -1,20 +1,11 @@
-From: Amit Shah <amit.shah@redhat.com>
-Subject: Re: [RFC][PATCH] virtio balloon: kill tell-host-first logic
-Date: Fri, 15 Apr 2011 16:09:10 +0530
-Message-ID: <20110415103910.GL27428__4624.97090125016$1302864008$gmane$org@amit-x200.redhat.com>
-References: <20110407174325.ED21C82B@kernel>
-	<20110411110131.GA23123@redhat.com>
-	<1302559871.7286.16749.camel@nimitz>
-	<20110412054330.GH26678@amit-x200.redhat.com>
-	<1302625352.8321.2126.camel@nimitz>
-	<20110412164341.GQ13631@amit-x200.redhat.com>
-	<1302812897.16562.809.camel@nimitz>
+From: Jes Sorensen <Jes.Sorensen@redhat.com>
+Subject: LPC2011 Virtualization Micro Conf
+Date: Fri, 15 Apr 2011 15:55:41 +0200
+Message-ID: <4DA84E5D.6040300__10892.3677973964$1302875835$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1302812897.16562.809.camel@nimitz>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -24,26 +15,49 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Dave Hansen <dave@linux.vnet.ibm.com>
-Cc: Anthony Liguori <aliguori@linux.vnet.ibm.com>, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
+To: QEMU Developers <qemu-devel@nongnu.org>, xen-devel@lists.xensource.com, KVM General <kvm@vger.kernel.org>, virtualization@lists.linux-foundation.org, libvir-list
 List-Id: virtualization@lists.linuxfoundation.org
 
-On (Thu) 14 Apr 2011 [13:28:17], Dave Hansen wrote:
-> On Tue, 2011-04-12 at 22:13 +0530, Amit Shah wrote:
-> > On (Tue) 12 Apr 2011 [09:22:32], Dave Hansen wrote:
-> > > On Tue, 2011-04-12 at 11:13 +0530, Amit Shah wrote:
-> > > > Sure, the only contention was on the commit message, where you stated
-> > > > modern qemus set this... qemu doesn't, and it should.  Care to do a
-> > > > patch for that? 
-> > > 
-> > > If Rusty hasn't pushed the commit out anywhere, we can still amend the
-> > > commit.  Otherwise, we're in a _bit_ of a pickle since you can't patch
-> > > git logs. :)
-> > 
-> > I should've been clearer: care to do the qemu patch? :-)
-> 
-> What do we want to do to qemu, though?  Set the bit?
+Hi,
 
-Yes, that should ensure older guests behave fine too.
+With the success of last year's Virtualization micro-conference track
+at Linux Plumbers 2010, I have accepted to organize a similar track
+for Linux Plumbers 2011 in Santa Rosa. Please see the official Linux
+Plumbers 2011 website for full details about the conference:
+http://www.linuxplumbersconf.org/2011/
 
-		Amit
+The Linux Plumbers 2011 Virtualization track is focusing on general
+free software Linux Virtualization. It is not reserved for a specific
+hypervisor, but will focus on general virtualization issues and in
+particular collaboration amongst projects. This would include KVM,
+Xen, QEMU, containers etc.
+
+Deadline:
+---------
+The deadline for submissions is April 30th. Please visit the following
+link to submit your proposal:
+http://www.linuxplumbersconf.org/2011/ocw/events/LPC2011MC/proposals
+
+Example topics:
+---------------
+- Kernel and Hypervisor KVM/QEMU/Xen interaction
+- QEMU integration, sharing of code between the different projects
+- IO Performance and scalability
+- Live Migration
+- Managing and supporting enterprise storage
+- Support for new hardware features, and/or provide guest access to
+  these features.
+- Guest agents
+- Virtualization management tools, libvirt, etc.
+- Desktop integration
+- Consumer Electronics device emulation
+- Custom platform configuration and coordination with the kernel
+
+Audience:
+---------
+Virtualization hypervisor developers, developers of virtualization
+management tools and applications, embedded virtualization developers,
+vendors and others.
+
+Best regards,
+Jes
