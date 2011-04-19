@@ -1,38 +1,35 @@
-From: Greg KH <greg@kroah.com>
-Subject: Re: [PATCH 00/12] Staging: hv: Cleanup vmbus driver - Phase II
-Date: Fri, 15 Apr 2011 17:34:20 -0700
-Message-ID: <20110416003420.GA24814@kroah.com>
-References: <1300226527-26933-1-git-send-email-kys@microsoft.com>
-	<20110315220454.GC30390@suse.de> <30255.1300397967@localhost>
+From: Rusty Russell <rusty@ozlabs.org>
+Subject: Re: [RFC][PATCH] virtio balloon: kill tell-host-first logic
+Date: Tue, 19 Apr 2011 10:55:54 +0930
+Message-ID: <87tydv3ucd.fsf@rustcorp.com.au>
+References: <20110407174325.ED21C82B@kernel>
+	<20110411110131.GA23123@redhat.com>
+	<1302559871.7286.16749.camel@nimitz>
+	<20110412054330.GH26678@amit-x200.redhat.com>
+	<1302625352.8321.2126.camel@nimitz>
+	<878vvdawsa.fsf@rustcorp.com.au>
+	<1302813005.16562.818.camel@nimitz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <devel-bounces@linuxdriverproject.org>
-Content-Disposition: inline
-In-Reply-To: <30255.1300397967@localhost>
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
-List-Post: <mailto:devel@linuxdriverproject.org>
-List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
-Sender: devel-bounces@linuxdriverproject.org
-Errors-To: devel-bounces@linuxdriverproject.org
-To: Valdis.Kletnieks@vt.edu
-Cc: devel@linuxdriverproject.org, Greg KH <gregkh@suse.de>, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1302813005.16562.818.camel@nimitz>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Dave Hansen <dave@linux.vnet.ibm.com>
+Cc: Amit Shah <amit.shah@redhat.com>, Anthony Liguori <aliguori@linux.vnet.ibm.com>, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Mar 17, 2011 at 05:39:27PM -0400, Valdis.Kletnieks@vt.edu wrote:
-> On Tue, 15 Mar 2011 15:04:54 PDT, Greg KH said:
-> 
-> > Thanks for the patches, but as the .39 merge window is closed, I'll be
-> > holding on to these until after .39-rc1 is out before I can do anything
-> > with them.
-> 
-> Is that Linus's merge window, or your window to freeze a for-linus tree?
+On Thu, 14 Apr 2011 13:30:05 -0700, Dave Hansen <dave@linux.vnet.ibm.com> wrote:
+> Here's a new commit message:
 
-You are replying to a month-old email, I can't recall at the moment
-which I was referring to, sorry.
+Applied, thanks.
 
-greg k-h
+Rusty.
