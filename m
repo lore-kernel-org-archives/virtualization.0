@@ -1,8 +1,7 @@
 From: Haiyang Zhang <haiyangz@microsoft.com>
-Subject: [PATCH 4/8] staging: hv: move netvsc_destroy_recv_buf() to clean up
-	forward declaration
-Date: Thu, 21 Apr 2011 12:30:43 -0700
-Message-ID: <1303414247-22118-5-git-send-email-haiyangz__11062.1082982563$1303413622$gmane$org@microsoft.com>
+Subject: [PATCH 7/8] staging: hv: clean up unused forward declarations
+Date: Thu, 21 Apr 2011 12:30:46 -0700
+Message-ID: <1303414247-22118-8-git-send-email-haiyangz__8370.29684703357$1303415549$gmane$org@microsoft.com>
 References: <1303414247-22118-1-git-send-email-haiyangz@microsoft.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -24,171 +23,31 @@ List-Id: virtualization@lists.linuxfoundation.org
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 ---
- drivers/staging/hv/netvsc.c |  138 +++++++++++++++++++++---------------------
- 1 files changed, 69 insertions(+), 69 deletions(-)
+ drivers/staging/hv/netvsc.c |   12 ------------
+ 1 files changed, 0 insertions(+), 12 deletions(-)
 
 diff --git a/drivers/staging/hv/netvsc.c b/drivers/staging/hv/netvsc.c
-index ea3c72e..8b2defd 100644
+index 1c3bdda..5838ed4 100644
 --- a/drivers/staging/hv/netvsc.c
 +++ b/drivers/staging/hv/netvsc.c
-@@ -53,8 +53,6 @@ static int netvsc_init_recv_buf(struct hv_device *device);
+@@ -45,18 +45,6 @@ static const struct hv_guid netvsc_device_type = {
+ 	}
+ };
  
- static int netvsc_destroy_send_buf(struct netvsc_device *net_device);
- 
--static int netvsc_destroy_recv_buf(struct netvsc_device *net_device);
+-static int netvsc_init_send_buf(struct hv_device *device);
 -
- static int netvsc_connect_vsp(struct hv_device *device);
+-static int netvsc_init_recv_buf(struct hv_device *device);
+-
+-static int netvsc_connect_vsp(struct hv_device *device);
+-
+-static void netvsc_send_completion(struct hv_device *device,
+-				   struct vmpacket_descriptor *packet);
+-
+-static void netvsc_receive(struct hv_device *device,
+-			    struct vmpacket_descriptor *packet);
+-
  
- static void netvsc_send_completion(struct hv_device *device,
-@@ -159,6 +157,75 @@ static struct netvsc_device *release_inbound_net_device(
- 	return net_device;
- }
- 
-+static int netvsc_destroy_recv_buf(struct netvsc_device *net_device)
-+{
-+	struct nvsp_message *revoke_packet;
-+	int ret = 0;
-+
-+	/*
-+	 * If we got a section count, it means we received a
-+	 * SendReceiveBufferComplete msg (ie sent
-+	 * NvspMessage1TypeSendReceiveBuffer msg) therefore, we need
-+	 * to send a revoke msg here
-+	 */
-+	if (net_device->recv_section_cnt) {
-+		/* Send the revoke receive buffer */
-+		revoke_packet = &net_device->revoke_packet;
-+		memset(revoke_packet, 0, sizeof(struct nvsp_message));
-+
-+		revoke_packet->hdr.msg_type =
-+			NVSP_MSG1_TYPE_REVOKE_RECV_BUF;
-+		revoke_packet->msg.v1_msg.
-+		revoke_recv_buf.id = NETVSC_RECEIVE_BUFFER_ID;
-+
-+		ret = vmbus_sendpacket(net_device->dev->channel,
-+				       revoke_packet,
-+				       sizeof(struct nvsp_message),
-+				       (unsigned long)revoke_packet,
-+				       VM_PKT_DATA_INBAND, 0);
-+		/*
-+		 * If we failed here, we might as well return and
-+		 * have a leak rather than continue and a bugchk
-+		 */
-+		if (ret != 0) {
-+			dev_err(&net_device->dev->device, "unable to send "
-+				"revoke receive buffer to netvsp");
-+			return -1;
-+		}
-+	}
-+
-+	/* Teardown the gpadl on the vsp end */
-+	if (net_device->recv_buf_gpadl_handle) {
-+		ret = vmbus_teardown_gpadl(net_device->dev->channel,
-+			   net_device->recv_buf_gpadl_handle);
-+
-+		/* If we failed here, we might as well return and have a leak
-+		 * rather than continue and a bugchk
-+		 */
-+		if (ret != 0) {
-+			dev_err(&net_device->dev->device,
-+				   "unable to teardown receive buffer's gpadl");
-+			return -1;
-+		}
-+		net_device->recv_buf_gpadl_handle = 0;
-+	}
-+
-+	if (net_device->recv_buf) {
-+		/* Free up the receive buffer */
-+		free_pages((unsigned long)net_device->recv_buf,
-+			get_order(net_device->recv_buf_size));
-+		net_device->recv_buf = NULL;
-+	}
-+
-+	if (net_device->recv_section) {
-+		net_device->recv_section_cnt = 0;
-+		kfree(net_device->recv_section);
-+		net_device->recv_section = NULL;
-+	}
-+
-+	return ret;
-+}
-+
- static int netvsc_init_recv_buf(struct hv_device *device)
+ static struct netvsc_device *alloc_net_device(struct hv_device *device)
  {
- 	int ret = 0;
-@@ -369,73 +436,6 @@ exit:
- 	return ret;
- }
- 
--static int netvsc_destroy_recv_buf(struct netvsc_device *net_device)
--{
--	struct nvsp_message *revoke_packet;
--	int ret = 0;
--
--	/*
--	 * If we got a section count, it means we received a
--	 * SendReceiveBufferComplete msg (ie sent
--	 * NvspMessage1TypeSendReceiveBuffer msg) therefore, we need
--	 * to send a revoke msg here
--	 */
--	if (net_device->recv_section_cnt) {
--		/* Send the revoke receive buffer */
--		revoke_packet = &net_device->revoke_packet;
--		memset(revoke_packet, 0, sizeof(struct nvsp_message));
--
--		revoke_packet->hdr.msg_type =
--			NVSP_MSG1_TYPE_REVOKE_RECV_BUF;
--		revoke_packet->msg.v1_msg.
--		revoke_recv_buf.id = NETVSC_RECEIVE_BUFFER_ID;
--
--		ret = vmbus_sendpacket(net_device->dev->channel,
--				       revoke_packet,
--				       sizeof(struct nvsp_message),
--				       (unsigned long)revoke_packet,
--				       VM_PKT_DATA_INBAND, 0);
--		/*
--		 * If we failed here, we might as well return and
--		 * have a leak rather than continue and a bugchk
--		 */
--		if (ret != 0) {
--			dev_err(&net_device->dev->device, "unable to send "
--				"revoke receive buffer to netvsp");
--			return -1;
--		}
--	}
--
--	/* Teardown the gpadl on the vsp end */
--	if (net_device->recv_buf_gpadl_handle) {
--		ret = vmbus_teardown_gpadl(net_device->dev->channel,
--			   net_device->recv_buf_gpadl_handle);
--
--		/* If we failed here, we might as well return and have a leak rather than continue and a bugchk */
--		if (ret != 0) {
--			dev_err(&net_device->dev->device,
--				   "unable to teardown receive buffer's gpadl");
--			return -1;
--		}
--		net_device->recv_buf_gpadl_handle = 0;
--	}
--
--	if (net_device->recv_buf) {
--		/* Free up the receive buffer */
--		free_pages((unsigned long)net_device->recv_buf,
--			get_order(net_device->recv_buf_size));
--		net_device->recv_buf = NULL;
--	}
--
--	if (net_device->recv_section) {
--		net_device->recv_section_cnt = 0;
--		kfree(net_device->recv_section);
--		net_device->recv_section = NULL;
--	}
--
--	return ret;
--}
--
- static int netvsc_destroy_send_buf(struct netvsc_device *net_device)
- {
- 	struct nvsp_message *revoke_packet;
 -- 
 1.6.3.2
