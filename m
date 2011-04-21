@@ -1,7 +1,8 @@
 From: Haiyang Zhang <haiyangz@microsoft.com>
-Subject: [PATCH 7/8] staging: hv: clean up unused forward declarations
-Date: Thu, 21 Apr 2011 12:30:46 -0700
-Message-ID: <1303414247-22118-8-git-send-email-haiyangz__8370.29684703357$1303415549$gmane$org@microsoft.com>
+Subject: [PATCH 8/8] staging: hv: convert function name
+	NetVscDisconnectFromVsp to lower case
+Date: Thu, 21 Apr 2011 12:30:47 -0700
+Message-ID: <1303414247-22118-9-git-send-email-haiyangz__43607.3581492112$1303415667$gmane$org@microsoft.com>
 References: <1303414247-22118-1-git-send-email-haiyangz@microsoft.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -23,31 +24,30 @@ List-Id: virtualization@lists.linuxfoundation.org
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 ---
- drivers/staging/hv/netvsc.c |   12 ------------
- 1 files changed, 0 insertions(+), 12 deletions(-)
+ drivers/staging/hv/netvsc.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/staging/hv/netvsc.c b/drivers/staging/hv/netvsc.c
-index 1c3bdda..5838ed4 100644
+index 5838ed4..b3e6497 100644
 --- a/drivers/staging/hv/netvsc.c
 +++ b/drivers/staging/hv/netvsc.c
-@@ -45,18 +45,6 @@ static const struct hv_guid netvsc_device_type = {
- 	}
- };
+@@ -571,7 +571,7 @@ cleanup:
+ 	return ret;
+ }
  
--static int netvsc_init_send_buf(struct hv_device *device);
--
--static int netvsc_init_recv_buf(struct hv_device *device);
--
--static int netvsc_connect_vsp(struct hv_device *device);
--
--static void netvsc_send_completion(struct hv_device *device,
--				   struct vmpacket_descriptor *packet);
--
--static void netvsc_receive(struct hv_device *device,
--			    struct vmpacket_descriptor *packet);
--
- 
- static struct netvsc_device *alloc_net_device(struct hv_device *device)
+-static void NetVscDisconnectFromVsp(struct netvsc_device *net_device)
++static void netvsc_disconnect_vsp(struct netvsc_device *net_device)
  {
+ 	netvsc_destroy_recv_buf(net_device);
+ 	netvsc_destroy_send_buf(net_device);
+@@ -600,7 +600,7 @@ static int netvsc_device_remove(struct hv_device *device)
+ 		udelay(100);
+ 	}
+ 
+-	NetVscDisconnectFromVsp(net_device);
++	netvsc_disconnect_vsp(net_device);
+ 
+ 	/* Stop inbound traffic ie receives and sends completions */
+ 	net_device = release_inbound_net_device(device);
 -- 
 1.6.3.2
