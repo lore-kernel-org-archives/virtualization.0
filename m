@@ -1,91 +1,61 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 08/18] Staging: hv:  Get rid of the forward declaration for blkvsc_release()
-Date: Fri, 22 Apr 2011 14:13:29 -0700
-Message-ID: <1303506819-1913-8-git-send-email-kys@microsoft.com>
+Subject: [PATCH 17/18] Staging: hv: Move module parameter to earlier in the
+	file
+Date: Fri, 22 Apr 2011 14:13:38 -0700
+Message-ID: <1303506819-1913-17-git-send-email-kys@microsoft.com>
 References: <1303506780-1872-1-git-send-email-kys@microsoft.com>
- <1303506819-1913-1-git-send-email-kys@microsoft.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+	<1303506819-1913-1-git-send-email-kys@microsoft.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <devel-bounces@linuxdriverproject.org>
 In-Reply-To: <1303506819-1913-1-git-send-email-kys@microsoft.com>
-Sender: linux-kernel-owner@vger.kernel.org
+List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
+	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
+List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
+List-Post: <mailto:devel@linuxdriverproject.org>
+List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
+List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
+	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
+Sender: devel-bounces@linuxdriverproject.org
+Errors-To: devel-bounces@linuxdriverproject.org
 To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org
-Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>, Hank Janssen <hjanssen@microsoft.com>
+Cc: Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Get rid of the forward declaration for blkvsc_release() by moving the code
-around.
+Move module parameter to be earlier in the file.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/blkvsc_drv.c |   45 +++++++++++++++++++--------------------
- 1 files changed, 22 insertions(+), 23 deletions(-)
+ drivers/staging/hv/blkvsc_drv.c |    6 +++---
+ 1 files changed, 3 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/staging/hv/blkvsc_drv.c b/drivers/staging/hv/blkvsc_drv.c
-index 15304d4..d863dbd 100644
+index f421208..0177c45 100644
 --- a/drivers/staging/hv/blkvsc_drv.c
 +++ b/drivers/staging/hv/blkvsc_drv.c
-@@ -671,9 +671,30 @@ static void blkvsc_shutdown(struct device *device)
- 	spin_unlock_irqrestore(&blkdev->lock, flags);
+@@ -126,6 +126,9 @@ static void blkvsc_request_completion(struct hv_storvsc_request *request);
+ 
+ static int blkvsc_ringbuffer_size = BLKVSC_RING_BUFFER_SIZE;
+ 
++module_param(blkvsc_ringbuffer_size, int, S_IRUGO);
++MODULE_PARM_DESC(ring_size, "Ring buffer size (in bytes)");
++
+ /*
+  * There is a circular dependency involving blkvsc_probe()
+  * and block_ops.
+@@ -1214,9 +1217,6 @@ static void blkvsc_request(struct request_queue *queue)
  }
  
-+static int blkvsc_release(struct gendisk *disk, fmode_t mode)
-+{
-+	struct block_device_context *blkdev = disk->private_data;
-+
-+	DPRINT_DBG(BLKVSC_DRV, "- users %d disk %s\n", blkdev->users,
-+		   blkdev->gd->disk_name);
-+
-+	mutex_lock(&blkvsc_mutex);
-+	spin_lock(&blkdev->lock);
-+	if (blkdev->users == 1) {
-+		spin_unlock(&blkdev->lock);
-+		blkvsc_do_flush(blkdev);
-+		spin_lock(&blkdev->lock);
-+	}
-+
-+	blkdev->users--;
-+
-+	spin_unlock(&blkdev->lock);
-+	mutex_unlock(&blkvsc_mutex);
-+	return 0;
-+}
-+
- /* Static decl */
- static int blkvsc_probe(struct device *dev);
--static int blkvsc_release(struct gendisk *disk, fmode_t mode);
- static int blkvsc_revalidate_disk(struct gendisk *gd);
- static void blkvsc_request(struct request_queue *queue);
- static void blkvsc_request_completion(struct hv_storvsc_request *request);
-@@ -1483,28 +1504,6 @@ static void blkvsc_request(struct request_queue *queue)
- 	}
- }
  
--static int blkvsc_release(struct gendisk *disk, fmode_t mode)
--{
--	struct block_device_context *blkdev = disk->private_data;
+-module_param(blkvsc_ringbuffer_size, int, S_IRUGO);
+-MODULE_PARM_DESC(ring_size, "Ring buffer size (in bytes)");
 -
--	DPRINT_DBG(BLKVSC_DRV, "- users %d disk %s\n", blkdev->users,
--		   blkdev->gd->disk_name);
--
--	mutex_lock(&blkvsc_mutex);
--	spin_lock(&blkdev->lock);
--	if (blkdev->users == 1) {
--		spin_unlock(&blkdev->lock);
--		blkvsc_do_flush(blkdev);
--		spin_lock(&blkdev->lock);
--	}
--
--	blkdev->users--;
--
--	spin_unlock(&blkdev->lock);
--	mutex_unlock(&blkvsc_mutex);
--	return 0;
--}
--
- static int blkvsc_revalidate_disk(struct gendisk *gd)
- {
- 	struct block_device_context *blkdev = gd->private_data;
+ /* The one and only one */
+ static  struct storvsc_driver_object g_blkvsc_drv;
+ 
 -- 
 1.7.4.1
