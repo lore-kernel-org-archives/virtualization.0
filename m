@@ -1,8 +1,7 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 14/21] Staging: hv: Get rid of the code to manage removable
-	media
-Date: Fri, 22 Apr 2011 14:55:19 -0700
-Message-ID: <1303509326-3094-14-git-send-email-kys@microsoft.com>
+Subject: [PATCH 18/21] Staging: hv: Fix a jump label (Cleanup) in blkvsc_drv
+Date: Fri, 22 Apr 2011 14:55:23 -0700
+Message-ID: <1303509326-3094-18-git-send-email-kys@microsoft.com>
 References: <1303509246-3053-1-git-send-email-kys@microsoft.com>
 	<1303509326-3094-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -23,42 +22,71 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The Hyper-V block driver does not handle removable media.
-Get rid of the code to manage removable media.
+One of the goto labels was named Cleanup; change it to cleanup.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/blkvsc_drv.c |    9 +--------
- 1 files changed, 1 insertions(+), 8 deletions(-)
+ drivers/staging/hv/blkvsc_drv.c |   12 ++++++------
+ 1 files changed, 6 insertions(+), 6 deletions(-)
 
 diff --git a/drivers/staging/hv/blkvsc_drv.c b/drivers/staging/hv/blkvsc_drv.c
-index 7974e6c..92614d5 100644
+index bf8647e..a47581c 100644
 --- a/drivers/staging/hv/blkvsc_drv.c
 +++ b/drivers/staging/hv/blkvsc_drv.c
-@@ -437,8 +437,6 @@ static int blkvsc_do_operation(struct block_device_context *blkdev,
+@@ -963,7 +963,7 @@ static int blkvsc_probe(struct device *device)
+ 	blkdev = kzalloc(sizeof(struct block_device_context), GFP_KERNEL);
+ 	if (!blkdev) {
+ 		ret = -ENOMEM;
+-		goto Cleanup;
++		goto cleanup;
+ 	}
  
- 		if (device_type == 0x0)
- 			blkdev->device_type = HARDDISK_TYPE;
--		 else if (device_type == 0x5)
--			blkdev->device_type = DVD_TYPE;
- 		 else
- 			blkdev->device_type = UNKNOWN_DEV_TYPE;
+ 	INIT_LIST_HEAD(&blkdev->pending_list);
+@@ -977,14 +977,14 @@ static int blkvsc_probe(struct device *device)
+ 					SLAB_HWCACHE_ALIGN, NULL);
+ 	if (!blkdev->request_pool) {
+ 		ret = -ENOMEM;
+-		goto Cleanup;
++		goto cleanup;
+ 	}
  
-@@ -1076,12 +1074,7 @@ static int blkvsc_probe(struct device *device)
- 	sprintf(blkdev->gd->disk_name, "hd%c", 'a' + devnum);
  
- 	blkvsc_do_operation(blkdev, DO_INQUIRY);
--	if (blkdev->device_type == DVD_TYPE) {
--		set_disk_ro(blkdev->gd, 1);
--		blkdev->gd->flags |= GENHD_FL_REMOVABLE;
--		blkvsc_do_operation(blkdev, DO_CAPACITY);
--	} else
--		blkvsc_do_operation(blkdev, DO_CAPACITY);
-+	blkvsc_do_operation(blkdev, DO_CAPACITY);
+ 	/* Call to the vsc driver to add the device */
+ 	ret = storvsc_drv_obj->base.dev_add(device_obj, &device_info);
+ 	if (ret != 0)
+-		goto Cleanup;
++		goto cleanup;
  
- 	set_capacity(blkdev->gd, blkdev->capacity * (blkdev->sector_size/512));
- 	blk_queue_logical_block_size(blkdev->gd->queue, blkdev->sector_size);
+ 	blkdev->device_ctx = device_obj;
+ 	/* this identified the device 0 or 1 */
+@@ -1027,7 +1027,7 @@ static int blkvsc_probe(struct device *device)
+ 		}
+ 	} else {
+ 		ret = -1;
+-		goto Cleanup;
++		goto cleanup;
+ 	}
+ 
+ 	DPRINT_INFO(BLKVSC_DRV, "blkvsc registered for major %d!!", major);
+@@ -1035,7 +1035,7 @@ static int blkvsc_probe(struct device *device)
+ 	blkdev->gd = alloc_disk(BLKVSC_MINORS);
+ 	if (!blkdev->gd) {
+ 		ret = -1;
+-		goto Cleanup;
++		goto cleanup;
+ 	}
+ 
+ 	blkdev->gd->queue = blk_init_queue(blkvsc_request, &blkdev->lock);
+@@ -1074,7 +1074,7 @@ static int blkvsc_probe(struct device *device)
+ Remove:
+ 	storvsc_drv_obj->base.dev_rm(device_obj);
+ 
+-Cleanup:
++cleanup:
+ 	if (blkdev) {
+ 		if (blkdev->request_pool) {
+ 			kmem_cache_destroy(blkdev->request_pool);
 -- 
 1.7.4.1
