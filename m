@@ -1,143 +1,84 @@
-From: Haiyang Zhang <haiyangz@microsoft.com>
-Subject: [PATCH 3/8] staging: hv: move netvsc_send_recv_completion() to clean
-	up forward declaration
-Date: Thu, 21 Apr 2011 12:30:42 -0700
-Message-ID: <1303414247-22118-4-git-send-email-haiyangz__41291.9712289751$1303415723$gmane$org@microsoft.com>
-References: <1303414247-22118-1-git-send-email-haiyangz@microsoft.com>
+From: KY Srinivasan <kys@microsoft.com>
+Subject: RE: [PATCH 05/22] Staging: hv: Get rid of the forward declaration
+ of blkvsc_init_rw()
+Date: Fri, 22 Apr 2011 00:40:58 +0000
+Message-ID: <6E21E5352C11B742B20C142EB499E0481CCC12@TK5EX14MBXC126.redmond.corp.microsoft.com>
+References: <1302125655-10741-1-git-send-email-kys@microsoft.com>
+ <1302125720-10808-1-git-send-email-kys@microsoft.com>
+ <1302125720-10808-5-git-send-email-kys@microsoft.com>
+ <20110420203506.GA15317@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1303414247-22118-1-git-send-email-haiyangz@microsoft.com>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: haiyangz@microsoft.com, hjanssen@microsoft.com, kys@microsoft.com, v-abkane@microsoft.com, gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, vir
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20110420203506.GA15317@kroah.com>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: Greg KH <greg@kroah.com>
+Cc: "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, Haiyang Zhang <haiyangz@microsoft.com>, "Abhishek Kane (Mindtree Consulting PVT LTD)" <v-abkane@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
-Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
----
- drivers/staging/hv/netvsc.c |   87 +++++++++++++++++++++----------------------
- 1 files changed, 42 insertions(+), 45 deletions(-)
 
-diff --git a/drivers/staging/hv/netvsc.c b/drivers/staging/hv/netvsc.c
-index edd2f4e..ea3c72e 100644
---- a/drivers/staging/hv/netvsc.c
-+++ b/drivers/staging/hv/netvsc.c
-@@ -63,9 +63,6 @@ static void netvsc_send_completion(struct hv_device *device,
- static void netvsc_receive(struct hv_device *device,
- 			    struct vmpacket_descriptor *packet);
- 
--static void netvsc_send_recv_completion(struct hv_device *device,
--					u64 transaction_id);
--
- 
- static struct netvsc_device *alloc_net_device(struct hv_device *device)
- {
-@@ -835,6 +832,48 @@ static int netvsc_send(struct hv_device *device,
- 	return ret;
- }
- 
-+static void netvsc_send_recv_completion(struct hv_device *device,
-+					u64 transaction_id)
-+{
-+	struct nvsp_message recvcompMessage;
-+	int retries = 0;
-+	int ret;
-+
-+	recvcompMessage.hdr.msg_type =
-+				NVSP_MSG1_TYPE_SEND_RNDIS_PKT_COMPLETE;
-+
-+	/* FIXME: Pass in the status */
-+	recvcompMessage.msg.v1_msg.send_rndis_pkt_complete.status =
-+		NVSP_STAT_SUCCESS;
-+
-+retry_send_cmplt:
-+	/* Send the completion */
-+	ret = vmbus_sendpacket(device->channel, &recvcompMessage,
-+			       sizeof(struct nvsp_message), transaction_id,
-+			       VM_PKT_COMP, 0);
-+	if (ret == 0) {
-+		/* success */
-+		/* no-op */
-+	} else if (ret == -1) {
-+		/* no more room...wait a bit and attempt to retry 3 times */
-+		retries++;
-+		dev_err(&device->device, "unable to send receive completion pkt"
-+			" (tid %llx)...retrying %d", transaction_id, retries);
-+
-+		if (retries < 4) {
-+			udelay(100);
-+			goto retry_send_cmplt;
-+		} else {
-+			dev_err(&device->device, "unable to send receive "
-+				"completion pkt (tid %llx)...give up retrying",
-+				transaction_id);
-+		}
-+	} else {
-+		dev_err(&device->device, "unable to send receive "
-+			"completion pkt - %llx", transaction_id);
-+	}
-+}
-+
- /* Send a receive completion packet to RNDIS device (ie NetVsp) */
- static void netvsc_receive_completion(void *context)
- {
-@@ -1069,48 +1108,6 @@ static void netvsc_receive(struct hv_device *device,
- 	put_net_device(device);
- }
- 
--static void netvsc_send_recv_completion(struct hv_device *device,
--					u64 transaction_id)
--{
--	struct nvsp_message recvcompMessage;
--	int retries = 0;
--	int ret;
--
--	recvcompMessage.hdr.msg_type =
--				NVSP_MSG1_TYPE_SEND_RNDIS_PKT_COMPLETE;
--
--	/* FIXME: Pass in the status */
--	recvcompMessage.msg.v1_msg.send_rndis_pkt_complete.status =
--		NVSP_STAT_SUCCESS;
--
--retry_send_cmplt:
--	/* Send the completion */
--	ret = vmbus_sendpacket(device->channel, &recvcompMessage,
--			       sizeof(struct nvsp_message), transaction_id,
--			       VM_PKT_COMP, 0);
--	if (ret == 0) {
--		/* success */
--		/* no-op */
--	} else if (ret == -1) {
--		/* no more room...wait a bit and attempt to retry 3 times */
--		retries++;
--		dev_err(&device->device, "unable to send receive completion pkt"
--			" (tid %llx)...retrying %d", transaction_id, retries);
--
--		if (retries < 4) {
--			udelay(100);
--			goto retry_send_cmplt;
--		} else {
--			dev_err(&device->device, "unable to send receive "
--				"completion pkt (tid %llx)...give up retrying",
--				transaction_id);
--		}
--	} else {
--		dev_err(&device->device, "unable to send receive "
--			"completion pkt - %llx", transaction_id);
--	}
--}
--
- static void netvsc_channel_cb(void *context)
- {
- 	int ret;
--- 
-1.6.3.2
+
+> -----Original Message-----
+> From: Greg KH [mailto:greg@kroah.com]
+> Sent: Wednesday, April 20, 2011 4:35 PM
+> To: KY Srinivasan
+> Cc: gregkh@suse.de; linux-kernel@vger.kernel.org;
+> devel@linuxdriverproject.org; virtualization@lists.osdl.org; Haiyang Zhang;
+> Abhishek Kane (Mindtree Consulting PVT LTD)
+> Subject: Re: [PATCH 05/22] Staging: hv: Get rid of the forward declaration of
+> blkvsc_init_rw()
+> 
+> On Wed, Apr 06, 2011 at 02:35:03PM -0700, K. Y. Srinivasan wrote:
+> > Get rid of the forward declaration of blkvsc_init_rw() by moving the
+> > code around.
+> 
+> This patch fails to apply:
+> 
+> Applying: Staging: hv: Get rid of the forward declaration of blkvsc_init_rw()
+> error: patch failed: drivers/staging/hv/blkvsc_drv.c:1000
+> error: drivers/staging/hv/blkvsc_drv.c: patch does not apply
+> Patch failed at 0005 Staging: hv: Get rid of the forward declaration of
+> blkvsc_init_rw()
+> 
+> So I'll stop at this patch in the series.
+
+As I look at the git log in today's tree,
+the topmost patch of mine that is applied is:
+
+Staging: hv: Get rid of blkvsc_check_events()
+
+This is a patch that is not even in the patch-set that you were currently
+applying. On April 6th, I sent three patch-sets (all these 3 were resends
+after the tree opened):
+
+0000-Staging-hv-Cleanup-storage-drivers-phase-II-fixup: This was a two patch series to
+fix-up some bugs. This has been applied.
+
+0000-Staging-hv-Cleanup-storage-drivers-phase-III: This was a 22 patch-set of 
+which you applied 4 patches and the application of the fifth caused a failure
+(as noted by you in this mail).
+
+0000-Staging-hv-Cleanup-storage-drivers-phase-IV: This was a 22 patch set
+That should have been applied last.
+
+For some reason, after you applied 4 patches from the second set,
+looking at the git log, it looks like a patch from the third set was
+applied: 
+
+Subject: [PATCH 01/22]  Staging: hv: Get rid of blkvsc_check_events()
+
+This is the reason why 
+[PATCH 05/22] Staging: hv: Get rid of the forward declaration of blkvsc_init_rw()
+failed to apply. I am curious if I did something wrong that might have caused
+this problem.
+
+With regards to rectifying this problem, if you can roll-back that last patch
+that was applied out of order, then I think everything should apply just
+fine. If this is not possible, I would need to re-spin the 40 odd patches 
+that currently fail to apply.
+
+Regards,
+
+K. Y  
