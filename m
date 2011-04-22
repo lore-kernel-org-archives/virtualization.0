@@ -1,231 +1,106 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 10/18] Staging: hv: Get rid of the forward declaration of
-	blkvsc_do_read_capacity16()
-Date: Fri, 22 Apr 2011 14:13:31 -0700
-Message-ID: <1303506819-1913-10-git-send-email-kys@microsoft.com>
+Subject: [PATCH 02/18] Staging: hv: Get rid of the forward declaration of blkvsc_ioctl()
+Date: Fri, 22 Apr 2011 14:13:23 -0700
+Message-ID: <1303506819-1913-2-git-send-email-kys@microsoft.com>
 References: <1303506780-1872-1-git-send-email-kys@microsoft.com>
-	<1303506819-1913-1-git-send-email-kys@microsoft.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <devel-bounces@linuxdriverproject.org>
+ <1303506819-1913-1-git-send-email-kys@microsoft.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1303506819-1913-1-git-send-email-kys@microsoft.com>
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
-List-Post: <mailto:devel@linuxdriverproject.org>
-List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
-Sender: devel-bounces@linuxdriverproject.org
-Errors-To: devel-bounces@linuxdriverproject.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org
-Cc: Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>
+Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>, Hank Janssen <hjanssen@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Get rid of the forward declaration of blkvsc_do_read_capacity16() by moving
-the code around.
+Get rid of the forward declaration of blkvsc_ioctl() by moving the code around.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/blkvsc_drv.c |  168 +++++++++++++++++++-------------------
- 1 files changed, 84 insertions(+), 84 deletions(-)
+ drivers/staging/hv/blkvsc_drv.c |   56 ++++++++++++++++++--------------------
+ 1 files changed, 27 insertions(+), 29 deletions(-)
 
 diff --git a/drivers/staging/hv/blkvsc_drv.c b/drivers/staging/hv/blkvsc_drv.c
-index 21be2ab..900ffc1 100644
+index f4f6545..a0d3d6c 100644
 --- a/drivers/staging/hv/blkvsc_drv.c
 +++ b/drivers/staging/hv/blkvsc_drv.c
-@@ -769,6 +769,90 @@ static int blkvsc_do_read_capacity(struct block_device_context *blkdev)
- 	return 0;
+@@ -407,6 +407,33 @@ static void blkvsc_init_rw(struct blkvsc_request *blkvsc_req)
  }
  
-+
-+static int blkvsc_do_read_capacity16(struct block_device_context *blkdev)
+ 
++static int blkvsc_ioctl(struct block_device *bd, fmode_t mode,
++			unsigned cmd, unsigned long argument)
 +{
-+	struct blkvsc_request *blkvsc_req;
-+	struct page *page_buf;
-+	unsigned char *buf;
-+	struct scsi_sense_hdr sense_hdr;
-+	struct vmscsi_request *vm_srb;
++/*	struct block_device_context *blkdev = bd->bd_disk->private_data; */
++	int ret;
 +
-+	DPRINT_DBG(BLKVSC_DRV, "blkvsc_do_read_capacity16()\n");
-+
-+	blkdev->sector_size = 0;
-+	blkdev->capacity = 0;
-+	blkdev->media_not_present = 0; /* assume a disk is present */
-+
-+	blkvsc_req = kmem_cache_zalloc(blkdev->request_pool, GFP_KERNEL);
-+	if (!blkvsc_req)
-+		return -ENOMEM;
-+
-+	memset(blkvsc_req, 0, sizeof(struct blkvsc_request));
-+	vm_srb = &blkvsc_req->request.vstor_packet.vm_srb;
-+	page_buf = alloc_page(GFP_KERNEL);
-+	if (!page_buf) {
-+		kmem_cache_free(blkvsc_req->dev->request_pool, blkvsc_req);
-+		return -ENOMEM;
-+	}
-+
-+	init_completion(&blkvsc_req->request.wait_event);
-+	blkvsc_req->dev = blkdev;
-+	blkvsc_req->req = NULL;
-+	blkvsc_req->write = 0;
-+
-+	blkvsc_req->request.data_buffer.pfn_array[0] =
-+	page_to_pfn(page_buf);
-+	blkvsc_req->request.data_buffer.offset = 0;
-+	blkvsc_req->request.data_buffer.len = 12;
-+
-+	blkvsc_req->cmnd[0] = 0x9E; /* READ_CAPACITY16; */
-+	blkvsc_req->cmd_len = 16;
-+
++	switch (cmd) {
 +	/*
-+	 * Set this here since the completion routine may be invoked
-+	 * and completed before we return
++	 * TODO: I think there is certain format for HDIO_GET_IDENTITY rather
++	 * than just a GUID. Commented it out for now.
 +	 */
-+
-+	blkvsc_submit_request(blkvsc_req, blkvsc_cmd_completion);
-+
-+	DPRINT_DBG(BLKVSC_DRV, "waiting %p to complete\n",
-+		   blkvsc_req);
-+
-+	wait_for_completion_interruptible(&blkvsc_req->request.wait_event);
-+
-+	/* check error */
-+	if (vm_srb->scsi_status) {
-+		scsi_normalize_sense(blkvsc_req->sense_buffer,
-+				     SCSI_SENSE_BUFFERSIZE, &sense_hdr);
-+		if (sense_hdr.asc == 0x3A) {
-+			/* Medium not present */
-+			blkdev->media_not_present = 1;
-+		}
-+		return 0;
-+	}
-+	buf = kmap(page_buf);
-+
-+	/* be to le */
-+	blkdev->capacity = be64_to_cpu(*(unsigned long long *) &buf[0]) + 1;
-+	blkdev->sector_size = be32_to_cpu(*(unsigned int *)&buf[8]);
-+
 +#if 0
-+	blkdev->capacity = ((buf[0] << 24) | (buf[1] << 16) |
-+			    (buf[2] << 8) | buf[3]) + 1;
-+	blkdev->sector_size = (buf[4] << 24) | (buf[5] << 16) |
-+			      (buf[6] << 8) | buf[7];
++	case HDIO_GET_IDENTITY:
++		DPRINT_INFO(BLKVSC_DRV, "HDIO_GET_IDENTITY\n");
++		if (copy_to_user((void __user *)arg, blkdev->device_id,
++				 blkdev->device_id_len))
++			ret = -EFAULT;
++		break;
 +#endif
++	default:
++		ret = -EINVAL;
++		break;
++	}
 +
-+	kunmap(page_buf);
-+
-+	__free_page(page_buf);
-+
-+	kmem_cache_free(blkvsc_req->dev->request_pool, blkvsc_req);
-+
-+	return 0;
++	return ret;
 +}
 +
  /* Static decl */
  static int blkvsc_probe(struct device *dev);
- static int blkvsc_revalidate_disk(struct gendisk *gd);
-@@ -777,7 +861,6 @@ static void blkvsc_request_completion(struct hv_storvsc_request *request);
- static int blkvsc_do_request(struct block_device_context *blkdev,
- 			     struct request *req);
- static int blkvsc_do_inquiry(struct block_device_context *blkdev);
--static int blkvsc_do_read_capacity16(struct block_device_context *blkdev);
- static int blkvsc_do_pending_reqs(struct block_device_context *blkdev);
+ static int blkvsc_remove(struct device *device);
+@@ -414,8 +441,6 @@ static void blkvsc_shutdown(struct device *device);
  
- static int blkvsc_ringbuffer_size = BLKVSC_RING_BUFFER_SIZE;
-@@ -1110,89 +1193,6 @@ static int blkvsc_do_inquiry(struct block_device_context *blkdev)
+ static int blkvsc_release(struct gendisk *disk, fmode_t mode);
+ static int blkvsc_revalidate_disk(struct gendisk *gd);
+-static int blkvsc_ioctl(struct block_device *bd, fmode_t mode,
+-			unsigned cmd, unsigned long argument);
+ static void blkvsc_request(struct request_queue *queue);
+ static void blkvsc_request_completion(struct hv_storvsc_request *request);
+ static int blkvsc_do_request(struct block_device_context *blkdev,
+@@ -1499,33 +1524,6 @@ static int blkvsc_revalidate_disk(struct gendisk *gd)
  	return 0;
  }
  
--static int blkvsc_do_read_capacity16(struct block_device_context *blkdev)
+-static int blkvsc_ioctl(struct block_device *bd, fmode_t mode,
+-			unsigned cmd, unsigned long argument)
 -{
--	struct blkvsc_request *blkvsc_req;
--	struct page *page_buf;
--	unsigned char *buf;
--	struct scsi_sense_hdr sense_hdr;
--	struct vmscsi_request *vm_srb;
+-/*	struct block_device_context *blkdev = bd->bd_disk->private_data; */
+-	int ret;
 -
--	DPRINT_DBG(BLKVSC_DRV, "blkvsc_do_read_capacity16()\n");
--
--	blkdev->sector_size = 0;
--	blkdev->capacity = 0;
--	blkdev->media_not_present = 0; /* assume a disk is present */
--
--	blkvsc_req = kmem_cache_zalloc(blkdev->request_pool, GFP_KERNEL);
--	if (!blkvsc_req)
--		return -ENOMEM;
--
--	memset(blkvsc_req, 0, sizeof(struct blkvsc_request));
--	vm_srb = &blkvsc_req->request.vstor_packet.vm_srb;
--	page_buf = alloc_page(GFP_KERNEL);
--	if (!page_buf) {
--		kmem_cache_free(blkvsc_req->dev->request_pool, blkvsc_req);
--		return -ENOMEM;
--	}
--
--	init_completion(&blkvsc_req->request.wait_event);
--	blkvsc_req->dev = blkdev;
--	blkvsc_req->req = NULL;
--	blkvsc_req->write = 0;
--
--	blkvsc_req->request.data_buffer.pfn_array[0] =
--	page_to_pfn(page_buf);
--	blkvsc_req->request.data_buffer.offset = 0;
--	blkvsc_req->request.data_buffer.len = 12;
--
--	blkvsc_req->cmnd[0] = 0x9E; /* READ_CAPACITY16; */
--	blkvsc_req->cmd_len = 16;
--
+-	switch (cmd) {
 -	/*
--	 * Set this here since the completion routine may be invoked
--	 * and completed before we return
+-	 * TODO: I think there is certain format for HDIO_GET_IDENTITY rather
+-	 * than just a GUID. Commented it out for now.
 -	 */
--
--	blkvsc_submit_request(blkvsc_req, blkvsc_cmd_completion);
--
--	DPRINT_DBG(BLKVSC_DRV, "waiting %p to complete\n",
--		   blkvsc_req);
--
--	wait_for_completion_interruptible(&blkvsc_req->request.wait_event);
--
--	/* check error */
--	if (vm_srb->scsi_status) {
--		scsi_normalize_sense(blkvsc_req->sense_buffer,
--				     SCSI_SENSE_BUFFERSIZE, &sense_hdr);
--		if (sense_hdr.asc == 0x3A) {
--			/* Medium not present */
--			blkdev->media_not_present = 1;
--		}
--		return 0;
--	}
--	buf = kmap(page_buf);
--
--	/* be to le */
--	blkdev->capacity = be64_to_cpu(*(unsigned long long *) &buf[0]) + 1;
--	blkdev->sector_size = be32_to_cpu(*(unsigned int *)&buf[8]);
--
 -#if 0
--	blkdev->capacity = ((buf[0] << 24) | (buf[1] << 16) |
--			    (buf[2] << 8) | buf[3]) + 1;
--	blkdev->sector_size = (buf[4] << 24) | (buf[5] << 16) |
--			      (buf[6] << 8) | buf[7];
+-	case HDIO_GET_IDENTITY:
+-		DPRINT_INFO(BLKVSC_DRV, "HDIO_GET_IDENTITY\n");
+-		if (copy_to_user((void __user *)arg, blkdev->device_id,
+-				 blkdev->device_id_len))
+-			ret = -EFAULT;
+-		break;
 -#endif
+-	default:
+-		ret = -EINVAL;
+-		break;
+-	}
 -
--	kunmap(page_buf);
--
--	__free_page(page_buf);
--
--	kmem_cache_free(blkvsc_req->dev->request_pool, blkvsc_req);
--
--	return 0;
+-	return ret;
 -}
 -
- /*
-  * We break the request into 1 or more blkvsc_requests and submit
-  * them.  If we can't submit them all, we put them on the
+ static int __init blkvsc_init(void)
+ {
+ 	int ret;
 -- 
 1.7.4.1
