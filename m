@@ -1,28 +1,167 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [RESEND] [PATCH 00/18] Staging: hv: Cleanup-storage-drivers-phase-III
-Date: Fri, 22 Apr 2011 14:13:00 -0700
-Message-ID: <1303506780-1872-1-git-send-email-kys@microsoft.com>
+Subject: [PATCH 01/18] Staging: hv: Get rid of the forward declaration of blkvsc_init_rw()
+Date: Fri, 22 Apr 2011 14:13:22 -0700
+Message-ID: <1303506819-1913-1-git-send-email-kys@microsoft.com>
+References: <1303506780-1872-1-git-send-email-kys@microsoft.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1303506780-1872-1-git-send-email-kys@microsoft.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org
-Cc: "K. Y. Srinivasan" <kys@microsoft.com>
+Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>, Hank Janssen <hjanssen@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This is a resend of a previously sent patch-set.
+Get rid of the forward declaration of blkvsc_init_rw() by moving the
+code around.
 
-This patch-set deals with some of the style isues in blkvsc_drv.c. We also
-get rid most of the "dead code" in this file:
+Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
+Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
+Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
+Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
+---
+ drivers/staging/hv/blkvsc_drv.c |  117 ++++++++++++++++++++-------------------
+ 1 files changed, 59 insertions(+), 58 deletions(-)
 
-	1) Get rid of most of the forward declarations in this file.
-	   The only remaining forward declarations are to deal with 
-	   circular dependencies.
-
-	2) Get rid of most of the dead code in the file. Some of
-	   the functions in this file are place holders - they are not
-	   fuly implementedi yet (blkvsc_ioctl(), blkvsc_media_changed(). 
-	   We have retained some comments/dead code, to help us in the
-	   final implementation.
-
-Regads,
-
-K. Y 
+diff --git a/drivers/staging/hv/blkvsc_drv.c b/drivers/staging/hv/blkvsc_drv.c
+index c0d38a8..f4f6545 100644
+--- a/drivers/staging/hv/blkvsc_drv.c
++++ b/drivers/staging/hv/blkvsc_drv.c
+@@ -348,6 +348,65 @@ static int blkvsc_getgeo(struct block_device *bd, struct hd_geometry *hg)
+ 	return 0;
+ }
+ 
++
++static void blkvsc_init_rw(struct blkvsc_request *blkvsc_req)
++{
++	/* ASSERT(blkvsc_req->req); */
++	/* ASSERT(blkvsc_req->sector_count <=
++	   (MAX_MULTIPAGE_BUFFER_COUNT*8)); */
++
++	blkvsc_req->cmd_len = 16;
++
++	if (blkvsc_req->sector_start > 0xffffffff) {
++		if (rq_data_dir(blkvsc_req->req)) {
++			blkvsc_req->write = 1;
++			blkvsc_req->cmnd[0] = WRITE_16;
++		} else {
++			blkvsc_req->write = 0;
++			blkvsc_req->cmnd[0] = READ_16;
++		}
++
++		blkvsc_req->cmnd[1] |=
++			(blkvsc_req->req->cmd_flags & REQ_FUA) ? 0x8 : 0;
++
++		*(unsigned long long *)&blkvsc_req->cmnd[2] =
++				cpu_to_be64(blkvsc_req->sector_start);
++		*(unsigned int *)&blkvsc_req->cmnd[10] =
++				cpu_to_be32(blkvsc_req->sector_count);
++	} else if ((blkvsc_req->sector_count > 0xff) ||
++		   (blkvsc_req->sector_start > 0x1fffff)) {
++		if (rq_data_dir(blkvsc_req->req)) {
++			blkvsc_req->write = 1;
++			blkvsc_req->cmnd[0] = WRITE_10;
++		} else {
++			blkvsc_req->write = 0;
++			blkvsc_req->cmnd[0] = READ_10;
++		}
++
++		blkvsc_req->cmnd[1] |=
++			(blkvsc_req->req->cmd_flags & REQ_FUA) ? 0x8 : 0;
++
++		*(unsigned int *)&blkvsc_req->cmnd[2] =
++				cpu_to_be32(blkvsc_req->sector_start);
++		*(unsigned short *)&blkvsc_req->cmnd[7] =
++				cpu_to_be16(blkvsc_req->sector_count);
++	} else {
++		if (rq_data_dir(blkvsc_req->req)) {
++			blkvsc_req->write = 1;
++			blkvsc_req->cmnd[0] = WRITE_6;
++		} else {
++			blkvsc_req->write = 0;
++			blkvsc_req->cmnd[0] = READ_6;
++		}
++
++		*(unsigned int *)&blkvsc_req->cmnd[1] =
++				cpu_to_be32(blkvsc_req->sector_start) >> 8;
++		blkvsc_req->cmnd[1] &= 0x1f;
++		blkvsc_req->cmnd[4] = (unsigned char)blkvsc_req->sector_count;
++	}
++}
++
++
+ /* Static decl */
+ static int blkvsc_probe(struct device *dev);
+ static int blkvsc_remove(struct device *device);
+@@ -361,7 +420,6 @@ static void blkvsc_request(struct request_queue *queue);
+ static void blkvsc_request_completion(struct hv_storvsc_request *request);
+ static int blkvsc_do_request(struct block_device_context *blkdev,
+ 			     struct request *req);
+-static void blkvsc_init_rw(struct blkvsc_request *blkvsc_req);
+ static void blkvsc_cmd_completion(struct hv_storvsc_request *request);
+ static int blkvsc_do_inquiry(struct block_device_context *blkdev);
+ static int blkvsc_do_read_capacity(struct block_device_context *blkdev);
+@@ -991,63 +1049,6 @@ static int blkvsc_remove(struct device *device)
+ 	return ret;
+ }
+ 
+-static void blkvsc_init_rw(struct blkvsc_request *blkvsc_req)
+-{
+-	/* ASSERT(blkvsc_req->req); */
+-	/* ASSERT(blkvsc_req->sector_count <= (MAX_MULTIPAGE_BUFFER_COUNT*8)); */
+-
+-	blkvsc_req->cmd_len = 16;
+-
+-	if (blkvsc_req->sector_start > 0xffffffff) {
+-		if (rq_data_dir(blkvsc_req->req)) {
+-			blkvsc_req->write = 1;
+-			blkvsc_req->cmnd[0] = WRITE_16;
+-		} else {
+-			blkvsc_req->write = 0;
+-			blkvsc_req->cmnd[0] = READ_16;
+-		}
+-
+-		blkvsc_req->cmnd[1] |=
+-			(blkvsc_req->req->cmd_flags & REQ_FUA) ? 0x8 : 0;
+-
+-		*(unsigned long long *)&blkvsc_req->cmnd[2] =
+-				cpu_to_be64(blkvsc_req->sector_start);
+-		*(unsigned int *)&blkvsc_req->cmnd[10] =
+-				cpu_to_be32(blkvsc_req->sector_count);
+-	} else if ((blkvsc_req->sector_count > 0xff) ||
+-		   (blkvsc_req->sector_start > 0x1fffff)) {
+-		if (rq_data_dir(blkvsc_req->req)) {
+-			blkvsc_req->write = 1;
+-			blkvsc_req->cmnd[0] = WRITE_10;
+-		} else {
+-			blkvsc_req->write = 0;
+-			blkvsc_req->cmnd[0] = READ_10;
+-		}
+-
+-		blkvsc_req->cmnd[1] |=
+-			(blkvsc_req->req->cmd_flags & REQ_FUA) ? 0x8 : 0;
+-
+-		*(unsigned int *)&blkvsc_req->cmnd[2] =
+-				cpu_to_be32(blkvsc_req->sector_start);
+-		*(unsigned short *)&blkvsc_req->cmnd[7] =
+-				cpu_to_be16(blkvsc_req->sector_count);
+-	} else {
+-		if (rq_data_dir(blkvsc_req->req)) {
+-			blkvsc_req->write = 1;
+-			blkvsc_req->cmnd[0] = WRITE_6;
+-		} else {
+-			blkvsc_req->write = 0;
+-			blkvsc_req->cmnd[0] = READ_6;
+-		}
+-
+-		*(unsigned int *)&blkvsc_req->cmnd[1] =
+-				cpu_to_be32(blkvsc_req->sector_start) >> 8;
+-		blkvsc_req->cmnd[1] &= 0x1f;
+-		blkvsc_req->cmnd[4] = (unsigned char)blkvsc_req->sector_count;
+-	}
+-}
+-
+-
+ /*
+  * We break the request into 1 or more blkvsc_requests and submit
+  * them.  If we can't submit them all, we put them on the
+-- 
+1.7.4.1
