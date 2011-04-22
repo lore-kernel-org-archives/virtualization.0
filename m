@@ -1,8 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 03/21] Staging: hv: Introduce a common function for issuing
-	commands to the device
-Date: Fri, 22 Apr 2011 14:55:08 -0700
-Message-ID: <1303509326-3094-3-git-send-email-kys@microsoft.com>
+Subject: [PATCH 20/21] Staging: hv: Introduce a function to map channel
+	properties onto block device info
+Date: Fri, 22 Apr 2011 14:55:25 -0700
+Message-ID: <1303509326-3094-20-git-send-email-kys@microsoft.com>
 References: <1303509246-3053-1-git-send-email-kys@microsoft.com>
 	<1303509326-3094-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -23,220 +23,129 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-There are multiple functions to either get info about the device
-(INQUIRY, CAPACITY etc) or to FLUSH the device cache. The majority of the
-code for these functions is identical. Introduce a common function for
-doing all these operations.
-
+In preparation for removing the IDE details from the block driver, implement
+a function that maps channel properties to block device information.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/blkvsc_drv.c |  163 ++++++++++++++++++++------------------
- 1 files changed, 86 insertions(+), 77 deletions(-)
+ drivers/staging/hv/storvsc.c     |   68 ++++++++++++++++++++++++++++++++++++++
+ drivers/staging/hv/storvsc_api.h |   10 +++++
+ 2 files changed, 78 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/staging/hv/blkvsc_drv.c b/drivers/staging/hv/blkvsc_drv.c
-index f5cc522..9dbba3c 100644
---- a/drivers/staging/hv/blkvsc_drv.c
-+++ b/drivers/staging/hv/blkvsc_drv.c
-@@ -46,6 +46,10 @@ enum blkvsc_device_type {
- 	DVD_TYPE,
- };
- 
-+enum blkvsc_op_type {
-+	DO_INQUIRY,
-+};
-+
- /*
-  * This request ties the struct request and struct
-  * blkvsc_request/hv_storvsc_request together A struct request may be
-@@ -394,6 +398,86 @@ static void blkvsc_cmd_completion(struct hv_storvsc_request *request)
- 	complete(&blkvsc_req->request.wait_event);
+diff --git a/drivers/staging/hv/storvsc.c b/drivers/staging/hv/storvsc.c
+index d7ce393..e2b3410 100644
+--- a/drivers/staging/hv/storvsc.c
++++ b/drivers/staging/hv/storvsc.c
+@@ -17,6 +17,8 @@
+  * Authors:
+  *   Haiyang Zhang <haiyangz@microsoft.com>
+  *   Hank Janssen  <hjanssen@microsoft.com>
++ *
++ * 4/3/2011: K. Y. Srinivasan - Significant restructuring and cleanup.
+  */
+ #include <linux/kernel.h>
+ #include <linux/sched.h>
+@@ -593,6 +595,72 @@ int stor_vsc_on_io_request(struct hv_device *device,
  }
  
+ /*
++ * The channel properties uniquely specify how the device is to be
++ * presented to the guest. Map this information for use by the block
++ * driver. For Linux guests on Hyper-V, we emulate a scsi HBA in the guest
++ * (storvsc_drv) and so scsi devices in the guest  are handled by
++ * native upper level Linux drivers. Consequently, Hyper-V
++ * block driver, while being a generic block driver, presently does not
++ * deal with anything other than devices that would need to be presented
++ * to the guest as an IDE disk.
++ *
++ * This function maps the channel properties as embedded in the input
++ * parameter device_info onto information necessary to register the
++ * corresponding block device.
++ *
++ * Currently, there is no way to stop the emulation of the block device
++ * on the host side. And so, to prevent the native IDE drivers in Linux
++ * from taking over these devices (to be managedby Hyper-V block
++ * driver), we will take over if need be the major of the IDE controllers.
++ *
++ */
 +
-+static int blkvsc_do_operation(struct block_device_context *blkdev,
-+				enum blkvsc_op_type op)
++int stor_vsc_get_major_info(struct storvsc_device_info *device_info,
++			    struct storvsc_major_info *major_info)
 +{
-+	struct blkvsc_request *blkvsc_req;
-+	struct page *page_buf;
-+	unsigned char *buf;
-+	unsigned char device_type;
-+	int ret = 0;
++	static bool ide0_registered;
++	static bool ide1_registered;
 +
-+	blkvsc_req = kmem_cache_zalloc(blkdev->request_pool, GFP_KERNEL);
-+	if (!blkvsc_req)
-+		return -ENOMEM;
++	/*
++	 * For now we only support IDE disks.
++	 */
++	major_info->devname = "ide";
++	major_info->diskname = "hd";
 +
-+	page_buf = alloc_page(GFP_KERNEL);
-+	if (!page_buf) {
-+		kmem_cache_free(blkvsc_req->dev->request_pool, blkvsc_req);
-+		return -ENOMEM;
-+	}
-+
-+	init_completion(&blkvsc_req->request.wait_event);
-+	blkvsc_req->dev = blkdev;
-+	blkvsc_req->req = NULL;
-+	blkvsc_req->write = 0;
-+
-+	blkvsc_req->request.data_buffer.pfn_array[0] =
-+	page_to_pfn(page_buf);
-+	blkvsc_req->request.data_buffer.offset = 0;
-+
-+	switch (op) {
-+	case DO_INQUIRY:
-+		blkvsc_req->cmnd[0] = INQUIRY;
-+		blkvsc_req->cmnd[1] = 0x1;		/* Get product data */
-+		blkvsc_req->cmnd[2] = 0x83;		/* mode page 83 */
-+		blkvsc_req->cmnd[4] = 64;
-+		blkvsc_req->cmd_len = 6;
-+		blkvsc_req->request.data_buffer.len = 64;
-+		break;
-+
-+	default:
-+		ret = -EINVAL;
-+		goto cleanup;
-+	}
-+
-+	blkvsc_submit_request(blkvsc_req, blkvsc_cmd_completion);
-+
-+	wait_for_completion_interruptible(&blkvsc_req->request.wait_event);
-+
-+	buf = kmap(page_buf);
-+
-+	switch (op) {
-+	case DO_INQUIRY:
-+		device_type = buf[0] & 0x1F;
-+
-+		if (device_type == 0x0)
-+			blkdev->device_type = HARDDISK_TYPE;
-+		 else if (device_type == 0x5)
-+			blkdev->device_type = DVD_TYPE;
++	if (device_info->path_id) {
++		major_info->major = 22;
++		if (!ide1_registered)
++			major_info->do_register = true;
++		else {
++			major_info->do_register = false;
++			ide1_registered = true;
++		}
++		if (device_info->target_id)
++			major_info->index = 3;
 +		 else
-+			blkdev->device_type = UNKNOWN_DEV_TYPE;
++			major_info->index = 2;
 +
-+		blkdev->device_id_len = buf[7];
-+		if (blkdev->device_id_len > 64)
-+			blkdev->device_id_len = 64;
++		return 0;
++	} else {
++		major_info->major = 3;
++		if (!ide0_registered)
++			major_info->do_register = true;
++		else {
++			major_info->do_register = false;
++			ide0_registered = true;
++		}
++		if (device_info->target_id)
++			major_info->index = 1;
++		else
++			major_info->index = 0;
 +
-+		memcpy(blkdev->device_id, &buf[8], blkdev->device_id_len);
-+		break;
++		return 0;
 +	}
 +
-+cleanup:
-+
-+	kunmap(page_buf);
-+
-+	__free_page(page_buf);
-+
-+	kmem_cache_free(blkvsc_req->dev->request_pool, blkvsc_req);
-+
-+	return ret;
++	return -ENODEV;
 +}
 +
- static int blkvsc_do_flush(struct block_device_context *blkdev)
- {
- 	struct blkvsc_request *blkvsc_req;
-@@ -799,82 +883,6 @@ static int blkvsc_revalidate_disk(struct gendisk *gd)
- }
++/*
+  * stor_vsc_on_cleanup - Perform any cleanup when the driver is removed
+  */
+ void stor_vsc_on_cleanup(struct hv_driver *driver)
+diff --git a/drivers/staging/hv/storvsc_api.h b/drivers/staging/hv/storvsc_api.h
+index d7db949..c98139c 100644
+--- a/drivers/staging/hv/storvsc_api.h
++++ b/drivers/staging/hv/storvsc_api.h
+@@ -92,6 +92,14 @@ struct storvsc_device_info {
+ 	unsigned char target_id;
+ };
  
- 
--/* Do a scsi INQUIRY cmd here to get the device type (ie disk or dvd) */
--static int blkvsc_do_inquiry(struct block_device_context *blkdev)
--{
--	struct blkvsc_request *blkvsc_req;
--	struct page *page_buf;
--	unsigned char *buf;
--	unsigned char device_type;
--
--	DPRINT_DBG(BLKVSC_DRV, "blkvsc_do_inquiry()\n");
--
--	blkvsc_req = kmem_cache_zalloc(blkdev->request_pool, GFP_KERNEL);
--	if (!blkvsc_req)
--		return -ENOMEM;
--
--	memset(blkvsc_req, 0, sizeof(struct blkvsc_request));
--	page_buf = alloc_page(GFP_KERNEL);
--	if (!page_buf) {
--		kmem_cache_free(blkvsc_req->dev->request_pool, blkvsc_req);
--		return -ENOMEM;
--	}
--
--	init_completion(&blkvsc_req->request.wait_event);
--	blkvsc_req->dev = blkdev;
--	blkvsc_req->req = NULL;
--	blkvsc_req->write = 0;
--
--	blkvsc_req->request.data_buffer.pfn_array[0] =
--	page_to_pfn(page_buf);
--	blkvsc_req->request.data_buffer.offset = 0;
--	blkvsc_req->request.data_buffer.len = 64;
--
--	blkvsc_req->cmnd[0] = INQUIRY;
--	blkvsc_req->cmnd[1] = 0x1;		/* Get product data */
--	blkvsc_req->cmnd[2] = 0x83;		/* mode page 83 */
--	blkvsc_req->cmnd[4] = 64;
--	blkvsc_req->cmd_len = 6;
--
--	blkvsc_submit_request(blkvsc_req, blkvsc_cmd_completion);
--
--	DPRINT_DBG(BLKVSC_DRV, "waiting %p to complete\n",
--		   blkvsc_req);
--
--	wait_for_completion_interruptible(&blkvsc_req->request.wait_event);
--
--	buf = kmap(page_buf);
--
--	/* be to le */
--	device_type = buf[0] & 0x1F;
--
--	if (device_type == 0x0) {
--		blkdev->device_type = HARDDISK_TYPE;
--	} else if (device_type == 0x5) {
--		blkdev->device_type = DVD_TYPE;
--	} else {
--		/* TODO: this is currently unsupported device type */
--		blkdev->device_type = UNKNOWN_DEV_TYPE;
--	}
--
--	DPRINT_DBG(BLKVSC_DRV, "device type %d\n", device_type);
--
--	blkdev->device_id_len = buf[7];
--	if (blkdev->device_id_len > 64)
--		blkdev->device_id_len = 64;
--
--	memcpy(blkdev->device_id, &buf[8], blkdev->device_id_len);
--
--	kunmap(page_buf);
--
--	__free_page(page_buf);
--
--	kmem_cache_free(blkvsc_req->dev->request_pool, blkvsc_req);
--
--	return 0;
--}
--
--
- /*
-  * We break the request into 1 or more blkvsc_requests and submit
-  * them.  If we cant submit them all, we put them on the
-@@ -1127,6 +1135,7 @@ static void blkvsc_request(struct request_queue *queue)
- }
- 
- 
++struct storvsc_major_info {
++	int major;
++	int index;
++	bool do_register;
++	char *devname;
++	char *diskname;
++};
 +
- /* The one and only one */
- static  struct storvsc_driver_object g_blkvsc_drv;
+ /* A storvsc device is a device object that contains a vmbus channel */
+ struct storvsc_device {
+ 	struct hv_device *device;
+@@ -155,5 +163,7 @@ int stor_vsc_on_io_request(struct hv_device *device,
+ 				struct hv_storvsc_request *request);
+ void stor_vsc_on_cleanup(struct hv_driver *driver);
  
-@@ -1337,7 +1346,7 @@ static int blkvsc_probe(struct device *device)
- 	blkdev->gd->driverfs_dev = &(blkdev->device_ctx->device);
- 	sprintf(blkdev->gd->disk_name, "hd%c", 'a' + devnum);
++int stor_vsc_get_major_info(struct storvsc_device_info *device_info,
++				struct storvsc_major_info *major_info);
  
--	blkvsc_do_inquiry(blkdev);
-+	blkvsc_do_operation(blkdev, DO_INQUIRY);
- 	if (blkdev->device_type == DVD_TYPE) {
- 		set_disk_ro(blkdev->gd, 1);
- 		blkdev->gd->flags |= GENHD_FL_REMOVABLE;
+ #endif /* _STORVSC_API_H_ */
 -- 
 1.7.4.1
