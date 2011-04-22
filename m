@@ -1,7 +1,7 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 12/21] Staging: hv: Cleanup blkvsc_remove()
-Date: Fri, 22 Apr 2011 14:55:17 -0700
-Message-ID: <1303509326-3094-12-git-send-email-kys@microsoft.com>
+Subject: [PATCH 06/21] Staging: hv: Get rid of the function blkvsc_do_flush()
+Date: Fri, 22 Apr 2011 14:55:11 -0700
+Message-ID: <1303509326-3094-6-git-send-email-kys@microsoft.com>
 References: <1303509246-3053-1-git-send-email-kys@microsoft.com>
 	<1303509326-3094-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -22,52 +22,120 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-blkvsc_remove() cannot fail. Clean it up accordingly.
+Get rid of the function blkvsc_do_flush() and instead use the common function
+to force a device flush.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/blkvsc_drv.c |   15 +++------------
- 1 files changed, 3 insertions(+), 12 deletions(-)
+ drivers/staging/hv/blkvsc_drv.c |   52 ++++++++++----------------------------
+ 1 files changed, 14 insertions(+), 38 deletions(-)
 
 diff --git a/drivers/staging/hv/blkvsc_drv.c b/drivers/staging/hv/blkvsc_drv.c
-index 58d4a2d..7974e6c 100644
+index 7fab3c7..a7ae437 100644
 --- a/drivers/staging/hv/blkvsc_drv.c
 +++ b/drivers/staging/hv/blkvsc_drv.c
-@@ -556,22 +556,12 @@ static int blkvsc_remove(struct device *device)
- 	struct hv_device *device_obj = device_to_hv_device(device);
- 	struct block_device_context *blkdev = dev_get_drvdata(device);
- 	unsigned long flags;
--	int ret;
--
--
--	if (!storvsc_drv_obj->base.dev_rm)
--		return -1;
+@@ -49,6 +49,7 @@ enum blkvsc_device_type {
+ enum blkvsc_op_type {
+ 	DO_INQUIRY,
+ 	DO_CAPACITY,
++	DO_FLUSH,
+ };
  
- 	/*
- 	 * Call to the vsc driver to let it know that the device is being
- 	 * removed
- 	 */
--	ret = storvsc_drv_obj->base.dev_rm(device_obj);
--	if (ret != 0) {
--		/* TODO: */
--		DPRINT_ERR(BLKVSC_DRV,
--			   "unable to remove blkvsc device (ret %d)", ret);
--	}
-+	storvsc_drv_obj->base.dev_rm(device_obj);
- 
- 	/* Get to a known state */
- 	spin_lock_irqsave(&blkdev->lock, flags);
-@@ -604,7 +594,8 @@ static int blkvsc_remove(struct device *device)
- 
- 	kfree(blkdev);
- 
--	return ret;
-+	return 0;
+ /*
+@@ -451,6 +452,13 @@ static int blkvsc_do_operation(struct block_device_context *blkdev,
+ 		blkvsc_req->cmd_len = 16;
+ 		blkvsc_req->request.data_buffer.len = 8;
+ 		break;
 +
++	case DO_FLUSH:
++		blkvsc_req->cmnd[0] = SYNCHRONIZE_CACHE;
++		blkvsc_req->cmd_len = 10;
++		blkvsc_req->request.data_buffer.pfn_array[0] = 0;
++		blkvsc_req->request.data_buffer.len = 0;
++		break;
+ 	default:
+ 		ret = -EINVAL;
+ 		goto cleanup;
+@@ -502,6 +510,9 @@ static int blkvsc_do_operation(struct block_device_context *blkdev,
+ 		(buf[4] << 24) | (buf[5] << 16) |
+ 		(buf[6] << 8) | buf[7];
+ 		break;
++	default:
++		break;
++
+ 	}
+ 
+ cleanup:
+@@ -515,41 +526,6 @@ cleanup:
+ 	return ret;
  }
  
- static void blkvsc_shutdown(struct device *device)
+-static int blkvsc_do_flush(struct block_device_context *blkdev)
+-{
+-	struct blkvsc_request *blkvsc_req;
+-
+-	DPRINT_DBG(BLKVSC_DRV, "blkvsc_do_flush()\n");
+-
+-	if (blkdev->device_type != HARDDISK_TYPE)
+-		return 0;
+-
+-	blkvsc_req = kmem_cache_zalloc(blkdev->request_pool, GFP_KERNEL);
+-	if (!blkvsc_req)
+-		return -ENOMEM;
+-
+-	memset(blkvsc_req, 0, sizeof(struct blkvsc_request));
+-	init_completion(&blkvsc_req->request.wait_event);
+-	blkvsc_req->dev = blkdev;
+-	blkvsc_req->req = NULL;
+-	blkvsc_req->write = 0;
+-
+-	blkvsc_req->request.data_buffer.pfn_array[0] = 0;
+-	blkvsc_req->request.data_buffer.offset = 0;
+-	blkvsc_req->request.data_buffer.len = 0;
+-
+-	blkvsc_req->cmnd[0] = SYNCHRONIZE_CACHE;
+-	blkvsc_req->cmd_len = 10;
+-
+-	blkvsc_submit_request(blkvsc_req, blkvsc_cmd_completion);
+-
+-	wait_for_completion_interruptible(&blkvsc_req->request.wait_event);
+-
+-	kmem_cache_free(blkvsc_req->dev->request_pool, blkvsc_req);
+-
+-	return 0;
+-}
+-
+ 
+ static int blkvsc_cancel_pending_reqs(struct block_device_context *blkdev)
+ {
+@@ -676,7 +652,7 @@ static int blkvsc_remove(struct device *device)
+ 		udelay(100);
+ 	}
+ 
+-	blkvsc_do_flush(blkdev);
++	blkvsc_do_operation(blkdev, DO_FLUSH);
+ 
+ 	spin_lock_irqsave(&blkdev->lock, flags);
+ 
+@@ -720,7 +696,7 @@ static void blkvsc_shutdown(struct device *device)
+ 		udelay(100);
+ 	}
+ 
+-	blkvsc_do_flush(blkdev);
++	blkvsc_do_operation(blkdev, DO_FLUSH);
+ 
+ 	spin_lock_irqsave(&blkdev->lock, flags);
+ 
+@@ -740,7 +716,7 @@ static int blkvsc_release(struct gendisk *disk, fmode_t mode)
+ 	spin_lock(&blkdev->lock);
+ 	if (blkdev->users == 1) {
+ 		spin_unlock(&blkdev->lock);
+-		blkvsc_do_flush(blkdev);
++		blkvsc_do_operation(blkdev, DO_FLUSH);
+ 		spin_lock(&blkdev->lock);
+ 	}
+ 
 -- 
 1.7.4.1
