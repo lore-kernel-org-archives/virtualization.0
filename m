@@ -1,7 +1,7 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 9/21] Staging: hv: Simplify blkvsc_init_rw()
-Date: Fri, 22 Apr 2011 14:55:14 -0700
-Message-ID: <1303509326-3094-9-git-send-email-kys@microsoft.com>
+Subject: [PATCH 02/21] Staging: hv: Simplify the code for blkvsc_getgeo()
+Date: Fri, 22 Apr 2011 14:55:07 -0700
+Message-ID: <1303509326-3094-2-git-send-email-kys@microsoft.com>
 References: <1303509246-3053-1-git-send-email-kys@microsoft.com>
 	<1303509326-3094-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -22,84 +22,110 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Simplyfify blkvsc_init_rw() by using a single scsi command independent of
-the start sector.
+We are making up the geometry anyway, keep it simple.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/blkvsc_drv.c |   58 +++++++++------------------------------
- 1 files changed, 13 insertions(+), 45 deletions(-)
+ drivers/staging/hv/blkvsc_drv.c |   84 +++++---------------------------------
+ 1 files changed, 11 insertions(+), 73 deletions(-)
 
 diff --git a/drivers/staging/hv/blkvsc_drv.c b/drivers/staging/hv/blkvsc_drv.c
-index b2cd04a..5cf82f0 100644
+index 3b47495..f5cc522 100644
 --- a/drivers/staging/hv/blkvsc_drv.c
 +++ b/drivers/staging/hv/blkvsc_drv.c
-@@ -305,53 +305,21 @@ static void blkvsc_init_rw(struct blkvsc_request *blkvsc_req)
+@@ -278,82 +278,20 @@ static int blkvsc_open(struct block_device *bdev, fmode_t mode)
  
- 	blkvsc_req->cmd_len = 16;
+ static int blkvsc_getgeo(struct block_device *bd, struct hd_geometry *hg)
+ {
+-	sector_t total_sectors = get_capacity(bd->bd_disk);
+-	sector_t cylinder_times_heads = 0;
+-	sector_t temp = 0;
++	sector_t nsect = get_capacity(bd->bd_disk);
++	sector_t cylinders = nsect;
  
--	if (blkvsc_req->sector_start > 0xffffffff) {
--		if (rq_data_dir(blkvsc_req->req)) {
--			blkvsc_req->write = 1;
--			blkvsc_req->cmnd[0] = WRITE_16;
--		} else {
--			blkvsc_req->write = 0;
--			blkvsc_req->cmnd[0] = READ_16;
+-	int sectors_per_track = 0;
+-	int heads = 0;
+-	int cylinders = 0;
+-	int rem = 0;
+-
+-	if (total_sectors > (65535 * 16 * 255))
+-		total_sectors = (65535 * 16 * 255);
+-
+-	if (total_sectors >= (65535 * 16 * 63)) {
+-		sectors_per_track = 255;
+-		heads = 16;
+-
+-		cylinder_times_heads = total_sectors;
+-		/* sector_div stores the quotient in cylinder_times_heads */
+-		rem = sector_div(cylinder_times_heads, sectors_per_track);
+-	} else {
+-		sectors_per_track = 17;
+-
+-		cylinder_times_heads = total_sectors;
+-		/* sector_div stores the quotient in cylinder_times_heads */
+-		rem = sector_div(cylinder_times_heads, sectors_per_track);
+-
+-		temp = cylinder_times_heads + 1023;
+-		/* sector_div stores the quotient in temp */
+-		rem = sector_div(temp, 1024);
+-
+-		heads = temp;
+-
+-		if (heads < 4)
+-			heads = 4;
+-
+-
+-		if (cylinder_times_heads >= (heads * 1024) || (heads > 16)) {
+-			sectors_per_track = 31;
+-			heads = 16;
+-
+-			cylinder_times_heads = total_sectors;
+-			/*
+-			 * sector_div stores the quotient in
+-			 * cylinder_times_heads
+-			 */
+-			rem = sector_div(cylinder_times_heads,
+-					 sectors_per_track);
 -		}
 -
--		blkvsc_req->cmnd[1] |=
--			(blkvsc_req->req->cmd_flags & REQ_FUA) ? 0x8 : 0;
+-		if (cylinder_times_heads >= (heads * 1024)) {
+-			sectors_per_track = 63;
+-			heads = 16;
 -
--		*(unsigned long long *)&blkvsc_req->cmnd[2] =
--				cpu_to_be64(blkvsc_req->sector_start);
--		*(unsigned int *)&blkvsc_req->cmnd[10] =
--				cpu_to_be32(blkvsc_req->sector_count);
--	} else if ((blkvsc_req->sector_count > 0xff) ||
--		   (blkvsc_req->sector_start > 0x1fffff)) {
--		if (rq_data_dir(blkvsc_req->req)) {
--			blkvsc_req->write = 1;
--			blkvsc_req->cmnd[0] = WRITE_10;
--		} else {
--			blkvsc_req->write = 0;
--			blkvsc_req->cmnd[0] = READ_10;
+-			cylinder_times_heads = total_sectors;
+-			/*
+-			 * sector_div stores the quotient in
+-			 * cylinder_times_heads
+-			 */
+-			rem = sector_div(cylinder_times_heads,
+-					 sectors_per_track);
 -		}
+-	}
 -
--		blkvsc_req->cmnd[1] |=
--			(blkvsc_req->req->cmd_flags & REQ_FUA) ? 0x8 : 0;
+-	temp = cylinder_times_heads;
+-	/* sector_div stores the quotient in temp */
+-	rem = sector_div(temp, heads);
+-	cylinders = temp;
 -
--		*(unsigned int *)&blkvsc_req->cmnd[2] =
--				cpu_to_be32(blkvsc_req->sector_start);
--		*(unsigned short *)&blkvsc_req->cmnd[7] =
--				cpu_to_be16(blkvsc_req->sector_count);
-+	if (rq_data_dir(blkvsc_req->req)) {
-+		blkvsc_req->write = 1;
-+		blkvsc_req->cmnd[0] = WRITE_16;
- 	} else {
--		if (rq_data_dir(blkvsc_req->req)) {
--			blkvsc_req->write = 1;
--			blkvsc_req->cmnd[0] = WRITE_6;
--		} else {
--			blkvsc_req->write = 0;
--			blkvsc_req->cmnd[0] = READ_6;
--		}
+-	hg->heads = heads;
+-	hg->sectors = sectors_per_track;
++	/*
++	 * We are making up these values; let us keep it simple.
++	 */
++	hg->heads = 0xff;
++	hg->sectors = 0x3f;
++	sector_div(cylinders, hg->heads * hg->sectors);
+ 	hg->cylinders = cylinders;
 -
--		*(unsigned int *)&blkvsc_req->cmnd[1] =
--				cpu_to_be32(blkvsc_req->sector_start) >> 8;
--		blkvsc_req->cmnd[1] &= 0x1f;
--		blkvsc_req->cmnd[4] = (unsigned char)blkvsc_req->sector_count;
-+		blkvsc_req->write = 0;
-+		blkvsc_req->cmnd[0] = READ_16;
- 	}
+-	DPRINT_INFO(BLKVSC_DRV, "CHS (%d, %d, %d)", cylinders, heads,
+-		    sectors_per_track);
+-
++	if ((sector_t)(hg->cylinders + 1) * hg->heads * hg->sectors < nsect)
++		hg->cylinders = 0xffff;
+ 	return 0;
 +
-+	blkvsc_req->cmnd[1] |=
-+	(blkvsc_req->req->cmd_flags & REQ_FUA) ? 0x8 : 0;
-+
-+	*(unsigned long long *)&blkvsc_req->cmnd[2] =
-+	cpu_to_be64(blkvsc_req->sector_start);
-+	*(unsigned int *)&blkvsc_req->cmnd[10] =
-+	cpu_to_be32(blkvsc_req->sector_count);
  }
  
  
