@@ -1,220 +1,116 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 12/18] Staging: hv: Get rid of the forward declaration for
-	blkvsc_do_inquiry()
-Date: Fri, 22 Apr 2011 14:13:33 -0700
-Message-ID: <1303506819-1913-12-git-send-email-kys@microsoft.com>
+Subject: [PATCH 07/18] Staging: hv: Get rid of the forward declaration of blkvsc_shutdown()
+Date: Fri, 22 Apr 2011 14:13:28 -0700
+Message-ID: <1303506819-1913-7-git-send-email-kys@microsoft.com>
 References: <1303506780-1872-1-git-send-email-kys@microsoft.com>
-	<1303506819-1913-1-git-send-email-kys@microsoft.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <devel-bounces@linuxdriverproject.org>
+ <1303506819-1913-1-git-send-email-kys@microsoft.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1303506819-1913-1-git-send-email-kys@microsoft.com>
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
-List-Post: <mailto:devel@linuxdriverproject.org>
-List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
-Sender: devel-bounces@linuxdriverproject.org
-Errors-To: devel-bounces@linuxdriverproject.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org
-Cc: Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>
+Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>, Hank Janssen <hjanssen@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Get rid of the forward declaration for blkvsc_do_inquiry() by moving the code
-around.
+Get rid of the forward declaration of blkvsc_shutdown() by moving the
+code around.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/blkvsc_drv.c |  158 +++++++++++++++++++-------------------
- 1 files changed, 79 insertions(+), 79 deletions(-)
+ drivers/staging/hv/blkvsc_drv.c |   70 +++++++++++++++++++--------------------
+ 1 files changed, 34 insertions(+), 36 deletions(-)
 
 diff --git a/drivers/staging/hv/blkvsc_drv.c b/drivers/staging/hv/blkvsc_drv.c
-index 2094d00..c06123b 100644
+index 0669b84..15304d4 100644
 --- a/drivers/staging/hv/blkvsc_drv.c
 +++ b/drivers/staging/hv/blkvsc_drv.c
-@@ -868,13 +868,91 @@ static int blkvsc_revalidate_disk(struct gendisk *gd)
- 	return 0;
+@@ -637,10 +637,42 @@ static int blkvsc_remove(struct device *device)
+ 	return ret;
  }
  
-+
-+/* Do a scsi INQUIRY cmd here to get the device type (ie disk or dvd) */
-+static int blkvsc_do_inquiry(struct block_device_context *blkdev)
++static void blkvsc_shutdown(struct device *device)
 +{
-+	struct blkvsc_request *blkvsc_req;
-+	struct page *page_buf;
-+	unsigned char *buf;
-+	unsigned char device_type;
++	struct block_device_context *blkdev = dev_get_drvdata(device);
++	unsigned long flags;
 +
-+	DPRINT_DBG(BLKVSC_DRV, "blkvsc_do_inquiry()\n");
++	if (!blkdev)
++		return;
 +
-+	blkvsc_req = kmem_cache_zalloc(blkdev->request_pool, GFP_KERNEL);
-+	if (!blkvsc_req)
-+		return -ENOMEM;
++	DPRINT_DBG(BLKVSC_DRV, "blkvsc_shutdown - users %d disk %s\n",
++		   blkdev->users, blkdev->gd->disk_name);
 +
-+	memset(blkvsc_req, 0, sizeof(struct blkvsc_request));
-+	page_buf = alloc_page(GFP_KERNEL);
-+	if (!page_buf) {
-+		kmem_cache_free(blkvsc_req->dev->request_pool, blkvsc_req);
-+		return -ENOMEM;
++	spin_lock_irqsave(&blkdev->lock, flags);
++
++	blkdev->shutting_down = 1;
++
++	blk_stop_queue(blkdev->gd->queue);
++
++	spin_unlock_irqrestore(&blkdev->lock, flags);
++
++	while (blkdev->num_outstanding_reqs) {
++		DPRINT_INFO(STORVSC, "waiting for %d requests to complete...",
++			    blkdev->num_outstanding_reqs);
++		udelay(100);
 +	}
 +
-+	init_completion(&blkvsc_req->request.wait_event);
-+	blkvsc_req->dev = blkdev;
-+	blkvsc_req->req = NULL;
-+	blkvsc_req->write = 0;
++	blkvsc_do_flush(blkdev);
 +
-+	blkvsc_req->request.data_buffer.pfn_array[0] =
-+	page_to_pfn(page_buf);
-+	blkvsc_req->request.data_buffer.offset = 0;
-+	blkvsc_req->request.data_buffer.len = 64;
++	spin_lock_irqsave(&blkdev->lock, flags);
 +
-+	blkvsc_req->cmnd[0] = INQUIRY;
-+	blkvsc_req->cmnd[1] = 0x1;		/* Get product data */
-+	blkvsc_req->cmnd[2] = 0x83;		/* mode page 83 */
-+	blkvsc_req->cmnd[4] = 64;
-+	blkvsc_req->cmd_len = 6;
++	blkvsc_cancel_pending_reqs(blkdev);
 +
-+	blkvsc_submit_request(blkvsc_req, blkvsc_cmd_completion);
-+
-+	DPRINT_DBG(BLKVSC_DRV, "waiting %p to complete\n",
-+		   blkvsc_req);
-+
-+	wait_for_completion_interruptible(&blkvsc_req->request.wait_event);
-+
-+	buf = kmap(page_buf);
-+
-+	/* print_hex_dump_bytes("", DUMP_PREFIX_NONE, buf, 64); */
-+	/* be to le */
-+	device_type = buf[0] & 0x1F;
-+
-+	if (device_type == 0x0) {
-+		blkdev->device_type = HARDDISK_TYPE;
-+	} else if (device_type == 0x5) {
-+		blkdev->device_type = DVD_TYPE;
-+	} else {
-+		/* TODO: this is currently unsupported device type */
-+		blkdev->device_type = UNKNOWN_DEV_TYPE;
-+	}
-+
-+	DPRINT_DBG(BLKVSC_DRV, "device type %d\n", device_type);
-+
-+	blkdev->device_id_len = buf[7];
-+	if (blkdev->device_id_len > 64)
-+		blkdev->device_id_len = 64;
-+
-+	memcpy(blkdev->device_id, &buf[8], blkdev->device_id_len);
-+	/* printk_hex_dump_bytes("", DUMP_PREFIX_NONE, blkdev->device_id,
-+	 * blkdev->device_id_len); */
-+
-+	kunmap(page_buf);
-+
-+	__free_page(page_buf);
-+
-+	kmem_cache_free(blkvsc_req->dev->request_pool, blkvsc_req);
-+
-+	return 0;
++	spin_unlock_irqrestore(&blkdev->lock, flags);
 +}
 +
  /* Static decl */
  static int blkvsc_probe(struct device *dev);
+-static void blkvsc_shutdown(struct device *device);
+-
+ static int blkvsc_release(struct gendisk *disk, fmode_t mode);
+ static int blkvsc_revalidate_disk(struct gendisk *gd);
  static void blkvsc_request(struct request_queue *queue);
- static void blkvsc_request_completion(struct hv_storvsc_request *request);
- static int blkvsc_do_request(struct block_device_context *blkdev,
- 			     struct request *req);
--static int blkvsc_do_inquiry(struct block_device_context *blkdev);
- static int blkvsc_do_pending_reqs(struct block_device_context *blkdev);
- 
- static int blkvsc_ringbuffer_size = BLKVSC_RING_BUFFER_SIZE;
-@@ -1129,84 +1207,6 @@ Cleanup:
+@@ -904,40 +936,6 @@ Cleanup:
  	return ret;
  }
  
--/* Do a scsi INQUIRY cmd here to get the device type (ie disk or dvd) */
--static int blkvsc_do_inquiry(struct block_device_context *blkdev)
+-static void blkvsc_shutdown(struct device *device)
 -{
--	struct blkvsc_request *blkvsc_req;
--	struct page *page_buf;
--	unsigned char *buf;
--	unsigned char device_type;
+-	struct block_device_context *blkdev = dev_get_drvdata(device);
+-	unsigned long flags;
 -
--	DPRINT_DBG(BLKVSC_DRV, "blkvsc_do_inquiry()\n");
+-	if (!blkdev)
+-		return;
 -
--	blkvsc_req = kmem_cache_zalloc(blkdev->request_pool, GFP_KERNEL);
--	if (!blkvsc_req)
--		return -ENOMEM;
+-	DPRINT_DBG(BLKVSC_DRV, "blkvsc_shutdown - users %d disk %s\n",
+-		   blkdev->users, blkdev->gd->disk_name);
 -
--	memset(blkvsc_req, 0, sizeof(struct blkvsc_request));
--	page_buf = alloc_page(GFP_KERNEL);
--	if (!page_buf) {
--		kmem_cache_free(blkvsc_req->dev->request_pool, blkvsc_req);
--		return -ENOMEM;
+-	spin_lock_irqsave(&blkdev->lock, flags);
+-
+-	blkdev->shutting_down = 1;
+-
+-	blk_stop_queue(blkdev->gd->queue);
+-
+-	spin_unlock_irqrestore(&blkdev->lock, flags);
+-
+-	while (blkdev->num_outstanding_reqs) {
+-		DPRINT_INFO(STORVSC, "waiting for %d requests to complete...",
+-			    blkdev->num_outstanding_reqs);
+-		udelay(100);
 -	}
 -
--	init_completion(&blkvsc_req->request.wait_event);
--	blkvsc_req->dev = blkdev;
--	blkvsc_req->req = NULL;
--	blkvsc_req->write = 0;
+-	blkvsc_do_flush(blkdev);
 -
--	blkvsc_req->request.data_buffer.pfn_array[0] =
--	page_to_pfn(page_buf);
--	blkvsc_req->request.data_buffer.offset = 0;
--	blkvsc_req->request.data_buffer.len = 64;
+-	spin_lock_irqsave(&blkdev->lock, flags);
 -
--	blkvsc_req->cmnd[0] = INQUIRY;
--	blkvsc_req->cmnd[1] = 0x1;		/* Get product data */
--	blkvsc_req->cmnd[2] = 0x83;		/* mode page 83 */
--	blkvsc_req->cmnd[4] = 64;
--	blkvsc_req->cmd_len = 6;
+-	blkvsc_cancel_pending_reqs(blkdev);
 -
--	blkvsc_submit_request(blkvsc_req, blkvsc_cmd_completion);
--
--	DPRINT_DBG(BLKVSC_DRV, "waiting %p to complete\n",
--		   blkvsc_req);
--
--	wait_for_completion_interruptible(&blkvsc_req->request.wait_event);
--
--	buf = kmap(page_buf);
--
--	/* print_hex_dump_bytes("", DUMP_PREFIX_NONE, buf, 64); */
--	/* be to le */
--	device_type = buf[0] & 0x1F;
--
--	if (device_type == 0x0) {
--		blkdev->device_type = HARDDISK_TYPE;
--	} else if (device_type == 0x5) {
--		blkdev->device_type = DVD_TYPE;
--	} else {
--		/* TODO: this is currently unsupported device type */
--		blkdev->device_type = UNKNOWN_DEV_TYPE;
--	}
--
--	DPRINT_DBG(BLKVSC_DRV, "device type %d\n", device_type);
--
--	blkdev->device_id_len = buf[7];
--	if (blkdev->device_id_len > 64)
--		blkdev->device_id_len = 64;
--
--	memcpy(blkdev->device_id, &buf[8], blkdev->device_id_len);
--	/* printk_hex_dump_bytes("", DUMP_PREFIX_NONE, blkdev->device_id,
--	 * blkdev->device_id_len); */
--
--	kunmap(page_buf);
--
--	__free_page(page_buf);
--
--	kmem_cache_free(blkvsc_req->dev->request_pool, blkvsc_req);
--
--	return 0;
+-	spin_unlock_irqrestore(&blkdev->lock, flags);
 -}
 -
- /*
-  * We break the request into 1 or more blkvsc_requests and submit
-  * them.  If we can't submit them all, we put them on the
+ /* Do a scsi INQUIRY cmd here to get the device type (ie disk or dvd) */
+ static int blkvsc_do_inquiry(struct block_device_context *blkdev)
+ {
 -- 
 1.7.4.1
