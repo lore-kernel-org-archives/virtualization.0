@@ -1,8 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 15/18] Staging: hv: Get rid of the forward declaration for
-	blkvsc_request()
-Date: Fri, 22 Apr 2011 14:13:36 -0700
-Message-ID: <1303506819-1913-15-git-send-email-kys@microsoft.com>
+Subject: [PATCH 14/18] Staging: hv: Get rid of the forward declaration for
+	blkvsc_do_pending_reqs()
+Date: Fri, 22 Apr 2011 14:13:35 -0700
+Message-ID: <1303506819-1913-14-git-send-email-kys@microsoft.com>
 References: <1303506780-1872-1-git-send-email-kys@microsoft.com>
 	<1303506819-1913-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -23,122 +23,82 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Get rid of the forward declaration for blkvsc_request() by moving the code
-around.
+Get rid of the forward declaration for blkvsc_do_pending_reqs() by moving
+the code around.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/blkvsc_drv.c |   86 +++++++++++++++++++-------------------
- 1 files changed, 43 insertions(+), 43 deletions(-)
+ drivers/staging/hv/blkvsc_drv.c |   45 +++++++++++++++++++--------------------
+ 1 files changed, 22 insertions(+), 23 deletions(-)
 
 diff --git a/drivers/staging/hv/blkvsc_drv.c b/drivers/staging/hv/blkvsc_drv.c
-index 5252948..a63778e4 100644
+index 0b5622e..5252948 100644
 --- a/drivers/staging/hv/blkvsc_drv.c
 +++ b/drivers/staging/hv/blkvsc_drv.c
-@@ -1162,9 +1162,51 @@ static int blkvsc_do_pending_reqs(struct block_device_context *blkdev)
- 	return ret;
+@@ -1140,10 +1140,31 @@ static int blkvsc_do_request(struct block_device_context *blkdev,
+ 	return pending;
  }
  
-+
-+static void blkvsc_request(struct request_queue *queue)
++static int blkvsc_do_pending_reqs(struct block_device_context *blkdev)
 +{
-+	struct block_device_context *blkdev = NULL;
-+	struct request *req;
++	struct blkvsc_request *pend_req, *tmp;
 +	int ret = 0;
 +
-+	DPRINT_DBG(BLKVSC_DRV, "- enter\n");
-+	while ((req = blk_peek_request(queue)) != NULL) {
-+		DPRINT_DBG(BLKVSC_DRV, "- req %p\n", req);
++	/* Flush the pending list first */
++	list_for_each_entry_safe(pend_req, tmp, &blkdev->pending_list,
++				 pend_entry) {
++		DPRINT_DBG(BLKVSC_DRV, "working off pending_list - %p\n",
++			   pend_req);
 +
-+		blkdev = req->rq_disk->private_data;
-+		if (blkdev->shutting_down || req->cmd_type != REQ_TYPE_FS ||
-+		    blkdev->media_not_present) {
-+			__blk_end_request_cur(req, 0);
-+			continue;
-+		}
-+
-+		ret = blkvsc_do_pending_reqs(blkdev);
-+
-+		if (ret != 0) {
-+			DPRINT_DBG(BLKVSC_DRV,
-+				   "- stop queue - pending_list not empty\n");
-+			blk_stop_queue(queue);
++		ret = blkvsc_submit_request(pend_req,
++					    blkvsc_request_completion);
++		if (ret != 0)
 +			break;
-+		}
-+
-+		blk_start_request(req);
-+
-+		ret = blkvsc_do_request(blkdev, req);
-+		if (ret > 0) {
-+			DPRINT_DBG(BLKVSC_DRV, "- stop queue - no room\n");
-+			blk_stop_queue(queue);
-+			break;
-+		} else if (ret < 0) {
-+			DPRINT_DBG(BLKVSC_DRV, "- stop queue - no mem\n");
-+			blk_requeue_request(queue, req);
-+			blk_stop_queue(queue);
-+			break;
-+		}
++		else
++			list_del(&pend_req->pend_entry);
 +	}
++
++	return ret;
 +}
 +
  /* Static decl */
  static int blkvsc_probe(struct device *dev);
--static void blkvsc_request(struct request_queue *queue);
+ static void blkvsc_request(struct request_queue *queue);
+-static int blkvsc_do_pending_reqs(struct block_device_context *blkdev);
  
  static int blkvsc_ringbuffer_size = BLKVSC_RING_BUFFER_SIZE;
  module_param(blkvsc_ringbuffer_size, int, S_IRUGO);
-@@ -1491,48 +1533,6 @@ static void blkvsc_request_completion(struct hv_storvsc_request *request)
+@@ -1470,28 +1491,6 @@ static void blkvsc_request_completion(struct hv_storvsc_request *request)
  	spin_unlock_irqrestore(&blkdev->lock, flags);
  }
  
--static void blkvsc_request(struct request_queue *queue)
+-static int blkvsc_do_pending_reqs(struct block_device_context *blkdev)
 -{
--	struct block_device_context *blkdev = NULL;
--	struct request *req;
+-	struct blkvsc_request *pend_req, *tmp;
 -	int ret = 0;
 -
--	DPRINT_DBG(BLKVSC_DRV, "- enter\n");
--	while ((req = blk_peek_request(queue)) != NULL) {
--		DPRINT_DBG(BLKVSC_DRV, "- req %p\n", req);
+-	/* Flush the pending list first */
+-	list_for_each_entry_safe(pend_req, tmp, &blkdev->pending_list,
+-				 pend_entry) {
+-		DPRINT_DBG(BLKVSC_DRV, "working off pending_list - %p\n",
+-			   pend_req);
 -
--		blkdev = req->rq_disk->private_data;
--		if (blkdev->shutting_down || req->cmd_type != REQ_TYPE_FS ||
--		    blkdev->media_not_present) {
--			__blk_end_request_cur(req, 0);
--			continue;
--		}
--
--		ret = blkvsc_do_pending_reqs(blkdev);
--
--		if (ret != 0) {
--			DPRINT_DBG(BLKVSC_DRV,
--				   "- stop queue - pending_list not empty\n");
--			blk_stop_queue(queue);
+-		ret = blkvsc_submit_request(pend_req,
+-					    blkvsc_request_completion);
+-		if (ret != 0)
 -			break;
--		}
--
--		blk_start_request(req);
--
--		ret = blkvsc_do_request(blkdev, req);
--		if (ret > 0) {
--			DPRINT_DBG(BLKVSC_DRV, "- stop queue - no room\n");
--			blk_stop_queue(queue);
--			break;
--		} else if (ret < 0) {
--			DPRINT_DBG(BLKVSC_DRV, "- stop queue - no mem\n");
--			blk_requeue_request(queue, req);
--			blk_stop_queue(queue);
--			break;
--		}
+-		else
+-			list_del(&pend_req->pend_entry);
 -	}
+-
+-	return ret;
 -}
 -
- static int __init blkvsc_init(void)
+ static void blkvsc_request(struct request_queue *queue)
  {
- 	int ret;
+ 	struct block_device_context *blkdev = NULL;
 -- 
 1.7.4.1
