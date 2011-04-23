@@ -1,158 +1,68 @@
-From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 21/21] Staging: hv: Get rid of IDE details from blkvsc_drv.c
-Date: Fri, 22 Apr 2011 14:55:26 -0700
-Message-ID: <1303509326-3094-21-git-send-email-kys@microsoft.com>
-References: <1303509246-3053-1-git-send-email-kys@microsoft.com>
- <1303509326-3094-1-git-send-email-kys@microsoft.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1303509326-3094-1-git-send-email-kys@microsoft.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org
-Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Hank Janssen <hjanssen@microsoft.com>
+From: Greg KH <greg@kroah.com>
+Subject: Re: Hyper-V vmbus driver
+Date: Sat, 23 Apr 2011 08:20:55 -0700
+Message-ID: <20110423152055.GA29109@kroah.com>
+References: <6E21E5352C11B742B20C142EB499E0481C8D35@TK5EX14MBXC126.redmond.corp.microsoft.com>
+	<20110411190708.GA21355@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <devel-bounces@linuxdriverproject.org>
+Content-Disposition: inline
+In-Reply-To: <20110411190708.GA21355@suse.de>
+List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
+	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
+List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
+List-Post: <mailto:devel@linuxdriverproject.org>
+List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
+List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
+	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
+Sender: devel-bounces@linuxdriverproject.org
+Errors-To: devel-bounces@linuxdriverproject.org
+To: Greg KH <gregkh@suse.de>
+Cc: "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Now get rid of IDE details from blkvsc_drv.c.
+On Mon, Apr 11, 2011 at 12:07:08PM -0700, Greg KH wrote:
+> > With that patch-set, I think I have addressed all architectural issues that I
+> > am aware of.
+> > 
+> > I was wondering if you would have the time to let me know what else would have
+> > to be addressed
+> > 
+> > in the vmbus driver, before it could be considered ready for exiting staging.
+> > As always your help is
+> > 
+> > greatly appreciated.
+> 
+> Anyway, yes, I discussed this with Hank last week at the LF Collab
+> summit.  I'll look at the vmbus code later this week when I catch up on
+> all of my other work (stable, usb, tty, staging, etc.) that has piled up
+> during my 2 week absence, and get back to you with what I feel is still
+> needed to be done, if anything.
 
-Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
-Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
-Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
----
- drivers/staging/hv/blkvsc_drv.c |   55 +++++++++++---------------------------
- drivers/staging/hv/storvsc.c    |   18 ++++++------
- 2 files changed, 25 insertions(+), 48 deletions(-)
+Due to other external issues, my patch backlog is still not gotten
+through yet, sorry.  Sometimes "real life" intrudes on the best of
+plans.
 
-diff --git a/drivers/staging/hv/blkvsc_drv.c b/drivers/staging/hv/blkvsc_drv.c
-index 3229ebc..acc5435 100644
---- a/drivers/staging/hv/blkvsc_drv.c
-+++ b/drivers/staging/hv/blkvsc_drv.c
-@@ -953,11 +953,8 @@ static int blkvsc_probe(struct device *device)
- 
- 	struct block_device_context *blkdev = NULL;
- 	struct storvsc_device_info device_info;
--	int major = 0;
--	int devnum = 0;
-+	struct storvsc_major_info major_info;
- 	int ret = 0;
--	static int ide0_registered;
--	static int ide1_registered;
- 
- 
- 	blkdev = kzalloc(sizeof(struct block_device_context), GFP_KERNEL);
-@@ -994,43 +991,23 @@ static int blkvsc_probe(struct device *device)
- 
- 	dev_set_drvdata(device, blkdev);
- 
--	/* Calculate the major and device num */
--	if (blkdev->path == 0) {
--		major = IDE0_MAJOR;
--		devnum = blkdev->path + blkdev->target;		/* 0 or 1 */
--
--		if (!ide0_registered) {
--			ret = register_blkdev(major, "ide");
--			if (ret != 0) {
--				DPRINT_ERR(BLKVSC_DRV,
--					   "register_blkdev() failed! ret %d",
--					   ret);
--				goto remove;
--			}
-+	ret = stor_vsc_get_major_info(&device_info, &major_info);
- 
--			ide0_registered = 1;
--		}
--	} else if (blkdev->path == 1) {
--		major = IDE1_MAJOR;
--		devnum = blkdev->path + blkdev->target + 1; /* 2 or 3 */
--
--		if (!ide1_registered) {
--			ret = register_blkdev(major, "ide");
--			if (ret != 0) {
--				DPRINT_ERR(BLKVSC_DRV,
--					   "register_blkdev() failed! ret %d",
--					   ret);
--				goto remove;
--			}
-+	if (ret)
-+		goto cleanup;
-+
-+	if (major_info.do_register) {
-+		ret = register_blkdev(major_info.major, major_info.devname);
- 
--			ide1_registered = 1;
-+		if (ret != 0) {
-+			DPRINT_ERR(BLKVSC_DRV,
-+				   "register_blkdev() failed! ret %d", ret);
-+			goto remove;
- 		}
--	} else {
--		ret = -1;
--		goto cleanup;
- 	}
- 
--	DPRINT_INFO(BLKVSC_DRV, "blkvsc registered for major %d!!", major);
-+	DPRINT_INFO(BLKVSC_DRV, "blkvsc registered for major %d!!",
-+			major_info.major);
- 
- 	blkdev->gd = alloc_disk(BLKVSC_MINORS);
- 	if (!blkdev->gd) {
-@@ -1046,8 +1023,8 @@ static int blkvsc_probe(struct device *device)
- 	blk_queue_bounce_limit(blkdev->gd->queue, BLK_BOUNCE_ANY);
- 	blk_queue_dma_alignment(blkdev->gd->queue, 511);
- 
--	blkdev->gd->major = major;
--	if (devnum == 1 || devnum == 3)
-+	blkdev->gd->major = major_info.major;
-+	if (major_info.index == 1 || major_info.index == 3)
- 		blkdev->gd->first_minor = BLKVSC_MINORS;
- 	else
- 		blkdev->gd->first_minor = 0;
-@@ -1055,7 +1032,7 @@ static int blkvsc_probe(struct device *device)
- 	blkdev->gd->events = DISK_EVENT_MEDIA_CHANGE;
- 	blkdev->gd->private_data = blkdev;
- 	blkdev->gd->driverfs_dev = &(blkdev->device_ctx->device);
--	sprintf(blkdev->gd->disk_name, "hd%c", 'a' + devnum);
-+	sprintf(blkdev->gd->disk_name, "hd%c", 'a' + major_info.index);
- 
- 	blkvsc_do_operation(blkdev, DO_INQUIRY);
- 	blkvsc_do_operation(blkdev, DO_CAPACITY);
-diff --git a/drivers/staging/hv/storvsc.c b/drivers/staging/hv/storvsc.c
-index e2b3410..85bae5a 100644
---- a/drivers/staging/hv/storvsc.c
-+++ b/drivers/staging/hv/storvsc.c
-@@ -629,26 +629,26 @@ int stor_vsc_get_major_info(struct storvsc_device_info *device_info,
- 
- 	if (device_info->path_id) {
- 		major_info->major = 22;
--		if (!ide1_registered)
-+		if (!ide1_registered) {
- 			major_info->do_register = true;
--		else {
--			major_info->do_register = false;
- 			ide1_registered = true;
--		}
-+		} else
-+			major_info->do_register = false;
-+
- 		if (device_info->target_id)
- 			major_info->index = 3;
--		 else
-+		else
- 			major_info->index = 2;
- 
- 		return 0;
- 	} else {
- 		major_info->major = 3;
--		if (!ide0_registered)
-+		if (!ide0_registered) {
- 			major_info->do_register = true;
--		else {
--			major_info->do_register = false;
- 			ide0_registered = true;
--		}
-+		} else
-+			major_info->do_register = false;
-+
- 		if (device_info->target_id)
- 			major_info->index = 1;
- 		else
--- 
-1.7.4.1
+I'll get to this when I get through the rest of your hv patches, and the
+other patches pending that I have in my queues.
+
+But, I would recommend you going through and looking at the code and
+verifying that you feel the bus code is "ready".  At a very quick
+glance, you should not have individual drivers have to set their 'struct
+device' pointers directly, that is something that the bus does, not the
+driver.  The driver core will call your bus and your bus will then do
+the matching and call the probe function of the driver if needed.
+
+See the PCI driver structure for an example of this if you are curious.
+It should also allow you to get rid of that unneeded *priv pointer in
+the struct hv_driver.  You should be able to set that structure
+constant, like all other busses.  Right now you can not which shows a
+design issue.
+
+So, take a look at that and let me know what you think.
+
+thanks,
+
+greg k-h
