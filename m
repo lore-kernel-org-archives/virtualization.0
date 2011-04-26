@@ -1,7 +1,7 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 14/25] Staging: hv: Properly handle errors in hv_pci_probe()
-Date: Tue, 26 Apr 2011 09:20:31 -0700
-Message-ID: <1303834842-5022-14-git-send-email-kys@microsoft.com>
+Subject: [PATCH 18/25] Staging: hv: Get rid of struct hv_bus
+Date: Tue, 26 Apr 2011 09:20:35 -0700
+Message-ID: <1303834842-5022-18-git-send-email-kys@microsoft.com>
 References: <1303834785-4981-1-git-send-email-kys@microsoft.com>
 	<1303834842-5022-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -22,81 +22,108 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Much of the vmbus driver initialization is done within the hv_pci_probe()
-function. Properly handle errors in hv_pci_probe so that we can
-appropriately deal with loading of the vmbus driver.
+Now, get rid of struct hv_bus. We will no longer be embedding
+struct bus_type.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/vmbus_drv.c |   34 +++++++++++++++++++++++++---------
- 1 files changed, 25 insertions(+), 9 deletions(-)
+ drivers/staging/hv/vmbus_drv.c |   33 ++++++++++++++-------------------
+ 1 files changed, 14 insertions(+), 19 deletions(-)
 
 diff --git a/drivers/staging/hv/vmbus_drv.c b/drivers/staging/hv/vmbus_drv.c
-index 248dc8a..a2acbce 100644
+index a3a7741..515311c 100644
 --- a/drivers/staging/hv/vmbus_drv.c
 +++ b/drivers/staging/hv/vmbus_drv.c
-@@ -54,6 +54,8 @@ EXPORT_SYMBOL(vmbus_loglevel);
- 	/* (ALL_MODULES << 16 | DEBUG_LVL_ENTEREXIT); */
- 	/* (((VMBUS | VMBUS_DRV)<<16) | DEBUG_LVL_ENTEREXIT); */
+@@ -45,11 +45,6 @@ static struct pci_dev *hv_pci_dev;
+ static struct tasklet_struct msg_dpc;
+ static struct tasklet_struct event_dpc;
  
-+static int pci_probe_error;
-+static struct completion probe_event;
- 
- static void get_channel_info(struct hv_device *device,
- 			     struct hv_device_info *info)
-@@ -732,19 +734,19 @@ void vmbus_child_device_unregister(struct hv_device *device_obj)
- static int __devinit hv_pci_probe(struct pci_dev *pdev,
- 				const struct pci_device_id *ent)
- {
--	int err;
+-/* Main vmbus driver data structure */
+-struct hv_bus {
+-	struct bus_type bus;
+-};
 -
- 	hv_pci_dev = pdev;
- 
--	err = pci_enable_device(pdev);
--	if (err)
--		return err;
-+	pci_probe_error = pci_enable_device(pdev);
-+	if (pci_probe_error)
-+		goto probe_cleanup;
- 
--	err = vmbus_bus_init(pdev);
--	if (err)
-+	pci_probe_error = vmbus_bus_init(pdev);
-+	if (pci_probe_error)
- 		pci_disable_device(pdev);
- 
--	return err;
-+probe_cleanup:
-+	complete(&probe_event);
-+	return pci_probe_error;
+ unsigned int vmbus_loglevel = (ALL_MODULES << 16 | INFO_LVL);
+ EXPORT_SYMBOL(vmbus_loglevel);
+ 	/* (ALL_MODULES << 16 | DEBUG_LVL_ENTEREXIT); */
+@@ -405,14 +400,14 @@ static void vmbus_device_release(struct device *device)
  }
  
- /*
-@@ -767,7 +769,21 @@ static struct pci_driver hv_bus_driver = {
+ /* The one and only one */
+-static struct hv_bus  hv_bus = {
+-	.bus.name =		"vmbus",
+-	.bus.match =		vmbus_match,
+-	.bus.shutdown =		vmbus_shutdown,
+-	.bus.remove =		vmbus_remove,
+-	.bus.probe =		vmbus_probe,
+-	.bus.uevent =		vmbus_uevent,
+-	.bus.dev_attrs =	vmbus_device_attrs,
++static struct bus_type  hv_bus = {
++	.name =		"vmbus",
++	.match =		vmbus_match,
++	.shutdown =		vmbus_shutdown,
++	.remove =		vmbus_remove,
++	.probe =		vmbus_probe,
++	.uevent =		vmbus_uevent,
++	.dev_attrs =	vmbus_device_attrs,
+ };
  
- static int __init hv_pci_init(void)
- {
--	return pci_register_driver(&hv_bus_driver);
-+	int ret;
-+	init_completion(&probe_event);
-+	ret = pci_register_driver(&hv_bus_driver);
-+	if (ret)
-+		return ret;
-+	/*
-+	 * All the vmbus initialization occurs within the
-+	 * hv_pci_probe() function. Wait for hv_pci_probe()
-+	 * to complete.
-+	 */
-+	wait_for_completion(&probe_event);
-+
-+	if (pci_probe_error)
-+		pci_unregister_driver(&hv_bus_driver);
-+	return pci_probe_error;
- }
+ static const char *driver_name = "hyperv";
+@@ -550,14 +545,14 @@ static int vmbus_bus_init(struct pci_dev *pdev)
+ 		goto cleanup;
+ 	}
  
+-	hv_bus.bus.name = driver_name;
++	hv_bus.name = driver_name;
+ 
+ 	/* Initialize the bus context */
+ 	tasklet_init(&msg_dpc, vmbus_on_msg_dpc, 0);
+ 	tasklet_init(&event_dpc, vmbus_on_event, 0);
+ 
+ 	/* Now, register the bus  with LDM */
+-	ret = bus_register(&hv_bus.bus);
++	ret = bus_register(&hv_bus);
+ 	if (ret) {
+ 		ret = -1;
+ 		goto cleanup;
+@@ -572,7 +567,7 @@ static int vmbus_bus_init(struct pci_dev *pdev)
+ 		pr_err("Unable to request IRQ %d\n",
+ 			   pdev->irq);
+ 
+-		bus_unregister(&hv_bus.bus);
++		bus_unregister(&hv_bus);
+ 
+ 		ret = -1;
+ 		goto cleanup;
+@@ -588,7 +583,7 @@ static int vmbus_bus_init(struct pci_dev *pdev)
+ 	ret = vmbus_connect();
+ 	if (ret) {
+ 		free_irq(pdev->irq, pdev);
+-		bus_unregister(&hv_bus.bus);
++		bus_unregister(&hv_bus);
+ 		goto cleanup;
+ 	}
+ 
+@@ -618,7 +613,7 @@ int vmbus_child_driver_register(struct device_driver *drv)
+ 	pr_info("child driver registering - name %s\n", drv->name);
+ 
+ 	/* The child driver on this vmbus */
+-	drv->bus = &hv_bus.bus;
++	drv->bus = &hv_bus;
+ 
+ 	ret = driver_register(drv);
+ 
+@@ -688,7 +683,7 @@ int vmbus_child_device_register(struct hv_device *child_device_obj)
+ 		     atomic_inc_return(&device_num));
+ 
+ 	/* The new device belongs to this bus */
+-	child_device_obj->device.bus = &hv_bus.bus; /* device->dev.bus; */
++	child_device_obj->device.bus = &hv_bus; /* device->dev.bus; */
+ 	child_device_obj->device.parent = &hv_pci_dev->dev;
+ 	child_device_obj->device.release = vmbus_device_release;
  
 -- 
 1.7.4.1
