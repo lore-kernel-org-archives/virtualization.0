@@ -1,7 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 19/25] Staging: hv: Add probe function to struct hv_driver
-Date: Tue, 26 Apr 2011 09:20:36 -0700
-Message-ID: <1303834842-5022-19-git-send-email-kys@microsoft.com>
+Subject: [PATCH 11/25] Staging: hv: Get rid of the drv field in struct
+	hv_device
+Date: Tue, 26 Apr 2011 09:20:28 -0700
+Message-ID: <1303834842-5022-11-git-send-email-kys@microsoft.com>
 References: <1303834785-4981-1-git-send-email-kys@microsoft.com>
 	<1303834842-5022-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -22,29 +23,29 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Add probe function to struct hv_driver.
+Now, we can rid of the drv field in struct hv_device.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/vmbus_api.h |    3 +++
- 1 files changed, 3 insertions(+), 0 deletions(-)
+ drivers/staging/hv/vmbus_api.h |    3 ---
+ 1 files changed, 0 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/staging/hv/vmbus_api.h b/drivers/staging/hv/vmbus_api.h
-index c953d6e..6f3741d 100644
+index 51fa952..02e3587 100644
 --- a/drivers/staging/hv/vmbus_api.h
 +++ b/drivers/staging/hv/vmbus_api.h
-@@ -99,6 +99,9 @@ struct hv_driver {
- 	int (*dev_add)(struct hv_device *device, void *data);
- 	int (*dev_rm)(struct hv_device *device);
- 	void (*cleanup)(struct hv_driver *driver);
-+
-+	int (*probe)(struct hv_device *);
-+
- };
+@@ -103,9 +103,6 @@ struct hv_driver {
  
  /* Base device object */
+ struct hv_device {
+-	/* the driver for this device */
+-	struct hv_driver *drv;
+-
+ 	char name[64];
+ 
+ 	struct work_struct probe_failed_work_item;
 -- 
 1.7.4.1
