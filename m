@@ -1,7 +1,7 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 13/25] Staging: hv: Cleanup vmbus_probe() function
-Date: Tue, 26 Apr 2011 09:20:30 -0700
-Message-ID: <1303834842-5022-13-git-send-email-kys@microsoft.com>
+Subject: [PATCH 09/25] Staging: hv: Get rid of vmbus_release_unattached_channels() as it is not used
+Date: Tue, 26 Apr 2011 09:20:26 -0700
+Message-ID: <1303834842-5022-9-git-send-email-kys@microsoft.com>
 References: <1303834785-4981-1-git-send-email-kys@microsoft.com>
  <1303834842-5022-1-git-send-email-kys@microsoft.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
@@ -11,79 +11,71 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>, Hank Janssen <hjanssen@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The logic for handling probe failure was broken. Now that we have
-cleaned up error handling, get rid of the vmbus_probe_failed_cb()
-function.
+Since vmbus_release_unattached_channels() is only used in module
+unload path and since the vmbus driver cannot be unloaded,
+get rid of this "dead" code.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/vmbus_api.h |    2 --
- drivers/staging/hv/vmbus_drv.c |   27 +--------------------------
- 2 files changed, 1 insertions(+), 28 deletions(-)
+ drivers/staging/hv/channel_mgmt.c |   33 ---------------------------------
+ drivers/staging/hv/channel_mgmt.h |    2 --
+ 2 files changed, 0 insertions(+), 35 deletions(-)
 
-diff --git a/drivers/staging/hv/vmbus_api.h b/drivers/staging/hv/vmbus_api.h
-index 02e3587..c953d6e 100644
---- a/drivers/staging/hv/vmbus_api.h
-+++ b/drivers/staging/hv/vmbus_api.h
-@@ -105,8 +105,6 @@ struct hv_driver {
- struct hv_device {
- 	char name[64];
- 
--	struct work_struct probe_failed_work_item;
--
- 	int probe_error;
- 
- 	/* the device type id of this device */
-diff --git a/drivers/staging/hv/vmbus_drv.c b/drivers/staging/hv/vmbus_drv.c
-index 4d569ad..248dc8a 100644
---- a/drivers/staging/hv/vmbus_drv.c
-+++ b/drivers/staging/hv/vmbus_drv.c
-@@ -313,27 +313,6 @@ static int vmbus_match(struct device *device, struct device_driver *driver)
- 	return match;
+diff --git a/drivers/staging/hv/channel_mgmt.c b/drivers/staging/hv/channel_mgmt.c
+index fe32f7e..1929ab3 100644
+--- a/drivers/staging/hv/channel_mgmt.c
++++ b/drivers/staging/hv/channel_mgmt.c
+@@ -791,37 +791,4 @@ cleanup:
+ 	return ret;
  }
  
--
 -/*
-- * vmbus_probe_failed_cb - Callback when a driver probe failed in vmbus_probe()
-- *
-- * We need a callback because we cannot invoked device_unregister() inside
-- * vmbus_probe() since vmbus_probe() may be invoked inside device_register()
-- * i.e. we cannot call device_unregister() inside device_register()
+- * vmbus_release_unattached_channels - Release channels that are
+- * unattached/unconnected ie (no drivers associated)
 - */
--static void vmbus_probe_failed_cb(struct work_struct *context)
+-void vmbus_release_unattached_channels(void)
 -{
--	struct hv_device *device_ctx = (struct hv_device *)context;
+-	struct vmbus_channel *channel, *pos;
+-	struct vmbus_channel *start = NULL;
+-	unsigned long flags;
 -
--	/*
--	 * Kick off the process of unregistering the device.
--	 * This will call vmbus_remove() and eventually vmbus_device_release()
--	 */
--	device_unregister(&device_ctx->device);
+-	spin_lock_irqsave(&vmbus_connection.channel_lock, flags);
 -
--	/* put_device(&device_ctx->device); */
+-	list_for_each_entry_safe(channel, pos, &vmbus_connection.chn_list,
+-				 listentry) {
+-		if (channel == start)
+-			break;
+-
+-		if (!channel->device_obj->drv) {
+-			list_del(&channel->listentry);
+-
+-			pr_err("Releasing unattached device object\n");
+-
+-			vmbus_child_device_unregister(channel->device_obj);
+-			free_channel(channel);
+-		} else {
+-			if (!start)
+-				start = channel;
+-		}
+-	}
+-
+-	spin_unlock_irqrestore(&vmbus_connection.channel_lock, flags);
 -}
 -
- /*
-  * vmbus_probe - Add the new vmbus's child device
-  */
-@@ -348,14 +327,10 @@ static int vmbus_probe(struct device *child_device)
- 	if (drv->driver.probe) {
- 		ret = dev->probe_error =
- 		drv->driver.probe(child_device);
--		if (ret != 0) {
-+		if (ret != 0)
- 			pr_err("probe failed for device %s (%d)\n",
- 			       dev_name(child_device), ret);
+ /* eof */
+diff --git a/drivers/staging/hv/channel_mgmt.h b/drivers/staging/hv/channel_mgmt.h
+index 96f74e2..3b2c393 100644
+--- a/drivers/staging/hv/channel_mgmt.h
++++ b/drivers/staging/hv/channel_mgmt.h
+@@ -315,6 +315,4 @@ void vmbus_onmessage(void *context);
  
--			INIT_WORK(&dev->probe_failed_work_item,
--				  vmbus_probe_failed_cb);
--			schedule_work(&dev->probe_failed_work_item);
--		}
- 	} else {
- 		pr_err("probe not set for driver %s\n",
- 		       dev_name(child_device));
+ int vmbus_request_offers(void);
+ 
+-void vmbus_release_unattached_channels(void);
+-
+ #endif /* _CHANNEL_MGMT_H_ */
 -- 
 1.7.4.1
