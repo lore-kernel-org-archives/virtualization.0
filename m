@@ -1,7 +1,7 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 07/25] Staging: hv: Cleanup vmbus_match()
-Date: Tue, 26 Apr 2011 09:20:24 -0700
-Message-ID: <1303834842-5022-7-git-send-email-kys@microsoft.com>
+Subject: [PATCH 23/25] Staging: hv: Add shutdown() function to struct hv_driver
+Date: Tue, 26 Apr 2011 09:20:40 -0700
+Message-ID: <1303834842-5022-23-git-send-email-kys@microsoft.com>
 References: <1303834785-4981-1-git-send-email-kys@microsoft.com>
 	<1303834842-5022-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -22,36 +22,27 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-In preparation for getting rid of the priv element from struct hv_driver,
-cleanup vmbus_match - the setting of the drv field in struct hv_device
-is not needed.
+Add shutdown() function to struct hv_driver.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/vmbus_drv.c |    7 ++-----
- 1 files changed, 2 insertions(+), 5 deletions(-)
+ drivers/staging/hv/vmbus_api.h |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/staging/hv/vmbus_drv.c b/drivers/staging/hv/vmbus_drv.c
-index c85d796..bf124a7 100644
---- a/drivers/staging/hv/vmbus_drv.c
-+++ b/drivers/staging/hv/vmbus_drv.c
-@@ -307,12 +307,9 @@ static int vmbus_match(struct device *device, struct device_driver *driver)
+diff --git a/drivers/staging/hv/vmbus_api.h b/drivers/staging/hv/vmbus_api.h
+index 1af1b62..0025002 100644
+--- a/drivers/staging/hv/vmbus_api.h
++++ b/drivers/staging/hv/vmbus_api.h
+@@ -102,6 +102,7 @@ struct hv_driver {
  
- 	/* We found our driver ? */
- 	if (memcmp(&device_ctx->dev_type, &drv->dev_type,
--		   sizeof(struct hv_guid)) == 0) {
--
--		device_ctx->drv = drv->priv;
--
-+		   sizeof(struct hv_guid)) == 0)
- 		match = 1;
--	}
-+
- 	return match;
- }
+ 	int (*probe)(struct hv_device *);
+ 	int (*remove)(struct hv_device *);
++	void (*shutdown)(struct hv_device *);
+ 
+ };
  
 -- 
 1.7.4.1
