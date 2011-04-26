@@ -1,66 +1,49 @@
 From: Greg KH <greg@kroah.com>
-Subject: Re: [PATCH 12/25] Staging: hv: Cleanup error handling in
- vmbus_child_device_register()
-Date: Tue, 26 Apr 2011 15:50:59 -0700
-Message-ID: <20110426225059.GA12897@kroah.com>
+Subject: Re: [PATCH 00/25] Staging: hv: Cleanup vmbus driver code
+Date: Tue, 26 Apr 2011 16:28:43 -0700
+Message-ID: <20110426232843.GA31184@kroah.com>
 References: <1303834785-4981-1-git-send-email-kys@microsoft.com>
- <1303834842-5022-1-git-send-email-kys@microsoft.com>
- <1303834842-5022-12-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1303834842-5022-12-git-send-email-kys@microsoft.com>
+In-Reply-To: <1303834785-4981-1-git-send-email-kys@microsoft.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: "K. Y. Srinivasan" <kys@microsoft.com>
-Cc: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org, Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>
+Cc: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Apr 26, 2011 at 09:20:29AM -0700, K. Y. Srinivasan wrote:
-> Cleanup error handling in vmbus_child_device_register().
+On Tue, Apr 26, 2011 at 09:19:45AM -0700, K. Y. Srinivasan wrote:
+> This patch-set addresses some of the bus/driver model cleanup that
+> Greg sugested over the last couple of days.  In this patch-set we
+> deal with the following issues:
 > 
-> Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
-> Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
-> Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
-> Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
-> ---
->  drivers/staging/hv/vmbus_drv.c |    7 ++++++-
->  1 files changed, 6 insertions(+), 1 deletions(-)
+> 	1) Cleanup unnecessary state in struct hv_device and 
+> 	   struct hv_driver to be compliant with the Linux
+> 	   Driver model.
 > 
-> diff --git a/drivers/staging/hv/vmbus_drv.c b/drivers/staging/hv/vmbus_drv.c
-> index d597dd4..4d569ad 100644
-> --- a/drivers/staging/hv/vmbus_drv.c
-> +++ b/drivers/staging/hv/vmbus_drv.c
-> @@ -720,11 +720,16 @@ int vmbus_child_device_register(struct hv_device *child_device_obj)
->  	 */
->  	ret = device_register(&child_device_obj->device);
->  
-> +	if (ret)
-> +		return ret;
-> +
->  	/* vmbus_probe() error does not get propergate to device_register(). */
->  	ret = child_device_obj->probe_error;
+> 	2) Cleanup the vmbus_match() function to conform with the 
+> 	   Linux Driver model.
+> 
+> 	3) Cleanup error handling in the vmbus_probe() and 
+> 	   vmbus_child_device_register() functions. Fixed a 
+> 	   bug in the probe failure path as part of this cleanup.
+> 
+> 	4) The Windows host cannot handle the vmbus_driver being 
+> 	   unloaded and subsequently loaded. Cleanup the driver with
+> 	   this in mind.
 
-Wait, why not?  Why is the probe_error have to be saved off like this?
-That seems like something is wrong here, this patch should not be
-needed.
+I've stopped at this patch (well, I applied one more, but you can see
+that.)
 
-Well, you should check the return value of device_register, that is
-needed, but this seems broken somehow.
+I'd like to get some confirmation that this is really what you all want
+to do here before applying it.  If it is, care to resend them with a bit
+more information about this issue and why you all are making it?
 
->  
-> -	if (ret)
-> +	if (ret) {
->  		pr_err("Unable to register child device\n");
-> +		device_unregister(&child_device_obj->device);
-> +	}
->  	else
-
-	} else
-is the preferred way.
-
-Care to send a fixup patch to remove the probe_error field and fix this
-formatting error up?
+Anyway, other than this one, the series looks good.  But you should
+follow-up with some driver structure changes like what Christoph said to
+do.  After that, do you want another round of review of the code, or do
+you have more things you want to send in (like the name[64] removal?)
 
 thanks,
 
