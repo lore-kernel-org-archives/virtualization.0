@@ -1,7 +1,7 @@
-From: Rob Landley <rlandley@parallels.com>
-Subject: [RFC PATCH TRIVIAL] Reading the virtio code...
-Date: Sat, 23 Apr 2011 18:13:34 -0500
-Message-ID: <4DB35D1E.3030509@parallels.com>
+From: Liu Yuan <namei.unix@gmail.com>
+Subject: [PATCH] virtio, ring: Use ALIGN macros in virtio_ring.h
+Date: Tue, 26 Apr 2011 12:11:10 +0800
+Message-ID: <1303791070-15196-1-git-send-email-namei.unix__16884.4270673164$1303791144$gmane$org@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -15,36 +15,40 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: rusty@rustcorp.com.au, virtualization@lists.linux-foundation.org
+To: Rusty Russell <rusty@rustcorp.com.au>, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Rob Landley <rlandley@parallels.com>
+From: Liu Yuan <tailai.ly@taobao.com>
 
-Going indirect for only two buffers isn't likely to be a performance win
-because the kmalloc/kfree overhead for the indirect block can't be cheaper
-than one extra linked list traversal.
 
-Properly "tuning" the threshold would probably be workload-specific.
-(One big downside of not going indirect is extra pressure on the table
-entries, and table size varies.)  But I think that in the general case,
-2 is a defensible minimum?
-
-Signed-off-by: Rob Landley <rlandley@parallels.com>
+Signed-off-by: Liu Yuan <tailai.ly@taobao.com>
 ---
+ include/linux/virtio_ring.h |    8 +++-----
+ 1 files changed, 3 insertions(+), 5 deletions(-)
 
- drivers/virtio/virtio_ring.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index b0043fb..2b69441 100644
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -173,7 +173,7 @@ int virtqueue_add_buf_gfp(struct virtqueue *_vq,
+diff --git a/include/linux/virtio_ring.h b/include/linux/virtio_ring.h
+index e4d144b..6299050 100644
+--- a/include/linux/virtio_ring.h
++++ b/include/linux/virtio_ring.h
+@@ -99,15 +99,13 @@ static inline void vring_init(struct vring *vr, unsigned int num, void *p,
+ 	vr->num = num;
+ 	vr->desc = p;
+ 	vr->avail = p + num*sizeof(struct vring_desc);
+-	vr->used = (void *)(((unsigned long)&vr->avail->ring[num] + align-1)
+-			    & ~(align - 1));
++	vr->used = (void *)PTR_ALIGN(&vr->avail->ring[num], align);
+ }
  
- 	/* If the host supports indirect descriptor tables, and we have multiple
- 	 * buffers, then go indirect. FIXME: tune this threshold */
--	if (vq->indirect && (out + in) > 1 && vq->num_free) {
-+	if (vq->indirect && (out + in) > 2 && vq->num_free) {
- 		head = vring_add_indirect(vq, sg, out, in, gfp);
- 		if (likely(head >= 0))
- 			goto add_head;
+ static inline unsigned vring_size(unsigned int num, unsigned long align)
+ {
+-	return ((sizeof(struct vring_desc) * num + sizeof(__u16) * (2 + num)
+-		 + align - 1) & ~(align - 1))
+-		+ sizeof(__u16) * 2 + sizeof(struct vring_used_elem) * num;
++	return ((sizeof(struct vring_desc) * num + ALIGN(sizeof(__u16) * (2 + num), align))
++		+ sizeof(__u16) * 2 + sizeof(struct vring_used_elem) * num);
+ }
+ 
+ #ifdef __KERNEL__
+-- 
+1.7.1
