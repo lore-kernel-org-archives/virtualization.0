@@ -1,72 +1,70 @@
-From: KY Srinivasan <kys@microsoft.com>
-Subject: RE: [PATCH 08/25] Staging: hv: vmbus_driver cannot be unloaded;
- cleanup accordingly
-Date: Wed, 27 Apr 2011 02:31:18 +0000
-Message-ID: <6E21E5352C11B742B20C142EB499E0481DD1C9@TK5EX14MBXC124.redmond.corp.microsoft.com>
-References: <1303834785-4981-1-git-send-email-kys@microsoft.com>
- <1303834842-5022-1-git-send-email-kys@microsoft.com>
- <1303834842-5022-8-git-send-email-kys@microsoft.com>
- <20110426224545.GC31974@kroah.com>
+From: uabuntsu@live.com
+Subject: Re:RE: [PATCH 08/25] Staging: hv: vmbus_driver cannot be unloaded;
+	cleanup accordingly
+Date: Wed, 27 Apr 2011 12:55:19 +0800 (CST)
+Message-ID: <232b57ed.60d0.12f954fb649.Coremail.uabuntsu@live.com>
+References: <6E21E5352C11B742B20C142EB499E0481DD1C9@TK5EX14MBXC124.redmond.corp.microsoft.com>
+	<1303834785-4981-1-git-send-email-kys@microsoft.com>
+	<1303834842-5022-1-git-send-email-kys@microsoft.com>
+	<1303834842-5022-8-git-send-email-kys@microsoft.com>
+	<20110426224545.GC31974@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20110426224545.GC31974@kroah.com>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Greg KH <greg@kroah.com>
-Cc: "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, Haiyang Zhang <haiyangz@microsoft.com>, "Abhishek Kane (Mindtree Consulting PVT LTD)" <v-abkane@microsoft.com>
+Content-Type: text/plain; charset="gbk"
+Content-Transfer-Encoding: base64
+Return-path: <devel-bounces@linuxdriverproject.org>
+In-Reply-To: <6E21E5352C11B742B20C142EB499E0481DD1C9@TK5EX14MBXC124.redmond.corp.microsoft.com>
+List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
+	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
+List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
+List-Post: <mailto:devel@linuxdriverproject.org>
+List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
+List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
+	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
+Sender: devel-bounces@linuxdriverproject.org
+Errors-To: devel-bounces@linuxdriverproject.org
+To: KY Srinivasan <kys@microsoft.com>
+Cc: "Abhishek Kane (Mindtree Consulting PVT LTD)" <v-abkane@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-
-
-> -----Original Message-----
-> From: Greg KH [mailto:greg@kroah.com]
-> Sent: Tuesday, April 26, 2011 6:46 PM
-> To: KY Srinivasan
-> Cc: gregkh@suse.de; linux-kernel@vger.kernel.org;
-> devel@linuxdriverproject.org; virtualization@lists.osdl.org; Haiyang Zhang;
-> Abhishek Kane (Mindtree Consulting PVT LTD)
-> Subject: Re: [PATCH 08/25] Staging: hv: vmbus_driver cannot be unloaded;
-> cleanup accordingly
-> 
-> On Tue, Apr 26, 2011 at 09:20:25AM -0700, K. Y. Srinivasan wrote:
-> > The vmbus driver cannot be unloaded; the windows host does not
-> > permit this. Cleanup accordingly.
-> 
-> Woah, you just prevented this driver from ever being able to be
-> unloaded.
-
-It was never unloadable; while the driver defined an exit routine, 
-there were couple of issues unloading the vmbus driver:
- 
-1) All guest resources given to the host could not be recovered.
-
-2) Windows host would not permit reloading the driver without 
-rebooting the guest.
-
-All I did was acknowledge the current state and cleanup 
-accordingly. This is not unique to Hyper-V; for what it is worth,
-the Xen platform_pci  driver which is equivalent to the vmbus driver
-is also not unlodable (the last time I checked).
-
-> 
-> That's not a "cleanup" that's a major change in how things work.  I'm
-> sure, if you want to continue down this line, there are more things you
-> can remove from the code, right?
-> 
-> What is the real issue here?  What happens if you unload the bus?  What
-> goes wrong?  Can it be fixed?
-
-This needs to be fixed on the host side. I have notified them of the issue. 
-
-> 
-> This is a pretty big commitment...
-
-These drivers only load when Linux is hosted on  a Hyper-V platform;
-I am not sure why it is a "big commitment" given that the host does not 
-permit reloading this driver without rebooting the guest. 
-
-Regards,
-
-K. Y
+dW5zdWJzY3JpYmUgbGludXgta2VybmVsCkF0IDIwMTEtMDQtMjcgMTA6MzE6MTijrCJLWSBTcmlu
+aXZhc2FuIiA8a3lzQG1pY3Jvc29mdC5jb20+IHdyb3RlOgo+Cj4KPj4gLS0tLS1PcmlnaW5hbCBN
+ZXNzYWdlLS0tLS0KPj4gRnJvbTogR3JlZyBLSCBbbWFpbHRvOmdyZWdAa3JvYWguY29tXQo+PiBT
+ZW50OiBUdWVzZGF5LCBBcHJpbCAyNiwgMjAxMSA2OjQ2IFBNCj4+IFRvOiBLWSBTcmluaXZhc2Fu
+Cj4+IENjOiBncmVna2hAc3VzZS5kZTsgbGludXgta2VybmVsQHZnZXIua2VybmVsLm9yZzsKPj4g
+ZGV2ZWxAbGludXhkcml2ZXJwcm9qZWN0Lm9yZzsgdmlydHVhbGl6YXRpb25AbGlzdHMub3NkbC5v
+cmc7IEhhaXlhbmcgWmhhbmc7Cj4+IEFiaGlzaGVrIEthbmUgKE1pbmR0cmVlIENvbnN1bHRpbmcg
+UFZUIExURCkKPj4gU3ViamVjdDogUmU6IFtQQVRDSCAwOC8yNV0gU3RhZ2luZzogaHY6IHZtYnVz
+X2RyaXZlciBjYW5ub3QgYmUgdW5sb2FkZWQ7Cj4+IGNsZWFudXAgYWNjb3JkaW5nbHkKPj4gCj4+
+IE9uIFR1ZSwgQXByIDI2LCAyMDExIGF0IDA5OjIwOjI1QU0gLTA3MDAsIEsuIFkuIFNyaW5pdmFz
+YW4gd3JvdGU6Cj4+ID4gVGhlIHZtYnVzIGRyaXZlciBjYW5ub3QgYmUgdW5sb2FkZWQ7IHRoZSB3
+aW5kb3dzIGhvc3QgZG9lcyBub3QKPj4gPiBwZXJtaXQgdGhpcy4gQ2xlYW51cCBhY2NvcmRpbmds
+eS4KPj4gCj4+IFdvYWgsIHlvdSBqdXN0IHByZXZlbnRlZCB0aGlzIGRyaXZlciBmcm9tIGV2ZXIg
+YmVpbmcgYWJsZSB0byBiZQo+PiB1bmxvYWRlZC4KPgo+SXQgd2FzIG5ldmVyIHVubG9hZGFibGU7
+IHdoaWxlIHRoZSBkcml2ZXIgZGVmaW5lZCBhbiBleGl0IHJvdXRpbmUsIAo+dGhlcmUgd2VyZSBj
+b3VwbGUgb2YgaXNzdWVzIHVubG9hZGluZyB0aGUgdm1idXMgZHJpdmVyOgo+IAo+MSkgQWxsIGd1
+ZXN0IHJlc291cmNlcyBnaXZlbiB0byB0aGUgaG9zdCBjb3VsZCBub3QgYmUgcmVjb3ZlcmVkLgo+
+Cj4yKSBXaW5kb3dzIGhvc3Qgd291bGQgbm90IHBlcm1pdCByZWxvYWRpbmcgdGhlIGRyaXZlciB3
+aXRob3V0IAo+cmVib290aW5nIHRoZSBndWVzdC4KPgo+QWxsIEkgZGlkIHdhcyBhY2tub3dsZWRn
+ZSB0aGUgY3VycmVudCBzdGF0ZSBhbmQgY2xlYW51cCAKPmFjY29yZGluZ2x5LiBUaGlzIGlzIG5v
+dCB1bmlxdWUgdG8gSHlwZXItVjsgZm9yIHdoYXQgaXQgaXMgd29ydGgsCj50aGUgWGVuIHBsYXRm
+b3JtX3BjaSAgZHJpdmVyIHdoaWNoIGlzIGVxdWl2YWxlbnQgdG8gdGhlIHZtYnVzIGRyaXZlcgo+
+aXMgYWxzbyBub3QgdW5sb2RhYmxlICh0aGUgbGFzdCB0aW1lIEkgY2hlY2tlZCkuCj4KPj4gCj4+
+IFRoYXQncyBub3QgYSAiY2xlYW51cCIgdGhhdCdzIGEgbWFqb3IgY2hhbmdlIGluIGhvdyB0aGlu
+Z3Mgd29yay4gIEknbQo+PiBzdXJlLCBpZiB5b3Ugd2FudCB0byBjb250aW51ZSBkb3duIHRoaXMg
+bGluZSwgdGhlcmUgYXJlIG1vcmUgdGhpbmdzIHlvdQo+PiBjYW4gcmVtb3ZlIGZyb20gdGhlIGNv
+ZGUsIHJpZ2h0Pwo+PiAKPj4gV2hhdCBpcyB0aGUgcmVhbCBpc3N1ZSBoZXJlPyAgV2hhdCBoYXBw
+ZW5zIGlmIHlvdSB1bmxvYWQgdGhlIGJ1cz8gIFdoYXQKPj4gZ29lcyB3cm9uZz8gIENhbiBpdCBi
+ZSBmaXhlZD8KPgo+VGhpcyBuZWVkcyB0byBiZSBmaXhlZCBvbiB0aGUgaG9zdCBzaWRlLiBJIGhh
+dmUgbm90aWZpZWQgdGhlbSBvZiB0aGUgaXNzdWUuIAo+Cj4+IAo+PiBUaGlzIGlzIGEgcHJldHR5
+IGJpZyBjb21taXRtZW50Li4uCj4KPlRoZXNlIGRyaXZlcnMgb25seSBsb2FkIHdoZW4gTGludXgg
+aXMgaG9zdGVkIG9uICBhIEh5cGVyLVYgcGxhdGZvcm07Cj5JIGFtIG5vdCBzdXJlIHdoeSBpdCBp
+cyBhICJiaWcgY29tbWl0bWVudCIgZ2l2ZW4gdGhhdCB0aGUgaG9zdCBkb2VzIG5vdCAKPnBlcm1p
+dCByZWxvYWRpbmcgdGhpcyBkcml2ZXIgd2l0aG91dCByZWJvb3RpbmcgdGhlIGd1ZXN0LiAKPgo+
+UmVnYXJkcywKPgo+Sy4gWQo+Cj4tLQo+VG8gdW5zdWJzY3JpYmUgZnJvbSB0aGlzIGxpc3Q6IHNl
+bmQgdGhlIGxpbmUgInVuc3Vic2NyaWJlIGxpbnV4LWtlcm5lbCIgaW4KPnRoZSBib2R5IG9mIGEg
+bWVzc2FnZSB0byBtYWpvcmRvbW9Admdlci5rZXJuZWwub3JnCj5Nb3JlIG1ham9yZG9tbyBpbmZv
+IGF0ICBodHRwOi8vdmdlci5rZXJuZWwub3JnL21ham9yZG9tby1pbmZvLmh0bWwKPlBsZWFzZSBy
+ZWFkIHRoZSBGQVEgYXQgIGh0dHA6Ly93d3cudHV4Lm9yZy9sa21sLwo+CgpfX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpkZXZlbCBtYWlsaW5nIGxpc3QKZGV2
+ZWxAbGludXhkcml2ZXJwcm9qZWN0Lm9yZwpodHRwOi8vZHJpdmVyZGV2LmxpbnV4ZHJpdmVycHJv
+amVjdC5vcmcvbWFpbG1hbi9saXN0aW5mby9kZXZlbAo=
