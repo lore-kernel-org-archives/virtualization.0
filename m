@@ -1,70 +1,50 @@
-From: uabuntsu@live.com
-Subject: Re:RE: [PATCH 08/25] Staging: hv: vmbus_driver cannot be unloaded;
-	cleanup accordingly
-Date: Wed, 27 Apr 2011 12:55:19 +0800 (CST)
-Message-ID: <232b57ed.60d0.12f954fb649.Coremail.uabuntsu@live.com>
-References: <6E21E5352C11B742B20C142EB499E0481DD1C9@TK5EX14MBXC124.redmond.corp.microsoft.com>
-	<1303834785-4981-1-git-send-email-kys@microsoft.com>
-	<1303834842-5022-1-git-send-email-kys@microsoft.com>
-	<1303834842-5022-8-git-send-email-kys@microsoft.com>
-	<20110426224545.GC31974@kroah.com>
+From: Christoph Hellwig <hch@infradead.org>
+Subject: Re: [PATCH 00/25] Staging: hv: Cleanup vmbus driver code
+Date: Wed, 27 Apr 2011 02:45:50 -0400
+Message-ID: <20110427064550.GA597@infradead.org>
+References: <1303834785-4981-1-git-send-email-kys@microsoft.com>
+ <20110426232843.GA31184@kroah.com>
+ <6E21E5352C11B742B20C142EB499E0481DD185@TK5EX14MBXC124.redmond.corp.microsoft.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="gbk"
-Content-Transfer-Encoding: base64
-Return-path: <devel-bounces@linuxdriverproject.org>
-In-Reply-To: <6E21E5352C11B742B20C142EB499E0481DD1C9@TK5EX14MBXC124.redmond.corp.microsoft.com>
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
-List-Post: <mailto:devel@linuxdriverproject.org>
-List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
-Sender: devel-bounces@linuxdriverproject.org
-Errors-To: devel-bounces@linuxdriverproject.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <6E21E5352C11B742B20C142EB499E0481DD185@TK5EX14MBXC124.redmond.corp.microsoft.com>
+Sender: linux-kernel-owner@vger.kernel.org
 To: KY Srinivasan <kys@microsoft.com>
-Cc: "Abhishek Kane (Mindtree Consulting PVT LTD)" <v-abkane@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>
+Cc: Greg KH <greg@kroah.com>, "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-dW5zdWJzY3JpYmUgbGludXgta2VybmVsCkF0IDIwMTEtMDQtMjcgMTA6MzE6MTijrCJLWSBTcmlu
-aXZhc2FuIiA8a3lzQG1pY3Jvc29mdC5jb20+IHdyb3RlOgo+Cj4KPj4gLS0tLS1PcmlnaW5hbCBN
-ZXNzYWdlLS0tLS0KPj4gRnJvbTogR3JlZyBLSCBbbWFpbHRvOmdyZWdAa3JvYWguY29tXQo+PiBT
-ZW50OiBUdWVzZGF5LCBBcHJpbCAyNiwgMjAxMSA2OjQ2IFBNCj4+IFRvOiBLWSBTcmluaXZhc2Fu
-Cj4+IENjOiBncmVna2hAc3VzZS5kZTsgbGludXgta2VybmVsQHZnZXIua2VybmVsLm9yZzsKPj4g
-ZGV2ZWxAbGludXhkcml2ZXJwcm9qZWN0Lm9yZzsgdmlydHVhbGl6YXRpb25AbGlzdHMub3NkbC5v
-cmc7IEhhaXlhbmcgWmhhbmc7Cj4+IEFiaGlzaGVrIEthbmUgKE1pbmR0cmVlIENvbnN1bHRpbmcg
-UFZUIExURCkKPj4gU3ViamVjdDogUmU6IFtQQVRDSCAwOC8yNV0gU3RhZ2luZzogaHY6IHZtYnVz
-X2RyaXZlciBjYW5ub3QgYmUgdW5sb2FkZWQ7Cj4+IGNsZWFudXAgYWNjb3JkaW5nbHkKPj4gCj4+
-IE9uIFR1ZSwgQXByIDI2LCAyMDExIGF0IDA5OjIwOjI1QU0gLTA3MDAsIEsuIFkuIFNyaW5pdmFz
-YW4gd3JvdGU6Cj4+ID4gVGhlIHZtYnVzIGRyaXZlciBjYW5ub3QgYmUgdW5sb2FkZWQ7IHRoZSB3
-aW5kb3dzIGhvc3QgZG9lcyBub3QKPj4gPiBwZXJtaXQgdGhpcy4gQ2xlYW51cCBhY2NvcmRpbmds
-eS4KPj4gCj4+IFdvYWgsIHlvdSBqdXN0IHByZXZlbnRlZCB0aGlzIGRyaXZlciBmcm9tIGV2ZXIg
-YmVpbmcgYWJsZSB0byBiZQo+PiB1bmxvYWRlZC4KPgo+SXQgd2FzIG5ldmVyIHVubG9hZGFibGU7
-IHdoaWxlIHRoZSBkcml2ZXIgZGVmaW5lZCBhbiBleGl0IHJvdXRpbmUsIAo+dGhlcmUgd2VyZSBj
-b3VwbGUgb2YgaXNzdWVzIHVubG9hZGluZyB0aGUgdm1idXMgZHJpdmVyOgo+IAo+MSkgQWxsIGd1
-ZXN0IHJlc291cmNlcyBnaXZlbiB0byB0aGUgaG9zdCBjb3VsZCBub3QgYmUgcmVjb3ZlcmVkLgo+
-Cj4yKSBXaW5kb3dzIGhvc3Qgd291bGQgbm90IHBlcm1pdCByZWxvYWRpbmcgdGhlIGRyaXZlciB3
-aXRob3V0IAo+cmVib290aW5nIHRoZSBndWVzdC4KPgo+QWxsIEkgZGlkIHdhcyBhY2tub3dsZWRn
-ZSB0aGUgY3VycmVudCBzdGF0ZSBhbmQgY2xlYW51cCAKPmFjY29yZGluZ2x5LiBUaGlzIGlzIG5v
-dCB1bmlxdWUgdG8gSHlwZXItVjsgZm9yIHdoYXQgaXQgaXMgd29ydGgsCj50aGUgWGVuIHBsYXRm
-b3JtX3BjaSAgZHJpdmVyIHdoaWNoIGlzIGVxdWl2YWxlbnQgdG8gdGhlIHZtYnVzIGRyaXZlcgo+
-aXMgYWxzbyBub3QgdW5sb2RhYmxlICh0aGUgbGFzdCB0aW1lIEkgY2hlY2tlZCkuCj4KPj4gCj4+
-IFRoYXQncyBub3QgYSAiY2xlYW51cCIgdGhhdCdzIGEgbWFqb3IgY2hhbmdlIGluIGhvdyB0aGlu
-Z3Mgd29yay4gIEknbQo+PiBzdXJlLCBpZiB5b3Ugd2FudCB0byBjb250aW51ZSBkb3duIHRoaXMg
-bGluZSwgdGhlcmUgYXJlIG1vcmUgdGhpbmdzIHlvdQo+PiBjYW4gcmVtb3ZlIGZyb20gdGhlIGNv
-ZGUsIHJpZ2h0Pwo+PiAKPj4gV2hhdCBpcyB0aGUgcmVhbCBpc3N1ZSBoZXJlPyAgV2hhdCBoYXBw
-ZW5zIGlmIHlvdSB1bmxvYWQgdGhlIGJ1cz8gIFdoYXQKPj4gZ29lcyB3cm9uZz8gIENhbiBpdCBi
-ZSBmaXhlZD8KPgo+VGhpcyBuZWVkcyB0byBiZSBmaXhlZCBvbiB0aGUgaG9zdCBzaWRlLiBJIGhh
-dmUgbm90aWZpZWQgdGhlbSBvZiB0aGUgaXNzdWUuIAo+Cj4+IAo+PiBUaGlzIGlzIGEgcHJldHR5
-IGJpZyBjb21taXRtZW50Li4uCj4KPlRoZXNlIGRyaXZlcnMgb25seSBsb2FkIHdoZW4gTGludXgg
-aXMgaG9zdGVkIG9uICBhIEh5cGVyLVYgcGxhdGZvcm07Cj5JIGFtIG5vdCBzdXJlIHdoeSBpdCBp
-cyBhICJiaWcgY29tbWl0bWVudCIgZ2l2ZW4gdGhhdCB0aGUgaG9zdCBkb2VzIG5vdCAKPnBlcm1p
-dCByZWxvYWRpbmcgdGhpcyBkcml2ZXIgd2l0aG91dCByZWJvb3RpbmcgdGhlIGd1ZXN0LiAKPgo+
-UmVnYXJkcywKPgo+Sy4gWQo+Cj4tLQo+VG8gdW5zdWJzY3JpYmUgZnJvbSB0aGlzIGxpc3Q6IHNl
-bmQgdGhlIGxpbmUgInVuc3Vic2NyaWJlIGxpbnV4LWtlcm5lbCIgaW4KPnRoZSBib2R5IG9mIGEg
-bWVzc2FnZSB0byBtYWpvcmRvbW9Admdlci5rZXJuZWwub3JnCj5Nb3JlIG1ham9yZG9tbyBpbmZv
-IGF0ICBodHRwOi8vdmdlci5rZXJuZWwub3JnL21ham9yZG9tby1pbmZvLmh0bWwKPlBsZWFzZSBy
-ZWFkIHRoZSBGQVEgYXQgIGh0dHA6Ly93d3cudHV4Lm9yZy9sa21sLwo+CgpfX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpkZXZlbCBtYWlsaW5nIGxpc3QKZGV2
-ZWxAbGludXhkcml2ZXJwcm9qZWN0Lm9yZwpodHRwOi8vZHJpdmVyZGV2LmxpbnV4ZHJpdmVycHJv
-amVjdC5vcmcvbWFpbG1hbi9saXN0aW5mby9kZXZlbAo=
+On Wed, Apr 27, 2011 at 01:54:02AM +0000, KY Srinivasan wrote:
+> I would prefer that we go through the  review process. What is the process for
+> this review? Is there a time window for people to respond. I am hoping I will be able
+> to address all the review comments well in advance of the  next closing of the tree,
+> with the hope of taking the vmbus driver out of staging this go around (hope springs
+> eternal in the human breast ...)! 
+
+It would be useful if you'd send one driver at a time to the list as the
+full source to review.
+
+Did we make any progress on the naming discussion?  In my opinion hv is
+a far to generic name for your drivers.  Why not call it mshv dor the
+driver directory and prefixes?
+
+As far as the core code is concerned, can you explain the use of the
+dev_add, dev_rm and cleanup methods and how they relate to the
+normal probe/remove/shutdown methods?
+
+As far as the storage drivers are concerned I still have issues with the
+architecture.  I haven't seen any good explanation why you want to  have
+the blkvsc and storvsc drivers different from each other.  They both
+speak the same vmbus-level protocol and tunnel scsi commands over it.
+Why would you sometimes expose this SCSI protocol as a SCSI LLDD and
+sometimes as a block driver?  What decides that a device is exported
+in a way to that blkvsc is bound to them vs storvsc?  How do they look
+like on the windows side?  From my understanding of the windows driver
+models both the recent storport model and the older scsiport model are
+more or less talking scsi to the driver anyway, so what is the
+difference between the two for a Windows guest?
+
+Also pleae get rid of struct storvsc_driver_object, it's just a very
+strange way to store file-scope variables, and useless indirection
+for the I/O submission handler.
