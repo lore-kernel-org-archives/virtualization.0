@@ -1,17 +1,17 @@
 From: KY Srinivasan <kys@microsoft.com>
-Subject: RE: [PATCH 12/25] Staging: hv: Cleanup error handling in
- vmbus_child_device_register()
-Date: Wed, 27 Apr 2011 02:11:48 +0000
-Message-ID: <6E21E5352C11B742B20C142EB499E0481DD1AF@TK5EX14MBXC124.redmond.corp.microsoft.com>
+Subject: RE: [PATCH 08/25] Staging: hv: vmbus_driver cannot be unloaded;
+ cleanup accordingly
+Date: Wed, 27 Apr 2011 02:31:18 +0000
+Message-ID: <6E21E5352C11B742B20C142EB499E0481DD1C9@TK5EX14MBXC124.redmond.corp.microsoft.com>
 References: <1303834785-4981-1-git-send-email-kys@microsoft.com>
  <1303834842-5022-1-git-send-email-kys@microsoft.com>
- <1303834842-5022-12-git-send-email-kys@microsoft.com>
- <20110426225059.GA12897@kroah.com>
+ <1303834842-5022-8-git-send-email-kys@microsoft.com>
+ <20110426224545.GC31974@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 8BIT
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20110426225059.GA12897@kroah.com>
+In-Reply-To: <20110426224545.GC31974@kroah.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 To: Greg KH <greg@kroah.com>
@@ -22,70 +22,50 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 > -----Original Message-----
 > From: Greg KH [mailto:greg@kroah.com]
-> Sent: Tuesday, April 26, 2011 6:51 PM
+> Sent: Tuesday, April 26, 2011 6:46 PM
 > To: KY Srinivasan
 > Cc: gregkh@suse.de; linux-kernel@vger.kernel.org;
 > devel@linuxdriverproject.org; virtualization@lists.osdl.org; Haiyang Zhang;
 > Abhishek Kane (Mindtree Consulting PVT LTD)
-> Subject: Re: [PATCH 12/25] Staging: hv: Cleanup error handling in
-> vmbus_child_device_register()
+> Subject: Re: [PATCH 08/25] Staging: hv: vmbus_driver cannot be unloaded;
+> cleanup accordingly
 > 
-> On Tue, Apr 26, 2011 at 09:20:29AM -0700, K. Y. Srinivasan wrote:
-> > Cleanup error handling in vmbus_child_device_register().
-> >
-> > Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
-> > Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
-> > Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
-> > Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
-> > ---
-> >  drivers/staging/hv/vmbus_drv.c |    7 ++++++-
-> >  1 files changed, 6 insertions(+), 1 deletions(-)
-> >
-> > diff --git a/drivers/staging/hv/vmbus_drv.c b/drivers/staging/hv/vmbus_drv.c
-> > index d597dd4..4d569ad 100644
-> > --- a/drivers/staging/hv/vmbus_drv.c
-> > +++ b/drivers/staging/hv/vmbus_drv.c
-> > @@ -720,11 +720,16 @@ int vmbus_child_device_register(struct hv_device
-> *child_device_obj)
-> >  	 */
-> >  	ret = device_register(&child_device_obj->device);
-> >
-> > +	if (ret)
-> > +		return ret;
-> > +
-> >  	/* vmbus_probe() error does not get propergate to device_register(). */
-> >  	ret = child_device_obj->probe_error;
+> On Tue, Apr 26, 2011 at 09:20:25AM -0700, K. Y. Srinivasan wrote:
+> > The vmbus driver cannot be unloaded; the windows host does not
+> > permit this. Cleanup accordingly.
 > 
-> Wait, why not?  Why is the probe_error have to be saved off like this?
-> That seems like something is wrong here, this patch should not be
-> needed.
-> 
-> Well, you should check the return value of device_register, that is
-> needed, but this seems broken somehow.
+> Woah, you just prevented this driver from ever being able to be
+> unloaded.
 
-The current code had comments claiming that the probe error was not
-correctly propagated. Looking at the kernel side of the code, it was not clear
-if device_register() could succeed while the probe might fail. In any event,
-if you can guarantee that device_register() can return any probe related 
-errors, I agree with you that saving the probe error is an overkill. The current code
-saved the probe error and with new check I added with regards to the return 
-value of device_register, there is no correctness issue with this patch.
-> 
-> >
-> > -	if (ret)
-> > +	if (ret) {
-> >  		pr_err("Unable to register child device\n");
-> > +		device_unregister(&child_device_obj->device);
-> > +	}
-> >  	else
-> 
-> 	} else
-> is the preferred way.
-> 
-> Care to send a fixup patch to remove the probe_error field and fix this
-> formatting error up?
+It was never unloadable; while the driver defined an exit routine, 
+there were couple of issues unloading the vmbus driver:
+ 
+1) All guest resources given to the host could not be recovered.
 
-I will fix up the formatting issue.
+2) Windows host would not permit reloading the driver without 
+rebooting the guest.
+
+All I did was acknowledge the current state and cleanup 
+accordingly. This is not unique to Hyper-V; for what it is worth,
+the Xen platform_pci  driver which is equivalent to the vmbus driver
+is also not unlodable (the last time I checked).
+
+> 
+> That's not a "cleanup" that's a major change in how things work.  I'm
+> sure, if you want to continue down this line, there are more things you
+> can remove from the code, right?
+> 
+> What is the real issue here?  What happens if you unload the bus?  What
+> goes wrong?  Can it be fixed?
+
+This needs to be fixed on the host side. I have notified them of the issue. 
+
+> 
+> This is a pretty big commitment...
+
+These drivers only load when Linux is hosted on  a Hyper-V platform;
+I am not sure why it is a "big commitment" given that the host does not 
+permit reloading this driver without rebooting the guest. 
 
 Regards,
 
