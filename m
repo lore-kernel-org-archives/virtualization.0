@@ -1,105 +1,46 @@
 From: Greg KH <greg@kroah.com>
-Subject: Re: [PATCH 12/25] Staging: hv: Cleanup error handling in
- vmbus_child_device_register()
-Date: Wed, 27 Apr 2011 17:25:52 -0700
-Message-ID: <20110428002552.GD14294@kroah.com>
+Subject: Re: [PATCH 00/25] Staging: hv: Cleanup vmbus driver code
+Date: Wed, 27 Apr 2011 17:28:17 -0700
+Message-ID: <20110428002817.GE14294@kroah.com>
 References: <1303834785-4981-1-git-send-email-kys@microsoft.com>
- <1303834842-5022-1-git-send-email-kys@microsoft.com>
- <1303834842-5022-12-git-send-email-kys@microsoft.com>
- <20110426225059.GA12897@kroah.com>
- <6E21E5352C11B742B20C142EB499E0481DD1AF@TK5EX14MBXC124.redmond.corp.microsoft.com>
+ <20110426232843.GA31184@kroah.com>
+ <6E21E5352C11B742B20C142EB499E0481DD185@TK5EX14MBXC124.redmond.corp.microsoft.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <6E21E5352C11B742B20C142EB499E0481DD1AF@TK5EX14MBXC124.redmond.corp.microsoft.com>
+In-Reply-To: <6E21E5352C11B742B20C142EB499E0481DD185@TK5EX14MBXC124.redmond.corp.microsoft.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: KY Srinivasan <kys@microsoft.com>
-Cc: "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, Haiyang Zhang <haiyangz@microsoft.com>, "Abhishek Kane (Mindtree Consulting PVT LTD)" <v-abkane@microsoft.com>
+Cc: "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Apr 27, 2011 at 02:11:48AM +0000, KY Srinivasan wrote:
+On Wed, Apr 27, 2011 at 01:54:02AM +0000, KY Srinivasan wrote:
+> > After that, do you want another round of review of the code, or do
+> > you have more things you want to send in (like the name[64] removal?)
 > 
-> 
-> > -----Original Message-----
-> > From: Greg KH [mailto:greg@kroah.com]
-> > Sent: Tuesday, April 26, 2011 6:51 PM
-> > To: KY Srinivasan
-> > Cc: gregkh@suse.de; linux-kernel@vger.kernel.org;
-> > devel@linuxdriverproject.org; virtualization@lists.osdl.org; Haiyang Zhang;
-> > Abhishek Kane (Mindtree Consulting PVT LTD)
-> > Subject: Re: [PATCH 12/25] Staging: hv: Cleanup error handling in
-> > vmbus_child_device_register()
-> > 
-> > On Tue, Apr 26, 2011 at 09:20:29AM -0700, K. Y. Srinivasan wrote:
-> > > Cleanup error handling in vmbus_child_device_register().
-> > >
-> > > Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
-> > > Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
-> > > Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
-> > > Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
-> > > ---
-> > >  drivers/staging/hv/vmbus_drv.c |    7 ++++++-
-> > >  1 files changed, 6 insertions(+), 1 deletions(-)
-> > >
-> > > diff --git a/drivers/staging/hv/vmbus_drv.c b/drivers/staging/hv/vmbus_drv.c
-> > > index d597dd4..4d569ad 100644
-> > > --- a/drivers/staging/hv/vmbus_drv.c
-> > > +++ b/drivers/staging/hv/vmbus_drv.c
-> > > @@ -720,11 +720,16 @@ int vmbus_child_device_register(struct hv_device
-> > *child_device_obj)
-> > >  	 */
-> > >  	ret = device_register(&child_device_obj->device);
-> > >
-> > > +	if (ret)
-> > > +		return ret;
-> > > +
-> > >  	/* vmbus_probe() error does not get propergate to device_register(). */
-> > >  	ret = child_device_obj->probe_error;
-> > 
-> > Wait, why not?  Why is the probe_error have to be saved off like this?
-> > That seems like something is wrong here, this patch should not be
-> > needed.
-> > 
-> > Well, you should check the return value of device_register, that is
-> > needed, but this seems broken somehow.
-> 
-> The current code had comments claiming that the probe error was not
-> correctly propagated. Looking at the kernel side of the code, it was not clear
-> if device_register() could succeed while the probe might fail.
+> I would prefer that we go through the  review process. What is the process for
+> this review?
 
-Of course it can, device_register() has nothing to do with the probe
-callback of the device itself.  To think otherwise is to not understand
-the driver model and assume things that you should never be caring
-about.
+The same as always, just ask.
 
-Think about it, if you register a device, you don't know at that point
-in time if a driver is currently loaded for it, and that it will be
-bound to that device.  Nor do you care, as any needed notifications for
-new drivers will be sent to userspace, and they will be loaded at some
-random time in the future.  So a probe() call might never be called for
-this device until some other time, running on some other processor, in
-some other thread.
+> Is there a time window for people to respond.
 
-Drivers are allowed to return errors from their probe functions for
-valid reasons (i.e. this driver shouldn't bind to this device for a
-variety of good reasons.)  No one cares about this, as the driver core
-handles it properly and will pass on to the next driver in the list that
-might be able to be bound to this device.
+No.  We don't have time limits here, this is a community, we don't have
+deadlines, you know that.
 
-So why do you care about the return value of the probe() call?  It gets
-properly handled already by the driver core, why would your bus ever
-care about it?  (Hint, no other bus does, as it makes no sense.)
+> I am hoping I will be able to address all the review comments well in
+> advance of the  next closing of the tree, with the hope of taking the
+> vmbus driver out of staging this go around (hope springs eternal in
+> the human breast ...)! 
 
-> In any event, if you can guarantee that device_register() can return
-> any probe related errors, I agree with you that saving the probe error
-> is an overkill. The current code saved the probe error and with new
-> check I added with regards to the return value of device_register,
-> there is no correctness issue with this patch.
+Yes, it would be nice, and I understand your the corporate pressures you
+are under to get this done, and I am doing my best to fit the patch
+review and apply cycle into my very-very-limited-at-the-moment spare
+time.
 
-As explained above, no, it will not return a probe error, as that makes
-no sense.  If the code is wanting to rely on this, it is broken and must
-be fixed.
+As always, if you miss this kernel release, there's always another one 3
+months away, so it's no big deal in the long-run.
 
 thanks,
 
