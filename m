@@ -1,55 +1,96 @@
-From: Christoph Hellwig <hch@infradead.org>
-Subject: Re: [PATCH 00/25] Staging: hv: Cleanup vmbus driver code
-Date: Wed, 27 Apr 2011 08:18:56 -0400
-Message-ID: <20110427121856.GA20633@infradead.org>
+From: Greg KH <greg@kroah.com>
+Subject: Re: [PATCH 08/25] Staging: hv: vmbus_driver cannot be unloaded;
+ cleanup accordingly
+Date: Wed, 27 Apr 2011 17:20:18 -0700
+Message-ID: <20110428002018.GC14294@kroah.com>
 References: <1303834785-4981-1-git-send-email-kys@microsoft.com>
- <20110426232843.GA31184@kroah.com>
- <6E21E5352C11B742B20C142EB499E0481DD185@TK5EX14MBXC124.redmond.corp.microsoft.com>
- <20110427064550.GA597@infradead.org>
- <6E21E5352C11B742B20C142EB499E0481DD266@TK5EX14MBXC124.redmond.corp.microsoft.com>
+ <1303834842-5022-1-git-send-email-kys@microsoft.com>
+ <1303834842-5022-8-git-send-email-kys@microsoft.com>
+ <20110426224545.GC31974@kroah.com>
+ <6E21E5352C11B742B20C142EB499E0481DD1C9@TK5EX14MBXC124.redmond.corp.microsoft.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <6E21E5352C11B742B20C142EB499E0481DD266@TK5EX14MBXC124.redmond.corp.microsoft.com>
+In-Reply-To: <6E21E5352C11B742B20C142EB499E0481DD1C9@TK5EX14MBXC124.redmond.corp.microsoft.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: KY Srinivasan <kys@microsoft.com>
-Cc: Christoph Hellwig <hch@infradead.org>, Greg KH <greg@kroah.com>, "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>
+Cc: "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, Haiyang Zhang <haiyangz@microsoft.com>, "Abhishek Kane (Mindtree Consulting PVT LTD)" <v-abkane@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Apr 27, 2011 at 11:47:03AM +0000, KY Srinivasan wrote:
-> On the host side, Windows emulates the  standard PC hardware
-> to permit hosting of fully virtualized operating systems.
-> To enhance disk I/O performance, we support a virtual block driver.
-> This block driver currently handles disks that have been setup as IDE
-> disks for the guest - as specified in the guest configuration.
+On Wed, Apr 27, 2011 at 02:31:18AM +0000, KY Srinivasan wrote:
 > 
-> On the SCSI side, we emulate a SCSI HBA. Devices configured
-> under the SCSI controller for the guest are handled via this
-> emulated HBA (SCSI front-end). So, SCSI disks configured for
-> the guest are handled through native SCSI upper-level drivers.
-> If this SCSI front-end driver is not loaded, currently, the guest
-> cannot see devices that have been configured as SCSI devices.
-> So, while the virtual block driver described earlier could potentially
-> handle all block devices, the implementation choices made on the host
-> will not permit it. Also, the only SCSI device that can be currently configured
-> for the guest is a disk device.
 > 
-> Both the block device driver (hv_blkvsc) and the SCSI front-end
-> driver (hv_storvsc) communicate with the host via unique channels 
-> that are implemented as bi-directional ring buffers. Each (storage) 
-> channel carries with it enough state to uniquely identify the device on
-> the host side. Microsoft has chosen to use SCSI verbs for this storage channel 
-> communication. 
+> > -----Original Message-----
+> > From: Greg KH [mailto:greg@kroah.com]
+> > Sent: Tuesday, April 26, 2011 6:46 PM
+> > To: KY Srinivasan
+> > Cc: gregkh@suse.de; linux-kernel@vger.kernel.org;
+> > devel@linuxdriverproject.org; virtualization@lists.osdl.org; Haiyang Zhang;
+> > Abhishek Kane (Mindtree Consulting PVT LTD)
+> > Subject: Re: [PATCH 08/25] Staging: hv: vmbus_driver cannot be unloaded;
+> > cleanup accordingly
+> > 
+> > On Tue, Apr 26, 2011 at 09:20:25AM -0700, K. Y. Srinivasan wrote:
+> > > The vmbus driver cannot be unloaded; the windows host does not
+> > > permit this. Cleanup accordingly.
+> > 
+> > Woah, you just prevented this driver from ever being able to be
+> > unloaded.
+> 
+> It was never unloadable; while the driver defined an exit routine, 
+> there were couple of issues unloading the vmbus driver:
+>  
+> 1) All guest resources given to the host could not be recovered.
 
-This doesn't really explain much at all.  The only important piece
-of information I can read from this statement is that both blkvsc
-and storvsc only support disks, but not any other kind of device,
-and that chosing either one is an arbitrary seletin when setting up
-a VM configuration.
+Is this a problem in the Linux side?  If so, that could easily be fixed.
 
-But this still isn't an excuse to implement a block layer driver for
-a SCSI protocol, and it doesn't not explain in what way the two
-protocols actually differ.  You really should implement blksvs as a SCSI
-LLDD, too - and from the looks of it it doesn't even have to be a
-separate one, but just adding the ids to storvsc would do the work.
+> 2) Windows host would not permit reloading the driver without 
+> rebooting the guest.
+
+That's a different issue, and one that I am very surprised to hear.
+That kind of invalidates ever being able to update the driver in a guest
+for a long-running system that you want to migrate and not reboot.  That
+sounds like a major bug in hyper-v, don't you agree?
+
+> All I did was acknowledge the current state and cleanup 
+> accordingly. This is not unique to Hyper-V; for what it is worth,
+> the Xen platform_pci  driver which is equivalent to the vmbus driver
+> is also not unlodable (the last time I checked).
+
+Why isn't that allowed to be unloaded?  What happens if it does?
+
+I would like to see the following be possible from Linux:
+	- running Linux guest on hyperv
+	- need to migrate to a newer version of hyper-v
+	- pause long-running userspace processes.
+	- unload hyperv modules
+	- migrate guest to newer hyperv version (possible different host
+	  machine)
+	- load newer hyperv modules
+	- resume long-running guest processes
+
+If this isn't possible due to hyper-v bugs, then I guess we need to be
+able to live with it, but we had better advertise it pretty well as I
+know people will want to be able to do the above sequence for their
+guest instances.
+
+If so, can you expand this patch to say more in the changelog entry, and
+resend the remaining patches that I didn't apply as they are now gone
+from my pending-patch queue.
+
+> > That's not a "cleanup" that's a major change in how things work.  I'm
+> > sure, if you want to continue down this line, there are more things you
+> > can remove from the code, right?
+> > 
+> > What is the real issue here?  What happens if you unload the bus?  What
+> > goes wrong?  Can it be fixed?
+> 
+> This needs to be fixed on the host side. I have notified them of the issue. 
+
+Ok, so if this is going to be fixed, why do we need to prevent this from
+ever being possible to have happen on our side?
+
+thanks,
+
+greg k-h
