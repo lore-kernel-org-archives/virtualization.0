@@ -1,145 +1,81 @@
 From: KY Srinivasan <kys@microsoft.com>
-Subject: RE: [PATCH 12/25] Staging: hv: Cleanup error handling in
- vmbus_child_device_register()
-Date: Fri, 29 Apr 2011 15:45:40 +0000
-Message-ID: <6E21E5352C11B742B20C142EB499E0481DD61C@TK5EX14MBXC124.redmond.corp.microsoft.com>
+Subject: RE: [PATCH 00/25] Staging: hv: Cleanup vmbus driver code
+Date: Fri, 29 Apr 2011 16:32:35 +0000
+Message-ID: <6E21E5352C11B742B20C142EB499E0481DD676@TK5EX14MBXC124.redmond.corp.microsoft.com>
 References: <1303834785-4981-1-git-send-email-kys@microsoft.com>
- <1303834842-5022-1-git-send-email-kys@microsoft.com>
- <1303834842-5022-12-git-send-email-kys@microsoft.com>
- <20110426225059.GA12897@kroah.com>
- <6E21E5352C11B742B20C142EB499E0481DD1AF@TK5EX14MBXC124.redmond.corp.microsoft.com>
- <20110428002552.GD14294@kroah.com>
+ <20110426232843.GA31184@kroah.com>
+ <6E21E5352C11B742B20C142EB499E0481DD185@TK5EX14MBXC124.redmond.corp.microsoft.com>
+ <20110427064550.GA597@infradead.org>
+ <6E21E5352C11B742B20C142EB499E0481DD266@TK5EX14MBXC124.redmond.corp.microsoft.com>
+ <20110427121856.GA20633@infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 8BIT
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20110428002552.GD14294@kroah.com>
+In-Reply-To: <20110427121856.GA20633@infradead.org>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Greg KH <greg@kroah.com>
-Cc: "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, Haiyang Zhang <haiyangz@microsoft.com>, "Abhishek Kane (Mindtree Consulting PVT LTD)" <v-abkane@microsoft.com>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Greg KH <greg@kroah.com>, "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
 
 
 > -----Original Message-----
-> From: Greg KH [mailto:greg@kroah.com]
-> Sent: Wednesday, April 27, 2011 8:26 PM
+> From: Christoph Hellwig [mailto:hch@infradead.org]
+> Sent: Wednesday, April 27, 2011 8:19 AM
 > To: KY Srinivasan
-> Cc: gregkh@suse.de; linux-kernel@vger.kernel.org;
-> devel@linuxdriverproject.org; virtualization@lists.osdl.org; Haiyang Zhang;
-> Abhishek Kane (Mindtree Consulting PVT LTD)
-> Subject: Re: [PATCH 12/25] Staging: hv: Cleanup error handling in
-> vmbus_child_device_register()
+> Cc: Christoph Hellwig; Greg KH; gregkh@suse.de; linux-kernel@vger.kernel.org;
+> devel@linuxdriverproject.org; virtualization@lists.osdl.org
+> Subject: Re: [PATCH 00/25] Staging: hv: Cleanup vmbus driver code
 > 
-> On Wed, Apr 27, 2011 at 02:11:48AM +0000, KY Srinivasan wrote:
+> On Wed, Apr 27, 2011 at 11:47:03AM +0000, KY Srinivasan wrote:
+> > On the host side, Windows emulates the  standard PC hardware
+> > to permit hosting of fully virtualized operating systems.
+> > To enhance disk I/O performance, we support a virtual block driver.
+> > This block driver currently handles disks that have been setup as IDE
+> > disks for the guest - as specified in the guest configuration.
 > >
+> > On the SCSI side, we emulate a SCSI HBA. Devices configured
+> > under the SCSI controller for the guest are handled via this
+> > emulated HBA (SCSI front-end). So, SCSI disks configured for
+> > the guest are handled through native SCSI upper-level drivers.
+> > If this SCSI front-end driver is not loaded, currently, the guest
+> > cannot see devices that have been configured as SCSI devices.
+> > So, while the virtual block driver described earlier could potentially
+> > handle all block devices, the implementation choices made on the host
+> > will not permit it. Also, the only SCSI device that can be currently configured
+> > for the guest is a disk device.
 > >
-> > > -----Original Message-----
-> > > From: Greg KH [mailto:greg@kroah.com]
-> > > Sent: Tuesday, April 26, 2011 6:51 PM
-> > > To: KY Srinivasan
-> > > Cc: gregkh@suse.de; linux-kernel@vger.kernel.org;
-> > > devel@linuxdriverproject.org; virtualization@lists.osdl.org; Haiyang Zhang;
-> > > Abhishek Kane (Mindtree Consulting PVT LTD)
-> > > Subject: Re: [PATCH 12/25] Staging: hv: Cleanup error handling in
-> > > vmbus_child_device_register()
-> > >
-> > > On Tue, Apr 26, 2011 at 09:20:29AM -0700, K. Y. Srinivasan wrote:
-> > > > Cleanup error handling in vmbus_child_device_register().
-> > > >
-> > > > Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
-> > > > Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
-> > > > Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
-> > > > Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
-> > > > ---
-> > > >  drivers/staging/hv/vmbus_drv.c |    7 ++++++-
-> > > >  1 files changed, 6 insertions(+), 1 deletions(-)
-> > > >
-> > > > diff --git a/drivers/staging/hv/vmbus_drv.c
-> b/drivers/staging/hv/vmbus_drv.c
-> > > > index d597dd4..4d569ad 100644
-> > > > --- a/drivers/staging/hv/vmbus_drv.c
-> > > > +++ b/drivers/staging/hv/vmbus_drv.c
-> > > > @@ -720,11 +720,16 @@ int vmbus_child_device_register(struct hv_device
-> > > *child_device_obj)
-> > > >  	 */
-> > > >  	ret = device_register(&child_device_obj->device);
-> > > >
-> > > > +	if (ret)
-> > > > +		return ret;
-> > > > +
-> > > >  	/* vmbus_probe() error does not get propergate to device_register(). */
-> > > >  	ret = child_device_obj->probe_error;
-> > >
-> > > Wait, why not?  Why is the probe_error have to be saved off like this?
-> > > That seems like something is wrong here, this patch should not be
-> > > needed.
-> > >
-> > > Well, you should check the return value of device_register, that is
-> > > needed, but this seems broken somehow.
-> >
-> > The current code had comments claiming that the probe error was not
-> > correctly propagated. Looking at the kernel side of the code, it was not clear
-> > if device_register() could succeed while the probe might fail.
+> > Both the block device driver (hv_blkvsc) and the SCSI front-end
+> > driver (hv_storvsc) communicate with the host via unique channels
+> > that are implemented as bi-directional ring buffers. Each (storage)
+> > channel carries with it enough state to uniquely identify the device on
+> > the host side. Microsoft has chosen to use SCSI verbs for this storage channel
+> > communication.
 > 
-> Of course it can, device_register() has nothing to do with the probe
-> callback of the device itself.  To think otherwise is to not understand
-> the driver model and assume things that you should never be caring
-> about.
+> This doesn't really explain much at all.  The only important piece
+> of information I can read from this statement is that both blkvsc
+> and storvsc only support disks, but not any other kind of device,
+> and that chosing either one is an arbitrary seletin when setting up
+> a VM configuration.
 > 
-> Think about it, if you register a device, you don't know at that point
-> in time if a driver is currently loaded for it, and that it will be
-> bound to that device.  Nor do you care, as any needed notifications for
-> new drivers will be sent to userspace, and they will be loaded at some
-> random time in the future.  So a probe() call might never be called for
-> this device until some other time, running on some other processor, in
-> some other thread.
-> 
-> Drivers are allowed to return errors from their probe functions for
-> valid reasons (i.e. this driver shouldn't bind to this device for a
-> variety of good reasons.)  No one cares about this, as the driver core
-> handles it properly and will pass on to the next driver in the list that
-> might be able to be bound to this device.
-> 
-> So why do you care about the return value of the probe() call?  It gets
-> properly handled already by the driver core, why would your bus ever
-> care about it?  (Hint, no other bus does, as it makes no sense.)
-> 
-> > In any event, if you can guarantee that device_register() can return
-> > any probe related errors, I agree with you that saving the probe error
-> > is an overkill. The current code saved the probe error and with new
-> > check I added with regards to the return value of device_register,
-> > there is no correctness issue with this patch.
-> 
-> As explained above, no, it will not return a probe error, as that makes
-> no sense.  If the code is wanting to rely on this, it is broken and must
-> be fixed.
+> But this still isn't an excuse to implement a block layer driver for
+> a SCSI protocol, and it doesn't not explain in what way the two
+> protocols actually differ.  You really should implement blksvs as a SCSI
+> LLDD, too - and from the looks of it it doesn't even have to be a
+> separate one, but just adding the ids to storvsc would do the work.
 
-I did not say that device_register would return the probe_error. On the 
-contrary, the code I added explicitly ensures that proper cleanup is done
-for  the failure of  device_register and if the  probe function were
-called on the same context executing the device_register call,
- the failure of the probe call as well (looking at the stack trace while in
-the probe function, this appeared to be the case currently).
-
-If you look at the existing code; the current  code did not deal with the failure of
-device_register() - it over-writes the return value of device_register with
-that of the probe error. This patch fixed that problem.
-
-The current code dealt with the probe error by spinning up a work item to
-deal with the probe failure. This work item would try to unregister the device 
-that was not fully registered and this caused a problem. I tried to fix this
-problem by getting rid of the work item and dealing with the probe 
-failure cleanup in the same context as the call to device_register.
-Since no other driver deals with probe failures this way, I will get rid 
-of this code in the next version of this patch.
+On the host-side, as part of configuring a guest  you can specify block devices
+as being under an IDE controller or under a
+SCSI controller. Those are the only options you have. Devices configured under
+the IDE controller cannot be seen in the guest under the emulated SCSI front-end which is
+the scsi driver (storvsc_drv). So, when you do a bus scan in the emulated scsi front-end,
+the devices enumerated will not include block devices configured under the IDE 
+controller. So, it is not clear to me how I can do what you are proposing given the 
+restrictions imposed by the host.
 
 Regards,
 
-K. Y  
-
-> 
-> thanks,
-> 
-> greg k-h
+K. Y
+ 
