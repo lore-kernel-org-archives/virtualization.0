@@ -1,123 +1,60 @@
 From: KY Srinivasan <kys@microsoft.com>
-Subject: RE: [PATCH 00/25] Staging: hv: Cleanup vmbus driver code
-Date: Fri, 29 Apr 2011 17:32:43 +0000
-Message-ID: <6E21E5352C11B742B20C142EB499E0481DD6B7@TK5EX14MBXC124.redmond.corp.microsoft.com>
+Subject: RE: [PATCH 08/25] Staging: hv: vmbus_driver cannot be unloaded;
+ cleanup accordingly
+Date: Fri, 29 Apr 2011 17:40:04 +0000
+Message-ID: <6E21E5352C11B742B20C142EB499E0481DD6D6@TK5EX14MBXC124.redmond.corp.microsoft.com>
 References: <1303834785-4981-1-git-send-email-kys@microsoft.com>
- <20110426232843.GA31184@kroah.com>
- <6E21E5352C11B742B20C142EB499E0481DD185@TK5EX14MBXC124.redmond.corp.microsoft.com>
- <20110427064550.GA597@infradead.org>
- <6E21E5352C11B742B20C142EB499E0481DD266@TK5EX14MBXC124.redmond.corp.microsoft.com>
- <20110427121856.GA20633@infradead.org>
- <6E21E5352C11B742B20C142EB499E0481DD676@TK5EX14MBXC124.redmond.corp.microsoft.com>
- <20110429164025.GA7698@kroah.com>
+ <1303834842-5022-1-git-send-email-kys@microsoft.com>
+ <1303834842-5022-8-git-send-email-kys@microsoft.com>
+ <20110426224545.GC31974@kroah.com>
+ <6E21E5352C11B742B20C142EB499E0481DD1C9@TK5EX14MBXC124.redmond.corp.microsoft.com>
+ <20110428002018.GC14294@kroah.com>
+ <6E21E5352C11B742B20C142EB499E0481DD55F@TK5EX14MBXC124.redmond.corp.microsoft.com>
+ <20110429151052.GC12142@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 8BIT
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20110429164025.GA7698@kroah.com>
+In-Reply-To: <20110429151052.GC12142@suse.de>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Greg KH <greg@kroah.com>
-Cc: Christoph Hellwig <hch@infradead.org>, "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>
+To: Greg KH <gregkh@suse.de>
+Cc: Greg KH <greg@kroah.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, Haiyang Zhang <haiyangz@microsoft.com>, "Abhishek Kane (Mindtree Consulting PVT LTD)" <v-abkane@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
 
 
 > -----Original Message-----
-> From: Greg KH [mailto:greg@kroah.com]
-> Sent: Friday, April 29, 2011 12:40 PM
+> From: Greg KH [mailto:gregkh@suse.de]
+> Sent: Friday, April 29, 2011 11:11 AM
 > To: KY Srinivasan
-> Cc: Christoph Hellwig; gregkh@suse.de; linux-kernel@vger.kernel.org;
-> devel@linuxdriverproject.org; virtualization@lists.osdl.org
-> Subject: Re: [PATCH 00/25] Staging: hv: Cleanup vmbus driver code
+> Cc: Greg KH; linux-kernel@vger.kernel.org; devel@linuxdriverproject.org;
+> virtualization@lists.osdl.org; Haiyang Zhang; Abhishek Kane (Mindtree Consulting
+> PVT LTD)
+> Subject: Re: [PATCH 08/25] Staging: hv: vmbus_driver cannot be unloaded;
+> cleanup accordingly
 > 
-> On Fri, Apr 29, 2011 at 04:32:35PM +0000, KY Srinivasan wrote:
-> >
-> >
-> > > -----Original Message-----
-> > > From: Christoph Hellwig [mailto:hch@infradead.org]
-> > > Sent: Wednesday, April 27, 2011 8:19 AM
-> > > To: KY Srinivasan
-> > > Cc: Christoph Hellwig; Greg KH; gregkh@suse.de; linux-
-> kernel@vger.kernel.org;
-> > > devel@linuxdriverproject.org; virtualization@lists.osdl.org
-> > > Subject: Re: [PATCH 00/25] Staging: hv: Cleanup vmbus driver code
-> > >
-> > > On Wed, Apr 27, 2011 at 11:47:03AM +0000, KY Srinivasan wrote:
-> > > > On the host side, Windows emulates the  standard PC hardware
-> > > > to permit hosting of fully virtualized operating systems.
-> > > > To enhance disk I/O performance, we support a virtual block driver.
-> > > > This block driver currently handles disks that have been setup as IDE
-> > > > disks for the guest - as specified in the guest configuration.
-> > > >
-> > > > On the SCSI side, we emulate a SCSI HBA. Devices configured
-> > > > under the SCSI controller for the guest are handled via this
-> > > > emulated HBA (SCSI front-end). So, SCSI disks configured for
-> > > > the guest are handled through native SCSI upper-level drivers.
-> > > > If this SCSI front-end driver is not loaded, currently, the guest
-> > > > cannot see devices that have been configured as SCSI devices.
-> > > > So, while the virtual block driver described earlier could potentially
-> > > > handle all block devices, the implementation choices made on the host
-> > > > will not permit it. Also, the only SCSI device that can be currently configured
-> > > > for the guest is a disk device.
-> > > >
-> > > > Both the block device driver (hv_blkvsc) and the SCSI front-end
-> > > > driver (hv_storvsc) communicate with the host via unique channels
-> > > > that are implemented as bi-directional ring buffers. Each (storage)
-> > > > channel carries with it enough state to uniquely identify the device on
-> > > > the host side. Microsoft has chosen to use SCSI verbs for this storage
-> channel
-> > > > communication.
-> > >
-> > > This doesn't really explain much at all.  The only important piece
-> > > of information I can read from this statement is that both blkvsc
-> > > and storvsc only support disks, but not any other kind of device,
-> > > and that chosing either one is an arbitrary seletin when setting up
-> > > a VM configuration.
-> > >
-> > > But this still isn't an excuse to implement a block layer driver for
-> > > a SCSI protocol, and it doesn't not explain in what way the two
-> > > protocols actually differ.  You really should implement blksvs as a SCSI
-> > > LLDD, too - and from the looks of it it doesn't even have to be a
-> > > separate one, but just adding the ids to storvsc would do the work.
-> >
-> > On the host-side, as part of configuring a guest  you can specify block devices
-> > as being under an IDE controller or under a
-> > SCSI controller. Those are the only options you have. Devices configured under
-> > the IDE controller cannot be seen in the guest under the emulated SCSI front-
-> end which is
-> > the scsi driver (storvsc_drv).
+> On Fri, Apr 29, 2011 at 01:49:21PM +0000, KY Srinivasan wrote:
 > 
-> Are you sure the libata core can't see this ide controller and connect
-> to it?  That way you would use the scsi system if you do that and you
-> would need a much smaller ide driver, perhaps being able to merge it
-> with your scsi driver.
+> Just resend it with some more comments as I explained, and the rest, and
+> I'll queue them up when I get caught up on my patch queue (I only have
+> 381 to get through, the end is near!)
 
-If we don't load the blkvsc driver, the emulated IDE controller exposed to
-the guest can and will be seen by the libata core. In this case though, your
-disk I/O will be taking the emulated path with the usual performance hit.
+Thanks Greg; soon after I sent you this patch-set, I had also sent a single patch to
+address a redundant assignment:
 
-When you load the blkvsc driver, the device access does not go through the emulated
-IDE controller. Blkvsc is truly a generic block driver that registers as a block driver in
-the guest and talks to an appropriate device driver on the host, communicating over
-the vmbus. In this respect, it is identical to block drivers we have for guests in other
-virtualization platforms (Xen etc.). The only difference is that on the host side,
-the only way you can assign a scsi disk to the guest is to configure this scsi disk
-under the scsi controller. So, while blkvsc is a generic block driver, because of the
-restrictions on the host side, it only ends up managing block devices that have IDE majors.   
+0001-Staging-hv-Do-not-re-set-the-bus-name.patch
 
-> 
-> We really don't want to write new IDE drivers anymore that don't use
-> libata.
-
-As I noted earlier, it is incorrect to view Hyper-V blkvsc driver as an IDE driver. There
-is nothing IDE specific about it. It is very much like other block front-end drivers
-(like in Xen) that get their device information from the host and register the block
-device accordingly with the guest. It just happens that in the current version of the
-Windows host, only devices that are configured as IDE devices in the host end up being
-managed by this driver. To make this clear, in my recent cleanup of this driver (these patches
-have been applied), all IDE major information has been properly consolidated.
+Please drop this patch. I will deal with this issue as part of the remaining patch-set
+I will be sending now.
 
 Regards,
 
-K. Y  
+K. Y
+
+
+ 
+> 
+> thanks,
+> 
+> greg k-h
