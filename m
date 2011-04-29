@@ -1,60 +1,40 @@
-From: KY Srinivasan <kys@microsoft.com>
-Subject: RE: [PATCH 08/25] Staging: hv: vmbus_driver cannot be unloaded;
- cleanup accordingly
-Date: Fri, 29 Apr 2011 17:40:04 +0000
-Message-ID: <6E21E5352C11B742B20C142EB499E0481DD6D6@TK5EX14MBXC124.redmond.corp.microsoft.com>
-References: <1303834785-4981-1-git-send-email-kys@microsoft.com>
- <1303834842-5022-1-git-send-email-kys@microsoft.com>
- <1303834842-5022-8-git-send-email-kys@microsoft.com>
- <20110426224545.GC31974@kroah.com>
- <6E21E5352C11B742B20C142EB499E0481DD1C9@TK5EX14MBXC124.redmond.corp.microsoft.com>
- <20110428002018.GC14294@kroah.com>
- <6E21E5352C11B742B20C142EB499E0481DD55F@TK5EX14MBXC124.redmond.corp.microsoft.com>
- <20110429151052.GC12142@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+From: "K. Y. Srinivasan" <kys@microsoft.com>
+Subject: [RESEND] [PATCH 00/18] Staging: hv: Cleanup vmbus driver code
+Date: Fri, 29 Apr 2011 13:42:59 -0700
+Message-ID: <1304109779-24819-1-git-send-email-kys@microsoft.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20110429151052.GC12142@suse.de>
-Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Greg KH <gregkh@suse.de>
-Cc: Greg KH <greg@kroah.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, Haiyang Zhang <haiyangz@microsoft.com>, "Abhishek Kane (Mindtree Consulting PVT LTD)" <v-abkane@microsoft.com>
+To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org
+Cc: "K. Y. Srinivasan" <kys@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
+This is a resend of the patches yet to be applied.
+This patch-set addresses some of the bus/driver model cleanup that
+Greg sugested over the last couple of days.  In this patch-set we
+deal with the following issues:
 
 
-> -----Original Message-----
-> From: Greg KH [mailto:gregkh@suse.de]
-> Sent: Friday, April 29, 2011 11:11 AM
-> To: KY Srinivasan
-> Cc: Greg KH; linux-kernel@vger.kernel.org; devel@linuxdriverproject.org;
-> virtualization@lists.osdl.org; Haiyang Zhang; Abhishek Kane (Mindtree Consulting
-> PVT LTD)
-> Subject: Re: [PATCH 08/25] Staging: hv: vmbus_driver cannot be unloaded;
-> cleanup accordingly
-> 
-> On Fri, Apr 29, 2011 at 01:49:21PM +0000, KY Srinivasan wrote:
-> 
-> Just resend it with some more comments as I explained, and the rest, and
-> I'll queue them up when I get caught up on my patch queue (I only have
-> 381 to get through, the end is near!)
+	1) Cleanup error handling in the vmbus_probe() and 
+	   vmbus_child_device_register() functions. Fixed a 
+	   bug in the probe failure path as part of this cleanup.
 
-Thanks Greg; soon after I sent you this patch-set, I had also sent a single patch to
-address a redundant assignment:
+	2) The Windows host cannot handle the vmbus_driver being 
+	   unloaded and subsequently loaded. Cleanup the driver with
+	   this in mind.
 
-0001-Staging-hv-Do-not-re-set-the-bus-name.patch
+	3) Get rid of struct hv_bus that embedded struct bus_type to 
+	   conform with the LDM.
 
-Please drop this patch. I will deal with this issue as part of the remaining patch-set
-I will be sending now.
+	4) Add probe/remove/shutdown functions to struct hv_driver to
+	   conform to LDM.
+
+	5) On some older Hyper-V hosts, the Linux PCI sub-sytem is not able
+	   to allocate irq resources to the vmbus driver. I recently learnt
+	   that the vmbus driver is an acpi enumerated device on the Hyper-V
+	   platform. Added code to retrieve irq information from DSDT.
+
+
 
 Regards,
 
 K. Y
-
-
- 
-> 
-> thanks,
-> 
-> greg k-h
