@@ -1,56 +1,145 @@
-From: Greg KH <gregkh@suse.de>
-Subject: Re: [PATCH 08/25] Staging: hv: vmbus_driver cannot be unloaded;
- cleanup accordingly
-Date: Fri, 29 Apr 2011 08:10:52 -0700
-Message-ID: <20110429151052.GC12142@suse.de>
+From: KY Srinivasan <kys@microsoft.com>
+Subject: RE: [PATCH 12/25] Staging: hv: Cleanup error handling in
+ vmbus_child_device_register()
+Date: Fri, 29 Apr 2011 15:45:40 +0000
+Message-ID: <6E21E5352C11B742B20C142EB499E0481DD61C@TK5EX14MBXC124.redmond.corp.microsoft.com>
 References: <1303834785-4981-1-git-send-email-kys@microsoft.com>
  <1303834842-5022-1-git-send-email-kys@microsoft.com>
- <1303834842-5022-8-git-send-email-kys@microsoft.com>
- <20110426224545.GC31974@kroah.com>
- <6E21E5352C11B742B20C142EB499E0481DD1C9@TK5EX14MBXC124.redmond.corp.microsoft.com>
- <20110428002018.GC14294@kroah.com>
- <6E21E5352C11B742B20C142EB499E0481DD55F@TK5EX14MBXC124.redmond.corp.microsoft.com>
+ <1303834842-5022-12-git-send-email-kys@microsoft.com>
+ <20110426225059.GA12897@kroah.com>
+ <6E21E5352C11B742B20C142EB499E0481DD1AF@TK5EX14MBXC124.redmond.corp.microsoft.com>
+ <20110428002552.GD14294@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <6E21E5352C11B742B20C142EB499E0481DD55F@TK5EX14MBXC124.redmond.corp.microsoft.com>
+In-Reply-To: <20110428002552.GD14294@kroah.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: KY Srinivasan <kys@microsoft.com>
-Cc: Greg KH <greg@kroah.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, Haiyang Zhang <haiyangz@microsoft.com>, "Abhishek Kane (Mindtree Consulting PVT LTD)" <v-abkane@microsoft.com>
+To: Greg KH <greg@kroah.com>
+Cc: "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, Haiyang Zhang <haiyangz@microsoft.com>, "Abhishek Kane (Mindtree Consulting PVT LTD)" <v-abkane@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Apr 29, 2011 at 01:49:21PM +0000, KY Srinivasan wrote:
-> > > 2) Windows host would not permit reloading the driver without
-> > > rebooting the guest.
-> > 
-> > That's a different issue, and one that I am very surprised to hear.
-> > That kind of invalidates ever being able to update the driver in a guest
-> > for a long-running system that you want to migrate and not reboot.  That
-> > sounds like a major bug in hyper-v, don't you agree?
+
+
+> -----Original Message-----
+> From: Greg KH [mailto:greg@kroah.com]
+> Sent: Wednesday, April 27, 2011 8:26 PM
+> To: KY Srinivasan
+> Cc: gregkh@suse.de; linux-kernel@vger.kernel.org;
+> devel@linuxdriverproject.org; virtualization@lists.osdl.org; Haiyang Zhang;
+> Abhishek Kane (Mindtree Consulting PVT LTD)
+> Subject: Re: [PATCH 12/25] Staging: hv: Cleanup error handling in
+> vmbus_child_device_register()
 > 
-> In practical terms, I am not sure this is a major problem. If the root device
-> Is managed by a Hyper-V driver, then you cannot unload that driver and 
-> drivers it depends on anyway.
+> On Wed, Apr 27, 2011 at 02:11:48AM +0000, KY Srinivasan wrote:
+> >
+> >
+> > > -----Original Message-----
+> > > From: Greg KH [mailto:greg@kroah.com]
+> > > Sent: Tuesday, April 26, 2011 6:51 PM
+> > > To: KY Srinivasan
+> > > Cc: gregkh@suse.de; linux-kernel@vger.kernel.org;
+> > > devel@linuxdriverproject.org; virtualization@lists.osdl.org; Haiyang Zhang;
+> > > Abhishek Kane (Mindtree Consulting PVT LTD)
+> > > Subject: Re: [PATCH 12/25] Staging: hv: Cleanup error handling in
+> > > vmbus_child_device_register()
+> > >
+> > > On Tue, Apr 26, 2011 at 09:20:29AM -0700, K. Y. Srinivasan wrote:
+> > > > Cleanup error handling in vmbus_child_device_register().
+> > > >
+> > > > Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
+> > > > Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
+> > > > Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
+> > > > Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
+> > > > ---
+> > > >  drivers/staging/hv/vmbus_drv.c |    7 ++++++-
+> > > >  1 files changed, 6 insertions(+), 1 deletions(-)
+> > > >
+> > > > diff --git a/drivers/staging/hv/vmbus_drv.c
+> b/drivers/staging/hv/vmbus_drv.c
+> > > > index d597dd4..4d569ad 100644
+> > > > --- a/drivers/staging/hv/vmbus_drv.c
+> > > > +++ b/drivers/staging/hv/vmbus_drv.c
+> > > > @@ -720,11 +720,16 @@ int vmbus_child_device_register(struct hv_device
+> > > *child_device_obj)
+> > > >  	 */
+> > > >  	ret = device_register(&child_device_obj->device);
+> > > >
+> > > > +	if (ret)
+> > > > +		return ret;
+> > > > +
+> > > >  	/* vmbus_probe() error does not get propergate to device_register(). */
+> > > >  	ret = child_device_obj->probe_error;
+> > >
+> > > Wait, why not?  Why is the probe_error have to be saved off like this?
+> > > That seems like something is wrong here, this patch should not be
+> > > needed.
+> > >
+> > > Well, you should check the return value of device_register, that is
+> > > needed, but this seems broken somehow.
+> >
+> > The current code had comments claiming that the probe error was not
+> > correctly propagated. Looking at the kernel side of the code, it was not clear
+> > if device_register() could succeed while the probe might fail.
+> 
+> Of course it can, device_register() has nothing to do with the probe
+> callback of the device itself.  To think otherwise is to not understand
+> the driver model and assume things that you should never be caring
+> about.
+> 
+> Think about it, if you register a device, you don't know at that point
+> in time if a driver is currently loaded for it, and that it will be
+> bound to that device.  Nor do you care, as any needed notifications for
+> new drivers will be sent to userspace, and they will be loaded at some
+> random time in the future.  So a probe() call might never be called for
+> this device until some other time, running on some other processor, in
+> some other thread.
+> 
+> Drivers are allowed to return errors from their probe functions for
+> valid reasons (i.e. this driver shouldn't bind to this device for a
+> variety of good reasons.)  No one cares about this, as the driver core
+> handles it properly and will pass on to the next driver in the list that
+> might be able to be bound to this device.
+> 
+> So why do you care about the return value of the probe() call?  It gets
+> properly handled already by the driver core, why would your bus ever
+> care about it?  (Hint, no other bus does, as it makes no sense.)
+> 
+> > In any event, if you can guarantee that device_register() can return
+> > any probe related errors, I agree with you that saving the probe error
+> > is an overkill. The current code saved the probe error and with new
+> > check I added with regards to the return value of device_register,
+> > there is no correctness issue with this patch.
+> 
+> As explained above, no, it will not return a probe error, as that makes
+> no sense.  If the code is wanting to rely on this, it is broken and must
+> be fixed.
 
-I don't run my hyper-v guests using the hyper-v driver for my root
-devices, so in my setup, it is possible to unload the whole vmbus
-subsystem and drivers and reload it without any system interruption.
+I did not say that device_register would return the probe_error. On the 
+contrary, the code I added explicitly ensures that proper cleanup is done
+for  the failure of  device_register and if the  probe function were
+called on the same context executing the device_register call,
+ the failure of the probe call as well (looking at the stack trace while in
+the probe function, this appeared to be the case currently).
 
-Now I have never tried that... :)
+If you look at the existing code; the current  code did not deal with the failure of
+device_register() - it over-writes the return value of device_register with
+that of the probe error. This patch fixed that problem.
 
-> Greg, I am open to either approach here: 1) I could drop this patch and restore the 
-> exit function. 2) I could keep the patch as is, but add additional comments to
-> capture this discussion. Let me know what you prefer and I will send the remaining 
-> patch-set with the agreed upon changes.
+The current code dealt with the probe error by spinning up a work item to
+deal with the probe failure. This work item would try to unregister the device 
+that was not fully registered and this caused a problem. I tried to fix this
+problem by getting rid of the work item and dealing with the probe 
+failure cleanup in the same context as the call to device_register.
+Since no other driver deals with probe failures this way, I will get rid 
+of this code in the next version of this patch.
 
-As you all are happy with not having this be unloaded, I'll go with 2)
-as it is your code to maintain and support, not mine.
+Regards,
 
-Just resend it with some more comments as I explained, and the rest, and
-I'll queue them up when I get caught up on my patch queue (I only have
-381 to get through, the end is near!)
+K. Y  
 
-thanks,
-
-greg k-h
+> 
+> thanks,
+> 
+> greg k-h
