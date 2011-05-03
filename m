@@ -1,71 +1,46 @@
-From: KY Srinivasan <kys@microsoft.com>
-Subject: RE: [PATCH 00/25] Staging: hv: Cleanup vmbus driver code
-Date: Mon, 2 May 2011 22:11:48 +0000
-Message-ID: <6E21E5352C11B742B20C142EB499E0481DF5AF@TK5EX14MBXC124.redmond.corp.microsoft.com>
-References: <6E21E5352C11B742B20C142EB499E0481DD676@TK5EX14MBXC124.redmond.corp.microsoft.com>
- <20110429164025.GA7698@kroah.com> <20110501154041.GB15210@infradead.org>
- <6E21E5352C11B742B20C142EB499E0481DF253@TK5EX14MBXC124.redmond.corp.microsoft.com>
- <20110501160721.GA8195@infradead.org>
- <6E21E5352C11B742B20C142EB499E0481DF2A0@TK5EX14MBXC124.redmond.corp.microsoft.com>
- <20110501205315.GC1017@infradead.org>
- <6E21E5352C11B742B20C142EB499E0481DF543@TK5EX14MBXC124.redmond.corp.microsoft.com>
- <20110502200012.GA21619@infradead.org>
- <6E21E5352C11B742B20C142EB499E0481DF56D@TK5EX14MBXC124.redmond.corp.microsoft.com>
- <20110502213511.GA5641@infradead.org>
+From: Greg KH <greg@kroah.com>
+Subject: various vmbus review comments
+Date: Tue, 3 May 2011 13:46:41 -0700
+Message-ID: <20110503204641.GA11132@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20110502213511.GA5641@infradead.org>
-Content-Language: en-US
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Greg KH <greg@kroah.com>, "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>
+To: "K. Y. Srinivasan" <kys@microsoft.com>
+Cc: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
+I just took a quick look at the vmbus code, and have the following
+comments:
+	- why is count_hv_channel() even a function?
+	- your .h files need to be consolidated and renamed.  You will
+	  need a single hyperv.h file for include/linux/ that will
+	  contain some of what the vmbus*.h files have in it, but not
+	  all.  Please merge things together to have:
+	  	- include/linux/hyperv.h
+		   What is needed to build the drivers that attach to
+		   the bus
+		- drivers/staging/hv/hyperv.h
+		   The local .h file will have the vmbus*.h remaining
+		   stuff that is only needed by the hv_vmbus.ko module
+		   to be build.
+	- the instances of hv_driver structures need to be static and
+	  not programatically defined, like all other USB and PCI
+	  drivers are handled.
+	- module reference counting.  Are you sure you got it all right
+	  for the individual modules that attach to the bus?  I don't
+	  see any reference counting happening, is that correct?
+	- fix the sparse warnings.
+	- fix the use of volatile in the ring buffer code.  It should
+	  not be needed and if you are relying on it, then the code is
+	  wrong.
+	- fix the namespace on the ringbuffer code to show that it
+	  really is only for the hyperv bus code internally.
 
+That should be enough for at least one more set of patches for you all
+to work on :)
 
-> -----Original Message-----
-> From: Christoph Hellwig [mailto:hch@infradead.org]
-> Sent: Monday, May 02, 2011 5:35 PM
-> To: KY Srinivasan
-> Cc: Greg KH; gregkh@suse.de; linux-kernel@vger.kernel.org;
-> devel@linuxdriverproject.org; virtualization@lists.osdl.org
-> Subject: Re: [PATCH 00/25] Staging: hv: Cleanup vmbus driver code
-> 
-> On Mon, May 02, 2011 at 09:16:36PM +0000, KY Srinivasan wrote:
-> > > That assumes libata is a module, which it is not for many popular
-> > > distributions.
-> > >
-> > As long as you can prevent ata_piix from loading, it should be fine.
-> 
-> Again, this might very well be built in, e.g. take a look at:
-> 
-> http://pkgs.fedoraproject.org/gitweb/?p=kernel.git;a=blob;f=config-
-> generic;h=779415bcc036b922ba92de9c4b15b9da64e9707c;hb=HEAD
-> 
-> http://gitorious.org/opensuse/kernel-
-> source/blobs/master/config/x86_64/default
+thanks,
 
-Good point! For what it is worth, last night I hacked up code
-to present the block devices currently managed by the blkvsc
-driver as scsi devices. I have still retained the blkvsc driver to
-handshake with the host and sert up the channel etc. Rather than
-presenting this device as an IDE device to the guest, as you had 
-suggested, I am adding this device as a scsi device under the HBA
-implemented by the storvsc driver. I have assigned a special channel
-number to distinguish these IDE disks, so that on the I/O paths we can 
-communicate over the appropriate channels. Given that the host is 
-completely oblivious to this arrangement on the guest, I suspect
-we don't need to worry about future versions of Windows breaking this.
-From, very minimal testing I have done, things appear to work well.
-However, the motherboard emulation in Hyper-V requires the boot
-device to be an IDE device and other than taking over the IDE majors, I don't
-know of a way to prevent the native drivers from taking over the boot device.
-On SLES, I had implemented modprobe rules to deal with the issue you had 
-mentioned; it is not clear what the general solution might be for this problem if any,
-other than changes to the host.
-
-Regards,
-
-K. Y
+greg k-h
