@@ -1,34 +1,33 @@
-From: Greg KH <gregkh@suse.de>
-Subject: Re: [PATCH 1/1] Staging: hv: Add the necessary dependencies to
- hyperv Kconfig
-Date: Wed, 4 May 2011 11:59:45 -0700
-Message-ID: <20110504185945.GA15032@suse.de>
-References: <1304535105-26892-1-git-send-email-kys@microsoft.com>
- <20110504185142.GA28458@infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: "K. Y. Srinivasan" <kys@microsoft.com>
+Subject: [PATCH 1/1] Staging: hv: Add the necessary dependencies to hyperv Kconfig
+Date: Wed,  4 May 2011 12:19:30 -0700
+Message-ID: <1304536770-27199-1-git-send-email-kys@microsoft.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20110504185142.GA28458@infradead.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Christoph Hellwig <hch@infradead.org>
-Cc: "K. Y. Srinivasan" <kys@microsoft.com>, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org, Haiyang Zhang <haiyangz@microsoft.com>
+To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org
+Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, May 04, 2011 at 02:51:42PM -0400, Christoph Hellwig wrote:
-> On Wed, May 04, 2011 at 11:51:45AM -0700, K. Y. Srinivasan wrote:
-> >  config HYPERV
-> >  	tristate "Microsoft Hyper-V client drivers"
-> > -	depends on X86 && m
-> > +	depends on X86 && ACPI && PCI && m
-> 
-> I can't see anything preventing this driver from beeing built-in,
-> so the "depends on m" should probably go away.
+The vmbus driver dependes on ACPI and PCI subsystems. Change
+Kconfig to reflect this.
 
-Originally there were some problems with some bad global symbols.
-Hopefully those should all be resolved now, but it can't hurt to review
-the code to verify this first.
+Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
+Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
+---
+ drivers/staging/hv/Kconfig |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-thanks,
-
-greg k-h
+diff --git a/drivers/staging/hv/Kconfig b/drivers/staging/hv/Kconfig
+index 76f0756..d8c119c 100644
+--- a/drivers/staging/hv/Kconfig
++++ b/drivers/staging/hv/Kconfig
+@@ -1,6 +1,6 @@
+ config HYPERV
+ 	tristate "Microsoft Hyper-V client drivers"
+-	depends on X86 && m
++	depends on X86 && ACPI && m
+ 	default n
+ 	help
+ 	  Select this option to run Linux as a Hyper-V client operating
+-- 
+1.7.4.1
