@@ -1,14 +1,15 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH 1/3] virtio: fix avail event support
-Date: Thu, 5 May 2011 18:08:04 +0300
-Message-ID: <1d1d5b1a8d5326dae23685587e6ab84fc6b7177e.1304605816.git.mst__38656.0539053336$1304610456$gmane$org@redhat.com>
-References: <cover.1304605816.git.mst@redhat.com>
+From: H Hartley Sweeten <hartleys@visionengravers.com>
+Subject: RE: [PATCH 1/1] Staging: hv: Add the necessary dependencies to
+	hyperv	Kconfig
+Date: Wed, 4 May 2011 13:44:27 -0500
+Message-ID: <0D753D10438DA54287A00B027084269764D295CE91__45709.7668703229$1304621702$gmane$org@AUSP01VMBX24.collaborationhost.net>
+References: <1304535105-26892-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <cover.1304605816.git.mst@redhat.com>
+In-Reply-To: <1304535105-26892-1-git-send-email-kys@microsoft.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,29 +19,40 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-Cc: Krishna Kumar <krkumar2@in.ibm.com>, Carsten Otte <cotte@de.ibm.com>, lguest@lists.ozlabs.org, Shirley Ma <xma@us.ibm.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org, netdev@vger.kernel.org, habanero@linux.vnet.ibm.com, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, steved@us.ibm.com, Christian Borntraeger <borntraeger@de.ibm.com>, Tom Lendacky <tahm@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux390@de.ibm.com
+To: "K. Y. Srinivasan" <kys@microsoft.com>, "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Cc: Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-make valid flag false, not true, on overrun
+On Wednesday, May 04, 2011 11:52 AM, K. Y. Srinivasan wrote:
+>
+> The vmbus driver dependes on ACPI and PCI subsystems. Change 
+> Kconfig to reflect this.
+>
+> Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
+> Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
+> ---
+>  drivers/staging/hv/Kconfig |    2 +-
+>  1 files changed, 1 insertions(+), 1 deletions(-)
+>
+> diff --git a/drivers/staging/hv/Kconfig b/drivers/staging/hv/Kconfig
+> index 76f0756..5e0c9f6 100644
+> --- a/drivers/staging/hv/Kconfig
+> +++ b/drivers/staging/hv/Kconfig
+> @@ -1,6 +1,6 @@
+>  config HYPERV
+>  	tristate "Microsoft Hyper-V client drivers"
+> -	depends on X86 && m
+> +	depends on X86 && ACPI && PCI && m
+>  	default n
+>  	help
+> 	  Select this option to run Linux as a Hyper-V client operating
 
-Reported-by: Tom Lendacky <tahm@linux.vnet.ibm.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
- drivers/virtio/virtio_ring.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+ACPI itself depends on PCI.  It also depends on IA64 || X86.  Will the
+vmbus driver work with IA64?  If so the depends on could just be:
 
-diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index 57bf9d5..0ea0781 100644
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -242,7 +242,7 @@ add_head:
- 	 * kicked_avail index we stored. TODO: make sure all drivers
- 	 * kick at least once in 2^16 and remove this. */
- 	if (unlikely(vq->vring.avail->idx == vq->kicked_avail))
--		vq->kicked_avail_valid = true;
-+		vq->kicked_avail_valid = false;
- 
- 	pr_debug("Added buffer head %i to %p\n", head, vq);
- 	END_USE(vq);
--- 
-1.7.5.53.gc233e
+	depends on ACPI && m
+
+Also, default n is redudant since n is the default anyway.
+
+Regards,
+Hartley
