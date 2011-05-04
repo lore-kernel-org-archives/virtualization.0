@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH 04/18] virtio: don't delay avail index update
-Date: Wed, 4 May 2011 23:51:01 +0300
-Message-ID: <6306caf796b0ebe38bb9acf9b54d18b1effbfc8f.1304541919.git.mst__146.766546140675$1304542337$gmane$org@redhat.com>
+Subject: [PATCH 06/18] virtio_ring: avail event index interface
+Date: Wed, 4 May 2011 23:51:19 +0300
+Message-ID: <b00ef5d572ec9bc3b884c496025512abc1f14349.1304541919.git.mst@redhat.com>
 References: <cover.1304541918.git.mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,61 +21,54 @@ Errors-To: virtualization-bounces@lists.linux-foundation.org
 Cc: Krishna Kumar <krkumar2@in.ibm.com>, Carsten Otte <cotte@de.ibm.com>, lguest@lists.ozlabs.org, Shirley Ma <xma@us.ibm.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org, netdev@vger.kernel.org, habanero@linux.vnet.ibm.com, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, steved@us.ibm.com, Christian Borntraeger <borntraeger@de.ibm.com>, Tom Lendacky <tahm@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux390@de.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Update avail index immediately instead of upon kick:
-for virtio-net RX this helps parallelism with the host.
+Define a new feature bit for the host to
+declare that it uses an avail_event index
+(like Xen) instead of a feature bit
+to enable/disable interrupts.
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- drivers/virtio/virtio_ring.c |   15 +++++----------
- 1 files changed, 5 insertions(+), 10 deletions(-)
+ include/linux/virtio_ring.h |   11 ++++++++---
+ 1 files changed, 8 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index 059e02d..507d6eb 100644
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -86,8 +86,6 @@ struct vring_virtqueue
- 	unsigned int num_free;
- 	/* Head of free buffer list. */
- 	unsigned int free_head;
--	/* Number we've added since last sync. */
--	unsigned int num_added;
+diff --git a/include/linux/virtio_ring.h b/include/linux/virtio_ring.h
+index f5c1b75..f791772 100644
+--- a/include/linux/virtio_ring.h
++++ b/include/linux/virtio_ring.h
+@@ -32,6 +32,9 @@
+ /* The Guest publishes the used index for which it expects an interrupt
+  * at the end of the avail ring. Host should ignore the avail->flags field. */
+ #define VIRTIO_RING_F_USED_EVENT_IDX	29
++/* The Host publishes the avail index for which it expects a kick
++ * at the end of the used ring. Guest should ignore the used->flags field. */
++#define VIRTIO_RING_F_AVAIL_EVENT_IDX	32
  
- 	/* Last used index we've seen. */
- 	u16 last_used_idx;
-@@ -224,8 +222,12 @@ add_head:
+ /* Virtio ring descriptors: 16 bytes.  These can chain together via "next". */
+ struct vring_desc {
+@@ -96,11 +99,13 @@ struct vring {
+  *	__u16 used_flags;
+  *	__u16 used_idx;
+  *	struct vring_used_elem used[num];
++ *	__u16 avail_event_idx;
+  * };
+  */
+-/* We publish the used event index at the end of the available ring.
+- * It is at the end for backwards compatibility. */
++/* We publish the used event index at the end of the available ring, and vice
++ * versa. They are at the end for backwards compatibility. */
+ #define vring_used_event(vr) ((vr)->avail->ring[(vr)->num])
++#define vring_avail_event(vr) (*(__u16 *)&(vr)->used->ring[(vr)->num])
  
- 	/* Put entry in available array (but don't update avail->idx until they
- 	 * do sync).  FIXME: avoid modulus here? */
--	avail = (vq->vring.avail->idx + vq->num_added++) % vq->vring.num;
-+	avail = vq->vring.avail->idx % vq->vring.num;
- 	vq->vring.avail->ring[avail] = head;
-+	/* Descriptors and available array need to be set before we expose the
-+	 * new available array entries. */
-+	virtio_wmb();
-+	vq->vring.avail->idx++;
- 
- 	pr_debug("Added buffer head %i to %p\n", head, vq);
- 	END_USE(vq);
-@@ -238,12 +240,6 @@ void virtqueue_kick(struct virtqueue *_vq)
+ static inline void vring_init(struct vring *vr, unsigned int num, void *p,
+ 			      unsigned long align)
+@@ -116,7 +121,7 @@ static inline unsigned vring_size(unsigned int num, unsigned long align)
  {
- 	struct vring_virtqueue *vq = to_vvq(_vq);
- 	START_USE(vq);
--	/* Descriptors and available array need to be set before we expose the
--	 * new available array entries. */
--	virtio_wmb();
--
--	vq->vring.avail->idx += vq->num_added;
--	vq->num_added = 0;
+ 	return ((sizeof(struct vring_desc) * num + sizeof(__u16) * (2 + num)
+ 		 + align - 1) & ~(align - 1))
+-		+ sizeof(__u16) * 2 + sizeof(struct vring_used_elem) * num;
++		+ sizeof(__u16) * 3 + sizeof(struct vring_used_elem) * num;
+ }
  
- 	/* Need to update avail index before checking if we should notify */
- 	virtio_mb();
-@@ -430,7 +426,6 @@ struct virtqueue *vring_new_virtqueue(unsigned int num,
- 	vq->notify = notify;
- 	vq->broken = false;
- 	vq->last_used_idx = 0;
--	vq->num_added = 0;
- 	list_add_tail(&vq->vq.list, &vdev->vqs);
- #ifdef DEBUG
- 	vq->in_use = false;
+ #ifdef __KERNEL__
 -- 
 1.7.5.53.gc233e
