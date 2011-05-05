@@ -1,16 +1,16 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH 07/18] virtio ring: inline function to check for events
-Date: Thu, 5 May 2011 11:56:56 +0300
-Message-ID: <20110505085656.GC17647__43708.058508537$1304585878$gmane$org@redhat.com>
+Subject: Re: [PATCH 05/18] virtio: used event index interface
+Date: Thu, 5 May 2011 12:38:17 +0300
+Message-ID: <20110505093816.GE28378__49806.1609142043$1304588452$gmane$org@redhat.com>
 References: <cover.1304541918.git.mst@redhat.com>
-	<cc4596a5ecdbf8dd37b5567a36667e3841f18ca3.1304541919.git.mst@redhat.com>
-	<BANLkTi=eH-iK7L2LBAm0eqidapqXqhSqxw@mail.gmail.com>
+	<aacced20b8109a615ee24c1bde6d9f5702850111.1304541919.git.mst@redhat.com>
+	<201105041656.11009.tahm@linux.vnet.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <BANLkTi=eH-iK7L2LBAm0eqidapqXqhSqxw@mail.gmail.com>
+In-Reply-To: <201105041656.11009.tahm@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,48 +20,63 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Stefan Hajnoczi <stefanha@gmail.com>
-Cc: Krishna Kumar <krkumar2@in.ibm.com>, Carsten Otte <cotte@de.ibm.com>, lguest@lists.ozlabs.org, Shirley Ma <xma@us.ibm.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org, netdev@vger.kernel.org, habanero@linux.vnet.ibm.com, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, steved@us.ibm.com, Christian Borntraeger <borntraeger@de.ibm.com>, Tom Lendacky <tahm@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux390@de.ibm.com
+To: Tom Lendacky <tahm@linux.vnet.ibm.com>
+Cc: Krishna Kumar <krkumar2@in.ibm.com>, Carsten Otte <cotte@de.ibm.com>, lguest@lists.ozlabs.org, Shirley Ma <xma@us.ibm.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org, netdev@vger.kernel.org, habanero@linux.vnet.ibm.com, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, steved@us.ibm.com, Christian Borntraeger <borntraeger@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux390@de.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, May 05, 2011 at 09:34:46AM +0100, Stefan Hajnoczi wrote:
-> On Wed, May 4, 2011 at 9:51 PM, Michael S. Tsirkin <mst@redhat.com> wrote:
-> > With the new used_event and avail_event and features, both
-> > host and guest need similar logic to check whether events are
-> > enabled, so it helps to put the common code in the header.
-> >
-> > Note that Xen has similar logic for notification hold-off
-> > in include/xen/interface/io/ring.h with req_event and req_prod
-> > corresponding to event_idx + 1 and new_idx respectively.
-> > +1 comes from the fact that req_event and req_prod in Xen start at 1,
-> > while event index in virtio starts at 0.
-> >
+On Wed, May 04, 2011 at 04:56:09PM -0500, Tom Lendacky wrote:
+> On Wednesday, May 04, 2011 03:51:09 PM Michael S. Tsirkin wrote:
+> > Define a new feature bit for the guest to utilize a used_event index
+> > (like Xen) instead if a flag bit to enable/disable interrupts.
+> > 
 > > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 > > ---
-> > =A0include/linux/virtio_ring.h | =A0 14 ++++++++++++++
-> > =A01 files changed, 14 insertions(+), 0 deletions(-)
-> >
+> >  include/linux/virtio_ring.h |    9 +++++++++
+> >  1 files changed, 9 insertions(+), 0 deletions(-)
+> > 
 > > diff --git a/include/linux/virtio_ring.h b/include/linux/virtio_ring.h
-> > index f791772..2a3b0ea 100644
+> > index e4d144b..f5c1b75 100644
 > > --- a/include/linux/virtio_ring.h
 > > +++ b/include/linux/virtio_ring.h
-> > @@ -124,6 +124,20 @@ static inline unsigned vring_size(unsigned int num=
-, unsigned long align)
-> > =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0+ sizeof(__u16) * 3 + sizeof(struct vrin=
-g_used_elem) * num;
-> > =A0}
-> >
-> > +/* The following is used with USED_EVENT_IDX and AVAIL_EVENT_IDX */
-> > +/* Assuming a given event_idx value from the other size, if
-> =
+> > @@ -29,6 +29,10 @@
+> >  /* We support indirect buffer descriptors */
+> >  #define VIRTIO_RING_F_INDIRECT_DESC	28
+> > 
+> > +/* The Guest publishes the used index for which it expects an interrupt
+> > + * at the end of the avail ring. Host should ignore the avail->flags
+> > field. */ +#define VIRTIO_RING_F_USED_EVENT_IDX	29
+> > +
+> >  /* Virtio ring descriptors: 16 bytes.  These can chain together via
+> > "next". */ struct vring_desc {
+> >  	/* Address (guest-physical). */
+> > @@ -83,6 +87,7 @@ struct vring {
+> >   *	__u16 avail_flags;
+> >   *	__u16 avail_idx;
+> >   *	__u16 available[num];
+> > + *	__u16 used_event_idx;
+> >   *
+> >   *	// Padding to the next align boundary.
+> >   *	char pad[];
+> > @@ -93,6 +98,10 @@ struct vring {
+> >   *	struct vring_used_elem used[num];
+> >   * };
+> >   */
+> > +/* We publish the used event index at the end of the available ring.
+> > + * It is at the end for backwards compatibility. */
+> > +#define vring_used_event(vr) ((vr)->avail->ring[(vr)->num])
+> > +
+> >  static inline void vring_init(struct vring *vr, unsigned int num, void *p,
+> >  			      unsigned long align)
+> >  {
+> 
+> You should update the vring_size procedure to account for the extra field at 
+> the end of the available ring by change the "(2 + num)" to "(3 + num)":
+>     return ((sizeof(struct vring_desc) * num + sizeof(__u16) * (3 + num)
+> 
+> Tom
 
-> s/other size/other side/ ?
-> =
+In practice it gives the same result because of the alignment, but sure.
+Thanks!
 
-> Stefan
-
-Exactly. Good catch, thanks.
-
--- =
-
+-- 
 MST
