@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH 3/3] virtio_ring: need_event api comment fix
-Date: Thu, 5 May 2011 18:08:17 +0300
-Message-ID: <c8b6d8a8df4927826d0024fceeb68726c50d0b1a.1304605817.git.mst__42980.4157851779$1304608285$gmane$org@redhat.com>
+Subject: [PATCH 2/3] virtio_ring: check used_event offset
+Date: Thu, 5 May 2011 18:08:10 +0300
+Message-ID: <09cf2579f7892eed2bf63daad3ee9b79cfd67b68.1304605817.git.mst__30620.2328567908$1304608287$gmane$org@redhat.com>
 References: <cover.1304605816.git.mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,26 +21,34 @@ Errors-To: virtualization-bounces@lists.linux-foundation.org
 Cc: Krishna Kumar <krkumar2@in.ibm.com>, Carsten Otte <cotte@de.ibm.com>, lguest@lists.ozlabs.org, Shirley Ma <xma@us.ibm.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org, netdev@vger.kernel.org, habanero@linux.vnet.ibm.com, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, steved@us.ibm.com, Christian Borntraeger <borntraeger@de.ibm.com>, Tom Lendacky <tahm@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux390@de.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-fix typo in a comment: size -> side
+Nothing's wrong with vring_size as is, but it's nice
+to check that the new field in the avail ring
+won't overlow into the used ring.
 
-Reported-by: Stefan Hajnoczi <stefanha@gmail.com>
+Reported-by: Tom Lendacky <tahm@linux.vnet.ibm.com>
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- include/linux/virtio_ring.h |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+ include/linux/virtio_ring.h |    8 +++++++-
+ 1 files changed, 7 insertions(+), 1 deletions(-)
 
 diff --git a/include/linux/virtio_ring.h b/include/linux/virtio_ring.h
-index 089cbf2..0a45c6e 100644
+index 2a3b0ea..089cbf2 100644
 --- a/include/linux/virtio_ring.h
 +++ b/include/linux/virtio_ring.h
-@@ -131,7 +131,7 @@ static inline unsigned vring_size(unsigned int num, unsigned long align)
- }
+@@ -119,7 +119,13 @@ static inline void vring_init(struct vring *vr, unsigned int num, void *p,
  
- /* The following is used with USED_EVENT_IDX and AVAIL_EVENT_IDX */
--/* Assuming a given event_idx value from the other size, if
-+/* Assuming a given event_idx value from the other side, if
-  * we have just incremented index from old to new_idx,
-  * should we trigger an event? */
- static inline int vring_need_event(__u16 event_idx, __u16 new_idx, __u16 old)
+ static inline unsigned vring_size(unsigned int num, unsigned long align)
+ {
+-	return ((sizeof(struct vring_desc) * num + sizeof(__u16) * (2 + num)
++#ifdef __KERNEL__
++	/* Older versions did not have used_event field at the end of the
++	 * avail ring. Used ring offset must be compatible with such devices. */
++	size_t s = sizeof(struct vring_desc) * num + sizeof(__u16) * (2 + num);
++	BUG_ON(ALIGN(s, align) != ALIGN(s + sizeof(__u16), align));
++#endif
++	return ((sizeof(struct vring_desc) * num + sizeof(__u16) * (3 + num)
+ 		 + align - 1) & ~(align - 1))
+ 		+ sizeof(__u16) * 3 + sizeof(struct vring_used_elem) * num;
+ }
 -- 
 1.7.5.53.gc233e
