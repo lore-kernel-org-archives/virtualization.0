@@ -1,132 +1,79 @@
-From: Tom Lendacky <tahm@linux.vnet.ibm.com>
-Subject: Re: [PATCH 09/18] virtio: use avail_event index
-Date: Wed, 4 May 2011 16:58:18 -0500
-Message-ID: <201105041658.19917.tahm__38192.4502704807$1304622095$gmane$org@linux.vnet.ibm.com>
-References: <cover.1304541918.git.mst@redhat.com>
-	<8bba6a0a8eee17e741c5155b04ff1b1c9f34bf94.1304541919.git.mst@redhat.com>
+From: KY Srinivasan <kys@microsoft.com>
+Subject: RE: various vmbus review comments
+Date: Fri, 6 May 2011 13:10:38 +0000
+Message-ID: <6E21E5352C11B742B20C142EB499E0481E0694@TK5EX14MBXC124.redmond.corp.microsoft.com>
+References: <20110503204641.GA11132@kroah.com>
+ <6E21E5352C11B742B20C142EB499E0481DFCFA@TK5EX14MBXC124.redmond.corp.microsoft.com>
+ <20110504163228.GA19754@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <8bba6a0a8eee17e741c5155b04ff1b1c9f34bf94.1304541919.git.mst@redhat.com>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Krishna Kumar <krkumar2@in.ibm.com>, Carsten Otte <cotte@de.ibm.com>, lguest@lists.ozlabs.org, Shirley Ma <xma@us.ibm.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org, netdev@vger.kernel.org, habanero@linux.vnet.ibm.com, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, steved@us.ibm.com, Christian Borntraeger <borntraeger@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux390@de.ibm.com
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20110504163228.GA19754@kroah.com>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: Greg KH <greg@kroah.com>
+Cc: "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
 
-On Wednesday, May 04, 2011 03:51:47 PM Michael S. Tsirkin wrote:
-> Use the new avail_event feature to reduce the number
-> of exits from the guest.
-> 
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> ---
->  drivers/virtio/virtio_ring.c |   39
-> ++++++++++++++++++++++++++++++++++++++- 1 files changed, 38 insertions(+),
-> 1 deletions(-)
-> 
-> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> index 3a3ed75..262dfe6 100644
-> --- a/drivers/virtio/virtio_ring.c
-> +++ b/drivers/virtio/virtio_ring.c
-> @@ -82,6 +82,15 @@ struct vring_virtqueue
->  	/* Host supports indirect buffers */
->  	bool indirect;
-> 
-> +	/* Host publishes avail event idx */
-> +	bool event;
-> +
-> +	/* Is kicked_avail below valid? */
-> +	bool kicked_avail_valid;
-> +
-> +	/* avail idx value we already kicked. */
-> +	u16 kicked_avail;
-> +
->  	/* Number of free buffers */
->  	unsigned int num_free;
->  	/* Head of free buffer list. */
-> @@ -228,6 +237,12 @@ add_head:
->  	 * new available array entries. */
->  	virtio_wmb();
->  	vq->vring.avail->idx++;
-> +	/* If the driver never bothers to kick in a very long while,
-> +	 * avail index might wrap around. If that happens, invalidate
-> +	 * kicked_avail index we stored. TODO: make sure all drivers
-> +	 * kick at least once in 2^16 and remove this. */
-> +	if (unlikely(vq->vring.avail->idx == vq->kicked_avail))
-> +		vq->kicked_avail_valid = true;
 
-vq->kicked_avail_valid should be set to false here.
+> -----Original Message-----
+> From: Greg KH [mailto:greg@kroah.com]
+> Sent: Wednesday, May 04, 2011 12:32 PM
+> To: KY Srinivasan
+> Cc: gregkh@suse.de; linux-kernel@vger.kernel.org;
+> devel@linuxdriverproject.org; virtualization@lists.osdl.org
+> Subject: Re: various vmbus review comments
+> 
+> On Wed, May 04, 2011 at 04:20:11PM +0000, KY Srinivasan wrote:
+> >
+> >
+> > > -----Original Message-----
+> > > From: Greg KH [mailto:greg@kroah.com]
+> > > Sent: Tuesday, May 03, 2011 4:47 PM
+> > > To: KY Srinivasan
+> > > Cc: gregkh@suse.de; linux-kernel@vger.kernel.org;
+> > > 	- module reference counting.  Are you sure you got it all right
+> > > 	  for the individual modules that attach to the bus?  I don't
+> > > 	  see any reference counting happening, is that correct?
+> >
+> > For this round, I want to concentrate on just the vmbus driver. So,
+> > module reference counting is I don't think an issue for the vmbus driver
+> > given that the driver is not unlodable. Once I am done with the vmbus driver
+> > I will address the module reference counting issues for other drivers.
+> 
+> No, I am referring to the module reference counting of the bus drivers
+> that register with the vmbus core.  You aren't doing that at all, and
+> you probably need to make sure that this isn't needed.  That is
+> concentrating on the vmbus driver.
 
-Tom
+I audited the block and the net drivers. As part of their exit routine,
+they invoke vmbus_child_driver_unregister() after properly cleaning
+up all the devices they are managing. Do you still see an issue with
+regards to module reference counting.
 
 > 
->  	pr_debug("Added buffer head %i to %p\n", head, vq);
->  	END_USE(vq);
-> @@ -236,6 +251,23 @@ add_head:
->  }
->  EXPORT_SYMBOL_GPL(virtqueue_add_buf_gfp);
+> > I will also address your comment on static initialization hv_driver instances
+> > as part of other driver cleanup.
 > 
-> +
-> +static bool vring_notify(struct vring_virtqueue *vq)
-> +{
-> +	u16 old, new;
-> +	bool v;
-> +	if (!vq->event)
-> +		return !(vq->vring.used->flags & VRING_USED_F_NO_NOTIFY);
-> +
-> +	v = vq->kicked_avail_valid;
-> +	old = vq->kicked_avail;
-> +	new = vq->kicked_avail = vq->vring.avail->idx;
-> +	vq->kicked_avail_valid = true;
-> +	if (unlikely(!v))
-> +		return true;
-> +	return vring_need_event(vring_avail_event(&vq->vring), new, old);
-> +}
-> +
->  void virtqueue_kick(struct virtqueue *_vq)
->  {
->  	struct vring_virtqueue *vq = to_vvq(_vq);
-> @@ -244,7 +276,7 @@ void virtqueue_kick(struct virtqueue *_vq)
->  	/* Need to update avail index before checking if we should notify */
->  	virtio_mb();
-> 
-> -	if (!(vq->vring.used->flags & VRING_USED_F_NO_NOTIFY))
-> +	if (vring_notify(vq))
->  		/* Prod other side to tell it about changes. */
->  		vq->notify(&vq->vq);
-> 
-> @@ -437,6 +469,8 @@ struct virtqueue *vring_new_virtqueue(unsigned int num,
->  	vq->vq.name = name;
->  	vq->notify = notify;
->  	vq->broken = false;
-> +	vq->kicked_avail_valid = false;
-> +	vq->kicked_avail = 0;
->  	vq->last_used_idx = 0;
->  	list_add_tail(&vq->vq.list, &vdev->vqs);
->  #ifdef DEBUG
-> @@ -444,6 +478,7 @@ struct virtqueue *vring_new_virtqueue(unsigned int num,
->  #endif
-> 
->  	vq->indirect = virtio_has_feature(vdev, VIRTIO_RING_F_INDIRECT_DESC);
-> +	vq->event = virtio_has_feature(vdev, VIRTIO_RING_F_AVAIL_EVENT_IDX);
-> 
->  	/* No callback?  Tell other side not to bother us. */
->  	if (!callback)
-> @@ -482,6 +517,8 @@ void vring_transport_features(struct virtio_device
-> *vdev) break;
->  		case VIRTIO_RING_F_USED_EVENT_IDX:
->  			break;
-> +		case VIRTIO_RING_F_AVAIL_EVENT_IDX:
-> +			break;
->  		default:
->  			/* We don't understand this bit. */
->  			clear_bit(i, vdev->features);
+> No, please do this now as it will show how to properly interact with the
+> vmbus core code in the correct manner.  Hopefully that will be correct,
+> but I have a feeling that it will show you some places in the API that
+> need to be changed...
+
+As opposed to run-time initialization of fields such as probe, etc; I have 
+initialized them statically. For instance, in the blkvsc driver:
+
+/* The one and only one */
+static  struct storvsc_driver blkvsc_drv = {
+        .base.probe =  blkvsc_probe,
+        .base.remove =  blkvsc_remove,
+        .base.shutdown = blkvsc_shutdown,
+};
+
+Is this what you had in mind.
+
+Regards,
+
+K. Y 
