@@ -1,7 +1,7 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 033/206] Staging: hv: Rename struct host_device_context
-Date: Mon,  9 May 2011 14:55:15 -0700
-Message-ID: <1304978288-22999-33-git-send-email-kys@microsoft.com>
+Subject: [PATCH 108/206] Staging: hv: Cleanup ring_buffer.h
+Date: Mon,  9 May 2011 14:56:30 -0700
+Message-ID: <1304978288-22999-108-git-send-email-kys@microsoft.com>
 References: <1304978242-22958-1-git-send-email-kys@microsoft.com>
 	<1304978288-22999-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -22,108 +22,44 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The subject line says it all.
+Access to these variables is already serialized via a spin lock. Get
+rid of the unnecessary volatile qualifier.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/storvsc_drv.c |   27 ++++++++++++++-------------
- 1 files changed, 14 insertions(+), 13 deletions(-)
+ drivers/staging/hv/ring_buffer.h |    7 +++----
+ 1 files changed, 3 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
-index d19df02..2411f53 100644
---- a/drivers/staging/hv/storvsc_drv.c
-+++ b/drivers/staging/hv/storvsc_drv.c
-@@ -17,6 +17,7 @@
-  * Authors:
-  *   Haiyang Zhang <haiyangz@microsoft.com>
-  *   Hank Janssen  <hjanssen@microsoft.com>
-+ *   K. Y. Srinivasan <kys@microsoft.com>
-  */
- #include <linux/init.h>
- #include <linux/slab.h>
-@@ -50,7 +51,7 @@ static const struct hv_guid gStorVscDeviceType = {
- 	}
- };
+diff --git a/drivers/staging/hv/ring_buffer.h b/drivers/staging/hv/ring_buffer.h
+index 1bc0b8a..089c536 100644
+--- a/drivers/staging/hv/ring_buffer.h
++++ b/drivers/staging/hv/ring_buffer.h
+@@ -30,12 +30,12 @@
  
--struct host_device_context {
-+struct hv_host_device {
- 	/* must be 1st field
- 	 * FIXME this is a bug */
- 	/* point back to our device context */
-@@ -325,14 +326,14 @@ static int storvsc_probe(struct hv_device *device)
- 	struct storvsc_driver *storvsc_drv_obj =
- 		 drv_to_stordrv(device->device.driver);
- 	struct Scsi_Host *host;
--	struct host_device_context *host_device_ctx;
-+	struct hv_host_device *host_device_ctx;
- 	struct storvsc_device_info device_info;
+ struct hv_ring_buffer {
+ 	/* Offset in bytes from the start of ring data below */
+-	volatile u32 write_index;
++	u32 write_index;
  
- 	if (!storvsc_drv_obj->base.dev_add)
- 		return -1;
+ 	/* Offset in bytes from the start of ring data below */
+-	volatile u32 read_index;
++	u32 read_index;
  
- 	host = scsi_host_alloc(&scsi_driver,
--			       sizeof(struct host_device_context));
-+			       sizeof(struct hv_host_device));
- 	if (!host) {
- 		DPRINT_ERR(STORVSC_DRV, "unable to allocate scsi host object");
- 		return -ENOMEM;
-@@ -340,8 +341,8 @@ static int storvsc_probe(struct hv_device *device)
+-	volatile u32 interrupt_mask;
++	u32 interrupt_mask;
  
- 	dev_set_drvdata(&device->device, host);
- 
--	host_device_ctx = (struct host_device_context *)host->hostdata;
--	memset(host_device_ctx, 0, sizeof(struct host_device_context));
-+	host_device_ctx = (struct hv_host_device *)host->hostdata;
-+	memset(host_device_ctx, 0, sizeof(struct hv_host_device));
- 
- 	host_device_ctx->port = host->host_no;
- 	host_device_ctx->device_ctx = device;
-@@ -402,8 +403,8 @@ static int storvsc_remove(struct hv_device *dev)
- 	struct storvsc_driver *storvsc_drv_obj =
- 			 drv_to_stordrv(dev->device.driver);
- 	struct Scsi_Host *host = dev_get_drvdata(&dev->device);
--	struct host_device_context *host_device_ctx =
--			(struct host_device_context *)host->hostdata;
-+	struct hv_host_device *host_device_ctx =
-+			(struct hv_host_device *)host->hostdata;
+ 	/* Pad it to PAGE_SIZE so that data starts on page boundary */
+ 	u8	reserved[4084];
+@@ -45,7 +45,6 @@ struct hv_ring_buffer {
+ 	 * vmbus connection also uses this data structure and its data starts
+ 	 * here, we commented out this field.
+ 	 */
+-	/* volatile u32 InterruptMask; */
  
  	/*
- 	 * Call to the vsc driver to let it know that the device is being
-@@ -432,8 +433,8 @@ static void storvsc_commmand_completion(struct hv_storvsc_request *request)
- 	struct storvsc_cmd_request *cmd_request =
- 		(struct storvsc_cmd_request *)request->context;
- 	struct scsi_cmnd *scmnd = cmd_request->cmd;
--	struct host_device_context *host_device_ctx =
--		(struct host_device_context *)scmnd->device->host->hostdata;
-+	struct hv_host_device *host_device_ctx =
-+		(struct hv_host_device *)scmnd->device->host->hostdata;
- 	void (*scsi_done_fn)(struct scsi_cmnd *);
- 	struct scsi_sense_hdr sense_hdr;
- 	struct vmscsi_request *vm_srb;
-@@ -682,8 +683,8 @@ static int storvsc_queuecommand_lck(struct scsi_cmnd *scmnd,
- 				void (*done)(struct scsi_cmnd *))
- {
- 	int ret;
--	struct host_device_context *host_device_ctx =
--		(struct host_device_context *)scmnd->device->host->hostdata;
-+	struct hv_host_device *host_device_ctx =
-+		(struct hv_host_device *)scmnd->device->host->hostdata;
- 	struct hv_device *device_ctx = host_device_ctx->device_ctx;
- 	struct storvsc_driver *storvsc_drv_obj =
- 		drv_to_stordrv(device_ctx->device.driver);
-@@ -915,8 +916,8 @@ static int storvsc_device_configure(struct scsi_device *sdevice)
- static int storvsc_host_reset_handler(struct scsi_cmnd *scmnd)
- {
- 	int ret;
--	struct host_device_context *host_device_ctx =
--		(struct host_device_context *)scmnd->device->host->hostdata;
-+	struct hv_host_device *host_device_ctx =
-+		(struct hv_host_device *)scmnd->device->host->hostdata;
- 	struct hv_device *device_ctx = host_device_ctx->device_ctx;
- 
- 	DPRINT_INFO(STORVSC_DRV, "sdev (%p) dev obj (%p) - host resetting...",
+ 	 * Ring data starts here + RingDataStartOffset
 -- 
 1.7.4.1
