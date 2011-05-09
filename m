@@ -1,8 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 063/206] Staging: hv: Get rid of the indirection in invoking
-	storvsc_dev_add()
-Date: Mon,  9 May 2011 14:55:45 -0700
-Message-ID: <1304978288-22999-63-git-send-email-kys@microsoft.com>
+Subject: [PATCH 057/206] Staging: hv: Get rid of the forward declaration of
+	storvsc_probe()
+Date: Mon,  9 May 2011 14:55:39 -0700
+Message-ID: <1304978288-22999-57-git-send-email-kys@microsoft.com>
 References: <1304978242-22958-1-git-send-email-kys@microsoft.com>
 	<1304978288-22999-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -23,44 +23,185 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The subject line says it all.
+Get rid of the forward declaration by moving the code around.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/storvsc_drv.c |    7 +------
- 1 files changed, 1 insertions(+), 6 deletions(-)
+ drivers/staging/hv/storvsc_drv.c |  143 +++++++++++++++++++-------------------
+ 1 files changed, 71 insertions(+), 72 deletions(-)
 
 diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
-index 233aa4c..599b5d2 100644
+index 4d4226a..37bc4dd 100644
 --- a/drivers/staging/hv/storvsc_drv.c
 +++ b/drivers/staging/hv/storvsc_drv.c
-@@ -784,15 +784,10 @@ static struct scsi_host_template scsi_driver = {
+@@ -766,8 +766,6 @@ retry_request:
+ 
+ static DEF_SCSI_QCMD(storvsc_queuecommand)
+ 
+-/* Static decl */
+-static int storvsc_probe(struct hv_device *dev);
+ 
+ /* The one and only one */
+ static struct storvsc_driver g_storvsc_drv;
+@@ -802,78 +800,9 @@ static struct scsi_host_template scsi_driver = {
+ 
+ 
+ /*
+- * storvsc_drv_init - StorVsc driver initialization.
+- */
+-static int storvsc_drv_init(void)
+-{
+-	int ret;
+-	struct storvsc_driver *storvsc_drv_obj = &g_storvsc_drv;
+-	struct hv_driver *drv = &g_storvsc_drv.base;
+-
+-	storvsc_drv_obj->ring_buffer_size = storvsc_ringbuffer_size;
+-
+-	/* Callback to client driver to complete the initialization */
+-	storvsc_initialize(&storvsc_drv_obj->base);
+-
+-	DPRINT_INFO(STORVSC_DRV,
+-		    "max outstanding reqs %u",
+-		    storvsc_drv_obj->max_outstanding_req_per_channel);
+-
+-	if (storvsc_drv_obj->max_outstanding_req_per_channel <
+-	    STORVSC_MAX_IO_REQUESTS)
+-		return -1;
+-
+-	drv->driver.name = storvsc_drv_obj->base.name;
+-
+-	drv->probe = storvsc_probe;
+-	drv->remove = storvsc_remove;
+-
+-	/* The driver belongs to vmbus */
+-	ret = vmbus_child_driver_register(&drv->driver);
+-
+-	return ret;
+-}
+-
+-static int storvsc_drv_exit_cb(struct device *dev, void *data)
+-{
+-	struct device **curr = (struct device **)data;
+-	*curr = dev;
+-	return 1; /* stop iterating */
+-}
+-
+-static void storvsc_drv_exit(void)
+-{
+-	struct storvsc_driver *storvsc_drv_obj = &g_storvsc_drv;
+-	struct hv_driver *drv = &g_storvsc_drv.base;
+-	struct device *current_dev = NULL;
+-	int ret;
+-
+-	while (1) {
+-		current_dev = NULL;
+-
+-		/* Get the device */
+-		ret = driver_for_each_device(&drv->driver, NULL,
+-					     (void *) &current_dev,
+-					     storvsc_drv_exit_cb);
+-
+-
+-		if (current_dev == NULL)
+-			break;
+-
+-		/* Initiate removal from the top-down */
+-		device_unregister(current_dev);
+-	}
+-
+-	if (storvsc_drv_obj->base.cleanup)
+-		storvsc_drv_obj->base.cleanup(&storvsc_drv_obj->base);
+-
+-	vmbus_child_driver_unregister(&drv->driver);
+-	return;
+-}
+-
+-/*
+  * storvsc_probe - Add a new device for this driver
+  */
++
  static int storvsc_probe(struct hv_device *device)
  {
  	int ret;
--	struct storvsc_driver *storvsc_drv_obj =
--		 drv_to_stordrv(device->device.driver);
- 	struct Scsi_Host *host;
- 	struct hv_host_device *host_dev;
- 	struct storvsc_device_info device_info;
+@@ -944,6 +873,76 @@ static int storvsc_probe(struct hv_device *device)
+ 	return ret;
+ }
  
--	if (!storvsc_drv_obj->base.dev_add)
--		return -1;
--
- 	host = scsi_host_alloc(&scsi_driver,
- 			       sizeof(struct hv_host_device));
- 	if (!host)
-@@ -818,7 +813,7 @@ static int storvsc_probe(struct hv_device *device)
- 
- 	device_info.port_number = host->host_no;
- 	/* Call to the vsc driver to add the device */
--	ret = storvsc_drv_obj->base.dev_add(device, (void *)&device_info);
-+	ret = storvsc_dev_add(device, (void *)&device_info);
- 
- 	if (ret != 0) {
- 		kmem_cache_destroy(host_dev->request_pool);
++/*
++ * storvsc_drv_init - StorVsc driver initialization.
++ */
++static int storvsc_drv_init(void)
++{
++	int ret;
++	struct storvsc_driver *storvsc_drv_obj = &g_storvsc_drv;
++	struct hv_driver *drv = &g_storvsc_drv.base;
++
++	storvsc_drv_obj->ring_buffer_size = storvsc_ringbuffer_size;
++
++	/* Callback to client driver to complete the initialization */
++	storvsc_initialize(&storvsc_drv_obj->base);
++
++	DPRINT_INFO(STORVSC_DRV,
++		    "max outstanding reqs %u",
++		    storvsc_drv_obj->max_outstanding_req_per_channel);
++
++	if (storvsc_drv_obj->max_outstanding_req_per_channel <
++	    STORVSC_MAX_IO_REQUESTS)
++		return -1;
++
++	drv->driver.name = storvsc_drv_obj->base.name;
++
++	drv->probe = storvsc_probe;
++	drv->remove = storvsc_remove;
++
++	/* The driver belongs to vmbus */
++	ret = vmbus_child_driver_register(&drv->driver);
++
++	return ret;
++}
++
++static int storvsc_drv_exit_cb(struct device *dev, void *data)
++{
++	struct device **curr = (struct device **)data;
++	*curr = dev;
++	return 1; /* stop iterating */
++}
++
++static void storvsc_drv_exit(void)
++{
++	struct storvsc_driver *storvsc_drv_obj = &g_storvsc_drv;
++	struct hv_driver *drv = &g_storvsc_drv.base;
++	struct device *current_dev = NULL;
++	int ret;
++
++	while (1) {
++		current_dev = NULL;
++
++		/* Get the device */
++		ret = driver_for_each_device(&drv->driver, NULL,
++					     (void *) &current_dev,
++					     storvsc_drv_exit_cb);
++
++
++		if (current_dev == NULL)
++			break;
++
++		/* Initiate removal from the top-down */
++		device_unregister(current_dev);
++	}
++
++	if (storvsc_drv_obj->base.cleanup)
++		storvsc_drv_obj->base.cleanup(&storvsc_drv_obj->base);
++
++	vmbus_child_driver_unregister(&drv->driver);
++	return;
++}
++
+ static int __init storvsc_init(void)
+ {
+ 	int ret;
 -- 
 1.7.4.1
