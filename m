@@ -1,8 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 064/206] Staging: hv: Get rid of the indirection in invoking
-	storvsc_do_io()
-Date: Mon,  9 May 2011 14:55:46 -0700
-Message-ID: <1304978288-22999-64-git-send-email-kys@microsoft.com>
+Subject: [PATCH 114/206] Staging: hv: Get rid of some unnecessary state from
+	struct vmbus_msginfo
+Date: Mon,  9 May 2011 14:56:36 -0700
+Message-ID: <1304978288-22999-114-git-send-email-kys@microsoft.com>
 References: <1304978242-22958-1-git-send-email-kys@microsoft.com>
 	<1304978288-22999-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -23,39 +23,30 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The subject line says it all.
+This state is not used anywhere; get rid of it.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/storvsc_drv.c |    6 ++----
- 1 files changed, 2 insertions(+), 4 deletions(-)
+ drivers/staging/hv/vmbus_private.h |    4 ----
+ 1 files changed, 0 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
-index 599b5d2..6300b79 100644
---- a/drivers/staging/hv/storvsc_drv.c
-+++ b/drivers/staging/hv/storvsc_drv.c
-@@ -596,8 +596,6 @@ static int storvsc_queuecommand_lck(struct scsi_cmnd *scmnd,
- 	struct hv_host_device *host_dev =
- 		(struct hv_host_device *)scmnd->device->host->hostdata;
- 	struct hv_device *dev = host_dev->dev;
--	struct storvsc_driver *storvsc_drv_obj =
--		drv_to_stordrv(dev->device.driver);
- 	struct hv_storvsc_request *request;
- 	struct storvsc_cmd_request *cmd_request;
- 	unsigned int request_size = 0;
-@@ -717,8 +715,8 @@ static int storvsc_queuecommand_lck(struct scsi_cmnd *scmnd,
+diff --git a/drivers/staging/hv/vmbus_private.h b/drivers/staging/hv/vmbus_private.h
+index 6f0d8df..bea331e 100644
+--- a/drivers/staging/hv/vmbus_private.h
++++ b/drivers/staging/hv/vmbus_private.h
+@@ -91,10 +91,6 @@ struct vmbus_msginfo {
+ 	/* Bookkeeping stuff */
+ 	struct list_head msglist_entry;
  
- retry_request:
- 	/* Invokes the vsc to start an IO */
--	ret = storvsc_drv_obj->on_io_request(dev,
--					   &cmd_request->request);
-+	ret = storvsc_do_io(dev, &cmd_request->request);
-+
- 	if (ret == -1) {
- 		/* no more space */
- 
+-	/* Synchronize the request/response if needed */
+-	int wait_condition;
+-	wait_queue_head_t  wait_event;
+-
+ 	/* The message itself */
+ 	unsigned char msg[0];
+ };
 -- 
 1.7.4.1
