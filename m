@@ -1,7 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 096/206] Staging: hv: Rename ringbuffer_cleanup
-Date: Mon,  9 May 2011 14:56:18 -0700
-Message-ID: <1304978288-22999-96-git-send-email-kys@microsoft.com>
+Subject: [PATCH 055/206] Staging: hv: Move the function
+	storvsc_commmand_completion() to earlier in the file
+Date: Mon,  9 May 2011 14:55:37 -0700
+Message-ID: <1304978288-22999-55-git-send-email-kys@microsoft.com>
 References: <1304978242-22958-1-git-send-email-kys@microsoft.com>
 	<1304978288-22999-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -22,77 +23,148 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Rename ringbuffer_cleanup.
-
+The subject line says it all.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/channel.c     |    8 ++++----
- drivers/staging/hv/ring_buffer.c |    4 ++--
- drivers/staging/hv/ring_buffer.h |    2 +-
- 3 files changed, 7 insertions(+), 7 deletions(-)
+ drivers/staging/hv/storvsc_drv.c |  115 +++++++++++++++++++-------------------
+ 1 files changed, 58 insertions(+), 57 deletions(-)
 
-diff --git a/drivers/staging/hv/channel.c b/drivers/staging/hv/channel.c
-index 43e54b5..44b81e8 100644
---- a/drivers/staging/hv/channel.c
-+++ b/drivers/staging/hv/channel.c
-@@ -292,8 +292,8 @@ Cleanup:
- 	return err;
- 
- errorout:
--	ringbuffer_cleanup(&newchannel->outbound);
--	ringbuffer_cleanup(&newchannel->inbound);
-+	hv_ringbuffer_cleanup(&newchannel->outbound);
-+	hv_ringbuffer_cleanup(&newchannel->inbound);
- 	free_pages((unsigned long)out,
- 		get_order(send_ringbuffer_size + recv_ringbuffer_size));
- 	kfree(openInfo);
-@@ -651,8 +651,8 @@ void vmbus_close(struct vmbus_channel *channel)
- 	/* TODO: Send a msg to release the childRelId */
- 
- 	/* Cleanup the ring buffers for this channel */
--	ringbuffer_cleanup(&channel->outbound);
--	ringbuffer_cleanup(&channel->inbound);
-+	hv_ringbuffer_cleanup(&channel->outbound);
-+	hv_ringbuffer_cleanup(&channel->inbound);
- 
- 	free_pages((unsigned long)channel->ringbuffer_pages,
- 		get_order(channel->ringbuffer_pagecount * PAGE_SIZE));
-diff --git a/drivers/staging/hv/ring_buffer.c b/drivers/staging/hv/ring_buffer.c
-index 9653ab5..9bab40c 100644
---- a/drivers/staging/hv/ring_buffer.c
-+++ b/drivers/staging/hv/ring_buffer.c
-@@ -328,13 +328,13 @@ int hv_ringbuffer_init(struct hv_ring_buffer_info *ring_info,
- /*++
- 
- Name:
--	ringbuffer_cleanup()
-+	hv_ringbuffer_cleanup()
- 
- Description:
- 	Cleanup the ring buffer
- 
- --*/
--void ringbuffer_cleanup(struct hv_ring_buffer_info *ring_info)
-+void hv_ringbuffer_cleanup(struct hv_ring_buffer_info *ring_info)
- {
+diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
+index 0d9ce56..d10e533 100644
+--- a/drivers/staging/hv/storvsc_drv.c
++++ b/drivers/staging/hv/storvsc_drv.c
+@@ -539,6 +539,64 @@ static int storvsc_host_reset_handler(struct scsi_cmnd *scmnd)
+ 	return ret;
  }
  
-diff --git a/drivers/staging/hv/ring_buffer.h b/drivers/staging/hv/ring_buffer.h
-index 3c66dc0..66d9a2d 100644
---- a/drivers/staging/hv/ring_buffer.h
-+++ b/drivers/staging/hv/ring_buffer.h
-@@ -79,7 +79,7 @@ struct hv_ring_buffer_debug_info {
- int hv_ringbuffer_init(struct hv_ring_buffer_info *ring_info, void *buffer,
- 		   u32 buflen);
++
++/*
++ * storvsc_commmand_completion - Command completion processing
++ */
++static void storvsc_commmand_completion(struct hv_storvsc_request *request)
++{
++	struct storvsc_cmd_request *cmd_request =
++		(struct storvsc_cmd_request *)request->context;
++	struct scsi_cmnd *scmnd = cmd_request->cmd;
++	struct hv_host_device *host_dev =
++		(struct hv_host_device *)scmnd->device->host->hostdata;
++	void (*scsi_done_fn)(struct scsi_cmnd *);
++	struct scsi_sense_hdr sense_hdr;
++	struct vmscsi_request *vm_srb;
++
++	/* ASSERT(request == &cmd_request->request); */
++	/* ASSERT(scmnd); */
++	/* ASSERT((unsigned long)scmnd->host_scribble == */
++	/*        (unsigned long)cmd_request); */
++	/* ASSERT(scmnd->scsi_done); */
++
++	if (cmd_request->bounce_sgl_count) {
++		/* using bounce buffer */
++		/* printk("copy_from_bounce_buffer\n"); */
++
++		/* FIXME: We can optimize on writes by just skipping this */
++		copy_from_bounce_buffer(scsi_sglist(scmnd),
++					cmd_request->bounce_sgl,
++					scsi_sg_count(scmnd));
++		destroy_bounce_buffer(cmd_request->bounce_sgl,
++				      cmd_request->bounce_sgl_count);
++	}
++
++	vm_srb = &request->vstor_packet.vm_srb;
++	scmnd->result = vm_srb->scsi_status;
++
++	if (scmnd->result) {
++		if (scsi_normalize_sense(scmnd->sense_buffer,
++				SCSI_SENSE_BUFFERSIZE, &sense_hdr))
++			scsi_print_sense_hdr("storvsc", &sense_hdr);
++	}
++
++	/* ASSERT(request->BytesXfer <= request->data_buffer.Length); */
++	scsi_set_resid(scmnd,
++		request->data_buffer.len -
++		vm_srb->data_transfer_length);
++
++	scsi_done_fn = scmnd->scsi_done;
++
++	scmnd->host_scribble = NULL;
++	scmnd->scsi_done = NULL;
++
++	/* !!DO NOT MODIFY the scmnd after this call */
++	scsi_done_fn(scmnd);
++
++	kmem_cache_free(host_dev->request_pool, cmd_request);
++}
++
+ /* Static decl */
+ static int storvsc_probe(struct hv_device *dev);
+ static int storvsc_queuecommand(struct Scsi_Host *shost, struct scsi_cmnd *scmnd);
+@@ -719,63 +777,6 @@ static int storvsc_probe(struct hv_device *device)
+ }
  
--void ringbuffer_cleanup(struct hv_ring_buffer_info *ring_info);
-+void hv_ringbuffer_cleanup(struct hv_ring_buffer_info *ring_info);
- 
- int ringbuffer_write(struct hv_ring_buffer_info *ring_info,
- 		    struct scatterlist *sglist,
+ /*
+- * storvsc_commmand_completion - Command completion processing
+- */
+-static void storvsc_commmand_completion(struct hv_storvsc_request *request)
+-{
+-	struct storvsc_cmd_request *cmd_request =
+-		(struct storvsc_cmd_request *)request->context;
+-	struct scsi_cmnd *scmnd = cmd_request->cmd;
+-	struct hv_host_device *host_dev =
+-		(struct hv_host_device *)scmnd->device->host->hostdata;
+-	void (*scsi_done_fn)(struct scsi_cmnd *);
+-	struct scsi_sense_hdr sense_hdr;
+-	struct vmscsi_request *vm_srb;
+-
+-	/* ASSERT(request == &cmd_request->request); */
+-	/* ASSERT(scmnd); */
+-	/* ASSERT((unsigned long)scmnd->host_scribble == */
+-	/*        (unsigned long)cmd_request); */
+-	/* ASSERT(scmnd->scsi_done); */
+-
+-	if (cmd_request->bounce_sgl_count) {
+-		/* using bounce buffer */
+-		/* printk("copy_from_bounce_buffer\n"); */
+-
+-		/* FIXME: We can optimize on writes by just skipping this */
+-		copy_from_bounce_buffer(scsi_sglist(scmnd),
+-					cmd_request->bounce_sgl,
+-					scsi_sg_count(scmnd));
+-		destroy_bounce_buffer(cmd_request->bounce_sgl,
+-				      cmd_request->bounce_sgl_count);
+-	}
+-
+-	vm_srb = &request->vstor_packet.vm_srb;
+-	scmnd->result = vm_srb->scsi_status;
+-
+-	if (scmnd->result) {
+-		if (scsi_normalize_sense(scmnd->sense_buffer,
+-				SCSI_SENSE_BUFFERSIZE, &sense_hdr))
+-			scsi_print_sense_hdr("storvsc", &sense_hdr);
+-	}
+-
+-	/* ASSERT(request->BytesXfer <= request->data_buffer.Length); */
+-	scsi_set_resid(scmnd,
+-		request->data_buffer.len -
+-		vm_srb->data_transfer_length);
+-
+-	scsi_done_fn = scmnd->scsi_done;
+-
+-	scmnd->host_scribble = NULL;
+-	scmnd->scsi_done = NULL;
+-
+-	/* !!DO NOT MODIFY the scmnd after this call */
+-	scsi_done_fn(scmnd);
+-
+-	kmem_cache_free(host_dev->request_pool, cmd_request);
+-}
+-
+-/*
+  * storvsc_queuecommand - Initiate command processing
+  */
+ static int storvsc_queuecommand_lck(struct scsi_cmnd *scmnd,
 -- 
 1.7.4.1
