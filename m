@@ -1,7 +1,7 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 185/206] Staging: hv: Include the newly created header file in the util driver
-Date: Mon,  9 May 2011 14:57:47 -0700
-Message-ID: <1304978288-22999-185-git-send-email-kys@microsoft.com>
+Subject: [PATCH 139/206] Staging: hv: Move the assignment of name to the hv_driver
+Date: Mon,  9 May 2011 14:57:01 -0700
+Message-ID: <1304978288-22999-139-git-send-email-kys@microsoft.com>
 References: <1304978242-22958-1-git-send-email-kys@microsoft.com>
  <1304978288-22999-1-git-send-email-kys@microsoft.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
@@ -11,60 +11,36 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>, Hank Janssen <hjanssen@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Include the newly created header file in the util driver.
+In preperation to eliminate the function storvsc_initialize()
+move the name assignment.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/hv_kvp.c  |   11 +----------
- drivers/staging/hv/hv_util.c |   11 +----------
- 2 files changed, 2 insertions(+), 20 deletions(-)
+ drivers/staging/hv/storvsc_drv.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/staging/hv/hv_kvp.c b/drivers/staging/hv/hv_kvp.c
-index c71a148..94166e8 100644
---- a/drivers/staging/hv/hv_kvp.c
-+++ b/drivers/staging/hv/hv_kvp.c
-@@ -27,16 +27,7 @@
- #include <linux/connector.h>
- #include <linux/workqueue.h>
+diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
+index e342bcc..9447130 100644
+--- a/drivers/staging/hv/storvsc_drv.c
++++ b/drivers/staging/hv/storvsc_drv.c
+@@ -86,7 +86,6 @@ static int storvsc_initialize(struct hv_driver *driver)
  
--#include "logging.h"
--#include "hv_api.h"
--#include "vmbus.h"
--#include "vmbus_packet_format.h"
--#include "vmbus_channel_interface.h"
--#include "version_info.h"
--#include "channel.h"
--#include "vmbus_private.h"
--#include "vmbus_api.h"
--#include "utils.h"
-+#include <linux/hyperv.h>
- #include "hv_kvp.h"
+ 	/* Make sure we are at least 2 pages since 1 page is used for control */
+ 
+-	driver->name = driver_name;
+ 	memcpy(&driver->dev_type, &gStorVscDeviceType,
+ 	       sizeof(struct hv_guid));
+ 
+@@ -806,6 +805,7 @@ static int storvsc_drv_init(void)
+ 	    STORVSC_MAX_IO_REQUESTS)
+ 		return -1;
+ 
++	drv->name = driver_name;
+ 	drv->driver.name = driver_name;
  
  
-diff --git a/drivers/staging/hv/hv_util.c b/drivers/staging/hv/hv_util.c
-index ea76dda..14672b7 100644
---- a/drivers/staging/hv/hv_util.c
-+++ b/drivers/staging/hv/hv_util.c
-@@ -29,16 +29,7 @@
- #include <linux/dmi.h>
- #include <linux/pci.h>
- 
--#include "logging.h"
--#include "hv_api.h"
--#include "vmbus.h"
--#include "vmbus_packet_format.h"
--#include "vmbus_channel_interface.h"
--#include "version_info.h"
--#include "channel.h"
--#include "vmbus_private.h"
--#include "vmbus_api.h"
--#include "utils.h"
-+#include <linux/hyperv.h>
- #include "hv_kvp.h"
- 
- static u8 *shut_txf_buf;
 -- 
 1.7.4.1
