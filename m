@@ -1,8 +1,7 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 060/206] Staging: hv: Statically initialize probe/remove
-	elements of the driver
-Date: Mon,  9 May 2011 14:55:42 -0700
-Message-ID: <1304978288-22999-60-git-send-email-kys@microsoft.com>
+Subject: [PATCH 089/206] Staging: hv: Rename the variable g_netvsc_drv
+Date: Mon,  9 May 2011 14:56:11 -0700
+Message-ID: <1304978288-22999-89-git-send-email-kys@microsoft.com>
 References: <1304978242-22958-1-git-send-email-kys@microsoft.com>
 	<1304978288-22999-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -30,33 +29,41 @@ Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/storvsc_drv.c |    7 ++++---
- 1 files changed, 4 insertions(+), 3 deletions(-)
+ drivers/staging/hv/netvsc_drv.c |    8 ++++----
+ 1 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
-index 570d563..89a0b05 100644
---- a/drivers/staging/hv/storvsc_drv.c
-+++ b/drivers/staging/hv/storvsc_drv.c
-@@ -872,7 +872,10 @@ static int storvsc_probe(struct hv_device *device)
+diff --git a/drivers/staging/hv/netvsc_drv.c b/drivers/staging/hv/netvsc_drv.c
+index 0e81a93..25883ca 100644
+--- a/drivers/staging/hv/netvsc_drv.c
++++ b/drivers/staging/hv/netvsc_drv.c
+@@ -61,7 +61,7 @@ module_param(ring_size, int, S_IRUGO);
+ MODULE_PARM_DESC(ring_size, "Ring buffer size (# of pages)");
  
  /* The one and only one */
+-static struct  netvsc_driver g_netvsc_drv;
++static struct  netvsc_driver netvsc_drv;
  
--static struct storvsc_driver storvsc_drv;
-+static struct storvsc_driver storvsc_drv = {
-+	.base.probe = storvsc_probe,
-+	.base.remove = storvsc_remove,
-+};
+ /* no-op so the netdev core doesn't return -EINVAL when modifying the the
+  * multicast address list in SIOCADDMULTI. hv is setup to get all multicast
+@@ -444,7 +444,7 @@ static int netvsc_drv_exit_cb(struct device *dev, void *data)
  
+ static void netvsc_drv_exit(void)
+ {
+-	struct hv_driver *drv = &g_netvsc_drv.base;
++	struct hv_driver *drv = &netvsc_drv.base;
+ 	struct device *current_dev;
+ 	int ret;
  
- /*
-@@ -899,8 +902,6 @@ static int storvsc_drv_init(void)
+@@ -472,8 +472,8 @@ static void netvsc_drv_exit(void)
  
- 	drv->driver.name = storvsc_drv_obj->base.name;
+ static int netvsc_drv_init(int (*drv_init)(struct hv_driver *drv))
+ {
+-	struct netvsc_driver *net_drv_obj = &g_netvsc_drv;
+-	struct hv_driver *drv = &g_netvsc_drv.base;
++	struct netvsc_driver *net_drv_obj = &netvsc_drv;
++	struct hv_driver *drv = &netvsc_drv.base;
+ 	int ret;
  
--	drv->probe = storvsc_probe;
--	drv->remove = storvsc_remove;
- 
- 	/* The driver belongs to vmbus */
- 	ret = vmbus_child_driver_register(&drv->driver);
+ 	net_drv_obj->ring_buf_size = ring_size * PAGE_SIZE;
 -- 
 1.7.4.1
