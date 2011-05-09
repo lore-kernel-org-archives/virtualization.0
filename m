@@ -1,7 +1,7 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 171/206] Staging: hv: Create a header file that has all the definitions needed to build Hyper-V storage drivers
-Date: Mon,  9 May 2011 14:57:33 -0700
-Message-ID: <1304978288-22999-171-git-send-email-kys@microsoft.com>
+Subject: [PATCH 181/206] Staging: hv: Include the newly created header files in storvsc.c
+Date: Mon,  9 May 2011 14:57:43 -0700
+Message-ID: <1304978288-22999-181-git-send-email-kys@microsoft.com>
 References: <1304978242-22958-1-git-send-email-kys@microsoft.com>
  <1304978288-22999-1-git-send-email-kys@microsoft.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
@@ -11,45 +11,35 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>, Hank Janssen <hjanssen@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The subject line says it all.
+Include the newly created header files in storvsc.c.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/hyperv_storage.h |   23 +++++++++++++++++++++++
- 1 files changed, 23 insertions(+), 0 deletions(-)
- create mode 100644 drivers/staging/hv/hyperv_storage.h
+ drivers/staging/hv/storvsc.c |    8 ++------
+ 1 files changed, 2 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/staging/hv/hyperv_storage.h b/drivers/staging/hv/hyperv_storage.h
-new file mode 100644
-index 0000000..ce27244
---- /dev/null
-+++ b/drivers/staging/hv/hyperv_storage.h
-@@ -0,0 +1,23 @@
-+/*
-+ *
-+ * Copyright (c) 2011, Microsoft Corporation.
-+ *
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms and conditions of the GNU General Public License,
-+ * version 2, as published by the Free Software Foundation.
-+ *
-+ * This program is distributed in the hope it will be useful, but WITHOUT
-+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
-+ * more details.
-+ *
-+ * You should have received a copy of the GNU General Public License along with
-+ * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
-+ * Place - Suite 330, Boston, MA 02111-1307 USA.
-+ *
-+ * Authors:
-+ *   Haiyang Zhang <haiyangz@microsoft.com>
-+ *   Hank Janssen  <hjanssen@microsoft.com>
-+ *   K. Y. Srinivasan <kys@microsoft.com>
-+ *
-+ */
+diff --git a/drivers/staging/hv/storvsc.c b/drivers/staging/hv/storvsc.c
+index 8d7a490..3bc174e 100644
+--- a/drivers/staging/hv/storvsc.c
++++ b/drivers/staging/hv/storvsc.c
+@@ -27,13 +27,9 @@
+ #include <linux/slab.h>
+ #include <linux/mm.h>
+ #include <linux/delay.h>
+-#include "hv_api.h"
+-#include "logging.h"
+-#include "storvsc_api.h"
+-#include "vmbus_packet_format.h"
+-#include "vstorage.h"
+-#include "channel.h"
+ 
++#include <linux/hyperv.h>
++#include "hyperv_storage.h"
+ 
+ static inline struct storvsc_device *alloc_stor_device(struct hv_device *device)
+ {
 -- 
 1.7.4.1
