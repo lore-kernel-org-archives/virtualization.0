@@ -1,8 +1,7 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 059/206] Staging: hv: Move the declaration of the driver
-	variable
-Date: Mon,  9 May 2011 14:55:41 -0700
-Message-ID: <1304978288-22999-59-git-send-email-kys@microsoft.com>
+Subject: [PATCH 096/206] Staging: hv: Rename ringbuffer_cleanup
+Date: Mon,  9 May 2011 14:56:18 -0700
+Message-ID: <1304978288-22999-96-git-send-email-kys@microsoft.com>
 References: <1304978242-22958-1-git-send-email-kys@microsoft.com>
 	<1304978288-22999-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -23,41 +22,77 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The subject line says it all.
+Rename ringbuffer_cleanup.
+
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/storvsc_drv.c |    8 +++++---
- 1 files changed, 5 insertions(+), 3 deletions(-)
+ drivers/staging/hv/channel.c     |    8 ++++----
+ drivers/staging/hv/ring_buffer.c |    4 ++--
+ drivers/staging/hv/ring_buffer.h |    2 +-
+ 3 files changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
-index d246678..570d563 100644
---- a/drivers/staging/hv/storvsc_drv.c
-+++ b/drivers/staging/hv/storvsc_drv.c
-@@ -767,9 +767,6 @@ retry_request:
- static DEF_SCSI_QCMD(storvsc_queuecommand)
+diff --git a/drivers/staging/hv/channel.c b/drivers/staging/hv/channel.c
+index 43e54b5..44b81e8 100644
+--- a/drivers/staging/hv/channel.c
++++ b/drivers/staging/hv/channel.c
+@@ -292,8 +292,8 @@ Cleanup:
+ 	return err;
  
+ errorout:
+-	ringbuffer_cleanup(&newchannel->outbound);
+-	ringbuffer_cleanup(&newchannel->inbound);
++	hv_ringbuffer_cleanup(&newchannel->outbound);
++	hv_ringbuffer_cleanup(&newchannel->inbound);
+ 	free_pages((unsigned long)out,
+ 		get_order(send_ringbuffer_size + recv_ringbuffer_size));
+ 	kfree(openInfo);
+@@ -651,8 +651,8 @@ void vmbus_close(struct vmbus_channel *channel)
+ 	/* TODO: Send a msg to release the childRelId */
  
--/* The one and only one */
--static struct storvsc_driver storvsc_drv;
--
- /* Scsi driver */
- static struct scsi_host_template scsi_driver = {
- 	.module	=		THIS_MODULE,
-@@ -873,6 +870,11 @@ static int storvsc_probe(struct hv_device *device)
- 	return ret;
+ 	/* Cleanup the ring buffers for this channel */
+-	ringbuffer_cleanup(&channel->outbound);
+-	ringbuffer_cleanup(&channel->inbound);
++	hv_ringbuffer_cleanup(&channel->outbound);
++	hv_ringbuffer_cleanup(&channel->inbound);
+ 
+ 	free_pages((unsigned long)channel->ringbuffer_pages,
+ 		get_order(channel->ringbuffer_pagecount * PAGE_SIZE));
+diff --git a/drivers/staging/hv/ring_buffer.c b/drivers/staging/hv/ring_buffer.c
+index 9653ab5..9bab40c 100644
+--- a/drivers/staging/hv/ring_buffer.c
++++ b/drivers/staging/hv/ring_buffer.c
+@@ -328,13 +328,13 @@ int hv_ringbuffer_init(struct hv_ring_buffer_info *ring_info,
+ /*++
+ 
+ Name:
+-	ringbuffer_cleanup()
++	hv_ringbuffer_cleanup()
+ 
+ Description:
+ 	Cleanup the ring buffer
+ 
+ --*/
+-void ringbuffer_cleanup(struct hv_ring_buffer_info *ring_info)
++void hv_ringbuffer_cleanup(struct hv_ring_buffer_info *ring_info)
+ {
  }
  
-+/* The one and only one */
-+
-+static struct storvsc_driver storvsc_drv;
-+
-+
- /*
-  * storvsc_drv_init - StorVsc driver initialization.
-  */
+diff --git a/drivers/staging/hv/ring_buffer.h b/drivers/staging/hv/ring_buffer.h
+index 3c66dc0..66d9a2d 100644
+--- a/drivers/staging/hv/ring_buffer.h
++++ b/drivers/staging/hv/ring_buffer.h
+@@ -79,7 +79,7 @@ struct hv_ring_buffer_debug_info {
+ int hv_ringbuffer_init(struct hv_ring_buffer_info *ring_info, void *buffer,
+ 		   u32 buflen);
+ 
+-void ringbuffer_cleanup(struct hv_ring_buffer_info *ring_info);
++void hv_ringbuffer_cleanup(struct hv_ring_buffer_info *ring_info);
+ 
+ int ringbuffer_write(struct hv_ring_buffer_info *ring_info,
+ 		    struct scatterlist *sglist,
 -- 
 1.7.4.1
