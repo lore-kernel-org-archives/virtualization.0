@@ -1,14 +1,14 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH 06/18] virtio_ring: avail event index interface
-Date: Mon, 09 May 2011 13:43:15 +0930
-Message-ID: <87aaewh5pg.fsf__35597.0399141826$1304920508$gmane$org@rustcorp.com.au>
+Subject: Re: [PATCH 08/18] virtio_ring: support for used_event idx feature
+Date: Mon, 09 May 2011 13:47:32 +0930
+Message-ID: <878vugh5ib.fsf__9176.5477591709$1304920519$gmane$org@rustcorp.com.au>
 References: <cover.1304541918.git.mst@redhat.com>
-	<b00ef5d572ec9bc3b884c496025512abc1f14349.1304541919.git.mst@redhat.com>
+	<dd16b9f3bad847b0eadc7f94368e27982c1a7560.1304541919.git.mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <b00ef5d572ec9bc3b884c496025512abc1f14349.1304541919.git.mst@redhat.com>
+In-Reply-To: <dd16b9f3bad847b0eadc7f94368e27982c1a7560.1304541919.git.mst@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -22,34 +22,38 @@ To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: Krishna Kumar <krkumar2@in.ibm.com>, Carsten Otte <cotte@de.ibm.com>, lguest@lists.ozlabs.org, Shirley Ma <xma@us.ibm.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org, netdev@vger.kernel.org, habanero@linux.vnet.ibm.com, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, steved@us.ibm.com, Christian Borntraeger <borntraeger@de.ibm.com>, Tom Lendacky <tahm@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux390@de.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 4 May 2011 23:51:19 +0300, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> Define a new feature bit for the host to
-> declare that it uses an avail_event index
-> (like Xen) instead of a feature bit
-> to enable/disable interrupts.
+On Wed, 4 May 2011 23:51:38 +0300, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> Add support for the used_event idx feature: when enabling
+> interrupts, publish the current avail index value to
+> the host so that we get interrupts on the next update.
 > 
 > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 > ---
->  include/linux/virtio_ring.h |   11 ++++++++---
->  1 files changed, 8 insertions(+), 3 deletions(-)
+>  drivers/virtio/virtio_ring.c |   14 ++++++++++++++
+>  1 files changed, 14 insertions(+), 0 deletions(-)
 > 
-> diff --git a/include/linux/virtio_ring.h b/include/linux/virtio_ring.h
-> index f5c1b75..f791772 100644
-> --- a/include/linux/virtio_ring.h
-> +++ b/include/linux/virtio_ring.h
-> @@ -32,6 +32,9 @@
->  /* The Guest publishes the used index for which it expects an interrupt
->   * at the end of the avail ring. Host should ignore the avail->flags field. */
->  #define VIRTIO_RING_F_USED_EVENT_IDX	29
-> +/* The Host publishes the avail index for which it expects a kick
-> + * at the end of the used ring. Guest should ignore the used->flags field. */
-> +#define VIRTIO_RING_F_AVAIL_EVENT_IDX	32
+> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+> index 507d6eb..3a3ed75 100644
+> --- a/drivers/virtio/virtio_ring.c
+> +++ b/drivers/virtio/virtio_ring.c
+> @@ -320,6 +320,14 @@ void *virtqueue_get_buf(struct virtqueue *_vq, unsigned int *len)
+>  	ret = vq->data[i];
+>  	detach_buf(vq, i);
+>  	vq->last_used_idx++;
+> +	/* If we expect an interrupt for the next entry, tell host
+> +	 * by writing event index and flush out the write before
+> +	 * the read in the next get_buf call. */
+> +	if (!(vq->vring.avail->flags & VRING_AVAIL_F_NO_INTERRUPT)) {
+> +		vring_used_event(&vq->vring) = vq->last_used_idx;
+> +		virtio_mb();
+> +	}
+> +
 
-Are you really sure we want to separate the two?  Seems a little simpler
-to have one bit to mean "we're publishing our threshold".  For someone
-implementing this from scratch, it's a little simpler.
+Hmm, so you're still using the avail->flags; it's just if thresholding
+is enabled the host will ignore it?
 
-Or are there cases where the old style makes more sense?
+It's a little subtle, but it keeps this patch small.  Perhaps we'll want
+to make it more explicit later.
 
 Thanks,
 Rusty.
