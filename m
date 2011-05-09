@@ -1,7 +1,7 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 154/206] Staging: hv: Include the contents of channel_mgmt.h
-Date: Mon,  9 May 2011 14:57:16 -0700
-Message-ID: <1304978288-22999-154-git-send-email-kys@microsoft.com>
+Subject: [PATCH 204/206] Staging: hv: Get rid of vmbus_private.h
+Date: Mon,  9 May 2011 14:58:06 -0700
+Message-ID: <1304978288-22999-204-git-send-email-kys@microsoft.com>
 References: <1304978242-22958-1-git-send-email-kys@microsoft.com>
  <1304978288-22999-1-git-send-email-kys@microsoft.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
@@ -11,318 +11,152 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>, Hank Janssen <hjanssen@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The subject line says it all.
+Now, get rid of vmbus_private.h.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- include/linux/hyperv.h |  292 +++++++++++++++++++++++++++++++++++++++++++++++-
- 1 files changed, 291 insertions(+), 1 deletions(-)
+ drivers/staging/hv/vmbus_private.h |  130 ------------------------------------
+ 1 files changed, 0 insertions(+), 130 deletions(-)
+ delete mode 100644 drivers/staging/hv/vmbus_private.h
 
-diff --git a/include/linux/hyperv.h b/include/linux/hyperv.h
-index d13d72a..932aafa 100644
---- a/include/linux/hyperv.h
-+++ b/include/linux/hyperv.h
-@@ -25,7 +25,297 @@
- #ifndef _HYPERV_H
- #define _HYPERV_H
- 
+diff --git a/drivers/staging/hv/vmbus_private.h b/drivers/staging/hv/vmbus_private.h
+deleted file mode 100644
+index bea331e..0000000
+--- a/drivers/staging/hv/vmbus_private.h
++++ /dev/null
+@@ -1,130 +0,0 @@
+-/*
+- *
+- * Copyright (c) 2009, Microsoft Corporation.
+- *
+- * This program is free software; you can redistribute it and/or modify it
+- * under the terms and conditions of the GNU General Public License,
+- * version 2, as published by the Free Software Foundation.
+- *
+- * This program is distributed in the hope it will be useful, but WITHOUT
+- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+- * more details.
+- *
+- * You should have received a copy of the GNU General Public License along with
+- * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
+- * Place - Suite 330, Boston, MA 02111-1307 USA.
+- *
+- * Authors:
+- *   Haiyang Zhang <haiyangz@microsoft.com>
+- *   Hank Janssen  <hjanssen@microsoft.com>
+- *
+- */
+-
+-
+-#ifndef _VMBUS_PRIVATE_H_
+-#define _VMBUS_PRIVATE_H_
+-
+-#include "hv.h"
+-#include "vmbus_api.h"
+-#include "channel.h"
 -#include "channel_mgmt.h"
-+
-+#include <linux/list.h>
-+#include <linux/timer.h>
-+#include <linux/workqueue.h>
-+#include <linux/completion.h>
-+#include "ring_buffer.h"
-+#include "vmbus_channel_interface.h"
-+#include "vmbus_packet_format.h"
-+
-+/* Version 1 messages */
-+enum vmbus_channel_message_type {
-+	CHANNELMSG_INVALID			=  0,
-+	CHANNELMSG_OFFERCHANNEL		=  1,
-+	CHANNELMSG_RESCIND_CHANNELOFFER	=  2,
-+	CHANNELMSG_REQUESTOFFERS		=  3,
-+	CHANNELMSG_ALLOFFERS_DELIVERED	=  4,
-+	CHANNELMSG_OPENCHANNEL		=  5,
-+	CHANNELMSG_OPENCHANNEL_RESULT		=  6,
-+	CHANNELMSG_CLOSECHANNEL		=  7,
-+	CHANNELMSG_GPADL_HEADER		=  8,
-+	CHANNELMSG_GPADL_BODY			=  9,
-+	CHANNELMSG_GPADL_CREATED		= 10,
-+	CHANNELMSG_GPADL_TEARDOWN		= 11,
-+	CHANNELMSG_GPADL_TORNDOWN		= 12,
-+	CHANNELMSG_RELID_RELEASED		= 13,
-+	CHANNELMSG_INITIATE_CONTACT		= 14,
-+	CHANNELMSG_VERSION_RESPONSE		= 15,
-+	CHANNELMSG_UNLOAD			= 16,
-+#ifdef VMBUS_FEATURE_PARENT_OR_PEER_MEMORY_MAPPED_INTO_A_CHILD
-+	CHANNELMSG_VIEWRANGE_ADD		= 17,
-+	CHANNELMSG_VIEWRANGE_REMOVE		= 18,
-+#endif
-+	CHANNELMSG_COUNT
-+};
-+
-+struct vmbus_channel_message_header {
-+	enum vmbus_channel_message_type msgtype;
-+	u32 padding;
-+} __packed;
-+
-+/* Query VMBus Version parameters */
-+struct vmbus_channel_query_vmbus_version {
-+	struct vmbus_channel_message_header header;
-+	u32 version;
-+} __packed;
-+
-+/* VMBus Version Supported parameters */
-+struct vmbus_channel_version_supported {
-+	struct vmbus_channel_message_header header;
-+	bool version_supported;
-+} __packed;
-+
-+/* Offer Channel parameters */
-+struct vmbus_channel_offer_channel {
-+	struct vmbus_channel_message_header header;
-+	struct vmbus_channel_offer offer;
-+	u32 child_relid;
-+	u8 monitorid;
-+	bool monitor_allocated;
-+} __packed;
-+
-+/* Rescind Offer parameters */
-+struct vmbus_channel_rescind_offer {
-+	struct vmbus_channel_message_header header;
-+	u32 child_relid;
-+} __packed;
-+
-+/*
-+ * Request Offer -- no parameters, SynIC message contains the partition ID
-+ * Set Snoop -- no parameters, SynIC message contains the partition ID
-+ * Clear Snoop -- no parameters, SynIC message contains the partition ID
-+ * All Offers Delivered -- no parameters, SynIC message contains the partition
-+ *		           ID
-+ * Flush Client -- no parameters, SynIC message contains the partition ID
-+ */
-+
-+/* Open Channel parameters */
-+struct vmbus_channel_open_channel {
-+	struct vmbus_channel_message_header header;
-+
-+	/* Identifies the specific VMBus channel that is being opened. */
-+	u32 child_relid;
-+
-+	/* ID making a particular open request at a channel offer unique. */
-+	u32 openid;
-+
-+	/* GPADL for the channel's ring buffer. */
-+	u32 ringbuffer_gpadlhandle;
-+
-+	/* GPADL for the channel's server context save area. */
-+	u32 server_contextarea_gpadlhandle;
-+
-+	/*
-+	* The upstream ring buffer begins at offset zero in the memory
-+	* described by RingBufferGpadlHandle. The downstream ring buffer
-+	* follows it at this offset (in pages).
-+	*/
-+	u32 downstream_ringbuffer_pageoffset;
-+
-+	/* User-specific data to be passed along to the server endpoint. */
-+	unsigned char userdata[MAX_USER_DEFINED_BYTES];
-+} __packed;
-+
-+/* Open Channel Result parameters */
-+struct vmbus_channel_open_result {
-+	struct vmbus_channel_message_header header;
-+	u32 child_relid;
-+	u32 openid;
-+	u32 status;
-+} __packed;
-+
-+/* Close channel parameters; */
-+struct vmbus_channel_close_channel {
-+	struct vmbus_channel_message_header header;
-+	u32 child_relid;
-+} __packed;
-+
-+/* Channel Message GPADL */
-+#define GPADL_TYPE_RING_BUFFER		1
-+#define GPADL_TYPE_SERVER_SAVE_AREA	2
-+#define GPADL_TYPE_TRANSACTION		8
-+
-+/*
-+ * The number of PFNs in a GPADL message is defined by the number of
-+ * pages that would be spanned by ByteCount and ByteOffset.  If the
-+ * implied number of PFNs won't fit in this packet, there will be a
-+ * follow-up packet that contains more.
-+ */
-+struct vmbus_channel_gpadl_header {
-+	struct vmbus_channel_message_header header;
-+	u32 child_relid;
-+	u32 gpadl;
-+	u16 range_buflen;
-+	u16 rangecount;
-+	struct gpa_range range[0];
-+} __packed;
-+
-+/* This is the followup packet that contains more PFNs. */
-+struct vmbus_channel_gpadl_body {
-+	struct vmbus_channel_message_header header;
-+	u32 msgnumber;
-+	u32 gpadl;
-+	u64 pfn[0];
-+} __packed;
-+
-+struct vmbus_channel_gpadl_created {
-+	struct vmbus_channel_message_header header;
-+	u32 child_relid;
-+	u32 gpadl;
-+	u32 creation_status;
-+} __packed;
-+
-+struct vmbus_channel_gpadl_teardown {
-+	struct vmbus_channel_message_header header;
-+	u32 child_relid;
-+	u32 gpadl;
-+} __packed;
-+
-+struct vmbus_channel_gpadl_torndown {
-+	struct vmbus_channel_message_header header;
-+	u32 gpadl;
-+} __packed;
-+
-+#ifdef VMBUS_FEATURE_PARENT_OR_PEER_MEMORY_MAPPED_INTO_A_CHILD
-+struct vmbus_channel_view_range_add {
-+	struct vmbus_channel_message_header header;
-+	PHYSICAL_ADDRESS viewrange_base;
-+	u64 viewrange_length;
-+	u32 child_relid;
-+} __packed;
-+
-+struct vmbus_channel_view_range_remove {
-+	struct vmbus_channel_message_header header;
-+	PHYSICAL_ADDRESS viewrange_base;
-+	u32 child_relid;
-+} __packed;
-+#endif
-+
-+struct vmbus_channel_relid_released {
-+	struct vmbus_channel_message_header header;
-+	u32 child_relid;
-+} __packed;
-+
-+struct vmbus_channel_initiate_contact {
-+	struct vmbus_channel_message_header header;
-+	u32 vmbus_version_requested;
-+	u32 padding2;
-+	u64 interrupt_page;
-+	u64 monitor_page1;
-+	u64 monitor_page2;
-+} __packed;
-+
-+struct vmbus_channel_version_response {
-+	struct vmbus_channel_message_header header;
-+	bool version_supported;
-+} __packed;
-+
-+enum vmbus_channel_state {
-+	CHANNEL_OFFER_STATE,
-+	CHANNEL_OPENING_STATE,
-+	CHANNEL_OPEN_STATE,
-+};
-+
-+struct vmbus_channel {
-+	struct list_head listentry;
-+
-+	struct hv_device *device_obj;
-+
-+	struct timer_list poll_timer; /* SA-111 workaround */
-+	struct work_struct work;
-+
-+	enum vmbus_channel_state state;
-+
-+	struct vmbus_channel_offer_channel offermsg;
-+	/*
-+	 * These are based on the OfferMsg.MonitorId.
-+	 * Save it here for easy access.
-+	 */
-+	u8 monitor_grp;
-+	u8 monitor_bit;
-+
-+	u32 ringbuffer_gpadlhandle;
-+
-+	/* Allocated memory for ring buffer */
-+	void *ringbuffer_pages;
-+	u32 ringbuffer_pagecount;
-+	struct hv_ring_buffer_info outbound;	/* send to parent */
-+	struct hv_ring_buffer_info inbound;	/* receive from parent */
-+	spinlock_t inbound_lock;
-+	struct workqueue_struct *controlwq;
-+
-+	/* Channel callback are invoked in this workqueue context */
-+	/* HANDLE dataWorkQueue; */
-+
-+	void (*onchannel_callback)(void *context);
-+	void *channel_callback_context;
-+};
-+
-+struct vmbus_channel_debug_info {
-+	u32 relid;
-+	enum vmbus_channel_state state;
-+	struct hv_guid interfacetype;
-+	struct hv_guid interface_instance;
-+	u32 monitorid;
-+	u32 servermonitor_pending;
-+	u32 servermonitor_latency;
-+	u32 servermonitor_connectionid;
-+	u32 clientmonitor_pending;
-+	u32 clientmonitor_latency;
-+	u32 clientmonitor_connectionid;
-+
-+	struct hv_ring_buffer_debug_info inbound;
-+	struct hv_ring_buffer_debug_info outbound;
-+};
-+
-+/*
-+ * Represents each channel msg on the vmbus connection This is a
-+ * variable-size data structure depending on the msg type itself
-+ */
-+struct vmbus_channel_msginfo {
-+	/* Bookkeeping stuff */
-+	struct list_head msglistentry;
-+
-+	/* So far, this is only used to handle gpadl body message */
-+	struct list_head submsglist;
-+
-+	/* Synchronize the request/response if needed */
-+	struct completion  waitevent;
-+	union {
-+		struct vmbus_channel_version_supported version_supported;
-+		struct vmbus_channel_open_result open_result;
-+		struct vmbus_channel_gpadl_torndown gpadl_torndown;
-+		struct vmbus_channel_gpadl_created gpadl_created;
-+		struct vmbus_channel_version_response version_response;
-+	} response;
-+
-+	u32 msgsize;
-+	/*
-+	 * The channel message that goes out on the "wire".
-+	 * It will contain at minimum the VMBUS_CHANNEL_MESSAGE_HEADER header
-+	 */
-+	unsigned char msg[0];
-+};
-+
-+
-+void free_channel(struct vmbus_channel *channel);
-+
-+void vmbus_onmessage(void *context);
-+
-+int vmbus_request_offers(void);
-+
- 
- /* The format must be the same as struct vmdata_gpa_direct */
- struct vmbus_channel_packet_page_buffer {
+-#include "ring_buffer.h"
+-#include <linux/list.h>
+-#include <asm/sync_bitops.h>
+-
+-
+-/*
+- * Maximum channels is determined by the size of the interrupt page
+- * which is PAGE_SIZE. 1/2 of PAGE_SIZE is for send endpoint interrupt
+- * and the other is receive endpoint interrupt
+- */
+-#define MAX_NUM_CHANNELS	((PAGE_SIZE >> 1) << 3)	/* 16348 channels */
+-
+-/* The value here must be in multiple of 32 */
+-/* TODO: Need to make this configurable */
+-#define MAX_NUM_CHANNELS_SUPPORTED	256
+-
+-
+-enum vmbus_connect_state {
+-	DISCONNECTED,
+-	CONNECTING,
+-	CONNECTED,
+-	DISCONNECTING
+-};
+-
+-#define MAX_SIZE_CHANNEL_MESSAGE	HV_MESSAGE_PAYLOAD_BYTE_COUNT
+-
+-struct vmbus_connection {
+-	enum vmbus_connect_state conn_state;
+-
+-	atomic_t next_gpadl_handle;
+-
+-	/*
+-	 * Represents channel interrupts. Each bit position represents a
+-	 * channel.  When a channel sends an interrupt via VMBUS, it finds its
+-	 * bit in the sendInterruptPage, set it and calls Hv to generate a port
+-	 * event. The other end receives the port event and parse the
+-	 * recvInterruptPage to see which bit is set
+-	 */
+-	void *int_page;
+-	void *send_int_page;
+-	void *recv_int_page;
+-
+-	/*
+-	 * 2 pages - 1st page for parent->child notification and 2nd
+-	 * is child->parent notification
+-	 */
+-	void *monitor_pages;
+-	struct list_head chn_msg_list;
+-	spinlock_t channelmsg_lock;
+-
+-	/* List of channels */
+-	struct list_head chn_list;
+-	spinlock_t channel_lock;
+-
+-	struct workqueue_struct *work_queue;
+-};
+-
+-
+-struct vmbus_msginfo {
+-	/* Bookkeeping stuff */
+-	struct list_head msglist_entry;
+-
+-	/* The message itself */
+-	unsigned char msg[0];
+-};
+-
+-
+-extern struct vmbus_connection vmbus_connection;
+-
+-/* General vmbus interface */
+-
+-struct hv_device *vmbus_child_device_create(struct hv_guid *type,
+-					 struct hv_guid *instance,
+-					 struct vmbus_channel *channel);
+-
+-int vmbus_child_device_register(struct hv_device *child_device_obj);
+-void vmbus_child_device_unregister(struct hv_device *device_obj);
+-
+-/* static void */
+-/* VmbusChildDeviceDestroy( */
+-/* struct hv_device *); */
+-
+-struct vmbus_channel *relid2channel(u32 relid);
+-
+-
+-/* Connection interface */
+-
+-int vmbus_connect(void);
+-
+-int vmbus_disconnect(void);
+-
+-int vmbus_post_msg(void *buffer, size_t buflen);
+-
+-int vmbus_set_event(u32 child_relid);
+-
+-void vmbus_on_event(unsigned long data);
+-
+-
+-#endif /* _VMBUS_PRIVATE_H_ */
 -- 
 1.7.4.1
