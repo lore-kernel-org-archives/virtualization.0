@@ -1,8 +1,7 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 040/206] Staging: hv: Move the function storvsc_merge_bvec()
-	to earlier in the file
-Date: Mon,  9 May 2011 14:55:22 -0700
-Message-ID: <1304978288-22999-40-git-send-email-kys@microsoft.com>
+Subject: [PATCH 037/206] Staging: hv: Get rid of some dated comments
+Date: Mon,  9 May 2011 14:55:19 -0700
+Message-ID: <1304978288-22999-37-git-send-email-kys@microsoft.com>
 References: <1304978242-22958-1-git-send-email-kys@microsoft.com>
 	<1304978288-22999-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -30,40 +29,22 @@ Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/storvsc_drv.c |   14 +++++++-------
- 1 files changed, 7 insertions(+), 7 deletions(-)
+ drivers/staging/hv/storvsc_drv.c |    3 ---
+ 1 files changed, 0 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
-index 2bd9c09..44dbaae 100644
+index c654172..2f252ea 100644
 --- a/drivers/staging/hv/storvsc_drv.c
 +++ b/drivers/staging/hv/storvsc_drv.c
-@@ -122,6 +122,13 @@ static int storvsc_device_alloc(struct scsi_device *sdevice)
- 	return 0;
- }
+@@ -52,9 +52,6 @@ static const struct hv_guid gStorVscDeviceType = {
+ };
  
-+static int storvsc_merge_bvec(struct request_queue *q,
-+			      struct bvec_merge_data *bmd, struct bio_vec *bvec)
-+{
-+	/* checking done by caller. */
-+	return bvec->bv_len;
-+}
-+
- /* Static decl */
- static int storvsc_probe(struct hv_device *dev);
- static int storvsc_queuecommand(struct Scsi_Host *shost, struct scsi_cmnd *scmnd);
-@@ -823,13 +830,6 @@ retry_request:
- 
- static DEF_SCSI_QCMD(storvsc_queuecommand)
- 
--static int storvsc_merge_bvec(struct request_queue *q,
--			      struct bvec_merge_data *bmd, struct bio_vec *bvec)
--{
--	/* checking done by caller. */
--	return bvec->bv_len;
--}
--
- static int storvsc_device_configure(struct scsi_device *sdevice)
- {
- 	scsi_adjust_queue_depth(sdevice, MSG_SIMPLE_TAG,
+ struct hv_host_device {
+-	/* must be 1st field
+-	 * FIXME this is a bug */
+-	/* point back to our device context */
+ 	struct hv_device *dev;
+ 	struct kmem_cache *request_pool;
+ 	unsigned int port;
 -- 
 1.7.4.1
