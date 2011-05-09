@@ -1,8 +1,7 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 073/206] Staging: hv: Get rid of the indirection to invoke
-	rndis_filte_device_add()
-Date: Mon,  9 May 2011 14:55:55 -0700
-Message-ID: <1304978288-22999-73-git-send-email-kys@microsoft.com>
+Subject: [PATCH 007/206] Staging: hv: Change the name of blkvsc driver variable
+Date: Mon,  9 May 2011 14:54:49 -0700
+Message-ID: <1304978288-22999-7-git-send-email-kys@microsoft.com>
 References: <1304978242-22958-1-git-send-email-kys@microsoft.com>
 	<1304978288-22999-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -23,38 +22,50 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The subject line says it all.
+Rename the variable g_blkvsc_drv.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/netvsc_drv.c |    5 +----
- 1 files changed, 1 insertions(+), 4 deletions(-)
+ drivers/staging/hv/blkvsc_drv.c |   10 +++++-----
+ 1 files changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/staging/hv/netvsc_drv.c b/drivers/staging/hv/netvsc_drv.c
-index f4c6000..d962308 100644
---- a/drivers/staging/hv/netvsc_drv.c
-+++ b/drivers/staging/hv/netvsc_drv.c
-@@ -349,9 +349,6 @@ static int netvsc_probe(struct hv_device *dev)
- 	struct netvsc_device_info device_info;
+diff --git a/drivers/staging/hv/blkvsc_drv.c b/drivers/staging/hv/blkvsc_drv.c
+index a80e7c1..a0e08de 100644
+--- a/drivers/staging/hv/blkvsc_drv.c
++++ b/drivers/staging/hv/blkvsc_drv.c
+@@ -852,7 +852,7 @@ static void blkvsc_request(struct request_queue *queue)
+ 
+ 
+ /* The one and only one */
+-static  struct storvsc_driver g_blkvsc_drv;
++static  struct storvsc_driver blkvsc_drv;
+ 
+ static const struct block_device_operations block_ops = {
+ 	.owner = THIS_MODULE,
+@@ -867,8 +867,8 @@ static const struct block_device_operations block_ops = {
+  */
+ static int blkvsc_drv_init(void)
+ {
+-	struct storvsc_driver *storvsc_drv_obj = &g_blkvsc_drv;
+-	struct hv_driver *drv = &g_blkvsc_drv.base;
++	struct storvsc_driver *storvsc_drv_obj = &blkvsc_drv;
++	struct hv_driver *drv = &blkvsc_drv.base;
  	int ret;
  
--	if (!net_drv_obj->base.dev_add)
--		return -1;
--
- 	net = alloc_etherdev(sizeof(struct net_device_context));
- 	if (!net)
- 		return -1;
-@@ -366,7 +363,7 @@ static int netvsc_probe(struct hv_device *dev)
- 	INIT_WORK(&net_device_ctx->work, netvsc_send_garp);
+ 	storvsc_drv_obj->ring_buffer_size = blkvsc_ringbuffer_size;
+@@ -897,8 +897,8 @@ static int blkvsc_drv_exit_cb(struct device *dev, void *data)
  
- 	/* Notify the netvsc driver of the new device */
--	ret = net_drv_obj->base.dev_add(dev, &device_info);
-+	ret = rndis_filte_device_add(dev, &device_info);
- 	if (ret != 0) {
- 		free_netdev(net);
- 		dev_set_drvdata(&dev->device, NULL);
+ static void blkvsc_drv_exit(void)
+ {
+-	struct storvsc_driver *storvsc_drv_obj = &g_blkvsc_drv;
+-	struct hv_driver *drv = &g_blkvsc_drv.base;
++	struct storvsc_driver *storvsc_drv_obj = &blkvsc_drv;
++	struct hv_driver *drv = &blkvsc_drv.base;
+ 	struct device *current_dev;
+ 	int ret;
+ 
 -- 
 1.7.4.1
