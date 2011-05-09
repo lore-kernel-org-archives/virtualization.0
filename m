@@ -1,7 +1,7 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 004/206] Staging: hv: Rename driver name variable
-Date: Mon,  9 May 2011 14:54:46 -0700
-Message-ID: <1304978288-22999-4-git-send-email-kys@microsoft.com>
+Subject: [PATCH 014/206] Staging: hv: Rename the function stor_vsc_on_cleanup
+Date: Mon,  9 May 2011 14:54:56 -0700
+Message-ID: <1304978288-22999-14-git-send-email-kys@microsoft.com>
 References: <1304978242-22958-1-git-send-email-kys@microsoft.com>
 	<1304978288-22999-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -22,37 +22,80 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Rename the variable g_blk_driver_name.
+The subject line says it all.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/blkvsc_drv.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/staging/hv/blkvsc_drv.c  |    5 ++---
+ drivers/staging/hv/storvsc.c     |    2 +-
+ drivers/staging/hv/storvsc_api.h |    2 +-
+ drivers/staging/hv/storvsc_drv.c |    2 +-
+ 4 files changed, 5 insertions(+), 6 deletions(-)
 
 diff --git a/drivers/staging/hv/blkvsc_drv.c b/drivers/staging/hv/blkvsc_drv.c
-index 8a577bc..b54130b 100644
+index 8b8d960..1d0b6ed 100644
 --- a/drivers/staging/hv/blkvsc_drv.c
 +++ b/drivers/staging/hv/blkvsc_drv.c
-@@ -112,7 +112,7 @@ struct block_device_context {
- 	int users;
- };
+@@ -17,8 +17,7 @@
+  * Authors:
+  *   Haiyang Zhang <haiyangz@microsoft.com>
+  *   Hank Janssen  <hjanssen@microsoft.com>
+- *
+- * 4/3/2011: K. Y. Srinivasan - Significant restructuring and cleanup.
++ *   K. Y. Srinivasan <kys@microsoft.com>
+  */
+ #include <linux/init.h>
+ #include <linux/module.h>
+@@ -197,7 +196,7 @@ static int blk_vsc_initialize(struct hv_driver *driver)
+ 		    stor_driver->max_outstanding_req_per_channel);
  
--static const char *g_blk_driver_name = "blkvsc";
-+static const char *drv_name = "blkvsc";
+ 	/* Setup the dispatch table */
+-	stor_driver->base.cleanup = stor_vsc_on_cleanup;
++	stor_driver->base.cleanup = storvsc_cleanup;
+ 	stor_driver->on_io_request = stor_vsc_on_io_request;
  
- /* {32412632-86cb-44a2-9b5c-50d1417354f5} */
- static const struct hv_guid g_blk_device_type = {
-@@ -177,7 +177,7 @@ static int blk_vsc_initialize(struct hv_driver *driver)
+ 	return ret;
+diff --git a/drivers/staging/hv/storvsc.c b/drivers/staging/hv/storvsc.c
+index 976f382..2e276b4 100644
+--- a/drivers/staging/hv/storvsc.c
++++ b/drivers/staging/hv/storvsc.c
+@@ -663,7 +663,7 @@ int stor_vsc_get_major_info(struct storvsc_device_info *device_info,
+ /*
+  * stor_vsc_on_cleanup - Perform any cleanup when the driver is removed
+  */
+-void stor_vsc_on_cleanup(struct hv_driver *driver)
++void storvsc_cleanup(struct hv_driver *driver)
+ {
+ }
  
- 	/* Make sure we are at least 2 pages since 1 page is used for control */
+diff --git a/drivers/staging/hv/storvsc_api.h b/drivers/staging/hv/storvsc_api.h
+index b3207a0..3168161 100644
+--- a/drivers/staging/hv/storvsc_api.h
++++ b/drivers/staging/hv/storvsc_api.h
+@@ -169,7 +169,7 @@ int storvsc_dev_remove(struct hv_device *device);
  
--	driver->name = g_blk_driver_name;
-+	driver->name = drv_name;
- 	memcpy(&driver->dev_type, &g_blk_device_type, sizeof(struct hv_guid));
+ int stor_vsc_on_io_request(struct hv_device *device,
+ 				struct hv_storvsc_request *request);
+-void stor_vsc_on_cleanup(struct hv_driver *driver);
++void storvsc_cleanup(struct hv_driver *driver);
  
+ int stor_vsc_get_major_info(struct storvsc_device_info *device_info,
+ 				struct storvsc_major_info *major_info);
+diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
+index 903ecbe..86f2bab 100644
+--- a/drivers/staging/hv/storvsc_drv.c
++++ b/drivers/staging/hv/storvsc_drv.c
+@@ -115,7 +115,7 @@ static int stor_vsc_initialize(struct hv_driver *driver)
+ 	/* Setup the dispatch table */
+ 	stor_driver->base.dev_add	= storvsc_dev_add;
+ 	stor_driver->base.dev_rm	= storvsc_dev_remove;
+-	stor_driver->base.cleanup	= stor_vsc_on_cleanup;
++	stor_driver->base.cleanup	= storvsc_cleanup;
+ 
+ 	stor_driver->on_io_request	= stor_vsc_on_io_request;
  
 -- 
 1.7.4.1
