@@ -1,7 +1,7 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 069/206] Staging: hv: Get rid of netvsc_cleanup()
-Date: Mon,  9 May 2011 14:55:51 -0700
-Message-ID: <1304978288-22999-69-git-send-email-kys@microsoft.com>
+Subject: [PATCH 002/206] Staging: hv: Cleanup spin lock usage
+Date: Mon,  9 May 2011 14:54:44 -0700
+Message-ID: <1304978288-22999-2-git-send-email-kys@microsoft.com>
 References: <1304978242-22958-1-git-send-email-kys@microsoft.com>
 	<1304978288-22999-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -22,41 +22,63 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-netvsc_cleanup() is an empty function; get rid of it.
+This spin lock is potentially acquired from interrupt context.
+Ensure that the interrupts are blocked whenever the lock is held.
+The current code was not consistent with regards to blocking
+interrupts - the same lock would be acquired without blocking
+interrupts in some instance while the interrupts would be blocked
+in other instances. Fix this potential deadlock problem.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/netvsc.c |    8 --------
- 1 files changed, 0 insertions(+), 8 deletions(-)
+ drivers/staging/hv/blkvsc_drv.c |   14 ++++++++------
+ 1 files changed, 8 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/staging/hv/netvsc.c b/drivers/staging/hv/netvsc.c
-index 8790f0f..34828c4 100644
---- a/drivers/staging/hv/netvsc.c
-+++ b/drivers/staging/hv/netvsc.c
-@@ -622,13 +622,6 @@ int netvsc_device_remove(struct hv_device *device)
+diff --git a/drivers/staging/hv/blkvsc_drv.c b/drivers/staging/hv/blkvsc_drv.c
+index cfef1c0..74d51bb 100644
+--- a/drivers/staging/hv/blkvsc_drv.c
++++ b/drivers/staging/hv/blkvsc_drv.c
+@@ -249,12 +249,13 @@ static int blkvsc_submit_request(struct blkvsc_request *blkvsc_req,
+ static int blkvsc_open(struct block_device *bdev, fmode_t mode)
+ {
+ 	struct block_device_context *blkdev = bdev->bd_disk->private_data;
++	unsigned long flags;
+ 
+-	spin_lock(&blkdev->lock);
++	spin_lock_irqsave(&blkdev->lock, flags);
+ 
+ 	blkdev->users++;
+ 
+-	spin_unlock(&blkdev->lock);
++	spin_unlock_irqrestore(&blkdev->lock, flags);
+ 
  	return 0;
  }
- 
--/*
-- * netvsc_cleanup - Perform any cleanup when the driver is removed
-- */
--static void netvsc_cleanup(struct hv_driver *drv)
--{
--}
--
- static void netvsc_send_completion(struct hv_device *device,
- 				   struct vmpacket_descriptor *packet)
+@@ -616,17 +617,18 @@ static void blkvsc_shutdown(struct hv_device *dev)
+ static int blkvsc_release(struct gendisk *disk, fmode_t mode)
  {
-@@ -1194,7 +1187,6 @@ int netvsc_initialize(struct hv_driver *drv)
- 	/* Setup the dispatch table */
- 	driver->base.dev_add	= netvsc_device_add;
- 	driver->base.dev_rm	= netvsc_device_remove;
--	driver->base.cleanup		= netvsc_cleanup;
+ 	struct block_device_context *blkdev = disk->private_data;
++	unsigned long flags;
  
- 	driver->send			= netvsc_send;
+-	spin_lock(&blkdev->lock);
++	spin_lock_irqsave(&blkdev->lock, flags);
+ 	if (blkdev->users == 1) {
+-		spin_unlock(&blkdev->lock);
++		spin_unlock_irqrestore(&blkdev->lock, flags);
+ 		blkvsc_do_operation(blkdev, DO_FLUSH);
+-		spin_lock(&blkdev->lock);
++		spin_lock_irqsave(&blkdev->lock, flags);
+ 	}
+ 
+ 	blkdev->users--;
+ 
+-	spin_unlock(&blkdev->lock);
++	spin_unlock_irqrestore(&blkdev->lock, flags);
+ 	return 0;
+ }
  
 -- 
 1.7.4.1
