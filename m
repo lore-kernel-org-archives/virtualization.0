@@ -1,8 +1,7 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 076/206] Staging: hv: Get rid of the indirection in invoking
-	netvsc_device_remove()
-Date: Mon,  9 May 2011 14:55:58 -0700
-Message-ID: <1304978288-22999-76-git-send-email-kys@microsoft.com>
+Subject: [PATCH 082/206] Staging: hv: Get rid of the mouse cleanup() function
+Date: Mon,  9 May 2011 14:56:04 -0700
+Message-ID: <1304978288-22999-82-git-send-email-kys@microsoft.com>
 References: <1304978242-22958-1-git-send-email-kys@microsoft.com>
 	<1304978288-22999-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -23,29 +22,38 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The subject line says it all.
+mousevsc_on_cleanup() is an empty function; get rid of it.
+
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/rndis_filter.c |    3 +--
- 1 files changed, 1 insertions(+), 2 deletions(-)
+ drivers/staging/hv/hv_mouse.c |    4 ----
+ 1 files changed, 0 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/staging/hv/rndis_filter.c b/drivers/staging/hv/rndis_filter.c
-index 299b14e..f9c18fa 100644
---- a/drivers/staging/hv/rndis_filter.c
-+++ b/drivers/staging/hv/rndis_filter.c
-@@ -809,8 +809,7 @@ int rndis_filter_device_remove(struct hv_device *dev)
- 	kfree(rndis_dev);
- 	net_dev->extension = NULL;
+diff --git a/drivers/staging/hv/hv_mouse.c b/drivers/staging/hv/hv_mouse.c
+index b7016e2..41bfa3f 100644
+--- a/drivers/staging/hv/hv_mouse.c
++++ b/drivers/staging/hv/hv_mouse.c
+@@ -782,9 +782,6 @@ static int mousevsc_on_device_remove(struct hv_device *device)
+ 	return ret;
+ }
  
--	/* Pass control to inner driver to remove the device */
--	rndis_filter.inner_drv.base.dev_rm(dev);
-+	netvsc_device_remove(dev);
+-static void mousevsc_on_cleanup(struct hv_driver *drv)
+-{
+-}
  
- 	return 0;
+ /*
+  * Data types
+@@ -994,7 +991,6 @@ static int mouse_vsc_initialize(struct hv_driver *driver)
+ 	/* Setup the dispatch table */
+ 	input_drv->base.dev_add = mousevsc_on_device_add;
+ 	input_drv->base.dev_rm = mousevsc_on_device_remove;
+-	input_drv->base.cleanup = mousevsc_on_cleanup;
+ 
+ 	return ret;
  }
 -- 
 1.7.4.1
