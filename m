@@ -1,8 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 081/206] Staging: hv: Get rid of the indirection to invoke
-	mousevsc_on_device_remove
-Date: Mon,  9 May 2011 14:56:03 -0700
-Message-ID: <1304978288-22999-81-git-send-email-kys@microsoft.com>
+Subject: [PATCH 074/206] Staging: hv: Get rid of the indirection to invoke
+	netvsc_device_add()
+Date: Mon,  9 May 2011 14:55:56 -0700
+Message-ID: <1304978288-22999-74-git-send-email-kys@microsoft.com>
 References: <1304978242-22958-1-git-send-email-kys@microsoft.com>
 	<1304978288-22999-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -30,38 +30,21 @@ Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/hv_mouse.c |    8 +-------
- 1 files changed, 1 insertions(+), 7 deletions(-)
+ drivers/staging/hv/rndis_filter.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/staging/hv/hv_mouse.c b/drivers/staging/hv/hv_mouse.c
-index 43f5158..b7016e2 100644
---- a/drivers/staging/hv/hv_mouse.c
-+++ b/drivers/staging/hv/hv_mouse.c
-@@ -859,9 +859,6 @@ static int mousevsc_remove(struct hv_device *dev)
- {
- 	int ret = 0;
- 
--	struct mousevsc_drv_obj *mousevsc_drv_obj =
--		drv_to_mousedrv(dev->device.driver);
--
- 	struct input_device_context *input_dev_ctx;
- 
- 	input_dev_ctx = kmalloc(sizeof(struct input_device_context),
-@@ -874,14 +871,11 @@ static int mousevsc_remove(struct hv_device *dev)
- 		input_dev_ctx->connected = 0;
- 	}
- 
--	if (!mousevsc_drv_obj->base.dev_rm)
--		return -1;
--
- 	/*
- 	 * Call to the vsc driver to let it know that the device
- 	 * is being removed
+diff --git a/drivers/staging/hv/rndis_filter.c b/drivers/staging/hv/rndis_filter.c
+index b0c888e..299b14e 100644
+--- a/drivers/staging/hv/rndis_filter.c
++++ b/drivers/staging/hv/rndis_filter.c
+@@ -755,7 +755,7 @@ int rndis_filte_device_add(struct hv_device *dev,
+ 	 * NOTE! Once the channel is created, we may get a receive callback
+ 	 * (RndisFilterOnReceive()) before this call is completed
  	 */
--	ret = mousevsc_drv_obj->base.dev_rm(dev);
-+	ret = mousevsc_on_device_remove(dev);
- 
+-	ret = rndis_filter.inner_drv.base.dev_add(dev, additional_info);
++	ret = netvsc_device_add(dev, additional_info);
  	if (ret != 0) {
- 		DPRINT_ERR(INPUTVSC_DRV,
+ 		kfree(rndisDevice);
+ 		return ret;
 -- 
 1.7.4.1
