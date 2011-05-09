@@ -1,8 +1,7 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 053/206] Staging: hv: Move the definition of
-	storvsc_ringbuffer_size to earlier in the file
-Date: Mon,  9 May 2011 14:55:35 -0700
-Message-ID: <1304978288-22999-53-git-send-email-kys@microsoft.com>
+Subject: [PATCH 072/206] Staging: hv: Get rid of rndis_filter_cleanup()
+Date: Mon,  9 May 2011 14:55:54 -0700
+Message-ID: <1304978288-22999-72-git-send-email-kys@microsoft.com>
 References: <1304978242-22958-1-git-send-email-kys@microsoft.com>
 	<1304978288-22999-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -23,35 +22,46 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The subject line says it all.
+rndis_filter_cleanup() is an empty function; get rid of it.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/storvsc_drv.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+ drivers/staging/hv/rndis_filter.c |    6 ------
+ 1 files changed, 0 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
-index 462aaa5..6bb35c4 100644
---- a/drivers/staging/hv/storvsc_drv.c
-+++ b/drivers/staging/hv/storvsc_drv.c
-@@ -40,6 +40,7 @@
- #include "vstorage.h"
- #include "channel.h"
+diff --git a/drivers/staging/hv/rndis_filter.c b/drivers/staging/hv/rndis_filter.c
+index 455d440..b0c888e 100644
+--- a/drivers/staging/hv/rndis_filter.c
++++ b/drivers/staging/hv/rndis_filter.c
+@@ -84,8 +84,6 @@ struct rndis_filter_packet {
+ };
  
-+static int storvsc_ringbuffer_size = STORVSC_RING_BUFFER_SIZE;
  
- static const char *driver_name = "storvsc";
+-static void rndis_filter_cleanup(struct hv_driver *drv);
+-
+ static int rndis_filter_send(struct hv_device *dev,
+ 			     struct hv_netvsc_packet *pkt);
  
-@@ -539,7 +540,6 @@ static int storvsc_host_reset_handler(struct scsi_cmnd *scmnd)
- static int storvsc_probe(struct hv_device *dev);
- static int storvsc_queuecommand(struct Scsi_Host *shost, struct scsi_cmnd *scmnd);
+@@ -621,7 +619,6 @@ int rndis_filter_init(struct netvsc_driver *drv)
+ 	/* Override */
+ 	drv->base.dev_add = rndis_filte_device_add;
+ 	drv->base.dev_rm = rndis_filter_device_remove;
+-	drv->base.cleanup = rndis_filter_cleanup;
+ 	drv->send = rndis_filter_send;
+ 	drv->recv_cb = rndis_filter_receive;
  
--static int storvsc_ringbuffer_size = STORVSC_RING_BUFFER_SIZE;
- module_param(storvsc_ringbuffer_size, int, S_IRUGO);
- MODULE_PARM_DESC(storvsc_ringbuffer_size, "Ring buffer size (bytes)");
+@@ -818,9 +815,6 @@ int rndis_filter_device_remove(struct hv_device *dev)
+ 	return 0;
+ }
  
+-static void rndis_filter_cleanup(struct hv_driver *drv)
+-{
+-}
+ 
+ int rndis_filter_open(struct hv_device *dev)
+ {
 -- 
 1.7.4.1
