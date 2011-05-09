@@ -1,7 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 097/206] Staging: hv: Rename ringbuffer_write
-Date: Mon,  9 May 2011 14:56:19 -0700
-Message-ID: <1304978288-22999-97-git-send-email-kys@microsoft.com>
+Subject: [PATCH 035/206] Staging: hv: Rename the struct hv_device * element of
+	struct hv_host_device
+Date: Mon,  9 May 2011 14:55:17 -0700
+Message-ID: <1304978288-22999-35-git-send-email-kys@microsoft.com>
 References: <1304978242-22958-1-git-send-email-kys@microsoft.com>
 	<1304978288-22999-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -22,81 +23,55 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Rename ringbuffer_write.
+The subject line says it all.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/channel.c     |    6 +++---
- drivers/staging/hv/ring_buffer.c |    4 ++--
- drivers/staging/hv/ring_buffer.h |    2 +-
- 3 files changed, 6 insertions(+), 6 deletions(-)
+ drivers/staging/hv/storvsc_drv.c |    8 ++++----
+ 1 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/staging/hv/channel.c b/drivers/staging/hv/channel.c
-index 44b81e8..859771c 100644
---- a/drivers/staging/hv/channel.c
-+++ b/drivers/staging/hv/channel.c
-@@ -718,7 +718,7 @@ int vmbus_sendpacket(struct vmbus_channel *channel, const void *buffer,
- 	sg_set_buf(&bufferlist[2], &aligned_data,
- 		   packetlen_aligned - packetlen);
+diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
+index 2e2e004..c183220 100644
+--- a/drivers/staging/hv/storvsc_drv.c
++++ b/drivers/staging/hv/storvsc_drv.c
+@@ -55,7 +55,7 @@ struct hv_host_device {
+ 	/* must be 1st field
+ 	 * FIXME this is a bug */
+ 	/* point back to our device context */
+-	struct hv_device *device_ctx;
++	struct hv_device *dev;
+ 	struct kmem_cache *request_pool;
+ 	unsigned int port;
+ 	unsigned char path;
+@@ -345,7 +345,7 @@ static int storvsc_probe(struct hv_device *device)
+ 	memset(host_dev, 0, sizeof(struct hv_host_device));
  
--	ret = ringbuffer_write(&channel->outbound, bufferlist, 3);
-+	ret = hv_ringbuffer_write(&channel->outbound, bufferlist, 3);
+ 	host_dev->port = host->host_no;
+-	host_dev->device_ctx = device;
++	host_dev->dev = device;
  
- 	/* TODO: We should determine if this is optional */
- 	if (ret == 0 && !get_ringbuffer_interrupt_mask(&channel->outbound))
-@@ -783,7 +783,7 @@ int vmbus_sendpacket_pagebuffer(struct vmbus_channel *channel,
- 	sg_set_buf(&bufferlist[2], &aligned_data,
- 		packetlen_aligned - packetlen);
+ 	host_dev->request_pool =
+ 				kmem_cache_create(dev_name(&device->device),
+@@ -685,7 +685,7 @@ static int storvsc_queuecommand_lck(struct scsi_cmnd *scmnd,
+ 	int ret;
+ 	struct hv_host_device *host_dev =
+ 		(struct hv_host_device *)scmnd->device->host->hostdata;
+-	struct hv_device *device_ctx = host_dev->device_ctx;
++	struct hv_device *device_ctx = host_dev->dev;
+ 	struct storvsc_driver *storvsc_drv_obj =
+ 		drv_to_stordrv(device_ctx->device.driver);
+ 	struct hv_storvsc_request *request;
+@@ -918,7 +918,7 @@ static int storvsc_host_reset_handler(struct scsi_cmnd *scmnd)
+ 	int ret;
+ 	struct hv_host_device *host_dev =
+ 		(struct hv_host_device *)scmnd->device->host->hostdata;
+-	struct hv_device *device_ctx = host_dev->device_ctx;
++	struct hv_device *device_ctx = host_dev->dev;
  
--	ret = ringbuffer_write(&channel->outbound, bufferlist, 3);
-+	ret = hv_ringbuffer_write(&channel->outbound, bufferlist, 3);
- 
- 	/* TODO: We should determine if this is optional */
- 	if (ret == 0 && !get_ringbuffer_interrupt_mask(&channel->outbound))
-@@ -848,7 +848,7 @@ int vmbus_sendpacket_multipagebuffer(struct vmbus_channel *channel,
- 	sg_set_buf(&bufferlist[2], &aligned_data,
- 		packetlen_aligned - packetlen);
- 
--	ret = ringbuffer_write(&channel->outbound, bufferlist, 3);
-+	ret = hv_ringbuffer_write(&channel->outbound, bufferlist, 3);
- 
- 	/* TODO: We should determine if this is optional */
- 	if (ret == 0 && !get_ringbuffer_interrupt_mask(&channel->outbound))
-diff --git a/drivers/staging/hv/ring_buffer.c b/drivers/staging/hv/ring_buffer.c
-index 9bab40c..483678c 100644
---- a/drivers/staging/hv/ring_buffer.c
-+++ b/drivers/staging/hv/ring_buffer.c
-@@ -341,13 +341,13 @@ void hv_ringbuffer_cleanup(struct hv_ring_buffer_info *ring_info)
- /*++
- 
- Name:
--	ringbuffer_write()
-+	hv_ringbuffer_write()
- 
- Description:
- 	Write to the ring buffer
- 
- --*/
--int ringbuffer_write(struct hv_ring_buffer_info *outring_info,
-+int hv_ringbuffer_write(struct hv_ring_buffer_info *outring_info,
- 		    struct scatterlist *sglist, u32 sgcount)
- {
- 	int i = 0;
-diff --git a/drivers/staging/hv/ring_buffer.h b/drivers/staging/hv/ring_buffer.h
-index 66d9a2d..5c17288 100644
---- a/drivers/staging/hv/ring_buffer.h
-+++ b/drivers/staging/hv/ring_buffer.h
-@@ -81,7 +81,7 @@ int hv_ringbuffer_init(struct hv_ring_buffer_info *ring_info, void *buffer,
- 
- void hv_ringbuffer_cleanup(struct hv_ring_buffer_info *ring_info);
- 
--int ringbuffer_write(struct hv_ring_buffer_info *ring_info,
-+int hv_ringbuffer_write(struct hv_ring_buffer_info *ring_info,
- 		    struct scatterlist *sglist,
- 		    u32 sgcount);
- 
+ 	DPRINT_INFO(STORVSC_DRV, "sdev (%p) dev obj (%p) - host resetting...",
+ 		    scmnd->device, device_ctx);
 -- 
 1.7.4.1
