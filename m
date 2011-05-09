@@ -1,50 +1,55 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 136/206] Staging: hv: Get rid of the unnecessary assignment of
-	ring size
-Date: Mon,  9 May 2011 14:56:58 -0700
-Message-ID: <1304978288-22999-136-git-send-email-kys@microsoft.com>
+Subject: [PATCH 165/206] Staging: hv: Add a new header file to include all header files private to vmbus core
+Date: Mon,  9 May 2011 14:57:27 -0700
+Message-ID: <1304978288-22999-165-git-send-email-kys@microsoft.com>
 References: <1304978242-22958-1-git-send-email-kys@microsoft.com>
-	<1304978288-22999-1-git-send-email-kys@microsoft.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
+ <1304978288-22999-1-git-send-email-kys@microsoft.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1304978288-22999-1-git-send-email-kys@microsoft.com>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org
-Cc: Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>
+Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>, Hank Janssen <hjanssen@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Now, get rid of the unnecessary assignment of ring size.
+The subject line says it all.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/storvsc_drv.c |    2 --
- 1 files changed, 0 insertions(+), 2 deletions(-)
+ drivers/staging/hv/hyperv_vmbus.h |   23 +++++++++++++++++++++++
+ 1 files changed, 23 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/staging/hv/hyperv_vmbus.h
 
-diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
-index 1fb0521..f37c836 100644
---- a/drivers/staging/hv/storvsc_drv.c
-+++ b/drivers/staging/hv/storvsc_drv.c
-@@ -799,8 +799,6 @@ static int storvsc_drv_init(void)
- 	sizeof(struct vstor_packet) + sizeof(u64),
- 	sizeof(u64)));
- 
--	storvsc_drv_obj->ring_buffer_size = storvsc_ringbuffer_size;
--
- 	/* Callback to client driver to complete the initialization */
- 	storvsc_initialize(&storvsc_drv_obj->base);
- 
+diff --git a/drivers/staging/hv/hyperv_vmbus.h b/drivers/staging/hv/hyperv_vmbus.h
+new file mode 100644
+index 0000000..ce27244
+--- /dev/null
++++ b/drivers/staging/hv/hyperv_vmbus.h
+@@ -0,0 +1,23 @@
++/*
++ *
++ * Copyright (c) 2011, Microsoft Corporation.
++ *
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms and conditions of the GNU General Public License,
++ * version 2, as published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope it will be useful, but WITHOUT
++ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
++ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
++ * more details.
++ *
++ * You should have received a copy of the GNU General Public License along with
++ * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
++ * Place - Suite 330, Boston, MA 02111-1307 USA.
++ *
++ * Authors:
++ *   Haiyang Zhang <haiyangz@microsoft.com>
++ *   Hank Janssen  <hjanssen@microsoft.com>
++ *   K. Y. Srinivasan <kys@microsoft.com>
++ *
++ */
 -- 
 1.7.4.1
