@@ -1,7 +1,7 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 109/206] Staging: hv: Rename the variable gSupportedDeviceClasses
-Date: Mon,  9 May 2011 14:56:31 -0700
-Message-ID: <1304978288-22999-109-git-send-email-kys@microsoft.com>
+Subject: [PATCH 112/206] Staging: hv: Rename the variable gChannelMessageTable
+Date: Mon,  9 May 2011 14:56:34 -0700
+Message-ID: <1304978288-22999-112-git-send-email-kys@microsoft.com>
 References: <1304978242-22958-1-git-send-email-kys@microsoft.com>
  <1304978288-22999-1-git-send-email-kys@microsoft.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
@@ -18,31 +18,32 @@ Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/channel_mgmt.c |    5 +++--
- 1 files changed, 3 insertions(+), 2 deletions(-)
+ drivers/staging/hv/channel_mgmt.c |    6 +++---
+ 1 files changed, 3 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/staging/hv/channel_mgmt.c b/drivers/staging/hv/channel_mgmt.c
-index 1929ab3..71b79c6 100644
+index a8be565..95eef92 100644
 --- a/drivers/staging/hv/channel_mgmt.c
 +++ b/drivers/staging/hv/channel_mgmt.c
-@@ -42,7 +42,7 @@ struct vmbus_channel_message_table_entry {
- #define MAX_NUM_DEVICE_CLASSES_SUPPORTED 8
+@@ -698,7 +698,7 @@ static void vmbus_onversion_response(
  
- static const struct hv_guid
--	gSupportedDeviceClasses[MAX_NUM_DEVICE_CLASSES_SUPPORTED] = {
-+	supported_device_classes[MAX_NUM_DEVICE_CLASSES_SUPPORTED] = {
- 	/* {ba6163d9-04a1-4d29-b605-72e2ffb1dc7f} */
- 	/* Storage - SCSI */
- 	{
-@@ -459,7 +459,8 @@ static void vmbus_onoffer(struct vmbus_channel_message_header *hdr)
- 	offer = (struct vmbus_channel_offer_channel *)hdr;
- 	for (i = 0; i < MAX_NUM_DEVICE_CLASSES_SUPPORTED; i++) {
- 		if (memcmp(&offer->offer.if_type,
--		    &gSupportedDeviceClasses[i], sizeof(struct hv_guid)) == 0) {
-+			&supported_device_classes[i],
-+			sizeof(struct hv_guid)) == 0) {
- 			fsupported = 1;
- 			break;
- 		}
+ /* Channel message dispatch table */
+ static struct vmbus_channel_message_table_entry
+-	gChannelMessageTable[CHANNELMSG_COUNT] = {
++	channel_message_table[CHANNELMSG_COUNT] = {
+ 	{CHANNELMSG_INVALID,			NULL},
+ 	{CHANNELMSG_OFFERCHANNEL,		vmbus_onoffer},
+ 	{CHANNELMSG_RESCIND_CHANNELOFFER,	vmbus_onoffer_rescind},
+@@ -740,8 +740,8 @@ void vmbus_onmessage(void *context)
+ 		return;
+ 	}
+ 
+-	if (gChannelMessageTable[hdr->msgtype].message_handler)
+-		gChannelMessageTable[hdr->msgtype].message_handler(hdr);
++	if (channel_message_table[hdr->msgtype].message_handler)
++		channel_message_table[hdr->msgtype].message_handler(hdr);
+ 	else
+ 		pr_err("Unhandled channel message type %d\n", hdr->msgtype);
+ }
 -- 
 1.7.4.1
