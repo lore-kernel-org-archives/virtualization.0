@@ -1,8 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 079/206] Staging: hv: Get rid of some unnecessary code in
-	rndis_filter.c
-Date: Mon,  9 May 2011 14:56:01 -0700
-Message-ID: <1304978288-22999-79-git-send-email-kys@microsoft.com>
+Subject: [PATCH 129/206] Staging: hv: Move the sector size check into
+	blkvsc_drv_init
+Date: Mon,  9 May 2011 14:56:51 -0700
+Message-ID: <1304978288-22999-129-git-send-email-kys@microsoft.com>
 References: <1304978242-22958-1-git-send-email-kys@microsoft.com>
 	<1304978288-22999-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -23,40 +23,37 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Now that we have gotten rid of the indirection; get rid
-of some unnecessary code.
+The subject line says it all.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/rndis_filter.c |    7 -------
- 1 files changed, 0 insertions(+), 7 deletions(-)
+ drivers/staging/hv/blkvsc_drv.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/staging/hv/rndis_filter.c b/drivers/staging/hv/rndis_filter.c
-index f9c18fa..ee74cd1 100644
---- a/drivers/staging/hv/rndis_filter.c
-+++ b/drivers/staging/hv/rndis_filter.c
-@@ -606,19 +606,12 @@ int rndis_filter_init(struct netvsc_driver *drv)
- 	rndisDriver->OnLinkStatusChanged = Driver->OnLinkStatusChanged;*/
+diff --git a/drivers/staging/hv/blkvsc_drv.c b/drivers/staging/hv/blkvsc_drv.c
+index f8a3bce..ed1439f 100644
+--- a/drivers/staging/hv/blkvsc_drv.c
++++ b/drivers/staging/hv/blkvsc_drv.c
+@@ -822,6 +822,8 @@ static int blkvsc_drv_init(void)
+ 	struct hv_driver *drv = &blkvsc_drv.base;
+ 	int ret;
  
- 	/* Save the original dispatch handlers before we override it */
--	rndis_filter.inner_drv.base.dev_add = drv->base.dev_add;
--	rndis_filter.inner_drv.base.dev_rm =
--					drv->base.dev_rm;
--	rndis_filter.inner_drv.base.cleanup = drv->base.cleanup;
++	BUILD_BUG_ON(sizeof(sector_t) != 8);
++
+ 	storvsc_drv->ring_buffer_size = blkvsc_ringbuffer_size;
+ 
+ 	memcpy(&drv->dev_type, &dev_type, sizeof(struct hv_guid));
+@@ -1046,8 +1048,6 @@ static int __init blkvsc_init(void)
+ {
+ 	int ret;
+ 
+-	BUILD_BUG_ON(sizeof(sector_t) != 8);
 -
- 	rndis_filter.inner_drv.send = drv->send;
- 	rndis_filter.inner_drv.recv_cb = drv->recv_cb;
- 	rndis_filter.inner_drv.link_status_change =
- 					drv->link_status_change;
+ 	ret = blkvsc_drv_init();
  
- 	/* Override */
--	drv->base.dev_add = rndis_filte_device_add;
--	drv->base.dev_rm = rndis_filter_device_remove;
- 	drv->send = rndis_filter_send;
- 	drv->recv_cb = rndis_filter_receive;
- 
+ 	return ret;
 -- 
 1.7.4.1
