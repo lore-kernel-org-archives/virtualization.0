@@ -1,7 +1,7 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 084/206] Staging: hv: Get rid of dev_add from struct hv_driver
-Date: Mon,  9 May 2011 14:56:06 -0700
-Message-ID: <1304978288-22999-84-git-send-email-kys@microsoft.com>
+Subject: [PATCH 050/206] Staging: hv: Rename stor_vsc_initialize()
+Date: Mon,  9 May 2011 14:55:32 -0700
+Message-ID: <1304978288-22999-50-git-send-email-kys@microsoft.com>
 References: <1304978242-22958-1-git-send-email-kys@microsoft.com>
 	<1304978288-22999-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -22,28 +22,40 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Now that we have gotten rid of the indirection, get rid of the
-unnecessary state struct hv_driver.
+The subject line says it all.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/vmbus_api.h |    1 -
- 1 files changed, 0 insertions(+), 1 deletions(-)
+ drivers/staging/hv/storvsc_drv.c |    6 +++---
+ 1 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/staging/hv/vmbus_api.h b/drivers/staging/hv/vmbus_api.h
-index 50fbeb5..b1a7e88 100644
---- a/drivers/staging/hv/vmbus_api.h
-+++ b/drivers/staging/hv/vmbus_api.h
-@@ -96,7 +96,6 @@ struct hv_driver {
+diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
+index d8ce28e..28b8569 100644
+--- a/drivers/staging/hv/storvsc_drv.c
++++ b/drivers/staging/hv/storvsc_drv.c
+@@ -71,9 +71,9 @@ struct storvsc_cmd_request {
  
- 	struct device_driver driver;
  
--	int (*dev_add)(struct hv_device *device, void *data);
- 	int (*dev_rm)(struct hv_device *device);
- 	void (*cleanup)(struct hv_driver *driver);
+ /*
+- * stor_vsc_initialize - Main entry point
++ * storvsc_initialize - Main entry point
+  */
+-static int stor_vsc_initialize(struct hv_driver *driver)
++static int storvsc_initialize(struct hv_driver *driver)
+ {
+ 	struct storvsc_driver *stor_driver;
  
+@@ -514,7 +514,7 @@ static int storvsc_drv_init(void)
+ 	storvsc_drv_obj->ring_buffer_size = storvsc_ringbuffer_size;
+ 
+ 	/* Callback to client driver to complete the initialization */
+-	stor_vsc_initialize(&storvsc_drv_obj->base);
++	storvsc_initialize(&storvsc_drv_obj->base);
+ 
+ 	DPRINT_INFO(STORVSC_DRV,
+ 		    "max outstanding reqs %u",
 -- 
 1.7.4.1
