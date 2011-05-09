@@ -1,8 +1,7 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 021/206] Staging: hv: Introduce a function to wait to drain
-	outgoing I/O
-Date: Mon,  9 May 2011 14:55:03 -0700
-Message-ID: <1304978288-22999-21-git-send-email-kys@microsoft.com>
+Subject: [PATCH 097/206] Staging: hv: Rename ringbuffer_write
+Date: Mon,  9 May 2011 14:56:19 -0700
+Message-ID: <1304978288-22999-97-git-send-email-kys@microsoft.com>
 References: <1304978242-22958-1-git-send-email-kys@microsoft.com>
 	<1304978288-22999-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -23,80 +22,81 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Rather than busy loop waiting to drain I/O, introduce a function 
-that does not burn CPU cycles waiting.
+Rename ringbuffer_write.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/storvsc.c     |    6 +++++-
- drivers/staging/hv/storvsc_api.h |   12 ++++++++++++
- 2 files changed, 17 insertions(+), 1 deletions(-)
+ drivers/staging/hv/channel.c     |    6 +++---
+ drivers/staging/hv/ring_buffer.c |    4 ++--
+ drivers/staging/hv/ring_buffer.h |    2 +-
+ 3 files changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/staging/hv/storvsc.c b/drivers/staging/hv/storvsc.c
-index 8ee1ad0..36458b8 100644
---- a/drivers/staging/hv/storvsc.c
-+++ b/drivers/staging/hv/storvsc.c
-@@ -47,6 +47,7 @@ static inline struct storvsc_device *alloc_stor_device(struct hv_device *device)
- 	/* (ie get_stor_device() and must_get_stor_device()) to proceed. */
- 	atomic_cmpxchg(&stor_device->ref_count, 0, 2);
+diff --git a/drivers/staging/hv/channel.c b/drivers/staging/hv/channel.c
+index 44b81e8..859771c 100644
+--- a/drivers/staging/hv/channel.c
++++ b/drivers/staging/hv/channel.c
+@@ -718,7 +718,7 @@ int vmbus_sendpacket(struct vmbus_channel *channel, const void *buffer,
+ 	sg_set_buf(&bufferlist[2], &aligned_data,
+ 		   packetlen_aligned - packetlen);
  
-+	init_waitqueue_head(&stor_device->waiting_to_drain);
- 	stor_device->device = device;
- 	device->ext = stor_device;
+-	ret = ringbuffer_write(&channel->outbound, bufferlist, 3);
++	ret = hv_ringbuffer_write(&channel->outbound, bufferlist, 3);
  
-@@ -332,7 +333,10 @@ static void stor_vsc_on_io_completion(struct hv_device *device,
+ 	/* TODO: We should determine if this is optional */
+ 	if (ret == 0 && !get_ringbuffer_interrupt_mask(&channel->outbound))
+@@ -783,7 +783,7 @@ int vmbus_sendpacket_pagebuffer(struct vmbus_channel *channel,
+ 	sg_set_buf(&bufferlist[2], &aligned_data,
+ 		packetlen_aligned - packetlen);
  
- 	request->on_io_completion(request);
+-	ret = ringbuffer_write(&channel->outbound, bufferlist, 3);
++	ret = hv_ringbuffer_write(&channel->outbound, bufferlist, 3);
  
--	atomic_dec(&stor_device->num_outstanding_req);
-+	if (atomic_dec_and_test(&stor_device->num_outstanding_req) &&
-+		stor_device->drain_notify)
-+		wake_up(&stor_device->waiting_to_drain);
-+
+ 	/* TODO: We should determine if this is optional */
+ 	if (ret == 0 && !get_ringbuffer_interrupt_mask(&channel->outbound))
+@@ -848,7 +848,7 @@ int vmbus_sendpacket_multipagebuffer(struct vmbus_channel *channel,
+ 	sg_set_buf(&bufferlist[2], &aligned_data,
+ 		packetlen_aligned - packetlen);
  
- 	put_stor_device(device);
- }
-diff --git a/drivers/staging/hv/storvsc_api.h b/drivers/staging/hv/storvsc_api.h
-index 32228c0..1887940 100644
---- a/drivers/staging/hv/storvsc_api.h
-+++ b/drivers/staging/hv/storvsc_api.h
-@@ -26,6 +26,7 @@
- #define _STORVSC_API_H_
+-	ret = ringbuffer_write(&channel->outbound, bufferlist, 3);
++	ret = hv_ringbuffer_write(&channel->outbound, bufferlist, 3);
  
- #include <linux/kernel.h>
-+#include <linux/wait.h>
- #include "vstorage.h"
- #include "vmbus_api.h"
- #include "vmbus.h"
-@@ -108,8 +109,11 @@ struct storvsc_device {
- 	/* 0 indicates the device is being destroyed */
- 	atomic_t ref_count;
+ 	/* TODO: We should determine if this is optional */
+ 	if (ret == 0 && !get_ringbuffer_interrupt_mask(&channel->outbound))
+diff --git a/drivers/staging/hv/ring_buffer.c b/drivers/staging/hv/ring_buffer.c
+index 9bab40c..483678c 100644
+--- a/drivers/staging/hv/ring_buffer.c
++++ b/drivers/staging/hv/ring_buffer.c
+@@ -341,13 +341,13 @@ void hv_ringbuffer_cleanup(struct hv_ring_buffer_info *ring_info)
+ /*++
  
-+	bool	 drain_notify;
- 	atomic_t num_outstanding_req;
+ Name:
+-	ringbuffer_write()
++	hv_ringbuffer_write()
  
-+	wait_queue_head_t waiting_to_drain;
-+
- 	/*
- 	 * Each unique Port/Path/Target represents 1 channel ie scsi
- 	 * controller. In reality, the pathid, targetid is always 0
-@@ -161,6 +165,14 @@ struct storvsc_driver *drv_to_stordrv(struct device_driver *d)
- 	return hvdr_to_stordr(hvdrv);
- }
+ Description:
+ 	Write to the ring buffer
  
-+static inline void storvsc_wait_to_drain(struct storvsc_device *dev)
-+{
-+	dev->drain_notify = true;
-+	wait_event(dev->waiting_to_drain,
-+		   atomic_read(&dev->num_outstanding_req) == 0);
-+	dev->drain_notify = false;
-+}
-+
- /* Interface */
+ --*/
+-int ringbuffer_write(struct hv_ring_buffer_info *outring_info,
++int hv_ringbuffer_write(struct hv_ring_buffer_info *outring_info,
+ 		    struct scatterlist *sglist, u32 sgcount)
+ {
+ 	int i = 0;
+diff --git a/drivers/staging/hv/ring_buffer.h b/drivers/staging/hv/ring_buffer.h
+index 66d9a2d..5c17288 100644
+--- a/drivers/staging/hv/ring_buffer.h
++++ b/drivers/staging/hv/ring_buffer.h
+@@ -81,7 +81,7 @@ int hv_ringbuffer_init(struct hv_ring_buffer_info *ring_info, void *buffer,
  
- int storvsc_dev_add(struct hv_device *device,
+ void hv_ringbuffer_cleanup(struct hv_ring_buffer_info *ring_info);
+ 
+-int ringbuffer_write(struct hv_ring_buffer_info *ring_info,
++int hv_ringbuffer_write(struct hv_ring_buffer_info *ring_info,
+ 		    struct scatterlist *sglist,
+ 		    u32 sgcount);
+ 
 -- 
 1.7.4.1
