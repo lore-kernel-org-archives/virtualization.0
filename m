@@ -1,8 +1,7 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 062/206] Staging: hv: Get rid of the indirection in invoking
-	storvsc_dev_remove()
-Date: Mon,  9 May 2011 14:55:44 -0700
-Message-ID: <1304978288-22999-62-git-send-email-kys@microsoft.com>
+Subject: [PATCH 068/206] Staging: hv: Make netvsc_device_remove non static
+Date: Mon,  9 May 2011 14:55:50 -0700
+Message-ID: <1304978288-22999-68-git-send-email-kys@microsoft.com>
 References: <1304978242-22958-1-git-send-email-kys@microsoft.com>
 	<1304978288-22999-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -23,46 +22,41 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Get rid of the indirection in invoking storvsc_dev_remove()
+The subject line says it all.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/storvsc_drv.c |    6 ++----
- 1 files changed, 2 insertions(+), 4 deletions(-)
+ drivers/staging/hv/netvsc.c     |    2 +-
+ drivers/staging/hv/netvsc_api.h |    1 +
+ 2 files changed, 2 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
-index 650e11f..233aa4c 100644
---- a/drivers/staging/hv/storvsc_drv.c
-+++ b/drivers/staging/hv/storvsc_drv.c
-@@ -359,8 +359,6 @@ static unsigned int copy_to_bounce_buffer(struct scatterlist *orig_sgl,
+diff --git a/drivers/staging/hv/netvsc.c b/drivers/staging/hv/netvsc.c
+index 7cd3f0b..8790f0f 100644
+--- a/drivers/staging/hv/netvsc.c
++++ b/drivers/staging/hv/netvsc.c
+@@ -580,7 +580,7 @@ static void netvsc_disconnect_vsp(struct netvsc_device *net_device)
+ /*
+  * netvsc_device_remove - Callback when the root bus device is removed
   */
- static int storvsc_remove(struct hv_device *dev)
+-static int netvsc_device_remove(struct hv_device *device)
++int netvsc_device_remove(struct hv_device *device)
  {
--	struct storvsc_driver *storvsc_drv_obj =
--			 drv_to_stordrv(dev->device.driver);
- 	struct Scsi_Host *host = dev_get_drvdata(&dev->device);
- 	struct hv_host_device *host_dev =
- 			(struct hv_host_device *)host->hostdata;
-@@ -369,7 +367,7 @@ static int storvsc_remove(struct hv_device *dev)
- 	 * Call to the vsc driver to let it know that the device is being
- 	 * removed
- 	 */
--	storvsc_drv_obj->base.dev_rm(dev);
-+	storvsc_dev_remove(dev);
+ 	struct netvsc_device *net_device;
+ 	struct hv_netvsc_packet *netvsc_packet, *pos;
+diff --git a/drivers/staging/hv/netvsc_api.h b/drivers/staging/hv/netvsc_api.h
+index d09d6eb..d8d77c0 100644
+--- a/drivers/staging/hv/netvsc_api.h
++++ b/drivers/staging/hv/netvsc_api.h
+@@ -118,6 +118,7 @@ struct netvsc_device_info {
  
- 	if (host_dev->request_pool) {
- 		kmem_cache_destroy(host_dev->request_pool);
-@@ -842,7 +840,7 @@ static int storvsc_probe(struct hv_device *device)
- 	ret = scsi_add_host(host, &device->device);
- 	if (ret != 0) {
- 
--		storvsc_drv_obj->base.dev_rm(device);
-+		storvsc_dev_remove(device);
- 
- 		kmem_cache_destroy(host_dev->request_pool);
- 		scsi_host_put(host);
+ /* Interface */
+ int netvsc_device_add(struct hv_device *device, void *additional_info);
++int netvsc_device_remove(struct hv_device *device);
+ int netvsc_initialize(struct hv_driver *drv);
+ int rndis_filter_open(struct hv_device *dev);
+ int rndis_filter_close(struct hv_device *dev);
 -- 
 1.7.4.1
