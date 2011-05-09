@@ -1,8 +1,7 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 047/206] Staging: hv: Get rid of the forward declaration of
-	storvsc_remove()
-Date: Mon,  9 May 2011 14:55:29 -0700
-Message-ID: <1304978288-22999-47-git-send-email-kys@microsoft.com>
+Subject: [PATCH 032/206] Staging: hv: Rename g_driver_name
+Date: Mon,  9 May 2011 14:55:14 -0700
+Message-ID: <1304978288-22999-32-git-send-email-kys@microsoft.com>
 References: <1304978242-22958-1-git-send-email-kys@microsoft.com>
 	<1304978288-22999-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -23,99 +22,37 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Get rid of the forward declaration by moving the code around.
+The subject line says it all.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/storvsc_drv.c |   62 +++++++++++++++++++-------------------
- 1 files changed, 31 insertions(+), 31 deletions(-)
+ drivers/staging/hv/storvsc_drv.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
-index 807ba89..6f23f52 100644
+index c54a5fe..d19df02 100644
 --- a/drivers/staging/hv/storvsc_drv.c
 +++ b/drivers/staging/hv/storvsc_drv.c
-@@ -350,11 +350,41 @@ static unsigned int copy_to_bounce_buffer(struct scatterlist *orig_sgl,
- 	return total_copied;
- }
+@@ -40,7 +40,7 @@
+ #include "channel.h"
  
-+
-+/*
-+ * storvsc_remove - Callback when our device is removed
-+ */
-+static int storvsc_remove(struct hv_device *dev)
-+{
-+	struct storvsc_driver *storvsc_drv_obj =
-+			 drv_to_stordrv(dev->device.driver);
-+	struct Scsi_Host *host = dev_get_drvdata(&dev->device);
-+	struct hv_host_device *host_dev =
-+			(struct hv_host_device *)host->hostdata;
-+
-+	/*
-+	 * Call to the vsc driver to let it know that the device is being
-+	 * removed
-+	 */
-+	storvsc_drv_obj->base.dev_rm(dev);
-+
-+	if (host_dev->request_pool) {
-+		kmem_cache_destroy(host_dev->request_pool);
-+		host_dev->request_pool = NULL;
-+	}
-+
-+	DPRINT_INFO(STORVSC, "removing host adapter (%p)...", host);
-+	scsi_remove_host(host);
-+
-+	DPRINT_INFO(STORVSC, "releasing host adapter (%p)...", host);
-+	scsi_host_put(host);
-+	return 0;
-+}
-+
- /* Static decl */
- static int storvsc_probe(struct hv_device *dev);
- static int storvsc_queuecommand(struct Scsi_Host *shost, struct scsi_cmnd *scmnd);
- static int storvsc_host_reset_handler(struct scsi_cmnd *scmnd);
--static int storvsc_remove(struct hv_device *dev);
  
- static int storvsc_get_chs(struct scsi_device *sdev, struct block_device *bdev,
- 			   sector_t capacity, int *info);
-@@ -589,36 +619,6 @@ static int storvsc_probe(struct hv_device *device)
- }
+-static const char *g_driver_name = "storvsc";
++static const char *driver_name = "storvsc";
  
- /*
-- * storvsc_remove - Callback when our device is removed
-- */
--static int storvsc_remove(struct hv_device *dev)
--{
--	struct storvsc_driver *storvsc_drv_obj =
--			 drv_to_stordrv(dev->device.driver);
--	struct Scsi_Host *host = dev_get_drvdata(&dev->device);
--	struct hv_host_device *host_dev =
--			(struct hv_host_device *)host->hostdata;
--
--	/*
--	 * Call to the vsc driver to let it know that the device is being
--	 * removed
--	 */
--	storvsc_drv_obj->base.dev_rm(dev);
--
--	if (host_dev->request_pool) {
--		kmem_cache_destroy(host_dev->request_pool);
--		host_dev->request_pool = NULL;
--	}
--
--	DPRINT_INFO(STORVSC, "removing host adapter (%p)...", host);
--	scsi_remove_host(host);
--
--	DPRINT_INFO(STORVSC, "releasing host adapter (%p)...", host);
--	scsi_host_put(host);
--	return 0;
--}
--
--/*
-  * storvsc_commmand_completion - Command completion processing
-  */
- static void storvsc_commmand_completion(struct hv_storvsc_request *request)
+ /* {ba6163d9-04a1-4d29-b605-72e2ffb1dc7f} */
+ static const struct hv_guid gStorVscDeviceType = {
+@@ -91,7 +91,7 @@ static int stor_vsc_initialize(struct hv_driver *driver)
+ 
+ 	/* Make sure we are at least 2 pages since 1 page is used for control */
+ 
+-	driver->name = g_driver_name;
++	driver->name = driver_name;
+ 	memcpy(&driver->dev_type, &gStorVscDeviceType,
+ 	       sizeof(struct hv_guid));
+ 
 -- 
 1.7.4.1
