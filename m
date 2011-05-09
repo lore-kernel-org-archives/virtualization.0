@@ -1,8 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 042/206] Staging: hv: Get rid of the forwrd declaration of
-	destroy_bounce_buffer
-Date: Mon,  9 May 2011 14:55:24 -0700
-Message-ID: <1304978288-22999-42-git-send-email-kys@microsoft.com>
+Subject: [PATCH 073/206] Staging: hv: Get rid of the indirection to invoke
+	rndis_filte_device_add()
+Date: Mon,  9 May 2011 14:55:55 -0700
+Message-ID: <1304978288-22999-73-git-send-email-kys@microsoft.com>
 References: <1304978242-22958-1-git-send-email-kys@microsoft.com>
 	<1304978288-22999-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -23,72 +23,38 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Get rid of the forward declaration by moving the code around.
+The subject line says it all.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/storvsc_drv.c |   32 +++++++++++++++-----------------
- 1 files changed, 15 insertions(+), 17 deletions(-)
+ drivers/staging/hv/netvsc_drv.c |    5 +----
+ 1 files changed, 1 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
-index 4196d6a..bf5b138 100644
---- a/drivers/staging/hv/storvsc_drv.c
-+++ b/drivers/staging/hv/storvsc_drv.c
-@@ -148,6 +148,21 @@ static int storvsc_device_configure(struct scsi_device *sdevice)
- 	return 0;
- }
+diff --git a/drivers/staging/hv/netvsc_drv.c b/drivers/staging/hv/netvsc_drv.c
+index f4c6000..d962308 100644
+--- a/drivers/staging/hv/netvsc_drv.c
++++ b/drivers/staging/hv/netvsc_drv.c
+@@ -349,9 +349,6 @@ static int netvsc_probe(struct hv_device *dev)
+ 	struct netvsc_device_info device_info;
+ 	int ret;
  
-+static void destroy_bounce_buffer(struct scatterlist *sgl,
-+				  unsigned int sg_count)
-+{
-+	int i;
-+	struct page *page_buf;
-+
-+	for (i = 0; i < sg_count; i++) {
-+		page_buf = sg_page((&sgl[i]));
-+		if (page_buf != NULL)
-+			__free_page(page_buf);
-+	}
-+
-+	kfree(sgl);
-+}
-+
- /* Static decl */
- static int storvsc_probe(struct hv_device *dev);
- static int storvsc_queuecommand(struct Scsi_Host *shost, struct scsi_cmnd *scmnd);
-@@ -157,8 +172,6 @@ static int storvsc_remove(struct hv_device *dev);
- static struct scatterlist *create_bounce_buffer(struct scatterlist *sgl,
- 						unsigned int sg_count,
- 						unsigned int len);
--static void destroy_bounce_buffer(struct scatterlist *sgl,
--				  unsigned int sg_count);
- static int do_bounce_buffer(struct scatterlist *sgl, unsigned int sg_count);
- static unsigned int copy_from_bounce_buffer(struct scatterlist *orig_sgl,
- 					    struct scatterlist *bounce_sgl,
-@@ -542,21 +555,6 @@ cleanup:
- 	return NULL;
- }
+-	if (!net_drv_obj->base.dev_add)
+-		return -1;
+-
+ 	net = alloc_etherdev(sizeof(struct net_device_context));
+ 	if (!net)
+ 		return -1;
+@@ -366,7 +363,7 @@ static int netvsc_probe(struct hv_device *dev)
+ 	INIT_WORK(&net_device_ctx->work, netvsc_send_garp);
  
--static void destroy_bounce_buffer(struct scatterlist *sgl,
--				  unsigned int sg_count)
--{
--	int i;
--	struct page *page_buf;
--
--	for (i = 0; i < sg_count; i++) {
--		page_buf = sg_page((&sgl[i]));
--		if (page_buf != NULL)
--			__free_page(page_buf);
--	}
--
--	kfree(sgl);
--}
--
- /* Assume the bounce_sgl has enough room ie using the create_bounce_buffer() */
- static unsigned int copy_to_bounce_buffer(struct scatterlist *orig_sgl,
- 					  struct scatterlist *bounce_sgl,
+ 	/* Notify the netvsc driver of the new device */
+-	ret = net_drv_obj->base.dev_add(dev, &device_info);
++	ret = rndis_filte_device_add(dev, &device_info);
+ 	if (ret != 0) {
+ 		free_netdev(net);
+ 		dev_set_drvdata(&dev->device, NULL);
 -- 
 1.7.4.1
