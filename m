@@ -1,7 +1,7 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 148/206] Staging: hv: Move the code to copy dev_type information
-Date: Mon,  9 May 2011 14:57:10 -0700
-Message-ID: <1304978288-22999-148-git-send-email-kys@microsoft.com>
+Subject: [PATCH 149/206] Staging: hv: Get rid of an empty function
+Date: Mon,  9 May 2011 14:57:11 -0700
+Message-ID: <1304978288-22999-149-git-send-email-kys@microsoft.com>
 References: <1304978242-22958-1-git-send-email-kys@microsoft.com>
  <1304978288-22999-1-git-send-email-kys@microsoft.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
@@ -11,38 +11,42 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>, Hank Janssen <hjanssen@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-In preparation to eliminate mouse_vsc_initialize,
-move the code that copies the dev_type info.
+Now, get rid of the empty function.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/hv_mouse.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/staging/hv/hv_mouse.c |   10 ----------
+ 1 files changed, 0 insertions(+), 10 deletions(-)
 
 diff --git a/drivers/staging/hv/hv_mouse.c b/drivers/staging/hv/hv_mouse.c
-index b4c087f..85b95d8 100644
+index 85b95d8..6dc2761 100644
 --- a/drivers/staging/hv/hv_mouse.c
 +++ b/drivers/staging/hv/hv_mouse.c
-@@ -979,8 +979,6 @@ static void mousevsc_drv_exit(void)
- 
- static int mouse_vsc_initialize(struct hv_driver *driver)
- {
--	memcpy(&driver->dev_type, &mouse_guid,
--	       sizeof(struct hv_guid));
- 
- 	return 0;
+@@ -977,22 +977,12 @@ static void mousevsc_drv_exit(void)
+ 	return;
  }
-@@ -995,6 +993,8 @@ static int __init mousevsc_init(void)
  
- 	/* Callback to client driver to complete the initialization */
- 	mouse_vsc_initialize(&input_drv_obj->base);
-+	memcpy(&drv->dev_type, &mouse_guid,
-+	       sizeof(struct hv_guid));
+-static int mouse_vsc_initialize(struct hv_driver *driver)
+-{
+-
+-	return 0;
+-}
+-
+-
+ static int __init mousevsc_init(void)
+ {
+-	struct mousevsc_drv_obj *input_drv_obj = &mousevsc_drv;
+ 	struct hv_driver *drv = &mousevsc_drv.base;
  
- 	drv->driver.name = driver_name;
- 	drv->name = driver_name;
+ 	DPRINT_INFO(INPUTVSC_DRV, "Hyper-V Mouse driver initializing.");
+ 
+-	/* Callback to client driver to complete the initialization */
+-	mouse_vsc_initialize(&input_drv_obj->base);
+ 	memcpy(&drv->dev_type, &mouse_guid,
+ 	       sizeof(struct hv_guid));
+ 
 -- 
 1.7.4.1
