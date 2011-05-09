@@ -1,40 +1,121 @@
-From: Christoph Hellwig <hch@infradead.org>
-Subject: Re: [PATCH 115/206] Staging: hv: Use completion abstraction in
- struct netvsc_device
-Date: Tue, 10 May 2011 03:06:46 -0400
-Message-ID: <20110510070646.GB13847@infradead.org>
+From: "K. Y. Srinivasan" <kys@microsoft.com>
+Subject: [PATCH 201/206] Staging: hv: Get rid of vmbus_channel_interface.h
+Date: Mon,  9 May 2011 14:58:03 -0700
+Message-ID: <1304978288-22999-201-git-send-email-kys@microsoft.com>
 References: <1304978242-22958-1-git-send-email-kys@microsoft.com>
  <1304978288-22999-1-git-send-email-kys@microsoft.com>
- <1304978288-22999-115-git-send-email-kys@microsoft.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1304978288-22999-115-git-send-email-kys@microsoft.com>
+In-Reply-To: <1304978288-22999-1-git-send-email-kys@microsoft.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: "K. Y. Srinivasan" <kys@microsoft.com>
-Cc: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org, Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>, Hank Janssen <hjanssen@microsoft.com>
+To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org
+Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>, Hank Janssen <hjanssen@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-> -	net_device->wait_condition = 0;
->  	ret = vmbus_sendpacket(device->channel, init_packet,
->  			       sizeof(struct nvsp_message),
->  			       (unsigned long)init_packet,
-> @@ -272,10 +272,8 @@ static int netvsc_init_recv_buf(struct hv_device *device)
->  		goto cleanup;
->  	}
->  
-> -	wait_event_timeout(net_device->channel_init_wait,
-> -			net_device->wait_condition,
-> -			msecs_to_jiffies(1000));
-> -	BUG_ON(net_device->wait_condition == 0);
-> +	t = wait_for_completion_timeout(&net_device->channel_init_wait, HZ);
-> +	BUG_ON(t == 0);
+Now, get rid of vmbus_channel_interface.h.
 
-I don't think you want a BUG_ON here, but rather fail the
-initialization.
+Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
+Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
+Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
+Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
+---
+ drivers/staging/hv/vmbus_channel_interface.h |   89 --------------------------
+ 1 files changed, 0 insertions(+), 89 deletions(-)
+ delete mode 100644 drivers/staging/hv/vmbus_channel_interface.h
 
-Also I think you really should add synchronous versions of
-vmbus_sendpacket*, to the vmbus core so that all the synchronous waiting
-can be consolidated into a few helpers instead of needing to opencode
-it everywhere.
+diff --git a/drivers/staging/hv/vmbus_channel_interface.h b/drivers/staging/hv/vmbus_channel_interface.h
+deleted file mode 100644
+index 20ae258..0000000
+--- a/drivers/staging/hv/vmbus_channel_interface.h
++++ /dev/null
+@@ -1,89 +0,0 @@
+-/*
+- *
+- * Copyright (c) 2009, Microsoft Corporation.
+- *
+- * This program is free software; you can redistribute it and/or modify it
+- * under the terms and conditions of the GNU General Public License,
+- * version 2, as published by the Free Software Foundation.
+- *
+- * This program is distributed in the hope it will be useful, but WITHOUT
+- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+- * more details.
+- *
+- * You should have received a copy of the GNU General Public License along with
+- * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
+- * Place - Suite 330, Boston, MA 02111-1307 USA.
+- *
+- * Authors:
+- *   Haiyang Zhang <haiyangz@microsoft.com>
+- *   Hank Janssen  <hjanssen@microsoft.com>
+- *
+- */
+-
+-#ifndef __VMBUSCHANNELINTERFACE_H
+-#define __VMBUSCHANNELINTERFACE_H
+-
+-/*
+- * A revision number of vmbus that is used for ensuring both ends on a
+- * partition are using compatible versions.
+- */
+-#define VMBUS_REVISION_NUMBER		13
+-
+-/* Make maximum size of pipe payload of 16K */
+-#define MAX_PIPE_DATA_PAYLOAD		(sizeof(u8) * 16384)
+-
+-/* Define PipeMode values. */
+-#define VMBUS_PIPE_TYPE_BYTE		0x00000000
+-#define VMBUS_PIPE_TYPE_MESSAGE		0x00000004
+-
+-/* The size of the user defined data buffer for non-pipe offers. */
+-#define MAX_USER_DEFINED_BYTES		120
+-
+-/* The size of the user defined data buffer for pipe offers. */
+-#define MAX_PIPE_USER_DEFINED_BYTES	116
+-
+-/*
+- * At the center of the Channel Management library is the Channel Offer. This
+- * struct contains the fundamental information about an offer.
+- */
+-struct vmbus_channel_offer {
+-	struct hv_guid if_type;
+-	struct hv_guid if_instance;
+-	u64 int_latency; /* in 100ns units */
+-	u32 if_revision;
+-	u32 server_ctx_size;	/* in bytes */
+-	u16 chn_flags;
+-	u16 mmio_megabytes;		/* in bytes * 1024 * 1024 */
+-
+-	union {
+-		/* Non-pipes: The user has MAX_USER_DEFINED_BYTES bytes. */
+-		struct {
+-			unsigned char user_def[MAX_USER_DEFINED_BYTES];
+-		} std;
+-
+-		/*
+-		 * Pipes:
+-		 * The following sructure is an integrated pipe protocol, which
+-		 * is implemented on top of standard user-defined data. Pipe
+-		 * clients have MAX_PIPE_USER_DEFINED_BYTES left for their own
+-		 * use.
+-		 */
+-		struct {
+-			u32  pipe_mode;
+-			unsigned char user_def[MAX_PIPE_USER_DEFINED_BYTES];
+-		} pipe;
+-	} u;
+-	u32 padding;
+-} __packed;
+-
+-/* Server Flags */
+-#define VMBUS_CHANNEL_ENUMERATE_DEVICE_INTERFACE	1
+-#define VMBUS_CHANNEL_SERVER_SUPPORTS_TRANSFER_PAGES	2
+-#define VMBUS_CHANNEL_SERVER_SUPPORTS_GPADLS		4
+-#define VMBUS_CHANNEL_NAMED_PIPE_MODE			0x10
+-#define VMBUS_CHANNEL_LOOPBACK_OFFER			0x100
+-#define VMBUS_CHANNEL_PARENT_OFFER			0x200
+-#define VMBUS_CHANNEL_REQUEST_MONITORED_NOTIFICATION	0x400
+-
+-#endif
+-- 
+1.7.4.1
