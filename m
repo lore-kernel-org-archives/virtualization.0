@@ -1,14 +1,14 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH 14/18] virtio: add api for delayed callbacks
-Date: Mon, 09 May 2011 15:27:33 +0930
-Message-ID: <871v08h0vm.fsf__25326.8184409992$1304922962$gmane$org@rustcorp.com.au>
-References: <cover.1304541918.git.mst@redhat.com>
-	<64d47c628b3fdc0ac156aed4be182933d8bcc0db.1304541919.git.mst@redhat.com>
+Subject: Re: [PATCH 3/3] virtio_ring: need_event api comment fix
+Date: Mon, 09 May 2011 15:29:43 +0930
+Message-ID: <87y62gfm7k.fsf__38627.82006986$1304922974$gmane$org@rustcorp.com.au>
+References: <cover.1304605816.git.mst@redhat.com>
+	<c8b6d8a8df4927826d0024fceeb68726c50d0b1a.1304605817.git.mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <64d47c628b3fdc0ac156aed4be182933d8bcc0db.1304541919.git.mst@redhat.com>
+In-Reply-To: <c8b6d8a8df4927826d0024fceeb68726c50d0b1a.1304605817.git.mst@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -22,16 +22,15 @@ To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: Krishna Kumar <krkumar2@in.ibm.com>, Carsten Otte <cotte@de.ibm.com>, lguest@lists.ozlabs.org, Shirley Ma <xma@us.ibm.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org, netdev@vger.kernel.org, habanero@linux.vnet.ibm.com, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, steved@us.ibm.com, Christian Borntraeger <borntraeger@de.ibm.com>, Tom Lendacky <tahm@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux390@de.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 4 May 2011 23:52:33 +0300, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> Add an API that tells the other side that callbacks
-> should be delayed until a lot of work has been done.
-> Implement using the new used_event feature.
+On Thu, 5 May 2011 18:08:17 +0300, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> fix typo in a comment: size -> side
+> 
+> Reported-by: Stefan Hajnoczi <stefanha@gmail.com>
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 
-Since you're going to add a capacity query anyway, why not add the
-threshold argument here?
+I could smerge these together for you, but I *really* want benchmarks in
+these commit messages.
 
-Then the caller can choose how much space it needs.  Maybe net and block
-will want different things...
-
-Cheers,
+Thanks,
 Rusty.
+PS. Was away last week, hence the delay on this...
