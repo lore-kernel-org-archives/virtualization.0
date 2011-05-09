@@ -1,164 +1,186 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 200/206] Staging: hv: Get rid of vmbus_api.h
-Date: Mon,  9 May 2011 14:58:02 -0700
-Message-ID: <1304978288-22999-200-git-send-email-kys@microsoft.com>
+Subject: [PATCH 173/206] Staging: hv: Include the contents of storvsc_api.h
+Date: Mon,  9 May 2011 14:57:35 -0700
+Message-ID: <1304978288-22999-173-git-send-email-kys@microsoft.com>
 References: <1304978242-22958-1-git-send-email-kys@microsoft.com>
-	<1304978288-22999-1-git-send-email-kys@microsoft.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
+ <1304978288-22999-1-git-send-email-kys@microsoft.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1304978288-22999-1-git-send-email-kys@microsoft.com>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org
-Cc: Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>
+Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>, Hank Janssen <hjanssen@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Now, get rid of vmbus_api.h.
+The subject line says it all.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/vmbus_api.h |  121 ----------------------------------------
- 1 files changed, 0 insertions(+), 121 deletions(-)
- delete mode 100644 drivers/staging/hv/vmbus_api.h
+ drivers/staging/hv/hyperv_storage.h |  138 ++++++++++++++++++++++++++++++++++-
+ 1 files changed, 136 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/staging/hv/vmbus_api.h b/drivers/staging/hv/vmbus_api.h
-deleted file mode 100644
-index 5845436..0000000
---- a/drivers/staging/hv/vmbus_api.h
-+++ /dev/null
-@@ -1,121 +0,0 @@
--/*
-- *
-- * Copyright (c) 2009, Microsoft Corporation.
-- *
-- * This program is free software; you can redistribute it and/or modify it
-- * under the terms and conditions of the GNU General Public License,
-- * version 2, as published by the Free Software Foundation.
-- *
-- * This program is distributed in the hope it will be useful, but WITHOUT
-- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
-- * more details.
-- *
-- * You should have received a copy of the GNU General Public License along with
-- * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
-- * Place - Suite 330, Boston, MA 02111-1307 USA.
-- *
-- * Authors:
-- *   Haiyang Zhang <haiyangz@microsoft.com>
-- *   Hank Janssen  <hjanssen@microsoft.com>
-- *
-- */
--
--
--#ifndef _VMBUS_API_H_
--#define _VMBUS_API_H_
--
--#include <linux/device.h>
--#include <linux/workqueue.h>
--
--#define MAX_PAGE_BUFFER_COUNT				16
--#define MAX_MULTIPAGE_BUFFER_COUNT			32 /* 128K */
--
--#pragma pack(push, 1)
--
--/* Single-page buffer */
--struct hv_page_buffer {
--	u32 len;
--	u32 offset;
--	u64 pfn;
--};
--
--/* Multiple-page buffer */
--struct hv_multipage_buffer {
--	/* Length and Offset determines the # of pfns in the array */
--	u32 len;
--	u32 offset;
--	u64 pfn_array[MAX_MULTIPAGE_BUFFER_COUNT];
--};
--
--/* 0x18 includes the proprietary packet header */
--#define MAX_PAGE_BUFFER_PACKET		(0x18 +			\
--					(sizeof(struct hv_page_buffer) * \
--					 MAX_PAGE_BUFFER_COUNT))
--#define MAX_MULTIPAGE_BUFFER_PACKET	(0x18 +			\
--					 sizeof(struct hv_multipage_buffer))
--
--
--#pragma pack(pop)
--
--struct hv_driver;
--struct hv_device;
--
--struct hv_dev_port_info {
--	u32 int_mask;
--	u32 read_idx;
--	u32 write_idx;
--	u32 bytes_avail_toread;
--	u32 bytes_avail_towrite;
--};
--
--struct hv_device_info {
--	u32 chn_id;
--	u32 chn_state;
--	struct hv_guid chn_type;
--	struct hv_guid chn_instance;
--
--	u32 monitor_id;
--	u32 server_monitor_pending;
--	u32 server_monitor_latency;
--	u32 server_monitor_conn_id;
--	u32 client_monitor_pending;
--	u32 client_monitor_latency;
--	u32 client_monitor_conn_id;
--
--	struct hv_dev_port_info inbound;
--	struct hv_dev_port_info outbound;
--};
--
--/* Base driver object */
--struct hv_driver {
--	const char *name;
--
--	/* the device type supported by this driver */
--	struct hv_guid dev_type;
--
--	struct device_driver driver;
--
--	int (*probe)(struct hv_device *);
--	int (*remove)(struct hv_device *);
--	void (*shutdown)(struct hv_device *);
--
--};
--
--/* Base device object */
--struct hv_device {
--	/* the device type id of this device */
--	struct hv_guid dev_type;
--
--	/* the device instance id of this device */
--	struct hv_guid dev_instance;
--
--	struct device device;
--
--	struct vmbus_channel *channel;
--
--	/* Device extension; */
--	void *ext;
--};
--
--#endif /* _VMBUS_API_H_ */
+diff --git a/drivers/staging/hv/hyperv_storage.h b/drivers/staging/hv/hyperv_storage.h
+index 4324493..93fac7c 100644
+--- a/drivers/staging/hv/hyperv_storage.h
++++ b/drivers/staging/hv/hyperv_storage.h
+@@ -22,6 +22,9 @@
+  *
+  */
+ 
++#ifndef _HYPERV_STORAGE_H
++#define _HYPERV_STORAGE_H
++
+ /*
+  * vstorage.w revision number.  This is used in the case
+  * of a version match, to alert the user that structure sizes may
+@@ -29,8 +32,11 @@
+  * protocol versions match.
+  */
+ 
+-#ifndef _HYPERV_STORAGE_H
+-#define _HYPERV_STORAGE_H
++#include <linux/kernel.h>
++#include <linux/atomic.h>
++#include <linux/completion.h>
++#include <linux/wait.h>
++
+ 
+ #define REVISION_STRING(REVISION_) #REVISION_
+ #define FILL_VMSTOR_REVISION(RESULT_LVALUE_)				\
+@@ -198,4 +204,132 @@ struct vstor_packet {
+ /*  This is the set of flags that the vsc can set in any packets it sends */
+ #define VSC_LEGAL_FLAGS		(REQUEST_COMPLETION_FLAG)
+ 
++/* Defines */
++#define STORVSC_RING_BUFFER_SIZE			(20*PAGE_SIZE)
++#define BLKVSC_RING_BUFFER_SIZE				(20*PAGE_SIZE)
++
++#define STORVSC_MAX_IO_REQUESTS				128
++
++/*
++ * In Hyper-V, each port/path/target maps to 1 scsi host adapter.  In
++ * reality, the path/target is not used (ie always set to 0) so our
++ * scsi host adapter essentially has 1 bus with 1 target that contains
++ * up to 256 luns.
++ */
++#define STORVSC_MAX_LUNS_PER_TARGET			64
++#define STORVSC_MAX_TARGETS				1
++#define STORVSC_MAX_CHANNELS				1
++
++struct hv_storvsc_request;
++
++/* Matches Windows-end */
++enum storvsc_request_type {
++	WRITE_TYPE,
++	READ_TYPE,
++	UNKNOWN_TYPE,
++};
++
++
++struct hv_storvsc_request {
++	struct hv_storvsc_request *request;
++	struct hv_device *device;
++
++	/* Synchronize the request/response if needed */
++	struct completion wait_event;
++
++	unsigned char *sense_buffer;
++	void *context;
++	void (*on_io_completion)(struct hv_storvsc_request *request);
++	struct hv_multipage_buffer data_buffer;
++
++	struct vstor_packet vstor_packet;
++};
++
++
++struct storvsc_device_info {
++	u32 ring_buffer_size;
++	unsigned int port_number;
++	unsigned char path_id;
++	unsigned char target_id;
++};
++
++struct storvsc_major_info {
++	int major;
++	int index;
++	bool do_register;
++	char *devname;
++	char *diskname;
++};
++
++/* A storvsc device is a device object that contains a vmbus channel */
++struct storvsc_device {
++	struct hv_device *device;
++
++	/* 0 indicates the device is being destroyed */
++	atomic_t ref_count;
++
++	bool	 drain_notify;
++	atomic_t num_outstanding_req;
++
++	wait_queue_head_t waiting_to_drain;
++
++	/*
++	 * Each unique Port/Path/Target represents 1 channel ie scsi
++	 * controller. In reality, the pathid, targetid is always 0
++	 * and the port is set by us
++	 */
++	unsigned int port_number;
++	unsigned char path_id;
++	unsigned char target_id;
++
++	/* Used for vsc/vsp channel reset process */
++	struct hv_storvsc_request init_request;
++	struct hv_storvsc_request reset_request;
++};
++
++
++/* Get the stordevice object iff exists and its refcount > 1 */
++static inline struct storvsc_device *get_stor_device(struct hv_device *device)
++{
++	struct storvsc_device *stor_device;
++
++	stor_device = (struct storvsc_device *)device->ext;
++	if (stor_device && atomic_read(&stor_device->ref_count) > 1)
++		atomic_inc(&stor_device->ref_count);
++	else
++		stor_device = NULL;
++
++	return stor_device;
++}
++
++
++static inline void put_stor_device(struct hv_device *device)
++{
++	struct storvsc_device *stor_device;
++
++	stor_device = (struct storvsc_device *)device->ext;
++
++	atomic_dec(&stor_device->ref_count);
++}
++
++static inline void storvsc_wait_to_drain(struct storvsc_device *dev)
++{
++	dev->drain_notify = true;
++	wait_event(dev->waiting_to_drain,
++		   atomic_read(&dev->num_outstanding_req) == 0);
++	dev->drain_notify = false;
++}
++
++/* Interface */
++
++int storvsc_dev_add(struct hv_device *device,
++				void *additional_info);
++int storvsc_dev_remove(struct hv_device *device);
++
++int storvsc_do_io(struct hv_device *device,
++				struct hv_storvsc_request *request);
++
++int storvsc_get_major_info(struct storvsc_device_info *device_info,
++				struct storvsc_major_info *major_info);
++
+ #endif /* _HYPERV_STORAGE_H */
 -- 
 1.7.4.1
