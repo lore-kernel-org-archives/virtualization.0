@@ -1,8 +1,7 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 036/206] Staging: hv: Rename variables pointing to struct
-	hv_device
-Date: Mon,  9 May 2011 14:55:18 -0700
-Message-ID: <1304978288-22999-36-git-send-email-kys@microsoft.com>
+Subject: [PATCH 095/206] Staging: hv: Rename the function ringbuffer_init
+Date: Mon,  9 May 2011 14:56:17 -0700
+Message-ID: <1304978288-22999-95-git-send-email-kys@microsoft.com>
 References: <1304978242-22958-1-git-send-email-kys@microsoft.com>
 	<1304978288-22999-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -23,71 +22,82 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The subject line says it all.
+Rename the function ringbuffer_init to not pollute the
+namespace.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/storvsc_drv.c |   15 +++++++--------
- 1 files changed, 7 insertions(+), 8 deletions(-)
+ drivers/staging/hv/channel.c     |    7 +++++--
+ drivers/staging/hv/ring_buffer.c |    4 ++--
+ drivers/staging/hv/ring_buffer.h |    3 ++-
+ 3 files changed, 9 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
-index c183220..c654172 100644
---- a/drivers/staging/hv/storvsc_drv.c
-+++ b/drivers/staging/hv/storvsc_drv.c
-@@ -368,7 +368,6 @@ static int storvsc_probe(struct hv_device *device)
- 		return -1;
+diff --git a/drivers/staging/hv/channel.c b/drivers/staging/hv/channel.c
+index b53be58..43e54b5 100644
+--- a/drivers/staging/hv/channel.c
++++ b/drivers/staging/hv/channel.c
+@@ -201,13 +201,16 @@ int vmbus_open(struct vmbus_channel *newchannel, u32 send_ringbuffer_size,
+ 	newchannel->ringbuffer_pagecount = (send_ringbuffer_size +
+ 					   recv_ringbuffer_size) >> PAGE_SHIFT;
+ 
+-	ret = ringbuffer_init(&newchannel->outbound, out, send_ringbuffer_size);
++	ret = hv_ringbuffer_init(
++		&newchannel->outbound, out, send_ringbuffer_size);
++
+ 	if (ret != 0) {
+ 		err = ret;
+ 		goto errorout;
  	}
  
--	/* host_device_ctx->port = device_info.PortNumber; */
- 	host_dev->path = device_info.path_id;
- 	host_dev->target = device_info.target_id;
+-	ret = ringbuffer_init(&newchannel->inbound, in, recv_ringbuffer_size);
++	ret = hv_ringbuffer_init(
++		&newchannel->inbound, in, recv_ringbuffer_size);
+ 	if (ret != 0) {
+ 		err = ret;
+ 		goto errorout;
+diff --git a/drivers/staging/hv/ring_buffer.c b/drivers/staging/hv/ring_buffer.c
+index 66e1b3f..9653ab5 100644
+--- a/drivers/staging/hv/ring_buffer.c
++++ b/drivers/staging/hv/ring_buffer.c
+@@ -299,13 +299,13 @@ u32 get_ringbuffer_interrupt_mask(struct hv_ring_buffer_info *rbi)
+ /*++
  
-@@ -685,9 +684,9 @@ static int storvsc_queuecommand_lck(struct scsi_cmnd *scmnd,
- 	int ret;
- 	struct hv_host_device *host_dev =
- 		(struct hv_host_device *)scmnd->device->host->hostdata;
--	struct hv_device *device_ctx = host_dev->dev;
-+	struct hv_device *dev = host_dev->dev;
- 	struct storvsc_driver *storvsc_drv_obj =
--		drv_to_stordrv(device_ctx->device.driver);
-+		drv_to_stordrv(dev->device.driver);
- 	struct hv_storvsc_request *request;
- 	struct storvsc_cmd_request *cmd_request;
- 	unsigned int request_size = 0;
-@@ -831,7 +830,7 @@ static int storvsc_queuecommand_lck(struct scsi_cmnd *scmnd,
+ Name:
+-	ringbuffer_init()
++	hv_ringbuffer_init()
  
- retry_request:
- 	/* Invokes the vsc to start an IO */
--	ret = storvsc_drv_obj->on_io_request(device_ctx,
-+	ret = storvsc_drv_obj->on_io_request(dev,
- 					   &cmd_request->request);
- 	if (ret == -1) {
- 		/* no more space */
-@@ -918,18 +917,18 @@ static int storvsc_host_reset_handler(struct scsi_cmnd *scmnd)
- 	int ret;
- 	struct hv_host_device *host_dev =
- 		(struct hv_host_device *)scmnd->device->host->hostdata;
--	struct hv_device *device_ctx = host_dev->dev;
-+	struct hv_device *dev = host_dev->dev;
+ Description:
+ 	Initialize the ring buffer
  
- 	DPRINT_INFO(STORVSC_DRV, "sdev (%p) dev obj (%p) - host resetting...",
--		    scmnd->device, device_ctx);
-+		    scmnd->device, dev);
+ --*/
+-int ringbuffer_init(struct hv_ring_buffer_info *ring_info,
++int hv_ringbuffer_init(struct hv_ring_buffer_info *ring_info,
+ 		   void *buffer, u32 buflen)
+ {
+ 	if (sizeof(struct hv_ring_buffer) != PAGE_SIZE)
+diff --git a/drivers/staging/hv/ring_buffer.h b/drivers/staging/hv/ring_buffer.h
+index 7bf20d6..3c66dc0 100644
+--- a/drivers/staging/hv/ring_buffer.h
++++ b/drivers/staging/hv/ring_buffer.h
+@@ -18,6 +18,7 @@
+  * Authors:
+  *   Haiyang Zhang <haiyangz@microsoft.com>
+  *   Hank Janssen  <hjanssen@microsoft.com>
++ *   K. Y. Srinivasan <kys@microsoft.com>
+  *
+  */
  
- 	/* Invokes the vsc to reset the host/bus */
--	ret = stor_vsc_on_host_reset(device_ctx);
-+	ret = stor_vsc_on_host_reset(dev);
- 	if (ret != 0)
- 		return ret;
+@@ -75,7 +76,7 @@ struct hv_ring_buffer_debug_info {
+ /* Interface */
  
- 	DPRINT_INFO(STORVSC_DRV, "sdev (%p) dev obj (%p) - host reseted",
--		    scmnd->device, device_ctx);
-+		    scmnd->device, dev);
  
- 	return ret;
- }
+-int ringbuffer_init(struct hv_ring_buffer_info *ring_info, void *buffer,
++int hv_ringbuffer_init(struct hv_ring_buffer_info *ring_info, void *buffer,
+ 		   u32 buflen);
+ 
+ void ringbuffer_cleanup(struct hv_ring_buffer_info *ring_info);
 -- 
 1.7.4.1
