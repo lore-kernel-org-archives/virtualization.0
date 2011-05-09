@@ -1,7 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 014/206] Staging: hv: Rename the function stor_vsc_on_cleanup
-Date: Mon,  9 May 2011 14:54:56 -0700
-Message-ID: <1304978288-22999-14-git-send-email-kys@microsoft.com>
+Subject: [PATCH 034/206] Staging: hv: Rename variables pointing to struct
+	hv_host_device
+Date: Mon,  9 May 2011 14:55:16 -0700
+Message-ID: <1304978288-22999-34-git-send-email-kys@microsoft.com>
 References: <1304978242-22958-1-git-send-email-kys@microsoft.com>
 	<1304978288-22999-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -29,73 +30,173 @@ Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/blkvsc_drv.c  |    5 ++---
- drivers/staging/hv/storvsc.c     |    2 +-
- drivers/staging/hv/storvsc_api.h |    2 +-
- drivers/staging/hv/storvsc_drv.c |    2 +-
- 4 files changed, 5 insertions(+), 6 deletions(-)
+ drivers/staging/hv/storvsc_drv.c |   50 +++++++++++++++++++-------------------
+ 1 files changed, 25 insertions(+), 25 deletions(-)
 
-diff --git a/drivers/staging/hv/blkvsc_drv.c b/drivers/staging/hv/blkvsc_drv.c
-index 8b8d960..1d0b6ed 100644
---- a/drivers/staging/hv/blkvsc_drv.c
-+++ b/drivers/staging/hv/blkvsc_drv.c
-@@ -17,8 +17,7 @@
-  * Authors:
-  *   Haiyang Zhang <haiyangz@microsoft.com>
-  *   Hank Janssen  <hjanssen@microsoft.com>
-- *
-- * 4/3/2011: K. Y. Srinivasan - Significant restructuring and cleanup.
-+ *   K. Y. Srinivasan <kys@microsoft.com>
-  */
- #include <linux/init.h>
- #include <linux/module.h>
-@@ -197,7 +196,7 @@ static int blk_vsc_initialize(struct hv_driver *driver)
- 		    stor_driver->max_outstanding_req_per_channel);
- 
- 	/* Setup the dispatch table */
--	stor_driver->base.cleanup = stor_vsc_on_cleanup;
-+	stor_driver->base.cleanup = storvsc_cleanup;
- 	stor_driver->on_io_request = stor_vsc_on_io_request;
- 
- 	return ret;
-diff --git a/drivers/staging/hv/storvsc.c b/drivers/staging/hv/storvsc.c
-index 976f382..2e276b4 100644
---- a/drivers/staging/hv/storvsc.c
-+++ b/drivers/staging/hv/storvsc.c
-@@ -663,7 +663,7 @@ int stor_vsc_get_major_info(struct storvsc_device_info *device_info,
- /*
-  * stor_vsc_on_cleanup - Perform any cleanup when the driver is removed
-  */
--void stor_vsc_on_cleanup(struct hv_driver *driver)
-+void storvsc_cleanup(struct hv_driver *driver)
- {
- }
- 
-diff --git a/drivers/staging/hv/storvsc_api.h b/drivers/staging/hv/storvsc_api.h
-index b3207a0..3168161 100644
---- a/drivers/staging/hv/storvsc_api.h
-+++ b/drivers/staging/hv/storvsc_api.h
-@@ -169,7 +169,7 @@ int storvsc_dev_remove(struct hv_device *device);
- 
- int stor_vsc_on_io_request(struct hv_device *device,
- 				struct hv_storvsc_request *request);
--void stor_vsc_on_cleanup(struct hv_driver *driver);
-+void storvsc_cleanup(struct hv_driver *driver);
- 
- int stor_vsc_get_major_info(struct storvsc_device_info *device_info,
- 				struct storvsc_major_info *major_info);
 diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
-index 903ecbe..86f2bab 100644
+index 2411f53..2e2e004 100644
 --- a/drivers/staging/hv/storvsc_drv.c
 +++ b/drivers/staging/hv/storvsc_drv.c
-@@ -115,7 +115,7 @@ static int stor_vsc_initialize(struct hv_driver *driver)
- 	/* Setup the dispatch table */
- 	stor_driver->base.dev_add	= storvsc_dev_add;
- 	stor_driver->base.dev_rm	= storvsc_dev_remove;
--	stor_driver->base.cleanup	= stor_vsc_on_cleanup;
-+	stor_driver->base.cleanup	= storvsc_cleanup;
+@@ -326,7 +326,7 @@ static int storvsc_probe(struct hv_device *device)
+ 	struct storvsc_driver *storvsc_drv_obj =
+ 		 drv_to_stordrv(device->device.driver);
+ 	struct Scsi_Host *host;
+-	struct hv_host_device *host_device_ctx;
++	struct hv_host_device *host_dev;
+ 	struct storvsc_device_info device_info;
  
- 	stor_driver->on_io_request	= stor_vsc_on_io_request;
+ 	if (!storvsc_drv_obj->base.dev_add)
+@@ -341,18 +341,18 @@ static int storvsc_probe(struct hv_device *device)
  
+ 	dev_set_drvdata(&device->device, host);
+ 
+-	host_device_ctx = (struct hv_host_device *)host->hostdata;
+-	memset(host_device_ctx, 0, sizeof(struct hv_host_device));
++	host_dev = (struct hv_host_device *)host->hostdata;
++	memset(host_dev, 0, sizeof(struct hv_host_device));
+ 
+-	host_device_ctx->port = host->host_no;
+-	host_device_ctx->device_ctx = device;
++	host_dev->port = host->host_no;
++	host_dev->device_ctx = device;
+ 
+-	host_device_ctx->request_pool =
++	host_dev->request_pool =
+ 				kmem_cache_create(dev_name(&device->device),
+ 					sizeof(struct storvsc_cmd_request), 0,
+ 					SLAB_HWCACHE_ALIGN, NULL);
+ 
+-	if (!host_device_ctx->request_pool) {
++	if (!host_dev->request_pool) {
+ 		scsi_host_put(host);
+ 		return -ENOMEM;
+ 	}
+@@ -363,14 +363,14 @@ static int storvsc_probe(struct hv_device *device)
+ 
+ 	if (ret != 0) {
+ 		DPRINT_ERR(STORVSC_DRV, "unable to add scsi vsc device");
+-		kmem_cache_destroy(host_device_ctx->request_pool);
++		kmem_cache_destroy(host_dev->request_pool);
+ 		scsi_host_put(host);
+ 		return -1;
+ 	}
+ 
+ 	/* host_device_ctx->port = device_info.PortNumber; */
+-	host_device_ctx->path = device_info.path_id;
+-	host_device_ctx->target = device_info.target_id;
++	host_dev->path = device_info.path_id;
++	host_dev->target = device_info.target_id;
+ 
+ 	/* max # of devices per target */
+ 	host->max_lun = STORVSC_MAX_LUNS_PER_TARGET;
+@@ -386,7 +386,7 @@ static int storvsc_probe(struct hv_device *device)
+ 
+ 		storvsc_drv_obj->base.dev_rm(device);
+ 
+-		kmem_cache_destroy(host_device_ctx->request_pool);
++		kmem_cache_destroy(host_dev->request_pool);
+ 		scsi_host_put(host);
+ 		return -1;
+ 	}
+@@ -403,7 +403,7 @@ static int storvsc_remove(struct hv_device *dev)
+ 	struct storvsc_driver *storvsc_drv_obj =
+ 			 drv_to_stordrv(dev->device.driver);
+ 	struct Scsi_Host *host = dev_get_drvdata(&dev->device);
+-	struct hv_host_device *host_device_ctx =
++	struct hv_host_device *host_dev =
+ 			(struct hv_host_device *)host->hostdata;
+ 
+ 	/*
+@@ -412,9 +412,9 @@ static int storvsc_remove(struct hv_device *dev)
+ 	 */
+ 	storvsc_drv_obj->base.dev_rm(dev);
+ 
+-	if (host_device_ctx->request_pool) {
+-		kmem_cache_destroy(host_device_ctx->request_pool);
+-		host_device_ctx->request_pool = NULL;
++	if (host_dev->request_pool) {
++		kmem_cache_destroy(host_dev->request_pool);
++		host_dev->request_pool = NULL;
+ 	}
+ 
+ 	DPRINT_INFO(STORVSC, "removing host adapter (%p)...", host);
+@@ -433,7 +433,7 @@ static void storvsc_commmand_completion(struct hv_storvsc_request *request)
+ 	struct storvsc_cmd_request *cmd_request =
+ 		(struct storvsc_cmd_request *)request->context;
+ 	struct scsi_cmnd *scmnd = cmd_request->cmd;
+-	struct hv_host_device *host_device_ctx =
++	struct hv_host_device *host_dev =
+ 		(struct hv_host_device *)scmnd->device->host->hostdata;
+ 	void (*scsi_done_fn)(struct scsi_cmnd *);
+ 	struct scsi_sense_hdr sense_hdr;
+@@ -479,7 +479,7 @@ static void storvsc_commmand_completion(struct hv_storvsc_request *request)
+ 	/* !!DO NOT MODIFY the scmnd after this call */
+ 	scsi_done_fn(scmnd);
+ 
+-	kmem_cache_free(host_device_ctx->request_pool, cmd_request);
++	kmem_cache_free(host_dev->request_pool, cmd_request);
+ }
+ 
+ static int do_bounce_buffer(struct scatterlist *sgl, unsigned int sg_count)
+@@ -683,9 +683,9 @@ static int storvsc_queuecommand_lck(struct scsi_cmnd *scmnd,
+ 				void (*done)(struct scsi_cmnd *))
+ {
+ 	int ret;
+-	struct hv_host_device *host_device_ctx =
++	struct hv_host_device *host_dev =
+ 		(struct hv_host_device *)scmnd->device->host->hostdata;
+-	struct hv_device *device_ctx = host_device_ctx->device_ctx;
++	struct hv_device *device_ctx = host_dev->device_ctx;
+ 	struct storvsc_driver *storvsc_drv_obj =
+ 		drv_to_stordrv(device_ctx->device.driver);
+ 	struct hv_storvsc_request *request;
+@@ -721,7 +721,7 @@ static int storvsc_queuecommand_lck(struct scsi_cmnd *scmnd,
+ 
+ 	request_size = sizeof(struct storvsc_cmd_request);
+ 
+-	cmd_request = kmem_cache_zalloc(host_device_ctx->request_pool,
++	cmd_request = kmem_cache_zalloc(host_dev->request_pool,
+ 				       GFP_ATOMIC);
+ 	if (!cmd_request) {
+ 		DPRINT_ERR(STORVSC_DRV, "scmnd (%p) - unable to allocate "
+@@ -759,7 +759,7 @@ static int storvsc_queuecommand_lck(struct scsi_cmnd *scmnd,
+ 	request->context = cmd_request;/* scmnd; */
+ 
+ 	/* request->PortId = scmnd->device->channel; */
+-	vm_srb->port_number = host_device_ctx->port;
++	vm_srb->port_number = host_dev->port;
+ 	vm_srb->path_id = scmnd->device->channel;
+ 	vm_srb->target_id = scmnd->device->id;
+ 	vm_srb->lun = scmnd->device->lun;
+@@ -792,7 +792,7 @@ static int storvsc_queuecommand_lck(struct scsi_cmnd *scmnd,
+ 
+ 				scmnd->scsi_done = NULL;
+ 				scmnd->host_scribble = NULL;
+-				kmem_cache_free(host_device_ctx->request_pool,
++				kmem_cache_free(host_dev->request_pool,
+ 						cmd_request);
+ 
+ 				return SCSI_MLQUEUE_HOST_BUSY;
+@@ -851,7 +851,7 @@ retry_request:
+ 					      cmd_request->bounce_sgl_count);
+ 		}
+ 
+-		kmem_cache_free(host_device_ctx->request_pool, cmd_request);
++		kmem_cache_free(host_dev->request_pool, cmd_request);
+ 
+ 		scmnd->scsi_done = NULL;
+ 		scmnd->host_scribble = NULL;
+@@ -916,9 +916,9 @@ static int storvsc_device_configure(struct scsi_device *sdevice)
+ static int storvsc_host_reset_handler(struct scsi_cmnd *scmnd)
+ {
+ 	int ret;
+-	struct hv_host_device *host_device_ctx =
++	struct hv_host_device *host_dev =
+ 		(struct hv_host_device *)scmnd->device->host->hostdata;
+-	struct hv_device *device_ctx = host_device_ctx->device_ctx;
++	struct hv_device *device_ctx = host_dev->device_ctx;
+ 
+ 	DPRINT_INFO(STORVSC_DRV, "sdev (%p) dev obj (%p) - host resetting...",
+ 		    scmnd->device, device_ctx);
 -- 
 1.7.4.1
