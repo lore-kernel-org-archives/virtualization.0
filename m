@@ -1,15 +1,13 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 048/206] Staging: hv: Get rid of the forward declaration of
-	storvsc_get_chs()
-Date: Mon,  9 May 2011 14:55:30 -0700
-Message-ID: <1304978288-22999-48-git-send-email-kys@microsoft.com>
+Subject: [PATCH 001/206] Staging: hv: Get rid of blkvsc_mutex
+Date: Mon,  9 May 2011 14:54:43 -0700
+Message-ID: <1304978288-22999-1-git-send-email-kys@microsoft.com>
 References: <1304978242-22958-1-git-send-email-kys@microsoft.com>
-	<1304978288-22999-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <devel-bounces@linuxdriverproject.org>
-In-Reply-To: <1304978288-22999-1-git-send-email-kys@microsoft.com>
+In-Reply-To: <1304978242-22958-1-git-send-email-kys@microsoft.com>
 List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
 	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
 List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
@@ -23,202 +21,53 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Get rid of the forward declaration by moving the code around.
+The blkvsc_mutex is unnecessary as the state it is protecting 
+(blkdev->users) is already protected by the spin lock.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/storvsc_drv.c |  164 ++++++++++++++++++-------------------
- 1 files changed, 80 insertions(+), 84 deletions(-)
+ drivers/staging/hv/blkvsc_drv.c |    5 -----
+ 1 files changed, 0 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
-index 6f23f52..4c08328 100644
---- a/drivers/staging/hv/storvsc_drv.c
-+++ b/drivers/staging/hv/storvsc_drv.c
-@@ -381,15 +381,91 @@ static int storvsc_remove(struct hv_device *dev)
+diff --git a/drivers/staging/hv/blkvsc_drv.c b/drivers/staging/hv/blkvsc_drv.c
+index db44cf6..cfef1c0 100644
+--- a/drivers/staging/hv/blkvsc_drv.c
++++ b/drivers/staging/hv/blkvsc_drv.c
+@@ -27,7 +27,6 @@
+ #include <linux/major.h>
+ #include <linux/delay.h>
+ #include <linux/hdreg.h>
+-#include <linux/mutex.h>
+ #include <linux/slab.h>
+ #include <scsi/scsi.h>
+ #include <scsi/scsi_cmnd.h>
+@@ -113,8 +112,6 @@ struct block_device_context {
+ 	int users;
+ };
+ 
+-static DEFINE_MUTEX(blkvsc_mutex);
+-
+ static const char *g_blk_driver_name = "blkvsc";
+ 
+ /* {32412632-86cb-44a2-9b5c-50d1417354f5} */
+@@ -620,7 +617,6 @@ static int blkvsc_release(struct gendisk *disk, fmode_t mode)
+ {
+ 	struct block_device_context *blkdev = disk->private_data;
+ 
+-	mutex_lock(&blkvsc_mutex);
+ 	spin_lock(&blkdev->lock);
+ 	if (blkdev->users == 1) {
+ 		spin_unlock(&blkdev->lock);
+@@ -631,7 +627,6 @@ static int blkvsc_release(struct gendisk *disk, fmode_t mode)
+ 	blkdev->users--;
+ 
+ 	spin_unlock(&blkdev->lock);
+-	mutex_unlock(&blkvsc_mutex);
  	return 0;
  }
  
-+
-+static int storvsc_get_chs(struct scsi_device *sdev, struct block_device * bdev,
-+			   sector_t capacity, int *info)
-+{
-+	sector_t total_sectors = capacity;
-+	sector_t cylinder_times_heads = 0;
-+	sector_t temp = 0;
-+
-+	int sectors_per_track = 0;
-+	int heads = 0;
-+	int cylinders = 0;
-+	int rem = 0;
-+
-+	if (total_sectors > (65535 * 16 * 255))
-+		total_sectors = (65535 * 16 * 255);
-+
-+	if (total_sectors >= (65535 * 16 * 63)) {
-+		sectors_per_track = 255;
-+		heads = 16;
-+
-+		cylinder_times_heads = total_sectors;
-+		/* sector_div stores the quotient in cylinder_times_heads */
-+		rem = sector_div(cylinder_times_heads, sectors_per_track);
-+	} else {
-+		sectors_per_track = 17;
-+
-+		cylinder_times_heads = total_sectors;
-+		/* sector_div stores the quotient in cylinder_times_heads */
-+		rem = sector_div(cylinder_times_heads, sectors_per_track);
-+
-+		temp = cylinder_times_heads + 1023;
-+		/* sector_div stores the quotient in temp */
-+		rem = sector_div(temp, 1024);
-+
-+		heads = temp;
-+
-+		if (heads < 4)
-+			heads = 4;
-+
-+		if (cylinder_times_heads >= (heads * 1024) || (heads > 16)) {
-+			sectors_per_track = 31;
-+			heads = 16;
-+
-+			cylinder_times_heads = total_sectors;
-+			/*
-+			 * sector_div stores the quotient in
-+			 * cylinder_times_heads
-+			 */
-+			rem = sector_div(cylinder_times_heads,
-+					 sectors_per_track);
-+		}
-+
-+		if (cylinder_times_heads >= (heads * 1024)) {
-+			sectors_per_track = 63;
-+			heads = 16;
-+
-+			cylinder_times_heads = total_sectors;
-+			/*
-+			 * sector_div stores the quotient in
-+			 * cylinder_times_heads
-+			 */
-+			rem = sector_div(cylinder_times_heads,
-+					 sectors_per_track);
-+		}
-+	}
-+
-+	temp = cylinder_times_heads;
-+	/* sector_div stores the quotient in temp */
-+	rem = sector_div(temp, heads);
-+	cylinders = temp;
-+
-+	info[0] = heads;
-+	info[1] = sectors_per_track;
-+	info[2] = cylinders;
-+
-+	DPRINT_INFO(STORVSC_DRV, "CHS (%d, %d, %d)", cylinders, heads,
-+		    sectors_per_track);
-+
-+	return 0;
-+}
- /* Static decl */
- static int storvsc_probe(struct hv_device *dev);
- static int storvsc_queuecommand(struct Scsi_Host *shost, struct scsi_cmnd *scmnd);
- static int storvsc_host_reset_handler(struct scsi_cmnd *scmnd);
- 
--static int storvsc_get_chs(struct scsi_device *sdev, struct block_device *bdev,
--			   sector_t capacity, int *info);
--
--
- static int storvsc_ringbuffer_size = STORVSC_RING_BUFFER_SIZE;
- module_param(storvsc_ringbuffer_size, int, S_IRUGO);
- MODULE_PARM_DESC(storvsc_ringbuffer_size, "Ring buffer size (bytes)");
-@@ -867,86 +943,6 @@ static int storvsc_host_reset_handler(struct scsi_cmnd *scmnd)
- 	return ret;
- }
- 
--static int storvsc_get_chs(struct scsi_device *sdev, struct block_device * bdev,
--			   sector_t capacity, int *info)
--{
--	sector_t total_sectors = capacity;
--	sector_t cylinder_times_heads = 0;
--	sector_t temp = 0;
--
--	int sectors_per_track = 0;
--	int heads = 0;
--	int cylinders = 0;
--	int rem = 0;
--
--	if (total_sectors > (65535 * 16 * 255))
--		total_sectors = (65535 * 16 * 255);
--
--	if (total_sectors >= (65535 * 16 * 63)) {
--		sectors_per_track = 255;
--		heads = 16;
--
--		cylinder_times_heads = total_sectors;
--		/* sector_div stores the quotient in cylinder_times_heads */
--		rem = sector_div(cylinder_times_heads, sectors_per_track);
--	} else {
--		sectors_per_track = 17;
--
--		cylinder_times_heads = total_sectors;
--		/* sector_div stores the quotient in cylinder_times_heads */
--		rem = sector_div(cylinder_times_heads, sectors_per_track);
--
--		temp = cylinder_times_heads + 1023;
--		/* sector_div stores the quotient in temp */
--		rem = sector_div(temp, 1024);
--
--		heads = temp;
--
--		if (heads < 4)
--			heads = 4;
--
--		if (cylinder_times_heads >= (heads * 1024) || (heads > 16)) {
--			sectors_per_track = 31;
--			heads = 16;
--
--			cylinder_times_heads = total_sectors;
--			/*
--			 * sector_div stores the quotient in
--			 * cylinder_times_heads
--			 */
--			rem = sector_div(cylinder_times_heads,
--					 sectors_per_track);
--		}
--
--		if (cylinder_times_heads >= (heads * 1024)) {
--			sectors_per_track = 63;
--			heads = 16;
--
--			cylinder_times_heads = total_sectors;
--			/*
--			 * sector_div stores the quotient in
--			 * cylinder_times_heads
--			 */
--			rem = sector_div(cylinder_times_heads,
--					 sectors_per_track);
--		}
--	}
--
--	temp = cylinder_times_heads;
--	/* sector_div stores the quotient in temp */
--	rem = sector_div(temp, heads);
--	cylinders = temp;
--
--	info[0] = heads;
--	info[1] = sectors_per_track;
--	info[2] = cylinders;
--
--	DPRINT_INFO(STORVSC_DRV, "CHS (%d, %d, %d)", cylinders, heads,
--		    sectors_per_track);
--
--    return 0;
--}
--
- static int __init storvsc_init(void)
- {
- 	int ret;
 -- 
 1.7.4.1
