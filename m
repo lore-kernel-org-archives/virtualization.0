@@ -1,7 +1,7 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 184/206] Staging: hv: Include the new header files in vmbus driver
-Date: Mon,  9 May 2011 14:57:46 -0700
-Message-ID: <1304978288-22999-184-git-send-email-kys@microsoft.com>
+Subject: [PATCH 012/206] Staging: hv: Rename the function stor_vsc_on_device_remove
+Date: Mon,  9 May 2011 14:54:54 -0700
+Message-ID: <1304978288-22999-12-git-send-email-kys@microsoft.com>
 References: <1304978242-22958-1-git-send-email-kys@microsoft.com>
  <1304978288-22999-1-git-send-email-kys@microsoft.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
@@ -11,125 +11,70 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>, Hank Janssen <hjanssen@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Include the new header files in vmbus driver.
+The subject line says it all.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/channel.c      |    6 +++---
- drivers/staging/hv/channel_mgmt.c |    7 +++----
- drivers/staging/hv/connection.c   |    5 ++---
- drivers/staging/hv/hv.c           |    6 +++---
- drivers/staging/hv/ring_buffer.c  |    4 ++--
- drivers/staging/hv/vmbus_drv.c    |    8 ++------
- 6 files changed, 15 insertions(+), 21 deletions(-)
+ drivers/staging/hv/blkvsc_drv.c  |    2 +-
+ drivers/staging/hv/storvsc.c     |    2 +-
+ drivers/staging/hv/storvsc_api.h |    2 +-
+ drivers/staging/hv/storvsc_drv.c |    2 +-
+ 4 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/staging/hv/channel.c b/drivers/staging/hv/channel.c
-index a2a190e..b9b082c 100644
---- a/drivers/staging/hv/channel.c
-+++ b/drivers/staging/hv/channel.c
-@@ -26,9 +26,9 @@
- #include <linux/mm.h>
- #include <linux/slab.h>
- #include <linux/module.h>
--#include "hv_api.h"
--#include "logging.h"
--#include "vmbus_private.h"
-+
-+#include <linux/hyperv.h>
-+#include "hyperv_vmbus.h"
+diff --git a/drivers/staging/hv/blkvsc_drv.c b/drivers/staging/hv/blkvsc_drv.c
+index 908c169..830f257 100644
+--- a/drivers/staging/hv/blkvsc_drv.c
++++ b/drivers/staging/hv/blkvsc_drv.c
+@@ -197,7 +197,7 @@ static int blk_vsc_initialize(struct hv_driver *driver)
+ 		    stor_driver->max_outstanding_req_per_channel);
  
- #define NUM_PAGES_SPANNED(addr, len) \
- ((PAGE_ALIGN(addr + len) >> PAGE_SHIFT) - (addr >> PAGE_SHIFT))
-diff --git a/drivers/staging/hv/channel_mgmt.c b/drivers/staging/hv/channel_mgmt.c
-index 33cb5d5..0e4e05a 100644
---- a/drivers/staging/hv/channel_mgmt.c
-+++ b/drivers/staging/hv/channel_mgmt.c
-@@ -28,10 +28,9 @@
- #include <linux/list.h>
- #include <linux/module.h>
- #include <linux/completion.h>
--#include "hv_api.h"
--#include "logging.h"
--#include "vmbus_private.h"
--#include "utils.h"
-+
-+#include <linux/hyperv.h>
-+#include "hyperv_vmbus.h"
+ 	/* Setup the dispatch table */
+-	stor_driver->base.dev_rm = stor_vsc_on_device_remove;
++	stor_driver->base.dev_rm = storvsc_dev_remove;
+ 	stor_driver->base.cleanup = stor_vsc_on_cleanup;
+ 	stor_driver->on_io_request = stor_vsc_on_io_request;
  
- struct vmbus_channel_message_table_entry {
- 	enum vmbus_channel_message_type message_type;
-diff --git a/drivers/staging/hv/connection.c b/drivers/staging/hv/connection.c
-index dd62585..445db48 100644
---- a/drivers/staging/hv/connection.c
-+++ b/drivers/staging/hv/connection.c
-@@ -28,10 +28,9 @@
- #include <linux/mm.h>
- #include <linux/slab.h>
- #include <linux/vmalloc.h>
--#include "hv_api.h"
--#include "logging.h"
--#include "vmbus_private.h"
+diff --git a/drivers/staging/hv/storvsc.c b/drivers/staging/hv/storvsc.c
+index 503c6bf..976f382 100644
+--- a/drivers/staging/hv/storvsc.c
++++ b/drivers/staging/hv/storvsc.c
+@@ -483,7 +483,7 @@ cleanup:
+ /*
+  * stor_vsc_on_device_remove - Callback when the our device is being removed
+  */
+-int stor_vsc_on_device_remove(struct hv_device *device)
++int storvsc_dev_remove(struct hv_device *device)
+ {
+ 	struct storvsc_device *stor_device;
  
-+#include <linux/hyperv.h>
-+#include "hyperv_vmbus.h"
+diff --git a/drivers/staging/hv/storvsc_api.h b/drivers/staging/hv/storvsc_api.h
+index 0200154..b3207a0 100644
+--- a/drivers/staging/hv/storvsc_api.h
++++ b/drivers/staging/hv/storvsc_api.h
+@@ -165,7 +165,7 @@ struct storvsc_driver *drv_to_stordrv(struct device_driver *d)
  
- struct vmbus_connection vmbus_connection = {
- 	.conn_state		= DISCONNECTED,
-diff --git a/drivers/staging/hv/hv.c b/drivers/staging/hv/hv.c
-index 2efac38..037424b6 100644
---- a/drivers/staging/hv/hv.c
-+++ b/drivers/staging/hv/hv.c
-@@ -25,9 +25,9 @@
- #include <linux/mm.h>
- #include <linux/slab.h>
- #include <linux/vmalloc.h>
--#include "hv_api.h"
--#include "logging.h"
--#include "vmbus_private.h"
-+
-+#include <linux/hyperv.h>
-+#include "hyperv_vmbus.h"
+ int storvsc_dev_add(struct hv_device *device,
+ 				void *additional_info);
+-int stor_vsc_on_device_remove(struct hv_device *device);
++int storvsc_dev_remove(struct hv_device *device);
  
- /* The one and only */
- struct hv_context hv_context = {
-diff --git a/drivers/staging/hv/ring_buffer.c b/drivers/staging/hv/ring_buffer.c
-index badf52a..ec262c1 100644
---- a/drivers/staging/hv/ring_buffer.c
-+++ b/drivers/staging/hv/ring_buffer.c
-@@ -25,9 +25,9 @@
+ int stor_vsc_on_io_request(struct hv_device *device,
+ 				struct hv_storvsc_request *request);
+diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
+index 5168eb7..903ecbe 100644
+--- a/drivers/staging/hv/storvsc_drv.c
++++ b/drivers/staging/hv/storvsc_drv.c
+@@ -114,7 +114,7 @@ static int stor_vsc_initialize(struct hv_driver *driver)
  
- #include <linux/kernel.h>
- #include <linux/mm.h>
--#include "logging.h"
--#include "ring_buffer.h"
+ 	/* Setup the dispatch table */
+ 	stor_driver->base.dev_add	= storvsc_dev_add;
+-	stor_driver->base.dev_rm	= stor_vsc_on_device_remove;
++	stor_driver->base.dev_rm	= storvsc_dev_remove;
+ 	stor_driver->base.cleanup	= stor_vsc_on_cleanup;
  
-+#include <linux/hyperv.h>
-+#include "hyperv_vmbus.h"
- 
- /* #defines */
- 
-diff --git a/drivers/staging/hv/vmbus_drv.c b/drivers/staging/hv/vmbus_drv.c
-index 5dcd87a..5a049ab 100644
---- a/drivers/staging/hv/vmbus_drv.c
-+++ b/drivers/staging/hv/vmbus_drv.c
-@@ -34,13 +34,9 @@
- #include <linux/acpi.h>
- #include <acpi/acpi_bus.h>
- #include <linux/completion.h>
--#include "version_info.h"
--#include "hv_api.h"
--#include "logging.h"
--#include "vmbus.h"
--#include "channel.h"
--#include "vmbus_private.h"
- 
-+#include <linux/hyperv.h>
-+#include "hyperv_vmbus.h"
- 
- static struct pci_dev *hv_pci_dev;
- 
+ 	stor_driver->on_io_request	= stor_vsc_on_io_request;
 -- 
 1.7.4.1
