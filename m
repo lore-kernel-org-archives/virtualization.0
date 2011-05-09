@@ -1,8 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 106/206] Staging: hv: Get rid of the forward declaration of
-	hv_copyto_ringbuffer()
-Date: Mon,  9 May 2011 14:56:28 -0700
-Message-ID: <1304978288-22999-106-git-send-email-kys@microsoft.com>
+Subject: [PATCH 052/206] Staging: hv: Get rid of the forward declaration for
+	storvsc_host_reset_handler()
+Date: Mon,  9 May 2011 14:55:34 -0700
+Message-ID: <1304978288-22999-52-git-send-email-kys@microsoft.com>
 References: <1304978242-22958-1-git-send-email-kys@microsoft.com>
 	<1304978288-22999-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -30,93 +30,78 @@ Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/ring_buffer.c |   66 +++++++++++++++----------------------
- 1 files changed, 27 insertions(+), 39 deletions(-)
+ drivers/staging/hv/storvsc_drv.c |   49 ++++++++++++++++++-------------------
+ 1 files changed, 24 insertions(+), 25 deletions(-)
 
-diff --git a/drivers/staging/hv/ring_buffer.c b/drivers/staging/hv/ring_buffer.c
-index 56521fd..2a461ddee 100644
---- a/drivers/staging/hv/ring_buffer.c
-+++ b/drivers/staging/hv/ring_buffer.c
-@@ -236,14 +236,37 @@ static u32 hv_copyfrom_ringbuffer(
+diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
+index 3b2917e..462aaa5 100644
+--- a/drivers/staging/hv/storvsc_drv.c
++++ b/drivers/staging/hv/storvsc_drv.c
+@@ -511,10 +511,33 @@ cleanup:
  }
  
  
--
--static u32
--hv_copyto_ringbuffer(
 +/*
-+ *
-+ * hv_copyto_ringbuffer()
-+ *
-+ * Helper routine to copy from source to ring buffer.
-+ * Assume there is enough room. Handles wrap-around in dest case only!!
-+ *
++ * storvsc_host_reset_handler - Reset the scsi HBA
 + */
-+static u32 hv_copyto_ringbuffer(
- 	struct hv_ring_buffer_info	*ring_info,
- 	u32				start_write_offset,
- 	void				*src,
--	u32				srclen);
-+	u32				srclen)
++static int storvsc_host_reset_handler(struct scsi_cmnd *scmnd)
 +{
-+	void *ring_buffer = hv_get_ring_buffer(ring_info);
-+	u32 ring_buffer_size = hv_get_ring_buffersize(ring_info);
-+	u32 frag_len;
++	int ret;
++	struct hv_host_device *host_dev =
++		(struct hv_host_device *)scmnd->device->host->hostdata;
++	struct hv_device *dev = host_dev->dev;
 +
-+	/* wrap-around detected! */
-+	if (srclen > ring_buffer_size - start_write_offset) {
-+		frag_len = ring_buffer_size - start_write_offset;
-+		memcpy(ring_buffer + start_write_offset, src, frag_len);
-+		memcpy(ring_buffer, src + frag_len, srclen - frag_len);
-+	} else
-+		memcpy(ring_buffer + start_write_offset, src, srclen);
- 
-+	start_write_offset += srclen;
-+	start_write_offset %= ring_buffer_size;
++	DPRINT_INFO(STORVSC_DRV, "sdev (%p) dev obj (%p) - host resetting...",
++		    scmnd->device, dev);
 +
-+	return start_write_offset;
++	/* Invokes the vsc to reset the host/bus */
++	ret = storvsc_host_reset(dev);
++	if (ret != 0)
++		return ret;
++
++	DPRINT_INFO(STORVSC_DRV, "sdev (%p) dev obj (%p) - host reseted",
++		    scmnd->device, dev);
++
++	return ret;
 +}
++
+ /* Static decl */
+ static int storvsc_probe(struct hv_device *dev);
+ static int storvsc_queuecommand(struct Scsi_Host *shost, struct scsi_cmnd *scmnd);
+-static int storvsc_host_reset_handler(struct scsi_cmnd *scmnd);
  
- /*
-  *
-@@ -498,38 +521,3 @@ int hv_ringbuffer_read(struct hv_ring_buffer_info *inring_info, void *buffer,
+ static int storvsc_ringbuffer_size = STORVSC_RING_BUFFER_SIZE;
+ module_param(storvsc_ringbuffer_size, int, S_IRUGO);
+@@ -920,30 +943,6 @@ retry_request:
  
- 	return 0;
- }
--
--
+ static DEF_SCSI_QCMD(storvsc_queuecommand)
+ 
 -/*
-- *
-- * hv_copyto_ringbuffer()
-- *
-- * Helper routine to copy from source to ring buffer.
-- * Assume there is enough room. Handles wrap-around in dest case only!!
-- *
+- * storvsc_host_reset_handler - Reset the scsi HBA
 - */
--static u32
--hv_copyto_ringbuffer(
--	struct hv_ring_buffer_info	*ring_info,
--	u32				start_write_offset,
--	void				*src,
--	u32				srclen)
+-static int storvsc_host_reset_handler(struct scsi_cmnd *scmnd)
 -{
--	void *ring_buffer = hv_get_ring_buffer(ring_info);
--	u32 ring_buffer_size = hv_get_ring_buffersize(ring_info);
--	u32 frag_len;
+-	int ret;
+-	struct hv_host_device *host_dev =
+-		(struct hv_host_device *)scmnd->device->host->hostdata;
+-	struct hv_device *dev = host_dev->dev;
 -
--	/* wrap-around detected! */
--	if (srclen > ring_buffer_size - start_write_offset) {
--		frag_len = ring_buffer_size - start_write_offset;
--		memcpy(ring_buffer + start_write_offset, src, frag_len);
--		memcpy(ring_buffer, src + frag_len, srclen - frag_len);
--	} else
--		memcpy(ring_buffer + start_write_offset, src, srclen);
+-	DPRINT_INFO(STORVSC_DRV, "sdev (%p) dev obj (%p) - host resetting...",
+-		    scmnd->device, dev);
 -
--	start_write_offset += srclen;
--	start_write_offset %= ring_buffer_size;
+-	/* Invokes the vsc to reset the host/bus */
+-	ret = storvsc_host_reset(dev);
+-	if (ret != 0)
+-		return ret;
 -
--	return start_write_offset;
+-	DPRINT_INFO(STORVSC_DRV, "sdev (%p) dev obj (%p) - host reseted",
+-		    scmnd->device, dev);
+-
+-	return ret;
 -}
 -
+ static int __init storvsc_init(void)
+ {
+ 	int ret;
 -- 
 1.7.4.1
