@@ -1,8 +1,7 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 129/206] Staging: hv: Move the sector size check into
-	blkvsc_drv_init
-Date: Mon,  9 May 2011 14:56:51 -0700
-Message-ID: <1304978288-22999-129-git-send-email-kys@microsoft.com>
+Subject: [PATCH 086/206] Staging: hv: Cleanup calls to cleanup in storvsc_drv.c
+Date: Mon,  9 May 2011 14:56:08 -0700
+Message-ID: <1304978288-22999-86-git-send-email-kys@microsoft.com>
 References: <1304978242-22958-1-git-send-email-kys@microsoft.com>
 	<1304978288-22999-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -23,37 +22,37 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The subject line says it all.
+cleanup() is an empty function; get rid of calls to this.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/blkvsc_drv.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/staging/hv/storvsc_drv.c |    4 ----
+ 1 files changed, 0 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/staging/hv/blkvsc_drv.c b/drivers/staging/hv/blkvsc_drv.c
-index f8a3bce..ed1439f 100644
---- a/drivers/staging/hv/blkvsc_drv.c
-+++ b/drivers/staging/hv/blkvsc_drv.c
-@@ -822,6 +822,8 @@ static int blkvsc_drv_init(void)
- 	struct hv_driver *drv = &blkvsc_drv.base;
- 	int ret;
+diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
+index 5624d26..0d7e43b 100644
+--- a/drivers/staging/hv/storvsc_drv.c
++++ b/drivers/staging/hv/storvsc_drv.c
+@@ -833,7 +833,6 @@ static int storvsc_drv_exit_cb(struct device *dev, void *data)
  
-+	BUILD_BUG_ON(sizeof(sector_t) != 8);
-+
- 	storvsc_drv->ring_buffer_size = blkvsc_ringbuffer_size;
- 
- 	memcpy(&drv->dev_type, &dev_type, sizeof(struct hv_guid));
-@@ -1046,8 +1048,6 @@ static int __init blkvsc_init(void)
+ static void storvsc_drv_exit(void)
  {
+-	struct storvsc_driver *storvsc_drv_obj = &storvsc_drv;
+ 	struct hv_driver *drv = &storvsc_drv.base;
+ 	struct device *current_dev = NULL;
  	int ret;
+@@ -854,9 +853,6 @@ static void storvsc_drv_exit(void)
+ 		device_unregister(current_dev);
+ 	}
  
--	BUILD_BUG_ON(sizeof(sector_t) != 8);
+-	if (storvsc_drv_obj->base.cleanup)
+-		storvsc_drv_obj->base.cleanup(&storvsc_drv_obj->base);
 -
- 	ret = blkvsc_drv_init();
- 
- 	return ret;
+ 	vmbus_child_driver_unregister(&drv->driver);
+ 	return;
+ }
 -- 
 1.7.4.1
