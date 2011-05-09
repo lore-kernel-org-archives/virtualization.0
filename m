@@ -1,8 +1,7 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 049/206] Staging: hv: Staging: hv: Rename the function
-	stor_vsc_on_host_reset()
-Date: Mon,  9 May 2011 14:55:31 -0700
-Message-ID: <1304978288-22999-49-git-send-email-kys@microsoft.com>
+Subject: [PATCH 025/206] Staging: hv: Rename stor_vsc_channel_init()
+Date: Mon,  9 May 2011 14:55:07 -0700
+Message-ID: <1304978288-22999-25-git-send-email-kys@microsoft.com>
 References: <1304978242-22958-1-git-send-email-kys@microsoft.com>
 	<1304978288-22999-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -30,30 +29,30 @@ Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/storvsc_drv.c |    4 ++--
+ drivers/staging/hv/storvsc.c |    4 ++--
  1 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
-index 4c08328..d8ce28e 100644
---- a/drivers/staging/hv/storvsc_drv.c
-+++ b/drivers/staging/hv/storvsc_drv.c
-@@ -536,7 +536,7 @@ static int storvsc_drv_init(void)
+diff --git a/drivers/staging/hv/storvsc.c b/drivers/staging/hv/storvsc.c
+index 8e529d5..50ac806 100644
+--- a/drivers/staging/hv/storvsc.c
++++ b/drivers/staging/hv/storvsc.c
+@@ -105,7 +105,7 @@ static inline struct storvsc_device *final_release_stor_device(
+ 	return stor_device;
  }
  
- 
--static int stor_vsc_on_host_reset(struct hv_device *device)
-+static int storvsc_host_reset(struct hv_device *device)
+-static int stor_vsc_channel_init(struct hv_device *device)
++static int storvsc_channel_init(struct hv_device *device)
  {
  	struct storvsc_device *stor_device;
  	struct hv_storvsc_request *request;
-@@ -933,7 +933,7 @@ static int storvsc_host_reset_handler(struct scsi_cmnd *scmnd)
- 		    scmnd->device, dev);
+@@ -437,7 +437,7 @@ static int stor_vsc_connect_to_vsp(struct hv_device *device)
+ 		return -1;
+ 	}
  
- 	/* Invokes the vsc to reset the host/bus */
--	ret = stor_vsc_on_host_reset(dev);
-+	ret = storvsc_host_reset(dev);
- 	if (ret != 0)
- 		return ret;
+-	ret = stor_vsc_channel_init(device);
++	ret = storvsc_channel_init(device);
  
+ 	return ret;
+ }
 -- 
 1.7.4.1
