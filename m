@@ -1,8 +1,7 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 018/206] Staging: hv: Statically initialize pointers for probe
-	etc
-Date: Mon,  9 May 2011 14:55:00 -0700
-Message-ID: <1304978288-22999-18-git-send-email-kys@microsoft.com>
+Subject: [PATCH 005/206] Staging: hv: Rename the device type variable
+Date: Mon,  9 May 2011 14:54:47 -0700
+Message-ID: <1304978288-22999-5-git-send-email-kys@microsoft.com>
 References: <1304978242-22958-1-git-send-email-kys@microsoft.com>
 	<1304978288-22999-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -23,43 +22,37 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The subject line says it all.
+Rename the variable g_blk_device_type.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/blkvsc_drv.c |   10 +++++-----
- 1 files changed, 5 insertions(+), 5 deletions(-)
+ drivers/staging/hv/blkvsc_drv.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/staging/hv/blkvsc_drv.c b/drivers/staging/hv/blkvsc_drv.c
-index 9de7df7a..bca36b5 100644
+index b54130b..51d1265 100644
 --- a/drivers/staging/hv/blkvsc_drv.c
 +++ b/drivers/staging/hv/blkvsc_drv.c
-@@ -841,7 +841,11 @@ static void blkvsc_request(struct request_queue *queue)
+@@ -115,7 +115,7 @@ struct block_device_context {
+ static const char *drv_name = "blkvsc";
+ 
+ /* {32412632-86cb-44a2-9b5c-50d1417354f5} */
+-static const struct hv_guid g_blk_device_type = {
++static const struct hv_guid dev_type = {
+ 	.data = {
+ 		0x32, 0x26, 0x41, 0x32, 0xcb, 0x86, 0xa2, 0x44,
+ 		0x9b, 0x5c, 0x50, 0xd1, 0x41, 0x73, 0x54, 0xf5
+@@ -178,7 +178,7 @@ static int blk_vsc_initialize(struct hv_driver *driver)
+ 	/* Make sure we are at least 2 pages since 1 page is used for control */
+ 
+ 	driver->name = drv_name;
+-	memcpy(&driver->dev_type, &g_blk_device_type, sizeof(struct hv_guid));
++	memcpy(&driver->dev_type, &dev_type, sizeof(struct hv_guid));
  
  
- /* The one and only one */
--static  struct storvsc_driver blkvsc_drv;
-+static  struct storvsc_driver blkvsc_drv = {
-+	.base.probe =  blkvsc_probe,
-+	.base.remove =  blkvsc_remove,
-+	.base.shutdown = blkvsc_shutdown,
-+};
- 
- static const struct block_device_operations block_ops = {
- 	.owner = THIS_MODULE,
-@@ -867,10 +871,6 @@ static int blkvsc_drv_init(void)
- 
- 	drv->driver.name = storvsc_drv->base.name;
- 
--	drv->probe = blkvsc_probe;
--	drv->remove = blkvsc_remove;
--	drv->shutdown = blkvsc_shutdown;
--
- 	/* The driver belongs to vmbus */
- 	ret = vmbus_child_driver_register(&drv->driver);
- 
+ 	/*
 -- 
 1.7.4.1
