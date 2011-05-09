@@ -1,82 +1,121 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 099/206] Staging: hv: Rename ringbuffer_read
-Date: Mon,  9 May 2011 14:56:21 -0700
-Message-ID: <1304978288-22999-99-git-send-email-kys@microsoft.com>
+Subject: [PATCH 047/206] Staging: hv: Get rid of the forward declaration of
+	storvsc_remove()
+Date: Mon,  9 May 2011 14:55:29 -0700
+Message-ID: <1304978288-22999-47-git-send-email-kys@microsoft.com>
 References: <1304978242-22958-1-git-send-email-kys@microsoft.com>
- <1304978288-22999-1-git-send-email-kys@microsoft.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+	<1304978288-22999-1-git-send-email-kys@microsoft.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <devel-bounces@linuxdriverproject.org>
 In-Reply-To: <1304978288-22999-1-git-send-email-kys@microsoft.com>
-Sender: linux-kernel-owner@vger.kernel.org
+List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
+	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
+List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
+List-Post: <mailto:devel@linuxdriverproject.org>
+List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
+List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
+	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
+Sender: devel-bounces@linuxdriverproject.org
+Errors-To: devel-bounces@linuxdriverproject.org
 To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org
-Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>, Hank Janssen <hjanssen@microsoft.com>
+Cc: Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The subject line says it all.
+Get rid of the forward declaration by moving the code around.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/channel.c     |    4 ++--
- drivers/staging/hv/ring_buffer.c |    4 ++--
- drivers/staging/hv/ring_buffer.h |    2 +-
- 3 files changed, 5 insertions(+), 5 deletions(-)
+ drivers/staging/hv/storvsc_drv.c |   62 +++++++++++++++++++-------------------
+ 1 files changed, 31 insertions(+), 31 deletions(-)
 
-diff --git a/drivers/staging/hv/channel.c b/drivers/staging/hv/channel.c
-index d625517..9f8bed2 100644
---- a/drivers/staging/hv/channel.c
-+++ b/drivers/staging/hv/channel.c
-@@ -911,7 +911,7 @@ int vmbus_recvpacket(struct vmbus_channel *channel, void *buffer,
- 	*requestid = desc.trans_id;
+diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
+index 807ba89..6f23f52 100644
+--- a/drivers/staging/hv/storvsc_drv.c
++++ b/drivers/staging/hv/storvsc_drv.c
+@@ -350,11 +350,41 @@ static unsigned int copy_to_bounce_buffer(struct scatterlist *orig_sgl,
+ 	return total_copied;
+ }
  
- 	/* Copy over the packet to the user buffer */
--	ret = ringbuffer_read(&channel->inbound, buffer, userlen,
-+	ret = hv_ringbuffer_read(&channel->inbound, buffer, userlen,
- 			     (desc.offset8 << 3));
++
++/*
++ * storvsc_remove - Callback when our device is removed
++ */
++static int storvsc_remove(struct hv_device *dev)
++{
++	struct storvsc_driver *storvsc_drv_obj =
++			 drv_to_stordrv(dev->device.driver);
++	struct Scsi_Host *host = dev_get_drvdata(&dev->device);
++	struct hv_host_device *host_dev =
++			(struct hv_host_device *)host->hostdata;
++
++	/*
++	 * Call to the vsc driver to let it know that the device is being
++	 * removed
++	 */
++	storvsc_drv_obj->base.dev_rm(dev);
++
++	if (host_dev->request_pool) {
++		kmem_cache_destroy(host_dev->request_pool);
++		host_dev->request_pool = NULL;
++	}
++
++	DPRINT_INFO(STORVSC, "removing host adapter (%p)...", host);
++	scsi_remove_host(host);
++
++	DPRINT_INFO(STORVSC, "releasing host adapter (%p)...", host);
++	scsi_host_put(host);
++	return 0;
++}
++
+ /* Static decl */
+ static int storvsc_probe(struct hv_device *dev);
+ static int storvsc_queuecommand(struct Scsi_Host *shost, struct scsi_cmnd *scmnd);
+ static int storvsc_host_reset_handler(struct scsi_cmnd *scmnd);
+-static int storvsc_remove(struct hv_device *dev);
  
- 	spin_unlock_irqrestore(&channel->inbound_lock, flags);
-@@ -964,7 +964,7 @@ int vmbus_recvpacket_raw(struct vmbus_channel *channel, void *buffer,
- 	*requestid = desc.trans_id;
+ static int storvsc_get_chs(struct scsi_device *sdev, struct block_device *bdev,
+ 			   sector_t capacity, int *info);
+@@ -589,36 +619,6 @@ static int storvsc_probe(struct hv_device *device)
+ }
  
- 	/* Copy over the entire packet to the user buffer */
--	ret = ringbuffer_read(&channel->inbound, buffer, packetlen, 0);
-+	ret = hv_ringbuffer_read(&channel->inbound, buffer, packetlen, 0);
- 
- 	spin_unlock_irqrestore(&channel->inbound_lock, flags);
- 	return 0;
-diff --git a/drivers/staging/hv/ring_buffer.c b/drivers/staging/hv/ring_buffer.c
-index bf04397..2a05059 100644
---- a/drivers/staging/hv/ring_buffer.c
-+++ b/drivers/staging/hv/ring_buffer.c
-@@ -468,13 +468,13 @@ int hv_ringbuffer_peek(struct hv_ring_buffer_info *Inring_info,
- /*++
- 
- Name:
--	ringbuffer_read()
-+	hv_ringbuffer_read()
- 
- Description:
- 	Read and advance the read index
- 
- --*/
--int ringbuffer_read(struct hv_ring_buffer_info *inring_info, void *buffer,
-+int hv_ringbuffer_read(struct hv_ring_buffer_info *inring_info, void *buffer,
- 		   u32 buflen, u32 offset)
- {
- 	u32 bytes_avail_towrite;
-diff --git a/drivers/staging/hv/ring_buffer.h b/drivers/staging/hv/ring_buffer.h
-index c684d97..0ebf3be 100644
---- a/drivers/staging/hv/ring_buffer.h
-+++ b/drivers/staging/hv/ring_buffer.h
-@@ -88,7 +88,7 @@ int hv_ringbuffer_write(struct hv_ring_buffer_info *ring_info,
- int hv_ringbuffer_peek(struct hv_ring_buffer_info *ring_info, void *buffer,
- 		   u32 buflen);
- 
--int ringbuffer_read(struct hv_ring_buffer_info *ring_info,
-+int hv_ringbuffer_read(struct hv_ring_buffer_info *ring_info,
- 		   void *buffer,
- 		   u32 buflen,
- 		   u32 offset);
+ /*
+- * storvsc_remove - Callback when our device is removed
+- */
+-static int storvsc_remove(struct hv_device *dev)
+-{
+-	struct storvsc_driver *storvsc_drv_obj =
+-			 drv_to_stordrv(dev->device.driver);
+-	struct Scsi_Host *host = dev_get_drvdata(&dev->device);
+-	struct hv_host_device *host_dev =
+-			(struct hv_host_device *)host->hostdata;
+-
+-	/*
+-	 * Call to the vsc driver to let it know that the device is being
+-	 * removed
+-	 */
+-	storvsc_drv_obj->base.dev_rm(dev);
+-
+-	if (host_dev->request_pool) {
+-		kmem_cache_destroy(host_dev->request_pool);
+-		host_dev->request_pool = NULL;
+-	}
+-
+-	DPRINT_INFO(STORVSC, "removing host adapter (%p)...", host);
+-	scsi_remove_host(host);
+-
+-	DPRINT_INFO(STORVSC, "releasing host adapter (%p)...", host);
+-	scsi_host_put(host);
+-	return 0;
+-}
+-
+-/*
+  * storvsc_commmand_completion - Command completion processing
+  */
+ static void storvsc_commmand_completion(struct hv_storvsc_request *request)
 -- 
 1.7.4.1
