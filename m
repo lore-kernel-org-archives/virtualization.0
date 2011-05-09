@@ -1,7 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 005/206] Staging: hv: Rename the device type variable
-Date: Mon,  9 May 2011 14:54:47 -0700
-Message-ID: <1304978288-22999-5-git-send-email-kys@microsoft.com>
+Subject: [PATCH 041/206] Staging: hv: Get rid of the forward declaration for
+	storvsc_device_configure()
+Date: Mon,  9 May 2011 14:55:23 -0700
+Message-ID: <1304978288-22999-41-git-send-email-kys@microsoft.com>
 References: <1304978242-22958-1-git-send-email-kys@microsoft.com>
 	<1304978288-22999-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -22,37 +23,75 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Rename the variable g_blk_device_type.
+Get rid of the forward declaration by moving the code around.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/blkvsc_drv.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/staging/hv/storvsc_drv.c |   39 ++++++++++++++++++-------------------
+ 1 files changed, 19 insertions(+), 20 deletions(-)
 
-diff --git a/drivers/staging/hv/blkvsc_drv.c b/drivers/staging/hv/blkvsc_drv.c
-index b54130b..51d1265 100644
---- a/drivers/staging/hv/blkvsc_drv.c
-+++ b/drivers/staging/hv/blkvsc_drv.c
-@@ -115,7 +115,7 @@ struct block_device_context {
- static const char *drv_name = "blkvsc";
+diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
+index 44dbaae..4196d6a 100644
+--- a/drivers/staging/hv/storvsc_drv.c
++++ b/drivers/staging/hv/storvsc_drv.c
+@@ -129,10 +129,28 @@ static int storvsc_merge_bvec(struct request_queue *q,
+ 	return bvec->bv_len;
+ }
  
- /* {32412632-86cb-44a2-9b5c-50d1417354f5} */
--static const struct hv_guid g_blk_device_type = {
-+static const struct hv_guid dev_type = {
- 	.data = {
- 		0x32, 0x26, 0x41, 0x32, 0xcb, 0x86, 0xa2, 0x44,
- 		0x9b, 0x5c, 0x50, 0xd1, 0x41, 0x73, 0x54, 0xf5
-@@ -178,7 +178,7 @@ static int blk_vsc_initialize(struct hv_driver *driver)
- 	/* Make sure we are at least 2 pages since 1 page is used for control */
++static int storvsc_device_configure(struct scsi_device *sdevice)
++{
++	scsi_adjust_queue_depth(sdevice, MSG_SIMPLE_TAG,
++				STORVSC_MAX_IO_REQUESTS);
++
++	DPRINT_INFO(STORVSC_DRV, "sdev (%p) - setting max segment size to %ld",
++		    sdevice, PAGE_SIZE);
++	blk_queue_max_segment_size(sdevice->request_queue, PAGE_SIZE);
++
++	DPRINT_INFO(STORVSC_DRV, "sdev (%p) - adding merge bio vec routine",
++		    sdevice);
++	blk_queue_merge_bvec(sdevice->request_queue, storvsc_merge_bvec);
++
++	blk_queue_bounce_limit(sdevice->request_queue, BLK_BOUNCE_ANY);
++	/* sdevice->timeout = (2000 * HZ);//(75 * HZ); */
++
++	return 0;
++}
++
+ /* Static decl */
+ static int storvsc_probe(struct hv_device *dev);
+ static int storvsc_queuecommand(struct Scsi_Host *shost, struct scsi_cmnd *scmnd);
+-static int storvsc_device_configure(struct scsi_device *);
+ static int storvsc_host_reset_handler(struct scsi_cmnd *scmnd);
+ static int storvsc_remove(struct hv_device *dev);
  
- 	driver->name = drv_name;
--	memcpy(&driver->dev_type, &g_blk_device_type, sizeof(struct hv_guid));
-+	memcpy(&driver->dev_type, &dev_type, sizeof(struct hv_guid));
+@@ -830,25 +848,6 @@ retry_request:
  
+ static DEF_SCSI_QCMD(storvsc_queuecommand)
  
- 	/*
+-static int storvsc_device_configure(struct scsi_device *sdevice)
+-{
+-	scsi_adjust_queue_depth(sdevice, MSG_SIMPLE_TAG,
+-				STORVSC_MAX_IO_REQUESTS);
+-
+-	DPRINT_INFO(STORVSC_DRV, "sdev (%p) - setting max segment size to %ld",
+-		    sdevice, PAGE_SIZE);
+-	blk_queue_max_segment_size(sdevice->request_queue, PAGE_SIZE);
+-
+-	DPRINT_INFO(STORVSC_DRV, "sdev (%p) - adding merge bio vec routine",
+-		    sdevice);
+-	blk_queue_merge_bvec(sdevice->request_queue, storvsc_merge_bvec);
+-
+-	blk_queue_bounce_limit(sdevice->request_queue, BLK_BOUNCE_ANY);
+-	/* sdevice->timeout = (2000 * HZ);//(75 * HZ); */
+-
+-	return 0;
+-}
+-
+ /*
+  * storvsc_host_reset_handler - Reset the scsi HBA
+  */
 -- 
 1.7.4.1
