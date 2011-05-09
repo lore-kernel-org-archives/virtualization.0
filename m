@@ -1,8 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 080/206] Staging: hv: Get rid of the indirection to invoke
-	mousevsc_on_device_add()
-Date: Mon,  9 May 2011 14:56:02 -0700
-Message-ID: <1304978288-22999-80-git-send-email-kys@microsoft.com>
+Subject: [PATCH 076/206] Staging: hv: Get rid of the indirection in invoking
+	netvsc_device_remove()
+Date: Mon,  9 May 2011 14:55:58 -0700
+Message-ID: <1304978288-22999-76-git-send-email-kys@microsoft.com>
 References: <1304978242-22958-1-git-send-email-kys@microsoft.com>
 	<1304978288-22999-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -30,31 +30,22 @@ Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/hv_mouse.c |    5 +----
- 1 files changed, 1 insertions(+), 4 deletions(-)
+ drivers/staging/hv/rndis_filter.c |    3 +--
+ 1 files changed, 1 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/staging/hv/hv_mouse.c b/drivers/staging/hv/hv_mouse.c
-index d49a51e..43f5158 100644
---- a/drivers/staging/hv/hv_mouse.c
-+++ b/drivers/staging/hv/hv_mouse.c
-@@ -836,9 +836,6 @@ static int mousevsc_probe(struct hv_device *dev)
- {
- 	int ret = 0;
+diff --git a/drivers/staging/hv/rndis_filter.c b/drivers/staging/hv/rndis_filter.c
+index 299b14e..f9c18fa 100644
+--- a/drivers/staging/hv/rndis_filter.c
++++ b/drivers/staging/hv/rndis_filter.c
+@@ -809,8 +809,7 @@ int rndis_filter_device_remove(struct hv_device *dev)
+ 	kfree(rndis_dev);
+ 	net_dev->extension = NULL;
  
--	struct mousevsc_drv_obj *mousevsc_drv_obj =
--		drv_to_mousedrv(dev->device.driver);
--
- 	struct input_device_context *input_dev_ctx;
+-	/* Pass control to inner driver to remove the device */
+-	rndis_filter.inner_drv.base.dev_rm(dev);
++	netvsc_device_remove(dev);
  
- 	input_dev_ctx = kmalloc(sizeof(struct input_device_context),
-@@ -847,7 +844,7 @@ static int mousevsc_probe(struct hv_device *dev)
- 	dev_set_drvdata(&dev->device, input_dev_ctx);
- 
- 	/* Call to the vsc driver to add the device */
--	ret = mousevsc_drv_obj->base.dev_add(dev, NULL);
-+	ret = mousevsc_on_device_add(dev, NULL);
- 
- 	if (ret != 0) {
- 		DPRINT_ERR(INPUTVSC_DRV, "unable to add input vsc device");
+ 	return 0;
+ }
 -- 
 1.7.4.1
