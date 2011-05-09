@@ -1,8 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 065/206] Staging: hv: Get rid of the code initializing the
-	dispatch table
-Date: Mon,  9 May 2011 14:55:47 -0700
-Message-ID: <1304978288-22999-65-git-send-email-kys@microsoft.com>
+Subject: [PATCH 022/206] Staging: hv: Use the newly introduced I/O drain synch
+	method
+Date: Mon,  9 May 2011 14:55:04 -0700
+Message-ID: <1304978288-22999-22-git-send-email-kys@microsoft.com>
 References: <1304978242-22958-1-git-send-email-kys@microsoft.com>
 	<1304978288-22999-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -23,32 +23,33 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Now that we have eliminated the indirection, we can get rid of 
-the code to initialize the dispatch table.
+Use the newly introduced I/O drain synch method.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/storvsc_drv.c |    5 -----
- 1 files changed, 0 insertions(+), 5 deletions(-)
+ drivers/staging/hv/storvsc.c |    7 ++-----
+ 1 files changed, 2 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
-index 6300b79..caa1f36 100644
---- a/drivers/staging/hv/storvsc_drv.c
-+++ b/drivers/staging/hv/storvsc_drv.c
-@@ -107,11 +107,6 @@ static int storvsc_initialize(struct hv_driver *driver)
- 		    stor_driver->max_outstanding_req_per_channel,
- 		    STORVSC_MAX_IO_REQUESTS);
+diff --git a/drivers/staging/hv/storvsc.c b/drivers/staging/hv/storvsc.c
+index 36458b8..8e529d5 100644
+--- a/drivers/staging/hv/storvsc.c
++++ b/drivers/staging/hv/storvsc.c
+@@ -501,11 +501,8 @@ int storvsc_dev_remove(struct hv_device *device)
+ 	 * only allow inbound traffic (responses) to proceed so that
+ 	 * outstanding requests can be completed.
+ 	 */
+-	while (atomic_read(&stor_device->num_outstanding_req)) {
+-		DPRINT_INFO(STORVSC, "waiting for %d requests to complete...",
+-			    atomic_read(&stor_device->num_outstanding_req));
+-		udelay(100);
+-	}
++
++	storvsc_wait_to_drain(stor_device);
  
--	/* Setup the dispatch table */
--	stor_driver->base.dev_add	= storvsc_dev_add;
--	stor_driver->base.dev_rm	= storvsc_dev_remove;
--
--	stor_driver->on_io_request	= storvsc_do_io;
- 
- 	return 0;
- }
+ 	DPRINT_INFO(STORVSC, "removing storage device (%p)...",
+ 		    device->ext);
 -- 
 1.7.4.1
