@@ -1,7 +1,7 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 092/206] Staging: hv: Rename the variable g_mousevsc_drv
-Date: Mon,  9 May 2011 14:56:14 -0700
-Message-ID: <1304978288-22999-92-git-send-email-kys@microsoft.com>
+Subject: [PATCH 098/206] Staging: hv: Rename ringbuffer_peek
+Date: Mon,  9 May 2011 14:56:20 -0700
+Message-ID: <1304978288-22999-98-git-send-email-kys@microsoft.com>
 References: <1304978242-22958-1-git-send-email-kys@microsoft.com>
 	<1304978288-22999-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -29,41 +29,65 @@ Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/hv_mouse.c |    8 ++++----
- 1 files changed, 4 insertions(+), 4 deletions(-)
+ drivers/staging/hv/channel.c     |    4 ++--
+ drivers/staging/hv/ring_buffer.c |    4 ++--
+ drivers/staging/hv/ring_buffer.h |    2 +-
+ 3 files changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/staging/hv/hv_mouse.c b/drivers/staging/hv/hv_mouse.c
-index b708663..cc3c1d4 100644
---- a/drivers/staging/hv/hv_mouse.c
-+++ b/drivers/staging/hv/hv_mouse.c
-@@ -794,7 +794,7 @@ struct input_device_context {
- };
+diff --git a/drivers/staging/hv/channel.c b/drivers/staging/hv/channel.c
+index 859771c..d625517 100644
+--- a/drivers/staging/hv/channel.c
++++ b/drivers/staging/hv/channel.c
+@@ -885,7 +885,7 @@ int vmbus_recvpacket(struct vmbus_channel *channel, void *buffer,
  
+ 	spin_lock_irqsave(&channel->inbound_lock, flags);
  
--static struct  mousevsc_drv_obj g_mousevsc_drv;
-+static struct  mousevsc_drv_obj mousevsc_drv;
+-	ret = ringbuffer_peek(&channel->inbound, &desc,
++	ret = hv_ringbuffer_peek(&channel->inbound, &desc,
+ 			     sizeof(struct vmpacket_descriptor));
+ 	if (ret != 0) {
+ 		spin_unlock_irqrestore(&channel->inbound_lock, flags);
+@@ -938,7 +938,7 @@ int vmbus_recvpacket_raw(struct vmbus_channel *channel, void *buffer,
  
- static void deviceinfo_callback(struct hv_device *dev, struct hv_input_dev_info *info)
+ 	spin_lock_irqsave(&channel->inbound_lock, flags);
+ 
+-	ret = ringbuffer_peek(&channel->inbound, &desc,
++	ret = hv_ringbuffer_peek(&channel->inbound, &desc,
+ 			     sizeof(struct vmpacket_descriptor));
+ 	if (ret != 0) {
+ 		spin_unlock_irqrestore(&channel->inbound_lock, flags);
+diff --git a/drivers/staging/hv/ring_buffer.c b/drivers/staging/hv/ring_buffer.c
+index 483678c..bf04397 100644
+--- a/drivers/staging/hv/ring_buffer.c
++++ b/drivers/staging/hv/ring_buffer.c
+@@ -418,13 +418,13 @@ int hv_ringbuffer_write(struct hv_ring_buffer_info *outring_info,
+ /*++
+ 
+ Name:
+-	ringbuffer_peek()
++	hv_ringbuffer_peek()
+ 
+ Description:
+ 	Read without advancing the read index
+ 
+ --*/
+-int ringbuffer_peek(struct hv_ring_buffer_info *Inring_info,
++int hv_ringbuffer_peek(struct hv_ring_buffer_info *Inring_info,
+ 		   void *Buffer, u32 buflen)
  {
-@@ -947,7 +947,7 @@ static int mousevsc_drv_exit_cb(struct device *dev, void *data)
+ 	u32 bytes_avail_towrite;
+diff --git a/drivers/staging/hv/ring_buffer.h b/drivers/staging/hv/ring_buffer.h
+index 5c17288..c684d97 100644
+--- a/drivers/staging/hv/ring_buffer.h
++++ b/drivers/staging/hv/ring_buffer.h
+@@ -85,7 +85,7 @@ int hv_ringbuffer_write(struct hv_ring_buffer_info *ring_info,
+ 		    struct scatterlist *sglist,
+ 		    u32 sgcount);
  
- static void mousevsc_drv_exit(void)
- {
--	struct hv_driver *drv = &g_mousevsc_drv.base;
-+	struct hv_driver *drv = &mousevsc_drv.base;
- 	int ret;
+-int ringbuffer_peek(struct hv_ring_buffer_info *ring_info, void *buffer,
++int hv_ringbuffer_peek(struct hv_ring_buffer_info *ring_info, void *buffer,
+ 		   u32 buflen);
  
- 	struct device *current_dev = NULL;
-@@ -986,8 +986,8 @@ static int mouse_vsc_initialize(struct hv_driver *driver)
- 
- static int __init mousevsc_init(void)
- {
--	struct mousevsc_drv_obj *input_drv_obj = &g_mousevsc_drv;
--	struct hv_driver *drv = &g_mousevsc_drv.base;
-+	struct mousevsc_drv_obj *input_drv_obj = &mousevsc_drv;
-+	struct hv_driver *drv = &mousevsc_drv.base;
- 
- 	DPRINT_INFO(INPUTVSC_DRV, "Hyper-V Mouse driver initializing.");
- 
+ int ringbuffer_read(struct hv_ring_buffer_info *ring_info,
 -- 
 1.7.4.1
