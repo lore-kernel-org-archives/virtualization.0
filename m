@@ -1,7 +1,7 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 118/206] Staging: hv: Change Cleanup to cleanup
-Date: Mon,  9 May 2011 14:56:40 -0700
-Message-ID: <1304978288-22999-118-git-send-email-kys@microsoft.com>
+Subject: [PATCH 116/206] Staging: hv: Use the completion abstraction in struct rndis_request
+Date: Mon,  9 May 2011 14:56:38 -0700
+Message-ID: <1304978288-22999-116-git-send-email-kys@microsoft.com>
 References: <1304978242-22958-1-git-send-email-kys@microsoft.com>
  <1304978288-22999-1-git-send-email-kys@microsoft.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
@@ -11,107 +11,130 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>, Hank Janssen <hjanssen@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The subject line says it all.
+Use the completion abstraction in struct rndis_request to synchronize.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/connection.c |   20 ++++++++++----------
- 1 files changed, 10 insertions(+), 10 deletions(-)
+ drivers/staging/hv/rndis_filter.c |   33 ++++++++++++++-------------------
+ 1 files changed, 14 insertions(+), 19 deletions(-)
 
-diff --git a/drivers/staging/hv/connection.c b/drivers/staging/hv/connection.c
-index 92add38..3632bcc 100644
---- a/drivers/staging/hv/connection.c
-+++ b/drivers/staging/hv/connection.c
-@@ -58,7 +58,7 @@ int vmbus_connect(void)
- 	vmbus_connection.work_queue = create_workqueue("hv_vmbus_con");
- 	if (!vmbus_connection.work_queue) {
- 		ret = -1;
--		goto Cleanup;
-+		goto cleanup;
- 	}
+diff --git a/drivers/staging/hv/rndis_filter.c b/drivers/staging/hv/rndis_filter.c
+index ee74cd1..2037836 100644
+--- a/drivers/staging/hv/rndis_filter.c
++++ b/drivers/staging/hv/rndis_filter.c
+@@ -59,8 +59,7 @@ struct rndis_device {
  
- 	INIT_LIST_HEAD(&vmbus_connection.chn_msg_list);
-@@ -75,7 +75,7 @@ int vmbus_connect(void)
- 	(void *)__get_free_pages(GFP_KERNEL|__GFP_ZERO, 0);
- 	if (vmbus_connection.int_page == NULL) {
- 		ret = -1;
--		goto Cleanup;
-+		goto cleanup;
- 	}
+ struct rndis_request {
+ 	struct list_head list_ent;
+-	int wait_condition;
+-	wait_queue_head_t wait_event;
++	struct completion  wait_event;
  
- 	vmbus_connection.recv_int_page = vmbus_connection.int_page;
-@@ -91,7 +91,7 @@ int vmbus_connect(void)
- 	(void *)__get_free_pages((GFP_KERNEL|__GFP_ZERO), 1);
- 	if (vmbus_connection.monitor_pages == NULL) {
- 		ret = -1;
--		goto Cleanup;
-+		goto cleanup;
- 	}
+ 	/*
+ 	 * FIXME: We assumed a fixed size response here. If we do ever need to
+@@ -125,7 +124,7 @@ static struct rndis_request *get_rndis_request(struct rndis_device *dev,
+ 	if (!request)
+ 		return NULL;
  
- 	msginfo = kzalloc(sizeof(*msginfo) +
-@@ -99,7 +99,7 @@ int vmbus_connect(void)
- 			  GFP_KERNEL);
- 	if (msginfo == NULL) {
- 		ret = -ENOMEM;
--		goto Cleanup;
-+		goto cleanup;
- 	}
+-	init_waitqueue_head(&request->wait_event);
++	init_completion(&request->wait_event);
  
- 	init_completion(&msginfo->waitevent);
-@@ -131,7 +131,7 @@ int vmbus_connect(void)
- 		list_del(&msginfo->msglistentry);
- 		spin_unlock_irqrestore(&vmbus_connection.channelmsg_lock,
- 					flags);
--		goto Cleanup;
-+		goto cleanup;
- 	}
+ 	rndis_msg = &request->request_msg;
+ 	rndis_msg->ndis_msg_type = msg_type;
+@@ -305,8 +304,7 @@ static void rndis_filter_receive_response(struct rndis_device *dev,
+ 			}
+ 		}
  
- 	/* Wait for the connection response */
-@@ -143,7 +143,7 @@ int vmbus_connect(void)
- 		spin_unlock_irqrestore(&vmbus_connection.channelmsg_lock,
- 					flags);
- 		ret = -ETIMEDOUT;
--		goto Cleanup;
-+		goto cleanup;
- 	}
+-		request->wait_condition = 1;
+-		wake_up(&request->wait_event);
++		complete(&request->wait_event);
+ 	} else {
+ 		dev_err(&dev->net_dev->dev->device,
+ 			"no rndis request found for this response "
+@@ -465,6 +463,7 @@ static int rndis_filter_query_device(struct rndis_device *dev, u32 oid,
+ 	struct rndis_query_request *query;
+ 	struct rndis_query_complete *query_complete;
+ 	int ret = 0;
++	int t;
  
- 	spin_lock_irqsave(&vmbus_connection.channelmsg_lock, flags);
-@@ -158,13 +158,13 @@ int vmbus_connect(void)
- 			"Version %d not supported by Hyper-V\n",
- 			VMBUS_REVISION_NUMBER);
- 		ret = -1;
--		goto Cleanup;
-+		goto cleanup;
- 	}
+ 	if (!result)
+ 		return -EINVAL;
+@@ -484,14 +483,12 @@ static int rndis_filter_query_device(struct rndis_device *dev, u32 oid,
+ 	query->info_buflen = 0;
+ 	query->dev_vc_handle = 0;
  
- 	kfree(msginfo);
- 	return 0;
- 
--Cleanup:
-+cleanup:
- 	vmbus_connection.conn_state = DISCONNECTED;
- 
- 	if (vmbus_connection.work_queue)
-@@ -207,7 +207,7 @@ int vmbus_disconnect(void)
- 	ret = vmbus_post_msg(msg,
- 			       sizeof(struct vmbus_channel_message_header));
+-	request->wait_condition = 0;
+ 	ret = rndis_filter_send_request(dev, request);
  	if (ret != 0)
--		goto Cleanup;
-+		goto cleanup;
+ 		goto Cleanup;
  
- 	free_pages((unsigned long)vmbus_connection.int_page, 0);
- 	free_pages((unsigned long)vmbus_connection.monitor_pages, 1);
-@@ -219,7 +219,7 @@ int vmbus_disconnect(void)
+-	wait_event_timeout(request->wait_event, request->wait_condition,
+-				msecs_to_jiffies(1000));
+-	if (request->wait_condition == 0) {
++	t = wait_for_completion_timeout(&request->wait_event, HZ);
++	if (t == 0) {
+ 		ret = -ETIMEDOUT;
+ 		goto Cleanup;
+ 	}
+@@ -543,7 +540,7 @@ static int rndis_filter_set_packet_filter(struct rndis_device *dev,
+ 	struct rndis_set_request *set;
+ 	struct rndis_set_complete *set_complete;
+ 	u32 status;
+-	int ret;
++	int ret, t;
  
- 	pr_info("hv_vmbus disconnected\n");
+ 	request = get_rndis_request(dev, REMOTE_NDIS_SET_MSG,
+ 			RNDIS_MESSAGE_SIZE(struct rndis_set_request) +
+@@ -562,14 +559,13 @@ static int rndis_filter_set_packet_filter(struct rndis_device *dev,
+ 	memcpy((void *)(unsigned long)set + sizeof(struct rndis_set_request),
+ 	       &new_filter, sizeof(u32));
  
--Cleanup:
-+cleanup:
- 	kfree(msg);
- 	return ret;
- }
+-	request->wait_condition = 0;
+ 	ret = rndis_filter_send_request(dev, request);
+ 	if (ret != 0)
+ 		goto Cleanup;
+ 
+-	wait_event_timeout(request->wait_event, request->wait_condition,
+-		msecs_to_jiffies(2000));
+-	if (request->wait_condition == 0) {
++	t = wait_for_completion_timeout(&request->wait_event, HZ);
++
++	if (t == 0) {
+ 		ret = -1;
+ 		dev_err(&dev->net_dev->dev->device,
+ 			"timeout before we got a set response...\n");
+@@ -624,7 +620,7 @@ static int rndis_filter_init_device(struct rndis_device *dev)
+ 	struct rndis_initialize_request *init;
+ 	struct rndis_initialize_complete *init_complete;
+ 	u32 status;
+-	int ret;
++	int ret, t;
+ 
+ 	request = get_rndis_request(dev, REMOTE_NDIS_INITIALIZE_MSG,
+ 			RNDIS_MESSAGE_SIZE(struct rndis_initialize_request));
+@@ -642,7 +638,6 @@ static int rndis_filter_init_device(struct rndis_device *dev)
+ 
+ 	dev->state = RNDIS_DEV_INITIALIZING;
+ 
+-	request->wait_condition = 0;
+ 	ret = rndis_filter_send_request(dev, request);
+ 	if (ret != 0) {
+ 		dev->state = RNDIS_DEV_UNINITIALIZED;
+@@ -650,9 +645,9 @@ static int rndis_filter_init_device(struct rndis_device *dev)
+ 	}
+ 
+ 
+-	wait_event_timeout(request->wait_event, request->wait_condition,
+-		msecs_to_jiffies(1000));
+-	if (request->wait_condition == 0) {
++	t = wait_for_completion_timeout(&request->wait_event, HZ);
++
++	if (t == 0) {
+ 		ret = -ETIMEDOUT;
+ 		goto Cleanup;
+ 	}
 -- 
 1.7.4.1
