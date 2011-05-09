@@ -1,57 +1,131 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 186/206] Staging: hv: Include the newly created header file in
-	the mouse driver
-Date: Mon,  9 May 2011 14:57:48 -0700
-Message-ID: <1304978288-22999-186-git-send-email-kys@microsoft.com>
+Subject: [PATCH 179/206] Staging: hv: Include the contents of utils.h
+Date: Mon,  9 May 2011 14:57:41 -0700
+Message-ID: <1304978288-22999-179-git-send-email-kys@microsoft.com>
 References: <1304978242-22958-1-git-send-email-kys@microsoft.com>
-	<1304978288-22999-1-git-send-email-kys@microsoft.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <devel-bounces@linuxdriverproject.org>
+ <1304978288-22999-1-git-send-email-kys@microsoft.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1304978288-22999-1-git-send-email-kys@microsoft.com>
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
-List-Post: <mailto:devel@linuxdriverproject.org>
-List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
-Sender: devel-bounces@linuxdriverproject.org
-Errors-To: devel-bounces@linuxdriverproject.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org
-Cc: Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>
+Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>, Hank Janssen <hjanssen@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Include the newly created header file in the mouse driver.
+The subject line says it all.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/hv_mouse.c |    9 +--------
- 1 files changed, 1 insertions(+), 8 deletions(-)
+ include/linux/hyperv.h |   98 +++++++++++++++++++++++++++++++++++++++++++++++-
+ 1 files changed, 97 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/staging/hv/hv_mouse.c b/drivers/staging/hv/hv_mouse.c
-index af4db64..430030c 100644
---- a/drivers/staging/hv/hv_mouse.c
-+++ b/drivers/staging/hv/hv_mouse.c
-@@ -26,14 +26,7 @@
- #include <linux/dmi.h>
- #include <linux/delay.h>
+diff --git a/include/linux/hyperv.h b/include/linux/hyperv.h
+index 81f8742..e6bf39f 100644
+--- a/include/linux/hyperv.h
++++ b/include/linux/hyperv.h
+@@ -842,4 +842,100 @@ void vmbus_child_driver_unregister(struct device_driver *drv);
+ extern struct completion hv_channel_ready;
  
--#include "hv_api.h"
--#include "logging.h"
--#include "version_info.h"
--#include "vmbus.h"
--#include "vmbus_api.h"
--#include "channel.h"
--#include "vmbus_packet_format.h"
--
-+#include <linux/hyperv.h>
  
- /*
-  * Data types
+-#endif /* _HYPERV_H_ */
++/*
++ * Common header for Hyper-V ICs
++ */
++#define ICMSGTYPE_NEGOTIATE		0
++#define ICMSGTYPE_HEARTBEAT		1
++#define ICMSGTYPE_KVPEXCHANGE		2
++#define ICMSGTYPE_SHUTDOWN		3
++#define ICMSGTYPE_TIMESYNC		4
++#define ICMSGTYPE_VSS			5
++
++#define ICMSGHDRFLAG_TRANSACTION	1
++#define ICMSGHDRFLAG_REQUEST		2
++#define ICMSGHDRFLAG_RESPONSE		4
++
++#define HV_S_OK				0x00000000
++#define HV_E_FAIL			0x80004005
++#define HV_ERROR_NOT_SUPPORTED		0x80070032
++#define HV_ERROR_MACHINE_LOCKED		0x800704F7
++
++struct vmbuspipe_hdr {
++	u32 flags;
++	u32 msgsize;
++} __packed;
++
++struct ic_version {
++	u16 major;
++	u16 minor;
++} __packed;
++
++struct icmsg_hdr {
++	struct ic_version icverframe;
++	u16 icmsgtype;
++	struct ic_version icvermsg;
++	u16 icmsgsize;
++	u32 status;
++	u8 ictransaction_id;
++	u8 icflags;
++	u8 reserved[2];
++} __packed;
++
++struct icmsg_negotiate {
++	u16 icframe_vercnt;
++	u16 icmsg_vercnt;
++	u32 reserved;
++	struct ic_version icversion_data[1]; /* any size array */
++} __packed;
++
++struct shutdown_msg_data {
++	u32 reason_code;
++	u32 timeout_seconds;
++	u32 flags;
++	u8  display_message[2048];
++} __packed;
++
++struct heartbeat_msg_data {
++	u64 seq_num;
++	u32 reserved[8];
++} __packed;
++
++/* Time Sync IC defs */
++#define ICTIMESYNCFLAG_PROBE	0
++#define ICTIMESYNCFLAG_SYNC	1
++#define ICTIMESYNCFLAG_SAMPLE	2
++
++#ifdef __x86_64__
++#define WLTIMEDELTA	116444736000000000L	/* in 100ns unit */
++#else
++#define WLTIMEDELTA	116444736000000000LL
++#endif
++
++struct ictimesync_data {
++	u64 parenttime;
++	u64 childtime;
++	u64 roundtriptime;
++	u8 flags;
++} __packed;
++
++/* Index for each IC struct in array hv_cb_utils[] */
++#define HV_SHUTDOWN_MSG		0
++#define HV_TIMESYNC_MSG		1
++#define HV_HEARTBEAT_MSG	2
++#define HV_KVP_MSG		3
++
++struct hyperv_service_callback {
++	u8 msg_type;
++	char *log_msg;
++	unsigned char data[16];
++	struct vmbus_channel *channel;
++	void (*callback) (void *context);
++};
++
++extern void prep_negotiate_resp(struct icmsg_hdr *,
++				struct icmsg_negotiate *, u8 *);
++extern void chn_cb_negotiate(void *);
++extern struct hyperv_service_callback hv_cb_utils[];
++
++#endif /* _HYPERV_H */
 -- 
 1.7.4.1
