@@ -1,14 +1,26 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 121/206] Staging: hv: Change Cleanup to cleanup
-Date: Mon,  9 May 2011 14:56:43 -0700
-Message-ID: <1304978288-22999-121-git-send-email-kys@microsoft.com>
+Subject: [PATCH 080/206] Staging: hv: Get rid of the indirection to invoke
+	mousevsc_on_device_add()
+Date: Mon,  9 May 2011 14:56:02 -0700
+Message-ID: <1304978288-22999-80-git-send-email-kys@microsoft.com>
 References: <1304978242-22958-1-git-send-email-kys@microsoft.com>
- <1304978288-22999-1-git-send-email-kys@microsoft.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+	<1304978288-22999-1-git-send-email-kys@microsoft.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <devel-bounces@linuxdriverproject.org>
 In-Reply-To: <1304978288-22999-1-git-send-email-kys@microsoft.com>
-Sender: linux-kernel-owner@vger.kernel.org
+List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
+	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
+List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
+List-Post: <mailto:devel@linuxdriverproject.org>
+List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
+List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
+	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
+Sender: devel-bounces@linuxdriverproject.org
+Errors-To: devel-bounces@linuxdriverproject.org
 To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org
-Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>, Hank Janssen <hjanssen@microsoft.com>
+Cc: Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
 The subject line says it all.
@@ -18,93 +30,31 @@ Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/hv.c |   18 +++++++++---------
- 1 files changed, 9 insertions(+), 9 deletions(-)
+ drivers/staging/hv/hv_mouse.c |    5 +----
+ 1 files changed, 1 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/staging/hv/hv.c b/drivers/staging/hv/hv.c
-index e0c2861..2efac38 100644
---- a/drivers/staging/hv/hv.c
-+++ b/drivers/staging/hv/hv.c
-@@ -161,7 +161,7 @@ int hv_init(void)
- 	       sizeof(void *) * MAX_NUM_CPUS);
+diff --git a/drivers/staging/hv/hv_mouse.c b/drivers/staging/hv/hv_mouse.c
+index d49a51e..43f5158 100644
+--- a/drivers/staging/hv/hv_mouse.c
++++ b/drivers/staging/hv/hv_mouse.c
+@@ -836,9 +836,6 @@ static int mousevsc_probe(struct hv_device *dev)
+ {
+ 	int ret = 0;
  
- 	if (!query_hypervisor_presence())
--		goto Cleanup;
-+		goto cleanup;
+-	struct mousevsc_drv_obj *mousevsc_drv_obj =
+-		drv_to_mousedrv(dev->device.driver);
+-
+ 	struct input_device_context *input_dev_ctx;
  
- 	max_leaf = query_hypervisor_info();
- 	/* HvQueryHypervisorFeatures(maxLeaf); */
-@@ -172,7 +172,7 @@ int hv_init(void)
- 	rdmsrl(HV_X64_MSR_GUEST_OS_ID, hv_context.guestid);
+ 	input_dev_ctx = kmalloc(sizeof(struct input_device_context),
+@@ -847,7 +844,7 @@ static int mousevsc_probe(struct hv_device *dev)
+ 	dev_set_drvdata(&dev->device, input_dev_ctx);
  
- 	if (hv_context.guestid != 0)
--		goto Cleanup;
-+		goto cleanup;
+ 	/* Call to the vsc driver to add the device */
+-	ret = mousevsc_drv_obj->base.dev_add(dev, NULL);
++	ret = mousevsc_on_device_add(dev, NULL);
  
- 	/* Write our OS info */
- 	wrmsrl(HV_X64_MSR_GUEST_OS_ID, HV_LINUX_GUEST_ID);
-@@ -188,7 +188,7 @@ int hv_init(void)
- 	virtaddr = __vmalloc(PAGE_SIZE, GFP_KERNEL, PAGE_KERNEL_EXEC);
- 
- 	if (!virtaddr)
--		goto Cleanup;
-+		goto cleanup;
- 
- 	hypercall_msr.enable = 1;
- 
-@@ -200,7 +200,7 @@ int hv_init(void)
- 	rdmsrl(HV_X64_MSR_HYPERCALL, hypercall_msr.as_uint64);
- 
- 	if (!hypercall_msr.enable)
--		goto Cleanup;
-+		goto cleanup;
- 
- 	hv_context.hypercall_page = virtaddr;
- 
-@@ -209,7 +209,7 @@ int hv_init(void)
- 			kmalloc(sizeof(struct hv_input_signal_event_buffer),
- 				GFP_KERNEL);
- 	if (!hv_context.signal_event_buffer)
--		goto Cleanup;
-+		goto cleanup;
- 
- 	hv_context.signal_event_param =
- 		(struct hv_input_signal_event *)
-@@ -224,7 +224,7 @@ int hv_init(void)
- 
- 	return ret;
- 
--Cleanup:
-+cleanup:
- 	if (virtaddr) {
- 		if (hypercall_msr.enable) {
- 			hypercall_msr.as_uint64 = 0;
-@@ -345,7 +345,7 @@ void hv_synic_init(void *irqarg)
- 
- 	if (hv_context.synic_message_page[cpu] == NULL) {
- 		pr_err("Unable to allocate SYNIC message page\n");
--		goto Cleanup;
-+		goto cleanup;
- 	}
- 
- 	hv_context.synic_event_page[cpu] =
-@@ -353,7 +353,7 @@ void hv_synic_init(void *irqarg)
- 
- 	if (hv_context.synic_event_page[cpu] == NULL) {
- 		pr_err("Unable to allocate SYNIC event page\n");
--		goto Cleanup;
-+		goto cleanup;
- 	}
- 
- 	/* Setup the Synic's message page */
-@@ -391,7 +391,7 @@ void hv_synic_init(void *irqarg)
- 	hv_context.synic_initialized = true;
- 	return;
- 
--Cleanup:
-+cleanup:
- 	if (hv_context.synic_event_page[cpu])
- 		free_page((unsigned long)hv_context.synic_event_page[cpu]);
- 
+ 	if (ret != 0) {
+ 		DPRINT_ERR(INPUTVSC_DRV, "unable to add input vsc device");
 -- 
 1.7.4.1
