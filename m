@@ -1,7 +1,7 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 199/206] Staging: hv: Get rid of version_info.h
-Date: Mon,  9 May 2011 14:58:01 -0700
-Message-ID: <1304978288-22999-199-git-send-email-kys@microsoft.com>
+Subject: [PATCH 197/206] Staging: hv: Get rid of storvsc_api.h
+Date: Mon,  9 May 2011 14:57:59 -0700
+Message-ID: <1304978288-22999-197-git-send-email-kys@microsoft.com>
 References: <1304978242-22958-1-git-send-email-kys@microsoft.com>
  <1304978288-22999-1-git-send-email-kys@microsoft.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
@@ -11,23 +11,23 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>, Hank Janssen <hjanssen@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Now, get rid of version_info.h.
+Now, get rid of storvsc_api.h.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/version_info.h |   48 -------------------------------------
- 1 files changed, 0 insertions(+), 48 deletions(-)
- delete mode 100644 drivers/staging/hv/version_info.h
+ drivers/staging/hv/storvsc_api.h |  162 --------------------------------------
+ 1 files changed, 0 insertions(+), 162 deletions(-)
+ delete mode 100644 drivers/staging/hv/storvsc_api.h
 
-diff --git a/drivers/staging/hv/version_info.h b/drivers/staging/hv/version_info.h
+diff --git a/drivers/staging/hv/storvsc_api.h b/drivers/staging/hv/storvsc_api.h
 deleted file mode 100644
-index 35178f2..0000000
---- a/drivers/staging/hv/version_info.h
+index b163515..0000000
+--- a/drivers/staging/hv/storvsc_api.h
 +++ /dev/null
-@@ -1,48 +0,0 @@
+@@ -1,162 +0,0 @@
 -/*
 - *
 - * Copyright (c) 2009, Microsoft Corporation.
@@ -51,30 +51,144 @@ index 35178f2..0000000
 - *
 - */
 -
--#ifndef __HV_VERSION_INFO
--#define __HV_VERSION_INFO
+-
+-#ifndef _STORVSC_API_H_
+-#define _STORVSC_API_H_
+-
+-#include <linux/kernel.h>
+-#include <linux/wait.h>
+-#include "vstorage.h"
+-#include "vmbus_api.h"
+-#include "vmbus.h"
+-
+-/* Defines */
+-#define STORVSC_RING_BUFFER_SIZE			(20*PAGE_SIZE)
+-#define BLKVSC_RING_BUFFER_SIZE				(20*PAGE_SIZE)
+-
+-#define STORVSC_MAX_IO_REQUESTS				128
 -
 -/*
-- * We use the same version numbering for all Hyper-V modules.
-- *
-- * Definition of versioning is as follows;
-- *
-- *	Major Number	Changes for these scenarios;
-- *			1.	When a new version of Windows Hyper-V
-- *				is released.
-- *			2.	A Major change has occurred in the
-- *				Linux IC's.
-- *			(For example the merge for the first time
-- *			into the kernel) Every time the Major Number
-- *			changes, the Revision number is reset to 0.
-- *	Minor Number	Changes when new functionality is added
-- *			to the Linux IC's that is not a bug fix.
-- *
-- * 3.1 - Added completed hv_utils driver. Shutdown/Heartbeat/Timesync
+- * In Hyper-V, each port/path/target maps to 1 scsi host adapter.  In
+- * reality, the path/target is not used (ie always set to 0) so our
+- * scsi host adapter essentially has 1 bus with 1 target that contains
+- * up to 256 luns.
 - */
--#define HV_DRV_VERSION           "3.1"
+-#define STORVSC_MAX_LUNS_PER_TARGET			64
+-#define STORVSC_MAX_TARGETS				1
+-#define STORVSC_MAX_CHANNELS				1
+-
+-struct hv_storvsc_request;
+-
+-/* Matches Windows-end */
+-enum storvsc_request_type{
+-	WRITE_TYPE,
+-	READ_TYPE,
+-	UNKNOWN_TYPE,
+-};
 -
 -
--#endif
+-struct hv_storvsc_request {
+-	struct hv_storvsc_request *request;
+-	struct hv_device *device;
+-
+-	/* Synchronize the request/response if needed */
+-	struct completion wait_event;
+-
+-	unsigned char *sense_buffer;
+-	void *context;
+-	void (*on_io_completion)(struct hv_storvsc_request *request);
+-	struct hv_multipage_buffer data_buffer;
+-
+-	struct vstor_packet vstor_packet;
+-};
+-
+-
+-struct storvsc_device_info {
+-	u32 ring_buffer_size;
+-	unsigned int port_number;
+-	unsigned char path_id;
+-	unsigned char target_id;
+-};
+-
+-struct storvsc_major_info {
+-	int major;
+-	int index;
+-	bool do_register;
+-	char *devname;
+-	char *diskname;
+-};
+-
+-/* A storvsc device is a device object that contains a vmbus channel */
+-struct storvsc_device {
+-	struct hv_device *device;
+-
+-	/* 0 indicates the device is being destroyed */
+-	atomic_t ref_count;
+-
+-	bool	 drain_notify;
+-	atomic_t num_outstanding_req;
+-
+-	wait_queue_head_t waiting_to_drain;
+-
+-	/*
+-	 * Each unique Port/Path/Target represents 1 channel ie scsi
+-	 * controller. In reality, the pathid, targetid is always 0
+-	 * and the port is set by us
+-	 */
+-	unsigned int port_number;
+-	unsigned char path_id;
+-	unsigned char target_id;
+-
+-	/* Used for vsc/vsp channel reset process */
+-	struct hv_storvsc_request init_request;
+-	struct hv_storvsc_request reset_request;
+-};
+-
+-
+-/* Get the stordevice object iff exists and its refcount > 1 */
+-static inline struct storvsc_device *get_stor_device(struct hv_device *device)
+-{
+-	struct storvsc_device *stor_device;
+-
+-	stor_device = (struct storvsc_device *)device->ext;
+-	if (stor_device && atomic_read(&stor_device->ref_count) > 1)
+-		atomic_inc(&stor_device->ref_count);
+-	else
+-		stor_device = NULL;
+-
+-	return stor_device;
+-}
+-
+-
+-static inline void put_stor_device(struct hv_device *device)
+-{
+-	struct storvsc_device *stor_device;
+-
+-	stor_device = (struct storvsc_device *)device->ext;
+-
+-	atomic_dec(&stor_device->ref_count);
+-}
+-
+-static inline void storvsc_wait_to_drain(struct storvsc_device *dev)
+-{
+-	dev->drain_notify = true;
+-	wait_event(dev->waiting_to_drain,
+-		   atomic_read(&dev->num_outstanding_req) == 0);
+-	dev->drain_notify = false;
+-}
+-
+-/* Interface */
+-
+-int storvsc_dev_add(struct hv_device *device,
+-				void *additional_info);
+-int storvsc_dev_remove(struct hv_device *device);
+-
+-int storvsc_do_io(struct hv_device *device,
+-				struct hv_storvsc_request *request);
+-
+-int storvsc_get_major_info(struct storvsc_device_info *device_info,
+-				struct storvsc_major_info *major_info);
+-
+-#endif /* _STORVSC_API_H_ */
 -- 
 1.7.4.1
