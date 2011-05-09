@@ -1,7 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 068/206] Staging: hv: Make netvsc_device_remove non static
-Date: Mon,  9 May 2011 14:55:50 -0700
-Message-ID: <1304978288-22999-68-git-send-email-kys@microsoft.com>
+Subject: [PATCH 049/206] Staging: hv: Staging: hv: Rename the function
+	stor_vsc_on_host_reset()
+Date: Mon,  9 May 2011 14:55:31 -0700
+Message-ID: <1304978288-22999-49-git-send-email-kys@microsoft.com>
 References: <1304978242-22958-1-git-send-email-kys@microsoft.com>
 	<1304978288-22999-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -29,34 +30,30 @@ Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/netvsc.c     |    2 +-
- drivers/staging/hv/netvsc_api.h |    1 +
- 2 files changed, 2 insertions(+), 1 deletions(-)
+ drivers/staging/hv/storvsc_drv.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/staging/hv/netvsc.c b/drivers/staging/hv/netvsc.c
-index 7cd3f0b..8790f0f 100644
---- a/drivers/staging/hv/netvsc.c
-+++ b/drivers/staging/hv/netvsc.c
-@@ -580,7 +580,7 @@ static void netvsc_disconnect_vsp(struct netvsc_device *net_device)
- /*
-  * netvsc_device_remove - Callback when the root bus device is removed
-  */
--static int netvsc_device_remove(struct hv_device *device)
-+int netvsc_device_remove(struct hv_device *device)
- {
- 	struct netvsc_device *net_device;
- 	struct hv_netvsc_packet *netvsc_packet, *pos;
-diff --git a/drivers/staging/hv/netvsc_api.h b/drivers/staging/hv/netvsc_api.h
-index d09d6eb..d8d77c0 100644
---- a/drivers/staging/hv/netvsc_api.h
-+++ b/drivers/staging/hv/netvsc_api.h
-@@ -118,6 +118,7 @@ struct netvsc_device_info {
+diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
+index 4c08328..d8ce28e 100644
+--- a/drivers/staging/hv/storvsc_drv.c
++++ b/drivers/staging/hv/storvsc_drv.c
+@@ -536,7 +536,7 @@ static int storvsc_drv_init(void)
+ }
  
- /* Interface */
- int netvsc_device_add(struct hv_device *device, void *additional_info);
-+int netvsc_device_remove(struct hv_device *device);
- int netvsc_initialize(struct hv_driver *drv);
- int rndis_filter_open(struct hv_device *dev);
- int rndis_filter_close(struct hv_device *dev);
+ 
+-static int stor_vsc_on_host_reset(struct hv_device *device)
++static int storvsc_host_reset(struct hv_device *device)
+ {
+ 	struct storvsc_device *stor_device;
+ 	struct hv_storvsc_request *request;
+@@ -933,7 +933,7 @@ static int storvsc_host_reset_handler(struct scsi_cmnd *scmnd)
+ 		    scmnd->device, dev);
+ 
+ 	/* Invokes the vsc to reset the host/bus */
+-	ret = stor_vsc_on_host_reset(dev);
++	ret = storvsc_host_reset(dev);
+ 	if (ret != 0)
+ 		return ret;
+ 
 -- 
 1.7.4.1
