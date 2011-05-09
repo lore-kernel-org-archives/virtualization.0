@@ -1,7 +1,7 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 149/206] Staging: hv: Get rid of an empty function
-Date: Mon,  9 May 2011 14:57:11 -0700
-Message-ID: <1304978288-22999-149-git-send-email-kys@microsoft.com>
+Subject: [PATCH 146/206] Staging: hv: Directly assign the driver name
+Date: Mon,  9 May 2011 14:57:08 -0700
+Message-ID: <1304978288-22999-146-git-send-email-kys@microsoft.com>
 References: <1304978242-22958-1-git-send-email-kys@microsoft.com>
  <1304978288-22999-1-git-send-email-kys@microsoft.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
@@ -11,42 +11,28 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>, Hank Janssen <hjanssen@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Now, get rid of the empty function.
+Directly assign the driver name.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/hv_mouse.c |   10 ----------
- 1 files changed, 0 insertions(+), 10 deletions(-)
+ drivers/staging/hv/hv_mouse.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
 diff --git a/drivers/staging/hv/hv_mouse.c b/drivers/staging/hv/hv_mouse.c
-index 85b95d8..6dc2761 100644
+index 4475534..5f30e39 100644
 --- a/drivers/staging/hv/hv_mouse.c
 +++ b/drivers/staging/hv/hv_mouse.c
-@@ -977,22 +977,12 @@ static void mousevsc_drv_exit(void)
- 	return;
- }
+@@ -997,7 +997,7 @@ static int __init mousevsc_init(void)
+ 	/* Callback to client driver to complete the initialization */
+ 	mouse_vsc_initialize(&input_drv_obj->base);
  
--static int mouse_vsc_initialize(struct hv_driver *driver)
--{
--
--	return 0;
--}
--
--
- static int __init mousevsc_init(void)
- {
--	struct mousevsc_drv_obj *input_drv_obj = &mousevsc_drv;
- 	struct hv_driver *drv = &mousevsc_drv.base;
+-	drv->driver.name = input_drv_obj->base.name;
++	drv->driver.name = driver_name;
  
- 	DPRINT_INFO(INPUTVSC_DRV, "Hyper-V Mouse driver initializing.");
- 
--	/* Callback to client driver to complete the initialization */
--	mouse_vsc_initialize(&input_drv_obj->base);
- 	memcpy(&drv->dev_type, &mouse_guid,
- 	       sizeof(struct hv_guid));
- 
+ 	/* The driver belongs to vmbus */
+ 	vmbus_child_driver_register(&drv->driver);
 -- 
 1.7.4.1
