@@ -1,8 +1,7 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 132/206] Staging: hv: Compute max_outstanding_req_per_channel
-	where it is needed
-Date: Mon,  9 May 2011 14:56:54 -0700
-Message-ID: <1304978288-22999-132-git-send-email-kys@microsoft.com>
+Subject: [PATCH 077/206] Staging: hv: Get rid of call to cleanup()
+Date: Mon,  9 May 2011 14:55:59 -0700
+Message-ID: <1304978288-22999-77-git-send-email-kys@microsoft.com>
 References: <1304978242-22958-1-git-send-email-kys@microsoft.com>
 	<1304978288-22999-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -23,69 +22,37 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Compute max_outstanding_req_per_channel where it is needed.
+cleanup() is an empty function; get rid of it.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/storvsc_drv.c |   30 +++++++++++++++---------------
- 1 files changed, 15 insertions(+), 15 deletions(-)
+ drivers/staging/hv/netvsc_drv.c |    4 ----
+ 1 files changed, 0 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
-index 07db877..7d8b8f9 100644
---- a/drivers/staging/hv/storvsc_drv.c
-+++ b/drivers/staging/hv/storvsc_drv.c
-@@ -90,20 +90,6 @@ static int storvsc_initialize(struct hv_driver *driver)
- 	memcpy(&driver->dev_type, &gStorVscDeviceType,
- 	       sizeof(struct hv_guid));
+diff --git a/drivers/staging/hv/netvsc_drv.c b/drivers/staging/hv/netvsc_drv.c
+index 3fc39cd..0e81a93 100644
+--- a/drivers/staging/hv/netvsc_drv.c
++++ b/drivers/staging/hv/netvsc_drv.c
+@@ -444,7 +444,6 @@ static int netvsc_drv_exit_cb(struct device *dev, void *data)
  
--
--	/*
--	 * Divide the ring buffer data size (which is 1 page less
--	 * than the ring buffer size since that page is reserved for
--	 * the ring buffer indices) by the max request size (which is
--	 * vmbus_channel_packet_multipage_buffer + struct vstor_packet + u64)
--	 */
--	stor_driver->max_outstanding_req_per_channel =
--		((stor_driver->ring_buffer_size - PAGE_SIZE) /
--		  ALIGN(MAX_MULTIPAGE_BUFFER_PACKET +
--			   sizeof(struct vstor_packet) + sizeof(u64),
--			   sizeof(u64)));
--
--
- 	return 0;
- }
- 
-@@ -797,13 +783,27 @@ static int storvsc_drv_init(void)
+ static void netvsc_drv_exit(void)
+ {
+-	struct netvsc_driver *netvsc_drv_obj = &g_netvsc_drv;
+ 	struct hv_driver *drv = &g_netvsc_drv.base;
+ 	struct device *current_dev;
  	int ret;
- 	struct storvsc_driver *storvsc_drv_obj = &storvsc_drv;
- 	struct hv_driver *drv = &storvsc_drv.base;
-+	u32 max_outstanding_req_per_channel;
-+
-+	/*
-+	 * Divide the ring buffer data size (which is 1 page less
-+	 * than the ring buffer size since that page is reserved for
-+	 * the ring buffer indices) by the max request size (which is
-+	 * vmbus_channel_packet_multipage_buffer + struct vstor_packet + u64)
-+	 */
-+
-+	max_outstanding_req_per_channel =
-+	((storvsc_ringbuffer_size - PAGE_SIZE) /
-+	ALIGN(MAX_MULTIPAGE_BUFFER_PACKET +
-+	sizeof(struct vstor_packet) + sizeof(u64),
-+	sizeof(u64)));
+@@ -466,9 +465,6 @@ static void netvsc_drv_exit(void)
+ 		device_unregister(current_dev);
+ 	}
  
- 	storvsc_drv_obj->ring_buffer_size = storvsc_ringbuffer_size;
+-	if (netvsc_drv_obj->base.cleanup)
+-		netvsc_drv_obj->base.cleanup(&netvsc_drv_obj->base);
+-
+ 	vmbus_child_driver_unregister(&drv->driver);
  
- 	/* Callback to client driver to complete the initialization */
- 	storvsc_initialize(&storvsc_drv_obj->base);
- 
--	if (storvsc_drv_obj->max_outstanding_req_per_channel <
-+	if (max_outstanding_req_per_channel <
- 	    STORVSC_MAX_IO_REQUESTS)
- 		return -1;
- 
+ 	return;
 -- 
 1.7.4.1
