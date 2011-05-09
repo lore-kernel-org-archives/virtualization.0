@@ -1,8 +1,7 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 075/206] Staging: hv: Get rid of the indirection in invoking
-	rndis_filter_device_remove()
-Date: Mon,  9 May 2011 14:55:57 -0700
-Message-ID: <1304978288-22999-75-git-send-email-kys@microsoft.com>
+Subject: [PATCH 100/206] Staging: hv: Rename get_ringbuffer_interrupt_mask
+Date: Mon,  9 May 2011 14:56:22 -0700
+Message-ID: <1304978288-22999-100-git-send-email-kys@microsoft.com>
 References: <1304978242-22958-1-git-send-email-kys@microsoft.com>
 	<1304978288-22999-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -30,58 +29,74 @@ Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/netvsc_drv.c |   11 ++---------
- 1 files changed, 2 insertions(+), 9 deletions(-)
+ drivers/staging/hv/channel.c     |    6 +++---
+ drivers/staging/hv/ring_buffer.c |    4 ++--
+ drivers/staging/hv/ring_buffer.h |    2 +-
+ 3 files changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/staging/hv/netvsc_drv.c b/drivers/staging/hv/netvsc_drv.c
-index d962308..3fc39cd 100644
---- a/drivers/staging/hv/netvsc_drv.c
-+++ b/drivers/staging/hv/netvsc_drv.c
-@@ -342,8 +342,6 @@ static void netvsc_send_garp(struct work_struct *w)
+diff --git a/drivers/staging/hv/channel.c b/drivers/staging/hv/channel.c
+index 9f8bed2..3274b29 100644
+--- a/drivers/staging/hv/channel.c
++++ b/drivers/staging/hv/channel.c
+@@ -721,7 +721,7 @@ int vmbus_sendpacket(struct vmbus_channel *channel, const void *buffer,
+ 	ret = hv_ringbuffer_write(&channel->outbound, bufferlist, 3);
  
- static int netvsc_probe(struct hv_device *dev)
+ 	/* TODO: We should determine if this is optional */
+-	if (ret == 0 && !get_ringbuffer_interrupt_mask(&channel->outbound))
++	if (ret == 0 && !hv_get_ringbuffer_interrupt_mask(&channel->outbound))
+ 		vmbus_setevent(channel);
+ 
+ 	return ret;
+@@ -786,7 +786,7 @@ int vmbus_sendpacket_pagebuffer(struct vmbus_channel *channel,
+ 	ret = hv_ringbuffer_write(&channel->outbound, bufferlist, 3);
+ 
+ 	/* TODO: We should determine if this is optional */
+-	if (ret == 0 && !get_ringbuffer_interrupt_mask(&channel->outbound))
++	if (ret == 0 && !hv_get_ringbuffer_interrupt_mask(&channel->outbound))
+ 		vmbus_setevent(channel);
+ 
+ 	return ret;
+@@ -851,7 +851,7 @@ int vmbus_sendpacket_multipagebuffer(struct vmbus_channel *channel,
+ 	ret = hv_ringbuffer_write(&channel->outbound, bufferlist, 3);
+ 
+ 	/* TODO: We should determine if this is optional */
+-	if (ret == 0 && !get_ringbuffer_interrupt_mask(&channel->outbound))
++	if (ret == 0 && !hv_get_ringbuffer_interrupt_mask(&channel->outbound))
+ 		vmbus_setevent(channel);
+ 
+ 	return ret;
+diff --git a/drivers/staging/hv/ring_buffer.c b/drivers/staging/hv/ring_buffer.c
+index 2a05059..013b7a5 100644
+--- a/drivers/staging/hv/ring_buffer.c
++++ b/drivers/staging/hv/ring_buffer.c
+@@ -285,13 +285,13 @@ void ringbuffer_get_debuginfo(struct hv_ring_buffer_info *ring_info,
+ /*++
+ 
+ Name:
+-	get_ringbuffer_interrupt_mask()
++	hv_get_ringbuffer_interrupt_mask()
+ 
+ Description:
+ 	Get the interrupt mask for the specified ring buffer
+ 
+ --*/
+-u32 get_ringbuffer_interrupt_mask(struct hv_ring_buffer_info *rbi)
++u32 hv_get_ringbuffer_interrupt_mask(struct hv_ring_buffer_info *rbi)
  {
--	struct netvsc_driver *net_drv_obj =
--		drv_to_netvscdrv(dev->device.driver);
- 	struct net_device *net = NULL;
- 	struct net_device_context *net_device_ctx;
- 	struct netvsc_device_info device_info;
-@@ -398,7 +396,7 @@ static int netvsc_probe(struct hv_device *dev)
- 	ret = register_netdev(net);
- 	if (ret != 0) {
- 		/* Remove the device and release the resource */
--		net_drv_obj->base.dev_rm(dev);
-+		rndis_filter_device_remove(dev);
- 		free_netdev(net);
- 	}
+ 	return rbi->ring_buffer->interrupt_mask;
+ }
+diff --git a/drivers/staging/hv/ring_buffer.h b/drivers/staging/hv/ring_buffer.h
+index 0ebf3be..6454105 100644
+--- a/drivers/staging/hv/ring_buffer.h
++++ b/drivers/staging/hv/ring_buffer.h
+@@ -93,7 +93,7 @@ int hv_ringbuffer_read(struct hv_ring_buffer_info *ring_info,
+ 		   u32 buflen,
+ 		   u32 offset);
  
-@@ -407,8 +405,6 @@ static int netvsc_probe(struct hv_device *dev)
+-u32 get_ringbuffer_interrupt_mask(struct hv_ring_buffer_info *ring_info);
++u32 hv_get_ringbuffer_interrupt_mask(struct hv_ring_buffer_info *ring_info);
  
- static int netvsc_remove(struct hv_device *dev)
- {
--	struct netvsc_driver *net_drv_obj =
--		drv_to_netvscdrv(dev->device.driver);
- 	struct net_device *net = dev_get_drvdata(&dev->device);
- 	int ret;
+ void dump_ring_info(struct hv_ring_buffer_info *ring_info, char *prefix);
  
-@@ -417,9 +413,6 @@ static int netvsc_remove(struct hv_device *dev)
- 		return 0;
- 	}
- 
--	if (!net_drv_obj->base.dev_rm)
--		return -1;
--
- 	/* Stop outbound asap */
- 	netif_stop_queue(net);
- 	/* netif_carrier_off(net); */
-@@ -430,7 +423,7 @@ static int netvsc_remove(struct hv_device *dev)
- 	 * Call to the vsc driver to let it know that the device is being
- 	 * removed
- 	 */
--	ret = net_drv_obj->base.dev_rm(dev);
-+	ret = rndis_filter_device_remove(dev);
- 	if (ret != 0) {
- 		/* TODO: */
- 		netdev_err(net, "unable to remove vsc device (ret %d)\n", ret);
 -- 
 1.7.4.1
