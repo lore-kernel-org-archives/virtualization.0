@@ -1,7 +1,7 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 192/206] Staging: hv: Get rid of netvsc_api.h
-Date: Mon,  9 May 2011 14:57:54 -0700
-Message-ID: <1304978288-22999-192-git-send-email-kys@microsoft.com>
+Subject: [PATCH 135/206] Staging: hv: Use the rinbuffer size info in struct storvsc_device_info
+Date: Mon,  9 May 2011 14:56:57 -0700
+Message-ID: <1304978288-22999-135-git-send-email-kys@microsoft.com>
 References: <1304978242-22958-1-git-send-email-kys@microsoft.com>
  <1304978288-22999-1-git-send-email-kys@microsoft.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
@@ -11,152 +11,93 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>, Hank Janssen <hjanssen@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Now, get rid of netvsc_api.h
+Use the rinbuffer size info in struct storvsc_device_info.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/netvsc_api.h |  130 ---------------------------------------
- 1 files changed, 0 insertions(+), 130 deletions(-)
- delete mode 100644 drivers/staging/hv/netvsc_api.h
+ drivers/staging/hv/blkvsc_drv.c  |    5 ++---
+ drivers/staging/hv/storvsc.c     |   10 ++++------
+ drivers/staging/hv/storvsc_drv.c |    1 +
+ 3 files changed, 7 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/staging/hv/netvsc_api.h b/drivers/staging/hv/netvsc_api.h
-deleted file mode 100644
-index b385c9d..0000000
---- a/drivers/staging/hv/netvsc_api.h
-+++ /dev/null
-@@ -1,130 +0,0 @@
--/*
-- *
-- * Copyright (c) 2009, Microsoft Corporation.
-- *
-- * This program is free software; you can redistribute it and/or modify it
-- * under the terms and conditions of the GNU General Public License,
-- * version 2, as published by the Free Software Foundation.
-- *
-- * This program is distributed in the hope it will be useful, but WITHOUT
-- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
-- * more details.
-- *
-- * You should have received a copy of the GNU General Public License along with
-- * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
-- * Place - Suite 330, Boston, MA 02111-1307 USA.
-- *
-- * Authors:
-- *   Haiyang Zhang <haiyangz@microsoft.com>
-- *   Hank Janssen  <hjanssen@microsoft.com>
-- *
-- */
+diff --git a/drivers/staging/hv/blkvsc_drv.c b/drivers/staging/hv/blkvsc_drv.c
+index eebaaee..c04aaa3 100644
+--- a/drivers/staging/hv/blkvsc_drv.c
++++ b/drivers/staging/hv/blkvsc_drv.c
+@@ -146,6 +146,8 @@ static int blkvsc_device_add(struct hv_device *device,
+ 
+ 	device_info = (struct storvsc_device_info *)additional_info;
+ 
++	device_info->ring_buffer_size = blkvsc_ringbuffer_size;
++
+ 	ret = storvsc_dev_add(device, additional_info);
+ 	if (ret != 0)
+ 		return ret;
+@@ -818,14 +820,11 @@ static const struct block_device_operations block_ops = {
+  */
+ static int blkvsc_drv_init(void)
+ {
+-	struct storvsc_driver *storvsc_drv = &blkvsc_drv;
+ 	struct hv_driver *drv = &blkvsc_drv.base;
+ 	int ret;
+ 
+ 	BUILD_BUG_ON(sizeof(sector_t) != 8);
+ 
+-	storvsc_drv->ring_buffer_size = blkvsc_ringbuffer_size;
 -
--
--#ifndef _NETVSC_API_H_
--#define _NETVSC_API_H_
--
--#include "vmbus_api.h"
--#include "vmbus.h"
--
--/* Fwd declaration */
--struct hv_netvsc_packet;
--
--/* Represent the xfer page packet which contains 1 or more netvsc packet */
--struct xferpage_packet {
--	struct list_head list_ent;
--
--	/* # of netvsc packets this xfer packet contains */
--	u32 count;
--};
--
--/* The number of pages which are enough to cover jumbo frame buffer. */
--#define NETVSC_PACKET_MAXPAGE		4
--
--/*
-- * Represent netvsc packet which contains 1 RNDIS and 1 ethernet frame
-- * within the RNDIS
-- */
--struct hv_netvsc_packet {
--	/* Bookkeeping stuff */
--	struct list_head list_ent;
--
--	struct hv_device *device;
--	bool is_data_pkt;
--
--	/*
--	 * Valid only for receives when we break a xfer page packet
--	 * into multiple netvsc packets
--	 */
--	struct xferpage_packet *xfer_page_pkt;
--
--	union {
--		struct{
--			u64 recv_completion_tid;
--			void *recv_completion_ctx;
--			void (*recv_completion)(void *context);
--		} recv;
--		struct{
--			u64 send_completion_tid;
--			void *send_completion_ctx;
--			void (*send_completion)(void *context);
--		} send;
--	} completion;
--
--	/* This points to the memory after page_buf */
--	void *extension;
--
--	u32 total_data_buflen;
--	/* Points to the send/receive buffer where the ethernet frame is */
--	u32 page_buf_cnt;
--	struct hv_page_buffer page_buf[NETVSC_PACKET_MAXPAGE];
--};
--
--/* Represents the net vsc driver */
--struct netvsc_driver {
--	/* Must be the first field */
--	/* Which is a bug FIXME! */
--	struct hv_driver base;
--
--	u32 ring_buf_size;
--	u32 req_ext_size;
--
--	/*
--	 * This is set by the caller to allow us to callback when we
--	 * receive a packet from the "wire"
--	 */
--	int (*recv_cb)(struct hv_device *dev,
--				 struct hv_netvsc_packet *packet);
--	void (*link_status_change)(struct hv_device *dev, u32 status);
--
--	/* Specific to this driver */
--	int (*send)(struct hv_device *dev, struct hv_netvsc_packet *packet);
--
--	void *ctx;
--};
--
--static inline
--struct netvsc_driver *drv_to_netvscdrv(struct device_driver *d)
--{
--	struct hv_driver *hvdrv = drv_to_hv_drv(d);
--	return container_of(hvdrv, struct netvsc_driver, base);
--}
--
--struct netvsc_device_info {
--	unsigned char mac_adr[6];
--	bool link_state;	/* 0 - link up, 1 - link down */
--};
--
--/* Interface */
--int netvsc_device_add(struct hv_device *device, void *additional_info);
--int netvsc_device_remove(struct hv_device *device);
--int netvsc_initialize(struct hv_driver *drv);
--int rndis_filter_open(struct hv_device *dev);
--int rndis_filter_close(struct hv_device *dev);
--int rndis_filte_device_add(struct hv_device *dev,
--			void *additional_info);
--int rndis_filter_device_remove(struct hv_device *dev);
--
--
--#endif /* _NETVSC_API_H_ */
+ 	memcpy(&drv->dev_type, &dev_type, sizeof(struct hv_guid));
+ 	drv->name = drv_name;
+ 	drv->driver.name = drv_name;
+diff --git a/drivers/staging/hv/storvsc.c b/drivers/staging/hv/storvsc.c
+index 41361f5..8d7a490 100644
+--- a/drivers/staging/hv/storvsc.c
++++ b/drivers/staging/hv/storvsc.c
+@@ -363,19 +363,17 @@ static void storvsc_on_channel_callback(void *context)
+ 	return;
+ }
+ 
+-static int storvsc_connect_to_vsp(struct hv_device *device)
++static int storvsc_connect_to_vsp(struct hv_device *device, u32 ring_size)
+ {
+ 	struct vmstorage_channel_properties props;
+-	struct storvsc_driver *stor_driver;
+ 	int ret;
+ 
+-	stor_driver = drv_to_stordrv(device->device.driver);
+ 	memset(&props, 0, sizeof(struct vmstorage_channel_properties));
+ 
+ 	/* Open the channel */
+ 	ret = vmbus_open(device->channel,
+-			 stor_driver->ring_buffer_size,
+-			 stor_driver->ring_buffer_size,
++			 ring_size,
++			 ring_size,
+ 			 (void *)&props,
+ 			 sizeof(struct vmstorage_channel_properties),
+ 			 storvsc_on_channel_callback, device);
+@@ -413,7 +411,7 @@ int storvsc_dev_add(struct hv_device *device,
+ 
+ 	stor_device->port_number = device_info->port_number;
+ 	/* Send it back up */
+-	ret = storvsc_connect_to_vsp(device);
++	ret = storvsc_connect_to_vsp(device, device_info->ring_buffer_size);
+ 
+ 	device_info->path_id = stor_device->path_id;
+ 	device_info->target_id = stor_device->target_id;
+diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
+index 7d8b8f9..1fb0521 100644
+--- a/drivers/staging/hv/storvsc_drv.c
++++ b/drivers/staging/hv/storvsc_drv.c
+@@ -733,6 +733,7 @@ static int storvsc_probe(struct hv_device *device)
+ 	}
+ 
+ 	device_info.port_number = host->host_no;
++	device_info.ring_buffer_size  = storvsc_ringbuffer_size;
+ 	/* Call to the vsc driver to add the device */
+ 	ret = storvsc_dev_add(device, (void *)&device_info);
+ 
 -- 
 1.7.4.1
