@@ -1,7 +1,7 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 028/206] Staging: hv: Rename stor_vsc_on_channel_callback
-Date: Mon,  9 May 2011 14:55:10 -0700
-Message-ID: <1304978288-22999-28-git-send-email-kys@microsoft.com>
+Subject: [PATCH 029/206] Staging: hv: Rename stor_vsc_connect_to_vsp
+Date: Mon,  9 May 2011 14:55:11 -0700
+Message-ID: <1304978288-22999-29-git-send-email-kys@microsoft.com>
 References: <1304978242-22958-1-git-send-email-kys@microsoft.com>
 	<1304978288-22999-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -33,26 +33,26 @@ Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
  1 files changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/staging/hv/storvsc.c b/drivers/staging/hv/storvsc.c
-index ab9da5c..b2ffbb7 100644
+index b2ffbb7..234ce8b 100644
 --- a/drivers/staging/hv/storvsc.c
 +++ b/drivers/staging/hv/storvsc.c
-@@ -362,7 +362,7 @@ static void storvsc_on_receive(struct hv_device *device,
- 	}
+@@ -412,7 +412,7 @@ static void storvsc_on_channel_callback(void *context)
+ 	return;
  }
  
--static void stor_vsc_on_channel_callback(void *context)
-+static void storvsc_on_channel_callback(void *context)
+-static int stor_vsc_connect_to_vsp(struct hv_device *device)
++static int storvsc_connect_to_vsp(struct hv_device *device)
  {
- 	struct hv_device *device = (struct hv_device *)context;
- 	struct storvsc_device *stor_device;
-@@ -427,7 +427,7 @@ static int stor_vsc_connect_to_vsp(struct hv_device *device)
- 			 stor_driver->ring_buffer_size,
- 			 (void *)&props,
- 			 sizeof(struct vmstorage_channel_properties),
--			 stor_vsc_on_channel_callback, device);
-+			 storvsc_on_channel_callback, device);
+ 	struct vmstorage_channel_properties props;
+ 	struct storvsc_driver *stor_driver;
+@@ -471,7 +471,7 @@ int storvsc_dev_add(struct hv_device *device,
  
- 	DPRINT_DBG(STORVSC, "storage props: path id %d, tgt id %d, max xfer %d",
- 		   props.path_id, props.target_id, props.max_transfer_bytes);
+ 	stor_device->port_number = device_info->port_number;
+ 	/* Send it back up */
+-	ret = stor_vsc_connect_to_vsp(device);
++	ret = storvsc_connect_to_vsp(device);
+ 
+ 	device_info->path_id = stor_device->path_id;
+ 	device_info->target_id = stor_device->target_id;
 -- 
 1.7.4.1
