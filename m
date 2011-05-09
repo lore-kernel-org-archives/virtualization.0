@@ -1,8 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 057/206] Staging: hv: Get rid of the forward declaration of
-	storvsc_probe()
-Date: Mon,  9 May 2011 14:55:39 -0700
-Message-ID: <1304978288-22999-57-git-send-email-kys@microsoft.com>
+Subject: [PATCH 043/206] Staging: hv: Get rid of the forward declaration for
+	do_bounce_buffer()
+Date: Mon,  9 May 2011 14:55:25 -0700
+Message-ID: <1304978288-22999-43-git-send-email-kys@microsoft.com>
 References: <1304978242-22958-1-git-send-email-kys@microsoft.com>
 	<1304978288-22999-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -30,178 +30,88 @@ Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/storvsc_drv.c |  143 +++++++++++++++++++-------------------
- 1 files changed, 71 insertions(+), 72 deletions(-)
+ drivers/staging/hv/storvsc_drv.c |   55 ++++++++++++++++++-------------------
+ 1 files changed, 27 insertions(+), 28 deletions(-)
 
 diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
-index 4d4226a..37bc4dd 100644
+index bf5b138..9380866 100644
 --- a/drivers/staging/hv/storvsc_drv.c
 +++ b/drivers/staging/hv/storvsc_drv.c
-@@ -766,8 +766,6 @@ retry_request:
- 
- static DEF_SCSI_QCMD(storvsc_queuecommand)
- 
--/* Static decl */
--static int storvsc_probe(struct hv_device *dev);
- 
- /* The one and only one */
- static struct storvsc_driver g_storvsc_drv;
-@@ -802,78 +800,9 @@ static struct scsi_host_template scsi_driver = {
- 
- 
- /*
-- * storvsc_drv_init - StorVsc driver initialization.
-- */
--static int storvsc_drv_init(void)
--{
--	int ret;
--	struct storvsc_driver *storvsc_drv_obj = &g_storvsc_drv;
--	struct hv_driver *drv = &g_storvsc_drv.base;
--
--	storvsc_drv_obj->ring_buffer_size = storvsc_ringbuffer_size;
--
--	/* Callback to client driver to complete the initialization */
--	storvsc_initialize(&storvsc_drv_obj->base);
--
--	DPRINT_INFO(STORVSC_DRV,
--		    "max outstanding reqs %u",
--		    storvsc_drv_obj->max_outstanding_req_per_channel);
--
--	if (storvsc_drv_obj->max_outstanding_req_per_channel <
--	    STORVSC_MAX_IO_REQUESTS)
--		return -1;
--
--	drv->driver.name = storvsc_drv_obj->base.name;
--
--	drv->probe = storvsc_probe;
--	drv->remove = storvsc_remove;
--
--	/* The driver belongs to vmbus */
--	ret = vmbus_child_driver_register(&drv->driver);
--
--	return ret;
--}
--
--static int storvsc_drv_exit_cb(struct device *dev, void *data)
--{
--	struct device **curr = (struct device **)data;
--	*curr = dev;
--	return 1; /* stop iterating */
--}
--
--static void storvsc_drv_exit(void)
--{
--	struct storvsc_driver *storvsc_drv_obj = &g_storvsc_drv;
--	struct hv_driver *drv = &g_storvsc_drv.base;
--	struct device *current_dev = NULL;
--	int ret;
--
--	while (1) {
--		current_dev = NULL;
--
--		/* Get the device */
--		ret = driver_for_each_device(&drv->driver, NULL,
--					     (void *) &current_dev,
--					     storvsc_drv_exit_cb);
--
--
--		if (current_dev == NULL)
--			break;
--
--		/* Initiate removal from the top-down */
--		device_unregister(current_dev);
--	}
--
--	if (storvsc_drv_obj->base.cleanup)
--		storvsc_drv_obj->base.cleanup(&storvsc_drv_obj->base);
--
--	vmbus_child_driver_unregister(&drv->driver);
--	return;
--}
--
--/*
-  * storvsc_probe - Add a new device for this driver
-  */
-+
- static int storvsc_probe(struct hv_device *device)
- {
- 	int ret;
-@@ -944,6 +873,76 @@ static int storvsc_probe(struct hv_device *device)
- 	return ret;
+@@ -163,6 +163,33 @@ static void destroy_bounce_buffer(struct scatterlist *sgl,
+ 	kfree(sgl);
  }
  
-+/*
-+ * storvsc_drv_init - StorVsc driver initialization.
-+ */
-+static int storvsc_drv_init(void)
++static int do_bounce_buffer(struct scatterlist *sgl, unsigned int sg_count)
 +{
-+	int ret;
-+	struct storvsc_driver *storvsc_drv_obj = &g_storvsc_drv;
-+	struct hv_driver *drv = &g_storvsc_drv.base;
++	int i;
 +
-+	storvsc_drv_obj->ring_buffer_size = storvsc_ringbuffer_size;
-+
-+	/* Callback to client driver to complete the initialization */
-+	storvsc_initialize(&storvsc_drv_obj->base);
-+
-+	DPRINT_INFO(STORVSC_DRV,
-+		    "max outstanding reqs %u",
-+		    storvsc_drv_obj->max_outstanding_req_per_channel);
-+
-+	if (storvsc_drv_obj->max_outstanding_req_per_channel <
-+	    STORVSC_MAX_IO_REQUESTS)
++	/* No need to check */
++	if (sg_count < 2)
 +		return -1;
 +
-+	drv->driver.name = storvsc_drv_obj->base.name;
-+
-+	drv->probe = storvsc_probe;
-+	drv->remove = storvsc_remove;
-+
-+	/* The driver belongs to vmbus */
-+	ret = vmbus_child_driver_register(&drv->driver);
-+
-+	return ret;
-+}
-+
-+static int storvsc_drv_exit_cb(struct device *dev, void *data)
-+{
-+	struct device **curr = (struct device **)data;
-+	*curr = dev;
-+	return 1; /* stop iterating */
-+}
-+
-+static void storvsc_drv_exit(void)
-+{
-+	struct storvsc_driver *storvsc_drv_obj = &g_storvsc_drv;
-+	struct hv_driver *drv = &g_storvsc_drv.base;
-+	struct device *current_dev = NULL;
-+	int ret;
-+
-+	while (1) {
-+		current_dev = NULL;
-+
-+		/* Get the device */
-+		ret = driver_for_each_device(&drv->driver, NULL,
-+					     (void *) &current_dev,
-+					     storvsc_drv_exit_cb);
-+
-+
-+		if (current_dev == NULL)
-+			break;
-+
-+		/* Initiate removal from the top-down */
-+		device_unregister(current_dev);
++	/* We have at least 2 sg entries */
++	for (i = 0; i < sg_count; i++) {
++		if (i == 0) {
++			/* make sure 1st one does not have hole */
++			if (sgl[i].offset + sgl[i].length != PAGE_SIZE)
++				return i;
++		} else if (i == sg_count - 1) {
++			/* make sure last one does not have hole */
++			if (sgl[i].offset != 0)
++				return i;
++		} else {
++			/* make sure no hole in the middle */
++			if (sgl[i].length != PAGE_SIZE || sgl[i].offset != 0)
++				return i;
++		}
 +	}
-+
-+	if (storvsc_drv_obj->base.cleanup)
-+		storvsc_drv_obj->base.cleanup(&storvsc_drv_obj->base);
-+
-+	vmbus_child_driver_unregister(&drv->driver);
-+	return;
++	return -1;
 +}
 +
- static int __init storvsc_init(void)
- {
- 	int ret;
+ /* Static decl */
+ static int storvsc_probe(struct hv_device *dev);
+ static int storvsc_queuecommand(struct Scsi_Host *shost, struct scsi_cmnd *scmnd);
+@@ -172,7 +199,6 @@ static int storvsc_remove(struct hv_device *dev);
+ static struct scatterlist *create_bounce_buffer(struct scatterlist *sgl,
+ 						unsigned int sg_count,
+ 						unsigned int len);
+-static int do_bounce_buffer(struct scatterlist *sgl, unsigned int sg_count);
+ static unsigned int copy_from_bounce_buffer(struct scatterlist *orig_sgl,
+ 					    struct scatterlist *bounce_sgl,
+ 					    unsigned int orig_sgl_count);
+@@ -499,33 +525,6 @@ static void storvsc_commmand_completion(struct hv_storvsc_request *request)
+ 	kmem_cache_free(host_dev->request_pool, cmd_request);
+ }
+ 
+-static int do_bounce_buffer(struct scatterlist *sgl, unsigned int sg_count)
+-{
+-	int i;
+-
+-	/* No need to check */
+-	if (sg_count < 2)
+-		return -1;
+-
+-	/* We have at least 2 sg entries */
+-	for (i = 0; i < sg_count; i++) {
+-		if (i == 0) {
+-			/* make sure 1st one does not have hole */
+-			if (sgl[i].offset + sgl[i].length != PAGE_SIZE)
+-				return i;
+-		} else if (i == sg_count - 1) {
+-			/* make sure last one does not have hole */
+-			if (sgl[i].offset != 0)
+-				return i;
+-		} else {
+-			/* make sure no hole in the middle */
+-			if (sgl[i].length != PAGE_SIZE || sgl[i].offset != 0)
+-				return i;
+-		}
+-	}
+-	return -1;
+-}
+-
+ static struct scatterlist *create_bounce_buffer(struct scatterlist *sgl,
+ 						unsigned int sg_count,
+ 						unsigned int len)
 -- 
 1.7.4.1
