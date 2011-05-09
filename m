@@ -1,8 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 041/206] Staging: hv: Get rid of the forward declaration for
-	storvsc_device_configure()
-Date: Mon,  9 May 2011 14:55:23 -0700
-Message-ID: <1304978288-22999-41-git-send-email-kys@microsoft.com>
+Subject: [PATCH 048/206] Staging: hv: Get rid of the forward declaration of
+	storvsc_get_chs()
+Date: Mon,  9 May 2011 14:55:30 -0700
+Message-ID: <1304978288-22999-48-git-send-email-kys@microsoft.com>
 References: <1304978242-22958-1-git-send-email-kys@microsoft.com>
 	<1304978288-22999-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -30,68 +30,195 @@ Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/storvsc_drv.c |   39 ++++++++++++++++++-------------------
- 1 files changed, 19 insertions(+), 20 deletions(-)
+ drivers/staging/hv/storvsc_drv.c |  164 ++++++++++++++++++-------------------
+ 1 files changed, 80 insertions(+), 84 deletions(-)
 
 diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
-index 44dbaae..4196d6a 100644
+index 6f23f52..4c08328 100644
 --- a/drivers/staging/hv/storvsc_drv.c
 +++ b/drivers/staging/hv/storvsc_drv.c
-@@ -129,10 +129,28 @@ static int storvsc_merge_bvec(struct request_queue *q,
- 	return bvec->bv_len;
+@@ -381,15 +381,91 @@ static int storvsc_remove(struct hv_device *dev)
+ 	return 0;
  }
  
-+static int storvsc_device_configure(struct scsi_device *sdevice)
++
++static int storvsc_get_chs(struct scsi_device *sdev, struct block_device * bdev,
++			   sector_t capacity, int *info)
 +{
-+	scsi_adjust_queue_depth(sdevice, MSG_SIMPLE_TAG,
-+				STORVSC_MAX_IO_REQUESTS);
++	sector_t total_sectors = capacity;
++	sector_t cylinder_times_heads = 0;
++	sector_t temp = 0;
 +
-+	DPRINT_INFO(STORVSC_DRV, "sdev (%p) - setting max segment size to %ld",
-+		    sdevice, PAGE_SIZE);
-+	blk_queue_max_segment_size(sdevice->request_queue, PAGE_SIZE);
++	int sectors_per_track = 0;
++	int heads = 0;
++	int cylinders = 0;
++	int rem = 0;
 +
-+	DPRINT_INFO(STORVSC_DRV, "sdev (%p) - adding merge bio vec routine",
-+		    sdevice);
-+	blk_queue_merge_bvec(sdevice->request_queue, storvsc_merge_bvec);
++	if (total_sectors > (65535 * 16 * 255))
++		total_sectors = (65535 * 16 * 255);
 +
-+	blk_queue_bounce_limit(sdevice->request_queue, BLK_BOUNCE_ANY);
-+	/* sdevice->timeout = (2000 * HZ);//(75 * HZ); */
++	if (total_sectors >= (65535 * 16 * 63)) {
++		sectors_per_track = 255;
++		heads = 16;
++
++		cylinder_times_heads = total_sectors;
++		/* sector_div stores the quotient in cylinder_times_heads */
++		rem = sector_div(cylinder_times_heads, sectors_per_track);
++	} else {
++		sectors_per_track = 17;
++
++		cylinder_times_heads = total_sectors;
++		/* sector_div stores the quotient in cylinder_times_heads */
++		rem = sector_div(cylinder_times_heads, sectors_per_track);
++
++		temp = cylinder_times_heads + 1023;
++		/* sector_div stores the quotient in temp */
++		rem = sector_div(temp, 1024);
++
++		heads = temp;
++
++		if (heads < 4)
++			heads = 4;
++
++		if (cylinder_times_heads >= (heads * 1024) || (heads > 16)) {
++			sectors_per_track = 31;
++			heads = 16;
++
++			cylinder_times_heads = total_sectors;
++			/*
++			 * sector_div stores the quotient in
++			 * cylinder_times_heads
++			 */
++			rem = sector_div(cylinder_times_heads,
++					 sectors_per_track);
++		}
++
++		if (cylinder_times_heads >= (heads * 1024)) {
++			sectors_per_track = 63;
++			heads = 16;
++
++			cylinder_times_heads = total_sectors;
++			/*
++			 * sector_div stores the quotient in
++			 * cylinder_times_heads
++			 */
++			rem = sector_div(cylinder_times_heads,
++					 sectors_per_track);
++		}
++	}
++
++	temp = cylinder_times_heads;
++	/* sector_div stores the quotient in temp */
++	rem = sector_div(temp, heads);
++	cylinders = temp;
++
++	info[0] = heads;
++	info[1] = sectors_per_track;
++	info[2] = cylinders;
++
++	DPRINT_INFO(STORVSC_DRV, "CHS (%d, %d, %d)", cylinders, heads,
++		    sectors_per_track);
 +
 +	return 0;
 +}
-+
  /* Static decl */
  static int storvsc_probe(struct hv_device *dev);
  static int storvsc_queuecommand(struct Scsi_Host *shost, struct scsi_cmnd *scmnd);
--static int storvsc_device_configure(struct scsi_device *);
  static int storvsc_host_reset_handler(struct scsi_cmnd *scmnd);
- static int storvsc_remove(struct hv_device *dev);
  
-@@ -830,25 +848,6 @@ retry_request:
+-static int storvsc_get_chs(struct scsi_device *sdev, struct block_device *bdev,
+-			   sector_t capacity, int *info);
+-
+-
+ static int storvsc_ringbuffer_size = STORVSC_RING_BUFFER_SIZE;
+ module_param(storvsc_ringbuffer_size, int, S_IRUGO);
+ MODULE_PARM_DESC(storvsc_ringbuffer_size, "Ring buffer size (bytes)");
+@@ -867,86 +943,6 @@ static int storvsc_host_reset_handler(struct scsi_cmnd *scmnd)
+ 	return ret;
+ }
  
- static DEF_SCSI_QCMD(storvsc_queuecommand)
- 
--static int storvsc_device_configure(struct scsi_device *sdevice)
+-static int storvsc_get_chs(struct scsi_device *sdev, struct block_device * bdev,
+-			   sector_t capacity, int *info)
 -{
--	scsi_adjust_queue_depth(sdevice, MSG_SIMPLE_TAG,
--				STORVSC_MAX_IO_REQUESTS);
+-	sector_t total_sectors = capacity;
+-	sector_t cylinder_times_heads = 0;
+-	sector_t temp = 0;
 -
--	DPRINT_INFO(STORVSC_DRV, "sdev (%p) - setting max segment size to %ld",
--		    sdevice, PAGE_SIZE);
--	blk_queue_max_segment_size(sdevice->request_queue, PAGE_SIZE);
+-	int sectors_per_track = 0;
+-	int heads = 0;
+-	int cylinders = 0;
+-	int rem = 0;
 -
--	DPRINT_INFO(STORVSC_DRV, "sdev (%p) - adding merge bio vec routine",
--		    sdevice);
--	blk_queue_merge_bvec(sdevice->request_queue, storvsc_merge_bvec);
+-	if (total_sectors > (65535 * 16 * 255))
+-		total_sectors = (65535 * 16 * 255);
 -
--	blk_queue_bounce_limit(sdevice->request_queue, BLK_BOUNCE_ANY);
--	/* sdevice->timeout = (2000 * HZ);//(75 * HZ); */
+-	if (total_sectors >= (65535 * 16 * 63)) {
+-		sectors_per_track = 255;
+-		heads = 16;
 -
--	return 0;
+-		cylinder_times_heads = total_sectors;
+-		/* sector_div stores the quotient in cylinder_times_heads */
+-		rem = sector_div(cylinder_times_heads, sectors_per_track);
+-	} else {
+-		sectors_per_track = 17;
+-
+-		cylinder_times_heads = total_sectors;
+-		/* sector_div stores the quotient in cylinder_times_heads */
+-		rem = sector_div(cylinder_times_heads, sectors_per_track);
+-
+-		temp = cylinder_times_heads + 1023;
+-		/* sector_div stores the quotient in temp */
+-		rem = sector_div(temp, 1024);
+-
+-		heads = temp;
+-
+-		if (heads < 4)
+-			heads = 4;
+-
+-		if (cylinder_times_heads >= (heads * 1024) || (heads > 16)) {
+-			sectors_per_track = 31;
+-			heads = 16;
+-
+-			cylinder_times_heads = total_sectors;
+-			/*
+-			 * sector_div stores the quotient in
+-			 * cylinder_times_heads
+-			 */
+-			rem = sector_div(cylinder_times_heads,
+-					 sectors_per_track);
+-		}
+-
+-		if (cylinder_times_heads >= (heads * 1024)) {
+-			sectors_per_track = 63;
+-			heads = 16;
+-
+-			cylinder_times_heads = total_sectors;
+-			/*
+-			 * sector_div stores the quotient in
+-			 * cylinder_times_heads
+-			 */
+-			rem = sector_div(cylinder_times_heads,
+-					 sectors_per_track);
+-		}
+-	}
+-
+-	temp = cylinder_times_heads;
+-	/* sector_div stores the quotient in temp */
+-	rem = sector_div(temp, heads);
+-	cylinders = temp;
+-
+-	info[0] = heads;
+-	info[1] = sectors_per_track;
+-	info[2] = cylinders;
+-
+-	DPRINT_INFO(STORVSC_DRV, "CHS (%d, %d, %d)", cylinders, heads,
+-		    sectors_per_track);
+-
+-    return 0;
 -}
 -
- /*
-  * storvsc_host_reset_handler - Reset the scsi HBA
-  */
+ static int __init storvsc_init(void)
+ {
+ 	int ret;
 -- 
 1.7.4.1
