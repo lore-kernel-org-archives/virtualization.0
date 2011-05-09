@@ -1,8 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 020/206] Staging: hv: Rename the function
-	stor_vsc_get_major_info()
-Date: Mon,  9 May 2011 14:55:02 -0700
-Message-ID: <1304978288-22999-20-git-send-email-kys@microsoft.com>
+Subject: [PATCH 017/206] Staging: hv: Get rid of the indirection for invoking
+	io request
+Date: Mon,  9 May 2011 14:54:59 -0700
+Message-ID: <1304978288-22999-17-git-send-email-kys@microsoft.com>
 References: <1304978242-22958-1-git-send-email-kys@microsoft.com>
 	<1304978288-22999-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -30,49 +30,40 @@ Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/blkvsc_drv.c  |    2 +-
- drivers/staging/hv/storvsc.c     |    2 +-
- drivers/staging/hv/storvsc_api.h |    2 +-
- 3 files changed, 3 insertions(+), 3 deletions(-)
+ drivers/staging/hv/blkvsc_drv.c |    7 +------
+ 1 files changed, 1 insertions(+), 6 deletions(-)
 
 diff --git a/drivers/staging/hv/blkvsc_drv.c b/drivers/staging/hv/blkvsc_drv.c
-index 2e69af0..457d0bb 100644
+index bfec15c..9de7df7a 100644
 --- a/drivers/staging/hv/blkvsc_drv.c
 +++ b/drivers/staging/hv/blkvsc_drv.c
-@@ -958,7 +958,7 @@ static int blkvsc_probe(struct hv_device *dev)
+@@ -195,8 +195,6 @@ static int blk_vsc_initialize(struct hv_driver *driver)
+ 	DPRINT_INFO(BLKVSC, "max io outstd %u",
+ 		    stor_driver->max_outstanding_req_per_channel);
  
- 	dev_set_drvdata(&dev->device, blkdev);
+-	/* Setup the dispatch table */
+-	stor_driver->on_io_request = storvsc_do_io;
  
--	ret = stor_vsc_get_major_info(&device_info, &major_info);
-+	ret = storvsc_get_major_info(&device_info, &major_info);
- 
- 	if (ret)
- 		goto cleanup;
-diff --git a/drivers/staging/hv/storvsc.c b/drivers/staging/hv/storvsc.c
-index 7074520..8ee1ad0 100644
---- a/drivers/staging/hv/storvsc.c
-+++ b/drivers/staging/hv/storvsc.c
-@@ -615,7 +615,7 @@ int storvsc_do_io(struct hv_device *device,
-  *
-  */
- 
--int stor_vsc_get_major_info(struct storvsc_device_info *device_info,
-+int storvsc_get_major_info(struct storvsc_device_info *device_info,
- 			    struct storvsc_major_info *major_info)
+ 	return ret;
+ }
+@@ -206,9 +204,6 @@ static int blkvsc_submit_request(struct blkvsc_request *blkvsc_req,
+ 			void (*request_completion)(struct hv_storvsc_request *))
  {
- 	static bool ide0_registered;
-diff --git a/drivers/staging/hv/storvsc_api.h b/drivers/staging/hv/storvsc_api.h
-index 84ee5a9..32228c0 100644
---- a/drivers/staging/hv/storvsc_api.h
-+++ b/drivers/staging/hv/storvsc_api.h
-@@ -170,7 +170,7 @@ int storvsc_dev_remove(struct hv_device *device);
- int storvsc_do_io(struct hv_device *device,
- 				struct hv_storvsc_request *request);
+ 	struct block_device_context *blkdev = blkvsc_req->dev;
+-	struct hv_device *device_ctx = blkdev->device_ctx;
+-	struct storvsc_driver *storvsc_drv =
+-			drv_to_stordrv(device_ctx->device.driver);
+ 	struct hv_storvsc_request *storvsc_req;
+ 	struct vmscsi_request *vm_srb;
+ 	int ret;
+@@ -233,7 +228,7 @@ static int blkvsc_submit_request(struct blkvsc_request *blkvsc_req,
  
--int stor_vsc_get_major_info(struct storvsc_device_info *device_info,
-+int storvsc_get_major_info(struct storvsc_device_info *device_info,
- 				struct storvsc_major_info *major_info);
+ 	storvsc_req->sense_buffer = blkvsc_req->sense_buffer;
  
- #endif /* _STORVSC_API_H_ */
+-	ret = storvsc_drv->on_io_request(blkdev->device_ctx,
++	ret =  storvsc_do_io(blkdev->device_ctx,
+ 					   &blkvsc_req->request);
+ 	if (ret == 0)
+ 		blkdev->num_outstanding_reqs++;
 -- 
 1.7.4.1
