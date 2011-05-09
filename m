@@ -1,7 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 019/206] Staging: hv: Get rid of the calls to storvsc_cleanup
-Date: Mon,  9 May 2011 14:55:01 -0700
-Message-ID: <1304978288-22999-19-git-send-email-kys@microsoft.com>
+Subject: [PATCH 042/206] Staging: hv: Get rid of the forwrd declaration of
+	destroy_bounce_buffer
+Date: Mon,  9 May 2011 14:55:24 -0700
+Message-ID: <1304978288-22999-42-git-send-email-kys@microsoft.com>
 References: <1304978242-22958-1-git-send-email-kys@microsoft.com>
 	<1304978288-22999-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -22,78 +23,72 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The storvsc_cleanup() is an empty function; get rid of it.
+Get rid of the forward declaration by moving the code around.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/blkvsc_drv.c  |    3 ---
- drivers/staging/hv/storvsc.c     |    7 -------
- drivers/staging/hv/storvsc_api.h |    1 -
- drivers/staging/hv/storvsc_drv.c |    1 -
- 4 files changed, 0 insertions(+), 12 deletions(-)
+ drivers/staging/hv/storvsc_drv.c |   32 +++++++++++++++-----------------
+ 1 files changed, 15 insertions(+), 17 deletions(-)
 
-diff --git a/drivers/staging/hv/blkvsc_drv.c b/drivers/staging/hv/blkvsc_drv.c
-index bca36b5..2e69af0 100644
---- a/drivers/staging/hv/blkvsc_drv.c
-+++ b/drivers/staging/hv/blkvsc_drv.c
-@@ -886,7 +886,6 @@ static int blkvsc_drv_exit_cb(struct device *dev, void *data)
- 
- static void blkvsc_drv_exit(void)
- {
--	struct storvsc_driver *storvsc_drv = &blkvsc_drv;
- 	struct hv_driver *drv = &blkvsc_drv.base;
- 	struct device *current_dev;
- 	int ret;
-@@ -911,8 +910,6 @@ static void blkvsc_drv_exit(void)
- 		device_unregister(current_dev);
- 	}
- 
--	storvsc_cleanup(&storvsc_drv->base);
--
- 	vmbus_child_driver_unregister(&drv->driver);
- 
- 	return;
-diff --git a/drivers/staging/hv/storvsc.c b/drivers/staging/hv/storvsc.c
-index 867eba1..7074520 100644
---- a/drivers/staging/hv/storvsc.c
-+++ b/drivers/staging/hv/storvsc.c
-@@ -660,10 +660,3 @@ int stor_vsc_get_major_info(struct storvsc_device_info *device_info,
- 	return -ENODEV;
- }
- 
--/*
-- * stor_vsc_on_cleanup - Perform any cleanup when the driver is removed
-- */
--void storvsc_cleanup(struct hv_driver *driver)
--{
--}
--
-diff --git a/drivers/staging/hv/storvsc_api.h b/drivers/staging/hv/storvsc_api.h
-index f8c724b..84ee5a9 100644
---- a/drivers/staging/hv/storvsc_api.h
-+++ b/drivers/staging/hv/storvsc_api.h
-@@ -169,7 +169,6 @@ int storvsc_dev_remove(struct hv_device *device);
- 
- int storvsc_do_io(struct hv_device *device,
- 				struct hv_storvsc_request *request);
--void storvsc_cleanup(struct hv_driver *driver);
- 
- int stor_vsc_get_major_info(struct storvsc_device_info *device_info,
- 				struct storvsc_major_info *major_info);
 diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
-index 799231c..c54a5fe 100644
+index 4196d6a..bf5b138 100644
 --- a/drivers/staging/hv/storvsc_drv.c
 +++ b/drivers/staging/hv/storvsc_drv.c
-@@ -115,7 +115,6 @@ static int stor_vsc_initialize(struct hv_driver *driver)
- 	/* Setup the dispatch table */
- 	stor_driver->base.dev_add	= storvsc_dev_add;
- 	stor_driver->base.dev_rm	= storvsc_dev_remove;
--	stor_driver->base.cleanup	= storvsc_cleanup;
+@@ -148,6 +148,21 @@ static int storvsc_device_configure(struct scsi_device *sdevice)
+ 	return 0;
+ }
  
- 	stor_driver->on_io_request	= storvsc_do_io;
++static void destroy_bounce_buffer(struct scatterlist *sgl,
++				  unsigned int sg_count)
++{
++	int i;
++	struct page *page_buf;
++
++	for (i = 0; i < sg_count; i++) {
++		page_buf = sg_page((&sgl[i]));
++		if (page_buf != NULL)
++			__free_page(page_buf);
++	}
++
++	kfree(sgl);
++}
++
+ /* Static decl */
+ static int storvsc_probe(struct hv_device *dev);
+ static int storvsc_queuecommand(struct Scsi_Host *shost, struct scsi_cmnd *scmnd);
+@@ -157,8 +172,6 @@ static int storvsc_remove(struct hv_device *dev);
+ static struct scatterlist *create_bounce_buffer(struct scatterlist *sgl,
+ 						unsigned int sg_count,
+ 						unsigned int len);
+-static void destroy_bounce_buffer(struct scatterlist *sgl,
+-				  unsigned int sg_count);
+ static int do_bounce_buffer(struct scatterlist *sgl, unsigned int sg_count);
+ static unsigned int copy_from_bounce_buffer(struct scatterlist *orig_sgl,
+ 					    struct scatterlist *bounce_sgl,
+@@ -542,21 +555,6 @@ cleanup:
+ 	return NULL;
+ }
  
+-static void destroy_bounce_buffer(struct scatterlist *sgl,
+-				  unsigned int sg_count)
+-{
+-	int i;
+-	struct page *page_buf;
+-
+-	for (i = 0; i < sg_count; i++) {
+-		page_buf = sg_page((&sgl[i]));
+-		if (page_buf != NULL)
+-			__free_page(page_buf);
+-	}
+-
+-	kfree(sgl);
+-}
+-
+ /* Assume the bounce_sgl has enough room ie using the create_bounce_buffer() */
+ static unsigned int copy_to_bounce_buffer(struct scatterlist *orig_sgl,
+ 					  struct scatterlist *bounce_sgl,
 -- 
 1.7.4.1
