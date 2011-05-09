@@ -1,7 +1,7 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 108/206] Staging: hv: Cleanup ring_buffer.h
-Date: Mon,  9 May 2011 14:56:30 -0700
-Message-ID: <1304978288-22999-108-git-send-email-kys@microsoft.com>
+Subject: [PATCH 058/206] Staging: hv: Rename the driver variable
+Date: Mon,  9 May 2011 14:55:40 -0700
+Message-ID: <1304978288-22999-58-git-send-email-kys@microsoft.com>
 References: <1304978242-22958-1-git-send-email-kys@microsoft.com>
 	<1304978288-22999-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -22,44 +22,50 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Access to these variables is already serialized via a spin lock. Get
-rid of the unnecessary volatile qualifier.
+The subject line says it all.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/ring_buffer.h |    7 +++----
- 1 files changed, 3 insertions(+), 4 deletions(-)
+ drivers/staging/hv/storvsc_drv.c |   10 +++++-----
+ 1 files changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/staging/hv/ring_buffer.h b/drivers/staging/hv/ring_buffer.h
-index 1bc0b8a..089c536 100644
---- a/drivers/staging/hv/ring_buffer.h
-+++ b/drivers/staging/hv/ring_buffer.h
-@@ -30,12 +30,12 @@
+diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
+index 37bc4dd..d246678 100644
+--- a/drivers/staging/hv/storvsc_drv.c
++++ b/drivers/staging/hv/storvsc_drv.c
+@@ -768,7 +768,7 @@ static DEF_SCSI_QCMD(storvsc_queuecommand)
  
- struct hv_ring_buffer {
- 	/* Offset in bytes from the start of ring data below */
--	volatile u32 write_index;
-+	u32 write_index;
  
- 	/* Offset in bytes from the start of ring data below */
--	volatile u32 read_index;
-+	u32 read_index;
+ /* The one and only one */
+-static struct storvsc_driver g_storvsc_drv;
++static struct storvsc_driver storvsc_drv;
  
--	volatile u32 interrupt_mask;
-+	u32 interrupt_mask;
+ /* Scsi driver */
+ static struct scsi_host_template scsi_driver = {
+@@ -879,8 +879,8 @@ static int storvsc_probe(struct hv_device *device)
+ static int storvsc_drv_init(void)
+ {
+ 	int ret;
+-	struct storvsc_driver *storvsc_drv_obj = &g_storvsc_drv;
+-	struct hv_driver *drv = &g_storvsc_drv.base;
++	struct storvsc_driver *storvsc_drv_obj = &storvsc_drv;
++	struct hv_driver *drv = &storvsc_drv.base;
  
- 	/* Pad it to PAGE_SIZE so that data starts on page boundary */
- 	u8	reserved[4084];
-@@ -45,7 +45,6 @@ struct hv_ring_buffer {
- 	 * vmbus connection also uses this data structure and its data starts
- 	 * here, we commented out this field.
- 	 */
--	/* volatile u32 InterruptMask; */
+ 	storvsc_drv_obj->ring_buffer_size = storvsc_ringbuffer_size;
  
- 	/*
- 	 * Ring data starts here + RingDataStartOffset
+@@ -915,8 +915,8 @@ static int storvsc_drv_exit_cb(struct device *dev, void *data)
+ 
+ static void storvsc_drv_exit(void)
+ {
+-	struct storvsc_driver *storvsc_drv_obj = &g_storvsc_drv;
+-	struct hv_driver *drv = &g_storvsc_drv.base;
++	struct storvsc_driver *storvsc_drv_obj = &storvsc_drv;
++	struct hv_driver *drv = &storvsc_drv.base;
+ 	struct device *current_dev = NULL;
+ 	int ret;
+ 
 -- 
 1.7.4.1
