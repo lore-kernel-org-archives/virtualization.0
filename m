@@ -1,79 +1,55 @@
 From: KY Srinivasan <kys@microsoft.com>
-Subject: RE: [PATCH 115/206] Staging: hv: Use completion abstraction in
- struct netvsc_device
-Date: Tue, 10 May 2011 12:52:07 +0000
-Message-ID: <6E21E5352C11B742B20C142EB499E0481EEFD6@TK5EX14MBXC128.redmond.corp.microsoft.com>
-References: <1304978242-22958-1-git-send-email-kys@microsoft.com>
- <1304978288-22999-1-git-send-email-kys@microsoft.com>
- <1304978288-22999-115-git-send-email-kys@microsoft.com>
- <20110510070646.GB13847@infradead.org>
+Subject: RE: various vmbus review comments
+Date: Tue, 10 May 2011 13:00:26 +0000
+Message-ID: <6E21E5352C11B742B20C142EB499E0481EEFF1@TK5EX14MBXC128.redmond.corp.microsoft.com>
+References: <20110503204641.GA11132@kroah.com>
+ <6E21E5352C11B742B20C142EB499E0481DFCFA@TK5EX14MBXC124.redmond.corp.microsoft.com>
+ <20110504163228.GA19754@kroah.com>
+ <6E21E5352C11B742B20C142EB499E0481E0694@TK5EX14MBXC124.redmond.corp.microsoft.com>
+ <20110509143352.GB29635@infradead.org>
+ <6E21E5352C11B742B20C142EB499E0481E95C6@TK5EX14MBXC128.redmond.corp.microsoft.com>
+ <20110510052425.GA31087@infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 8BIT
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20110510070646.GB13847@infradead.org>
+In-Reply-To: <20110510052425.GA31087@infradead.org>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 To: Christoph Hellwig <hch@infradead.org>
-Cc: "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, Haiyang Zhang <haiyangz@microsoft.com>, "Abhishek Kane (Mindtree Consulting PVT LTD)" <v-abkane@microsoft.com>, Hank Janssen <hjanssen@microsoft.com>
+Cc: Greg KH <greg@kroah.com>, "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
 
 
 > -----Original Message-----
 > From: Christoph Hellwig [mailto:hch@infradead.org]
-> Sent: Tuesday, May 10, 2011 3:07 AM
+> Sent: Tuesday, May 10, 2011 1:24 AM
 > To: KY Srinivasan
-> Cc: gregkh@suse.de; linux-kernel@vger.kernel.org;
-> devel@linuxdriverproject.org; virtualization@lists.osdl.org; Haiyang Zhang;
-> Abhishek Kane (Mindtree Consulting PVT LTD); Hank Janssen
-> Subject: Re: [PATCH 115/206] Staging: hv: Use completion abstraction in struct
-> netvsc_device
+> Cc: Christoph Hellwig; Greg KH; gregkh@suse.de; linux-kernel@vger.kernel.org;
+> devel@linuxdriverproject.org; virtualization@lists.osdl.org
+> Subject: Re: various vmbus review comments
 > 
-> > -	net_device->wait_condition = 0;
-> >  	ret = vmbus_sendpacket(device->channel, init_packet,
-> >  			       sizeof(struct nvsp_message),
-> >  			       (unsigned long)init_packet,
-> > @@ -272,10 +272,8 @@ static int netvsc_init_recv_buf(struct hv_device
-> *device)
-> >  		goto cleanup;
-> >  	}
-> >
-> > -	wait_event_timeout(net_device->channel_init_wait,
-> > -			net_device->wait_condition,
-> > -			msecs_to_jiffies(1000));
-> > -	BUG_ON(net_device->wait_condition == 0);
-> > +	t = wait_for_completion_timeout(&net_device->channel_init_wait, HZ);
-> > +	BUG_ON(t == 0);
+> On Mon, May 09, 2011 at 02:56:52PM +0000, KY Srinivasan wrote:
+> > I will address this. Greg had a concern about module reference counting
+> > and looking at the current code, it did not appear to be an issue. The
+> > change you are suggesting will not affect the vmbus core which is what I want
+> > to focus on. I will however, fix this issue in the current round of patches I will
+> > send out this week.
 > 
-> I don't think you want a BUG_ON here, but rather fail the
-> initialization.
+> It very clearly affects the interface between the core and the
+> functional drivers.  Trying to submit the core without making sure the
+> interface is exports works properly is not an overly good idea.
 
-This is existing code and all I did was change the synchronization 
-primitive used. Back in Feb. when this was done (prior to then), the 
-wait was indefinite and one of the comments that was
-longstanding was  that the wait had to be bounded and so these 
-timed waits were introduced. When this was done,  
-in some cases, there was no easy way to roll-back state if we did not
-get the response within our expected window of time. This is one 
-such instance where the guest is handing over the receive buffers
-(guest physical addresses) to the host. There was a discussion on this very
-topic on this mailing list and the consensus was to leave the BUG_ON()
-call in cases where we could not reasonably recover. 
- 
-> 
-> Also I think you really should add synchronous versions of
-> vmbus_sendpacket*, to the vmbus core so that all the synchronous waiting
-> can be consolidated into a few helpers instead of needing to opencode
-> it everywhere.
-
-True; but having a non-blocking interface at the lowest level gives you
-the most flexibility. In addition to this non-blocking interface, we
-may want to look at potentially a blocking interface. In the current
-code, the blocking primitive that is embedded in a higher level 
-abstraction is used for a variety of situations including the initial
-handshake which is what can be addressed with a synchronous API
-at the lowest level.
+I must be missing something here. As I look at the block driver (and
+this is indicative of other drivers as well); the exit routine -
+blkvsc_drv_exit, first iterates through all the devices it manages
+and invokes device_unregister() on each of the devices and then 
+invokes vmbus_child_driver_unregister() which is just a wrapper on
+driver_unregister(). So, if I understand you correctly, you want the devices to
+persist even if there is no driver bound to them. So, if I eliminated the code
+that iterates over the devices and unregisters them, that should fix the problem
+and I can do this without changing the vmbus core interfaces.
 
 Regards,
 
