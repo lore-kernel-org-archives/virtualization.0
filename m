@@ -1,58 +1,61 @@
-From: Greg KH <gregkh@suse.de>
-Subject: Re: various vmbus review comments
-Date: Tue, 10 May 2011 06:16:15 -0700
-Message-ID: <20110510131615.GA7113@suse.de>
-References: <20110503204641.GA11132@kroah.com>
- <6E21E5352C11B742B20C142EB499E0481DFCFA@TK5EX14MBXC124.redmond.corp.microsoft.com>
- <20110504163228.GA19754@kroah.com>
- <6E21E5352C11B742B20C142EB499E0481E0694@TK5EX14MBXC124.redmond.corp.microsoft.com>
- <20110509143352.GB29635@infradead.org>
- <6E21E5352C11B742B20C142EB499E0481E95C6@TK5EX14MBXC128.redmond.corp.microsoft.com>
- <20110510052425.GA31087@infradead.org>
- <6E21E5352C11B742B20C142EB499E0481EEFF1@TK5EX14MBXC128.redmond.corp.microsoft.com>
+From: Krishna Kumar2 <krkumar2@in.ibm.com>
+Subject: Re: [PATCH 00/18] virtio and vhost-net performance enhancements
+Date: Wed, 11 May 2011 22:40:42 +0530
+Message-ID: <OF2BBEE530.9F02F495-ON6525788D.0057AC81-6525788D.005E1F24__2858.52072197503$1305133808$gmane$org@in.ibm.com>
+References: <cover.1304541918.git.mst@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <6E21E5352C11B742B20C142EB499E0481EEFF1@TK5EX14MBXC128.redmond.corp.microsoft.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: KY Srinivasan <kys@microsoft.com>
-Cc: Christoph Hellwig <hch@infradead.org>, Greg KH <greg@kroah.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <cover.1304541918.git.mst@redhat.com>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: habanero@linux.vnet.ibm.com, lguest@lists.ozlabs.org, Shirley Ma <xma@us.ibm.com>, kvm@vger.kernel.org, Carsten Otte <cotte@de.ibm.com>, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, steved@us.ibm.com, Christian Borntraeger <borntraeger@de.ibm.com>, Tom Lendacky <tahm@linux.vnet.ibm.com>, netdev@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux390@de.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, May 10, 2011 at 01:00:26PM +0000, KY Srinivasan wrote:
-> 
-> 
-> > -----Original Message-----
-> > From: Christoph Hellwig [mailto:hch@infradead.org]
-> > Sent: Tuesday, May 10, 2011 1:24 AM
-> > To: KY Srinivasan
-> > Cc: Christoph Hellwig; Greg KH; gregkh@suse.de; linux-kernel@vger.kernel.org;
-> > devel@linuxdriverproject.org; virtualization@lists.osdl.org
-> > Subject: Re: various vmbus review comments
-> > 
-> > On Mon, May 09, 2011 at 02:56:52PM +0000, KY Srinivasan wrote:
-> > > I will address this. Greg had a concern about module reference counting
-> > > and looking at the current code, it did not appear to be an issue. The
-> > > change you are suggesting will not affect the vmbus core which is what I want
-> > > to focus on. I will however, fix this issue in the current round of patches I will
-> > > send out this week.
-> > 
-> > It very clearly affects the interface between the core and the
-> > functional drivers.  Trying to submit the core without making sure the
-> > interface is exports works properly is not an overly good idea.
-> 
-> I must be missing something here. As I look at the block driver (and
-> this is indicative of other drivers as well); the exit routine -
-> blkvsc_drv_exit, first iterates through all the devices it manages
-> and invokes device_unregister() on each of the devices and then 
-> invokes vmbus_child_driver_unregister() which is just a wrapper on
-> driver_unregister(). So, if I understand you correctly, you want the devices to
-> persist even if there is no driver bound to them.
+"Michael S. Tsirkin" <mst@redhat.com> wrote on 05/05/2011 02:20:18 AM:
 
-That's how the Linux driver model should be used, so yes, that is the
-correct thing to do.
+> [PATCH 00/18] virtio and vhost-net performance enhancements
+>
+> OK, here's a large patchset that implements the virtio spec update that I
+> sent earlier. It supercedes the PUBLISH_USED_IDX patches
+> I sent out earlier.
+>
+> I know it's a lot to ask but please test, and please consider for
+2.6.40 :)
+>
+> I see nice performance improvements: one run showed going from 12
+> to 18 Gbit/s host to guest with netperf, but I did not spend a lot
+> of time testing performance, so no guarantees it's not a fluke,
+> I hope others will try this out and report.
+> Pls note I will be away from keyboard for the next week.
+
+I tested with the git tree (which also contains the later
+additional patch), and get this error on guest:
+
+May 11 08:06:08 localhost kernel: net eth0: Unexpected TX queue failure:
+-28
+May 11 08:06:08 localhost kernel: net eth0: Unexpected TX queue failure:
+-28
+May 11 08:06:08 localhost kernel: net eth0: Unexpected TX queue failure:
+-28
+May 11 08:06:08 localhost kernel: net eth0: Unexpected TX queue failure:
+-28
+...
+
+The network stops after that and requires a modprobe "restart" to
+get it working again. This is with the new qemu/vhost/virtio-net.
+
+Please let me know if I am missing something.
 
 thanks,
 
-greg k-h
+- KK
