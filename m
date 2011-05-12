@@ -1,10 +1,9 @@
 From: Sucheta Chakraborty <sucheta.chakraborty@qlogic.com>
-Subject: KVM: Can vlan created in hypervisor and one created inside a VM
-	coexist?
-Date: Thu, 12 May 2011 02:19:37 -0500
-Message-ID: <13A253B3F9BEFE43B93C09CF75F63CAA6E9601F19A@MNEXMB1.qlogic.org>
+Subject: KVM: Vlans not working with vlan hw rx acceleration
+Date: Thu, 12 May 2011 02:20:09 -0500
+Message-ID: <13A253B3F9BEFE43B93C09CF75F63CAA6E9601F19B@MNEXMB1.qlogic.org>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============2360419679583250486=="
+Content-Type: multipart/mixed; boundary="===============3417150118135395366=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Language: en-US
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
@@ -20,27 +19,27 @@ Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
---===============2360419679583250486==
+--===============3417150118135395366==
 Content-Language: en-US
 Content-Type: multipart/alternative;
-	boundary="_000_13A253B3F9BEFE43B93C09CF75F63CAA6E9601F19AMNEXMB1qlogic_"
+	boundary="_000_13A253B3F9BEFE43B93C09CF75F63CAA6E9601F19BMNEXMB1qlogic_"
 
---_000_13A253B3F9BEFE43B93C09CF75F63CAA6E9601F19AMNEXMB1qlogic_
+--_000_13A253B3F9BEFE43B93C09CF75F63CAA6E9601F19BMNEXMB1qlogic_
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: quoted-printable
 
 Hi,
-
-Let's say an interface ethX exists.
-I created vlan on ethX on hypervisor - ethX.h.
-I also created vlan on same ethX inside VM - exthX.v.
-
-Can both ethX.h and ethX.v coexist? - Meaning can both of these interfaces =
-pingable at same time?
-
+Setup info:
+(a) Using RHEL6 kvm. (b) Loaded driver on RHEL6 setup.
+(c) Created 2 bridges on top of two interfaces.
+(d) Assigned these bridges to 2 VMs.
+(e) Created vlans in VMs.
+Problem:
+When vlan acceleration support is enabled in driver, traffic stops b/w VMs =
+on vlan interfaces inside virtual m/c.
+Without, vlan acceleration, everything works fine.
 Thanks,
 Sucheta.
-
 
 ________________________________
 This message and any attached documents contain information from QLogic Cor=
@@ -49,7 +48,7 @@ are not the intended recipient, you may not read, copy, distribute, or use =
 this information. If you have received this transmission in error, please n=
 otify the sender immediately by reply e-mail and then delete this message.
 
---_000_13A253B3F9BEFE43B93C09CF75F63CAA6E9601F19AMNEXMB1qlogic_
+--_000_13A253B3F9BEFE43B93C09CF75F63CAA6E9601F19BMNEXMB1qlogic_
 Content-Type: text/html; charset="us-ascii"
 Content-Transfer-Encoding: quoted-printable
 
@@ -105,21 +104,30 @@ div.WordSection1
 </head>
 <body lang=3D"EN-US" link=3D"blue" vlink=3D"purple">
 <div class=3D"WordSection1">
-<p class=3D"MsoNormal">Hi,<o:p></o:p></p>
-<p class=3D"MsoNormal"><o:p>&nbsp;</o:p></p>
-<p class=3D"MsoNormal">Let&#8217;s say an interface ethX exists.<o:p></o:p>=
-</p>
-<p class=3D"MsoNormal">I created vlan on ethX on hypervisor &#8211; ethX.h.=
-<o:p></o:p></p>
-<p class=3D"MsoNormal">I also created vlan on same ethX inside VM &#8211; e=
-xthX.v.<o:p></o:p></p>
-<p class=3D"MsoNormal"><o:p>&nbsp;</o:p></p>
-<p class=3D"MsoNormal">Can both ethX.h and ethX.v coexist? &#8211; Meaning =
-can both of these interfaces pingable at same time?<o:p></o:p></p>
-<p class=3D"MsoNormal"><o:p>&nbsp;</o:p></p>
+<p class=3D"MsoNormal" style=3D"margin-bottom:.25in;line-height:160%;backgr=
+ound:white">
+<span lang=3D"EN" style=3D"font-size:9.0pt;line-height:160%;font-family:&qu=
+ot;Arial&quot;,&quot;sans-serif&quot;;
+color:black">Hi,<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"margin-bottom:.25in;line-height:160%;backgr=
+ound:white">
+<span lang=3D"EN" style=3D"font-size:9.0pt;line-height:160%;font-family:&qu=
+ot;Arial&quot;,&quot;sans-serif&quot;;
+color:black">Setup info:<br>
+(a) Using RHEL6 kvm. (b) Loaded driver on RHEL6 setup.<br>
+(c) Created 2 bridges on top of two interfaces.<br>
+(d) Assigned these bridges to 2 VMs.<br>
+(e) Created vlans in VMs.<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"margin-bottom:.25in;line-height:160%;backgr=
+ound:white">
+<span lang=3D"EN" style=3D"font-size:9.0pt;line-height:160%;font-family:&qu=
+ot;Arial&quot;,&quot;sans-serif&quot;;
+color:black">Problem:<br>
+When vlan acceleration support is enabled in driver, traffic stops b/w VMs =
+on vlan interfaces inside virtual m/c.<br>
+Without, vlan acceleration, everything works fine.<o:p></o:p></span></p>
 <p class=3D"MsoNormal">Thanks,<o:p></o:p></p>
 <p class=3D"MsoNormal">Sucheta.<o:p></o:p></p>
-<p class=3D"MsoNormal"><o:p>&nbsp;</o:p></p>
 </div>
 <br>
 <hr>
@@ -134,9 +142,9 @@ essage.<br>
 </body>
 </html>
 
---_000_13A253B3F9BEFE43B93C09CF75F63CAA6E9601F19AMNEXMB1qlogic_--
+--_000_13A253B3F9BEFE43B93C09CF75F63CAA6E9601F19BMNEXMB1qlogic_--
 
---===============2360419679583250486==
+--===============3417150118135395366==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -146,4 +154,4 @@ _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linux-foundation.org/mailman/listinfo/virtualization
---===============2360419679583250486==--
+--===============3417150118135395366==--
