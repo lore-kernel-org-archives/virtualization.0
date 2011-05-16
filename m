@@ -1,16 +1,14 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH 09/18] virtio: use avail_event index
-Date: Sun, 15 May 2011 16:55:41 +0300
-Message-ID: <20110515135541.GF24932__9084.00928969986$1305467803$gmane$org@redhat.com>
-References: <cover.1304541918.git.mst@redhat.com>
-	<8bba6a0a8eee17e741c5155b04ff1b1c9f34bf94.1304541919.git.mst@redhat.com>
-	<874o54h4rt.fsf@rustcorp.com.au>
+From: Dor Laor <dlaor@redhat.com>
+Subject: Re: KVM Forum 2011: Call For Participation
+Date: Mon, 16 May 2011 17:12:26 +0300
+Message-ID: <4DD130CA.1050703__35060.8157729313$1305555213$gmane$org@redhat.com>
+References: <20110421172155.GE3591@x200.localdomain>
+Reply-To: dlaor@redhat.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <874o54h4rt.fsf@rustcorp.com.au>
+In-Reply-To: <20110421172155.GE3591@x200.localdomain>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,74 +18,160 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Krishna Kumar <krkumar2@in.ibm.com>, Carsten Otte <cotte@de.ibm.com>, lguest@lists.ozlabs.org, Shirley Ma <xma@us.ibm.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org, netdev@vger.kernel.org, habanero@linux.vnet.ibm.com, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, steved@us.ibm.com, Christian Borntraeger <borntraeger@de.ibm.com>, Tom Lendacky <tahm@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux390@de.ibm.com
+To: KVM-Forum-2011-PC@redhat.com
+Cc: libvir-list@redhat.com, linux-kernel@vger.kernel.org, qemu-devel@nongnu.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, May 09, 2011 at 02:03:26PM +0930, Rusty Russell wrote:
-> On Wed, 4 May 2011 23:51:47 +0300, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> > Use the new avail_event feature to reduce the number
-> > of exits from the guest.
-> 
-> Figures here would be nice :)
+The abstract submission deadline was originally set for today.
+The forum committee agreed to extend the deadline period until next 
+Sunday, May 22.
 
-You mean ASCII art in comments?
+The notification date remains the same (May 31).
 
-> > @@ -228,6 +237,12 @@ add_head:
-> >  	 * new available array entries. */
-> >  	virtio_wmb();
-> >  	vq->vring.avail->idx++;
-> > +	/* If the driver never bothers to kick in a very long while,
-> > +	 * avail index might wrap around. If that happens, invalidate
-> > +	 * kicked_avail index we stored. TODO: make sure all drivers
-> > +	 * kick at least once in 2^16 and remove this. */
-> > +	if (unlikely(vq->vring.avail->idx == vq->kicked_avail))
-> > +		vq->kicked_avail_valid = true;
-> 
-> If they don't, they're already buggy.  Simply do:
->         WARN_ON(vq->vring.avail->idx == vq->kicked_avail);
+Thanks,
+  your KVM Forum 2011 Program Committee
 
-Hmm, but does it say that somewhere?
-It seems that most drivers use locking to prevent
-posting more buffers while they drain the used ring,
-and also kick at least once in vq->num buffers,
-which I guess in the end would work out fine
-as vq num is never as large as 2^15.
 
-> > +static bool vring_notify(struct vring_virtqueue *vq)
-> > +{
-> > +	u16 old, new;
-> > +	bool v;
-> > +	if (!vq->event)
-> > +		return !(vq->vring.used->flags & VRING_USED_F_NO_NOTIFY);
-> > +
-> > +	v = vq->kicked_avail_valid;
-> > +	old = vq->kicked_avail;
-> > +	new = vq->kicked_avail = vq->vring.avail->idx;
-> > +	vq->kicked_avail_valid = true;
-> > +	if (unlikely(!v))
-> > +		return true;
-> 
-> This is the only place you actually used kicked_avail_valid.  Is it
-> possible to initialize it in such a way that you can remove this?
-
-If we kill the code above as you suggested, likely yes.
-Maybe an explicit flag is more obvious?
-
-> > @@ -482,6 +517,8 @@ void vring_transport_features(struct virtio_device *vdev)
-> >  			break;
-> >  		case VIRTIO_RING_F_USED_EVENT_IDX:
-> >  			break;
-> > +		case VIRTIO_RING_F_AVAIL_EVENT_IDX:
-> > +			break;
-> >  		default:
-> >  			/* We don't understand this bit. */
-> >  			clear_bit(i, vdev->features);
-> 
-> Does this belong in a prior patch?
-> 
+On 04/21/2011 08:21 PM, KVM-Forum-2011-PC@redhat.com wrote:
+> =================================================================
+> KVM Forum 2011: Call For Participation
+> August 15-16, 2011 - Hyatt Regency Vancouver - Vancouver, Canada
+> =================================================================
+>
+> KVM is an industry leading open source hypervisor that provides an ideal
+> platform for datacenter virtualization, virtual desktop infrastructure,
+> and cloud computing.  Once again, it's time to bring together the
+> community of developers and users that define the KVM ecosystem for
+> our annual technical conference.  We will discuss the current state of
+> affairs and plan for the future of KVM, its surrounding infrastructure,
+> and management tools.  So mark your calendar and join us in advancing KVM.
+>
+> http://events.linuxfoundation.org/events/kvm-forum/
+>
+> We are colocated with The Linux Foundation's LinuxCon again this year.
+> KVM Forum attendees will be eligible to attend LinuxCon for a discounted
+> rate.
+>
+> http://events.linuxfoundation.org/events/kvm-forum/register
+>
+> We invite you to lead part of the discussion by submitting a speaking
+> proposal for KVM Forum 2011.
+>
+> http://events.linuxfoundation.org/cfp
+>
+> Suggested topics:
+>
+>   KVM
+>   - Scaling and performance
+>   - Nested virtualization
+>   - I/O improvements
+>   - PCI device assignment
+>   - Driver domains
+>   - Time keeping
+>   - Resource management (cpu, memory, i/o)
+>   - Memory management (page sharing, swapping, huge pages, etc)
+>   - Fault tolerance
+>   - VEPA, VN-Link, vswitch
+>   - Security
+>
+>   QEMU
+>   - Device model improvements
+>   - New devices
+>   - Scaling and performance
+>   - Desktop virtualization
+>   - Spice
+>   - Increasing robustness and hardening
+>   - Security model
+>   - Management interfaces
+>   - QMP protocol and implementation
+>   - Image formats
+>   - Live migration
+>   - Live snapshots and merging
+>
+>   Virtio
+>   - Speeding up existing devices
+>   - Alternatives
+>   - Virtio on non-Linux
+>
+>   Management infrastructure
+>   - Libvirt
+>   - KVM autotest
+>   - OpenStack
+>   - Network virtualization management
+>   - Enterprise storage management
+>
+>   Cloud computing
+>   - Scalable storage
+>   - Virtual networking
+>   - Security
+>   - Provisioning
+>   - Hybrid
+>
+> SUBMISSION REQUIREMENTS
+>
+> Abstracts due: May 16th, 2011
+> Notification: May 31th, 2011
+>
+> Please submit a short abstract (~150 words) describing your presentation
+> proposal.  In your submission please note how long your talk will take.
+> Slots vary in length up to 45 minutes.  Also include in your proposal
+> the proposal type -- one of:
+>
+> - technical talk
+> - end-user talk
+> - BOF (birds of a feather) session
+>
+> Sumbit your proposal here:
+>
+> http://events.linuxfoundation.org/cfp
+>
+> You will receive a notification whether or not your presentation proposal
+> was accepted by May 31st.
+>
+> END-USER COLLABORATION
+>
+> One of the big challenges as developers is to know what, where and how
+> people actually use our software.  We will reserve a few slots for end
+> users talking about their deployment challenges and achievements.
+>
+> If you are using KVM in production you are encouraged submit a speaking
+> proposal.  Simply mark it as an end-user collaboration proposal.  As and
+> end user, this is a unique opportunity to get your input to developers.
+>
+> BOF SESSION
+>
+> We will reserve some slots in the evening after the main conference
+> tracks, for birds of a feather sessions. These sessions will be less
+> formal than presentation tracks and targetted for people who would
+> like to discuss specific issues with other developers and/or users.
+> If you are interested in getting developers and/or uses together to
+> discuss a specific problem, please submit a BOF proposal.
+>
+> LIGHTNING TALKS
+>
+> In addition to submitted talks we will also have some room for lightning
+> talks. These are short (5 minute) discussions to highlight new work or
+> ideas that aren't complete enough to warrant a full presentation slot.
+> Lightning talk submissions and scheduling will be handled on-site at
+> KVM Forum.
+>
+> HOTEL / TRAVEL
+>
+> The KVM Forum 2011 will be held in Vancouver BC at the Hyatt Regency
+> Vancouver.
+>
+> http://events.linuxfoundation.org/events/kvm-forum/travel
+>
+> Thank you for your interest in KVM.  We're looking forward to your
+> submissions and seeing you at the KVM Forum 2011 in August!
+>
 > Thanks,
-> Rusty.
-
-Well if we don't support the feature in the ring we should not
-ack the feature, right?
+> your KVM Forum 2011 Program Commitee
+>
+> Please contact us with any questions or comments.
+> KVM-Forum-2011-PC@redhat.com
+>
+> _______________________________________________
+> Kvm-forum-2011-pc mailing list
+> Kvm-forum-2011-pc@redhat.com
+> https://www.redhat.com/mailman/listinfo/kvm-forum-2011-pc
