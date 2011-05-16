@@ -1,16 +1,16 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH 09/18] virtio: use avail_event index
-Date: Mon, 16 May 2011 16:42:21 +0930
-Message-ID: <87ei3zdsq2.fsf__15614.8699498319$1305600627$gmane$org@rustcorp.com.au>
+Subject: Re: [PATCH 14/18] virtio: add api for delayed callbacks
+Date: Mon, 16 May 2011 16:43:21 +0930
+Message-ID: <87boz3dsoe.fsf__1303.56381782821$1305600645$gmane$org@rustcorp.com.au>
 References: <cover.1304541918.git.mst@redhat.com>
-	<8bba6a0a8eee17e741c5155b04ff1b1c9f34bf94.1304541919.git.mst@redhat.com>
-	<874o54h4rt.fsf@rustcorp.com.au>
-	<20110515135541.GF24932@redhat.com>
+	<64d47c628b3fdc0ac156aed4be182933d8bcc0db.1304541919.git.mst@redhat.com>
+	<871v08h0vm.fsf@rustcorp.com.au>
+	<20110515124818.GD24932@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20110515135541.GF24932@redhat.com>
+In-Reply-To: <20110515124818.GD24932@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -24,58 +24,23 @@ To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: Krishna Kumar <krkumar2@in.ibm.com>, Carsten Otte <cotte@de.ibm.com>, lguest@lists.ozlabs.org, Shirley Ma <xma@us.ibm.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org, netdev@vger.kernel.org, habanero@linux.vnet.ibm.com, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, steved@us.ibm.com, Christian Borntraeger <borntraeger@de.ibm.com>, Tom Lendacky <tahm@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux390@de.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sun, 15 May 2011 16:55:41 +0300, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> On Mon, May 09, 2011 at 02:03:26PM +0930, Rusty Russell wrote:
-> > On Wed, 4 May 2011 23:51:47 +0300, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> > > Use the new avail_event feature to reduce the number
-> > > of exits from the guest.
+On Sun, 15 May 2011 15:48:18 +0300, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> On Mon, May 09, 2011 at 03:27:33PM +0930, Rusty Russell wrote:
+> > On Wed, 4 May 2011 23:52:33 +0300, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> > > Add an API that tells the other side that callbacks
+> > > should be delayed until a lot of work has been done.
+> > > Implement using the new used_event feature.
 > > 
-> > Figures here would be nice :)
+> > Since you're going to add a capacity query anyway, why not add the
+> > threshold argument here?
 > 
-> You mean ASCII art in comments?
+> I thought that if we keep the API kind of generic
+> there might be more of a chance that future transports
+> will be able to implement it. For example, with an
+> old host we can't commit to a specific index.
 
-I mean benchmarks of some kind.
+No, it's always a hint anyway: you can be notified before the threshold
+is reached.  But best make it explicit I think.
 
-> 
-> > > @@ -228,6 +237,12 @@ add_head:
-> > >  	 * new available array entries. */
-> > >  	virtio_wmb();
-> > >  	vq->vring.avail->idx++;
-> > > +	/* If the driver never bothers to kick in a very long while,
-> > > +	 * avail index might wrap around. If that happens, invalidate
-> > > +	 * kicked_avail index we stored. TODO: make sure all drivers
-> > > +	 * kick at least once in 2^16 and remove this. */
-> > > +	if (unlikely(vq->vring.avail->idx == vq->kicked_avail))
-> > > +		vq->kicked_avail_valid = true;
-> > 
-> > If they don't, they're already buggy.  Simply do:
-> >         WARN_ON(vq->vring.avail->idx == vq->kicked_avail);
-> 
-> Hmm, but does it say that somewhere?
-
-AFAICT it's a corollary of:
-1) You have a finite ring of size <= 2^16.
-2) You need to kick the other side once you've done some work.
-
-> > > @@ -482,6 +517,8 @@ void vring_transport_features(struct virtio_device *vdev)
-> > >  			break;
-> > >  		case VIRTIO_RING_F_USED_EVENT_IDX:
-> > >  			break;
-> > > +		case VIRTIO_RING_F_AVAIL_EVENT_IDX:
-> > > +			break;
-> > >  		default:
-> > >  			/* We don't understand this bit. */
-> > >  			clear_bit(i, vdev->features);
-> > 
-> > Does this belong in a prior patch?
-> > 
-> > Thanks,
-> > Rusty.
-> 
-> Well if we don't support the feature in the ring we should not
-> ack the feature, right?
-
-Ah, you're right.
-
-Thanks,
+Cheers,
 Rusty.
