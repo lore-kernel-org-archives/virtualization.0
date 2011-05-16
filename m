@@ -1,10 +1,16 @@
-From: =?ISO-8859-1?B?eXVzdWYg9np0/HJr?= <ysfozy@gmail.com>
-Subject: Unattended Linux VM Configuration Tool for Hyper-V
-Date: Mon, 16 May 2011 17:47:01 +0300
-Message-ID: <BANLkTimakx_+uk641SPVt-NBW3pCrkJ3Ww@mail.gmail.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH 09/18] virtio: use avail_event index
+Date: Mon, 16 May 2011 16:42:21 +0930
+Message-ID: <87ei3zdsq2.fsf__15614.8699498319$1305600627$gmane$org@rustcorp.com.au>
+References: <cover.1304541918.git.mst@redhat.com>
+	<8bba6a0a8eee17e741c5155b04ff1b1c9f34bf94.1304541919.git.mst@redhat.com>
+	<874o54h4rt.fsf@rustcorp.com.au>
+	<20110515135541.GF24932@redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============2955784523759781378=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20110515135541.GF24932@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -12,107 +18,64 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Mime-version: 1.0
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Krishna Kumar <krkumar2@in.ibm.com>, Carsten Otte <cotte@de.ibm.com>, lguest@lists.ozlabs.org, Shirley Ma <xma@us.ibm.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org, netdev@vger.kernel.org, habanero@linux.vnet.ibm.com, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, steved@us.ibm.com, Christian Borntraeger <borntraeger@de.ibm.com>, Tom Lendacky <tahm@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux390@de.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
---===============2955784523759781378==
-Content-Type: multipart/alternative; boundary=00151757740472943104a365baea
+On Sun, 15 May 2011 16:55:41 +0300, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> On Mon, May 09, 2011 at 02:03:26PM +0930, Rusty Russell wrote:
+> > On Wed, 4 May 2011 23:51:47 +0300, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> > > Use the new avail_event feature to reduce the number
+> > > of exits from the guest.
+> > 
+> > Figures here would be nice :)
+> 
+> You mean ASCII art in comments?
 
---00151757740472943104a365baea
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: quoted-printable
+I mean benchmarks of some kind.
 
-Hello,
+> 
+> > > @@ -228,6 +237,12 @@ add_head:
+> > >  	 * new available array entries. */
+> > >  	virtio_wmb();
+> > >  	vq->vring.avail->idx++;
+> > > +	/* If the driver never bothers to kick in a very long while,
+> > > +	 * avail index might wrap around. If that happens, invalidate
+> > > +	 * kicked_avail index we stored. TODO: make sure all drivers
+> > > +	 * kick at least once in 2^16 and remove this. */
+> > > +	if (unlikely(vq->vring.avail->idx == vq->kicked_avail))
+> > > +		vq->kicked_avail_valid = true;
+> > 
+> > If they don't, they're already buggy.  Simply do:
+> >         WARN_ON(vq->vring.avail->idx == vq->kicked_avail);
+> 
+> Hmm, but does it say that somewhere?
 
-I've announced a new tool for Hyper-V called "Set-LinuxVM".
+AFAICT it's a corollary of:
+1) You have a finite ring of size <= 2^16.
+2) You need to kick the other side once you've done some work.
 
-What you can do with =93Set-LinuxVM=94:
+> > > @@ -482,6 +517,8 @@ void vring_transport_features(struct virtio_device *vdev)
+> > >  			break;
+> > >  		case VIRTIO_RING_F_USED_EVENT_IDX:
+> > >  			break;
+> > > +		case VIRTIO_RING_F_AVAIL_EVENT_IDX:
+> > > +			break;
+> > >  		default:
+> > >  			/* We don't understand this bit. */
+> > >  			clear_bit(i, vdev->features);
+> > 
+> > Does this belong in a prior patch?
+> > 
+> > Thanks,
+> > Rusty.
+> 
+> Well if we don't support the feature in the ring we should not
+> ack the feature, right?
 
-*1)* Unattended IP, Hostname and DNS configuration for Linux VMs.
-*2)* Automatic Linux integration components installation.
-*3)* Multi Distro Support: Debian, Ubuntu, Centos, Fedora, Redhat and Suse!
-*4)* Automatic CPanel installation for Redhat and Centos
-*5)* Linux VM Template support (Use Skip for EnableLIC switch)
-*6)* Hyper-V support! You don=92t need SCVMM to use this script.
-*7)* Multiple Hyper-V and SCVMM host support.
-*8)* Automatic Emulated NIC to Synthetic NIC support.
-*9)* No need to internet connection (SSH access etc.) or additional changes
-on VM.
-*10)* Custom Answer File support! You can execute your own scripts.
+Ah, you're right.
 
-I made several tests on different distros. I think this is an important era
-for Hyper-V about Linux Virtualization functionality.
-
-You can check:
-http://www.yusufozturk.info/virtual-machine-manager/unattended-linux-vm-con=
-figuration-tool-for-hyper-v.html
-
-Regards,
-
-Yusuf.
-
---00151757740472943104a365baea
-Content-Type: text/html; charset=windows-1252
-Content-Transfer-Encoding: quoted-printable
-
-Hello,<div><br></div><div>I&#39;ve announced a new tool for Hyper-V called =
-&quot;Set-LinuxVM&quot;.</div><div><p style=3D"color: rgb(102, 102, 102); f=
-ont-family: Verdana, Arial, Helvetica, sans-serif; line-height: 16px; font-=
-size: 11px; ">
-What you can do with =93Set-LinuxVM=94:</p><p style=3D"color: rgb(102, 102,=
- 102); font-family: Verdana, Arial, Helvetica, sans-serif; line-height: 16p=
-x; font-size: 11px; "><strong>1)</strong>=A0Unattended IP, Hostname and DNS=
- configuration for Linux VMs.<br>
-<strong>2)</strong>=A0Automatic Linux integration components installation.<=
-br><strong>3)</strong>=A0Multi Distro Support: Debian, Ubuntu, Centos, Fedo=
-ra, Redhat and Suse!<br><strong>4)</strong>=A0Automatic CPanel installation=
- for Redhat and Centos<br>
-<strong>5)</strong>=A0Linux VM Template support (Use Skip for EnableLIC swi=
-tch)<br><strong>6)</strong>=A0Hyper-V support! You don=92t need SCVMM to us=
-e this script.<br><strong>7)</strong>=A0Multiple Hyper-V and SCVMM host sup=
-port.<br>
-<strong>8)</strong>=A0Automatic Emulated NIC to Synthetic NIC support.<br><=
-strong>9)</strong>=A0No need to internet connection (SSH access etc.) or ad=
-ditional changes on VM.<br><strong>10)</strong>=A0Custom Answer File suppor=
-t! You can execute your own scripts.</p>
-<p style=3D"color: rgb(102, 102, 102); font-family: Verdana, Arial, Helveti=
-ca, sans-serif; line-height: 16px; font-size: 11px; "><span class=3D"Apple-=
-style-span" style=3D"font-family: arial; font-size: small; color: rgb(0, 0,=
- 0); line-height: normal; ">I made several tests on different distros. I th=
-ink this is an important era for Hyper-V about Linux Virtualization functio=
-nality.</span></p>
-<p style=3D"color: rgb(102, 102, 102); font-family: Verdana, Arial, Helveti=
-ca, sans-serif; line-height: 16px; font-size: 11px; "><span class=3D"Apple-=
-style-span" style=3D"font-family: arial; font-size: small; color: rgb(0, 0,=
- 0); line-height: normal; ">You can check:=A0</span><span class=3D"Apple-st=
-yle-span" style=3D"font-family: arial; font-size: small; color: rgb(0, 0, 0=
-); line-height: normal; "><a href=3D"http://www.yusufozturk.info/virtual-ma=
-chine-manager/unattended-linux-vm-configuration-tool-for-hyper-v.html">http=
-://www.yusufozturk.info/virtual-machine-manager/unattended-linux-vm-configu=
-ration-tool-for-hyper-v.html</a></span></p>
-<p style=3D"color: rgb(102, 102, 102); font-family: Verdana, Arial, Helveti=
-ca, sans-serif; line-height: 16px; font-size: 11px; "><span class=3D"Apple-=
-style-span" style=3D"font-family: arial; font-size: small; color: rgb(0, 0,=
- 0); line-height: normal; ">Regards,</span></p>
-<p style=3D"color: rgb(102, 102, 102); font-family: Verdana, Arial, Helveti=
-ca, sans-serif; line-height: 16px; font-size: 11px; "><span class=3D"Apple-=
-style-span" style=3D"font-family: arial; font-size: small; color: rgb(0, 0,=
- 0); line-height: normal; ">Yusuf.</span></p>
-</div>
-
---00151757740472943104a365baea--
-
---===============2955784523759781378==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linux-foundation.org/mailman/listinfo/virtualization
---===============2955784523759781378==--
+Thanks,
+Rusty.
