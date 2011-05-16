@@ -1,14 +1,10 @@
-From: Dor Laor <dlaor@redhat.com>
-Subject: Re: KVM Forum 2011: Call For Participation
-Date: Mon, 16 May 2011 17:12:26 +0300
-Message-ID: <4DD130CA.1050703__35060.8157729313$1305555213$gmane$org@redhat.com>
-References: <20110421172155.GE3591@x200.localdomain>
-Reply-To: dlaor@redhat.com
+From: =?ISO-8859-1?B?eXVzdWYg9np0/HJr?= <ysfozy@gmail.com>
+Subject: Unattended Linux VM Configuration Tool for Hyper-V
+Date: Mon, 16 May 2011 17:47:01 +0300
+Message-ID: <BANLkTimakx_+uk641SPVt-NBW3pCrkJ3Ww@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============2955784523759781378=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20110421172155.GE3591@x200.localdomain>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -16,162 +12,107 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Mime-version: 1.0
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: KVM-Forum-2011-PC@redhat.com
-Cc: libvir-list@redhat.com, linux-kernel@vger.kernel.org, qemu-devel@nongnu.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-The abstract submission deadline was originally set for today.
-The forum committee agreed to extend the deadline period until next 
-Sunday, May 22.
+--===============2955784523759781378==
+Content-Type: multipart/alternative; boundary=00151757740472943104a365baea
 
-The notification date remains the same (May 31).
+--00151757740472943104a365baea
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: quoted-printable
 
-Thanks,
-  your KVM Forum 2011 Program Committee
+Hello,
 
+I've announced a new tool for Hyper-V called "Set-LinuxVM".
 
-On 04/21/2011 08:21 PM, KVM-Forum-2011-PC@redhat.com wrote:
-> =================================================================
-> KVM Forum 2011: Call For Participation
-> August 15-16, 2011 - Hyatt Regency Vancouver - Vancouver, Canada
-> =================================================================
->
-> KVM is an industry leading open source hypervisor that provides an ideal
-> platform for datacenter virtualization, virtual desktop infrastructure,
-> and cloud computing.  Once again, it's time to bring together the
-> community of developers and users that define the KVM ecosystem for
-> our annual technical conference.  We will discuss the current state of
-> affairs and plan for the future of KVM, its surrounding infrastructure,
-> and management tools.  So mark your calendar and join us in advancing KVM.
->
-> http://events.linuxfoundation.org/events/kvm-forum/
->
-> We are colocated with The Linux Foundation's LinuxCon again this year.
-> KVM Forum attendees will be eligible to attend LinuxCon for a discounted
-> rate.
->
-> http://events.linuxfoundation.org/events/kvm-forum/register
->
-> We invite you to lead part of the discussion by submitting a speaking
-> proposal for KVM Forum 2011.
->
-> http://events.linuxfoundation.org/cfp
->
-> Suggested topics:
->
->   KVM
->   - Scaling and performance
->   - Nested virtualization
->   - I/O improvements
->   - PCI device assignment
->   - Driver domains
->   - Time keeping
->   - Resource management (cpu, memory, i/o)
->   - Memory management (page sharing, swapping, huge pages, etc)
->   - Fault tolerance
->   - VEPA, VN-Link, vswitch
->   - Security
->
->   QEMU
->   - Device model improvements
->   - New devices
->   - Scaling and performance
->   - Desktop virtualization
->   - Spice
->   - Increasing robustness and hardening
->   - Security model
->   - Management interfaces
->   - QMP protocol and implementation
->   - Image formats
->   - Live migration
->   - Live snapshots and merging
->
->   Virtio
->   - Speeding up existing devices
->   - Alternatives
->   - Virtio on non-Linux
->
->   Management infrastructure
->   - Libvirt
->   - KVM autotest
->   - OpenStack
->   - Network virtualization management
->   - Enterprise storage management
->
->   Cloud computing
->   - Scalable storage
->   - Virtual networking
->   - Security
->   - Provisioning
->   - Hybrid
->
-> SUBMISSION REQUIREMENTS
->
-> Abstracts due: May 16th, 2011
-> Notification: May 31th, 2011
->
-> Please submit a short abstract (~150 words) describing your presentation
-> proposal.  In your submission please note how long your talk will take.
-> Slots vary in length up to 45 minutes.  Also include in your proposal
-> the proposal type -- one of:
->
-> - technical talk
-> - end-user talk
-> - BOF (birds of a feather) session
->
-> Sumbit your proposal here:
->
-> http://events.linuxfoundation.org/cfp
->
-> You will receive a notification whether or not your presentation proposal
-> was accepted by May 31st.
->
-> END-USER COLLABORATION
->
-> One of the big challenges as developers is to know what, where and how
-> people actually use our software.  We will reserve a few slots for end
-> users talking about their deployment challenges and achievements.
->
-> If you are using KVM in production you are encouraged submit a speaking
-> proposal.  Simply mark it as an end-user collaboration proposal.  As and
-> end user, this is a unique opportunity to get your input to developers.
->
-> BOF SESSION
->
-> We will reserve some slots in the evening after the main conference
-> tracks, for birds of a feather sessions. These sessions will be less
-> formal than presentation tracks and targetted for people who would
-> like to discuss specific issues with other developers and/or users.
-> If you are interested in getting developers and/or uses together to
-> discuss a specific problem, please submit a BOF proposal.
->
-> LIGHTNING TALKS
->
-> In addition to submitted talks we will also have some room for lightning
-> talks. These are short (5 minute) discussions to highlight new work or
-> ideas that aren't complete enough to warrant a full presentation slot.
-> Lightning talk submissions and scheduling will be handled on-site at
-> KVM Forum.
->
-> HOTEL / TRAVEL
->
-> The KVM Forum 2011 will be held in Vancouver BC at the Hyatt Regency
-> Vancouver.
->
-> http://events.linuxfoundation.org/events/kvm-forum/travel
->
-> Thank you for your interest in KVM.  We're looking forward to your
-> submissions and seeing you at the KVM Forum 2011 in August!
->
-> Thanks,
-> your KVM Forum 2011 Program Commitee
->
-> Please contact us with any questions or comments.
-> KVM-Forum-2011-PC@redhat.com
->
-> _______________________________________________
-> Kvm-forum-2011-pc mailing list
-> Kvm-forum-2011-pc@redhat.com
-> https://www.redhat.com/mailman/listinfo/kvm-forum-2011-pc
+What you can do with =93Set-LinuxVM=94:
+
+*1)* Unattended IP, Hostname and DNS configuration for Linux VMs.
+*2)* Automatic Linux integration components installation.
+*3)* Multi Distro Support: Debian, Ubuntu, Centos, Fedora, Redhat and Suse!
+*4)* Automatic CPanel installation for Redhat and Centos
+*5)* Linux VM Template support (Use Skip for EnableLIC switch)
+*6)* Hyper-V support! You don=92t need SCVMM to use this script.
+*7)* Multiple Hyper-V and SCVMM host support.
+*8)* Automatic Emulated NIC to Synthetic NIC support.
+*9)* No need to internet connection (SSH access etc.) or additional changes
+on VM.
+*10)* Custom Answer File support! You can execute your own scripts.
+
+I made several tests on different distros. I think this is an important era
+for Hyper-V about Linux Virtualization functionality.
+
+You can check:
+http://www.yusufozturk.info/virtual-machine-manager/unattended-linux-vm-con=
+figuration-tool-for-hyper-v.html
+
+Regards,
+
+Yusuf.
+
+--00151757740472943104a365baea
+Content-Type: text/html; charset=windows-1252
+Content-Transfer-Encoding: quoted-printable
+
+Hello,<div><br></div><div>I&#39;ve announced a new tool for Hyper-V called =
+&quot;Set-LinuxVM&quot;.</div><div><p style=3D"color: rgb(102, 102, 102); f=
+ont-family: Verdana, Arial, Helvetica, sans-serif; line-height: 16px; font-=
+size: 11px; ">
+What you can do with =93Set-LinuxVM=94:</p><p style=3D"color: rgb(102, 102,=
+ 102); font-family: Verdana, Arial, Helvetica, sans-serif; line-height: 16p=
+x; font-size: 11px; "><strong>1)</strong>=A0Unattended IP, Hostname and DNS=
+ configuration for Linux VMs.<br>
+<strong>2)</strong>=A0Automatic Linux integration components installation.<=
+br><strong>3)</strong>=A0Multi Distro Support: Debian, Ubuntu, Centos, Fedo=
+ra, Redhat and Suse!<br><strong>4)</strong>=A0Automatic CPanel installation=
+ for Redhat and Centos<br>
+<strong>5)</strong>=A0Linux VM Template support (Use Skip for EnableLIC swi=
+tch)<br><strong>6)</strong>=A0Hyper-V support! You don=92t need SCVMM to us=
+e this script.<br><strong>7)</strong>=A0Multiple Hyper-V and SCVMM host sup=
+port.<br>
+<strong>8)</strong>=A0Automatic Emulated NIC to Synthetic NIC support.<br><=
+strong>9)</strong>=A0No need to internet connection (SSH access etc.) or ad=
+ditional changes on VM.<br><strong>10)</strong>=A0Custom Answer File suppor=
+t! You can execute your own scripts.</p>
+<p style=3D"color: rgb(102, 102, 102); font-family: Verdana, Arial, Helveti=
+ca, sans-serif; line-height: 16px; font-size: 11px; "><span class=3D"Apple-=
+style-span" style=3D"font-family: arial; font-size: small; color: rgb(0, 0,=
+ 0); line-height: normal; ">I made several tests on different distros. I th=
+ink this is an important era for Hyper-V about Linux Virtualization functio=
+nality.</span></p>
+<p style=3D"color: rgb(102, 102, 102); font-family: Verdana, Arial, Helveti=
+ca, sans-serif; line-height: 16px; font-size: 11px; "><span class=3D"Apple-=
+style-span" style=3D"font-family: arial; font-size: small; color: rgb(0, 0,=
+ 0); line-height: normal; ">You can check:=A0</span><span class=3D"Apple-st=
+yle-span" style=3D"font-family: arial; font-size: small; color: rgb(0, 0, 0=
+); line-height: normal; "><a href=3D"http://www.yusufozturk.info/virtual-ma=
+chine-manager/unattended-linux-vm-configuration-tool-for-hyper-v.html">http=
+://www.yusufozturk.info/virtual-machine-manager/unattended-linux-vm-configu=
+ration-tool-for-hyper-v.html</a></span></p>
+<p style=3D"color: rgb(102, 102, 102); font-family: Verdana, Arial, Helveti=
+ca, sans-serif; line-height: 16px; font-size: 11px; "><span class=3D"Apple-=
+style-span" style=3D"font-family: arial; font-size: small; color: rgb(0, 0,=
+ 0); line-height: normal; ">Regards,</span></p>
+<p style=3D"color: rgb(102, 102, 102); font-family: Verdana, Arial, Helveti=
+ca, sans-serif; line-height: 16px; font-size: 11px; "><span class=3D"Apple-=
+style-span" style=3D"font-family: arial; font-size: small; color: rgb(0, 0,=
+ 0); line-height: normal; ">Yusuf.</span></p>
+</div>
+
+--00151757740472943104a365baea--
+
+--===============2955784523759781378==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linux-foundation.org/mailman/listinfo/virtualization
+--===============2955784523759781378==--
