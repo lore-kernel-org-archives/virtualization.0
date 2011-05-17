@@ -1,18 +1,15 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH 09/18] virtio: use avail_event index
-Date: Tue, 17 May 2011 09:10:31 +0300
-Message-ID: <20110517061031.GC26989__33087.0058191524$1305612671$gmane$org@redhat.com>
-References: <cover.1304541918.git.mst@redhat.com>
-	<8bba6a0a8eee17e741c5155b04ff1b1c9f34bf94.1304541919.git.mst@redhat.com>
-	<874o54h4rt.fsf@rustcorp.com.au>
-	<20110515135541.GF24932@redhat.com>
-	<87ei3zdsq2.fsf@rustcorp.com.au>
-Mime-Version: 1.0
+From: Alexander Graf <agraf@suse.de>
+Subject: Re: [PATCH 3/3] powerpc-virtio: virtio support introduced (block,
+	network, serial, balloon, 9p-fs), both fullemu and power-kvm
+Date: Tue, 17 May 2011 09:06:41 +0200
+Message-ID: <CC7C7633-F1F6-4CCC-BC48-F7DC057CB63E__42026.3779735707$1305616060$gmane$org@suse.de>
+References: <1305614826-1815-1-git-send-email-david@gibson.dropbear.id.au>
+	<1305614826-1815-4-git-send-email-david@gibson.dropbear.id.au>
+Mime-Version: 1.0 (Apple Message framework v1084)
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <87ei3zdsq2.fsf@rustcorp.com.au>
+In-Reply-To: <1305614826-1815-4-git-send-email-david@gibson.dropbear.id.au>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -22,79 +19,80 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Krishna Kumar <krkumar2@in.ibm.com>, Carsten Otte <cotte@de.ibm.com>, lguest@lists.ozlabs.org, Shirley Ma <xma@us.ibm.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org, netdev@vger.kernel.org, habanero@linux.vnet.ibm.com, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, steved@us.ibm.com, Christian Borntraeger <borntraeger@de.ibm.com>, Tom Lendacky <tahm@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux390@de.ibm.com
+To: David Gibson <david@gibson.dropbear.id.au>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, Alexey Kardashevskiy <aik@ozlabs.ru>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, "qemu-devel@nongnu.org Developers" <qemu-devel@nongnu.org>, virtualization@lists.linux-foundation.org, Paul Mackerras <paulus@samba.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, May 16, 2011 at 04:42:21PM +0930, Rusty Russell wrote:
-> On Sun, 15 May 2011 16:55:41 +0300, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> > On Mon, May 09, 2011 at 02:03:26PM +0930, Rusty Russell wrote:
-> > > On Wed, 4 May 2011 23:51:47 +0300, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> > > > Use the new avail_event feature to reduce the number
-> > > > of exits from the guest.
-> > > 
-> > > Figures here would be nice :)
-> > 
-> > You mean ASCII art in comments?
+
+On 17.05.2011, at 08:47, David Gibson wrote:
+
+> From: Alexey Kardashevskiy <aik@ozlabs.ru>
 > 
-> I mean benchmarks of some kind.
-
-:)
-
-> > 
-> > > > @@ -228,6 +237,12 @@ add_head:
-> > > >  	 * new available array entries. */
-> > > >  	virtio_wmb();
-> > > >  	vq->vring.avail->idx++;
-> > > > +	/* If the driver never bothers to kick in a very long while,
-> > > > +	 * avail index might wrap around. If that happens, invalidate
-> > > > +	 * kicked_avail index we stored. TODO: make sure all drivers
-> > > > +	 * kick at least once in 2^16 and remove this. */
-> > > > +	if (unlikely(vq->vring.avail->idx == vq->kicked_avail))
-> > > > +		vq->kicked_avail_valid = true;
-> > > 
-> > > If they don't, they're already buggy.  Simply do:
-> > >         WARN_ON(vq->vring.avail->idx == vq->kicked_avail);
-> > 
-> > Hmm, but does it say that somewhere?
+> The recently added pseries machine does not currently support PCI
+> emulation.  For the (upcoming) kvm case, this is quite difficult to do
+> because the preferred HV mode for the host kernel does not allow MMIO
+> emulation (a hardware limitation).
 > 
-> AFAICT it's a corollary of:
-> 1) You have a finite ring of size <= 2^16.
-> 2) You need to kick the other side once you've done some work.
-
-Well one can imagine a driver doing:
-
-	while (virtqueue_get_buf()) {
-		virtqueue_add_buf()
-	}
-	virtqueue_kick()
-
-which looks sensible (batch kicks) but might
-process any number of bufs between kicks.
-
-If we look at drivers closely enough, I think none
-of them do the equivalent of the above, but not 100% sure.
-
-
-> > > > @@ -482,6 +517,8 @@ void vring_transport_features(struct virtio_device *vdev)
-> > > >  			break;
-> > > >  		case VIRTIO_RING_F_USED_EVENT_IDX:
-> > > >  			break;
-> > > > +		case VIRTIO_RING_F_AVAIL_EVENT_IDX:
-> > > > +			break;
-> > > >  		default:
-> > > >  			/* We don't understand this bit. */
-> > > >  			clear_bit(i, vdev->features);
-> > > 
-> > > Does this belong in a prior patch?
-> > > 
-> > > Thanks,
-> > > Rusty.
-> > 
-> > Well if we don't support the feature in the ring we should not
-> > ack the feature, right?
+> Therefore, to support virtio devices, we implement a new virtio setup
+> protocol for PAPR guests.  This is based loosely on the s390 and lguest
+> methods, using the PAPR hcalls for the virtio primitive operations,
+> and the PAPR device tree to advertise the virtio device resources to the
+> guest.
 > 
-> Ah, you're right.
+> This patch includes support for the virtio block, network, serial, and
+> balloon devices, and the 9p filesystem.
 > 
-> Thanks,
-> Rusty.
+> The guest linux kernel should be updated as well in order to
+> support a new virtio setup.
+> 
+> Supported devices are (below are QEMU command line switches):
+> 
+> - virtio-blk - block device, at the moment works as "IDE":
+>    usage: -drive file=test-virtio-blk.img,if=ide
+> 
+> - virtio-net - network device
+>    usage: -net nic,model=virtio-net
+> 
+> - virtio-balloon - memory hot-swap device (at the moment of commit, power-kvm
+> did not support balloon)
+>    usage: -device virtio-balloon-spapr
+> 
+> - virtio-serial - serial bus controller
+>    usage: -device virtio-serial-spapr \
+>           -chardev socket,id=CONSOLE,host=localhost,port=4444,server,telnet \
+>           -device virtconsole,chardev=CONSOLE
+>    The first switch tells QEMU to create a serial bus device and next
+>    2 switches create "chardev" and virtual console device connected to
+>    that "chardev".
+> 
+> - virtio-9p - plan9 filesystem with ability to work over virtio transport
+>    usage: -fsdev fstype=local,id=TAG,path=/home/aik/,security_model=none \
+>           -device virtio-9p-spapr,fsdev=TAG,mount_tag=TAG
+>    where TAG is a tag which should be used later when mounting is linux as:
+>           mount -t 9p -o trans=virtio TAG /mnt
+> 
+>    Configure for full emulation as:
+>       ./configure --target-list=ppc64-softmmu --enable-attr
+> 
+>    Configure for power-kvm as:
+>       ./configure --enable-kvm  --target-list=ppc64-softmmu --enable-fdt \
+>                    --cc="gcc -m64" \
+>                    --kerneldir=/root/kheaders --enable-io-thread --enable-attr
+> 
+> Note: --enable-attr is required for 9p support. On ppc64 systems, libattr
+> should be compiled and installed manually as it is not distributes in
+> 64bit packages.
+
+Before including such a patch, we should really discuss the desired interface for virtio on sPAPR. I personally would prefer if we could have a generic MMIO hypercall that the guest issues, so that we can simply use virtio-pci on sPAPR (and all the other PCI hardware).
+
+But at the end of the day, the steps should be as follows:
+
+  1) Discuss this on the virtualization ML
+  2) Send patches for the virtio documentation so the protocol has a spec (which we're lacking for s390 still)
+  3) Implement Linux side, upstream it
+  4) Upstream Qemu side
+
+Since I haven't seen 1-3, I'd like to defer this patch until the other points are good :)
+
+
+Alex
