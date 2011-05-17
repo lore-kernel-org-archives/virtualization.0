@@ -1,99 +1,35 @@
-From: Tom Lendacky <tahm@linux.vnet.ibm.com>
-Subject: Re: [PATCH 09/18] virtio: use avail_event index
-Date: Tue, 17 May 2011 11:23:32 -0500
-Message-ID: <201105171123.34706.tahm__10665.2871393182$1305649855$gmane$org@linux.vnet.ibm.com>
-References: <cover.1304541918.git.mst@redhat.com>
-	<20110515135541.GF24932@redhat.com>
-	<87ei3zdsq2.fsf@rustcorp.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <87ei3zdsq2.fsf@rustcorp.com.au>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Krishna Kumar <krkumar2@in.ibm.com>, Carsten Otte <cotte@de.ibm.com>, linux-s390@vger.kernel.org, lguest@lists.ozlabs.org, Shirley Ma <xma@us.ibm.com>, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, habanero@linux.vnet.ibm.com, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, steved@us.ibm.com, Christian Borntraeger <borntraeger@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux390@de.ibm.com
+From: "K. Y. Srinivasan" <kys@microsoft.com>
+Subject: [PATCH 2/2] Connector: Correctly set the error code in case of success when dispatching receive callbacks
+Date: Tue, 17 May 2011 15:25:38 -0700
+Message-ID: <1305671138-19443-2-git-send-email-kys@microsoft.com>
+References: <1305671138-19443-1-git-send-email-kys@microsoft.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1305671138-19443-1-git-send-email-kys@microsoft.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org
+Cc: "K. Y. Srinivasan" <kys@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
+The recent changes to the connector code introduced this bug where even
+when a callback was invoked, we would return an error resulting in
+double freeing of the skb. This patch fixes this bug.
 
-On Monday, May 16, 2011 02:12:21 AM Rusty Russell wrote:
-> On Sun, 15 May 2011 16:55:41 +0300, "Michael S. Tsirkin" <mst@redhat.com> 
-wrote:
-> > On Mon, May 09, 2011 at 02:03:26PM +0930, Rusty Russell wrote:
-> > > On Wed, 4 May 2011 23:51:47 +0300, "Michael S. Tsirkin" <mst@redhat.com> 
-wrote:
-> > > > Use the new avail_event feature to reduce the number
-> > > > of exits from the guest.
-> > > 
-> > > Figures here would be nice :)
-> > 
-> > You mean ASCII art in comments?
-> 
-> I mean benchmarks of some kind.
+Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
+---
+ drivers/connector/connector.c |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
 
-I'm working on getting some benchmark results for the patches.  I should 
-hopefully have something in the next day or two.
-
-Tom
-> 
-> > > > @@ -228,6 +237,12 @@ add_head:
-> > > >  	 * new available array entries. */
-> > > >  	
-> > > >  	virtio_wmb();
-> > > >  	vq->vring.avail->idx++;
-> > > > 
-> > > > +	/* If the driver never bothers to kick in a very long while,
-> > > > +	 * avail index might wrap around. If that happens, invalidate
-> > > > +	 * kicked_avail index we stored. TODO: make sure all drivers
-> > > > +	 * kick at least once in 2^16 and remove this. */
-> > > > +	if (unlikely(vq->vring.avail->idx == vq->kicked_avail))
-> > > > +		vq->kicked_avail_valid = true;
-> > > 
-> > > If they don't, they're already buggy.  Simply do:
-> > >         WARN_ON(vq->vring.avail->idx == vq->kicked_avail);
-> > 
-> > Hmm, but does it say that somewhere?
-> 
-> AFAICT it's a corollary of:
-> 1) You have a finite ring of size <= 2^16.
-> 2) You need to kick the other side once you've done some work.
-> 
-> > > > @@ -482,6 +517,8 @@ void vring_transport_features(struct
-> > > > virtio_device *vdev)
-> > > > 
-> > > >  			break;
-> > > >  		
-> > > >  		case VIRTIO_RING_F_USED_EVENT_IDX:
-> > > >  			break;
-> > > > 
-> > > > +		case VIRTIO_RING_F_AVAIL_EVENT_IDX:
-> > > > +			break;
-> > > > 
-> > > >  		default:
-> > > >  			/* We don't understand this bit. */
-> > > >  			clear_bit(i, vdev->features);
-> > > 
-> > > Does this belong in a prior patch?
-> > > 
-> > > Thanks,
-> > > Rusty.
-> > 
-> > Well if we don't support the feature in the ring we should not
-> > ack the feature, right?
-> 
-> Ah, you're right.
-> 
-> Thanks,
-> Rusty.
-> --
-> To unsubscribe from this list: send the line "unsubscribe kvm" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+diff --git a/drivers/connector/connector.c b/drivers/connector/connector.c
+index d770058..c36fbe1 100644
+--- a/drivers/connector/connector.c
++++ b/drivers/connector/connector.c
+@@ -139,6 +139,7 @@ static int cn_call_callback(struct sk_buff *skb)
+ 	spin_unlock_bh(&dev->cbdev->queue_lock);
+ 
+ 	if (cbq != NULL) {
++		err = 0;
+ 		cbq->callback(msg, nsp);
+ 		kfree_skb(skb);
+ 		cn_queue_release_callback(cbq);
+-- 
+1.7.4.1
