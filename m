@@ -1,60 +1,53 @@
-From: Greg KH <greg@kroah.com>
-Subject: Re: [PATCH 2/2] Connector: Correctly set the error code in case of
- success when dispatching receive callbacks
-Date: Tue, 17 May 2011 16:05:15 -0700
-Message-ID: <20110517230515.GA18386@kroah.com>
-References: <1305671138-19443-1-git-send-email-kys@microsoft.com>
- <1305671138-19443-2-git-send-email-kys@microsoft.com>
- <20110517223155.GC15741@kroah.com>
- <6E21E5352C11B742B20C142EB499E0481FB74C@TK5EX14MBXC122.redmond.corp.microsoft.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH 09/18] virtio: use avail_event index
+Date: Wed, 18 May 2011 09:49:42 +0930
+Message-ID: <87tycsn9lt.fsf__3716.23031464896$1305679574$gmane$org@rustcorp.com.au>
+References: <cover.1304541918.git.mst@redhat.com>
+	<8bba6a0a8eee17e741c5155b04ff1b1c9f34bf94.1304541919.git.mst@redhat.com>
+	<874o54h4rt.fsf@rustcorp.com.au>
+	<20110515135541.GF24932@redhat.com>
+	<87ei3zdsq2.fsf@rustcorp.com.au>
+	<20110517061031.GC26989@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <6E21E5352C11B742B20C142EB499E0481FB74C@TK5EX14MBXC122.redmond.corp.microsoft.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: KY Srinivasan <kys@microsoft.com>
-Cc: "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20110517061031.GC26989@redhat.com>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Krishna Kumar <krkumar2@in.ibm.com>, Carsten Otte <cotte@de.ibm.com>, lguest@lists.ozlabs.org, Shirley Ma <xma@us.ibm.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org, netdev@vger.kernel.org, habanero@linux.vnet.ibm.com, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, steved@us.ibm.com, Christian Borntraeger <borntraeger@de.ibm.com>, Tom Lendacky <tahm@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux390@de.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, May 17, 2011 at 10:53:18PM +0000, KY Srinivasan wrote:
+On Tue, 17 May 2011 09:10:31 +0300, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> Well one can imagine a driver doing:
 > 
+> 	while (virtqueue_get_buf()) {
+> 		virtqueue_add_buf()
+> 	}
+> 	virtqueue_kick()
 > 
-> > -----Original Message-----
-> > From: Greg KH [mailto:greg@kroah.com]
-> > Sent: Tuesday, May 17, 2011 6:32 PM
-> > To: KY Srinivasan
-> > Cc: gregkh@suse.de; linux-kernel@vger.kernel.org;
-> > devel@linuxdriverproject.org; virtualization@lists.osdl.org
-> > Subject: Re: [PATCH 2/2] Connector: Correctly set the error code in case of
-> > success when dispatching receive callbacks
-> > 
-> > On Tue, May 17, 2011 at 03:25:38PM -0700, K. Y. Srinivasan wrote:
-> > > The recent changes to the connector code introduced this bug where even
-> > > when a callback was invoked, we would return an error resulting in
-> > > double freeing of the skb. This patch fixes this bug.
-> > 
-> > By "recent" what do you mean?  Is this something that is in the .39
-> > kernel?  Do you have a git commit id that caused this?
-> > 
-> > Or is this due to changes that are queued up for the .40 merge window?
-> 
-> I just happened to test KVP functionality yesterday on latest bits from your tree (NEXT)
-> and discovered that whenever  something was sent to the kernel from userland on a 
-> connector channel, the system would hang. The following commit appears to be where
-> this bug was introduced:
-> 
-> commit 04f482faf50535229a5a5c8d629cf963899f857c
-> Author: Patrick McHardy <kaber@trash.net>
-> Date:   Mon Mar 28 08:39:36 2011 +0000
-> 
-> Since prior to this commit I don't see this problem. In any event the current code is clearly
-> broken.
+> which looks sensible (batch kicks) but might
+> process any number of bufs between kicks.
 
-Ok, since this was released in the 2.6.39-rc2 kernel, this needs to get
-backported to the .39-stable kernel release as well, I'll mark it as
-such when I apply it to the tree.
+No, we currently only expose the buffers in the kick, so it can only
+fill the ring doing that.
 
-thanks,
+We could change that (and maybe that's worth looking at)...
 
-greg k-h
+> If we look at drivers closely enough, I think none
+> of them do the equivalent of the above, but not 100% sure.
+
+I'm pretty sure we don't have this kind of 'echo' driver yet.  Drivers
+tend to take OS requests and queue them.  The only one which does
+anything even partially sophisticated is the net driver...
+
+Thanks,
+Rusty.
