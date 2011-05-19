@@ -1,12 +1,18 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH RFC] virtio_net: fix patch: virtio_net: limit xmit polling
-Date: Thu, 19 May 2011 01:01:25 +0300
-Message-ID: <20110518220125.GA26835__42842.4755031758$1305756127$gmane$org@redhat.com>
+Subject: Re: [PATCH 14/18] virtio: add api for delayed callbacks
+Date: Thu, 19 May 2011 10:24:12 +0300
+Message-ID: <20110519072412.GA31253__31510.8672519729$1305789924$gmane$org@redhat.com>
+References: <cover.1304541918.git.mst@redhat.com>
+	<64d47c628b3fdc0ac156aed4be182933d8bcc0db.1304541919.git.mst@redhat.com>
+	<871v08h0vm.fsf@rustcorp.com.au>
+	<20110515124818.GD24932@redhat.com>
+	<87boz3dsoe.fsf@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
+In-Reply-To: <87boz3dsoe.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -16,49 +22,55 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: rusty@rustcorp.com.au, habanero@linux.vnet.ibm.com, Shirley Ma <mashirle@us.ibm.com>, Krishna Kumar2 <krkumar2@in.ibm.com>, kvm@vger.kernel.org, steved@us.ibm.com
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Krishna Kumar <krkumar2@in.ibm.com>, Carsten Otte <cotte@de.ibm.com>, lguest@lists.ozlabs.org, Shirley Ma <xma@us.ibm.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org, netdev@vger.kernel.org, habanero@linux.vnet.ibm.com, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, steved@us.ibm.com, Christian Borntraeger <borntraeger@de.ibm.com>, Tom Lendacky <tahm@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux390@de.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-The patch  virtio_net: limit xmit polling
-got the logic reversed: it polled while we had
-capacity not while ring was empty.
+On Mon, May 16, 2011 at 04:43:21PM +0930, Rusty Russell wrote:
+> On Sun, 15 May 2011 15:48:18 +0300, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> > On Mon, May 09, 2011 at 03:27:33PM +0930, Rusty Russell wrote:
+> > > On Wed, 4 May 2011 23:52:33 +0300, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> > > > Add an API that tells the other side that callbacks
+> > > > should be delayed until a lot of work has been done.
+> > > > Implement using the new used_event feature.
+> > > 
+> > > Since you're going to add a capacity query anyway, why not add the
+> > > threshold argument here?
+> > 
+> > I thought that if we keep the API kind of generic
+> > there might be more of a chance that future transports
+> > will be able to implement it. For example, with an
+> > old host we can't commit to a specific index.
+> 
+> No, it's always a hint anyway: you can be notified before the threshold
+> is reached.  But best make it explicit I think.
+> 
+> Cheers,
+> Rusty.
 
-Fix it up and clean up a bit by using a for loop.
 
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
+I tried doing that and remembered the real reason I went for this API:
 
-OK, turns out that patch was borken. Here's
-a fix that survived stress test on my box.
-Pushed on my branch, I'll send a rebased series
-with Rusty's comments addressed ASAP.
+capacity is limited by descriptor table space, not
+used ring space: each entry in the used ring frees up multiple entries
+in the descriptor ring. Thus the ring can't provide
+callback after capacity is N: capacity is only available
+after we get bufs.
 
- drivers/net/virtio_net.c |   10 ++++++----
- 1 files changed, 6 insertions(+), 4 deletions(-)
+We could try and make the API pass in the number of freed bufs, however:
+- this is not really what virtio-net cares about (it cares about
+  capacity)
+- if the driver passes a number > number of outstanding bufs, it will
+  never get a callback. So to stay correct the driver will need to
+  track number of outstanding requests. The simpler API avoids that. 
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 9982bd7..c8cd22d 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -514,12 +514,14 @@ static bool free_old_xmit_skbs(struct virtnet_info *vi, int capacity)
- 	struct sk_buff *skb;
- 	unsigned int len;
- 	bool c;
-+	int n;
-+
- 	/* We try to free up at least 2 skbs per one sent, so that we'll get
- 	 * all of the memory back if they are used fast enough. */
--	int n = 2;
--
--	while ((c = virtqueue_get_capacity(vi->svq) >= capacity) && --n > 0 &&
--	       (skb = virtqueue_get_buf(vi->svq, &len)) != NULL) {
-+	for (n = 0;
-+	     ((c = virtqueue_get_capacity(vi->svq)) < capacity || n < 2) &&
-+	     ((skb = virtqueue_get_buf(vi->svq, &len)));
-+	     ++n) {
- 		pr_debug("Sent skb %p\n", skb);
- 		vi->dev->stats.tx_bytes += skb->len;
- 		vi->dev->stats.tx_packets++;
+
+APIs are easy to change so I'm guessing it's not a major blocker:
+we can change later when e.g. block tries to
+pass in some kind of extra hint: we'll be smarter
+about how this API can change then.
+
+Right?
+
 -- 
-1.7.5.53.gc233e
+MST
