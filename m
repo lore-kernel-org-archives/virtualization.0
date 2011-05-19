@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCHv2 04/14] vhost: support event index
-Date: Fri, 20 May 2011 02:10:54 +0300
-Message-ID: <b227febf884dcf82dee9233e581c6216d0e9daa5.1305846412.git.mst__10569.7442465045$1305847071$gmane$org@redhat.com>
+Subject: [PATCHv2 06/14] virtio: add api for delayed callbacks
+Date: Fri, 20 May 2011 02:11:14 +0300
+Message-ID: <8f343dcaa996f6b10499468c49508ba9d6fb6f5a.1305846412.git.mst__38476.8863594674$1305847221$gmane$org@redhat.com>
 References: <cover.1305846412.git.mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,415 +21,90 @@ Errors-To: virtualization-bounces@lists.linux-foundation.org
 Cc: Krishna Kumar <krkumar2@in.ibm.com>, Carsten Otte <cotte@de.ibm.com>, lguest@lists.ozlabs.org, Shirley Ma <xma@us.ibm.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org, netdev@vger.kernel.org, habanero@linux.vnet.ibm.com, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, steved@us.ibm.com, Christian Borntraeger <borntraeger@de.ibm.com>, Tom Lendacky <tahm@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux390@de.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Support the new event index feature. When acked,
-utilize it to reduce the # of interrupts sent to the guest.
+Add an API that tells the other side that callbacks
+should be delayed until a lot of work has been done.
+Implement using the new event_idx feature.
+
+Note: it might seem advantageous to let the drivers
+ask for a callback after a specific capacity has
+been reached. However, as a single head can
+free many entries in the descriptor table,
+we don't really have a clue about capacity
+until get_buf is called. The API is the simplest
+to implement at the moment, we'll see what kind of
+hints drivers can pass when there's more than one
+user of the feature.
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- drivers/vhost/net.c   |   12 ++--
- drivers/vhost/test.c  |    6 +-
- drivers/vhost/vhost.c |  138 +++++++++++++++++++++++++++++++++++++------------
- drivers/vhost/vhost.h |   21 +++++---
- 4 files changed, 127 insertions(+), 50 deletions(-)
+ drivers/virtio/virtio_ring.c |   27 +++++++++++++++++++++++++++
+ include/linux/virtio.h       |    9 +++++++++
+ 2 files changed, 36 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-index 2f7c76a..e224a92 100644
---- a/drivers/vhost/net.c
-+++ b/drivers/vhost/net.c
-@@ -144,7 +144,7 @@ static void handle_tx(struct vhost_net *net)
- 	}
- 
- 	mutex_lock(&vq->mutex);
--	vhost_disable_notify(vq);
-+	vhost_disable_notify(&net->dev, vq);
- 
- 	if (wmem < sock->sk->sk_sndbuf / 2)
- 		tx_poll_stop(net);
-@@ -166,8 +166,8 @@ static void handle_tx(struct vhost_net *net)
- 				set_bit(SOCK_ASYNC_NOSPACE, &sock->flags);
- 				break;
- 			}
--			if (unlikely(vhost_enable_notify(vq))) {
--				vhost_disable_notify(vq);
-+			if (unlikely(vhost_enable_notify(&net->dev, vq))) {
-+				vhost_disable_notify(&net->dev, vq);
- 				continue;
- 			}
- 			break;
-@@ -315,7 +315,7 @@ static void handle_rx(struct vhost_net *net)
- 		return;
- 
- 	mutex_lock(&vq->mutex);
--	vhost_disable_notify(vq);
-+	vhost_disable_notify(&net->dev, vq);
- 	vhost_hlen = vq->vhost_hlen;
- 	sock_hlen = vq->sock_hlen;
- 
-@@ -334,10 +334,10 @@ static void handle_rx(struct vhost_net *net)
- 			break;
- 		/* OK, now we need to know about added descriptors. */
- 		if (!headcount) {
--			if (unlikely(vhost_enable_notify(vq))) {
-+			if (unlikely(vhost_enable_notify(&net->dev, vq))) {
- 				/* They have slipped one in as we were
- 				 * doing that: check again. */
--				vhost_disable_notify(vq);
-+				vhost_disable_notify(&net->dev, vq);
- 				continue;
- 			}
- 			/* Nothing new?  Wait for eventfd to tell us
-diff --git a/drivers/vhost/test.c b/drivers/vhost/test.c
-index 099f302..734e1d7 100644
---- a/drivers/vhost/test.c
-+++ b/drivers/vhost/test.c
-@@ -49,7 +49,7 @@ static void handle_vq(struct vhost_test *n)
- 		return;
- 
- 	mutex_lock(&vq->mutex);
--	vhost_disable_notify(vq);
-+	vhost_disable_notify(&n->dev, vq);
- 
- 	for (;;) {
- 		head = vhost_get_vq_desc(&n->dev, vq, vq->iov,
-@@ -61,8 +61,8 @@ static void handle_vq(struct vhost_test *n)
- 			break;
- 		/* Nothing new?  Wait for eventfd to tell us they refilled. */
- 		if (head == vq->num) {
--			if (unlikely(vhost_enable_notify(vq))) {
--				vhost_disable_notify(vq);
-+			if (unlikely(vhost_enable_notify(&n->dev, vq))) {
-+				vhost_disable_notify(&n->dev, vq);
- 				continue;
- 			}
- 			break;
-diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-index 2ab2912..2a10786 100644
---- a/drivers/vhost/vhost.c
-+++ b/drivers/vhost/vhost.c
-@@ -37,6 +37,9 @@ enum {
- 	VHOST_MEMORY_F_LOG = 0x1,
- };
- 
-+#define vhost_used_event(vq) ((u16 __user *)&vq->avail->ring[vq->num])
-+#define vhost_avail_event(vq) ((u16 __user *)&vq->used->ring[vq->num])
-+
- static void vhost_poll_func(struct file *file, wait_queue_head_t *wqh,
- 			    poll_table *pt)
- {
-@@ -161,6 +164,8 @@ static void vhost_vq_reset(struct vhost_dev *dev,
- 	vq->last_avail_idx = 0;
- 	vq->avail_idx = 0;
- 	vq->last_used_idx = 0;
-+	vq->signalled_used = 0;
-+	vq->signalled_used_valid = false;
- 	vq->used_flags = 0;
- 	vq->log_used = false;
- 	vq->log_addr = -1ull;
-@@ -489,16 +494,17 @@ static int memory_access_ok(struct vhost_dev *d, struct vhost_memory *mem,
- 	return 1;
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+index 1d0f9be..6578e1a 100644
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -376,6 +376,33 @@ bool virtqueue_enable_cb(struct virtqueue *_vq)
  }
+ EXPORT_SYMBOL_GPL(virtqueue_enable_cb);
  
--static int vq_access_ok(unsigned int num,
-+static int vq_access_ok(struct vhost_dev *d, unsigned int num,
- 			struct vring_desc __user *desc,
- 			struct vring_avail __user *avail,
- 			struct vring_used __user *used)
- {
-+	size_t s = vhost_has_feature(d, VIRTIO_RING_F_EVENT_IDX) ? 2 : 0;
- 	return access_ok(VERIFY_READ, desc, num * sizeof *desc) &&
- 	       access_ok(VERIFY_READ, avail,
--			 sizeof *avail + num * sizeof *avail->ring) &&
-+			 sizeof *avail + num * sizeof *avail->ring + s) &&
- 	       access_ok(VERIFY_WRITE, used,
--			sizeof *used + num * sizeof *used->ring);
-+			sizeof *used + num * sizeof *used->ring + s);
- }
- 
- /* Can we log writes? */
-@@ -514,9 +520,11 @@ int vhost_log_access_ok(struct vhost_dev *dev)
- 
- /* Verify access for write logging. */
- /* Caller should have vq mutex and device mutex */
--static int vq_log_access_ok(struct vhost_virtqueue *vq, void __user *log_base)
-+static int vq_log_access_ok(struct vhost_dev *d, struct vhost_virtqueue *vq,
-+			    void __user *log_base)
- {
- 	struct vhost_memory *mp;
-+	size_t s = vhost_has_feature(d, VIRTIO_RING_F_EVENT_IDX) ? 2 : 0;
- 
- 	mp = rcu_dereference_protected(vq->dev->memory,
- 				       lockdep_is_held(&vq->mutex));
-@@ -524,15 +532,15 @@ static int vq_log_access_ok(struct vhost_virtqueue *vq, void __user *log_base)
- 			    vhost_has_feature(vq->dev, VHOST_F_LOG_ALL)) &&
- 		(!vq->log_used || log_access_ok(log_base, vq->log_addr,
- 					sizeof *vq->used +
--					vq->num * sizeof *vq->used->ring));
-+					vq->num * sizeof *vq->used->ring + s));
- }
- 
- /* Can we start vq? */
- /* Caller should have vq mutex and device mutex */
- int vhost_vq_access_ok(struct vhost_virtqueue *vq)
- {
--	return vq_access_ok(vq->num, vq->desc, vq->avail, vq->used) &&
--		vq_log_access_ok(vq, vq->log_base);
-+	return vq_access_ok(vq->dev, vq->num, vq->desc, vq->avail, vq->used) &&
-+		vq_log_access_ok(vq->dev, vq, vq->log_base);
- }
- 
- static long vhost_set_memory(struct vhost_dev *d, struct vhost_memory __user *m)
-@@ -577,6 +585,7 @@ static int init_used(struct vhost_virtqueue *vq,
- 
- 	if (r)
- 		return r;
-+	vq->signalled_used_valid = false;
- 	return get_user(vq->last_used_idx, &used->idx);
- }
- 
-@@ -674,7 +683,7 @@ static long vhost_set_vring(struct vhost_dev *d, int ioctl, void __user *argp)
- 		 * If it is not, we don't as size might not have been setup.
- 		 * We will verify when backend is configured. */
- 		if (vq->private_data) {
--			if (!vq_access_ok(vq->num,
-+			if (!vq_access_ok(d, vq->num,
- 				(void __user *)(unsigned long)a.desc_user_addr,
- 				(void __user *)(unsigned long)a.avail_user_addr,
- 				(void __user *)(unsigned long)a.used_user_addr)) {
-@@ -818,7 +827,7 @@ long vhost_dev_ioctl(struct vhost_dev *d, unsigned int ioctl, unsigned long arg)
- 			vq = d->vqs + i;
- 			mutex_lock(&vq->mutex);
- 			/* If ring is inactive, will check when it's enabled. */
--			if (vq->private_data && !vq_log_access_ok(vq, base))
-+			if (vq->private_data && !vq_log_access_ok(d, vq, base))
- 				r = -EFAULT;
- 			else
- 				vq->log_base = base;
-@@ -1219,6 +1228,10 @@ int vhost_get_vq_desc(struct vhost_dev *dev, struct vhost_virtqueue *vq,
- 
- 	/* On success, increment avail index. */
- 	vq->last_avail_idx++;
-+
-+	/* Assume notifications from guest are disabled at this point,
-+	 * if they aren't we would need to update avail_event index. */
-+	BUG_ON(!(vq->used_flags & VRING_USED_F_NO_NOTIFY));
- 	return head;
- }
- 
-@@ -1267,6 +1280,12 @@ int vhost_add_used(struct vhost_virtqueue *vq, unsigned int head, int len)
- 			eventfd_signal(vq->log_ctx, 1);
- 	}
- 	vq->last_used_idx++;
-+	/* If the driver never bothers to signal in a very long while,
-+	 * used index might wrap around. If that happens, invalidate
-+	 * signalled_used index we stored. TODO: make sure driver
-+	 * signals at least once in 2^16 and remove this. */
-+	if (unlikely(vq->last_used_idx == vq->signalled_used))
-+		vq->signalled_used_valid = false;
- 	return 0;
- }
- 
-@@ -1275,6 +1294,7 @@ static int __vhost_add_used_n(struct vhost_virtqueue *vq,
- 			    unsigned count)
- {
- 	struct vring_used_elem __user *used;
-+	u16 old, new;
- 	int start;
- 
- 	start = vq->last_used_idx % vq->num;
-@@ -1292,7 +1312,14 @@ static int __vhost_add_used_n(struct vhost_virtqueue *vq,
- 			   ((void __user *)used - (void __user *)vq->used),
- 			  count * sizeof *used);
- 	}
--	vq->last_used_idx += count;
-+	old = vq->last_used_idx;
-+	new = (vq->last_used_idx += count);
-+	/* If the driver never bothers to signal in a very long while,
-+	 * used index might wrap around. If that happens, invalidate
-+	 * signalled_used index we stored. TODO: make sure driver
-+	 * signals at least once in 2^16 and remove this. */
-+	if (unlikely((u16)(new - vq->signalled_used) < (u16)(new - old)))
-+		vq->signalled_used_valid = false;
- 	return 0;
- }
- 
-@@ -1331,29 +1358,47 @@ int vhost_add_used_n(struct vhost_virtqueue *vq, struct vring_used_elem *heads,
- 	return r;
- }
- 
--/* This actually signals the guest, using eventfd. */
--void vhost_signal(struct vhost_dev *dev, struct vhost_virtqueue *vq)
-+static bool vhost_notify(struct vhost_dev *dev, struct vhost_virtqueue *vq)
- {
--	__u16 flags;
--
-+	__u16 old, new, event;
-+	bool v;
- 	/* Flush out used index updates. This is paired
- 	 * with the barrier that the Guest executes when enabling
- 	 * interrupts. */
- 	smp_mb();
- 
--	if (__get_user(flags, &vq->avail->flags)) {
--		vq_err(vq, "Failed to get flags");
--		return;
-+	if (vhost_has_feature(dev, VIRTIO_F_NOTIFY_ON_EMPTY) &&
-+	    unlikely(vq->avail_idx == vq->last_avail_idx))
-+		return true;
-+
-+	if (!vhost_has_feature(dev, VIRTIO_RING_F_EVENT_IDX)) {
-+		__u16 flags;
-+		if (__get_user(flags, &vq->avail->flags)) {
-+			vq_err(vq, "Failed to get flags");
-+			return true;
-+		}
-+		return !(flags & VRING_AVAIL_F_NO_INTERRUPT);
- 	}
-+	old = vq->signalled_used;
-+	v = vq->signalled_used_valid;
-+	new = vq->signalled_used = vq->last_used_idx;
-+	vq->signalled_used_valid = true;
- 
--	/* If they don't want an interrupt, don't signal, unless empty. */
--	if ((flags & VRING_AVAIL_F_NO_INTERRUPT) &&
--	    (vq->avail_idx != vq->last_avail_idx ||
--	     !vhost_has_feature(dev, VIRTIO_F_NOTIFY_ON_EMPTY)))
--		return;
-+	if (unlikely(!v))
-+		return true;
- 
-+	if (get_user(event, vhost_used_event(vq))) {
-+		vq_err(vq, "Failed to get used event idx");
-+		return true;
-+	}
-+	return vring_need_event(event, new, old);
-+}
-+
-+/* This actually signals the guest, using eventfd. */
-+void vhost_signal(struct vhost_dev *dev, struct vhost_virtqueue *vq)
++bool virtqueue_enable_cb_delayed(struct virtqueue *_vq)
 +{
- 	/* Signal the Guest tell them we used something up. */
--	if (vq->call_ctx)
-+	if (vq->call_ctx && vhost_notify(dev, vq))
- 		eventfd_signal(vq->call_ctx, 1);
- }
- 
-@@ -1376,7 +1421,7 @@ void vhost_add_used_and_signal_n(struct vhost_dev *dev,
- }
- 
- /* OK, now we need to know about added descriptors. */
--bool vhost_enable_notify(struct vhost_virtqueue *vq)
-+bool vhost_enable_notify(struct vhost_dev *dev, struct vhost_virtqueue *vq)
- {
- 	u16 avail_idx;
- 	int r;
-@@ -1384,11 +1429,34 @@ bool vhost_enable_notify(struct vhost_virtqueue *vq)
- 	if (!(vq->used_flags & VRING_USED_F_NO_NOTIFY))
- 		return false;
- 	vq->used_flags &= ~VRING_USED_F_NO_NOTIFY;
--	r = put_user(vq->used_flags, &vq->used->flags);
--	if (r) {
--		vq_err(vq, "Failed to enable notification at %p: %d\n",
--		       &vq->used->flags, r);
--		return false;
-+	if (!vhost_has_feature(dev, VIRTIO_RING_F_EVENT_IDX)) {
-+		r = put_user(vq->used_flags, &vq->used->flags);
-+		if (r) {
-+			vq_err(vq, "Failed to enable notification at %p: %d\n",
-+			       &vq->used->flags, r);
-+			return false;
-+		}
-+	} else {
-+		r = put_user(vq->avail_idx, vhost_avail_event(vq));
-+		if (r) {
-+			vq_err(vq, "Failed to update avail event index at %p: %d\n",
-+			       vhost_avail_event(vq), r);
-+			return false;
-+		}
-+	}
-+	if (unlikely(vq->log_used)) {
-+		void __user *used;
-+		/* Make sure data is seen before log. */
-+		smp_wmb();
-+		used = vhost_has_feature(dev, VIRTIO_RING_F_EVENT_IDX) ?
-+			&vq->used->flags : vhost_avail_event(vq);
-+		/* Log used flags or event index entry write. Both are 16 bit
-+		 * fields. */
-+		log_write(vq->log_base, vq->log_addr +
-+			   (used - (void __user *)vq->used),
-+			  sizeof(u16));
-+		if (vq->log_ctx)
-+			eventfd_signal(vq->log_ctx, 1);
- 	}
- 	/* They could have slipped one in as we were doing that: make
- 	 * sure it's written, then check again. */
-@@ -1404,15 +1472,17 @@ bool vhost_enable_notify(struct vhost_virtqueue *vq)
- }
- 
- /* We don't need to be notified again. */
--void vhost_disable_notify(struct vhost_virtqueue *vq)
-+void vhost_disable_notify(struct vhost_dev *dev, struct vhost_virtqueue *vq)
- {
- 	int r;
- 
- 	if (vq->used_flags & VRING_USED_F_NO_NOTIFY)
- 		return;
- 	vq->used_flags |= VRING_USED_F_NO_NOTIFY;
--	r = put_user(vq->used_flags, &vq->used->flags);
--	if (r)
--		vq_err(vq, "Failed to enable notification at %p: %d\n",
--		       &vq->used->flags, r);
-+	if (!vhost_has_feature(dev, VIRTIO_RING_F_EVENT_IDX)) {
-+		r = put_user(vq->used_flags, &vq->used->flags);
-+		if (r)
-+			vq_err(vq, "Failed to enable notification at %p: %d\n",
-+			       &vq->used->flags, r);
-+	}
- }
-diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
-index b3363ae..8e03379 100644
---- a/drivers/vhost/vhost.h
-+++ b/drivers/vhost/vhost.h
-@@ -84,6 +84,12 @@ struct vhost_virtqueue {
- 	/* Used flags */
- 	u16 used_flags;
- 
-+	/* Last used index value we have signalled on */
-+	u16 signalled_used;
++	struct vring_virtqueue *vq = to_vvq(_vq);
++	u16 bufs;
 +
-+	/* Last used index value we have signalled on */
-+	bool signalled_used_valid;
++	START_USE(vq);
 +
- 	/* Log writes to used structure. */
- 	bool log_used;
- 	u64 log_addr;
-@@ -149,8 +155,8 @@ void vhost_add_used_and_signal(struct vhost_dev *, struct vhost_virtqueue *,
- void vhost_add_used_and_signal_n(struct vhost_dev *, struct vhost_virtqueue *,
- 			       struct vring_used_elem *heads, unsigned count);
- void vhost_signal(struct vhost_dev *, struct vhost_virtqueue *);
--void vhost_disable_notify(struct vhost_virtqueue *);
--bool vhost_enable_notify(struct vhost_virtqueue *);
-+void vhost_disable_notify(struct vhost_dev *, struct vhost_virtqueue *);
-+bool vhost_enable_notify(struct vhost_dev *, struct vhost_virtqueue *);
++	/* We optimistically turn back on interrupts, then check if there was
++	 * more to do. */
++	/* Depending on the VIRTIO_RING_F_USED_EVENT_IDX feature, we need to
++	 * either clear the flags bit or point the event index at the next
++	 * entry. Always do both to keep code simple. */
++	vq->vring.avail->flags &= ~VRING_AVAIL_F_NO_INTERRUPT;
++	/* TODO: tune this threshold */
++	bufs = (u16)(vq->vring.avail->idx - vq->last_used_idx) * 3 / 4;
++	vring_used_event(&vq->vring) = vq->last_used_idx + bufs;
++	virtio_mb();
++	if (unlikely((u16)(vq->vring.used->idx - vq->last_used_idx) > bufs)) {
++		END_USE(vq);
++		return false;
++	}
++
++	END_USE(vq);
++	return true;
++}
++EXPORT_SYMBOL_GPL(virtqueue_enable_cb_delayed);
++
+ void *virtqueue_detach_unused_buf(struct virtqueue *_vq)
+ {
+ 	struct vring_virtqueue *vq = to_vvq(_vq);
+diff --git a/include/linux/virtio.h b/include/linux/virtio.h
+index aff5b4f..7108857 100644
+--- a/include/linux/virtio.h
++++ b/include/linux/virtio.h
+@@ -51,6 +51,13 @@ struct virtqueue {
+  *	This re-enables callbacks; it returns "false" if there are pending
+  *	buffers in the queue, to detect a possible race between the driver
+  *	checking for more work, and enabling callbacks.
++ * virtqueue_enable_cb_delayed: restart callbacks after disable_cb.
++ *	vq: the struct virtqueue we're talking about.
++ *	This re-enables callbacks but hints to the other side to delay
++ *	interrupts until most of the available buffers have been processed;
++ *	it returns "false" if there are many pending buffers in the queue,
++ *	to detect a possible race between the driver checking for more work,
++ *	and enabling callbacks.
+  * virtqueue_detach_unused_buf: detach first unused buffer
+  * 	vq: the struct virtqueue we're talking about.
+  * 	Returns NULL or the "data" token handed to add_buf
+@@ -86,6 +93,8 @@ void virtqueue_disable_cb(struct virtqueue *vq);
  
- int vhost_log_write(struct vhost_virtqueue *vq, struct vhost_log *log,
- 		    unsigned int log_num, u64 len);
-@@ -162,11 +168,12 @@ int vhost_log_write(struct vhost_virtqueue *vq, struct vhost_log *log,
- 	} while (0)
+ bool virtqueue_enable_cb(struct virtqueue *vq);
  
- enum {
--	VHOST_FEATURES = (1 << VIRTIO_F_NOTIFY_ON_EMPTY) |
--			 (1 << VIRTIO_RING_F_INDIRECT_DESC) |
--			 (1 << VHOST_F_LOG_ALL) |
--			 (1 << VHOST_NET_F_VIRTIO_NET_HDR) |
--			 (1 << VIRTIO_NET_F_MRG_RXBUF),
-+	VHOST_FEATURES = (1ULL << VIRTIO_F_NOTIFY_ON_EMPTY) |
-+			 (1ULL << VIRTIO_RING_F_INDIRECT_DESC) |
-+			 (1ULL << VIRTIO_RING_F_EVENT_IDX) |
-+			 (1ULL << VHOST_F_LOG_ALL) |
-+			 (1ULL << VHOST_NET_F_VIRTIO_NET_HDR) |
-+			 (1ULL << VIRTIO_NET_F_MRG_RXBUF),
- };
++bool virtqueue_enable_cb_delayed(struct virtqueue *vq);
++
+ void *virtqueue_detach_unused_buf(struct virtqueue *vq);
  
- static inline int vhost_has_feature(struct vhost_dev *dev, int bit)
+ /**
 -- 
 1.7.5.53.gc233e
