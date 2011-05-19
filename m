@@ -1,26 +1,83 @@
-From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: vmbus driver
-Date: Thu, 19 May 2011 15:06:25 -0700
-Message-ID: <1305842785-30206-1-git-send-email-kys@microsoft.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCHv2 01/14] virtio: event index interface
+Date: Fri, 20 May 2011 02:10:17 +0300
+Message-ID: <995d19795d84a76f9836f4d9484fb4ef8eae36e9.1305846412.git.mst__6975.56570307842$1305846679$gmane$org@redhat.com>
+References: <cover.1305846412.git.mst@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <cover.1305846412.git.mst@redhat.com>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Cc: Krishna Kumar <krkumar2@in.ibm.com>, Carsten Otte <cotte@de.ibm.com>, lguest@lists.ozlabs.org, Shirley Ma <xma@us.ibm.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org, netdev@vger.kernel.org, habanero@linux.vnet.ibm.com, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, steved@us.ibm.com, Christian Borntraeger <borntraeger@de.ibm.com>, Tom Lendacky <tahm@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux390@de.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
+Define a new feature bit for the guest and host to utilize
+an event index (like Xen) instead if a flag bit to enable/disable
+interrupts and kicks.
+
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
+ include/linux/virtio_ring.h |   15 ++++++++++++++-
+ 1 files changed, 14 insertions(+), 1 deletions(-)
+
+diff --git a/include/linux/virtio_ring.h b/include/linux/virtio_ring.h
+index e4d144b..70b0b39 100644
+--- a/include/linux/virtio_ring.h
++++ b/include/linux/virtio_ring.h
+@@ -29,6 +29,12 @@
+ /* We support indirect buffer descriptors */
+ #define VIRTIO_RING_F_INDIRECT_DESC	28
  
-Greg,
-
-A few days ago you applied all the outstanding patches for the Hyper-V
-drivers. With these patches, I have addressed all of the known review 
-comments for the  vmbus driver (and a lot of comments/issues in other
-drivers as well). I am still hoping I can address 
-whatever other issues/comments there might be with the intention to 
-get the vmbus driver out of staging in the current window. What is your 
-sense in terms of how feasible this is. From my side, I can assure you 
-that I will address all legitimate issues in a very timely manner and this
-will not be dependent upon the location of the drivers (staging or 
-outside staging). Looking forward to hearing from you.
-
-Regards,
-
-K. Y
++/* The Guest publishes the used index for which it expects an interrupt
++ * at the end of the avail ring. Host should ignore the avail->flags field. */
++/* The Host publishes the avail index for which it expects a kick
++ * at the end of the used ring. Guest should ignore the used->flags field. */
++#define VIRTIO_RING_F_EVENT_IDX		29
++
+ /* Virtio ring descriptors: 16 bytes.  These can chain together via "next". */
+ struct vring_desc {
+ 	/* Address (guest-physical). */
+@@ -83,6 +89,7 @@ struct vring {
+  *	__u16 avail_flags;
+  *	__u16 avail_idx;
+  *	__u16 available[num];
++ *	__u16 used_event_idx;
+  *
+  *	// Padding to the next align boundary.
+  *	char pad[];
+@@ -91,8 +98,14 @@ struct vring {
+  *	__u16 used_flags;
+  *	__u16 used_idx;
+  *	struct vring_used_elem used[num];
++ *	__u16 avail_event_idx;
+  * };
+  */
++/* We publish the used event index at the end of the available ring, and vice
++ * versa. They are at the end for backwards compatibility. */
++#define vring_used_event(vr) ((vr)->avail->ring[(vr)->num])
++#define vring_avail_event(vr) (*(__u16 *)&(vr)->used->ring[(vr)->num])
++
+ static inline void vring_init(struct vring *vr, unsigned int num, void *p,
+ 			      unsigned long align)
+ {
+@@ -107,7 +120,7 @@ static inline unsigned vring_size(unsigned int num, unsigned long align)
+ {
+ 	return ((sizeof(struct vring_desc) * num + sizeof(__u16) * (2 + num)
+ 		 + align - 1) & ~(align - 1))
+-		+ sizeof(__u16) * 2 + sizeof(struct vring_used_elem) * num;
++		+ sizeof(__u16) * 3 + sizeof(struct vring_used_elem) * num;
+ }
+ 
+ #ifdef __KERNEL__
+-- 
+1.7.5.53.gc233e
