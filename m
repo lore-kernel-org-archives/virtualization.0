@@ -1,20 +1,15 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH 09/18] virtio: use avail_event index
-Date: Thu, 19 May 2011 10:27:34 +0300
-Message-ID: <20110519072734.GB31253__43433.3386634991$1305790276$gmane$org@redhat.com>
-References: <cover.1304541918.git.mst@redhat.com>
-	<8bba6a0a8eee17e741c5155b04ff1b1c9f34bf94.1304541919.git.mst@redhat.com>
-	<874o54h4rt.fsf@rustcorp.com.au>
-	<20110515135541.GF24932@redhat.com>
-	<87ei3zdsq2.fsf@rustcorp.com.au>
-	<20110517061031.GC26989@redhat.com>
-	<87tycsn9lt.fsf@rustcorp.com.au>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [PATCH] arch/tile: add /proc/tile, /proc/sys/tile,
+	and a sysfs cpu attribute
+Date: Thu, 19 May 2011 17:22:17 +0200
+Message-ID: <201105191722.17685.arnd__40966.9065535583$1305818598$gmane$org@arndb.de>
+References: <201105181807.p4II7C5g015224@farm-0002.internal.tilera.com>
+	<201105191541.11939.arnd@arndb.de> <4DD5334D.4060800@tilera.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <87tycsn9lt.fsf@rustcorp.com.au>
+In-Reply-To: <4DD5334D.4060800@tilera.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -24,43 +19,79 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Krishna Kumar <krkumar2@in.ibm.com>, Carsten Otte <cotte@de.ibm.com>, lguest@lists.ozlabs.org, Shirley Ma <xma@us.ibm.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org, netdev@vger.kernel.org, habanero@linux.vnet.ibm.com, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, steved@us.ibm.com, Christian Borntraeger <borntraeger@de.ibm.com>, Tom Lendacky <tahm@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux390@de.ibm.com
+To: Chris Metcalf <cmetcalf@tilera.com>, virtualization@lists.linux-foundation.org
+Cc: linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, May 18, 2011 at 09:49:42AM +0930, Rusty Russell wrote:
-> On Tue, 17 May 2011 09:10:31 +0300, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> > Well one can imagine a driver doing:
-> > 
-> > 	while (virtqueue_get_buf()) {
-> > 		virtqueue_add_buf()
-> > 	}
-> > 	virtqueue_kick()
-> > 
-> > which looks sensible (batch kicks) but might
-> > process any number of bufs between kicks.
-> 
-> No, we currently only expose the buffers in the kick, so it can only
-> fill the ring doing that.
-> 
-> We could change that (and maybe that's worth looking at)...
+(adding virtualization mailing list)
 
-That's actually what one of the early patches in the series did.
-I guess I can try and reorder the patches, I do believe
-it makes sense to publish immediately as this way
-host can work in parallel with the guest.
-
-> > If we look at drivers closely enough, I think none
-> > of them do the equivalent of the above, but not 100% sure.
+On Thursday 19 May 2011, Chris Metcalf wrote:
+> On 5/19/2011 9:41 AM, Arnd Bergmann wrote:
+> >> /proc/tile/hvconfig
+> >>   Detailed configuration description of the hypervisor config
 > 
-> I'm pretty sure we don't have this kind of 'echo' driver yet.  Drivers
-> tend to take OS requests and queue them.  The only one which does
-> anything even partially sophisticated is the net driver...
+> I'm concerned about moving this one out of /proc, since it's just (copious)
+> free text.  An "hvconfig" (hypervisor config) file describes hypervisor
+> driver "dedicated tiles" that run things like network packet or PCIe
+> ingress/egress processing, etc.  In addition it lists hypervisor driver
+> options, boot flags for the kernel, etc, all kinds of things -- and you
+> can't really guarantee that it will fit on a 4KB page, though in practice
+> it usually does.  The hypervisor reads this file from the boot stream when
+> it boots, and then makes it available to Linux not for Linux's use, or even
+> for programmatic userspace use, but just for end users to be able to review
+> and verify that the configuration they think they booted is really what
+> they got, for customer remote debugging, etc.  The "remote debugging"
+> aspect makes truncation to page size a particularly worrisome idea.
+
+Since it's not the kernel that is imposing the format here, you could
+make it a binary sysfs attribute, which works in the same way as
+a proc file and does not have the size limitations.
+
+> >> /proc/tile/board
+> >>   Information on part numbers, serial numbers, etc., of the
+> >>   hardware that the kernel is executing on
+> >>
+> >> /proc/tile/switch
+> >>   The type of control path for the onboard network switch, if any.
 > 
-> Thanks,
-> Rusty.
+> These two report information about the hardware, not the hypervisor.  For
+> example:
+> 
+> # cat /proc/tile/board
+> board_part: 402-00002-05
+> board_serial: NBS-5002-00012
+> chip_serial: P62338.01.110
+> chip_revision: A0
+> board_revision: 2.2
+> board_description: Tilera TILExpressPro-64, TILEPro64 processor (866 MHz-capable), 1 10GbE, 6 1GbE
+> # cat /proc/tile/switch
+> control: mdio gbe/0
 
-I guess I'll just need to do the legwork and check then.
+I think it's ok to have it below /sys/hypervisor, because the information
+is provided through a hypervisor ABI, even though it describes something
+else. This is more like /sys/firmware, but the boundaries between that
+and /sys/hypervisor are not clearly defined when running virtualized anyway.
 
--- 
-MST
+> The chip_serial and chip_revision can certainly hang off
+> /sys/devices/system/cpu along with chip_height and chip_width (I've made
+> this change now) but I don't know where the remaining "board" level
+> description could go.  Note that (as you can see in the source) certain
+> boards will also include four lines of output with the "mezzanine board"
+> part number, serial number, revision, and description; this particular
+> example doesn't have a mezzanine board.  The "switch" info is broken out
+> into a separate file just to make it easier to script some /etc/rc code
+> that launches a configurator for the Marvell switch on some of our boards,
+> but is conceptually part of the board info.
+> 
+> >> /proc/tile/hardwall
+> >>   Information on the set of currently active hardwalls (note that
+> >>   the implementation is already present in arch/tile/kernel/hardwall.c;
+> >>   this change just enables it)
+> 
+> This one is not a hypervisor-related file.  It just lists information about
+> the set of Linux hardwalls currently active.  Again, it's not primarily
+> intended for programmatic use, but as a diagnostic tool.
+
+same here, I'd still put it into the hypervisor structure.
+
+	Arnd
