@@ -1,13 +1,12 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCHv2 14/14] vhost: fix 64 bit features
-Date: Fri, 20 May 2011 02:12:46 +0300
-Message-ID: <4045f98f2b0ab9b1d62468e6b66328c236b89f4d.1305846412.git.mst__37492.9315098145$1305848003$gmane$org@redhat.com>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCHv2 00/14] virtio and vhost-net performance enhancements
+Date: Thu, 19 May 2011 19:20:31 -0400 (EDT)
+Message-ID: <20110519.192031.1228869097990755099.davem__29888.6203593158$1305848114$gmane$org@davemloft.net>
 References: <cover.1305846412.git.mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
 In-Reply-To: <cover.1305846412.git.mst@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,46 +17,19 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-Cc: Krishna Kumar <krkumar2@in.ibm.com>, Carsten Otte <cotte@de.ibm.com>, lguest@lists.ozlabs.org, Shirley Ma <xma@us.ibm.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org, netdev@vger.kernel.org, habanero@linux.vnet.ibm.com, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, steved@us.ibm.com, Christian Borntraeger <borntraeger@de.ibm.com>, Tom Lendacky <tahm@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux390@de.ibm.com
+To: mst@redhat.com
+Cc: krkumar2@in.ibm.com, cotte@de.ibm.com, lguest@lists.ozlabs.org, xma@us.ibm.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org, netdev@vger.kernel.org, habanero@linux.vnet.ibm.com, heiko.carstens@de.ibm.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, steved@us.ibm.com, borntraeger@de.ibm.com, tahm@linux.vnet.ibm.com, schwidefsky@de.ibm.com, linux390@de.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Update vhost_has_feature to make it work correctly for bit > 32.
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Date: Fri, 20 May 2011 02:10:07 +0300
 
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
- drivers/vhost/vhost.h |    8 ++++----
- 1 files changed, 4 insertions(+), 4 deletions(-)
+> Rusty, I think it will be easier to merge vhost and virtio bits in one
+> go. Can it all go in through your tree (Dave in the past acked
+> sending a very similar patch through you so should not be a problem)?
 
-diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
-index 8e03379..64889d2 100644
---- a/drivers/vhost/vhost.h
-+++ b/drivers/vhost/vhost.h
-@@ -123,7 +123,7 @@ struct vhost_dev {
- 	struct vhost_memory __rcu *memory;
- 	struct mm_struct *mm;
- 	struct mutex mutex;
--	unsigned acked_features;
-+	u64 acked_features;
- 	struct vhost_virtqueue *vqs;
- 	int nvqs;
- 	struct file *log_file;
-@@ -176,14 +176,14 @@ enum {
- 			 (1ULL << VIRTIO_NET_F_MRG_RXBUF),
- };
- 
--static inline int vhost_has_feature(struct vhost_dev *dev, int bit)
-+static inline bool vhost_has_feature(struct vhost_dev *dev, int bit)
- {
--	unsigned acked_features;
-+	u64 acked_features;
- 
- 	/* TODO: check that we are running from vhost_worker or dev mutex is
- 	 * held? */
- 	acked_features = rcu_dereference_index_check(dev->acked_features, 1);
--	return acked_features & (1 << bit);
-+	return acked_features & (1ull << bit);
- }
- 
- #endif
--- 
-1.7.5.53.gc233e
+And in case you want an explicit ack for the net bits:
+
+Acked-by: David S. Miller <davem@davemloft.net>
+
+:-)
