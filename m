@@ -1,7 +1,7 @@
-From: Christoph Hellwig <hch@infradead.org>
+From: Greg KH <greg@kroah.com>
 Subject: Re: vmbus driver
-Date: Fri, 20 May 2011 08:26:49 -0400
-Message-ID: <20110520122649.GA550@infradead.org>
+Date: Fri, 20 May 2011 06:05:27 -0700
+Message-ID: <20110520130527.GB10033@kroah.com>
 References: <1305842785-30206-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -14,6 +14,9 @@ Cc: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 List-Id: virtualization@lists.linuxfoundation.org
 
 On Thu, May 19, 2011 at 03:06:25PM -0700, K. Y. Srinivasan wrote:
+>  
+> Greg,
+> 
 > A few days ago you applied all the outstanding patches for the Hyper-V
 > drivers. With these patches, I have addressed all of the known review 
 > comments for the  vmbus driver (and a lot of comments/issues in other
@@ -25,11 +28,20 @@ On Thu, May 19, 2011 at 03:06:25PM -0700, K. Y. Srinivasan wrote:
 > will not be dependent upon the location of the drivers (staging or 
 > outside staging). Looking forward to hearing from you.
 
-There's no point in merging it without a user.  Make sure either
-the network or storage driver is in a good enough shape to move with it,
-to make sure the APIs it exports are actually sanely usable.
+The merge window is closed now, and I'm on the road in asia for about 3
+weeks, so doing this, at this point in the development cycle, is going
+to be hard.
 
-On the other hand the HV clocksource looks mostly mergeable and doesn't
-depend on vmbus.  Send a patch to add it to drivers/clocksource to the
-maintainer and it should be mergeable with very little remaining
-cleanup.
+I'll go review the bus code again after the code is all merged with
+Linus, which should take a week or so depending on my schedule, and let
+you know what's left to do (I think there still is something wierd with
+the way the hv_driver is structured, but I could be wrong.)
+
+In the mean time, I'm sure the block and network driver still need a lot
+of work, and merging the bus code doesn't make much sense without them
+as a user as that is what people really want to use, so you can continue
+to work on them.
+
+thanks,
+
+greg k-h
