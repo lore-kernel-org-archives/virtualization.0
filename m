@@ -1,63 +1,54 @@
 From: KY Srinivasan <kys@microsoft.com>
 Subject: RE: vmbus driver
-Date: Fri, 20 May 2011 13:36:53 +0000
-Message-ID: <6E21E5352C11B742B20C142EB499E0481FC2ED@TK5EX14MBXC122.redmond.corp.microsoft.com>
+Date: Fri, 20 May 2011 14:08:22 +0000
+Message-ID: <6E21E5352C11B742B20C142EB499E0481FC313@TK5EX14MBXC122.redmond.corp.microsoft.com>
 References: <1305842785-30206-1-git-send-email-kys@microsoft.com>
-	<20110520122649.GA550@infradead.org>
+ <20110520122649.GA550@infradead.org>
+ <6E21E5352C11B742B20C142EB499E0481FC2AF@TK5EX14MBXC122.redmond.corp.microsoft.com>
+ <20110520132220.GA23390@infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <devel-bounces@linuxdriverproject.org>
-In-Reply-To: <20110520122649.GA550@infradead.org>
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20110520132220.GA23390@infradead.org>
 Content-Language: en-US
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
-List-Post: <mailto:devel@linuxdriverproject.org>
-List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
-Sender: devel-bounces@linuxdriverproject.org
-Errors-To: devel-bounces@linuxdriverproject.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: Christoph Hellwig <hch@infradead.org>
-Cc: "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>
+Cc: "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
 
 
 > -----Original Message-----
 > From: Christoph Hellwig [mailto:hch@infradead.org]
-> Sent: Friday, May 20, 2011 8:27 AM
+> Sent: Friday, May 20, 2011 9:22 AM
 > To: KY Srinivasan
-> Cc: gregkh@suse.de; linux-kernel@vger.kernel.org;
+> Cc: Christoph Hellwig; gregkh@suse.de; linux-kernel@vger.kernel.org;
 > devel@linuxdriverproject.org; virtualization@lists.osdl.org
 > Subject: Re: vmbus driver
 > 
-> On Thu, May 19, 2011 at 03:06:25PM -0700, K. Y. Srinivasan wrote:
-> > A few days ago you applied all the outstanding patches for the Hyper-V
-> > drivers. With these patches, I have addressed all of the known review
-> > comments for the  vmbus driver (and a lot of comments/issues in other
-> > drivers as well). I am still hoping I can address
-> > whatever other issues/comments there might be with the intention to
-> > get the vmbus driver out of staging in the current window. What is your
-> > sense in terms of how feasible this is. From my side, I can assure you
-> > that I will address all legitimate issues in a very timely manner and this
-> > will not be dependent upon the location of the drivers (staging or
-> > outside staging). Looking forward to hearing from you.
+> On Fri, May 20, 2011 at 01:12:32PM +0000, KY Srinivasan wrote:
+> > Well, the util driver that implements a range of other services such as KVP,
+> > time synch, heartbeat etc. is also a client of the vmbus driver (perhaps not in
+> the
 > 
-> There's no point in merging it without a user.  Make sure either
-> the network or storage driver is in a good enough shape to move with it,
-> to make sure the APIs it exports are actually sanely usable.
-> 
-> On the other hand the HV clocksource looks mostly mergeable and doesn't
-> depend on vmbus.  Send a patch to add it to drivers/clocksource to the
-> maintainer and it should be mergeable with very little remaining
-> cleanup.
+> The KVP driver is a different module as far as I can see.  But it really
+> needs a lot of work, as no one should use the ugly connector interface
+> for new code.  The closest equivalent is gennetlink, but I'd like to
+> understand what it's actually supposed to do in practice.
 
-I see maintainers for each of the clocksource drivers and I see John Stultz and
-Thomas  Gleixner listed as the maintainers for Timekeeping. Who should sign-off
-on the Hyper-V clocksource.
+Chris,
+
+I wrote the KVP component of the util driver less than a year ago and 
+This code was reviewed on this list before it was accepted. The KVP (Key Value Pair)
+functionality supports host based queries on the guest. The data gathering in
+the guest is done in user-mode and the kernel component of KVP is used to
+communicate with the host. I am using the connector interface to support
+communication between the kernel component and the user-mode daemon.
+The KVP functionality is needed to integrate with the Microsoft management 
+stack on the host.
 
 Regards,
 
-K. Y
+K. Y 
+ 
