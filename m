@@ -1,14 +1,14 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCHv2 11/14] virtio: don't delay avail index update
-Date: Sat, 21 May 2011 11:56:32 +0930
-Message-ID: <874o4ovlev.fsf__22132.7952378944$1305945755$gmane$org@rustcorp.com.au>
+Subject: Re: [PATCHv2 10/14] virtio_net: limit xmit polling
+Date: Sat, 21 May 2011 11:49:59 +0930
+Message-ID: <877h9kvlps.fsf__17996.8818826184$1305945762$gmane$org@rustcorp.com.au>
 References: <cover.1305846412.git.mst@redhat.com>
-	<33d7df119ccbedc9b54fbe4b674076b4f7ba3499.1305846412.git.mst@redhat.com>
+	<aced8619c07018b5495f9ceb2c02d4fbf897a098.1305846412.git.mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <33d7df119ccbedc9b54fbe4b674076b4f7ba3499.1305846412.git.mst@redhat.com>
+In-Reply-To: <aced8619c07018b5495f9ceb2c02d4fbf897a098.1305846412.git.mst@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -22,54 +22,80 @@ To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: Krishna Kumar <krkumar2@in.ibm.com>, Carsten Otte <cotte@de.ibm.com>, lguest@lists.ozlabs.org, Shirley Ma <xma@us.ibm.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org, netdev@vger.kernel.org, habanero@linux.vnet.ibm.com, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, steved@us.ibm.com, Christian Borntraeger <borntraeger@de.ibm.com>, Tom Lendacky <tahm@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux390@de.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 20 May 2011 02:12:19 +0300, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> Update avail index immediately instead of upon kick:
-> for virtio-net RX this helps parallelism with the host.
-> 
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> ---
->  drivers/virtio/virtio_ring.c |   28 +++++++++++++++++++---------
->  1 files changed, 19 insertions(+), 9 deletions(-)
-> 
-> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> index eed5f29..8218fe6 100644
-> --- a/drivers/virtio/virtio_ring.c
-> +++ b/drivers/virtio/virtio_ring.c
-> @@ -89,7 +89,7 @@ struct vring_virtqueue
->  	unsigned int num_free;
->  	/* Head of free buffer list. */
->  	unsigned int free_head;
-> -	/* Number we've added since last sync. */
-> +	/* Number we've added since last kick. */
->  	unsigned int num_added;
+On Fri, 20 May 2011 02:11:56 +0300, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> Current code might introduce a lot of latency variation
+> if there are many pending bufs at the time we
+> attempt to transmit a new one. This is bad for
+> real-time applications and can't be good for TCP either.
 
-I always like to see obsolescent nomenclature cleaned up like this.
-Thanks.
+Do we have more than speculation to back that up, BTW?
 
->  	/* Last used index we've seen. */
-> @@ -174,6 +174,13 @@ int virtqueue_add_buf_gfp(struct virtqueue *_vq,
->  
->  	BUG_ON(data == NULL);
->  
-> +	/* Prevent drivers from adding more than num bufs without a kick. */
-> +	if (vq->num_added == vq->vring.num) {
-> +		printk(KERN_ERR "gaaa!!!\n");
-> +		END_USE(vq);
-> +		return -ENOSPC;
-> +	}
+This patch is pretty sloppy; the previous ones were better polished.
+
+> -static void free_old_xmit_skbs(struct virtnet_info *vi)
+> +static bool free_old_xmit_skbs(struct virtnet_info *vi, int capacity)
+>  {
+
+A comment here indicating it returns true if it frees something?
+
+>  	struct sk_buff *skb;
+>  	unsigned int len;
+> -
+> -	while ((skb = virtqueue_get_buf(vi->svq, &len)) != NULL) {
+> +	bool c;
+> +	int n;
 > +
+> +	/* We try to free up at least 2 skbs per one sent, so that we'll get
+> +	 * all of the memory back if they are used fast enough. */
+> +	for (n = 0;
+> +	     ((c = virtqueue_get_capacity(vi->svq) < capacity) || n < 2) &&
+> +	     ((skb = virtqueue_get_buf(vi->svq, &len)));
+> +	     ++n) {
+>  		pr_debug("Sent skb %p\n", skb);
+>  		vi->dev->stats.tx_bytes += skb->len;
+>  		vi->dev->stats.tx_packets++;
+>  		dev_kfree_skb_any(skb);
+>  	}
+> +	return !c;
 
-I like "gaaa!" but it won't tell us which driver.  How about the more
-conventional:
+This is for() abuse :)
 
-        if (WARN_ON(vq->num_added >= vq->vring.num)) {
-        	END_USE(vq);
-        	return -ENOSPC;
-        }
+Why is the capacity check in there at all?  Surely it's simpler to try
+to free 2 skbs each time around?
 
-I'd really like to see the results of this patch.  It's useless for
-outgoing net traffic (we deal with one packet at a time) but perhaps a
-flood of incoming packets would show something.
+   for (n = 0; n < 2; n++) {
+        skb = virtqueue_get_buf(vi->svq, &len);
+        if (!skb)
+                break;
+	pr_debug("Sent skb %p\n", skb);
+	vi->dev->stats.tx_bytes += skb->len;
+	vi->dev->stats.tx_packets++;
+	dev_kfree_skb_any(skb);
+   }
+
+>  static int xmit_skb(struct virtnet_info *vi, struct sk_buff *skb)
+> @@ -574,8 +582,8 @@ static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
+>  	struct virtnet_info *vi = netdev_priv(dev);
+>  	int capacity;
+>  
+> -	/* Free up any pending old buffers before queueing new ones. */
+> -	free_old_xmit_skbs(vi);
+> +	/* Free enough pending old buffers to enable queueing new ones. */
+> +	free_old_xmit_skbs(vi, 2+MAX_SKB_FRAGS);
+>  
+>  	/* Try to transmit */
+>  	capacity = xmit_skb(vi, skb);
+> @@ -609,9 +617,7 @@ static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
+>  		netif_stop_queue(dev);
+>  		if (unlikely(!virtqueue_enable_cb_delayed(vi->svq))) {
+>  			/* More just got used, free them then recheck. */
+> -			free_old_xmit_skbs(vi);
+> -			capacity = virtqueue_get_capacity(vi->svq);
+> -			if (capacity >= 2+MAX_SKB_FRAGS) {
+> +			if (!likely(free_old_xmit_skbs(vi, 2+MAX_SKB_FRAGS))) {
+
+This extra argument to free_old_xmit_skbs seems odd, unless you have
+future plans?
 
 Thanks,
 Rusty.
