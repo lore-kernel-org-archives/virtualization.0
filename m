@@ -1,7 +1,8 @@
 From: Haiyang Zhang <haiyangz@microsoft.com>
-Subject: [PATCH 2/6] staging: hv: remove commented out code from netvsc_drv.c
-Date: Mon, 23 May 2011 09:03:46 -0700
-Message-ID: <1306166630-17336-2-git-send-email-haiyangz__8643.52952125973$1306165858$gmane$org@microsoft.com>
+Subject: [PATCH 6/6] staging: hv: removed commented out code from
+	rndis_filter_receive()
+Date: Mon, 23 May 2011 09:03:50 -0700
+Message-ID: <1306166630-17336-6-git-send-email-haiyangz__19532.5613873594$1306165885$gmane$org@microsoft.com>
 References: <1306166630-17336-1-git-send-email-haiyangz@microsoft.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -26,22 +27,37 @@ Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 
 ---
- drivers/staging/hv/netvsc_drv.c |    3 ---
- 1 files changed, 0 insertions(+), 3 deletions(-)
+ drivers/staging/hv/rndis_filter.c |   18 ------------------
+ 1 files changed, 0 insertions(+), 18 deletions(-)
 
-diff --git a/drivers/staging/hv/netvsc_drv.c b/drivers/staging/hv/netvsc_drv.c
-index 456d3df..e716d4d 100644
---- a/drivers/staging/hv/netvsc_drv.c
-+++ b/drivers/staging/hv/netvsc_drv.c
-@@ -156,9 +156,6 @@ static int netvsc_start_xmit(struct sk_buff *skb, struct net_device *net)
- 	/* Setup the rndis header */
- 	packet->page_buf_cnt = num_pages;
+diff --git a/drivers/staging/hv/rndis_filter.c b/drivers/staging/hv/rndis_filter.c
+index b142aae..5a5bf64 100644
+--- a/drivers/staging/hv/rndis_filter.c
++++ b/drivers/staging/hv/rndis_filter.c
+@@ -372,24 +372,6 @@ int rndis_filter_receive(struct hv_device *dev,
+ 			pkt->page_buf[0].offset);
  
--	/* TODO: Flush all write buffers/ memory fence ??? */
--	/* wmb(); */
+ 	/* Make sure we got a valid rndis message */
+-	/*
+-	 * FIXME: There seems to be a bug in set completion msg where its
+-	 * MessageLength is 16 bytes but the ByteCount field in the xfer page
+-	 * range shows 52 bytes
+-	 * */
+-#if 0
+-	if (pkt->total_data_buflen != rndis_hdr->msg_len) {
+-		kunmap_atomic(rndis_hdr - pkt->page_buf[0].offset,
+-			      KM_IRQ0);
 -
- 	/* Initialize it from the skb */
- 	packet->total_data_buflen	= skb->len;
- 
+-		dev_err(&dev->device, "invalid rndis message? (expected %u "
+-			   "bytes got %u)...dropping this message!\n",
+-			   rndis_hdr->msg_len,
+-			   pkt->total_data_buflen);
+-		return -1;
+-	}
+-#endif
+-
+ 	if ((rndis_hdr->ndis_msg_type != REMOTE_NDIS_PACKET_MSG) &&
+ 	    (rndis_hdr->msg_len > sizeof(struct rndis_message))) {
+ 		dev_err(&dev->device, "incoming rndis message buffer overflow "
 -- 
 1.6.3.2
