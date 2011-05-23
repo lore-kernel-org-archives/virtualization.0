@@ -1,45 +1,47 @@
-From: Haiyang Zhang <haiyangz@microsoft.com>
-Subject: [PATCH 4/6] staging: hv: remove commented out code in netvsc_remove()
-Date: Mon, 23 May 2011 09:03:48 -0700
-Message-ID: <1306166630-17336-4-git-send-email-haiyangz__44117.4623360441$1306166147$gmane$org@microsoft.com>
-References: <1306166630-17336-1-git-send-email-haiyangz@microsoft.com>
+From: KY Srinivasan <kys@microsoft.com>
+Subject: RE: vmbus driver
+Date: Mon, 23 May 2011 16:16:45 +0000
+Message-ID: <6E21E5352C11B742B20C142EB499E0481FC7E9@TK5EX14MBXC122.redmond.corp.microsoft.com>
+References: <1305842785-30206-1-git-send-email-kys@microsoft.com>
+ <20110520122649.GA550@infradead.org>
+ <6E21E5352C11B742B20C142EB499E0481FC2ED@TK5EX14MBXC122.redmond.corp.microsoft.com>
+ <20110522105941.GB8346@infradead.org>
+ <6E21E5352C11B742B20C142EB499E0481FC6DF@TK5EX14MBXC122.redmond.corp.microsoft.com>
+ <alpine.LFD.2.02.1105231550360.3078@ionos>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1306166630-17336-1-git-send-email-haiyangz@microsoft.com>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: haiyangz@microsoft.com, hjanssen@microsoft.com, kys@microsoft.com, v-abkane@microsoft.com, gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, vir
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <alpine.LFD.2.02.1105231550360.3078@ionos>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: Christoph Hellwig <hch@infradead.org>, "johnstul@us.ibm.com" <johnstul@us.ibm.com>, "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
-Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
-Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
-Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 
----
- drivers/staging/hv/netvsc_drv.c |    1 -
- 1 files changed, 0 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/staging/hv/netvsc_drv.c b/drivers/staging/hv/netvsc_drv.c
-index ad25433..6a2f17d 100644
---- a/drivers/staging/hv/netvsc_drv.c
-+++ b/drivers/staging/hv/netvsc_drv.c
-@@ -395,7 +395,6 @@ static int netvsc_remove(struct hv_device *dev)
- 
- 	/* Stop outbound asap */
- 	netif_stop_queue(net);
--	/* netif_carrier_off(net); */
- 
- 	unregister_netdev(net);
- 
--- 
-1.6.3.2
+> -----Original Message-----
+> From: Thomas Gleixner [mailto:tglx@linutronix.de]
+> Sent: Monday, May 23, 2011 9:52 AM
+> To: KY Srinivasan
+> Cc: Christoph Hellwig; johnstul@us.ibm.com; gregkh@suse.de; linux-
+> kernel@vger.kernel.org; devel@linuxdriverproject.org;
+> virtualization@lists.osdl.org
+> Subject: RE: vmbus driver
+> 
+> On Mon, 23 May 2011, KY Srinivasan wrote:
+> > I am working on getting Hyper-V drivers (drivers/staging/hv/*) out of staging.
+> > I would like to request you to look at the Hyper-V timesource driver:
+> > drivers/staging/hv/hv_timesource.c. The supporting code for this driver
+> > is already part of the base kernel. Let me know if this driver is ready to exit
+> staging.
+> 
+> Can you please send a patch against drivers/clocksource (the staging
+> part is uninteresting for review).
+
+Will do.
+
+Regards,
+
+K. Y
