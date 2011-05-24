@@ -1,13 +1,18 @@
-From: Haiyang Zhang <haiyangz@microsoft.com>
-Subject: [PATCH 5/6] staging: hv: fix typo in name rndis_filte_device_add()
-Date: Mon, 23 May 2011 09:03:49 -0700
-Message-ID: <1306166630-17336-5-git-send-email-haiyangz__28165.6580431902$1306167621$gmane$org@microsoft.com>
-References: <1306166630-17336-1-git-send-email-haiyangz@microsoft.com>
+From: Krishna Kumar2 <krkumar2@in.ibm.com>
+Subject: Re: [PATCHv2 10/14] virtio_net: limit xmit polling
+Date: Tue, 24 May 2011 13:24:15 +0530
+Message-ID: <OFEED174CD.D3C9A726-ON6525789A.002661D5-6525789A.002B26ED__44806.9987040528$1306223652$gmane$org@in.ibm.com>
+References: <cover.1305846412.git.mst@redhat.com>
+	<aced8619c07018b5495f9ceb2c02d4fbf897a098.1305846412.git.mst@redhat.com>
+	<877h9kvlps.fsf@rustcorp.com.au>
+	<20110522121008.GA12155@redhat.com>
+	<87boyutbjg.fsf@rustcorp.com.au>
+	<20110523111900.GB27212@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1306166630-17336-1-git-send-email-haiyangz@microsoft.com>
+In-Reply-To: <20110523111900.GB27212@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -17,60 +22,73 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: haiyangz@microsoft.com, hjanssen@microsoft.com, kys@microsoft.com, v-abkane@microsoft.com, gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, vir
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: habanero@linux.vnet.ibm.com, lguest@lists.ozlabs.org, Shirley Ma <xma@us.ibm.com>, kvm@vger.kernel.org, Carsten Otte <cotte@de.ibm.com>, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, steved@us.ibm.com, Christian Borntraeger <borntraeger@de.ibm.com>, Tom Lendacky <tahm@linux.vnet.ibm.com>, netdev@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux390@de.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-rename rndis_filte_device_add to rndis_filter_device_add
+"Michael S. Tsirkin" <mst@redhat.com> wrote on 05/23/2011 04:49:00 PM:
 
-Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
-Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
-Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
-Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
+> > To do this properly, we should really be using the actual number of sg
+> > elements needed, but we'd have to do most of xmit_skb beforehand so we
+> > know how many.
+> >
+> > Cheers,
+> > Rusty.
+>
+> Maybe I'm confused here.  The problem isn't the failing
+> add_buf for the given skb IIUC.  What we are trying to do here is stop
+> the queue *before xmit_skb fails*. We can't look at the
+> number of fragments in the current skb - the next one can be
+> much larger.  That's why we check capacity after xmit_skb,
+> not before it, right?
 
----
- drivers/staging/hv/hyperv_net.h   |    2 +-
- drivers/staging/hv/netvsc_drv.c   |    2 +-
- drivers/staging/hv/rndis_filter.c |    2 +-
- 3 files changed, 3 insertions(+), 3 deletions(-)
+Maybe Rusty means it is a simpler model to free the amount
+of space that this xmit needs. We will still fail anyway
+at some time but it is unlikely, since earlier iteration
+freed up atleast the space that it was going to use. The
+code could become much simpler:
 
-diff --git a/drivers/staging/hv/hyperv_net.h b/drivers/staging/hv/hyperv_net.h
-index 6226dd3..cf762bd 100644
---- a/drivers/staging/hv/hyperv_net.h
-+++ b/drivers/staging/hv/hyperv_net.h
-@@ -99,7 +99,7 @@ int netvsc_recv_callback(struct hv_device *device_obj,
- int netvsc_initialize(struct hv_driver *drv);
- int rndis_filter_open(struct hv_device *dev);
- int rndis_filter_close(struct hv_device *dev);
--int rndis_filte_device_add(struct hv_device *dev,
-+int rndis_filter_device_add(struct hv_device *dev,
- 			void *additional_info);
- void rndis_filter_device_remove(struct hv_device *dev);
- int rndis_filter_receive(struct hv_device *dev,
-diff --git a/drivers/staging/hv/netvsc_drv.c b/drivers/staging/hv/netvsc_drv.c
-index 6a2f17d..f510959 100644
---- a/drivers/staging/hv/netvsc_drv.c
-+++ b/drivers/staging/hv/netvsc_drv.c
-@@ -352,7 +352,7 @@ static int netvsc_probe(struct hv_device *dev)
- 
- 	/* Notify the netvsc driver of the new device */
- 	device_info.ring_size = ring_size;
--	ret = rndis_filte_device_add(dev, &device_info);
-+	ret = rndis_filter_device_add(dev, &device_info);
- 	if (ret != 0) {
- 		free_netdev(net);
- 		dev_set_drvdata(&dev->device, NULL);
-diff --git a/drivers/staging/hv/rndis_filter.c b/drivers/staging/hv/rndis_filter.c
-index 572cec6..b142aae 100644
---- a/drivers/staging/hv/rndis_filter.c
-+++ b/drivers/staging/hv/rndis_filter.c
-@@ -681,7 +681,7 @@ static int rndis_filter_close_device(struct rndis_device *dev)
- 	return ret;
- }
- 
--int rndis_filte_device_add(struct hv_device *dev,
-+int rndis_filter_device_add(struct hv_device *dev,
- 				  void *additional_info)
- {
- 	int ret;
--- 
-1.6.3.2
+start_xmit()
+{
+{
+        num_sgs = get num_sgs for this skb;
+
+        /* Free enough pending old buffers to enable queueing this one */
+        free_old_xmit_skbs(vi, num_sgs * 2);     /* ?? */
+
+        if (virtqueue_get_capacity() < num_sgs) {
+                netif_stop_queue(dev);
+                if (virtqueue_enable_cb_delayed(vi->svq) ||
+                    free_old_xmit_skbs(vi, num_sgs)) {
+                        /* Nothing freed up, or not enough freed up */
+                        kfree_skb(skb);
+                        return NETDEV_TX_OK;
+                }
+                netif_start_queue(dev);
+                virtqueue_disable_cb(vi->svq);
+        }
+
+        /* xmit_skb cannot fail now, also pass 'num_sgs' */
+        xmit_skb(vi, skb, num_sgs);
+        virtqueue_kick(vi->svq);
+
+        skb_orphan(skb);
+        nf_reset(skb);
+
+        return NETDEV_TX_OK;
+}
+
+We could even return TX_BUSY since that makes the dequeue
+code more efficient. See dev_dequeue_skb() - you can skip a
+lot of code (and avoid taking locks) to check if the queue
+is already stopped but that code runs only if you return
+TX_BUSY in the earlier iteration.
+
+BTW, shouldn't the check in start_xmit be:
+	if (likely(!free_old_xmit_skbs(vi, 2+MAX_SKB_FRAGS))) {
+		...
+	}
+
+Thanks,
+
+- KK
