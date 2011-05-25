@@ -1,13 +1,13 @@
 From: Chris Metcalf <cmetcalf@tilera.com>
 Subject: Re: [PATCH] arch/tile: add /proc/tile, /proc/sys/tile, and a sysfs
 	cpu attribute
-Date: Wed, 25 May 2011 15:09:32 -0400
-Message-ID: <4DDD53EC.4000004@tilera.com>
+Date: Wed, 25 May 2011 15:17:09 -0400
+Message-ID: <4DDD55B5.6000804@tilera.com>
 References: <201105181807.p4II7C5g015224@farm-0002.internal.tilera.com>
 	<4DD6821F.6060707@tilera.com> <201105201713.25364.arnd@arndb.de>
 	<201105202159.50780.arnd@arndb.de>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============6713066694962407870=="
+Content-Type: multipart/mixed; boundary="===============8609890597114798286=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 In-Reply-To: <201105202159.50780.arnd@arndb.de>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
@@ -24,13 +24,15 @@ To: Arnd Bergmann <arnd@arndb.de>
 Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
---===============6713066694962407870==
+--===============8609890597114798286==
 Content-Type: multipart/alternative;
-	boundary="------------050802070306010802050004"
+	boundary="------------060008020307080601000906"
 
---------------050802070306010802050004
+--------------060008020307080601000906
 Content-Type: text/plain; charset="ISO-8859-1"
 Content-Transfer-Encoding: 7bit
+
+(Resending after marking LKML in my Thunderbird address book for "no HTML".)
 
 On 5/20/2011 3:59 PM, Arnd Bergmann wrote:
 > Any chance you can still restructure the information? I would recommend
@@ -96,17 +98,20 @@ Chris Metcalf, Tilera Corp.
 http://www.tilera.com
 
 
---------------050802070306010802050004
+--------------060008020307080601000906
 Content-Type: text/html; charset="ISO-8859-1"
 Content-Transfer-Encoding: 7bit
 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
   <head>
-    <meta content="text/html; charset=ISO-8859-1"
-      http-equiv="Content-Type">
+    <meta http-equiv="Content-Type" content="text/html;
+      charset=ISO-8859-1">
   </head>
   <body bgcolor="#ffffff" text="#000000">
+    (Resending after marking LKML in my Thunderbird address book for "no
+    HTML".)<br>
+    <br>
     On 5/20/2011 3:59 PM, Arnd Bergmann wrote:<br>
     <blockquote cite="mid:201105202159.50780.arnd@arndb.de" type="cite">
       <pre wrap="">Any chance you can still restructure the information? I would recommend
@@ -122,8 +127,7 @@ in there to do the lookup the other way round:
 # cat /proc/479/hardwall
 2x2 1,1 @1,1
 </pre>
-      <pre wrap="">
-Another problem with the existing interface is that it doesn't currently
+      <pre wrap="">Another problem with the existing interface is that it doesn't currently
 support PID name spaces. That could of course be retrofitted, but having
 the data split by pid directory would make it work implicitly.
 
@@ -180,9 +184,9 @@ Chris Metcalf, Tilera Corp.
   </body>
 </html>
 
---------------050802070306010802050004--
+--------------060008020307080601000906--
 
---===============6713066694962407870==
+--===============8609890597114798286==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -192,4 +196,4 @@ _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linux-foundation.org/mailman/listinfo/virtualization
---===============6713066694962407870==--
+--===============8609890597114798286==--
