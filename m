@@ -1,20 +1,20 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCHv2 10/14] virtio_net: limit xmit polling
-Date: Wed, 25 May 2011 08:50:29 +0300
-Message-ID: <20110525055029.GB26352__43476.5988881283$1306302689$gmane$org@redhat.com>
+Date: Wed, 25 May 2011 09:07:59 +0300
+Message-ID: <20110525060759.GC26352__24104.7230236747$1306303720$gmane$org@redhat.com>
 References: <cover.1305846412.git.mst@redhat.com>
 	<aced8619c07018b5495f9ceb2c02d4fbf897a098.1305846412.git.mst@redhat.com>
 	<877h9kvlps.fsf@rustcorp.com.au>
 	<20110522121008.GA12155@redhat.com>
 	<87boyutbjg.fsf@rustcorp.com.au>
 	<20110523111900.GB27212@redhat.com>
-	<8762ozk1qd.fsf@rustcorp.com.au>
+	<8739k3k1fb.fsf@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <8762ozk1qd.fsf@rustcorp.com.au>
+In-Reply-To: <8739k3k1fb.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -28,55 +28,54 @@ To: Rusty Russell <rusty@rustcorp.com.au>
 Cc: Krishna Kumar <krkumar2@in.ibm.com>, Carsten Otte <cotte@de.ibm.com>, lguest@lists.ozlabs.org, Shirley Ma <xma@us.ibm.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org, netdev@vger.kernel.org, habanero@linux.vnet.ibm.com, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, steved@us.ibm.com, Christian Borntraeger <borntraeger@de.ibm.com>, Tom Lendacky <tahm@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux390@de.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, May 25, 2011 at 10:58:26AM +0930, Rusty Russell wrote:
+On Wed, May 25, 2011 at 11:05:04AM +0930, Rusty Russell wrote:
 > On Mon, 23 May 2011 14:19:00 +0300, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> > On Mon, May 23, 2011 at 11:37:15AM +0930, Rusty Russell wrote:
-> > > Can we hit problems with OOM?  Sure, but no worse than now...
-> > > The problem is that this "virtqueue_get_capacity()" returns the worst
-> > > case, not the normal case.  So using it is deceptive.
-> > > 
-> > 
-> > Maybe just document this?
-> 
-> Yes, but also by renaming virtqueue_get_capacity().  Takes it from a 3
-> to a 6 on the API hard-to-misuse scale.
-> 
-> How about, virtqueue_min_capacity()?  Makes the reader realize something
-> weird is going on.
-
-Absolutely. Great idea.
-
-> > I still believe capacity really needs to be decided
-> > at the virtqueue level, not in the driver.
-> > E.g. with indirect each skb uses a single entry: freeing
-> > 1 small skb is always enough to have space for a large one.
-> > 
 > > I do understand how it seems a waste to leave direct space
 > > in the ring while we might in practice have space
 > > due to indirect. Didn't come up with a nice way to
 > > solve this yet - but 'no worse than now :)'
 > 
-> Agreed.
+> Let's just make it "bool free_old_xmit_skbs(unsigned int max)".  max ==
+> 2 for the normal xmit path, so we're low latency but we keep ahead on
+> average.  max == -1 for the "we're out of capacity, we may have to stop
+> the queue".
 > 
-> > > > I just wanted to localize the 2+MAX_SKB_FRAGS logic that tries to make
-> > > > sure we have enough space in the buffer. Another way to do
-> > > > that is with a define :).
-> > > 
-> > > To do this properly, we should really be using the actual number of sg
-> > > elements needed, but we'd have to do most of xmit_skb beforehand so we
-> > > know how many.
-> > > 
-> > > Cheers,
-> > > Rusty.
-> > 
-> > Maybe I'm confused here.  The problem isn't the failing
-> > add_buf for the given skb IIUC.  What we are trying to do here is stop
-> > the queue *before xmit_skb fails*. We can't look at the
-> > number of fragments in the current skb - the next one can be
-> > much larger.  That's why we check capacity after xmit_skb,
-> > not before it, right?
-> 
-> No, I was confused...  More coffee!
+> That keeps it simple and probably the right thing...
 > 
 > Thanks,
 > Rusty.
+
+Hmm I'm not sure I got it, need to think about this.
+I'd like to go back and document how my design was supposed to work.
+This really should have been in commit log or even a comment.
+I thought we need a min, not a max.
+We start with this:
+
+	while ((c = (virtqueue_get_capacity(vq) < 2 + MAX_SKB_FRAGS) &&
+		(skb = get_buf)))
+		kfree_skb(skb);
+	return !c;
+
+This is clean and simple, right? And it's exactly asking for what we need.
+
+But this way we always keep a lot of memory in skbs even when rate of
+communication is low.
+
+So we add the min parameter:
+
+	int n = 0;
+
+	while ((((c = (virtqueue_get_capacity(vq) < 2 + MAX_SKB_FRAGS)) ||
+		 n++ < min) && (skb = get_buf)))
+		kfree_skb(skb);
+	return !c;
+
+
+on the normal path min == 2 so we're low latency but we keep ahead on
+average. min == 0 for the "we're out of capacity, we may have to stop
+the queue".
+
+Does the above make sense at all?
+
+-- 
+MST
