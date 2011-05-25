@@ -1,15 +1,18 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [PATCH] arch/tile: add /proc/tile, /proc/sys/tile,
-	and a sysfs cpu attribute
-Date: Tue, 24 May 2011 17:38:51 +0200
-Message-ID: <201105241738.52146.arnd__39490.3199201964$1306251588$gmane$org@arndb.de>
-References: <201105181807.p4II7C5g015224@farm-0002.internal.tilera.com>
-	<4DD5334D.4060800@tilera.com> <201105191722.17685.arnd@arndb.de>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCHv2 10/14] virtio_net: limit xmit polling
+Date: Wed, 25 May 2011 10:58:26 +0930
+Message-ID: <8762ozk1qd.fsf__554.225713904266$1306298575$gmane$org@rustcorp.com.au>
+References: <cover.1305846412.git.mst@redhat.com>
+	<aced8619c07018b5495f9ceb2c02d4fbf897a098.1305846412.git.mst@redhat.com>
+	<877h9kvlps.fsf@rustcorp.com.au>
+	<20110522121008.GA12155@redhat.com>
+	<87boyutbjg.fsf@rustcorp.com.au>
+	<20110523111900.GB27212@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <201105191722.17685.arnd@arndb.de>
+In-Reply-To: <20110523111900.GB27212@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,33 +22,56 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
-Cc: linux-kernel@vger.kernel.org, Chris Metcalf <cmetcalf@tilera.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Krishna Kumar <krkumar2@in.ibm.com>, Carsten Otte <cotte@de.ibm.com>, lguest@lists.ozlabs.org, Shirley Ma <xma@us.ibm.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org, netdev@vger.kernel.org, habanero@linux.vnet.ibm.com, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, steved@us.ibm.com, Christian Borntraeger <borntraeger@de.ibm.com>, Tom Lendacky <tahm@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux390@de.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thursday 19 May 2011, Arnd Bergmann wrote:
+On Mon, 23 May 2011 14:19:00 +0300, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> On Mon, May 23, 2011 at 11:37:15AM +0930, Rusty Russell wrote:
+> > Can we hit problems with OOM?  Sure, but no worse than now...
+> > The problem is that this "virtqueue_get_capacity()" returns the worst
+> > case, not the normal case.  So using it is deceptive.
 > > 
-> > # cat /proc/tile/board
-> > board_part: 402-00002-05
-> > board_serial: NBS-5002-00012
-> > chip_serial: P62338.01.110
-> > chip_revision: A0
-> > board_revision: 2.2
-> > board_description: Tilera TILExpressPro-64, TILEPro64 processor (866 MHz-capable), 1 10GbE, 6 1GbE
-> > # cat /proc/tile/switch
-> > control: mdio gbe/0
 > 
-> I think it's ok to have it below /sys/hypervisor, because the information
-> is provided through a hypervisor ABI, even though it describes something
-> else. This is more like /sys/firmware, but the boundaries between that
-> and /sys/hypervisor are not clearly defined when running virtualized anyway.
+> Maybe just document this?
 
-A minor point that I meant to bring up but had not gotten to:
+Yes, but also by renaming virtqueue_get_capacity().  Takes it from a 3
+to a 6 on the API hard-to-misuse scale.
 
-When you do a /sys/hypervisor/ interface, put everything into a subdirectory
-under /sys/hypervisor with the name of your hypervisor, to avoid naming
-conflicts, e.g.
+How about, virtqueue_min_capacity()?  Makes the reader realize something
+weird is going on.
 
-/sys/hypervisor/tilera-hv/board/board_serial
+> I still believe capacity really needs to be decided
+> at the virtqueue level, not in the driver.
+> E.g. with indirect each skb uses a single entry: freeing
+> 1 small skb is always enough to have space for a large one.
+> 
+> I do understand how it seems a waste to leave direct space
+> in the ring while we might in practice have space
+> due to indirect. Didn't come up with a nice way to
+> solve this yet - but 'no worse than now :)'
 
-	Arnd
+Agreed.
+
+> > > I just wanted to localize the 2+MAX_SKB_FRAGS logic that tries to make
+> > > sure we have enough space in the buffer. Another way to do
+> > > that is with a define :).
+> > 
+> > To do this properly, we should really be using the actual number of sg
+> > elements needed, but we'd have to do most of xmit_skb beforehand so we
+> > know how many.
+> > 
+> > Cheers,
+> > Rusty.
+> 
+> Maybe I'm confused here.  The problem isn't the failing
+> add_buf for the given skb IIUC.  What we are trying to do here is stop
+> the queue *before xmit_skb fails*. We can't look at the
+> number of fragments in the current skb - the next one can be
+> much larger.  That's why we check capacity after xmit_skb,
+> not before it, right?
+
+No, I was confused...  More coffee!
+
+Thanks,
+Rusty.
