@@ -1,13 +1,12 @@
 From: Haiyang Zhang <haiyangz@microsoft.com>
-Subject: [PATCH 2/2] staging: hv: use delayed_work for netvsc_send_garp()
-Date: Fri, 27 May 2011 06:21:55 -0700
-Message-ID: <1306502515-18961-2-git-send-email-haiyangz__22632.9412580982$1306501965$gmane$org@microsoft.com>
-References: <1306502515-18961-1-git-send-email-haiyangz@microsoft.com>
+Subject: [PATCH 1/2] staging: hv: convert DPRINT_DBG() to netdev_dbg() in
+	dump_rndis_message()
+Date: Fri, 27 May 2011 06:21:54 -0700
+Message-ID: <1306502515-18961-1-git-send-email-haiyangz__44365.1999500164$1306502014$gmane$org@microsoft.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1306502515-18961-1-git-send-email-haiyangz@microsoft.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -21,84 +20,103 @@ To: haiyangz@microsoft.com, hjanssen@microsoft.com, kys@microsoft.com, v-abkane@
 Cc: Stephen Hemminger <shemminger@vyatta.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Instead of sleeping in a scheduled work, we now use delayed_work
-for netvsc_send_garp().
-
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Cc: Stephen Hemminger <shemminger@vyatta.com>
 
 ---
- drivers/staging/hv/netvsc_drv.c |   15 +++++++++------
- 1 files changed, 9 insertions(+), 6 deletions(-)
+ drivers/staging/hv/rndis_filter.c |   29 ++++++++++++++++-------------
+ 1 files changed, 16 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/staging/hv/netvsc_drv.c b/drivers/staging/hv/netvsc_drv.c
-index f510959..33cab9c 100644
---- a/drivers/staging/hv/netvsc_drv.c
-+++ b/drivers/staging/hv/netvsc_drv.c
-@@ -46,7 +46,7 @@ struct net_device_context {
- 	/* point back to our device context */
- 	struct hv_device *device_ctx;
- 	unsigned long avail;
--	struct work_struct work;
-+	struct delayed_work dwork;
- };
- 
- 
-@@ -217,7 +217,7 @@ void netvsc_linkstatus_callback(struct hv_device *device_obj,
- 		netif_wake_queue(net);
- 		netif_notify_peers(net);
- 		ndev_ctx = netdev_priv(net);
--		schedule_work(&ndev_ctx->work);
-+		schedule_delayed_work(&ndev_ctx->dwork, msecs_to_jiffies(20));
- 	} else {
- 		netif_carrier_off(net);
- 		netif_stop_queue(net);
-@@ -315,7 +315,7 @@ static const struct net_device_ops device_ops = {
-  * Send GARP packet to network peers after migrations.
-  * After Quick Migration, the network is not immediately operational in the
-  * current context when receiving RNDIS_STATUS_MEDIA_CONNECT event. So, add
-- * another netif_notify_peers() into a scheduled work, otherwise GARP packet
-+ * another netif_notify_peers() into a delayed work, otherwise GARP packet
-  * will not be sent after quick migration, and cause network disconnection.
-  */
- static void netvsc_send_garp(struct work_struct *w)
-@@ -323,8 +323,7 @@ static void netvsc_send_garp(struct work_struct *w)
- 	struct net_device_context *ndev_ctx;
- 	struct net_device *net;
- 
--	msleep(20);
--	ndev_ctx = container_of(w, struct net_device_context, work);
-+	ndev_ctx = container_of(w, struct net_device_context, dwork.work);
- 	net = dev_get_drvdata(&ndev_ctx->device_ctx->device);
- 	netif_notify_peers(net);
+diff --git a/drivers/staging/hv/rndis_filter.c b/drivers/staging/hv/rndis_filter.c
+index 5a5bf64..5674a13 100644
+--- a/drivers/staging/hv/rndis_filter.c
++++ b/drivers/staging/hv/rndis_filter.c
+@@ -139,14 +139,17 @@ static void put_rndis_request(struct rndis_device *dev,
+ 	kfree(req);
  }
-@@ -348,7 +347,7 @@ static int netvsc_probe(struct hv_device *dev)
- 	net_device_ctx->device_ctx = dev;
- 	net_device_ctx->avail = ring_size;
- 	dev_set_drvdata(&dev->device, net);
--	INIT_WORK(&net_device_ctx->work, netvsc_send_garp);
-+	INIT_DELAYED_WORK(&net_device_ctx->dwork, netvsc_send_garp);
  
- 	/* Notify the netvsc driver of the new device */
- 	device_info.ring_size = ring_size;
-@@ -387,12 +386,16 @@ static int netvsc_probe(struct hv_device *dev)
- static int netvsc_remove(struct hv_device *dev)
+-static void dump_rndis_message(struct rndis_message *rndis_msg)
++static void dump_rndis_message(struct hv_device *hv_dev,
++			struct rndis_message *rndis_msg)
  {
- 	struct net_device *net = dev_get_drvdata(&dev->device);
-+	struct net_device_context *ndev_ctx;
- 
- 	if (net == NULL) {
- 		dev_err(&dev->device, "No net device to remove\n");
- 		return 0;
- 	}
- 
-+	ndev_ctx = netdev_priv(net);
-+	cancel_delayed_work_sync(&ndev_ctx->dwork);
++	struct net_device *netdev = dev_get_drvdata(&hv_dev->device);
 +
- 	/* Stop outbound asap */
- 	netif_stop_queue(net);
+ 	switch (rndis_msg->ndis_msg_type) {
+ 	case REMOTE_NDIS_PACKET_MSG:
+-		DPRINT_DBG(NETVSC, "REMOTE_NDIS_PACKET_MSG (len %u, "
++		netdev_dbg(netdev, "REMOTE_NDIS_PACKET_MSG (len %u, "
+ 			   "data offset %u data len %u, # oob %u, "
+ 			   "oob offset %u, oob len %u, pkt offset %u, "
+-			   "pkt len %u",
++			   "pkt len %u\n",
+ 			   rndis_msg->msg_len,
+ 			   rndis_msg->msg.pkt.data_offset,
+ 			   rndis_msg->msg.pkt.data_len,
+@@ -158,10 +161,10 @@ static void dump_rndis_message(struct rndis_message *rndis_msg)
+ 		break;
  
+ 	case REMOTE_NDIS_INITIALIZE_CMPLT:
+-		DPRINT_DBG(NETVSC, "REMOTE_NDIS_INITIALIZE_CMPLT "
++		netdev_dbg(netdev, "REMOTE_NDIS_INITIALIZE_CMPLT "
+ 			"(len %u, id 0x%x, status 0x%x, major %d, minor %d, "
+ 			"device flags %d, max xfer size 0x%x, max pkts %u, "
+-			"pkt aligned %u)",
++			"pkt aligned %u)\n",
+ 			rndis_msg->msg_len,
+ 			rndis_msg->msg.init_complete.req_id,
+ 			rndis_msg->msg.init_complete.status,
+@@ -176,9 +179,9 @@ static void dump_rndis_message(struct rndis_message *rndis_msg)
+ 		break;
+ 
+ 	case REMOTE_NDIS_QUERY_CMPLT:
+-		DPRINT_DBG(NETVSC, "REMOTE_NDIS_QUERY_CMPLT "
++		netdev_dbg(netdev, "REMOTE_NDIS_QUERY_CMPLT "
+ 			"(len %u, id 0x%x, status 0x%x, buf len %u, "
+-			"buf offset %u)",
++			"buf offset %u)\n",
+ 			rndis_msg->msg_len,
+ 			rndis_msg->msg.query_complete.req_id,
+ 			rndis_msg->msg.query_complete.status,
+@@ -189,16 +192,16 @@ static void dump_rndis_message(struct rndis_message *rndis_msg)
+ 		break;
+ 
+ 	case REMOTE_NDIS_SET_CMPLT:
+-		DPRINT_DBG(NETVSC,
+-			"REMOTE_NDIS_SET_CMPLT (len %u, id 0x%x, status 0x%x)",
++		netdev_dbg(netdev,
++			"REMOTE_NDIS_SET_CMPLT (len %u, id 0x%x, status 0x%x)\n",
+ 			rndis_msg->msg_len,
+ 			rndis_msg->msg.set_complete.req_id,
+ 			rndis_msg->msg.set_complete.status);
+ 		break;
+ 
+ 	case REMOTE_NDIS_INDICATE_STATUS_MSG:
+-		DPRINT_DBG(NETVSC, "REMOTE_NDIS_INDICATE_STATUS_MSG "
+-			"(len %u, status 0x%x, buf len %u, buf offset %u)",
++		netdev_dbg(netdev, "REMOTE_NDIS_INDICATE_STATUS_MSG "
++			"(len %u, status 0x%x, buf len %u, buf offset %u)\n",
+ 			rndis_msg->msg_len,
+ 			rndis_msg->msg.indicate_status.status,
+ 			rndis_msg->msg.indicate_status.status_buflen,
+@@ -206,7 +209,7 @@ static void dump_rndis_message(struct rndis_message *rndis_msg)
+ 		break;
+ 
+ 	default:
+-		DPRINT_DBG(NETVSC, "0x%x (len %u)",
++		netdev_dbg(netdev, "0x%x (len %u)\n",
+ 			rndis_msg->ndis_msg_type,
+ 			rndis_msg->msg_len);
+ 		break;
+@@ -387,7 +390,7 @@ int rndis_filter_receive(struct hv_device *dev,
+ 
+ 	kunmap_atomic(rndis_hdr - pkt->page_buf[0].offset, KM_IRQ0);
+ 
+-	dump_rndis_message(&rndis_msg);
++	dump_rndis_message(dev, &rndis_msg);
+ 
+ 	switch (rndis_msg.ndis_msg_type) {
+ 	case REMOTE_NDIS_PACKET_MSG:
 -- 
 1.6.3.2
