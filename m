@@ -1,15 +1,15 @@
-From: Joe Perches <joe@perches.com>
-Subject: [TRIVIAL PATCH V2 next 12/15] video: Convert vmalloc/memset to vzalloc
-Date: Sat, 28 May 2011 11:13:33 -0700
-Message-ID: <1306606413.20336.9.camel__10240.5913793065$1306606544$gmane$org@Joe-Laptop>
-References: <cover.1306603968.git.joe@perches.com>
-	<77538de911b8af99f68b7bcfbaaedce8e40db04f.1306603968.git.joe@perches.com>
-	<201105281948.12941.heiko@sntech.de>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: 2.6.40 event idx patches
+Date: Sat, 28 May 2011 22:34:26 +0300
+Message-ID: <20110528193139.GA6650@redhat.com>
+References: <20110524092345.GA17087@redhat.com>
+	<87y61vilig.fsf@rustcorp.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <201105281948.12941.heiko@sntech.de>
+Content-Disposition: inline
+In-Reply-To: <87y61vilig.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,69 +19,42 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Heiko =?ISO-8859-1?Q?St=FCbner?= <heiko@sntech.de>
-Cc: linux-fbdev@vger.kernel.org, Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, Jiri Kosina <trivial@kernel.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Paul Mundt <lethal@linux-sh.org>, xen-devel@lists.xensource.com, Jaya Kumar <jayalk@intworks.biz>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-U2lnbmVkLW9mZi1ieTogSm9lIFBlcmNoZXMgPGpvZUBwZXJjaGVzLmNvbT4KLS0tCkhlaWtvIFN0
-w7xibmVyIDxoZWlrb0BzbnRlY2guZGU+IHBvaW50ZWQgb3V0IEkgY2FuJ3QgdHlwZS4uLgpzL3Zt
-YWxsb2Mvdm1hbGxvYy8gZG9lc24ndCBkbyBtdWNoLgoKIGRyaXZlcnMvdmlkZW8vYXJjZmIuYyAg
-ICAgICAgfCAgICA1ICsrLS0tCiBkcml2ZXJzL3ZpZGVvL2Jyb2Fkc2hlZXRmYi5jIHwgICAgNCAr
-LS0tCiBkcml2ZXJzL3ZpZGVvL2hlY3ViYWZiLmMgICAgIHwgICAgNSArKy0tLQogZHJpdmVycy92
-aWRlby9tZXRyb25vbWVmYi5jICB8ICAgIDQgKy0tLQogZHJpdmVycy92aWRlby94ZW4tZmJmcm9u
-dC5jICB8ICAgIDMgKy0tCiA1IGZpbGVzIGNoYW5nZWQsIDcgaW5zZXJ0aW9ucygrKSwgMTQgZGVs
-ZXRpb25zKC0pCgpkaWZmIC0tZ2l0IGEvZHJpdmVycy92aWRlby9hcmNmYi5jIGIvZHJpdmVycy92
-aWRlby9hcmNmYi5jCmluZGV4IDNlYzQ5MjMuLjg2NTczZTIgMTAwNjQ0Ci0tLSBhL2RyaXZlcnMv
-dmlkZW8vYXJjZmIuYworKysgYi9kcml2ZXJzL3ZpZGVvL2FyY2ZiLmMKQEAgLTUxNSwxMSArNTE1
-LDEwIEBAIHN0YXRpYyBpbnQgX19kZXZpbml0IGFyY2ZiX3Byb2JlKHN0cnVjdCBwbGF0Zm9ybV9k
-ZXZpY2UgKmRldikKIAogCS8qIFdlIG5lZWQgYSBmbGF0IGJhY2tpbmcgc3RvcmUgZm9yIHRoZSBB
-cmMncwogCSAgIGxlc3MtZmxhdCBhY3R1YWwgcGFnZWQgZnJhbWVidWZmZXIgKi8KLQlpZiAoISh2
-aWRlb21lbW9yeSA9IHZtYWxsb2ModmlkZW9tZW1vcnlzaXplKSkpCisJdmlkZW9tZW1vcnkgPSB2
-emFsbG9jKHZpZGVvbWVtb3J5c2l6ZSk7CisJaWYgKCF2aWRlb21lbW9yeSkKIAkJcmV0dXJuIHJl
-dHZhbDsKIAotCW1lbXNldCh2aWRlb21lbW9yeSwgMCwgdmlkZW9tZW1vcnlzaXplKTsKLQogCWlu
-Zm8gPSBmcmFtZWJ1ZmZlcl9hbGxvYyhzaXplb2Yoc3RydWN0IGFyY2ZiX3BhciksICZkZXYtPmRl
-dik7CiAJaWYgKCFpbmZvKQogCQlnb3RvIGVycjsKZGlmZiAtLWdpdCBhL2RyaXZlcnMvdmlkZW8v
-YnJvYWRzaGVldGZiLmMgYi9kcml2ZXJzL3ZpZGVvL2Jyb2Fkc2hlZXRmYi5jCmluZGV4IGViZGE2
-ODcuLjM3N2RkZTMgMTAwNjQ0Ci0tLSBhL2RyaXZlcnMvdmlkZW8vYnJvYWRzaGVldGZiLmMKKysr
-IGIvZHJpdmVycy92aWRlby9icm9hZHNoZWV0ZmIuYwpAQCAtMTEwMSwxMiArMTEwMSwxMCBAQCBz
-dGF0aWMgaW50IF9fZGV2aW5pdCBicm9hZHNoZWV0ZmJfcHJvYmUoc3RydWN0IHBsYXRmb3JtX2Rl
-dmljZSAqZGV2KQogCiAJdmlkZW9tZW1vcnlzaXplID0gcm91bmR1cCgoZHB5dypkcHloKSwgUEFH
-RV9TSVpFKTsKIAotCXZpZGVvbWVtb3J5ID0gdm1hbGxvYyh2aWRlb21lbW9yeXNpemUpOworCXZp
-ZGVvbWVtb3J5ID0gdnphbGxvYyh2aWRlb21lbW9yeXNpemUpOwogCWlmICghdmlkZW9tZW1vcnkp
-CiAJCWdvdG8gZXJyX2ZiX3JlbDsKIAotCW1lbXNldCh2aWRlb21lbW9yeSwgMCwgdmlkZW9tZW1v
-cnlzaXplKTsKLQogCWluZm8tPnNjcmVlbl9iYXNlID0gKGNoYXIgKil2aWRlb21lbW9yeTsKIAlp
-bmZvLT5mYm9wcyA9ICZicm9hZHNoZWV0ZmJfb3BzOwogCmRpZmYgLS1naXQgYS9kcml2ZXJzL3Zp
-ZGVvL2hlY3ViYWZiLmMgYi9kcml2ZXJzL3ZpZGVvL2hlY3ViYWZiLmMKaW5kZXggMWI5NDY0My4u
-ZmJlZjE1ZiAxMDA2NDQKLS0tIGEvZHJpdmVycy92aWRlby9oZWN1YmFmYi5jCisrKyBiL2RyaXZl
-cnMvdmlkZW8vaGVjdWJhZmIuYwpAQCAtMjMxLDExICsyMzEsMTAgQEAgc3RhdGljIGludCBfX2Rl
-dmluaXQgaGVjdWJhZmJfcHJvYmUoc3RydWN0IHBsYXRmb3JtX2RldmljZSAqZGV2KQogCiAJdmlk
-ZW9tZW1vcnlzaXplID0gKERQWV9XKkRQWV9IKS84OwogCi0JaWYgKCEodmlkZW9tZW1vcnkgPSB2
-bWFsbG9jKHZpZGVvbWVtb3J5c2l6ZSkpKQorCXZpZGVvbWVtb3J5ID0gdnphbGxvYyh2aWRlb21l
-bW9yeXNpemUpOworCWlmICghdmlkZW9tZW1vcnkpCiAJCXJldHVybiByZXR2YWw7CiAKLQltZW1z
-ZXQodmlkZW9tZW1vcnksIDAsIHZpZGVvbWVtb3J5c2l6ZSk7Ci0KIAlpbmZvID0gZnJhbWVidWZm
-ZXJfYWxsb2Moc2l6ZW9mKHN0cnVjdCBoZWN1YmFmYl9wYXIpLCAmZGV2LT5kZXYpOwogCWlmICgh
-aW5mbykKIAkJZ290byBlcnJfZmJhbGxvYzsKZGlmZiAtLWdpdCBhL2RyaXZlcnMvdmlkZW8vbWV0
-cm9ub21lZmIuYyBiL2RyaXZlcnMvdmlkZW8vbWV0cm9ub21lZmIuYwppbmRleCBlZDY0ZWRmLi45
-N2Q0NWU1IDEwMDY0NAotLS0gYS9kcml2ZXJzL3ZpZGVvL21ldHJvbm9tZWZiLmMKKysrIGIvZHJp
-dmVycy92aWRlby9tZXRyb25vbWVmYi5jCkBAIC02MjgsMTIgKzYyOCwxMCBAQCBzdGF0aWMgaW50
-IF9fZGV2aW5pdCBtZXRyb25vbWVmYl9wcm9iZShzdHJ1Y3QgcGxhdGZvcm1fZGV2aWNlICpkZXYp
-CiAJLyogd2UgbmVlZCB0byBhZGQgYSBzcGFyZSBwYWdlIGJlY2F1c2Ugb3VyIGNzdW0gY2FjaGlu
-ZyBzY2hlbWUgd2Fsa3MKIAkgKiB0byB0aGUgZW5kIG9mIHRoZSBwYWdlICovCiAJdmlkZW9tZW1v
-cnlzaXplID0gUEFHRV9TSVpFICsgKGZ3ICogZmgpOwotCXZpZGVvbWVtb3J5ID0gdm1hbGxvYyh2
-aWRlb21lbW9yeXNpemUpOworCXZpZGVvbWVtb3J5ID0gdnphbGxvYyh2aWRlb21lbW9yeXNpemUp
-OwogCWlmICghdmlkZW9tZW1vcnkpCiAJCWdvdG8gZXJyX2ZiX3JlbDsKIAotCW1lbXNldCh2aWRl
-b21lbW9yeSwgMCwgdmlkZW9tZW1vcnlzaXplKTsKLQogCWluZm8tPnNjcmVlbl9iYXNlID0gKGNo
-YXIgX19mb3JjZSBfX2lvbWVtICopdmlkZW9tZW1vcnk7CiAJaW5mby0+ZmJvcHMgPSAmbWV0cm9u
-b21lZmJfb3BzOwogCmRpZmYgLS1naXQgYS9kcml2ZXJzL3ZpZGVvL3hlbi1mYmZyb250LmMgYi9k
-cml2ZXJzL3ZpZGVvL3hlbi1mYmZyb250LmMKaW5kZXggYTIwMjE4Yy4uYmVhYzUyZiAxMDA2NDQK
-LS0tIGEvZHJpdmVycy92aWRlby94ZW4tZmJmcm9udC5jCisrKyBiL2RyaXZlcnMvdmlkZW8veGVu
-LWZiZnJvbnQuYwpAQCAtMzk1LDEwICszOTUsOSBAQCBzdGF0aWMgaW50IF9fZGV2aW5pdCB4ZW5m
-Yl9wcm9iZShzdHJ1Y3QgeGVuYnVzX2RldmljZSAqZGV2LAogCXNwaW5fbG9ja19pbml0KCZpbmZv
-LT5kaXJ0eV9sb2NrKTsKIAlzcGluX2xvY2tfaW5pdCgmaW5mby0+cmVzaXplX2xvY2spOwogCi0J
-aW5mby0+ZmIgPSB2bWFsbG9jKGZiX3NpemUpOworCWluZm8tPmZiID0gdnphbGxvYyhmYl9zaXpl
-KTsKIAlpZiAoaW5mby0+ZmIgPT0gTlVMTCkKIAkJZ290byBlcnJvcl9ub21lbTsKLQltZW1zZXQo
-aW5mby0+ZmIsIDAsIGZiX3NpemUpOwogCiAJaW5mby0+bnJfcGFnZXMgPSAoZmJfc2l6ZSArIFBB
-R0VfU0laRSAtIDEpID4+IFBBR0VfU0hJRlQ7CiAKLS0gCgoKX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZp
-cnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGlu
-dXgtZm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+On Wed, May 25, 2011 at 11:34:07AM +0930, Rusty Russell wrote:
+> On Tue, 24 May 2011 12:23:45 +0300, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> > Just checking: were you going to send the following to Linus for 2.6.40?
+> > virtio:event_index_interface.patch
+> > virtio:ring_inline_function_to_check_for_events.patch
+> > virtio:ring_support_event_idx_feature.patch
+> > misc:vhost_support_event_index.patch
+> > virtio:test_support_event_index.patch
+> > virtio:add_api_for_delayed_callbacks.patch
+> > virtio:net_delay_tx_callbacks.patch
+> > 
+> > I certainly hope so as these modify both host and guest which makes
+> > testing them out of tree hard for people.
+> > Once stuff lands on Linus' tree we can patch
+> > qemu and get more people to try out the patches.
+> > 
+> > Also, Linus said it's going to be a short window so ...
+> 
+> Yes.  They've been in linux-next since the weekend (ie. today will be the
+> third linux-next build), and my plan was to push them Friday.
+> 
+> Nothing goes into linux-next which is not for Linus until after Linus
+> closes the merge window.
+> 
+> I also want to find a few cycles to adapt lguest; it's *always* good to
+> have a second implementation.
+> 
+> Cheers,
+> Rusty.
+
+Couldn't find any pull requests at lkml, and I read the window will
+likely close May 29.  Did you end up not sending it, or did I miss it?
+
+-- 
+MST
