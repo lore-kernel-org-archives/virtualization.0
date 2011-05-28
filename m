@@ -1,11 +1,15 @@
 From: Joe Perches <joe@perches.com>
-Subject: [TRIVIAL PATCH next 00/15] treewide: Convert vmalloc/memset to vzalloc
-Date: Sat, 28 May 2011 10:36:20 -0700
-Message-ID: <cover.1306603968.git.joe__35815.6057577164$1306604306$gmane$org@perches.com>
+Subject: [TRIVIAL PATCH V2 next 12/15] video: Convert vmalloc/memset to vzalloc
+Date: Sat, 28 May 2011 11:13:33 -0700
+Message-ID: <1306606413.20336.9.camel__10240.5913793065$1306606544$gmane$org@Joe-Laptop>
+References: <cover.1306603968.git.joe@perches.com>
+	<77538de911b8af99f68b7bcfbaaedce8e40db04f.1306603968.git.joe@perches.com>
+	<201105281948.12941.heiko@sntech.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <201105281948.12941.heiko@sntech.de>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -15,66 +19,69 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-atm-general@lists.sourceforge.net, netdev@vger.kernel.org, drbd-user@lists.linbit.com, dm-devel@redhat.com, linux-raid@vger.kernel.org, linux-mtd@lists.infradead.or
-Cc: devel@driverdev.osuosl.org, linux-s390@vger.kernel.org, xfs@oss.sgi.com, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org
+To: Heiko =?ISO-8859-1?Q?St=FCbner?= <heiko@sntech.de>
+Cc: linux-fbdev@vger.kernel.org, Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, Jiri Kosina <trivial@kernel.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Paul Mundt <lethal@linux-sh.org>, xen-devel@lists.xensource.com, Jaya Kumar <jayalk@intworks.biz>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Resubmittal of patches from November 2010 and a few new ones.
-
-Joe Perches (15):
-  s390: Convert vmalloc/memset to vzalloc
-  x86: Convert vmalloc/memset to vzalloc
-  atm: Convert vmalloc/memset to vzalloc
-  drbd: Convert vmalloc/memset to vzalloc
-  char: Convert vmalloc/memset to vzalloc
-  isdn: Convert vmalloc/memset to vzalloc
-  md: Convert vmalloc/memset to vzalloc
-  media: Convert vmalloc/memset to vzalloc
-  mtd: Convert vmalloc/memset to vzalloc
-  scsi: Convert vmalloc/memset to vzalloc
-  staging: Convert vmalloc/memset to vzalloc
-  video: Convert vmalloc/memset to vzalloc
-  fs: Convert vmalloc/memset to vzalloc
-  mm: Convert vmalloc/memset to vzalloc
-  net: Convert vmalloc/memset to vzalloc
-
- arch/s390/hypfs/hypfs_diag.c           |    3 +--
- arch/x86/mm/pageattr-test.c            |    3 +--
- drivers/atm/idt77252.c                 |   11 ++++++-----
- drivers/atm/lanai.c                    |    3 +--
- drivers/block/drbd/drbd_bitmap.c       |    5 ++---
- drivers/char/agp/backend.c             |    3 +--
- drivers/char/raw.c                     |    3 +--
- drivers/isdn/i4l/isdn_common.c         |    4 ++--
- drivers/isdn/mISDN/dsp_core.c          |    3 +--
- drivers/isdn/mISDN/l1oip_codec.c       |    6 ++----
- drivers/md/dm-log.c                    |    3 +--
- drivers/md/dm-snap-persistent.c        |    3 +--
- drivers/md/dm-table.c                  |    4 +---
- drivers/media/video/videobuf2-dma-sg.c |    8 ++------
- drivers/mtd/mtdswap.c                  |    3 +--
- drivers/s390/cio/blacklist.c           |    3 +--
- drivers/scsi/bfa/bfad.c                |    3 +--
- drivers/scsi/bfa/bfad_debugfs.c        |    8 ++------
- drivers/scsi/cxgbi/libcxgbi.h          |    6 ++----
- drivers/scsi/qla2xxx/qla_attr.c        |    6 ++----
- drivers/scsi/qla2xxx/qla_bsg.c         |    3 +--
- drivers/scsi/scsi_debug.c              |    7 ++-----
- drivers/staging/rts_pstor/ms.c         |    3 +--
- drivers/staging/rts_pstor/rtsx_chip.c  |    6 ++----
- drivers/video/arcfb.c                  |    5 ++---
- drivers/video/broadsheetfb.c           |    4 +---
- drivers/video/hecubafb.c               |    5 ++---
- drivers/video/metronomefb.c            |    4 +---
- drivers/video/xen-fbfront.c            |    3 +--
- fs/coda/coda_linux.h                   |    5 ++---
- fs/reiserfs/journal.c                  |    9 +++------
- fs/reiserfs/resize.c                   |    4 +---
- fs/xfs/linux-2.6/kmem.h                |    7 +------
- mm/page_cgroup.c                       |    3 +--
- net/netfilter/x_tables.c               |    5 ++---
- net/rds/ib_cm.c                        |    6 ++----
- 36 files changed, 57 insertions(+), 113 deletions(-)
-
--- 
-1.7.5.rc3.dirty
+U2lnbmVkLW9mZi1ieTogSm9lIFBlcmNoZXMgPGpvZUBwZXJjaGVzLmNvbT4KLS0tCkhlaWtvIFN0
+w7xibmVyIDxoZWlrb0BzbnRlY2guZGU+IHBvaW50ZWQgb3V0IEkgY2FuJ3QgdHlwZS4uLgpzL3Zt
+YWxsb2Mvdm1hbGxvYy8gZG9lc24ndCBkbyBtdWNoLgoKIGRyaXZlcnMvdmlkZW8vYXJjZmIuYyAg
+ICAgICAgfCAgICA1ICsrLS0tCiBkcml2ZXJzL3ZpZGVvL2Jyb2Fkc2hlZXRmYi5jIHwgICAgNCAr
+LS0tCiBkcml2ZXJzL3ZpZGVvL2hlY3ViYWZiLmMgICAgIHwgICAgNSArKy0tLQogZHJpdmVycy92
+aWRlby9tZXRyb25vbWVmYi5jICB8ICAgIDQgKy0tLQogZHJpdmVycy92aWRlby94ZW4tZmJmcm9u
+dC5jICB8ICAgIDMgKy0tCiA1IGZpbGVzIGNoYW5nZWQsIDcgaW5zZXJ0aW9ucygrKSwgMTQgZGVs
+ZXRpb25zKC0pCgpkaWZmIC0tZ2l0IGEvZHJpdmVycy92aWRlby9hcmNmYi5jIGIvZHJpdmVycy92
+aWRlby9hcmNmYi5jCmluZGV4IDNlYzQ5MjMuLjg2NTczZTIgMTAwNjQ0Ci0tLSBhL2RyaXZlcnMv
+dmlkZW8vYXJjZmIuYworKysgYi9kcml2ZXJzL3ZpZGVvL2FyY2ZiLmMKQEAgLTUxNSwxMSArNTE1
+LDEwIEBAIHN0YXRpYyBpbnQgX19kZXZpbml0IGFyY2ZiX3Byb2JlKHN0cnVjdCBwbGF0Zm9ybV9k
+ZXZpY2UgKmRldikKIAogCS8qIFdlIG5lZWQgYSBmbGF0IGJhY2tpbmcgc3RvcmUgZm9yIHRoZSBB
+cmMncwogCSAgIGxlc3MtZmxhdCBhY3R1YWwgcGFnZWQgZnJhbWVidWZmZXIgKi8KLQlpZiAoISh2
+aWRlb21lbW9yeSA9IHZtYWxsb2ModmlkZW9tZW1vcnlzaXplKSkpCisJdmlkZW9tZW1vcnkgPSB2
+emFsbG9jKHZpZGVvbWVtb3J5c2l6ZSk7CisJaWYgKCF2aWRlb21lbW9yeSkKIAkJcmV0dXJuIHJl
+dHZhbDsKIAotCW1lbXNldCh2aWRlb21lbW9yeSwgMCwgdmlkZW9tZW1vcnlzaXplKTsKLQogCWlu
+Zm8gPSBmcmFtZWJ1ZmZlcl9hbGxvYyhzaXplb2Yoc3RydWN0IGFyY2ZiX3BhciksICZkZXYtPmRl
+dik7CiAJaWYgKCFpbmZvKQogCQlnb3RvIGVycjsKZGlmZiAtLWdpdCBhL2RyaXZlcnMvdmlkZW8v
+YnJvYWRzaGVldGZiLmMgYi9kcml2ZXJzL3ZpZGVvL2Jyb2Fkc2hlZXRmYi5jCmluZGV4IGViZGE2
+ODcuLjM3N2RkZTMgMTAwNjQ0Ci0tLSBhL2RyaXZlcnMvdmlkZW8vYnJvYWRzaGVldGZiLmMKKysr
+IGIvZHJpdmVycy92aWRlby9icm9hZHNoZWV0ZmIuYwpAQCAtMTEwMSwxMiArMTEwMSwxMCBAQCBz
+dGF0aWMgaW50IF9fZGV2aW5pdCBicm9hZHNoZWV0ZmJfcHJvYmUoc3RydWN0IHBsYXRmb3JtX2Rl
+dmljZSAqZGV2KQogCiAJdmlkZW9tZW1vcnlzaXplID0gcm91bmR1cCgoZHB5dypkcHloKSwgUEFH
+RV9TSVpFKTsKIAotCXZpZGVvbWVtb3J5ID0gdm1hbGxvYyh2aWRlb21lbW9yeXNpemUpOworCXZp
+ZGVvbWVtb3J5ID0gdnphbGxvYyh2aWRlb21lbW9yeXNpemUpOwogCWlmICghdmlkZW9tZW1vcnkp
+CiAJCWdvdG8gZXJyX2ZiX3JlbDsKIAotCW1lbXNldCh2aWRlb21lbW9yeSwgMCwgdmlkZW9tZW1v
+cnlzaXplKTsKLQogCWluZm8tPnNjcmVlbl9iYXNlID0gKGNoYXIgKil2aWRlb21lbW9yeTsKIAlp
+bmZvLT5mYm9wcyA9ICZicm9hZHNoZWV0ZmJfb3BzOwogCmRpZmYgLS1naXQgYS9kcml2ZXJzL3Zp
+ZGVvL2hlY3ViYWZiLmMgYi9kcml2ZXJzL3ZpZGVvL2hlY3ViYWZiLmMKaW5kZXggMWI5NDY0My4u
+ZmJlZjE1ZiAxMDA2NDQKLS0tIGEvZHJpdmVycy92aWRlby9oZWN1YmFmYi5jCisrKyBiL2RyaXZl
+cnMvdmlkZW8vaGVjdWJhZmIuYwpAQCAtMjMxLDExICsyMzEsMTAgQEAgc3RhdGljIGludCBfX2Rl
+dmluaXQgaGVjdWJhZmJfcHJvYmUoc3RydWN0IHBsYXRmb3JtX2RldmljZSAqZGV2KQogCiAJdmlk
+ZW9tZW1vcnlzaXplID0gKERQWV9XKkRQWV9IKS84OwogCi0JaWYgKCEodmlkZW9tZW1vcnkgPSB2
+bWFsbG9jKHZpZGVvbWVtb3J5c2l6ZSkpKQorCXZpZGVvbWVtb3J5ID0gdnphbGxvYyh2aWRlb21l
+bW9yeXNpemUpOworCWlmICghdmlkZW9tZW1vcnkpCiAJCXJldHVybiByZXR2YWw7CiAKLQltZW1z
+ZXQodmlkZW9tZW1vcnksIDAsIHZpZGVvbWVtb3J5c2l6ZSk7Ci0KIAlpbmZvID0gZnJhbWVidWZm
+ZXJfYWxsb2Moc2l6ZW9mKHN0cnVjdCBoZWN1YmFmYl9wYXIpLCAmZGV2LT5kZXYpOwogCWlmICgh
+aW5mbykKIAkJZ290byBlcnJfZmJhbGxvYzsKZGlmZiAtLWdpdCBhL2RyaXZlcnMvdmlkZW8vbWV0
+cm9ub21lZmIuYyBiL2RyaXZlcnMvdmlkZW8vbWV0cm9ub21lZmIuYwppbmRleCBlZDY0ZWRmLi45
+N2Q0NWU1IDEwMDY0NAotLS0gYS9kcml2ZXJzL3ZpZGVvL21ldHJvbm9tZWZiLmMKKysrIGIvZHJp
+dmVycy92aWRlby9tZXRyb25vbWVmYi5jCkBAIC02MjgsMTIgKzYyOCwxMCBAQCBzdGF0aWMgaW50
+IF9fZGV2aW5pdCBtZXRyb25vbWVmYl9wcm9iZShzdHJ1Y3QgcGxhdGZvcm1fZGV2aWNlICpkZXYp
+CiAJLyogd2UgbmVlZCB0byBhZGQgYSBzcGFyZSBwYWdlIGJlY2F1c2Ugb3VyIGNzdW0gY2FjaGlu
+ZyBzY2hlbWUgd2Fsa3MKIAkgKiB0byB0aGUgZW5kIG9mIHRoZSBwYWdlICovCiAJdmlkZW9tZW1v
+cnlzaXplID0gUEFHRV9TSVpFICsgKGZ3ICogZmgpOwotCXZpZGVvbWVtb3J5ID0gdm1hbGxvYyh2
+aWRlb21lbW9yeXNpemUpOworCXZpZGVvbWVtb3J5ID0gdnphbGxvYyh2aWRlb21lbW9yeXNpemUp
+OwogCWlmICghdmlkZW9tZW1vcnkpCiAJCWdvdG8gZXJyX2ZiX3JlbDsKIAotCW1lbXNldCh2aWRl
+b21lbW9yeSwgMCwgdmlkZW9tZW1vcnlzaXplKTsKLQogCWluZm8tPnNjcmVlbl9iYXNlID0gKGNo
+YXIgX19mb3JjZSBfX2lvbWVtICopdmlkZW9tZW1vcnk7CiAJaW5mby0+ZmJvcHMgPSAmbWV0cm9u
+b21lZmJfb3BzOwogCmRpZmYgLS1naXQgYS9kcml2ZXJzL3ZpZGVvL3hlbi1mYmZyb250LmMgYi9k
+cml2ZXJzL3ZpZGVvL3hlbi1mYmZyb250LmMKaW5kZXggYTIwMjE4Yy4uYmVhYzUyZiAxMDA2NDQK
+LS0tIGEvZHJpdmVycy92aWRlby94ZW4tZmJmcm9udC5jCisrKyBiL2RyaXZlcnMvdmlkZW8veGVu
+LWZiZnJvbnQuYwpAQCAtMzk1LDEwICszOTUsOSBAQCBzdGF0aWMgaW50IF9fZGV2aW5pdCB4ZW5m
+Yl9wcm9iZShzdHJ1Y3QgeGVuYnVzX2RldmljZSAqZGV2LAogCXNwaW5fbG9ja19pbml0KCZpbmZv
+LT5kaXJ0eV9sb2NrKTsKIAlzcGluX2xvY2tfaW5pdCgmaW5mby0+cmVzaXplX2xvY2spOwogCi0J
+aW5mby0+ZmIgPSB2bWFsbG9jKGZiX3NpemUpOworCWluZm8tPmZiID0gdnphbGxvYyhmYl9zaXpl
+KTsKIAlpZiAoaW5mby0+ZmIgPT0gTlVMTCkKIAkJZ290byBlcnJvcl9ub21lbTsKLQltZW1zZXQo
+aW5mby0+ZmIsIDAsIGZiX3NpemUpOwogCiAJaW5mby0+bnJfcGFnZXMgPSAoZmJfc2l6ZSArIFBB
+R0VfU0laRSAtIDEpID4+IFBBR0VfU0hJRlQ7CiAKLS0gCgoKX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZp
+cnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGlu
+dXgtZm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
