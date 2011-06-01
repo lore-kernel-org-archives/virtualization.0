@@ -1,15 +1,14 @@
-From: Heiko =?iso-8859-15?q?St=FCbner?= <heiko@sntech.de>
-Subject: Re: [TRIVIAL PATCH next 12/15] video: Convert vmalloc/memset to
-	vzalloc
-Date: Sat, 28 May 2011 19:48:12 +0200
-Message-ID: <201105281948.12941.heiko__16357.8512882397$1306868724$gmane$org@sntech.de>
-References: <cover.1306603968.git.joe@perches.com>
-	<77538de911b8af99f68b7bcfbaaedce8e40db04f.1306603968.git.joe@perches.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH RFC 1/3] virtio_ring: add capacity check API
+Date: Wed, 1 Jun 2011 12:49:46 +0300
+Message-ID: <8014f898ca6b768d7be626b83c617a1e84adfeb9.1306921434.git.mst__22010.3964479224$1306922142$gmane$org@redhat.com>
+References: <cover.1306921434.git.mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <77538de911b8af99f68b7bcfbaaedce8e40db04f.1306603968.git.joe@perches.com>
+Content-Disposition: inline
+In-Reply-To: <cover.1306921434.git.mst@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,31 +18,60 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Joe Perches <joe@perches.com>
-Cc: linux-fbdev@vger.kernel.org, Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, Jiri Kosina <trivial@kernel.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Paul Mundt <lethal@linux-sh.org>, xen-devel@lists.xensource.com, Jaya Kumar <jayalk@intworks.biz>
+Cc: Krishna Kumar <krkumar2@in.ibm.com>, Carsten Otte <cotte@de.ibm.com>, lguest@lists.ozlabs.org, Shirley Ma <xma@us.ibm.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org, netdev@vger.kernel.org, habanero@linux.vnet.ibm.com, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, steved@us.ibm.com, Christian Borntraeger <borntraeger@de.ibm.com>, Tom Lendacky <tahm@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux390@de.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Am Samstag 28 Mai 2011, 19:36:32 schrieb Joe Perches:
-> diff --git a/drivers/video/arcfb.c b/drivers/video/arcfb.c
-> index 3ec4923..86573e2 100644
-> --- a/drivers/video/arcfb.c
-> +++ b/drivers/video/arcfb.c
-> @@ -515,11 +515,10 @@ static int __devinit arcfb_probe(struct
-> platform_device *dev)
-> 
->  	/* We need a flat backing store for the Arc's
->  	   less-flat actual paged framebuffer */
-> -	if (!(videomemory = vmalloc(videomemorysize)))
-> +	videomemory = vmalloc(videomemorysize);
-> +	if (!videomemory)
->  		return retval;
-shouldn't this be vzalloc too?
+Add API to check ring capacity. Because of the option
+to use indirect buffers, this returns the worst
+case, not the normal case capacity.
 
-> -	memset(videomemory, 0, videomemorysize);
-> -
->  	info = framebuffer_alloc(sizeof(struct arcfb_par), &dev->dev);
->  	if (!info)
->  		goto err;
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
+ drivers/virtio/virtio_ring.c |    8 ++++++++
+ include/linux/virtio.h       |    5 +++++
+ 2 files changed, 13 insertions(+), 0 deletions(-)
 
-
-Heiko
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+index 68b9136..23422f1 100644
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -344,6 +344,14 @@ void *virtqueue_get_buf(struct virtqueue *_vq, unsigned int *len)
+ }
+ EXPORT_SYMBOL_GPL(virtqueue_get_buf);
+ 
++int virtqueue_min_capacity(struct virtqueue *_vq)
++{
++	struct vring_virtqueue *vq = to_vvq(_vq);
++
++	return vq->num_free;
++}
++EXPORT_SYMBOL_GPL(virtqueue_min_capacity);
++
+ void virtqueue_disable_cb(struct virtqueue *_vq)
+ {
+ 	struct vring_virtqueue *vq = to_vvq(_vq);
+diff --git a/include/linux/virtio.h b/include/linux/virtio.h
+index 7108857..209220d 100644
+--- a/include/linux/virtio.h
++++ b/include/linux/virtio.h
+@@ -42,6 +42,9 @@ struct virtqueue {
+  *	vq: the struct virtqueue we're talking about.
+  *	len: the length written into the buffer
+  *	Returns NULL or the "data" token handed to add_buf.
++ * virtqueue_min_capacity: get the current capacity of the queue
++ *	vq: the struct virtqueue we're talking about.
++ *	Returns the current worst case capacity of the queue.
+  * virtqueue_disable_cb: disable callbacks
+  *	vq: the struct virtqueue we're talking about.
+  *	Note that this is not necessarily synchronous, hence unreliable and only
+@@ -89,6 +92,8 @@ void virtqueue_kick(struct virtqueue *vq);
+ 
+ void *virtqueue_get_buf(struct virtqueue *vq, unsigned int *len);
+ 
++int virtqueue_min_capacity(struct virtqueue *vq);
++
+ void virtqueue_disable_cb(struct virtqueue *vq);
+ 
+ bool virtqueue_enable_cb(struct virtqueue *vq);
+-- 
+1.7.5.53.gc233e
