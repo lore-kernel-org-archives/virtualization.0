@@ -1,17 +1,11 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH RFC 3/3] virtio_net: limit xmit polling
-Date: Thu, 2 Jun 2011 17:43:46 +0300
-Message-ID: <20110602144346.GA7995__5371.84414356506$1307025869$gmane$org@redhat.com>
-References: <cover.1306921434.git.mst@redhat.com>
-	<1ec8eec325839ecf2eac9930a230361e7956047c.1306921434.git.mst@redhat.com>
-	<87pqmwj3am.fsf@rustcorp.com.au> <20110602133425.GJ7141@redhat.com>
-	<OF990F08C5.2ECE35B1-ON652578A3.004DC0FA-652578A3.004E3FE4@in.ibm.com>
+From: Mark Wu <dwu@redhat.com>
+Subject: [PATCH 1/1] [virt] virtio-blk: Use ida to allocate disk index
+Date: Wed,  1 Jun 2011 03:24:29 -0400
+Message-ID: <1306913069-23637-1-git-send-email-dwu__3159.48058055273$1307027399$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <OF990F08C5.2ECE35B1-ON652578A3.004DC0FA-652578A3.004E3FE4@in.ibm.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -21,192 +15,110 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Krishna Kumar2 <krkumar2@in.ibm.com>
-Cc: habanero@linux.vnet.ibm.com, lguest@lists.ozlabs.org, Shirley Ma <xma@us.ibm.com>, kvm@vger.kernel.org, Carsten Otte <cotte@de.ibm.com>, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, steved@us.ibm.com, Christian Borntraeger <borntraeger@de.ibm.com>, Tom Lendacky <tahm@linux.vnet.ibm.com>, netdev@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux390@de.ibm.com
+To: Rusty Russell <rusty@rustcorp.com.au>, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Mark Wu <dwu@redhat.com>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Jun 02, 2011 at 07:47:48PM +0530, Krishna Kumar2 wrote:
-> > OK, I have something very similar, but I still dislike the screw the
-> > latency part: this path is exactly what the IBM guys seem to hit.  So I
-> > created two functions: one tries to free a constant number and another
-> > one up to capacity. I'll post that now.
-> 
-> Please review this patch to see if it looks reasonable:
+Current index allocation in virtio-blk is based on a monotonically
+increasing variable "index". It could cause some confusion about disk
+name in the case of hot-plugging disks. And it's impossible to find the
+lowest available index by just maintaining a simple index. So it's
+changed to use ida to allocate index via referring to the index
+allocation in scsi disk.
 
-Hmm, since you decided to work on top of my patch,
-I'd appreciate split-up fixes.
+Signed-off-by: Mark Wu <dwu@redhat.com>
+---
+ drivers/block/virtio_blk.c |   37 ++++++++++++++++++++++++++++++++-----
+ 1 files changed, 32 insertions(+), 5 deletions(-)
 
-> 1. Picked comments/code from MST's code and Rusty's review.
-> 2. virtqueue_min_capacity() needs to be called only if it returned
->    empty the last time it was called.
-> 3. Fix return value bug in free_old_xmit_skbs (hangs guest).
-> 4. Stop queue only if capacity is not enough for next xmit.
-
-That's what we always did ...
-
-> 5. Fix/clean some likely/unlikely checks (hopefully).
-> 
-> I have done some minimal netperf tests with this.
-> 
-> With this patch, add_buf returning capacity seems to be useful - it
-> allows less virtio API calls.
-
-Why bother? It's cheap ...
-
-> 
-> Signed-off-by: Krishna Kumar <krkumar2@in.ibm.com>
-> ---
->  drivers/net/virtio_net.c |  105 ++++++++++++++++++++++---------------
->  1 file changed, 64 insertions(+), 41 deletions(-)
-> 
-> diff -ruNp org/drivers/net/virtio_net.c new/drivers/net/virtio_net.c
-> --- org/drivers/net/virtio_net.c	2011-06-02 15:49:25.000000000 +0530
-> +++ new/drivers/net/virtio_net.c	2011-06-02 19:13:02.000000000 +0530
-> @@ -509,27 +509,43 @@ again:
->  	return received;
->  }
->  
-> -/* Check capacity and try to free enough pending old buffers to enable queueing
-> - * new ones.  If min_skbs > 0, try to free at least the specified number of skbs
-> - * even if the ring already has sufficient capacity.  Return true if we can
-> - * guarantee that a following virtqueue_add_buf will succeed. */
-> -static bool free_old_xmit_skbs(struct virtnet_info *vi, int min_skbs)
-> +/* Return true if freed a skb, else false */
-> +static inline bool free_one_old_xmit_skb(struct virtnet_info *vi)
->  {
->  	struct sk_buff *skb;
->  	unsigned int len;
-> -	bool r;
->  
-> -	while ((r = virtqueue_min_capacity(vi->svq) < MAX_SKB_FRAGS + 2) ||
-> -	       min_skbs-- > 0) {
-> -		skb = virtqueue_get_buf(vi->svq, &len);
-> -		if (unlikely(!skb))
-> +	skb = virtqueue_get_buf(vi->svq, &len);
-> +	if (unlikely(!skb))
-> +		return 0;
-> +
-> +	pr_debug("Sent skb %p\n", skb);
-> +	vi->dev->stats.tx_bytes += skb->len;
-> +	vi->dev->stats.tx_packets++;
-> +	dev_kfree_skb_any(skb);
-> +	return 1;
-> +}
-> +
-> +static bool free_old_xmit_skbs(struct virtnet_info *vi, int to_free)
-> +{
-> +	bool empty = virtqueue_min_capacity(vi->svq) < MAX_SKB_FRAGS + 2;
-> +
-> +	do {
-> +		if (!free_one_old_xmit_skb(vi)) {
-> +			/* No more skbs to free up */
->  			break;
-> -		pr_debug("Sent skb %p\n", skb);
-> -		vi->dev->stats.tx_bytes += skb->len;
-> -		vi->dev->stats.tx_packets++;
-> -		dev_kfree_skb_any(skb);
-> -	}
-> -	return r;
-> +		}
-> +
-> +		if (empty) {
-> +			/* Check again if there is enough space */
-> +			empty = virtqueue_min_capacity(vi->svq) <
-> +				MAX_SKB_FRAGS + 2;
-> +		} else {
-> +			--to_free;
-> +		}
-> +	} while (to_free > 0);
-> +
-> +	return !empty;
->  }
-
-Why bother doing the capacity check in this function?
-
->  static int xmit_skb(struct virtnet_info *vi, struct sk_buff *skb)
-> @@ -582,46 +598,53 @@ static int xmit_skb(struct virtnet_info 
->  static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
->  {
->  	struct virtnet_info *vi = netdev_priv(dev);
-> -	int ret, n;
-> +	int capacity;
->  
-> -	/* Free up space in the ring in case this is the first time we get
-> -	 * woken up after ring full condition.  Note: this might try to free
-> -	 * more than strictly necessary if the skb has a small
-> -	 * number of fragments, but keep it simple. */
-> -	free_old_xmit_skbs(vi, 0);
-> +	/* Try to free 2 buffers for every 1 xmit, to stay ahead. */
-> +	free_old_xmit_skbs(vi, 2);
->  
->  	/* Try to transmit */
-> -	ret = xmit_skb(vi, skb);
-> +	capacity = xmit_skb(vi, skb);
->  
-> -	/* Failure to queue is unlikely. It's not a bug though: it might happen
-> -	 * if we get an interrupt while the queue is still mostly full.
-> -	 * We could stop the queue and re-enable callbacks (and possibly return
-> -	 * TX_BUSY), but as this should be rare, we don't bother. */
-> -	if (unlikely(ret < 0)) {
-> +	if (unlikely(capacity < 0)) {
-> +		/*
-> +		 * Failure to queue should be impossible. The only way to
-> +		 * reach here is if we got a cb before 3/4th of space was
-> +		 * available. We could stop the queue and re-enable
-> +		 * callbacks (and possibly return TX_BUSY), but we don't
-> +		 * bother since this is impossible.
-
-It's far from impossible.  The 3/4 thing is only a hint, and old devices
-don't support it anyway.
-
-> +		 */
->  		if (net_ratelimit())
-> -			dev_info(&dev->dev, "TX queue failure: %d\n", ret);
-> +			dev_info(&dev->dev, "TX queue failure: %d\n", capacity);
->  		dev->stats.tx_dropped++;
->  		kfree_skb(skb);
->  		return NETDEV_TX_OK;
->  	}
-> +
->  	virtqueue_kick(vi->svq);
->  
->  	/* Don't wait up for transmitted skbs to be freed. */
->  	skb_orphan(skb);
->  	nf_reset(skb);
->  
-> -	/* Apparently nice girls don't return TX_BUSY; check capacity and stop
-> -	 * the queue before it gets out of hand.
-> -	 * Naturally, this wastes entries. */
-> -	/* We transmit one skb, so try to free at least two pending skbs.
-> -	 * This is so that we don't hog the skb memory unnecessarily. */
-> -	if (!likely(free_old_xmit_skbs(vi, 2))) {
-> -		netif_stop_queue(dev);
-> -		if (unlikely(!virtqueue_enable_cb_delayed(vi->svq))) {
-> -			/* More just got used, free them and recheck. */
-> -			if (!likely(free_old_xmit_skbs(vi, 0))) {
-> -				netif_start_queue(dev);
-> -				virtqueue_disable_cb(vi->svq);
-> +	/*
-> +	 * Apparently nice girls don't return TX_BUSY; check capacity and
-> +	 * stop the queue before it gets out of hand. Naturally, this wastes
-> +	 * entries. 
-> +	 */
-> +	if (capacity < 2+MAX_SKB_FRAGS) {
-> +		/*
-> +		 * We don't have enough space for the next packet. Try
-> +		 * freeing more.
-> +		 */
-> +		if (likely(!free_old_xmit_skbs(vi, UINT_MAX))) {
-> +			netif_stop_queue(dev);
-> +			if (unlikely(!virtqueue_enable_cb_delayed(vi->svq))) {
-> +				/* More just got used, free them and recheck. */
-> +				if (likely(free_old_xmit_skbs(vi, UINT_MAX))) {
-
-Is this where the bug was?
-
-> +					netif_start_queue(dev);
-> +					virtqueue_disable_cb(vi->svq);
-> +				}
->  			}
->  		}
->  	}
+diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+index 079c088..ba734b3 100644
+--- a/drivers/block/virtio_blk.c
++++ b/drivers/block/virtio_blk.c
+@@ -8,10 +8,14 @@
+ #include <linux/scatterlist.h>
+ #include <linux/string_helpers.h>
+ #include <scsi/scsi_cmnd.h>
++#include <linux/idr.h>
+ 
+ #define PART_BITS 4
+ 
+-static int major, index;
++static int major;
++static DEFINE_SPINLOCK(vd_index_lock);
++static DEFINE_IDA(vd_index_ida);
++
+ struct workqueue_struct *virtblk_wq;
+ 
+ struct virtio_blk
+@@ -23,6 +27,7 @@ struct virtio_blk
+ 
+ 	/* The disk structure for the kernel. */
+ 	struct gendisk *disk;
++	u32 index;
+ 
+ 	/* Request tracking. */
+ 	struct list_head reqs;
+@@ -343,12 +348,26 @@ static int __devinit virtblk_probe(struct virtio_device *vdev)
+ 	struct request_queue *q;
+ 	int err;
+ 	u64 cap;
+-	u32 v, blk_size, sg_elems, opt_io_size;
++	u32 v, blk_size, sg_elems, opt_io_size, index;
+ 	u16 min_io_size;
+ 	u8 physical_block_exp, alignment_offset;
+ 
+-	if (index_to_minor(index) >= 1 << MINORBITS)
+-		return -ENOSPC;
++	do {
++		if (!ida_pre_get(&vd_index_ida, GFP_KERNEL))
++			return err;
++
++		spin_lock(&vd_index_lock);
++		err = ida_get_new(&vd_index_ida, &index);
++		spin_unlock(&vd_index_lock);
++	} while (err == -EAGAIN);
++
++	if (err)
++		return err;
++
++	if (index_to_minor(index) >= 1 << MINORBITS) {
++		err =  -ENOSPC;
++		goto out_free_index;
++	}
+ 
+ 	/* We need to know how many segments before we allocate. */
+ 	err = virtio_config_val(vdev, VIRTIO_BLK_F_SEG_MAX,
+@@ -421,7 +440,7 @@ static int __devinit virtblk_probe(struct virtio_device *vdev)
+ 	vblk->disk->private_data = vblk;
+ 	vblk->disk->fops = &virtblk_fops;
+ 	vblk->disk->driverfs_dev = &vdev->dev;
+-	index++;
++	vblk->index = index;
+ 
+ 	/* configure queue flush support */
+ 	if (virtio_has_feature(vdev, VIRTIO_BLK_F_FLUSH))
+@@ -516,6 +535,10 @@ out_free_vq:
+ 	vdev->config->del_vqs(vdev);
+ out_free_vblk:
+ 	kfree(vblk);
++out_free_index:
++	spin_lock(&vd_index_lock);
++	ida_remove(&vd_index_ida, index);
++	spin_unlock(&vd_index_lock);
+ out:
+ 	return err;
+ }
+@@ -529,6 +552,10 @@ static void __devexit virtblk_remove(struct virtio_device *vdev)
+ 	/* Nothing should be pending. */
+ 	BUG_ON(!list_empty(&vblk->reqs));
+ 
++	spin_lock(&vd_index_lock);
++	ida_remove(&vd_index_ida, vblk->index);
++	spin_unlock(&vd_index_lock);
++
+ 	/* Stop all the virtqueues. */
+ 	vdev->config->reset(vdev);
+ 
+-- 
+1.7.1
