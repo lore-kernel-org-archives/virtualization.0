@@ -1,14 +1,12 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH RFC 3/3] virtio_net: limit xmit polling
-Date: Wed, 1 Jun 2011 12:50:03 +0300
-Message-ID: <1ec8eec325839ecf2eac9930a230361e7956047c.1306921434.git.mst__36113.6276893832$1306922373$gmane$org@redhat.com>
-References: <cover.1306921434.git.mst@redhat.com>
+Subject: [PATCHv3] virtio-spec: 64 bit features, used/avail event, fixes
+Date: Wed, 1 Jun 2011 13:25:48 +0300
+Message-ID: <20110601102548.GA11013__44971.9993900091$1306924001$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <cover.1306921434.git.mst@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,122 +16,1058 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-Cc: Krishna Kumar <krkumar2@in.ibm.com>, Carsten Otte <cotte@de.ibm.com>, lguest@lists.ozlabs.org, Shirley Ma <xma@us.ibm.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org, netdev@vger.kernel.org, habanero@linux.vnet.ibm.com, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, steved@us.ibm.com, Christian Borntraeger <borntraeger@de.ibm.com>, Tom Lendacky <tahm@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux390@de.ibm.com
+To: virtualization@lists.linux-foundation.org
+Cc: Krishna Kumar2 <krkumar2@in.ibm.com>, habanero@linux.vnet.ibm.com, kvm@vger.kernel.org, steved@us.ibm.com, Shirley Ma <mashirle@us.ibm.com>, borntraeger@de.ibm.com, Tom Lendacky <tahm@linux.vnet.ibm.com>, avi@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Current code might introduce a lot of latency variation
-if there are many pending bufs at the time we
-attempt to transmit a new one. This is bad for
-real-time applications and can't be good for TCP either.
+Add an option to modify the notificatin
+hand-off in virtio to be basically like Xen:
+each side published an index, the other side only triggers
+an event when it crosses that index value
+(Xen event indexes start at 1, ours start at 0 for
+backward-compatiblity, but that's minor).
 
-Free up just enough to both clean up all buffers
-eventually and to be able to xmit the next packet.
+Since we've run out of bits in the 32 bit field,
+I added another 32 bit and bit 31 enables that.
+
+I started with using both flags and indexes in parallel,
+but switched to doing either-or: this means we do
+not need to tweak memory access ordering as index access just
+replaces flags access.
+
+A note on naming: the index replacing avail->flags is named
+used_event, the index replacing used->flags is named
+avail_event to stress the fact that these actually
+point into the other side of the ring:
+event is triggered when avail->idx == used->avail_event + 1
+and when used->idx == avail->used_event + 1, respectively.
+
+I also documented some more the ordering rules wrt flags/event index
+field update.
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- drivers/net/virtio_net.c |   62 ++++++++++++++++++++++++++--------------------
- 1 files changed, 35 insertions(+), 27 deletions(-)
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index a0ee78d..6045510 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -509,17 +509,27 @@ again:
- 	return received;
- }
+I switched to fedora 15 so a new lyx - hope it's not a problem.
+Sorry, no PDF as lyx 2.0 seems to have trouble producing them for me.
+
+
+ virtio-spec.lyx |  756 +++++++++++++++++++++++++++++++++++++++++++++++++++++--
+ 1 files changed, 729 insertions(+), 27 deletions(-)
+
+diff --git a/virtio-spec.lyx b/virtio-spec.lyx
+index f7c9c38..4f460ce 100644
+--- a/virtio-spec.lyx
++++ b/virtio-spec.lyx
+@@ -1,21 +1,29 @@
+-#LyX 1.6.7 created this file. For more info see http://www.lyx.org/
+-\lyxformat 345
++#LyX 2.0 created this file. For more info see http://www.lyx.org/
++\lyxformat 413
+ \begin_document
+ \begin_header
+ \textclass report
+ \use_default_options false
++\maintain_unincluded_children false
+ \language english
++\language_package default
+ \inputencoding auto
++\fontencoding global
+ \font_roman default
+ \font_sans default
+ \font_typewriter default
+ \font_default_family default
++\use_non_tex_fonts false
+ \font_sc false
+ \font_osf false
+ \font_sf_scale 100
+ \font_tt_scale 100
  
--static void free_old_xmit_skbs(struct virtnet_info *vi)
-+/* Check capacity and try to free enough pending old buffers to enable queueing
-+ * new ones.  If min_skbs > 0, try to free at least the specified number of skbs
-+ * even if the ring already has sufficient capacity.  Return true if we can
-+ * guarantee that a following virtqueue_add_buf will succeed. */
-+static bool free_old_xmit_skbs(struct virtnet_info *vi, int min_skbs)
- {
- 	struct sk_buff *skb;
- 	unsigned int len;
-+	bool r;
+ \graphics default
++\default_output_format default
++\output_sync 0
++\bibtex_command default
++\index_command default
+ \paperfontsize default
+ \spacing single
+ \use_hyperref false
+@@ -23,9 +31,18 @@
+ \use_geometry false
+ \use_amsmath 1
+ \use_esint 1
++\use_mhchem 1
++\use_mathdots 1
+ \cite_engine basic
+ \use_bibtopic false
++\use_indices false
+ \paperorientation portrait
++\suppress_date false
++\use_refstyle 0
++\index Index
++\shortcut idx
++\color #008000
++\end_index
+ \secnumdepth 3
+ \tocdepth 3
+ \paragraph_separation skip
+@@ -36,8 +53,10 @@
+ \paperpagestyle default
+ \tracking_changes true
+ \output_changes true
+-\author "" 
+-\author "" 
++\html_math_output 0
++\html_css_as_file 0
++\html_be_strict false
++\author 1 "Michael S. Tsirkin" 
+ \end_header
  
--	while ((skb = virtqueue_get_buf(vi->svq, &len)) != NULL) {
-+	while ((r = virtqueue_min_capacity(vi->svq) < MAX_SKB_FRAGS + 2) ||
-+	       min_skbs-- > 0) {
-+		skb = virtqueue_get_buf(vi->svq, &len);
-+		if (unlikely(!skb))
-+			break;
- 		pr_debug("Sent skb %p\n", skb);
- 		vi->dev->stats.tx_bytes += skb->len;
- 		vi->dev->stats.tx_packets++;
- 		dev_kfree_skb_any(skb);
- 	}
-+	return r;
- }
+ \begin_body
+@@ -193,7 +212,7 @@ Each virtqueue occupies two or more physically-contiguous pages (defined,
+ \begin_layout Standard
+ \begin_inset Tabular
+ <lyxtabular version="3" rows="1" columns="4">
+-<features>
++<features tabularvalignment="middle">
+ <column alignment="center" valignment="top" width="0">
+ <column alignment="center" valignment="top" width="0">
+ <column alignment="center" valignment="top" width="0">
+@@ -308,7 +327,7 @@ The Subsystem Device ID indicates which virtio device is supported by the
+ \begin_layout Standard
+ \begin_inset Tabular
+ <lyxtabular version="3" rows="8" columns="3">
+-<features>
++<features tabularvalignment="middle">
+ <column alignment="center" valignment="top" width="0">
+ <column alignment="center" valignment="top" width="0">
+ <column alignment="center" valignment="bottom" width="0">
+@@ -661,7 +680,7 @@ The virtio header looks as follows:
+ \begin_layout Standard
+ \begin_inset Tabular
+ <lyxtabular version="3" rows="4" columns="9">
+-<features>
++<features tabularvalignment="middle">
+ <column alignment="left" valignment="top" width="0">
+ <column alignment="left" valignment="top" width="0">
+ <column alignment="left" valignment="top" width="0">
+@@ -953,6 +972,10 @@ ISR
  
- static int xmit_skb(struct virtnet_info *vi, struct sk_buff *skb)
-@@ -572,27 +582,24 @@ static int xmit_skb(struct virtnet_info *vi, struct sk_buff *skb)
- static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
- {
- 	struct virtnet_info *vi = netdev_priv(dev);
--	int capacity;
-+	int ret, n;
- 
--	/* Free up any pending old buffers before queueing new ones. */
--	free_old_xmit_skbs(vi);
-+	/* Free up space in the ring in case this is the first time we get
-+	 * woken up after ring full condition.  Note: this might try to free
-+	 * more than strictly necessary if the skb has a small
-+	 * number of fragments, but keep it simple. */
-+	free_old_xmit_skbs(vi, 0);
- 
- 	/* Try to transmit */
--	capacity = xmit_skb(vi, skb);
--
--	/* This can happen with OOM and indirect buffers. */
--	if (unlikely(capacity < 0)) {
--		if (net_ratelimit()) {
--			if (likely(capacity == -ENOMEM)) {
--				dev_warn(&dev->dev,
--					 "TX queue failure: out of memory\n");
--			} else {
--				dev->stats.tx_fifo_errors++;
--				dev_warn(&dev->dev,
--					 "Unexpected TX queue failure: %d\n",
--					 capacity);
--			}
--		}
-+	ret = xmit_skb(vi, skb);
+ \size footnotesize
+ Features
++\change_inserted 1 1304329091
++ bits 0:31
++\change_unchanged
 +
-+	/* Failure to queue is unlikely. It's not a bug though: it might happen
-+	 * if we get an interrupt while the queue is still mostly full.
-+	 * We could stop the queue and re-enable callbacks (and possibly return
-+	 * TX_BUSY), but as this should be rare, we don't bother. */
-+	if (unlikely(ret < 0)) {
-+		if (net_ratelimit())
-+			dev_info(&dev->dev, "TX queue failure: %d\n", ret);
- 		dev->stats.tx_dropped++;
- 		kfree_skb(skb);
- 		return NETDEV_TX_OK;
-@@ -603,15 +610,16 @@ static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
- 	skb_orphan(skb);
- 	nf_reset(skb);
+ \end_layout
  
--	/* Apparently nice girls don't return TX_BUSY; stop the queue
--	 * before it gets out of hand.  Naturally, this wastes entries. */
--	if (capacity < 2+MAX_SKB_FRAGS) {
-+	/* Apparently nice girls don't return TX_BUSY; check capacity and stop
-+	 * the queue before it gets out of hand.
-+	 * Naturally, this wastes entries. */
-+	/* We transmit one skb, so try to free at least two pending skbs.
-+	 * This is so that we don't hog the skb memory unnecessarily. */
-+	if (!likely(free_old_xmit_skbs(vi, 2))) {
- 		netif_stop_queue(dev);
- 		if (unlikely(!virtqueue_enable_cb_delayed(vi->svq))) {
--			/* More just got used, free them then recheck. */
--			free_old_xmit_skbs(vi);
--			capacity = virtqueue_min_capacity(vi->svq);
--			if (capacity >= 2+MAX_SKB_FRAGS) {
-+			/* More just got used, free them and recheck. */
-+			if (!likely(free_old_xmit_skbs(vi, 0))) {
- 				netif_start_queue(dev);
- 				virtqueue_disable_cb(vi->svq);
- 			}
+ \end_inset
+@@ -964,6 +987,10 @@ Features
+ 
+ \size footnotesize
+ Features
++\change_inserted 1 1304329086
++ bits 0:31
++\change_unchanged
++
+ \end_layout
+ 
+ \end_inset
+@@ -1050,7 +1077,7 @@ If MSI-X is enabled for the device, two additional fields immediately follow
+ \begin_layout Standard
+ \begin_inset Tabular
+ <lyxtabular version="3" rows="4" columns="3">
+-<features>
++<features tabularvalignment="middle">
+ <column alignment="left" valignment="top" width="0">
+ <column alignment="left" valignment="top" width="0">
+ <column alignment="left" valignment="top" width="0">
+@@ -1186,6 +1213,177 @@ Vector
+ \end_layout
+ 
+ \begin_layout Standard
++
++\change_inserted 1 1304328924
++Finally, if feature bits (VIRTIO_F_FEATURES_HI) this is immediately followed
++ by two additional fields:
++\end_layout
++
++\begin_layout Standard
++
++\change_inserted 1 1304328925
++\begin_inset Tabular
++<lyxtabular version="3" rows="4" columns="3">
++<features tabularvalignment="middle">
++<column alignment="left" valignment="top" width="0">
++<column alignment="left" valignment="top" width="0">
++<column alignment="left" valignment="top" width="0">
++<row>
++<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
++\begin_inset Text
++
++\begin_layout Plain Layout
++
++\change_inserted 1 1304328925
++Bits
++\end_layout
++
++\end_inset
++</cell>
++<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
++\begin_inset Text
++
++\begin_layout Plain Layout
++
++\change_inserted 1 1304328925
++32
++\end_layout
++
++\end_inset
++</cell>
++<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
++\begin_inset Text
++
++\begin_layout Plain Layout
++
++\change_inserted 1 1304328925
++32
++\end_layout
++
++\end_inset
++</cell>
++</row>
++<row>
++<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
++\begin_inset Text
++
++\begin_layout Plain Layout
++
++\change_inserted 1 1304328925
++Read/Write
++\end_layout
++
++\end_inset
++</cell>
++<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
++\begin_inset Text
++
++\begin_layout Plain Layout
++
++\change_inserted 1 1304328925
++R
++\end_layout
++
++\end_inset
++</cell>
++<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
++\begin_inset Text
++
++\begin_layout Plain Layout
++
++\change_inserted 1 1304328925
++R+W
++\end_layout
++
++\end_inset
++</cell>
++</row>
++<row>
++<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
++\begin_inset Text
++
++\begin_layout Plain Layout
++
++\change_inserted 1 1304328925
++Purpose
++\end_layout
++
++\end_inset
++</cell>
++<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
++\begin_inset Text
++
++\begin_layout Plain Layout
++
++\change_inserted 1 1304328925
++
++\size footnotesize
++Device
++\end_layout
++
++\end_inset
++</cell>
++<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
++\begin_inset Text
++
++\begin_layout Plain Layout
++
++\change_inserted 1 1304328925
++
++\size footnotesize
++Guest
++\end_layout
++
++\end_inset
++</cell>
++</row>
++<row>
++<cell alignment="center" valignment="top" bottomline="true" leftline="true" rightline="true" usebox="none">
++\begin_inset Text
++
++\begin_layout Plain Layout
++
++\change_inserted 1 1304328925
++
++\end_layout
++
++\end_inset
++</cell>
++<cell alignment="center" valignment="top" bottomline="true" leftline="true" usebox="none">
++\begin_inset Text
++
++\begin_layout Plain Layout
++
++\change_inserted 1 1304329099
++
++\size footnotesize
++Features bits 32:63
++\end_layout
++
++\end_inset
++</cell>
++<cell alignment="center" valignment="top" bottomline="true" leftline="true" usebox="none">
++\begin_inset Text
++
++\begin_layout Plain Layout
++
++\change_inserted 1 1304329102
++
++\size footnotesize
++Features bits 32:63
++\end_layout
++
++\end_inset
++</cell>
++</row>
++</lyxtabular>
++
++\end_inset
++
++
++\end_layout
++
++\begin_layout Standard
+ Immediately following these general headers, there may be device-specific
+  headers:
+ \end_layout
+@@ -1193,7 +1391,7 @@ Immediately following these general headers, there may be device-specific
+ \begin_layout Standard
+ \begin_inset Tabular
+ <lyxtabular version="3" rows="4" columns="2">
+-<features>
++<features tabularvalignment="middle">
+ <column alignment="left" valignment="top" width="0">
+ <column alignment="left" valignment="top" width="0">
+ <row>
+@@ -1348,7 +1546,20 @@ Feature Bits
+ The least significant 31 bits of the first configuration field indicates
+  the features that the device supports (the high bit is reserved, and will
+  be used to indicate the presence of future feature bits elsewhere).
+- The bits are allocated as follows:
++ 
++\change_inserted 1 1304331636
++If more than 31 feature bits are supported, the device indicates so by setting
++ feature bit 31 (see 
++\begin_inset CommandInset ref
++LatexCommand ref
++reference "cha:Reserved-Feature-Bits"
++
++\end_inset
++
++).
++ 
++\change_unchanged
++The bits are allocated as follows:
+ \end_layout
+ 
+ \begin_layout Description
+@@ -1372,7 +1583,33 @@ to
+ \begin_inset space ~
+ \end_inset
+ 
+-30 Feature bits reserved for extensions to the queue mechanism
++
++\change_inserted 1 1304329326
++4
++\change_deleted 1 1304329325
++3
++\change_unchanged
++0 Feature bits reserved for extensions to the queue 
++\change_inserted 1 1304540448
++and feature negotiation 
++\change_unchanged
++mechanism
++\change_inserted 1 1304540449
++s
++\end_layout
++
++\begin_layout Description
++
++\change_inserted 1 1304329398
++41
++\begin_inset space ~
++\end_inset
++
++to
++\begin_inset space ~
++\end_inset
++
++63 Feature bits reserved for future extensions
+ \end_layout
+ 
+ \begin_layout Standard
+@@ -1407,6 +1644,19 @@ This allows for forwards and backwards compatibility: if the device is enhanced
+  support, it will not see that feature bit in the Device Features field
+  and can go into backwards compatibility mode (or, for poor implementations,
+  set the FAILED Device Status bit).
++\change_inserted 1 1304329423
++
++\end_layout
++
++\begin_layout Standard
++
++\change_inserted 1 1304331742
++Access to feature bits 32 to 63 is enabled by Guest by setting feature bit
++ 31.
++ If this bit is unset, Device must assume that all feature bits > 31 are
++ unset.
++\change_unchanged
++
+ \end_layout
+ 
+ \begin_layout Subsubsection
+@@ -1891,7 +2141,38 @@ flags
+ 
+  field is currently 0 or 1: 1 indicating that we do not need an interrupt
+  when the device consumes a descriptor from the available ring.
+- This interrupt suppression is merely an optimization; it may not suppress
++ 
++\change_inserted 1 1306923367
++Alternatively, the guest can ask the device to delay interrupts until an
++ entry with an index specified by the 
++\begin_inset Quotes eld
++\end_inset
++
++used_event
++\begin_inset Quotes erd
++\end_inset
++
++ field is written in the used ring (equivalently, until the 
++\emph on
++idx
++\emph default
++ field in the used ring will reach the value 
++\emph on
++used_event + 1
++\emph default
++).
++ The method employed by the device is controlled by the VIRTIO_RING_F_EVENT_IDX
++ feature bit (see 
++\begin_inset CommandInset ref
++LatexCommand ref
++reference "cha:Reserved-Feature-Bits"
++
++\end_inset
++
++).
++ 
++\change_unchanged
++This interrupt suppression is merely an optimization; it may not suppress
+  interrupts entirely.
+ \end_layout
+ 
+@@ -1940,6 +2221,17 @@ struct vring_avail {
+ \begin_layout Plain Layout
+ 
+    u16 ring[qsz]; /* qsz is the Queue Size field read from device */
++\change_inserted 1 1304329945
++
++\end_layout
++
++\begin_layout Plain Layout
++
++\change_inserted 1 1304329957
++
++   u16 used_event;
++\change_unchanged
++
+ \end_layout
+ 
+ \begin_layout Plain Layout
+@@ -1963,8 +2255,71 @@ The used ring is where the device returns buffers once it is done with them.
+ \emph on
+ available
+ \emph default
+- ring (the flag is kept here because this is the only part of the virtqueue
+- written by the device).
++ ring
++\change_inserted 1 1304540575
++.
++ Alternatively, the 
++\begin_inset Quotes eld
++\end_inset
++
++avail_event
++\begin_inset Quotes erd
++\end_inset
++
++ field can be used by the device to hint that no notification is necessary
++ until an entry with an index specified by the 
++\begin_inset Quotes eld
++\end_inset
++
++avail_event
++\begin_inset Quotes erd
++\end_inset
++
++ is written in the available ring (equivalently, until the 
++\emph on
++idx
++\emph default
++ field in the available ring will reach the value 
++\emph on
++avail_event + 1
++\emph default
++).
++
++\change_unchanged
++ 
++\change_inserted 1 1304540614
++The method employed by the device is controlled by the guest through the
++ VIRTIO_RING_F_EVENT_IDX feature bit (see 
++\begin_inset CommandInset ref
++LatexCommand ref
++reference "cha:Reserved-Feature-Bits"
++
++\end_inset
++
++).
++ 
++\change_deleted 1 1304331235
++(the flag is kept here because this is the only part of the virtqueue written
++ by the device)
++\change_inserted 1 1304540560
++
++\begin_inset Foot
++status open
++
++\begin_layout Plain Layout
++
++\change_inserted 1 1304331235
++These fields are kept here because this is the only part of the virtqueue
++ written by the device
++\change_unchanged
++
++\end_layout
++
++\end_inset
++
++
++\change_unchanged
++.
+ \end_layout
+ 
+ \begin_layout Standard
+@@ -2046,6 +2401,17 @@ struct vring_used {
+ \begin_layout Plain Layout
+ 
+     struct vring_used_elem ring[qsz];
++\change_inserted 1 1304330369
++
++\end_layout
++
++\begin_layout Plain Layout
++
++\change_inserted 1 1304330380
++
++    u16 avail_event;
++\change_unchanged
++
+ \end_layout
+ 
+ \begin_layout Plain Layout
+@@ -2065,9 +2431,13 @@ Helpers for Managing Virtqueues
+ \begin_layout Standard
+ The Linux Kernel Source code contains the definitions above and helper routines
+  in a more usable form, in include/linux/virtio_ring.h.
+- This was explicitly licensed by IBM under the (3-clause) BSD license so
+- that it can be freely used by all other projects, and is reproduced (with
+- slight variation to remove Linux assumptions) in Appendix A.
++ This was explicitly licensed by IBM 
++\change_inserted 1 1304342159
++and Red Hat 
++\change_unchanged
++under the (3-clause) BSD license so that it can be freely used by all other
++ projects, and is reproduced (with slight variation to remove Linux assumptions)
++ in Appendix A.
+ \end_layout
+ 
+ \begin_layout Section
+@@ -2374,12 +2744,61 @@ before
+ \emph default
+  checking the suppression flag: it's OK to notify gratuitously, but not
+  to omit a required notification.
+- So again, we use a memory barrier here before reading the flags.
++ So again, we use a memory barrier here before reading the flags
++\change_inserted 1 1304336099
++ or the avail_event field
++\change_unchanged
++.
+ \end_layout
+ 
+ \begin_layout Standard
+-If the VRING_USED_F_NOTIFY flag is not set, we go ahead and write to the
+- PCI configuration space.
++If 
++\change_inserted 1 1304336234
++the VIRTIO_F_RING_EVENT_IDX feature is not negotiated, and if 
++\change_unchanged
++the VRING_USED_F_NOTIFY flag is not set, we go ahead and write to the PCI
++ configuration space.
++\change_inserted 1 1304336255
++
++\end_layout
++
++\begin_layout Standard
++
++\change_inserted 1 1304336617
++If the VIRTIO_F_RING_EVENT_IDX feature is negotiated, we read the avail_event
++ field in the available ring structure.
++ If the available index crossed_the 
++\emph on
++avail_event
++\emph default
++ field value since the last notification, we go ahead and write to the PCI
++ configuration space.
++ The 
++\emph on
++avail_event
++\emph default
++ field wraps naturally at 65536 as well:
++\end_layout
++
++\begin_layout Standard
++
++\change_inserted 1 1304336524
++\begin_inset listings
++inline false
++status open
++
++\begin_layout Plain Layout
++
++\change_inserted 1 1304336569
++
++(u16)(new_idx - avail_event - 1) < (u16)(new_idx - old_idx)
++\end_layout
++
++\end_inset
++
++
++\change_unchanged
++
+ \end_layout
+ 
+ \begin_layout Subsection
+@@ -2408,8 +2827,66 @@ Update the used ring idx.
+ \end_layout
+ 
+ \begin_layout Enumerate
+-If the VRING_AVAIL_F_NO_INTERRUPT flag is not set in avail\SpecialChar \nobreakdash-
+->flags:
++
++\change_inserted 1 1304336736
++Determine whether an interrupt is necessary:
++\end_layout
++
++\begin_deeper
++\begin_layout Enumerate
++
++\change_inserted 1 1306923440
++If the VIRTIO_F_RING_EVENT_IDX feature is not negotiated: check if 
++\change_deleted 1 1304336781
++I
++\change_unchanged
++f the VRING_AVAIL_F_NO_INTERRUPT flag is not set in avail\SpecialChar \nobreakdash-
++>flags
++\change_inserted 1 1304336788
++
++\end_layout
++
++\begin_layout Enumerate
++
++\change_deleted 1 1304336785
++:
++\change_inserted 1 1306923443
++If the VIRTIO_F_RING_EVENT_IDX feature is negotiated: check whether the
++ used index crossed the 
++\emph on
++used_event
++\emph default
++ field value since the last update.
++ The 
++\emph on
++used_event
++\emph default
++ field wraps naturally at 65536 as well:
++\begin_inset listings
++inline false
++status open
++
++\begin_layout Plain Layout
++
++\change_inserted 1 1304336902
++
++(u16)(new_idx - used_event - 1) < (u16)(new_idx - old_idx)
++\end_layout
++
++\end_inset
++
++
++\change_unchanged
++
++\end_layout
++
++\end_deeper
++\begin_layout Enumerate
++
++\change_inserted 1 1304336714
++If an interrupt is necessary:
++\change_unchanged
++
+ \end_layout
+ 
+ \begin_deeper
+@@ -2464,13 +2941,87 @@ If MSI-X capability is enabled: look through the used rings of each virtqueue
+ \end_layout
+ 
+ \begin_layout Standard
++
++\change_inserted 1 1306923408
++For each ring, guest should then disable interrupts by writing VRING_AVAIL_F_NO_
++INTERRUPT flag in avail structure, if required.
++ It can then process used ring entries finally enabling interrupts by clearing
++ the VRING_AVAIL_F_NO_INTERRUPT flag or updating the EVENT_IDX field in
++ the available structure, Guest should then execute a memory barrier, and
++ then recheck the ring empty condition.
++ This is necessary to handle the case where, after the last check and before
++ enabling interrupts, an interrupt has been suppressed by the device:
++\end_layout
++
++\begin_layout Standard
+ \begin_inset listings
+ inline false
+ status open
+ 
+ \begin_layout Plain Layout
+ 
+-while (vq->last_seen_used != vring->used.idx) {
++\change_inserted 1 1304342051
++
++vring_disable_interrupts(vq);
++\end_layout
++
++\begin_layout Plain Layout
++
++\change_inserted 1 1304341878
++
++for (;;) {
++\end_layout
++
++\begin_layout Plain Layout
++
++\change_inserted 1 1304341880
++
++    if 
++\change_deleted 1 1304341882
++while 
++\change_unchanged
++(vq->last_seen_used != vring->used.idx) {
++\change_inserted 1 1304341888
++
++\end_layout
++
++\begin_layout Plain Layout
++
++\change_inserted 1 1304342047
++
++		vring_enable_interrupts(vq);
++\end_layout
++
++\begin_layout Plain Layout
++
++\change_inserted 1 1304341986
++
++		mb();
++\end_layout
++
++\begin_layout Plain Layout
++
++\change_inserted 1 1304341964
++
++		if (vq->last_seen_used != vring->used.idx)
++\end_layout
++
++\begin_layout Plain Layout
++
++\change_inserted 1 1304341974
++
++			break;
++\change_unchanged
++
++\end_layout
++
++\begin_layout Plain Layout
++
++\change_inserted 1 1304341887
++
++    }
++\change_unchanged
++
+ \end_layout
+ 
+ \begin_layout Plain Layout
+@@ -2668,6 +3219,7 @@ Clusters of functionality which are always implemented together can use
+ \begin_layout Standard
+ \begin_inset CommandInset nomencl_print
+ LatexCommand printnomenclature
++set_width "none"
+ 
+ \end_inset
+ 
+@@ -2721,6 +3273,15 @@ status open
+ \begin_layout Plain Layout
+ 
+  * Copyright 2007, 2009, IBM Corporation
++\change_inserted 1 1304341032
++
++\end_layout
++
++\begin_layout Plain Layout
++
++\change_inserted 1 1304341075
++
++ * Copyright 2011, Red Hat, Inc
+ \end_layout
+ 
+ \begin_layout Plain Layout
+@@ -3019,6 +3580,17 @@ struct vring_avail {
+ \begin_layout Plain Layout
+ 
+         uint16_t ring[];
++\change_inserted 1 1304340808
++
++\end_layout
++
++\begin_layout Plain Layout
++
++\change_inserted 1 1304340816
++
++        uint16_t used_event;
++\change_unchanged
++
+ \end_layout
+ 
+ \begin_layout Plain Layout
+@@ -3090,6 +3662,17 @@ struct vring_used {
+ \begin_layout Plain Layout
+ 
+         struct vring_used_elem ring[];
++\change_inserted 1 1304340824
++
++\end_layout
++
++\begin_layout Plain Layout
++
++\change_inserted 1 1304340831
++
++        uint16_t avail_event;
++\change_unchanged
++
+ \end_layout
+ 
+ \begin_layout Plain Layout
+@@ -3227,7 +3810,13 @@ struct vring {
+ 
+ \begin_layout Plain Layout
+ 
+- *      __u16 used_idx;
++ *      __u16 
++\change_inserted 1 1306923408
++EVENT_IDX
++\change_deleted 1 1306923408
++used_idx
++\change_unchanged
++;
+ \end_layout
+ 
+ \begin_layout Plain Layout
+@@ -3326,12 +3915,58 @@ static inline unsigned vring_size(unsigned int num, unsigned long align)
+ 
+ \begin_layout Plain Layout
+ 
+-                + sizeof(uint16_t)*2 + sizeof(struct vring_used_elem)*num;
++                + sizeof(uint16_t)*
++\change_deleted 1 1304340844
++2
++\change_inserted 1 1304340844
++3
++\change_unchanged
++ + sizeof(struct vring_used_elem)*num;
++\end_layout
++
++\begin_layout Plain Layout
++
++}
++\change_inserted 1 1304340918
++
++\end_layout
++
++\begin_layout Plain Layout
++
++\change_inserted 1 1304340918
++
++\end_layout
++
++\begin_layout Plain Layout
++
++\change_inserted 1 1304340987
++
++static inline int vring_need_event(uint16_t event_idx, uint16_t new_idx,
++ uint16_t old_idx)
++\end_layout
++
++\begin_layout Plain Layout
++
++\change_inserted 1 1304340944
++
++{
++\end_layout
++
++\begin_layout Plain Layout
++
++\change_inserted 1 1304341001
++
++         return (uint16_t)(new_idx - event_idx - 1) < (uint16_t)(new_idx
++ - old_idx); 
+ \end_layout
+ 
+ \begin_layout Plain Layout
+ 
++\change_inserted 1 1304340938
++
+ }
++\change_unchanged
++
+ \end_layout
+ 
+ \begin_layout Plain Layout
+@@ -3355,7 +3990,13 @@ Appendix B: Reserved Feature Bits
+ \end_layout
+ 
+ \begin_layout Standard
+-Currently there are three device-independent feature bits defined:
++Currently there are 
++\change_inserted 1 1306923235
++five
++\change_deleted 1 1304330657
++three
++\change_unchanged
++ device-independent feature bits defined:
+ \end_layout
+ 
+ \begin_layout Description
+@@ -3365,7 +4006,11 @@ VIRTIO_F_NOTIFY_ON_EMPTY
+ 
+ (24) Negotiating this feature indicates that the driver wants an interrupt
+  if the device runs out of available descriptors on a virtqueue, even though
+- interrupts are suppressed using the VRING_AVAIL_F_NO_INTERRUPT flag.
++ interrupts are suppressed using the VRING_AVAIL_F_NO_INTERRUPT flag
++\change_inserted 1 1304341161
++ or the used_event field
++\change_unchanged
++.
+  An example of this is the networking driver: it doesn't need to know every
+  time a packet is transmitted, but it does need to free the transmitted
+  packets a finite time after they are transmitted.
+@@ -3390,6 +4035,53 @@ reference "sub:Indirect-Descriptors"
+ \end_layout
+ 
+ \begin_layout Description
++
++\change_inserted 1 1306923206
++VIRTIO_F_RING_EVENT_IDX(29) This feature enables the 
++\emph on
++used_event
++\emph default
++ and the 
++\emph on
++avail_event
++\emph default
++ fields.
++ If set, it indicates that the device should ignore the 
++\emph on
++flags
++\emph default
++ field in the available ring structure.
++ Instead, the
++\emph on
++ used_event
++\emph default
++ field in this structure is used by guest to suppress device interrupts.
++ Further, the driver should ignore the 
++\emph on
++flags
++\emph default
++ field in the used ring structure.
++ Instead, the 
++\emph on
++avail_event
++\emph default
++ field in this structure is used by the device to suppress notifications.
++ If unset, the driver should ignore the 
++\emph on
++used_event
++\emph default
++ field; the device should ignore the 
++\emph on
++avail_event
++\emph default
++ field; the 
++\emph on
++flags
++\emph default
++ field is used
++\end_layout
++
++\begin_layout Description
+ VIRTIO_F_BAD_FEATURE(30) This feature should never be negotiated by the
+  guest; doing so is an indication that the guest is faulty
+ \begin_inset Foot
+@@ -3403,6 +4095,16 @@ An experimental virtio PCI driver contained in Linux version 2.6.25 had this
+ \end_inset
+ 
+ 
++\change_inserted 1 1304330854
++
++\end_layout
++
++\begin_layout Description
++
++\change_inserted 1 1304330961
++VIRTIO_F_FEATURES_HIGH(31) This feature indicates that the device supports
++ feature bits 32:63.
++ If unset, feature bits 32:63 are unset.
+ \end_layout
+ 
+ \begin_layout Chapter*
 -- 
 1.7.5.53.gc233e
