@@ -1,14 +1,14 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH RFC 3/3] virtio_net: limit xmit polling
-Date: Thu, 02 Jun 2011 13:24:57 +0930
-Message-ID: <87pqmwj3am.fsf__21035.8601798818$1306987073$gmane$org@rustcorp.com.au>
+Subject: Re: [PATCH RFC 1/3] virtio_ring: add capacity check API
+Date: Thu, 02 Jun 2011 11:41:50 +0930
+Message-ID: <87sjrthti1.fsf__44681.642126716$1306987124$gmane$org@rustcorp.com.au>
 References: <cover.1306921434.git.mst@redhat.com>
-	<1ec8eec325839ecf2eac9930a230361e7956047c.1306921434.git.mst@redhat.com>
+	<8014f898ca6b768d7be626b83c617a1e84adfeb9.1306921434.git.mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1ec8eec325839ecf2eac9930a230361e7956047c.1306921434.git.mst@redhat.com>
+In-Reply-To: <8014f898ca6b768d7be626b83c617a1e84adfeb9.1306921434.git.mst@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -22,68 +22,12 @@ To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: Krishna Kumar <krkumar2@in.ibm.com>, Carsten Otte <cotte@de.ibm.com>, lguest@lists.ozlabs.org, Shirley Ma <xma@us.ibm.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org, netdev@vger.kernel.org, habanero@linux.vnet.ibm.com, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, steved@us.ibm.com, Christian Borntraeger <borntraeger@de.ibm.com>, Tom Lendacky <tahm@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux390@de.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 1 Jun 2011 12:50:03 +0300, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> Current code might introduce a lot of latency variation
-> if there are many pending bufs at the time we
-> attempt to transmit a new one. This is bad for
-> real-time applications and can't be good for TCP either.
-> 
-> Free up just enough to both clean up all buffers
-> eventually and to be able to xmit the next packet.
+On Wed, 1 Jun 2011 12:49:46 +0300, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> Add API to check ring capacity. Because of the option
+> to use indirect buffers, this returns the worst
+> case, not the normal case capacity.
 
-OK, I found this quite confusing to read.
+Can we drop the silly "add_buf() returns capacity" hack then?
 
-> -	while ((skb = virtqueue_get_buf(vi->svq, &len)) != NULL) {
-> +	while ((r = virtqueue_min_capacity(vi->svq) < MAX_SKB_FRAGS + 2) ||
-> +	       min_skbs-- > 0) {
-> +		skb = virtqueue_get_buf(vi->svq, &len);
-> +		if (unlikely(!skb))
-> +			break;
->  		pr_debug("Sent skb %p\n", skb);
->  		vi->dev->stats.tx_bytes += skb->len;
->  		vi->dev->stats.tx_packets++;
->  		dev_kfree_skb_any(skb);
->  	}
-> +	return r;
->  }
-
-Gah... what a horrible loop.
-
-Basically, this patch makes hard-to-read code worse, and we should try
-to make it better.
-
-Currently, xmit *can* fail when an xmit interrupt wakes the queue, but
-the packet(s) xmitted didn't free up enough space for the new packet.
-With indirect buffers this only happens if we hit OOM (and thus go to
-direct buffers).
-
-We could solve this by only waking the queue in skb_xmit_done if the
-capacity is >= 2 + MAX_SKB_FRAGS.  But can we do it without a race?
-
-If not, then I'd really prefer to see this, because I think it's clearer:
-
-        // Try to free 2 buffers for every 1 xmit, to stay ahead.
-        free_old_buffers(2)
-
-        if (!add_buf()) {
-                // Screw latency, free them all.
-                free_old_buffers(UINT_MAX)
-                // OK, this can happen if we are using direct buffers,
-                // and the xmit interrupt woke us but the packets
-                // xmitted were smaller than this one.  Rare though.
-                if (!add_buf())
-                        Whinge and stop queue, maybe loop.
-        }
-
-        if (capacity < 2 + MAX_SKB_FRAGS) {
-                // We don't have enough for the next packet?  Try
-                // freeing more.
-                free_old_buffers(UINT_MAX);
-                if (capacity < 2 + MAX_SKB_FRAGS) {
-                        Stop queue, maybe loop.
-        }
-
-The current code makes my head hurt :(
-
-Thoughts?
+Thanks,
 Rusty.
