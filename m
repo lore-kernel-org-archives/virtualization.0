@@ -1,13 +1,18 @@
-From: Mark Wu <dwu@redhat.com>
-Subject: Re: [PATCH 1/1] [virt] virtio-blk: Use ida to allocate disk index
-Date: Wed, 01 Jun 2011 04:25:48 -0400
-Message-ID: <4DE5F78C.1010102__31062.0081065737$1307027519$gmane$org@redhat.com>
-References: <1306913069-23637-1-git-send-email-dwu@redhat.com>
+From: Paul Mundt <lethal@linux-sh.org>
+Subject: Re: [TRIVIAL PATCH V2 next 12/15] video: Convert vmalloc/memset to
+	vzalloc
+Date: Thu, 2 Jun 2011 17:26:28 +0900
+Message-ID: <20110602082628.GI6087__25349.2605327212$1307027606$gmane$org@linux-sh.org>
+References: <cover.1306603968.git.joe@perches.com>
+	<77538de911b8af99f68b7bcfbaaedce8e40db04f.1306603968.git.joe@perches.com>
+	<201105281948.12941.heiko@sntech.de>
+	<1306606413.20336.9.camel@Joe-Laptop>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1306913069-23637-1-git-send-email-dwu@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <1306606413.20336.9.camel@Joe-Laptop>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -17,19 +22,21 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Mark Wu <dwu@redhat.com>
-Cc: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
+To: Joe Perches <joe@perches.com>
+Cc: linux-fbdev@vger.kernel.org, Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, Jiri Kosina <trivial@kernel.org>, Heiko St?bner <heiko@sntech.de>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, xen-devel@lists.xensource.com, Jaya Kumar <jayalk@intworks.biz>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 06/01/2011 03:24 AM, Mark Wu wrote:
-> -	if (index_to_minor(index)>= 1<<  MINORBITS)
-> -		return -ENOSPC;
-> +	do {
-> +		if (!ida_pre_get(&vd_index_ida, GFP_KERNEL))
-> +			return err;
-> +
-There's a problem in above code: err is not initialized before using, so 
-change it to return -1;
-+       do {
-+               if (!ida_pre_get(&vd_index_ida, GFP_KERNEL))
-+                       return -1;
+On Sat, May 28, 2011 at 11:13:33AM -0700, Joe Perches wrote:
+> Signed-off-by: Joe Perches <joe@perches.com>
+> ---
+> Heiko St??bner <heiko@sntech.de> pointed out I can't type...
+> s/vmalloc/vmalloc/ doesn't do much.
+> 
+>  drivers/video/arcfb.c        |    5 ++---
+>  drivers/video/broadsheetfb.c |    4 +---
+>  drivers/video/hecubafb.c     |    5 ++---
+>  drivers/video/metronomefb.c  |    4 +---
+>  drivers/video/xen-fbfront.c  |    3 +--
+>  5 files changed, 7 insertions(+), 14 deletions(-)
+> 
+v2 applied.
