@@ -1,13 +1,14 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH 1/1] [virt] virtio-blk: Use ida to allocate disk index
-Date: Thu, 02 Jun 2011 09:27:23 +0930
-Message-ID: <87mxi1xfz0.fsf__19471.5486410589$1306980145$gmane$org@rustcorp.com.au>
-References: <1306913069-23637-1-git-send-email-dwu@redhat.com>
+Subject: Re: [PATCH RFC 3/3] virtio_net: limit xmit polling
+Date: Thu, 02 Jun 2011 13:24:57 +0930
+Message-ID: <87pqmwj3am.fsf__21035.8601798818$1306987073$gmane$org@rustcorp.com.au>
+References: <cover.1306921434.git.mst@redhat.com>
+	<1ec8eec325839ecf2eac9930a230361e7956047c.1306921434.git.mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1306913069-23637-1-git-send-email-dwu@redhat.com>
+In-Reply-To: <1ec8eec325839ecf2eac9930a230361e7956047c.1306921434.git.mst@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,23 +19,71 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jens Axboe <axboe@kernel.dk>, Mark Wu <dwu@redhat.com>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: Krishna Kumar <krkumar2@in.ibm.com>, Carsten Otte <cotte@de.ibm.com>, lguest@lists.ozlabs.org, Shirley Ma <xma@us.ibm.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org, netdev@vger.kernel.org, habanero@linux.vnet.ibm.com, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, steved@us.ibm.com, Christian Borntraeger <borntraeger@de.ibm.com>, Tom Lendacky <tahm@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux390@de.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed,  1 Jun 2011 03:24:29 -0400, Mark Wu <dwu@redhat.com> wrote:
-> Current index allocation in virtio-blk is based on a monotonically
-> increasing variable "index". It could cause some confusion about disk
-> name in the case of hot-plugging disks. And it's impossible to find the
-> lowest available index by just maintaining a simple index. So it's
-> changed to use ida to allocate index via referring to the index
-> allocation in scsi disk.
+On Wed, 1 Jun 2011 12:50:03 +0300, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> Current code might introduce a lot of latency variation
+> if there are many pending bufs at the time we
+> attempt to transmit a new one. This is bad for
+> real-time applications and can't be good for TCP either.
 > 
-> Signed-off-by: Mark Wu <dwu@redhat.com>
+> Free up just enough to both clean up all buffers
+> eventually and to be able to xmit the next packet.
 
-Hi Mark,
+OK, I found this quite confusing to read.
 
-   I don't believe that we do disk probes in parallel, so the spinlock
-is unnecessary.  Otherwise, this looks good.
+> -	while ((skb = virtqueue_get_buf(vi->svq, &len)) != NULL) {
+> +	while ((r = virtqueue_min_capacity(vi->svq) < MAX_SKB_FRAGS + 2) ||
+> +	       min_skbs-- > 0) {
+> +		skb = virtqueue_get_buf(vi->svq, &len);
+> +		if (unlikely(!skb))
+> +			break;
+>  		pr_debug("Sent skb %p\n", skb);
+>  		vi->dev->stats.tx_bytes += skb->len;
+>  		vi->dev->stats.tx_packets++;
+>  		dev_kfree_skb_any(skb);
+>  	}
+> +	return r;
+>  }
 
-Thanks,
+Gah... what a horrible loop.
+
+Basically, this patch makes hard-to-read code worse, and we should try
+to make it better.
+
+Currently, xmit *can* fail when an xmit interrupt wakes the queue, but
+the packet(s) xmitted didn't free up enough space for the new packet.
+With indirect buffers this only happens if we hit OOM (and thus go to
+direct buffers).
+
+We could solve this by only waking the queue in skb_xmit_done if the
+capacity is >= 2 + MAX_SKB_FRAGS.  But can we do it without a race?
+
+If not, then I'd really prefer to see this, because I think it's clearer:
+
+        // Try to free 2 buffers for every 1 xmit, to stay ahead.
+        free_old_buffers(2)
+
+        if (!add_buf()) {
+                // Screw latency, free them all.
+                free_old_buffers(UINT_MAX)
+                // OK, this can happen if we are using direct buffers,
+                // and the xmit interrupt woke us but the packets
+                // xmitted were smaller than this one.  Rare though.
+                if (!add_buf())
+                        Whinge and stop queue, maybe loop.
+        }
+
+        if (capacity < 2 + MAX_SKB_FRAGS) {
+                // We don't have enough for the next packet?  Try
+                // freeing more.
+                free_old_buffers(UINT_MAX);
+                if (capacity < 2 + MAX_SKB_FRAGS) {
+                        Stop queue, maybe loop.
+        }
+
+The current code makes my head hurt :(
+
+Thoughts?
 Rusty.
