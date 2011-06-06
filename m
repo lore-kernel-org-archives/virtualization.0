@@ -1,8 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 17/49] Staging: hv: vmbus: Get rid of vmbus_acpi_exit() by
-	inlining the code
-Date: Mon,  6 Jun 2011 15:49:41 -0700
-Message-ID: <1307400613-13234-17-git-send-email-kys@microsoft.com>
+Subject: [PATCH 49/49] Staging: hv: vmbus: Increase the timeout value in
+	vmbus_request_offers()
+Date: Mon,  6 Jun 2011 15:50:13 -0700
+Message-ID: <1307400613-13234-49-git-send-email-kys@microsoft.com>
 References: <1307400540-13193-1-git-send-email-kys@microsoft.com>
 	<1307400613-13234-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -23,42 +23,27 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Get rid of vmbus_acpi_exit() by inlining the code.
+Increase the timeout value in vmbus_request_offers().
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 ---
- drivers/staging/hv/vmbus_drv.c |   10 +---------
- 1 files changed, 1 insertions(+), 9 deletions(-)
+ drivers/staging/hv/channel_mgmt.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/staging/hv/vmbus_drv.c b/drivers/staging/hv/vmbus_drv.c
-index d799f42..39cd277 100644
---- a/drivers/staging/hv/vmbus_drv.c
-+++ b/drivers/staging/hv/vmbus_drv.c
-@@ -758,14 +758,6 @@ static struct acpi_driver vmbus_acpi_driver = {
- 	},
- };
- 
--static void vmbus_acpi_exit(void)
--{
--	acpi_bus_unregister_driver(&vmbus_acpi_driver);
--
--	return;
--}
--
--
- /*
-  * We use a PCI table to determine if we should autoload this driver  This is
-  * needed by distro tools to determine if the hyperv drivers should be
-@@ -796,7 +788,7 @@ static int __init hv_acpi_init(void)
- 	wait_for_completion(&probe_event);
- 
- 	if (irq <= 0) {
--		vmbus_acpi_exit();
-+		acpi_bus_unregister_driver(&vmbus_acpi_driver);
- 		return -ENODEV;
+diff --git a/drivers/staging/hv/channel_mgmt.c b/drivers/staging/hv/channel_mgmt.c
+index 2d270ce..bf011f3 100644
+--- a/drivers/staging/hv/channel_mgmt.c
++++ b/drivers/staging/hv/channel_mgmt.c
+@@ -767,7 +767,7 @@ int vmbus_request_offers(void)
+ 		goto cleanup;
  	}
  
+-	t = wait_for_completion_timeout(&msginfo->waitevent, HZ);
++	t = wait_for_completion_timeout(&msginfo->waitevent, 5*HZ);
+ 	if (t == 0) {
+ 		ret = -ETIMEDOUT;
+ 		goto cleanup;
 -- 
 1.7.4.1
