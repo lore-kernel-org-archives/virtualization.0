@@ -1,8 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 43/49] Staging: hv: vmbus: Cleanup some error codes in
-	vmbus_drv.c
-Date: Mon,  6 Jun 2011 15:50:07 -0700
-Message-ID: <1307400613-13234-43-git-send-email-kys@microsoft.com>
+Subject: [PATCH 27/49] Staging: hv: vmbus: Fix the memory barrier in
+	hv_ringbuffer_read()
+Date: Mon,  6 Jun 2011 15:49:51 -0700
+Message-ID: <1307400613-13234-27-git-send-email-kys@microsoft.com>
 References: <1307400540-13193-1-git-send-email-kys@microsoft.com>
 	<1307400613-13234-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -23,36 +23,27 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Cleanup some error codes in vmbus_drv.c
+Use the correct barrier interface.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 ---
- drivers/staging/hv/vmbus_drv.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/staging/hv/ring_buffer.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/staging/hv/vmbus_drv.c b/drivers/staging/hv/vmbus_drv.c
-index 17692ce..a3c99f1 100644
---- a/drivers/staging/hv/vmbus_drv.c
-+++ b/drivers/staging/hv/vmbus_drv.c
-@@ -329,7 +329,7 @@ static int vmbus_probe(struct device *child_device)
- 	} else {
- 		pr_err("probe not set for driver %s\n",
- 		       dev_name(child_device));
--		ret = -1;
-+		ret = -ENODEV;
- 	}
- 	return ret;
- }
-@@ -352,7 +352,7 @@ static int vmbus_remove(struct device *child_device)
- 		} else {
- 			pr_err("remove not set for driver %s\n",
- 				dev_name(child_device));
--			ret = -1;
-+			ret = -ENODEV;
- 		}
- 	}
+diff --git a/drivers/staging/hv/ring_buffer.c b/drivers/staging/hv/ring_buffer.c
+index 3da3330..932af1a 100644
+--- a/drivers/staging/hv/ring_buffer.c
++++ b/drivers/staging/hv/ring_buffer.c
+@@ -513,7 +513,7 @@ int hv_ringbuffer_read(struct hv_ring_buffer_info *inring_info, void *buffer,
+ 	/* Make sure all reads are done before we update the read index since */
+ 	/* the writer may start writing to the read area once the read index */
+ 	/*is updated */
+-	mb();
++	smp_mb();
  
+ 	/* Update the read index */
+ 	hv_set_next_read_location(inring_info, next_read_location);
 -- 
 1.7.4.1
