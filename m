@@ -1,8 +1,7 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 02/49] Staging: hv: storvsc: Cleanup the exit function in
-	storvsc_drv.c
-Date: Mon,  6 Jun 2011 15:49:26 -0700
-Message-ID: <1307400613-13234-2-git-send-email-kys@microsoft.com>
+Subject: [PATCH 18/49] Staging: hv: vmbus: Add the DSDT _HID name as well
+Date: Mon,  6 Jun 2011 15:49:42 -0700
+Message-ID: <1307400613-13234-18-git-send-email-kys@microsoft.com>
 References: <1307400540-13193-1-git-send-email-kys@microsoft.com>
 	<1307400613-13234-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -23,42 +22,26 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Get rid of unnecessary layering in the module exit path.
+Add the DSDT _HID name as well, in addition to the _DDN name.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 ---
- drivers/staging/hv/storvsc_drv.c |    9 ++-------
- 1 files changed, 2 insertions(+), 7 deletions(-)
+ drivers/staging/hv/vmbus_drv.c |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
-index 942cc5f..e21f7e6 100644
---- a/drivers/staging/hv/storvsc_drv.c
-+++ b/drivers/staging/hv/storvsc_drv.c
-@@ -792,7 +792,7 @@ static int storvsc_drv_init(void)
- 	return ret;
- }
+diff --git a/drivers/staging/hv/vmbus_drv.c b/drivers/staging/hv/vmbus_drv.c
+index 39cd277..1a26252 100644
+--- a/drivers/staging/hv/vmbus_drv.c
++++ b/drivers/staging/hv/vmbus_drv.c
+@@ -746,6 +746,7 @@ static int vmbus_acpi_add(struct acpi_device *device)
  
--static void storvsc_drv_exit(void)
-+static void __exit storvsc_drv_exit(void)
- {
- 	vmbus_child_driver_unregister(&storvsc_drv.driver);
- }
-@@ -806,13 +806,8 @@ static int __init storvsc_init(void)
- 	return ret;
- }
- 
--static void __exit storvsc_exit(void)
--{
--	storvsc_drv_exit();
--}
--
- MODULE_LICENSE("GPL");
- MODULE_VERSION(HV_DRV_VERSION);
- MODULE_DESCRIPTION("Microsoft Hyper-V virtual storage driver");
- module_init(storvsc_init);
--module_exit(storvsc_exit);
-+module_exit(storvsc_drv_exit);
+ static const struct acpi_device_id vmbus_acpi_device_ids[] = {
+ 	{"VMBUS", 0},
++	{"VMBus", 0},
+ 	{"", 0},
+ };
+ MODULE_DEVICE_TABLE(acpi, vmbus_acpi_device_ids);
 -- 
 1.7.4.1
