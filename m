@@ -1,8 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 47/49] Staging: hv: vmbus: Cleanup some error values in
+Subject: [PATCH 48/49] Staging: hv: vmbus: Change Cleanup to cleanup in
 	channel.c
-Date: Mon,  6 Jun 2011 15:50:11 -0700
-Message-ID: <1307400613-13234-47-git-send-email-kys@microsoft.com>
+Date: Mon,  6 Jun 2011 15:50:12 -0700
+Message-ID: <1307400613-13234-48-git-send-email-kys@microsoft.com>
 References: <1307400540-13193-1-git-send-email-kys@microsoft.com>
 	<1307400613-13234-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -23,27 +23,63 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Cleanup some error values in channel.c.
+Change the jump label Cleanup to cleanup.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 ---
- drivers/staging/hv/channel.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+ drivers/staging/hv/channel.c |   10 +++++-----
+ 1 files changed, 5 insertions(+), 5 deletions(-)
 
 diff --git a/drivers/staging/hv/channel.c b/drivers/staging/hv/channel.c
-index 1833f27..21f1efc 100644
+index 21f1efc..cffca7c 100644
 --- a/drivers/staging/hv/channel.c
 +++ b/drivers/staging/hv/channel.c
-@@ -811,7 +811,7 @@ int vmbus_recvpacket(struct vmbus_channel *channel, void *buffer,
+@@ -209,7 +209,7 @@ int vmbus_open(struct vmbus_channel *newchannel, u32 send_ringbuffer_size,
+ 			       sizeof(struct vmbus_channel_open_channel));
  
- 		pr_err("Buffer too small - got %d needs %d\n",
- 			   bufferlen, userlen);
--		return -1;
-+		return -ETOOSMALL;
+ 	if (ret != 0)
+-		goto Cleanup;
++		goto cleanup;
+ 
+ 	t = wait_for_completion_timeout(&openInfo->waitevent, HZ);
+ 	if (t == 0) {
+@@ -221,7 +221,7 @@ int vmbus_open(struct vmbus_channel *newchannel, u32 send_ringbuffer_size,
+ 	if (openInfo->response.open_result.status)
+ 		err = openInfo->response.open_result.status;
+ 
+-Cleanup:
++cleanup:
+ 	spin_lock_irqsave(&vmbus_connection.channelmsg_lock, flags);
+ 	list_del(&openInfo->msglistentry);
+ 	spin_unlock_irqrestore(&vmbus_connection.channelmsg_lock, flags);
+@@ -472,7 +472,7 @@ int vmbus_establish_gpadl(struct vmbus_channel *channel, void *kbuffer,
+ 	ret = vmbus_post_msg(gpadlmsg, msginfo->msgsize -
+ 			       sizeof(*msginfo));
+ 	if (ret != 0)
+-		goto Cleanup;
++		goto cleanup;
+ 
+ 	if (msgcount > 1) {
+ 		list_for_each(curr, &msginfo->submsglist) {
+@@ -491,7 +491,7 @@ int vmbus_establish_gpadl(struct vmbus_channel *channel, void *kbuffer,
+ 					       submsginfo->msgsize -
+ 					       sizeof(*submsginfo));
+ 			if (ret != 0)
+-				goto Cleanup;
++				goto cleanup;
+ 
+ 		}
  	}
+@@ -502,7 +502,7 @@ int vmbus_establish_gpadl(struct vmbus_channel *channel, void *kbuffer,
+ 	/* At this point, we received the gpadl created msg */
+ 	*gpadl_handle = gpadlmsg->gpadl;
  
- 	*requestid = desc.trans_id;
+-Cleanup:
++cleanup:
+ 	spin_lock_irqsave(&vmbus_connection.channelmsg_lock, flags);
+ 	list_del(&msginfo->msglistentry);
+ 	spin_unlock_irqrestore(&vmbus_connection.channelmsg_lock, flags);
 -- 
 1.7.4.1
