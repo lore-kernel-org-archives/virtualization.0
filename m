@@ -1,8 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 25/49] Staging: hv: vmbus: Get rid of unneeded calls to
-	dump_vmbus_channel
-Date: Mon,  6 Jun 2011 15:49:49 -0700
-Message-ID: <1307400613-13234-25-git-send-email-kys@microsoft.com>
+Subject: [PATCH 29/49] Staging: hv: vmbus: Change the memory barrier in
+	hv_ringbuffer_write()
+Date: Mon,  6 Jun 2011 15:49:53 -0700
+Message-ID: <1307400613-13234-29-git-send-email-kys@microsoft.com>
 References: <1307400540-13193-1-git-send-email-kys@microsoft.com>
 	<1307400613-13234-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -23,64 +23,28 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Get rid of unneeded calls to dump_vmbus_channel and get rid of the unused 
-static function that dumps the channel.
+Use the correct memory barrier interface in Change the memory barrier 
+in hv_ringbuffer_write().
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 ---
- drivers/staging/hv/channel.c |   13 -------------
- 1 files changed, 0 insertions(+), 13 deletions(-)
+ drivers/staging/hv/ring_buffer.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/staging/hv/channel.c b/drivers/staging/hv/channel.c
-index 334885d..b6f8674 100644
---- a/drivers/staging/hv/channel.c
-+++ b/drivers/staging/hv/channel.c
-@@ -39,7 +39,6 @@ static int create_gpadl_header(
- 	u32 size,	/* page-size multiple */
- 	struct vmbus_channel_msginfo **msginfo,
- 	u32 *messagecount);
--static void dump_vmbus_channel(struct vmbus_channel *channel);
- static void vmbus_setevent(struct vmbus_channel *channel);
+diff --git a/drivers/staging/hv/ring_buffer.c b/drivers/staging/hv/ring_buffer.c
+index 8b62553..42f7672 100644
+--- a/drivers/staging/hv/ring_buffer.c
++++ b/drivers/staging/hv/ring_buffer.c
+@@ -413,7 +413,7 @@ int hv_ringbuffer_write(struct hv_ring_buffer_info *outring_info,
+ 					     sizeof(u64));
  
- /*
-@@ -618,7 +617,6 @@ int vmbus_sendpacket(struct vmbus_channel *channel, const void *buffer,
- 	u64 aligned_data = 0;
- 	int ret;
+ 	/* Make sure we flush all writes before updating the writeIndex */
+-	mb();
++	smp_wmb();
  
--	dump_vmbus_channel(channel);
- 
- 	/* Setup the descriptor */
- 	desc.type = type; /* VmbusPacketTypeDataInBand; */
-@@ -665,7 +663,6 @@ int vmbus_sendpacket_pagebuffer(struct vmbus_channel *channel,
- 	if (pagecount > MAX_PAGE_BUFFER_COUNT)
- 		return -EINVAL;
- 
--	dump_vmbus_channel(channel);
- 
- 	/*
- 	 * Adjust the size down since vmbus_channel_packet_page_buffer is the
-@@ -725,7 +722,6 @@ int vmbus_sendpacket_multipagebuffer(struct vmbus_channel *channel,
- 	u32 pfncount = NUM_PAGES_SPANNED(multi_pagebuffer->offset,
- 					 multi_pagebuffer->len);
- 
--	dump_vmbus_channel(channel);
- 
- 	if ((pfncount < 0) || (pfncount > MAX_MULTIPAGE_BUFFER_COUNT))
- 		return -EINVAL;
-@@ -891,12 +887,3 @@ void vmbus_ontimer(unsigned long data)
- 		channel->onchannel_callback(channel->channel_callback_context);
- }
- 
--/*
-- * dump_vmbus_channel- Dump vmbus channel info to the console
-- */
--static void dump_vmbus_channel(struct vmbus_channel *channel)
--{
--	DPRINT_DBG(VMBUS, "Channel (%d)", channel->offermsg.child_relid);
--	hv_dump_ring_info(&channel->outbound, "Outbound ");
--	hv_dump_ring_info(&channel->inbound, "Inbound ");
--}
+ 	/* Now, update the write location */
+ 	hv_set_next_write_location(outring_info, next_write_location);
 -- 
 1.7.4.1
