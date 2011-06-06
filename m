@@ -1,8 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 26/49] Staging: hv: vmbus: Get rid of the poll timer in the
-	channel state
-Date: Mon,  6 Jun 2011 15:49:50 -0700
-Message-ID: <1307400613-13234-26-git-send-email-kys@microsoft.com>
+Subject: [PATCH 44/49] Staging: hv: vmbus: Cleanup error handling in
+	vmbus_bus_init()
+Date: Mon,  6 Jun 2011 15:50:08 -0700
+Message-ID: <1307400613-13234-44-git-send-email-kys@microsoft.com>
 References: <1307400540-13193-1-git-send-email-kys@microsoft.com>
 	<1307400613-13234-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -23,63 +23,67 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Since tis is not used anymore,  get rid of the poll timer in the channel state.
+Cleanup error handling in vmbus_bus_init().
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 ---
- drivers/staging/hv/channel.c      |    1 -
- drivers/staging/hv/channel_mgmt.c |    5 -----
- drivers/staging/hv/hyperv.h       |    1 -
- 3 files changed, 0 insertions(+), 7 deletions(-)
+ drivers/staging/hv/vmbus_drv.c |   16 ++++++----------
+ 1 files changed, 6 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/staging/hv/channel.c b/drivers/staging/hv/channel.c
-index b6f8674..b91b369 100644
---- a/drivers/staging/hv/channel.c
-+++ b/drivers/staging/hv/channel.c
-@@ -555,7 +555,6 @@ void vmbus_close(struct vmbus_channel *channel)
+diff --git a/drivers/staging/hv/vmbus_drv.c b/drivers/staging/hv/vmbus_drv.c
+index a3c99f1..be158be 100644
+--- a/drivers/staging/hv/vmbus_drv.c
++++ b/drivers/staging/hv/vmbus_drv.c
+@@ -535,7 +535,7 @@ static int vmbus_bus_init(int irq)
+ 	ret = hv_init();
+ 	if (ret != 0) {
+ 		pr_err("Unable to initialize the hypervisor - 0x%x\n", ret);
+-		goto cleanup;
++		return ret;
+ 	}
  
- 	/* Stop callback and cancel the timer asap */
- 	channel->onchannel_callback = NULL;
--	del_timer_sync(&channel->poll_timer);
+ 	/* Initialize the bus context */
+@@ -544,10 +544,8 @@ static int vmbus_bus_init(int irq)
  
- 	/* Send a closing message */
- 	info = kmalloc(sizeof(*info) +
-diff --git a/drivers/staging/hv/channel_mgmt.c b/drivers/staging/hv/channel_mgmt.c
-index 957d61e..178e1c4 100644
---- a/drivers/staging/hv/channel_mgmt.c
-+++ b/drivers/staging/hv/channel_mgmt.c
-@@ -283,10 +283,6 @@ static struct vmbus_channel *alloc_channel(void)
+ 	/* Now, register the bus  with LDM */
+ 	ret = bus_register(&hv_bus);
+-	if (ret) {
+-		ret = -1;
+-		goto cleanup;
+-	}
++	if (ret)
++		return ret;
  
- 	spin_lock_init(&channel->inbound_lock);
+ 	/* Get the interrupt resource */
+ 	ret = request_irq(irq, vmbus_isr, IRQF_SAMPLE_RANDOM,
+@@ -559,8 +557,7 @@ static int vmbus_bus_init(int irq)
  
--	init_timer(&channel->poll_timer);
--	channel->poll_timer.data = (unsigned long)channel;
--	channel->poll_timer.function = vmbus_ontimer;
--
- 	channel->controlwq = create_workqueue("hv_vmbus_ctl");
- 	if (!channel->controlwq) {
- 		kfree(channel);
-@@ -315,7 +311,6 @@ static void release_channel(struct work_struct *work)
-  */
- void free_channel(struct vmbus_channel *channel)
- {
--	del_timer_sync(&channel->poll_timer);
+ 		bus_unregister(&hv_bus);
  
- 	/*
- 	 * We have to release the channel's workqueue/thread in the vmbus's
-diff --git a/drivers/staging/hv/hyperv.h b/drivers/staging/hv/hyperv.h
-index e881cfe..73c251e 100644
---- a/drivers/staging/hv/hyperv.h
-+++ b/drivers/staging/hv/hyperv.h
-@@ -528,7 +528,6 @@ struct vmbus_channel {
+-		ret = -1;
+-		goto cleanup;
++		return ret;
+ 	}
  
- 	struct hv_device *device_obj;
+ 	vector = IRQ0_VECTOR + irq;
+@@ -574,14 +571,13 @@ static int vmbus_bus_init(int irq)
+ 	if (ret) {
+ 		free_irq(irq, hv_acpi_dev);
+ 		bus_unregister(&hv_bus);
+-		goto cleanup;
++		return ret;
+ 	}
  
--	struct timer_list poll_timer; /* SA-111 workaround */
- 	struct work_struct work;
  
- 	enum vmbus_channel_state state;
+ 	vmbus_request_offers();
+ 
+-cleanup:
+-	return ret;
++	return 0;
+ }
+ 
+ /**
 -- 
 1.7.4.1
