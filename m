@@ -1,8 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 33/49] Staging: hv: vmbus: Move the definition of struct
-	vmbus_channel
-Date: Mon,  6 Jun 2011 15:49:57 -0700
-Message-ID: <1307400613-13234-33-git-send-email-kys@microsoft.com>
+Subject: [PATCH 40/49] Staging: hv: vmbus: Rename local variables in
+	vmbus_drv.c
+Date: Mon,  6 Jun 2011 15:50:04 -0700
+Message-ID: <1307400613-13234-40-git-send-email-kys@microsoft.com>
 References: <1307400540-13193-1-git-send-email-kys@microsoft.com>
 	<1307400613-13234-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -23,110 +23,58 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-In preparation for embedding the state needed to close the channel, move
-the definition of struct vmbus_channel.
+Rename local variables in vmbus_drv.c.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 ---
- drivers/staging/hv/hyperv.h |   77 +++++++++++++++++++++----------------------
- 1 files changed, 38 insertions(+), 39 deletions(-)
+ drivers/staging/hv/vmbus_drv.c |   12 ++++++------
+ 1 files changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/staging/hv/hyperv.h b/drivers/staging/hv/hyperv.h
-index 73c251e..93bbeab 100644
---- a/drivers/staging/hv/hyperv.h
-+++ b/drivers/staging/hv/hyperv.h
-@@ -523,45 +523,6 @@ enum vmbus_channel_state {
- 	CHANNEL_OPEN_STATE,
- };
+diff --git a/drivers/staging/hv/vmbus_drv.c b/drivers/staging/hv/vmbus_drv.c
+index 921ca9a..17692ce 100644
+--- a/drivers/staging/hv/vmbus_drv.c
++++ b/drivers/staging/hv/vmbus_drv.c
+@@ -107,12 +107,12 @@ static ssize_t vmbus_show_device_attr(struct device *dev,
+ 				      struct device_attribute *dev_attr,
+ 				      char *buf)
+ {
+-	struct hv_device *device_ctx = device_to_hv_device(dev);
++	struct hv_device *hv_dev = device_to_hv_device(dev);
+ 	struct hv_device_info device_info;
  
--struct vmbus_channel {
--	struct list_head listentry;
--
--	struct hv_device *device_obj;
--
--	struct work_struct work;
--
--	enum vmbus_channel_state state;
--	/*
--	 * For util channels, stash the
--	 * the service index for easy access.
--	 */
--	s8 util_index;
--
--	struct vmbus_channel_offer_channel offermsg;
--	/*
--	 * These are based on the OfferMsg.MonitorId.
--	 * Save it here for easy access.
--	 */
--	u8 monitor_grp;
--	u8 monitor_bit;
--
--	u32 ringbuffer_gpadlhandle;
--
--	/* Allocated memory for ring buffer */
--	void *ringbuffer_pages;
--	u32 ringbuffer_pagecount;
--	struct hv_ring_buffer_info outbound;	/* send to parent */
--	struct hv_ring_buffer_info inbound;	/* receive from parent */
--	spinlock_t inbound_lock;
--	struct workqueue_struct *controlwq;
--
--	/* Channel callback are invoked in this workqueue context */
--	/* HANDLE dataWorkQueue; */
--
--	void (*onchannel_callback)(void *context);
--	void *channel_callback_context;
--};
--
- struct vmbus_channel_debug_info {
- 	u32 relid;
- 	enum vmbus_channel_state state;
-@@ -608,6 +569,44 @@ struct vmbus_channel_msginfo {
- 	unsigned char msg[0];
- };
+ 	memset(&device_info, 0, sizeof(struct hv_device_info));
  
-+struct vmbus_channel {
-+	struct list_head listentry;
-+
-+	struct hv_device *device_obj;
-+
-+	struct work_struct work;
-+
-+	enum vmbus_channel_state state;
-+	/*
-+	 * For util channels, stash the
-+	 * the service index for easy access.
-+	 */
-+	s8 util_index;
-+
-+	struct vmbus_channel_offer_channel offermsg;
-+	/*
-+	 * These are based on the OfferMsg.MonitorId.
-+	 * Save it here for easy access.
-+	 */
-+	u8 monitor_grp;
-+	u8 monitor_bit;
-+
-+	u32 ringbuffer_gpadlhandle;
-+
-+	/* Allocated memory for ring buffer */
-+	void *ringbuffer_pages;
-+	u32 ringbuffer_pagecount;
-+	struct hv_ring_buffer_info outbound;	/* send to parent */
-+	struct hv_ring_buffer_info inbound;	/* receive from parent */
-+	spinlock_t inbound_lock;
-+	struct workqueue_struct *controlwq;
-+
-+	/* Channel callback are invoked in this workqueue context */
-+	/* HANDLE dataWorkQueue; */
-+
-+	void (*onchannel_callback)(void *context);
-+	void *channel_callback_context;
-+};
+-	get_channel_info(device_ctx, &device_info);
++	get_channel_info(hv_dev, &device_info);
  
- void free_channel(struct vmbus_channel *channel);
+ 	if (!strcmp(dev_attr->attr.name, "class_id")) {
+ 		return sprintf(buf, "{%02x%02x%02x%02x-%02x%02x-%02x%02x-"
+@@ -300,10 +300,10 @@ static int vmbus_match(struct device *device, struct device_driver *driver)
+ {
+ 	int match = 0;
+ 	struct hv_driver *drv = drv_to_hv_drv(driver);
+-	struct hv_device *device_ctx = device_to_hv_device(device);
++	struct hv_device *hv_dev = device_to_hv_device(device);
+ 
+ 	/* We found our driver ? */
+-	if (memcmp(&device_ctx->dev_type, &drv->dev_type,
++	if (memcmp(&hv_dev->dev_type, &drv->dev_type,
+ 		   sizeof(struct hv_guid)) == 0)
+ 		match = 1;
+ 
+@@ -387,9 +387,9 @@ static void vmbus_shutdown(struct device *child_device)
+  */
+ static void vmbus_device_release(struct device *device)
+ {
+-	struct hv_device *device_ctx = device_to_hv_device(device);
++	struct hv_device *hv_dev = device_to_hv_device(device);
+ 
+-	kfree(device_ctx);
++	kfree(hv_dev);
+ 
+ }
  
 -- 
 1.7.4.1
