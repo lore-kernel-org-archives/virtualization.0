@@ -1,86 +1,36 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 32/49] Staging: hv: vmbus: Correct some dated comments in
-	channel.c
-Date: Mon,  6 Jun 2011 15:49:56 -0700
-Message-ID: <1307400613-13234-32-git-send-email-kys@microsoft.com>
+Subject: [PATCH 09/49] Staging: hv: blk: Get rid of the unused initialization of the name field
+Date: Mon,  6 Jun 2011 15:49:33 -0700
+Message-ID: <1307400613-13234-9-git-send-email-kys@microsoft.com>
 References: <1307400540-13193-1-git-send-email-kys@microsoft.com>
-	<1307400613-13234-1-git-send-email-kys@microsoft.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <devel-bounces@linuxdriverproject.org>
+ <1307400613-13234-1-git-send-email-kys@microsoft.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1307400613-13234-1-git-send-email-kys@microsoft.com>
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
-List-Post: <mailto:devel@linuxdriverproject.org>
-List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
-Sender: devel-bounces@linuxdriverproject.org
-Errors-To: devel-bounces@linuxdriverproject.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org
-Cc: Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>
+Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Correct some dated comments in channel.c.
+The name field of hv_driver is unused in blkvsc_drv.c; get rid of it.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 ---
- drivers/staging/hv/channel.c |   11 ++++-------
- 1 files changed, 4 insertions(+), 7 deletions(-)
+ drivers/staging/hv/blkvsc_drv.c |    1 -
+ 1 files changed, 0 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/staging/hv/channel.c b/drivers/staging/hv/channel.c
-index 95b410f..043fe25 100644
---- a/drivers/staging/hv/channel.c
-+++ b/drivers/staging/hv/channel.c
-@@ -185,12 +185,12 @@ int vmbus_open(struct vmbus_channel *newchannel, u32 send_ringbuffer_size,
+diff --git a/drivers/staging/hv/blkvsc_drv.c b/drivers/staging/hv/blkvsc_drv.c
+index 46daade..bcf562f 100644
+--- a/drivers/staging/hv/blkvsc_drv.c
++++ b/drivers/staging/hv/blkvsc_drv.c
+@@ -824,7 +824,6 @@ static int blkvsc_drv_init(void)
+ 	BUILD_BUG_ON(sizeof(sector_t) != 8);
  
- 	openMsg = (struct vmbus_channel_open_channel *)openInfo->msg;
- 	openMsg->header.msgtype = CHANNELMSG_OPENCHANNEL;
--	openMsg->openid = newchannel->offermsg.child_relid; /* FIXME */
-+	openMsg->openid = newchannel->offermsg.child_relid;
- 	openMsg->child_relid = newchannel->offermsg.child_relid;
- 	openMsg->ringbuffer_gpadlhandle = newchannel->ringbuffer_gpadlhandle;
- 	openMsg->downstream_ringbuffer_pageoffset = send_ringbuffer_size >>
- 						  PAGE_SHIFT;
--	openMsg->server_contextarea_gpadlhandle = 0; /* TODO */
-+	openMsg->server_contextarea_gpadlhandle = 0;
+ 	memcpy(&drv->dev_type, &dev_type, sizeof(struct hv_guid));
+-	drv->name = drv_name;
+ 	drv->driver.name = drv_name;
  
- 	if (userdatalen > MAX_USER_DEFINED_BYTES) {
- 		err = -EINVAL;
-@@ -364,11 +364,11 @@ static int create_gpadl_header(void *kbuffer, u32 size,
- 				(struct vmbus_channel_gpadl_body *)msgbody->msg;
- 
- 			/*
--			 * FIXME:
- 			 * Gpadl is u32 and we are using a pointer which could
- 			 * be 64-bit
-+			 * This is governed by the guest/host protocol and
-+			 * so the hypervisor gurantees that this is ok.
- 			 */
--			/* gpadl_body->Gpadl = kbuffer; */
- 			for (i = 0; i < pfncurr; i++)
- 				gpadl_body->pfn[i] = pfn + pfnsum + i;
- 
-@@ -462,7 +462,6 @@ int vmbus_establish_gpadl(struct vmbus_channel *channel, void *kbuffer,
- 	if (msgcount > 1) {
- 		list_for_each(curr, &msginfo->submsglist) {
- 
--			/* FIXME: should this use list_entry() instead ? */
- 			submsginfo = (struct vmbus_channel_msginfo *)curr;
- 			gpadl_body =
- 			     (struct vmbus_channel_gpadl_body *)submsginfo->msg;
-@@ -577,8 +576,6 @@ void vmbus_close(struct vmbus_channel *channel)
- 		vmbus_teardown_gpadl(channel,
- 					  channel->ringbuffer_gpadlhandle);
- 
--	/* TODO: Send a msg to release the childRelId */
--
- 	/* Cleanup the ring buffers for this channel */
- 	hv_ringbuffer_cleanup(&channel->outbound);
- 	hv_ringbuffer_cleanup(&channel->inbound);
+ 	/* The driver belongs to vmbus */
 -- 
 1.7.4.1
