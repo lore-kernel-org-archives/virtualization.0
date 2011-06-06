@@ -1,8 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 04/49] Staging: hv: storvsc: Fix a bug in the storvsc_remove()
-	function
-Date: Mon,  6 Jun 2011 15:49:28 -0700
-Message-ID: <1307400613-13234-4-git-send-email-kys@microsoft.com>
+Subject: [PATCH 47/49] Staging: hv: vmbus: Cleanup some error values in
+	channel.c
+Date: Mon,  6 Jun 2011 15:50:11 -0700
+Message-ID: <1307400613-13234-47-git-send-email-kys@microsoft.com>
 References: <1307400540-13193-1-git-send-email-kys@microsoft.com>
 	<1307400613-13234-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -23,48 +23,27 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-When the storvs driver unloads, we need to accomodate disk cache flushes.
-Re-order the code to permit this.
-
+Cleanup some error values in channel.c.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 ---
- drivers/staging/hv/storvsc_drv.c |   12 +++++-------
- 1 files changed, 5 insertions(+), 7 deletions(-)
+ drivers/staging/hv/channel.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
-index 33bce87..fd474d6 100644
---- a/drivers/staging/hv/storvsc_drv.c
-+++ b/drivers/staging/hv/storvsc_drv.c
-@@ -317,22 +317,20 @@ static int storvsc_remove(struct hv_device *dev)
- 	struct hv_host_device *host_dev =
- 			(struct hv_host_device *)host->hostdata;
+diff --git a/drivers/staging/hv/channel.c b/drivers/staging/hv/channel.c
+index 1833f27..21f1efc 100644
+--- a/drivers/staging/hv/channel.c
++++ b/drivers/staging/hv/channel.c
+@@ -811,7 +811,7 @@ int vmbus_recvpacket(struct vmbus_channel *channel, void *buffer,
  
-+	DPRINT_INFO(STORVSC, "removing host adapter (%p)...", host);
-+	scsi_remove_host(host);
-+
-+	DPRINT_INFO(STORVSC, "releasing host adapter (%p)...", host);
-+	scsi_host_put(host);
- 	/*
- 	 * Call to the vsc driver to let it know that the device is being
- 	 * removed
- 	 */
- 	storvsc_dev_remove(dev);
--
- 	if (host_dev->request_pool) {
- 		kmem_cache_destroy(host_dev->request_pool);
- 		host_dev->request_pool = NULL;
+ 		pr_err("Buffer too small - got %d needs %d\n",
+ 			   bufferlen, userlen);
+-		return -1;
++		return -ETOOSMALL;
  	}
--
--	DPRINT_INFO(STORVSC, "removing host adapter (%p)...", host);
--	scsi_remove_host(host);
--
--	DPRINT_INFO(STORVSC, "releasing host adapter (%p)...", host);
--	scsi_host_put(host);
- 	return 0;
- }
  
+ 	*requestid = desc.trans_id;
 -- 
 1.7.4.1
