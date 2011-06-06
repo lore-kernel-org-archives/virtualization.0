@@ -1,8 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 40/49] Staging: hv: vmbus: Rename local variables in
+Subject: [PATCH 43/49] Staging: hv: vmbus: Cleanup some error codes in
 	vmbus_drv.c
-Date: Mon,  6 Jun 2011 15:50:04 -0700
-Message-ID: <1307400613-13234-40-git-send-email-kys@microsoft.com>
+Date: Mon,  6 Jun 2011 15:50:07 -0700
+Message-ID: <1307400613-13234-43-git-send-email-kys@microsoft.com>
 References: <1307400540-13193-1-git-send-email-kys@microsoft.com>
 	<1307400613-13234-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -23,58 +23,36 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Rename local variables in vmbus_drv.c.
+Cleanup some error codes in vmbus_drv.c
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 ---
- drivers/staging/hv/vmbus_drv.c |   12 ++++++------
- 1 files changed, 6 insertions(+), 6 deletions(-)
+ drivers/staging/hv/vmbus_drv.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/staging/hv/vmbus_drv.c b/drivers/staging/hv/vmbus_drv.c
-index 921ca9a..17692ce 100644
+index 17692ce..a3c99f1 100644
 --- a/drivers/staging/hv/vmbus_drv.c
 +++ b/drivers/staging/hv/vmbus_drv.c
-@@ -107,12 +107,12 @@ static ssize_t vmbus_show_device_attr(struct device *dev,
- 				      struct device_attribute *dev_attr,
- 				      char *buf)
- {
--	struct hv_device *device_ctx = device_to_hv_device(dev);
-+	struct hv_device *hv_dev = device_to_hv_device(dev);
- 	struct hv_device_info device_info;
- 
- 	memset(&device_info, 0, sizeof(struct hv_device_info));
- 
--	get_channel_info(device_ctx, &device_info);
-+	get_channel_info(hv_dev, &device_info);
- 
- 	if (!strcmp(dev_attr->attr.name, "class_id")) {
- 		return sprintf(buf, "{%02x%02x%02x%02x-%02x%02x-%02x%02x-"
-@@ -300,10 +300,10 @@ static int vmbus_match(struct device *device, struct device_driver *driver)
- {
- 	int match = 0;
- 	struct hv_driver *drv = drv_to_hv_drv(driver);
--	struct hv_device *device_ctx = device_to_hv_device(device);
-+	struct hv_device *hv_dev = device_to_hv_device(device);
- 
- 	/* We found our driver ? */
--	if (memcmp(&device_ctx->dev_type, &drv->dev_type,
-+	if (memcmp(&hv_dev->dev_type, &drv->dev_type,
- 		   sizeof(struct hv_guid)) == 0)
- 		match = 1;
- 
-@@ -387,9 +387,9 @@ static void vmbus_shutdown(struct device *child_device)
-  */
- static void vmbus_device_release(struct device *device)
- {
--	struct hv_device *device_ctx = device_to_hv_device(device);
-+	struct hv_device *hv_dev = device_to_hv_device(device);
- 
--	kfree(device_ctx);
-+	kfree(hv_dev);
- 
+@@ -329,7 +329,7 @@ static int vmbus_probe(struct device *child_device)
+ 	} else {
+ 		pr_err("probe not set for driver %s\n",
+ 		       dev_name(child_device));
+-		ret = -1;
++		ret = -ENODEV;
+ 	}
+ 	return ret;
  }
+@@ -352,7 +352,7 @@ static int vmbus_remove(struct device *child_device)
+ 		} else {
+ 			pr_err("remove not set for driver %s\n",
+ 				dev_name(child_device));
+-			ret = -1;
++			ret = -ENODEV;
+ 		}
+ 	}
  
 -- 
 1.7.4.1
