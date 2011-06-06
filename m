@@ -1,8 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 10/49] Staging: hv: mouse: Get rid of the unused
-	initialization of the name field
-Date: Mon,  6 Jun 2011 15:49:34 -0700
-Message-ID: <1307400613-13234-10-git-send-email-kys@microsoft.com>
+Subject: [PATCH 17/49] Staging: hv: vmbus: Get rid of vmbus_acpi_exit() by
+	inlining the code
+Date: Mon,  6 Jun 2011 15:49:41 -0700
+Message-ID: <1307400613-13234-17-git-send-email-kys@microsoft.com>
 References: <1307400540-13193-1-git-send-email-kys@microsoft.com>
 	<1307400613-13234-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -23,26 +23,42 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The name field of hv_driver is unused in hv_mouse.c; get rid of it.
+Get rid of vmbus_acpi_exit() by inlining the code.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 ---
- drivers/staging/hv/hv_mouse.c |    1 -
- 1 files changed, 0 insertions(+), 1 deletions(-)
+ drivers/staging/hv/vmbus_drv.c |   10 +---------
+ 1 files changed, 1 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/staging/hv/hv_mouse.c b/drivers/staging/hv/hv_mouse.c
-index 359e737..b191810 100644
---- a/drivers/staging/hv/hv_mouse.c
-+++ b/drivers/staging/hv/hv_mouse.c
-@@ -936,7 +936,6 @@ static int __init mousevsc_init(void)
- 	       sizeof(struct hv_guid));
+diff --git a/drivers/staging/hv/vmbus_drv.c b/drivers/staging/hv/vmbus_drv.c
+index d799f42..39cd277 100644
+--- a/drivers/staging/hv/vmbus_drv.c
++++ b/drivers/staging/hv/vmbus_drv.c
+@@ -758,14 +758,6 @@ static struct acpi_driver vmbus_acpi_driver = {
+ 	},
+ };
  
- 	drv->driver.name = driver_name;
--	drv->name = driver_name;
+-static void vmbus_acpi_exit(void)
+-{
+-	acpi_bus_unregister_driver(&vmbus_acpi_driver);
+-
+-	return;
+-}
+-
+-
+ /*
+  * We use a PCI table to determine if we should autoload this driver  This is
+  * needed by distro tools to determine if the hyperv drivers should be
+@@ -796,7 +788,7 @@ static int __init hv_acpi_init(void)
+ 	wait_for_completion(&probe_event);
  
- 	/* The driver belongs to vmbus */
- 	vmbus_child_driver_register(&drv->driver);
+ 	if (irq <= 0) {
+-		vmbus_acpi_exit();
++		acpi_bus_unregister_driver(&vmbus_acpi_driver);
+ 		return -ENODEV;
+ 	}
+ 
 -- 
 1.7.4.1
