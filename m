@@ -1,7 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 23/49] Staging: hv: vmbus: Directly invoke the channel callback
-Date: Mon,  6 Jun 2011 15:49:47 -0700
-Message-ID: <1307400613-13234-23-git-send-email-kys@microsoft.com>
+Subject: [PATCH 28/49] Staging: hv: vmbus: Introduce read dependency in
+	hv_get_ringbuffer_availbytes()
+Date: Mon,  6 Jun 2011 15:49:52 -0700
+Message-ID: <1307400613-13234-28-git-send-email-kys@microsoft.com>
 References: <1307400540-13193-1-git-send-email-kys@microsoft.com>
 	<1307400613-13234-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -22,27 +23,27 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Now, directly invoke the channel callback.
+Introduce read dependency in hv_get_ringbuffer_availbytes().
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 ---
- drivers/staging/hv/connection.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+ drivers/staging/hv/ring_buffer.c |    2 ++
+ 1 files changed, 2 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/staging/hv/connection.c b/drivers/staging/hv/connection.c
-index 37bbf77..fc93bdf 100644
---- a/drivers/staging/hv/connection.c
-+++ b/drivers/staging/hv/connection.c
-@@ -262,7 +262,7 @@ static void process_chn_event(u32 relid)
- 	channel = relid2channel(relid);
+diff --git a/drivers/staging/hv/ring_buffer.c b/drivers/staging/hv/ring_buffer.c
+index 932af1a..8b62553 100644
+--- a/drivers/staging/hv/ring_buffer.c
++++ b/drivers/staging/hv/ring_buffer.c
+@@ -50,6 +50,8 @@ hv_get_ringbuffer_availbytes(struct hv_ring_buffer_info *rbi,
+ {
+ 	u32 read_loc, write_loc;
  
- 	if (channel) {
--		vmbus_onchannel_event(channel);
-+		channel->onchannel_callback(channel->channel_callback_context);
- 	} else {
- 		pr_err("channel not found for relid - %u\n", relid);
- 	}
++	smp_read_barrier_depends();
++
+ 	/* Capture the read/write indices before they changed */
+ 	read_loc = rbi->ring_buffer->read_index;
+ 	write_loc = rbi->ring_buffer->write_index;
 -- 
 1.7.4.1
