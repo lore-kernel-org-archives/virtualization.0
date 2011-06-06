@@ -1,8 +1,7 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 12/49] Staging: hv: storvsc: Add a DMI signature to support
-	auto-loading
-Date: Mon,  6 Jun 2011 15:49:36 -0700
-Message-ID: <1307400613-13234-12-git-send-email-kys@microsoft.com>
+Subject: [PATCH 14/49] Staging: hv: vmbus: Use the DSDT specified irq for vmbus
+Date: Mon,  6 Jun 2011 15:49:38 -0700
+Message-ID: <1307400613-13234-14-git-send-email-kys@microsoft.com>
 References: <1307400540-13193-1-git-send-email-kys@microsoft.com>
 	<1307400613-13234-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -23,54 +22,48 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-To support auto-loading the storvsc driver, add a DMI signature.
+DSDT specifies the irq value for the vmbus driver; use it unconditionally.
+This is an exclusive interrupt line dedicated for the vmbus driver.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 ---
- drivers/staging/hv/storvsc_drv.c |   22 ++++++++++++++++++++++
- 1 files changed, 22 insertions(+), 0 deletions(-)
+ drivers/staging/hv/vmbus_drv.c |   15 +++------------
+ 1 files changed, 3 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
-index 53e9ebd..2c6d2f2 100644
---- a/drivers/staging/hv/storvsc_drv.c
-+++ b/drivers/staging/hv/storvsc_drv.c
-@@ -24,6 +24,7 @@
- #include <linux/module.h>
- #include <linux/device.h>
- #include <linux/blkdev.h>
-+#include <linux/dmi.h>
- #include <scsi/scsi.h>
- #include <scsi/scsi_cmnd.h>
- #include <scsi/scsi_host.h>
-@@ -723,6 +724,27 @@ static struct hv_driver storvsc_drv = {
- 	.remove = storvsc_remove,
- };
+diff --git a/drivers/staging/hv/vmbus_drv.c b/drivers/staging/hv/vmbus_drv.c
+index 1b69339..5d7ecfd 100644
+--- a/drivers/staging/hv/vmbus_drv.c
++++ b/drivers/staging/hv/vmbus_drv.c
+@@ -552,9 +552,8 @@ static int vmbus_bus_init(int irq)
+ 	}
  
-+/*
-+ * We use a DMI table to determine if we should autoload this driver  This is
-+ * needed by distro tools to determine if the hyperv drivers should be
-+ * installed and/or configured.  We don't do anything else with the table, but
-+ * it needs to be present.
-+ */
-+
-+static const struct dmi_system_id __initconst
-+hv_stor_dmi_table[] __maybe_unused  = {
-+	{
-+		.ident = "Hyper-V",
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "Microsoft Corporation"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "Virtual Machine"),
-+			DMI_MATCH(DMI_BOARD_NAME, "Virtual Machine"),
-+		},
-+	},
-+	{ },
-+};
-+MODULE_DEVICE_TABLE(dmi, hv_stor_dmi_table);
-+
- static int __init storvsc_drv_init(void)
- {
- 	int ret;
+ 	/* Get the interrupt resource */
+-	ret = request_irq(irq, vmbus_isr,
+-			  IRQF_SHARED | IRQF_SAMPLE_RANDOM,
+-			  driver_name, hv_pci_dev);
++	ret = request_irq(irq, vmbus_isr, IRQF_SAMPLE_RANDOM,
++			driver_name, hv_pci_dev);
+ 
+ 	if (ret != 0) {
+ 		pr_err("Unable to request IRQ %d\n",
+@@ -787,15 +786,7 @@ static int __devinit hv_pci_probe(struct pci_dev *pdev,
+ 	if (pci_probe_error)
+ 		goto probe_cleanup;
+ 
+-	/*
+-	 * If the PCI sub-sytem did not assign us an
+-	 * irq, use the bios provided one.
+-	 */
+-
+-	if (pdev->irq == 0)
+-		pdev->irq = irq;
+-
+-	pci_probe_error = vmbus_bus_init(pdev->irq);
++	pci_probe_error = vmbus_bus_init(irq);
+ 
+ 	if (pci_probe_error)
+ 		pci_disable_device(pdev);
 -- 
 1.7.4.1
