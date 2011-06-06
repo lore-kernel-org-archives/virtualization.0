@@ -1,8 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 34/49] Staging: hv: vmbus: Embed the state needed to close the
-	channel
-Date: Mon,  6 Jun 2011 15:49:58 -0700
-Message-ID: <1307400613-13234-34-git-send-email-kys@microsoft.com>
+Subject: [PATCH 30/49] Staging: hv: vmbus: Get rid of the unused function
+	vmbus_ontimer()
+Date: Mon,  6 Jun 2011 15:49:54 -0700
+Message-ID: <1307400613-13234-30-git-send-email-kys@microsoft.com>
 References: <1307400540-13193-1-git-send-email-kys@microsoft.com>
 	<1307400613-13234-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -23,40 +23,34 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Now, embed the state needed to close the channel - so we would not have to
-allocate memory in the channel close path.
+Now, get rid of the unused function vmbus_ontimer().
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 ---
- drivers/staging/hv/hyperv.h |    7 +++++++
- 1 files changed, 7 insertions(+), 0 deletions(-)
+ drivers/staging/hv/channel.c |   12 ------------
+ 1 files changed, 0 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/staging/hv/hyperv.h b/drivers/staging/hv/hyperv.h
-index 93bbeab..1747a24 100644
---- a/drivers/staging/hv/hyperv.h
-+++ b/drivers/staging/hv/hyperv.h
-@@ -569,6 +569,11 @@ struct vmbus_channel_msginfo {
- 	unsigned char msg[0];
- };
- 
-+struct vmbus_close_msg {
-+	struct vmbus_channel_msginfo info;
-+	struct vmbus_channel_close_channel msg;
-+};
-+
- struct vmbus_channel {
- 	struct list_head listentry;
- 
-@@ -601,6 +606,8 @@ struct vmbus_channel {
- 	spinlock_t inbound_lock;
- 	struct workqueue_struct *controlwq;
- 
-+	struct vmbus_close_msg close_msg;
-+
- 	/* Channel callback are invoked in this workqueue context */
- 	/* HANDLE dataWorkQueue; */
- 
+diff --git a/drivers/staging/hv/channel.c b/drivers/staging/hv/channel.c
+index b91b369..3e4422b 100644
+--- a/drivers/staging/hv/channel.c
++++ b/drivers/staging/hv/channel.c
+@@ -874,15 +874,3 @@ int vmbus_recvpacket_raw(struct vmbus_channel *channel, void *buffer,
+ 	return 0;
+ }
+ EXPORT_SYMBOL_GPL(vmbus_recvpacket_raw);
+-
+-/*
+- * vmbus_ontimer - Timer event callback
+- */
+-void vmbus_ontimer(unsigned long data)
+-{
+-	struct vmbus_channel *channel = (struct vmbus_channel *)data;
+-
+-	if (channel->onchannel_callback)
+-		channel->onchannel_callback(channel->channel_callback_context);
+-}
+-
 -- 
 1.7.4.1
