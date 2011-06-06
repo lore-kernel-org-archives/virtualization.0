@@ -1,8 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 30/49] Staging: hv: vmbus: Get rid of the unused function
-	vmbus_ontimer()
-Date: Mon,  6 Jun 2011 15:49:54 -0700
-Message-ID: <1307400613-13234-30-git-send-email-kys@microsoft.com>
+Subject: [PATCH 25/49] Staging: hv: vmbus: Get rid of unneeded calls to
+	dump_vmbus_channel
+Date: Mon,  6 Jun 2011 15:49:49 -0700
+Message-ID: <1307400613-13234-25-git-send-email-kys@microsoft.com>
 References: <1307400540-13193-1-git-send-email-kys@microsoft.com>
 	<1307400613-13234-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -23,34 +23,64 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Now, get rid of the unused function vmbus_ontimer().
+Get rid of unneeded calls to dump_vmbus_channel and get rid of the unused 
+static function that dumps the channel.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 ---
- drivers/staging/hv/channel.c |   12 ------------
- 1 files changed, 0 insertions(+), 12 deletions(-)
+ drivers/staging/hv/channel.c |   13 -------------
+ 1 files changed, 0 insertions(+), 13 deletions(-)
 
 diff --git a/drivers/staging/hv/channel.c b/drivers/staging/hv/channel.c
-index b91b369..3e4422b 100644
+index 334885d..b6f8674 100644
 --- a/drivers/staging/hv/channel.c
 +++ b/drivers/staging/hv/channel.c
-@@ -874,15 +874,3 @@ int vmbus_recvpacket_raw(struct vmbus_channel *channel, void *buffer,
- 	return 0;
+@@ -39,7 +39,6 @@ static int create_gpadl_header(
+ 	u32 size,	/* page-size multiple */
+ 	struct vmbus_channel_msginfo **msginfo,
+ 	u32 *messagecount);
+-static void dump_vmbus_channel(struct vmbus_channel *channel);
+ static void vmbus_setevent(struct vmbus_channel *channel);
+ 
+ /*
+@@ -618,7 +617,6 @@ int vmbus_sendpacket(struct vmbus_channel *channel, const void *buffer,
+ 	u64 aligned_data = 0;
+ 	int ret;
+ 
+-	dump_vmbus_channel(channel);
+ 
+ 	/* Setup the descriptor */
+ 	desc.type = type; /* VmbusPacketTypeDataInBand; */
+@@ -665,7 +663,6 @@ int vmbus_sendpacket_pagebuffer(struct vmbus_channel *channel,
+ 	if (pagecount > MAX_PAGE_BUFFER_COUNT)
+ 		return -EINVAL;
+ 
+-	dump_vmbus_channel(channel);
+ 
+ 	/*
+ 	 * Adjust the size down since vmbus_channel_packet_page_buffer is the
+@@ -725,7 +722,6 @@ int vmbus_sendpacket_multipagebuffer(struct vmbus_channel *channel,
+ 	u32 pfncount = NUM_PAGES_SPANNED(multi_pagebuffer->offset,
+ 					 multi_pagebuffer->len);
+ 
+-	dump_vmbus_channel(channel);
+ 
+ 	if ((pfncount < 0) || (pfncount > MAX_MULTIPAGE_BUFFER_COUNT))
+ 		return -EINVAL;
+@@ -891,12 +887,3 @@ void vmbus_ontimer(unsigned long data)
+ 		channel->onchannel_callback(channel->channel_callback_context);
  }
- EXPORT_SYMBOL_GPL(vmbus_recvpacket_raw);
--
+ 
 -/*
-- * vmbus_ontimer - Timer event callback
+- * dump_vmbus_channel- Dump vmbus channel info to the console
 - */
--void vmbus_ontimer(unsigned long data)
+-static void dump_vmbus_channel(struct vmbus_channel *channel)
 -{
--	struct vmbus_channel *channel = (struct vmbus_channel *)data;
--
--	if (channel->onchannel_callback)
--		channel->onchannel_callback(channel->channel_callback_context);
+-	DPRINT_DBG(VMBUS, "Channel (%d)", channel->offermsg.child_relid);
+-	hv_dump_ring_info(&channel->outbound, "Outbound ");
+-	hv_dump_ring_info(&channel->inbound, "Inbound ");
 -}
--
 -- 
 1.7.4.1
