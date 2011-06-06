@@ -1,8 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 28/49] Staging: hv: vmbus: Introduce read dependency in
-	hv_get_ringbuffer_availbytes()
-Date: Mon,  6 Jun 2011 15:49:52 -0700
-Message-ID: <1307400613-13234-28-git-send-email-kys@microsoft.com>
+Subject: [PATCH 24/49] Staging: hv: vmbus: Get rid of the unused wrapper -
+	vmbus_onchannel_event()
+Date: Mon,  6 Jun 2011 15:49:48 -0700
+Message-ID: <1307400613-13234-24-git-send-email-kys@microsoft.com>
 References: <1307400540-13193-1-git-send-email-kys@microsoft.com>
 	<1307400613-13234-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -23,27 +23,48 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Introduce read dependency in hv_get_ringbuffer_availbytes().
+Now, get rid of the unused wrapper - vmbus_onchannel_event().
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 ---
- drivers/staging/hv/ring_buffer.c |    2 ++
- 1 files changed, 2 insertions(+), 0 deletions(-)
+ drivers/staging/hv/channel.c |   10 ----------
+ drivers/staging/hv/hyperv.h  |    1 -
+ 2 files changed, 0 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/staging/hv/ring_buffer.c b/drivers/staging/hv/ring_buffer.c
-index 932af1a..8b62553 100644
---- a/drivers/staging/hv/ring_buffer.c
-+++ b/drivers/staging/hv/ring_buffer.c
-@@ -50,6 +50,8 @@ hv_get_ringbuffer_availbytes(struct hv_ring_buffer_info *rbi,
- {
- 	u32 read_loc, write_loc;
+diff --git a/drivers/staging/hv/channel.c b/drivers/staging/hv/channel.c
+index 7854de2..334885d 100644
+--- a/drivers/staging/hv/channel.c
++++ b/drivers/staging/hv/channel.c
+@@ -881,16 +881,6 @@ int vmbus_recvpacket_raw(struct vmbus_channel *channel, void *buffer,
+ EXPORT_SYMBOL_GPL(vmbus_recvpacket_raw);
  
-+	smp_read_barrier_depends();
-+
- 	/* Capture the read/write indices before they changed */
- 	read_loc = rbi->ring_buffer->read_index;
- 	write_loc = rbi->ring_buffer->write_index;
+ /*
+- * vmbus_onchannel_event - Channel event callback
+- */
+-void vmbus_onchannel_event(struct vmbus_channel *channel)
+-{
+-
+-	channel->onchannel_callback(channel->channel_callback_context);
+-
+-}
+-
+-/*
+  * vmbus_ontimer - Timer event callback
+  */
+ void vmbus_ontimer(unsigned long data)
+diff --git a/drivers/staging/hv/hyperv.h b/drivers/staging/hv/hyperv.h
+index 3310e9b..e881cfe 100644
+--- a/drivers/staging/hv/hyperv.h
++++ b/drivers/staging/hv/hyperv.h
+@@ -691,7 +691,6 @@ extern int vmbus_recvpacket_raw(struct vmbus_channel *channel,
+ 				     u32 *buffer_actual_len,
+ 				     u64 *requestid);
+ 
+-extern void vmbus_onchannel_event(struct vmbus_channel *channel);
+ 
+ extern void vmbus_get_debug_info(struct vmbus_channel *channel,
+ 				     struct vmbus_channel_debug_info *debug);
 -- 
 1.7.4.1
