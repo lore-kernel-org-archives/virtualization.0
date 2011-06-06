@@ -1,8 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 11/49] Staging: hv: vmbus: Don't free the channel when the
-	channel is closed
-Date: Mon,  6 Jun 2011 15:49:35 -0700
-Message-ID: <1307400613-13234-11-git-send-email-kys@microsoft.com>
+Subject: [PATCH 06/49] Staging: hv: stor: Get rid of unnecessary DPRINTs in
+	stor vsc_drv.c
+Date: Mon,  6 Jun 2011 15:49:30 -0700
+Message-ID: <1307400613-13234-6-git-send-email-kys@microsoft.com>
 References: <1307400540-13193-1-git-send-email-kys@microsoft.com>
 	<1307400613-13234-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -23,48 +23,94 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-When the driver unloads, the device must persist. A channel represents the 
-device and so we should not free the channel when the channel is closed as 
-part of the driver unloading.
+Get rid of unnecessary DPRINTs in stor vsc_drv.c.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 ---
- drivers/staging/hv/channel.c |   14 --------------
- 1 files changed, 0 insertions(+), 14 deletions(-)
+ drivers/staging/hv/storvsc_drv.c |   19 -------------------
+ 1 files changed, 0 insertions(+), 19 deletions(-)
 
-diff --git a/drivers/staging/hv/channel.c b/drivers/staging/hv/channel.c
-index f655e59..aca9ac8 100644
---- a/drivers/staging/hv/channel.c
-+++ b/drivers/staging/hv/channel.c
-@@ -552,7 +552,6 @@ void vmbus_close(struct vmbus_channel *channel)
- {
- 	struct vmbus_channel_close_channel *msg;
- 	struct vmbus_channel_msginfo *info;
--	unsigned long flags;
- 	int ret;
+diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
+index 499e1d7..73fbded 100644
+--- a/drivers/staging/hv/storvsc_drv.c
++++ b/drivers/staging/hv/storvsc_drv.c
+@@ -92,12 +92,8 @@ static int storvsc_device_configure(struct scsi_device *sdevice)
+ 	scsi_adjust_queue_depth(sdevice, MSG_SIMPLE_TAG,
+ 				STORVSC_MAX_IO_REQUESTS);
  
- 	/* Stop callback and cancel the timer asap */
-@@ -591,19 +590,6 @@ void vmbus_close(struct vmbus_channel *channel)
+-	DPRINT_INFO(STORVSC_DRV, "sdev (%p) - setting max segment size to %ld",
+-		    sdevice, PAGE_SIZE);
+ 	blk_queue_max_segment_size(sdevice->request_queue, PAGE_SIZE);
  
- 	kfree(info);
+-	DPRINT_INFO(STORVSC_DRV, "sdev (%p) - adding merge bio vec routine",
+-		    sdevice);
+ 	blk_queue_merge_bvec(sdevice->request_queue, storvsc_merge_bvec);
  
--	/*
--	 * If we are closing the channel during an error path in
--	 * opening the channel, don't free the channel since the
--	 * caller will free the channel
--	 */
+ 	blk_queue_bounce_limit(sdevice->request_queue, BLK_BOUNCE_ANY);
+@@ -314,10 +310,8 @@ static int storvsc_remove(struct hv_device *dev)
+ 	struct hv_host_device *host_dev =
+ 			(struct hv_host_device *)host->hostdata;
+ 
+-	DPRINT_INFO(STORVSC, "removing host adapter (%p)...", host);
+ 	scsi_remove_host(host);
+ 
+-	DPRINT_INFO(STORVSC, "releasing host adapter (%p)...", host);
+ 	scsi_host_put(host);
+ 
+ 	storvsc_dev_remove(dev);
+@@ -349,9 +343,6 @@ static int storvsc_get_chs(struct scsi_device *sdev, struct block_device * bdev,
+ 	info[1] = sectors_pt;
+ 	info[2] = (int)cylinders;
+ 
+-	DPRINT_INFO(STORVSC_DRV, "CHS (%d, %d, %d)", (int)cylinders, heads,
+-			sectors_pt);
 -
--	if (channel->state == CHANNEL_OPEN_STATE) {
--		spin_lock_irqsave(&vmbus_connection.channel_lock, flags);
--		list_del(&channel->listentry);
--		spin_unlock_irqrestore(&vmbus_connection.channel_lock, flags);
--
--		free_channel(channel);
--	}
+ 	return 0;
  }
- EXPORT_SYMBOL_GPL(vmbus_close);
  
+@@ -362,7 +353,6 @@ static int storvsc_host_reset(struct hv_device *device)
+ 	struct vstor_packet *vstor_packet;
+ 	int ret, t;
+ 
+-	DPRINT_INFO(STORVSC, "resetting host adapter...");
+ 
+ 	stor_device = get_stor_device(device);
+ 	if (!stor_device)
+@@ -391,7 +381,6 @@ static int storvsc_host_reset(struct hv_device *device)
+ 		goto cleanup;
+ 	}
+ 
+-	DPRINT_INFO(STORVSC, "host adapter reset completed");
+ 
+ 	/*
+ 	 * At this point, all outstanding requests in the adapter
+@@ -414,16 +403,10 @@ static int storvsc_host_reset_handler(struct scsi_cmnd *scmnd)
+ 		(struct hv_host_device *)scmnd->device->host->hostdata;
+ 	struct hv_device *dev = host_dev->dev;
+ 
+-	DPRINT_INFO(STORVSC_DRV, "sdev (%p) dev obj (%p) - host resetting...",
+-		    scmnd->device, dev);
+-
+ 	ret = storvsc_host_reset(dev);
+ 	if (ret != 0)
+ 		return ret;
+ 
+-	DPRINT_INFO(STORVSC_DRV, "sdev (%p) dev obj (%p) - host reseted",
+-		    scmnd->device, dev);
+-
+ 	return ret;
+ }
+ 
+@@ -500,8 +483,6 @@ static int storvsc_queuecommand_lck(struct scsi_cmnd *scmnd,
+ 
+ 		cmd_request =
+ 			(struct storvsc_cmd_request *)scmnd->host_scribble;
+-		DPRINT_INFO(STORVSC_DRV, "retrying scmnd %p cmd_request %p",
+-			    scmnd, cmd_request);
+ 
+ 		goto retry_request;
+ 	}
 -- 
 1.7.4.1
