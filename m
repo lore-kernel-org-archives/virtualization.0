@@ -1,14 +1,14 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 01/49] Staging: hv: vmbus: In vmbus_child_driver_unregister()
-	don't set the bus field to NULL
-Date: Mon,  6 Jun 2011 15:49:25 -0700
-Message-ID: <1307400613-13234-1-git-send-email-kys@microsoft.com>
+Subject: [PATCH 23/49] Staging: hv: vmbus: Directly invoke the channel callback
+Date: Mon,  6 Jun 2011 15:49:47 -0700
+Message-ID: <1307400613-13234-23-git-send-email-kys@microsoft.com>
 References: <1307400540-13193-1-git-send-email-kys@microsoft.com>
+	<1307400613-13234-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <devel-bounces@linuxdriverproject.org>
-In-Reply-To: <1307400540-13193-1-git-send-email-kys@microsoft.com>
+In-Reply-To: <1307400613-13234-1-git-send-email-kys@microsoft.com>
 List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
 	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
 List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
@@ -22,27 +22,27 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-As part of conforming to the Linux Driver Model, do not set the bus field to 
-NULL when the driver un-registers.
+Now, directly invoke the channel callback.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 ---
- drivers/staging/hv/vmbus_drv.c |    1 -
- 1 files changed, 0 insertions(+), 1 deletions(-)
+ drivers/staging/hv/connection.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/staging/hv/vmbus_drv.c b/drivers/staging/hv/vmbus_drv.c
-index ec1d38c..51af6d8 100644
---- a/drivers/staging/hv/vmbus_drv.c
-+++ b/drivers/staging/hv/vmbus_drv.c
-@@ -631,7 +631,6 @@ void vmbus_child_driver_unregister(struct device_driver *drv)
+diff --git a/drivers/staging/hv/connection.c b/drivers/staging/hv/connection.c
+index 37bbf77..fc93bdf 100644
+--- a/drivers/staging/hv/connection.c
++++ b/drivers/staging/hv/connection.c
+@@ -262,7 +262,7 @@ static void process_chn_event(u32 relid)
+ 	channel = relid2channel(relid);
  
- 	driver_unregister(drv);
- 
--	drv->bus = NULL;
- }
- EXPORT_SYMBOL(vmbus_child_driver_unregister);
- 
+ 	if (channel) {
+-		vmbus_onchannel_event(channel);
++		channel->onchannel_callback(channel->channel_callback_context);
+ 	} else {
+ 		pr_err("channel not found for relid - %u\n", relid);
+ 	}
 -- 
 1.7.4.1
