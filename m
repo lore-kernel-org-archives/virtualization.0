@@ -1,7 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 18/49] Staging: hv: vmbus: Add the DSDT _HID name as well
-Date: Mon,  6 Jun 2011 15:49:42 -0700
-Message-ID: <1307400613-13234-18-git-send-email-kys@microsoft.com>
+Subject: [PATCH 12/49] Staging: hv: storvsc: Add a DMI signature to support
+	auto-loading
+Date: Mon,  6 Jun 2011 15:49:36 -0700
+Message-ID: <1307400613-13234-12-git-send-email-kys@microsoft.com>
 References: <1307400540-13193-1-git-send-email-kys@microsoft.com>
 	<1307400613-13234-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -22,26 +23,54 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Add the DSDT _HID name as well, in addition to the _DDN name.
+To support auto-loading the storvsc driver, add a DMI signature.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 ---
- drivers/staging/hv/vmbus_drv.c |    1 +
- 1 files changed, 1 insertions(+), 0 deletions(-)
+ drivers/staging/hv/storvsc_drv.c |   22 ++++++++++++++++++++++
+ 1 files changed, 22 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/staging/hv/vmbus_drv.c b/drivers/staging/hv/vmbus_drv.c
-index 39cd277..1a26252 100644
---- a/drivers/staging/hv/vmbus_drv.c
-+++ b/drivers/staging/hv/vmbus_drv.c
-@@ -746,6 +746,7 @@ static int vmbus_acpi_add(struct acpi_device *device)
- 
- static const struct acpi_device_id vmbus_acpi_device_ids[] = {
- 	{"VMBUS", 0},
-+	{"VMBus", 0},
- 	{"", 0},
+diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
+index 53e9ebd..2c6d2f2 100644
+--- a/drivers/staging/hv/storvsc_drv.c
++++ b/drivers/staging/hv/storvsc_drv.c
+@@ -24,6 +24,7 @@
+ #include <linux/module.h>
+ #include <linux/device.h>
+ #include <linux/blkdev.h>
++#include <linux/dmi.h>
+ #include <scsi/scsi.h>
+ #include <scsi/scsi_cmnd.h>
+ #include <scsi/scsi_host.h>
+@@ -723,6 +724,27 @@ static struct hv_driver storvsc_drv = {
+ 	.remove = storvsc_remove,
  };
- MODULE_DEVICE_TABLE(acpi, vmbus_acpi_device_ids);
+ 
++/*
++ * We use a DMI table to determine if we should autoload this driver  This is
++ * needed by distro tools to determine if the hyperv drivers should be
++ * installed and/or configured.  We don't do anything else with the table, but
++ * it needs to be present.
++ */
++
++static const struct dmi_system_id __initconst
++hv_stor_dmi_table[] __maybe_unused  = {
++	{
++		.ident = "Hyper-V",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "Microsoft Corporation"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "Virtual Machine"),
++			DMI_MATCH(DMI_BOARD_NAME, "Virtual Machine"),
++		},
++	},
++	{ },
++};
++MODULE_DEVICE_TABLE(dmi, hv_stor_dmi_table);
++
+ static int __init storvsc_drv_init(void)
+ {
+ 	int ret;
 -- 
 1.7.4.1
