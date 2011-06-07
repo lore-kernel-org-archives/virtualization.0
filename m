@@ -1,55 +1,43 @@
-From: Greg KH <greg@kroah.com>
-Subject: Re: [PATCH 00/49] Staging: hv: Driver cleanup
-Date: Tue, 7 Jun 2011 13:48:56 -0700
-Message-ID: <20110607204856.GA26016@kroah.com>
+From: KY Srinivasan <kys@microsoft.com>
+Subject: RE: [PATCH 49/49] Staging: hv: vmbus: Increase the timeout value in
+ vmbus_request_offers()
+Date: Tue, 7 Jun 2011 21:20:16 +0000
+Message-ID: <6E21E5352C11B742B20C142EB499E0480813DC6F@TK5EX14MBXC122.redmond.corp.microsoft.com>
 References: <1307400540-13193-1-git-send-email-kys@microsoft.com>
+ <1307400613-13234-1-git-send-email-kys@microsoft.com>
+ <1307400613-13234-49-git-send-email-kys@microsoft.com>
+ <20110607204514.GB16429@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <devel-bounces@linuxdriverproject.org>
-Content-Disposition: inline
-In-Reply-To: <1307400540-13193-1-git-send-email-kys@microsoft.com>
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
-List-Post: <mailto:devel@linuxdriverproject.org>
-List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
-Sender: devel-bounces@linuxdriverproject.org
-Errors-To: devel-bounces@linuxdriverproject.org
-To: "K. Y. Srinivasan" <kys@microsoft.com>
-Cc: devel@linuxdriverproject.org, gregkh@suse.de, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20110607204514.GB16429@kroah.com>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: Greg KH <greg@kroah.com>
+Cc: "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, Haiyang Zhang <haiyangz@microsoft.com>, "Abhishek Kane (Mindtree Consulting PVT LTD)" <v-abkane@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Jun 06, 2011 at 03:49:00PM -0700, K. Y. Srinivasan wrote:
-> Further cleanup of the hv drivers:
-> 
-> 	1) Continue to cleanup our drivers to conform to the Linux Driver
-> 	   Model.
-> 
-> 	2) Fix some long standing bugs with regards to unloading and 
-> 	   reloading the drivers - block, net and stor.
-> 
-> 	3) VMBUS is an ACPI enumerated device; make VMBUS an ACPI bus driver.
 
-Ok, if that's the way the bus really is, it's good to get rid of the pci
-code.
 
-> 	4) Get rid of channel polling code; instead the channel receive paths 
-> 	   will be purely interrupt drive.
+> -----Original Message-----
+> From: Greg KH [mailto:greg@kroah.com]
+> Sent: Tuesday, June 07, 2011 4:45 PM
+> To: KY Srinivasan
+> Cc: gregkh@suse.de; linux-kernel@vger.kernel.org;
+> devel@linuxdriverproject.org; virtualization@lists.osdl.org; Haiyang Zhang;
+> Abhishek Kane (Mindtree Consulting PVT LTD)
+> Subject: Re: [PATCH 49/49] Staging: hv: vmbus: Increase the timeout value in
+> vmbus_request_offers()
 > 
-> 	5) Cleanup error return values in the vmbus driver and general cleanup.
+> On Mon, Jun 06, 2011 at 03:50:13PM -0700, K. Y. Srinivasan wrote:
+> > Increase the timeout value in vmbus_request_offers().
 > 
-> 	6) Fix memory barrier calls in the ring buffer code.
-> 
-> 	7) Increase the timeout values for some critical guest to host calls.
+> Why?  What does this solve/fix/prevent?
 
-I applied all of these but the last one.
+On some very loaded systems, when we tested the 1 second timeout that
+we had prior to this patch was insufficient. So I bumped it to 5 seconds.
 
-For the last patch, please provide more information about it.  Should it
-also go to older kernel releases to resolve issues found there?
+Regards,
 
-thanks,
-
-greg k-h
+K. Y
