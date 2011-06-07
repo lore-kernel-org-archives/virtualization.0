@@ -1,70 +1,80 @@
 From: KY Srinivasan <kys@microsoft.com>
-Subject: RE: [PATCH 49/49] Staging: hv: vmbus: Increase the timeout value in
- vmbus_request_offers()
-Date: Tue, 7 Jun 2011 21:39:52 +0000
-Message-ID: <6E21E5352C11B742B20C142EB499E0480813DCA5@TK5EX14MBXC122.redmond.corp.microsoft.com>
+Subject: RE: [PATCH 12/49] Staging: hv: storvsc: Add a DMI signature to
+ support auto-loading
+Date: Tue, 7 Jun 2011 22:19:06 +0000
+Message-ID: <6E21E5352C11B742B20C142EB499E0480813DD09@TK5EX14MBXC122.redmond.corp.microsoft.com>
 References: <1307400540-13193-1-git-send-email-kys@microsoft.com>
  <1307400613-13234-1-git-send-email-kys@microsoft.com>
- <1307400613-13234-49-git-send-email-kys@microsoft.com>
- <20110607204514.GB16429@kroah.com>
- <6E21E5352C11B742B20C142EB499E0480813DC6F@TK5EX14MBXC122.redmond.corp.microsoft.com>
- <20110607212800.GA3331@suse.de>
+ <1307400613-13234-12-git-send-email-kys@microsoft.com>
+ <20110606231259.GA18222@infradead.org>
+ <6E21E5352C11B742B20C142EB499E0480813D84D@TK5EX14MBXC122.redmond.corp.microsoft.com>
+ <20110607185813.GA3531@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 8BIT
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20110607212800.GA3331@suse.de>
+In-Reply-To: <20110607185813.GA3531@kroah.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Greg KH <gregkh@suse.de>
-Cc: Greg KH <greg@kroah.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, Haiyang Zhang <haiyangz@microsoft.com>, "Abhishek Kane (Mindtree Consulting PVT LTD)" <v-abkane@microsoft.com>
+To: Greg KH <greg@kroah.com>
+Cc: Christoph Hellwig <hch@infradead.org>, "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, Haiyang Zhang <haiyangz@microsoft.com>, "Abhishek Kane (Mindtree Consulting PVT LTD)" <v-abkane@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
 
 
 > -----Original Message-----
-> From: Greg KH [mailto:gregkh@suse.de]
-> Sent: Tuesday, June 07, 2011 5:28 PM
+> From: Greg KH [mailto:greg@kroah.com]
+> Sent: Tuesday, June 07, 2011 2:58 PM
 > To: KY Srinivasan
-> Cc: Greg KH; linux-kernel@vger.kernel.org; devel@linuxdriverproject.org;
-> virtualization@lists.osdl.org; Haiyang Zhang; Abhishek Kane (Mindtree Consulting
-> PVT LTD)
-> Subject: Re: [PATCH 49/49] Staging: hv: vmbus: Increase the timeout value in
-> vmbus_request_offers()
+> Cc: Christoph Hellwig; gregkh@suse.de; linux-kernel@vger.kernel.org;
+> devel@linuxdriverproject.org; virtualization@lists.osdl.org; Haiyang Zhang;
+> Abhishek Kane (Mindtree Consulting PVT LTD)
+> Subject: Re: [PATCH 12/49] Staging: hv: storvsc: Add a DMI signature to support
+> auto-loading
 > 
-> On Tue, Jun 07, 2011 at 09:20:16PM +0000, KY Srinivasan wrote:
+> On Tue, Jun 07, 2011 at 02:54:25PM +0000, KY Srinivasan wrote:
 > >
 > >
 > > > -----Original Message-----
-> > > From: Greg KH [mailto:greg@kroah.com]
-> > > Sent: Tuesday, June 07, 2011 4:45 PM
+> > > From: Christoph Hellwig [mailto:hch@infradead.org]
+> > > Sent: Monday, June 06, 2011 7:13 PM
 > > > To: KY Srinivasan
 > > > Cc: gregkh@suse.de; linux-kernel@vger.kernel.org;
 > > > devel@linuxdriverproject.org; virtualization@lists.osdl.org; Haiyang Zhang;
 > > > Abhishek Kane (Mindtree Consulting PVT LTD)
-> > > Subject: Re: [PATCH 49/49] Staging: hv: vmbus: Increase the timeout value in
-> > > vmbus_request_offers()
+> > > Subject: Re: [PATCH 12/49] Staging: hv: storvsc: Add a DMI signature to
+> support
+> > > auto-loading
 > > >
-> > > On Mon, Jun 06, 2011 at 03:50:13PM -0700, K. Y. Srinivasan wrote:
-> > > > Increase the timeout value in vmbus_request_offers().
+> > > On Mon, Jun 06, 2011 at 03:49:36PM -0700, K. Y. Srinivasan wrote:
+> > > > To support auto-loading the storvsc driver, add a DMI signature.
 > > >
-> > > Why?  What does this solve/fix/prevent?
+> > > The storvsc driver is not a DMI driver, but a vmbus driver.  As such it
+> > > should have a vmbus table that is used for autoloading, not a dmi one.
+> > >
 > >
-> > On some very loaded systems, when we tested the 1 second timeout that
-> > we had prior to this patch was insufficient. So I bumped it to 5 seconds.
+> > A while ago, Greg introduced DMI signatures to these drivers to support
+> > auto-loading. This signature is not used for anything else. For some reason,
+> > this storvsc driver was missing this signature. I added it again to only support
+> > auto-loading.
 > 
-> Ok, then this should be something that goes into 3.0 and older kernels,
-> right?
+> Yes, that was there to solve the original problem of autoloading the
+> driver.
 > 
-> If so, please say so, with this type of description, when you submit it.
+> But Christoph is correct here, the vmbus needs a way to autoload its own
+> drivers based on the GUID signatures of the devices it finds on the
+> hyperv bus.  So the correct thing to do in the long-run is to implement
+> this (which is one of the things the bus needs to do before it can move
+> out of staging).
 > 
-> Remember, don't say only what you did in the changelog comment, but why
-> you did it if it's not obvious (and it wasn't here.)
-> 
-> Care to resend this one with this information?
+> I'll take this patch as-is for now though, as it does solve the
+> immediate issue.
 
-Will do.
+Thanks Greg. Can you give me some pointers here as to what needs to be
+done here. Looking at the code for virtio, it looks like I would need to add stuff
+to scripts/mod/file2alias.c as well as to include/linux/mod_devicetable.h. Will you
+accept patches for these files to support an ID space for Hyper-V vmbus drivers.
 
-Thanks,
+Regards,
 
 K. Y
