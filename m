@@ -1,51 +1,48 @@
-From: Greg KH <greg@kroah.com>
-Subject: Re: [PATCH 12/49] Staging: hv: storvsc: Add a DMI signature to
- support auto-loading
-Date: Wed, 8 Jun 2011 09:22:22 -0700
-Message-ID: <20110608162222.GF21645@kroah.com>
-References: <1307400540-13193-1-git-send-email-kys@microsoft.com>
- <1307400613-13234-1-git-send-email-kys@microsoft.com>
- <1307400613-13234-12-git-send-email-kys@microsoft.com>
- <20110606231259.GA18222@infradead.org>
- <6E21E5352C11B742B20C142EB499E0480813D84D@TK5EX14MBXC122.redmond.corp.microsoft.com>
- <20110607185813.GA3531@kroah.com>
- <6E21E5352C11B742B20C142EB499E0480813DD09@TK5EX14MBXC122.redmond.corp.microsoft.com>
- <20110607222444.GA26968@kroah.com>
- <6E21E5352C11B742B20C142EB499E0480813DFC1@TK5EX14MBXC122.redmond.corp.microsoft.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH 1/1] [virt] virtio-blk: Use ida to allocate disk index
+Date: Thu, 09 Jun 2011 08:51:05 +0930
+Message-ID: <87mxhrgba6.fsf__6621.28226035765$1307575678$gmane$org@rustcorp.com.au>
+References: <1306913069-23637-1-git-send-email-dwu@redhat.com>
+	<87mxi1xfz0.fsf@rustcorp.com.au> <4DEF744D.9040702@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <6E21E5352C11B742B20C142EB499E0480813DFC1@TK5EX14MBXC122.redmond.corp.microsoft.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: KY Srinivasan <kys@microsoft.com>
-Cc: Christoph Hellwig <hch@infradead.org>, "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, Haiyang Zhang <haiyangz@microsoft.com>, "Abhishek Kane (Mindtree Consulting PVT LTD)" <v-abkane@microsoft.com>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <4DEF744D.9040702@redhat.com>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Mark Wu <dwu@redhat.com>
+Cc: Jens Axboe <axboe@kernel.dk>, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, Greg Kroah-Hartman <gregkh@suse.de>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, tj@kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Jun 08, 2011 at 02:44:35AM +0000, KY Srinivasan wrote:
-> > On Tue, Jun 07, 2011 at 10:19:06PM +0000, KY Srinivasan wrote:
-> > > Thanks Greg. Can you give me some pointers here as to what needs to be
-> > > done here. Looking at the code for virtio, it looks like I would need to add stuff
-> > > to scripts/mod/file2alias.c as well as to include/linux/mod_devicetable.h. Will
-> > you
-> > > accept patches for these files to support an ID space for Hyper-V vmbus drivers.
-> > 
-> > Yes, I will take patches for those files to implement this.
-> > 
-> > Along with those files, you also need a way to tell userspace that new
-> > UIDS are found before the individual drivers are loaded.  Hopefully you
-> > can do that now, but if not, it will need to be implemented.
+On Wed, 08 Jun 2011 09:08:29 -0400, Mark Wu <dwu@redhat.com> wrote:
+> Hi Rusty,
+> Yes, I can't figure out an instance of disk probing in parallel either, but as
+> per the following commit, I think we still need use lock for safety. What's your opinion?
 > 
-> Could you elaborate on what user level changes I will have to do.
+> commit 4034cc68157bfa0b6622efe368488d3d3e20f4e6
+> Author: Tejun Heo <tj@kernel.org>
+> Date:   Sat Feb 21 11:04:45 2009 +0900
+> 
+>     [SCSI] sd: revive sd_index_lock
+> 
+>     Commit f27bac2761cab5a2e212dea602d22457a9aa6943 which converted sd to
+>     use ida instead of idr incorrectly removed sd_index_lock around id
+>     allocation and free.  idr/ida do have internal locks but they protect
+>     their free object lists not the allocation itself.  The caller is
+>     responsible for that.  This missing synchronization led to the same id
+>     being assigned to multiple devices leading to oops.
 
-It's all kernel code, but you need to be emiting "device found" messages
-to userspace through the hotplug bus event when you find the devices.
-Just fill in the correct fields in your hotplug callback and you should
-be fine.
+I'm confused.  Tejun, Greg, anyone can probes happen in parallel?
 
-Look at the PCI bus hotplug callback as an example of what is needed if
-you need an example.
+If so, I'll have to review all my drivers.
 
-hope this helps,
-
-greg k-h
+Thanks,
+Rusty.
