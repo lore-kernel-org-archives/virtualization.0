@@ -1,157 +1,51 @@
-From: Mark Wu <dwu@redhat.com>
-Subject: Re: [PATCH 1/1] [virt] virtio-blk: Use ida to allocate disk index
-Date: Wed, 08 Jun 2011 09:12:01 -0400
-Message-ID: <4DEF7521.6030902__27989.8799410605$1307538697$gmane$org@redhat.com>
-References: <1306913069-23637-1-git-send-email-dwu@redhat.com>
-	<4DE5F78C.1010102@redhat.com> <20110602103406.GD7943@redhat.com>
+From: Greg KH <greg@kroah.com>
+Subject: Re: [PATCH 12/49] Staging: hv: storvsc: Add a DMI signature to
+ support auto-loading
+Date: Wed, 8 Jun 2011 09:22:22 -0700
+Message-ID: <20110608162222.GF21645@kroah.com>
+References: <1307400540-13193-1-git-send-email-kys@microsoft.com>
+ <1307400613-13234-1-git-send-email-kys@microsoft.com>
+ <1307400613-13234-12-git-send-email-kys@microsoft.com>
+ <20110606231259.GA18222@infradead.org>
+ <6E21E5352C11B742B20C142EB499E0480813D84D@TK5EX14MBXC122.redmond.corp.microsoft.com>
+ <20110607185813.GA3531@kroah.com>
+ <6E21E5352C11B742B20C142EB499E0480813DD09@TK5EX14MBXC122.redmond.corp.microsoft.com>
+ <20110607222444.GA26968@kroah.com>
+ <6E21E5352C11B742B20C142EB499E0480813DFC1@TK5EX14MBXC122.redmond.corp.microsoft.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20110602103406.GD7943@redhat.com>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <6E21E5352C11B742B20C142EB499E0480813DFC1@TK5EX14MBXC122.redmond.corp.microsoft.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: KY Srinivasan <kys@microsoft.com>
+Cc: Christoph Hellwig <hch@infradead.org>, "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, Haiyang Zhang <haiyangz@microsoft.com>, "Abhishek Kane (Mindtree Consulting PVT LTD)" <v-abkane@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 06/02/2011 06:34 AM, Michael S. Tsirkin wrote:
-> On Wed, Jun 01, 2011 at 04:25:48AM -0400, Mark Wu wrote:
->> On 06/01/2011 03:24 AM, Mark Wu wrote:
->>> -	if (index_to_minor(index)>= 1<<  MINORBITS)
->>> -		return -ENOSPC;
->>> +	do {
->>> +		if (!ida_pre_get(&vd_index_ida, GFP_KERNEL))
->>> +			return err;
->>> +
->> There's a problem in above code: err is not initialized before
->> using, so change it to return -1;
->> +       do {
->> +               if (!ida_pre_get(&vd_index_ida, GFP_KERNEL))
->> +                       return -1;
+On Wed, Jun 08, 2011 at 02:44:35AM +0000, KY Srinivasan wrote:
+> > On Tue, Jun 07, 2011 at 10:19:06PM +0000, KY Srinivasan wrote:
+> > > Thanks Greg. Can you give me some pointers here as to what needs to be
+> > > done here. Looking at the code for virtio, it looks like I would need to add stuff
+> > > to scripts/mod/file2alias.c as well as to include/linux/mod_devicetable.h. Will
+> > you
+> > > accept patches for these files to support an ID space for Hyper-V vmbus drivers.
+> > 
+> > Yes, I will take patches for those files to implement this.
+> > 
+> > Along with those files, you also need a way to tell userspace that new
+> > UIDS are found before the individual drivers are loaded.  Hopefully you
+> > can do that now, but if not, it will need to be implemented.
 > 
-> Not -1. Pls return -ENOMEM.
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe kvm" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Hi Michael,
-Thanks for pointing out that. This is the revised patch.
+> Could you elaborate on what user level changes I will have to do.
 
+It's all kernel code, but you need to be emiting "device found" messages
+to userspace through the hotplug bus event when you find the devices.
+Just fill in the correct fields in your hotplug callback and you should
+be fine.
 
-From ffe49efd20938952a09d5a87fe694a6f62937756 Mon Sep 17 00:00:00 2001
-From: Mark Wu <dwu@redhat.com>
-Date: Wed, 8 Jun 2011 08:25:53 -0400
-Subject: [PATCH 1/1] [virt] virtio-blk: Use ida to allocate disk index
+Look at the PCI bus hotplug callback as an example of what is needed if
+you need an example.
 
-Current index allocation in virtio-blk is based on a monotonically
-increasing variable "index". It could cause some confusion about disk
-name in the case of hot-plugging disks. And it's impossible to find the
-lowest available index by just maintaining a simple index. So it's
-changed to use ida to allocate index via referring to the index
-allocation in scsi disk.
+hope this helps,
 
-Signed-off-by: Mark Wu <dwu@redhat.com>
----
- drivers/block/virtio_blk.c |   37 ++++++++++++++++++++++++++++++++-----
- 1 files changed, 32 insertions(+), 5 deletions(-)
-
-diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-index 079c088..f13b758 100644
---- a/drivers/block/virtio_blk.c
-+++ b/drivers/block/virtio_blk.c
-@@ -8,10 +8,14 @@
- #include <linux/scatterlist.h>
- #include <linux/string_helpers.h>
- #include <scsi/scsi_cmnd.h>
-+#include <linux/idr.h>
- 
- #define PART_BITS 4
- 
--static int major, index;
-+static int major;
-+static DEFINE_SPINLOCK(vd_index_lock);
-+static DEFINE_IDA(vd_index_ida);
-+
- struct workqueue_struct *virtblk_wq;
- 
- struct virtio_blk
-@@ -23,6 +27,7 @@ struct virtio_blk
- 
- 	/* The disk structure for the kernel. */
- 	struct gendisk *disk;
-+	u32 index;
- 
- 	/* Request tracking. */
- 	struct list_head reqs;
-@@ -343,12 +348,26 @@ static int __devinit virtblk_probe(struct virtio_device *vdev)
- 	struct request_queue *q;
- 	int err;
- 	u64 cap;
--	u32 v, blk_size, sg_elems, opt_io_size;
-+	u32 v, blk_size, sg_elems, opt_io_size, index;
- 	u16 min_io_size;
- 	u8 physical_block_exp, alignment_offset;
- 
--	if (index_to_minor(index) >= 1 << MINORBITS)
--		return -ENOSPC;
-+	do {
-+		if (!ida_pre_get(&vd_index_ida, GFP_KERNEL))
-+			return -ENOMEM;
-+
-+		spin_lock(&vd_index_lock);
-+		err = ida_get_new(&vd_index_ida, &index);
-+		spin_unlock(&vd_index_lock);
-+	} while (err == -EAGAIN);
-+
-+	if (err)
-+		return err;
-+
-+	if (index_to_minor(index) >= 1 << MINORBITS) {
-+		err =  -ENOSPC;
-+		goto out_free_index;
-+	}
- 
- 	/* We need to know how many segments before we allocate. */
- 	err = virtio_config_val(vdev, VIRTIO_BLK_F_SEG_MAX,
-@@ -421,7 +440,7 @@ static int __devinit virtblk_probe(struct virtio_device *vdev)
- 	vblk->disk->private_data = vblk;
- 	vblk->disk->fops = &virtblk_fops;
- 	vblk->disk->driverfs_dev = &vdev->dev;
--	index++;
-+	vblk->index = index;
- 
- 	/* configure queue flush support */
- 	if (virtio_has_feature(vdev, VIRTIO_BLK_F_FLUSH))
-@@ -516,6 +535,10 @@ out_free_vq:
- 	vdev->config->del_vqs(vdev);
- out_free_vblk:
- 	kfree(vblk);
-+out_free_index:
-+	spin_lock(&vd_index_lock);
-+	ida_remove(&vd_index_ida, index);
-+	spin_unlock(&vd_index_lock);
- out:
- 	return err;
- }
-@@ -538,6 +561,10 @@ static void __devexit virtblk_remove(struct virtio_device *vdev)
- 	mempool_destroy(vblk->pool);
- 	vdev->config->del_vqs(vdev);
- 	kfree(vblk);
-+
-+	spin_lock(&vd_index_lock);
-+	ida_remove(&vd_index_ida, vblk->index);
-+	spin_unlock(&vd_index_lock);
- }
- 
- static const struct virtio_device_id id_table[] = {
--- 
-1.7.1
+greg k-h
