@@ -1,15 +1,16 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [PATCH 7/7] [v4] drivers/virt: introduce Freescale hypervisor
-	management driver
-Date: Thu, 9 Jun 2011 09:38:22 +0200
-Message-ID: <201106090938.23027.arnd__47179.9075407491$1307605150$gmane$org@arndb.de>
-References: <1307573154-15838-1-git-send-email-timur@freescale.com>
-	<20110608161009.7b05d305.randy.dunlap@oracle.com>
+From: Tejun Heo <tj@kernel.org>
+Subject: Re: [PATCH 1/1] [virt] virtio-blk: Use ida to allocate disk index
+Date: Thu, 9 Jun 2011 11:14:33 +0200
+Message-ID: <20110609091433.GB11773__32379.332293249$1307610936$gmane$org@htj.dyndns.org>
+References: <1306913069-23637-1-git-send-email-dwu@redhat.com>
+	<87mxi1xfz0.fsf@rustcorp.com.au> <4DEF744D.9040702@redhat.com>
+	<87mxhrgba6.fsf@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20110608161009.7b05d305.randy.dunlap@oracle.com>
+Content-Disposition: inline
+In-Reply-To: <87mxhrgba6.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,30 +20,42 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linuxppc-dev@lists.ozlabs.org, Linux Virtualization <virtualization@lists.linux-foundation.org>
-Cc: Randy Dunlap <randy.dunlap@oracle.com>, konrad.wilk@oracle.com, greg@kroah.com, kumar.gala@freescale.com, linux-kernel@vger.kernel.org, cmetcalf@tilera.com, dsaxena@linaro.org, linux-console@vger.kernel.org, Timur Tabi <timur@freescale.com>, alan@lxorguk.ukuu.org.uk
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Jens Axboe <axboe@kernel.dk>, Mark Wu <dwu@redhat.com>, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, Greg Kroah-Hartman <gregkh@suse.de>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thursday 09 June 2011 01:10:09 Randy Dunlap wrote:
-> On Wed, 8 Jun 2011 17:45:54 -0500 Timur Tabi wrote:
-> 
-> > Add the drivers/virt directory, which houses drivers that support
-> > virtualization environments, and add the Freescale hypervisor management
-> > driver.
-> 
-> It can't go in linux/virt or linux/virt/fsl instead?  why drivers/ ?
-> 
-> or maybe linux/virt should be drivers/virt ?
+Hello,
 
-See discussion for v2 of this patch. I suggested that drivers/firmware and virt/
-as options, the counterarguments were that drivers/firmware is for passive
-firmware as opposed to firmware that acts as a hypervisor, and that virt/ is
-for the host side of hypervisors like kvm, not for guests.
+On Thu, Jun 09, 2011 at 08:51:05AM +0930, Rusty Russell wrote:
+> On Wed, 08 Jun 2011 09:08:29 -0400, Mark Wu <dwu@redhat.com> wrote:
+> > Hi Rusty,
+> > Yes, I can't figure out an instance of disk probing in parallel either, but as
+> > per the following commit, I think we still need use lock for safety. What's your opinion?
+> > 
+> > commit 4034cc68157bfa0b6622efe368488d3d3e20f4e6
+> > Author: Tejun Heo <tj@kernel.org>
+> > Date:   Sat Feb 21 11:04:45 2009 +0900
+> > 
+> >     [SCSI] sd: revive sd_index_lock
+> > 
+> >     Commit f27bac2761cab5a2e212dea602d22457a9aa6943 which converted sd to
+> >     use ida instead of idr incorrectly removed sd_index_lock around id
+> >     allocation and free.  idr/ida do have internal locks but they protect
+> >     their free object lists not the allocation itself.  The caller is
+> >     responsible for that.  This missing synchronization led to the same id
+> >     being assigned to multiple devices leading to oops.
+> 
+> I'm confused.  Tejun, Greg, anyone can probes happen in parallel?
+> 
+> If so, I'll have to review all my drivers.
 
-The driver in here most closely resembles the xen dom0 model, where a
-priviledged guest controls other guests, but unlike xen there is a single
-driver file, so there is no need to have drivers/fsl-hv directory just
-for this one file. We do have a number of other hypervisors that fit in the
-same category, so they can be added here later.
+Unless async is explicitly used, probe happens sequentially.  IOW, if
+there's no async_schedule() call, things won't happen in parallel.
+That said, I think it wouldn't be such a bad idea to protect ida with
+spinlock regardless unless the probe code explicitly requires
+serialization.
 
-	Arnd
+Thanks.
+
+-- 
+tejun
