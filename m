@@ -1,42 +1,25 @@
-From: Randy Dunlap <randy.dunlap@oracle.com>
-Subject: Re: [PATCH 7/7] [v4] drivers/virt: introduce Freescale hypervisor
-	management driver
-Date: Thu, 09 Jun 2011 09:42:29 -0700
-Message-ID: <4DF0F7F5.5050107__13123.413854237$1307637808$gmane$org@oracle.com>
-References: <1307573154-15838-1-git-send-email-timur@freescale.com>
-	<20110608161009.7b05d305.randy.dunlap@oracle.com>
-	<201106090938.23027.arnd@arndb.de>
-	<4DF0F5A1.5080008@oracle.com> <4DF0F672.8040206@freescale.com>
+From: Greg KH <greg@kroah.com>
+Subject: Re: [PATCH 1/3] Staging: hv: netvsc: Fix a bug in accounting
+ transmit slots
+Date: Thu, 9 Jun 2011 10:04:37 -0700
+Message-ID: <20110609170437.GA24686@kroah.com>
+References: <1307401055-13608-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4DF0F672.8040206@freescale.com>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Timur Tabi <timur@freescale.com>
-Cc: Arnd Bergmann <arnd@arndb.de>, konrad.wilk@oracle.com, greg@kroah.com, kumar.gala@freescale.com, linux-kernel@vger.kernel.org, cmetcalf@tilera.com, Linux Virtualization <virtualization@lists.linux-foundation.org>, dsaxena@linaro.org, linux-console@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, alan@lxorguk.ukuu.org.uk
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1307401055-13608-1-git-send-email-kys@microsoft.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: "K. Y. Srinivasan" <kys@microsoft.com>
+Cc: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org, Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 06/09/11 09:36, Timur Tabi wrote:
-> Randy Dunlap wrote:
->> But it sounds like virt/ needs virt/host/ and virt/guest/ to me.
-> 
-> I'm okay with that idea, except there's a consensus that drivers should be in
-> drivers/.
-> 
+On Mon, Jun 06, 2011 at 03:57:35PM -0700, K. Y. Srinivasan wrote:
 
-Like sound/ ?
+I only got 2 of these three patches, what happened to the third one?
 
-but what makes it a "driver"?
+Care to resend all 3 of these to ensure that I get them all?
 
--- 
-~Randy
-*** Remember to use Documentation/SubmitChecklist when testing your code ***
+thanks,
+
+greg k-h
