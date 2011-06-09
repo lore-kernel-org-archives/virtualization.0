@@ -1,15 +1,15 @@
-From: Timur Tabi <timur@freescale.com>
+From: Arnd Bergmann <arnd@arndb.de>
 Subject: Re: [PATCH 7/7] [v5] drivers/virt: introduce Freescale hypervisor
 	management driver
-Date: Thu, 9 Jun 2011 15:18:28 -0500
-Message-ID: <4DF12A94.6070605__32283.9347216815$1307651046$gmane$org@freescale.com>
+Date: Thu, 9 Jun 2011 22:25:07 +0200
+Message-ID: <201106092225.08090.arnd__48510.3293591694$1307651390$gmane$org@arndb.de>
 References: <1307646794-26374-1-git-send-email-timur@freescale.com>
-	<201106092213.13755.arnd@arndb.de>
+	<4DF12345.1040409@freescale.com> <4DF123AA.6070402@oracle.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <201106092213.13755.arnd@arndb.de>
+In-Reply-To: <4DF123AA.6070402@oracle.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,55 +19,18 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: konrad.wilk@oracle.com, benh@kernel.crashing.org, kumar.gala@freescale.com, linux-kernel@vger.kernel.org, cmetcalf@tilera.com, linux-console@vger.kernel.org, greg@kroah.com, virtualization@lists.linux-foundation.org, linuxppc-dev@lists.ozlabs.org, alan@lxorguk.ukuu.org.uk
+To: linuxppc-dev@lists.ozlabs.org
+Cc: Randy Dunlap <randy.dunlap@oracle.com>, konrad.wilk@oracle.com, greg@kroah.com, kumar.gala@freescale.com, linux-kernel@vger.kernel.org, cmetcalf@tilera.com, dsaxena@linaro.org, linux-console@vger.kernel.org, virtualization@lists.linux-foundation.org, Timur Tabi <timur@freescale.com>, alan@lxorguk.ukuu.org.uk
 List-Id: virtualization@lists.linuxfoundation.org
 
-Arnd Bergmann wrote:
-> As mentioned, it would be easier and more readable to just do
+On Thursday 09 June 2011 21:48:58 Randy Dunlap wrote:
+> > So is it okay to stick with 0, or do I need to pick a new number?
 > 
-> 	switch(cmd) {
-> 	case FSL_HV_IOCTL_PARTITION_RESTART:
-> 		...
-> 
-> 	case FSL_HV_IOCTL_PARTITION_GET_STATUS;
-> 		...
-> 
-> There is no need to check the bits individually when you can simply
-> compare the command number.
+> I wasn't suggesting that you change the 0, just note that it has conflicts,
+> like other ioctls do.
 
-But this will break backwards compatibility with older applications that used
-the union as the size parameter.  Although these applications won't compile with
-the new header file, older already-compiled applications still work.
+We normally don't try to maintain binary compatibility with out of tree
+kernel patches. That only leads to inferior interfaces finding their way
+into the kernel.
 
-I will eventually update the applications to use the new header file, and at
-that point I will modify the switch statement as you suggest.  But until then,
-I'd like to keep the code as-is.
-
->> > +enum fsl_hv_ioctl_cmd {
->> > +       FSL_HV_IOCTL_PARTITION_RESTART = _IOWR(0, 1, struct fsl_hv_ioctl_restart),
->> > +       FSL_HV_IOCTL_PARTITION_GET_STATUS = _IOWR(0, 2, struct fsl_hv_ioctl_status),
->> > +       FSL_HV_IOCTL_PARTITION_START = _IOWR(0, 3, struct fsl_hv_ioctl_start),
->> > +       FSL_HV_IOCTL_PARTITION_STOP = _IOWR(0, 4, struct fsl_hv_ioctl_stop),
->> > +       FSL_HV_IOCTL_MEMCPY = _IOWR(0, 5, struct fsl_hv_ioctl_memcpy),
->> > +       FSL_HV_IOCTL_DOORBELL = _IOWR(0, 6, struct fsl_hv_ioctl_doorbell),
->> > +       FSL_HV_IOCTL_GETPROP = _IOWR(0, 7, struct fsl_hv_ioctl_prop),
->> > +       FSL_HV_IOCTL_SETPROP = _IOWR(0, 8, struct fsl_hv_ioctl_prop),
->> > +};
-
-> Using a #define here is usually preferred because then you can use #ifdef in a user
-> application to check if a given value has been assigned.
-
-You're right -- I had enum on the brain.
-
-> More importantly, the code you have chose (0) conflicts with existing drivers
-> (frame buffer, scsi and wavefront among others). Please chose a free one and
-> add it to Documentation/ioctl/ioctl-number.txt in the same patch.
-
-Ok, I was really hoping to avoid doing this.  Like I said, binary compatibility
-is important, and changing the type will break my existing apps.  Are you
-insisting that I pick a new number?
-
--- 
-Timur Tabi
-Linux kernel developer at Freescale
+	Arnd
