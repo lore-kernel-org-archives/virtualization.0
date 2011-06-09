@@ -1,16 +1,18 @@
 From: Timur Tabi <timur@freescale.com>
 Subject: Re: [PATCH 7/7] [v4] drivers/virt: introduce Freescale hypervisor
 	management driver
-Date: Thu, 9 Jun 2011 11:36:02 -0500
-Message-ID: <4DF0F672.8040206__8719.17963163487$1307736888$gmane$org@freescale.com>
+Date: Thu, 9 Jun 2011 11:48:51 -0500
+Message-ID: <4DF0F973.6050008__25908.7776103572$1307736905$gmane$org@freescale.com>
 References: <1307573154-15838-1-git-send-email-timur@freescale.com>
 	<20110608161009.7b05d305.randy.dunlap@oracle.com>
-	<201106090938.23027.arnd@arndb.de> <4DF0F5A1.5080008@oracle.com>
+	<201106090938.23027.arnd@arndb.de>
+	<4DF0F5A1.5080008@oracle.com> <4DF0F672.8040206@freescale.com>
+	<4DF0F7F5.5050107@oracle.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4DF0F5A1.5080008@oracle.com>
+In-Reply-To: <4DF0F7F5.5050107@oracle.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -25,10 +27,19 @@ Cc: Arnd Bergmann <arnd@arndb.de>, konrad.wilk@oracle.com, greg@kroah.com, kumar
 List-Id: virtualization@lists.linuxfoundation.org
 
 Randy Dunlap wrote:
-> But it sounds like virt/ needs virt/host/ and virt/guest/ to me.
+>> > I'm okay with that idea, except there's a consensus that drivers should be in
+>> > drivers/.
+>> > 
+> Like sound/ ?
 
-I'm okay with that idea, except there's a consensus that drivers should be in
-drivers/.
+My understanding is that this is something that's considered broken and should
+be fixed, but I don't know what the holdup is.
+
+> but what makes it a "driver"?
+
+That's a good point.
+
+Ok, so maybe I don't have any really good answers here. :-)
 
 -- 
 Timur Tabi
