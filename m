@@ -1,14 +1,11 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [PATCH 7/7] [v6] drivers/virt: introduce Freescale hypervisor
-	management driver
-Date: Thu, 9 Jun 2011 23:04:55 +0200
-Message-ID: <201106092304.55479.arnd__11625.8269445554$1307653547$gmane$org@arndb.de>
-References: <1307652726-4356-1-git-send-email-timur@freescale.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: [PATCH] virtio_net: introduce VIRTIO_NET_HDR_F_DATA_VALID
+Date: Fri, 10 Jun 2011 18:56:17 +0800
+Message-ID: <1307703377-3798-1-git-send-email-jasowang__40556.7926740789$1307703383$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1307652726-4356-1-git-send-email-timur@freescale.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,28 +15,95 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
-Cc: konrad.wilk@oracle.com, benh@kernel.crashing.org, kumar.gala@freescale.com, linux-kernel@vger.kernel.org, cmetcalf@tilera.com, dsaxena@linaro.org, linux-console@vger.kernel.org, greg@kroah.com, linuxppc-dev@lists.ozlabs.org, Timur Tabi <timur@freescale.com>, alan@lxorguk.ukuu.org.uk
+To: rusty@rustcorp.com.au, mst@redhat.com, davem@davemloft.net, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: herbert@gondor.hengli.com.au, yvugenfi@redhat.com, kvm@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thursday 09 June 2011 22:52:06 Timur Tabi wrote:
-> Add the drivers/virt directory, which houses drivers that support
-> virtualization environments, and add the Freescale hypervisor management
-> driver.
-> 
-> The Freescale hypervisor management driver provides several services to
-> drivers and applications related to the Freescale hypervisor:
-> 
-> 1. An ioctl interface for querying and managing partitions
-> 
-> 2. A file interface to reading incoming doorbells
-> 
-> 3. An interrupt handler for shutting down the partition upon receiving the
->    shutdown doorbell from a manager partition
-> 
-> 4. A kernel interface for receiving callbacks when a managed partition
->    shuts down.
-> 
-> Signed-off-by: Timur Tabi <timur@freescale.com>
+There's no need for the guest to validate the checksum if it have been
+validated by host nics. So this patch introduces a new flag -
+VIRTIO_NET_HDR_F_DATA_VALID which is used to bypass the checksum
+examing in guest. The backend (tap/macvtap) may set this flag when
+met skbs with CHECKSUM_UNNECESSARY to save cpu utilization.
 
-Acked-by: Arnd Bergmann <arnd@arndb.de>
+No feature negotiation is needed as old driver just ignore this flag.
+
+Iperf shows 12%-30% performance improvement for UDP traffic. For TCP,
+when gro is on no difference as it produces skb with partial
+checksum. But when gro is disabled, 20% or even higher improvement
+could be measured by netperf.
+
+Signed-off-by: Jason Wang <jasowang@redhat.com>
+---
+ drivers/net/macvtap.c      |    2 ++
+ drivers/net/tun.c          |    2 ++
+ drivers/net/virtio_net.c   |    2 ++
+ include/linux/virtio_net.h |    1 +
+ net/packet/af_packet.c     |    2 ++
+ 5 files changed, 9 insertions(+), 0 deletions(-)
+
+diff --git a/drivers/net/macvtap.c b/drivers/net/macvtap.c
+index 6696e56..ecee0fe 100644
+--- a/drivers/net/macvtap.c
++++ b/drivers/net/macvtap.c
+@@ -508,6 +508,8 @@ static int macvtap_skb_to_vnet_hdr(const struct sk_buff *skb,
+ 		vnet_hdr->flags = VIRTIO_NET_HDR_F_NEEDS_CSUM;
+ 		vnet_hdr->csum_start = skb_checksum_start_offset(skb);
+ 		vnet_hdr->csum_offset = skb->csum_offset;
++	} else if (skb->ip_summed == CHECKSUM_UNNECESSARY) {
++		vnet_hdr->flags = VIRTIO_NET_HDR_F_DATA_VALID;
+ 	} /* else everything is zero */
+ 
+ 	return 0;
+diff --git a/drivers/net/tun.c b/drivers/net/tun.c
+index 74e9405..f43fa45 100644
+--- a/drivers/net/tun.c
++++ b/drivers/net/tun.c
+@@ -788,6 +788,8 @@ static __inline__ ssize_t tun_put_user(struct tun_struct *tun,
+ 			gso.flags = VIRTIO_NET_HDR_F_NEEDS_CSUM;
+ 			gso.csum_start = skb_checksum_start_offset(skb);
+ 			gso.csum_offset = skb->csum_offset;
++		} else if (skb->ip_summed == CHECKSUM_UNNECESSARY) {
++			gso.flags = VIRTIO_NET_HDR_F_DATA_VALID;
+ 		} /* else everything is zero */
+ 
+ 		if (unlikely(memcpy_toiovecend(iv, (void *)&gso, total,
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index f685324..be3686a 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -274,6 +274,8 @@ static void receive_buf(struct net_device *dev, void *buf, unsigned int len)
+ 					  hdr->hdr.csum_start,
+ 					  hdr->hdr.csum_offset))
+ 			goto frame_err;
++	} else if (hdr->hdr.flags & VIRTIO_NET_HDR_F_DATA_VALID) {
++		skb->ip_summed = CHECKSUM_UNNECESSARY;
+ 	}
+ 
+ 	skb->protocol = eth_type_trans(skb, dev);
+diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
+index 136040b..970d5a2 100644
+--- a/include/linux/virtio_net.h
++++ b/include/linux/virtio_net.h
+@@ -63,6 +63,7 @@ struct virtio_net_config {
+  * specify GSO or CSUM features, you can simply ignore the header. */
+ struct virtio_net_hdr {
+ #define VIRTIO_NET_HDR_F_NEEDS_CSUM	1	// Use csum_start, csum_offset
++#define VIRTIO_NET_HDR_F_DATA_VALID	2	// Csum is valid
+ 	__u8 flags;
+ #define VIRTIO_NET_HDR_GSO_NONE		0	// Not a GSO frame
+ #define VIRTIO_NET_HDR_GSO_TCPV4	1	// GSO frame, IPv4 TCP (TSO)
+diff --git a/net/packet/af_packet.c b/net/packet/af_packet.c
+index c0c3cda..99ca471 100644
+--- a/net/packet/af_packet.c
++++ b/net/packet/af_packet.c
+@@ -1681,6 +1681,8 @@ static int packet_recvmsg(struct kiocb *iocb, struct socket *sock,
+ 			vnet_hdr.flags = VIRTIO_NET_HDR_F_NEEDS_CSUM;
+ 			vnet_hdr.csum_start = skb_checksum_start_offset(skb);
+ 			vnet_hdr.csum_offset = skb->csum_offset;
++		} else if (skb->ip_summed == CHECKSUM_UNNECESSARY) {
++			vnet_hdr.flags = VIRTIO_NET_HDR_F_DATA_VALID;
+ 		} /* else everything is zero */
+ 
+ 		err = memcpy_toiovec(msg->msg_iov, (void *)&vnet_hdr,
+-- 
+1.7.1
