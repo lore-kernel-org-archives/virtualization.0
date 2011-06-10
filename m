@@ -1,16 +1,13 @@
-From: Chris Metcalf <cmetcalf@tilera.com>
-Subject: Re: [PATCH 7/7] [v4] drivers/virt: introduce Freescale hypervisor
-	management driver
-Date: Fri, 10 Jun 2011 10:17:20 -0400
-Message-ID: <4DF22770.4010103__39834.4288384125$1307715529$gmane$org@tilera.com>
-References: <1307573154-15838-1-git-send-email-timur@freescale.com>
-	<20110608161009.7b05d305.randy.dunlap@oracle.com>
-	<201106090938.23027.arnd@arndb.de>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Subject: Re: virtio scsi host draft specification, v3
+Date: Fri, 10 Jun 2011 10:35:50 -0400 (EDT)
+Message-ID: <1504884387.187692.1307716550265.JavaMail.root__36940.4510748156$1307716593$gmane$org@zmail07.collab.prod.int.phx2.redhat.com>
+References: <4DF21447.6090005@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <201106090938.23027.arnd@arndb.de>
+In-Reply-To: <4DF21447.6090005@suse.de>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,42 +17,73 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Randy Dunlap <randy.dunlap@oracle.com>, konrad.wilk@oracle.com, greg@kroah.com, kumar.gala@freescale.com, linux-kernel@vger.kernel.org, Linux Virtualization <virtualization@lists.linux-foundation.org>, dsaxena@linaro.org, linux-console@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, Timur Tabi <timur@freescale.com>, alan@lxorguk.ukuu.org.uk
+To: Hannes Reinecke <hare@suse.de>
+Cc: Christoph Hellwig <chellwig@redhat.com>, Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, qemu-devel <qemu-devel@nongnu.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 6/9/2011 3:38 AM, Arnd Bergmann wrote:
-> On Thursday 09 June 2011 01:10:09 Randy Dunlap wrote:
->> On Wed, 8 Jun 2011 17:45:54 -0500 Timur Tabi wrote:
->>
->>> Add the drivers/virt directory, which houses drivers that support
->>> virtualization environments, and add the Freescale hypervisor management
->>> driver.
->> It can't go in linux/virt or linux/virt/fsl instead?  why drivers/ ?
->>
->> or maybe linux/virt should be drivers/virt ?
-> See discussion for v2 of this patch. I suggested that drivers/firmware and virt/
-> as options, the counterarguments were that drivers/firmware is for passive
-> firmware as opposed to firmware that acts as a hypervisor, and that virt/ is
-> for the host side of hypervisors like kvm, not for guests.
+> If requests are placed on arbitrary queues you'll inevitably run on
+> locking issues to ensure strict request ordering.
+> I would add here:
+> 
+> If a device uses more than one queue it is the responsibility of the
+> device to ensure strict request ordering.
+
+Applied with s/device/guest/g.
+
+> Please do not rely in bus/target/lun here. These are leftovers from
+> parallel SCSI and do not have any meaning on modern SCSI
+> implementation (eg FC or SAS). Rephrase that to
+> 
+> The lun field is the Logical Unit Number as defined in SAM.
+
+Ok.
+
+> >      The status byte is written by the device to be the SCSI status
+> >      code.
 >
-> The driver in here most closely resembles the xen dom0 model, where a
-> priviledged guest controls other guests, but unlike xen there is a single
-> driver file, so there is no need to have drivers/fsl-hv directory just
-> for this one file. We do have a number of other hypervisors that fit in the
-> same category, so they can be added here later.
+> ?? I doubt that exists. Make that:
+> 
+> The status byte is written by the device to be the status code as
+> defined in SAM.
 
-This still leaves open the question of what really should go in this new
-directory. Is it just for drivers that manage/control the hypervisor?  Or
-is it also for drivers that just use the hypervisor to do I/O of some kind,
-but aren't related to any other "family" of drivers, i.e., a driver that
-would have been dumped in drivers/char or drivers/misc in the old days?
+Ok.
 
-My specific interest at the moment is the proposed tile-srom.c driver
-(https://patchwork.kernel.org/patch/843892/), which uses a simple
-hypervisor read/write API to access the portion of the SPI ROM used to hold
-the boot stream for a TILE processor.
+> >      The response byte is written by the device to be one of the
+> >      following:
+> >
+> >      - VIRTIO_SCSI_S_OK when the request was completed and the
+> >      status byte
+> >        is filled with a SCSI status code (not necessarily "GOOD").
+> >
+> >      - VIRTIO_SCSI_S_UNDERRUN if the content of the CDB requires
+> >      transferring
+> >        more data than is available in the data buffers.
+> >
+> >      - VIRTIO_SCSI_S_ABORTED if the request was cancelled due to a
+> >      reset
+> >        or another task management function.
+> >
+> >      - VIRTIO_SCSI_S_FAILURE for other host or guest error. In
+> >      particular,
+> >        if neither dataout nor datain is empty, and the
+> >        VIRTIO_SCSI_F_INOUT
+> >        feature has not been negotiated, the request will be
+> >        immediately
+> >        returned with a response equal to VIRTIO_SCSI_S_FAILURE.
+> >
+> And, of course:
+> 
+> VIRTIO_SCSI_S_DISCONNECT if the request could not be processed due
+> to a communication failure (eg device was removed or could not be
+> reached).
 
--- 
-Chris Metcalf, Tilera Corp.
-http://www.tilera.com
+Ok.
+
+> This specification implies a strict one-to-one mapping between host
+> and target. IE there is no way of specifying more than one target
+> per host.
+
+Actually no, the intention is to use hierarchical LUNs to support
+more than one target per host.
+
+Paolo
