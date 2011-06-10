@@ -1,15 +1,17 @@
-From: "David Laight" <David.Laight@ACULAB.COM>
-Subject: RE: [PATCH 7/7] [v5] drivers/virt: introduce Freescale
-	hypervisormanagement driver
-Date: Fri, 10 Jun 2011 09:32:08 +0100
-Message-ID: <AE90C24D6B3A694183C094C60CF0A2F6D8AD8B__10129.1591571227$1307736907$gmane$org@saturn3.aculab.com>
-References: <201106092213.13755.arnd@arndb.de>
+From: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Subject: Re: [PATCH 7/7] [v5] drivers/virt: introduce Freescale hypervisor
+	management driver
+Date: Fri, 10 Jun 2011 11:45:51 +0100
+Message-ID: <20110610104551.GB26441__4741.42770185626$1307736911$gmane$org@sirena.org.uk>
+References: <1307646794-26374-1-git-send-email-timur@freescale.com>
+	<201106092213.13755.arnd@arndb.de> <4DF12A94.6070605@freescale.com>
+	<201106092233.08030.arnd@arndb.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-class: urn:content-classes:message
-In-Reply-To: <201106092213.13755.arnd@arndb.de>
+Content-Disposition: inline
+In-Reply-To: <201106092233.08030.arnd@arndb.de>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,41 +21,21 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Arnd Bergmann <arnd@arndb.de>, Timur Tabi <timur@freescale.com>, linuxppc-dev@lists.ozlabs.org
-Cc: konrad.wilk@oracle.com, greg@kroah.com, kumar.gala@freescale.com, linux-kernel@vger.kernel.org, cmetcalf@tilera.com, linux-console@vger.kernel.org, virtualization@lists.linux-foundation.org, alan@lxorguk.ukuu.org.uk
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: konrad.wilk@oracle.com, benh@kernel.crashing.org, kumar.gala@freescale.com, linux-kernel@vger.kernel.org, cmetcalf@tilera.com, linux-console@vger.kernel.org, greg@kroah.com, virtualization@lists.linux-foundation.org, linuxppc-dev@lists.ozlabs.org, Timur Tabi <timur@freescale.com>, alan@lxorguk.ukuu.org.uk
 List-Id: virtualization@lists.linuxfoundation.org
 
- 
-> > +enum fsl_hv_ioctl_cmd {
-> > +       FSL_HV_IOCTL_PARTITION_RESTART = _IOWR(0, 1, struct
-fsl_hv_ioctl_restart),
-...
-> > +};
-> 
-> Using a #define here is usually preferred because then you 
-> can use #ifdef in a user application to check if a given
-> value has been assigned.
+On Thu, Jun 09, 2011 at 10:33:07PM +0200, Arnd Bergmann wrote:
+> On Thursday 09 June 2011 22:18:28 Timur Tabi wrote:
 
-It is also possible to add:
-#define FSL_HV_IOCTL_PARTITION_RESTART FSL_HV_IOCTL_PARTITION_RESTART
-to have much the same effect.
-But there are many cases where #defines are better.
-I only tend to use enums when the constanst are beting generated
-by the expansion of a #define.
+> > Ok, I was really hoping to avoid doing this.  Like I said, binary compatibility
+> > is important, and changing the type will break my existing apps.  Are you
+> > insisting that I pick a new number?
 
-> More importantly, the code you have chose (0) conflicts with 
-> existing drivers (frame buffer, scsi and wavefront among others).
-> Please chose a free one and
-> add it to Documentation/ioctl/ioctl-number.txt in the same patch.
+> I definitely insist that you have a proper interface in the driver at the
+> time that it gets merged, and that probably includes a collision-free
+> ioctl code.
 
-It is rather a PITA that, when 'int' went from 16 to 32 bits, the
-BSD people used the high 16 bits for size/flags rather than
-using the extra bits to help make ioctl's unique.
-Linux seems to have copied BSD here - rather than SYSV.
-
-One problem with clashing ioctl commands is when systems like
-NetBSD are running linux binaries and need to translate ioctl
-buffers to/from native format. If the ioctl commands are
-unique this can be done much more easily.
-
-	David
+This sort of stuff is one of the issues that should be being factored in
+to any decision not to publish and submit the kernel code - ABIs that
+haven't been reviewed upstream may well have this sort of issue.
