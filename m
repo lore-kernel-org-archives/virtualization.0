@@ -1,17 +1,14 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: Re: [PATCH 7/7] [v5] drivers/virt: introduce Freescale hypervisor
-	management driver
-Date: Fri, 10 Jun 2011 11:45:51 +0100
-Message-ID: <20110610104551.GB26441__4741.42770185626$1307736911$gmane$org@sirena.org.uk>
-References: <1307646794-26374-1-git-send-email-timur@freescale.com>
-	<201106092213.13755.arnd@arndb.de> <4DF12A94.6070605@freescale.com>
-	<201106092233.08030.arnd@arndb.de>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH] virtio_net: introduce VIRTIO_NET_HDR_F_DATA_VALID
+Date: Sat, 11 Jun 2011 15:58:02 -0700 (PDT)
+Message-ID: <20110611.155802.495936379311916892.davem__49496.077912818$1307833151$gmane$org@davemloft.net>
+References: <1307703377-3798-1-git-send-email-jasowang@redhat.com>
+	<20110610112828.GA21037@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <201106092233.08030.arnd@arndb.de>
+In-Reply-To: <20110610112828.GA21037@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -21,21 +18,32 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: konrad.wilk@oracle.com, benh@kernel.crashing.org, kumar.gala@freescale.com, linux-kernel@vger.kernel.org, cmetcalf@tilera.com, linux-console@vger.kernel.org, greg@kroah.com, virtualization@lists.linux-foundation.org, linuxppc-dev@lists.ozlabs.org, Timur Tabi <timur@freescale.com>, alan@lxorguk.ukuu.org.uk
+To: mst@redhat.com
+Cc: yvugenfi@redhat.com, kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, herbert@gondor.hengli.com.au
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Jun 09, 2011 at 10:33:07PM +0200, Arnd Bergmann wrote:
-> On Thursday 09 June 2011 22:18:28 Timur Tabi wrote:
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Date: Fri, 10 Jun 2011 14:28:28 +0300
 
-> > Ok, I was really hoping to avoid doing this.  Like I said, binary compatibility
-> > is important, and changing the type will break my existing apps.  Are you
-> > insisting that I pick a new number?
+> On Fri, Jun 10, 2011 at 06:56:17PM +0800, Jason Wang wrote:
+>> There's no need for the guest to validate the checksum if it have been
+>> validated by host nics. So this patch introduces a new flag -
+>> VIRTIO_NET_HDR_F_DATA_VALID which is used to bypass the checksum
+>> examing in guest. The backend (tap/macvtap) may set this flag when
+>> met skbs with CHECKSUM_UNNECESSARY to save cpu utilization.
+>> 
+>> No feature negotiation is needed as old driver just ignore this flag.
+> 
+> This wasn't required by the spec, but maybe it should be.
+> 
+>> Iperf shows 12%-30% performance improvement for UDP traffic. For TCP,
+>> when gro is on no difference as it produces skb with partial
+>> checksum. But when gro is disabled, 20% or even higher improvement
+>> could be measured by netperf.
+>> 
+>> Signed-off-by: Jason Wang <jasowang@redhat.com>
+> 
+> 
+> Acked-by: Michael S. Tsirkin <mst@redhat.com>
 
-> I definitely insist that you have a proper interface in the driver at the
-> time that it gets merged, and that probably includes a collision-free
-> ioctl code.
-
-This sort of stuff is one of the issues that should be being factored in
-to any decision not to publish and submit the kernel code - ABIs that
-haven't been reviewed upstream may well have this sort of issue.
+Applied to net-next-2.6
