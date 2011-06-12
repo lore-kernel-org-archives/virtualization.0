@@ -1,14 +1,15 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH] virtio_net: introduce VIRTIO_NET_HDR_F_DATA_VALID
-Date: Sat, 11 Jun 2011 15:58:02 -0700 (PDT)
-Message-ID: <20110611.155802.495936379311916892.davem__49496.077912818$1307833151$gmane$org@davemloft.net>
-References: <1307703377-3798-1-git-send-email-jasowang@redhat.com>
-	<20110610112828.GA21037@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: virtio scsi host draft specification, v3
+Date: Sun, 12 Jun 2011 10:51:41 +0300
+Message-ID: <20110612075140.GB11941__24002.3914062933$1307865164$gmane$org@redhat.com>
+References: <4DEE2B15.4090809@redhat.com>
+ <4DF21447.6090005@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20110610112828.GA21037@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <4DF21447.6090005@suse.de>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,32 +19,33 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: mst@redhat.com
-Cc: yvugenfi@redhat.com, kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, herbert@gondor.hengli.com.au
+To: Hannes Reinecke <hare@suse.de>
+Cc: Christoph Hellwig <chellwig@redhat.com>, Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, qemu-devel <qemu-devel@nongnu.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Date: Fri, 10 Jun 2011 14:28:28 +0300
+On Fri, Jun 10, 2011 at 02:55:35PM +0200, Hannes Reinecke wrote:
+> >Device operation: request queues
+> >--------------------------------
+> >
+> >The driver queues requests to an arbitrary request queue, and they are
+> >used by the device on that same queue.
+> >
+> What about request ordering?
+> If requests are placed on arbitrary queues you'll inevitably run on
+> locking issues to ensure strict request ordering.
+> I would add here:
+> 
+> If a device uses more than one queue it is the responsibility of the
+> device to ensure strict request ordering.
 
-> On Fri, Jun 10, 2011 at 06:56:17PM +0800, Jason Wang wrote:
->> There's no need for the guest to validate the checksum if it have been
->> validated by host nics. So this patch introduces a new flag -
->> VIRTIO_NET_HDR_F_DATA_VALID which is used to bypass the checksum
->> examing in guest. The backend (tap/macvtap) may set this flag when
->> met skbs with CHECKSUM_UNNECESSARY to save cpu utilization.
->> 
->> No feature negotiation is needed as old driver just ignore this flag.
-> 
-> This wasn't required by the spec, but maybe it should be.
-> 
->> Iperf shows 12%-30% performance improvement for UDP traffic. For TCP,
->> when gro is on no difference as it produces skb with partial
->> checksum. But when gro is disabled, 20% or even higher improvement
->> could be measured by netperf.
->> 
->> Signed-off-by: Jason Wang <jasowang@redhat.com>
-> 
-> 
-> Acked-by: Michael S. Tsirkin <mst@redhat.com>
+Maybe I misunderstand - how can this be the responsibility of
+the device if the device does not get the information about
+the original ordering of the requests?
 
-Applied to net-next-2.6
+For example, if the driver is crazy enough to put
+all write requests on one queue and all barriers
+on another one, how is the device supposed to ensure
+ordering?
+
+-- 
+MST
