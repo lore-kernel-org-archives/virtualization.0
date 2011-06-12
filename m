@@ -1,15 +1,11 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: virtio scsi host draft specification, v3
-Date: Sun, 12 Jun 2011 10:51:41 +0300
-Message-ID: <20110612075140.GB11941__24002.3914062933$1307865164$gmane$org@redhat.com>
-References: <4DEE2B15.4090809@redhat.com>
- <4DF21447.6090005@suse.de>
+From: Joe Perches <joe@perches.com>
+Subject: [PATCH 1/2] xen: Add __attribute__((format(printf... where appropriate
+Date: Sun, 12 Jun 2011 09:21:13 -0700
+Message-ID: <17ffbd77627a21c05ab9e1a07b5207334291cf01.1307895293.git.joe__30676.2345172048$1307895740$gmane$org@perches.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <4DF21447.6090005@suse.de>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,33 +15,66 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Hannes Reinecke <hare@suse.de>
-Cc: Christoph Hellwig <chellwig@redhat.com>, Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, qemu-devel <qemu-devel@nongnu.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>
+To: Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Cc: xen-devel@lists.xensource.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Jun 10, 2011 at 02:55:35PM +0200, Hannes Reinecke wrote:
-> >Device operation: request queues
-> >--------------------------------
-> >
-> >The driver queues requests to an arbitrary request queue, and they are
-> >used by the device on that same queue.
-> >
-> What about request ordering?
-> If requests are placed on arbitrary queues you'll inevitably run on
-> locking issues to ensure strict request ordering.
-> I would add here:
-> 
-> If a device uses more than one queue it is the responsibility of the
-> device to ensure strict request ordering.
+Use the compiler to verify printf formats and arguments.
 
-Maybe I misunderstand - how can this be the responsibility of
-the device if the device does not get the information about
-the original ordering of the requests?
+Fix fallout.
 
-For example, if the driver is crazy enough to put
-all write requests on one queue and all barriers
-on another one, how is the device supposed to ensure
-ordering?
+Signed-off-by: Joe Perches <joe@perches.com>
+---
+ drivers/block/xen-blkback/xenbus.c |    2 +-
+ include/xen/hvc-console.h          |    4 +++-
+ include/xen/xenbus.h               |    2 ++
+ 3 files changed, 6 insertions(+), 2 deletions(-)
 
+diff --git a/drivers/block/xen-blkback/xenbus.c b/drivers/block/xen-blkback/xenbus.c
+index 6cc0db1..3f129b4 100644
+--- a/drivers/block/xen-blkback/xenbus.c
++++ b/drivers/block/xen-blkback/xenbus.c
+@@ -684,7 +684,7 @@ again:
+ 
+ 	err = xenbus_switch_state(dev, XenbusStateConnected);
+ 	if (err)
+-		xenbus_dev_fatal(dev, err, "switching to Connected state",
++		xenbus_dev_fatal(dev, err, "%s: switching to Connected state",
+ 				 dev->nodename);
+ 
+ 	return;
+diff --git a/include/xen/hvc-console.h b/include/xen/hvc-console.h
+index c3adde3..901724d 100644
+--- a/include/xen/hvc-console.h
++++ b/include/xen/hvc-console.h
+@@ -6,11 +6,13 @@ extern struct console xenboot_console;
+ #ifdef CONFIG_HVC_XEN
+ void xen_console_resume(void);
+ void xen_raw_console_write(const char *str);
++__attribute__((format(printf, 1, 2)))
+ void xen_raw_printk(const char *fmt, ...);
+ #else
+ static inline void xen_console_resume(void) { }
+ static inline void xen_raw_console_write(const char *str) { }
+-static inline void xen_raw_printk(const char *fmt, ...) { }
++static inline __attribute__((format(printf, 1, 2)))
++void xen_raw_printk(const char *fmt, ...) { }
+ #endif
+ 
+ #endif	/* XEN_HVC_CONSOLE_H */
+diff --git a/include/xen/xenbus.h b/include/xen/xenbus.h
+index 5467369..aceeca7 100644
+--- a/include/xen/xenbus.h
++++ b/include/xen/xenbus.h
+@@ -223,7 +223,9 @@ int xenbus_free_evtchn(struct xenbus_device *dev, int port);
+ 
+ enum xenbus_state xenbus_read_driver_state(const char *path);
+ 
++__attribute__((format(printf, 3, 4)))
+ void xenbus_dev_error(struct xenbus_device *dev, int err, const char *fmt, ...);
++__attribute__((format(printf, 3, 4)))
+ void xenbus_dev_fatal(struct xenbus_device *dev, int err, const char *fmt, ...);
+ 
+ const char *xenbus_strstate(enum xenbus_state state);
 -- 
-MST
+1.7.6.rc1
