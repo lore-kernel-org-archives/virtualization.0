@@ -1,11 +1,14 @@
-From: Joe Perches <joe@perches.com>
-Subject: [PATCH 1/2] xen: Add __attribute__((format(printf... where appropriate
-Date: Sun, 12 Jun 2011 09:21:13 -0700
-Message-ID: <17ffbd77627a21c05ab9e1a07b5207334291cf01.1307895293.git.joe__30676.2345172048$1307895740$gmane$org@perches.com>
+From: Krishna Kumar2 <krkumar2@in.ibm.com>
+Subject: Re: [PATCHv2 RFC 0/4] virtio and vhost-net capacity handling
+Date: Mon, 13 Jun 2011 19:02:27 +0530
+Message-ID: <OFE36F9C2B.43D9DB04-ON652578AE.0048E1AB-652578AE.004A1462__18489.6973929883$1307971843$gmane$org@in.ibm.com>
+References: <cover.1307029008.git.mst@redhat.com>
+	<20110607160830.GB17581@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20110607160830.GB17581@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -15,66 +18,86 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Cc: xen-devel@lists.xensource.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: habanero@linux.vnet.ibm.com, lguest@lists.ozlabs.org, Shirley Ma <xma@us.ibm.com>, kvm@vger.kernel.org, Carsten Otte <cotte@de.ibm.com>, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, steved@us.ibm.com, Christian Borntraeger <borntraeger@de.ibm.com>, Tom Lendacky <tahm@linux.vnet.ibm.com>, netdev@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux390@de.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Use the compiler to verify printf formats and arguments.
+"Michael S. Tsirkin" <mst@redhat.com> wrote on 06/07/2011 09:38:30 PM:
 
-Fix fallout.
+> > This is on top of the patches applied by Rusty.
+> >
+> > Warning: untested. Posting now to give people chance to
+> > comment on the API.
+>
+> OK, this seems to have survived some testing so far,
+> after I dropped patch 4 and fixed build for patch 3
+> (build fixup patch sent in reply to the original).
+>
+> I'll be mostly offline until Sunday, would appreciate
+> testing reports.
 
-Signed-off-by: Joe Perches <joe@perches.com>
----
- drivers/block/xen-blkback/xenbus.c |    2 +-
- include/xen/hvc-console.h          |    4 +++-
- include/xen/xenbus.h               |    2 ++
- 3 files changed, 6 insertions(+), 2 deletions(-)
+Hi Michael,
 
-diff --git a/drivers/block/xen-blkback/xenbus.c b/drivers/block/xen-blkback/xenbus.c
-index 6cc0db1..3f129b4 100644
---- a/drivers/block/xen-blkback/xenbus.c
-+++ b/drivers/block/xen-blkback/xenbus.c
-@@ -684,7 +684,7 @@ again:
- 
- 	err = xenbus_switch_state(dev, XenbusStateConnected);
- 	if (err)
--		xenbus_dev_fatal(dev, err, "switching to Connected state",
-+		xenbus_dev_fatal(dev, err, "%s: switching to Connected state",
- 				 dev->nodename);
- 
- 	return;
-diff --git a/include/xen/hvc-console.h b/include/xen/hvc-console.h
-index c3adde3..901724d 100644
---- a/include/xen/hvc-console.h
-+++ b/include/xen/hvc-console.h
-@@ -6,11 +6,13 @@ extern struct console xenboot_console;
- #ifdef CONFIG_HVC_XEN
- void xen_console_resume(void);
- void xen_raw_console_write(const char *str);
-+__attribute__((format(printf, 1, 2)))
- void xen_raw_printk(const char *fmt, ...);
- #else
- static inline void xen_console_resume(void) { }
- static inline void xen_raw_console_write(const char *str) { }
--static inline void xen_raw_printk(const char *fmt, ...) { }
-+static inline __attribute__((format(printf, 1, 2)))
-+void xen_raw_printk(const char *fmt, ...) { }
- #endif
- 
- #endif	/* XEN_HVC_CONSOLE_H */
-diff --git a/include/xen/xenbus.h b/include/xen/xenbus.h
-index 5467369..aceeca7 100644
---- a/include/xen/xenbus.h
-+++ b/include/xen/xenbus.h
-@@ -223,7 +223,9 @@ int xenbus_free_evtchn(struct xenbus_device *dev, int port);
- 
- enum xenbus_state xenbus_read_driver_state(const char *path);
- 
-+__attribute__((format(printf, 3, 4)))
- void xenbus_dev_error(struct xenbus_device *dev, int err, const char *fmt, ...);
-+__attribute__((format(printf, 3, 4)))
- void xenbus_dev_fatal(struct xenbus_device *dev, int err, const char *fmt, ...);
- 
- const char *xenbus_strstate(enum xenbus_state state);
--- 
-1.7.6.rc1
+I ran the latest patches with 1K I/O (guest->local host) and
+the results are (60 sec run for each test case):
+
+______________________________
+#sessions   BW%       SD%
+______________________________
+1           -25.6     47.0
+2           -29.3     22.9
+4              .8     1.6
+8             1.6     0
+16          -1.6      4.1
+32          -5.3      2.1
+48           11.3    -7.8
+64          -2.8      .7
+96          -6.2      .6
+128         -10.6     12.7
+______________________________
+BW: -4.8     SD: 5.4
+
+I tested it again to see if the regression is fleeting (since
+the numbers vary quite a bit for 1K I/O even between guest->
+local host), but:
+
+______________________________
+#sessions  BW%     SD%
+______________________________
+1          14.0    -17.3
+2          19.9    -11.1
+4          7.9     -15.3
+8          9.6     -13.1
+16         1.2     -7.3
+32        -.6      -13.5
+48        -28.7     10.0
+64        -5.7     -.7
+96        -9.4     -8.1
+128       -9.4      .7
+______________________________
+BW: -3.7     SD: -2.0
+
+
+With 16K, there was an improvement in SD, but
+higher sessions seem to slightly degrade BW/SD:
+
+______________________________
+#sessions  BW%      SD%
+______________________________
+1          30.9    -25.0
+2          16.5    -19.4
+4         -1.3      7.9
+8          1.4      6.2
+16         3.9     -5.4
+32         0        4.3
+48        -.5        .1
+64         32.1    -1.5
+96        -2.1      23.2
+128       -7.4      3.8
+______________________________
+BW: 5.0          SD: 7.5
+
+
+Thanks,
+
+- KK
