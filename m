@@ -1,13 +1,14 @@
 From: Hannes Reinecke <hare@suse.de>
 Subject: Re: virtio scsi host draft specification, v3
-Date: Tue, 14 Jun 2011 10:39:04 +0200
-Message-ID: <4DF71E28.6070009__19416.4653112695$1308040815$gmane$org@suse.de>
-References: <1504884387.187692.1307716550265.JavaMail.root@zmail07.collab.prod.int.phx2.redhat.com>
+Date: Tue, 14 Jun 2011 17:30:24 +0200
+Message-ID: <4DF77E90.4080409__41080.4040068344$1308065496$gmane$org@suse.de>
+References: <4DEE2B15.4090809@redhat.com> <4DF21447.6090005@suse.de>
+	<20110612075140.GB11941@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1504884387.187692.1307716550265.JavaMail.root@zmail07.collab.prod.int.phx2.redhat.com>
+In-Reply-To: <20110612075140.GB11941@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -17,95 +18,57 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: Christoph Hellwig <chellwig@redhat.com>, Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, qemu-devel <qemu-devel@nongnu.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Christoph Hellwig <chellwig@redhat.com>, Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, qemu-devel <qemu-devel@nongnu.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gMDYvMTAvMjAxMSAwNDozNSBQTSwgUGFvbG8gQm9uemluaSB3cm90ZToKPj4gSWYgcmVxdWVz
-dHMgYXJlIHBsYWNlZCBvbiBhcmJpdHJhcnkgcXVldWVzIHlvdSdsbCBpbmV2aXRhYmx5IHJ1biBv
-bgo+PiBsb2NraW5nIGlzc3VlcyB0byBlbnN1cmUgc3RyaWN0IHJlcXVlc3Qgb3JkZXJpbmcuCj4+
-IEkgd291bGQgYWRkIGhlcmU6Cj4+Cj4+IElmIGEgZGV2aWNlIHVzZXMgbW9yZSB0aGFuIG9uZSBx
-dWV1ZSBpdCBpcyB0aGUgcmVzcG9uc2liaWxpdHkgb2YgdGhlCj4+IGRldmljZSB0byBlbnN1cmUg
-c3RyaWN0IHJlcXVlc3Qgb3JkZXJpbmcuCj4KPiBBcHBsaWVkIHdpdGggcy9kZXZpY2UvZ3Vlc3Qv
-Zy4KPgo+PiBQbGVhc2UgZG8gbm90IHJlbHkgaW4gYnVzL3RhcmdldC9sdW4gaGVyZS4gVGhlc2Ug
-YXJlIGxlZnRvdmVycyBmcm9tCj4+IHBhcmFsbGVsIFNDU0kgYW5kIGRvIG5vdCBoYXZlIGFueSBt
-ZWFuaW5nIG9uIG1vZGVybiBTQ1NJCj4+IGltcGxlbWVudGF0aW9uIChlZyBGQyBvciBTQVMpLiBS
-ZXBocmFzZSB0aGF0IHRvCj4+Cj4+IFRoZSBsdW4gZmllbGQgaXMgdGhlIExvZ2ljYWwgVW5pdCBO
-dW1iZXIgYXMgZGVmaW5lZCBpbiBTQU0uCj4KPiBPay4KPgo+Pj4gICAgICAgVGhlIHN0YXR1cyBi
-eXRlIGlzIHdyaXR0ZW4gYnkgdGhlIGRldmljZSB0byBiZSB0aGUgU0NTSSBzdGF0dXMKPj4+ICAg
-ICAgIGNvZGUuCj4+Cj4+ID8/IEkgZG91YnQgdGhhdCBleGlzdHMuIE1ha2UgdGhhdDoKPj4KPj4g
-VGhlIHN0YXR1cyBieXRlIGlzIHdyaXR0ZW4gYnkgdGhlIGRldmljZSB0byBiZSB0aGUgc3RhdHVz
-IGNvZGUgYXMKPj4gZGVmaW5lZCBpbiBTQU0uCj4KPiBPay4KPgo+Pj4gICAgICAgVGhlIHJlc3Bv
-bnNlIGJ5dGUgaXMgd3JpdHRlbiBieSB0aGUgZGV2aWNlIHRvIGJlIG9uZSBvZiB0aGUKPj4+ICAg
-ICAgIGZvbGxvd2luZzoKPj4+Cj4+PiAgICAgICAtIFZJUlRJT19TQ1NJX1NfT0sgd2hlbiB0aGUg
-cmVxdWVzdCB3YXMgY29tcGxldGVkIGFuZCB0aGUKPj4+ICAgICAgIHN0YXR1cyBieXRlCj4+PiAg
-ICAgICAgIGlzIGZpbGxlZCB3aXRoIGEgU0NTSSBzdGF0dXMgY29kZSAobm90IG5lY2Vzc2FyaWx5
-ICJHT09EIikuCj4+Pgo+Pj4gICAgICAgLSBWSVJUSU9fU0NTSV9TX1VOREVSUlVOIGlmIHRoZSBj
-b250ZW50IG9mIHRoZSBDREIgcmVxdWlyZXMKPj4+ICAgICAgIHRyYW5zZmVycmluZwo+Pj4gICAg
-ICAgICBtb3JlIGRhdGEgdGhhbiBpcyBhdmFpbGFibGUgaW4gdGhlIGRhdGEgYnVmZmVycy4KPj4+
-Cj4+PiAgICAgICAtIFZJUlRJT19TQ1NJX1NfQUJPUlRFRCBpZiB0aGUgcmVxdWVzdCB3YXMgY2Fu
-Y2VsbGVkIGR1ZSB0byBhCj4+PiAgICAgICByZXNldAo+Pj4gICAgICAgICBvciBhbm90aGVyIHRh
-c2sgbWFuYWdlbWVudCBmdW5jdGlvbi4KPj4+Cj4+PiAgICAgICAtIFZJUlRJT19TQ1NJX1NfRkFJ
-TFVSRSBmb3Igb3RoZXIgaG9zdCBvciBndWVzdCBlcnJvci4gSW4KPj4+ICAgICAgIHBhcnRpY3Vs
-YXIsCj4+PiAgICAgICAgIGlmIG5laXRoZXIgZGF0YW91dCBub3IgZGF0YWluIGlzIGVtcHR5LCBh
-bmQgdGhlCj4+PiAgICAgICAgIFZJUlRJT19TQ1NJX0ZfSU5PVVQKPj4+ICAgICAgICAgZmVhdHVy
-ZSBoYXMgbm90IGJlZW4gbmVnb3RpYXRlZCwgdGhlIHJlcXVlc3Qgd2lsbCBiZQo+Pj4gICAgICAg
-ICBpbW1lZGlhdGVseQo+Pj4gICAgICAgICByZXR1cm5lZCB3aXRoIGEgcmVzcG9uc2UgZXF1YWwg
-dG8gVklSVElPX1NDU0lfU19GQUlMVVJFLgo+Pj4KPj4gQW5kLCBvZiBjb3Vyc2U6Cj4+Cj4+IFZJ
-UlRJT19TQ1NJX1NfRElTQ09OTkVDVCBpZiB0aGUgcmVxdWVzdCBjb3VsZCBub3QgYmUgcHJvY2Vz
-c2VkIGR1ZQo+PiB0byBhIGNvbW11bmljYXRpb24gZmFpbHVyZSAoZWcgZGV2aWNlIHdhcyByZW1v
-dmVkIG9yIGNvdWxkIG5vdCBiZQo+PiByZWFjaGVkKS4KPgo+IE9rLgo+Cj4+IFRoaXMgc3BlY2lm
-aWNhdGlvbiBpbXBsaWVzIGEgc3RyaWN0IG9uZS10by1vbmUgbWFwcGluZyBiZXR3ZWVuIGhvc3QK
-Pj4gYW5kIHRhcmdldC4gSUUgdGhlcmUgaXMgbm8gd2F5IG9mIHNwZWNpZnlpbmcgbW9yZSB0aGFu
-IG9uZSB0YXJnZXQKPj4gcGVyIGhvc3QuCj4KPiBBY3R1YWxseSBubywgdGhlIGludGVudGlvbiBp
-cyB0byB1c2UgaGllcmFyY2hpY2FsIExVTnMgdG8gc3VwcG9ydAo+IG1vcmUgdGhhbiBvbmUgdGFy
-Z2V0IHBlciBob3N0Lgo+CkNhbid0LgoKSGllcmFyY2hpY2FsIExVTnMgaXMgYSB0YXJnZXQtaW50
-ZXJuYWwgcmVwcmVzZW50YXRpb24uClRoZSBpbml0aWF0b3IgKGllIGd1ZXN0IE9TKSBzaG91bGQg
-X25vdF8gdHJ5IHRvIGFzc3VtZSBhbnl0aGluZyAKYWJvdXQgdGhlIGludGVybmFsIHN0cnVjdHVy
-ZSBhbmQganVzdCB1c2UgdGhlIExVTiBhcyBhbiBvcGFxdWUgbnVtYmVyLgoKUmVhc29uIGJlaW5n
-IHRoYXQgdGhlIExVTiBhZGRyZXNzaW5nIGlzIG5vdCB1bmlxdWUsIGFuZCB0aGVyZSBhcmUgCnNl
-dmVyYWwgY2hvaWNlcyBvbiBob3cgdG8gcmVwcmVzZW50IGEgZ2l2ZW4gTFVOLgpTbyB0aGUgY29u
-c2Vuc3VzIGhlcmUgaXMgdGhhdCBkaWZmZXJlbnQgTFVOIG51bWJlcnMgcmVwcmVzZW50CmRpZmZl
-cmVudCBwaHlzaWNhbCBkZXZpY2VzLCByZWdhcmRsZXNzIG9uIHRoZSAoaW50ZXJuYWwpIExVTiAK
-cmVwcmVzZW50YXRpb24uCldoaWNoIGluIHR1cm4gbWVhbnMgd2UgY2Fubm90IHVzZSB0aGUgTFVO
-IG51bWJlciB0byBjb252ZXkgYW55dGhpbmcgCmVsc2UgdGhhbiBhIGRldmljZSBpZGVudGlmaWNh
-dGlvbiByZWxhdGl2ZSB0byBhIHRhcmdldC4KCkNmIFNBTS0zIHBhcmFncmFwaCA0Ljg6CgpBIGxv
-Z2ljYWwgdW5pdCBudW1iZXIgaXMgYSBmaWVsZCAoc2VlIDQuOSkgY29udGFpbmluZyA2NCBiaXRz
-IHRoYXQgCmlkZW50aWZpZXMgdGhlIGxvZ2ljYWwgdW5pdCB3aXRoaW4gYSBTQ1NJIHRhcmdldCBk
-ZXZpY2UKd2hlbiBhY2Nlc3NlZCBieSBhIFNDU0kgdGFyZ2V0IHBvcnQuCgpJRSB0aGUgTFVOIGlz
-IGRlcGVuZGVudCBvbiB0aGUgdGFyZ2V0LCBidXQgeW91IGNhbm5vdCBtYWtlIAphc3N1bXB0aW9u
-cyBvbiB0aGUgdGFyZ2V0LgoKQ29uc2VxdWVudGx5LCBpdCdzIGluIHRoZSBob3N0cycgcmVzcG9u
-c2liaWxpdHkgdG8gZmlndXJlIG91dCB0aGUgCnRhcmdldHMgaW4gdGhlIHN5c3RlbS4gQWZ0ZXIg
-dGhhdCBpdCBpbnZva2VzIHRoZSAnc2NhbicgZnVuY3Rpb24gCmZyb20gdGhlIFNDU0kgbWlkbGF5
-ZXIuCllvdSBjYW4ndCBzdGFydCBmcm9tIGEgTFVOIGFuZCB0cnkgdG8gZmlndXJlIG91dCB0aGUg
-dGFyZ2V0cyAuLi4KCklmIHlvdSB3YW50IHRvIHN1cHBvcnQgbW9yZSB0aGFuIG9uIHRhcmdldCBw
-ZXIgaG9zdCB5b3UgbmVlZCBzb21lIApzb3J0IG9mIGVudW1lcmF0aW9uL2NhbGxiYWNrIHdoaWNo
-IGFsbG93cyB0aGUgaG9zdCB0byBmaWd1cmUgb3V0CnRoZSBudW1iZXIgb2YgYXZhaWxhYmxlIHRh
-cmdldHMuCkJ1dCBpbiBnZW5lcmFsIHRoZSB0YXJnZXRzIGFyZSByZWZlcmVuY2VkIGJ5IHRoZSB0
-YXJnZXQgcG9ydCAKaWRlbnRpZmllciBhcyBzcGVjaWZpZWQgaW4gdGhlIGFwcHJvcHJpYXRlIHN0
-YW5kYXJkIChlZyBGQyBvciBTQVMpLgpTYWRseSwgd2UgZG9uJ3QgaGF2ZSBhbnkgc3RhbmRhcmQg
-dG8gZmFsbCBiYWNrIG9uIGZvciB0aGlzLgoKSWYsIGhvd2V2ZXIsIHdlIGRlY2lkZSB0byBleHBv
-c2Ugc29tZSBkZXRhaWxzIGFib3V0IHRoZSBiYWNrZW5kLCB3ZSAKY291bGQgYmUgdXNpbmcgdGhl
-IHZhbHVlcyBmcm9tIHRoZSBiYWNrZW5kIGRpcmVjdGx5LgpFRyB3ZSBjb3VsZCBiZSBmb3J3YXJk
-aW5nIHRoZSBTQ1NJIHRhcmdldCBwb3J0IGlkZW50aWZpZXIgaGVyZQooaWYgYmFja2VkIGJ5IHJl
-YWwgaGFyZHdhcmUpIG9yIGNyZWF0aW5nIG91ciBvd24gU0FTLXR5cGUKaWRlbnRpZmllciB3aGVu
-IGJhY2tlZCBieSBxZW11IGJsb2NrLiBUaGVuIHdlIGNvdWxkIGp1c3QgcXVlcnkKdGhlIGJhY2tl
-bmQgdmlhIGEgbmV3IGNvbW1hbmQgb24gdGhlIGNvbnRyb2xxCihlZyAnbGlzdCB0YXJnZXQgcG9y
-dHMnKSBhbmQgd291bGRuJ3QgaGF2ZSB0byB3b3JyeSBhYm91dCBhbnkgCnByb3RvY29sIHNwZWNp
-ZmljIGRldGFpbHMgaGVyZS4KCk9mIGNvdXJzZSwgd2hlbiBkb2luZyBzbyB3ZSB3b3VsZCBiZSBs
-b3NlIHRoZSBhYmlsaXR5IHRvIGZyZWVseSAKcmVtYXAgTFVOcy4gQnV0IHRoZW4gcmVtYXBwaW5n
-IExVTnMgZG9lc24ndCBnYWluIHlvdSBtdWNoIGltaG8uClBsdXMgeW91IGNvdWxkIGFsd2F5cyB1
-c2UgcWVtdSBibG9jayBiYWNrZW5kIGhlcmUgaWYgeW91IHdhbnQKdG8gaGlkZSB0aGUgZGV0YWls
-cy4KQnV0IHdlIHdvdWxkIGJlIGZpbmFsbHkgYWJsZSB0byB1c2UgTlBJViBmb3IgS1ZNLCBzb21l
-dGhpbmcKSSB3YW50ZWQgdG8gZG8gZm9yIGEgX2xvbmdfIHRpbWUuCgpJIHBlcnNvbmFsbHkgX3Jl
-YWxseV8gd291bGQgbGlrZSB0byBzZWUgdGhlIHJlYWwgYmFja2luZyBkZXZpY2UgCmRldGFpbHMg
-ZXhwb3NlZCB0byB0aGUgZ3Vlc3QuCk90aGVyd2lzZSB0aGUgbW9yZSBhZHZhbmNlZCBzdHVmZiBs
-aWtlIHBlcnNpc3RlbnQgcmVzZXJ2YXRpb25zIApiZWNvbWVzIF9yZWFsbHlfIGhhcmQgaWYgbm90
-IGltcG9zc2libGUuCgpDaGVlcnMsCgpIYW5uZXMKLS0gCkRyLiBIYW5uZXMgUmVpbmVja2UJCSAg
-ICAgIHpTZXJpZXMgJiBTdG9yYWdlCmhhcmVAc3VzZS5kZQkJCSAgICAgICs0OSA5MTEgNzQwNTMg
-Njg4ClNVU0UgTElOVVggUHJvZHVjdHMgR21iSCwgTWF4ZmVsZHN0ci4gNSwgOTA0MDkgTsO8cm5i
-ZXJnCkdGOiBKLiBIYXduLCBKLiBHdWlsZCwgRi4gSW1lbmTDtnJmZmVyLCBIUkIgMTY3NDYgKEFH
-IE7DvHJuYmVyZykKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4
-LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcvbWFpbG1h
-bi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+On 06/12/2011 09:51 AM, Michael S. Tsirkin wrote:
+> On Fri, Jun 10, 2011 at 02:55:35PM +0200, Hannes Reinecke wrote:
+>>> Device operation: request queues
+>>> --------------------------------
+>>>
+>>> The driver queues requests to an arbitrary request queue, and they are
+>>> used by the device on that same queue.
+>>>
+>> What about request ordering?
+>> If requests are placed on arbitrary queues you'll inevitably run on
+>> locking issues to ensure strict request ordering.
+>> I would add here:
+>>
+>> If a device uses more than one queue it is the responsibility of the
+>> device to ensure strict request ordering.
+>
+> Maybe I misunderstand - how can this be the responsibility of
+> the device if the device does not get the information about
+> the original ordering of the requests?
+>
+> For example, if the driver is crazy enough to put
+> all write requests on one queue and all barriers
+> on another one, how is the device supposed to ensure
+> ordering?
+>
+Which is exactly the problem I was referring to.
+When using more than one channel the request ordering
+_as seen by the initiator_ has to be preserved.
+
+This is quite hard to do from a device's perspective;
+it might be able to process the requests _in the order_ they've =
+
+arrived, but it won't be able to figure out the latency of each =
+
+request, ie how it'll take the request to be delivered to the initiator.
+
+What we need to do here is to ensure that virtio will deliver
+the requests in-order across all virtqueues. Not sure whether it =
+
+does this already.
+
+Cheers,
+
+Hannes
+-- =
+
+Dr. Hannes Reinecke		      zSeries & Storage
+hare@suse.de			      +49 911 74053 688
+SUSE LINUX Products GmbH, Maxfeldstr. 5, 90409 N=FCrnberg
+GF: J. Hawn, J. Guild, F. Imend=F6rffer, HRB 16746 (AG N=FCrnberg)
