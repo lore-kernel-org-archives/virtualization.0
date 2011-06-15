@@ -1,11 +1,13 @@
-From: Stephen Hemminger <shemminger@vyatta.com>
-Subject: [PATCH] virtio-net: per cpu 64 bit stats
-Date: Wed, 15 Jun 2011 11:43:37 -0400
-Message-ID: <20110615114337.09fe62f6__29027.4512525231$1308152761$gmane$org@s6510.ftrdhcpuser.net>
+From: Eric Dumazet <eric.dumazet@gmail.com>
+Subject: Re: [PATCH] virtio-net: per cpu 64 bit stats
+Date: Wed, 15 Jun 2011 17:58:58 +0200
+Message-ID: <1308153538.3128.3.camel__44288.1783390932$1308153593$gmane$org@edumazet-laptop>
+References: <20110615114337.09fe62f6@s6510.ftrdhcpuser.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20110615114337.09fe62f6@s6510.ftrdhcpuser.net>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -15,200 +17,64 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>, "Michael S. Tsirkin" <mst@redhat.com>
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Stephen Hemminger <shemminger@vyatta.com>
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Use per-cpu variables to maintain 64 bit statistics.
-Compile tested only.
-
-Signed-off-by: Stephen Hemminger <shemminger@vyatta.com>
-
---- a/drivers/net/virtio_net.c	2011-06-14 15:18:46.448596355 -0400
-+++ b/drivers/net/virtio_net.c	2011-06-15 09:54:22.914426067 -0400
-@@ -40,6 +40,15 @@ module_param(gso, bool, 0444);
- 
- #define VIRTNET_SEND_COMMAND_SG_MAX    2
- 
-+struct virtnet_stats {
-+	struct u64_stats_sync syncp;
-+	u64 tx_bytes;
-+	u64 tx_packets;
-+
-+	u64 rx_bytes;
-+	u64 rx_packets;
-+};
-+
- struct virtnet_info {
- 	struct virtio_device *vdev;
- 	struct virtqueue *rvq, *svq, *cvq;
-@@ -56,6 +65,9 @@ struct virtnet_info {
- 	/* Host will merge rx buffers for big packets (shake it! shake it!) */
- 	bool mergeable_rx_bufs;
- 
-+	/* Active statistics */
-+	struct virtnet_stats __percpu *stats;
-+
- 	/* Work struct for refilling if we run low on memory. */
- 	struct delayed_work refill;
- 
-@@ -209,7 +221,6 @@ static int receive_mergeable(struct virt
- 			skb->dev->stats.rx_length_errors++;
- 			return -EINVAL;
- 		}
--
- 		page = virtqueue_get_buf(vi->rvq, &len);
- 		if (!page) {
- 			pr_debug("%s: rx error: %d buffers missing\n",
-@@ -217,6 +228,7 @@ static int receive_mergeable(struct virt
- 			skb->dev->stats.rx_length_errors++;
- 			return -EINVAL;
- 		}
-+
- 		if (len > PAGE_SIZE)
- 			len = PAGE_SIZE;
- 
-@@ -230,6 +242,7 @@ static int receive_mergeable(struct virt
- static void receive_buf(struct net_device *dev, void *buf, unsigned int len)
- {
- 	struct virtnet_info *vi = netdev_priv(dev);
-+	struct virtnet_stats __percpu *stats = this_cpu_ptr(vi->stats);
- 	struct sk_buff *skb;
- 	struct page *page;
- 	struct skb_vnet_hdr *hdr;
-@@ -265,8 +278,11 @@ static void receive_buf(struct net_devic
- 
- 	hdr = skb_vnet_hdr(skb);
- 	skb->truesize += skb->data_len;
--	dev->stats.rx_bytes += skb->len;
--	dev->stats.rx_packets++;
-+
-+	u64_stats_update_begin(&stats->syncp);
-+	stats->rx_bytes += skb->len;
-+	stats->rx_packets++;
-+	u64_stats_update_begin(&stats->syncp);
- 
- 	if (hdr->hdr.flags & VIRTIO_NET_HDR_F_NEEDS_CSUM) {
- 		pr_debug("Needs csum!\n");
-@@ -515,11 +531,16 @@ static unsigned int free_old_xmit_skbs(s
- {
- 	struct sk_buff *skb;
- 	unsigned int len, tot_sgs = 0;
-+	struct virtnet_stats __percpu *stats = this_cpu_ptr(vi->stats);
- 
- 	while ((skb = virtqueue_get_buf(vi->svq, &len)) != NULL) {
- 		pr_debug("Sent skb %p\n", skb);
--		vi->dev->stats.tx_bytes += skb->len;
--		vi->dev->stats.tx_packets++;
-+
-+		u64_stats_update_begin(&stats->syncp);
-+		stats->tx_bytes += skb->len;
-+		stats->tx_packets++;
-+		u64_stats_update_begin(&stats->syncp);
-+
- 		tot_sgs += skb_vnet_hdr(skb)->num_sg;
- 		dev_kfree_skb_any(skb);
- 	}
-@@ -641,6 +662,40 @@ static int virtnet_set_mac_address(struc
- 	return 0;
- }
- 
-+static struct rtnl_link_stats64 *virtnet_stats(struct net_device *dev,
-+					       struct rtnl_link_stats64 *tot)
-+{
-+	struct virtnet_info *vi = netdev_priv(dev);
-+	int cpu;
-+	unsigned int start;
-+
-+	for_each_possible_cpu(cpu) {
-+		struct virtnet_stats __percpu *stats
-+			= per_cpu_ptr(vi->stats, cpu);
-+		u64 tpackets, tbytes, rpackets, rbytes;
-+
-+		do {
-+			start = u64_stats_fetch_begin(&stats->syncp);
-+			tpackets = stats->tx_packets;
-+			tbytes   = stats->tx_bytes;
-+			rpackets = stats->rx_packets;
-+			rbytes   = stats->rx_bytes;
-+		} while (u64_stats_fetch_retry(&stats->syncp, start));
-+
-+		tot->rx_packets += rpackets;
-+		tot->tx_packets += tpackets;
-+		tot->rx_bytes   += rbytes;
-+		tot->tx_bytes   += tbytes;
-+	}
-+
-+	tot->tx_dropped = dev->stats.tx_dropped;
-+	tot->rx_dropped = dev->stats.rx_dropped;
-+	tot->rx_length_errors = dev->stats.rx_length_errors;
-+	tot->rx_frame_errors = dev->stats.rx_frame_errors;
-+
-+	return tot;
-+}
-+
- #ifdef CONFIG_NET_POLL_CONTROLLER
- static void virtnet_netpoll(struct net_device *dev)
- {
-@@ -650,6 +705,14 @@ static void virtnet_netpoll(struct net_d
- }
- #endif
- 
-+static void virtnet_free(struct net_device *dev)
-+{
-+	struct virtnet_info *vi = netdev_priv(dev);
-+
-+	free_percpu(vi->stats);
-+	free_netdev(dev);
-+}
-+
- static int virtnet_open(struct net_device *dev)
- {
- 	struct virtnet_info *vi = netdev_priv(dev);
-@@ -835,6 +898,7 @@ static const struct net_device_ops virtn
- 	.ndo_set_mac_address = virtnet_set_mac_address,
- 	.ndo_set_rx_mode     = virtnet_set_rx_mode,
- 	.ndo_change_mtu	     = virtnet_change_mtu,
-+	.ndo_get_stats64     = virtnet_stats,
- 	.ndo_vlan_rx_add_vid = virtnet_vlan_rx_add_vid,
- 	.ndo_vlan_rx_kill_vid = virtnet_vlan_rx_kill_vid,
- #ifdef CONFIG_NET_POLL_CONTROLLER
-@@ -895,6 +959,8 @@ static int virtnet_probe(struct virtio_d
- 	/* Set up network device as normal. */
- 	dev->netdev_ops = &virtnet_netdev;
- 	dev->features = NETIF_F_HIGHDMA;
-+	dev->destructor = virtnet_free;
-+
- 	SET_ETHTOOL_OPS(dev, &virtnet_ethtool_ops);
- 	SET_NETDEV_DEV(dev, &vdev->dev);
- 
-@@ -939,6 +1005,11 @@ static int virtnet_probe(struct virtio_d
- 	vi->vdev = vdev;
- 	vdev->priv = vi;
- 	vi->pages = NULL;
-+	vi->stats = alloc_percpu(struct virtnet_stats);
-+	err = -ENOMEM;
-+	if (vi->stats == NULL)
-+		goto free;
-+
- 	INIT_DELAYED_WORK(&vi->refill, refill_work);
- 	sg_init_table(vi->rx_sg, ARRAY_SIZE(vi->rx_sg));
- 	sg_init_table(vi->tx_sg, ARRAY_SIZE(vi->tx_sg));
-@@ -958,7 +1029,7 @@ static int virtnet_probe(struct virtio_d
- 
- 	err = vdev->config->find_vqs(vdev, nvqs, vqs, callbacks, names);
- 	if (err)
--		goto free;
-+		goto free_stats;
- 
- 	vi->rvq = vqs[0];
- 	vi->svq = vqs[1];
-@@ -1003,6 +1074,8 @@ unregister:
- 	cancel_delayed_work_sync(&vi->refill);
- free_vqs:
- 	vdev->config->del_vqs(vdev);
-+free_stats:
-+	free_percpu(vi->stats);
- free:
- 	free_netdev(dev);
- 	return err;
+TGUgbWVyY3JlZGkgMTUganVpbiAyMDExIMOgIDExOjQzIC0wNDAwLCBTdGVwaGVuIEhlbW1pbmdl
+ciBhIMOpY3JpdCA6Cj4gVXNlIHBlci1jcHUgdmFyaWFibGVzIHRvIG1haW50YWluIDY0IGJpdCBz
+dGF0aXN0aWNzLgo+IENvbXBpbGUgdGVzdGVkIG9ubHkuCj4gCj4gU2lnbmVkLW9mZi1ieTogU3Rl
+cGhlbiBIZW1taW5nZXIgPHNoZW1taW5nZXJAdnlhdHRhLmNvbT4KPiAKPiAtLS0gYS9kcml2ZXJz
+L25ldC92aXJ0aW9fbmV0LmMJMjAxMS0wNi0xNCAxNToxODo0Ni40NDg1OTYzNTUgLTA0MDAKPiAr
+KysgYi9kcml2ZXJzL25ldC92aXJ0aW9fbmV0LmMJMjAxMS0wNi0xNSAwOTo1NDoyMi45MTQ0MjYw
+NjcgLTA0MDAKPiBAQCAtNDAsNiArNDAsMTUgQEAgbW9kdWxlX3BhcmFtKGdzbywgYm9vbCwgMDQ0
+NCk7Cj4gIAo+ICAjZGVmaW5lIFZJUlRORVRfU0VORF9DT01NQU5EX1NHX01BWCAgICAyCj4gIAo+
+ICtzdHJ1Y3QgdmlydG5ldF9zdGF0cyB7Cj4gKwlzdHJ1Y3QgdTY0X3N0YXRzX3N5bmMgc3luY3A7
+Cj4gKwl1NjQgdHhfYnl0ZXM7Cj4gKwl1NjQgdHhfcGFja2V0czsKPiArCj4gKwl1NjQgcnhfYnl0
+ZXM7Cj4gKwl1NjQgcnhfcGFja2V0czsKPiArfTsKPiArCj4gIHN0cnVjdCB2aXJ0bmV0X2luZm8g
+ewo+ICAJc3RydWN0IHZpcnRpb19kZXZpY2UgKnZkZXY7Cj4gIAlzdHJ1Y3QgdmlydHF1ZXVlICpy
+dnEsICpzdnEsICpjdnE7Cj4gQEAgLTU2LDYgKzY1LDkgQEAgc3RydWN0IHZpcnRuZXRfaW5mbyB7
+Cj4gIAkvKiBIb3N0IHdpbGwgbWVyZ2UgcnggYnVmZmVycyBmb3IgYmlnIHBhY2tldHMgKHNoYWtl
+IGl0ISBzaGFrZSBpdCEpICovCj4gIAlib29sIG1lcmdlYWJsZV9yeF9idWZzOwo+ICAKPiArCS8q
+IEFjdGl2ZSBzdGF0aXN0aWNzICovCj4gKwlzdHJ1Y3QgdmlydG5ldF9zdGF0cyBfX3BlcmNwdSAq
+c3RhdHM7Cj4gKwo+ICAJLyogV29yayBzdHJ1Y3QgZm9yIHJlZmlsbGluZyBpZiB3ZSBydW4gbG93
+IG9uIG1lbW9yeS4gKi8KPiAgCXN0cnVjdCBkZWxheWVkX3dvcmsgcmVmaWxsOwo+ICAKPiBAQCAt
+MjA5LDcgKzIyMSw2IEBAIHN0YXRpYyBpbnQgcmVjZWl2ZV9tZXJnZWFibGUoc3RydWN0IHZpcnQK
+PiAgCQkJc2tiLT5kZXYtPnN0YXRzLnJ4X2xlbmd0aF9lcnJvcnMrKzsKPiAgCQkJcmV0dXJuIC1F
+SU5WQUw7Cj4gIAkJfQo+IC0KPiAgCQlwYWdlID0gdmlydHF1ZXVlX2dldF9idWYodmktPnJ2cSwg
+Jmxlbik7Cj4gIAkJaWYgKCFwYWdlKSB7Cj4gIAkJCXByX2RlYnVnKCIlczogcnggZXJyb3I6ICVk
+IGJ1ZmZlcnMgbWlzc2luZ1xuIiwKPiBAQCAtMjE3LDYgKzIyOCw3IEBAIHN0YXRpYyBpbnQgcmVj
+ZWl2ZV9tZXJnZWFibGUoc3RydWN0IHZpcnQKPiAgCQkJc2tiLT5kZXYtPnN0YXRzLnJ4X2xlbmd0
+aF9lcnJvcnMrKzsKPiAgCQkJcmV0dXJuIC1FSU5WQUw7Cj4gIAkJfQo+ICsKPiAgCQlpZiAobGVu
+ID4gUEFHRV9TSVpFKQo+ICAJCQlsZW4gPSBQQUdFX1NJWkU7Cj4gIAo+IEBAIC0yMzAsNiArMjQy
+LDcgQEAgc3RhdGljIGludCByZWNlaXZlX21lcmdlYWJsZShzdHJ1Y3QgdmlydAo+ICBzdGF0aWMg
+dm9pZCByZWNlaXZlX2J1ZihzdHJ1Y3QgbmV0X2RldmljZSAqZGV2LCB2b2lkICpidWYsIHVuc2ln
+bmVkIGludCBsZW4pCj4gIHsKPiAgCXN0cnVjdCB2aXJ0bmV0X2luZm8gKnZpID0gbmV0ZGV2X3By
+aXYoZGV2KTsKPiArCXN0cnVjdCB2aXJ0bmV0X3N0YXRzIF9fcGVyY3B1ICpzdGF0cyA9IHRoaXNf
+Y3B1X3B0cih2aS0+c3RhdHMpOwo+ICAJc3RydWN0IHNrX2J1ZmYgKnNrYjsKPiAgCXN0cnVjdCBw
+YWdlICpwYWdlOwo+ICAJc3RydWN0IHNrYl92bmV0X2hkciAqaGRyOwo+IEBAIC0yNjUsOCArMjc4
+LDExIEBAIHN0YXRpYyB2b2lkIHJlY2VpdmVfYnVmKHN0cnVjdCBuZXRfZGV2aWMKPiAgCj4gIAlo
+ZHIgPSBza2Jfdm5ldF9oZHIoc2tiKTsKPiAgCXNrYi0+dHJ1ZXNpemUgKz0gc2tiLT5kYXRhX2xl
+bjsKPiAtCWRldi0+c3RhdHMucnhfYnl0ZXMgKz0gc2tiLT5sZW47Cj4gLQlkZXYtPnN0YXRzLnJ4
+X3BhY2tldHMrKzsKPiArCj4gKwl1NjRfc3RhdHNfdXBkYXRlX2JlZ2luKCZzdGF0cy0+c3luY3Ap
+Owo+ICsJc3RhdHMtPnJ4X2J5dGVzICs9IHNrYi0+bGVuOwo+ICsJc3RhdHMtPnJ4X3BhY2tldHMr
+KzsKPiArCXU2NF9zdGF0c191cGRhdGVfYmVnaW4oJnN0YXRzLT5zeW5jcCk7CgoJdTY0X3N0YXRz
+X3VwZGF0ZV9lbmQoJnN0YXRzLT5zeW5jcCk7CgoKPiAgCj4gIAlpZiAoaGRyLT5oZHIuZmxhZ3Mg
+JiBWSVJUSU9fTkVUX0hEUl9GX05FRURTX0NTVU0pIHsKPiAgCQlwcl9kZWJ1ZygiTmVlZHMgY3N1
+bSFcbiIpOwo+IEBAIC01MTUsMTEgKzUzMSwxNiBAQCBzdGF0aWMgdW5zaWduZWQgaW50IGZyZWVf
+b2xkX3htaXRfc2ticyhzCj4gIHsKPiAgCXN0cnVjdCBza19idWZmICpza2I7Cj4gIAl1bnNpZ25l
+ZCBpbnQgbGVuLCB0b3Rfc2dzID0gMDsKPiArCXN0cnVjdCB2aXJ0bmV0X3N0YXRzIF9fcGVyY3B1
+ICpzdGF0cyA9IHRoaXNfY3B1X3B0cih2aS0+c3RhdHMpOwo+ICAKPiAgCXdoaWxlICgoc2tiID0g
+dmlydHF1ZXVlX2dldF9idWYodmktPnN2cSwgJmxlbikpICE9IE5VTEwpIHsKPiAgCQlwcl9kZWJ1
+ZygiU2VudCBza2IgJXBcbiIsIHNrYik7Cj4gLQkJdmktPmRldi0+c3RhdHMudHhfYnl0ZXMgKz0g
+c2tiLT5sZW47Cj4gLQkJdmktPmRldi0+c3RhdHMudHhfcGFja2V0cysrOwo+ICsKPiArCQl1NjRf
+c3RhdHNfdXBkYXRlX2JlZ2luKCZzdGF0cy0+c3luY3ApOwo+ICsJCXN0YXRzLT50eF9ieXRlcyAr
+PSBza2ItPmxlbjsKPiArCQlzdGF0cy0+dHhfcGFja2V0cysrOwo+ICsJCXU2NF9zdGF0c191cGRh
+dGVfYmVnaW4oJnN0YXRzLT5zeW5jcCk7CgoJdTY0X3N0YXRzX3VwZGF0ZV9lbmQoJnN0YXRzLT5z
+eW5jcCk7Cgo+ICsKPiAgCQl0b3Rfc2dzICs9IHNrYl92bmV0X2hkcihza2IpLT5udW1fc2c7Cj4g
+IAkJZGV2X2tmcmVlX3NrYl9hbnkoc2tiKTsKPiAgCX0KPiBAQCAtNjQxLDYgKzY2Miw0MCBAQCBz
+dGF0aWMgaW50IHZpcnRuZXRfc2V0X21hY19hZGRyZXNzKHN0cnVjCj4gIAlyZXR1cm4gMDsKPiAg
+fQo+ICAKCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpW
+aXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91
+bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xp
+c3RpbmZvL3ZpcnR1YWxpemF0aW9u
