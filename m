@@ -1,7 +1,7 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 28/77] Staging: hv: blkvsc: Get rid of the dev_type guid from blkvsc_drv.c
-Date: Thu, 16 Jun 2011 13:17:01 -0700
-Message-ID: <1308255470-3826-28-git-send-email-kys@microsoft.com>
+Subject: [PATCH 23/77] Staging: hv: netvsc: Get rid of the PCI signature
+Date: Thu, 16 Jun 2011 13:16:56 -0700
+Message-ID: <1308255470-3826-23-git-send-email-kys@microsoft.com>
 References: <1308255393-3785-1-git-send-email-kys@microsoft.com>
  <1308255470-3826-1-git-send-email-kys@microsoft.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
@@ -11,40 +11,41 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Hank Janssen <hjanssen@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Get rid of the dev_type guid from blkvsc_drv.c as it is no longer used.
+Now that we have implemented a vmbus specific mechanism for auto-loading,
+get rid of the PCI signature.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/blkvsc_drv.c |    8 --------
+ drivers/staging/hv/netvsc_drv.c |    8 --------
  1 files changed, 0 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/staging/hv/blkvsc_drv.c b/drivers/staging/hv/blkvsc_drv.c
-index 9496abe..1abe7f4 100644
---- a/drivers/staging/hv/blkvsc_drv.c
-+++ b/drivers/staging/hv/blkvsc_drv.c
-@@ -111,13 +111,6 @@ struct block_device_context {
+diff --git a/drivers/staging/hv/netvsc_drv.c b/drivers/staging/hv/netvsc_drv.c
+index 34b1ed3..c570214 100644
+--- a/drivers/staging/hv/netvsc_drv.c
++++ b/drivers/staging/hv/netvsc_drv.c
+@@ -34,7 +34,6 @@
+ #include <linux/in.h>
+ #include <linux/slab.h>
+ #include <linux/dmi.h>
+-#include <linux/pci.h>
+ #include <net/arp.h>
+ #include <net/route.h>
+ #include <net/sock.h>
+@@ -467,13 +466,6 @@ static int __init netvsc_drv_init(void)
+ 	return ret;
+ }
  
- static const char *drv_name = "blkvsc";
- 
--/* {32412632-86cb-44a2-9b5c-50d1417354f5} */
--static const struct hv_guid dev_type = {
--	.data = {
--		0x32, 0x26, 0x41, 0x32, 0xcb, 0x86, 0xa2, 0x44,
--		0x9b, 0x5c, 0x50, 0xd1, 0x41, 0x73, 0x54, 0xf5
--	}
+-static const struct pci_device_id __initconst
+-hv_netvsc_pci_table[] __maybe_unused = {
+-	{ PCI_DEVICE(0x1414, 0x5353) }, /* VGA compatible controller */
+-	{ 0 }
 -};
- 
- /*
-  * There is a circular dependency involving blkvsc_request_completion()
-@@ -834,7 +827,6 @@ static int blkvsc_drv_init(void)
- 
- 	BUILD_BUG_ON(sizeof(sector_t) != 8);
- 
--	memcpy(&drv->dev_type, &dev_type, sizeof(struct hv_guid));
- 	drv->driver.name = drv_name;
- 
- 	/* The driver belongs to vmbus */
+-MODULE_DEVICE_TABLE(pci, hv_netvsc_pci_table);
+-
+ MODULE_LICENSE("GPL");
+ MODULE_VERSION(HV_DRV_VERSION);
+ MODULE_DESCRIPTION("Microsoft Hyper-V network driver");
 -- 
 1.7.4.1
