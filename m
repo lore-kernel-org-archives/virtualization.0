@@ -1,7 +1,7 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 64/77] Staging: hv: netvsc: Cleanup error return values in netvsc_init_recv_buf()
-Date: Thu, 16 Jun 2011 13:17:37 -0700
-Message-ID: <1308255470-3826-64-git-send-email-kys@microsoft.com>
+Subject: [PATCH 68/77] Staging: hv: netvsc: Cleanup error codes in rndis_filter_receive()
+Date: Thu, 16 Jun 2011 13:17:41 -0700
+Message-ID: <1308255470-3826-68-git-send-email-kys@microsoft.com>
 References: <1308255393-3785-1-git-send-email-kys@microsoft.com>
  <1308255470-3826-1-git-send-email-kys@microsoft.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
@@ -17,57 +17,29 @@ Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/netvsc.c |   10 +++++-----
- 1 files changed, 5 insertions(+), 5 deletions(-)
+ drivers/staging/hv/rndis_filter.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/staging/hv/netvsc.c b/drivers/staging/hv/netvsc.c
-index 14c2203..b640e08 100644
---- a/drivers/staging/hv/netvsc.c
-+++ b/drivers/staging/hv/netvsc.c
-@@ -207,7 +207,7 @@ static int netvsc_init_recv_buf(struct hv_device *device)
- 	if (!net_device) {
- 		dev_err(&device->device, "unable to get net device..."
- 			   "device being destroyed?");
+diff --git a/drivers/staging/hv/rndis_filter.c b/drivers/staging/hv/rndis_filter.c
+index dbb5201..8e1ef00 100644
+--- a/drivers/staging/hv/rndis_filter.c
++++ b/drivers/staging/hv/rndis_filter.c
+@@ -358,14 +358,14 @@ int rndis_filter_receive(struct hv_device *dev,
+ 	if (!net_dev->extension) {
+ 		dev_err(&dev->device, "got rndis message but no rndis device - "
+ 			  "dropping this message!\n");
 -		return -1;
 +		return -ENODEV;
  	}
  
- 	net_device->recv_buf =
-@@ -216,7 +216,7 @@ static int netvsc_init_recv_buf(struct hv_device *device)
- 	if (!net_device->recv_buf) {
- 		dev_err(&device->device, "unable to allocate receive "
- 			"buffer of size %d", net_device->recv_buf_size);
--		ret = -1;
-+		ret = -ENOMEM;
- 		goto cleanup;
+ 	rndis_dev = (struct rndis_device *)net_dev->extension;
+ 	if (rndis_dev->state == RNDIS_DEV_UNINITIALIZED) {
+ 		dev_err(&dev->device, "got rndis message but rndis device "
+ 			   "uninitialized...dropping this message!\n");
+-		return -1;
++		return -ENODEV;
  	}
  
-@@ -269,7 +269,7 @@ static int netvsc_init_recv_buf(struct hv_device *device)
- 			   "initialzation with NetVsp - status %d",
- 			   init_packet->msg.v1_msg.
- 			   send_recv_buf_complete.status);
--		ret = -1;
-+		ret = -EINVAL;
- 		goto cleanup;
- 	}
- 
-@@ -281,7 +281,7 @@ static int netvsc_init_recv_buf(struct hv_device *device)
- 	net_device->recv_section = kmalloc(net_device->recv_section_cnt
- 		* sizeof(struct nvsp_1_receive_buffer_section), GFP_KERNEL);
- 	if (net_device->recv_section == NULL) {
--		ret = -1;
-+		ret = -EINVAL;
- 		goto cleanup;
- 	}
- 
-@@ -297,7 +297,7 @@ static int netvsc_init_recv_buf(struct hv_device *device)
- 	 */
- 	if (net_device->recv_section_cnt != 1 ||
- 	    net_device->recv_section->offset != 0) {
--		ret = -1;
-+		ret = -EINVAL;
- 		goto cleanup;
- 	}
- 
+ 	rndis_hdr = (struct rndis_message *)kmap_atomic(
 -- 
 1.7.4.1
