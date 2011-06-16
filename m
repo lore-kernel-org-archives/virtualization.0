@@ -1,7 +1,7 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 65/77] Staging: hv: netvsc: Cleanup error returns in netvsc_connect_vsp()
-Date: Thu, 16 Jun 2011 13:17:38 -0700
-Message-ID: <1308255470-3826-65-git-send-email-kys@microsoft.com>
+Subject: [PATCH 58/77] Staging: hv: storvsc: Fix/cleanup some dated comments in storvsc.c
+Date: Thu, 16 Jun 2011 13:17:31 -0700
+Message-ID: <1308255470-3826-58-git-send-email-kys@microsoft.com>
 References: <1308255393-3785-1-git-send-email-kys@microsoft.com>
  <1308255470-3826-1-git-send-email-kys@microsoft.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
@@ -11,55 +11,54 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Hank Janssen <hjanssen@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Use standard Linux error codes.
+Fix/cleanup some dated comments in storvsc.c.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/netvsc.c |   10 ++++------
- 1 files changed, 4 insertions(+), 6 deletions(-)
+ drivers/staging/hv/storvsc.c |    8 +++-----
+ 1 files changed, 3 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/staging/hv/netvsc.c b/drivers/staging/hv/netvsc.c
-index b640e08..1bca667 100644
---- a/drivers/staging/hv/netvsc.c
-+++ b/drivers/staging/hv/netvsc.c
-@@ -323,7 +323,7 @@ static int netvsc_connect_vsp(struct hv_device *device)
- 	if (!net_device) {
- 		dev_err(&device->device, "unable to get net device..."
- 			   "device being destroyed?");
--		return -1;
-+		return -ENODEV;
- 	}
- 
- 	init_packet = &net_device->channel_init_pkt;
-@@ -354,13 +354,13 @@ static int netvsc_connect_vsp(struct hv_device *device)
- 
- 	if (init_packet->msg.init_msg.init_complete.status !=
- 	    NVSP_STAT_SUCCESS) {
--		ret = -1;
-+		ret = -EINVAL;
+diff --git a/drivers/staging/hv/storvsc.c b/drivers/staging/hv/storvsc.c
+index b3506f6..89de5b5 100644
+--- a/drivers/staging/hv/storvsc.c
++++ b/drivers/staging/hv/storvsc.c
+@@ -166,7 +166,6 @@ static int storvsc_channel_init(struct hv_device *device)
  		goto cleanup;
  	}
  
- 	if (init_packet->msg.init_msg.init_complete.
- 	    negotiated_protocol_ver != NVSP_PROTOCOL_VERSION_1) {
--		ret = -1;
-+		ret = -EPROTO;
+-	/* TODO: Check returned version */
+ 	if (vstor_packet->operation != VSTOR_OPERATION_COMPLETE_IO ||
+ 	    vstor_packet->status != 0)
+ 		goto cleanup;
+@@ -193,7 +192,6 @@ static int storvsc_channel_init(struct hv_device *device)
  		goto cleanup;
  	}
- 	/* Send the ndis version */
-@@ -381,10 +381,8 @@ static int netvsc_connect_vsp(struct hv_device *device)
- 				sizeof(struct nvsp_message),
- 				(unsigned long)init_packet,
- 				VM_PKT_DATA_INBAND, 0);
--	if (ret != 0) {
--		ret = -1;
-+	if (ret != 0)
- 		goto cleanup;
--	}
  
- 	/* Post the big receive buffer to NetVSP */
- 	ret = netvsc_init_recv_buf(device);
+-	/* TODO: Check returned version */
+ 	if (vstor_packet->operation != VSTOR_OPERATION_COMPLETE_IO ||
+ 	    vstor_packet->status != 0)
+ 		goto cleanup;
+@@ -384,11 +382,12 @@ int storvsc_dev_add(struct hv_device *device,
+ 
+ 	/* Save the channel properties to our storvsc channel */
+ 
+-	/* FIXME: */
+ 	/*
+ 	 * If we support more than 1 scsi channel, we need to set the
+ 	 * port number here to the scsi channel but how do we get the
+-	 * scsi channel prior to the bus scan
++	 * scsi channel prior to the bus scan.
++	 *
++	 * The host does not support this.
+ 	 */
+ 
+ 	stor_device->port_number = device_info->port_number;
+@@ -542,4 +541,3 @@ int storvsc_get_major_info(struct storvsc_device_info *device_info,
+ 
+ 	return -ENODEV;
+ }
+-
 -- 
 1.7.4.1
