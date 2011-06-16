@@ -1,7 +1,7 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 57/77] Storage: hv: storvsc: Get rid of some unnecessary DPRINTs from storvsc.c
-Date: Thu, 16 Jun 2011 13:17:30 -0700
-Message-ID: <1308255470-3826-57-git-send-email-kys@microsoft.com>
+Subject: [PATCH 70/77] Staging: hv: netvsc: Cleanup error return values in rndis_filter_set_packet_filter()
+Date: Thu, 16 Jun 2011 13:17:43 -0700
+Message-ID: <1308255470-3826-70-git-send-email-kys@microsoft.com>
 References: <1308255393-3785-1-git-send-email-kys@microsoft.com>
  <1308255470-3826-1-git-send-email-kys@microsoft.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
@@ -11,85 +11,44 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Hank Janssen <hjanssen@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Get rid of some unnecessary DPRINTs from storvsc.c.
+Use standard Linux error codes and cleanup some error paths.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/storvsc.c |   16 ----------------
- 1 files changed, 0 insertions(+), 16 deletions(-)
+ drivers/staging/hv/rndis_filter.c |    5 +----
+ 1 files changed, 1 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/staging/hv/storvsc.c b/drivers/staging/hv/storvsc.c
-index d961663..b3506f6 100644
---- a/drivers/staging/hv/storvsc.c
-+++ b/drivers/staging/hv/storvsc.c
-@@ -125,8 +125,6 @@ static int storvsc_channel_init(struct hv_device *device)
- 	vstor_packet->operation = VSTOR_OPERATION_BEGIN_INITIALIZATION;
- 	vstor_packet->flags = REQUEST_COMPLETION_FLAG;
- 
--	DPRINT_INFO(STORVSC, "BEGIN_INITIALIZATION_OPERATION...");
--
- 	ret = vmbus_sendpacket(device->channel, vstor_packet,
- 			       sizeof(struct vstor_packet),
- 			       (unsigned long)request,
-@@ -145,7 +143,6 @@ static int storvsc_channel_init(struct hv_device *device)
- 	    vstor_packet->status != 0)
- 		goto cleanup;
- 
--	DPRINT_INFO(STORVSC, "QUERY_PROTOCOL_VERSION_OPERATION...");
- 
- 	/* reuse the packet for version range supported */
- 	memset(vstor_packet, 0, sizeof(struct vstor_packet));
-@@ -174,8 +171,6 @@ static int storvsc_channel_init(struct hv_device *device)
- 	    vstor_packet->status != 0)
- 		goto cleanup;
- 
--	/* Query channel properties */
--	DPRINT_INFO(STORVSC, "QUERY_PROPERTIES_OPERATION...");
- 
- 	memset(vstor_packet, 0, sizeof(struct vstor_packet));
- 	vstor_packet->operation = VSTOR_OPERATION_QUERY_PROPERTIES;
-@@ -207,8 +202,6 @@ static int storvsc_channel_init(struct hv_device *device)
- 	stor_device->target_id
- 		= vstor_packet->storage_channel_properties.target_id;
- 
--	DPRINT_INFO(STORVSC, "END_INITIALIZATION_OPERATION...");
--
- 	memset(vstor_packet, 0, sizeof(struct vstor_packet));
- 	vstor_packet->operation = VSTOR_OPERATION_END_INITIALIZATION;
- 	vstor_packet->flags = REQUEST_COMPLETION_FLAG;
-@@ -232,7 +225,6 @@ static int storvsc_channel_init(struct hv_device *device)
- 	    vstor_packet->status != 0)
- 		goto cleanup;
- 
--	DPRINT_INFO(STORVSC, "**** storage channel up and running!! ****");
- 
- cleanup:
- 	put_stor_device(device);
-@@ -305,13 +297,8 @@ static void storvsc_on_receive(struct hv_device *device,
- 		storvsc_on_io_completion(device, vstor_packet, request);
- 		break;
- 	case VSTOR_OPERATION_REMOVE_DEVICE:
--		DPRINT_INFO(STORVSC, "REMOVE_DEVICE_OPERATION");
--		/* TODO: */
--		break;
- 
- 	default:
--		DPRINT_INFO(STORVSC, "Unknown operation received - %d",
--			    vstor_packet->operation);
- 		break;
+diff --git a/drivers/staging/hv/rndis_filter.c b/drivers/staging/hv/rndis_filter.c
+index f26886d..f5f3052 100644
+--- a/drivers/staging/hv/rndis_filter.c
++++ b/drivers/staging/hv/rndis_filter.c
+@@ -511,7 +511,7 @@ static int rndis_filter_set_packet_filter(struct rndis_device *dev,
+ 			RNDIS_MESSAGE_SIZE(struct rndis_set_request) +
+ 			sizeof(u32));
+ 	if (!request) {
+-		ret = -1;
++		ret = -ENOMEM;
+ 		goto Cleanup;
  	}
- }
-@@ -418,9 +405,6 @@ int storvsc_dev_remove(struct hv_device *device)
- {
- 	struct storvsc_device *stor_device;
  
--	DPRINT_INFO(STORVSC, "disabling storage device (%p)...",
--		    device->ext);
--
- 	stor_device = release_stor_device(device);
+@@ -531,7 +531,6 @@ static int rndis_filter_set_packet_filter(struct rndis_device *dev,
+ 	t = wait_for_completion_timeout(&request->wait_event, 5*HZ);
  
- 	/*
+ 	if (t == 0) {
+-		ret = -1;
+ 		dev_err(&dev->net_dev->dev->device,
+ 			"timeout before we got a set response...\n");
+ 		/*
+@@ -540,8 +539,6 @@ static int rndis_filter_set_packet_filter(struct rndis_device *dev,
+ 		 */
+ 		goto Exit;
+ 	} else {
+-		if (ret > 0)
+-			ret = 0;
+ 		set_complete = &request->response_msg.msg.set_complete;
+ 		status = set_complete->status;
+ 	}
 -- 
 1.7.4.1
