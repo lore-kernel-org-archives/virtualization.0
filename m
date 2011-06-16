@@ -1,14 +1,12 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH] vhost: set dirty log when updating flags of used ring
-Date: Thu, 16 Jun 2011 16:55:11 +0300
-Message-ID: <20110616135511.GA17758__39836.0718427741$1308232607$gmane$org@redhat.com>
-References: <20110616064556.9137.87807.stgit@dhcp-91-7.nay.redhat.com.englab.nay.redhat.com>
+From: Manuel Zerpies <manuel.f.zerpies@ww.stud.uni-erlangen.de>
+Subject: [PATCH 00/11] Replace printk_rateilimit() with printk_ratelimited()
+Date: Thu, 16 Jun 2011 14:06:04 +0200
+Message-ID: <cover.1308142053.git.manuel.f.zerpies@ww.stud.uni-erlangen.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20110616064556.9137.87807.stgit@dhcp-91-7.nay.redhat.com.englab.nay.redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,121 +16,53 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: "David S. Miller" <davem@davemloft.net>, Steve Wise <swise@chelsio.com>, Roland Dreier <roland@kernel.org>, Sean Hefty <sean.hefty@intel.com>, Hal Rosenstock <hal.rosenst>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Jun 16, 2011 at 02:45:56PM +0800, Jason Wang wrote:
-> We need to set log when updating flags of used ring, otherwise they may
-> be missed after migration. A helper was introduced to write used_flags
-> back to guest memory and update the log if necessary.
-> 
-> Signed-off-by: Jason Wang <jasowang@redhat.com>
-> ---
->  drivers/vhost/vhost.c |   26 ++++++++++++++++++++++----
->  drivers/vhost/vhost.h |    2 ++
->  2 files changed, 24 insertions(+), 4 deletions(-)
-> 
-> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-> index 2ab2912..7c46aed 100644
-> --- a/drivers/vhost/vhost.c
-> +++ b/drivers/vhost/vhost.c
-> @@ -573,8 +573,10 @@ static long vhost_set_memory(struct vhost_dev *d, struct vhost_memory __user *m)
->  static int init_used(struct vhost_virtqueue *vq,
->  		     struct vring_used __user *used)
->  {
-> -	int r = put_user(vq->used_flags, &used->flags);
-> +	int r;
->  
-> +	vq->used = used;
-> +	r = vhost_update_used_flags(vq);
+Hi,
 
-So I'm concerned that this will tweak the log if that's enabled even
-though backend wasn't enabled yet so we didn't
-verify that log writes are ok.
+since the printk_ratelimit() function shouldn't be used anymore, I replaced it
+in a few files with printk_ratelimited().
 
-The reason we do this write here at all is because
-during migration, remote might have left
-exits masked, in which case we won't
-get an exit.
+If you wish some more patches I can send more in.
 
-A simple fix is to invoke the handler
-when backend is enabled, that will
-check the ring.
+Greets,
+Manu
 
-I actually think that maybe the last_used update should be delayed until
-backend is set too - this will make it possible to stop
-by removing the backend, tweak used index
-then re-start. But let's make it a separate patch.
+Manuel Zerpies (11):
+  drivers/ide: use printk_ratelimited() instead of printk_ratelimit()
+  drivers/tty: use printk_ratelimited() instead of printk_ratelimit()
+  net/can: use printk_ratelimited() instead of printk_ratelimit()
+  net/rds: use prink_ratelimited() instead of printk_ratelimit()
+  RDMA/hw/cxgb4: use printk_ratelimited() instead of printk_ratelimit()
+  drivers/net: use printk_ratelimited() instead of printk_ratelimit()
+  drivers/usb/atm: use printk_ratelimited() instead of
+    printk_ratelimit()
+  [SCSI] tcm_fc: use printk_ratelimited() instead of printk_ratelimit()
+  xen/xenbus: use printk_ratelimited() instead of printk_ratelimit()
+  wusb: use printk_ratelimited() instead of printk_ratelimit()
+  usb/class: use printk_ratelimited() instead of printk_ratelimit()
 
->  	if (r)
->  		return r;
->  	return get_user(vq->last_used_idx, &used->idx);
-> @@ -700,7 +702,6 @@ static long vhost_set_vring(struct vhost_dev *d, int ioctl, void __user *argp)
->  		vq->desc = (void __user *)(unsigned long)a.desc_user_addr;
->  		vq->avail = (void __user *)(unsigned long)a.avail_user_addr;
->  		vq->log_addr = a.log_guest_addr;
-> -		vq->used = (void __user *)(unsigned long)a.used_user_addr;
->  		break;
->  	case VHOST_SET_VRING_KICK:
->  		if (copy_from_user(&f, argp, sizeof f)) {
-> @@ -1375,6 +1376,23 @@ void vhost_add_used_and_signal_n(struct vhost_dev *dev,
->  	vhost_signal(dev, vq);
->  }
->  
-> +int vhost_update_used_flags(struct vhost_virtqueue *vq)
-> +{
-> +	if (put_user(vq->used_flags, &vq->used->flags) < 0)
-> +		return -EFAULT;
-> +	if (unlikely(vq->log_used)) {
-> +		/* Make sure the flag is seen before log. */
-> +		smp_wmb();
-> +		/* Log used flag write. */
-> +		log_write(vq->log_base,
-> +			  vq->log_addr + offsetof(struct vring_used, flags),
-> +			  sizeof vq->used->flags);
-> +		if (vq->log_ctx)
-> +			eventfd_signal(vq->log_ctx, 1);
-> +	}
-> +	return 0;
-> +}
-> +
->  /* OK, now we need to know about added descriptors. */
->  bool vhost_enable_notify(struct vhost_virtqueue *vq)
->  {
-> @@ -1384,7 +1402,7 @@ bool vhost_enable_notify(struct vhost_virtqueue *vq)
->  	if (!(vq->used_flags & VRING_USED_F_NO_NOTIFY))
->  		return false;
->  	vq->used_flags &= ~VRING_USED_F_NO_NOTIFY;
-> -	r = put_user(vq->used_flags, &vq->used->flags);
-> +	r = vhost_update_used_flags(vq);
->  	if (r) {
->  		vq_err(vq, "Failed to enable notification at %p: %d\n",
->  		       &vq->used->flags, r);
-> @@ -1411,7 +1429,7 @@ void vhost_disable_notify(struct vhost_virtqueue *vq)
->  	if (vq->used_flags & VRING_USED_F_NO_NOTIFY)
->  		return;
->  	vq->used_flags |= VRING_USED_F_NO_NOTIFY;
-> -	r = put_user(vq->used_flags, &vq->used->flags);
-> +	r = vhost_update_used_flags(vq);
->  	if (r)
->  		vq_err(vq, "Failed to enable notification at %p: %d\n",
->  		       &vq->used->flags, r);
-> diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
-> index b3363ae..76f4c61 100644
-> --- a/drivers/vhost/vhost.h
-> +++ b/drivers/vhost/vhost.h
-> @@ -155,6 +155,8 @@ bool vhost_enable_notify(struct vhost_virtqueue *);
->  int vhost_log_write(struct vhost_virtqueue *vq, struct vhost_log *log,
->  		    unsigned int log_num, u64 len);
->  
-> +int vhost_update_used_flags(struct vhost_virtqueue *vq);
-> +
+ drivers/ide/ide-atapi.c                |    4 ++--
+ drivers/infiniband/hw/cxgb4/resource.c |    9 +++++----
+ drivers/net/sc92031.c                  |   16 ++++++----------
+ drivers/target/tcm_fc/tfc_io.c         |    4 ++--
+ drivers/tty/moxa.c                     |    5 +++--
+ drivers/tty/mxser.c                    |    4 ++--
+ drivers/tty/tty_io.c                   |    4 ++--
+ drivers/usb/atm/usbatm.c               |    4 ++--
+ drivers/usb/class/usblp.c              |    7 +++----
+ drivers/usb/wusbcore/wa-xfer.c         |    7 +++----
+ drivers/xen/xenbus/xenbus_xs.c         |    4 ++--
+ net/can/af_can.c                       |    5 +++--
+ net/rds/bind.c                         |    4 ++--
+ net/rds/ib_cm.c                        |    6 +++---
+ net/rds/ib_send.c                      |    4 ++--
+ net/rds/iw_cm.c                        |    9 ++++-----
+ net/rds/iw_rdma.c                      |    9 +++++----
+ net/rds/iw_send.c                      |    4 ++--
+ net/rds/send.c                         |    7 +++----
+ 19 files changed, 56 insertions(+), 60 deletions(-)
 
-Why declare it here? Make it static, flags is
-an implementation detail and does not need to
-get exported.
-
->  #define vq_err(vq, fmt, ...) do {                                  \
->  		pr_debug(pr_fmt(fmt), ##__VA_ARGS__);       \
->  		if ((vq)->error_ctx)                               \
+-- 
+1.7.4.1
