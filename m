@@ -1,53 +1,50 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 47/77] Staging: hv: vmbus: Get rid of unnecessary comments in channel.c
-Date: Thu, 16 Jun 2011 13:17:20 -0700
-Message-ID: <1308255470-3826-47-git-send-email-kys@microsoft.com>
+Subject: [PATCH 42/77] Staging: hv: vmbus: Cleanup error handling in hv_init()
+Date: Thu, 16 Jun 2011 13:17:15 -0700
+Message-ID: <1308255470-3826-42-git-send-email-kys@microsoft.com>
 References: <1308255393-3785-1-git-send-email-kys@microsoft.com>
- <1308255470-3826-1-git-send-email-kys@microsoft.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+	<1308255470-3826-1-git-send-email-kys@microsoft.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <devel-bounces@linuxdriverproject.org>
 In-Reply-To: <1308255470-3826-1-git-send-email-kys@microsoft.com>
-Sender: linux-kernel-owner@vger.kernel.org
+List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
+	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
+List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
+List-Post: <mailto:devel@linuxdriverproject.org>
+List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
+List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
+	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
+Sender: devel-bounces@linuxdriverproject.org
+Errors-To: devel-bounces@linuxdriverproject.org
 To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org
-Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Hank Janssen <hjanssen@microsoft.com>
+Cc: Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Get rid of unnecessary comments in channel.c.
+Use standard Linux error codes.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/channel.c |    4 ----
- 1 files changed, 0 insertions(+), 4 deletions(-)
+ drivers/staging/hv/hv.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/staging/hv/channel.c b/drivers/staging/hv/channel.c
-index 1d6143a..8065775 100644
---- a/drivers/staging/hv/channel.c
-+++ b/drivers/staging/hv/channel.c
-@@ -76,7 +76,6 @@ void vmbus_get_debug_info(struct vmbus_channel *channel,
- 	struct hv_monitor_page *monitorpage;
- 	u8 monitor_group = (u8)channel->offermsg.monitorid / 32;
- 	u8 monitor_offset = (u8)channel->offermsg.monitorid % 32;
--	/* u32 monitorBit	= 1 << monitorOffset; */
+diff --git a/drivers/staging/hv/hv.c b/drivers/staging/hv/hv.c
+index 2f94880..e733173 100644
+--- a/drivers/staging/hv/hv.c
++++ b/drivers/staging/hv/hv.c
+@@ -225,8 +225,8 @@ cleanup:
  
- 	debuginfo->relid = channel->offermsg.child_relid;
- 	debuginfo->state = channel->state;
-@@ -392,7 +391,6 @@ int vmbus_establish_gpadl(struct vmbus_channel *channel, void *kbuffer,
- {
- 	struct vmbus_channel_gpadl_header *gpadlmsg;
- 	struct vmbus_channel_gpadl_body *gpadl_body;
--	/* struct vmbus_channel_gpadl_created *gpadlCreated; */
- 	struct vmbus_channel_msginfo *msginfo = NULL;
- 	struct vmbus_channel_msginfo *submsginfo;
- 	u32 msgcount;
-@@ -474,8 +472,6 @@ int vmbus_teardown_gpadl(struct vmbus_channel *channel, u32 gpadl_handle)
- 	unsigned long flags;
- 	int ret, t;
+ 		vfree(virtaddr);
+ 	}
+-	ret = -1;
+-	return ret;
++
++	return -ENOTSUPP;
+ }
  
--	/* ASSERT(gpadl_handle != 0); */
--
- 	info = kmalloc(sizeof(*info) +
- 		       sizeof(struct vmbus_channel_gpadl_teardown), GFP_KERNEL);
- 	if (!info)
+ /*
 -- 
 1.7.4.1
