@@ -1,7 +1,7 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 25/77] Staging: hv: util: Get rid of the DMI signature in hv_util.c
-Date: Thu, 16 Jun 2011 13:16:58 -0700
-Message-ID: <1308255470-3826-25-git-send-email-kys@microsoft.com>
+Subject: [PATCH 22/77] Staging: hv: storvsc: Get rid of the DMI signature
+Date: Thu, 16 Jun 2011 13:16:55 -0700
+Message-ID: <1308255470-3826-22-git-send-email-kys@microsoft.com>
 References: <1308255393-3785-1-git-send-email-kys@microsoft.com>
  <1308255470-3826-1-git-send-email-kys@microsoft.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
@@ -11,35 +11,41 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Hank Janssen <hjanssen@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Now that we have implemented a vmbus specific mechanism for auto-loading, get
-rid of the DMI signature.
+Now that we have implemented a vmbus specific mechanism for auto-loading,
+get rid of the DMI signature.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/hv_util.c |   20 --------------------
- 1 files changed, 0 insertions(+), 20 deletions(-)
+ drivers/staging/hv/storvsc_drv.c |   22 ----------------------
+ 1 files changed, 0 insertions(+), 22 deletions(-)
 
-diff --git a/drivers/staging/hv/hv_util.c b/drivers/staging/hv/hv_util.c
-index 09819ff..de6afa0 100644
---- a/drivers/staging/hv/hv_util.c
-+++ b/drivers/staging/hv/hv_util.c
-@@ -26,7 +26,6 @@
- #include <linux/slab.h>
- #include <linux/sysctl.h>
- #include <linux/reboot.h>
+diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
+index dc9b12a..7d605c9 100644
+--- a/drivers/staging/hv/storvsc_drv.c
++++ b/drivers/staging/hv/storvsc_drv.c
+@@ -24,7 +24,6 @@
+ #include <linux/module.h>
+ #include <linux/device.h>
+ #include <linux/blkdev.h>
 -#include <linux/dmi.h>
- #include <linux/pci.h>
- 
- #include "hyperv.h"
-@@ -247,22 +246,6 @@ hv_utils_pci_table[] __maybe_unused = {
+ #include <scsi/scsi.h>
+ #include <scsi/scsi_cmnd.h>
+ #include <scsi/scsi_host.h>
+@@ -729,27 +728,6 @@ static struct hv_driver storvsc_drv = {
+ 	.remove = storvsc_remove,
  };
- MODULE_DEVICE_TABLE(pci, hv_utils_pci_table);
  
+-/*
+- * We use a DMI table to determine if we should autoload this driver  This is
+- * needed by distro tools to determine if the hyperv drivers should be
+- * installed and/or configured.  We don't do anything else with the table, but
+- * it needs to be present.
+- */
 -
 -static const struct dmi_system_id __initconst
--hv_utils_dmi_table[] __maybe_unused  = {
+-hv_stor_dmi_table[] __maybe_unused  = {
 -	{
 -		.ident = "Hyper-V",
 -		.matches = {
@@ -50,21 +56,10 @@ index 09819ff..de6afa0 100644
 -	},
 -	{ },
 -};
--MODULE_DEVICE_TABLE(dmi, hv_utils_dmi_table);
+-MODULE_DEVICE_TABLE(dmi, hv_stor_dmi_table);
 -
--
- static int __init init_hyperv_utils(void)
+ static int __init storvsc_drv_init(void)
  {
- 	pr_info("Registering HyperV Utility Driver\n");
-@@ -271,9 +254,6 @@ static int __init init_hyperv_utils(void)
- 		return -ENODEV;
- 
- 
--	if (!dmi_check_system(hv_utils_dmi_table))
--		return -ENODEV;
--
- 	shut_txf_buf = kmalloc(PAGE_SIZE, GFP_KERNEL);
- 	time_txf_buf = kmalloc(PAGE_SIZE, GFP_KERNEL);
- 	hbeat_txf_buf = kmalloc(PAGE_SIZE, GFP_KERNEL);
+ 	int ret;
 -- 
 1.7.4.1
