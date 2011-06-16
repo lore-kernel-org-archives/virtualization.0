@@ -1,7 +1,7 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 71/77] Staging: hv: netvsc: Cleanup error returns in rndis_filter_init_device()
-Date: Thu, 16 Jun 2011 13:17:44 -0700
-Message-ID: <1308255470-3826-71-git-send-email-kys@microsoft.com>
+Subject: [PATCH 54/77] Staging: hv: storvsc: Cleanup error handling in storvsc_channel_init()
+Date: Thu, 16 Jun 2011 13:17:27 -0700
+Message-ID: <1308255470-3826-54-git-send-email-kys@microsoft.com>
 References: <1308255393-3785-1-git-send-email-kys@microsoft.com>
  <1308255470-3826-1-git-send-email-kys@microsoft.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
@@ -17,30 +17,21 @@ Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/rndis_filter.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/staging/hv/storvsc.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/staging/hv/rndis_filter.c b/drivers/staging/hv/rndis_filter.c
-index f5f3052..a71f29d 100644
---- a/drivers/staging/hv/rndis_filter.c
-+++ b/drivers/staging/hv/rndis_filter.c
-@@ -562,7 +562,7 @@ static int rndis_filter_init_device(struct rndis_device *dev)
- 	request = get_rndis_request(dev, REMOTE_NDIS_INITIALIZE_MSG,
- 			RNDIS_MESSAGE_SIZE(struct rndis_initialize_request));
- 	if (!request) {
--		ret = -1;
-+		ret = -ENOMEM;
- 		goto Cleanup;
- 	}
+diff --git a/drivers/staging/hv/storvsc.c b/drivers/staging/hv/storvsc.c
+index e5e5e25..1470ccf 100644
+--- a/drivers/staging/hv/storvsc.c
++++ b/drivers/staging/hv/storvsc.c
+@@ -111,7 +111,7 @@ static int storvsc_channel_init(struct hv_device *device)
  
-@@ -596,7 +596,7 @@ static int rndis_filter_init_device(struct rndis_device *dev)
- 		ret = 0;
- 	} else {
- 		dev->state = RNDIS_DEV_UNINITIALIZED;
--		ret = -1;
-+		ret = -EINVAL;
- 	}
+ 	stor_device = get_stor_device(device);
+ 	if (!stor_device)
+-		return -1;
++		return -ENODEV;
  
- Cleanup:
+ 	request = &stor_device->init_request;
+ 	vstor_packet = &request->vstor_packet;
 -- 
 1.7.4.1
