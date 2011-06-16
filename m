@@ -1,7 +1,7 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 70/77] Staging: hv: netvsc: Cleanup error return values in rndis_filter_set_packet_filter()
-Date: Thu, 16 Jun 2011 13:17:43 -0700
-Message-ID: <1308255470-3826-70-git-send-email-kys@microsoft.com>
+Subject: [PATCH 59/77] Staging: hv: storvsc: Cleanup returned error code in storvsc_host_reset()
+Date: Thu, 16 Jun 2011 13:17:32 -0700
+Message-ID: <1308255470-3826-59-git-send-email-kys@microsoft.com>
 References: <1308255393-3785-1-git-send-email-kys@microsoft.com>
  <1308255470-3826-1-git-send-email-kys@microsoft.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
@@ -11,44 +11,27 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Hank Janssen <hjanssen@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Use standard Linux error codes and cleanup some error paths.
+Use standard Linux error codes.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/rndis_filter.c |    5 +----
- 1 files changed, 1 insertions(+), 4 deletions(-)
+ drivers/staging/hv/storvsc_drv.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/staging/hv/rndis_filter.c b/drivers/staging/hv/rndis_filter.c
-index f26886d..f5f3052 100644
---- a/drivers/staging/hv/rndis_filter.c
-+++ b/drivers/staging/hv/rndis_filter.c
-@@ -511,7 +511,7 @@ static int rndis_filter_set_packet_filter(struct rndis_device *dev,
- 			RNDIS_MESSAGE_SIZE(struct rndis_set_request) +
- 			sizeof(u32));
- 	if (!request) {
--		ret = -1;
-+		ret = -ENOMEM;
- 		goto Cleanup;
- 	}
+diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
+index 1028689..03ca79e 100644
+--- a/drivers/staging/hv/storvsc_drv.c
++++ b/drivers/staging/hv/storvsc_drv.c
+@@ -348,7 +348,7 @@ static int storvsc_host_reset(struct hv_device *device)
  
-@@ -531,7 +531,6 @@ static int rndis_filter_set_packet_filter(struct rndis_device *dev,
- 	t = wait_for_completion_timeout(&request->wait_event, 5*HZ);
+ 	stor_device = get_stor_device(device);
+ 	if (!stor_device)
+-		return -1;
++		return -ENODEV;
  
- 	if (t == 0) {
--		ret = -1;
- 		dev_err(&dev->net_dev->dev->device,
- 			"timeout before we got a set response...\n");
- 		/*
-@@ -540,8 +539,6 @@ static int rndis_filter_set_packet_filter(struct rndis_device *dev,
- 		 */
- 		goto Exit;
- 	} else {
--		if (ret > 0)
--			ret = 0;
- 		set_complete = &request->response_msg.msg.set_complete;
- 		status = set_complete->status;
- 	}
+ 	request = &stor_device->reset_request;
+ 	vstor_packet = &request->vstor_packet;
 -- 
 1.7.4.1
