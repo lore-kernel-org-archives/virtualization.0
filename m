@@ -1,12 +1,15 @@
 From: Manuel Zerpies <manuel.f.zerpies@ww.stud.uni-erlangen.de>
-Subject: [PATCH 00/11] Replace printk_rateilimit() with printk_ratelimited()
-Date: Thu, 16 Jun 2011 14:06:04 +0200
-Message-ID: <cover.1308142053.git.manuel.f.zerpies@ww.stud.uni-erlangen.de>
+Subject: [PATCH 09/11] xen/xenbus: use printk_ratelimited() instead of
+	printk_ratelimit()
+Date: Thu, 16 Jun 2011 14:14:27 +0200
+Message-ID: <d2bc569719b3b1d8271d1f4b2c4080bbc7527e04.1308142053.git.manuel.f.zerpies__33708.0601173968$1308246243$gmane$org@ww.stud.uni-erlangen.de>
+References: <cover.1308142053.git.manuel.f.zerpies@ww.stud.uni-erlangen.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
+In-Reply-To: <cover.1308142053.git.manuel.f.zerpies@ww.stud.uni-erlangen.de>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -16,53 +19,39 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "David S. Miller" <davem@davemloft.net>, Steve Wise <swise@chelsio.com>, Roland Dreier <roland@kernel.org>, Sean Hefty <sean.hefty@intel.com>, Hal Rosenstock <hal.rosenst>
+To: Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Manuel Zerpies <manuel.f.zerpies@ww.stud.uni-erlangen.de>x
+Cc: christian.dietrich@informatik.uni-erlangen.de
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi,
+Since printk_ratelimit() shouldn't be used anymore (see comment in
+include/linux/printk.h), replace it with printk_ratelimited()
 
-since the printk_ratelimit() function shouldn't be used anymore, I replaced it
-in a few files with printk_ratelimited().
+Signed-off-by: Manuel Zerpies <manuel.f.zerpies@ww.stud.uni-erlangen.de>
+---
+ drivers/xen/xenbus/xenbus_xs.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
-If you wish some more patches I can send more in.
-
-Greets,
-Manu
-
-Manuel Zerpies (11):
-  drivers/ide: use printk_ratelimited() instead of printk_ratelimit()
-  drivers/tty: use printk_ratelimited() instead of printk_ratelimit()
-  net/can: use printk_ratelimited() instead of printk_ratelimit()
-  net/rds: use prink_ratelimited() instead of printk_ratelimit()
-  RDMA/hw/cxgb4: use printk_ratelimited() instead of printk_ratelimit()
-  drivers/net: use printk_ratelimited() instead of printk_ratelimit()
-  drivers/usb/atm: use printk_ratelimited() instead of
-    printk_ratelimit()
-  [SCSI] tcm_fc: use printk_ratelimited() instead of printk_ratelimit()
-  xen/xenbus: use printk_ratelimited() instead of printk_ratelimit()
-  wusb: use printk_ratelimited() instead of printk_ratelimit()
-  usb/class: use printk_ratelimited() instead of printk_ratelimit()
-
- drivers/ide/ide-atapi.c                |    4 ++--
- drivers/infiniband/hw/cxgb4/resource.c |    9 +++++----
- drivers/net/sc92031.c                  |   16 ++++++----------
- drivers/target/tcm_fc/tfc_io.c         |    4 ++--
- drivers/tty/moxa.c                     |    5 +++--
- drivers/tty/mxser.c                    |    4 ++--
- drivers/tty/tty_io.c                   |    4 ++--
- drivers/usb/atm/usbatm.c               |    4 ++--
- drivers/usb/class/usblp.c              |    7 +++----
- drivers/usb/wusbcore/wa-xfer.c         |    7 +++----
- drivers/xen/xenbus/xenbus_xs.c         |    4 ++--
- net/can/af_can.c                       |    5 +++--
- net/rds/bind.c                         |    4 ++--
- net/rds/ib_cm.c                        |    6 +++---
- net/rds/ib_send.c                      |    4 ++--
- net/rds/iw_cm.c                        |    9 ++++-----
- net/rds/iw_rdma.c                      |    9 +++++----
- net/rds/iw_send.c                      |    4 ++--
- net/rds/send.c                         |    7 +++----
- 19 files changed, 56 insertions(+), 60 deletions(-)
-
+diff --git a/drivers/xen/xenbus/xenbus_xs.c b/drivers/xen/xenbus/xenbus_xs.c
+index 5534690..4055858 100644
+--- a/drivers/xen/xenbus/xenbus_xs.c
++++ b/drivers/xen/xenbus/xenbus_xs.c
+@@ -44,6 +44,7 @@
+ #include <linux/rwsem.h>
+ #include <linux/module.h>
+ #include <linux/mutex.h>
++#include <linux/ratelimit.h>
+ #include <xen/xenbus.h>
+ #include "xenbus_comms.h"
+ 
+@@ -270,8 +271,7 @@ static void *xs_talkv(struct xenbus_transaction t,
+ 	}
+ 
+ 	if (msg.type != type) {
+-		if (printk_ratelimit())
+-			printk(KERN_WARNING
++		`printk_ratelimited(KERN_WARNING
+ 			       "XENBUS unexpected type [%d], expected [%d]\n",
+ 			       msg.type, type);
+ 		kfree(ret);
 -- 
 1.7.4.1
