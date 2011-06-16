@@ -1,7 +1,7 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 61/77] Staging: hv: storvsc: Cleanup returned error code in storvsc_drv_init()
-Date: Thu, 16 Jun 2011 13:17:34 -0700
-Message-ID: <1308255470-3826-61-git-send-email-kys@microsoft.com>
+Subject: [PATCH 62/77] Staging: hv: netvsc: Cleanup the returned error code in netvsc_probe()
+Date: Thu, 16 Jun 2011 13:17:35 -0700
+Message-ID: <1308255470-3826-62-git-send-email-kys@microsoft.com>
 References: <1308255393-3785-1-git-send-email-kys@microsoft.com>
  <1308255470-3826-1-git-send-email-kys@microsoft.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
@@ -17,21 +17,21 @@ Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/storvsc_drv.c |    2 +-
+ drivers/staging/hv/netvsc_drv.c |    2 +-
  1 files changed, 1 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
-index 97ef81d..7db5246 100644
---- a/drivers/staging/hv/storvsc_drv.c
-+++ b/drivers/staging/hv/storvsc_drv.c
-@@ -742,7 +742,7 @@ static int __init storvsc_drv_init(void)
+diff --git a/drivers/staging/hv/netvsc_drv.c b/drivers/staging/hv/netvsc_drv.c
+index 58115b3..b339acc 100644
+--- a/drivers/staging/hv/netvsc_drv.c
++++ b/drivers/staging/hv/netvsc_drv.c
+@@ -340,7 +340,7 @@ static int netvsc_probe(struct hv_device *dev)
  
- 	if (max_outstanding_req_per_channel <
- 	    STORVSC_MAX_IO_REQUESTS)
+ 	net = alloc_etherdev(sizeof(struct net_device_context));
+ 	if (!net)
 -		return -1;
-+		return -EINVAL;
++		return -ENOMEM;
  
- 	drv->driver.name = driver_name;
- 
+ 	/* Set initial state */
+ 	netif_carrier_off(net);
 -- 
 1.7.4.1
