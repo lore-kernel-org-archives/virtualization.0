@@ -1,7 +1,7 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 58/77] Staging: hv: storvsc: Fix/cleanup some dated comments in storvsc.c
-Date: Thu, 16 Jun 2011 13:17:31 -0700
-Message-ID: <1308255470-3826-58-git-send-email-kys@microsoft.com>
+Subject: [PATCH 76/77] Staging: hv: netvsc: Change the jump label Cleanup to cleanup
+Date: Thu, 16 Jun 2011 13:17:49 -0700
+Message-ID: <1308255470-3826-76-git-send-email-kys@microsoft.com>
 References: <1308255393-3785-1-git-send-email-kys@microsoft.com>
  <1308255470-3826-1-git-send-email-kys@microsoft.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
@@ -11,54 +11,141 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Hank Janssen <hjanssen@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Fix/cleanup some dated comments in storvsc.c.
+Change the jump label Cleanup to cleanup.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/storvsc.c |    8 +++-----
- 1 files changed, 3 insertions(+), 5 deletions(-)
+ drivers/staging/hv/rndis_filter.c |   28 ++++++++++++++--------------
+ 1 files changed, 14 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/staging/hv/storvsc.c b/drivers/staging/hv/storvsc.c
-index b3506f6..89de5b5 100644
---- a/drivers/staging/hv/storvsc.c
-+++ b/drivers/staging/hv/storvsc.c
-@@ -166,7 +166,6 @@ static int storvsc_channel_init(struct hv_device *device)
- 		goto cleanup;
+diff --git a/drivers/staging/hv/rndis_filter.c b/drivers/staging/hv/rndis_filter.c
+index f0d1362..79dfe78 100644
+--- a/drivers/staging/hv/rndis_filter.c
++++ b/drivers/staging/hv/rndis_filter.c
+@@ -438,7 +438,7 @@ static int rndis_filter_query_device(struct rndis_device *dev, u32 oid,
+ 			RNDIS_MESSAGE_SIZE(struct rndis_query_request));
+ 	if (!request) {
+ 		ret = -ENOMEM;
+-		goto Cleanup;
++		goto cleanup;
  	}
  
--	/* TODO: Check returned version */
- 	if (vstor_packet->operation != VSTOR_OPERATION_COMPLETE_IO ||
- 	    vstor_packet->status != 0)
- 		goto cleanup;
-@@ -193,7 +192,6 @@ static int storvsc_channel_init(struct hv_device *device)
- 		goto cleanup;
+ 	/* Setup the rndis query */
+@@ -450,12 +450,12 @@ static int rndis_filter_query_device(struct rndis_device *dev, u32 oid,
+ 
+ 	ret = rndis_filter_send_request(dev, request);
+ 	if (ret != 0)
+-		goto Cleanup;
++		goto cleanup;
+ 
+ 	t = wait_for_completion_timeout(&request->wait_event, 5*HZ);
+ 	if (t == 0) {
+ 		ret = -ETIMEDOUT;
+-		goto Cleanup;
++		goto cleanup;
  	}
  
--	/* TODO: Check returned version */
- 	if (vstor_packet->operation != VSTOR_OPERATION_COMPLETE_IO ||
- 	    vstor_packet->status != 0)
- 		goto cleanup;
-@@ -384,11 +382,12 @@ int storvsc_dev_add(struct hv_device *device,
+ 	/* Copy the response back */
+@@ -463,7 +463,7 @@ static int rndis_filter_query_device(struct rndis_device *dev, u32 oid,
  
- 	/* Save the channel properties to our storvsc channel */
+ 	if (query_complete->info_buflen > inresult_size) {
+ 		ret = -1;
+-		goto Cleanup;
++		goto cleanup;
+ 	}
  
--	/* FIXME: */
- 	/*
- 	 * If we support more than 1 scsi channel, we need to set the
- 	 * port number here to the scsi channel but how do we get the
--	 * scsi channel prior to the bus scan
-+	 * scsi channel prior to the bus scan.
-+	 *
-+	 * The host does not support this.
- 	 */
+ 	memcpy(result,
+@@ -473,7 +473,7 @@ static int rndis_filter_query_device(struct rndis_device *dev, u32 oid,
  
- 	stor_device->port_number = device_info->port_number;
-@@ -542,4 +541,3 @@ int storvsc_get_major_info(struct storvsc_device_info *device_info,
+ 	*result_size = query_complete->info_buflen;
  
- 	return -ENODEV;
- }
--
+-Cleanup:
++cleanup:
+ 	if (request)
+ 		put_rndis_request(dev, request);
+ 
+@@ -512,7 +512,7 @@ static int rndis_filter_set_packet_filter(struct rndis_device *dev,
+ 			sizeof(u32));
+ 	if (!request) {
+ 		ret = -ENOMEM;
+-		goto Cleanup;
++		goto cleanup;
+ 	}
+ 
+ 	/* Setup the rndis set */
+@@ -526,7 +526,7 @@ static int rndis_filter_set_packet_filter(struct rndis_device *dev,
+ 
+ 	ret = rndis_filter_send_request(dev, request);
+ 	if (ret != 0)
+-		goto Cleanup;
++		goto cleanup;
+ 
+ 	t = wait_for_completion_timeout(&request->wait_event, 5*HZ);
+ 
+@@ -543,7 +543,7 @@ static int rndis_filter_set_packet_filter(struct rndis_device *dev,
+ 		status = set_complete->status;
+ 	}
+ 
+-Cleanup:
++cleanup:
+ 	if (request)
+ 		put_rndis_request(dev, request);
+ Exit:
+@@ -563,7 +563,7 @@ static int rndis_filter_init_device(struct rndis_device *dev)
+ 			RNDIS_MESSAGE_SIZE(struct rndis_initialize_request));
+ 	if (!request) {
+ 		ret = -ENOMEM;
+-		goto Cleanup;
++		goto cleanup;
+ 	}
+ 
+ 	/* Setup the rndis set */
+@@ -578,7 +578,7 @@ static int rndis_filter_init_device(struct rndis_device *dev)
+ 	ret = rndis_filter_send_request(dev, request);
+ 	if (ret != 0) {
+ 		dev->state = RNDIS_DEV_UNINITIALIZED;
+-		goto Cleanup;
++		goto cleanup;
+ 	}
+ 
+ 
+@@ -586,7 +586,7 @@ static int rndis_filter_init_device(struct rndis_device *dev)
+ 
+ 	if (t == 0) {
+ 		ret = -ETIMEDOUT;
+-		goto Cleanup;
++		goto cleanup;
+ 	}
+ 
+ 	init_complete = &request->response_msg.msg.init_complete;
+@@ -599,7 +599,7 @@ static int rndis_filter_init_device(struct rndis_device *dev)
+ 		ret = -EINVAL;
+ 	}
+ 
+-Cleanup:
++cleanup:
+ 	if (request)
+ 		put_rndis_request(dev, request);
+ 
+@@ -615,7 +615,7 @@ static void rndis_filter_halt_device(struct rndis_device *dev)
+ 	request = get_rndis_request(dev, REMOTE_NDIS_HALT_MSG,
+ 				RNDIS_MESSAGE_SIZE(struct rndis_halt_request));
+ 	if (!request)
+-		goto Cleanup;
++		goto cleanup;
+ 
+ 	/* Setup the rndis set */
+ 	halt = &request->request_msg.msg.halt_req;
+@@ -626,7 +626,7 @@ static void rndis_filter_halt_device(struct rndis_device *dev)
+ 
+ 	dev->state = RNDIS_DEV_UNINITIALIZED;
+ 
+-Cleanup:
++cleanup:
+ 	if (request)
+ 		put_rndis_request(dev, request);
+ 	return;
 -- 
 1.7.4.1
