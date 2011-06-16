@@ -1,7 +1,7 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 06/77] Staging: hv: vmbus: VMBUS is an ACPI enumerated device, get rid of the PCI signature
-Date: Thu, 16 Jun 2011 13:16:39 -0700
-Message-ID: <1308255470-3826-6-git-send-email-kys@microsoft.com>
+Subject: [PATCH 15/77] Staging: hv: blkvsc: Add the appropriate MODULE_ALIAS() line
+Date: Thu, 16 Jun 2011 13:16:48 -0700
+Message-ID: <1308255470-3826-15-git-send-email-kys@microsoft.com>
 References: <1308255393-3785-1-git-send-email-kys@microsoft.com>
  <1308255470-3826-1-git-send-email-kys@microsoft.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
@@ -11,45 +11,25 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Hank Janssen <hjanssen@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-VMBUS is an ACPI enumerated device, get rid of the PCI signature.
+Add the appropriate MODULE_ALIAS() line to support auto-loading.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/vmbus_drv.c |   13 -------------
- 1 files changed, 0 insertions(+), 13 deletions(-)
+ drivers/staging/hv/blkvsc_drv.c |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/staging/hv/vmbus_drv.c b/drivers/staging/hv/vmbus_drv.c
-index 1c949f5..559353d 100644
---- a/drivers/staging/hv/vmbus_drv.c
-+++ b/drivers/staging/hv/vmbus_drv.c
-@@ -28,7 +28,6 @@
- #include <linux/irq.h>
- #include <linux/interrupt.h>
- #include <linux/sysctl.h>
--#include <linux/pci.h>
- #include <linux/dmi.h>
- #include <linux/slab.h>
- #include <linux/acpi.h>
-@@ -754,18 +753,6 @@ static struct acpi_driver vmbus_acpi_driver = {
- 	},
- };
- 
--/*
-- * We use a PCI table to determine if we should autoload this driver  This is
-- * needed by distro tools to determine if the hyperv drivers should be
-- * installed and/or configured.  We don't do anything else with the table, but
-- * it needs to be present.
-- */
--static const struct pci_device_id microsoft_hv_pci_table[] = {
--	{ PCI_DEVICE(0x1414, 0x5353) },	/* VGA compatible controller */
--	{ 0 }
--};
--MODULE_DEVICE_TABLE(pci, microsoft_hv_pci_table);
--
- static int __init hv_acpi_init(void)
- {
- 	int ret;
+diff --git a/drivers/staging/hv/blkvsc_drv.c b/drivers/staging/hv/blkvsc_drv.c
+index 5842db8..9496abe 100644
+--- a/drivers/staging/hv/blkvsc_drv.c
++++ b/drivers/staging/hv/blkvsc_drv.c
+@@ -1027,5 +1027,6 @@ static void __exit blkvsc_exit(void)
+ MODULE_LICENSE("GPL");
+ MODULE_VERSION(HV_DRV_VERSION);
+ MODULE_DESCRIPTION("Microsoft Hyper-V virtual block driver");
++MODULE_ALIAS("vmbus:hv_block");
+ module_init(blkvsc_drv_init);
+ module_exit(blkvsc_exit);
 -- 
 1.7.4.1
