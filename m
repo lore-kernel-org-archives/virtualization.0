@@ -1,16 +1,13 @@
-From: Joe Perches <joe@perches.com>
-Subject: Re: [PATCH 09/11] xen/xenbus: use printk_ratelimited() instead of
-	printk_ratelimit()
-Date: Thu, 16 Jun 2011 16:44:05 -0700
-Message-ID: <1308267845.12072.15.camel__304.738191380416$1308267882$gmane$org@Joe-Laptop>
-References: <cover.1308142053.git.manuel.f.zerpies@ww.stud.uni-erlangen.de>
-	<d2bc569719b3b1d8271d1f4b2c4080bbc7527e04.1308142053.git.manuel.f.zerpies@ww.stud.uni-erlangen.de>
-	<4DFA6EF7.9060702@goop.org>
+From: Haiyang Zhang <haiyangz@microsoft.com>
+Subject: [PATCH 2/5] staging: hv: remove unnecessary includes in netvsc
+Date: Fri, 17 Jun 2011 07:58:05 -0700
+Message-ID: <1308322688-9796-2-git-send-email-haiyangz__24351.3143891052$1308321935$gmane$org@microsoft.com>
+References: <1308322688-9796-1-git-send-email-haiyangz@microsoft.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4DFA6EF7.9060702@goop.org>
+In-Reply-To: <1308322688-9796-1-git-send-email-haiyangz@microsoft.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,26 +17,57 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Manuel Zerpies <manuel.f.zerpies@ww.stud.uni-erlangen.de>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, christian.dietrich@informatik.uni-erlangen.de, xen-devel@lists.xensource.com
+To: haiyangz@microsoft.com, hjanssen@microsoft.com, kys@microsoft.com, v-abkane@microsoft.com, gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, vir
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 2011-06-16 at 14:00 -0700, Jeremy Fitzhardinge wrote:
-> On 06/16/2011 05:14 AM, Manuel Zerpies wrote:
-> > Since printk_ratelimit() shouldn't be used anymore (see comment in
-> > include/linux/printk.h), replace it with printk_ratelimited()
-> Looks OK to me, but please fix the indentation of the rest of the
-> statement to match.
-[]
-> > diff --git a/drivers/xen/xenbus/xenbus_xs.c b/drivers/xen/xenbus/xenbus_xs.c
-[]
-> > @@ -270,8 +271,7 @@ static void *xs_talkv(struct xenbus_transaction t,
-> >  	}
-> >  
-> >  	if (msg.type != type) {
-> > -		if (printk_ratelimit())
-> > -			printk(KERN_WARNING
-> > +		`printk_ratelimited(KERN_WARNING
+hyperv.h is included by hyperv_net.h already, so no need to include it
+again in these C files.
 
-Appears that it's not compile tested?
-A stray "`" got put before printk_ratelimited()
+Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
+Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
+Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
+Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
+---
+ drivers/staging/hv/netvsc.c       |    1 -
+ drivers/staging/hv/netvsc_drv.c   |    1 -
+ drivers/staging/hv/rndis_filter.c |    1 -
+ 3 files changed, 0 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/staging/hv/netvsc.c b/drivers/staging/hv/netvsc.c
+index b6e1fb9..ed9b8af 100644
+--- a/drivers/staging/hv/netvsc.c
++++ b/drivers/staging/hv/netvsc.c
+@@ -28,7 +28,6 @@
+ #include <linux/io.h>
+ #include <linux/slab.h>
+ 
+-#include "hyperv.h"
+ #include "hyperv_net.h"
+ 
+ 
+diff --git a/drivers/staging/hv/netvsc_drv.c b/drivers/staging/hv/netvsc_drv.c
+index 8380fe9..e5aba38 100644
+--- a/drivers/staging/hv/netvsc_drv.c
++++ b/drivers/staging/hv/netvsc_drv.c
+@@ -38,7 +38,6 @@
+ #include <net/sock.h>
+ #include <net/pkt_sched.h>
+ 
+-#include "hyperv.h"
+ #include "hyperv_net.h"
+ 
+ static const char *driver_name = "netvsc";
+diff --git a/drivers/staging/hv/rndis_filter.c b/drivers/staging/hv/rndis_filter.c
+index 6db48b9..8416bf2 100644
+--- a/drivers/staging/hv/rndis_filter.c
++++ b/drivers/staging/hv/rndis_filter.c
+@@ -27,7 +27,6 @@
+ #include <linux/if_ether.h>
+ #include <linux/netdevice.h>
+ 
+-#include "hyperv.h"
+ #include "hyperv_net.h"
+ 
+ 
+-- 
+1.6.3.2
