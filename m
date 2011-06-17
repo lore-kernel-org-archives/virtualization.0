@@ -1,61 +1,228 @@
-From: Haiyang Zhang <haiyangz@microsoft.com>
-Subject: RE: [PATCH 1/5] staging: hv: fix some white spaces in netvsc driver
-Date: Fri, 17 Jun 2011 16:43:27 +0000
-Message-ID: <A1F3067C9B68744AA19F6802BAB8FFDC09612D20@TK5EX14MBXC227.redmond.corp.microsoft.com>
-References: <1308322688-9796-1-git-send-email-haiyangz@microsoft.com>
-	<20110617180324.1eeb2ea0@absol.kitzblitz>
+From: Stephen Hemminger <shemminger@vyatta.com>
+Subject: Re: [PATCH] virtio-net: per cpu 64 bit stats
+Date: Fri, 17 Jun 2011 12:13:14 -0700
+Message-ID: <20110617121314.08ca881c__43603.8370281041$1308338046$gmane$org@nehalam.ftrdhcpuser.net>
+References: <20110615114337.09fe62f6@s6510.ftrdhcpuser.net>
+	<20110615183316.GB7197@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <devel-bounces@linuxdriverproject.org>
-In-Reply-To: <20110617180324.1eeb2ea0@absol.kitzblitz>
-Content-Language: en-US
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
-List-Post: <mailto:devel@linuxdriverproject.org>
-List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
-Sender: devel-bounces@linuxdriverproject.org
-Errors-To: devel-bounces@linuxdriverproject.org
-To: Nicolas Kaiser <nikai@nikai.net>
-Cc: "Abhishek Kane (Mindtree Consulting PVT LTD)" <v-abkane@microsoft.com>, "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20110615183316.GB7197@redhat.com>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-> -----Original Message-----
-> From: Nicolas Kaiser [mailto:nikai@nikai.net]
-> Sent: Friday, June 17, 2011 12:03 PM
-> To: Haiyang Zhang
-> Cc: Hank Janssen; KY Srinivasan; Abhishek Kane (Mindtree Consulting
-> PVT LTD); gregkh@suse.de; linux-kernel@vger.kernel.org;
-> devel@linuxdriverproject.org; virtualization@lists.osdl.org
-> Subject: Re: [PATCH 1/5] staging: hv: fix some white spaces in netvsc
-> driver
+On Wed, 15 Jun 2011 21:33:16 +0300
+"Michael S. Tsirkin" <mst@redhat.com> wrote:
+
+> On Wed, Jun 15, 2011 at 11:43:37AM -0400, Stephen Hemminger wrote:
+> > Use per-cpu variables to maintain 64 bit statistics.
+> > Compile tested only.
+> > 
+> > Signed-off-by: Stephen Hemminger <shemminger@vyatta.com>
 > 
-> * Haiyang Zhang <haiyangz@microsoft.com>:
-> > diff --git a/drivers/staging/hv/netvsc.c
-> b/drivers/staging/hv/netvsc.c
-> > index 0ae35e7..b6e1fb9 100644
-> > --- a/drivers/staging/hv/netvsc.c
-> > +++ b/drivers/staging/hv/netvsc.c
-> > @@ -525,10 +525,10 @@ int netvsc_send(struct hv_device *device,
-> >  						  (unsigned long)packet);
-> >  	} else {
-> >  		ret = vmbus_sendpacket(device->channel, &sendMessage,
-> > -				       sizeof(struct nvsp_message),
-> > -				       (unsigned long)packet,
-> > -				       VM_PKT_DATA_INBAND,
+> Interesting. Does this help speed at all?
+> 
+> > --- a/drivers/net/virtio_net.c	2011-06-14 15:18:46.448596355 -0400
+> > +++ b/drivers/net/virtio_net.c	2011-06-15 09:54:22.914426067 -0400
+> > @@ -40,6 +40,15 @@ module_param(gso, bool, 0444);
+> >  
+> >  #define VIRTNET_SEND_COMMAND_SG_MAX    2
+> >  
+> > +struct virtnet_stats {
+> > +	struct u64_stats_sync syncp;
+> > +	u64 tx_bytes;
+> > +	u64 tx_packets;
+> > +
+> > +	u64 rx_bytes;
+> > +	u64 rx_packets;
+> > +};
+> > +
+> >  struct virtnet_info {
+> >  	struct virtio_device *vdev;
+> >  	struct virtqueue *rvq, *svq, *cvq;
+> > @@ -56,6 +65,9 @@ struct virtnet_info {
+> >  	/* Host will merge rx buffers for big packets (shake it! shake it!) */
+> >  	bool mergeable_rx_bufs;
+> >  
+> > +	/* Active statistics */
+> > +	struct virtnet_stats __percpu *stats;
+> > +
+> >  	/* Work struct for refilling if we run low on memory. */
+> >  	struct delayed_work refill;
+> >  
+> > @@ -209,7 +221,6 @@ static int receive_mergeable(struct virt
+> >  			skb->dev->stats.rx_length_errors++;
+> >  			return -EINVAL;
+> >  		}
 > > -
-> VMBUS_DATA_PACKET_FLAG_COMPLETION_REQUESTED);
-> > +				sizeof(struct nvsp_message),
-> > +				(unsigned long)packet,
-> > +				VM_PKT_DATA_INBAND,
-> > +				VMBUS_DATA_PACKET_FLAG_COMPLETION_REQUESTED);
+> >  		page = virtqueue_get_buf(vi->rvq, &len);
+> >  		if (!page) {
+> >  			pr_debug("%s: rx error: %d buffers missing\n",
+> > @@ -217,6 +228,7 @@ static int receive_mergeable(struct virt
+> >  			skb->dev->stats.rx_length_errors++;
+> >  			return -EINVAL;
+> >  		}
+> > +
+> >  		if (len > PAGE_SIZE)
+> >  			len = PAGE_SIZE;
+> >
 > 
-> Why? The arguments were nicely aligned.
+> Let's not tweak whitespace unnecessarily.
+>   
+> > @@ -230,6 +242,7 @@ static int receive_mergeable(struct virt
+> >  static void receive_buf(struct net_device *dev, void *buf, unsigned int len)
+> >  {
+> >  	struct virtnet_info *vi = netdev_priv(dev);
+> > +	struct virtnet_stats __percpu *stats = this_cpu_ptr(vi->stats);
+> >  	struct sk_buff *skb;
+> >  	struct page *page;
+> >  	struct skb_vnet_hdr *hdr;
+> > @@ -265,8 +278,11 @@ static void receive_buf(struct net_devic
+> >  
+> >  	hdr = skb_vnet_hdr(skb);
+> >  	skb->truesize += skb->data_len;
+> > -	dev->stats.rx_bytes += skb->len;
+> > -	dev->stats.rx_packets++;
+> > +
+> > +	u64_stats_update_begin(&stats->syncp);
+> > +	stats->rx_bytes += skb->len;
+> > +	stats->rx_packets++;
+> > +	u64_stats_update_begin(&stats->syncp);
+> >  
+> >  	if (hdr->hdr.flags & VIRTIO_NET_HDR_F_NEEDS_CSUM) {
+> >  		pr_debug("Needs csum!\n");
+> > @@ -515,11 +531,16 @@ static unsigned int free_old_xmit_skbs(s
+> >  {
+> >  	struct sk_buff *skb;
+> >  	unsigned int len, tot_sgs = 0;
+> > +	struct virtnet_stats __percpu *stats = this_cpu_ptr(vi->stats);
+> >  
+> >  	while ((skb = virtqueue_get_buf(vi->svq, &len)) != NULL) {
+> >  		pr_debug("Sent skb %p\n", skb);
+> > -		vi->dev->stats.tx_bytes += skb->len;
+> > -		vi->dev->stats.tx_packets++;
+> > +
+> > +		u64_stats_update_begin(&stats->syncp);
+> > +		stats->tx_bytes += skb->len;
+> > +		stats->tx_packets++;
+> > +		u64_stats_update_begin(&stats->syncp);
+> > +
+> >  		tot_sgs += skb_vnet_hdr(skb)->num_sg;
+> >  		dev_kfree_skb_any(skb);
+> >  	}
+> > @@ -641,6 +662,40 @@ static int virtnet_set_mac_address(struc
+> >  	return 0;
+> >  }
+> >  
+> > +static struct rtnl_link_stats64 *virtnet_stats(struct net_device *dev,
+> > +					       struct rtnl_link_stats64 *tot)
+> > +{
+> > +	struct virtnet_info *vi = netdev_priv(dev);
+> > +	int cpu;
+> > +	unsigned int start;
+> > +
+> > +	for_each_possible_cpu(cpu) {
+> > +		struct virtnet_stats __percpu *stats
+> > +			= per_cpu_ptr(vi->stats, cpu);
+> > +		u64 tpackets, tbytes, rpackets, rbytes;
+> > +
+> > +		do {
+> > +			start = u64_stats_fetch_begin(&stats->syncp);
+> > +			tpackets = stats->tx_packets;
+> > +			tbytes   = stats->tx_bytes;
+> > +			rpackets = stats->rx_packets;
+> > +			rbytes   = stats->rx_bytes;
+> > +		} while (u64_stats_fetch_retry(&stats->syncp, start));
+> > +
+> > +		tot->rx_packets += rpackets;
+> > +		tot->tx_packets += tpackets;
+> > +		tot->rx_bytes   += rbytes;
+> > +		tot->tx_bytes   += tbytes;
+> > +	}
+> > +
+> > +	tot->tx_dropped = dev->stats.tx_dropped;
+> > +	tot->rx_dropped = dev->stats.rx_dropped;
+> > +	tot->rx_length_errors = dev->stats.rx_length_errors;
+> > +	tot->rx_frame_errors = dev->stats.rx_frame_errors;
+> > +
+> > +	return tot;
+> > +}
+> > +
+> >  #ifdef CONFIG_NET_POLL_CONTROLLER
+> >  static void virtnet_netpoll(struct net_device *dev)
+> >  {
+> > @@ -650,6 +705,14 @@ static void virtnet_netpoll(struct net_d
+> >  }
+> >  #endif
+> >  
+> > +static void virtnet_free(struct net_device *dev)
+> > +{
+> > +	struct virtnet_info *vi = netdev_priv(dev);
+> > +
+> > +	free_percpu(vi->stats);
+> > +	free_netdev(dev);
+> > +}
+> > +
+> >  static int virtnet_open(struct net_device *dev)
+> >  {
+> >  	struct virtnet_info *vi = netdev_priv(dev);
+> > @@ -835,6 +898,7 @@ static const struct net_device_ops virtn
+> >  	.ndo_set_mac_address = virtnet_set_mac_address,
+> >  	.ndo_set_rx_mode     = virtnet_set_rx_mode,
+> >  	.ndo_change_mtu	     = virtnet_change_mtu,
+> > +	.ndo_get_stats64     = virtnet_stats,
+> >  	.ndo_vlan_rx_add_vid = virtnet_vlan_rx_add_vid,
+> >  	.ndo_vlan_rx_kill_vid = virtnet_vlan_rx_kill_vid,
+> >  #ifdef CONFIG_NET_POLL_CONTROLLER
+> > @@ -895,6 +959,8 @@ static int virtnet_probe(struct virtio_d
+> >  	/* Set up network device as normal. */
+> >  	dev->netdev_ops = &virtnet_netdev;
+> >  	dev->features = NETIF_F_HIGHDMA;
+> > +	dev->destructor = virtnet_free;
+> > +
+> >  	SET_ETHTOOL_OPS(dev, &virtnet_ethtool_ops);
+> >  	SET_NETDEV_DEV(dev, &vdev->dev);
+> >  
+> > @@ -939,6 +1005,11 @@ static int virtnet_probe(struct virtio_d
+> >  	vi->vdev = vdev;
+> >  	vdev->priv = vi;
+> >  	vi->pages = NULL;
+> > +	vi->stats = alloc_percpu(struct virtnet_stats);
+> > +	err = -ENOMEM;
+> > +	if (vi->stats == NULL)
+> > +		goto free;
+> > +
+> >  	INIT_DELAYED_WORK(&vi->refill, refill_work);
+> >  	sg_init_table(vi->rx_sg, ARRAY_SIZE(vi->rx_sg));
+> >  	sg_init_table(vi->tx_sg, ARRAY_SIZE(vi->tx_sg));
+> > @@ -958,7 +1029,7 @@ static int virtnet_probe(struct virtio_d
+> >  
+> >  	err = vdev->config->find_vqs(vdev, nvqs, vqs, callbacks, names);
+> >  	if (err)
+> > -		goto free;
+> > +		goto free_stats;
+> >  
+> >  	vi->rvq = vqs[0];
+> >  	vi->svq = vqs[1];
+> > @@ -1003,6 +1074,8 @@ unregister:
+> >  	cancel_delayed_work_sync(&vi->refill);
+> >  free_vqs:
+> >  	vdev->config->del_vqs(vdev);
+> > +free_stats:
+> > +	free_percpu(vi->stats);
+> >  free:
+> >  	free_netdev(dev);
+> >  	return err;
 
-Because the last line went beyond 80 chars, and triggered checkpatch warning.
-
-Thanks,
--Haiyang
+Haven't done any performance tests on this.
