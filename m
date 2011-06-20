@@ -1,12 +1,11 @@
-From: Gleb Natapov <gleb@redhat.com>
-Subject: Make virtio vq size configurable by a guest.
-Date: Mon, 20 Jun 2011 16:16:24 +0300
-Message-ID: <20110620131624.GZ491@redhat.com>
+From: "K. Y. Srinivasan" <kys@microsoft.com>
+Subject: Re: Request for review on Hyper-V virtual network driver
+Date: Mon, 20 Jun 2011 08:29:59 -0700
+Message-ID: <1308583799-28488-1-git-send-email-kys__32410.7482484125$1308582883$gmane$org@microsoft.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -16,29 +15,18 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
-Cc: mst@redhat.com
+To: gregkh@suse.de, davem@davemloft.net, shemminger@vyatta.com, haiyangz@microsoft.com, hjanssen@microsoft.com, "netdev@vger.kernel.org--to=linux-kernel"@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi,
+Couple of weeks ago, we posted Hyper-V network front-end driver (netvsc)
+for review. We got some initial feedback and we have already submitted
+patches to address that feedback.
 
-Currently in virtio host dictates the size and layout of vq that should
-be used.  To talk to a device that has one vq with 128 elements guest
-needs to allocate at least 2 pages. Usually this is not a problem, but
-sometimes guest runs in a resource restricted environment and then it may
-not have enough memory to initialize all virtio devices present in the
-system. One such environment is a BIOS. Seabios currently has virtio block
-support. Since the BIOS should be able to access the disk even after OS
-is launched vq should be allocated from a special memory region that will
-be marked as unavailable to an OS, but such memory is scarce. Because vq
-is so huge only a couple of virtio disks can be initialized by the BIOS.
+What are the next steps with regards to exiting
+staging - we are committed to addressing all legitimate issues in a very 
+timely fashion. Your guidance on this issue will be greatly
+appreciated. 
 
-It would be nice if a guest will be able to tell to a host what vq size
-should be used instead. BIOS issues only one request at a time anyway,
-so it needs only one element in vq. It does not care about performance
-to much either, so it can tell to a host to not align used index to a
-page boundary. This way vq of one element shouldn't take more then a couple
-hundreds of bytes.
+Regards,
 
---
-			Gleb.
+K. Y
