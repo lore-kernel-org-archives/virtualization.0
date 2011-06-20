@@ -1,11 +1,14 @@
-From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: Re: Request for review on Hyper-V virtual network driver
-Date: Mon, 20 Jun 2011 08:29:59 -0700
-Message-ID: <1308583799-28488-1-git-send-email-kys__32410.7482484125$1308582883$gmane$org@microsoft.com>
+From: Stefan Hajnoczi <stefanha@gmail.com>
+Subject: Re: [RFC] virtio: Support releasing lock during kick
+Date: Mon, 20 Jun 2011 16:27:18 +0100
+Message-ID: <BANLkTi=fsSLNu2ybeMKvN7gtCDO5FDNfDA__17494.7676984177$1308583677$gmane$org@mail.gmail.com>
+References: <1277328242-10685-1-git-send-email-stefanha@linux.vnet.ibm.com>
+	<20110619071452.GA7930@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20110619071452.GA7930@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -15,18 +18,39 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: gregkh@suse.de, davem@davemloft.net, shemminger@vyatta.com, haiyangz@microsoft.com, hjanssen@microsoft.com, "netdev@vger.kernel.org--to=linux-kernel"@vger.kernel.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Couple of weeks ago, we posted Hyper-V network front-end driver (netvsc)
-for review. We got some initial feedback and we have already submitted
-patches to address that feedback.
+On Sun, Jun 19, 2011 at 8:14 AM, Michael S. Tsirkin <mst@redhat.com> wrote:
+> On Wed, Jun 23, 2010 at 10:24:02PM +0100, Stefan Hajnoczi wrote:
+>> The virtio block device holds a lock during I/O request processing.
+>> Kicking the virtqueue while the lock is held results in long lock hold
+>> times and increases contention for the lock.
+>>
+>> This patch modifies virtqueue_kick() to optionally release a lock while
+>> notifying the host. =A0Virtio block is modified to pass in its lock. =A0=
+This
+>> allows other vcpus to queue I/O requests during the time spent servicing
+>> the virtqueue notify in the host.
+>>
+>> The virtqueue_kick() function is modified to know about locking because
+>> it changes the state of the virtqueue and should execute with the lock
+>> held (it would not be correct for virtio block to release the lock
+>> before calling virtqueue_kick()).
+>>
+>> Signed-off-by: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>
+>
+> While the optimization makes sense, the API's pretty hairy IMHO.
+> Why don't we split the kick functionality instead?
+> E.g.
+> =A0 =A0 =A0 =A0/* Report whether host notification is necessary. */
+> =A0 =A0 =A0 =A0bool virtqueue_kick_prepare(struct virtqueue *vq)
+> =A0 =A0 =A0 =A0/* Can be done in parallel with add_buf/get_buf */
+> =A0 =A0 =A0 =A0void virtqueue_kick_notify(struct virtqueue *vq)
 
-What are the next steps with regards to exiting
-staging - we are committed to addressing all legitimate issues in a very 
-timely fashion. Your guidance on this issue will be greatly
-appreciated. 
+This is a nice idea, it makes the code cleaner.  I am testing patches
+that implement this and after Khoa has measured the performance I will
+send them out.
 
-Regards,
-
-K. Y
+Stefan
