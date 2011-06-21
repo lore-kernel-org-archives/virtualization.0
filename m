@@ -1,13 +1,11 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: [PATCH 2/2] vhost: set log when updating used flags or avail event
-Date: Tue, 21 Jun 2011 18:04:38 +0800
-Message-ID: <20110621100438.6777.20695.stgit__17285.3433098227$1308650678$gmane$org@dhcp-91-7.nay.redhat.com.englab.nay.redhat.com>
-References: <20110621100426.6777.68855.stgit@dhcp-91-7.nay.redhat.com.englab.nay.redhat.com>
+From: Magnus Damm <magnus.damm@gmail.com>
+Subject: [PATCH 00/02][RESEND] virtio: Virtio platform driver
+Date: Tue, 21 Jun 2011 19:26:05 +0900
+Message-ID: <20110621102605.1382.90232.sendpatchset__7849.77294174514$1308651522$gmane$org@t400s>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20110621100426.6777.68855.stgit@dhcp-91-7.nay.redhat.com.englab.nay.redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -17,113 +15,50 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, mst@redhat.com
+To: linux-kernel@vger.kernel.org
+Cc: vapier@gentoo.org, mst@redhat.com, linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-We need set log when updating used flags and avail event. Otherwise guest may
-see stale values after migration and then do not exit or exit unexpectedly.
+virtio: Virtio platform driver
 
-Signed-off-by: Jason Wang <jasowang@redhat.com>
+[PATCH 01/02] virtio: Break out lguest virtio code to virtio_lguest.c
+[PATCH 02/02] virtio: Add virtio platform driver
+
+These patches add a virtio platform driver to the Linux kernel. This
+platform driver has the same role as the virtio_pci driver, but instead
+of building on top of emulated PCI this driver is making use of the
+platform bus together with driver specific callbacks.
+
+The virtio platform driver can be seen as a reusable implementation of
+the lguest virtio driver - in fact, most code is just taken directly
+from lguest_device.c and reworked to fit the platform device driver
+abstraction. The first patch breaks out code that can be shared between
+lguest and the virtio platform driver.
+
+This code has been used to implement a mailbox interface between the
+two processor cores included in the sh7372 SoC. The sh7372 contains
+one ARM Cortex-A8 and one SH4AL-DSP core, and in the prototype two
+Linux kernels are running in parallel on the same chip. Virtio serves
+as a communication link between the two cores.
+
+These patches have not been updated since last time they were posted
+20110310, but are known to apply and compile against linux-3.0-rc.
+
+For a full source release, have a look at SH Core Linux 20110317:
+http://www.spinics.net/lists/linux-sh/msg07188.html
+
+The SH kernel patch shows how to make use of the virtio platform driver.
+
+Signed-off-by: Magnus Damm <damm@opensource.se>
 ---
- drivers/vhost/vhost.c |   61 +++++++++++++++++++++++++++++++++++++++----------
- 1 files changed, 48 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-index 43a3fc6..c344d4f 100644
---- a/drivers/vhost/vhost.c
-+++ b/drivers/vhost/vhost.c
-@@ -578,16 +578,6 @@ static long vhost_set_memory(struct vhost_dev *d, struct vhost_memory __user *m)
- 	return 0;
- }
- 
--int init_used(struct vhost_virtqueue *vq)
--{
--	int r = put_user(vq->used_flags, &vq->used->flags);
--
--	if (r)
--		return r;
--	vq->signalled_used_valid = false;
--	return get_user(vq->last_used_idx, &vq->used->idx);
--}
--
- static long vhost_set_vring(struct vhost_dev *d, int ioctl, void __user *argp)
- {
- 	struct file *eventfp, *filep = NULL,
-@@ -954,6 +944,51 @@ int vhost_log_write(struct vhost_virtqueue *vq, struct vhost_log *log,
- 	return 0;
- }
- 
-+static int vhost_update_used_flags(struct vhost_virtqueue *vq)
-+{
-+	if (put_user(vq->used_flags, &vq->used->flags) < 0)
-+		return -EFAULT;
-+	if (unlikely(vq->log_used)) {
-+		/* Make sure the flag is seen before log. */
-+		smp_wmb();
-+		/* Log used flag write. */
-+		log_write(vq->log_base,
-+			  vq->log_addr + offsetof(struct vring_used, flags),
-+			  sizeof vq->used->flags);
-+		if (vq->log_ctx)
-+			eventfd_signal(vq->log_ctx, 1);
-+	}
-+	return 0;
-+}
-+
-+static int vhost_update_avail_event(struct vhost_virtqueue *vq, u16 avail_event)
-+{
-+	if (put_user(vq->avail_idx, vhost_avail_event(vq)))
-+		return -EFAULT;
-+	if (unlikely(vq->log_used)) {
-+		/* Make sure the event is seen before log. */
-+		smp_wmb();
-+		/* Log avail event write */
-+		log_write(vq->log_base,
-+			  vq->log_addr + offsetof(struct vring_used,
-+						  ring[vq->num]),
-+			  sizeof avail_event);
-+		if (vq->log_ctx)
-+			eventfd_signal(vq->log_ctx, 1);
-+	}
-+	return 0;
-+}
-+
-+int init_used(struct vhost_virtqueue *vq)
-+{
-+	int r = vhost_update_used_flags(vq);
-+
-+	if (r)
-+		return r;
-+	vq->signalled_used_valid = false;
-+	return get_user(vq->last_used_idx, &vq->used->idx);
-+}
-+
- static int translate_desc(struct vhost_dev *dev, u64 addr, u32 len,
- 			  struct iovec iov[], int iov_size)
- {
-@@ -1425,14 +1460,14 @@ bool vhost_enable_notify(struct vhost_dev *dev, struct vhost_virtqueue *vq)
- 		return false;
- 	vq->used_flags &= ~VRING_USED_F_NO_NOTIFY;
- 	if (!vhost_has_feature(dev, VIRTIO_RING_F_EVENT_IDX)) {
--		r = put_user(vq->used_flags, &vq->used->flags);
-+		r = vhost_update_used_flags(vq);
- 		if (r) {
- 			vq_err(vq, "Failed to enable notification at %p: %d\n",
- 			       &vq->used->flags, r);
- 			return false;
- 		}
- 	} else {
--		r = put_user(vq->avail_idx, vhost_avail_event(vq));
-+		r = vhost_update_avail_event(vq, vq->avail_idx);
- 		if (r) {
- 			vq_err(vq, "Failed to update avail event index at %p: %d\n",
- 			       vhost_avail_event(vq), r);
-@@ -1475,7 +1510,7 @@ void vhost_disable_notify(struct vhost_dev *dev, struct vhost_virtqueue *vq)
- 		return;
- 	vq->used_flags |= VRING_USED_F_NO_NOTIFY;
- 	if (!vhost_has_feature(dev, VIRTIO_RING_F_EVENT_IDX)) {
--		r = put_user(vq->used_flags, &vq->used->flags);
-+		r = vhost_update_used_flags(vq);
- 		if (r)
- 			vq_err(vq, "Failed to enable notification at %p: %d\n",
- 			       &vq->used->flags, r);
+ arch/x86/lguest/Kconfig          |    1 
+ drivers/lguest/lguest_device.c   |  209 ----------------------------
+ drivers/virtio/Kconfig           |   13 +
+ drivers/virtio/Makefile          |    2 
+ drivers/virtio/virtio_lguest.c   |  205 ++++++++++++++++++++++++++++
+ drivers/virtio/virtio_platform.c |  282 +++++++++++++++++++++++++++++++++++++++
+ include/linux/lguest.h           |    1 
+ include/linux/lguest_device.h    |   46 ++++++
+ include/linux/virtio_platform.h  |   12 +
+ 9 files changed, 564 insertions(+), 207 deletions(-)
