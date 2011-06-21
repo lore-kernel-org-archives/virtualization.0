@@ -1,14 +1,13 @@
-From: Mike Frysinger <vapier@gentoo.org>
-Subject: Re: [PATCH 02/02] virtio: Add virtio platform driver
-Date: Tue, 21 Jun 2011 14:27:33 -0400
-Message-ID: <BANLkTi=tut=Y4fc4tkT8wt_q1azJOYaDoQ__31374.0716818304$1308681070$gmane$org@mail.gmail.com>
-References: <20110621102605.1382.90232.sendpatchset@t400s>
-	<20110621102623.1382.71841.sendpatchset@t400s>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: Make virtio vq size configurable by a guest.
+Date: Tue, 21 Jun 2011 11:32:04 +0930
+Message-ID: <878vswhrhf.fsf@rustcorp.com.au>
+References: <20110620131624.GZ491@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20110621102623.1382.71841.sendpatchset@t400s>
+In-Reply-To: <20110620131624.GZ491@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,25 +17,38 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Magnus Damm <magnus.damm@gmail.com>
-Cc: mst@redhat.com, linux-sh@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Gleb Natapov <gleb@redhat.com>, virtualization@lists.linux-foundation.org
+Cc: mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gVHVlLCBKdW4gMjEsIDIwMTEgYXQgMDY6MjYsIE1hZ251cyBEYW1tIHdyb3RlOgo+ICtjb25m
-aWcgVklSVElPX1BMQVRGT1JNCj4gKyDCoCDCoCDCoCB0cmlzdGF0ZSAiUGxhdGZvcm0gZHJpdmVy
-IGZvciB2aXJ0aW8gZGV2aWNlcyAoRVhQRVJJTUVOVEFMKSIKPiArIMKgIMKgIMKgIHNlbGVjdCBW
-SVJUSU8KPiArIMKgIMKgIMKgIHNlbGVjdCBWSVJUSU9fUklORwo+ICsgwqAgwqAgwqAgc2VsZWN0
-IFZJUlRJT19MR1VFU1QKPiArIMKgIMKgIMKgIC0tLWhlbHAtLS0KPiArIMKgIMKgIMKgIMKgVGhp
-cyBkcml2ZXJzIHByb3ZpZGVzIHN1cHBvcnQgZm9yIHZpcnRpbyBiYXNlZCBwYXJhdmlydHVhbCBk
-ZXZpY2UKPiArIMKgIMKgIMKgIMKgZHJpdmVycyBvdmVyIGEgcGxhdGZvcm0gYnVzLgo+ICsKPiAr
-IMKgIMKgIMKgIMKgSWYgdW5zdXJlLCBzYXkgTi4KCmJlIG5pY2UgdG8gYWRkIGEgbm90ZSBhcyB0
-byB0aGUgbmFtZSBvZiB0aGUgbW9kdWxlIGlmIHRoZSB1c2VyIHNlbGVjdHMgIk0iCgo+IC0tLSAv
-ZGV2L251bGwKPiArKysgd29yay9kcml2ZXJzL3ZpcnRpby92aXJ0aW9fcGxhdGZvcm0uYyDCoCDC
-oCDCoCAyMDExLTAzLTAzIDE2OjA3OjMxLjAwMDAwMDAwMCArMDkwMAo+IC0tLSAvZGV2L251bGwK
-PiArKysgd29yay9pbmNsdWRlL2xpbnV4L3ZpcnRpb19wbGF0Zm9ybS5oIMKgIMKgIMKgIMKgMjAx
-MS0wMy0wMyAxNTo1Njo1NC4wMDAwMDAwMDAgKzA5MDAKCmJvdGggZmlsZXMgbGFjayBhIGNvbW1l
-bnQgYmxvY2sgYXQgdGhlIHRvcAovKgogKiBvbmUgbGluZSBkZXNjIG9mIGZpbGUKICoKICogY29w
-eXJpZ2h0CiAqCiAqIGxpY2Vuc2UgYmx1cmIKICovCi1taWtlCl9fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApW
-aXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxp
-bnV4LWZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+On Mon, 20 Jun 2011 16:16:24 +0300, Gleb Natapov <gleb@redhat.com> wrote:
+> Hi,
+> 
+> Currently in virtio host dictates the size and layout of vq that should
+> be used.  To talk to a device that has one vq with 128 elements guest
+> needs to allocate at least 2 pages. Usually this is not a problem, but
+> sometimes guest runs in a resource restricted environment and then it may
+> not have enough memory to initialize all virtio devices present in the
+> system. One such environment is a BIOS. Seabios currently has virtio block
+> support. Since the BIOS should be able to access the disk even after OS
+> is launched vq should be allocated from a special memory region that will
+> be marked as unavailable to an OS, but such memory is scarce. Because vq
+> is so huge only a couple of virtio disks can be initialized by the BIOS.
+> 
+> It would be nice if a guest will be able to tell to a host what vq size
+> should be used instead. BIOS issues only one request at a time anyway,
+> so it needs only one element in vq. It does not care about performance
+> to much either, so it can tell to a host to not align used index to a
+> page boundary. This way vq of one element shouldn't take more then a couple
+> hundreds of bytes.
+
+Unfortunately, a virtqueue *always* takes at least 2 pages.  That's
+because we split the host/guest part on page boundaries.  (2 pages per
+disk is "huge"?  Really?)
+
+So really, you want to negotiate the ring size and the 'align'
+parameter.  A new feature could allow this, but there may be valid
+reasons for a host to want to place an upper limit, too.
+
+Thanks,
+Rusty.
