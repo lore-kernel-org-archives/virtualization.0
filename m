@@ -1,13 +1,14 @@
-From: Tom Lendacky <tahm@linux.vnet.ibm.com>
-Subject: Re: RFT: virtio_net: limit xmit polling
-Date: Tue, 21 Jun 2011 10:23:22 -0500
-Message-ID: <201106211023.24643.tahm__688.51070614091$1308669869$gmane$org@linux.vnet.ibm.com>
-References: <20110619102700.GA11198@redhat.com>
+From: Mike Frysinger <vapier@gentoo.org>
+Subject: Re: [PATCH 02/02] virtio: Add virtio platform driver
+Date: Tue, 21 Jun 2011 14:27:33 -0400
+Message-ID: <BANLkTi=tut=Y4fc4tkT8wt_q1azJOYaDoQ__31374.0716818304$1308681070$gmane$org@mail.gmail.com>
+References: <20110621102605.1382.90232.sendpatchset@t400s>
+	<20110621102623.1382.71841.sendpatchset@t400s>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20110619102700.GA11198@redhat.com>
+In-Reply-To: <20110621102623.1382.71841.sendpatchset@t400s>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -17,42 +18,25 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Krishna Kumar2 <krkumar2@in.ibm.com>, habanero@linux.vnet.ibm.com, lguest@lists.ozlabs.org, Shirley Ma <xma@us.ibm.com>, kvm@vger.kernel.org, Carsten Otte <cotte@de.ibm.com>, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, steved@us.ibm.com, Christian Borntraeger <borntraeger@de.ibm.com>, netdev@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux390@de.ibm.com
+To: Magnus Damm <magnus.damm@gmail.com>
+Cc: mst@redhat.com, linux-sh@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sunday, June 19, 2011 05:27:00 AM Michael S. Tsirkin wrote:
-> OK, different people seem to test different trees.  In the hope to get
-> everyone on the same page, I created several variants of this patch so
-> they can be compared. Whoever's interested, please check out the
-> following, and tell me how these compare:
-
-I'm in the process of testing these patches.  Base and v0 are complete
-and v1 is near complete with v2 to follow.  I'm testing with a variety
-of TCP_RR and TCP_STREAM/TCP_MAERTS tests involving local guest-to-guest
-tests and remote host-to-guest tests.  I'll post the results in the next
-day or two when the tests finish.
-
-Thanks,
-Tom
-
-> 
-> kernel:
-> 
-> git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git
-> 
-> virtio-net-limit-xmit-polling/base - this is net-next baseline to test
-> against virtio-net-limit-xmit-polling/v0 - fixes checks on out of capacity
-> virtio-net-limit-xmit-polling/v1 - previous revision of the patch
-> 		this does xmit,free,xmit,2*free,free
-> virtio-net-limit-xmit-polling/v2 - new revision of the patch
-> 		this does free,xmit,2*free,free
-> 
-> There's also this on top:
-> virtio-net-limit-xmit-polling/v3 -> don't delay avail index update
-> I don't think it's important to test this one, yet
-> 
-> Userspace to use: event index work is not yet merged upstream
-> so the revision to use is still this:
-> git://git.kernel.org/pub/scm/linux/kernel/git/mst/qemu-kvm.git
-> virtio-net-event-idx-v3
+T24gVHVlLCBKdW4gMjEsIDIwMTEgYXQgMDY6MjYsIE1hZ251cyBEYW1tIHdyb3RlOgo+ICtjb25m
+aWcgVklSVElPX1BMQVRGT1JNCj4gKyDCoCDCoCDCoCB0cmlzdGF0ZSAiUGxhdGZvcm0gZHJpdmVy
+IGZvciB2aXJ0aW8gZGV2aWNlcyAoRVhQRVJJTUVOVEFMKSIKPiArIMKgIMKgIMKgIHNlbGVjdCBW
+SVJUSU8KPiArIMKgIMKgIMKgIHNlbGVjdCBWSVJUSU9fUklORwo+ICsgwqAgwqAgwqAgc2VsZWN0
+IFZJUlRJT19MR1VFU1QKPiArIMKgIMKgIMKgIC0tLWhlbHAtLS0KPiArIMKgIMKgIMKgIMKgVGhp
+cyBkcml2ZXJzIHByb3ZpZGVzIHN1cHBvcnQgZm9yIHZpcnRpbyBiYXNlZCBwYXJhdmlydHVhbCBk
+ZXZpY2UKPiArIMKgIMKgIMKgIMKgZHJpdmVycyBvdmVyIGEgcGxhdGZvcm0gYnVzLgo+ICsKPiAr
+IMKgIMKgIMKgIMKgSWYgdW5zdXJlLCBzYXkgTi4KCmJlIG5pY2UgdG8gYWRkIGEgbm90ZSBhcyB0
+byB0aGUgbmFtZSBvZiB0aGUgbW9kdWxlIGlmIHRoZSB1c2VyIHNlbGVjdHMgIk0iCgo+IC0tLSAv
+ZGV2L251bGwKPiArKysgd29yay9kcml2ZXJzL3ZpcnRpby92aXJ0aW9fcGxhdGZvcm0uYyDCoCDC
+oCDCoCAyMDExLTAzLTAzIDE2OjA3OjMxLjAwMDAwMDAwMCArMDkwMAo+IC0tLSAvZGV2L251bGwK
+PiArKysgd29yay9pbmNsdWRlL2xpbnV4L3ZpcnRpb19wbGF0Zm9ybS5oIMKgIMKgIMKgIMKgMjAx
+MS0wMy0wMyAxNTo1Njo1NC4wMDAwMDAwMDAgKzA5MDAKCmJvdGggZmlsZXMgbGFjayBhIGNvbW1l
+bnQgYmxvY2sgYXQgdGhlIHRvcAovKgogKiBvbmUgbGluZSBkZXNjIG9mIGZpbGUKICoKICogY29w
+eXJpZ2h0CiAqCiAqIGxpY2Vuc2UgYmx1cmIKICovCi1taWtlCl9fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApW
+aXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxp
+bnV4LWZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
