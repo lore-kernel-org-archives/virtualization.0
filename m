@@ -1,14 +1,11 @@
-From: Stefan Hajnoczi <stefanha@gmail.com>
-Subject: Re: [RFC] virtio: Support releasing lock during kick
-Date: Mon, 20 Jun 2011 16:27:18 +0100
-Message-ID: <BANLkTi=fsSLNu2ybeMKvN7gtCDO5FDNfDA__17494.7676984177$1308583677$gmane$org@mail.gmail.com>
-References: <1277328242-10685-1-git-send-email-stefanha@linux.vnet.ibm.com>
-	<20110619071452.GA7930@redhat.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: [PATCH 1/2] vhost: init used ring after backend was set
+Date: Tue, 21 Jun 2011 18:04:27 +0800
+Message-ID: <20110621100426.6777.68855.stgit__43487.2302379974$1308650648$gmane$org@dhcp-91-7.nay.redhat.com.englab.nay.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20110619071452.GA7930@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,39 +15,78 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sun, Jun 19, 2011 at 8:14 AM, Michael S. Tsirkin <mst@redhat.com> wrote:
-> On Wed, Jun 23, 2010 at 10:24:02PM +0100, Stefan Hajnoczi wrote:
->> The virtio block device holds a lock during I/O request processing.
->> Kicking the virtqueue while the lock is held results in long lock hold
->> times and increases contention for the lock.
->>
->> This patch modifies virtqueue_kick() to optionally release a lock while
->> notifying the host. =A0Virtio block is modified to pass in its lock. =A0=
-This
->> allows other vcpus to queue I/O requests during the time spent servicing
->> the virtqueue notify in the host.
->>
->> The virtqueue_kick() function is modified to know about locking because
->> it changes the state of the virtqueue and should execute with the lock
->> held (it would not be correct for virtio block to release the lock
->> before calling virtqueue_kick()).
->>
->> Signed-off-by: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>
->
-> While the optimization makes sense, the API's pretty hairy IMHO.
-> Why don't we split the kick functionality instead?
-> E.g.
-> =A0 =A0 =A0 =A0/* Report whether host notification is necessary. */
-> =A0 =A0 =A0 =A0bool virtqueue_kick_prepare(struct virtqueue *vq)
-> =A0 =A0 =A0 =A0/* Can be done in parallel with add_buf/get_buf */
-> =A0 =A0 =A0 =A0void virtqueue_kick_notify(struct virtqueue *vq)
+This patch move the used ring initialization after backend was set. This make us
+possible to disable the backend and tweak the used ring then restart. And it's
+also useful for log setting as used ring have been checked then.
 
-This is a nice idea, it makes the code cleaner.  I am testing patches
-that implement this and after Khoa has measured the performance I will
-send them out.
+Signed-off-by: Jason Wang <jasowang@redhat.com>
+---
+ drivers/vhost/net.c   |    4 ++++
+ drivers/vhost/vhost.c |   11 +++--------
+ drivers/vhost/vhost.h |    1 +
+ 3 files changed, 8 insertions(+), 8 deletions(-)
 
-Stefan
+diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+index e224a92..957421b 100644
+--- a/drivers/vhost/net.c
++++ b/drivers/vhost/net.c
+@@ -637,6 +637,10 @@ static long vhost_net_set_backend(struct vhost_net *n, unsigned index, int fd)
+ 		vhost_net_enable_vq(n, vq);
+ 	}
+ 
++	r = init_used(vq);
++	if (r)
++		goto err_vq;
++
+ 	mutex_unlock(&vq->mutex);
+ 
+ 	if (oldsock) {
+diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+index 2a10786..43a3fc6 100644
+--- a/drivers/vhost/vhost.c
++++ b/drivers/vhost/vhost.c
+@@ -578,15 +578,14 @@ static long vhost_set_memory(struct vhost_dev *d, struct vhost_memory __user *m)
+ 	return 0;
+ }
+ 
+-static int init_used(struct vhost_virtqueue *vq,
+-		     struct vring_used __user *used)
++int init_used(struct vhost_virtqueue *vq)
+ {
+-	int r = put_user(vq->used_flags, &used->flags);
++	int r = put_user(vq->used_flags, &vq->used->flags);
+ 
+ 	if (r)
+ 		return r;
+ 	vq->signalled_used_valid = false;
+-	return get_user(vq->last_used_idx, &used->idx);
++	return get_user(vq->last_used_idx, &vq->used->idx);
+ }
+ 
+ static long vhost_set_vring(struct vhost_dev *d, int ioctl, void __user *argp)
+@@ -701,10 +700,6 @@ static long vhost_set_vring(struct vhost_dev *d, int ioctl, void __user *argp)
+ 			}
+ 		}
+ 
+-		r = init_used(vq, (struct vring_used __user *)(unsigned long)
+-			      a.used_user_addr);
+-		if (r)
+-			break;
+ 		vq->log_used = !!(a.flags & (0x1 << VHOST_VRING_F_LOG));
+ 		vq->desc = (void __user *)(unsigned long)a.desc_user_addr;
+ 		vq->avail = (void __user *)(unsigned long)a.avail_user_addr;
+diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
+index 64889d2..bd9f196 100644
+--- a/drivers/vhost/vhost.h
++++ b/drivers/vhost/vhost.h
+@@ -147,6 +147,7 @@ int vhost_get_vq_desc(struct vhost_dev *, struct vhost_virtqueue *,
+ 		      struct vhost_log *log, unsigned int *log_num);
+ void vhost_discard_vq_desc(struct vhost_virtqueue *, int n);
+ 
++int init_used(struct vhost_virtqueue *);
+ int vhost_add_used(struct vhost_virtqueue *, unsigned int head, int len);
+ int vhost_add_used_n(struct vhost_virtqueue *, struct vring_used_elem *heads,
+ 		     unsigned count);
