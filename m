@@ -1,13 +1,13 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: Make virtio vq size configurable by a guest.
-Date: Tue, 21 Jun 2011 11:32:04 +0930
-Message-ID: <878vswhrhf.fsf@rustcorp.com.au>
-References: <20110620131624.GZ491@redhat.com>
+Subject: Re: [PATCH 00/02][RESEND] virtio: Virtio platform driver
+Date: Wed, 22 Jun 2011 11:39:04 +0930
+Message-ID: <87oc1q8vnj.fsf__26378.0617541217$1308710696$gmane$org@rustcorp.com.au>
+References: <20110621102605.1382.90232.sendpatchset@t400s>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20110620131624.GZ491@redhat.com>
+In-Reply-To: <20110621102605.1382.90232.sendpatchset@t400s>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -17,38 +17,49 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gleb Natapov <gleb@redhat.com>, virtualization@lists.linux-foundation.org
-Cc: mst@redhat.com
+To: linux-kernel@vger.kernel.org
+Cc: vapier@gentoo.org, mst@redhat.com, linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, 20 Jun 2011 16:16:24 +0300, Gleb Natapov <gleb@redhat.com> wrote:
-> Hi,
+On Tue, 21 Jun 2011 19:26:05 +0900, Magnus Damm <magnus.damm@gmail.com> wrote:
+> virtio: Virtio platform driver
 > 
-> Currently in virtio host dictates the size and layout of vq that should
-> be used.  To talk to a device that has one vq with 128 elements guest
-> needs to allocate at least 2 pages. Usually this is not a problem, but
-> sometimes guest runs in a resource restricted environment and then it may
-> not have enough memory to initialize all virtio devices present in the
-> system. One such environment is a BIOS. Seabios currently has virtio block
-> support. Since the BIOS should be able to access the disk even after OS
-> is launched vq should be allocated from a special memory region that will
-> be marked as unavailable to an OS, but such memory is scarce. Because vq
-> is so huge only a couple of virtio disks can be initialized by the BIOS.
+> [PATCH 01/02] virtio: Break out lguest virtio code to virtio_lguest.c
+> [PATCH 02/02] virtio: Add virtio platform driver
 > 
-> It would be nice if a guest will be able to tell to a host what vq size
-> should be used instead. BIOS issues only one request at a time anyway,
-> so it needs only one element in vq. It does not care about performance
-> to much either, so it can tell to a host to not align used index to a
-> page boundary. This way vq of one element shouldn't take more then a couple
-> hundreds of bytes.
+> These patches add a virtio platform driver to the Linux kernel. This
+> platform driver has the same role as the virtio_pci driver, but instead
+> of building on top of emulated PCI this driver is making use of the
+> platform bus together with driver specific callbacks.
+> 
+> The virtio platform driver can be seen as a reusable implementation of
+> the lguest virtio driver - in fact, most code is just taken directly
+> from lguest_device.c and reworked to fit the platform device driver
+> abstraction. The first patch breaks out code that can be shared between
+> lguest and the virtio platform driver.
+> 
+> This code has been used to implement a mailbox interface between the
+> two processor cores included in the sh7372 SoC. The sh7372 contains
+> one ARM Cortex-A8 and one SH4AL-DSP core, and in the prototype two
+> Linux kernels are running in parallel on the same chip. Virtio serves
+> as a communication link between the two cores.
 
-Unfortunately, a virtqueue *always* takes at least 2 pages.  That's
-because we split the host/guest part on page boundaries.  (2 pages per
-disk is "huge"?  Really?)
+OK, this seems pretty neat, but I have three questions before we nail this
+down (note that lguest doesn't have an ABI, so we can change it as much
+as we want).
 
-So really, you want to negotiate the ring size and the 'align'
-parameter.  A new feature could allow this, but there may be valid
-reasons for a host to want to place an upper limit, too.
+1) The lguest bus is dumb, and I never thought about device hotplug, for
+   example.  It would be nice to handle that somehow.  Is it possible?
+   Is this something you care about?
+
+2) Have you seen the '[RFC 0/8] Introducing a generic AMP/IPC framework'
+   patches?  Seems to overlap with what you're doing after these patches.
+
+3) The S/390 layout is identical, except their struct kvm_vqconfig is a
+   bit different.  Perhaps we should just use theirs (they use a 64-bit
+   token instead of an interrupt number).
+
+Christian?
 
 Thanks,
 Rusty.
