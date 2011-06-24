@@ -1,12 +1,17 @@
-From: Roopa Prabhu <roprabhu@cisco.com>
-Subject: Re: RFT: virtio_net: limit xmit polling
-Date: Fri, 24 Jun 2011 05:50:33 -0700
-Message-ID: <CA29D629.2C9B1%roprabhu@cisco.com>
-References: <201106211023.24643.tahm@linux.vnet.ibm.com>
+From: Bhushan Bharat-R65777 <R65777@freescale.com>
+Subject: RE: [PATCH 02/02] virtio: Add virtio platform driver
+Date: Fri, 24 Jun 2011 04:08:50 +0000
+Message-ID: <B8D6CA50DACE9E4AAADE9A4D56FBAAE6166FD3__11357.6966374696$1308936101$gmane$org@039-SN1MPN1-004.039d.mgd.msft.net>
+References: <20110621102605.1382.90232.sendpatchset@t400s>
+	<20110621102623.1382.71841.sendpatchset@t400s>
+	<B8D6CA50DACE9E4AAADE9A4D56FBAAE6166661@039-SN1MPN1-004.039d.mgd.msft.net>
+	<BANLkTi=QhwBAv5GtrTpitVhx+yDZPnRN+g@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============4127046239959269658=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <201106211023.24643.tahm@linux.vnet.ibm.com>
+In-Reply-To: <BANLkTi=QhwBAv5GtrTpitVhx+yDZPnRN+g@mail.gmail.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -14,173 +19,49 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Mime-version: 1.0
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Tom Lendacky <tahm@linux.vnet.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Krishna Kumar2 <krkumar2@in.ibm.com>, habanero@linux.vnet.ibm.com, lguest@lists.ozlabs.org, Shirley Ma <xma@us.ibm.com>, kvm@vger.kernel.org, Carsten Otte <cotte@de.ibm.com>, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, steved@us.ibm.com, Christian Borntraeger <borntraeger@de.ibm.com>, netdev@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux390@de.ibm.com
+To: Magnus Damm <magnus.damm@gmail.com>
+Cc: "linux-sh@vger.kernel.org" <linux-sh@vger.kernel.org>, "vapier@gentoo.org" <vapier@gentoo.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "mst@redhat.com" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-> This message is in MIME format. Since your mail reader does not understand
-this format, some or all of this message may not be legible.
+Thanks for the explanation. I also thought of same purpose for this patch but I got confused by function names and data structure names in the patch. They still have lguest in it.
 
---===============4127046239959269658==
-Content-type: multipart/alternative;
-	boundary="B_3391739433_7656829"
+Thanks
+-Bharat
 
-> This message is in MIME format. Since your mail reader does not understand
-this format, some or all of this message may not be legible.
-
---B_3391739433_7656829
-Content-type: text/plain;
-	charset="US-ASCII"
-Content-transfer-encoding: 7bit
-
-Michael,  
-
-I am testing this too.
- I have finished one round of testing. But am running it again just to
-confirm.
-This time I will see if I can collect some exit stats too. Will post results
-sometime this weekend.
-I am just doing TCP_STREAM and TCP_MAERTS from guest to remote host.
-
-Thanks,
-Roopa
-
-
-On 6/21/11 8:23 AM, "Tom Lendacky" <tahm@linux.vnet.ibm.com> wrote:
-
-> On Sunday, June 19, 2011 05:27:00 AM Michael S. Tsirkin wrote:
->> > OK, different people seem to test different trees.  In the hope to get
->> > everyone on the same page, I created several variants of this patch so
->> > they can be compared. Whoever's interested, please check out the
->> > following, and tell me how these compare:
+> -----Original Message-----
+> From: Magnus Damm [mailto:magnus.damm@gmail.com]
+> Sent: Friday, June 24, 2011 6:44 AM
+> To: Bhushan Bharat-R65777
+> Cc: linux-kernel@vger.kernel.org; vapier@gentoo.org; mst@redhat.com;
+> linux-sh@vger.kernel.org; virtualization@lists.linux-foundation.org
+> Subject: Re: [PATCH 02/02] virtio: Add virtio platform driver
 > 
-> I'm in the process of testing these patches.  Base and v0 are complete
-> and v1 is near complete with v2 to follow.  I'm testing with a variety
-> of TCP_RR and TCP_STREAM/TCP_MAERTS tests involving local guest-to-guest
-> tests and remote host-to-guest tests.  I'll post the results in the next
-> day or two when the tests finish.
+> Hi Bhushan Bharat,
 > 
-> Thanks,
-> Tom
+> On Thu, Jun 23, 2011 at 5:54 PM, Bhushan Bharat-R65777
+> <R65777@freescale.com> wrote:
+> > What purpose this virtio platform driver serves? Are you trying to make
+> driver layers here and each virtio device driver can hook up into this
+> platform driver. Is that correct ?
 > 
->> >
->> > kernel:
->> >
->> > git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git
->> >
->> > virtio-net-limit-xmit-polling/base - this is net-next baseline to test
->> > against virtio-net-limit-xmit-polling/v0 - fixes checks on out of capacity
->> > virtio-net-limit-xmit-polling/v1 - previous revision of the patch
->> >               this does xmit,free,xmit,2*free,free
->> > virtio-net-limit-xmit-polling/v2 - new revision of the patch
->> >               this does free,xmit,2*free,free
->> >
->> > There's also this on top:
->> > virtio-net-limit-xmit-polling/v3 -> don't delay avail index update
->> > I don't think it's important to test this one, yet
->> >
->> > Userspace to use: event index work is not yet merged upstream
->> > so the revision to use is still this:
->> > git://git.kernel.org/pub/scm/linux/kernel/git/mst/qemu-kvm.git
->> > virtio-net-event-idx-v3
+> The idea behind the virto platform driver is to have a reusable layer
+> that handles common virtio and vring functionality. Regular virtio
+> drivers for console, network and disk and interfacing to the virtio
+> platform driver, so these paravirtualized drivers can with this virtio
+> platform driver easily be reused by embedded platforms.
 > 
-
-
---B_3391739433_7656829
-Content-type: text/html;
-	charset="US-ASCII"
-Content-transfer-encoding: quoted-printable
-
-<HTML>
-<HEAD>
-<TITLE>Re: RFT: virtio_net: limit xmit polling</TITLE>
-</HEAD>
-<BODY>
-<FONT FACE=3D"Calibri, Verdana, Helvetica, Arial"><SPAN STYLE=3D'font-size:11pt=
-'>Michael, &nbsp;<BR>
-<BR>
-I am testing this too.<BR>
-&nbsp;I have finished one round of testing. But am running it again just to=
- confirm.<BR>
-This time I will see if I can collect some exit stats too. Will post result=
-s sometime this weekend. <BR>
-I am just doing TCP_STREAM and TCP_MAERTS from guest to remote host.<BR>
-<BR>
-Thanks,<BR>
-Roopa<BR>
-<BR>
-<BR>
-On 6/21/11 8:23 AM, &quot;Tom Lendacky&quot; &lt;<a href=3D"tahm@linux.vnet.i=
-bm.com">tahm@linux.vnet.ibm.com</a>&gt; wrote:<BR>
-<BR>
-</SPAN></FONT><BLOCKQUOTE><FONT FACE=3D"Calibri, Verdana, Helvetica, Arial"><=
-SPAN STYLE=3D'font-size:11pt'>On Sunday, June 19, 2011 05:27:00 AM Michael S. =
-Tsirkin wrote:<BR>
-&gt; OK, different people seem to test different trees. &nbsp;In the hope t=
-o get<BR>
-&gt; everyone on the same page, I created several variants of this patch so=
-<BR>
-&gt; they can be compared. Whoever's interested, please check out the<BR>
-&gt; following, and tell me how these compare:<BR>
-<BR>
-I'm in the process of testing these patches. &nbsp;Base and v0 are complete=
-<BR>
-and v1 is near complete with v2 to follow. &nbsp;I'm testing with a variety=
-<BR>
-of TCP_RR and TCP_STREAM/TCP_MAERTS tests involving local guest-to-guest<BR=
->
-tests and remote host-to-guest tests. &nbsp;I'll post the results in the ne=
-xt<BR>
-day or two when the tests finish.<BR>
-<BR>
-Thanks,<BR>
-Tom<BR>
-<BR>
-&gt;<BR>
-&gt; kernel:<BR>
-&gt;<BR>
-&gt; git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git<BR>
-&gt;<BR>
-&gt; virtio-net-limit-xmit-polling/base - this is net-next baseline to test=
-<BR>
-&gt; against virtio-net-limit-xmit-polling/v0 - fixes checks on out of capa=
-city<BR>
-&gt; virtio-net-limit-xmit-polling/v1 - previous revision of the patch<BR>
-&gt; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbs=
-p;&nbsp;&nbsp;this does xmit,free,xmit,2*free,free<BR>
-&gt; virtio-net-limit-xmit-polling/v2 - new revision of the patch<BR>
-&gt; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbs=
-p;&nbsp;&nbsp;this does free,xmit,2*free,free<BR>
-&gt;<BR>
-&gt; There's also this on top:<BR>
-&gt; virtio-net-limit-xmit-polling/v3 -&gt; don't delay avail index update<=
-BR>
-&gt; I don't think it's important to test this one, yet<BR>
-&gt;<BR>
-&gt; Userspace to use: event index work is not yet merged upstream<BR>
-&gt; so the revision to use is still this:<BR>
-&gt; git://git.kernel.org/pub/scm/linux/kernel/git/mst/qemu-kvm.git<BR>
-&gt; virtio-net-event-idx-v3<BR>
-<BR>
-</SPAN></FONT></BLOCKQUOTE>
-</BODY>
-</HTML>
-
-
---B_3391739433_7656829--
-
-
---===============4127046239959269658==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linux-foundation.org/mailman/listinfo/virtualization
---===============4127046239959269658==--
+> Vendor specific code is abstracted away from the virtio platform driver
+> and interfaced to using regular interrupts and SoC-specific callbacks. So
+> with this patch virtio can be interfaced as any regular platform driver.
+> This version of the driver is simply reusing the configuration method
+> from lguest.
+> 
+> If you want to see all code involved (including extremely experimental
+> backing drivers) then have a look at:
+> http://www.spinics.net/lists/linux-sh/msg07188.html
+> 
+> Cheers,
+> 
+> / magnus
