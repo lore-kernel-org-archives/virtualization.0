@@ -1,18 +1,20 @@
 From: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
 Subject: Re: [Xen-devel] Re: [PATCH 2/2] xen: Add alias to autoload backend
 	drivers
-Date: Mon, 27 Jun 2011 12:57:11 -0400
-Message-ID: <20110627165711.GA2201__8450.10220441527$1309193881$gmane$org@dumpdata.com>
+Date: Mon, 27 Jun 2011 13:34:47 -0400
+Message-ID: <20110627173447.GD2430__25195.4712359749$1309196245$gmane$org@dumpdata.com>
 References: <20110624215155.GB4735@wavehammer.waldi.eu.org>
 	<20110627161327.GO6978@dumpdata.com>
 	<20110627163728.GA23028@wavehammer.waldi.eu.org>
 	<20110627165109.GB13335@dumpdata.com>
+	<20110627165711.GA2201@dumpdata.com>
+	<20110627172305.GC23028@wavehammer.waldi.eu.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20110627165109.GB13335@dumpdata.com>
+In-Reply-To: <20110627172305.GC23028@wavehammer.waldi.eu.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -25,34 +27,25 @@ Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Bastian Blank <waldi@debian.org>, xen-devel@lists.xensource.com, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Jun 27, 2011 at 12:51:09PM -0400, Konrad Rzeszutek Wilk wrote:
-> On Mon, Jun 27, 2011 at 06:37:29PM +0200, Bastian Blank wrote:
-> > On Mon, Jun 27, 2011 at 12:13:27PM -0400, Konrad Rzeszutek Wilk wrote:
-> > > On Fri, Jun 24, 2011 at 11:51:55PM +0200, Bastian Blank wrote:
-> > > > All the Xen backend drivers are assigned to a special bus type
-> > > > xen-backend. This allows userspace to load the modules on request.
-> > > Is there a specific version of udev that would take advantage of this?
-> > 
-> > Was there a version within the last three years that can't? The patch is
-> > tested and udev does its work.
+On Mon, Jun 27, 2011 at 07:23:05PM +0200, Bastian Blank wrote:
+> On Mon, Jun 27, 2011 at 12:57:11PM -0400, Konrad Rzeszutek Wilk wrote:
+> > Ugh actually no I can't.
 > 
-> Ok, that answers that question. Queue up for 3.1
+> Why? It does not actually change things.
+> 
+> > Can you re-submit these two patches (and stick on Acked-by Ian on them) and
+> > split the "xen: Add alias to autoload backend driver" in three patches:
+> >  1) the xen-netback (and copy David Miller)
+> >  2) the xen-blkback (and copy Jens Axboe)
+> >  3) the xenbus one
+> 
+> That is silly.
 
-Ugh actually no I can't.
+Please do it.
 
-Bastian,
+> 
+> > That should be five patches total.
+> 
+> No, 2+2 is 4, not five.
 
-Can you re-submit these two patches (and stick on Acked-by Ian on them) and
-split the "xen: Add alias to autoload backend driver" in three patches:
- 1) the xen-netback (and copy David Miller)
- 2) the xen-blkback (and copy Jens Axboe)
- 3) the xenbus one
-
-and add Acked-by on the two backends from me and from Ian?
-
-That should be five patches total.
-
-I will take the xenbus patches and have them in a 3.1 branch and the
-backends patches will go to the appropiate maintainer.
-
-Thanks!
+Right. Got my math wrong.
