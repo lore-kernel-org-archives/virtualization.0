@@ -1,20 +1,13 @@
-From: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Subject: Re: [Xen-devel] Re: [PATCH 2/2] xen: Add alias to autoload backend
-	drivers
-Date: Mon, 27 Jun 2011 13:34:47 -0400
-Message-ID: <20110627173447.GD2430__25195.4712359749$1309196245$gmane$org@dumpdata.com>
-References: <20110624215155.GB4735@wavehammer.waldi.eu.org>
-	<20110627161327.GO6978@dumpdata.com>
-	<20110627163728.GA23028@wavehammer.waldi.eu.org>
-	<20110627165109.GB13335@dumpdata.com>
-	<20110627165711.GA2201@dumpdata.com>
-	<20110627172305.GC23028@wavehammer.waldi.eu.org>
+From: Ian Campbell <Ian.Campbell@citrix.com>
+Subject: Re: [Xen-devel] [PATCH 1/2] xen: Populate xenbus device attributes
+Date: Mon, 27 Jun 2011 09:44:31 +0100
+Message-ID: <1309164271.32717.153.camel__15070.9143527367$1309213626$gmane$org@zakaz.uk.xensource.com>
+References: <20110624215146.GA4735@wavehammer.waldi.eu.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20110627172305.GC23028@wavehammer.waldi.eu.org>
+In-Reply-To: <20110624215146.GA4735@wavehammer.waldi.eu.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -24,28 +17,164 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Bastian Blank <waldi@debian.org>, xen-devel@lists.xensource.com, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
+To: Bastian Blank <waldi@debian.org>, Jeremy Fitzhardinge <jeremy@goop.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Cc: "xen-devel@lists.xensource.com" <xen-devel@lists.xensource.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Jun 27, 2011 at 07:23:05PM +0200, Bastian Blank wrote:
-> On Mon, Jun 27, 2011 at 12:57:11PM -0400, Konrad Rzeszutek Wilk wrote:
-> > Ugh actually no I can't.
-> 
-> Why? It does not actually change things.
-> 
-> > Can you re-submit these two patches (and stick on Acked-by Ian on them) and
-> > split the "xen: Add alias to autoload backend driver" in three patches:
-> >  1) the xen-netback (and copy David Miller)
-> >  2) the xen-blkback (and copy Jens Axboe)
-> >  3) the xenbus one
-> 
-> That is silly.
+On Fri, 2011-06-24 at 22:51 +0100, Bastian Blank wrote:
+> The xenbus bus type uses device_create_file to assign all used device
+> attributes. However it does not remove them when the device goes away.
 
-Please do it.
+Doesn't the cleanup happen automatically in the device core when the
+device goes away? Either way this is a good cleanup in its own right.
 
+> This patch uses the dev_attrs field of the bus type to specify default
+> attributes for all devices.
 > 
-> > That should be five patches total.
-> 
-> No, 2+2 is 4, not five.
+> Signed-off-by: Bastian Blank <waldi@debian.org>
 
-Right. Got my math wrong.
+Acked-by: Ian Campbell <ian.campbell@citrix.com>
+
+Thanks Bastian.
+
+Ian.
+
+> ---
+>  drivers/xen/xenbus/xenbus_probe.c          |   41 +++++++++------------------
+>  drivers/xen/xenbus/xenbus_probe.h          |    2 +
+>  drivers/xen/xenbus/xenbus_probe_backend.c  |    6 +---
+>  drivers/xen/xenbus/xenbus_probe_frontend.c |    6 +---
+>  4 files changed, 18 insertions(+), 37 deletions(-)
+> 
+> diff --git a/drivers/xen/xenbus/xenbus_probe.c b/drivers/xen/xenbus/xenbus_probe.c
+> index 7397695..2ed0b04 100644
+> --- a/drivers/xen/xenbus/xenbus_probe.c
+> +++ b/drivers/xen/xenbus/xenbus_probe.c
+> @@ -378,26 +378,31 @@ static void xenbus_dev_release(struct device *dev)
+>  		kfree(to_xenbus_device(dev));
+>  }
+>  
+> -static ssize_t xendev_show_nodename(struct device *dev,
+> -				    struct device_attribute *attr, char *buf)
+> +static ssize_t nodename_show(struct device *dev,
+> +			     struct device_attribute *attr, char *buf)
+>  {
+>  	return sprintf(buf, "%s\n", to_xenbus_device(dev)->nodename);
+>  }
+> -static DEVICE_ATTR(nodename, S_IRUSR | S_IRGRP | S_IROTH, xendev_show_nodename, NULL);
+>  
+> -static ssize_t xendev_show_devtype(struct device *dev,
+> -				   struct device_attribute *attr, char *buf)
+> +static ssize_t devtype_show(struct device *dev,
+> +			    struct device_attribute *attr, char *buf)
+>  {
+>  	return sprintf(buf, "%s\n", to_xenbus_device(dev)->devicetype);
+>  }
+> -static DEVICE_ATTR(devtype, S_IRUSR | S_IRGRP | S_IROTH, xendev_show_devtype, NULL);
+>  
+> -static ssize_t xendev_show_modalias(struct device *dev,
+> -				    struct device_attribute *attr, char *buf)
+> +static ssize_t modalias_show(struct device *dev,
+> +			     struct device_attribute *attr, char *buf)
+>  {
+>  	return sprintf(buf, "xen:%s\n", to_xenbus_device(dev)->devicetype);
+>  }
+> -static DEVICE_ATTR(modalias, S_IRUSR | S_IRGRP | S_IROTH, xendev_show_modalias, NULL);
+> +
+> +struct device_attribute xenbus_dev_attrs[] = {
+> +	__ATTR_RO(nodename),
+> +	__ATTR_RO(devtype),
+> +	__ATTR_RO(modalias),
+> +	__ATTR_NULL
+> +};
+> +EXPORT_SYMBOL_GPL(xenbus_dev_attrs);
+>  
+>  int xenbus_probe_node(struct xen_bus_type *bus,
+>  		      const char *type,
+> @@ -449,25 +454,7 @@ int xenbus_probe_node(struct xen_bus_type *bus,
+>  	if (err)
+>  		goto fail;
+>  
+> -	err = device_create_file(&xendev->dev, &dev_attr_nodename);
+> -	if (err)
+> -		goto fail_unregister;
+> -
+> -	err = device_create_file(&xendev->dev, &dev_attr_devtype);
+> -	if (err)
+> -		goto fail_remove_nodename;
+> -
+> -	err = device_create_file(&xendev->dev, &dev_attr_modalias);
+> -	if (err)
+> -		goto fail_remove_devtype;
+> -
+>  	return 0;
+> -fail_remove_devtype:
+> -	device_remove_file(&xendev->dev, &dev_attr_devtype);
+> -fail_remove_nodename:
+> -	device_remove_file(&xendev->dev, &dev_attr_nodename);
+> -fail_unregister:
+> -	device_unregister(&xendev->dev);
+>  fail:
+>  	kfree(xendev);
+>  	return err;
+> diff --git a/drivers/xen/xenbus/xenbus_probe.h b/drivers/xen/xenbus/xenbus_probe.h
+> index 888b990..b814935 100644
+> --- a/drivers/xen/xenbus/xenbus_probe.h
+> +++ b/drivers/xen/xenbus/xenbus_probe.h
+> @@ -48,6 +48,8 @@ struct xen_bus_type
+>  	struct bus_type bus;
+>  };
+>  
+> +extern struct device_attribute xenbus_dev_attrs[];
+> +
+>  extern int xenbus_match(struct device *_dev, struct device_driver *_drv);
+>  extern int xenbus_dev_probe(struct device *_dev);
+>  extern int xenbus_dev_remove(struct device *_dev);
+> diff --git a/drivers/xen/xenbus/xenbus_probe_backend.c b/drivers/xen/xenbus/xenbus_probe_backend.c
+> index 6cf467b..ec510e5 100644
+> --- a/drivers/xen/xenbus/xenbus_probe_backend.c
+> +++ b/drivers/xen/xenbus/xenbus_probe_backend.c
+> @@ -183,10 +183,6 @@ static void frontend_changed(struct xenbus_watch *watch,
+>  	xenbus_otherend_changed(watch, vec, len, 0);
+>  }
+>  
+> -static struct device_attribute xenbus_backend_dev_attrs[] = {
+> -	__ATTR_NULL
+> -};
+> -
+>  static struct xen_bus_type xenbus_backend = {
+>  	.root = "backend",
+>  	.levels = 3,		/* backend/type/<frontend>/<id> */
+> @@ -200,7 +196,7 @@ static struct xen_bus_type xenbus_backend = {
+>  		.probe		= xenbus_dev_probe,
+>  		.remove		= xenbus_dev_remove,
+>  		.shutdown	= xenbus_dev_shutdown,
+> -		.dev_attrs	= xenbus_backend_dev_attrs,
+> +		.dev_attrs	= xenbus_dev_attrs,
+>  	},
+>  };
+>  
+> diff --git a/drivers/xen/xenbus/xenbus_probe_frontend.c b/drivers/xen/xenbus/xenbus_probe_frontend.c
+> index b6a2690..ed2ba47 100644
+> --- a/drivers/xen/xenbus/xenbus_probe_frontend.c
+> +++ b/drivers/xen/xenbus/xenbus_probe_frontend.c
+> @@ -81,10 +81,6 @@ static void backend_changed(struct xenbus_watch *watch,
+>  	xenbus_otherend_changed(watch, vec, len, 1);
+>  }
+>  
+> -static struct device_attribute xenbus_frontend_dev_attrs[] = {
+> -	__ATTR_NULL
+> -};
+> -
+>  static const struct dev_pm_ops xenbus_pm_ops = {
+>  	.suspend	= xenbus_dev_suspend,
+>  	.resume		= xenbus_dev_resume,
+> @@ -106,7 +102,7 @@ static struct xen_bus_type xenbus_frontend = {
+>  		.probe		= xenbus_dev_probe,
+>  		.remove		= xenbus_dev_remove,
+>  		.shutdown	= xenbus_dev_shutdown,
+> -		.dev_attrs	= xenbus_frontend_dev_attrs,
+> +		.dev_attrs	= xenbus_dev_attrs,
+>  
+>  		.pm		= &xenbus_pm_ops,
+>  	},
