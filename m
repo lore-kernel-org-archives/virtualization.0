@@ -1,8 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 10/40] Staging: hv: storvsc: Get rid of
-	final_release_stor_device() by inlining code
-Date: Wed, 29 Jun 2011 07:39:07 -0700
-Message-ID: <1309358377-8537-10-git-send-email-kys@microsoft.com>
+Subject: [PATCH 29/40] Staging: hv: storvsc: Optimize bounce buffer handling
+	for the "write" case
+Date: Wed, 29 Jun 2011 07:39:26 -0700
+Message-ID: <1309358377-8537-29-git-send-email-kys@microsoft.com>
 References: <1309358301-8488-1-git-send-email-kys@microsoft.com>
 	<1309358377-8537-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -23,65 +23,44 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Get rid of final_release_stor_device() by inlining code.
+Optimize bounce buffer handling for the "write" case; we need to copy
+from bounce buffer only when we are performing a "read" operation.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/storvsc.c |   25 +++++--------------------
- 1 files changed, 5 insertions(+), 20 deletions(-)
+ drivers/staging/hv/storvsc_drv.c |   11 ++++++-----
+ 1 files changed, 6 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/staging/hv/storvsc.c b/drivers/staging/hv/storvsc.c
-index f52e610..c4cb170 100644
---- a/drivers/staging/hv/storvsc.c
-+++ b/drivers/staging/hv/storvsc.c
-@@ -70,25 +70,6 @@ static inline struct storvsc_device *get_in_stor_device(
- 	return stor_device;
- }
+diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
+index fc53bf6..c6838fd 100644
+--- a/drivers/staging/hv/storvsc_drv.c
++++ b/drivers/staging/hv/storvsc_drv.c
+@@ -478,17 +478,18 @@ static void storvsc_commmand_completion(struct hv_storvsc_request *request)
+ 	struct scsi_sense_hdr sense_hdr;
+ 	struct vmscsi_request *vm_srb;
  
--/* Drop ref count to 0. No one can use stor_device object. */
--static inline struct storvsc_device *final_release_stor_device(
--			struct hv_device *device)
--{
--	struct storvsc_device *stor_device;
--	unsigned long flags;
--
--	stor_device = (struct storvsc_device *)device->ext;
--
--	/* Busy wait until the ref drop to 1, then set it to 0 */
--	while (atomic_cmpxchg(&stor_device->ref_count, 1, 0) != 1)
--		udelay(100);
--
--	spin_lock_irqsave(&device->ext_lock, flags);
--	device->ext = NULL;
--	spin_unlock_irqrestore(&device->ext_lock, flags);
--	return stor_device;
--}
--
- static int storvsc_channel_init(struct hv_device *device)
- {
- 	struct storvsc_device *stor_device;
-@@ -390,6 +371,7 @@ int storvsc_dev_add(struct hv_device *device,
- int storvsc_dev_remove(struct hv_device *device)
- {
- 	struct storvsc_device *stor_device;
-+	unsigned long flags;
++	vm_srb = &request->vstor_packet.vm_srb;
+ 	if (cmd_request->bounce_sgl_count) {
  
- 	/*
- 	 * Since we currently hold a reference on the stor
-@@ -408,7 +390,10 @@ int storvsc_dev_remove(struct hv_device *device)
+-		/* FIXME: We can optimize on writes by just skipping this */
+-		copy_from_bounce_buffer(scsi_sglist(scmnd),
++		if (vm_srb->data_in == READ_TYPE) {
++			copy_from_bounce_buffer(scsi_sglist(scmnd),
+ 					cmd_request->bounce_sgl,
+ 					scsi_sg_count(scmnd));
+-		destroy_bounce_buffer(cmd_request->bounce_sgl,
+-				      cmd_request->bounce_sgl_count);
++			destroy_bounce_buffer(cmd_request->bounce_sgl,
++					cmd_request->bounce_sgl_count);
++		}
+ 	}
  
- 	storvsc_wait_to_drain(stor_device);
+-	vm_srb = &request->vstor_packet.vm_srb;
+ 	scmnd->result = vm_srb->scsi_status;
  
--	stor_device = final_release_stor_device(device);
-+	spin_lock_irqsave(&device->ext_lock, flags);
-+	atomic_set(&stor_device->ref_count, 0);
-+	device->ext = NULL;
-+	spin_unlock_irqrestore(&device->ext_lock, flags);
- 
- 	/* Close the channel */
- 	vmbus_close(device->channel);
+ 	if (scmnd->result) {
 -- 
 1.7.4.1
