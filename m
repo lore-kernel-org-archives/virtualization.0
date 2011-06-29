@@ -1,8 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 11/40] Staging: hv: storvsc: Leverage the spinlock to manage
-	ref_cnt
-Date: Wed, 29 Jun 2011 07:39:08 -0700
-Message-ID: <1309358377-8537-11-git-send-email-kys@microsoft.com>
+Subject: [PATCH 38/40] Staging: hv: storvsc: Fixup srb_status for INQUIRY and
+	MODE_SENSE
+Date: Wed, 29 Jun 2011 07:39:35 -0700
+Message-ID: <1309358377-8537-38-git-send-email-kys@microsoft.com>
 References: <1309358301-8488-1-git-send-email-kys@microsoft.com>
 	<1309358377-8537-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -23,93 +23,40 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Now that we have a spin lock protecting access to the stor device pointer,
-use it manage the reference count as well.
+The current handler on the Windows Host does not correctly handle
+INQUIRY and MODE_SENSE commands with some options. Fixup srb_status
+in these cases since the failure is not fatal.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/hyperv_storage.h |    8 ++++----
- drivers/staging/hv/storvsc.c        |   10 +++++-----
- 2 files changed, 9 insertions(+), 9 deletions(-)
+ drivers/staging/hv/storvsc_drv.c |   12 ++++++++++++
+ 1 files changed, 12 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/staging/hv/hyperv_storage.h b/drivers/staging/hv/hyperv_storage.h
-index 53b65be..d946211 100644
---- a/drivers/staging/hv/hyperv_storage.h
-+++ b/drivers/staging/hv/hyperv_storage.h
-@@ -265,7 +265,7 @@ struct storvsc_device {
- 	struct hv_device *device;
+diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
+index 42689d3..0785947 100644
+--- a/drivers/staging/hv/storvsc_drv.c
++++ b/drivers/staging/hv/storvsc_drv.c
+@@ -542,6 +542,18 @@ static void storvsc_on_io_completion(struct hv_device *device,
  
- 	/* 0 indicates the device is being destroyed */
--	atomic_t ref_count;
-+	int	 ref_count;
- 	bool	 destroy;
- 	bool	 drain_notify;
- 	atomic_t num_outstanding_req;
-@@ -296,9 +296,9 @@ static inline struct storvsc_device *get_out_stor_device(
+ 	stor_pkt = &request->vstor_packet;
  
- 	spin_lock_irqsave(&device->ext_lock, flags);
- 	stor_device = (struct storvsc_device *)device->ext;
--	if (stor_device && (atomic_read(&stor_device->ref_count) > 1) &&
-+	if (stor_device && (stor_device->ref_count > 1) &&
- 		!stor_device->destroy)
--		atomic_inc(&stor_device->ref_count);
-+		stor_device->ref_count++;
- 	else
- 		stor_device = NULL;
- 	spin_unlock_irqrestore(&device->ext_lock, flags);
-@@ -315,7 +315,7 @@ static inline void put_stor_device(struct hv_device *device)
- 	spin_lock_irqsave(&device->ext_lock, flags);
- 	stor_device = (struct storvsc_device *)device->ext;
- 
--	atomic_dec(&stor_device->ref_count);
-+	stor_device->ref_count--;
- 	spin_unlock_irqrestore(&device->ext_lock, flags);
- }
- 
-diff --git a/drivers/staging/hv/storvsc.c b/drivers/staging/hv/storvsc.c
-index c4cb170..a41be2a 100644
---- a/drivers/staging/hv/storvsc.c
-+++ b/drivers/staging/hv/storvsc.c
-@@ -42,7 +42,7 @@ static inline struct storvsc_device *alloc_stor_device(struct hv_device *device)
- 
- 	/* Set to 2 to allow both inbound and outbound traffics */
- 	/* (ie get_out_stor_device() and get_in_stor_device()) to proceed. */
--	atomic_set(&stor_device->ref_count, 2);
-+	stor_device->ref_count = 2;
- 	stor_device->destroy = false;
- 	init_waitqueue_head(&stor_device->waiting_to_drain);
- 	stor_device->device = device;
-@@ -61,8 +61,8 @@ static inline struct storvsc_device *get_in_stor_device(
- 
- 	spin_lock_irqsave(&device->ext_lock, flags);
- 	stor_device = (struct storvsc_device *)device->ext;
--	if (stor_device && atomic_read(&stor_device->ref_count))
--		atomic_inc(&stor_device->ref_count);
-+	if (stor_device && stor_device->ref_count)
-+		stor_device->ref_count++;
- 	else
- 		stor_device = NULL;
- 	spin_unlock_irqrestore(&device->ext_lock, flags);
-@@ -379,7 +379,7 @@ int storvsc_dev_remove(struct hv_device *device)
- 	 * pointer.
- 	 */
- 	stor_device = (struct storvsc_device *)device->ext;
--	atomic_dec(&stor_device->ref_count);
++	/*
++	 * The current SCSI handling on the host side does
++	 * not correctly handle:
++	 * INQUIRY command with page code parameter set to 0x80
++	 * MODE_SENSE command with cmd[2] == 0x1c
++	 *
++	 * Setup srb status so this won't be fatal.
++	 */
 +
- 	stor_device->destroy = true;
++	if ((stor_pkt->vm_srb.cdb[0] == INQUIRY) ||
++	   (stor_pkt->vm_srb.cdb[0] == MODE_SENSE))
++		vstor_packet->vm_srb.srb_status = 0;
  
- 	/*
-@@ -391,7 +391,7 @@ int storvsc_dev_remove(struct hv_device *device)
- 	storvsc_wait_to_drain(stor_device);
- 
- 	spin_lock_irqsave(&device->ext_lock, flags);
--	atomic_set(&stor_device->ref_count, 0);
-+	stor_device->ref_count = 0;
- 	device->ext = NULL;
- 	spin_unlock_irqrestore(&device->ext_lock, flags);
- 
+ 	/* Copy over the status...etc */
+ 	stor_pkt->vm_srb.scsi_status = vstor_packet->vm_srb.scsi_status;
 -- 
 1.7.4.1
