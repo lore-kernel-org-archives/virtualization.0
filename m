@@ -1,8 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 38/40] Staging: hv: storvsc: Fixup srb_status for INQUIRY and
-	MODE_SENSE
-Date: Wed, 29 Jun 2011 07:39:35 -0700
-Message-ID: <1309358377-8537-38-git-send-email-kys@microsoft.com>
+Subject: [PATCH 39/40] Staging: hv: storvsc: In case of scsi errors offline
+	the device
+Date: Wed, 29 Jun 2011 07:39:36 -0700
+Message-ID: <1309358377-8537-39-git-send-email-kys@microsoft.com>
 References: <1309358301-8488-1-git-send-email-kys@microsoft.com>
 	<1309358377-8537-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -23,40 +23,37 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The current handler on the Windows Host does not correctly handle
-INQUIRY and MODE_SENSE commands with some options. Fixup srb_status
-in these cases since the failure is not fatal.
+When we do get fatal errors from the host, offline the device since the
+host has already tried all possible recovery actions.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/storvsc_drv.c |   12 ++++++++++++
- 1 files changed, 12 insertions(+), 0 deletions(-)
+ drivers/staging/hv/storvsc_drv.c |   10 +++++++++-
+ 1 files changed, 9 insertions(+), 1 deletions(-)
 
 diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
-index 42689d3..0785947 100644
+index 0785947..cc4b128 100644
 --- a/drivers/staging/hv/storvsc_drv.c
 +++ b/drivers/staging/hv/storvsc_drv.c
-@@ -542,6 +542,18 @@ static void storvsc_on_io_completion(struct hv_device *device,
+@@ -1251,7 +1251,15 @@ static void storvsc_commmand_completion(struct hv_storvsc_request *request)
+ 		}
+ 	}
  
- 	stor_pkt = &request->vstor_packet;
- 
+-	scmnd->result = vm_srb->scsi_status;
 +	/*
-+	 * The current SCSI handling on the host side does
-+	 * not correctly handle:
-+	 * INQUIRY command with page code parameter set to 0x80
-+	 * MODE_SENSE command with cmd[2] == 0x1c
-+	 *
-+	 * Setup srb status so this won't be fatal.
++	 * If there is an error; offline the device since all
++	 * error recovery strategies would have already been
++	 * deployed on the host side.
 +	 */
-+
-+	if ((stor_pkt->vm_srb.cdb[0] == INQUIRY) ||
-+	   (stor_pkt->vm_srb.cdb[0] == MODE_SENSE))
-+		vstor_packet->vm_srb.srb_status = 0;
++	if (vm_srb->srb_status == 0x4)
++		scmnd->result = DID_TARGET_FAILURE << 16;
++	else
++		scmnd->result = vm_srb->scsi_status;
  
- 	/* Copy over the status...etc */
- 	stor_pkt->vm_srb.scsi_status = vstor_packet->vm_srb.scsi_status;
+ 	if (scmnd->result) {
+ 		if (scsi_normalize_sense(scmnd->sense_buffer,
 -- 
 1.7.4.1
