@@ -1,48 +1,68 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 01/40] Staging: hv: storvsc: Do not aquire an unnecessary reference on stor_device
-Date: Wed, 29 Jun 2011 07:38:58 -0700
-Message-ID: <1309358377-8537-1-git-send-email-kys@microsoft.com>
+Subject: [PATCH 27/40] Staging: hv: storvsc: Handle IDE devices correctly in
+	storvsc_remove()
+Date: Wed, 29 Jun 2011 07:39:24 -0700
+Message-ID: <1309358377-8537-27-git-send-email-kys@microsoft.com>
 References: <1309358301-8488-1-git-send-email-kys@microsoft.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1309358301-8488-1-git-send-email-kys@microsoft.com>
-Sender: linux-kernel-owner@vger.kernel.org
+	<1309358377-8537-1-git-send-email-kys@microsoft.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <devel-bounces@linuxdriverproject.org>
+In-Reply-To: <1309358377-8537-1-git-send-email-kys@microsoft.com>
+List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
+	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
+List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
+List-Post: <mailto:devel@linuxdriverproject.org>
+List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
+List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
+	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
+Sender: devel-bounces@linuxdriverproject.org
+Errors-To: devel-bounces@linuxdriverproject.org
 To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org
-Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>, Hank Janssen <hjanssen@microsoft.com>
+Cc: Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On entry into storvsc_on_io_completion() we have already acquired a reference
-on the stor_device; there is no need to acquire an additional reference here.
+Properly deal with cleaning up of resources on storvsc_remove().
+Keep in mind that while on the scsi side, we don't get called for each
+scsi disk configured for the guest, on the IDE side, we will get called
+for each IDE device that was probed. Perform all the cleanup in the 
+context of the HBA owner.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/storvsc.c |    5 +----
- 1 files changed, 1 insertions(+), 4 deletions(-)
+ drivers/staging/hv/storvsc_drv.c |    9 +++++++++
+ 1 files changed, 9 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/staging/hv/storvsc.c b/drivers/staging/hv/storvsc.c
-index 8c62829..cd38cd6 100644
---- a/drivers/staging/hv/storvsc.c
-+++ b/drivers/staging/hv/storvsc.c
-@@ -232,9 +232,7 @@ static void storvsc_on_io_completion(struct hv_device *device,
- 	struct storvsc_device *stor_device;
- 	struct vstor_packet *stor_pkt;
+diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
+index c0d6e16..a6da132 100644
+--- a/drivers/staging/hv/storvsc_drv.c
++++ b/drivers/staging/hv/storvsc_drv.c
+@@ -350,6 +350,7 @@ static int storvsc_remove(struct hv_device *dev)
+ 	struct hv_host_device *host_dev =
+ 			(struct hv_host_device *)host->hostdata;
+ 	struct storvsc_device *stor_dev = dev->ext;
++	int i;
  
--	stor_device = must_get_stor_device(device);
--	if (!stor_device)
--		return;
-+	stor_device = (struct storvsc_device *)device->ext;
+ 	if (!stor_dev->hba_owner)
+ 		return 0;
+@@ -359,6 +360,14 @@ static int storvsc_remove(struct hv_device *dev)
+ 	scsi_host_put(host);
  
- 	stor_pkt = &request->vstor_packet;
- 
-@@ -279,7 +277,6 @@ static void storvsc_on_io_completion(struct hv_device *device,
- 		wake_up(&stor_device->waiting_to_drain);
- 
- 
--	put_stor_device(device);
- }
- 
- static void storvsc_on_receive(struct hv_device *device,
+ 	storvsc_dev_remove(dev);
++
++	for (i = 0; i < 4; i++) {
++		struct hv_device *d = ide_devices[i];
++
++		if (d)
++			storvsc_dev_remove(d);
++	}
++
+ 	if (host_dev->request_pool) {
+ 		kmem_cache_destroy(host_dev->request_pool);
+ 		host_dev->request_pool = NULL;
 -- 
 1.7.4.1
