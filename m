@@ -1,8 +1,7 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 18/40] Staging: hv: netvsc: Prevent outgoing traffic when
-	netvsc dev is destroyed
-Date: Wed, 29 Jun 2011 07:39:15 -0700
-Message-ID: <1309358377-8537-18-git-send-email-kys@microsoft.com>
+Subject: [PATCH 04/40] Staging: hv: storvsc: Cleanup alloc_stor_device()
+Date: Wed, 29 Jun 2011 07:39:01 -0700
+Message-ID: <1309358377-8537-4-git-send-email-kys@microsoft.com>
 References: <1309358301-8488-1-git-send-email-kys@microsoft.com>
 	<1309358377-8537-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -23,29 +22,28 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Prevent outgoing traffic when netvsc dev is destroyed.
+Cleanup alloc_stor_device(), we can set the ref_count directly.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/netvsc.c |    3 ++-
- 1 files changed, 2 insertions(+), 1 deletions(-)
+ drivers/staging/hv/storvsc.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/staging/hv/netvsc.c b/drivers/staging/hv/netvsc.c
-index 531de63..3ac0e17 100644
---- a/drivers/staging/hv/netvsc.c
-+++ b/drivers/staging/hv/netvsc.c
-@@ -60,7 +60,8 @@ static struct netvsc_device *get_outbound_net_device(struct hv_device *device)
+diff --git a/drivers/staging/hv/storvsc.c b/drivers/staging/hv/storvsc.c
+index 313a3f8..48bd8da 100644
+--- a/drivers/staging/hv/storvsc.c
++++ b/drivers/staging/hv/storvsc.c
+@@ -42,7 +42,7 @@ static inline struct storvsc_device *alloc_stor_device(struct hv_device *device)
  
- 	spin_lock_irqsave(&device->ext_lock, flags);
- 	net_device = device->ext;
--	if (net_device && atomic_read(&net_device->refcnt) > 1)
-+	if (net_device && (atomic_read(&net_device->refcnt) > 1) &&
-+		!net_device->destroy)
- 		atomic_inc(&net_device->refcnt);
- 	else
- 		net_device = NULL;
+ 	/* Set to 2 to allow both inbound and outbound traffics */
+ 	/* (ie get_out_stor_device() and get_in_stor_device()) to proceed. */
+-	atomic_cmpxchg(&stor_device->ref_count, 0, 2);
++	atomic_set(&stor_device->ref_count, 2);
+ 
+ 	init_waitqueue_head(&stor_device->waiting_to_drain);
+ 	stor_device->device = device;
 -- 
 1.7.4.1
