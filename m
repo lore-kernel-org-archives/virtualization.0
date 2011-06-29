@@ -1,8 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 08/40] Staging: hv: storvsc: Prevent outgoing traffic when
-	stor dev is destroyed
-Date: Wed, 29 Jun 2011 07:39:05 -0700
-Message-ID: <1309358377-8537-8-git-send-email-kys@microsoft.com>
+Subject: [PATCH 16/40] Staging: hv: netvsc: Introduce state to manage the
+	lifecycle of net device
+Date: Wed, 29 Jun 2011 07:39:13 -0700
+Message-ID: <1309358377-8537-16-git-send-email-kys@microsoft.com>
 References: <1309358301-8488-1-git-send-email-kys@microsoft.com>
 	<1309358377-8537-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -23,29 +23,49 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Prevent outgoing traffic when stor dev is destroyed.
+In preparation for cleaning up reference counts, introduce state to manage
+the lifecycle of net device.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/hyperv_storage.h |    3 ++-
- 1 files changed, 2 insertions(+), 1 deletions(-)
+ drivers/staging/hv/hyperv_net.h |    1 +
+ drivers/staging/hv/netvsc.c     |    2 ++
+ 2 files changed, 3 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/staging/hv/hyperv_storage.h b/drivers/staging/hv/hyperv_storage.h
-index 6b20f1d..53b65be 100644
---- a/drivers/staging/hv/hyperv_storage.h
-+++ b/drivers/staging/hv/hyperv_storage.h
-@@ -296,7 +296,8 @@ static inline struct storvsc_device *get_out_stor_device(
+diff --git a/drivers/staging/hv/hyperv_net.h b/drivers/staging/hv/hyperv_net.h
+index b5bee9e..c6836be 100644
+--- a/drivers/staging/hv/hyperv_net.h
++++ b/drivers/staging/hv/hyperv_net.h
+@@ -371,6 +371,7 @@ struct netvsc_device {
  
- 	spin_lock_irqsave(&device->ext_lock, flags);
- 	stor_device = (struct storvsc_device *)device->ext;
--	if (stor_device && atomic_read(&stor_device->ref_count) > 1)
-+	if (stor_device && (atomic_read(&stor_device->ref_count) > 1) &&
-+		!stor_device->destroy)
- 		atomic_inc(&stor_device->ref_count);
- 	else
- 		stor_device = NULL;
+ 	atomic_t refcnt;
+ 	atomic_t num_outstanding_sends;
++	bool destroy;
+ 	bool drain_notify;
+ 	wait_queue_head_t waiting_to_drain;
+ 	/*
+diff --git a/drivers/staging/hv/netvsc.c b/drivers/staging/hv/netvsc.c
+index 56749ca..f03018c 100644
+--- a/drivers/staging/hv/netvsc.c
++++ b/drivers/staging/hv/netvsc.c
+@@ -43,6 +43,7 @@ static struct netvsc_device *alloc_net_device(struct hv_device *device)
+ 	/* Set to 2 to allow both inbound and outbound traffic */
+ 	atomic_set(&net_device->refcnt, 2);
+ 	net_device->drain_notify = false;
++	net_device->destroy = false;
+ 	init_waitqueue_head(&net_device->waiting_to_drain);
+ 
+ 	net_device->dev = device;
+@@ -409,6 +410,7 @@ int netvsc_device_remove(struct hv_device *device)
+ 		netdev_err(ndev, "No net device present!!\n");
+ 		return -ENODEV;
+ 	}
++	net_device->destroy = true;
+ 
+ 	/* Wait for all send completions */
+ 	while (atomic_read(&net_device->num_outstanding_sends)) {
 -- 
 1.7.4.1
