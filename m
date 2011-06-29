@@ -1,7 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 03/40] Staging: hv: storvsc: Rename get_stor_device()
-Date: Wed, 29 Jun 2011 07:39:00 -0700
-Message-ID: <1309358377-8537-3-git-send-email-kys@microsoft.com>
+Subject: [PATCH 23/40] Staging: hv: storvsc: Introduce code to manage IDE
+	devices using storvsc HBA
+Date: Wed, 29 Jun 2011 07:39:20 -0700
+Message-ID: <1309358377-8537-23-git-send-email-kys@microsoft.com>
 References: <1309358301-8488-1-git-send-email-kys@microsoft.com>
 	<1309358377-8537-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -22,85 +23,117 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-In preparation for cleaning up how we manage reference counts on the stor
-device, clearly distinguish why we are attempting to acquire a reference.
+Introduce code to manage the (potentially four) IDE devices suning the storvsc
+driver. To do so, we assign distinct channels to each of these devices
+as well as add code to probe an IDE device.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/hyperv_storage.h |    3 ++-
- drivers/staging/hv/storvsc.c        |    8 ++++----
- drivers/staging/hv/storvsc_drv.c    |    2 +-
- 3 files changed, 7 insertions(+), 6 deletions(-)
+ drivers/staging/hv/hyperv_storage.h |   13 +++++++++
+ drivers/staging/hv/storvsc_drv.c    |   50 +++++++++++++++++++++++++++++++++-
+ 2 files changed, 61 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/staging/hv/hyperv_storage.h b/drivers/staging/hv/hyperv_storage.h
-index a01f9a0..a224413 100644
+index a1f3e27..a15a53b 100644
 --- a/drivers/staging/hv/hyperv_storage.h
 +++ b/drivers/staging/hv/hyperv_storage.h
-@@ -288,7 +288,8 @@ struct storvsc_device {
+@@ -25,6 +25,19 @@
+ #ifndef _HYPERV_STORAGE_H
+ #define _HYPERV_STORAGE_H
  
++/*
++ * We want to manage the IDE devices using standard Linux SCSI drivers
++ * using the storvsc driver.
++ * Define special channels to support this.
++ */
++
++#define HV_MAX_IDE_DEVICES	4
++#define HV_IDE_BASE_CHANNEL	10
++#define HV_IDE0_DEV1		HV_IDE_BASE_CHANNEL
++#define HV_IDE0_DEV2		(HV_IDE_BASE_CHANNEL + 1)
++#define HV_IDE1_DEV1		(HV_IDE_BASE_CHANNEL + 2)
++#define HV_IDE1_DEV2		(HV_IDE_BASE_CHANNEL + 3)
++
  
- /* Get the stordevice object iff exists and its refcount > 1 */
--static inline struct storvsc_device *get_stor_device(struct hv_device *device)
-+static inline struct storvsc_device *get_out_stor_device(
-+					struct hv_device *device)
- {
- 	struct storvsc_device *stor_device;
- 
-diff --git a/drivers/staging/hv/storvsc.c b/drivers/staging/hv/storvsc.c
-index 89708b1..313a3f8 100644
---- a/drivers/staging/hv/storvsc.c
-+++ b/drivers/staging/hv/storvsc.c
-@@ -41,7 +41,7 @@ static inline struct storvsc_device *alloc_stor_device(struct hv_device *device)
- 		return NULL;
- 
- 	/* Set to 2 to allow both inbound and outbound traffics */
--	/* (ie get_stor_device() and get_in_stor_device()) to proceed. */
-+	/* (ie get_out_stor_device() and get_in_stor_device()) to proceed. */
- 	atomic_cmpxchg(&stor_device->ref_count, 0, 2);
- 
- 	init_waitqueue_head(&stor_device->waiting_to_drain);
-@@ -67,7 +67,7 @@ static inline struct storvsc_device *get_in_stor_device(
- 	return stor_device;
- }
- 
--/* Drop ref count to 1 to effectively disable get_stor_device() */
-+/* Drop ref count to 1 to effectively disable get_out_stor_device() */
- static inline struct storvsc_device *release_stor_device(
- 					struct hv_device *device)
- {
-@@ -105,7 +105,7 @@ static int storvsc_channel_init(struct hv_device *device)
- 	struct vstor_packet *vstor_packet;
- 	int ret, t;
- 
--	stor_device = get_stor_device(device);
-+	stor_device = get_out_stor_device(device);
- 	if (!stor_device)
- 		return -ENODEV;
- 
-@@ -427,7 +427,7 @@ int storvsc_do_io(struct hv_device *device,
- 	int ret = 0;
- 
- 	vstor_packet = &request->vstor_packet;
--	stor_device = get_stor_device(device);
-+	stor_device = get_out_stor_device(device);
- 
- 	if (!stor_device)
- 		return -ENODEV;
+ /* vstorage.w revision number.  This is used in the case of a version match, */
+ /* to alert the user that structure sizes may be mismatched even though the */
 diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
-index 7db5246..8d5be51 100644
+index 8d5be51..cf659d7 100644
 --- a/drivers/staging/hv/storvsc_drv.c
 +++ b/drivers/staging/hv/storvsc_drv.c
-@@ -346,7 +346,7 @@ static int storvsc_host_reset(struct hv_device *device)
- 	int ret, t;
+@@ -61,6 +61,54 @@ struct storvsc_cmd_request {
+ 	struct hv_storvsc_request request;
+ };
  
++static struct  Scsi_Host *storvsc_host;
++
++/*
++ * State to manage IDE devices that register with the storvsc driver.
++ *
++ */
++static struct hv_device *ide_devices[HV_MAX_IDE_DEVICES];
++
++static void storvsc_get_ide_info(struct hv_device *dev, int *target, int *path)
++{
++	*target =
++	dev->dev_instance.data[5] << 8 | dev->dev_instance.data[4];
++
++	*path =
++	dev->dev_instance.data[3] << 24 | dev->dev_instance.data[2] << 16 |
++	dev->dev_instance.data[1] << 8  | dev->dev_instance.data[0];
++}
++
++int storvsc_ide_probe(struct hv_device *dev)
++{
++	struct storvsc_device_info dev_info;
++	int target, path, channel;
++	int ret;
++
++	dev_info.ring_buffer_size = BLKVSC_RING_BUFFER_SIZE;
++	ret = storvsc_dev_add(dev, &dev_info);
++
++	if (ret)
++		return ret;
++
++	storvsc_get_ide_info(dev, &target, &path);
++
++	if (path)
++		/* IDE controller 1. */
++		if (target)
++			channel = HV_IDE1_DEV2;
++		else
++			channel = HV_IDE1_DEV1;
++	else
++		/* IDE controller 0 */
++		if (target)
++			channel = HV_IDE0_DEV2;
++		else
++			channel = HV_IDE0_DEV1;
++
++	ide_devices[channel - HV_IDE_BASE_CHANNEL] = dev;
++	return scsi_add_device(storvsc_host, channel, target, 0);
++}
  
--	stor_device = get_stor_device(device);
-+	stor_device = get_out_stor_device(device);
- 	if (!stor_device)
+ static int storvsc_device_alloc(struct scsi_device *sdevice)
+ {
+@@ -469,7 +517,6 @@ static int storvsc_queuecommand_lck(struct scsi_cmnd *scmnd,
+ 	unsigned int sg_count = 0;
+ 	struct vmscsi_request *vm_srb;
+ 
+-
+ 	/* If retrying, no need to prep the cmd */
+ 	if (scmnd->host_scribble) {
+ 
+@@ -707,7 +754,6 @@ static int storvsc_probe(struct hv_device *device)
+ 		scsi_host_put(host);
  		return -ENODEV;
- 
+ 	}
+-
+ 	scsi_scan_host(host);
+ 	return ret;
+ }
 -- 
 1.7.4.1
