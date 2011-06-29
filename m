@@ -1,8 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 30/40] Staging: hv: storvsc: Optimize the bounce buffer
-	handling in the "read" case
-Date: Wed, 29 Jun 2011 07:39:27 -0700
-Message-ID: <1309358377-8537-30-git-send-email-kys@microsoft.com>
+Subject: [PATCH 22/40] Staging: hv: netvsc: Further cleanup reference counting
+	of netvsc_device
+Date: Wed, 29 Jun 2011 07:39:19 -0700
+Message-ID: <1309358377-8537-22-git-send-email-kys@microsoft.com>
 References: <1309358301-8488-1-git-send-email-kys@microsoft.com>
 	<1309358377-8537-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -23,38 +23,79 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Optimize the bounce buffer handling in the "read" case. Copy to bounce
-buffers (if needed) when we initiate an I/O, only if we are
-performing a "write" operation.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/storvsc_drv.c |   10 ++++------
- 1 files changed, 4 insertions(+), 6 deletions(-)
+ drivers/staging/hv/netvsc.c |   25 ++++++++++++++++---------
+ 1 files changed, 16 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
-index c6838fd..23334ad 100644
---- a/drivers/staging/hv/storvsc_drv.c
-+++ b/drivers/staging/hv/storvsc_drv.c
-@@ -623,12 +623,10 @@ static int storvsc_queuecommand_lck(struct scsi_cmnd *scmnd,
- 				ALIGN(scsi_bufflen(scmnd), PAGE_SIZE) >>
- 					PAGE_SHIFT;
+diff --git a/drivers/staging/hv/netvsc.c b/drivers/staging/hv/netvsc.c
+index 9ee264c..caca82e 100644
+--- a/drivers/staging/hv/netvsc.c
++++ b/drivers/staging/hv/netvsc.c
+@@ -40,8 +40,7 @@ static struct netvsc_device *alloc_net_device(struct hv_device *device)
+ 	if (!net_device)
+ 		return NULL;
  
--			/*
--			 * FIXME: We can optimize on reads by just skipping
--			 * this
--			 */
--			copy_to_bounce_buffer(sgl, cmd_request->bounce_sgl,
--					      scsi_sg_count(scmnd));
-+			if (vm_srb->data_in == WRITE_TYPE)
-+				copy_to_bounce_buffer(sgl,
-+					cmd_request->bounce_sgl,
-+					scsi_sg_count(scmnd));
+-	/* Set to 2 to allow both inbound and outbound traffic */
+-	net_device->refcnt = 2;
++	net_device->refcnt = 1;
+ 	net_device->drain_notify = false;
+ 	net_device->destroy = false;
+ 	init_waitqueue_head(&net_device->waiting_to_drain);
+@@ -52,7 +51,6 @@ static struct netvsc_device *alloc_net_device(struct hv_device *device)
+ 	return net_device;
+ }
  
- 			sgl = cmd_request->bounce_sgl;
- 			sg_count = cmd_request->bounce_sgl_count;
+-/* Get the net device object iff exists and its refcount > 1 */
+ static struct netvsc_device *get_outbound_net_device(struct hv_device *device)
+ {
+ 	struct netvsc_device *net_device;
+@@ -60,7 +58,7 @@ static struct netvsc_device *get_outbound_net_device(struct hv_device *device)
+ 
+ 	spin_lock_irqsave(&device->ext_lock, flags);
+ 	net_device = device->ext;
+-	if (net_device && (net_device->refcnt > 1) &&
++	if (net_device && (net_device->refcnt) &&
+ 		!net_device->destroy)
+ 		net_device->refcnt++;
+ 	else
+@@ -70,7 +68,6 @@ static struct netvsc_device *get_outbound_net_device(struct hv_device *device)
+ 	return net_device;
+ }
+ 
+-/* Get the net device object iff exists and its refcount > 0 */
+ static struct netvsc_device *get_inbound_net_device(struct hv_device *device)
+ {
+ 	struct netvsc_device *net_device;
+@@ -78,11 +75,21 @@ static struct netvsc_device *get_inbound_net_device(struct hv_device *device)
+ 
+ 	spin_lock_irqsave(&device->ext_lock, flags);
+ 	net_device = device->ext;
+-	if (net_device && net_device->refcnt)
+-		net_device->refcnt++;
+-	else
+-		net_device = NULL;
+ 
++	if (!net_device)
++		goto cleanup;
++
++	/*
++	 * If the device is being destroyed; allow incoming
++	 * traffic only to cleanup outstanding requests.
++	 */
++	if (net_device->destroy &&
++		(atomic_read(&net_device->num_outstanding_sends) == 0))
++		goto cleanup;
++
++	net_device->refcnt++;
++
++cleanup:
+ 	spin_unlock_irqrestore(&device->ext_lock, flags);
+ 	return net_device;
+ }
 -- 
 1.7.4.1
