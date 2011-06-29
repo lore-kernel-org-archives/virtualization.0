@@ -1,7 +1,7 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 24/40] Staging: hv: storvsc: On I/O get the correct IDE device
-Date: Wed, 29 Jun 2011 07:39:21 -0700
-Message-ID: <1309358377-8537-24-git-send-email-kys@microsoft.com>
+Subject: [PATCH 26/40] Staging: hv: storvsc: Handle probing IDE devices
+Date: Wed, 29 Jun 2011 07:39:23 -0700
+Message-ID: <1309358377-8537-26-git-send-email-kys@microsoft.com>
 References: <1309358301-8488-1-git-send-email-kys@microsoft.com>
 	<1309358377-8537-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -22,38 +22,73 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-We use the channel number to distinguish an IDE device managed by the
-storvsc driver from scsi devices. Add code to get the correct
-device pointer based on the channel number.
+Add code is storvsc_probe() to handle IDE devices. We currently boot
+off of the first IDE disk. The emulated HBA assigned to manage the IDE
+disks will be owned by this (boot) device. Subsequent IDE devices that
+may be discovered will be managed by this HBA.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/storvsc_drv.c |   10 ++++++++++
- 1 files changed, 10 insertions(+), 0 deletions(-)
+ drivers/staging/hv/storvsc_drv.c |   23 ++++++++++++++++++++---
+ 1 files changed, 20 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
-index cf659d7..fcc3f5d 100644
+index 898a311..c0d6e16 100644
 --- a/drivers/staging/hv/storvsc_drv.c
 +++ b/drivers/staging/hv/storvsc_drv.c
-@@ -517,6 +517,16 @@ static int storvsc_queuecommand_lck(struct scsi_cmnd *scmnd,
- 	unsigned int sg_count = 0;
- 	struct vmscsi_request *vm_srb;
+@@ -79,7 +79,7 @@ static void storvsc_get_ide_info(struct hv_device *dev, int *target, int *path)
+ 	dev->dev_instance.data[1] << 8  | dev->dev_instance.data[0];
+ }
  
-+	if (scmnd->device->channel >= HV_IDE_BASE_CHANNEL) {
-+		int channel = scmnd->device->channel;
+-int storvsc_ide_probe(struct hv_device *dev)
++static int storvsc_ide_probe(struct hv_device *dev)
+ {
+ 	struct storvsc_device_info dev_info;
+ 	int target, path, channel;
+@@ -713,6 +713,15 @@ static int storvsc_probe(struct hv_device *device)
+ 	struct Scsi_Host *host;
+ 	struct hv_host_device *host_dev;
+ 	struct storvsc_device_info device_info;
++	bool dev_is_ide;
++	int path, target;
 +
-+		/*
-+		 * This is an IDE device; get the right dev.
-+		 */
++	if (!strcmp(device->device_type, "hv_block")) {
++		dev_is_ide = true;
++		if (storvsc_host)
++			return storvsc_ide_probe(device);
++	} else
++		dev_is_ide = false;
+ 
+ 	host = scsi_host_alloc(&scsi_driver,
+ 			       sizeof(struct hv_host_device));
+@@ -751,8 +760,15 @@ static int storvsc_probe(struct hv_device *device)
+ 	 * This stor device owns the HBA; capture that state.
+ 	 */
+ 	((struct storvsc_device *)device->ext)->hba_owner = true;
+-	host_dev->path = device_info.path_id;
+-	host_dev->target = device_info.target_id;
 +
-+		dev = ide_devices[channel - HV_IDE_BASE_CHANNEL];
++	if (dev_is_ide) {
++		storvsc_get_ide_info(device, &target, &path);
++		host_dev->path = path;
++		host_dev->target = target;
++	} else {
++		host_dev->path = device_info.path_id;
++		host_dev->target = device_info.target_id;
 +	}
-+
- 	/* If retrying, no need to prep the cmd */
- 	if (scmnd->host_scribble) {
+ 
+ 	/* max # of devices per target */
+ 	host->max_lun = STORVSC_MAX_LUNS_PER_TARGET;
+@@ -772,6 +788,7 @@ static int storvsc_probe(struct hv_device *device)
+ 		return -ENODEV;
+ 	}
+ 	scsi_scan_host(host);
++	storvsc_host = host;
+ 	return ret;
+ }
  
 -- 
 1.7.4.1
