@@ -1,8 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 14/40] Staging: hv: netvsc: Inline the code for
-	free_net_device()
-Date: Wed, 29 Jun 2011 07:39:11 -0700
-Message-ID: <1309358377-8537-14-git-send-email-kys@microsoft.com>
+Subject: [PATCH 35/40] Staging: hv: storvsc: Make storvsc_dev_add() a static
+	function
+Date: Wed, 29 Jun 2011 07:39:32 -0700
+Message-ID: <1309358377-8537-35-git-send-email-kys@microsoft.com>
 References: <1309358301-8488-1-git-send-email-kys@microsoft.com>
 	<1309358377-8537-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -23,52 +23,28 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Inline the code for free_net_device().
+Make storvsc_dev_add() a static function.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/netvsc.c |   12 ++----------
- 1 files changed, 2 insertions(+), 10 deletions(-)
+ drivers/staging/hv/storvsc_drv.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/staging/hv/netvsc.c b/drivers/staging/hv/netvsc.c
-index bdd5c2b..c3c934c 100644
---- a/drivers/staging/hv/netvsc.c
-+++ b/drivers/staging/hv/netvsc.c
-@@ -51,14 +51,6 @@ static struct netvsc_device *alloc_net_device(struct hv_device *device)
- 	return net_device;
- }
- 
--static void free_net_device(struct netvsc_device *device)
--{
--	WARN_ON(atomic_read(&device->refcnt) != 0);
--	device->dev->ext = NULL;
--	kfree(device);
--}
--
--
- /* Get the net device object iff exists and its refcount > 1 */
- static struct netvsc_device *get_outbound_net_device(struct hv_device *device)
- {
-@@ -444,7 +436,7 @@ int netvsc_device_remove(struct hv_device *device)
- 		kfree(netvsc_packet);
- 	}
- 
--	free_net_device(net_device);
-+	kfree(net_device);
- 	return 0;
- }
- 
-@@ -994,7 +986,7 @@ cleanup:
- 		release_outbound_net_device(device);
- 		release_inbound_net_device(device);
- 
--		free_net_device(net_device);
-+		kfree(net_device);
- 	}
- 
+diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
+index f54f013..4a3e4b3 100644
+--- a/drivers/staging/hv/storvsc_drv.c
++++ b/drivers/staging/hv/storvsc_drv.c
+@@ -667,7 +667,7 @@ static int storvsc_connect_to_vsp(struct hv_device *device, u32 ring_size)
  	return ret;
+ }
+ 
+-int storvsc_dev_add(struct hv_device *device,
++static int storvsc_dev_add(struct hv_device *device,
+ 					void *additional_info)
+ {
+ 	struct storvsc_device *stor_device;
 -- 
 1.7.4.1
