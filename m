@@ -1,8 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 39/40] Staging: hv: storvsc: In case of scsi errors offline
-	the device
-Date: Wed, 29 Jun 2011 07:39:36 -0700
-Message-ID: <1309358377-8537-39-git-send-email-kys@microsoft.com>
+Subject: [PATCH 10/40] Staging: hv: storvsc: Get rid of
+	final_release_stor_device() by inlining code
+Date: Wed, 29 Jun 2011 07:39:07 -0700
+Message-ID: <1309358377-8537-10-git-send-email-kys@microsoft.com>
 References: <1309358301-8488-1-git-send-email-kys@microsoft.com>
 	<1309358377-8537-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -23,37 +23,65 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>, Abhishek Kane <v-abkane@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-When we do get fatal errors from the host, offline the device since the
-host has already tried all possible recovery actions.
+Get rid of final_release_stor_device() by inlining code.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
 Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
 ---
- drivers/staging/hv/storvsc_drv.c |   10 +++++++++-
- 1 files changed, 9 insertions(+), 1 deletions(-)
+ drivers/staging/hv/storvsc.c |   25 +++++--------------------
+ 1 files changed, 5 insertions(+), 20 deletions(-)
 
-diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
-index 0785947..cc4b128 100644
---- a/drivers/staging/hv/storvsc_drv.c
-+++ b/drivers/staging/hv/storvsc_drv.c
-@@ -1251,7 +1251,15 @@ static void storvsc_commmand_completion(struct hv_storvsc_request *request)
- 		}
- 	}
+diff --git a/drivers/staging/hv/storvsc.c b/drivers/staging/hv/storvsc.c
+index f52e610..c4cb170 100644
+--- a/drivers/staging/hv/storvsc.c
++++ b/drivers/staging/hv/storvsc.c
+@@ -70,25 +70,6 @@ static inline struct storvsc_device *get_in_stor_device(
+ 	return stor_device;
+ }
  
--	scmnd->result = vm_srb->scsi_status;
-+	/*
-+	 * If there is an error; offline the device since all
-+	 * error recovery strategies would have already been
-+	 * deployed on the host side.
-+	 */
-+	if (vm_srb->srb_status == 0x4)
-+		scmnd->result = DID_TARGET_FAILURE << 16;
-+	else
-+		scmnd->result = vm_srb->scsi_status;
+-/* Drop ref count to 0. No one can use stor_device object. */
+-static inline struct storvsc_device *final_release_stor_device(
+-			struct hv_device *device)
+-{
+-	struct storvsc_device *stor_device;
+-	unsigned long flags;
+-
+-	stor_device = (struct storvsc_device *)device->ext;
+-
+-	/* Busy wait until the ref drop to 1, then set it to 0 */
+-	while (atomic_cmpxchg(&stor_device->ref_count, 1, 0) != 1)
+-		udelay(100);
+-
+-	spin_lock_irqsave(&device->ext_lock, flags);
+-	device->ext = NULL;
+-	spin_unlock_irqrestore(&device->ext_lock, flags);
+-	return stor_device;
+-}
+-
+ static int storvsc_channel_init(struct hv_device *device)
+ {
+ 	struct storvsc_device *stor_device;
+@@ -390,6 +371,7 @@ int storvsc_dev_add(struct hv_device *device,
+ int storvsc_dev_remove(struct hv_device *device)
+ {
+ 	struct storvsc_device *stor_device;
++	unsigned long flags;
  
- 	if (scmnd->result) {
- 		if (scsi_normalize_sense(scmnd->sense_buffer,
+ 	/*
+ 	 * Since we currently hold a reference on the stor
+@@ -408,7 +390,10 @@ int storvsc_dev_remove(struct hv_device *device)
+ 
+ 	storvsc_wait_to_drain(stor_device);
+ 
+-	stor_device = final_release_stor_device(device);
++	spin_lock_irqsave(&device->ext_lock, flags);
++	atomic_set(&stor_device->ref_count, 0);
++	device->ext = NULL;
++	spin_unlock_irqrestore(&device->ext_lock, flags);
+ 
+ 	/* Close the channel */
+ 	vmbus_close(device->channel);
 -- 
 1.7.4.1
