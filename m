@@ -1,17 +1,17 @@
 From: KY Srinivasan <kys@microsoft.com>
-Subject: RE: [PATCH 24/40] Staging: hv: storvsc: On I/O get the correct IDE
- device
-Date: Thu, 30 Jun 2011 21:15:54 +0000
-Message-ID: <6E21E5352C11B742B20C142EB499E0480816C2CF@TK5EX14MBXC126.redmond.corp.microsoft.com>
+Subject: RE: [PATCH 23/40] Staging: hv: storvsc: Introduce code to manage
+ IDE devices using storvsc HBA
+Date: Thu, 30 Jun 2011 21:38:34 +0000
+Message-ID: <6E21E5352C11B742B20C142EB499E0480816C2EF@TK5EX14MBXC126.redmond.corp.microsoft.com>
 References: <1309358301-8488-1-git-send-email-kys@microsoft.com>
  <1309358377-8537-1-git-send-email-kys@microsoft.com>
- <1309358377-8537-24-git-send-email-kys@microsoft.com>
- <20110630194055.GC22707@infradead.org>
+ <1309358377-8537-23-git-send-email-kys@microsoft.com>
+ <20110630193843.GB22707@infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 8BIT
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20110630194055.GC22707@infradead.org>
+In-Reply-To: <20110630193843.GB22707@infradead.org>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 To: Christoph Hellwig <hch@infradead.org>
@@ -22,57 +22,75 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 > -----Original Message-----
 > From: Christoph Hellwig [mailto:hch@infradead.org]
-> Sent: Thursday, June 30, 2011 3:41 PM
+> Sent: Thursday, June 30, 2011 3:39 PM
 > To: KY Srinivasan
 > Cc: gregkh@suse.de; linux-kernel@vger.kernel.org;
 > devel@linuxdriverproject.org; virtualization@lists.osdl.org; Haiyang Zhang;
 > Abhishek Kane (Mindtree Consulting PVT LTD); Hank Janssen
-> Subject: Re: [PATCH 24/40] Staging: hv: storvsc: On I/O get the correct IDE device
+> Subject: Re: [PATCH 23/40] Staging: hv: storvsc: Introduce code to manage IDE
+> devices using storvsc HBA
 > 
-> On Wed, Jun 29, 2011 at 07:39:21AM -0700, K. Y. Srinivasan wrote:
-> > We use the channel number to distinguish an IDE device managed by the
-> > storvsc driver from scsi devices. Add code to get the correct
-> > device pointer based on the channel number.
-> >
-> > Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
-> > Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
-> > Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
-> > Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
-> > ---
-> >  drivers/staging/hv/storvsc_drv.c |   10 ++++++++++
-> >  1 files changed, 10 insertions(+), 0 deletions(-)
-> >
-> > diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
-> > index cf659d7..fcc3f5d 100644
-> > --- a/drivers/staging/hv/storvsc_drv.c
-> > +++ b/drivers/staging/hv/storvsc_drv.c
-> > @@ -517,6 +517,16 @@ static int storvsc_queuecommand_lck(struct scsi_cmnd
-> *scmnd,
-> >  	unsigned int sg_count = 0;
-> >  	struct vmscsi_request *vm_srb;
-> >
-> > +	if (scmnd->device->channel >= HV_IDE_BASE_CHANNEL) {
-> > +		int channel = scmnd->device->channel;
+> > +/*
+> > + * We want to manage the IDE devices using standard Linux SCSI drivers
+> > + * using the storvsc driver.
+> > + * Define special channels to support this.
+> > + */
 > > +
-> > +		/*
-> > +		 * This is an IDE device; get the right dev.
-> > +		 */
-> > +
-> > +		dev = ide_devices[channel - HV_IDE_BASE_CHANNEL];
-> > +	}
+> > +#define HV_MAX_IDE_DEVICES	4
+> > +#define HV_IDE_BASE_CHANNEL	10
+> > +#define HV_IDE0_DEV1		HV_IDE_BASE_CHANNEL
+> > +#define HV_IDE0_DEV2		(HV_IDE_BASE_CHANNEL + 1)
+> > +#define HV_IDE1_DEV1		(HV_IDE_BASE_CHANNEL + 2)
+> > +#define HV_IDE1_DEV2		(HV_IDE_BASE_CHANNEL + 3)
 > 
-> So instead of playing games about getting the right hv_device here,
-> why don't you register one scsi host for each IDE device? libata
-> does the same for real ATA devices.
-> 
-That is what I did initially. Then looking at the way we  were handling scsi devices
-where each scsi controller configured for the guest results in an emulated HBA
-(scsi host) in the guest and all the block devices under a given controller are
-handled through this one host, I decided to mimic a similar structure  - one
-scsi host for all the block devices configured as an IDE device.
+> This at last needs a good explanation of why these devices are called
+> IDE if they actually aren't.  I know you've explained the reason to me
+> before, but it should also be in the code.
 
-I can go back to my earlier implementation with one host per disk.
+These devices are configured as IDE devices for the guest. The current
+emulator supports 2 IDE controllers for a total of potentially 4 devices.
+I did this to support all these 4 devices under one scsi host and used the
+channel information to get at the correct device in the I/O path.
+So, if you go to a model with one host per device, this would not be required.
+ 
+> 
+> The HV_IDE1_DEVn defines don't seem to useful to me.  They are just
+> used in one place, and doing an opencoded HV_IDE_BASE_CHANNEL +
+> channel_nr would seem a lot easier to understand to me.
+> 
+> > +static struct  Scsi_Host *storvsc_host;
+> > +
+> > +/*
+> > + * State to manage IDE devices that register with the storvsc driver.
+> > + *
+> > + */
+> > +static struct hv_device *ide_devices[HV_MAX_IDE_DEVICES];
+> > +
+> > +static void storvsc_get_ide_info(struct hv_device *dev, int *target, int *path)
+> > +{
+> > +	*target =
+> > +	dev->dev_instance.data[5] << 8 | dev->dev_instance.data[4];
+> > +
+> > +	*path =
+> > +	dev->dev_instance.data[3] << 24 | dev->dev_instance.data[2] << 16 |
+> > +	dev->dev_instance.data[1] << 8  | dev->dev_instance.data[0];
+> 
+> Pretty odd formatting, I'd rather do it as:
+> 
+> 	*target =
+> 		dev->dev_instance.data[5] << 8 |
+> 		dev->dev_instance.data[4];
+> 
+> but more importanly what does path actually stand for here?  Opencoding
+> this into the caller and adding proper comments explaining the scheme
+> might be more readable.
+
+In the blkvsc driver, the path/target info was used to properly identify the 
+device - (a) the device was under the first or second IDE controller and (b)
+whether it is the first or second device under the controller. 
 
 Regards,
 
-K. Y 
+K. Y
+
+.
