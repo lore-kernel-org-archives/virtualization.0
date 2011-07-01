@@ -1,83 +1,46 @@
-From: KY Srinivasan <kys@microsoft.com>
-Subject: RE: [PATCH 00/40] Staging: hv: Driver cleanup
-Date: Fri, 1 Jul 2011 00:19:38 +0000
-Message-ID: <6E21E5352C11B742B20C142EB499E0480816C3AF@TK5EX14MBXC126.redmond.corp.microsoft.com>
-References: <1309358301-8488-1-git-send-email-kys@microsoft.com>
-	<20110630193346.GA22707@infradead.org>
-	<6E21E5352C11B742B20C142EB499E0480816C384@TK5EX14MBXC126.redmond.corp.microsoft.com>
-	<20110630164808.17c506a4@nehalam.ftrdhcpuser.net>
+From: Tabi Timur-B04825 <B04825@freescale.com>
+Subject: Re: [PATCH 7/7] [v6] drivers/virt: introduce Freescale hypervisor
+	management driver
+Date: Fri, 1 Jul 2011 01:18:15 +0000
+Message-ID: <BANLkTi=3r=UQYJVqRLRe-eu7rdkXQS-ESQ__39545.7172570333$1309490123$gmane$org@mail.gmail.com>
+References: <1307652726-4356-1-git-send-email-timur@freescale.com>
+	<201106092304.55479.arnd@arndb.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <devel-bounces@linuxdriverproject.org>
-In-Reply-To: <20110630164808.17c506a4@nehalam.ftrdhcpuser.net>
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <201106092304.55479.arnd@arndb.de>
 Content-Language: en-US
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
-List-Post: <mailto:devel@linuxdriverproject.org>
-List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
-Sender: devel-bounces@linuxdriverproject.org
-Errors-To: devel-bounces@linuxdriverproject.org
-To: Stephen Hemminger <shemminger@vyatta.com>
-Cc: Christoph Hellwig <hch@infradead.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>
+Content-ID: <4EA51EC6BB80F340A5CB3FBBFBD06B1C@freescale.net>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: "konrad.wilk@oracle.com" <konrad.wilk@oracle.com>, "benh@kernel.crashing.org" <benh@kernel.crashing.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "cmetcalf@tilera.com" <cmetcalf@tilera.com>, "dsaxena@linaro.org" <dsaxena@linaro.org>, "linux-console@vger.kernel.org" <linux-console@vger.kernel.org>, "greg@kroah.com" <greg@kroah.com>, Gala Kumar-B11780 <B11780@freescale.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>, "alan@lxorguk.ukuu.org.uk" <alan@lxorguk.ukuu.org.uk>
 List-Id: virtualization@lists.linuxfoundation.org
 
+On Thu, Jun 9, 2011 at 4:04 PM, Arnd Bergmann <arnd@arndb.de> wrote:
+> On Thursday 09 June 2011 22:52:06 Timur Tabi wrote:
+>> Add the drivers/virt directory, which houses drivers that support
+>> virtualization environments, and add the Freescale hypervisor management
+>> driver.
+....
+>>
+>> Signed-off-by: Timur Tabi <timur@freescale.com>
+>
+> Acked-by: Arnd Bergmann <arnd@arndb.de>
 
+So I've made the changes that people have asked for, and Arnd has
+acked this driver.  Who's going to pick it up?  Who will be the
+maintainer for drivers/virt?  I'd really like to see this driver in
+3.1, and there's not much time left.
 
-> -----Original Message-----
-> From: Stephen Hemminger [mailto:shemminger@vyatta.com]
-> Sent: Thursday, June 30, 2011 7:48 PM
-> To: KY Srinivasan
-> Cc: Christoph Hellwig; devel@linuxdriverproject.org; gregkh@suse.de; linux-
-> kernel@vger.kernel.org; virtualization@lists.osdl.org
-> Subject: Re: [PATCH 00/40] Staging: hv: Driver cleanup
-> 
-> On Thu, 30 Jun 2011 23:32:34 +0000
-> KY Srinivasan <kys@microsoft.com> wrote:
-> 
-> >
-> > > -----Original Message-----
-> > > From: Christoph Hellwig [mailto:hch@infradead.org]
-> > > Sent: Thursday, June 30, 2011 3:34 PM
-> > > To: KY Srinivasan
-> > > Cc: gregkh@suse.de; linux-kernel@vger.kernel.org;
-> > > devel@linuxdriverproject.org; virtualization@lists.osdl.org
-> > > Subject: Re: [PATCH 00/40] Staging: hv: Driver cleanup
-> > >
-> > > On Wed, Jun 29, 2011 at 07:38:21AM -0700, K. Y. Srinivasan wrote:
-> > > > Further cleanup of the hv drivers:
-> > > >
-> > > > 	1) Cleanup the reference counting mess for both stor and net devices.
-> > >
-> > > I really don't understand the need for reference counting on the storage
-> > > side, especially now that you only have a SCSI driver.  The SCSI
-> > > midlayer does proper counting on it's objects (Scsi_Host, scsi_device,
-> > > scsi_cmnd), so you'll get that for free given that SCSI drivers just
-> > > piggyback on the midlayer lifetime rules.
-> > >
-> > > For now your patches should probably go in as-is, but mid-term you
-> > > should be able to completely remove that code on the storage side.
-> > >
-> >
-> > Greg,
-> >
-> > I am thinking of  going back to my original implementation where I had one scsi
-> host
-> > per IDE device. This will certainly simply the code. Let me know what you think.
-> If you
-> > agree with this approach, please drop this patch-set, I will send you a new set
-> of patches.
-> 
-> I think there ref counting on network devices is also unneeded
-> as long as the unregister logic handles RCU correctly. The network layer
-> calls the driver unregister routine after all packets are gone.
-On the networking side, what about incoming packets that may be racing
-with the device destruction. The current ref counting scheme deals with
-that case.
-
-Regards,
-
-K. Y
+-- 
+Timur Tabi
+Linux kernel developer at Freescale
