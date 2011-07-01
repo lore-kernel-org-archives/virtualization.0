@@ -1,32 +1,62 @@
-From: Christoph Hellwig <hch@infradead.org>
-Subject: Re: [PATCH 24/40] Staging: hv: storvsc: On I/O get the correct IDE
- device
-Date: Fri, 1 Jul 2011 09:27:20 -0400
-Message-ID: <20110701132720.GA26825@infradead.org>
+From: KY Srinivasan <kys@microsoft.com>
+Subject: RE: [PATCH 00/40] Staging: hv: Driver cleanup
+Date: Fri, 1 Jul 2011 13:31:30 +0000
+Message-ID: <6E21E5352C11B742B20C142EB499E0480816C4BF@TK5EX14MBXC126.redmond.corp.microsoft.com>
 References: <1309358301-8488-1-git-send-email-kys@microsoft.com>
- <1309358377-8537-1-git-send-email-kys@microsoft.com>
- <1309358377-8537-24-git-send-email-kys@microsoft.com>
- <20110630194055.GC22707@infradead.org>
- <6E21E5352C11B742B20C142EB499E0480816C2CF@TK5EX14MBXC126.redmond.corp.microsoft.com>
- <20110701081725.GC28322@infradead.org>
- <6E21E5352C11B742B20C142EB499E0480816C460@TK5EX14MBXC126.redmond.corp.microsoft.com>
+ <20110630193346.GA22707@infradead.org>
+ <6E21E5352C11B742B20C142EB499E0480816C36D@TK5EX14MBXC126.redmond.corp.microsoft.com>
+ <20110701082136.GE28322@infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <6E21E5352C11B742B20C142EB499E0480816C460@TK5EX14MBXC126.redmond.corp.microsoft.com>
+In-Reply-To: <20110701082136.GE28322@infradead.org>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: KY Srinivasan <kys@microsoft.com>
-Cc: Christoph Hellwig <hch@infradead.org>, "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, Haiyang Zhang <haiyangz@microsoft.com>, "Abhishek Kane (Mindtree Consulting PVT LTD)" <v-abkane@microsoft.com>, Hank Janssen <hjanssen@microsoft.com>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Jul 01, 2011 at 01:01:43PM +0000, KY Srinivasan wrote:
-> Nothing I could see from whatever testing I did. However, the guest will have
-> Scsi hosts that the user did not configure. This is certainly the case in both 
-> approaches - just the numbers are different!
 
-If the IDE drivers were real IDE ones you'd also have one Scsi_Host for
-each of the as that's how libata handles in.  In a way you're much
-closer to real ATA than with the previous block driver.  If your host
-side support the ATA passthrough SCSI cdbs you'll even be able to
-pass taskfiles to them and use tools like hdparm in the guest.
+
+> -----Original Message-----
+> From: Christoph Hellwig [mailto:hch@infradead.org]
+> Sent: Friday, July 01, 2011 4:22 AM
+> To: KY Srinivasan
+> Cc: Christoph Hellwig; gregkh@suse.de; linux-kernel@vger.kernel.org;
+> devel@linuxdriverproject.org; virtualization@lists.osdl.org
+> Subject: Re: [PATCH 00/40] Staging: hv: Driver cleanup
+> 
+> On Thu, Jun 30, 2011 at 11:28:27PM +0000, KY Srinivasan wrote:
+> > > On Wed, Jun 29, 2011 at 07:38:21AM -0700, K. Y. Srinivasan wrote:
+> > > > Further cleanup of the hv drivers:
+> > > >
+> > > > 	1) Cleanup the reference counting mess for both stor and net devices.
+> > >
+> > > I really don't understand the need for reference counting on the storage
+> > > side, especially now that you only have a SCSI driver.  The SCSI
+> > > midlayer does proper counting on it's objects (Scsi_Host, scsi_device,
+> > > scsi_cmnd), so you'll get that for free given that SCSI drivers just
+> > > piggyback on the midlayer lifetime rules.
+> >
+> > The reference counting allows us to properly deal with messages coming back
+> from the host
+> > to the guest with a racing remove of the device. I am told these messages could
+> potentially be
+> > not a response to a message sent from the guest.
+> 
+> To deal with that the scsi subsystem has a two stage teardown for the
+> SCSI host.  First you call scsi_remove_host, at which point no new I/O
+> to it can be started.  After that you can wait for all outstanding
+> messages, and finally you do a scsi_host_put to drop the long-term
+> reference to it, and eventually free it.
+
+That is what I have currently implemented both on the stor as well
+as the net side with regards to the device specific objects hanging off of
+struct hv_device (the ext field). If it is ok with you, I want to do what you
+had suggested earlier. Keep the patches as they are with regards to 
+reference counting for now. We can always simplify the code later.
+
+Regards,
+
+K. Y
