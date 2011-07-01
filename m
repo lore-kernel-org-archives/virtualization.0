@@ -1,78 +1,58 @@
-From: Stephen Hemminger <shemminger@vyatta.com>
-Subject: Re: [PATCH 00/40] Staging: hv: Driver cleanup
-Date: Thu, 30 Jun 2011 21:45:12 -0700
-Message-ID: <20110630214512.1b9125b7@nehalam.ftrdhcpuser.net>
-References: <1309358301-8488-1-git-send-email-kys@microsoft.com>
-	<20110630193346.GA22707@infradead.org>
-	<6E21E5352C11B742B20C142EB499E0480816C384@TK5EX14MBXC126.redmond.corp.microsoft.com>
-	<20110630164808.17c506a4@nehalam.ftrdhcpuser.net>
-	<6E21E5352C11B742B20C142EB499E0480816C3AF@TK5EX14MBXC126.redmond.corp.microsoft.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Subject: Re: virtio scsi host draft specification, v3
+Date: Fri, 01 Jul 2011 08:41:12 +0200
+Message-ID: <4E0D6C08.1040201__31728.6118785434$1309502547$gmane$org@redhat.com>
+References: <1504884387.187692.1307716550265.JavaMail.root@zmail07.collab.prod.int.phx2.redhat.com>	<4DF71E28.6070009@suse.de>	<4E0AE36B.9010500@redhat.com>
+	<BANLkTik2AXXkWvV23OP1eDdLirP2N0PC3A@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <6E21E5352C11B742B20C142EB499E0480816C3AF@TK5EX14MBXC126.redmond.corp.microsoft.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: KY Srinivasan <kys@microsoft.com>
-Cc: Christoph Hellwig <hch@infradead.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <BANLkTik2AXXkWvV23OP1eDdLirP2N0PC3A@mail.gmail.com>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Stefan Hajnoczi <stefanha@gmail.com>
+Cc: Christoph Hellwig <chellwig@redhat.com>, Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, qemu-devel <qemu-devel@nongnu.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 1 Jul 2011 00:19:38 +0000
-KY Srinivasan <kys@microsoft.com> wrote:
+On 06/29/2011 11:39 AM, Stefan Hajnoczi wrote:
+> > >  Of course, when doing so we would be lose the ability to freely remap
+> > >  LUNs. But then remapping LUNs doesn't gain you much imho.
+> > >  Plus you could always use qemu block backend here if you want
+> > >  to hide the details.
+> >
+> >  And you could always use the QEMU block backend with scsi-generic if you
+> >  want to remap LUNs, instead of true passthrough via the kernel target.
+>
+> IIUC the in-kernel target always does remapping.  It passes through
+> individual LUNs rather than entire targets and you pick LU Numbers to
+> map to the backing storage (which may or may not be a SCSI
+> pass-through device).  Nicholas Bellinger can confirm whether this is
+> correct.
 
-> 
-> 
-> > -----Original Message-----
-> > From: Stephen Hemminger [mailto:shemminger@vyatta.com]
-> > Sent: Thursday, June 30, 2011 7:48 PM
-> > To: KY Srinivasan
-> > Cc: Christoph Hellwig; devel@linuxdriverproject.org; gregkh@suse.de; linux-
-> > kernel@vger.kernel.org; virtualization@lists.osdl.org
-> > Subject: Re: [PATCH 00/40] Staging: hv: Driver cleanup
-> > 
-> > On Thu, 30 Jun 2011 23:32:34 +0000
-> > KY Srinivasan <kys@microsoft.com> wrote:
-> > 
-> > >
-> > > > -----Original Message-----
-> > > > From: Christoph Hellwig [mailto:hch@infradead.org]
-> > > > Sent: Thursday, June 30, 2011 3:34 PM
-> > > > To: KY Srinivasan
-> > > > Cc: gregkh@suse.de; linux-kernel@vger.kernel.org;
-> > > > devel@linuxdriverproject.org; virtualization@lists.osdl.org
-> > > > Subject: Re: [PATCH 00/40] Staging: hv: Driver cleanup
-> > > >
-> > > > On Wed, Jun 29, 2011 at 07:38:21AM -0700, K. Y. Srinivasan wrote:
-> > > > > Further cleanup of the hv drivers:
-> > > > >
-> > > > > 	1) Cleanup the reference counting mess for both stor and net devices.
-> > > >
-> > > > I really don't understand the need for reference counting on the storage
-> > > > side, especially now that you only have a SCSI driver.  The SCSI
-> > > > midlayer does proper counting on it's objects (Scsi_Host, scsi_device,
-> > > > scsi_cmnd), so you'll get that for free given that SCSI drivers just
-> > > > piggyback on the midlayer lifetime rules.
-> > > >
-> > > > For now your patches should probably go in as-is, but mid-term you
-> > > > should be able to completely remove that code on the storage side.
-> > > >
-> > >
-> > > Greg,
-> > >
-> > > I am thinking of  going back to my original implementation where I had one scsi
-> > host
-> > > per IDE device. This will certainly simply the code. Let me know what you think.
-> > If you
-> > > agree with this approach, please drop this patch-set, I will send you a new set
-> > of patches.
-> > 
-> > I think there ref counting on network devices is also unneeded
-> > as long as the unregister logic handles RCU correctly. The network layer
-> > calls the driver unregister routine after all packets are gone.
-> On the networking side, what about incoming packets that may be racing
-> with the device destruction. The current ref counting scheme deals with
-> that case.
+But then I don't understand.  If you pick LU numbers both with the 
+in-kernel target and with QEMU, you do not need to use e.g. WWPNs with 
+fiber channel, because we are not passing through the details of the 
+transport protocol (one day we might have virtio-fc, but more likely 
+not).  So the LUNs you use might as well be represented by hierarchical 
+LUNs.
 
-Not sure how HV driver tells hypervisor to stop sending packets. But the
-destructor is not called until after all other CPU's are done processing
-packets from that device.
+Using NPIV with KVM would be done by mapping the same virtual N_Port ID 
+in the host(s) to the same LU number in the guest.  You might already do 
+this now with virtio-blk, in fact.
+
+Put in another way: the virtio-scsi device is itself a SCSI target, so 
+yes, there is a single target port identifier in virtio-scsi.  But this 
+SCSI target just passes requests down to multiple real targets, and so 
+will let you do ALUA and all that.
+
+Of course if I am dead wrong please correct me.
+
+Paolo
