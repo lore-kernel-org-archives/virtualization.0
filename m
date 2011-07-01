@@ -1,62 +1,47 @@
-From: KY Srinivasan <kys@microsoft.com>
-Subject: RE: [PATCH 00/40] Staging: hv: Driver cleanup
-Date: Fri, 1 Jul 2011 13:31:30 +0000
-Message-ID: <6E21E5352C11B742B20C142EB499E0480816C4BF@TK5EX14MBXC126.redmond.corp.microsoft.com>
-References: <1309358301-8488-1-git-send-email-kys@microsoft.com>
- <20110630193346.GA22707@infradead.org>
- <6E21E5352C11B742B20C142EB499E0480816C36D@TK5EX14MBXC126.redmond.corp.microsoft.com>
- <20110701082136.GE28322@infradead.org>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [PATCH 7/7] [v6] drivers/virt: introduce Freescale hypervisor
+	management driver
+Date: Fri, 1 Jul 2011 19:12:49 +0200
+Message-ID: <201107011912.50119.arnd__2023.6684744761$1309540522$gmane$org@arndb.de>
+References: <1307652726-4356-1-git-send-email-timur@freescale.com>
+	<201106092304.55479.arnd@arndb.de>
+	<BANLkTi=3r=UQYJVqRLRe-eu7rdkXQS-ESQ@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20110701082136.GE28322@infradead.org>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Christoph Hellwig <hch@infradead.org>
-Cc: "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <BANLkTi=3r=UQYJVqRLRe-eu7rdkXQS-ESQ@mail.gmail.com>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Tabi Timur-B04825 <B04825@freescale.com>
+Cc: "konrad.wilk@oracle.com" <konrad.wilk@oracle.com>, "benh@kernel.crashing.org" <benh@kernel.crashing.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "cmetcalf@tilera.com" <cmetcalf@tilera.com>, "dsaxena@linaro.org" <dsaxena@linaro.org>, "linux-console@vger.kernel.org" <linux-console@vger.kernel.org>, "greg@kroah.com" <greg@kroah.com>, Gala Kumar-B11780 <B11780@freescale.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>, "alan@lxorguk.ukuu.org.uk" <alan@lxorguk.ukuu.org.uk>
 List-Id: virtualization@lists.linuxfoundation.org
 
-
-
-> -----Original Message-----
-> From: Christoph Hellwig [mailto:hch@infradead.org]
-> Sent: Friday, July 01, 2011 4:22 AM
-> To: KY Srinivasan
-> Cc: Christoph Hellwig; gregkh@suse.de; linux-kernel@vger.kernel.org;
-> devel@linuxdriverproject.org; virtualization@lists.osdl.org
-> Subject: Re: [PATCH 00/40] Staging: hv: Driver cleanup
-> 
-> On Thu, Jun 30, 2011 at 11:28:27PM +0000, KY Srinivasan wrote:
-> > > On Wed, Jun 29, 2011 at 07:38:21AM -0700, K. Y. Srinivasan wrote:
-> > > > Further cleanup of the hv drivers:
-> > > >
-> > > > 	1) Cleanup the reference counting mess for both stor and net devices.
-> > >
-> > > I really don't understand the need for reference counting on the storage
-> > > side, especially now that you only have a SCSI driver.  The SCSI
-> > > midlayer does proper counting on it's objects (Scsi_Host, scsi_device,
-> > > scsi_cmnd), so you'll get that for free given that SCSI drivers just
-> > > piggyback on the midlayer lifetime rules.
+On Friday 01 July 2011, Tabi Timur-B04825 wrote:
+> On Thu, Jun 9, 2011 at 4:04 PM, Arnd Bergmann <arnd@arndb.de> wrote:
+> > On Thursday 09 June 2011 22:52:06 Timur Tabi wrote:
+> >> Add the drivers/virt directory, which houses drivers that support
+> >> virtualization environments, and add the Freescale hypervisor management
+> >> driver.
+> ....
+> >>
+> >> Signed-off-by: Timur Tabi <timur@freescale.com>
 > >
-> > The reference counting allows us to properly deal with messages coming back
-> from the host
-> > to the guest with a racing remove of the device. I am told these messages could
-> potentially be
-> > not a response to a message sent from the guest.
+> > Acked-by: Arnd Bergmann <arnd@arndb.de>
 > 
-> To deal with that the scsi subsystem has a two stage teardown for the
-> SCSI host.  First you call scsi_remove_host, at which point no new I/O
-> to it can be started.  After that you can wait for all outstanding
-> messages, and finally you do a scsi_host_put to drop the long-term
-> reference to it, and eventually free it.
+> So I've made the changes that people have asked for, and Arnd has
+> acked this driver.  Who's going to pick it up?  Who will be the
+> maintainer for drivers/virt?  I'd really like to see this driver in
+> 3.1, and there's not much time left.
+> 
+I'd say merge it  through the powerpc tree, and list yourself for
+the driver, but not the entire directory.
 
-That is what I have currently implemented both on the stor as well
-as the net side with regards to the device specific objects hanging off of
-struct hv_device (the ext field). If it is ok with you, I want to do what you
-had suggested earlier. Keep the patches as they are with regards to 
-reference counting for now. We can always simplify the code later.
-
-Regards,
-
-K. Y
+	Arnd
