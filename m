@@ -1,16 +1,11 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [PATCH 7/7] [v6] drivers/virt: introduce Freescale hypervisor
-	management driver
-Date: Fri, 1 Jul 2011 19:12:49 +0200
-Message-ID: <201107011912.50119.arnd__2023.6684744761$1309540522$gmane$org@arndb.de>
-References: <1307652726-4356-1-git-send-email-timur@freescale.com>
-	<201106092304.55479.arnd@arndb.de>
-	<BANLkTi=3r=UQYJVqRLRe-eu7rdkXQS-ESQ@mail.gmail.com>
+From: Sasha Levin <levinsasha928@gmail.com>
+Subject: [PATCH] virtio_balloon: Notify guest only after deflating the balloon
+Date: Sat,  2 Jul 2011 06:06:56 +0300
+Message-ID: <1309576016-22800-1-git-send-email-levinsasha928__29122.5651548759$1309576922$gmane$org@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <BANLkTi=3r=UQYJVqRLRe-eu7rdkXQS-ESQ@mail.gmail.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,28 +15,53 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Tabi Timur-B04825 <B04825@freescale.com>
-Cc: "konrad.wilk@oracle.com" <konrad.wilk@oracle.com>, "benh@kernel.crashing.org" <benh@kernel.crashing.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "cmetcalf@tilera.com" <cmetcalf@tilera.com>, "dsaxena@linaro.org" <dsaxena@linaro.org>, "linux-console@vger.kernel.org" <linux-console@vger.kernel.org>, "greg@kroah.com" <greg@kroah.com>, Gala Kumar-B11780 <B11780@freescale.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>, "alan@lxorguk.ukuu.org.uk" <alan@lxorguk.ukuu.org.uk>
+To: linux-kernel@vger.kernel.org
+Cc: virtualization@lists.linux-foundation.org, Sasha Levin <levinsasha928@gmail.com>, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Friday 01 July 2011, Tabi Timur-B04825 wrote:
-> On Thu, Jun 9, 2011 at 4:04 PM, Arnd Bergmann <arnd@arndb.de> wrote:
-> > On Thursday 09 June 2011 22:52:06 Timur Tabi wrote:
-> >> Add the drivers/virt directory, which houses drivers that support
-> >> virtualization environments, and add the Freescale hypervisor management
-> >> driver.
-> ....
-> >>
-> >> Signed-off-by: Timur Tabi <timur@freescale.com>
-> >
-> > Acked-by: Arnd Bergmann <arnd@arndb.de>
-> 
-> So I've made the changes that people have asked for, and Arnd has
-> acked this driver.  Who's going to pick it up?  Who will be the
-> maintainer for drivers/virt?  I'd really like to see this driver in
-> 3.1, and there's not much time left.
-> 
-I'd say merge it  through the powerpc tree, and list yourself for
-the driver, but not the entire directory.
+Unless the host requires that requested pages won't be used until
+he us notified (VIRTIO_BALLOON_F_MUST_TELL_HOST), only notify after
+deflating the balloon.
 
-	Arnd
+This will avoid having to take an exit before actually using the pages.
+
+Cc: Rusty Russell <rusty@rustcorp.com.au>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: virtualization@lists.linux-foundation.org
+Cc: kvm@vger.kernel.org
+Signed-off-by: Sasha Levin <levinsasha928@gmail.com>
+---
+ drivers/virtio/virtio_balloon.c |   16 ++++++++++------
+ 1 files changed, 10 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+index e058ace..055f95d 100644
+--- a/drivers/virtio/virtio_balloon.c
++++ b/drivers/virtio/virtio_balloon.c
+@@ -148,14 +148,18 @@ static void leak_balloon(struct virtio_balloon *vb, size_t num)
+ 		vb->num_pages--;
+ 	}
+ 
+-
+ 	/*
+-	 * Note that if
+-	 * virtio_has_feature(vdev, VIRTIO_BALLOON_F_MUST_TELL_HOST);
+-	 * is true, we *have* to do it in this order
++	 * If the host doesn't require us to notify him before using
++	 * pages which belong to the balloon, update him only after
++	 * freeing those pages for guest use.
+ 	 */
+-	tell_host(vb, vb->deflate_vq);
+-	release_pages_by_pfn(vb->pfns, vb->num_pfns);
++	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_MUST_TELL_HOST)) {
++		tell_host(vb, vb->deflate_vq);
++		release_pages_by_pfn(vb->pfns, vb->num_pfns);
++	} else {
++		release_pages_by_pfn(vb->pfns, vb->num_pfns);
++		tell_host(vb, vb->deflate_vq);
++	}
+ }
+ 
+ static inline void update_stat(struct virtio_balloon *vb, int idx,
+-- 
+1.7.6
