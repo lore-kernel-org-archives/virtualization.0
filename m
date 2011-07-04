@@ -1,17 +1,15 @@
-From: KY Srinivasan <kys@microsoft.com>
-Subject: RE: [PATCH 01/40] Staging: hv: storvsc: Do not aquire an
-	unnecessary reference on stor_device
-Date: Tue, 5 Jul 2011 16:43:36 +0000
-Message-ID: <6E21E5352C11B742B20C142EB499E0480816CCF3@TK5EX14MBXC126.redmond.corp.microsoft.com>
-References: <1309358301-8488-1-git-send-email-kys@microsoft.com>
-	<1309358377-8537-1-git-send-email-kys@microsoft.com>
-	<20110705161408.GA25532@kroah.com>
+From: Raghavendra D Prabhu <rprabhu@wnohang.net>
+Subject: Re: [PATCH] Modpost section mismatch fix
+Date: Tue, 5 Jul 2011 03:46:46 +0530
+Message-ID: <20110704221646.GB4490__25087.8113358796$1309887351$gmane$org@Xye>
+References: <20110703232508.GB4440@Xye>
+	<1309769388.634.51.camel@zakaz.uk.xensource.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20110705161408.GA25532@kroah.com>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <1309769388.634.51.camel@zakaz.uk.xensource.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -21,34 +19,65 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Greg KH <greg@kroah.com>
-Cc: "Abhishek Kane (Mindtree Consulting PVT LTD)" <v-abkane@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>
+To: Ian Campbell <ijc@hellion.org.uk>
+Cc: xen-devel@lists.xensource.com, jeremy.fitzhardinge@citrix.com, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
+* On Mon, Jul 04, 2011 at 09:49:48AM +0100, Ian Campbell <ijc@hellion.org.uk> wrote:
+>On Mon, 2011-07-04 at 04:55 +0530, Raghavendra D Prabhu wrote:
+>> [Sorry if duplicate, one earlier was corrupt]
+
+>> Hi,
+>>      I got section mismatches reported by modpost in latest build. It got
+>>      reported for xen_register_pirq and xen_unplug_emulated_devices
+>>      functions.
+>
+>
+>>  xen_register_pirq makes reference to
+>>      acpi_sci_override_gsi in init.data section; marking
+>>      xen_register_pirq with __init is not feasible since calls are made
+>>      to it from acpi_register_gsi in non-init contexts. So marking it
+>>      __refdata based on assumption that when acpi_sci_override_gsi is
+>>      referenced, it is in  early stages where it is alive.
+>
+>I don't think this assumption holds, since xen_register_pirq can be
+>called at any time and basically unconditionally references
+>acpi_sci_override_gsi.
+
+Yeah, that has been my guess as well, however I am not privy to the
+inner workings of Xen, so was not sure.
+>
+>If we don't want to remove the __init from acpi_sci_override_gsi then
+>perhaps xen_setup_acpi_sci needs to stash it somewhere?
+>
+>Or maybe xen_register_pirq could take an "int force_irq" which, if not
+>-1, would force a particular IRQ. The callsite in xen_setup_acpi_sci
+>(actually via xen_register_gsi so the param would need to be propagated
+>there) would be the only actual user?
+
+xen_register_gsi and hence, xen_register_pirq are called from
+init (with xen_setup_acpi_sci) and non-init (with
+acpi_register_gsi_xen); since xen_set_acpi_sci calls it with gsi ==
+acpi_sci_override_gsi and is marked __init, the best way would be to
+call xen_register_gsi and xen_register_pirq with a boolean argument like
+sci_override to obviate the need to use acpi_sci_override_gsi in
+register_pirq. I will send the patch with this change if it looks good.
 
 
-> -----Original Message-----
-> From: Greg KH [mailto:greg@kroah.com]
-> Sent: Tuesday, July 05, 2011 12:14 PM
-> To: KY Srinivasan
-> Cc: gregkh@suse.de; linux-kernel@vger.kernel.org;
-> devel@linuxdriverproject.org; virtualization@lists.osdl.org; Haiyang Zhang;
-> Abhishek Kane (Mindtree Consulting PVT LTD)
-> Subject: Re: [PATCH 01/40] Staging: hv: storvsc: Do not aquire an unnecessary
-> reference on stor_device
-> 
-> On Wed, Jun 29, 2011 at 07:38:58AM -0700, K. Y. Srinivasan wrote:
-> > On entry into storvsc_on_io_completion() we have already acquired a
-> reference
-> > on the stor_device; there is no need to acquire an additional reference here.
-> >
-> > Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
-> > Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
-> > Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
-> > Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
-> 
-> This series doesn't apply anymore, care to redo it?
+>
+>The xen_unplug_emulated_devices change looks correct to me since
+>xen_unplug_emulated_devices is called from xen_arch_hvm_post_suspend.
+>
+>Ian.
+>
 
-Will do. 
 
-K. Y
+>> --------------------------
+>> Raghavendra Prabhu
+>> GPG Id : 0xD72BE977
+>> Fingerprint: B93F EBCB 8E05 7039 CD3C A4B8 A616 DCA1 D72B E977
+>> www: wnohang.net
+>> _______________________________________________
+>> Virtualization mailing list
+>> Virtualization@lists.linux-foundation.org
+>> https://lists.linux-foundation.org/mailman/listinfo/virtualization
