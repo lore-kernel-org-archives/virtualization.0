@@ -1,110 +1,103 @@
-From: Raghavendra D Prabhu <rprabhu@wnohang.net>
-Subject: Re: [TOME] Re: [PATCH] Modpost section mismatch fix
-Date: Tue, 5 Jul 2011 19:57:31 +0530
-Message-ID: <20110705142731.GA4463__38050.9747927592$1309887363$gmane$org@Xye>
-References: <20110703232508.GB4440@Xye>
-	<1309769388.634.51.camel@zakaz.uk.xensource.com>
-	<20110704221646.GB4490@Xye> <20110705141323.GG2972@dumpdata.com>
+From: Haiyang Zhang <haiyangz@microsoft.com>
+Subject: RE: [PATCH 5/5] staging: hv: fix a kernel warning in
+ netvsc_linkstatus_callback()
+Date: Tue, 5 Jul 2011 18:45:41 +0000
+Message-ID: <A1F3067C9B68744AA19F6802BAB8FFDC0964C6AB@TK5EX14MBXC223.redmond.corp.microsoft.com>
+References: <1308322688-9796-1-git-send-email-haiyangz@microsoft.com>
+ <1308322688-9796-5-git-send-email-haiyangz@microsoft.com>
+ <20110705161007.GA24332@kroah.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============4493976773482744045=="
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20110705141323.GG2972@dumpdata.com>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Mime-version: 1.0
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Cc: xen-devel@lists.xensource.com, jeremy.fitzhardinge@citrix.com, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Ian Campbell <ijc@hellion.org.uk>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20110705161007.GA24332@kroah.com>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: Greg KH <greg@kroah.com>
+Cc: Hank Janssen <hjanssen@microsoft.com>, KY Srinivasan <kys@microsoft.com>, "Abhishek Kane (Mindtree Consulting PVT LTD)" <v-abkane@microsoft.com>, "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, stable <stable@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
+> -----Original Message-----
+> From: Greg KH [mailto:greg@kroah.com]
+> Sent: Tuesday, July 05, 2011 12:10 PM
+> To: Haiyang Zhang
+> Cc: Hank Janssen; KY Srinivasan; Abhishek Kane (Mindtree Consulting PVT
+> LTD); gregkh@suse.de; linux-kernel@vger.kernel.org;
+> devel@linuxdriverproject.org; virtualization@lists.osdl.org; stable
+> Subject: Re: [PATCH 5/5] staging: hv: fix a kernel warning in
+> netvsc_linkstatus_callback()
+> 
+> On Fri, Jun 17, 2011 at 07:58:08AM -0700, Haiyang Zhang wrote:
+> > netif_notify_peers() is not allowed in netvsc_linkstatus_callback() on
+> some
+> > distros,
+> 
+> "distros"?  Huh?  You mean kernel versions right?
+> 
+> And this doesn't matter for the current kernel, right?  If not, then it
+> doesn't need to be applied.  If so, then it should.  Which is it?
 
---===============4493976773482744045==
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="+HP7ph2BbKc20aGI"
-Content-Disposition: inline
+It should be applied to both current kernel and stable kernels 2.6.32 and later.
 
+> > because netvsc_linkstatus_callback() is within IRQ context. So we
+> > move the first call to netif_notify_peers() into queued work as well,
+> but with
+> > zero delay.
+> 
+> What happens if you don't have this patch applied?  What breaks?  Is it
+> just a warning?  Something else?
 
---+HP7ph2BbKc20aGI
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
+Without the patch, it will have this warning:
 
-* On Tue, Jul 05, 2011 at 10:13:23AM -0400, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com> wrote:
->On Tue, Jul 05, 2011 at 03:46:46AM +0530, Raghavendra D Prabhu wrote:
->> * On Mon, Jul 04, 2011 at 09:49:48AM +0100, Ian Campbell <ijc@hellion.org.uk> wrote:
->> >On Mon, 2011-07-04 at 04:55 +0530, Raghavendra D Prabhu wrote:
->> >>[Sorry if duplicate, one earlier was corrupt]
+[  232.102605] WARNING: at kernel/mutex.c:198 __mutex_lock_slowpath+0x28d/0x2c0(
+)
+[  232.102605] Hardware name: Virtual Machine
+[  232.272436] Modules linked in: hv_netvsc(C) hv_vmbus(C) lockd sunrpc nf_connt
+rack_netbios_ns nf_conntrack_broadcast ipt_REJECT nf_conntrack_ipv4 nf_defrag_ip
+v4 xt_state nf_conntrack iptable_filter ip_tables ip6t_REJECT xt_tcpudp ip6table
+_filter ip6_tables x_tables ipv6 loop dm_mirror dm_multipath scsi_dh video therm
+al sbs sbshc pci_slot hed fan container battery acpi_memhotplug ac power_supply
+parport nvram sg sr_mod cdrom evdev processor button serio_raw floppy tpm_tis tp
+m tpm_bios tulip i2c_piix4 i2c_core dm_region_hash dm_log dm_mod ide_gd_mod piix
+ pata_acpi ide_pci_generic ide_core ata_piix ata_generic libata sd_mod scsi_mod
+ext3 jbd mbcache [last unloaded: microcode]
+[  232.935109] Pid: 0, comm: swapper Tainted: G         C  3.0.0-rc2-stable-0019
+6-g06e8684 #4
+[  232.939905] Call Trace:
+[  232.942238]  [<c13008fd>] ? __mutex_lock_slowpath+0x28d/0x2c0
+[  232.974990]  [<c1041a9c>] warn_slowpath_common+0x7c/0xa0
+[  232.977701]  [<c13008fd>] ? __mutex_lock_slowpath+0x28d/0x2c0
+[  232.980431]  [<c1041add>] warn_slowpath_null+0x1d/0x20
+[  232.983403]  [<c13008fd>] __mutex_lock_slowpath+0x28d/0x2c0
+[  232.995597]  [<c130093b>] mutex_lock+0xb/0x20
+[  233.020191]  [<c127347d>] rtnl_lock+0xd/0x10
+[  233.023275]  [<c127cf7b>] netif_notify_peers+0xb/0x20
+[  233.026424]  [<e0e581d2>] netvsc_linkstatus_callback+0x142/0x230 [hv_netvsc]
+[  233.051372]  [<e0e5c0df>] rndis_filter_receive+0x83f/0x8e0 [hv_netvsc]
+[  233.062010]  [<e0e3c82e>] ? hv_ringbuffer_read+0x15e/0x200 [hv_vmbus]
+[  233.065632]  [<e0e5a936>] netvsc_channel_cb+0x8e6/0xb10 [hv_netvsc]
+[  233.069444]  [<e0e38743>] vmbus_onchannel_event+0x33/0x80 [hv_vmbus]
+[  233.092295]  [<e0e37bb8>] vmbus_on_event+0xf8/0x180 [hv_vmbus]
+[  233.104314]  [<c104850f>] tasklet_action+0x4f/0x100
+[  233.106669]  [<c1047876>] __do_softirq+0x86/0x1e0
+[  233.109376]  [<c10477f0>] ? local_bh_enable_ip+0xa0/0xa0
+[  233.112031]  <IRQ>  [<c1047b6c>] ? irq_exit+0x8c/0xa0
+[  233.133300]  [<c10040a5>] ? do_IRQ+0x45/0xb0
+[  233.136307]  [<c1047b4e>] ? irq_exit+0x6e/0xa0
+[  233.138901]  [<c101d149>] ? smp_apic_timer_interrupt+0x59/0x90
+[  233.142796]  [<c1302db0>] ? common_interrupt+0x30/0x38
+[  233.146401]  [<c1024be5>] ? native_safe_halt+0x5/0x10
+[  233.149765]  [<c1009b00>] ? default_idle+0x70/0x130
+[  233.154054]  [<c1001dda>] ? cpu_idle+0x8a/0xd0
+[  233.157170]  [<c12eb4dd>] ? rest_init+0x7d/0x80
+[  233.168628]  [<c14239e5>] ? start_kernel+0x315/0x3d0
+[  233.171518]  [<c1423270>] ? parse_early_options+0x30/0x30
+[  233.180398]  [<c1423078>] ? i386_start_kernel+0x78/0xc0
+[  233.183514] ---[ end trace 3a5b5bc7486ad570 ]---
+ 
+> Please resend this with more information.
+Will do (after Ky's patch series are resubmitted and applied).
 
->> >>Hi,
->> >>     I got section mismatches reported by modpost in latest build. It got
->> >>     reported for xen_register_pirq and xen_unplug_emulated_devices
->> >>     functions.
+Thanks,
 
-
->> >> xen_register_pirq makes reference to
->> >>     acpi_sci_override_gsi in init.data section; marking
->> >>     xen_register_pirq with __init is not feasible since calls are made
->> >>     to it from acpi_register_gsi in non-init contexts. So marking it
->> >>     __refdata based on assumption that when acpi_sci_override_gsi is
->> >>     referenced, it is in  early stages where it is alive.
-
->> >I don't think this assumption holds, since xen_register_pirq can be
->> >called at any time and basically unconditionally references
->> >acpi_sci_override_gsi.
-
->> Yeah, that has been my guess as well, however I am not privy to the
->> inner workings of Xen, so was not sure.
-
->> >If we don't want to remove the __init from acpi_sci_override_gsi then
->> >perhaps xen_setup_acpi_sci needs to stash it somewhere?
-
->> >Or maybe xen_register_pirq could take an "int force_irq" which, if not
->> >-1, would force a particular IRQ. The callsite in xen_setup_acpi_sci
->> >(actually via xen_register_gsi so the param would need to be propagated
->> >there) would be the only actual user?
-
->> xen_register_gsi and hence, xen_register_pirq are called from
->> init (with xen_setup_acpi_sci) and non-init (with
->> acpi_register_gsi_xen); since xen_set_acpi_sci calls it with gsi ==
->> acpi_sci_override_gsi and is marked __init, the best way would be to
->> call xen_register_gsi and xen_register_pirq with a boolean argument like
->> sci_override to obviate the need to use acpi_sci_override_gsi in
->> register_pirq. I will send the patch with this change if it looks good.
->
->Hold on, let me rebase #stable/pci.cleanups and see if the issue
->here disappears.
-Thanks, will wait until the rebase and test after that.
-
---+HP7ph2BbKc20aGI
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.17 (GNU/Linux)
-
-iQEcBAEBAgAGBQJOEx9TAAoJEKYW3KHXK+l3iUwIAJRt8dUJnljuuOhEU6tzGaiB
-fz+ndKL9J64Bj8qPr56+RRLhd8MZOprO/eK+T87mG/9M4p8NrE0Y+uHBsc6qyIhn
-ujETvr92dgtepYXeMhEoGyY8uPwkHLCZSs0e8PPoB1VMBnAlV9X5OhzANFDV4N4m
-sHMtBB7rxlcvG7fC+MOSdiI2gugxbYUmO7C+GdSiSCuRpQgRnpWDYcqcrfreGCh0
-cB7zbk7LK1O/6QLjOoD3sJ1/w+R2KbGb+V/Ah13Iwc4qXdmB8hb132PtwTEmEnI0
-q/ClYhAZIuPbOP/RseZzkjOZuQZD9340Rk1vpx8ICG2fI3QLDVbd3+1RDqh2kOM=
-=hN1Z
------END PGP SIGNATURE-----
-
---+HP7ph2BbKc20aGI--
-
---===============4493976773482744045==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linux-foundation.org/mailman/listinfo/virtualization
---===============4493976773482744045==--
+- Haiyang
