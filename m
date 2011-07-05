@@ -1,17 +1,11 @@
-From: Stefan Hajnoczi <stefanha@gmail.com>
-Subject: Re: virtio scsi host draft specification, v3
-Date: Mon, 4 Jul 2011 15:22:53 +0100
-Message-ID: <CAJSP0QXwo_iMKtBJ1t38mde330HdCYtB_=HVa+3Ge8QPKeGQaQ__37557.9286287122$1309789416$gmane$org@mail.gmail.com>
-References: <1504884387.187692.1307716550265.JavaMail.root@zmail07.collab.prod.int.phx2.redhat.com>
-	<4DF71E28.6070009@suse.de> <4E0AE36B.9010500@redhat.com>
-	<BANLkTik2AXXkWvV23OP1eDdLirP2N0PC3A@mail.gmail.com>
-	<4E0D6C08.1040201@redhat.com> <4E0D73C4.5090608@suse.de>
-	<4E0D86E0.1020406@redhat.com> <4E11C263.3010003@linux.vnet.ibm.com>
+From: Ohad Ben-Cohen <ohad@wizery.com>
+Subject: [RFC] virtio: expose for non-virtualization users too
+Date: Tue,  5 Jul 2011 17:06:14 +0300
+Message-ID: <1309874774-31689-1-git-send-email-ohad__27559.0371959426$1309874971$gmane$org@wizery.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4E11C263.3010003@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -21,18 +15,186 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Hai Dong,Li" <haidongl@linux.vnet.ibm.com>
-Cc: Christoph Hellwig <chellwig@redhat.com>, Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, qemu-devel <qemu-devel@nongnu.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>
+To: Rusty Russell <rusty@rustcorp.com.au>, virtualization@lists.linux-foundation.org
+Cc: Carsten Otte <cotte@de.ibm.com>, linux-ia64@vger.kernel.org, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, linux-mips@linux-mips.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Grant Likely <grant.likely@secretlab.ca>, Paul Mackerras <paulus@samba.org>, "H. Peter Anvin" <hpa@zytor.com>, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, x86@kernel.org, Christian Borntraeger <borntraeger@de.ibm.com>, Ingo Molnar <mingo@redhat.com>, Avi Kivity <avi@redhat.com>, Russell King <rmk+kernel@arm.linux.org.uk>, Fenghua Yu <fenghua.yu@intel.com>, Arnd Bergmann <arnd@arndb.de>, Chris Metcalf <cmetcalf@tilera.com>, John Stultz <john.stultz@linaro.org>, kvm-ppc@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>, linux-omap@
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Jul 4, 2011 at 2:38 PM, Hai Dong,Li <haidongl@linux.vnet.ibm.com> wrote:
-> So if I understand correctly, virtio-scsi looks like an SCSI tranport
-> protocol,
-> such as iSCSI, FCP and SRP which use tcp/ip, FC and Infiniband RDMA
-> respectively as the transfer media while virtio-scsi uses virtio, an virtual
-> IO
-> channel, as the transfer media?
+virtio has been so far used only in the context of virtualization,
+and the virtio Kconfig was sourced directly by the relevant arch
+Kconfigs when VIRTUALIZATION was selected.
 
-Correct.
+Now that we start using virtio for inter-processor communications,
+we need to source the virtio Kconfig outside of the virtualization
+scope too.
 
-Stefan
+Moreover, some architectures might use virtio for both virtualization
+and inter-processor communications, so directly sourcing virtio
+might yield unexpected results due to conflicting selections.
+
+The simple solution offered by this patch is to always source virtio's
+Kconfig in drivers/Kconfig, and remove it from the appropriate arch
+Kconfigs. Additionally, a virtio menu entry has been added so virtio
+drivers don't show up in the general drivers menu.
+
+This way anyone can use virtio, though it's arguably less accessible
+(and neat!) for virtualization users now.
+
+Note: some architectures (mips and sh) seem to have a VIRTUALIZATION
+menu merely for sourcing virtio's Kconfig, so that menu is removed too.
+
+Signed-off-by: Ohad Ben-Cohen <ohad@wizery.com>
+---
+The motivation behind this patch is: https://lkml.org/lkml/2011/6/21/47
+
+If the general approach is agreed upon, we can either merge the patch
+independently, or add it to the AMP patch set.
+
+ arch/ia64/kvm/Kconfig    |    1 -
+ arch/mips/Kconfig        |   16 ----------------
+ arch/powerpc/kvm/Kconfig |    1 -
+ arch/s390/kvm/Kconfig    |    1 -
+ arch/sh/Kconfig          |   16 ----------------
+ arch/tile/kvm/Kconfig    |    1 -
+ arch/x86/kvm/Kconfig     |    1 -
+ drivers/Kconfig          |    2 ++
+ drivers/virtio/Kconfig   |    3 +++
+ 9 files changed, 5 insertions(+), 37 deletions(-)
+
+diff --git a/arch/ia64/kvm/Kconfig b/arch/ia64/kvm/Kconfig
+index fa4d1e5..9806e55 100644
+--- a/arch/ia64/kvm/Kconfig
++++ b/arch/ia64/kvm/Kconfig
+@@ -49,6 +49,5 @@ config KVM_INTEL
+ 	  extensions.
+ 
+ source drivers/vhost/Kconfig
+-source drivers/virtio/Kconfig
+ 
+ endif # VIRTUALIZATION
+diff --git a/arch/mips/Kconfig b/arch/mips/Kconfig
+index 653da62..a627a2c 100644
+--- a/arch/mips/Kconfig
++++ b/arch/mips/Kconfig
+@@ -2489,20 +2489,4 @@ source "security/Kconfig"
+ 
+ source "crypto/Kconfig"
+ 
+-menuconfig VIRTUALIZATION
+-	bool "Virtualization"
+-	default n
+-	---help---
+-	  Say Y here to get to see options for using your Linux host to run other
+-	  operating systems inside virtual machines (guests).
+-	  This option alone does not add any kernel code.
+-
+-	  If you say N, all options in this submenu will be skipped and disabled.
+-
+-if VIRTUALIZATION
+-
+-source drivers/virtio/Kconfig
+-
+-endif # VIRTUALIZATION
+-
+ source "lib/Kconfig"
+diff --git a/arch/powerpc/kvm/Kconfig b/arch/powerpc/kvm/Kconfig
+index b7baff7..105b691 100644
+--- a/arch/powerpc/kvm/Kconfig
++++ b/arch/powerpc/kvm/Kconfig
+@@ -99,6 +99,5 @@ config KVM_E500
+ 	  If unsure, say N.
+ 
+ source drivers/vhost/Kconfig
+-source drivers/virtio/Kconfig
+ 
+ endif # VIRTUALIZATION
+diff --git a/arch/s390/kvm/Kconfig b/arch/s390/kvm/Kconfig
+index f66a1bd..a216341 100644
+--- a/arch/s390/kvm/Kconfig
++++ b/arch/s390/kvm/Kconfig
+@@ -37,6 +37,5 @@ config KVM
+ # OK, it's a little counter-intuitive to do this, but it puts it neatly under
+ # the virtualization menu.
+ source drivers/vhost/Kconfig
+-source drivers/virtio/Kconfig
+ 
+ endif # VIRTUALIZATION
+diff --git a/arch/sh/Kconfig b/arch/sh/Kconfig
+index bbdeb48..748ff19 100644
+--- a/arch/sh/Kconfig
++++ b/arch/sh/Kconfig
+@@ -897,20 +897,4 @@ source "security/Kconfig"
+ 
+ source "crypto/Kconfig"
+ 
+-menuconfig VIRTUALIZATION
+-	bool "Virtualization"
+-	default n
+-	---help---
+-	  Say Y here to get to see options for using your Linux host to run other
+-	  operating systems inside virtual machines (guests).
+-	  This option alone does not add any kernel code.
+-
+-	  If you say N, all options in this submenu will be skipped and disabled.
+-
+-if VIRTUALIZATION
+-
+-source drivers/virtio/Kconfig
+-
+-endif # VIRTUALIZATION
+-
+ source "lib/Kconfig"
+diff --git a/arch/tile/kvm/Kconfig b/arch/tile/kvm/Kconfig
+index b88f9c0..669fcdb 100644
+--- a/arch/tile/kvm/Kconfig
++++ b/arch/tile/kvm/Kconfig
+@@ -33,6 +33,5 @@ config KVM
+ 	  If unsure, say N.
+ 
+ source drivers/vhost/Kconfig
+-source drivers/virtio/Kconfig
+ 
+ endif # VIRTUALIZATION
+diff --git a/arch/x86/kvm/Kconfig b/arch/x86/kvm/Kconfig
+index 50f6364..65cf823 100644
+--- a/arch/x86/kvm/Kconfig
++++ b/arch/x86/kvm/Kconfig
+@@ -76,6 +76,5 @@ config KVM_MMU_AUDIT
+ # the virtualization menu.
+ source drivers/vhost/Kconfig
+ source drivers/lguest/Kconfig
+-source drivers/virtio/Kconfig
+ 
+ endif # VIRTUALIZATION
+diff --git a/drivers/Kconfig b/drivers/Kconfig
+index 3bb154d..795218e 100644
+--- a/drivers/Kconfig
++++ b/drivers/Kconfig
+@@ -114,6 +114,8 @@ source "drivers/uio/Kconfig"
+ 
+ source "drivers/vlynq/Kconfig"
+ 
++source "drivers/virtio/Kconfig"
++
+ source "drivers/xen/Kconfig"
+ 
+ source "drivers/staging/Kconfig"
+diff --git a/drivers/virtio/Kconfig b/drivers/virtio/Kconfig
+index 3dd6294..57e493b 100644
+--- a/drivers/virtio/Kconfig
++++ b/drivers/virtio/Kconfig
+@@ -7,6 +7,8 @@ config VIRTIO_RING
+ 	tristate
+ 	depends on VIRTIO
+ 
++menu "Virtio drivers"
++
+ config VIRTIO_PCI
+ 	tristate "PCI driver for virtio devices (EXPERIMENTAL)"
+ 	depends on PCI && EXPERIMENTAL
+@@ -33,3 +35,4 @@ config VIRTIO_BALLOON
+ 
+ 	 If unsure, say M.
+ 
++endmenu
+-- 
+1.7.1
