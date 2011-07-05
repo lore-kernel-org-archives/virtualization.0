@@ -1,68 +1,36 @@
-From: KY Srinivasan <kys@microsoft.com>
-Subject: RE: [PATCH 75/77] Staging: hv: mouse: Disable auto-loading of the
- mouse driver
-Date: Tue, 5 Jul 2011 16:10:46 +0000
-Message-ID: <6E21E5352C11B742B20C142EB499E0480816CCA8@TK5EX14MBXC126.redmond.corp.microsoft.com>
-References: <1308255393-3785-1-git-send-email-kys@microsoft.com>
- <1308255470-3826-1-git-send-email-kys@microsoft.com>
- <1308255470-3826-75-git-send-email-kys@microsoft.com>
- <20110705155745.GA31998@kroah.com>
+From: Greg KH <greg@kroah.com>
+Subject: Re: [PATCH 5/5] staging: hv: fix a kernel warning in
+ netvsc_linkstatus_callback()
+Date: Tue, 5 Jul 2011 09:10:07 -0700
+Message-ID: <20110705161007.GA24332@kroah.com>
+References: <1308322688-9796-1-git-send-email-haiyangz@microsoft.com>
+ <1308322688-9796-5-git-send-email-haiyangz@microsoft.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20110705155745.GA31998@kroah.com>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <1308322688-9796-5-git-send-email-haiyangz@microsoft.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Greg KH <greg@kroah.com>
-Cc: "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, Haiyang Zhang <haiyangz@microsoft.com>, Hank Janssen <hjanssen@microsoft.com>
+To: Haiyang Zhang <haiyangz@microsoft.com>
+Cc: hjanssen@microsoft.com, kys@microsoft.com, v-abkane@microsoft.com, gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org, stable <stable@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
+On Fri, Jun 17, 2011 at 07:58:08AM -0700, Haiyang Zhang wrote:
+> netif_notify_peers() is not allowed in netvsc_linkstatus_callback() on some
+> distros,
 
+"distros"?  Huh?  You mean kernel versions right?
 
-> -----Original Message-----
-> From: Greg KH [mailto:greg@kroah.com]
-> Sent: Tuesday, July 05, 2011 11:58 AM
-> To: KY Srinivasan
-> Cc: gregkh@suse.de; linux-kernel@vger.kernel.org;
-> devel@linuxdriverproject.org; virtualization@lists.osdl.org; Haiyang Zhang; Hank
-> Janssen
-> Subject: Re: [PATCH 75/77] Staging: hv: mouse: Disable auto-loading of the
-> mouse driver
-> 
-> On Thu, Jun 16, 2011 at 01:17:48PM -0700, K. Y. Srinivasan wrote:
-> > Disable auto-loading of the mouse driver.
-> >
-> > Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
-> > Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
-> > Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
-> > ---
-> >  drivers/staging/hv/hv_mouse.c |    2 +-
-> >  1 files changed, 1 insertions(+), 1 deletions(-)
-> >
-> > diff --git a/drivers/staging/hv/hv_mouse.c b/drivers/staging/hv/hv_mouse.c
-> > index 1b30f26..ab5f1da 100644
-> > --- a/drivers/staging/hv/hv_mouse.c
-> > +++ b/drivers/staging/hv/hv_mouse.c
-> > @@ -950,7 +950,7 @@ static void __exit mousevsc_exit(void)
-> >
-> >  MODULE_LICENSE("GPL");
-> >  MODULE_VERSION(HV_DRV_VERSION);
-> > -MODULE_ALIAS("vmbus:hv_mouse");
-> > +/*MODULE_ALIAS("vmbus:hv_mouse");*/
-> 
-> Why?
-> 
-> {hint, I think I know why, but you need to tell us why in the changelog
-> comment}
-> 
-> Dropped.
+And this doesn't matter for the current kernel, right?  If not, then it
+doesn't need to be applied.  If so, then it should.  Which is it?
 
-I will re-submit this with appropriate comments. Have you also dropped
-all remaining patches  submitted in this patch-set as well as the patch-set
-that I had submitted subsequently. 
+> because netvsc_linkstatus_callback() is within IRQ context. So we
+> move the first call to netif_notify_peers() into queued work as well, but with
+> zero delay.
 
-Regards,
+What happens if you don't have this patch applied?  What breaks?  Is it
+just a warning?  Something else?
 
-K. Y
- 
+Please resend this with more information.
+
+greg k-h
