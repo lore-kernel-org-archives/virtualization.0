@@ -1,11 +1,16 @@
-From: Ohad Ben-Cohen <ohad@wizery.com>
-Subject: [RFC] virtio: expose for non-virtualization users too
-Date: Tue,  5 Jul 2011 17:06:14 +0300
-Message-ID: <1309874774-31689-1-git-send-email-ohad__27559.0371959426$1309874971$gmane$org@wizery.com>
+From: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Subject: Re: [PATCH] Modpost section mismatch fix
+Date: Tue, 5 Jul 2011 10:13:23 -0400
+Message-ID: <20110705141323.GG2972__20798.4801418663$1309875263$gmane$org@dumpdata.com>
+References: <20110703232508.GB4440@Xye>
+	<1309769388.634.51.camel@zakaz.uk.xensource.com>
+	<20110704221646.GB4490@Xye>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <20110704221646.GB4490@Xye>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -15,186 +20,50 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>, virtualization@lists.linux-foundation.org
-Cc: Carsten Otte <cotte@de.ibm.com>, linux-ia64@vger.kernel.org, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, linux-mips@linux-mips.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Grant Likely <grant.likely@secretlab.ca>, Paul Mackerras <paulus@samba.org>, "H. Peter Anvin" <hpa@zytor.com>, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, x86@kernel.org, Christian Borntraeger <borntraeger@de.ibm.com>, Ingo Molnar <mingo@redhat.com>, Avi Kivity <avi@redhat.com>, Russell King <rmk+kernel@arm.linux.org.uk>, Fenghua Yu <fenghua.yu@intel.com>, Arnd Bergmann <arnd@arndb.de>, Chris Metcalf <cmetcalf@tilera.com>, John Stultz <john.stultz@linaro.org>, kvm-ppc@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>, linux-omap@
+To: Raghavendra D Prabhu <rprabhu@wnohang.net>
+Cc: xen-devel@lists.xensource.com, jeremy.fitzhardinge@citrix.com, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Ian Campbell <ijc@hellion.org.uk>
 List-Id: virtualization@lists.linuxfoundation.org
 
-virtio has been so far used only in the context of virtualization,
-and the virtio Kconfig was sourced directly by the relevant arch
-Kconfigs when VIRTUALIZATION was selected.
+On Tue, Jul 05, 2011 at 03:46:46AM +0530, Raghavendra D Prabhu wrote:
+> * On Mon, Jul 04, 2011 at 09:49:48AM +0100, Ian Campbell <ijc@hellion.org.uk> wrote:
+> >On Mon, 2011-07-04 at 04:55 +0530, Raghavendra D Prabhu wrote:
+> >>[Sorry if duplicate, one earlier was corrupt]
+> 
+> >>Hi,
+> >>     I got section mismatches reported by modpost in latest build. It got
+> >>     reported for xen_register_pirq and xen_unplug_emulated_devices
+> >>     functions.
+> >
+> >
+> >> xen_register_pirq makes reference to
+> >>     acpi_sci_override_gsi in init.data section; marking
+> >>     xen_register_pirq with __init is not feasible since calls are made
+> >>     to it from acpi_register_gsi in non-init contexts. So marking it
+> >>     __refdata based on assumption that when acpi_sci_override_gsi is
+> >>     referenced, it is in  early stages where it is alive.
+> >
+> >I don't think this assumption holds, since xen_register_pirq can be
+> >called at any time and basically unconditionally references
+> >acpi_sci_override_gsi.
+> 
+> Yeah, that has been my guess as well, however I am not privy to the
+> inner workings of Xen, so was not sure.
+> >
+> >If we don't want to remove the __init from acpi_sci_override_gsi then
+> >perhaps xen_setup_acpi_sci needs to stash it somewhere?
+> >
+> >Or maybe xen_register_pirq could take an "int force_irq" which, if not
+> >-1, would force a particular IRQ. The callsite in xen_setup_acpi_sci
+> >(actually via xen_register_gsi so the param would need to be propagated
+> >there) would be the only actual user?
+> 
+> xen_register_gsi and hence, xen_register_pirq are called from
+> init (with xen_setup_acpi_sci) and non-init (with
+> acpi_register_gsi_xen); since xen_set_acpi_sci calls it with gsi ==
+> acpi_sci_override_gsi and is marked __init, the best way would be to
+> call xen_register_gsi and xen_register_pirq with a boolean argument like
+> sci_override to obviate the need to use acpi_sci_override_gsi in
+> register_pirq. I will send the patch with this change if it looks good.
 
-Now that we start using virtio for inter-processor communications,
-we need to source the virtio Kconfig outside of the virtualization
-scope too.
-
-Moreover, some architectures might use virtio for both virtualization
-and inter-processor communications, so directly sourcing virtio
-might yield unexpected results due to conflicting selections.
-
-The simple solution offered by this patch is to always source virtio's
-Kconfig in drivers/Kconfig, and remove it from the appropriate arch
-Kconfigs. Additionally, a virtio menu entry has been added so virtio
-drivers don't show up in the general drivers menu.
-
-This way anyone can use virtio, though it's arguably less accessible
-(and neat!) for virtualization users now.
-
-Note: some architectures (mips and sh) seem to have a VIRTUALIZATION
-menu merely for sourcing virtio's Kconfig, so that menu is removed too.
-
-Signed-off-by: Ohad Ben-Cohen <ohad@wizery.com>
----
-The motivation behind this patch is: https://lkml.org/lkml/2011/6/21/47
-
-If the general approach is agreed upon, we can either merge the patch
-independently, or add it to the AMP patch set.
-
- arch/ia64/kvm/Kconfig    |    1 -
- arch/mips/Kconfig        |   16 ----------------
- arch/powerpc/kvm/Kconfig |    1 -
- arch/s390/kvm/Kconfig    |    1 -
- arch/sh/Kconfig          |   16 ----------------
- arch/tile/kvm/Kconfig    |    1 -
- arch/x86/kvm/Kconfig     |    1 -
- drivers/Kconfig          |    2 ++
- drivers/virtio/Kconfig   |    3 +++
- 9 files changed, 5 insertions(+), 37 deletions(-)
-
-diff --git a/arch/ia64/kvm/Kconfig b/arch/ia64/kvm/Kconfig
-index fa4d1e5..9806e55 100644
---- a/arch/ia64/kvm/Kconfig
-+++ b/arch/ia64/kvm/Kconfig
-@@ -49,6 +49,5 @@ config KVM_INTEL
- 	  extensions.
- 
- source drivers/vhost/Kconfig
--source drivers/virtio/Kconfig
- 
- endif # VIRTUALIZATION
-diff --git a/arch/mips/Kconfig b/arch/mips/Kconfig
-index 653da62..a627a2c 100644
---- a/arch/mips/Kconfig
-+++ b/arch/mips/Kconfig
-@@ -2489,20 +2489,4 @@ source "security/Kconfig"
- 
- source "crypto/Kconfig"
- 
--menuconfig VIRTUALIZATION
--	bool "Virtualization"
--	default n
--	---help---
--	  Say Y here to get to see options for using your Linux host to run other
--	  operating systems inside virtual machines (guests).
--	  This option alone does not add any kernel code.
--
--	  If you say N, all options in this submenu will be skipped and disabled.
--
--if VIRTUALIZATION
--
--source drivers/virtio/Kconfig
--
--endif # VIRTUALIZATION
--
- source "lib/Kconfig"
-diff --git a/arch/powerpc/kvm/Kconfig b/arch/powerpc/kvm/Kconfig
-index b7baff7..105b691 100644
---- a/arch/powerpc/kvm/Kconfig
-+++ b/arch/powerpc/kvm/Kconfig
-@@ -99,6 +99,5 @@ config KVM_E500
- 	  If unsure, say N.
- 
- source drivers/vhost/Kconfig
--source drivers/virtio/Kconfig
- 
- endif # VIRTUALIZATION
-diff --git a/arch/s390/kvm/Kconfig b/arch/s390/kvm/Kconfig
-index f66a1bd..a216341 100644
---- a/arch/s390/kvm/Kconfig
-+++ b/arch/s390/kvm/Kconfig
-@@ -37,6 +37,5 @@ config KVM
- # OK, it's a little counter-intuitive to do this, but it puts it neatly under
- # the virtualization menu.
- source drivers/vhost/Kconfig
--source drivers/virtio/Kconfig
- 
- endif # VIRTUALIZATION
-diff --git a/arch/sh/Kconfig b/arch/sh/Kconfig
-index bbdeb48..748ff19 100644
---- a/arch/sh/Kconfig
-+++ b/arch/sh/Kconfig
-@@ -897,20 +897,4 @@ source "security/Kconfig"
- 
- source "crypto/Kconfig"
- 
--menuconfig VIRTUALIZATION
--	bool "Virtualization"
--	default n
--	---help---
--	  Say Y here to get to see options for using your Linux host to run other
--	  operating systems inside virtual machines (guests).
--	  This option alone does not add any kernel code.
--
--	  If you say N, all options in this submenu will be skipped and disabled.
--
--if VIRTUALIZATION
--
--source drivers/virtio/Kconfig
--
--endif # VIRTUALIZATION
--
- source "lib/Kconfig"
-diff --git a/arch/tile/kvm/Kconfig b/arch/tile/kvm/Kconfig
-index b88f9c0..669fcdb 100644
---- a/arch/tile/kvm/Kconfig
-+++ b/arch/tile/kvm/Kconfig
-@@ -33,6 +33,5 @@ config KVM
- 	  If unsure, say N.
- 
- source drivers/vhost/Kconfig
--source drivers/virtio/Kconfig
- 
- endif # VIRTUALIZATION
-diff --git a/arch/x86/kvm/Kconfig b/arch/x86/kvm/Kconfig
-index 50f6364..65cf823 100644
---- a/arch/x86/kvm/Kconfig
-+++ b/arch/x86/kvm/Kconfig
-@@ -76,6 +76,5 @@ config KVM_MMU_AUDIT
- # the virtualization menu.
- source drivers/vhost/Kconfig
- source drivers/lguest/Kconfig
--source drivers/virtio/Kconfig
- 
- endif # VIRTUALIZATION
-diff --git a/drivers/Kconfig b/drivers/Kconfig
-index 3bb154d..795218e 100644
---- a/drivers/Kconfig
-+++ b/drivers/Kconfig
-@@ -114,6 +114,8 @@ source "drivers/uio/Kconfig"
- 
- source "drivers/vlynq/Kconfig"
- 
-+source "drivers/virtio/Kconfig"
-+
- source "drivers/xen/Kconfig"
- 
- source "drivers/staging/Kconfig"
-diff --git a/drivers/virtio/Kconfig b/drivers/virtio/Kconfig
-index 3dd6294..57e493b 100644
---- a/drivers/virtio/Kconfig
-+++ b/drivers/virtio/Kconfig
-@@ -7,6 +7,8 @@ config VIRTIO_RING
- 	tristate
- 	depends on VIRTIO
- 
-+menu "Virtio drivers"
-+
- config VIRTIO_PCI
- 	tristate "PCI driver for virtio devices (EXPERIMENTAL)"
- 	depends on PCI && EXPERIMENTAL
-@@ -33,3 +35,4 @@ config VIRTIO_BALLOON
- 
- 	 If unsure, say M.
- 
-+endmenu
--- 
-1.7.1
+Hold on, let me rebase #stable/pci.cleanups and see if the issue
+here disappears.
