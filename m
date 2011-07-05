@@ -1,40 +1,45 @@
-From: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Subject: Re: [TOME] Re: [PATCH] Modpost section mismatch fix
-Date: Tue, 5 Jul 2011 07:48:46 -0700 (PDT)
-Message-ID: <20110705144846.GA13548__39346.3343535133$1309877403$gmane$org@dumpdata.com>
-References: <20110703232508.GB4440@Xye>
-	<1309769388.634.51.camel@zakaz.uk.xensource.com>
-	<20110704221646.GB4490@Xye>
-	<20110705141323.GG2972@dumpdata.com> <20110705142731.GA4463@Xye>
+From: Greg KH <greg@kroah.com>
+Subject: Re: [PATCH 75/77] Staging: hv: mouse: Disable auto-loading of the
+ mouse driver
+Date: Tue, 5 Jul 2011 08:57:45 -0700
+Message-ID: <20110705155745.GA31998@kroah.com>
+References: <1308255393-3785-1-git-send-email-kys@microsoft.com>
+ <1308255470-3826-1-git-send-email-kys@microsoft.com>
+ <1308255470-3826-75-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20110705142731.GA4463@Xye>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Raghavendra D Prabhu <rprabhu@wnohang.net>
-Cc: xen-devel@lists.xensource.com, jeremy.fitzhardinge@citrix.com, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Ian Campbell <ijc@hellion.org.uk>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1308255470-3826-75-git-send-email-kys@microsoft.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: "K. Y. Srinivasan" <kys@microsoft.com>
+Cc: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org, Haiyang Zhang <haiyangz@microsoft.com>, Hank Janssen <hjanssen@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-> >>xen_register_gsi and hence, xen_register_pirq are called from
-> >>init (with xen_setup_acpi_sci) and non-init (with
-> >>acpi_register_gsi_xen); since xen_set_acpi_sci calls it with gsi ==
-> >>acpi_sci_override_gsi and is marked __init, the best way would be to
-> >>call xen_register_gsi and xen_register_pirq with a boolean argument like
-> >>sci_override to obviate the need to use acpi_sci_override_gsi in
-> >>register_pirq. I will send the patch with this change if it looks good.
-> >
-> >Hold on, let me rebase #stable/pci.cleanups and see if the issue
-> >here disappears.
-> Thanks, will wait until the rebase and test after that.
+On Thu, Jun 16, 2011 at 01:17:48PM -0700, K. Y. Srinivasan wrote:
+> Disable auto-loading of the mouse driver.
+> 
+> Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
+> Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
+> Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
+> ---
+>  drivers/staging/hv/hv_mouse.c |    2 +-
+>  1 files changed, 1 insertions(+), 1 deletions(-)
+> 
+> diff --git a/drivers/staging/hv/hv_mouse.c b/drivers/staging/hv/hv_mouse.c
+> index 1b30f26..ab5f1da 100644
+> --- a/drivers/staging/hv/hv_mouse.c
+> +++ b/drivers/staging/hv/hv_mouse.c
+> @@ -950,7 +950,7 @@ static void __exit mousevsc_exit(void)
+>  
+>  MODULE_LICENSE("GPL");
+>  MODULE_VERSION(HV_DRV_VERSION);
+> -MODULE_ALIAS("vmbus:hv_mouse");
+> +/*MODULE_ALIAS("vmbus:hv_mouse");*/
 
-Hm, it actually looks like it wont do the trick. Why don't you send
-a patch against 3.0-rc6 with the outlined mechanism mentioned above.
+Why?
+
+{hint, I think I know why, but you need to tell us why in the changelog
+comment}
+
+Dropped.
