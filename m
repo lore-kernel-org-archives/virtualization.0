@@ -1,70 +1,54 @@
-From: Greg KH <gregkh@suse.de>
-Subject: Re: [PATCH 75/77] Staging: hv: mouse: Disable auto-loading of the
- mouse driver
-Date: Tue, 5 Jul 2011 09:18:34 -0700
-Message-ID: <20110705161834.GA26492@suse.de>
-References: <1308255393-3785-1-git-send-email-kys@microsoft.com>
- <1308255470-3826-1-git-send-email-kys@microsoft.com>
- <1308255470-3826-75-git-send-email-kys@microsoft.com>
- <20110705155745.GA31998@kroah.com>
- <6E21E5352C11B742B20C142EB499E0480816CCA8@TK5EX14MBXC126.redmond.corp.microsoft.com>
+From: KY Srinivasan <kys@microsoft.com>
+Subject: RE: [PATCH 01/40] Staging: hv: storvsc: Do not aquire an
+	unnecessary reference on stor_device
+Date: Tue, 5 Jul 2011 16:43:36 +0000
+Message-ID: <6E21E5352C11B742B20C142EB499E0480816CCF3@TK5EX14MBXC126.redmond.corp.microsoft.com>
+References: <1309358301-8488-1-git-send-email-kys@microsoft.com>
+	<1309358377-8537-1-git-send-email-kys@microsoft.com>
+	<20110705161408.GA25532@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <6E21E5352C11B742B20C142EB499E0480816CCA8@TK5EX14MBXC126.redmond.corp.microsoft.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: KY Srinivasan <kys@microsoft.com>
-Cc: Greg KH <greg@kroah.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, Haiyang Zhang <haiyangz@microsoft.com>, Hank Janssen <hjanssen@microsoft.com>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20110705161408.GA25532@kroah.com>
+Content-Language: en-US
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Greg KH <greg@kroah.com>
+Cc: "Abhishek Kane (Mindtree Consulting PVT LTD)" <v-abkane@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jul 05, 2011 at 04:10:46PM +0000, KY Srinivasan wrote:
-> 
-> 
-> > -----Original Message-----
-> > From: Greg KH [mailto:greg@kroah.com]
-> > Sent: Tuesday, July 05, 2011 11:58 AM
-> > To: KY Srinivasan
-> > Cc: gregkh@suse.de; linux-kernel@vger.kernel.org;
-> > devel@linuxdriverproject.org; virtualization@lists.osdl.org; Haiyang Zhang; Hank
-> > Janssen
-> > Subject: Re: [PATCH 75/77] Staging: hv: mouse: Disable auto-loading of the
-> > mouse driver
-> > 
-> > On Thu, Jun 16, 2011 at 01:17:48PM -0700, K. Y. Srinivasan wrote:
-> > > Disable auto-loading of the mouse driver.
-> > >
-> > > Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
-> > > Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
-> > > Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
-> > > ---
-> > >  drivers/staging/hv/hv_mouse.c |    2 +-
-> > >  1 files changed, 1 insertions(+), 1 deletions(-)
-> > >
-> > > diff --git a/drivers/staging/hv/hv_mouse.c b/drivers/staging/hv/hv_mouse.c
-> > > index 1b30f26..ab5f1da 100644
-> > > --- a/drivers/staging/hv/hv_mouse.c
-> > > +++ b/drivers/staging/hv/hv_mouse.c
-> > > @@ -950,7 +950,7 @@ static void __exit mousevsc_exit(void)
-> > >
-> > >  MODULE_LICENSE("GPL");
-> > >  MODULE_VERSION(HV_DRV_VERSION);
-> > > -MODULE_ALIAS("vmbus:hv_mouse");
-> > > +/*MODULE_ALIAS("vmbus:hv_mouse");*/
-> > 
-> > Why?
-> > 
-> > {hint, I think I know why, but you need to tell us why in the changelog
-> > comment}
-> > 
-> > Dropped.
-> 
-> I will re-submit this with appropriate comments. Have you also dropped
-> all remaining patches  submitted in this patch-set as well as the patch-set
-> that I had submitted subsequently. 
 
-I have now applied all of the drivers/staging/hv/ patches in my
-"to-apply" queue that I am going to apply, so feel free to rebase now
-and redo and resend.
 
-greg k-h
+> -----Original Message-----
+> From: Greg KH [mailto:greg@kroah.com]
+> Sent: Tuesday, July 05, 2011 12:14 PM
+> To: KY Srinivasan
+> Cc: gregkh@suse.de; linux-kernel@vger.kernel.org;
+> devel@linuxdriverproject.org; virtualization@lists.osdl.org; Haiyang Zhang;
+> Abhishek Kane (Mindtree Consulting PVT LTD)
+> Subject: Re: [PATCH 01/40] Staging: hv: storvsc: Do not aquire an unnecessary
+> reference on stor_device
+> 
+> On Wed, Jun 29, 2011 at 07:38:58AM -0700, K. Y. Srinivasan wrote:
+> > On entry into storvsc_on_io_completion() we have already acquired a
+> reference
+> > on the stor_device; there is no need to acquire an additional reference here.
+> >
+> > Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
+> > Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
+> > Signed-off-by: Abhishek Kane <v-abkane@microsoft.com>
+> > Signed-off-by: Hank Janssen <hjanssen@microsoft.com>
+> 
+> This series doesn't apply anymore, care to redo it?
+
+Will do. 
+
+K. Y
