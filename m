@@ -1,65 +1,190 @@
-From: Greg KH <greg@kroah.com>
-Subject: Re: [PATCH 15/77] Staging: hv: blkvsc: Add the appropriate
- MODULE_ALIAS() line
-Date: Tue, 5 Jul 2011 20:42:28 -0700
-Message-ID: <20110706034228.GA4291@kroah.com>
-References: <1308255393-3785-1-git-send-email-kys@microsoft.com>
- <1308255470-3826-1-git-send-email-kys@microsoft.com>
- <1308255470-3826-15-git-send-email-kys@microsoft.com>
- <20110705160621.GC7214@kroah.com>
- <6E21E5352C11B742B20C142EB499E0480816D27E@TK5EX14MBXC126.redmond.corp.microsoft.com>
+From: Ian Campbell <ijc@hellion.org.uk>
+Subject: Re: [Xen-devel] Re: [TOME] Re: [PATCH] Modpost section mismatch fix
+Date: Wed, 06 Jul 2011 09:30:30 +0100
+Message-ID: <1309941030.634.157.camel__43521.4951205582$1309941112$gmane$org@zakaz.uk.xensource.com>
+References: <20110703232508.GB4440@Xye>
+	<1309769388.634.51.camel@zakaz.uk.xensource.com>
+	<20110704221646.GB4490@Xye> <20110705141323.GG2972@dumpdata.com>
+	<20110705142731.GA4463@Xye> <20110705144846.GA13548@dumpdata.com>
+	<20110705213243.GA3647@dumpdata.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <6E21E5352C11B742B20C142EB499E0480816D27E@TK5EX14MBXC126.redmond.corp.microsoft.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: KY Srinivasan <kys@microsoft.com>
-Cc: "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, Haiyang Zhang <haiyangz@microsoft.com>, Hank Janssen <hjanssen@microsoft.com>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20110705213243.GA3647@dumpdata.com>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Raghavendra D Prabhu <rprabhu@wnohang.net>, "xen-devel@lists.xensource.com" <xen-devel@lists.xensource.com>, Jeremy Fitzhardinge <Jeremy.Fitzhardinge@citrix.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Jul 06, 2011 at 12:40:42AM +0000, KY Srinivasan wrote:
-> > > diff --git a/drivers/staging/hv/blkvsc_drv.c b/drivers/staging/hv/blkvsc_drv.c
-> > > index 5842db8..9496abe 100644
-> > > --- a/drivers/staging/hv/blkvsc_drv.c
-> > > +++ b/drivers/staging/hv/blkvsc_drv.c
-> > > @@ -1027,5 +1027,6 @@ static void __exit blkvsc_exit(void)
-> > >  MODULE_LICENSE("GPL");
-> > >  MODULE_VERSION(HV_DRV_VERSION);
-> > >  MODULE_DESCRIPTION("Microsoft Hyper-V virtual block driver");
-> > > +MODULE_ALIAS("vmbus:hv_block");
+On Tue, 2011-07-05 at 22:32 +0100, Konrad Rzeszutek Wilk wrote:
+> On Tue, Jul 05, 2011 at 10:48:46AM -0400, Konrad Rzeszutek Wilk wrote:
+> > > >>xen_register_gsi and hence, xen_register_pirq are called from
+> > > >>init (with xen_setup_acpi_sci) and non-init (with
+> > > >>acpi_register_gsi_xen); since xen_set_acpi_sci calls it with gsi ==
+> > > >>acpi_sci_override_gsi and is marked __init, the best way would be to
+> > > >>call xen_register_gsi and xen_register_pirq with a boolean argument like
+> > > >>sci_override to obviate the need to use acpi_sci_override_gsi in
+> > > >>register_pirq. I will send the patch with this change if it looks good.
+> > > >
+> > > >Hold on, let me rebase #stable/pci.cleanups and see if the issue
+> > > >here disappears.
+> > > Thanks, will wait until the rebase and test after that.
 > > 
-> > No, these should be automagically generated with the MODULE_DEVICE_ID()
-> > macro that you use in the module with the GUID there, instead of this.
+> > Hm, it actually looks like it wont do the trick. Why don't you send
+> > a patch against 3.0-rc6 with the outlined mechanism mentioned above.
 > 
-> I think you mean MODULE_DEVICE_TABLE()?
+> Or this patch (against 3.0-rc6) might do the trick:
 
-Yes, sorry for the typo.
+Based on my limited understanding it looks like it would to me.
 
-> I actually went down that path first
-> adding code  to  file2alias.c for parsing the vmbus ID table. Given that this approach
-> would make it  impossible to support auto-loading of these drivers
-> on many of the released kernels,
+But is there some downside to always unconditionally calling
+acpi_gsi_to_irq in xen_register_pirq? It seems like it returns the
+expected mapping except where explicit overrides (such as this SCI
+thing) exist?
 
-Wait, what?  What is a "released kernel"?  We are working on the
-in-kernel patch, we don't care about older distros/releases for this
-work at all.  Also, it doesn't make sense at all, why would the change I
-asked for make any difference on older distros/kernels?
+Ian.
 
-> I chose to go with the MODULE_ALIAS() macro that did not need any
-> changes outside our drivers. In both methods, the formatting of the
-> name is bus specific since I would be writing the code to parse the
-> table in file2alias.c.
+> diff --git a/arch/x86/pci/xen.c b/arch/x86/pci/xen.c
+> index fe00830..f567965 100644
+> --- a/arch/x86/pci/xen.c
+> +++ b/arch/x86/pci/xen.c
+> @@ -327,13 +327,12 @@ int __init pci_xen_hvm_init(void)
+>  }
+>  
+>  #ifdef CONFIG_XEN_DOM0
+> -static int xen_register_pirq(u32 gsi, int triggering)
+> +static int xen_register_pirq(u32 gsi, int gsi_override, int triggering)
+>  {
+>  	int rc, pirq, irq = -1;
+>  	struct physdev_map_pirq map_irq;
+>  	int shareable = 0;
+>  	char *name;
+> -	bool gsi_override = false;
+>  
+>  	if (!xen_pv_domain())
+>  		return -1;
+> @@ -345,31 +344,12 @@ static int xen_register_pirq(u32 gsi, int triggering)
+>  		shareable = 1;
+>  		name = "ioapic-level";
+>  	}
+> -
+>  	pirq = xen_allocate_pirq_gsi(gsi);
+>  	if (pirq < 0)
+>  		goto out;
+>  
+> -	/* Before we bind the GSI to a Linux IRQ, check whether
+> -	 * we need to override it with bus_irq (IRQ) value. Usually for
+> -	 * IRQs below IRQ_LEGACY_IRQ this holds IRQ == GSI, as so:
+> -	 *  ACPI: INT_SRC_OVR (bus 0 bus_irq 9 global_irq 9 low level)
+> -	 * but there are oddballs where the IRQ != GSI:
+> -	 *  ACPI: INT_SRC_OVR (bus 0 bus_irq 9 global_irq 20 low level)
+> -	 * which ends up being: gsi_to_irq[9] == 20
+> -	 * (which is what acpi_gsi_to_irq ends up calling when starting the
+> -	 * the ACPI interpreter and keels over since IRQ 9 has not been
+> -	 * setup as we had setup IRQ 20 for it).
+> -	 */
+> -	if (gsi == acpi_sci_override_gsi) {
+> -		/* Check whether the GSI != IRQ */
+> -		acpi_gsi_to_irq(gsi, &irq);
+> -		if (irq != gsi)
+> -			/* Bugger, we MUST have that IRQ. */
+> -			gsi_override = true;
+> -	}
+> -	if (gsi_override)
+> -		irq = xen_bind_pirq_gsi_to_irq(irq, pirq, shareable, name);
+> +	if (gsi_override >= 0)
+> +		irq = xen_bind_pirq_gsi_to_irq(gsi_override, pirq, shareable, name);
+>  	else
+>  		irq = xen_bind_pirq_gsi_to_irq(gsi, pirq, shareable, name);
+>  	if (irq < 0)
+> @@ -392,7 +372,7 @@ out:
+>  	return irq;
+>  }
+>  
+> -static int xen_register_gsi(u32 gsi, int triggering, int polarity)
+> +static int xen_register_gsi(u32 gsi, int gsi_override, int triggering, int polarity)
+>  {
+>  	int rc, irq;
+>  	struct physdev_setup_gsi setup_gsi;
+> @@ -403,7 +383,7 @@ static int xen_register_gsi(u32 gsi, int triggering, int polarity)
+>  	printk(KERN_DEBUG "xen: registering gsi %u triggering %d polarity %d\n",
+>  			gsi, triggering, polarity);
+>  
+> -	irq = xen_register_pirq(gsi, triggering);
+> +	irq = xen_register_pirq(gsi, gsi_override, triggering);
+>  
+>  	setup_gsi.gsi = gsi;
+>  	setup_gsi.triggering = (triggering == ACPI_EDGE_SENSITIVE ? 0 : 1);
+> @@ -425,6 +405,8 @@ static __init void xen_setup_acpi_sci(void)
+>  	int rc;
+>  	int trigger, polarity;
+>  	int gsi = acpi_sci_override_gsi;
+> +	int irq = -1;
+> +	int gsi_override = -1;
+>  
+>  	if (!gsi)
+>  		return;
+> @@ -441,7 +423,25 @@ static __init void xen_setup_acpi_sci(void)
+>  	printk(KERN_INFO "xen: sci override: global_irq=%d trigger=%d "
+>  			"polarity=%d\n", gsi, trigger, polarity);
+>  
+> -	gsi = xen_register_gsi(gsi, trigger, polarity);
+> +	/* Before we bind the GSI to a Linux IRQ, check whether
+> +	 * we need to override it with bus_irq (IRQ) value. Usually for
+> +	 * IRQs below IRQ_LEGACY_IRQ this holds IRQ == GSI, as so:
+> +	 *  ACPI: INT_SRC_OVR (bus 0 bus_irq 9 global_irq 9 low level)
+> +	 * but there are oddballs where the IRQ != GSI:
+> +	 *  ACPI: INT_SRC_OVR (bus 0 bus_irq 9 global_irq 20 low level)
+> +	 * which ends up being: gsi_to_irq[9] == 20
+> +	 * (which is what acpi_gsi_to_irq ends up calling when starting the
+> +	 * the ACPI interpreter and keels over since IRQ 9 has not been
+> +	 * setup as we had setup IRQ 20 for it).
+> +	 */
+> +	/* Check whether the GSI != IRQ */
+> +	if (acpi_gsi_to_irq(gsi, &irq) == 0) {
+> +		if (irq >= 0 && irq != gsi)
+> +			/* Bugger, we MUST have that IRQ. */
+> +			gsi_override = irq;
+> +	}
+> +
+> +	gsi = xen_register_gsi(gsi, gsi_override, trigger, polarity);
+>  	printk(KERN_INFO "xen: acpi sci %d\n", gsi);
+>  
+>  	return;
+> @@ -450,7 +450,7 @@ static __init void xen_setup_acpi_sci(void)
+>  static int acpi_register_gsi_xen(struct device *dev, u32 gsi,
+>  				 int trigger, int polarity)
+>  {
+> -	return xen_register_gsi(gsi, trigger, polarity);
+> +	return xen_register_gsi(gsi, -1 /* no GSI override */, trigger, polarity);
+>  }
+>  
+>  static int __init pci_xen_initial_domain(void)
+> @@ -489,7 +489,7 @@ void __init xen_setup_pirqs(void)
+>  		if (acpi_get_override_irq(irq, &trigger, &polarity) == -1)
+>  			continue;
+>  
+> -		xen_register_pirq(irq,
+> +		xen_register_pirq(irq, -1 /* no GSI override */,
+>  			trigger ? ACPI_LEVEL_SENSITIVE : ACPI_EDGE_SENSITIVE);
+>  	}
+>  }
+> 
+> _______________________________________________
+> Xen-devel mailing list
+> Xen-devel@lists.xensource.com
+> http://lists.xensource.com/xen-devel
 
-Yes, that is what is needed to be done.
+-- 
+Ian Campbell
 
-> Granted, I have been quite unimaginative in my alias names, but I
-> thought they were reasonably descriptive. If at all possible, for the
-> reasons listed above, I would prefer to use the MODULE_ALIAS() macro
-> (I could embed all or part of the guid in the alias). Let me know.
-
-Please do the correct thing and use MODULE_DEVICE_TABLE().
-
-thanks,
-
-greg k-h
+While having never invented a sin, I'm trying to perfect several.
