@@ -1,14 +1,15 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [RFC] virtio: expose for non-virtualization users too
-Date: Wed, 06 Jul 2011 14:55:43 +0930
-Message-ID: <87aacs0ylk.fsf__37511.2939429984$1309999222$gmane$org@rustcorp.com.au>
-References: <1309874774-31689-1-git-send-email-ohad@wizery.com>
-	<4E1391C2.2090904@zytor.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH 2/2] vhost: set log when updating used flags or avail event
+Date: Thu, 7 Jul 2011 15:57:30 +0300
+Message-ID: <20110707125728.GA2469__13621.0594595925$1310043483$gmane$org@redhat.com>
+References: <20110621100426.6777.68855.stgit@dhcp-91-7.nay.redhat.com.englab.nay.redhat.com>
+	<20110621100438.6777.20695.stgit@dhcp-91-7.nay.redhat.com.englab.nay.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4E1391C2.2090904@zytor.com>
+Content-Disposition: inline
+In-Reply-To: <20110621100438.6777.20695.stgit@dhcp-91-7.nay.redhat.com.englab.nay.redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,24 +19,94 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "H. Peter Anvin" <hpa@zytor.com>, Ohad Ben-Cohen <ohad@wizery.com>
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Jason Wang <jasowang@redhat.com>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 05 Jul 2011 15:35:46 -0700, "H. Peter Anvin" <hpa@zytor.com> wrote:
-> On 07/05/2011 07:06 AM, Ohad Ben-Cohen wrote:
-> > virtio has been so far used only in the context of virtualization,
-> > and the virtio Kconfig was sourced directly by the relevant arch
-> > Kconfigs when VIRTUALIZATION was selected.
-> > 
-> > Now that we start using virtio for inter-processor communications,
-> > we need to source the virtio Kconfig outside of the virtualization
-> > scope too.
-> > 
+Subject: vhost: used ring logging cleanup
+
+remove extra log bit setting for used ring updates: it's no longer
+necessary.  Also, use vhost_avail_event instead of duplicating offset
+math.
+
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
+
+> We need set log when updating used flags and avail event. Otherwise guest may
+> see stale values after migration and then do not exit or exit unexpectedly.
 > 
-> Seems reasonable to me.
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
 
-Me too.  When you're happy, please send.
+OK but this means we set the log twice now.
+Also, hardcording offset is not as nice as using
+vhost_avail_event. So I think the below is needed
+on top. Comments?
 
-Thanks,
-Rusty.
+ drivers/vhost/vhost.c |   29 +++++++++--------------------
+ 1 files changed, 9 insertions(+), 20 deletions(-)
+
+diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+index 540591b..c5f96ba 100644
+--- a/drivers/vhost/vhost.c
++++ b/drivers/vhost/vhost.c
+@@ -946,14 +946,16 @@ int vhost_log_write(struct vhost_virtqueue *vq, struct vhost_log *log,
+ 
+ static int vhost_update_used_flags(struct vhost_virtqueue *vq)
+ {
++	void __user *used;
+ 	if (put_user(vq->used_flags, &vq->used->flags) < 0)
+ 		return -EFAULT;
+ 	if (unlikely(vq->log_used)) {
+ 		/* Make sure the flag is seen before log. */
+ 		smp_wmb();
+ 		/* Log used flag write. */
+-		log_write(vq->log_base,
+-			  vq->log_addr + offsetof(struct vring_used, flags),
++		used = &vq->used->flags;
++		log_write(vq->log_base, vq->log_addr +
++			  (used - (void __user *)vq->used),
+ 			  sizeof vq->used->flags);
+ 		if (vq->log_ctx)
+ 			eventfd_signal(vq->log_ctx, 1);
+@@ -966,13 +968,14 @@ static int vhost_update_avail_event(struct vhost_virtqueue *vq, u16 avail_event)
+ 	if (put_user(vq->avail_idx, vhost_avail_event(vq)))
+ 		return -EFAULT;
+ 	if (unlikely(vq->log_used)) {
++		void __user *used;
+ 		/* Make sure the event is seen before log. */
+ 		smp_wmb();
+ 		/* Log avail event write */
+-		log_write(vq->log_base,
+-			  vq->log_addr + offsetof(struct vring_used,
+-						  ring[vq->num]),
+-			  sizeof avail_event);
++		used = vhost_avail_event(vq);
++		log_write(vq->log_base, vq->log_addr +
++			  (used - (void __user *)vq->used),
++			  sizeof *vhost_avail_event(vq));
+ 		if (vq->log_ctx)
+ 			eventfd_signal(vq->log_ctx, 1);
+ 	}
+@@ -1474,20 +1477,6 @@ bool vhost_enable_notify(struct vhost_dev *dev, struct vhost_virtqueue *vq)
+ 			return false;
+ 		}
+ 	}
+-	if (unlikely(vq->log_used)) {
+-		void __user *used;
+-		/* Make sure data is seen before log. */
+-		smp_wmb();
+-		used = vhost_has_feature(dev, VIRTIO_RING_F_EVENT_IDX) ?
+-			&vq->used->flags : vhost_avail_event(vq);
+-		/* Log used flags or event index entry write. Both are 16 bit
+-		 * fields. */
+-		log_write(vq->log_base, vq->log_addr +
+-			   (used - (void __user *)vq->used),
+-			  sizeof(u16));
+-		if (vq->log_ctx)
+-			eventfd_signal(vq->log_ctx, 1);
+-	}
+ 	/* They could have slipped one in as we were doing that: make
+ 	 * sure it's written, then check again. */
+ 	smp_mb();
+-- 
+1.7.5.53.gc233e
