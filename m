@@ -1,12 +1,16 @@
-From: Roopa Prabhu <roprabhu@cisco.com>
-Subject: Re: RFT: virtio_net: limit xmit polling
-Date: Thu, 07 Jul 2011 06:24:22 -0700
-Message-ID: <CA3B0196.2D7A9%roprabhu@cisco.com>
-References: <20110629084206.GA14627@redhat.com>
+From: Raghavendra D Prabhu <rprabhu@wnohang.net>
+Subject: Re: [PATCH] Modpost section mismatch fix
+Date: Thu, 7 Jul 2011 21:16:48 +0530
+Message-ID: <20110707154648.GA4394__3193.07308313928$1310053675$gmane$org@Xye>
+References: <20110703232508.GB4440@Xye>
+	<1309769388.634.51.camel@zakaz.uk.xensource.com>
+	<20110704221646.GB4490@Xye> <20110705141323.GG2972@dumpdata.com>
+	<20110705142731.GA4463@Xye> <20110705144846.GA13548@dumpdata.com>
+	<20110705213243.GA3647@dumpdata.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============1957387557649889097=="
+Content-Type: multipart/mixed; boundary="===============3082710857591472253=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20110629084206.GA14627@redhat.com>
+In-Reply-To: <20110705213243.GA3647@dumpdata.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -17,141 +21,227 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Mime-version: 1.0
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, Tom Lendacky <tahm@linux.vnet.ibm.com>
-Cc: Krishna Kumar2 <krkumar2@in.ibm.com>, habanero@linux.vnet.ibm.com, lguest@lists.ozlabs.org, Shirley Ma <xma@us.ibm.com>, kvm@vger.kernel.org, Carsten Otte <cotte@de.ibm.com>, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, steved@us.ibm.com, Christian Borntraeger <borntraeger@de.ibm.com>, netdev@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux390@de.ibm.com
+To: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Cc: xen-devel@lists.xensource.com, jeremy.fitzhardinge@citrix.com, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Ian Campbell <ijc@hellion.org.uk>
 List-Id: virtualization@lists.linuxfoundation.org
 
-> This message is in MIME format. Since your mail reader does not understand
-this format, some or all of this message may not be legible.
 
---===============1957387557649889097==
-Content-type: multipart/alternative;
-	boundary="B_3392864662_8981458"
-
-> This message is in MIME format. Since your mail reader does not understand
-this format, some or all of this message may not be legible.
-
---B_3392864662_8981458
-Content-type: text/plain;
-	charset="US-ASCII"
-Content-transfer-encoding: 7bit
+--===============3082710857591472253==
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="IS0zKkzwUGydFO0o"
+Content-Disposition: inline
 
 
+--IS0zKkzwUGydFO0o
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
 
+* On Tue, Jul 05, 2011 at 05:32:43PM -0400, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com> wrote:
+>On Tue, Jul 05, 2011 at 10:48:46AM -0400, Konrad Rzeszutek Wilk wrote:
+>> > >>xen_register_gsi and hence, xen_register_pirq are called from
+>> > >>init (with xen_setup_acpi_sci) and non-init (with
+>> > >>acpi_register_gsi_xen); since xen_set_acpi_sci calls it with gsi ==
+>> > >>acpi_sci_override_gsi and is marked __init, the best way would be to
+>> > >>call xen_register_gsi and xen_register_pirq with a boolean argument like
+>> > >>sci_override to obviate the need to use acpi_sci_override_gsi in
+>> > >>register_pirq. I will send the patch with this change if it looks good.
 
-On 6/29/11 1:42 AM, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> 
->> >roprabhu, Tom,
->> >
->> >Thanks very much for the testing. So on the first glance
->> >one seems to see a significant performance gain in V0 here,
->> >and a slightly less significant in V2, with V1
->> >being worse than base. But I'm afraid that's not the
->> >whole story, and we'll need to work some more to
->> >know what really goes on, please see below.
->> >
->> >
->> >Some comments on the results: I found out that V0 because of mistake
->> >on my part was actually almost identical to base.
->> >I pushed out virtio-net-limit-xmit-polling/v1a instead that
->> >actually does what I intended to check. However,
->> >the fact we get such a huge distribution in the results by Tom
->> >most likely means that the noise factor is very large.
->> >
->> >
->> >From my experience one way to get stable results is to
->> >divide the throughput by the host CPU utilization
->> >(measured by something like mpstat).
->> >Sometimes throughput doesn't increase (e.g. guest-host)
->> >by CPU utilization does decrease. So it's interesting.
->> >
->> >
->> >Another issue is that we are trying to improve the latency
->> >of a busy queue here. However STREAM/MAERTS tests ignore the latency
->> >(more or less) while TCP_RR by default runs a single packet per queue.
->> >Without arguing about whether these are practically interesting
->> >workloads, these results are thus unlikely to be significantly affected
->> >by the optimization in question.
->> >
->> >What we are interested in, thus, is either TCP_RR with a -b flag
->> >(configure with  --enable-burst) or multiple concurrent
->> >TCP_RRs.
-> 
-> ok sounds good. I am testing your v1a patch. Will try to get some results out
-> end of this week. Thanks.
-> 
+>> > >Hold on, let me rebase #stable/pci.cleanups and see if the issue
+>> > >here disappears.
+>> > Thanks, will wait until the rebase and test after that.
 
-
---B_3392864662_8981458
-Content-type: text/html;
-	charset="US-ASCII"
-Content-transfer-encoding: quoted-printable
-
-<HTML>
-<HEAD>
-<TITLE>Re: RFT: virtio_net: limit xmit polling</TITLE>
-</HEAD>
-<BODY>
-<FONT FACE=3D"Calibri, Verdana, Helvetica, Arial"><SPAN STYLE=3D'font-size:11pt=
-'><BR>
-<BR>
-<BR>
-On 6/29/11 1:42 AM, &quot;Michael S. Tsirkin&quot; &lt;<a href=3D"mst@redhat.=
-com">mst@redhat.com</a>&gt; wrote:<BR>
-</SPAN></FONT><BLOCKQUOTE><FONT FACE=3D"Calibri, Verdana, Helvetica, Arial"><=
-SPAN STYLE=3D'font-size:11pt'><BR>
-&gt;roprabhu, Tom,<BR>
-&gt;<BR>
-&gt;Thanks very much for the testing. So on the first glance<BR>
-&gt;one seems to see a significant performance gain in V0 here,<BR>
-&gt;and a slightly less significant in V2, with V1<BR>
-&gt;being worse than base. But I'm afraid that's not the<BR>
-&gt;whole story, and we'll need to work some more to<BR>
-&gt;know what really goes on, please see below.<BR>
-&gt;<BR>
-&gt;<BR>
-&gt;Some comments on the results: I found out that V0 because of mistake<BR=
+>> Hm, it actually looks like it wont do the trick. Why don't you send
+>> a patch against 3.0-rc6 with the outlined mechanism mentioned above.
 >
-&gt;on my part was actually almost identical to base.<BR>
-&gt;I pushed out virtio-net-limit-xmit-polling/v1a instead that<BR>
-&gt;actually does what I intended to check. However,<BR>
-&gt;the fact we get such a huge distribution in the results by Tom<BR>
-&gt;most likely means that the noise factor is very large.<BR>
-&gt;<BR>
-&gt;<BR>
-&gt;From my experience one way to get stable results is to<BR>
-&gt;divide the throughput by the host CPU utilization<BR>
-&gt;(measured by something like mpstat).<BR>
-&gt;Sometimes throughput doesn't increase (e.g. guest-host)<BR>
-&gt;by CPU utilization does decrease. So it's interesting.<BR>
-&gt;<BR>
-&gt;<BR>
-&gt;Another issue is that we are trying to improve the latency<BR>
-&gt;of a busy queue here. However STREAM/MAERTS tests ignore the latency<BR=
+>Or this patch (against 3.0-rc6) might do the trick:
 >
-&gt;(more or less) while TCP_RR by default runs a single packet per queue.<=
-BR>
-&gt;Without arguing about whether these are practically interesting<BR>
-&gt;workloads, these results are thus unlikely to be significantly affected=
-<BR>
-&gt;by the optimization in question.<BR>
-&gt;<BR>
-&gt;What we are interested in, thus, is either TCP_RR with a -b flag<BR>
-&gt;(configure with &nbsp;--enable-burst) or multiple concurrent<BR>
-&gt;TCP_RRs.<BR>
-<BR>
-ok sounds good. I am testing your v1a patch. Will try to get some results o=
-ut end of this week. Thanks.<BR>
-<BR>
-</SPAN></FONT></BLOCKQUOTE>
-</BODY>
-</HTML>
+>diff --git a/arch/x86/pci/xen.c b/arch/x86/pci/xen.c
+>index fe00830..f567965 100644
+>--- a/arch/x86/pci/xen.c
+>+++ b/arch/x86/pci/xen.c
+>@@ -327,13 +327,12 @@ int __init pci_xen_hvm_init(void)
+> }
+>
+> #ifdef CONFIG_XEN_DOM0
+>-static int xen_register_pirq(u32 gsi, int triggering)
+>+static int xen_register_pirq(u32 gsi, int gsi_override, int triggering)
+> {
+> 	int rc, pirq, irq = -1;
+> 	struct physdev_map_pirq map_irq;
+> 	int shareable = 0;
+> 	char *name;
+>-	bool gsi_override = false;
+>
+> 	if (!xen_pv_domain())
+> 		return -1;
+>@@ -345,31 +344,12 @@ static int xen_register_pirq(u32 gsi, int triggering)
+> 		shareable = 1;
+> 		name = "ioapic-level";
+> 	}
+>-
+> 	pirq = xen_allocate_pirq_gsi(gsi);
+> 	if (pirq < 0)
+> 		goto out;
+>
+>-	/* Before we bind the GSI to a Linux IRQ, check whether
+>-	 * we need to override it with bus_irq (IRQ) value. Usually for
+>-	 * IRQs below IRQ_LEGACY_IRQ this holds IRQ == GSI, as so:
+>-	 *  ACPI: INT_SRC_OVR (bus 0 bus_irq 9 global_irq 9 low level)
+>-	 * but there are oddballs where the IRQ != GSI:
+>-	 *  ACPI: INT_SRC_OVR (bus 0 bus_irq 9 global_irq 20 low level)
+>-	 * which ends up being: gsi_to_irq[9] == 20
+>-	 * (which is what acpi_gsi_to_irq ends up calling when starting the
+>-	 * the ACPI interpreter and keels over since IRQ 9 has not been
+>-	 * setup as we had setup IRQ 20 for it).
+>-	 */
+>-	if (gsi == acpi_sci_override_gsi) {
+>-		/* Check whether the GSI != IRQ */
+>-		acpi_gsi_to_irq(gsi, &irq);
+>-		if (irq != gsi)
+>-			/* Bugger, we MUST have that IRQ. */
+>-			gsi_override = true;
+>-	}
+>-	if (gsi_override)
+>-		irq = xen_bind_pirq_gsi_to_irq(irq, pirq, shareable, name);
+>+	if (gsi_override >= 0)
+>+		irq = xen_bind_pirq_gsi_to_irq(gsi_override, pirq, shareable, name);
+> 	else
+> 		irq = xen_bind_pirq_gsi_to_irq(gsi, pirq, shareable, name);
+> 	if (irq < 0)
+>@@ -392,7 +372,7 @@ out:
+> 	return irq;
+> }
+>
+>-static int xen_register_gsi(u32 gsi, int triggering, int polarity)
+>+static int xen_register_gsi(u32 gsi, int gsi_override, int triggering, int polarity)
+> {
+> 	int rc, irq;
+> 	struct physdev_setup_gsi setup_gsi;
+>@@ -403,7 +383,7 @@ static int xen_register_gsi(u32 gsi, int triggering, int polarity)
+> 	printk(KERN_DEBUG "xen: registering gsi %u triggering %d polarity %d\n",
+> 			gsi, triggering, polarity);
+>
+>-	irq = xen_register_pirq(gsi, triggering);
+>+	irq = xen_register_pirq(gsi, gsi_override, triggering);
+>
+> 	setup_gsi.gsi = gsi;
+> 	setup_gsi.triggering = (triggering == ACPI_EDGE_SENSITIVE ? 0 : 1);
+>@@ -425,6 +405,8 @@ static __init void xen_setup_acpi_sci(void)
+> 	int rc;
+> 	int trigger, polarity;
+> 	int gsi = acpi_sci_override_gsi;
+>+	int irq = -1;
+>+	int gsi_override = -1;
+>
+> 	if (!gsi)
+> 		return;
+>@@ -441,7 +423,25 @@ static __init void xen_setup_acpi_sci(void)
+> 	printk(KERN_INFO "xen: sci override: global_irq=%d trigger=%d "
+> 			"polarity=%d\n", gsi, trigger, polarity);
+>
+>-	gsi = xen_register_gsi(gsi, trigger, polarity);
+>+	/* Before we bind the GSI to a Linux IRQ, check whether
+>+	 * we need to override it with bus_irq (IRQ) value. Usually for
+>+	 * IRQs below IRQ_LEGACY_IRQ this holds IRQ == GSI, as so:
+>+	 *  ACPI: INT_SRC_OVR (bus 0 bus_irq 9 global_irq 9 low level)
+>+	 * but there are oddballs where the IRQ != GSI:
+>+	 *  ACPI: INT_SRC_OVR (bus 0 bus_irq 9 global_irq 20 low level)
+>+	 * which ends up being: gsi_to_irq[9] == 20
+>+	 * (which is what acpi_gsi_to_irq ends up calling when starting the
+>+	 * the ACPI interpreter and keels over since IRQ 9 has not been
+>+	 * setup as we had setup IRQ 20 for it).
+>+	 */
+>+	/* Check whether the GSI != IRQ */
+>+	if (acpi_gsi_to_irq(gsi, &irq) == 0) {
+>+		if (irq >= 0 && irq != gsi)
+>+			/* Bugger, we MUST have that IRQ. */
+>+			gsi_override = irq;
+>+	}
+>+
+>+	gsi = xen_register_gsi(gsi, gsi_override, trigger, polarity);
+> 	printk(KERN_INFO "xen: acpi sci %d\n", gsi);
+>
+> 	return;
+>@@ -450,7 +450,7 @@ static __init void xen_setup_acpi_sci(void)
+> static int acpi_register_gsi_xen(struct device *dev, u32 gsi,
+> 				 int trigger, int polarity)
+> {
+>-	return xen_register_gsi(gsi, trigger, polarity);
+>+	return xen_register_gsi(gsi, -1 /* no GSI override */, trigger, polarity);
+> }
+>
+> static int __init pci_xen_initial_domain(void)
+>@@ -489,7 +489,7 @@ void __init xen_setup_pirqs(void)
+> 		if (acpi_get_override_irq(irq, &trigger, &polarity) == -1)
+> 			continue;
+>
+>-		xen_register_pirq(irq,
+>+		xen_register_pirq(irq, -1 /* no GSI override */,
+> 			trigger ? ACPI_LEVEL_SENSITIVE : ACPI_EDGE_SENSITIVE);
+> 	}
+> }
+>
+Tested it. Works now.
+Reviewed-by: Raghavendra Prabhu <rprabhu@wnohang.net>
+
+Also,
+The condition for acpi_gsi_to_irq can be removed since it always returns zero.
+============================================
+  diff --git a/arch/x86/pci/xen.c b/arch/x86/pci/xen.c
+  index f567965..3faa55b 100644
+  --- a/arch/x86/pci/xen.c
+  +++ b/arch/x86/pci/xen.c
+  @@ -405,7 +405,7 @@ static __init void xen_setup_acpi_sci(void)
+          int rc;
+          int trigger, polarity;
+          int gsi = acpi_sci_override_gsi;
+  -       int irq = -1;
+  +       unsigned int irq = 0u;
+          int gsi_override = -1;
+
+          if (!gsi)
+  @@ -435,11 +435,10 @@ static __init void xen_setup_acpi_sci(void)
+           * setup as we had setup IRQ 20 for it).
+           */
+          /* Check whether the GSI != IRQ */
+  -       if (acpi_gsi_to_irq(gsi, &irq) == 0) {
+  -               if (irq >= 0 && irq != gsi)
+  -                       /* Bugger, we MUST have that IRQ. */
+  -                       gsi_override = irq;
+  -       }
+  +       acpi_gsi_to_irq(gsi, &irq);
+  +       if (irq != gsi)
+  +               /* Bugger, we MUST have that IRQ. */
+  +               gsi_override = irq;
+
+          gsi = xen_register_gsi(gsi, gsi_override, trigger, polarity);
+          printk(KERN_INFO "xen: acpi sci %d\n", gsi);
 
 
---B_3392864662_8981458--
+--------------------------
+Raghavendra Prabhu
+GPG Id : 0xD72BE977
+Fingerprint: B93F EBCB 8E05 7039 CD3C A4B8 A616 DCA1 D72B E977
+www: wnohang.net
 
+--IS0zKkzwUGydFO0o
+Content-Type: application/pgp-signature
 
---===============1957387557649889097==
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.17 (GNU/Linux)
+
+iQEcBAEBAgAGBQJOFdToAAoJEKYW3KHXK+l3euUIAKHG7U2EYkkcbhTZYIJRTaub
+rHkayWUf9z9zsg3jecePqmeKfjSiAgby2bzV7kSYvarq3oBn1LG7wtY/xYz4jjGU
+Nl3sTRgduDJJuKoldUcbLHLwgwrT5D+iP+G6OYd6IofWNbhCAvdI4rF7f6+9D/Ib
+P98NmcIpvB2S2rZsLl3Vvb+cNCuDFA/kw+O48Ek4s20dXIgoNQL1YNKNvTNntf9M
++iZC+JuTplyKB/vtqOvySHIje07GJrfj/QoMVtWvlpHdmwj8/u34qshEjxWgQB0+
+p2N8P82l+5YGBP+b9dZh+jzo7n06pP5eZD3o2AoqFBTNWQjvopeePwYg1CdTsII=
+=+Yx9
+-----END PGP SIGNATURE-----
+
+--IS0zKkzwUGydFO0o--
+
+--===============3082710857591472253==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -161,4 +251,4 @@ _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linux-foundation.org/mailman/listinfo/virtualization
---===============1957387557649889097==--
+--===============3082710857591472253==--
