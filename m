@@ -1,19 +1,15 @@
-From: Raghavendra D Prabhu <rprabhu@wnohang.net>
-Subject: Re: [Xen-devel] Re: [PATCH] Modpost section mismatch fix
-Date: Fri, 8 Jul 2011 02:34:29 +0530
-Message-ID: <20110707210429.GD4394__16290.3692377315$1310072718$gmane$org@Xye>
-References: <1309769388.634.51.camel@zakaz.uk.xensource.com>
-	<20110704221646.GB4490@Xye> <20110705141323.GG2972@dumpdata.com>
-	<20110705142731.GA4463@Xye> <20110705144846.GA13548@dumpdata.com>
-	<20110705213243.GA3647@dumpdata.com> <20110707154648.GA4394@Xye>
-	<20110707162454.GA8164@dumpdata.com> <20110707194851.GB4394@Xye>
-	<20110707200949.GA25216@dumpdata.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH 2/2] vhost: set log when updating used flags or avail event
+Date: Fri, 08 Jul 2011 18:38:08 +0800
+Message-ID: <4E16DE10.4050509__15495.742209214$1310121492$gmane$org@redhat.com>
+References: <20110621100426.6777.68855.stgit@dhcp-91-7.nay.redhat.com.englab.nay.redhat.com>
+	<20110621100438.6777.20695.stgit@dhcp-91-7.nay.redhat.com.englab.nay.redhat.com>
+	<20110707125728.GA2469@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20110707200949.GA25216@dumpdata.com>
+In-Reply-To: <20110707125728.GA2469@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -23,59 +19,95 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Cc: linux-kernel@vger.kernel.org, Ian Campbell <ijc@hellion.org.uk>, xen-devel@lists.xensource.com, jeremy.fitzhardinge@citrix.com, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-* On Thu, Jul 07, 2011 at 04:09:49PM -0400, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com> wrote:
->On Fri, Jul 08, 2011 at 01:18:51AM +0530, Raghavendra D Prabhu wrote:
->> * On Thu, Jul 07, 2011 at 12:24:54PM -0400, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com> wrote:
->> >>Tested it. Works now.
-
->> >Ok, Stuck Tested-by on the patch. Hopefully Linus hasn't pulled it yet.
->> Ok.
-
->> >>Reviewed-by: Raghavendra Prabhu <rprabhu@wnohang.net>
-
->> >>Also,
->> >>The condition for acpi_gsi_to_irq can be removed since it always returns zero.
-
->> >The function might in the future return something that is non-zero
->> >and we should guard for it. Also you make 'irq' be unsigned which is not
->> >good as the IRQ 0 is a valid value - and with making it unsigned if it is
->> >set to -1 (the -1 is the invalid IRQ value) the check for 'irq != gsi'
->> >will be true and and we will pass in -1 casted to unsigned. That is a
->> >large value and not the right thing we want to pass to xen_register_gsi.
-
->> My rationale for the unsigned part was that acpi_gsi_to_irq always
->> assigns a positive value (>= 0) to the irq passed (as unsigned
->> argument). But even otherwise that shouldn't make much of difference I guess.
-
->> Also,
->> I had sent another change (oneline) for the file
->> arch/x86/xen/platform-pci-unplug.c for check_platform_magic, looks like that has not gone into
->> the pull request for Linus.
+On 07/07/2011 08:57 PM, Michael S. Tsirkin wrote:
+> Subject: vhost: used ring logging cleanup
 >
->Oh, I didn't see it. Did you CC me on it? Can you bounce it to me please?
+> remove extra log bit setting for used ring updates: it's no longer
+> necessary.  Also, use vhost_avail_event instead of duplicating offset
+> math.
 >
-=========================
-  diff --git a/arch/x86/xen/platform-pci-unplug.c b/arch/x86/xen/platform-pci-unplug.c
-  index 25c52f9..ffcf261 100644
-  --- a/arch/x86/xen/platform-pci-unplug.c
-  +++ b/arch/x86/xen/platform-pci-unplug.c
-  @@ -35,7 +35,7 @@ EXPORT_SYMBOL_GPL(xen_platform_pci_unplug);
-   #ifdef CONFIG_XEN_PVHVM
-   static int xen_emul_unplug;
+> Signed-off-by: Michael S. Tsirkin<mst@redhat.com>
+> ---
+>
+>> We need set log when updating used flags and avail event. Otherwise guest may
+>> see stale values after migration and then do not exit or exit unexpectedly.
+>>
+>> Signed-off-by: Jason Wang<jasowang@redhat.com>
+> OK but this means we set the log twice now.
+> Also, hardcording offset is not as nice as using
+> vhost_avail_event. So I think the below is needed
+> on top. Comments?
+>
 
-  -static int __init check_platform_magic(void)
-  +static int check_platform_magic(void)
-   {
-          short magic;
-          char protocol;
-  --
+Right, thanks for the cleanup.
 
---------------------------
-Raghavendra Prabhu
-GPG Id : 0xD72BE977
-Fingerprint: B93F EBCB 8E05 7039 CD3C A4B8 A616 DCA1 D72B E977
-www: wnohang.net
+>   drivers/vhost/vhost.c |   29 +++++++++--------------------
+>   1 files changed, 9 insertions(+), 20 deletions(-)
+>
+> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+> index 540591b..c5f96ba 100644
+> --- a/drivers/vhost/vhost.c
+> +++ b/drivers/vhost/vhost.c
+> @@ -946,14 +946,16 @@ int vhost_log_write(struct vhost_virtqueue *vq, struct vhost_log *log,
+>
+>   static int vhost_update_used_flags(struct vhost_virtqueue *vq)
+>   {
+> +	void __user *used;
+>   	if (put_user(vq->used_flags,&vq->used->flags)<  0)
+>   		return -EFAULT;
+>   	if (unlikely(vq->log_used)) {
+>   		/* Make sure the flag is seen before log. */
+>   		smp_wmb();
+>   		/* Log used flag write. */
+> -		log_write(vq->log_base,
+> -			  vq->log_addr + offsetof(struct vring_used, flags),
+> +		used =&vq->used->flags;
+> +		log_write(vq->log_base, vq->log_addr +
+> +			  (used - (void __user *)vq->used),
+>   			  sizeof vq->used->flags);
+>   		if (vq->log_ctx)
+>   			eventfd_signal(vq->log_ctx, 1);
+> @@ -966,13 +968,14 @@ static int vhost_update_avail_event(struct vhost_virtqueue *vq, u16 avail_event)
+>   	if (put_user(vq->avail_idx, vhost_avail_event(vq)))
+>   		return -EFAULT;
+>   	if (unlikely(vq->log_used)) {
+> +		void __user *used;
+>   		/* Make sure the event is seen before log. */
+>   		smp_wmb();
+>   		/* Log avail event write */
+> -		log_write(vq->log_base,
+> -			  vq->log_addr + offsetof(struct vring_used,
+> -						  ring[vq->num]),
+> -			  sizeof avail_event);
+> +		used = vhost_avail_event(vq);
+> +		log_write(vq->log_base, vq->log_addr +
+> +			  (used - (void __user *)vq->used),
+> +			  sizeof *vhost_avail_event(vq));
+>   		if (vq->log_ctx)
+>   			eventfd_signal(vq->log_ctx, 1);
+>   	}
+> @@ -1474,20 +1477,6 @@ bool vhost_enable_notify(struct vhost_dev *dev, struct vhost_virtqueue *vq)
+>   			return false;
+>   		}
+>   	}
+> -	if (unlikely(vq->log_used)) {
+> -		void __user *used;
+> -		/* Make sure data is seen before log. */
+> -		smp_wmb();
+> -		used = vhost_has_feature(dev, VIRTIO_RING_F_EVENT_IDX) ?
+> -			&vq->used->flags : vhost_avail_event(vq);
+> -		/* Log used flags or event index entry write. Both are 16 bit
+> -		 * fields. */
+> -		log_write(vq->log_base, vq->log_addr +
+> -			   (used - (void __user *)vq->used),
+> -			  sizeof(u16));
+> -		if (vq->log_ctx)
+> -			eventfd_signal(vq->log_ctx, 1);
+> -	}
+>   	/* They could have slipped one in as we were doing that: make
+>   	 * sure it's written, then check again. */
+>   	smp_mb();
