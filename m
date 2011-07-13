@@ -1,8 +1,8 @@
 From: Ioan Raicu <iraicu@cs.iit.edu>
-Subject: CFP: The 21st Int. ACM Symp. on High-Performance Parallel and
-	Distributed Computing (HPDC'12) 2012
-Date: Tue, 12 Jul 2011 15:51:46 -0500
-Message-ID: <4E1CB3E2.8080000@cs.iit.edu>
+Subject: CFP: 12th IEEE/ACM Int. Symp. on Cluster,
+	Grid and Cloud,Computing (CCGrid) 2012
+Date: Wed, 13 Jul 2011 01:21:18 -0500
+Message-ID: <4E1D395E.3030207@cs.iit.edu>
 Reply-To: iraicu@cs.iit.edu
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -20,101 +20,134 @@ Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-                       **** CALL FOR PAPERS ****
+12th IEEE/ACM International Symposium on Cluster, Grid and Cloud
+Computing (CCGrid 2012) Ottawa, Canada
 
-                  **** CALL FOR WORKSHOP PROPOSALS ****
+May 13-16, 2012
 
-                 The 21st International ACM Symposium on
-          High-Performance Parallel and Distributed Computing
-                             (HPDC'12)
-
-           Delft University of Technology, Delft, the Netherlands
-
-                          June 18-22, 2012
-
-                     http://www.hpdc.org/2012
+http://www.cloudbus.org/ccgrid2012
 
 
-The ACM International Symposium on High-Performance Parallel and Distributed Computing (HPDC)
-is the premier annual conference on the design, the implementation, the evaluation, and
-the use of parallel and distributed systems for high-end computing. HPDC'12 will take place
-in Delft, the Netherlands, a historical, picturesque city that is less than one hour away
-from Amsterdam-Schiphol airport. The conference will be held on June 20-22 (Wednesday to
-Friday), with affiliated workshops taking place on June 18-19 (Monday and Tuesday).
+CALL FOR PAPERS
+
+Rapid advances in processing, communication and systems/middleware
+technologies are leading to new paradigms and platforms for computing,
+ranging from computing Clusters to widely distributed Grid and
+emerging Clouds. CCGrid is a series of very successful conferences,
+sponsored by the IEEE Computer Society Technical Committee on Scalable
+Computing (TCSC) and ACM, with the overarching goal of bringing
+together international researchers, developers, and users and to
+provide an international forum to present leading research activities
+and results on a broad range of topics related to these platforms and
+paradigms and their applications. The conference features keynotes,
+technical presentations, posters and research demos, workshops,
+tutorials, as well as the SCALE challenges featuring live
+demonstrations.
+
+In 2012, CCGrid will come to Canada for the first time and will be
+held in Ottawa, the capital city. CCGrid 2012 will have a focus on
+important and immediate issues that are significantly influencing all
+aspects of cluster, cloud and grid computing. Topics of interest
+include, but are not limited to:
+
+  * Applications and Experiences: Applications to real and complex
+    problems in science, engineering, business and society; User
+    studies; Experiences with large-scale deployments systems or
+    applications.
+
+  * Architecture: System architectures, Design and deployment.
+
+  * Autonomic Computing and Cyberinfrastructure: Self managed behavior,
+    models and technologies; Autonomic paradigms and approaches
+    (control-based, bio-inspired, emergent, etc.); Bio-inspired
+    approaches to management; SLA definition and enforcement;
+
+  * Performance Modeling and Evaluation: Performance models; Monitoring
+    and evaluation tools, Analysis of system/application performance;
+    Benchmarks and testbeds.
+
+  * Programming Models, Systems, and Fault-Tolerant Computing:
+    Programming models for cluster, clouds and grid computing; fault
+    tolerant infrastructure and algorithms; systems software to enable
+    efficient computing.
+
+  * Multicore and Accelerator-based Computing: Software and application
+    techniques to utilize multicore architectures and
+    accelerators/heterogeneous computing systems.
+
+  * Scheduling and Resource Management: Techniques to schedule jobs and
+    resources on clusters, clouds and grid computing platforms.
+
+  * Cloud Computing: Cloud architectures; Software tools and techniques
+    for clouds.
 
 
-**** SUBMISSION DEADLINES ****
-Abstracts:    16 January 2012
-Papers:       23 January 2012 (No extensions!)
+PAPER SUBMISSION
+
+Authors are invited to submit papers electronically. Submitted
+manuscripts should be structured as technical papers and may not
+exceed 8 letter size (8.5 x 11) pages including figures, tables and
+references using the IEEE format for conference proceedings (print
+area of 6-1/2 inches (16.51 cm) wide by 8-7/8 inches (22.51 cm) high,
+two-column format with columns 3-1/16 inches (7.85 cm) wide with a 3/8
+inch (0.81 cm) space between them, single-spaced 10-point Times fully
+justified text). Submissions not conforming to these guidelines may be
+returned without review. Authors should submit the manuscript in PDF
+format and make sure that the file will print on a printer that uses
+letter size (8.5 x 11) paper. The official language of the meeting is
+English. All manuscripts will be reviewed and will be judged on
+correctness, originality, technical strength, significance, quality of
+presentation, and interest and relevance to the conference attendees.
+
+Submitted papers must represent original unpublished research that is
+not currently under review for any other conference or journal. Papers
+not following these guidelines will be rejected without review and
+further action may be taken, including (but not limited to)
+notifications sent to the heads of the institutions of the authors and
+sponsors of the conference. Submissions received after the due date,
+exceeding the page limit, or not appropriately structured may not be
+considered. Authors may contact the conference chairs for more
+information. The proceedings will be published through the IEEE
+Computer Society Press, USA and will be made available online through
+the IEEE Digital Library.
+
+Submission Link:
+https://www.easychair.org/account/signin.cgi?conf=ccgrid2012
 
 
-**** HPDC'12 GENERAL CHAIR ****
-Dick Epema, Delft University of Technology, Delft, the Netherlands
+CHAIRS
+
+General Chair
+  * Shikharesh Majumdar, Carleton University, Canada
+
+Program Committee Co-Chairs
+  * Rajkumar Buyya, University of Melbourne, Australia
+  * Pavan Balaji, Argonne National Laboratory, USA
+
+Program Committee Vice-chairs
+  * Daniel S. Katz (Applications and Experiences)
+  * Dhabaleswar K. Panda (Architecture)
+  * Manish Parashar (Middleware, Autonomic Computing, and 
+Cyberinfrastructure)
+  * Ahmad Afsahi (Performance Modeling and Analysis)
+  * Xian-He Sun (Performance Measurement and Evaluation)
+  * William Gropp (Programming Models, Systems, and Fault-Tolerant 
+computing)
+  * David Bader (Multicore and Accelerator-based Computing)
+  * Thomas Fahringer (Scheduling and Resource Management)
+  * Ignacio Martin Llorente and Madhusudhan Govindaraju (Cloud Computing)
+
+Honorary Chair
+  * Geoffrey Fox, Indiana University, USA
 
 
-**** HPDC'12 PROGRAM CO-CHAIRS ****
-Thilo Kielmann, Vrije Universiteit, Amsterdam, the Netherlands
-Matei Ripeanu, The University of British Columbia, Vancouver, Canada
+IMPORTANT DATES
 
+   Papers Due:             25 November 2011
+   Notification of Acceptance:     30 January 2012
+   Camera Ready Papers Due:     27 February 2012
 
-**** HPDC'12 WORKSHOPS CHAIR ****
-Alexandru Iosup, Delft University of Technology, Delft, the Netherlands
-
-
-**** SCOPE AND TOPICS ****
-Submissions are welcomed on all forms of high-performance parallel and distributed computing,
-including but not limited to clusters, clouds, grids, utility computing, data-intensive
-computing, and massively multicore systems. Submissions that explore solutions to estimate
-and reduce the energy footprint of such systems are particularly encouraged. All papers
-will be evaluated for their originality, potential impact, correctness, quality of
-presentation, appropriate presentation of related work, and relevance to the conference,
-with a strong preference for rigorous results obtained in operational parallel and
-distributed systems.
-
-The topics of interest of the conference include, but are not limited to, the following,
-in the context of high-performance parallel and distributed computing:
-
-    - Systems, networks, and architectures for high-end computing
-    - Massively multicore systems
-    - Virtualization of machines, networks, and storage
-    - Programming languages and environments
-    - I/O, storage systems, and data management
-    - Resource management, energy and cost minimizations
-    - Performance modeling and analysis
-    - Fault tolerance, reliability, and availability
-    - Data-intensive computing
-    - Applications of parallel and distributed computing
-
-
-**** PAPER SUBMISSION GUIDELINES ****
-Authors are invited to submit technical papers of at most 12 pages in PDF format, including
-figures and references. Papers should be formatted in the ACM Proceedings Style and
-submitted via the conference web site. No changes to the margins, spacing, or font sizes as
-specified by the style file are allowed. Accepted papers will appear in the conference
-proceedings, and will be incorporated into the ACM Digital Library. A limited number of
-papers will be accepted as posters.
-
-Papers must be self-contained and provide the technical substance required for the program
-committee to evaluate their contributions. Submitted papers must be original work that has
-not appeared in and is not under consideration for another conference or a journal. See the
-ACM Prior Publication Policy for more details.
-
-
-**** IMPORTANT DATES ****
-Workshop Proposals Due:			3 October 2011
-Abstracts Due:				16 January 2012
-Papers Due:				23 January 2012 (No extensions!)
-Reviews Released to Authors:		8 March 2012
-Author Rebuttals Due:			12 March 2012
-Author Notifications:			19 March 2012
-Final Papers Due:			16 April 2012
-Conference Dates:			18-22 June 2012
-
-
-**** CALL FOR WORKSHOP PROPOSALS ****
-Workshops affiliated with HPDC will be held on June 18-19 (Monday and Tuesday). For more
-information on the workshops and for the complete Call for Workshop Proposals, see the
-workshops page on the conference website.
+   Sponsors: IEEE Computer Society (TCSE) & ACM SIGARCH (approval pending)
 
 -- 
 =================================================================
