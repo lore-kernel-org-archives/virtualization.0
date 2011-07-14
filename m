@@ -1,13 +1,13 @@
-From: Ioan Raicu <iraicu@cs.iit.edu>
-Subject: CFP: 12th IEEE/ACM Int. Symp. on Cluster,
-	Grid and Cloud,Computing (CCGrid) 2012
-Date: Wed, 13 Jul 2011 01:21:18 -0500
-Message-ID: <4E1D395E.3030207@cs.iit.edu>
-Reply-To: iraicu@cs.iit.edu
+From: Roopa Prabhu <roprabhu@cisco.com>
+Subject: Re: RFT: virtio_net: limit xmit polling
+Date: Thu, 14 Jul 2011 12:38:05 -0700
+Message-ID: <CA4493AD.2E273%roprabhu__42054.6827292584$1310672437$gmane$org@cisco.com>
+References: <20110629084206.GA14627@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20110629084206.GA14627@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -17,151 +17,126 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>, Tom Lendacky <tahm@linux.vnet.ibm.com>
+Cc: Krishna Kumar2 <krkumar2@in.ibm.com>, habanero@linux.vnet.ibm.com, lguest@lists.ozlabs.org, Shirley Ma <xma@us.ibm.com>, kvm@vger.kernel.org, Carsten Otte <cotte@de.ibm.com>, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, steved@us.ibm.com, Christian Borntraeger <borntraeger@de.ibm.com>, netdev@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux390@de.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-12th IEEE/ACM International Symposium on Cluster, Grid and Cloud
-Computing (CCGrid 2012) Ottawa, Canada
-
-May 13-16, 2012
-
-http://www.cloudbus.org/ccgrid2012
 
 
-CALL FOR PAPERS
 
-Rapid advances in processing, communication and systems/middleware
-technologies are leading to new paradigms and platforms for computing,
-ranging from computing Clusters to widely distributed Grid and
-emerging Clouds. CCGrid is a series of very successful conferences,
-sponsored by the IEEE Computer Society Technical Committee on Scalable
-Computing (TCSC) and ACM, with the overarching goal of bringing
-together international researchers, developers, and users and to
-provide an international forum to present leading research activities
-and results on a broad range of topics related to these platforms and
-paradigms and their applications. The conference features keynotes,
-technical presentations, posters and research demos, workshops,
-tutorials, as well as the SCALE challenges featuring live
-demonstrations.
+On 6/29/11 1:42 AM, "Michael S. Tsirkin" <mst@redhat.com> wrote:
 
-In 2012, CCGrid will come to Canada for the first time and will be
-held in Ottawa, the capital city. CCGrid 2012 will have a focus on
-important and immediate issues that are significantly influencing all
-aspects of cluster, cloud and grid computing. Topics of interest
-include, but are not limited to:
+> On Tue, Jun 28, 2011 at 11:08:07AM -0500, Tom Lendacky wrote:
+>> On Sunday, June 19, 2011 05:27:00 AM Michael S. Tsirkin wrote:
+>>> OK, different people seem to test different trees.  In the hope to get
+>>> everyone on the same page, I created several variants of this patch so
+>>> they can be compared. Whoever's interested, please check out the
+>>> following, and tell me how these compare:
+>>> 
+>>> kernel:
+>>> 
+>>> git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git
+>>> 
+>>> virtio-net-limit-xmit-polling/base - this is net-next baseline to test
+>>> against virtio-net-limit-xmit-polling/v0 - fixes checks on out of capacity
+>>> virtio-net-limit-xmit-polling/v1 - previous revision of the patch
+>>>             this does xmit,free,xmit,2*free,free
+>>> virtio-net-limit-xmit-polling/v2 - new revision of the patch
+>>>             this does free,xmit,2*free,free
+>>> 
+>> 
+>> Here's a summary of the results.  I've also attached an ODS format
+>> spreadsheet
+>> (30 KB in size) that might be easier to analyze and also has some pinned VM
+>> results data.  I broke the tests down into a local guest-to-guest scenario
+>> and a remote host-to-guest scenario.
+>> 
+>> Within the local guest-to-guest scenario I ran:
+>>   - TCP_RR tests using two different messsage sizes and four different
+>>     instance counts among 1 pair of VMs and 2 pairs of VMs.
+>>   - TCP_STREAM tests using four different message sizes and two different
+>>     instance counts among 1 pair of VMs and 2 pairs of VMs.
+>> 
+>> Within the remote host-to-guest scenario I ran:
+>>   - TCP_RR tests using two different messsage sizes and four different
+>>     instance counts to 1 VM and 4 VMs.
+>>   - TCP_STREAM and TCP_MAERTS tests using four different message sizes and
+>>     two different instance counts to 1 VM and 4 VMs.
+>> over a 10GbE link.
+> 
+> roprabhu, Tom,
+> 
+> Thanks very much for the testing. So on the first glance
+> one seems to see a significant performance gain in V0 here,
+> and a slightly less significant in V2, with V1
+> being worse than base. But I'm afraid that's not the
+> whole story, and we'll need to work some more to
+> know what really goes on, please see below.
+> 
+> 
+> Some comments on the results: I found out that V0 because of mistake
+> on my part was actually almost identical to base.
+> I pushed out virtio-net-limit-xmit-polling/v1a instead that
+> actually does what I intended to check. However,
+> the fact we get such a huge distribution in the results by Tom
+> most likely means that the noise factor is very large.
+> 
+> 
+> From my experience one way to get stable results is to
+> divide the throughput by the host CPU utilization
+> (measured by something like mpstat).
+> Sometimes throughput doesn't increase (e.g. guest-host)
+> by CPU utilization does decrease. So it's interesting.
+> 
+> 
+> Another issue is that we are trying to improve the latency
+> of a busy queue here. However STREAM/MAERTS tests ignore the latency
+> (more or less) while TCP_RR by default runs a single packet per queue.
+> Without arguing about whether these are practically interesting
+> workloads, these results are thus unlikely to be significantly affected
+> by the optimization in question.
+> 
+> What we are interested in, thus, is either TCP_RR with a -b flag
+> (configure with  --enable-burst) or multiple concurrent
+> TCP_RRs.
+> 
+> 
+> 
+Michael, below are some numbers I got from one round of runs.
+Thanks,
+Roopa
 
-  * Applications and Experiences: Applications to real and complex
-    problems in science, engineering, business and society; User
-    studies; Experiences with large-scale deployments systems or
-    applications.
+256byte req/response.
+Vcpus and irqs were pinned to 4 cores and the cpu utilization is
+Avg across 4 cores.
 
-  * Architecture: System architectures, Design and deployment.
-
-  * Autonomic Computing and Cyberinfrastructure: Self managed behavior,
-    models and technologies; Autonomic paradigms and approaches
-    (control-based, bio-inspired, emergent, etc.); Bio-inspired
-    approaches to management; SLA definition and enforcement;
-
-  * Performance Modeling and Evaluation: Performance models; Monitoring
-    and evaluation tools, Analysis of system/application performance;
-    Benchmarks and testbeds.
-
-  * Programming Models, Systems, and Fault-Tolerant Computing:
-    Programming models for cluster, clouds and grid computing; fault
-    tolerant infrastructure and algorithms; systems software to enable
-    efficient computing.
-
-  * Multicore and Accelerator-based Computing: Software and application
-    techniques to utilize multicore architectures and
-    accelerators/heterogeneous computing systems.
-
-  * Scheduling and Resource Management: Techniques to schedule jobs and
-    resources on clusters, clouds and grid computing platforms.
-
-  * Cloud Computing: Cloud architectures; Software tools and techniques
-    for clouds.
-
-
-PAPER SUBMISSION
-
-Authors are invited to submit papers electronically. Submitted
-manuscripts should be structured as technical papers and may not
-exceed 8 letter size (8.5 x 11) pages including figures, tables and
-references using the IEEE format for conference proceedings (print
-area of 6-1/2 inches (16.51 cm) wide by 8-7/8 inches (22.51 cm) high,
-two-column format with columns 3-1/16 inches (7.85 cm) wide with a 3/8
-inch (0.81 cm) space between them, single-spaced 10-point Times fully
-justified text). Submissions not conforming to these guidelines may be
-returned without review. Authors should submit the manuscript in PDF
-format and make sure that the file will print on a printer that uses
-letter size (8.5 x 11) paper. The official language of the meeting is
-English. All manuscripts will be reviewed and will be judged on
-correctness, originality, technical strength, significance, quality of
-presentation, and interest and relevance to the conference attendees.
-
-Submitted papers must represent original unpublished research that is
-not currently under review for any other conference or journal. Papers
-not following these guidelines will be rejected without review and
-further action may be taken, including (but not limited to)
-notifications sent to the heads of the institutions of the authors and
-sponsors of the conference. Submissions received after the due date,
-exceeding the page limit, or not appropriately structured may not be
-considered. Authors may contact the conference chairs for more
-information. The proceedings will be published through the IEEE
-Computer Society Press, USA and will be made available online through
-the IEEE Digital Library.
-
-Submission Link:
-https://www.easychair.org/account/signin.cgi?conf=ccgrid2012
-
-
-CHAIRS
-
-General Chair
-  * Shikharesh Majumdar, Carleton University, Canada
-
-Program Committee Co-Chairs
-  * Rajkumar Buyya, University of Melbourne, Australia
-  * Pavan Balaji, Argonne National Laboratory, USA
-
-Program Committee Vice-chairs
-  * Daniel S. Katz (Applications and Experiences)
-  * Dhabaleswar K. Panda (Architecture)
-  * Manish Parashar (Middleware, Autonomic Computing, and 
-Cyberinfrastructure)
-  * Ahmad Afsahi (Performance Modeling and Analysis)
-  * Xian-He Sun (Performance Measurement and Evaluation)
-  * William Gropp (Programming Models, Systems, and Fault-Tolerant 
-computing)
-  * David Bader (Multicore and Accelerator-based Computing)
-  * Thomas Fahringer (Scheduling and Resource Management)
-  * Ignacio Martin Llorente and Madhusudhan Govindaraju (Cloud Computing)
-
-Honorary Chair
-  * Geoffrey Fox, Indiana University, USA
+base:
+Numof concurrent TCP_RRs    Num of transactions/sec  host cpu-util(%)
+1                            7982.93                        15.72
+25                           67873                         28.84
+50                           112534                        52.25
+100                          192057                       86.54
 
 
-IMPORTANT DATES
+v1
+Numof concurrent TCP_RRs    Num of transactions/sec    host cpu-util(%)
+1                           7970.94                       10.8
+25                          65496.8                       28
+50                          109858                        53.22
+100                         190155                        87.5
 
-   Papers Due:             25 November 2011
-   Notification of Acceptance:     30 January 2012
-   Camera Ready Papers Due:     27 February 2012
 
-   Sponsors: IEEE Computer Society (TCSE) & ACM SIGARCH (approval pending)
+v1a
+Numof concurrent TCP_RRs    Num of transactions/sec   host cpu-util (%)
+1                           7979.81                       9.5
+25                          66786.1                       28
+50                          109552                        51
+100                         190876                        88
 
--- 
-=================================================================
-Ioan Raicu, Ph.D.
-Assistant Professor, Illinois Institute of Technology (IIT)
-Guest Research Faculty, Argonne National Laboratory (ANL)
-=================================================================
-Data-Intensive Distributed Systems Laboratory, CS/IIT
-Distributed Systems Laboratory, MCS/ANL
-=================================================================
-Cel:    1-847-722-0876
-Office: 1-312-567-5704
-Email:  iraicu@cs.iit.edu
-Web:    http://www.cs.iit.edu/~iraicu/
-Web:    http://datasys.cs.iit.edu/
-=================================================================
-=================================================================
+
+v2
+Numof concurrent TCP_RRs    Num of transactions/sec   host cpu-util (%)
+1                            7969.87                     16.5
+25                           67780.1                     28.44
+50                           114966                      54.29
+100                          177982                      79.9
