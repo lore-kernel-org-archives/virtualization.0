@@ -1,8 +1,7 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 005/117] Staging: hv: vmbus: Introduce vmbus ID space in
-	struct hv_driver
-Date: Fri, 15 Jul 2011 10:45:53 -0700
-Message-ID: <1310752065-27895-5-git-send-email-kys@microsoft.com>
+Subject: [PATCH 016/117] Staging: hv: mouse: Add the MODULE_DEVICE_TABLE() line
+Date: Fri, 15 Jul 2011 10:46:04 -0700
+Message-ID: <1310752065-27895-16-git-send-email-kys@microsoft.com>
 References: <1310752024-27854-1-git-send-email-kys@microsoft.com>
 	<1310752065-27895-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -23,34 +22,26 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-In preparation for supporting auto-loading Hyper-V drivers
-using vmbus specific aliases, introduce vmbus ID space in struct hv_driver.
+Add the MODULE_DEVICE_TABLE() line to hv_mouse.c.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- drivers/staging/hv/hyperv.h |    2 ++
+ drivers/staging/hv/hv_mouse.c |    2 ++
  1 files changed, 2 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/staging/hv/hyperv.h b/drivers/staging/hv/hyperv.h
-index 399d9fe..b8199f4 100644
---- a/drivers/staging/hv/hyperv.h
-+++ b/drivers/staging/hv/hyperv.h
-@@ -32,6 +32,7 @@
- #include <linux/workqueue.h>
- #include <linux/completion.h>
- #include <linux/device.h>
-+#include <linux/mod_devicetable.h>
+diff --git a/drivers/staging/hv/hv_mouse.c b/drivers/staging/hv/hv_mouse.c
+index b8514fd..d6441d6 100644
+--- a/drivers/staging/hv/hv_mouse.c
++++ b/drivers/staging/hv/hv_mouse.c
+@@ -931,6 +931,8 @@ static const struct hv_vmbus_device_id id_table[] = {
+ 	},
+ };
  
- 
- #include <asm/hyperv.h>
-@@ -805,6 +806,7 @@ struct hv_driver {
- 
- 	/* the device type supported by this driver */
- 	uuid_le dev_type;
-+	const struct hv_vmbus_device_id *id_table;
- 
- 	struct device_driver driver;
- 
++MODULE_DEVICE_TABLE(vmbus, id_table);
++
+ static struct  hv_driver mousevsc_drv = {
+ 	.id_table = id_table,
+ 	.probe = mousevsc_probe,
 -- 
 1.7.4.1
