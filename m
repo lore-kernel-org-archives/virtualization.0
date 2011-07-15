@@ -1,1064 +1,656 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 117/117] Staging: hv: blkvsc: Get rid of blkvsc_drv.c as this code is not used
-Date: Fri, 15 Jul 2011 10:47:45 -0700
-Message-ID: <1310752065-27895-117-git-send-email-kys@microsoft.com>
+Subject: [PATCH 002/117] Staging: hv: Replace struct hv_guid with the uuid
+	type already defined in Linux
+Date: Fri, 15 Jul 2011 10:45:50 -0700
+Message-ID: <1310752065-27895-2-git-send-email-kys@microsoft.com>
 References: <1310752024-27854-1-git-send-email-kys@microsoft.com>
- <1310752065-27895-1-git-send-email-kys@microsoft.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+	<1310752065-27895-1-git-send-email-kys@microsoft.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <devel-bounces@linuxdriverproject.org>
 In-Reply-To: <1310752065-27895-1-git-send-email-kys@microsoft.com>
-Sender: linux-kernel-owner@vger.kernel.org
+List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
+	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
+List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
+List-Post: <mailto:devel@linuxdriverproject.org>
+List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
+List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
+	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
+Sender: devel-bounces@linuxdriverproject.org
+Errors-To: devel-bounces@linuxdriverproject.org
 To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org
-Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>
+Cc: Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Get rid of blkvsc_drv.c as this code is not used.
+Replace struct hv_guid with the uuid type already defined in Linux.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- drivers/staging/hv/blkvsc_drv.c | 1034 ---------------------------------------
- 1 files changed, 0 insertions(+), 1034 deletions(-)
- delete mode 100644 drivers/staging/hv/blkvsc_drv.c
+ drivers/staging/hv/blkvsc_drv.c   |   18 +++---
+ drivers/staging/hv/channel.c      |    4 +-
+ drivers/staging/hv/channel_mgmt.c |   50 ++++++-------
+ drivers/staging/hv/hv_mouse.c     |    6 +-
+ drivers/staging/hv/hyperv.h       |   24 +++----
+ drivers/staging/hv/hyperv_vmbus.h |    8 +-
+ drivers/staging/hv/netvsc.c       |    6 +-
+ drivers/staging/hv/storvsc_drv.c  |    6 +-
+ drivers/staging/hv/vmbus_drv.c    |  142 ++++++++++++++++++------------------
+ 9 files changed, 129 insertions(+), 135 deletions(-)
 
 diff --git a/drivers/staging/hv/blkvsc_drv.c b/drivers/staging/hv/blkvsc_drv.c
-deleted file mode 100644
-index eab643a..0000000
+index d286b22..018b293 100644
 --- a/drivers/staging/hv/blkvsc_drv.c
-+++ /dev/null
-@@ -1,1034 +0,0 @@
--/*
-- * Copyright (c) 2009, Microsoft Corporation.
-- *
-- * This program is free software; you can redistribute it and/or modify it
-- * under the terms and conditions of the GNU General Public License,
-- * version 2, as published by the Free Software Foundation.
-- *
-- * This program is distributed in the hope it will be useful, but WITHOUT
-- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
-- * more details.
-- *
-- * You should have received a copy of the GNU General Public License along with
-- * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
-- * Place - Suite 330, Boston, MA 02111-1307 USA.
-- *
-- * Authors:
-- *   Haiyang Zhang <haiyangz@microsoft.com>
-- *   Hank Janssen  <hjanssen@microsoft.com>
-- *   K. Y. Srinivasan <kys@microsoft.com>
-- */
--#include <linux/init.h>
--#include <linux/module.h>
--#include <linux/device.h>
--#include <linux/blkdev.h>
--#include <linux/major.h>
--#include <linux/delay.h>
--#include <linux/hdreg.h>
--#include <linux/slab.h>
--#include <scsi/scsi.h>
--#include <scsi/scsi_cmnd.h>
--#include <scsi/scsi_eh.h>
--#include <scsi/scsi_dbg.h>
--
--#include "hyperv.h"
--#include "hyperv_storage.h"
--
--
--#define BLKVSC_MINORS	64
--
--enum blkvsc_device_type {
--	UNKNOWN_DEV_TYPE,
--	HARDDISK_TYPE,
--	DVD_TYPE,
++++ b/drivers/staging/hv/blkvsc_drv.c
+@@ -112,8 +112,8 @@ struct block_device_context {
+ static const char *drv_name = "blkvsc";
+ 
+ /* {32412632-86cb-44a2-9b5c-50d1417354f5} */
+-static const struct hv_guid dev_type = {
+-	.data = {
++static const uuid_le dev_type = {
++	.b = {
+ 		0x32, 0x26, 0x41, 0x32, 0xcb, 0x86, 0xa2, 0x44,
+ 		0x9b, 0x5c, 0x50, 0xd1, 0x41, 0x73, 0x54, 0xf5
+ 	}
+@@ -155,13 +155,13 @@ static int blkvsc_device_add(struct hv_device *device,
+ 	 * id. For IDE devices, the device instance id is formatted as
+ 	 * <bus id> * - <device id> - 8899 - 000000000000.
+ 	 */
+-	device_info->path_id = device->dev_instance.data[3] << 24 |
+-			     device->dev_instance.data[2] << 16 |
+-			     device->dev_instance.data[1] << 8  |
+-			     device->dev_instance.data[0];
++	device_info->path_id = device->dev_instance.b[3] << 24 |
++			     device->dev_instance.b[2] << 16 |
++			     device->dev_instance.b[1] << 8  |
++			     device->dev_instance.b[0];
+ 
+-	device_info->target_id = device->dev_instance.data[5] << 8 |
+-			       device->dev_instance.data[4];
++	device_info->target_id = device->dev_instance.b[5] << 8 |
++			       device->dev_instance.b[4];
+ 
+ 	return ret;
+ }
+@@ -829,7 +829,7 @@ static int blkvsc_drv_init(void)
+ 
+ 	BUILD_BUG_ON(sizeof(sector_t) != 8);
+ 
+-	memcpy(&drv->dev_type, &dev_type, sizeof(struct hv_guid));
++	memcpy(&drv->dev_type, &dev_type, sizeof(uuid_le));
+ 	drv->driver.name = drv_name;
+ 
+ 	/* The driver belongs to vmbus */
+diff --git a/drivers/staging/hv/channel.c b/drivers/staging/hv/channel.c
+index 455f47a..222adcc 100644
+--- a/drivers/staging/hv/channel.c
++++ b/drivers/staging/hv/channel.c
+@@ -81,10 +81,10 @@ void vmbus_get_debug_info(struct vmbus_channel *channel,
+ 	debuginfo->relid = channel->offermsg.child_relid;
+ 	debuginfo->state = channel->state;
+ 	memcpy(&debuginfo->interfacetype,
+-	       &channel->offermsg.offer.if_type, sizeof(struct hv_guid));
++	       &channel->offermsg.offer.if_type, sizeof(uuid_le));
+ 	memcpy(&debuginfo->interface_instance,
+ 	       &channel->offermsg.offer.if_instance,
+-	       sizeof(struct hv_guid));
++	       sizeof(uuid_le));
+ 
+ 	monitorpage = (struct hv_monitor_page *)vmbus_connection.monitor_pages;
+ 
+diff --git a/drivers/staging/hv/channel_mgmt.c b/drivers/staging/hv/channel_mgmt.c
+index bf011f3..11beb41 100644
+--- a/drivers/staging/hv/channel_mgmt.c
++++ b/drivers/staging/hv/channel_mgmt.c
+@@ -40,12 +40,12 @@ struct vmbus_channel_message_table_entry {
+ #define MAX_MSG_TYPES                    4
+ #define MAX_NUM_DEVICE_CLASSES_SUPPORTED 8
+ 
+-static const struct hv_guid
++static const uuid_le
+ 	supported_device_classes[MAX_NUM_DEVICE_CLASSES_SUPPORTED] = {
+ 	/* {ba6163d9-04a1-4d29-b605-72e2ffb1dc7f} */
+ 	/* Storage - SCSI */
+ 	{
+-		.data  = {
++		.b  = {
+ 			0xd9, 0x63, 0x61, 0xba, 0xa1, 0x04, 0x29, 0x4d,
+ 			0xb6, 0x05, 0x72, 0xe2, 0xff, 0xb1, 0xdc, 0x7f
+ 		}
+@@ -54,7 +54,7 @@ static const struct hv_guid
+ 	/* {F8615163-DF3E-46c5-913F-F2D2F965ED0E} */
+ 	/* Network */
+ 	{
+-		.data = {
++		.b = {
+ 			0x63, 0x51, 0x61, 0xF8, 0x3E, 0xDF, 0xc5, 0x46,
+ 			0x91, 0x3F, 0xF2, 0xD2, 0xF9, 0x65, 0xED, 0x0E
+ 		}
+@@ -63,7 +63,7 @@ static const struct hv_guid
+ 	/* {CFA8B69E-5B4A-4cc0-B98B-8BA1A1F3F95A} */
+ 	/* Input */
+ 	{
+-		.data = {
++		.b = {
+ 			0x9E, 0xB6, 0xA8, 0xCF, 0x4A, 0x5B, 0xc0, 0x4c,
+ 			0xB9, 0x8B, 0x8B, 0xA1, 0xA1, 0xF3, 0xF9, 0x5A
+ 		}
+@@ -72,7 +72,7 @@ static const struct hv_guid
+ 	/* {32412632-86cb-44a2-9b5c-50d1417354f5} */
+ 	/* IDE */
+ 	{
+-		.data = {
++		.b = {
+ 			0x32, 0x26, 0x41, 0x32, 0xcb, 0x86, 0xa2, 0x44,
+ 			0x9b, 0x5c, 0x50, 0xd1, 0x41, 0x73, 0x54, 0xf5
+ 		}
+@@ -80,7 +80,7 @@ static const struct hv_guid
+ 	/* 0E0B6031-5213-4934-818B-38D90CED39DB */
+ 	/* Shutdown */
+ 	{
+-		.data = {
++		.b = {
+ 			0x31, 0x60, 0x0B, 0X0E, 0x13, 0x52, 0x34, 0x49,
+ 			0x81, 0x8B, 0x38, 0XD9, 0x0C, 0xED, 0x39, 0xDB
+ 		}
+@@ -88,7 +88,7 @@ static const struct hv_guid
+ 	/* {9527E630-D0AE-497b-ADCE-E80AB0175CAF} */
+ 	/* TimeSync */
+ 	{
+-		.data = {
++		.b = {
+ 			0x30, 0xe6, 0x27, 0x95, 0xae, 0xd0, 0x7b, 0x49,
+ 			0xad, 0xce, 0xe8, 0x0a, 0xb0, 0x17, 0x5c, 0xaf
+ 		}
+@@ -96,7 +96,7 @@ static const struct hv_guid
+ 	/* {57164f39-9115-4e78-ab55-382f3bd5422d} */
+ 	/* Heartbeat */
+ 	{
+-		.data = {
++		.b = {
+ 			0x39, 0x4f, 0x16, 0x57, 0x15, 0x91, 0x78, 0x4e,
+ 			0xab, 0x55, 0x38, 0x2f, 0x3b, 0xd5, 0x42, 0x2d
+ 		}
+@@ -104,7 +104,7 @@ static const struct hv_guid
+ 	/* {A9A0F4E7-5A45-4d96-B827-8A841E8C03E6} */
+ 	/* KVP */
+ 	{
+-		.data = {
++		.b = {
+ 			0xe7, 0xf4, 0xa0, 0xa9, 0x45, 0x5a, 0x96, 0x4d,
+ 			0xb8, 0x27, 0x8a, 0x84, 0x1e, 0x8c, 0x3,  0xe6
+ 	}
+@@ -231,7 +231,7 @@ struct hyperv_service_callback hv_cb_utils[MAX_MSG_TYPES] = {
+ 	/* Shutdown */
+ 	{
+ 		.msg_type = HV_SHUTDOWN_MSG,
+-		.data = {
++		.data.b = {
+ 			0x31, 0x60, 0x0B, 0X0E, 0x13, 0x52, 0x34, 0x49,
+ 			0x81, 0x8B, 0x38, 0XD9, 0x0C, 0xED, 0x39, 0xDB
+ 		},
+@@ -242,7 +242,7 @@ struct hyperv_service_callback hv_cb_utils[MAX_MSG_TYPES] = {
+ 	/* TimeSync */
+ 	{
+ 		.msg_type = HV_TIMESYNC_MSG,
+-		.data = {
++		.data.b = {
+ 			0x30, 0xe6, 0x27, 0x95, 0xae, 0xd0, 0x7b, 0x49,
+ 			0xad, 0xce, 0xe8, 0x0a, 0xb0, 0x17, 0x5c, 0xaf
+ 		},
+@@ -252,7 +252,7 @@ struct hyperv_service_callback hv_cb_utils[MAX_MSG_TYPES] = {
+ 	/* Heartbeat */
+ 	{
+ 		.msg_type = HV_HEARTBEAT_MSG,
+-		.data = {
++		.data.b = {
+ 			0x39, 0x4f, 0x16, 0x57, 0x15, 0x91, 0x78, 0x4e,
+ 			0xab, 0x55, 0x38, 0x2f, 0x3b, 0xd5, 0x42, 0x2d
+ 		},
+@@ -261,7 +261,7 @@ struct hyperv_service_callback hv_cb_utils[MAX_MSG_TYPES] = {
+ 	/* {A9A0F4E7-5A45-4d96-B827-8A841E8C03E6} */
+ 	/* KVP */
+ 	{
+-		.data = {
++		.data.b = {
+ 			0xe7, 0xf4, 0xa0, 0xa9, 0x45, 0x5a, 0x96, 0x4d,
+ 			0xb8, 0x27, 0x8a, 0x84, 0x1e, 0x8c, 0x3,  0xe6
+ 		},
+@@ -358,12 +358,10 @@ static void vmbus_process_offer(struct work_struct *work)
+ 	spin_lock_irqsave(&vmbus_connection.channel_lock, flags);
+ 
+ 	list_for_each_entry(channel, &vmbus_connection.chn_list, listentry) {
+-		if (!memcmp(&channel->offermsg.offer.if_type,
+-			    &newchannel->offermsg.offer.if_type,
+-			    sizeof(struct hv_guid)) &&
+-		    !memcmp(&channel->offermsg.offer.if_instance,
+-			    &newchannel->offermsg.offer.if_instance,
+-			    sizeof(struct hv_guid))) {
++		if (!uuid_le_cmp(channel->offermsg.offer.if_type,
++			newchannel->offermsg.offer.if_type) &&
++			!uuid_le_cmp(channel->offermsg.offer.if_instance,
++				newchannel->offermsg.offer.if_instance)) {
+ 			fnew = false;
+ 			break;
+ 		}
+@@ -416,9 +414,8 @@ static void vmbus_process_offer(struct work_struct *work)
+ 
+ 		/* Open IC channels */
+ 		for (cnt = 0; cnt < MAX_MSG_TYPES; cnt++) {
+-			if (memcmp(&newchannel->offermsg.offer.if_type,
+-				   &hv_cb_utils[cnt].data,
+-				   sizeof(struct hv_guid)) == 0 &&
++			if (!uuid_le_cmp(newchannel->offermsg.offer.if_type,
++				   hv_cb_utils[cnt].data) &&
+ 				vmbus_open(newchannel, 2 * PAGE_SIZE,
+ 						 2 * PAGE_SIZE, NULL, 0,
+ 						 chn_cb_negotiate,
+@@ -444,16 +441,15 @@ static void vmbus_onoffer(struct vmbus_channel_message_header *hdr)
+ {
+ 	struct vmbus_channel_offer_channel *offer;
+ 	struct vmbus_channel *newchannel;
+-	struct hv_guid *guidtype;
+-	struct hv_guid *guidinstance;
++	uuid_le *guidtype;
++	uuid_le *guidinstance;
+ 	int i;
+ 	int fsupported = 0;
+ 
+ 	offer = (struct vmbus_channel_offer_channel *)hdr;
+ 	for (i = 0; i < MAX_NUM_DEVICE_CLASSES_SUPPORTED; i++) {
+-		if (memcmp(&offer->offer.if_type,
+-			&supported_device_classes[i],
+-			sizeof(struct hv_guid)) == 0) {
++		if (!uuid_le_cmp(offer->offer.if_type,
++				supported_device_classes[i])) {
+ 			fsupported = 1;
+ 			break;
+ 		}
+diff --git a/drivers/staging/hv/hv_mouse.c b/drivers/staging/hv/hv_mouse.c
+index b191810..6f0992a 100644
+--- a/drivers/staging/hv/hv_mouse.c
++++ b/drivers/staging/hv/hv_mouse.c
+@@ -180,8 +180,8 @@ struct mousevsc_dev {
+ static const char *driver_name = "mousevsc";
+ 
+ /* {CFA8B69E-5B4A-4cc0-B98B-8BA1A1F3F95A} */
+-static const struct hv_guid mouse_guid = {
+-	.data = {0x9E, 0xB6, 0xA8, 0xCF, 0x4A, 0x5B, 0xc0, 0x4c,
++static const uuid_le mouse_guid = {
++	.b = {0x9E, 0xB6, 0xA8, 0xCF, 0x4A, 0x5B, 0xc0, 0x4c,
+ 		 0xB9, 0x8B, 0x8B, 0xA1, 0xA1, 0xF3, 0xF9, 0x5A}
+ };
+ 
+@@ -933,7 +933,7 @@ static int __init mousevsc_init(void)
+ 	DPRINT_INFO(INPUTVSC_DRV, "Hyper-V Mouse driver initializing.");
+ 
+ 	memcpy(&drv->dev_type, &mouse_guid,
+-	       sizeof(struct hv_guid));
++	       sizeof(uuid_le));
+ 
+ 	drv->driver.name = driver_name;
+ 
+diff --git a/drivers/staging/hv/hyperv.h b/drivers/staging/hv/hyperv.h
+index 1747a24..399d9fe 100644
+--- a/drivers/staging/hv/hyperv.h
++++ b/drivers/staging/hv/hyperv.h
+@@ -27,6 +27,7 @@
+ 
+ #include <linux/scatterlist.h>
+ #include <linux/list.h>
++#include <linux/uuid.h>
+ #include <linux/timer.h>
+ #include <linux/workqueue.h>
+ #include <linux/completion.h>
+@@ -35,9 +36,6 @@
+ 
+ #include <asm/hyperv.h>
+ 
+-struct hv_guid {
+-	unsigned char data[16];
 -};
--
--enum blkvsc_op_type {
--	DO_INQUIRY,
--	DO_CAPACITY,
--	DO_FLUSH,
--};
--
--/*
-- * This request ties the struct request and struct
-- * blkvsc_request/hv_storvsc_request together A struct request may be
-- * represented by 1 or more struct blkvsc_request
-- */
--struct blkvsc_request_group {
--	int outstanding;
--	int status;
--	struct list_head blkvsc_req_list;	/* list of blkvsc_requests */
--};
--
--struct blkvsc_request {
--	/* blkvsc_request_group.blkvsc_req_list */
--	struct list_head req_entry;
--
--	/* block_device_context.pending_list */
--	struct list_head pend_entry;
--
--	/* This may be null if we generate a request internally */
--	struct request *req;
--
--	struct block_device_context *dev;
--
--	/* The group this request is part of. Maybe null */
--	struct blkvsc_request_group *group;
--
--	int write;
--	sector_t sector_start;
--	unsigned long sector_count;
--
--	unsigned char sense_buffer[SCSI_SENSE_BUFFERSIZE];
--	unsigned char cmd_len;
--	unsigned char cmnd[MAX_COMMAND_SIZE];
--
--	struct hv_storvsc_request request;
--};
--
--/* Per device structure */
--struct block_device_context {
--	/* point back to our device context */
--	struct hv_device *device_ctx;
--	struct kmem_cache *request_pool;
--	spinlock_t lock;
--	struct gendisk *gd;
--	enum blkvsc_device_type	device_type;
--	struct list_head pending_list;
--
--	unsigned char device_id[64];
--	unsigned int device_id_len;
--	int num_outstanding_reqs;
--	int shutting_down;
--	unsigned int sector_size;
--	sector_t capacity;
--	unsigned int port;
--	unsigned char path;
--	unsigned char target;
--	int users;
--};
--
--static const char *drv_name = "blkvsc";
--
--/*
-- * There is a circular dependency involving blkvsc_request_completion()
-- * and blkvsc_do_request().
-- */
--static void blkvsc_request_completion(struct hv_storvsc_request *request);
--
--static int blkvsc_ringbuffer_size = BLKVSC_RING_BUFFER_SIZE;
--
--module_param(blkvsc_ringbuffer_size, int, S_IRUGO);
--MODULE_PARM_DESC(ring_size, "Ring buffer size (in bytes)");
--
--/*
-- * There is a circular dependency involving blkvsc_probe()
-- * and block_ops.
-- */
--static int blkvsc_probe(struct hv_device *dev);
--
--static int blkvsc_device_add(struct hv_device *device,
--				void *additional_info)
--{
--	struct storvsc_device_info *device_info;
--	int ret = 0;
--
--	device_info = (struct storvsc_device_info *)additional_info;
--
--	device_info->ring_buffer_size = blkvsc_ringbuffer_size;
--
--	ret = storvsc_dev_add(device, additional_info);
--	if (ret != 0)
--		return ret;
--
--	/*
--	 * We need to use the device instance guid to set the path and target
--	 * id. For IDE devices, the device instance id is formatted as
--	 * <bus id> * - <device id> - 8899 - 000000000000.
--	 */
--	device_info->path_id = device->dev_instance.b[3] << 24 |
--			     device->dev_instance.b[2] << 16 |
--			     device->dev_instance.b[1] << 8  |
--			     device->dev_instance.b[0];
--
--	device_info->target_id = device->dev_instance.b[5] << 8 |
--			       device->dev_instance.b[4];
--
--	return ret;
--}
--
--static int blkvsc_submit_request(struct blkvsc_request *blkvsc_req,
--			void (*request_completion)(struct hv_storvsc_request *))
--{
--	struct block_device_context *blkdev = blkvsc_req->dev;
--	struct hv_storvsc_request *storvsc_req;
--	struct vmscsi_request *vm_srb;
--	int ret;
--
--
--	storvsc_req = &blkvsc_req->request;
--	vm_srb = &storvsc_req->vstor_packet.vm_srb;
--
--	vm_srb->data_in = blkvsc_req->write ? WRITE_TYPE : READ_TYPE;
--
--	storvsc_req->on_io_completion = request_completion;
--	storvsc_req->context = blkvsc_req;
--
--	vm_srb->port_number = blkdev->port;
--	vm_srb->path_id = blkdev->path;
--	vm_srb->target_id = blkdev->target;
--	vm_srb->lun = 0;	 /* this is not really used at all */
--
--	vm_srb->cdb_length = blkvsc_req->cmd_len;
--
--	memcpy(vm_srb->cdb, blkvsc_req->cmnd, vm_srb->cdb_length);
--
--	storvsc_req->sense_buffer = blkvsc_req->sense_buffer;
--
--	ret =  storvsc_do_io(blkdev->device_ctx,
--					   &blkvsc_req->request);
--	if (ret == 0)
--		blkdev->num_outstanding_reqs++;
--
--	return ret;
--}
--
--
--static int blkvsc_open(struct block_device *bdev, fmode_t mode)
--{
--	struct block_device_context *blkdev = bdev->bd_disk->private_data;
--	unsigned long flags;
--
--	spin_lock_irqsave(&blkdev->lock, flags);
--
--	blkdev->users++;
--
--	spin_unlock_irqrestore(&blkdev->lock, flags);
--
--	return 0;
--}
--
--
--static int blkvsc_getgeo(struct block_device *bd, struct hd_geometry *hg)
--{
--	sector_t nsect = get_capacity(bd->bd_disk);
--	sector_t cylinders = nsect;
--
--	/*
--	 * We are making up these values; let us keep it simple.
--	 */
--	hg->heads = 0xff;
--	hg->sectors = 0x3f;
--	sector_div(cylinders, hg->heads * hg->sectors);
--	hg->cylinders = cylinders;
--	if ((sector_t)(hg->cylinders + 1) * hg->heads * hg->sectors < nsect)
--		hg->cylinders = 0xffff;
--	return 0;
--
--}
--
--
--static void blkvsc_init_rw(struct blkvsc_request *blkvsc_req)
--{
--
--	blkvsc_req->cmd_len = 16;
--
--	if (rq_data_dir(blkvsc_req->req)) {
--		blkvsc_req->write = 1;
--		blkvsc_req->cmnd[0] = WRITE_16;
--	} else {
--		blkvsc_req->write = 0;
--		blkvsc_req->cmnd[0] = READ_16;
--	}
--
--	blkvsc_req->cmnd[1] |=
--	(blkvsc_req->req->cmd_flags & REQ_FUA) ? 0x8 : 0;
--
--	*(unsigned long long *)&blkvsc_req->cmnd[2] =
--	cpu_to_be64(blkvsc_req->sector_start);
--	*(unsigned int *)&blkvsc_req->cmnd[10] =
--	cpu_to_be32(blkvsc_req->sector_count);
--}
--
--
--static int blkvsc_ioctl(struct block_device *bd, fmode_t mode,
--			unsigned cmd, unsigned long arg)
--{
--	struct block_device_context *blkdev = bd->bd_disk->private_data;
--	int ret = 0;
--
--	switch (cmd) {
--	case HDIO_GET_IDENTITY:
--		if (copy_to_user((void __user *)arg, blkdev->device_id,
--				 blkdev->device_id_len))
--			ret = -EFAULT;
--		break;
--	default:
--		ret = -EINVAL;
--		break;
--	}
--
--	return ret;
--}
--
--static void blkvsc_cmd_completion(struct hv_storvsc_request *request)
--{
--	struct blkvsc_request *blkvsc_req =
--			(struct blkvsc_request *)request->context;
--	struct block_device_context *blkdev =
--			(struct block_device_context *)blkvsc_req->dev;
--	struct scsi_sense_hdr sense_hdr;
--	struct vmscsi_request *vm_srb;
--	unsigned long flags;
--
--
--	vm_srb = &blkvsc_req->request.vstor_packet.vm_srb;
--
--	spin_lock_irqsave(&blkdev->lock, flags);
--	blkdev->num_outstanding_reqs--;
--	spin_unlock_irqrestore(&blkdev->lock, flags);
--
--	if (vm_srb->scsi_status)
--		if (scsi_normalize_sense(blkvsc_req->sense_buffer,
--					 SCSI_SENSE_BUFFERSIZE, &sense_hdr))
--			scsi_print_sense_hdr("blkvsc", &sense_hdr);
--
--	complete(&blkvsc_req->request.wait_event);
--}
--
--
--static int blkvsc_do_operation(struct block_device_context *blkdev,
--				enum blkvsc_op_type op)
--{
--	struct blkvsc_request *blkvsc_req;
--	struct page *page_buf;
--	unsigned char *buf;
--	unsigned char device_type;
--	struct scsi_sense_hdr sense_hdr;
--	struct vmscsi_request *vm_srb;
--	unsigned long flags;
--
--	int ret = 0;
--
--	blkvsc_req = kmem_cache_zalloc(blkdev->request_pool, GFP_KERNEL);
--	if (!blkvsc_req)
--		return -ENOMEM;
--
--	page_buf = alloc_page(GFP_KERNEL);
--	if (!page_buf) {
--		kmem_cache_free(blkdev->request_pool, blkvsc_req);
--		return -ENOMEM;
--	}
--
--	vm_srb = &blkvsc_req->request.vstor_packet.vm_srb;
--	init_completion(&blkvsc_req->request.wait_event);
--	blkvsc_req->dev = blkdev;
--	blkvsc_req->req = NULL;
--	blkvsc_req->write = 0;
--
--	blkvsc_req->request.data_buffer.pfn_array[0] =
--	page_to_pfn(page_buf);
--	blkvsc_req->request.data_buffer.offset = 0;
--
--	switch (op) {
--	case DO_INQUIRY:
--		blkvsc_req->cmnd[0] = INQUIRY;
--		blkvsc_req->cmnd[1] = 0x1;		/* Get product data */
--		blkvsc_req->cmnd[2] = 0x83;		/* mode page 83 */
--		blkvsc_req->cmnd[4] = 64;
--		blkvsc_req->cmd_len = 6;
--		blkvsc_req->request.data_buffer.len = 64;
--		break;
--
--	case DO_CAPACITY:
--		blkdev->sector_size = 0;
--		blkdev->capacity = 0;
--
--		blkvsc_req->cmnd[0] = READ_CAPACITY;
--		blkvsc_req->cmd_len = 16;
--		blkvsc_req->request.data_buffer.len = 8;
--		break;
--
--	case DO_FLUSH:
--		blkvsc_req->cmnd[0] = SYNCHRONIZE_CACHE;
--		blkvsc_req->cmd_len = 10;
--		blkvsc_req->request.data_buffer.pfn_array[0] = 0;
--		blkvsc_req->request.data_buffer.len = 0;
--		break;
--	default:
--		ret = -EINVAL;
--		goto cleanup;
--	}
--
--	spin_lock_irqsave(&blkdev->lock, flags);
--	blkvsc_submit_request(blkvsc_req, blkvsc_cmd_completion);
--	spin_unlock_irqrestore(&blkdev->lock, flags);
--
--	wait_for_completion_interruptible(&blkvsc_req->request.wait_event);
--
--	/* check error */
--	if (vm_srb->scsi_status) {
--		scsi_normalize_sense(blkvsc_req->sense_buffer,
--				     SCSI_SENSE_BUFFERSIZE, &sense_hdr);
--
--		return 0;
--	}
--
--	buf = kmap(page_buf);
--
--	switch (op) {
--	case DO_INQUIRY:
--		device_type = buf[0] & 0x1F;
--
--		if (device_type == 0x0)
--			blkdev->device_type = HARDDISK_TYPE;
--		 else
--			blkdev->device_type = UNKNOWN_DEV_TYPE;
--
--		blkdev->device_id_len = buf[7];
--		if (blkdev->device_id_len > 64)
--			blkdev->device_id_len = 64;
--
--		memcpy(blkdev->device_id, &buf[8], blkdev->device_id_len);
--		break;
--
--	case DO_CAPACITY:
--		/* be to le */
--		blkdev->capacity =
--		((buf[0] << 24) | (buf[1] << 16) |
--		(buf[2] << 8) | buf[3]) + 1;
--
--		blkdev->sector_size =
--		(buf[4] << 24) | (buf[5] << 16) |
--		(buf[6] << 8) | buf[7];
--		break;
--	default:
--		break;
--
--	}
--
--cleanup:
--
--	kunmap(page_buf);
--
--	__free_page(page_buf);
--
--	kmem_cache_free(blkdev->request_pool, blkvsc_req);
--
--	return ret;
--}
--
--
--static int blkvsc_cancel_pending_reqs(struct block_device_context *blkdev)
--{
--	struct blkvsc_request *pend_req, *tmp;
--	struct blkvsc_request *comp_req, *tmp2;
--	struct vmscsi_request *vm_srb;
--
--	int ret = 0;
--
--
--	/* Flush the pending list first */
--	list_for_each_entry_safe(pend_req, tmp, &blkdev->pending_list,
--				 pend_entry) {
--		/*
--		 * The pend_req could be part of a partially completed
--		 * request. If so, complete those req first until we
--		 * hit the pend_req
--		 */
--		list_for_each_entry_safe(comp_req, tmp2,
--					 &pend_req->group->blkvsc_req_list,
--					 req_entry) {
--
--			if (comp_req == pend_req)
--				break;
--
--			list_del(&comp_req->req_entry);
--
--			if (comp_req->req) {
--				vm_srb =
--				&comp_req->request.vstor_packet.
--				vm_srb;
--				ret = __blk_end_request(comp_req->req,
--					(!vm_srb->scsi_status ? 0 : -EIO),
--					comp_req->sector_count *
--					blkdev->sector_size);
--
--				/* FIXME: shouldn't this do more than return? */
--				if (ret)
--					goto out;
--			}
--
--			kmem_cache_free(blkdev->request_pool, comp_req);
--		}
--
--		list_del(&pend_req->pend_entry);
--
--		list_del(&pend_req->req_entry);
--
--		if (comp_req->req) {
--			if (!__blk_end_request(pend_req->req, -EIO,
--					       pend_req->sector_count *
--					       blkdev->sector_size)) {
--				/*
--				 * All the sectors have been xferred ie the
--				 * request is done
--				 */
--				kmem_cache_free(blkdev->request_pool,
--						pend_req->group);
--			}
--		}
--
--		kmem_cache_free(blkdev->request_pool, pend_req);
--	}
--
--out:
--	return ret;
--}
--
--
--/*
-- * blkvsc_remove() - Callback when our device is removed
-- */
--static int blkvsc_remove(struct hv_device *dev)
--{
--	struct block_device_context *blkdev = dev_get_drvdata(&dev->device);
--	unsigned long flags;
--
--
--	/* Get to a known state */
--	spin_lock_irqsave(&blkdev->lock, flags);
--
--	blkdev->shutting_down = 1;
--
--	blk_stop_queue(blkdev->gd->queue);
--
--	blkvsc_cancel_pending_reqs(blkdev);
--
--	spin_unlock_irqrestore(&blkdev->lock, flags);
--
--	blkvsc_do_operation(blkdev, DO_FLUSH);
--
--	if (blkdev->users == 0) {
--		del_gendisk(blkdev->gd);
--		put_disk(blkdev->gd);
--		blk_cleanup_queue(blkdev->gd->queue);
--
--		storvsc_dev_remove(blkdev->device_ctx);
--
--		kmem_cache_destroy(blkdev->request_pool);
--		kfree(blkdev);
--	}
--
--	return 0;
--}
--
--static void blkvsc_shutdown(struct hv_device *dev)
--{
--	struct block_device_context *blkdev = dev_get_drvdata(&dev->device);
--	unsigned long flags;
--
--	if (!blkdev)
--		return;
--
--	spin_lock_irqsave(&blkdev->lock, flags);
--
--	blkdev->shutting_down = 1;
--
--	blk_stop_queue(blkdev->gd->queue);
--
--	blkvsc_cancel_pending_reqs(blkdev);
--
--	spin_unlock_irqrestore(&blkdev->lock, flags);
--
--	blkvsc_do_operation(blkdev, DO_FLUSH);
--
--	/*
--	 * Now wait for all outgoing I/O to be drained.
--	 */
--	storvsc_wait_to_drain((struct storvsc_device *)dev->ext);
--
--}
--
--static int blkvsc_release(struct gendisk *disk, fmode_t mode)
--{
--	struct block_device_context *blkdev = disk->private_data;
--	unsigned long flags;
--
--	spin_lock_irqsave(&blkdev->lock, flags);
--
--	if ((--blkdev->users == 0) && (blkdev->shutting_down)) {
--		blk_stop_queue(blkdev->gd->queue);
--		spin_unlock_irqrestore(&blkdev->lock, flags);
--
--		blkvsc_do_operation(blkdev, DO_FLUSH);
--		del_gendisk(blkdev->gd);
--		put_disk(blkdev->gd);
--		blk_cleanup_queue(blkdev->gd->queue);
--
--		storvsc_dev_remove(blkdev->device_ctx);
--
--		kmem_cache_destroy(blkdev->request_pool);
--		kfree(blkdev);
--	} else
--		spin_unlock_irqrestore(&blkdev->lock, flags);
--
--	return 0;
--}
--
--
--/*
-- * We break the request into 1 or more blkvsc_requests and submit
-- * them.  If we cant submit them all, we put them on the
-- * pending_list. The blkvsc_request() will work on the pending_list.
-- */
--static int blkvsc_do_request(struct block_device_context *blkdev,
--			     struct request *req)
--{
--	struct bio *bio = NULL;
--	struct bio_vec *bvec = NULL;
--	struct bio_vec *prev_bvec = NULL;
--	struct blkvsc_request *blkvsc_req = NULL;
--	struct blkvsc_request *tmp;
--	int databuf_idx = 0;
--	int seg_idx = 0;
--	sector_t start_sector;
--	unsigned long num_sectors = 0;
--	int ret = 0;
--	int pending = 0;
--	struct blkvsc_request_group *group = NULL;
--
--	/* Create a group to tie req to list of blkvsc_reqs */
--	group = kmem_cache_zalloc(blkdev->request_pool, GFP_ATOMIC);
--	if (!group)
--		return -ENOMEM;
--
--	INIT_LIST_HEAD(&group->blkvsc_req_list);
--	group->outstanding = group->status = 0;
--
--	start_sector = blk_rq_pos(req);
--
--	/* foreach bio in the request */
--	if (req->bio) {
--		for (bio = req->bio; bio; bio = bio->bi_next) {
--			/*
--			 * Map this bio into an existing or new storvsc request
--			 */
--			bio_for_each_segment(bvec, bio, seg_idx) {
--				/* Get a new storvsc request */
--				/* 1st-time */
--				if ((!blkvsc_req) ||
--				    (databuf_idx >= MAX_MULTIPAGE_BUFFER_COUNT)
--				    /* hole at the begin of page */
--				    || (bvec->bv_offset != 0) ||
--				    /* hold at the end of page */
--				    (prev_bvec &&
--				     (prev_bvec->bv_len != PAGE_SIZE))) {
--					/* submit the prev one */
--					if (blkvsc_req) {
--						blkvsc_req->sector_start =
--						start_sector;
--						sector_div(
--						blkvsc_req->sector_start,
--						(blkdev->sector_size >> 9));
--
--						blkvsc_req->sector_count =
--						num_sectors /
--						(blkdev->sector_size >> 9);
--						blkvsc_init_rw(blkvsc_req);
--					}
--
--					/*
--					 * Create new blkvsc_req to represent
--					 * the current bvec
--					 */
--					blkvsc_req =
--					kmem_cache_zalloc(
--					blkdev->request_pool, GFP_ATOMIC);
--					if (!blkvsc_req) {
--						/* free up everything */
--						list_for_each_entry_safe(
--							blkvsc_req, tmp,
--							&group->blkvsc_req_list,
--							req_entry) {
--							list_del(
--							&blkvsc_req->req_entry);
--							kmem_cache_free(
--							blkdev->request_pool,
--							blkvsc_req);
--						}
--
--						kmem_cache_free(
--						blkdev->request_pool, group);
--						return -ENOMEM;
--					}
--
--					memset(blkvsc_req, 0,
--					       sizeof(struct blkvsc_request));
--
--					blkvsc_req->dev = blkdev;
--					blkvsc_req->req = req;
--					blkvsc_req->request.
--					data_buffer.offset
--					= bvec->bv_offset;
--					blkvsc_req->request.
--					data_buffer.len = 0;
--
--					/* Add to the group */
--					blkvsc_req->group = group;
--					blkvsc_req->group->outstanding++;
--					list_add_tail(&blkvsc_req->req_entry,
--					&blkvsc_req->group->blkvsc_req_list);
--
--					start_sector += num_sectors;
--					num_sectors = 0;
--					databuf_idx = 0;
--				}
--
--				/*
--				 * Add the curr bvec/segment to the curr
--				 * blkvsc_req
--				 */
--				blkvsc_req->request.data_buffer.
--					pfn_array[databuf_idx]
--						= page_to_pfn(bvec->bv_page);
--				blkvsc_req->request.data_buffer.len
--					+= bvec->bv_len;
--
--				prev_bvec = bvec;
--
--				databuf_idx++;
--				num_sectors += bvec->bv_len >> 9;
--
--			} /* bio_for_each_segment */
--
--		} /* rq_for_each_bio */
--	}
--
--	/* Handle the last one */
--	if (blkvsc_req) {
--		blkvsc_req->sector_start = start_sector;
--		sector_div(blkvsc_req->sector_start,
--			   (blkdev->sector_size >> 9));
--
--		blkvsc_req->sector_count = num_sectors /
--					   (blkdev->sector_size >> 9);
--
--		blkvsc_init_rw(blkvsc_req);
--	}
--
--	list_for_each_entry(blkvsc_req, &group->blkvsc_req_list, req_entry) {
--		if (pending) {
--
--			list_add_tail(&blkvsc_req->pend_entry,
--				      &blkdev->pending_list);
--		} else {
--			ret = blkvsc_submit_request(blkvsc_req,
--						    blkvsc_request_completion);
--			if (ret == -EAGAIN) {
--				pending = 1;
--				list_add_tail(&blkvsc_req->pend_entry,
--					      &blkdev->pending_list);
--			}
--
--		}
--	}
--
--	return pending;
--}
--
--static int blkvsc_do_pending_reqs(struct block_device_context *blkdev)
--{
--	struct blkvsc_request *pend_req, *tmp;
--	int ret = 0;
--
--	/* Flush the pending list first */
--	list_for_each_entry_safe(pend_req, tmp, &blkdev->pending_list,
--				 pend_entry) {
--
--		ret = blkvsc_submit_request(pend_req,
--					    blkvsc_request_completion);
--		if (ret != 0)
--			break;
--		else
--			list_del(&pend_req->pend_entry);
--	}
--
--	return ret;
--}
--
--
--static void blkvsc_request(struct request_queue *queue)
--{
--	struct block_device_context *blkdev = NULL;
--	struct request *req;
--	int ret = 0;
--
--	while ((req = blk_peek_request(queue)) != NULL) {
--
--		blkdev = req->rq_disk->private_data;
--		if (blkdev->shutting_down || req->cmd_type != REQ_TYPE_FS) {
--			__blk_end_request_cur(req, 0);
--			continue;
--		}
--
--		ret = blkvsc_do_pending_reqs(blkdev);
--
--		if (ret != 0) {
--			blk_stop_queue(queue);
--			break;
--		}
--
--		blk_start_request(req);
--
--		ret = blkvsc_do_request(blkdev, req);
--		if (ret > 0) {
--			blk_stop_queue(queue);
--			break;
--		} else if (ret < 0) {
--			blk_requeue_request(queue, req);
--			blk_stop_queue(queue);
--			break;
--		}
--	}
--}
--
--static const struct hv_vmbus_device_id id_table[] = {
--	{
--		/* IDE guid */
--		.guid = {
--			0x32, 0x26, 0x41, 0x32, 0xcb, 0x86, 0xa2, 0x44,
--			0x9b, 0x5c, 0x50, 0xd1, 0x41, 0x73, 0x54, 0xf5
--		}
--	},
--	{
--		.guid = {
--			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
--			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
--		}
--	},
--};
--
--MODULE_DEVICE_TABLE(vmbus, id_table);
--
--/* The one and only one */
--static  struct hv_driver blkvsc_drv = {
--	.id_table = id_table,
--	.probe =  blkvsc_probe,
--	.remove =  blkvsc_remove,
--	.shutdown = blkvsc_shutdown,
--};
--
--static const struct block_device_operations block_ops = {
--	.owner = THIS_MODULE,
--	.open = blkvsc_open,
--	.release = blkvsc_release,
--	.getgeo = blkvsc_getgeo,
--	.ioctl  = blkvsc_ioctl,
--};
--
--/*
-- * blkvsc_drv_init -  BlkVsc driver initialization.
-- */
--static int blkvsc_drv_init(void)
--{
--	struct hv_driver *drv = &blkvsc_drv;
--	int ret;
--
--	BUILD_BUG_ON(sizeof(sector_t) != 8);
--
--	drv->driver.name = drv_name;
--
--	/* The driver belongs to vmbus */
--	ret = vmbus_child_driver_register(&drv->driver);
--
--	return ret;
--}
--
--
--static void blkvsc_drv_exit(void)
--{
--
--	vmbus_child_driver_unregister(&blkvsc_drv.driver);
--}
--
--/*
-- * blkvsc_probe - Add a new device for this driver
-- */
--static int blkvsc_probe(struct hv_device *dev)
--{
--	struct block_device_context *blkdev = NULL;
--	struct storvsc_device_info device_info;
--	struct storvsc_major_info major_info;
--	int ret = 0;
--
--	blkdev = kzalloc(sizeof(struct block_device_context), GFP_KERNEL);
--	if (!blkdev) {
--		ret = -ENOMEM;
--		goto cleanup;
--	}
--
--	INIT_LIST_HEAD(&blkdev->pending_list);
--
--	/* Initialize what we can here */
--	spin_lock_init(&blkdev->lock);
--
--
--	blkdev->request_pool = kmem_cache_create(dev_name(&dev->device),
--					sizeof(struct blkvsc_request), 0,
--					SLAB_HWCACHE_ALIGN, NULL);
--	if (!blkdev->request_pool) {
--		ret = -ENOMEM;
--		goto cleanup;
--	}
--
--
--	ret = blkvsc_device_add(dev, &device_info);
--	if (ret != 0)
--		goto cleanup;
--
--	blkdev->device_ctx = dev;
--	/* this identified the device 0 or 1 */
--	blkdev->target = device_info.target_id;
--	/* this identified the ide ctrl 0 or 1 */
--	blkdev->path = device_info.path_id;
--
--	dev_set_drvdata(&dev->device, blkdev);
--
--	ret = storvsc_get_major_info(&device_info, &major_info);
--
--	if (ret)
--		goto cleanup;
--
--	if (major_info.do_register) {
--		ret = register_blkdev(major_info.major, major_info.devname);
--
--		if (ret != 0) {
--			DPRINT_ERR(BLKVSC_DRV,
--				   "register_blkdev() failed! ret %d", ret);
--			goto remove;
--		}
--	}
--
--	DPRINT_INFO(BLKVSC_DRV, "blkvsc registered for major %d!!",
--			major_info.major);
--
--	blkdev->gd = alloc_disk(BLKVSC_MINORS);
--	if (!blkdev->gd) {
--		ret = -1;
--		goto cleanup;
--	}
--
--	blkdev->gd->queue = blk_init_queue(blkvsc_request, &blkdev->lock);
--
--	blk_queue_max_segment_size(blkdev->gd->queue, PAGE_SIZE);
--	blk_queue_max_segments(blkdev->gd->queue, MAX_MULTIPAGE_BUFFER_COUNT);
--	blk_queue_segment_boundary(blkdev->gd->queue, PAGE_SIZE-1);
--	blk_queue_bounce_limit(blkdev->gd->queue, BLK_BOUNCE_ANY);
--	blk_queue_dma_alignment(blkdev->gd->queue, 511);
--
--	blkdev->gd->major = major_info.major;
--	if (major_info.index == 1 || major_info.index == 3)
--		blkdev->gd->first_minor = BLKVSC_MINORS;
--	else
--		blkdev->gd->first_minor = 0;
--	blkdev->gd->fops = &block_ops;
--	blkdev->gd->private_data = blkdev;
--	blkdev->gd->driverfs_dev = &(blkdev->device_ctx->device);
--	sprintf(blkdev->gd->disk_name, "hd%c", 'a' + major_info.index);
--
--	blkvsc_do_operation(blkdev, DO_INQUIRY);
--	blkvsc_do_operation(blkdev, DO_CAPACITY);
--
--	set_capacity(blkdev->gd, blkdev->capacity * (blkdev->sector_size/512));
--	blk_queue_logical_block_size(blkdev->gd->queue, blkdev->sector_size);
--	/* go! */
--	add_disk(blkdev->gd);
--
--	DPRINT_INFO(BLKVSC_DRV, "%s added!! capacity %lu sector_size %d",
--		    blkdev->gd->disk_name, (unsigned long)blkdev->capacity,
--		    blkdev->sector_size);
--
--	return ret;
--
--remove:
--	storvsc_dev_remove(dev);
--
--cleanup:
--	if (blkdev) {
--		if (blkdev->request_pool) {
--			kmem_cache_destroy(blkdev->request_pool);
--			blkdev->request_pool = NULL;
--		}
--		kfree(blkdev);
--		blkdev = NULL;
--	}
--
--	return ret;
--}
--
--static void blkvsc_request_completion(struct hv_storvsc_request *request)
--{
--	struct blkvsc_request *blkvsc_req =
--			(struct blkvsc_request *)request->context;
--	struct block_device_context *blkdev =
--			(struct block_device_context *)blkvsc_req->dev;
--	unsigned long flags;
--	struct blkvsc_request *comp_req, *tmp;
--	struct vmscsi_request *vm_srb;
--
--
--	spin_lock_irqsave(&blkdev->lock, flags);
--
--	blkdev->num_outstanding_reqs--;
--	blkvsc_req->group->outstanding--;
--
--	/*
--	 * Only start processing when all the blkvsc_reqs are
--	 * completed. This guarantees no out-of-order blkvsc_req
--	 * completion when calling end_that_request_first()
--	 */
--	if (blkvsc_req->group->outstanding == 0) {
--		list_for_each_entry_safe(comp_req, tmp,
--					 &blkvsc_req->group->blkvsc_req_list,
--					 req_entry) {
--
--			list_del(&comp_req->req_entry);
--
--			vm_srb =
--			&comp_req->request.vstor_packet.vm_srb;
--			if (!__blk_end_request(comp_req->req,
--				(!vm_srb->scsi_status ? 0 : -EIO),
--				comp_req->sector_count * blkdev->sector_size)) {
--				/*
--				 * All the sectors have been xferred ie the
--				 * request is done
--				 */
--				kmem_cache_free(blkdev->request_pool,
--						comp_req->group);
--			}
--
--			kmem_cache_free(blkdev->request_pool, comp_req);
--		}
--
--		if (!blkdev->shutting_down) {
--			blkvsc_do_pending_reqs(blkdev);
--			blk_start_queue(blkdev->gd->queue);
--			blkvsc_request(blkdev->gd->queue);
--		}
--	}
--
--	spin_unlock_irqrestore(&blkdev->lock, flags);
--}
--
--static void __exit blkvsc_exit(void)
--{
--	blkvsc_drv_exit();
--}
--
--MODULE_LICENSE("GPL");
--MODULE_VERSION(HV_DRV_VERSION);
--MODULE_DESCRIPTION("Microsoft Hyper-V virtual block driver");
--module_init(blkvsc_drv_init);
--module_exit(blkvsc_exit);
+ 
+ #define MAX_PAGE_BUFFER_COUNT				16
+ #define MAX_MULTIPAGE_BUFFER_COUNT			32 /* 128K */
+@@ -156,8 +154,8 @@ struct hv_ring_buffer_debug_info {
+  * struct contains the fundamental information about an offer.
+  */
+ struct vmbus_channel_offer {
+-	struct hv_guid if_type;
+-	struct hv_guid if_instance;
++	uuid_le if_type;
++	uuid_le if_instance;
+ 	u64 int_latency; /* in 100ns units */
+ 	u32 if_revision;
+ 	u32 server_ctx_size;	/* in bytes */
+@@ -526,8 +524,8 @@ enum vmbus_channel_state {
+ struct vmbus_channel_debug_info {
+ 	u32 relid;
+ 	enum vmbus_channel_state state;
+-	struct hv_guid interfacetype;
+-	struct hv_guid interface_instance;
++	uuid_le interfacetype;
++	uuid_le interface_instance;
+ 	u32 monitorid;
+ 	u32 servermonitor_pending;
+ 	u32 servermonitor_latency;
+@@ -786,8 +784,8 @@ struct hv_dev_port_info {
+ struct hv_device_info {
+ 	u32 chn_id;
+ 	u32 chn_state;
+-	struct hv_guid chn_type;
+-	struct hv_guid chn_instance;
++	uuid_le chn_type;
++	uuid_le chn_instance;
+ 
+ 	u32 monitor_id;
+ 	u32 server_monitor_pending;
+@@ -806,7 +804,7 @@ struct hv_driver {
+ 	const char *name;
+ 
+ 	/* the device type supported by this driver */
+-	struct hv_guid dev_type;
++	uuid_le dev_type;
+ 
+ 	struct device_driver driver;
+ 
+@@ -819,10 +817,10 @@ struct hv_driver {
+ /* Base device object */
+ struct hv_device {
+ 	/* the device type id of this device */
+-	struct hv_guid dev_type;
++	uuid_le dev_type;
+ 
+ 	/* the device instance id of this device */
+-	struct hv_guid dev_instance;
++	uuid_le dev_instance;
+ 
+ 	struct device device;
+ 
+@@ -935,7 +933,7 @@ struct ictimesync_data {
+ struct hyperv_service_callback {
+ 	u8 msg_type;
+ 	char *log_msg;
+-	unsigned char data[16];
++	uuid_le data;
+ 	struct vmbus_channel *channel;
+ 	void (*callback) (void *context);
+ };
+diff --git a/drivers/staging/hv/hyperv_vmbus.h b/drivers/staging/hv/hyperv_vmbus.h
+index 349ad80..16ca90d 100644
+--- a/drivers/staging/hv/hyperv_vmbus.h
++++ b/drivers/staging/hv/hyperv_vmbus.h
+@@ -451,8 +451,8 @@ enum {
+ /* #define VMBUS_PORT_ID		11 */
+ 
+ /* 628180B8-308D-4c5e-B7DB-1BEB62E62EF4 */
+-static const struct hv_guid VMBUS_SERVICE_ID = {
+-	.data = {
++static const uuid_le VMBUS_SERVICE_ID = {
++	.b = {
+ 		0xb8, 0x80, 0x81, 0x62, 0x8d, 0x30, 0x5e, 0x4c,
+ 		0xb7, 0xdb, 0x1b, 0xeb, 0x62, 0xe6, 0x2e, 0xf4
+ 	},
+@@ -601,8 +601,8 @@ extern struct vmbus_connection vmbus_connection;
+ 
+ /* General vmbus interface */
+ 
+-struct hv_device *vmbus_child_device_create(struct hv_guid *type,
+-					 struct hv_guid *instance,
++struct hv_device *vmbus_child_device_create(uuid_le *type,
++					 uuid_le *instance,
+ 					 struct vmbus_channel *channel);
+ 
+ int vmbus_child_device_register(struct hv_device *child_device_obj);
+diff --git a/drivers/staging/hv/netvsc.c b/drivers/staging/hv/netvsc.c
+index dc5e5c4..1506b53 100644
+--- a/drivers/staging/hv/netvsc.c
++++ b/drivers/staging/hv/netvsc.c
+@@ -36,8 +36,8 @@
+ static const char *driver_name = "netvsc";
+ 
+ /* {F8615163-DF3E-46c5-913F-F2D2F965ED0E} */
+-static const struct hv_guid netvsc_device_type = {
+-	.data = {
++static const uuid_le netvsc_device_type = {
++	.b = {
+ 		0x63, 0x51, 0x61, 0xF8, 0x3E, 0xDF, 0xc5, 0x46,
+ 		0x91, 0x3F, 0xF2, 0xD2, 0xF9, 0x65, 0xED, 0x0E
+ 	}
+@@ -1009,7 +1009,7 @@ int netvsc_initialize(struct hv_driver *drv)
+ {
+ 
+ 	drv->name = driver_name;
+-	memcpy(&drv->dev_type, &netvsc_device_type, sizeof(struct hv_guid));
++	memcpy(&drv->dev_type, &netvsc_device_type, sizeof(uuid_le));
+ 
+ 	return 0;
+ }
+diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
+index 7effaf3..e4cdbc5 100644
+--- a/drivers/staging/hv/storvsc_drv.c
++++ b/drivers/staging/hv/storvsc_drv.c
+@@ -45,8 +45,8 @@ MODULE_PARM_DESC(storvsc_ringbuffer_size, "Ring buffer size (bytes)");
+ static const char *driver_name = "storvsc";
+ 
+ /* {ba6163d9-04a1-4d29-b605-72e2ffb1dc7f} */
+-static const struct hv_guid stor_vsci_device_type = {
+-	.data = {
++static const uuid_le stor_vsci_device_type = {
++	.b = {
+ 		0xd9, 0x63, 0x61, 0xba, 0xa1, 0x04, 0x29, 0x4d,
+ 		0xb6, 0x05, 0x72, 0xe2, 0xff, 0xb1, 0xdc, 0x7f
+ 	}
+@@ -765,7 +765,7 @@ static int __init storvsc_drv_init(void)
+ 	sizeof(u64)));
+ 
+ 	memcpy(&drv->dev_type, &stor_vsci_device_type,
+-	       sizeof(struct hv_guid));
++	       sizeof(uuid_le));
+ 
+ 	if (max_outstanding_req_per_channel <
+ 	    STORVSC_MAX_IO_REQUESTS)
+diff --git a/drivers/staging/hv/vmbus_drv.c b/drivers/staging/hv/vmbus_drv.c
+index 559353d..291b4e0 100644
+--- a/drivers/staging/hv/vmbus_drv.c
++++ b/drivers/staging/hv/vmbus_drv.c
+@@ -64,9 +64,9 @@ static void get_channel_info(struct hv_device *device,
+ 	info->chn_id = debug_info.relid;
+ 	info->chn_state = debug_info.state;
+ 	memcpy(&info->chn_type, &debug_info.interfacetype,
+-	       sizeof(struct hv_guid));
++	       sizeof(uuid_le));
+ 	memcpy(&info->chn_instance, &debug_info.interface_instance,
+-	       sizeof(struct hv_guid));
++	       sizeof(uuid_le));
+ 
+ 	info->monitor_id = debug_info.monitorid;
+ 
+@@ -116,41 +116,41 @@ static ssize_t vmbus_show_device_attr(struct device *dev,
+ 	if (!strcmp(dev_attr->attr.name, "class_id")) {
+ 		return sprintf(buf, "{%02x%02x%02x%02x-%02x%02x-%02x%02x-"
+ 			       "%02x%02x%02x%02x%02x%02x%02x%02x}\n",
+-			       device_info.chn_type.data[3],
+-			       device_info.chn_type.data[2],
+-			       device_info.chn_type.data[1],
+-			       device_info.chn_type.data[0],
+-			       device_info.chn_type.data[5],
+-			       device_info.chn_type.data[4],
+-			       device_info.chn_type.data[7],
+-			       device_info.chn_type.data[6],
+-			       device_info.chn_type.data[8],
+-			       device_info.chn_type.data[9],
+-			       device_info.chn_type.data[10],
+-			       device_info.chn_type.data[11],
+-			       device_info.chn_type.data[12],
+-			       device_info.chn_type.data[13],
+-			       device_info.chn_type.data[14],
+-			       device_info.chn_type.data[15]);
++			       device_info.chn_type.b[3],
++			       device_info.chn_type.b[2],
++			       device_info.chn_type.b[1],
++			       device_info.chn_type.b[0],
++			       device_info.chn_type.b[5],
++			       device_info.chn_type.b[4],
++			       device_info.chn_type.b[7],
++			       device_info.chn_type.b[6],
++			       device_info.chn_type.b[8],
++			       device_info.chn_type.b[9],
++			       device_info.chn_type.b[10],
++			       device_info.chn_type.b[11],
++			       device_info.chn_type.b[12],
++			       device_info.chn_type.b[13],
++			       device_info.chn_type.b[14],
++			       device_info.chn_type.b[15]);
+ 	} else if (!strcmp(dev_attr->attr.name, "device_id")) {
+ 		return sprintf(buf, "{%02x%02x%02x%02x-%02x%02x-%02x%02x-"
+ 			       "%02x%02x%02x%02x%02x%02x%02x%02x}\n",
+-			       device_info.chn_instance.data[3],
+-			       device_info.chn_instance.data[2],
+-			       device_info.chn_instance.data[1],
+-			       device_info.chn_instance.data[0],
+-			       device_info.chn_instance.data[5],
+-			       device_info.chn_instance.data[4],
+-			       device_info.chn_instance.data[7],
+-			       device_info.chn_instance.data[6],
+-			       device_info.chn_instance.data[8],
+-			       device_info.chn_instance.data[9],
+-			       device_info.chn_instance.data[10],
+-			       device_info.chn_instance.data[11],
+-			       device_info.chn_instance.data[12],
+-			       device_info.chn_instance.data[13],
+-			       device_info.chn_instance.data[14],
+-			       device_info.chn_instance.data[15]);
++			       device_info.chn_instance.b[3],
++			       device_info.chn_instance.b[2],
++			       device_info.chn_instance.b[1],
++			       device_info.chn_instance.b[0],
++			       device_info.chn_instance.b[5],
++			       device_info.chn_instance.b[4],
++			       device_info.chn_instance.b[7],
++			       device_info.chn_instance.b[6],
++			       device_info.chn_instance.b[8],
++			       device_info.chn_instance.b[9],
++			       device_info.chn_instance.b[10],
++			       device_info.chn_instance.b[11],
++			       device_info.chn_instance.b[12],
++			       device_info.chn_instance.b[13],
++			       device_info.chn_instance.b[14],
++			       device_info.chn_instance.b[15]);
+ 	} else if (!strcmp(dev_attr->attr.name, "state")) {
+ 		return sprintf(buf, "%d\n", device_info.chn_state);
+ 	} else if (!strcmp(dev_attr->attr.name, "id")) {
+@@ -246,22 +246,22 @@ static int vmbus_uevent(struct device *device, struct kobj_uevent_env *env)
+ 	ret = add_uevent_var(env, "VMBUS_DEVICE_CLASS_GUID={"
+ 			     "%02x%02x%02x%02x-%02x%02x-%02x%02x-"
+ 			     "%02x%02x%02x%02x%02x%02x%02x%02x}",
+-			     dev->dev_type.data[3],
+-			     dev->dev_type.data[2],
+-			     dev->dev_type.data[1],
+-			     dev->dev_type.data[0],
+-			     dev->dev_type.data[5],
+-			     dev->dev_type.data[4],
+-			     dev->dev_type.data[7],
+-			     dev->dev_type.data[6],
+-			     dev->dev_type.data[8],
+-			     dev->dev_type.data[9],
+-			     dev->dev_type.data[10],
+-			     dev->dev_type.data[11],
+-			     dev->dev_type.data[12],
+-			     dev->dev_type.data[13],
+-			     dev->dev_type.data[14],
+-			     dev->dev_type.data[15]);
++			     dev->dev_type.b[3],
++			     dev->dev_type.b[2],
++			     dev->dev_type.b[1],
++			     dev->dev_type.b[0],
++			     dev->dev_type.b[5],
++			     dev->dev_type.b[4],
++			     dev->dev_type.b[7],
++			     dev->dev_type.b[6],
++			     dev->dev_type.b[8],
++			     dev->dev_type.b[9],
++			     dev->dev_type.b[10],
++			     dev->dev_type.b[11],
++			     dev->dev_type.b[12],
++			     dev->dev_type.b[13],
++			     dev->dev_type.b[14],
++			     dev->dev_type.b[15]);
+ 
+ 	if (ret)
+ 		return ret;
+@@ -269,22 +269,22 @@ static int vmbus_uevent(struct device *device, struct kobj_uevent_env *env)
+ 	ret = add_uevent_var(env, "VMBUS_DEVICE_DEVICE_GUID={"
+ 			     "%02x%02x%02x%02x-%02x%02x-%02x%02x-"
+ 			     "%02x%02x%02x%02x%02x%02x%02x%02x}",
+-			     dev->dev_instance.data[3],
+-			     dev->dev_instance.data[2],
+-			     dev->dev_instance.data[1],
+-			     dev->dev_instance.data[0],
+-			     dev->dev_instance.data[5],
+-			     dev->dev_instance.data[4],
+-			     dev->dev_instance.data[7],
+-			     dev->dev_instance.data[6],
+-			     dev->dev_instance.data[8],
+-			     dev->dev_instance.data[9],
+-			     dev->dev_instance.data[10],
+-			     dev->dev_instance.data[11],
+-			     dev->dev_instance.data[12],
+-			     dev->dev_instance.data[13],
+-			     dev->dev_instance.data[14],
+-			     dev->dev_instance.data[15]);
++			     dev->dev_instance.b[3],
++			     dev->dev_instance.b[2],
++			     dev->dev_instance.b[1],
++			     dev->dev_instance.b[0],
++			     dev->dev_instance.b[5],
++			     dev->dev_instance.b[4],
++			     dev->dev_instance.b[7],
++			     dev->dev_instance.b[6],
++			     dev->dev_instance.b[8],
++			     dev->dev_instance.b[9],
++			     dev->dev_instance.b[10],
++			     dev->dev_instance.b[11],
++			     dev->dev_instance.b[12],
++			     dev->dev_instance.b[13],
++			     dev->dev_instance.b[14],
++			     dev->dev_instance.b[15]);
+ 	if (ret)
+ 		return ret;
+ 
+@@ -303,7 +303,7 @@ static int vmbus_match(struct device *device, struct device_driver *driver)
+ 
+ 	/* We found our driver ? */
+ 	if (memcmp(&hv_dev->dev_type, &drv->dev_type,
+-		   sizeof(struct hv_guid)) == 0)
++		   sizeof(uuid_le)) == 0)
+ 		match = 1;
+ 
+ 	return match;
+@@ -630,8 +630,8 @@ EXPORT_SYMBOL(vmbus_child_driver_unregister);
+  * vmbus_child_device_create - Creates and registers a new child device
+  * on the vmbus.
+  */
+-struct hv_device *vmbus_child_device_create(struct hv_guid *type,
+-					    struct hv_guid *instance,
++struct hv_device *vmbus_child_device_create(uuid_le *type,
++					    uuid_le *instance,
+ 					    struct vmbus_channel *channel)
+ {
+ 	struct hv_device *child_device_obj;
+@@ -644,9 +644,9 @@ struct hv_device *vmbus_child_device_create(struct hv_guid *type,
+ 	}
+ 
+ 	child_device_obj->channel = channel;
+-	memcpy(&child_device_obj->dev_type, type, sizeof(struct hv_guid));
++	memcpy(&child_device_obj->dev_type, type, sizeof(uuid_le));
+ 	memcpy(&child_device_obj->dev_instance, instance,
+-	       sizeof(struct hv_guid));
++	       sizeof(uuid_le));
+ 
+ 
+ 	return child_device_obj;
 -- 
 1.7.4.1
