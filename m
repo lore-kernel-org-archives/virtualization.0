@@ -1,8 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 060/117] Staging: hv: netvsc: Cleanup the returned error code
-	in netvsc_probe()
-Date: Fri, 15 Jul 2011 10:46:48 -0700
-Message-ID: <1310752065-27895-60-git-send-email-kys@microsoft.com>
+Subject: [PATCH 053/117] Staging: hv: storvsc: Cleanup error handling in
+	storvsc_connect_to_vsp()
+Date: Fri, 15 Jul 2011 10:46:41 -0700
+Message-ID: <1310752065-27895-53-git-send-email-kys@microsoft.com>
 References: <1310752024-27854-1-git-send-email-kys@microsoft.com>
 	<1310752065-27895-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -23,26 +23,26 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Use standard Linux error codes.
+Cleanup error handling in storvsc_connect_to_vsp().
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- drivers/staging/hv/netvsc_drv.c |    2 +-
+ drivers/staging/hv/storvsc.c |    2 +-
  1 files changed, 1 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/staging/hv/netvsc_drv.c b/drivers/staging/hv/netvsc_drv.c
-index 542be65..94c5abc 100644
---- a/drivers/staging/hv/netvsc_drv.c
-+++ b/drivers/staging/hv/netvsc_drv.c
-@@ -340,7 +340,7 @@ static int netvsc_probe(struct hv_device *dev)
+diff --git a/drivers/staging/hv/storvsc.c b/drivers/staging/hv/storvsc.c
+index 22ac6f2..2b73f72 100644
+--- a/drivers/staging/hv/storvsc.c
++++ b/drivers/staging/hv/storvsc.c
+@@ -376,7 +376,7 @@ static int storvsc_connect_to_vsp(struct hv_device *device, u32 ring_size)
+ 			 storvsc_on_channel_callback, device);
  
- 	net = alloc_etherdev(sizeof(struct net_device_context));
- 	if (!net)
+ 	if (ret != 0)
 -		return -1;
-+		return -ENOMEM;
++		return ret;
  
- 	/* Set initial state */
- 	netif_carrier_off(net);
+ 	ret = storvsc_channel_init(device);
+ 
 -- 
 1.7.4.1
