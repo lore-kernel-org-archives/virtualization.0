@@ -1,8 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 053/117] Staging: hv: storvsc: Cleanup error handling in
-	storvsc_connect_to_vsp()
-Date: Fri, 15 Jul 2011 10:46:41 -0700
-Message-ID: <1310752065-27895-53-git-send-email-kys@microsoft.com>
+Subject: [PATCH 056/117] Staging: hv: storvsc: Fix/cleanup some dated comments
+	in storvsc.c
+Date: Fri, 15 Jul 2011 10:46:44 -0700
+Message-ID: <1310752065-27895-56-git-send-email-kys@microsoft.com>
 References: <1310752024-27854-1-git-send-email-kys@microsoft.com>
 	<1310752065-27895-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -23,26 +23,53 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Cleanup error handling in storvsc_connect_to_vsp().
+Fix/cleanup some dated comments in storvsc.c.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- drivers/staging/hv/storvsc.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+ drivers/staging/hv/storvsc.c |    8 +++-----
+ 1 files changed, 3 insertions(+), 5 deletions(-)
 
 diff --git a/drivers/staging/hv/storvsc.c b/drivers/staging/hv/storvsc.c
-index 22ac6f2..2b73f72 100644
+index 3730f3f..827b6a3 100644
 --- a/drivers/staging/hv/storvsc.c
 +++ b/drivers/staging/hv/storvsc.c
-@@ -376,7 +376,7 @@ static int storvsc_connect_to_vsp(struct hv_device *device, u32 ring_size)
- 			 storvsc_on_channel_callback, device);
+@@ -166,7 +166,6 @@ static int storvsc_channel_init(struct hv_device *device)
+ 		goto cleanup;
+ 	}
  
- 	if (ret != 0)
--		return -1;
-+		return ret;
+-	/* TODO: Check returned version */
+ 	if (vstor_packet->operation != VSTOR_OPERATION_COMPLETE_IO ||
+ 	    vstor_packet->status != 0)
+ 		goto cleanup;
+@@ -193,7 +192,6 @@ static int storvsc_channel_init(struct hv_device *device)
+ 		goto cleanup;
+ 	}
  
- 	ret = storvsc_channel_init(device);
+-	/* TODO: Check returned version */
+ 	if (vstor_packet->operation != VSTOR_OPERATION_COMPLETE_IO ||
+ 	    vstor_packet->status != 0)
+ 		goto cleanup;
+@@ -384,11 +382,12 @@ int storvsc_dev_add(struct hv_device *device,
  
+ 	/* Save the channel properties to our storvsc channel */
+ 
+-	/* FIXME: */
+ 	/*
+ 	 * If we support more than 1 scsi channel, we need to set the
+ 	 * port number here to the scsi channel but how do we get the
+-	 * scsi channel prior to the bus scan
++	 * scsi channel prior to the bus scan.
++	 *
++	 * The host does not support this.
+ 	 */
+ 
+ 	stor_device->port_number = device_info->port_number;
+@@ -545,4 +544,3 @@ int storvsc_get_major_info(struct storvsc_device_info *device_info,
+ 
+ 	return -ENODEV;
+ }
+-
 -- 
 1.7.4.1
