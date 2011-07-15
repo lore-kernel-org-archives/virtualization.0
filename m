@@ -1,48 +1,106 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 109/117] Staging: hv: storvsc: No need to copy from bounce buffer in case of a failure
-Date: Fri, 15 Jul 2011 10:47:37 -0700
-Message-ID: <1310752065-27895-109-git-send-email-kys@microsoft.com>
+Subject: [PATCH 055/117] Storage: hv: storvsc: Get rid of some unnecessary
+	DPRINTs from storvsc.c
+Date: Fri, 15 Jul 2011 10:46:43 -0700
+Message-ID: <1310752065-27895-55-git-send-email-kys@microsoft.com>
 References: <1310752024-27854-1-git-send-email-kys@microsoft.com>
- <1310752065-27895-1-git-send-email-kys@microsoft.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+	<1310752065-27895-1-git-send-email-kys@microsoft.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <devel-bounces@linuxdriverproject.org>
 In-Reply-To: <1310752065-27895-1-git-send-email-kys@microsoft.com>
-Sender: linux-kernel-owner@vger.kernel.org
+List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
+	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
+List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
+List-Post: <mailto:devel@linuxdriverproject.org>
+List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
+List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
+	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
+Sender: devel-bounces@linuxdriverproject.org
+Errors-To: devel-bounces@linuxdriverproject.org
 To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org
-Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>
+Cc: Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-No need to copy from bounce buffer in case of a failure; cleanup the code
-accordingly.
+Get rid of some unnecessary DPRINTs from storvsc.c.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- drivers/staging/hv/storvsc_drv.c |   12 ++----------
- 1 files changed, 2 insertions(+), 10 deletions(-)
+ drivers/staging/hv/storvsc.c |   16 ----------------
+ 1 files changed, 0 insertions(+), 16 deletions(-)
 
-diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
-index 8756cdf..ba27b51 100644
---- a/drivers/staging/hv/storvsc_drv.c
-+++ b/drivers/staging/hv/storvsc_drv.c
-@@ -1348,17 +1348,9 @@ retry_request:
- 	if (ret == -EAGAIN) {
- 		/* no more space */
+diff --git a/drivers/staging/hv/storvsc.c b/drivers/staging/hv/storvsc.c
+index 2b914e4..3730f3f 100644
+--- a/drivers/staging/hv/storvsc.c
++++ b/drivers/staging/hv/storvsc.c
+@@ -125,8 +125,6 @@ static int storvsc_channel_init(struct hv_device *device)
+ 	vstor_packet->operation = VSTOR_OPERATION_BEGIN_INITIALIZATION;
+ 	vstor_packet->flags = REQUEST_COMPLETION_FLAG;
  
--		if (cmd_request->bounce_sgl_count) {
--			/*
--			 * FIXME: We can optimize on writes by just skipping
--			 * this
--			 */
--			copy_from_bounce_buffer(scsi_sglist(scmnd),
--						cmd_request->bounce_sgl,
--						scsi_sg_count(scmnd));
-+		if (cmd_request->bounce_sgl_count)
- 			destroy_bounce_buffer(cmd_request->bounce_sgl,
--					      cmd_request->bounce_sgl_count);
--		}
-+					cmd_request->bounce_sgl_count);
+-	DPRINT_INFO(STORVSC, "BEGIN_INITIALIZATION_OPERATION...");
+-
+ 	ret = vmbus_sendpacket(device->channel, vstor_packet,
+ 			       sizeof(struct vstor_packet),
+ 			       (unsigned long)request,
+@@ -145,7 +143,6 @@ static int storvsc_channel_init(struct hv_device *device)
+ 	    vstor_packet->status != 0)
+ 		goto cleanup;
  
- 		kmem_cache_free(host_dev->request_pool, cmd_request);
+-	DPRINT_INFO(STORVSC, "QUERY_PROTOCOL_VERSION_OPERATION...");
  
+ 	/* reuse the packet for version range supported */
+ 	memset(vstor_packet, 0, sizeof(struct vstor_packet));
+@@ -174,8 +171,6 @@ static int storvsc_channel_init(struct hv_device *device)
+ 	    vstor_packet->status != 0)
+ 		goto cleanup;
+ 
+-	/* Query channel properties */
+-	DPRINT_INFO(STORVSC, "QUERY_PROPERTIES_OPERATION...");
+ 
+ 	memset(vstor_packet, 0, sizeof(struct vstor_packet));
+ 	vstor_packet->operation = VSTOR_OPERATION_QUERY_PROPERTIES;
+@@ -207,8 +202,6 @@ static int storvsc_channel_init(struct hv_device *device)
+ 	stor_device->target_id
+ 		= vstor_packet->storage_channel_properties.target_id;
+ 
+-	DPRINT_INFO(STORVSC, "END_INITIALIZATION_OPERATION...");
+-
+ 	memset(vstor_packet, 0, sizeof(struct vstor_packet));
+ 	vstor_packet->operation = VSTOR_OPERATION_END_INITIALIZATION;
+ 	vstor_packet->flags = REQUEST_COMPLETION_FLAG;
+@@ -232,7 +225,6 @@ static int storvsc_channel_init(struct hv_device *device)
+ 	    vstor_packet->status != 0)
+ 		goto cleanup;
+ 
+-	DPRINT_INFO(STORVSC, "**** storage channel up and running!! ****");
+ 
+ cleanup:
+ 	put_stor_device(device);
+@@ -305,13 +297,8 @@ static void storvsc_on_receive(struct hv_device *device,
+ 		storvsc_on_io_completion(device, vstor_packet, request);
+ 		break;
+ 	case VSTOR_OPERATION_REMOVE_DEVICE:
+-		DPRINT_INFO(STORVSC, "REMOVE_DEVICE_OPERATION");
+-		/* TODO: */
+-		break;
+ 
+ 	default:
+-		DPRINT_INFO(STORVSC, "Unknown operation received - %d",
+-			    vstor_packet->operation);
+ 		break;
+ 	}
+ }
+@@ -421,9 +408,6 @@ int storvsc_dev_remove(struct hv_device *device)
+ {
+ 	struct storvsc_device *stor_device;
+ 
+-	DPRINT_INFO(STORVSC, "disabling storage device (%p)...",
+-		    device->ext);
+-
+ 	stor_device = release_stor_device(device);
+ 
+ 	/*
 -- 
 1.7.4.1
