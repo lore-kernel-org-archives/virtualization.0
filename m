@@ -1,8 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 043/117] Staging: hv: vmbus: Get rid of the function
-	dump_gpadl_header()
-Date: Fri, 15 Jul 2011 10:46:31 -0700
-Message-ID: <1310752065-27895-43-git-send-email-kys@microsoft.com>
+Subject: [PATCH 096/117] Staging: hv: netvsc: Further cleanup reference
+	counting of netvsc_device
+Date: Fri, 15 Jul 2011 10:47:24 -0700
+Message-ID: <1310752065-27895-96-git-send-email-kys@microsoft.com>
 References: <1310752024-27854-1-git-send-email-kys@microsoft.com>
 	<1310752065-27895-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -23,59 +23,97 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Get rid of the function dump_gpadl_header() as this adds no value.
+Further cleanup reference counting of netvsc_device. Since once the device
+is marked for destruction, we only allow incoming traffic to drain out
+outstanding sends, we can simplify reference counting.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- drivers/staging/hv/channel.c |   28 ----------------------------
- 1 files changed, 0 insertions(+), 28 deletions(-)
+ drivers/staging/hv/netvsc.c |   27 ++++++++++++++++++---------
+ 1 files changed, 18 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/staging/hv/channel.c b/drivers/staging/hv/channel.c
-index 2d5bfac..aa0a150 100644
---- a/drivers/staging/hv/channel.c
-+++ b/drivers/staging/hv/channel.c
-@@ -239,33 +239,6 @@ errorout:
- }
- EXPORT_SYMBOL_GPL(vmbus_open);
- 
--
--/*
-- * dump_gpadl_header - Dump the gpadl header message to the console for
-- * debugging purposes.
-- */
--static void dump_gpadl_header(struct vmbus_channel_gpadl_header *gpadl)
--{
--	int i, j;
--	int pagecount;
--
--	DPRINT_DBG(VMBUS,
--		   "gpadl header - relid %d, range count %d, range buflen %d",
--		   gpadl->child_relid, gpadl->rangecount, gpadl->range_buflen);
--	for (i = 0; i < gpadl->rangecount; i++) {
--		pagecount = gpadl->range[i].byte_count >> PAGE_SHIFT;
--		pagecount = (pagecount > 26) ? 26 : pagecount;
--
--		DPRINT_DBG(VMBUS, "gpadl range %d - len %d offset %d "
--			   "page count %d", i, gpadl->range[i].byte_count,
--			   gpadl->range[i].byte_offset, pagecount);
--
--		for (j = 0; j < pagecount; j++)
--			DPRINT_DBG(VMBUS, "%d) pfn %llu", j,
--				   gpadl->range[i].pfn_array[j]);
--	}
--}
--
- /*
-  * create_gpadl_header - Creates a gpadl for the specified buffer
+diff --git a/drivers/staging/hv/netvsc.c b/drivers/staging/hv/netvsc.c
+index 4ef17d8..16a80b1 100644
+--- a/drivers/staging/hv/netvsc.c
++++ b/drivers/staging/hv/netvsc.c
+@@ -17,6 +17,7 @@
+  * Authors:
+  *   Haiyang Zhang <haiyangz@microsoft.com>
+  *   Hank Janssen  <hjanssen@microsoft.com>
++ *   K. Y. Srinivasan <kys@microsoft.com>
   */
-@@ -443,7 +416,6 @@ int vmbus_establish_gpadl(struct vmbus_channel *channel, void *kbuffer,
- 	gpadlmsg->child_relid = channel->offermsg.child_relid;
- 	gpadlmsg->gpadl = next_gpadl_handle;
+ #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
  
--	dump_gpadl_header(gpadlmsg);
+@@ -40,8 +41,7 @@ static struct netvsc_device *alloc_net_device(struct hv_device *device)
+ 	if (!net_device)
+ 		return NULL;
  
- 	spin_lock_irqsave(&vmbus_connection.channelmsg_lock, flags);
- 	list_add_tail(&msginfo->msglistentry,
+-	/* Set to 2 to allow both inbound and outbound traffic */
+-	net_device->refcnt = 2;
++	net_device->refcnt = 1;
+ 
+ 	net_device->destroy = false;
+ 	net_device->dev = device;
+@@ -50,7 +50,6 @@ static struct netvsc_device *alloc_net_device(struct hv_device *device)
+ 	return net_device;
+ }
+ 
+-/* Get the net device object iff exists and its refcount > 1 */
+ static struct netvsc_device *get_outbound_net_device(struct hv_device *device)
+ {
+ 	struct netvsc_device *net_device;
+@@ -58,7 +57,7 @@ static struct netvsc_device *get_outbound_net_device(struct hv_device *device)
+ 
+ 	spin_lock_irqsave(&device->ext_lock, flags);
+ 	net_device = device->ext;
+-	if (net_device && (net_device->refcnt > 1) &&
++	if (net_device && (net_device->refcnt) &&
+ 		!net_device->destroy)
+ 		net_device->refcnt++;
+ 	else
+@@ -68,7 +67,6 @@ static struct netvsc_device *get_outbound_net_device(struct hv_device *device)
+ 	return net_device;
+ }
+ 
+-/* Get the net device object iff exists and its refcount > 0 */
+ static struct netvsc_device *get_inbound_net_device(struct hv_device *device)
+ {
+ 	struct netvsc_device *net_device;
+@@ -76,11 +74,23 @@ static struct netvsc_device *get_inbound_net_device(struct hv_device *device)
+ 
+ 	spin_lock_irqsave(&device->ext_lock, flags);
+ 	net_device = device->ext;
+-	if (net_device && net_device->refcnt)
+-		net_device->refcnt++;
+-	else
++
++	if (!net_device)
++		goto cleanup;
++
++	/*
++	 * If the device is being destroyed; allow incoming
++	 * traffic only to cleanup outstanding requests.
++	 */
++	if (net_device->destroy &&
++		(atomic_read(&net_device->num_outstanding_sends) == 0)) {
+ 		net_device = NULL;
++		goto cleanup;
++	}
+ 
++	net_device->refcnt++;
++
++cleanup:
+ 	spin_unlock_irqrestore(&device->ext_lock, flags);
+ 	return net_device;
+ }
+@@ -400,7 +410,6 @@ int netvsc_device_remove(struct hv_device *device)
+ 	netvsc_disconnect_vsp(net_device);
+ 
+ 	spin_lock_irqsave(&device->ext_lock, flags);
+-	net_device->refcnt--;
+ 	device->ext = NULL;
+ 	spin_unlock_irqrestore(&device->ext_lock, flags);
+ 
 -- 
 1.7.4.1
