@@ -1,7 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 089/117] Staging: hv: netvsc: Cleanup alloc_net_device()
-Date: Fri, 15 Jul 2011 10:47:17 -0700
-Message-ID: <1310752065-27895-89-git-send-email-kys@microsoft.com>
+Subject: [PATCH 064/117] Staging: hv: netvsc: Cleanup error return values in
+	netvsc_send()
+Date: Fri, 15 Jul 2011 10:46:52 -0700
+Message-ID: <1310752065-27895-64-git-send-email-kys@microsoft.com>
 References: <1310752024-27854-1-git-send-email-kys@microsoft.com>
 	<1310752065-27895-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -22,26 +23,35 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Cleanup alloc_net_device(); we can directly set the refcnt.
+Use standard Linux error codes.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- drivers/staging/hv/netvsc.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+ drivers/staging/hv/netvsc.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/staging/hv/netvsc.c b/drivers/staging/hv/netvsc.c
-index 75c6ed7..7722102 100644
+index 9cc126b..f7f4957 100644
 --- a/drivers/staging/hv/netvsc.c
 +++ b/drivers/staging/hv/netvsc.c
-@@ -41,7 +41,7 @@ static struct netvsc_device *alloc_net_device(struct hv_device *device)
- 		return NULL;
+@@ -409,7 +409,7 @@ int netvsc_device_remove(struct hv_device *device)
+ 	net_device = release_outbound_net_device(device);
+ 	if (!net_device) {
+ 		dev_err(&device->device, "No net device present!!");
+-		return -1;
++		return -ENODEV;
+ 	}
  
- 	/* Set to 2 to allow both inbound and outbound traffic */
--	atomic_cmpxchg(&net_device->refcnt, 0, 2);
-+	atomic_set(&net_device->refcnt, 2);
+ 	/* Wait for all send completions */
+@@ -499,7 +499,7 @@ int netvsc_send(struct hv_device *device,
+ 	if (!net_device) {
+ 		dev_err(&device->device, "net device (%p) shutting down..."
+ 			   "ignoring outbound packets", net_device);
+-		return -2;
++		return -ENODEV;
+ 	}
  
- 	net_device->dev = device;
- 	device->ext = net_device;
+ 	sendMessage.hdr.msg_type = NVSP_MSG1_TYPE_SEND_RNDIS_PKT;
 -- 
 1.7.4.1
