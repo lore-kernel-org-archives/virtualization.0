@@ -1,8 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 039/117] Staging: hv: vmbus: Cleanup unnecessary comments in
-	hv.c
-Date: Fri, 15 Jul 2011 10:46:27 -0700
-Message-ID: <1310752065-27895-39-git-send-email-kys@microsoft.com>
+Subject: [PATCH 087/117] Staging: hv: storvsc: Further cleanup reference
+	counting of stor_device
+Date: Fri, 15 Jul 2011 10:47:15 -0700
+Message-ID: <1310752065-27895-87-git-send-email-kys@microsoft.com>
 References: <1310752024-27854-1-git-send-email-kys@microsoft.com>
 	<1310752065-27895-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -23,40 +23,84 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Cleanup unnecessary comments in hv.c.
+Further cleanup reference counting of stor_device - when the device is being
+destroyed, we will permit incoming traffic only to drain outstanding
+requests.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- drivers/staging/hv/hv.c |    8 --------
- 1 files changed, 0 insertions(+), 8 deletions(-)
+ drivers/staging/hv/hyperv_storage.h |    3 +--
+ drivers/staging/hv/storvsc.c        |   22 +++++++++++++---------
+ 2 files changed, 14 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/staging/hv/hv.c b/drivers/staging/hv/hv.c
-index 824f816..2f94880 100644
---- a/drivers/staging/hv/hv.c
-+++ b/drivers/staging/hv/hv.c
-@@ -164,11 +164,7 @@ int hv_init(void)
- 		goto cleanup;
+diff --git a/drivers/staging/hv/hyperv_storage.h b/drivers/staging/hv/hyperv_storage.h
+index d946211..a1f3e27 100644
+--- a/drivers/staging/hv/hyperv_storage.h
++++ b/drivers/staging/hv/hyperv_storage.h
+@@ -287,7 +287,6 @@ struct storvsc_device {
+ };
  
- 	max_leaf = query_hypervisor_info();
--	/* HvQueryHypervisorFeatures(maxLeaf); */
  
--	/*
--	 * We only support running on top of Hyper-V
--	 */
- 	rdmsrl(HV_X64_MSR_GUEST_OS_ID, hv_context.guestid);
+-/* Get the stordevice object iff exists and its refcount > 1 */
+ static inline struct storvsc_device *get_out_stor_device(
+ 					struct hv_device *device)
+ {
+@@ -296,7 +295,7 @@ static inline struct storvsc_device *get_out_stor_device(
  
- 	if (hv_context.guestid != 0)
-@@ -181,10 +177,6 @@ int hv_init(void)
- 	/* See if the hypercall page is already set */
- 	rdmsrl(HV_X64_MSR_HYPERCALL, hypercall_msr.as_uint64);
+ 	spin_lock_irqsave(&device->ext_lock, flags);
+ 	stor_device = (struct storvsc_device *)device->ext;
+-	if (stor_device && (stor_device->ref_count > 1) &&
++	if (stor_device && (stor_device->ref_count) &&
+ 		!stor_device->destroy)
+ 		stor_device->ref_count++;
+ 	else
+diff --git a/drivers/staging/hv/storvsc.c b/drivers/staging/hv/storvsc.c
+index a41be2a..4d13044 100644
+--- a/drivers/staging/hv/storvsc.c
++++ b/drivers/staging/hv/storvsc.c
+@@ -40,9 +40,7 @@ static inline struct storvsc_device *alloc_stor_device(struct hv_device *device)
+ 	if (!stor_device)
+ 		return NULL;
  
--	/*
--	* Allocate the hypercall page memory
--	* virtaddr = osd_page_alloc(1);
--	*/
- 	virtaddr = __vmalloc(PAGE_SIZE, GFP_KERNEL, PAGE_KERNEL_EXEC);
+-	/* Set to 2 to allow both inbound and outbound traffics */
+-	/* (ie get_out_stor_device() and get_in_stor_device()) to proceed. */
+-	stor_device->ref_count = 2;
++	stor_device->ref_count = 1;
+ 	stor_device->destroy = false;
+ 	init_waitqueue_head(&stor_device->waiting_to_drain);
+ 	stor_device->device = device;
+@@ -51,8 +49,6 @@ static inline struct storvsc_device *alloc_stor_device(struct hv_device *device)
+ 	return stor_device;
+ }
  
- 	if (!virtaddr)
+-
+-/* Get the stordevice object iff exists and its refcount > 0 */
+ static inline struct storvsc_device *get_in_stor_device(
+ 					struct hv_device *device)
+ {
+@@ -61,10 +57,18 @@ static inline struct storvsc_device *get_in_stor_device(
+ 
+ 	spin_lock_irqsave(&device->ext_lock, flags);
+ 	stor_device = (struct storvsc_device *)device->ext;
+-	if (stor_device && stor_device->ref_count)
+-		stor_device->ref_count++;
+-	else
+-		stor_device = NULL;
++	if (!stor_device)
++		goto cleanup;
++
++	/*
++	 * If the device is being destroyed; allow incoming
++	 * traffic only to cleanup outstanding requests.
++	 */
++	if (stor_device->destroy &&
++		 (atomic_read(&stor_device->num_outstanding_req) == 0))
++		goto cleanup;
++	stor_device->ref_count++;
++cleanup:
+ 	spin_unlock_irqrestore(&device->ext_lock, flags);
+ 
+ 	return stor_device;
 -- 
 1.7.4.1
