@@ -1,8 +1,7 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 048/117] Staging: hv: vmbus: Cleanup the error return value in
-	vmbus_recvpacket_raw()
-Date: Fri, 15 Jul 2011 10:46:36 -0700
-Message-ID: <1310752065-27895-48-git-send-email-kys@microsoft.com>
+Subject: [PATCH 079/117] Staging: hv: storvsc: Cleanup alloc_stor_device()
+Date: Fri, 15 Jul 2011 10:47:07 -0700
+Message-ID: <1310752065-27895-79-git-send-email-kys@microsoft.com>
 References: <1310752024-27854-1-git-send-email-kys@microsoft.com>
 	<1310752065-27895-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -23,54 +22,26 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Use standard Linux errno values.
+Cleanup alloc_stor_device(), we can set the ref_count directly.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- drivers/staging/hv/channel.c  |    2 +-
- drivers/staging/hv/hv_mouse.c |    2 +-
- drivers/staging/hv/netvsc.c   |    2 +-
- 3 files changed, 3 insertions(+), 3 deletions(-)
+ drivers/staging/hv/storvsc.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/staging/hv/channel.c b/drivers/staging/hv/channel.c
-index 9eb8def..ac92c1f 100644
---- a/drivers/staging/hv/channel.c
-+++ b/drivers/staging/hv/channel.c
-@@ -811,7 +811,7 @@ int vmbus_recvpacket_raw(struct vmbus_channel *channel, void *buffer,
- 		pr_err("Buffer too small - needed %d bytes but "
- 			"got space for only %d bytes\n",
- 			packetlen, bufferlen);
--		return -2;
-+		return -ENOBUFS;
- 	}
+diff --git a/drivers/staging/hv/storvsc.c b/drivers/staging/hv/storvsc.c
+index 313a3f8..48bd8da 100644
+--- a/drivers/staging/hv/storvsc.c
++++ b/drivers/staging/hv/storvsc.c
+@@ -42,7 +42,7 @@ static inline struct storvsc_device *alloc_stor_device(struct hv_device *device)
  
- 	*requestid = desc.trans_id;
-diff --git a/drivers/staging/hv/hv_mouse.c b/drivers/staging/hv/hv_mouse.c
-index e0cede3..30aa709 100644
---- a/drivers/staging/hv/hv_mouse.c
-+++ b/drivers/staging/hv/hv_mouse.c
-@@ -542,7 +542,7 @@ static void mousevsc_on_channel_callback(void *context)
- 				}
- 				break;
- 			}
--		} else if (ret == -2) {
-+		} else if (ret == -ENOBUFS) {
- 			/* Handle large packet */
- 			bufferlen = bytes_recvd;
- 			buffer = kzalloc(bytes_recvd, GFP_KERNEL);
-diff --git a/drivers/staging/hv/netvsc.c b/drivers/staging/hv/netvsc.c
-index d547ff6..b89ac7e 100644
---- a/drivers/staging/hv/netvsc.c
-+++ b/drivers/staging/hv/netvsc.c
-@@ -884,7 +884,7 @@ static void netvsc_channel_cb(void *context)
+ 	/* Set to 2 to allow both inbound and outbound traffics */
+ 	/* (ie get_out_stor_device() and get_in_stor_device()) to proceed. */
+-	atomic_cmpxchg(&stor_device->ref_count, 0, 2);
++	atomic_set(&stor_device->ref_count, 2);
  
- 				break;
- 			}
--		} else if (ret == -2) {
-+		} else if (ret == -ENOBUFS) {
- 			/* Handle large packet */
- 			buffer = kmalloc(bytes_recvd, GFP_ATOMIC);
- 			if (buffer == NULL) {
+ 	init_waitqueue_head(&stor_device->waiting_to_drain);
+ 	stor_device->device = device;
 -- 
 1.7.4.1
