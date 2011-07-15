@@ -1,7 +1,7 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 028/117] Staging: hv: storvsc: Get rid of the device type guid from storvsc_drv.c
-Date: Fri, 15 Jul 2011 10:46:16 -0700
-Message-ID: <1310752065-27895-28-git-send-email-kys@microsoft.com>
+Subject: [PATCH 025/117] Staging: hv: util: Get rid of the DMI signature in hv_util.c
+Date: Fri, 15 Jul 2011 10:46:13 -0700
+Message-ID: <1310752065-27895-25-git-send-email-kys@microsoft.com>
 References: <1310752024-27854-1-git-send-email-kys@microsoft.com>
  <1310752065-27895-1-git-send-email-kys@microsoft.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
@@ -11,42 +11,59 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Get rid of the device type guid from storvsc_drv.c as it is no longer used.
+Now that we have implemented a vmbus specific mechanism for auto-loading,
+get rid of the DMI signature.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- drivers/staging/hv/storvsc_drv.c |   11 -----------
- 1 files changed, 0 insertions(+), 11 deletions(-)
+ drivers/staging/hv/hv_util.c |   20 --------------------
+ 1 files changed, 0 insertions(+), 20 deletions(-)
 
-diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
-index f594ca4..46cb81a 100644
---- a/drivers/staging/hv/storvsc_drv.c
-+++ b/drivers/staging/hv/storvsc_drv.c
-@@ -43,14 +43,6 @@ MODULE_PARM_DESC(storvsc_ringbuffer_size, "Ring buffer size (bytes)");
+diff --git a/drivers/staging/hv/hv_util.c b/drivers/staging/hv/hv_util.c
+index 8d327c5..6fabc99 100644
+--- a/drivers/staging/hv/hv_util.c
++++ b/drivers/staging/hv/hv_util.c
+@@ -26,7 +26,6 @@
+ #include <linux/slab.h>
+ #include <linux/sysctl.h>
+ #include <linux/reboot.h>
+-#include <linux/dmi.h>
+ #include <linux/pci.h>
  
- static const char *driver_name = "storvsc";
+ #include "hyperv.h"
+@@ -279,22 +278,6 @@ hv_utils_pci_table[] __maybe_unused = {
+ };
+ MODULE_DEVICE_TABLE(pci, hv_utils_pci_table);
  
--/* {ba6163d9-04a1-4d29-b605-72e2ffb1dc7f} */
--static const uuid_le stor_vsci_device_type = {
--	.b = {
--		0xd9, 0x63, 0x61, 0xba, 0xa1, 0x04, 0x29, 0x4d,
--		0xb6, 0x05, 0x72, 0xe2, 0xff, 0xb1, 0xdc, 0x7f
--	}
+-
+-static const struct dmi_system_id __initconst
+-hv_utils_dmi_table[] __maybe_unused  = {
+-	{
+-		.ident = "Hyper-V",
+-		.matches = {
+-			DMI_MATCH(DMI_SYS_VENDOR, "Microsoft Corporation"),
+-			DMI_MATCH(DMI_PRODUCT_NAME, "Virtual Machine"),
+-			DMI_MATCH(DMI_BOARD_NAME, "Virtual Machine"),
+-		},
+-	},
+-	{ },
 -};
+-MODULE_DEVICE_TABLE(dmi, hv_utils_dmi_table);
 -
- struct hv_host_device {
- 	struct hv_device *dev;
- 	struct kmem_cache *request_pool;
-@@ -759,9 +751,6 @@ static int __init storvsc_drv_init(void)
- 	sizeof(struct vstor_packet) + sizeof(u64),
- 	sizeof(u64)));
+-
+ static int __init init_hyperv_utils(void)
+ {
+ 	pr_info("Registering HyperV Utility Driver\n");
+@@ -303,9 +286,6 @@ static int __init init_hyperv_utils(void)
+ 		return -ENODEV;
  
--	memcpy(&drv->dev_type, &stor_vsci_device_type,
--	       sizeof(uuid_le));
+ 
+-	if (!dmi_check_system(hv_utils_dmi_table))
+-		return -ENODEV;
 -
- 	if (max_outstanding_req_per_channel <
- 	    STORVSC_MAX_IO_REQUESTS)
- 		return -1;
+ 	shut_txf_buf = kmalloc(PAGE_SIZE, GFP_KERNEL);
+ 	time_txf_buf = kmalloc(PAGE_SIZE, GFP_KERNEL);
+ 	hbeat_txf_buf = kmalloc(PAGE_SIZE, GFP_KERNEL);
 -- 
 1.7.4.1
