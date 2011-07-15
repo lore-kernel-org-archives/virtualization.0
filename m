@@ -1,8 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 074/117] Staging: hv: netvsc: Change the jump label Exit to
-	exit
-Date: Fri, 15 Jul 2011 10:47:02 -0700
-Message-ID: <1310752065-27895-74-git-send-email-kys@microsoft.com>
+Subject: [PATCH 051/117] Staging: hv: storvsc: Cleanup error handling in
+	storvsc_dev_add()
+Date: Fri, 15 Jul 2011 10:46:39 -0700
+Message-ID: <1310752065-27895-51-git-send-email-kys@microsoft.com>
 References: <1310752024-27854-1-git-send-email-kys@microsoft.com>
 	<1310752065-27895-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -23,33 +23,46 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Change the jump lable "Exit" to "exit".
+Use standard Linux error values and cleanup error handling. I would like
+to acknowledge Andre Bartke (andre.bartke@gmail.com) for highlighting this
+problem.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- drivers/staging/hv/rndis_filter.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/staging/hv/storvsc.c |   12 ++++++------
+ 1 files changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/staging/hv/rndis_filter.c b/drivers/staging/hv/rndis_filter.c
-index 79dfe78..6db48b9 100644
---- a/drivers/staging/hv/rndis_filter.c
-+++ b/drivers/staging/hv/rndis_filter.c
-@@ -537,7 +537,7 @@ static int rndis_filter_set_packet_filter(struct rndis_device *dev,
- 		 * We can't deallocate the request since we may still receive a
- 		 * send completion for it.
- 		 */
--		goto Exit;
-+		goto exit;
- 	} else {
- 		set_complete = &request->response_msg.msg.set_complete;
- 		status = set_complete->status;
-@@ -546,7 +546,7 @@ static int rndis_filter_set_packet_filter(struct rndis_device *dev,
- cleanup:
- 	if (request)
- 		put_rndis_request(dev, request);
--Exit:
-+exit:
+diff --git a/drivers/staging/hv/storvsc.c b/drivers/staging/hv/storvsc.c
+index 3029786..915aeee 100644
+--- a/drivers/staging/hv/storvsc.c
++++ b/drivers/staging/hv/storvsc.c
+@@ -392,10 +392,8 @@ int storvsc_dev_add(struct hv_device *device,
+ 
+ 	device_info = (struct storvsc_device_info *)additional_info;
+ 	stor_device = alloc_stor_device(device);
+-	if (!stor_device) {
+-		ret = -1;
+-		goto cleanup;
+-	}
++	if (!stor_device)
++		return -ENOMEM;
+ 
+ 	/* Save the channel properties to our storvsc channel */
+ 
+@@ -409,11 +407,13 @@ int storvsc_dev_add(struct hv_device *device,
+ 	stor_device->port_number = device_info->port_number;
+ 	/* Send it back up */
+ 	ret = storvsc_connect_to_vsp(device, device_info->ring_buffer_size);
+-
++	if (ret) {
++		free_stor_device(stor_device);
++		return ret;
++	}
+ 	device_info->path_id = stor_device->path_id;
+ 	device_info->target_id = stor_device->target_id;
+ 
+-cleanup:
  	return ret;
  }
  
