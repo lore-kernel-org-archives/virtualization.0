@@ -1,83 +1,65 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 010/117] Staging: hv: util: Make hv_utils a vmbus device driver
-Date: Fri, 15 Jul 2011 10:45:58 -0700
-Message-ID: <1310752065-27895-10-git-send-email-kys@microsoft.com>
+Subject: [PATCH 008/117] Staging: hv: netvsc: Use the newly introduced vmbus
+	ID in netvsc driver
+Date: Fri, 15 Jul 2011 10:45:56 -0700
+Message-ID: <1310752065-27895-8-git-send-email-kys@microsoft.com>
 References: <1310752024-27854-1-git-send-email-kys@microsoft.com>
- <1310752065-27895-1-git-send-email-kys@microsoft.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+	<1310752065-27895-1-git-send-email-kys@microsoft.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <devel-bounces@linuxdriverproject.org>
 In-Reply-To: <1310752065-27895-1-git-send-email-kys@microsoft.com>
-Sender: linux-kernel-owner@vger.kernel.org
+List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
+	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
+List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
+List-Post: <mailto:devel@linuxdriverproject.org>
+List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
+List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
+	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
+Sender: devel-bounces@linuxdriverproject.org
+Errors-To: devel-bounces@linuxdriverproject.org
 To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org
-Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>
+Cc: Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Make hv_utils a vmbus device driver.
+Use the newly introduced vmbus ID in netvsc driver.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- drivers/staging/hv/hv_util.c |   28 +++++++++++++++++++++++++++-
- 1 files changed, 27 insertions(+), 1 deletions(-)
+ drivers/staging/hv/netvsc_drv.c |   17 +++++++++++++++++
+ 1 files changed, 17 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/staging/hv/hv_util.c b/drivers/staging/hv/hv_util.c
-index c164b54..e72bfe0 100644
---- a/drivers/staging/hv/hv_util.c
-+++ b/drivers/staging/hv/hv_util.c
-@@ -36,6 +36,8 @@ static u8 *shut_txf_buf;
- static u8 *time_txf_buf;
- static u8 *hbeat_txf_buf;
- 
-+static const char *driver_name = "hv_util";
-+
- static void shutdown_onchannelcallback(void *context)
- {
- 	struct vmbus_channel *channel = context;
-@@ -210,6 +212,27 @@ static void heartbeat_onchannelcallback(void *context)
- 	}
+diff --git a/drivers/staging/hv/netvsc_drv.c b/drivers/staging/hv/netvsc_drv.c
+index 61989f0..1f4b7b4 100644
+--- a/drivers/staging/hv/netvsc_drv.c
++++ b/drivers/staging/hv/netvsc_drv.c
+@@ -413,8 +413,25 @@ static int netvsc_remove(struct hv_device *dev)
+ 	return 0;
  }
  
-+/*
-+ * The devices managed by the util driver don't need any additional
-+ * setup.
-+ */
-+static int util_probe(struct hv_device *dev)
-+{
-+	return 0;
-+}
-+
-+static int util_remove(struct hv_device *dev)
-+{
-+	return 0;
-+}
-+
-+
-+/* The one and only one */
-+static  struct hv_driver util_drv = {
-+	.probe =  util_probe,
-+	.remove =  util_remove,
++static const struct hv_vmbus_device_id id_table[] = {
++	{
++		/* Network guid */
++		.guid = {
++			0x63, 0x51, 0x61, 0xF8, 0x3E, 0xDF, 0xc5, 0x46,
++			0x91, 0x3F, 0xF2, 0xD2, 0xF9, 0x65, 0xED, 0x0E
++		}
++	},
++	{
++		.guid = {
++			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
++			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
++		}
++	},
 +};
 +
- static const struct pci_device_id __initconst
- hv_utils_pci_table[] __maybe_unused = {
- 	{ PCI_DEVICE(0x1414, 0x5353) }, /* Hyper-V emulated VGA controller */
-@@ -264,7 +287,9 @@ static int __init init_hyperv_utils(void)
- 
- 	hv_cb_utils[HV_KVP_MSG].callback = &hv_kvp_onchannelcallback;
- 
--	return 0;
-+	util_drv.driver.name = driver_name;
-+
-+	return vmbus_child_driver_register(&util_drv.driver);
- }
- 
- static void exit_hyperv_utils(void)
-@@ -296,6 +321,7 @@ static void exit_hyperv_utils(void)
- 	kfree(shut_txf_buf);
- 	kfree(time_txf_buf);
- 	kfree(hbeat_txf_buf);
-+	vmbus_child_driver_unregister(&util_drv.driver);
- }
- 
- module_init(init_hyperv_utils);
+ /* The one and only one */
+ static struct  hv_driver netvsc_drv = {
++	.id_table = id_table,
+ 	.probe = netvsc_probe,
+ 	.remove = netvsc_remove,
+ };
 -- 
 1.7.4.1
