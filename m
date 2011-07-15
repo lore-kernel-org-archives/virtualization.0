@@ -1,7 +1,7 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 023/117] Staging: hv: netvsc: Get rid of the PCI signature
-Date: Fri, 15 Jul 2011 10:46:11 -0700
-Message-ID: <1310752065-27895-23-git-send-email-kys@microsoft.com>
+Subject: [PATCH 018/117] Staging: hv: vmbus: Cleanup vmbus_match()
+Date: Fri, 15 Jul 2011 10:46:06 -0700
+Message-ID: <1310752065-27895-18-git-send-email-kys@microsoft.com>
 References: <1310752024-27854-1-git-send-email-kys@microsoft.com>
 	<1310752065-27895-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -22,40 +22,28 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Now that we have implemented a vmbus specific mechanism for auto-loading,
-get rid of the PCI signature.
+Now that we are using the already defined type for guids, cleanup
+vmbus_match().
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- drivers/staging/hv/netvsc_drv.c |    8 --------
- 1 files changed, 0 insertions(+), 8 deletions(-)
+ drivers/staging/hv/vmbus_drv.c |    3 +--
+ 1 files changed, 1 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/staging/hv/netvsc_drv.c b/drivers/staging/hv/netvsc_drv.c
-index 5847662..9352277 100644
---- a/drivers/staging/hv/netvsc_drv.c
-+++ b/drivers/staging/hv/netvsc_drv.c
-@@ -34,7 +34,6 @@
- #include <linux/in.h>
- #include <linux/slab.h>
- #include <linux/dmi.h>
--#include <linux/pci.h>
- #include <net/arp.h>
- #include <net/route.h>
- #include <net/sock.h>
-@@ -480,13 +479,6 @@ static int __init netvsc_drv_init(void)
- 	return ret;
- }
+diff --git a/drivers/staging/hv/vmbus_drv.c b/drivers/staging/hv/vmbus_drv.c
+index 291b4e0..330cc43 100644
+--- a/drivers/staging/hv/vmbus_drv.c
++++ b/drivers/staging/hv/vmbus_drv.c
+@@ -302,8 +302,7 @@ static int vmbus_match(struct device *device, struct device_driver *driver)
+ 	struct hv_device *hv_dev = device_to_hv_device(device);
  
--static const struct pci_device_id __initconst
--hv_netvsc_pci_table[] __maybe_unused = {
--	{ PCI_DEVICE(0x1414, 0x5353) }, /* VGA compatible controller */
--	{ 0 }
--};
--MODULE_DEVICE_TABLE(pci, hv_netvsc_pci_table);
--
- MODULE_LICENSE("GPL");
- MODULE_VERSION(HV_DRV_VERSION);
- MODULE_DESCRIPTION("Microsoft Hyper-V network driver");
+ 	/* We found our driver ? */
+-	if (memcmp(&hv_dev->dev_type, &drv->dev_type,
+-		   sizeof(uuid_le)) == 0)
++	if (!uuid_le_cmp(hv_dev->dev_type, drv->dev_type))
+ 		match = 1;
+ 
+ 	return match;
 -- 
 1.7.4.1
