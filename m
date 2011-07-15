@@ -1,42 +1,51 @@
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Large Patch Series in Email         (was Re: [PATCH 0000/0117]
- Staging: hv: Driver cleanup)
-Date: Sat, 16 Jul 2011 00:07:39 +0100
-Message-ID: <20110716000739.3239bac8@lxorguk.ukuu.org.uk>
-References: <1310752024-27854-1-git-send-email-kys@microsoft.com>
-	<84fa825a57d34571a5aa66ae7299461c-mfwitten@gmail.com>
+From: David Miller <davem@davemloft.net>
+Subject: Re: Large Patch Series in Email
+Date: Fri, 15 Jul 2011 16:22:10 -0700 (PDT)
+Message-ID: <20110715.162210.346975929824395806.davem@davemloft.net>
+References: <84fa825a57d34571a5aa66ae7299461c-mfwitten@gmail.com>
+	<20110715210903.GF18655@shale.localdomain>
+	<2069ac4443284c47983ba731368ddb56-mfwitten@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <84fa825a57d34571a5aa66ae7299461c-mfwitten@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Michael Witten <mfwitten@gmail.com>
-Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Greg Kroah-Hartman <gregkh@suse.de>, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <2069ac4443284c47983ba731368ddb56-mfwitten@gmail.com>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: mfwitten@gmail.com
+Cc: error27@gmail.com, gregkh@suse.de, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org, devel@linuxdriverproject.org
 List-Id: virtualization@lists.linuxfoundation.org
 
->   Do not send more than 15 patches at once to the vger
->   mailing lists!!!
+From: Michael Witten <mfwitten@gmail.com>
+Date: Fri, 15 Jul 2011 22:55:29 -0000
+
+> On Sat, 16 Jul 2011 00:09:03 +0300, Dan Carpenter wrote:
 > 
-> and, accordingly, I went to the trouble of setting up a GitHub
-> account to host a repo from which I could issue *one* single
-> PULL request email; I get a little miffed every time my
-> inbox gets blasted with hundreds of patches when others don't
-> do similarly.
+>> On Fri, Jul 15, 2011 at 06:25:55PM -0000, Michael Witten wrote:
+>>>   Do not send more than 15 patches at once to the vger
+>>>   mailing lists!!!
+>>
+>> ... Don't be a whinge bucket.
+> 
+> Or be respectful of bandwidth, differing email environments, and the
+> official guidelines for submitting patches, which I will quote again:
+> 
+>     If you cannot condense your patch set into a smaller set
+>     of patches, then only post say 15 or so at a time and wait
+>     for review and integration.
+>     ...
+>     Do not send more than 15 patches at once to the vger
+>     mailing lists!!!
 
-The problem with dumping stuff that needs review into a git tree is it's
-a lot of hassle to review so the advice is kind of outdated in such cases.
-It's good advice for things like big new subsystems perhaps but not for
-review.
+Indeed, it really sucks when people send huge patch sets, do
+not do it.
 
-As is always the case social norms evolve faster than the people who feel
-compelled to attempt to document them.
-
-There are lots of web archives of the list and it's also not hard to set
-up mail tools to shuffle long emails into a folder so there are plenty of
-ways to manage and read the lists without being part of it.
-
-And someone should probably updating the CodingStyle document to reflect
-reality 8)
-
-Alan
+If the official SubmittingPatches document isn't convincing
+enough, then maybe me (the vger postmaster) saying it will.
