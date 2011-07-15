@@ -1,8 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 051/117] Staging: hv: storvsc: Cleanup error handling in
-	storvsc_dev_add()
-Date: Fri, 15 Jul 2011 10:46:39 -0700
-Message-ID: <1310752065-27895-51-git-send-email-kys@microsoft.com>
+Subject: [PATCH 045/117] Staging: hv: vmbus: Get rid of unnecessary comments
+	in channel.c
+Date: Fri, 15 Jul 2011 10:46:33 -0700
+Message-ID: <1310752065-27895-45-git-send-email-kys@microsoft.com>
 References: <1310752024-27854-1-git-send-email-kys@microsoft.com>
 	<1310752065-27895-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -23,48 +23,42 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Use standard Linux error values and cleanup error handling. I would like
-to acknowledge Andre Bartke (andre.bartke@gmail.com) for highlighting this
-problem.
+Get rid of unnecessary comments in channel.c.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- drivers/staging/hv/storvsc.c |   12 ++++++------
- 1 files changed, 6 insertions(+), 6 deletions(-)
+ drivers/staging/hv/channel.c |    4 ----
+ 1 files changed, 0 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/staging/hv/storvsc.c b/drivers/staging/hv/storvsc.c
-index 3029786..915aeee 100644
---- a/drivers/staging/hv/storvsc.c
-+++ b/drivers/staging/hv/storvsc.c
-@@ -392,10 +392,8 @@ int storvsc_dev_add(struct hv_device *device,
+diff --git a/drivers/staging/hv/channel.c b/drivers/staging/hv/channel.c
+index ebd7552..e02060e 100644
+--- a/drivers/staging/hv/channel.c
++++ b/drivers/staging/hv/channel.c
+@@ -76,7 +76,6 @@ void vmbus_get_debug_info(struct vmbus_channel *channel,
+ 	struct hv_monitor_page *monitorpage;
+ 	u8 monitor_group = (u8)channel->offermsg.monitorid / 32;
+ 	u8 monitor_offset = (u8)channel->offermsg.monitorid % 32;
+-	/* u32 monitorBit	= 1 << monitorOffset; */
  
- 	device_info = (struct storvsc_device_info *)additional_info;
- 	stor_device = alloc_stor_device(device);
--	if (!stor_device) {
--		ret = -1;
--		goto cleanup;
--	}
-+	if (!stor_device)
-+		return -ENOMEM;
+ 	debuginfo->relid = channel->offermsg.child_relid;
+ 	debuginfo->state = channel->state;
+@@ -392,7 +391,6 @@ int vmbus_establish_gpadl(struct vmbus_channel *channel, void *kbuffer,
+ {
+ 	struct vmbus_channel_gpadl_header *gpadlmsg;
+ 	struct vmbus_channel_gpadl_body *gpadl_body;
+-	/* struct vmbus_channel_gpadl_created *gpadlCreated; */
+ 	struct vmbus_channel_msginfo *msginfo = NULL;
+ 	struct vmbus_channel_msginfo *submsginfo;
+ 	u32 msgcount;
+@@ -474,8 +472,6 @@ int vmbus_teardown_gpadl(struct vmbus_channel *channel, u32 gpadl_handle)
+ 	unsigned long flags;
+ 	int ret, t;
  
- 	/* Save the channel properties to our storvsc channel */
- 
-@@ -409,11 +407,13 @@ int storvsc_dev_add(struct hv_device *device,
- 	stor_device->port_number = device_info->port_number;
- 	/* Send it back up */
- 	ret = storvsc_connect_to_vsp(device, device_info->ring_buffer_size);
+-	/* ASSERT(gpadl_handle != 0); */
 -
-+	if (ret) {
-+		free_stor_device(stor_device);
-+		return ret;
-+	}
- 	device_info->path_id = stor_device->path_id;
- 	device_info->target_id = stor_device->target_id;
- 
--cleanup:
- 	return ret;
- }
- 
+ 	info = kmalloc(sizeof(*info) +
+ 		       sizeof(struct vmbus_channel_gpadl_teardown), GFP_KERNEL);
+ 	if (!info)
 -- 
 1.7.4.1
