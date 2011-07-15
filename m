@@ -1,8 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 070/117] Staging: hv: netvsc: Cleanup error code in
-	rndis_filter_device_add()
-Date: Fri, 15 Jul 2011 10:46:58 -0700
-Message-ID: <1310752065-27895-70-git-send-email-kys@microsoft.com>
+Subject: [PATCH 092/117] Staging: hv: netvsc: Prevent outgoing traffic when
+	netvsc dev is destroyed
+Date: Fri, 15 Jul 2011 10:47:20 -0700
+Message-ID: <1310752065-27895-92-git-send-email-kys@microsoft.com>
 References: <1310752024-27854-1-git-send-email-kys@microsoft.com>
 	<1310752065-27895-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -23,26 +23,27 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Use standard Linux error codes.
+Prevent outgoing traffic when netvsc dev is destroyed.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- drivers/staging/hv/rndis_filter.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+ drivers/staging/hv/netvsc.c |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/staging/hv/rndis_filter.c b/drivers/staging/hv/rndis_filter.c
-index a71f29d..f0d1362 100644
---- a/drivers/staging/hv/rndis_filter.c
-+++ b/drivers/staging/hv/rndis_filter.c
-@@ -673,7 +673,7 @@ int rndis_filter_device_add(struct hv_device *dev,
+diff --git a/drivers/staging/hv/netvsc.c b/drivers/staging/hv/netvsc.c
+index 2ee3f07..538259d 100644
+--- a/drivers/staging/hv/netvsc.c
++++ b/drivers/staging/hv/netvsc.c
+@@ -58,7 +58,8 @@ static struct netvsc_device *get_outbound_net_device(struct hv_device *device)
  
- 	rndisDevice = get_rndis_device();
- 	if (!rndisDevice)
--		return -1;
-+		return -ENODEV;
- 
- 	/*
- 	 * Let the inner driver handle this first to create the netvsc channel
+ 	spin_lock_irqsave(&device->ext_lock, flags);
+ 	net_device = device->ext;
+-	if (net_device && atomic_read(&net_device->refcnt) > 1)
++	if (net_device && (atomic_read(&net_device->refcnt) > 1) &&
++		!net_device->destroy)
+ 		atomic_inc(&net_device->refcnt);
+ 	else
+ 		net_device = NULL;
 -- 
 1.7.4.1
