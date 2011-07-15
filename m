@@ -1,8 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 099/117] Staging: hv: storvsc: Optimize bounce buffer handling
-	for the "write" case
-Date: Fri, 15 Jul 2011 10:47:27 -0700
-Message-ID: <1310752065-27895-99-git-send-email-kys@microsoft.com>
+Subject: [PATCH 074/117] Staging: hv: netvsc: Change the jump label Exit to
+	exit
+Date: Fri, 15 Jul 2011 10:47:02 -0700
+Message-ID: <1310752065-27895-74-git-send-email-kys@microsoft.com>
 References: <1310752024-27854-1-git-send-email-kys@microsoft.com>
 	<1310752065-27895-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -23,41 +23,35 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Optimize bounce buffer handling for the "write" case.
+Change the jump lable "Exit" to "exit".
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- drivers/staging/hv/storvsc_drv.c |   12 ++++++------
- 1 files changed, 6 insertions(+), 6 deletions(-)
+ drivers/staging/hv/rndis_filter.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
-index 5777482..e2294d5 100644
---- a/drivers/staging/hv/storvsc_drv.c
-+++ b/drivers/staging/hv/storvsc_drv.c
-@@ -428,17 +428,17 @@ static void storvsc_commmand_completion(struct hv_storvsc_request *request)
- 	struct scsi_sense_hdr sense_hdr;
- 	struct vmscsi_request *vm_srb;
+diff --git a/drivers/staging/hv/rndis_filter.c b/drivers/staging/hv/rndis_filter.c
+index 79dfe78..6db48b9 100644
+--- a/drivers/staging/hv/rndis_filter.c
++++ b/drivers/staging/hv/rndis_filter.c
+@@ -537,7 +537,7 @@ static int rndis_filter_set_packet_filter(struct rndis_device *dev,
+ 		 * We can't deallocate the request since we may still receive a
+ 		 * send completion for it.
+ 		 */
+-		goto Exit;
++		goto exit;
+ 	} else {
+ 		set_complete = &request->response_msg.msg.set_complete;
+ 		status = set_complete->status;
+@@ -546,7 +546,7 @@ static int rndis_filter_set_packet_filter(struct rndis_device *dev,
+ cleanup:
+ 	if (request)
+ 		put_rndis_request(dev, request);
+-Exit:
++exit:
+ 	return ret;
+ }
  
-+	vm_srb = &request->vstor_packet.vm_srb;
- 	if (cmd_request->bounce_sgl_count) {
--
--		/* FIXME: We can optimize on writes by just skipping this */
--		copy_from_bounce_buffer(scsi_sglist(scmnd),
-+		if (vm_srb->data_in == READ_TYPE) {
-+			copy_from_bounce_buffer(scsi_sglist(scmnd),
- 					cmd_request->bounce_sgl,
- 					scsi_sg_count(scmnd));
--		destroy_bounce_buffer(cmd_request->bounce_sgl,
--				      cmd_request->bounce_sgl_count);
-+			destroy_bounce_buffer(cmd_request->bounce_sgl,
-+					cmd_request->bounce_sgl_count);
-+		}
- 	}
- 
--	vm_srb = &request->vstor_packet.vm_srb;
- 	scmnd->result = vm_srb->scsi_status;
- 
- 	if (scmnd->result) {
 -- 
 1.7.4.1
