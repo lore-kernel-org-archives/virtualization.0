@@ -1,67 +1,26 @@
-From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 1/1] Staging: hv: vmbus: Don't wait indefinitely for IRQ resouces
-Date: Fri, 15 Jul 2011 13:38:56 -0700
-Message-ID: <1310762336-30795-1-git-send-email-kys@microsoft.com>
+From: Dan Carpenter <error27@gmail.com>
+Subject: Re: Large Patch Series in Email (was Re: [PATCH 0000/0117] Staging:
+ hv: Driver cleanup)
+Date: Sat, 16 Jul 2011 00:09:03 +0300
+Message-ID: <20110715210903.GF18655@shale.localdomain>
+References: <1310752024-27854-1-git-send-email-kys@microsoft.com>
+ <84fa825a57d34571a5aa66ae7299461c-mfwitten@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <84fa825a57d34571a5aa66ae7299461c-mfwitten@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org
-Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>
+To: Michael Witten <mfwitten@gmail.com>
+Cc: "K. Y. Srinivasan" <kys@microsoft.com>, devel@linuxdriverproject.org, Greg Kroah-Hartman <gregkh@suse.de>, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-If an attempt is made to load the vmbus driver on a non-Hyper-V platform,
-the load operation will hang since we currently wait indefinitely to 
-retrieve the IRQ information. This is done in the context of an acpi callback
-context (which will obviously not happen when this driver is
-loaded on a non-Hyper-V platform). This patch fixes the problem. 
+On Fri, Jul 15, 2011 at 06:25:55PM -0000, Michael Witten wrote:
+>   Do not send more than 15 patches at once to the vger
+>   mailing lists!!!
 
-Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
-Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
----
- drivers/staging/hv/vmbus_drv.c |   19 ++++++++++++++-----
- 1 files changed, 14 insertions(+), 5 deletions(-)
+If you're using mutt just type "ESC-t ; d" to delete the entire
+thread.  Don't be a whinge bucket.
 
-diff --git a/drivers/staging/hv/vmbus_drv.c b/drivers/staging/hv/vmbus_drv.c
-index 433be51..b382829 100644
---- a/drivers/staging/hv/vmbus_drv.c
-+++ b/drivers/staging/hv/vmbus_drv.c
-@@ -702,7 +702,7 @@ static struct acpi_driver vmbus_acpi_driver = {
- 
- static int __init hv_acpi_init(void)
- {
--	int ret;
-+	int ret, t;
- 
- 	init_completion(&probe_event);
- 
-@@ -715,16 +715,25 @@ static int __init hv_acpi_init(void)
- 	if (ret)
- 		return ret;
- 
--	wait_for_completion(&probe_event);
-+	t = wait_for_completion_timeout(&probe_event, 5*HZ);
-+	if (t == 0) {
-+		ret = -ETIMEDOUT;
-+		goto cleanup;
-+	}
- 
- 	if (irq <= 0) {
--		acpi_bus_unregister_driver(&vmbus_acpi_driver);
--		return -ENODEV;
-+		ret = -ENODEV;
-+		goto cleanup;
- 	}
- 
- 	ret = vmbus_bus_init(irq);
- 	if (ret)
--		acpi_bus_unregister_driver(&vmbus_acpi_driver);
-+		goto cleanup;
-+
-+	return 0;
-+
-+cleanup:
-+	acpi_bus_unregister_driver(&vmbus_acpi_driver);
- 	return ret;
- }
- 
--- 
-1.7.4.1
+regards,
+dan carpenter
