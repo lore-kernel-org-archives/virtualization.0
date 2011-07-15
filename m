@@ -1,8 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 087/117] Staging: hv: storvsc: Further cleanup reference
-	counting of stor_device
-Date: Fri, 15 Jul 2011 10:47:15 -0700
-Message-ID: <1310752065-27895-87-git-send-email-kys@microsoft.com>
+Subject: [PATCH 102/117] Staging: hv: storvsc: Cleanup storvsc_drv.c after
+	adding the contents of storvsc.c
+Date: Fri, 15 Jul 2011 10:47:30 -0700
+Message-ID: <1310752065-27895-102-git-send-email-kys@microsoft.com>
 References: <1310752024-27854-1-git-send-email-kys@microsoft.com>
 	<1310752065-27895-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -23,84 +23,149 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Further cleanup reference counting of stor_device - when the device is being
-destroyed, we will permit incoming traffic only to drain outstanding
-requests.
+Cleanup storvsc_drv.c after adding the contents of storvsc.c.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- drivers/staging/hv/hyperv_storage.h |    3 +--
- drivers/staging/hv/storvsc.c        |   22 +++++++++++++---------
- 2 files changed, 14 insertions(+), 11 deletions(-)
+ drivers/staging/hv/storvsc_drv.c |  107 +++-----------------------------------
+ 1 files changed, 7 insertions(+), 100 deletions(-)
 
-diff --git a/drivers/staging/hv/hyperv_storage.h b/drivers/staging/hv/hyperv_storage.h
-index d946211..a1f3e27 100644
---- a/drivers/staging/hv/hyperv_storage.h
-+++ b/drivers/staging/hv/hyperv_storage.h
-@@ -287,7 +287,6 @@ struct storvsc_device {
- };
+diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
+index 3ce43a3..5c06f5d 100644
+--- a/drivers/staging/hv/storvsc_drv.c
++++ b/drivers/staging/hv/storvsc_drv.c
+@@ -19,11 +19,17 @@
+  *   Hank Janssen  <hjanssen@microsoft.com>
+  *   K. Y. Srinivasan <kys@microsoft.com>
+  */
++
++#include <linux/kernel.h>
++#include <linux/sched.h>
++#include <linux/completion.h>
++#include <linux/string.h>
++#include <linux/mm.h>
++#include <linux/delay.h>
+ #include <linux/init.h>
+ #include <linux/slab.h>
+ #include <linux/module.h>
+ #include <linux/device.h>
+-#include <linux/blkdev.h>
+ #include <scsi/scsi.h>
+ #include <scsi/scsi_cmnd.h>
+ #include <scsi/scsi_host.h>
+@@ -37,40 +43,6 @@
+ #include "hyperv_storage.h"
  
  
--/* Get the stordevice object iff exists and its refcount > 1 */
- static inline struct storvsc_device *get_out_stor_device(
- 					struct hv_device *device)
+-/*
+- * Copyright (c) 2009, Microsoft Corporation.
+- *
+- * This program is free software; you can redistribute it and/or modify it
+- * under the terms and conditions of the GNU General Public License,
+- * version 2, as published by the Free Software Foundation.
+- *
+- * This program is distributed in the hope it will be useful, but WITHOUT
+- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+- * more details.
+- *
+- * You should have received a copy of the GNU General Public License along with
+- * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
+- * Place - Suite 330, Boston, MA 02111-1307 USA.
+- *
+- * Authors:
+- *   Haiyang Zhang <haiyangz@microsoft.com>
+- *   Hank Janssen  <hjanssen@microsoft.com>
+- *   K. Y. Srinivasan <kys@microsoft.com>
+- *
+- */
+-#include <linux/kernel.h>
+-#include <linux/sched.h>
+-#include <linux/completion.h>
+-#include <linux/string.h>
+-#include <linux/slab.h>
+-#include <linux/mm.h>
+-#include <linux/delay.h>
+-
+-#include "hyperv.h"
+-#include "hyperv_storage.h"
+-
+-
+ static inline struct storvsc_device *alloc_stor_device(struct hv_device *device)
  {
-@@ -296,7 +295,7 @@ static inline struct storvsc_device *get_out_stor_device(
- 
- 	spin_lock_irqsave(&device->ext_lock, flags);
- 	stor_device = (struct storvsc_device *)device->ext;
--	if (stor_device && (stor_device->ref_count > 1) &&
-+	if (stor_device && (stor_device->ref_count) &&
- 		!stor_device->destroy)
- 		stor_device->ref_count++;
- 	else
-diff --git a/drivers/staging/hv/storvsc.c b/drivers/staging/hv/storvsc.c
-index a41be2a..4d13044 100644
---- a/drivers/staging/hv/storvsc.c
-+++ b/drivers/staging/hv/storvsc.c
-@@ -40,9 +40,7 @@ static inline struct storvsc_device *alloc_stor_device(struct hv_device *device)
- 	if (!stor_device)
- 		return NULL;
- 
--	/* Set to 2 to allow both inbound and outbound traffics */
--	/* (ie get_out_stor_device() and get_in_stor_device()) to proceed. */
--	stor_device->ref_count = 2;
-+	stor_device->ref_count = 1;
- 	stor_device->destroy = false;
- 	init_waitqueue_head(&stor_device->waiting_to_drain);
- 	stor_device->device = device;
-@@ -51,8 +49,6 @@ static inline struct storvsc_device *alloc_stor_device(struct hv_device *device)
- 	return stor_device;
+ 	struct storvsc_device *stor_device;
+@@ -498,71 +470,6 @@ int storvsc_do_io(struct hv_device *device,
+ 	return ret;
  }
  
+-/*
+- * The channel properties uniquely specify how the device is to be
+- * presented to the guest. Map this information for use by the block
+- * driver. For Linux guests on Hyper-V, we emulate a scsi HBA in the guest
+- * (storvsc_drv) and so scsi devices in the guest  are handled by
+- * native upper level Linux drivers. Consequently, Hyper-V
+- * block driver, while being a generic block driver, presently does not
+- * deal with anything other than devices that would need to be presented
+- * to the guest as an IDE disk.
+- *
+- * This function maps the channel properties as embedded in the input
+- * parameter device_info onto information necessary to register the
+- * corresponding block device.
+- *
+- * Currently, there is no way to stop the emulation of the block device
+- * on the host side. And so, to prevent the native IDE drivers in Linux
+- * from taking over these devices (to be managedby Hyper-V block
+- * driver), we will take over if need be the major of the IDE controllers.
+- *
+- */
 -
--/* Get the stordevice object iff exists and its refcount > 0 */
- static inline struct storvsc_device *get_in_stor_device(
- 					struct hv_device *device)
- {
-@@ -61,10 +57,18 @@ static inline struct storvsc_device *get_in_stor_device(
+-int storvsc_get_major_info(struct storvsc_device_info *device_info,
+-			    struct storvsc_major_info *major_info)
+-{
+-	static bool ide0_registered;
+-	static bool ide1_registered;
+-
+-	/*
+-	 * For now we only support IDE disks.
+-	 */
+-	major_info->devname = "ide";
+-	major_info->diskname = "hd";
+-
+-	if (device_info->path_id) {
+-		major_info->major = 22;
+-		if (!ide1_registered) {
+-			major_info->do_register = true;
+-			ide1_registered = true;
+-		} else
+-			major_info->do_register = false;
+-
+-		if (device_info->target_id)
+-			major_info->index = 3;
+-		else
+-			major_info->index = 2;
+-
+-		return 0;
+-	} else {
+-		major_info->major = 3;
+-		if (!ide0_registered) {
+-			major_info->do_register = true;
+-			ide0_registered = true;
+-		} else
+-			major_info->do_register = false;
+-
+-		if (device_info->target_id)
+-			major_info->index = 1;
+-		else
+-			major_info->index = 0;
+-
+-		return 0;
+-	}
+-
+-	return -ENODEV;
+-}
+ static int storvsc_ringbuffer_size = STORVSC_RING_BUFFER_SIZE;
  
- 	spin_lock_irqsave(&device->ext_lock, flags);
- 	stor_device = (struct storvsc_device *)device->ext;
--	if (stor_device && stor_device->ref_count)
--		stor_device->ref_count++;
--	else
--		stor_device = NULL;
-+	if (!stor_device)
-+		goto cleanup;
-+
-+	/*
-+	 * If the device is being destroyed; allow incoming
-+	 * traffic only to cleanup outstanding requests.
-+	 */
-+	if (stor_device->destroy &&
-+		 (atomic_read(&stor_device->num_outstanding_req) == 0))
-+		goto cleanup;
-+	stor_device->ref_count++;
-+cleanup:
- 	spin_unlock_irqrestore(&device->ext_lock, flags);
- 
- 	return stor_device;
+ module_param(storvsc_ringbuffer_size, int, S_IRUGO);
 -- 
 1.7.4.1
