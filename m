@@ -1,7 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 075/117] Staging: hv: storvsc: Inline free_stor_device()
-Date: Fri, 15 Jul 2011 10:47:03 -0700
-Message-ID: <1310752065-27895-75-git-send-email-kys@microsoft.com>
+Subject: [PATCH 039/117] Staging: hv: vmbus: Cleanup unnecessary comments in
+	hv.c
+Date: Fri, 15 Jul 2011 10:46:27 -0700
+Message-ID: <1310752065-27895-39-git-send-email-kys@microsoft.com>
 References: <1310752024-27854-1-git-send-email-kys@microsoft.com>
 	<1310752065-27895-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -22,46 +23,40 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Inline the code for  free_stor_device() and get rid of the function.
+Cleanup unnecessary comments in hv.c.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- drivers/staging/hv/storvsc.c |    8 ++------
- 1 files changed, 2 insertions(+), 6 deletions(-)
+ drivers/staging/hv/hv.c |    8 --------
+ 1 files changed, 0 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/staging/hv/storvsc.c b/drivers/staging/hv/storvsc.c
-index 827b6a3..8c62829 100644
---- a/drivers/staging/hv/storvsc.c
-+++ b/drivers/staging/hv/storvsc.c
-@@ -51,10 +51,6 @@ static inline struct storvsc_device *alloc_stor_device(struct hv_device *device)
- 	return stor_device;
- }
+diff --git a/drivers/staging/hv/hv.c b/drivers/staging/hv/hv.c
+index 824f816..2f94880 100644
+--- a/drivers/staging/hv/hv.c
++++ b/drivers/staging/hv/hv.c
+@@ -164,11 +164,7 @@ int hv_init(void)
+ 		goto cleanup;
  
--static inline void free_stor_device(struct storvsc_device *device)
--{
--	kfree(device);
--}
+ 	max_leaf = query_hypervisor_info();
+-	/* HvQueryHypervisorFeatures(maxLeaf); */
  
- /* Get the stordevice object iff exists and its refcount > 0 */
- static inline struct storvsc_device *must_get_stor_device(
-@@ -394,7 +390,7 @@ int storvsc_dev_add(struct hv_device *device,
- 	/* Send it back up */
- 	ret = storvsc_connect_to_vsp(device, device_info->ring_buffer_size);
- 	if (ret) {
--		free_stor_device(stor_device);
-+		kfree(stor_device);
- 		return ret;
- 	}
- 	device_info->path_id = stor_device->path_id;
-@@ -422,7 +418,7 @@ int storvsc_dev_remove(struct hv_device *device)
- 	/* Close the channel */
- 	vmbus_close(device->channel);
+-	/*
+-	 * We only support running on top of Hyper-V
+-	 */
+ 	rdmsrl(HV_X64_MSR_GUEST_OS_ID, hv_context.guestid);
  
--	free_stor_device(stor_device);
-+	kfree(stor_device);
- 	return 0;
- }
+ 	if (hv_context.guestid != 0)
+@@ -181,10 +177,6 @@ int hv_init(void)
+ 	/* See if the hypercall page is already set */
+ 	rdmsrl(HV_X64_MSR_HYPERCALL, hypercall_msr.as_uint64);
  
+-	/*
+-	* Allocate the hypercall page memory
+-	* virtaddr = osd_page_alloc(1);
+-	*/
+ 	virtaddr = __vmalloc(PAGE_SIZE, GFP_KERNEL, PAGE_KERNEL_EXEC);
+ 
+ 	if (!virtaddr)
 -- 
 1.7.4.1
