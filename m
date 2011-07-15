@@ -1,50 +1,59 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 034/117] Staging: hv: mouse: Get rid of the dev_type guid in hv_mouse.c
-Date: Fri, 15 Jul 2011 10:46:22 -0700
-Message-ID: <1310752065-27895-34-git-send-email-kys@microsoft.com>
+Subject: [PATCH 076/117] Staging: hv: storvsc: Do not aquire an unnecessary
+	reference on stor_device
+Date: Fri, 15 Jul 2011 10:47:04 -0700
+Message-ID: <1310752065-27895-76-git-send-email-kys@microsoft.com>
 References: <1310752024-27854-1-git-send-email-kys@microsoft.com>
- <1310752065-27895-1-git-send-email-kys@microsoft.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+	<1310752065-27895-1-git-send-email-kys@microsoft.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <devel-bounces@linuxdriverproject.org>
 In-Reply-To: <1310752065-27895-1-git-send-email-kys@microsoft.com>
-Sender: linux-kernel-owner@vger.kernel.org
+List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
+	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
+List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
+List-Post: <mailto:devel@linuxdriverproject.org>
+List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
+List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
+	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
+Sender: devel-bounces@linuxdriverproject.org
+Errors-To: devel-bounces@linuxdriverproject.org
 To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org
-Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>
+Cc: Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Get rid of the dev_type guid in hv_mouse.c, as it is not used.
+On entry into storvsc_on_io_completion() we have already acquired a reference
+on the stor_device; there is no need to acquire an additional reference here.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- drivers/staging/hv/hv_mouse.c |    9 ---------
- 1 files changed, 0 insertions(+), 9 deletions(-)
+ drivers/staging/hv/storvsc.c |    5 +----
+ 1 files changed, 1 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/staging/hv/hv_mouse.c b/drivers/staging/hv/hv_mouse.c
-index 95986fb..e0cede3 100644
---- a/drivers/staging/hv/hv_mouse.c
-+++ b/drivers/staging/hv/hv_mouse.c
-@@ -179,12 +179,6 @@ struct mousevsc_dev {
+diff --git a/drivers/staging/hv/storvsc.c b/drivers/staging/hv/storvsc.c
+index 8c62829..cd38cd6 100644
+--- a/drivers/staging/hv/storvsc.c
++++ b/drivers/staging/hv/storvsc.c
+@@ -232,9 +232,7 @@ static void storvsc_on_io_completion(struct hv_device *device,
+ 	struct storvsc_device *stor_device;
+ 	struct vstor_packet *stor_pkt;
  
- static const char *driver_name = "mousevsc";
+-	stor_device = must_get_stor_device(device);
+-	if (!stor_device)
+-		return;
++	stor_device = (struct storvsc_device *)device->ext;
  
--/* {CFA8B69E-5B4A-4cc0-B98B-8BA1A1F3F95A} */
--static const uuid_le mouse_guid = {
--	.b = {0x9E, 0xB6, 0xA8, 0xCF, 0x4A, 0x5B, 0xc0, 0x4c,
--		 0xB9, 0x8B, 0x8B, 0xA1, 0xA1, 0xF3, 0xF9, 0x5A}
--};
--
- static void deviceinfo_callback(struct hv_device *dev, struct hv_input_dev_info *info);
- static void inputreport_callback(struct hv_device *dev, void *packet, u32 len);
- static void reportdesc_callback(struct hv_device *dev, void *packet, u32 len);
-@@ -953,9 +947,6 @@ static int __init mousevsc_init(void)
+ 	stor_pkt = &request->vstor_packet;
  
- 	DPRINT_INFO(INPUTVSC_DRV, "Hyper-V Mouse driver initializing.");
+@@ -279,7 +277,6 @@ static void storvsc_on_io_completion(struct hv_device *device,
+ 		wake_up(&stor_device->waiting_to_drain);
  
--	memcpy(&drv->dev_type, &mouse_guid,
--	       sizeof(uuid_le));
--
- 	drv->driver.name = driver_name;
  
- 	/* The driver belongs to vmbus */
+-	put_stor_device(device);
+ }
+ 
+ static void storvsc_on_receive(struct hv_device *device,
 -- 
 1.7.4.1
