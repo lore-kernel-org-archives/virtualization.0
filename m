@@ -1,7 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 017/117] Staging: hv: mouse: Do not auto-load the mouse driver
-Date: Fri, 15 Jul 2011 10:46:05 -0700
-Message-ID: <1310752065-27895-17-git-send-email-kys@microsoft.com>
+Subject: [PATCH 059/117] Staging: hv: storvsc: Cleanup returned error code in
+	storvsc_drv_init()
+Date: Fri, 15 Jul 2011 10:46:47 -0700
+Message-ID: <1310752065-27895-59-git-send-email-kys@microsoft.com>
 References: <1310752024-27854-1-git-send-email-kys@microsoft.com>
 	<1310752065-27895-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -22,31 +23,26 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The mouse driver is not functional and so, prevent auto-loading
-of this driver. Earlier we added the MODULE_DEVICE_TABLE() line
-to verify that the appropriate module alias was generated.
+Use standard Linux error codes.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- drivers/staging/hv/hv_mouse.c |    5 ++++-
- 1 files changed, 4 insertions(+), 1 deletions(-)
+ drivers/staging/hv/storvsc_drv.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/staging/hv/hv_mouse.c b/drivers/staging/hv/hv_mouse.c
-index d6441d6..95986fb 100644
---- a/drivers/staging/hv/hv_mouse.c
-+++ b/drivers/staging/hv/hv_mouse.c
-@@ -931,7 +931,10 @@ static const struct hv_vmbus_device_id id_table[] = {
- 	},
- };
+diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
+index 9640630..bc71024 100644
+--- a/drivers/staging/hv/storvsc_drv.c
++++ b/drivers/staging/hv/storvsc_drv.c
+@@ -753,7 +753,7 @@ static int __init storvsc_drv_init(void)
  
--MODULE_DEVICE_TABLE(vmbus, id_table);
-+/*
-+ * The mouse driver is not functional; do not auto-load it.
-+ */
-+/* MODULE_DEVICE_TABLE(vmbus, id_table); */
+ 	if (max_outstanding_req_per_channel <
+ 	    STORVSC_MAX_IO_REQUESTS)
+-		return -1;
++		return -EINVAL;
  
- static struct  hv_driver mousevsc_drv = {
- 	.id_table = id_table,
+ 	drv->driver.name = driver_name;
+ 
 -- 
 1.7.4.1
