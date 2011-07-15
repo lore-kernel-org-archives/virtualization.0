@@ -1,8 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 052/117] Staging: hv: storvsc: Cleanup error handling in
-	storvsc_channel_init()
-Date: Fri, 15 Jul 2011 10:46:40 -0700
-Message-ID: <1310752065-27895-52-git-send-email-kys@microsoft.com>
+Subject: [PATCH 080/117] Staging: hv: storvsc: Introduce state to manage the
+	lifecycle of stor device
+Date: Fri, 15 Jul 2011 10:47:08 -0700
+Message-ID: <1310752065-27895-80-git-send-email-kys@microsoft.com>
 References: <1310752024-27854-1-git-send-email-kys@microsoft.com>
 	<1310752065-27895-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -23,26 +23,49 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Use standard Linux error codes.
+Introduce state to manage the lifecycle of stor device. This would be the
+basis for managing the references on the stor object.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- drivers/staging/hv/storvsc.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+ drivers/staging/hv/hyperv_storage.h |    2 +-
+ drivers/staging/hv/storvsc.c        |    3 ++-
+ 2 files changed, 3 insertions(+), 2 deletions(-)
 
+diff --git a/drivers/staging/hv/hyperv_storage.h b/drivers/staging/hv/hyperv_storage.h
+index a224413..d93bf93 100644
+--- a/drivers/staging/hv/hyperv_storage.h
++++ b/drivers/staging/hv/hyperv_storage.h
+@@ -266,7 +266,7 @@ struct storvsc_device {
+ 
+ 	/* 0 indicates the device is being destroyed */
+ 	atomic_t ref_count;
+-
++	bool	 destroy;
+ 	bool	 drain_notify;
+ 	atomic_t num_outstanding_req;
+ 
 diff --git a/drivers/staging/hv/storvsc.c b/drivers/staging/hv/storvsc.c
-index 915aeee..22ac6f2 100644
+index 48bd8da..357b08a 100644
 --- a/drivers/staging/hv/storvsc.c
 +++ b/drivers/staging/hv/storvsc.c
-@@ -111,7 +111,7 @@ static int storvsc_channel_init(struct hv_device *device)
+@@ -43,7 +43,7 @@ static inline struct storvsc_device *alloc_stor_device(struct hv_device *device)
+ 	/* Set to 2 to allow both inbound and outbound traffics */
+ 	/* (ie get_out_stor_device() and get_in_stor_device()) to proceed. */
+ 	atomic_set(&stor_device->ref_count, 2);
+-
++	stor_device->destroy = false;
+ 	init_waitqueue_head(&stor_device->waiting_to_drain);
+ 	stor_device->device = device;
+ 	device->ext = stor_device;
+@@ -401,6 +401,7 @@ int storvsc_dev_remove(struct hv_device *device)
+ 	struct storvsc_device *stor_device;
  
- 	stor_device = get_stor_device(device);
- 	if (!stor_device)
--		return -1;
-+		return -ENODEV;
+ 	stor_device = release_stor_device(device);
++	stor_device->destroy = true;
  
- 	request = &stor_device->init_request;
- 	vstor_packet = &request->vstor_packet;
+ 	/*
+ 	 * At this point, all outbound traffic should be disable. We
 -- 
 1.7.4.1
