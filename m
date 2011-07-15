@@ -1,76 +1,81 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 063/117] Staging: hv: netvsc: Cleanup error returns in
-	netvsc_connect_vsp()
-Date: Fri, 15 Jul 2011 10:46:51 -0700
-Message-ID: <1310752065-27895-63-git-send-email-kys@microsoft.com>
+Subject: [PATCH 113/117] Staging: hv: util: Adjust guest time in a process context
+Date: Fri, 15 Jul 2011 10:47:41 -0700
+Message-ID: <1310752065-27895-113-git-send-email-kys@microsoft.com>
 References: <1310752024-27854-1-git-send-email-kys@microsoft.com>
-	<1310752065-27895-1-git-send-email-kys@microsoft.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <devel-bounces@linuxdriverproject.org>
+ <1310752065-27895-1-git-send-email-kys@microsoft.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1310752065-27895-1-git-send-email-kys@microsoft.com>
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
-List-Post: <mailto:devel@linuxdriverproject.org>
-List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
-Sender: devel-bounces@linuxdriverproject.org
-Errors-To: devel-bounces@linuxdriverproject.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org
-Cc: Haiyang Zhang <haiyangz@microsoft.com>
+Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Use standard Linux error codes.
+The current code was adjusting guest time in interrupt context; do this
+in process context since we may have to initiate cross-processor
+interrupts as part of setting time.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- drivers/staging/hv/netvsc.c |   10 ++++------
- 1 files changed, 4 insertions(+), 6 deletions(-)
+ drivers/staging/hv/hv_util.c |   30 ++++++++++++++++++++++++++++--
+ 1 files changed, 28 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/staging/hv/netvsc.c b/drivers/staging/hv/netvsc.c
-index 5703fd7..9cc126b 100644
---- a/drivers/staging/hv/netvsc.c
-+++ b/drivers/staging/hv/netvsc.c
-@@ -323,7 +323,7 @@ static int netvsc_connect_vsp(struct hv_device *device)
- 	if (!net_device) {
- 		dev_err(&device->device, "unable to get net device..."
- 			   "device being destroyed?");
--		return -1;
-+		return -ENODEV;
+diff --git a/drivers/staging/hv/hv_util.c b/drivers/staging/hv/hv_util.c
+index 070e61f..d3fb017 100644
+--- a/drivers/staging/hv/hv_util.c
++++ b/drivers/staging/hv/hv_util.c
+@@ -109,6 +109,24 @@ static inline void do_adj_guesttime(u64 hosttime)
+ }
+ 
+ /*
++ * Set the host time in a process context.
++ */
++
++struct adj_time_work {
++	struct work_struct work;
++	u64	host_time;
++};
++
++static void hv_set_host_time(struct work_struct *work)
++{
++	struct adj_time_work	*wrk;
++
++	wrk = container_of(work, struct adj_time_work, work);
++	do_adj_guesttime(wrk->host_time);
++	kfree(wrk);
++}
++
++/*
+  * Synchronize time with host after reboot, restore, etc.
+  *
+  * ICTIMESYNCFLAG_SYNC flag bit indicates reboot, restore events of the VM.
+@@ -121,16 +139,24 @@ static inline void do_adj_guesttime(u64 hosttime)
+  */
+ static inline void adj_guesttime(u64 hosttime, u8 flags)
+ {
++	struct adj_time_work    *wrk;
+ 	static s32 scnt = 50;
+ 
++	wrk = kmalloc(sizeof(struct adj_time_work), GFP_ATOMIC);
++	if (wrk == NULL)
++		return;
++
++	wrk->host_time = hosttime;
+ 	if ((flags & ICTIMESYNCFLAG_SYNC) != 0) {
+-		do_adj_guesttime(hosttime);
++		INIT_WORK(&wrk->work, hv_set_host_time);
++		schedule_work(&wrk->work);
+ 		return;
  	}
  
- 	init_packet = &net_device->channel_init_pkt;
-@@ -354,13 +354,13 @@ static int netvsc_connect_vsp(struct hv_device *device)
- 
- 	if (init_packet->msg.init_msg.init_complete.status !=
- 	    NVSP_STAT_SUCCESS) {
--		ret = -1;
-+		ret = -EINVAL;
- 		goto cleanup;
+ 	if ((flags & ICTIMESYNCFLAG_SAMPLE) != 0 && scnt > 0) {
+ 		scnt--;
+-		do_adj_guesttime(hosttime);
++		INIT_WORK(&wrk->work, hv_set_host_time);
++		schedule_work(&wrk->work);
  	}
+ }
  
- 	if (init_packet->msg.init_msg.init_complete.
- 	    negotiated_protocol_ver != NVSP_PROTOCOL_VERSION_1) {
--		ret = -1;
-+		ret = -EPROTO;
- 		goto cleanup;
- 	}
- 	/* Send the ndis version */
-@@ -381,10 +381,8 @@ static int netvsc_connect_vsp(struct hv_device *device)
- 				sizeof(struct nvsp_message),
- 				(unsigned long)init_packet,
- 				VM_PKT_DATA_INBAND, 0);
--	if (ret != 0) {
--		ret = -1;
-+	if (ret != 0)
- 		goto cleanup;
--	}
- 
- 	/* Post the big receive buffer to NetVSP */
- 	ret = netvsc_init_recv_buf(device);
 -- 
 1.7.4.1
