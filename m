@@ -1,36 +1,42 @@
-From: Harald Dunkel <harald.dunkel@aixigo.de>
-Subject: virtio drivers for Solaris 10 guests?
-Date: Fri, 15 Jul 2011 09:41:30 +0200
-Message-ID: <4E1FEF2A.6060508@aixigo.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
+From: "K. Y. Srinivasan" <kys@microsoft.com>
+Subject: [PATCH 0000/0117] Staging: hv: Driver cleanup
+Date: Fri, 15 Jul 2011 10:47:04 -0700
+Message-ID: <1310752024-27854-1-git-send-email-kys@microsoft.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org
+Cc: "K. Y. Srinivasan" <kys@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi folks,
+Further cleanup of the hv drivers. Back in June I had sent two patch
+sets to address these issues. I have addressed the comments I got from
+the community on my earlier patches here:
 
-Hopefully its not too much OT on this list:
+	1) Implement code for autoloading the vmbus drivers without using PCI or DMI
+	   signatures. I have implemented this based on Greg's feedback on my earlier
+	   implementation.
 
-I am looking for virtio drivers (net and block) for Solaris10.
-AFAICS Oracle provides some virtio support for Solaris10
-in the Virtualbox guest additions, but this seems to be bound
-to Virtualbox on the host. I would like to keep KVM.
+	2) Cleanup error handling across the board and use standard Linux error codes.
 
-Are there other options you would recommend? Any helpful
-comment would be highly appreciated.
+	3) General cleanup
 
+	4) Some bug fixes.
 
-Regards
+	5) Cleanup the reference counting mess for both stor and net devices.
 
-Harri
+	6) Handle all block devices using the storvsc driver. I have modified
+	   the implementation here based on Christoph's feedback on my earlier
+	   implementation.
+
+	7) Accomodate some host side scsi emulation bugs.
+
+	8) In case of scsi errors off-line the device.
+
+This patch-set further reduces the size of Hyper-V drivers - the code is
+about 10% smaller. This reduction is mainly because we have eliminated the
+blkvsc driver.
+	  
+
+Regards,
+
+K. Y 
