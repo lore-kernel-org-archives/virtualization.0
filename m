@@ -1,8 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 054/117] Staging: hv: storvsc: Cleanup error handling in
-	storvsc_do_io()
-Date: Fri, 15 Jul 2011 10:46:42 -0700
-Message-ID: <1310752065-27895-54-git-send-email-kys@microsoft.com>
+Subject: [PATCH 067/117] Staging: hv: netvsc: Cleanup error code in
+	rndis_filter_query_device()
+Date: Fri, 15 Jul 2011 10:46:55 -0700
+Message-ID: <1310752065-27895-67-git-send-email-kys@microsoft.com>
 References: <1310752024-27854-1-git-send-email-kys@microsoft.com>
 	<1310752065-27895-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -28,21 +28,21 @@ Use standard Linux error codes.
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- drivers/staging/hv/storvsc.c |    2 +-
+ drivers/staging/hv/rndis_filter.c |    2 +-
  1 files changed, 1 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/staging/hv/storvsc.c b/drivers/staging/hv/storvsc.c
-index 2b73f72..2b914e4 100644
---- a/drivers/staging/hv/storvsc.c
-+++ b/drivers/staging/hv/storvsc.c
-@@ -454,7 +454,7 @@ int storvsc_do_io(struct hv_device *device,
- 	stor_device = get_stor_device(device);
+diff --git a/drivers/staging/hv/rndis_filter.c b/drivers/staging/hv/rndis_filter.c
+index 8e1ef00..f26886d 100644
+--- a/drivers/staging/hv/rndis_filter.c
++++ b/drivers/staging/hv/rndis_filter.c
+@@ -437,7 +437,7 @@ static int rndis_filter_query_device(struct rndis_device *dev, u32 oid,
+ 	request = get_rndis_request(dev, REMOTE_NDIS_QUERY_MSG,
+ 			RNDIS_MESSAGE_SIZE(struct rndis_query_request));
+ 	if (!request) {
+-		ret = -1;
++		ret = -ENOMEM;
+ 		goto Cleanup;
+ 	}
  
- 	if (!stor_device)
--		return -2;
-+		return -ENODEV;
- 
- 
- 	request->device  = device;
 -- 
 1.7.4.1
