@@ -1,8 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 038/117] Staging: hv: vmbus: Get rid of some unnecessary
-	comments
-Date: Fri, 15 Jul 2011 10:46:26 -0700
-Message-ID: <1310752065-27895-38-git-send-email-kys@microsoft.com>
+Subject: [PATCH 026/117] Staging: hv: util: Get rid of the PCI signature in
+	hv_util.c
+Date: Fri, 15 Jul 2011 10:46:14 -0700
+Message-ID: <1310752065-27895-26-git-send-email-kys@microsoft.com>
 References: <1310752024-27854-1-git-send-email-kys@microsoft.com>
 	<1310752065-27895-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -23,26 +23,40 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Get rid of some unnecessary comments.
+Now that we have implemented a vmbus specific mechanism for auto-loading,
+get rid of the PCI signature.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- drivers/staging/hv/vmbus_drv.c |    2 --
- 1 files changed, 0 insertions(+), 2 deletions(-)
+ drivers/staging/hv/hv_util.c |    8 --------
+ 1 files changed, 0 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/staging/hv/vmbus_drv.c b/drivers/staging/hv/vmbus_drv.c
-index 1d161ba..ffd6066 100644
---- a/drivers/staging/hv/vmbus_drv.c
-+++ b/drivers/staging/hv/vmbus_drv.c
-@@ -44,8 +44,6 @@ static struct tasklet_struct event_dpc;
+diff --git a/drivers/staging/hv/hv_util.c b/drivers/staging/hv/hv_util.c
+index 6fabc99..26693dd 100644
+--- a/drivers/staging/hv/hv_util.c
++++ b/drivers/staging/hv/hv_util.c
+@@ -26,7 +26,6 @@
+ #include <linux/slab.h>
+ #include <linux/sysctl.h>
+ #include <linux/reboot.h>
+-#include <linux/pci.h>
  
- unsigned int vmbus_loglevel = (ALL_MODULES << 16 | INFO_LVL);
- EXPORT_SYMBOL(vmbus_loglevel);
--	/* (ALL_MODULES << 16 | DEBUG_LVL_ENTEREXIT); */
--	/* (((VMBUS | VMBUS_DRV)<<16) | DEBUG_LVL_ENTEREXIT); */
+ #include "hyperv.h"
+ #include "hv_kvp.h"
+@@ -271,13 +270,6 @@ static  struct hv_driver util_drv = {
+ 	.remove =  util_remove,
+ };
  
- static struct completion probe_event;
- static int irq;
+-static const struct pci_device_id __initconst
+-hv_utils_pci_table[] __maybe_unused = {
+-	{ PCI_DEVICE(0x1414, 0x5353) }, /* Hyper-V emulated VGA controller */
+-	{ 0 }
+-};
+-MODULE_DEVICE_TABLE(pci, hv_utils_pci_table);
+-
+ static int __init init_hyperv_utils(void)
+ {
+ 	pr_info("Registering HyperV Utility Driver\n");
 -- 
 1.7.4.1
