@@ -1,8 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 007/117] Staging: hv: storvsc: Use the newly introduced vmbus
-	ID in storvsc driver
-Date: Fri, 15 Jul 2011 10:45:55 -0700
-Message-ID: <1310752065-27895-7-git-send-email-kys@microsoft.com>
+Subject: [PATCH 006/117] Staging: hv: blkvsc: Use the newly introduced vmbus
+	ID in the blockvsc driver
+Date: Fri, 15 Jul 2011 10:45:54 -0700
+Message-ID: <1310752065-27895-6-git-send-email-kys@microsoft.com>
 References: <1310752024-27854-1-git-send-email-kys@microsoft.com>
 	<1310752065-27895-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -23,28 +23,28 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Use the newly introduced vmbus ID in storvsc driver.
+Use the newly introduced vmbus ID in the blockvsc driver.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- drivers/staging/hv/storvsc_drv.c |   16 ++++++++++++++++
+ drivers/staging/hv/blkvsc_drv.c |   16 ++++++++++++++++
  1 files changed, 16 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
-index e4cdbc5..e30f11c 100644
---- a/drivers/staging/hv/storvsc_drv.c
-+++ b/drivers/staging/hv/storvsc_drv.c
-@@ -646,6 +646,21 @@ static struct scsi_host_template scsi_driver = {
- 	.dma_boundary =		PAGE_SIZE-1,
- };
+diff --git a/drivers/staging/hv/blkvsc_drv.c b/drivers/staging/hv/blkvsc_drv.c
+index 018b293..38117d96 100644
+--- a/drivers/staging/hv/blkvsc_drv.c
++++ b/drivers/staging/hv/blkvsc_drv.c
+@@ -802,10 +802,26 @@ static void blkvsc_request(struct request_queue *queue)
+ 	}
+ }
  
 +static const struct hv_vmbus_device_id id_table[] = {
 +	{
-+		/* SCSI guid */
++		/* IDE guid */
 +		.guid = {
-+			0xd9, 0x63, 0x61, 0xba, 0xa1, 0x04, 0x29, 0x4d,
-+			0xb6, 0x05, 0x72, 0xe2, 0xff, 0xb1, 0xdc, 0x7f
++			0x32, 0x26, 0x41, 0x32, 0xcb, 0x86, 0xa2, 0x44,
++			0x9b, 0x5c, 0x50, 0xd1, 0x41, 0x73, 0x54, 0xf5
 +		}
 +	},
 +	{
@@ -55,15 +55,12 @@ index e4cdbc5..e30f11c 100644
 +	},
 +};
  
- /*
-  * storvsc_probe - Add a new device for this driver
-@@ -720,6 +735,7 @@ static int storvsc_probe(struct hv_device *device)
- /* The one and only one */
  
- static struct hv_driver storvsc_drv = {
+ /* The one and only one */
+ static  struct hv_driver blkvsc_drv = {
 +	.id_table = id_table,
- 	.probe = storvsc_probe,
- 	.remove = storvsc_remove,
- };
+ 	.probe =  blkvsc_probe,
+ 	.remove =  blkvsc_remove,
+ 	.shutdown = blkvsc_shutdown,
 -- 
 1.7.4.1
