@@ -1,8 +1,7 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 021/117] Staging: hv: vmbus: Get rid of an unnecessary include
-	line in vmbus_drv.c
-Date: Fri, 15 Jul 2011 10:46:09 -0700
-Message-ID: <1310752065-27895-21-git-send-email-kys@microsoft.com>
+Subject: [PATCH 019/117] Staging: hv: vmbus: Cleanup vmbus_uevent() code
+Date: Fri, 15 Jul 2011 10:46:07 -0700
+Message-ID: <1310752065-27895-19-git-send-email-kys@microsoft.com>
 References: <1310752024-27854-1-git-send-email-kys@microsoft.com>
 	<1310752065-27895-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -23,25 +22,87 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Get rid of an unnecessary include line in vmbus_drv.c.
+Now generate appropriate uevent based on the modalias string. As part of this,
+cleanup the existing uevent code.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- drivers/staging/hv/vmbus_drv.c |    1 -
- 1 files changed, 0 insertions(+), 1 deletions(-)
+ drivers/staging/hv/vmbus_drv.c |   60 ++++++++--------------------------------
+ 1 files changed, 12 insertions(+), 48 deletions(-)
 
 diff --git a/drivers/staging/hv/vmbus_drv.c b/drivers/staging/hv/vmbus_drv.c
-index 3a8eb36..9a0df2c 100644
+index 330cc43..7baba62 100644
 --- a/drivers/staging/hv/vmbus_drv.c
 +++ b/drivers/staging/hv/vmbus_drv.c
-@@ -28,7 +28,6 @@
- #include <linux/irq.h>
- #include <linux/interrupt.h>
- #include <linux/sysctl.h>
--#include <linux/dmi.h>
- #include <linux/slab.h>
- #include <linux/acpi.h>
- #include <acpi/acpi_bus.h>
+@@ -237,58 +237,22 @@ static struct device_attribute vmbus_device_attrs[] = {
+  * This routine is invoked when a device is added or removed on the vmbus to
+  * generate a uevent to udev in the userspace. The udev will then look at its
+  * rule and the uevent generated here to load the appropriate driver
++ *
++ * The alias string will be of the form vmbus:guid where guid is the string
++ * representation of the device guid (each byte of the guid will be
++ * represented with two hex characters.
+  */
+ static int vmbus_uevent(struct device *device, struct kobj_uevent_env *env)
+ {
+ 	struct hv_device *dev = device_to_hv_device(device);
+-	int ret;
+-
+-	ret = add_uevent_var(env, "VMBUS_DEVICE_CLASS_GUID={"
+-			     "%02x%02x%02x%02x-%02x%02x-%02x%02x-"
+-			     "%02x%02x%02x%02x%02x%02x%02x%02x}",
+-			     dev->dev_type.b[3],
+-			     dev->dev_type.b[2],
+-			     dev->dev_type.b[1],
+-			     dev->dev_type.b[0],
+-			     dev->dev_type.b[5],
+-			     dev->dev_type.b[4],
+-			     dev->dev_type.b[7],
+-			     dev->dev_type.b[6],
+-			     dev->dev_type.b[8],
+-			     dev->dev_type.b[9],
+-			     dev->dev_type.b[10],
+-			     dev->dev_type.b[11],
+-			     dev->dev_type.b[12],
+-			     dev->dev_type.b[13],
+-			     dev->dev_type.b[14],
+-			     dev->dev_type.b[15]);
+-
+-	if (ret)
+-		return ret;
++	int i, ret;
++	char alias_name[((sizeof(struct hv_vmbus_device_id) + 1)) * 2];
+ 
+-	ret = add_uevent_var(env, "VMBUS_DEVICE_DEVICE_GUID={"
+-			     "%02x%02x%02x%02x-%02x%02x-%02x%02x-"
+-			     "%02x%02x%02x%02x%02x%02x%02x%02x}",
+-			     dev->dev_instance.b[3],
+-			     dev->dev_instance.b[2],
+-			     dev->dev_instance.b[1],
+-			     dev->dev_instance.b[0],
+-			     dev->dev_instance.b[5],
+-			     dev->dev_instance.b[4],
+-			     dev->dev_instance.b[7],
+-			     dev->dev_instance.b[6],
+-			     dev->dev_instance.b[8],
+-			     dev->dev_instance.b[9],
+-			     dev->dev_instance.b[10],
+-			     dev->dev_instance.b[11],
+-			     dev->dev_instance.b[12],
+-			     dev->dev_instance.b[13],
+-			     dev->dev_instance.b[14],
+-			     dev->dev_instance.b[15]);
+-	if (ret)
+-		return ret;
++	for (i = 0; i < (sizeof(struct hv_vmbus_device_id) * 2); i += 2)
++		sprintf(&alias_name[i], "%02x", dev->dev_type.b[i/2]);
+ 
+-	return 0;
++	ret = add_uevent_var(env, "MODALIAS=vmbus:%s", alias_name);
++	return ret;
+ }
+ 
+ 
 -- 
 1.7.4.1
