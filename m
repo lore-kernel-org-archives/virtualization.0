@@ -1,8 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 003/117] Staging: hv: Add struct hv_vmbus_device_id to
-	mod_devicetable.h
-Date: Fri, 15 Jul 2011 10:45:51 -0700
-Message-ID: <1310752065-27895-3-git-send-email-kys@microsoft.com>
+Subject: [PATCH 097/117] Staging: hv: storvsc: Add code to handle IDE devices
+	using the storvsc driver
+Date: Fri, 15 Jul 2011 10:47:25 -0700
+Message-ID: <1310752065-27895-97-git-send-email-kys@microsoft.com>
 References: <1310752024-27854-1-git-send-email-kys@microsoft.com>
 	<1310752065-27895-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -23,32 +23,118 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-In preparation for implementing vmbus aliases for auto-loading
-Hyper-V drivers, define vmbus specific device ID.
+Add code to handle IDE devices using the storvsc driver. The storvsc_probe()
+is modified so that the storvsc driver can surface all disks presented to the
+guest as scsi devices using generic upper level Linux scsi drivers.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- include/linux/mod_devicetable.h |    7 +++++++
- 1 files changed, 7 insertions(+), 0 deletions(-)
+ drivers/staging/hv/storvsc_drv.c |   62 +++++++++++++++++++++++++++++++-------
+ 1 files changed, 51 insertions(+), 11 deletions(-)
 
-diff --git a/include/linux/mod_devicetable.h b/include/linux/mod_devicetable.h
-index ae28e93..5a12377 100644
---- a/include/linux/mod_devicetable.h
-+++ b/include/linux/mod_devicetable.h
-@@ -405,6 +405,13 @@ struct virtio_device_id {
+diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
+index 0f2fc2f..efbc603 100644
+--- a/drivers/staging/hv/storvsc_drv.c
++++ b/drivers/staging/hv/storvsc_drv.c
+@@ -61,6 +61,17 @@ struct storvsc_cmd_request {
+ 	struct hv_storvsc_request request;
  };
- #define VIRTIO_DEV_ANY_ID	0xffffffff
  
-+/*
-+ * For Hyper-V devices we use the device guid as the id.
-+ */
-+struct hv_vmbus_device_id {
-+	__u8 guid[16];
++static void storvsc_get_ide_info(struct hv_device *dev, int *target, int *path)
++{
++	*target =
++		dev->dev_instance.b[5] << 8 | dev->dev_instance.b[4];
++
++	*path =
++		dev->dev_instance.b[3] << 24 |
++		dev->dev_instance.b[2] << 16 |
++		dev->dev_instance.b[1] << 8  | dev->dev_instance.b[0];
++}
++
+ 
+ static int storvsc_device_alloc(struct scsi_device *sdevice)
+ {
+@@ -654,6 +665,14 @@ static const struct hv_vmbus_device_id id_table[] = {
+ };
+ 
+ MODULE_DEVICE_TABLE(vmbus, id_table);
++
++static const uuid_le blk_guid = {
++	.b = {
++		0x32, 0x26, 0x41, 0x32, 0xcb, 0x86, 0xa2, 0x44,
++		0x9b, 0x5c, 0x50, 0xd1, 0x41, 0x73, 0x54, 0xf5
++	}
 +};
 +
- /* i2c */
+ /*
+  * storvsc_probe - Add a new device for this driver
+  */
+@@ -664,6 +683,14 @@ static int storvsc_probe(struct hv_device *device)
+ 	struct Scsi_Host *host;
+ 	struct hv_host_device *host_dev;
+ 	struct storvsc_device_info device_info;
++	bool dev_is_ide;
++	int path = 0;
++	int target = 0;
++
++	if (!uuid_le_cmp(device->dev_type, blk_guid))
++		dev_is_ide = true;
++	else
++		dev_is_ide = false;
  
- #define I2C_NAME_SIZE	20
+ 	host = scsi_host_alloc(&scsi_driver,
+ 			       sizeof(struct hv_host_device));
+@@ -699,8 +726,14 @@ static int storvsc_probe(struct hv_device *device)
+ 		return -ENODEV;
+ 	}
+ 
+-	host_dev->path = device_info.path_id;
+-	host_dev->target = device_info.target_id;
++	if (dev_is_ide) {
++		storvsc_get_ide_info(device, &target, &path);
++		host_dev->path = device_info.path_id;
++		host_dev->target = device_info.target_id;
++	} else {
++		host_dev->path = device_info.path_id;
++		host_dev->target = device_info.target_id;
++	}
+ 
+ 	/* max # of devices per target */
+ 	host->max_lun = STORVSC_MAX_LUNS_PER_TARGET;
+@@ -711,17 +744,24 @@ static int storvsc_probe(struct hv_device *device)
+ 
+ 	/* Register the HBA and start the scsi bus scan */
+ 	ret = scsi_add_host(host, &device->device);
+-	if (ret != 0) {
+-
+-		storvsc_dev_remove(device);
+-
+-		kmem_cache_destroy(host_dev->request_pool);
+-		scsi_host_put(host);
+-		return -ENODEV;
+-	}
++	if (ret != 0)
++		goto err_out;
+ 
+-	scsi_scan_host(host);
++	if (dev_is_ide) {
++		ret = scsi_add_device(host, 0, target, 0);
++		if (ret) {
++			scsi_remove_host(host);
++			goto err_out;
++		}
++	} else
++		scsi_scan_host(host);
+ 	return ret;
++
++err_out:
++	storvsc_dev_remove(device);
++	kmem_cache_destroy(host_dev->request_pool);
++	scsi_host_put(host);
++	return -ENODEV;
+ }
+ 
+ /* The one and only one */
 -- 
 1.7.4.1
