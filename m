@@ -1,8 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 065/117] Staging: hv: netvsc: Cleanup error return codes in
-	netvsc_device_add()
-Date: Fri, 15 Jul 2011 10:46:53 -0700
-Message-ID: <1310752065-27895-65-git-send-email-kys@microsoft.com>
+Subject: [PATCH 108/117] Staging: hv: storvsc: In case of scsi errors offline
+	the device
+Date: Fri, 15 Jul 2011 10:47:36 -0700
+Message-ID: <1310752065-27895-108-git-send-email-kys@microsoft.com>
 References: <1310752024-27854-1-git-send-email-kys@microsoft.com>
 	<1310752065-27895-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -23,42 +23,35 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Use standard Linux error codes.
+When we do get fatal errors from the host, offline the device since the
+host has already tried all possible recovery actions.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- drivers/staging/hv/netvsc.c |    4 +---
- 1 files changed, 1 insertions(+), 3 deletions(-)
+ drivers/staging/hv/storvsc_drv.c |   10 +++++++++-
+ 1 files changed, 9 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/staging/hv/netvsc.c b/drivers/staging/hv/netvsc.c
-index f7f4957..b6e1fb9 100644
---- a/drivers/staging/hv/netvsc.c
-+++ b/drivers/staging/hv/netvsc.c
-@@ -918,7 +918,7 @@ int netvsc_device_add(struct hv_device *device, void *additional_info)
- 
- 	net_device = alloc_net_device(device);
- 	if (!net_device) {
--		ret = -1;
-+		ret = -ENOMEM;
- 		goto cleanup;
+diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
+index 2d7bb41..8756cdf 100644
+--- a/drivers/staging/hv/storvsc_drv.c
++++ b/drivers/staging/hv/storvsc_drv.c
+@@ -1187,7 +1187,15 @@ static void storvsc_command_completion(struct hv_storvsc_request *request)
+ 		}
  	}
  
-@@ -947,7 +947,6 @@ int netvsc_device_add(struct hv_device *device, void *additional_info)
+-	scmnd->result = vm_srb->scsi_status;
++	/*
++	 * If there is an error; offline the device since all
++	 * error recovery strategies would have already been
++	 * deployed on the host side.
++	 */
++	if (vm_srb->srb_status == 0x4)
++		scmnd->result = DID_TARGET_FAILURE << 16;
++	else
++		scmnd->result = vm_srb->scsi_status;
  
- 	if (ret != 0) {
- 		dev_err(&device->device, "unable to open channel: %d", ret);
--		ret = -1;
- 		goto cleanup;
- 	}
- 
-@@ -959,7 +958,6 @@ int netvsc_device_add(struct hv_device *device, void *additional_info)
- 	if (ret != 0) {
- 		dev_err(&device->device,
- 			"unable to connect to NetVSP - %d", ret);
--		ret = -1;
- 		goto close;
- 	}
- 
+ 	if (scmnd->result) {
+ 		if (scsi_normalize_sense(scmnd->sense_buffer,
 -- 
 1.7.4.1
