@@ -1,7 +1,7 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 035/117] Staging: hv: vmbus: Introduce a function to map the dev_type guid to a name
-Date: Fri, 15 Jul 2011 10:46:23 -0700
-Message-ID: <1310752065-27895-35-git-send-email-kys@microsoft.com>
+Subject: [PATCH 004/117] Staging: hv: Add code to parse struct hv_vmbus_device_id table
+Date: Fri, 15 Jul 2011 10:45:52 -0700
+Message-ID: <1310752065-27895-4-git-send-email-kys@microsoft.com>
 References: <1310752024-27854-1-git-send-email-kys@microsoft.com>
  <1310752065-27895-1-git-send-email-kys@microsoft.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
@@ -11,73 +11,56 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-To support "human readable" sysfs attribute, introduce a function to map the
-dev_type guid to a string.
+Add code to parse struct hv_vmbus_device_id table.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- drivers/staging/hv/channel_mgmt.c |   36 ++++++++++++++++++++++++++++++++++++
- drivers/staging/hv/hyperv.h       |    2 +-
- 2 files changed, 37 insertions(+), 1 deletions(-)
+ scripts/mod/file2alias.c |   25 +++++++++++++++++++++++++
+ 1 files changed, 25 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/staging/hv/channel_mgmt.c b/drivers/staging/hv/channel_mgmt.c
-index 11beb41..926bc87 100644
---- a/drivers/staging/hv/channel_mgmt.c
-+++ b/drivers/staging/hv/channel_mgmt.c
-@@ -112,6 +112,42 @@ static const uuid_le
+diff --git a/scripts/mod/file2alias.c b/scripts/mod/file2alias.c
+index e26e2fb..b74d21a 100644
+--- a/scripts/mod/file2alias.c
++++ b/scripts/mod/file2alias.c
+@@ -735,6 +735,27 @@ static int do_virtio_entry(const char *filename, struct virtio_device_id *id,
+ 	return 1;
+ }
  
- };
- 
-+static const char *blk_dev_type = "hv_block";
-+static const char *net_dev_type = "hv_net";
-+static const char *scsi_dev_type = "hv_scsi";
-+static const char *mouse_dev_type = "hv_mouse";
-+static const char *util_dev_type = "hv_util";
-+
 +/*
-+ * Map the dev_type guid to a human readable string.
-+ * The indices used in this function are based on
-+ * the table defined earlier - supported_device_classes[]
++ * Looks like: vmbus:guid
++ * Each byte of the guid will be represented by two hex characters
++ * in the name.
 + */
-+const char *hv_get_devtype_name(const uuid_le *type)
++
++static int do_vmbus_entry(const char *filename, struct hv_vmbus_device_id *id,
++			  char *alias)
 +{
 +	int i;
++	char guid_name[((sizeof(struct hv_vmbus_device_id) + 1)) * 2];
 +
-+	for (i = 0; i < MAX_NUM_DEVICE_CLASSES_SUPPORTED; i++) {
-+		if (!memcmp(type, supported_device_classes[i].b,
-+				sizeof(uuid_le))) {
-+			switch (i) {
-+			case 0:
-+				return scsi_dev_type;
-+			case 1:
-+				return net_dev_type;
-+			case 2:
-+				return mouse_dev_type;
-+			case 3:
-+				return blk_dev_type;
-+			}
-+		}
-+	}
-+	/*
-+	 * Currently the util driver is used
-+	 * to handle all these devices.
-+	 */
-+	return util_dev_type;
++	for (i = 0; i < (sizeof(struct hv_vmbus_device_id) * 2); i += 2)
++		sprintf(&guid_name[i], "%02x", id->guid[i/2]);
++
++	strcpy(alias, "vmbus:");
++	strcat(alias, guid_name);
++
++	return 1;
 +}
- 
- /**
-  * prep_negotiate_resp() - Create default response for Hyper-V Negotiate message
-diff --git a/drivers/staging/hv/hyperv.h b/drivers/staging/hv/hyperv.h
-index 60ead66..c4a9f38 100644
---- a/drivers/staging/hv/hyperv.h
-+++ b/drivers/staging/hv/hyperv.h
-@@ -942,5 +942,5 @@ extern void prep_negotiate_resp(struct icmsg_hdr *,
- 				struct icmsg_negotiate *, u8 *);
- extern void chn_cb_negotiate(void *);
- extern struct hyperv_service_callback hv_cb_utils[];
--
-+const char *hv_get_devtype_name(const uuid_le *type);
- #endif /* _HYPERV_H */
++
+ /* Looks like: i2c:S */
+ static int do_i2c_entry(const char *filename, struct i2c_device_id *id,
+ 			char *alias)
+@@ -994,6 +1015,10 @@ void handle_moddevtable(struct module *mod, struct elf_info *info,
+ 		do_table(symval, sym->st_size,
+ 			 sizeof(struct virtio_device_id), "virtio",
+ 			 do_virtio_entry, mod);
++	else if (sym_is(symname, "__mod_vmbus_device_table"))
++		do_table(symval, sym->st_size,
++			 sizeof(struct hv_vmbus_device_id), "vmbus",
++			 do_vmbus_entry, mod);
+ 	else if (sym_is(symname, "__mod_i2c_device_table"))
+ 		do_table(symval, sym->st_size,
+ 			 sizeof(struct i2c_device_id), "i2c",
 -- 
 1.7.4.1
