@@ -1,8 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 081/117] Staging: hv: vmbus: Introduce a lock to protect the
-	ext field in hv_device
-Date: Fri, 15 Jul 2011 10:47:09 -0700
-Message-ID: <1310752065-27895-81-git-send-email-kys@microsoft.com>
+Subject: [PATCH 068/117] Staging: hv: netvsc: Cleanup error return values in
+	rndis_filter_set_packet_filter()
+Date: Fri, 15 Jul 2011 10:46:56 -0700
+Message-ID: <1310752065-27895-68-git-send-email-kys@microsoft.com>
 References: <1310752024-27854-1-git-send-email-kys@microsoft.com>
 	<1310752065-27895-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -23,41 +23,43 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The current mechanism for handling references in broken.
-Introduce a lock to protect the ext field in hv_device.
+Use standard Linux error codes and cleanup some error paths.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- drivers/staging/hv/hyperv.h    |    3 +++
- drivers/staging/hv/vmbus_drv.c |    1 +
- 2 files changed, 4 insertions(+), 0 deletions(-)
+ drivers/staging/hv/rndis_filter.c |    5 +----
+ 1 files changed, 1 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/staging/hv/hyperv.h b/drivers/staging/hv/hyperv.h
-index c4a9f38..82ba110 100644
---- a/drivers/staging/hv/hyperv.h
-+++ b/drivers/staging/hv/hyperv.h
-@@ -826,6 +826,9 @@ struct hv_device {
- 
- 	struct vmbus_channel *channel;
- 
-+	/* This lock protects the device extension field */
-+	spinlock_t ext_lock;
-+
- 	/* Device extension; */
- 	void *ext;
- };
-diff --git a/drivers/staging/hv/vmbus_drv.c b/drivers/staging/hv/vmbus_drv.c
-index ffd6066..29c1712 100644
---- a/drivers/staging/hv/vmbus_drv.c
-+++ b/drivers/staging/hv/vmbus_drv.c
-@@ -578,6 +578,7 @@ struct hv_device *vmbus_child_device_create(uuid_le *type,
- 		return NULL;
+diff --git a/drivers/staging/hv/rndis_filter.c b/drivers/staging/hv/rndis_filter.c
+index f26886d..f5f3052 100644
+--- a/drivers/staging/hv/rndis_filter.c
++++ b/drivers/staging/hv/rndis_filter.c
+@@ -511,7 +511,7 @@ static int rndis_filter_set_packet_filter(struct rndis_device *dev,
+ 			RNDIS_MESSAGE_SIZE(struct rndis_set_request) +
+ 			sizeof(u32));
+ 	if (!request) {
+-		ret = -1;
++		ret = -ENOMEM;
+ 		goto Cleanup;
  	}
  
-+	spin_lock_init(&child_device_obj->ext_lock);
- 	child_device_obj->channel = channel;
- 	memcpy(&child_device_obj->dev_type, type, sizeof(uuid_le));
- 	memcpy(&child_device_obj->dev_instance, instance,
+@@ -531,7 +531,6 @@ static int rndis_filter_set_packet_filter(struct rndis_device *dev,
+ 	t = wait_for_completion_timeout(&request->wait_event, 5*HZ);
+ 
+ 	if (t == 0) {
+-		ret = -1;
+ 		dev_err(&dev->net_dev->dev->device,
+ 			"timeout before we got a set response...\n");
+ 		/*
+@@ -540,8 +539,6 @@ static int rndis_filter_set_packet_filter(struct rndis_device *dev,
+ 		 */
+ 		goto Exit;
+ 	} else {
+-		if (ret > 0)
+-			ret = 0;
+ 		set_complete = &request->response_msg.msg.set_complete;
+ 		status = set_complete->status;
+ 	}
 -- 
 1.7.4.1
