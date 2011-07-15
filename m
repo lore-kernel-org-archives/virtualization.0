@@ -1,7 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 078/117] Staging: hv: storvsc: Rename get_stor_device()
-Date: Fri, 15 Jul 2011 10:47:06 -0700
-Message-ID: <1310752065-27895-78-git-send-email-kys@microsoft.com>
+Subject: [PATCH 111/117] Staging: hv: vmbus: Change the signature of
+	vmbus_child_driver_unregister()
+Date: Fri, 15 Jul 2011 10:47:39 -0700
+Message-ID: <1310752065-27895-111-git-send-email-kys@microsoft.com>
 References: <1310752024-27854-1-git-send-email-kys@microsoft.com>
 	<1310752065-27895-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -22,83 +23,104 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-In preparation for cleaning up how we manage reference counts on the stor
-device, clearly distinguish why we are attempting to acquire a reference.
+Change the signature of vmbus_child_driver_unregister() to conform to the
+Linux driver model.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- drivers/staging/hv/hyperv_storage.h |    3 ++-
- drivers/staging/hv/storvsc.c        |    8 ++++----
- drivers/staging/hv/storvsc_drv.c    |    2 +-
- 3 files changed, 7 insertions(+), 6 deletions(-)
+ drivers/staging/hv/hv_mouse.c    |    2 +-
+ drivers/staging/hv/hv_util.c     |    2 +-
+ drivers/staging/hv/hyperv.h      |    2 +-
+ drivers/staging/hv/netvsc_drv.c  |    2 +-
+ drivers/staging/hv/storvsc_drv.c |    2 +-
+ drivers/staging/hv/vmbus_drv.c   |    7 ++++---
+ 6 files changed, 9 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/staging/hv/hyperv_storage.h b/drivers/staging/hv/hyperv_storage.h
-index a01f9a0..a224413 100644
---- a/drivers/staging/hv/hyperv_storage.h
-+++ b/drivers/staging/hv/hyperv_storage.h
-@@ -288,7 +288,8 @@ struct storvsc_device {
+diff --git a/drivers/staging/hv/hv_mouse.c b/drivers/staging/hv/hv_mouse.c
+index 0dfaa6a..28bd2c5 100644
+--- a/drivers/staging/hv/hv_mouse.c
++++ b/drivers/staging/hv/hv_mouse.c
+@@ -936,7 +936,7 @@ static struct  hv_driver mousevsc_drv = {
  
- 
- /* Get the stordevice object iff exists and its refcount > 1 */
--static inline struct storvsc_device *get_stor_device(struct hv_device *device)
-+static inline struct storvsc_device *get_out_stor_device(
-+					struct hv_device *device)
+ static void mousevsc_drv_exit(void)
  {
- 	struct storvsc_device *stor_device;
- 
-diff --git a/drivers/staging/hv/storvsc.c b/drivers/staging/hv/storvsc.c
-index 89708b1..313a3f8 100644
---- a/drivers/staging/hv/storvsc.c
-+++ b/drivers/staging/hv/storvsc.c
-@@ -41,7 +41,7 @@ static inline struct storvsc_device *alloc_stor_device(struct hv_device *device)
- 		return NULL;
- 
- 	/* Set to 2 to allow both inbound and outbound traffics */
--	/* (ie get_stor_device() and get_in_stor_device()) to proceed. */
-+	/* (ie get_out_stor_device() and get_in_stor_device()) to proceed. */
- 	atomic_cmpxchg(&stor_device->ref_count, 0, 2);
- 
- 	init_waitqueue_head(&stor_device->waiting_to_drain);
-@@ -67,7 +67,7 @@ static inline struct storvsc_device *get_in_stor_device(
- 	return stor_device;
+-	vmbus_child_driver_unregister(&mousevsc_drv.driver);
++	vmbus_child_driver_unregister(&mousevsc_drv);
  }
  
--/* Drop ref count to 1 to effectively disable get_stor_device() */
-+/* Drop ref count to 1 to effectively disable get_out_stor_device() */
- static inline struct storvsc_device *release_stor_device(
- 					struct hv_device *device)
+ static int __init mousevsc_init(void)
+diff --git a/drivers/staging/hv/hv_util.c b/drivers/staging/hv/hv_util.c
+index a4320dc..4712d22 100644
+--- a/drivers/staging/hv/hv_util.c
++++ b/drivers/staging/hv/hv_util.c
+@@ -332,7 +332,7 @@ static void exit_hyperv_utils(void)
+ 	kfree(shut_txf_buf);
+ 	kfree(time_txf_buf);
+ 	kfree(hbeat_txf_buf);
+-	vmbus_child_driver_unregister(&util_drv.driver);
++	vmbus_child_driver_unregister(&util_drv);
+ }
+ 
+ module_init(init_hyperv_utils);
+diff --git a/drivers/staging/hv/hyperv.h b/drivers/staging/hv/hyperv.h
+index a760e89..9b9ff71 100644
+--- a/drivers/staging/hv/hyperv.h
++++ b/drivers/staging/hv/hyperv.h
+@@ -847,7 +847,7 @@ static inline struct hv_driver *drv_to_hv_drv(struct device_driver *d)
+ 
+ /* Vmbus interface */
+ int vmbus_child_driver_register(struct hv_driver *hv_drv);
+-void vmbus_child_driver_unregister(struct device_driver *drv);
++void vmbus_child_driver_unregister(struct hv_driver *hv_drv);
+ 
+ /*
+  * Common header for Hyper-V ICs
+diff --git a/drivers/staging/hv/netvsc_drv.c b/drivers/staging/hv/netvsc_drv.c
+index a204ea7..474c5f0 100644
+--- a/drivers/staging/hv/netvsc_drv.c
++++ b/drivers/staging/hv/netvsc_drv.c
+@@ -438,7 +438,7 @@ static struct  hv_driver netvsc_drv = {
+ 
+ static void __exit netvsc_drv_exit(void)
  {
-@@ -105,7 +105,7 @@ static int storvsc_channel_init(struct hv_device *device)
- 	struct vstor_packet *vstor_packet;
- 	int ret, t;
+-	vmbus_child_driver_unregister(&netvsc_drv.driver);
++	vmbus_child_driver_unregister(&netvsc_drv);
+ }
  
--	stor_device = get_stor_device(device);
-+	stor_device = get_out_stor_device(device);
- 	if (!stor_device)
- 		return -ENODEV;
  
-@@ -427,7 +427,7 @@ int storvsc_do_io(struct hv_device *device,
- 	int ret = 0;
- 
- 	vstor_packet = &request->vstor_packet;
--	stor_device = get_stor_device(device);
-+	stor_device = get_out_stor_device(device);
- 
- 	if (!stor_device)
- 		return -ENODEV;
 diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
-index bc71024..0f2fc2f 100644
+index 149ef00..6fbe146 100644
 --- a/drivers/staging/hv/storvsc_drv.c
 +++ b/drivers/staging/hv/storvsc_drv.c
-@@ -346,7 +346,7 @@ static int storvsc_host_reset(struct hv_device *device)
- 	int ret, t;
+@@ -1559,7 +1559,7 @@ static int __init storvsc_drv_init(void)
  
+ static void __exit storvsc_drv_exit(void)
+ {
+-	vmbus_child_driver_unregister(&storvsc_drv.driver);
++	vmbus_child_driver_unregister(&storvsc_drv);
+ }
  
--	stor_device = get_stor_device(device);
-+	stor_device = get_out_stor_device(device);
- 	if (!stor_device)
- 		return -ENODEV;
+ MODULE_LICENSE("GPL");
+diff --git a/drivers/staging/hv/vmbus_drv.c b/drivers/staging/hv/vmbus_drv.c
+index bd5a5a7..f271e8d 100644
+--- a/drivers/staging/hv/vmbus_drv.c
++++ b/drivers/staging/hv/vmbus_drv.c
+@@ -553,11 +553,12 @@ EXPORT_SYMBOL(vmbus_child_driver_register);
+  *
+  * Mainly used by Hyper-V drivers.
+  */
+-void vmbus_child_driver_unregister(struct device_driver *drv)
++void vmbus_child_driver_unregister(struct hv_driver *hv_drv)
+ {
+-	pr_info("child driver unregistering - name %s\n", drv->name);
++	pr_info("child driver unregistering - name %s\n",
++		 hv_drv->driver.name);
  
+-	driver_unregister(drv);
++	driver_unregister(&hv_drv->driver);
+ 
+ }
+ EXPORT_SYMBOL(vmbus_child_driver_unregister);
 -- 
 1.7.4.1
