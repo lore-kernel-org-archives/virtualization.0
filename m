@@ -1,8 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 086/117] Staging: hv: storvsc: Leverage the spinlock to manage
-	ref_cnt
-Date: Fri, 15 Jul 2011 10:47:14 -0700
-Message-ID: <1310752065-27895-86-git-send-email-kys@microsoft.com>
+Subject: [PATCH 062/117] Staging: hv: netvsc: Cleanup error return values in
+	netvsc_init_recv_buf()
+Date: Fri, 15 Jul 2011 10:46:50 -0700
+Message-ID: <1310752065-27895-62-git-send-email-kys@microsoft.com>
 References: <1310752024-27854-1-git-send-email-kys@microsoft.com>
 	<1310752065-27895-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -23,91 +23,62 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Now that we have a spin lock protecting access to the stor device pointer,
-use it manage the reference count as well.
+Use standard Linux error codes.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- drivers/staging/hv/hyperv_storage.h |    8 ++++----
- drivers/staging/hv/storvsc.c        |   10 +++++-----
- 2 files changed, 9 insertions(+), 9 deletions(-)
+ drivers/staging/hv/netvsc.c |   10 +++++-----
+ 1 files changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/staging/hv/hyperv_storage.h b/drivers/staging/hv/hyperv_storage.h
-index 53b65be..d946211 100644
---- a/drivers/staging/hv/hyperv_storage.h
-+++ b/drivers/staging/hv/hyperv_storage.h
-@@ -265,7 +265,7 @@ struct storvsc_device {
- 	struct hv_device *device;
+diff --git a/drivers/staging/hv/netvsc.c b/drivers/staging/hv/netvsc.c
+index baa0c8d..5703fd7 100644
+--- a/drivers/staging/hv/netvsc.c
++++ b/drivers/staging/hv/netvsc.c
+@@ -207,7 +207,7 @@ static int netvsc_init_recv_buf(struct hv_device *device)
+ 	if (!net_device) {
+ 		dev_err(&device->device, "unable to get net device..."
+ 			   "device being destroyed?");
+-		return -1;
++		return -ENODEV;
+ 	}
  
- 	/* 0 indicates the device is being destroyed */
--	atomic_t ref_count;
-+	int	 ref_count;
- 	bool	 destroy;
- 	bool	 drain_notify;
- 	atomic_t num_outstanding_req;
-@@ -296,9 +296,9 @@ static inline struct storvsc_device *get_out_stor_device(
+ 	net_device->recv_buf =
+@@ -216,7 +216,7 @@ static int netvsc_init_recv_buf(struct hv_device *device)
+ 	if (!net_device->recv_buf) {
+ 		dev_err(&device->device, "unable to allocate receive "
+ 			"buffer of size %d", net_device->recv_buf_size);
+-		ret = -1;
++		ret = -ENOMEM;
+ 		goto cleanup;
+ 	}
  
- 	spin_lock_irqsave(&device->ext_lock, flags);
- 	stor_device = (struct storvsc_device *)device->ext;
--	if (stor_device && (atomic_read(&stor_device->ref_count) > 1) &&
-+	if (stor_device && (stor_device->ref_count > 1) &&
- 		!stor_device->destroy)
--		atomic_inc(&stor_device->ref_count);
-+		stor_device->ref_count++;
- 	else
- 		stor_device = NULL;
- 	spin_unlock_irqrestore(&device->ext_lock, flags);
-@@ -315,7 +315,7 @@ static inline void put_stor_device(struct hv_device *device)
- 	spin_lock_irqsave(&device->ext_lock, flags);
- 	stor_device = (struct storvsc_device *)device->ext;
+@@ -269,7 +269,7 @@ static int netvsc_init_recv_buf(struct hv_device *device)
+ 			   "initialzation with NetVsp - status %d",
+ 			   init_packet->msg.v1_msg.
+ 			   send_recv_buf_complete.status);
+-		ret = -1;
++		ret = -EINVAL;
+ 		goto cleanup;
+ 	}
  
--	atomic_dec(&stor_device->ref_count);
-+	stor_device->ref_count--;
- 	spin_unlock_irqrestore(&device->ext_lock, flags);
- }
+@@ -281,7 +281,7 @@ static int netvsc_init_recv_buf(struct hv_device *device)
+ 	net_device->recv_section = kmalloc(net_device->recv_section_cnt
+ 		* sizeof(struct nvsp_1_receive_buffer_section), GFP_KERNEL);
+ 	if (net_device->recv_section == NULL) {
+-		ret = -1;
++		ret = -EINVAL;
+ 		goto cleanup;
+ 	}
  
-diff --git a/drivers/staging/hv/storvsc.c b/drivers/staging/hv/storvsc.c
-index c4cb170..a41be2a 100644
---- a/drivers/staging/hv/storvsc.c
-+++ b/drivers/staging/hv/storvsc.c
-@@ -42,7 +42,7 @@ static inline struct storvsc_device *alloc_stor_device(struct hv_device *device)
- 
- 	/* Set to 2 to allow both inbound and outbound traffics */
- 	/* (ie get_out_stor_device() and get_in_stor_device()) to proceed. */
--	atomic_set(&stor_device->ref_count, 2);
-+	stor_device->ref_count = 2;
- 	stor_device->destroy = false;
- 	init_waitqueue_head(&stor_device->waiting_to_drain);
- 	stor_device->device = device;
-@@ -61,8 +61,8 @@ static inline struct storvsc_device *get_in_stor_device(
- 
- 	spin_lock_irqsave(&device->ext_lock, flags);
- 	stor_device = (struct storvsc_device *)device->ext;
--	if (stor_device && atomic_read(&stor_device->ref_count))
--		atomic_inc(&stor_device->ref_count);
-+	if (stor_device && stor_device->ref_count)
-+		stor_device->ref_count++;
- 	else
- 		stor_device = NULL;
- 	spin_unlock_irqrestore(&device->ext_lock, flags);
-@@ -379,7 +379,7 @@ int storvsc_dev_remove(struct hv_device *device)
- 	 * pointer.
+@@ -297,7 +297,7 @@ static int netvsc_init_recv_buf(struct hv_device *device)
  	 */
- 	stor_device = (struct storvsc_device *)device->ext;
--	atomic_dec(&stor_device->ref_count);
-+
- 	stor_device->destroy = true;
- 
- 	/*
-@@ -391,7 +391,7 @@ int storvsc_dev_remove(struct hv_device *device)
- 	storvsc_wait_to_drain(stor_device);
- 
- 	spin_lock_irqsave(&device->ext_lock, flags);
--	atomic_set(&stor_device->ref_count, 0);
-+	stor_device->ref_count = 0;
- 	device->ext = NULL;
- 	spin_unlock_irqrestore(&device->ext_lock, flags);
+ 	if (net_device->recv_section_cnt != 1 ||
+ 	    net_device->recv_section->offset != 0) {
+-		ret = -1;
++		ret = -EINVAL;
+ 		goto cleanup;
+ 	}
  
 -- 
 1.7.4.1
