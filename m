@@ -1,8 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 049/117] Staging: hv: netvsc: Get rid of an unnecessary print
-	statement in netvsc_probe()
-Date: Fri, 15 Jul 2011 10:46:37 -0700
-Message-ID: <1310752065-27895-49-git-send-email-kys@microsoft.com>
+Subject: [PATCH 066/117] Staging: hv: netvsc: Cleanup error codes in
+	rndis_filter_receive()
+Date: Fri, 15 Jul 2011 10:46:54 -0700
+Message-ID: <1310752065-27895-66-git-send-email-kys@microsoft.com>
 References: <1310752024-27854-1-git-send-email-kys@microsoft.com>
 	<1310752065-27895-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -23,28 +23,34 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Get rid of an unnecessary print statement in netvsc_probe(). Furthermore,
-this fixes a bug since netdev_err is being invoked after the device has
-been freed.
+Use standard Linux error codes.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- drivers/staging/hv/netvsc_drv.c |    2 --
- 1 files changed, 0 insertions(+), 2 deletions(-)
+ drivers/staging/hv/rndis_filter.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/staging/hv/netvsc_drv.c b/drivers/staging/hv/netvsc_drv.c
-index 11c03ae..542be65 100644
---- a/drivers/staging/hv/netvsc_drv.c
-+++ b/drivers/staging/hv/netvsc_drv.c
-@@ -357,8 +357,6 @@ static int netvsc_probe(struct hv_device *dev)
- 	if (ret != 0) {
- 		free_netdev(net);
- 		dev_set_drvdata(&dev->device, NULL);
--
--		netdev_err(net, "unable to add netvsc device (ret %d)\n", ret);
- 		return ret;
+diff --git a/drivers/staging/hv/rndis_filter.c b/drivers/staging/hv/rndis_filter.c
+index dbb5201..8e1ef00 100644
+--- a/drivers/staging/hv/rndis_filter.c
++++ b/drivers/staging/hv/rndis_filter.c
+@@ -358,14 +358,14 @@ int rndis_filter_receive(struct hv_device *dev,
+ 	if (!net_dev->extension) {
+ 		dev_err(&dev->device, "got rndis message but no rndis device - "
+ 			  "dropping this message!\n");
+-		return -1;
++		return -ENODEV;
  	}
  
+ 	rndis_dev = (struct rndis_device *)net_dev->extension;
+ 	if (rndis_dev->state == RNDIS_DEV_UNINITIALIZED) {
+ 		dev_err(&dev->device, "got rndis message but rndis device "
+ 			   "uninitialized...dropping this message!\n");
+-		return -1;
++		return -ENODEV;
+ 	}
+ 
+ 	rndis_hdr = (struct rndis_message *)kmap_atomic(
 -- 
 1.7.4.1
