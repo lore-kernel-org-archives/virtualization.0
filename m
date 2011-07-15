@@ -1,8 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 068/117] Staging: hv: netvsc: Cleanup error return values in
-	rndis_filter_set_packet_filter()
-Date: Fri, 15 Jul 2011 10:46:56 -0700
-Message-ID: <1310752065-27895-68-git-send-email-kys@microsoft.com>
+Subject: [PATCH 100/117] Staging: hv: storvsc: Optimize the bounce buffer
+	handling in the "read" case
+Date: Fri, 15 Jul 2011 10:47:28 -0700
+Message-ID: <1310752065-27895-100-git-send-email-kys@microsoft.com>
 References: <1310752024-27854-1-git-send-email-kys@microsoft.com>
 	<1310752065-27895-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -23,43 +23,34 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Use standard Linux error codes and cleanup some error paths.
+Optimize the bounce buffer handling in the "read" case.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- drivers/staging/hv/rndis_filter.c |    5 +----
- 1 files changed, 1 insertions(+), 4 deletions(-)
+ drivers/staging/hv/storvsc_drv.c |   10 ++++------
+ 1 files changed, 4 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/staging/hv/rndis_filter.c b/drivers/staging/hv/rndis_filter.c
-index f26886d..f5f3052 100644
---- a/drivers/staging/hv/rndis_filter.c
-+++ b/drivers/staging/hv/rndis_filter.c
-@@ -511,7 +511,7 @@ static int rndis_filter_set_packet_filter(struct rndis_device *dev,
- 			RNDIS_MESSAGE_SIZE(struct rndis_set_request) +
- 			sizeof(u32));
- 	if (!request) {
--		ret = -1;
-+		ret = -ENOMEM;
- 		goto Cleanup;
- 	}
+diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
+index e2294d5..6e4725f 100644
+--- a/drivers/staging/hv/storvsc_drv.c
++++ b/drivers/staging/hv/storvsc_drv.c
+@@ -563,12 +563,10 @@ static int storvsc_queuecommand_lck(struct scsi_cmnd *scmnd,
+ 				ALIGN(scsi_bufflen(scmnd), PAGE_SIZE) >>
+ 					PAGE_SHIFT;
  
-@@ -531,7 +531,6 @@ static int rndis_filter_set_packet_filter(struct rndis_device *dev,
- 	t = wait_for_completion_timeout(&request->wait_event, 5*HZ);
+-			/*
+-			 * FIXME: We can optimize on reads by just skipping
+-			 * this
+-			 */
+-			copy_to_bounce_buffer(sgl, cmd_request->bounce_sgl,
+-					      scsi_sg_count(scmnd));
++			if (vm_srb->data_in == WRITE_TYPE)
++				copy_to_bounce_buffer(sgl,
++					cmd_request->bounce_sgl,
++					scsi_sg_count(scmnd));
  
- 	if (t == 0) {
--		ret = -1;
- 		dev_err(&dev->net_dev->dev->device,
- 			"timeout before we got a set response...\n");
- 		/*
-@@ -540,8 +539,6 @@ static int rndis_filter_set_packet_filter(struct rndis_device *dev,
- 		 */
- 		goto Exit;
- 	} else {
--		if (ret > 0)
--			ret = 0;
- 		set_complete = &request->response_msg.msg.set_complete;
- 		status = set_complete->status;
- 	}
+ 			sgl = cmd_request->bounce_sgl;
+ 			sg_count = cmd_request->bounce_sgl_count;
 -- 
 1.7.4.1
