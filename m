@@ -1,102 +1,66 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 093/117] Staging: hv: netvsc: Get rid of release_outbound_net_device() by inlining the code
-Date: Fri, 15 Jul 2011 10:47:21 -0700
-Message-ID: <1310752065-27895-93-git-send-email-kys@microsoft.com>
+Subject: [PATCH 077/117] Staging: hv: storvsc: Rename must_get_stor_device()
+Date: Fri, 15 Jul 2011 10:47:05 -0700
+Message-ID: <1310752065-27895-77-git-send-email-kys@microsoft.com>
 References: <1310752024-27854-1-git-send-email-kys@microsoft.com>
- <1310752065-27895-1-git-send-email-kys@microsoft.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+	<1310752065-27895-1-git-send-email-kys@microsoft.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <devel-bounces@linuxdriverproject.org>
 In-Reply-To: <1310752065-27895-1-git-send-email-kys@microsoft.com>
-Sender: linux-kernel-owner@vger.kernel.org
+List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
+	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
+List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
+List-Post: <mailto:devel@linuxdriverproject.org>
+List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
+List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
+	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
+Sender: devel-bounces@linuxdriverproject.org
+Errors-To: devel-bounces@linuxdriverproject.org
 To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org
-Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>
+Cc: Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Get rid of release_outbound_net_device() by inlining the code.
+In preparation for cleaning up how we manage reference counts on the stor
+device, clearly distinguish why we are attempting to acquire a reference.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- drivers/staging/hv/netvsc.c |   45 ++++++++++++++++--------------------------
- 1 files changed, 17 insertions(+), 28 deletions(-)
+ drivers/staging/hv/storvsc.c |    6 +++---
+ 1 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/staging/hv/netvsc.c b/drivers/staging/hv/netvsc.c
-index 7c3d7ac..3975219 100644
---- a/drivers/staging/hv/netvsc.c
-+++ b/drivers/staging/hv/netvsc.c
-@@ -98,28 +98,6 @@ static void put_net_device(struct hv_device *device)
- 	spin_unlock_irqrestore(&device->ext_lock, flags);
- }
+diff --git a/drivers/staging/hv/storvsc.c b/drivers/staging/hv/storvsc.c
+index cd38cd6..89708b1 100644
+--- a/drivers/staging/hv/storvsc.c
++++ b/drivers/staging/hv/storvsc.c
+@@ -41,7 +41,7 @@ static inline struct storvsc_device *alloc_stor_device(struct hv_device *device)
+ 		return NULL;
  
--static struct netvsc_device *release_outbound_net_device(
--		struct hv_device *device)
--{
--	struct netvsc_device *net_device;
--	unsigned long flags;
--
--	spin_lock_irqsave(&device->ext_lock, flags);
--	net_device = device->ext;
--	if (net_device == NULL) {
--		spin_unlock_irqrestore(&device->ext_lock, flags);
--		return NULL;
--	}
--
--	spin_unlock_irqrestore(&device->ext_lock, flags);
--
--	/* Busy wait until the ref drop to 2, then set it to 1 */
--	while (atomic_cmpxchg(&net_device->refcnt, 2, 1) != 2)
--		udelay(100);
--
--	return net_device;
--}
--
- static struct netvsc_device *release_inbound_net_device(
- 		struct hv_device *device)
+ 	/* Set to 2 to allow both inbound and outbound traffics */
+-	/* (ie get_stor_device() and must_get_stor_device()) to proceed. */
++	/* (ie get_stor_device() and get_in_stor_device()) to proceed. */
+ 	atomic_cmpxchg(&stor_device->ref_count, 0, 2);
+ 
+ 	init_waitqueue_head(&stor_device->waiting_to_drain);
+@@ -53,7 +53,7 @@ static inline struct storvsc_device *alloc_stor_device(struct hv_device *device)
+ 
+ 
+ /* Get the stordevice object iff exists and its refcount > 0 */
+-static inline struct storvsc_device *must_get_stor_device(
++static inline struct storvsc_device *get_in_stor_device(
+ 					struct hv_device *device)
  {
-@@ -424,13 +402,13 @@ int netvsc_device_remove(struct hv_device *device)
- 	unsigned long flags;
+ 	struct storvsc_device *stor_device;
+@@ -305,7 +305,7 @@ static void storvsc_on_channel_callback(void *context)
+ 	int ret;
  
  
--	/* Stop outbound traffic ie sends and receives completions */
--	net_device = release_outbound_net_device(device);
--	if (!net_device) {
--		dev_err(&device->device, "No net device present!!");
-+	spin_lock_irqsave(&device->ext_lock, flags);
-+	net_device = (struct netvsc_device *)device->ext;
-+	if (net_device == NULL) {
-+		spin_unlock_irqrestore(&device->ext_lock, flags);
- 		return -ENODEV;
- 	}
--	spin_lock_irqsave(&device->ext_lock, flags);
-+	atomic_dec(&net_device->refcnt);
- 	net_device->destroy = true;
- 	spin_unlock_irqrestore(&device->ext_lock, flags);
+-	stor_device = must_get_stor_device(device);
++	stor_device = get_in_stor_device(device);
+ 	if (!stor_device)
+ 		return;
  
-@@ -448,6 +426,18 @@ int netvsc_device_remove(struct hv_device *device)
- 	/* Stop inbound traffic ie receives and sends completions */
- 	net_device = release_inbound_net_device(device);
- 
-+	/*
-+	 * Wait until the ref cnt falls to 0.
-+	 * We have already stopped any new references
-+	 * for outgoing traffic. Also, at this point we don't have any
-+	 * incoming traffic as well. So this must be outgoing refrences
-+	 * established prior to marking the device as being destroyed.
-+	 * Since the send path is non-blocking, it is reasonable to busy
-+	 * wait here.
-+	 */
-+	while (atomic_read(&net_device->refcnt))
-+		udelay(100);
-+
- 	/* At this point, no one should be accessing netDevice except in here */
- 	dev_notice(&device->device, "net device safe to remove");
- 
-@@ -1000,7 +990,6 @@ cleanup:
- 			kfree(packet);
- 		}
- 
--		release_outbound_net_device(device);
- 		release_inbound_net_device(device);
- 
- 		kfree(net_device);
 -- 
 1.7.4.1
