@@ -1,8 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 088/117] Staging: hv: netvsc: Inline the code for
-	free_net_device()
-Date: Fri, 15 Jul 2011 10:47:16 -0700
-Message-ID: <1310752065-27895-88-git-send-email-kys@microsoft.com>
+Subject: [PATCH 029/117] Staging: hv: netvsc: Get rid of the dev_type guid
+	from netvsc.c
+Date: Fri, 15 Jul 2011 10:46:17 -0700
+Message-ID: <1310752065-27895-29-git-send-email-kys@microsoft.com>
 References: <1310752024-27854-1-git-send-email-kys@microsoft.com>
 	<1310752065-27895-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -23,50 +23,41 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Inline the code for free_net_device().
+Get rid of the dev_type guid from netvsc.c, as it is no longer used.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- drivers/staging/hv/netvsc.c |   12 ++----------
- 1 files changed, 2 insertions(+), 10 deletions(-)
+ drivers/staging/hv/netvsc.c |   10 ----------
+ 1 files changed, 0 insertions(+), 10 deletions(-)
 
 diff --git a/drivers/staging/hv/netvsc.c b/drivers/staging/hv/netvsc.c
-index b6e1fb9..75c6ed7 100644
+index 1506b53..6f4541b 100644
 --- a/drivers/staging/hv/netvsc.c
 +++ b/drivers/staging/hv/netvsc.c
-@@ -49,14 +49,6 @@ static struct netvsc_device *alloc_net_device(struct hv_device *device)
- 	return net_device;
- }
+@@ -35,15 +35,6 @@
+ /* Globals */
+ static const char *driver_name = "netvsc";
  
--static void free_net_device(struct netvsc_device *device)
--{
--	WARN_ON(atomic_read(&device->refcnt) != 0);
--	device->dev->ext = NULL;
--	kfree(device);
--}
+-/* {F8615163-DF3E-46c5-913F-F2D2F965ED0E} */
+-static const uuid_le netvsc_device_type = {
+-	.b = {
+-		0x63, 0x51, 0x61, 0xF8, 0x3E, 0xDF, 0xc5, 0x46,
+-		0x91, 0x3F, 0xF2, 0xD2, 0xF9, 0x65, 0xED, 0x0E
+-	}
+-};
 -
 -
- /* Get the net device object iff exists and its refcount > 1 */
- static struct netvsc_device *get_outbound_net_device(struct hv_device *device)
+ static struct netvsc_device *alloc_net_device(struct hv_device *device)
  {
-@@ -438,7 +430,7 @@ int netvsc_device_remove(struct hv_device *device)
- 		kfree(netvsc_packet);
- 	}
+ 	struct netvsc_device *net_device;
+@@ -1009,7 +1000,6 @@ int netvsc_initialize(struct hv_driver *drv)
+ {
  
--	free_net_device(net_device);
-+	kfree(net_device);
+ 	drv->name = driver_name;
+-	memcpy(&drv->dev_type, &netvsc_device_type, sizeof(uuid_le));
+ 
  	return 0;
  }
- 
-@@ -980,7 +972,7 @@ cleanup:
- 		release_outbound_net_device(device);
- 		release_inbound_net_device(device);
- 
--		free_net_device(net_device);
-+		kfree(net_device);
- 	}
- 
- 	return ret;
 -- 
 1.7.4.1
