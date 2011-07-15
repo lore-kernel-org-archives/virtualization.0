@@ -1,49 +1,50 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 092/117] Staging: hv: netvsc: Prevent outgoing traffic when
-	netvsc dev is destroyed
-Date: Fri, 15 Jul 2011 10:47:20 -0700
-Message-ID: <1310752065-27895-92-git-send-email-kys@microsoft.com>
+Subject: [PATCH 034/117] Staging: hv: mouse: Get rid of the dev_type guid in hv_mouse.c
+Date: Fri, 15 Jul 2011 10:46:22 -0700
+Message-ID: <1310752065-27895-34-git-send-email-kys@microsoft.com>
 References: <1310752024-27854-1-git-send-email-kys@microsoft.com>
-	<1310752065-27895-1-git-send-email-kys@microsoft.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <devel-bounces@linuxdriverproject.org>
+ <1310752065-27895-1-git-send-email-kys@microsoft.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1310752065-27895-1-git-send-email-kys@microsoft.com>
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
-List-Post: <mailto:devel@linuxdriverproject.org>
-List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
-Sender: devel-bounces@linuxdriverproject.org
-Errors-To: devel-bounces@linuxdriverproject.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org
-Cc: Haiyang Zhang <haiyangz@microsoft.com>
+Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Prevent outgoing traffic when netvsc dev is destroyed.
+Get rid of the dev_type guid in hv_mouse.c, as it is not used.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- drivers/staging/hv/netvsc.c |    3 ++-
- 1 files changed, 2 insertions(+), 1 deletions(-)
+ drivers/staging/hv/hv_mouse.c |    9 ---------
+ 1 files changed, 0 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/staging/hv/netvsc.c b/drivers/staging/hv/netvsc.c
-index 2ee3f07..538259d 100644
---- a/drivers/staging/hv/netvsc.c
-+++ b/drivers/staging/hv/netvsc.c
-@@ -58,7 +58,8 @@ static struct netvsc_device *get_outbound_net_device(struct hv_device *device)
+diff --git a/drivers/staging/hv/hv_mouse.c b/drivers/staging/hv/hv_mouse.c
+index 95986fb..e0cede3 100644
+--- a/drivers/staging/hv/hv_mouse.c
++++ b/drivers/staging/hv/hv_mouse.c
+@@ -179,12 +179,6 @@ struct mousevsc_dev {
  
- 	spin_lock_irqsave(&device->ext_lock, flags);
- 	net_device = device->ext;
--	if (net_device && atomic_read(&net_device->refcnt) > 1)
-+	if (net_device && (atomic_read(&net_device->refcnt) > 1) &&
-+		!net_device->destroy)
- 		atomic_inc(&net_device->refcnt);
- 	else
- 		net_device = NULL;
+ static const char *driver_name = "mousevsc";
+ 
+-/* {CFA8B69E-5B4A-4cc0-B98B-8BA1A1F3F95A} */
+-static const uuid_le mouse_guid = {
+-	.b = {0x9E, 0xB6, 0xA8, 0xCF, 0x4A, 0x5B, 0xc0, 0x4c,
+-		 0xB9, 0x8B, 0x8B, 0xA1, 0xA1, 0xF3, 0xF9, 0x5A}
+-};
+-
+ static void deviceinfo_callback(struct hv_device *dev, struct hv_input_dev_info *info);
+ static void inputreport_callback(struct hv_device *dev, void *packet, u32 len);
+ static void reportdesc_callback(struct hv_device *dev, void *packet, u32 len);
+@@ -953,9 +947,6 @@ static int __init mousevsc_init(void)
+ 
+ 	DPRINT_INFO(INPUTVSC_DRV, "Hyper-V Mouse driver initializing.");
+ 
+-	memcpy(&drv->dev_type, &mouse_guid,
+-	       sizeof(uuid_le));
+-
+ 	drv->driver.name = driver_name;
+ 
+ 	/* The driver belongs to vmbus */
 -- 
 1.7.4.1
