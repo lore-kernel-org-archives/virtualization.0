@@ -1,8 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 045/117] Staging: hv: vmbus: Get rid of unnecessary comments
-	in channel.c
-Date: Fri, 15 Jul 2011 10:46:33 -0700
-Message-ID: <1310752065-27895-45-git-send-email-kys@microsoft.com>
+Subject: [PATCH 094/117] Staging: hv: netvsc: Get rid of
+	release_inbound_net_device() by inlining the code
+Date: Fri, 15 Jul 2011 10:47:22 -0700
+Message-ID: <1310752065-27895-94-git-send-email-kys@microsoft.com>
 References: <1310752024-27854-1-git-send-email-kys@microsoft.com>
 	<1310752065-27895-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -23,42 +23,70 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Get rid of unnecessary comments in channel.c.
+Get rid of release_inbound_net_device() by inlining the code.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- drivers/staging/hv/channel.c |    4 ----
- 1 files changed, 0 insertions(+), 4 deletions(-)
+ drivers/staging/hv/netvsc.c |   32 ++++----------------------------
+ 1 files changed, 4 insertions(+), 28 deletions(-)
 
-diff --git a/drivers/staging/hv/channel.c b/drivers/staging/hv/channel.c
-index ebd7552..e02060e 100644
---- a/drivers/staging/hv/channel.c
-+++ b/drivers/staging/hv/channel.c
-@@ -76,7 +76,6 @@ void vmbus_get_debug_info(struct vmbus_channel *channel,
- 	struct hv_monitor_page *monitorpage;
- 	u8 monitor_group = (u8)channel->offermsg.monitorid / 32;
- 	u8 monitor_offset = (u8)channel->offermsg.monitorid % 32;
--	/* u32 monitorBit	= 1 << monitorOffset; */
+diff --git a/drivers/staging/hv/netvsc.c b/drivers/staging/hv/netvsc.c
+index 3975219..6805137 100644
+--- a/drivers/staging/hv/netvsc.c
++++ b/drivers/staging/hv/netvsc.c
+@@ -98,30 +98,6 @@ static void put_net_device(struct hv_device *device)
+ 	spin_unlock_irqrestore(&device->ext_lock, flags);
+ }
  
- 	debuginfo->relid = channel->offermsg.child_relid;
- 	debuginfo->state = channel->state;
-@@ -392,7 +391,6 @@ int vmbus_establish_gpadl(struct vmbus_channel *channel, void *kbuffer,
- {
- 	struct vmbus_channel_gpadl_header *gpadlmsg;
- 	struct vmbus_channel_gpadl_body *gpadl_body;
--	/* struct vmbus_channel_gpadl_created *gpadlCreated; */
- 	struct vmbus_channel_msginfo *msginfo = NULL;
- 	struct vmbus_channel_msginfo *submsginfo;
- 	u32 msgcount;
-@@ -474,8 +472,6 @@ int vmbus_teardown_gpadl(struct vmbus_channel *channel, u32 gpadl_handle)
- 	unsigned long flags;
- 	int ret, t;
- 
--	/* ASSERT(gpadl_handle != 0); */
+-static struct netvsc_device *release_inbound_net_device(
+-		struct hv_device *device)
+-{
+-	struct netvsc_device *net_device;
+-	unsigned long flags;
 -
- 	info = kmalloc(sizeof(*info) +
- 		       sizeof(struct vmbus_channel_gpadl_teardown), GFP_KERNEL);
- 	if (!info)
+-	spin_lock_irqsave(&device->ext_lock, flags);
+-	net_device = device->ext;
+-	if (net_device == NULL) {
+-		spin_unlock_irqrestore(&device->ext_lock, flags);
+-		return NULL;
+-	}
+-
+-	spin_unlock_irqrestore(&device->ext_lock, flags);
+-	/* Busy wait until the ref drop to 1, then set it to 0 */
+-	while (atomic_cmpxchg(&net_device->refcnt, 1, 0) != 1)
+-		udelay(100);
+-
+-	spin_lock_irqsave(&device->ext_lock, flags);
+-	device->ext = NULL;
+-	spin_unlock_irqrestore(&device->ext_lock, flags);
+-	return net_device;
+-}
+-
+ static int netvsc_destroy_recv_buf(struct netvsc_device *net_device)
+ {
+ 	struct nvsp_message *revoke_packet;
+@@ -423,8 +399,10 @@ int netvsc_device_remove(struct hv_device *device)
+ 
+ 	netvsc_disconnect_vsp(net_device);
+ 
+-	/* Stop inbound traffic ie receives and sends completions */
+-	net_device = release_inbound_net_device(device);
++	spin_lock_irqsave(&device->ext_lock, flags);
++	atomic_dec(&net_device->refcnt);
++	device->ext = NULL;
++	spin_unlock_irqrestore(&device->ext_lock, flags);
+ 
+ 	/*
+ 	 * Wait until the ref cnt falls to 0.
+@@ -990,8 +968,6 @@ cleanup:
+ 			kfree(packet);
+ 		}
+ 
+-		release_inbound_net_device(device);
+-
+ 		kfree(net_device);
+ 	}
+ 
 -- 
 1.7.4.1
