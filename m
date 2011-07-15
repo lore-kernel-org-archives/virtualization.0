@@ -1,8 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 090/117] Staging: hv: netvsc: Introduce state to manage the
-	lifecycle of net device
-Date: Fri, 15 Jul 2011 10:47:18 -0700
-Message-ID: <1310752065-27895-90-git-send-email-kys@microsoft.com>
+Subject: [PATCH 036/117] Staging: hv: vmbus: Make class_id attribute a human
+	readable string
+Date: Fri, 15 Jul 2011 10:46:24 -0700
+Message-ID: <1310752065-27895-36-git-send-email-kys@microsoft.com>
 References: <1310752024-27854-1-git-send-email-kys@microsoft.com>
 	<1310752065-27895-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -23,47 +23,45 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Introduce state to manage the lifecycle of net device.
+Now that we have a human readable device_type, use that and get rid of the
+guid based device type.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- drivers/staging/hv/hyperv_net.h |    1 +
- drivers/staging/hv/netvsc.c     |    3 +++
- 2 files changed, 4 insertions(+), 0 deletions(-)
+ drivers/staging/hv/vmbus_drv.c |   20 ++------------------
+ 1 files changed, 2 insertions(+), 18 deletions(-)
 
-diff --git a/drivers/staging/hv/hyperv_net.h b/drivers/staging/hv/hyperv_net.h
-index 5782fea..0b347c1 100644
---- a/drivers/staging/hv/hyperv_net.h
-+++ b/drivers/staging/hv/hyperv_net.h
-@@ -371,6 +371,7 @@ struct netvsc_device {
+diff --git a/drivers/staging/hv/vmbus_drv.c b/drivers/staging/hv/vmbus_drv.c
+index 9a0df2c..67415ab 100644
+--- a/drivers/staging/hv/vmbus_drv.c
++++ b/drivers/staging/hv/vmbus_drv.c
+@@ -113,24 +113,8 @@ static ssize_t vmbus_show_device_attr(struct device *dev,
+ 	get_channel_info(hv_dev, &device_info);
  
- 	atomic_t refcnt;
- 	atomic_t num_outstanding_sends;
-+	bool destroy;
- 	/*
- 	 * List of free preallocated hv_netvsc_packet to represent receive
- 	 * packet
-diff --git a/drivers/staging/hv/netvsc.c b/drivers/staging/hv/netvsc.c
-index 7722102..67cf7fb 100644
---- a/drivers/staging/hv/netvsc.c
-+++ b/drivers/staging/hv/netvsc.c
-@@ -43,6 +43,7 @@ static struct netvsc_device *alloc_net_device(struct hv_device *device)
- 	/* Set to 2 to allow both inbound and outbound traffic */
- 	atomic_set(&net_device->refcnt, 2);
- 
-+	net_device->destroy = false;
- 	net_device->dev = device;
- 	device->ext = net_device;
- 
-@@ -404,6 +405,8 @@ int netvsc_device_remove(struct hv_device *device)
- 		return -ENODEV;
- 	}
- 
-+	net_device->destroy = true;
-+
- 	/* Wait for all send completions */
- 	while (atomic_read(&net_device->num_outstanding_sends)) {
- 		dev_err(&device->device,
+ 	if (!strcmp(dev_attr->attr.name, "class_id")) {
+-		return sprintf(buf, "{%02x%02x%02x%02x-%02x%02x-%02x%02x-"
+-			       "%02x%02x%02x%02x%02x%02x%02x%02x}\n",
+-			       device_info.chn_type.b[3],
+-			       device_info.chn_type.b[2],
+-			       device_info.chn_type.b[1],
+-			       device_info.chn_type.b[0],
+-			       device_info.chn_type.b[5],
+-			       device_info.chn_type.b[4],
+-			       device_info.chn_type.b[7],
+-			       device_info.chn_type.b[6],
+-			       device_info.chn_type.b[8],
+-			       device_info.chn_type.b[9],
+-			       device_info.chn_type.b[10],
+-			       device_info.chn_type.b[11],
+-			       device_info.chn_type.b[12],
+-			       device_info.chn_type.b[13],
+-			       device_info.chn_type.b[14],
+-			       device_info.chn_type.b[15]);
++		return sprintf(buf, "%s\n",
++				hv_get_devtype_name(&device_info.chn_type));
+ 	} else if (!strcmp(dev_attr->attr.name, "device_id")) {
+ 		return sprintf(buf, "{%02x%02x%02x%02x-%02x%02x-%02x%02x-"
+ 			       "%02x%02x%02x%02x%02x%02x%02x%02x}\n",
 -- 
 1.7.4.1
