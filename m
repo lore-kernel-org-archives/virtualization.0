@@ -1,8 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 041/117] Staging: hv: vmbus: Get rid of unnecessay comments in
-	connection.c
-Date: Fri, 15 Jul 2011 10:46:29 -0700
-Message-ID: <1310752065-27895-41-git-send-email-kys@microsoft.com>
+Subject: [PATCH 052/117] Staging: hv: storvsc: Cleanup error handling in
+	storvsc_channel_init()
+Date: Fri, 15 Jul 2011 10:46:40 -0700
+Message-ID: <1310752065-27895-52-git-send-email-kys@microsoft.com>
 References: <1310752024-27854-1-git-send-email-kys@microsoft.com>
 	<1310752065-27895-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -23,26 +23,26 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Get rid of unnecessay comments in connection.c.
+Use standard Linux error codes.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- drivers/staging/hv/connection.c |    2 --
- 1 files changed, 0 insertions(+), 2 deletions(-)
+ drivers/staging/hv/storvsc.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/staging/hv/connection.c b/drivers/staging/hv/connection.c
-index e6b4039..0e7efce 100644
---- a/drivers/staging/hv/connection.c
-+++ b/drivers/staging/hv/connection.c
-@@ -215,8 +215,6 @@ static void process_chn_event(u32 relid)
- {
- 	struct vmbus_channel *channel;
+diff --git a/drivers/staging/hv/storvsc.c b/drivers/staging/hv/storvsc.c
+index 915aeee..22ac6f2 100644
+--- a/drivers/staging/hv/storvsc.c
++++ b/drivers/staging/hv/storvsc.c
+@@ -111,7 +111,7 @@ static int storvsc_channel_init(struct hv_device *device)
  
--	/* ASSERT(relId > 0); */
--
- 	/*
- 	 * Find the channel based on this relid and invokes the
- 	 * channel callback to process the event
+ 	stor_device = get_stor_device(device);
+ 	if (!stor_device)
+-		return -1;
++		return -ENODEV;
+ 
+ 	request = &stor_device->init_request;
+ 	vstor_packet = &request->vstor_packet;
 -- 
 1.7.4.1
