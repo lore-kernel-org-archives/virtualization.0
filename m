@@ -1,7 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 079/117] Staging: hv: storvsc: Cleanup alloc_stor_device()
-Date: Fri, 15 Jul 2011 10:47:07 -0700
-Message-ID: <1310752065-27895-79-git-send-email-kys@microsoft.com>
+Subject: [PATCH 081/117] Staging: hv: vmbus: Introduce a lock to protect the
+	ext field in hv_device
+Date: Fri, 15 Jul 2011 10:47:09 -0700
+Message-ID: <1310752065-27895-81-git-send-email-kys@microsoft.com>
 References: <1310752024-27854-1-git-send-email-kys@microsoft.com>
 	<1310752065-27895-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -22,26 +23,41 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Cleanup alloc_stor_device(), we can set the ref_count directly.
+The current mechanism for handling references in broken.
+Introduce a lock to protect the ext field in hv_device.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- drivers/staging/hv/storvsc.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+ drivers/staging/hv/hyperv.h    |    3 +++
+ drivers/staging/hv/vmbus_drv.c |    1 +
+ 2 files changed, 4 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/staging/hv/storvsc.c b/drivers/staging/hv/storvsc.c
-index 313a3f8..48bd8da 100644
---- a/drivers/staging/hv/storvsc.c
-+++ b/drivers/staging/hv/storvsc.c
-@@ -42,7 +42,7 @@ static inline struct storvsc_device *alloc_stor_device(struct hv_device *device)
+diff --git a/drivers/staging/hv/hyperv.h b/drivers/staging/hv/hyperv.h
+index c4a9f38..82ba110 100644
+--- a/drivers/staging/hv/hyperv.h
++++ b/drivers/staging/hv/hyperv.h
+@@ -826,6 +826,9 @@ struct hv_device {
  
- 	/* Set to 2 to allow both inbound and outbound traffics */
- 	/* (ie get_out_stor_device() and get_in_stor_device()) to proceed. */
--	atomic_cmpxchg(&stor_device->ref_count, 0, 2);
-+	atomic_set(&stor_device->ref_count, 2);
+ 	struct vmbus_channel *channel;
  
- 	init_waitqueue_head(&stor_device->waiting_to_drain);
- 	stor_device->device = device;
++	/* This lock protects the device extension field */
++	spinlock_t ext_lock;
++
+ 	/* Device extension; */
+ 	void *ext;
+ };
+diff --git a/drivers/staging/hv/vmbus_drv.c b/drivers/staging/hv/vmbus_drv.c
+index ffd6066..29c1712 100644
+--- a/drivers/staging/hv/vmbus_drv.c
++++ b/drivers/staging/hv/vmbus_drv.c
+@@ -578,6 +578,7 @@ struct hv_device *vmbus_child_device_create(uuid_le *type,
+ 		return NULL;
+ 	}
+ 
++	spin_lock_init(&child_device_obj->ext_lock);
+ 	child_device_obj->channel = channel;
+ 	memcpy(&child_device_obj->dev_type, type, sizeof(uuid_le));
+ 	memcpy(&child_device_obj->dev_instance, instance,
 -- 
 1.7.4.1
