@@ -1,7 +1,7 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 106/117] Staging: hv: storvsc: Fixup srb and scsi status for INQUIRY and MODE_SENSE
-Date: Fri, 15 Jul 2011 10:47:34 -0700
-Message-ID: <1310752065-27895-106-git-send-email-kys@microsoft.com>
+Subject: [PATCH 098/117] Staging: hv: storvsc: Handle IDE devices using the storvsc driver
+Date: Fri, 15 Jul 2011 10:47:26 -0700
+Message-ID: <1310752065-27895-98-git-send-email-kys@microsoft.com>
 References: <1310752024-27854-1-git-send-email-kys@microsoft.com>
  <1310752065-27895-1-git-send-email-kys@microsoft.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
@@ -11,43 +11,71 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The current handler on the Windows Host does not correctly handle
-INQUIRY and MODE_SENSE commands with some options. Fixup srb_status
-in these cases since the failure is not fatal.
+Now, enable handling of all IDE devices by extending the storvsc
+device id table to handle IDE guid. As part of this cleanup Kconfig
+and Hyper-V Makefile to not build the IDE driver (blkvsc).
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- drivers/staging/hv/storvsc_drv.c |   17 +++++++++++++++++
- 1 files changed, 17 insertions(+), 0 deletions(-)
+ drivers/staging/hv/Kconfig       |    7 -------
+ drivers/staging/hv/Makefile      |    2 --
+ drivers/staging/hv/storvsc_drv.c |    7 +++++++
+ 3 files changed, 7 insertions(+), 9 deletions(-)
 
+diff --git a/drivers/staging/hv/Kconfig b/drivers/staging/hv/Kconfig
+index 5e0c9f6..26b5064 100644
+--- a/drivers/staging/hv/Kconfig
++++ b/drivers/staging/hv/Kconfig
+@@ -15,13 +15,6 @@ config HYPERV_STORAGE
+ 	help
+ 	 Select this option to enable the Hyper-V virtual storage driver.
+ 
+-config HYPERV_BLOCK
+-	tristate "Microsoft Hyper-V virtual block driver"
+-	depends on BLOCK && SCSI && (LBDAF || 64BIT)
+-	default HYPERV
+-	help
+-	  Select this option to enable the Hyper-V virtual block driver.
+-
+ config HYPERV_NET
+ 	tristate "Microsoft Hyper-V virtual network driver"
+ 	depends on NET
+diff --git a/drivers/staging/hv/Makefile b/drivers/staging/hv/Makefile
+index 3004674..bb89437 100644
+--- a/drivers/staging/hv/Makefile
++++ b/drivers/staging/hv/Makefile
+@@ -1,6 +1,5 @@
+ obj-$(CONFIG_HYPERV)		+= hv_vmbus.o hv_timesource.o
+ obj-$(CONFIG_HYPERV_STORAGE)	+= hv_storvsc.o
+-obj-$(CONFIG_HYPERV_BLOCK)	+= hv_blkvsc.o
+ obj-$(CONFIG_HYPERV_NET)	+= hv_netvsc.o
+ obj-$(CONFIG_HYPERV_UTILS)	+= hv_utils.o
+ obj-$(CONFIG_HYPERV_MOUSE)	+= hv_mouse.o
+@@ -9,6 +8,5 @@ hv_vmbus-y := vmbus_drv.o \
+ 		 hv.o connection.o channel.o \
+ 		 channel_mgmt.o ring_buffer.o
+ hv_storvsc-y := storvsc_drv.o storvsc.o
+-hv_blkvsc-y := blkvsc_drv.o  storvsc.o
+ hv_netvsc-y := netvsc_drv.o netvsc.o rndis_filter.o
+ hv_utils-y := hv_util.o hv_kvp.o
 diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
-index a1e8d6a..9c2bb56 100644
+index efbc603..5777482 100644
 --- a/drivers/staging/hv/storvsc_drv.c
 +++ b/drivers/staging/hv/storvsc_drv.c
-@@ -520,6 +520,23 @@ static void storvsc_on_io_completion(struct hv_device *device,
- 
- 	stor_pkt = &request->vstor_packet;
- 
-+	/*
-+	 * The current SCSI handling on the host side does
-+	 * not correctly handle:
-+	 * INQUIRY command with page code parameter set to 0x80
-+	 * MODE_SENSE command with cmd[2] == 0x1c
-+	 *
-+	 * Setup srb and scsi status so this won't be fatal.
-+	 * We do this so we can distinguish truly fatal failues
-+	 * (srb status == 0x4) and off-line the device in that case.
-+	 */
-+
-+	if ((stor_pkt->vm_srb.cdb[0] == INQUIRY) ||
-+		(stor_pkt->vm_srb.cdb[0] == MODE_SENSE)) {
-+		vstor_packet->vm_srb.scsi_status = 0;
-+		vstor_packet->vm_srb.srb_status = 0x1;
-+	}
-+
- 
- 	/* Copy over the status...etc */
- 	stor_pkt->vm_srb.scsi_status = vstor_packet->vm_srb.scsi_status;
+@@ -657,6 +657,13 @@ static const struct hv_vmbus_device_id id_table[] = {
+ 		}
+ 	},
+ 	{
++		/* IDE guid */
++		.guid = {
++			0x32, 0x26, 0x41, 0x32, 0xcb, 0x86, 0xa2, 0x44,
++			0x9b, 0x5c, 0x50, 0xd1, 0x41, 0x73, 0x54, 0xf5
++		}
++	},
++	{
+ 		.guid = {
+ 			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+ 			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
 -- 
 1.7.4.1
