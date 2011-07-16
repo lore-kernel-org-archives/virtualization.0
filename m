@@ -1,60 +1,57 @@
-From: Sasha Levin <levinsasha928@gmail.com>
-Subject: RE: [PATCH 097/117] Staging: hv: storvsc: Add code to handle IDE
- devices using the storvsc driver
-Date: Sat, 16 Jul 2011 16:01:39 +0300
-Message-ID: <1310821299.1976.2.camel@lappy>
+From: KY Srinivasan <kys@microsoft.com>
+Subject: RE: [PATCH 088/117] Staging: hv: netvsc: Inline the code for
+ free_net_device()
+Date: Sat, 16 Jul 2011 13:09:45 +0000
+Message-ID: <6E21E5352C11B742B20C142EB499E0480817A4FB@TK5EX14MBXC124.redmond.corp.microsoft.com>
 References: <1310752024-27854-1-git-send-email-kys@microsoft.com>
-	 <1310752065-27895-1-git-send-email-kys@microsoft.com>
-	 <1310752065-27895-97-git-send-email-kys@microsoft.com>
-	 <20110716020447.GB7199@infradead.org>
-	 <6E21E5352C11B742B20C142EB499E0480817A4DA@TK5EX14MBXC124.redmond.corp.microsoft.com>
+ <1310752065-27895-1-git-send-email-kys@microsoft.com>
+ <1310752065-27895-88-git-send-email-kys@microsoft.com>
+ <20110716103342.GJ18655@shale.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <6E21E5352C11B742B20C142EB499E0480817A4DA@TK5EX14MBXC124.redmond.corp.microsoft.com>
+In-Reply-To: <20110716103342.GJ18655@shale.localdomain>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: KY Srinivasan <kys@microsoft.com>
-Cc: Christoph Hellwig <hch@infradead.org>, "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, Haiyang Zhang <haiyangz@microsoft.com>
+To: Dan Carpenter <error27@gmail.com>
+Cc: "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sat, 2011-07-16 at 12:57 +0000, KY Srinivasan wrote:
+
+
+> -----Original Message-----
+> From: Dan Carpenter [mailto:error27@gmail.com]
+> Sent: Saturday, July 16, 2011 6:34 AM
+> To: KY Srinivasan
+> Cc: gregkh@suse.de; linux-kernel@vger.kernel.org;
+> devel@linuxdriverproject.org; virtualization@lists.osdl.org; Haiyang Zhang
+> Subject: Re: [PATCH 088/117] Staging: hv: netvsc: Inline the code for
+> free_net_device()
 > 
-> > -----Original Message-----
-> > From: Christoph Hellwig [mailto:hch@infradead.org]
-> > Sent: Friday, July 15, 2011 10:05 PM
-> > To: KY Srinivasan
-> > Cc: gregkh@suse.de; linux-kernel@vger.kernel.org;
-> > devel@linuxdriverproject.org; virtualization@lists.osdl.org; Haiyang Zhang
-> > Subject: Re: [PATCH 097/117] Staging: hv: storvsc: Add code to handle IDE devices
-> > using the storvsc driver
-> > 
-> > Thanks, this looks much cleaner than the initial variant.
-> > 
-> > > +	if (dev_is_ide) {
-> > > +		storvsc_get_ide_info(device, &target, &path);
-> > > +		host_dev->path = device_info.path_id;
-> > > +		host_dev->target = device_info.target_id;
-> > > +	} else {
-> > > +		host_dev->path = device_info.path_id;
-> > > +		host_dev->target = device_info.target_id;
-> > > +	}
-> > 
-> > Is using the device_info values in both branches intentional?  If so
-> > there's no need to have these assignments duplicated.
+> On Fri, Jul 15, 2011 at 10:47:16AM -0700, K. Y. Srinivasan wrote:
+> > -static void free_net_device(struct netvsc_device *device)
+> > -{
+> > -	WARN_ON(atomic_read(&device->refcnt) != 0);
+> > -	device->dev->ext = NULL;
 > 
-> While we set the values in both the branches, the value set is different;
-> The IDE side encodes the bits differently and is appropriately parsed in the
-> function storvsc_get_ide_info().
+> device->dev->ext points to device.  We set it NULL here to prevent
+> a use after free bug.  What prevents that in the new code?
+> 
+> > -	kfree(device);
+> > -}
+This function is called in only two places; a) during adding a device when we have a failure
+(netvsc_device_add()) and during device removal (netvsc_device_remove()). I have handled
+both these cases. In any event when we are freeing the containing object via kfree(), if somebody
+is accessing the ext field via freed object, we have bigger problems to deal with.
 
-Is think that what Christoph meant was simplifying it to:
+Regards,
 
-	if (dev_is_ide)
-		storvsc_get_ide_info(device, &target, &path);
-	
-	host_dev->path = device_info.path_id;
-	host_dev->target = device_info.target_id;
+K. Y
 
--- 
 
-Sasha.
+> 
+> regards,
+> dan carpenter
+> 
+> 
