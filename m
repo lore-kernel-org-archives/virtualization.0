@@ -1,52 +1,59 @@
 From: KY Srinivasan <kys@microsoft.com>
-Subject: RE: [PATCH 020/117] Staging: hv: vmbus: Support the notion of id
- tables in vmbus_match()
-Date: Sat, 16 Jul 2011 12:54:46 +0000
-Message-ID: <6E21E5352C11B742B20C142EB499E0480817A4C9@TK5EX14MBXC124.redmond.corp.microsoft.com>
+Subject: RE: [PATCH 097/117] Staging: hv: storvsc: Add code to handle IDE
+	devices using the storvsc driver
+Date: Sat, 16 Jul 2011 12:57:29 +0000
+Message-ID: <6E21E5352C11B742B20C142EB499E0480817A4DA@TK5EX14MBXC124.redmond.corp.microsoft.com>
 References: <1310752024-27854-1-git-send-email-kys@microsoft.com>
- <1310752065-27895-1-git-send-email-kys@microsoft.com>
- <1310752065-27895-20-git-send-email-kys@microsoft.com>
- <20110716020250.GA7199@infradead.org>
+	<1310752065-27895-1-git-send-email-kys@microsoft.com>
+	<1310752065-27895-97-git-send-email-kys@microsoft.com>
+	<20110716020447.GB7199@infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20110716020250.GA7199@infradead.org>
+Content-Transfer-Encoding: 7bit
+Return-path: <devel-bounces@linuxdriverproject.org>
+In-Reply-To: <20110716020447.GB7199@infradead.org>
 Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
+List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
+	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
+List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
+List-Post: <mailto:devel@linuxdriverproject.org>
+List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
+List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
+	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
+Sender: devel-bounces@linuxdriverproject.org
+Errors-To: devel-bounces@linuxdriverproject.org
 To: Christoph Hellwig <hch@infradead.org>
-Cc: "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, Haiyang Zhang <haiyangz@microsoft.com>
+Cc: "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, Haiyang Zhang <haiyangz@microsoft.com>, "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
 
 
 > -----Original Message-----
 > From: Christoph Hellwig [mailto:hch@infradead.org]
-> Sent: Friday, July 15, 2011 10:03 PM
+> Sent: Friday, July 15, 2011 10:05 PM
 > To: KY Srinivasan
 > Cc: gregkh@suse.de; linux-kernel@vger.kernel.org;
 > devel@linuxdriverproject.org; virtualization@lists.osdl.org; Haiyang Zhang
-> Subject: Re: [PATCH 020/117] Staging: hv: vmbus: Support the notion of id tables
-> in vmbus_match()
+> Subject: Re: [PATCH 097/117] Staging: hv: storvsc: Add code to handle IDE devices
+> using the storvsc driver
 > 
-> On Fri, Jul 15, 2011 at 10:46:08AM -0700, K. Y. Srinivasan wrote:
-> > +static bool is_not_null_guid(const __u8 *guid)
-> > +{
-> > +	int i;
-> > +
-> > +	for (i = 0; i < (sizeof(struct hv_vmbus_device_id)); i++)
-> > +		if (guid[i] != 0)
-> > +			return true;
-> > +	return false;
-> > +}
+> Thanks, this looks much cleaner than the initial variant.
 > 
-> would be nice to add uuid_{le,be}_is_nil helpers to uuid.h.  I also
-> think simply using a memcpy might be more efficient than the hand-rolled
-> loop.
-Having a helper function would be great. With regards to the efficiency of this loop,
-this is not a performance critical path. If people feel strongly about this, I could 
-change this; perhaps as a separate patch on top of this series; I don't want to send a large
-patch-set like this again.
+> > +	if (dev_is_ide) {
+> > +		storvsc_get_ide_info(device, &target, &path);
+> > +		host_dev->path = device_info.path_id;
+> > +		host_dev->target = device_info.target_id;
+> > +	} else {
+> > +		host_dev->path = device_info.path_id;
+> > +		host_dev->target = device_info.target_id;
+> > +	}
+> 
+> Is using the device_info values in both branches intentional?  If so
+> there's no need to have these assignments duplicated.
+
+While we set the values in both the branches, the value set is different;
+The IDE side encodes the bits differently and is appropriately parsed in the
+function storvsc_get_ide_info().
 
 Regards,
 
