@@ -1,45 +1,36 @@
-From: Christoph Hellwig <hch@infradead.org>
-Subject: Re: [PATCH 097/117] Staging: hv: storvsc: Add code to handle IDE
-	devices using the storvsc driver
-Date: Sat, 16 Jul 2011 14:27:23 -0400
-Message-ID: <20110716182723.GA21943@infradead.org>
-References: <1310752024-27854-1-git-send-email-kys@microsoft.com>
-	<1310752065-27895-1-git-send-email-kys@microsoft.com>
-	<1310752065-27895-97-git-send-email-kys@microsoft.com>
-	<20110716020447.GB7199@infradead.org>
-	<6E21E5352C11B742B20C142EB499E0480817A4DA@TK5EX14MBXC124.redmond.corp.microsoft.com>
-	<1310821299.1976.2.camel@lappy>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: RFT: virtio_net: limit xmit polling
+Date: Sun, 17 Jul 2011 12:42:01 +0300
+Message-ID: <20110717094201.GB17404__22167.3325206668$1310895764$gmane$org@redhat.com>
+References: <20110629084206.GA14627@redhat.com>
+	<CA4493AD.2E273%roprabhu@cisco.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <devel-bounces@linuxdriverproject.org>
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1310821299.1976.2.camel@lappy>
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
-List-Post: <mailto:devel@linuxdriverproject.org>
-List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
-Sender: devel-bounces@linuxdriverproject.org
-Errors-To: devel-bounces@linuxdriverproject.org
-To: Sasha Levin <levinsasha928@gmail.com>
-Cc: Haiyang Zhang <haiyangz@microsoft.com>, "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Christoph Hellwig <hch@infradead.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>
+In-Reply-To: <CA4493AD.2E273%roprabhu@cisco.com>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Roopa Prabhu <roprabhu@cisco.com>
+Cc: Krishna Kumar2 <krkumar2@in.ibm.com>, habanero@linux.vnet.ibm.com, lguest@lists.ozlabs.org, Shirley Ma <xma@us.ibm.com>, kvm@vger.kernel.org, Carsten Otte <cotte@de.ibm.com>, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, steved@us.ibm.com, Christian Borntraeger <borntraeger@de.ibm.com>, Tom Lendacky <tahm@linux.vnet.ibm.com>, netdev@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux390@de.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sat, Jul 16, 2011 at 04:01:39PM +0300, Sasha Levin wrote:
-> Is think that what Christoph meant was simplifying it to:
-> 
-> 	if (dev_is_ide)
-> 		storvsc_get_ide_info(device, &target, &path);
-> 	
-> 	host_dev->path = device_info.path_id;
-> 	host_dev->target = device_info.target_id;
+On Thu, Jul 14, 2011 at 12:38:05PM -0700, Roopa Prabhu wrote:
+> Michael, below are some numbers I got from one round of runs.
+> Thanks,
+> Roopa
 
-Indeed.  In addition path is unused and target is only used in the
-second dev_is_ide conditional, so both the call and the target and path
-variables can be moved into that one to further simplify the function.
+Thanks!
+At this point it does not appear like there's any measureable
+impact from moving the polling around.
 
-But I'm fine with delaying that cleanup to a follow on patch so that
-we can make progress in getting this pile merged.
+-- 
+MST
