@@ -1,48 +1,38 @@
-From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 7/8] Staging: hv: Get rid of the vmbus merge item
-Date: Tue, 19 Jul 2011 11:44:24 -0700
-Message-ID: <1311101065-23417-7-git-send-email-kys@microsoft.com>
+From: Joe Perches <joe@perches.com>
+Subject: Re: [PATCH 5/8] Staging: hv: mousevsc: Fix checkpatch errors and
+ warnings
+Date: Tue, 19 Jul 2011 12:28:33 -0700
+Message-ID: <1311103713.12882.13.camel@Joe-Laptop>
 References: <1311101018-23370-1-git-send-email-kys@microsoft.com>
-	<1311101065-23417-1-git-send-email-kys@microsoft.com>
+	 <1311101065-23417-1-git-send-email-kys@microsoft.com>
+	 <1311101065-23417-5-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
-Return-path: <devel-bounces@linuxdriverproject.org>
-In-Reply-To: <1311101065-23417-1-git-send-email-kys@microsoft.com>
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
-List-Post: <mailto:devel@linuxdriverproject.org>
-List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
-Sender: devel-bounces@linuxdriverproject.org
-Errors-To: devel-bounces@linuxdriverproject.org
-To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org
-Cc: Haiyang Zhang <haiyangz@microsoft.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1311101065-23417-5-git-send-email-kys@microsoft.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: "K. Y. Srinivasan" <kys@microsoft.com>
+Cc: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org, Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The host/guest transport is very host centric. Given this, it is unlikely
-that we will be able to merge vmbus with other host/guest buses in the kernel.
+On Tue, 2011-07-19 at 11:44 -0700, K. Y. Srinivasan wrote:
+> Fix checkpatch errors and warnings.
+[]
+> diff --git a/drivers/staging/hv/hv_mouse.c b/drivers/staging/hv/hv_mouse.c
+[]
+> @@ -53,7 +53,7 @@ struct hv_input_dev_info {
+> -#pragma pack(push,1)
+> +#pragma pack(push, 1)
+>  /*
+>   * Message types in the synthetic input protocol
+>   */
 
-Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
-Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
----
- drivers/staging/hv/TODO |    2 --
- 1 files changed, 0 insertions(+), 2 deletions(-)
+Perhaps it's better and more consistent with
+other kernel style uses to remove #pragma pack[...]
+and mark the individual structs with __packed;
 
-diff --git a/drivers/staging/hv/TODO b/drivers/staging/hv/TODO
-index b6335ff..8b4c97a 100644
---- a/drivers/staging/hv/TODO
-+++ b/drivers/staging/hv/TODO
-@@ -1,8 +1,6 @@
- TODO:
- 	- audit the vmbus to verify it is working properly with the
- 	  driver model
--	- see if the vmbus can be merged with the other virtual busses
--	  in the kernel
- 	- audit the network driver
- 	  - checking for carrier inside open is wrong, network device API
-             confusion??
--- 
-1.7.4.1
+$ grep -rP --include=*.[ch] "pragma.*pack" * | wc -l
+221
+$ grep -rP --include=*.[ch] "(__attribute__.*packed|\b__packed\b)" * | wc -l
+5553
