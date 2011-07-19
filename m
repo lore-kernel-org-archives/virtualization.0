@@ -1,15 +1,14 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 3/8] Staging: hv: tools: Fix a checkpatch warning in
-	hv_kvp_daemon.c
-Date: Tue, 19 Jul 2011 11:44:20 -0700
-Message-ID: <1311101065-23417-3-git-send-email-kys@microsoft.com>
+Subject: [PATCH 1/8] Staging: hv: vmbus: Fix a checkpatch warning in
+	ring_buffer.c
+Date: Tue, 19 Jul 2011 11:44:18 -0700
+Message-ID: <1311101065-23417-1-git-send-email-kys@microsoft.com>
 References: <1311101018-23370-1-git-send-email-kys@microsoft.com>
-	<1311101065-23417-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <devel-bounces@linuxdriverproject.org>
-In-Reply-To: <1311101065-23417-1-git-send-email-kys@microsoft.com>
+In-Reply-To: <1311101018-23370-1-git-send-email-kys@microsoft.com>
 List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
 	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
 List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
@@ -23,26 +22,27 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Fix a checkpatch warning in hv_kvp_daemon.c.
+Fix a checkpatch warning in ring_buffer.c (line over 80 characters).
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- drivers/staging/hv/tools/hv_kvp_daemon.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+ drivers/staging/hv/ring_buffer.c |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/staging/hv/tools/hv_kvp_daemon.c b/drivers/staging/hv/tools/hv_kvp_daemon.c
-index 33f0f1c..c230bae 100644
---- a/drivers/staging/hv/tools/hv_kvp_daemon.c
-+++ b/drivers/staging/hv/tools/hv_kvp_daemon.c
-@@ -117,7 +117,7 @@ void kvp_get_os_info(void)
+diff --git a/drivers/staging/hv/ring_buffer.c b/drivers/staging/hv/ring_buffer.c
+index 9212699..e41d206 100644
+--- a/drivers/staging/hv/ring_buffer.c
++++ b/drivers/staging/hv/ring_buffer.c
+@@ -34,7 +34,8 @@
  
- 	uname(&uts_buf);
- 	os_build = uts_buf.release;
--	processor_arch= uts_buf.machine;
-+	processor_arch = uts_buf.machine;
  
- 	file = fopen("/etc/SuSE-release", "r");
- 	if (file != NULL)
+ /* Amount of space to write to */
+-#define BYTES_AVAIL_TO_WRITE(r, w, z) ((w) >= (r)) ? ((z) - ((w) - (r))) : ((r) - (w))
++#define BYTES_AVAIL_TO_WRITE(r, w, z) \
++(((w) >= (r)) ? ((z) - ((w) - (r))) : ((r) - (w)))
+ 
+ 
+ /*
 -- 
 1.7.4.1
