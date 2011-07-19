@@ -1,13 +1,12 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCHv11] vhost: vhost TX zero-copy support
-Date: Mon, 18 Jul 2011 10:43:21 -0700 (PDT)
-Message-ID: <20110718.104321.439108421929344070.davem__29121.2164368064$1311011119$gmane$org@davemloft.net>
-References: <20110718134846.GA7107@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH RFC] vhost: fix zcopy reference counting
+Date: Tue, 19 Jul 2011 13:33:16 +0300
+Message-ID: <20110719103316.GA5376__17816.7297425263$1311071635$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20110718134846.GA7107@redhat.com>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -17,38 +16,32 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: mst@redhat.com
-Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, mashirle@us.ibm.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, jj@chaosbits.net
+To: mashirle@us.ibm.com
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Date: Mon, 18 Jul 2011 16:48:46 +0300
+Fix get/put refcount imbalance with zero copy,
+which caused qemu to hang forever on guest driver unload.
 
->>From: Shirley Ma <mashirle@us.ibm.com>
-> 
-> This adds experimental zero copy support in vhost-net,
-> disabled by default. To enable, set
-> experimental_zcopytx module option to 1.
-> 
-> This patch maintains the outstanding userspace buffers in the
-> sequence it is delivered to vhost. The outstanding userspace buffers
-> will be marked as done once the lower device buffers DMA has finished.
-> This is monitored through last reference of kfree_skb callback. Two
-> buffer indices are used for this purpose.
-> 
-> The vhost-net device passes the userspace buffers info to lower device
-> skb through message control. DMA done status check and guest
-> notification are handled by handle_tx: in the worst case is all buffers
-> in the vq are in pending/done status, so we need to notify guest to
-> release DMA done buffers first before we get any new buffers from the
-> vq.
-> 
-> One known problem is that if the guest stops submitting
-> buffers, buffers might never get used until some
-> further action, e.g. device reset. This does not
-> seem to affect linux guests.
-> 
-> Signed-off-by: Shirley <xma@us.ibm.com>
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
 
-Applied, thanks!
+Dave, I've put this on my tree so no need for you to bother.
+
+ drivers/vhost/vhost.c |    1 -
+ 1 files changed, 0 insertions(+), 1 deletions(-)
+
+diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+index 46822c0..c16d225 100644
+--- a/drivers/vhost/vhost.c
++++ b/drivers/vhost/vhost.c
+@@ -1578,7 +1578,6 @@ struct vhost_ubuf_ref *vhost_ubuf_alloc(struct vhost_virtqueue *vq,
+ 	if (!ubufs)
+ 		return ERR_PTR(-ENOMEM);
+ 	kref_init(&ubufs->kref);
+-	kref_get(&ubufs->kref);
+ 	init_waitqueue_head(&ubufs->wait);
+ 	ubufs->vq = vq;
+ 	return ubufs;
+-- 
+1.7.5.53.gc233e
