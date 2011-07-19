@@ -1,44 +1,41 @@
-From: Timur Tabi <timur@freescale.com>
-Subject: [PATCH] drivers/virt: add missing linux/interrupt.h to
-	fsl_hypervisor.c
-Date: Tue, 19 Jul 2011 15:45:51 -0500
-Message-ID: <1311108351-3056-1-git-send-email-timur@freescale.com>
+From: KY Srinivasan <kys@microsoft.com>
+Subject: RE: [PATCH 5/8] Staging: hv: mousevsc: Fix checkpatch errors and
+ warnings
+Date: Tue, 19 Jul 2011 22:46:15 +0000
+Message-ID: <6E21E5352C11B742B20C142EB499E0480817B2BB@TK5EX14MBXC124.redmond.corp.microsoft.com>
+References: <1311101018-23370-1-git-send-email-kys@microsoft.com>
+	 <1311101065-23417-1-git-send-email-kys@microsoft.com>
+	 <1311101065-23417-5-git-send-email-kys@microsoft.com>
+ <1311103713.12882.13.camel@Joe-Laptop>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: kumar.gala@freescale.com, linuxppc-dev@linux.freescale.net, virtualization@lists.linux-foundation.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1311103713.12882.13.camel@Joe-Laptop>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: Joe Perches <joe@perches.com>
+Cc: "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-fsl_hypervisor.c calls request_irq() but does not include linux/interrupt.h.
-Normally, the driver will compile without error, but it can fail on some
-configurations.
-
-Signed-off-by: Timur Tabi <timur@freescale.com>
----
- drivers/virt/fsl_hypervisor.c |    1 +
- 1 files changed, 1 insertions(+), 0 deletions(-)
-
-diff --git a/drivers/virt/fsl_hypervisor.c b/drivers/virt/fsl_hypervisor.c
-index 1d3b8eb..3d91621 100644
---- a/drivers/virt/fsl_hypervisor.c
-+++ b/drivers/virt/fsl_hypervisor.c
-@@ -37,6 +37,7 @@
- #include <linux/reboot.h>
- #include <linux/uaccess.h>
- #include <linux/notifier.h>
-+#include <linux/interrupt.h>
- 
- #include <linux/io.h>
- #include <asm/fsl_hcalls.h>
--- 
-1.7.3.4
+DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogSm9lIFBlcmNoZXMgW21h
+aWx0bzpqb2VAcGVyY2hlcy5jb21dDQo+IFNlbnQ6IFR1ZXNkYXksIEp1bHkgMTksIDIwMTEgMzoy
+OSBQTQ0KPiBUbzogS1kgU3Jpbml2YXNhbg0KPiBDYzogZ3JlZ2toQHN1c2UuZGU7IGxpbnV4LWtl
+cm5lbEB2Z2VyLmtlcm5lbC5vcmc7DQo+IGRldmVsQGxpbnV4ZHJpdmVycHJvamVjdC5vcmc7IHZp
+cnR1YWxpemF0aW9uQGxpc3RzLm9zZGwub3JnOyBIYWl5YW5nIFpoYW5nDQo+IFN1YmplY3Q6IFJl
+OiBbUEFUQ0ggNS84XSBTdGFnaW5nOiBodjogbW91c2V2c2M6IEZpeCBjaGVja3BhdGNoIGVycm9y
+cyBhbmQNCj4gd2FybmluZ3MNCj4gDQo+IE9uIFR1ZSwgMjAxMS0wNy0xOSBhdCAxMTo0NCAtMDcw
+MCwgSy4gWS4gU3Jpbml2YXNhbiB3cm90ZToNCj4gPiBGaXggY2hlY2twYXRjaCBlcnJvcnMgYW5k
+IHdhcm5pbmdzLg0KPiBbXQ0KPiA+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3N0YWdpbmcvaHYvaHZf
+bW91c2UuYyBiL2RyaXZlcnMvc3RhZ2luZy9odi9odl9tb3VzZS5jDQo+IFtdDQo+ID4gQEAgLTUz
+LDcgKzUzLDcgQEAgc3RydWN0IGh2X2lucHV0X2Rldl9pbmZvIHsNCj4gPiAtI3ByYWdtYSBwYWNr
+KHB1c2gsMSkNCj4gPiArI3ByYWdtYSBwYWNrKHB1c2gsIDEpDQo+ID4gIC8qDQo+ID4gICAqIE1l
+c3NhZ2UgdHlwZXMgaW4gdGhlIHN5bnRoZXRpYyBpbnB1dCBwcm90b2NvbA0KPiA+ICAgKi8NCj4g
+DQo+IFBlcmhhcHMgaXQncyBiZXR0ZXIgYW5kIG1vcmUgY29uc2lzdGVudCB3aXRoDQo+IG90aGVy
+IGtlcm5lbCBzdHlsZSB1c2VzIHRvIHJlbW92ZSAjcHJhZ21hIHBhY2tbLi4uXQ0KPiBhbmQgbWFy
+ayB0aGUgaW5kaXZpZHVhbCBzdHJ1Y3RzIHdpdGggX19wYWNrZWQ7DQoNCkdvb2QgcG9pbnQuIEN1
+cnJlbnRseSwgdGhpcyBkcml2ZXIgaXMgbm90IGZ1bmN0aW9uYWwuIFdoZW4gdGhlIGRyaXZlcg0K
+aXMgZmluYWxseSBmdW5jdGlvbmFsLCB0aGVyZSBpcyBhIHdob2xlIGxvdCBvZiBjbGVhbnVwIHRo
+YXQgaXMgbmVlZGVkIGFuZCBJIHdpbGwNCmRvIHdoYXQgeW91IGFyZSBzdWdnZXN0aW5nIHRoZW4u
+IEZvciB0aGlzIGdvIGFyb3VuZCwgSSBqdXN0IHdhbnRlZCB0byBhZGRyZXNzDQpjaGVja3BhdGNo
+IGlzc3VlcyB3aXRoIG1pbmltYWwgY2hhbmdlLg0KDQpSZWdhcmRzLA0KDQpLLiBZIA0KDQo=
