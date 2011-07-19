@@ -1,7 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 8/8] Staging: hv: Update the TODO file
-Date: Tue, 19 Jul 2011 11:44:25 -0700
-Message-ID: <1311101065-23417-8-git-send-email-kys@microsoft.com>
+Subject: [PATCH 3/8] Staging: hv: tools: Fix a checkpatch warning in
+	hv_kvp_daemon.c
+Date: Tue, 19 Jul 2011 11:44:20 -0700
+Message-ID: <1311101065-23417-3-git-send-email-kys@microsoft.com>
 References: <1311101018-23370-1-git-send-email-kys@microsoft.com>
 	<1311101065-23417-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -22,50 +23,26 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The TODO file has not been updated in a long time. Update this file
-to reflect the current status.
+Fix a checkpatch warning in hv_kvp_daemon.c.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- drivers/staging/hv/TODO |   21 ++++++++++++++++++++-
- 1 files changed, 20 insertions(+), 1 deletions(-)
+ drivers/staging/hv/tools/hv_kvp_daemon.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/staging/hv/TODO b/drivers/staging/hv/TODO
-index 8b4c97a..23c74ed 100644
---- a/drivers/staging/hv/TODO
-+++ b/drivers/staging/hv/TODO
-@@ -1,11 +1,30 @@
- TODO:
- 	- audit the vmbus to verify it is working properly with the
- 	  driver model
-+
-+		STATUS (July 19, 2011):
-+		All outstanding issues (known to us)  with regards
-+		to conforming to Linux Driver Model have been addressed.
-+
- 	- audit the network driver
- 	  - checking for carrier inside open is wrong, network device API
-             confusion??
-+
-+		STATUS (July 19, 2011):
-+		The network driver has been reviewed by the community.
-+		We have addressed the various issues that were raised in this
-+		review.
-+
- 	- audit the block driver
- 	- audit the scsi driver
+diff --git a/drivers/staging/hv/tools/hv_kvp_daemon.c b/drivers/staging/hv/tools/hv_kvp_daemon.c
+index 33f0f1c..c230bae 100644
+--- a/drivers/staging/hv/tools/hv_kvp_daemon.c
++++ b/drivers/staging/hv/tools/hv_kvp_daemon.c
+@@ -117,7 +117,7 @@ void kvp_get_os_info(void)
  
-+		STATUS (July 19, 2011):
-+		One of the longstanding comment on this body of code
-+		has been to merge the block and scsi driver. This has been done
-+		and patches have been submitted. We have also addressed all the
-+		review comments on this body of code.
-+
-+
- Please send patches for this code to Greg Kroah-Hartman <gregkh@suse.de>,
--Hank Janssen <hjanssen@microsoft.com>, and Haiyang Zhang <haiyangz@microsoft.com>.
-+Hank Janssen <hjanssen@microsoft.com>, and Haiyang Zhang <haiyangz@microsoft.com>,
-+K. Y. Srinivasan <kys@microsoft.com>.
+ 	uname(&uts_buf);
+ 	os_build = uts_buf.release;
+-	processor_arch= uts_buf.machine;
++	processor_arch = uts_buf.machine;
+ 
+ 	file = fopen("/etc/SuSE-release", "r");
+ 	if (file != NULL)
 -- 
 1.7.4.1
