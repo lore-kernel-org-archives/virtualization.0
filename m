@@ -1,41 +1,69 @@
-From: KY Srinivasan <kys@microsoft.com>
-Subject: RE: [PATCH 5/8] Staging: hv: mousevsc: Fix checkpatch errors and
- warnings
-Date: Tue, 19 Jul 2011 22:46:15 +0000
-Message-ID: <6E21E5352C11B742B20C142EB499E0480817B2BB@TK5EX14MBXC124.redmond.corp.microsoft.com>
-References: <1311101018-23370-1-git-send-email-kys@microsoft.com>
-	 <1311101065-23417-1-git-send-email-kys@microsoft.com>
-	 <1311101065-23417-5-git-send-email-kys@microsoft.com>
- <1311103713.12882.13.camel@Joe-Laptop>
+From: Krishna Kumar <krkumar2@in.ibm.com>
+Subject: [PATCH repost] Fix panic in virtnet_remove
+Date: Wed, 20 Jul 2011 19:26:02 +0530
+Message-ID: <20110720135602.18705.21405.sendpatchset__40156.6780791201$1311170278$gmane$org@krkumar2.in.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1311103713.12882.13.camel@Joe-Laptop>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Joe Perches <joe@perches.com>
-Cc: "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, Haiyang Zhang <haiyangz@microsoft.com>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Rusty Russell <rusty@rustcorp.com.au>, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Krishna Kumar <krkumar2@in.ibm.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogSm9lIFBlcmNoZXMgW21h
-aWx0bzpqb2VAcGVyY2hlcy5jb21dDQo+IFNlbnQ6IFR1ZXNkYXksIEp1bHkgMTksIDIwMTEgMzoy
-OSBQTQ0KPiBUbzogS1kgU3Jpbml2YXNhbg0KPiBDYzogZ3JlZ2toQHN1c2UuZGU7IGxpbnV4LWtl
-cm5lbEB2Z2VyLmtlcm5lbC5vcmc7DQo+IGRldmVsQGxpbnV4ZHJpdmVycHJvamVjdC5vcmc7IHZp
-cnR1YWxpemF0aW9uQGxpc3RzLm9zZGwub3JnOyBIYWl5YW5nIFpoYW5nDQo+IFN1YmplY3Q6IFJl
-OiBbUEFUQ0ggNS84XSBTdGFnaW5nOiBodjogbW91c2V2c2M6IEZpeCBjaGVja3BhdGNoIGVycm9y
-cyBhbmQNCj4gd2FybmluZ3MNCj4gDQo+IE9uIFR1ZSwgMjAxMS0wNy0xOSBhdCAxMTo0NCAtMDcw
-MCwgSy4gWS4gU3Jpbml2YXNhbiB3cm90ZToNCj4gPiBGaXggY2hlY2twYXRjaCBlcnJvcnMgYW5k
-IHdhcm5pbmdzLg0KPiBbXQ0KPiA+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3N0YWdpbmcvaHYvaHZf
-bW91c2UuYyBiL2RyaXZlcnMvc3RhZ2luZy9odi9odl9tb3VzZS5jDQo+IFtdDQo+ID4gQEAgLTUz
-LDcgKzUzLDcgQEAgc3RydWN0IGh2X2lucHV0X2Rldl9pbmZvIHsNCj4gPiAtI3ByYWdtYSBwYWNr
-KHB1c2gsMSkNCj4gPiArI3ByYWdtYSBwYWNrKHB1c2gsIDEpDQo+ID4gIC8qDQo+ID4gICAqIE1l
-c3NhZ2UgdHlwZXMgaW4gdGhlIHN5bnRoZXRpYyBpbnB1dCBwcm90b2NvbA0KPiA+ICAgKi8NCj4g
-DQo+IFBlcmhhcHMgaXQncyBiZXR0ZXIgYW5kIG1vcmUgY29uc2lzdGVudCB3aXRoDQo+IG90aGVy
-IGtlcm5lbCBzdHlsZSB1c2VzIHRvIHJlbW92ZSAjcHJhZ21hIHBhY2tbLi4uXQ0KPiBhbmQgbWFy
-ayB0aGUgaW5kaXZpZHVhbCBzdHJ1Y3RzIHdpdGggX19wYWNrZWQ7DQoNCkdvb2QgcG9pbnQuIEN1
-cnJlbnRseSwgdGhpcyBkcml2ZXIgaXMgbm90IGZ1bmN0aW9uYWwuIFdoZW4gdGhlIGRyaXZlcg0K
-aXMgZmluYWxseSBmdW5jdGlvbmFsLCB0aGVyZSBpcyBhIHdob2xlIGxvdCBvZiBjbGVhbnVwIHRo
-YXQgaXMgbmVlZGVkIGFuZCBJIHdpbGwNCmRvIHdoYXQgeW91IGFyZSBzdWdnZXN0aW5nIHRoZW4u
-IEZvciB0aGlzIGdvIGFyb3VuZCwgSSBqdXN0IHdhbnRlZCB0byBhZGRyZXNzDQpjaGVja3BhdGNo
-IGlzc3VlcyB3aXRoIG1pbmltYWwgY2hhbmdlLg0KDQpSZWdhcmRzLA0KDQpLLiBZIA0KDQo=
+Fix a panic in virtnet_remove. unregister_netdev has already
+freed up the netdev (and virtnet_info) due to dev->destructor
+being set, while virtnet_info is still required. Remove
+virtnet_free altogether, and move the freeing of the per-cpu
+statistics from virtnet_free to virtnet_remove.
+
+Tested patch below.
+
+Signed-off-by: Krishna Kumar <krkumar2@in.ibm.com>
+---
+(Michael suggested me to re-post with copy to all maintainers)
+
+ drivers/net/virtio_net.c |   10 +---------
+ 1 file changed, 1 insertion(+), 9 deletions(-)
+
+diff -ruNp org/drivers/net/virtio_net.c new/drivers/net/virtio_net.c
+--- org/drivers/net/virtio_net.c	2011-07-18 09:14:02.000000000 +0530
++++ new/drivers/net/virtio_net.c	2011-07-18 09:16:35.000000000 +0530
+@@ -705,14 +705,6 @@ static void virtnet_netpoll(struct net_d
+ }
+ #endif
+ 
+-static void virtnet_free(struct net_device *dev)
+-{
+-	struct virtnet_info *vi = netdev_priv(dev);
+-
+-	free_percpu(vi->stats);
+-	free_netdev(dev);
+-}
+-
+ static int virtnet_open(struct net_device *dev)
+ {
+ 	struct virtnet_info *vi = netdev_priv(dev);
+@@ -959,7 +951,6 @@ static int virtnet_probe(struct virtio_d
+ 	/* Set up network device as normal. */
+ 	dev->netdev_ops = &virtnet_netdev;
+ 	dev->features = NETIF_F_HIGHDMA;
+-	dev->destructor = virtnet_free;
+ 
+ 	SET_ETHTOOL_OPS(dev, &virtnet_ethtool_ops);
+ 	SET_NETDEV_DEV(dev, &vdev->dev);
+@@ -1122,6 +1113,7 @@ static void __devexit virtnet_remove(str
+ 	while (vi->pages)
+ 		__free_pages(get_a_page(vi, GFP_KERNEL), 0);
+ 
++	free_percpu(vi->stats);
+ 	free_netdev(vi->dev);
+ }
