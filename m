@@ -1,14 +1,11 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH repost] Fix panic in virtnet_remove
-Date: Wed, 20 Jul 2011 17:31:15 +0300
-Message-ID: <20110720143115.GB6787__23368.99104198$1311172305$gmane$org@redhat.com>
-References: <20110720135602.18705.21405.sendpatchset@krkumar2.in.ibm.com>
+From: Haiyang Zhang <haiyangz@microsoft.com>
+Subject: [PATCH 0/9] netvsc bug fixes and cleanups
+Date: Thu, 21 Jul 2011 10:14:48 -0700
+Message-ID: <1311268497-8671-1-git-send-email-haiyangz__33853.5060560845$1311267582$gmane$org@microsoft.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20110720135602.18705.21405.sendpatchset@krkumar2.in.ibm.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,67 +15,24 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Krishna Kumar <krkumar2@in.ibm.com>
-Cc: netdev@vger.kernel.org, shemminger@vyatta.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: haiyangz@microsoft.com, hjanssen@microsoft.com, kys@microsoft.com, v-abkane@microsoft.com, gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, vir
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Jul 20, 2011 at 07:26:02PM +0530, Krishna Kumar wrote:
-> Fix a panic in virtnet_remove. unregister_netdev has already
-> freed up the netdev (and virtnet_info) due to dev->destructor
-> being set, while virtnet_info is still required. Remove
-> virtnet_free altogether, and move the freeing of the per-cpu
-> statistics from virtnet_free to virtnet_remove.
-> 
-> Tested patch below.
-> 
-> Signed-off-by: Krishna Kumar <krkumar2@in.ibm.com>
+Fixed a set of bugs in netvsc module, and cleaned up some coding style issues.
 
-Also note that the crash was apparently introduced by
-3fa2a1df909482cc234524906e4bd30dee3514df in net-next,
-so this is a net-next only patch.
+Haiyang Zhang (9):
+  staging: hv: remove unnecessary includes in netvsc
+  staging: hv: add newline to log messages in netvsc
+  staging: hv: convert dev_<loglevel> to netdev_<loglevel> in netvsc
+  staging: hv: fix a kernel warning in netvsc_linkstatus_callback()
+  staging: hv: re-order the code in netvsc_probe()
+  staging: hv: fix counting of #outstanding-sends in failed sends
+  staging: hv: fix counting of available buffer slots when send fails
+  staging: hv: fix the return status of netvsc_start_xmit()
+  staging: hv: fix the page buffer when rndis data go across page
+    boundary
 
-Stephen, was there any special reason to free the memory
-in the destructor like you did?
-
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
-
-> ---
-> (Michael suggested me to re-post with copy to all maintainers)
-> 
->  drivers/net/virtio_net.c |   10 +---------
->  1 file changed, 1 insertion(+), 9 deletions(-)
-> 
-> diff -ruNp org/drivers/net/virtio_net.c new/drivers/net/virtio_net.c
-> --- org/drivers/net/virtio_net.c	2011-07-18 09:14:02.000000000 +0530
-> +++ new/drivers/net/virtio_net.c	2011-07-18 09:16:35.000000000 +0530
-> @@ -705,14 +705,6 @@ static void virtnet_netpoll(struct net_d
->  }
->  #endif
->  
-> -static void virtnet_free(struct net_device *dev)
-> -{
-> -	struct virtnet_info *vi = netdev_priv(dev);
-> -
-> -	free_percpu(vi->stats);
-> -	free_netdev(dev);
-> -}
-> -
->  static int virtnet_open(struct net_device *dev)
->  {
->  	struct virtnet_info *vi = netdev_priv(dev);
-> @@ -959,7 +951,6 @@ static int virtnet_probe(struct virtio_d
->  	/* Set up network device as normal. */
->  	dev->netdev_ops = &virtnet_netdev;
->  	dev->features = NETIF_F_HIGHDMA;
-> -	dev->destructor = virtnet_free;
->  
->  	SET_ETHTOOL_OPS(dev, &virtnet_ethtool_ops);
->  	SET_NETDEV_DEV(dev, &vdev->dev);
-> @@ -1122,6 +1113,7 @@ static void __devexit virtnet_remove(str
->  	while (vi->pages)
->  		__free_pages(get_a_page(vi, GFP_KERNEL), 0);
->  
-> +	free_percpu(vi->stats);
->  	free_netdev(vi->dev);
->  }
->  
+ drivers/staging/hv/netvsc.c       |  124 ++++++++++++++++++++-----------------
+ drivers/staging/hv/netvsc_drv.c   |   46 +++++++-------
+ drivers/staging/hv/rndis_filter.c |   28 ++++++---
+ 3 files changed, 111 insertions(+), 87 deletions(-)
