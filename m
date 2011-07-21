@@ -1,8 +1,8 @@
 From: Haiyang Zhang <haiyangz@microsoft.com>
-Subject: [PATCH 7/9] staging: hv: fix counting of available buffer slots when
-	send fails
-Date: Thu, 21 Jul 2011 10:14:55 -0700
-Message-ID: <1311268497-8671-8-git-send-email-haiyangz__18801.7780347311$1311267670$gmane$org@microsoft.com>
+Subject: [PATCH 6/9] staging: hv: fix counting of #outstanding-sends in failed
+	sends
+Date: Thu, 21 Jul 2011 10:14:54 -0700
+Message-ID: <1311268497-8671-7-git-send-email-haiyangz__9035.03320082582$1311267676$gmane$org@microsoft.com>
 References: <1311268497-8671-1-git-send-email-haiyangz@microsoft.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,30 +21,29 @@ Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: haiyangz@microsoft.com, hjanssen@microsoft.com, kys@microsoft.com, v-abkane@microsoft.com, gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, vir
 List-Id: virtualization@lists.linuxfoundation.org
 
-Because the number of available buffer slots doesn't decrease for failed
-sends, we should not call netvsc_xmit_completion(), which increase the
-count of available slots. In this failed case, just free the memory is
-enough.
+If the packet failed to be sent, we shouldn't count it as the
+number of outstanding sends.
 
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 ---
- drivers/staging/hv/netvsc_drv.c |    3 ++-
+ drivers/staging/hv/netvsc.c |    3 ++-
  1 files changed, 2 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/staging/hv/netvsc_drv.c b/drivers/staging/hv/netvsc_drv.c
-index 816e382..a15165e 100644
---- a/drivers/staging/hv/netvsc_drv.c
-+++ b/drivers/staging/hv/netvsc_drv.c
-@@ -192,7 +192,8 @@ static int netvsc_start_xmit(struct sk_buff *skb, struct net_device *net)
- 	} else {
- 		/* we are shutting down or bus overloaded, just drop packet */
- 		net->stats.tx_dropped++;
--		netvsc_xmit_completion(packet);
-+		kfree(packet);
-+		dev_kfree_skb_any(skb);
- 	}
+diff --git a/drivers/staging/hv/netvsc.c b/drivers/staging/hv/netvsc.c
+index 159c490..2b33e13 100644
+--- a/drivers/staging/hv/netvsc.c
++++ b/drivers/staging/hv/netvsc.c
+@@ -539,8 +539,9 @@ int netvsc_send(struct hv_device *device,
+ 	if (ret != 0)
+ 		netdev_err(ndev, "Unable to send packet %p ret %d\n",
+ 			   packet, ret);
++	else
++		atomic_inc(&net_device->num_outstanding_sends);
  
- 	return NETDEV_TX_OK;
+-	atomic_inc(&net_device->num_outstanding_sends);
+ 	put_net_device(device);
+ 	return ret;
+ }
 -- 
 1.6.3.2
