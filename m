@@ -1,8 +1,7 @@
 From: Haiyang Zhang <haiyangz@microsoft.com>
-Subject: [PATCH 4/9] staging: hv: fix a kernel warning in
-	netvsc_linkstatus_callback()
-Date: Thu, 21 Jul 2011 10:14:52 -0700
-Message-ID: <1311268497-8671-5-git-send-email-haiyangz__37043.3112992488$1311267683$gmane$org@microsoft.com>
+Subject: [PATCH 5/9] staging: hv: re-order the code in netvsc_probe()
+Date: Thu, 21 Jul 2011 10:14:53 -0700
+Message-ID: <1311268497-8671-6-git-send-email-haiyangz__38158.679745584$1311269840$gmane$org@microsoft.com>
 References: <1311268497-8671-1-git-send-email-haiyangz@microsoft.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -19,37 +18,69 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: haiyangz@microsoft.com, hjanssen@microsoft.com, kys@microsoft.com, v-abkane@microsoft.com, gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, vir
-Cc: stable <stable@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-netif_notify_peers() caused a kernel warning in netvsc_linkstatus_callback(),
-because netvsc_linkstatus_callback() is within IRQ context. So we move
-the first call to netif_notify_peers() into queued work as well, but with
-zero delay.
-
-In addition to "staging-next", this should also be back-ported to stable
-kernels 2.6.32 and later.
+Re-order the code in netvsc_probe() to prevent a guest crash caused by
+packets possibly received from NetVSP before call to register_netdev().
 
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
-Cc: stable <stable@kernel.org>
 ---
- drivers/staging/hv/netvsc_drv.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+ drivers/staging/hv/netvsc_drv.c |   32 +++++++++++++++++---------------
+ 1 files changed, 17 insertions(+), 15 deletions(-)
 
 diff --git a/drivers/staging/hv/netvsc_drv.c b/drivers/staging/hv/netvsc_drv.c
-index 7b9d9ca..c8e2f24 100644
+index c8e2f24..816e382 100644
 --- a/drivers/staging/hv/netvsc_drv.c
 +++ b/drivers/staging/hv/netvsc_drv.c
-@@ -216,8 +216,8 @@ void netvsc_linkstatus_callback(struct hv_device *device_obj,
- 	if (status == 1) {
- 		netif_carrier_on(net);
- 		netif_wake_queue(net);
--		netif_notify_peers(net);
- 		ndev_ctx = netdev_priv(net);
-+		schedule_delayed_work(&ndev_ctx->dwork, 0);
- 		schedule_delayed_work(&ndev_ctx->dwork, msecs_to_jiffies(20));
- 	} else {
- 		netif_carrier_off(net);
+@@ -350,19 +350,6 @@ static int netvsc_probe(struct hv_device *dev)
+ 	dev_set_drvdata(&dev->device, net);
+ 	INIT_DELAYED_WORK(&net_device_ctx->dwork, netvsc_send_garp);
+ 
+-	/* Notify the netvsc driver of the new device */
+-	device_info.ring_size = ring_size;
+-	ret = rndis_filter_device_add(dev, &device_info);
+-	if (ret != 0) {
+-		free_netdev(net);
+-		dev_set_drvdata(&dev->device, NULL);
+-		return ret;
+-	}
+-
+-	netif_carrier_on(net);
+-
+-	memcpy(net->dev_addr, device_info.mac_adr, ETH_ALEN);
+-
+ 	net->netdev_ops = &device_ops;
+ 
+ 	/* TODO: Add GSO and Checksum offload */
+@@ -374,11 +361,26 @@ static int netvsc_probe(struct hv_device *dev)
+ 
+ 	ret = register_netdev(net);
+ 	if (ret != 0) {
+-		/* Remove the device and release the resource */
+-		rndis_filter_device_remove(dev);
++		pr_err("Unable to register netdev.\n");
+ 		free_netdev(net);
++		goto out;
+ 	}
+ 
++	/* Notify the netvsc driver of the new device */
++	device_info.ring_size = ring_size;
++	ret = rndis_filter_device_add(dev, &device_info);
++	if (ret != 0) {
++		netdev_err(net, "unable to add netvsc device (ret %d)\n", ret);
++		unregister_netdev(net);
++		free_netdev(net);
++		dev_set_drvdata(&dev->device, NULL);
++		return ret;
++	}
++	memcpy(net->dev_addr, device_info.mac_adr, ETH_ALEN);
++
++	netif_carrier_on(net);
++
++out:
+ 	return ret;
+ }
+ 
 -- 
 1.6.3.2
