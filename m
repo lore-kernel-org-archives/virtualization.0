@@ -1,42 +1,48 @@
-From: Joe Perches <joe@perches.com>
-Subject: Re: [PATCH 2/9] staging: hv: add newline to log messages in netvsc
-Date: Thu, 21 Jul 2011 18:35:44 -0700
-Message-ID: <1311298545.21930.3.camel@Joe-Laptop>
-References: <1311268497-8671-1-git-send-email-haiyangz@microsoft.com>
-	 <1311268497-8671-3-git-send-email-haiyangz@microsoft.com>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH repost] Fix panic in virtnet_remove
+Date: Thu, 21 Jul 2011 21:29:50 -0700 (PDT)
+Message-ID: <20110721.212950.1991725607632413241.davem__37151.3663711541$1311309123$gmane$org@davemloft.net>
+References: <20110720135602.18705.21405.sendpatchset@krkumar2.in.ibm.com>
+	<20110720143115.GB6787@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1311268497-8671-3-git-send-email-haiyangz@microsoft.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Haiyang Zhang <haiyangz@microsoft.com>
-Cc: hjanssen@microsoft.com, kys@microsoft.com, v-abkane@microsoft.com, gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20110720143115.GB6787@redhat.com>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: mst@redhat.com
+Cc: krkumar2@in.ibm.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, shemminger@vyatta.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 2011-07-21 at 10:14 -0700, Haiyang Zhang wrote:
-> Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
-> Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Date: Wed, 20 Jul 2011 17:31:15 +0300
 
-Just noticing some trivial typos...
+> On Wed, Jul 20, 2011 at 07:26:02PM +0530, Krishna Kumar wrote:
+>> Fix a panic in virtnet_remove. unregister_netdev has already
+>> freed up the netdev (and virtnet_info) due to dev->destructor
+>> being set, while virtnet_info is still required. Remove
+>> virtnet_free altogether, and move the freeing of the per-cpu
+>> statistics from virtnet_free to virtnet_remove.
+>> 
+>> Tested patch below.
+>> 
+>> Signed-off-by: Krishna Kumar <krkumar2@in.ibm.com>
+> 
+> Also note that the crash was apparently introduced by
+> 3fa2a1df909482cc234524906e4bd30dee3514df in net-next,
+> so this is a net-next only patch.
+> 
+> Stephen, was there any special reason to free the memory
+> in the destructor like you did?
+> 
+> Acked-by: Michael S. Tsirkin <mst@redhat.com>
 
-> diff --git a/drivers/staging/hv/netvsc.c b/drivers/staging/hv/netvsc.c
-[]
-> @@ -246,7 +246,7 @@ static int netvsc_init_recv_buf(struct hv_device *device)
->  	if (init_packet->msg.v1_msg.
->  	    send_recv_buf_complete.status != NVSP_STAT_SUCCESS) {
->  		dev_err(&device->device, "Unable to complete receive buffer "
-> -			   "initialzation with NetVsp - status %d",
-> +			   "initialzation with NetVsp - status %d\n",
-
-initialization
-
-[]
-> @@ -738,7 +738,7 @@ static void netvsc_receive(struct hv_device *device,
->  
->  	if (xferpage_packet->count != vmxferpage_packet->range_cnt) {
->  		dev_err(&device->device, "Needed %d netvsc pkts to satisy "
-> -			"this xfer page...got %d",
-> +			"this xfer page...got %d\n",
-
-satisfy
+Applied.
