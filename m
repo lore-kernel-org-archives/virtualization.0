@@ -1,42 +1,43 @@
-From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 1/1] Staging: hv: util: kvp: Fix the reported  OSVersion string
-Date: Fri, 22 Jul 2011 10:14:31 -0700
-Message-ID: <1311354871-13821-1-git-send-email-kys@microsoft.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org, OHering@novell.com
-Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>
+From: Huang Weiyi <weiyi.huang@gmail.com>
+Subject: [PATCH] xen/pciback: remove duplicated #include
+Date: Sat, 23 Jul 2011 16:21:57 +0800
+Message-ID: <1311409317-1508-1-git-send-email-weiyi.huang@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: konrad.wilk@oracle.com
+Cc: Huang Weiyi <weiyi.huang@gmail.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-The current win7 host does not like it when we return the
-complete kernel release information. Conform to what the host
-expects.
+Remove duplicated #include('s) in
+  drivers/xen/xen-pciback/xenbus.c
 
-Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
-Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
+Signed-off-by: Huang Weiyi <weiyi.huang@gmail.com>
 ---
- drivers/staging/hv/tools/hv_kvp_daemon.c |    9 +++++++++
- 1 files changed, 9 insertions(+), 0 deletions(-)
+ drivers/xen/xen-pciback/xenbus.c |    1 -
+ 1 files changed, 0 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/staging/hv/tools/hv_kvp_daemon.c b/drivers/staging/hv/tools/hv_kvp_daemon.c
-index c230bae..6f3e5c2 100644
---- a/drivers/staging/hv/tools/hv_kvp_daemon.c
-+++ b/drivers/staging/hv/tools/hv_kvp_daemon.c
-@@ -119,6 +119,15 @@ void kvp_get_os_info(void)
- 	os_build = uts_buf.release;
- 	processor_arch = uts_buf.machine;
+diff --git a/drivers/xen/xen-pciback/xenbus.c b/drivers/xen/xen-pciback/xenbus.c
+index 206c4ce..978d2c6 100644
+--- a/drivers/xen/xen-pciback/xenbus.c
++++ b/drivers/xen/xen-pciback/xenbus.c
+@@ -11,7 +11,6 @@
+ #include <xen/xenbus.h>
+ #include <xen/events.h>
+ #include <asm/xen/pci.h>
+-#include <linux/workqueue.h>
+ #include "pciback.h"
  
-+	/*
-+	 * The current windows host (win7) expects the build
-+	 * string to be of the form: x.y.z
-+	 * Strip additional information we may have.
-+	 */
-+	p = strchr(os_build, '-');
-+	if (p)
-+		*p = '\0';
-+
- 	file = fopen("/etc/SuSE-release", "r");
- 	if (file != NULL)
- 		goto kvp_osinfo_found;
+ #define	DRV_NAME	"xen-pciback"
 -- 
-1.7.4.1
+1.5.6.4
