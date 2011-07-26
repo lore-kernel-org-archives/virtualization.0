@@ -1,8 +1,7 @@
 From: ruslanpisarev@gmail.com
-Subject: [PATCH 5/7] Xen: fix whitespaces,
-	tabs coding style issue in drivers/xen/xenbus/xenbus_client.c
-Date: Tue, 26 Jul 2011 14:16:49 +0300
-Message-ID: <1311679009-16659-1-git-send-email-ruslan@rpisarev.org.ua>
+Subject: [PATCH 6/7] Xen: fix braces coding style issue in xenbus_probe.h
+Date: Tue, 26 Jul 2011 14:17:01 +0300
+Message-ID: <1311679021-16691-1-git-send-email-ruslan@rpisarev.org.ua>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -22,41 +21,26 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Ruslan Pisarev <ruslan@rpisarev.org.ua>
 
-This is a patch to the xenbus_client.c file that fixed up whitespaces, tabs errors found by the checkpatch.pl tools.
+This is a patch to the xenbus_probe.h file that fixed up braces errors found by the checkpatch.pl tools.
 
 Signed-off-by: Ruslan Pisarev <ruslan@rpisarev.org.ua>
 ---
- drivers/xen/xenbus/xenbus_client.c |   18 +++++++++---------
- 1 files changed, 9 insertions(+), 9 deletions(-)
+ drivers/xen/xenbus/xenbus_probe.h |    3 +--
+ 1 files changed, 1 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/xen/xenbus/xenbus_client.c b/drivers/xen/xenbus/xenbus_client.c
-index cdacf92..ff4f03c 100644
---- a/drivers/xen/xenbus/xenbus_client.c
-+++ b/drivers/xen/xenbus/xenbus_client.c
-@@ -43,15 +43,15 @@
- const char *xenbus_strstate(enum xenbus_state state)
- {
- 	static const char *const name[] = {
--		[ XenbusStateUnknown      ] = "Unknown",
--		[ XenbusStateInitialising ] = "Initialising",
--		[ XenbusStateInitWait     ] = "InitWait",
--		[ XenbusStateInitialised  ] = "Initialised",
--		[ XenbusStateConnected    ] = "Connected",
--		[ XenbusStateClosing      ] = "Closing",
--		[ XenbusStateClosed	  ] = "Closed",
--		[XenbusStateReconfiguring] = "Reconfiguring",
--		[XenbusStateReconfigured] = "Reconfigured",
-+		[XenbusStateUnknown] =		"Unknown",
-+		[XenbusStateInitialising] =	"Initialising",
-+		[XenbusStateInitWait] =		"InitWait",
-+		[XenbusStateInitialised] =	"Initialised",
-+		[XenbusStateConnected] =	"Connected",
-+		[XenbusStateClosing] =		"Closing",
-+		[XenbusStateClosed] =		"Closed",
-+		[XenbusStateReconfiguring] =	"Reconfiguring",
-+		[XenbusStateReconfigured] =	"Reconfigured",
- 	};
- 	return (state < ARRAY_SIZE(name)) ? name[state] : "INVALID";
- }
+diff --git a/drivers/xen/xenbus/xenbus_probe.h b/drivers/xen/xenbus/xenbus_probe.h
+index 888b990..22dfd4e 100644
+--- a/drivers/xen/xenbus/xenbus_probe.h
++++ b/drivers/xen/xenbus/xenbus_probe.h
+@@ -36,8 +36,7 @@
+ 
+ #define XEN_BUS_ID_SIZE			20
+ 
+-struct xen_bus_type
+-{
++struct xen_bus_type {
+ 	char *root;
+ 	unsigned int levels;
+ 	int (*get_bus_id)(char bus_id[XEN_BUS_ID_SIZE], const char *nodename);
 -- 
 1.7.4.1
