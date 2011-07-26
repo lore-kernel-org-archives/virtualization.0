@@ -1,8 +1,8 @@
 From: ruslanpisarev@gmail.com
-Subject: [PATCH 1/7] Xen: fix whitespaces,
-	tabs coding style issue in drivers/xen/balloon.c
-Date: Tue, 26 Jul 2011 14:15:59 +0300
-Message-ID: <1311678959-16470-1-git-send-email-ruslan@rpisarev.org.ua>
+Subject: [PATCH 2/7] Xen: fix whitespaces,
+	tabs coding style issue in drivers/xen/events.c
+Date: Tue, 26 Jul 2011 14:16:13 +0300
+Message-ID: <1311678973-16554-1-git-send-email-ruslan@rpisarev.org.ua>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -22,69 +22,49 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Ruslan Pisarev <ruslan@rpisarev.org.ua>
 
-This is a patch to the balloon.c file that fixed up
-whitespaces, tabs errors found by the checkpatch.pl tools.
+This is a patch to the events.c file that fixed up
+whitespaces, tabs and braces errors found by the
+checkpatch.pl tools.
 
 Signed-off-by: Ruslan Pisarev <ruslan@rpisarev.org.ua>
 ---
- drivers/xen/balloon.c |   15 +++++++--------
- 1 files changed, 7 insertions(+), 8 deletions(-)
+ drivers/xen/events.c |    9 ++++-----
+ 1 files changed, 4 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/xen/balloon.c b/drivers/xen/balloon.c
-index f54290b..61c0ee7 100644
---- a/drivers/xen/balloon.c
-+++ b/drivers/xen/balloon.c
-@@ -84,8 +84,8 @@ static unsigned long frame_list[PAGE_SIZE / sizeof(unsigned long)];
- #define inc_totalhigh_pages() (totalhigh_pages++)
- #define dec_totalhigh_pages() (totalhigh_pages--)
- #else
--#define inc_totalhigh_pages() do {} while(0)
--#define dec_totalhigh_pages() do {} while(0)
-+#define inc_totalhigh_pages() do {} while (0)
-+#define dec_totalhigh_pages() do {} while (0)
- #endif
- 
- /* List of ballooned pages, threaded through the mem_map array. */
-@@ -145,8 +145,7 @@ static struct page *balloon_retrieve(bool prefer_highmem)
- 	if (PageHighMem(page)) {
- 		balloon_stats.balloon_high--;
- 		inc_totalhigh_pages();
--	}
--	else
-+	} else
- 		balloon_stats.balloon_low--;
- 
- 	totalram_pages++;
-@@ -299,7 +298,7 @@ static enum bp_state decrease_reservation(unsigned long nr_pages, gfp_t gfp)
- 				(unsigned long)__va(pfn << PAGE_SHIFT),
- 				__pte_ma(0), 0);
- 			BUG_ON(ret);
--                }
-+		}
- 
- 	}
- 
-@@ -376,10 +375,10 @@ EXPORT_SYMBOL_GPL(balloon_set_new_target);
-  * @pages: pages returned
-  * @return 0 on success, error otherwise
+diff --git a/drivers/xen/events.c b/drivers/xen/events.c
+index 30df85d..be7c31d 100644
+--- a/drivers/xen/events.c
++++ b/drivers/xen/events.c
+@@ -85,8 +85,7 @@ enum xen_irq_type {
+  *    IPI - IPI vector
+  *    EVTCHN -
   */
--int alloc_xenballooned_pages(int nr_pages, struct page** pages)
-+int alloc_xenballooned_pages(int nr_pages, struct page **pages)
+-struct irq_info
+-{
++struct irq_info {
+ 	struct list_head list;
+ 	enum xen_irq_type type;	/* type */
+ 	unsigned irq;
+@@ -282,9 +281,9 @@ static inline unsigned long active_evtchns(unsigned int cpu,
+ 					   struct shared_info *sh,
+ 					   unsigned int idx)
  {
- 	int pgno = 0;
--	struct page* page;
-+	struct page *page;
- 	mutex_lock(&balloon_mutex);
- 	while (pgno < nr_pages) {
- 		page = balloon_retrieve(true);
-@@ -409,7 +408,7 @@ EXPORT_SYMBOL(alloc_xenballooned_pages);
-  * @nr_pages: Number of pages
-  * @pages: pages to return
-  */
--void free_xenballooned_pages(int nr_pages, struct page** pages)
-+void free_xenballooned_pages(int nr_pages, struct page **pages)
- {
- 	int i;
+-	return (sh->evtchn_pending[idx] &
++	return sh->evtchn_pending[idx] &
+ 		per_cpu(cpu_evtchn_mask, cpu)[idx] &
+-		~sh->evtchn_mask[idx]);
++		~sh->evtchn_mask[idx];
+ }
  
+ static void bind_evtchn_to_cpu(unsigned int chn, unsigned int cpu)
+@@ -1157,7 +1156,7 @@ static void __xen_evtchn_do_upcall(void)
+ 	int cpu = get_cpu();
+ 	struct shared_info *s = HYPERVISOR_shared_info;
+ 	struct vcpu_info *vcpu_info = __this_cpu_read(xen_vcpu);
+- 	unsigned count;
++	unsigned count;
+ 
+ 	do {
+ 		unsigned long pending_words;
 -- 
 1.7.4.1
