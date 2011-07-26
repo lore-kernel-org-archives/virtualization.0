@@ -1,8 +1,8 @@
 From: ruslanpisarev@gmail.com
-Subject: [PATCH 2/7] Xen: fix whitespaces,
-	tabs coding style issue in drivers/xen/events.c
-Date: Tue, 26 Jul 2011 14:16:13 +0300
-Message-ID: <1311678973-16554-1-git-send-email-ruslan@rpisarev.org.ua>
+Subject: [PATCH 3/7] Xen: fix braces coding style issue in gntdev.c and
+	grant-table.c
+Date: Tue, 26 Jul 2011 14:16:26 +0300
+Message-ID: <1311678986-16601-1-git-send-email-ruslan@rpisarev.org.ua>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -22,49 +22,42 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Ruslan Pisarev <ruslan@rpisarev.org.ua>
 
-This is a patch to the events.c file that fixed up
-whitespaces, tabs and braces errors found by the
-checkpatch.pl tools.
+This is a patch to the gntdev.c and grant-table.c files that fixed up
+braces errors found by the checkpatch.pl tools.
 
 Signed-off-by: Ruslan Pisarev <ruslan@rpisarev.org.ua>
 ---
- drivers/xen/events.c |    9 ++++-----
- 1 files changed, 4 insertions(+), 5 deletions(-)
+ drivers/xen/gntdev.c      |    3 +--
+ drivers/xen/grant-table.c |    2 +-
+ 2 files changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/xen/events.c b/drivers/xen/events.c
-index 30df85d..be7c31d 100644
---- a/drivers/xen/events.c
-+++ b/drivers/xen/events.c
-@@ -85,8 +85,7 @@ enum xen_irq_type {
-  *    IPI - IPI vector
-  *    EVTCHN -
-  */
--struct irq_info
--{
-+struct irq_info {
- 	struct list_head list;
- 	enum xen_irq_type type;	/* type */
- 	unsigned irq;
-@@ -282,9 +281,9 @@ static inline unsigned long active_evtchns(unsigned int cpu,
- 					   struct shared_info *sh,
- 					   unsigned int idx)
- {
--	return (sh->evtchn_pending[idx] &
-+	return sh->evtchn_pending[idx] &
- 		per_cpu(cpu_evtchn_mask, cpu)[idx] &
--		~sh->evtchn_mask[idx]);
-+		~sh->evtchn_mask[idx];
+diff --git a/drivers/xen/gntdev.c b/drivers/xen/gntdev.c
+index f914b26..772a5b8 100644
+--- a/drivers/xen/gntdev.c
++++ b/drivers/xen/gntdev.c
+@@ -188,9 +188,8 @@ static void gntdev_put_map(struct grant_map *map)
+ 
+ 	atomic_sub(map->count, &pages_mapped);
+ 
+-	if (map->notify.flags & UNMAP_NOTIFY_SEND_EVENT) {
++	if (map->notify.flags & UNMAP_NOTIFY_SEND_EVENT)
+ 		notify_remote_via_evtchn(map->notify.event);
+-	}
+ 
+ 	if (map->pages) {
+ 		if (!use_ptemod)
+diff --git a/drivers/xen/grant-table.c b/drivers/xen/grant-table.c
+index fd725cd..3a3dceb 100644
+--- a/drivers/xen/grant-table.c
++++ b/drivers/xen/grant-table.c
+@@ -193,7 +193,7 @@ int gnttab_query_foreign_access(grant_ref_t ref)
+ 
+ 	nflags = shared[ref].flags;
+ 
+-	return (nflags & (GTF_reading|GTF_writing));
++	return nflags & (GTF_reading|GTF_writing);
  }
+ EXPORT_SYMBOL_GPL(gnttab_query_foreign_access);
  
- static void bind_evtchn_to_cpu(unsigned int chn, unsigned int cpu)
-@@ -1157,7 +1156,7 @@ static void __xen_evtchn_do_upcall(void)
- 	int cpu = get_cpu();
- 	struct shared_info *s = HYPERVISOR_shared_info;
- 	struct vcpu_info *vcpu_info = __this_cpu_read(xen_vcpu);
-- 	unsigned count;
-+	unsigned count;
- 
- 	do {
- 		unsigned long pending_words;
 -- 
 1.7.4.1
