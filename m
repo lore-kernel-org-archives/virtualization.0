@@ -1,8 +1,8 @@
 From: ruslanpisarev@gmail.com
-Subject: [PATCH 4/7] Xen: fix whitespaces,
-	tabs coding style issue in drivers/xen/pci.c
-Date: Tue, 26 Jul 2011 14:16:38 +0300
-Message-ID: <1311678998-16630-1-git-send-email-ruslan@rpisarev.org.ua>
+Subject: [PATCH 5/7] Xen: fix whitespaces,
+	tabs coding style issue in drivers/xen/xenbus/xenbus_client.c
+Date: Tue, 26 Jul 2011 14:16:49 +0300
+Message-ID: <1311679009-16659-1-git-send-email-ruslan@rpisarev.org.ua>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -22,34 +22,41 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Ruslan Pisarev <ruslan@rpisarev.org.ua>
 
-This is a patch to the pci.c file that fixed up whitespaces, tabs warnings found by the checkpatch.pl tools.
+This is a patch to the xenbus_client.c file that fixed up whitespaces, tabs errors found by the checkpatch.pl tools.
 
 Signed-off-by: Ruslan Pisarev <ruslan@rpisarev.org.ua>
 ---
- drivers/xen/pci.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/xen/xenbus/xenbus_client.c |   18 +++++++++---------
+ 1 files changed, 9 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/xen/pci.c b/drivers/xen/pci.c
-index cef4baf..c4448ee 100644
---- a/drivers/xen/pci.c
-+++ b/drivers/xen/pci.c
-@@ -36,7 +36,7 @@ static int xen_add_device(struct device *dev)
- 		struct physdev_manage_pci_ext manage_pci_ext = {
- 			.bus		= pci_dev->bus->number,
- 			.devfn		= pci_dev->devfn,
--			.is_virtfn 	= 1,
-+			.is_virtfn	= 1,
- 			.physfn.bus	= pci_dev->physfn->bus->number,
- 			.physfn.devfn	= pci_dev->physfn->devfn,
- 		};
-@@ -56,7 +56,7 @@ static int xen_add_device(struct device *dev)
- 			&manage_pci_ext);
- 	} else {
- 		struct physdev_manage_pci manage_pci = {
--			.bus 	= pci_dev->bus->number,
-+			.bus	= pci_dev->bus->number,
- 			.devfn	= pci_dev->devfn,
- 		};
- 
+diff --git a/drivers/xen/xenbus/xenbus_client.c b/drivers/xen/xenbus/xenbus_client.c
+index cdacf92..ff4f03c 100644
+--- a/drivers/xen/xenbus/xenbus_client.c
++++ b/drivers/xen/xenbus/xenbus_client.c
+@@ -43,15 +43,15 @@
+ const char *xenbus_strstate(enum xenbus_state state)
+ {
+ 	static const char *const name[] = {
+-		[ XenbusStateUnknown      ] = "Unknown",
+-		[ XenbusStateInitialising ] = "Initialising",
+-		[ XenbusStateInitWait     ] = "InitWait",
+-		[ XenbusStateInitialised  ] = "Initialised",
+-		[ XenbusStateConnected    ] = "Connected",
+-		[ XenbusStateClosing      ] = "Closing",
+-		[ XenbusStateClosed	  ] = "Closed",
+-		[XenbusStateReconfiguring] = "Reconfiguring",
+-		[XenbusStateReconfigured] = "Reconfigured",
++		[XenbusStateUnknown] =		"Unknown",
++		[XenbusStateInitialising] =	"Initialising",
++		[XenbusStateInitWait] =		"InitWait",
++		[XenbusStateInitialised] =	"Initialised",
++		[XenbusStateConnected] =	"Connected",
++		[XenbusStateClosing] =		"Closing",
++		[XenbusStateClosed] =		"Closed",
++		[XenbusStateReconfiguring] =	"Reconfiguring",
++		[XenbusStateReconfigured] =	"Reconfigured",
+ 	};
+ 	return (state < ARRAY_SIZE(name)) ? name[state] : "INVALID";
+ }
 -- 
 1.7.4.1
