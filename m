@@ -1,13 +1,14 @@
-From: ruslanpisarev@gmail.com
-Subject: [PATCH 7/7] Xen: fix braces and tabs coding style issue in
-	xenbus_probe.c This is a patch to the xenbus_probe.c file that
-	fixed up braces and tabs errors found by the checkpatch.pl tools.
-Date: Tue, 26 Jul 2011 14:17:23 +0300
-Message-ID: <1311679043-16735-1-git-send-email-ruslan@rpisarev.org.ua>
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+Subject: Re: [PATCH 5/7] Xen: fix whitespaces, tabs coding style issue in
+	drivers/xen/xenbus/xenbus_client.c
+Date: Tue, 26 Jul 2011 09:17:48 -0700
+Message-ID: <4E2EE8AC.1090703__760.127817238931$1311697198$gmane$org@goop.org>
+References: <1311679009-16659-1-git-send-email-ruslan@rpisarev.org.ua>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1311679009-16659-1-git-send-email-ruslan@rpisarev.org.ua>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -17,48 +18,48 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: jeremy.fitzhardinge@citrix.com
-Cc: Ruslan Pisarev <ruslan@rpisarev.org.ua>, xen-devel@lists.xensource.com, virtualization@lists.linux-foundation.org, konrad.wilk@oracle.com
+To: ruslanpisarev@gmail.com
+Cc: Ruslan Pisarev <ruslan@rpisarev.org.ua>, jeremy.fitzhardinge@citrix.com, xen-devel@lists.xensource.com, konrad.wilk@oracle.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Ruslan Pisarev <ruslan@rpisarev.org.ua>
+On 07/26/2011 04:16 AM, ruslanpisarev@gmail.com wrote:
+> From: Ruslan Pisarev <ruslan@rpisarev.org.ua>
+>
+> This is a patch to the xenbus_client.c file that fixed up whitespaces, tabs errors found by the checkpatch.pl tools.
+>
+> Signed-off-by: Ruslan Pisarev <ruslan@rpisarev.org.ua>
+> ---
+>  drivers/xen/xenbus/xenbus_client.c |   18 +++++++++---------
+>  1 files changed, 9 insertions(+), 9 deletions(-)
+>
+> diff --git a/drivers/xen/xenbus/xenbus_client.c b/drivers/xen/xenbus/xenbus_client.c
+> index cdacf92..ff4f03c 100644
+> --- a/drivers/xen/xenbus/xenbus_client.c
+> +++ b/drivers/xen/xenbus/xenbus_client.c
+> @@ -43,15 +43,15 @@
+>  const char *xenbus_strstate(enum xenbus_state state)
+>  {
+>  	static const char *const name[] = {
+> -		[ XenbusStateUnknown      ] = "Unknown",
+> -		[ XenbusStateInitialising ] = "Initialising",
+> -		[ XenbusStateInitWait     ] = "InitWait",
+> -		[ XenbusStateInitialised  ] = "Initialised",
+> -		[ XenbusStateConnected    ] = "Connected",
+> -		[ XenbusStateClosing      ] = "Closing",
+> -		[ XenbusStateClosed	  ] = "Closed",
+> -		[XenbusStateReconfiguring] = "Reconfiguring",
+> -		[XenbusStateReconfigured] = "Reconfigured",
+> +		[XenbusStateUnknown] =		"Unknown",
+> +		[XenbusStateInitialising] =	"Initialising",
+> +		[XenbusStateInitWait] =		"InitWait",
+> +		[XenbusStateInitialised] =	"Initialised",
+> +		[XenbusStateConnected] =	"Connected",
+> +		[XenbusStateClosing] =		"Closing",
+> +		[XenbusStateClosed] =		"Closed",
+> +		[XenbusStateReconfiguring] =	"Reconfiguring",
+> +		[XenbusStateReconfigured] =	"Reconfigured",
+>  	};
 
-Signed-off-by: Ruslan Pisarev <ruslan@rpisarev.org.ua>
----
- drivers/xen/xenbus/xenbus_probe.c |    7 +++----
- 1 files changed, 3 insertions(+), 4 deletions(-)
+Eh, I think this looks worse now.
 
-diff --git a/drivers/xen/xenbus/xenbus_probe.c b/drivers/xen/xenbus/xenbus_probe.c
-index 7397695..3b53452 100644
---- a/drivers/xen/xenbus/xenbus_probe.c
-+++ b/drivers/xen/xenbus/xenbus_probe.c
-@@ -309,8 +309,7 @@ void xenbus_unregister_driver(struct xenbus_driver *drv)
- }
- EXPORT_SYMBOL_GPL(xenbus_unregister_driver);
- 
--struct xb_find_info
--{
-+struct xb_find_info {
- 	struct xenbus_device *dev;
- 	const char *nodename;
- };
-@@ -651,7 +650,7 @@ int xenbus_dev_cancel(struct device *dev)
- EXPORT_SYMBOL_GPL(xenbus_dev_cancel);
- 
- /* A flag to determine if xenstored is 'ready' (i.e. has started) */
--int xenstored_ready = 0;
-+int xenstored_ready;
- 
- 
- int register_xenstore_notifier(struct notifier_block *nb)
-@@ -774,7 +773,7 @@ static int __init xenbus_init(void)
- 
- 	return 0;
- 
--  out_error:
-+out_error:
- 	if (page != 0)
- 		free_page(page);
- 
--- 
-1.7.4.1
+    J
