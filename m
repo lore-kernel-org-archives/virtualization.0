@@ -1,14 +1,14 @@
-From: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+From: Andrew Lutomirski <luto@mit.edu>
 Subject: Re: [PATCH 0/5] Collected vdso/vsyscall fixes for 3.1
-Date: Wed, 27 Jul 2011 10:57:45 -0400
-Message-ID: <20110727145745.GA11872__38605.5117044181$1311778739$gmane$org@dumpdata.com>
+Date: Wed, 27 Jul 2011 11:04:44 -0400
+Message-ID: <CAObL_7FT8QLg-wihasBahhAtS=pA7+KeU8E=E9x8NPZ0+QJ5iQ__8729.58863988078$1311779231$gmane$org@mail.gmail.com>
 References: <cover.1311736366.git.luto@mit.edu>
+	<20110727145745.GA11872@dumpdata.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="windows-1252"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <cover.1311736366.git.luto@mit.edu>
+In-Reply-To: <20110727145745.GA11872@dumpdata.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,77 +18,86 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Andy Lutomirski <luto@mit.edu>
+To: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
 Cc: xen-devel@lists.xensource.com, x86@kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, keir.xen@gmail.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gVHVlLCBKdWwgMjYsIDIwMTEgYXQgMTE6MjA6MzRQTSAtMDQwMCwgQW5keSBMdXRvbWlyc2tp
-IHdyb3RlOgo+IFRoaXMgZml4ZXMgdmFyaW91cyBwcm9ibGVtcyB0aGF0IGNyb3BwZWQgdXAgd2l0
-aCB0aGUgdmRzbyBwYXRjaGVzLgo+IAo+ICAtIFBhdGNoIDEgZml4ZXMgYW4gaW5mb3JtYXRpb24g
-bGVhayB0byB1c2Vyc3BhY2UuCj4gIC0gUGF0Y2hlcyAyIGFuZCAzIGZpeCB0aGUga2VybmVsIGJ1
-aWxkIG9uIGdvbGQuCj4gIC0gUGF0Y2hlcyA0IGFuZCA1IGZpeCBYZW4gKEkgaG9wZSkuCj4gCj4g
-S29ucmFkLCBjb3VsZCB5b3UgY291bGQgdGVzdCB0aGVzZSBvbiBYZW4gYW5kIHJ1biAndGVzdF92
-c3lzY2FsbCB0ZXN0JyBbMV0/CgpUaGV5IGJvb3QgNjQtYml0IGd1ZXN0IHN1Y2Nlc2Z1bGx5LgoK
-QnV0IEkgZG9lc24ndCBjb21waWxlIHVuZGVyIDMyLWJpdDoKCmhvbWUva29ucmFkL3NzZC9saW51
-eC9hcmNoL3g4Ni94ZW4vZW5saWdodGVuLmM6OTUzOiBlcnJvcjogdW5rbm93biBmaWVsZCDigJhl
-eHRyYV91c2VyXzY0Yml0X2Nz4oCZIHNwZWNpZmllZCBpbiBpbml0aWFsaXplcgovaG9tZS9rb25y
-YWQvc3NkL2xpbnV4L2FyY2gveDg2L3hlbi9lbmxpZ2h0ZW4uYzo5NTM6IGVycm9yOiDigJhGTEFU
-X1VTRVJfQ1M2NOKAmSB1bmRlY2xhcmVkIGhlcmUgKG5vdCBpbiBhIGZ1bmN0aW9uKQoKTG9va3Mg
-bGlrZSBpdCBuZWVkcyBzb21lICNpZmRlZiBDT05GSUdfWDg2XzY0IG1hZ2ljLi4gYW5kIGFmdGVy
-CmFwcGx5aW5nIHRoYXQgbWFnaWMgZHVzdCBpdCBjb21waWxlcyBhbmQgaXQgYWxzbyBib290cyBh
-cyAzMi1iaXQKKG5vIHN1cnByaXNlIHRoZXJlKS4KCj4gSSBkb24ndCBoYXZlIGEgdXNhYmxlIFhl
-biBzZXR1cC4KCkl0IGlzIHByZXR0eSBlYXN5IHRvIHNldHVwLiBHb29nbGUgZm9yIFBWb3BzIFdp
-a2kgYW5kIHlvdSB3aWxsIGZpbmQgd2VhbHRoCm9mIGluZm9ybWF0aW9uLiBGWUk6IEkgYW0gZ29u
-ZSBuZXh0IHdlZWsgc28gd29uJ3QgYmUgYWJsZSB0byB0ZXN0IHRoZXNlCnBhdGNoZXMuCgo+IAo+
-IEFsc28sIEknZCBhcHByZWNpYXRlIGEgcmV2aWV3IG9mIHBhdGNoZXMgNCBhbmQgNSBmcm9tIHNv
-bWUgWGVuL3BhcmF2aXJ0Cj4gcGVvcGxlLgo+IAo+IFsxXSBodHRwczovL2dpdG9yaW91cy5vcmcv
-bGludXgtdGVzdC11dGlscy9saW51eC1jbG9jay10ZXN0cwoKR3JycnJyLi4KCmcrKyAtbyB0ZXN0
-X3ZzeXNjYWxsIC1zdGQ9Z251KysweCAtbHJ0IC1sZGwgLU8yIC1XYWxsIC1tYXZ4IC1nIHRlc3Rf
-dnN5c2NhbGwuY2MKdGVzdF92c3lzY2FsbC5jYzogSW4gZnVuY3Rpb24g4oCYaW50IGJlbmNoKGlu
-dCwgY2hhcioqKeKAmToKdGVzdF92c3lzY2FsbC5jYzoyMDU6IGVycm9yOiBleHBlY3RlZCBwcmlt
-YXJ5LWV4cHJlc3Npb24gYmVmb3JlIOKAmFvigJkgdG9rZW4KdGVzdF92c3lzY2FsbC5jYzoyMDU6
-IGVycm9yOiBleHBlY3RlZCBwcmltYXJ5LWV4cHJlc3Npb24gYmVmb3JlIOKAmF3igJkgdG9rZW4K
-dGVzdF92c3lzY2FsbC5jYzoyMDY6IGVycm9yOiBleHBlY3RlZCBwcmltYXJ5LWV4cHJlc3Npb24g
-YmVmb3JlIOKAmFvigJkgdG9rZW4KdGVzdF92c3lzY2FsbC5jYzoyMDY6IGVycm9yOiBleHBlY3Rl
-ZCBwcmltYXJ5LWV4cHJlc3Npb24gYmVmb3JlIOKAmF3igJkgdG9rZW4KdGVzdF92c3lzY2FsbC5j
-YzoyMDc6IGVycm9yOiBleHBlY3RlZCBwcmltYXJ5LWV4cHJlc3Npb24gYmVmb3JlIOKAmFvigJkg
-dG9rZW4KdGVzdF92c3lzY2FsbC5jYzoyMDc6IGVycm9yOiBleHBlY3RlZCBwcmltYXJ5LWV4cHJl
-c3Npb24gYmVmb3JlIOKAmF3igJkgdG9rZW4KdGVzdF92c3lzY2FsbC5jYzoyMTE6IGVycm9yOiBl
-eHBlY3RlZCBwcmltYXJ5LWV4cHJlc3Npb24gYmVmb3JlIOKAmFvigJkgdG9rZW4KdGVzdF92c3lz
-Y2FsbC5jYzoyMTE6IGVycm9yOiBleHBlY3RlZCBwcmltYXJ5LWV4cHJlc3Npb24gYmVmb3JlIOKA
-mF3igJkgdG9rZW4KdGVzdF92c3lzY2FsbC5jYzoyMTM6IGVycm9yOiBleHBlY3RlZCBwcmltYXJ5
-LWV4cHJlc3Npb24gYmVmb3JlIOKAmFvigJkgdG9rZW4KdGVzdF92c3lzY2FsbC5jYzoyMTM6IGVy
-cm9yOiBleHBlY3RlZCBwcmltYXJ5LWV4cHJlc3Npb24gYmVmb3JlIOKAmF3igJkgdG9rZW4KdGVz
-dF92c3lzY2FsbC5jYzoyMTQ6IGVycm9yOiBleHBlY3RlZCBwcmltYXJ5LWV4cHJlc3Npb24gYmVm
-b3JlIOKAmFvigJkgdG9rZW4KdGVzdF92c3lzY2FsbC5jYzoyMTQ6IGVycm9yOiBleHBlY3RlZCBw
-cmltYXJ5LWV4cHJlc3Npb24gYmVmb3JlIOKAmF3igJkgdG9rZW4KdGVzdF92c3lzY2FsbC5jYzoy
-MTg6IGVycm9yOiBleHBlY3RlZCBwcmltYXJ5LWV4cHJlc3Npb24gYmVmb3JlIOKAmFvigJkgdG9r
-ZW4KdGVzdF92c3lzY2FsbC5jYzoyMTg6IGVycm9yOiBleHBlY3RlZCBwcmltYXJ5LWV4cHJlc3Np
-b24gYmVmb3JlIOKAmF3igJkgdG9rZW4KdGVzdF92c3lzY2FsbC5jYzoyMTk6IGVycm9yOiBleHBl
-Y3RlZCBwcmltYXJ5LWV4cHJlc3Npb24gYmVmb3JlIOKAmFvigJkgdG9rZW4KdGVzdF92c3lzY2Fs
-bC5jYzoyMTk6IGVycm9yOiBleHBlY3RlZCBwcmltYXJ5LWV4cHJlc3Npb24gYmVmb3JlIOKAmF3i
-gJkgdG9rZW4KdGVzdF92c3lzY2FsbC5jYzoyMjI6IGVycm9yOiBleHBlY3RlZCBwcmltYXJ5LWV4
-cHJlc3Npb24gYmVmb3JlIOKAmFvigJkgdG9rZW4KdGVzdF92c3lzY2FsbC5jYzoyMjI6IGVycm9y
-OiBleHBlY3RlZCBwcmltYXJ5LWV4cHJlc3Npb24gYmVmb3JlIOKAmF3igJkgdG9rZW4KdGVzdF92
-c3lzY2FsbC5jYzoyMDM6IHdhcm5pbmc6IHVudXNlZCB2YXJpYWJsZSDigJh0duKAmQp0ZXN0X3Zz
-eXNjYWxsLmNjOjIwNDogd2FybmluZzogdW51c2VkIHZhcmlhYmxlIOKAmHR64oCZCnRlc3RfdnN5
-c2NhbGwuY2M6MjEwOiB3YXJuaW5nOiB1bnVzZWQgdmFyaWFibGUg4oCYdOKAmQp0ZXN0X3ZzeXNj
-YWxsLmNjOjIxNzogd2FybmluZzogdW51c2VkIHZhcmlhYmxlIOKAmGNwdeKAmQp0ZXN0X3ZzeXNj
-YWxsLmNjOjIxNzogd2FybmluZzogdW51c2VkIHZhcmlhYmxlIOKAmG5vZGXigJkKCklzIHRoZXJl
-IGEgc3BlY2lmaWMgdmVyc2lvbiBvZiBHQ0MgSSBzaG91bGQgYmUgdXNpbmc/IEkgc2VlbSB0byBi
-ZQp1c2luZzogZysrIChHQ0MpIDQuNC40IDIwMTAwNTAzIChSZWQgSGF0IDQuNC40LTIpCgpBbnlo
-b3csIHJlbW92ZWQgdGhlIGJlbmNobWFyayBjb2RlIGFuZCByYW4gaXQgb24gNjQtYml0OgoKc2gt
-NC4xIyAvdGVzdF92c3lzY2FsbCAgdGVzdApUZXN0aW5nIGdldHRpbWVvZmRheS4uLgpbICAxMDku
-NTUyMjYxXSB0ZXN0X3ZzeXNjYWxsWzI0NjJdIHRyYXAgaW52YWxpZCBvcGNvZGUgaXA6NDAwYzhk
-IHNwOjdmZmY4NGZhYjQ3MCBlcnJvcjowIGluIHRlc3RfdnN5c2NhbGxbNDAwMDAwKzIwMDBdCkls
-bGVnYWwgaW5zdHJ1Y3Rpb24Kc2gtNC4xIyAvdGVzdF92c3lzY2FsbCAgaW50Y2MKQWJvdXQgdG8g
-ZXhlY3V0ZSBpbnQgMHhjYyBmcm9tIFJJUCA9IDQwMDk1OQpbICAxMTQuMTM3MTUwXSB0ZXN0X3Zz
-eXNjYWxsWzI0NjNdIGlsbGVnYWwgaW50IDB4Y2MgKGV4cGxvaXQgYXR0ZW1wdD8pIGlwOjQwMDk1
-OSBjczplMDMzIHNwOjdmZmY4YjMyODMxMCBheDoyYyBzaTowIGRpOjdmZmY4YjMyODBmMApDYXVn
-aHQgU0lHU0VHVjogU2VnbWVudGF0aW9uIGZhdWx0IChTaWduYWwgc2VudCBieSB0aGUga2VybmVs
-IFsobmlsKV0pUklQID0gNDAwOTU5CgpbVGhpcyBpcyBvbiBnaXQ6Ly9naXQua2VybmVsLm9yZy9w
-dWIvc2NtL2xpbnV4L2tlcm5lbC9naXQva29ucmFkL3hlbi5naXQgI3Rlc3RpbmcsIHdoaWNoCmhh
-cyB0b2RheXMgbGludXMvbWFzdGVyIGFuZCB5b3VyIHBhdGNoc2V0XQpfX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxp
-c3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0
-cy5saW51eC1mb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+On Wed, Jul 27, 2011 at 10:57 AM, Konrad Rzeszutek Wilk
+<konrad.wilk@oracle.com> wrote:
+> On Tue, Jul 26, 2011 at 11:20:34PM -0400, Andy Lutomirski wrote:
+>> This fixes various problems that cropped up with the vdso patches.
+>>
+>> =A0- Patch 1 fixes an information leak to userspace.
+>> =A0- Patches 2 and 3 fix the kernel build on gold.
+>> =A0- Patches 4 and 5 fix Xen (I hope).
+>>
+>> Konrad, could you could test these on Xen and run 'test_vsyscall test' [=
+1]?
+>
+> They boot 64-bit guest succesfully.
+>
+> But I doesn't compile under 32-bit:
+>
+> home/konrad/ssd/linux/arch/x86/xen/enlighten.c:953: error: unknown field =
+=91extra_user_64bit_cs=92 specified in initializer
+> /home/konrad/ssd/linux/arch/x86/xen/enlighten.c:953: error: =91FLAT_USER_=
+CS64=92 undeclared here (not in a function)
+>
+> Looks like it needs some #ifdef CONFIG_X86_64 magic.. and after
+> applying that magic dust it compiles and it also boots as 32-bit
+> (no surprise there).
+
+Whoops!  I thought xen/enlighten.c was 64-bit only.
+
+>
+>> I don't have a usable Xen setup.
+>
+> It is pretty easy to setup. Google for PVops Wiki and you will find wealth
+> of information. FYI: I am gone next week so won't be able to test these
+> patches.
+>
+>>
+>> Also, I'd appreciate a review of patches 4 and 5 from some Xen/paravirt
+>> people.
+>>
+>> [1] https://gitorious.org/linux-test-utils/linux-clock-tests
+>
+> Grrrrr..
+>
+> g++ -o test_vsyscall -std=3Dgnu++0x -lrt -ldl -O2 -Wall -mavx -g test_vsy=
+scall.cc
+> test_vsyscall.cc: In function =91int bench(int, char**)=92:
+> test_vsyscall.cc:205: error: expected primary-expression before =91[=92 t=
+oken
+
+[...]
+
+>
+> Is there a specific version of GCC I should be using? I seem to be
+> using: g++ (GCC) 4.4.4 20100503 (Red Hat 4.4.4-2)
+
+Apparently it needs g++ 4.5 for lambdas.
+
+>
+> Anyhow, removed the benchmark code and ran it on 64-bit:
+>
+> sh-4.1# /test_vsyscall =A0test
+> Testing gettimeofday...
+> [ =A0109.552261] test_vsyscall[2462] trap invalid opcode ip:400c8d sp:7ff=
+f84fab470 error:0 in test_vsyscall[400000+2000]
+> Illegal instruction
+> sh-4.1# /test_vsyscall =A0intcc
+> About to execute int 0xcc from RIP =3D 400959
+> [ =A0114.137150] test_vsyscall[2463] illegal int 0xcc (exploit attempt?) =
+ip:400959 cs:e033 sp:7fff8b328310 ax:2c si:0 di:7fff8b3280f0
+> Caught SIGSEGV: Segmentation fault (Signal sent by the kernel [(nil)])RIP=
+ =3D 400959
+>
+> [This is on git://git.kernel.org/pub/scm/linux/kernel/git/konrad/xen.git =
+#testing, which
+> has todays linus/master and your patchset]
+>
+
+I'll set up Xen.  Something's clearly still buggy.
+
+--Andy
