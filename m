@@ -1,11 +1,16 @@
 From: Andy Lutomirski <luto@mit.edu>
-Subject: [PATCH 0/5] Collected vdso/vsyscall fixes for 3.1
-Date: Tue, 26 Jul 2011 23:20:34 -0400
-Message-ID: <cover.1311736366.git.luto__3209.66107906333$1311739940$gmane$org@mit.edu>
+Subject: [PATCH 2/5] x86-64: Move the "user" vsyscall segment out of the data
+	segment.
+Date: Tue, 26 Jul 2011 23:20:36 -0400
+Message-ID: <af5cec39502c43e22e1c150de05125231510db55.1311736366.git.luto__17333.6674845361$1311739961$gmane$org@mit.edu>
+References: <cover.1311736366.git.luto@mit.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <cover.1311736366.git.luto@mit.edu>
+In-Reply-To: <cover.1311736366.git.luto@mit.edu>
+References: <cover.1311736366.git.luto@mit.edu>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,40 +24,74 @@ To: x86@kernel.org, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
 Cc: xen-devel@lists.xensource.com, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, keir.xen@gmail.com, Andy Lutomirski <luto@mit.edu>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This fixes various problems that cropped up with the vdso patches.
+The kernel's loader doesn't seem to care, but gold complains.
 
- - Patch 1 fixes an information leak to userspace.
- - Patches 2 and 3 fix the kernel build on gold.
- - Patches 4 and 5 fix Xen (I hope).
+Signed-off-by: Andy Lutomirski <luto@mit.edu>
+Reported-by: Arkadiusz Miskiewicz <a.miskiewicz@gmail.com>
+---
+ arch/x86/kernel/vmlinux.lds.S |   36 ++++++++++++++++++------------------
+ 1 files changed, 18 insertions(+), 18 deletions(-)
 
-Konrad, could you could test these on Xen and run 'test_vsyscall test' [1]?
-I don't have a usable Xen setup.
-
-Also, I'd appreciate a review of patches 4 and 5 from some Xen/paravirt
-people.
-
-[1] https://gitorious.org/linux-test-utils/linux-clock-tests
-
-
-Andy Lutomirski (5):
-  x86-64: Pad vDSO to a page boundary
-  x86-64: Move the "user" vsyscall segment out of the data segment.
-  x86-64: Work around gold bug 13023
-  x86-64/xen: Enable the vvar mapping
-  x86-64: Add user_64bit_mode paravirt op
-
- arch/x86/include/asm/desc.h           |    4 +-
- arch/x86/include/asm/paravirt_types.h |    6 ++++
- arch/x86/include/asm/ptrace.h         |   19 +++++++++++++
- arch/x86/kernel/paravirt.c            |    4 +++
- arch/x86/kernel/step.c                |    2 +-
- arch/x86/kernel/vmlinux.lds.S         |   46 ++++++++++++++++++---------------
- arch/x86/kernel/vsyscall_64.c         |    6 +---
- arch/x86/mm/fault.c                   |    2 +-
- arch/x86/vdso/vdso.S                  |    1 +
- arch/x86/xen/enlighten.c              |    1 +
- arch/x86/xen/mmu.c                    |    4 ++-
- 11 files changed, 64 insertions(+), 31 deletions(-)
-
+diff --git a/arch/x86/kernel/vmlinux.lds.S b/arch/x86/kernel/vmlinux.lds.S
+index 4aa9c54..e79fb39 100644
+--- a/arch/x86/kernel/vmlinux.lds.S
++++ b/arch/x86/kernel/vmlinux.lds.S
+@@ -154,6 +154,24 @@ SECTIONS
+ 
+ #ifdef CONFIG_X86_64
+ 
++	. = ALIGN(PAGE_SIZE);
++	__vvar_page = .;
++
++	.vvar : AT(ADDR(.vvar) - LOAD_OFFSET) {
++
++	      /* Place all vvars at the offsets in asm/vvar.h. */
++#define EMIT_VVAR(name, offset) 		\
++		. = offset;		\
++		*(.vvar_ ## name)
++#define __VVAR_KERNEL_LDS
++#include <asm/vvar.h>
++#undef __VVAR_KERNEL_LDS
++#undef EMIT_VVAR
++
++	} :data
++
++       . = ALIGN(__vvar_page + PAGE_SIZE, PAGE_SIZE);
++
+ #define VSYSCALL_ADDR (-10*1024*1024)
+ 
+ #define VLOAD_OFFSET (VSYSCALL_ADDR - __vsyscall_0 + LOAD_OFFSET)
+@@ -162,7 +180,6 @@ SECTIONS
+ #define VVIRT_OFFSET (VSYSCALL_ADDR - __vsyscall_0)
+ #define VVIRT(x) (ADDR(x) - VVIRT_OFFSET)
+ 
+-	. = ALIGN(4096);
+ 	__vsyscall_0 = .;
+ 
+ 	. = VSYSCALL_ADDR;
+@@ -185,23 +202,6 @@ SECTIONS
+ #undef VVIRT_OFFSET
+ #undef VVIRT
+ 
+-	__vvar_page = .;
+-
+-	.vvar : AT(ADDR(.vvar) - LOAD_OFFSET) {
+-
+-	      /* Place all vvars at the offsets in asm/vvar.h. */
+-#define EMIT_VVAR(name, offset) 		\
+-		. = offset;		\
+-		*(.vvar_ ## name)
+-#define __VVAR_KERNEL_LDS
+-#include <asm/vvar.h>
+-#undef __VVAR_KERNEL_LDS
+-#undef EMIT_VVAR
+-
+-	} :data
+-
+-       . = ALIGN(__vvar_page + PAGE_SIZE, PAGE_SIZE);
+-
+ #endif /* CONFIG_X86_64 */
+ 
+ 	/* Init code and data - will be freed after init */
 -- 
 1.7.6
