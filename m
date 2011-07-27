@@ -1,7 +1,7 @@
 From: Andy Lutomirski <luto@mit.edu>
-Subject: [PATCH 1/5] x86-64: Pad vDSO to a page boundary
-Date: Tue, 26 Jul 2011 23:20:35 -0400
-Message-ID: <8a9c7b051547171afd88fc53a6416a001f76ec4a.1311736366.git.luto__7186.06142695553$1311739975$gmane$org@mit.edu>
+Subject: [PATCH 4/5] x86-64/xen: Enable the vvar mapping
+Date: Tue, 26 Jul 2011 23:20:38 -0400
+Message-ID: <b6598d164fbe64eeea37c0369b64dd6ceaeeb504.1311736366.git.luto__30666.5870165036$1311739977$gmane$org@mit.edu>
 References: <cover.1311736366.git.luto@mit.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -23,24 +23,35 @@ To: x86@kernel.org, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
 Cc: xen-devel@lists.xensource.com, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, keir.xen@gmail.com, Andy Lutomirski <luto@mit.edu>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This avoids an information leak to userspace.
+Xen needs special treatment for fixmaps.
 
 Signed-off-by: Andy Lutomirski <luto@mit.edu>
+Reported-by: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
 ---
- arch/x86/vdso/vdso.S |    1 +
- 1 files changed, 1 insertions(+), 0 deletions(-)
+ arch/x86/xen/mmu.c |    4 +++-
+ 1 files changed, 3 insertions(+), 1 deletions(-)
 
-diff --git a/arch/x86/vdso/vdso.S b/arch/x86/vdso/vdso.S
-index 1b979c1..01f5e3b 100644
---- a/arch/x86/vdso/vdso.S
-+++ b/arch/x86/vdso/vdso.S
-@@ -9,6 +9,7 @@ __PAGE_ALIGNED_DATA
- vdso_start:
- 	.incbin "arch/x86/vdso/vdso.so"
- vdso_end:
-+	.align PAGE_SIZE /* extra data here leaks to userspace. */
- 
- .previous
- 
+diff --git a/arch/x86/xen/mmu.c b/arch/x86/xen/mmu.c
+index f987bde..8cce339 100644
+--- a/arch/x86/xen/mmu.c
++++ b/arch/x86/xen/mmu.c
+@@ -1916,6 +1916,7 @@ static void xen_set_fixmap(unsigned idx, phys_addr_t phys, pgprot_t prot)
+ # endif
+ #else
+ 	case VSYSCALL_LAST_PAGE ... VSYSCALL_FIRST_PAGE:
++	case VVAR_PAGE:
+ #endif
+ 	case FIX_TEXT_POKE0:
+ 	case FIX_TEXT_POKE1:
+@@ -1956,7 +1957,8 @@ static void xen_set_fixmap(unsigned idx, phys_addr_t phys, pgprot_t prot)
+ #ifdef CONFIG_X86_64
+ 	/* Replicate changes to map the vsyscall page into the user
+ 	   pagetable vsyscall mapping. */
+-	if (idx >= VSYSCALL_LAST_PAGE && idx <= VSYSCALL_FIRST_PAGE) {
++	if ((idx >= VSYSCALL_LAST_PAGE && idx <= VSYSCALL_FIRST_PAGE) ||
++	    idx == VVAR_PAGE) {
+ 		unsigned long vaddr = __fix_to_virt(idx);
+ 		set_pte_vaddr_pud(level3_user_vsyscall, vaddr, pte);
+ 	}
 -- 
 1.7.6
