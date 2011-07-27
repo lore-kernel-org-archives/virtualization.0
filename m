@@ -1,7 +1,7 @@
-From: Haiyang Zhang <haiyangz@microsoft.com>
-Subject: [PATCH] staging: hv: fix a memory leak in adj_guesttime()
-Date: Tue, 26 Jul 2011 12:15:00 -0700
-Message-ID: <1311707700-6640-1-git-send-email-haiyangz__45843.2785388597$1311706741$gmane$org@microsoft.com>
+From: Andy Lutomirski <luto@mit.edu>
+Subject: [PATCH 0/5] Collected vdso/vsyscall fixes for 3.1
+Date: Tue, 26 Jul 2011 23:20:34 -0400
+Message-ID: <cover.1311736366.git.luto__3209.66107906333$1311739940$gmane$org@mit.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -15,33 +15,44 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: haiyangz@microsoft.com, hjanssen@microsoft.com, kys@microsoft.com, v-abkane@microsoft.com, gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, vir
+To: x86@kernel.org, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Cc: xen-devel@lists.xensource.com, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, keir.xen@gmail.com, Andy Lutomirski <luto@mit.edu>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The allocated struct adj_time_work needs to be freed if we
-are not using it.
+This fixes various problems that cropped up with the vdso patches.
 
-Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
-Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
+ - Patch 1 fixes an information leak to userspace.
+ - Patches 2 and 3 fix the kernel build on gold.
+ - Patches 4 and 5 fix Xen (I hope).
 
----
- drivers/staging/hv/hv_util.c |    3 +++
- 1 files changed, 3 insertions(+), 0 deletions(-)
+Konrad, could you could test these on Xen and run 'test_vsyscall test' [1]?
+I don't have a usable Xen setup.
 
-diff --git a/drivers/staging/hv/hv_util.c b/drivers/staging/hv/hv_util.c
-index d3fb017..4fc1c98 100644
---- a/drivers/staging/hv/hv_util.c
-+++ b/drivers/staging/hv/hv_util.c
-@@ -157,7 +157,10 @@ static inline void adj_guesttime(u64 hosttime, u8 flags)
- 		scnt--;
- 		INIT_WORK(&wrk->work, hv_set_host_time);
- 		schedule_work(&wrk->work);
-+		return;
- 	}
-+
-+	kfree(wrk);
- }
- 
- /*
+Also, I'd appreciate a review of patches 4 and 5 from some Xen/paravirt
+people.
+
+[1] https://gitorious.org/linux-test-utils/linux-clock-tests
+
+
+Andy Lutomirski (5):
+  x86-64: Pad vDSO to a page boundary
+  x86-64: Move the "user" vsyscall segment out of the data segment.
+  x86-64: Work around gold bug 13023
+  x86-64/xen: Enable the vvar mapping
+  x86-64: Add user_64bit_mode paravirt op
+
+ arch/x86/include/asm/desc.h           |    4 +-
+ arch/x86/include/asm/paravirt_types.h |    6 ++++
+ arch/x86/include/asm/ptrace.h         |   19 +++++++++++++
+ arch/x86/kernel/paravirt.c            |    4 +++
+ arch/x86/kernel/step.c                |    2 +-
+ arch/x86/kernel/vmlinux.lds.S         |   46 ++++++++++++++++++---------------
+ arch/x86/kernel/vsyscall_64.c         |    6 +---
+ arch/x86/mm/fault.c                   |    2 +-
+ arch/x86/vdso/vdso.S                  |    1 +
+ arch/x86/xen/enlighten.c              |    1 +
+ arch/x86/xen/mmu.c                    |    4 ++-
+ 11 files changed, 64 insertions(+), 31 deletions(-)
+
 -- 
-1.6.3.2
+1.7.6
