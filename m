@@ -1,7 +1,7 @@
 From: Amit Shah <amit.shah@redhat.com>
-Subject: [RFC PATCH 1/8] virtio: pci: switch to new PM API
-Date: Thu, 28 Jul 2011 20:05:06 +0530
-Message-ID: <0491e1c48eefb907b4c63f6ce14e7eaf1022767e.1311863438.git.amit.shah@redhat.com>
+Subject: [RFC PATCH 3/8] virtio-pci: save/restore config space across S4
+Date: Thu, 28 Jul 2011 20:05:08 +0530
+Message-ID: <124c8fbc2974d0353cac204d5d9ff35a6a6a0e13.1311863438.git.amit.shah@redhat.com>
 References: <cover.1311863438.git.amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -23,66 +23,44 @@ To: Virtualization List <virtualization@lists.linux-foundation.org>
 Cc: Amit Shah <amit.shah@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The older PM API doesn't have a way to get notifications on hibernate
-events, switch to the newer one that gives us those notifications.
+The virtio config space doesn't get saved across hibernation; we save it
+locally and update it after restore.
 
 Signed-off-by: Amit Shah <amit.shah@redhat.com>
 ---
- drivers/virtio/virtio_pci.c |   17 +++++++++++++----
- 1 files changed, 13 insertions(+), 4 deletions(-)
+ drivers/virtio/virtio_pci.c |    6 ++++++
+ 1 files changed, 6 insertions(+), 0 deletions(-)
 
 diff --git a/drivers/virtio/virtio_pci.c b/drivers/virtio/virtio_pci.c
-index 4bcc8b8..3879c3e 100644
+index 579681f..9c37561 100644
 --- a/drivers/virtio/virtio_pci.c
 +++ b/drivers/virtio/virtio_pci.c
-@@ -17,6 +17,7 @@
- #include <linux/module.h>
- #include <linux/list.h>
- #include <linux/pci.h>
-+#include <linux/pm.h>
- #include <linux/slab.h>
- #include <linux/interrupt.h>
- #include <linux/virtio.h>
-@@ -685,19 +686,28 @@ static void __devexit virtio_pci_remove(struct pci_dev *pci_dev)
- }
- 
- #ifdef CONFIG_PM
--static int virtio_pci_suspend(struct pci_dev *pci_dev, pm_message_t state)
-+static int virtio_pci_suspend(struct device *dev)
- {
-+	struct pci_dev *pci_dev = to_pci_dev(dev);
+@@ -56,6 +56,10 @@ struct virtio_pci_device
+ 	unsigned msix_vectors;
+ 	/* Vectors allocated, excluding per-vq vectors if any */
+ 	unsigned msix_used_vectors;
 +
- 	pci_save_state(pci_dev);
- 	pci_set_power_state(pci_dev, PCI_D3hot);
- 	return 0;
- }
- 
--static int virtio_pci_resume(struct pci_dev *pci_dev)
-+static int virtio_pci_resume(struct device *dev)
- {
-+	struct pci_dev *pci_dev = to_pci_dev(dev);
++	/* Status saved during hibernate/restore */
++	u8 saved_status;
 +
- 	pci_restore_state(pci_dev);
- 	pci_set_power_state(pci_dev, PCI_D0);
- 	return 0;
- }
-+
-+static const struct dev_pm_ops virtio_pci_pm_ops = {
-+	.suspend = virtio_pci_suspend,
-+	.resume  = virtio_pci_resume,
-+};
- #endif
- 
- static struct pci_driver virtio_pci_driver = {
-@@ -706,8 +716,7 @@ static struct pci_driver virtio_pci_driver = {
- 	.probe		= virtio_pci_probe,
- 	.remove		= __devexit_p(virtio_pci_remove),
- #ifdef CONFIG_PM
--	.suspend	= virtio_pci_suspend,
--	.resume		= virtio_pci_resume,
-+	.driver.pm	= &virtio_pci_pm_ops,
- #endif
+ 	/* Whether we have vector per vq */
+ 	bool per_vq_vectors;
  };
+@@ -713,6 +717,7 @@ static int virtio_pci_freeze(struct device *dev)
+ 	drv = container_of(vp_dev->vdev.dev.driver,
+ 			   struct virtio_driver, driver);
+ 
++	vp_dev->saved_status = vp_get_status(&vp_dev->vdev);
+ 	if (drv && drv->freeze)
+ 		return drv->freeze(&vp_dev->vdev);
+ 
+@@ -728,6 +733,7 @@ static int virtio_pci_restore(struct device *dev)
+ 	drv = container_of(vp_dev->vdev.dev.driver,
+ 			   struct virtio_driver, driver);
+ 
++	vp_set_status(&vp_dev->vdev, vp_dev->saved_status);
+ 	if (drv && drv->restore)
+ 		return drv->restore(&vp_dev->vdev);
  
 -- 
 1.7.6
