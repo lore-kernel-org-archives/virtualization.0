@@ -1,16 +1,19 @@
-From: Amit Shah <amit.shah@redhat.com>
-Subject: [RFC PATCH 8/8] virtio: net: Add freeze,
-	restore handlers to support S4
-Date: Thu, 28 Jul 2011 20:05:13 +0530
-Message-ID: <3d2fd91237cfb3ff1e05e464e305df2711b45885.1311863438.git.amit.shah@redhat.com>
-References: <cover.1311863438.git.amit.shah@redhat.com>
+From: Anirban Chakraborty <anirban.chakraborty@qlogic.com>
+Subject: Re: [RFC net-next PATCH 3/4] ethtool: Add new set commands
+Date: Thu, 28 Jul 2011 15:01:27 -0700
+Message-ID: <789BE5A3-93DF-4869-A0AF-180AA86F4AC6__35398.3842455365$1311890614$gmane$org@qlogic.com>
+References: <20110727221406.8435.44324.stgit@gitlad.jf.intel.com>
+	<20110727221759.8435.11589.stgit@gitlad.jf.intel.com>
+	<20110727.222749.1654973220321763098.davem@davemloft.net>
+	<43F901BD926A4E43B106BF17856F0755019414D509@orsmsx508.amr.corp.intel.com>
+	<539DF151-E442-4375-8777-19676B95059B@qlogic.com>
+	<43F901BD926A4E43B106BF17856F0755019414D86D@orsmsx508.amr.corp.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <cover.1311863438.git.amit.shah@redhat.com>
-In-Reply-To: <cover.1311863438.git.amit.shah@redhat.com>
-References: <cover.1311863438.git.amit.shah@redhat.com>
+In-Reply-To: <43F901BD926A4E43B106BF17856F0755019414D86D@orsmsx508.amr.corp.intel.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,87 +23,121 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Virtualization List <virtualization@lists.linux-foundation.org>
-Cc: Amit Shah <amit.shah@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
+To: "Rose, Gregory V" <gregory.v.rose@intel.com>
+Cc: Ben Hutchings <bhutchings@solarflare.com>, netdev <netdev@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, David Miller <davem@davemloft.net>, "Kirsher,
+	Jeffrey T" <jeffrey.t.kirsher@intel.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Remove all the vqs on hibernation and re-create them after restoring
-from a hibernated image.  This keeps networking working across
-hibernation.
 
-Signed-off-by: Amit Shah <amit.shah@redhat.com>
----
- drivers/net/virtio_net.c |   51 ++++++++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 51 insertions(+), 0 deletions(-)
+On Jul 28, 2011, at 1:38 PM, Rose, Gregory V wrote:
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 0c7321c..c9aaa8f 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -1117,6 +1117,53 @@ static void __devexit virtnet_remove(struct virtio_device *vdev)
- 	free_netdev(vi->dev);
- }
- 
-+#ifdef CONFIG_PM
-+static int virtnet_freeze(struct virtio_device *vdev)
-+{
-+	struct virtnet_info *vi = vdev->priv;
-+
-+	cancel_delayed_work_sync(&vi->refill);
-+
-+	/* Free unused buffers in both send and recv, if any. */
-+	free_unused_bufs(vi);
-+
-+	vdev->config->del_vqs(vi->vdev);
-+
-+	while (vi->pages)
-+		__free_pages(get_a_page(vi, GFP_KERNEL), 0);
-+
-+	return 0;
-+}
-+
-+static int virtnet_restore(struct virtio_device *vdev)
-+{
-+	struct virtnet_info *vi = vdev->priv;
-+	struct virtqueue *vqs[3];
-+	vq_callback_t *callbacks[] = { skb_recv_done, skb_xmit_done, NULL};
-+	const char *names[] = { "input", "output", "control" };
-+	int nvqs, err;
-+
-+	/* We expect two virtqueues, receive then send,
-+	 * and optionally control. */
-+	nvqs = virtio_has_feature(vi->vdev, VIRTIO_NET_F_CTRL_VQ) ? 3 : 2;
-+
-+	err = vdev->config->find_vqs(vdev, nvqs, vqs, callbacks, names);
-+	if (err)
-+		return err;
-+
-+	vi->rvq = vqs[0];
-+	vi->svq = vqs[1];
-+
-+	if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_CTRL_VQ)) {
-+		vi->cvq = vqs[2];
-+	}
-+
-+	/* Last of all, set up some receive buffers. */
-+	try_fill_recv(vi, GFP_KERNEL);
-+	return 0;
-+}
-+#endif
-+
- static struct virtio_device_id id_table[] = {
- 	{ VIRTIO_ID_NET, VIRTIO_DEV_ANY_ID },
- 	{ 0 },
-@@ -1141,6 +1188,10 @@ static struct virtio_driver virtio_net_driver = {
- 	.probe =	virtnet_probe,
- 	.remove =	__devexit_p(virtnet_remove),
- 	.config_changed = virtnet_config_changed,
-+#ifdef CONFIG_PM
-+	.freeze = 	virtnet_freeze,
-+	.restore =	virtnet_restore,
-+#endif
- };
- 
- static int __init init(void)
--- 
-1.7.6
+> 
+>> From: Anirban Chakraborty [mailto:anirban.chakraborty@qlogic.com] 
+>> Sent: Thursday, July 28, 2011 12:04 PM
+>> To: Rose, Gregory V
+>> Cc: David Miller; netdev; Ben Hutchings; Kirsher, Jeffrey T
+>> Subject: Re: [RFC net-next PATCH 3/4] ethtool: Add new set commands
+>> 
+>> 
+>> On Jul 28, 2011, at 8:51 AM, Rose, Gregory V wrote:
+>> 
+>> 
+>> -----Original Message-----
+>> From: David Miller [mailto:davem@davemloft.net]
+>> Sent: Wednesday, July 27, 2011 10:28 PM
+>> To: Rose, Gregory V
+>> Cc: netdev@vger.kernel.org; bhutchings@solarflare.com; Kirsher, Jeffrey T
+>> Subject: Re: [RFC net-next PATCH 3/4] ethtool: Add new set commands
+>> 
+>> From: Greg Rose <gregory.v.rose@intel.com>
+>> Date: Wed, 27 Jul 2011 15:17:59 -0700
+>> 
+>> Add new set commands to configure the number of SR-IOV VFs, the
+>> number of VM queues and spoof checking on/off switch.
+>> 
+>> Signed-off-by: Greg Rose <gregory.v.rose@intel.com>
+>> ---
+>> 
+>> include/linux/ethtool.h |   11 ++++++++++-
+>> 1 files changed, 10 insertions(+), 1 deletions(-)
+>> 
+>> diff --git a/include/linux/ethtool.h b/include/linux/ethtool.h
+>> index c6e427a..c4972ba 100644
+>> --- a/include/linux/ethtool.h
+>> +++ b/include/linux/ethtool.h
+>> @@ -36,12 +36,14 @@ struct ethtool_cmd {
+>> 	__u8	mdio_support;
+>> 	__u32	maxtxpkt;	/* Tx pkts before generating tx int */
+>> 	__u32	maxrxpkt;	/* Rx pkts before generating rx int */
+>> +	__u32	num_vfs;	/* Enable SR-IOV VFs */
+>> +	__u32	num_vmqs;	/* Set number of queues for VMDq */
+>> 
+>> You can't change the layout of this datastructure in this way without
+>> breaking every ethtool binary out there.
+>> 
+>> You have to find another place to add these knobs.
+>> 
+>> Perhaps at the end of the ethtool_cmd structure?  Something like this:
+>> 
+>> /* This should work for both 32 and 64 bit userland. */
+>> struct ethtool_cmd {
+>>       __u32   cmd;
+>>       __u32   supported;      /* Features this interface supports */
+>>       __u32   advertising;    /* Features this interface advertises */
+>>       __u16   speed;          /* The forced speed (lower bits) in
+>>                                * Mbps. Please use
+>>                                * ethtool_cmd_speed()/_set() to
+>>                                * access it */
+>>       __u8    duplex;         /* Duplex, half or full */
+>>       __u8    port;           /* Which connector port */
+>>       __u8    phy_address;
+>>       __u8    transceiver;    /* Which transceiver to use */
+>>       __u8    autoneg;        /* Enable or disable autonegotiation */
+>>       __u8    mdio_support;
+>>       __u32   maxtxpkt;       /* Tx pkts before generating tx int */
+>>       __u32   maxrxpkt;       /* Rx pkts before generating rx int */
+>>       __u16   speed_hi;       /* The forced speed (upper
+>>                                * bits) in Mbps. Please use
+>>                                * ethtool_cmd_speed()/_set() to
+>>                                * access it */
+>>       __u8    eth_tp_mdix;
+>>       __u8    spoof_check;    /* Enable/Disable anti-spoofing */
+>>       __u32   lp_advertising; /* Features the link partner advertises */
+>>       __u32   reserved[2];
+>>       __u32   num_vfs;        /* Enable SR-IOV VFs */
+>>       __u32   num_vmqs;       /* Set number of queues for VMDq */
+>> };
+>> 
+>> If I understood it correctly, you are trying to set/unset spoofing on per
+>> eth interface,  which could be a PF on the hypervisor or a pci passthru-ed
+>> VF in the linux guest.  There are other security features that one could set
+>> for a port on the VF (lets call it vport),  e.g. setting a port VLAN ID for
+>> a VF and specifying if the VF (VM) is allowed to send tagged/untagged
+>> packets, setting a vport in port mirroring mode so that the PF can monitor
+>> the traffic on a VF,  setting a vport in promiscuous mode etc. 
+>> 
+>> Does it make sense to try to use ip link util to specify all these parameters,
+>> since ip link already does the  job of setting VF properties and VF port
+>> profile?
+>> 
+>> Any thoughts?
+>> 
+> 
+> Sure, that's a possibility too.  I was considering ethtool for this since MAC addresses and VLANs are fairly specific to Ethernet whereas netlink might apply to other types of physical networks.  At least that's my understanding.
+
+You could specify VF MAC and VLANs using netlink today.
+e.g. ip link set ethX vf # mac, vlan etc.
+Adding spoofing as follows would do it.
+ip link set ethX vf # spoof on|off 
+
+Having SR-IOV features scattered among ethtool and ip link may be inconvenient for the end users.
+CC-ing virtualization list.
+
+> 
+> However, I have no strong feelings about it and if community consensus is to use ip link instead then that's fine by me.
+> 
+> Of course, patches implementing such would be quite welcome also.
+
+I could take a stab at it at the netlink side, if there is a consensus.
+
+-Anirban
