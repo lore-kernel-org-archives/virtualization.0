@@ -1,11 +1,15 @@
 From: Amit Shah <amit.shah@redhat.com>
-Subject: [RFC PATCH 0/8] virtio: Support for hibernation (S4)
-Date: Thu, 28 Jul 2011 20:05:05 +0530
-Message-ID: <cover.1311863438.git.amit.shah@redhat.com>
+Subject: [RFC PATCH 1/8] virtio: pci: switch to new PM API
+Date: Thu, 28 Jul 2011 20:05:06 +0530
+Message-ID: <0491e1c48eefb907b4c63f6ce14e7eaf1022767e.1311863438.git.amit.shah@redhat.com>
+References: <cover.1311863438.git.amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <cover.1311863438.git.amit.shah@redhat.com>
+In-Reply-To: <cover.1311863438.git.amit.shah@redhat.com>
+References: <cover.1311863438.git.amit.shah@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,50 +23,66 @@ To: Virtualization List <virtualization@lists.linux-foundation.org>
 Cc: Amit Shah <amit.shah@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hello,
+The older PM API doesn't have a way to get notifications on hibernate
+events, switch to the newer one that gives us those notifications.
 
-These patches are an initial attempt at supporting hibernation for
-virtio drivers.
+Signed-off-by: Amit Shah <amit.shah@redhat.com>
+---
+ drivers/virtio/virtio_pci.c |   17 +++++++++++++----
+ 1 files changed, 13 insertions(+), 4 deletions(-)
 
-The default configuration of event_index=on doesn't work; i.e. restore
-from a hibernated image only works if the devices have event_index
-support turned off.  I have not yet dug into this, but is most likely
-due to some state not being sync'ed.  This could be related to the
-hack that is patch 3.
-
-Each virtio driver has to be modified to add support for the
-freeze/restore callbacks to delete and then re-add the vqs just before
-and after hibernation.
-
-Testing:
-
-I've not tested S3 (suspend).
-
-For virtio-net, ping continues working across hibernate (lost one
-packet in sole testing).
-
-For virtio-blk, disk activity continues working.
-
-For virtio-console, port IO continues working.
-
-
-Amit Shah (8):
-  virtio: pci: switch to new PM API
-  virtio-pci: add PM notification handlers for restore, freeze, thaw,
-    poweroff
-  virtio-pci: save/restore config space across S4
-  virtio: console: Ignore port name update request if name already set
-  virtio: console: Use wait_event_freezable instead of _interruptible
-  virtio: console: Add freeze and restore handlers to support S4
-  virtio: block: Add freeze, restore handlers to support S4
-  virtio: net: Add freeze, restore handlers to support S4
-
- drivers/block/virtio_blk.c    |   24 +++++++++++
- drivers/char/virtio_console.c |   87 +++++++++++++++++++++++++++++++++++++++--
- drivers/net/virtio_net.c      |   51 ++++++++++++++++++++++++
- drivers/virtio/virtio_pci.c   |   57 +++++++++++++++++++++++++--
- include/linux/virtio.h        |    4 ++
- 5 files changed, 215 insertions(+), 8 deletions(-)
-
+diff --git a/drivers/virtio/virtio_pci.c b/drivers/virtio/virtio_pci.c
+index 4bcc8b8..3879c3e 100644
+--- a/drivers/virtio/virtio_pci.c
++++ b/drivers/virtio/virtio_pci.c
+@@ -17,6 +17,7 @@
+ #include <linux/module.h>
+ #include <linux/list.h>
+ #include <linux/pci.h>
++#include <linux/pm.h>
+ #include <linux/slab.h>
+ #include <linux/interrupt.h>
+ #include <linux/virtio.h>
+@@ -685,19 +686,28 @@ static void __devexit virtio_pci_remove(struct pci_dev *pci_dev)
+ }
+ 
+ #ifdef CONFIG_PM
+-static int virtio_pci_suspend(struct pci_dev *pci_dev, pm_message_t state)
++static int virtio_pci_suspend(struct device *dev)
+ {
++	struct pci_dev *pci_dev = to_pci_dev(dev);
++
+ 	pci_save_state(pci_dev);
+ 	pci_set_power_state(pci_dev, PCI_D3hot);
+ 	return 0;
+ }
+ 
+-static int virtio_pci_resume(struct pci_dev *pci_dev)
++static int virtio_pci_resume(struct device *dev)
+ {
++	struct pci_dev *pci_dev = to_pci_dev(dev);
++
+ 	pci_restore_state(pci_dev);
+ 	pci_set_power_state(pci_dev, PCI_D0);
+ 	return 0;
+ }
++
++static const struct dev_pm_ops virtio_pci_pm_ops = {
++	.suspend = virtio_pci_suspend,
++	.resume  = virtio_pci_resume,
++};
+ #endif
+ 
+ static struct pci_driver virtio_pci_driver = {
+@@ -706,8 +716,7 @@ static struct pci_driver virtio_pci_driver = {
+ 	.probe		= virtio_pci_probe,
+ 	.remove		= __devexit_p(virtio_pci_remove),
+ #ifdef CONFIG_PM
+-	.suspend	= virtio_pci_suspend,
+-	.resume		= virtio_pci_resume,
++	.driver.pm	= &virtio_pci_pm_ops,
+ #endif
+ };
+ 
 -- 
 1.7.6
