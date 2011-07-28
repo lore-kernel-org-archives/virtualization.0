@@ -1,7 +1,8 @@
 From: Amit Shah <amit.shah@redhat.com>
-Subject: [RFC PATCH 3/8] virtio-pci: save/restore config space across S4
-Date: Thu, 28 Jul 2011 20:05:08 +0530
-Message-ID: <124c8fbc2974d0353cac204d5d9ff35a6a6a0e13.1311863438.git.amit.shah@redhat.com>
+Subject: [RFC PATCH 2/8] virtio-pci: add PM notification handlers for restore,
+	freeze, thaw, poweroff
+Date: Thu, 28 Jul 2011 20:05:07 +0530
+Message-ID: <0d7a31302c2467936f70c3aaecd47b8720891f4d.1311863438.git.amit.shah@redhat.com>
 References: <cover.1311863438.git.amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -23,44 +24,77 @@ To: Virtualization List <virtualization@lists.linux-foundation.org>
 Cc: Amit Shah <amit.shah@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The virtio config space doesn't get saved across hibernation; we save it
-locally and update it after restore.
+Handle restore and freeze notification from the PM core.  Expose these
+to individual virtio drivers that can quiesce and resume vq operations.
 
 Signed-off-by: Amit Shah <amit.shah@redhat.com>
 ---
- drivers/virtio/virtio_pci.c |    6 ++++++
- 1 files changed, 6 insertions(+), 0 deletions(-)
+ drivers/virtio/virtio_pci.c |   34 ++++++++++++++++++++++++++++++++++
+ include/linux/virtio.h      |    4 ++++
+ 2 files changed, 38 insertions(+), 0 deletions(-)
 
 diff --git a/drivers/virtio/virtio_pci.c b/drivers/virtio/virtio_pci.c
-index 579681f..9c37561 100644
+index 3879c3e..579681f 100644
 --- a/drivers/virtio/virtio_pci.c
 +++ b/drivers/virtio/virtio_pci.c
-@@ -56,6 +56,10 @@ struct virtio_pci_device
- 	unsigned msix_vectors;
- 	/* Vectors allocated, excluding per-vq vectors if any */
- 	unsigned msix_used_vectors;
+@@ -704,9 +704,43 @@ static int virtio_pci_resume(struct device *dev)
+ 	return 0;
+ }
+ 
++static int virtio_pci_freeze(struct device *dev)
++{
++	struct pci_dev *pci_dev = to_pci_dev(dev);
++	struct virtio_pci_device *vp_dev = pci_get_drvdata(pci_dev);
++	struct virtio_driver *drv;
 +
-+	/* Status saved during hibernate/restore */
-+	u8 saved_status;
++	drv = container_of(vp_dev->vdev.dev.driver,
++			   struct virtio_driver, driver);
 +
- 	/* Whether we have vector per vq */
- 	bool per_vq_vectors;
++	if (drv && drv->freeze)
++		return drv->freeze(&vp_dev->vdev);
++
++	return 0;
++}
++
++static int virtio_pci_restore(struct device *dev)
++{
++	struct pci_dev *pci_dev = to_pci_dev(dev);
++	struct virtio_pci_device *vp_dev = pci_get_drvdata(pci_dev);
++	struct virtio_driver *drv;
++
++	drv = container_of(vp_dev->vdev.dev.driver,
++			   struct virtio_driver, driver);
++
++	if (drv && drv->restore)
++		return drv->restore(&vp_dev->vdev);
++
++	return 0;
++}
++
+ static const struct dev_pm_ops virtio_pci_pm_ops = {
+ 	.suspend = virtio_pci_suspend,
+ 	.resume  = virtio_pci_resume,
++	.freeze  = virtio_pci_freeze,
++	.thaw    = virtio_pci_restore,
++	.restore = virtio_pci_restore,
++	.poweroff = virtio_pci_suspend,
  };
-@@ -713,6 +717,7 @@ static int virtio_pci_freeze(struct device *dev)
- 	drv = container_of(vp_dev->vdev.dev.driver,
- 			   struct virtio_driver, driver);
+ #endif
  
-+	vp_dev->saved_status = vp_get_status(&vp_dev->vdev);
- 	if (drv && drv->freeze)
- 		return drv->freeze(&vp_dev->vdev);
+diff --git a/include/linux/virtio.h b/include/linux/virtio.h
+index 7108857..9afb662 100644
+--- a/include/linux/virtio.h
++++ b/include/linux/virtio.h
+@@ -141,6 +141,10 @@ struct virtio_driver {
+ 	int (*probe)(struct virtio_device *dev);
+ 	void (*remove)(struct virtio_device *dev);
+ 	void (*config_changed)(struct virtio_device *dev);
++#ifdef CONFIG_PM
++	int (*freeze)(struct virtio_device *dev);
++	int (*restore)(struct virtio_device *dev);
++#endif
+ };
  
-@@ -728,6 +733,7 @@ static int virtio_pci_restore(struct device *dev)
- 	drv = container_of(vp_dev->vdev.dev.driver,
- 			   struct virtio_driver, driver);
- 
-+	vp_set_status(&vp_dev->vdev, vp_dev->saved_status);
- 	if (drv && drv->restore)
- 		return drv->restore(&vp_dev->vdev);
- 
+ int register_virtio_driver(struct virtio_driver *drv);
 -- 
 1.7.6
