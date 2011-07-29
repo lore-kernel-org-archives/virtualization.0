@@ -1,18 +1,18 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [RFC PATCH 4/8] virtio: console: Ignore port name update request
-	if name already set
-Date: Fri, 29 Jul 2011 07:27:55 +0300
-Message-ID: <20110729042755.GF31888@redhat.com>
+Subject: Re: [RFC PATCH 8/8] virtio: net: Add freeze, restore handlers to
+	support S4
+Date: Fri, 29 Jul 2011 07:31:16 +0300
+Message-ID: <20110729043116.GG31888@redhat.com>
 References: <cover.1311863438.git.amit.shah@redhat.com>
-	<eb5ef73c21ccdd2700bc56014a90c878c0540326.1311863438.git.amit.shah@redhat.com>
-	<20110729041958.GE31888@redhat.com>
-	<20110729042619.GC24868@amit-x200.redhat.com>
+	<3d2fd91237cfb3ff1e05e464e305df2711b45885.1311863438.git.amit.shah@redhat.com>
+	<20110729041335.GD31888@redhat.com>
+	<20110729042802.GD24868@amit-x200.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20110729042619.GC24868@amit-x200.redhat.com>
+In-Reply-To: <20110729042802.GD24868@amit-x200.redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -26,34 +26,50 @@ To: Amit Shah <amit.shah@redhat.com>
 Cc: Virtualization List <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Jul 29, 2011 at 09:56:19AM +0530, Amit Shah wrote:
-> On (Fri) 29 Jul 2011 [07:19:58], Michael S. Tsirkin wrote:
-> > On Thu, Jul 28, 2011 at 08:05:09PM +0530, Amit Shah wrote:
-> > > We don't allow port name changes dynamically for a port.  So any
-> > > requests by the host to change the name are ignored.
-> > 
-> > It would be nice to check the name and if
-> > changed, print a warning.
-> 
-> But not change it, right?
+On Fri, Jul 29, 2011 at 09:58:02AM +0530, Amit Shah wrote:
+> On (Fri) 29 Jul 2011 [07:13:35], Michael S. Tsirkin wrote:
+> > > +static int virtnet_restore(struct virtio_device *vdev)
+> > > +{
+> > > +	struct virtnet_info *vi = vdev->priv;
+> > > +	struct virtqueue *vqs[3];
+> > > +	vq_callback_t *callbacks[] = { skb_recv_done, skb_xmit_done, NULL};
+> > > +	const char *names[] = { "input", "output", "control" };
+> > > +	int nvqs, err;
+> > > +
+> > > +	/* We expect two virtqueues, receive then send,
+> > > +	 * and optionally control. */
+> > > +	nvqs = virtio_has_feature(vi->vdev, VIRTIO_NET_F_CTRL_VQ) ? 3 : 2;
+> > > +
+> > > +	err = vdev->config->find_vqs(vdev, nvqs, vqs, callbacks, names);
+> > > +	if (err)
+> > > +		return err;
+> > > +
+> > > +	vi->rvq = vqs[0];
+> > > +	vi->svq = vqs[1];
+> > > +
+> > > +	if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_CTRL_VQ)) {
+> > > +		vi->cvq = vqs[2];
+> > > +	}
+> > > +
+> > > +	/* Last of all, set up some receive buffers. */
+> > > +	try_fill_recv(vi, GFP_KERNEL);
 
-That's what I meant.
+I guess we should schedule work on failure, as well.
 
->  I don't know what applications expect, but
-> I think we should keep the port names stable while they're plugged in.
-> 
-> > > Before this patch, if the hypervisor sent a port name while we had one
-> > > set already, we would leak memory equivalent to the size of the old
-> > > name.
-> > > 
-> > > This scenario wasn't expected so far, but with the suspend-resume
-> > > support, we'll send the VIRTIO_CONSOLE_PORT_READY message after restore,
-> > > which can get us into this situation.
-> > > 
-> > > Signed-off-by: Amit Shah <amit.shah@redhat.com>
 > > 
-> > Memleaks are bad. So this is a bugfix we probably should have anyway?
+> > should probably update carrier status too.
 > 
-> Yes.
+> Will add that.
+> 
+> I think most of these restore routines are incomplete; I just pulled
+> in the most important things from the probe routines, but before the
+> final submission I'll do a thorough walk-through and ensure I get all
+> the bits necessary.
 > 
 > 		Amit
+
+In some cases, it might be a good idea to use common
+code for that.
+
+-- 
+MST
