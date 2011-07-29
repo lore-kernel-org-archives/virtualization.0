@@ -1,20 +1,15 @@
-From: "Rose, Gregory V" <gregory.v.rose@intel.com>
-Subject: RE: [RFC net-next PATCH 3/4] ethtool: Add new set commands
-Date: Thu, 28 Jul 2011 15:04:22 -0700
-Message-ID: <43F901BD926A4E43B106BF17856F0755019414D95C__10392.3083203428$1311890902$gmane$org@orsmsx508.amr.corp.intel.com>
-References: <20110727221406.8435.44324.stgit@gitlad.jf.intel.com>
-	<20110727221759.8435.11589.stgit@gitlad.jf.intel.com>
-	<20110727.222749.1654973220321763098.davem@davemloft.net>
-	<43F901BD926A4E43B106BF17856F0755019414D509@orsmsx508.amr.corp.intel.com>
-	<539DF151-E442-4375-8777-19676B95059B@qlogic.com>
-	<43F901BD926A4E43B106BF17856F0755019414D86D@orsmsx508.amr.corp.intel.com>
-	<789BE5A3-93DF-4869-A0AF-180AA86F4AC6@qlogic.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [RFC PATCH 3/8] virtio-pci: save/restore config space across S4
+Date: Fri, 29 Jul 2011 07:07:58 +0300
+Message-ID: <20110729040758.GC31888@redhat.com>
+References: <cover.1311863438.git.amit.shah@redhat.com>
+	<124c8fbc2974d0353cac204d5d9ff35a6a6a0e13.1311863438.git.amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <789BE5A3-93DF-4869-A0AF-180AA86F4AC6@qlogic.com>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <124c8fbc2974d0353cac204d5d9ff35a6a6a0e13.1311863438.git.amit.shah@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -24,77 +19,56 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Anirban Chakraborty <anirban.chakraborty@qlogic.com>
-Cc: Ben Hutchings <bhutchings@solarflare.com>, netdev <netdev@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, David Miller <davem@davemloft.net>, "Kirsher,
-	Jeffrey T" <jeffrey.t.kirsher@intel.com>
+To: Amit Shah <amit.shah@redhat.com>
+Cc: Virtualization List <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-> -----Original Message-----
-> From: netdev-owner@vger.kernel.org [mailto:netdev-owner@vger.kernel.org]
-> On Behalf Of Anirban Chakraborty
-> Sent: Thursday, July 28, 2011 3:01 PM
-> To: Rose, Gregory V
-> Cc: David Miller; netdev; Ben Hutchings; Kirsher, Jeffrey T;
-> virtualization@lists.linux-foundation.org
-> Subject: Re: [RFC net-next PATCH 3/4] ethtool: Add new set commands
+On Thu, Jul 28, 2011 at 08:05:08PM +0530, Amit Shah wrote:
+> The virtio config space doesn't get saved across hibernation; we save it
+> locally and update it after restore.
 > 
+> Signed-off-by: Amit Shah <amit.shah@redhat.com>
+> ---
+>  drivers/virtio/virtio_pci.c |    6 ++++++
+>  1 files changed, 6 insertions(+), 0 deletions(-)
 > 
-> On Jul 28, 2011, at 1:38 PM, Rose, Gregory V wrote:
-> 
-> >
-> >> From: Anirban Chakraborty [mailto:anirban.chakraborty@qlogic.com]
-> >> Sent: Thursday, July 28, 2011 12:04 PM
-> >> To: Rose, Gregory V
-> >> Cc: David Miller; netdev; Ben Hutchings; Kirsher, Jeffrey T
-> >> Subject: Re: [RFC net-next PATCH 3/4] ethtool: Add new set commands
-> >>
-> >>
-> >> If I understood it correctly, you are trying to set/unset spoofing on
-> per
-> >> eth interface,  which could be a PF on the hypervisor or a pci
-> passthru-ed
-> >> VF in the linux guest.  There are other security features that one
-> could set
-> >> for a port on the VF (lets call it vport),  e.g. setting a port VLAN ID
-> for
-> >> a VF and specifying if the VF (VM) is allowed to send tagged/untagged
-> >> packets, setting a vport in port mirroring mode so that the PF can
-> monitor
-> >> the traffic on a VF,  setting a vport in promiscuous mode etc.
-> >>
-> >> Does it make sense to try to use ip link util to specify all these
-> parameters,
-> >> since ip link already does the  job of setting VF properties and VF
-> port
-> >> profile?
-> >>
-> >> Any thoughts?
-> >>
-> >
-> > Sure, that's a possibility too.  I was considering ethtool for this
-> since MAC addresses and VLANs are fairly specific to Ethernet whereas
-> netlink might apply to other types of physical networks.  At least that's
-> my understanding.
-> 
-> You could specify VF MAC and VLANs using netlink today.
-> e.g. ip link set ethX vf # mac, vlan etc.
-> Adding spoofing as follows would do it.
-> ip link set ethX vf # spoof on|off
-> 
-> Having SR-IOV features scattered among ethtool and ip link may be
-> inconvenient for the end users.
-> CC-ing virtualization list.
-> 
-> >
-> > However, I have no strong feelings about it and if community consensus
-> is to use ip link instead then that's fine by me.
-> >
-> > Of course, patches implementing such would be quite welcome also.
-> 
-> I could take a stab at it at the netlink side, if there is a consensus.
+> diff --git a/drivers/virtio/virtio_pci.c b/drivers/virtio/virtio_pci.c
+> index 579681f..9c37561 100644
+> --- a/drivers/virtio/virtio_pci.c
+> +++ b/drivers/virtio/virtio_pci.c
+> @@ -56,6 +56,10 @@ struct virtio_pci_device
+>  	unsigned msix_vectors;
+>  	/* Vectors allocated, excluding per-vq vectors if any */
+>  	unsigned msix_used_vectors;
+> +
+> +	/* Status saved during hibernate/restore */
+> +	u8 saved_status;
+> +
+>  	/* Whether we have vector per vq */
+>  	bool per_vq_vectors;
+>  };
+> @@ -713,6 +717,7 @@ static int virtio_pci_freeze(struct device *dev)
+>  	drv = container_of(vp_dev->vdev.dev.driver,
+>  			   struct virtio_driver, driver);
+>  
+> +	vp_dev->saved_status = vp_get_status(&vp_dev->vdev);
+>  	if (drv && drv->freeze)
+>  		return drv->freeze(&vp_dev->vdev);
+>  
+> @@ -728,6 +733,7 @@ static int virtio_pci_restore(struct device *dev)
+>  	drv = container_of(vp_dev->vdev.dev.driver,
+>  			   struct virtio_driver, driver);
+>  
+> +	vp_set_status(&vp_dev->vdev, vp_dev->saved_status);
+>  	if (drv && drv->restore)
+>  		return drv->restore(&vp_dev->vdev);
 
-Now that I think about it I'm seeing it more your way.  I'll drop the anti-spoofing stuff from my ethtool patches.  If you get the time to provide patches to netlink for anti-spoofing then that's great, otherwise I'll do it when I get done with the SR-IOV reconfig stuff.
+Yes, this looks wrong. Status would typically be DRIVER_OK,
+and it needs to be set after vq setup.
+It also needs to match current state I think:
+e.g. if restore failed we want to set it to FAILED.
+So why not do it more or less the way probe does it?
 
-Thanks,
 
-- Greg
+> -- 
+> 1.7.6
