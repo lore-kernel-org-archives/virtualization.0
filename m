@@ -1,20 +1,22 @@
 From: Shirley Ma <mashirle@us.ibm.com>
-Subject: [PATCH RFC net-next] virtio_net: refill buffer right after being
- used
-Date: Fri, 29 Jul 2011 15:44:08 -0700
-Message-ID: <1311979448.24300.28.camel@localhost.localdomain>
+Subject: Re: [PATCH RFC net-next] virtio_net: refill buffer right after
+ being used
+Date: Fri, 29 Jul 2011 15:55:31 -0700
+Message-ID: <1311980131.24300.30.camel@localhost.localdomain>
+References: <1311979448.24300.28.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
 Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <1311979448.24300.28.camel@localhost.localdomain>
 Sender: netdev-owner@vger.kernel.org
-To: Rusty Russell <rusty@rustcorp.com.au>, mst@redhat.com
-Cc: kvm@vger.kernel.org, virtualization@lists.osdl.org, netdev@vger.kernel.org
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: mst@redhat.com, kvm@vger.kernel.org, virtualization@lists.osdl.org, netdev@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-To even the latency, refill buffer right after being used.
+Resubmit it with a typo fix.
 
-Sign-off-by: Shirley Ma <xma@us.ibm.com>
+Signed-off-by: Shirley Ma <xma@us.ibm.com>
 ---
 
 diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
@@ -25,7 +27,7 @@ index 0c7321c..c8201d4 100644
  	return err;
  }
  
-+static bool fill_one(struct virtio_net *vi, gfp_t gfp)
++static int fill_one(struct virtnet_info *vi, gfp_t gfp)
 +{
 +	int err;
 +
