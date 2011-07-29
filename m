@@ -1,16 +1,16 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [RFC PATCH 8/8] virtio: net: Add freeze, restore handlers to
-	support S4
-Date: Fri, 29 Jul 2011 07:13:35 +0300
-Message-ID: <20110729041335.GD31888@redhat.com>
+Subject: Re: [RFC PATCH 4/8] virtio: console: Ignore port name update request
+	if name already set
+Date: Fri, 29 Jul 2011 07:19:58 +0300
+Message-ID: <20110729041958.GE31888@redhat.com>
 References: <cover.1311863438.git.amit.shah@redhat.com>
-	<3d2fd91237cfb3ff1e05e464e305df2711b45885.1311863438.git.amit.shah@redhat.com>
+	<eb5ef73c21ccdd2700bc56014a90c878c0540326.1311863438.git.amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <3d2fd91237cfb3ff1e05e464e305df2711b45885.1311863438.git.amit.shah@redhat.com>
+In-Reply-To: <eb5ef73c21ccdd2700bc56014a90c878c0540326.1311863438.git.amit.shah@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -24,87 +24,47 @@ To: Amit Shah <amit.shah@redhat.com>
 Cc: Virtualization List <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Jul 28, 2011 at 08:05:13PM +0530, Amit Shah wrote:
-> Remove all the vqs on hibernation and re-create them after restoring
-> from a hibernated image.  This keeps networking working across
-> hibernation.
+On Thu, Jul 28, 2011 at 08:05:09PM +0530, Amit Shah wrote:
+> We don't allow port name changes dynamically for a port.  So any
+> requests by the host to change the name are ignored.
+
+It would be nice to check the name and if
+changed, print a warning.
+
+> 
+> Before this patch, if the hypervisor sent a port name while we had one
+> set already, we would leak memory equivalent to the size of the old
+> name.
+> 
+> This scenario wasn't expected so far, but with the suspend-resume
+> support, we'll send the VIRTIO_CONSOLE_PORT_READY message after restore,
+> which can get us into this situation.
 > 
 > Signed-off-by: Amit Shah <amit.shah@redhat.com>
+
+Memleaks are bad. So this is a bugfix we probably should have anyway?
+
 > ---
->  drivers/net/virtio_net.c |   51 ++++++++++++++++++++++++++++++++++++++++++++++
->  1 files changed, 51 insertions(+), 0 deletions(-)
+>  drivers/char/virtio_console.c |    7 +++++++
+>  1 files changed, 7 insertions(+), 0 deletions(-)
 > 
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index 0c7321c..c9aaa8f 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -1117,6 +1117,53 @@ static void __devexit virtnet_remove(struct virtio_device *vdev)
->  	free_netdev(vi->dev);
->  }
->  
-> +#ifdef CONFIG_PM
-> +static int virtnet_freeze(struct virtio_device *vdev)
-> +{
-> +	struct virtnet_info *vi = vdev->priv;
+> diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
+> index fb68b12..3c10b10 100644
+> --- a/drivers/char/virtio_console.c
+> +++ b/drivers/char/virtio_console.c
+> @@ -1394,6 +1394,13 @@ static void handle_control_message(struct ports_device *portdev,
+>  		break;
+>  	case VIRTIO_CONSOLE_PORT_NAME:
+>  		/*
+> +		 * If we woke up after hibernation, we can get this
+> +		 * again.  Skip it in that case.
+> +		 */
+> +		if (port->name)
+> +			break;
 > +
-> +	cancel_delayed_work_sync(&vi->refill);
-> +
-> +	/* Free unused buffers in both send and recv, if any. */
-> +	free_unused_bufs(vi);
-> +
-> +	vdev->config->del_vqs(vi->vdev);
-> +
-> +	while (vi->pages)
-> +		__free_pages(get_a_page(vi, GFP_KERNEL), 0);
-> +
-> +	return 0;
-> +}
-> +
-> +static int virtnet_restore(struct virtio_device *vdev)
-> +{
-> +	struct virtnet_info *vi = vdev->priv;
-> +	struct virtqueue *vqs[3];
-> +	vq_callback_t *callbacks[] = { skb_recv_done, skb_xmit_done, NULL};
-> +	const char *names[] = { "input", "output", "control" };
-> +	int nvqs, err;
-> +
-> +	/* We expect two virtqueues, receive then send,
-> +	 * and optionally control. */
-> +	nvqs = virtio_has_feature(vi->vdev, VIRTIO_NET_F_CTRL_VQ) ? 3 : 2;
-> +
-> +	err = vdev->config->find_vqs(vdev, nvqs, vqs, callbacks, names);
-> +	if (err)
-> +		return err;
-> +
-> +	vi->rvq = vqs[0];
-> +	vi->svq = vqs[1];
-> +
-> +	if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_CTRL_VQ)) {
-> +		vi->cvq = vqs[2];
-> +	}
-> +
-> +	/* Last of all, set up some receive buffers. */
-> +	try_fill_recv(vi, GFP_KERNEL);
-
-should probably update carrier status too.
-
-> +	return 0;
-> +}
-> +#endif
-> +
->  static struct virtio_device_id id_table[] = {
->  	{ VIRTIO_ID_NET, VIRTIO_DEV_ANY_ID },
->  	{ 0 },
-> @@ -1141,6 +1188,10 @@ static struct virtio_driver virtio_net_driver = {
->  	.probe =	virtnet_probe,
->  	.remove =	__devexit_p(virtnet_remove),
->  	.config_changed = virtnet_config_changed,
-> +#ifdef CONFIG_PM
-> +	.freeze = 	virtnet_freeze,
-> +	.restore =	virtnet_restore,
-> +#endif
->  };
->  
->  static int __init init(void)
+> +		/*
+>  		 * Skip the size of the header and the cpkt to get the size
+>  		 * of the name that was sent
+>  		 */
 > -- 
 > 1.7.6
