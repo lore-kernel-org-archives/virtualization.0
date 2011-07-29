@@ -1,15 +1,16 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [RFC PATCH 3/8] virtio-pci: save/restore config space across S4
-Date: Fri, 29 Jul 2011 07:07:58 +0300
-Message-ID: <20110729040758.GC31888@redhat.com>
+Subject: Re: [RFC PATCH 8/8] virtio: net: Add freeze, restore handlers to
+	support S4
+Date: Fri, 29 Jul 2011 07:13:35 +0300
+Message-ID: <20110729041335.GD31888@redhat.com>
 References: <cover.1311863438.git.amit.shah@redhat.com>
-	<124c8fbc2974d0353cac204d5d9ff35a6a6a0e13.1311863438.git.amit.shah@redhat.com>
+	<3d2fd91237cfb3ff1e05e464e305df2711b45885.1311863438.git.amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <124c8fbc2974d0353cac204d5d9ff35a6a6a0e13.1311863438.git.amit.shah@redhat.com>
+In-Reply-To: <3d2fd91237cfb3ff1e05e464e305df2711b45885.1311863438.git.amit.shah@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -23,52 +24,87 @@ To: Amit Shah <amit.shah@redhat.com>
 Cc: Virtualization List <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Jul 28, 2011 at 08:05:08PM +0530, Amit Shah wrote:
-> The virtio config space doesn't get saved across hibernation; we save it
-> locally and update it after restore.
+On Thu, Jul 28, 2011 at 08:05:13PM +0530, Amit Shah wrote:
+> Remove all the vqs on hibernation and re-create them after restoring
+> from a hibernated image.  This keeps networking working across
+> hibernation.
 > 
 > Signed-off-by: Amit Shah <amit.shah@redhat.com>
 > ---
->  drivers/virtio/virtio_pci.c |    6 ++++++
->  1 files changed, 6 insertions(+), 0 deletions(-)
+>  drivers/net/virtio_net.c |   51 ++++++++++++++++++++++++++++++++++++++++++++++
+>  1 files changed, 51 insertions(+), 0 deletions(-)
 > 
-> diff --git a/drivers/virtio/virtio_pci.c b/drivers/virtio/virtio_pci.c
-> index 579681f..9c37561 100644
-> --- a/drivers/virtio/virtio_pci.c
-> +++ b/drivers/virtio/virtio_pci.c
-> @@ -56,6 +56,10 @@ struct virtio_pci_device
->  	unsigned msix_vectors;
->  	/* Vectors allocated, excluding per-vq vectors if any */
->  	unsigned msix_used_vectors;
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index 0c7321c..c9aaa8f 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -1117,6 +1117,53 @@ static void __devexit virtnet_remove(struct virtio_device *vdev)
+>  	free_netdev(vi->dev);
+>  }
+>  
+> +#ifdef CONFIG_PM
+> +static int virtnet_freeze(struct virtio_device *vdev)
+> +{
+> +	struct virtnet_info *vi = vdev->priv;
 > +
-> +	/* Status saved during hibernate/restore */
-> +	u8 saved_status;
+> +	cancel_delayed_work_sync(&vi->refill);
 > +
->  	/* Whether we have vector per vq */
->  	bool per_vq_vectors;
+> +	/* Free unused buffers in both send and recv, if any. */
+> +	free_unused_bufs(vi);
+> +
+> +	vdev->config->del_vqs(vi->vdev);
+> +
+> +	while (vi->pages)
+> +		__free_pages(get_a_page(vi, GFP_KERNEL), 0);
+> +
+> +	return 0;
+> +}
+> +
+> +static int virtnet_restore(struct virtio_device *vdev)
+> +{
+> +	struct virtnet_info *vi = vdev->priv;
+> +	struct virtqueue *vqs[3];
+> +	vq_callback_t *callbacks[] = { skb_recv_done, skb_xmit_done, NULL};
+> +	const char *names[] = { "input", "output", "control" };
+> +	int nvqs, err;
+> +
+> +	/* We expect two virtqueues, receive then send,
+> +	 * and optionally control. */
+> +	nvqs = virtio_has_feature(vi->vdev, VIRTIO_NET_F_CTRL_VQ) ? 3 : 2;
+> +
+> +	err = vdev->config->find_vqs(vdev, nvqs, vqs, callbacks, names);
+> +	if (err)
+> +		return err;
+> +
+> +	vi->rvq = vqs[0];
+> +	vi->svq = vqs[1];
+> +
+> +	if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_CTRL_VQ)) {
+> +		vi->cvq = vqs[2];
+> +	}
+> +
+> +	/* Last of all, set up some receive buffers. */
+> +	try_fill_recv(vi, GFP_KERNEL);
+
+should probably update carrier status too.
+
+> +	return 0;
+> +}
+> +#endif
+> +
+>  static struct virtio_device_id id_table[] = {
+>  	{ VIRTIO_ID_NET, VIRTIO_DEV_ANY_ID },
+>  	{ 0 },
+> @@ -1141,6 +1188,10 @@ static struct virtio_driver virtio_net_driver = {
+>  	.probe =	virtnet_probe,
+>  	.remove =	__devexit_p(virtnet_remove),
+>  	.config_changed = virtnet_config_changed,
+> +#ifdef CONFIG_PM
+> +	.freeze = 	virtnet_freeze,
+> +	.restore =	virtnet_restore,
+> +#endif
 >  };
-> @@ -713,6 +717,7 @@ static int virtio_pci_freeze(struct device *dev)
->  	drv = container_of(vp_dev->vdev.dev.driver,
->  			   struct virtio_driver, driver);
 >  
-> +	vp_dev->saved_status = vp_get_status(&vp_dev->vdev);
->  	if (drv && drv->freeze)
->  		return drv->freeze(&vp_dev->vdev);
->  
-> @@ -728,6 +733,7 @@ static int virtio_pci_restore(struct device *dev)
->  	drv = container_of(vp_dev->vdev.dev.driver,
->  			   struct virtio_driver, driver);
->  
-> +	vp_set_status(&vp_dev->vdev, vp_dev->saved_status);
->  	if (drv && drv->restore)
->  		return drv->restore(&vp_dev->vdev);
-
-Yes, this looks wrong. Status would typically be DRIVER_OK,
-and it needs to be set after vq setup.
-It also needs to match current state I think:
-e.g. if restore failed we want to set it to FAILED.
-So why not do it more or less the way probe does it?
-
-
+>  static int __init init(void)
 > -- 
 > 1.7.6
