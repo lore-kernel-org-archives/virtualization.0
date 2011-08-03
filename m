@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCHv3] virtio-spec: 64 bit features, used/avail event, fixes
-Date: Wed, 3 Aug 2011 19:39:23 +0300
-Message-ID: <20110803163923.GA17244__17230.7485169314$1312389667$gmane$org@redhat.com>
+Date: Wed, 3 Aug 2011 19:29:55 +0300
+Message-ID: <20110803162955.GA16768__3251.814391888$1312390133$gmane$org@redhat.com>
 References: <20110601102548.GA11013@redhat.com>
 	<87ei3dxas0.fsf@rustcorp.com.au>
 	<20110803160518.GA16563@redhat.com> <4E397425.90808@redhat.com>
@@ -31,16 +31,18 @@ On Wed, Aug 03, 2011 at 06:15:33PM +0200, Gerd Hoffmann wrote:
 > >the available 64K space gets us only 64 bytes per device.
 > 
 > 15 bridges (with io window enabled) max, the smallest io window you
-> can assign to a bridge is 4k, and you need some space for the
+> can assign to a bridge is 4k,
+
+Hmm true, I missed that. So with 32 devs we get 256 bytes per device.
+We can still get low on that space when using
+multifunction devices though (there could be up to 256 functions behind
+a bridge, which only leaves 16 bytes per device).
+
+BTW, this limitation will be a problem for pci express
+devices.
+
+> and you need some space for the
 > devices on the root bus ...
 > 
 > cheers,
 >   Gerd
-
-
-Hmm, wait, we could go 32 bit, then we are not limited to 32
-bridges anymore, right? Does our bios support that?
-
-
--- 
-MST
