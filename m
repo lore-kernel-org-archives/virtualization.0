@@ -1,7 +1,7 @@
 From: Andy Lutomirski <luto@mit.edu>
-Subject: [PATCH v2 1/6] x86-64: Pad vDSO to a page boundary
-Date: Wed,  3 Aug 2011 09:31:49 -0400
-Message-ID: <a63380a3c58a0506a2f5a18ba1b12dbde1f25e58.1312378163.git.luto__47944.0769217492$1312378816$gmane$org@mit.edu>
+Subject: [PATCH v2 3/6] x86-64: Work around gold bug 13023
+Date: Wed,  3 Aug 2011 09:31:51 -0400
+Message-ID: <0b260cb806f1f9a25c00ce8377a5f035d57f557a.1312378163.git.luto__3311.77799166671$1312378906$gmane$org@mit.edu>
 References: <cover.1312378163.git.luto@mit.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -23,24 +23,63 @@ To: x86@kernel.org, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
 Cc: xen-devel@lists.xensource.com, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, keir.xen@gmail.com, Andy Lutomirski <luto@mit.edu>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This avoids an information leak to userspace.
+Gold has trouble assigning numbers to the location counter inside of
+an output section description.  The bug was triggered by
+9fd67b4ed0714ab718f1f9bd14c344af336a6df7, which consolidated all of
+the vsyscall sections into a single section.  The workaround is IMO
+still nicer than the old way of doing it.
+
+This produces an apparently valid kernel image and passes my vdso
+tests on both GNU ld version 2.21.51.0.6-2.fc15 20110118 and GNU
+gold (version 2.21.51.0.6-2.fc15 20110118) 1.10 as distributed by
+Fedora 15.
 
 Signed-off-by: Andy Lutomirski <luto@mit.edu>
+Reported-by: Arkadiusz Miskiewicz <a.miskiewicz@gmail.com>
 ---
- arch/x86/vdso/vdso.S |    1 +
- 1 files changed, 1 insertions(+), 0 deletions(-)
+ arch/x86/kernel/vmlinux.lds.S |   16 ++++++++++------
+ 1 files changed, 10 insertions(+), 6 deletions(-)
 
-diff --git a/arch/x86/vdso/vdso.S b/arch/x86/vdso/vdso.S
-index 1b979c1..01f5e3b 100644
---- a/arch/x86/vdso/vdso.S
-+++ b/arch/x86/vdso/vdso.S
-@@ -9,6 +9,7 @@ __PAGE_ALIGNED_DATA
- vdso_start:
- 	.incbin "arch/x86/vdso/vdso.so"
- vdso_end:
-+	.align PAGE_SIZE /* extra data here leaks to userspace. */
+diff --git a/arch/x86/kernel/vmlinux.lds.S b/arch/x86/kernel/vmlinux.lds.S
+index e79fb39..8f3a265 100644
+--- a/arch/x86/kernel/vmlinux.lds.S
++++ b/arch/x86/kernel/vmlinux.lds.S
+@@ -158,10 +158,12 @@ SECTIONS
+ 	__vvar_page = .;
  
- .previous
+ 	.vvar : AT(ADDR(.vvar) - LOAD_OFFSET) {
++		/* work around gold bug 13023 */
++		__vvar_beginning_hack = .;
+ 
+-	      /* Place all vvars at the offsets in asm/vvar.h. */
+-#define EMIT_VVAR(name, offset) 		\
+-		. = offset;		\
++		/* Place all vvars at the offsets in asm/vvar.h. */
++#define EMIT_VVAR(name, offset) 			\
++		. = __vvar_beginning_hack + offset;	\
+ 		*(.vvar_ ## name)
+ #define __VVAR_KERNEL_LDS
+ #include <asm/vvar.h>
+@@ -184,15 +186,17 @@ SECTIONS
+ 
+ 	. = VSYSCALL_ADDR;
+ 	.vsyscall : AT(VLOAD(.vsyscall)) {
++		/* work around gold bug 13023 */
++		__vsyscall_beginning_hack = .;
+ 		*(.vsyscall_0)
+ 
+-		. = 1024;
++		. = __vsyscall_beginning_hack + 1024;
+ 		*(.vsyscall_1)
+ 
+-		. = 2048;
++		. = __vsyscall_beginning_hack + 2048;
+ 		*(.vsyscall_2)
+ 
+-		. = 4096;  /* Pad the whole page. */
++		. = __vsyscall_beginning_hack + 4096;  /* Pad the whole page. */
+ 	} :user =0xcc
+ 	. = ALIGN(__vsyscall_0 + PAGE_SIZE, PAGE_SIZE);
  
 -- 
 1.7.6
