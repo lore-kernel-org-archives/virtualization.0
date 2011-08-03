@@ -1,48 +1,96 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCHv3] virtio-spec: 64 bit features, used/avail event, fixes
-Date: Wed, 3 Aug 2011 19:29:55 +0300
-Message-ID: <20110803162955.GA16768__3251.814391888$1312390133$gmane$org@redhat.com>
-References: <20110601102548.GA11013@redhat.com>
-	<87ei3dxas0.fsf@rustcorp.com.au>
-	<20110803160518.GA16563@redhat.com> <4E397425.90808@redhat.com>
+Subject: Re: [PATCH RFC net-next] virtio_net: refill buffer right after being
+ used
+Date: Wed, 3 Aug 2011 23:26:48 +0300
+Message-ID: <20110803202648.GA19501@redhat.com>
+References: <1311979448.24300.28.camel@localhost.localdomain>
+ <1311980131.24300.30.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <kvm-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <4E397425.90808@redhat.com>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gerd Hoffmann <kraxel@redhat.com>
-Cc: Krishna Kumar2 <krkumar2@in.ibm.com>, habanero@linux.vnet.ibm.com, kvm@vger.kernel.org, steved@us.ibm.com, Shirley Ma <mashirle@us.ibm.com>, virtualization@lists.linux-foundation.org, borntraeger@de.ibm.com, Tom Lendacky <tahm@linux.vnet.ibm.com>, avi@redhat.com
+In-Reply-To: <1311980131.24300.30.camel@localhost.localdomain>
+Sender: kvm-owner@vger.kernel.org
+To: Shirley Ma <mashirle@us.ibm.com>
+Cc: Rusty Russell <rusty@rustcorp.com.au>, kvm@vger.kernel.org, virtualization@lists.osdl.org, netdev@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Aug 03, 2011 at 06:15:33PM +0200, Gerd Hoffmann wrote:
->   Hi,
+On Fri, Jul 29, 2011 at 03:55:31PM -0700, Shirley Ma wrote:
+> Resubmit it with a typo fix.
 > 
-> >E.g. with 32 bridges, and 32 devices behind each one,
-> >the available 64K space gets us only 64 bytes per device.
+> Signed-off-by: Shirley Ma <xma@us.ibm.com>
+> ---
 > 
-> 15 bridges (with io window enabled) max, the smallest io window you
-> can assign to a bridge is 4k,
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index 0c7321c..c8201d4 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -429,6 +429,22 @@ static int add_recvbuf_mergeable(struct virtnet_info *vi, gfp_t gfp)
+>  	return err;
+>  }
+>  
+> +static int fill_one(struct virtnet_info *vi, gfp_t gfp)
+> +{
+> +	int err;
+> +
+> +	if (vi->mergeable_rx_bufs)
+> +		err = add_recvbuf_mergeable(vi, gfp);
+> +	else if (vi->big_packets)
+> +		err = add_recvbuf_big(vi, gfp);
+> +	else
+> +		err = add_recvbuf_small(vi, gfp);
+> +
+> +	if (err >= 0)
+> +		++vi->num;
+> +	return err;
+> +}
+> +
+>  /* Returns false if we couldn't fill entirely (OOM). */
+>  static bool try_fill_recv(struct virtnet_info *vi, gfp_t gfp)
+>  {
+> @@ -436,17 +452,10 @@ static bool try_fill_recv(struct virtnet_info *vi, gfp_t gfp)
+>  	bool oom;
+>  
+>  	do {
+> -		if (vi->mergeable_rx_bufs)
+> -			err = add_recvbuf_mergeable(vi, gfp);
+> -		else if (vi->big_packets)
+> -			err = add_recvbuf_big(vi, gfp);
+> -		else
+> -			err = add_recvbuf_small(vi, gfp);
+> -
+> +		err = fill_one(vi, gfp);
+>  		oom = err == -ENOMEM;
+>  		if (err < 0)
+>  			break;
+> -		++vi->num;
+>  	} while (err > 0);
+>  	if (unlikely(vi->num > vi->max))
+>  		vi->max = vi->num;
+> @@ -506,13 +515,13 @@ again:
+>  		receive_buf(vi->dev, buf, len);
+>  		--vi->num;
+>  		received++;
+> -	}
+> -
+> -	if (vi->num < vi->max / 2) {
+> -		if (!try_fill_recv(vi, GFP_ATOMIC))
+> +		if (fill_one(vi, GFP_ATOMIC) < 0)
+>  			schedule_delayed_work(&vi->refill, 0);
 
-Hmm true, I missed that. So with 32 devs we get 256 bytes per device.
-We can still get low on that space when using
-multifunction devices though (there could be up to 256 functions behind
-a bridge, which only leaves 16 bytes per device).
+If we get a large packet, we might add less that what we removed from
+the ring.  Isn't this a problem?
 
-BTW, this limitation will be a problem for pci express
-devices.
-
-> and you need some space for the
-> devices on the root bus ...
+>  	}
+>  
+> +	/* notify buffers are refilled */
+> +	virtqueue_kick(vi->rvq);
+> +
+>  	/* Out of packets? */
+>  	if (received < budget) {
+>  		napi_complete(napi);
 > 
-> cheers,
->   Gerd
+> 
+
+-- 
+MST
