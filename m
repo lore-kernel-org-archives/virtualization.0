@@ -1,15 +1,15 @@
-From: Andrew Lutomirski <luto@mit.edu>
-Subject: Re: [PATCH v2 0/6] Collected vdso/vsyscall fixes for 3.1
-Date: Wed, 3 Aug 2011 09:59:43 -0400
-Message-ID: <CAObL_7FavQH29CENHptZphDDv7ja2P9MVM5Uj47G68ccDumBBg__4292.31315288252$1312380137$gmane$org@mail.gmail.com>
-References: <cover.1312378163.git.luto@mit.edu>
-	<20110803135322.GC29501@dumpdata.com>
-	<20110803135604.GA29761@dumpdata.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCHv3] virtio-spec: 64 bit features, used/avail event, fixes
+Date: Wed, 3 Aug 2011 19:05:18 +0300
+Message-ID: <20110803160518.GA16563__40801.3717191809$1312387549$gmane$org@redhat.com>
+References: <20110601102548.GA11013@redhat.com>
+	<87ei3dxas0.fsf@rustcorp.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20110803135604.GA29761@dumpdata.com>
+Content-Disposition: inline
+In-Reply-To: <87ei3dxas0.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,32 +19,48 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Cc: xen-devel@lists.xensource.com, keir.xen@gmail.com, x86@kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, mingo@redhat.com, hpa@zytor.com
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Krishna Kumar2 <krkumar2@in.ibm.com>, habanero@linux.vnet.ibm.com, kvm@vger.kernel.org, steved@us.ibm.com, Shirley Ma <mashirle@us.ibm.com>, virtualization@lists.linux-foundation.org, borntraeger@de.ibm.com, Tom Lendacky <tahm@linux.vnet.ibm.com>, avi@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Aug 3, 2011 at 9:56 AM, Konrad Rzeszutek Wilk
-<konrad.wilk@oracle.com> wrote:
-> On Wed, Aug 03, 2011 at 09:53:22AM -0400, Konrad Rzeszutek Wilk wrote:
->> On Wed, Aug 03, 2011 at 09:31:48AM -0400, Andy Lutomirski wrote:
->> > This fixes various problems that cropped up with the vdso patches.
->> >
->> > =A0- Patch 1 fixes an information leak to userspace.
->> > =A0- Patches 2 and 3 fix the kernel build on gold.
->> > =A0- Patches 4 and 5 fix Xen (I hope).
->> > =A0- Patch 6 (optional) adds a trace event to vsyscall emulation. =A0I=
-t will
->> > =A0 =A0make it easier to handle performance regression reports :)
->>
->> Hm, you seemed to have the x86 maintainers on your email..
->
-> I definitly need some coffee. What I meant was that you missing putting
-> the x86 maintainers on this patchset. They are the ones that will handle =
-this.
->
-> I put them on the To list for you.
+On Thu, Jun 02, 2011 at 11:19:35AM +0930, Rusty Russell wrote:
+> On Wed, 1 Jun 2011 13:25:48 +0300, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> > Add an option to modify the notificatin
+> > hand-off in virtio to be basically like Xen:
+> > each side published an index, the other side only triggers
+> > an event when it crosses that index value
+> > (Xen event indexes start at 1, ours start at 0 for
+> > backward-compatiblity, but that's minor).
+> > 
+> > Since we've run out of bits in the 32 bit field,
+> > I added another 32 bit and bit 31 enables that.
+> 
+> OK.  I've applied this, and published it as the 0.9 draft.
+> 
+> Thanks!
+> Rusty.
 
-Are you sure about that coffee?  I'm pretty sure I had x86@kernel.org in th=
-ere.
+There's something that is bothering me: each such change
+increases the size of the config.
+Now, on PCI it's in io space which is much constrained.
+It might not seem like 32 or 64 bytes is a lot, but in practice
+there's a problem with a bridged setup: bridges
+sometimes need resources pre-allocated for all devices
+that might land behind them.
 
---Andy
+E.g. with 32 bridges, and 32 devices behind each one,
+the available 64K space gets us only 64 bytes per device.
+
+Thankfully even with this change, we are still below that
+limit. But for example, this seems to push the size of the config for
+virtio net from 32 to 34 bytes. The PCI BAR is a power of two, so it
+will be exactly 64 bytes then.
+
+io seems to work much better than memory on kvm, so
+we will need to stick to that for datapath.
+But maybe it's time to start putting non-datapath in memory?
+
+Thanks,
+
+-- 
+MST
