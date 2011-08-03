@@ -1,196 +1,61 @@
-From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 1/1] Staging: hv: Integrate the time source driver with Hyper-V detection code
-Date: Tue,  2 Aug 2011 09:03:02 -0700
-Message-ID: <1312300982-11609-1-git-send-email-kys@microsoft.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org, andi@firstfloor.org, akpm@linux-foundation.org, tglx@linutronix.de, x86@kernel.org
-Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>
+From: Andy Lutomirski <luto@mit.edu>
+Subject: [PATCH v2 0/6] Collected vdso/vsyscall fixes for 3.1
+Date: Wed,  3 Aug 2011 09:31:48 -0400
+Message-ID: <cover.1312378163.git.luto__16887.8799690448$1312378427$gmane$org@mit.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: x86@kernel.org, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Cc: xen-devel@lists.xensource.com, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, keir.xen@gmail.com, Andy Lutomirski <luto@mit.edu>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The Hyper-V timesource driver is best integrated with Hyper-V detection code
-since: (a) Linux guests running on Hyper-V need this timesource and (b)
-by integrating with Hyper-V detection, we could significantly  minimize the
-code in the timesource driver.
+This fixes various problems that cropped up with the vdso patches.
 
-Andrew, could you take this patch for the -mm tree. I have sent this patch
-out multiple times and I have not recived any response or comments.
+ - Patch 1 fixes an information leak to userspace.
+ - Patches 2 and 3 fix the kernel build on gold.
+ - Patches 4 and 5 fix Xen (I hope).
+ - Patch 6 (optional) adds a trace event to vsyscall emulation.  It will
+   make it easier to handle performance regression reports :)
 
-Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
-Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
----
- arch/x86/kernel/cpu/mshyperv.c     |   24 ++++++++
- drivers/staging/hv/Makefile        |    2 +-
- drivers/staging/hv/hv_timesource.c |  102 ------------------------------------
- 3 files changed, 25 insertions(+), 103 deletions(-)
- delete mode 100644 drivers/staging/hv/hv_timesource.c
+[1] https://gitorious.org/linux-test-utils/linux-clock-tests
 
-diff --git a/arch/x86/kernel/cpu/mshyperv.c b/arch/x86/kernel/cpu/mshyperv.c
-index d944bf6..c97f88d 100644
---- a/arch/x86/kernel/cpu/mshyperv.c
-+++ b/arch/x86/kernel/cpu/mshyperv.c
-@@ -11,6 +11,8 @@
-  */
- 
- #include <linux/types.h>
-+#include <linux/time.h>
-+#include <linux/clocksource.h>
- #include <linux/module.h>
- #include <asm/processor.h>
- #include <asm/hypervisor.h>
-@@ -36,6 +38,25 @@ static bool __init ms_hyperv_platform(void)
- 		!memcmp("Microsoft Hv", hyp_signature, 12);
- }
- 
-+static cycle_t read_hv_clock(struct clocksource *arg)
-+{
-+	cycle_t current_tick;
-+	/*
-+	 * Read the partition counter to get the current tick count. This count
-+	 * is set to 0 when the partition is created and is incremented in
-+	 * 100 nanosecond units.
-+	 */
-+	rdmsrl(HV_X64_MSR_TIME_REF_COUNT, current_tick);
-+	return current_tick;
-+}
-+
-+static struct clocksource hyperv_cs = {
-+	.name           = "hyperv_clocksource",
-+	.rating         = 400, /* use this when running on Hyperv*/
-+	.read           = read_hv_clock,
-+	.mask           = CLOCKSOURCE_MASK(64),
-+};
-+
- static void __init ms_hyperv_init_platform(void)
- {
- 	/*
-@@ -46,6 +67,9 @@ static void __init ms_hyperv_init_platform(void)
- 
- 	printk(KERN_INFO "HyperV: features 0x%x, hints 0x%x\n",
- 	       ms_hyperv.features, ms_hyperv.hints);
-+
-+
-+	clocksource_register_hz(&hyperv_cs, NSEC_PER_SEC/100);
- }
- 
- const __refconst struct hypervisor_x86 x86_hyper_ms_hyperv = {
-diff --git a/drivers/staging/hv/Makefile b/drivers/staging/hv/Makefile
-index bd176b1..3e0d7e6 100644
---- a/drivers/staging/hv/Makefile
-+++ b/drivers/staging/hv/Makefile
-@@ -1,4 +1,4 @@
--obj-$(CONFIG_HYPERV)		+= hv_vmbus.o hv_timesource.o
-+obj-$(CONFIG_HYPERV)		+= hv_vmbus.o
- obj-$(CONFIG_HYPERV_STORAGE)	+= hv_storvsc.o
- obj-$(CONFIG_HYPERV_NET)	+= hv_netvsc.o
- obj-$(CONFIG_HYPERV_UTILS)	+= hv_utils.o
-diff --git a/drivers/staging/hv/hv_timesource.c b/drivers/staging/hv/hv_timesource.c
-deleted file mode 100644
-index 0efb049..0000000
---- a/drivers/staging/hv/hv_timesource.c
-+++ /dev/null
-@@ -1,102 +0,0 @@
--/*
-- * A clocksource for Linux running on HyperV.
-- *
-- *
-- * Copyright (C) 2010, Novell, Inc.
-- * Author : K. Y. Srinivasan <ksrinivasan@novell.com>
-- *
-- * This program is free software; you can redistribute it and/or modify
-- * it under the terms of the GNU General Public License version 2 as
-- * published by the Free Software Foundation.
-- *
-- * This program is distributed in the hope that it will be useful, but
-- * WITHOUT ANY WARRANTY; without even the implied warranty of
-- * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE, GOOD TITLE or
-- * NON INFRINGEMENT.  See the GNU General Public License for more
-- * details.
-- *
-- * You should have received a copy of the GNU General Public License
-- * along with this program; if not, write to the Free Software
-- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
-- *
-- */
--#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
--
--#include <linux/version.h>
--#include <linux/clocksource.h>
--#include <linux/init.h>
--#include <linux/module.h>
--#include <linux/pci.h>
--#include <linux/dmi.h>
--#include <asm/hyperv.h>
--#include <asm/mshyperv.h>
--#include <asm/hypervisor.h>
--
--#define HV_CLOCK_SHIFT	22
--
--static cycle_t read_hv_clock(struct clocksource *arg)
--{
--	cycle_t current_tick;
--	/*
--	 * Read the partition counter to get the current tick count. This count
--	 * is set to 0 when the partition is created and is incremented in
--	 * 100 nanosecond units.
--	 */
--	rdmsrl(HV_X64_MSR_TIME_REF_COUNT, current_tick);
--	return current_tick;
--}
--
--static struct clocksource hyperv_cs = {
--	.name           = "hyperv_clocksource",
--	.rating         = 400, /* use this when running on Hyperv*/
--	.read           = read_hv_clock,
--	.mask           = CLOCKSOURCE_MASK(64),
--	/*
--	 * The time ref counter in HyperV is in 100ns units.
--	 * The definition of mult is:
--	 * mult/2^shift = ns/cyc = 100
--	 * mult = (100 << shift)
--	 */
--	.mult           = (100 << HV_CLOCK_SHIFT),
--	.shift          = HV_CLOCK_SHIFT,
--};
--
--static const struct dmi_system_id __initconst
--hv_timesource_dmi_table[] __maybe_unused  = {
--	{
--		.ident = "Hyper-V",
--		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "Microsoft Corporation"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "Virtual Machine"),
--			DMI_MATCH(DMI_BOARD_NAME, "Virtual Machine"),
--		},
--	},
--	{ },
--};
--MODULE_DEVICE_TABLE(dmi, hv_timesource_dmi_table);
--
--static const struct pci_device_id __initconst
--hv_timesource_pci_table[] __maybe_unused = {
--	{ PCI_DEVICE(0x1414, 0x5353) }, /* VGA compatible controller */
--	{ 0 }
--};
--MODULE_DEVICE_TABLE(pci, hv_timesource_pci_table);
--
--
--static int __init init_hv_clocksource(void)
--{
--	if ((x86_hyper != &x86_hyper_ms_hyperv) ||
--		!(ms_hyperv.features & HV_X64_MSR_TIME_REF_COUNT_AVAILABLE))
--		return -ENODEV;
--
--	if (!dmi_check_system(hv_timesource_dmi_table))
--		return -ENODEV;
--
--	pr_info("Registering HyperV clock source\n");
--	return clocksource_register(&hyperv_cs);
--}
--
--module_init(init_hv_clocksource);
--MODULE_DESCRIPTION("HyperV based clocksource");
--MODULE_AUTHOR("K. Y. Srinivasan <ksrinivasan@novell.com>");
--MODULE_LICENSE("GPL");
+Changes from v1:
+ - Improve changelog message for "x86-64/xen: Enable the vvar mapping"
+ - Fix 32-bit build.
+ - Add patch 6.
+
+Andy Lutomirski (6):
+  x86-64: Pad vDSO to a page boundary
+  x86-64: Move the "user" vsyscall segment out of the data segment.
+  x86-64: Work around gold bug 13023
+  x86-64/xen: Enable the vvar mapping
+  x86-64: Add user_64bit_mode paravirt op
+  x86-64: Add vsyscall:emulate_vsyscall trace event
+
+ arch/x86/include/asm/desc.h           |    4 +-
+ arch/x86/include/asm/paravirt_types.h |    6 ++++
+ arch/x86/include/asm/ptrace.h         |   19 +++++++++++++
+ arch/x86/kernel/paravirt.c            |    4 +++
+ arch/x86/kernel/step.c                |    2 +-
+ arch/x86/kernel/vmlinux.lds.S         |   46 ++++++++++++++++++---------------
+ arch/x86/kernel/vsyscall_64.c         |   12 +++++---
+ arch/x86/kernel/vsyscall_trace.h      |   29 ++++++++++++++++++++
+ arch/x86/mm/fault.c                   |    2 +-
+ arch/x86/vdso/vdso.S                  |    1 +
+ arch/x86/xen/enlighten.c              |    4 +++
+ arch/x86/xen/mmu.c                    |    4 ++-
+ 12 files changed, 102 insertions(+), 31 deletions(-)
+ create mode 100644 arch/x86/kernel/vsyscall_trace.h
+
 -- 
-1.7.4.1
+1.7.6
