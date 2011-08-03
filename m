@@ -1,7 +1,7 @@
 From: Andy Lutomirski <luto@mit.edu>
-Subject: [PATCH v2 3/6] x86-64: Work around gold bug 13023
-Date: Wed,  3 Aug 2011 09:31:51 -0400
-Message-ID: <0b260cb806f1f9a25c00ce8377a5f035d57f557a.1312378163.git.luto__3311.77799166671$1312378906$gmane$org@mit.edu>
+Subject: [PATCH v2 4/6] x86-64/xen: Enable the vvar mapping
+Date: Wed,  3 Aug 2011 09:31:52 -0400
+Message-ID: <4659478ed2f3480938f96491c2ecbe2b2e113a23.1312378163.git.luto__49337.5375903726$1312379000$gmane$org@mit.edu>
 References: <cover.1312378163.git.luto@mit.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -23,63 +23,45 @@ To: x86@kernel.org, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
 Cc: xen-devel@lists.xensource.com, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, keir.xen@gmail.com, Andy Lutomirski <luto@mit.edu>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Gold has trouble assigning numbers to the location counter inside of
-an output section description.  The bug was triggered by
-9fd67b4ed0714ab718f1f9bd14c344af336a6df7, which consolidated all of
-the vsyscall sections into a single section.  The workaround is IMO
-still nicer than the old way of doing it.
+Xen needs to handle VVAR_PAGE, introduced in git commit:
+9fd67b4ed0714ab718f1f9bd14c344af336a6df7
+x86-64: Give vvars their own page
 
-This produces an apparently valid kernel image and passes my vdso
-tests on both GNU ld version 2.21.51.0.6-2.fc15 20110118 and GNU
-gold (version 2.21.51.0.6-2.fc15 20110118) 1.10 as distributed by
-Fedora 15.
+Otherwise we die during bootup with a message like:
+
+(XEN) mm.c:940:d10 Error getting mfn 1888 (pfn 1e3e48) from L1 entry
+      8000000001888465 for l1e_owner=10, pg_owner=10
+(XEN) mm.c:5049:d10 ptwr_emulate: could not get_page_from_l1e()
+[    0.000000] BUG: unable to handle kernel NULL pointer dereference at (null)
+[    0.000000] IP: [<ffffffff8103a930>] xen_set_pte+0x20/0xe0
 
 Signed-off-by: Andy Lutomirski <luto@mit.edu>
-Reported-by: Arkadiusz Miskiewicz <a.miskiewicz@gmail.com>
+Reported-by: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
 ---
- arch/x86/kernel/vmlinux.lds.S |   16 ++++++++++------
- 1 files changed, 10 insertions(+), 6 deletions(-)
+ arch/x86/xen/mmu.c |    4 +++-
+ 1 files changed, 3 insertions(+), 1 deletions(-)
 
-diff --git a/arch/x86/kernel/vmlinux.lds.S b/arch/x86/kernel/vmlinux.lds.S
-index e79fb39..8f3a265 100644
---- a/arch/x86/kernel/vmlinux.lds.S
-+++ b/arch/x86/kernel/vmlinux.lds.S
-@@ -158,10 +158,12 @@ SECTIONS
- 	__vvar_page = .;
- 
- 	.vvar : AT(ADDR(.vvar) - LOAD_OFFSET) {
-+		/* work around gold bug 13023 */
-+		__vvar_beginning_hack = .;
- 
--	      /* Place all vvars at the offsets in asm/vvar.h. */
--#define EMIT_VVAR(name, offset) 		\
--		. = offset;		\
-+		/* Place all vvars at the offsets in asm/vvar.h. */
-+#define EMIT_VVAR(name, offset) 			\
-+		. = __vvar_beginning_hack + offset;	\
- 		*(.vvar_ ## name)
- #define __VVAR_KERNEL_LDS
- #include <asm/vvar.h>
-@@ -184,15 +186,17 @@ SECTIONS
- 
- 	. = VSYSCALL_ADDR;
- 	.vsyscall : AT(VLOAD(.vsyscall)) {
-+		/* work around gold bug 13023 */
-+		__vsyscall_beginning_hack = .;
- 		*(.vsyscall_0)
- 
--		. = 1024;
-+		. = __vsyscall_beginning_hack + 1024;
- 		*(.vsyscall_1)
- 
--		. = 2048;
-+		. = __vsyscall_beginning_hack + 2048;
- 		*(.vsyscall_2)
- 
--		. = 4096;  /* Pad the whole page. */
-+		. = __vsyscall_beginning_hack + 4096;  /* Pad the whole page. */
- 	} :user =0xcc
- 	. = ALIGN(__vsyscall_0 + PAGE_SIZE, PAGE_SIZE);
- 
+diff --git a/arch/x86/xen/mmu.c b/arch/x86/xen/mmu.c
+index f987bde..8cce339 100644
+--- a/arch/x86/xen/mmu.c
++++ b/arch/x86/xen/mmu.c
+@@ -1916,6 +1916,7 @@ static void xen_set_fixmap(unsigned idx, phys_addr_t phys, pgprot_t prot)
+ # endif
+ #else
+ 	case VSYSCALL_LAST_PAGE ... VSYSCALL_FIRST_PAGE:
++	case VVAR_PAGE:
+ #endif
+ 	case FIX_TEXT_POKE0:
+ 	case FIX_TEXT_POKE1:
+@@ -1956,7 +1957,8 @@ static void xen_set_fixmap(unsigned idx, phys_addr_t phys, pgprot_t prot)
+ #ifdef CONFIG_X86_64
+ 	/* Replicate changes to map the vsyscall page into the user
+ 	   pagetable vsyscall mapping. */
+-	if (idx >= VSYSCALL_LAST_PAGE && idx <= VSYSCALL_FIRST_PAGE) {
++	if ((idx >= VSYSCALL_LAST_PAGE && idx <= VSYSCALL_FIRST_PAGE) ||
++	    idx == VVAR_PAGE) {
+ 		unsigned long vaddr = __fix_to_virt(idx);
+ 		set_pte_vaddr_pud(level3_user_vsyscall, vaddr, pte);
+ 	}
 -- 
 1.7.6
