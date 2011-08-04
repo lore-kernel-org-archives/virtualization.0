@@ -1,26 +1,36 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH RFC net-next] virtio_net: refill buffer right after being
- used
-Date: Wed, 3 Aug 2011 23:30:20 +0300
-Message-ID: <20110803203020.GB19501@redhat.com>
-References: <1311979448.24300.28.camel@localhost.localdomain>
- <1311980131.24300.30.camel@localhost.localdomain>
- <CAGTjWtCsgcf664HJ_prmcRyUzLcSSKhjfbaM0KnsxhDJo6k7Fg@mail.gmail.com>
- <1312089375.23194.11.camel@localhost.localdomain>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: Re: [PATCHv3] virtio-spec: 64 bit features, used/avail event, fixes
+Date: Thu, 04 Aug 2011 09:55:13 +0200
+Message-ID: <4E3A5061.4060009__19023.9479336471$1312444578$gmane$org@redhat.com>
+References: <20110601102548.GA11013@redhat.com>
+	<87ei3dxas0.fsf@rustcorp.com.au>
+	<20110803160518.GA16563@redhat.com> <4E397425.90808@redhat.com>
+	<20110803163923.GA17244@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <kvm-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1312089375.23194.11.camel@localhost.localdomain>
-Sender: kvm-owner@vger.kernel.org
-To: Shirley Ma <mashirle@us.ibm.com>
-Cc: Mike Waychison <mikew@google.com>, Rusty Russell <rusty@rustcorp.com.au>, kvm@vger.kernel.org, virtualization@lists.osdl.org, netdev@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20110803163923.GA17244@redhat.com>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Krishna Kumar2 <krkumar2@in.ibm.com>, habanero@linux.vnet.ibm.com, kvm@vger.kernel.org, steved@us.ibm.com, Shirley Ma <mashirle@us.ibm.com>, virtualization@lists.linux-foundation.org, borntraeger@de.ibm.com, Tom Lendacky <tahm@linux.vnet.ibm.com>, avi@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sat, Jul 30, 2011 at 10:16:15PM -0700, Shirley Ma wrote:
-> It averages the latency between each receive by filling only one set of
-> buffers vs. either none buffers or 1/2 ring size buffers fill between
-> receives.
+   Hi,
 
-I see how the overhead of allocating memory is spread more evenly.  Does this
-actually help some workloads?
+> Hmm, wait, we could go 32 bit, then we are not limited to 32
+> bridges anymore, right? Does our bios support that?
+
+How you want go to 32bit? io space (not mmio) is fixed at 16bit in x86, 
+isn't it?
+
+cheers,
+   Gerd
