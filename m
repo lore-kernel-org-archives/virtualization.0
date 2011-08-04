@@ -1,13 +1,15 @@
-From: Sander Eikelenboom <linux@eikelenboom.it>
-Subject: Re: [Xen-devel] [PATCH v2 0/6] Collected vdso/vsyscall fixes for 3.1
-Date: Wed, 3 Aug 2011 19:34:25 +0200
-Message-ID: <284611976.20110803193425__19760.5748232037$1312482940$gmane$org@eikelenboom.it>
-References: <cover.1312378163.git.luto@mit.edu>
+From: Ingo Molnar <mingo@elte.hu>
+Subject: Re: linux-next: Tree for July 25 (xen)
+Date: Thu, 4 Aug 2011 21:35:34 +0200
+Message-ID: <20110804193534.GB12729__31791.4319727153$1312486649$gmane$org@elte.hu>
+References: <20110725162542.39ea8d8cbd51604523635c1a@canb.auug.org.au>
+	<20110725144629.b752bf14.rdunlap@xenotime.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <cover.1312378163.git.luto@mit.edu>
+Content-Disposition: inline
+In-Reply-To: <20110725144629.b752bf14.rdunlap@xenotime.net>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -17,52 +19,117 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Andy Lutomirski <luto@MIT.EDU>
-Cc: xen-devel@lists.xensource.com, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, x86@kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, keir.xen@gmail.com
+To: Randy Dunlap <rdunlap@xenotime.net>
+Cc: Stephen Rothwell <sfr@canb.auug.org.au>, Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, LKML <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, xen-devel@lists.xensource.com, linux-next@vger.kernel.org, "H. Peter Anvin" <hpa@zytor.com>, Andrew Morton <akpm@linux-foundation.org>, Linus Torvalds <torvalds@linux-foundation.org>, Thomas Gleixner <tglx@linutronix.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hello Andy,
-
-Wednesday, August 3, 2011, 3:31:48 PM, you wrote:
-
-> This fixes various problems that cropped up with the vdso patches.
-
->  - Patch 1 fixes an information leak to userspace.
->  - Patches 2 and 3 fix the kernel build on gold.
->  - Patches 4 and 5 fix Xen (I hope).
->  - Patch 6 (optional) adds a trace event to vsyscall emulation.  It will
->    make it easier to handle performance regression reports :)
-
-> [1] https://gitorious.org/linux-test-utils/linux-clock-tests
-
-> Changes from v1:
->  - Improve changelog message for "x86-64/xen: Enable the vvar mapping"
->  - Fix 32-bit build.
->  - Add patch 6.
-
-> Andy Lutomirski (6):
->   x86-64: Pad vDSO to a page boundary
->   x86-64: Move the "user" vsyscall segment out of the data segment.
->   x86-64: Work around gold bug 13023
->   x86-64/xen: Enable the vvar mapping
->   x86-64: Add user_64bit_mode paravirt op
->   x86-64: Add vsyscall:emulate_vsyscall trace event
-
->  arch/x86/include/asm/desc.h           |    4 +-
->  arch/x86/include/asm/paravirt_types.h |    6 ++++
->  arch/x86/include/asm/ptrace.h         |   19 +++++++++++++
->  arch/x86/kernel/paravirt.c            |    4 +++
->  arch/x86/kernel/step.c                |    2 +-
->  arch/x86/kernel/vmlinux.lds.S         |   46 ++++++++++++++++++---------------
->  arch/x86/kernel/vsyscall_64.c         |   12 +++++---
->  arch/x86/kernel/vsyscall_trace.h      |   29 ++++++++++++++++++++
->  arch/x86/mm/fault.c                   |    2 +-
->  arch/x86/vdso/vdso.S                  |    1 +
->  arch/x86/xen/enlighten.c              |    4 +++
->  arch/x86/xen/mmu.c                    |    4 ++-
->  12 files changed, 102 insertions(+), 31 deletions(-)
->  create mode 100644 arch/x86/kernel/vsyscall_trace.h
-
-Compile and boot tested on Xen 4.1.1 and baremetal on x86_64, it fixes my boot panic under Xen.
-
-Tested-by: Sander Eikelenboom <linux@eikelenboom.it>
+CiogUmFuZHkgRHVubGFwIDxyZHVubGFwQHhlbm90aW1lLm5ldD4gd3JvdGU6Cgo+IE9uIE1vbiwg
+MjUgSnVsIDIwMTEgMTY6MjU6NDIgKzEwMDAgU3RlcGhlbiBSb3Rod2VsbCB3cm90ZToKPiAKPiA+
+IEhpIGFsbCwKPiAKPiB4ZW4gaGFzIGxvdHMgb2YgYnVpbGQgZXJyb3JzIGFuZCB3YXJuaW5ncyAo
+YWxsIG9uIHg4Nl82NCkuCj4gCj4gICBDQyAgICAgIGFyY2gveDg2L3hlbi9zZXR1cC5vCj4gSW4g
+ZmlsZSBpbmNsdWRlZCBmcm9tIGFyY2gveDg2L2luY2x1ZGUvYXNtL3hlbi9oeXBlcmNhbGwuaDo0
+MiwKPiAgICAgICAgICAgICAgICAgIGZyb20gYXJjaC94ODYveGVuL3NldHVwLmM6MTk6Cj4gaW5j
+bHVkZS90cmFjZS9ldmVudHMveGVuLmg6MzE6IHdhcm5pbmc6ICdzdHJ1Y3QgbXVsdGljYWxsX2Vu
+dHJ5JyBkZWNsYXJlZCBpbnNpZGUgcGFyYW1ldGVyIGxpc3QKPiBpbmNsdWRlL3RyYWNlL2V2ZW50
+cy94ZW4uaDozMTogd2FybmluZzogaXRzIHNjb3BlIGlzIG9ubHkgdGhpcyBkZWZpbml0aW9uIG9y
+IGRlY2xhcmF0aW9uLCB3aGljaCBpcyBwcm9iYWJseSBub3Qgd2hhdCB5b3Ugd2FudAo+IGluY2x1
+ZGUvdHJhY2UvZXZlbnRzL3hlbi5oOjMxOiB3YXJuaW5nOiAnc3RydWN0IG11bHRpY2FsbF9lbnRy
+eScgZGVjbGFyZWQgaW5zaWRlIHBhcmFtZXRlciBsaXN0Cj4gaW5jbHVkZS90cmFjZS9ldmVudHMv
+eGVuLmg6MzE6IHdhcm5pbmc6ICdzdHJ1Y3QgbXVsdGljYWxsX2VudHJ5JyBkZWNsYXJlZCBpbnNp
+ZGUgcGFyYW1ldGVyIGxpc3QKPiBpbmNsdWRlL3RyYWNlL2V2ZW50cy94ZW4uaDozMTogd2Fybmlu
+ZzogJ3N0cnVjdCBtdWx0aWNhbGxfZW50cnknIGRlY2xhcmVkIGluc2lkZSBwYXJhbWV0ZXIgbGlz
+dAo+IEluIGZpbGUgaW5jbHVkZWQgZnJvbSBhcmNoL3g4Ni94ZW4vc2V0dXAuYzoxOToKPiBhcmNo
+L3g4Ni9pbmNsdWRlL2FzbS94ZW4vaHlwZXJjYWxsLmg6IEluIGZ1bmN0aW9uICdNVUxUSV9mcHVf
+dGFza3N3aXRjaCc6Cj4gYXJjaC94ODYvaW5jbHVkZS9hc20veGVuL2h5cGVyY2FsbC5oOjQ2NTog
+d2FybmluZzogcGFzc2luZyBhcmd1bWVudCAxIG9mICd0cmFjZV94ZW5fbWNfZW50cnknIGZyb20g
+aW5jb21wYXRpYmxlIHBvaW50ZXIgdHlwZQo+IGluY2x1ZGUvdHJhY2UvZXZlbnRzL3hlbi5oOjQ4
+OiBub3RlOiBleHBlY3RlZCAnc3RydWN0IG11bHRpY2FsbF9lbnRyeSAqJyBidXQgYXJndW1lbnQg
+aXMgb2YgdHlwZSAnc3RydWN0IG11bHRpY2FsbF9lbnRyeSAqJwo+IGFyY2gveDg2L2luY2x1ZGUv
+YXNtL3hlbi9oeXBlcmNhbGwuaDogSW4gZnVuY3Rpb24gJ01VTFRJX3VwZGF0ZV92YV9tYXBwaW5n
+JzoKPiBhcmNoL3g4Ni9pbmNsdWRlL2FzbS94ZW4vaHlwZXJjYWxsLmg6NDgzOiB3YXJuaW5nOiBw
+YXNzaW5nIGFyZ3VtZW50IDEgb2YgJ3RyYWNlX3hlbl9tY19lbnRyeScgZnJvbSBpbmNvbXBhdGli
+bGUgcG9pbnRlciB0eXBlCj4gaW5jbHVkZS90cmFjZS9ldmVudHMveGVuLmg6NDg6IG5vdGU6IGV4
+cGVjdGVkICdzdHJ1Y3QgbXVsdGljYWxsX2VudHJ5IConIGJ1dCBhcmd1bWVudCBpcyBvZiB0eXBl
+ICdzdHJ1Y3QgbXVsdGljYWxsX2VudHJ5IConCj4gYXJjaC94ODYvaW5jbHVkZS9hc20veGVuL2h5
+cGVyY2FsbC5oOiBJbiBmdW5jdGlvbiAnTVVMVElfZ3JhbnRfdGFibGVfb3AnOgo+IGFyY2gveDg2
+L2luY2x1ZGUvYXNtL3hlbi9oeXBlcmNhbGwuaDo0OTU6IHdhcm5pbmc6IHBhc3NpbmcgYXJndW1l
+bnQgMSBvZiAndHJhY2VfeGVuX21jX2VudHJ5JyBmcm9tIGluY29tcGF0aWJsZSBwb2ludGVyIHR5
+cGUKPiBpbmNsdWRlL3RyYWNlL2V2ZW50cy94ZW4uaDo0ODogbm90ZTogZXhwZWN0ZWQgJ3N0cnVj
+dCBtdWx0aWNhbGxfZW50cnkgKicgYnV0IGFyZ3VtZW50IGlzIG9mIHR5cGUgJ3N0cnVjdCBtdWx0
+aWNhbGxfZW50cnkgKicKPiBhcmNoL3g4Ni9pbmNsdWRlL2FzbS94ZW4vaHlwZXJjYWxsLmg6IElu
+IGZ1bmN0aW9uICdNVUxUSV91cGRhdGVfdmFfbWFwcGluZ19vdGhlcmRvbWFpbic6Cj4gYXJjaC94
+ODYvaW5jbHVkZS9hc20veGVuL2h5cGVyY2FsbC5oOjUxNjogd2FybmluZzogcGFzc2luZyBhcmd1
+bWVudCAxIG9mICd0cmFjZV94ZW5fbWNfZW50cnknIGZyb20gaW5jb21wYXRpYmxlIHBvaW50ZXIg
+dHlwZQo+IGluY2x1ZGUvdHJhY2UvZXZlbnRzL3hlbi5oOjQ4OiBub3RlOiBleHBlY3RlZCAnc3Ry
+dWN0IG11bHRpY2FsbF9lbnRyeSAqJyBidXQgYXJndW1lbnQgaXMgb2YgdHlwZSAnc3RydWN0IG11
+bHRpY2FsbF9lbnRyeSAqJwo+IGFyY2gveDg2L2luY2x1ZGUvYXNtL3hlbi9oeXBlcmNhbGwuaDog
+SW4gZnVuY3Rpb24gJ01VTFRJX3VwZGF0ZV9kZXNjcmlwdG9yJzoKPiBhcmNoL3g4Ni9pbmNsdWRl
+L2FzbS94ZW4vaHlwZXJjYWxsLmg6NTM0OiB3YXJuaW5nOiBwYXNzaW5nIGFyZ3VtZW50IDEgb2Yg
+J3RyYWNlX3hlbl9tY19lbnRyeScgZnJvbSBpbmNvbXBhdGlibGUgcG9pbnRlciB0eXBlCj4gaW5j
+bHVkZS90cmFjZS9ldmVudHMveGVuLmg6NDg6IG5vdGU6IGV4cGVjdGVkICdzdHJ1Y3QgbXVsdGlj
+YWxsX2VudHJ5IConIGJ1dCBhcmd1bWVudCBpcyBvZiB0eXBlICdzdHJ1Y3QgbXVsdGljYWxsX2Vu
+dHJ5IConCj4gYXJjaC94ODYvaW5jbHVkZS9hc20veGVuL2h5cGVyY2FsbC5oOiBJbiBmdW5jdGlv
+biAnTVVMVElfbWVtb3J5X29wJzoKPiBhcmNoL3g4Ni9pbmNsdWRlL2FzbS94ZW4vaHlwZXJjYWxs
+Lmg6NTQ0OiB3YXJuaW5nOiBwYXNzaW5nIGFyZ3VtZW50IDEgb2YgJ3RyYWNlX3hlbl9tY19lbnRy
+eScgZnJvbSBpbmNvbXBhdGlibGUgcG9pbnRlciB0eXBlCj4gaW5jbHVkZS90cmFjZS9ldmVudHMv
+eGVuLmg6NDg6IG5vdGU6IGV4cGVjdGVkICdzdHJ1Y3QgbXVsdGljYWxsX2VudHJ5IConIGJ1dCBh
+cmd1bWVudCBpcyBvZiB0eXBlICdzdHJ1Y3QgbXVsdGljYWxsX2VudHJ5IConCj4gYXJjaC94ODYv
+aW5jbHVkZS9hc20veGVuL2h5cGVyY2FsbC5oOiBJbiBmdW5jdGlvbiAnTVVMVElfbW11X3VwZGF0
+ZSc6Cj4gYXJjaC94ODYvaW5jbHVkZS9hc20veGVuL2h5cGVyY2FsbC5oOjU1Nzogd2FybmluZzog
+cGFzc2luZyBhcmd1bWVudCAxIG9mICd0cmFjZV94ZW5fbWNfZW50cnknIGZyb20gaW5jb21wYXRp
+YmxlIHBvaW50ZXIgdHlwZQo+IGluY2x1ZGUvdHJhY2UvZXZlbnRzL3hlbi5oOjQ4OiBub3RlOiBl
+eHBlY3RlZCAnc3RydWN0IG11bHRpY2FsbF9lbnRyeSAqJyBidXQgYXJndW1lbnQgaXMgb2YgdHlw
+ZSAnc3RydWN0IG11bHRpY2FsbF9lbnRyeSAqJwo+IGFyY2gveDg2L2luY2x1ZGUvYXNtL3hlbi9o
+eXBlcmNhbGwuaDogSW4gZnVuY3Rpb24gJ01VTFRJX21tdWV4dF9vcCc6Cj4gYXJjaC94ODYvaW5j
+bHVkZS9hc20veGVuL2h5cGVyY2FsbC5oOjU3MDogd2FybmluZzogcGFzc2luZyBhcmd1bWVudCAx
+IG9mICd0cmFjZV94ZW5fbWNfZW50cnknIGZyb20gaW5jb21wYXRpYmxlIHBvaW50ZXIgdHlwZQo+
+IGluY2x1ZGUvdHJhY2UvZXZlbnRzL3hlbi5oOjQ4OiBub3RlOiBleHBlY3RlZCAnc3RydWN0IG11
+bHRpY2FsbF9lbnRyeSAqJyBidXQgYXJndW1lbnQgaXMgb2YgdHlwZSAnc3RydWN0IG11bHRpY2Fs
+bF9lbnRyeSAqJwo+IGFyY2gveDg2L2luY2x1ZGUvYXNtL3hlbi9oeXBlcmNhbGwuaDogSW4gZnVu
+Y3Rpb24gJ01VTFRJX3NldF9nZHQnOgo+IGFyY2gveDg2L2luY2x1ZGUvYXNtL3hlbi9oeXBlcmNh
+bGwuaDo1ODA6IHdhcm5pbmc6IHBhc3NpbmcgYXJndW1lbnQgMSBvZiAndHJhY2VfeGVuX21jX2Vu
+dHJ5JyBmcm9tIGluY29tcGF0aWJsZSBwb2ludGVyIHR5cGUKPiBpbmNsdWRlL3RyYWNlL2V2ZW50
+cy94ZW4uaDo0ODogbm90ZTogZXhwZWN0ZWQgJ3N0cnVjdCBtdWx0aWNhbGxfZW50cnkgKicgYnV0
+IGFyZ3VtZW50IGlzIG9mIHR5cGUgJ3N0cnVjdCBtdWx0aWNhbGxfZW50cnkgKicKPiBhcmNoL3g4
+Ni9pbmNsdWRlL2FzbS94ZW4vaHlwZXJjYWxsLmg6IEluIGZ1bmN0aW9uICdNVUxUSV9zdGFja19z
+d2l0Y2gnOgo+IGFyY2gveDg2L2luY2x1ZGUvYXNtL3hlbi9oeXBlcmNhbGwuaDo1OTE6IHdhcm5p
+bmc6IHBhc3NpbmcgYXJndW1lbnQgMSBvZiAndHJhY2VfeGVuX21jX2VudHJ5JyBmcm9tIGluY29t
+cGF0aWJsZSBwb2ludGVyIHR5cGUKPiBpbmNsdWRlL3RyYWNlL2V2ZW50cy94ZW4uaDo0ODogbm90
+ZTogZXhwZWN0ZWQgJ3N0cnVjdCBtdWx0aWNhbGxfZW50cnkgKicgYnV0IGFyZ3VtZW50IGlzIG9m
+IHR5cGUgJ3N0cnVjdCBtdWx0aWNhbGxfZW50cnkgKicKPiAgIENDICAgICAgYXJjaC94ODYveGVu
+L211bHRpY2FsbHMubwo+IEluIGZpbGUgaW5jbHVkZWQgZnJvbSBhcmNoL3g4Ni9pbmNsdWRlL2Fz
+bS94ZW4vaHlwZXJjYWxsLmg6NDIsCj4gICAgICAgICAgICAgICAgICBmcm9tIGFyY2gveDg2L3hl
+bi9tdWx0aWNhbGxzLmM6MjY6Cj4gaW5jbHVkZS90cmFjZS9ldmVudHMveGVuLmg6MzE6IHdhcm5p
+bmc6ICdzdHJ1Y3QgbXVsdGljYWxsX2VudHJ5JyBkZWNsYXJlZCBpbnNpZGUgcGFyYW1ldGVyIGxp
+c3QKPiBpbmNsdWRlL3RyYWNlL2V2ZW50cy94ZW4uaDozMTogd2FybmluZzogaXRzIHNjb3BlIGlz
+IG9ubHkgdGhpcyBkZWZpbml0aW9uIG9yIGRlY2xhcmF0aW9uLCB3aGljaCBpcyBwcm9iYWJseSBu
+b3Qgd2hhdCB5b3Ugd2FudAo+IGluY2x1ZGUvdHJhY2UvZXZlbnRzL3hlbi5oOjMxOiB3YXJuaW5n
+OiAnc3RydWN0IG11bHRpY2FsbF9lbnRyeScgZGVjbGFyZWQgaW5zaWRlIHBhcmFtZXRlciBsaXN0
+Cj4gaW5jbHVkZS90cmFjZS9ldmVudHMveGVuLmg6MzE6IHdhcm5pbmc6ICdzdHJ1Y3QgbXVsdGlj
+YWxsX2VudHJ5JyBkZWNsYXJlZCBpbnNpZGUgcGFyYW1ldGVyIGxpc3QKPiBpbmNsdWRlL3RyYWNl
+L2V2ZW50cy94ZW4uaDozMTogd2FybmluZzogJ3N0cnVjdCBtdWx0aWNhbGxfZW50cnknIGRlY2xh
+cmVkIGluc2lkZSBwYXJhbWV0ZXIgbGlzdAoKVGhlc2UgYnVpbGQgZmFpbHVyZXMgYXJlIHN0aWxs
+IHRyaWdnZXJpbmcgdXBzdHJlYW06CgogYXJjaC94ODYveGVuL3RyYWNlLmM6NDQ6MjogZXJyb3I6
+IGFycmF5IGluZGV4IGluIGluaXRpYWxpemVyIG5vdCBvZiBpbnRlZ2VyIHR5cGUKIGFyY2gveDg2
+L3hlbi90cmFjZS5jOjQ0OjI6IGVycm9yOiAobmVhciBpbml0aWFsaXphdGlvbiBmb3Ig4oCYeGVu
+X2h5cGVyY2FsbF9uYW1lc+KAmSkKIGFyY2gveDg2L3hlbi90cmFjZS5jOjQ1OjE6IGVycm9yOiDi
+gJhfX0hZUEVSVklTT1JfYXJjaF804oCZIHVuZGVjbGFyZWQgaGVyZSAobm90IGluIGEgZnVuY3Rp
+b24pCiBhcmNoL3g4Ni94ZW4vdHJhY2UuYzo0NToyOiBlcnJvcjogYXJyYXkgaW5kZXggaW4gaW5p
+dGlhbGl6ZXIgbm90IG9mIGludGVnZXIgdHlwZQogYXJjaC94ODYveGVuL3RyYWNlLmM6NDU6Mjog
+ZXJyb3I6IChuZWFyIGluaXRpYWxpemF0aW9uIGZvciDigJh4ZW5faHlwZXJjYWxsX25hbWVz4oCZ
+KQoKZXZlbiBhZnRlcjoKCiBiM2M0Yjk4MjUwNzU6IHhlbi90cmFjaW5nOiBmaXggY29tcGlsZSBl
+cnJvcnMgd2hlbiB0cmFjaW5nIGlzIGRpc2FibGVkLgoKQnR3LiwgdGhhdCB0aGUgaGVjayBpcyBn
+b2luZyBvbiB3aXRoIHRoZSBjb21taXQgdGhhdCBpbnRyb2R1Y2VkIHRoZSAKYnVpbGQgZmFpbHVy
+ZToKCiBjb21taXQgYmQ5ZGRjODc1YjY2NTlmOWY3NGRjZmQyODVjNDcyYmM1ODA0MWFiZAogQXV0
+aG9yOiAgICAgSmVyZW15IEZpdHpoYXJkaW5nZSA8amVyZW15LmZpdHpoYXJkaW5nZUBjaXRyaXgu
+Y29tPgogQXV0aG9yRGF0ZTogTW9uIEp1biAyMCAxNzo1MjoxMyAyMDExIC0wNzAwCiBDb21taXQ6
+ICAgICBKZXJlbXkgRml0emhhcmRpbmdlIDxqZXJlbXkuZml0emhhcmRpbmdlQGNpdHJpeC5jb20+
+CiBDb21taXREYXRlOiBNb24gSnVsIDE4IDE1OjQzOjQ2IDIwMTEgLTA3MDAKCkl0IHdhcyBhcHBh
+cmVudGx5IHJlYmFzZWQgc2hvcnRseSBiZWZvcmUgdGhlIG1lcmdlIHdpbmRvdyBhbmQgc2VudCB0
+byAKTGludXMgMyBkYXlzIGxhdGVyLCB3aXRoIGxpdHRsZSB0byBubyBsaW51eC1uZXh0IHRlc3Rp
+bmcgLi4uCgpJJ20gYWJzb2x1dGVseSB1bmhhcHB5IGFib3V0IGhvdyB0aGUgWGVuIHRyZWUgaXMg
+YmVpbmcgcnVuLiBJdCdzIAp1c2luZyBhIHNsb3BweSwgY3JhcHB5IHdvcmtmbG93IGFuZCBpdCBp
+cyBwcm9kdWNpbmcgY3JhcC4KClRoYW5rcywKCglJbmdvCl9fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0
+dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4
+LWZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
