@@ -1,7 +1,7 @@
-From: Stephen Rothwell <sfr@canb.auug.org.au>
+From: Jeremy Fitzhardinge <jeremy@goop.org>
 Subject: Re: [Xen-devel] Re: linux-next: Tree for July 25 (xen)
-Date: Sat, 6 Aug 2011 17:04:18 +1000
-Message-ID: <20110806170418.897cc0513af4189d89e6c03f__35621.1429382258$1312614383$gmane$org@canb.auug.org.au>
+Date: Sat, 06 Aug 2011 11:22:15 -0700
+Message-ID: <4E3D8657.7000704__29507.7206603766$1312655112$gmane$org@goop.org>
 References: <20110725162542.39ea8d8cbd51604523635c1a@canb.auug.org.au>
 	<20110725144629.b752bf14.rdunlap@xenotime.net>
 	<20110804193534.GB12729@elte.hu>
@@ -13,7 +13,8 @@ References: <20110725162542.39ea8d8cbd51604523635c1a@canb.auug.org.au>
 	<20110805211423.GA9765@elte.hu>
 	<20110806015815.GA26833@dumpdata.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============8626332967387545644=="
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 In-Reply-To: <20110806015815.GA26833@dumpdata.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
@@ -23,63 +24,57 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Mime-version: 1.0
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Cc: xen-devel@lists.xensource.com, LKML <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, Thomas Gleixner <tglx@linutronix.de>, linux-next@vger.kernel.org, "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@elte.hu>, Linus Torvalds <torvalds@linux-foundation.org>, Andrew Morton <akpm@linux-foundation.org>
+Cc: Stephen Rothwell <sfr@canb.auug.org.au>, xen-devel@lists.xensource.com, LKML <linux-kernel@vger.kernel.org>, Steven Rostedt <rostedt@goodmis.org>, virtualization@lists.linux-foundation.org, Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, Thomas Gleixner <tglx@linutronix.de>, linux-next@vger.kernel.org, "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@elte.hu>, Linus Torvalds <torvalds@linux-foundation.org>, Andrew Morton <akpm@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
---===============8626332967387545644==
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="PGP-SHA1";
- boundary="Signature=_Sat__6_Aug_2011_17_04_18_+1000_RF4fIp0aJrL+3PA3"
-
---Signature=_Sat__6_Aug_2011_17_04_18_+1000_RF4fIp0aJrL+3PA3
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-Hi Konrad,
-
-On Fri, 5 Aug 2011 21:58:16 -0400 Konrad Rzeszutek Wilk <konrad.wilk@oracle=
-.com> wrote:
->
-> Much appreciate for the report. I believe this fix (which I think hit
-> linux-next yesterday?) should do that:
-
-Yes, it is in next-20110805.
-
---=20
-Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
-http://www.canb.auug.org.au/~sfr/
-
---Signature=_Sat__6_Aug_2011_17_04_18_+1000_RF4fIp0aJrL+3PA3
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-
-iQEcBAEBAgAGBQJOPOdyAAoJEDMEi1NhKgbsgDcH/3VkbWFgxXypVcd/sVzDiLRc
-YLvF4z73HyGbLLXBBsWgc+yYv3euTYdq07jz7Gb3oVFq4klpuFjt3ILYzAEyOz/x
-WfUgg8v+FaPwvum/sxeRMqlYrOINQj4iteDxImWPSGahxZgKBsCFDxUtePY6jAwj
-EW/gipFO/OPhZx7mrYOsDj/zeiZhatY486L69GDS9Dl/HmeX8/hP9nPoxvmQ0dhn
-+a99a9b2fnnTRt0SnW8p5kt5JyR3HBui8K0KwTqCG1YRA0tfFCJ4EvX0DYuePIep
-50ZNrJqpGcgeLO7bXnbgRyioPOmbDKw1Z3cIBGhz5gDxKRxYYyAcF3vos3W8TSw=
-=Zu6U
------END PGP SIGNATURE-----
-
---Signature=_Sat__6_Aug_2011_17_04_18_+1000_RF4fIp0aJrL+3PA3--
-
---===============8626332967387545644==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linux-foundation.org/mailman/listinfo/virtualization
---===============8626332967387545644==--
+T24gMDgvMDUvMjAxMSAwNjo1OCBQTSwgS29ucmFkIFJ6ZXN6dXRlayBXaWxrIHdyb3RlOgo+IE9u
+IEZyaSwgQXVnIDA1LCAyMDExIGF0IDExOjE0OjIzUE0gKzAyMDAsIEluZ28gTW9sbmFyIHdyb3Rl
+Ogo+PiAqIEluZ28gTW9sbmFyIDxtaW5nb0BlbHRlLmh1PiB3cm90ZToKPj4KPj4+ICogUmFuZHkg
+RHVubGFwIDxyZHVubGFwQHhlbm90aW1lLm5ldD4gd3JvdGU6Cj4+Pgo+Pj4+IE9uIDA4LzA0LzEx
+IDE1OjQwLCBLb25yYWQgUnplc3p1dGVrIFdpbGsgd3JvdGU6Cj4+Pj4+IE9uIFRodSwgQXVnIDA0
+LCAyMDExIGF0IDA2OjMyOjU5UE0gLTA0MDAsIEtvbnJhZCBSemVzenV0ZWsgV2lsayB3cm90ZToK
+Pj4+Pj4+Pj4+IFRoZXNlIGJ1aWxkIGZhaWx1cmVzIGFyZSBzdGlsbCB0cmlnZ2VyaW5nIHVwc3Ry
+ZWFtOgo+Pj4+Pj4+Pj4KPj4+Pj4+Pj4+ICBhcmNoL3g4Ni94ZW4vdHJhY2UuYzo0NDoyOiBlcnJv
+cjogYXJyYXkgaW5kZXggaW4gaW5pdGlhbGl6ZXIgbm90IG9mIGludGVnZXIgdHlwZQo+Pj4+Pj4+
+Pj4gIGFyY2gveDg2L3hlbi90cmFjZS5jOjQ0OjI6IGVycm9yOiAobmVhciBpbml0aWFsaXphdGlv
+biBmb3Ig4oCYeGVuX2h5cGVyY2FsbF9uYW1lc+KAmSkKPj4+Pj4+Pj4+ICBhcmNoL3g4Ni94ZW4v
+dHJhY2UuYzo0NToxOiBlcnJvcjog4oCYX19IWVBFUlZJU09SX2FyY2hfNOKAmSB1bmRlY2xhcmVk
+IGhlcmUgKG5vdCBpbiBhIGZ1bmN0aW9uKQo+Pj4+Pj4+Pj4gIGFyY2gveDg2L3hlbi90cmFjZS5j
+OjQ1OjI6IGVycm9yOiBhcnJheSBpbmRleCBpbiBpbml0aWFsaXplciBub3Qgb2YgaW50ZWdlciB0
+eXBlCj4+Pj4+Pj4+PiAgYXJjaC94ODYveGVuL3RyYWNlLmM6NDU6MjogZXJyb3I6IChuZWFyIGlu
+aXRpYWxpemF0aW9uIGZvciDigJh4ZW5faHlwZXJjYWxsX25hbWVz4oCZKQo+Pj4+Pj4+PiBPaCwg
+dGhhdCBJIGhhdmVuJ3Qgc2Vlbi4gQ2FuIHlvdSBzZW5kIG1lIHRoZSAuY29uZmlnIGZvciB0aGF0
+IHBsZWFzZS4KPj4+Pj4+PiBZb3UgY2FuJ3QgYmUgdHJ5aW5nIHZlcnkgaGFyZCB0aGVuLiAgSSBz
+ZWUgbG90cyBvZiB0aGVzZSAoYnV0IG5vLAo+Pj4+Pj4gQWgsIEkgYW0gZ2V0dGluZyBpdCBub3cu
+IFRoYW5rcyBmb3IgcmVwb3J0aW5nIGl0Lgo+Pj4+PiBUaGlzIHNob3VsZCBkbyB0aGUgdHJpY2s6
+Cj4+Pj4gQWNrZWQtYnk6IFJhbmR5IER1bmxhcCA8cmR1bmxhcEB4ZW5vdGltZS5uZXQ+Cj4+PiBU
+aGF0IHBhdGNoIGRpZCB0aGUgdHJpY2sgaGVyZSB0b286Cj4+Pgo+Pj4gQWNrZWQtYnk6IEluZ28g
+TW9sbmFyIDxtaW5nb0BlbHRlLmh1Pgo+PiBFeGNlcHQgdGhhdCBpJ20gc3RpbGwgc2VlaW5nIHRo
+ZSBvY2Nhc2lvbmFsIGJ1aWxkIGZhaWx1cmUgLSBzZWUgdGhlIAo+PiBlcnJvciBsb2cgYmVsb3cu
+IENvbmZpZyBhdHRhY2hlZC4KPiBNdWNoIGFwcHJlY2lhdGUgZm9yIHRoZSByZXBvcnQuIEkgYmVs
+aWV2ZSB0aGlzIGZpeCAod2hpY2ggSSB0aGluayBoaXQKPiBsaW51eC1uZXh0IHllc3RlcmRheT8p
+IHNob3VsZCBkbyB0aGF0Ogo+Cj4gY29tbWl0IDFlOWVhMjY1NmI2NTZlZGQzYzhkZTk4Njc1YmJj
+MDM0MDIxMWI1YmQKPiBBdXRob3I6IEplcmVteSBGaXR6aGFyZGluZ2UgPGplcmVteUBnb29wLm9y
+Zz4KPiBEYXRlOiAgIFdlZCBBdWcgMyAwOTo0Mzo0NCAyMDExIC0wNzAwCj4KPiAgICAgIHhlbi90
+cmFjaW5nOiBpdCBsb29rcyBsaWtlIHdlIHdhbnRlZCBDT05GSUdfRlRSQUNFCj4gICAgIAo+ICAg
+ICBBcHBhcmVudGx5IHdlIHdhbnRlZCBDT05GSUdfRlRSQUNFIHJhdGhlciB0aGUgQ09ORklHX0ZV
+TkNUSU9OX1RSQUNFUi4KPiAgICAgCj4gICAgIFJlcG9ydGVkLWJ5OiBTYW5kZXIgRWlrZWxlbmJv
+b20gPGxpbnV4QGVpa2VsZW5ib29tLml0Pgo+ICAgICBUZXN0ZWQtYnk6IFNhbmRlciBFaWtlbGVu
+Ym9vbSA8bGludXhAZWlrZWxlbmJvb20uaXQ+Cj4gICAgIFNpZ25lZC1vZmYtYnk6IEplcmVteSBG
+aXR6aGFyZGluZ2UgPGplcmVteS5maXR6aGFyZGluZ2VAY2l0cml4LmNvbT4KPiAgICAgU2lnbmVk
+LW9mZi1ieTogS29ucmFkIFJ6ZXN6dXRlayBXaWxrIDxrb25yYWQud2lsa0BvcmFjbGUuY29tPgo+
+Cj4gZGlmZiAtLWdpdCBhL2FyY2gveDg2L3hlbi9NYWtlZmlsZSBiL2FyY2gveDg2L3hlbi9NYWtl
+ZmlsZQo+IGluZGV4IDQ1ZTk0YWMuLjMzMjYyMDQgMTAwNjQ0Cj4gLS0tIGEvYXJjaC94ODYveGVu
+L01ha2VmaWxlCj4gKysrIGIvYXJjaC94ODYveGVuL01ha2VmaWxlCj4gQEAgLTE1LDcgKzE1LDcg
+QEAgb2JqLXkJCTo9IGVubGlnaHRlbi5vIHNldHVwLm8gbXVsdGljYWxscy5vIG1tdS5vIGlycS5v
+IFwKPiAgCQkJZ3JhbnQtdGFibGUubyBzdXNwZW5kLm8gcGxhdGZvcm0tcGNpLXVucGx1Zy5vIFwK
+PiAgCQkJcDJtLm8KPiAgCj4gLW9iai0kKENPTkZJR19GVU5DVElPTl9UUkFDRVIpICs9IHRyYWNl
+Lm8KPiArb2JqLSQoQ09ORklHX0ZUUkFDRSkgKz0gdHJhY2Uubwo+ICAKCkknbSBub3Qgc3VyZSB0
+aGlzIGlzIGNvcnJlY3QgZWl0aGVyLiAgTWF5YmUgaXQgc2hvdWxkIGJlCkNPTkZJR19UUkFDRVBP
+SU5UUz8gIFN0ZXZlbj8KClRoYW5rcywKICAgIEoKX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxp
+emF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXgtZm91
+bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
