@@ -1,21 +1,14 @@
-From: Steven Rostedt <rostedt@goodmis.org>
-Subject: Re: [Xen-devel] Re: linux-next: Tree for July 25 (xen)
-Date: Mon, 08 Aug 2011 09:01:07 -0400
-Message-ID: <1312808467.18583.223.camel__6872.95374596051$1312808627$gmane$org@gandalf.stny.rr.com>
-References: <20110725162542.39ea8d8cbd51604523635c1a@canb.auug.org.au>
-	<20110725144629.b752bf14.rdunlap@xenotime.net>
-	<20110804193534.GB12729@elte.hu> <20110804195539.GA11198@dumpdata.com>
-	<20110804131516.c4da6595.rdunlap@xenotime.net>
-	<20110804223259.GB4370@dumpdata.com>
-	<20110804224020.GA21492@dumpdata.com>
-	<4E3B3117.5050308@xenotime.net> <20110805080531.GA8052@elte.hu>
-	<20110805211423.GA9765@elte.hu> <20110806015815.GA26833@dumpdata.com>
-	<4E3D8657.7000704@goop.org>
+From: Amit Shah <amit.shah@redhat.com>
+Subject: Re: [RFC PATCH 0/8] virtio: Support for hibernation (S4)
+Date: Wed, 10 Aug 2011 16:23:56 +0530
+Message-ID: <20110810105356.GB19156@amit-x200.redhat.com>
+References: <cover.1311863438.git.amit.shah@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4E3D8657.7000704@goop.org>
+Content-Disposition: inline
+In-Reply-To: <cover.1311863438.git.amit.shah@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -25,60 +18,37 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>, xen-devel@lists.xensource.com, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, LKML <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, Thomas Gleixner <tglx@linutronix.de>, linux-next@vger.kernel.org, "H. Peter
-	Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@elte.hu>, Linus Torvalds <torvalds@linux-foundation.org>, Andrew Morton <akpm@linux-foundation.org>
+To: Virtualization List <virtualization@lists.linux-foundation.org>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gU2F0LCAyMDExLTA4LTA2IGF0IDExOjIyIC0wNzAwLCBKZXJlbXkgRml0emhhcmRpbmdlIHdy
-b3RlOgo+IE9uIDA4LzA1LzIwMTEgMDY6NTggUE0sIEtvbnJhZCBSemVzenV0ZWsgV2lsayB3cm90
-ZToKPiA+IE9uIEZyaSwgQXVnIDA1LCAyMDExIGF0IDExOjE0OjIzUE0gKzAyMDAsIEluZ28gTW9s
-bmFyIHdyb3RlOgo+ID4+ICogSW5nbyBNb2xuYXIgPG1pbmdvQGVsdGUuaHU+IHdyb3RlOgo+ID4+
-Cj4gPj4+ICogUmFuZHkgRHVubGFwIDxyZHVubGFwQHhlbm90aW1lLm5ldD4gd3JvdGU6Cj4gPj4+
-Cj4gPj4+PiBPbiAwOC8wNC8xMSAxNTo0MCwgS29ucmFkIFJ6ZXN6dXRlayBXaWxrIHdyb3RlOgo+
-ID4+Pj4+IE9uIFRodSwgQXVnIDA0LCAyMDExIGF0IDA2OjMyOjU5UE0gLTA0MDAsIEtvbnJhZCBS
-emVzenV0ZWsgV2lsayB3cm90ZToKPiA+Pj4+Pj4+Pj4gVGhlc2UgYnVpbGQgZmFpbHVyZXMgYXJl
-IHN0aWxsIHRyaWdnZXJpbmcgdXBzdHJlYW06Cj4gPj4+Pj4+Pj4+Cj4gPj4+Pj4+Pj4+ICBhcmNo
-L3g4Ni94ZW4vdHJhY2UuYzo0NDoyOiBlcnJvcjogYXJyYXkgaW5kZXggaW4gaW5pdGlhbGl6ZXIg
-bm90IG9mIGludGVnZXIgdHlwZQo+ID4+Pj4+Pj4+PiAgYXJjaC94ODYveGVuL3RyYWNlLmM6NDQ6
-MjogZXJyb3I6IChuZWFyIGluaXRpYWxpemF0aW9uIGZvciDigJh4ZW5faHlwZXJjYWxsX25hbWVz
-4oCZKQo+ID4+Pj4+Pj4+PiAgYXJjaC94ODYveGVuL3RyYWNlLmM6NDU6MTogZXJyb3I6IOKAmF9f
-SFlQRVJWSVNPUl9hcmNoXzTigJkgdW5kZWNsYXJlZCBoZXJlIChub3QgaW4gYSBmdW5jdGlvbikK
-PiA+Pj4+Pj4+Pj4gIGFyY2gveDg2L3hlbi90cmFjZS5jOjQ1OjI6IGVycm9yOiBhcnJheSBpbmRl
-eCBpbiBpbml0aWFsaXplciBub3Qgb2YgaW50ZWdlciB0eXBlCj4gPj4+Pj4+Pj4+ICBhcmNoL3g4
-Ni94ZW4vdHJhY2UuYzo0NToyOiBlcnJvcjogKG5lYXIgaW5pdGlhbGl6YXRpb24gZm9yIOKAmHhl
-bl9oeXBlcmNhbGxfbmFtZXPigJkpCj4gPj4+Pj4+Pj4gT2gsIHRoYXQgSSBoYXZlbid0IHNlZW4u
-IENhbiB5b3Ugc2VuZCBtZSB0aGUgLmNvbmZpZyBmb3IgdGhhdCBwbGVhc2UuCj4gPj4+Pj4+PiBZ
-b3UgY2FuJ3QgYmUgdHJ5aW5nIHZlcnkgaGFyZCB0aGVuLiAgSSBzZWUgbG90cyBvZiB0aGVzZSAo
-YnV0IG5vLAo+ID4+Pj4+PiBBaCwgSSBhbSBnZXR0aW5nIGl0IG5vdy4gVGhhbmtzIGZvciByZXBv
-cnRpbmcgaXQuCj4gPj4+Pj4gVGhpcyBzaG91bGQgZG8gdGhlIHRyaWNrOgo+ID4+Pj4gQWNrZWQt
-Ynk6IFJhbmR5IER1bmxhcCA8cmR1bmxhcEB4ZW5vdGltZS5uZXQ+Cj4gPj4+IFRoYXQgcGF0Y2gg
-ZGlkIHRoZSB0cmljayBoZXJlIHRvbzoKPiA+Pj4KPiA+Pj4gQWNrZWQtYnk6IEluZ28gTW9sbmFy
-IDxtaW5nb0BlbHRlLmh1Pgo+ID4+IEV4Y2VwdCB0aGF0IGknbSBzdGlsbCBzZWVpbmcgdGhlIG9j
-Y2FzaW9uYWwgYnVpbGQgZmFpbHVyZSAtIHNlZSB0aGUgCj4gPj4gZXJyb3IgbG9nIGJlbG93LiBD
-b25maWcgYXR0YWNoZWQuCj4gPiBNdWNoIGFwcHJlY2lhdGUgZm9yIHRoZSByZXBvcnQuIEkgYmVs
-aWV2ZSB0aGlzIGZpeCAod2hpY2ggSSB0aGluayBoaXQKPiA+IGxpbnV4LW5leHQgeWVzdGVyZGF5
-Pykgc2hvdWxkIGRvIHRoYXQ6Cj4gPgo+ID4gY29tbWl0IDFlOWVhMjY1NmI2NTZlZGQzYzhkZTk4
-Njc1YmJjMDM0MDIxMWI1YmQKPiA+IEF1dGhvcjogSmVyZW15IEZpdHpoYXJkaW5nZSA8amVyZW15
-QGdvb3Aub3JnPgo+ID4gRGF0ZTogICBXZWQgQXVnIDMgMDk6NDM6NDQgMjAxMSAtMDcwMAo+ID4K
-PiA+ICAgICAgeGVuL3RyYWNpbmc6IGl0IGxvb2tzIGxpa2Ugd2Ugd2FudGVkIENPTkZJR19GVFJB
-Q0UKPiA+ICAgICAKPiA+ICAgICBBcHBhcmVudGx5IHdlIHdhbnRlZCBDT05GSUdfRlRSQUNFIHJh
-dGhlciB0aGUgQ09ORklHX0ZVTkNUSU9OX1RSQUNFUi4KPiA+ICAgICAKPiA+ICAgICBSZXBvcnRl
-ZC1ieTogU2FuZGVyIEVpa2VsZW5ib29tIDxsaW51eEBlaWtlbGVuYm9vbS5pdD4KPiA+ICAgICBU
-ZXN0ZWQtYnk6IFNhbmRlciBFaWtlbGVuYm9vbSA8bGludXhAZWlrZWxlbmJvb20uaXQ+Cj4gPiAg
-ICAgU2lnbmVkLW9mZi1ieTogSmVyZW15IEZpdHpoYXJkaW5nZSA8amVyZW15LmZpdHpoYXJkaW5n
-ZUBjaXRyaXguY29tPgo+ID4gICAgIFNpZ25lZC1vZmYtYnk6IEtvbnJhZCBSemVzenV0ZWsgV2ls
-ayA8a29ucmFkLndpbGtAb3JhY2xlLmNvbT4KPiA+Cj4gPiBkaWZmIC0tZ2l0IGEvYXJjaC94ODYv
-eGVuL01ha2VmaWxlIGIvYXJjaC94ODYveGVuL01ha2VmaWxlCj4gPiBpbmRleCA0NWU5NGFjLi4z
-MzI2MjA0IDEwMDY0NAo+ID4gLS0tIGEvYXJjaC94ODYveGVuL01ha2VmaWxlCj4gPiArKysgYi9h
-cmNoL3g4Ni94ZW4vTWFrZWZpbGUKPiA+IEBAIC0xNSw3ICsxNSw3IEBAIG9iai15CQk6PSBlbmxp
-Z2h0ZW4ubyBzZXR1cC5vIG11bHRpY2FsbHMubyBtbXUubyBpcnEubyBcCj4gPiAgCQkJZ3JhbnQt
-dGFibGUubyBzdXNwZW5kLm8gcGxhdGZvcm0tcGNpLXVucGx1Zy5vIFwKPiA+ICAJCQlwMm0ubwo+
-ID4gIAo+ID4gLW9iai0kKENPTkZJR19GVU5DVElPTl9UUkFDRVIpICs9IHRyYWNlLm8KPiA+ICtv
-YmotJChDT05GSUdfRlRSQUNFKSArPSB0cmFjZS5vCj4gPiAgCj4gCj4gSSdtIG5vdCBzdXJlIHRo
-aXMgaXMgY29ycmVjdCBlaXRoZXIuICBNYXliZSBpdCBzaG91bGQgYmUKPiBDT05GSUdfVFJBQ0VQ
-T0lOVFM/ICBTdGV2ZW4/CgpBY3R1YWxseSwgSSBiZWxpZXZlIHRoZSBjb3JyZWN0IGFuc3dlciBp
-czoKCkNPTkZJR19FVkVOVF9UUkFDSU5HCgotLSBTdGV2ZQoKCl9fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApW
-aXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxp
-bnV4LWZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+On (Thu) 28 Jul 2011 [20:05:05], Amit Shah wrote:
+> Hello,
+> 
+> These patches are an initial attempt at supporting hibernation for
+> virtio drivers.
+> 
+> The default configuration of event_index=on doesn't work; i.e. restore
+> from a hibernated image only works if the devices have event_index
+> support turned off.  I have not yet dug into this, but is most likely
+> due to some state not being sync'ed.
+
+This was due to the host forgetting which features the guest had
+acked.  Adding this on top of this series makes things work fine.
+I'll do more testing, refining code (sharing code with probe, etc.)
+and repost as a proper series (mostly after the KVM Forum).
+
+diff --git a/drivers/virtio/virtio_pci.c b/drivers/virtio/virtio_pci.c
+index 9c37561..c09d6a5 100644
+--- a/drivers/virtio/virtio_pci.c
++++ b/drivers/virtio/virtio_pci.c
+@@ -734,6 +734,7 @@ static int virtio_pci_restore(struct device *dev)
+ 			   struct virtio_driver, driver);
+ 
+ 	vp_set_status(&vp_dev->vdev, vp_dev->saved_status);
++	vp_finalize_features(&vp_dev->vdev);
+ 	if (drv && drv->restore)
+ 		return drv->restore(&vp_dev->vdev);
+ 
+
+		Amit
