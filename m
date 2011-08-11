@@ -1,23 +1,16 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [Xen-devel] Re: linux-next: Tree for July 25 (xen)
-Date: Wed, 10 Aug 2011 09:49:59 -0700
-Message-ID: <4E42B6B7.6090709__45405.5474409417$1312995142$gmane$org@goop.org>
-References: <20110725162542.39ea8d8cbd51604523635c1a@canb.auug.org.au>
-	<20110725144629.b752bf14.rdunlap@xenotime.net>
-	<20110804193534.GB12729@elte.hu>
-	<20110804195539.GA11198@dumpdata.com>
-	<20110804131516.c4da6595.rdunlap@xenotime.net>
-	<20110804223259.GB4370@dumpdata.com>
-	<20110804224020.GA21492@dumpdata.com>
-	<4E3B3117.5050308@xenotime.net> <20110805080531.GA8052@elte.hu>
-	<20110805211423.GA9765@elte.hu>
-	<20110806015815.GA26833@dumpdata.com> <4E3D8657.7000704@goop.org>
-	<1312808467.18583.223.camel@gandalf.stny.rr.com>
+Subject: Re: [PATCH v2 0/6] Collected vdso/vsyscall fixes for 3.1
+Date: Thu, 11 Aug 2011 13:28:02 -0700
+Message-ID: <4E443B52.3080609__48748.5981350348$1313095199$gmane$org@goop.org>
+References: <cover.1312378163.git.luto@mit.edu>
+	<20110803135322.GC29501@dumpdata.com>
+	<20110803135604.GA29761@dumpdata.com>
+	<CAObL_7FavQH29CENHptZphDDv7ja2P9MVM5Uj47G68ccDumBBg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1312808467.18583.223.camel@gandalf.stny.rr.com>
+In-Reply-To: <CAObL_7FavQH29CENHptZphDDv7ja2P9MVM5Uj47G68ccDumBBg@mail.gmail.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -27,60 +20,34 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>, xen-devel@lists.xensource.com, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, LKML <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, Thomas Gleixner <tglx@linutronix.de>, linux-next@vger.kernel.org, "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@elte.hu>, Linus Torvalds <torvalds@linux-foundation.org>, Andrew Morton <akpm@linux-foundation.org>
+To: Andrew Lutomirski <luto@mit.edu>
+Cc: xen-devel@lists.xensource.com, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, x86@kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, keir.xen@gmail.com, hpa@zytor.com, mingo@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gMDgvMDgvMjAxMSAwNjowMSBBTSwgU3RldmVuIFJvc3RlZHQgd3JvdGU6Cj4gT24gU2F0LCAy
-MDExLTA4LTA2IGF0IDExOjIyIC0wNzAwLCBKZXJlbXkgRml0emhhcmRpbmdlIHdyb3RlOgo+PiBP
-biAwOC8wNS8yMDExIDA2OjU4IFBNLCBLb25yYWQgUnplc3p1dGVrIFdpbGsgd3JvdGU6Cj4+PiBP
-biBGcmksIEF1ZyAwNSwgMjAxMSBhdCAxMToxNDoyM1BNICswMjAwLCBJbmdvIE1vbG5hciB3cm90
-ZToKPj4+PiAqIEluZ28gTW9sbmFyIDxtaW5nb0BlbHRlLmh1PiB3cm90ZToKPj4+Pgo+Pj4+PiAq
-IFJhbmR5IER1bmxhcCA8cmR1bmxhcEB4ZW5vdGltZS5uZXQ+IHdyb3RlOgo+Pj4+Pgo+Pj4+Pj4g
-T24gMDgvMDQvMTEgMTU6NDAsIEtvbnJhZCBSemVzenV0ZWsgV2lsayB3cm90ZToKPj4+Pj4+PiBP
-biBUaHUsIEF1ZyAwNCwgMjAxMSBhdCAwNjozMjo1OVBNIC0wNDAwLCBLb25yYWQgUnplc3p1dGVr
-IFdpbGsgd3JvdGU6Cj4+Pj4+Pj4+Pj4+IFRoZXNlIGJ1aWxkIGZhaWx1cmVzIGFyZSBzdGlsbCB0
-cmlnZ2VyaW5nIHVwc3RyZWFtOgo+Pj4+Pj4+Pj4+Pgo+Pj4+Pj4+Pj4+PiAgYXJjaC94ODYveGVu
-L3RyYWNlLmM6NDQ6MjogZXJyb3I6IGFycmF5IGluZGV4IGluIGluaXRpYWxpemVyIG5vdCBvZiBp
-bnRlZ2VyIHR5cGUKPj4+Pj4+Pj4+Pj4gIGFyY2gveDg2L3hlbi90cmFjZS5jOjQ0OjI6IGVycm9y
-OiAobmVhciBpbml0aWFsaXphdGlvbiBmb3Ig4oCYeGVuX2h5cGVyY2FsbF9uYW1lc+KAmSkKPj4+
-Pj4+Pj4+Pj4gIGFyY2gveDg2L3hlbi90cmFjZS5jOjQ1OjE6IGVycm9yOiDigJhfX0hZUEVSVklT
-T1JfYXJjaF804oCZIHVuZGVjbGFyZWQgaGVyZSAobm90IGluIGEgZnVuY3Rpb24pCj4+Pj4+Pj4+
-Pj4+ICBhcmNoL3g4Ni94ZW4vdHJhY2UuYzo0NToyOiBlcnJvcjogYXJyYXkgaW5kZXggaW4gaW5p
-dGlhbGl6ZXIgbm90IG9mIGludGVnZXIgdHlwZQo+Pj4+Pj4+Pj4+PiAgYXJjaC94ODYveGVuL3Ry
-YWNlLmM6NDU6MjogZXJyb3I6IChuZWFyIGluaXRpYWxpemF0aW9uIGZvciDigJh4ZW5faHlwZXJj
-YWxsX25hbWVz4oCZKQo+Pj4+Pj4+Pj4+IE9oLCB0aGF0IEkgaGF2ZW4ndCBzZWVuLiBDYW4geW91
-IHNlbmQgbWUgdGhlIC5jb25maWcgZm9yIHRoYXQgcGxlYXNlLgo+Pj4+Pj4+Pj4gWW91IGNhbid0
-IGJlIHRyeWluZyB2ZXJ5IGhhcmQgdGhlbi4gIEkgc2VlIGxvdHMgb2YgdGhlc2UgKGJ1dCBubywK
-Pj4+Pj4+Pj4gQWgsIEkgYW0gZ2V0dGluZyBpdCBub3cuIFRoYW5rcyBmb3IgcmVwb3J0aW5nIGl0
-Lgo+Pj4+Pj4+IFRoaXMgc2hvdWxkIGRvIHRoZSB0cmljazoKPj4+Pj4+IEFja2VkLWJ5OiBSYW5k
-eSBEdW5sYXAgPHJkdW5sYXBAeGVub3RpbWUubmV0Pgo+Pj4+PiBUaGF0IHBhdGNoIGRpZCB0aGUg
-dHJpY2sgaGVyZSB0b286Cj4+Pj4+Cj4+Pj4+IEFja2VkLWJ5OiBJbmdvIE1vbG5hciA8bWluZ29A
-ZWx0ZS5odT4KPj4+PiBFeGNlcHQgdGhhdCBpJ20gc3RpbGwgc2VlaW5nIHRoZSBvY2Nhc2lvbmFs
-IGJ1aWxkIGZhaWx1cmUgLSBzZWUgdGhlIAo+Pj4+IGVycm9yIGxvZyBiZWxvdy4gQ29uZmlnIGF0
-dGFjaGVkLgo+Pj4gTXVjaCBhcHByZWNpYXRlIGZvciB0aGUgcmVwb3J0LiBJIGJlbGlldmUgdGhp
-cyBmaXggKHdoaWNoIEkgdGhpbmsgaGl0Cj4+PiBsaW51eC1uZXh0IHllc3RlcmRheT8pIHNob3Vs
-ZCBkbyB0aGF0Ogo+Pj4KPj4+IGNvbW1pdCAxZTllYTI2NTZiNjU2ZWRkM2M4ZGU5ODY3NWJiYzAz
-NDAyMTFiNWJkCj4+PiBBdXRob3I6IEplcmVteSBGaXR6aGFyZGluZ2UgPGplcmVteUBnb29wLm9y
-Zz4KPj4+IERhdGU6ICAgV2VkIEF1ZyAzIDA5OjQzOjQ0IDIwMTEgLTA3MDAKPj4+Cj4+PiAgICAg
-IHhlbi90cmFjaW5nOiBpdCBsb29rcyBsaWtlIHdlIHdhbnRlZCBDT05GSUdfRlRSQUNFCj4+PiAg
-ICAgCj4+PiAgICAgQXBwYXJlbnRseSB3ZSB3YW50ZWQgQ09ORklHX0ZUUkFDRSByYXRoZXIgdGhl
-IENPTkZJR19GVU5DVElPTl9UUkFDRVIuCj4+PiAgICAgCj4+PiAgICAgUmVwb3J0ZWQtYnk6IFNh
-bmRlciBFaWtlbGVuYm9vbSA8bGludXhAZWlrZWxlbmJvb20uaXQ+Cj4+PiAgICAgVGVzdGVkLWJ5
-OiBTYW5kZXIgRWlrZWxlbmJvb20gPGxpbnV4QGVpa2VsZW5ib29tLml0Pgo+Pj4gICAgIFNpZ25l
-ZC1vZmYtYnk6IEplcmVteSBGaXR6aGFyZGluZ2UgPGplcmVteS5maXR6aGFyZGluZ2VAY2l0cml4
-LmNvbT4KPj4+ICAgICBTaWduZWQtb2ZmLWJ5OiBLb25yYWQgUnplc3p1dGVrIFdpbGsgPGtvbnJh
-ZC53aWxrQG9yYWNsZS5jb20+Cj4+Pgo+Pj4gZGlmZiAtLWdpdCBhL2FyY2gveDg2L3hlbi9NYWtl
-ZmlsZSBiL2FyY2gveDg2L3hlbi9NYWtlZmlsZQo+Pj4gaW5kZXggNDVlOTRhYy4uMzMyNjIwNCAx
-MDA2NDQKPj4+IC0tLSBhL2FyY2gveDg2L3hlbi9NYWtlZmlsZQo+Pj4gKysrIGIvYXJjaC94ODYv
-eGVuL01ha2VmaWxlCj4+PiBAQCAtMTUsNyArMTUsNyBAQCBvYmoteQkJOj0gZW5saWdodGVuLm8g
-c2V0dXAubyBtdWx0aWNhbGxzLm8gbW11Lm8gaXJxLm8gXAo+Pj4gIAkJCWdyYW50LXRhYmxlLm8g
-c3VzcGVuZC5vIHBsYXRmb3JtLXBjaS11bnBsdWcubyBcCj4+PiAgCQkJcDJtLm8KPj4+ICAKPj4+
-IC1vYmotJChDT05GSUdfRlVOQ1RJT05fVFJBQ0VSKSArPSB0cmFjZS5vCj4+PiArb2JqLSQoQ09O
-RklHX0ZUUkFDRSkgKz0gdHJhY2Uubwo+Pj4gIAo+PiBJJ20gbm90IHN1cmUgdGhpcyBpcyBjb3Jy
-ZWN0IGVpdGhlci4gIE1heWJlIGl0IHNob3VsZCBiZQo+PiBDT05GSUdfVFJBQ0VQT0lOVFM/ICBT
-dGV2ZW4/Cj4gQWN0dWFsbHksIEkgYmVsaWV2ZSB0aGUgY29ycmVjdCBhbnN3ZXIgaXM6Cj4KPiBD
-T05GSUdfRVZFTlRfVFJBQ0lORwoKT0ssIHRoYW5rcy4KCiAgICBKCl9fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlz
-dApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3Rz
-LmxpbnV4LWZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+On 08/03/2011 06:59 AM, Andrew Lutomirski wrote:
+> On Wed, Aug 3, 2011 at 9:56 AM, Konrad Rzeszutek Wilk
+> <konrad.wilk@oracle.com> wrote:
+>> On Wed, Aug 03, 2011 at 09:53:22AM -0400, Konrad Rzeszutek Wilk wrote:
+>>> On Wed, Aug 03, 2011 at 09:31:48AM -0400, Andy Lutomirski wrote:
+>>>> This fixes various problems that cropped up with the vdso patches.
+>>>>
+>>>>  - Patch 1 fixes an information leak to userspace.
+>>>>  - Patches 2 and 3 fix the kernel build on gold.
+>>>>  - Patches 4 and 5 fix Xen (I hope).
+>>>>  - Patch 6 (optional) adds a trace event to vsyscall emulation.  It will
+>>>>    make it easier to handle performance regression reports :)
+>>> Hm, you seemed to have the x86 maintainers on your email..
+>> I definitly need some coffee. What I meant was that you missing putting
+>> the x86 maintainers on this patchset. They are the ones that will handle this.
+>>
+>> I put them on the To list for you.
+> Are you sure about that coffee?  I'm pretty sure I had x86@kernel.org in there.
+
+What's the state of this series?  Has tip.git picked it up, or does it
+need another go-around?
+
+I just booted a Linus tree and got a backtrace that looks like this
+issue, though I haven't looked into it in detail yet.
+
+Thanks,
+    J
