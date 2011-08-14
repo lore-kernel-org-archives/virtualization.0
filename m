@@ -1,13 +1,13 @@
 From: Jason Wang <jasowang@redhat.com>
 Subject: Re: [net-next RFC PATCH 4/7] tuntap: multiqueue support
-Date: Sun, 14 Aug 2011 02:05:25 -0400 (EDT)
-Message-ID: <1465655104.165911.1313301925197.JavaMail.root__18263.5214798667$1313301966$gmane$org@zmail05.collab.prod.int.phx2.redhat.com>
-References: <1313159376.2354.26.camel@edumazet-HP-Compaq-6005-Pro-SFF-PC>
+Date: Sun, 14 Aug 2011 02:07:51 -0400 (EDT)
+Message-ID: <1994320084.165913.1313302071630.JavaMail.root__12823.3403702781$1313302117$gmane$org@zmail05.collab.prod.int.phx2.redhat.com>
+References: <20110812232131.GU2395@linux.vnet.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1313159376.2354.26.camel@edumazet-HP-Compaq-6005-Pro-SFF-PC>
+In-Reply-To: <20110812232131.GU2395@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -17,43 +17,210 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Eric Dumazet <eric.dumazet@gmail.com>
+To: paulmck@linux.vnet.ibm.com
 Cc: krkumar2@in.ibm.com, kvm@vger.kernel.org, mst@redhat.com, qemu-devel@nongnu.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, mirq-linux@rere.qmqm.pl, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgotLS0tLSBPcmlnaW5hbCBNZXNzYWdlIC0tLS0tCj4gTGUgdmVuZHJlZGkgMTIgYW/Du3QgMjAx
-MSDDoCAwOTo1NSArMDgwMCwgSmFzb24gV2FuZyBhIMOpY3JpdCA6Cj4gCj4gPisgcnhxID0gc2ti
-X2dldF9yeGhhc2goc2tiKTsKPiA+KyBpZiAocnhxKSB7Cj4gPisgdGZpbGUgPSByY3VfZGVyZWZl
-cmVuY2UodHVuLT50ZmlsZXNbcnhxICUgbnVtcXVldWVzXSk7Cj4gPisgaWYgKHRmaWxlKQo+ID4r
-IGdvdG8gb3V0Owo+ID4rIH0KPiAKPiBZb3UgY2FuIGF2b2lkIGFuIGV4cGVuc2l2ZSBkaXZpZGUg
-d2l0aCBmb2xsb3dpbmcgdHJpY2sgOgo+IAo+IHUzMiBpZHggPSAoKHU2NClyeHEgKiBudW1xdWV1
-ZXMpID4+IDMyOwo+IAoKU3VyZS4KCj4gCj4gCj4gPiAtc3RhdGljIHN0cnVjdCB0dW5fc3RydWN0
-ICp0dW5fZ2V0KHN0cnVjdCBmaWxlICpmaWxlKQo+ID4gK3N0YXRpYyB2b2lkIHR1bl9kZXRhY2hf
-YWxsKHN0cnVjdCBuZXRfZGV2aWNlICpkZXYpCj4gPiAgewo+ID4gLSByZXR1cm4gX190dW5fZ2V0
-KGZpbGUtPnByaXZhdGVfZGF0YSk7Cj4gPiArIHN0cnVjdCB0dW5fc3RydWN0ICp0dW4gPSBuZXRk
-ZXZfcHJpdihkZXYpOwo+ID4gKyBzdHJ1Y3QgdHVuX2ZpbGUgKnRmaWxlLCAqdGZpbGVfbGlzdFtN
-QVhfVEFQX1FVRVVFU107Cj4gPiArIGludCBpLCBqID0gMDsKPiA+ICsKPiA+ICsgc3Bpbl9sb2Nr
-KCZ0dW5fbG9jayk7Cj4gPiArCj4gPiArIGZvciAoaSA9IDA7IGkgPCBNQVhfVEFQX1FVRVVFUyAm
-JiB0dW4tPm51bXF1ZXVlczsgaSsrKSB7Cj4gPiArIHRmaWxlID0gcmN1X2RlcmVmZXJlbmNlX3By
-b3RlY3RlZCh0dW4tPnRmaWxlc1tpXSwKPiA+ICsgbG9ja2RlcF9pc19oZWxkKCZ0dW5fbG9jaykp
-Owo+ID4gKyBpZiAodGZpbGUpIHsKPiA+ICsgd2FrZV91cF9hbGwoJnRmaWxlLT53cS53YWl0KTsK
-PiA+ICsgdGZpbGVfbGlzdFtpKytdID0gdGZpbGU7Cj4gCj4gdHlwbyBoZXJlLCB5b3Ugd2FudCB0
-ZmlsZV9saXN0W2orK10gPSB0ZmlsZTsKPiAKClllcywgdGhhbmtzIGZvciBjYXRjaGluZyB0aGlz
-LgoKPiA+ICsgcmN1X2Fzc2lnbl9wb2ludGVyKHR1bi0+dGZpbGVzW2ldLCBOVUxMKTsKPiA+ICsg
-cmN1X2Fzc2lnbl9wb2ludGVyKHRmaWxlLT50dW4sIE5VTEwpOwo+ID4gKyAtLXR1bi0+bnVtcXVl
-dWVzOwo+ID4gKyB9Cj4gPiArIH0KPiA+ICsgQlVHX09OKHR1bi0+bnVtcXVldWVzICE9IDApOwo+
-ID4gKyBzcGluX3VubG9jaygmdHVuX2xvY2spOwo+ID4gKwo+ID4gKyBzeW5jaHJvbml6ZV9yY3Uo
-KTsKPiA+ICsgZm9yKC0tajsgaiA+PSAwOyBqLS0pCj4gPiArIHNvY2tfcHV0KCZ0ZmlsZV9saXN0
-W2pdLT5zayk7Cj4gPiAgfQo+ID4KPiAKPiBDb3VsZCB5b3UgdGFrZSBhIGxvb2sgYXQgbmV0L3Bh
-Y2tldC9hZl9wYWNrZXQuYywgdG8gY2hlY2sgaG93IERhdmlkCj4gZGlkCj4gdGhlIHdob2xlIGZh
-bm91dCB0aGluZyA/Cj4gCj4gX19mYW5vdXRfdW5saW5rKCkKPiAKPiBUcmljayBpcyB0byBub3Qg
-bGVhdmUgTlVMTCBlbnRyaWVzIGluIHRoZSB0dW4tPnRmaWxlc1tdIGFycmF5Lgo+IAo+IEl0IG1h
-a2VzIHRoaW5ncyBlYXNpZXIgaW4gaG90IHBhdGguCgpTdXJlIEkgd291bGQgZ28gdG8gdGFrZSBh
-IGxvb2sgYXQgdGhpcy4KCj4gCj4gCj4gLS0KPiBUbyB1bnN1YnNjcmliZSBmcm9tIHRoaXMgbGlz
-dDogc2VuZCB0aGUgbGluZSAidW5zdWJzY3JpYmUgbmV0ZGV2IiBpbgo+IHRoZSBib2R5IG9mIGEg
-bWVzc2FnZSB0byBtYWpvcmRvbW9Admdlci5rZXJuZWwub3JnCj4gTW9yZSBtYWpvcmRvbW8gaW5m
-byBhdCBodHRwOi8vdmdlci5rZXJuZWwub3JnL21ham9yZG9tby1pbmZvLmh0bWwKX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFp
-bGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBz
-Oi8vbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXph
-dGlvbg==
+
+
+----- Original Message -----
+> On Fri, Aug 12, 2011 at 09:55:20AM +0800, Jason Wang wrote:
+> > With the abstraction that each socket were a backend of a
+> > queue for userspace, this patch adds multiqueue support for
+> > tap device by allowing multiple sockets to be attached to a
+> > tap device. Then we could parallize the transmission by put
+> > them into different socket.
+> >
+> > As queue related information were stored in private_data of
+> > file new, we could simply implement the multiqueue support
+> > by add an array of pointers to sockets were stored in the
+> > tap device. Then ioctls may be added to manipulate those
+> > pointers for adding or removing queues.
+> >
+> > In order to let tx path lockless, NETIF_F_LLTX were used for
+> > multiqueue tap device. And RCU is used for doing
+> > synchronization between packet handling and system calls
+> > such as removing queues.
+> >
+> > Currently, multiqueue support is limited for tap , but it's
+> > easy also enable it for tun if we find it was also helpful.
+> 
+> Question below about calls to tun_get_slot().
+> 
+> Thanx, Paul
+> 
+> > Signed-off-by: Jason Wang <jasowang@redhat.com>
+> > ---
+> >  drivers/net/tun.c | 376
+> >  ++++++++++++++++++++++++++++++++++-------------------
+> >  1 files changed, 243 insertions(+), 133 deletions(-)
+> >
+> > diff --git a/drivers/net/tun.c b/drivers/net/tun.c
+> > index 4cd292a..8bc6dff 100644
+> > --- a/drivers/net/tun.c
+> > +++ b/drivers/net/tun.c
+> > @@ -108,6 +108,8 @@ struct tap_filter {
+> >  	unsigned char addr[FLT_EXACT_COUNT][ETH_ALEN];
+> >  };
+> >
+> > +#define MAX_TAP_QUEUES (NR_CPUS < 16 ? NR_CPUS : 16)
+> > +
+> >  struct tun_file {
+> >  	struct sock sk;
+> >  	struct socket socket;
+> > @@ -115,7 +117,7 @@ struct tun_file {
+> >  	int vnet_hdr_sz;
+> >  	struct tap_filter txflt;
+> >  	atomic_t count;
+> > - struct tun_struct *tun;
+> > + struct tun_struct __rcu *tun;
+> >  	struct net *net;
+> >  	struct fasync_struct *fasync;
+> >  	unsigned int flags;
+> > @@ -124,7 +126,8 @@ struct tun_file {
+> >  struct tun_sock;
+> >
+> >  struct tun_struct {
+> > - struct tun_file *tfile;
+> > + struct tun_file *tfiles[MAX_TAP_QUEUES];
+> > + unsigned int numqueues;
+> >  	unsigned int flags;
+> >  	uid_t owner;
+> >  	gid_t group;
+> > @@ -139,80 +142,183 @@ struct tun_struct {
+> >  #endif
+> >  };
+> >
+> > -static int tun_attach(struct tun_struct *tun, struct file *file)
+> > +static DEFINE_SPINLOCK(tun_lock);
+> > +
+> > +/*
+> > + * get_slot: return a [unused/occupied] slot in tun->tfiles[]:
+> > + * - if 'f' is NULL, return the first empty slot;
+> > + * - otherwise, return the slot this pointer occupies.
+> > + */
+> > +static int tun_get_slot(struct tun_struct *tun, struct tun_file
+> > *tfile)
+> >  {
+> > - struct tun_file *tfile = file->private_data;
+> > - int err;
+> > + int i;
+> >
+> > - ASSERT_RTNL();
+> > + for (i = 0; i < MAX_TAP_QUEUES; i++) {
+> > + if (rcu_dereference(tun->tfiles[i]) == tfile)
+> > + return i;
+> > + }
+> >
+> > - netif_tx_lock_bh(tun->dev);
+> > + /* Should never happen */
+> > + BUG_ON(1);
+> > +}
+> >
+> > - err = -EINVAL;
+> > - if (tfile->tun)
+> > - goto out;
+> > +/*
+> > + * tun_get_queue(): calculate the queue index
+> > + * - if skbs comes from mq nics, we can just borrow
+> > + * - if not, calculate from the hash
+> > + */
+> > +static struct tun_file *tun_get_queue(struct net_device *dev,
+> > + struct sk_buff *skb)
+> > +{
+> > + struct tun_struct *tun = netdev_priv(dev);
+> > + struct tun_file *tfile = NULL;
+> > + int numqueues = tun->numqueues;
+> > + __u32 rxq;
+> >
+> > - err = -EBUSY;
+> > - if (tun->tfile)
+> > + BUG_ON(!rcu_read_lock_held());
+> > +
+> > + if (!numqueues)
+> >  		goto out;
+> >
+> > - err = 0;
+> > - tfile->tun = tun;
+> > - tun->tfile = tfile;
+> > - netif_carrier_on(tun->dev);
+> > - dev_hold(tun->dev);
+> > - sock_hold(&tfile->sk);
+> > - atomic_inc(&tfile->count);
+> > + if (likely(skb_rx_queue_recorded(skb))) {
+> > + rxq = skb_get_rx_queue(skb);
+> > +
+> > + while (unlikely(rxq >= numqueues))
+> > + rxq -= numqueues;
+> > +
+> > + tfile = rcu_dereference(tun->tfiles[rxq]);
+> > + if (tfile)
+> > + goto out;
+> > + }
+> > +
+> > + /* Check if we can use flow to select a queue */
+> > + rxq = skb_get_rxhash(skb);
+> > + if (rxq) {
+> > + tfile = rcu_dereference(tun->tfiles[rxq % numqueues]);
+> > + if (tfile)
+> > + goto out;
+> > + }
+> > +
+> > + /* Everything failed - find first available queue */
+> > + for (rxq = 0; rxq < MAX_TAP_QUEUES; rxq++) {
+> > + tfile = rcu_dereference(tun->tfiles[rxq]);
+> > + if (tfile)
+> > + break;
+> > + }
+> >
+> >  out:
+> > - netif_tx_unlock_bh(tun->dev);
+> > - return err;
+> > + return tfile;
+> >  }
+> >
+> > -static void __tun_detach(struct tun_struct *tun)
+> > +static int tun_detach(struct tun_file *tfile, bool clean)
+> >  {
+> > - struct tun_file *tfile = tun->tfile;
+> > - /* Detach from net device */
+> > - netif_tx_lock_bh(tun->dev);
+> > - netif_carrier_off(tun->dev);
+> > - tun->tfile = NULL;
+> > - netif_tx_unlock_bh(tun->dev);
+> > -
+> > - /* Drop read queue */
+> > - skb_queue_purge(&tfile->socket.sk->sk_receive_queue);
+> > -
+> > - /* Drop the extra count on the net device */
+> > - dev_put(tun->dev);
+> > -}
+> > + struct tun_struct *tun;
+> > + struct net_device *dev = NULL;
+> > + bool destroy = false;
+> >
+> > -static void tun_detach(struct tun_struct *tun)
+> > -{
+> > - rtnl_lock();
+> > - __tun_detach(tun);
+> > - rtnl_unlock();
+> > -}
+> > + spin_lock(&tun_lock);
+> >
+> > -static struct tun_struct *__tun_get(struct tun_file *tfile)
+> > -{
+> > - struct tun_struct *tun = NULL;
+> > + tun = rcu_dereference_protected(tfile->tun,
+> > + lockdep_is_held(&tun_lock));
+> > + if (tun) {
+> > + int index = tun_get_slot(tun, tfile);
+> 
+> Don't we need to be in an RCU read-side critical section in order to
+> safely call tun_get_slot()?
+> 
+> Or is the fact that we are calling with tun_lock held sufficient?
+> If the latter, then the rcu_dereference() in tun_get_slot() should
+> use rcu_dereference_protected() rather than rcu_dereference().
+> 
+
+Nice catch. The latter, tun_lock held is sufficient. Thanks.
