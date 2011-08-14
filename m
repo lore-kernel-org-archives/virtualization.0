@@ -1,13 +1,14 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [net-next RFC PATCH 0/7] multiqueue support for tun/tap
-Date: Sun, 14 Aug 2011 02:19:41 -0400 (EDT)
-Message-ID: <410484089.165922.1313302781804.JavaMail.root__34157.7521096498$1313302852$gmane$org@zmail05.collab.prod.int.phx2.redhat.com>
-References: <1313196390.28682.14.camel@w-sridhar.beaverton.ibm.com>
+From: Sasha Levin <levinsasha928@gmail.com>
+Subject: Re: [PATCH] virtio-net: Read MAC only after initializing MSI-X
+Date: Sun, 14 Aug 2011 16:57:32 +0300
+Message-ID: <1313330252.2422.12.camel__6299.80158196322$1313345699$gmane$org@sasha>
+References: <1313225461-24458-1-git-send-email-levinsasha928@gmail.com>
+	<878vqw9007.fsf@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1313196390.28682.14.camel@w-sridhar.beaverton.ibm.com>
+In-Reply-To: <878vqw9007.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -17,116 +18,51 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Sridhar Samudrala <sri@us.ibm.com>
-Cc: krkumar2@in.ibm.com, kvm@vger.kernel.org, mst@redhat.com, qemu-devel@nongnu.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, mirq-linux@rere.qmqm.pl, davem@davemloft.net
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-
-
------ Original Message -----
-> On Fri, 2011-08-12 at 09:54 +0800, Jason Wang wrote:
-> > As multi-queue nics were commonly used for high-end servers,
-> > current single queue based tap can not satisfy the
-> > requirement of scaling guest network performance as the
-> > numbers of vcpus increase. So the following series
-> > implements multiple queue support in tun/tap.
-> >
-> > In order to take advantages of this, a multi-queue capable
-> > driver and qemu were also needed. I just rebase the latest
-> > version of Krishna's multi-queue virtio-net driver into this
-> > series to simplify the test. And for multiqueue supported
-> > qemu, you can refer the patches I post in
-> > http://www.spinics.net/lists/kvm/msg52808.html. Vhost is
-> > also a must to achieve high performance and its code could
-> > be used for multi-queue without modification. Alternatively,
-> > this series can be also used for Krishna's M:N
-> > implementation of multiqueue but I didn't test it.
-> >
-> > The idea is simple: each socket were abstracted as a queue
-> > for tun/tap, and userspace may open as many files as
-> > required and then attach them to the devices. In order to
-> > keep the ABI compatibility, device creation were still
-> > finished in TUNSETIFF, and two new ioctls TUNATTACHQUEUE and
-> > TUNDETACHQUEUE were added for user to manipulate the numbers
-> > of queues for the tun/tap.
+On Sun, 2011-08-14 at 12:23 +0930, Rusty Russell wrote:
+> On Sat, 13 Aug 2011 11:51:01 +0300, Sasha Levin <levinsasha928@gmail.com> wrote:
+> > The MAC of a virtio-net device is located at the first field of the device
+> > specific header. This header is located at offset 20 if the device doesn't
+> > support MSI-X or offset 24 if it does.
 > 
-> Is it possible to have tap create these queues automatically when
-> TUNSETIFF is called instead of having userspace to do the new
-> ioctls. I am just wondering if it is possible to get multi-queue
-> to be enabled without any changes to qemu. I guess the number of
-> queues
-> could be based on the number of vhost threads/guest virtio-net queues.
-
-It's possible but we need at least pass the number of queues
-through TUNSETIFF which may break the ABI? And this method
-is not flexible as adding new ioctls, consider we may
-disable some queues for some reaons such as running a single
-queue guest or pxe on an multiple virtio-net backened.
-
+> Erk.  This means, in general, we have to do virtio_find_single_vq or
+> config->find_vqs before we examine any config options.
 > 
-> Also, is it possible to enable multi-queue on the host alone without
-> any guest virtio-net changes?
-
-If we use current driver without changes, it can run on host
-that multiqueu enabled. But it can not make use all of the
-queues.
-
+> Look at virtio_blk, which has the same error.
 > 
-> Have you done any multiple TCP_RR/UDP_RR testing with small packet
-> sizes? 256byte request/response with 50-100 instances?
+> Solutions in order of best to worst:
+> (1) Enable MSI-X before calling device probe.  This means reserving two
+>     vectors in virtio_pci_probe to ensure we *can* do this, I think.  Michael?
 
-Not yet, I would do it after I was back from KVM Forum.
+Do you mean reserving the vectors even before we probed the device for
+MSI-X support? Wouldn't we need 3 vectors then? (config, input, output).
 
+> (2) Ensure ordering of "find_vqs then access config space" statically.  This
+>     probably means handing the vqs array to virtio_config_val, so noone
+>     can call it before they have their virtqueues.
+
+Just noticed that only virtio-blk uses virtio_config_val(), while the
+others are still doing 'if(virtio_has_feature()) vdev->config->get()',
+I'll send patches to fix that regardless of what we end up doing here.
+
+Did you want to pass the vq array to virtio_config_val() just to check
+that they were already found? 
+
+> (3) Ensure ordering dynamically, ie. BUG_ON() if they haven't done
+>     find_vqs when they call the config accessors.
 > 
-> >
-> > I've done some basic performance testing of multi queue
-> > tap. For tun, I just test it through vpnc.
-> >
-> > Notes:
-> > - Test shows improvement when receving packets from
-> > local/external host to guest, and send big packet from guest
-> > to local/external host.
-> > - Current multiqueue based virtio-net/tap introduce a
-> > regression of send small packet (512 byte) from guest to
-> > local/external host. I suspect it's the issue of queue
-> > selection in both guest driver and tap. Would continue to
-> > investigate.
-> > - I would post the perforamnce numbers as a reply of this
-> > mail.
-> >
-> > TODO:
-> > - solve the issue of packet transmission of small packets.
-> > - addressing the comments of virtio-net driver
-> > - performance tunning
-> >
-> > Please review and comment it, Thanks.
-> >
-> > ---
-> >
-> > Jason Wang (5):
-> >       tuntap: move socket/sock related structures to tun_file
-> >       tuntap: categorize ioctl
-> >       tuntap: introduce multiqueue related flags
-> >       tuntap: multiqueue support
-> >       tuntap: add ioctls to attach or detach a file form tap device
-> >
-> > Krishna Kumar (2):
-> >       Change virtqueue structure
-> >       virtio-net changes
-> >
-> >
-> >  drivers/net/tun.c | 738 ++++++++++++++++++++++++++-----------------
-> >  drivers/net/virtio_net.c | 578 ++++++++++++++++++++++++----------
-> >  drivers/virtio/virtio_pci.c | 10 -
-> >  include/linux/if_tun.h | 5
-> >  include/linux/virtio.h | 1
-> >  include/linux/virtio_net.h | 3
-> >  6 files changed, 867 insertions(+), 468 deletions(-)
-> >
+> If (1) is too invasive for -stable, then we should rearrange the drivers
+> in separate patches (and cc: -stable), then fix it properly.
 > 
-> --
-> To unsubscribe from this list: send the line "unsubscribe
-> linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at http://www.tux.org/lkml/
+> Good catch Sasha!
+> 
+> Cheers,
+> Rusty.
+
+
+-- 
+
+Sasha.
