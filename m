@@ -1,11 +1,13 @@
-From: Sasha Levin <levinsasha928@gmail.com>
-Subject: [PATCH] virtio-net: Read MAC only after initializing MSI-X
-Date: Sat, 13 Aug 2011 11:51:01 +0300
-Message-ID: <1313225461-24458-1-git-send-email-levinsasha928__13172.7019594566$1313260162$gmane$org@gmail.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH] virtio-net: Read MAC only after initializing MSI-X
+Date: Sun, 14 Aug 2011 12:23:44 +0930
+Message-ID: <878vqw9007.fsf__34516.6768915535$1313294283$gmane$org@rustcorp.com.au>
+References: <1313225461-24458-1-git-send-email-levinsasha928@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1313225461-24458-1-git-send-email-levinsasha928@gmail.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -16,64 +18,34 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: linux-kernel@vger.kernel.org
-Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, Sasha Levin <levinsasha928@gmail.com>
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, Sasha Levin <levinsasha928@gmail.com>, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The MAC of a virtio-net device is located at the first field of the device
-specific header. This header is located at offset 20 if the device doesn't
-support MSI-X or offset 24 if it does.
+On Sat, 13 Aug 2011 11:51:01 +0300, Sasha Levin <levinsasha928@gmail.com> wrote:
+> The MAC of a virtio-net device is located at the first field of the device
+> specific header. This header is located at offset 20 if the device doesn't
+> support MSI-X or offset 24 if it does.
 
-Current code in virtnet_probe() used to probe the MAC before checking for
-MSI-X, which means that the read was always made from offset 20 regardless
-of whether MSI-X in enabled or not.
+Erk.  This means, in general, we have to do virtio_find_single_vq or
+config->find_vqs before we examine any config options.
 
-This patch moves the MAC probe to after the detection of whether MSI-X is
-enabled. This way the MAC will be read from offset 24 if the device indeed
-supports MSI-X.
+Look at virtio_blk, which has the same error.
 
-Cc: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Michael S. Tsirkin <mst@redhat.com>
-Cc: virtualization@lists.linux-foundation.org
-Cc: netdev@vger.kernel.org
-Cc: kvm@vger.kernel.org
-Signed-off-by: Sasha Levin <levinsasha928@gmail.com>
----
- drivers/net/virtio_net.c |   16 ++++++++--------
- 1 files changed, 8 insertions(+), 8 deletions(-)
+Solutions in order of best to worst:
+(1) Enable MSI-X before calling device probe.  This means reserving two
+    vectors in virtio_pci_probe to ensure we *can* do this, I think.  Michael?
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 0c7321c..55ccf96 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -981,14 +981,6 @@ static int virtnet_probe(struct virtio_device *vdev)
- 		/* (!csum && gso) case will be fixed by register_netdev() */
- 	}
- 
--	/* Configuration may specify what MAC to use.  Otherwise random. */
--	if (virtio_has_feature(vdev, VIRTIO_NET_F_MAC)) {
--		vdev->config->get(vdev,
--				  offsetof(struct virtio_net_config, mac),
--				  dev->dev_addr, dev->addr_len);
--	} else
--		random_ether_addr(dev->dev_addr);
--
- 	/* Set up our device-specific information */
- 	vi = netdev_priv(dev);
- 	netif_napi_add(dev, &vi->napi, virtnet_poll, napi_weight);
-@@ -1032,6 +1024,14 @@ static int virtnet_probe(struct virtio_device *vdev)
- 			dev->features |= NETIF_F_HW_VLAN_FILTER;
- 	}
- 
-+	/* Configuration may specify what MAC to use.  Otherwise random. */
-+	if (virtio_has_feature(vdev, VIRTIO_NET_F_MAC)) {
-+		vdev->config->get(vdev,
-+				  offsetof(struct virtio_net_config, mac),
-+				  dev->dev_addr, dev->addr_len);
-+	} else
-+		random_ether_addr(dev->dev_addr);
-+
- 	err = register_netdev(dev);
- 	if (err) {
- 		pr_debug("virtio_net: registering device failed\n");
--- 
-1.7.6
+(2) Ensure ordering of "find_vqs then access config space" statically.  This
+    probably means handing the vqs array to virtio_config_val, so noone
+    can call it before they have their virtqueues.
+
+(3) Ensure ordering dynamically, ie. BUG_ON() if they haven't done
+    find_vqs when they call the config accessors.
+
+If (1) is too invasive for -stable, then we should rearrange the drivers
+in separate patches (and cc: -stable), then fix it properly.
+
+Good catch Sasha!
+
+Cheers,
+Rusty.
