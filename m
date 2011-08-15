@@ -1,15 +1,11 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH 3/3] virtio-net: Use virtio_config_val() for retrieving
-	config
-Date: Mon, 15 Aug 2011 10:28:05 +0930
-Message-ID: <87pqk77aoy.fsf__3526.93541576645$1313370174$gmane$org@rustcorp.com.au>
-References: <1313333553-23086-1-git-send-email-levinsasha928@gmail.com>
-	<1313333553-23086-3-git-send-email-levinsasha928@gmail.com>
+Subject: [PULL] lguest fix, virtio documentation
+Date: Mon, 15 Aug 2011 10:25:00 +0930
+Message-ID: <87sjp37au3.fsf__21370.9008916796$1313370191$gmane$org@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1313333553-23086-3-git-send-email-levinsasha928@gmail.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,16 +15,28 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org
-Cc: Amit Shah <amit.shah@redhat.com>, virtualization@lists.linux-foundation.org, Sasha Levin <levinsasha928@gmail.com>, "Michael S. Tsirkin" <mst@redhat.com>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sun, 14 Aug 2011 17:52:33 +0300, Sasha Levin <levinsasha928@gmail.com> wrote:
-> This patch modifies virtio-net to use virtio_config_val() instead
-> of a 'if(virtio_has_feature()) vdev->config->get()' construct to retrieve
-> optional values from the config space.
+[ This adds a text copy of the virtio draft spec to the kernel source,
+  which should make it easier for people to find and read.  The master
+  is still the lyx document on my server, so I'll keep it in sync. ]
 
-Thanks, all applied.
+The following changes since commit 91d85ea6786107aa2837bef3e957165ad7c8b823:
 
-Cheers,
-Rusty.
+  Merge branch 'hwmon-for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/groeck/staging (2011-08-13 18:37:28 -0700)
+
+are available in the git repository at:
+
+  ssh://master.kernel.org/pub/scm/linux/kernel/git/rusty/linux-2.6-for-linus.git master
+
+Rusty Russell (2):
+      virtio: Add text copy of spec to Documentation/virtual.
+      lguest: allow booting guest with CONFIG_RELOCATABLE=y
+
+ Documentation/virtual/00-INDEX        |    3 +
+ Documentation/virtual/lguest/lguest.c |    3 +
+ Documentation/virtual/virtio-spec.txt | 2200 +++++++++++++++++++++++++++++++++
+ 3 files changed, 2206 insertions(+), 0 deletions(-)
+ create mode 100644 Documentation/virtual/virtio-spec.txt
