@@ -1,14 +1,13 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH] virtio-net: Read MAC only after initializing MSI-X
-Date: Mon, 15 Aug 2011 09:55:26 +0930
-Message-ID: <87vctz7c7d.fsf__14492.7631751218$1313370193$gmane$org@rustcorp.com.au>
-References: <1313225461-24458-1-git-send-email-levinsasha928@gmail.com>
-	<878vqw9007.fsf@rustcorp.com.au> <1313330252.2422.12.camel@sasha>
+From: Sasha Levin <levinsasha928@gmail.com>
+Subject: Re: [PULL] lguest fix, virtio documentation
+Date: Mon, 15 Aug 2011 17:48:32 +0300
+Message-ID: <1313419712.3004.1.camel__3429.94764582745$1313419840$gmane$org@sasha>
+References: <87sjp37au3.fsf@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1313330252.2422.12.camel@sasha>
+In-Reply-To: <87sjp37au3.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,46 +17,28 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Sasha Levin <levinsasha928@gmail.com>
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sun, 14 Aug 2011 16:57:32 +0300, Sasha Levin <levinsasha928@gmail.com> wrote:
-> On Sun, 2011-08-14 at 12:23 +0930, Rusty Russell wrote:
-> > On Sat, 13 Aug 2011 11:51:01 +0300, Sasha Levin <levinsasha928@gmail.com> wrote:
-> > > The MAC of a virtio-net device is located at the first field of the device
-> > > specific header. This header is located at offset 20 if the device doesn't
-> > > support MSI-X or offset 24 if it does.
-> > 
-> > Erk.  This means, in general, we have to do virtio_find_single_vq or
-> > config->find_vqs before we examine any config options.
-> > 
-> > Look at virtio_blk, which has the same error.
-> > 
-> > Solutions in order of best to worst:
-> > (1) Enable MSI-X before calling device probe.  This means reserving two
-> >     vectors in virtio_pci_probe to ensure we *can* do this, I think.  Michael?
+On Mon, 2011-08-15 at 10:25 +0930, Rusty Russell wrote:
+> [ This adds a text copy of the virtio draft spec to the kernel source,
+>   which should make it easier for people to find and read.  The master
+>   is still the lyx document on my server, so I'll keep it in sync. ]
 > 
-> Do you mean reserving the vectors even before we probed the device for
-> MSI-X support? Wouldn't we need 3 vectors then? (config, input, output).
-
-We want three, but *need* two: see vp_find_vqs().  Also, the generic
-code doesn't know how many virtqueues we have on the device.
-
-> > (2) Ensure ordering of "find_vqs then access config space" statically.  This
-> >     probably means handing the vqs array to virtio_config_val, so noone
-> >     can call it before they have their virtqueues.
+> The following changes since commit 91d85ea6786107aa2837bef3e957165ad7c8b823:
 > 
-> Just noticed that only virtio-blk uses virtio_config_val(), while the
-> others are still doing 'if(virtio_has_feature()) vdev->config->get()',
-> I'll send patches to fix that regardless of what we end up doing here.
+>   Merge branch 'hwmon-for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/groeck/staging (2011-08-13 18:37:28 -0700)
+> 
+> are available in the git repository at:
+> 
+>   ssh://master.kernel.org/pub/scm/linux/kernel/git/rusty/linux-2.6-for-linus.git master
+> 
+> Rusty Russell (2):
+>       virtio: Add text copy of spec to Documentation/virtual.
 
-Thanks.
+The "Device Status" paragraph says FAILED is 8, while it should be 0x80.
 
-> Did you want to pass the vq array to virtio_config_val() just to check
-> that they were already found? 
+-- 
 
-Not if we fix is using method #1...
-
-Thanks,
-Rusty.
+Sasha.
