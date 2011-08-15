@@ -1,44 +1,54 @@
-From: Sasha Levin <levinsasha928@gmail.com>
-Subject: Re: [PULL] lguest fix, virtio documentation
-Date: Mon, 15 Aug 2011 17:48:32 +0300
-Message-ID: <1313419712.3004.1.camel__3429.94764582745$1313419840$gmane$org@sasha>
-References: <87sjp37au3.fsf@rustcorp.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <87sjp37au3.fsf@rustcorp.com.au>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>
+From: "K. Y. Srinivasan" <kys@microsoft.com>
+Subject: [PATCH 2/8] Staging: hv: vmbus: Invoke vmbus_on_msg_dpc() directly
+Date: Mon, 15 Aug 2011 15:12:01 -0700
+Message-ID: <1313446327-10650-2-git-send-email-kys@microsoft.com>
+References: <1313446210-10611-1-git-send-email-kys@microsoft.com>
+ <1313446327-10650-1-git-send-email-kys@microsoft.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1313446327-10650-1-git-send-email-kys@microsoft.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org
+Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, 2011-08-15 at 10:25 +0930, Rusty Russell wrote:
-> [ This adds a text copy of the virtio draft spec to the kernel source,
->   which should make it easier for people to find and read.  The master
->   is still the lyx document on my server, so I'll keep it in sync. ]
-> 
-> The following changes since commit 91d85ea6786107aa2837bef3e957165ad7c8b823:
-> 
->   Merge branch 'hwmon-for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/groeck/staging (2011-08-13 18:37:28 -0700)
-> 
-> are available in the git repository at:
-> 
->   ssh://master.kernel.org/pub/scm/linux/kernel/git/rusty/linux-2.6-for-linus.git master
-> 
-> Rusty Russell (2):
->       virtio: Add text copy of spec to Documentation/virtual.
+The message processing function needs to execute on the same CPU where
+the interrupt was taken. tasklets cannot gurantee this; so, invoke the 
+function directly.
 
-The "Device Status" paragraph says FAILED is 8, while it should be 0x80.
+Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
+Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
+---
+ drivers/staging/hv/vmbus_drv.c |    4 +---
+ 1 files changed, 1 insertions(+), 3 deletions(-)
 
+diff --git a/drivers/staging/hv/vmbus_drv.c b/drivers/staging/hv/vmbus_drv.c
+index bb25c5b..1d4e878 100644
+--- a/drivers/staging/hv/vmbus_drv.c
++++ b/drivers/staging/hv/vmbus_drv.c
+@@ -39,7 +39,6 @@
+ 
+ static struct acpi_device  *hv_acpi_dev;
+ 
+-static struct tasklet_struct msg_dpc;
+ static struct tasklet_struct event_dpc;
+ 
+ unsigned int vmbus_loglevel = (ALL_MODULES << 16 | INFO_LVL);
+@@ -425,7 +424,7 @@ static irqreturn_t vmbus_isr(int irq, void *dev_id)
+ 	/* Check if there are actual msgs to be process */
+ 	if (msg->header.message_type != HVMSG_NONE) {
+ 		handled = true;
+-		tasklet_schedule(&msg_dpc);
++		vmbus_on_msg_dpc(0);
+ 	}
+ 
+ 	page_addr = hv_context.synic_event_page[cpu];
+@@ -465,7 +464,6 @@ static int vmbus_bus_init(int irq)
+ 	}
+ 
+ 	/* Initialize the bus context */
+-	tasklet_init(&msg_dpc, vmbus_on_msg_dpc, 0);
+ 	tasklet_init(&event_dpc, vmbus_on_event, 0);
+ 
+ 	/* Now, register the bus  with LDM */
 -- 
-
-Sasha.
+1.7.4.1
