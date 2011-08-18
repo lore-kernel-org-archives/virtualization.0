@@ -1,57 +1,83 @@
 From: Sasha Levin <levinsasha928@gmail.com>
-Subject: Re: [PATCH] virtio-blk: Add stats VQ to collect information about
-	devices
-Date: Thu, 18 Aug 2011 07:38:03 +0300
-Message-ID: <1313642283.22532.4.camel__29587.2318595231$1313642408$gmane$org@lappy>
-References: <1313524071-27250-1-git-send-email-levinsasha928@gmail.com>
-	<4E4C481A.5080205@redhat.com>
+Subject: RE: [PATCH 2/8] Staging: hv: vmbus: Invoke vmbus_on_msg_dpc()
+ directly
+Date: Thu, 18 Aug 2011 08:50:20 +0300
+Message-ID: <1313646620.22532.16.camel@lappy>
+References: <1313446210-10611-1-git-send-email-kys@microsoft.com>
+	 <1313446327-10650-1-git-send-email-kys@microsoft.com>
+	 <1313446327-10650-2-git-send-email-kys@microsoft.com>
+	 <1313585267.15004.3.camel@lappy>
+	 <6E21E5352C11B742B20C142EB499E04808194C66@TK5EX14MBXC126.redmond.corp.microsoft.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4E4C481A.5080205@redhat.com>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Avi Kivity <avi@redhat.com>
-Cc: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <6E21E5352C11B742B20C142EB499E04808194C66@TK5EX14MBXC126.redmond.corp.microsoft.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: KY Srinivasan <kys@microsoft.com>
+Cc: "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 2011-08-17 at 16:00 -0700, Avi Kivity wrote:
-> On 08/16/2011 12:47 PM, Sasha Levin wrote:
-> > This patch adds support for an optional stats vq that works similary to the
-> > stats vq provided by virtio-balloon.
-> >
-> > The purpose of this change is to allow collection of statistics about working
-> > virtio-blk devices to easily analyze performance without having to tap into
-> > the guest.
-> >
-> >
+On Wed, 2011-08-17 at 18:43 +0000, KY Srinivasan wrote:
 > 
-> Why can't you get the same info from the host?  i.e. read sectors?
-
-Some of the stats you can collect from the host, but some you can't.
-
-The ones you can't include all the timing statistics and the internal
-queue statistics (read/write merges).
-
-The idea behind providing all of the stats on the stats vq (which is
-basically what you see in '/dev/block/[device]/stats') is to give a
-consistent snapshot of the state of the device.
-
+> > -----Original Message-----
+> > From: Sasha Levin [mailto:levinsasha928@gmail.com]
+> > Sent: Wednesday, August 17, 2011 8:48 AM
+> > To: KY Srinivasan
+> > Cc: gregkh@suse.de; linux-kernel@vger.kernel.org;
+> > devel@linuxdriverproject.org; virtualization@lists.osdl.org; Haiyang Zhang
+> > Subject: Re: [PATCH 2/8] Staging: hv: vmbus: Invoke vmbus_on_msg_dpc()
+> > directly
+> > 
+> > On Mon, 2011-08-15 at 15:12 -0700, K. Y. Srinivasan wrote:
+> > > The message processing function needs to execute on the same CPU where
+> > > the interrupt was taken. tasklets cannot gurantee this; so, invoke the
+> > > function directly.
+> > >
+> > > Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
+> > > Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
+> > > ---
+> > 
+> > tasklets are guaranteed to run on the same CPU as the function that
+> > scheduled them.
+> > 
+> > Unless I'm missing something?
 > 
-> Patches to virtio drivers should be preceded by specification updates so 
-> that guest driver authors and alternative userspace developers have a 
-> solid reference.
+> I too was under this impression until I stumbled upon this comment in
+> include/Linux/interrupt.h where I see that there is no guarantee that
+> tasklet would run on the same CPU that it was scheduled on
+> (look at the first listed property):
 > 
+> /* Tasklets --- multithreaded analogue of BHs.
+> 
+>    Main feature differing them of generic softirqs: tasklet
+>    is running only on one CPU simultaneously.
+> 
+>    Main feature differing them of BHs: different tasklets
+>    may be run simultaneously on different CPUs.
+> 
+>    Properties:
+>    * If tasklet_schedule() is called, then tasklet is guaranteed
+>      to be executed on some cpu at least once after this.
+> .
+> .
+> */
+> 
+> Given this comment here, I felt that safest thing to do would be to just
+> not use the tasklet in this scenario.
 
-I'll send an additional update to the spec.
+Hm..
+
+Looking at __tasklet_schedule() it should be guaranteed to run on the
+same CPU, but as you said - the comment above is actually saying the
+opposite.
+
+The relevant documentation in the 'Linux Device Drivers' book also
+states that it is guaranteed, so maybe we can get a confirmation from
+Greg that this is still true and update the comment instead?
+
+Not using bottom halves and just calling the dpc handler would mean that
+you block interrupts for much longer than you need to.
 
 -- 
 
