@@ -1,11 +1,13 @@
-From: san@google.com (San Mehat)
-Subject: [RFC 0/0] Introducing a generic socket offload framework
-Date: Thu, 18 Aug 2011 15:07:56 -0700 (PDT)
-Message-ID: <20110818220756.5C93E5C80B__19581.7310749137$1313706296$gmane$org@san.sea.corp.google.com>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [RFC 0/0] Introducing a generic socket offload framework
+Date: Thu, 18 Aug 2011 23:57:19 +0100
+Message-ID: <20110818235719.50365b0b__4747.6721615114$1313708465$gmane$org@lxorguk.ukuu.org.uk>
+References: <20110818220756.5C93E5C80B@san.sea.corp.google.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20110818220756.5C93E5C80B@san.sea.corp.google.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -15,186 +17,81 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: davem@davemloft.net, mst@redhat.com, rusty@rustcorp.com.au
-Cc: netdev@vger.kernel.org, miche@google.com, linux-kernel@vger.kernel.org, mikew@google.com, digitaleric@google.com, virtualization@lists.linux-foundation.org, maccarro@google.com
+To: San Mehat <san@google.com>
+Cc: mst@redhat.com, netdev@vger.kernel.org, miche@google.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, digitaleric@google.com, mikew@google.com, maccarro@google.com, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
+> The Berkeley sockets coprocessor is a virtual PCI device which has the ability
+> to offload socket activity from an unmodified application at the BSD sockets
 
-TL;DR
------
-In this RFC we propose the introduction of the concept of hardware socket
-offload to the Linux kernel. Patches will accompany this RFC in a few days,
-but we felt we had enough on the design to solicit constructive discussion
-from the community at-large.
+Ok I think there is an important question here. Why is this being
+designed for a specific virtual interface. Unix has always had the notion
+that socket operations can be in part generic and that you can pass a
+properly designed program a socket without any notion of what it is for.
 
-BACKGROUND
-----------
-Many applications within enterprise organizations suitable for virtualization
-neither require nor desire a connection to the full internal Ethernet+IP
-network.  Rather, some specific socket connections -- for processing HTTP
-requests, making database queries, or interacting with storage -- are needed,
-and IP networking in the application may typically be discouraged for
-applications that do not sit on the edge of the network. Furthermore, removing
-the application's need to understand where its inputs come from / go to within
-the networking fabric can make save/restore/migration of a virtualized
-application substantially easier - especially in large clusters and on fabrics
-which can't handle IP re-assignment.
+> Lastly, pushing socket processing back into the host allows for host-side
+> control of the network protocols used, which limits the potential congestion
+> problems that can arise when various guests are using their own congestion
+> control algorithms.
 
-REQUIREMENTS
-------------
- * Allow VM connectivity to internal resources without requiring additional
-   network resources (IPs, VLANs, etc).
- * Easy authentication of network streams from a trusted domain (vmm).
- * Protect host-kernel & network-fabric from direct exposure to untrusted
-   packet data-structures.
- * Support for multiple distributions of Linux.
- * Minimal third-party software maintenance burden.
- * To be able to co-exist with the existing network stack and ethernet virtual
-   devices in the event that an applications specific requirements cannot be
-   met by this design.
+Does that not depend which side does the congestion and who parcels out
+buffers ?
 
-DESIGN
-------
-The Berkeley sockets coprocessor is a virtual PCI device which has the ability
-to offload socket activity from an unmodified application at the BSD sockets
-layer (Layer 4).  Offloaded socket requests bypass the local operating systems
-networking stack entirely via the card and are relayed into the VMM
-(Virtual Machine Manager) for processing. The VMM then passes the request to a
-socket backend for handling. The difference between a socket backend and a
-traditional VM ethernet backend is that the socket backend receives layer 4
-socket (STREAM/DGRAM) requests instead of a multiplexed stream of layer 2
-packets (ethernet) that must be interpreted by the host. This technique also
-improves security isolation as the guest is no longer constructing packets which
-are evaluated by the host or underlying network fabric; packet construction
-happens in the host.
+> Since we wish to allow these paravirtualized sockets to coexist peacefully with
+> the existing Linux socket system, we've chosen to introduce the idea that a
+> socket can at some point transition from being managed by the O/S socket system
+> to a more enlightened 'hardware assisted' socket. The transition is managed by
+> a 'socket coprocessor' component which intercepts and gets first right of
+> refusal on handling certain global socket calls (connect, sendto, bind, etc...).
+> In this initial design, the policy on whether to transition a socket or not is
+> made by the virtual hardware, although we understand that further measurement
+> into operation latency is warranted.
 
-Lastly, pushing socket processing back into the host allows for host-side
-control of the network protocols used, which limits the potential congestion
-problems that can arise when various guests are using their own congestion
-control algorithms.
+Q: whay happens about in process socket syscalls in another thread ?
+Thats always been the ugly in these cases either by intercepting or by
+swapping file operations on an object.
 
-================================================================================
+>  * SOCK_HWASSIST
+>     Indicates socket operations are handled by hardware
 
-           +-----------------------------------------------------------------+
-           |                                                                 |
-  guest    |                      unmodified application                     |
-userspace  +-----------------------------------------------------------------+
-           |                         unmodified libc                         |
-           +-----------------------------------------------------------------+
-                            |                             / \
-                            |                              |
-=========================== | ============================ | ===================
-                            |                              |
-                           \ /                             |
-                 +------------------------------------------------------+
-                 |                       socket core                    |
-                 +----+============+------------------------------------+
-                      |    INET    |                   |         / \
-  guest               +-----+------+                   |          |
-  kernel              | TCP | UDP  |                   |          |
-                      +-----+------+                   | L4 reqs  |
-                      |   NETDEV   |                   |          |
-                      +------------+                   |          |
-                      | virtio_net |                  \ /         |
-                      +------------+               +------------------+
-                          |   / \                  |    hw_socket     |
-                          |    |                   +------------------+
-                          |    |                   |  virtio_socket   |
-                          |    |                   +------------------+
-                          |    |                        |       / \
-========================= | == | ====================== | ====== | =============
-                         \ /   |                       \ /       |
-  host           +---------------------+        +------------------------+
-userspace        |  virito net device  |        |  virtio socket device  |
-  (vmm)          +---------------------+        +------------------------+
-                 |  ethernet backend   |        |     socket backend     |
-                 +---------------------+        +------------------------+
-                        |     / \                      |        / \
-                 L2     |      |                       |         |     L4
-               packets  |      |                      \ /        |  requests
-                        |      |                +-----------------------+
-                        |      |                |    Socket Handlers    |
-                        |      |                +-----------------------+
-                        |      |                       |        / \
-======================= | ==== | ===================== | ======= | =============
-                        |      |                       |         |
-   host                \ /     |                      \ /        |
-  kernel
+This guest only view means you can't use the abstraction for local
+sockets too.
 
-================================================================================
+> In order to support a variety of socket address families, addresses are
+> converted from their native socket family to an opaque string. Our initial
+> design formats these strings as URIs. The currently supported conversions are:
 
-One of the most appealing aspects of this design (to application developers) is
-that this approach can be completely transparent to the application, provided
-we're able to intercept the application's socket requests in such a way that we
-do not impact performance in a negative fashion, yet retain the API semantics
-the application expects. In the event that this design is not suitable for an
-application, the virtual machine may be also fitted with a normal virtual
-ethernet device in addition to the co-processor (as shown in the diagram above).
+That makes a lot of sense to me, because its a well understood
+abstraction and you can offload other stuff to this kind of generic
+socket including things like http protocol acceleration, SSL and so on.
 
-Since we wish to allow these paravirtualized sockets to coexist peacefully with
-the existing Linux socket system, we've chosen to introduce the idea that a
-socket can at some point transition from being managed by the O/S socket system
-to a more enlightened 'hardware assisted' socket. The transition is managed by
-a 'socket coprocessor' component which intercepts and gets first right of
-refusal on handling certain global socket calls (connect, sendto, bind, etc...).
-In this initial design, the policy on whether to transition a socket or not is
-made by the virtual hardware, although we understand that further measurement
-into operation latency is warranted.
+Plus its always been annoying that you can't open a socket, but a URI
+interface solves that...
 
-In the event the determination is made to transition a socket to hw-assisted
-mode, the socket is marked as being assisted by hardware, and all socket
-operations are offloaded to hardware.
+>  * We don't handle SOCK_SEQPACKET, SOCK_RAW, SOCK_RDM, or SOCK_PACKET sockets.
 
-The following flag values have been added to struct socket (only visible within
-the guest kernel):
+But there is no reason SEQPACKET and RDM couldn't be added I assume?
 
- * SOCK_HWASSIST
-    Indicates socket operations are handled by hardware
+Ok other questions
 
-In order to support a variety of socket address families, addresses are
-converted from their native socket family to an opaque string. Our initial
-design formats these strings as URIs. The currently supported conversions are:
+Suppose instead you just add an abstracted socket interface of
 
-+-----------------------------------------------------------------------------+
-|   Domain   |      Type     |	URI example conversion                        |
-|  AF_INET   |	SOCK_STREAM  |	tcp://x.x.x.x:yyyy                            |
-|  AF_INET   |	SOCK_DGRAM   |	udp://x.x.x.x:yyyy                            |
-|  AF_INET6  |	SOCK_STREAM  |	tcp6://aaaa:b:cccc:d:eeee:ffff:gggg:hhhh/ii   |
-|  AF_INET6  |	SOCK_DGRAM   |	udp6://aaaa:b:cccc:d:eeee:ffff:gggg:hhhh/ii   |
-|  AF_IPX    |	SOCK_DGRAM   |	ipx://xxxxxxxx.yyyyyyyyyy.zzzz                |
-+-----------------------------------------------------------------------------+
+	AF_SOMETHING, PF_URI
 
-In order for the socket coprocessor to take control of a socket, hooks must be
-added to the socket core. Our initial implementation hooks a number of functions
-in the socket-core (too many), and after consideration we feel we can reduce it
-down considerably by managing the socket 'ops' pointers.
+it would be easy to convert programs. It would be easier to write
+properly generic programs. It would be easy write some small helpers that
+are a good deal less insane than the existing inet ones. At that point
+you could turn the problem on its head. Instead of 'borrowing' sockets
+for a fairly specific concept of hw assist you ask the reverse question,
+who can accelerate this URI be it some kind of virtual machine interface,
+something funky like raw data over infiniband, or plain old 'use the
+TCP/IP stack'.
 
-ALTERNATIVE STRATEGIES
-----------------------
+Your decision making code is going to be interesting but it only has to
+make the decision once in simple cases.
 
-An alternative strategy for providing similar functionality involves either
-modifying glibc or using LD_PRELOAD tricks to intercept socket calls. We were
-forced to rule this out due to the complexity (and fragility) involved with
-attempting to maintain a general solution compatible accross various
-distributions where platform-libraries differ.
+And yes there is still the complicated cases such as 'the routing table
+has changed from vitual host to via siberia now what' but I don't believe
+your proposal addresses that either.
 
-CAVEATS
--------
-
- * We're currently hooked into too many socket calls. We should be able to
-   reduce the number of hooks to 3 (__sock_create(), sys_connect(), sys_bind()).
-
- * Our 'hw_socket' component should be folded into a netdev so we can leverage
-   NAPI.
-
- * We don't handle SOCK_SEQPACKET, SOCK_RAW, SOCK_RDM, or SOCK_PACKET sockets.
-
- * We don't currently have support for /proc/net. Our current plan is to
-   add '/proc/net/hwsock' (filename TBD) and add support for these sockets
-   to the net-tools packages (netstat & friends), rather than muck around with
-   plumbing hardware-assisted socket info into '/proc/net/tcp' and
-   '/proc/net/udp'.
-
- * We don't currently have SOCK_DGRAM support implemented (work in progress)
-
- * We have insufficient integration testing in place (work in progress)
+Alan
