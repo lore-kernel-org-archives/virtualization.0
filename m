@@ -1,15 +1,14 @@
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [RFC 0/0] Introducing a generic socket offload framework
-Date: Fri, 19 Aug 2011 10:28:35 +0100
-Message-ID: <20110819102835.0a6b2436__31780.5295614109$1313746338$gmane$org@lxorguk.ukuu.org.uk>
-References: <20110818220756.5C93E5C80B@san.sea.corp.google.com>
-	<20110818235719.50365b0b@lxorguk.ukuu.org.uk>
-	<CAPi7mHqV6Pgk5tSt+fJn_2aEZKZbO=aO78JXgw7MvDaW0musoQ@mail.gmail.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH] virtio-net: Read MAC only after initializing MSI-X
+Date: Fri, 19 Aug 2011 18:23:35 +0300
+Message-ID: <20110819152335.GA19489__32876.1062621654$1313767596$gmane$org@redhat.com>
+References: <1313225461-24458-1-git-send-email-levinsasha928@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAPi7mHqV6Pgk5tSt+fJn_2aEZKZbO=aO78JXgw7MvDaW0musoQ@mail.gmail.com>
+Content-Disposition: inline
+In-Reply-To: <1313225461-24458-1-git-send-email-levinsasha928@gmail.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,41 +18,81 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: San Mehat <san@google.com>
-Cc: mst@redhat.com, netdev@vger.kernel.org, miche@google.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, digitaleric@google.com, mikew@google.com, maccarro@google.com, davem@davemloft.net
+To: Sasha Levin <levinsasha928@gmail.com>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-> I have no desire to change the 'genericness' of sockets.. just the
-> opposite - i wish to
-> introduce the notion that sockets (can be) completely generic (when
-> offloaded) as far as
-> the guest is concerned.
-
-I suppose my concern is that you don't want to design for a specific
-offload device, your offload might change but the view from the
-application side should not differ.
-
-> > This guest only view means you can't use the abstraction for local
-> > sockets too.
-> >
+On Sat, Aug 13, 2011 at 11:51:01AM +0300, Sasha Levin wrote:
+> The MAC of a virtio-net device is located at the first field of the device
+> specific header. This header is located at offset 20 if the device doesn't
+> support MSI-X or offset 24 if it does.
 > 
-> To be honest, the way we're attempting to integrate is in such a way
-> that you *could*
-> offload AF_LOCAL sockets...  but that world gets a bit too much like
-> the 'Twilight Zone'
-> for my current linkings..
-
-Until you want to be able to have a pair of apps talking that may or may
-not be on different systems and may or may not be on a vm host at all, at
-which point having the same acceleration between them (a null accelerator
-so to speak) would avoid having to add extra paths to the apps.
-
-> > And yes there is still the complicated cases such as 'the routing table
-> > has changed from vitual host to via siberia now what' but I don't believe
-> > your proposal addresses that either.
+> Current code in virtnet_probe() used to probe the MAC before checking for
+> MSI-X, which means that the read was always made from offset 20 regardless
+> of whether MSI-X in enabled or not.
 > 
-> Can you be more specific? If you mean solving the 'keeping your tcp connections
-> open to non virtual endpoints across a migration (or whatever)' then
-> no it doesn't :)
+> This patch moves the MAC probe to after the detection of whether MSI-X is
+> enabled. This way the MAC will be read from offset 24 if the device indeed
+> supports MSI-X.
+> 
+> Cc: Rusty Russell <rusty@rustcorp.com.au>
+> Cc: Michael S. Tsirkin <mst@redhat.com>
+> Cc: virtualization@lists.linux-foundation.org
+> Cc: netdev@vger.kernel.org
+> Cc: kvm@vger.kernel.org
+> Signed-off-by: Sasha Levin <levinsasha928@gmail.com>
 
-That was my assumption.
+I am not sure I see a bug in virtio: the config pace layout simply
+changes as msix is enabled and disabled (and if you look at the latest
+draft, also on whether 64 bit features are enabled).
+It doesn't depend on msix capability being present in device.
+
+The spec seems to be explicit enough:
+	If MSI-X is enabled for the device, two additional fields immediately
+	follow this header.
+
+So I'm guessing the bug is in kvm tools which assume
+same layout for when msix is enabled and disabled.
+qemu-kvm seems to do the right thing so the device
+seems to get the correct mac.
+
+> ---
+>  drivers/net/virtio_net.c |   16 ++++++++--------
+>  1 files changed, 8 insertions(+), 8 deletions(-)
+> 
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index 0c7321c..55ccf96 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -981,14 +981,6 @@ static int virtnet_probe(struct virtio_device *vdev)
+>  		/* (!csum && gso) case will be fixed by register_netdev() */
+>  	}
+>  
+> -	/* Configuration may specify what MAC to use.  Otherwise random. */
+> -	if (virtio_has_feature(vdev, VIRTIO_NET_F_MAC)) {
+> -		vdev->config->get(vdev,
+> -				  offsetof(struct virtio_net_config, mac),
+> -				  dev->dev_addr, dev->addr_len);
+> -	} else
+> -		random_ether_addr(dev->dev_addr);
+> -
+>  	/* Set up our device-specific information */
+>  	vi = netdev_priv(dev);
+>  	netif_napi_add(dev, &vi->napi, virtnet_poll, napi_weight);
+> @@ -1032,6 +1024,14 @@ static int virtnet_probe(struct virtio_device *vdev)
+>  			dev->features |= NETIF_F_HW_VLAN_FILTER;
+>  	}
+>  
+> +	/* Configuration may specify what MAC to use.  Otherwise random. */
+> +	if (virtio_has_feature(vdev, VIRTIO_NET_F_MAC)) {
+> +		vdev->config->get(vdev,
+> +				  offsetof(struct virtio_net_config, mac),
+> +				  dev->dev_addr, dev->addr_len);
+> +	} else
+> +		random_ether_addr(dev->dev_addr);
+> +
+>  	err = register_netdev(dev);
+>  	if (err) {
+>  		pr_debug("virtio_net: registering device failed\n");
+> -- 
+> 1.7.6
