@@ -1,14 +1,13 @@
-From: jamal <hadi@cyberus.ca>
-Subject: Re: [RFC 0/0] Introducing a generic socket offload framework
-Date: Fri, 19 Aug 2011 08:49:45 -0400
-Message-ID: <1313758185.16299.43.camel__43770.0612973005$1313770397$gmane$org@mojatatu>
-References: <20110818220756.5C93E5C80B@san.sea.corp.google.com>
-Reply-To: jhs@mojatatu.com
+From: Ian Campbell <ian.campbell@citrix.com>
+Subject: [PATCH 59/75] virtionet: convert to SKB paged frag API.
+Date: Fri, 19 Aug 2011 14:27:31 +0100
+Message-ID: <1313760467-8598-59-git-send-email-ian.campbell__11690.6712567017$1313770465$gmane$org@citrix.com>
+References: <1313760393.5010.356.camel@zakaz.uk.xensource.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20110818220756.5C93E5C80B@san.sea.corp.google.com>
+In-Reply-To: <1313760393.5010.356.camel@zakaz.uk.xensource.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,55 +17,32 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: San Mehat <san@google.com>
-Cc: mst@redhat.com, netdev@vger.kernel.org, miche@google.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, digitaleric@google.com, mikew@google.com, maccarro@google.com, davem@davemloft.net
+To: netdev@vger.kernel.org
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Ian Campbell <ian.campbell@citrix.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 2011-08-18 at 15:07 -0700, San Mehat wrote:
-> TL;DR
-> -----
-> In this RFC we propose the introduction of the concept of hardware socket
-> offload to the Linux kernel. Patches will accompany this RFC in a few days,
-> but we felt we had enough on the design to solicit constructive discussion
-> from the community at-large.
-> 
+Signed-off-by: Ian Campbell <ian.campbell@citrix.com>
+Cc: Rusty Russell <rusty@rustcorp.com.au>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: virtualization@lists.linux-foundation.org
+Cc: netdev@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+---
+ drivers/net/virtio_net.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-[..]
-
-> ALTERNATIVE STRATEGIES
-> ----------------------
-> 
-> An alternative strategy for providing similar functionality involves either
-> modifying glibc or using LD_PRELOAD tricks to intercept socket calls. We were
-> forced to rule this out due to the complexity (and fragility) involved with
-> attempting to maintain a general solution compatible across various
-> distributions where platform-libraries differ.
-
-Above should have been in your TL;DR;->
-
-LD_PRELOAD is also horrible because of the granularity of the socket
-calls;
-Having things in the kernel and specifically tagging socket as needing
-this feature is much much more manageable.
-
-Tying things to virtualization may miss the big picture because there
-are many other use cases for intercepting socket calls, example:
-Samir Bellabes <sam@synack.fr> has been trying to get what he refers to
-as "personal firewall" (equivalent to the silly windows firewall) which
-prompts the user "ping from blah, do you want to allow a response?"
-That requires intercepting send/recv calls, prompt the user in possibly
-some pop-up and act based on response. It requires looking at content.
-He is trying to use selinux for that interface,
-but i think this would be the right abstraction.
-I hope you plan to support send/recv.
-I also hope you add support for SOCK_RAW (and maybe SOCK_PACKET).
-
-Q: If you want this to be transparent to the apps, who/what is doing
-the tagging of SOCK_HWASSIST? clearly not the app if you dont want to
-change it.
-
-I like the uri abstraction if it doesnt come at the expense of the
-app transparency.
-
-cheers,
-jamal
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 0c7321c..52667a8 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -149,7 +149,7 @@ static void set_skb_frag(struct sk_buff *skb, struct page *page,
+ 	f = &skb_shinfo(skb)->frags[i];
+ 	f->size = min((unsigned)PAGE_SIZE - offset, *len);
+ 	f->page_offset = offset;
+-	f->page = page;
++	__skb_frag_set_page(f, page);
+ 
+ 	skb->data_len += f->size;
+ 	skb->len += f->size;
+-- 
+1.7.2.5
