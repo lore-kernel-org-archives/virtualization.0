@@ -1,16 +1,16 @@
-From: jamal <hadi@cyberus.ca>
-Subject: Re: [RFC 0/0] Introducing a generic socket offload framework
-Date: Sat, 20 Aug 2011 10:32:35 -0400
-Message-ID: <1313850755.1734.724.camel__32027.8625855737$1313900262$gmane$org@mojatatu>
-References: <20110818220756.5C93E5C80B@san.sea.corp.google.com>
-	<1313758185.16299.43.camel@mojatatu>
-	<CAPi7mHp==JPA-0vNZ+xWRzOuJYUxsUL3UY=o=VtMUsB-YcFHwQ@mail.gmail.com>
-Reply-To: jhs@mojatatu.com
+From: Anthony Liguori <anthony@codemonkey.ws>
+Subject: Re: [PATCH] virtio-blk: Add stats VQ to collect information about
+	devices
+Date: Sun, 21 Aug 2011 18:31:18 -0500
+Message-ID: <4E519546.1050406__32714.7003532902$1313969550$gmane$org@codemonkey.ws>
+References: <1313524071-27250-1-git-send-email-levinsasha928@gmail.com>	
+	<4E4C481A.5080205@redhat.com> <1313642283.22532.4.camel@lappy>	
+	<4E4D2B6D.1040908@redhat.com> <1313684984.30799.20.camel@lappy>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAPi7mHp==JPA-0vNZ+xWRzOuJYUxsUL3UY=o=VtMUsB-YcFHwQ@mail.gmail.com>
+In-Reply-To: <1313684984.30799.20.camel@lappy>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,28 +20,65 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: San Mehat <san@google.com>
-Cc: mst@redhat.com, netdev@vger.kernel.org, miche@google.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, digitaleric@google.com, mikew@google.com, maccarro@google.com, davem@davemloft.net
+To: Sasha Levin <levinsasha928@gmail.com>
+Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Pekka Enberg <penberg@kernel.org>, Avi Kivity <avi@redhat.com>, Ingo Molnar <mingo@elte.hu>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 2011-08-19 at 07:58 -0700, San Mehat wrote:
+On 08/18/2011 11:29 AM, Sasha Levin wrote:
+> On Thu, 2011-08-18 at 08:10 -0700, Avi Kivity wrote:
+>> On 08/17/2011 09:38 PM, Sasha Levin wrote:
+>>> On Wed, 2011-08-17 at 16:00 -0700, Avi Kivity wrote:
+>>>>   On 08/16/2011 12:47 PM, Sasha Levin wrote:
+>>>>   >   This patch adds support for an optional stats vq that works similary to the
+>>>>   >   stats vq provided by virtio-balloon.
+>>>>   >
+>>>>   >   The purpose of this change is to allow collection of statistics about working
+>>>>   >   virtio-blk devices to easily analyze performance without having to tap into
+>>>>   >   the guest.
+>>>>   >
+>>>>   >
+>>>>
+>>>>   Why can't you get the same info from the host?  i.e. read sectors?
+>>>
+>>> Some of the stats you can collect from the host, but some you can't.
+>>>
+>>> The ones you can't include all the timing statistics and the internal
+>>> queue statistics (read/write merges).
+>>
+>> Surely you can time the actual amount of time the I/O takes?  It doesn't
+>> account for the virtio round-trip, but does it matter?
+>>
+>> Why is the merge count important for the host?
+>>
+>
+> I assumed that the time the request spends in the virtio layer is
+> (somewhat) significant, specially since that this is something that adds
+> up over time.
+>
+> Merge count can be useful for several testing scenarios (I'll describe
+> the reasoning behind this patch below).
+>
+>>>
+>>> The idea behind providing all of the stats on the stats vq (which is
+>>> basically what you see in '/dev/block/[device]/stats') is to give a
+>>> consistent snapshot of the state of the device.
+>>>
+>>>
+>>
+>> What can you do with it?
+>>
+>
+> I was actually planning on submitting another patch that would add
+> something similar into virtio-net. My plan was to enable collecting
+> statistics regarding memory, network and disk usage in a simple manner
+> without accessing guests.
 
-> Can you explain a good use-case for SOCK_RAW in this type of
-> environment? We were noodling it around locally and couldn't come up
-> with one that we needed to support.
+Why not just add an interface that lets you read files from a guest 
+either via a guest agent (like qemu-ga) or a purpose built PV device?
 
-One that comes to mind is the case of Samir's app: youd need to handle
-some of the apps that ride on top of IP typically using SOCK_RAW
-eg ping, OSPF essentially anything on IP that doesnt have transport
-built into kernel etc; 
+That would let you access the guest's full sysfs which seems to be quite 
+a lot more useful long term than adding a bunch of specific interfaces.
 
-> > Q: If you want this to be transparent to the apps, who/what is doing
-> > the tagging of SOCK_HWASSIST? clearly not the app if you dont want to
-> > change it.
-> 
-> The decision of whether to tag a socket or not is made by the 'hardware'
+Regards,
 
-As in some config interface? 
-
-cheers,
-jamal
+Anthony Liguori
