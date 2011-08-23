@@ -1,14 +1,14 @@
 From: Greg KH <greg@kroah.com>
-Subject: Re: [PATCH 0/8] Staging: hv: vmbus: Driver cleanup
-Date: Tue, 23 Aug 2011 16:18:50 -0700
-Message-ID: <20110823231850.GD9955@kroah.com>
-References: <1313446210-10611-1-git-send-email-kys@microsoft.com>
+Subject: Re: [PATCH 0000/0117] Staging: hv: Driver cleanup
+Date: Tue, 23 Aug 2011 16:11:20 -0700
+Message-ID: <20110823231120.GP9641@kroah.com>
+References: <1310752024-27854-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <devel-bounces@linuxdriverproject.org>
 Content-Disposition: inline
-In-Reply-To: <1313446210-10611-1-git-send-email-kys@microsoft.com>
+In-Reply-To: <1310752024-27854-1-git-send-email-kys@microsoft.com>
 List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
 	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
 List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
@@ -22,26 +22,32 @@ To: "K. Y. Srinivasan" <kys@microsoft.com>
 Cc: devel@linuxdriverproject.org, gregkh@suse.de, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Aug 15, 2011 at 03:10:10PM -0700, K. Y. Srinivasan wrote:
-> Further cleanup of the vmbus driver:
+On Fri, Jul 15, 2011 at 10:47:04AM -0700, K. Y. Srinivasan wrote:
+> Further cleanup of the hv drivers. Back in June I had sent two patch
+> sets to address these issues. I have addressed the comments I got from
+> the community on my earlier patches here:
 > 
-> 	1) Cleanup the interrupt handler by inlining some code. 
+> 	1) Implement code for autoloading the vmbus drivers without using PCI or DMI
+> 	   signatures. I have implemented this based on Greg's feedback on my earlier
+> 	   implementation.
 > 
-> 	2) Ensure message handling is performed on the same CPU that
-> 	   takes the vmbus interrupt. 
+> 	2) Cleanup error handling across the board and use standard Linux error codes.
 > 
-> 	3) Check for events before messages (from the host).
+> 	3) General cleanup
 > 
-> 	4) Disable auto eoi for the vmbus interrupt since Linux will eoi the
-> 	   interrupt anyway. 
+> 	4) Some bug fixes.
 > 
-> 	5) Some general cleanup.
+> 	5) Cleanup the reference counting mess for both stor and net devices.
+> 
+> 	6) Handle all block devices using the storvsc driver. I have modified
+> 	   the implementation here based on Christoph's feedback on my earlier
+> 	   implementation.
+> 
+> 	7) Accomodate some host side scsi emulation bugs.
+> 
+> 	8) In case of scsi errors off-line the device.
 
-As I didn't apply your other changes, care to respin all of your
-outstanding hv patches against the next linux-next release and resend
-them?  I tried picking some of the other patches, but they started not
-applying easily so it would be easier for everyone to just resend them
-after you fix them up.
+Care to respin this patch series based on my comments?
 
 thanks,
 
