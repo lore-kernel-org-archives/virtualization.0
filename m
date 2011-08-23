@@ -1,17 +1,16 @@
 From: Greg KH <greg@kroah.com>
-Subject: Re: [PATCH 027/117] Staging: hv: blkvsc: Get rid of the dev_type
-	guid from blkvsc_drv.c
-Date: Tue, 23 Aug 2011 15:52:41 -0700
-Message-ID: <20110823225241.GH9641@kroah.com>
-References: <1310752024-27854-1-git-send-email-kys@microsoft.com>
-	<1310752065-27895-1-git-send-email-kys@microsoft.com>
-	<1310752065-27895-27-git-send-email-kys@microsoft.com>
+Subject: Re: [PATCH 1/8] Staging: hv: vmbus: Fix a checkpatch warning in
+	ring_buffer.c
+Date: Tue, 23 Aug 2011 16:14:45 -0700
+Message-ID: <20110823231445.GB9955@kroah.com>
+References: <1311101018-23370-1-git-send-email-kys@microsoft.com>
+	<1311101065-23417-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <devel-bounces@linuxdriverproject.org>
 Content-Disposition: inline
-In-Reply-To: <1310752065-27895-27-git-send-email-kys@microsoft.com>
+In-Reply-To: <1311101065-23417-1-git-send-email-kys@microsoft.com>
 List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
 	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
 List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
@@ -25,32 +24,28 @@ To: "K. Y. Srinivasan" <kys@microsoft.com>
 Cc: devel@linuxdriverproject.org, Haiyang Zhang <haiyangz@microsoft.com>, gregkh@suse.de, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Jul 15, 2011 at 10:46:15AM -0700, K. Y. Srinivasan wrote:
-> Get rid of the dev_type guid from blkvsc_drv.c as it is no longer used.
+On Tue, Jul 19, 2011 at 11:44:18AM -0700, K. Y. Srinivasan wrote:
+> Fix a checkpatch warning in ring_buffer.c (line over 80 characters).
 > 
 > Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 > Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 > ---
->  drivers/staging/hv/blkvsc_drv.c |    9 ---------
->  1 files changed, 0 insertions(+), 9 deletions(-)
+>  drivers/staging/hv/ring_buffer.c |    3 ++-
+>  1 files changed, 2 insertions(+), 1 deletions(-)
 > 
-> diff --git a/drivers/staging/hv/blkvsc_drv.c b/drivers/staging/hv/blkvsc_drv.c
-> index 8e4c206..cb61598 100644
-> --- a/drivers/staging/hv/blkvsc_drv.c
-> +++ b/drivers/staging/hv/blkvsc_drv.c
-> @@ -111,14 +111,6 @@ struct block_device_context {
+> diff --git a/drivers/staging/hv/ring_buffer.c b/drivers/staging/hv/ring_buffer.c
+> index 9212699..e41d206 100644
+> --- a/drivers/staging/hv/ring_buffer.c
+> +++ b/drivers/staging/hv/ring_buffer.c
+> @@ -34,7 +34,8 @@
 >  
->  static const char *drv_name = "blkvsc";
 >  
-> -/* {32412632-86cb-44a2-9b5c-50d1417354f5} */
-> -static const uuid_le dev_type = {
-> -	.b = {
-> -		0x32, 0x26, 0x41, 0x32, 0xcb, 0x86, 0xa2, 0x44,
-> -		0x9b, 0x5c, 0x50, 0xd1, 0x41, 0x73, 0x54, 0xf5
-> -	}
-> -};
+>  /* Amount of space to write to */
+> -#define BYTES_AVAIL_TO_WRITE(r, w, z) ((w) >= (r)) ? ((z) - ((w) - (r))) : ((r) - (w))
+> +#define BYTES_AVAIL_TO_WRITE(r, w, z) \
+> +(((w) >= (r)) ? ((z) - ((w) - (r))) : ((r) - (w)))
 
-Could be merged with the previous patch that added the guid in the other
-format, right?
+Please at least indent the second line a little bit, otherwise it's a
+pain to read, right?
 
 greg k-h
