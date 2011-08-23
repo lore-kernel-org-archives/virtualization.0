@@ -1,17 +1,17 @@
 From: Greg KH <greg@kroah.com>
-Subject: Re: [PATCH 031/117] Staging: hv: netvsc: Get rid of the driver name
-	initialization in netvsc.c
-Date: Tue, 23 Aug 2011 15:56:03 -0700
-Message-ID: <20110823225603.GI9641@kroah.com>
+Subject: Re: [PATCH 081/117] Staging: hv: vmbus: Introduce a lock to protect
+	the ext field in hv_device
+Date: Tue, 23 Aug 2011 16:08:16 -0700
+Message-ID: <20110823230816.GN9641@kroah.com>
 References: <1310752024-27854-1-git-send-email-kys@microsoft.com>
 	<1310752065-27895-1-git-send-email-kys@microsoft.com>
-	<1310752065-27895-31-git-send-email-kys@microsoft.com>
+	<1310752065-27895-81-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <devel-bounces@linuxdriverproject.org>
 Content-Disposition: inline
-In-Reply-To: <1310752065-27895-31-git-send-email-kys@microsoft.com>
+In-Reply-To: <1310752065-27895-81-git-send-email-kys@microsoft.com>
 List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
 	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
 List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
@@ -25,36 +25,12 @@ To: "K. Y. Srinivasan" <kys@microsoft.com>
 Cc: devel@linuxdriverproject.org, Haiyang Zhang <haiyangz@microsoft.com>, gregkh@suse.de, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Jul 15, 2011 at 10:46:19AM -0700, K. Y. Srinivasan wrote:
-> Now, get rid of the driver name initialization in  int netvsc_initialize().
-> 
-> Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
-> Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
-> ---
->  drivers/staging/hv/netvsc.c |    5 -----
->  1 files changed, 0 insertions(+), 5 deletions(-)
-> 
-> diff --git a/drivers/staging/hv/netvsc.c b/drivers/staging/hv/netvsc.c
-> index 6f4541b..d085018 100644
-> --- a/drivers/staging/hv/netvsc.c
-> +++ b/drivers/staging/hv/netvsc.c
-> @@ -32,9 +32,6 @@
->  #include "hyperv_net.h"
->  
->  
-> -/* Globals */
-> -static const char *driver_name = "netvsc";
-> -
->  static struct netvsc_device *alloc_net_device(struct hv_device *device)
->  {
->  	struct netvsc_device *net_device;
-> @@ -999,7 +996,5 @@ cleanup:
->  int netvsc_initialize(struct hv_driver *drv)
->  {
->  
-> -	drv->name = driver_name;
-> -
+On Fri, Jul 15, 2011 at 10:47:09AM -0700, K. Y. Srinivasan wrote:
+> The current mechanism for handling references in broken.
+> Introduce a lock to protect the ext field in hv_device.
 
-Please merge this with the previous patch.
+Why would that lock ever be needed?  How can things change to this
+pointer in different ways like you are thinking it could?  Doesn't the
+reference counting in the device itself handle this properly?
 
 greg k-h
