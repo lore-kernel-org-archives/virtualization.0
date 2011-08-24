@@ -1,70 +1,68 @@
 From: KY Srinivasan <kys@microsoft.com>
-Subject: RE: [PATCH 0000/0117] Staging: hv: Driver cleanup
-Date: Wed, 24 Aug 2011 01:01:26 +0000
-Message-ID: <6E21E5352C11B742B20C142EB499E048081B23B1@TK5EX14MBXC126.redmond.corp.microsoft.com>
-References: <1310752024-27854-1-git-send-email-kys@microsoft.com>
- <20110823231120.GP9641@kroah.com>
+Subject: RE: [PATCH 4/8] Staging: hv: vmbus: Fix checkpatch warnings
+Date: Wed, 24 Aug 2011 01:10:32 +0000
+Message-ID: <6E21E5352C11B742B20C142EB499E048081B23CD@TK5EX14MBXC126.redmond.corp.microsoft.com>
+References: <1311101018-23370-1-git-send-email-kys@microsoft.com>
+	<1311101065-23417-1-git-send-email-kys@microsoft.com>
+	<1311101065-23417-4-git-send-email-kys@microsoft.com>
+	<20110823231657.GC9955@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20110823231120.GP9641@kroah.com>
+Content-Transfer-Encoding: 7bit
+Return-path: <devel-bounces@linuxdriverproject.org>
+In-Reply-To: <20110823231657.GC9955@kroah.com>
 Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
+List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
+	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
+List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
+List-Post: <mailto:devel@linuxdriverproject.org>
+List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
+List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
+	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
+Errors-To: devel-bounces@linuxdriverproject.org
+Sender: devel-bounces@linuxdriverproject.org
 To: Greg KH <greg@kroah.com>
-Cc: "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>
+Cc: "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, Haiyang Zhang <haiyangz@microsoft.com>, "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
 
 
 > -----Original Message-----
 > From: Greg KH [mailto:greg@kroah.com]
-> Sent: Tuesday, August 23, 2011 7:11 PM
+> Sent: Tuesday, August 23, 2011 7:17 PM
 > To: KY Srinivasan
 > Cc: gregkh@suse.de; linux-kernel@vger.kernel.org;
-> devel@linuxdriverproject.org; virtualization@lists.osdl.org
-> Subject: Re: [PATCH 0000/0117] Staging: hv: Driver cleanup
+> devel@linuxdriverproject.org; virtualization@lists.osdl.org; Haiyang Zhang
+> Subject: Re: [PATCH 4/8] Staging: hv: vmbus: Fix checkpatch warnings
 > 
-> On Fri, Jul 15, 2011 at 10:47:04AM -0700, K. Y. Srinivasan wrote:
-> > Further cleanup of the hv drivers. Back in June I had sent two patch
-> > sets to address these issues. I have addressed the comments I got from
-> > the community on my earlier patches here:
+> On Tue, Jul 19, 2011 at 11:44:21AM -0700, K. Y. Srinivasan wrote:
+> > Fix  checkpatch warnings in hv.c
 > >
-> > 	1) Implement code for autoloading the vmbus drivers without using PCI
-> or DMI
-> > 	   signatures. I have implemented this based on Greg's feedback on my
-> earlier
-> > 	   implementation.
+> > Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
+> > Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
+> > ---
+> >  drivers/staging/hv/hv.c |    4 ++--
+> >  1 files changed, 2 insertions(+), 2 deletions(-)
 > >
-> > 	2) Cleanup error handling across the board and use standard Linux error
-> codes.
-> >
-> > 	3) General cleanup
-> >
-> > 	4) Some bug fixes.
-> >
-> > 	5) Cleanup the reference counting mess for both stor and net devices.
-> >
-> > 	6) Handle all block devices using the storvsc driver. I have modified
-> > 	   the implementation here based on Christoph's feedback on my earlier
-> > 	   implementation.
-> >
-> > 	7) Accomodate some host side scsi emulation bugs.
-> >
-> > 	8) In case of scsi errors off-line the device.
+> > diff --git a/drivers/staging/hv/hv.c b/drivers/staging/hv/hv.c
+> > index e733173..14e6315 100644
+> > --- a/drivers/staging/hv/hv.c
+> > +++ b/drivers/staging/hv/hv.c
+> > @@ -111,7 +111,7 @@ static u64 do_hypercall(u64 control, void *input, void
+> *output)
+> >  	u64 hv_status = 0;
+> >  	u64 input_address = (input) ? virt_to_phys(input) : 0;
+> >  	u64 output_address = (output) ? virt_to_phys(output) : 0;
+> > -	volatile void *hypercall_page = hv_context.hypercall_page;
+> > +	void *hypercall_page = hv_context.hypercall_page;
 > 
-> Care to respin this patch series based on my comments?
+> Are you sure?  This was just someone being foolish?  No other reason
+> someone tried to use volatile here?
 
-Greg,
-
-Thank you for your comments. I will try to re-submit these patches as soon as I
-possibly can. If I were to get these patches re-spun and sent to you in the next couple of 
-days, can I still make this current merge window?
+I cannot see any reason why this needs to be volatile.
 
 Regards,
 
 K. Y
-> 
-> thanks,
 > 
 > greg k-h
