@@ -1,19 +1,19 @@
 From: KY Srinivasan <kys@microsoft.com>
-Subject: RE: [PATCH 086/117] Staging: hv: storvsc: Leverage the spinlock to
- manage ref_cnt
-Date: Wed, 24 Aug 2011 16:25:18 +0000
-Message-ID: <6E21E5352C11B742B20C142EB499E048081B2789@TK5EX14MBXC126.redmond.corp.microsoft.com>
+Subject: RE: [PATCH 003/117] Staging: hv: Add struct hv_vmbus_device_id to
+ mod_devicetable.h
+Date: Wed, 24 Aug 2011 16:46:11 +0000
+Message-ID: <6E21E5352C11B742B20C142EB499E048081B27B9@TK5EX14MBXC126.redmond.corp.microsoft.com>
 References: <1310752024-27854-1-git-send-email-kys@microsoft.com>
  <1310752065-27895-1-git-send-email-kys@microsoft.com>
- <1310752065-27895-86-git-send-email-kys@microsoft.com>
- <20110823231028.GO9641@kroah.com>
- <6E21E5352C11B742B20C142EB499E048081B239E@TK5EX14MBXC126.redmond.corp.microsoft.com>
- <20110824025737.GA30779@kroah.com>
+ <1310752065-27895-3-git-send-email-kys@microsoft.com>
+ <20110823224157.GA9641@kroah.com>
+ <6E21E5352C11B742B20C142EB499E048081B236E@TK5EX14MBXC126.redmond.corp.microsoft.com>
+ <20110824025913.GC30779@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 8BIT
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20110824025737.GA30779@kroah.com>
+In-Reply-To: <20110824025913.GC30779@kroah.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 To: Greg KH <greg@kroah.com>
@@ -24,87 +24,80 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 > -----Original Message-----
 > From: Greg KH [mailto:greg@kroah.com]
-> Sent: Tuesday, August 23, 2011 10:58 PM
+> Sent: Tuesday, August 23, 2011 10:59 PM
 > To: KY Srinivasan
 > Cc: gregkh@suse.de; linux-kernel@vger.kernel.org;
 > devel@linuxdriverproject.org; virtualization@lists.osdl.org; Haiyang Zhang
-> Subject: Re: [PATCH 086/117] Staging: hv: storvsc: Leverage the spinlock to
-> manage ref_cnt
+> Subject: Re: [PATCH 003/117] Staging: hv: Add struct hv_vmbus_device_id to
+> mod_devicetable.h
 > 
-> On Wed, Aug 24, 2011 at 12:58:36AM +0000, KY Srinivasan wrote:
+> On Wed, Aug 24, 2011 at 12:44:38AM +0000, KY Srinivasan wrote:
 > >
 > >
 > > > -----Original Message-----
 > > > From: Greg KH [mailto:greg@kroah.com]
-> > > Sent: Tuesday, August 23, 2011 7:10 PM
+> > > Sent: Tuesday, August 23, 2011 6:42 PM
 > > > To: KY Srinivasan
 > > > Cc: gregkh@suse.de; linux-kernel@vger.kernel.org;
 > > > devel@linuxdriverproject.org; virtualization@lists.osdl.org; Haiyang Zhang
-> > > Subject: Re: [PATCH 086/117] Staging: hv: storvsc: Leverage the spinlock to
-> > > manage ref_cnt
+> > > Subject: Re: [PATCH 003/117] Staging: hv: Add struct hv_vmbus_device_id to
+> > > mod_devicetable.h
 > > >
-> > > On Fri, Jul 15, 2011 at 10:47:14AM -0700, K. Y. Srinivasan wrote:
-> > > > Now that we have a spin lock protecting access to the stor device pointer,
-> > > > use it manage the reference count as well.
+> > > On Fri, Jul 15, 2011 at 10:45:51AM -0700, K. Y. Srinivasan wrote:
+> > > > In preparation for implementing vmbus aliases for auto-loading
+> > > > Hyper-V drivers, define vmbus specific device ID.
 > > > >
 > > > > Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 > > > > Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 > > > > ---
-> > > >  drivers/staging/hv/hyperv_storage.h |    8 ++++----
-> > > >  drivers/staging/hv/storvsc.c        |   10 +++++-----
-> > > >  2 files changed, 9 insertions(+), 9 deletions(-)
+> > > >  include/linux/mod_devicetable.h |    7 +++++++
+> > > >  1 files changed, 7 insertions(+), 0 deletions(-)
 > > > >
-> > > > diff --git a/drivers/staging/hv/hyperv_storage.h
-> > > b/drivers/staging/hv/hyperv_storage.h
-> > > > index 53b65be..d946211 100644
-> > > > --- a/drivers/staging/hv/hyperv_storage.h
-> > > > +++ b/drivers/staging/hv/hyperv_storage.h
-> > > > @@ -265,7 +265,7 @@ struct storvsc_device {
-> > > >  	struct hv_device *device;
+> > > > diff --git a/include/linux/mod_devicetable.h
+> > > b/include/linux/mod_devicetable.h
+> > > > index ae28e93..5a12377 100644
+> > > > --- a/include/linux/mod_devicetable.h
+> > > > +++ b/include/linux/mod_devicetable.h
+> > > > @@ -405,6 +405,13 @@ struct virtio_device_id {
+> > > >  };
+> > > >  #define VIRTIO_DEV_ANY_ID	0xffffffff
 > > > >
-> > > >  	/* 0 indicates the device is being destroyed */
-> > > > -	atomic_t ref_count;
-> > > > +	int	 ref_count;
+> > > > +/*
+> > > > + * For Hyper-V devices we use the device guid as the id.
+> > > > + */
+> > > > +struct hv_vmbus_device_id {
+> > > > +	__u8 guid[16];
+> > > > +};
 > > >
-> > > Is this really needed?  Can't you rely on the reference count of the
-> > > hv_device itself?
+> > > Why do you not need a driver_data pointer here?  Are you sure you aren't
+> > > ever going to need it in the future?  Hint, I think you will...
 > >
-> > We don't have a reference count on the hv_device
+> > I am not sure I am following you here; the guid is the device ID and it is
+> > guaranteed to remain the same. What is the driver _data pointer here
+> > you are referring to here.  While some device id have the _data pointer,
+> > there are others that don't - for instance struct virtio_device_id. In
+> > our case, I am not sure how I would use this private pointer.
 > 
-> Wait, why not?  You shure better have a reference count on that device
-> if you have a pointer to it, if not, you have a bug, and that needs to
-> be fixed.  Please reread Documentation/CodingStyle for details.
+> You use it like all other drivers use it, only if needed.
 
-Greg,
+Fair enough; the point is I am not sure how I would use it.
 
-I am confused here. The model we have is identical to other device/bus
-abstractions in the kernel. For instance, neither  struct pci_dev nor struct
-virtio_device have an explicit reference count. However, they both embed
-struct device which  has the kobject structure embedded to manage
-the object life cycle. This is exactly the model we have for the vmbus devices -
-struct hv_device embeds struct device that embeds the struct kobject for
-managing the lifecycle.
+> 
+> Hint, I think you need to use it in your hv_utils driver, it would
+> reduce the size of your code and simplify your logic.
 
-Like other  bus specific devices in the kernel (pci devices, virtio devices,),  
-class specific vmbus devices - struct storvsc_device and struct netvsc_device 
-embed a pointer to the underlying struct hv_device. Furthermore, a pointer to 
-the class specific device structure is stashed in the struct hv_device (the ext pointer).
-This is identical what is done in the virtio blk device - look at the priv element in struct virtio_device.
-
-As I noted in a different email, I did not introduce this reference counting, I just fixed some gaping 
-holes in the logic. The reason, I fixed the logic and kept the reference counting is because I can 
-see cases where we could end up de-referencing a NULL pointer from the interrupt side that is
-trying to deliver a vmbus packet to a device that is being destroyed. 
+Could you expand on this. Currently the util driver handles a bunch 
+services that have their own guids - and these have been included
+in the idtable. How would having the pointer simplify this code. 
+I looked at the usage of this in PCI and it appears to be for supporting
+dynamic  IDs for existing drivers. I am not sure if this is applicable to the util
+driver. First, I am not sure if there will be additional services being 
+packaged into util driver and secondly, even if I implement this scheme
+of being able to dynamically add new IDs, we still would need to add the
+code to the driver to handle the new service. In fact not a whole lot of 
+code is shared amongst the services that are currently packaged as the
+util driver. 
 
 Regards,
 
 K. Y
-
-> 
-> > and this count is taken to deal with racing unloads and incoming
-> > traffic on the channel from the host.
-> 
-> Is this something that all other storage drivers have to do?  If not,
-> then you shouldn't be doing that as well.
-> 
-> greg k-h
