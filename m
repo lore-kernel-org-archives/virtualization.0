@@ -1,50 +1,54 @@
-From: Greg KH <greg@kroah.com>
-Subject: Re: [PATCH 4/8] Staging: hv: vmbus: Fix checkpatch warnings
-Date: Tue, 23 Aug 2011 16:16:57 -0700
-Message-ID: <20110823231657.GC9955@kroah.com>
-References: <1311101018-23370-1-git-send-email-kys@microsoft.com>
-	<1311101065-23417-1-git-send-email-kys@microsoft.com>
-	<1311101065-23417-4-git-send-email-kys@microsoft.com>
+From: KY Srinivasan <kys@microsoft.com>
+Subject: RE: [PATCH 019/117] Staging: hv: vmbus: Cleanup vmbus_uevent() code
+Date: Wed, 24 Aug 2011 00:38:09 +0000
+Message-ID: <6E21E5352C11B742B20C142EB499E048081B2356@TK5EX14MBXC126.redmond.corp.microsoft.com>
+References: <1310752024-27854-1-git-send-email-kys@microsoft.com>
+ <1310752065-27895-1-git-send-email-kys@microsoft.com>
+ <1310752065-27895-19-git-send-email-kys@microsoft.com>
+ <20110823224932.GF9641@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <devel-bounces@linuxdriverproject.org>
-Content-Disposition: inline
-In-Reply-To: <1311101065-23417-4-git-send-email-kys@microsoft.com>
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
-List-Post: <mailto:devel@linuxdriverproject.org>
-List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
-Errors-To: devel-bounces@linuxdriverproject.org
-Sender: devel-bounces@linuxdriverproject.org
-To: "K. Y. Srinivasan" <kys@microsoft.com>
-Cc: devel@linuxdriverproject.org, Haiyang Zhang <haiyangz@microsoft.com>, gregkh@suse.de, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20110823224932.GF9641@kroah.com>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: Greg KH <greg@kroah.com>
+Cc: "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jul 19, 2011 at 11:44:21AM -0700, K. Y. Srinivasan wrote:
-> Fix  checkpatch warnings in hv.c
-> 
-> Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
-> Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
-> ---
->  drivers/staging/hv/hv.c |    4 ++--
->  1 files changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/staging/hv/hv.c b/drivers/staging/hv/hv.c
-> index e733173..14e6315 100644
-> --- a/drivers/staging/hv/hv.c
-> +++ b/drivers/staging/hv/hv.c
-> @@ -111,7 +111,7 @@ static u64 do_hypercall(u64 control, void *input, void *output)
->  	u64 hv_status = 0;
->  	u64 input_address = (input) ? virt_to_phys(input) : 0;
->  	u64 output_address = (output) ? virt_to_phys(output) : 0;
-> -	volatile void *hypercall_page = hv_context.hypercall_page;
-> +	void *hypercall_page = hv_context.hypercall_page;
 
-Are you sure?  This was just someone being foolish?  No other reason
-someone tried to use volatile here?
 
-greg k-h
+> -----Original Message-----
+> From: Greg KH [mailto:greg@kroah.com]
+> Sent: Tuesday, August 23, 2011 6:50 PM
+> To: KY Srinivasan
+> Cc: gregkh@suse.de; linux-kernel@vger.kernel.org;
+> devel@linuxdriverproject.org; virtualization@lists.osdl.org; Haiyang Zhang
+> Subject: Re: [PATCH 019/117] Staging: hv: vmbus: Cleanup vmbus_uevent() code
+> 
+> On Fri, Jul 15, 2011 at 10:46:07AM -0700, K. Y. Srinivasan wrote:
+> > Now generate appropriate uevent based on the modalias string. As part of this,
+> > cleanup the existing uevent code.
+> 
+> Note, you just change the user api here, did you have tools that relied
+> on the old format?  If so, they just broke :(
+
+Prior to this, I don't think autoloading worked the way it should for these
+modules. 
+
+> 
+> > +	for (i = 0; i < (sizeof(struct hv_vmbus_device_id) * 2); i += 2)
+> > +		sprintf(&alias_name[i], "%02x", dev->dev_type.b[i/2]);
+> 
+> Don't we have a type for printing out a uuid already?
+
+I did not see one; could you point me to the right place.
+> 
+> And what's with the jumping by 2 yet dividing?  What am I missing here?
+
+Each byte of the uuid is represented by 2 bytes in the string; thus the magic with 2.
+
+Regards,
+
+K. Y
