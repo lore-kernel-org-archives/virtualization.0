@@ -1,17 +1,17 @@
 From: KY Srinivasan <kys@microsoft.com>
-Subject: RE: [PATCH 003/117] Staging: hv: Add struct hv_vmbus_device_id to
- mod_devicetable.h
-Date: Wed, 24 Aug 2011 00:44:38 +0000
-Message-ID: <6E21E5352C11B742B20C142EB499E048081B236E@TK5EX14MBXC126.redmond.corp.microsoft.com>
+Subject: RE: [PATCH 081/117] Staging: hv: vmbus: Introduce a lock to protect
+ the ext field in hv_device
+Date: Wed, 24 Aug 2011 00:55:12 +0000
+Message-ID: <6E21E5352C11B742B20C142EB499E048081B238B@TK5EX14MBXC126.redmond.corp.microsoft.com>
 References: <1310752024-27854-1-git-send-email-kys@microsoft.com>
  <1310752065-27895-1-git-send-email-kys@microsoft.com>
- <1310752065-27895-3-git-send-email-kys@microsoft.com>
- <20110823224157.GA9641@kroah.com>
+ <1310752065-27895-81-git-send-email-kys@microsoft.com>
+ <20110823230816.GN9641@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 8BIT
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20110823224157.GA9641@kroah.com>
+In-Reply-To: <20110823230816.GN9641@kroah.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 To: Greg KH <greg@kroah.com>
@@ -22,50 +22,28 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 > -----Original Message-----
 > From: Greg KH [mailto:greg@kroah.com]
-> Sent: Tuesday, August 23, 2011 6:42 PM
+> Sent: Tuesday, August 23, 2011 7:08 PM
 > To: KY Srinivasan
 > Cc: gregkh@suse.de; linux-kernel@vger.kernel.org;
 > devel@linuxdriverproject.org; virtualization@lists.osdl.org; Haiyang Zhang
-> Subject: Re: [PATCH 003/117] Staging: hv: Add struct hv_vmbus_device_id to
-> mod_devicetable.h
+> Subject: Re: [PATCH 081/117] Staging: hv: vmbus: Introduce a lock to protect the
+> ext field in hv_device
 > 
-> On Fri, Jul 15, 2011 at 10:45:51AM -0700, K. Y. Srinivasan wrote:
-> > In preparation for implementing vmbus aliases for auto-loading
-> > Hyper-V drivers, define vmbus specific device ID.
-> >
-> > Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
-> > Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
-> > ---
-> >  include/linux/mod_devicetable.h |    7 +++++++
-> >  1 files changed, 7 insertions(+), 0 deletions(-)
-> >
-> > diff --git a/include/linux/mod_devicetable.h
-> b/include/linux/mod_devicetable.h
-> > index ae28e93..5a12377 100644
-> > --- a/include/linux/mod_devicetable.h
-> > +++ b/include/linux/mod_devicetable.h
-> > @@ -405,6 +405,13 @@ struct virtio_device_id {
-> >  };
-> >  #define VIRTIO_DEV_ANY_ID	0xffffffff
-> >
-> > +/*
-> > + * For Hyper-V devices we use the device guid as the id.
-> > + */
-> > +struct hv_vmbus_device_id {
-> > +	__u8 guid[16];
-> > +};
+> On Fri, Jul 15, 2011 at 10:47:09AM -0700, K. Y. Srinivasan wrote:
+> > The current mechanism for handling references in broken.
+> > Introduce a lock to protect the ext field in hv_device.
 > 
-> Why do you not need a driver_data pointer here?  Are you sure you aren't
-> ever going to need it in the future?  Hint, I think you will...
+> Why would that lock ever be needed?  How can things change to this
+> pointer in different ways like you are thinking it could?  Doesn't the
+> reference counting in the device itself handle this properly?
 
-I am not sure I am following you here; the guid is the device ID and it is 
-guaranteed to remain the same. What is the driver _data pointer here 
-you are referring to here.  While some device id have the _data pointer,
-there are others that don't - for instance struct virtio_device_id. In 
-our case, I am not sure how I would use this private pointer.
+This is to deal with a potential race condition between the driver being
+unloaded and incoming traffic from the VMBUS side. The ext pointer is 
+device specific (either pointing to a storage or a network device) and what
+we are protecting is the pointer being set to NULL from the unload side when
+we might have a racing access from the interrupt side (on the incoming vmbus
+traffic).
 
 Regards,
 
-K. Y
-> 
-> greg k-h
+K. Y 
