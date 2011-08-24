@@ -1,16 +1,17 @@
 From: KY Srinivasan <kys@microsoft.com>
-Subject: RE: [PATCH 019/117] Staging: hv: vmbus: Cleanup vmbus_uevent() code
-Date: Wed, 24 Aug 2011 00:38:09 +0000
-Message-ID: <6E21E5352C11B742B20C142EB499E048081B2356@TK5EX14MBXC126.redmond.corp.microsoft.com>
+Subject: RE: [PATCH 003/117] Staging: hv: Add struct hv_vmbus_device_id to
+ mod_devicetable.h
+Date: Wed, 24 Aug 2011 00:44:38 +0000
+Message-ID: <6E21E5352C11B742B20C142EB499E048081B236E@TK5EX14MBXC126.redmond.corp.microsoft.com>
 References: <1310752024-27854-1-git-send-email-kys@microsoft.com>
  <1310752065-27895-1-git-send-email-kys@microsoft.com>
- <1310752065-27895-19-git-send-email-kys@microsoft.com>
- <20110823224932.GF9641@kroah.com>
+ <1310752065-27895-3-git-send-email-kys@microsoft.com>
+ <20110823224157.GA9641@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 8BIT
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20110823224932.GF9641@kroah.com>
+In-Reply-To: <20110823224157.GA9641@kroah.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 To: Greg KH <greg@kroah.com>
@@ -21,34 +22,50 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 > -----Original Message-----
 > From: Greg KH [mailto:greg@kroah.com]
-> Sent: Tuesday, August 23, 2011 6:50 PM
+> Sent: Tuesday, August 23, 2011 6:42 PM
 > To: KY Srinivasan
 > Cc: gregkh@suse.de; linux-kernel@vger.kernel.org;
 > devel@linuxdriverproject.org; virtualization@lists.osdl.org; Haiyang Zhang
-> Subject: Re: [PATCH 019/117] Staging: hv: vmbus: Cleanup vmbus_uevent() code
+> Subject: Re: [PATCH 003/117] Staging: hv: Add struct hv_vmbus_device_id to
+> mod_devicetable.h
 > 
-> On Fri, Jul 15, 2011 at 10:46:07AM -0700, K. Y. Srinivasan wrote:
-> > Now generate appropriate uevent based on the modalias string. As part of this,
-> > cleanup the existing uevent code.
+> On Fri, Jul 15, 2011 at 10:45:51AM -0700, K. Y. Srinivasan wrote:
+> > In preparation for implementing vmbus aliases for auto-loading
+> > Hyper-V drivers, define vmbus specific device ID.
+> >
+> > Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
+> > Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
+> > ---
+> >  include/linux/mod_devicetable.h |    7 +++++++
+> >  1 files changed, 7 insertions(+), 0 deletions(-)
+> >
+> > diff --git a/include/linux/mod_devicetable.h
+> b/include/linux/mod_devicetable.h
+> > index ae28e93..5a12377 100644
+> > --- a/include/linux/mod_devicetable.h
+> > +++ b/include/linux/mod_devicetable.h
+> > @@ -405,6 +405,13 @@ struct virtio_device_id {
+> >  };
+> >  #define VIRTIO_DEV_ANY_ID	0xffffffff
+> >
+> > +/*
+> > + * For Hyper-V devices we use the device guid as the id.
+> > + */
+> > +struct hv_vmbus_device_id {
+> > +	__u8 guid[16];
+> > +};
 > 
-> Note, you just change the user api here, did you have tools that relied
-> on the old format?  If so, they just broke :(
+> Why do you not need a driver_data pointer here?  Are you sure you aren't
+> ever going to need it in the future?  Hint, I think you will...
 
-Prior to this, I don't think autoloading worked the way it should for these
-modules. 
-
-> 
-> > +	for (i = 0; i < (sizeof(struct hv_vmbus_device_id) * 2); i += 2)
-> > +		sprintf(&alias_name[i], "%02x", dev->dev_type.b[i/2]);
-> 
-> Don't we have a type for printing out a uuid already?
-
-I did not see one; could you point me to the right place.
-> 
-> And what's with the jumping by 2 yet dividing?  What am I missing here?
-
-Each byte of the uuid is represented by 2 bytes in the string; thus the magic with 2.
+I am not sure I am following you here; the guid is the device ID and it is 
+guaranteed to remain the same. What is the driver _data pointer here 
+you are referring to here.  While some device id have the _data pointer,
+there are others that don't - for instance struct virtio_device_id. In 
+our case, I am not sure how I would use this private pointer.
 
 Regards,
 
 K. Y
+> 
+> greg k-h
