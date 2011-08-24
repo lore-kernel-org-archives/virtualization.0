@@ -1,16 +1,18 @@
 From: Greg KH <greg@kroah.com>
-Subject: Re: [PATCH 0000/0117] Staging: hv: Driver cleanup
-Date: Tue, 23 Aug 2011 20:08:22 -0700
-Message-ID: <20110824030822.GE30779@kroah.com>
+Subject: Re: [PATCH 019/117] Staging: hv: vmbus: Cleanup vmbus_uevent() code
+Date: Tue, 23 Aug 2011 20:00:25 -0700
+Message-ID: <20110824030025.GD30779@kroah.com>
 References: <1310752024-27854-1-git-send-email-kys@microsoft.com>
-	<20110823231120.GP9641@kroah.com>
-	<6E21E5352C11B742B20C142EB499E048081B23B1@TK5EX14MBXC126.redmond.corp.microsoft.com>
+	<1310752065-27895-1-git-send-email-kys@microsoft.com>
+	<1310752065-27895-19-git-send-email-kys@microsoft.com>
+	<20110823224932.GF9641@kroah.com>
+	<6E21E5352C11B742B20C142EB499E048081B2356@TK5EX14MBXC126.redmond.corp.microsoft.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <devel-bounces@linuxdriverproject.org>
 Content-Disposition: inline
-In-Reply-To: <6E21E5352C11B742B20C142EB499E048081B23B1@TK5EX14MBXC126.redmond.corp.microsoft.com>
+In-Reply-To: <6E21E5352C11B742B20C142EB499E048081B2356@TK5EX14MBXC126.redmond.corp.microsoft.com>
 List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
 	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
 List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
@@ -21,35 +23,44 @@ List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>
 Errors-To: devel-bounces@linuxdriverproject.org
 Sender: devel-bounces@linuxdriverproject.org
 To: KY Srinivasan <kys@microsoft.com>
-Cc: "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>
+Cc: "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, Haiyang Zhang <haiyangz@microsoft.com>, "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Aug 24, 2011 at 01:01:26AM +0000, KY Srinivasan wrote:
-> Thank you for your comments. I will try to re-submit these patches as
-> soon as I possibly can. If I were to get these patches re-spun and
-> sent to you in the next couple of days, can I still make this current
-> merge window?
+On Wed, Aug 24, 2011 at 12:38:09AM +0000, KY Srinivasan wrote:
+> 
+> 
+> > -----Original Message-----
+> > From: Greg KH [mailto:greg@kroah.com]
+> > Sent: Tuesday, August 23, 2011 6:50 PM
+> > To: KY Srinivasan
+> > Cc: gregkh@suse.de; linux-kernel@vger.kernel.org;
+> > devel@linuxdriverproject.org; virtualization@lists.osdl.org; Haiyang Zhang
+> > Subject: Re: [PATCH 019/117] Staging: hv: vmbus: Cleanup vmbus_uevent() code
+> > 
+> > On Fri, Jul 15, 2011 at 10:46:07AM -0700, K. Y. Srinivasan wrote:
+> > > Now generate appropriate uevent based on the modalias string. As part of this,
+> > > cleanup the existing uevent code.
+> > 
+> > Note, you just change the user api here, did you have tools that relied
+> > on the old format?  If so, they just broke :(
+> 
+> Prior to this, I don't think autoloading worked the way it should for these
+> modules. 
 
-You ever sit down and write an email, pour out your frustrations and
-anger in a long, detailed rant?  Smoke coming off of your keyboard as
-the keys start melting in the fury of the frustration driving your rage?
+It didn't?  How did the mouse driver get autoloaded then, through the
+pci/dmi tables?
 
-And then, afterward, re-reading it, realizing that you now felt at peace
-with yourself, and such a rant was only for your benefit, the recipient,
-while surely knowing better than to have caused the response in the
-first place, really didn't deserve the flame in the end?  So you then
-delete the email before sending it, and then write a simple and concise
-response instead, following the "three sentences"[1] rule?
+> > > +	for (i = 0; i < (sizeof(struct hv_vmbus_device_id) * 2); i += 2)
+> > > +		sprintf(&alias_name[i], "%02x", dev->dev_type.b[i/2]);
+> > 
+> > Don't we have a type for printing out a uuid already?
+> 
+> I did not see one; could you point me to the right place.
+> > 
+> > And what's with the jumping by 2 yet dividing?  What am I missing here?
+> 
+> Each byte of the uuid is represented by 2 bytes in the string; thus the magic with 2.
 
-Here's that response:
+Ok, wierd, but it makes sense, thanks.
 
-	Read Documentation/development-process/ for how Linux kernel
-	development works and the merge windows happen.
-
-	Please never ask me again.
-
-	Ever.
-
-	greg k-h
-
-[1] http://three.sentenc.es/
+greg k-h
