@@ -1,7 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 32/59] Staging: hv: vmbus: Cleanup error values in ringbuffer.c
-Date: Thu, 25 Aug 2011 09:48:58 -0700
-Message-ID: <1314290965-2698-32-git-send-email-kys@microsoft.com>
+Subject: [PATCH 36/59] Staging: hv: storvsc: Cleanup error handling in
+	storvsc_dev_add()
+Date: Thu, 25 Aug 2011 09:49:02 -0700
+Message-ID: <1314290965-2698-36-git-send-email-kys@microsoft.com>
 References: <1314290866-2644-1-git-send-email-kys@microsoft.com>
 	<1314290965-2698-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -22,87 +23,48 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Use standard Linux errno values in ringbuffer.c and do the associated
-cleanup in the clients.
+Use standard Linux error values and cleanup error handling. I would like
+to acknowledge Andre Bartke (andre.bartke@gmail.com) for highlighting this
+problem.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- drivers/staging/hv/blkvsc_drv.c  |    2 +-
- drivers/staging/hv/netvsc.c      |    2 +-
- drivers/staging/hv/ring_buffer.c |    6 +++---
- drivers/staging/hv/storvsc_drv.c |    2 +-
- 4 files changed, 6 insertions(+), 6 deletions(-)
+ drivers/staging/hv/storvsc.c |   12 ++++++------
+ 1 files changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/staging/hv/blkvsc_drv.c b/drivers/staging/hv/blkvsc_drv.c
-index 9b99387..d3f4f1d 100644
---- a/drivers/staging/hv/blkvsc_drv.c
-+++ b/drivers/staging/hv/blkvsc_drv.c
-@@ -726,7 +726,7 @@ static int blkvsc_do_request(struct block_device_context *blkdev,
- 		} else {
- 			ret = blkvsc_submit_request(blkvsc_req,
- 						    blkvsc_request_completion);
--			if (ret == -1) {
-+			if (ret == -EAGAIN) {
- 				pending = 1;
- 				list_add_tail(&blkvsc_req->pend_entry,
- 					      &blkdev->pending_list);
-diff --git a/drivers/staging/hv/netvsc.c b/drivers/staging/hv/netvsc.c
-index cb02eed..d547ff6 100644
---- a/drivers/staging/hv/netvsc.c
-+++ b/drivers/staging/hv/netvsc.c
-@@ -565,7 +565,7 @@ retry_send_cmplt:
- 	if (ret == 0) {
- 		/* success */
- 		/* no-op */
--	} else if (ret == -1) {
-+	} else if (ret == -EAGAIN) {
- 		/* no more room...wait a bit and attempt to retry 3 times */
- 		retries++;
- 		dev_err(&device->device, "unable to send receive completion pkt"
-diff --git a/drivers/staging/hv/ring_buffer.c b/drivers/staging/hv/ring_buffer.c
-index 42f7672..9212699 100644
---- a/drivers/staging/hv/ring_buffer.c
-+++ b/drivers/staging/hv/ring_buffer.c
-@@ -390,7 +390,7 @@ int hv_ringbuffer_write(struct hv_ring_buffer_info *outring_info,
- 	/* is empty since the read index == write index */
- 	if (bytes_avail_towrite <= totalbytes_towrite) {
- 		spin_unlock_irqrestore(&outring_info->ring_lock, flags);
--		return -1;
-+		return -EAGAIN;
- 	}
+diff --git a/drivers/staging/hv/storvsc.c b/drivers/staging/hv/storvsc.c
+index 3029786..915aeee 100644
+--- a/drivers/staging/hv/storvsc.c
++++ b/drivers/staging/hv/storvsc.c
+@@ -392,10 +392,8 @@ int storvsc_dev_add(struct hv_device *device,
  
- 	/* Write to the ring buffer */
-@@ -450,7 +450,7 @@ int hv_ringbuffer_peek(struct hv_ring_buffer_info *Inring_info,
+ 	device_info = (struct storvsc_device_info *)additional_info;
+ 	stor_device = alloc_stor_device(device);
+-	if (!stor_device) {
+-		ret = -1;
+-		goto cleanup;
+-	}
++	if (!stor_device)
++		return -ENOMEM;
  
- 		spin_unlock_irqrestore(&Inring_info->ring_lock, flags);
+ 	/* Save the channel properties to our storvsc channel */
  
--		return -1;
-+		return -EAGAIN;
- 	}
+@@ -409,11 +407,13 @@ int storvsc_dev_add(struct hv_device *device,
+ 	stor_device->port_number = device_info->port_number;
+ 	/* Send it back up */
+ 	ret = storvsc_connect_to_vsp(device, device_info->ring_buffer_size);
+-
++	if (ret) {
++		free_stor_device(stor_device);
++		return ret;
++	}
+ 	device_info->path_id = stor_device->path_id;
+ 	device_info->target_id = stor_device->target_id;
  
- 	/* Convert to byte offset */
-@@ -496,7 +496,7 @@ int hv_ringbuffer_read(struct hv_ring_buffer_info *inring_info, void *buffer,
- 	if (bytes_avail_toread < buflen) {
- 		spin_unlock_irqrestore(&inring_info->ring_lock, flags);
+-cleanup:
+ 	return ret;
+ }
  
--		return -1;
-+		return -EAGAIN;
- 	}
- 
- 	next_read_location =
-diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
-index 4dc6d2f..1e49879 100644
---- a/drivers/staging/hv/storvsc_drv.c
-+++ b/drivers/staging/hv/storvsc_drv.c
-@@ -580,7 +580,7 @@ retry_request:
- 	/* Invokes the vsc to start an IO */
- 	ret = storvsc_do_io(dev, &cmd_request->request);
- 
--	if (ret == -1) {
-+	if (ret == -EAGAIN) {
- 		/* no more space */
- 
- 		if (cmd_request->bounce_sgl_count) {
 -- 
 1.7.4.1
