@@ -1,8 +1,7 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 49/59] Staging: hv: netvsc: Cleanup error return values in
-	netvsc_send()
-Date: Thu, 25 Aug 2011 09:49:15 -0700
-Message-ID: <1314290965-2698-49-git-send-email-kys@microsoft.com>
+Subject: [PATCH 20/59] Staging: hv: netvsc: Initialize the driver name directly
+Date: Thu, 25 Aug 2011 09:48:46 -0700
+Message-ID: <1314290965-2698-20-git-send-email-kys@microsoft.com>
 References: <1314290866-2644-1-git-send-email-kys@microsoft.com>
 	<1314290965-2698-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -23,35 +22,59 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Use standard Linux error codes.
+Initialize the driver name directly in netvsc_drv.c and do the necessary
+adjustments.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- drivers/staging/hv/netvsc.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/staging/hv/netvsc.c     |    5 -----
+ drivers/staging/hv/netvsc_drv.c |    4 +++-
+ 2 files changed, 3 insertions(+), 6 deletions(-)
 
 diff --git a/drivers/staging/hv/netvsc.c b/drivers/staging/hv/netvsc.c
-index 9cc126b..f7f4957 100644
+index 6f4541b..d085018 100644
 --- a/drivers/staging/hv/netvsc.c
 +++ b/drivers/staging/hv/netvsc.c
-@@ -409,7 +409,7 @@ int netvsc_device_remove(struct hv_device *device)
- 	net_device = release_outbound_net_device(device);
- 	if (!net_device) {
- 		dev_err(&device->device, "No net device present!!");
--		return -1;
-+		return -ENODEV;
- 	}
+@@ -32,9 +32,6 @@
+ #include "hyperv_net.h"
  
- 	/* Wait for all send completions */
-@@ -499,7 +499,7 @@ int netvsc_send(struct hv_device *device,
- 	if (!net_device) {
- 		dev_err(&device->device, "net device (%p) shutting down..."
- 			   "ignoring outbound packets", net_device);
--		return -2;
-+		return -ENODEV;
- 	}
  
- 	sendMessage.hdr.msg_type = NVSP_MSG1_TYPE_SEND_RNDIS_PKT;
+-/* Globals */
+-static const char *driver_name = "netvsc";
+-
+ static struct netvsc_device *alloc_net_device(struct hv_device *device)
+ {
+ 	struct netvsc_device *net_device;
+@@ -999,7 +996,5 @@ cleanup:
+ int netvsc_initialize(struct hv_driver *drv)
+ {
+ 
+-	drv->name = driver_name;
+-
+ 	return 0;
+ }
+diff --git a/drivers/staging/hv/netvsc_drv.c b/drivers/staging/hv/netvsc_drv.c
+index d6c6180..61de6f2 100644
+--- a/drivers/staging/hv/netvsc_drv.c
++++ b/drivers/staging/hv/netvsc_drv.c
+@@ -41,6 +41,8 @@
+ #include "hyperv.h"
+ #include "hyperv_net.h"
+ 
++static const char *driver_name = "netvsc";
++
+ struct net_device_context {
+ 	/* point back to our device context */
+ 	struct hv_device *device_ctx;
+@@ -449,7 +451,7 @@ static int __init netvsc_drv_init(void)
+ 	/* Callback to client driver to complete the initialization */
+ 	netvsc_initialize(drv);
+ 
+-	drv->driver.name = drv->name;
++	drv->driver.name = driver_name;
+ 
+ 	/* The driver belongs to vmbus */
+ 	ret = vmbus_child_driver_register(&drv->driver);
 -- 
 1.7.4.1
