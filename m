@@ -1,8 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 45/59] Staging: hv: netvsc: Cleanup the returned error code in
-	netvsc_probe()
-Date: Thu, 25 Aug 2011 09:49:11 -0700
-Message-ID: <1314290965-2698-45-git-send-email-kys@microsoft.com>
+Subject: [PATCH 30/59] Staging: hv: vmbus: Get rid of unnecessary comments in
+	channel.c
+Date: Thu, 25 Aug 2011 09:48:56 -0700
+Message-ID: <1314290965-2698-30-git-send-email-kys@microsoft.com>
 References: <1314290866-2644-1-git-send-email-kys@microsoft.com>
 	<1314290965-2698-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -23,26 +23,42 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Use standard Linux error codes.
+Get rid of unnecessary comments in channel.c.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- drivers/staging/hv/netvsc_drv.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+ drivers/staging/hv/channel.c |    4 ----
+ 1 files changed, 0 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/staging/hv/netvsc_drv.c b/drivers/staging/hv/netvsc_drv.c
-index 77f9236..e7c61d6 100644
---- a/drivers/staging/hv/netvsc_drv.c
-+++ b/drivers/staging/hv/netvsc_drv.c
-@@ -340,7 +340,7 @@ static int netvsc_probe(struct hv_device *dev)
+diff --git a/drivers/staging/hv/channel.c b/drivers/staging/hv/channel.c
+index ebd7552..e02060e 100644
+--- a/drivers/staging/hv/channel.c
++++ b/drivers/staging/hv/channel.c
+@@ -76,7 +76,6 @@ void vmbus_get_debug_info(struct vmbus_channel *channel,
+ 	struct hv_monitor_page *monitorpage;
+ 	u8 monitor_group = (u8)channel->offermsg.monitorid / 32;
+ 	u8 monitor_offset = (u8)channel->offermsg.monitorid % 32;
+-	/* u32 monitorBit	= 1 << monitorOffset; */
  
- 	net = alloc_etherdev(sizeof(struct net_device_context));
- 	if (!net)
--		return -1;
-+		return -ENOMEM;
+ 	debuginfo->relid = channel->offermsg.child_relid;
+ 	debuginfo->state = channel->state;
+@@ -392,7 +391,6 @@ int vmbus_establish_gpadl(struct vmbus_channel *channel, void *kbuffer,
+ {
+ 	struct vmbus_channel_gpadl_header *gpadlmsg;
+ 	struct vmbus_channel_gpadl_body *gpadl_body;
+-	/* struct vmbus_channel_gpadl_created *gpadlCreated; */
+ 	struct vmbus_channel_msginfo *msginfo = NULL;
+ 	struct vmbus_channel_msginfo *submsginfo;
+ 	u32 msgcount;
+@@ -474,8 +472,6 @@ int vmbus_teardown_gpadl(struct vmbus_channel *channel, u32 gpadl_handle)
+ 	unsigned long flags;
+ 	int ret, t;
  
- 	/* Set initial state */
- 	netif_carrier_off(net);
+-	/* ASSERT(gpadl_handle != 0); */
+-
+ 	info = kmalloc(sizeof(*info) +
+ 		       sizeof(struct vmbus_channel_gpadl_teardown), GFP_KERNEL);
+ 	if (!info)
 -- 
 1.7.4.1
