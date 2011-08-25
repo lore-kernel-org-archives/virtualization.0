@@ -1,8 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 42/59] Staging: hv: storvsc: Cleanup returned error code in
-	storvsc_host_reset()
-Date: Thu, 25 Aug 2011 09:49:08 -0700
-Message-ID: <1314290965-2698-42-git-send-email-kys@microsoft.com>
+Subject: [PATCH 51/59] Staging: hv: netvsc: Cleanup error codes in
+	rndis_filter_receive()
+Date: Thu, 25 Aug 2011 09:49:17 -0700
+Message-ID: <1314290965-2698-51-git-send-email-kys@microsoft.com>
 References: <1314290866-2644-1-git-send-email-kys@microsoft.com>
 	<1314290965-2698-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -28,21 +28,29 @@ Use standard Linux error codes.
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- drivers/staging/hv/storvsc_drv.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+ drivers/staging/hv/rndis_filter.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
-index 1e49879..c245698 100644
---- a/drivers/staging/hv/storvsc_drv.c
-+++ b/drivers/staging/hv/storvsc_drv.c
-@@ -348,7 +348,7 @@ static int storvsc_host_reset(struct hv_device *device)
- 
- 	stor_device = get_stor_device(device);
- 	if (!stor_device)
+diff --git a/drivers/staging/hv/rndis_filter.c b/drivers/staging/hv/rndis_filter.c
+index dbb5201..8e1ef00 100644
+--- a/drivers/staging/hv/rndis_filter.c
++++ b/drivers/staging/hv/rndis_filter.c
+@@ -358,14 +358,14 @@ int rndis_filter_receive(struct hv_device *dev,
+ 	if (!net_dev->extension) {
+ 		dev_err(&dev->device, "got rndis message but no rndis device - "
+ 			  "dropping this message!\n");
 -		return -1;
 +		return -ENODEV;
+ 	}
  
- 	request = &stor_device->reset_request;
- 	vstor_packet = &request->vstor_packet;
+ 	rndis_dev = (struct rndis_device *)net_dev->extension;
+ 	if (rndis_dev->state == RNDIS_DEV_UNINITIALIZED) {
+ 		dev_err(&dev->device, "got rndis message but rndis device "
+ 			   "uninitialized...dropping this message!\n");
+-		return -1;
++		return -ENODEV;
+ 	}
+ 
+ 	rndis_hdr = (struct rndis_message *)kmap_atomic(
 -- 
 1.7.4.1
