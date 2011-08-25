@@ -1,82 +1,77 @@
 From: Greg KH <greg@kroah.com>
-Subject: Re: [PATCH 003/117] Staging: hv: Add struct hv_vmbus_device_id to
-	mod_devicetable.h
-Date: Wed, 24 Aug 2011 19:38:32 -0700
-Message-ID: <20110825023832.GA6131@kroah.com>
+Subject: Re: [PATCH 086/117] Staging: hv: storvsc: Leverage the spinlock to
+ manage ref_cnt
+Date: Wed, 24 Aug 2011 19:45:13 -0700
+Message-ID: <20110825024513.GC6131@kroah.com>
 References: <1310752024-27854-1-git-send-email-kys@microsoft.com>
-	<1310752065-27895-1-git-send-email-kys@microsoft.com>
-	<1310752065-27895-3-git-send-email-kys@microsoft.com>
-	<20110823224157.GA9641@kroah.com>
-	<6E21E5352C11B742B20C142EB499E048081B236E@TK5EX14MBXC126.redmond.corp.microsoft.com>
-	<20110824025913.GC30779@kroah.com>
-	<6E21E5352C11B742B20C142EB499E048081B27B9@TK5EX14MBXC126.redmond.corp.microsoft.com>
-	<20110824201144.GA28667@kroah.com>
-	<6E21E5352C11B742B20C142EB499E048081B29C8@TK5EX14MBXC126.redmond.corp.microsoft.com>
+ <1310752065-27895-1-git-send-email-kys@microsoft.com>
+ <1310752065-27895-86-git-send-email-kys@microsoft.com>
+ <20110823231028.GO9641@kroah.com>
+ <6E21E5352C11B742B20C142EB499E048081B239E@TK5EX14MBXC126.redmond.corp.microsoft.com>
+ <20110824025737.GA30779@kroah.com>
+ <6E21E5352C11B742B20C142EB499E048081B2789@TK5EX14MBXC126.redmond.corp.microsoft.com>
+ <20110824201729.GB28667@kroah.com>
+ <6E21E5352C11B742B20C142EB499E048081B2A33@TK5EX14MBXC126.redmond.corp.microsoft.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <devel-bounces@linuxdriverproject.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <6E21E5352C11B742B20C142EB499E048081B29C8@TK5EX14MBXC126.redmond.corp.microsoft.com>
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
-List-Post: <mailto:devel@linuxdriverproject.org>
-List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
-Errors-To: devel-bounces@linuxdriverproject.org
-Sender: devel-bounces@linuxdriverproject.org
+In-Reply-To: <6E21E5352C11B742B20C142EB499E048081B2A33@TK5EX14MBXC126.redmond.corp.microsoft.com>
+Sender: linux-kernel-owner@vger.kernel.org
 To: KY Srinivasan <kys@microsoft.com>
-Cc: "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, Haiyang Zhang <haiyangz@microsoft.com>, "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>
+Cc: "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Aug 24, 2011 at 09:51:00PM +0000, KY Srinivasan wrote:
-> > It would allow you, in your probe function, to do something different
-> > depending on the guid that the probe function was matching on.  So you
-> > would not have to check the guid again to do that, just use the data
-> > pointed in that void pointer and away you go.
+On Wed, Aug 24, 2011 at 10:57:18PM +0000, KY Srinivasan wrote:
+> > > Like other  bus specific devices in the kernel (pci devices, virtio devices,),
+> > > class specific vmbus devices - struct storvsc_device and struct netvsc_device
+> > > embed a pointer to the underlying struct hv_device.
 > > 
-> > As an example, look at drivers/usb/class/cdc-acm.c, the acm_ids[]
-> > variable which uses the driver_info field to contain a quirk for the
-> > device.
+> > And when you save that pointer, you ARE incrementing the reference count
+> > properly, right?  If not, you just caused a bug.
 > 
-> Ok; this makes sense. But I currently don't have any quirks to support!
+> Why do you say that. This assignment is done in the probe function where the 
+> driver core is invoking the driver specific probe function.
 
-That was just an example.
+But if you save a pointer, you HAVE to increment the reference count.
 
-> The util driver is not even a driver in the true sense. I made it a driver and
-> added the probe function just to support auto-loading with the vmbus ID space
-> that I am trying to implement here - the probe function does nothing.
+> In the driver specific probe function, I allocate class specific
+> device state and embed the bus specific device pointer. So, I would
+> think the driver core is taking the appropriate reference count. What
+> I am doing is exactly what other PCI and virtio drivers are doing. For
+> instance, in virtio_blk.c , virtblk_probe() function, the
+> virtio_device pointer is stashed away in the virtio_blk structure in
+> exactly the same way I am doing. I suspect the assumption here is that
+> if probe succeeded, then the remove() function would be called to let
+> the driver cleanup the state.
 
-As you can tell, I'm trying to say that is wrong :)
+Yes, but that's a bug, the pointer reference count should be
+incremented.
 
-the hv_util.c driver should have a pointer in each of the driver_info
-that describes what it is, and then in the probe function, you use that
-to hook up the correct things needed.
+Look at drivers/usb/usb-skeleton.c for a well-documented way to handle a
+driver that works with a bus that has devices that could go away at any
+point in time.  It handles the reference count, and the locking
+correctly, and has been audited by lots of people.
 
-None of this hard-coded mess like you currently have.
-
-Trust me, you want that pointer, put it in, and if you never use it,
-I'll buy you a beer.  But if I send you a patch using it, well...
-
-> > > I looked at the usage of this in PCI and it appears to be for supporting
-> > > dynamic  IDs for existing drivers.
+> > > Furthermore, a pointer to the class specific device structure is
+> > > stashed in the struct hv_device (the ext pointer).
+> > > This is identical what is done in the virtio blk device - look at the
+> > > priv element in struct virtio_device.
 > > 
-> > No, that's exactly wrong.  dynamic ids play havoc with this pointer,
-> > making some drivers not be able to handle dynamic ids because they rely
-> > on it for some driver-specific information to be passed in it, which
-> > dynamic ids can not handle.
-> > 
-> > Oh, have you remembered to turn off dynamic ids for these devices?  Or
-> > do you support them properly?
+> > Yes, but the "base" structure of virtio_device does not contain a lock
+> > that the users of that priv pointer are using to control access to data
+> > _within_ the priv pointer, right?
 > 
-> I don't support dynamic IDs. What would I need to do to turn it off.
+> True. As I noted in an earlier email, the current hyper-v driver code has logic
+> to deal with the race conditions I have described. It is just that the current 
+> implementation is completely bogus - look at for instance the function
+> must_get_stor_device() in storvsc.c. This function is invoked in the channel
+> callback code path to process messages coming from the host. I added this lock
+> to close the window in getting the ext pointer. Clearly the lock protecting the 
+> ext pointer must be in a structure whose persistence is guaranteed and that is the reason
+> I put the lock in the struct hv_device.
 
-Ah, nevermind, that is something that busses add in their core if they
-want it.  I added it for PCI and USB, maybe I should move that to the
-driver core so that others can get it automatically one of these days...
-
-thanks,
+But no, that's not the way to do it, put it in the structure that has
+the data you are trying to protect.
 
 greg k-h
