@@ -1,48 +1,50 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 26/59] Staging: hv: vmbus: Get rid of unnecessay comments in
-	connection.c
-Date: Thu, 25 Aug 2011 09:48:52 -0700
-Message-ID: <1314290965-2698-26-git-send-email-kys@microsoft.com>
+Subject: [PATCH 24/59] Staging: hv: vmbus: Cleanup unnecessary comments in hv.c
+Date: Thu, 25 Aug 2011 09:48:50 -0700
+Message-ID: <1314290965-2698-24-git-send-email-kys@microsoft.com>
 References: <1314290866-2644-1-git-send-email-kys@microsoft.com>
-	<1314290965-2698-1-git-send-email-kys@microsoft.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <devel-bounces@linuxdriverproject.org>
+ <1314290965-2698-1-git-send-email-kys@microsoft.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1314290965-2698-1-git-send-email-kys@microsoft.com>
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
-List-Post: <mailto:devel@linuxdriverproject.org>
-List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
-Errors-To: devel-bounces@linuxdriverproject.org
-Sender: devel-bounces@linuxdriverproject.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org
-Cc: Haiyang Zhang <haiyangz@microsoft.com>
+Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Get rid of unnecessay comments in connection.c.
+Cleanup unnecessary comments in hv.c.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- drivers/staging/hv/connection.c |    2 --
- 1 files changed, 0 insertions(+), 2 deletions(-)
+ drivers/staging/hv/hv.c |    8 --------
+ 1 files changed, 0 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/staging/hv/connection.c b/drivers/staging/hv/connection.c
-index e6b4039..0e7efce 100644
---- a/drivers/staging/hv/connection.c
-+++ b/drivers/staging/hv/connection.c
-@@ -215,8 +215,6 @@ static void process_chn_event(u32 relid)
- {
- 	struct vmbus_channel *channel;
+diff --git a/drivers/staging/hv/hv.c b/drivers/staging/hv/hv.c
+index 2192d78..d2b921b 100644
+--- a/drivers/staging/hv/hv.c
++++ b/drivers/staging/hv/hv.c
+@@ -164,11 +164,7 @@ int hv_init(void)
+ 		goto cleanup;
  
--	/* ASSERT(relId > 0); */
--
- 	/*
- 	 * Find the channel based on this relid and invokes the
- 	 * channel callback to process the event
+ 	max_leaf = query_hypervisor_info();
+-	/* HvQueryHypervisorFeatures(maxLeaf); */
+ 
+-	/*
+-	 * We only support running on top of Hyper-V
+-	 */
+ 	rdmsrl(HV_X64_MSR_GUEST_OS_ID, hv_context.guestid);
+ 
+ 	if (hv_context.guestid != 0)
+@@ -181,10 +177,6 @@ int hv_init(void)
+ 	/* See if the hypercall page is already set */
+ 	rdmsrl(HV_X64_MSR_HYPERCALL, hypercall_msr.as_uint64);
+ 
+-	/*
+-	* Allocate the hypercall page memory
+-	* virtaddr = osd_page_alloc(1);
+-	*/
+ 	virtaddr = __vmalloc(PAGE_SIZE, GFP_KERNEL, PAGE_KERNEL_EXEC);
+ 
+ 	if (!virtaddr)
 -- 
 1.7.4.1
