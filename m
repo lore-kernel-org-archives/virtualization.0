@@ -1,90 +1,114 @@
 From: Greg KH <greg@kroah.com>
-Subject: Re: [PATCH 06/59] Staging: hv: blkvsc: Use the newly introduced
- vmbus ID in the blockvsc driver
-Date: Thu, 25 Aug 2011 13:43:13 -0700
-Message-ID: <20110825204313.GA3432@kroah.com>
+Subject: Re: [PATCH 12/59] Staging: hv: vmbus: Cleanup vmbus_uevent() code
+Date: Thu, 25 Aug 2011 13:59:30 -0700
+Message-ID: <20110825205930.GA10883@kroah.com>
 References: <1314290866-2644-1-git-send-email-kys@microsoft.com>
- <1314290965-2698-1-git-send-email-kys@microsoft.com>
- <1314290965-2698-6-git-send-email-kys@microsoft.com>
+	<1314290965-2698-1-git-send-email-kys@microsoft.com>
+	<1314290965-2698-12-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <devel-bounces@linuxdriverproject.org>
 Content-Disposition: inline
-In-Reply-To: <1314290965-2698-6-git-send-email-kys@microsoft.com>
-Sender: linux-kernel-owner@vger.kernel.org
+In-Reply-To: <1314290965-2698-12-git-send-email-kys@microsoft.com>
+List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
+	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
+List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
+List-Post: <mailto:devel@linuxdriverproject.org>
+List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
+List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
+	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
+Errors-To: devel-bounces@linuxdriverproject.org
+Sender: devel-bounces@linuxdriverproject.org
 To: "K. Y. Srinivasan" <kys@microsoft.com>
-Cc: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org, Haiyang Zhang <haiyangz@microsoft.com>
+Cc: devel@linuxdriverproject.org, Haiyang Zhang <haiyangz@microsoft.com>, gregkh@suse.de, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Aug 25, 2011 at 09:48:32AM -0700, K. Y. Srinivasan wrote:
-> Use the newly introduced vmbus ID in the blockvsc driver. Also, do
-> the associated cleanup.
+On Thu, Aug 25, 2011 at 09:48:38AM -0700, K. Y. Srinivasan wrote:
+> Now generate appropriate uevent based on the modalias string. As part of this,
+> cleanup the existing uevent code.
 > 
 > Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 > Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 > ---
->  drivers/staging/hv/blkvsc_drv.c |   23 ++++++++++++++---------
->  1 files changed, 14 insertions(+), 9 deletions(-)
+>  drivers/staging/hv/vmbus_drv.c |   60 ++++++++--------------------------------
+>  1 files changed, 12 insertions(+), 48 deletions(-)
 > 
-> diff --git a/drivers/staging/hv/blkvsc_drv.c b/drivers/staging/hv/blkvsc_drv.c
-> index 018b293..9b99387 100644
-> --- a/drivers/staging/hv/blkvsc_drv.c
-> +++ b/drivers/staging/hv/blkvsc_drv.c
-> @@ -111,14 +111,6 @@ struct block_device_context {
->  
->  static const char *drv_name = "blkvsc";
->  
-> -/* {32412632-86cb-44a2-9b5c-50d1417354f5} */
-> -static const uuid_le dev_type = {
-> -	.b = {
-> -		0x32, 0x26, 0x41, 0x32, 0xcb, 0x86, 0xa2, 0x44,
-> -		0x9b, 0x5c, 0x50, 0xd1, 0x41, 0x73, 0x54, 0xf5
-> -	}
-> -};
+> diff --git a/drivers/staging/hv/vmbus_drv.c b/drivers/staging/hv/vmbus_drv.c
+> index b651968..a6e7dc5 100644
+> --- a/drivers/staging/hv/vmbus_drv.c
+> +++ b/drivers/staging/hv/vmbus_drv.c
+> @@ -237,58 +237,22 @@ static struct device_attribute vmbus_device_attrs[] = {
+>   * This routine is invoked when a device is added or removed on the vmbus to
+>   * generate a uevent to udev in the userspace. The udev will then look at its
+>   * rule and the uevent generated here to load the appropriate driver
+> + *
+> + * The alias string will be of the form vmbus:guid where guid is the string
+> + * representation of the device guid (each byte of the guid will be
+> + * represented with two hex characters.
+>   */
+>  static int vmbus_uevent(struct device *device, struct kobj_uevent_env *env)
+>  {
+>  	struct hv_device *dev = device_to_hv_device(device);
+> -	int ret;
 > -
->  /*
->   * There is a circular dependency involving blkvsc_request_completion()
->   * and blkvsc_do_request().
-> @@ -802,10 +794,24 @@ static void blkvsc_request(struct request_queue *queue)
->  	}
->  }
+> -	ret = add_uevent_var(env, "VMBUS_DEVICE_CLASS_GUID={"
+> -			     "%02x%02x%02x%02x-%02x%02x-%02x%02x-"
+> -			     "%02x%02x%02x%02x%02x%02x%02x%02x}",
+> -			     dev->dev_type.b[3],
+> -			     dev->dev_type.b[2],
+> -			     dev->dev_type.b[1],
+> -			     dev->dev_type.b[0],
+> -			     dev->dev_type.b[5],
+> -			     dev->dev_type.b[4],
+> -			     dev->dev_type.b[7],
+> -			     dev->dev_type.b[6],
+> -			     dev->dev_type.b[8],
+> -			     dev->dev_type.b[9],
+> -			     dev->dev_type.b[10],
+> -			     dev->dev_type.b[11],
+> -			     dev->dev_type.b[12],
+> -			     dev->dev_type.b[13],
+> -			     dev->dev_type.b[14],
+> -			     dev->dev_type.b[15]);
+> -
+> -	if (ret)
+> -		return ret;
+> +	int i, ret;
+> +	char alias_name[((sizeof(struct hv_vmbus_device_id) + 1)) * 2];
 >  
-> +static const struct hv_vmbus_device_id id_table[] = {
-> +	{
-> +		/* IDE guid */
-> +		.guid = {
-> +			0x32, 0x26, 0x41, 0x32, 0xcb, 0x86, 0xa2, 0x44,
-> +			0x9b, 0x5c, 0x50, 0xd1, 0x41, 0x73, 0x54, 0xf5
-> +		}
-> +	},
-> +	{
-> +		.guid = { }
-> +	},
-> +};
->  
-> +MODULE_DEVICE_TABLE(vmbus, id_table);
->  
->  /* The one and only one */
->  static  struct hv_driver blkvsc_drv = {
-> +	.id_table = id_table,
->  	.probe =  blkvsc_probe,
->  	.remove =  blkvsc_remove,
->  	.shutdown = blkvsc_shutdown,
-> @@ -829,7 +835,6 @@ static int blkvsc_drv_init(void)
->  
->  	BUILD_BUG_ON(sizeof(sector_t) != 8);
->  
-> -	memcpy(&drv->dev_type, &dev_type, sizeof(uuid_le));
+> -	ret = add_uevent_var(env, "VMBUS_DEVICE_DEVICE_GUID={"
+> -			     "%02x%02x%02x%02x-%02x%02x-%02x%02x-"
+> -			     "%02x%02x%02x%02x%02x%02x%02x%02x}",
+> -			     dev->dev_instance.b[3],
+> -			     dev->dev_instance.b[2],
+> -			     dev->dev_instance.b[1],
+> -			     dev->dev_instance.b[0],
+> -			     dev->dev_instance.b[5],
+> -			     dev->dev_instance.b[4],
+> -			     dev->dev_instance.b[7],
+> -			     dev->dev_instance.b[6],
+> -			     dev->dev_instance.b[8],
+> -			     dev->dev_instance.b[9],
+> -			     dev->dev_instance.b[10],
+> -			     dev->dev_instance.b[11],
+> -			     dev->dev_instance.b[12],
+> -			     dev->dev_instance.b[13],
+> -			     dev->dev_instance.b[14],
+> -			     dev->dev_instance.b[15]);
+> -	if (ret)
+> -		return ret;
+> +	for (i = 0; i < (sizeof(struct hv_vmbus_device_id) * 2); i += 2)
+> +		sprintf(&alias_name[i], "%02x", dev->dev_type.b[i/2]);
 
-If I'm not mistaken, the driver just broke now and will not bind
-properly to this device, right?
+I have to edit this to get it to work properly with the fact that I
+added the driver_data field to hv_vmbus_device_id.
 
-Ick, oh well, I'll plod on and hope that you fix this issue up in a
-later patch, but note that this might make 'git bisect' cause problems
-if someone lands in the middle of this series with things broken
-(run-time, not build time).
+Arguably, one could say that this patch was always broken as you were
+assuming the size of an individual field was the same size as the whole
+structure, which I don't think is always the case, or at least it's not
+a safe thing to assume :)
 
-Sorry, I should have caught that first time through this series, I
-didn't realize it until right now when I tried it.
+thanks,
 
 greg k-h
