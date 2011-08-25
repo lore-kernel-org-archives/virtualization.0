@@ -1,62 +1,126 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 19/59] Staging: hv: util: Get rid of the PCI signature in
-	hv_util.c
-Date: Thu, 25 Aug 2011 09:48:45 -0700
-Message-ID: <1314290965-2698-19-git-send-email-kys@microsoft.com>
+Subject: [PATCH 56/59] Staging: hv: mouse: Change the jump label Cleanup to cleanup
+Date: Thu, 25 Aug 2011 09:49:22 -0700
+Message-ID: <1314290965-2698-56-git-send-email-kys@microsoft.com>
 References: <1314290866-2644-1-git-send-email-kys@microsoft.com>
-	<1314290965-2698-1-git-send-email-kys@microsoft.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <devel-bounces@linuxdriverproject.org>
+ <1314290965-2698-1-git-send-email-kys@microsoft.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1314290965-2698-1-git-send-email-kys@microsoft.com>
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
-List-Post: <mailto:devel@linuxdriverproject.org>
-List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
-Errors-To: devel-bounces@linuxdriverproject.org
-Sender: devel-bounces@linuxdriverproject.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org
-Cc: Haiyang Zhang <haiyangz@microsoft.com>
+Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Now that we have implemented a vmbus specific mechanism for auto-loading,
-get rid of the PCI signature.
+Change the jump label "Cleanup" to "cleanup".
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- drivers/staging/hv/hv_util.c |    8 --------
- 1 files changed, 0 insertions(+), 8 deletions(-)
+ drivers/staging/hv/hv_mouse.c |   22 +++++++++++-----------
+ 1 files changed, 11 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/staging/hv/hv_util.c b/drivers/staging/hv/hv_util.c
-index aed9187..1b0ec0e 100644
---- a/drivers/staging/hv/hv_util.c
-+++ b/drivers/staging/hv/hv_util.c
-@@ -26,7 +26,6 @@
- #include <linux/slab.h>
- #include <linux/sysctl.h>
- #include <linux/reboot.h>
--#include <linux/pci.h>
+diff --git a/drivers/staging/hv/hv_mouse.c b/drivers/staging/hv/hv_mouse.c
+index 2e04948..cbb837b 100644
+--- a/drivers/staging/hv/hv_mouse.c
++++ b/drivers/staging/hv/hv_mouse.c
+@@ -338,7 +338,7 @@ static void mousevsc_on_receive_device_info(struct mousevsc_dev *input_device,
  
- #include "hyperv.h"
- #include "hv_kvp.h"
-@@ -268,13 +267,6 @@ static  struct hv_driver util_drv = {
- 	.remove =  util_remove,
- };
+ 	if (!input_device->hid_desc) {
+ 		pr_err("unable to allocate hid descriptor - size %d", desc->bLength);
+-		goto Cleanup;
++		goto cleanup;
+ 	}
  
--static const struct pci_device_id __initconst
--hv_utils_pci_table[] __maybe_unused = {
--	{ PCI_DEVICE(0x1414, 0x5353) }, /* Hyper-V emulated VGA controller */
--	{ 0 }
--};
--MODULE_DEVICE_TABLE(pci, hv_utils_pci_table);
--
- static int __init init_hyperv_utils(void)
- {
- 	pr_info("Registering HyperV Utility Driver\n");
+ 	memcpy(input_device->hid_desc, desc, desc->bLength);
+@@ -351,7 +351,7 @@ static void mousevsc_on_receive_device_info(struct mousevsc_dev *input_device,
+ 	if (!input_device->report_desc) {
+ 		pr_err("unable to allocate report descriptor - size %d",
+ 			   input_device->report_desc_size);
+-		goto Cleanup;
++		goto cleanup;
+ 	}
+ 
+ 	memcpy(input_device->report_desc,
+@@ -378,7 +378,7 @@ static void mousevsc_on_receive_device_info(struct mousevsc_dev *input_device,
+ 	if (ret != 0) {
+ 		pr_err("unable to send synthhid device info ack - ret %d",
+ 			   ret);
+-		goto Cleanup;
++		goto cleanup;
+ 	}
+ 
+ 	input_device->device_wait_condition = 1;
+@@ -386,7 +386,7 @@ static void mousevsc_on_receive_device_info(struct mousevsc_dev *input_device,
+ 
+ 	return;
+ 
+-Cleanup:
++cleanup:
+ 	kfree(input_device->hid_desc);
+ 	input_device->hid_desc = NULL;
+ 
+@@ -605,7 +605,7 @@ static int mousevsc_connect_to_vsp(struct hv_device *device)
+ 					VMBUS_DATA_PACKET_FLAG_COMPLETION_REQUESTED);
+ 	if (ret != 0) {
+ 		pr_err("unable to send synthhid protocol request.");
+-		goto Cleanup;
++		goto cleanup;
+ 	}
+ 
+ 	input_dev->protocol_wait_condition = 0;
+@@ -613,7 +613,7 @@ static int mousevsc_connect_to_vsp(struct hv_device *device)
+ 		input_dev->protocol_wait_condition, msecs_to_jiffies(1000));
+ 	if (input_dev->protocol_wait_condition == 0) {
+ 		ret = -ETIMEDOUT;
+-		goto Cleanup;
++		goto cleanup;
+ 	}
+ 
+ 	response = &input_dev->protocol_resp;
+@@ -622,7 +622,7 @@ static int mousevsc_connect_to_vsp(struct hv_device *device)
+ 		pr_err("synthhid protocol request failed (version %d)",
+ 		       SYNTHHID_INPUT_VERSION);
+ 		ret = -1;
+-		goto Cleanup;
++		goto cleanup;
+ 	}
+ 
+ 	input_dev->device_wait_condition = 0;
+@@ -630,7 +630,7 @@ static int mousevsc_connect_to_vsp(struct hv_device *device)
+ 		input_dev->device_wait_condition, msecs_to_jiffies(1000));
+ 	if (input_dev->device_wait_condition == 0) {
+ 		ret = -ETIMEDOUT;
+-		goto Cleanup;
++		goto cleanup;
+ 	}
+ 
+ 	/*
+@@ -642,7 +642,7 @@ static int mousevsc_connect_to_vsp(struct hv_device *device)
+ 	else
+ 		ret = -1;
+ 
+-Cleanup:
++cleanup:
+ 	put_input_device(device);
+ 
+ 	return ret;
+@@ -660,7 +660,7 @@ static int mousevsc_on_device_add(struct hv_device *device,
+ 
+ 	if (!input_dev) {
+ 		ret = -1;
+-		goto Cleanup;
++		goto cleanup;
+ 	}
+ 
+ 	input_dev->init_complete = false;
+@@ -713,7 +713,7 @@ static int mousevsc_on_device_add(struct hv_device *device,
+ 
+ 	input_dev->init_complete = true;
+ 
+-Cleanup:
++cleanup:
+ 	return ret;
+ }
+ 
 -- 
 1.7.4.1
