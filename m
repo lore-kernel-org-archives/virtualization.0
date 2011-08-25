@@ -1,8 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 03/59] Staging: hv: Add struct hv_vmbus_device_id to
-	mod_devicetable.h
-Date: Thu, 25 Aug 2011 09:48:29 -0700
-Message-ID: <1314290965-2698-3-git-send-email-kys@microsoft.com>
+Subject: [PATCH 22/59] Staging: hv: vmbus: Get rid of the unused name field in
+	struct hv_driver
+Date: Thu, 25 Aug 2011 09:48:48 -0700
+Message-ID: <1314290965-2698-22-git-send-email-kys@microsoft.com>
 References: <1314290866-2644-1-git-send-email-kys@microsoft.com>
 	<1314290965-2698-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -23,32 +23,26 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-In preparation for implementing vmbus aliases for auto-loading
-Hyper-V drivers, define vmbus specific device ID.
+Get rid of the unused "name" field in struct hv_driver.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- include/linux/mod_devicetable.h |    7 +++++++
- 1 files changed, 7 insertions(+), 0 deletions(-)
+ drivers/staging/hv/hyperv.h |    2 --
+ 1 files changed, 0 insertions(+), 2 deletions(-)
 
-diff --git a/include/linux/mod_devicetable.h b/include/linux/mod_devicetable.h
-index ae28e93..5a12377 100644
---- a/include/linux/mod_devicetable.h
-+++ b/include/linux/mod_devicetable.h
-@@ -405,6 +405,13 @@ struct virtio_device_id {
- };
- #define VIRTIO_DEV_ANY_ID	0xffffffff
+diff --git a/drivers/staging/hv/hyperv.h b/drivers/staging/hv/hyperv.h
+index b8199f4..60ead66 100644
+--- a/drivers/staging/hv/hyperv.h
++++ b/drivers/staging/hv/hyperv.h
+@@ -802,8 +802,6 @@ struct hv_device_info {
  
-+/*
-+ * For Hyper-V devices we use the device guid as the id.
-+ */
-+struct hv_vmbus_device_id {
-+	__u8 guid[16];
-+};
-+
- /* i2c */
- 
- #define I2C_NAME_SIZE	20
+ /* Base driver object */
+ struct hv_driver {
+-	const char *name;
+-
+ 	/* the device type supported by this driver */
+ 	uuid_le dev_type;
+ 	const struct hv_vmbus_device_id *id_table;
 -- 
 1.7.4.1
