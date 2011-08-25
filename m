@@ -1,7 +1,7 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 10/59] Staging: hv: util: Make hv_utils a vmbus device driver
-Date: Thu, 25 Aug 2011 09:48:36 -0700
-Message-ID: <1314290965-2698-10-git-send-email-kys@microsoft.com>
+Subject: [PATCH 17/59] Staging: hv: netvsc: Get rid of the DMI signature in netvsc_drv.c
+Date: Thu, 25 Aug 2011 09:48:43 -0700
+Message-ID: <1314290965-2698-17-git-send-email-kys@microsoft.com>
 References: <1314290866-2644-1-git-send-email-kys@microsoft.com>
  <1314290965-2698-1-git-send-email-kys@microsoft.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
@@ -11,110 +11,58 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-In preperation for supporting auto-loading the util driver, make
-the util driver a vmbus driver.
+Now that we have implemented a vmbus specific mechanism for auto-loading,
+get rid of the DMI signature.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- drivers/staging/hv/hv_util.c |   64 +++++++++++++++++++++++++++++++++++++++++-
- 1 files changed, 63 insertions(+), 1 deletions(-)
+ drivers/staging/hv/netvsc_drv.c |   19 -------------------
+ 1 files changed, 0 insertions(+), 19 deletions(-)
 
-diff --git a/drivers/staging/hv/hv_util.c b/drivers/staging/hv/hv_util.c
-index c164b54..a620f4d 100644
---- a/drivers/staging/hv/hv_util.c
-+++ b/drivers/staging/hv/hv_util.c
-@@ -36,6 +36,8 @@ static u8 *shut_txf_buf;
- static u8 *time_txf_buf;
- static u8 *hbeat_txf_buf;
+diff --git a/drivers/staging/hv/netvsc_drv.c b/drivers/staging/hv/netvsc_drv.c
+index ea5c289..d6c6180 100644
+--- a/drivers/staging/hv/netvsc_drv.c
++++ b/drivers/staging/hv/netvsc_drv.c
+@@ -33,7 +33,6 @@
+ #include <linux/skbuff.h>
+ #include <linux/in.h>
+ #include <linux/slab.h>
+-#include <linux/dmi.h>
+ #include <net/arp.h>
+ #include <net/route.h>
+ #include <net/sock.h>
+@@ -440,20 +439,6 @@ static void __exit netvsc_drv_exit(void)
+ }
  
-+static const char *driver_name = "hv_util";
-+
- static void shutdown_onchannelcallback(void *context)
+ 
+-static const struct dmi_system_id __initconst
+-hv_netvsc_dmi_table[] __maybe_unused  = {
+-	{
+-		.ident = "Hyper-V",
+-		.matches = {
+-			DMI_MATCH(DMI_SYS_VENDOR, "Microsoft Corporation"),
+-			DMI_MATCH(DMI_PRODUCT_NAME, "Virtual Machine"),
+-			DMI_MATCH(DMI_BOARD_NAME, "Virtual Machine"),
+-		},
+-	},
+-	{ },
+-};
+-MODULE_DEVICE_TABLE(dmi, hv_netvsc_dmi_table);
+-
+ static int __init netvsc_drv_init(void)
  {
- 	struct vmbus_channel *channel = context;
-@@ -210,6 +212,63 @@ static void heartbeat_onchannelcallback(void *context)
- 	}
- }
+ 	struct hv_driver *drv = &netvsc_drv;
+@@ -461,10 +446,6 @@ static int __init netvsc_drv_init(void)
  
-+/*
-+ * The devices managed by the util driver don't need any additional
-+ * setup.
-+ */
-+static int util_probe(struct hv_device *dev)
-+{
-+	return 0;
-+}
-+
-+static int util_remove(struct hv_device *dev)
-+{
-+	return 0;
-+}
-+
-+static const struct hv_vmbus_device_id id_table[] = {
-+	{
-+		/* Shutdown guid */
-+		.guid = {
-+			0x31, 0x60, 0x0B, 0X0E, 0x13, 0x52, 0x34, 0x49,
-+			0x81, 0x8B, 0x38, 0XD9, 0x0C, 0xED, 0x39, 0xDB
-+		}
-+	},
-+	{
-+		/* Time synch guid */
-+		.guid = {
-+			0x30, 0xe6, 0x27, 0x95, 0xae, 0xd0, 0x7b, 0x49,
-+			0xad, 0xce, 0xe8, 0x0a, 0xb0, 0x17, 0x5c, 0xaf
-+		}
-+	},
-+	{
-+		/* Heartbeat guid */
-+		.guid = {
-+			0x39, 0x4f, 0x16, 0x57, 0x15, 0x91, 0x78, 0x4e,
-+			0xab, 0x55, 0x38, 0x2f, 0x3b, 0xd5, 0x42, 0x2d
-+		}
-+	},
-+	{
-+		/* KVP guid */
-+		.guid = {
-+			0xe7, 0xf4, 0xa0, 0xa9, 0x45, 0x5a, 0x96, 0x4d,
-+			0xb8, 0x27, 0x8a, 0x84, 0x1e, 0x8c, 0x3,  0xe6
-+		}
-+	},
-+	{
-+		.guid = { }
-+	},
-+};
-+
-+MODULE_DEVICE_TABLE(vmbus, id_table);
-+
-+/* The one and only one */
-+static  struct hv_driver util_drv = {
-+	.id_table = id_table,
-+	.probe =  util_probe,
-+	.remove =  util_remove,
-+};
-+
- static const struct pci_device_id __initconst
- hv_utils_pci_table[] __maybe_unused = {
- 	{ PCI_DEVICE(0x1414, 0x5353) }, /* Hyper-V emulated VGA controller */
-@@ -264,7 +323,9 @@ static int __init init_hyperv_utils(void)
+ 	pr_info("initializing....");
  
- 	hv_cb_utils[HV_KVP_MSG].callback = &hv_kvp_onchannelcallback;
+-	if (!dmi_check_system(hv_netvsc_dmi_table))
+-		return -ENODEV;
+-
+-
+ 	/* Callback to client driver to complete the initialization */
+ 	netvsc_initialize(drv);
  
--	return 0;
-+	util_drv.driver.name = driver_name;
-+
-+	return vmbus_child_driver_register(&util_drv.driver);
- }
- 
- static void exit_hyperv_utils(void)
-@@ -296,6 +357,7 @@ static void exit_hyperv_utils(void)
- 	kfree(shut_txf_buf);
- 	kfree(time_txf_buf);
- 	kfree(hbeat_txf_buf);
-+	vmbus_child_driver_unregister(&util_drv.driver);
- }
- 
- module_init(init_hyperv_utils);
 -- 
 1.7.4.1
