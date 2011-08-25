@@ -1,64 +1,53 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 50/59] Staging: hv: netvsc: Cleanup error return codes in
-	netvsc_device_add()
-Date: Thu, 25 Aug 2011 09:49:16 -0700
-Message-ID: <1314290965-2698-50-git-send-email-kys@microsoft.com>
+Subject: [PATCH 53/59] Staging: hv: netvsc: Cleanup error return values in rndis_filter_set_packet_filter()
+Date: Thu, 25 Aug 2011 09:49:19 -0700
+Message-ID: <1314290965-2698-53-git-send-email-kys@microsoft.com>
 References: <1314290866-2644-1-git-send-email-kys@microsoft.com>
-	<1314290965-2698-1-git-send-email-kys@microsoft.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <devel-bounces@linuxdriverproject.org>
+ <1314290965-2698-1-git-send-email-kys@microsoft.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1314290965-2698-1-git-send-email-kys@microsoft.com>
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
-List-Post: <mailto:devel@linuxdriverproject.org>
-List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
-Errors-To: devel-bounces@linuxdriverproject.org
-Sender: devel-bounces@linuxdriverproject.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org
-Cc: Haiyang Zhang <haiyangz@microsoft.com>
+Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Use standard Linux error codes.
+Use standard Linux error codes and cleanup some error paths.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- drivers/staging/hv/netvsc.c |    4 +---
- 1 files changed, 1 insertions(+), 3 deletions(-)
+ drivers/staging/hv/rndis_filter.c |    5 +----
+ 1 files changed, 1 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/staging/hv/netvsc.c b/drivers/staging/hv/netvsc.c
-index f7f4957..b6e1fb9 100644
---- a/drivers/staging/hv/netvsc.c
-+++ b/drivers/staging/hv/netvsc.c
-@@ -918,7 +918,7 @@ int netvsc_device_add(struct hv_device *device, void *additional_info)
- 
- 	net_device = alloc_net_device(device);
- 	if (!net_device) {
+diff --git a/drivers/staging/hv/rndis_filter.c b/drivers/staging/hv/rndis_filter.c
+index f26886d..f5f3052 100644
+--- a/drivers/staging/hv/rndis_filter.c
++++ b/drivers/staging/hv/rndis_filter.c
+@@ -511,7 +511,7 @@ static int rndis_filter_set_packet_filter(struct rndis_device *dev,
+ 			RNDIS_MESSAGE_SIZE(struct rndis_set_request) +
+ 			sizeof(u32));
+ 	if (!request) {
 -		ret = -1;
 +		ret = -ENOMEM;
- 		goto cleanup;
+ 		goto Cleanup;
  	}
  
-@@ -947,7 +947,6 @@ int netvsc_device_add(struct hv_device *device, void *additional_info)
+@@ -531,7 +531,6 @@ static int rndis_filter_set_packet_filter(struct rndis_device *dev,
+ 	t = wait_for_completion_timeout(&request->wait_event, 5*HZ);
  
- 	if (ret != 0) {
- 		dev_err(&device->device, "unable to open channel: %d", ret);
+ 	if (t == 0) {
 -		ret = -1;
- 		goto cleanup;
+ 		dev_err(&dev->net_dev->dev->device,
+ 			"timeout before we got a set response...\n");
+ 		/*
+@@ -540,8 +539,6 @@ static int rndis_filter_set_packet_filter(struct rndis_device *dev,
+ 		 */
+ 		goto Exit;
+ 	} else {
+-		if (ret > 0)
+-			ret = 0;
+ 		set_complete = &request->response_msg.msg.set_complete;
+ 		status = set_complete->status;
  	}
- 
-@@ -959,7 +958,6 @@ int netvsc_device_add(struct hv_device *device, void *additional_info)
- 	if (ret != 0) {
- 		dev_err(&device->device,
- 			"unable to connect to NetVSP - %d", ret);
--		ret = -1;
- 		goto close;
- 	}
- 
 -- 
 1.7.4.1
