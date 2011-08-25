@@ -1,8 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 04/59] Staging: hv: Add code to parse struct
-	hv_vmbus_device_id table
-Date: Thu, 25 Aug 2011 09:48:30 -0700
-Message-ID: <1314290965-2698-4-git-send-email-kys@microsoft.com>
+Subject: [PATCH 49/59] Staging: hv: netvsc: Cleanup error return values in
+	netvsc_send()
+Date: Thu, 25 Aug 2011 09:49:15 -0700
+Message-ID: <1314290965-2698-49-git-send-email-kys@microsoft.com>
 References: <1314290866-2644-1-git-send-email-kys@microsoft.com>
 	<1314290965-2698-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -23,56 +23,35 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Add code to parse struct hv_vmbus_device_id table.
+Use standard Linux error codes.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- scripts/mod/file2alias.c |   25 +++++++++++++++++++++++++
- 1 files changed, 25 insertions(+), 0 deletions(-)
+ drivers/staging/hv/netvsc.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/scripts/mod/file2alias.c b/scripts/mod/file2alias.c
-index e26e2fb..b74d21a 100644
---- a/scripts/mod/file2alias.c
-+++ b/scripts/mod/file2alias.c
-@@ -735,6 +735,27 @@ static int do_virtio_entry(const char *filename, struct virtio_device_id *id,
- 	return 1;
- }
+diff --git a/drivers/staging/hv/netvsc.c b/drivers/staging/hv/netvsc.c
+index 9cc126b..f7f4957 100644
+--- a/drivers/staging/hv/netvsc.c
++++ b/drivers/staging/hv/netvsc.c
+@@ -409,7 +409,7 @@ int netvsc_device_remove(struct hv_device *device)
+ 	net_device = release_outbound_net_device(device);
+ 	if (!net_device) {
+ 		dev_err(&device->device, "No net device present!!");
+-		return -1;
++		return -ENODEV;
+ 	}
  
-+/*
-+ * Looks like: vmbus:guid
-+ * Each byte of the guid will be represented by two hex characters
-+ * in the name.
-+ */
-+
-+static int do_vmbus_entry(const char *filename, struct hv_vmbus_device_id *id,
-+			  char *alias)
-+{
-+	int i;
-+	char guid_name[((sizeof(struct hv_vmbus_device_id) + 1)) * 2];
-+
-+	for (i = 0; i < (sizeof(struct hv_vmbus_device_id) * 2); i += 2)
-+		sprintf(&guid_name[i], "%02x", id->guid[i/2]);
-+
-+	strcpy(alias, "vmbus:");
-+	strcat(alias, guid_name);
-+
-+	return 1;
-+}
-+
- /* Looks like: i2c:S */
- static int do_i2c_entry(const char *filename, struct i2c_device_id *id,
- 			char *alias)
-@@ -994,6 +1015,10 @@ void handle_moddevtable(struct module *mod, struct elf_info *info,
- 		do_table(symval, sym->st_size,
- 			 sizeof(struct virtio_device_id), "virtio",
- 			 do_virtio_entry, mod);
-+	else if (sym_is(symname, "__mod_vmbus_device_table"))
-+		do_table(symval, sym->st_size,
-+			 sizeof(struct hv_vmbus_device_id), "vmbus",
-+			 do_vmbus_entry, mod);
- 	else if (sym_is(symname, "__mod_i2c_device_table"))
- 		do_table(symval, sym->st_size,
- 			 sizeof(struct i2c_device_id), "i2c",
+ 	/* Wait for all send completions */
+@@ -499,7 +499,7 @@ int netvsc_send(struct hv_device *device,
+ 	if (!net_device) {
+ 		dev_err(&device->device, "net device (%p) shutting down..."
+ 			   "ignoring outbound packets", net_device);
+-		return -2;
++		return -ENODEV;
+ 	}
+ 
+ 	sendMessage.hdr.msg_type = NVSP_MSG1_TYPE_SEND_RNDIS_PKT;
 -- 
 1.7.4.1
