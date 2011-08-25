@@ -1,8 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 33/59] Staging: hv: vmbus: Cleanup the error return value in
-	vmbus_recvpacket_raw()
-Date: Thu, 25 Aug 2011 09:48:59 -0700
-Message-ID: <1314290965-2698-33-git-send-email-kys@microsoft.com>
+Subject: [PATCH 13/59] Staging: hv: vmbus: Support the notion of id tables in
+	vmbus_match()
+Date: Thu, 25 Aug 2011 09:48:39 -0700
+Message-ID: <1314290965-2698-13-git-send-email-kys@microsoft.com>
 References: <1314290866-2644-1-git-send-email-kys@microsoft.com>
 	<1314290965-2698-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -23,54 +23,56 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Use standard Linux errno values.
+Introduce code to handle driver specific id tables to the vmbus core
+(vmbus_match). This would allow us to handle more than one device type
+with a given driver.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- drivers/staging/hv/channel.c  |    2 +-
- drivers/staging/hv/hv_mouse.c |    2 +-
- drivers/staging/hv/netvsc.c   |    2 +-
- 3 files changed, 3 insertions(+), 3 deletions(-)
+ drivers/staging/hv/vmbus_drv.c |   20 +++++++++++++++-----
+ 1 files changed, 15 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/staging/hv/channel.c b/drivers/staging/hv/channel.c
-index 9eb8def..ac92c1f 100644
---- a/drivers/staging/hv/channel.c
-+++ b/drivers/staging/hv/channel.c
-@@ -811,7 +811,7 @@ int vmbus_recvpacket_raw(struct vmbus_channel *channel, void *buffer,
- 		pr_err("Buffer too small - needed %d bytes but "
- 			"got space for only %d bytes\n",
- 			packetlen, bufferlen);
--		return -2;
-+		return -ENOBUFS;
- 	}
+diff --git a/drivers/staging/hv/vmbus_drv.c b/drivers/staging/hv/vmbus_drv.c
+index a6e7dc5..abcd592 100644
+--- a/drivers/staging/hv/vmbus_drv.c
++++ b/drivers/staging/hv/vmbus_drv.c
+@@ -255,21 +255,31 @@ static int vmbus_uevent(struct device *device, struct kobj_uevent_env *env)
+ 	return ret;
+ }
  
- 	*requestid = desc.trans_id;
-diff --git a/drivers/staging/hv/hv_mouse.c b/drivers/staging/hv/hv_mouse.c
-index dd8a114..2e04948 100644
---- a/drivers/staging/hv/hv_mouse.c
-+++ b/drivers/staging/hv/hv_mouse.c
-@@ -541,7 +541,7 @@ static void mousevsc_on_channel_callback(void *context)
- 				}
- 				break;
- 			}
--		} else if (ret == -2) {
-+		} else if (ret == -ENOBUFS) {
- 			/* Handle large packet */
- 			bufferlen = bytes_recvd;
- 			buffer = kzalloc(bytes_recvd, GFP_KERNEL);
-diff --git a/drivers/staging/hv/netvsc.c b/drivers/staging/hv/netvsc.c
-index d547ff6..b89ac7e 100644
---- a/drivers/staging/hv/netvsc.c
-+++ b/drivers/staging/hv/netvsc.c
-@@ -884,7 +884,7 @@ static void netvsc_channel_cb(void *context)
++static uuid_le null_guid;
++
++static inline  bool is_null_guid(const __u8 *guid)
++{
++	if (memcmp(guid, &null_guid, sizeof(uuid_le)))
++		return false;
++	return true;
++}
++
  
- 				break;
- 			}
--		} else if (ret == -2) {
-+		} else if (ret == -ENOBUFS) {
- 			/* Handle large packet */
- 			buffer = kmalloc(bytes_recvd, GFP_ATOMIC);
- 			if (buffer == NULL) {
+ /*
+  * vmbus_match - Attempt to match the specified device to the specified driver
+  */
+ static int vmbus_match(struct device *device, struct device_driver *driver)
+ {
+-	int match = 0;
+ 	struct hv_driver *drv = drv_to_hv_drv(driver);
+ 	struct hv_device *hv_dev = device_to_hv_device(device);
++	const struct hv_vmbus_device_id *id_array = drv->id_table;
+ 
+-	/* We found our driver ? */
+-	if (!uuid_le_cmp(hv_dev->dev_type, drv->dev_type))
+-		match = 1;
++	for (; !is_null_guid(id_array->guid); id_array++)
++		if (!memcmp(&id_array->guid, &hv_dev->dev_type.b,
++				sizeof(struct hv_vmbus_device_id)))
++			return 1;
+ 
+-	return match;
++	return 0;
+ }
+ 
+ /*
 -- 
 1.7.4.1
