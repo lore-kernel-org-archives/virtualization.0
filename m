@@ -1,8 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 54/59] Staging: hv: netvsc: Cleanup error returns in
-	rndis_filter_init_device()
-Date: Thu, 25 Aug 2011 09:49:20 -0700
-Message-ID: <1314290965-2698-54-git-send-email-kys@microsoft.com>
+Subject: [PATCH 45/59] Staging: hv: netvsc: Cleanup the returned error code in
+	netvsc_probe()
+Date: Thu, 25 Aug 2011 09:49:11 -0700
+Message-ID: <1314290965-2698-45-git-send-email-kys@microsoft.com>
 References: <1314290866-2644-1-git-send-email-kys@microsoft.com>
 	<1314290965-2698-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -28,30 +28,21 @@ Use standard Linux error codes.
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- drivers/staging/hv/rndis_filter.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/staging/hv/netvsc_drv.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/staging/hv/rndis_filter.c b/drivers/staging/hv/rndis_filter.c
-index f5f3052..a71f29d 100644
---- a/drivers/staging/hv/rndis_filter.c
-+++ b/drivers/staging/hv/rndis_filter.c
-@@ -562,7 +562,7 @@ static int rndis_filter_init_device(struct rndis_device *dev)
- 	request = get_rndis_request(dev, REMOTE_NDIS_INITIALIZE_MSG,
- 			RNDIS_MESSAGE_SIZE(struct rndis_initialize_request));
- 	if (!request) {
--		ret = -1;
-+		ret = -ENOMEM;
- 		goto Cleanup;
- 	}
+diff --git a/drivers/staging/hv/netvsc_drv.c b/drivers/staging/hv/netvsc_drv.c
+index 77f9236..e7c61d6 100644
+--- a/drivers/staging/hv/netvsc_drv.c
++++ b/drivers/staging/hv/netvsc_drv.c
+@@ -340,7 +340,7 @@ static int netvsc_probe(struct hv_device *dev)
  
-@@ -596,7 +596,7 @@ static int rndis_filter_init_device(struct rndis_device *dev)
- 		ret = 0;
- 	} else {
- 		dev->state = RNDIS_DEV_UNINITIALIZED;
--		ret = -1;
-+		ret = -EINVAL;
- 	}
+ 	net = alloc_etherdev(sizeof(struct net_device_context));
+ 	if (!net)
+-		return -1;
++		return -ENOMEM;
  
- Cleanup:
+ 	/* Set initial state */
+ 	netif_carrier_off(net);
 -- 
 1.7.4.1
