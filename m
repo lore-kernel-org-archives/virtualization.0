@@ -1,8 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 18/59] Staging: hv: util: Get rid of the DMI signature in
-	hv_util.c
-Date: Thu, 25 Aug 2011 09:48:44 -0700
-Message-ID: <1314290965-2698-18-git-send-email-kys@microsoft.com>
+Subject: [PATCH 34/59] Staging: hv: netvsc: Get rid of an unnecessary print
+	statement in netvsc_probe()
+Date: Thu, 25 Aug 2011 09:49:00 -0700
+Message-ID: <1314290965-2698-34-git-send-email-kys@microsoft.com>
 References: <1314290866-2644-1-git-send-email-kys@microsoft.com>
 	<1314290965-2698-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -23,59 +23,28 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Now that we have implemented a vmbus specific mechanism for auto-loading,
-get rid of the DMI signature.
+Get rid of an unnecessary print statement in netvsc_probe(). Furthermore,
+this fixes a bug since netdev_err is being invoked after the device has
+been freed.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- drivers/staging/hv/hv_util.c |   20 --------------------
- 1 files changed, 0 insertions(+), 20 deletions(-)
+ drivers/staging/hv/netvsc_drv.c |    2 --
+ 1 files changed, 0 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/staging/hv/hv_util.c b/drivers/staging/hv/hv_util.c
-index a620f4d..aed9187 100644
---- a/drivers/staging/hv/hv_util.c
-+++ b/drivers/staging/hv/hv_util.c
-@@ -26,7 +26,6 @@
- #include <linux/slab.h>
- #include <linux/sysctl.h>
- #include <linux/reboot.h>
--#include <linux/dmi.h>
- #include <linux/pci.h>
- 
- #include "hyperv.h"
-@@ -276,22 +275,6 @@ hv_utils_pci_table[] __maybe_unused = {
- };
- MODULE_DEVICE_TABLE(pci, hv_utils_pci_table);
- 
+diff --git a/drivers/staging/hv/netvsc_drv.c b/drivers/staging/hv/netvsc_drv.c
+index bb46216..77f9236 100644
+--- a/drivers/staging/hv/netvsc_drv.c
++++ b/drivers/staging/hv/netvsc_drv.c
+@@ -357,8 +357,6 @@ static int netvsc_probe(struct hv_device *dev)
+ 	if (ret != 0) {
+ 		free_netdev(net);
+ 		dev_set_drvdata(&dev->device, NULL);
 -
--static const struct dmi_system_id __initconst
--hv_utils_dmi_table[] __maybe_unused  = {
--	{
--		.ident = "Hyper-V",
--		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "Microsoft Corporation"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "Virtual Machine"),
--			DMI_MATCH(DMI_BOARD_NAME, "Virtual Machine"),
--		},
--	},
--	{ },
--};
--MODULE_DEVICE_TABLE(dmi, hv_utils_dmi_table);
--
--
- static int __init init_hyperv_utils(void)
- {
- 	pr_info("Registering HyperV Utility Driver\n");
-@@ -300,9 +283,6 @@ static int __init init_hyperv_utils(void)
- 		return -ENODEV;
+-		netdev_err(net, "unable to add netvsc device (ret %d)\n", ret);
+ 		return ret;
+ 	}
  
- 
--	if (!dmi_check_system(hv_utils_dmi_table))
--		return -ENODEV;
--
- 	shut_txf_buf = kmalloc(PAGE_SIZE, GFP_KERNEL);
- 	time_txf_buf = kmalloc(PAGE_SIZE, GFP_KERNEL);
- 	hbeat_txf_buf = kmalloc(PAGE_SIZE, GFP_KERNEL);
 -- 
 1.7.4.1
