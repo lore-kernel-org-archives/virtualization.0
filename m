@@ -1,8 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 28/59] Staging: hv: vmbus: Get rid of the function
-	dump_gpadl_header()
-Date: Thu, 25 Aug 2011 09:48:54 -0700
-Message-ID: <1314290965-2698-28-git-send-email-kys@microsoft.com>
+Subject: [PATCH 04/59] Staging: hv: Add code to parse struct
+	hv_vmbus_device_id table
+Date: Thu, 25 Aug 2011 09:48:30 -0700
+Message-ID: <1314290965-2698-4-git-send-email-kys@microsoft.com>
 References: <1314290866-2644-1-git-send-email-kys@microsoft.com>
 	<1314290965-2698-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -23,59 +23,56 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Get rid of the function dump_gpadl_header() as this adds no value.
+Add code to parse struct hv_vmbus_device_id table.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- drivers/staging/hv/channel.c |   28 ----------------------------
- 1 files changed, 0 insertions(+), 28 deletions(-)
+ scripts/mod/file2alias.c |   25 +++++++++++++++++++++++++
+ 1 files changed, 25 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/staging/hv/channel.c b/drivers/staging/hv/channel.c
-index 2d5bfac..aa0a150 100644
---- a/drivers/staging/hv/channel.c
-+++ b/drivers/staging/hv/channel.c
-@@ -239,33 +239,6 @@ errorout:
+diff --git a/scripts/mod/file2alias.c b/scripts/mod/file2alias.c
+index e26e2fb..b74d21a 100644
+--- a/scripts/mod/file2alias.c
++++ b/scripts/mod/file2alias.c
+@@ -735,6 +735,27 @@ static int do_virtio_entry(const char *filename, struct virtio_device_id *id,
+ 	return 1;
  }
- EXPORT_SYMBOL_GPL(vmbus_open);
  
--
--/*
-- * dump_gpadl_header - Dump the gpadl header message to the console for
-- * debugging purposes.
-- */
--static void dump_gpadl_header(struct vmbus_channel_gpadl_header *gpadl)
--{
--	int i, j;
--	int pagecount;
--
--	DPRINT_DBG(VMBUS,
--		   "gpadl header - relid %d, range count %d, range buflen %d",
--		   gpadl->child_relid, gpadl->rangecount, gpadl->range_buflen);
--	for (i = 0; i < gpadl->rangecount; i++) {
--		pagecount = gpadl->range[i].byte_count >> PAGE_SHIFT;
--		pagecount = (pagecount > 26) ? 26 : pagecount;
--
--		DPRINT_DBG(VMBUS, "gpadl range %d - len %d offset %d "
--			   "page count %d", i, gpadl->range[i].byte_count,
--			   gpadl->range[i].byte_offset, pagecount);
--
--		for (j = 0; j < pagecount; j++)
--			DPRINT_DBG(VMBUS, "%d) pfn %llu", j,
--				   gpadl->range[i].pfn_array[j]);
--	}
--}
--
- /*
-  * create_gpadl_header - Creates a gpadl for the specified buffer
-  */
-@@ -443,7 +416,6 @@ int vmbus_establish_gpadl(struct vmbus_channel *channel, void *kbuffer,
- 	gpadlmsg->child_relid = channel->offermsg.child_relid;
- 	gpadlmsg->gpadl = next_gpadl_handle;
- 
--	dump_gpadl_header(gpadlmsg);
- 
- 	spin_lock_irqsave(&vmbus_connection.channelmsg_lock, flags);
- 	list_add_tail(&msginfo->msglistentry,
++/*
++ * Looks like: vmbus:guid
++ * Each byte of the guid will be represented by two hex characters
++ * in the name.
++ */
++
++static int do_vmbus_entry(const char *filename, struct hv_vmbus_device_id *id,
++			  char *alias)
++{
++	int i;
++	char guid_name[((sizeof(struct hv_vmbus_device_id) + 1)) * 2];
++
++	for (i = 0; i < (sizeof(struct hv_vmbus_device_id) * 2); i += 2)
++		sprintf(&guid_name[i], "%02x", id->guid[i/2]);
++
++	strcpy(alias, "vmbus:");
++	strcat(alias, guid_name);
++
++	return 1;
++}
++
+ /* Looks like: i2c:S */
+ static int do_i2c_entry(const char *filename, struct i2c_device_id *id,
+ 			char *alias)
+@@ -994,6 +1015,10 @@ void handle_moddevtable(struct module *mod, struct elf_info *info,
+ 		do_table(symval, sym->st_size,
+ 			 sizeof(struct virtio_device_id), "virtio",
+ 			 do_virtio_entry, mod);
++	else if (sym_is(symname, "__mod_vmbus_device_table"))
++		do_table(symval, sym->st_size,
++			 sizeof(struct hv_vmbus_device_id), "vmbus",
++			 do_vmbus_entry, mod);
+ 	else if (sym_is(symname, "__mod_i2c_device_table"))
+ 		do_table(symval, sym->st_size,
+ 			 sizeof(struct i2c_device_id), "i2c",
 -- 
 1.7.4.1
