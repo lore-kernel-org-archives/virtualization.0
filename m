@@ -1,8 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 52/59] Staging: hv: netvsc: Cleanup error code in
-	rndis_filter_query_device()
-Date: Thu, 25 Aug 2011 09:49:18 -0700
-Message-ID: <1314290965-2698-52-git-send-email-kys@microsoft.com>
+Subject: [PATCH 44/59] Staging: hv: storvsc: Cleanup returned error code in
+	storvsc_drv_init()
+Date: Thu, 25 Aug 2011 09:49:10 -0700
+Message-ID: <1314290965-2698-44-git-send-email-kys@microsoft.com>
 References: <1314290866-2644-1-git-send-email-kys@microsoft.com>
 	<1314290965-2698-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -28,21 +28,21 @@ Use standard Linux error codes.
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- drivers/staging/hv/rndis_filter.c |    2 +-
+ drivers/staging/hv/storvsc_drv.c |    2 +-
  1 files changed, 1 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/staging/hv/rndis_filter.c b/drivers/staging/hv/rndis_filter.c
-index 8e1ef00..f26886d 100644
---- a/drivers/staging/hv/rndis_filter.c
-+++ b/drivers/staging/hv/rndis_filter.c
-@@ -437,7 +437,7 @@ static int rndis_filter_query_device(struct rndis_device *dev, u32 oid,
- 	request = get_rndis_request(dev, REMOTE_NDIS_QUERY_MSG,
- 			RNDIS_MESSAGE_SIZE(struct rndis_query_request));
- 	if (!request) {
--		ret = -1;
-+		ret = -ENOMEM;
- 		goto Cleanup;
- 	}
+diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
+index 956f010..94f40fc 100644
+--- a/drivers/staging/hv/storvsc_drv.c
++++ b/drivers/staging/hv/storvsc_drv.c
+@@ -750,7 +750,7 @@ static int __init storvsc_drv_init(void)
+ 
+ 	if (max_outstanding_req_per_channel <
+ 	    STORVSC_MAX_IO_REQUESTS)
+-		return -1;
++		return -EINVAL;
+ 
+ 	drv->driver.name = driver_name;
  
 -- 
 1.7.4.1
