@@ -1,57 +1,81 @@
 From: Greg KH <greg@kroah.com>
 Subject: Re: [PATCH 003/117] Staging: hv: Add struct hv_vmbus_device_id to
- mod_devicetable.h
-Date: Wed, 24 Aug 2011 19:40:14 -0700
-Message-ID: <20110825024014.GB6131@kroah.com>
+	mod_devicetable.h
+Date: Wed, 24 Aug 2011 19:38:32 -0700
+Message-ID: <20110825023832.GA6131@kroah.com>
 References: <1310752024-27854-1-git-send-email-kys@microsoft.com>
- <1310752065-27895-1-git-send-email-kys@microsoft.com>
- <1310752065-27895-3-git-send-email-kys@microsoft.com>
- <20110823224157.GA9641@kroah.com>
- <6E21E5352C11B742B20C142EB499E048081B236E@TK5EX14MBXC126.redmond.corp.microsoft.com>
- <20110824025913.GC30779@kroah.com>
- <6E21E5352C11B742B20C142EB499E048081B27B9@TK5EX14MBXC126.redmond.corp.microsoft.com>
- <20110824201144.GA28667@kroah.com>
- <6E21E5352C11B742B20C142EB499E048081B29C8@TK5EX14MBXC126.redmond.corp.microsoft.com>
- <6E21E5352C11B742B20C142EB499E048081B2AF2@TK5EX14MBXC126.redmond.corp.microsoft.com>
+	<1310752065-27895-1-git-send-email-kys@microsoft.com>
+	<1310752065-27895-3-git-send-email-kys@microsoft.com>
+	<20110823224157.GA9641@kroah.com>
+	<6E21E5352C11B742B20C142EB499E048081B236E@TK5EX14MBXC126.redmond.corp.microsoft.com>
+	<20110824025913.GC30779@kroah.com>
+	<6E21E5352C11B742B20C142EB499E048081B27B9@TK5EX14MBXC126.redmond.corp.microsoft.com>
+	<20110824201144.GA28667@kroah.com>
+	<6E21E5352C11B742B20C142EB499E048081B29C8@TK5EX14MBXC126.redmond.corp.microsoft.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <devel-bounces@linuxdriverproject.org>
 Content-Disposition: inline
-In-Reply-To: <6E21E5352C11B742B20C142EB499E048081B2AF2@TK5EX14MBXC126.redmond.corp.microsoft.com>
-Sender: linux-kernel-owner@vger.kernel.org
+In-Reply-To: <6E21E5352C11B742B20C142EB499E048081B29C8@TK5EX14MBXC126.redmond.corp.microsoft.com>
+List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
+	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
+List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
+List-Post: <mailto:devel@linuxdriverproject.org>
+List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
+List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
+	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
+Errors-To: devel-bounces@linuxdriverproject.org
+Sender: devel-bounces@linuxdriverproject.org
 To: KY Srinivasan <kys@microsoft.com>
 Cc: "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, Haiyang Zhang <haiyangz@microsoft.com>, "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Aug 25, 2011 at 02:27:56AM +0000, KY Srinivasan wrote:
-> Since I don't have any (current) use for the driver_data pointer, I have gone ahead
-> and cleaned up the first 74 patches without adding the driver_data. 
-> With the mushing of the patches   you had proposed this is about
-> a 60 patch series and addresses all the other comments you had in the first 74 patches.
-> I hope I have gotten the "right" granularity now.   If it is ok with you, I could send these 
-> out for your consideration.
-
-Please do.
-
-But if you do, do you mind if I add the driver_data pointer, so you can
-blame me later if no one uses it?  :)
-
-> The only unresolved issue in the remaining patches (75 - 117) is the reference counting
-> issue we have been debating. As I noted in my earlier emails on this topic, the reference
-> counting has been there for a long time and I am reluctant get rid of that code without 
-> additional testing/analysis. So I want to propose the following options:
+On Wed, Aug 24, 2011 at 09:51:00PM +0000, KY Srinivasan wrote:
+> > It would allow you, in your probe function, to do something different
+> > depending on the guid that the probe function was matching on.  So you
+> > would not have to check the guid again to do that, just use the data
+> > pointed in that void pointer and away you go.
+> > 
+> > As an example, look at drivers/usb/class/cdc-acm.c, the acm_ids[]
+> > variable which uses the driver_info field to contain a quirk for the
+> > device.
 > 
-> 1) Keep the existing code and I will skip the patches that cleaned up the reference counting
-> 
-> 2) Take the cleanup that I have implemented
-> 
-> In either case, I would further test and analyze this code to see if (a) the race condition that is being
-> addressed is valid and (b) if there is a different mechanism that could be used to deal with it. Given
-> the gaping holes in the current implementation, my personal preference would be to go with the 
-> second option. Let me know what you want me to do here.  
+> Ok; this makes sense. But I currently don't have any quirks to support!
 
-Ok, that sounds acceptable, but don't add the lock to the hv_driver, or
-is that needed right now?
+That was just an example.
+
+> The util driver is not even a driver in the true sense. I made it a driver and
+> added the probe function just to support auto-loading with the vmbus ID space
+> that I am trying to implement here - the probe function does nothing.
+
+As you can tell, I'm trying to say that is wrong :)
+
+the hv_util.c driver should have a pointer in each of the driver_info
+that describes what it is, and then in the probe function, you use that
+to hook up the correct things needed.
+
+None of this hard-coded mess like you currently have.
+
+Trust me, you want that pointer, put it in, and if you never use it,
+I'll buy you a beer.  But if I send you a patch using it, well...
+
+> > > I looked at the usage of this in PCI and it appears to be for supporting
+> > > dynamic  IDs for existing drivers.
+> > 
+> > No, that's exactly wrong.  dynamic ids play havoc with this pointer,
+> > making some drivers not be able to handle dynamic ids because they rely
+> > on it for some driver-specific information to be passed in it, which
+> > dynamic ids can not handle.
+> > 
+> > Oh, have you remembered to turn off dynamic ids for these devices?  Or
+> > do you support them properly?
+> 
+> I don't support dynamic IDs. What would I need to do to turn it off.
+
+Ah, nevermind, that is something that busses add in their core if they
+want it.  I added it for PCI and USB, maybe I should move that to the
+driver core so that others can get it automatically one of these days...
 
 thanks,
 
