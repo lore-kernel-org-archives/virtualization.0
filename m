@@ -1,8 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 48/59] Staging: hv: netvsc: Cleanup error returns in
-	netvsc_connect_vsp()
-Date: Thu, 25 Aug 2011 09:49:14 -0700
-Message-ID: <1314290965-2698-48-git-send-email-kys@microsoft.com>
+Subject: [PATCH 35/59] Staging: hv: vmbus: Retry vmbus_post_msg() before
+	giving up
+Date: Thu, 25 Aug 2011 09:49:01 -0700
+Message-ID: <1314290965-2698-35-git-send-email-kys@microsoft.com>
 References: <1314290866-2644-1-git-send-email-kys@microsoft.com>
 	<1314290965-2698-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -23,54 +23,65 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Use standard Linux error codes.
+The function hv_post_msg() can fail because of transient resource
+conditions. It may be useful to retry the operation.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- drivers/staging/hv/netvsc.c |   10 ++++------
- 1 files changed, 4 insertions(+), 6 deletions(-)
+ arch/x86/include/asm/hyperv.h   |    1 +
+ drivers/staging/hv/connection.c |   18 +++++++++++++++++-
+ 2 files changed, 18 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/staging/hv/netvsc.c b/drivers/staging/hv/netvsc.c
-index 5703fd7..9cc126b 100644
---- a/drivers/staging/hv/netvsc.c
-+++ b/drivers/staging/hv/netvsc.c
-@@ -323,7 +323,7 @@ static int netvsc_connect_vsp(struct hv_device *device)
- 	if (!net_device) {
- 		dev_err(&device->device, "unable to get net device..."
- 			   "device being destroyed?");
--		return -1;
-+		return -ENODEV;
- 	}
+diff --git a/arch/x86/include/asm/hyperv.h b/arch/x86/include/asm/hyperv.h
+index 5df477a..b80420b 100644
+--- a/arch/x86/include/asm/hyperv.h
++++ b/arch/x86/include/asm/hyperv.h
+@@ -189,5 +189,6 @@
+ #define HV_STATUS_INVALID_HYPERCALL_CODE	2
+ #define HV_STATUS_INVALID_HYPERCALL_INPUT	3
+ #define HV_STATUS_INVALID_ALIGNMENT		4
++#define HV_STATUS_INSUFFICIENT_BUFFERS		19
  
- 	init_packet = &net_device->channel_init_pkt;
-@@ -354,13 +354,13 @@ static int netvsc_connect_vsp(struct hv_device *device)
+ #endif
+diff --git a/drivers/staging/hv/connection.c b/drivers/staging/hv/connection.c
+index 0e7efce..a88ad70 100644
+--- a/drivers/staging/hv/connection.c
++++ b/drivers/staging/hv/connection.c
+@@ -25,6 +25,7 @@
+ #include <linux/kernel.h>
+ #include <linux/sched.h>
+ #include <linux/wait.h>
++#include <linux/delay.h>
+ #include <linux/mm.h>
+ #include <linux/slab.h>
+ #include <linux/vmalloc.h>
+@@ -268,10 +269,25 @@ void vmbus_on_event(unsigned long data)
+ int vmbus_post_msg(void *buffer, size_t buflen)
+ {
+ 	union hv_connection_id conn_id;
++	int ret = 0;
++	int retries = 0;
  
- 	if (init_packet->msg.init_msg.init_complete.status !=
- 	    NVSP_STAT_SUCCESS) {
--		ret = -1;
-+		ret = -EINVAL;
- 		goto cleanup;
- 	}
+ 	conn_id.asu32 = 0;
+ 	conn_id.u.id = VMBUS_MESSAGE_CONNECTION_ID;
+-	return hv_post_message(conn_id, 1, buffer, buflen);
++
++	/*
++	 * hv_post_message() can have transient failures because of
++	 * insufficient resources. Retry the operation a couple of
++	 * times before giving up.
++	 */
++	while (retries < 3) {
++		ret =  hv_post_message(conn_id, 1, buffer, buflen);
++		if (ret != HV_STATUS_INSUFFICIENT_BUFFERS)
++			return ret;
++		retries++;
++		msleep(100);
++	}
++	return ret;
+ }
  
- 	if (init_packet->msg.init_msg.init_complete.
- 	    negotiated_protocol_ver != NVSP_PROTOCOL_VERSION_1) {
--		ret = -1;
-+		ret = -EPROTO;
- 		goto cleanup;
- 	}
- 	/* Send the ndis version */
-@@ -381,10 +381,8 @@ static int netvsc_connect_vsp(struct hv_device *device)
- 				sizeof(struct nvsp_message),
- 				(unsigned long)init_packet,
- 				VM_PKT_DATA_INBAND, 0);
--	if (ret != 0) {
--		ret = -1;
-+	if (ret != 0)
- 		goto cleanup;
--	}
- 
- 	/* Post the big receive buffer to NetVSP */
- 	ret = netvsc_init_recv_buf(device);
+ /*
 -- 
 1.7.4.1
