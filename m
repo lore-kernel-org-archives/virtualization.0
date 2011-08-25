@@ -1,8 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 47/59] Staging: hv: netvsc: Cleanup error return values in
-	netvsc_init_recv_buf()
-Date: Thu, 25 Aug 2011 09:49:13 -0700
-Message-ID: <1314290965-2698-47-git-send-email-kys@microsoft.com>
+Subject: [PATCH 05/59] Staging: hv: vmbus: Introduce vmbus ID space in struct
+	hv_driver
+Date: Thu, 25 Aug 2011 09:48:31 -0700
+Message-ID: <1314290965-2698-5-git-send-email-kys@microsoft.com>
 References: <1314290866-2644-1-git-send-email-kys@microsoft.com>
 	<1314290965-2698-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -23,62 +23,34 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Use standard Linux error codes.
+In preparation for supporting auto-loading Hyper-V drivers
+using vmbus specific aliases, introduce vmbus ID space in struct hv_driver.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- drivers/staging/hv/netvsc.c |   10 +++++-----
- 1 files changed, 5 insertions(+), 5 deletions(-)
+ drivers/staging/hv/hyperv.h |    2 ++
+ 1 files changed, 2 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/staging/hv/netvsc.c b/drivers/staging/hv/netvsc.c
-index baa0c8d..5703fd7 100644
---- a/drivers/staging/hv/netvsc.c
-+++ b/drivers/staging/hv/netvsc.c
-@@ -207,7 +207,7 @@ static int netvsc_init_recv_buf(struct hv_device *device)
- 	if (!net_device) {
- 		dev_err(&device->device, "unable to get net device..."
- 			   "device being destroyed?");
--		return -1;
-+		return -ENODEV;
- 	}
+diff --git a/drivers/staging/hv/hyperv.h b/drivers/staging/hv/hyperv.h
+index 399d9fe..b8199f4 100644
+--- a/drivers/staging/hv/hyperv.h
++++ b/drivers/staging/hv/hyperv.h
+@@ -32,6 +32,7 @@
+ #include <linux/workqueue.h>
+ #include <linux/completion.h>
+ #include <linux/device.h>
++#include <linux/mod_devicetable.h>
  
- 	net_device->recv_buf =
-@@ -216,7 +216,7 @@ static int netvsc_init_recv_buf(struct hv_device *device)
- 	if (!net_device->recv_buf) {
- 		dev_err(&device->device, "unable to allocate receive "
- 			"buffer of size %d", net_device->recv_buf_size);
--		ret = -1;
-+		ret = -ENOMEM;
- 		goto cleanup;
- 	}
  
-@@ -269,7 +269,7 @@ static int netvsc_init_recv_buf(struct hv_device *device)
- 			   "initialzation with NetVsp - status %d",
- 			   init_packet->msg.v1_msg.
- 			   send_recv_buf_complete.status);
--		ret = -1;
-+		ret = -EINVAL;
- 		goto cleanup;
- 	}
+ #include <asm/hyperv.h>
+@@ -805,6 +806,7 @@ struct hv_driver {
  
-@@ -281,7 +281,7 @@ static int netvsc_init_recv_buf(struct hv_device *device)
- 	net_device->recv_section = kmalloc(net_device->recv_section_cnt
- 		* sizeof(struct nvsp_1_receive_buffer_section), GFP_KERNEL);
- 	if (net_device->recv_section == NULL) {
--		ret = -1;
-+		ret = -EINVAL;
- 		goto cleanup;
- 	}
+ 	/* the device type supported by this driver */
+ 	uuid_le dev_type;
++	const struct hv_vmbus_device_id *id_table;
  
-@@ -297,7 +297,7 @@ static int netvsc_init_recv_buf(struct hv_device *device)
- 	 */
- 	if (net_device->recv_section_cnt != 1 ||
- 	    net_device->recv_section->offset != 0) {
--		ret = -1;
-+		ret = -EINVAL;
- 		goto cleanup;
- 	}
+ 	struct device_driver driver;
  
 -- 
 1.7.4.1
