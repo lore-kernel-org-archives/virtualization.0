@@ -1,8 +1,7 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 09/59] Staging: hv: mousevsc: Use the newly introduced vmbus
-	ID in mouse driver
-Date: Thu, 25 Aug 2011 09:48:35 -0700
-Message-ID: <1314290965-2698-9-git-send-email-kys@microsoft.com>
+Subject: [PATCH 32/59] Staging: hv: vmbus: Cleanup error values in ringbuffer.c
+Date: Thu, 25 Aug 2011 09:48:58 -0700
+Message-ID: <1314290965-2698-32-git-send-email-kys@microsoft.com>
 References: <1314290866-2644-1-git-send-email-kys@microsoft.com>
 	<1314290965-2698-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -23,69 +22,87 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Use the newly introduced vmbus ID in mouse driver. Also, do the associated
-cleanup. Since the mouse driver is not functional, we disable the
-autoloading of this driver.
+Use standard Linux errno values in ringbuffer.c and do the associated
+cleanup in the clients.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- drivers/staging/hv/hv_mouse.c |   27 ++++++++++++++++++---------
- 1 files changed, 18 insertions(+), 9 deletions(-)
+ drivers/staging/hv/blkvsc_drv.c  |    2 +-
+ drivers/staging/hv/netvsc.c      |    2 +-
+ drivers/staging/hv/ring_buffer.c |    6 +++---
+ drivers/staging/hv/storvsc_drv.c |    2 +-
+ 4 files changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/staging/hv/hv_mouse.c b/drivers/staging/hv/hv_mouse.c
-index 950f4b4..dd8a114 100644
---- a/drivers/staging/hv/hv_mouse.c
-+++ b/drivers/staging/hv/hv_mouse.c
-@@ -178,12 +178,6 @@ struct mousevsc_dev {
+diff --git a/drivers/staging/hv/blkvsc_drv.c b/drivers/staging/hv/blkvsc_drv.c
+index 9b99387..d3f4f1d 100644
+--- a/drivers/staging/hv/blkvsc_drv.c
++++ b/drivers/staging/hv/blkvsc_drv.c
+@@ -726,7 +726,7 @@ static int blkvsc_do_request(struct block_device_context *blkdev,
+ 		} else {
+ 			ret = blkvsc_submit_request(blkvsc_req,
+ 						    blkvsc_request_completion);
+-			if (ret == -1) {
++			if (ret == -EAGAIN) {
+ 				pending = 1;
+ 				list_add_tail(&blkvsc_req->pend_entry,
+ 					      &blkdev->pending_list);
+diff --git a/drivers/staging/hv/netvsc.c b/drivers/staging/hv/netvsc.c
+index cb02eed..d547ff6 100644
+--- a/drivers/staging/hv/netvsc.c
++++ b/drivers/staging/hv/netvsc.c
+@@ -565,7 +565,7 @@ retry_send_cmplt:
+ 	if (ret == 0) {
+ 		/* success */
+ 		/* no-op */
+-	} else if (ret == -1) {
++	} else if (ret == -EAGAIN) {
+ 		/* no more room...wait a bit and attempt to retry 3 times */
+ 		retries++;
+ 		dev_err(&device->device, "unable to send receive completion pkt"
+diff --git a/drivers/staging/hv/ring_buffer.c b/drivers/staging/hv/ring_buffer.c
+index 42f7672..9212699 100644
+--- a/drivers/staging/hv/ring_buffer.c
++++ b/drivers/staging/hv/ring_buffer.c
+@@ -390,7 +390,7 @@ int hv_ringbuffer_write(struct hv_ring_buffer_info *outring_info,
+ 	/* is empty since the read index == write index */
+ 	if (bytes_avail_towrite <= totalbytes_towrite) {
+ 		spin_unlock_irqrestore(&outring_info->ring_lock, flags);
+-		return -1;
++		return -EAGAIN;
+ 	}
  
- static const char *driver_name = "mousevsc";
+ 	/* Write to the ring buffer */
+@@ -450,7 +450,7 @@ int hv_ringbuffer_peek(struct hv_ring_buffer_info *Inring_info,
  
--/* {CFA8B69E-5B4A-4cc0-B98B-8BA1A1F3F95A} */
--static const uuid_le mouse_guid = {
--	.b = {0x9E, 0xB6, 0xA8, 0xCF, 0x4A, 0x5B, 0xc0, 0x4c,
--		 0xB9, 0x8B, 0x8B, 0xA1, 0xA1, 0xF3, 0xF9, 0x5A}
--};
--
- static void deviceinfo_callback(struct hv_device *dev, struct hv_input_dev_info *info);
- static void inputreport_callback(struct hv_device *dev, void *packet, u32 len);
- static void reportdesc_callback(struct hv_device *dev, void *packet, u32 len);
-@@ -914,8 +908,26 @@ static void reportdesc_callback(struct hv_device *dev, void *packet, u32 len)
- 	kfree(hid_dev);
- }
+ 		spin_unlock_irqrestore(&Inring_info->ring_lock, flags);
  
-+static const struct hv_vmbus_device_id id_table[] = {
-+	{
-+		/* Mouse guid */
-+		.guid = {
-+			0x9E, 0xB6, 0xA8, 0xCF, 0x4A, 0x5B, 0xc0, 0x4c,
-+			0xB9, 0x8B, 0x8B, 0xA1, 0xA1, 0xF3, 0xF9, 0x5A
-+		}
-+	},
-+	{
-+		.guid = { }
-+	},
-+};
-+
-+/*
-+ * The mouse driver is not functional; do not auto-load it.
-+ */
-+/* MODULE_DEVICE_TABLE(vmbus, id_table); */
+-		return -1;
++		return -EAGAIN;
+ 	}
  
- static struct  hv_driver mousevsc_drv = {
-+	.id_table = id_table,
- 	.probe = mousevsc_probe,
- 	.remove = mousevsc_remove,
- };
-@@ -931,9 +943,6 @@ static int __init mousevsc_init(void)
+ 	/* Convert to byte offset */
+@@ -496,7 +496,7 @@ int hv_ringbuffer_read(struct hv_ring_buffer_info *inring_info, void *buffer,
+ 	if (bytes_avail_toread < buflen) {
+ 		spin_unlock_irqrestore(&inring_info->ring_lock, flags);
  
- 	DPRINT_INFO(INPUTVSC_DRV, "Hyper-V Mouse driver initializing.");
+-		return -1;
++		return -EAGAIN;
+ 	}
  
--	memcpy(&drv->dev_type, &mouse_guid,
--	       sizeof(uuid_le));
--
- 	drv->driver.name = driver_name;
+ 	next_read_location =
+diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
+index 4dc6d2f..1e49879 100644
+--- a/drivers/staging/hv/storvsc_drv.c
++++ b/drivers/staging/hv/storvsc_drv.c
+@@ -580,7 +580,7 @@ retry_request:
+ 	/* Invokes the vsc to start an IO */
+ 	ret = storvsc_do_io(dev, &cmd_request->request);
  
- 	/* The driver belongs to vmbus */
+-	if (ret == -1) {
++	if (ret == -EAGAIN) {
+ 		/* no more space */
+ 
+ 		if (cmd_request->bounce_sgl_count) {
 -- 
 1.7.4.1
