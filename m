@@ -1,78 +1,82 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 13/59] Staging: hv: vmbus: Support the notion of id tables in
-	vmbus_match()
-Date: Thu, 25 Aug 2011 09:48:39 -0700
-Message-ID: <1314290965-2698-13-git-send-email-kys@microsoft.com>
+Subject: [PATCH 08/59] Staging: hv: netvsc: Use the newly introduced vmbus ID in netvsc driver
+Date: Thu, 25 Aug 2011 09:48:34 -0700
+Message-ID: <1314290965-2698-8-git-send-email-kys@microsoft.com>
 References: <1314290866-2644-1-git-send-email-kys@microsoft.com>
-	<1314290965-2698-1-git-send-email-kys@microsoft.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <devel-bounces@linuxdriverproject.org>
+ <1314290965-2698-1-git-send-email-kys@microsoft.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1314290965-2698-1-git-send-email-kys@microsoft.com>
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
-List-Post: <mailto:devel@linuxdriverproject.org>
-List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
-Errors-To: devel-bounces@linuxdriverproject.org
-Sender: devel-bounces@linuxdriverproject.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org
-Cc: Haiyang Zhang <haiyangz@microsoft.com>
+Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Introduce code to handle driver specific id tables to the vmbus core
-(vmbus_match). This would allow us to handle more than one device type
-with a given driver.
+Use the newly introduced vmbus ID in netvsc driver. Also, do the associated
+cleanup.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- drivers/staging/hv/vmbus_drv.c |   20 +++++++++++++++-----
- 1 files changed, 15 insertions(+), 5 deletions(-)
+ drivers/staging/hv/netvsc.c     |   10 ----------
+ drivers/staging/hv/netvsc_drv.c |   16 ++++++++++++++++
+ 2 files changed, 16 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/staging/hv/vmbus_drv.c b/drivers/staging/hv/vmbus_drv.c
-index a6e7dc5..abcd592 100644
---- a/drivers/staging/hv/vmbus_drv.c
-+++ b/drivers/staging/hv/vmbus_drv.c
-@@ -255,21 +255,31 @@ static int vmbus_uevent(struct device *device, struct kobj_uevent_env *env)
- 	return ret;
- }
+diff --git a/drivers/staging/hv/netvsc.c b/drivers/staging/hv/netvsc.c
+index 1506b53..6f4541b 100644
+--- a/drivers/staging/hv/netvsc.c
++++ b/drivers/staging/hv/netvsc.c
+@@ -35,15 +35,6 @@
+ /* Globals */
+ static const char *driver_name = "netvsc";
  
-+static uuid_le null_guid;
-+
-+static inline  bool is_null_guid(const __u8 *guid)
-+{
-+	if (memcmp(guid, &null_guid, sizeof(uuid_le)))
-+		return false;
-+	return true;
-+}
-+
- 
- /*
-  * vmbus_match - Attempt to match the specified device to the specified driver
-  */
- static int vmbus_match(struct device *device, struct device_driver *driver)
+-/* {F8615163-DF3E-46c5-913F-F2D2F965ED0E} */
+-static const uuid_le netvsc_device_type = {
+-	.b = {
+-		0x63, 0x51, 0x61, 0xF8, 0x3E, 0xDF, 0xc5, 0x46,
+-		0x91, 0x3F, 0xF2, 0xD2, 0xF9, 0x65, 0xED, 0x0E
+-	}
+-};
+-
+-
+ static struct netvsc_device *alloc_net_device(struct hv_device *device)
  {
--	int match = 0;
- 	struct hv_driver *drv = drv_to_hv_drv(driver);
- 	struct hv_device *hv_dev = device_to_hv_device(device);
-+	const struct hv_vmbus_device_id *id_array = drv->id_table;
+ 	struct netvsc_device *net_device;
+@@ -1009,7 +1000,6 @@ int netvsc_initialize(struct hv_driver *drv)
+ {
  
--	/* We found our driver ? */
--	if (!uuid_le_cmp(hv_dev->dev_type, drv->dev_type))
--		match = 1;
-+	for (; !is_null_guid(id_array->guid); id_array++)
-+		if (!memcmp(&id_array->guid, &hv_dev->dev_type.b,
-+				sizeof(struct hv_vmbus_device_id)))
-+			return 1;
+ 	drv->name = driver_name;
+-	memcpy(&drv->dev_type, &netvsc_device_type, sizeof(uuid_le));
  
--	return match;
-+	return 0;
+ 	return 0;
+ }
+diff --git a/drivers/staging/hv/netvsc_drv.c b/drivers/staging/hv/netvsc_drv.c
+index 61989f0..2e25c95 100644
+--- a/drivers/staging/hv/netvsc_drv.c
++++ b/drivers/staging/hv/netvsc_drv.c
+@@ -413,8 +413,24 @@ static int netvsc_remove(struct hv_device *dev)
+ 	return 0;
  }
  
- /*
++static const struct hv_vmbus_device_id id_table[] = {
++	{
++		/* Network guid */
++		.guid = {
++			0x63, 0x51, 0x61, 0xF8, 0x3E, 0xDF, 0xc5, 0x46,
++			0x91, 0x3F, 0xF2, 0xD2, 0xF9, 0x65, 0xED, 0x0E
++		}
++	},
++	{
++		.guid = { }
++	},
++};
++
++MODULE_DEVICE_TABLE(vmbus, id_table);
++
+ /* The one and only one */
+ static struct  hv_driver netvsc_drv = {
++	.id_table = id_table,
+ 	.probe = netvsc_probe,
+ 	.remove = netvsc_remove,
+ };
 -- 
 1.7.4.1
