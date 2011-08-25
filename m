@@ -1,89 +1,46 @@
-From: KY Srinivasan <kys@microsoft.com>
-Subject: RE: [PATCH 003/117] Staging: hv: Add struct hv_vmbus_device_id to
- mod_devicetable.h
-Date: Thu, 25 Aug 2011 14:14:26 +0000
-Message-ID: <6E21E5352C11B742B20C142EB499E048081B2EA6@TK5EX14MBXC126.redmond.corp.microsoft.com>
-References: <1310752024-27854-1-git-send-email-kys@microsoft.com>
- <1310752065-27895-1-git-send-email-kys@microsoft.com>
- <1310752065-27895-3-git-send-email-kys@microsoft.com>
- <20110823224157.GA9641@kroah.com>
- <6E21E5352C11B742B20C142EB499E048081B236E@TK5EX14MBXC126.redmond.corp.microsoft.com>
- <20110824025913.GC30779@kroah.com>
- <6E21E5352C11B742B20C142EB499E048081B27B9@TK5EX14MBXC126.redmond.corp.microsoft.com>
- <20110824201144.GA28667@kroah.com>
- <6E21E5352C11B742B20C142EB499E048081B29C8@TK5EX14MBXC126.redmond.corp.microsoft.com>
- <6E21E5352C11B742B20C142EB499E048081B2AF2@TK5EX14MBXC126.redmond.corp.microsoft.com>
- <20110825024014.GB6131@kroah.com>
+From: Wang Sheng-Hui <shhuiw@gmail.com>
+Subject: [PATCH] virtio.h: correct comment for struct virtio_driver
+Date: Thu, 25 Aug 2011 21:04:05 +0800
+Message-ID: <4E564845.3020209__39583.426496438$1314288265$gmane$org@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20110825024014.GB6131@kroah.com>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Greg KH <greg@kroah.com>
-Cc: "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, Haiyang Zhang <haiyangz@microsoft.com>, "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: rusty@rustcorp.com.au, mst@redhat.com, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
+The patch is against 3.0.
 
+Signed-off-by: Wang Sheng-Hui <shhuiw@gmail.com>
+---
+ include/linux/virtio.h |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
-> -----Original Message-----
-> From: Greg KH [mailto:greg@kroah.com]
-> Sent: Wednesday, August 24, 2011 10:40 PM
-> To: KY Srinivasan
-> Cc: devel@linuxdriverproject.org; Haiyang Zhang; gregkh@suse.de; linux-
-> kernel@vger.kernel.org; virtualization@lists.osdl.org
-> Subject: Re: [PATCH 003/117] Staging: hv: Add struct hv_vmbus_device_id to
-> mod_devicetable.h
-> 
-> On Thu, Aug 25, 2011 at 02:27:56AM +0000, KY Srinivasan wrote:
-> > Since I don't have any (current) use for the driver_data pointer, I have gone
-> ahead
-> > and cleaned up the first 74 patches without adding the driver_data.
-> > With the mushing of the patches   you had proposed this is about
-> > a 60 patch series and addresses all the other comments you had in the first 74
-> patches.
-> > I hope I have gotten the "right" granularity now.   If it is ok with you, I could
-> send these
-> > out for your consideration.
-> 
-> Please do.
-> 
-> But if you do, do you mind if I add the driver_data pointer, so you can
-> blame me later if no one uses it?  :)
-
-Not at all! I will go ahead and send you these patches shortly.
-
-> 
-> > The only unresolved issue in the remaining patches (75 - 117) is the reference
-> counting
-> > issue we have been debating. As I noted in my earlier emails on this topic, the
-> reference
-> > counting has been there for a long time and I am reluctant get rid of that code
-> without
-> > additional testing/analysis. So I want to propose the following options:
-> >
-> > 1) Keep the existing code and I will skip the patches that cleaned up the
-> reference counting
-> >
-> > 2) Take the cleanup that I have implemented
-> >
-> > In either case, I would further test and analyze this code to see if (a) the race
-> condition that is being
-> > addressed is valid and (b) if there is a different mechanism that could be used
-> to deal with it. Given
-> > the gaping holes in the current implementation, my personal preference would
-> be to go with the
-> > second option. Let me know what you want me to do here.
-> 
-> Ok, that sounds acceptable, but don't add the lock to the hv_driver, or
-> is that needed right now?
-
-Actually, last night I spent some considerable time understanding 
-how this could be addressed differently and in a potentially simpler
-way. I will go ahead and implement this scheme. Hopefully, I will be able
-to send you these patches soon as well.
-
-Regards,
-
-K. Y
+diff --git a/include/linux/virtio.h b/include/linux/virtio.h
+index 7108857..e0a1973 100644
+--- a/include/linux/virtio.h
++++ b/include/linux/virtio.h
+@@ -126,10 +126,10 @@ void unregister_virtio_device(struct virtio_device *dev);
+  * virtio_driver - operations for a virtio I/O driver
+  * @driver: underlying device driver (populate name and owner).
+  * @id_table: the ids serviced by this driver.
+- * @feature_table: an array of feature numbers supported by this device.
++ * @feature_table: an array of feature numbers supported by this driver.
+  * @feature_table_size: number of entries in the feature table array.
+  * @probe: the function to call when a device is found.  Returns 0 or -errno.
+- * @remove: the function when a device is removed.
++ * @remove: the function to call when a device is removed.
+  * @config_changed: optional function to call when the device configuration
+  *    changes; may be called in interrupt context.
+  */
+-- 
+1.7.1
