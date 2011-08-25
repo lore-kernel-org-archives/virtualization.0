@@ -1,7 +1,7 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 20/59] Staging: hv: netvsc: Initialize the driver name directly
-Date: Thu, 25 Aug 2011 09:48:46 -0700
-Message-ID: <1314290965-2698-20-git-send-email-kys@microsoft.com>
+Subject: [PATCH 12/59] Staging: hv: vmbus: Cleanup vmbus_uevent() code
+Date: Thu, 25 Aug 2011 09:48:38 -0700
+Message-ID: <1314290965-2698-12-git-send-email-kys@microsoft.com>
 References: <1314290866-2644-1-git-send-email-kys@microsoft.com>
 	<1314290965-2698-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -22,59 +22,87 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Initialize the driver name directly in netvsc_drv.c and do the necessary
-adjustments.
+Now generate appropriate uevent based on the modalias string. As part of this,
+cleanup the existing uevent code.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- drivers/staging/hv/netvsc.c     |    5 -----
- drivers/staging/hv/netvsc_drv.c |    4 +++-
- 2 files changed, 3 insertions(+), 6 deletions(-)
+ drivers/staging/hv/vmbus_drv.c |   60 ++++++++--------------------------------
+ 1 files changed, 12 insertions(+), 48 deletions(-)
 
-diff --git a/drivers/staging/hv/netvsc.c b/drivers/staging/hv/netvsc.c
-index 6f4541b..d085018 100644
---- a/drivers/staging/hv/netvsc.c
-+++ b/drivers/staging/hv/netvsc.c
-@@ -32,9 +32,6 @@
- #include "hyperv_net.h"
- 
- 
--/* Globals */
--static const char *driver_name = "netvsc";
--
- static struct netvsc_device *alloc_net_device(struct hv_device *device)
+diff --git a/drivers/staging/hv/vmbus_drv.c b/drivers/staging/hv/vmbus_drv.c
+index b651968..a6e7dc5 100644
+--- a/drivers/staging/hv/vmbus_drv.c
++++ b/drivers/staging/hv/vmbus_drv.c
+@@ -237,58 +237,22 @@ static struct device_attribute vmbus_device_attrs[] = {
+  * This routine is invoked when a device is added or removed on the vmbus to
+  * generate a uevent to udev in the userspace. The udev will then look at its
+  * rule and the uevent generated here to load the appropriate driver
++ *
++ * The alias string will be of the form vmbus:guid where guid is the string
++ * representation of the device guid (each byte of the guid will be
++ * represented with two hex characters.
+  */
+ static int vmbus_uevent(struct device *device, struct kobj_uevent_env *env)
  {
- 	struct netvsc_device *net_device;
-@@ -999,7 +996,5 @@ cleanup:
- int netvsc_initialize(struct hv_driver *drv)
- {
- 
--	drv->name = driver_name;
+ 	struct hv_device *dev = device_to_hv_device(device);
+-	int ret;
 -
- 	return 0;
+-	ret = add_uevent_var(env, "VMBUS_DEVICE_CLASS_GUID={"
+-			     "%02x%02x%02x%02x-%02x%02x-%02x%02x-"
+-			     "%02x%02x%02x%02x%02x%02x%02x%02x}",
+-			     dev->dev_type.b[3],
+-			     dev->dev_type.b[2],
+-			     dev->dev_type.b[1],
+-			     dev->dev_type.b[0],
+-			     dev->dev_type.b[5],
+-			     dev->dev_type.b[4],
+-			     dev->dev_type.b[7],
+-			     dev->dev_type.b[6],
+-			     dev->dev_type.b[8],
+-			     dev->dev_type.b[9],
+-			     dev->dev_type.b[10],
+-			     dev->dev_type.b[11],
+-			     dev->dev_type.b[12],
+-			     dev->dev_type.b[13],
+-			     dev->dev_type.b[14],
+-			     dev->dev_type.b[15]);
+-
+-	if (ret)
+-		return ret;
++	int i, ret;
++	char alias_name[((sizeof(struct hv_vmbus_device_id) + 1)) * 2];
+ 
+-	ret = add_uevent_var(env, "VMBUS_DEVICE_DEVICE_GUID={"
+-			     "%02x%02x%02x%02x-%02x%02x-%02x%02x-"
+-			     "%02x%02x%02x%02x%02x%02x%02x%02x}",
+-			     dev->dev_instance.b[3],
+-			     dev->dev_instance.b[2],
+-			     dev->dev_instance.b[1],
+-			     dev->dev_instance.b[0],
+-			     dev->dev_instance.b[5],
+-			     dev->dev_instance.b[4],
+-			     dev->dev_instance.b[7],
+-			     dev->dev_instance.b[6],
+-			     dev->dev_instance.b[8],
+-			     dev->dev_instance.b[9],
+-			     dev->dev_instance.b[10],
+-			     dev->dev_instance.b[11],
+-			     dev->dev_instance.b[12],
+-			     dev->dev_instance.b[13],
+-			     dev->dev_instance.b[14],
+-			     dev->dev_instance.b[15]);
+-	if (ret)
+-		return ret;
++	for (i = 0; i < (sizeof(struct hv_vmbus_device_id) * 2); i += 2)
++		sprintf(&alias_name[i], "%02x", dev->dev_type.b[i/2]);
+ 
+-	return 0;
++	ret = add_uevent_var(env, "MODALIAS=vmbus:%s", alias_name);
++	return ret;
  }
-diff --git a/drivers/staging/hv/netvsc_drv.c b/drivers/staging/hv/netvsc_drv.c
-index d6c6180..61de6f2 100644
---- a/drivers/staging/hv/netvsc_drv.c
-+++ b/drivers/staging/hv/netvsc_drv.c
-@@ -41,6 +41,8 @@
- #include "hyperv.h"
- #include "hyperv_net.h"
  
-+static const char *driver_name = "netvsc";
-+
- struct net_device_context {
- 	/* point back to our device context */
- 	struct hv_device *device_ctx;
-@@ -449,7 +451,7 @@ static int __init netvsc_drv_init(void)
- 	/* Callback to client driver to complete the initialization */
- 	netvsc_initialize(drv);
  
--	drv->driver.name = drv->name;
-+	drv->driver.name = driver_name;
- 
- 	/* The driver belongs to vmbus */
- 	ret = vmbus_child_driver_register(&drv->driver);
 -- 
 1.7.4.1
