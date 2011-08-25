@@ -1,7 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 25/59] Staging: hv: vmbus: Cleanup error handling in hv_init()
-Date: Thu, 25 Aug 2011 09:48:51 -0700
-Message-ID: <1314290965-2698-25-git-send-email-kys@microsoft.com>
+Subject: [PATCH 54/59] Staging: hv: netvsc: Cleanup error returns in
+	rndis_filter_init_device()
+Date: Thu, 25 Aug 2011 09:49:20 -0700
+Message-ID: <1314290965-2698-54-git-send-email-kys@microsoft.com>
 References: <1314290866-2644-1-git-send-email-kys@microsoft.com>
 	<1314290965-2698-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -27,40 +28,30 @@ Use standard Linux error codes.
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- drivers/staging/hv/hv.c |    7 +++----
- 1 files changed, 3 insertions(+), 4 deletions(-)
+ drivers/staging/hv/rndis_filter.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/staging/hv/hv.c b/drivers/staging/hv/hv.c
-index d2b921b..736794e 100644
---- a/drivers/staging/hv/hv.c
-+++ b/drivers/staging/hv/hv.c
-@@ -151,7 +151,6 @@ static u64 do_hypercall(u64 control, void *input, void *output)
-  */
- int hv_init(void)
- {
--	int ret = 0;
- 	int max_leaf;
- 	union hv_x64_msr_hypercall_contents hypercall_msr;
- 	void *virtaddr = NULL;
-@@ -214,7 +213,7 @@ int hv_init(void)
- 	hv_context.signal_event_param->flag_number = 0;
- 	hv_context.signal_event_param->rsvdz = 0;
- 
--	return ret;
-+	return 0;
- 
- cleanup:
- 	if (virtaddr) {
-@@ -225,8 +224,8 @@ cleanup:
- 
- 		vfree(virtaddr);
+diff --git a/drivers/staging/hv/rndis_filter.c b/drivers/staging/hv/rndis_filter.c
+index f5f3052..a71f29d 100644
+--- a/drivers/staging/hv/rndis_filter.c
++++ b/drivers/staging/hv/rndis_filter.c
+@@ -562,7 +562,7 @@ static int rndis_filter_init_device(struct rndis_device *dev)
+ 	request = get_rndis_request(dev, REMOTE_NDIS_INITIALIZE_MSG,
+ 			RNDIS_MESSAGE_SIZE(struct rndis_initialize_request));
+ 	if (!request) {
+-		ret = -1;
++		ret = -ENOMEM;
+ 		goto Cleanup;
  	}
--	ret = -1;
--	return ret;
-+
-+	return -ENOTSUPP;
- }
  
- /*
+@@ -596,7 +596,7 @@ static int rndis_filter_init_device(struct rndis_device *dev)
+ 		ret = 0;
+ 	} else {
+ 		dev->state = RNDIS_DEV_UNINITIALIZED;
+-		ret = -1;
++		ret = -EINVAL;
+ 	}
+ 
+ Cleanup:
 -- 
 1.7.4.1
