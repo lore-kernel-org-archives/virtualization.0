@@ -1,36 +1,35 @@
-From: KY Srinivasan <kys@microsoft.com>
-Subject: RE: [PATCH 12/59] Staging: hv: vmbus: Cleanup vmbus_uevent() code
-Date: Thu, 25 Aug 2011 22:20:32 +0000
-Message-ID: <6E21E5352C11B742B20C142EB499E048081B359F@TK5EX14MBXC126.redmond.corp.microsoft.com>
+From: Greg KH <greg@kroah.com>
+Subject: Re: [PATCH 12/59] Staging: hv: vmbus: Cleanup vmbus_uevent() code
+Date: Thu, 25 Aug 2011 15:26:30 -0700
+Message-ID: <20110825222630.GA13563@kroah.com>
 References: <1314290866-2644-1-git-send-email-kys@microsoft.com>
  <1314290965-2698-1-git-send-email-kys@microsoft.com>
  <1314290965-2698-12-git-send-email-kys@microsoft.com>
- <20110825205930.GA10883@kroah.com> <20110825211514.GD26773@kroah.com>
+ <20110825205930.GA10883@kroah.com>
+ <6E21E5352C11B742B20C142EB499E048081B356B@TK5EX14MBXC126.redmond.corp.microsoft.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20110825211514.GD26773@kroah.com>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <6E21E5352C11B742B20C142EB499E048081B356B@TK5EX14MBXC126.redmond.corp.microsoft.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Greg KH <greg@kroah.com>
-Cc: "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, Haiyang Zhang <haiyangz@microsoft.com>, "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>
+To: KY Srinivasan <kys@microsoft.com>
+Cc: "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-
-
-> -----Original Message-----
-> From: Greg KH [mailto:greg@kroah.com]
-> Sent: Thursday, August 25, 2011 5:15 PM
-> To: KY Srinivasan
-> Cc: devel@linuxdriverproject.org; Haiyang Zhang; gregkh@suse.de; linux-
-> kernel@vger.kernel.org; virtualization@lists.osdl.org
-> Subject: Re: [PATCH 12/59] Staging: hv: vmbus: Cleanup vmbus_uevent() code
+On Thu, Aug 25, 2011 at 10:14:05PM +0000, KY Srinivasan wrote:
 > 
-> On Thu, Aug 25, 2011 at 01:59:30PM -0700, Greg KH wrote:
+> 
+> > -----Original Message-----
+> > From: Greg KH [mailto:greg@kroah.com]
+> > Sent: Thursday, August 25, 2011 5:00 PM
+> > To: KY Srinivasan
+> > Cc: gregkh@suse.de; linux-kernel@vger.kernel.org;
+> > devel@linuxdriverproject.org; virtualization@lists.osdl.org; Haiyang Zhang
+> > Subject: Re: [PATCH 12/59] Staging: hv: vmbus: Cleanup vmbus_uevent() code
+> > 
 > > On Thu, Aug 25, 2011 at 09:48:38AM -0700, K. Y. Srinivasan wrote:
-> > > Now generate appropriate uevent based on the modalias string. As part of
-> this,
+> > > Now generate appropriate uevent based on the modalias string. As part of this,
 > > > cleanup the existing uevent code.
 > > >
 > > > Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
@@ -39,15 +38,13 @@ List-Id: virtualization@lists.linuxfoundation.org
 > > >  drivers/staging/hv/vmbus_drv.c |   60 ++++++++--------------------------------
 > > >  1 files changed, 12 insertions(+), 48 deletions(-)
 > > >
-> > > diff --git a/drivers/staging/hv/vmbus_drv.c
-> b/drivers/staging/hv/vmbus_drv.c
+> > > diff --git a/drivers/staging/hv/vmbus_drv.c b/drivers/staging/hv/vmbus_drv.c
 > > > index b651968..a6e7dc5 100644
 > > > --- a/drivers/staging/hv/vmbus_drv.c
 > > > +++ b/drivers/staging/hv/vmbus_drv.c
-> > > @@ -237,58 +237,22 @@ static struct device_attribute vmbus_device_attrs[]
-> = {
-> > >   * This routine is invoked when a device is added or removed on the vmbus
-> to
+> > > @@ -237,58 +237,22 @@ static struct device_attribute vmbus_device_attrs[] =
+> > {
+> > >   * This routine is invoked when a device is added or removed on the vmbus to
 > > >   * generate a uevent to udev in the userspace. The udev will then look at its
 > > >   * rule and the uevent generated here to load the appropriate driver
 > > > + *
@@ -55,8 +52,7 @@ List-Id: virtualization@lists.linuxfoundation.org
 > > > + * representation of the device guid (each byte of the guid will be
 > > > + * represented with two hex characters.
 > > >   */
-> > >  static int vmbus_uevent(struct device *device, struct kobj_uevent_env
-> *env)
+> > >  static int vmbus_uevent(struct device *device, struct kobj_uevent_env *env)
 > > >  {
 > > >  	struct hv_device *dev = device_to_hv_device(device);
 > > > -	int ret;
@@ -109,17 +105,18 @@ List-Id: virtualization@lists.linuxfoundation.org
 > > > -		return ret;
 > > > +	for (i = 0; i < (sizeof(struct hv_vmbus_device_id) * 2); i += 2)
 > > > +		sprintf(&alias_name[i], "%02x", dev->dev_type.b[i/2]);
-> >
+> > 
 > > I have to edit this to get it to work properly with the fact that I
 > > added the driver_data field to hv_vmbus_device_id.
+> > 
+> > Arguably, one could say that this patch was always broken as you were
+> > assuming the size of an individual field was the same size as the whole
+> > structure, which I don't think is always the case, or at least it's not
+> > a safe thing to assume :)
 > 
-> You should have a copy of the patch I applied in your inbox now, can you
-> verify I didn't mess it up?
+> Perhaps I could have sized it based on guid size since that is what is going
+> to be the alias. 
 
-Greg,
+That's what I ended up doing :)
 
-I don't think I got this mail. Could you resend the mail.
-
-Regards,
-
-K. Y
+greg k-h
