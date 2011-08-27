@@ -1,32 +1,52 @@
-From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 0000/0046] Staging: hv: Driver cleanup
-Date: Sat, 27 Aug 2011 11:31:14 -0700
-Message-ID: <1314469874-7017-1-git-send-email-kys@microsoft.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org
-Cc: "K. Y. Srinivasan" <kys@microsoft.com>
+From: Wang Sheng-Hui <shhuiw@gmail.com>
+Subject: Re: [PATCH] virtio: fix size computation according to the definition
+	of struct vring_used in vring_size
+Date: Sat, 27 Aug 2011 17:34:57 +0800
+Message-ID: <4E58BA41.6050503__35739.2578306191$1314499829$gmane$org@gmail.com>
+References: <4E584365.1010806@gmail.com> <1314413399.1913.1.camel@Allen>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1314413399.1913.1.camel@Allen>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: wanlong.gao@gmail.com
+Cc: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Further cleanup of the hv drivers. 
-
-	1) Cleanup reference counting.
-
-	2) Handle all block devices using the storvsc driver. I have modified
-	   the implementation here based on Christoph's feedback on my earlier
-	   implementation.
-
-	3) Fix bugs.
-
-	4) Accomodate some host side scsi emulation bugs.
-
-	5) In case of scsi errors off-line the device.
-
-This patch-set further reduces the size of Hyper-V drivers - the code is
-about 10% smaller. This reduction is mainly because we have eliminated the
-blkvsc driver.
-
-
-Regards,
-
-K. Y
+T24gMjAxMeW5tDA45pyIMjfml6UgMTA6NDksIFdhbmxvbmcgR2FvIHdyb3RlOgo+IE9uIFNhdCwg
+MjAxMS0wOC0yNyBhdCAwOTowNyArMDgwMCwgV2FuZyBTaGVuZy1IdWkgd3JvdGU6Cj4+IFRoZSBw
+YXRjaCBpcyBhZ2FpbnN0IDMuMS1yYzMuCj4+Cj4+IHN0cnVjdCB2cmluZ191c2VkIGhhcyB0d28g
+X191MTYgZmllbGRzIHBsdXMgYXJyYXkgb2Ygc3RydWN0IHZyaW5nX3VzZWRfZWxlbS4KPj4gQ3Vy
+cmVudCB2cmluZ19zaXplIGNvdW50cyB0aGUgX191MTYgZmllbGRzIHRvIDMuIEZpeCBpdCB0byAy
+IGluIHRoZSBwYXRjaC4KPj4KPj4gU2lnbmVkLW9mZi1ieTogV2FuZyBTaGVuZy1IdWkgPHNoaHVp
+d0BnbWFpbC5jb20+Cj4+IC0tLQo+PiAgaW5jbHVkZS9saW51eC92aXJ0aW9fcmluZy5oIHwgICAg
+MiArLQo+PiAgMSBmaWxlcyBjaGFuZ2VkLCAxIGluc2VydGlvbnMoKyksIDEgZGVsZXRpb25zKC0p
+Cj4+Cj4+IGRpZmYgLS1naXQgYS9pbmNsdWRlL2xpbnV4L3ZpcnRpb19yaW5nLmggYi9pbmNsdWRl
+L2xpbnV4L3ZpcnRpb19yaW5nLmgKPj4gaW5kZXggNGEzMmNiNi4uZmNkYTE1MiAxMDA2NDQKPj4g
+LS0tIGEvaW5jbHVkZS9saW51eC92aXJ0aW9fcmluZy5oCj4+ICsrKyBiL2luY2x1ZGUvbGludXgv
+dmlydGlvX3JpbmcuaAo+PiBAQCAtMTQzLDcgKzE0Myw3IEBAIHN0YXRpYyBpbmxpbmUgdW5zaWdu
+ZWQgdnJpbmdfc2l6ZSh1bnNpZ25lZCBpbnQgbnVtLCB1bnNpZ25lZCBsb25nIGFsaWduKQo+PiAg
+ewo+PiAgCXJldHVybiAoKHNpemVvZihzdHJ1Y3QgdnJpbmdfZGVzYykgKiBudW0gKyBzaXplb2Yo
+X191MTYpICogKDIgKyBudW0pCj4+ICAJCSArIGFsaWduIC0gMSkgJiB+KGFsaWduIC0gMSkpCj4+
+IC0JCSsgc2l6ZW9mKF9fdTE2KSAqIDMgKyBzaXplb2Yoc3RydWN0IHZyaW5nX3VzZWRfZWxlbSkg
+KiBudW07Cj4+ICsJCSsgc2l6ZW9mKF9fdTE2KSAqIDIgKyBzaXplb2Yoc3RydWN0IHZyaW5nX3Vz
+ZWRfZWxlbSkgKiBudW07Cj4+ICB9Cj4+ICAKPj4gIC8qIFRoZSBmb2xsb3dpbmcgaXMgdXNlZCB3
+aXRoIFVTRURfRVZFTlRfSURYIGFuZCBBVkFJTF9FVkVOVF9JRFggKi8KPiAKPiBIaToKPiBJJ20g
+bm90IGRlZXAgaW50byBpdCwgYnV0IEkgdGhpbmsgeW91IGNhbiBzZWUgdGhpczoKPiBodHRwOi8v
+bWFyYy5pbmZvLz9sPWdpdC1jb21taXRzLWhlYWQmbT0xMzA2ODc5MTU4MTYxMzAmdz0yCj4gCj4g
+VGhhbmtzCj4gLVdhbmxvbmcgR2FvCj4gCgpUaGFua3MuCgpJIGNoZWNrZWQgdGhlIGNvbW1lbnRz
+LCBhbmQgdGhpbmsgd2Ugc2hvdWxkIHBhdGNoIHZyaW5nX2luaXQKYW5kIHZyaW5nX3NpemUgYWNj
+b3JkaW5nIHRvIHRoZSBsYXlvdXQgZGVzY3JpcHRpb24gaW4gdGhlIGNvbW1lbnRzLgpSaWdodD8K
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6
+YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24u
+b3JnCmh0dHBzOi8vbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92
+aXJ0dWFsaXphdGlvbg==
