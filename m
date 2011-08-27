@@ -1,8 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 18/46] Staging: hv: storvsc: Add code to handle IDE devices
-	using the storvsc driver
-Date: Sat, 27 Aug 2011 11:31:17 -0700
-Message-ID: <1314469905-7058-18-git-send-email-kys@microsoft.com>
+Subject: [PATCH 21/46] Staging: hv: storvsc: Optimize bounce buffer handling
+	for the "write" case
+Date: Sat, 27 Aug 2011 11:31:20 -0700
+Message-ID: <1314469905-7058-21-git-send-email-kys@microsoft.com>
 References: <1314469874-7017-1-git-send-email-kys@microsoft.com>
 	<1314469905-7058-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -23,117 +23,41 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Add code to handle IDE devices using the storvsc driver. The storvsc_probe()
-is modified so that the storvsc driver can surface all disks presented to the
-guest as scsi devices using generic upper level Linux scsi drivers.
+Optimize bounce buffer handling for the "write" case.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- drivers/staging/hv/storvsc_drv.c |   60 ++++++++++++++++++++++++++++++++-----
- 1 files changed, 52 insertions(+), 8 deletions(-)
+ drivers/staging/hv/storvsc_drv.c |   12 ++++++------
+ 1 files changed, 6 insertions(+), 6 deletions(-)
 
 diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
-index ae74f50..f434200 100644
+index 9464f99..90b91ad 100644
 --- a/drivers/staging/hv/storvsc_drv.c
 +++ b/drivers/staging/hv/storvsc_drv.c
-@@ -59,6 +59,17 @@ struct storvsc_cmd_request {
- 	struct hv_storvsc_request request;
- };
+@@ -425,17 +425,17 @@ static void storvsc_commmand_completion(struct hv_storvsc_request *request)
+ 	struct scsi_sense_hdr sense_hdr;
+ 	struct vmscsi_request *vm_srb;
  
-+static void storvsc_get_ide_info(struct hv_device *dev, int *target, int *path)
-+{
-+	*target =
-+		dev->dev_instance.b[5] << 8 | dev->dev_instance.b[4];
-+
-+	*path =
-+		dev->dev_instance.b[3] << 24 |
-+		dev->dev_instance.b[2] << 16 |
-+		dev->dev_instance.b[1] << 8  | dev->dev_instance.b[0];
-+}
-+
- 
- static int storvsc_device_alloc(struct scsi_device *sdevice)
- {
-@@ -642,6 +653,20 @@ static const struct hv_vmbus_device_id id_table[] = {
- };
- 
- MODULE_DEVICE_TABLE(vmbus, id_table);
-+
-+/*
-+ * This declaration is temporary; once we get the
-+ * infrastructure in place, we will integrate with
-+ * id_table.
-+ */
-+
-+static const uuid_le ide_blk_guid = {
-+	.b = {
-+		0x32, 0x26, 0x41, 0x32, 0xcb, 0x86, 0xa2, 0x44,
-+		0x9b, 0x5c, 0x50, 0xd1, 0x41, 0x73, 0x54, 0xf5
-+	}
-+};
-+
- /*
-  * storvsc_probe - Add a new device for this driver
-  */
-@@ -652,6 +677,14 @@ static int storvsc_probe(struct hv_device *device)
- 	struct Scsi_Host *host;
- 	struct hv_host_device *host_dev;
- 	struct storvsc_device_info device_info;
-+	bool dev_is_ide;
-+	int path = 0;
-+	int target = 0;
-+
-+	if (!uuid_le_cmp(device->dev_type, ide_blk_guid))
-+		dev_is_ide = true;
-+	else
-+		dev_is_ide = false;
- 
- 	host = scsi_host_alloc(&scsi_driver,
- 			       sizeof(struct hv_host_device));
-@@ -687,6 +720,9 @@ static int storvsc_probe(struct hv_device *device)
- 		return -ENODEV;
- 	}
- 
-+	if (dev_is_ide)
-+		storvsc_get_ide_info(device, &target, &path);
-+
- 	host_dev->path = device_info.path_id;
- 	host_dev->target = device_info.target_id;
- 
-@@ -699,17 +735,25 @@ static int storvsc_probe(struct hv_device *device)
- 
- 	/* Register the HBA and start the scsi bus scan */
- 	ret = scsi_add_host(host, &device->device);
--	if (ret != 0) {
++	vm_srb = &request->vstor_packet.vm_srb;
+ 	if (cmd_request->bounce_sgl_count) {
 -
--		storvsc_dev_remove(device);
-+	if (ret != 0)
-+		goto err_out;
- 
--		kmem_cache_destroy(host_dev->request_pool);
--		scsi_host_put(host);
--		return -ENODEV;
-+	if (!dev_is_ide) {
-+		scsi_scan_host(host);
-+		return 0;
-+	}
-+	ret = scsi_add_device(host, 0, target, 0);
-+	if (ret) {
-+		scsi_remove_host(host);
-+		goto err_out;
+-		/* FIXME: We can optimize on writes by just skipping this */
+-		copy_from_bounce_buffer(scsi_sglist(scmnd),
++		if (vm_srb->data_in == READ_TYPE) {
++			copy_from_bounce_buffer(scsi_sglist(scmnd),
+ 					cmd_request->bounce_sgl,
+ 					scsi_sg_count(scmnd));
+-		destroy_bounce_buffer(cmd_request->bounce_sgl,
+-				      cmd_request->bounce_sgl_count);
++			destroy_bounce_buffer(cmd_request->bounce_sgl,
++					cmd_request->bounce_sgl_count);
++		}
  	}
-+	return 0;
  
--	scsi_scan_host(host);
--	return ret;
-+err_out:
-+	storvsc_dev_remove(device);
-+	kmem_cache_destroy(host_dev->request_pool);
-+	scsi_host_put(host);
-+	return -ENODEV;
- }
+-	vm_srb = &request->vstor_packet.vm_srb;
+ 	scmnd->result = vm_srb->scsi_status;
  
- /* The one and only one */
+ 	if (scmnd->result) {
 -- 
 1.7.4.1
