@@ -1,7 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 35/46] Staging: hv: Fix a bug in vmbus_match()
-Date: Sat, 27 Aug 2011 11:31:34 -0700
-Message-ID: <1314469905-7058-35-git-send-email-kys@microsoft.com>
+Subject: [PATCH 45/46] Staging: hv: mousevsc: Fix checkpatch errors and
+	warnings
+Date: Sat, 27 Aug 2011 11:31:44 -0700
+Message-ID: <1314469905-7058-45-git-send-email-kys@microsoft.com>
 References: <1314469874-7017-1-git-send-email-kys@microsoft.com>
 	<1314469905-7058-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -22,27 +23,46 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The recent checkin that add a private pointer to hv_vmbus_device_id
-introduced this bug in vmbus_match; fix it.
+Fix checkpatch errors and warnings.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- drivers/staging/hv/vmbus_drv.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+ drivers/staging/hv/hv_mouse.c |   15 ++++++++-------
+ 1 files changed, 8 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/staging/hv/vmbus_drv.c b/drivers/staging/hv/vmbus_drv.c
-index be62b62..51002c0 100644
---- a/drivers/staging/hv/vmbus_drv.c
-+++ b/drivers/staging/hv/vmbus_drv.c
-@@ -273,7 +273,7 @@ static int vmbus_match(struct device *device, struct device_driver *driver)
+diff --git a/drivers/staging/hv/hv_mouse.c b/drivers/staging/hv/hv_mouse.c
+index 090736a..dbb04ee 100644
+--- a/drivers/staging/hv/hv_mouse.c
++++ b/drivers/staging/hv/hv_mouse.c
+@@ -335,7 +335,8 @@ static void mousevsc_on_receive_device_info(struct mousevsc_dev *input_device,
+ 	input_device->hid_desc = kzalloc(desc->bLength, GFP_KERNEL);
  
- 	for (; !is_null_guid(id_array->guid); id_array++)
- 		if (!memcmp(&id_array->guid, &hv_dev->dev_type.b,
--				sizeof(struct hv_vmbus_device_id)))
-+				sizeof(uuid_le)))
- 			return 1;
+ 	if (!input_device->hid_desc) {
+-		pr_err("unable to allocate hid descriptor - size %d", desc->bLength);
++		pr_err("unable to allocate hid descriptor - size %d",
++			 desc->bLength);
+ 		goto cleanup;
+ 	}
  
- 	return 0;
+@@ -598,12 +599,12 @@ static int mousevsc_connect_to_vsp(struct hv_device *device)
+ 	pr_info("synthhid protocol request...");
+ 
+ 	ret = vmbus_sendpacket(device->channel, request,
+-					sizeof(struct pipe_prt_msg) -
+-					sizeof(unsigned char) +
+-					sizeof(struct synthhid_protocol_request),
+-					(unsigned long)request,
+-					VM_PKT_DATA_INBAND,
+-					VMBUS_DATA_PACKET_FLAG_COMPLETION_REQUESTED);
++				sizeof(struct pipe_prt_msg) -
++				sizeof(unsigned char) +
++				sizeof(struct synthhid_protocol_request),
++				(unsigned long)request,
++				VM_PKT_DATA_INBAND,
++				VMBUS_DATA_PACKET_FLAG_COMPLETION_REQUESTED);
+ 	if (ret != 0) {
+ 		pr_err("unable to send synthhid protocol request.");
+ 		goto cleanup;
 -- 
 1.7.4.1
