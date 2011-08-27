@@ -1,56 +1,66 @@
-From: Wanlong Gao <wanlong.gao@gmail.com>
-Subject: Re: [PATCH] virtio: fix size computation according to the
-	definition of struct vring_used in vring_size
-Date: Sat, 27 Aug 2011 10:49:59 +0800
-Message-ID: <1314413399.1913.1.camel__44446.4477863677$1314414572$gmane$org@Allen>
-References: <4E584365.1010806@gmail.com>
-Reply-To: wanlong.gao@gmail.com
+From: "K. Y. Srinivasan" <kys@microsoft.com>
+Subject: [PATCH 03/46] Staging: hv: storvsc: Rename must_get_stor_device()
+Date: Sat, 27 Aug 2011 11:31:02 -0700
+Message-ID: <1314469905-7058-3-git-send-email-kys@microsoft.com>
+References: <1314469874-7017-1-git-send-email-kys@microsoft.com>
+	<1314469905-7058-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4E584365.1010806@gmail.com>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Wang Sheng-Hui <shhuiw@gmail.com>
-Cc: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, mst@redhat.com
+Return-path: <devel-bounces@linuxdriverproject.org>
+In-Reply-To: <1314469905-7058-1-git-send-email-kys@microsoft.com>
+List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
+	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
+List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
+List-Post: <mailto:devel@linuxdriverproject.org>
+List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
+List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
+	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
+Errors-To: devel-bounces@linuxdriverproject.org
+Sender: devel-bounces@linuxdriverproject.org
+To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org
+Cc: Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sat, 2011-08-27 at 09:07 +0800, Wang Sheng-Hui wrote:
-> The patch is against 3.1-rc3.
-> 
-> struct vring_used has two __u16 fields plus array of struct vring_used_elem.
-> Current vring_size counts the __u16 fields to 3. Fix it to 2 in the patch.
-> 
-> Signed-off-by: Wang Sheng-Hui <shhuiw@gmail.com>
-> ---
->  include/linux/virtio_ring.h |    2 +-
->  1 files changed, 1 insertions(+), 1 deletions(-)
-> 
-> diff --git a/include/linux/virtio_ring.h b/include/linux/virtio_ring.h
-> index 4a32cb6..fcda152 100644
-> --- a/include/linux/virtio_ring.h
-> +++ b/include/linux/virtio_ring.h
-> @@ -143,7 +143,7 @@ static inline unsigned vring_size(unsigned int num, unsigned long align)
->  {
->  	return ((sizeof(struct vring_desc) * num + sizeof(__u16) * (2 + num)
->  		 + align - 1) & ~(align - 1))
-> -		+ sizeof(__u16) * 3 + sizeof(struct vring_used_elem) * num;
-> +		+ sizeof(__u16) * 2 + sizeof(struct vring_used_elem) * num;
->  }
->  
->  /* The following is used with USED_EVENT_IDX and AVAIL_EVENT_IDX */
+In preparation for cleaning up how we manage reference counts on the stor
+device, clearly distinguish why we are attempting to acquire a reference.
 
-Hi:
-I'm not deep into it, but I think you can see this:
-http://marc.info/?l=git-commits-head&m=130687915816130&w=2
+Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
+Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
+---
+ drivers/staging/hv/storvsc.c |    6 +++---
+ 1 files changed, 3 insertions(+), 3 deletions(-)
 
-Thanks
--Wanlong Gao
+diff --git a/drivers/staging/hv/storvsc.c b/drivers/staging/hv/storvsc.c
+index cd38cd6..89708b1 100644
+--- a/drivers/staging/hv/storvsc.c
++++ b/drivers/staging/hv/storvsc.c
+@@ -41,7 +41,7 @@ static inline struct storvsc_device *alloc_stor_device(struct hv_device *device)
+ 		return NULL;
+ 
+ 	/* Set to 2 to allow both inbound and outbound traffics */
+-	/* (ie get_stor_device() and must_get_stor_device()) to proceed. */
++	/* (ie get_stor_device() and get_in_stor_device()) to proceed. */
+ 	atomic_cmpxchg(&stor_device->ref_count, 0, 2);
+ 
+ 	init_waitqueue_head(&stor_device->waiting_to_drain);
+@@ -53,7 +53,7 @@ static inline struct storvsc_device *alloc_stor_device(struct hv_device *device)
+ 
+ 
+ /* Get the stordevice object iff exists and its refcount > 0 */
+-static inline struct storvsc_device *must_get_stor_device(
++static inline struct storvsc_device *get_in_stor_device(
+ 					struct hv_device *device)
+ {
+ 	struct storvsc_device *stor_device;
+@@ -305,7 +305,7 @@ static void storvsc_on_channel_callback(void *context)
+ 	int ret;
+ 
+ 
+-	stor_device = must_get_stor_device(device);
++	stor_device = get_in_stor_device(device);
+ 	if (!stor_device)
+ 		return;
+ 
+-- 
+1.7.4.1
