@@ -1,13 +1,14 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 01/46] Staging: hv: storvsc: Inline free_stor_device()
-Date: Sat, 27 Aug 2011 11:31:00 -0700
-Message-ID: <1314469905-7058-1-git-send-email-kys@microsoft.com>
+Subject: [PATCH 04/46] Staging: hv: storvsc: Rename get_stor_device()
+Date: Sat, 27 Aug 2011 11:31:03 -0700
+Message-ID: <1314469905-7058-4-git-send-email-kys@microsoft.com>
 References: <1314469874-7017-1-git-send-email-kys@microsoft.com>
+	<1314469905-7058-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <devel-bounces@linuxdriverproject.org>
-In-Reply-To: <1314469874-7017-1-git-send-email-kys@microsoft.com>
+In-Reply-To: <1314469905-7058-1-git-send-email-kys@microsoft.com>
 List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
 	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
 List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
@@ -21,46 +22,83 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Inline the code for  free_stor_device() and get rid of the function.
+In preparation for cleaning up how we manage reference counts on the stor
+device, clearly distinguish why we are attempting to acquire a reference.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- drivers/staging/hv/storvsc.c |    8 ++------
- 1 files changed, 2 insertions(+), 6 deletions(-)
+ drivers/staging/hv/hyperv_storage.h |    3 ++-
+ drivers/staging/hv/storvsc.c        |    8 ++++----
+ drivers/staging/hv/storvsc_drv.c    |    2 +-
+ 3 files changed, 7 insertions(+), 6 deletions(-)
 
+diff --git a/drivers/staging/hv/hyperv_storage.h b/drivers/staging/hv/hyperv_storage.h
+index a01f9a0..a224413 100644
+--- a/drivers/staging/hv/hyperv_storage.h
++++ b/drivers/staging/hv/hyperv_storage.h
+@@ -288,7 +288,8 @@ struct storvsc_device {
+ 
+ 
+ /* Get the stordevice object iff exists and its refcount > 1 */
+-static inline struct storvsc_device *get_stor_device(struct hv_device *device)
++static inline struct storvsc_device *get_out_stor_device(
++					struct hv_device *device)
+ {
+ 	struct storvsc_device *stor_device;
+ 
 diff --git a/drivers/staging/hv/storvsc.c b/drivers/staging/hv/storvsc.c
-index 827b6a3..8c62829 100644
+index 89708b1..313a3f8 100644
 --- a/drivers/staging/hv/storvsc.c
 +++ b/drivers/staging/hv/storvsc.c
-@@ -51,10 +51,6 @@ static inline struct storvsc_device *alloc_stor_device(struct hv_device *device)
+@@ -41,7 +41,7 @@ static inline struct storvsc_device *alloc_stor_device(struct hv_device *device)
+ 		return NULL;
+ 
+ 	/* Set to 2 to allow both inbound and outbound traffics */
+-	/* (ie get_stor_device() and get_in_stor_device()) to proceed. */
++	/* (ie get_out_stor_device() and get_in_stor_device()) to proceed. */
+ 	atomic_cmpxchg(&stor_device->ref_count, 0, 2);
+ 
+ 	init_waitqueue_head(&stor_device->waiting_to_drain);
+@@ -67,7 +67,7 @@ static inline struct storvsc_device *get_in_stor_device(
  	return stor_device;
  }
  
--static inline void free_stor_device(struct storvsc_device *device)
--{
--	kfree(device);
--}
+-/* Drop ref count to 1 to effectively disable get_stor_device() */
++/* Drop ref count to 1 to effectively disable get_out_stor_device() */
+ static inline struct storvsc_device *release_stor_device(
+ 					struct hv_device *device)
+ {
+@@ -105,7 +105,7 @@ static int storvsc_channel_init(struct hv_device *device)
+ 	struct vstor_packet *vstor_packet;
+ 	int ret, t;
  
- /* Get the stordevice object iff exists and its refcount > 0 */
- static inline struct storvsc_device *must_get_stor_device(
-@@ -394,7 +390,7 @@ int storvsc_dev_add(struct hv_device *device,
- 	/* Send it back up */
- 	ret = storvsc_connect_to_vsp(device, device_info->ring_buffer_size);
- 	if (ret) {
--		free_stor_device(stor_device);
-+		kfree(stor_device);
- 		return ret;
- 	}
- 	device_info->path_id = stor_device->path_id;
-@@ -422,7 +418,7 @@ int storvsc_dev_remove(struct hv_device *device)
- 	/* Close the channel */
- 	vmbus_close(device->channel);
+-	stor_device = get_stor_device(device);
++	stor_device = get_out_stor_device(device);
+ 	if (!stor_device)
+ 		return -ENODEV;
  
--	free_stor_device(stor_device);
-+	kfree(stor_device);
- 	return 0;
- }
+@@ -427,7 +427,7 @@ int storvsc_do_io(struct hv_device *device,
+ 	int ret = 0;
+ 
+ 	vstor_packet = &request->vstor_packet;
+-	stor_device = get_stor_device(device);
++	stor_device = get_out_stor_device(device);
+ 
+ 	if (!stor_device)
+ 		return -ENODEV;
+diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
+index faa8d57..5b2004f 100644
+--- a/drivers/staging/hv/storvsc_drv.c
++++ b/drivers/staging/hv/storvsc_drv.c
+@@ -344,7 +344,7 @@ static int storvsc_host_reset(struct hv_device *device)
+ 	int ret, t;
+ 
+ 
+-	stor_device = get_stor_device(device);
++	stor_device = get_out_stor_device(device);
+ 	if (!stor_device)
+ 		return -ENODEV;
  
 -- 
 1.7.4.1
