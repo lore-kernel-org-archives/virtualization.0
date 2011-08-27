@@ -1,14 +1,13 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 05/46] Staging: hv: storvsc: Cleanup alloc_stor_device()
-Date: Sat, 27 Aug 2011 11:31:04 -0700
-Message-ID: <1314469905-7058-5-git-send-email-kys@microsoft.com>
+Subject: [PATCH 01/46] Staging: hv: storvsc: Inline free_stor_device()
+Date: Sat, 27 Aug 2011 11:31:00 -0700
+Message-ID: <1314469905-7058-1-git-send-email-kys@microsoft.com>
 References: <1314469874-7017-1-git-send-email-kys@microsoft.com>
-	<1314469905-7058-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <devel-bounces@linuxdriverproject.org>
-In-Reply-To: <1314469905-7058-1-git-send-email-kys@microsoft.com>
+In-Reply-To: <1314469874-7017-1-git-send-email-kys@microsoft.com>
 List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
 	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
 List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
@@ -22,26 +21,46 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Cleanup alloc_stor_device(), we can set the ref_count directly.
+Inline the code for  free_stor_device() and get rid of the function.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- drivers/staging/hv/storvsc.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+ drivers/staging/hv/storvsc.c |    8 ++------
+ 1 files changed, 2 insertions(+), 6 deletions(-)
 
 diff --git a/drivers/staging/hv/storvsc.c b/drivers/staging/hv/storvsc.c
-index 313a3f8..48bd8da 100644
+index 827b6a3..8c62829 100644
 --- a/drivers/staging/hv/storvsc.c
 +++ b/drivers/staging/hv/storvsc.c
-@@ -42,7 +42,7 @@ static inline struct storvsc_device *alloc_stor_device(struct hv_device *device)
+@@ -51,10 +51,6 @@ static inline struct storvsc_device *alloc_stor_device(struct hv_device *device)
+ 	return stor_device;
+ }
  
- 	/* Set to 2 to allow both inbound and outbound traffics */
- 	/* (ie get_out_stor_device() and get_in_stor_device()) to proceed. */
--	atomic_cmpxchg(&stor_device->ref_count, 0, 2);
-+	atomic_set(&stor_device->ref_count, 2);
+-static inline void free_stor_device(struct storvsc_device *device)
+-{
+-	kfree(device);
+-}
  
- 	init_waitqueue_head(&stor_device->waiting_to_drain);
- 	stor_device->device = device;
+ /* Get the stordevice object iff exists and its refcount > 0 */
+ static inline struct storvsc_device *must_get_stor_device(
+@@ -394,7 +390,7 @@ int storvsc_dev_add(struct hv_device *device,
+ 	/* Send it back up */
+ 	ret = storvsc_connect_to_vsp(device, device_info->ring_buffer_size);
+ 	if (ret) {
+-		free_stor_device(stor_device);
++		kfree(stor_device);
+ 		return ret;
+ 	}
+ 	device_info->path_id = stor_device->path_id;
+@@ -422,7 +418,7 @@ int storvsc_dev_remove(struct hv_device *device)
+ 	/* Close the channel */
+ 	vmbus_close(device->channel);
+ 
+-	free_stor_device(stor_device);
++	kfree(stor_device);
+ 	return 0;
+ }
+ 
 -- 
 1.7.4.1
