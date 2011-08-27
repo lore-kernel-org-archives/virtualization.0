@@ -1,66 +1,67 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 03/46] Staging: hv: storvsc: Rename must_get_stor_device()
-Date: Sat, 27 Aug 2011 11:31:02 -0700
-Message-ID: <1314469905-7058-3-git-send-email-kys@microsoft.com>
+Subject: [PATCH 13/46] Staging: hv: netvsc: Introduce state to manage the lifecycle of net device
+Date: Sat, 27 Aug 2011 11:31:12 -0700
+Message-ID: <1314469905-7058-13-git-send-email-kys@microsoft.com>
 References: <1314469874-7017-1-git-send-email-kys@microsoft.com>
-	<1314469905-7058-1-git-send-email-kys@microsoft.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <devel-bounces@linuxdriverproject.org>
+ <1314469905-7058-1-git-send-email-kys@microsoft.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1314469905-7058-1-git-send-email-kys@microsoft.com>
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
-List-Post: <mailto:devel@linuxdriverproject.org>
-List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
-Errors-To: devel-bounces@linuxdriverproject.org
-Sender: devel-bounces@linuxdriverproject.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org
-Cc: Haiyang Zhang <haiyangz@microsoft.com>
+Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-In preparation for cleaning up how we manage reference counts on the stor
-device, clearly distinguish why we are attempting to acquire a reference.
+Introduce state to manage the lifecycle of net device.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- drivers/staging/hv/storvsc.c |    6 +++---
- 1 files changed, 3 insertions(+), 3 deletions(-)
+ drivers/staging/hv/hyperv_net.h |    1 +
+ drivers/staging/hv/netvsc.c     |    6 ++++++
+ 2 files changed, 7 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/staging/hv/storvsc.c b/drivers/staging/hv/storvsc.c
-index cd38cd6..89708b1 100644
---- a/drivers/staging/hv/storvsc.c
-+++ b/drivers/staging/hv/storvsc.c
-@@ -41,7 +41,7 @@ static inline struct storvsc_device *alloc_stor_device(struct hv_device *device)
- 		return NULL;
+diff --git a/drivers/staging/hv/hyperv_net.h b/drivers/staging/hv/hyperv_net.h
+index 5782fea..0b347c1 100644
+--- a/drivers/staging/hv/hyperv_net.h
++++ b/drivers/staging/hv/hyperv_net.h
+@@ -371,6 +371,7 @@ struct netvsc_device {
  
- 	/* Set to 2 to allow both inbound and outbound traffics */
--	/* (ie get_stor_device() and must_get_stor_device()) to proceed. */
-+	/* (ie get_stor_device() and get_in_stor_device()) to proceed. */
- 	atomic_cmpxchg(&stor_device->ref_count, 0, 2);
+ 	atomic_t refcnt;
+ 	atomic_t num_outstanding_sends;
++	bool destroy;
+ 	/*
+ 	 * List of free preallocated hv_netvsc_packet to represent receive
+ 	 * packet
+diff --git a/drivers/staging/hv/netvsc.c b/drivers/staging/hv/netvsc.c
+index 7722102..8eb4039 100644
+--- a/drivers/staging/hv/netvsc.c
++++ b/drivers/staging/hv/netvsc.c
+@@ -43,6 +43,7 @@ static struct netvsc_device *alloc_net_device(struct hv_device *device)
+ 	/* Set to 2 to allow both inbound and outbound traffic */
+ 	atomic_set(&net_device->refcnt, 2);
  
- 	init_waitqueue_head(&stor_device->waiting_to_drain);
-@@ -53,7 +53,7 @@ static inline struct storvsc_device *alloc_stor_device(struct hv_device *device)
++	net_device->destroy = false;
+ 	net_device->dev = device;
+ 	device->ext = net_device;
  
- 
- /* Get the stordevice object iff exists and its refcount > 0 */
--static inline struct storvsc_device *must_get_stor_device(
-+static inline struct storvsc_device *get_in_stor_device(
- 					struct hv_device *device)
+@@ -396,6 +397,7 @@ int netvsc_device_remove(struct hv_device *device)
  {
- 	struct storvsc_device *stor_device;
-@@ -305,7 +305,7 @@ static void storvsc_on_channel_callback(void *context)
- 	int ret;
+ 	struct netvsc_device *net_device;
+ 	struct hv_netvsc_packet *netvsc_packet, *pos;
++	unsigned long flags;
  
+ 	/* Stop outbound traffic ie sends and receives completions */
+ 	net_device = release_outbound_net_device(device);
+@@ -404,6 +406,10 @@ int netvsc_device_remove(struct hv_device *device)
+ 		return -ENODEV;
+ 	}
  
--	stor_device = must_get_stor_device(device);
-+	stor_device = get_in_stor_device(device);
- 	if (!stor_device)
- 		return;
- 
++	spin_lock_irqsave(&device->channel->inbound_lock, flags);
++	net_device->destroy = true;
++	spin_unlock_irqrestore(&device->channel->inbound_lock, flags);
++
+ 	/* Wait for all send completions */
+ 	while (atomic_read(&net_device->num_outstanding_sends)) {
+ 		dev_err(&device->device,
 -- 
 1.7.4.1
