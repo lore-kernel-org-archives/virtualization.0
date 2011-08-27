@@ -1,7 +1,7 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 26/46] Staging: hv: storvsc: Cleanup storvsc_drv.c after adding the contents of hyperv_storage.h
-Date: Sat, 27 Aug 2011 11:31:25 -0700
-Message-ID: <1314469905-7058-26-git-send-email-kys@microsoft.com>
+Subject: [PATCH 34/46] Staging: hv: vmbus: Properly deal with de-registering channel callback
+Date: Sat, 27 Aug 2011 11:31:33 -0700
+Message-ID: <1314469905-7058-34-git-send-email-kys@microsoft.com>
 References: <1314469874-7017-1-git-send-email-kys@microsoft.com>
  <1314469905-7058-1-git-send-email-kys@microsoft.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
@@ -11,135 +11,181 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Cleanup storvsc_drv.c after adding the contents of hyperv_storage.h.
+Ensure that we correctly handle racing invocations of the channel callback
+when the channel is being closed. We do this using the channel's inbound_lock.
+A side-effect of this strategy is that we avoid repeatedly picking up this lock
+as we drain the inbound ring-buffer.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- drivers/staging/hv/storvsc_drv.c |   62 ++++++++++++++++----------------------
- 1 files changed, 26 insertions(+), 36 deletions(-)
+ drivers/staging/hv/channel.c     |   20 +++++---------------
+ drivers/staging/hv/connection.c  |    3 +++
+ drivers/staging/hv/netvsc.c      |    3 ---
+ drivers/staging/hv/storvsc_drv.c |    3 ---
+ 4 files changed, 8 insertions(+), 21 deletions(-)
 
-diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
-index 4a95f8b..0bb4e0e 100644
---- a/drivers/staging/hv/storvsc_drv.c
-+++ b/drivers/staging/hv/storvsc_drv.c
-@@ -42,6 +42,12 @@
- 
- #include "hyperv.h"
- 
-+#define STORVSC_RING_BUFFER_SIZE			(20*PAGE_SIZE)
-+static int storvsc_ringbuffer_size = STORVSC_RING_BUFFER_SIZE;
-+
-+module_param(storvsc_ringbuffer_size, int, S_IRUGO);
-+MODULE_PARM_DESC(storvsc_ringbuffer_size, "Ring buffer size (bytes)");
-+
- /* to alert the user that structure sizes may be mismatched even though the */
- /* protocol versions match. */
- 
-@@ -214,8 +220,6 @@ struct vstor_packet {
- 
- 
- /* Defines */
--#define STORVSC_RING_BUFFER_SIZE			(20*PAGE_SIZE)
--#define BLKVSC_RING_BUFFER_SIZE				(20*PAGE_SIZE)
- 
- #define STORVSC_MAX_IO_REQUESTS				128
- 
-@@ -262,13 +266,6 @@ struct storvsc_device_info {
- 	unsigned char target_id;
- };
- 
--struct storvsc_major_info {
--	int major;
--	int index;
--	bool do_register;
--	char *devname;
--	char *diskname;
--};
- 
- /* A storvsc device is a device object that contains a vmbus channel */
- struct storvsc_device {
-@@ -294,6 +291,23 @@ struct storvsc_device {
- 	struct hv_storvsc_request reset_request;
- };
- 
-+struct hv_host_device {
-+	struct hv_device *dev;
-+	struct kmem_cache *request_pool;
-+	unsigned int port;
-+	unsigned char path;
-+	unsigned char target;
-+};
-+
-+struct storvsc_cmd_request {
-+	struct list_head entry;
-+	struct scsi_cmnd *cmd;
-+
-+	unsigned int bounce_sgl_count;
-+	struct scatterlist *bounce_sgl;
-+
-+	struct hv_storvsc_request request;
-+};
- 
- static inline struct storvsc_device *get_out_stor_device(
- 					struct hv_device *device)
-@@ -317,30 +331,6 @@ static inline void storvsc_wait_to_drain(struct storvsc_device *dev)
- 	dev->drain_notify = false;
- }
- 
--
--static int storvsc_ringbuffer_size = STORVSC_RING_BUFFER_SIZE;
--
--module_param(storvsc_ringbuffer_size, int, S_IRUGO);
--MODULE_PARM_DESC(storvsc_ringbuffer_size, "Ring buffer size (bytes)");
--
--struct hv_host_device {
--	struct hv_device *dev;
--	struct kmem_cache *request_pool;
--	unsigned int port;
--	unsigned char path;
--	unsigned char target;
--};
--
--struct storvsc_cmd_request {
--	struct list_head entry;
--	struct scsi_cmnd *cmd;
--
--	unsigned int bounce_sgl_count;
--	struct scatterlist *bounce_sgl;
--
--	struct hv_storvsc_request request;
--};
--
- static inline struct storvsc_device *alloc_stor_device(struct hv_device *device)
+diff --git a/drivers/staging/hv/channel.c b/drivers/staging/hv/channel.c
+index ac92c1f..b6f3d38 100644
+--- a/drivers/staging/hv/channel.c
++++ b/drivers/staging/hv/channel.c
+@@ -513,9 +513,12 @@ void vmbus_close(struct vmbus_channel *channel)
  {
- 	struct storvsc_device *stor_device;
-@@ -646,7 +636,7 @@ static int storvsc_connect_to_vsp(struct hv_device *device, u32 ring_size)
- 	return ret;
- }
+ 	struct vmbus_channel_close_channel *msg;
+ 	int ret;
++	unsigned long flags;
  
--int storvsc_dev_add(struct hv_device *device,
-+static int storvsc_dev_add(struct hv_device *device,
- 					void *additional_info)
- {
- 	struct storvsc_device *stor_device;
-@@ -681,7 +671,7 @@ int storvsc_dev_add(struct hv_device *device,
- 	return ret;
- }
+ 	/* Stop callback and cancel the timer asap */
++	spin_lock_irqsave(&channel->inbound_lock, flags);
+ 	channel->onchannel_callback = NULL;
++	spin_unlock_irqrestore(&channel->inbound_lock, flags);
  
--int storvsc_dev_remove(struct hv_device *device)
-+static int storvsc_dev_remove(struct hv_device *device)
- {
- 	struct storvsc_device *stor_device;
- 	unsigned long flags;
-@@ -718,7 +708,7 @@ int storvsc_dev_remove(struct hv_device *device)
+ 	/* Send a closing message */
+ 
+@@ -735,19 +738,15 @@ int vmbus_recvpacket(struct vmbus_channel *channel, void *buffer,
+ 	u32 packetlen;
+ 	u32 userlen;
+ 	int ret;
+-	unsigned long flags;
+ 
+ 	*buffer_actual_len = 0;
+ 	*requestid = 0;
+ 
+-	spin_lock_irqsave(&channel->inbound_lock, flags);
+ 
+ 	ret = hv_ringbuffer_peek(&channel->inbound, &desc,
+ 			     sizeof(struct vmpacket_descriptor));
+-	if (ret != 0) {
+-		spin_unlock_irqrestore(&channel->inbound_lock, flags);
++	if (ret != 0)
+ 		return 0;
+-	}
+ 
+ 	packetlen = desc.len8 << 3;
+ 	userlen = packetlen - (desc.offset8 << 3);
+@@ -755,7 +754,6 @@ int vmbus_recvpacket(struct vmbus_channel *channel, void *buffer,
+ 	*buffer_actual_len = userlen;
+ 
+ 	if (userlen > bufferlen) {
+-		spin_unlock_irqrestore(&channel->inbound_lock, flags);
+ 
+ 		pr_err("Buffer too small - got %d needs %d\n",
+ 			   bufferlen, userlen);
+@@ -768,7 +766,6 @@ int vmbus_recvpacket(struct vmbus_channel *channel, void *buffer,
+ 	ret = hv_ringbuffer_read(&channel->inbound, buffer, userlen,
+ 			     (desc.offset8 << 3));
+ 
+-	spin_unlock_irqrestore(&channel->inbound_lock, flags);
+ 
  	return 0;
  }
+@@ -785,19 +782,15 @@ int vmbus_recvpacket_raw(struct vmbus_channel *channel, void *buffer,
+ 	u32 packetlen;
+ 	u32 userlen;
+ 	int ret;
+-	unsigned long flags;
  
--int storvsc_do_io(struct hv_device *device,
-+static int storvsc_do_io(struct hv_device *device,
- 			      struct hv_storvsc_request *request)
+ 	*buffer_actual_len = 0;
+ 	*requestid = 0;
+ 
+-	spin_lock_irqsave(&channel->inbound_lock, flags);
+ 
+ 	ret = hv_ringbuffer_peek(&channel->inbound, &desc,
+ 			     sizeof(struct vmpacket_descriptor));
+-	if (ret != 0) {
+-		spin_unlock_irqrestore(&channel->inbound_lock, flags);
++	if (ret != 0)
+ 		return 0;
+-	}
+ 
+ 
+ 	packetlen = desc.len8 << 3;
+@@ -806,8 +799,6 @@ int vmbus_recvpacket_raw(struct vmbus_channel *channel, void *buffer,
+ 	*buffer_actual_len = packetlen;
+ 
+ 	if (packetlen > bufferlen) {
+-		spin_unlock_irqrestore(&channel->inbound_lock, flags);
+-
+ 		pr_err("Buffer too small - needed %d bytes but "
+ 			"got space for only %d bytes\n",
+ 			packetlen, bufferlen);
+@@ -819,7 +810,6 @@ int vmbus_recvpacket_raw(struct vmbus_channel *channel, void *buffer,
+ 	/* Copy over the entire packet to the user buffer */
+ 	ret = hv_ringbuffer_read(&channel->inbound, buffer, packetlen, 0);
+ 
+-	spin_unlock_irqrestore(&channel->inbound_lock, flags);
+ 	return 0;
+ }
+ EXPORT_SYMBOL_GPL(vmbus_recvpacket_raw);
+diff --git a/drivers/staging/hv/connection.c b/drivers/staging/hv/connection.c
+index 7a3ec75..6aab802 100644
+--- a/drivers/staging/hv/connection.c
++++ b/drivers/staging/hv/connection.c
+@@ -215,6 +215,7 @@ struct vmbus_channel *relid2channel(u32 relid)
+ static void process_chn_event(u32 relid)
+ {
+ 	struct vmbus_channel *channel;
++	unsigned long flags;
+ 
+ 	/*
+ 	 * Find the channel based on this relid and invokes the
+@@ -222,11 +223,13 @@ static void process_chn_event(u32 relid)
+ 	 */
+ 	channel = relid2channel(relid);
+ 
++	spin_lock_irqsave(&channel->inbound_lock, flags);
+ 	if (channel && (channel->onchannel_callback != NULL)) {
+ 		channel->onchannel_callback(channel->channel_callback_context);
+ 	} else {
+ 		pr_err("channel not found for relid - %u\n", relid);
+ 	}
++	spin_unlock_irqrestore(&channel->inbound_lock, flags);
+ }
+ 
+ /*
+diff --git a/drivers/staging/hv/netvsc.c b/drivers/staging/hv/netvsc.c
+index 9828f0b..e4cc40a 100644
+--- a/drivers/staging/hv/netvsc.c
++++ b/drivers/staging/hv/netvsc.c
+@@ -62,9 +62,7 @@ static struct netvsc_device *get_outbound_net_device(struct hv_device *device)
+ static struct netvsc_device *get_inbound_net_device(struct hv_device *device)
+ {
+ 	struct netvsc_device *net_device;
+-	unsigned long flags;
+ 
+-	spin_lock_irqsave(&device->channel->inbound_lock, flags);
+ 	net_device = device->ext;
+ 
+ 	if (!net_device)
+@@ -75,7 +73,6 @@ static struct netvsc_device *get_inbound_net_device(struct hv_device *device)
+ 		net_device = NULL;
+ 
+ get_in_err:
+-	spin_unlock_irqrestore(&device->channel->inbound_lock, flags);
+ 	return net_device;
+ }
+ 
+diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
+index d575bc9..3686d10 100644
+--- a/drivers/staging/hv/storvsc_drv.c
++++ b/drivers/staging/hv/storvsc_drv.c
+@@ -352,9 +352,7 @@ static inline struct storvsc_device *get_in_stor_device(
+ 					struct hv_device *device)
  {
  	struct storvsc_device *stor_device;
+-	unsigned long flags;
+ 
+-	spin_lock_irqsave(&device->channel->inbound_lock, flags);
+ 	stor_device = (struct storvsc_device *)device->ext;
+ 
+ 	if (!stor_device)
+@@ -370,7 +368,6 @@ static inline struct storvsc_device *get_in_stor_device(
+ 		stor_device = NULL;
+ 
+ get_in_err:
+-	spin_unlock_irqrestore(&device->channel->inbound_lock, flags);
+ 	return stor_device;
+ 
+ }
 -- 
 1.7.4.1
