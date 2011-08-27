@@ -1,8 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 06/46] Staging: hv: storvsc: Introduce state to manage the
-	lifecycle of stor device
-Date: Sat, 27 Aug 2011 11:31:05 -0700
-Message-ID: <1314469905-7058-6-git-send-email-kys@microsoft.com>
+Subject: [PATCH 11/46] Staging: hv: netvsc: Inline the code for
+	free_net_device()
+Date: Sat, 27 Aug 2011 11:31:10 -0700
+Message-ID: <1314469905-7058-11-git-send-email-kys@microsoft.com>
 References: <1314469874-7017-1-git-send-email-kys@microsoft.com>
 	<1314469905-7058-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -23,57 +23,50 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Introduce state to manage the lifecycle of stor device. This would be the
-basis for managing the references on the stor object.
+Inline the code for free_net_device().
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- drivers/staging/hv/hyperv_storage.h |    2 +-
- drivers/staging/hv/storvsc.c        |    8 +++++++-
- 2 files changed, 8 insertions(+), 2 deletions(-)
+ drivers/staging/hv/netvsc.c |   12 ++----------
+ 1 files changed, 2 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/staging/hv/hyperv_storage.h b/drivers/staging/hv/hyperv_storage.h
-index a224413..d93bf93 100644
---- a/drivers/staging/hv/hyperv_storage.h
-+++ b/drivers/staging/hv/hyperv_storage.h
-@@ -266,7 +266,7 @@ struct storvsc_device {
+diff --git a/drivers/staging/hv/netvsc.c b/drivers/staging/hv/netvsc.c
+index b6e1fb9..75c6ed7 100644
+--- a/drivers/staging/hv/netvsc.c
++++ b/drivers/staging/hv/netvsc.c
+@@ -49,14 +49,6 @@ static struct netvsc_device *alloc_net_device(struct hv_device *device)
+ 	return net_device;
+ }
  
- 	/* 0 indicates the device is being destroyed */
- 	atomic_t ref_count;
+-static void free_net_device(struct netvsc_device *device)
+-{
+-	WARN_ON(atomic_read(&device->refcnt) != 0);
+-	device->dev->ext = NULL;
+-	kfree(device);
+-}
 -
-+	bool	 destroy;
- 	bool	 drain_notify;
- 	atomic_t num_outstanding_req;
- 
-diff --git a/drivers/staging/hv/storvsc.c b/drivers/staging/hv/storvsc.c
-index 48bd8da..0f8c609 100644
---- a/drivers/staging/hv/storvsc.c
-+++ b/drivers/staging/hv/storvsc.c
-@@ -43,7 +43,7 @@ static inline struct storvsc_device *alloc_stor_device(struct hv_device *device)
- 	/* Set to 2 to allow both inbound and outbound traffics */
- 	/* (ie get_out_stor_device() and get_in_stor_device()) to proceed. */
- 	atomic_set(&stor_device->ref_count, 2);
 -
-+	stor_device->destroy = false;
- 	init_waitqueue_head(&stor_device->waiting_to_drain);
- 	stor_device->device = device;
- 	device->ext = stor_device;
-@@ -399,9 +399,15 @@ int storvsc_dev_add(struct hv_device *device,
- int storvsc_dev_remove(struct hv_device *device)
+ /* Get the net device object iff exists and its refcount > 1 */
+ static struct netvsc_device *get_outbound_net_device(struct hv_device *device)
  {
- 	struct storvsc_device *stor_device;
-+	unsigned long flags;
-+
+@@ -438,7 +430,7 @@ int netvsc_device_remove(struct hv_device *device)
+ 		kfree(netvsc_packet);
+ 	}
  
- 	stor_device = release_stor_device(device);
+-	free_net_device(net_device);
++	kfree(net_device);
+ 	return 0;
+ }
  
-+	spin_lock_irqsave(&device->channel->inbound_lock, flags);
-+	stor_device->destroy = true;
-+	spin_unlock_irqrestore(&device->channel->inbound_lock, flags);
-+
- 	/*
- 	 * At this point, all outbound traffic should be disable. We
- 	 * only allow inbound traffic (responses) to proceed so that
+@@ -980,7 +972,7 @@ cleanup:
+ 		release_outbound_net_device(device);
+ 		release_inbound_net_device(device);
+ 
+-		free_net_device(net_device);
++		kfree(net_device);
+ 	}
+ 
+ 	return ret;
 -- 
 1.7.4.1
