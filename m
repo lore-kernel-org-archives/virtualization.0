@@ -1,8 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 09/46] Staging: hv: storvsc: Get rid of
-	final_release_stor_device() by inlining code
-Date: Sat, 27 Aug 2011 11:31:08 -0700
-Message-ID: <1314469905-7058-9-git-send-email-kys@microsoft.com>
+Subject: [PATCH 02/46] Staging: hv: storvsc: Do not aquire an unnecessary
+	reference on stor_device
+Date: Sat, 27 Aug 2011 11:31:01 -0700
+Message-ID: <1314469905-7058-2-git-send-email-kys@microsoft.com>
 References: <1314469874-7017-1-git-send-email-kys@microsoft.com>
 	<1314469905-7058-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -23,54 +23,37 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Get rid of final_release_stor_device() by inlining code.
+On entry into storvsc_on_io_completion() we have already acquired a reference
+on the stor_device; there is no need to acquire an additional reference here.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- drivers/staging/hv/storvsc.c |   23 ++++++-----------------
- 1 files changed, 6 insertions(+), 17 deletions(-)
+ drivers/staging/hv/storvsc.c |    5 +----
+ 1 files changed, 1 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/staging/hv/storvsc.c b/drivers/staging/hv/storvsc.c
-index 1976a34..3e9829f 100644
+index 8c62829..cd38cd6 100644
 --- a/drivers/staging/hv/storvsc.c
 +++ b/drivers/staging/hv/storvsc.c
-@@ -67,22 +67,6 @@ static inline struct storvsc_device *get_in_stor_device(
- 	return stor_device;
+@@ -232,9 +232,7 @@ static void storvsc_on_io_completion(struct hv_device *device,
+ 	struct storvsc_device *stor_device;
+ 	struct vstor_packet *stor_pkt;
+ 
+-	stor_device = must_get_stor_device(device);
+-	if (!stor_device)
+-		return;
++	stor_device = (struct storvsc_device *)device->ext;
+ 
+ 	stor_pkt = &request->vstor_packet;
+ 
+@@ -279,7 +277,6 @@ static void storvsc_on_io_completion(struct hv_device *device,
+ 		wake_up(&stor_device->waiting_to_drain);
+ 
+ 
+-	put_stor_device(device);
  }
  
--/* Drop ref count to 0. No one can use stor_device object. */
--static inline struct storvsc_device *final_release_stor_device(
--			struct hv_device *device)
--{
--	struct storvsc_device *stor_device;
--
--	stor_device = (struct storvsc_device *)device->ext;
--
--	/* Busy wait until the ref drop to 1, then set it to 0 */
--	while (atomic_cmpxchg(&stor_device->ref_count, 1, 0) != 1)
--		udelay(100);
--
--	device->ext = NULL;
--	return stor_device;
--}
--
- static int storvsc_channel_init(struct hv_device *device)
- {
- 	struct storvsc_device *stor_device;
-@@ -401,7 +385,12 @@ int storvsc_dev_remove(struct hv_device *device)
- 
- 	storvsc_wait_to_drain(stor_device);
- 
--	stor_device = final_release_stor_device(device);
-+	/*
-+	 * Since we have already drained, we don't need to busy wait
-+	 * as was done in final_release_stor_device()
-+	 */
-+	atomic_set(&stor_device->ref_count, 0);
-+	device->ext = NULL;
- 
- 	/* Close the channel */
- 	vmbus_close(device->channel);
+ static void storvsc_on_receive(struct hv_device *device,
 -- 
 1.7.4.1
