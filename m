@@ -1,8 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 11/46] Staging: hv: netvsc: Inline the code for
-	free_net_device()
-Date: Sat, 27 Aug 2011 11:31:10 -0700
-Message-ID: <1314469905-7058-11-git-send-email-kys@microsoft.com>
+Subject: [PATCH 43/46] Staging: hv: vmbus: Fix a checkpatch warning in
+	ring_buffer.c
+Date: Sat, 27 Aug 2011 11:31:42 -0700
+Message-ID: <1314469905-7058-43-git-send-email-kys@microsoft.com>
 References: <1314469874-7017-1-git-send-email-kys@microsoft.com>
 	<1314469905-7058-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -23,50 +23,27 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Inline the code for free_net_device().
+Fix a checkpatch warning in ring_buffer.c
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- drivers/staging/hv/netvsc.c |   12 ++----------
- 1 files changed, 2 insertions(+), 10 deletions(-)
+ drivers/staging/hv/ring_buffer.c |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/staging/hv/netvsc.c b/drivers/staging/hv/netvsc.c
-index b6e1fb9..75c6ed7 100644
---- a/drivers/staging/hv/netvsc.c
-+++ b/drivers/staging/hv/netvsc.c
-@@ -49,14 +49,6 @@ static struct netvsc_device *alloc_net_device(struct hv_device *device)
- 	return net_device;
- }
+diff --git a/drivers/staging/hv/ring_buffer.c b/drivers/staging/hv/ring_buffer.c
+index 9212699..70e2e66 100644
+--- a/drivers/staging/hv/ring_buffer.c
++++ b/drivers/staging/hv/ring_buffer.c
+@@ -34,7 +34,8 @@
  
--static void free_net_device(struct netvsc_device *device)
--{
--	WARN_ON(atomic_read(&device->refcnt) != 0);
--	device->dev->ext = NULL;
--	kfree(device);
--}
--
--
- /* Get the net device object iff exists and its refcount > 1 */
- static struct netvsc_device *get_outbound_net_device(struct hv_device *device)
- {
-@@ -438,7 +430,7 @@ int netvsc_device_remove(struct hv_device *device)
- 		kfree(netvsc_packet);
- 	}
  
--	free_net_device(net_device);
-+	kfree(net_device);
- 	return 0;
- }
+ /* Amount of space to write to */
+-#define BYTES_AVAIL_TO_WRITE(r, w, z) ((w) >= (r)) ? ((z) - ((w) - (r))) : ((r) - (w))
++#define BYTES_AVAIL_TO_WRITE(r, w, z) \
++	((w) >= (r)) ? ((z) - ((w) - (r))) : ((r) - (w))
  
-@@ -980,7 +972,7 @@ cleanup:
- 		release_outbound_net_device(device);
- 		release_inbound_net_device(device);
  
--		free_net_device(net_device);
-+		kfree(net_device);
- 	}
- 
- 	return ret;
+ /*
 -- 
 1.7.4.1
