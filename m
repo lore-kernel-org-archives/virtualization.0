@@ -1,7 +1,7 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 12/46] Staging: hv: netvsc: Cleanup alloc_net_device()
-Date: Sat, 27 Aug 2011 11:31:11 -0700
-Message-ID: <1314469905-7058-12-git-send-email-kys@microsoft.com>
+Subject: [PATCH 05/46] Staging: hv: storvsc: Cleanup alloc_stor_device()
+Date: Sat, 27 Aug 2011 11:31:04 -0700
+Message-ID: <1314469905-7058-5-git-send-email-kys@microsoft.com>
 References: <1314469874-7017-1-git-send-email-kys@microsoft.com>
 	<1314469905-7058-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -22,26 +22,26 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Cleanup alloc_net_device(); we can directly set the refcnt.
+Cleanup alloc_stor_device(), we can set the ref_count directly.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- drivers/staging/hv/netvsc.c |    2 +-
+ drivers/staging/hv/storvsc.c |    2 +-
  1 files changed, 1 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/staging/hv/netvsc.c b/drivers/staging/hv/netvsc.c
-index 75c6ed7..7722102 100644
---- a/drivers/staging/hv/netvsc.c
-+++ b/drivers/staging/hv/netvsc.c
-@@ -41,7 +41,7 @@ static struct netvsc_device *alloc_net_device(struct hv_device *device)
- 		return NULL;
+diff --git a/drivers/staging/hv/storvsc.c b/drivers/staging/hv/storvsc.c
+index 313a3f8..48bd8da 100644
+--- a/drivers/staging/hv/storvsc.c
++++ b/drivers/staging/hv/storvsc.c
+@@ -42,7 +42,7 @@ static inline struct storvsc_device *alloc_stor_device(struct hv_device *device)
  
- 	/* Set to 2 to allow both inbound and outbound traffic */
--	atomic_cmpxchg(&net_device->refcnt, 0, 2);
-+	atomic_set(&net_device->refcnt, 2);
+ 	/* Set to 2 to allow both inbound and outbound traffics */
+ 	/* (ie get_out_stor_device() and get_in_stor_device()) to proceed. */
+-	atomic_cmpxchg(&stor_device->ref_count, 0, 2);
++	atomic_set(&stor_device->ref_count, 2);
  
- 	net_device->dev = device;
- 	device->ext = net_device;
+ 	init_waitqueue_head(&stor_device->waiting_to_drain);
+ 	stor_device->device = device;
 -- 
 1.7.4.1
