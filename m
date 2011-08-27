@@ -1,8 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 10/46] Staging: hv: storvsc: Get rid of the reference counting
-	in struct storvsc_device
-Date: Sat, 27 Aug 2011 11:31:09 -0700
-Message-ID: <1314469905-7058-10-git-send-email-kys@microsoft.com>
+Subject: [PATCH 41/46] Staging: hv: vmbus: Fix a bug in error handling in
+	vmbus_bus_init()
+Date: Sat, 27 Aug 2011 11:31:40 -0700
+Message-ID: <1314469905-7058-41-git-send-email-kys@microsoft.com>
 References: <1314469874-7017-1-git-send-email-kys@microsoft.com>
 	<1314469905-7058-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -23,177 +23,63 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Get rid of the reference counting in struct storvsc_device. We manage the lifecycle with 
-the following logic: If the device is marked for destruction, we dot allow any
-outgoing traffic on the device. Incoming traffic is allowed only to drain pending
-outgoing traffic. Note that while the upper level code in Linux deals with outstanding
-I/Os, we may have situations on Hyper-V where some book keeping messages are sent out
-that the upper level Linux code may not be aware of.
+Fix a bug in error handling in vmbus_bus_init().
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- drivers/staging/hv/hyperv_storage.h |   18 ++----------------
- drivers/staging/hv/storvsc.c        |   33 +++++++++++++++++++++------------
- drivers/staging/hv/storvsc_drv.c    |    1 -
- 3 files changed, 23 insertions(+), 29 deletions(-)
+ drivers/staging/hv/vmbus_drv.c |   21 ++++++++++-----------
+ 1 files changed, 10 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/staging/hv/hyperv_storage.h b/drivers/staging/hv/hyperv_storage.h
-index 1a59ca0..687cdc5 100644
---- a/drivers/staging/hv/hyperv_storage.h
-+++ b/drivers/staging/hv/hyperv_storage.h
-@@ -264,8 +264,6 @@ struct storvsc_major_info {
- struct storvsc_device {
- 	struct hv_device *device;
+diff --git a/drivers/staging/hv/vmbus_drv.c b/drivers/staging/hv/vmbus_drv.c
+index 02edb11..4d1b123 100644
+--- a/drivers/staging/hv/vmbus_drv.c
++++ b/drivers/staging/hv/vmbus_drv.c
+@@ -492,7 +492,7 @@ static int vmbus_bus_init(int irq)
  
--	/* 0 indicates the device is being destroyed */
--	atomic_t ref_count;
- 	bool	 destroy;
- 	bool	 drain_notify;
- 	atomic_t num_outstanding_req;
-@@ -287,32 +285,20 @@ struct storvsc_device {
- };
+ 	ret = bus_register(&hv_bus);
+ 	if (ret)
+-		return ret;
++		goto err1;
  
- 
--/* Get the stordevice object iff exists and its refcount > 1 */
- static inline struct storvsc_device *get_out_stor_device(
- 					struct hv_device *device)
- {
- 	struct storvsc_device *stor_device;
- 
- 	stor_device = (struct storvsc_device *)device->ext;
--	if (stor_device && (atomic_read(&stor_device->ref_count) > 1) &&
--		!stor_device->destroy)
--		atomic_inc(&stor_device->ref_count);
--	else
-+
-+	if (stor_device && stor_device->destroy)
- 		stor_device = NULL;
- 
- 	return stor_device;
- }
- 
- 
--static inline void put_stor_device(struct hv_device *device)
--{
--	struct storvsc_device *stor_device;
+ 	ret = request_irq(irq, vmbus_isr, IRQF_SAMPLE_RANDOM,
+ 			driver_name, hv_acpi_dev);
+@@ -500,10 +500,7 @@ static int vmbus_bus_init(int irq)
+ 	if (ret != 0) {
+ 		pr_err("Unable to request IRQ %d\n",
+ 			   irq);
 -
--	stor_device = (struct storvsc_device *)device->ext;
+-		bus_unregister(&hv_bus);
 -
--	atomic_dec(&stor_device->ref_count);
--}
--
- static inline void storvsc_wait_to_drain(struct storvsc_device *dev)
- {
- 	dev->drain_notify = true;
-diff --git a/drivers/staging/hv/storvsc.c b/drivers/staging/hv/storvsc.c
-index 3e9829f..fb7b3ca 100644
---- a/drivers/staging/hv/storvsc.c
-+++ b/drivers/staging/hv/storvsc.c
-@@ -40,9 +40,6 @@ static inline struct storvsc_device *alloc_stor_device(struct hv_device *device)
- 	if (!stor_device)
- 		return NULL;
+-		return ret;
++		goto err2;
+ 	}
  
--	/* Set to 2 to allow both inbound and outbound traffics */
--	/* (ie get_out_stor_device() and get_in_stor_device()) to proceed. */
--	atomic_set(&stor_device->ref_count, 2);
- 	stor_device->destroy = false;
- 	init_waitqueue_head(&stor_device->waiting_to_drain);
- 	stor_device->device = device;
-@@ -52,19 +49,31 @@ static inline struct storvsc_device *alloc_stor_device(struct hv_device *device)
- }
- 
- 
--/* Get the stordevice object iff exists and its refcount > 0 */
- static inline struct storvsc_device *get_in_stor_device(
- 					struct hv_device *device)
- {
- 	struct storvsc_device *stor_device;
-+	unsigned long flags;
- 
-+	spin_lock_irqsave(&device->channel->inbound_lock, flags);
- 	stor_device = (struct storvsc_device *)device->ext;
--	if (stor_device && atomic_read(&stor_device->ref_count))
--		atomic_inc(&stor_device->ref_count);
--	else
-+
-+	if (!stor_device)
-+		goto get_in_err;
-+
-+	/*
-+	 * If the device is being destroyed; allow incoming
-+	 * traffic only to cleanup outstanding requests.
-+	 */
-+
-+	if (stor_device->destroy  &&
-+		(atomic_read(&stor_device->num_outstanding_req) == 0))
- 		stor_device = NULL;
- 
-+get_in_err:
-+	spin_unlock_irqrestore(&device->channel->inbound_lock, flags);
- 	return stor_device;
-+
- }
- 
- static int storvsc_channel_init(struct hv_device *device)
-@@ -190,7 +199,6 @@ static int storvsc_channel_init(struct hv_device *device)
- 
- 
- cleanup:
--	put_stor_device(device);
- 	return ret;
- }
- 
-@@ -303,7 +311,6 @@ static void storvsc_on_channel_callback(void *context)
- 		}
- 	} while (1);
- 
--	put_stor_device(device);
- 	return;
- }
- 
-@@ -371,7 +378,6 @@ int storvsc_dev_remove(struct hv_device *device)
- 	unsigned long flags;
- 
- 	stor_device = (struct storvsc_device *)device->ext;
--	atomic_dec(&stor_device->ref_count);
- 
- 	spin_lock_irqsave(&device->channel->inbound_lock, flags);
- 	stor_device->destroy = true;
-@@ -388,9 +394,13 @@ int storvsc_dev_remove(struct hv_device *device)
- 	/*
- 	 * Since we have already drained, we don't need to busy wait
- 	 * as was done in final_release_stor_device()
-+	 * Note that we cannot set the ext pointer to NULL until
-+	 * we have drained - to drain the outgoing packets, we need to
-+	 * allow incoming packets.
+ 	vector = IRQ0_VECTOR + irq;
+@@ -514,16 +511,18 @@ static int vmbus_bus_init(int irq)
  	 */
--	atomic_set(&stor_device->ref_count, 0);
-+	spin_lock_irqsave(&device->channel->inbound_lock, flags);
- 	device->ext = NULL;
-+	spin_unlock_irqrestore(&device->channel->inbound_lock, flags);
+ 	on_each_cpu(hv_synic_init, (void *)&vector, 1);
+ 	ret = vmbus_connect();
+-	if (ret) {
+-		free_irq(irq, hv_acpi_dev);
+-		bus_unregister(&hv_bus);
+-		return ret;
+-	}
+-
++	if (ret)
++		goto err3;
  
- 	/* Close the channel */
- 	vmbus_close(device->channel);
-@@ -448,7 +458,6 @@ int storvsc_do_io(struct hv_device *device,
+ 	vmbus_request_offers();
  
- 	atomic_inc(&stor_device->num_outstanding_req);
- 
--	put_stor_device(device);
- 	return ret;
+ 	return 0;
++
++err3:	free_irq(irq, hv_acpi_dev);
++err2:	bus_unregister(&hv_bus);
++err1:	hv_cleanup();
++
++	return ret;
  }
  
-diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
-index 5b2004f..ae74f50 100644
---- a/drivers/staging/hv/storvsc_drv.c
-+++ b/drivers/staging/hv/storvsc_drv.c
-@@ -378,7 +378,6 @@ static int storvsc_host_reset(struct hv_device *device)
- 	 */
- 
- cleanup:
--	put_stor_device(device);
- 	return ret;
- }
- 
+ /**
 -- 
 1.7.4.1
