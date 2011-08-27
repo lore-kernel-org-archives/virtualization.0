@@ -1,7 +1,7 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 13/46] Staging: hv: netvsc: Introduce state to manage the lifecycle of net device
-Date: Sat, 27 Aug 2011 11:31:12 -0700
-Message-ID: <1314469905-7058-13-git-send-email-kys@microsoft.com>
+Subject: [PATCH 19/46]  Staging: hv: storvsc: Handle IDE devices using the storvsc driver
+Date: Sat, 27 Aug 2011 11:31:18 -0700
+Message-ID: <1314469905-7058-19-git-send-email-kys@microsoft.com>
 References: <1314469874-7017-1-git-send-email-kys@microsoft.com>
  <1314469905-7058-1-git-send-email-kys@microsoft.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
@@ -11,57 +11,101 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Introduce state to manage the lifecycle of net device.
+Now, enable handling of all IDE devices by extending the storvsc
+device id table to handle IDE guid. As part of this cleanup Kconfig
+and Hyper-V Makefile to not build the IDE driver (blkvsc).
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- drivers/staging/hv/hyperv_net.h |    1 +
- drivers/staging/hv/netvsc.c     |    6 ++++++
- 2 files changed, 7 insertions(+), 0 deletions(-)
+ drivers/staging/hv/Kconfig       |    7 -------
+ drivers/staging/hv/Makefile      |    2 --
+ drivers/staging/hv/storvsc_drv.c |   21 ++++++++-------------
+ 3 files changed, 8 insertions(+), 22 deletions(-)
 
-diff --git a/drivers/staging/hv/hyperv_net.h b/drivers/staging/hv/hyperv_net.h
-index 5782fea..0b347c1 100644
---- a/drivers/staging/hv/hyperv_net.h
-+++ b/drivers/staging/hv/hyperv_net.h
-@@ -371,6 +371,7 @@ struct netvsc_device {
+diff --git a/drivers/staging/hv/Kconfig b/drivers/staging/hv/Kconfig
+index 5e0c9f6..26b5064 100644
+--- a/drivers/staging/hv/Kconfig
++++ b/drivers/staging/hv/Kconfig
+@@ -15,13 +15,6 @@ config HYPERV_STORAGE
+ 	help
+ 	 Select this option to enable the Hyper-V virtual storage driver.
  
- 	atomic_t refcnt;
- 	atomic_t num_outstanding_sends;
-+	bool destroy;
- 	/*
- 	 * List of free preallocated hv_netvsc_packet to represent receive
- 	 * packet
-diff --git a/drivers/staging/hv/netvsc.c b/drivers/staging/hv/netvsc.c
-index 7722102..8eb4039 100644
---- a/drivers/staging/hv/netvsc.c
-+++ b/drivers/staging/hv/netvsc.c
-@@ -43,6 +43,7 @@ static struct netvsc_device *alloc_net_device(struct hv_device *device)
- 	/* Set to 2 to allow both inbound and outbound traffic */
- 	atomic_set(&net_device->refcnt, 2);
+-config HYPERV_BLOCK
+-	tristate "Microsoft Hyper-V virtual block driver"
+-	depends on BLOCK && SCSI && (LBDAF || 64BIT)
+-	default HYPERV
+-	help
+-	  Select this option to enable the Hyper-V virtual block driver.
+-
+ config HYPERV_NET
+ 	tristate "Microsoft Hyper-V virtual network driver"
+ 	depends on NET
+diff --git a/drivers/staging/hv/Makefile b/drivers/staging/hv/Makefile
+index 3004674..bb89437 100644
+--- a/drivers/staging/hv/Makefile
++++ b/drivers/staging/hv/Makefile
+@@ -1,6 +1,5 @@
+ obj-$(CONFIG_HYPERV)		+= hv_vmbus.o hv_timesource.o
+ obj-$(CONFIG_HYPERV_STORAGE)	+= hv_storvsc.o
+-obj-$(CONFIG_HYPERV_BLOCK)	+= hv_blkvsc.o
+ obj-$(CONFIG_HYPERV_NET)	+= hv_netvsc.o
+ obj-$(CONFIG_HYPERV_UTILS)	+= hv_utils.o
+ obj-$(CONFIG_HYPERV_MOUSE)	+= hv_mouse.o
+@@ -9,6 +8,5 @@ hv_vmbus-y := vmbus_drv.o \
+ 		 hv.o connection.o channel.o \
+ 		 channel_mgmt.o ring_buffer.o
+ hv_storvsc-y := storvsc_drv.o storvsc.o
+-hv_blkvsc-y := blkvsc_drv.o  storvsc.o
+ hv_netvsc-y := netvsc_drv.o netvsc.o rndis_filter.o
+ hv_utils-y := hv_util.o hv_kvp.o
+diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
+index f434200..9464f99 100644
+--- a/drivers/staging/hv/storvsc_drv.c
++++ b/drivers/staging/hv/storvsc_drv.c
+@@ -645,27 +645,22 @@ static struct scsi_host_template scsi_driver = {
+ 	.dma_boundary =		PAGE_SIZE-1,
+ };
  
-+	net_device->destroy = false;
- 	net_device->dev = device;
- 	device->ext = net_device;
++/*
++ * The storvsc_probe function assumes that the IDE guid
++ * is the second entry.
++ */
+ static const struct hv_vmbus_device_id id_table[] = {
+ 	/* SCSI guid */
+ 	{ VMBUS_DEVICE(0xd9, 0x63, 0x61, 0xba, 0xa1, 0x04, 0x29, 0x4d,
+ 		       0xb6, 0x05, 0x72, 0xe2, 0xff, 0xb1, 0xdc, 0x7f) },
++	/* IDE guid */
++	{ VMBUS_DEVICE(0x32, 0x26, 0x41, 0x32, 0xcb, 0x86, 0xa2, 0x44,
++		       0x9b, 0x5c, 0x50, 0xd1, 0x41, 0x73, 0x54, 0xf5) },
+ 	{ },
+ };
  
-@@ -396,6 +397,7 @@ int netvsc_device_remove(struct hv_device *device)
- {
- 	struct netvsc_device *net_device;
- 	struct hv_netvsc_packet *netvsc_packet, *pos;
-+	unsigned long flags;
+ MODULE_DEVICE_TABLE(vmbus, id_table);
  
- 	/* Stop outbound traffic ie sends and receives completions */
- 	net_device = release_outbound_net_device(device);
-@@ -404,6 +406,10 @@ int netvsc_device_remove(struct hv_device *device)
- 		return -ENODEV;
- 	}
+-/*
+- * This declaration is temporary; once we get the
+- * infrastructure in place, we will integrate with
+- * id_table.
+- */
+-
+-static const uuid_le ide_blk_guid = {
+-	.b = {
+-		0x32, 0x26, 0x41, 0x32, 0xcb, 0x86, 0xa2, 0x44,
+-		0x9b, 0x5c, 0x50, 0xd1, 0x41, 0x73, 0x54, 0xf5
+-	}
+-};
  
-+	spin_lock_irqsave(&device->channel->inbound_lock, flags);
-+	net_device->destroy = true;
-+	spin_unlock_irqrestore(&device->channel->inbound_lock, flags);
-+
- 	/* Wait for all send completions */
- 	while (atomic_read(&net_device->num_outstanding_sends)) {
- 		dev_err(&device->device,
+ /*
+  * storvsc_probe - Add a new device for this driver
+@@ -681,7 +676,7 @@ static int storvsc_probe(struct hv_device *device)
+ 	int path = 0;
+ 	int target = 0;
+ 
+-	if (!uuid_le_cmp(device->dev_type, ide_blk_guid))
++	if (!memcmp(&device->dev_type.b, id_table[1].guid, sizeof(uuid_le)))
+ 		dev_is_ide = true;
+ 	else
+ 		dev_is_ide = false;
 -- 
 1.7.4.1
