@@ -1,16 +1,16 @@
-From: Joe Perches <joe@perches.com>
-Subject: Re: [PATCH 44/46] Staging: hv: vmbus: Fix checkpatch warnings in
-	connection.c
-Date: Sat, 27 Aug 2011 23:56:52 -0700
-Message-ID: <1314514612.6852.11.camel@Joe-Laptop>
-References: <1314469874-7017-1-git-send-email-kys@microsoft.com>
-	<1314469905-7058-1-git-send-email-kys@microsoft.com>
-	<1314469905-7058-44-git-send-email-kys@microsoft.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH] virtio: fix size computation according to the definition
+	of struct vring_used in vring_size
+Date: Sun, 28 Aug 2011 14:31:32 +0300
+Message-ID: <20110828113132.GB4875__46925.5034732216$1314531104$gmane$org@redhat.com>
+References: <4E584365.1010806@gmail.com> <1314413399.1913.1.camel@Allen>
+	<4E58BA41.6050503@gmail.com> <4E58BE42.8030700@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1314469905-7058-44-git-send-email-kys@microsoft.com>
+Content-Disposition: inline
+In-Reply-To: <4E58BE42.8030700@gmail.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,21 +20,65 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "K. Y. Srinivasan" <kys@microsoft.com>
-Cc: devel@linuxdriverproject.org, Haiyang Zhang <haiyangz@microsoft.com>, gregkh@suse.de, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org
+To: Wang Sheng-Hui <shhuiw@gmail.com>
+Cc: wanlong.gao@gmail.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sat, 2011-08-27 at 11:31 -0700, K. Y. Srinivasan wrote:
-> Fix checkpatch warnings in connection.c.
-[]
-> diff --git a/drivers/staging/hv/connection.c b/drivers/staging/hv/connection.c
-[]
-> @@ -220,11 +220,11 @@ static void process_chn_event(u32 relid)
->  	channel = relid2channel(relid);
->  
->  	spin_lock_irqsave(&channel->inbound_lock, flags);
-> -	if (channel && (channel->onchannel_callback != NULL)) {
-> +	if (channel && (channel->onchannel_callback != NULL))
-
-Useless test for channel or bad placement for spin_lock.
-channel has already been dereferenced by the spin_lock.
+T24gU2F0LCBBdWcgMjcsIDIwMTEgYXQgMDU6NTI6MDJQTSArMDgwMCwgV2FuZyBTaGVuZy1IdWkg
+d3JvdGU6Cj4gT24gMjAxMeW5tDA45pyIMjfml6UgMTc6MzQsIFdhbmcgU2hlbmctSHVpIHdyb3Rl
+Ogo+ID4gT24gMjAxMeW5tDA45pyIMjfml6UgMTA6NDksIFdhbmxvbmcgR2FvIHdyb3RlOgo+ID4+
+IE9uIFNhdCwgMjAxMS0wOC0yNyBhdCAwOTowNyArMDgwMCwgV2FuZyBTaGVuZy1IdWkgd3JvdGU6
+Cj4gPj4+IFRoZSBwYXRjaCBpcyBhZ2FpbnN0IDMuMS1yYzMuCj4gPj4+Cj4gPj4+IHN0cnVjdCB2
+cmluZ191c2VkIGhhcyB0d28gX191MTYgZmllbGRzIHBsdXMgYXJyYXkgb2Ygc3RydWN0IHZyaW5n
+X3VzZWRfZWxlbS4KPiA+Pj4gQ3VycmVudCB2cmluZ19zaXplIGNvdW50cyB0aGUgX191MTYgZmll
+bGRzIHRvIDMuIEZpeCBpdCB0byAyIGluIHRoZSBwYXRjaC4KPiA+Pj4KPiA+Pj4gU2lnbmVkLW9m
+Zi1ieTogV2FuZyBTaGVuZy1IdWkgPHNoaHVpd0BnbWFpbC5jb20+Cj4gPj4+IC0tLQo+ID4+PiAg
+aW5jbHVkZS9saW51eC92aXJ0aW9fcmluZy5oIHwgICAgMiArLQo+ID4+PiAgMSBmaWxlcyBjaGFu
+Z2VkLCAxIGluc2VydGlvbnMoKyksIDEgZGVsZXRpb25zKC0pCj4gPj4+Cj4gPj4+IGRpZmYgLS1n
+aXQgYS9pbmNsdWRlL2xpbnV4L3ZpcnRpb19yaW5nLmggYi9pbmNsdWRlL2xpbnV4L3ZpcnRpb19y
+aW5nLmgKPiA+Pj4gaW5kZXggNGEzMmNiNi4uZmNkYTE1MiAxMDA2NDQKPiA+Pj4gLS0tIGEvaW5j
+bHVkZS9saW51eC92aXJ0aW9fcmluZy5oCj4gPj4+ICsrKyBiL2luY2x1ZGUvbGludXgvdmlydGlv
+X3JpbmcuaAo+ID4+PiBAQCAtMTQzLDcgKzE0Myw3IEBAIHN0YXRpYyBpbmxpbmUgdW5zaWduZWQg
+dnJpbmdfc2l6ZSh1bnNpZ25lZCBpbnQgbnVtLCB1bnNpZ25lZCBsb25nIGFsaWduKQo+ID4+PiAg
+ewo+ID4+PiAgCXJldHVybiAoKHNpemVvZihzdHJ1Y3QgdnJpbmdfZGVzYykgKiBudW0gKyBzaXpl
+b2YoX191MTYpICogKDIgKyBudW0pCj4gPj4+ICAJCSArIGFsaWduIC0gMSkgJiB+KGFsaWduIC0g
+MSkpCj4gPj4+IC0JCSsgc2l6ZW9mKF9fdTE2KSAqIDMgKyBzaXplb2Yoc3RydWN0IHZyaW5nX3Vz
+ZWRfZWxlbSkgKiBudW07Cj4gPj4+ICsJCSsgc2l6ZW9mKF9fdTE2KSAqIDIgKyBzaXplb2Yoc3Ry
+dWN0IHZyaW5nX3VzZWRfZWxlbSkgKiBudW07Cj4gPj4+ICB9Cj4gPj4+ICAKPiA+Pj4gIC8qIFRo
+ZSBmb2xsb3dpbmcgaXMgdXNlZCB3aXRoIFVTRURfRVZFTlRfSURYIGFuZCBBVkFJTF9FVkVOVF9J
+RFggKi8KPiA+Pgo+ID4+IEhpOgo+ID4+IEknbSBub3QgZGVlcCBpbnRvIGl0LCBidXQgSSB0aGlu
+ayB5b3UgY2FuIHNlZSB0aGlzOgo+ID4+IGh0dHA6Ly9tYXJjLmluZm8vP2w9Z2l0LWNvbW1pdHMt
+aGVhZCZtPTEzMDY4NzkxNTgxNjEzMCZ3PTIKPiA+Pgo+ID4+IFRoYW5rcwo+ID4+IC1XYW5sb25n
+IEdhbwo+ID4+Cj4gPiAKPiA+IFRoYW5rcy4KPiA+IAo+ID4gSSBjaGVja2VkIHRoZSBjb21tZW50
+cywgYW5kIHRoaW5rIHdlIHNob3VsZCBwYXRjaCB2cmluZ19pbml0Cj4gPiBhbmQgdnJpbmdfc2l6
+ZSBhY2NvcmRpbmcgdG8gdGhlIGxheW91dCBkZXNjcmlwdGlvbiBpbiB0aGUgY29tbWVudHMuCj4g
+PiBSaWdodD8KPiAKPiBOZXcgcGF0Y2ggZ2VuZXJhdGVkLiBQbGVhc2UgY2hlY2sgaXQuIFRoYW5r
+cywKCgo+IFtQQVRDSF0gdmlydGlvOiBtb2RpZnkgdnJpbmdfaW5pdCBhbmQgdnJpbmdfc2l6ZSB0
+byB0YWtlIGFjY291bnQgb2YgdGhlIGxheW91dCBjb250YWluaW5nICpfZXZlbnRfaWR4Cj4gCj4g
+VGhlIHBhdGNoIGlzIGFnYWluc3QgMy4xLXJjMy4KPiAKPiBCYXNlZCBvbiB0aGUgbGF5b3V0IGRl
+c2NyaXB0aW9uIGluIHRoZSBjb21tZW50cywgdGFrZSBhY2NvdW50IG9mCj4gdGhlICpfZXZlbnRf
+aWR4IGluIGZ1bmN0aW9ucyB2cmluZ19pbml0IGFuZCB2cmluZ19zaXplLgo+IAo+IFNpZ25lZC1v
+ZmYtYnk6IFdhbmcgU2hlbmctSHVpIDxzaGh1aXdAZ21haWwuY29tPgoKSXMgdGhpcyBhIGJ1Z2Zp
+eCBvciBqdXN0IGEgY2xlYW51cD8KQWxpZ25tZW50IG1ha2VzIHVzIGdldCB0aGUgc2FtZSB2YWx1
+ZXMgd2l0aCBhbmQgd2l0aG91dCwgcmlnaHQ/Cgo+IC0tLQo+ICBpbmNsdWRlL2xpbnV4L3ZpcnRp
+b19yaW5nLmggfCAgICA2ICsrKy0tLQo+ICAxIGZpbGVzIGNoYW5nZWQsIDMgaW5zZXJ0aW9ucygr
+KSwgMyBkZWxldGlvbnMoLSkKPiAKPiBkaWZmIC0tZ2l0IGEvaW5jbHVkZS9saW51eC92aXJ0aW9f
+cmluZy5oIGIvaW5jbHVkZS9saW51eC92aXJ0aW9fcmluZy5oCj4gaW5kZXggNGEzMmNiNi4uMzAw
+YWY3NiAxMDA2NDQKPiAtLS0gYS9pbmNsdWRlL2xpbnV4L3ZpcnRpb19yaW5nLmgKPiArKysgYi9p
+bmNsdWRlL2xpbnV4L3ZpcnRpb19yaW5nLmgKPiBAQCAtMTM1LDEzICsxMzUsMTMgQEAgc3RhdGlj
+IGlubGluZSB2b2lkIHZyaW5nX2luaXQoc3RydWN0IHZyaW5nICp2ciwgdW5zaWduZWQgaW50IG51
+bSwgdm9pZCAqcCwKPiAgCXZyLT5udW0gPSBudW07Cj4gIAl2ci0+ZGVzYyA9IHA7Cj4gIAl2ci0+
+YXZhaWwgPSBwICsgbnVtKnNpemVvZihzdHJ1Y3QgdnJpbmdfZGVzYyk7Cj4gLQl2ci0+dXNlZCA9
+ICh2b2lkICopKCgodW5zaWduZWQgbG9uZykmdnItPmF2YWlsLT5yaW5nW251bV0gKyBhbGlnbi0x
+KQo+IC0JCQkgICAgJiB+KGFsaWduIC0gMSkpOwo+ICsJdnItPnVzZWQgPSAodm9pZCAqKSgoKHVu
+c2lnbmVkIGxvbmcpJnZyLT5hdmFpbC0+cmluZ1tudW1dICsgMTYKPiArCQkrIGFsaWduLTEpICYg
+fihhbGlnbiAtIDEpKTsKPiAgfQo+ICAKPiAgc3RhdGljIGlubGluZSB1bnNpZ25lZCB2cmluZ19z
+aXplKHVuc2lnbmVkIGludCBudW0sIHVuc2lnbmVkIGxvbmcgYWxpZ24pCj4gIHsKPiAtCXJldHVy
+biAoKHNpemVvZihzdHJ1Y3QgdnJpbmdfZGVzYykgKiBudW0gKyBzaXplb2YoX191MTYpICogKDIg
+KyBudW0pCj4gKwlyZXR1cm4gKChzaXplb2Yoc3RydWN0IHZyaW5nX2Rlc2MpICogbnVtICsgc2l6
+ZW9mKF9fdTE2KSAqICgzICsgbnVtKQo+ICAJCSArIGFsaWduIC0gMSkgJiB+KGFsaWduIC0gMSkp
+Cj4gIAkJKyBzaXplb2YoX191MTYpICogMyArIHNpemVvZihzdHJ1Y3QgdnJpbmdfdXNlZF9lbGVt
+KSAqIG51bTsKPiAgfQo+IC0tIAo+IDEuNy4xCj4gCl9fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFs
+aXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4LWZv
+dW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
