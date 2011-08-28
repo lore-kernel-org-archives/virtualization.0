@@ -1,15 +1,16 @@
-From: Wang Sheng-Hui <shhuiw@gmail.com>
-Subject: Re: [PATCH] virtio: fix size computation according to the definition
-	of struct vring_used in vring_size
-Date: Sat, 27 Aug 2011 17:52:02 +0800
-Message-ID: <4E58BE42.8030700__15684.9947794855$1314499847$gmane$org@gmail.com>
-References: <4E584365.1010806@gmail.com> <1314413399.1913.1.camel@Allen>
-	<4E58BA41.6050503@gmail.com>
+From: Joe Perches <joe@perches.com>
+Subject: Re: [PATCH 44/46] Staging: hv: vmbus: Fix checkpatch warnings in
+	connection.c
+Date: Sat, 27 Aug 2011 23:56:52 -0700
+Message-ID: <1314514612.6852.11.camel@Joe-Laptop>
+References: <1314469874-7017-1-git-send-email-kys@microsoft.com>
+	<1314469905-7058-1-git-send-email-kys@microsoft.com>
+	<1314469905-7058-44-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4E58BA41.6050503@gmail.com>
+In-Reply-To: <1314469905-7058-44-git-send-email-kys@microsoft.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,60 +20,21 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: wanlong.gao@gmail.com
-Cc: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, mst@redhat.com
+To: "K. Y. Srinivasan" <kys@microsoft.com>
+Cc: devel@linuxdriverproject.org, Haiyang Zhang <haiyangz@microsoft.com>, gregkh@suse.de, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gMjAxMeW5tDA45pyIMjfml6UgMTc6MzQsIFdhbmcgU2hlbmctSHVpIHdyb3RlOgo+IE9uIDIw
-MTHlubQwOOaciDI35pelIDEwOjQ5LCBXYW5sb25nIEdhbyB3cm90ZToKPj4gT24gU2F0LCAyMDEx
-LTA4LTI3IGF0IDA5OjA3ICswODAwLCBXYW5nIFNoZW5nLUh1aSB3cm90ZToKPj4+IFRoZSBwYXRj
-aCBpcyBhZ2FpbnN0IDMuMS1yYzMuCj4+Pgo+Pj4gc3RydWN0IHZyaW5nX3VzZWQgaGFzIHR3byBf
-X3UxNiBmaWVsZHMgcGx1cyBhcnJheSBvZiBzdHJ1Y3QgdnJpbmdfdXNlZF9lbGVtLgo+Pj4gQ3Vy
-cmVudCB2cmluZ19zaXplIGNvdW50cyB0aGUgX191MTYgZmllbGRzIHRvIDMuIEZpeCBpdCB0byAy
-IGluIHRoZSBwYXRjaC4KPj4+Cj4+PiBTaWduZWQtb2ZmLWJ5OiBXYW5nIFNoZW5nLUh1aSA8c2ho
-dWl3QGdtYWlsLmNvbT4KPj4+IC0tLQo+Pj4gIGluY2x1ZGUvbGludXgvdmlydGlvX3JpbmcuaCB8
-ICAgIDIgKy0KPj4+ICAxIGZpbGVzIGNoYW5nZWQsIDEgaW5zZXJ0aW9ucygrKSwgMSBkZWxldGlv
-bnMoLSkKPj4+Cj4+PiBkaWZmIC0tZ2l0IGEvaW5jbHVkZS9saW51eC92aXJ0aW9fcmluZy5oIGIv
-aW5jbHVkZS9saW51eC92aXJ0aW9fcmluZy5oCj4+PiBpbmRleCA0YTMyY2I2Li5mY2RhMTUyIDEw
-MDY0NAo+Pj4gLS0tIGEvaW5jbHVkZS9saW51eC92aXJ0aW9fcmluZy5oCj4+PiArKysgYi9pbmNs
-dWRlL2xpbnV4L3ZpcnRpb19yaW5nLmgKPj4+IEBAIC0xNDMsNyArMTQzLDcgQEAgc3RhdGljIGlu
-bGluZSB1bnNpZ25lZCB2cmluZ19zaXplKHVuc2lnbmVkIGludCBudW0sIHVuc2lnbmVkIGxvbmcg
-YWxpZ24pCj4+PiAgewo+Pj4gIAlyZXR1cm4gKChzaXplb2Yoc3RydWN0IHZyaW5nX2Rlc2MpICog
-bnVtICsgc2l6ZW9mKF9fdTE2KSAqICgyICsgbnVtKQo+Pj4gIAkJICsgYWxpZ24gLSAxKSAmIH4o
-YWxpZ24gLSAxKSkKPj4+IC0JCSsgc2l6ZW9mKF9fdTE2KSAqIDMgKyBzaXplb2Yoc3RydWN0IHZy
-aW5nX3VzZWRfZWxlbSkgKiBudW07Cj4+PiArCQkrIHNpemVvZihfX3UxNikgKiAyICsgc2l6ZW9m
-KHN0cnVjdCB2cmluZ191c2VkX2VsZW0pICogbnVtOwo+Pj4gIH0KPj4+ICAKPj4+ICAvKiBUaGUg
-Zm9sbG93aW5nIGlzIHVzZWQgd2l0aCBVU0VEX0VWRU5UX0lEWCBhbmQgQVZBSUxfRVZFTlRfSURY
-ICovCj4+Cj4+IEhpOgo+PiBJJ20gbm90IGRlZXAgaW50byBpdCwgYnV0IEkgdGhpbmsgeW91IGNh
-biBzZWUgdGhpczoKPj4gaHR0cDovL21hcmMuaW5mby8/bD1naXQtY29tbWl0cy1oZWFkJm09MTMw
-Njg3OTE1ODE2MTMwJnc9Mgo+Pgo+PiBUaGFua3MKPj4gLVdhbmxvbmcgR2FvCj4+Cj4gCj4gVGhh
-bmtzLgo+IAo+IEkgY2hlY2tlZCB0aGUgY29tbWVudHMsIGFuZCB0aGluayB3ZSBzaG91bGQgcGF0
-Y2ggdnJpbmdfaW5pdAo+IGFuZCB2cmluZ19zaXplIGFjY29yZGluZyB0byB0aGUgbGF5b3V0IGRl
-c2NyaXB0aW9uIGluIHRoZSBjb21tZW50cy4KPiBSaWdodD8KCk5ldyBwYXRjaCBnZW5lcmF0ZWQu
-IFBsZWFzZSBjaGVjayBpdC4gVGhhbmtzLAoKCltQQVRDSF0gdmlydGlvOiBtb2RpZnkgdnJpbmdf
-aW5pdCBhbmQgdnJpbmdfc2l6ZSB0byB0YWtlIGFjY291bnQgb2YgdGhlIGxheW91dCBjb250YWlu
-aW5nICpfZXZlbnRfaWR4CgpUaGUgcGF0Y2ggaXMgYWdhaW5zdCAzLjEtcmMzLgoKQmFzZWQgb24g
-dGhlIGxheW91dCBkZXNjcmlwdGlvbiBpbiB0aGUgY29tbWVudHMsIHRha2UgYWNjb3VudCBvZgp0
-aGUgKl9ldmVudF9pZHggaW4gZnVuY3Rpb25zIHZyaW5nX2luaXQgYW5kIHZyaW5nX3NpemUuCgpT
-aWduZWQtb2ZmLWJ5OiBXYW5nIFNoZW5nLUh1aSA8c2hodWl3QGdtYWlsLmNvbT4KLS0tCiBpbmNs
-dWRlL2xpbnV4L3ZpcnRpb19yaW5nLmggfCAgICA2ICsrKy0tLQogMSBmaWxlcyBjaGFuZ2VkLCAz
-IGluc2VydGlvbnMoKyksIDMgZGVsZXRpb25zKC0pCgpkaWZmIC0tZ2l0IGEvaW5jbHVkZS9saW51
-eC92aXJ0aW9fcmluZy5oIGIvaW5jbHVkZS9saW51eC92aXJ0aW9fcmluZy5oCmluZGV4IDRhMzJj
-YjYuLjMwMGFmNzYgMTAwNjQ0Ci0tLSBhL2luY2x1ZGUvbGludXgvdmlydGlvX3JpbmcuaAorKysg
-Yi9pbmNsdWRlL2xpbnV4L3ZpcnRpb19yaW5nLmgKQEAgLTEzNSwxMyArMTM1LDEzIEBAIHN0YXRp
-YyBpbmxpbmUgdm9pZCB2cmluZ19pbml0KHN0cnVjdCB2cmluZyAqdnIsIHVuc2lnbmVkIGludCBu
-dW0sIHZvaWQgKnAsCiAJdnItPm51bSA9IG51bTsKIAl2ci0+ZGVzYyA9IHA7CiAJdnItPmF2YWls
-ID0gcCArIG51bSpzaXplb2Yoc3RydWN0IHZyaW5nX2Rlc2MpOwotCXZyLT51c2VkID0gKHZvaWQg
-KikoKCh1bnNpZ25lZCBsb25nKSZ2ci0+YXZhaWwtPnJpbmdbbnVtXSArIGFsaWduLTEpCi0JCQkg
-ICAgJiB+KGFsaWduIC0gMSkpOworCXZyLT51c2VkID0gKHZvaWQgKikoKCh1bnNpZ25lZCBsb25n
-KSZ2ci0+YXZhaWwtPnJpbmdbbnVtXSArIDE2CisJCSsgYWxpZ24tMSkgJiB+KGFsaWduIC0gMSkp
-OwogfQogCiBzdGF0aWMgaW5saW5lIHVuc2lnbmVkIHZyaW5nX3NpemUodW5zaWduZWQgaW50IG51
-bSwgdW5zaWduZWQgbG9uZyBhbGlnbikKIHsKLQlyZXR1cm4gKChzaXplb2Yoc3RydWN0IHZyaW5n
-X2Rlc2MpICogbnVtICsgc2l6ZW9mKF9fdTE2KSAqICgyICsgbnVtKQorCXJldHVybiAoKHNpemVv
-ZihzdHJ1Y3QgdnJpbmdfZGVzYykgKiBudW0gKyBzaXplb2YoX191MTYpICogKDMgKyBudW0pCiAJ
-CSArIGFsaWduIC0gMSkgJiB+KGFsaWduIC0gMSkpCiAJCSsgc2l6ZW9mKF9fdTE2KSAqIDMgKyBz
-aXplb2Yoc3RydWN0IHZyaW5nX3VzZWRfZWxlbSkgKiBudW07CiB9Ci0tIAoxLjcuMQoKCl9fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9u
-IG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpo
-dHRwczovL2xpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVh
-bGl6YXRpb24=
+On Sat, 2011-08-27 at 11:31 -0700, K. Y. Srinivasan wrote:
+> Fix checkpatch warnings in connection.c.
+[]
+> diff --git a/drivers/staging/hv/connection.c b/drivers/staging/hv/connection.c
+[]
+> @@ -220,11 +220,11 @@ static void process_chn_event(u32 relid)
+>  	channel = relid2channel(relid);
+>  
+>  	spin_lock_irqsave(&channel->inbound_lock, flags);
+> -	if (channel && (channel->onchannel_callback != NULL)) {
+> +	if (channel && (channel->onchannel_callback != NULL))
+
+Useless test for channel or bad placement for spin_lock.
+channel has already been dereferenced by the spin_lock.
