@@ -1,80 +1,41 @@
-From: Wang Sheng-Hui <shhuiw@gmail.com>
-Subject: Re: [PATCH] virtio: fix size computation according to the definition
-	of struct vring_used in vring_size
-Date: Mon, 29 Aug 2011 15:55:59 +0800
-Message-ID: <4E5B460F.7070707__27739.6043799401$1314624343$gmane$org@gmail.com>
-References: <4E584365.1010806@gmail.com> <1314413399.1913.1.camel@Allen>
-	<4E58BA41.6050503@gmail.com> <4E58BE42.8030700@gmail.com>
-	<87fwkl2ajr.fsf@rustcorp.com.au>
+From: Greg KH <greg@kroah.com>
+Subject: Re: [PATCH 35/46] Staging: hv: Fix a bug in vmbus_match()
+Date: Mon, 29 Aug 2011 11:00:26 -0700
+Message-ID: <20110829180026.GA19668@kroah.com>
+References: <1314469874-7017-1-git-send-email-kys@microsoft.com>
+ <1314469905-7058-1-git-send-email-kys@microsoft.com>
+ <1314469905-7058-35-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <87fwkl2ajr.fsf@rustcorp.com.au>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: wanlong.gao@gmail.com, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, mst@redhat.com
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1314469905-7058-35-git-send-email-kys@microsoft.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: "K. Y. Srinivasan" <kys@microsoft.com>
+Cc: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org, Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gMjAxMeW5tDA45pyIMjnml6UgMTA6NTMsIFJ1c3R5IFJ1c3NlbGwgd3JvdGU6Cj4gT24gU2F0
-LCAyNyBBdWcgMjAxMSAxNzo1MjowMiArMDgwMCwgV2FuZyBTaGVuZy1IdWkgPHNoaHVpd0BnbWFp
-bC5jb20+IHdyb3RlOgo+PiBPbiAyMDEx5bm0MDjmnIgyN+aXpSAxNzozNCwgV2FuZyBTaGVuZy1I
-dWkgd3JvdGU6Cj4+IGRpZmYgLS1naXQgYS9pbmNsdWRlL2xpbnV4L3ZpcnRpb19yaW5nLmggYi9p
-bmNsdWRlL2xpbnV4L3ZpcnRpb19yaW5nLmgKPj4gaW5kZXggNGEzMmNiNi4uMzAwYWY3NiAxMDA2
-NDQKPj4gLS0tIGEvaW5jbHVkZS9saW51eC92aXJ0aW9fcmluZy5oCj4+ICsrKyBiL2luY2x1ZGUv
-bGludXgvdmlydGlvX3JpbmcuaAo+PiBAQCAtMTM1LDEzICsxMzUsMTMgQEAgc3RhdGljIGlubGlu
-ZSB2b2lkIHZyaW5nX2luaXQoc3RydWN0IHZyaW5nICp2ciwgdW5zaWduZWQgaW50IG51bSwgdm9p
-ZCAqcCwKPj4gIAl2ci0+bnVtID0gbnVtOwo+PiAgCXZyLT5kZXNjID0gcDsKPj4gIAl2ci0+YXZh
-aWwgPSBwICsgbnVtKnNpemVvZihzdHJ1Y3QgdnJpbmdfZGVzYyk7Cj4+IC0JdnItPnVzZWQgPSAo
-dm9pZCAqKSgoKHVuc2lnbmVkIGxvbmcpJnZyLT5hdmFpbC0+cmluZ1tudW1dICsgYWxpZ24tMSkK
-Pj4gLQkJCSAgICAmIH4oYWxpZ24gLSAxKSk7Cj4+ICsJdnItPnVzZWQgPSAodm9pZCAqKSgoKHVu
-c2lnbmVkIGxvbmcpJnZyLT5hdmFpbC0+cmluZ1tudW1dICsgMTYKPj4gKwkJKyBhbGlnbi0xKSAm
-IH4oYWxpZ24gLSAxKSk7Cj4+ICB9Cj4gCj4gVGhpcyArIDE2IHNob3VsZCBiZSArIHNpemVvZihf
-X3UxNiksIHJpZ2h0PyAgSXQncyBqdXN0IHRoZQo+IHVzZWRfZXZlbnRfaWR4IHdoaWNoIGhhcyBi
-ZWVuIGFkZGVkOgo+IAo+ICAqCV9fdTE2IGF2YWlsYWJsZVtudW1dOwo+ICAqCV9fdTE2IHVzZWRf
-ZXZlbnRfaWR4Owo+ICAqCj4gICoJLy8gUGFkZGluZyB0byB0aGUgbmV4dCBhbGlnbiBib3VuZGFy
-eS4KPiAgKgljaGFyIHBhZFtdOwo+ICAqCj4gICogW1VTRURdCj4gCj4+ICBzdGF0aWMgaW5saW5l
-IHVuc2lnbmVkIHZyaW5nX3NpemUodW5zaWduZWQgaW50IG51bSwgdW5zaWduZWQgbG9uZyBhbGln
-bikKPj4gIHsKPj4gLQlyZXR1cm4gKChzaXplb2Yoc3RydWN0IHZyaW5nX2Rlc2MpICogbnVtICsg
-c2l6ZW9mKF9fdTE2KSAqICgyICsgbnVtKQo+PiArCXJldHVybiAoKHNpemVvZihzdHJ1Y3QgdnJp
-bmdfZGVzYykgKiBudW0gKyBzaXplb2YoX191MTYpICogKDMgKyBudW0pCj4+ICAJCSArIGFsaWdu
-IC0gMSkgJiB+KGFsaWduIC0gMSkpCj4+ICAJCSsgc2l6ZW9mKF9fdTE2KSAqIDMgKyBzaXplb2Yo
-c3RydWN0IHZyaW5nX3VzZWRfZWxlbSkgKiBudW07Cj4gCj4gVGhpcyBpcyBjb3JyZWN0Lgo+IAo+
-IEFuZCwgeWVzLCBzaW5jZSBhbGlnbiBpcyBhbHdheXMgNDA5NiwgaXQncyBjdXJyZW50bHkganVz
-dCBhIGNsZWFudXAsIGJ1dAo+IGl0IG1ha2VzIHRoaW5ncyBtdWNoIGxlc3MgY29uZnVzaW5nIQo+
-IAo+IFRoYW5rcywKPiBSdXN0eS4KClBhdGNoIHJlZ2VyYXRlZCB0byB1c2Ugc2l6ZW9mKF9fdTE2
-KSBpbnN0ZWFkIG9mIDE2IGluIHZyaW5nX2luaXQuClBsZWFzZSBjaGVjayBpdC4KCgpbUEFUQ0hd
-IHZpcnRpbzogbW9kaWZ5IHZyaW5nX2luaXQgYW5kIHZyaW5nX3NpemUgdG8gdGFrZSBhY2NvdW50
-IG9mIHRoZSBsYXlvdXQgY29udGFpbmluZyAqX2V2ZW50X2lkeAoKVGhlIHBhdGNoIGlzIGFnYWlu
-c3QgMy4xLXJjMy4KCkJhc2VkIG9uIHRoZSBsYXlvdXQgZGVzY3JpcHRpb24gaW4gdGhlIGNvbW1l
-bnRzLCB0YWtlIGFjY291bnQgb2YKdGhlICpfZXZlbnRfaWR4IGluIGZ1bmN0aW9ucyB2cmluZ19p
-bml0IGFuZCB2cmluZ19zaXplLgoKU2lnbmVkLW9mZi1ieTogV2FuZyBTaGVuZy1IdWkgPHNoaHVp
-d0BnbWFpbC5jb20+Ci0tLQogaW5jbHVkZS9saW51eC92aXJ0aW9fcmluZy5oIHwgICAgNiArKyst
-LS0KIDEgZmlsZXMgY2hhbmdlZCwgMyBpbnNlcnRpb25zKCspLCAzIGRlbGV0aW9ucygtKQoKZGlm
-ZiAtLWdpdCBhL2luY2x1ZGUvbGludXgvdmlydGlvX3JpbmcuaCBiL2luY2x1ZGUvbGludXgvdmly
-dGlvX3JpbmcuaAppbmRleCA0YTMyY2I2Li4yYTczMWJkIDEwMDY0NAotLS0gYS9pbmNsdWRlL2xp
-bnV4L3ZpcnRpb19yaW5nLmgKKysrIGIvaW5jbHVkZS9saW51eC92aXJ0aW9fcmluZy5oCkBAIC0x
-MzUsMTMgKzEzNSwxMyBAQCBzdGF0aWMgaW5saW5lIHZvaWQgdnJpbmdfaW5pdChzdHJ1Y3QgdnJp
-bmcgKnZyLCB1bnNpZ25lZCBpbnQgbnVtLCB2b2lkICpwLAogCXZyLT5udW0gPSBudW07CiAJdnIt
-PmRlc2MgPSBwOwogCXZyLT5hdmFpbCA9IHAgKyBudW0qc2l6ZW9mKHN0cnVjdCB2cmluZ19kZXNj
-KTsKLQl2ci0+dXNlZCA9ICh2b2lkICopKCgodW5zaWduZWQgbG9uZykmdnItPmF2YWlsLT5yaW5n
-W251bV0gKyBhbGlnbi0xKQotCQkJICAgICYgfihhbGlnbiAtIDEpKTsKKwl2ci0+dXNlZCA9ICh2
-b2lkICopKCgodW5zaWduZWQgbG9uZykmdnItPmF2YWlsLT5yaW5nW251bV0gKyBzaXplb2YoX18x
-NikKKwkJKyBhbGlnbi0xKSAmIH4oYWxpZ24gLSAxKSk7CiB9CiAKIHN0YXRpYyBpbmxpbmUgdW5z
-aWduZWQgdnJpbmdfc2l6ZSh1bnNpZ25lZCBpbnQgbnVtLCB1bnNpZ25lZCBsb25nIGFsaWduKQog
-ewotCXJldHVybiAoKHNpemVvZihzdHJ1Y3QgdnJpbmdfZGVzYykgKiBudW0gKyBzaXplb2YoX191
-MTYpICogKDIgKyBudW0pCisJcmV0dXJuICgoc2l6ZW9mKHN0cnVjdCB2cmluZ19kZXNjKSAqIG51
-bSArIHNpemVvZihfX3UxNikgKiAoMyArIG51bSkKIAkJICsgYWxpZ24gLSAxKSAmIH4oYWxpZ24g
-LSAxKSkKIAkJKyBzaXplb2YoX191MTYpICogMyArIHNpemVvZihzdHJ1Y3QgdnJpbmdfdXNlZF9l
-bGVtKSAqIG51bTsKIH0KLS0gCjEuNy4xCgoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0
-aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXgtZm91bmRh
-dGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+On Sat, Aug 27, 2011 at 11:31:34AM -0700, K. Y. Srinivasan wrote:
+> The recent checkin that add a private pointer to hv_vmbus_device_id
+> introduced this bug in vmbus_match; fix it.
+> 
+> Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
+> Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
+> ---
+>  drivers/staging/hv/vmbus_drv.c |    2 +-
+>  1 files changed, 1 insertions(+), 1 deletions(-)
+> 
+> diff --git a/drivers/staging/hv/vmbus_drv.c b/drivers/staging/hv/vmbus_drv.c
+> index be62b62..51002c0 100644
+> --- a/drivers/staging/hv/vmbus_drv.c
+> +++ b/drivers/staging/hv/vmbus_drv.c
+> @@ -273,7 +273,7 @@ static int vmbus_match(struct device *device, struct device_driver *driver)
+>  
+>  	for (; !is_null_guid(id_array->guid); id_array++)
+>  		if (!memcmp(&id_array->guid, &hv_dev->dev_type.b,
+> -				sizeof(struct hv_vmbus_device_id)))
+> +				sizeof(uuid_le)))
+
+Ick, sorry about this, it was my fault.
+
+greg k-h
