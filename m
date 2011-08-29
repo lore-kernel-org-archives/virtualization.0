@@ -1,54 +1,49 @@
 From: Greg KH <greg@kroah.com>
-Subject: Re: [PATCH 44/46] Staging: hv: vmbus: Fix checkpatch warnings in
-	connection.c
-Date: Mon, 29 Aug 2011 11:09:34 -0700
-Message-ID: <20110829180934.GB23618@kroah.com>
+Subject: Re: [PATCH 46/46] Staging: hv: Update the TODO file
+Date: Mon, 29 Aug 2011 11:12:06 -0700
+Message-ID: <20110829181206.GB19668@kroah.com>
 References: <1314469874-7017-1-git-send-email-kys@microsoft.com>
-	<1314469905-7058-1-git-send-email-kys@microsoft.com>
-	<1314469905-7058-44-git-send-email-kys@microsoft.com>
+ <1314469905-7058-1-git-send-email-kys@microsoft.com>
+ <1314469905-7058-46-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <devel-bounces@linuxdriverproject.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1314469905-7058-44-git-send-email-kys@microsoft.com>
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
-List-Post: <mailto:devel@linuxdriverproject.org>
-List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
-Errors-To: devel-bounces@linuxdriverproject.org
-Sender: devel-bounces@linuxdriverproject.org
+In-Reply-To: <1314469905-7058-46-git-send-email-kys@microsoft.com>
+Sender: linux-kernel-owner@vger.kernel.org
 To: "K. Y. Srinivasan" <kys@microsoft.com>
-Cc: devel@linuxdriverproject.org, Haiyang Zhang <haiyangz@microsoft.com>, gregkh@suse.de, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org
+Cc: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org, Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sat, Aug 27, 2011 at 11:31:43AM -0700, K. Y. Srinivasan wrote:
-> Fix checkpatch warnings in connection.c.
+On Sat, Aug 27, 2011 at 11:31:45AM -0700, K. Y. Srinivasan wrote:
+> Update the TODO file.
 > 
 > Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 > Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 > ---
->  drivers/staging/hv/connection.c |   13 +++++++------
->  1 files changed, 7 insertions(+), 6 deletions(-)
+>  drivers/staging/hv/TODO |   24 ++++++++++++++++++++----
+>  1 files changed, 20 insertions(+), 4 deletions(-)
 > 
-> diff --git a/drivers/staging/hv/connection.c b/drivers/staging/hv/connection.c
-> index ca92ca3..9e99c04 100644
-> --- a/drivers/staging/hv/connection.c
-> +++ b/drivers/staging/hv/connection.c
-> @@ -220,11 +220,11 @@ static void process_chn_event(u32 relid)
->  	channel = relid2channel(relid);
->  
->  	spin_lock_irqsave(&channel->inbound_lock, flags);
-> -	if (channel && (channel->onchannel_callback != NULL)) {
-> +	if (channel && (channel->onchannel_callback != NULL))
->  		channel->onchannel_callback(channel->channel_callback_context);
-> -	} else {
+> diff --git a/drivers/staging/hv/TODO b/drivers/staging/hv/TODO
+> index 582fd4a..23c74ed 100644
+> --- a/drivers/staging/hv/TODO
+> +++ b/drivers/staging/hv/TODO
+> @@ -1,14 +1,30 @@
+>  TODO:
+> -	- fix remaining checkpatch warnings and errors
+>  	- audit the vmbus to verify it is working properly with the
+>  	  driver model
+> -	- see if the vmbus can be merged with the other virtual busses
+> -	  in the kernel
+> +
+> +		STATUS (July 19, 2011):
+> +		All outstanding issues (known to us)  with regards
+> +		to conforming to Linux Driver Model have been addressed.
 
-I agree with Joe here, if channel really was NULL, you just oopsed.
+The TODO file is not a place to have a "conversation" about what is and
+is not completed by having status reports.
 
-I'll apply this one, but please send me a follow-on one fixing this bug.
+Let's discuss this through email, and if we all agree, then the TODO
+entries can be removed.
 
 greg k-h
