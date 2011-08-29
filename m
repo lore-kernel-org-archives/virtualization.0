@@ -1,17 +1,17 @@
 From: Greg KH <greg@kroah.com>
-Subject: Re: [PATCH 41/46] Staging: hv: vmbus: Fix a bug in error handling in
-	vmbus_bus_init()
-Date: Mon, 29 Aug 2011 11:08:42 -0700
-Message-ID: <20110829180842.GA23618@kroah.com>
+Subject: Re: [PATCH 44/46] Staging: hv: vmbus: Fix checkpatch warnings in
+	connection.c
+Date: Mon, 29 Aug 2011 11:09:34 -0700
+Message-ID: <20110829180934.GB23618@kroah.com>
 References: <1314469874-7017-1-git-send-email-kys@microsoft.com>
 	<1314469905-7058-1-git-send-email-kys@microsoft.com>
-	<1314469905-7058-41-git-send-email-kys@microsoft.com>
+	<1314469905-7058-44-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <devel-bounces@linuxdriverproject.org>
 Content-Disposition: inline
-In-Reply-To: <1314469905-7058-41-git-send-email-kys@microsoft.com>
+In-Reply-To: <1314469905-7058-44-git-send-email-kys@microsoft.com>
 List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
 	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
 List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
@@ -25,72 +25,30 @@ To: "K. Y. Srinivasan" <kys@microsoft.com>
 Cc: devel@linuxdriverproject.org, Haiyang Zhang <haiyangz@microsoft.com>, gregkh@suse.de, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sat, Aug 27, 2011 at 11:31:40AM -0700, K. Y. Srinivasan wrote:
-> Fix a bug in error handling in vmbus_bus_init().
+On Sat, Aug 27, 2011 at 11:31:43AM -0700, K. Y. Srinivasan wrote:
+> Fix checkpatch warnings in connection.c.
 > 
 > Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 > Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 > ---
->  drivers/staging/hv/vmbus_drv.c |   21 ++++++++++-----------
->  1 files changed, 10 insertions(+), 11 deletions(-)
+>  drivers/staging/hv/connection.c |   13 +++++++------
+>  1 files changed, 7 insertions(+), 6 deletions(-)
 > 
-> diff --git a/drivers/staging/hv/vmbus_drv.c b/drivers/staging/hv/vmbus_drv.c
-> index 02edb11..4d1b123 100644
-> --- a/drivers/staging/hv/vmbus_drv.c
-> +++ b/drivers/staging/hv/vmbus_drv.c
-> @@ -492,7 +492,7 @@ static int vmbus_bus_init(int irq)
+> diff --git a/drivers/staging/hv/connection.c b/drivers/staging/hv/connection.c
+> index ca92ca3..9e99c04 100644
+> --- a/drivers/staging/hv/connection.c
+> +++ b/drivers/staging/hv/connection.c
+> @@ -220,11 +220,11 @@ static void process_chn_event(u32 relid)
+>  	channel = relid2channel(relid);
 >  
->  	ret = bus_register(&hv_bus);
->  	if (ret)
-> -		return ret;
-> +		goto err1;
->  
->  	ret = request_irq(irq, vmbus_isr, IRQF_SAMPLE_RANDOM,
->  			driver_name, hv_acpi_dev);
-> @@ -500,10 +500,7 @@ static int vmbus_bus_init(int irq)
->  	if (ret != 0) {
->  		pr_err("Unable to request IRQ %d\n",
->  			   irq);
-> -
-> -		bus_unregister(&hv_bus);
-> -
-> -		return ret;
-> +		goto err2;
->  	}
->  
->  	vector = IRQ0_VECTOR + irq;
-> @@ -514,16 +511,18 @@ static int vmbus_bus_init(int irq)
->  	 */
->  	on_each_cpu(hv_synic_init, (void *)&vector, 1);
->  	ret = vmbus_connect();
-> -	if (ret) {
-> -		free_irq(irq, hv_acpi_dev);
-> -		bus_unregister(&hv_bus);
-> -		return ret;
-> -	}
-> -
-> +	if (ret)
-> +		goto err3;
->  
->  	vmbus_request_offers();
->  
->  	return 0;
-> +
-> +err3:	free_irq(irq, hv_acpi_dev);
-> +err2:	bus_unregister(&hv_bus);
-> +err1:	hv_cleanup();
+>  	spin_lock_irqsave(&channel->inbound_lock, flags);
+> -	if (channel && (channel->onchannel_callback != NULL)) {
+> +	if (channel && (channel->onchannel_callback != NULL))
+>  		channel->onchannel_callback(channel->channel_callback_context);
+> -	} else {
 
-The traditional way to write this is:
+I agree with Joe here, if channel really was NULL, you just oopsed.
 
-err3:
-	free_irq(irq, hv_acpi_dev);
-err2:
-	bus_unregister(&hv_bus);
-err1:
-	hv_cleanup();
-
-Care to fix this up and resend it?
-
-thanks,
+I'll apply this one, but please send me a follow-on one fixing this bug.
 
 greg k-h
