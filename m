@@ -1,49 +1,79 @@
-From: Dan Carpenter <error27@gmail.com>
-Subject: Re: [PATCH 18/46] Staging: hv: storvsc: Add code to handle IDE
-	devices using the storvsc driver
-Date: Tue, 30 Aug 2011 14:07:49 +0300
-Message-ID: <20110830110749.GE3705@shale.localdomain>
+From: Olaf Hering <olaf@aepfle.de>
+Subject: Re: [PATCH 0000/0046] Staging: hv: Driver cleanup
+Date: Tue, 30 Aug 2011 14:48:56 +0200
+Message-ID: <20110830124856.GA17520@aepfle.de>
 References: <1314469874-7017-1-git-send-email-kys@microsoft.com>
-	<1314469905-7058-1-git-send-email-kys@microsoft.com>
-	<1314469905-7058-18-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <devel-bounces@linuxdriverproject.org>
+Content-Type: text/plain; charset=utf-8
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1314469905-7058-18-git-send-email-kys@microsoft.com>
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
-List-Post: <mailto:devel@linuxdriverproject.org>
-List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
-Errors-To: devel-bounces@linuxdriverproject.org
-Sender: devel-bounces@linuxdriverproject.org
+In-Reply-To: <1314469874-7017-1-git-send-email-kys@microsoft.com>
+Sender: linux-kernel-owner@vger.kernel.org
 To: "K. Y. Srinivasan" <kys@microsoft.com>
-Cc: devel@linuxdriverproject.org, Haiyang Zhang <haiyangz@microsoft.com>, gregkh@suse.de, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org
+Cc: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sat, Aug 27, 2011 at 11:31:17AM -0700, K. Y. Srinivasan wrote:
-> @@ -59,6 +59,17 @@ struct storvsc_cmd_request {
->  	struct hv_storvsc_request request;
->  };
->  
-> +static void storvsc_get_ide_info(struct hv_device *dev, int *target, int *path)
-> +{
-> +	*target =
-> +		dev->dev_instance.b[5] << 8 | dev->dev_instance.b[4];
-> +
-> +	*path =
-> +		dev->dev_instance.b[3] << 24 |
-> +		dev->dev_instance.b[2] << 16 |
-> +		dev->dev_instance.b[1] << 8  | dev->dev_instance.b[0];
-> +}
-> +
+On Sat, Aug 27, K. Y. Srinivasan wrote:
 
-Does endianness matter here?  It seems like *path isn't actually used
-anywhere.  Probably target and path should be u32 types?
+> 	2) Handle all block devices using the storvsc driver. I have modified
+> 	   the implementation here based on Christoph's feedback on my earlier
+> 	   implementation.
 
-regards,
-dan carpenter
+The upgrade path from hv_blkvsc to hv_storvsc is difficult.
+
+hv_storvsc does not provide the vmbus:hv_block modalias, so mkinitrd
+does not know what module to choose when mkinitrd is called in a
+previous kernel (like sles11sp1).
+
+
+In a guest with both SCSI and IDE controllers the IDE disks are
+discovered first, so the SCSI drives will also change their names.
+Thats not a problem for data partitions because they could be mounted by
+UUID or LABEL in fstab.
+But its difficult to adjust /boot/grub/device.map for example because
+the old  IDE drives do not provide an identifier. What is the best way
+to make sure the rename from hd* to sd* in such config files is done
+correctly? Is it safe to assume that all drives with a class_id of
+32412632-86cb-44a2-9b5c50d1417354f5 are connected to IDE ports?
+
+localhost:~ # head /sys/bus/vmbus/devices/vmbus_0_{1,2,3,10,11}/class_id
+==> /sys/bus/vmbus/devices/vmbus_0_1/class_id <==
+{32412632-86cb-44a2-9b5c50d1417354f5}
+
+==> /sys/bus/vmbus/devices/vmbus_0_2/class_id <==
+{32412632-86cb-44a2-9b5c50d1417354f5}
+
+==> /sys/bus/vmbus/devices/vmbus_0_3/class_id <==
+{32412632-86cb-44a2-9b5c50d1417354f5}
+
+==> /sys/bus/vmbus/devices/vmbus_0_10/class_id <==
+{ba6163d9-04a1-4d29-b60572e2ffb1dc7f}
+
+==> /sys/bus/vmbus/devices/vmbus_0_11/class_id <==
+{ba6163d9-04a1-4d29-b60572e2ffb1dc7f}
+
+
+In my test system, the IDE drives are now discovered twice, once by
+hv_storvsc and once by libata:
+
+localhost:~ # lsscsi 
+[0:0:0:0]    disk    Msft     Virtual Disk     1.0   /dev/sda 
+[1:0:1:0]    disk    Msft     Virtual Disk     1.0   /dev/sdb 
+[2:0:1:0]    disk    Msft     Virtual Disk     1.0   /dev/sdc 
+[3:0:0:0]    disk    Msft     Virtual Disk     1.0   /dev/sdd 
+[3:0:0:1]    disk    Msft     Virtual Disk     1.0   /dev/sde 
+[4:0:0:0]    disk    Msft     Virtual Disk     1.0   /dev/sdf 
+[4:0:0:1]    disk    Msft     Virtual Disk     1.0   /dev/sdg 
+[5:0:0:0]    disk    ATA      Virtual HD       1.1.  /dev/sdh 
+[5:0:1:0]    disk    ATA      Virtual HD       1.1.  /dev/sdi 
+[6:0:0:0]    cd/dvd  Msft     Virtual CD/ROM   1.0   /dev/sr0 
+[6:0:1:0]    disk    ATA      Virtual HD       1.1.  /dev/sdj 
+localhost:~ # blkid
+/dev/sda1: UUID="47aebbfb-13ee-49cc-b1e7-bc0c243fe3c0" TYPE="swap" 
+/dev/sda2: UUID="ed5a182b-da28-42f2-acff-5649a8fae247" TYPE="ext3" 
+/dev/sdh1: UUID="47aebbfb-13ee-49cc-b1e7-bc0c243fe3c0" TYPE="swap" 
+/dev/sdh2: UUID="ed5a182b-da28-42f2-acff-5649a8fae247" TYPE="ext3" 
+
+sda/sdh was hda.
+
+Olaf
