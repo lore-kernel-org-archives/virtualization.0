@@ -1,34 +1,51 @@
-From: Greg KH <greg@kroah.com>
-Subject: Re: [PATCH 44/46] Staging: hv: vmbus: Fix checkpatch warnings in
- connection.c
-Date: Tue, 30 Aug 2011 10:41:57 -0700
-Message-ID: <20110830174157.GD22868@kroah.com>
+From: Olaf Hering <olaf@aepfle.de>
+Subject: Re: [PATCH 0000/0046] Staging: hv: Driver cleanup
+Date: Tue, 30 Aug 2011 20:04:34 +0200
+Message-ID: <20110830180434.GA10090@aepfle.de>
 References: <1314469874-7017-1-git-send-email-kys@microsoft.com>
- <1314469905-7058-1-git-send-email-kys@microsoft.com>
- <1314469905-7058-44-git-send-email-kys@microsoft.com>
- <20110829180934.GB23618@kroah.com>
- <6E21E5352C11B742B20C142EB499E048081B5318@TK5EX14MBXC126.redmond.corp.microsoft.com>
+ <20110830124856.GA17520@aepfle.de>
+ <6E21E5352C11B742B20C142EB499E048081B5363@TK5EX14MBXC126.redmond.corp.microsoft.com>
+ <20110830174330.GE22868@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <6E21E5352C11B742B20C142EB499E048081B5318@TK5EX14MBXC126.redmond.corp.microsoft.com>
+In-Reply-To: <20110830174330.GE22868@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: KY Srinivasan <kys@microsoft.com>
-Cc: "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, Haiyang Zhang <haiyangz@microsoft.com>
+To: Greg KH <greg@kroah.com>
+Cc: KY Srinivasan <kys@microsoft.com>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Aug 30, 2011 at 05:11:57PM +0000, KY Srinivasan wrote:
-> Thanks Greg. I will fix this. I got these patches out just before Hurricane Irene
-> hit the east coast. While we were lucky that it was not as bad as was predicted,
-> we lost power and we still don't have power. I have come to a public library in
-> a nearby town to check my email.  So, my responses will be sporadic over the 
-> next couple of days (until we get power). I will try to address the issues you
-> have raised as quickly as possible.
+On Tue, Aug 30, Greg KH wrote:
 
-Ouch, good luck with the power and other cleanup, hopefully you didn't
-have any water damage.
+> > > In my test system, the IDE drives are now discovered twice, once by
+> > > hv_storvsc and once by libata:
+> > 
+> > This is a known (old problem). The way this was handled earlier was to have the 
+> > modprobe rules in place to setup a dependency that would force the load of the
+> > hyper-v driver (blk / stor) ahead of the native driver and if the load of the PV
+> > driver succeeded, we would not load the native driver. In sles11 sp1, we had a rule for 
+> > loading blkvsc. With the merge of blkvsc and storvsc, the only change we need to make
+> > is to have storvsc in the rule (instaed of blkvsc).
+> 
+> Why do we need a rule at all?  Shouldn't the module dependancy stuff
+> handle the autoloading of the drivers properly from the initrd now that
+> the hotplug logic is hooked up properly?
 
-I'm in no rush for further patches, that's being driven by your end :)
+There is no plan to load hv_vmbus (or xen-platform-pci) earlier than
+native drivers.  That was the purpose of the modprobe.conf files. Now
+that there is a vmbus, that fact could be checked before any other
+attempt to load drivers is made and hv_vmbus should be loaded and all of
+its devices have to be probed manually by modprobe `cat modulealias`.
 
-greg k-h
+> Or is the hotplug code not working correctly?
+
+There is nothing to hotplug. hv_vmbus has to be loaded first so that it
+can take over the devices. But it seems that there is no shutdown of the
+emulated hardware, thats why the disk "sda" is shown twice.
+
+I spot a flaw here.
+KY, can hv_vmbus shutdown emulated hardware? At least the disks, because
+cdroms are appearently still be handled by native drivers?
+
+Olaf
