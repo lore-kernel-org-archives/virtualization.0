@@ -1,39 +1,36 @@
-From: Greg KH <greg@kroah.com>
-Subject: Re: [PATCH 41/46] Staging: hv: vmbus: Fix a bug in error handling in
- vmbus_bus_init()
-Date: Tue, 30 Aug 2011 07:07:25 -0700
-Message-ID: <20110830140725.GA16570@kroah.com>
-References: <1314469874-7017-1-git-send-email-kys@microsoft.com>
- <1314469905-7058-1-git-send-email-kys@microsoft.com>
- <1314469905-7058-41-git-send-email-kys@microsoft.com>
- <20110829180842.GA23618@kroah.com>
- <20110830102949.GD3705@shale.localdomain>
+From: Dan Carpenter <error27@gmail.com>
+Subject: Re: [PATCH 10/59] Staging: hv: util: Make hv_utils a vmbus device
+	driver
+Date: Tue, 30 Aug 2011 18:53:23 +0300
+Message-ID: <20110830155323.GT3705@shale.localdomain>
+References: <1314290866-2644-1-git-send-email-kys@microsoft.com>
+	<1314290965-2698-1-git-send-email-kys@microsoft.com>
+	<1314290965-2698-10-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <devel-bounces@linuxdriverproject.org>
 Content-Disposition: inline
-In-Reply-To: <20110830102949.GD3705@shale.localdomain>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dan Carpenter <error27@gmail.com>
-Cc: "K. Y. Srinivasan" <kys@microsoft.com>, devel@linuxdriverproject.org, Haiyang Zhang <haiyangz@microsoft.com>, gregkh@suse.de, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org
+In-Reply-To: <1314290965-2698-10-git-send-email-kys@microsoft.com>
+List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
+	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
+List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
+List-Post: <mailto:devel@linuxdriverproject.org>
+List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
+List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
+	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
+Errors-To: devel-bounces@linuxdriverproject.org
+Sender: devel-bounces@linuxdriverproject.org
+To: "K. Y. Srinivasan" <kys@microsoft.com>
+Cc: devel@linuxdriverproject.org, Haiyang Zhang <haiyangz@microsoft.com>, gregkh@suse.de, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Aug 30, 2011 at 01:29:49PM +0300, Dan Carpenter wrote:
-> > err3:
-> > 	free_irq(irq, hv_acpi_dev);
-> > err2:
-> > 	bus_unregister(&hv_bus);
-> > err1:
-> > 	hv_cleanup();
-> 
-> Also here is an oldbie trick.  You could use multiples of ten like
-> err30, err20, and err10.  That way if you can add more error handling
-> in the middle without changing the numbering.  I knew my GW-BASIC
-> experience would come in handy one day.  :)
-> 
-> The better way to label things is based on what happens when you get
-> there: err_irq, err_unregister, err_cleanup.
+On Thu, Aug 25, 2011 at 09:48:36AM -0700, K. Y. Srinivasan wrote:
+> +	util_drv.driver.name = driver_name;
+> +
+> +	return vmbus_child_driver_register(&util_drv.driver);
 
-Yes, that's the best way to do this, thanks for pointing it out.
+We should free the allocations if vmbus_child_driver_register() fails.
 
-greg k-h
+regards,
+dan carpenter
