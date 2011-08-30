@@ -1,50 +1,67 @@
 From: KY Srinivasan <kys@microsoft.com>
-Subject: RE: [PATCH 10/59] Staging: hv: util: Make hv_utils a vmbus device
-	driver
-Date: Tue, 30 Aug 2011 17:14:29 +0000
-Message-ID: <6E21E5352C11B742B20C142EB499E048081B5342@TK5EX14MBXC126.redmond.corp.microsoft.com>
-References: <1314290866-2644-1-git-send-email-kys@microsoft.com>
-	<1314290965-2698-1-git-send-email-kys@microsoft.com>
-	<1314290965-2698-10-git-send-email-kys@microsoft.com>
-	<20110830155323.GT3705@shale.localdomain>
+Subject: RE: [PATCH 0000/0046] Staging: hv: Driver cleanup
+Date: Tue, 30 Aug 2011 17:22:54 +0000
+Message-ID: <6E21E5352C11B742B20C142EB499E048081B5363@TK5EX14MBXC126.redmond.corp.microsoft.com>
+References: <1314469874-7017-1-git-send-email-kys@microsoft.com>
+ <20110830124856.GA17520@aepfle.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <devel-bounces@linuxdriverproject.org>
-In-Reply-To: <20110830155323.GT3705@shale.localdomain>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20110830124856.GA17520@aepfle.de>
 Content-Language: en-US
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
-List-Post: <mailto:devel@linuxdriverproject.org>
-List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
-Errors-To: devel-bounces@linuxdriverproject.org
-Sender: devel-bounces@linuxdriverproject.org
-To: Dan Carpenter <error27@gmail.com>
-Cc: "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, Haiyang Zhang <haiyangz@microsoft.com>, "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Olaf Hering <olaf@aepfle.de>
+Cc: "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-
-
-> -----Original Message-----
-> From: Dan Carpenter [mailto:error27@gmail.com]
-> Sent: Tuesday, August 30, 2011 11:53 AM
-> To: KY Srinivasan
-> Cc: gregkh@suse.de; linux-kernel@vger.kernel.org;
-> devel@linuxdriverproject.org; virtualization@lists.osdl.org; Haiyang Zhang
-> Subject: Re: [PATCH 10/59] Staging: hv: util: Make hv_utils a vmbus device driver
-> 
-> On Thu, Aug 25, 2011 at 09:48:36AM -0700, K. Y. Srinivasan wrote:
-> > +	util_drv.driver.name = driver_name;
-> > +
-> > +	return vmbus_child_driver_register(&util_drv.driver);
-> 
-> We should free the allocations if vmbus_child_driver_register() fails.
-
-Thanks Dan. I will take care of this.
-
-Regards,
-
-K. Y
+DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogT2xhZiBIZXJpbmcgW21h
+aWx0bzpvbGFmQGFlcGZsZS5kZV0NCj4gU2VudDogVHVlc2RheSwgQXVndXN0IDMwLCAyMDExIDg6
+NDkgQU0NCj4gVG86IEtZIFNyaW5pdmFzYW4NCj4gQ2M6IGdyZWdraEBzdXNlLmRlOyBsaW51eC1r
+ZXJuZWxAdmdlci5rZXJuZWwub3JnOw0KPiBkZXZlbEBsaW51eGRyaXZlcnByb2plY3Qub3JnOyB2
+aXJ0dWFsaXphdGlvbkBsaXN0cy5vc2RsLm9yZw0KPiBTdWJqZWN0OiBSZTogW1BBVENIIDAwMDAv
+MDA0Nl0gU3RhZ2luZzogaHY6IERyaXZlciBjbGVhbnVwDQo+IA0KPiBPbiBTYXQsIEF1ZyAyNywg
+Sy4gWS4gU3Jpbml2YXNhbiB3cm90ZToNCj4gDQo+ID4gCTIpIEhhbmRsZSBhbGwgYmxvY2sgZGV2
+aWNlcyB1c2luZyB0aGUgc3RvcnZzYyBkcml2ZXIuIEkgaGF2ZSBtb2RpZmllZA0KPiA+IAkgICB0
+aGUgaW1wbGVtZW50YXRpb24gaGVyZSBiYXNlZCBvbiBDaHJpc3RvcGgncyBmZWVkYmFjayBvbiBt
+eSBlYXJsaWVyDQo+ID4gCSAgIGltcGxlbWVudGF0aW9uLg0KPiANCj4gVGhlIHVwZ3JhZGUgcGF0
+aCBmcm9tIGh2X2Jsa3ZzYyB0byBodl9zdG9ydnNjIGlzIGRpZmZpY3VsdC4NCj4gDQo+IGh2X3N0
+b3J2c2MgZG9lcyBub3QgcHJvdmlkZSB0aGUgdm1idXM6aHZfYmxvY2sgbW9kYWxpYXMsIHNvIG1r
+aW5pdHJkDQo+IGRvZXMgbm90IGtub3cgd2hhdCBtb2R1bGUgdG8gY2hvb3NlIHdoZW4gbWtpbml0
+cmQgaXMgY2FsbGVkIGluIGENCj4gcHJldmlvdXMga2VybmVsIChsaWtlIHNsZXMxMXNwMSkuDQo+
+IA0KPiANCj4gSW4gYSBndWVzdCB3aXRoIGJvdGggU0NTSSBhbmQgSURFIGNvbnRyb2xsZXJzIHRo
+ZSBJREUgZGlza3MgYXJlDQo+IGRpc2NvdmVyZWQgZmlyc3QsIHNvIHRoZSBTQ1NJIGRyaXZlcyB3
+aWxsIGFsc28gY2hhbmdlIHRoZWlyIG5hbWVzLg0KPiBUaGF0cyBub3QgYSBwcm9ibGVtIGZvciBk
+YXRhIHBhcnRpdGlvbnMgYmVjYXVzZSB0aGV5IGNvdWxkIGJlIG1vdW50ZWQgYnkNCj4gVVVJRCBv
+ciBMQUJFTCBpbiBmc3RhYi4NCj4gQnV0IGl0cyBkaWZmaWN1bHQgdG8gYWRqdXN0IC9ib290L2dy
+dWIvZGV2aWNlLm1hcCBmb3IgZXhhbXBsZSBiZWNhdXNlDQo+IHRoZSBvbGQgIElERSBkcml2ZXMg
+ZG8gbm90IHByb3ZpZGUgYW4gaWRlbnRpZmllci4gV2hhdCBpcyB0aGUgYmVzdCB3YXkNCj4gdG8g
+bWFrZSBzdXJlIHRoZSByZW5hbWUgZnJvbSBoZCogdG8gc2QqIGluIHN1Y2ggY29uZmlnIGZpbGVz
+IGlzIGRvbmUNCj4gY29ycmVjdGx5PyBJcyBpdCBzYWZlIHRvIGFzc3VtZSB0aGF0IGFsbCBkcml2
+ZXMgd2l0aCBhIGNsYXNzX2lkIG9mDQo+IDMyNDEyNjMyLTg2Y2ItNDRhMi05YjVjNTBkMTQxNzM1
+NGY1IGFyZSBjb25uZWN0ZWQgdG8gSURFIHBvcnRzPw0KDQpUaGUgY2xhc3NfaWQgaXMgaW52YXJp
+YW50IGFzIHdlIGFyZSByZXR1cm5pbmcgdGhlIGd1aWQgb2YgdGhlIGRldmljZSB1bmRlciBjbGFz
+c19pZC4NCg0KU28sIGlmIHlvdSBzZWUgYSBJREUgZ3VpZCB1bmRlciBjbGFzc19pZCwgeW91IGNh
+biBiZSBzdXJlIChhKSBpdCBpcyBhbiBpZGUgZGV2aWNlIGFuZCAoYikNCml0IGlzIGEgZGV2aWNl
+IG1hbmFnZWQgdmlhIHRoZSBQViBkcml2ZXJzLg0KDQo+IA0KPiBsb2NhbGhvc3Q6fiAjIGhlYWQg
+L3N5cy9idXMvdm1idXMvZGV2aWNlcy92bWJ1c18wX3sxLDIsMywxMCwxMX0vY2xhc3NfaWQNCj4g
+PT0+IC9zeXMvYnVzL3ZtYnVzL2RldmljZXMvdm1idXNfMF8xL2NsYXNzX2lkIDw9PQ0KPiB7MzI0
+MTI2MzItODZjYi00NGEyLTliNWM1MGQxNDE3MzU0ZjV9DQo+IA0KPiA9PT4gL3N5cy9idXMvdm1i
+dXMvZGV2aWNlcy92bWJ1c18wXzIvY2xhc3NfaWQgPD09DQo+IHszMjQxMjYzMi04NmNiLTQ0YTIt
+OWI1YzUwZDE0MTczNTRmNX0NCj4gDQo+ID09PiAvc3lzL2J1cy92bWJ1cy9kZXZpY2VzL3ZtYnVz
+XzBfMy9jbGFzc19pZCA8PT0NCj4gezMyNDEyNjMyLTg2Y2ItNDRhMi05YjVjNTBkMTQxNzM1NGY1
+fQ0KPiANCj4gPT0+IC9zeXMvYnVzL3ZtYnVzL2RldmljZXMvdm1idXNfMF8xMC9jbGFzc19pZCA8
+PT0NCj4ge2JhNjE2M2Q5LTA0YTEtNGQyOS1iNjA1NzJlMmZmYjFkYzdmfQ0KPiANCj4gPT0+IC9z
+eXMvYnVzL3ZtYnVzL2RldmljZXMvdm1idXNfMF8xMS9jbGFzc19pZCA8PT0NCj4ge2JhNjE2M2Q5
+LTA0YTEtNGQyOS1iNjA1NzJlMmZmYjFkYzdmfQ0KPiANCj4gDQo+IEluIG15IHRlc3Qgc3lzdGVt
+LCB0aGUgSURFIGRyaXZlcyBhcmUgbm93IGRpc2NvdmVyZWQgdHdpY2UsIG9uY2UgYnkNCj4gaHZf
+c3RvcnZzYyBhbmQgb25jZSBieSBsaWJhdGE6DQoNClRoaXMgaXMgYSBrbm93biAob2xkIHByb2Js
+ZW0pLiBUaGUgd2F5IHRoaXMgd2FzIGhhbmRsZWQgZWFybGllciB3YXMgdG8gaGF2ZSB0aGUgDQpt
+b2Rwcm9iZSBydWxlcyBpbiBwbGFjZSB0byBzZXR1cCBhIGRlcGVuZGVuY3kgdGhhdCB3b3VsZCBm
+b3JjZSB0aGUgbG9hZCBvZiB0aGUNCmh5cGVyLXYgZHJpdmVyIChibGsgLyBzdG9yKSBhaGVhZCBv
+ZiB0aGUgbmF0aXZlIGRyaXZlciBhbmQgaWYgdGhlIGxvYWQgb2YgdGhlIFBWDQpkcml2ZXIgc3Vj
+Y2VlZGVkLCB3ZSB3b3VsZCBub3QgbG9hZCB0aGUgbmF0aXZlIGRyaXZlci4gSW4gc2xlczExIHNw
+MSwgd2UgaGFkIGEgcnVsZSBmb3IgDQpsb2FkaW5nIGJsa3ZzYy4gV2l0aCB0aGUgbWVyZ2Ugb2Yg
+YmxrdnNjIGFuZCBzdG9ydnNjLCB0aGUgb25seSBjaGFuZ2Ugd2UgbmVlZCB0byBtYWtlDQppcyB0
+byBoYXZlIHN0b3J2c2MgaW4gdGhlIHJ1bGUgKGluc3RhZWQgb2YgYmxrdnNjKS4NCg0KUmVnYXJk
+cywNCg0KSy4gWQ0K
