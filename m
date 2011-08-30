@@ -1,48 +1,40 @@
-From: Greg KH <greg@kroah.com>
-Subject: Re: [PATCH 0000/0046] Staging: hv: Driver cleanup
-Date: Mon, 29 Aug 2011 11:15:02 -0700
-Message-ID: <20110829181502.GC19668@kroah.com>
+From: Dan Carpenter <error27@gmail.com>
+Subject: Re: [PATCH 41/46] Staging: hv: vmbus: Fix a bug in error handling in
+ vmbus_bus_init()
+Date: Tue, 30 Aug 2011 13:29:49 +0300
+Message-ID: <20110830102949.GD3705@shale.localdomain>
 References: <1314469874-7017-1-git-send-email-kys@microsoft.com>
+ <1314469905-7058-1-git-send-email-kys@microsoft.com>
+ <1314469905-7058-41-git-send-email-kys@microsoft.com>
+ <20110829180842.GA23618@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1314469874-7017-1-git-send-email-kys@microsoft.com>
+In-Reply-To: <20110829180842.GA23618@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: "K. Y. Srinivasan" <kys@microsoft.com>
-Cc: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org
+To: Greg KH <greg@kroah.com>
+Cc: "K. Y. Srinivasan" <kys@microsoft.com>, devel@linuxdriverproject.org, Haiyang Zhang <haiyangz@microsoft.com>, gregkh@suse.de, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sat, Aug 27, 2011 at 11:31:14AM -0700, K. Y. Srinivasan wrote:
-> Further cleanup of the hv drivers. 
-> 
-> 	1) Cleanup reference counting.
-> 
-> 	2) Handle all block devices using the storvsc driver. I have modified
-> 	   the implementation here based on Christoph's feedback on my earlier
-> 	   implementation.
-> 
-> 	3) Fix bugs.
-> 
-> 	4) Accomodate some host side scsi emulation bugs.
-> 
-> 	5) In case of scsi errors off-line the device.
-> 
-> This patch-set further reduces the size of Hyper-V drivers - the code is
-> about 10% smaller. This reduction is mainly because we have eliminated the
-> blkvsc driver.
+> err3:
+> 	free_irq(irq, hv_acpi_dev);
+> err2:
+> 	bus_unregister(&hv_bus);
+> err1:
+> 	hv_cleanup();
 
-If my tracking is correct, I applied everything in this series except
-the following patches
-	[PATCH 37/46] Staging: hv: vmbus: Check for events before messages
-	[PATCH 41/46] Staging: hv: vmbus: Fix a bug in error handling in vmbus_bus_init()
-	[PATCH 46/46] Staging: hv: Update the TODO file
+Also here is an oldbie trick.  You could use multiples of ten like
+err30, err20, and err10.  That way if you can add more error handling
+in the middle without changing the numbering.  I knew my GW-BASIC
+experience would come in handy one day.  :)
 
-Please fix up patches 37 and 41 and resend, and for 46, that should be
-totally different as mentioned, but you might want to send a patch that
-at the least adds your name to the file at the bottom, as you wanted.
-Also note that the MAINTAINERS file should also be adjusted to match.
+The better way to label things is based on what happens when you get
+there: err_irq, err_unregister, err_cleanup.
 
-thanks,
+Some people label things based on where the goto is, but that breaks
+down if there is more than one goto.  It doesn't really make sense to
+name the destination after the starting point.
 
-greg k-h
+regards,
+dan carpenter
