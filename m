@@ -1,78 +1,49 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 2/4] Staging: hv: vmbus: Fix a bug in error handling in vmbus_bus_init()
-Date: Wed, 31 Aug 2011 14:35:55 -0700
-Message-ID: <1314826557-28755-2-git-send-email-kys@microsoft.com>
-References: <1314826529-28716-1-git-send-email-kys@microsoft.com>
- <1314826557-28755-1-git-send-email-kys@microsoft.com>
+Subject: Hyper-V TODO file
+Date: Wed, 31 Aug 2011 15:16:51 -0700
+Message-ID: <1314829011-28922-1-git-send-email-kys@microsoft.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1314826557-28755-1-git-send-email-kys@microsoft.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org
-Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>
+To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org, kys@microsoft.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Fix a bug in error handling in vmbus_bus_init().
 
-Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
-Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
----
- drivers/staging/hv/vmbus_drv.c |   26 +++++++++++++++-----------
- 1 files changed, 15 insertions(+), 11 deletions(-)
+Greg,
 
-diff --git a/drivers/staging/hv/vmbus_drv.c b/drivers/staging/hv/vmbus_drv.c
-index 757943b..b5e06d6 100644
---- a/drivers/staging/hv/vmbus_drv.c
-+++ b/drivers/staging/hv/vmbus_drv.c
-@@ -492,7 +492,7 @@ static int vmbus_bus_init(int irq)
- 
- 	ret = bus_register(&hv_bus);
- 	if (ret)
--		return ret;
-+		goto err_cleanup;
- 
- 	ret = request_irq(irq, vmbus_isr, IRQF_SAMPLE_RANDOM,
- 			driver_name, hv_acpi_dev);
-@@ -500,10 +500,7 @@ static int vmbus_bus_init(int irq)
- 	if (ret != 0) {
- 		pr_err("Unable to request IRQ %d\n",
- 			   irq);
--
--		bus_unregister(&hv_bus);
--
--		return ret;
-+		goto err_unregister;
- 	}
- 
- 	vector = IRQ0_VECTOR + irq;
-@@ -514,16 +511,23 @@ static int vmbus_bus_init(int irq)
- 	 */
- 	on_each_cpu(hv_synic_init, (void *)&vector, 1);
- 	ret = vmbus_connect();
--	if (ret) {
--		free_irq(irq, hv_acpi_dev);
--		bus_unregister(&hv_bus);
--		return ret;
--	}
--
-+	if (ret)
-+		goto err_irq;
- 
- 	vmbus_request_offers();
- 
- 	return 0;
-+
-+err_irq:
-+	free_irq(irq, hv_acpi_dev);
-+
-+err_unregister:
-+	bus_unregister(&hv_bus);
-+
-+err_cleanup:
-+	hv_cleanup();
-+
-+	return ret;
- }
- 
- /**
--- 
-1.7.4.1
+The TODO file for Hyper-V drivers has not been updated in a while and does
+not reflect the current state of these drivers:
+
+1) There are no more checkpatch warnings/errors in this code. One of the TODO
+work items is "fix remaining checkpatch warnings and errors".
+
+2) With your help, we have fixed all of the issues related to these drivers
+conforming to the Linux Device Driver model. One of the TODO work items is 
+"audit the vmbus to verify it is working properly with the driver model".
+
+3) Like all other virtualization platforms, the protocol to communicate with
+the host is very host specific. The ringbuffer control structures are shared
+between the host and the guest and so, the guest is compelled to follow the
+mandates of the host. Thus, it is not possible for us to merge the vmbus with
+other virtual buses in the system. One of the TODO work items is  "see if the 
+vmbus can be merged with the other virtual busses in the kernel".
+
+4) A couple of months ago, we had posted the network driver for community review.
+We have submitted patches (and these have been applied) to address the review
+comments. One of the TODO work items is "audit the network driver"
+
+5) Recently, we have merged the IDE and scsi drivers into a single driver that
+can handle both IDE and SCSI devices. These patches have been already checked in.
+As part of this effort, we have addressed all of the community comments on the
+combined storage driver. The TODO file currently has two work items on this
+issue: "audit the block driver" and "audit the scsi driver".
+
+Greg, as I have been pestering you for some time now, we are very interested in
+exiting staging and we are willing to dedicate the necessary development 
+resources to address whatever issues that may still be pending. So, your help
+in identifying what needs to be done will be greatly appreciated. To that end,
+I think it will be useful to update the TODO file to reflect the current state of
+the drivers. Let us know how we should proceed here. 
+
+Regards,
+
+K. Y
