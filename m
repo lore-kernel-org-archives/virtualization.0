@@ -1,49 +1,28 @@
-From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: Hyper-V TODO file
-Date: Wed, 31 Aug 2011 15:16:51 -0700
-Message-ID: <1314829011-28922-1-git-send-email-kys@microsoft.com>
+From: Peter Foley <pefoley2@verizon.net>
+Subject: Re: Hyper-V TODO file
+Date: Wed, 31 Aug 2011 19:11:39 -0400 (EDT)
+Message-ID: <alpine.LNX.2.00.1108311907130.20924@linux>
+References: <1314829011-28922-1-git-send-email-kys@microsoft.com>
+Mime-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-reply-to: <1314829011-28922-1-git-send-email-kys@microsoft.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org, kys@microsoft.com
+To: "K. Y. Srinivasan" <kys@microsoft.com>
+Cc: gregkh@suse.de, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, devel@linuxdriverproject.org, virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
+On Wed, 31 Aug 2011, K. Y. Srinivasan wrote:
+> Greg, as I have been pestering you for some time now, we are very interested in
+> exiting staging and we are willing to dedicate the necessary development 
+> resources to address whatever issues that may still be pending. So, your help
+> in identifying what needs to be done will be greatly appreciated. To that end,
+> I think it will be useful to update the TODO file to reflect the current state of
+> the drivers. Let us know how we should proceed here. 
+ 
+An issue I've come across in the hyper-v drivers is the forced modular 
+build. You might want to see if the "depends on m" is still needed.
 
-Greg,
+Thanks,
 
-The TODO file for Hyper-V drivers has not been updated in a while and does
-not reflect the current state of these drivers:
-
-1) There are no more checkpatch warnings/errors in this code. One of the TODO
-work items is "fix remaining checkpatch warnings and errors".
-
-2) With your help, we have fixed all of the issues related to these drivers
-conforming to the Linux Device Driver model. One of the TODO work items is 
-"audit the vmbus to verify it is working properly with the driver model".
-
-3) Like all other virtualization platforms, the protocol to communicate with
-the host is very host specific. The ringbuffer control structures are shared
-between the host and the guest and so, the guest is compelled to follow the
-mandates of the host. Thus, it is not possible for us to merge the vmbus with
-other virtual buses in the system. One of the TODO work items is  "see if the 
-vmbus can be merged with the other virtual busses in the kernel".
-
-4) A couple of months ago, we had posted the network driver for community review.
-We have submitted patches (and these have been applied) to address the review
-comments. One of the TODO work items is "audit the network driver"
-
-5) Recently, we have merged the IDE and scsi drivers into a single driver that
-can handle both IDE and SCSI devices. These patches have been already checked in.
-As part of this effort, we have addressed all of the community comments on the
-combined storage driver. The TODO file currently has two work items on this
-issue: "audit the block driver" and "audit the scsi driver".
-
-Greg, as I have been pestering you for some time now, we are very interested in
-exiting staging and we are willing to dedicate the necessary development 
-resources to address whatever issues that may still be pending. So, your help
-in identifying what needs to be done will be greatly appreciated. To that end,
-I think it will be useful to update the TODO file to reflect the current state of
-the drivers. Let us know how we should proceed here. 
-
-Regards,
-
-K. Y
+Peter Foley
