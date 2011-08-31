@@ -1,57 +1,61 @@
 From: KY Srinivasan <kys@microsoft.com>
-Subject: RE: [PATCH 37/46] Staging: hv: vmbus: Check for events before
- messages
-Date: Wed, 31 Aug 2011 14:22:54 +0000
-Message-ID: <6E21E5352C11B742B20C142EB499E048081B553D@TK5EX14MBXC126.redmond.corp.microsoft.com>
+Subject: RE: [PATCH 0000/0046] Staging: hv: Driver cleanup
+Date: Wed, 31 Aug 2011 14:27:23 +0000
+Message-ID: <6E21E5352C11B742B20C142EB499E048081B5549@TK5EX14MBXC126.redmond.corp.microsoft.com>
 References: <1314469874-7017-1-git-send-email-kys@microsoft.com>
- <1314469905-7058-1-git-send-email-kys@microsoft.com>
- <1314469905-7058-37-git-send-email-kys@microsoft.com>
- <20110829180511.GA7167@kroah.com>
- <6E21E5352C11B742B20C142EB499E048081B52F7@TK5EX14MBXC126.redmond.corp.microsoft.com>
- <20110830173818.GC22868@kroah.com>
+ <20110830124856.GA17520@aepfle.de>
+ <6E21E5352C11B742B20C142EB499E048081B5363@TK5EX14MBXC126.redmond.corp.microsoft.com>
+ <20110830174330.GE22868@kroah.com> <20110830180434.GA10090@aepfle.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20110830173818.GC22868@kroah.com>
+In-Reply-To: <20110830180434.GA10090@aepfle.de>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Greg KH <greg@kroah.com>
-Cc: "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, Haiyang Zhang <haiyangz@microsoft.com>
+To: Olaf Hering <olaf@aepfle.de>, Greg KH <greg@kroah.com>
+Cc: "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-
-
-> -----Original Message-----
-> From: Greg KH [mailto:greg@kroah.com]
-> Sent: Tuesday, August 30, 2011 1:38 PM
-> To: KY Srinivasan
-> Cc: gregkh@suse.de; linux-kernel@vger.kernel.org;
-> devel@linuxdriverproject.org; virtualization@lists.osdl.org; Haiyang Zhang
-> Subject: Re: [PATCH 37/46] Staging: hv: vmbus: Check for events before
-> messages
-> 
-> On Tue, Aug 30, 2011 at 05:06:39PM +0000, KY Srinivasan wrote:
-> > > On Sat, Aug 27, 2011 at 11:31:36AM -0700, K. Y. Srinivasan wrote:
-> > > > Conform to Windows specification by checking for events before messages.
-> > >
-> > > What specification?
-> > >
-> > > Care to provide a comment in the code that you are doing this in this
-> > > explicit order because of some rule that the hypervisor imposes on us?
-> >
-> > I am not sure if this is documented anywhere (publicly). In talking to Windows
-> > guys, they suggested this is the order in which it is done on Windows guests
-> and suggested
-> > I should do the same. I will see if there is some public documentation that
-> specifies this.
-> 
-> All you need to do is just document it in the code and I'll be happy.
-> We don't rely on external documentation for things to be changed, in
-> fact, there usually isn't any such thing :)
-
-Ok; will do.
-
-Regards,
-
-K. Y
+DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogT2xhZiBIZXJpbmcgW21h
+aWx0bzpvbGFmQGFlcGZsZS5kZV0NCj4gU2VudDogVHVlc2RheSwgQXVndXN0IDMwLCAyMDExIDI6
+MDUgUE0NCj4gVG86IEdyZWcgS0gNCj4gQ2M6IEtZIFNyaW5pdmFzYW47IGRldmVsQGxpbnV4ZHJp
+dmVycHJvamVjdC5vcmc7IGdyZWdraEBzdXNlLmRlOyBsaW51eC0NCj4ga2VybmVsQHZnZXIua2Vy
+bmVsLm9yZzsgdmlydHVhbGl6YXRpb25AbGlzdHMub3NkbC5vcmcNCj4gU3ViamVjdDogUmU6IFtQ
+QVRDSCAwMDAwLzAwNDZdIFN0YWdpbmc6IGh2OiBEcml2ZXIgY2xlYW51cA0KPiANCj4gT24gVHVl
+LCBBdWcgMzAsIEdyZWcgS0ggd3JvdGU6DQo+IA0KPiA+ID4gPiBJbiBteSB0ZXN0IHN5c3RlbSwg
+dGhlIElERSBkcml2ZXMgYXJlIG5vdyBkaXNjb3ZlcmVkIHR3aWNlLCBvbmNlIGJ5DQo+ID4gPiA+
+IGh2X3N0b3J2c2MgYW5kIG9uY2UgYnkgbGliYXRhOg0KPiA+ID4NCj4gPiA+IFRoaXMgaXMgYSBr
+bm93biAob2xkIHByb2JsZW0pLiBUaGUgd2F5IHRoaXMgd2FzIGhhbmRsZWQgZWFybGllciB3YXMg
+dG8gaGF2ZQ0KPiB0aGUNCj4gPiA+IG1vZHByb2JlIHJ1bGVzIGluIHBsYWNlIHRvIHNldHVwIGEg
+ZGVwZW5kZW5jeSB0aGF0IHdvdWxkIGZvcmNlIHRoZSBsb2FkIG9mDQo+IHRoZQ0KPiA+ID4gaHlw
+ZXItdiBkcml2ZXIgKGJsayAvIHN0b3IpIGFoZWFkIG9mIHRoZSBuYXRpdmUgZHJpdmVyIGFuZCBp
+ZiB0aGUgbG9hZCBvZiB0aGUgUFYNCj4gPiA+IGRyaXZlciBzdWNjZWVkZWQsIHdlIHdvdWxkIG5v
+dCBsb2FkIHRoZSBuYXRpdmUgZHJpdmVyLiBJbiBzbGVzMTEgc3AxLCB3ZSBoYWQgYQ0KPiBydWxl
+IGZvcg0KPiA+ID4gbG9hZGluZyBibGt2c2MuIFdpdGggdGhlIG1lcmdlIG9mIGJsa3ZzYyBhbmQg
+c3RvcnZzYywgdGhlIG9ubHkgY2hhbmdlIHdlDQo+IG5lZWQgdG8gbWFrZQ0KPiA+ID4gaXMgdG8g
+aGF2ZSBzdG9ydnNjIGluIHRoZSBydWxlIChpbnN0YWVkIG9mIGJsa3ZzYykuDQo+ID4NCj4gPiBX
+aHkgZG8gd2UgbmVlZCBhIHJ1bGUgYXQgYWxsPyAgU2hvdWxkbid0IHRoZSBtb2R1bGUgZGVwZW5k
+YW5jeSBzdHVmZg0KPiA+IGhhbmRsZSB0aGUgYXV0b2xvYWRpbmcgb2YgdGhlIGRyaXZlcnMgcHJv
+cGVybHkgZnJvbSB0aGUgaW5pdHJkIG5vdyB0aGF0DQo+ID4gdGhlIGhvdHBsdWcgbG9naWMgaXMg
+aG9va2VkIHVwIHByb3Blcmx5Pw0KPiANCj4gVGhlcmUgaXMgbm8gcGxhbiB0byBsb2FkIGh2X3Zt
+YnVzIChvciB4ZW4tcGxhdGZvcm0tcGNpKSBlYXJsaWVyIHRoYW4NCj4gbmF0aXZlIGRyaXZlcnMu
+ICBUaGF0IHdhcyB0aGUgcHVycG9zZSBvZiB0aGUgbW9kcHJvYmUuY29uZiBmaWxlcy4gTm93DQo+
+IHRoYXQgdGhlcmUgaXMgYSB2bWJ1cywgdGhhdCBmYWN0IGNvdWxkIGJlIGNoZWNrZWQgYmVmb3Jl
+IGFueSBvdGhlcg0KPiBhdHRlbXB0IHRvIGxvYWQgZHJpdmVycyBpcyBtYWRlIGFuZCBodl92bWJ1
+cyBzaG91bGQgYmUgbG9hZGVkIGFuZCBhbGwgb2YNCj4gaXRzIGRldmljZXMgaGF2ZSB0byBiZSBw
+cm9iZWQgbWFudWFsbHkgYnkgbW9kcHJvYmUgYGNhdCBtb2R1bGVhbGlhc2AuDQoNClRoZSBzdHJh
+dGVneSBJIHdhcyBkZXNjcmliaW5nIHdhcyB3aGF0IHdhcyB1c2VkIGluIHNsZXMxMSBzcDEuDQoN
+Cj4gDQo+ID4gT3IgaXMgdGhlIGhvdHBsdWcgY29kZSBub3Qgd29ya2luZyBjb3JyZWN0bHk/DQo+
+IA0KPiBUaGVyZSBpcyBub3RoaW5nIHRvIGhvdHBsdWcuIGh2X3ZtYnVzIGhhcyB0byBiZSBsb2Fk
+ZWQgZmlyc3Qgc28gdGhhdCBpdA0KPiBjYW4gdGFrZSBvdmVyIHRoZSBkZXZpY2VzLiBCdXQgaXQg
+c2VlbXMgdGhhdCB0aGVyZSBpcyBubyBzaHV0ZG93biBvZiB0aGUNCj4gZW11bGF0ZWQgaGFyZHdh
+cmUsIHRoYXRzIHdoeSB0aGUgZGlzayAic2RhIiBpcyBzaG93biB0d2ljZS4NCj4gDQo+IEkgc3Bv
+dCBhIGZsYXcgaGVyZS4NCj4gS1ksIGNhbiBodl92bWJ1cyBzaHV0ZG93biBlbXVsYXRlZCBoYXJk
+d2FyZT8gQXQgbGVhc3QgdGhlIGRpc2tzLCBiZWNhdXNlDQo+IGNkcm9tcyBhcmUgYXBwZWFyZW50
+bHkgc3RpbGwgYmUgaGFuZGxlZCBieSBuYXRpdmUgZHJpdmVycz8NCg0KT2xhZiwgdW5mb3J0dW5h
+dGVseSB0aGUgdm1idXMgZHJpdmVyIGRvZXMgbm90IHN0b3AgdGhlIGVtdWxhdGlvbiBvZiB0aGUg
+ZGlzayBkZXZpY2VzLg0KVGhlIGVhcmxpZXIgbW9kcHJvYmUgcnVsZSB3YXMgYWxzbyBpbnN0cnVt
+ZW50YWwgaW4gcHJldmVudGluZyB0aGUgbG9hZGluZyBvZiB0aGUNCm5hdGl2ZSBkcml2ZXJzIGlm
+IHRoZSBoeXBlcnYtIGRyaXZlciBsb2FkIHN1Y2NlZWRlZC4NCg0KUmVnYXJkcywNCg0KSy4gWSAN
+Cg0K
