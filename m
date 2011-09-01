@@ -1,49 +1,50 @@
 From: Haiyang Zhang <haiyangz@microsoft.com>
-Subject: [PATCH 06/10] staging: hv: fix counting of #outstanding-sends in
-	failed sends
-Date: Thu,  1 Sep 2011 12:19:44 -0700
-Message-ID: <1314904788-32746-7-git-send-email-haiyangz@microsoft.com>
+Subject: [PATCH 08/10] staging: hv: fix the return status of netvsc_start_xmit()
+Date: Thu,  1 Sep 2011 12:19:46 -0700
+Message-ID: <1314904788-32746-9-git-send-email-haiyangz@microsoft.com>
 References: <1314904788-32746-1-git-send-email-haiyangz@microsoft.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <devel-bounces@linuxdriverproject.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1314904788-32746-1-git-send-email-haiyangz@microsoft.com>
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
-List-Post: <mailto:devel@linuxdriverproject.org>
-List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
-Errors-To: devel-bounces@linuxdriverproject.org
-Sender: devel-bounces@linuxdriverproject.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: haiyangz@microsoft.com, hjanssen@microsoft.com, kys@microsoft.com, gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-If the packet failed to be sent, we shouldn't count it as the
-number of outstanding sends.
+Fix the return status, so the upper layer will retry if transmission
+fails.
 
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 ---
- drivers/staging/hv/netvsc.c |    3 ++-
- 1 files changed, 2 insertions(+), 1 deletions(-)
+ drivers/staging/hv/netvsc_drv.c |    6 +++---
+ 1 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/staging/hv/netvsc.c b/drivers/staging/hv/netvsc.c
-index 82b129b..efbc8a0 100644
---- a/drivers/staging/hv/netvsc.c
-+++ b/drivers/staging/hv/netvsc.c
-@@ -494,8 +494,9 @@ int netvsc_send(struct hv_device *device,
- 	if (ret != 0)
- 		netdev_err(ndev, "Unable to send packet %p ret %d\n",
- 			   packet, ret);
-+	else
-+		atomic_inc(&net_device->num_outstanding_sends);
+diff --git a/drivers/staging/hv/netvsc_drv.c b/drivers/staging/hv/netvsc_drv.c
+index 81e3c49..30b9c80 100644
+--- a/drivers/staging/hv/netvsc_drv.c
++++ b/drivers/staging/hv/netvsc_drv.c
+@@ -140,12 +140,12 @@ static int netvsc_start_xmit(struct sk_buff *skb, struct net_device *net)
+ 			 (num_pages * sizeof(struct hv_page_buffer)) +
+ 			 sizeof(struct rndis_filter_packet), GFP_ATOMIC);
+ 	if (!packet) {
+-		/* out of memory, silently drop packet */
++		/* out of memory, drop packet */
+ 		netdev_err(net, "unable to allocate hv_netvsc_packet\n");
  
--	atomic_inc(&net_device->num_outstanding_sends);
- 	return ret;
+ 		dev_kfree_skb(skb);
+ 		net->stats.tx_dropped++;
+-		return NETDEV_TX_OK;
++		return NETDEV_TX_BUSY;
+ 	}
+ 
+ 	packet->extension = (void *)(unsigned long)packet +
+@@ -194,7 +194,7 @@ static int netvsc_start_xmit(struct sk_buff *skb, struct net_device *net)
+ 		dev_kfree_skb_any(skb);
+ 	}
+ 
+-	return NETDEV_TX_OK;
++	return ret ? NETDEV_TX_BUSY : NETDEV_TX_OK;
  }
  
+ /*
 -- 
 1.6.3.2
