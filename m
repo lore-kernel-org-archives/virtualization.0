@@ -1,98 +1,61 @@
-From: KY Srinivasan <kys@microsoft.com>
-Subject: RE: Hyper-V TODO file
-Date: Thu, 1 Sep 2011 21:08:44 +0000
-Message-ID: <6E21E5352C11B742B20C142EB499E048081B5C8E@TK5EX14MBXC126.redmond.corp.microsoft.com>
-References: <1314829011-28922-1-git-send-email-kys@microsoft.com>
- <20110901202733.GA15185@kroah.com> <20110901203031.GB15185@kroah.com>
+From: Mike Sterling <mike.sterling@microsoft.com>
+Subject: [PATCH 1/1] staging: hv: Add support for >2 TB LUN in storage driver.
+Date: Thu,  1 Sep 2011 15:11:09 -0700
+Message-ID: <1314915069-1796-1-git-send-email-mike.sterling@microsoft.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20110901203031.GB15185@kroah.com>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Greg KH <greg@kroah.com>
-Cc: "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>
+Content-Transfer-Encoding: 7bit
+Return-path: <devel-bounces@linuxdriverproject.org>
+List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
+	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
+List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
+List-Post: <mailto:devel@linuxdriverproject.org>
+List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
+List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
+	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
+Errors-To: devel-bounces@linuxdriverproject.org
+Sender: devel-bounces@linuxdriverproject.org
+To: haiyangz@microsoft.com, hjanssen@microsoft.com, kys@microsoft.com, gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org
+Cc: Mike Sterling <mike.sterling@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
+If a LUN larger than 2 TB is attached to a Linux VM on Hyper-V, we currently 
+report a maximum size of 2 TB. This patch resolves the issue in hv_storvsc. 
+Thanks to Robert Scheck <robert.scheck@etes.de> for reporting the issue.
 
+Reported-by: Robert Scheck <robert.scheck@etes.de>
+Signed-off-by: Mike Sterling <mike.sterling@microsoft.com>
+Signed-off-by: K.Y. Srinivasan <kys@microsoft.com>
+Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
+---
+ drivers/staging/hv/hyperv_storage.h |    1 +
+ drivers/staging/hv/storvsc_drv.c    |    2 ++
+ 2 files changed, 3 insertions(+), 0 deletions(-)
 
-> -----Original Message-----
-> From: Greg KH [mailto:greg@kroah.com]
-> Sent: Thursday, September 01, 2011 4:31 PM
-> To: KY Srinivasan
-> Cc: gregkh@suse.de; linux-kernel@vger.kernel.org;
-> devel@linuxdriverproject.org; virtualization@lists.osdl.org
-> Subject: Re: Hyper-V TODO file
-> 
-> On Thu, Sep 01, 2011 at 01:27:33PM -0700, Greg KH wrote:
-> > On Wed, Aug 31, 2011 at 03:16:51PM -0700, K. Y. Srinivasan wrote:
-> > > 2) With your help, we have fixed all of the issues related to these drivers
-> > > conforming to the Linux Device Driver model. One of the TODO work items is
-> > > "audit the vmbus to verify it is working properly with the driver model".
-> >
-> > I have a few comments about this, I'll respond in another email.
-> 
-> Ok, it looks a _lot_ better, but I have a few minor nits, and one larger
-> one:
-> 
-> - rename the vmbus_child_* functions to vmbus_* as there's no need to
->   think of "children" here.
-
-Ok; will do.
-> 
-> - vmbus_onoffer comment is incorrect.  You handle offers from lots of
->   other types.  Or if not, am I reading the code incorrectly?
-
-You are right; I will clean this up.
-
-> 
-> - the static hv_cb_utils array needs to go away.  In the hv_utils.c
->   util_probe() call, properly register the channel callback, and the
->   same goes for the util_remove() call, unregister things there.
->   Note, you can use the driver_data field to determine exactly which
->   callback needs to be registered to make things easy.  Something like
->   the following (pseudo code only):
-> 
-> static const struct hv_vmbus_device_id id_table[] = {
-> 	/* Shutdown guid */
-> 	{ VMBUS_DEVICE(0x31, 0x60, 0x0B, 0X0E, 0x13, 0x52, 0x34, 0x49,
-> 		       0x81, 0x8B, 0x38, 0XD9, 0x0C, 0xED, 0x39, 0xDB),
-> 	  .driver_data = &shutdown_onchannelcallback },
-> 	....
-> };
-> 
-> util_probe(struct hv_device *dev, const struct hv_vmbus_device_id *id)
->  [ Yes, you will have to change the probe callback signature, but that's fine. ]
-> {
-> 	void *fn(void *context);
-> 	u8 *buffer;
-> 
-> 	fn = id->driver_data;
-> 	buffer = kmalloc(PAGE_SIZE, GFP_KERNEL);
-> 
-> 	/* Hook up callback and buffer with a call to the proper vmbus
-> 	 * function
-> 	 */
-> 	 ...
-> }
-> 
-> util_remove()
-> {
-> 	/* undo what you did in util_probe(), unhooking the callback and
-> 	 * freeing the data */
-> }
-> 
-> 
-> Does that make any sense?
-
-Yes; I will get these patches to you soon. I see how the data ptr can be used;
-I will buy you the beer the next time we meet.
-
-Regards,
-
-K. Y
-> 
-> thanks,
-> 
-> greg k-h
+diff --git a/drivers/staging/hv/hyperv_storage.h b/drivers/staging/hv/hyperv_storage.h
+index a01f9a0..5af82f4 100644
+--- a/drivers/staging/hv/hyperv_storage.h
++++ b/drivers/staging/hv/hyperv_storage.h
+@@ -218,6 +218,7 @@ struct vstor_packet {
+ #define STORVSC_MAX_LUNS_PER_TARGET			64
+ #define STORVSC_MAX_TARGETS				1
+ #define STORVSC_MAX_CHANNELS				1
++#define STORVSC_MAX_CMD_LEN				16
+ 
+ struct hv_storvsc_request;
+ 
+diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
+index 7effaf3..26983ac 100644
+--- a/drivers/staging/hv/storvsc_drv.c
++++ b/drivers/staging/hv/storvsc_drv.c
+@@ -701,6 +701,8 @@ static int storvsc_probe(struct hv_device *device)
+ 	host->max_id = STORVSC_MAX_TARGETS;
+ 	/* max # of channels */
+ 	host->max_channel = STORVSC_MAX_CHANNELS - 1;
++	/* max cmd length */
++	host->max_cmd_len = STORVSC_MAX_CMD_LEN;
+ 
+ 	/* Register the HBA and start the scsi bus scan */
+ 	ret = scsi_add_host(host, &device->device);
+-- 
+1.7.1
