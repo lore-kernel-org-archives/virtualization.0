@@ -1,7 +1,8 @@
 From: Haiyang Zhang <haiyangz@microsoft.com>
-Subject: [PATCH 10/10] staging: hv: fix some typos in netvsc.c
-Date: Thu,  1 Sep 2011 12:19:48 -0700
-Message-ID: <1314904788-32746-11-git-send-email-haiyangz@microsoft.com>
+Subject: [PATCH 06/10] staging: hv: fix counting of #outstanding-sends in
+	failed sends
+Date: Thu,  1 Sep 2011 12:19:44 -0700
+Message-ID: <1314904788-32746-7-git-send-email-haiyangz@microsoft.com>
 References: <1314904788-32746-1-git-send-email-haiyangz@microsoft.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -20,34 +21,29 @@ Sender: devel-bounces@linuxdriverproject.org
 To: haiyangz@microsoft.com, hjanssen@microsoft.com, kys@microsoft.com, gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Reported-by: Joe Perches <joe@perches.com>
+If the packet failed to be sent, we shouldn't count it as the
+number of outstanding sends.
+
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 ---
- drivers/staging/hv/netvsc.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/staging/hv/netvsc.c |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletions(-)
 
 diff --git a/drivers/staging/hv/netvsc.c b/drivers/staging/hv/netvsc.c
-index efbc8a0..115629f 100644
+index 82b129b..efbc8a0 100644
 --- a/drivers/staging/hv/netvsc.c
 +++ b/drivers/staging/hv/netvsc.c
-@@ -218,7 +218,7 @@ static int netvsc_init_recv_buf(struct hv_device *device)
- 	if (init_packet->msg.v1_msg.
- 	    send_recv_buf_complete.status != NVSP_STAT_SUCCESS) {
- 		netdev_err(ndev, "Unable to complete receive buffer "
--			   "initialzation with NetVsp - status %d\n",
-+			   "initialization with NetVsp - status %d\n",
- 			   init_packet->msg.v1_msg.
- 			   send_recv_buf_complete.status);
- 		ret = -EINVAL;
-@@ -695,7 +695,7 @@ static void netvsc_receive(struct hv_device *device,
- 	xferpage_packet->count = count - 1;
+@@ -494,8 +494,9 @@ int netvsc_send(struct hv_device *device,
+ 	if (ret != 0)
+ 		netdev_err(ndev, "Unable to send packet %p ret %d\n",
+ 			   packet, ret);
++	else
++		atomic_inc(&net_device->num_outstanding_sends);
  
- 	if (xferpage_packet->count != vmxferpage_packet->range_cnt) {
--		netdev_err(ndev, "Needed %d netvsc pkts to satisy "
-+		netdev_err(ndev, "Needed %d netvsc pkts to satisfy "
- 			"this xfer page...got %d\n",
- 			vmxferpage_packet->range_cnt, xferpage_packet->count);
- 	}
+-	atomic_inc(&net_device->num_outstanding_sends);
+ 	return ret;
+ }
+ 
 -- 
 1.6.3.2
