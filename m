@@ -1,55 +1,41 @@
-From: KY Srinivasan <kys@microsoft.com>
-Subject: RE: Hyper-V TODO file
-Date: Fri, 2 Sep 2011 15:17:19 +0000
-Message-ID: <6E21E5352C11B742B20C142EB499E048081B5FA3@TK5EX14MBXC126.redmond.corp.microsoft.com>
-References: <1314829011-28922-1-git-send-email-kys@microsoft.com>
- <alpine.LNX.2.00.1108311907130.20924@linux>
- <20110901203113.GA15259@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+From: "K. Y. Srinivasan" <kys@microsoft.com>
+Subject: [PATCH 1/1] Staging: hv: Update TODO file
+Date: Fri,  2 Sep 2011 08:55:41 -0700
+Message-ID: <1314978941-8942-1-git-send-email-kys@microsoft.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20110901203113.GA15259@kroah.com>
-Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Greg KH <greg@kroah.com>, Peter Foley <pefoley2@verizon.net>
-Cc: "gregkh@suse.de" <gregkh@suse.de>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>
+To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org
+Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
+Based on input from Greg, update the TODO file.
 
+Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
+Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
+---
+ drivers/staging/hv/TODO |    7 ++-----
+ 1 files changed, 2 insertions(+), 5 deletions(-)
 
-> -----Original Message-----
-> From: Greg KH [mailto:greg@kroah.com]
-> Sent: Thursday, September 01, 2011 4:31 PM
-> To: Peter Foley
-> Cc: KY Srinivasan; gregkh@suse.de; Linux Kernel Mailing List;
-> devel@linuxdriverproject.org; virtualization@lists.osdl.org
-> Subject: Re: Hyper-V TODO file
-> 
-> On Wed, Aug 31, 2011 at 07:11:39PM -0400, Peter Foley wrote:
-> > On Wed, 31 Aug 2011, K. Y. Srinivasan wrote:
-> > > Greg, as I have been pestering you for some time now, we are very
-> interested in
-> > > exiting staging and we are willing to dedicate the necessary development
-> > > resources to address whatever issues that may still be pending. So, your help
-> > > in identifying what needs to be done will be greatly appreciated. To that end,
-> > > I think it will be useful to update the TODO file to reflect the current state of
-> > > the drivers. Let us know how we should proceed here.
-> >
-> > An issue I've come across in the hyper-v drivers is the forced modular
-> > build. You might want to see if the "depends on m" is still needed.
-> 
-> Ah, good point, KY, can you try this out and see if that can be changed?
-> If not, something is wrong and that needs to get fixed.
-
-Just verified that we can build into the kernel (not as modules) all hyper-V
-drivers except hv_storvsc. hv_storvsc depends upon functionality that in my build 
-is being built as modules (SCSI etc.) and this is the reason why I could not build
-hv_storvsc as part of the kernel.
-
-Greg, do you want me to submit a patch to Kconfig, getting rid of the module
-dependency (for hyperv-v drivers).
-
-Regards,
-
-K. Y
+diff --git a/drivers/staging/hv/TODO b/drivers/staging/hv/TODO
+index 582fd4a..7c9a93f 100644
+--- a/drivers/staging/hv/TODO
++++ b/drivers/staging/hv/TODO
+@@ -1,14 +1,11 @@
+ TODO:
+-	- fix remaining checkpatch warnings and errors
+ 	- audit the vmbus to verify it is working properly with the
+ 	  driver model
+-	- see if the vmbus can be merged with the other virtual busses
+-	  in the kernel
+ 	- audit the network driver
+ 	  - checking for carrier inside open is wrong, network device API
+             confusion??
+-	- audit the block driver
+ 	- audit the scsi driver
+ 
+ Please send patches for this code to Greg Kroah-Hartman <gregkh@suse.de>,
+-Hank Janssen <hjanssen@microsoft.com>, and Haiyang Zhang <haiyangz@microsoft.com>.
++Hank Janssen <hjanssen@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>,
++K. Y. Srinivasan <kys@microsoft.com>
+-- 
+1.7.4.1
