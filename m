@@ -1,7 +1,7 @@
 From: KY Srinivasan <kys@microsoft.com>
 Subject: RE: Hyper-V TODO file
-Date: Fri, 2 Sep 2011 14:09:54 +0000
-Message-ID: <6E21E5352C11B742B20C142EB499E048081B5F87@TK5EX14MBXC126.redmond.corp.microsoft.com>
+Date: Fri, 2 Sep 2011 15:17:19 +0000
+Message-ID: <6E21E5352C11B742B20C142EB499E048081B5FA3@TK5EX14MBXC126.redmond.corp.microsoft.com>
 References: <1314829011-28922-1-git-send-email-kys@microsoft.com>
  <alpine.LNX.2.00.1108311907130.20924@linux>
  <20110901203113.GA15259@kroah.com>
@@ -42,7 +42,13 @@ List-Id: virtualization@lists.linuxfoundation.org
 > Ah, good point, KY, can you try this out and see if that can be changed?
 > If not, something is wrong and that needs to get fixed.
 
-I will check it and let you know. If there are issues, I fill fix them
+Just verified that we can build into the kernel (not as modules) all hyper-V
+drivers except hv_storvsc. hv_storvsc depends upon functionality that in my build 
+is being built as modules (SCSI etc.) and this is the reason why I could not build
+hv_storvsc as part of the kernel.
+
+Greg, do you want me to submit a patch to Kconfig, getting rid of the module
+dependency (for hyperv-v drivers).
 
 Regards,
 
