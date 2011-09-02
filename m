@@ -1,104 +1,208 @@
-From: Sasha Levin <levinsasha928@gmail.com>
-Subject: Re: [PATCH] virtio-net: Read MAC only after initializing MSI-X
-Date: Wed, 31 Aug 2011 19:24:36 +0300
-Message-ID: <1314807876.14150.13.camel__41015.2204138742$1314917246$gmane$org@lappy>
-References: <1313225461-24458-1-git-send-email-levinsasha928@gmail.com>
-	<20110819152335.GA19489@redhat.com> <87hb5a5m3x.fsf@rustcorp.com.au>
-	<20110822083613.GA18556@redhat.com>
+From: Thomas Gleixner <tglx@linutronix.de>
+Subject: Re: [PATCH 1/1] Staging: hv: Integrate the time source driver with
+ Hyper-V detection code
+Date: Fri, 2 Sep 2011 10:13:55 +0200 (CEST)
+Message-ID: <alpine.LFD.2.02.1109021013390.2723@ionos>
+References: <1312300982-11609-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20110822083613.GA18556@redhat.com>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1312300982-11609-1-git-send-email-kys@microsoft.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: "K. Y. Srinivasan" <kys@microsoft.com>
+Cc: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org, andi@firstfloor.org, akpm@linux-foundation.org, x86@kernel.org, Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-I'm wondering if we can switch to using a linked list 'capabilities'
-structure similar to whats being done with PCI capabilities.
+On Tue, 2 Aug 2011, K. Y. Srinivasan wrote:
 
-Here are the pros and the cons as I see them:
-
-Pros:
- * Simpler code - currently before each access to the virtio config
-space we have to check whether MSI-X is on and whether the device has
-64bit features. This isn't necessarily slow, but it complicates the
-code.
-
- * Future proof - code will be a mess once 5-6 features can change the
-config space.
-
- * 'Concept reuse' - using same concepts in virtio-pci as the ones used
-in PCI ('PCI Capabilities list') would make it easier to understand, and
-would implement the same method to use optional features as in the layer
-above.
-
-
-Cons:
- * MSI-X is already moving the config space, we'll need to keep
-supporting it for a while, but it would mean that it's the only thing we
-need to keep backwards compatible.
-
- * 64bit features also move config space, but they're brand new in the
-spec and aren't implemented in the kernel yet - I doubt anyone
-implemented it anywhere else yet.
-
-On Mon, 2011-08-22 at 11:36 +0300, Michael S. Tsirkin wrote:
-> On Mon, Aug 22, 2011 at 09:54:50AM +0930, Rusty Russell wrote:
-> > On Fri, 19 Aug 2011 18:23:35 +0300, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> > > On Sat, Aug 13, 2011 at 11:51:01AM +0300, Sasha Levin wrote:
-> > > > The MAC of a virtio-net device is located at the first field of the device
-> > > > specific header. This header is located at offset 20 if the device doesn't
-> > > > support MSI-X or offset 24 if it does.
-> > > > 
-> > > > Current code in virtnet_probe() used to probe the MAC before checking for
-> > > > MSI-X, which means that the read was always made from offset 20 regardless
-> > > > of whether MSI-X in enabled or not.
-> > > > 
-> > > > This patch moves the MAC probe to after the detection of whether MSI-X is
-> > > > enabled. This way the MAC will be read from offset 24 if the device indeed
-> > > > supports MSI-X.
-> > > > 
-> > > > Cc: Rusty Russell <rusty@rustcorp.com.au>
-> > > > Cc: Michael S. Tsirkin <mst@redhat.com>
-> > > > Cc: virtualization@lists.linux-foundation.org
-> > > > Cc: netdev@vger.kernel.org
-> > > > Cc: kvm@vger.kernel.org
-> > > > Signed-off-by: Sasha Levin <levinsasha928@gmail.com>
-> > > 
-> > > I am not sure I see a bug in virtio: the config pace layout simply
-> > > changes as msix is enabled and disabled (and if you look at the latest
-> > > draft, also on whether 64 bit features are enabled).
-> > > It doesn't depend on msix capability being present in device.
-> > > 
-> > > The spec seems to be explicit enough:
-> > > 	If MSI-X is enabled for the device, two additional fields immediately
-> > > 	follow this header.
-> > > 
-> > > So I'm guessing the bug is in kvm tools which assume
-> > > same layout for when msix is enabled and disabled.
-> > > qemu-kvm seems to do the right thing so the device
-> > > seems to get the correct mac.
-> > 
-> > So, the config space moves once MSI-X is enabled?  In which case, it
-> > should say "ONCE MSI-X is enabled..."
-> > 
-> > Thanks,
-> > Rusty.
+> The Hyper-V timesource driver is best integrated with Hyper-V detection code
+> since: (a) Linux guests running on Hyper-V need this timesource and (b)
+> by integrating with Hyper-V detection, we could significantly  minimize the
+> code in the timesource driver.
 > 
-> Yes. Or maybe 'WHEN' - since if MSI-X is disabled again, it moves back.
-> Let's update the spec to make it clearer?
+> Andrew, could you take this patch for the -mm tree. I have sent this patch
+> out multiple times and I have not recived any response or comments.
 > 
+> Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
+> Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 
--- 
+Acked-by: Thomas Gleixner <tglx@linutronix.de>
 
-Sasha.
+> ---
+>  arch/x86/kernel/cpu/mshyperv.c     |   24 ++++++++
+>  drivers/staging/hv/Makefile        |    2 +-
+>  drivers/staging/hv/hv_timesource.c |  102 ------------------------------------
+>  3 files changed, 25 insertions(+), 103 deletions(-)
+>  delete mode 100644 drivers/staging/hv/hv_timesource.c
+> 
+> diff --git a/arch/x86/kernel/cpu/mshyperv.c b/arch/x86/kernel/cpu/mshyperv.c
+> index d944bf6..c97f88d 100644
+> --- a/arch/x86/kernel/cpu/mshyperv.c
+> +++ b/arch/x86/kernel/cpu/mshyperv.c
+> @@ -11,6 +11,8 @@
+>   */
+>  
+>  #include <linux/types.h>
+> +#include <linux/time.h>
+> +#include <linux/clocksource.h>
+>  #include <linux/module.h>
+>  #include <asm/processor.h>
+>  #include <asm/hypervisor.h>
+> @@ -36,6 +38,25 @@ static bool __init ms_hyperv_platform(void)
+>  		!memcmp("Microsoft Hv", hyp_signature, 12);
+>  }
+>  
+> +static cycle_t read_hv_clock(struct clocksource *arg)
+> +{
+> +	cycle_t current_tick;
+> +	/*
+> +	 * Read the partition counter to get the current tick count. This count
+> +	 * is set to 0 when the partition is created and is incremented in
+> +	 * 100 nanosecond units.
+> +	 */
+> +	rdmsrl(HV_X64_MSR_TIME_REF_COUNT, current_tick);
+> +	return current_tick;
+> +}
+> +
+> +static struct clocksource hyperv_cs = {
+> +	.name           = "hyperv_clocksource",
+> +	.rating         = 400, /* use this when running on Hyperv*/
+> +	.read           = read_hv_clock,
+> +	.mask           = CLOCKSOURCE_MASK(64),
+> +};
+> +
+>  static void __init ms_hyperv_init_platform(void)
+>  {
+>  	/*
+> @@ -46,6 +67,9 @@ static void __init ms_hyperv_init_platform(void)
+>  
+>  	printk(KERN_INFO "HyperV: features 0x%x, hints 0x%x\n",
+>  	       ms_hyperv.features, ms_hyperv.hints);
+> +
+> +
+> +	clocksource_register_hz(&hyperv_cs, NSEC_PER_SEC/100);
+>  }
+>  
+>  const __refconst struct hypervisor_x86 x86_hyper_ms_hyperv = {
+> diff --git a/drivers/staging/hv/Makefile b/drivers/staging/hv/Makefile
+> index bd176b1..3e0d7e6 100644
+> --- a/drivers/staging/hv/Makefile
+> +++ b/drivers/staging/hv/Makefile
+> @@ -1,4 +1,4 @@
+> -obj-$(CONFIG_HYPERV)		+= hv_vmbus.o hv_timesource.o
+> +obj-$(CONFIG_HYPERV)		+= hv_vmbus.o
+>  obj-$(CONFIG_HYPERV_STORAGE)	+= hv_storvsc.o
+>  obj-$(CONFIG_HYPERV_NET)	+= hv_netvsc.o
+>  obj-$(CONFIG_HYPERV_UTILS)	+= hv_utils.o
+> diff --git a/drivers/staging/hv/hv_timesource.c b/drivers/staging/hv/hv_timesource.c
+> deleted file mode 100644
+> index 0efb049..0000000
+> --- a/drivers/staging/hv/hv_timesource.c
+> +++ /dev/null
+> @@ -1,102 +0,0 @@
+> -/*
+> - * A clocksource for Linux running on HyperV.
+> - *
+> - *
+> - * Copyright (C) 2010, Novell, Inc.
+> - * Author : K. Y. Srinivasan <ksrinivasan@novell.com>
+> - *
+> - * This program is free software; you can redistribute it and/or modify
+> - * it under the terms of the GNU General Public License version 2 as
+> - * published by the Free Software Foundation.
+> - *
+> - * This program is distributed in the hope that it will be useful, but
+> - * WITHOUT ANY WARRANTY; without even the implied warranty of
+> - * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE, GOOD TITLE or
+> - * NON INFRINGEMENT.  See the GNU General Public License for more
+> - * details.
+> - *
+> - * You should have received a copy of the GNU General Public License
+> - * along with this program; if not, write to the Free Software
+> - * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+> - *
+> - */
+> -#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
+> -
+> -#include <linux/version.h>
+> -#include <linux/clocksource.h>
+> -#include <linux/init.h>
+> -#include <linux/module.h>
+> -#include <linux/pci.h>
+> -#include <linux/dmi.h>
+> -#include <asm/hyperv.h>
+> -#include <asm/mshyperv.h>
+> -#include <asm/hypervisor.h>
+> -
+> -#define HV_CLOCK_SHIFT	22
+> -
+> -static cycle_t read_hv_clock(struct clocksource *arg)
+> -{
+> -	cycle_t current_tick;
+> -	/*
+> -	 * Read the partition counter to get the current tick count. This count
+> -	 * is set to 0 when the partition is created and is incremented in
+> -	 * 100 nanosecond units.
+> -	 */
+> -	rdmsrl(HV_X64_MSR_TIME_REF_COUNT, current_tick);
+> -	return current_tick;
+> -}
+> -
+> -static struct clocksource hyperv_cs = {
+> -	.name           = "hyperv_clocksource",
+> -	.rating         = 400, /* use this when running on Hyperv*/
+> -	.read           = read_hv_clock,
+> -	.mask           = CLOCKSOURCE_MASK(64),
+> -	/*
+> -	 * The time ref counter in HyperV is in 100ns units.
+> -	 * The definition of mult is:
+> -	 * mult/2^shift = ns/cyc = 100
+> -	 * mult = (100 << shift)
+> -	 */
+> -	.mult           = (100 << HV_CLOCK_SHIFT),
+> -	.shift          = HV_CLOCK_SHIFT,
+> -};
+> -
+> -static const struct dmi_system_id __initconst
+> -hv_timesource_dmi_table[] __maybe_unused  = {
+> -	{
+> -		.ident = "Hyper-V",
+> -		.matches = {
+> -			DMI_MATCH(DMI_SYS_VENDOR, "Microsoft Corporation"),
+> -			DMI_MATCH(DMI_PRODUCT_NAME, "Virtual Machine"),
+> -			DMI_MATCH(DMI_BOARD_NAME, "Virtual Machine"),
+> -		},
+> -	},
+> -	{ },
+> -};
+> -MODULE_DEVICE_TABLE(dmi, hv_timesource_dmi_table);
+> -
+> -static const struct pci_device_id __initconst
+> -hv_timesource_pci_table[] __maybe_unused = {
+> -	{ PCI_DEVICE(0x1414, 0x5353) }, /* VGA compatible controller */
+> -	{ 0 }
+> -};
+> -MODULE_DEVICE_TABLE(pci, hv_timesource_pci_table);
+> -
+> -
+> -static int __init init_hv_clocksource(void)
+> -{
+> -	if ((x86_hyper != &x86_hyper_ms_hyperv) ||
+> -		!(ms_hyperv.features & HV_X64_MSR_TIME_REF_COUNT_AVAILABLE))
+> -		return -ENODEV;
+> -
+> -	if (!dmi_check_system(hv_timesource_dmi_table))
+> -		return -ENODEV;
+> -
+> -	pr_info("Registering HyperV clock source\n");
+> -	return clocksource_register(&hyperv_cs);
+> -}
+> -
+> -module_init(init_hv_clocksource);
+> -MODULE_DESCRIPTION("HyperV based clocksource");
+> -MODULE_AUTHOR("K. Y. Srinivasan <ksrinivasan@novell.com>");
+> -MODULE_LICENSE("GPL");
+> -- 
+> 1.7.4.1
+> 
+> 
