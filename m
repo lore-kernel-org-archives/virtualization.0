@@ -1,74 +1,76 @@
 From: KY Srinivasan <kys@microsoft.com>
 Subject: RE: [PATCH] Staging: hv: vmbus: Show the modalias in
  /sys/bus/vmbus/devices/*/
-Date: Fri, 2 Sep 2011 17:50:40 +0000
-Message-ID: <6E21E5352C11B742B20C142EB499E048081B604C@TK5EX14MBXC126.redmond.corp.microsoft.com>
+Date: Fri, 2 Sep 2011 17:53:37 +0000
+Message-ID: <6E21E5352C11B742B20C142EB499E048081B605D@TK5EX14MBXC126.redmond.corp.microsoft.com>
 References: <20110902162556.GA25073@aepfle.de>
+ <20110902163550.GA5508@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20110902162556.GA25073@aepfle.de>
+In-Reply-To: <20110902163550.GA5508@suse.de>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Olaf Hering <olaf@aepfle.de>
-Cc: "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>
+To: Greg KH <gregkh@suse.de>, Olaf Hering <olaf@aepfle.de>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogT2xhZiBIZXJpbmcgW21h
-aWx0bzpvbGFmQGFlcGZsZS5kZV0NCj4gU2VudDogRnJpZGF5LCBTZXB0ZW1iZXIgMDIsIDIwMTEg
-MTI6MjYgUE0NCj4gVG86IEtZIFNyaW5pdmFzYW4NCj4gQ2M6IGdyZWdraEBzdXNlLmRlOyBsaW51
-eC1rZXJuZWxAdmdlci5rZXJuZWwub3JnOw0KPiBkZXZlbEBsaW51eGRyaXZlcnByb2plY3Qub3Jn
-OyB2aXJ0dWFsaXphdGlvbkBsaXN0cy5vc2RsLm9yZw0KPiBTdWJqZWN0OiBbUEFUQ0hdIFN0YWdp
-bmc6IGh2OiB2bWJ1czogU2hvdyB0aGUgbW9kYWxpYXMgaW4NCj4gL3N5cy9idXMvdm1idXMvZGV2
-aWNlcy8qLw0KPiANCj4gU2hvdyBhIG1vZGFsaWFzIGZpbGUgaW4gL3N5cy9idXMvdm1idXMvZGV2
-aWNlcy8qLw0KPiBBZGQgYSBoZWxwZXIgZnVuY3Rpb24gdG8gcHJpbnQgdGhlIHNhbWUgY29udGVu
-dCBpbiBtb2RhbGlhcyBhbmQgdWV2ZW50Lg0KPiANCj4gU2lnbmVkLW9mZi1ieTogT2xhZiBIZXJp
-bmcgPG9sYWZAYWVwZmxlLmRlPg0KPiANCj4gLS0tDQo+ICBkcml2ZXJzL3N0YWdpbmcvaHYvdm1i
-dXNfZHJ2LmMgfCAgIDIxICsrKysrKysrKysrKysrKystLS0tLQ0KPiAgMSBmaWxlIGNoYW5nZWQs
-IDE2IGluc2VydGlvbnMoKyksIDUgZGVsZXRpb25zKC0pDQo+IA0KPiAtLS0gYS9kcml2ZXJzL3N0
-YWdpbmcvaHYvdm1idXNfZHJ2LmMNCj4gKysrIGIvZHJpdmVycy9zdGFnaW5nL2h2L3ZtYnVzX2Ry
-di5jDQo+IEBAIC05Myw2ICs5MywxNCBAQCBzdGF0aWMgdm9pZCBnZXRfY2hhbm5lbF9pbmZvKHN0
-cnVjdCBodl9kDQo+ICAJCWRlYnVnX2luZm8ub3V0Ym91bmQuYnl0ZXNfYXZhaWxfdG93cml0ZTsN
-Cj4gIH0NCj4gDQo+ICsjZGVmaW5lIFZNQlVTX0FMSUFTX0xFTiAoKHNpemVvZigoc3RydWN0IGh2
-X3ZtYnVzX2RldmljZV9pZCAqKTApLT5ndWlkKSAqDQo+IDIpDQo+ICtzdGF0aWMgdm9pZCBwcmlu
-dF9hbGlhc19uYW1lKHN0cnVjdCBodl9kZXZpY2UgKmh2X2RldiwgY2hhciAqYWxpYXNfbmFtZSkN
-Cj4gK3sNCj4gKwlpbnQgaTsNCj4gKwlmb3IgKGkgPSAwOyBpIDwgVk1CVVNfQUxJQVNfTEVOOyBp
-ICs9IDIpDQo+ICsJCXNwcmludGYoJmFsaWFzX25hbWVbaV0sICIlMDJ4IiwgaHZfZGV2LT5kZXZf
-dHlwZS5iW2kvMl0pOw0KPiArfQ0KPiArDQo+ICAvKg0KPiAgICogdm1idXNfc2hvd19kZXZpY2Vf
-YXR0ciAtIFNob3cgdGhlIGRldmljZSBhdHRyaWJ1dGUgaW4gc3lzZnMuDQo+ICAgKg0KPiBAQCAt
-MTA1LDYgKzExMyw3IEBAIHN0YXRpYyBzc2l6ZV90IHZtYnVzX3Nob3dfZGV2aWNlX2F0dHIoc3QN
-Cj4gIHsNCj4gIAlzdHJ1Y3QgaHZfZGV2aWNlICpodl9kZXYgPSBkZXZpY2VfdG9faHZfZGV2aWNl
-KGRldik7DQo+ICAJc3RydWN0IGh2X2RldmljZV9pbmZvIGRldmljZV9pbmZvOw0KPiArCWNoYXIg
-YWxpYXNfbmFtZVtWTUJVU19BTElBU19MRU4gKyAxXTsNCj4gDQo+ICAJbWVtc2V0KCZkZXZpY2Vf
-aW5mbywgMCwgc2l6ZW9mKHN0cnVjdCBodl9kZXZpY2VfaW5mbykpOw0KPiANCj4gQEAgLTE0OCw2
-ICsxNTcsOSBAQCBzdGF0aWMgc3NpemVfdCB2bWJ1c19zaG93X2RldmljZV9hdHRyKHN0DQo+ICAJ
-CQkgICAgICAgZGV2aWNlX2luZm8uY2huX2luc3RhbmNlLmJbMTNdLA0KPiAgCQkJICAgICAgIGRl
-dmljZV9pbmZvLmNobl9pbnN0YW5jZS5iWzE0XSwNCj4gIAkJCSAgICAgICBkZXZpY2VfaW5mby5j
-aG5faW5zdGFuY2UuYlsxNV0pOw0KPiArCX0gZWxzZSBpZiAoIXN0cmNtcChkZXZfYXR0ci0+YXR0
-ci5uYW1lLCAibW9kYWxpYXMiKSkgew0KPiArCQlwcmludF9hbGlhc19uYW1lKGh2X2RldiwgYWxp
-YXNfbmFtZSk7DQo+ICsJCXJldHVybiBzcHJpbnRmKGJ1ZiwgInZtYnVzOiVzXG4iLCBhbGlhc19u
-YW1lKTsNCj4gIAl9IGVsc2UgaWYgKCFzdHJjbXAoZGV2X2F0dHItPmF0dHIubmFtZSwgInN0YXRl
-IikpIHsNCj4gIAkJcmV0dXJuIHNwcmludGYoYnVmLCAiJWRcbiIsIGRldmljZV9pbmZvLmNobl9z
-dGF0ZSk7DQo+ICAJfSBlbHNlIGlmICghc3RyY21wKGRldl9hdHRyLT5hdHRyLm5hbWUsICJpZCIp
-KSB7DQo+IEBAIC0yMDQsNiArMjE2LDcgQEAgc3RhdGljIHN0cnVjdCBkZXZpY2VfYXR0cmlidXRl
-IHZtYnVzX2Rldg0KPiAgCV9fQVRUUihjbGFzc19pZCwgU19JUlVHTywgdm1idXNfc2hvd19kZXZp
-Y2VfYXR0ciwgTlVMTCksDQo+ICAJX19BVFRSKGRldmljZV9pZCwgU19JUlVHTywgdm1idXNfc2hv
-d19kZXZpY2VfYXR0ciwgTlVMTCksDQo+ICAJX19BVFRSKG1vbml0b3JfaWQsIFNfSVJVR08sIHZt
-YnVzX3Nob3dfZGV2aWNlX2F0dHIsIE5VTEwpLA0KPiArCV9fQVRUUihtb2RhbGlhcywgU19JUlVH
-Tywgdm1idXNfc2hvd19kZXZpY2VfYXR0ciwgTlVMTCksDQo+IA0KPiAgCV9fQVRUUihzZXJ2ZXJf
-bW9uaXRvcl9wZW5kaW5nLCBTX0lSVUdPLCB2bWJ1c19zaG93X2RldmljZV9hdHRyLA0KPiBOVUxM
-KSwNCj4gIAlfX0FUVFIoc2VydmVyX21vbml0b3JfbGF0ZW5jeSwgU19JUlVHTywgdm1idXNfc2hv
-d19kZXZpY2VfYXR0ciwNCj4gTlVMTCksDQo+IEBAIC0yNDIsMTIgKzI1NSwxMCBAQCBzdGF0aWMg
-c3RydWN0IGRldmljZV9hdHRyaWJ1dGUgdm1idXNfZGV2DQo+ICBzdGF0aWMgaW50IHZtYnVzX3Vl
-dmVudChzdHJ1Y3QgZGV2aWNlICpkZXZpY2UsIHN0cnVjdCBrb2JqX3VldmVudF9lbnYgKmVudikN
-Cj4gIHsNCj4gIAlzdHJ1Y3QgaHZfZGV2aWNlICpkZXYgPSBkZXZpY2VfdG9faHZfZGV2aWNlKGRl
-dmljZSk7DQo+IC0JaW50IGksIHJldDsNCj4gLQljaGFyIGFsaWFzX25hbWVbKChzaXplb2YoKHN0
-cnVjdCBodl92bWJ1c19kZXZpY2VfaWQgKikwKS0+Z3VpZCkgKyAxKSAqDQo+IDJdOw0KPiAtDQo+
-IC0JZm9yIChpID0gMDsgaSA8ICgoc2l6ZW9mKChzdHJ1Y3QgaHZfdm1idXNfZGV2aWNlX2lkICop
-MCktPmd1aWQpICogMik7IGkgKz0gMikNCj4gLQkJc3ByaW50ZigmYWxpYXNfbmFtZVtpXSwgIiUw
-MngiLCBkZXYtPmRldl90eXBlLmJbaS8yXSk7DQo+ICsJaW50IHJldDsNCj4gKwljaGFyIGFsaWFz
-X25hbWVbVk1CVVNfQUxJQVNfTEVOICsgMV07DQo+IA0KPiArCXByaW50X2FsaWFzX25hbWUoZGV2
-LCBhbGlhc19uYW1lKTsNCj4gIAlyZXQgPSBhZGRfdWV2ZW50X3ZhcihlbnYsICJNT0RBTElBUz12
-bWJ1czolcyIsIGFsaWFzX25hbWUpOw0KPiAgCXJldHVybiByZXQ7DQo+ICB9DQoNCkFja2VkLWJ5
-OiAgSy4gWS4gU3Jpbml2YXNhbiA8a3lzQG1pY3Jvc29mdC5jb20+DQoNCg0K
+
+
+> -----Original Message-----
+> From: Greg KH [mailto:gregkh@suse.de]
+> Sent: Friday, September 02, 2011 12:36 PM
+> To: Olaf Hering
+> Cc: KY Srinivasan; linux-kernel@vger.kernel.org; devel@linuxdriverproject.org;
+> virtualization@lists.osdl.org
+> Subject: Re: [PATCH] Staging: hv: vmbus: Show the modalias in
+> /sys/bus/vmbus/devices/*/
+> 
+> On Fri, Sep 02, 2011 at 06:25:56PM +0200, Olaf Hering wrote:
+> > Show a modalias file in /sys/bus/vmbus/devices/*/
+> > Add a helper function to print the same content in modalias and uevent.
+> >
+> > Signed-off-by: Olaf Hering <olaf@aepfle.de>
+> 
+> Nice idea, thanks for this, one minor nit below:
+> 
+> > ---
+> >  drivers/staging/hv/vmbus_drv.c |   21 ++++++++++++++++-----
+> >  1 file changed, 16 insertions(+), 5 deletions(-)
+> >
+> > --- a/drivers/staging/hv/vmbus_drv.c
+> > +++ b/drivers/staging/hv/vmbus_drv.c
+> > @@ -93,6 +93,14 @@ static void get_channel_info(struct hv_d
+> >  		debug_info.outbound.bytes_avail_towrite;
+> >  }
+> >
+> > +#define VMBUS_ALIAS_LEN ((sizeof((struct hv_vmbus_device_id *)0)->guid)
+> * 2)
+> > +static void print_alias_name(struct hv_device *hv_dev, char *alias_name)
+> > +{
+> > +	int i;
+> > +	for (i = 0; i < VMBUS_ALIAS_LEN; i += 2)
+> > +		sprintf(&alias_name[i], "%02x", hv_dev->dev_type.b[i/2]);
+> > +}
+> > +
+> >  /*
+> >   * vmbus_show_device_attr - Show the device attribute in sysfs.
+> >   *
+> > @@ -105,6 +113,7 @@ static ssize_t vmbus_show_device_attr(st
+> >  {
+> >  	struct hv_device *hv_dev = device_to_hv_device(dev);
+> >  	struct hv_device_info device_info;
+> > +	char alias_name[VMBUS_ALIAS_LEN + 1];
+> 
+> Is that too big to put on the stack?  64 bytes, right?  Hm, maybe not.
+> 
+> Wait, hv_device_info is huge, that should be dynamic in the first place.
+> Olaf, not your issue, but KY, want to fix that up?
+
+hv_device_info is about 101 bytes. I will fix this. Greg, if you are applying Olaf's patch,
+I will generate my patch on top of Olaf's. Let me know.
+
+Regards,
+
+K. Y
