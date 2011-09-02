@@ -1,82 +1,59 @@
-From: Olaf Hering <olaf@aepfle.de>
-Subject: [PATCH] Staging: hv: vmbus: Show the modalias in
+From: Greg KH <gregkh@suse.de>
+Subject: Re: [PATCH] Staging: hv: vmbus: Show the modalias in
  /sys/bus/vmbus/devices/*/
-Date: Fri, 2 Sep 2011 18:25:56 +0200
-Message-ID: <20110902162556.GA25073@aepfle.de>
+Date: Fri, 2 Sep 2011 09:35:50 -0700
+Message-ID: <20110902163550.GA5508@suse.de>
+References: <20110902162556.GA25073@aepfle.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
+In-Reply-To: <20110902162556.GA25073@aepfle.de>
 Sender: linux-kernel-owner@vger.kernel.org
-To: "K. Y. Srinivasan" <kys@microsoft.com>
-Cc: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org
+To: Olaf Hering <olaf@aepfle.de>
+Cc: "K. Y. Srinivasan" <kys@microsoft.com>, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Show a modalias file in /sys/bus/vmbus/devices/*/
-Add a helper function to print the same content in modalias and uevent.
+On Fri, Sep 02, 2011 at 06:25:56PM +0200, Olaf Hering wrote:
+> Show a modalias file in /sys/bus/vmbus/devices/*/
+> Add a helper function to print the same content in modalias and uevent.
+> 
+> Signed-off-by: Olaf Hering <olaf@aepfle.de>
 
-Signed-off-by: Olaf Hering <olaf@aepfle.de>
+Nice idea, thanks for this, one minor nit below:
 
----
- drivers/staging/hv/vmbus_drv.c |   21 ++++++++++++++++-----
- 1 file changed, 16 insertions(+), 5 deletions(-)
+> ---
+>  drivers/staging/hv/vmbus_drv.c |   21 ++++++++++++++++-----
+>  1 file changed, 16 insertions(+), 5 deletions(-)
+> 
+> --- a/drivers/staging/hv/vmbus_drv.c
+> +++ b/drivers/staging/hv/vmbus_drv.c
+> @@ -93,6 +93,14 @@ static void get_channel_info(struct hv_d
+>  		debug_info.outbound.bytes_avail_towrite;
+>  }
+>  
+> +#define VMBUS_ALIAS_LEN ((sizeof((struct hv_vmbus_device_id *)0)->guid) * 2)
+> +static void print_alias_name(struct hv_device *hv_dev, char *alias_name)
+> +{
+> +	int i;
+> +	for (i = 0; i < VMBUS_ALIAS_LEN; i += 2)
+> +		sprintf(&alias_name[i], "%02x", hv_dev->dev_type.b[i/2]);
+> +}
+> +
+>  /*
+>   * vmbus_show_device_attr - Show the device attribute in sysfs.
+>   *
+> @@ -105,6 +113,7 @@ static ssize_t vmbus_show_device_attr(st
+>  {
+>  	struct hv_device *hv_dev = device_to_hv_device(dev);
+>  	struct hv_device_info device_info;
+> +	char alias_name[VMBUS_ALIAS_LEN + 1];
 
---- a/drivers/staging/hv/vmbus_drv.c
-+++ b/drivers/staging/hv/vmbus_drv.c
-@@ -93,6 +93,14 @@ static void get_channel_info(struct hv_d
- 		debug_info.outbound.bytes_avail_towrite;
- }
- 
-+#define VMBUS_ALIAS_LEN ((sizeof((struct hv_vmbus_device_id *)0)->guid) * 2)
-+static void print_alias_name(struct hv_device *hv_dev, char *alias_name)
-+{
-+	int i;
-+	for (i = 0; i < VMBUS_ALIAS_LEN; i += 2)
-+		sprintf(&alias_name[i], "%02x", hv_dev->dev_type.b[i/2]);
-+}
-+
- /*
-  * vmbus_show_device_attr - Show the device attribute in sysfs.
-  *
-@@ -105,6 +113,7 @@ static ssize_t vmbus_show_device_attr(st
- {
- 	struct hv_device *hv_dev = device_to_hv_device(dev);
- 	struct hv_device_info device_info;
-+	char alias_name[VMBUS_ALIAS_LEN + 1];
- 
- 	memset(&device_info, 0, sizeof(struct hv_device_info));
- 
-@@ -148,6 +157,9 @@ static ssize_t vmbus_show_device_attr(st
- 			       device_info.chn_instance.b[13],
- 			       device_info.chn_instance.b[14],
- 			       device_info.chn_instance.b[15]);
-+	} else if (!strcmp(dev_attr->attr.name, "modalias")) {
-+		print_alias_name(hv_dev, alias_name);
-+		return sprintf(buf, "vmbus:%s\n", alias_name);
- 	} else if (!strcmp(dev_attr->attr.name, "state")) {
- 		return sprintf(buf, "%d\n", device_info.chn_state);
- 	} else if (!strcmp(dev_attr->attr.name, "id")) {
-@@ -204,6 +216,7 @@ static struct device_attribute vmbus_dev
- 	__ATTR(class_id, S_IRUGO, vmbus_show_device_attr, NULL),
- 	__ATTR(device_id, S_IRUGO, vmbus_show_device_attr, NULL),
- 	__ATTR(monitor_id, S_IRUGO, vmbus_show_device_attr, NULL),
-+	__ATTR(modalias, S_IRUGO, vmbus_show_device_attr, NULL),
- 
- 	__ATTR(server_monitor_pending, S_IRUGO, vmbus_show_device_attr, NULL),
- 	__ATTR(server_monitor_latency, S_IRUGO, vmbus_show_device_attr, NULL),
-@@ -242,12 +255,10 @@ static struct device_attribute vmbus_dev
- static int vmbus_uevent(struct device *device, struct kobj_uevent_env *env)
- {
- 	struct hv_device *dev = device_to_hv_device(device);
--	int i, ret;
--	char alias_name[((sizeof((struct hv_vmbus_device_id *)0)->guid) + 1) * 2];
--
--	for (i = 0; i < ((sizeof((struct hv_vmbus_device_id *)0)->guid) * 2); i += 2)
--		sprintf(&alias_name[i], "%02x", dev->dev_type.b[i/2]);
-+	int ret;
-+	char alias_name[VMBUS_ALIAS_LEN + 1];
- 
-+	print_alias_name(dev, alias_name);
- 	ret = add_uevent_var(env, "MODALIAS=vmbus:%s", alias_name);
- 	return ret;
- }
+Is that too big to put on the stack?  64 bytes, right?  Hm, maybe not.
+
+Wait, hv_device_info is huge, that should be dynamic in the first place.
+Olaf, not your issue, but KY, want to fix that up?
+
+thanks,
+
+greg k-h
