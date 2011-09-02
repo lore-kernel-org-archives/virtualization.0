@@ -1,39 +1,82 @@
-From: Greg KH <greg@kroah.com>
-Subject: Re: Hyper-V TODO file
-Date: Fri, 2 Sep 2011 09:09:24 -0700
-Message-ID: <20110902160924.GA4784@kroah.com>
-References: <1314829011-28922-1-git-send-email-kys@microsoft.com>
- <20110901202733.GA15185@kroah.com>
- <20110901203031.GB15185@kroah.com>
+From: Olaf Hering <olaf@aepfle.de>
+Subject: [PATCH] Staging: hv: vmbus: Show the modalias in
+ /sys/bus/vmbus/devices/*/
+Date: Fri, 2 Sep 2011 18:25:56 +0200
+Message-ID: <20110902162556.GA25073@aepfle.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20110901203031.GB15185@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: "K. Y. Srinivasan" <kys@microsoft.com>
 Cc: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Sep 01, 2011 at 01:30:31PM -0700, Greg KH wrote:
-> On Thu, Sep 01, 2011 at 01:27:33PM -0700, Greg KH wrote:
-> > On Wed, Aug 31, 2011 at 03:16:51PM -0700, K. Y. Srinivasan wrote:
-> > > 2) With your help, we have fixed all of the issues related to these drivers
-> > > conforming to the Linux Device Driver model. One of the TODO work items is 
-> > > "audit the vmbus to verify it is working properly with the driver model".
-> > 
-> > I have a few comments about this, I'll respond in another email.
-> 
-> Ok, it looks a _lot_ better, but I have a few minor nits, and one larger
-> one:
+Show a modalias file in /sys/bus/vmbus/devices/*/
+Add a helper function to print the same content in modalias and uevent.
 
-Oh, here's another issue I forgot about.  You can get rid of the 'ext'
-field of the hv_device structure and use the proper function in the
-driver core for this type of thing, just wrap it up in your own function
-to make it "sane" looking, like USB and PCI does with their
-usb_get_intfdata(), usb_set_intfdata(), pci_get_drvdata(), and
-pci_set_drvdata() functions.
+Signed-off-by: Olaf Hering <olaf@aepfle.de>
 
-thanks,
+---
+ drivers/staging/hv/vmbus_drv.c |   21 ++++++++++++++++-----
+ 1 file changed, 16 insertions(+), 5 deletions(-)
 
-greg k-h
+--- a/drivers/staging/hv/vmbus_drv.c
++++ b/drivers/staging/hv/vmbus_drv.c
+@@ -93,6 +93,14 @@ static void get_channel_info(struct hv_d
+ 		debug_info.outbound.bytes_avail_towrite;
+ }
+ 
++#define VMBUS_ALIAS_LEN ((sizeof((struct hv_vmbus_device_id *)0)->guid) * 2)
++static void print_alias_name(struct hv_device *hv_dev, char *alias_name)
++{
++	int i;
++	for (i = 0; i < VMBUS_ALIAS_LEN; i += 2)
++		sprintf(&alias_name[i], "%02x", hv_dev->dev_type.b[i/2]);
++}
++
+ /*
+  * vmbus_show_device_attr - Show the device attribute in sysfs.
+  *
+@@ -105,6 +113,7 @@ static ssize_t vmbus_show_device_attr(st
+ {
+ 	struct hv_device *hv_dev = device_to_hv_device(dev);
+ 	struct hv_device_info device_info;
++	char alias_name[VMBUS_ALIAS_LEN + 1];
+ 
+ 	memset(&device_info, 0, sizeof(struct hv_device_info));
+ 
+@@ -148,6 +157,9 @@ static ssize_t vmbus_show_device_attr(st
+ 			       device_info.chn_instance.b[13],
+ 			       device_info.chn_instance.b[14],
+ 			       device_info.chn_instance.b[15]);
++	} else if (!strcmp(dev_attr->attr.name, "modalias")) {
++		print_alias_name(hv_dev, alias_name);
++		return sprintf(buf, "vmbus:%s\n", alias_name);
+ 	} else if (!strcmp(dev_attr->attr.name, "state")) {
+ 		return sprintf(buf, "%d\n", device_info.chn_state);
+ 	} else if (!strcmp(dev_attr->attr.name, "id")) {
+@@ -204,6 +216,7 @@ static struct device_attribute vmbus_dev
+ 	__ATTR(class_id, S_IRUGO, vmbus_show_device_attr, NULL),
+ 	__ATTR(device_id, S_IRUGO, vmbus_show_device_attr, NULL),
+ 	__ATTR(monitor_id, S_IRUGO, vmbus_show_device_attr, NULL),
++	__ATTR(modalias, S_IRUGO, vmbus_show_device_attr, NULL),
+ 
+ 	__ATTR(server_monitor_pending, S_IRUGO, vmbus_show_device_attr, NULL),
+ 	__ATTR(server_monitor_latency, S_IRUGO, vmbus_show_device_attr, NULL),
+@@ -242,12 +255,10 @@ static struct device_attribute vmbus_dev
+ static int vmbus_uevent(struct device *device, struct kobj_uevent_env *env)
+ {
+ 	struct hv_device *dev = device_to_hv_device(device);
+-	int i, ret;
+-	char alias_name[((sizeof((struct hv_vmbus_device_id *)0)->guid) + 1) * 2];
+-
+-	for (i = 0; i < ((sizeof((struct hv_vmbus_device_id *)0)->guid) * 2); i += 2)
+-		sprintf(&alias_name[i], "%02x", dev->dev_type.b[i/2]);
++	int ret;
++	char alias_name[VMBUS_ALIAS_LEN + 1];
+ 
++	print_alias_name(dev, alias_name);
+ 	ret = add_uevent_var(env, "MODALIAS=vmbus:%s", alias_name);
+ 	return ret;
+ }
