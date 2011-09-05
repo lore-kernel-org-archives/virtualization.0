@@ -1,115 +1,161 @@
-From: KY Srinivasan <kys@microsoft.com>
-Subject: RE: Hyper-V TODO file
-Date: Fri, 2 Sep 2011 20:54:37 +0000
-Message-ID: <6E21E5352C11B742B20C142EB499E048081C7981@TK5EX14MBXC126.redmond.corp.microsoft.com>
-References: <1314829011-28922-1-git-send-email-kys@microsoft.com>
- <20110901202733.GA15185@kroah.com> <20110901203031.GB15185@kroah.com>
- <6E21E5352C11B742B20C142EB499E048081C595A@TK5EX14MBXC126.redmond.corp.microsoft.com>
- <20110902195807.GA2339@kroah.com>
+From: Ioan Raicu <iraicu@cs.iit.edu>
+Subject: ACM MTAGS 2011: deadline extension to September 26th
+Date: Mon, 05 Sep 2011 12:41:01 -0500
+Message-ID: <4E6509AD.5010209@cs.iit.edu>
+Reply-To: iraicu@cs.iit.edu
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20110902195807.GA2339@kroah.com>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Greg KH <greg@kroah.com>
-Cc: "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>
+Content-Type: multipart/mixed; boundary="===============8583890531590708225=="
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Mime-version: 1.0
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
+This is a multi-part message in MIME format.
+--===============8583890531590708225==
+Content-Type: multipart/alternative;
+ boundary="------------070407030602000802060203"
+
+This is a multi-part message in MIME format.
+--------------070407030602000802060203
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+
+CALL FOR PAPERS
+4th Workshop on Many-Task Computing on Grids and Supercomputers (MTAGS) 2011
+
+http://datasys.cs.iit.edu/events/MTAGS11/index.html
+http://sc11.supercomputing.org/schedule/event_detail.php?evid=wksp122
+
+***DEADLINE EXTENSION -- September 26th, 2011*
+
+The 4th workshop on Many-Task Computing on Grids and Supercomputers 
+(MTAGS11) will provide the scientific community a dedicated forum for 
+presenting new research, development, and deployment efforts of 
+large-scale many-task computing (MTC) applications on large scale 
+clusters, Grids, Supercomputers, and Cloud Computing infrastructure. 
+MTC, the theme of the workshop encompasses loosely coupled applications, 
+which are generally composed of many tasks (both independent and 
+dependent tasks) to achieve some larger application goal. This workshop 
+will cover challenges that can hamper efficiency and utilization in 
+running applications on large-scale systems, such as local resource 
+manager scalability and granularity, efficient utilization of raw 
+hardware, parallel file system contention and scalability, data 
+management, I/O management, reliability at scale, and application 
+scalability.
+
+*General Chairs (mtags11-chairs@datasys.cs.iit.edu 
+<mailto:mtags11-chairs@datasys.cs.iit.edu>)*
+
+  * Ioan Raicu, Illinois Institute of Technology & Argonne National
+    Laboratory, USA
+  * Ian Foster, University of Chicago & Argonne National Laboratory, USA
+  * Yong Zhao, University of Electronic Science and Technology of China,
+    China
+
+-- 
+=================================================================
+Ioan Raicu, Ph.D.
+Assistant Professor, Illinois Institute of Technology (IIT)
+Guest Research Faculty, Argonne National Laboratory (ANL)
+=================================================================
+Data-Intensive Distributed Systems Laboratory, CS/IIT
+Distributed Systems Laboratory, MCS/ANL
+=================================================================
+Cel:    1-847-722-0876
+Office: 1-312-567-5704
+Email:  iraicu@cs.iit.edu
+Web:    http://www.cs.iit.edu/~iraicu/
+Web:    http://datasys.cs.iit.edu/
+=================================================================
+=================================================================
 
 
-> -----Original Message-----
-> From: Greg KH [mailto:greg@kroah.com]
-> Sent: Friday, September 02, 2011 3:58 PM
-> To: KY Srinivasan
-> Cc: gregkh@suse.de; linux-kernel@vger.kernel.org;
-> devel@linuxdriverproject.org; virtualization@lists.osdl.org
-> Subject: Re: Hyper-V TODO file
-> 
-> On Fri, Sep 02, 2011 at 07:47:12PM +0000, KY Srinivasan wrote:
-> >
-> >
-> > > -----Original Message-----
-> > > From: Greg KH [mailto:greg@kroah.com]
-> > > Sent: Thursday, September 01, 2011 4:31 PM
-> > > To: KY Srinivasan
-> > > Cc: gregkh@suse.de; linux-kernel@vger.kernel.org;
-> > > devel@linuxdriverproject.org; virtualization@lists.osdl.org
-> > > Subject: Re: Hyper-V TODO file
-> > >
-> > > On Thu, Sep 01, 2011 at 01:27:33PM -0700, Greg KH wrote:
-> > > > On Wed, Aug 31, 2011 at 03:16:51PM -0700, K. Y. Srinivasan wrote:
-> > > > > 2) With your help, we have fixed all of the issues related to these drivers
-> > > > > conforming to the Linux Device Driver model. One of the TODO work
-> items is
-> > > > > "audit the vmbus to verify it is working properly with the driver model".
-> > > >
-> > > > I have a few comments about this, I'll respond in another email.
-> > >
-> > > Ok, it looks a _lot_ better, but I have a few minor nits, and one larger
-> > > one:
-> > >
-> > > - rename the vmbus_child_* functions to vmbus_* as there's no need to
-> > >   think of "children" here.
-> > >
-> > > - vmbus_onoffer comment is incorrect.  You handle offers from lots of
-> > >   other types.  Or if not, am I reading the code incorrectly?
-> > >
-> > > - the static hv_cb_utils array needs to go away.  In the hv_utils.c
-> > >   util_probe() call, properly register the channel callback, and the
-> > >   same goes for the util_remove() call, unregister things there.
-> > >   Note, you can use the driver_data field to determine exactly which
-> > >   callback needs to be registered to make things easy.  Something like
-> > >   the following (pseudo code only):
-> > >
-> > > static const struct hv_vmbus_device_id id_table[] = {
-> > > 	/* Shutdown guid */
-> > > 	{ VMBUS_DEVICE(0x31, 0x60, 0x0B, 0X0E, 0x13, 0x52, 0x34, 0x49,
-> > > 		       0x81, 0x8B, 0x38, 0XD9, 0x0C, 0xED, 0x39, 0xDB),
-> > > 	  .driver_data = &shutdown_onchannelcallback },
-> > > 	....
-> > > };
-> > >
-> > > util_probe(struct hv_device *dev, const struct hv_vmbus_device_id *id)
-> > >  [ Yes, you will have to change the probe callback signature, but that's fine. ]
-> >
-> > Greg, I think if I understand you correctly, the id parameter to the probe
-> function
-> > would be pointing to relevant entry in the hv_vmbus_device_id array.
-> 
-> Yes, just like it does for USB, PCI, etc.
-> 
-> > Since the driver can handle multiple ids (guids), we need to either in
-> > the driver specific probe function or in the bus specific probe
-> > function,  figure out which of the many devices the driver supports is
-> > being probed. I have couple of implementation options and would
-> > appreciate your preference:
-> >
-> > 1) Do the guid parsing at the vmbus level parsing function. If I go
-> > this route, the driver specific probe function would get an extra
-> > parameter as you have described in pseudo code.
-> 
-> Yes, that's the proper way to do this, as your match function already
-> found the proper id structure, so you have the pointer, just pass it to
-> the probe function callback.
-> 
-> > 2) Do the guid parsing in the util probe function. In this case, we
-> > don't need to change the signature for the probe function as all the
-> > id information is available in the (util) driver.
-> 
-> Yes, but you end up doing the matching all over again in the util
-> driver, which isn't nice and ripe for duplication and bugs.
-> 
-> > I personally would prefer the second approach since it does not affect
-> > other drivers (no need to change the signature for the probe
-> > function). Let me know how you want me to proceed here.
-> 
-> As you only have 3 probe functions, it's not a big deal to change them
-> all :)
 
-Ok; will do. I am glad I checked with you!
+--------------070407030602000802060203
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-Regards,
+<html>
+  <head>
 
-K. Y
+    <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
+  </head>
+  <body bgcolor="#FFFFFF" text="#000000">
+    <p><span class="orangeboldtitle">CALL FOR PAPERS<br>
+      </span><span class="orangeboldtitle">4th Workshop on Many-Task
+        Computing on Grids and Supercomputers (MTAGS) 2011<br>
+      </span></p>
+    <p><span class="orangeboldtitle"><a class="moz-txt-link-freetext" href="http://datasys.cs.iit.edu/events/MTAGS11/index.html">http://datasys.cs.iit.edu/events/MTAGS11/index.html</a><br>
+<a class="moz-txt-link-freetext" href="http://sc11.supercomputing.org/schedule/event_detail.php?evid=wksp122">http://sc11.supercomputing.org/schedule/event_detail.php?evid=wksp122</a><br>
+      </span></p>
+    <b><span class="orangeboldtitle"></span></b><span
+      class="orangeboldtitle"><b>DEADLINE EXTENSION -- September 26th,
+        2011</b></span><br>
+    <br>
+    The 4th workshop on Many-Task Computing on Grids and Supercomputers
+    (MTAGS11) will provide the scientific community a dedicated forum
+    for presenting new research, development, and deployment efforts of
+    large-scale many-task computing (MTC) applications on large scale
+    clusters, Grids, Supercomputers, and Cloud Computing infrastructure.
+    MTC, the theme of the workshop encompasses loosely coupled
+    applications, which are generally composed of many tasks (both
+    independent and dependent tasks) to achieve some larger application
+    goal. This workshop will cover challenges that can hamper efficiency
+    and utilization in running applications on large-scale systems, such
+    as local resource manager scalability and granularity, efficient
+    utilization of raw hardware, parallel file system contention and
+    scalability, data management, I/O management, reliability at scale,
+    and application scalability.
+    <p><strong>General Chairs (<a
+          href="mailto:mtags11-chairs@datasys.cs.iit.edu">mtags11-chairs@datasys.cs.iit.edu</a>)</strong></p>
+    <ul>
+      <li>Ioan Raicu, Illinois Institute of Technology &amp; Argonne
+        National Laboratory, USA</li>
+      <li>Ian Foster, University of Chicago &amp; Argonne National
+        Laboratory, USA </li>
+      <li>Yong Zhao, University of Electronic Science and Technology of
+        China, China </li>
+    </ul>
+    <pre class="moz-signature" cols="72">-- 
+=================================================================
+Ioan Raicu, Ph.D.
+Assistant Professor, Illinois Institute of Technology (IIT)
+Guest Research Faculty, Argonne National Laboratory (ANL)
+=================================================================
+Data-Intensive Distributed Systems Laboratory, CS/IIT
+Distributed Systems Laboratory, MCS/ANL
+=================================================================
+Cel:    1-847-722-0876
+Office: 1-312-567-5704
+Email:  <a class="moz-txt-link-abbreviated" href="mailto:iraicu@cs.iit.edu">iraicu@cs.iit.edu</a>
+Web:    <a class="moz-txt-link-freetext" href="http://www.cs.iit.edu/~iraicu/">http://www.cs.iit.edu/~iraicu/</a>
+Web:    <a class="moz-txt-link-freetext" href="http://datasys.cs.iit.edu/">http://datasys.cs.iit.edu/</a>
+=================================================================
+=================================================================
+
+</pre>
+  </body>
+</html>
+
+--------------070407030602000802060203--
+
+--===============8583890531590708225==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linux-foundation.org/mailman/listinfo/virtualization
+--===============8583890531590708225==--
