@@ -1,13 +1,13 @@
-From: Yong Zhang <yong.zhang0@gmail.com>
-Subject: [PATCH 59/62] xen: irq: Remove IRQF_DISABLED
-Date: Wed,  7 Sep 2011 16:10:56 +0800
-Message-ID: <1315383059-3673-60-git-send-email-yong.zhang0@gmail.com>
-References: <1315383059-3673-1-git-send-email-yong.zhang0@gmail.com>
+From: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>
+Subject: [PATCH v2 2/2] virtio_blk: unlock vblk->lock during kick
+Date: Wed,  7 Sep 2011 14:51:41 +0100
+Message-ID: <1315403501-12457-3-git-send-email-stefanha@linux.vnet.ibm.com>
+References: <1315403501-12457-1-git-send-email-stefanha@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1315383059-3673-1-git-send-email-yong.zhang0@gmail.com>
+In-Reply-To: <1315403501-12457-1-git-send-email-stefanha@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -17,43 +17,42 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org
-Cc: xen-devel@lists.xensource.com, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, virtualization@lists.linux-foundation.org, Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, tglx@linutronix.de, mingo@elte.hu
+To: virtualization@lists.linux-foundation.org
+Cc: Khoa Huynh <khoa@us.ibm.com>, Christoph Hellwig <hch@lst.de>, Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This flag is a NOOP and can be removed now.
+Holding the vblk->lock across kick causes poor scalability in SMP
+guests.  If one CPU is doing virtqueue kick and another CPU touches the
+vblk->lock it will have to spin until virtqueue kick completes.
 
-Signed-off-by: Yong Zhang <yong.zhang0@gmail.com>
+This typically results in high system CPU utilization in SMP guests that
+are running multithreaded I/O-bound workloads.
+
+Signed-off-by: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>
 ---
- drivers/xen/evtchn.c       |    2 +-
- drivers/xen/platform-pci.c |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/block/virtio_blk.c |   10 ++++++++--
+ 1 files changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/xen/evtchn.c b/drivers/xen/evtchn.c
-index dbc13e9..95e2507 100644
---- a/drivers/xen/evtchn.c
-+++ b/drivers/xen/evtchn.c
-@@ -265,7 +265,7 @@ static int evtchn_bind_to_user(struct per_user_data *u, int port)
- 	set_port_user(port, u);
- 	set_port_enabled(port, true); /* start enabled */
+diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+index 079c088..c2bf0a9 100644
+--- a/drivers/block/virtio_blk.c
++++ b/drivers/block/virtio_blk.c
+@@ -193,8 +193,14 @@ static void do_virtblk_request(struct request_queue *q)
+ 		issued++;
+ 	}
  
--	rc = bind_evtchn_to_irqhandler(port, evtchn_interrupt, IRQF_DISABLED,
-+	rc = bind_evtchn_to_irqhandler(port, evtchn_interrupt, 0,
- 				       u->name, (void *)(unsigned long)port);
- 	if (rc >= 0)
- 		rc = 0;
-diff --git a/drivers/xen/platform-pci.c b/drivers/xen/platform-pci.c
-index 319dd0a..482beff 100644
---- a/drivers/xen/platform-pci.c
-+++ b/drivers/xen/platform-pci.c
-@@ -84,7 +84,7 @@ static irqreturn_t do_hvm_evtchn_intr(int irq, void *dev_id)
- static int xen_allocate_irq(struct pci_dev *pdev)
- {
- 	return request_irq(pdev->irq, do_hvm_evtchn_intr,
--			IRQF_DISABLED | IRQF_NOBALANCING | IRQF_TRIGGER_RISING,
-+			IRQF_NOBALANCING | IRQF_TRIGGER_RISING,
- 			"xen-platform-pci", pdev);
+-	if (issued)
+-		virtqueue_kick(vblk->vq);
++	if (!issued)
++		return;
++
++	if (virtqueue_kick_prepare(vblk->vq)) {
++		spin_unlock(&vblk->lock);
++		virtqueue_kick_notify(vblk->vq);
++		spin_lock(&vblk->lock);
++	}
  }
  
+ /* return id (s/n) string for *disk to *id_str
 -- 
-1.7.4.1
+1.7.5.4
