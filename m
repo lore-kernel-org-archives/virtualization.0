@@ -1,13 +1,11 @@
 From: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>
-Subject: [PATCH v2 2/2] virtio_blk: unlock vblk->lock during kick
-Date: Wed,  7 Sep 2011 14:51:41 +0100
-Message-ID: <1315403501-12457-3-git-send-email-stefanha@linux.vnet.ibm.com>
-References: <1315403501-12457-1-git-send-email-stefanha@linux.vnet.ibm.com>
+Subject: [RFC v2 0/2] virtio: Support releasing lock during kick
+Date: Wed,  7 Sep 2011 14:51:39 +0100
+Message-ID: <1315403501-12457-1-git-send-email-stefanha@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1315403501-12457-1-git-send-email-stefanha@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -21,38 +19,29 @@ To: virtualization@lists.linux-foundation.org
 Cc: Khoa Huynh <khoa@us.ibm.com>, Christoph Hellwig <hch@lst.de>, Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Holding the vblk->lock across kick causes poor scalability in SMP
-guests.  If one CPU is doing virtqueue kick and another CPU touches the
-vblk->lock it will have to spin until virtqueue kick completes.
+This patch allows virtio-blk to release its block queue lock while kicking the
+host.  This improves scalability on SMP guests who would otherwise spin on the
+lock while another vCPU is kicking the host.
 
-This typically results in high system CPU utilization in SMP guests that
-are running multithreaded I/O-bound workloads.
+This approach can be used for other virtio devices too.  It simply splits the
+virtqueue_kick() operation into a prepare step which requires that the lock be
+held and the actual notify step which may be performed without the lock.
+Existing virtio drivers may continue to use the virtqueue_kick() interface
+which now does the prepare and notify steps internally.
 
-Signed-off-by: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>
----
- drivers/block/virtio_blk.c |   10 ++++++++--
- 1 files changed, 8 insertions(+), 2 deletions(-)
+I am sending this out as RFC because further performance benchmarking is
+required.  Although we have seen good results in the past, gathering number on
+a wider range of machines and verifying that there is no regression would be
+helpful.
 
-diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-index 079c088..c2bf0a9 100644
---- a/drivers/block/virtio_blk.c
-+++ b/drivers/block/virtio_blk.c
-@@ -193,8 +193,14 @@ static void do_virtblk_request(struct request_queue *q)
- 		issued++;
- 	}
- 
--	if (issued)
--		virtqueue_kick(vblk->vq);
-+	if (!issued)
-+		return;
-+
-+	if (virtqueue_kick_prepare(vblk->vq)) {
-+		spin_unlock(&vblk->lock);
-+		virtqueue_kick_notify(vblk->vq);
-+		spin_lock(&vblk->lock);
-+	}
- }
- 
- /* return id (s/n) string for *disk to *id_str
+Stefan Hajnoczi (2):
+  virtio_ring: split virtqueue_kick prepare/notify
+  virtio_blk: unlock vblk->lock during kick
+
+ drivers/block/virtio_blk.c   |   10 ++++++++--
+ drivers/virtio/virtio_ring.c |   28 +++++++++++++++++++++-------
+ include/linux/virtio.h       |   13 +++++++++++++
+ 3 files changed, 42 insertions(+), 9 deletions(-)
+
 -- 
 1.7.5.4
