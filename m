@@ -1,7 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 24/25] Staging: hv: netvsc: Rename rndisDevice to rndis_device
-Date: Thu,  8 Sep 2011 07:24:35 -0700
-Message-ID: <1315491876-9554-24-git-send-email-kys@microsoft.com>
+Subject: [PATCH 09/25] Staging: hv: util: Perform some service specific
+	de-initialization in util_remove()
+Date: Thu,  8 Sep 2011 07:24:20 -0700
+Message-ID: <1315491876-9554-9-git-send-email-kys@microsoft.com>
 References: <1315491843-9513-1-git-send-email-kys@microsoft.com>
 	<1315491876-9554-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -22,83 +23,63 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Rename rndisDevice to rndis_device.
+In preparation for modifying the util driver to fully conform to the
+Linux Driver Model, perform some service specific de-initialization in
+util_remove() as opposed to in exit_hyperv_utils() as is currently done.
+
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- drivers/staging/hv/rndis_filter.c |   24 ++++++++++++------------
- 1 files changed, 12 insertions(+), 12 deletions(-)
+ drivers/staging/hv/hv_util.c |   29 ++++++++++++++++++++++++-----
+ 1 files changed, 24 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/staging/hv/rndis_filter.c b/drivers/staging/hv/rndis_filter.c
-index fb46a88..cb9d4f6 100644
---- a/drivers/staging/hv/rndis_filter.c
-+++ b/drivers/staging/hv/rndis_filter.c
-@@ -695,11 +695,11 @@ int rndis_filter_device_add(struct hv_device *dev,
+diff --git a/drivers/staging/hv/hv_util.c b/drivers/staging/hv/hv_util.c
+index b86128a..2475ab2 100644
+--- a/drivers/staging/hv/hv_util.c
++++ b/drivers/staging/hv/hv_util.c
+@@ -291,6 +291,30 @@ error:
+ static int util_remove(struct hv_device *dev,
+ 			const struct hv_vmbus_device_id *dev_id)
  {
- 	int ret;
- 	struct netvsc_device *net_device;
--	struct rndis_device *rndisDevice;
-+	struct rndis_device *rndis_device;
- 	struct netvsc_device_info *deviceInfo = additional_info;
++	int service = dev_id->driver_data;
++
++	switch (service) {
++	case HV_SHUTDOWN:
++		kfree(shut_txf_buf);
++		break;
++
++	case HV_TIMESYNC:
++		kfree(time_txf_buf);
++		break;
++
++	case HV_HEARTBEAT:
++		kfree(hbeat_txf_buf);
++		break;
++
++	case HV_KVP:
++		hv_kvp_deinit();
++		break;
++
++	default:
++		pr_err("unknown util service\n");
++		return -ENODEV;
++	}
++
+ 	return 0;
+ }
  
--	rndisDevice = get_rndis_device();
--	if (!rndisDevice)
-+	rndis_device = get_rndis_device();
-+	if (!rndis_device)
- 		return -ENODEV;
+@@ -370,11 +394,6 @@ static void exit_hyperv_utils(void)
+ 			&chn_cb_negotiate;
+ 	hv_cb_utils[HV_KVP_MSG].callback = NULL;
  
- 	/*
-@@ -709,7 +709,7 @@ int rndis_filter_device_add(struct hv_device *dev,
- 	 */
- 	ret = netvsc_device_add(dev, additional_info);
- 	if (ret != 0) {
--		kfree(rndisDevice);
-+		kfree(rndis_device);
- 		return ret;
- 	}
+-	hv_kvp_deinit();
+-
+-	kfree(shut_txf_buf);
+-	kfree(time_txf_buf);
+-	kfree(hbeat_txf_buf);
+ 	vmbus_driver_unregister(&util_drv);
+ }
  
-@@ -717,11 +717,11 @@ int rndis_filter_device_add(struct hv_device *dev,
- 	/* Initialize the rndis device */
- 	net_device = (struct netvsc_device *)hv_get_drvdata(dev);
- 
--	net_device->extension = rndisDevice;
--	rndisDevice->net_dev = net_device;
-+	net_device->extension = rndis_device;
-+	rndis_device->net_dev = net_device;
- 
- 	/* Send the rndis initialization message */
--	ret = rndis_filter_init_device(rndisDevice);
-+	ret = rndis_filter_init_device(rndis_device);
- 	if (ret != 0) {
- 		/*
- 		 * TODO: If rndis init failed, we will need to shut down the
-@@ -730,21 +730,21 @@ int rndis_filter_device_add(struct hv_device *dev,
- 	}
- 
- 	/* Get the mac address */
--	ret = rndis_filter_query_device_mac(rndisDevice);
-+	ret = rndis_filter_query_device_mac(rndis_device);
- 	if (ret != 0) {
- 		/*
- 		 * TODO: shutdown rndis device and the channel
- 		 */
- 	}
- 
--	memcpy(deviceInfo->mac_adr, rndisDevice->hw_mac_adr, ETH_ALEN);
-+	memcpy(deviceInfo->mac_adr, rndis_device->hw_mac_adr, ETH_ALEN);
- 
--	rndis_filter_query_device_link_status(rndisDevice);
-+	rndis_filter_query_device_link_status(rndis_device);
- 
--	deviceInfo->link_state = rndisDevice->link_stat;
-+	deviceInfo->link_state = rndis_device->link_stat;
- 
- 	dev_info(&dev->device, "Device MAC %pM link state %s",
--		 rndisDevice->hw_mac_adr,
-+		 rndis_device->hw_mac_adr,
- 		 ((deviceInfo->link_state) ? ("down\n") : ("up\n")));
- 
- 	return ret;
 -- 
 1.7.4.1
