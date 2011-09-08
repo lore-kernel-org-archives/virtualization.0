@@ -1,7 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 02/25] Staging: hv: vmbus: Rename vmbus_child_device_register
-Date: Thu,  8 Sep 2011 07:24:13 -0700
-Message-ID: <1315491876-9554-2-git-send-email-kys@microsoft.com>
+Subject: [PATCH 14/25] Staging: hv: vmbus: Introduce functions for setting and
+	getting driver data
+Date: Thu,  8 Sep 2011 07:24:25 -0700
+Message-ID: <1315491876-9554-14-git-send-email-kys@microsoft.com>
 References: <1315491843-9513-1-git-send-email-kys@microsoft.com>
 	<1315491876-9554-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -22,58 +23,35 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The vmbus devices are NOT child devices; rename vmbus_child_device_register
-to reflect this.
+In preparation for getting rid of the ext field in the struct hv_device,
+introduce vmbus specific wrapper functions to set/get driver specific data.
+
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- drivers/staging/hv/channel_mgmt.c |    2 +-
- drivers/staging/hv/hyperv_vmbus.h |    2 +-
- drivers/staging/hv/vmbus_drv.c    |    4 ++--
- 3 files changed, 4 insertions(+), 4 deletions(-)
+ drivers/staging/hv/hyperv.h |    9 +++++++++
+ 1 files changed, 9 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/staging/hv/channel_mgmt.c b/drivers/staging/hv/channel_mgmt.c
-index f99b944..a927046 100644
---- a/drivers/staging/hv/channel_mgmt.c
-+++ b/drivers/staging/hv/channel_mgmt.c
-@@ -393,7 +393,7 @@ static void vmbus_process_offer(struct work_struct *work)
- 	 * binding which eventually invokes the device driver's AddDevice()
- 	 * method.
- 	 */
--	ret = vmbus_child_device_register(newchannel->device_obj);
-+	ret = vmbus_device_register(newchannel->device_obj);
- 	if (ret != 0) {
- 		pr_err("unable to add child device object (relid %d)\n",
- 			   newchannel->offermsg.child_relid);
-diff --git a/drivers/staging/hv/hyperv_vmbus.h b/drivers/staging/hv/hyperv_vmbus.h
-index e97e2cf..b2dfcd6 100644
---- a/drivers/staging/hv/hyperv_vmbus.h
-+++ b/drivers/staging/hv/hyperv_vmbus.h
-@@ -605,7 +605,7 @@ struct hv_device *vmbus_device_create(uuid_le *type,
- 					 uuid_le *instance,
- 					 struct vmbus_channel *channel);
- 
--int vmbus_child_device_register(struct hv_device *child_device_obj);
-+int vmbus_device_register(struct hv_device *child_device_obj);
- void vmbus_child_device_unregister(struct hv_device *device_obj);
- 
- /* static void */
-diff --git a/drivers/staging/hv/vmbus_drv.c b/drivers/staging/hv/vmbus_drv.c
-index 382baee..6d54ea1 100644
---- a/drivers/staging/hv/vmbus_drv.c
-+++ b/drivers/staging/hv/vmbus_drv.c
-@@ -619,9 +619,9 @@ struct hv_device *vmbus_device_create(uuid_le *type,
+diff --git a/drivers/staging/hv/hyperv.h b/drivers/staging/hv/hyperv.h
+index 685a132..2879750 100644
+--- a/drivers/staging/hv/hyperv.h
++++ b/drivers/staging/hv/hyperv.h
+@@ -843,6 +843,15 @@ static inline struct hv_driver *drv_to_hv_drv(struct device_driver *d)
+ 	return container_of(d, struct hv_driver, driver);
  }
  
- /*
-- * vmbus_child_device_register - Register the child device
-+ * vmbus_device_register - Register the child device
-  */
--int vmbus_child_device_register(struct hv_device *child_device_obj)
-+int vmbus_device_register(struct hv_device *child_device_obj)
- {
- 	int ret = 0;
++static inline void hv_set_drvdata(struct hv_device *dev, void *data)
++{
++	dev_set_drvdata(&dev->device, data);
++}
++
++static inline void *hv_get_drvdata(struct hv_device *dev)
++{
++	return dev_get_drvdata(&dev->device);
++}
  
+ /* Vmbus interface */
+ #define vmbus_driver_register(driver)	\
 -- 
 1.7.4.1
