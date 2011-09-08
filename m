@@ -1,62 +1,109 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 17/25] Staging: hv: storvsc: Get rid of some unnecessary state
-	and definitions
-Date: Thu,  8 Sep 2011 07:24:28 -0700
-Message-ID: <1315491876-9554-17-git-send-email-kys@microsoft.com>
+Subject: [PATCH 23/25] Staging: hv: netvsc: Rename netDevice as net_device
+Date: Thu,  8 Sep 2011 07:24:34 -0700
+Message-ID: <1315491876-9554-23-git-send-email-kys@microsoft.com>
 References: <1315491843-9513-1-git-send-email-kys@microsoft.com>
 	<1315491876-9554-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <devel-bounces@linuxdriverproject.org>
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
 In-Reply-To: <1315491876-9554-1-git-send-email-kys@microsoft.com>
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
-List-Post: <mailto:devel@linuxdriverproject.org>
-List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
-Errors-To: devel-bounces@linuxdriverproject.org
-Sender: devel-bounces@linuxdriverproject.org
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org
 Cc: Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Now, get rid of some unnecessary state and definitions.
+Rename netDevice as net_device.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- drivers/staging/hv/storvsc_drv.c |    9 ---------
- 1 files changed, 0 insertions(+), 9 deletions(-)
+ drivers/staging/hv/netvsc.c       |    5 ++++-
+ drivers/staging/hv/rndis_filter.c |   20 ++++++++++----------
+ 2 files changed, 14 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
-index e7d0f92..57c1035 100644
---- a/drivers/staging/hv/storvsc_drv.c
-+++ b/drivers/staging/hv/storvsc_drv.c
-@@ -245,7 +245,6 @@ enum storvsc_request_type {
+diff --git a/drivers/staging/hv/netvsc.c b/drivers/staging/hv/netvsc.c
+index b046873..4564f13 100644
+--- a/drivers/staging/hv/netvsc.c
++++ b/drivers/staging/hv/netvsc.c
+@@ -385,7 +385,10 @@ int netvsc_device_remove(struct hv_device *device)
+ 	hv_set_drvdata(device, NULL);
+ 	spin_unlock_irqrestore(&device->channel->inbound_lock, flags);
+ 
+-	/* At this point, no one should be accessing netDevice except in here */
++	/*
++	 * At this point, no one should be accessing net_device
++	 * except in here
++	 */
+ 	dev_notice(&device->device, "net device safe to remove\n");
+ 
+ 	/* Now, we can close the channel safely */
+diff --git a/drivers/staging/hv/rndis_filter.c b/drivers/staging/hv/rndis_filter.c
+index 79948be..fb46a88 100644
+--- a/drivers/staging/hv/rndis_filter.c
++++ b/drivers/staging/hv/rndis_filter.c
+@@ -694,7 +694,7 @@ int rndis_filter_device_add(struct hv_device *dev,
+ 				  void *additional_info)
+ {
+ 	int ret;
+-	struct netvsc_device *netDevice;
++	struct netvsc_device *net_device;
+ 	struct rndis_device *rndisDevice;
+ 	struct netvsc_device_info *deviceInfo = additional_info;
+ 
+@@ -715,10 +715,10 @@ int rndis_filter_device_add(struct hv_device *dev,
  
  
- struct hv_storvsc_request {
--	struct hv_storvsc_request *request;
- 	struct hv_device *device;
+ 	/* Initialize the rndis device */
+-	netDevice = (struct netvsc_device *)hv_get_drvdata(dev);
++	net_device = (struct netvsc_device *)hv_get_drvdata(dev);
  
- 	/* Synchronize the request/response if needed */
-@@ -260,14 +259,6 @@ struct hv_storvsc_request {
- };
+-	netDevice->extension = rndisDevice;
+-	rndisDevice->net_dev = netDevice;
++	net_device->extension = rndisDevice;
++	rndisDevice->net_dev = net_device;
  
+ 	/* Send the rndis initialization message */
+ 	ret = rndis_filter_init_device(rndisDevice);
+@@ -768,24 +768,24 @@ void rndis_filter_device_remove(struct hv_device *dev)
  
--struct storvsc_device_info {
--	u32 ring_buffer_size;
--	unsigned int port_number;
--	unsigned char path_id;
--	unsigned char target_id;
--};
--
--
- /* A storvsc device is a device object that contains a vmbus channel */
- struct storvsc_device {
- 	struct hv_device *device;
+ int rndis_filter_open(struct hv_device *dev)
+ {
+-	struct netvsc_device *netDevice =
++	struct netvsc_device *net_device =
+ 		(struct netvsc_device *)hv_get_drvdata(dev);
+ 
+-	if (!netDevice)
++	if (!net_device)
+ 		return -EINVAL;
+ 
+-	return rndis_filter_open_device(netDevice->extension);
++	return rndis_filter_open_device(net_device->extension);
+ }
+ 
+ int rndis_filter_close(struct hv_device *dev)
+ {
+-	struct netvsc_device *netDevice =
++	struct netvsc_device *net_device =
+ 		(struct netvsc_device *)hv_get_drvdata(dev);
+ 
+-	if (!netDevice)
++	if (!net_device)
+ 		return -EINVAL;
+ 
+-	return rndis_filter_close_device(netDevice->extension);
++	return rndis_filter_close_device(net_device->extension);
+ }
+ 
+ int rndis_filter_send(struct hv_device *dev,
 -- 
 1.7.4.1
