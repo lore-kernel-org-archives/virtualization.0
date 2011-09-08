@@ -1,57 +1,108 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 14/25] Staging: hv: vmbus: Introduce functions for setting and
-	getting driver data
-Date: Thu,  8 Sep 2011 07:24:25 -0700
-Message-ID: <1315491876-9554-14-git-send-email-kys@microsoft.com>
+Subject: [PATCH 20/25] Staging: hv: mousevsc: Get rid of the usage of the ext field in struct hv_device
+Date: Thu,  8 Sep 2011 07:24:31 -0700
+Message-ID: <1315491876-9554-20-git-send-email-kys@microsoft.com>
 References: <1315491843-9513-1-git-send-email-kys@microsoft.com>
-	<1315491876-9554-1-git-send-email-kys@microsoft.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <devel-bounces@linuxdriverproject.org>
+ <1315491876-9554-1-git-send-email-kys@microsoft.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1315491876-9554-1-git-send-email-kys@microsoft.com>
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
-List-Post: <mailto:devel@linuxdriverproject.org>
-List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
-Errors-To: devel-bounces@linuxdriverproject.org
-Sender: devel-bounces@linuxdriverproject.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org
-Cc: Haiyang Zhang <haiyangz@microsoft.com>
+Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-In preparation for getting rid of the ext field in the struct hv_device,
-introduce vmbus specific wrapper functions to set/get driver specific data.
-
+Get rid of the usage of the ext field in struct hv_device for the mouse driver.
+We do this by using the newly introduced functions to set and and get driver
+specific data.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- drivers/staging/hv/hyperv.h |    9 +++++++++
- 1 files changed, 9 insertions(+), 0 deletions(-)
+ drivers/staging/hv/hv_mouse.c |   18 +++++++++---------
+ 1 files changed, 9 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/staging/hv/hyperv.h b/drivers/staging/hv/hyperv.h
-index 685a132..2879750 100644
---- a/drivers/staging/hv/hyperv.h
-+++ b/drivers/staging/hv/hyperv.h
-@@ -843,6 +843,15 @@ static inline struct hv_driver *drv_to_hv_drv(struct device_driver *d)
- 	return container_of(d, struct hv_driver, driver);
+diff --git a/drivers/staging/hv/hv_mouse.c b/drivers/staging/hv/hv_mouse.c
+index d60f287..c6c4024 100644
+--- a/drivers/staging/hv/hv_mouse.c
++++ b/drivers/staging/hv/hv_mouse.c
+@@ -196,7 +196,7 @@ static struct mousevsc_dev *alloc_input_device(struct hv_device *device)
+ 	atomic_cmpxchg(&input_dev->ref_count, 0, 2);
+ 
+ 	input_dev->device = device;
+-	device->ext = input_dev;
++	hv_set_drvdata(device, input_dev);
+ 
+ 	return input_dev;
+ }
+@@ -214,7 +214,7 @@ static struct mousevsc_dev *get_input_device(struct hv_device *device)
+ {
+ 	struct mousevsc_dev *input_dev;
+ 
+-	input_dev = (struct mousevsc_dev *)device->ext;
++	input_dev = (struct mousevsc_dev *)hv_get_drvdata(device);
+ 
+ /*
+  *	FIXME
+@@ -240,7 +240,7 @@ static struct mousevsc_dev *must_get_input_device(struct hv_device *device)
+ {
+ 	struct mousevsc_dev *input_dev;
+ 
+-	input_dev = (struct mousevsc_dev *)device->ext;
++	input_dev = (struct mousevsc_dev *)hv_get_drvdata(device);
+ 
+ 	if (input_dev && atomic_read(&input_dev->ref_count))
+ 		atomic_inc(&input_dev->ref_count);
+@@ -254,7 +254,7 @@ static void put_input_device(struct hv_device *device)
+ {
+ 	struct mousevsc_dev *input_dev;
+ 
+-	input_dev = (struct mousevsc_dev *)device->ext;
++	input_dev = (struct mousevsc_dev *)hv_get_drvdata(device);
+ 
+ 	atomic_dec(&input_dev->ref_count);
+ }
+@@ -266,7 +266,7 @@ static struct mousevsc_dev *release_input_device(struct hv_device *device)
+ {
+ 	struct mousevsc_dev *input_dev;
+ 
+-	input_dev = (struct mousevsc_dev *)device->ext;
++	input_dev = (struct mousevsc_dev *)hv_get_drvdata(device);
+ 
+ 	/* Busy wait until the ref drop to 2, then set it to 1  */
+ 	while (atomic_cmpxchg(&input_dev->ref_count, 2, 1) != 2)
+@@ -282,13 +282,13 @@ static struct mousevsc_dev *final_release_input_device(struct hv_device *device)
+ {
+ 	struct mousevsc_dev *input_dev;
+ 
+-	input_dev = (struct mousevsc_dev *)device->ext;
++	input_dev = (struct mousevsc_dev *)hv_get_drvdata(device);
+ 
+ 	/* Busy wait until the ref drop to 1, then set it to 0  */
+ 	while (atomic_cmpxchg(&input_dev->ref_count, 1, 0) != 1)
+ 		udelay(100);
+ 
+-	device->ext = NULL;
++	hv_set_drvdata(device, NULL);
+ 	return input_dev;
  }
  
-+static inline void hv_set_drvdata(struct hv_device *dev, void *data)
-+{
-+	dev_set_drvdata(&dev->device, data);
-+}
-+
-+static inline void *hv_get_drvdata(struct hv_device *dev)
-+{
-+	return dev_get_drvdata(&dev->device);
-+}
+@@ -790,7 +790,7 @@ static int mousevsc_on_device_remove(struct hv_device *device)
+ 	int ret = 0;
  
- /* Vmbus interface */
- #define vmbus_driver_register(driver)	\
+ 	pr_info("disabling input device (%p)...",
+-		    device->ext);
++		    hv_get_drvdata(device));
+ 
+ 	input_dev = release_input_device(device);
+ 
+@@ -808,7 +808,7 @@ static int mousevsc_on_device_remove(struct hv_device *device)
+ 		udelay(100);
+ 	}
+ 
+-	pr_info("removing input device (%p)...", device->ext);
++	pr_info("removing input device (%p)...", hv_get_drvdata(device));
+ 
+ 	input_dev = final_release_input_device(device);
+ 
 -- 
 1.7.4.1
