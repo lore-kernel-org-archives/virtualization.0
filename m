@@ -1,155 +1,163 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 12/25] Staging: hv: vmbus: Get rid of hv_cb_utils[] and other unneeded code
-Date: Thu,  8 Sep 2011 07:24:23 -0700
-Message-ID: <1315491876-9554-12-git-send-email-kys@microsoft.com>
+Subject: [PATCH 08/25] Staging: hv: util: Perform some service specific
+	initialization in util_probe()
+Date: Thu,  8 Sep 2011 07:24:19 -0700
+Message-ID: <1315491876-9554-8-git-send-email-kys@microsoft.com>
 References: <1315491843-9513-1-git-send-email-kys@microsoft.com>
- <1315491876-9554-1-git-send-email-kys@microsoft.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+	<1315491876-9554-1-git-send-email-kys@microsoft.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <devel-bounces@linuxdriverproject.org>
 In-Reply-To: <1315491876-9554-1-git-send-email-kys@microsoft.com>
-Sender: linux-kernel-owner@vger.kernel.org
+List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
+	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
+List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
+List-Post: <mailto:devel@linuxdriverproject.org>
+List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
+List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
+	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
+Errors-To: devel-bounces@linuxdriverproject.org
+Sender: devel-bounces@linuxdriverproject.org
 To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org
-Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>
+Cc: Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Now that the transformation of the util driver is complete,
-get rid of hv_cb_utils[] and other unneeded code
+In preparation for modifying the util driver to fully conform to the 
+Linux Driver Model, perform some service specific initialization in
+util_probe() as opposed to in init_hyperv_utils() as is currently done. 
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- drivers/staging/hv/channel_mgmt.c |   94 -------------------------------------
- drivers/staging/hv/hyperv.h       |    8 ---
- 2 files changed, 0 insertions(+), 102 deletions(-)
+ drivers/staging/hv/hv_util.c |   77 ++++++++++++++++++++++++++++-------------
+ 1 files changed, 52 insertions(+), 25 deletions(-)
 
-diff --git a/drivers/staging/hv/channel_mgmt.c b/drivers/staging/hv/channel_mgmt.c
-index 3c67e4c..f20cd84 100644
---- a/drivers/staging/hv/channel_mgmt.c
-+++ b/drivers/staging/hv/channel_mgmt.c
-@@ -158,100 +158,6 @@ void prep_negotiate_resp(struct icmsg_hdr *icmsghdrp,
- }
- EXPORT_SYMBOL(prep_negotiate_resp);
+diff --git a/drivers/staging/hv/hv_util.c b/drivers/staging/hv/hv_util.c
+index 661631d..b86128a 100644
+--- a/drivers/staging/hv/hv_util.c
++++ b/drivers/staging/hv/hv_util.c
+@@ -34,6 +34,13 @@ static u8 *shut_txf_buf;
+ static u8 *time_txf_buf;
+ static u8 *hbeat_txf_buf;
  
--/**
-- * chn_cb_negotiate() - Default handler for non IDE/SCSI/NETWORK
-- * Hyper-V requests
-- * @context: Pointer to argument structure.
-- *
-- * Set up the default handler for non device driver specific requests
-- * from Hyper-V. This stub responds to the default negotiate messages
-- * that come in for every non IDE/SCSI/Network request.
-- * This behavior is normally overwritten in the hv_utils driver. That
-- * driver handles requests like graceful shutdown, heartbeats etc.
-- *
-- * Mainly used by Hyper-V drivers.
-- */
--void chn_cb_negotiate(void *context)
--{
--	struct vmbus_channel *channel = context;
--	u8 *buf;
--	u32 buflen, recvlen;
--	u64 requestid;
++enum hv_util_services {
++	HV_SHUTDOWN,
++	HV_TIMESYNC,
++	HV_HEARTBEAT,
++	HV_KVP,
++};
++
+ static void shutdown_onchannelcallback(void *context)
+ {
+ 	struct vmbus_channel *channel = context;
+@@ -242,7 +249,43 @@ static void heartbeat_onchannelcallback(void *context)
+ static int util_probe(struct hv_device *dev,
+ 			const struct hv_vmbus_device_id *dev_id)
+ {
++	void *buf = NULL;
++	int service = dev_id->driver_data;
++
++	switch (service) {
++	case HV_SHUTDOWN:
++		buf = shut_txf_buf = kmalloc(PAGE_SIZE, GFP_KERNEL);
++		if (!shut_txf_buf)
++			goto error;
++		break;
++
++	case HV_TIMESYNC:
++		buf = time_txf_buf = kmalloc(PAGE_SIZE, GFP_KERNEL);
++		if (!time_txf_buf)
++			goto error;
++		break;
++
++	case HV_HEARTBEAT:
++		buf = hbeat_txf_buf = kmalloc(PAGE_SIZE, GFP_KERNEL);
++		if (!hbeat_txf_buf)
++			goto error;
++		break;
++
++	case HV_KVP:
++		if (hv_kvp_init())
++			return -ENODEV;
++		break;
++
++	default:
++		pr_err("unknown util service\n");
++		return -ENODEV;
++	}
++
+ 	return 0;
++
++error:
++	return -ENOMEM;
++
+ }
+ 
+ static int util_remove(struct hv_device *dev,
+@@ -254,16 +297,20 @@ static int util_remove(struct hv_device *dev,
+ static const struct hv_vmbus_device_id id_table[] = {
+ 	/* Shutdown guid */
+ 	{ VMBUS_DEVICE(0x31, 0x60, 0x0B, 0X0E, 0x13, 0x52, 0x34, 0x49,
+-		       0x81, 0x8B, 0x38, 0XD9, 0x0C, 0xED, 0x39, 0xDB) },
++		       0x81, 0x8B, 0x38, 0XD9, 0x0C, 0xED, 0x39, 0xDB)
++	  .driver_data = HV_SHUTDOWN },
+ 	/* Time synch guid */
+ 	{ VMBUS_DEVICE(0x30, 0xe6, 0x27, 0x95, 0xae, 0xd0, 0x7b, 0x49,
+-		       0xad, 0xce, 0xe8, 0x0a, 0xb0, 0x17, 0x5c, 0xaf) },
++		       0xad, 0xce, 0xe8, 0x0a, 0xb0, 0x17, 0x5c, 0xaf)
++	  .driver_data = HV_TIMESYNC },
+ 	/* Heartbeat guid */
+ 	{ VMBUS_DEVICE(0x39, 0x4f, 0x16, 0x57, 0x15, 0x91, 0x78, 0x4e,
+-		       0xab, 0x55, 0x38, 0x2f, 0x3b, 0xd5, 0x42, 0x2d) },
++		       0xab, 0x55, 0x38, 0x2f, 0x3b, 0xd5, 0x42, 0x2d)
++	  .driver_data = HV_HEARTBEAT },
+ 	/* KVP guid */
+ 	{ VMBUS_DEVICE(0xe7, 0xf4, 0xa0, 0xa9, 0x45, 0x5a, 0x96, 0x4d,
+-		       0xb8, 0x27, 0x8a, 0x84, 0x1e, 0x8c, 0x3,  0xe6) },
++		       0xb8, 0x27, 0x8a, 0x84, 0x1e, 0x8c, 0x3,  0xe6)
++	  .driver_data = HV_KVP },
+ 	{ },
+ };
+ 
+@@ -282,24 +329,10 @@ static int __init init_hyperv_utils(void)
+ 	int ret;
+ 	pr_info("Registering HyperV Utility Driver\n");
+ 
+-	if (hv_kvp_init())
+-		return -ENODEV;
 -
--	struct icmsg_hdr *icmsghdrp;
--	struct icmsg_negotiate *negop = NULL;
 -
--	buflen = PAGE_SIZE;
--	buf = kmalloc(buflen, GFP_ATOMIC);
+-	shut_txf_buf = kmalloc(PAGE_SIZE, GFP_KERNEL);
+-	time_txf_buf = kmalloc(PAGE_SIZE, GFP_KERNEL);
+-	hbeat_txf_buf = kmalloc(PAGE_SIZE, GFP_KERNEL);
 -
--	vmbus_recvpacket(channel, buf, buflen, &recvlen, &requestid);
--
--	if (recvlen > 0) {
--		icmsghdrp = (struct icmsg_hdr *)&buf[
--			sizeof(struct vmbuspipe_hdr)];
--
--		prep_negotiate_resp(icmsghdrp, negop, buf);
--
--		icmsghdrp->icflags = ICMSGHDRFLAG_TRANSACTION
--			| ICMSGHDRFLAG_RESPONSE;
--
--		vmbus_sendpacket(channel, buf,
--				       recvlen, requestid,
--				       VM_PKT_DATA_INBAND, 0);
+-	if (!shut_txf_buf || !time_txf_buf || !hbeat_txf_buf) {
+-		pr_info("Unable to allocate memory for receive buffer\n");
+-		ret = -ENOMEM;
+-		goto err;
 -	}
 -
--	kfree(buf);
--}
--EXPORT_SYMBOL(chn_cb_negotiate);
--
--/*
-- * Function table used for message responses for non IDE/SCSI/Network type
-- * messages. (Such as KVP/Shutdown etc)
-- */
--struct hyperv_service_callback hv_cb_utils[MAX_MSG_TYPES] = {
--	/* 0E0B6031-5213-4934-818B-38D90CED39DB */
--	/* Shutdown */
--	{
--		.msg_type = HV_SHUTDOWN_MSG,
--		.data.b = {
--			0x31, 0x60, 0x0B, 0X0E, 0x13, 0x52, 0x34, 0x49,
--			0x81, 0x8B, 0x38, 0XD9, 0x0C, 0xED, 0x39, 0xDB
--		},
--		.log_msg = "Shutdown channel functionality initialized"
--	},
--
--	/* {9527E630-D0AE-497b-ADCE-E80AB0175CAF} */
--	/* TimeSync */
--	{
--		.msg_type = HV_TIMESYNC_MSG,
--		.data.b = {
--			0x30, 0xe6, 0x27, 0x95, 0xae, 0xd0, 0x7b, 0x49,
--			0xad, 0xce, 0xe8, 0x0a, 0xb0, 0x17, 0x5c, 0xaf
--		},
--		.log_msg = "Timesync channel functionality initialized"
--	},
--	/* {57164f39-9115-4e78-ab55-382f3bd5422d} */
--	/* Heartbeat */
--	{
--		.msg_type = HV_HEARTBEAT_MSG,
--		.data.b = {
--			0x39, 0x4f, 0x16, 0x57, 0x15, 0x91, 0x78, 0x4e,
--			0xab, 0x55, 0x38, 0x2f, 0x3b, 0xd5, 0x42, 0x2d
--		},
--		.log_msg = "Heartbeat channel functionality initialized"
--	},
--	/* {A9A0F4E7-5A45-4d96-B827-8A841E8C03E6} */
--	/* KVP */
--	{
--		.data.b = {
--			0xe7, 0xf4, 0xa0, 0xa9, 0x45, 0x5a, 0x96, 0x4d,
--			0xb8, 0x27, 0x8a, 0x84, 0x1e, 0x8c, 0x3,  0xe6
--		},
--		.log_msg = "KVP channel functionality initialized"
--	},
--};
--EXPORT_SYMBOL(hv_cb_utils);
--
- /*
-  * alloc_channel - Allocate and initialize a vmbus channel object
-  */
-diff --git a/drivers/staging/hv/hyperv.h b/drivers/staging/hv/hyperv.h
-index cf02ae1..685a132 100644
---- a/drivers/staging/hv/hyperv.h
-+++ b/drivers/staging/hv/hyperv.h
-@@ -941,12 +941,6 @@ struct ictimesync_data {
- 	u8 flags;
- } __packed;
+ 	ret = vmbus_driver_register(&util_drv);
  
--/* Index for each IC struct in array hv_cb_utils[] */
--#define HV_SHUTDOWN_MSG		0
--#define HV_TIMESYNC_MSG		1
--#define HV_HEARTBEAT_MSG	2
--#define HV_KVP_MSG		3
+ 	if (ret != 0)
+-		goto err;
++		return ret;
+ 
+ 	hv_cb_utils[HV_SHUTDOWN_MSG].callback = &shutdown_onchannelcallback;
+ 
+@@ -311,12 +344,6 @@ static int __init init_hyperv_utils(void)
+ 
+ 	return 0;
+ 
+-err:
+-	kfree(shut_txf_buf);
+-	kfree(time_txf_buf);
+-	kfree(hbeat_txf_buf);
 -
- struct hyperv_service_callback {
- 	u8 msg_type;
- 	char *log_msg;
-@@ -957,7 +951,5 @@ struct hyperv_service_callback {
+-	return ret;
+ }
  
- extern void prep_negotiate_resp(struct icmsg_hdr *,
- 				struct icmsg_negotiate *, u8 *);
--extern void chn_cb_negotiate(void *);
--extern struct hyperv_service_callback hv_cb_utils[];
- 
- #endif /* _HYPERV_H */
+ static void exit_hyperv_utils(void)
 -- 
 1.7.4.1
