@@ -1,108 +1,131 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 20/25] Staging: hv: mousevsc: Get rid of the usage of the ext field in struct hv_device
-Date: Thu,  8 Sep 2011 07:24:31 -0700
-Message-ID: <1315491876-9554-20-git-send-email-kys@microsoft.com>
+Subject: [PATCH 18/25] Staging: hv: storvsc: Eliminate the usage of ext field
+	in struct hv_device
+Date: Thu,  8 Sep 2011 07:24:29 -0700
+Message-ID: <1315491876-9554-18-git-send-email-kys@microsoft.com>
 References: <1315491843-9513-1-git-send-email-kys@microsoft.com>
- <1315491876-9554-1-git-send-email-kys@microsoft.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+	<1315491876-9554-1-git-send-email-kys@microsoft.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <devel-bounces@linuxdriverproject.org>
 In-Reply-To: <1315491876-9554-1-git-send-email-kys@microsoft.com>
-Sender: linux-kernel-owner@vger.kernel.org
+List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
+	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
+List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
+List-Post: <mailto:devel@linuxdriverproject.org>
+List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
+List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
+	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
+Errors-To: devel-bounces@linuxdriverproject.org
+Sender: devel-bounces@linuxdriverproject.org
 To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org
-Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>
+Cc: Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Get rid of the usage of the ext field in struct hv_device for the mouse driver.
-We do this by using the newly introduced functions to set and and get driver
-specific data.
+Now, eliminate the usage of ext field in struct  hv_device for storvsc driver.
+We do this by registering pointer to struct storvsc_device as the driver
+specific data and eliminating the current usage of driver specific data to
+save and retrieve the pointer to struct Scsi_Host.
+Additionally, all access to the driver specific data is through
+the vmbus wrapper functions.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- drivers/staging/hv/hv_mouse.c |   18 +++++++++---------
- 1 files changed, 9 insertions(+), 9 deletions(-)
+ drivers/staging/hv/storvsc_drv.c |   24 +++++++++++++++---------
+ 1 files changed, 15 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/staging/hv/hv_mouse.c b/drivers/staging/hv/hv_mouse.c
-index d60f287..c6c4024 100644
---- a/drivers/staging/hv/hv_mouse.c
-+++ b/drivers/staging/hv/hv_mouse.c
-@@ -196,7 +196,7 @@ static struct mousevsc_dev *alloc_input_device(struct hv_device *device)
- 	atomic_cmpxchg(&input_dev->ref_count, 0, 2);
+diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
+index 57c1035..98d47cd 100644
+--- a/drivers/staging/hv/storvsc_drv.c
++++ b/drivers/staging/hv/storvsc_drv.c
+@@ -266,6 +266,7 @@ struct storvsc_device {
+ 	bool	 destroy;
+ 	bool	 drain_notify;
+ 	atomic_t num_outstanding_req;
++	struct Scsi_Host *host;
  
- 	input_dev->device = device;
--	device->ext = input_dev;
-+	hv_set_drvdata(device, input_dev);
+ 	wait_queue_head_t waiting_to_drain;
  
- 	return input_dev;
- }
-@@ -214,7 +214,7 @@ static struct mousevsc_dev *get_input_device(struct hv_device *device)
+@@ -306,7 +307,8 @@ static inline struct storvsc_device *get_out_stor_device(
  {
- 	struct mousevsc_dev *input_dev;
+ 	struct storvsc_device *stor_device;
  
--	input_dev = (struct mousevsc_dev *)device->ext;
-+	input_dev = (struct mousevsc_dev *)hv_get_drvdata(device);
+-	stor_device = (struct storvsc_device *)device->ext;
++	stor_device =
++		(struct storvsc_device *)hv_get_drvdata(device);
  
- /*
-  *	FIXME
-@@ -240,7 +240,7 @@ static struct mousevsc_dev *must_get_input_device(struct hv_device *device)
+ 	if (stor_device && stor_device->destroy)
+ 		stor_device = NULL;
+@@ -328,7 +330,8 @@ static inline struct storvsc_device *get_in_stor_device(
  {
- 	struct mousevsc_dev *input_dev;
+ 	struct storvsc_device *stor_device;
  
--	input_dev = (struct mousevsc_dev *)device->ext;
-+	input_dev = (struct mousevsc_dev *)hv_get_drvdata(device);
+-	stor_device = (struct storvsc_device *)device->ext;
++	stor_device =
++		(struct storvsc_device *)hv_get_drvdata(device);
  
- 	if (input_dev && atomic_read(&input_dev->ref_count))
- 		atomic_inc(&input_dev->ref_count);
-@@ -254,7 +254,7 @@ static void put_input_device(struct hv_device *device)
- {
- 	struct mousevsc_dev *input_dev;
+ 	if (!stor_device)
+ 		goto get_in_err;
+@@ -480,7 +483,8 @@ static void storvsc_on_io_completion(struct hv_device *device,
+ 	struct storvsc_device *stor_device;
+ 	struct vstor_packet *stor_pkt;
  
--	input_dev = (struct mousevsc_dev *)device->ext;
-+	input_dev = (struct mousevsc_dev *)hv_get_drvdata(device);
+-	stor_device = (struct storvsc_device *)device->ext;
++	stor_device =
++		(struct storvsc_device *)hv_get_drvdata(device);
  
- 	atomic_dec(&input_dev->ref_count);
- }
-@@ -266,7 +266,7 @@ static struct mousevsc_dev *release_input_device(struct hv_device *device)
- {
- 	struct mousevsc_dev *input_dev;
+ 	stor_pkt = &request->vstor_packet;
  
--	input_dev = (struct mousevsc_dev *)device->ext;
-+	input_dev = (struct mousevsc_dev *)hv_get_drvdata(device);
+@@ -630,7 +634,8 @@ static int storvsc_dev_remove(struct hv_device *device)
+ 	struct storvsc_device *stor_device;
+ 	unsigned long flags;
  
- 	/* Busy wait until the ref drop to 2, then set it to 1  */
- 	while (atomic_cmpxchg(&input_dev->ref_count, 2, 1) != 2)
-@@ -282,13 +282,13 @@ static struct mousevsc_dev *final_release_input_device(struct hv_device *device)
- {
- 	struct mousevsc_dev *input_dev;
+-	stor_device = (struct storvsc_device *)device->ext;
++	stor_device =
++		(struct storvsc_device *)hv_get_drvdata(device);
  
--	input_dev = (struct mousevsc_dev *)device->ext;
-+	input_dev = (struct mousevsc_dev *)hv_get_drvdata(device);
- 
- 	/* Busy wait until the ref drop to 1, then set it to 0  */
- 	while (atomic_cmpxchg(&input_dev->ref_count, 1, 0) != 1)
- 		udelay(100);
- 
+ 	spin_lock_irqsave(&device->channel->inbound_lock, flags);
+ 	stor_device->destroy = true;
+@@ -652,7 +657,7 @@ static int storvsc_dev_remove(struct hv_device *device)
+ 	 * allow incoming packets.
+ 	 */
+ 	spin_lock_irqsave(&device->channel->inbound_lock, flags);
 -	device->ext = NULL;
 +	hv_set_drvdata(device, NULL);
- 	return input_dev;
- }
+ 	spin_unlock_irqrestore(&device->channel->inbound_lock, flags);
  
-@@ -790,7 +790,7 @@ static int mousevsc_on_device_remove(struct hv_device *device)
- 	int ret = 0;
+ 	/* Close the channel */
+@@ -963,7 +968,9 @@ static unsigned int copy_to_bounce_buffer(struct scatterlist *orig_sgl,
+ static int storvsc_remove(struct hv_device *dev,
+ 				const struct hv_vmbus_device_id *dev_id)
+ {
+-	struct Scsi_Host *host = dev_get_drvdata(&dev->device);
++	struct storvsc_device *stor_device =
++			(struct storvsc_device *)hv_get_drvdata(dev);
++	struct Scsi_Host *host = stor_device->host;
+ 	struct hv_host_device *host_dev =
+ 			(struct hv_host_device *)host->hostdata;
  
- 	pr_info("disabling input device (%p)...",
--		    device->ext);
-+		    hv_get_drvdata(device));
+@@ -1338,8 +1345,6 @@ static int storvsc_probe(struct hv_device *device,
+ 	if (!host)
+ 		return -ENOMEM;
  
- 	input_dev = release_input_device(device);
+-	dev_set_drvdata(&device->device, host);
+-
+ 	host_dev = (struct hv_host_device *)host->hostdata;
+ 	memset(host_dev, 0, sizeof(struct hv_host_device));
  
-@@ -808,7 +808,7 @@ static int mousevsc_on_device_remove(struct hv_device *device)
- 		udelay(100);
- 	}
+@@ -1366,7 +1371,8 @@ static int storvsc_probe(struct hv_device *device,
+ 	stor_device->destroy = false;
+ 	init_waitqueue_head(&stor_device->waiting_to_drain);
+ 	stor_device->device = device;
+-	device->ext = stor_device;
++	stor_device->host = host;
++	hv_set_drvdata(device, stor_device);
  
--	pr_info("removing input device (%p)...", device->ext);
-+	pr_info("removing input device (%p)...", hv_get_drvdata(device));
- 
- 	input_dev = final_release_input_device(device);
- 
+ 	stor_device->port_number = host->host_no;
+ 	ret = storvsc_connect_to_vsp(device, storvsc_ringbuffer_size);
 -- 
 1.7.4.1
