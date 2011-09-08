@@ -1,8 +1,7 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 05/25] Staging: hv: vmbus: Change the signature of struct
-	hv_driver probe function
-Date: Thu,  8 Sep 2011 07:24:16 -0700
-Message-ID: <1315491876-9554-5-git-send-email-kys@microsoft.com>
+Subject: [PATCH 13/25] Staging: hv: vmbus: Get rid of the module dependency
+Date: Thu,  8 Sep 2011 07:24:24 -0700
+Message-ID: <1315491876-9554-13-git-send-email-kys@microsoft.com>
 References: <1315491843-9513-1-git-send-email-kys@microsoft.com>
 	<1315491876-9554-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -23,109 +22,26 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-In preparation to leveraging the driver_data field in struct
-hv_vmbus_device_id, change the signature of struct hv_driver probe function.
+Hyper-V modules can be built as part of the kernel (not just as modules).
+Get rid of the module dependency in Kconfig.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- drivers/staging/hv/hv_mouse.c    |    3 ++-
- drivers/staging/hv/hv_util.c     |    3 ++-
- drivers/staging/hv/hyperv.h      |    2 +-
- drivers/staging/hv/netvsc_drv.c  |    3 ++-
- drivers/staging/hv/storvsc_drv.c |    3 ++-
- drivers/staging/hv/vmbus_drv.c   |    8 +++++++-
- 6 files changed, 16 insertions(+), 6 deletions(-)
+ drivers/staging/hv/Kconfig |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/staging/hv/hv_mouse.c b/drivers/staging/hv/hv_mouse.c
-index dbb04ee..5ff8a03 100644
---- a/drivers/staging/hv/hv_mouse.c
-+++ b/drivers/staging/hv/hv_mouse.c
-@@ -823,7 +823,8 @@ static int mousevsc_on_device_remove(struct hv_device *device)
- }
- 
- 
--static int mousevsc_probe(struct hv_device *dev)
-+static int mousevsc_probe(struct hv_device *dev,
-+			const struct hv_vmbus_device_id *dev_id)
- {
- 	int ret = 0;
- 
-diff --git a/drivers/staging/hv/hv_util.c b/drivers/staging/hv/hv_util.c
-index 6039217..d9460fdd 100644
---- a/drivers/staging/hv/hv_util.c
-+++ b/drivers/staging/hv/hv_util.c
-@@ -239,7 +239,8 @@ static void heartbeat_onchannelcallback(void *context)
-  * The devices managed by the util driver don't need any additional
-  * setup.
-  */
--static int util_probe(struct hv_device *dev)
-+static int util_probe(struct hv_device *dev,
-+			const struct hv_vmbus_device_id *dev_id)
- {
- 	return 0;
- }
-diff --git a/drivers/staging/hv/hyperv.h b/drivers/staging/hv/hyperv.h
-index c249811..caa3a7b 100644
---- a/drivers/staging/hv/hyperv.h
-+++ b/drivers/staging/hv/hyperv.h
-@@ -810,7 +810,7 @@ struct hv_driver {
- 
- 	struct device_driver driver;
- 
--	int (*probe)(struct hv_device *);
-+	int (*probe)(struct hv_device *, const struct hv_vmbus_device_id *);
- 	int (*remove)(struct hv_device *);
- 	void (*shutdown)(struct hv_device *);
- 
-diff --git a/drivers/staging/hv/netvsc_drv.c b/drivers/staging/hv/netvsc_drv.c
-index 30b9c80..d06cde2 100644
---- a/drivers/staging/hv/netvsc_drv.c
-+++ b/drivers/staging/hv/netvsc_drv.c
-@@ -329,7 +329,8 @@ static void netvsc_send_garp(struct work_struct *w)
- }
- 
- 
--static int netvsc_probe(struct hv_device *dev)
-+static int netvsc_probe(struct hv_device *dev,
-+			const struct hv_vmbus_device_id *dev_id)
- {
- 	struct net_device *net = NULL;
- 	struct net_device_context *net_device_ctx;
-diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
-index b0c4e56..fff1e5b 100644
---- a/drivers/staging/hv/storvsc_drv.c
-+++ b/drivers/staging/hv/storvsc_drv.c
-@@ -1380,7 +1380,8 @@ MODULE_DEVICE_TABLE(vmbus, id_table);
-  * storvsc_probe - Add a new device for this driver
-  */
- 
--static int storvsc_probe(struct hv_device *device)
-+static int storvsc_probe(struct hv_device *device,
-+			const struct hv_vmbus_device_id *dev_id)
- {
- 	int ret;
- 	struct Scsi_Host *host;
-diff --git a/drivers/staging/hv/vmbus_drv.c b/drivers/staging/hv/vmbus_drv.c
-index 375e451..c7df7f4 100644
---- a/drivers/staging/hv/vmbus_drv.c
-+++ b/drivers/staging/hv/vmbus_drv.c
-@@ -299,9 +299,15 @@ static int vmbus_probe(struct device *child_device)
- 	struct hv_driver *drv =
- 			drv_to_hv_drv(child_device->driver);
- 	struct hv_device *dev = device_to_hv_device(child_device);
-+	const struct hv_vmbus_device_id *dev_id = drv->id_table;
-+
-+	for (; !is_null_guid(dev_id->guid); dev_id++)
-+		if (!memcmp(&dev_id->guid, &dev->dev_type.b,
-+				sizeof(uuid_le)))
-+			break;
- 
- 	if (drv->probe) {
--		ret = drv->probe(dev);
-+		ret = drv->probe(dev, dev_id);
- 		if (ret != 0)
- 			pr_err("probe failed for device %s (%d)\n",
- 			       dev_name(child_device), ret);
+diff --git a/drivers/staging/hv/Kconfig b/drivers/staging/hv/Kconfig
+index 26b5064..815f8c2 100644
+--- a/drivers/staging/hv/Kconfig
++++ b/drivers/staging/hv/Kconfig
+@@ -1,6 +1,6 @@
+ config HYPERV
+ 	tristate "Microsoft Hyper-V client drivers"
+-	depends on X86 && ACPI && PCI && m
++	depends on X86 && ACPI && PCI
+ 	default n
+ 	help
+ 	  Select this option to run Linux as a Hyper-V client operating
 -- 
 1.7.4.1
