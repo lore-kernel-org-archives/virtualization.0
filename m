@@ -1,8 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 08/25] Staging: hv: util: Perform some service specific
-	initialization in util_probe()
-Date: Thu,  8 Sep 2011 07:24:19 -0700
-Message-ID: <1315491876-9554-8-git-send-email-kys@microsoft.com>
+Subject: [PATCH 07/25] Staging: hv: vmbus: Change the signature of struct
+	hv_driver remove() function
+Date: Thu,  8 Sep 2011 07:24:18 -0700
+Message-ID: <1315491876-9554-7-git-send-email-kys@microsoft.com>
 References: <1315491843-9513-1-git-send-email-kys@microsoft.com>
 	<1315491876-9554-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -23,141 +23,113 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-In preparation for modifying the util driver to fully conform to the 
-Linux Driver Model, perform some service specific initialization in
-util_probe() as opposed to in init_hyperv_utils() as is currently done. 
+In preparation for leveraging the driver_data in  struct
+hv_vmbus_device_id, change the signature of struct hv_driver remove() function.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- drivers/staging/hv/hv_util.c |   77 ++++++++++++++++++++++++++++-------------
- 1 files changed, 52 insertions(+), 25 deletions(-)
+ drivers/staging/hv/hv_mouse.c    |    3 ++-
+ drivers/staging/hv/hv_util.c     |    3 ++-
+ drivers/staging/hv/hyperv.h      |    2 +-
+ drivers/staging/hv/netvsc_drv.c  |    3 ++-
+ drivers/staging/hv/storvsc_drv.c |    3 ++-
+ drivers/staging/hv/vmbus_drv.c   |    9 ++++++++-
+ 6 files changed, 17 insertions(+), 6 deletions(-)
 
+diff --git a/drivers/staging/hv/hv_mouse.c b/drivers/staging/hv/hv_mouse.c
+index 5ff8a03..d60f287 100644
+--- a/drivers/staging/hv/hv_mouse.c
++++ b/drivers/staging/hv/hv_mouse.c
+@@ -847,7 +847,8 @@ static int mousevsc_probe(struct hv_device *dev,
+ 	return 0;
+ }
+ 
+-static int mousevsc_remove(struct hv_device *dev)
++static int mousevsc_remove(struct hv_device *dev,
++				const struct hv_vmbus_device_id *dev_id)
+ {
+ 	struct input_device_context *input_dev_ctx;
+ 	int ret;
 diff --git a/drivers/staging/hv/hv_util.c b/drivers/staging/hv/hv_util.c
-index 661631d..b86128a 100644
+index d9460fdd..661631d 100644
 --- a/drivers/staging/hv/hv_util.c
 +++ b/drivers/staging/hv/hv_util.c
-@@ -34,6 +34,13 @@ static u8 *shut_txf_buf;
- static u8 *time_txf_buf;
- static u8 *hbeat_txf_buf;
- 
-+enum hv_util_services {
-+	HV_SHUTDOWN,
-+	HV_TIMESYNC,
-+	HV_HEARTBEAT,
-+	HV_KVP,
-+};
-+
- static void shutdown_onchannelcallback(void *context)
- {
- 	struct vmbus_channel *channel = context;
-@@ -242,7 +249,43 @@ static void heartbeat_onchannelcallback(void *context)
- static int util_probe(struct hv_device *dev,
- 			const struct hv_vmbus_device_id *dev_id)
- {
-+	void *buf = NULL;
-+	int service = dev_id->driver_data;
-+
-+	switch (service) {
-+	case HV_SHUTDOWN:
-+		buf = shut_txf_buf = kmalloc(PAGE_SIZE, GFP_KERNEL);
-+		if (!shut_txf_buf)
-+			goto error;
-+		break;
-+
-+	case HV_TIMESYNC:
-+		buf = time_txf_buf = kmalloc(PAGE_SIZE, GFP_KERNEL);
-+		if (!time_txf_buf)
-+			goto error;
-+		break;
-+
-+	case HV_HEARTBEAT:
-+		buf = hbeat_txf_buf = kmalloc(PAGE_SIZE, GFP_KERNEL);
-+		if (!hbeat_txf_buf)
-+			goto error;
-+		break;
-+
-+	case HV_KVP:
-+		if (hv_kvp_init())
-+			return -ENODEV;
-+		break;
-+
-+	default:
-+		pr_err("unknown util service\n");
-+		return -ENODEV;
-+	}
-+
+@@ -245,7 +245,8 @@ static int util_probe(struct hv_device *dev,
  	return 0;
-+
-+error:
-+	return -ENOMEM;
-+
  }
  
- static int util_remove(struct hv_device *dev,
-@@ -254,16 +297,20 @@ static int util_remove(struct hv_device *dev,
- static const struct hv_vmbus_device_id id_table[] = {
- 	/* Shutdown guid */
- 	{ VMBUS_DEVICE(0x31, 0x60, 0x0B, 0X0E, 0x13, 0x52, 0x34, 0x49,
--		       0x81, 0x8B, 0x38, 0XD9, 0x0C, 0xED, 0x39, 0xDB) },
-+		       0x81, 0x8B, 0x38, 0XD9, 0x0C, 0xED, 0x39, 0xDB)
-+	  .driver_data = HV_SHUTDOWN },
- 	/* Time synch guid */
- 	{ VMBUS_DEVICE(0x30, 0xe6, 0x27, 0x95, 0xae, 0xd0, 0x7b, 0x49,
--		       0xad, 0xce, 0xe8, 0x0a, 0xb0, 0x17, 0x5c, 0xaf) },
-+		       0xad, 0xce, 0xe8, 0x0a, 0xb0, 0x17, 0x5c, 0xaf)
-+	  .driver_data = HV_TIMESYNC },
- 	/* Heartbeat guid */
- 	{ VMBUS_DEVICE(0x39, 0x4f, 0x16, 0x57, 0x15, 0x91, 0x78, 0x4e,
--		       0xab, 0x55, 0x38, 0x2f, 0x3b, 0xd5, 0x42, 0x2d) },
-+		       0xab, 0x55, 0x38, 0x2f, 0x3b, 0xd5, 0x42, 0x2d)
-+	  .driver_data = HV_HEARTBEAT },
- 	/* KVP guid */
- 	{ VMBUS_DEVICE(0xe7, 0xf4, 0xa0, 0xa9, 0x45, 0x5a, 0x96, 0x4d,
--		       0xb8, 0x27, 0x8a, 0x84, 0x1e, 0x8c, 0x3,  0xe6) },
-+		       0xb8, 0x27, 0x8a, 0x84, 0x1e, 0x8c, 0x3,  0xe6)
-+	  .driver_data = HV_KVP },
- 	{ },
+-static int util_remove(struct hv_device *dev)
++static int util_remove(struct hv_device *dev,
++			const struct hv_vmbus_device_id *dev_id)
+ {
+ 	return 0;
+ }
+diff --git a/drivers/staging/hv/hyperv.h b/drivers/staging/hv/hyperv.h
+index caa3a7b..cf02ae1 100644
+--- a/drivers/staging/hv/hyperv.h
++++ b/drivers/staging/hv/hyperv.h
+@@ -811,7 +811,7 @@ struct hv_driver {
+ 	struct device_driver driver;
+ 
+ 	int (*probe)(struct hv_device *, const struct hv_vmbus_device_id *);
+-	int (*remove)(struct hv_device *);
++	int (*remove)(struct hv_device *, const struct hv_vmbus_device_id *);
+ 	void (*shutdown)(struct hv_device *);
+ 
  };
- 
-@@ -282,24 +329,10 @@ static int __init init_hyperv_utils(void)
- 	int ret;
- 	pr_info("Registering HyperV Utility Driver\n");
- 
--	if (hv_kvp_init())
--		return -ENODEV;
--
--
--	shut_txf_buf = kmalloc(PAGE_SIZE, GFP_KERNEL);
--	time_txf_buf = kmalloc(PAGE_SIZE, GFP_KERNEL);
--	hbeat_txf_buf = kmalloc(PAGE_SIZE, GFP_KERNEL);
--
--	if (!shut_txf_buf || !time_txf_buf || !hbeat_txf_buf) {
--		pr_info("Unable to allocate memory for receive buffer\n");
--		ret = -ENOMEM;
--		goto err;
--	}
--
- 	ret = vmbus_driver_register(&util_drv);
- 
- 	if (ret != 0)
--		goto err;
-+		return ret;
- 
- 	hv_cb_utils[HV_SHUTDOWN_MSG].callback = &shutdown_onchannelcallback;
- 
-@@ -311,12 +344,6 @@ static int __init init_hyperv_utils(void)
- 
- 	return 0;
- 
--err:
--	kfree(shut_txf_buf);
--	kfree(time_txf_buf);
--	kfree(hbeat_txf_buf);
--
--	return ret;
+diff --git a/drivers/staging/hv/netvsc_drv.c b/drivers/staging/hv/netvsc_drv.c
+index d06cde2..d0189a3 100644
+--- a/drivers/staging/hv/netvsc_drv.c
++++ b/drivers/staging/hv/netvsc_drv.c
+@@ -384,7 +384,8 @@ out:
+ 	return ret;
  }
  
- static void exit_hyperv_utils(void)
+-static int netvsc_remove(struct hv_device *dev)
++static int netvsc_remove(struct hv_device *dev,
++			const struct hv_vmbus_device_id *dev_id)
+ {
+ 	struct net_device *net = dev_get_drvdata(&dev->device);
+ 	struct net_device_context *ndev_ctx;
+diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
+index e2c63e5..e5da758 100644
+--- a/drivers/staging/hv/storvsc_drv.c
++++ b/drivers/staging/hv/storvsc_drv.c
+@@ -1021,7 +1021,8 @@ static unsigned int copy_to_bounce_buffer(struct scatterlist *orig_sgl,
+ }
+ 
+ 
+-static int storvsc_remove(struct hv_device *dev)
++static int storvsc_remove(struct hv_device *dev,
++				const struct hv_vmbus_device_id *dev_id)
+ {
+ 	struct Scsi_Host *host = dev_get_drvdata(&dev->device);
+ 	struct hv_host_device *host_dev =
+diff --git a/drivers/staging/hv/vmbus_drv.c b/drivers/staging/hv/vmbus_drv.c
+index c7df7f4..b9aeb76 100644
+--- a/drivers/staging/hv/vmbus_drv.c
++++ b/drivers/staging/hv/vmbus_drv.c
+@@ -329,12 +329,19 @@ static int vmbus_remove(struct device *child_device)
+ 	struct hv_driver *drv;
+ 
+ 	struct hv_device *dev = device_to_hv_device(child_device);
++	const struct hv_vmbus_device_id *dev_id;
+ 
+ 	if (child_device->driver) {
+ 		drv = drv_to_hv_drv(child_device->driver);
++		dev_id = drv->id_table;
++
++		for (; !is_null_guid(dev_id->guid); dev_id++)
++			if (!memcmp(&dev_id->guid, &dev->dev_type.b,
++					sizeof(uuid_le)))
++				break;
+ 
+ 		if (drv->remove) {
+-			ret = drv->remove(dev);
++			ret = drv->remove(dev, dev_id);
+ 		} else {
+ 			pr_err("remove not set for driver %s\n",
+ 				dev_name(child_device));
 -- 
 1.7.4.1
