@@ -1,47 +1,42 @@
-From: Olaf Hering <olaf@aepfle.de>
-Subject: [PATCH] Staging: hv: netvsc: advertise hv_netvsc instead of netvsc
- as driver name
-Date: Fri, 9 Sep 2011 14:46:49 +0200
-Message-ID: <20110909124649.GB23598@aepfle.de>
+From: Greg KH <gregkh@suse.de>
+Subject: Re: [PATCH] Staging: hv: storvsc: Show the modulename in
+ /sys/class/scsi_host/*/proc_name
+Date: Fri, 9 Sep 2011 08:24:56 -0700
+Message-ID: <20110909152456.GA26556@suse.de>
 References: <20110908162650.GA10699@aepfle.de>
+ <20110908191237.GB8552@suse.de>
+ <20110909084523.GA20517@aepfle.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20110908162650.GA10699@aepfle.de>
+In-Reply-To: <20110909084523.GA20517@aepfle.de>
 Sender: linux-kernel-owner@vger.kernel.org
-To: "K. Y. Srinivasan" <kys@microsoft.com>
-Cc: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org
+To: Olaf Hering <olaf@aepfle.de>
+Cc: "K. Y. Srinivasan" <kys@microsoft.com>, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Signed-off-by: Olaf Hering <olaf@aepfle.de>
+On Fri, Sep 09, 2011 at 10:45:23AM +0200, Olaf Hering wrote:
+> On Thu, Sep 08, Greg KH wrote:
+> 
+> > On Thu, Sep 08, 2011 at 06:26:50PM +0200, Olaf Hering wrote:
+> 
+> > > +++ b/drivers/staging/hv/storvsc_drv.c
+> > > @@ -1333,7 +1333,8 @@ static DEF_SCSI_QCMD(storvsc_queuecomman
+> > >  /* Scsi driver */
+> > >  static struct scsi_host_template scsi_driver = {
+> > >  	.module	=		THIS_MODULE,
+> > > -	.name =			"storvsc_host_t",
+> > > +	.name =			"hv_storvsc",
+> > > +	.proc_name =		"hv_storvsc",
+> > 
+> > Shouldn't this be MODULE_NAME so it handles any potential name change in
+> > the future and makes it a bit more obvious as to what is going on here?
+> 
+> MODULE_NAME is just another define and appearently not used to assemble
+> a kernel module. Is DRV_NAME depreciated?
 
---- a/drivers/staging/hv/netvsc_drv.c
-+++ b/drivers/staging/hv/netvsc_drv.c
-@@ -41,6 +41,8 @@
- #include "hyperv.h"
- #include "hyperv_net.h"
- 
-+#define MODULE_NAME "hv_netvsc"
-+
- struct net_device_context {
- 	/* point back to our device context */
- 	struct hv_device *device_ctx;
-@@ -291,7 +293,7 @@ int netvsc_recv_callback(struct hv_devic
- static void netvsc_get_drvinfo(struct net_device *net,
- 			       struct ethtool_drvinfo *info)
- {
--	strcpy(info->driver, "hv_netvsc");
-+	strcpy(info->driver, MODULE_NAME);
- 	strcpy(info->version, HV_DRV_VERSION);
- 	strcpy(info->fw_version, "N/A");
- }
-@@ -420,7 +422,7 @@ MODULE_DEVICE_TABLE(vmbus, id_table);
- 
- /* The one and only one */
- static struct  hv_driver netvsc_drv = {
--	.name = "netvsc",
-+	.name = MODULE_NAME,
- 	.id_table = id_table,
- 	.probe = netvsc_probe,
- 	.remove = netvsc_remove,
+Sorry, I should have said KBUILD_MODNAME, that will give you what you
+want here.
+
+greg k-h
