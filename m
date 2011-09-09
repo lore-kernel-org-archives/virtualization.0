@@ -1,47 +1,59 @@
 From: Greg KH <greg@kroah.com>
-Subject: Re: [PATCH 07/25] Staging: hv: vmbus: Change the signature of struct
- hv_driver remove() function
-Date: Fri, 9 Sep 2011 13:40:13 -0700
-Message-ID: <20110909204013.GD19127@kroah.com>
+Subject: Re: [PATCH 06/25] Staging: hv: storvsc: Use the driver_data to
+ identify ide
+Date: Fri, 9 Sep 2011 13:41:32 -0700
+Message-ID: <20110909204132.GE19127@kroah.com>
 References: <1315491843-9513-1-git-send-email-kys@microsoft.com>
  <1315491876-9554-1-git-send-email-kys@microsoft.com>
- <1315491876-9554-7-git-send-email-kys@microsoft.com>
+ <1315491876-9554-6-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1315491876-9554-7-git-send-email-kys@microsoft.com>
+In-Reply-To: <1315491876-9554-6-git-send-email-kys@microsoft.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: "K. Y. Srinivasan" <kys@microsoft.com>
 Cc: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org, Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Sep 08, 2011 at 07:24:18AM -0700, K. Y. Srinivasan wrote:
-> In preparation for leveraging the driver_data in  struct
-> hv_vmbus_device_id, change the signature of struct hv_driver remove() function.
+On Thu, Sep 08, 2011 at 07:24:17AM -0700, K. Y. Srinivasan wrote:
+> Use the driver_data to identify ide devices in storvsc_probe().
+> 
+> Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
+> Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
+> ---
+>  drivers/staging/hv/storvsc_drv.c |   13 +++++--------
+>  1 files changed, 5 insertions(+), 8 deletions(-)
+> 
+> diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
+> index fff1e5b..e2c63e5 100644
+> --- a/drivers/staging/hv/storvsc_drv.c
+> +++ b/drivers/staging/hv/storvsc_drv.c
+> @@ -1366,10 +1366,12 @@ static struct scsi_host_template scsi_driver = {
+>  static const struct hv_vmbus_device_id id_table[] = {
+>  	/* SCSI guid */
+>  	{ VMBUS_DEVICE(0xd9, 0x63, 0x61, 0xba, 0xa1, 0x04, 0x29, 0x4d,
+> -		       0xb6, 0x05, 0x72, 0xe2, 0xff, 0xb1, 0xdc, 0x7f) },
+> +		       0xb6, 0x05, 0x72, 0xe2, 0xff, 0xb1, 0xdc, 0x7f)
+> +	  .driver_data = 0 },
 
-Why?  This shouldn't be needed at remove() time as the driver already
-has saved off the needed id information in its probe function, if it
-needed it.
-> --- a/drivers/staging/hv/vmbus_drv.c
-> +++ b/drivers/staging/hv/vmbus_drv.c
-> @@ -329,12 +329,19 @@ static int vmbus_remove(struct device *child_device)
->  	struct hv_driver *drv;
->  
->  	struct hv_device *dev = device_to_hv_device(child_device);
-> +	const struct hv_vmbus_device_id *dev_id;
->  
->  	if (child_device->driver) {
->  		drv = drv_to_hv_drv(child_device->driver);
-> +		dev_id = drv->id_table;
-> +
-> +		for (; !is_null_guid(dev_id->guid); dev_id++)
-> +			if (!memcmp(&dev_id->guid, &dev->dev_type.b,
-> +					sizeof(uuid_le)))
-> +				break;
+What does 0 mean?  That's the "default" here, right?
 
-Even though it is wrong, look you duplicated the matching logic again!
+>  	/* IDE guid */
+>  	{ VMBUS_DEVICE(0x32, 0x26, 0x41, 0x32, 0xcb, 0x86, 0xa2, 0x44,
+> -		       0x9b, 0x5c, 0x50, 0xd1, 0x41, 0x73, 0x54, 0xf5) },
+> +		       0x9b, 0x5c, 0x50, 0xd1, 0x41, 0x73, 0x54, 0xf5)
+> +	  .driver_data = 1 },
 
-ick.
+What does 1 mean?
+
+And yes, I can guess, but please, will you really remember this in 2
+years?
+
+enums are your friend...
+
+PLEASE make your code easier to maintain for the person who has to come
+clean it up after you, which is usually yourself so you are only making
+your own life easier.
 
 greg k-h
