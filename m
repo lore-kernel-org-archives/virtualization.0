@@ -1,35 +1,47 @@
 From: Greg KH <greg@kroah.com>
-Subject: Re: [PATCH 1/1] Staging: hv: Integrate the time source driver with
-	Hyper-V detection code
-Date: Fri, 9 Sep 2011 13:32:28 -0700
-Message-ID: <20110909203228.GA19127@kroah.com>
-References: <1315434310-4827-1-git-send-email-kys@microsoft.com>
+Subject: Re: [PATCH 07/25] Staging: hv: vmbus: Change the signature of struct
+ hv_driver remove() function
+Date: Fri, 9 Sep 2011 13:40:13 -0700
+Message-ID: <20110909204013.GD19127@kroah.com>
+References: <1315491843-9513-1-git-send-email-kys@microsoft.com>
+ <1315491876-9554-1-git-send-email-kys@microsoft.com>
+ <1315491876-9554-7-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <devel-bounces@linuxdriverproject.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1315434310-4827-1-git-send-email-kys@microsoft.com>
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
-List-Post: <mailto:devel@linuxdriverproject.org>
-List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
-Errors-To: devel-bounces@linuxdriverproject.org
-Sender: devel-bounces@linuxdriverproject.org
+In-Reply-To: <1315491876-9554-7-git-send-email-kys@microsoft.com>
+Sender: linux-kernel-owner@vger.kernel.org
 To: "K. Y. Srinivasan" <kys@microsoft.com>
-Cc: devel@linuxdriverproject.org, Haiyang Zhang <haiyangz@microsoft.com>, gregkh@suse.de, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org
+Cc: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org, Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Sep 07, 2011 at 03:25:10PM -0700, K. Y. Srinivasan wrote:
-> The Hyper-V timesource driver is best integrated with Hyper-V detection code
-> since: (a) Linux guests running on Hyper-V need this timesource and (b)
-> by integrating with Hyper-V detection, we could significantly  minimize the
-> code in the timesource driver.
-> 
-> Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
-> Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
+On Thu, Sep 08, 2011 at 07:24:18AM -0700, K. Y. Srinivasan wrote:
+> In preparation for leveraging the driver_data in  struct
+> hv_vmbus_device_id, change the signature of struct hv_driver remove() function.
 
-Acked-by: Greg Kroah-Hartman <gregkh@suse.de>
+Why?  This shouldn't be needed at remove() time as the driver already
+has saved off the needed id information in its probe function, if it
+needed it.
+> --- a/drivers/staging/hv/vmbus_drv.c
+> +++ b/drivers/staging/hv/vmbus_drv.c
+> @@ -329,12 +329,19 @@ static int vmbus_remove(struct device *child_device)
+>  	struct hv_driver *drv;
+>  
+>  	struct hv_device *dev = device_to_hv_device(child_device);
+> +	const struct hv_vmbus_device_id *dev_id;
+>  
+>  	if (child_device->driver) {
+>  		drv = drv_to_hv_drv(child_device->driver);
+> +		dev_id = drv->id_table;
+> +
+> +		for (; !is_null_guid(dev_id->guid); dev_id++)
+> +			if (!memcmp(&dev_id->guid, &dev->dev_type.b,
+> +					sizeof(uuid_le)))
+> +				break;
+
+Even though it is wrong, look you duplicated the matching logic again!
+
+ick.
+
+greg k-h
