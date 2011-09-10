@@ -1,17 +1,17 @@
 From: KY Srinivasan <kys@microsoft.com>
-Subject: RE: [PATCH 10/25] Staging: hv: vmbus: Return proper error code in
-	vmbus_remove()
-Date: Sat, 10 Sep 2011 14:22:22 +0000
-Message-ID: <6E21E5352C11B742B20C142EB499E048081DC4B3@TK5EX14MBXC128.redmond.corp.microsoft.com>
+Subject: RE: [PATCH 09/25] Staging: hv: util: Perform some service specific
+	de-initialization in util_remove()
+Date: Sat, 10 Sep 2011 14:31:15 +0000
+Message-ID: <6E21E5352C11B742B20C142EB499E048081DC4C7@TK5EX14MBXC128.redmond.corp.microsoft.com>
 References: <1315491843-9513-1-git-send-email-kys@microsoft.com>
 	<1315491876-9554-1-git-send-email-kys@microsoft.com>
-	<1315491876-9554-10-git-send-email-kys@microsoft.com>
-	<20110909204309.GG19127@kroah.com>
+	<1315491876-9554-9-git-send-email-kys@microsoft.com>
+	<20110909204240.GF19127@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <devel-bounces@linuxdriverproject.org>
-In-Reply-To: <20110909204309.GG19127@kroah.com>
+In-Reply-To: <20110909204240.GF19127@kroah.com>
 Content-Language: en-US
 List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
 	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
@@ -34,38 +34,51 @@ List-Id: virtualization@lists.linuxfoundation.org
 > To: KY Srinivasan
 > Cc: gregkh@suse.de; linux-kernel@vger.kernel.org;
 > devel@linuxdriverproject.org; virtualization@lists.osdl.org; Haiyang Zhang
-> Subject: Re: [PATCH 10/25] Staging: hv: vmbus: Return proper error code in
-> vmbus_remove()
+> Subject: Re: [PATCH 09/25] Staging: hv: util: Perform some service specific de-
+> initialization in util_remove()
 > 
-> On Thu, Sep 08, 2011 at 07:24:21AM -0700, K. Y. Srinivasan wrote:
-> > Return proper error code in vmbus_remove().
+> On Thu, Sep 08, 2011 at 07:24:20AM -0700, K. Y. Srinivasan wrote:
+> > In preparation for modifying the util driver to fully conform to the
+> > Linux Driver Model, perform some service specific de-initialization in
+> > util_remove() as opposed to in exit_hyperv_utils() as is currently done.
+> >
 > >
 > > Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 > > Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 > > ---
-> >  drivers/staging/hv/vmbus_drv.c |    4 ++--
-> >  1 files changed, 2 insertions(+), 2 deletions(-)
+> >  drivers/staging/hv/hv_util.c |   29 ++++++++++++++++++++++++-----
+> >  1 files changed, 24 insertions(+), 5 deletions(-)
 > >
-> > diff --git a/drivers/staging/hv/vmbus_drv.c b/drivers/staging/hv/vmbus_drv.c
-> > index b9aeb76..95d33a4 100644
-> > --- a/drivers/staging/hv/vmbus_drv.c
-> > +++ b/drivers/staging/hv/vmbus_drv.c
-> > @@ -325,7 +325,7 @@ static int vmbus_probe(struct device *child_device)
-> >   */
-> >  static int vmbus_remove(struct device *child_device)
+> > diff --git a/drivers/staging/hv/hv_util.c b/drivers/staging/hv/hv_util.c
+> > index b86128a..2475ab2 100644
+> > --- a/drivers/staging/hv/hv_util.c
+> > +++ b/drivers/staging/hv/hv_util.c
+> > @@ -291,6 +291,30 @@ error:
+> >  static int util_remove(struct hv_device *dev,
+> >  			const struct hv_vmbus_device_id *dev_id)
 > >  {
-> > -	int ret;
-> > +	int ret = 0;
+> > +	int service = dev_id->driver_data;
+> > +
+> > +	switch (service) {
+> > +	case HV_SHUTDOWN:
+> > +		kfree(shut_txf_buf);
+> > +		break;
 > 
-> As remove functions can't fail, why return anything at all?
+> This switch and "static" pointers you need to free aren't needed at all
+> if you do this code logic correctly (i.e. a per-device buffer.)
 > 
-> Doesn't make sense, please fix.
+> {sigh}
+> 
+> I'm stopping reviewing now, this is making me grumpy, someone owes me a
+> bunch of beer...
 
 Greg,
 
-Looking at the struct bus_type, the remove function is not a void function.
-I was just fixing something that was broken in this function.
+I will rework this to be more on the lines of what you had suggested; and yes,
+I remember my original promise! I want to re-spin these patches and send it to 
+you as soon as possible. Which tree can I clone to get your latest check-ins; kernel.org
+still seems to have issues this morning. Have you checked in Olaf's patches.
 
-Regards,
+Thanks,
 
 K. Y
