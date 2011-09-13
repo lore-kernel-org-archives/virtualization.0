@@ -1,44 +1,93 @@
-From: KY Srinivasan <kys@microsoft.com>
-Subject: RE: [PATCH 20/20] Staging: hv: netvsc: Rename deviceInfo as
- device_info
-Date: Tue, 13 Sep 2011 18:15:28 +0000
-Message-ID: <6E21E5352C11B742B20C142EB499E048081E4C60@TK5EX14MBXC124.redmond.corp.microsoft.com>
+From: "K. Y. Srinivasan" <kys@microsoft.com>
+Subject: [PATCH 19/20] Staging: hv: netvsc: Rename rndisDevice to rndis_device
+Date: Tue, 13 Sep 2011 10:59:55 -0700
+Message-ID: <1315936796-20662-19-git-send-email-kys@microsoft.com>
 References: <1315936759-20623-1-git-send-email-kys@microsoft.com>
-	 <1315936796-20662-1-git-send-email-kys@microsoft.com>
-	 <1315936796-20662-20-git-send-email-kys@microsoft.com>
- <1315937432.25776.9.camel@Joe-Laptop>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+ <1315936796-20662-1-git-send-email-kys@microsoft.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1315937432.25776.9.camel@Joe-Laptop>
-Content-Language: en-US
+In-Reply-To: <1315936796-20662-1-git-send-email-kys@microsoft.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Joe Perches <joe@perches.com>
-Cc: "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, Haiyang Zhang <haiyangz@microsoft.com>
+To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org
+Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogSm9lIFBlcmNoZXMgW21h
-aWx0bzpqb2VAcGVyY2hlcy5jb21dDQo+IFNlbnQ6IFR1ZXNkYXksIFNlcHRlbWJlciAxMywgMjAx
-MSAyOjExIFBNDQo+IFRvOiBLWSBTcmluaXZhc2FuDQo+IENjOiBncmVna2hAc3VzZS5kZTsgbGlu
-dXgta2VybmVsQHZnZXIua2VybmVsLm9yZzsNCj4gZGV2ZWxAbGludXhkcml2ZXJwcm9qZWN0Lm9y
-ZzsgdmlydHVhbGl6YXRpb25AbGlzdHMub3NkbC5vcmc7IEhhaXlhbmcgWmhhbmcNCj4gU3ViamVj
-dDogUmU6IFtQQVRDSCAyMC8yMF0gU3RhZ2luZzogaHY6IG5ldHZzYzogUmVuYW1lIGRldmljZUlu
-Zm8gYXMNCj4gZGV2aWNlX2luZm8NCj4gDQo+IE9uIFR1ZSwgMjAxMS0wOS0xMyBhdCAxMDo1OSAt
-MDcwMCwgSy4gWS4gU3Jpbml2YXNhbiB3cm90ZToNCj4gPiBSZW5hbWUgZGV2aWNlSW5mbyBhcyBk
-ZXZpY2VfaW5mby4NCj4gW10NCj4gPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9zdGFnaW5nL2h2L3Ju
-ZGlzX2ZpbHRlci5jIGIvZHJpdmVycy9zdGFnaW5nL2h2L3JuZGlzX2ZpbHRlci5jDQo+IFtdDQo+
-ID4gQEAgLTczMiwxNSArNzMyLDE1IEBAIGludCBybmRpc19maWx0ZXJfZGV2aWNlX2FkZChzdHJ1
-Y3QgaHZfZGV2aWNlICpkZXYsDQo+IFtdDQo+ID4gIAlkZXZfaW5mbygmZGV2LT5kZXZpY2UsICJE
-ZXZpY2UgTUFDICVwTSBsaW5rIHN0YXRlICVzIiwNCj4gPiAgCQkgcm5kaXNfZGV2aWNlLT5od19t
-YWNfYWRyLA0KPiA+IC0JCSAoKGRldmljZUluZm8tPmxpbmtfc3RhdGUpID8gKCJkb3duXG4iKSA6
-ICgidXBcbiIpKSk7DQo+ID4gKwkJICgoZGV2aWNlX2luZm8tPmxpbmtfc3RhdGUpID8gKCJkb3du
-XG4iKSA6ICgidXBcbiIpKSk7DQo+IA0KPiBNYXliZSBnZXQgcmlkIG9mIHRoZSBzdXBlcmZsdW91
-cyBwYXJlbnRoZXNlcyB0b28/DQo+IA0KPiAJZGV2X2luZm8oJmRldi0+ZGV2aWNlLCAiRGV2aWNl
-IE1BQyAlcE0gbGluayBzdGF0ZSAlc1xuIiwNCj4gCQkgcm5kaXNfZGV2aWNlLT5od19tYWNfYWRy
-LA0KPiAJCSBkZXZpY2VfaW5mby0+bGlua19zdGF0ZSA/ICJkb3duIiA6ICJ1cCIpOw0KPiANCj4g
-QWxzbywgc3RydWN0IHJuZGlzX2RldmljZSB1c2VzDQo+IAl1MzIgbGlua19zdGF0Ow0KPiB0aGF0
-IGlzIGNvcGllZCBpbnRvIHN0cnVjdCBuZXR2c2NfZGV2aWNlX2luZm8NCj4gCWJvb2wgbGlua19z
-dGF0ZTsNCj4gY291bGQgeW91IHBsZWFzZSByYXRpb25hbGl6ZSB0aGUgbmFtZXMgYW5kIHR5cGVz
-DQo+IG9mIHRob3NlIDIgdmFyaWFibGVzPw0KDQpUaGFua3MgSm9lOyBJIHdpbGwgZ2V0IGEgcGF0
-Y2ggb3V0IHNvb24uDQoNClJlZ2FyZHMsDQoNCksuIFkNCg0K
+Rename rndisDevice to rndis_device.
+
+Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
+Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
+---
+ drivers/staging/hv/rndis_filter.c |   24 ++++++++++++------------
+ 1 files changed, 12 insertions(+), 12 deletions(-)
+
+diff --git a/drivers/staging/hv/rndis_filter.c b/drivers/staging/hv/rndis_filter.c
+index efa7df5..bfe9129 100644
+--- a/drivers/staging/hv/rndis_filter.c
++++ b/drivers/staging/hv/rndis_filter.c
+@@ -690,11 +690,11 @@ int rndis_filter_device_add(struct hv_device *dev,
+ {
+ 	int ret;
+ 	struct netvsc_device *net_device;
+-	struct rndis_device *rndisDevice;
++	struct rndis_device *rndis_device;
+ 	struct netvsc_device_info *deviceInfo = additional_info;
+ 
+-	rndisDevice = get_rndis_device();
+-	if (!rndisDevice)
++	rndis_device = get_rndis_device();
++	if (!rndis_device)
+ 		return -ENODEV;
+ 
+ 	/*
+@@ -704,7 +704,7 @@ int rndis_filter_device_add(struct hv_device *dev,
+ 	 */
+ 	ret = netvsc_device_add(dev, additional_info);
+ 	if (ret != 0) {
+-		kfree(rndisDevice);
++		kfree(rndis_device);
+ 		return ret;
+ 	}
+ 
+@@ -712,11 +712,11 @@ int rndis_filter_device_add(struct hv_device *dev,
+ 	/* Initialize the rndis device */
+ 	net_device = hv_get_drvdata(dev);
+ 
+-	net_device->extension = rndisDevice;
+-	rndisDevice->net_dev = net_device;
++	net_device->extension = rndis_device;
++	rndis_device->net_dev = net_device;
+ 
+ 	/* Send the rndis initialization message */
+-	ret = rndis_filter_init_device(rndisDevice);
++	ret = rndis_filter_init_device(rndis_device);
+ 	if (ret != 0) {
+ 		/*
+ 		 * TODO: If rndis init failed, we will need to shut down the
+@@ -725,21 +725,21 @@ int rndis_filter_device_add(struct hv_device *dev,
+ 	}
+ 
+ 	/* Get the mac address */
+-	ret = rndis_filter_query_device_mac(rndisDevice);
++	ret = rndis_filter_query_device_mac(rndis_device);
+ 	if (ret != 0) {
+ 		/*
+ 		 * TODO: shutdown rndis device and the channel
+ 		 */
+ 	}
+ 
+-	memcpy(deviceInfo->mac_adr, rndisDevice->hw_mac_adr, ETH_ALEN);
++	memcpy(deviceInfo->mac_adr, rndis_device->hw_mac_adr, ETH_ALEN);
+ 
+-	rndis_filter_query_device_link_status(rndisDevice);
++	rndis_filter_query_device_link_status(rndis_device);
+ 
+-	deviceInfo->link_state = rndisDevice->link_stat;
++	deviceInfo->link_state = rndis_device->link_stat;
+ 
+ 	dev_info(&dev->device, "Device MAC %pM link state %s",
+-		 rndisDevice->hw_mac_adr,
++		 rndis_device->hw_mac_adr,
+ 		 ((deviceInfo->link_state) ? ("down\n") : ("up\n")));
+ 
+ 	return ret;
+-- 
+1.7.4.1
