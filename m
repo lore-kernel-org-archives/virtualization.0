@@ -1,7 +1,7 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 03/20] Staging: hv: storvsc: Use the driver_data to identify ide
-Date: Tue, 13 Sep 2011 10:59:39 -0700
-Message-ID: <1315936796-20662-3-git-send-email-kys@microsoft.com>
+Subject: [PATCH 18/20] Staging: hv: netvsc: Rename netDevice as net_device
+Date: Tue, 13 Sep 2011 10:59:54 -0700
+Message-ID: <1315936796-20662-18-git-send-email-kys@microsoft.com>
 References: <1315936759-20623-1-git-send-email-kys@microsoft.com>
  <1315936796-20662-1-git-send-email-kys@microsoft.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
@@ -11,61 +11,73 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Use the driver_data to identify ide devices in storvsc_probe().
+Rename netDevice as net_device.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- drivers/staging/hv/storvsc_drv.c |   22 ++++++++++------------
- 1 files changed, 10 insertions(+), 12 deletions(-)
+ drivers/staging/hv/netvsc.c       |    5 ++++-
+ drivers/staging/hv/rndis_filter.c |   14 +++++++-------
+ 2 files changed, 11 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
-index fff1e5b..b996293 100644
---- a/drivers/staging/hv/storvsc_drv.c
-+++ b/drivers/staging/hv/storvsc_drv.c
-@@ -1359,17 +1359,20 @@ static struct scsi_host_template scsi_driver = {
- 	.dma_boundary =		PAGE_SIZE-1,
- };
+diff --git a/drivers/staging/hv/netvsc.c b/drivers/staging/hv/netvsc.c
+index 2bcc8b2..b902579 100644
+--- a/drivers/staging/hv/netvsc.c
++++ b/drivers/staging/hv/netvsc.c
+@@ -382,7 +382,10 @@ int netvsc_device_remove(struct hv_device *device)
+ 	hv_set_drvdata(device, NULL);
+ 	spin_unlock_irqrestore(&device->channel->inbound_lock, flags);
  
--/*
-- * The storvsc_probe function assumes that the IDE guid
-- * is the second entry.
-- */
-+enum {
-+	SCSI_GUID,
-+	IDE_GUID,
-+};
-+
- static const struct hv_vmbus_device_id id_table[] = {
- 	/* SCSI guid */
- 	{ VMBUS_DEVICE(0xd9, 0x63, 0x61, 0xba, 0xa1, 0x04, 0x29, 0x4d,
--		       0xb6, 0x05, 0x72, 0xe2, 0xff, 0xb1, 0xdc, 0x7f) },
-+		       0xb6, 0x05, 0x72, 0xe2, 0xff, 0xb1, 0xdc, 0x7f)
-+	  .driver_data = SCSI_GUID },
- 	/* IDE guid */
- 	{ VMBUS_DEVICE(0x32, 0x26, 0x41, 0x32, 0xcb, 0x86, 0xa2, 0x44,
--		       0x9b, 0x5c, 0x50, 0xd1, 0x41, 0x73, 0x54, 0xf5) },
-+		       0x9b, 0x5c, 0x50, 0xd1, 0x41, 0x73, 0x54, 0xf5)
-+	  .driver_data = IDE_GUID },
- 	{ },
- };
+-	/* At this point, no one should be accessing netDevice except in here */
++	/*
++	 * At this point, no one should be accessing net_device
++	 * except in here
++	 */
+ 	dev_notice(&device->device, "net device safe to remove\n");
  
-@@ -1387,15 +1390,10 @@ static int storvsc_probe(struct hv_device *device,
- 	struct Scsi_Host *host;
- 	struct hv_host_device *host_dev;
- 	struct storvsc_device_info device_info;
--	bool dev_is_ide;
-+	bool dev_is_ide = ((dev_id->driver_data == IDE_GUID) ? true : false);
- 	int path = 0;
- 	int target = 0;
+ 	/* Now, we can close the channel safely */
+diff --git a/drivers/staging/hv/rndis_filter.c b/drivers/staging/hv/rndis_filter.c
+index b354b0b..efa7df5 100644
+--- a/drivers/staging/hv/rndis_filter.c
++++ b/drivers/staging/hv/rndis_filter.c
+@@ -689,7 +689,7 @@ int rndis_filter_device_add(struct hv_device *dev,
+ 				  void *additional_info)
+ {
+ 	int ret;
+-	struct netvsc_device *netDevice;
++	struct netvsc_device *net_device;
+ 	struct rndis_device *rndisDevice;
+ 	struct netvsc_device_info *deviceInfo = additional_info;
  
--	if (!memcmp(&device->dev_type.b, id_table[1].guid, sizeof(uuid_le)))
--		dev_is_ide = true;
--	else
--		dev_is_ide = false;
--
- 	host = scsi_host_alloc(&scsi_driver,
- 			       sizeof(struct hv_host_device));
- 	if (!host)
+@@ -710,10 +710,10 @@ int rndis_filter_device_add(struct hv_device *dev,
+ 
+ 
+ 	/* Initialize the rndis device */
+-	netDevice = hv_get_drvdata(dev);
++	net_device = hv_get_drvdata(dev);
+ 
+-	netDevice->extension = rndisDevice;
+-	rndisDevice->net_dev = netDevice;
++	net_device->extension = rndisDevice;
++	rndisDevice->net_dev = net_device;
+ 
+ 	/* Send the rndis initialization message */
+ 	ret = rndis_filter_init_device(rndisDevice);
+@@ -762,12 +762,12 @@ void rndis_filter_device_remove(struct hv_device *dev)
+ 
+ int rndis_filter_open(struct hv_device *dev)
+ {
+-	struct netvsc_device *netDevice = hv_get_drvdata(dev);
++	struct netvsc_device *net_device = hv_get_drvdata(dev);
+ 
+-	if (!netDevice)
++	if (!net_device)
+ 		return -EINVAL;
+ 
+-	return rndis_filter_open_device(netDevice->extension);
++	return rndis_filter_open_device(net_device->extension);
+ }
+ 
+ int rndis_filter_close(struct hv_device *dev)
 -- 
 1.7.4.1
