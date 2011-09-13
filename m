@@ -1,63 +1,69 @@
-From: KY Srinivasan <kys@microsoft.com>
-Subject: RE: [PATCH 1/1] Staging: hv: netvsc: Cleanup the name and type of
- link_stat variable
-Date: Tue, 13 Sep 2011 20:57:50 +0000
-Message-ID: <6E21E5352C11B742B20C142EB499E048081E4D9D@TK5EX14MBXC124.redmond.corp.microsoft.com>
-References: <1315943618-22308-1-git-send-email-kys@microsoft.com>
- <1315944283.25776.14.camel@Joe-Laptop>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+From: "K. Y. Srinivasan" <kys@microsoft.com>
+Subject: [PATCH 1/1] Staging: hv: netvsc: Cleanup the name and type of link_stat variable
+Date: Tue, 13 Sep 2011 15:21:27 -0700
+Message-ID: <1315952487-23406-1-git-send-email-kys@microsoft.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1315944283.25776.14.camel@Joe-Laptop>
-Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Joe Perches <joe@perches.com>
-Cc: "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, Haiyang Zhang <haiyangz@microsoft.com>
+To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org, joe@perches.com
+Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogSm9lIFBlcmNoZXMgW21h
-aWx0bzpqb2VAcGVyY2hlcy5jb21dDQo+IFNlbnQ6IFR1ZXNkYXksIFNlcHRlbWJlciAxMywgMjAx
-MSA0OjA1IFBNDQo+IFRvOiBLWSBTcmluaXZhc2FuDQo+IENjOiBncmVna2hAc3VzZS5kZTsgbGlu
-dXgta2VybmVsQHZnZXIua2VybmVsLm9yZzsNCj4gZGV2ZWxAbGludXhkcml2ZXJwcm9qZWN0Lm9y
-ZzsgdmlydHVhbGl6YXRpb25AbGlzdHMub3NkbC5vcmc7IEhhaXlhbmcgWmhhbmcNCj4gU3ViamVj
-dDogUmU6IFtQQVRDSCAxLzFdIFN0YWdpbmc6IGh2OiBuZXR2c2M6IENsZWFudXAgdGhlIG5hbWUg
-YW5kIHR5cGUgb2YNCj4gbGlua19zdGF0IHZhcmlhYmxlDQo+IA0KPiBPbiBUdWUsIDIwMTEtMDkt
-MTMgYXQgMTI6NTMgLTA3MDAsIEsuIFkuIFNyaW5pdmFzYW4gd3JvdGU6DQo+ID4gQ29uc2lzdGVu
-dGx5IG5hbWUgdGhlIHZhcmlhYmxlIHRyYWNraW5nIHRoZSBsaW5rIHN0YXR1cy4gVXNlIGEgY29u
-c2lzdGVudA0KPiA+IHR5cGUgZm9yIHRoaXMgdmFyaWFibGUgYW5kIGdldCByaWQgb2Ygc29tZSB1
-bm5lY2Vzc2FyeSBwYXJlbnRoZXNlcyBhcyB3ZWxsLg0KPiA+DQo+ID4gU2lnbmVkLW9mZi1ieTog
-Sy4gWS4gU3Jpbml2YXNhbiA8a3lzQG1pY3Jvc29mdC5jb20+DQo+ID4gU2lnbmVkLW9mZi1ieTog
-SGFpeWFuZyBaaGFuZyA8aGFpeWFuZ3pAbWljcm9zb2Z0LmNvbT4NCj4gPiAtLS0NCj4gPiAgZHJp
-dmVycy9zdGFnaW5nL2h2L3JuZGlzX2ZpbHRlci5jIHwgICAgOCArKysrLS0tLQ0KPiA+ICAxIGZp
-bGVzIGNoYW5nZWQsIDQgaW5zZXJ0aW9ucygrKSwgNCBkZWxldGlvbnMoLSkNCj4gPg0KPiA+IGRp
-ZmYgLS1naXQgYS9kcml2ZXJzL3N0YWdpbmcvaHYvcm5kaXNfZmlsdGVyLmMgYi9kcml2ZXJzL3N0
-YWdpbmcvaHYvcm5kaXNfZmlsdGVyLmMNCj4gPiBpbmRleCA5NjM1ODJhLi42OTZkMmM1IDEwMDY0
-NA0KPiA+IC0tLSBhL2RyaXZlcnMvc3RhZ2luZy9odi9ybmRpc19maWx0ZXIuYw0KPiA+ICsrKyBi
-L2RyaXZlcnMvc3RhZ2luZy9odi9ybmRpc19maWx0ZXIuYw0KPiA+IEBAIC00MSw3ICs0MSw3IEBA
-IHN0cnVjdCBybmRpc19kZXZpY2Ugew0KPiA+ICAJc3RydWN0IG5ldHZzY19kZXZpY2UgKm5ldF9k
-ZXY7DQo+ID4NCj4gPiAgCWVudW0gcm5kaXNfZGV2aWNlX3N0YXRlIHN0YXRlOw0KPiA+IC0JdTMy
-IGxpbmtfc3RhdDsNCj4gPiArCWJvb2wgbGlua19zdGF0ZTsNCj4gPiAgCWF0b21pY190IG5ld19y
-ZXFfaWQ7DQo+ID4NCj4gPiAgCXNwaW5sb2NrX3QgcmVxdWVzdF9sb2NrOw0KPiA+IEBAIC01MTQs
-NyArNTE0LDcgQEAgc3RhdGljIGludCBybmRpc19maWx0ZXJfcXVlcnlfZGV2aWNlX2xpbmtfc3Rh
-dHVzKHN0cnVjdA0KPiBybmRpc19kZXZpY2UgKmRldikNCj4gPg0KPiA+ICAJcmV0dXJuIHJuZGlz
-X2ZpbHRlcl9xdWVyeV9kZXZpY2UoZGV2LA0KPiA+ICAJCQkJICAgICAgUk5ESVNfT0lEX0dFTl9N
-RURJQV9DT05ORUNUX1NUQVRVUywNCj4gPiAtCQkJCSAgICAgICZkZXYtPmxpbmtfc3RhdCwgJnNp
-emUpOw0KPiA+ICsJCQkJICAgICAgJmRldi0+bGlua19zdGF0ZSwgJnNpemUpOw0KPiANCj4gQXJl
-IHlvdSBzdXJlIHlvdSBjYW4gZG8gdGhpcz8NCj4gWW91J3JlIGNoYW5naW5nIHRoZSBpbmZvIHJl
-cXVlc3QgZnJvbSB1MzIgdG8gYm9vbA0KPiB3aXRob3V0IGNoYW5naW5nIHRoZSBzaXplIGFib3Zl
-IGl0DQoNCk9vcHMhIEkgd2lsbCBmaXggdGhpcy4NCg0KPiANCj4gCXUzMiBzaXplID0gc2l6ZW9m
-KHUzMik7DQo+IA0KPiANCj4gPiAgfQ0KPiA+DQo+ID4gIHN0YXRpYyBpbnQgcm5kaXNfZmlsdGVy
-X3NldF9wYWNrZXRfZmlsdGVyKHN0cnVjdCBybmRpc19kZXZpY2UgKmRldiwNCj4gPiBAQCAtNzM2
-LDExICs3MzYsMTEgQEAgaW50IHJuZGlzX2ZpbHRlcl9kZXZpY2VfYWRkKHN0cnVjdCBodl9kZXZp
-Y2UgKmRldiwNCj4gPg0KPiA+ICAJcm5kaXNfZmlsdGVyX3F1ZXJ5X2RldmljZV9saW5rX3N0YXR1
-cyhybmRpc19kZXZpY2UpOw0KPiA+DQo+ID4gLQlkZXZpY2VfaW5mby0+bGlua19zdGF0ZSA9IHJu
-ZGlzX2RldmljZS0+bGlua19zdGF0Ow0KPiA+ICsJZGV2aWNlX2luZm8tPmxpbmtfc3RhdGUgPSBy
-bmRpc19kZXZpY2UtPmxpbmtfc3RhdGU7DQo+ID4NCj4gPiAgCWRldl9pbmZvKCZkZXYtPmRldmlj
-ZSwgIkRldmljZSBNQUMgJXBNIGxpbmsgc3RhdGUgJXMiLA0KPiA+ICAJCSBybmRpc19kZXZpY2Ut
-Pmh3X21hY19hZHIsDQo+ID4gLQkJICgoZGV2aWNlX2luZm8tPmxpbmtfc3RhdGUpID8gKCJkb3du
-XG4iKSA6ICgidXBcbiIpKSk7DQo+ID4gKwkJIGRldmljZV9pbmZvLT5saW5rX3N0YXRlID8gImRv
-d25cbiIgOiAidXBcbiIpOw0KPiANCj4gSXQncyBiZXR0ZXIgdG8gcmVtb3ZlIHRoZSBtdWx0aXBs
-ZSAiXG4icyBmcm9tICJ1cCIgYW5kICJkb3duIg0KPiBhbmQgbW92ZSBpdCB0byB0aGUgZm9ybWF0
-IHN0cmluZyBhcyBJIHN1Z2dlc3RlZC4NCg0KSSB3aWxsIGZpeCBpdC4NCg0KVGhhbmsgeW91LA0K
-DQpLLiBZDQoNCg==
+Consistently name the variable tracking the link status. Use a consistent
+type for this variable and get rid of some unnecessary parentheses as well.
+I would like to thank Joe Perches <joe@perches.com> for suggesting these
+changes and patiently helping me get here!
+
+Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
+Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
+---
+ drivers/staging/hv/rndis_filter.c |   17 +++++++++++------
+ 1 files changed, 11 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/staging/hv/rndis_filter.c b/drivers/staging/hv/rndis_filter.c
+index 963582a..ef43f2e 100644
+--- a/drivers/staging/hv/rndis_filter.c
++++ b/drivers/staging/hv/rndis_filter.c
+@@ -41,7 +41,7 @@ struct rndis_device {
+ 	struct netvsc_device *net_dev;
+ 
+ 	enum rndis_device_state state;
+-	u32 link_stat;
++	bool link_state;
+ 	atomic_t new_req_id;
+ 
+ 	spinlock_t request_lock;
+@@ -511,10 +511,15 @@ static int rndis_filter_query_device_mac(struct rndis_device *dev)
+ static int rndis_filter_query_device_link_status(struct rndis_device *dev)
+ {
+ 	u32 size = sizeof(u32);
++	u32 link_status;
++	int ret;
+ 
+-	return rndis_filter_query_device(dev,
++	ret = rndis_filter_query_device(dev,
+ 				      RNDIS_OID_GEN_MEDIA_CONNECT_STATUS,
+-				      &dev->link_stat, &size);
++				      &link_status, &size);
++	dev->link_state = (link_status != 0) ? true : false;
++
++	return ret;
+ }
+ 
+ static int rndis_filter_set_packet_filter(struct rndis_device *dev,
+@@ -736,11 +741,11 @@ int rndis_filter_device_add(struct hv_device *dev,
+ 
+ 	rndis_filter_query_device_link_status(rndis_device);
+ 
+-	device_info->link_state = rndis_device->link_stat;
++	device_info->link_state = rndis_device->link_state;
+ 
+-	dev_info(&dev->device, "Device MAC %pM link state %s",
++	dev_info(&dev->device, "Device MAC %pM link state %s\n",
+ 		 rndis_device->hw_mac_adr,
+-		 ((device_info->link_state) ? ("down\n") : ("up\n")));
++		 device_info->link_state ? "down" : "up");
+ 
+ 	return ret;
+ }
+-- 
+1.7.4.1
