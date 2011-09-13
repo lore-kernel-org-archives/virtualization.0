@@ -1,222 +1,55 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 06/20] Staging: hv: util: Properly handle util services in the
-	util driver
-Date: Tue, 13 Sep 2011 10:59:42 -0700
-Message-ID: <1315936796-20662-6-git-send-email-kys@microsoft.com>
+Subject: [PATCH 20/20] Staging: hv: netvsc: Rename deviceInfo as device_info
+Date: Tue, 13 Sep 2011 10:59:56 -0700
+Message-ID: <1315936796-20662-20-git-send-email-kys@microsoft.com>
 References: <1315936759-20623-1-git-send-email-kys@microsoft.com>
-	<1315936796-20662-1-git-send-email-kys@microsoft.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <devel-bounces@linuxdriverproject.org>
+ <1315936796-20662-1-git-send-email-kys@microsoft.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1315936796-20662-1-git-send-email-kys@microsoft.com>
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
-List-Post: <mailto:devel@linuxdriverproject.org>
-List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
-Errors-To: devel-bounces@linuxdriverproject.org
-Sender: devel-bounces@linuxdriverproject.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org
-Cc: Haiyang Zhang <haiyangz@microsoft.com>
+Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Now, properly handle util services in the util driver and eliminate code
-that will not be necessary. In the current code, util services were
-all handled not as other vmbus devices (net, block) but rather through
-special handling (channel setup etc.). In this patch we handle all
-services using the standard Linux Driver Model.
+Rename deviceInfo as device_info.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- drivers/staging/hv/channel_mgmt.c |   39 +-------------------------
- drivers/staging/hv/hv_kvp.c       |    7 ++++
- drivers/staging/hv/hv_util.c      |   56 +++++++++++-------------------------
- 3 files changed, 25 insertions(+), 77 deletions(-)
+ drivers/staging/hv/rndis_filter.c |    8 ++++----
+ 1 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/staging/hv/channel_mgmt.c b/drivers/staging/hv/channel_mgmt.c
-index c68e5fa..3c67e4c 100644
---- a/drivers/staging/hv/channel_mgmt.c
-+++ b/drivers/staging/hv/channel_mgmt.c
-@@ -181,24 +181,6 @@ void chn_cb_negotiate(void *context)
- 	struct icmsg_hdr *icmsghdrp;
- 	struct icmsg_negotiate *negop = NULL;
- 
--	if (channel->util_index >= 0) {
--		/*
--		 * This is a properly initialized util channel.
--		 * Route this callback appropriately and setup state
--		 * so that we don't need to reroute again.
--		 */
--		if (hv_cb_utils[channel->util_index].callback != NULL) {
--			/*
--			 * The util driver has established a handler for
--			 * this service; do the magic.
--			 */
--			channel->onchannel_callback =
--			hv_cb_utils[channel->util_index].callback;
--			(hv_cb_utils[channel->util_index].callback)(channel);
--			return;
--		}
--	}
--
- 	buflen = PAGE_SIZE;
- 	buf = kmalloc(buflen, GFP_ATOMIC);
- 
-@@ -348,7 +330,6 @@ static void vmbus_process_offer(struct work_struct *work)
- 	struct vmbus_channel *channel;
- 	bool fnew = true;
+diff --git a/drivers/staging/hv/rndis_filter.c b/drivers/staging/hv/rndis_filter.c
+index bfe9129..963582a 100644
+--- a/drivers/staging/hv/rndis_filter.c
++++ b/drivers/staging/hv/rndis_filter.c
+@@ -691,7 +691,7 @@ int rndis_filter_device_add(struct hv_device *dev,
  	int ret;
--	int cnt;
- 	unsigned long flags;
+ 	struct netvsc_device *net_device;
+ 	struct rndis_device *rndis_device;
+-	struct netvsc_device_info *deviceInfo = additional_info;
++	struct netvsc_device_info *device_info = additional_info;
  
- 	/* The next possible work is rescind handling */
-@@ -403,31 +384,13 @@ static void vmbus_process_offer(struct work_struct *work)
- 		spin_unlock_irqrestore(&vmbus_connection.channel_lock, flags);
- 
- 		free_channel(newchannel);
--	} else {
-+	} else
- 		/*
- 		 * This state is used to indicate a successful open
- 		 * so that when we do close the channel normally, we
- 		 * can cleanup properly
+ 	rndis_device = get_rndis_device();
+ 	if (!rndis_device)
+@@ -732,15 +732,15 @@ int rndis_filter_device_add(struct hv_device *dev,
  		 */
- 		newchannel->state = CHANNEL_OPEN_STATE;
--		newchannel->util_index = -1; /* Invalid index */
--
--		/* Open IC channels */
--		for (cnt = 0; cnt < MAX_MSG_TYPES; cnt++) {
--			if (!uuid_le_cmp(newchannel->offermsg.offer.if_type,
--				   hv_cb_utils[cnt].data) &&
--				vmbus_open(newchannel, 2 * PAGE_SIZE,
--						 2 * PAGE_SIZE, NULL, 0,
--						 chn_cb_negotiate,
--						 newchannel) == 0) {
--				hv_cb_utils[cnt].channel = newchannel;
--				newchannel->util_index = cnt;
--
--				pr_info("%s\n", hv_cb_utils[cnt].log_msg);
--
--			}
--		}
--	}
- }
- 
- /*
-diff --git a/drivers/staging/hv/hv_kvp.c b/drivers/staging/hv/hv_kvp.c
-index ff0d9ab..9aa9ede 100644
---- a/drivers/staging/hv/hv_kvp.c
-+++ b/drivers/staging/hv/hv_kvp.c
-@@ -177,6 +177,13 @@ kvp_respond_to_host(char *key, char *value, int error)
- 	channel = kvp_transaction.recv_channel;
- 	req_id = kvp_transaction.recv_req_id;
- 
-+	if (channel->onchannel_callback == NULL)
-+		/*
-+		 * We have raced with util driver being unloaded;
-+		 * silently return.
-+		 */
-+		return;
-+
- 	icmsghdrp = (struct icmsg_hdr *)
- 			&recv_buffer[sizeof(struct vmbuspipe_hdr)];
- 	kvp_msg = (struct hv_kvp_msg *)
-diff --git a/drivers/staging/hv/hv_util.c b/drivers/staging/hv/hv_util.c
-index f082e5a..31abe9e 100644
---- a/drivers/staging/hv/hv_util.c
-+++ b/drivers/staging/hv/hv_util.c
-@@ -273,19 +273,33 @@ static int util_probe(struct hv_device *dev,
- 	if (srv->util_init) {
- 		ret = srv->util_init(srv);
- 		if (ret) {
--			kfree(srv->recv_buffer);
--			return -ENODEV;
-+			ret = -ENODEV;
-+			goto error1;
- 		}
  	}
  
-+	ret = vmbus_open(dev->channel, 2 * PAGE_SIZE, 2 * PAGE_SIZE, NULL, 0,
-+			srv->util_cb, dev->channel);
-+	if (ret)
-+		goto error;
-+
-+	pr_info("%s", srv->service_name);
- 	hv_set_drvdata(dev, srv);
- 	return 0;
-+
-+error:
-+	if (srv->util_deinit)
-+		srv->util_deinit();
-+error1:
-+	kfree(srv->recv_buffer);
-+	return ret;
+-	memcpy(deviceInfo->mac_adr, rndis_device->hw_mac_adr, ETH_ALEN);
++	memcpy(device_info->mac_adr, rndis_device->hw_mac_adr, ETH_ALEN);
+ 
+ 	rndis_filter_query_device_link_status(rndis_device);
+ 
+-	deviceInfo->link_state = rndis_device->link_stat;
++	device_info->link_state = rndis_device->link_stat;
+ 
+ 	dev_info(&dev->device, "Device MAC %pM link state %s",
+ 		 rndis_device->hw_mac_adr,
+-		 ((deviceInfo->link_state) ? ("down\n") : ("up\n")));
++		 ((device_info->link_state) ? ("down\n") : ("up\n")));
+ 
+ 	return ret;
  }
- 
- static int util_remove(struct hv_device *dev)
- {
- 	struct hv_util_service *srv = hv_get_drvdata(dev);
- 
-+	vmbus_close(dev->channel);
- 	if (srv->util_deinit)
- 		srv->util_deinit();
- 	kfree(srv->recv_buffer);
-@@ -325,51 +339,15 @@ static  struct hv_driver util_drv = {
- 
- static int __init init_hyperv_utils(void)
- {
--	int ret;
- 	pr_info("Registering HyperV Utility Driver\n");
- 
--
--	ret = vmbus_driver_register(&util_drv);
--
--	if (ret != 0)
--		return ret;
--
--	hv_cb_utils[HV_SHUTDOWN_MSG].callback = &shutdown_onchannelcallback;
--
--	hv_cb_utils[HV_TIMESYNC_MSG].callback = &timesync_onchannelcallback;
--
--	hv_cb_utils[HV_HEARTBEAT_MSG].callback = &heartbeat_onchannelcallback;
--
--	hv_cb_utils[HV_KVP_MSG].callback = &hv_kvp_onchannelcallback;
--
--	return 0;
--
-+	return vmbus_driver_register(&util_drv);
- }
- 
- static void exit_hyperv_utils(void)
- {
- 	pr_info("De-Registered HyperV Utility Driver\n");
- 
--	if (hv_cb_utils[HV_SHUTDOWN_MSG].channel != NULL)
--		hv_cb_utils[HV_SHUTDOWN_MSG].channel->onchannel_callback =
--			&chn_cb_negotiate;
--	hv_cb_utils[HV_SHUTDOWN_MSG].callback = NULL;
--
--	if (hv_cb_utils[HV_TIMESYNC_MSG].channel != NULL)
--		hv_cb_utils[HV_TIMESYNC_MSG].channel->onchannel_callback =
--			&chn_cb_negotiate;
--	hv_cb_utils[HV_TIMESYNC_MSG].callback = NULL;
--
--	if (hv_cb_utils[HV_HEARTBEAT_MSG].channel != NULL)
--		hv_cb_utils[HV_HEARTBEAT_MSG].channel->onchannel_callback =
--			&chn_cb_negotiate;
--	hv_cb_utils[HV_HEARTBEAT_MSG].callback = NULL;
--
--	if (hv_cb_utils[HV_KVP_MSG].channel != NULL)
--		hv_cb_utils[HV_KVP_MSG].channel->onchannel_callback =
--			&chn_cb_negotiate;
--	hv_cb_utils[HV_KVP_MSG].callback = NULL;
--
- 	vmbus_driver_unregister(&util_drv);
- }
- 
 -- 
 1.7.4.1
