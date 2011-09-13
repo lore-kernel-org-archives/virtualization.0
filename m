@@ -1,8 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 09/20] Staging: hv: storvsc: Get rid of storvsc_dev_add() by
-	inlining the code
-Date: Tue, 13 Sep 2011 10:59:45 -0700
-Message-ID: <1315936796-20662-9-git-send-email-kys@microsoft.com>
+Subject: [PATCH 02/20] Staging: hv: vmbus: Change the signature of struct
+	hv_driver probe function
+Date: Tue, 13 Sep 2011 10:59:38 -0700
+Message-ID: <1315936796-20662-2-git-send-email-kys@microsoft.com>
 References: <1315936759-20623-1-git-send-email-kys@microsoft.com>
 	<1315936796-20662-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -23,107 +23,105 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Get rid of storvsc_dev_add() by inlining the code.
+In preparation to leveraging the driver_data field in struct
+hv_vmbus_device_id, change the signature of struct hv_driver probe function.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- drivers/staging/hv/storvsc_drv.c |   58 +++++++++----------------------------
- 1 files changed, 14 insertions(+), 44 deletions(-)
+ drivers/staging/hv/hv_mouse.c    |    3 ++-
+ drivers/staging/hv/hv_util.c     |    3 ++-
+ drivers/staging/hv/hyperv.h      |    2 +-
+ drivers/staging/hv/netvsc_drv.c  |    3 ++-
+ drivers/staging/hv/storvsc_drv.c |    3 ++-
+ drivers/staging/hv/vmbus_drv.c   |    4 +++-
+ 6 files changed, 12 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
-index b996293..2210c8c 100644
---- a/drivers/staging/hv/storvsc_drv.c
-+++ b/drivers/staging/hv/storvsc_drv.c
-@@ -651,41 +651,6 @@ static int storvsc_connect_to_vsp(struct hv_device *device, u32 ring_size)
- 	return ret;
+diff --git a/drivers/staging/hv/hv_mouse.c b/drivers/staging/hv/hv_mouse.c
+index dbb04ee..5ff8a03 100644
+--- a/drivers/staging/hv/hv_mouse.c
++++ b/drivers/staging/hv/hv_mouse.c
+@@ -823,7 +823,8 @@ static int mousevsc_on_device_remove(struct hv_device *device)
  }
  
--static int storvsc_dev_add(struct hv_device *device,
--					void *additional_info)
--{
--	struct storvsc_device *stor_device;
--	struct storvsc_device_info *device_info;
--	int ret = 0;
--
--	device_info = (struct storvsc_device_info *)additional_info;
--	stor_device = alloc_stor_device(device);
--	if (!stor_device)
--		return -ENOMEM;
--
--	/* Save the channel properties to our storvsc channel */
--
--	/*
--	 * If we support more than 1 scsi channel, we need to set the
--	 * port number here to the scsi channel but how do we get the
--	 * scsi channel prior to the bus scan.
--	 *
--	 * The host does not support this.
--	 */
--
--	stor_device->port_number = device_info->port_number;
--	/* Send it back up */
--	ret = storvsc_connect_to_vsp(device, device_info->ring_buffer_size);
--	if (ret) {
--		kfree(stor_device);
--		return ret;
--	}
--	device_info->path_id = stor_device->path_id;
--	device_info->target_id = stor_device->target_id;
--
--	return ret;
--}
--
- static int storvsc_dev_remove(struct hv_device *device)
+ 
+-static int mousevsc_probe(struct hv_device *dev)
++static int mousevsc_probe(struct hv_device *dev,
++			const struct hv_vmbus_device_id *dev_id)
  {
- 	struct storvsc_device *stor_device;
-@@ -1389,10 +1354,10 @@ static int storvsc_probe(struct hv_device *device,
+ 	int ret = 0;
+ 
+diff --git a/drivers/staging/hv/hv_util.c b/drivers/staging/hv/hv_util.c
+index 6039217..d9460fdd 100644
+--- a/drivers/staging/hv/hv_util.c
++++ b/drivers/staging/hv/hv_util.c
+@@ -239,7 +239,8 @@ static void heartbeat_onchannelcallback(void *context)
+  * The devices managed by the util driver don't need any additional
+  * setup.
+  */
+-static int util_probe(struct hv_device *dev)
++static int util_probe(struct hv_device *dev,
++			const struct hv_vmbus_device_id *dev_id)
+ {
+ 	return 0;
+ }
+diff --git a/drivers/staging/hv/hyperv.h b/drivers/staging/hv/hyperv.h
+index c249811..caa3a7b 100644
+--- a/drivers/staging/hv/hyperv.h
++++ b/drivers/staging/hv/hyperv.h
+@@ -810,7 +810,7 @@ struct hv_driver {
+ 
+ 	struct device_driver driver;
+ 
+-	int (*probe)(struct hv_device *);
++	int (*probe)(struct hv_device *, const struct hv_vmbus_device_id *);
+ 	int (*remove)(struct hv_device *);
+ 	void (*shutdown)(struct hv_device *);
+ 
+diff --git a/drivers/staging/hv/netvsc_drv.c b/drivers/staging/hv/netvsc_drv.c
+index 30b9c80..d06cde2 100644
+--- a/drivers/staging/hv/netvsc_drv.c
++++ b/drivers/staging/hv/netvsc_drv.c
+@@ -329,7 +329,8 @@ static void netvsc_send_garp(struct work_struct *w)
+ }
+ 
+ 
+-static int netvsc_probe(struct hv_device *dev)
++static int netvsc_probe(struct hv_device *dev,
++			const struct hv_vmbus_device_id *dev_id)
+ {
+ 	struct net_device *net = NULL;
+ 	struct net_device_context *net_device_ctx;
+diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
+index b0c4e56..fff1e5b 100644
+--- a/drivers/staging/hv/storvsc_drv.c
++++ b/drivers/staging/hv/storvsc_drv.c
+@@ -1380,7 +1380,8 @@ MODULE_DEVICE_TABLE(vmbus, id_table);
+  * storvsc_probe - Add a new device for this driver
+  */
+ 
+-static int storvsc_probe(struct hv_device *device)
++static int storvsc_probe(struct hv_device *device,
++			const struct hv_vmbus_device_id *dev_id)
+ {
  	int ret;
  	struct Scsi_Host *host;
- 	struct hv_host_device *host_dev;
--	struct storvsc_device_info device_info;
- 	bool dev_is_ide = ((dev_id->driver_data == IDE_GUID) ? true : false);
- 	int path = 0;
- 	int target = 0;
-+	struct storvsc_device *stor_device;
+diff --git a/drivers/staging/hv/vmbus_drv.c b/drivers/staging/hv/vmbus_drv.c
+index 77f4373..2fccb1f 100644
+--- a/drivers/staging/hv/vmbus_drv.c
++++ b/drivers/staging/hv/vmbus_drv.c
+@@ -312,9 +312,11 @@ static int vmbus_probe(struct device *child_device)
+ 	struct hv_driver *drv =
+ 			drv_to_hv_drv(child_device->driver);
+ 	struct hv_device *dev = device_to_hv_device(child_device);
++	const struct hv_vmbus_device_id *dev_id;
  
- 	host = scsi_host_alloc(&scsi_driver,
- 			       sizeof(struct hv_host_device));
-@@ -1417,22 +1382,27 @@ static int storvsc_probe(struct hv_device *device,
- 		return -ENOMEM;
- 	}
- 
--	device_info.port_number = host->host_no;
--	device_info.ring_buffer_size  = storvsc_ringbuffer_size;
--	/* Call to the vsc driver to add the device */
--	ret = storvsc_dev_add(device, (void *)&device_info);
-+	stor_device = alloc_stor_device(device);
-+	if (!stor_device) {
-+		kmem_cache_destroy(host_dev->request_pool);
-+		scsi_host_put(host);
-+		return -ENOMEM;
-+	}
- 
--	if (ret != 0) {
-+	stor_device->port_number = host->host_no;
-+	ret = storvsc_connect_to_vsp(device, storvsc_ringbuffer_size);
-+	if (ret) {
- 		kmem_cache_destroy(host_dev->request_pool);
- 		scsi_host_put(host);
--		return -ENODEV;
-+		kfree(stor_device);
-+		return ret;
- 	}
- 
- 	if (dev_is_ide)
- 		storvsc_get_ide_info(device, &target, &path);
- 
--	host_dev->path = device_info.path_id;
--	host_dev->target = device_info.target_id;
-+	host_dev->path = stor_device->path_id;
-+	host_dev->target = stor_device->target_id;
- 
- 	/* max # of devices per target */
- 	host->max_lun = STORVSC_MAX_LUNS_PER_TARGET;
++	dev_id = hv_vmbus_get_id(drv->id_table, dev->dev_type.b);
+ 	if (drv->probe) {
+-		ret = drv->probe(dev);
++		ret = drv->probe(dev, dev_id);
+ 		if (ret != 0)
+ 			pr_err("probe failed for device %s (%d)\n",
+ 			       dev_name(child_device), ret);
 -- 
 1.7.4.1
