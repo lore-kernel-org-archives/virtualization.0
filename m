@@ -1,69 +1,54 @@
-From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 1/1] Staging: hv: netvsc: Cleanup the name and type of link_stat variable
-Date: Tue, 13 Sep 2011 15:21:27 -0700
-Message-ID: <1315952487-23406-1-git-send-email-kys@microsoft.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org, joe@perches.com
-Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>
+From: Dan Carpenter <error27@gmail.com>
+Subject: Re: [PATCH 06/20] Staging: hv: util: Properly handle util services
+	in the util driver
+Date: Thu, 15 Sep 2011 23:08:53 +0300
+Message-ID: <20110915200853.GJ3789@shale.localdomain>
+References: <1315936759-20623-1-git-send-email-kys@microsoft.com>
+	<1315936796-20662-1-git-send-email-kys@microsoft.com>
+	<1315936796-20662-6-git-send-email-kys@microsoft.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <devel-bounces@linuxdriverproject.org>
+Content-Disposition: inline
+In-Reply-To: <1315936796-20662-6-git-send-email-kys@microsoft.com>
+List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
+	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
+List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
+List-Post: <mailto:devel@linuxdriverproject.org>
+List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
+List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
+	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
+Errors-To: devel-bounces@linuxdriverproject.org
+Sender: devel-bounces@linuxdriverproject.org
+To: "K. Y. Srinivasan" <kys@microsoft.com>
+Cc: devel@linuxdriverproject.org, Haiyang Zhang <haiyangz@microsoft.com>, gregkh@suse.de, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Consistently name the variable tracking the link status. Use a consistent
-type for this variable and get rid of some unnecessary parentheses as well.
-I would like to thank Joe Perches <joe@perches.com> for suggesting these
-changes and patiently helping me get here!
+On Tue, Sep 13, 2011 at 10:59:42AM -0700, K. Y. Srinivasan wrote:
+> @@ -403,31 +384,13 @@ static void vmbus_process_offer(struct work_struct *work)
+>  		spin_unlock_irqrestore(&vmbus_connection.channel_lock, flags);
+>  
+>  		free_channel(newchannel);
+> -	} else {
+> +	} else
+>  		/*
+>  		 * This state is used to indicate a successful open
+>  		 * so that when we do close the channel normally, we
+>  		 * can cleanup properly
+>  		 */
+>  		newchannel->state = CHANNEL_OPEN_STATE;
 
-Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
-Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
----
- drivers/staging/hv/rndis_filter.c |   17 +++++++++++------
- 1 files changed, 11 insertions(+), 6 deletions(-)
+It's not worth resending, but this should have kept the curly braces
+for two style reasons.
+1) If one side of the if else pair has braces the other side gets
+braces too.
+2) If it's more than one line, it gets braces even if it's not needed
+for semantic reasons.
 
-diff --git a/drivers/staging/hv/rndis_filter.c b/drivers/staging/hv/rndis_filter.c
-index 963582a..ef43f2e 100644
---- a/drivers/staging/hv/rndis_filter.c
-+++ b/drivers/staging/hv/rndis_filter.c
-@@ -41,7 +41,7 @@ struct rndis_device {
- 	struct netvsc_device *net_dev;
- 
- 	enum rndis_device_state state;
--	u32 link_stat;
-+	bool link_state;
- 	atomic_t new_req_id;
- 
- 	spinlock_t request_lock;
-@@ -511,10 +511,15 @@ static int rndis_filter_query_device_mac(struct rndis_device *dev)
- static int rndis_filter_query_device_link_status(struct rndis_device *dev)
- {
- 	u32 size = sizeof(u32);
-+	u32 link_status;
-+	int ret;
- 
--	return rndis_filter_query_device(dev,
-+	ret = rndis_filter_query_device(dev,
- 				      RNDIS_OID_GEN_MEDIA_CONNECT_STATUS,
--				      &dev->link_stat, &size);
-+				      &link_status, &size);
-+	dev->link_state = (link_status != 0) ? true : false;
-+
-+	return ret;
- }
- 
- static int rndis_filter_set_packet_filter(struct rndis_device *dev,
-@@ -736,11 +741,11 @@ int rndis_filter_device_add(struct hv_device *dev,
- 
- 	rndis_filter_query_device_link_status(rndis_device);
- 
--	device_info->link_state = rndis_device->link_stat;
-+	device_info->link_state = rndis_device->link_state;
- 
--	dev_info(&dev->device, "Device MAC %pM link state %s",
-+	dev_info(&dev->device, "Device MAC %pM link state %s\n",
- 		 rndis_device->hw_mac_adr,
--		 ((device_info->link_state) ? ("down\n") : ("up\n")));
-+		 device_info->link_state ? "down" : "up");
- 
- 	return ret;
- }
--- 
-1.7.4.1
+Sorry to email you these pedantic things, but if I don't then my OCD 
+acts up and I feel all itchy for hours.  Also you have a similar
+thing below as well.
+
+regards,
+dan carpenter
