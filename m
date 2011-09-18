@@ -1,35 +1,41 @@
-From: Joe Perches <joe@perches.com>
-Subject: Re: [PATCH 1/3] Staging: hv: util: Perform some service specific
+From: KY Srinivasan <kys@microsoft.com>
+Subject: RE: [PATCH 1/3] Staging: hv: util: Perform some service specific
  init/deinit in probe/remove
-Date: Sun, 18 Sep 2011 10:53:13 -0700
-Message-ID: <1316368394.4916.2.camel@Joe-Laptop>
+Date: Sun, 18 Sep 2011 22:26:19 +0000
+Message-ID: <6E21E5352C11B742B20C142EB499E048081E781B@TK5EX14MBXC124.redmond.corp.microsoft.com>
 References: <1316367053-700-1-git-send-email-kys@microsoft.com>
 	 <1316367095-739-1-git-send-email-kys@microsoft.com>
+ <1316368394.4916.2.camel@Joe-Laptop>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1316367095-739-1-git-send-email-kys@microsoft.com>
+In-Reply-To: <1316368394.4916.2.camel@Joe-Laptop>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: "K. Y. Srinivasan" <kys@microsoft.com>
-Cc: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org, Haiyang Zhang <haiyangz@microsoft.com>
+To: Joe Perches <joe@perches.com>
+Cc: "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sun, 2011-09-18 at 10:31 -0700, K. Y. Srinivasan wrote:
-> In preparation for modifying the util driver to fully conform to the
-> Linux Driver Model,
-[]
-> diff --git a/drivers/staging/hv/hv_util.c b/drivers/staging/hv/hv_util.c
-[]
->  static const struct hv_vmbus_device_id id_table[] = {
->  	/* Shutdown guid */
->  	{ VMBUS_DEVICE(0x31, 0x60, 0x0B, 0X0E, 0x13, 0x52, 0x34, 0x49,
-> -		       0x81, 0x8B, 0x38, 0XD9, 0x0C, 0xED, 0x39, 0xDB) },
-> +		       0x81, 0x8B, 0x38, 0XD9, 0x0C, 0xED, 0x39, 0xDB)
-> +	  .driver_data = (unsigned long)&util_shutdown },
-
-Isn't this a kernel_ulong_t ?
-
-> +	  .driver_data = (unsigned long)&util_timesynch },
-
-etc.
+DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogSm9lIFBlcmNoZXMgW21h
+aWx0bzpqb2VAcGVyY2hlcy5jb21dDQo+IFNlbnQ6IFN1bmRheSwgU2VwdGVtYmVyIDE4LCAyMDEx
+IDE6NTMgUE0NCj4gVG86IEtZIFNyaW5pdmFzYW4NCj4gQ2M6IGdyZWdraEBzdXNlLmRlOyBsaW51
+eC1rZXJuZWxAdmdlci5rZXJuZWwub3JnOw0KPiBkZXZlbEBsaW51eGRyaXZlcnByb2plY3Qub3Jn
+OyB2aXJ0dWFsaXphdGlvbkBsaXN0cy5vc2RsLm9yZzsgSGFpeWFuZyBaaGFuZw0KPiBTdWJqZWN0
+OiBSZTogW1BBVENIIDEvM10gU3RhZ2luZzogaHY6IHV0aWw6IFBlcmZvcm0gc29tZSBzZXJ2aWNl
+IHNwZWNpZmljDQo+IGluaXQvZGVpbml0IGluIHByb2JlL3JlbW92ZQ0KPiANCj4gT24gU3VuLCAy
+MDExLTA5LTE4IGF0IDEwOjMxIC0wNzAwLCBLLiBZLiBTcmluaXZhc2FuIHdyb3RlOg0KPiA+IElu
+IHByZXBhcmF0aW9uIGZvciBtb2RpZnlpbmcgdGhlIHV0aWwgZHJpdmVyIHRvIGZ1bGx5IGNvbmZv
+cm0gdG8gdGhlDQo+ID4gTGludXggRHJpdmVyIE1vZGVsLA0KPiBbXQ0KPiA+IGRpZmYgLS1naXQg
+YS9kcml2ZXJzL3N0YWdpbmcvaHYvaHZfdXRpbC5jIGIvZHJpdmVycy9zdGFnaW5nL2h2L2h2X3V0
+aWwuYw0KPiBbXQ0KPiA+ICBzdGF0aWMgY29uc3Qgc3RydWN0IGh2X3ZtYnVzX2RldmljZV9pZCBp
+ZF90YWJsZVtdID0gew0KPiA+ICAJLyogU2h1dGRvd24gZ3VpZCAqLw0KPiA+ICAJeyBWTUJVU19E
+RVZJQ0UoMHgzMSwgMHg2MCwgMHgwQiwgMFgwRSwgMHgxMywgMHg1MiwgMHgzNCwgMHg0OSwNCj4g
+PiAtCQkgICAgICAgMHg4MSwgMHg4QiwgMHgzOCwgMFhEOSwgMHgwQywgMHhFRCwgMHgzOSwgMHhE
+QikgfSwNCj4gPiArCQkgICAgICAgMHg4MSwgMHg4QiwgMHgzOCwgMFhEOSwgMHgwQywgMHhFRCwg
+MHgzOSwgMHhEQikNCj4gPiArCSAgLmRyaXZlcl9kYXRhID0gKHVuc2lnbmVkIGxvbmcpJnV0aWxf
+c2h1dGRvd24gfSwNCj4gDQo+IElzbid0IHRoaXMgYSBrZXJuZWxfdWxvbmdfdCA/DQoNClllczsg
+YnV0IGtlcm5lbF91bG9uZ190IGlzIHVuc2lnbmVkIGxvbmcgYW5kIHRoaXMgY29kZSBpcyBjb21w
+aWxlZCBvbmx5IGluIHRoZSBrZXJuZWwuDQoNClJlZ2FyZHMsDQoNCksuIFkNCg0KPiANCj4gPiAr
+CSAgLmRyaXZlcl9kYXRhID0gKHVuc2lnbmVkIGxvbmcpJnV0aWxfdGltZXN5bmNoIH0sDQo+IA0K
+PiBldGMuDQo+IA0KPiANCg0K
