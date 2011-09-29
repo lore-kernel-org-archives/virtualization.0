@@ -1,142 +1,233 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 19/24] Staging: hv: mousevsc: Get rid of ref_count state in struct mousevsc_dev
-Date: Thu, 29 Sep 2011 11:54:59 -0700
-Message-ID: <1317322504-9788-19-git-send-email-kys@microsoft.com>
+Subject: [PATCH 11/24] Staging: hv: mousevsc: Get rid of unnecessary pr_* calls
+Date: Thu, 29 Sep 2011 11:54:51 -0700
+Message-ID: <1317322504-9788-11-git-send-email-kys@microsoft.com>
 References: <1317322456-9747-1-git-send-email-kys@microsoft.com>
- <1317322504-9788-1-git-send-email-kys@microsoft.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+	<1317322504-9788-1-git-send-email-kys@microsoft.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <devel-bounces@linuxdriverproject.org>
 In-Reply-To: <1317322504-9788-1-git-send-email-kys@microsoft.com>
-Sender: linux-kernel-owner@vger.kernel.org
+List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
+	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
+List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
+List-Post: <mailto:devel@linuxdriverproject.org>
+List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
+List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
+	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
+Errors-To: devel-bounces@linuxdriverproject.org
+Sender: devel-bounces@linuxdriverproject.org
 To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org, ohering@suse.com
-Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>
+Cc: Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Now get rid of the machinery for managing the life-cycle of the mousevsc_dev
-as this is not needed.
+Get rid of unnecessary pr_* calls.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- drivers/staging/hv/hv_mouse.c |   54 ++--------------------------------------
- 1 files changed, 3 insertions(+), 51 deletions(-)
+ drivers/staging/hv/hv_mouse.c |   64 +++++++----------------------------------
+ 1 files changed, 11 insertions(+), 53 deletions(-)
 
 diff --git a/drivers/staging/hv/hv_mouse.c b/drivers/staging/hv/hv_mouse.c
-index 317d2be..e57e0b4 100644
+index fc1f3e6..57bc4a3 100644
 --- a/drivers/staging/hv/hv_mouse.c
 +++ b/drivers/staging/hv/hv_mouse.c
-@@ -155,8 +155,6 @@ struct  mousevsc_prt_msg {
-  */
- struct mousevsc_dev {
- 	struct hv_device	*device;
--	/* 0 indicates the device is being destroyed */
--	atomic_t		ref_count;
- 	unsigned char		init_complete;
- 	struct mousevsc_prt_msg	protocol_req;
- 	struct mousevsc_prt_msg	protocol_resp;
-@@ -182,12 +180,6 @@ static struct mousevsc_dev *alloc_input_device(struct hv_device *device)
- 	if (!input_dev)
- 		return NULL;
+@@ -294,10 +294,8 @@ static void mousevsc_on_send_completion(struct hv_device *device,
+ 	void *request;
  
--	/*
--	 * Set to 2 to allow both inbound and outbound traffics
--	 * (ie get_input_device() and must_get_input_device()) to proceed.
--	 */
--	atomic_set(&input_dev->ref_count, 2);
--
- 	input_dev->device = device;
- 	hv_set_drvdata(device, input_dev);
- 	init_completion(&input_dev->wait_event);
-@@ -203,32 +195,6 @@ static void free_input_device(struct mousevsc_dev *device)
- 	kfree(device);
- }
+ 	input_dev = must_get_input_device(device);
+-	if (!input_dev) {
+-		pr_err("unable to get input device...device being destroyed?");
++	if (!input_dev)
+ 		return;
+-	}
  
--/*
-- * Get the inputdevice object iff exists and its refcount > 0
-- */
--static struct mousevsc_dev *must_get_input_device(struct hv_device *device)
--{
--	struct mousevsc_dev *input_dev;
--
--	input_dev = hv_get_drvdata(device);
--
--	if (input_dev && atomic_read(&input_dev->ref_count))
--		atomic_inc(&input_dev->ref_count);
--	else
--		input_dev = NULL;
--
--	return input_dev;
--}
--
--static void put_input_device(struct hv_device *device)
--{
--	struct mousevsc_dev *input_dev;
--
--	input_dev = hv_get_drvdata(device);
--
--	atomic_dec(&input_dev->ref_count);
--}
--
+ 	request = (void *)(unsigned long)packet->trans_id;
  
- static void mousevsc_on_receive_device_info(struct mousevsc_dev *input_device,
- 				struct synthhid_device_info *device_info)
-@@ -325,19 +291,13 @@ static void mousevsc_on_receive(struct hv_device *device,
+@@ -329,11 +327,8 @@ static void mousevsc_on_receive_device_info(struct mousevsc_dev *input_device,
+ 
+ 	input_device->hid_desc = kzalloc(desc->bLength, GFP_ATOMIC);
+ 
+-	if (!input_device->hid_desc) {
+-		pr_err("unable to allocate hid descriptor - size %d",
+-			 desc->bLength);
++	if (!input_device->hid_desc)
+ 		goto cleanup;
+-	}
+ 
+ 	memcpy(input_device->hid_desc, desc, desc->bLength);
+ 
+@@ -344,11 +339,8 @@ static void mousevsc_on_receive_device_info(struct mousevsc_dev *input_device,
+ 	input_device->report_desc = kzalloc(input_device->report_desc_size,
+ 					  GFP_ATOMIC);
+ 
+-	if (!input_device->report_desc) {
+-		pr_err("unable to allocate report descriptor - size %d",
+-			   input_device->report_desc_size);
++	if (!input_device->report_desc)
+ 		goto cleanup;
+-	}
+ 
+ 	memcpy(input_device->report_desc,
+ 	       ((unsigned char *)desc) + desc->bLength,
+@@ -371,11 +363,8 @@ static void mousevsc_on_receive_device_info(struct mousevsc_dev *input_device,
+ 			(unsigned long)&ack,
+ 			VM_PKT_DATA_INBAND,
+ 			VMBUS_DATA_PACKET_FLAG_COMPLETION_REQUESTED);
+-	if (ret != 0) {
+-		pr_err("unable to send synthhid device info ack - ret %d",
+-			   ret);
++	if (ret != 0)
+ 		goto cleanup;
+-	}
+ 
+ 	complete(&input_device->wait_event);
+ 
+@@ -397,10 +386,8 @@ static void mousevsc_on_receive_input_report(struct mousevsc_dev *input_device,
  {
- 	struct pipe_prt_msg *pipe_msg;
- 	struct synthhid_msg *hid_msg;
--	struct mousevsc_dev *input_dev;
--
--	input_dev = must_get_input_device(device);
--	if (!input_dev)
--		return;
-+	struct mousevsc_dev *input_dev = hv_get_drvdata(device);
+ 	struct hv_driver *input_drv;
+ 
+-	if (!input_device->init_complete) {
+-		pr_info("Initialization incomplete...ignoring input_report msg");
++	if (!input_device->init_complete)
+ 		return;
+-	}
+ 
+ 	input_drv = drv_to_hv_drv(input_device->device->device.driver);
+ 
+@@ -418,17 +405,13 @@ static void mousevsc_on_receive(struct hv_device *device,
+ 	struct mousevsc_dev *input_dev;
+ 
+ 	input_dev = must_get_input_device(device);
+-	if (!input_dev) {
+-		pr_err("unable to get input device...device being destroyed?");
++	if (!input_dev)
+ 		return;
+-	}
  
  	pipe_msg = (struct pipe_prt_msg *)((unsigned long)packet +
  						(packet->offset8 << 3));
  
--	if (pipe_msg->type != PipeMessageData) {
--		put_input_device(device);
--		return ;
--	}
-+	if (pipe_msg->type != PipeMessageData)
-+		return;
- 
- 	hid_msg = (struct synthhid_msg *)&pipe_msg->data[0];
- 
-@@ -370,7 +330,6 @@ static void mousevsc_on_receive(struct hv_device *device,
- 		break;
+ 	if (pipe_msg->type != PipeMessageData) {
+-		pr_err("unknown pipe msg type - type %d len %d",
+-			   pipe_msg->type, pipe_msg->size);
+ 		put_input_device(device);
+ 		return ;
  	}
+@@ -483,10 +466,8 @@ static void mousevsc_on_channel_callback(void *context)
  
--	put_input_device(device);
- }
+ 	input_dev = must_get_input_device(device);
  
- static void mousevsc_on_channel_callback(void *context)
-@@ -378,7 +337,6 @@ static void mousevsc_on_channel_callback(void *context)
- 	const int packetSize = 0x100;
- 	int ret = 0;
- 	struct hv_device *device = (struct hv_device *)context;
--	struct mousevsc_dev *input_dev;
- 
- 	u32 bytes_recvd;
- 	u64 req_id;
-@@ -387,10 +345,6 @@ static void mousevsc_on_channel_callback(void *context)
- 	unsigned char	*buffer = packet;
- 	int	bufferlen = packetSize;
- 
--	input_dev = must_get_input_device(device);
--
--	if (!input_dev)
--		return;
+-	if (!input_dev) {
+-		pr_err("unable to get input device...device being destroyed?");
++	if (!input_dev)
+ 		return;
+-	}
  
  	do {
  		ret = vmbus_recvpacket_raw(device->channel, buffer,
-@@ -452,8 +406,6 @@ static void mousevsc_on_channel_callback(void *context)
- 		}
- 	} while (1);
+@@ -545,8 +526,6 @@ static void mousevsc_on_channel_callback(void *context)
+ 				bufferlen = packetSize;
  
--	put_input_device(device);
+ 				/* Try again next time around */
+-				pr_err("unable to allocate buffer of size %d!",
+-				       bytes_recvd);
+ 				break;
+ 			}
+ 		}
+@@ -567,10 +546,8 @@ static int mousevsc_connect_to_vsp(struct hv_device *device)
+ 
+ 	input_dev = get_input_device(device);
+ 
+-	if (!input_dev) {
+-		pr_err("unable to get input device...device being destroyed?");
++	if (!input_dev)
+ 		return -ENODEV;
+-	}
+ 
+ 
+ 	request = &input_dev->protocol_req;
+@@ -587,7 +564,6 @@ static int mousevsc_connect_to_vsp(struct hv_device *device)
+ 	request->request.header.size = sizeof(unsigned int);
+ 	request->request.version_requested.version = SYNTHHID_INPUT_VERSION;
+ 
+-	pr_info("synthhid protocol request...");
+ 
+ 	ret = vmbus_sendpacket(device->channel, request,
+ 				sizeof(struct pipe_prt_msg) -
+@@ -596,10 +572,8 @@ static int mousevsc_connect_to_vsp(struct hv_device *device)
+ 				(unsigned long)request,
+ 				VM_PKT_DATA_INBAND,
+ 				VMBUS_DATA_PACKET_FLAG_COMPLETION_REQUESTED);
+-	if (ret != 0) {
+-		pr_err("unable to send synthhid protocol request.");
++	if (ret != 0)
+ 		goto cleanup;
+-	}
+ 
+ 	t = wait_for_completion_timeout(&input_dev->wait_event, 5*HZ);
+ 	if (t == 0) {
+@@ -626,9 +600,7 @@ static int mousevsc_connect_to_vsp(struct hv_device *device)
+ 	 * We should have gotten the device attr, hid desc and report
+ 	 * desc at this point
+ 	 */
+-	if (!input_dev->dev_info_status)
+-		pr_info("**** input channel up and running!! ****");
+-	else
++	if (input_dev->dev_info_status)
+ 		ret = -ENOMEM;
+ 
+ cleanup:
+@@ -710,18 +682,14 @@ static int mousevsc_on_device_add(struct hv_device *device,
+ 		);
+ 
+ 	if (ret != 0) {
+-		pr_err("unable to open channel: %d", ret);
+ 		free_input_device(input_dev);
+ 		return ret;
+ 	}
+ 
+-	pr_info("InputVsc channel open: %d", ret);
+ 
+ 	ret = mousevsc_connect_to_vsp(device);
+ 
+ 	if (ret != 0) {
+-		pr_err("unable to connect channel: %d", ret);
 -
- 	return;
- }
+ 		vmbus_close(device->channel);
+ 		free_input_device(input_dev);
+ 		return ret;
+@@ -749,8 +717,6 @@ static int mousevsc_on_device_remove(struct hv_device *device)
+ 	struct mousevsc_dev *input_dev;
+ 	int ret = 0;
+ 
+-	pr_info("disabling input device (%p)...",
+-		    hv_get_drvdata(device));
+ 
+ 	input_dev = release_input_device(device);
+ 
+@@ -761,19 +727,11 @@ static int mousevsc_on_device_remove(struct hv_device *device)
+ 	 *
+ 	 * so that outstanding requests can be completed.
+ 	 */
+-	while (input_dev->num_outstanding_req) {
+-		pr_info("waiting for %d requests to complete...",
+-			input_dev->num_outstanding_req);
+-
++	while (input_dev->num_outstanding_req)
+ 		udelay(100);
+-	}
+-
+-	pr_info("removing input device (%p)...", hv_get_drvdata(device));
+ 
+ 	input_dev = final_release_input_device(device);
+ 
+-	pr_info("input device (%p) safe to remove", input_dev);
+-
+ 	/* Close the channel */
+ 	vmbus_close(device->channel);
  
 -- 
 1.7.4.1
