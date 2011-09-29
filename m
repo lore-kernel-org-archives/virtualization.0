@@ -1,28 +1,36 @@
-From: Greg KH <greg@kroah.com>
-Subject: Re: [PATCH 01/24] Staging: hv: mousevsc: Fixup struct
- hv_input_dev_info
-Date: Thu, 29 Sep 2011 17:47:39 -0700
-Message-ID: <20110930004739.GA6810@kroah.com>
+From: "K. Y. Srinivasan" <kys@microsoft.com>
+Subject: [PATCH 05/24] Staging: hv: mousevsc: Handle the case where we may get bogus report desc size
+Date: Thu, 29 Sep 2011 11:54:45 -0700
+Message-ID: <1317322504-9788-5-git-send-email-kys@microsoft.com>
 References: <1317322456-9747-1-git-send-email-kys@microsoft.com>
  <1317322504-9788-1-git-send-email-kys@microsoft.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
 In-Reply-To: <1317322504-9788-1-git-send-email-kys@microsoft.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: "K. Y. Srinivasan" <kys@microsoft.com>
-Cc: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org, ohering@suse.com, Haiyang Zhang <haiyangz@microsoft.com>
+To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org, ohering@suse.com
+Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Sep 29, 2011 at 11:54:41AM -0700, K. Y. Srinivasan wrote:
+Handle the case where we may get bogus report desc size from the host.
 
-<snip>
+Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
+Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
+---
+ drivers/staging/hv/hv_mouse.c |    2 ++
+ 1 files changed, 2 insertions(+), 0 deletions(-)
 
-I only got 21 emails in this thread, and they seemed to trickle in in
-odd bunches.  Did they all get sent properly, or do you wish to resend
-them to ensure they all get here?
-
-thanks,
-
-greg k-h
+diff --git a/drivers/staging/hv/hv_mouse.c b/drivers/staging/hv/hv_mouse.c
+index b7cc164..19cfc23 100644
+--- a/drivers/staging/hv/hv_mouse.c
++++ b/drivers/staging/hv/hv_mouse.c
+@@ -341,6 +341,8 @@ static void mousevsc_on_receive_device_info(struct mousevsc_dev *input_device,
+ 
+ 	/* Save the report desc */
+ 	input_device->report_desc_size = desc->desc[0].wDescriptorLength;
++	if (input_device->report_desc_size == 0)
++		goto cleanup;
+ 	input_device->report_desc = kzalloc(input_device->report_desc_size,
+ 					  GFP_ATOMIC);
+ 
+-- 
+1.7.4.1
