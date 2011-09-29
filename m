@@ -1,8 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 17/24] Staging: hv: mousevsc: Get rid of
-	mousevsc_on_device_remove() by inlining code
-Date: Thu, 29 Sep 2011 11:54:57 -0700
-Message-ID: <1317322504-9788-17-git-send-email-kys@microsoft.com>
+Subject: [PATCH 21/24] Staging: hv: mousevsc: Get rid of
+	mousevsc_on_receive_input_report() by inlining
+Date: Thu, 29 Sep 2011 11:55:01 -0700
+Message-ID: <1317322504-9788-21-git-send-email-kys@microsoft.com>
 References: <1317322456-9747-1-git-send-email-kys@microsoft.com>
 	<1317322504-9788-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -23,80 +23,64 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Get rid of mousevsc_on_device_remove() by inlining code.
+Get rid of mousevsc_on_receive_input_report() by inlining the code.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- drivers/staging/hv/hv_mouse.c |   47 ++++++++++++++--------------------------
- 1 files changed, 17 insertions(+), 30 deletions(-)
+ drivers/staging/hv/hv_mouse.c |   27 ++++++++-------------------
+ 1 files changed, 8 insertions(+), 19 deletions(-)
 
 diff --git a/drivers/staging/hv/hv_mouse.c b/drivers/staging/hv/hv_mouse.c
-index 75ea2db..5324429 100644
+index 6621326..a526ba5 100644
 --- a/drivers/staging/hv/hv_mouse.c
 +++ b/drivers/staging/hv/hv_mouse.c
-@@ -660,33 +660,6 @@ static int mousevsc_on_device_add(struct hv_device *device,
- 	return ret;
+@@ -270,28 +270,13 @@ cleanup:
+ 	complete(&input_device->wait_event);
  }
  
--static int mousevsc_on_device_remove(struct hv_device *device)
+-static void mousevsc_on_receive_input_report(struct mousevsc_dev *input_device,
+-				struct synthhid_input_report *input_report)
 -{
--	struct mousevsc_dev *input_dev;
--	int ret = 0;
+-	struct hv_driver *input_drv;
+-
+-	if (!input_device->init_complete)
+-		return;
+-
+-	input_drv = drv_to_hv_drv(input_device->device->device.driver);
 -
 -
--	input_dev = release_input_device(device);
+-	hid_input_report(input_device->hid_device,
+-			      HID_INPUT_REPORT, input_report->buffer, input_report->header.size, 1);
 -
--
--	/*
--	 * At this point, all outbound traffic should be disable. We only
--	 * allow inbound traffic (responses) to proceed
--	 *
--	 * so that outstanding requests can be completed.
--	 */
--
--	input_dev = final_release_input_device(device);
--
--	/* Close the channel */
--	vmbus_close(device->channel);
--
--	free_input_device(input_dev);
--
--	return ret;
 -}
 -
--
- static int mousevsc_probe(struct hv_device *dev,
- 			const struct hv_vmbus_device_id *dev_id)
+ static void mousevsc_on_receive(struct hv_device *device,
+ 				struct vmpacket_descriptor *packet)
  {
-@@ -706,11 +679,25 @@ static int mousevsc_remove(struct hv_device *dev)
- 		hid_destroy_device(input_dev->hid_device);
- 	}
+ 	struct pipe_prt_msg *pipe_msg;
+ 	struct synthhid_msg *hid_msg;
+ 	struct mousevsc_dev *input_dev = hv_get_drvdata(device);
++	struct synthhid_input_report *input_report;
  
-+
-+	release_input_device(dev);
-+
-+
- 	/*
--	 * Call to the vsc driver to let it know that the device
--	 * is being removed
-+	 * At this point, all outbound traffic should be disable. We only
-+	 * allow inbound traffic (responses) to proceed
-+	 *
-+	 * so that outstanding requests can be completed.
- 	 */
--	return mousevsc_on_device_remove(dev);
-+
-+	input_dev = final_release_input_device(dev);
-+
-+	/* Close the channel */
-+	vmbus_close(dev->channel);
-+
-+	free_input_device(input_dev);
-+
-+	return 0;
- }
- 
- static const struct hv_vmbus_device_id id_table[] = {
+ 	pipe_msg = (struct pipe_prt_msg *)((unsigned long)packet +
+ 						(packet->offset8 << 3));
+@@ -320,9 +305,13 @@ static void mousevsc_on_receive(struct hv_device *device,
+ 			(struct synthhid_device_info *)&pipe_msg->data[0]);
+ 		break;
+ 	case SYNTH_HID_INPUT_REPORT:
+-		mousevsc_on_receive_input_report(input_dev,
+-			(struct synthhid_input_report *)&pipe_msg->data[0]);
+-
++		input_report =
++			(struct synthhid_input_report *)&pipe_msg->data[0];
++		if (!input_dev->init_complete)
++			break;
++		hid_input_report(input_dev->hid_device,
++				HID_INPUT_REPORT, input_report->buffer,
++				input_report->header.size, 1);
+ 		break;
+ 	default:
+ 		pr_err("unsupported hid msg type - type %d len %d",
 -- 
 1.7.4.1
