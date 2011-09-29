@@ -1,17 +1,17 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 03/24] Staging: hv: mousevsc: Fixup some bogus WARN_ON() calls
-Date: Thu, 29 Sep 2011 11:54:43 -0700
-Message-ID: <1317322504-9788-3-git-send-email-kys@microsoft.com>
+Subject: [PATCH 01/24] Staging: hv: mousevsc: Fixup struct hv_input_dev_info
+Date: Thu, 29 Sep 2011 11:54:41 -0700
+Message-ID: <1317322504-9788-1-git-send-email-kys@microsoft.com>
 References: <1317322456-9747-1-git-send-email-kys@microsoft.com>
- <1317322504-9788-1-git-send-email-kys@microsoft.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1317322504-9788-1-git-send-email-kys@microsoft.com>
+In-Reply-To: <1317322456-9747-1-git-send-email-kys@microsoft.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org, ohering@suse.com
 Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Fix the bogus WARN_ON() calls.
+This structure is protocol defined structure and must match the definition
+on the host side. Make appropriate adjustments.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
@@ -20,35 +20,38 @@ Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
  1 files changed, 3 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/staging/hv/hv_mouse.c b/drivers/staging/hv/hv_mouse.c
-index 69eb00e..016d7e5 100644
+index fcb023a..44a2b23 100644
 --- a/drivers/staging/hv/hv_mouse.c
 +++ b/drivers/staging/hv/hv_mouse.c
-@@ -200,7 +200,7 @@ static struct mousevsc_dev *alloc_input_device(struct hv_device *device)
+@@ -30,10 +30,11 @@
+  * Data types
+  */
+ struct hv_input_dev_info {
++	unsigned int size;
+ 	unsigned short vendor;
+ 	unsigned short product;
+ 	unsigned short version;
+-	char name[128];
++	unsigned short reserved[11];
+ };
  
- static void free_input_device(struct mousevsc_dev *device)
- {
--	WARN_ON(atomic_read(&device->ref_count) == 0);
-+	WARN_ON(atomic_read(&device->ref_count) != 0);
- 	kfree(device);
- }
+ /* The maximum size of a synthetic input message. */
+@@ -686,7 +687,7 @@ static void reportdesc_callback(struct hv_device *dev, void *packet, u32 len)
+ 		hid_dev->dev = dev->device;
  
-@@ -327,7 +327,7 @@ static void mousevsc_on_receive_device_info(struct mousevsc_dev *input_device,
- 
- 	/* Save the hid desc */
- 	desc = &device_info->hid_descriptor;
--	WARN_ON(desc->bLength > 0);
-+	WARN_ON(desc->bLength == 0);
- 
- 	input_device->hid_desc = kzalloc(desc->bLength, GFP_KERNEL);
- 
-@@ -447,7 +447,7 @@ static void mousevsc_on_receive(struct hv_device *device,
- 		break;
- 
- 	case SynthHidInitialDeviceInfo:
--		WARN_ON(pipe_msg->size >= sizeof(struct hv_input_dev_info));
-+		WARN_ON(pipe_msg->size < sizeof(struct hv_input_dev_info));
+ 		sprintf(hid_dev->name, "%s",
+-			input_device_ctx->device_info.name);
++			"Microsoft Vmbus HID-compliant Mouse");
  
  		/*
- 		 * Parse out the device info into device attr,
+ 		 * HJ Do we want to call it with a 0
+@@ -763,7 +764,6 @@ static int mousevsc_on_device_add(struct hv_device *device,
+ 	dev_info.vendor = input_dev->hid_dev_info.vendor;
+ 	dev_info.product = input_dev->hid_dev_info.product;
+ 	dev_info.version = input_dev->hid_dev_info.version;
+-	strcpy(dev_info.name, "Microsoft Vmbus HID-compliant Mouse");
+ 
+ 	/* Send the device info back up */
+ 	input_device_ctx = dev_get_drvdata(&device->device);
 -- 
 1.7.4.1
