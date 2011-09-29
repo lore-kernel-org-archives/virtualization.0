@@ -1,7 +1,7 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 18/24] Staging: hv: mousevsc: Now cleanup mousevsc_remove()
-Date: Thu, 29 Sep 2011 11:54:58 -0700
-Message-ID: <1317322504-9788-18-git-send-email-kys@microsoft.com>
+Subject: [PATCH 22/24] Staging: hv: mousevsc: Cleanup  mousevsc_on_device_add()
+Date: Thu, 29 Sep 2011 11:55:02 -0700
+Message-ID: <1317322504-9788-22-git-send-email-kys@microsoft.com>
 References: <1317322456-9747-1-git-send-email-kys@microsoft.com>
  <1317322504-9788-1-git-send-email-kys@microsoft.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
@@ -11,103 +11,50 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Now, cleanup mousevsc_remove(). The mouse driver once initialized only
-receives data from the host. So, by closing the channel first in the
-unload path, we can properly deal with inflight packets. So, we don't need
-the machinery for managing the life-cycle of the mousevsc_dev object.
-Get rid of the unnecessary code.
+Cleanup  mousevsc_on_device_add().
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- drivers/staging/hv/hv_mouse.c |   53 ++--------------------------------------
- 1 files changed, 3 insertions(+), 50 deletions(-)
+ drivers/staging/hv/hv_mouse.c |    9 ++-------
+ 1 files changed, 2 insertions(+), 7 deletions(-)
 
 diff --git a/drivers/staging/hv/hv_mouse.c b/drivers/staging/hv/hv_mouse.c
-index 5324429..317d2be 100644
+index a526ba5..98ae062 100644
 --- a/drivers/staging/hv/hv_mouse.c
 +++ b/drivers/staging/hv/hv_mouse.c
-@@ -197,9 +197,9 @@ static struct mousevsc_dev *alloc_input_device(struct hv_device *device)
- 
- static void free_input_device(struct mousevsc_dev *device)
- {
--	WARN_ON(atomic_read(&device->ref_count) != 0);
- 	kfree(device->hid_desc);
- 	kfree(device->report_desc);
-+	hv_set_drvdata(device->device, NULL);
- 	kfree(device);
+@@ -513,12 +513,10 @@ static void reportdesc_callback(struct hv_device *dev, void *packet, u32 len)
+ 	input_device->hid_device = hid_dev;
  }
  
-@@ -229,39 +229,6 @@ static void put_input_device(struct hv_device *device)
- 	atomic_dec(&input_dev->ref_count);
- }
- 
--/*
-- * Drop ref count to 1 to effectively disable get_input_device()
-- */
--static struct mousevsc_dev *release_input_device(struct hv_device *device)
--{
--	struct mousevsc_dev *input_dev;
--
--	input_dev = hv_get_drvdata(device);
--
--	/* Busy wait until the ref drop to 2, then set it to 1  */
--	while (atomic_cmpxchg(&input_dev->ref_count, 2, 1) != 2)
--		udelay(100);
--
--	return input_dev;
--}
--
--/*
-- * Drop ref count to 0. No one can use input_device object.
-- */
--static struct mousevsc_dev *final_release_input_device(struct hv_device *device)
--{
--	struct mousevsc_dev *input_dev;
--
--	input_dev = hv_get_drvdata(device);
--
--	/* Busy wait until the ref drop to 1, then set it to 0  */
--	while (atomic_cmpxchg(&input_dev->ref_count, 1, 0) != 1)
--		udelay(100);
--
--	hv_set_drvdata(device, NULL);
--	return input_dev;
--}
--
- 
- static void mousevsc_on_receive_device_info(struct mousevsc_dev *input_device,
- 				struct synthhid_device_info *device_info)
-@@ -673,28 +640,14 @@ static int mousevsc_remove(struct hv_device *dev)
+-static int mousevsc_on_device_add(struct hv_device *device,
+-					void *additional_info)
++static int mousevsc_on_device_add(struct hv_device *device)
  {
- 	struct mousevsc_dev *input_dev = hv_get_drvdata(dev);
+ 	int ret = 0;
+ 	struct mousevsc_dev *input_dev;
+-	struct hv_driver *input_drv;
  
-+	vmbus_close(dev->channel);
-+
- 	if (input_dev->connected) {
- 		hidinput_disconnect(input_dev->hid_device);
- 		input_dev->connected = 0;
- 		hid_destroy_device(input_dev->hid_device);
+ 	input_dev = alloc_input_device(device);
+ 
+@@ -551,9 +549,6 @@ static int mousevsc_on_device_add(struct hv_device *device,
+ 		return ret;
  	}
  
+-	input_drv = drv_to_hv_drv(input_dev->device->device.driver);
 -
--	release_input_device(dev);
 -
--
--	/*
--	 * At this point, all outbound traffic should be disable. We only
--	 * allow inbound traffic (responses) to proceed
--	 *
--	 * so that outstanding requests can be completed.
--	 */
--
--	input_dev = final_release_input_device(dev);
--
--	/* Close the channel */
--	vmbus_close(dev->channel);
--
- 	free_input_device(input_dev);
  
- 	return 0;
+ 	/* Send the report desc back up */
+ 	/* workaround SA-167 */
+@@ -573,7 +568,7 @@ static int mousevsc_probe(struct hv_device *dev,
+ {
+ 
+ 	/* Call to the vsc driver to add the device */
+-	return mousevsc_on_device_add(dev, NULL);
++	return mousevsc_on_device_add(dev);
+ 
+ }
+ 
 -- 
 1.7.4.1
