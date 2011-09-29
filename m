@@ -1,8 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 21/24] Staging: hv: mousevsc: Get rid of
-	mousevsc_on_receive_input_report() by inlining
-Date: Thu, 29 Sep 2011 11:55:01 -0700
-Message-ID: <1317322504-9788-21-git-send-email-kys@microsoft.com>
+Subject: [PATCH 04/24] Staging: hv: mousevsc: Change the allocation flags to
+	reflect interrupt context
+Date: Thu, 29 Sep 2011 11:54:44 -0700
+Message-ID: <1317322504-9788-4-git-send-email-kys@microsoft.com>
 References: <1317322456-9747-1-git-send-email-kys@microsoft.com>
 	<1317322504-9788-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -23,64 +23,44 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Get rid of mousevsc_on_receive_input_report() by inlining the code.
+Change the allocation flags to reflect interrupt context.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- drivers/staging/hv/hv_mouse.c |   27 ++++++++-------------------
- 1 files changed, 8 insertions(+), 19 deletions(-)
+ drivers/staging/hv/hv_mouse.c |    6 +++---
+ 1 files changed, 3 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/staging/hv/hv_mouse.c b/drivers/staging/hv/hv_mouse.c
-index 6621326..a526ba5 100644
+index 016d7e5..b7cc164 100644
 --- a/drivers/staging/hv/hv_mouse.c
 +++ b/drivers/staging/hv/hv_mouse.c
-@@ -270,28 +270,13 @@ cleanup:
- 	complete(&input_device->wait_event);
- }
+@@ -329,7 +329,7 @@ static void mousevsc_on_receive_device_info(struct mousevsc_dev *input_device,
+ 	desc = &device_info->hid_descriptor;
+ 	WARN_ON(desc->bLength == 0);
  
--static void mousevsc_on_receive_input_report(struct mousevsc_dev *input_device,
--				struct synthhid_input_report *input_report)
--{
--	struct hv_driver *input_drv;
--
--	if (!input_device->init_complete)
--		return;
--
--	input_drv = drv_to_hv_drv(input_device->device->device.driver);
--
--
--	hid_input_report(input_device->hid_device,
--			      HID_INPUT_REPORT, input_report->buffer, input_report->header.size, 1);
--
--}
--
- static void mousevsc_on_receive(struct hv_device *device,
- 				struct vmpacket_descriptor *packet)
- {
- 	struct pipe_prt_msg *pipe_msg;
- 	struct synthhid_msg *hid_msg;
- 	struct mousevsc_dev *input_dev = hv_get_drvdata(device);
-+	struct synthhid_input_report *input_report;
+-	input_device->hid_desc = kzalloc(desc->bLength, GFP_KERNEL);
++	input_device->hid_desc = kzalloc(desc->bLength, GFP_ATOMIC);
  
- 	pipe_msg = (struct pipe_prt_msg *)((unsigned long)packet +
- 						(packet->offset8 << 3));
-@@ -320,9 +305,13 @@ static void mousevsc_on_receive(struct hv_device *device,
- 			(struct synthhid_device_info *)&pipe_msg->data[0]);
- 		break;
- 	case SYNTH_HID_INPUT_REPORT:
--		mousevsc_on_receive_input_report(input_dev,
--			(struct synthhid_input_report *)&pipe_msg->data[0]);
--
-+		input_report =
-+			(struct synthhid_input_report *)&pipe_msg->data[0];
-+		if (!input_dev->init_complete)
-+			break;
-+		hid_input_report(input_dev->hid_device,
-+				HID_INPUT_REPORT, input_report->buffer,
-+				input_report->header.size, 1);
- 		break;
- 	default:
- 		pr_err("unsupported hid msg type - type %d len %d",
+ 	if (!input_device->hid_desc) {
+ 		pr_err("unable to allocate hid descriptor - size %d",
+@@ -342,7 +342,7 @@ static void mousevsc_on_receive_device_info(struct mousevsc_dev *input_device,
+ 	/* Save the report desc */
+ 	input_device->report_desc_size = desc->desc[0].wDescriptorLength;
+ 	input_device->report_desc = kzalloc(input_device->report_desc_size,
+-					  GFP_KERNEL);
++					  GFP_ATOMIC);
+ 
+ 	if (!input_device->report_desc) {
+ 		pr_err("unable to allocate report descriptor - size %d",
+@@ -541,7 +541,7 @@ static void mousevsc_on_channel_callback(void *context)
+ 		} else if (ret == -ENOBUFS) {
+ 			/* Handle large packet */
+ 			bufferlen = bytes_recvd;
+-			buffer = kzalloc(bytes_recvd, GFP_KERNEL);
++			buffer = kzalloc(bytes_recvd, GFP_ATOMIC);
+ 
+ 			if (buffer == NULL) {
+ 				buffer = packet;
 -- 
 1.7.4.1
