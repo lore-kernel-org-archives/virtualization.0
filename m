@@ -1,7 +1,7 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 20/24]  Staging: hv: mousevsc: Cleanup camel cased enums
-Date: Thu, 29 Sep 2011 11:55:00 -0700
-Message-ID: <1317322504-9788-20-git-send-email-kys@microsoft.com>
+Subject: [PATCH 18/24] Staging: hv: mousevsc: Now cleanup mousevsc_remove()
+Date: Thu, 29 Sep 2011 11:54:58 -0700
+Message-ID: <1317322504-9788-18-git-send-email-kys@microsoft.com>
 References: <1317322456-9747-1-git-send-email-kys@microsoft.com>
  <1317322504-9788-1-git-send-email-kys@microsoft.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
@@ -11,108 +11,103 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Cleanup all camel cased names.
+Now, cleanup mousevsc_remove(). The mouse driver once initialized only
+receives data from the host. So, by closing the channel first in the
+unload path, we can properly deal with inflight packets. So, we don't need
+the machinery for managing the life-cycle of the mousevsc_dev object.
+Get rid of the unnecessary code.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- drivers/staging/hv/hv_mouse.c |   34 +++++++++++++++++-----------------
- 1 files changed, 17 insertions(+), 17 deletions(-)
+ drivers/staging/hv/hv_mouse.c |   53 ++--------------------------------------
+ 1 files changed, 3 insertions(+), 50 deletions(-)
 
 diff --git a/drivers/staging/hv/hv_mouse.c b/drivers/staging/hv/hv_mouse.c
-index e57e0b4..6621326 100644
+index 5324429..317d2be 100644
 --- a/drivers/staging/hv/hv_mouse.c
 +++ b/drivers/staging/hv/hv_mouse.c
-@@ -58,12 +58,12 @@ struct hv_input_dev_info {
-  * Message types in the synthetic input protocol
-  */
- enum synthhid_msg_type {
--	SynthHidProtocolRequest,
--	SynthHidProtocolResponse,
--	SynthHidInitialDeviceInfo,
--	SynthHidInitialDeviceInfoAck,
--	SynthHidInputReport,
--	SynthHidMax
-+	SYNTH_HID_PROTOCOL_REQUEST,
-+	SYNTH_HID_PROTOCOL_RESPONSE,
-+	SYNTH_HID_INITIAL_DEVICE_INFO,
-+	SYNTH_HID_INITIAL_DEVICE_INFO_ACK,
-+	SYNTH_HID_INPUT_REPORT,
-+	SYNTH_HID_MAX
- };
+@@ -197,9 +197,9 @@ static struct mousevsc_dev *alloc_input_device(struct hv_device *device)
  
- /*
-@@ -125,9 +125,9 @@ struct synthhid_input_report {
- #define NBITS(x) (((x)/BITS_PER_LONG)+1)
+ static void free_input_device(struct mousevsc_dev *device)
+ {
+-	WARN_ON(atomic_read(&device->ref_count) != 0);
+ 	kfree(device->hid_desc);
+ 	kfree(device->report_desc);
++	hv_set_drvdata(device->device, NULL);
+ 	kfree(device);
+ }
  
- enum pipe_prot_msg_type {
--	PipeMessageInvalid = 0,
--	PipeMessageData,
--	PipeMessageMaximum
-+	PIPE_MESSAGE_INVALID,
-+	PIPE_MESSAGE_DATA,
-+	PIPE_MESSAGE_MAXIMUM
- };
+@@ -229,39 +229,6 @@ static void put_input_device(struct hv_device *device)
+ 	atomic_dec(&input_dev->ref_count);
+ }
  
+-/*
+- * Drop ref count to 1 to effectively disable get_input_device()
+- */
+-static struct mousevsc_dev *release_input_device(struct hv_device *device)
+-{
+-	struct mousevsc_dev *input_dev;
+-
+-	input_dev = hv_get_drvdata(device);
+-
+-	/* Busy wait until the ref drop to 2, then set it to 1  */
+-	while (atomic_cmpxchg(&input_dev->ref_count, 2, 1) != 2)
+-		udelay(100);
+-
+-	return input_dev;
+-}
+-
+-/*
+- * Drop ref count to 0. No one can use input_device object.
+- */
+-static struct mousevsc_dev *final_release_input_device(struct hv_device *device)
+-{
+-	struct mousevsc_dev *input_dev;
+-
+-	input_dev = hv_get_drvdata(device);
+-
+-	/* Busy wait until the ref drop to 1, then set it to 0  */
+-	while (atomic_cmpxchg(&input_dev->ref_count, 1, 0) != 1)
+-		udelay(100);
+-
+-	hv_set_drvdata(device, NULL);
+-	return input_dev;
+-}
+-
  
-@@ -238,10 +238,10 @@ static void mousevsc_on_receive_device_info(struct mousevsc_dev *input_device,
- 	/* Send the ack */
- 	memset(&ack, 0, sizeof(struct mousevsc_prt_msg));
+ static void mousevsc_on_receive_device_info(struct mousevsc_dev *input_device,
+ 				struct synthhid_device_info *device_info)
+@@ -673,28 +640,14 @@ static int mousevsc_remove(struct hv_device *dev)
+ {
+ 	struct mousevsc_dev *input_dev = hv_get_drvdata(dev);
  
--	ack.type = PipeMessageData;
-+	ack.type = PIPE_MESSAGE_DATA;
- 	ack.size = sizeof(struct synthhid_device_info_ack);
++	vmbus_close(dev->channel);
++
+ 	if (input_dev->connected) {
+ 		hidinput_disconnect(input_dev->hid_device);
+ 		input_dev->connected = 0;
+ 		hid_destroy_device(input_dev->hid_device);
+ 	}
  
--	ack.ack.header.type = SynthHidInitialDeviceInfoAck;
-+	ack.ack.header.type = SYNTH_HID_INITIAL_DEVICE_INFO_ACK;
- 	ack.ack.header.size = 1;
- 	ack.ack.reserved = 0;
+-
+-	release_input_device(dev);
+-
+-
+-	/*
+-	 * At this point, all outbound traffic should be disable. We only
+-	 * allow inbound traffic (responses) to proceed
+-	 *
+-	 * so that outstanding requests can be completed.
+-	 */
+-
+-	input_dev = final_release_input_device(dev);
+-
+-	/* Close the channel */
+-	vmbus_close(dev->channel);
+-
+ 	free_input_device(input_dev);
  
-@@ -296,20 +296,20 @@ static void mousevsc_on_receive(struct hv_device *device,
- 	pipe_msg = (struct pipe_prt_msg *)((unsigned long)packet +
- 						(packet->offset8 << 3));
- 
--	if (pipe_msg->type != PipeMessageData)
-+	if (pipe_msg->type != PIPE_MESSAGE_DATA)
- 		return;
- 
- 	hid_msg = (struct synthhid_msg *)&pipe_msg->data[0];
- 
- 	switch (hid_msg->header.type) {
--	case SynthHidProtocolResponse:
-+	case SYNTH_HID_PROTOCOL_RESPONSE:
- 		memcpy(&input_dev->protocol_resp, pipe_msg,
- 		       pipe_msg->size + sizeof(struct pipe_prt_msg) -
- 		       sizeof(unsigned char));
- 		complete(&input_dev->wait_event);
- 		break;
- 
--	case SynthHidInitialDeviceInfo:
-+	case SYNTH_HID_INITIAL_DEVICE_INFO:
- 		WARN_ON(pipe_msg->size < sizeof(struct hv_input_dev_info));
- 
- 		/*
-@@ -319,7 +319,7 @@ static void mousevsc_on_receive(struct hv_device *device,
- 		mousevsc_on_receive_device_info(input_dev,
- 			(struct synthhid_device_info *)&pipe_msg->data[0]);
- 		break;
--	case SynthHidInputReport:
-+	case SYNTH_HID_INPUT_REPORT:
- 		mousevsc_on_receive_input_report(input_dev,
- 			(struct synthhid_input_report *)&pipe_msg->data[0]);
- 
-@@ -425,10 +425,10 @@ static int mousevsc_connect_to_vsp(struct hv_device *device)
- 	 */
- 	memset(request, 0, sizeof(struct mousevsc_prt_msg));
- 
--	request->type = PipeMessageData;
-+	request->type = PIPE_MESSAGE_DATA;
- 	request->size = sizeof(struct synthhid_protocol_request);
- 
--	request->request.header.type = SynthHidProtocolRequest;
-+	request->request.header.type = SYNTH_HID_PROTOCOL_REQUEST;
- 	request->request.header.size = sizeof(unsigned int);
- 	request->request.version_requested.version = SYNTHHID_INPUT_VERSION;
- 
+ 	return 0;
 -- 
 1.7.4.1
