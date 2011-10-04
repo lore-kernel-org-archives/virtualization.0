@@ -1,67 +1,62 @@
-From: KY Srinivasan <kys@microsoft.com>
-Subject: RE: Hyper-V TODO file
-Date: Tue, 4 Oct 2011 13:59:56 +0000
-Message-ID: <6E21E5352C11B742B20C142EB499E048081EB789@TK5EX14MBXC124.redmond.corp.microsoft.com>
+From: Greg KH <gregkh@suse.de>
+Subject: Re: Hyper-V TODO file
+Date: Tue, 4 Oct 2011 10:04:15 -0700
+Message-ID: <20111004170415.GA1320@suse.de>
 References: <1316708240-25048-1-git-send-email-kys@microsoft.com>
  <20110922170450.GA4490@suse.de>
  <6E21E5352C11B742B20C142EB499E048081E935D@TK5EX14MBXC124.redmond.corp.microsoft.com>
  <20110922173618.GA5624@suse.de>
+ <6E21E5352C11B742B20C142EB499E048081EB789@TK5EX14MBXC124.redmond.corp.microsoft.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20110922173618.GA5624@suse.de>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <6E21E5352C11B742B20C142EB499E048081EB789@TK5EX14MBXC124.redmond.corp.microsoft.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Greg KH <gregkh@suse.de>
+To: KY Srinivasan <kys@microsoft.com>
 Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
+On Tue, Oct 04, 2011 at 01:59:56PM +0000, KY Srinivasan wrote:
+> Greg, sometime back you checked in the changes to the TODO file reflecting
+> that there are no outstanding vmbus related issues. What is the process now
+> for getting the vmbus (and util) drivers out of staging. Let me know if there is 
+> something I can do to help this along.  As you know, we had posted the network 
+> driver for public review a while ago (several months ago) and we have addressed 
+> all the review comments we got. Any guidance on what we should do next would be
+> greatly appreciated.
 
+At this point in time, just ask me, and I will move the files.
 
-> -----Original Message-----
-> From: Greg KH [mailto:gregkh@suse.de]
-> Sent: Thursday, September 22, 2011 1:36 PM
-> To: KY Srinivasan
-> Cc: linux-kernel@vger.kernel.org; devel@linuxdriverproject.org;
-> virtualization@lists.osdl.org
-> Subject: Re: Hyper-V TODO file
-> 
-> On Thu, Sep 22, 2011 at 05:20:59PM +0000, KY Srinivasan wrote:
-> >
-> >
-> > > -----Original Message-----
-> > > From: Greg KH [mailto:gregkh@suse.de]
-> > > Sent: Thursday, September 22, 2011 1:05 PM
-> > > To: KY Srinivasan
-> > > Cc: linux-kernel@vger.kernel.org; devel@linuxdriverproject.org;
-> > > virtualization@lists.osdl.org
-> > > Subject: Re: Hyper-V TODO file
-> > >
-> > > On Thu, Sep 22, 2011 at 09:17:20AM -0700, K. Y. Srinivasan wrote:
-> > > >
-> > > > Greg,
-> > > >
-> > > > With your last checkin of the patches for Hyper-V, I have addressed all of
-> > > > the issues you had raised as part of the vmbus audit. Should I send you a
-> > > > patch to update the TODO file to reflect this. Let me know.
-> > >
-> > > Yes, please send patches.
-> >
-> > Thanks Greg. In addition to the patch to update the TODO file, do you want me
-> to
-> > send you patches for moving the vmbus and util driver out of staging as well.
-> 
-> No, I'll do that if we agree that it is ready to do so.
+So, to confirm, you want to have the following files moved to
+drivers/hv/:
+	drivers/staging/hv/Kconfig (part of this file)
+	drivers/staging/hv/Makefile (part of this file)
+	drivers/staging/hv/vmbus_drv.c
+	drivers/staging/hv/hv.c
+	drivers/staging/hv/connection.c
+	drivers/staging/hv/channel.c
+	drivers/staging/hv/channel_mgmt.c
+	drivers/staging/hv/ring_buffer.c
+	drivers/staging/hv/hv_util.c
+	drivers/staging/hv/hv_kmp.c
+	drivers/staging/hv/hv_kvp.h
+	drivers/staging/hv/hyperv_vmbus.h
 
-Greg, sometime back you checked in the changes to the TODO file reflecting
-that there are no outstanding vmbus related issues. What is the process now
-for getting the vmbus (and util) drivers out of staging. Let me know if there is 
-something I can do to help this along.  As you know, we had posted the network 
-driver for public review a while ago (several months ago) and we have addressed 
-all the review comments we got. Any guidance on what we should do next would be
-greatly appreciated.
+The following file moved to include/linux/:
+	drivers/staging/hv/hyperv.h
+(I think there is stuff in there that can go into hyperv_vmbus.h as it's
+not needed in the "global" directory, but I can do that movement.)
 
-Regards,
+The following file moved to tools/hv/:
+	drivers/staging/hv/tools/*
 
-K. Y
+And the following files modified to tie drivers/hv/ into the build service:
+	drivers/Makefile
+	drivers/Kconfig
+
+Is all of that correct?
+
+thanks,
+
+greg k-h
