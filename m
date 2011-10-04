@@ -1,91 +1,52 @@
-From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 1/1] Staging: hv: util: Fix a bug in kvp implementation
-Date: Tue,  4 Oct 2011 14:00:02 -0700
-Message-ID: <1317762002-4351-1-git-send-email-kys@microsoft.com>
+From: KY Srinivasan <kys@microsoft.com>
+Subject: RE: Move hyperv out of the drivers/staging/ directory
+Date: Tue, 4 Oct 2011 21:22:52 +0000
+Message-ID: <6E21E5352C11B742B20C142EB499E048081EBAB7@TK5EX14MBXC124.redmond.corp.microsoft.com>
+References: <1316708240-25048-1-git-send-email-kys@microsoft.com>
+ <20110922170450.GA4490@suse.de>
+ <6E21E5352C11B742B20C142EB499E048081E935D@TK5EX14MBXC124.redmond.corp.microsoft.com>
+ <20110922173618.GA5624@suse.de>
+ <6E21E5352C11B742B20C142EB499E048081EB789@TK5EX14MBXC124.redmond.corp.microsoft.com>
+ <20111004170415.GA1320@suse.de>
+ <6E21E5352C11B742B20C142EB499E048081EB86F@TK5EX14MBXC124.redmond.corp.microsoft.com>
+ <20111004193414.GA15672@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20111004193414.GA15672@suse.de>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org, longli@microsoft.com
-Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>
+To: Greg KH <gregkh@suse.de>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The host gurantees that there can be only one kvp transaction active
-against the guest. So, the transaction active state is needed only to
-protect against spurious user level calls. The current code had a race
-condition where the guest could prematurely return because the previous
-transaction state was not cleared - this state was being cleared after
-sending the response to the host and there was a window where the host
-could notify the guest of a new transaction before the transaction active
-state was properly set. 
-Also deal with the case when the user mode component
-does not respond in a timely fashion correctly.
-I would like to thank Long Li <longli@microsoft.com>
-for identifying the problem.
 
-Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
-Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
-Diagnosed-by: Long Li <longli@microsoft.com>
----
- drivers/staging/hv/hv_kvp.c |   13 +++++--------
- 1 files changed, 5 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/staging/hv/hv_kvp.c b/drivers/staging/hv/hv_kvp.c
-index 9aa9ede..307aedc 100644
---- a/drivers/staging/hv/hv_kvp.c
-+++ b/drivers/staging/hv/hv_kvp.c
-@@ -50,6 +50,8 @@ static struct {
+> -----Original Message-----
+> From: Greg KH [mailto:gregkh@suse.de]
+> Sent: Tuesday, October 04, 2011 3:34 PM
+> To: KY Srinivasan
+> Cc: linux-kernel@vger.kernel.org; devel@linuxdriverproject.org;
+> virtualization@lists.osdl.org
+> Subject: Move hyperv out of the drivers/staging/ directory
+> 
+> KY, how about the following patch?
+
+Looks good Greg. This morning Thomas informed me that he has checked in
+my patch to integrate the time source driver with the Hyper-V detection code.
+Thomas indicated that this patch has been applied to the tip already. How will this
+be reflected in the staging tree?
  
- static int kvp_send_key(int index);
- 
-+#define TIMEOUT_FIRED 1
-+
- static void kvp_respond_to_host(char *key, char *value, int error);
- static void kvp_work_func(struct work_struct *dummy);
- static void kvp_register(void);
-@@ -58,7 +60,6 @@ static DECLARE_DELAYED_WORK(kvp_work, kvp_work_func);
- 
- static struct cb_id kvp_id = { CN_KVP_IDX, CN_KVP_VAL };
- static const char kvp_name[] = "kvp_kernel_module";
--static int timeout_fired;
- static u8 *recv_buffer;
- /*
-  * Register the kernel component with the user-level daemon.
-@@ -90,8 +91,7 @@ kvp_work_func(struct work_struct *dummy)
- 	 * If the timer fires, the user-mode component has not responded;
- 	 * process the pending transaction.
- 	 */
--	kvp_respond_to_host("Unknown key", "Guest timed out", timeout_fired);
--	timeout_fired = 1;
-+	kvp_respond_to_host("Unknown key", "Guest timed out", TIMEOUT_FIRED);
- }
- 
- /*
-@@ -177,6 +177,8 @@ kvp_respond_to_host(char *key, char *value, int error)
- 	channel = kvp_transaction.recv_channel;
- 	req_id = kvp_transaction.recv_req_id;
- 
-+	kvp_transaction.active = false;
-+
- 	if (channel->onchannel_callback == NULL)
- 		/*
- 		 * We have raced with util driver being unloaded;
-@@ -224,7 +226,6 @@ response_done:
- 	vmbus_sendpacket(channel, recv_buffer, buf_len, req_id,
- 				VM_PKT_DATA_INBAND, 0);
- 
--	kvp_transaction.active = false;
- }
- 
- /*
-@@ -250,10 +251,6 @@ void hv_kvp_onchannelcallback(void *context)
- 	struct icmsg_negotiate *negop = NULL;
- 
- 
--	if (kvp_transaction.active)
--		return;
--
--
- 	vmbus_recvpacket(channel, recv_buffer, PAGE_SIZE, &recvlen, &requestid);
- 
- 	if (recvlen > 0) {
--- 
-1.7.4.1
+> 
+> Any objection from the virt developers about this?
+> 
+> KY, I'd like to get your signed-off-by before committing this, care to
+> test this out and pass it around the other hyperv developers and then
+> sign off on it?  Then I will be glad to commit this to my tree.
+
+I have started the test cycle; I will let you know shortly what we discover.
+
+Regards,
+
+K. Y
