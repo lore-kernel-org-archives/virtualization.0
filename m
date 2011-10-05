@@ -1,7 +1,7 @@
 From: KY Srinivasan <kys@microsoft.com>
 Subject: RE: Move hyperv out of the drivers/staging/ directory
-Date: Tue, 4 Oct 2011 21:22:52 +0000
-Message-ID: <6E21E5352C11B742B20C142EB499E048081EBAB7@TK5EX14MBXC124.redmond.corp.microsoft.com>
+Date: Wed, 5 Oct 2011 02:49:40 +0000
+Message-ID: <6E21E5352C11B742B20C142EB499E048081EBBB2@TK5EX14MBXC124.redmond.corp.microsoft.com>
 References: <1316708240-25048-1-git-send-email-kys@microsoft.com>
  <20110922170450.GA4490@suse.de>
  <6E21E5352C11B742B20C142EB499E048081E935D@TK5EX14MBXC124.redmond.corp.microsoft.com>
@@ -32,12 +32,6 @@ List-Id: virtualization@lists.linuxfoundation.org
 > Subject: Move hyperv out of the drivers/staging/ directory
 > 
 > KY, how about the following patch?
-
-Looks good Greg. This morning Thomas informed me that he has checked in
-my patch to integrate the time source driver with the Hyper-V detection code.
-Thomas indicated that this patch has been applied to the tip already. How will this
-be reflected in the staging tree?
- 
 > 
 > Any objection from the virt developers about this?
 > 
@@ -45,8 +39,17 @@ be reflected in the staging tree?
 > test this out and pass it around the other hyperv developers and then
 > sign off on it?  Then I will be glad to commit this to my tree.
 
-I have started the test cycle; I will let you know shortly what we discover.
+We completed the testing and everything is functional. Here is my sign-off:
+
+Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 
 Regards,
 
 K. Y
+
+
+> 
+> thanks,
+> 
+> greg k-h
+> 
