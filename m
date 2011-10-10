@@ -1,39 +1,101 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 1/1] Staging: hv: netvsc: Fix a dereferencing issue
-Date: Thu,  6 Oct 2011 10:10:56 -0700
-Message-ID: <1317921056-17141-1-git-send-email-kys@microsoft.com>
+Subject: [PATCH 1/1] Staging: hv: util: Invoke cn_netlink_send() in a work context
+Date: Sun,  9 Oct 2011 19:42:28 -0700
+Message-ID: <1318214548-22572-1-git-send-email-kys@microsoft.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org, dan.carpenter@oracle.com
+To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org, ohering@suse.com
 Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-net_dev is being de-referenced without proper checking; fix it.
+Invoke cn_netlink_send() in a work context as opposed being called
+in the context of  channel callback. On entry into the channel callback
+code the channel inbound spin lock is held and deferring to a work
+context avoids having to invoke cn_netlink_send() while holding
+the inbound lock. As part of this adjustment, also increase the
+timeout value for waiting for the user level component of KVP.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
 ---
- drivers/staging/hv/rndis_filter.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/staging/hv/hv_kvp.c |   18 +++++++++++-------
+ 1 files changed, 11 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/staging/hv/rndis_filter.c b/drivers/staging/hv/rndis_filter.c
-index ef43f2e..bafccb3 100644
---- a/drivers/staging/hv/rndis_filter.c
-+++ b/drivers/staging/hv/rndis_filter.c
-@@ -368,11 +368,11 @@ int rndis_filter_receive(struct hv_device *dev,
- 	struct rndis_message *rndis_hdr;
- 	struct net_device *ndev;
+diff --git a/drivers/staging/hv/hv_kvp.c b/drivers/staging/hv/hv_kvp.c
+index 307aedc..1e9515c 100644
+--- a/drivers/staging/hv/hv_kvp.c
++++ b/drivers/staging/hv/hv_kvp.c
+@@ -44,11 +44,12 @@
+ static struct {
+ 	bool active; /* transaction status - active or not */
+ 	int recv_len; /* number of bytes received. */
++	int index; /* current index */
+ 	struct vmbus_channel *recv_channel; /* chn we got the request */
+ 	u64 recv_req_id; /* request ID. */
+ } kvp_transaction;
  
--	ndev = net_dev->ndev;
--
- 	if (!net_dev)
- 		return -EINVAL;
+-static int kvp_send_key(int index);
++static void kvp_send_key(struct work_struct *dummy);
  
-+	ndev = net_dev->ndev;
-+
- 	/* Make sure the rndis device state is initialized */
- 	if (!net_dev->extension) {
- 		netdev_err(ndev, "got rndis message but no rndis device - "
+ #define TIMEOUT_FIRED 1
+ 
+@@ -57,6 +58,7 @@ static void kvp_work_func(struct work_struct *dummy);
+ static void kvp_register(void);
+ 
+ static DECLARE_DELAYED_WORK(kvp_work, kvp_work_func);
++static DECLARE_WORK(kvp_sendkey_work, kvp_send_key);
+ 
+ static struct cb_id kvp_id = { CN_KVP_IDX, CN_KVP_VAL };
+ static const char kvp_name[] = "kvp_kernel_module";
+@@ -121,10 +123,11 @@ kvp_cn_callback(struct cn_msg *msg, struct netlink_skb_parms *nsp)
+ 	}
+ }
+ 
+-static int
+-kvp_send_key(int index)
++static void
++kvp_send_key(struct work_struct *dummy)
+ {
+ 	struct cn_msg *msg;
++	int index = kvp_transaction.index;
+ 
+ 	msg = kzalloc(sizeof(*msg) + sizeof(struct hv_kvp_msg) , GFP_ATOMIC);
+ 
+@@ -136,9 +139,8 @@ kvp_send_key(int index)
+ 		msg->len = sizeof(struct hv_ku_msg);
+ 		cn_netlink_send(msg, 0, GFP_ATOMIC);
+ 		kfree(msg);
+-		return 0;
+ 	}
+-	return 1;
++	return;
+ }
+ 
+ /*
+@@ -286,6 +288,7 @@ void hv_kvp_onchannelcallback(void *context)
+ 			kvp_transaction.recv_channel = channel;
+ 			kvp_transaction.recv_req_id = requestid;
+ 			kvp_transaction.active = true;
++			kvp_transaction.index = kvp_data->index;
+ 
+ 			/*
+ 			 * Get the information from the
+@@ -296,8 +299,8 @@ void hv_kvp_onchannelcallback(void *context)
+ 			 * Set a timeout to deal with
+ 			 * user-mode not responding.
+ 			 */
+-			kvp_send_key(kvp_data->index);
+-			schedule_delayed_work(&kvp_work, 100);
++			schedule_work(&kvp_sendkey_work);
++			schedule_delayed_work(&kvp_work, 5*HZ);
+ 
+ 			return;
+ 
+@@ -332,4 +335,5 @@ void hv_kvp_deinit(void)
+ {
+ 	cn_del_callback(&kvp_id);
+ 	cancel_delayed_work_sync(&kvp_work);
++	cancel_work_sync(&kvp_sendkey_work);
+ }
 -- 
 1.7.4.1
