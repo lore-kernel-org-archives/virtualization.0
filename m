@@ -1,47 +1,54 @@
 From: KY Srinivasan <kys@microsoft.com>
-Subject: RE: [PATCH] staging: hv: storvsc: ignore SET_WINDOW scsi command
-Date: Mon, 10 Oct 2011 13:53:37 +0000
-Message-ID: <6E21E5352C11B742B20C142EB499E048081EC796@TK5EX14MBXC124.redmond.corp.microsoft.com>
-References: <20111010073739.GA19807@aepfle.de>
+Subject: RE: [PATCH 1/1] Staging: hv: util: Invoke cn_netlink_send() in a
+ work context
+Date: Mon, 10 Oct 2011 14:10:13 +0000
+Message-ID: <6E21E5352C11B742B20C142EB499E048081EC7C5@TK5EX14MBXC124.redmond.corp.microsoft.com>
+References: <1318214548-22572-1-git-send-email-kys@microsoft.com>
+ <20111010114358.GA12665@infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20111010073739.GA19807@aepfle.de>
+In-Reply-To: <20111010114358.GA12665@infradead.org>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Olaf Hering <olaf@aepfle.de>
-Cc: "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, Haiyang Zhang <haiyangz@microsoft.com>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, "ohering@suse.com" <ohering@suse.com>, Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogT2xhZiBIZXJpbmcgW21h
-aWx0bzpvbGFmQGFlcGZsZS5kZV0NCj4gU2VudDogTW9uZGF5LCBPY3RvYmVyIDEwLCAyMDExIDM6
-MzggQU0NCj4gVG86IEtZIFNyaW5pdmFzYW4NCj4gQ2M6IGdyZWdraEBzdXNlLmRlOyBsaW51eC1r
-ZXJuZWxAdmdlci5rZXJuZWwub3JnOw0KPiBkZXZlbEBsaW51eGRyaXZlcnByb2plY3Qub3JnOyB2
-aXJ0dWFsaXphdGlvbkBsaXN0cy5vc2RsLm9yZzsgSGFpeWFuZyBaaGFuZw0KPiBTdWJqZWN0OiBb
-UEFUQ0hdIHN0YWdpbmc6IGh2OiBzdG9ydnNjOiBpZ25vcmUgU0VUX1dJTkRPVyBzY3NpIGNvbW1h
-bmQNCj4gDQo+IFNvbWUgY29tbWFuZHMgc2VudCBieSBzbWFydGQgd2lsbCBvZmZsaW5lIHRoZSBk
-ZXZpY2UuDQo+IFdpdGggdGhpcyBjaGFuZ2UgYXBwbGllZCwgc21hcnRkIHNpbGwgbm90IG1vbml0
-b3IgdGhlIGRldmljZSBhbnltb3JlLg0KPiANCj4gU2lnbmVkLW9mZi1ieTogT2xhZiBIZXJpbmcg
-PG9sYWZAYWVwZmxlLmRlPg0KPiANCj4gLS0tDQo+ICBkcml2ZXJzL3N0YWdpbmcvaHYvc3RvcnZz
-Y19kcnYuYyB8ICAgMjAgKysrKysrKysrKysrKysrKysrKysNCj4gIDEgZmlsZSBjaGFuZ2VkLCAy
-MCBpbnNlcnRpb25zKCspDQo+IA0KPiAtLS0gYS9kcml2ZXJzL3N0YWdpbmcvaHYvc3RvcnZzY19k
-cnYuYw0KPiArKysgYi9kcml2ZXJzL3N0YWdpbmcvaHYvc3RvcnZzY19kcnYuYw0KPiBAQCAtMTEy
-Miw2ICsxMTIyLDIyIEBAIHN0YXRpYyB2b2lkIHN0b3J2c2NfY29tbWFuZF9jb21wbGV0aW9uKHMN
-Cj4gIAlrbWVtX2NhY2hlX2ZyZWUoaG9zdF9kZXYtPnJlcXVlc3RfcG9vbCwgY21kX3JlcXVlc3Qp
-Ow0KPiAgfQ0KPiANCj4gK3N0YXRpYyBib29sIHN0b3J2c2NfY2hlY2tfc2NzaV9jbWQoc3RydWN0
-IHNjc2lfY21uZCAqc2NtbmQpDQo+ICt7DQo+ICsJYm9vbCBhbGxvd2VkID0gdHJ1ZTsNCj4gKwl1
-OCBzY3NpX29wID0gc2NtbmQtPmNtbmRbMF07DQo+ICsNCj4gKwlzd2l0Y2ggKHNjc2lfb3ApIHsN
-Cj4gKwkJLyogc21hcnRkIHNlbmRzIHRoaXMgY29tbWFuZCwgd2hpY2ggd2lsbCBvZmZsaW5lIHRo
-ZSBkZXZpY2UgKi8NCj4gKwkJY2FzZSBTRVRfV0lORE9XOg0KPiArCQkJc2NtbmQtPnJlc3VsdCA9
-IERJRF9FUlJPUiA8PCAxNjsNCj4gKwkJCWFsbG93ZWQgPSBmYWxzZTsNCj4gKwkJCWJyZWFrOw0K
-PiArCQlkZWZhdWx0Og0KPiArCQkJYnJlYWs7DQo+ICsJfQ0KPiArCXJldHVybiBhbGxvd2VkOw0K
-PiArfQ0KPiANCj4gIC8qDQo+ICAgKiBzdG9ydnNjX3F1ZXVlY29tbWFuZCAtIEluaXRpYXRlIGNv
-bW1hbmQgcHJvY2Vzc2luZw0KPiBAQCAtMTE0MSw2ICsxMTU3LDEwIEBAIHN0YXRpYyBpbnQgc3Rv
-cnZzY19xdWV1ZWNvbW1hbmRfbGNrKHN0cnUNCj4gIAl1bnNpZ25lZCBpbnQgc2dfY291bnQgPSAw
-Ow0KPiAgCXN0cnVjdCB2bXNjc2lfcmVxdWVzdCAqdm1fc3JiOw0KPiANCj4gKwlpZiAoc3RvcnZz
-Y19jaGVja19zY3NpX2NtZChzY21uZCkgPT0gZmFsc2UpIHsNCj4gKwkJZG9uZShzY21uZCk7DQo+
-ICsJCXJldHVybiAwOw0KPiArCX0NCj4gDQo+ICAJLyogSWYgcmV0cnlpbmcsIG5vIG5lZWQgdG8g
-cHJlcCB0aGUgY21kICovDQo+ICAJaWYgKHNjbW5kLT5ob3N0X3NjcmliYmxlKSB7DQoNCkFja2Vk
-LWJ5OiBLLiBZLiBTcmluaXZhc2FuIDxreXNAbWljcm9zb2Z0LmNvbT4NCg0KUmVnYXJkcywNCg0K
-Sy4gWQ0K
+
+
+> -----Original Message-----
+> From: Christoph Hellwig [mailto:hch@infradead.org]
+> Sent: Monday, October 10, 2011 7:44 AM
+> To: KY Srinivasan
+> Cc: gregkh@suse.de; linux-kernel@vger.kernel.org;
+> devel@linuxdriverproject.org; virtualization@lists.osdl.org; ohering@suse.com;
+> Haiyang Zhang
+> Subject: Re: [PATCH 1/1] Staging: hv: util: Invoke cn_netlink_send() in a work
+> context
+> 
+> On Sun, Oct 09, 2011 at 07:42:28PM -0700, K. Y. Srinivasan wrote:
+> > Invoke cn_netlink_send() in a work context as opposed being called
+> > in the context of  channel callback. On entry into the channel callback
+> > code the channel inbound spin lock is held and deferring to a work
+> > context avoids having to invoke cn_netlink_send() while holding
+> > the inbound lock. As part of this adjustment, also increase the
+> > timeout value for waiting for the user level component of KVP.
+> 
+> As told a few times you really need to move away from the connector
+> before sumitting the KVP support.  What about tackling that instead of
+> band aiding it?
+
+Christoph, I am still not sure what the issues with the connector are that you mention.
+When I was initially designing the KVP feature, we did have a discussion of what the kernel/
+user-mode transport should be and the connector interface was the consensus then. 
+The changes in this patch, I would probably make no matter what the transport mechanism was;
+nothing connector specific.
+
+Regards,
+
+K. Y
+
+
+ 
