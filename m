@@ -1,185 +1,36 @@
-From: Joe Perches <joe@perches.com>
-Subject: Re: [PATCH 1/1] Staging: hv: mousevsc: Move the mouse driver out of
+From: KY Srinivasan <kys@microsoft.com>
+Subject: RE: [PATCH 1/1] Staging: hv: mousevsc: Move the mouse driver out of
  staging
-Date: Fri, 14 Oct 2011 23:36:36 -0700
-Message-ID: <1318660596.6035.27.camel@Joe-Laptop>
+Date: Sat, 15 Oct 2011 13:24:05 +0000
+Message-ID: <6E21E5352C11B742B20C142EB499E0481AA0FE18@TK5EX14MBXC128.redmond.corp.microsoft.com>
 References: <1318658907-16698-1-git-send-email-kys@microsoft.com>
+ <1318660596.6035.27.camel@Joe-Laptop>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-input-owner@vger.kernel.org>
-In-Reply-To: <1318658907-16698-1-git-send-email-kys@microsoft.com>
+In-Reply-To: <1318660596.6035.27.camel@Joe-Laptop>
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
-To: "K. Y. Srinivasan" <kys@microsoft.com>
-Cc: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, Haiyang Zhang <haiyangz@microsoft.com>
+To: Joe Perches <joe@perches.com>
+Cc: "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 2011-10-14 at 23:08 -0700, K. Y. Srinivasan wrote:
-> In preparation for moving the mouse driver out of staging, seek community
-> review of the mouse driver code.
-> 
-> Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
-> Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
-
-Just some stylistic things, none of which should
-prevent any code movement.
-
-> +++ b/drivers/hid/hv_mouse.c
-[]
-> +struct mousevsc_dev {
-> +	struct hv_device	*device;
-> +	unsigned char		init_complete;
-
-bool?
-
-[]
-> +static void mousevsc_on_channel_callback(void *context)
-> +{
-> +	const int packetSize = 0x100;
-> +	int ret = 0;
-> +	struct hv_device *device = (struct hv_device *)context;
-> +
-> +	u32 bytes_recvd;
-> +	u64 req_id;
-> +	unsigned char packet[0x100];
-		[packetSize];
-
-> +	struct vmpacket_descriptor *desc;
-> +	unsigned char	*buffer = packet;
-> +	int	bufferlen = packetSize;
-> +
-> +
-trivial extra blank line
-
-> +	do {
-> +		ret = vmbus_recvpacket_raw(device->channel, buffer,
-> +					bufferlen, &bytes_recvd, &req_id);
-> +
-> +		if (ret == 0) {
-> +			if (bytes_recvd > 0) {
-> +				desc = (struct vmpacket_descriptor *)buffer;
-> +
-> +				switch (desc->type) {
-> +				case VM_PKT_COMP:
-> +					break;
-> +
-> +				case VM_PKT_DATA_INBAND:
-> +					mousevsc_on_receive(
-> +						device, desc);
-> +					break;
-> +
-> +				default:
-> +					pr_err("unhandled packet type %d, tid %llx len %d\n",
-> +						   desc->type,
-> +						   req_id,
-> +						   bytes_recvd);
-> +					break;
-> +				}
-> +
-> +				/* reset */
-> +				if (bufferlen > packetSize) {
-> +					kfree(buffer);
-> +
-> +					buffer = packet;
-> +					bufferlen = packetSize;
-> +				}
-> +			} else {
-> +				if (bufferlen > packetSize) {
-> +					kfree(buffer);
-> +
-> +					buffer = packet;
-> +					bufferlen = packetSize;
-> +				}
-> +				break;
-> +			}
-> +		} else if (ret == -ENOBUFS) {
-> +			/* Handle large packet */
-> +			bufferlen = bytes_recvd;
-> +			buffer = kzalloc(bytes_recvd, GFP_ATOMIC);
-> +
-> +			if (buffer == NULL) {
-> +				buffer = packet;
-> +				bufferlen = packetSize;
-> +				break;
-> +			}
-> +		}
-> +	} while (1);
-
-This do {} while (1); seems like it could be simpler,
-less indented and less confusing if it used continues
-or gotos like below (if I wrote it correctly...)
-
-loop:
-	ret = vmbus_bus_recvpacket_raw(device->channel, buffer,
-				       bufferlen, &bytes_recvd, &req_id);
-	switch (ret) {
-	case -ENOBUFS:
-		/* Handle large packet */
-		bufferlen = bytes_recvd;
-		buffer = kzalloc(bytes_recvd, GFP_ATOMIC);
-/*
-Why kzalloc and not kmalloc?
-The stack variable packet is not memset to 0,
-why should buffer be zeroed?
-*/
-		if (!buffer)
-			return;
-		goto loop;
-	case 0:
-		if (bytes_recvd <= 0)
-			goto loop;
-		desc = (struct vmpacket_descriptor *)buffer;
-
-		switch (desc->type) {
-		case VM_PKT_COMP:
-			break;
-		case VM_PKT_DATA_INBAND:
-			mousevsc_on_receive(device, desc);
-			break;
-		default:
-			pr_err("unhandled packet type %d, tid %llx len %d\n",
-			       desc->type, req_id, bytes_recvd);
-			break;
-		}
-		/* reset to original buffers */
-		if (bufferlen > packetSize) {
-			kfree(buffer);
-			buffer = packet;
-			bufferlen = packetSize;
-		}
-	}
-	goto loop;
-}
-
-> +
-> +static int mousevsc_connect_to_vsp(struct hv_device *device)
-> +{
-[]
-> +	if (!response->response.approved) {
-> +		pr_err("synthhid protocol request failed (version %d)",
-> +		       SYNTHHID_INPUT_VERSION);
-
-Missing \n at end of format string
-
-[]
-> +static int mousevsc_on_device_add(struct hv_device *device)
-> +{
-[]
-> +	ret = vmbus_open(device->channel,
-> +		INPUTVSC_SEND_RING_BUFFER_SIZE,
-> +		INPUTVSC_RECV_RING_BUFFER_SIZE,
-> +		NULL,
-> +		0,
-> +		mousevsc_on_channel_callback,
-> +		device
-> +		);
-
-Nicer if aligned to open paren I think.
-
-	ret = vmbus_open(device->channel,
-			 INPUTVSC_SEND_RING_BUFFER_SIZE,
-			 INPUTVSC_RECV_RING_BUFFER_SIZE,
-			 NULL, 0, mousevsc_on_channel_callback,
-			 device);
-
-
+DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogSm9lIFBlcmNoZXMgW21h
+aWx0bzpqb2VAcGVyY2hlcy5jb21dDQo+IFNlbnQ6IFNhdHVyZGF5LCBPY3RvYmVyIDE1LCAyMDEx
+IDI6MzcgQU0NCj4gVG86IEtZIFNyaW5pdmFzYW4NCj4gQ2M6IGdyZWdraEBzdXNlLmRlOyBsaW51
+eC1rZXJuZWxAdmdlci5rZXJuZWwub3JnOw0KPiBkZXZlbEBsaW51eGRyaXZlcnByb2plY3Qub3Jn
+OyB2aXJ0dWFsaXphdGlvbkBsaXN0cy5vc2RsLm9yZzsNCj4gZG1pdHJ5LnRvcm9raG92QGdtYWls
+LmNvbTsgbGludXgtaW5wdXRAdmdlci5rZXJuZWwub3JnOyBIYWl5YW5nIFpoYW5nDQo+IFN1Ympl
+Y3Q6IFJlOiBbUEFUQ0ggMS8xXSBTdGFnaW5nOiBodjogbW91c2V2c2M6IE1vdmUgdGhlIG1vdXNl
+IGRyaXZlciBvdXQgb2YNCj4gc3RhZ2luZw0KPiANCj4gT24gRnJpLCAyMDExLTEwLTE0IGF0IDIz
+OjA4IC0wNzAwLCBLLiBZLiBTcmluaXZhc2FuIHdyb3RlOg0KPiA+IEluIHByZXBhcmF0aW9uIGZv
+ciBtb3ZpbmcgdGhlIG1vdXNlIGRyaXZlciBvdXQgb2Ygc3RhZ2luZywgc2VlayBjb21tdW5pdHkN
+Cj4gPiByZXZpZXcgb2YgdGhlIG1vdXNlIGRyaXZlciBjb2RlLg0KPiA+DQo+ID4gU2lnbmVkLW9m
+Zi1ieTogSy4gWS4gU3Jpbml2YXNhbiA8a3lzQG1pY3Jvc29mdC5jb20+DQo+ID4gU2lnbmVkLW9m
+Zi1ieTogSGFpeWFuZyBaaGFuZyA8aGFpeWFuZ3pAbWljcm9zb2Z0LmNvbT4NCj4gDQo+IEp1c3Qg
+c29tZSBzdHlsaXN0aWMgdGhpbmdzLCBub25lIG9mIHdoaWNoIHNob3VsZA0KPiBwcmV2ZW50IGFu
+eSBjb2RlIG1vdmVtZW50Lg0KDQpUaGFua3MgSm9lLiBJIHdpbGwgZml4IHRoZSBpc3N1ZXMgeW91
+IGhhdmUgbm90ZWQgZWl0aGVyIGJlZm9yZSBvciBhZnRlcg0KbW92aW5nIHRoZSBjb2RlIG91dCBv
+ZiBzdGFnaW5nIGJhc2VkIG9uIG90aGVyIHJldmlldyBjb21tZW50cy4NCg0KUmVnYXJkcywNCg0K
+Sy4gWSANCg==
