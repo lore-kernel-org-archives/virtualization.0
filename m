@@ -1,7 +1,7 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
 Subject: [PATCH 1/1] Staging: hv: vmbus: Support building the vmbus driver as part of the kernel
-Date: Mon, 24 Oct 2011 11:28:12 -0700
-Message-ID: <1319480892-26480-1-git-send-email-kys@microsoft.com>
+Date: Mon, 24 Oct 2011 13:31:05 -0700
+Message-ID: <1319488265-26936-1-git-send-email-kys@microsoft.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org, ohering@suse.com
