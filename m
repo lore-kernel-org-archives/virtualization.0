@@ -1,97 +1,61 @@
-From: KY Srinivasan <kys@microsoft.com>
-Subject: RE: [PATCH 1/1] Staging: hv: mousevsc: Move the mouse driver out of
- staging
-Date: Thu, 27 Oct 2011 01:19:50 +0000
-Message-ID: <6E21E5352C11B742B20C142EB499E0481AA51BAB@TK5EX14MBXC122.redmond.corp.microsoft.com>
-References: <1318658907-16698-1-git-send-email-kys@microsoft.com>
- <20111023072427.GA13268@core.coreip.homeip.net>
- <6E21E5352C11B742B20C142EB499E0481AA3369B@TK5EX14MBXC126.redmond.corp.microsoft.com>
- <20111027000926.GB6804@core.coreip.homeip.net>
+From: Sasha Levin <levinsasha928@gmail.com>
+Subject: Re: [PATCH RFC V2 4/5] kvm guest : Added configuration support to
+	enable debug information for KVM Guests
+Date: Mon, 24 Oct 2011 12:01:45 +0200
+Message-ID: <1319450505.5660.5.camel__6440.65499441258$1319678751$gmane$org@lappy>
+References: <20111023190307.16364.35381.sendpatchset@oc5400248562.ibm.com>
+	<20111023190700.16364.7548.sendpatchset@oc5400248562.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-input-owner@vger.kernel.org>
-In-Reply-To: <20111027000926.GB6804@core.coreip.homeip.net>
-Content-Language: en-US
-Sender: linux-input-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Haiyang Zhang <haiyangz@microsoft.com>, Jiri Kosina <jkosina@suse.cz>
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20111023190700.16364.7548.sendpatchset@oc5400248562.ibm.com>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
+Cc: Peter Zijlstra <peterz@infradead.org>, Virtualization <virtualization@lists.linux-foundation.org>, "H. Peter
+	Anvin" <hpa@zytor.com>, Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, Dave Jiang <dave.jiang@intel.com>, KVM <kvm@vger.kernel.org>, x86@kernel.org, Ingo Molnar <mingo@redhat.com>, Avi Kivity <avi@redhat.com>, Rik van Riel <riel@redhat.com>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, Xen <xen-devel@lists.xensource.com>, Sedat Dilek <sedat.dilek@gmail.com>, Thomas Gleixner <tglx@linutronix.de>, Yinghai Lu <yinghai@kernel.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Greg Kroah-Hartman <gregkh@suse.de>, LKML <linux-kernel@vger.kernel.org>, Suzuki Poulose <suzuki@linux.vnet.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
+On Mon, 2011-10-24 at 00:37 +0530, Raghavendra K T wrote:
+> Added configuration support to enable debug information
+> for KVM Guests in debugfs
+>     
+> Signed-off-by: Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>
+> Signed-off-by: Suzuki Poulose <suzuki@in.ibm.com>
+> Signed-off-by: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
+> ---
+> diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
+> index 1f03f82..ed34269 100644
+> --- a/arch/x86/Kconfig
+> +++ b/arch/x86/Kconfig
+> @@ -562,6 +562,15 @@ config KVM_GUEST
+>  	  This option enables various optimizations for running under the KVM
+>  	  hypervisor.
+>  
+> +config KVM_DEBUG_FS
+> +	bool "Enable debug information for KVM Guests in debugfs"
+> +	depends on KVM_GUEST
 
+Shouldn't it depend on DEBUG_FS as well?
 
-> -----Original Message-----
-> From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com]
-> Sent: Wednesday, October 26, 2011 8:09 PM
-> To: KY Srinivasan
-> Cc: gregkh@suse.de; linux-kernel@vger.kernel.org;
-> devel@linuxdriverproject.org; virtualization@lists.osdl.org; linux-
-> input@vger.kernel.org; Haiyang Zhang; Jiri Kosina
-> Subject: Re: [PATCH 1/1] Staging: hv: mousevsc: Move the mouse driver out of
-> staging
-> 
-> On Sun, Oct 23, 2011 at 03:45:14PM +0000, KY Srinivasan wrote:
-> > > > +
-> > > > +	t = wait_for_completion_timeout(&input_dev->wait_event, 5*HZ);
-> > > > +	if (t == 0) {
-> > > > +		ret = -ETIMEDOUT;
-> > > > +		goto cleanup;
-> > > > +	}
-> > > > +
-> > > > +	response = &input_dev->protocol_resp;
-> > > > +
-> > > > +	if (!response->response.approved) {
-> > > > +		pr_err("synthhid protocol request failed (version %d)",
-> > > > +		       SYNTHHID_INPUT_VERSION);
-> > > > +		ret = -ENODEV;
-> > > > +		goto cleanup;
-> > > > +	}
-> > > > +
-> > > > +	t = wait_for_completion_timeout(&input_dev->wait_event, 5*HZ);
-> > >
-> > > We just completed the wait for this completion, why are we waiting on
-> > > the same completion again?
-> >
-> > In response to our initial query, we expect the host to respond back with two
-> > distinct pieces of information; we wait for both these responses.
-> 
-> I think you misunderstand how completion works in Linux. IIRC about
-> Windows events they are different ;) You can not signal completion
-> several times and then expect to wait corrsponding number of times. Once
-> you signal completion is it, well, complete.
+> +	default n
+> +	---help---
+> +	  This option enables collection of various statistics for KVM guest.
+> +   	  Statistics are displayed in debugfs filesystem. Enabling this option
+> +	  may incur significant overhead.
+> +
+>  source "arch/x86/lguest/Kconfig"
+>  
+>  config PARAVIRT
 
-Looking at the code for complete(), it looks like the "done" state is incremented
-each time complete() is invoked and  the  code for do_wait_for_common() decrements the 
-done state each time it is invoked (if the completion is properly signaled and we are not dealing
-with a timeout. So, what am I missing here.
+-- 
 
-> 
-> >
-> > >
-> > > > +	if (t == 0) {
-> > > > +		ret = -ETIMEDOUT;
-> > > > +		goto cleanup;
-> > > > +	}
-> > > > +
-> > > > +	/*
-> > > > +	 * We should have gotten the device attr, hid desc and report
-> > > > +	 * desc at this point
-> > > > +	 */
-> > > > +	if (input_dev->dev_info_status)
-> > > > +		ret = -ENOMEM;
-> > >
-> > > -ENOMEM seems wrong.
-> > >
-> > There are many failures here and not being able to allocate memory is the
-> > primary one; and so I chose to capture that.
-> 
-> Any chance that these failures have their own exit paths?
-
-This is called from the probe functions and these errors are percolated up. On a different
-note, I cleaned up this code based on the feedback I got from you. The patches have been 
-sent out.
-
-Regards,
-
-K. Y
-
+Sasha.
