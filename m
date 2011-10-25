@@ -1,33 +1,29 @@
-From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 1/1] Staging: hv: vmbus: Support building the vmbus driver as part of the kernel
-Date: Mon, 24 Oct 2011 13:31:05 -0700
-Message-ID: <1319488265-26936-1-git-send-email-kys@microsoft.com>
+From: Greg KH <greg@kroah.com>
+Subject: Re: [PATCH 1/1] Staging: hv: vmbus: Support building the vmbus
+ driver as part of the kernel
+Date: Tue, 25 Oct 2011 04:27:17 +0200
+Message-ID: <20111025022717.GA32457@kroah.com>
+References: <1319488265-26936-1-git-send-email-kys@microsoft.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1319488265-26936-1-git-send-email-kys@microsoft.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org, ohering@suse.com
-Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>
+To: "K. Y. Srinivasan" <kys@microsoft.com>
+Cc: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org, ohering@suse.com, Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Modify the way we initialize the vmbus driver so that all the hyper-v drivers
-can be linked with the kernel and still ensure that the vmbus driver
-is fully initialized before the drivers that depend upon the vmbus 
-driver attempt to initialize.
+On Mon, Oct 24, 2011 at 01:31:05PM -0700, K. Y. Srinivasan wrote:
+> Modify the way we initialize the vmbus driver so that all the hyper-v drivers
+> can be linked with the kernel and still ensure that the vmbus driver
+> is fully initialized before the drivers that depend upon the vmbus 
+> driver attempt to initialize.
+> 
+> Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
+> Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 
-Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
-Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
----
- drivers/hv/vmbus_drv.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+Any reason you sent this out twice?  Was there a difference between the
+two versions that I missed?
 
-diff --git a/drivers/hv/vmbus_drv.c b/drivers/hv/vmbus_drv.c
-index 0c048dd..7d3bccb3 100644
---- a/drivers/hv/vmbus_drv.c
-+++ b/drivers/hv/vmbus_drv.c
-@@ -783,4 +783,4 @@ cleanup:
- MODULE_LICENSE("GPL");
- MODULE_VERSION(HV_DRV_VERSION);
- 
--module_init(hv_acpi_init);
-+subsys_initcall(hv_acpi_init);
--- 
-1.7.4.1
+greg k-h
