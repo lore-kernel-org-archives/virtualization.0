@@ -1,40 +1,139 @@
-From: Joe Perches <joe@perches.com>
-Subject: Re: [PATCH 1/6] Staging: hv: mousevsc: Make  boolean states  boolean
-Date: Tue, 25 Oct 2011 17:03:47 -0700
-Message-ID: <1319587427.14932.7.camel@Joe-Laptop>
+From: "K. Y. Srinivasan" <kys@microsoft.com>
+Subject: [PATCH 4/6] Staging: hv: mousevsc: Cleanup mousevsc_on_channel_callback()
+Date: Tue, 25 Oct 2011 17:19:50 -0700
+Message-ID: <1319588392-9982-4-git-send-email-kys@microsoft.com>
 References: <1319588311-9935-1-git-send-email-kys@microsoft.com>
-	 <1319588392-9982-1-git-send-email-kys@microsoft.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+ <1319588392-9982-1-git-send-email-kys@microsoft.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1319588392-9982-1-git-send-email-kys@microsoft.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: "K. Y. Srinivasan" <kys@microsoft.com>
-Cc: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org, ohering@suse.com, dmitry.torokhov@gmail.com, Haiyang Zhang <haiyangz@microsoft.com>
+To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org, ohering@suse.com, dmitry.torokhov@gmail.com, joe@perches.com
+Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 2011-10-25 at 17:19 -0700, K. Y. Srinivasan wrote:
-> Make some state that is boolean in nature, a boolean variable.
-[]
-> diff --git a/drivers/staging/hv/hv_mouse.c b/drivers/staging/hv/hv_mouse.c
-[]
-@@ -148,7 +148,7 @@ struct  mousevsc_prt_msg {
->   */
->  struct mousevsc_dev {
->  	struct hv_device	*device;
-> -	unsigned char		init_complete;
-> +	bool			init_complete;
->  	struct mousevsc_prt_msg	protocol_req;
->  	struct mousevsc_prt_msg	protocol_resp;
->  	/* Synchronize the request/response if needed */
-> @@ -159,7 +159,7 @@ struct mousevsc_dev {
->  	unsigned char		*report_desc;
->  	u32			report_desc_size;
->  	struct hv_input_dev_info hid_dev_info;
-> -	int			connected;
-> +	bool			connected;
->  	struct hid_device       *hid_device;
->  };
+Cleanup mousevsc_on_channel_callback(). This is based on the code provided
+by Joe Perches <joe@perches.com>.
 
-One of the bools should be moved to be adjacent to the other.
+Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
+Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
+---
+ drivers/staging/hv/hv_mouse.c |   85 ++++++++++++++++++-----------------------
+ 1 files changed, 37 insertions(+), 48 deletions(-)
+
+diff --git a/drivers/staging/hv/hv_mouse.c b/drivers/staging/hv/hv_mouse.c
+index ed071b8..b10466f 100644
+--- a/drivers/staging/hv/hv_mouse.c
++++ b/drivers/staging/hv/hv_mouse.c
+@@ -313,73 +313,62 @@ static void mousevsc_on_receive(struct hv_device *device,
+ 
+ static void mousevsc_on_channel_callback(void *context)
+ {
+-	const int packetSize = 0x100;
+-	int ret = 0;
+-	struct hv_device *device = (struct hv_device *)context;
+-
++	const int packet_size = 0x100;
++	int ret;
++	struct hv_device *device = context;
+ 	u32 bytes_recvd;
+ 	u64 req_id;
+-	unsigned char packet[0x100];
+ 	struct vmpacket_descriptor *desc;
+-	unsigned char	*buffer = packet;
+-	int	bufferlen = packetSize;
++	unsigned char	*buffer;
++	int	bufferlen = packet_size;
+ 
++	buffer = kmalloc(bufferlen, GFP_ATOMIC);
++	if (!buffer)
++		return;
+ 
+ 	do {
+ 		ret = vmbus_recvpacket_raw(device->channel, buffer,
+ 					bufferlen, &bytes_recvd, &req_id);
+ 
+-		if (ret == 0) {
+-			if (bytes_recvd > 0) {
+-				desc = (struct vmpacket_descriptor *)buffer;
+-
+-				switch (desc->type) {
+-				case VM_PKT_COMP:
+-					break;
+-
+-				case VM_PKT_DATA_INBAND:
+-					mousevsc_on_receive(
+-						device, desc);
+-					break;
+-
+-				default:
+-					pr_err("unhandled packet type %d, tid %llx len %d\n",
+-						   desc->type,
+-						   req_id,
+-						   bytes_recvd);
+-					break;
+-				}
+-
+-				/* reset */
+-				if (bufferlen > packetSize) {
+-					kfree(buffer);
+-
+-					buffer = packet;
+-					bufferlen = packetSize;
+-				}
+-			} else {
+-				if (bufferlen > packetSize) {
+-					kfree(buffer);
+-
+-					buffer = packet;
+-					bufferlen = packetSize;
+-				}
++		switch (ret) {
++		case 0:
++			if (bytes_recvd <= 0) {
++				kfree(buffer);
++				return;
++			}
++			desc = (struct vmpacket_descriptor *)buffer;
++
++			switch (desc->type) {
++			case VM_PKT_COMP:
++				break;
++
++			case VM_PKT_DATA_INBAND:
++				mousevsc_on_receive(device, desc);
++				break;
++
++			default:
++				pr_err("unhandled packet type %d, tid %llx len %d\n",
++				   desc->type,
++				   req_id,
++				   bytes_recvd);
+ 				break;
+ 			}
+-		} else if (ret == -ENOBUFS) {
++
++			break;
++
++		case -ENOBUFS:
++			kfree(buffer);
+ 			/* Handle large packet */
+ 			bufferlen = bytes_recvd;
+-			buffer = kzalloc(bytes_recvd, GFP_ATOMIC);
++			buffer = kmalloc(bytes_recvd, GFP_ATOMIC);
+ 
+ 			if (buffer == NULL) {
+-				buffer = packet;
+-				bufferlen = packetSize;
+-				break;
++				return;
+ 			}
++			break;
+ 		}
+ 	} while (1);
+ 
+-	return;
+ }
+ 
+ static int mousevsc_connect_to_vsp(struct hv_device *device)
+-- 
+1.7.4.1
