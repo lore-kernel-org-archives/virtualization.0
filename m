@@ -1,15 +1,15 @@
 From: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
 Subject: Re: [PATCH] VirtioConsole support.
-Date: Thu, 27 Oct 2011 17:15:15 -0400
-Message-ID: <20111027211515.GA5221@phenom.dumpdata.com>
+Date: Thu, 27 Oct 2011 17:55:35 -0400
+Message-ID: <20111027215535.GA5671@phenom.dumpdata.com>
 References: <20111027173527.GA23839@phenom.dumpdata.com>
-	<1319740793-2187-1-git-send-email-miche@google.com>
+	<1319751802-27013-1-git-send-email-miche@google.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1319740793-2187-1-git-send-email-miche@google.com>
+In-Reply-To: <1319751802-27013-1-git-send-email-miche@google.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,8 +23,24 @@ To: Miche Baker-Harvey <miche@google.com>
 Cc: xen-devel@lists.xensource.com, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Greg Kroah-Hartman <gregkh@suse.de>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Anton Blanchard <anton@samba.org>, Amit Shah <amit.shah@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Oct 27, 2011 at 11:39:53AM -0700, Miche Baker-Harvey wrote:
+On Thu, Oct 27, 2011 at 02:43:22PM -0700, Miche Baker-Harvey wrote:
 > Multiple HVC console terminals enabled.
+
+Miche,
+
+You might want to flesh out the description a bit. Perhaps include
+such details as : "fixes the infinite loop that git commit XX
+caused". Perhaps include some of the serial console output.
+
+Maybe also change the title - the patch name (which is what shows up
+if you do 'git log --oneline') is 'VirtioConsole support.' which is
+not very informative.
+
+Oh, and make sure to have the maintainers of the drivers/[tty|char]
+in the 'To' field.
+
+Cheers!
+Konrad
 > 
 > Serialize device and port open and initialization.  Added a mutex
 > which gates the handling of control messages in virtio_console.c.
@@ -45,20 +61,8 @@ On Thu, Oct 27, 2011 at 11:39:53AM -0700, Miche Baker-Harvey wrote:
 > there. The console struct is remembered in the hvc_struct, and it is
 > deallocated when the hvc_struct is deallocated.
 > 
-> ------------------
-> 
-> Konrad, thanks for trying this out on Xen.
-
-And you can stick
-
-Reported-by-and-Tested-by: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-
-
-> This is working in my KVM environment, letting me start multiple
-> virtio_consoles with getty's on them, but I'm really not sure how
-> all the console pieces fit together yet.  Feedback is welcome.
-> 
 > Signed-off-by: Miche Baker-Harvey <miche@google.com>
+> Reported-by-and-Tested-by: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
 > ---
 >  drivers/char/virtio_console.c |   22 +++++++++++++++++++---
 >  drivers/tty/hvc/hvc_console.c |   39 +++++++++++++++++++++++++++++++++------
@@ -264,9 +268,3 @@ Reported-by-and-Tested-by: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
 >  	struct list_head next;
 > -- 
 > 1.7.3.1
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
