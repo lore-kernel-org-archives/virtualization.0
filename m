@@ -1,7 +1,7 @@
 From: Miche Baker-Harvey <miche@google.com>
 Subject: [PATCH] VirtioConsole support.
-Date: Thu, 27 Oct 2011 11:39:53 -0700
-Message-ID: <1319740793-2187-1-git-send-email-miche__17413.5048095652$1321323083$gmane$org@google.com>
+Date: Thu, 27 Oct 2011 14:43:22 -0700
+Message-ID: <1319751802-27013-1-git-send-email-miche__17451.6704203144$1321323087$gmane$org@google.com>
 References: <20111027173527.GA23839@phenom.dumpdata.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -42,14 +42,8 @@ disasterous since both the index and the flags for the console are stored
 there. The console struct is remembered in the hvc_struct, and it is
 deallocated when the hvc_struct is deallocated.
 
-------------------
-
-Konrad, thanks for trying this out on Xen.
-This is working in my KVM environment, letting me start multiple
-virtio_consoles with getty's on them, but I'm really not sure how
-all the console pieces fit together yet.  Feedback is welcome.
-
 Signed-off-by: Miche Baker-Harvey <miche@google.com>
+Reported-by-and-Tested-by: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
 ---
  drivers/char/virtio_console.c |   22 +++++++++++++++++++---
  drivers/tty/hvc/hvc_console.c |   39 +++++++++++++++++++++++++++++++++------
