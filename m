@@ -1,74 +1,58 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/1] Staging: hv: mousevsc: Move the mouse driver out of
- staging
-Date: Wed, 26 Oct 2011 21:31:20 -0700
-Message-ID: <20111027043120.GA15725@core.coreip.homeip.net>
-References: <1318658907-16698-1-git-send-email-kys@microsoft.com>
- <20111023072427.GA13268@core.coreip.homeip.net>
- <6E21E5352C11B742B20C142EB499E0481AA3369B@TK5EX14MBXC126.redmond.corp.microsoft.com>
- <20111027000926.GB6804@core.coreip.homeip.net>
- <6E21E5352C11B742B20C142EB499E0481AA51BAB@TK5EX14MBXC122.redmond.corp.microsoft.com>
+From: Avi Kivity <avi@redhat.com>
+Subject: Re: [PATCH RFC V2 3/5] kvm hypervisor : Add two hypercalls to support
+	pv-ticketlock
+Date: Thu, 27 Oct 2011 12:17:15 +0200
+Message-ID: <4EA92FAB.1050607@redhat.com>
+References: <20111023190307.16364.35381.sendpatchset@oc5400248562.ibm.com>
+	<20111023190558.16364.2136.sendpatchset@oc5400248562.ibm.com>
+	<4EA53A7D.300@redhat.com>
+	<20111024122734.GA10634@linux.vnet.ibm.com>
+	<4EA56385.9040302@redhat.com>
+	<20111024135032.GB10634@linux.vnet.ibm.com>
+	<4EA6FEC2.1060209@linux.vnet.ibm.com> <4EA7E21B.8020805@redhat.com>
+	<4EA85A9D.5060203@linux.vnet.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <6E21E5352C11B742B20C142EB499E0481AA51BAB@TK5EX14MBXC122.redmond.corp.microsoft.com>
-Sender: linux-input-owner@vger.kernel.org
-To: KY Srinivasan <kys@microsoft.com>
-Cc: "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Haiyang Zhang <haiyangz@microsoft.com>, Jiri Kosina <jkosina@suse.cz>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <4EA85A9D.5060203@linux.vnet.ibm.com>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Raghavendra K T <raghukt@linux.vnet.ibm.com>
+Cc: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, KVM <kvm@vger.kernel.org>, Peter Zijlstra <peterz@infradead.org>, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, "H. Peter Anvin" <hpa@zytor.com>, Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, Dave Jiang <dave.jiang@intel.com>, x86@kernel.org, Ingo Molnar <mingo@redhat.com>, Rik van Riel <riel@redhat.com>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Xen <xen-devel@lists.xensource.com>, Sedat Dilek <sedat.dilek@gmail.com>, Thomas Gleixner <tglx@linutronix.de>, Virtualization <virtualization@lists.linux-foundation.org>, Yinghai Lu <yinghai@kernel.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Greg Kroah-Hartman <gregkh@suse.de>, LKML <linux-kernel@vger.kernel.org>, Suzuki Poulose <suzuki@linux.vnet.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Oct 27, 2011 at 01:19:50AM +0000, KY Srinivasan wrote:
-> 
-> 
-> > -----Original Message-----
-> > From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com]
-> > Sent: Wednesday, October 26, 2011 8:09 PM
-> > To: KY Srinivasan
-> > Cc: gregkh@suse.de; linux-kernel@vger.kernel.org;
-> > devel@linuxdriverproject.org; virtualization@lists.osdl.org; linux-
-> > input@vger.kernel.org; Haiyang Zhang; Jiri Kosina
-> > Subject: Re: [PATCH 1/1] Staging: hv: mousevsc: Move the mouse driver out of
-> > staging
-> > 
-> > On Sun, Oct 23, 2011 at 03:45:14PM +0000, KY Srinivasan wrote:
-> > > > > +
-> > > > > +	t = wait_for_completion_timeout(&input_dev->wait_event, 5*HZ);
-> > > > > +	if (t == 0) {
-> > > > > +		ret = -ETIMEDOUT;
-> > > > > +		goto cleanup;
-> > > > > +	}
-> > > > > +
-> > > > > +	response = &input_dev->protocol_resp;
-> > > > > +
-> > > > > +	if (!response->response.approved) {
-> > > > > +		pr_err("synthhid protocol request failed (version %d)",
-> > > > > +		       SYNTHHID_INPUT_VERSION);
-> > > > > +		ret = -ENODEV;
-> > > > > +		goto cleanup;
-> > > > > +	}
-> > > > > +
-> > > > > +	t = wait_for_completion_timeout(&input_dev->wait_event, 5*HZ);
-> > > >
-> > > > We just completed the wait for this completion, why are we waiting on
-> > > > the same completion again?
-> > >
-> > > In response to our initial query, we expect the host to respond back with two
-> > > distinct pieces of information; we wait for both these responses.
-> > 
-> > I think you misunderstand how completion works in Linux. IIRC about
-> > Windows events they are different ;) You can not signal completion
-> > several times and then expect to wait corrsponding number of times. Once
-> > you signal completion is it, well, complete.
-> 
-> Looking at the code for complete(), it looks like the "done" state is incremented
-> each time complete() is invoked and  the  code for do_wait_for_common() decrements the 
-> done state each time it is invoked (if the completion is properly signaled and we are not dealing
-> with a timeout. So, what am I missing here.
+On 10/26/2011 09:08 PM, Raghavendra K T wrote:
+> On 10/26/2011 04:04 PM, Avi Kivity wrote:
+>> On 10/25/2011 08:24 PM, Raghavendra K T wrote:
+> CCing Ryan also
+>>>
+>>> So then do also you foresee the need for directed yield at some point,
+>>> to address LHP? provided we have good improvements to prove.
+>>
+>> Doesn't this patchset completely eliminate lock holder preemption?
+>>
+> Basically I was curious whether we can do more better with your
+> directed yield discussions in https://lkml.org/lkml/2010/8/2/106 .
+>
+> I felt we can get little more improvement with doing directed yield to
+> lock-holder in case of LHP than sleeping. But I may be wrong.
+>
+> So wanted to get the feedback, on whether I am thinking in right
+> direction.
 
-Hmm, you are right. I am not sure why I thought that completion has to
-be re-initialized before it can be reused... I guess this is true only
-if one uses complete_all().
+i guess donating some time to the lock holder could help, but not by
+much. The problem with non-pv spinlocks is that you can't just sleep,
+since no one will wake you up, so you have to actively boost the lock
+holder.
 
 -- 
-Dmitry
+I have a truly marvellous patch that fixes the bug which this
+signature is too narrow to contain.
