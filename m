@@ -1,22 +1,24 @@
-From: Joe Perches <joe@perches.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Subject: Re: [PATCH 1/6] Staging: hv: mousevsc: Make  boolean states  boolean
-Date: Wed, 26 Oct 2011 16:59:41 -0700
-Message-ID: <1319673581.21924.31.camel@Joe-Laptop>
+Date: Wed, 26 Oct 2011 17:03:43 -0700
+Message-ID: <20111027000342.GA6804@core.coreip.homeip.net>
 References: <1319588311-9935-1-git-send-email-kys@microsoft.com>
-	 <1319588392-9982-1-git-send-email-kys@microsoft.com>
-	 <1319587427.14932.7.camel@Joe-Laptop> <20111026060742.GA19973@suse.de>
-	 <1319669211.21924.16.camel@Joe-Laptop> <20111026235054.GA31883@suse.de>
+ <1319588392-9982-1-git-send-email-kys@microsoft.com>
+ <1319587427.14932.7.camel@Joe-Laptop>
+ <20111026060742.GA19973@suse.de>
+ <1319669211.21924.16.camel@Joe-Laptop>
+ <20111026235054.GA31883@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
 In-Reply-To: <20111026235054.GA31883@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Greg KH <gregkh@suse.de>
-Cc: Haiyang Zhang <haiyangz@microsoft.com>, dmitry.torokhov@gmail.com, ohering@suse.com, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org, devel@linuxdriverproject.org
+Cc: Joe Perches <joe@perches.com>, Haiyang Zhang <haiyangz@microsoft.com>, ohering@suse.com, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org, devel@linuxdriverproject.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 2011-10-27 at 01:50 +0200, Greg KH wrote:
+On Thu, Oct 27, 2011 at 01:50:54AM +0200, Greg KH wrote:
 > On Wed, Oct 26, 2011 at 03:46:51PM -0700, Joe Perches wrote:
 > > On Wed, 2011-10-26 at 08:07 +0200, Greg KH wrote:
 > > > On Tue, Oct 25, 2011 at 05:03:47PM -0700, Joe Perches wrote:
@@ -42,24 +44,30 @@ On Thu, 2011-10-27 at 01:50 +0200, Greg KH wrote:
 > > > > > +	bool			connected;
 > > > > >  	struct hid_device       *hid_device;
 > > > > >  };
+> > > > 
 > > > > One of the bools should be moved to be adjacent to the other.
 > > > For a mouse driver, it really doesn't matter.
+> > 
 > > 'course it doesn't matter, just like whitespace
 > > doesn't matter.  It's just done for form's sake.
+> 
 > Not at all.
+> 
 > Whitespace does matter, there is documented proof of that.
+> 
 > The fact that you want to move a bool to a different part of a structure
 > really is only your personal choice.  It doesn't matter for size or
 > layout to make this code work better at all to do this.
 
-Just as what you suggest is your opinion.
+It is a good practice to try minimizing footprint though. While it might
+not matter much in this particular driver we should still try to produce
+best code we can as it is often taken as source for new drivers.
 
-Whether or not 4 or 8 extra/wasted bytes in
-a struct is important or not is arguable.
+> 
+> This is your personal opinion only, please don't construe it as anything
+> else.
 
-I think disaggregating bools is akin to
-disaggregating bitfields.
+Same could be said about the email I am replying to.
 
-Not necessarily wrong, just odd.
-
-cheers, Joe
+-- 
+Dmitry
