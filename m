@@ -1,73 +1,73 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/6] Staging: hv: mousevsc: Make  boolean states  boolean
-Date: Wed, 26 Oct 2011 17:03:43 -0700
-Message-ID: <20111027000342.GA6804@core.coreip.homeip.net>
-References: <1319588311-9935-1-git-send-email-kys@microsoft.com>
- <1319588392-9982-1-git-send-email-kys@microsoft.com>
- <1319587427.14932.7.camel@Joe-Laptop>
- <20111026060742.GA19973@suse.de>
- <1319669211.21924.16.camel@Joe-Laptop>
- <20111026235054.GA31883@suse.de>
+Subject: Re: [PATCH 1/1] Staging: hv: mousevsc: Move the mouse driver out of
+ staging
+Date: Wed, 26 Oct 2011 17:09:27 -0700
+Message-ID: <20111027000926.GB6804@core.coreip.homeip.net>
+References: <1318658907-16698-1-git-send-email-kys@microsoft.com>
+ <20111023072427.GA13268@core.coreip.homeip.net>
+ <6E21E5352C11B742B20C142EB499E0481AA3369B@TK5EX14MBXC126.redmond.corp.microsoft.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20111026235054.GA31883@suse.de>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Greg KH <gregkh@suse.de>
-Cc: Joe Perches <joe@perches.com>, Haiyang Zhang <haiyangz@microsoft.com>, ohering@suse.com, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org, devel@linuxdriverproject.org
+In-Reply-To: <6E21E5352C11B742B20C142EB499E0481AA3369B@TK5EX14MBXC126.redmond.corp.microsoft.com>
+Sender: linux-input-owner@vger.kernel.org
+To: KY Srinivasan <kys@microsoft.com>
+Cc: "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Haiyang Zhang <haiyangz@microsoft.com>, Jiri Kosina <jkosina@suse.cz>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Oct 27, 2011 at 01:50:54AM +0200, Greg KH wrote:
-> On Wed, Oct 26, 2011 at 03:46:51PM -0700, Joe Perches wrote:
-> > On Wed, 2011-10-26 at 08:07 +0200, Greg KH wrote:
-> > > On Tue, Oct 25, 2011 at 05:03:47PM -0700, Joe Perches wrote:
-> > > > On Tue, 2011-10-25 at 17:19 -0700, K. Y. Srinivasan wrote:
-> > > > > Make some state that is boolean in nature, a boolean variable.
-> > > > []
-> > > > > diff --git a/drivers/staging/hv/hv_mouse.c b/drivers/staging/hv/hv_mouse.c
-> > > > []
-> > > > @@ -148,7 +148,7 @@ struct  mousevsc_prt_msg {
-> > > > >   */
-> > > > >  struct mousevsc_dev {
-> > > > >  	struct hv_device	*device;
-> > > > > -	unsigned char		init_complete;
-> > > > > +	bool			init_complete;
-> > > > >  	struct mousevsc_prt_msg	protocol_req;
-> > > > >  	struct mousevsc_prt_msg	protocol_resp;
-> > > > >  	/* Synchronize the request/response if needed */
-> > > > > @@ -159,7 +159,7 @@ struct mousevsc_dev {
-> > > > >  	unsigned char		*report_desc;
-> > > > >  	u32			report_desc_size;
-> > > > >  	struct hv_input_dev_info hid_dev_info;
-> > > > > -	int			connected;
-> > > > > +	bool			connected;
-> > > > >  	struct hid_device       *hid_device;
-> > > > >  };
-> > > > 
-> > > > One of the bools should be moved to be adjacent to the other.
-> > > For a mouse driver, it really doesn't matter.
+On Sun, Oct 23, 2011 at 03:45:14PM +0000, KY Srinivasan wrote:
+> > > +
+> > > +	t = wait_for_completion_timeout(&input_dev->wait_event, 5*HZ);
+> > > +	if (t == 0) {
+> > > +		ret = -ETIMEDOUT;
+> > > +		goto cleanup;
+> > > +	}
+> > > +
+> > > +	response = &input_dev->protocol_resp;
+> > > +
+> > > +	if (!response->response.approved) {
+> > > +		pr_err("synthhid protocol request failed (version %d)",
+> > > +		       SYNTHHID_INPUT_VERSION);
+> > > +		ret = -ENODEV;
+> > > +		goto cleanup;
+> > > +	}
+> > > +
+> > > +	t = wait_for_completion_timeout(&input_dev->wait_event, 5*HZ);
 > > 
-> > 'course it doesn't matter, just like whitespace
-> > doesn't matter.  It's just done for form's sake.
+> > We just completed the wait for this completion, why are we waiting on
+> > the same completion again?
 > 
-> Not at all.
-> 
-> Whitespace does matter, there is documented proof of that.
-> 
-> The fact that you want to move a bool to a different part of a structure
-> really is only your personal choice.  It doesn't matter for size or
-> layout to make this code work better at all to do this.
+> In response to our initial query, we expect the host to respond back with two
+> distinct pieces of information; we wait for both these responses.
 
-It is a good practice to try minimizing footprint though. While it might
-not matter much in this particular driver we should still try to produce
-best code we can as it is often taken as source for new drivers.
+I think you misunderstand how completion works in Linux. IIRC about
+Windows events they are different ;) You can not signal completion
+several times and then expect to wait corrsponding number of times. Once
+you signal completion is it, well, complete.
 
-> 
-> This is your personal opinion only, please don't construe it as anything
-> else.
+>  
+> > 
+> > > +	if (t == 0) {
+> > > +		ret = -ETIMEDOUT;
+> > > +		goto cleanup;
+> > > +	}
+> > > +
+> > > +	/*
+> > > +	 * We should have gotten the device attr, hid desc and report
+> > > +	 * desc at this point
+> > > +	 */
+> > > +	if (input_dev->dev_info_status)
+> > > +		ret = -ENOMEM;
+> > 
+> > -ENOMEM seems wrong.
+> > 
+> There are many failures here and not being able to allocate memory is the 
+> primary one; and so I chose to capture that.
 
-Same could be said about the email I am replying to.
+Any chance that these failures have their own exit paths?
+
+Thanks.
 
 -- 
 Dmitry
