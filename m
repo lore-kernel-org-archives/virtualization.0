@@ -1,77 +1,35 @@
-From: KY Srinivasan <kys@microsoft.com>
-Subject: RE: [PATCH 1/1] Staging: hv: storvsc: Move the storage driver out
- of staging
-Date: Fri, 28 Oct 2011 23:10:40 +0000
-Message-ID: <6E21E5352C11B742B20C142EB499E0481AA542D1@TK5EX14MBXC122.redmond.corp.microsoft.com>
-References: <1318660132-21529-1-git-send-email-kys@microsoft.com>
-	 <1318714047.7271.49.camel@dabdike.int.hansenpartnership.com>
-	 <6E21E5352C11B742B20C142EB499E0481AA0FED0@TK5EX14MBXC128.redmond.corp.microsoft.com>
-	 <1318859976.4794.8.camel@dabdike.int.hansenpartnership.com>
-	 <6E21E5352C11B742B20C142EB499E0481AA15174@TK5EX14MBXC124.redmond.corp.microsoft.com>
- <1318865202.4794.21.camel@dabdike.int.hansenpartnership.com>
+From: Greg KH <greg@kroah.com>
+Subject: Re: [PATCH 0/3] Staging: hv: mousevsc: cleanup the mouse driver
+Date: Sat, 29 Oct 2011 06:49:52 +0200
+Message-ID: <20111029044952.GA1061@kroah.com>
+References: <1319839847-28959-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1318865202.4794.21.camel@dabdike.int.hansenpartnership.com>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <1319839847-28959-1-git-send-email-kys@microsoft.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: James Bottomley <James.Bottomley@HansenPartnership.com>
-Cc: "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, "ohering@suse.com" <ohering@suse.com>, "linux-scsi@vger.kernel.org" <linux-scsi@vger.kernel.org>, "hch@infradead.org" <hch@infradead.org>, Haiyang Zhang <haiyangz@microsoft.com>"Christoph Hellwig (hch@infradead.org)" <hch@infradead.org>
+To: "K. Y. Srinivasan" <kys@microsoft.com>
+Cc: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org, ohering@suse.com, joe@perches.com, dmitry.torokhov@gmail.com, jkosina@suse.cz
 List-Id: virtualization@lists.linuxfoundation.org
 
-DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogSmFtZXMgQm90dG9tbGV5
-IFttYWlsdG86SmFtZXMuQm90dG9tbGV5QEhhbnNlblBhcnRuZXJzaGlwLmNvbV0NCj4gU2VudDog
-TW9uZGF5LCBPY3RvYmVyIDE3LCAyMDExIDExOjI3IEFNDQo+IFRvOiBLWSBTcmluaXZhc2FuDQo+
-IENjOiBncmVna2hAc3VzZS5kZTsgbGludXgta2VybmVsQHZnZXIua2VybmVsLm9yZzsNCj4gZGV2
-ZWxAbGludXhkcml2ZXJwcm9qZWN0Lm9yZzsgdmlydHVhbGl6YXRpb25AbGlzdHMub3NkbC5vcmc7
-IG9oZXJpbmdAc3VzZS5jb207DQo+IGxpbnV4LXNjc2lAdmdlci5rZXJuZWwub3JnOyBoY2hAaW5m
-cmFkZWFkLm9yZzsgSGFpeWFuZyBaaGFuZw0KPiBTdWJqZWN0OiBSRTogW1BBVENIIDEvMV0gU3Rh
-Z2luZzogaHY6IHN0b3J2c2M6IE1vdmUgdGhlIHN0b3JhZ2UgZHJpdmVyIG91dCBvZg0KPiBzdGFn
-aW5nDQo+IA0KPiBPbiBNb24sIDIwMTEtMTAtMTcgYXQgMTU6MTUgKzAwMDAsIEtZIFNyaW5pdmFz
-YW4gd3JvdGU6DQo+IA0KPiA+IEFzIEkgZGVhbCB3aXRoIHRoZSByZXZpZXcgY29tbWVudHMgbm93
-LCBkbyB5b3Ugd2FudCBtZSB0byBnZXQgdGhlc2UNCj4gPiBjaGFuZ2VzDQo+ID4gYXBwbGllZCBm
-aXJzdCB0byBHcmVnJ3MgdHJlZSBiZWZvcmUgeW91IHdvdWxkIGNvbnNpZGVyIG1vdmluZyB0aGlz
-DQo+ID4gZHJpdmVyIHRvIGRyaXZlcnMvc2NzaQ0KPiA+IGRpcmVjdG9yeSwgb3IgY291bGQgeW91
-IG1vdmUgdGhlIGRyaXZlciBhcyBpdCBpcyBpbiBHcmVnJ3MgdHJlZSB1bmRlcg0KPiA+IHN0YWdp
-bmcgYW5kIEkgY291bGQgZ2l2ZQ0KPiA+IHlvdSBwYXRjaGVzIGFnYWluc3QgdGhlIG1vdmVkIGRy
-aXZlci4NCj4gDQo+IEVpdGhlciB3YXkgaXMgZmluZSBieSBtZS4gIFRoZSBiZXN0IHJvdXRlIGZv
-ciB0aGlzIGlzIHRvIGdldCB0aGUgc3RhZ2luZw0KPiB1cGRhdGUgaW50byBMaW51cyBoZWFkLCB0
-aGVuIHdvcmsgb24gdGhlIGFjdHVhbCBTQ1NJIHByb2JsZW1zLiAgSSdkIGxpa2UNCj4gb3RoZXIg
-U0NTSSBwZW9wbGUgYmVzaWRlcyBtZSB0byByZXZpZXcgaXQuDQoNCkNocmlzdG9waCBoYWQgcmV2
-aWV3ZWQgdGhpcyBjb2RlIHNvbWV0aW1lIGJhY2sgYW5kIEkgdGhpbmsgSSBoYXZlIGFkZHJlc3Nl
-ZCB0aGUNCmlzc3VlcyBoZSBoYWQgcmFpc2VkLiBUaGVzZSBwYXRjaGVzIGhhdmUgYWxyZWFkeSBi
-ZWVuIGFwcGxpZWQgYnkgR3JlZyB0byBoaXMNCnN0YWdpbmcgdHJlZS4NCg0KPiANCj4gPiA+IE9L
-LCBzbyBhcyBJIHJlYWQgdGhlIGNvZGUsIHdoYXQgaXQgY2FuJ3QgaGFuZGxlIGlzIGZyYWdtZW50
-cyBleGNlcHQgYXQNCj4gPiA+IHRoZSBlbmRzLiAgQXMgbG9uZyBhcyBldmVyeXRoaW5nIGFsd2F5
-cyB0cmFuc2ZlcnMgaW4gbXVsdGlwbGVzIG9mIDRrLA0KPiA+ID4gdGhlIHByb2JsZW0gd2lsbCBu
-ZXZlciBvY2N1ci4gIFRoaXMgbWVhbnMgdGhhdCBhbGwgZGV2aWNlcyB5b3UgcHJlc2VudA0KPiA+
-ID4gbmVlZCB0byB0ZWxsIHRoZSBPUyB0aGV5IGhhdmUgNGsgc2VjdG9ycy4gIEkgKnRoaW5rKiB5
-b3UgY2FuIGRvIHRoaXMgYnkNCj4gPiA+IHNldHRpbmcgIGJsa19saW1pdHNfaW9fbWluKCkgaW4g
-dGhlIGRyaXZlciAuLi4gYnV0IHlvdSdsbCBoYXZlIHRvIHRlc3QNCj4gPiA+IHRoaXMuICBUaGUg
-bWluaW11bSBzZWN0b3Igc2l6ZSBnZXRzIHNldCBhbHNvIGluIHNkLmMgd2hlbiB3ZSBwcm9iZSB0
-aGUNCj4gPiA+IGRpc2suICBJIHRoaW5rIHRoYXQgd29uJ3Qgb3ZlcnJpZGUgYmxrX2xpbWl0c19p
-b19taW4oKSwgYnV0IHBsZWFzZSB0ZXN0DQo+ID4gPiAod2UgZG9uJ3QgaGF2ZSBhbnkgU0NTSSBk
-cml2ZXJzIHdoaWNoIGhhdmUgZXZlciB1c2VkIHRoaXMgc2V0dGluZykuDQo+ID4gPg0KPiA+ID4g
-VGhlIHdheSB0byB0ZXN0LCBpcyB0byByZWFkIGJhY2sgdGhlIC9zeXMvYmxvY2svPGRldj4vcXVl
-dWUvIHNldHRpbmdzDQo+ID4gPiB3aGVuIHByZXNlbnRpbmcgYSA1MTIgYnl0ZSBzZWN0b3IgZGlz
-ay4gIChBbmQgdGhlIHdheSB0byBhY3RpdmF0ZSB5b3VyDQo+ID4gPiBib3VuY2UgY29kZSB3b3Vs
-ZCBiZSB0byBjcmVhdGUgYSBmaWxlc3lzdGVtIHdpdGggYSA8IFBBR0VfU0laRSBibG9jaw0KPiA+
-ID4gc2l6ZSkuDQo+IA0KPiA+ICBJbiBhbnkgZXZlbnQsIEkgd2lsbCB0cnkgeW91ciBzdWdnZXN0
-aW9uIHRob3VnaC4NCj4gDQo+IEp1c3QgdG8gYmUgY2xlYXI6IFNldHRpbmcgdGhlIG1pbmltdW0g
-SS9PIHNpemUgaXMgY29tcGxldGVseSB3ZWxsDQo+IHRlc3RlZDogaXQncyBob3cgd2UgaGFuZGxl
-IDRrIHNlY3RvciBkcml2ZXMuICBXaGF0IGhhc24ndCBiZWVuIHRlc3RlZCBpcw0KPiB0aGUgYWJp
-bGl0eSBvZiB0aGUgKmRyaXZlciogdG8gZW5mb3JjZSB0aGUgbWluaW11bSB1c2luZw0KPiBibGtf
-bGltaXRzX2lvX21pbigpLiAgQXMgbG9uZyBhdCB0aGF0IGRvZXNuJ3QgZ2V0IG92ZXJyaWRkZW4g
-Ynkgc2Qgd2hlbg0KPiBpdCBzZWVzIGEgNTEyYiBkcml2ZSwgdGhlIHJlc3Qgb2YgdGhlIGJsb2Nr
-IHBhdGhzICh0aG9zZSB3aGljaCBhY3R1YWxseQ0KPiBlbmZvcmNlIHRoZSBtaW5pbXVtKSBoYXZl
-IGFsbCBiZWVuIHdlbGwgdGVzdGVkLg0KPg0KIA0KSmFtZXMsIEkgdXNlZCB0aGUgYmxrX2xpbWl0
-c19pb19taW4oKSB0byA0ayBhbmQgeWV0IEkgc2VlIEkvTyByZXF1ZXN0cyBjb21pbmcgaW4NCnRv
-IHRoZSBkcml2ZXIgdGhhdCBuZWVkIHRvIGJlIGhhbmRsZWQgd2l0aCB0aGUgYm91bmNlIGJ1ZmZl
-cnMuIFNvIEkgYW0gbm90IHF1aXRlDQpzdXJlIGhvdyB0byBhdm9pZCBoYXZpbmcgdGhlIGJvdW5j
-ZSBidWZmZXIgaGFuZGxpbmcgY29kZS4gVGhpcyBpcyB3aXRoIGEgZmlsZSBzeXN0ZW0NCndpdGgg
-MmsgYmxvY2sgc2l6ZS4NCg0KT3RoZXIgdGhhbiB0aGlzLCBJIGhhdmUgYWRkcmVzc2VkIGFsbCBv
-ZiB5b3VyIG90aGVyIGNvbW1lbnRzLiBJIGFtIGdvaW5nIHRvIHNlbmQgdGhlc2UNCnBhdGNoZXMg
-b3V0IHRvIHRoZSBzdGFnaW5nIHRyZWUuIERvIHlvdSB3YW50IG1lIHRvIHNlbmQgb3V0IGEgcGF0
-Y2ggbW92aW5nIHRoZSBkcml2ZXINCm91dCBvZiBzdGFnaW5nIGZvciB5b3VyIHJldmlldyBhcyB3
-ZWxsLiBMZXQgbWUga25vdy4NCg0KUmVnYXJkcywNCg0KSy4gWSANCiAgIA0KDQo=
+On Fri, Oct 28, 2011 at 03:10:47PM -0700, K. Y. Srinivasan wrote:
+> Further cleanup to move the mouse driver out of staging. 
+> This patch-set addresses the comments I have  received from Jiri, Joe and Greg.
+> Thank you for taking the time to review the code.
+
+Please note, all of this work is too late for the 3.2 merge, as it
+needed to be completed weeks ago for that to happen.  And, as we are in
+the middle of the merge, our time allocated to reviewing new patches is
+quite limited.
+
+So you might have a lot better success in just waiting a few weeks so
+that we then have the time to review and address all of these cleanup
+patches and requests to move the hyperv drivers.
+
+I know I'm not going to be accepting any such patches from anyone other
+than pure-bugfixes for the next 2-3 weeks at the least.
+
+thanks,
+
+greg k-h
