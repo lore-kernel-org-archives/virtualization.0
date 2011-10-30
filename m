@@ -1,57 +1,153 @@
-From: KY Srinivasan <kys@microsoft.com>
-Subject: RE: [PATCH 1/1] Staging: hv: Move the mouse driver out of staging
-Date: Sun, 30 Oct 2011 16:16:48 +0000
-Message-ID: <6E21E5352C11B742B20C142EB499E0481AA544E6@TK5EX14MBXC122.redmond.corp.microsoft.com>
-References: <1319841316-29136-1-git-send-email-kys@microsoft.com>
- <alpine.LNX.2.00.1110290041500.31615@swampdragon.chaosbits.net>
- <20111029063240.GH14881@longonot.mountain>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCHv4] virtio-blk: use ida to allocate disk index
+Date: Sun, 30 Oct 2011 21:29:59 +0200
+Message-ID: <20111030192959.GA31143@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20111029063240.GH14881@longonot.mountain>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dan Carpenter <dan.carpenter@oracle.com>, Jesper Juhl <jj@chaosbits.net>
-Cc: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "jkosina@suse.cz" <jkosina@suse.cz>, "gregkh@suse.de" <gregkh@suse.de>, "ohering@suse.com" <ohering@suse.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, "joe@perches.com" <joe@perches.com>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Jens Axboe <axboe@kernel.dk>
+Cc: kvm@vger.kernel.org, Greg Kroah-Hartman <gregkh@suse.de>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Tejun Heo <tj@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
+Based on a patch by Mark Wu <dwu@redhat.com>
 
+Current index allocation in virtio-blk is based on a monotonically
+increasing variable "index". This means we'll run out of numbers
+after a while.  It also could cause confusion about the disk
+name in the case of hot-plugging disks.
+Change virtio-blk to use ida to allocate index, instead.
 
-> -----Original Message-----
-> From: Dan Carpenter [mailto:dan.carpenter@oracle.com]
-> Sent: Saturday, October 29, 2011 2:33 AM
-> To: Jesper Juhl
-> Cc: KY Srinivasan; dmitry.torokhov@gmail.com; jkosina@suse.cz;
-> gregkh@suse.de; ohering@suse.com; linux-kernel@vger.kernel.org;
-> virtualization@lists.osdl.org; joe@perches.com; devel@linuxdriverproject.org
-> Subject: Re: [PATCH 1/1] Staging: hv: Move the mouse driver out of staging
-> 
-> On Sat, Oct 29, 2011 at 12:54:34AM +0200, Jesper Juhl wrote:
-> > > +			default:
-> > > +				pr_err("unhandled packet type %d, tid %llx len
-> %d\n",
-> > > +				   desc->type,
-> > > +				   req_id,
-> > > +				   bytes_recvd);
-> >
-> > Why not:
-> >
-> >                                 pr_err("unhandled packet type %d, tid %llx
-> >                                        len %d\n", desc->type, req_id, bytes_recvd);
-> 
-> Because then the printk would be messed up?  Your final printed
-> string would look like:
-> 
-> "unhandled packet type %d, tid %llx
->                                        len %d\n"
-> 
-> Don't break strings up across lines because it breaks grep.  If K. Y.
-> wants to put all the parameters on one line instead of three that
-> would probably be better, but in the end who cares?
-> 
-Thanks Dan.
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
 
-Regards,
+Changes from Mark's versions:
+ use the new ida_simple_get
+ error handling cleanup
+ fix user after free
 
-K. Y
+Works fine for me.
+
+Jens, could you merge this for 3.2?
+That is, unless Rusty complains shortly ...
+
+ drivers/block/virtio_blk.c |   30 ++++++++++++++++++++++++------
+ 1 files changed, 24 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+index 079c088..e7a5750 100644
+--- a/drivers/block/virtio_blk.c
++++ b/drivers/block/virtio_blk.c
+@@ -8,10 +8,13 @@
+ #include <linux/scatterlist.h>
+ #include <linux/string_helpers.h>
+ #include <scsi/scsi_cmnd.h>
++#include <linux/idr.h>
+ 
+ #define PART_BITS 4
+ 
+-static int major, index;
++static int major;
++static DEFINE_IDA(vd_index_ida);
++
+ struct workqueue_struct *virtblk_wq;
+ 
+ struct virtio_blk
+@@ -35,6 +38,9 @@ struct virtio_blk
+ 	/* What host tells us, plus 2 for header & tailer. */
+ 	unsigned int sg_elems;
+ 
++	/* Ida index - used to track minor number allocations. */
++	int index;
++
+ 	/* Scatterlist: can be too big for stack. */
+ 	struct scatterlist sg[/*sg_elems*/];
+ };
+@@ -276,6 +282,11 @@ static int index_to_minor(int index)
+ 	return index << PART_BITS;
+ }
+ 
++static int minor_to_index(int minor)
++{
++	return minor >> PART_BITS;
++}
++
+ static ssize_t virtblk_serial_show(struct device *dev,
+ 				struct device_attribute *attr, char *buf)
+ {
+@@ -341,14 +352,17 @@ static int __devinit virtblk_probe(struct virtio_device *vdev)
+ {
+ 	struct virtio_blk *vblk;
+ 	struct request_queue *q;
+-	int err;
++	int err, index;
+ 	u64 cap;
+ 	u32 v, blk_size, sg_elems, opt_io_size;
+ 	u16 min_io_size;
+ 	u8 physical_block_exp, alignment_offset;
+ 
+-	if (index_to_minor(index) >= 1 << MINORBITS)
+-		return -ENOSPC;
++	err = ida_simple_get(&vd_index_ida, 0, minor_to_index(1 << MINORBITS),
++			     GFP_KERNEL);
++	if (err < 0)
++		goto out;
++	index = err;
+ 
+ 	/* We need to know how many segments before we allocate. */
+ 	err = virtio_config_val(vdev, VIRTIO_BLK_F_SEG_MAX,
+@@ -365,7 +379,7 @@ static int __devinit virtblk_probe(struct virtio_device *vdev)
+ 				    sizeof(vblk->sg[0]) * sg_elems, GFP_KERNEL);
+ 	if (!vblk) {
+ 		err = -ENOMEM;
+-		goto out;
++		goto out_free_index;
+ 	}
+ 
+ 	INIT_LIST_HEAD(&vblk->reqs);
+@@ -421,7 +435,7 @@ static int __devinit virtblk_probe(struct virtio_device *vdev)
+ 	vblk->disk->private_data = vblk;
+ 	vblk->disk->fops = &virtblk_fops;
+ 	vblk->disk->driverfs_dev = &vdev->dev;
+-	index++;
++	vblk->index = index;
+ 
+ 	/* configure queue flush support */
+ 	if (virtio_has_feature(vdev, VIRTIO_BLK_F_FLUSH))
+@@ -516,6 +530,8 @@ out_free_vq:
+ 	vdev->config->del_vqs(vdev);
+ out_free_vblk:
+ 	kfree(vblk);
++out_free_index:
++	ida_simple_remove(&vd_index_ida, index);
+ out:
+ 	return err;
+ }
+@@ -523,6 +539,7 @@ out:
+ static void __devexit virtblk_remove(struct virtio_device *vdev)
+ {
+ 	struct virtio_blk *vblk = vdev->priv;
++	int index = vblk->index;
+ 
+ 	flush_work(&vblk->config_work);
+ 
+@@ -538,6 +555,7 @@ static void __devexit virtblk_remove(struct virtio_device *vdev)
+ 	mempool_destroy(vblk->pool);
+ 	vdev->config->del_vqs(vdev);
+ 	kfree(vblk);
++	ida_simple_remove(&vd_index_ida, index);
+ }
+ 
+ static const struct virtio_device_id id_table[] = {
+-- 
+1.7.5.53.gc233e
