@@ -1,67 +1,52 @@
 From: KY Srinivasan <kys@microsoft.com>
-Subject: RE: [PATCH 1/1] Staging: hv: Move the mouse driver out of staging
-Date: Sun, 30 Oct 2011 16:16:47 +0000
-Message-ID: <6E21E5352C11B742B20C142EB499E0481AA544DA@TK5EX14MBXC122.redmond.corp.microsoft.com>
-References: <1319645321-9770-1-git-send-email-kys@microsoft.com>
- <alpine.LNX.2.00.1110282026360.3541@pobox.suse.cz>
- <6E21E5352C11B742B20C142EB499E0481AA531D4@TK5EX14MBXC122.redmond.corp.microsoft.com>
- <20111028200315.GA30918@suse.de>
- <6E21E5352C11B742B20C142EB499E0481AA53219@TK5EX14MBXC122.redmond.corp.microsoft.com>
- <alpine.LNX.2.00.1110291904190.3541@pobox.suse.cz>
+Subject: RE: [PATCH 0/3] Staging: hv: mousevsc: cleanup the mouse driver
+Date: Sun, 30 Oct 2011 16:16:48 +0000
+Message-ID: <6E21E5352C11B742B20C142EB499E0481AA544DF@TK5EX14MBXC122.redmond.corp.microsoft.com>
+References: <1319839847-28959-1-git-send-email-kys@microsoft.com>
+ <20111029044952.GA1061@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 8BIT
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <alpine.LNX.2.00.1110291904190.3541@pobox.suse.cz>
+In-Reply-To: <20111029044952.GA1061@kroah.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Greg KH <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, "ohering@suse.com" <ohering@suse.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Greg KH <greg@kroah.com>
+Cc: "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, "ohering@suse.com" <ohering@suse.com>, "joe@perches.com" <joe@perches.com>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "jkosina@suse.cz" <jkosina@suse.cz>
 List-Id: virtualization@lists.linuxfoundation.org
 
 
 
 > -----Original Message-----
-> From: Jiri Kosina [mailto:jkosina@suse.cz]
-> Sent: Saturday, October 29, 2011 1:05 PM
+> From: Greg KH [mailto:greg@kroah.com]
+> Sent: Saturday, October 29, 2011 12:50 AM
 > To: KY Srinivasan
-> Cc: Greg KH; linux-kernel@vger.kernel.org; devel@linuxdriverproject.org;
-> virtualization@lists.osdl.org; ohering@suse.com; Dmitry Torokhov
-> Subject: RE: [PATCH 1/1] Staging: hv: Move the mouse driver out of staging
+> Cc: gregkh@suse.de; linux-kernel@vger.kernel.org;
+> devel@linuxdriverproject.org; virtualization@lists.osdl.org; ohering@suse.com;
+> joe@perches.com; dmitry.torokhov@gmail.com; jkosina@suse.cz
+> Subject: Re: [PATCH 0/3] Staging: hv: mousevsc: cleanup the mouse driver
 > 
-> On Fri, 28 Oct 2011, KY Srinivasan wrote:
+> On Fri, Oct 28, 2011 at 03:10:47PM -0700, K. Y. Srinivasan wrote:
+> > Further cleanup to move the mouse driver out of staging.
+> > This patch-set addresses the comments I have  received from Jiri, Joe and Greg.
+> > Thank you for taking the time to review the code.
 > 
-> > > > > >  obj-$(CONFIG_HID_WACOM)		+= hid-wacom.o
-> > > > > >  obj-$(CONFIG_HID_WALTOP)	+= hid-waltop.o
-> > > > > >  obj-$(CONFIG_HID_WIIMOTE)	+= hid-wiimote.o
-> > > > > > +obj-$(CONFIG_HYPERV_MOUSE)	+= hv_mouse.o
-> > > > >
-> > > > > I'd prefer a bit to follow the current naming of the drivers in
-> > > > > drivers/hid directory ... all the device-specific (vendor-specific)
-> > > > > drivers currently are called hid-<vendor> or similar.
-> > > > >
-> > > > > We could talk about changing this naming scheme, but before we reach
-> any
-> > > > > conclusion on this, I'd prefer this to stay for all drivers if possible.
-> > > >
-> > > > Do you want the driver module to conform to the naming scheme you
-> have?
-> > > > Greg, in the past has resisted changing driver names, but I have no
-> objection
-> > > > to conforming to the naming convention you have.
-> > >
-> > > I recommend following the proper naming scheme.  As this driver is
-> > > auto-loaded when the virtual hardware is seen, the name really doesn't
-> > > matter at all.
-> > >
-> > > So, how about 'hid-hyperv' or 'hid-hv'?
-> >
-> > I will go with hid-hv  if there are no objections.
+> Please note, all of this work is too late for the 3.2 merge, as it
+> needed to be completed weeks ago for that to happen.  And, as we are in
+> the middle of the merge, our time allocated to reviewing new patches is
+> quite limited.
 > 
-> OK by me, thanks.
+> So you might have a lot better success in just waiting a few weeks so
+> that we then have the time to review and address all of these cleanup
+> patches and requests to move the hyperv drivers.
+> 
+> I know I'm not going to be accepting any such patches from anyone other
+> than pure-bugfixes for the next 2-3 weeks at the least.
 
-I am sorry I changed my mind and named it hid-hyperv. The patch I sent out
-has this name. I hope it is ok with you.
+Thanks Greg. I want to be close to being  "first in line" when you are ready to accept patches!
+These patches really have addressed the issues Jiri, you and other found as part
+of the review process. I am hoping Jiri will be able to pick up the patch to move the 
+driver out of staging.
 
 Regards,
 
