@@ -1,13 +1,15 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCHv4] virtio-blk: use ida to allocate disk index
-Date: Tue, 01 Nov 2011 10:25:04 +1030
-Message-ID: <8762j4wwbr.fsf@rustcorp.com.au>
-References: <20111030192959.GA31143@redhat.com> <4EAE48D3.4090504@kernel.dk>
+Subject: Re: [PATCH 0/8] virtio: console: Fixes, cleanups,
+	stats for bytes transferred
+Date: Tue, 01 Nov 2011 10:27:44 +1030
+Message-ID: <8739e8ww7b.fsf@rustcorp.com.au>
+References: <cover.1315985553.git.amit.shah@redhat.com>
+	<20111031101940.GC3557@amit-x200.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4EAE48D3.4090504@kernel.dk>
+In-Reply-To: <20111031101940.GC3557@amit-x200.redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,38 +19,32 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jens Axboe <axboe@kernel.dk>, "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Tejun Heo <tj@kernel.org>, Greg Kroah-Hartman <gregkh@suse.de>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Amit Shah <amit.shah@redhat.com>
+Cc: Juan Quintela <quintela@redhat.com>, Virtualization List <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, 31 Oct 2011 08:05:55 +0100, Jens Axboe <axboe@kernel.dk> wrote:
-> On 2011-10-30 20:29, Michael S. Tsirkin wrote:
-> > Based on a patch by Mark Wu <dwu@redhat.com>
+On Mon, 31 Oct 2011 15:49:40 +0530, Amit Shah <amit.shah@redhat.com> wrote:
+> On (Wed) 14 Sep 2011 [13:06:38], Amit Shah wrote:
+> > Hello,
 > > 
-> > Current index allocation in virtio-blk is based on a monotonically
-> > increasing variable "index". This means we'll run out of numbers
-> > after a while.  It also could cause confusion about the disk
-> > name in the case of hot-plugging disks.
-> > Change virtio-blk to use ida to allocate index, instead.
+> > These patches are mostly cleanups (patches 1, 4, 5, 6, 7).  Patches 2
+> > and 3 fix cases which will be exposed when S4 support is enabled.
 > > 
-> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> > ---
+> > Patch 8 adds stats for bytes received, sent and discarded for each
+> > port.  These are added for debugging data loss issues (rather,
+> > pointing out they don't exist).  Closing a port while data transfer is
+> > ongoing resulted in discarding of any pending data in the vq, which is
+> > the expected case.  Adding these stats just helps showing there's no
+> > data loss, but things are working as they were designed.
 > > 
-> > Changes from Mark's versions:
-> >  use the new ida_simple_get
-> >  error handling cleanup
-> >  fix user after free
-> > 
-> > Works fine for me.
-> > 
-> > Jens, could you merge this for 3.2?
-> > That is, unless Rusty complains shortly ...
+> > Please apply.
 > 
-> Yep, tentatively added.
+> Hey Rusty,
+> 
+> Can you push this series to Linus for 3.2?  Thanks!
 
-Thanks!
+Yep, was going to do it yesterday but spent the day chasing console
+breakage in lguest, but it's not caused by these.
 
-Acked-by: Rusty Russell <rusty@rustcorp.com.au>
-
-Cheers,
+Thanks,
 Rusty.
