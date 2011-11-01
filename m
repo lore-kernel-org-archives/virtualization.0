@@ -1,13 +1,11 @@
-From: Jens Axboe <axboe@kernel.dk>
-Subject: Re: [PATCHv4] virtio-blk: use ida to allocate disk index
-Date: Mon, 31 Oct 2011 08:05:55 +0100
-Message-ID: <4EAE48D3.4090504__47080.6171805181$1321323093$gmane$org@kernel.dk>
-References: <20111030192959.GA31143@redhat.com>
+From: Pawel Moll <pawel.moll@arm.com>
+Subject: Additional virtio-mmio spec changes
+Date: Tue, 01 Nov 2011 13:01:39 +0000
+Message-ID: <1320152499.3287.197.camel__12529.0514472455$1321323094$gmane$org@hornet.cambridge.arm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20111030192959.GA31143@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,33 +15,48 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: kvm@vger.kernel.org, Greg Kroah-Hartman <gregkh@suse.de>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Tejun Heo <tj@kernel.org>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Peter Maydell <Peter.Maydell@ARM.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 2011-10-30 20:29, Michael S. Tsirkin wrote:
-> Based on a patch by Mark Wu <dwu@redhat.com>
-> 
-> Current index allocation in virtio-blk is based on a monotonically
-> increasing variable "index". This means we'll run out of numbers
-> after a while.  It also could cause confusion about the disk
-> name in the case of hot-plugging disks.
-> Change virtio-blk to use ida to allocate index, instead.
-> 
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> ---
-> 
-> Changes from Mark's versions:
->  use the new ida_simple_get
->  error handling cleanup
->  fix user after free
-> 
-> Works fine for me.
-> 
-> Jens, could you merge this for 3.2?
-> That is, unless Rusty complains shortly ...
-
-Yep, tentatively added.
-
--- 
-Jens Axboe
+SGkgUnVzdHksCgpQZXRlciAob24gQ2MpIGdvdCB0aGUgcWVtdSBpbXBsZW1lbnRhdGlvbiB1cCBh
+bmQgcnVubmluZyAodGhhbmtzISkgYW5kCnByb3ZpZGVkIHNvbWUgdXNlZnVsIGZlZWRiYWNrIHJl
+Z2FyZGluZyB0aGUgc3BlYy4gVG8gbWFrZSB0aGUgbG9uZyBzdG9yeQpzaG9ydCwgdGhpcyBpcyB3
+aGF0IGNhbWUgb3V0IG9mIHRoZSBkaXNjdXNzaW9uIChmZWVsIGZyZWUgdG8gY29ycmVjdCBtZQph
+dCBhbnkgcG9pbnQsIFBldGVyIDstKToKCmRpZmYgLS1naXQgYS92aXJ0aW8tc3BlYy5seXggYi92
+aXJ0aW8tc3BlYy5seXgKaW5kZXggNjQyNmY4Zi4uNzlhNjQ5OCAxMDA2NDQKLS0tIGEvdmlydGlv
+LXNwZWMubHl4CisrKyBiL3ZpcnRpby1zcGVjLmx5eApAQCAtNjY4MSw3ICs2NjgxLDkgQEAgcyBv
+biBRdWV1ZU51bSwgUXVldWVBbGlnbiBhbmQgUXVldWVQRk4gYXBwbHkgdG8uCiAKICBXcml0aW5n
+IHRvIHRoaXMgcmVnaXN0ZXIgbm90aWZpZXMgdGhlIEhvc3Qgd2hhdCBzaXplIG9mIHRoZSBxdWV1
+ZSB0aGUgR3Vlc3QKICB3aWxsIHVzZS4KLSBUaGlzIGFwcGxpZXMgdG8gdGhlIHF1ZXVlIHNlbGVj
+dGVkIGJ5IHdyaXRpbmcgdG8gUXVldWVTZWwuCisgVGhpcyBhcHBsaWVzIHRvIHRoZSBxdWV1ZSBz
+ZWxlY3RlZCBieSB3cml0aW5nIHRvIFF1ZXVlU2VsIGFuZCBpcyBhbGxvd2VkCisgb25seSB3aGVu
+IFF1ZXVlUEZOIGlzIHNldCB0byB6ZXJvICgweDApLCBzbyB3aGVuIHRoZSBxdWV1ZSBpcyBub3Qg
+YWN0aXZlbHkKKyB1c2VkLgogIAogXGVuZF9sYXlvdXQKIApAQCAtNjc5MCw4ICs2NzkyLDggQEAg
+VGhpcyBpbnRlcnJ1cHQgaXMgYXNzZXJ0ZWQgd2hlbiBjb25maWd1cmF0aW9uIG9mIHRoZSBkZXZp
+Y2UgaGFzIGNoYW5nZWQuCiAKICBXcml0aW5nIHRvIHRoaXMgcmVnaXN0ZXIgbm90aWZpZXMgdGhl
+IEhvc3QgdGhhdCB0aGUgR3Vlc3QgZmluaXNoZWQgaGFuZGxpbmcKICBpbnRlcnJ1cHRzLgotIEV2
+ZXJ5IGJpdCBvZiB0aGUgdmFsdWUgY2xlYXJzIGNvcnJlc3BvbmRpbmcgYml0IG9mIHRoZSBJbnRl
+cnJ1cHRTdGF0dXMKLSByZWdpc3Rlci4KKyBTZXQgYml0cyBpbiB0aGUgdmFsdWUgY2xlYXIgdGhl
+IGNvcnJlc3BvbmRpbmcgYml0cyBvZiB0aGUKKyBJbnRlcnJ1cHRTdGF0dXMgcmVnaXN0ZXIuCiAg
+CiBcZW5kX2xheW91dAogCkBAIC02OTc1LDcgKzY5NzcsOSBAQCByZWZlcmVuY2UgInN1YjpOb3Rp
+ZnlpbmctVGhlLURldmljZSIKIFxlbmRfbGF5b3V0CiAKIFxiZWdpbl9sYXlvdXQgRW51bWVyYXRl
+Ci1UaGUgbWVtb3J5IG1hcHBlZCB2aXJ0aW8gZGV2aWNlIGlzIHVzaW5nIHNpbmdsZSwgZGVkaWNh
+dGVkIGludGVycnVwdCBzaWduYWwuCitUaGUgbWVtb3J5IG1hcHBlZCB2aXJ0aW8gZGV2aWNlIGlz
+IHVzaW5nIHNpbmdsZSwgZGVkaWNhdGVkIGludGVycnVwdCBzaWduYWwsCisgd2hpY2ggaXMgcmFp
+c2VkIHdoZW4gYXQgbGVhc3Qgb25lIG9mIHRoZSBpbnRlcnJ1cHRzIGRlc2NyaWJlZCBpbiB0aGUK
+KyBJbnRlcnJ1cHRTdGF0dXMgcmVnaXN0ZXIgZGVzY3JpcHRpb24gaXMgYXNzZXJ0ZWQuCiAgQWZ0
+ZXIgcmVjZWl2aW5nIGFuIGludGVycnVwdCwgdGhlIGRyaXZlciBtdXN0IHJlYWQgdGhlIEludGVy
+cnVwdFN0YXR1cwogIHJlZ2lzdGVyIHRvIGNoZWNrIHdoYXQgY2F1c2VkIHRoZSBpbnRlcnJ1cHQg
+KHNlZSB0aGUgcmVnaXN0ZXIgZGVzY3JpcHRpb24pLgogIEFmdGVyIHRoZSBpbnRlcnJ1cHQgaXMg
+aGFuZGxlZCwgdGhlIGRyaXZlciBtdXN0IGFja25vd2xlZGdlIGl0IGJ5IHdyaXRpbmcKCgoKT2Yg
+Y291cnNlIHRob3NlIGNoYW5nZXMgYXJlIG5vdCBjcml0aWNhbCBzbyBjYW4gZWFzaWx5IHdhaXQg
+dGlsbCB0aGUKbmV4dCByZWxlYXNlLiBQZXRlciBhbHNvIG1lbnRpb25lZCB0aGF0IGhlIGRpZG4n
+dCBsaWtlIHRoZSAiTnVtIiBpbgoiUXVldWVOdW0iIHJlZ2lzdGVyIG5hbWUgYW5kIHdvdWxkIHJh
+dGhlciBzZWUgaXQgY2FsbGVkICJRdWV1ZVNpemUiLiBJCmhhdmUgbm8gc3Ryb25nIG9waW5pb25z
+IGVpdGhlciB3YXkgYW5kIGNhbiBwcm92aWRlIHBhdGNoZXMgdG8gYm90aCB0aGUKc3BlYyBhbmQg
+dGhlIGRyaXZlciAoYW5kIGhlYWRlcikgdG8gY2hhbmdlIGl0LiBBbnkgdGhvdWdodHM/CgpDaGVl
+cnMhCgpQYXdlxYIKCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGlu
+dXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxt
+YW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
