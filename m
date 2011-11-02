@@ -1,16 +1,17 @@
-From: Rusty Russell <rusty@ozlabs.org>
-Subject: Re: [PATCH] VirtioConsole support.
-Date: Thu, 03 Nov 2011 08:32:13 +1030
-Message-ID: <87k47itc7u.fsf@rustcorp.com.au>
-References: <20111027173527.GA23839@phenom.dumpdata.com>
-	<1319751802-27013-1-git-send-email-miche@google.com>
-	<1319770558.2529.20.camel@Joe-Laptop>
-	<4EAAF23C.8050102@codeaurora.org>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PULL] virtio
+Date: Thu, 03 Nov 2011 08:37:01 +1030
+Message-ID: <87hb2mtbzu.fsf__9276.78583325378$1320278788$gmane$org@rustcorp.com.au>
+References: <87wrbkvh3v.fsf@rustcorp.com.au>
+	<20111101114542.GA13434@redhat.com>
+	<1320150813.3847.24.camel@lappy>
+	<20111101124223.GA14060@redhat.com>
+	<8739e7uy87.fsf@rustcorp.com.au> <1320209564.9173.6.camel@lappy>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4EAAF23C.8050102@codeaurora.org>
+In-Reply-To: <1320209564.9173.6.camel@lappy>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,18 +21,18 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Stephen Boyd <sboyd@codeaurora.org>, Joe Perches <joe@perches.com>
-Cc: xen-devel@lists.xensource.com, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Greg Kroah-Hartman <gregkh@suse.de>, Miche Baker-Harvey <miche@google.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, Hendrik Brueckner <brueckner@linux.vnet.ibm.com>, Anton Blanchard <anton@samba.org>, Amit Shah <amit.shah@redhat.com>
+To: Sasha Levin <levinsasha928@gmail.com>
+Cc: Krishna Kumar <krkumar2@in.ibm.com>, kvm@vger.kernel.org, Pawel Moll <pawel.moll@arm.com>, "Michael S. Tsirkin" <mst@redhat.com>, Alexey Kardashevskiy <aik@ozlabs.ru>, Wang Sheng-Hui <shhuiw@gmail.com>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, Amit Shah <amit.shah@redhat.com>, Linus Torvalds <torvalds@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 28 Oct 2011 11:19:40 -0700, Stephen Boyd <sboyd@codeaurora.org> wrote:
-> Even better would be kmemdup().
+On Wed, 02 Nov 2011 06:52:44 +0200, Sasha Levin <levinsasha928@gmail.com> wrote:
+> Since the PCI spec allows you to have the MSI-X table and the PBA in
+> completely different regions pointed by two different BARs, we did so in
+> kvm tools and have BAR 1 pointing to the MSI-X table, and BAR 2 pointing
+> to the PBA ( - we *already* provided the second BAR and used it for
+> something else).
 
-OK, this driver is horribly unloved, and ugly.  Noone claims to really
-understand it, but people keep poking it.
+Got it!  Thanks for the explanation.
 
-Ben, Christian, can you figure out what's going on?  Is it time for a
-complete rewrite?
-
-Thanks,
+Cheers,
 Rusty.
