@@ -1,7 +1,8 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH (repost) RFC 1/2] virtio: ISR bit constants
-Date: Wed, 2 Nov 2011 22:11:17 +0200
-Message-ID: <e026e861596585036b766d61da28fbf01b60ce24.1320259840.git.mst@redhat.com>
+Subject: [PATCH (repost) RFC 2/2] virtio-pci: recall and return msix
+	notifications on ISR read
+Date: Wed, 2 Nov 2011 22:11:28 +0200
+Message-ID: <6dc9aa9764b1cfddf557a98f269e0f7d31ce03ac.1320259840.git.mst@redhat.com>
 References: <cover.1320259840.git.mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,61 +22,91 @@ Errors-To: virtualization-bounces@lists.linux-foundation.org
 Cc: Anthony Liguori <aliguori@us.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>, qemu-devel@nongnu.org, Jan Kiszka <jan.kiszka@siemens.com>, virtualization@lists.linux-foundation.org, Blue Swirl <blauwirbel@gmail.com>, Stefan Weil <weil@mail.berlios.de>, Avi Kivity <avi@redhat.com>, Richard Henderson <rth@twiddle.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Add constants for ISR bits values, and use them in virtio.
+MSIX spec requires that device can be operated with
+all vectors masked, by polling pending bits.
+Add APIs to recall an msix notification, and make polling
+mode possible in virtio-pci by clearing the
+pending bits and setting ISR appropriately on ISR read.
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- hw/virtio.c |    7 ++++---
- hw/virtio.h |    5 +++++
- 2 files changed, 9 insertions(+), 3 deletions(-)
+ hw/msix.c       |   26 ++++++++++++++++++++++++++
+ hw/msix.h       |    3 +++
+ hw/virtio-pci.c |   11 ++++++++++-
+ 3 files changed, 39 insertions(+), 1 deletions(-)
 
-diff --git a/hw/virtio.c b/hw/virtio.c
-index 7011b5b..74627e4 100644
---- a/hw/virtio.c
-+++ b/hw/virtio.c
-@@ -672,7 +672,7 @@ VirtQueue *virtio_add_queue(VirtIODevice *vdev, int queue_size,
- void virtio_irq(VirtQueue *vq)
- {
-     trace_virtio_irq(vq);
--    vq->vdev->isr |= 0x01;
-+    vq->vdev->isr |= VIRTIO_ISR_VQ;
-     virtio_notify_vector(vq->vdev, vq->vector);
+diff --git a/hw/msix.c b/hw/msix.c
+index 63b41b9..fe967c9 100644
+--- a/hw/msix.c
++++ b/hw/msix.c
+@@ -349,6 +349,32 @@ void msix_notify(PCIDevice *dev, unsigned vector)
+     stl_le_phys(address, data);
  }
  
-@@ -717,7 +717,7 @@ void virtio_notify(VirtIODevice *vdev, VirtQueue *vq)
-     }
- 
-     trace_virtio_notify(vdev, vq);
--    vdev->isr |= 0x01;
-+    vdev->isr |= VIRTIO_ISR_VQ;
-     virtio_notify_vector(vdev, vq->vector);
- }
- 
-@@ -726,7 +726,8 @@ void virtio_notify_config(VirtIODevice *vdev)
-     if (!(vdev->status & VIRTIO_CONFIG_S_DRIVER_OK))
-         return;
- 
--    vdev->isr |= 0x03;
-+    /* TODO: why do we set VIRTIO_ISR_VQ here? */
-+    vdev->isr |= VIRTIO_ISR_VQ | VIRTIO_ISR_CONFIG;
-     virtio_notify_vector(vdev, vdev->config_vector);
- }
- 
-diff --git a/hw/virtio.h b/hw/virtio.h
-index 2d18209..1bb6210 100644
---- a/hw/virtio.h
-+++ b/hw/virtio.h
-@@ -54,6 +54,11 @@
- /* A guest should never accept this.  It implies negotiation is broken. */
- #define VIRTIO_F_BAD_FEATURE		30
- 
-+/* The bit of the ISR which indicates a device vq event. */
-+#define VIRTIO_ISR_VQ			0x1
-+/* The bit of the ISR which indicates a device configuration change. */
-+#define VIRTIO_ISR_CONFIG		0x2
++/* Recall outstanding MSI-X notifications for a vector, if possible.
++ * Return true if any were outstanding. */
++bool msix_recall(PCIDevice *dev, unsigned vector)
++{
++    bool ret;
++    if (vector >= dev->msix_entries_nr)
++        return false;
++    ret = msix_is_pending(dev, vector);
++    msix_clr_pending(dev, vector);
++    return ret;
++}
 +
- /* from Linux's linux/virtio_ring.h */
++/* Recall outstanding MSI-X notifications for all vectors, if possible.
++ * Return true if any were outstanding. */
++bool msix_recall_all(PCIDevice *dev)
++{
++    uint8_t ret = 0;
++    uint8_t *b;
++    for (b = dev->msix_table_page + MSIX_PAGE_PENDING;
++	 b <= msix_pending_byte(dev, dev->msix_entries_nr - 1); ++b) {
++        ret |= *b;
++        *b = 0;
++    }
++    return ret;
++}
++
+ void msix_reset(PCIDevice *dev)
+ {
+     if (!(dev->cap_present & QEMU_PCI_CAP_MSIX))
+diff --git a/hw/msix.h b/hw/msix.h
+index 7e04336..86a92b1 100644
+--- a/hw/msix.h
++++ b/hw/msix.h
+@@ -27,6 +27,9 @@ void msix_unuse_all_vectors(PCIDevice *dev);
  
- /* This marks a buffer as continuing via the next field. */
+ void msix_notify(PCIDevice *dev, unsigned vector);
+ 
++bool msix_recall(PCIDevice *dev, unsigned vector);
++bool msix_recall_all(PCIDevice *dev);
++
+ void msix_reset(PCIDevice *dev);
+ 
+ extern int msix_supported;
+diff --git a/hw/virtio-pci.c b/hw/virtio-pci.c
+index df27c19..cab7dde 100644
+--- a/hw/virtio-pci.c
++++ b/hw/virtio-pci.c
+@@ -393,7 +393,16 @@ static uint32_t virtio_ioport_read(VirtIOPCIProxy *proxy, uint32_t addr)
+         /* reading from the ISR also clears it. */
+         ret = vdev->isr;
+         vdev->isr = 0;
+-        qemu_set_irq(proxy->pci_dev.irq[0], 0);
++        if (msix_enabled(&proxy->pci_dev)) {
++            if (msix_recall(&proxy->pci_dev, vdev->config_vector)) {
++                ret |= VIRTIO_ISR_CONFIG;
++            }
++            if (msix_recall_all(&proxy->pci_dev)) {
++                ret |= VIRTIO_ISR_VQ;
++            }
++        } else {
++		qemu_set_irq(proxy->pci_dev.irq[0], 0);
++        }
+         break;
+     case VIRTIO_MSI_CONFIG_VECTOR:
+         ret = vdev->config_vector;
 -- 
 1.7.5.53.gc233e
