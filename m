@@ -1,13 +1,15 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: Additional virtio-mmio spec changes
-Date: Wed, 02 Nov 2011 11:51:02 +1030
-Message-ID: <87wrbjtj41.fsf__23944.7095584639$1320208524$gmane$org@rustcorp.com.au>
-References: <1320152499.3287.197.camel@hornet.cambridge.arm.com>
+From: Sasha Levin <levinsasha928@gmail.com>
+Subject: Re: [PULL] virtio
+Date: Wed, 02 Nov 2011 06:52:44 +0200
+Message-ID: <1320209564.9173.6.camel@lappy>
+References: <87wrbkvh3v.fsf@rustcorp.com.au>
+	<20111101114542.GA13434@redhat.com> <1320150813.3847.24.camel@lappy>
+	<20111101124223.GA14060@redhat.com>  <8739e7uy87.fsf@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1320152499.3287.197.camel@hornet.cambridge.arm.com>
+In-Reply-To: <8739e7uy87.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,29 +19,33 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Pawel Moll <pawel.moll@arm.com>
-Cc: Peter Maydell <Peter.Maydell@ARM.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Krishna Kumar <krkumar2@in.ibm.com>, kvm@vger.kernel.org, Pawel Moll <pawel.moll@arm.com>, "Michael S. Tsirkin" <mst@redhat.com>, Alexey Kardashevskiy <aik@ozlabs.ru>, Wang Sheng-Hui <shhuiw@gmail.com>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, Amit Shah <amit.shah@redhat.com>, Linus Torvalds <torvalds@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 01 Nov 2011 13:01:39 +0000, Pawel Moll <pawel.moll@arm.com> wrote:
-> Hi Rusty,
+On Wed, 2011-11-02 at 11:39 +1030, Rusty Russell wrote:
+> On Tue, 1 Nov 2011 14:42:23 +0200, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> > On Tue, Nov 01, 2011 at 02:33:33PM +0200, Sasha Levin wrote:
+> > > Unless Michael pointed this patch out, it would have broken (at least)
+> > > the kvm tool in a non obvious way which would require a rather long
+> > > session of 'git bisect' to figure out whats wrong.
 > 
-> Peter (on Cc) got the qemu implementation up and running (thanks!) and
-> provided some useful feedback regarding the spec. To make the long story
-> short, this is what came out of the discussion (feel free to correct me
-> at any point, Peter ;-):
+> I assumed not, until QEMU provided the second BAR it would simply fall
+> back.  Or am I completely misunderstanding?
 
-OK, I applied them manually.  One of the pains of using LyX is that you
-need to turn change tracking on before making changes (I really like to
-produce change-tracking versions of new spec releases).
+QEMU uses two bars within each virtio-pci device. First one (BAR 0) is
+the PIO config BAR, and the second one (BAR 1) is the MSI-X BAR used for
+the MSI-X table and the PBA.
 
-> Of course those changes are not critical so can easily wait till the
-> next release. Peter also mentioned that he didn't like the "Num" in
-> "QueueNum" register name and would rather see it called "QueueSize". I
-> have no strong opinions either way and can provide patches to both the
-> spec and the driver (and header) to change it. Any thoughts?
+Since the PCI spec allows you to have the MSI-X table and the PBA in
+completely different regions pointed by two different BARs, we did so in
+kvm tools and have BAR 1 pointing to the MSI-X table, and BAR 2 pointing
+to the PBA ( - we *already* provided the second BAR and used it for
+something else).
 
-Num isn't great, but Size might be misleading.  I'd leave it...
+This means that with this patch, we'd load BAR 2 and use it as the
+config space, instead of the PBA table which it really represents.
 
-Thanks,
-Rusty.
+-- 
+
+Sasha.
