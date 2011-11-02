@@ -1,16 +1,13 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PULL] virtio
-Date: Wed, 02 Nov 2011 11:39:12 +1030
-Message-ID: <8739e7uy87.fsf__9506.41928143359$1320207039$gmane$org@rustcorp.com.au>
-References: <87wrbkvh3v.fsf@rustcorp.com.au>
-	<20111101114542.GA13434@redhat.com>
-	<1320150813.3847.24.camel@lappy>
-	<20111101124223.GA14060@redhat.com>
+Subject: Re: Additional virtio-mmio spec changes
+Date: Wed, 02 Nov 2011 11:51:02 +1030
+Message-ID: <87wrbjtj41.fsf__23944.7095584639$1320208524$gmane$org@rustcorp.com.au>
+References: <1320152499.3287.197.camel@hornet.cambridge.arm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20111101124223.GA14060@redhat.com>
+In-Reply-To: <1320152499.3287.197.camel@hornet.cambridge.arm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,33 +17,29 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, Sasha Levin <levinsasha928@gmail.com>
-Cc: Krishna Kumar <krkumar2@in.ibm.com>, kvm@vger.kernel.org, Pawel Moll <pawel.moll@arm.com>, Wang Sheng-Hui <shhuiw@gmail.com>, Alexey Kardashevskiy <aik@ozlabs.ru>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, Amit Shah <amit.shah@redhat.com>, Linus Torvalds <torvalds@linux-foundation.org>
+To: Pawel Moll <pawel.moll@arm.com>
+Cc: Peter Maydell <Peter.Maydell@ARM.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 1 Nov 2011 14:42:23 +0200, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> On Tue, Nov 01, 2011 at 02:33:33PM +0200, Sasha Levin wrote:
-> > A proper solution would be for example a configuration in the PIO config
-> > space which points to the MMIO BAR to use instead.
+On Tue, 01 Nov 2011 13:01:39 +0000, Pawel Moll <pawel.moll@arm.com> wrote:
+> Hi Rusty,
 > 
-> I think it makes sense to put the configuration in PCI
-> configuration space, using vendor-specific capability.
-> This way we can reuse existing functionality for scanning
-> capability lists.
+> Peter (on Cc) got the qemu implementation up and running (thanks!) and
+> provided some useful feedback regarding the spec. To make the long story
+> short, this is what came out of the discussion (feel free to correct me
+> at any point, Peter ;-):
 
-Patch welcome; first one to implement it becomes virtio PCI maintainer!
-I'll keep maintaining the spec, since it covers much more than the PCI
-mechanics, but everything I know about PCI I learn from these
-discussions.
+OK, I applied them manually.  One of the pains of using LyX is that you
+need to turn change tracking on before making changes (I really like to
+produce change-tracking versions of new spec releases).
 
-Meanwhile, I've dropped this patch; mea culpa.
+> Of course those changes are not critical so can easily wait till the
+> next release. Peter also mentioned that he didn't like the "Num" in
+> "QueueNum" register name and would rather see it called "QueueSize". I
+> have no strong opinions either way and can provide patches to both the
+> spec and the driver (and header) to change it. Any thoughts?
 
-> > Unless Michael pointed this patch out, it would have broken (at least)
-> > the kvm tool in a non obvious way which would require a rather long
-> > session of 'git bisect' to figure out whats wrong.
-
-I assumed not, until QEMU provided the second BAR it would simply fall
-back.  Or am I completely misunderstanding?
+Num isn't great, but Size might be misleading.  I'd leave it...
 
 Thanks,
 Rusty.
