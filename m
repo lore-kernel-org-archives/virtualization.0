@@ -1,7 +1,7 @@
-From: Peter Maydell <peter.maydell@linaro.org>
-Subject: Re: Additional virtio-mmio spec changes
-Date: Wed, 2 Nov 2011 13:31:05 +0000
-Message-ID: <CAFEAcA_hJK3fT-mvtJj9ZfQ2cGsv0Oy5vpbir=XfmP4HG+7o2g__21303.6025096246$1321323098$gmane$org@mail.gmail.com>
+From: Miche Baker-Harvey <miche@google.com>
+Subject: [PATCH RFC 0/3] Support multiple VirtioConsoles.
+Date: Wed, 02 Nov 2011 15:19:06 -0700
+Message-ID: <20111102221905.9722.62090.stgit__28707.480573985$1321323101$gmane$org@miche.sea.corp.google.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -15,28 +15,48 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Pawel Moll <pawel.moll@arm.com>, Rusty Russell <rusty@rustcorp.com.au>
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Stephen Rothwell <sfr@canb.auug.org.au>, Greg Kroah-Hartman <gregkh@suse.de>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Rusty
 List-Id: virtualization@lists.linuxfoundation.org
 
-Rusty wrote:
->Pawel Moll <pawel.moll@arm.com> wrote:
->> Peter also mentioned that he didn't like the "Num" in
->> "QueueNum" register name and would rather see it called "QueueSize". I
->> have no strong opinions either way and can provide patches to both the
->> spec and the driver (and header) to change it. Any thoughts?
->
-> Num isn't great, but Size might be misleading.  I'd leave it...
+This patchset applies to linux-next/next-20111102.
 
-I'd note that calling it QueueNum  is inconsistent with the main
-virtio spec, which calls the equivalent virtio header field
-"Queue Size". Also if the docs say
+This series implements support for multiple virtio_consoles using KVM.
 
-"QueueNum
- Virtual queue size.
- Queue size is a number of elements in the queue [...]"
+This patchset addresses several issues associated with trying to
+establish multiple virtio consoles. 
 
-this rather suggests to me that we've picked the wrong name for
-the register...
+I'm trying to start a guest via KVM that supports multiple virtual
+consoles, with getty's on each, and with some being console devices.
 
--- PMM
+These patches let me establish more than one VirtioConsole (I'm
+running eight at the moment), and enable console output appearing on
+one of them.  It still doesn't successfully generate console output on
+multiple VirtioConsoles.
+
+Let me apologise for my last patch having gotten into Linus' tree, and
+leaving other people to deal with crashes.  I had meant to be asking
+for guidance, but I didn't mark it as "RFC".
+
+This series reflects the input from Konrad Rzeszutek, Amit Shah, Stephen
+Boyd, and Rusty Russell.  I think we do have to limit hvc_alloc() to one
+thread.
+
+I would appreciate any comments or feedback, or accept if appropriate.
+
+Thanks,
+Miche Baker-Harvey
+
+---
+
+Miche Baker-Harvey (3):
+      virtio_console:  Fix locking of vtermno.
+      hvc_init():  Enforce one-time initialization.
+      Use separate struct console structure for each hvc_console.
+
+
+ drivers/char/virtio_console.c |    9 ++++++---
+ drivers/tty/hvc/hvc_console.c |   33 +++++++++++++++++++++++++++++++--
+ drivers/tty/hvc/hvc_console.h |    1 +
+ 3 files changed, 38 insertions(+), 5 deletions(-)
+
+-- 
