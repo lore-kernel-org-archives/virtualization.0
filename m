@@ -1,112 +1,52 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH (repost) RFC 2/2] virtio-pci: recall and return msix
-	notifications on ISR read
-Date: Wed, 2 Nov 2011 22:11:28 +0200
-Message-ID: <6dc9aa9764b1cfddf557a98f269e0f7d31ce03ac.1320259840.git.mst@redhat.com>
-References: <cover.1320259840.git.mst@redhat.com>
+From: Jesper Juhl <jj@chaosbits.net>
+Subject: Re: [PATCH 1/1] Staging: hv: Move the mouse driver out of staging
+Date: Wed, 2 Nov 2011 23:59:17 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1111022353530.20903@swampdragon.chaosbits.net>
+References: <1319841316-29136-1-git-send-email-kys@microsoft.com> <alpine.LNX.2.00.1110290041500.31615@swampdragon.chaosbits.net> <20111029063240.GH14881@longonot.mountain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <cover.1320259840.git.mst@redhat.com>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Cc: Anthony Liguori <aliguori@us.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>, qemu-devel@nongnu.org, Jan Kiszka <jan.kiszka@siemens.com>, virtualization@lists.linux-foundation.org, Blue Swirl <blauwirbel@gmail.com>, Stefan Weil <weil@mail.berlios.de>, Avi Kivity <avi@redhat.com>, Richard Henderson <rth@twiddle.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20111029063240.GH14881@longonot.mountain>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: "K. Y. Srinivasan" <kys@microsoft.com>, dmitry.torokhov@gmail.com, jkosina@suse.cz, gregkh@suse.de, ohering@suse.com, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org, joe@perches.com, devel@linuxdriverproject.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-MSIX spec requires that device can be operated with
-all vectors masked, by polling pending bits.
-Add APIs to recall an msix notification, and make polling
-mode possible in virtio-pci by clearing the
-pending bits and setting ISR appropriately on ISR read.
+On Sat, 29 Oct 2011, Dan Carpenter wrote:
 
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
- hw/msix.c       |   26 ++++++++++++++++++++++++++
- hw/msix.h       |    3 +++
- hw/virtio-pci.c |   11 ++++++++++-
- 3 files changed, 39 insertions(+), 1 deletions(-)
+> On Sat, Oct 29, 2011 at 12:54:34AM +0200, Jesper Juhl wrote:
+> > > +			default:
+> > > +				pr_err("unhandled packet type %d, tid %llx len %d\n",
+> > > +				   desc->type,
+> > > +				   req_id,
+> > > +				   bytes_recvd);
+> > 
+> > Why not:
+> > 
+> >                                 pr_err("unhandled packet type %d, tid %llx 
+> >                                        len %d\n", desc->type, req_id, bytes_recvd);
+> 
+> Because then the printk would be messed up?  Your final printed
+> string would look like:
+> 
+> "unhandled packet type %d, tid %llx 
+>                                        len %d\n"
+> 
+> Don't break strings up across lines because it breaks grep.  If K. Y.
+> wants to put all the parameters on one line instead of three that
+> would probably be better, but in the end who cares?
+> 
+Right, so I obviously "fat fingered" that and should have read my email 
+once more before sending. *But* the point really was just the "put all the 
+parameters on one line rather than 3" bit...
 
-diff --git a/hw/msix.c b/hw/msix.c
-index 63b41b9..fe967c9 100644
---- a/hw/msix.c
-+++ b/hw/msix.c
-@@ -349,6 +349,32 @@ void msix_notify(PCIDevice *dev, unsigned vector)
-     stl_le_phys(address, data);
- }
- 
-+/* Recall outstanding MSI-X notifications for a vector, if possible.
-+ * Return true if any were outstanding. */
-+bool msix_recall(PCIDevice *dev, unsigned vector)
-+{
-+    bool ret;
-+    if (vector >= dev->msix_entries_nr)
-+        return false;
-+    ret = msix_is_pending(dev, vector);
-+    msix_clr_pending(dev, vector);
-+    return ret;
-+}
-+
-+/* Recall outstanding MSI-X notifications for all vectors, if possible.
-+ * Return true if any were outstanding. */
-+bool msix_recall_all(PCIDevice *dev)
-+{
-+    uint8_t ret = 0;
-+    uint8_t *b;
-+    for (b = dev->msix_table_page + MSIX_PAGE_PENDING;
-+	 b <= msix_pending_byte(dev, dev->msix_entries_nr - 1); ++b) {
-+        ret |= *b;
-+        *b = 0;
-+    }
-+    return ret;
-+}
-+
- void msix_reset(PCIDevice *dev)
- {
-     if (!(dev->cap_present & QEMU_PCI_CAP_MSIX))
-diff --git a/hw/msix.h b/hw/msix.h
-index 7e04336..86a92b1 100644
---- a/hw/msix.h
-+++ b/hw/msix.h
-@@ -27,6 +27,9 @@ void msix_unuse_all_vectors(PCIDevice *dev);
- 
- void msix_notify(PCIDevice *dev, unsigned vector);
- 
-+bool msix_recall(PCIDevice *dev, unsigned vector);
-+bool msix_recall_all(PCIDevice *dev);
-+
- void msix_reset(PCIDevice *dev);
- 
- extern int msix_supported;
-diff --git a/hw/virtio-pci.c b/hw/virtio-pci.c
-index df27c19..cab7dde 100644
---- a/hw/virtio-pci.c
-+++ b/hw/virtio-pci.c
-@@ -393,7 +393,16 @@ static uint32_t virtio_ioport_read(VirtIOPCIProxy *proxy, uint32_t addr)
-         /* reading from the ISR also clears it. */
-         ret = vdev->isr;
-         vdev->isr = 0;
--        qemu_set_irq(proxy->pci_dev.irq[0], 0);
-+        if (msix_enabled(&proxy->pci_dev)) {
-+            if (msix_recall(&proxy->pci_dev, vdev->config_vector)) {
-+                ret |= VIRTIO_ISR_CONFIG;
-+            }
-+            if (msix_recall_all(&proxy->pci_dev)) {
-+                ret |= VIRTIO_ISR_VQ;
-+            }
-+        } else {
-+		qemu_set_irq(proxy->pci_dev.irq[0], 0);
-+        }
-         break;
-     case VIRTIO_MSI_CONFIG_VECTOR:
-         ret = vdev->config_vector;
+As for who cares; well, I cared enough to actually read the patch and send 
+a reply, and I thought we needed more reviewers... When I review something 
+I comment on everything I spot from bugs to trivial stuff - then it is 
+up to the recipient to pick the things they want to address from the 
+reply..
+
 -- 
-1.7.5.53.gc233e
+Jesper Juhl <jj@chaosbits.net>       http://www.chaosbits.net/
+Don't top-post http://www.catb.org/jargon/html/T/top-post.html
+Plain text mails only, please.
