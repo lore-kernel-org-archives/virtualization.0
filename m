@@ -1,7 +1,7 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: [PATCH 5 of 5] virtio: expose added descriptors immediately
-Date: Thu, 03 Nov 2011 18:12:53 +1030
-Message-ID: <f3831c1617c86a51d875.1320306173@localhost6.localdomain6>
+Subject: [PATCH 4 of 5] virtio: avoid modulus operation
+Date: Thu, 03 Nov 2011 18:12:52 +1030
+Message-ID: <05de9ee25e222c5206f3.1320306172@localhost6.localdomain6>
 References: <patchbomb.1320306168@localhost6.localdomain6>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,50 +21,57 @@ To: MichaelS.Tsirkist@redhat.com, Christoph Hellwig <hch@infradead.org>
 Cc: linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-A virtio driver does virtqueue_add_buf() multiple times before finally
-calling virtqueue_kick(); previously we only exposed the added buffers
-in the virtqueue_kick() call.  This means we don't need a memory
-barrier in virtqueue_add_buf(), but it reduces concurrency as the
-device (ie. host) can't see the buffers until the kick.
+Since we know vq->vring.num is a power of 2, modulus is lazy (it's asserted
+in vring_new_virtqueue()).
 
 Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 ---
- drivers/virtio/virtio_ring.c |   37 ++++++++++++++++++++++---------------
- 1 file changed, 22 insertions(+), 15 deletions(-)
+ drivers/virtio/virtio_ring.c |   10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
+diff --git a/arch/x86/lguest/boot.c b/arch/x86/lguest/boot.c
+--- a/arch/x86/lguest/boot.c
++++ b/arch/x86/lguest/boot.c
+@@ -1420,7 +1420,7 @@ __init void lguest_init(void)
+ 	add_preferred_console("hvc", 0, NULL);
+ 
+ 	/* Register our very early console. */
+-	virtio_cons_early_init(early_put_chars);
++//	virtio_cons_early_init(early_put_chars);
+ 
+ 	/*
+ 	 * Last of all, we set the power management poweroff hook to point to
 diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
 --- a/drivers/virtio/virtio_ring.c
 +++ b/drivers/virtio/virtio_ring.c
-@@ -227,9 +227,15 @@ add_head:
+@@ -226,8 +226,8 @@ add_head:
+ 	vq->data[head] = data;
  
  	/* Put entry in available array (but don't update avail->idx until they
- 	 * do sync). */
--	avail = ((vq->vring.avail->idx + vq->num_added++) & (vq->vring.num-1));
-+	avail = (vq->vring.avail->idx & (vq->vring.num-1));
+-	 * do sync).  FIXME: avoid modulus here? */
+-	avail = (vq->vring.avail->idx + vq->num_added++) % vq->vring.num;
++	 * do sync). */
++	avail = ((vq->vring.avail->idx + vq->num_added++) & (vq->vring.num-1));
  	vq->vring.avail->ring[avail] = head;
  
-+	/* Descriptors and available array need to be set before we expose the
-+	 * new available array entries. */
-+	virtio_wmb();
-+	vq->vring.avail->idx++;
-+	vq->num_added++;
-+
  	pr_debug("Added buffer head %i to %p\n", head, vq);
- 	END_USE(vq);
+@@ -317,6 +317,7 @@ void *virtqueue_get_buf(struct virtqueue
+ 	struct vring_virtqueue *vq = to_vvq(_vq);
+ 	void *ret;
+ 	unsigned int i;
++	u16 last_used;
  
-@@ -248,13 +254,10 @@ bool virtqueue_kick_prepare(struct virtq
- 	 * new available array entries. */
- 	virtio_wmb();
+ 	START_USE(vq);
  
--	old = vq->vring.avail->idx;
--	new = vq->vring.avail->idx = old + vq->num_added;
-+	old = vq->vring.avail->idx - vq->num_added;
-+	new = vq->vring.avail->idx;
- 	vq->num_added = 0;
+@@ -334,8 +335,9 @@ void *virtqueue_get_buf(struct virtqueue
+ 	/* Only get used array entries after they have been exposed by host. */
+ 	virtio_rmb();
  
--	/* Need to update avail index before checking if we should notify */
--	virtio_mb();
--
- 	if (vq->event) {
- 		needs_kick = vring_need_event(vring_avail_event(&vq->vring),
- 					      new, old);
+-	i = vq->vring.used->ring[vq->last_used_idx%vq->vring.num].id;
+-	*len = vq->vring.used->ring[vq->last_used_idx%vq->vring.num].len;
++	last_used = (vq->last_used_idx & (vq->vring.num - 1));
++	i = vq->vring.used->ring[last_used].id;
++	*len = vq->vring.used->ring[last_used].len;
+ 
+ 	if (unlikely(i >= vq->vring.num)) {
+ 		BAD_RING(vq, "id %u out of range\n", i);
