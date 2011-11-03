@@ -1,13 +1,13 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: virtio-pci new configuration proposal
-Date: Thu, 03 Nov 2011 12:28:46 +1030
-Message-ID: <8762j2t19l.fsf__40297.0845498659$1320292341$gmane$org@rustcorp.com.au>
-References: <1320259767.22582.2.camel@lappy>
+Subject: Re: [PATCH RFC 0/2] virtio-pci: polling mode support
+Date: Thu, 03 Nov 2011 11:26:23 +1030
+Message-ID: <878vnyt45k.fsf__34602.5371844464$1320292343$gmane$org@rustcorp.com.au>
+References: <cover.1320259840.git.mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1320259767.22582.2.camel@lappy>
+In-Reply-To: <cover.1320259840.git.mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,33 +17,26 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Sasha Levin <levinsasha928@gmail.com>, "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Anthony Liguori <anthony@codemonkey.ws>, linux-kernel <linux-kernel@vger.kernel.org>, kvm <kvm@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>
+Cc: Anthony Liguori <aliguori@us.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>, qemu-devel@nongnu.org, Jan Kiszka <jan.kiszka@siemens.com>, virtualization@lists.linux-foundation.org, Blue Swirl <blauwirbel@gmail.com>, Stefan Weil <weil@mail.berlios.de>, Avi Kivity <avi@redhat.com>, Richard Henderson <rth@twiddle.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 02 Nov 2011 20:49:27 +0200, Sasha Levin <levinsasha928@gmail.com> wrote:
-> This is a proposal for a new layout of the virtio-pci config space.
+On Wed, 2 Nov 2011 21:02:42 +0200, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> MSIX spec requires that device can be operated with
+> all vectors masked, by polling.
 > 
-> We will separate the current configuration into two: A virtio-pci common
-> configuration and a device specific configuration. This allows more flexibility
-> with adding features and makes usage easier, specifically in cases like the
-> ones in virtio-net where device specific configurations depend on device
-> specific features.
+> So the following patchset (lightly tested) adds this
+> ability: when driver reads ISR, the device
+> recalls a pending notification, and returns
+> pending status in the ISR register.
+> 
+> The polling driver can operate as follows:
+> - map all VQs and config to the same vector
+> - poll ISR to get status - this also flushes VQ updates to memory
+> - handle config change or VQ event depending on ISR
+> 
+> Comments?
 
-Thanks for this Sasha.  Several general comments:
-
-1) How to we distinguish the two layouts?  In theory, we need to do this
-   forever.  In practice we can deprecate the old layout in several
-   years' time.
-
-2) I don't think we want to turn the device-specific config into a
-   linked list.  We haven't needed variable-length config (yet!), and
-   it's (slightly) more complex.  That's also the part of the spec which
-   is shared with non-PCI virtio implementations.
-
-3) If we're changing the queue layout, it's a chance to fix a
-   longstanding bug: let the guest notify the host of preferred
-   queue size and alignment.
+This seems sane to me...
 
 Cheers,
 Rusty.
