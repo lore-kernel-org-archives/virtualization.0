@@ -1,15 +1,14 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH 4 of 5] virtio: avoid modulus operation
-Date: Thu, 03 Nov 2011 20:48:17 +1030
-Message-ID: <87r51pse52.fsf__8046.105298172$1320316963$gmane$org@rustcorp.com.au>
-References: <patchbomb.1320306168@localhost6.localdomain6>
-	<05de9ee25e222c5206f3.1320306172@localhost6.localdomain6>
-	<CAOJsxLEt6_y7jw0bRsaita4gfb2k+BAQMeRLs9PcHntGVSFvaQ@mail.gmail.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: virtio-pci new configuration proposal
+Date: Thu, 3 Nov 2011 13:03:39 +0200
+Message-ID: <20111103110339.GB18296@redhat.com>
+References: <1320259767.22582.2.camel@lappy> <8762j2t19l.fsf@rustcorp.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAOJsxLEt6_y7jw0bRsaita4gfb2k+BAQMeRLs9PcHntGVSFvaQ@mail.gmail.com>
+Content-Disposition: inline
+In-Reply-To: <8762j2t19l.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,28 +18,17 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Pekka Enberg <penberg@kernel.org>
-Cc: Christoph Hellwig <hch@infradead.org>, virtualization <virtualization@lists.linux-foundation.org>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, mst@redhat.com
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Anthony Liguori <anthony@codemonkey.ws>, virtualization <virtualization@lists.linux-foundation.org>, Sasha Levin <levinsasha928@gmail.com>, kvm <kvm@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gVGh1LCAzIE5vdiAyMDExIDA5OjUxOjE1ICswMjAwLCBQZWtrYSBFbmJlcmcgPHBlbmJlcmdA
-a2VybmVsLm9yZz4gd3JvdGU6Cj4gT24gVGh1LCBOb3YgMywgMjAxMSBhdCA5OjQyIEFNLCBSdXN0
-eSBSdXNzZWxsIDxydXN0eUBydXN0Y29ycC5jb20uYXU+IHdyb3RlOgo+ID4gU2luY2Ugd2Uga25v
-dyB2cS0+dnJpbmcubnVtIGlzIGEgcG93ZXIgb2YgMiwgbW9kdWx1cyBpcyBsYXp5IChpdCdzIGFz
-c2VydGVkCj4gPiBpbiB2cmluZ19uZXdfdmlydHF1ZXVlKCkpLgo+ID4KPiA+IFNpZ25lZC1vZmYt
-Ynk6IFJ1c3R5IFJ1c3NlbGwgPHJ1c3R5QHJ1c3Rjb3JwLmNvbS5hdT4KPiA+IC0tLQo+ID4gwqBk
-cml2ZXJzL3ZpcnRpby92aXJ0aW9fcmluZy5jIHwgwqAgMTAgKysrKysrLS0tLQo+ID4gwqAxIGZp
-bGUgY2hhbmdlZCwgNiBpbnNlcnRpb25zKCspLCA0IGRlbGV0aW9ucygtKQo+ID4KPiA+IGRpZmYg
-LS1naXQgYS9hcmNoL3g4Ni9sZ3Vlc3QvYm9vdC5jIGIvYXJjaC94ODYvbGd1ZXN0L2Jvb3QuYwo+
-ID4gLS0tIGEvYXJjaC94ODYvbGd1ZXN0L2Jvb3QuYwo+ID4gKysrIGIvYXJjaC94ODYvbGd1ZXN0
-L2Jvb3QuYwo+ID4gQEAgLTE0MjAsNyArMTQyMCw3IEBAIF9faW5pdCB2b2lkIGxndWVzdF9pbml0
-KHZvaWQpCj4gPiDCoCDCoCDCoCDCoGFkZF9wcmVmZXJyZWRfY29uc29sZSgiaHZjIiwgMCwgTlVM
-TCk7Cj4gPgo+ID4gwqAgwqAgwqAgwqAvKiBSZWdpc3RlciBvdXIgdmVyeSBlYXJseSBjb25zb2xl
-LiAqLwo+ID4gLSDCoCDCoCDCoCB2aXJ0aW9fY29uc19lYXJseV9pbml0KGVhcmx5X3B1dF9jaGFy
-cyk7Cj4gPiArLy8gwqAgwqAgdmlydGlvX2NvbnNfZWFybHlfaW5pdChlYXJseV9wdXRfY2hhcnMp
-Owo+IAo+IFdoYXQncyB0aGlzIGh1bmsgaGVyZT8KClVnbHkgd29ya2Fyb3VuZCBmb3IgY29uc29s
-ZSB1bnRpbCBodmNfY29uc29sZSBicmVha2FnZSBnZXRzIHJldmVydGVkLgoKTGVmdCBpbiBieSBt
-aXN0YWtlIDopCgpUaGFua3MsClJ1c3R5LgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRp
-b25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRp
-b24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+On Thu, Nov 03, 2011 at 12:28:46PM +1030, Rusty Russell wrote:
+> 3) If we're changing the queue layout, it's a chance to fix a
+>    longstanding bug: let the guest notify the host of preferred
+>    queue size and alignment.
+
+With device config split from the common one, we can
+just tuck new fields at the tail of the common one.
+
+-- 
+MST
