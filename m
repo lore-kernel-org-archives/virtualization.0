@@ -1,22 +1,19 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
+From: Avi Kivity <avi@redhat.com>
 Subject: Re: [PATCH RFC] virtio-pci: flexible configuration layout
-Date: Thu, 3 Nov 2011 15:30:16 +0200
-Message-ID: <20111103133015.GL18296@redhat.com>
+Date: Thu, 03 Nov 2011 15:37:42 +0200
+Message-ID: <4EB29926.9030509@redhat.com>
 References: <87wrbkvh3v.fsf@rustcorp.com.au>
 	<20111101114542.GA13434@redhat.com>
 	<1320150813.3847.24.camel@lappy>
 	<20111101124223.GA14060@redhat.com>
 	<8739e7uy87.fsf@rustcorp.com.au>
-	<20111102233110.GA20289@redhat.com>
-	<1320279543.31237.14.camel@lappy>
-	<20111103103314.GA18296@redhat.com>
-	<1320318591.29407.17.camel@lappy>
+	<20111102233110.GA20289@redhat.com> <4EB26ED0.3080409@redhat.com>
+	<20111103121139.GF18296@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1320318591.29407.17.camel@lappy>
+In-Reply-To: <20111103121139.GF18296@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -26,49 +23,27 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Sasha Levin <levinsasha928@gmail.com>
-Cc: Krishna Kumar <krkumar2@in.ibm.com>, kvm@vger.kernel.org, Pawel Moll <pawel.moll@arm.com>, Wang Sheng-Hui <shhuiw@gmail.com>, Alexey Kardashevskiy <aik@ozlabs.ru>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, Jesse Barnes <jbarnes@virtuousgeek.org>, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, Amit Shah <amit.shah@redhat.com>, Linus Torvalds <torvalds@linux-foundation.org>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Krishna Kumar <krkumar2@in.ibm.com>, kvm@vger.kernel.org, Pawel Moll <pawel.moll@arm.com>, Wang Sheng-Hui <shhuiw@gmail.com>, Alexey Kardashevskiy <aik@ozlabs.ru>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, Jesse Barnes <jbarnes@virtuousgeek.org>, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, Sasha Levin <levinsasha928@gmail.com>, Amit Shah <amit.shah@redhat.com>, Linus Torvalds <torvalds@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-> 2. Move device specific features into the device specific region.
-> Currently the features field is a mix between virtio-pci and device
-> specific features.
+On 11/03/2011 02:11 PM, Michael S. Tsirkin wrote:
+> On Thu, Nov 03, 2011 at 12:37:04PM +0200, Avi Kivity wrote:
+> > On 11/03/2011 01:31 AM, Michael S. Tsirkin wrote:
+> > > Add a flexible mechanism to specify virtio configuration layout, using
+> > > pci vendor-specific capability.  A separate capability is used for each
+> > > of common, device specific and data-path accesses.
+> > >
+> > >
+> > 
+> > How about posting the spec change instead of patches?
+>
+> We need both of course but I typically start with patches.
+> Easier to see whether it's even possible to implement the
+> spec without overhauling all of the code.
 
-A single feature field with bits partitioned to transport
-specific and device specific fields is a generic virtio
-thing. So there's relatively little to be gained from
-moving the device bits out.
+Patches are okay for someone familiar with the code.  For others, they
+require more effort.
 
-> I did more similar things in the spec suggestion I've sent,
-
-What lacked there is the motivation.
-
-I am aware of several issues that need to be addressed,
-as they block extending virtio going forward:
-- There's no place to put more transport registers.
-  For MSIX I hacked around that with moving device config when a feature
-  bit is set, but in hindsight this setup is fragile
-  and is panful to extend any further.
-  Splitting out device and transport helps.
-- PIO space is limited. We are wasting it on non data path
-  configuration. There might also be a wish to have largish data
-  in configuration space, like a 1024 byte ID field.
-- PIO is faster than MMIO on x86 KVM so we need to keep
-  using it for data path on that architecture
-- Support architectures which have host/guest at different
-  endian-ness.
-
-I addressed the first 3 and added capability infrastructure
-which we can use in the future to support the last one
-(by nature of using little endian format for capabilities).
-
-> could you
-> look at the second part for more ideas please?
-
-I saw the per-queue features - but I don't see how it will work really
-or what is the issue they solve.
-Any more ideas I missed?
-
-> -- 
-> 
-> Sasha.
+-- 
+error compiling committee.c: too many arguments to function
