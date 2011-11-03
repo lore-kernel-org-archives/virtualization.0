@@ -1,20 +1,18 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH RFC] virtio-pci: flexible configuration layout
-Date: Thu, 3 Nov 2011 15:53:17 +0200
-Message-ID: <20111103135316.GN18296@redhat.com>
-References: <87wrbkvh3v.fsf@rustcorp.com.au>
-	<20111101114542.GA13434@redhat.com>
-	<1320150813.3847.24.camel@lappy>
-	<20111101124223.GA14060@redhat.com>
-	<8739e7uy87.fsf@rustcorp.com.au>
-	<20111102233110.GA20289@redhat.com> <4EB26ED0.3080409@redhat.com>
-	<20111103121139.GF18296@redhat.com> <4EB29926.9030509@redhat.com>
+From: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Subject: Re: [PATCH] VirtioConsole support.
+Date: Thu, 3 Nov 2011 10:15:01 -0400
+Message-ID: <20111103141501.GB26799@phenom.dumpdata.com>
+References: <20111027173527.GA23839@phenom.dumpdata.com>
+	<1319751802-27013-1-git-send-email-miche@google.com>
+	<1319770558.2529.20.camel@Joe-Laptop>
+	<4EAAF23C.8050102@codeaurora.org> <87k47itc7u.fsf@rustcorp.com.au>
+	<4EB28B37.8030301@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <4EB29926.9030509@redhat.com>
+In-Reply-To: <4EB28B37.8030301@de.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,32 +22,31 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Avi Kivity <avi@redhat.com>
-Cc: Krishna Kumar <krkumar2@in.ibm.com>, kvm@vger.kernel.org, Pawel Moll <pawel.moll@arm.com>, Wang Sheng-Hui <shhuiw@gmail.com>, Alexey Kardashevskiy <aik@ozlabs.ru>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, Jesse Barnes <jbarnes@virtuousgeek.org>, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, Sasha Levin <levinsasha928@gmail.com>, Amit Shah <amit.shah@redhat.com>, Linus Torvalds <torvalds@linux-foundation.org>
+To: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: xen-devel@lists.xensource.com, Stephen Boyd <sboyd@codeaurora.org>, Greg Kroah-Hartman <gregkh@suse.de>, Miche Baker-Harvey <miche@google.com>, linux-kernel@vger.kernel.org, Rusty Russell <rusty@ozlabs.org>, virtualization@lists.linux-foundation.org, Amit Shah <amit.shah@redhat.com>, Hendrik Brueckner <brueckner@linux.vnet.ibm.com>, Anton Blanchard <anton@samba.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Joe Perches <joe@perches.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Nov 03, 2011 at 03:37:42PM +0200, Avi Kivity wrote:
-> On 11/03/2011 02:11 PM, Michael S. Tsirkin wrote:
-> > On Thu, Nov 03, 2011 at 12:37:04PM +0200, Avi Kivity wrote:
-> > > On 11/03/2011 01:31 AM, Michael S. Tsirkin wrote:
-> > > > Add a flexible mechanism to specify virtio configuration layout, using
-> > > > pci vendor-specific capability.  A separate capability is used for each
-> > > > of common, device specific and data-path accesses.
-> > > >
-> > > >
-> > > 
-> > > How about posting the spec change instead of patches?
-> >
-> > We need both of course but I typically start with patches.
-> > Easier to see whether it's even possible to implement the
-> > spec without overhauling all of the code.
+On Thu, Nov 03, 2011 at 01:38:15PM +0100, Christian Borntraeger wrote:
+> On 02/11/11 23:02, Rusty Russell wrote:
+> > Ben, Christian, can you figure out what's going on?  Is it time for a
+> > complete rewrite?
 > 
-> Patches are okay for someone familiar with the code.  For others, they
-> require more effort.
+> You are talking about hvc console? Yes it has so many users that it is now
+> something like a console/tty layer extension, but it was never designed to be
+> one. 
+> 
+> I think the hardest part would be to get all users together (for testing and
+> requirements) and then to find someone that is actually doing that rework. Dont
 
-Yes. It's just that I needed to convince myself that the approach is good,
-and that meant writing the supporting code. Since I had the code
-I didn't see a reason not to send it :)
+I am volunteering myself to test the Xen user of it. Perhaps even add some patches,
+albeit my knowledge of the hvc console is that "it works" (well, with this minor
+speed bump).
 
-> -- 
-> error compiling committee.c: too many arguments to function
+> know if the pain level is already that high?
+> 
+> Christian
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
