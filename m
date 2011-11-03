@@ -1,15 +1,11 @@
-From: Christoph Hellwig <hch@infradead.org>
-Subject: Re: [PATCH 3 of 5] virtio: support unlocked queue kick
-Date: Thu, 3 Nov 2011 03:52:11 -0400
-Message-ID: <20111103075211.GD6993__11963.6955242187$1320306745$gmane$org@infradead.org>
-References: <patchbomb.1320306168@localhost6.localdomain6>
-	<c0db93dbb414ab6dbcde.1320306171@localhost6.localdomain6>
+From: Sasha Levin <levinsasha928@gmail.com>
+Subject: [PATCH] virtio-balloon: Trivial cleanups
+Date: Thu,  3 Nov 2011 10:20:04 +0200
+Message-ID: <1320308404-28859-1-git-send-email-levinsasha928@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <c0db93dbb414ab6dbcde.1320306171@localhost6.localdomain6>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,20 +15,47 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: MichaelS.Tsirkist@redhat.com, Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization <virtualization@lists.linux-foundation.org>
+To: linux-kernel@vger.kernel.org
+Cc: virtualization@lists.linux-foundation.org, Sasha Levin <levinsasha928@gmail.com>, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Nov 03, 2011 at 06:12:51PM +1030, Rusty Russell wrote:
-> Based on patch by Christoph for virtio_blk speedup:
+Trivial changes to remove forgotten junk, format comments, and correct names.
 
-Please credit it to Stefan - he also sent a pointer to his original
-version in reply to the previous thread.
+Cc: Rusty Russell <rusty@rustcorp.com.au>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: virtualization@lists.linux-foundation.org
+Signed-off-by: Sasha Levin <levinsasha928@gmail.com>
+---
+ drivers/virtio/virtio_balloon.c |    6 +++---
+ 1 files changed, 3 insertions(+), 3 deletions(-)
 
-Also shouldn't virtqueue_kick have kerneldoc comments?
-
-
-I also notices that you documented the functions bother here and in
-the first patch in the headers.  At least historically the kerneldoc
-tools didn't parse comments at declarations, but only at the function
-defintions.  Did you check these actually get picked up?
+diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+index e058ace..289e998 100644
+--- a/drivers/virtio/virtio_balloon.c
++++ b/drivers/virtio/virtio_balloon.c
+@@ -1,4 +1,5 @@
+-/* Virtio balloon implementation, inspired by Dor Loar and Marcelo
++/*
++ * Virtio balloon implementation, inspired by Dor Laor and Marcelo
+  * Tosatti's implementations.
+  *
+  *  Copyright 2008 Rusty Russell IBM Corporation
+@@ -17,7 +18,7 @@
+  *  along with this program; if not, write to the Free Software
+  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+  */
+-//#define DEBUG
++
+ #include <linux/virtio.h>
+ #include <linux/virtio_balloon.h>
+ #include <linux/swap.h>
+@@ -148,7 +149,6 @@ static void leak_balloon(struct virtio_balloon *vb, size_t num)
+ 		vb->num_pages--;
+ 	}
+ 
+-
+ 	/*
+ 	 * Note that if
+ 	 * virtio_has_feature(vdev, VIRTIO_BALLOON_F_MUST_TELL_HOST);
+-- 
+1.7.7.1
