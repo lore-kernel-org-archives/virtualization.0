@@ -1,15 +1,22 @@
-From: Sasha Levin <levinsasha928@gmail.com>
-Subject: Re: virtio-pci new configuration proposal
-Date: Thu, 03 Nov 2011 15:19:01 +0200
-Message-ID: <1320326341.29407.25.camel@lappy>
-References: <1320259767.22582.2.camel@lappy>
-	<8762j2t19l.fsf@rustcorp.com.au> <1320309203.29407.1.camel@lappy>
-	<20111103124651.GK18296@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH RFC] virtio-pci: flexible configuration layout
+Date: Thu, 3 Nov 2011 15:30:16 +0200
+Message-ID: <20111103133015.GL18296@redhat.com>
+References: <87wrbkvh3v.fsf@rustcorp.com.au>
+	<20111101114542.GA13434@redhat.com>
+	<1320150813.3847.24.camel@lappy>
+	<20111101124223.GA14060@redhat.com>
+	<8739e7uy87.fsf@rustcorp.com.au>
+	<20111102233110.GA20289@redhat.com>
+	<1320279543.31237.14.camel@lappy>
+	<20111103103314.GA18296@redhat.com>
+	<1320318591.29407.17.camel@lappy>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20111103124651.GK18296@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <1320318591.29407.17.camel@lappy>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,93 +26,49 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Anthony Liguori <anthony@codemonkey.ws>, linux-kernel <linux-kernel@vger.kernel.org>, kvm <kvm@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>
+To: Sasha Levin <levinsasha928@gmail.com>
+Cc: Krishna Kumar <krkumar2@in.ibm.com>, kvm@vger.kernel.org, Pawel Moll <pawel.moll@arm.com>, Wang Sheng-Hui <shhuiw@gmail.com>, Alexey Kardashevskiy <aik@ozlabs.ru>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, Jesse Barnes <jbarnes@virtuousgeek.org>, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, Amit Shah <amit.shah@redhat.com>, Linus Torvalds <torvalds@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 2011-11-03 at 14:46 +0200, Michael S. Tsirkin wrote:
-> On Thu, Nov 03, 2011 at 10:33:23AM +0200, Sasha Levin wrote:
-> > On Thu, 2011-11-03 at 12:28 +1030, Rusty Russell wrote: 
-> > > On Wed, 02 Nov 2011 20:49:27 +0200, Sasha Levin <levinsasha928@gmail.com> wrote:
-> > > > This is a proposal for a new layout of the virtio-pci config space.
-> > > > 
-> > > > We will separate the current configuration into two: A virtio-pci common
-> > > > configuration and a device specific configuration. This allows more flexibility
-> > > > with adding features and makes usage easier, specifically in cases like the
-> > > > ones in virtio-net where device specific configurations depend on device
-> > > > specific features.
-> > > 
-> > > Thanks for this Sasha.  Several general comments:
-> > > 
-> > > 1) How to we distinguish the two layouts?  In theory, we need to do this
-> > >    forever.  In practice we can deprecate the old layout in several
-> > >    years' time.
-> > 
-> > Old layouts won't have the new virtio-pci cap structure in their PCI
-> > config space.
+> 2. Move device specific features into the device specific region.
+> Currently the features field is a mix between virtio-pci and device
+> specific features.
+
+A single feature field with bits partitioned to transport
+specific and device specific fields is a generic virtio
+thing. So there's relatively little to be gained from
+moving the device bits out.
+
+> I did more similar things in the spec suggestion I've sent,
+
+What lacked there is the motivation.
+
+I am aware of several issues that need to be addressed,
+as they block extending virtio going forward:
+- There's no place to put more transport registers.
+  For MSIX I hacked around that with moving device config when a feature
+  bit is set, but in hindsight this setup is fragile
+  and is panful to extend any further.
+  Splitting out device and transport helps.
+- PIO space is limited. We are wasting it on non data path
+  configuration. There might also be a wish to have largish data
+  in configuration space, like a 1024 byte ID field.
+- PIO is faster than MMIO on x86 KVM so we need to keep
+  using it for data path on that architecture
+- Support architectures which have host/guest at different
+  endian-ness.
+
+I addressed the first 3 and added capability infrastructure
+which we can use in the future to support the last one
+(by nature of using little endian format for capabilities).
+
+> could you
+> look at the second part for more ideas please?
+
+I saw the per-queue features - but I don't see how it will work really
+or what is the issue they solve.
+Any more ideas I missed?
+
+> -- 
 > 
-> What happens next time we want to change something?
-
-Thats why there are virtio-pci cap values. This layout cap was defined
-as VIRTIO_PCI_C_LAYOUT. If for example we want to provide a whole
-different layout, we can define something similar to
-VIRTIO_PCI_C_LAYOUT_V2 and use it in newer drivers (we can also add a
-version field to the original layout ofcourse).
-
-This also allows an easy way to provide backwards compatibility by
-specifying many layout definitions and letting the driver choose the
-latest layout he can. This would also allow to make larger changes
-easier as it allows you to have several different layout configs in the
-same code.
-
-> 
-> > > 2) I don't think we want to turn the device-specific config into a
-> > >    linked list.  We haven't needed variable-length config (yet!), and
-> > >    it's (slightly) more complex.  That's also the part of the spec which
-> > >    is shared with non-PCI virtio implementations.
-> > 
-> > Variable length config wasn't used yet because space in the device
-> > specific space was reserved for a feature even if that feature wasn't
-> > used.
-> 
-> Not only that, also because it is messy to debug.  With fixed offsets
-> you just print the address/data and you know what it's doing.
-> 
-> > For example, the MAC feature reserved 6 bytes in the config space for
-> > the MAC even if VIRTIO_NET_F_MAC wasn't enabled. Here we can just avoid
-> > having it pollute the config space until it's enabled.
-> > 
-> 
-> This looks like overdesign to me. The only reason PCI spec
-> used capability list is
-> 1. to save space
-> 2. standard mechanism to discover features
-> You say explicitly space is not an issue, and you keep
-> feature bits around.
-
-Okay, I agree with not doing linked lists for device specific features.
-
-I do think we need them for virtio-pci itself to handle features such as
-MSI-X.
-
-> > I don't think it'll have any impact on non-PCI implementations since the
-> > "pointers" are simply offsets from the beginning of the config space,
-> > and are not PCI specific in any way.
-> 
-> The APIs use a single offset cookie to pass configuration.
-> If you want capabilities, that will have to be changed.
-> 
-> > > 3) If we're changing the queue layout, it's a chance to fix a
-> > >    longstanding bug: let the guest notify the host of preferred
-> > >    queue size and alignment.
-> > 
-> > Yup, we can do that.
-> > 
-> > -- 
-> > 
-> > Sasha.
-> > 
-
--- 
-
-Sasha.
+> Sasha.
