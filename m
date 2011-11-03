@@ -1,18 +1,19 @@
-From: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Subject: Re: [PATCH] VirtioConsole support.
-Date: Thu, 3 Nov 2011 10:15:01 -0400
-Message-ID: <20111103141501.GB26799@phenom.dumpdata.com>
-References: <20111027173527.GA23839@phenom.dumpdata.com>
-	<1319751802-27013-1-git-send-email-miche@google.com>
-	<1319770558.2529.20.camel@Joe-Laptop>
-	<4EAAF23C.8050102@codeaurora.org> <87k47itc7u.fsf@rustcorp.com.au>
-	<4EB28B37.8030301@de.ibm.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [Qemu-devel] [PATCH] virtio: Add PCI memory BAR in addition to
+	PIO BAR
+Date: Thu, 3 Nov 2011 16:31:30 +0200
+Message-ID: <20111103143129.GA20860@redhat.com>
+References: <1317360376-12090-1-git-send-email-david@gibson.dropbear.id.au>
+	<4EB07096.4070806@us.ibm.com> <4EB26EA5.4060606@redhat.com>
+	<4EB291F4.8070503@us.ibm.com> <4EB29381.9060707@redhat.com>
+	<4EB2993C.9000902@codemonkey.ws> <4EB29B00.10907@redhat.com>
+	<4EB29BEB.4070603@codemonkey.ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <4EB28B37.8030301@de.ibm.com>
+In-Reply-To: <4EB29BEB.4070603@codemonkey.ws>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,31 +23,72 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: xen-devel@lists.xensource.com, Stephen Boyd <sboyd@codeaurora.org>, Greg Kroah-Hartman <gregkh@suse.de>, Miche Baker-Harvey <miche@google.com>, linux-kernel@vger.kernel.org, Rusty Russell <rusty@ozlabs.org>, virtualization@lists.linux-foundation.org, Amit Shah <amit.shah@redhat.com>, Hendrik Brueckner <brueckner@linux.vnet.ibm.com>, Anton Blanchard <anton@samba.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Joe Perches <joe@perches.com>
+To: Anthony Liguori <anthony@codemonkey.ws>
+Cc: kvm@vger.kernel.org, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Pekka Enberg <penberg@kernel.org>, Avi Kivity <avi@redhat.com>, David Gibson <david@gibson.dropbear.id.au>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Nov 03, 2011 at 01:38:15PM +0100, Christian Borntraeger wrote:
-> On 02/11/11 23:02, Rusty Russell wrote:
-> > Ben, Christian, can you figure out what's going on?  Is it time for a
-> > complete rewrite?
+On Thu, Nov 03, 2011 at 08:49:31AM -0500, Anthony Liguori wrote:
+> On 11/03/2011 08:45 AM, Avi Kivity wrote:
+> >On 11/03/2011 03:38 PM, Anthony Liguori wrote:
+> >>>
+> >>>>We could use a better agreement on the processor for making virtio
+> >>>>changes. Should it go (1) virtio spec (2) kernel (3) qemu, or should
+> >>>>it go (2), (1), (3)?
+> >>>
+> >>>1. Informal discussion
+> >>
+> >>
+> >>Where?  Is this lkml?  There were a number of virtio changes recently
+> >>that never involved qemu-devel.
+> >
+> >Theoretically, virtualization@lists.linux-foundation.org, if it still
+> >exists.  Maybe we need a virtio list. qemu-devel@, kvm@, lkml could be
+> >copied.
 > 
-> You are talking about hvc console? Yes it has so many users that it is now
-> something like a console/tty layer extension, but it was never designed to be
-> one. 
-> 
-> I think the hardest part would be to get all users together (for testing and
-> requirements) and then to find someone that is actually doing that rework. Dont
+> Perhaps it's time to create a virtio@vger?  Just have a simple
+> process that all spec changes to there the appropriate kernel, QEMU,
+> virtio-win, or NKT maintainers can require any virtio change to also
+> have a committed spec change first.
 
-I am volunteering myself to test the Xen user of it. Perhaps even add some patches,
-albeit my knowledge of the hvc console is that "it works" (well, with this minor
-speed bump).
+Historically virtualization@lists.linux-foundation.org was used,
+that is still low enough volume. It was down but seems to be
+up now. It's easy enough for me to subscribe to yet
+another list but my concern is that if we move we might loose some
+people that don't notice the change.
 
-> know if the pain level is already that high?
+Anything wrong with just using the old list?
+It's on the MAINTAINERS file, I'm not sure why it was bypassed in this case.
+Maybe linux-foundation.org was still down when the patch was posted?
+
+> >The point is that we can't drive virtio from either qemu or the kernel
+> >any more.  The spec represents the "virtual hardware manufacturer",
+> >which qemu and linux/vhost (and others) emulate, and which linux (and
+> >others) write drivers for.
 > 
-> Christian
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> Yup.  We need to be more rigorous about using the spec for that as
+> we've not done a great job historically here.
+> 
+> Regards,
+> 
+> Anthony Liguori
+> 
+> >
+> >>
+> >>>2. Proposed spec patch, kernel change, qemu change
+> >>>3. Buy-ins from spec maintainer, kernel driver maintainer, qemu device
+> >>>maintainer (only regarding the ABI, not the code)
+> >>
+> >>I don't think this is how it's working today.  I would be happy with a
+> >>flow like this.
+> >
+> >If Michael and Rusty agree, we can adopt it immediately.
+> >
+
+If I understand the proposal, what is suggested is that
+all of spec, kvm and virtio patches are posted on list and
+acked before merging any one of them?
+
+Sure, this makes sense.
+
+-- 
+MST
