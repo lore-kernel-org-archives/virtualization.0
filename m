@@ -1,7 +1,7 @@
 From: Dan Carpenter <dan.carpenter@oracle.com>
-Subject: [patch] xen-gntdev: integer overflow in gntdev_alloc_map()
-Date: Fri, 4 Nov 2011 21:23:32 +0300
-Message-ID: <20111104182332.GC5796__47527.8497710407$1321323107$gmane$org@elgon.mountain>
+Subject: [patch 1/2] xen-gntalloc: integer overflow in gntalloc_ioctl_alloc()
+Date: Fri, 4 Nov 2011 21:24:08 +0300
+Message-ID: <20111104182408.GD5796__28543.7259510674$1321323109$gmane$org@elgon.mountain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -20,29 +20,24 @@ To: Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>
 Cc: kernel-janitors@vger.kernel.org, xen-devel@lists.xensource.com, virtualization@lists.linux-foundation.org, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The multiplications here can overflow resulting in smaller buffer
-sizes than expected.  "count" comes from a copy_from_user().
+On 32 bit systems a high value of op.count could lead to an integer
+overflow in the kzalloc() and gref_ids would be smaller than
+expected.  If the you triggered another integer overflow in
+"if (gref_size + op.count > limit)" then you'd probably get memory
+corruption inside add_grefs().
 
 Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
 
-diff --git a/drivers/xen/gntdev.c b/drivers/xen/gntdev.c
-index 880798a..2f3c363 100644
---- a/drivers/xen/gntdev.c
-+++ b/drivers/xen/gntdev.c
-@@ -114,11 +114,11 @@ static struct grant_map *gntdev_alloc_map(struct gntdev_priv *priv, int count)
- 	if (NULL == add)
- 		return NULL;
+diff --git a/drivers/xen/gntalloc.c b/drivers/xen/gntalloc.c
+index f6832f4..23c60cf 100644
+--- a/drivers/xen/gntalloc.c
++++ b/drivers/xen/gntalloc.c
+@@ -280,7 +280,7 @@ static long gntalloc_ioctl_alloc(struct gntalloc_file_private_data *priv,
+ 		goto out;
+ 	}
  
--	add->grants    = kzalloc(sizeof(add->grants[0])    * count, GFP_KERNEL);
--	add->map_ops   = kzalloc(sizeof(add->map_ops[0])   * count, GFP_KERNEL);
--	add->unmap_ops = kzalloc(sizeof(add->unmap_ops[0]) * count, GFP_KERNEL);
--	add->kmap_ops  = kzalloc(sizeof(add->kmap_ops[0])  * count, GFP_KERNEL);
--	add->pages     = kzalloc(sizeof(add->pages[0])     * count, GFP_KERNEL);
-+	add->grants    = kcalloc(count, sizeof(add->grants[0]), GFP_KERNEL);
-+	add->map_ops   = kcalloc(count, sizeof(add->map_ops[0]), GFP_KERNEL);
-+	add->unmap_ops = kcalloc(count, sizeof(add->unmap_ops[0]), GFP_KERNEL);
-+	add->kmap_ops  = kcalloc(count, sizeof(add->kmap_ops[0]), GFP_KERNEL);
-+	add->pages     = kcalloc(count, sizeof(add->pages[0]), GFP_KERNEL);
- 	if (NULL == add->grants    ||
- 	    NULL == add->map_ops   ||
- 	    NULL == add->unmap_ops ||
+-	gref_ids = kzalloc(sizeof(gref_ids[0]) * op.count, GFP_TEMPORARY);
++	gref_ids = kcalloc(op.count, sizeof(gref_ids[0]), GFP_TEMPORARY);
+ 	if (!gref_ids) {
+ 		rc = -ENOMEM;
+ 		goto out;
