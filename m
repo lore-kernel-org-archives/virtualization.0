@@ -1,7 +1,7 @@
 From: Dan Carpenter <dan.carpenter@oracle.com>
-Subject: [patch 1/2] xen-gntalloc: integer overflow in gntalloc_ioctl_alloc()
-Date: Fri, 4 Nov 2011 21:24:08 +0300
-Message-ID: <20111104182408.GD5796__28543.7259510674$1321323109$gmane$org@elgon.mountain>
+Subject: [patch 2/2] xen-gntalloc: signedness bug in add_grefs()
+Date: Fri, 4 Nov 2011 21:24:36 +0300
+Message-ID: <20111104182436.GE5796__18825.4820219756$1321323113$gmane$org@elgon.mountain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -20,24 +20,24 @@ To: Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>
 Cc: kernel-janitors@vger.kernel.org, xen-devel@lists.xensource.com, virtualization@lists.linux-foundation.org, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 32 bit systems a high value of op.count could lead to an integer
-overflow in the kzalloc() and gref_ids would be smaller than
-expected.  If the you triggered another integer overflow in
-"if (gref_size + op.count > limit)" then you'd probably get memory
-corruption inside add_grefs().
+gref->gref_id is unsigned so the error handling didn't work.
+gnttab_grant_foreign_access() returns an int type, so we can add a
+cast here, and it doesn't cause any problems.
+gnttab_grant_foreign_access() can return a variety of errors
+including -ENOSPC, -ENOSYS and -ENOMEM.
 
 Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
 
 diff --git a/drivers/xen/gntalloc.c b/drivers/xen/gntalloc.c
-index f6832f4..23c60cf 100644
+index 23c60cf..e1c4c6e 100644
 --- a/drivers/xen/gntalloc.c
 +++ b/drivers/xen/gntalloc.c
-@@ -280,7 +280,7 @@ static long gntalloc_ioctl_alloc(struct gntalloc_file_private_data *priv,
- 		goto out;
- 	}
- 
--	gref_ids = kzalloc(sizeof(gref_ids[0]) * op.count, GFP_TEMPORARY);
-+	gref_ids = kcalloc(op.count, sizeof(gref_ids[0]), GFP_TEMPORARY);
- 	if (!gref_ids) {
- 		rc = -ENOMEM;
- 		goto out;
+@@ -135,7 +135,7 @@ static int add_grefs(struct ioctl_gntalloc_alloc_gref *op,
+ 		/* Grant foreign access to the page. */
+ 		gref->gref_id = gnttab_grant_foreign_access(op->domid,
+ 			pfn_to_mfn(page_to_pfn(gref->page)), readonly);
+-		if (gref->gref_id < 0) {
++		if ((int)gref->gref_id < 0) {
+ 			rc = gref->gref_id;
+ 			goto undo;
+ 		}
