@@ -1,15 +1,15 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH 3 of 5] virtio: support unlocked queue kick
-Date: Fri, 04 Nov 2011 21:06:09 +1030
-Message-ID: <87k47grx7q.fsf@rustcorp.com.au>
-References: <patchbomb.1320306168@localhost6.localdomain6>
-	<c0db93dbb414ab6dbcde.1320306171@localhost6.localdomain6>
-	<20111103075211.GD6993@infradead.org>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: virtio-pci new configuration proposal
+Date: Fri, 4 Nov 2011 13:40:33 +0200
+Message-ID: <20111104114033.GA21308__1178.82456766001$1320406879$gmane$org@redhat.com>
+References: <1320259767.22582.2.camel@lappy> <8762j2t19l.fsf@rustcorp.com.au>
+	<1320309203.29407.1.camel@lappy> <87lirwrzlg.fsf@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20111103075211.GD6993@infradead.org>
+Content-Disposition: inline
+In-Reply-To: <87lirwrzlg.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,29 +19,21 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-Cc: Christoph Hellwig <hch@infradead.org>, virtualization <virtualization@lists.linux-foundation.org>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, mst@redhat.com
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Anthony Liguori <anthony@codemonkey.ws>, virtualization <virtualization@lists.linux-foundation.org>, Sasha Levin <levinsasha928@gmail.com>, kvm <kvm@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 3 Nov 2011 03:52:11 -0400, Christoph Hellwig <hch@infradead.org> wrote:
-> On Thu, Nov 03, 2011 at 06:12:51PM +1030, Rusty Russell wrote:
-> > Based on patch by Christoph for virtio_blk speedup:
-> 
-> Please credit it to Stefan - he also sent a pointer to his original
-> version in reply to the previous thread.
-> 
-> Also shouldn't virtqueue_kick have kerneldoc comments?
+On Fri, Nov 04, 2011 at 08:14:43PM +1030, Rusty Russell wrote:
+> > > 3) If we're changing the queue layout, it's a chance to fix a
+> > >    longstanding bug: let the guest notify the host of preferred
+> > >    queue size and alignment.
+> > 
+> > Yup, we can do that.
 
-Yep, and I've credited it properly.
+We don't need to change all of layout for that - just add another field
+in the common config structure to supply the alignment.
 
-> I also notices that you documented the functions bother here and in
-> the first patch in the headers.  At least historically the kerneldoc
-> tools didn't parse comments at declarations, but only at the function
-> defintions.  Did you check these actually get picked up?
+> The seabios guys will definitely thank you!
 
-Gah, I'd forgotten that the kernel tendency is to put the interface
-documentation next to the implementation.
-
-Personally, I think extracting it is insane, but I've moved them.
-
-Thanks,
-Rusty.
+-- 
+MST
