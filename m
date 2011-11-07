@@ -1,19 +1,21 @@
-From: Greg KH <gregkh@suse.de>
-Subject: Re: Regression: patch " hvc_console: display printk messages on
-	console." causing infinite loop with 3.2-rc0 + Xen.
-Date: Mon, 7 Nov 2011 12:24:51 -0800
-Message-ID: <20111107202451.GA14482@suse.de>
-References: <20111027053007.GA32765@phenom.dumpdata.com>
-	<20111027054806.GA1377@suse.de>
-	<20111102121309.4dbb0d2ac90d2879130820dd@canb.auug.org.au>
-	<20111103013012.GB3449@suse.de>
-	<20111107171942.fe21429583491475f245aa08@canb.auug.org.au>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: virtio-pci new configuration proposal
+Date: Mon, 7 Nov 2011 23:14:14 +0200
+Message-ID: <20111107211413.GA11577@redhat.com>
+References: <20111104114033.GA21308@redhat.com> <1320409939.3334.6.camel@lappy>
+	<20111104135113.GA24452@redhat.com>
+	<1320414804.3334.13.camel@lappy>
+	<20111104142338.GB24452@redhat.com>
+	<1320418385.3334.25.camel@lappy> <20111106073007.GA7146@redhat.com>
+	<1320611097.3299.10.camel@lappy>
+	<20111106213849.GA14292@redhat.com>
+	<871utktsuw.fsf@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20111107171942.fe21429583491475f245aa08@canb.auug.org.au>
+In-Reply-To: <871utktsuw.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,53 +25,39 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Stephen Rothwell <sfr@canb.auug.org.au>
-Cc: xen-devel@lists.xensource.com, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, ppc-dev <linuxppc-dev@lists.ozlabs.org>, miche@google.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Anton Blanchard <anton@samba.org>, Amit Shah <amit.shah@redhat.com>, Linus <torvalds@linux-foundation.org>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Anthony Liguori <anthony@codemonkey.ws>, virtualization <virtualization@lists.linux-foundation.org>, Sasha Levin <levinsasha928@gmail.com>, kvm <kvm@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Nov 07, 2011 at 05:19:42PM +1100, Stephen Rothwell wrote:
-> Hi Greg,
-> 
-> On Wed, 2 Nov 2011 18:30:12 -0700 Greg KH <gregkh@suse.de> wrote:
-> >
-> > On Wed, Nov 02, 2011 at 12:13:09PM +1100, Stephen Rothwell wrote:
-> > > 
-> > > On Thu, 27 Oct 2011 07:48:06 +0200 Greg KH <gregkh@suse.de> wrote:
-> > > >
-> > > > On Thu, Oct 27, 2011 at 01:30:08AM -0400, Konrad Rzeszutek Wilk wrote:
-> > > > > Hey Miche.
+On Mon, Nov 07, 2011 at 03:46:23PM +1030, Rusty Russell wrote:
+> On Sun, 6 Nov 2011 23:38:49 +0200, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> > On Sun, Nov 06, 2011 at 10:24:57PM +0200, Sasha Levin wrote:
+> > > On Sun, 2011-11-06 at 09:30 +0200, Michael S. Tsirkin wrote:
+> > > > On Fri, Nov 04, 2011 at 04:53:05PM +0200, Sasha Levin wrote:
+> > > > > > I guess my assumption is that most options will be in use,
+> > > > > > not discarded dead-ends.
 > > > > > 
-> > > > > The git commit 361162459f62dc0826b82c9690a741a940f457f0:
-> > > > > 
-> > > > >     hvc_console: display printk messages on console.
-> > > > > 
-> > > > > is causing an infinite loop when booting Linux under Xen, as so:
-> > > > 
-> > > > Ick, not good, thanks for letting us know.
-> > > 
-> > > Indeed. I am wondering why it was put in a tree and sent to Linus without
-> > > any Acks or even being replied to by anyone.  It appeared in the tty tree
-> > > between Oct 14 and Oct 25 (while I was unfortunately on vacation).  If
-> > > anyone had tried to boot this on any PowerPC server, it would have been
-> > > immediately obvious (as it was when I booted Linus' tree last night).
-> > > 
-> > > And the original author expressed doubts as to his understanding of how
-> > > it should all work anyway.
-> > > 
-> > > Just a little more care, please.
-> > > 
-> > > I would vote for reverting the original and having it resubmitted with
-> > > corrections at some later date.
-> > 
-> > You are right, I will go do that, sorry for the problems.
+> > > > > I don't know about that. 64 bit features would be pretty rare for now -
+> > > > > and I don't think that setting the alignment will be also enabled by
+> > > > > default.
 > 
-> Ping ...
+> The truth is somewhere between.  New features tend to be used, and
+> importantly, they have to be offered.
 > 
-> Linus can you please just revert 361162459f62dc0826b82c9690a741a940f457f0
-> "hvc_console: display printk messages on console" as it breaks consoles
-> for all PowerPC server machines.
+> Anyway, the *per-device* config part will be contiguous.  So we're
+> talking about pci-specific features.
+> 
+> So far, the only three things make sense to have in a capability list:
+> MSI-X, the upper 32 feature bits, and the per-device config.
+> 
+> Thanks,
+> Rusty.
 
-Thanks for doing this, I was going to include it in my next pull request
-after 3.2-rc1 was out, but you are right, it should have gone in sooner.
+You mean the queue # to MSI-X vector mapping?
+One thing to remember is that it must be in the same type of BAR as
+the queue selection, since by PCI rules MMIO writes aren't I think
+ordered with PIO writes (it doesn't matter with KVM but might
+with another hypervisor).
 
-greg k-h
+-- 
+MST
