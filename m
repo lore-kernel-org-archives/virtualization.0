@@ -1,7 +1,7 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 02/11] Staging: hv: storvsc: Cleanup error handling in the probe function
-Date: Tue,  8 Nov 2011 09:01:41 -0800
-Message-ID: <1320771710-29139-2-git-send-email-kys@microsoft.com>
+Subject: [PATCH 08/11] Staging: hv: storvsc: Get rid of an unnecessary forward declaration
+Date: Tue,  8 Nov 2011 09:01:47 -0800
+Message-ID: <1320771710-29139-8-git-send-email-kys@microsoft.com>
 References: <1320771677-29095-1-git-send-email-kys@microsoft.com>
  <1320771710-29139-1-git-send-email-kys@microsoft.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
@@ -11,98 +11,26 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Cleanup error handling in the probe function.
+Get rid of an unnecessary forward declaration.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- drivers/staging/hv/storvsc_drv.c |   42 +++++++++++++++++++++----------------
- 1 files changed, 24 insertions(+), 18 deletions(-)
+ drivers/staging/hv/storvsc_drv.c |    2 --
+ 1 files changed, 0 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
-index 6a255e9..a72cc22 100644
+index 916f5d0..4cdb417 100644
 --- a/drivers/staging/hv/storvsc_drv.c
 +++ b/drivers/staging/hv/storvsc_drv.c
-@@ -1388,17 +1388,14 @@ static int storvsc_probe(struct hv_device *device,
- 						host_dev->request_pool);
+@@ -236,8 +236,6 @@ struct vstor_packet {
+ #define STORVSC_MAX_CHANNELS				1
+ #define STORVSC_MAX_CMD_LEN				16
  
- 	if (!host_dev->request_mempool) {
--		kmem_cache_destroy(host_dev->request_pool);
--		scsi_host_put(host);
--		return -ENOMEM;
-+		ret = -ENOMEM;
-+		goto err_out0;
- 	}
- 
- 	stor_device = kzalloc(sizeof(struct storvsc_device), GFP_KERNEL);
- 	if (!stor_device) {
--		mempool_destroy(host_dev->request_mempool);
--		kmem_cache_destroy(host_dev->request_pool);
--		scsi_host_put(host);
--		return -ENOMEM;
-+		ret = -ENOMEM;
-+		goto err_out1;
- 	}
- 
- 	stor_device->destroy = false;
-@@ -1409,13 +1406,8 @@ static int storvsc_probe(struct hv_device *device,
- 
- 	stor_device->port_number = host->host_no;
- 	ret = storvsc_connect_to_vsp(device, storvsc_ringbuffer_size);
--	if (ret) {
--		mempool_destroy(host_dev->request_mempool);
--		kmem_cache_destroy(host_dev->request_pool);
--		scsi_host_put(host);
--		kfree(stor_device);
--		return ret;
--	}
-+	if (ret)
-+		goto err_out2;
- 
- 	if (dev_is_ide)
- 		storvsc_get_ide_info(device, &target, &path);
-@@ -1435,7 +1427,7 @@ static int storvsc_probe(struct hv_device *device,
- 	/* Register the HBA and start the scsi bus scan */
- 	ret = scsi_add_host(host, &device->device);
- 	if (ret != 0)
--		goto err_out;
-+		goto err_out3;
- 
- 	if (!dev_is_ide) {
- 		scsi_scan_host(host);
-@@ -1444,16 +1436,30 @@ static int storvsc_probe(struct hv_device *device,
- 	ret = scsi_add_device(host, 0, target, 0);
- 	if (ret) {
- 		scsi_remove_host(host);
--		goto err_out;
-+		goto err_out3;
- 	}
- 	return 0;
- 
--err_out:
-+err_out3:
-+	/*
-+	 * Once we have connected with the host, we would need to
-+	 * to invoke storvsc_dev_remove() to rollback this state and
-+	 * this call also frees up the stor_device; hence the jump around
-+	 * err_out2 label.
-+	 */
- 	storvsc_dev_remove(device);
-+	goto err_out1;
-+
-+err_out2:
-+	kfree(stor_device);
-+
-+err_out1:
- 	mempool_destroy(host_dev->request_mempool);
-+
-+err_out0:
- 	kmem_cache_destroy(host_dev->request_pool);
- 	scsi_host_put(host);
--	return -ENODEV;
-+	return ret;
- }
- 
- /* The one and only one */
+-struct hv_storvsc_request;
+-
+ /* Matches Windows-end */
+ enum storvsc_request_type {
+ 	WRITE_TYPE,
 -- 
 1.7.4.1
