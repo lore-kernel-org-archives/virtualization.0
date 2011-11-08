@@ -1,7 +1,8 @@
 From: Miche Baker-Harvey <miche@google.com>
-Subject: [PATCH v2 1/3] virtio_console:  Fix locking of vtermno.
-Date: Tue, 08 Nov 2011 11:29:54 -0800
-Message-ID: <20111108192954.30618.71677.stgit@miche.sea.corp.google.com>
+Subject: [PATCH v2 3/3] Use separate struct console structure for each
+	hvc_console.
+Date: Tue, 08 Nov 2011 11:30:04 -0800
+Message-ID: <20111108193004.30618.16661.stgit@miche.sea.corp.google.com>
 References: <20111108192949.30618.3953.stgit@miche.sea.corp.google.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -20,42 +21,90 @@ Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Some modifications of vtermno were not done under the spinlock.
+It is possible to make any virtio_console port be a console
+by sending VIRITO_CONSOLE_CONSOLE_PORT.  But hvc_alloc was
+using a single struct console hvc_console, which contains
+both an index and flags which are per-port.
 
-Moved assignment from vtermno and increment of vtermno together,
-putting both under the spinlock.  Revert vtermno on failure.
+This adds a separate struct console for each virtio_console
+that is CONSOLE_PORT.
 
 Signed-off-by: Miche Baker-Harvey <miche@google.com>
 ---
- drivers/char/virtio_console.c |    9 ++++++---
- 1 files changed, 6 insertions(+), 3 deletions(-)
+ drivers/tty/hvc/hvc_console.c |   20 ++++++++++++++++++++
+ drivers/tty/hvc/hvc_console.h |    1 +
+ 2 files changed, 21 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index 8e3c46d..9722e76 100644
---- a/drivers/char/virtio_console.c
-+++ b/drivers/char/virtio_console.c
-@@ -987,18 +987,21 @@ int init_port_console(struct port *port)
- 	 * pointers.  The final argument is the output buffer size: we
- 	 * can do any size, so we put PAGE_SIZE here.
- 	 */
--	port->cons.vtermno = pdrvdata.next_vtermno;
-+	spin_lock_irq(&pdrvdata_lock);
-+	port->cons.vtermno = pdrvdata.next_vtermno++;
-+	spin_unlock_irq(&pdrvdata_lock);
+diff --git a/drivers/tty/hvc/hvc_console.c b/drivers/tty/hvc/hvc_console.c
+index 09a6159..24a84d6 100644
+--- a/drivers/tty/hvc/hvc_console.c
++++ b/drivers/tty/hvc/hvc_console.c
+@@ -247,6 +247,7 @@ static void destroy_hvc_struct(struct kref *kref)
  
- 	port->cons.hvc = hvc_alloc(port->cons.vtermno, 0, &hv_ops, PAGE_SIZE);
-+	spin_lock_irq(&pdrvdata_lock);
- 	if (IS_ERR(port->cons.hvc)) {
- 		ret = PTR_ERR(port->cons.hvc);
- 		dev_err(port->dev,
- 			"error %d allocating hvc for port\n", ret);
- 		port->cons.hvc = NULL;
-+		port->cons.vtermno = pdrvdata.next_vtermno--;
-+		spin_unlock_irq(&pdrvdata_lock);
- 		return ret;
- 	}
--	spin_lock_irq(&pdrvdata_lock);
--	pdrvdata.next_vtermno++;
- 	list_add_tail(&port->cons.list, &pdrvdata.consoles);
- 	spin_unlock_irq(&pdrvdata_lock);
- 	port->guest_connected = true;
+ 	spin_unlock(&hvc_structs_lock);
+ 
++	kfree(hp->hvc_console);
+ 	kfree(hp);
+ }
+ 
+@@ -827,6 +828,7 @@ struct hvc_struct *hvc_alloc(uint32_t vtermno, int data,
+ 			     int outbuf_size)
+ {
+ 	struct hvc_struct *hp;
++	struct console *cp;
+ 	int i;
+ 
+ 	/* We wait until a driver actually comes along */
+@@ -854,6 +856,17 @@ struct hvc_struct *hvc_alloc(uint32_t vtermno, int data,
+ 	kref_init(&hp->kref);
+ 
+ 	INIT_WORK(&hp->tty_resize, hvc_set_winsz);
++	/*
++	 * Make each console its own struct console.
++	 */
++	cp = kmemdup(&hvc_console, sizeof(*cp), GFP_KERNEL);
++	if (!cp) {
++		kfree(hp);
++		return ERR_PTR(-ENOMEM);
++	}
++
++	hp->hvc_console = cp;
++
+ 	spin_lock_init(&hp->lock);
+ 	spin_lock(&hvc_structs_lock);
+ 
+@@ -872,8 +885,13 @@ struct hvc_struct *hvc_alloc(uint32_t vtermno, int data,
+ 
+ 	hp->index = i;
+ 
++	cp->index = i;
++	vtermnos[i] = vtermno;
++	cons_ops[i] = ops;
++
+ 	list_add_tail(&(hp->next), &hvc_structs);
+ 	spin_unlock(&hvc_structs_lock);
++	register_console(cp);
+ 
+ 	return hp;
+ }
+@@ -884,6 +902,8 @@ int hvc_remove(struct hvc_struct *hp)
+ 	unsigned long flags;
+ 	struct tty_struct *tty;
+ 
++	BUG_ON(!hp->hvc_console);
++	unregister_console(hp->hvc_console);
+ 	spin_lock_irqsave(&hp->lock, flags);
+ 	tty = tty_kref_get(hp->tty);
+ 
+diff --git a/drivers/tty/hvc/hvc_console.h b/drivers/tty/hvc/hvc_console.h
+index c335a14..2d20ab7 100644
+--- a/drivers/tty/hvc/hvc_console.h
++++ b/drivers/tty/hvc/hvc_console.h
+@@ -58,6 +58,7 @@ struct hvc_struct {
+ 	const struct hv_ops *ops;
+ 	int irq_requested;
+ 	int data;
++	struct console *hvc_console;
+ 	struct winsize ws;
+ 	struct work_struct tty_resize;
+ 	struct list_head next;
