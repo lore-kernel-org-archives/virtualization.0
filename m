@@ -1,8 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 03/11] Staging: hv: storvsc: Fixup the error when processing
-	SET_WINDOW command
-Date: Tue,  8 Nov 2011 09:01:42 -0800
-Message-ID: <1320771710-29139-3-git-send-email-kys@microsoft.com>
+Subject: [PATCH 09/11] Staging: hv: storvsc: Upgrade the vmstor protocol
+	version
+Date: Tue,  8 Nov 2011 09:01:48 -0800
+Message-ID: <1320771710-29139-9-git-send-email-kys@microsoft.com>
 References: <1320771677-29095-1-git-send-email-kys@microsoft.com>
 	<1320771710-29139-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -23,26 +23,37 @@ To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, 
 Cc: Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Fixup the error when processing SET_WINDOW command.
+In preparation for supporting hot add/remove of scsi devices,
+upgrade the vmstor protocol version.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- drivers/staging/hv/storvsc_drv.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+ drivers/staging/hv/storvsc_drv.c |    5 +++--
+ 1 files changed, 3 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
-index a72cc22..e16c7a3 100644
+index 4cdb417..9153641 100644
 --- a/drivers/staging/hv/storvsc_drv.c
 +++ b/drivers/staging/hv/storvsc_drv.c
-@@ -1136,7 +1136,7 @@ static bool storvsc_check_scsi_cmd(struct scsi_cmnd *scmnd)
- 	switch (scsi_op) {
- 	/* smartd sends this command, which will offline the device */
- 	case SET_WINDOW:
--		scmnd->result = DID_ERROR << 16;
-+		scmnd->result = ILLEGAL_REQUEST << 16;
- 		allowed = false;
- 		break;
- 	default:
+@@ -80,7 +80,7 @@ MODULE_PARM_DESC(storvsc_ringbuffer_size, "Ring buffer size (bytes)");
+ /* V1 Beta                    0.1 */
+ /* V1 RC < 2008/1/31          1.0 */
+ /* V1 RC > 2008/1/31          2.0 */
+-#define VMSTOR_PROTOCOL_VERSION_CURRENT VMSTOR_PROTOCOL_VERSION(2, 0)
++#define VMSTOR_PROTOCOL_VERSION_CURRENT VMSTOR_PROTOCOL_VERSION(4, 2)
+ 
+ 
+ 
+@@ -106,7 +106,8 @@ enum vstor_packet_operation {
+ 	VSTOR_OPERATION_END_INITIALIZATION	= 8,
+ 	VSTOR_OPERATION_QUERY_PROTOCOL_VERSION	= 9,
+ 	VSTOR_OPERATION_QUERY_PROPERTIES	= 10,
+-	VSTOR_OPERATION_MAXIMUM			= 10
++	VSTOR_OPERATION_ENUMERATE_BUS		= 11,
++	VSTOR_OPERATION_MAXIMUM			= 11
+ };
+ 
+ /*
 -- 
 1.7.4.1
