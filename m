@@ -1,7 +1,7 @@
 From: Miche Baker-Harvey <miche@google.com>
-Subject: [PATCH v3 1/3] virtio_console:  Fix locking of vtermno.
-Date: Tue, 08 Nov 2011 13:44:58 -0800
-Message-ID: <20111108214458.28884.86759.stgit__22251.2953951538$1321323131$gmane$org@miche.sea.corp.google.com>
+Subject: [PATCH v3 2/3] hvc_init():  Enforce one-time initialization.
+Date: Tue, 08 Nov 2011 13:45:04 -0800
+Message-ID: <20111108214504.28884.61814.stgit__44050.6947147243$1321323134$gmane$org@miche.sea.corp.google.com>
 References: <20111108214452.28884.14840.stgit@miche.sea.corp.google.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,42 +21,58 @@ To: Greg Kroah-Hartman <gregkh@suse.de>
 Cc: Stephen Rothwell <sfr@canb.auug.org.au>, xen-devel@lists.xensource.com, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Anton Blanchard <anton@samba.org>, Amit Shah <amit.shah@redhat.com>, Mike Waychison <mikew@google.com>, ppc-dev <linuxppc-dev@lists.ozlabs.org>, Eric Northrup <digitaleric@google.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Some modifications of vtermno were not done under the spinlock.
+hvc_init() must only be called once, and no thread should continue with hvc_alloc()
+until after initialization is complete.  The original code does not enforce either
+of these requirements.  A new mutex limits entry to hvc_init() to a single thread,
+and blocks all later comers until it has completed.
 
-Moved assignment from vtermno and increment of vtermno together,
-putting both under the spinlock.  Revert vtermno on failure.
+This patch fixes multiple crash symptoms.
 
 Signed-off-by: Miche Baker-Harvey <miche@google.com>
 ---
- drivers/char/virtio_console.c |    9 ++++++---
- 1 files changed, 6 insertions(+), 3 deletions(-)
+ drivers/tty/hvc/hvc_console.c |   13 +++++++++++--
+ 1 files changed, 11 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index 8e3c46d..9722e76 100644
---- a/drivers/char/virtio_console.c
-+++ b/drivers/char/virtio_console.c
-@@ -987,18 +987,21 @@ int init_port_console(struct port *port)
- 	 * pointers.  The final argument is the output buffer size: we
- 	 * can do any size, so we put PAGE_SIZE here.
- 	 */
--	port->cons.vtermno = pdrvdata.next_vtermno;
-+	spin_lock_irq(&pdrvdata_lock);
-+	port->cons.vtermno = pdrvdata.next_vtermno++;
-+	spin_unlock_irq(&pdrvdata_lock);
+diff --git a/drivers/tty/hvc/hvc_console.c b/drivers/tty/hvc/hvc_console.c
+index b6b2d18..09a6159 100644
+--- a/drivers/tty/hvc/hvc_console.c
++++ b/drivers/tty/hvc/hvc_console.c
+@@ -29,8 +29,9 @@
+ #include <linux/kernel.h>
+ #include <linux/kthread.h>
+ #include <linux/list.h>
+-#include <linux/module.h>
+ #include <linux/major.h>
++#include <linux/module.h>
++#include <linux/mutex.h>
+ #include <linux/sysrq.h>
+ #include <linux/tty.h>
+ #include <linux/tty_flip.h>
+@@ -84,6 +85,10 @@ static LIST_HEAD(hvc_structs);
+  * list traversal.
+  */
+ static DEFINE_SPINLOCK(hvc_structs_lock);
++/*
++ * only one task does allocation at a time.
++ */
++static DEFINE_MUTEX(hvc_ports_mutex);
  
- 	port->cons.hvc = hvc_alloc(port->cons.vtermno, 0, &hv_ops, PAGE_SIZE);
-+	spin_lock_irq(&pdrvdata_lock);
- 	if (IS_ERR(port->cons.hvc)) {
- 		ret = PTR_ERR(port->cons.hvc);
- 		dev_err(port->dev,
- 			"error %d allocating hvc for port\n", ret);
- 		port->cons.hvc = NULL;
-+		port->cons.vtermno = pdrvdata.next_vtermno--;
-+		spin_unlock_irq(&pdrvdata_lock);
- 		return ret;
+ /*
+  * This value is used to assign a tty->index value to a hvc_struct based
+@@ -825,11 +830,15 @@ struct hvc_struct *hvc_alloc(uint32_t vtermno, int data,
+ 	int i;
+ 
+ 	/* We wait until a driver actually comes along */
++	mutex_lock(&hvc_ports_mutex);
+ 	if (!hvc_driver) {
+ 		int err = hvc_init();
+-		if (err)
++		if (err) {
++			mutex_unlock(&hvc_ports_mutex);
+ 			return ERR_PTR(err);
++		}
  	}
--	spin_lock_irq(&pdrvdata_lock);
--	pdrvdata.next_vtermno++;
- 	list_add_tail(&port->cons.list, &pdrvdata.consoles);
- 	spin_unlock_irq(&pdrvdata_lock);
- 	port->guest_connected = true;
++	mutex_unlock(&hvc_ports_mutex);
+ 
+ 	hp = kzalloc(ALIGN(sizeof(*hp), sizeof(long)) + outbuf_size,
+ 			GFP_KERNEL);
