@@ -1,84 +1,51 @@
-From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 10/11] Staging: hv: storvsc: Support hot add of scsi disks
-Date: Tue,  8 Nov 2011 09:01:49 -0800
-Message-ID: <1320771710-29139-10-git-send-email-kys@microsoft.com>
-References: <1320771677-29095-1-git-send-email-kys@microsoft.com>
- <1320771710-29139-1-git-send-email-kys@microsoft.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1320771710-29139-1-git-send-email-kys@microsoft.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org, ohering@suse.com, James.Bottomley@HansenPartnership.com, hch@infradead.org
-Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH] virtio-pci: fix use after free
+Date: Tue, 08 Nov 2011 20:49:27 +1030
+Message-ID: <87y5vqrk5s.fsf@rustcorp.com.au>
+References: <20111107163703.GA10358@redhat.com>
+	<20111108054616.GC2068@amit-x200.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20111108054616.GC2068@amit-x200.redhat.com>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Amit Shah <amit.shah@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: stable@kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Support hot add of scsi disks.
+On Tue, 8 Nov 2011 11:16:16 +0530, Amit Shah <amit.shah@redhat.com> wrote:
+> On (Mon) 07 Nov 2011 [18:37:05], Michael S. Tsirkin wrote:
+> > Commit 31a3ddda166cda86d2b5111e09ba4bda5239fae6 introduced
+> > a use after free in virtio-pci. The main issue is
+> > that the release method signals removal of the virtio device,
+> > while remove signals removal of the pci device.
+> > 
+> > For example, on driver removal or hot-unplug,
+> > virtio_pci_release_dev is called before virtio_pci_remove.
+> > We then might get a crash as virtio_pci_remove tries to use the
+> > device freed by virtio_pci_release_dev.
+> > 
+> > We allocate/free all resources together with the
+> > pci device, so we can leave the release method empty.
+> > 
+> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> 
+> Acked-by: Amit Shah <amit.shah@redhat.com>
+> 
+> (note: Adding CC: stable@kernel.org to the commit log is the way
+> patches get automatically pulled from upstream when committed; CC'ing
+> stable on submissions won't help with that.)
 
-Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
-Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
----
- drivers/staging/hv/storvsc_drv.c |   38 ++++++++++++++++++++++++++++++++++++++
- 1 files changed, 38 insertions(+), 0 deletions(-)
+Yeah, I fixed it though.
 
-diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
-index 9153641..7c82d14 100644
---- a/drivers/staging/hv/storvsc_drv.c
-+++ b/drivers/staging/hv/storvsc_drv.c
-@@ -304,6 +304,30 @@ struct storvsc_cmd_request {
- 	struct hv_storvsc_request request;
- };
- 
-+struct storvsc_scan_work {
-+	struct work_struct work;
-+	struct Scsi_Host *host;
-+	uint lun;
-+};
-+
-+static void storvsc_bus_scan(struct work_struct *work)
-+{
-+	struct storvsc_scan_work *wrk;
-+	int id, order_id;
-+
-+	wrk = container_of(work, struct storvsc_scan_work, work);
-+	for (id = 0; id < wrk->host->max_id; ++id) {
-+		if (wrk->host->reverse_ordering)
-+			order_id = wrk->host->max_id - id - 1;
-+		else
-+			order_id = id;
-+
-+		scsi_scan_target(&wrk->host->shost_gendev, 0,
-+				order_id, SCAN_WILD_CARD, 1);
-+	}
-+	kfree(wrk);
-+}
-+
- static inline struct storvsc_device *get_out_stor_device(
- 					struct hv_device *device)
- {
-@@ -551,11 +575,25 @@ static void storvsc_on_receive(struct hv_device *device,
- 			     struct vstor_packet *vstor_packet,
- 			     struct hv_storvsc_request *request)
- {
-+	struct storvsc_scan_work *work;
-+	struct storvsc_device *stor_device;
-+
- 	switch (vstor_packet->operation) {
- 	case VSTOR_OPERATION_COMPLETE_IO:
- 		storvsc_on_io_completion(device, vstor_packet, request);
- 		break;
-+
- 	case VSTOR_OPERATION_REMOVE_DEVICE:
-+	case VSTOR_OPERATION_ENUMERATE_BUS:
-+		stor_device = get_in_stor_device(device);
-+		work = kmalloc(sizeof(struct storvsc_scan_work), GFP_ATOMIC);
-+		if (!work)
-+			return;
-+
-+		INIT_WORK(&work->work, storvsc_bus_scan);
-+		work->host = stor_device->host;
-+		schedule_work(&work->work);
-+		break;
- 
- 	default:
- 		break;
--- 
-1.7.4.1
+Cheers,
+Rusty.
