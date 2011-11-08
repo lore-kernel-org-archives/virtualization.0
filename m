@@ -1,14 +1,11 @@
 From: Miche Baker-Harvey <miche@google.com>
-Subject: [PATCH v2 3/3] Use separate struct console structure for each
-	hvc_console.
-Date: Tue, 08 Nov 2011 11:30:04 -0800
-Message-ID: <20111108193004.30618.16661.stgit@miche.sea.corp.google.com>
-References: <20111108192949.30618.3953.stgit@miche.sea.corp.google.com>
+Subject: [PATCH RFC v3 0/3] Support multiple VirtioConsoles.
+Date: Tue, 08 Nov 2011 13:44:53 -0800
+Message-ID: <20111108214452.28884.14840.stgit__26822.3382685848$1321323127$gmane$org@miche.sea.corp.google.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20111108192949.30618.3953.stgit@miche.sea.corp.google.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,93 +15,54 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
+To: Greg Kroah-Hartman <gregkh@suse.de>
+Cc: Stephen Rothwell <sfr@canb.auug.org.au>, xen-devel@lists.xensource.com, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Anton Blanchard <anton@samba.org>, Amit Shah <amit.shah@redhat.com>, Mike Waychison <mikew@google.com>, ppc-dev <linuxppc-dev@lists.ozlabs.org>, Eric Northrup <digitaleric@google.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-It is possible to make any virtio_console port be a console
-by sending VIRITO_CONSOLE_CONSOLE_PORT.  But hvc_alloc was
-using a single struct console hvc_console, which contains
-both an index and flags which are per-port.
+(Amit pointed out that the patches never went out. This was a resend of
+the series meant to go out on 11/2/2011; Now it's a resend of the mail this
+morning, with everyone copied on the same mail.  So sorry for the spam!
+This is v3.)
 
-This adds a separate struct console for each virtio_console
-that is CONSOLE_PORT.
+This patchset applies to linux-next/next-20111102.
 
-Signed-off-by: Miche Baker-Harvey <miche@google.com>
+This series implements support for multiple virtio_consoles using KVM.
+
+This patchset addresses several issues associated with trying to
+establish multiple virtio consoles. 
+
+I'm trying to start a guest via KVM that supports multiple virtual
+consoles, with getty's on each, and with some being console devices.
+
+These patches let me establish more than one VirtioConsole (I'm
+running eight at the moment), and enable console output appearing on
+one of them.  It still doesn't successfully generate console output on
+multiple VirtioConsoles.
+
+Let me apologise for my last patch having gotten into Linus' tree, and
+leaving other people to deal with crashes.  I had meant to be asking
+for guidance, but I didn't mark it as "RFC".
+
+This series reflects the input from Konrad Rzeszutek, Amit Shah, Stephen
+Boyd, and Rusty Russell.  I think we do have to limit hvc_alloc() to one
+thread.
+
+I would appreciate any comments or feedback, or accept if appropriate.
+
+Thanks,
+Miche Baker-Harvey
+
 ---
- drivers/tty/hvc/hvc_console.c |   20 ++++++++++++++++++++
- drivers/tty/hvc/hvc_console.h |    1 +
- 2 files changed, 21 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/tty/hvc/hvc_console.c b/drivers/tty/hvc/hvc_console.c
-index 09a6159..24a84d6 100644
---- a/drivers/tty/hvc/hvc_console.c
-+++ b/drivers/tty/hvc/hvc_console.c
-@@ -247,6 +247,7 @@ static void destroy_hvc_struct(struct kref *kref)
- 
- 	spin_unlock(&hvc_structs_lock);
- 
-+	kfree(hp->hvc_console);
- 	kfree(hp);
- }
- 
-@@ -827,6 +828,7 @@ struct hvc_struct *hvc_alloc(uint32_t vtermno, int data,
- 			     int outbuf_size)
- {
- 	struct hvc_struct *hp;
-+	struct console *cp;
- 	int i;
- 
- 	/* We wait until a driver actually comes along */
-@@ -854,6 +856,17 @@ struct hvc_struct *hvc_alloc(uint32_t vtermno, int data,
- 	kref_init(&hp->kref);
- 
- 	INIT_WORK(&hp->tty_resize, hvc_set_winsz);
-+	/*
-+	 * Make each console its own struct console.
-+	 */
-+	cp = kmemdup(&hvc_console, sizeof(*cp), GFP_KERNEL);
-+	if (!cp) {
-+		kfree(hp);
-+		return ERR_PTR(-ENOMEM);
-+	}
-+
-+	hp->hvc_console = cp;
-+
- 	spin_lock_init(&hp->lock);
- 	spin_lock(&hvc_structs_lock);
- 
-@@ -872,8 +885,13 @@ struct hvc_struct *hvc_alloc(uint32_t vtermno, int data,
- 
- 	hp->index = i;
- 
-+	cp->index = i;
-+	vtermnos[i] = vtermno;
-+	cons_ops[i] = ops;
-+
- 	list_add_tail(&(hp->next), &hvc_structs);
- 	spin_unlock(&hvc_structs_lock);
-+	register_console(cp);
- 
- 	return hp;
- }
-@@ -884,6 +902,8 @@ int hvc_remove(struct hvc_struct *hp)
- 	unsigned long flags;
- 	struct tty_struct *tty;
- 
-+	BUG_ON(!hp->hvc_console);
-+	unregister_console(hp->hvc_console);
- 	spin_lock_irqsave(&hp->lock, flags);
- 	tty = tty_kref_get(hp->tty);
- 
-diff --git a/drivers/tty/hvc/hvc_console.h b/drivers/tty/hvc/hvc_console.h
-index c335a14..2d20ab7 100644
---- a/drivers/tty/hvc/hvc_console.h
-+++ b/drivers/tty/hvc/hvc_console.h
-@@ -58,6 +58,7 @@ struct hvc_struct {
- 	const struct hv_ops *ops;
- 	int irq_requested;
- 	int data;
-+	struct console *hvc_console;
- 	struct winsize ws;
- 	struct work_struct tty_resize;
- 	struct list_head next;
+Miche Baker-Harvey (3):
+      virtio_console:  Fix locking of vtermno.
+      hvc_init():  Enforce one-time initialization.
+      Use separate struct console structure for each hvc_console.
+
+
+ drivers/char/virtio_console.c |    9 ++++++---
+ drivers/tty/hvc/hvc_console.c |   33 +++++++++++++++++++++++++++++++--
+ drivers/tty/hvc/hvc_console.h |    1 +
+ 3 files changed, 38 insertions(+), 5 deletions(-)
+
+-- 
