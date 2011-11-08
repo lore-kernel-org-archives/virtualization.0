@@ -1,11 +1,13 @@
 From: Miche Baker-Harvey <miche@google.com>
-Subject: [PATCH RFC v2 0/3] Support multiple VirtioConsoles.
-Date: Tue, 08 Nov 2011 11:29:49 -0800
-Message-ID: <20111108192949.30618.3953.stgit@miche.sea.corp.google.com>
+Subject: [PATCH v2 2/3] hvc_init():  Enforce one-time initialization.
+Date: Tue, 08 Nov 2011 11:29:59 -0800
+Message-ID: <20111108192959.30618.93231.stgit@miche.sea.corp.google.com>
+References: <20111108192949.30618.3953.stgit@miche.sea.corp.google.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20111108192949.30618.3953.stgit@miche.sea.corp.google.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,48 +20,58 @@ Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-(Amit pointed out that the patches never went out. This is a resend of
-the series meant to go out on 11/2/2011; I've marked it "v2".)  
+hvc_init() must only be called once, and no thread should continue with hvc_alloc()
+until after initialization is complete.  The original code does not enforce either
+of these requirements.  A new mutex limits entry to hvc_init() to a single thread,
+and blocks all later comers until it has completed.
 
-This patchset applies to linux-next/next-20111102.
+This patch fixes multiple crash symptoms.
 
-This series implements support for multiple virtio_consoles using KVM.
-
-This patchset addresses several issues associated with trying to
-establish multiple virtio consoles. 
-
-I'm trying to start a guest via KVM that supports multiple virtual
-consoles, with getty's on each, and with some being console devices.
-
-These patches let me establish more than one VirtioConsole (I'm
-running eight at the moment), and enable console output appearing on
-one of them.  It still doesn't successfully generate console output on
-multiple VirtioConsoles.
-
-Let me apologise for my last patch having gotten into Linus' tree, and
-leaving other people to deal with crashes.  I had meant to be asking
-for guidance, but I didn't mark it as "RFC".
-
-This series reflects the input from Konrad Rzeszutek, Amit Shah, Stephen
-Boyd, and Rusty Russell.  I think we do have to limit hvc_alloc() to one
-thread.
-
-I would appreciate any comments or feedback, or accept if appropriate.
-
-Thanks,
-Miche Baker-Harvey
-
+Signed-off-by: Miche Baker-Harvey <miche@google.com>
 ---
+ drivers/tty/hvc/hvc_console.c |   13 +++++++++++--
+ 1 files changed, 11 insertions(+), 2 deletions(-)
 
-Miche Baker-Harvey (3):
-      virtio_console:  Fix locking of vtermno.
-      hvc_init():  Enforce one-time initialization.
-      Use separate struct console structure for each hvc_console.
-
-
- drivers/char/virtio_console.c |    9 ++++++---
- drivers/tty/hvc/hvc_console.c |   33 +++++++++++++++++++++++++++++++--
- drivers/tty/hvc/hvc_console.h |    1 +
- 3 files changed, 38 insertions(+), 5 deletions(-)
-
--- 
+diff --git a/drivers/tty/hvc/hvc_console.c b/drivers/tty/hvc/hvc_console.c
+index b6b2d18..09a6159 100644
+--- a/drivers/tty/hvc/hvc_console.c
++++ b/drivers/tty/hvc/hvc_console.c
+@@ -29,8 +29,9 @@
+ #include <linux/kernel.h>
+ #include <linux/kthread.h>
+ #include <linux/list.h>
+-#include <linux/module.h>
+ #include <linux/major.h>
++#include <linux/module.h>
++#include <linux/mutex.h>
+ #include <linux/sysrq.h>
+ #include <linux/tty.h>
+ #include <linux/tty_flip.h>
+@@ -84,6 +85,10 @@ static LIST_HEAD(hvc_structs);
+  * list traversal.
+  */
+ static DEFINE_SPINLOCK(hvc_structs_lock);
++/*
++ * only one task does allocation at a time.
++ */
++static DEFINE_MUTEX(hvc_ports_mutex);
+ 
+ /*
+  * This value is used to assign a tty->index value to a hvc_struct based
+@@ -825,11 +830,15 @@ struct hvc_struct *hvc_alloc(uint32_t vtermno, int data,
+ 	int i;
+ 
+ 	/* We wait until a driver actually comes along */
++	mutex_lock(&hvc_ports_mutex);
+ 	if (!hvc_driver) {
+ 		int err = hvc_init();
+-		if (err)
++		if (err) {
++			mutex_unlock(&hvc_ports_mutex);
+ 			return ERR_PTR(err);
++		}
+ 	}
++	mutex_unlock(&hvc_ports_mutex);
+ 
+ 	hp = kzalloc(ALIGN(sizeof(*hp), sizeof(long)) + outbuf_size,
+ 			GFP_KERNEL);
