@@ -1,34 +1,44 @@
-From: James Bottomley <James.Bottomley@HansenPartnership.com>
-Subject: Re: [PATCH 0000/0011] Staging: hv: storvsc cleanup/new features
-Date: Tue, 08 Nov 2011 10:39:30 -0600
-Message-ID: <1320770370.2883.10.camel@dabdike.int.hansenpartnership.com>
+From: KY Srinivasan <kys@microsoft.com>
+Subject: RE: [PATCH 0000/0011] Staging: hv: storvsc cleanup/new features
+Date: Tue, 8 Nov 2011 16:46:12 +0000
+Message-ID: <6E21E5352C11B742B20C142EB499E0481AA69CC7@TK5EX14MBXC128.redmond.corp.microsoft.com>
 References: <1320771677-29095-1-git-send-email-kys@microsoft.com>
+ <1320770370.2883.10.camel@dabdike.int.hansenpartnership.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1320771677-29095-1-git-send-email-kys@microsoft.com>
+In-Reply-To: <1320770370.2883.10.camel@dabdike.int.hansenpartnership.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: "K. Y. Srinivasan" <kys@microsoft.com>
-Cc: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org, ohering@suse.com, hch@infradead.org
+To: James Bottomley <James.Bottomley@HansenPartnership.com>
+Cc: "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, "ohering@suse.com" <ohering@suse.com>, "hch@infradead.org" <hch@infradead.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 2011-11-08 at 09:01 -0800, K. Y. Srinivasan wrote:
-> Cleanup storvsc based on review comments from James and
-> implement a couple of new features:
-> 
-> 	1) The bulk of this patch-set addresses the review comments by James.
-> 	   James, the last time I had posted the patch to move the storage
-> 	   driver out of staging, you wanted to wait until Greg's tree had
-> 	   percolated up. Now, Greg's staging/hv has been merged up. Do you 
-> 	   now want me to re-post the patch to move the storage driver 
-> 	   out of staging? Let me know.
-> 
-> 	2) I have also implemented the feature to support hot add/remove
-> 	   of devices configured under the scsi controller on the host.
-
-If you want scsi review on this, it should go to the scsi list:
-
-linux-scsi@vger.kernel.org
-
-James
+DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogSmFtZXMgQm90dG9tbGV5
+IFttYWlsdG86SmFtZXMuQm90dG9tbGV5QEhhbnNlblBhcnRuZXJzaGlwLmNvbV0NCj4gU2VudDog
+VHVlc2RheSwgTm92ZW1iZXIgMDgsIDIwMTEgMTE6NDAgQU0NCj4gVG86IEtZIFNyaW5pdmFzYW4N
+Cj4gQ2M6IGdyZWdraEBzdXNlLmRlOyBsaW51eC1rZXJuZWxAdmdlci5rZXJuZWwub3JnOw0KPiBk
+ZXZlbEBsaW51eGRyaXZlcnByb2plY3Qub3JnOyB2aXJ0dWFsaXphdGlvbkBsaXN0cy5vc2RsLm9y
+Zzsgb2hlcmluZ0BzdXNlLmNvbTsNCj4gaGNoQGluZnJhZGVhZC5vcmcNCj4gU3ViamVjdDogUmU6
+IFtQQVRDSCAwMDAwLzAwMTFdIFN0YWdpbmc6IGh2OiBzdG9ydnNjIGNsZWFudXAvbmV3IGZlYXR1
+cmVzDQo+IA0KPiBPbiBUdWUsIDIwMTEtMTEtMDggYXQgMDk6MDEgLTA4MDAsIEsuIFkuIFNyaW5p
+dmFzYW4gd3JvdGU6DQo+ID4gQ2xlYW51cCBzdG9ydnNjIGJhc2VkIG9uIHJldmlldyBjb21tZW50
+cyBmcm9tIEphbWVzIGFuZA0KPiA+IGltcGxlbWVudCBhIGNvdXBsZSBvZiBuZXcgZmVhdHVyZXM6
+DQo+ID4NCj4gPiAJMSkgVGhlIGJ1bGsgb2YgdGhpcyBwYXRjaC1zZXQgYWRkcmVzc2VzIHRoZSBy
+ZXZpZXcgY29tbWVudHMgYnkgSmFtZXMuDQo+ID4gCSAgIEphbWVzLCB0aGUgbGFzdCB0aW1lIEkg
+aGFkIHBvc3RlZCB0aGUgcGF0Y2ggdG8gbW92ZSB0aGUgc3RvcmFnZQ0KPiA+IAkgICBkcml2ZXIg
+b3V0IG9mIHN0YWdpbmcsIHlvdSB3YW50ZWQgdG8gd2FpdCB1bnRpbCBHcmVnJ3MgdHJlZSBoYWQN
+Cj4gPiAJICAgcGVyY29sYXRlZCB1cC4gTm93LCBHcmVnJ3Mgc3RhZ2luZy9odiBoYXMgYmVlbiBt
+ZXJnZWQgdXAuIERvIHlvdQ0KPiA+IAkgICBub3cgd2FudCBtZSB0byByZS1wb3N0IHRoZSBwYXRj
+aCB0byBtb3ZlIHRoZSBzdG9yYWdlIGRyaXZlcg0KPiA+IAkgICBvdXQgb2Ygc3RhZ2luZz8gTGV0
+IG1lIGtub3cuDQo+ID4NCj4gPiAJMikgSSBoYXZlIGFsc28gaW1wbGVtZW50ZWQgdGhlIGZlYXR1
+cmUgdG8gc3VwcG9ydCBob3QgYWRkL3JlbW92ZQ0KPiA+IAkgICBvZiBkZXZpY2VzIGNvbmZpZ3Vy
+ZWQgdW5kZXIgdGhlIHNjc2kgY29udHJvbGxlciBvbiB0aGUgaG9zdC4NCj4gDQo+IElmIHlvdSB3
+YW50IHNjc2kgcmV2aWV3IG9uIHRoaXMsIGl0IHNob3VsZCBnbyB0byB0aGUgc2NzaSBsaXN0Og0K
+PiANCj4gbGludXgtc2NzaUB2Z2VyLmtlcm5lbC5vcmcNCg0KVGhlc2UgcGF0Y2hlcyBhcmUgYWdh
+aW5zdCBHcmVnJ3MgY3VycmVudCBzdGFnaW5nIHRyZWUuIA0KSSB3YXMgcGxhbm5pbmcgdG8gc2Vu
+ZCB0aGUgcGF0Y2ggdGhhdCB3b3VsZCBtb3ZlIHRoaXMgZHJpdmVyIG91dCBvZiBzdGFnaW5nDQoo
+dGhhdCB3b3VsZCBpbmNsdWRlIHRoZSBjbGVhbnVwIHBhdGNoZXMgSSBqdXN0IHNlbnQgb3V0KSB0
+byB0aGUgc2NzaSBsaXN0LiBJIGFtIGdvaW5nDQp0byBzZW5kIGl0IG91dCBzaG9ydGx5Lg0KDQpS
+ZWdhcmRzLA0KDQpLLiBZDQoNCg0KDQo=
