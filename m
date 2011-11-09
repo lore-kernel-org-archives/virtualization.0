@@ -1,7 +1,7 @@
-From: Peter Maydell <peter.maydell@linaro.org>
+From: Pekka Enberg <penberg@kernel.org>
 Subject: Re: [PATCH RFC] virtio-spec: flexible configuration layout
-Date: Wed, 9 Nov 2011 11:39:44 +0000
-Message-ID: <CAFEAcA8Ci1_t=qruaAwU_NeR=_WD=7NUsDwqL_qMTyDb4HVBxA__47028.7716867917$1321323145$gmane$org@mail.gmail.com>
+Date: Wed, 9 Nov 2011 14:25:50 +0200 (EET)
+Message-ID: <alpine.LFD.2.02.1111091421570.4936__38140.4421096251$1321323148$gmane$org@tux.localdomain>
 References: <87wrbkvh3v.fsf@rustcorp.com.au>
 	<20111101114542.GA13434@redhat.com>
 	<1320150813.3847.24.camel@lappy>
@@ -9,17 +9,12 @@ References: <87wrbkvh3v.fsf@rustcorp.com.au>
 	<8739e7uy87.fsf@rustcorp.com.au>
 	<20111102233110.GA20289@redhat.com>
 	<20111108214021.GA4538@redhat.com>
-	<1320832502.31056.22.camel@lappy>
-	<20111109101814.GC20612@redhat.com>
-	<1320834017.31056.26.camel@lappy>
-	<1320835653.3259.138.camel@hornet.cambridge.arm.com>
-	<1320836144.31056.35.camel@lappy>
-	<1320836793.3259.151.camel@hornet.cambridge.arm.com>
+	<1320828366.31056.16.camel@lappy> <20111109101318.GB20612@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1320836793.3259.151.camel@hornet.cambridge.arm.com>
+In-Reply-To: <20111109101318.GB20612@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -29,34 +24,23 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Pawel Moll <pawel.moll@arm.com>
-Cc: Krishna Kumar <krkumar2@in.ibm.com>, Wang Sheng-Hui <shhuiw@gmail.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, Alexey Kardashevskiy <aik@ozlabs.ru>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Sasha Levin <levinsasha928@gmail.com>, Amit Shah <amit.shah@redhat.com>, "avi@redhat.com" <avi@redhat.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Krishna Kumar <krkumar2@in.ibm.com>, kvm@vger.kernel.org, Pawel Moll <pawel.moll@arm.com>, Wang Sheng-Hui <shhuiw@gmail.com>, Alexey Kardashevskiy <aik@ozlabs.ru>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, penberg@cs.helsinki.fi, Sasha Levin <levinsasha928@gmail.com>, Amit Shah <amit.shah@redhat.com>, avi@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 9 November 2011 11:06, Pawel Moll <pawel.moll@arm.com> wrote:
-> On Wed, 2011-11-09 at 10:55 +0000, Sasha Levin wrote:
->> On Wed, 2011-11-09 at 10:47 +0000, Pawel Moll wrote:
->> > Yep, it's actually already in 3.2-rc1 (drivers/virtio/virtio_mmio.c) and
->> > in the spec (see Appendix X). And actually the control registers layout
->> > I used was originally based on the PCI "legacy" headers (slightly
->> > simplified), but evolved a bit since. My understanding is that the
->> > changes Michael is proposing affect the PCI device interface only so
->> > they shouldn't affect "my" interface.
->>
->> I didn't know it's in already, might be interesting adding support to it
->> to x86 userspace tools.
+On Wed, 9 Nov 2011, Michael S. Tsirkin wrote:
+>> KVM tool actually has support for 64bit features, we can probably remove
+>> that when Pekka isn't looking :)
 >
-> Do you mean the qemu or the (non-qemu) KVM tools I know nothing
-> about? ;-)
+> It's not yet released so maybe it's not an issue yet.
+> If it's too late I can re-add them to legacy too.
 >
-> If qemu, Peter got it already running with virtio_mmio on ARM models
-> (not upstream yet as far as I know), but I presume the code would we
-> mostly non-ARM specific.
+> Pekka, 64 features aren't yet used and we are discussing
+> changing the layout for that field. Mind taking it out
+> of kvm tool for now?
 
-The QEMU code is completely non-ARM-specific (apart from the line
-in the relevant ARM board models where we instantiate the devices).
-I haven't submitted it upstream yet though because really the
-virtio transport layer in QEMU needs to be refactored as a qdev
-bus first.
+Sasha, why did we add 64-bit features to the KVM tool? Wasn't it part of 
+the virtio spec? Does QEMU not use them? How badly will older versions of 
+the KVM tool break if you drop 64-bit features?
 
--- PMM
+ 			Pekka
