@@ -1,21 +1,18 @@
 From: Sasha Levin <levinsasha928@gmail.com>
 Subject: Re: [PATCH RFC] virtio-spec: flexible configuration layout
-Date: Wed, 09 Nov 2011 14:07:21 +0200
-Message-ID: <1320840441.31056.37.camel@lappy>
+Date: Wed, 09 Nov 2011 14:28:03 +0200
+Message-ID: <1320841683.31056.41.camel@lappy>
 References: <87wrbkvh3v.fsf@rustcorp.com.au>
 	<20111101114542.GA13434@redhat.com> <1320150813.3847.24.camel@lappy>
 	<20111101124223.GA14060@redhat.com> <8739e7uy87.fsf@rustcorp.com.au>
 	<20111102233110.GA20289@redhat.com> <20111108214021.GA4538@redhat.com>
-	<1320832502.31056.22.camel@lappy> <20111109101814.GC20612@redhat.com>
-	<1320834017.31056.26.camel@lappy>
-	<1320835653.3259.138.camel@hornet.cambridge.arm.com>
-	<1320836144.31056.35.camel@lappy>
-	<1320836793.3259.151.camel@hornet.cambridge.arm.com>
+	<1320828366.31056.16.camel@lappy> <20111109101318.GB20612@redhat.com>
+	<alpine.LFD.2.02.1111091421570.4936@tux.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1320836793.3259.151.camel@hornet.cambridge.arm.com>
+In-Reply-To: <alpine.LFD.2.02.1111091421570.4936@tux.localdomain>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,38 +22,39 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Pawel Moll <pawel.moll@arm.com>
-Cc: Krishna Kumar <krkumar2@in.ibm.com>, Peter Maydell <peter.maydell@linaro.org>, Wang Sheng-Hui <shhuiw@gmail.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, Alexey Kardashevskiy <aik@ozlabs.ru>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Christian Borntraeger <borntraeger@de.ibm.com>, "avi@redhat.com" <avi@redhat.com>, Amit Shah <amit.shah@redhat.com>
+To: Pekka Enberg <penberg@kernel.org>
+Cc: Krishna Kumar <krkumar2@in.ibm.com>, Wang Sheng-Hui <shhuiw@gmail.com>, kvm@vger.kernel.org, Pawel Moll <pawel.moll@arm.com>, "Michael S. Tsirkin" <mst@redhat.com>, Alexey Kardashevskiy <aik@ozlabs.ru>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, penberg@cs.helsinki.fi, avi@redhat.com, Amit Shah <amit.shah@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 2011-11-09 at 11:06 +0000, Pawel Moll wrote:
-> On Wed, 2011-11-09 at 10:55 +0000, Sasha Levin wrote:
-> > On Wed, 2011-11-09 at 10:47 +0000, Pawel Moll wrote:
-> > > Yep, it's actually already in 3.2-rc1 (drivers/virtio/virtio_mmio.c) and
-> > > in the spec (see Appendix X). And actually the control registers layout
-> > > I used was originally based on the PCI "legacy" headers (slightly
-> > > simplified), but evolved a bit since. My understanding is that the
-> > > changes Michael is proposing affect the PCI device interface only so
-> > > they shouldn't affect "my" interface.
-> > 
-> > I didn't know it's in already, might be interesting adding support to it
-> > to x86 userspace tools.
+On Wed, 2011-11-09 at 14:25 +0200, Pekka Enberg wrote:
+> On Wed, 9 Nov 2011, Michael S. Tsirkin wrote:
+> >> KVM tool actually has support for 64bit features, we can probably remove
+> >> that when Pekka isn't looking :)
+> >
+> > It's not yet released so maybe it's not an issue yet.
+> > If it's too late I can re-add them to legacy too.
+> >
+> > Pekka, 64 features aren't yet used and we are discussing
+> > changing the layout for that field. Mind taking it out
+> > of kvm tool for now?
 > 
-> Do you mean the qemu or the (non-qemu) KVM tools I know nothing
-> about? ;-)
+> Sasha, why did we add 64-bit features to the KVM tool? Wasn't it part of 
+> the virtio spec? Does QEMU not use them? How badly will older versions of 
+> the KVM tool break if you drop 64-bit features?
 
-I'll get you in the loop when we add virtio-mmio :)
+We added 64-bit features to the tool because it just got into the spec
+when we rewrote our virtio-pci handling - so we just implemented the
+updated spec.
 
-> 
-> If qemu, Peter got it already running with virtio_mmio on ARM models
-> (not upstream yet as far as I know), but I presume the code would we
-> mostly non-ARM specific.
-> 
-> Cheers!
-> 
-> Pawel
-> 
-> 
+QEMU doesn't use them since while it did get into the spec, it was
+intended to future-proof the limited feature bits, so no one really
+needed them yet.
+
+They don't exist in kernel code either, for same reason as above.
+
+Nothing will break if we remove it since no one really used it, we were
+probably the first and only implementation of the spec which considered
+them :)
 
 -- 
 
