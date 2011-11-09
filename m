@@ -1,17 +1,23 @@
-From: Sasha Levin <levinsasha928@gmail.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH RFC] virtio-spec: flexible configuration layout
-Date: Wed, 09 Nov 2011 12:26:08 +0200
-Message-ID: <1320834368.31056.31.camel@lappy>
+Date: Wed, 9 Nov 2011 12:49:17 +0200
+Message-ID: <20111109104916.GA22194@redhat.com>
 References: <87wrbkvh3v.fsf@rustcorp.com.au>
-	<20111101114542.GA13434@redhat.com> <1320150813.3847.24.camel@lappy>
-	<20111101124223.GA14060@redhat.com> <8739e7uy87.fsf@rustcorp.com.au>
-	<20111102233110.GA20289@redhat.com> <20111108214021.GA4538@redhat.com>
-	<1320828366.31056.16.camel@lappy> <20111109101318.GB20612@redhat.com>
+	<20111101114542.GA13434@redhat.com>
+	<1320150813.3847.24.camel@lappy>
+	<20111101124223.GA14060@redhat.com>
+	<8739e7uy87.fsf@rustcorp.com.au>
+	<20111102233110.GA20289@redhat.com>
+	<20111108214021.GA4538@redhat.com>
+	<1320828366.31056.16.camel@lappy>
+	<20111109101318.GB20612@redhat.com>
+	<1320834368.31056.31.camel@lappy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-13"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20111109101318.GB20612@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <1320834368.31056.31.camel@lappy>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,58 +27,38 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
+To: Sasha Levin <levinsasha928@gmail.com>
 Cc: Krishna Kumar <krkumar2@in.ibm.com>, kvm@vger.kernel.org, Pawel Moll <pawel.moll@arm.com>, Wang Sheng-Hui <shhuiw@gmail.com>, Alexey Kardashevskiy <aik@ozlabs.ru>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, penberg@cs.helsinki.fi, avi@redhat.com, Amit Shah <amit.shah@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 2011-11-09 at 12:13 +0200, Michael S. Tsirkin wrote:
-> On Wed, Nov 09, 2011 at 10:46:06AM +0200, Sasha Levin wrote:
-> > The device initialization sequence might use an update as well.
-> =
-
-> What is needed? Add an item where the driver scans the PCI capability
-> list to detect the layout?
-
-Yup, something similar like that - just to make it obvious.
-
-> > Maybe
-> > also a description of how device handles missing structure IDs.
-> > =
-
-> > [snip]
-> =
-
-> Hmm. I just have
-> 'Drivers should fall back on this legacy structure if a
->  Virtio Structure capability is missing in the PCI capability
->  list'. =
-
-> =
-
-> What else would be helpful? An example? =
-
-
-I just remembered from your patch that you could define some structure
-IDs, but not necessarily all of them, if it's not longer the case then
-ignore me. If it is, then the scenario of a missing structure should be
-specified (For example, if the ISR structure wasn't defined, fall back
-to...).
-
-> > I'm not sure what capability length is, can't find it in the spec
-> > either.
-> > =
-
-> > [snip]
-> =
-
-> It's the legth of the vendor specific capability structure in bytes.
-> 'the byte immediately following the =B4Next=A1
->  pointer in the capability structure is defined to be a length field'
-> It's on page 330 in my copy.
-
-Right, I was looking only at the regular cap definition.
-
--- =
-
-
-Sasha.
+T24gV2VkLCBOb3YgMDksIDIwMTEgYXQgMTI6MjY6MDhQTSArMDIwMCwgU2FzaGEgTGV2aW4gd3Jv
+dGU6Cj4gT24gV2VkLCAyMDExLTExLTA5IGF0IDEyOjEzICswMjAwLCBNaWNoYWVsIFMuIFRzaXJr
+aW4gd3JvdGU6Cj4gPiBPbiBXZWQsIE5vdiAwOSwgMjAxMSBhdCAxMDo0NjowNkFNICswMjAwLCBT
+YXNoYSBMZXZpbiB3cm90ZToKPiA+ID4gVGhlIGRldmljZSBpbml0aWFsaXphdGlvbiBzZXF1ZW5j
+ZSBtaWdodCB1c2UgYW4gdXBkYXRlIGFzIHdlbGwuCj4gPiAKPiA+IFdoYXQgaXMgbmVlZGVkPyBB
+ZGQgYW4gaXRlbSB3aGVyZSB0aGUgZHJpdmVyIHNjYW5zIHRoZSBQQ0kgY2FwYWJpbGl0eQo+ID4g
+bGlzdCB0byBkZXRlY3QgdGhlIGxheW91dD8KPiAKPiBZdXAsIHNvbWV0aGluZyBzaW1pbGFyIGxp
+a2UgdGhhdCAtIGp1c3QgdG8gbWFrZSBpdCBvYnZpb3VzLgo+IAo+ID4gPiBNYXliZQo+ID4gPiBh
+bHNvIGEgZGVzY3JpcHRpb24gb2YgaG93IGRldmljZSBoYW5kbGVzIG1pc3Npbmcgc3RydWN0dXJl
+IElEcy4KPiA+ID4gCj4gPiA+IFtzbmlwXQo+ID4gCj4gPiBIbW0uIEkganVzdCBoYXZlCj4gPiAn
+RHJpdmVycyBzaG91bGQgZmFsbCBiYWNrIG9uIHRoaXMgbGVnYWN5IHN0cnVjdHVyZSBpZiBhCj4g
+PiAgVmlydGlvIFN0cnVjdHVyZSBjYXBhYmlsaXR5IGlzIG1pc3NpbmcgaW4gdGhlIFBDSSBjYXBh
+YmlsaXR5Cj4gPiAgbGlzdCcuIAo+ID4gCj4gPiBXaGF0IGVsc2Ugd291bGQgYmUgaGVscGZ1bD8g
+QW4gZXhhbXBsZT8gCj4gCj4gSSBqdXN0IHJlbWVtYmVyZWQgZnJvbSB5b3VyIHBhdGNoIHRoYXQg
+eW91IGNvdWxkIGRlZmluZSBzb21lIHN0cnVjdHVyZQo+IElEcywgYnV0IG5vdCBuZWNlc3Nhcmls
+eSBhbGwgb2YgdGhlbSwgaWYgaXQncyBub3QgbG9uZ2VyIHRoZSBjYXNlIHRoZW4KPiBpZ25vcmUg
+bWUuIElmIGl0IGlzLCB0aGVuIHRoZSBzY2VuYXJpbyBvZiBhIG1pc3Npbmcgc3RydWN0dXJlIHNo
+b3VsZCBiZQo+IHNwZWNpZmllZCAoRm9yIGV4YW1wbGUsIGlmIHRoZSBJU1Igc3RydWN0dXJlIHdh
+c24ndCBkZWZpbmVkLCBmYWxsIGJhY2sKPiB0by4uLikuCgpZZXMsIHRoaXMgd2FzIHRoZSBpbnRl
+bnQgb2YgdGhlIHRleHQgYWJvdmUuIEknbGwgbWFrZSB0aGF0IGV4cGxpY2l0LgoKPiA+ID4gSSdt
+IG5vdCBzdXJlIHdoYXQgY2FwYWJpbGl0eSBsZW5ndGggaXMsIGNhbid0IGZpbmQgaXQgaW4gdGhl
+IHNwZWMKPiA+ID4gZWl0aGVyLgo+ID4gPiAKPiA+ID4gW3NuaXBdCj4gPiAKPiA+IEl0J3MgdGhl
+IGxlZ3RoIG9mIHRoZSB2ZW5kb3Igc3BlY2lmaWMgY2FwYWJpbGl0eSBzdHJ1Y3R1cmUgaW4gYnl0
+ZXMuCj4gPiAndGhlIGJ5dGUgaW1tZWRpYXRlbHkgZm9sbG93aW5nIHRoZSDigJxOZXh04oCdCj4g
+PiAgcG9pbnRlciBpbiB0aGUgY2FwYWJpbGl0eSBzdHJ1Y3R1cmUgaXMgZGVmaW5lZCB0byBiZSBh
+IGxlbmd0aCBmaWVsZCcKPiA+IEl0J3Mgb24gcGFnZSAzMzAgaW4gbXkgY29weS4KPiAKPiBSaWdo
+dCwgSSB3YXMgbG9va2luZyBvbmx5IGF0IHRoZSByZWd1bGFyIGNhcCBkZWZpbml0aW9uLgo+IAo+
+IC0tIAo+IAo+IFNhc2hhLgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMu
+bGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21h
+aWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
