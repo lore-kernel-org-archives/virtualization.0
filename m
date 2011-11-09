@@ -1,23 +1,19 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
+From: Sasha Levin <levinsasha928@gmail.com>
 Subject: Re: [PATCH RFC] virtio-spec: flexible configuration layout
-Date: Wed, 9 Nov 2011 12:49:17 +0200
-Message-ID: <20111109104916.GA22194@redhat.com>
+Date: Wed, 09 Nov 2011 12:55:44 +0200
+Message-ID: <1320836144.31056.35.camel@lappy>
 References: <87wrbkvh3v.fsf@rustcorp.com.au>
-	<20111101114542.GA13434@redhat.com>
-	<1320150813.3847.24.camel@lappy>
-	<20111101124223.GA14060@redhat.com>
-	<8739e7uy87.fsf@rustcorp.com.au>
-	<20111102233110.GA20289@redhat.com>
-	<20111108214021.GA4538@redhat.com>
-	<1320828366.31056.16.camel@lappy>
-	<20111109101318.GB20612@redhat.com>
-	<1320834368.31056.31.camel@lappy>
+	<20111101114542.GA13434@redhat.com> <1320150813.3847.24.camel@lappy>
+	<20111101124223.GA14060@redhat.com> <8739e7uy87.fsf@rustcorp.com.au>
+	<20111102233110.GA20289@redhat.com> <20111108214021.GA4538@redhat.com>
+	<1320832502.31056.22.camel@lappy> <20111109101814.GC20612@redhat.com>
+	<1320834017.31056.26.camel@lappy>
+	<1320835653.3259.138.camel@hornet.cambridge.arm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1320834368.31056.31.camel@lappy>
+In-Reply-To: <1320835653.3259.138.camel@hornet.cambridge.arm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,38 +23,57 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Sasha Levin <levinsasha928@gmail.com>
-Cc: Krishna Kumar <krkumar2@in.ibm.com>, kvm@vger.kernel.org, Pawel Moll <pawel.moll@arm.com>, Wang Sheng-Hui <shhuiw@gmail.com>, Alexey Kardashevskiy <aik@ozlabs.ru>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, penberg@cs.helsinki.fi, avi@redhat.com, Amit Shah <amit.shah@redhat.com>
+To: Pawel Moll <pawel.moll@arm.com>
+Cc: Krishna Kumar <krkumar2@in.ibm.com>, Wang Sheng-Hui <shhuiw@gmail.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, Alexey Kardashevskiy <aik@ozlabs.ru>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Christian Borntraeger <borntraeger@de.ibm.com>, "avi@redhat.com" <avi@redhat.com>, Amit Shah <amit.shah@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gV2VkLCBOb3YgMDksIDIwMTEgYXQgMTI6MjY6MDhQTSArMDIwMCwgU2FzaGEgTGV2aW4gd3Jv
-dGU6Cj4gT24gV2VkLCAyMDExLTExLTA5IGF0IDEyOjEzICswMjAwLCBNaWNoYWVsIFMuIFRzaXJr
-aW4gd3JvdGU6Cj4gPiBPbiBXZWQsIE5vdiAwOSwgMjAxMSBhdCAxMDo0NjowNkFNICswMjAwLCBT
-YXNoYSBMZXZpbiB3cm90ZToKPiA+ID4gVGhlIGRldmljZSBpbml0aWFsaXphdGlvbiBzZXF1ZW5j
-ZSBtaWdodCB1c2UgYW4gdXBkYXRlIGFzIHdlbGwuCj4gPiAKPiA+IFdoYXQgaXMgbmVlZGVkPyBB
-ZGQgYW4gaXRlbSB3aGVyZSB0aGUgZHJpdmVyIHNjYW5zIHRoZSBQQ0kgY2FwYWJpbGl0eQo+ID4g
-bGlzdCB0byBkZXRlY3QgdGhlIGxheW91dD8KPiAKPiBZdXAsIHNvbWV0aGluZyBzaW1pbGFyIGxp
-a2UgdGhhdCAtIGp1c3QgdG8gbWFrZSBpdCBvYnZpb3VzLgo+IAo+ID4gPiBNYXliZQo+ID4gPiBh
-bHNvIGEgZGVzY3JpcHRpb24gb2YgaG93IGRldmljZSBoYW5kbGVzIG1pc3Npbmcgc3RydWN0dXJl
-IElEcy4KPiA+ID4gCj4gPiA+IFtzbmlwXQo+ID4gCj4gPiBIbW0uIEkganVzdCBoYXZlCj4gPiAn
-RHJpdmVycyBzaG91bGQgZmFsbCBiYWNrIG9uIHRoaXMgbGVnYWN5IHN0cnVjdHVyZSBpZiBhCj4g
-PiAgVmlydGlvIFN0cnVjdHVyZSBjYXBhYmlsaXR5IGlzIG1pc3NpbmcgaW4gdGhlIFBDSSBjYXBh
-YmlsaXR5Cj4gPiAgbGlzdCcuIAo+ID4gCj4gPiBXaGF0IGVsc2Ugd291bGQgYmUgaGVscGZ1bD8g
-QW4gZXhhbXBsZT8gCj4gCj4gSSBqdXN0IHJlbWVtYmVyZWQgZnJvbSB5b3VyIHBhdGNoIHRoYXQg
-eW91IGNvdWxkIGRlZmluZSBzb21lIHN0cnVjdHVyZQo+IElEcywgYnV0IG5vdCBuZWNlc3Nhcmls
-eSBhbGwgb2YgdGhlbSwgaWYgaXQncyBub3QgbG9uZ2VyIHRoZSBjYXNlIHRoZW4KPiBpZ25vcmUg
-bWUuIElmIGl0IGlzLCB0aGVuIHRoZSBzY2VuYXJpbyBvZiBhIG1pc3Npbmcgc3RydWN0dXJlIHNo
-b3VsZCBiZQo+IHNwZWNpZmllZCAoRm9yIGV4YW1wbGUsIGlmIHRoZSBJU1Igc3RydWN0dXJlIHdh
-c24ndCBkZWZpbmVkLCBmYWxsIGJhY2sKPiB0by4uLikuCgpZZXMsIHRoaXMgd2FzIHRoZSBpbnRl
-bnQgb2YgdGhlIHRleHQgYWJvdmUuIEknbGwgbWFrZSB0aGF0IGV4cGxpY2l0LgoKPiA+ID4gSSdt
-IG5vdCBzdXJlIHdoYXQgY2FwYWJpbGl0eSBsZW5ndGggaXMsIGNhbid0IGZpbmQgaXQgaW4gdGhl
-IHNwZWMKPiA+ID4gZWl0aGVyLgo+ID4gPiAKPiA+ID4gW3NuaXBdCj4gPiAKPiA+IEl0J3MgdGhl
-IGxlZ3RoIG9mIHRoZSB2ZW5kb3Igc3BlY2lmaWMgY2FwYWJpbGl0eSBzdHJ1Y3R1cmUgaW4gYnl0
-ZXMuCj4gPiAndGhlIGJ5dGUgaW1tZWRpYXRlbHkgZm9sbG93aW5nIHRoZSDigJxOZXh04oCdCj4g
-PiAgcG9pbnRlciBpbiB0aGUgY2FwYWJpbGl0eSBzdHJ1Y3R1cmUgaXMgZGVmaW5lZCB0byBiZSBh
-IGxlbmd0aCBmaWVsZCcKPiA+IEl0J3Mgb24gcGFnZSAzMzAgaW4gbXkgY29weS4KPiAKPiBSaWdo
-dCwgSSB3YXMgbG9va2luZyBvbmx5IGF0IHRoZSByZWd1bGFyIGNhcCBkZWZpbml0aW9uLgo+IAo+
-IC0tIAo+IAo+IFNhc2hhLgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMu
-bGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21h
-aWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+On Wed, 2011-11-09 at 10:47 +0000, Pawel Moll wrote:
+> On Wed, 2011-11-09 at 10:20 +0000, Sasha Levin wrote:
+> > > > I'm also wondering it it's ok to move virtio configuration out of virtio
+> > > > space and into PCI space for archs that don't have PCI (such as ARM).
+> 
+> Just a note - ARM-based chips can by all means have PCI (grep -r PCI
+> arch/arm/ ;-). The fact is that most of the SOCs available on the market
+> don't have it, but this is slowly changing.
+> 
+> The main architectural difference is that ARM doesn't provide separate
+> I/O space so the PCI I/O space is usually remapped somewhere into normal
+> address space (grep -r "#define __io_address" arch/arm/)
+>  
+> > > > Would it mean they get stuck with legacy configuration (and no new
+> > > > features)? Or is there an alternative for them?
+> > > 
+> > > The change only affects the layout of virtio PCI. Arches that don't
+> > > have PCI don't use virtio PCI, presumably?
+> > > 
+> > > BTW, the spec only covers x86 ATM, this needs to be fixed.
+> > 
+> > From what I see there is a WIP by Pawel Moll <pawel.moll@arm.com> to add
+> > virtio platform drivers which get virtio working on ARM for example, and
+> > by Peter Maydell <peter.maydell@linaro.org> to modify the spec to
+> > support MMIO access (besides PCI).
+> 
+> Yep, it's actually already in 3.2-rc1 (drivers/virtio/virtio_mmio.c) and
+> in the spec (see Appendix X). And actually the control registers layout
+> I used was originally based on the PCI "legacy" headers (slightly
+> simplified), but evolved a bit since. My understanding is that the
+> changes Michael is proposing affect the PCI device interface only so
+> they shouldn't affect "my" interface.
+
+I didn't know it's in already, might be interesting adding support to it
+to x86 userspace tools.
+
+I thought you used the 'legacy' layout, which is why I was worried that
+these changed might cause problems for you - but from what I see you
+have a different layout there, so as you said, it shouldn't cause any
+issues there.
+
+> 
+> By the way, I vaguely remember Peter mentioning that he got the PCI
+> device "experimentally" running some time ago on one of the PCI-enabled
+> ARM platform models (realview or versatile)...
+
+
+-- 
+
+Sasha.
