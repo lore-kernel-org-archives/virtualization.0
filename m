@@ -1,63 +1,298 @@
-From: Sasha Levin <levinsasha928@gmail.com>
-Subject: Re: [PATCH RFC] virtio-spec: flexible configuration layout
-Date: Wed, 09 Nov 2011 14:48:58 +0200
-Message-ID: <1320842938.31056.55.camel@lappy>
-References: <87wrbkvh3v.fsf@rustcorp.com.au>
-	<20111101114542.GA13434@redhat.com> <1320150813.3847.24.camel@lappy>
-	<20111101124223.GA14060@redhat.com> <8739e7uy87.fsf@rustcorp.com.au>
-	<20111102233110.GA20289@redhat.com> <20111108214021.GA4538@redhat.com>
-	<1320828366.31056.16.camel@lappy>  <4EBA744D.8020107@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4EBA744D.8020107@redhat.com>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Avi Kivity <avi@redhat.com>
-Cc: Krishna Kumar <krkumar2@in.ibm.com>, Wang Sheng-Hui <shhuiw@gmail.com>, kvm@vger.kernel.org, Pawel Moll <pawel.moll@arm.com>, "Michael S. Tsirkin" <mst@redhat.com>, Alexey Kardashevskiy <aik@ozlabs.ru>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, Amit Shah <amit.shah@redhat.com>
+From: "K. Y. Srinivasan" <kys@microsoft.com>
+Subject: [PATCH 1/1] Staging: hv: mousevsc: Address Dmitry's review comments
+Date: Wed,  9 Nov 2011 08:47:19 -0800
+Message-ID: <1320857239-1621-1-git-send-email-kys@microsoft.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org, ohering@suse.com, joe@perches.com, dmitry.torokhov@gmail.com, jkosina@suse.cz
+Cc: "K. Y. Srinivasan" <kys@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 2011-11-09 at 14:38 +0200, Avi Kivity wrote:
-> On 11/09/2011 10:46 AM, Sasha Levin wrote:
-> > > Alternatively we can add new structures with new
-> > > structure IDs, pointed to from PCI configuration space.
-> > > 
-> > > As we don't yet have devices or drivers with 64 bit features,
-> > > I decided we don't need high feature bits in legacy space.
-> > > This also frees up feature bit 31 as we don't need it
-> > > to enable high feature bits anymore.
-> >
-> > KVM tool actually has support for 64bit features, we can probably remove
-> > that when Pekka isn't looking :)
-> >
-> 
-> What about the Windows drivers?
+This patch addresses most of Dimitry's last set of review comments. The comments
+that have not been addressed yet are:
 
-While 64-bit features were defined, there was no actual devices to use
-them.
+A) Making some structures constant and initializing them statically:
+The low level ring buffer code uses  struct scatterlists and  for some
+reason the behavior of dynamically allocated structures (as well as stack 
+variables) is different when it comes to the following transformation:
+VA ->Page->VA. For dynamically allocated data structures this transformation
+gives us the original VA; while for module global data, this transformation
+gives me a different VA. And so, I will not be able to make this change.
 
-So even if Windows drivers had the ability to support 64-bit features,
-no device ever needed it therefore no device ever activated it.
+B) Dimitry was also concerned about the fact that this driver was using
+calls typically made by the higher level hid drivers. This driver combines
+the functionality of both a low level driver as well as the upper level hid
+driver. Based on Jiri's input, I will address this issue.
 
-A potential issue might arise when we remap feature bit 31 to do
-something else, and when activated it would fool Windows drivers to
-think that 64-bit features are now activated, while they're not - but
-thats not something that should happen since legacy layout shouldn't
-have that field enabled as per the spec (no new features in legacy
-code).
 
-I was unable to check if it was actually implemented in the drivers
-because
-http://git.kernel.org/?p=virt/kvm/kvm-guest-drivers-windows.git;a=summary is not quite there (*cough*).
+Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
+---
+ drivers/staging/hv/hv_mouse.c |   98 +++++++++++++++++------------------------
+ 1 files changed, 40 insertions(+), 58 deletions(-)
 
+diff --git a/drivers/staging/hv/hv_mouse.c b/drivers/staging/hv/hv_mouse.c
+index 2c2e1b4..d503cbb 100644
+--- a/drivers/staging/hv/hv_mouse.c
++++ b/drivers/staging/hv/hv_mouse.c
+@@ -160,7 +160,7 @@ struct mousevsc_dev {
+ };
+ 
+ 
+-static struct mousevsc_dev *alloc_input_device(struct hv_device *device)
++static struct mousevsc_dev *mousevsc_alloc_device(struct hv_device *device)
+ {
+ 	struct mousevsc_dev *input_dev;
+ 
+@@ -172,11 +172,12 @@ static struct mousevsc_dev *alloc_input_device(struct hv_device *device)
+ 	input_dev->device = device;
+ 	hv_set_drvdata(device, input_dev);
+ 	init_completion(&input_dev->wait_event);
++	input_dev->init_complete = false;
+ 
+ 	return input_dev;
+ }
+ 
+-static void free_input_device(struct mousevsc_dev *device)
++static void mousevsc_free_device(struct mousevsc_dev *device)
+ {
+ 	kfree(device->hid_desc);
+ 	kfree(device->report_desc);
+@@ -184,7 +185,6 @@ static void free_input_device(struct mousevsc_dev *device)
+ 	kfree(device);
+ }
+ 
+-
+ static void mousevsc_on_receive_device_info(struct mousevsc_dev *input_device,
+ 				struct synthhid_device_info *device_info)
+ {
+@@ -192,14 +192,12 @@ static void mousevsc_on_receive_device_info(struct mousevsc_dev *input_device,
+ 	struct hid_descriptor *desc;
+ 	struct mousevsc_prt_msg ack;
+ 
+-	/* Assume success for now */
+-	input_device->dev_info_status = 0;
+-
+-	memcpy(&input_device->hid_dev_info, &device_info->hid_dev_info,
+-		sizeof(struct hv_input_dev_info));
++	input_device->dev_info_status = -ENOMEM;
+ 
++	input_device->hid_dev_info = device_info->hid_dev_info;
+ 	desc = &device_info->hid_descriptor;
+-	WARN_ON(desc->bLength == 0);
++	if (desc->bLength == 0)
++		goto cleanup;
+ 
+ 	input_device->hid_desc = kzalloc(desc->bLength, GFP_ATOMIC);
+ 
+@@ -209,13 +207,18 @@ static void mousevsc_on_receive_device_info(struct mousevsc_dev *input_device,
+ 	memcpy(input_device->hid_desc, desc, desc->bLength);
+ 
+ 	input_device->report_desc_size = desc->desc[0].wDescriptorLength;
+-	if (input_device->report_desc_size == 0)
++	if (input_device->report_desc_size == 0) {
++		input_device->dev_info_status = -EINVAL;
+ 		goto cleanup;
++	}
++
+ 	input_device->report_desc = kzalloc(input_device->report_desc_size,
+ 					  GFP_ATOMIC);
+ 
+-	if (!input_device->report_desc)
++	if (!input_device->report_desc) {
++		input_device->dev_info_status = -ENOMEM;
+ 		goto cleanup;
++	}
+ 
+ 	memcpy(input_device->report_desc,
+ 	       ((unsigned char *)desc) + desc->bLength,
+@@ -238,22 +241,14 @@ static void mousevsc_on_receive_device_info(struct mousevsc_dev *input_device,
+ 			(unsigned long)&ack,
+ 			VM_PKT_DATA_INBAND,
+ 			VMBUS_DATA_PACKET_FLAG_COMPLETION_REQUESTED);
+-	if (ret != 0)
+-		goto cleanup;
+ 
+-	complete(&input_device->wait_event);
+-
+-	return;
++	if (!ret)
++		input_device->dev_info_status = 0;
+ 
+ cleanup:
+-	kfree(input_device->hid_desc);
+-	input_device->hid_desc = NULL;
+-
+-	kfree(input_device->report_desc);
+-	input_device->report_desc = NULL;
+-
+-	input_device->dev_info_status = -1;
+ 	complete(&input_device->wait_event);
++
++	return;
+ }
+ 
+ static void mousevsc_on_receive(struct hv_device *device,
+@@ -270,7 +265,7 @@ static void mousevsc_on_receive(struct hv_device *device,
+ 	if (pipe_msg->type != PIPE_MESSAGE_DATA)
+ 		return;
+ 
+-	hid_msg = (struct synthhid_msg *)&pipe_msg->data[0];
++	hid_msg = (struct synthhid_msg *)pipe_msg->data;
+ 
+ 	switch (hid_msg->header.type) {
+ 	case SYNTH_HID_PROTOCOL_RESPONSE:
+@@ -300,11 +295,11 @@ static void mousevsc_on_receive(struct hv_device *device,
+ 		 * hid desc and report desc
+ 		 */
+ 		mousevsc_on_receive_device_info(input_dev,
+-			(struct synthhid_device_info *)&pipe_msg->data[0]);
++			(struct synthhid_device_info *)pipe_msg->data);
+ 		break;
+ 	case SYNTH_HID_INPUT_REPORT:
+ 		input_report =
+-			(struct synthhid_input_report *)&pipe_msg->data[0];
++			(struct synthhid_input_report *)pipe_msg->data;
+ 		if (!input_dev->init_complete)
+ 			break;
+ 		hid_input_report(input_dev->hid_device,
+@@ -356,9 +351,7 @@ static void mousevsc_on_channel_callback(void *context)
+ 
+ 			default:
+ 				pr_err("unhandled packet type %d, tid %llx len %d\n",
+-				   desc->type,
+-				   req_id,
+-				   bytes_recvd);
++					desc->type, req_id, bytes_recvd);
+ 				break;
+ 			}
+ 
+@@ -388,12 +381,10 @@ static int mousevsc_connect_to_vsp(struct hv_device *device)
+ 	struct mousevsc_prt_msg *response;
+ 
+ 	request = &input_dev->protocol_req;
+-
+ 	memset(request, 0, sizeof(struct mousevsc_prt_msg));
+ 
+ 	request->type = PIPE_MESSAGE_DATA;
+ 	request->size = sizeof(struct synthhid_protocol_request);
+-
+ 	request->request.header.type = SYNTH_HID_PROTOCOL_REQUEST;
+ 	request->request.header.size = sizeof(unsigned int);
+ 	request->request.version_requested.version = SYNTHHID_INPUT_VERSION;
+@@ -433,11 +424,9 @@ static int mousevsc_connect_to_vsp(struct hv_device *device)
+ 	 * We should have gotten the device attr, hid desc and report
+ 	 * desc at this point
+ 	 */
+-	if (input_dev->dev_info_status)
+-		ret = -ENOMEM;
++	ret = input_dev->dev_info_status;
+ 
+ cleanup:
+-
+ 	return ret;
+ }
+ 
+@@ -471,17 +460,15 @@ static struct hid_driver mousevsc_hid_driver;
+ static int mousevsc_probe(struct hv_device *device,
+ 			const struct hv_vmbus_device_id *dev_id)
+ {
+-	int ret = 0;
++	int ret;
+ 	struct mousevsc_dev *input_dev;
+ 	struct hid_device *hid_dev;
+ 
+-	input_dev = alloc_input_device(device);
++	input_dev = mousevsc_alloc_device(device);
+ 
+ 	if (!input_dev)
+ 		return -ENOMEM;
+ 
+-	input_dev->init_complete = false;
+-
+ 	ret = vmbus_open(device->channel,
+ 		INPUTVSC_SEND_RING_BUFFER_SIZE,
+ 		INPUTVSC_RECV_RING_BUFFER_SIZE,
+@@ -491,15 +478,13 @@ static int mousevsc_probe(struct hv_device *device,
+ 		device
+ 		);
+ 
+-	if (ret != 0) {
+-		free_input_device(input_dev);
+-		return ret;
+-	}
++	if (ret)
++		goto probe_err0;
+ 
+ 	ret = mousevsc_connect_to_vsp(device);
+ 
+-	if (ret != 0)
+-		goto probe_err0;
++	if (ret)
++		goto probe_err1;
+ 
+ 	/* workaround SA-167 */
+ 	if (input_dev->report_desc[14] == 0x25)
+@@ -508,7 +493,7 @@ static int mousevsc_probe(struct hv_device *device,
+ 	hid_dev = hid_allocate_device();
+ 	if (IS_ERR(hid_dev)) {
+ 		ret = PTR_ERR(hid_dev);
+-		goto probe_err0;
++		goto probe_err1;
+ 	}
+ 
+ 	hid_dev->ll_driver = &mousevsc_ll_driver;
+@@ -526,14 +511,14 @@ static int mousevsc_probe(struct hv_device *device,
+ 
+ 	if (ret) {
+ 		hid_err(hid_dev, "parse failed\n");
+-		goto probe_err1;
++		goto probe_err2;
+ 	}
+ 
+ 	ret = hid_hw_start(hid_dev, HID_CONNECT_HIDINPUT | HID_CONNECT_HIDDEV);
+ 
+ 	if (ret) {
+ 		hid_err(hid_dev, "hw start failed\n");
+-		goto probe_err1;
++		goto probe_err2;
+ 	}
+ 
+ 	input_dev->connected = true;
+@@ -541,12 +526,15 @@ static int mousevsc_probe(struct hv_device *device,
+ 
+ 	return ret;
+ 
+-probe_err1:
++probe_err2:
+ 	hid_destroy_device(hid_dev);
+ 
+-probe_err0:
++probe_err1:
+ 	vmbus_close(device->channel);
+-	free_input_device(input_dev);
++
++probe_err0:
++	mousevsc_free_device(input_dev);
++
+ 	return ret;
+ }
+ 
+@@ -556,14 +544,8 @@ static int mousevsc_remove(struct hv_device *dev)
+ 	struct mousevsc_dev *input_dev = hv_get_drvdata(dev);
+ 
+ 	vmbus_close(dev->channel);
+-
+-	if (input_dev->connected) {
+-		hidinput_disconnect(input_dev->hid_device);
+-		input_dev->connected = false;
+-		hid_destroy_device(input_dev->hid_device);
+-	}
+-
+-	free_input_device(input_dev);
++	hid_destroy_device(input_dev->hid_device);
++	mousevsc_free_device(input_dev);
+ 
+ 	return 0;
+ }
 -- 
-
-Sasha.
+1.7.4.1
