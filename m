@@ -1,14 +1,18 @@
-From: Miche Baker-Harvey <miche@google.com>
-Subject: [PATCH v3 3/3] Use separate struct console structure for each
-	hvc_console.
-Date: Tue, 08 Nov 2011 13:45:09 -0800
-Message-ID: <20111108214509.28884.98169.stgit__18089.9066654549$1321323137$gmane$org@miche.sea.corp.google.com>
-References: <20111108214452.28884.14840.stgit@miche.sea.corp.google.com>
+From: Pawel Moll <pawel.moll@arm.com>
+Subject: Re: [PATCH RFC] virtio-spec: flexible configuration layout
+Date: Wed, 09 Nov 2011 10:47:33 +0000
+Message-ID: <1320835653.3259.138.camel__21307.9658606604$1321323139$gmane$org@hornet.cambridge.arm.com>
+References: <87wrbkvh3v.fsf@rustcorp.com.au>
+	<20111101114542.GA13434@redhat.com> <1320150813.3847.24.camel@lappy>
+	<20111101124223.GA14060@redhat.com> <8739e7uy87.fsf@rustcorp.com.au>
+	<20111102233110.GA20289@redhat.com> <20111108214021.GA4538@redhat.com>
+	<1320832502.31056.22.camel@lappy> <20111109101814.GC20612@redhat.com>
+	<1320834017.31056.26.camel@lappy>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20111108214452.28884.14840.stgit@miche.sea.corp.google.com>
+In-Reply-To: <1320834017.31056.26.camel@lappy>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,94 +22,46 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Greg Kroah-Hartman <gregkh@suse.de>
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>, xen-devel@lists.xensource.com, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Anton Blanchard <anton@samba.org>, Amit Shah <amit.shah@redhat.com>, Mike Waychison <mikew@google.com>, ppc-dev <linuxppc-dev@lists.ozlabs.org>, Eric Northrup <digitaleric@google.com>
+To: Sasha Levin <levinsasha928@gmail.com>
+Cc: Krishna Kumar <krkumar2@in.ibm.com>, Wang Sheng-Hui <shhuiw@gmail.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, Alexey Kardashevskiy <aik@ozlabs.ru>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Christian Borntraeger <borntraeger@de.ibm.com>, "avi@redhat.com" <avi@redhat.com>, Amit Shah <amit.shah@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-It is possible to make any virtio_console port be a console
-by sending VIRITO_CONSOLE_CONSOLE_PORT.  But hvc_alloc was
-using a single struct console hvc_console, which contains
-both an index and flags which are per-port.
+On Wed, 2011-11-09 at 10:20 +0000, Sasha Levin wrote:
+> > > I'm also wondering it it's ok to move virtio configuration out of virtio
+> > > space and into PCI space for archs that don't have PCI (such as ARM).
 
-This adds a separate struct console for each virtio_console
-that is CONSOLE_PORT.
+Just a note - ARM-based chips can by all means have PCI (grep -r PCI
+arch/arm/ ;-). The fact is that most of the SOCs available on the market
+don't have it, but this is slowly changing.
 
-Signed-off-by: Miche Baker-Harvey <miche@google.com>
----
- drivers/tty/hvc/hvc_console.c |   20 ++++++++++++++++++++
- drivers/tty/hvc/hvc_console.h |    1 +
- 2 files changed, 21 insertions(+), 0 deletions(-)
+The main architectural difference is that ARM doesn't provide separate
+I/O space so the PCI I/O space is usually remapped somewhere into normal
+address space (grep -r "#define __io_address" arch/arm/)
+ 
+> > > Would it mean they get stuck with legacy configuration (and no new
+> > > features)? Or is there an alternative for them?
+> > 
+> > The change only affects the layout of virtio PCI. Arches that don't
+> > have PCI don't use virtio PCI, presumably?
+> > 
+> > BTW, the spec only covers x86 ATM, this needs to be fixed.
+> 
+> From what I see there is a WIP by Pawel Moll <pawel.moll@arm.com> to add
+> virtio platform drivers which get virtio working on ARM for example, and
+> by Peter Maydell <peter.maydell@linaro.org> to modify the spec to
+> support MMIO access (besides PCI).
 
-diff --git a/drivers/tty/hvc/hvc_console.c b/drivers/tty/hvc/hvc_console.c
-index 09a6159..24a84d6 100644
---- a/drivers/tty/hvc/hvc_console.c
-+++ b/drivers/tty/hvc/hvc_console.c
-@@ -247,6 +247,7 @@ static void destroy_hvc_struct(struct kref *kref)
- 
- 	spin_unlock(&hvc_structs_lock);
- 
-+	kfree(hp->hvc_console);
- 	kfree(hp);
- }
- 
-@@ -827,6 +828,7 @@ struct hvc_struct *hvc_alloc(uint32_t vtermno, int data,
- 			     int outbuf_size)
- {
- 	struct hvc_struct *hp;
-+	struct console *cp;
- 	int i;
- 
- 	/* We wait until a driver actually comes along */
-@@ -854,6 +856,17 @@ struct hvc_struct *hvc_alloc(uint32_t vtermno, int data,
- 	kref_init(&hp->kref);
- 
- 	INIT_WORK(&hp->tty_resize, hvc_set_winsz);
-+	/*
-+	 * Make each console its own struct console.
-+	 */
-+	cp = kmemdup(&hvc_console, sizeof(*cp), GFP_KERNEL);
-+	if (!cp) {
-+		kfree(hp);
-+		return ERR_PTR(-ENOMEM);
-+	}
-+
-+	hp->hvc_console = cp;
-+
- 	spin_lock_init(&hp->lock);
- 	spin_lock(&hvc_structs_lock);
- 
-@@ -872,8 +885,13 @@ struct hvc_struct *hvc_alloc(uint32_t vtermno, int data,
- 
- 	hp->index = i;
- 
-+	cp->index = i;
-+	vtermnos[i] = vtermno;
-+	cons_ops[i] = ops;
-+
- 	list_add_tail(&(hp->next), &hvc_structs);
- 	spin_unlock(&hvc_structs_lock);
-+	register_console(cp);
- 
- 	return hp;
- }
-@@ -884,6 +902,8 @@ int hvc_remove(struct hvc_struct *hp)
- 	unsigned long flags;
- 	struct tty_struct *tty;
- 
-+	BUG_ON(!hp->hvc_console);
-+	unregister_console(hp->hvc_console);
- 	spin_lock_irqsave(&hp->lock, flags);
- 	tty = tty_kref_get(hp->tty);
- 
-diff --git a/drivers/tty/hvc/hvc_console.h b/drivers/tty/hvc/hvc_console.h
-index c335a14..2d20ab7 100644
---- a/drivers/tty/hvc/hvc_console.h
-+++ b/drivers/tty/hvc/hvc_console.h
-@@ -58,6 +58,7 @@ struct hvc_struct {
- 	const struct hv_ops *ops;
- 	int irq_requested;
- 	int data;
-+	struct console *hvc_console;
- 	struct winsize ws;
- 	struct work_struct tty_resize;
- 	struct list_head next;
+Yep, it's actually already in 3.2-rc1 (drivers/virtio/virtio_mmio.c) and
+in the spec (see Appendix X). And actually the control registers layout
+I used was originally based on the PCI "legacy" headers (slightly
+simplified), but evolved a bit since. My understanding is that the
+changes Michael is proposing affect the PCI device interface only so
+they shouldn't affect "my" interface.
+
+By the way, I vaguely remember Peter mentioning that he got the PCI
+device "experimentally" running some time ago on one of the PCI-enabled
+ARM platform models (realview or versatile)...
+
+Cheers!
+
+Pawel
