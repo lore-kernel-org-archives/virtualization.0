@@ -1,21 +1,17 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
+From: Sasha Levin <levinsasha928@gmail.com>
 Subject: Re: [PATCH RFC] virtio-spec: flexible configuration layout
-Date: Wed, 9 Nov 2011 12:13:18 +0200
-Message-ID: <20111109101318.GB20612@redhat.com>
+Date: Wed, 09 Nov 2011 12:20:17 +0200
+Message-ID: <1320834017.31056.26.camel@lappy>
 References: <87wrbkvh3v.fsf@rustcorp.com.au>
-	<20111101114542.GA13434@redhat.com>
-	<1320150813.3847.24.camel@lappy>
-	<20111101124223.GA14060@redhat.com>
-	<8739e7uy87.fsf@rustcorp.com.au>
-	<20111102233110.GA20289@redhat.com>
-	<20111108214021.GA4538@redhat.com>
-	<1320828366.31056.16.camel@lappy>
+	<20111101114542.GA13434@redhat.com> <1320150813.3847.24.camel@lappy>
+	<20111101124223.GA14060@redhat.com> <8739e7uy87.fsf@rustcorp.com.au>
+	<20111102233110.GA20289@redhat.com> <20111108214021.GA4538@redhat.com>
+	<1320832502.31056.22.camel@lappy> <20111109101814.GC20612@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1320828366.31056.16.camel@lappy>
+In-Reply-To: <20111109101814.GC20612@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,136 +21,48 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Sasha Levin <levinsasha928@gmail.com>
-Cc: Krishna Kumar <krkumar2@in.ibm.com>, kvm@vger.kernel.org, Pawel Moll <pawel.moll@arm.com>, Wang Sheng-Hui <shhuiw@gmail.com>, Alexey Kardashevskiy <aik@ozlabs.ru>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, penberg@cs.helsinki.fi, avi@redhat.com, Amit Shah <amit.shah@redhat.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Krishna Kumar <krkumar2@in.ibm.com>, kvm@vger.kernel.org, Pawel Moll <pawel.moll@arm.com>, Wang Sheng-Hui <shhuiw@gmail.com>, Alexey Kardashevskiy <aik@ozlabs.ru>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, avi@redhat.com, Amit Shah <amit.shah@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gV2VkLCBOb3YgMDksIDIwMTEgYXQgMTA6NDY6MDZBTSArMDIwMCwgU2FzaGEgTGV2aW4gd3Jv
-dGU6Cj4gT24gVHVlLCAyMDExLTExLTA4IGF0IDIzOjQwICswMjAwLCBNaWNoYWVsIFMuIFRzaXJr
-aW4gd3JvdGU6Cj4gPiBIZXJlJ3MgYSBzcGVjIGNoYW5nZSBkb2N1bWVudGluZyB3aGF0IG15IEMg
-cGF0Y2ggZG9lcwo+ID4gKGFsbW9zdCAtIEkgdHdlYWtlZCB0aGUgbGF5b3V0IGEgYml0LCBidXQg
-dGhlIGlkZWEgaXMgdGhlIHNhbWUpLgo+ID4gU29tZSBtb3JlIGNsZWFudXBzIGFyZSBuZWVkZWQg
-YnV0IEkgdGhvdWdodCBJJ2Qgc2VuZCBpdAo+ID4gZm9yIGVhcmx5IGZsYW1lcy9jb21tZW50cy4K
-PiA+IAo+ID4gVGhlIGlkZWEgaXMgc2ltcGxlOiB3ZSBzcGxpdCBmdW5jdGlvbmFsbHkgdW5yZWxh
-dGVkCj4gPiByZWdpc3RlciBncm91cHMgdG8gaW5kZXBlbmRlbnQgc3RydWN0dXJlcywgYW5kIGxl
-dAo+ID4gdGhlIGRldmljZSBwbGFjZSBpcyBhbnl3aGVyZSB1c2luZyBhIGNhcGFiaWxpdHkKPiA+
-IGluIFBDSSBjb25maWd1cmF0aW9uIHNwYWNlLgo+ID4gCj4gPiBJdCBjYW4gdGhlbiBnbyBpbnRv
-IE1NSU8gc3BhY2Ugd2hpY2ggaXMgY2hlYXBlciB0aGFuIFBJTy4KPiA+IAo+ID4gQSBsZWdhY3kg
-cG9ydGlvbiBvZiB0aGUgY29uZmlndXJhdGlvbiBpcyBtaXJyb3JlZAo+ID4gaW4gdGhlIGZpcnN0
-IEJBUiwgdG8ga2VlcCBsZWdhY3kgZHJpdmVycyB3b3JraW5nLgo+ID4gQW55IG5ldyBmaWVsZHMg
-Y2FuIGJlIGFkZGVkIGluIGV4aXN0aW5nIHN0cnVjdHVyZXMKPiA+IGF0IHRoZSBlbmQsIHNvIHRo
-ZXkgd29uJ3QgYWZmZWN0IGxlZ2FjeS4KPiAKPiBJZiBuZXdlciBzcGVjcyBhZGQgbW9yZSBzdHJ1
-Y3R1cmVzIGF0IHRoZSBlbmQgb2YgdGhlIGNvbmZpZyBzcGFjZSwgYW5kCj4gdXNlIHRoZSBzYW1l
-IGNvbmZpZyBzcGFjZSBmb3IgbGVnYWN5LCB0aGF0IHNwYWNlIG5vdyBiZWNvbWVzIGRldmljZQo+
-IHNwZWNpZmljIGNvbmZpZyBzcGFjZSBhbmQgbm90IG5ldy1zaGlueS1mZWF0dXJlIHNwYWNlLCBz
-byB3ZSBtdXN0Cj4gcmVtZW1iZXIgdG8gaGFuZGxlIHRob3NlIGNhc2VzLgoKWWVzLiBEZXZpY2Vz
-IHNob3VsZCBtaXJyb3IgdmlydGlvIGhlYWRlciBhbmQgZGV2aWNlIHN0cnVjdHVyZXMKaW4gTU1J
-TyBhbmQgcG9pbnQgU3RydWN0dXJlcyB0aGVyZS4gSXQgc2VlbXMgdW5hdm9pZGFibGUgZm9yCmRl
-dmljZSBzdHJ1Y3R1cmVzIChiZWNhdXNlIGxlZ2FjeSBsYXlvdXQgaXMgZHluYW1pYwphbmQgd2Ug
-ZG9uJ3Qgd2FudCB0byBrZWVwIGRvaW5nIHRoYXQpLCBzbyBJIHRob3VnaHQgaXQncyBub3Qgd29y
-dGggdGhlCnRyb3VibGUgZm9yIHZpcnRpbyBoZWFkZXIgZWl0aGVyLgoKTm90aWZpY2F0aW9uIGFu
-ZCBJU1IgU3RydWN0dXJlcyBjYW4gcG9pbnQgaW50byBQSU8uCgpJJ2xsIGFkZCBzb21lIG1vcmUg
-dGV4dCB0byBjbGFyaWZ5IHRoYXQuCgo+ID4gQWx0ZXJuYXRpdmVseSB3ZSBjYW4gYWRkIG5ldyBz
-dHJ1Y3R1cmVzIHdpdGggbmV3Cj4gPiBzdHJ1Y3R1cmUgSURzLCBwb2ludGVkIHRvIGZyb20gUENJ
-IGNvbmZpZ3VyYXRpb24gc3BhY2UuCj4gPiAKPiA+IEFzIHdlIGRvbid0IHlldCBoYXZlIGRldmlj
-ZXMgb3IgZHJpdmVycyB3aXRoIDY0IGJpdCBmZWF0dXJlcywKPiA+IEkgZGVjaWRlZCB3ZSBkb24n
-dCBuZWVkIGhpZ2ggZmVhdHVyZSBiaXRzIGluIGxlZ2FjeSBzcGFjZS4KPiA+IFRoaXMgYWxzbyBm
-cmVlcyB1cCBmZWF0dXJlIGJpdCAzMSBhcyB3ZSBkb24ndCBuZWVkIGl0Cj4gPiB0byBlbmFibGUg
-aGlnaCBmZWF0dXJlIGJpdHMgYW55bW9yZS4KPiAKPiBLVk0gdG9vbCBhY3R1YWxseSBoYXMgc3Vw
-cG9ydCBmb3IgNjRiaXQgZmVhdHVyZXMsIHdlIGNhbiBwcm9iYWJseSByZW1vdmUKPiB0aGF0IHdo
-ZW4gUGVra2EgaXNuJ3QgbG9va2luZyA6KQoKSXQncyBub3QgeWV0IHJlbGVhc2VkIHNvIG1heWJl
-IGl0J3Mgbm90IGFuIGlzc3VlIHlldC4KSWYgaXQncyB0b28gbGF0ZSBJIGNhbiByZS1hZGQgdGhl
-bSB0byBsZWdhY3kgdG9vLgoKUGVra2EsIDY0IGZlYXR1cmVzIGFyZW4ndCB5ZXQgdXNlZCBhbmQg
-d2UgYXJlIGRpc2N1c3NpbmcKY2hhbmdpbmcgdGhlIGxheW91dCBmb3IgdGhhdCBmaWVsZC4gTWlu
-ZCB0YWtpbmcgaXQgb3V0Cm9mIGt2bSB0b29sIGZvciBub3c/Cgo+ID4gCj4gPiBBcyB0aGlzIHNv
-bHZlcyB0aGUgZHluYW1pYyBwbGFjZW1lbnQgb2YgTVNJWCB2ZWN0b3JzCj4gPiBhbmQgaGlnaCBm
-ZWF0dXJlIGJpdHMsCj4gPiBJIHRob3VnaHQgaXQncyBlYXNpZXIgdG8ganVzdCByZXNlcnZlIHNw
-YWNlIGZvciB0aGF0Cj4gPiBwcm9ncmFtbWluZyB0aGFuIGdpdmUgaXQgYSBzZXBhcmF0ZSBzdHJ1
-Y3R1cmUuIFRoaXMKPiA+IGNhbiBiZSBjaGFuZ2VkIGJ5IGEgcGF0Y2ggb24gdG9wLgo+ID4gCj4g
-PiBOb3RlIHRoYXQgZGF0YSBwYXRoIGlzIHNwbGl0IGZyb20gY29uZmlndXJhdGlvbi4KPiA+IAo+
-ID4gUERGIHdpbGwgZm9sbG93Lgo+ID4gLS0tLQo+ID4gCj4gCj4gVGhlIGRldmljZSBpbml0aWFs
-aXphdGlvbiBzZXF1ZW5jZSBtaWdodCB1c2UgYW4gdXBkYXRlIGFzIHdlbGwuCgpXaGF0IGlzIG5l
-ZWRlZD8gQWRkIGFuIGl0ZW0gd2hlcmUgdGhlIGRyaXZlciBzY2FucyB0aGUgUENJIGNhcGFiaWxp
-dHkKbGlzdCB0byBkZXRlY3QgdGhlIGxheW91dD8KCj4gTWF5YmUKPiBhbHNvIGEgZGVzY3JpcHRp
-b24gb2YgaG93IGRldmljZSBoYW5kbGVzIG1pc3Npbmcgc3RydWN0dXJlIElEcy4KPiAKPiBbc25p
-cF0KCkhtbS4gSSBqdXN0IGhhdmUKJ0RyaXZlcnMgc2hvdWxkIGZhbGwgYmFjayBvbiB0aGlzIGxl
-Z2FjeSBzdHJ1Y3R1cmUgaWYgYQogVmlydGlvIFN0cnVjdHVyZSBjYXBhYmlsaXR5IGlzIG1pc3Np
-bmcgaW4gdGhlIFBDSSBjYXBhYmlsaXR5CiBsaXN0Jy4gCgpXaGF0IGVsc2Ugd291bGQgYmUgaGVs
-cGZ1bD8gQW4gZXhhbXBsZT8gCgo+ID4gKwo+ID4gK1xiZWdpbl9sYXlvdXQgU3RhbmRhcmQKPiA+
-ICsKPiA+ICtcY2hhbmdlX2luc2VydGVkIDE5ODYyNDYzNjUgMTMyMDc4MTEzMwo+ID4gK1RoZXNl
-IHJlZ2lzdGVycyBhcmUgc3BlY2lmaWVkIHVzaW5nIHZlbmRvci1zcGVjaWZpYyBQQ0kgY2FwYWJp
-bGl0eSBsb2NhdGVkCj4gPiArIG9uIGNhcGFiaWxpdHkgbGlzdCBpbiBQQ0kgY29uZmlndXJhdGlv
-biBzcGFjZSBvZiB0aGUgZGV2aWNlLgo+ID4gKyBUaGlzIHZpcnRpbyBzdHJ1Y3R1cmUgY2FwYWJp
-bGl0eSB1c2VzIGxpdHRsZS1lbmRpYW4gZm9ybWF0OyBhbGwgYml0cyBhcmUKPiA+ICsgcmVhZC1v
-bmx5Ogo+ID4gK1xlbmRfbGF5b3V0Cj4gPiArCj4gPiArXGJlZ2luX2xheW91dCBTdGFuZGFyZAo+
-ID4gKwo+ID4gK1xjaGFuZ2VfaW5zZXJ0ZWQgMTk4NjI0NjM2NSAxMzIwNzcyNTc5Cj4gPiArXGJl
-Z2luX2luc2V0IFRhYnVsYXIKPiAKPiBKdXN0IGEgbm90ZSwgdGhlc2UgdGFibGVzIGFyZSB3YXkg
-dG9vIHdpZGUgdG8gd29yayBwcm9wZXJseSBpbiBQREZzIDopCgpUcnVlLCBsb29rcyBsaWtlIEkg
-bmVlZCB0byBhYmJyZXZpYXRlCgo+ID4gKzxseXh0YWJ1bGFyIHZlcnNpb249IjMiIHJvd3M9IjQi
-IGNvbHVtbnM9IjM0Ij4KPiA+ICs8ZmVhdHVyZXMgdGFidWxhcnZhbGlnbm1lbnQ9Im1pZGRsZSI+
-Cj4gPiArPGNvbHVtbiBhbGlnbm1lbnQ9ImNlbnRlciIgdmFsaWdubWVudD0idG9wIiB3aWR0aD0i
-MHB0Ij4KPiA+ICs8Y29sdW1uIGFsaWdubWVudD0iY2VudGVyIiB2YWxpZ25tZW50PSJ0b3AiIHdp
-ZHRoPSIwIj4KPiA+ICs8Y29sdW1uIGFsaWdubWVudD0iY2VudGVyIiB2YWxpZ25tZW50PSJ0b3Ai
-IHdpZHRoPSIwIj4KPiA+ICs8Y29sdW1uIGFsaWdubWVudD0iY2VudGVyIiB2YWxpZ25tZW50PSJ0
-b3AiIHdpZHRoPSIwIj4KPiA+ICs8Y29sdW1uIGFsaWdubWVudD0iY2VudGVyIiB2YWxpZ25tZW50
-PSJ0b3AiIHdpZHRoPSIwIj4KPiA+ICs8Y29sdW1uIGFsaWdubWVudD0iY2VudGVyIiB2YWxpZ25t
-ZW50PSJ0b3AiIHdpZHRoPSIwIj4KPiA+ICs8Y29sdW1uIGFsaWdubWVudD0iY2VudGVyIiB2YWxp
-Z25tZW50PSJ0b3AiIHdpZHRoPSIwIj4KPiA+ICs8Y29sdW1uIGFsaWdubWVudD0iY2VudGVyIiB2
-YWxpZ25tZW50PSJ0b3AiIHdpZHRoPSIwIj4KPiA+ICs8Y29sdW1uIGFsaWdubWVudD0iY2VudGVy
-IiB2YWxpZ25tZW50PSJ0b3AiIHdpZHRoPSIwIj4KPiA+ICs8Y29sdW1uIGFsaWdubWVudD0iY2Vu
-dGVyIiB2YWxpZ25tZW50PSJ0b3AiIHdpZHRoPSIwIj4KPiA+ICs8Y29sdW1uIGFsaWdubWVudD0i
-Y2VudGVyIiB2YWxpZ25tZW50PSJ0b3AiIHdpZHRoPSIwIj4KPiA+ICs8Y29sdW1uIGFsaWdubWVu
-dD0iY2VudGVyIiB2YWxpZ25tZW50PSJ0b3AiIHdpZHRoPSIwIj4KPiA+ICs8Y29sdW1uIGFsaWdu
-bWVudD0iY2VudGVyIiB2YWxpZ25tZW50PSJ0b3AiIHdpZHRoPSIwIj4KPiA+ICs8Y29sdW1uIGFs
-aWdubWVudD0iY2VudGVyIiB2YWxpZ25tZW50PSJ0b3AiIHdpZHRoPSIwIj4KPiA+ICs8Y29sdW1u
-IGFsaWdubWVudD0iY2VudGVyIiB2YWxpZ25tZW50PSJ0b3AiIHdpZHRoPSIwIj4KPiA+ICs8Y29s
-dW1uIGFsaWdubWVudD0iY2VudGVyIiB2YWxpZ25tZW50PSJ0b3AiIHdpZHRoPSIwIj4KPiA+ICs8
-Y29sdW1uIGFsaWdubWVudD0iY2VudGVyIiB2YWxpZ25tZW50PSJ0b3AiIHdpZHRoPSIwIj4KPiA+
-ICs8Y29sdW1uIGFsaWdubWVudD0iY2VudGVyIiB2YWxpZ25tZW50PSJ0b3AiIHdpZHRoPSIwIj4K
-PiA+ICs8Y29sdW1uIGFsaWdubWVudD0iY2VudGVyIiB2YWxpZ25tZW50PSJ0b3AiIHdpZHRoPSIw
-Ij4KPiA+ICs8Y29sdW1uIGFsaWdubWVudD0iY2VudGVyIiB2YWxpZ25tZW50PSJ0b3AiIHdpZHRo
-PSIwIj4KPiA+ICs8Y29sdW1uIGFsaWdubWVudD0iY2VudGVyIiB2YWxpZ25tZW50PSJ0b3AiIHdp
-ZHRoPSIwIj4KPiA+ICs8Y29sdW1uIGFsaWdubWVudD0iY2VudGVyIiB2YWxpZ25tZW50PSJ0b3Ai
-IHdpZHRoPSIwIj4KPiA+ICs8Y29sdW1uIGFsaWdubWVudD0iY2VudGVyIiB2YWxpZ25tZW50PSJ0
-b3AiIHdpZHRoPSIwIj4KPiA+ICs8Y29sdW1uIGFsaWdubWVudD0iY2VudGVyIiB2YWxpZ25tZW50
-PSJ0b3AiIHdpZHRoPSIwIj4KPiA+ICs8Y29sdW1uIGFsaWdubWVudD0iY2VudGVyIiB2YWxpZ25t
-ZW50PSJ0b3AiIHdpZHRoPSIwIj4KPiA+ICs8Y29sdW1uIGFsaWdubWVudD0iY2VudGVyIiB2YWxp
-Z25tZW50PSJ0b3AiIHdpZHRoPSIwIj4KPiA+ICs8Y29sdW1uIGFsaWdubWVudD0iY2VudGVyIiB2
-YWxpZ25tZW50PSJ0b3AiIHdpZHRoPSIwIj4KPiA+ICs8Y29sdW1uIGFsaWdubWVudD0iY2VudGVy
-IiB2YWxpZ25tZW50PSJ0b3AiIHdpZHRoPSIwIj4KPiA+ICs8Y29sdW1uIGFsaWdubWVudD0iY2Vu
-dGVyIiB2YWxpZ25tZW50PSJ0b3AiIHdpZHRoPSIwIj4KPiA+ICs8Y29sdW1uIGFsaWdubWVudD0i
-Y2VudGVyIiB2YWxpZ25tZW50PSJ0b3AiIHdpZHRoPSIwIj4KPiA+ICs8Y29sdW1uIGFsaWdubWVu
-dD0iY2VudGVyIiB2YWxpZ25tZW50PSJ0b3AiIHdpZHRoPSIwIj4KPiA+ICs8Y29sdW1uIGFsaWdu
-bWVudD0iY2VudGVyIiB2YWxpZ25tZW50PSJ0b3AiIHdpZHRoPSIwIj4KPiA+ICs8Y29sdW1uIGFs
-aWdubWVudD0iY2VudGVyIiB2YWxpZ25tZW50PSJ0b3AiIHdpZHRoPSIwIj4KPiA+ICs8Y29sdW1u
-IGFsaWdubWVudD0iY2VudGVyIiB2YWxpZ25tZW50PSJ0b3AiIHdpZHRoPSIwcHQiPgo+ID4gKzxy
-b3c+Cj4gCj4gW3NuaXBdCj4gCj4gPiArCj4gPiArXGJlZ2luX2xheW91dCBTdGFuZGFyZAo+ID4g
-Kwo+ID4gK1xjaGFuZ2VfaW5zZXJ0ZWQgMTk4NjI0NjM2NSAxMzIwNzc5NjY3Cj4gPiArUHVycG9z
-ZToKPiA+ICtcZW5kX2xheW91dAo+ID4gKwo+ID4gK1xiZWdpbl9sYXlvdXQgU3RhbmRhcmQKPiA+
-ICsKPiA+ICtcY2hhbmdlX2luc2VydGVkIDE5ODYyNDYzNjUgMTMyMDc4MDkxMgo+ID4gKwo+ID4g
-K1xlbXBoIG9uCj4gPiArQ2FwYWJpbGl0eSBJRAo+ID4gK1xlbXBoIGRlZmF1bHQKPiA+ICssIAo+
-ID4gK1xlbXBoIG9uCj4gPiArTmV4dCBDYXBhYmlsaXR5IFBvaW50ZXIKPiA+ICtcZW1waCBkZWZh
-dWx0Cj4gPiArLCAKPiA+ICtcZW1waCBvbgo+ID4gK0NhcGFiaWxpdHkgTGVuZ3RoCj4gPiArXGVt
-cGggZGVmYXVsdAo+ID4gKyAtIHRoZXNlIGZpZWxkcyBhcmUgc3BlY2lmaWVkIGJ5IFBDSSBsb2Nh
-bCBidXMgc3BlY2lmaWNhdGlvbiwgUmV2IDMuMAo+IAo+IEknbSBub3Qgc3VyZSB3aGF0IGNhcGFi
-aWxpdHkgbGVuZ3RoIGlzLCBjYW4ndCBmaW5kIGl0IGluIHRoZSBzcGVjCj4gZWl0aGVyLgo+IAo+
-IFtzbmlwXQoKSXQncyB0aGUgbGVndGggb2YgdGhlIHZlbmRvciBzcGVjaWZpYyBjYXBhYmlsaXR5
-IHN0cnVjdHVyZSBpbiBieXRlcy4KJ3RoZSBieXRlIGltbWVkaWF0ZWx5IGZvbGxvd2luZyB0aGUg
-4oCcTmV4dOKAnQogcG9pbnRlciBpbiB0aGUgY2FwYWJpbGl0eSBzdHJ1Y3R1cmUgaXMgZGVmaW5l
-ZCB0byBiZSBhIGxlbmd0aCBmaWVsZCcKSXQncyBvbiBwYWdlIDMzMCBpbiBteSBjb3B5LgoKCgo+
-ID4gK1xiZWdpbl9sYXlvdXQgUGxhaW4gTGF5b3V0Cj4gPiAraWUuCj4gPiArIG9uY2UgeW91IGVu
-YWJsZSBNU0ktWCBvbiB0aGUgZGV2aWNlLCB0aGUgb3RoZXIgZmllbGRzIG1vdmUuCj4gPiArIElm
-IHlvdSB0dXJuIGl0IG9mZiBhZ2FpbiwgdGhleSBtb3ZlIGJhY2shCj4gCj4gSXMgaXQgc3RpbGwg
-dHJ1ZT8gV2UncmUgdGFsa2luZyBhYm91dCB0aGUgbmV3IGxheW91dCBoZXJlICh0aGVyZSBhcmUK
-PiBzZXZlcmFsIG9mIHRoaXMgZm9vdG5vdGUsIHRoaXMgb25lIGlzIGxvY2F0ZWQgcmlnaHQgKmJl
-Zm9yZSogdGhlIHNlY3Rpb24KPiB3aGljaCB0YWxrcyBhYm91dCBsZWdhY3kgY29uZmlnIHNwYWNl
-Lgo+IAo+IFtzbmlwXQoKT2YgY291cnNlIG5vdC4gIEknbGwgbW92ZSB0aGUgZm9vdG5vdGUsIHRo
-aXMgb25seSBhcHBsaWVzIHRvIHRoZQpsZWdhY3kgbmF0dXJhbGx5LgoKPiA+ICsgCj4gPiArXGNo
-YW5nZV9kZWxldGVkIDE5ODYyNDYzNjUgMTMyMDc4NDkyOQo+ID4gK0lmIG1vcmUgdGhhbiAzMSBm
-ZWF0dXJlIGJpdHMgYXJlIHN1cHBvcnRlZCwgdGhlIGRldmljZSBpbmRpY2F0ZXMgc28gYnkgc2V0
-dGluZwo+ID4gKyBmZWF0dXJlIGJpdCAzMSAoc2VlIAo+IAo+IFRoZSBiaXQgbnVtYmVycyBiZWxv
-dyB0aGlzIHRleHQgc2hvdWxkIGJlIGNvcnJlY3RlZCBhcyB3ZWxsLgoKV2lsbCBmaXguIFRoYW5r
-cyEKCj4gLS0gCj4gCj4gU2FzaGEuCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBs
-aXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5v
-cmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+On Wed, 2011-11-09 at 12:18 +0200, Michael S. Tsirkin wrote:
+> On Wed, Nov 09, 2011 at 11:55:02AM +0200, Sasha Levin wrote:
+> > On Tue, 2011-11-08 at 23:40 +0200, Michael S. Tsirkin wrote:
+> > > Here's a spec change documenting what my C patch does
+> > > (almost - I tweaked the layout a bit, but the idea is the same).
+> > > Some more cleanups are needed but I thought I'd send it
+> > > for early flames/comments.
+> > > 
+> > > The idea is simple: we split functionally unrelated
+> > > register groups to independent structures, and let
+> > > the device place is anywhere using a capability
+> > > in PCI configuration space.
+> > 
+> > I'm also wondering it it's ok to move virtio configuration out of virtio
+> > space and into PCI space for archs that don't have PCI (such as ARM).
+> 
+> A bit of confusion here: no register is moved from memory into
+> configuration space. Configuration space only gains a list of
+> pointers into memory/pio space.
+
+The definition of the way the virtio configuration space looks is moved
+into PCI configuration space, it was constant before.
+
+> > Would it mean they get stuck with legacy configuration (and no new
+> > features)? Or is there an alternative for them?
+> 
+> The change only affects the layout of virtio PCI. Arches that don't
+> have PCI don't use virtio PCI, presumably?
+> 
+> BTW, the spec only covers x86 ATM, this needs to be fixed.
+
+From what I see there is a WIP by Pawel Moll <pawel.moll@arm.com> to add
+virtio platform drivers which get virtio working on ARM for example, and
+by Peter Maydell <peter.maydell@linaro.org> to modify the spec to
+support MMIO access (besides PCI).
+
+Maybe worth seeing if it works for them...
+
+-- 
+
+Sasha.
