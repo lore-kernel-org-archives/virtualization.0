@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH RFC] virtio-spec: flexible configuration layout
-Date: Wed, 9 Nov 2011 17:51:37 +0200
-Message-ID: <20111109155137.GA25664__31113.1214410581$1320862593$gmane$org@redhat.com>
+Date: Wed, 9 Nov 2011 17:19:54 +0200
+Message-ID: <20111109151954.GA25329__19747.152986429$1320865165$gmane$org@redhat.com>
 References: <87wrbkvh3v.fsf@rustcorp.com.au>
 	<20111101114542.GA13434@redhat.com>
 	<1320150813.3847.24.camel@lappy>
@@ -31,13 +31,41 @@ Cc: Krishna Kumar <krkumar2@in.ibm.com>, kvm@vger.kernel.org, Pawel Moll <pawel.
 List-Id: virtualization@lists.linuxfoundation.org
 
 On Wed, Nov 09, 2011 at 02:48:58PM +0200, Sasha Levin wrote:
+> On Wed, 2011-11-09 at 14:38 +0200, Avi Kivity wrote:
+> > On 11/09/2011 10:46 AM, Sasha Levin wrote:
+> > > > Alternatively we can add new structures with new
+> > > > structure IDs, pointed to from PCI configuration space.
+> > > > 
+> > > > As we don't yet have devices or drivers with 64 bit features,
+> > > > I decided we don't need high feature bits in legacy space.
+> > > > This also frees up feature bit 31 as we don't need it
+> > > > to enable high feature bits anymore.
+> > >
+> > > KVM tool actually has support for 64bit features, we can probably remove
+> > > that when Pekka isn't looking :)
+> > >
+> > 
+> > What about the Windows drivers?
+> 
+> While 64-bit features were defined, there was no actual devices to use
+> them.
+> 
+> So even if Windows drivers had the ability to support 64-bit features,
+> no device ever needed it therefore no device ever activated it.
+> 
+> A potential issue might arise when we remap feature bit 31 to do
+> something else, and when activated it would fool Windows drivers to
+> think that 64-bit features are now activated, while they're not - but
+> thats not something that should happen since legacy layout shouldn't
+> have that field enabled as per the spec (no new features in legacy
+> code).
+> 
 > I was unable to check if it was actually implemented in the drivers
 > because
 > http://git.kernel.org/?p=virt/kvm/kvm-guest-drivers-windows.git;a=summary is not quite there (*cough*).
 
-I found a mirror:
-http://mirror.nexcess.net/kernel.org/scm/virt/kvm/kvm-guest-drivers-windows.git/
-don't know how fresh it is.
+I'm pretty sure windows drivers didn't yet get to it.
+This was out for a very short time.
 
 > -- 
 > 
