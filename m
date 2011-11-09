@@ -1,15 +1,16 @@
-From: Michael Ellerman <michael@ellerman.id.au>
-Subject: Re: [PATCH v3 3/3] Use separate struct console structure for each
-	hvc_console.
-Date: Wed, 09 Nov 2011 19:05:12 +1100
-Message-ID: <1320825912.9376.72.camel@concordia>
-References: <20111108214452.28884.14840.stgit@miche.sea.corp.google.com>
-	<20111108214509.28884.98169.stgit@miche.sea.corp.google.com>
-Reply-To: michael@ellerman.id.au
+From: Sasha Levin <levinsasha928@gmail.com>
+Subject: Re: [PATCH RFC] virtio-spec: flexible configuration layout
+Date: Wed, 09 Nov 2011 10:46:06 +0200
+Message-ID: <1320828366.31056.16.camel__34463.3829234683$1320828502$gmane$org@lappy>
+References: <87wrbkvh3v.fsf@rustcorp.com.au>
+	<20111101114542.GA13434@redhat.com> <1320150813.3847.24.camel@lappy>
+	<20111101124223.GA14060@redhat.com> <8739e7uy87.fsf@rustcorp.com.au>
+	<20111102233110.GA20289@redhat.com> <20111108214021.GA4538@redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============3250815388555526794=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20111108214509.28884.98169.stgit@miche.sea.corp.google.com>
+In-Reply-To: <20111108214021.GA4538@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,123 +20,166 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Miche Baker-Harvey <miche@google.com>
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>, Greg Kroah-Hartman <gregkh@suse.de>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, xen-devel@lists.xensource.com, Anton Blanchard <anton@samba.org>, Amit Shah <amit.shah@redhat.com>, Mike Waychison <mikew@google.com>, ppc-dev <linuxppc-dev@lists.ozlabs.org>, Eric Northrup <digitaleric@google.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Krishna Kumar <krkumar2@in.ibm.com>, kvm@vger.kernel.org, Pawel Moll <pawel.moll@arm.com>, Wang Sheng-Hui <shhuiw@gmail.com>, Alexey Kardashevskiy <aik@ozlabs.ru>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, avi@redhat.com, Amit Shah <amit.shah@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
+On Tue, 2011-11-08 at 23:40 +0200, Michael S. Tsirkin wrote:
+> Here's a spec change documenting what my C patch does
+> (almost - I tweaked the layout a bit, but the idea is the same).
+> Some more cleanups are needed but I thought I'd send it
+> for early flames/comments.
+> 
+> The idea is simple: we split functionally unrelated
+> register groups to independent structures, and let
+> the device place is anywhere using a capability
+> in PCI configuration space.
+> 
+> It can then go into MMIO space which is cheaper than PIO.
+> 
+> A legacy portion of the configuration is mirrored
+> in the first BAR, to keep legacy drivers working.
+> Any new fields can be added in existing structures
+> at the end, so they won't affect legacy.
 
---===============3250815388555526794==
-Content-Type: multipart/signed; micalg="pgp-sha1"; protocol="application/pgp-signature"; boundary="=-d4UMUQr8j6a6R6ANBKiZ"
+If newer specs add more structures at the end of the config space, and
+use the same config space for legacy, that space now becomes device
+specific config space and not new-shiny-feature space, so we must
+remember to handle those cases.
 
+> Alternatively we can add new structures with new
+> structure IDs, pointed to from PCI configuration space.
+> 
+> As we don't yet have devices or drivers with 64 bit features,
+> I decided we don't need high feature bits in legacy space.
+> This also frees up feature bit 31 as we don't need it
+> to enable high feature bits anymore.
 
---=-d4UMUQr8j6a6R6ANBKiZ
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+KVM tool actually has support for 64bit features, we can probably remove
+that when Pekka isn't looking :)
 
-On Tue, 2011-11-08 at 13:45 -0800, Miche Baker-Harvey wrote:
-> It is possible to make any virtio_console port be a console
-> by sending VIRITO_CONSOLE_CONSOLE_PORT.  But hvc_alloc was
-> using a single struct console hvc_console, which contains
-> both an index and flags which are per-port.
->=20
-> This adds a separate struct console for each virtio_console
-> that is CONSOLE_PORT.
+> 
+> As this solves the dynamic placement of MSIX vectors
+> and high feature bits,
+> I thought it's easier to just reserve space for that
+> programming than give it a separate structure. This
+> can be changed by a patch on top.
+> 
+> Note that data path is split from configuration.
+> 
+> PDF will follow.
+> ----
+> 
 
-Hi Miche,
+The device initialization sequence might use an update as well. Maybe
+also a description of how device handles missing structure IDs.
 
-I'm testing this on powerpc and unfortunately it's working a little _too
-well_. I end up with two struct consoles registered and so I get every
-line of output twice :)
+[snip]
 
-The problem is that we're registering two struct consoles. The first
-obviously is hvc_console, either in hvc_console_init(), or in my case
-from hvc_instantiate().
+> +
+> +\begin_layout Standard
+> +
+> +\change_inserted 1986246365 1320781133
+> +These registers are specified using vendor-specific PCI capability located
+> + on capability list in PCI configuration space of the device.
+> + This virtio structure capability uses little-endian format; all bits are
+> + read-only:
+> +\end_layout
+> +
+> +\begin_layout Standard
+> +
+> +\change_inserted 1986246365 1320772579
+> +\begin_inset Tabular
 
-Then we register the allocated one in hvc_alloc(). But because they both
-point back to the same hardware you get duplicate output.
+Just a note, these tables are way too wide to work properly in PDFs :)
 
-We _do_ want to register a console early, in either/both
-hvc_console_init() and hvc_instantiate(), because we want to have
-console during boot prior to when hvc_alloc() gets called.
+> +<lyxtabular version="3" rows="4" columns="34">
+> +<features tabularvalignment="middle">
+> +<column alignment="center" valignment="top" width="0pt">
+> +<column alignment="center" valignment="top" width="0">
+> +<column alignment="center" valignment="top" width="0">
+> +<column alignment="center" valignment="top" width="0">
+> +<column alignment="center" valignment="top" width="0">
+> +<column alignment="center" valignment="top" width="0">
+> +<column alignment="center" valignment="top" width="0">
+> +<column alignment="center" valignment="top" width="0">
+> +<column alignment="center" valignment="top" width="0">
+> +<column alignment="center" valignment="top" width="0">
+> +<column alignment="center" valignment="top" width="0">
+> +<column alignment="center" valignment="top" width="0">
+> +<column alignment="center" valignment="top" width="0">
+> +<column alignment="center" valignment="top" width="0">
+> +<column alignment="center" valignment="top" width="0">
+> +<column alignment="center" valignment="top" width="0">
+> +<column alignment="center" valignment="top" width="0">
+> +<column alignment="center" valignment="top" width="0">
+> +<column alignment="center" valignment="top" width="0">
+> +<column alignment="center" valignment="top" width="0">
+> +<column alignment="center" valignment="top" width="0">
+> +<column alignment="center" valignment="top" width="0">
+> +<column alignment="center" valignment="top" width="0">
+> +<column alignment="center" valignment="top" width="0">
+> +<column alignment="center" valignment="top" width="0">
+> +<column alignment="center" valignment="top" width="0">
+> +<column alignment="center" valignment="top" width="0">
+> +<column alignment="center" valignment="top" width="0">
+> +<column alignment="center" valignment="top" width="0">
+> +<column alignment="center" valignment="top" width="0">
+> +<column alignment="center" valignment="top" width="0">
+> +<column alignment="center" valignment="top" width="0">
+> +<column alignment="center" valignment="top" width="0">
+> +<column alignment="center" valignment="top" width="0pt">
+> +<row>
 
-I think maybe we should be checking in hvc_alloc() whether we already
-have hvc_console associated with the vtermno and if so we use
-hvc_console instead of allocating a new one.
+[snip]
 
-Patch below to do that, and works for me, but it's a bit of a hack,
-there must be a better solution.
+> +
+> +\begin_layout Standard
+> +
+> +\change_inserted 1986246365 1320779667
+> +Purpose:
+> +\end_layout
+> +
+> +\begin_layout Standard
+> +
+> +\change_inserted 1986246365 1320780912
+> +
+> +\emph on
+> +Capability ID
+> +\emph default
+> +, 
+> +\emph on
+> +Next Capability Pointer
+> +\emph default
+> +, 
+> +\emph on
+> +Capability Length
+> +\emph default
+> + - these fields are specified by PCI local bus specification, Rev 3.0
 
-Finally I'm not sure how your patch affects the code in hvc_poll() which
-checks hvc_console.index to do the SYSRQ hack.
+I'm not sure what capability length is, can't find it in the spec
+either.
 
-cheers
+[snip]
 
-diff --git a/drivers/tty/hvc/hvc_console.c b/drivers/tty/hvc/hvc_console.c
-index fff35da..b249195 100644
---- a/drivers/tty/hvc/hvc_console.c
-+++ b/drivers/tty/hvc/hvc_console.c
-@@ -815,13 +815,15 @@ struct hvc_struct *hvc_alloc(uint32_t vtermno, int da=
-ta,
-        kref_init(&hp->kref);
-=20
-        INIT_WORK(&hp->tty_resize, hvc_set_winsz);
--       /*
--        * Make each console its own struct console.
--        */
--       cp =3D kmemdup(&hvc_console, sizeof(*cp), GFP_KERNEL);
--       if (!cp) {
--               kfree(hp);
--               return ERR_PTR(-ENOMEM);
-+
-+       if (hvc_console.index >=3D 0 && vtermnos[hvc_console.index] =3D=3D =
-hp->vtermno)
-+               cp =3D &hvc_console;
-+       else {
-+               cp =3D kmemdup(&hvc_console, sizeof(*cp), GFP_KERNEL);
-+               if (!cp) {
-+                       kfree(hp);
-+                       return ERR_PTR(-ENOMEM);
-+               }
-        }
-=20
-        hp->hvc_console =3D cp;
-@@ -850,7 +852,9 @@ struct hvc_struct *hvc_alloc(uint32_t vtermno, int data=
-,
-=20
-        list_add_tail(&(hp->next), &hvc_structs);
-        spin_unlock(&hvc_structs_lock);
--       register_console(cp);
-+
-+       if (cp !=3D &hvc_console)
-+               register_console(cp);
-=20
-        return hp;
- }
+> +\begin_layout Plain Layout
+> +ie.
+> + once you enable MSI-X on the device, the other fields move.
+> + If you turn it off again, they move back!
 
+Is it still true? We're talking about the new layout here (there are
+several of this footnote, this one is located right *before* the section
+which talks about legacy config space.
 
---=-d4UMUQr8j6a6R6ANBKiZ
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part
+[snip]
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.10 (GNU/Linux)
+> + 
+> +\change_deleted 1986246365 1320784929
+> +If more than 31 feature bits are supported, the device indicates so by setting
+> + feature bit 31 (see 
 
-iEYEABECAAYFAk66NDgACgkQdSjSd0sB4dJg5ACgjHqUujtNJ9SiPUAhWVHc6sv7
-Y5AAnRuekB5kaSUrzXaxayeTwFqR49UT
-=Ticb
------END PGP SIGNATURE-----
+The bit numbers below this text should be corrected as well.
 
---=-d4UMUQr8j6a6R6ANBKiZ--
+-- 
 
-
---===============3250815388555526794==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============3250815388555526794==--
+Sasha.
