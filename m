@@ -1,40 +1,26 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH 1/1] Staging: hv: Move the mouse driver out of staging
-Date: Sun, 13 Nov 2011 21:01:28 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1111132100000.15187@pobox.suse.cz>
+Subject: RE: [PATCH 1/1] Staging: hv: Move the mouse driver out of staging
+Date: Sun, 13 Nov 2011 21:02:57 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1111132102070.15187@pobox.suse.cz>
 References: <1319841316-29136-1-git-send-email-kys@microsoft.com> <20111105064739.GA31111@core.coreip.homeip.net> <6E21E5352C11B742B20C142EB499E0481AA68580@TK5EX14MBXC128.redmond.corp.microsoft.com> <20111107055109.GA21095@core.coreip.homeip.net>
+ <6E21E5352C11B742B20C142EB499E0481AA69FD0@TK5EX14MBXC128.redmond.corp.microsoft.com>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20111107055109.GA21095@core.coreip.homeip.net>
+In-Reply-To: <6E21E5352C11B742B20C142EB499E0481AA69FD0@TK5EX14MBXC128.redmond.corp.microsoft.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: KY Srinivasan <kys@microsoft.com>, "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, "ohering@suse.com" <ohering@suse.com>, "joe@perches.com" <joe@perches.com>
+To: KY Srinivasan <kys@microsoft.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, "ohering@suse.com" <ohering@suse.com>, "joe@perches.com" <joe@perches.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sun, 6 Nov 2011, Dmitry Torokhov wrote:
+On Wed, 9 Nov 2011, KY Srinivasan wrote:
 
-> > I am not a hid expert; but all  hid low level drivers appear to do this.
-> > Initially, I was directly invoking hid_connect() directly and based on your
-> > Input, I chose to use hid_hw_start() which all other drivers are using.
-> 
-> Note that the users of hid_hw_start() actually are not low level
-> drivers, such as usbhid or bluetooth hidp, but higher-level drivers,
-> such as hid-wacom, hid-a4tech, etc. Since your driver is a low-level
-> driver (a provider so to speak) it should not call hid_hw_start() on its
-> own but rather wait for the hid code to do it.
-> 
-> Still, I am not a HID expert either so I'll defer to Jiri here.
+> If it is ok with you, I will send the patch out with all the other 
+> cleanup that you had suggested.
 
-Hi,
-
-my understanding is that hv driver is actually a bit special in this 
-respect -- it's actually all-in-one both low-level and high-level driver. 
-I take it that there is not ever going to be a different high-level driver 
-using low-level hv transport (is that correct, KY?), so this might indeed 
-be an acceptable layout of the driver.
-
-Thanks a lot,
+Yes please, Dmitry has done an excellent review here (as usual). So I will 
+not be merging the latest patch you have sent just now and will wait for 
+respin with Dmitry's comments incorporated.
 
 -- 
 Jiri Kosina
