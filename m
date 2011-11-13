@@ -1,17 +1,15 @@
-From: Vadim Rozenfeld <vrozenfe@redhat.com>
-Subject: Re: [PATCH RFC] virtio-spec: flexible configuration layout
-Date: Sun, 13 Nov 2011 22:40:20 +0200
-Message-ID: <1321216820.15736.5.camel@vadimr.dell>
-References: <87wrbkvh3v.fsf@rustcorp.com.au>
-	<20111101114542.GA13434@redhat.com> <1320150813.3847.24.camel@lappy>
-	<20111101124223.GA14060@redhat.com> <8739e7uy87.fsf@rustcorp.com.au>
-	<20111102233110.GA20289@redhat.com> <20111108214021.GA4538@redhat.com>
-	<1320828366.31056.16.camel@lappy>  <4EBA744D.8020107@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH 5 of 5] virtio: expose added descriptors immediately
+Date: Sun, 13 Nov 2011 23:03:14 +0200
+Message-ID: <20111113210256.GA31621@redhat.com>
+References: <patchbomb.1320306168@localhost6.localdomain6>
+	<f3831c1617c86a51d875.1320306173@localhost6.localdomain6>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4EBA744D.8020107@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <f3831c1617c86a51d875.1320306173@localhost6.localdomain6>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,27 +19,69 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Avi Kivity <avi@redhat.com>
-Cc: Krishna Kumar <krkumar2@in.ibm.com>, kvm@vger.kernel.org, Pawel Moll <pawel.moll@arm.com>, "Michael S. Tsirkin" <mst@redhat.com>, Alexey Kardashevskiy <aik@ozlabs.ru>, Wang Sheng-Hui <shhuiw@gmail.com>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, Sasha Levin <levinsasha928@gmail.com>, Amit Shah <amit.shah@redhat.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Christoph Hellwig <hch@infradead.org>, virtualization <virtualization@lists.linux-foundation.org>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 2011-11-09 at 14:38 +0200, Avi Kivity wrote:
-> On 11/09/2011 10:46 AM, Sasha Levin wrote:
-> > > Alternatively we can add new structures with new
-> > > structure IDs, pointed to from PCI configuration space.
-> > > 
-> > > As we don't yet have devices or drivers with 64 bit features,
-> > > I decided we don't need high feature bits in legacy space.
-> > > This also frees up feature bit 31 as we don't need it
-> > > to enable high feature bits anymore.
-> >
-> > KVM tool actually has support for 64bit features, we can probably remove
-> > that when Pekka isn't looking :)
-> >
+On Thu, Nov 03, 2011 at 06:12:53PM +1030, Rusty Russell wrote:
+> A virtio driver does virtqueue_add_buf() multiple times before finally
+> calling virtqueue_kick(); previously we only exposed the added buffers
+> in the virtqueue_kick() call.  This means we don't need a memory
+> barrier in virtqueue_add_buf(), but it reduces concurrency as the
+> device (ie. host) can't see the buffers until the kick.
 > 
-> What about the Windows drivers?
-> 
-Probably some small adjustments will be required,
-but I don't see any major problem here.
+> Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 
-Vadim. 
+In the past I played with a patch like this, but I didn't see a
+performance gain either way. Do you see any gain?
+
+I'm a bit concerned that with this patch, a buggy driver that
+adds more than 2^16 descriptors without a kick
+would seem to work sometimes. Let's add WARN_ON(vq->num_added > (1 << 16))?
+
+> ---
+>  drivers/virtio/virtio_ring.c |   37 ++++++++++++++++++++++---------------
+>  1 file changed, 22 insertions(+), 15 deletions(-)
+> 
+> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+> --- a/drivers/virtio/virtio_ring.c
+> +++ b/drivers/virtio/virtio_ring.c
+> @@ -227,9 +227,15 @@ add_head:
+>  
+>  	/* Put entry in available array (but don't update avail->idx until they
+>  	 * do sync). */
+> -	avail = ((vq->vring.avail->idx + vq->num_added++) & (vq->vring.num-1));
+> +	avail = (vq->vring.avail->idx & (vq->vring.num-1));
+>  	vq->vring.avail->ring[avail] = head;
+>  
+> +	/* Descriptors and available array need to be set before we expose the
+> +	 * new available array entries. */
+> +	virtio_wmb();
+> +	vq->vring.avail->idx++;
+> +	vq->num_added++;
+> +
+>  	pr_debug("Added buffer head %i to %p\n", head, vq);
+>  	END_USE(vq);
+>  
+> @@ -248,13 +254,10 @@ bool virtqueue_kick_prepare(struct virtq
+>  	 * new available array entries. */
+>  	virtio_wmb();
+>  
+> -	old = vq->vring.avail->idx;
+> -	new = vq->vring.avail->idx = old + vq->num_added;
+> +	old = vq->vring.avail->idx - vq->num_added;
+> +	new = vq->vring.avail->idx;
+>  	vq->num_added = 0;
+>  
+> -	/* Need to update avail index before checking if we should notify */
+> -	virtio_mb();
+> -
+>  	if (vq->event) {
+>  		needs_kick = vring_need_event(vring_avail_event(&vq->vring),
+>  					      new, old);
+> 
+> 
+> _______________________________________________
+> Virtualization mailing list
+> Virtualization@lists.linux-foundation.org
+> https://lists.linuxfoundation.org/mailman/listinfo/virtualization
