@@ -1,27 +1,47 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: RE: [PATCH 1/1] Staging: hv: Move the mouse driver out of staging
-Date: Sun, 13 Nov 2011 21:02:57 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1111132102070.15187@pobox.suse.cz>
-References: <1319841316-29136-1-git-send-email-kys@microsoft.com> <20111105064739.GA31111@core.coreip.homeip.net> <6E21E5352C11B742B20C142EB499E0481AA68580@TK5EX14MBXC128.redmond.corp.microsoft.com> <20111107055109.GA21095@core.coreip.homeip.net>
- <6E21E5352C11B742B20C142EB499E0481AA69FD0@TK5EX14MBXC128.redmond.corp.microsoft.com>
+From: Vadim Rozenfeld <vrozenfe@redhat.com>
+Subject: Re: [PATCH RFC] virtio-spec: flexible configuration layout
+Date: Sun, 13 Nov 2011 22:40:20 +0200
+Message-ID: <1321216820.15736.5.camel@vadimr.dell>
+References: <87wrbkvh3v.fsf@rustcorp.com.au>
+	<20111101114542.GA13434@redhat.com> <1320150813.3847.24.camel@lappy>
+	<20111101124223.GA14060@redhat.com> <8739e7uy87.fsf@rustcorp.com.au>
+	<20111102233110.GA20289@redhat.com> <20111108214021.GA4538@redhat.com>
+	<1320828366.31056.16.camel@lappy>  <4EBA744D.8020107@redhat.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <6E21E5352C11B742B20C142EB499E0481AA69FD0@TK5EX14MBXC128.redmond.corp.microsoft.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: KY Srinivasan <kys@microsoft.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, "ohering@suse.com" <ohering@suse.com>, "joe@perches.com" <joe@perches.com>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <4EBA744D.8020107@redhat.com>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Avi Kivity <avi@redhat.com>
+Cc: Krishna Kumar <krkumar2@in.ibm.com>, kvm@vger.kernel.org, Pawel Moll <pawel.moll@arm.com>, "Michael S. Tsirkin" <mst@redhat.com>, Alexey Kardashevskiy <aik@ozlabs.ru>, Wang Sheng-Hui <shhuiw@gmail.com>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, Sasha Levin <levinsasha928@gmail.com>, Amit Shah <amit.shah@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 9 Nov 2011, KY Srinivasan wrote:
+On Wed, 2011-11-09 at 14:38 +0200, Avi Kivity wrote:
+> On 11/09/2011 10:46 AM, Sasha Levin wrote:
+> > > Alternatively we can add new structures with new
+> > > structure IDs, pointed to from PCI configuration space.
+> > > 
+> > > As we don't yet have devices or drivers with 64 bit features,
+> > > I decided we don't need high feature bits in legacy space.
+> > > This also frees up feature bit 31 as we don't need it
+> > > to enable high feature bits anymore.
+> >
+> > KVM tool actually has support for 64bit features, we can probably remove
+> > that when Pekka isn't looking :)
+> >
+> 
+> What about the Windows drivers?
+> 
+Probably some small adjustments will be required,
+but I don't see any major problem here.
 
-> If it is ok with you, I will send the patch out with all the other 
-> cleanup that you had suggested.
-
-Yes please, Dmitry has done an excellent review here (as usual). So I will 
-not be merging the latest patch you have sent just now and will wait for 
-respin with Dmitry's comments incorporated.
-
--- 
-Jiri Kosina
-SUSE Labs
+Vadim. 
