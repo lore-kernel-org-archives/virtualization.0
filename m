@@ -1,50 +1,34 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/1] Staging: hv: Move the mouse driver out of staging
-Date: Sun, 13 Nov 2011 16:47:45 -0800
-Message-ID: <20111114004745.GA3666@core.coreip.homeip.net>
-References: <1319841316-29136-1-git-send-email-kys@microsoft.com>
- <20111105064739.GA31111@core.coreip.homeip.net>
- <6E21E5352C11B742B20C142EB499E0481AA68580@TK5EX14MBXC128.redmond.corp.microsoft.com>
- <20111107055109.GA21095@core.coreip.homeip.net>
- <alpine.LNX.2.00.1111132100000.15187@pobox.suse.cz>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: [PULL] virtio pci fix
+Date: Mon, 14 Nov 2011 11:18:42 +1030
+Message-ID: <87ipmnplzp.fsf@rustcorp.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <alpine.LNX.2.00.1111132100000.15187@pobox.suse.cz>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: KY Srinivasan <kys@microsoft.com>, "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, "ohering@suse.com" <ohering@suse.com>, "joe@perches.com" <joe@perches.com>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Linus Torvalds <torvalds@linux-foundation.org>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Amit Shah <amit.shah@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sun, Nov 13, 2011 at 09:01:28PM +0100, Jiri Kosina wrote:
-> On Sun, 6 Nov 2011, Dmitry Torokhov wrote:
-> 
-> > > I am not a hid expert; but all  hid low level drivers appear to do this.
-> > > Initially, I was directly invoking hid_connect() directly and based on your
-> > > Input, I chose to use hid_hw_start() which all other drivers are using.
-> > 
-> > Note that the users of hid_hw_start() actually are not low level
-> > drivers, such as usbhid or bluetooth hidp, but higher-level drivers,
-> > such as hid-wacom, hid-a4tech, etc. Since your driver is a low-level
-> > driver (a provider so to speak) it should not call hid_hw_start() on its
-> > own but rather wait for the hid code to do it.
-> > 
-> > Still, I am not a HID expert either so I'll defer to Jiri here.
-> 
-> Hi,
-> 
-> my understanding is that hv driver is actually a bit special in this 
-> respect -- it's actually all-in-one both low-level and high-level driver. 
-> I take it that there is not ever going to be a different high-level driver 
-> using low-level hv transport (is that correct, KY?), so this might indeed 
-> be an acceptable layout of the driver.
-> 
+ * [new tag]         rusty@rustcorp.com.au-v3.2-rc1-1-g72103bd -> rusty@rustcorp.com.au-v3.2-rc1-1-g72103bd
+The following changes since commit 1ea6b8f48918282bdca0b32a34095504ee65bab5:
 
-I actually do not see anything of a high-level driver in hv-mouse. It is
-a pure transport driver that channels everything through hid-input...
+  Linux 3.2-rc1 (2011-11-07 16:16:02 -0800)
 
-Thanks.
+are available in the git repository at:
+  git://github.com/rustyrussell/linux.git master
 
--- 
-Dmitry
+Michael S. Tsirkin (1):
+      virtio-pci: fix use after free
+
+ drivers/virtio/virtio_pci.c |   11 ++++++-----
+ 1 files changed, 6 insertions(+), 5 deletions(-)
