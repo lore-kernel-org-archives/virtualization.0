@@ -1,17 +1,16 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [RFC] kvm tools: Implement multiple VQ for virtio-net
-Date: Mon, 14 Nov 2011 15:05:07 +0200
-Message-ID: <20111114130507.GA18288@redhat.com>
-References: <1321049521-26376-1-git-send-email-levinsasha928@gmail.com>
-	<20111113102428.GD15322@redhat.com> <1321196430.2425.2.camel@sasha>
-	<4EC07729.3050303@gmail.com>
-	<CAOJsxLE4yRO+5XncrDEzVh5-RGXG+=HGTAmQ=bX=KMsDqf=feA@mail.gmail.com>
+Subject: Re: [PATCH RFC] ndo: ndo_queue_xmit/ndo_flush_xmit (was Re: [RFC]
+	[ver3 PATCH 0/6] Implement multiqueue virtio-net)
+Date: Mon, 14 Nov 2011 18:21:49 +0200
+Message-ID: <20111114162149.GA23024@redhat.com>
+References: <20111111130223.9878.59517.sendpatchset@krkumar2.in.ibm.com>
+	<20111113174827.GA23310@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <CAOJsxLE4yRO+5XncrDEzVh5-RGXG+=HGTAmQ=bX=KMsDqf=feA@mail.gmail.com>
+In-Reply-To: <20111113174827.GA23310@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,21 +20,30 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Pekka Enberg <penberg@kernel.org>
-Cc: Krishna Kumar <krkumar2@in.ibm.com>, kvm@vger.kernel.org, Asias He <asias.hejun@gmail.com>, virtualization@lists.linux-foundation.org, gorcunov@gmail.com, Sasha Levin <levinsasha928@gmail.com>, netdev@vger.kernel.org, mingo@elte.hu
+To: Krishna Kumar <krkumar2@in.ibm.com>
+Cc: netdev@vger.kernel.org, davem@davemloft.net, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Nov 14, 2011 at 02:25:17PM +0200, Pekka Enberg wrote:
-> On Mon, Nov 14, 2011 at 4:04 AM, Asias He <asias.hejun@gmail.com> wrote:
-> > Why both the bandwidth and latency performance are dropping so dramatically
-> > with multiple VQ?
-> 
-> What's the expected benefit from multiple VQs
+On Sun, Nov 13, 2011 at 07:48:28PM +0200, Michael S. Tsirkin wrote:
+> @@ -863,6 +872,9 @@ struct net_device_ops {
+>  	int			(*ndo_stop)(struct net_device *dev);
+>  	netdev_tx_t		(*ndo_start_xmit) (struct sk_buff *skb,
+>  						   struct net_device *dev);
+> +	netdev_tx_t		(*ndo_queue_xmit)(struct sk_buff *skb,
+> +						  struct net_device *dev);
+> +	void			(*ndo_flush_xmit)(struct net_device *dev);
+>  	u16			(*ndo_select_queue)(struct net_device *dev,
+>  						    struct sk_buff *skb);
+>  	void			(*ndo_change_rx_flags)(struct net_device *dev,
+> @@ -2099,6 +2111,10 @@ extern int		dev_set_mac_address(struct net_device *,
 
-Heh, the original patchset didn't mention this :) It really should.
-They are supposed to speed up networking for high smp guests.
+An alternative I considered was to add a boolean flag to ndo_start_xmit
+'bool queue' or something like this, plus ndo_flush_xmit.
+This will lead to cleaner code I think but will require all drivers
+to be changed, so for a proof of concept I decided to go for one
+that is less work.
 
-> i.e. why are doing the patches Sasha?
+Let me know what looks more palatable ... 
 
 -- 
 MST
