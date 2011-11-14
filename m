@@ -1,15 +1,14 @@
-From: Rick Jones <rick.jones2@hp.com>
-Subject: Re: [RFC PATCH net-next] enable virtio_net to return bus_info in
-	ethtool -i consistent with emulated NICs
-Date: Mon, 14 Nov 2011 14:40:18 -0800
-Message-ID: <4EC198D2.9050802__37323.7427477308$1321310867$gmane$org@hp.com>
-References: <20111114215241.5B8BF2900307@tardy>
-	<1321309800.2827.22.camel@bwh-desktop>
+From: Sasha Levin <levinsasha928@gmail.com>
+Subject: [RFC 0/5] virtio-pci,
+	kvm tools: Support new virtio-pci spec in kvm tools
+Date: Tue, 15 Nov 2011 01:43:12 +0200
+Message-ID: <1321314197-5265-1-git-send-email-levinsasha928@gmail.com>
+References: <20111114181854.GA24953@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1321309800.2827.22.camel@bwh-desktop>
+In-Reply-To: <20111114181854.GA24953@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,43 +18,38 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Ben Hutchings <bhutchings@solarflare.com>
-Cc: netdev@vger.kernel.org, Rick Jones <raj@tardy.cup.hp.com>, virtualization@lists.linux-foundation.org, Michael Tsirkin <mst@redhat.com>
+To: linux-kernel@vger.kernel.org
+Cc: kvm@vger.kernel.org, mst@redhat.com, virtualization@lists.linux-foundation.org, penberg@kernel.org, Sasha Levin <levinsasha928@gmail.com>, mingo@elte.hu
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 11/14/2011 02:30 PM, Ben Hutchings wrote:
-> On Mon, 2011-11-14 at 13:52 -0800, Rick Jones wrote:
->> From: Rick Jones<rick.jones2@hp.com>
->>
->> Add a new .bus_name to virtio_config_ops then modify virtio_net to
->> call through to it in an ethtool .get_drvinfo routine to report
->> bus_info in ethtool -i output which is consistent with other
->> emulated NICs and the output of lspci.
-> [...]
->> diff --git a/drivers/lguest/lguest_device.c b/drivers/lguest/lguest_device.c
->> index 0dc30ff..3724d45 100644
->> --- a/drivers/lguest/lguest_device.c
->> +++ b/drivers/lguest/lguest_device.c
->> @@ -381,6 +381,11 @@ error:
->>   	return PTR_ERR(vqs[i]);
->>   }
->>
->> +static const char *lg_bus_name(struct virtio_device *vdev)
->> +{
->> +	return "Not Implemented";
->> +}
-> [...]
->> +static const char *kvm_bus_name(struct virtio_device *vdev)
->> +{
->> +	return "Not Implemented";
->> +}
-> [...]
->
-> Please use the existing 'not implemented' value, which is the empty
-> string.
+This patch series contains two fixes for the RFC patch send by Michael. These
+patches are pretty basic and should probably be merged into the next version
+of that patch.
 
-Will do.
+Other two patches add support to the new virtio-pci spec in KVM tools, allowing
+for easy testing of any future virtio-pci kernel side patches. The usermode code
+isn't complete, but it's working properly and should be enough for functionality
+testing.
 
-thanks,
+Michael S. Tsirkin (1):
+  virtio-pci: flexible configuration layout
 
-rick
+Sasha Levin (4):
+  virtio-pci: Fix compilation issue
+  iomap: Don't ignore offset
+  kvm tools: Free up the MSI-X PBA BAR
+  kvm tools: Support new virtio-pci configuration layout
+
+ drivers/virtio/virtio_pci.c        |  184 ++++++++++++++++++++++--
+ include/asm-generic/io.h           |    4 +
+ include/asm-generic/iomap.h        |   11 ++
+ include/linux/pci_regs.h           |    4 +
+ include/linux/virtio_pci.h         |   41 ++++++
+ lib/iomap.c                        |   41 +++++-
+ tools/kvm/include/kvm/pci.h        |   13 ++-
+ tools/kvm/include/kvm/virtio-pci.h |    5 +-
+ tools/kvm/virtio/pci.c             |  275 ++++++++++++++++++++++++++++++++----
+ 9 files changed, 530 insertions(+), 48 deletions(-)
+
+-- 
+1.7.8.rc1
