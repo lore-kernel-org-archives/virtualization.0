@@ -1,11 +1,15 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: [PULL] virtio pci fix
-Date: Mon, 14 Nov 2011 11:18:42 +1030
-Message-ID: <87ipmnplzp.fsf@rustcorp.com.au>
+Subject: Re: [PATCH 5 of 5] virtio: expose added descriptors immediately
+Date: Mon, 14 Nov 2011 11:13:57 +1030
+Message-ID: <87lirjpm7m.fsf@rustcorp.com.au>
+References: <patchbomb.1320306168@localhost6.localdomain6>
+	<f3831c1617c86a51d875.1320306173@localhost6.localdomain6>
+	<20111113210256.GA31621@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20111113210256.GA31621@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,20 +19,34 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Linus Torvalds <torvalds@linux-foundation.org>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Amit Shah <amit.shah@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, virtualization <virtualization@lists.linux-foundation.org>
+Cc: Christoph Hellwig <hch@infradead.org>, virtualization <virtualization@lists.linux-foundation.org>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
- * [new tag]         rusty@rustcorp.com.au-v3.2-rc1-1-g72103bd -> rusty@rustcorp.com.au-v3.2-rc1-1-g72103bd
-The following changes since commit 1ea6b8f48918282bdca0b32a34095504ee65bab5:
+On Sun, 13 Nov 2011 23:03:14 +0200, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> On Thu, Nov 03, 2011 at 06:12:53PM +1030, Rusty Russell wrote:
+> > A virtio driver does virtqueue_add_buf() multiple times before finally
+> > calling virtqueue_kick(); previously we only exposed the added buffers
+> > in the virtqueue_kick() call.  This means we don't need a memory
+> > barrier in virtqueue_add_buf(), but it reduces concurrency as the
+> > device (ie. host) can't see the buffers until the kick.
+> > 
+> > Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+> 
+> In the past I played with a patch like this, but I didn't see a
+> performance gain either way. Do you see any gain?
 
-  Linux 3.2-rc1 (2011-11-07 16:16:02 -0800)
+No, but I haven't run it on real hardware.  lguest may see a win with
+this in theory, since the virtqueue processing is fully async, so I'll
+run some tests.
 
-are available in the git repository at:
-  git://github.com/rustyrussell/linux.git master
+> I'm a bit concerned that with this patch, a buggy driver that
+> adds more than 2^16 descriptors without a kick
+> would seem to work sometimes. Let's add WARN_ON(vq->num_added > (1 << 16))?
 
-Michael S. Tsirkin (1):
-      virtio-pci: fix use after free
+Hmm, I guess it could wait for the add to fail before doing a kick, but
+noone does that at the moment, so I've added a slight variant:
 
- drivers/virtio/virtio_pci.c |   11 ++++++-----
- 1 files changed, 6 insertions(+), 5 deletions(-)
+	WARN_ON(vq->num_added > vq->vring.num);
+
+Thanks,
+Rusty.
