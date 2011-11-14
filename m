@@ -1,14 +1,15 @@
-From: Asias He <asias.hejun@gmail.com>
+From: Pekka Enberg <penberg@kernel.org>
 Subject: Re: [RFC] kvm tools: Implement multiple VQ for virtio-net
-Date: Mon, 14 Nov 2011 10:04:25 +0800
-Message-ID: <4EC07729.3050303__41736.329769674$1321323158$gmane$org@gmail.com>
+Date: Mon, 14 Nov 2011 14:25:17 +0200
+Message-ID: <CAOJsxLE4yRO+5XncrDEzVh5-RGXG+=HGTAmQ=bX=KMsDqf=feA__1265.93218087709$1321323160$gmane$org@mail.gmail.com>
 References: <1321049521-26376-1-git-send-email-levinsasha928@gmail.com>
 	<20111113102428.GD15322@redhat.com> <1321196430.2425.2.camel@sasha>
+	<4EC07729.3050303@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1321196430.2425.2.camel@sasha>
+In-Reply-To: <4EC07729.3050303@gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,169 +19,13 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Sasha Levin <levinsasha928@gmail.com>
-Cc: Krishna Kumar <krkumar2@in.ibm.com>, gorcunov@gmail.com, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, penberg@kernel.org, mingo@elte.hu
+To: Asias He <asias.hejun@gmail.com>
+Cc: Krishna Kumar <krkumar2@in.ibm.com>, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, gorcunov@gmail.com, Sasha Levin <levinsasha928@gmail.com>, mingo@elte.hu
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi, Shsha
+On Mon, Nov 14, 2011 at 4:04 AM, Asias He <asias.hejun@gmail.com> wrote:
+> Why both the bandwidth and latency performance are dropping so dramatically
+> with multiple VQ?
 
-On 11/13/2011 11:00 PM, Sasha Levin wrote:
-> On Sun, 2011-11-13 at 12:24 +0200, Michael S. Tsirkin wrote:
->> On Sat, Nov 12, 2011 at 12:12:01AM +0200, Sasha Levin wrote:
->>> This is a patch based on Krishna Kumar's patch series which implements
->>> multiple VQ support for virtio-net.
->>>
->>> The patch was tested with ver3 of the patch.
->>>
->>> Cc: Krishna Kumar<krkumar2@in.ibm.com>
->>> Cc: Michael S. Tsirkin<mst@redhat.com>
->>> Cc: Rusty Russell<rusty@rustcorp.com.au>
->>> Cc: virtualization@lists.linux-foundation.org
->>> Cc: netdev@vger.kernel.org
->>> Signed-off-by: Sasha Levin<levinsasha928@gmail.com>
->>
->> Any performance numbers?
->
-> I tried finding a box with more than two cores so I could test it on
-> something like that as well.
->
->> From what I see this patch causes a performance regression on my 2 core
-> box.
->
-> I'll send an updated KVM tools patch in a bit as well.
->
-> Before:
->
-> # netperf -H 192.168.33.4,ipv4 -t TCP_RR
-> MIGRATED TCP REQUEST/RESPONSE TEST from 0.0.0.0 (0.0.0.0) port 0 AF_INET
-> to 192.168.33.4 (192.168.33.4) port 0 AF_INET : first burst 0
-> Local /Remote
-> Socket Size   Request  Resp.   Elapsed  Trans.
-> Send   Recv   Size     Size    Time     Rate
-> bytes  Bytes  bytes    bytes   secs.    per sec
->
-> 16384  87380  1        1       10.00    11160.63
-> 16384  87380
->
-> # netperf -H 192.168.33.4,ipv4 -t UDP_RR
-> MIGRATED UDP REQUEST/RESPONSE TEST from 0.0.0.0 (0.0.0.0) port 0 AF_INET
-> to 192.168.33.4 (192.168.33.4) port 0 AF_INET : first burst 0
-> Local /Remote
-> Socket Size   Request  Resp.   Elapsed  Trans.
-> Send   Recv   Size     Size    Time     Rate
-> bytes  Bytes  bytes    bytes   secs.    per sec
->
-> 122880 122880 1        1       10.00    12072.64
-> 229376 229376
->
-> # netperf -H 192.168.33.4,ipv4 -t TCP_STREAM
-> MIGRATED TCP STREAM TEST from 0.0.0.0 (0.0.0.0) port 0 AF_INET to
-> 192.168.33.4 (192.168.33.4) port 0 AF_INET
-> Recv   Send    Send
-> Socket Socket  Message  Elapsed
-> Size   Size    Size     Time     Throughput
-> bytes  bytes   bytes    secs.    10^6bits/sec
->
->   87380  16384  16384    10.00    4654.50
->
-> netperf -H 192.168.33.4,ipv4 -t TCP_STREAM -- -m 128
-> MIGRATED TCP STREAM TEST from 0.0.0.0 (0.0.0.0) port 0 AF_INET to
-> 192.168.33.4 (192.168.33.4) port 0 AF_INET
-> Recv   Send    Send
-> Socket Socket  Message  Elapsed
-> Size   Size    Size     Time     Throughput
-> bytes  bytes   bytes    secs.    10^6bits/sec
->
->   87380  16384    128    10.00     635.45
->
-> # netperf -H 192.168.33.4,ipv4 -t UDP_STREAM
-> MIGRATED UDP STREAM TEST from 0.0.0.0 (0.0.0.0) port 0 AF_INET to
-> 192.168.33.4 (192.168.33.4) port 0 AF_INET
-> Socket  Message  Elapsed      Messages
-> Size    Size     Time         Okay Errors   Throughput
-> bytes   bytes    secs            #      #   10^6bits/sec
->
-> 122880   65507   10.00      113894      0    5968.54
-> 229376           10.00       89373           4683.54
->
-> # netperf -H 192.168.33.4,ipv4 -t UDP_STREAM -- -m 128
-> MIGRATED UDP STREAM TEST from 0.0.0.0 (0.0.0.0) port 0 AF_INET to
-> 192.168.33.4 (192.168.33.4) port 0 AF_INET
-> Socket  Message  Elapsed      Messages
-> Size    Size     Time         Okay Errors   Throughput
-> bytes   bytes    secs            #      #   10^6bits/sec
->
-> 122880     128   10.00      550634      0      56.38
-> 229376           10.00      398786             40.84
->
->
-> After:
->
-> # netperf -H 192.168.33.4,ipv4 -t TCP_RR
-> MIGRATED TCP REQUEST/RESPONSE TEST from 0.0.0.0 (0.0.0.0) port 0 AF_INET
-> to 192.168.33.4 (192.168.33.4) port 0 AF_INET : first burst 0
-> Local /Remote
-> Socket Size   Request  Resp.   Elapsed  Trans.
-> Send   Recv   Size     Size    Time     Rate
-> bytes  Bytes  bytes    bytes   secs.    per sec
->
-> 16384  87380  1        1       10.00    8952.47
-> 16384  87380
->
-> # netperf -H 192.168.33.4,ipv4 -t UDP_RR
-> MIGRATED UDP REQUEST/RESPONSE TEST from 0.0.0.0 (0.0.0.0) port 0 AF_INET
-> to 192.168.33.4 (192.168.33.4) port 0 AF_INET : first burst 0
-> Local /Remote
-> Socket Size   Request  Resp.   Elapsed  Trans.
-> Send   Recv   Size     Size    Time     Rate
-> bytes  Bytes  bytes    bytes   secs.    per sec
->
-> 122880 122880 1        1       10.00    9534.52
-> 229376 229376
->
-> # netperf -H 192.168.33.4,ipv4 -t TCP_STREAM
-> MIGRATED TCP STREAM TEST from 0.0.0.0 (0.0.0.0) port 0 AF_INET to
-> 192.168.33.4 (192.168.33.4) port 0 AF_INET
-> Recv   Send    Send
-> Socket Socket  Message  Elapsed
-> Size   Size    Size     Time     Throughput
-> bytes  bytes   bytes    secs.    10^6bits/sec
->
->   87380  16384  16384    10.13    2278.23
->
-> # netperf -H 192.168.33.4,ipv4 -t TCP_STREAM -- -m 128
-> MIGRATED TCP STREAM TEST from 0.0.0.0 (0.0.0.0) port 0 AF_INET to
-> 192.168.33.4 (192.168.33.4) port 0 AF_INET
-> Recv   Send    Send
-> Socket Socket  Message  Elapsed
-> Size   Size    Size     Time     Throughput
-> bytes  bytes   bytes    secs.    10^6bits/sec
->
->   87380  16384    128    10.00     623.27
->
-> # netperf -H 192.168.33.4,ipv4 -t UDP_STREAM
-> MIGRATED UDP STREAM TEST from 0.0.0.0 (0.0.0.0) port 0 AF_INET to
-> 192.168.33.4 (192.168.33.4) port 0 AF_INET
-> Socket  Message  Elapsed      Messages
-> Size    Size     Time         Okay Errors   Throughput
-> bytes   bytes    secs            #      #   10^6bits/sec
->
-> 122880   65507   10.00      136930      0    7175.72
-> 229376           10.00       16726            876.51
->
-> # netperf -H 192.168.33.4,ipv4 -t UDP_STREAM -- -m 128
-> MIGRATED UDP STREAM TEST from 0.0.0.0 (0.0.0.0) port 0 AF_INET to
-> 192.168.33.4 (192.168.33.4) port 0 AF_INET
-> Socket  Message  Elapsed      Messages
-> Size    Size     Time         Okay Errors   Throughput
-> bytes   bytes    secs            #      #   10^6bits/sec
->
-> 122880     128   10.00      982492      0     100.61
-> 229376           10.00      249597             25.56
->
-
-Why both the bandwidth and latency performance are dropping so 
-dramatically with multiple VQ?
-
--- 
-Asias He
+What's the expected benefit from multiple VQs i.e. why are doing the
+patches Sasha?
