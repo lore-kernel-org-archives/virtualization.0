@@ -1,52 +1,59 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH 5 of 5] virtio: expose added descriptors immediately
-Date: Mon, 14 Nov 2011 11:13:57 +1030
-Message-ID: <87lirjpm7m.fsf@rustcorp.com.au>
-References: <patchbomb.1320306168@localhost6.localdomain6>
-	<f3831c1617c86a51d875.1320306173@localhost6.localdomain6>
-	<20111113210256.GA31621@redhat.com>
+From: KY Srinivasan <kys@microsoft.com>
+Subject: RE: [PATCH 1/1] Staging: hv: Move the mouse driver out of staging
+Date: Mon, 14 Nov 2011 02:40:30 +0000
+Message-ID: <6E21E5352C11B742B20C142EB499E0481AA6C1D4@TK5EX14MBXC128.redmond.corp.microsoft.com>
+References: <1319841316-29136-1-git-send-email-kys@microsoft.com>
+ <20111105064739.GA31111@core.coreip.homeip.net>
+ <6E21E5352C11B742B20C142EB499E0481AA68580@TK5EX14MBXC128.redmond.corp.microsoft.com>
+ <20111107055109.GA21095@core.coreip.homeip.net>
+ <alpine.LNX.2.00.1111132100000.15187@pobox.suse.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20111113210256.GA31621@redhat.com>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Cc: Christoph Hellwig <hch@infradead.org>, virtualization <virtualization@lists.linux-foundation.org>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, mst@redhat.com
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <alpine.LNX.2.00.1111132100000.15187@pobox.suse.cz>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, "ohering@suse.com" <ohering@suse.com>, "joe@perches.com" <joe@perches.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sun, 13 Nov 2011 23:03:14 +0200, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> On Thu, Nov 03, 2011 at 06:12:53PM +1030, Rusty Russell wrote:
-> > A virtio driver does virtqueue_add_buf() multiple times before finally
-> > calling virtqueue_kick(); previously we only exposed the added buffers
-> > in the virtqueue_kick() call.  This means we don't need a memory
-> > barrier in virtqueue_add_buf(), but it reduces concurrency as the
-> > device (ie. host) can't see the buffers until the kick.
-> > 
-> > Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+
+
+> -----Original Message-----
+> From: Jiri Kosina [mailto:jkosina@suse.cz]
+> Sent: Sunday, November 13, 2011 3:01 PM
+> To: Dmitry Torokhov
+> Cc: KY Srinivasan; gregkh@suse.de; linux-kernel@vger.kernel.org;
+> devel@linuxdriverproject.org; virtualization@lists.osdl.org; ohering@suse.com;
+> joe@perches.com
+> Subject: Re: [PATCH 1/1] Staging: hv: Move the mouse driver out of staging
 > 
-> In the past I played with a patch like this, but I didn't see a
-> performance gain either way. Do you see any gain?
+> On Sun, 6 Nov 2011, Dmitry Torokhov wrote:
+> 
+> > > I am not a hid expert; but all  hid low level drivers appear to do this.
+> > > Initially, I was directly invoking hid_connect() directly and based on your
+> > > Input, I chose to use hid_hw_start() which all other drivers are using.
+> >
+> > Note that the users of hid_hw_start() actually are not low level
+> > drivers, such as usbhid or bluetooth hidp, but higher-level drivers,
+> > such as hid-wacom, hid-a4tech, etc. Since your driver is a low-level
+> > driver (a provider so to speak) it should not call hid_hw_start() on its
+> > own but rather wait for the hid code to do it.
+> >
+> > Still, I am not a HID expert either so I'll defer to Jiri here.
+> 
+> Hi,
+> 
+> my understanding is that hv driver is actually a bit special in this
+> respect -- it's actually all-in-one both low-level and high-level driver.
+> I take it that there is not ever going to be a different high-level driver
+> using low-level hv transport (is that correct, KY?), so this might indeed
+> be an acceptable layout of the driver.
 
-No, but I haven't run it on real hardware.  lguest may see a win with
-this in theory, since the virtqueue processing is fully async, so I'll
-run some tests.
+You are right Jiri. While this is a low level transport driver, there will never be a another
+higher level driver using this transport.
 
-> I'm a bit concerned that with this patch, a buggy driver that
-> adds more than 2^16 descriptors without a kick
-> would seem to work sometimes. Let's add WARN_ON(vq->num_added > (1 << 16))?
+Regards,
 
-Hmm, I guess it could wait for the add to fail before doing a kick, but
-noone does that at the moment, so I've added a slight variant:
-
-	WARN_ON(vq->num_added > vq->vring.num);
-
-Thanks,
-Rusty.
+K. Y
