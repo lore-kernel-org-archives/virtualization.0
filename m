@@ -1,46 +1,50 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH v3 2/3] hvc_init():  Enforce one-time initialization.
-Date: Fri, 11 Nov 2011 15:00:31 +1030
-Message-ID: <874nybqo0o.fsf@rustcorp.com.au>
-References: <20111108214452.28884.14840.stgit@miche.sea.corp.google.com>
-	<20111108214504.28884.61814.stgit@miche.sea.corp.google.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 1/1] Staging: hv: Move the mouse driver out of staging
+Date: Sun, 13 Nov 2011 16:47:45 -0800
+Message-ID: <20111114004745.GA3666@core.coreip.homeip.net>
+References: <1319841316-29136-1-git-send-email-kys@microsoft.com>
+ <20111105064739.GA31111@core.coreip.homeip.net>
+ <6E21E5352C11B742B20C142EB499E0481AA68580@TK5EX14MBXC128.redmond.corp.microsoft.com>
+ <20111107055109.GA21095@core.coreip.homeip.net>
+ <alpine.LNX.2.00.1111132100000.15187@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20111108214504.28884.61814.stgit@miche.sea.corp.google.com>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Miche Baker-Harvey <miche@google.com>, Greg Kroah-Hartman <gregkh@suse.de>
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>, xen-devel@lists.xensource.com, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Anton Blanchard <anton@samba.org>, Amit Shah <amit.shah@redhat.com>, Mike Waychison <mikew@google.com>, ppc-dev <linuxppc-dev@lists.ozlabs.org>, Eric Northrup <digitaleric@google.com>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <alpine.LNX.2.00.1111132100000.15187@pobox.suse.cz>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: KY Srinivasan <kys@microsoft.com>, "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, "ohering@suse.com" <ohering@suse.com>, "joe@perches.com" <joe@perches.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 08 Nov 2011 13:45:04 -0800, Miche Baker-Harvey <miche@google.com> wrote:
-> hvc_init() must only be called once, and no thread should continue with hvc_alloc()
-> until after initialization is complete.  The original code does not enforce either
-> of these requirements.  A new mutex limits entry to hvc_init() to a single thread,
-> and blocks all later comers until it has completed.
+On Sun, Nov 13, 2011 at 09:01:28PM +0100, Jiri Kosina wrote:
+> On Sun, 6 Nov 2011, Dmitry Torokhov wrote:
 > 
-> This patch fixes multiple crash symptoms.
+> > > I am not a hid expert; but all  hid low level drivers appear to do this.
+> > > Initially, I was directly invoking hid_connect() directly and based on your
+> > > Input, I chose to use hid_hw_start() which all other drivers are using.
+> > 
+> > Note that the users of hid_hw_start() actually are not low level
+> > drivers, such as usbhid or bluetooth hidp, but higher-level drivers,
+> > such as hid-wacom, hid-a4tech, etc. Since your driver is a low-level
+> > driver (a provider so to speak) it should not call hid_hw_start() on its
+> > own but rather wait for the hid code to do it.
+> > 
+> > Still, I am not a HID expert either so I'll defer to Jiri here.
+> 
+> Hi,
+> 
+> my understanding is that hv driver is actually a bit special in this 
+> respect -- it's actually all-in-one both low-level and high-level driver. 
+> I take it that there is not ever going to be a different high-level driver 
+> using low-level hv transport (is that correct, KY?), so this might indeed 
+> be an acceptable layout of the driver.
+> 
 
-No, it doesn't: not now your previous double-hvc_init patch has been
-reverted.
+I actually do not see anything of a high-level driver in hv-mouse. It is
+a pure transport driver that channels everything through hid-input...
 
-It's easy to show this is the case though: replace mutex_lock() with:
+Thanks.
 
-        if (!mutex_trylock()) {
-                WARN(1, "hvc_console: mutex is stopping us!\n");
-                mutex_lock();
-        }
-
-If you get that warning, then your mutex is doing something.
-
-Thanks,
-Rusty.
+-- 
+Dmitry
