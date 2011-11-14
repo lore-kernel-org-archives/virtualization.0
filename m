@@ -1,19 +1,14 @@
-From: Pawel Moll <pawel.moll@arm.com>
-Subject: Re: [PATCHv2 RFC] virtio-spec: flexible configuration layout
-Date: Fri, 11 Nov 2011 13:06:57 +0000
-Message-ID: <1321016817.3259.389.camel__1281.42147227681$1321323155$gmane$org@hornet.cambridge.arm.com>
-References: <20111101124223.GA14060@redhat.com>
-	<8739e7uy87.fsf@rustcorp.com.au> <20111102233110.GA20289@redhat.com>
-	<20111108214021.GA4538@redhat.com> <20111109195901.GA28155@redhat.com>
-	<1320870287.3730.6.camel@lappy> <20111109205208.GA28599@redhat.com>
-	<1320872248.3730.11.camel@lappy> <87aa83qoao.fsf@rustcorp.com.au>
-	<CA+1xoqeH3ErNCELD+NoJHz=eH6FtxersUffoJSj0yQx2o=4g0g@mail.gmail.com>
-	<20111111125907.GB23902@redhat.com>
+From: Asias He <asias.hejun@gmail.com>
+Subject: Re: [RFC] kvm tools: Implement multiple VQ for virtio-net
+Date: Mon, 14 Nov 2011 10:04:25 +0800
+Message-ID: <4EC07729.3050303__41736.329769674$1321323158$gmane$org@gmail.com>
+References: <1321049521-26376-1-git-send-email-levinsasha928@gmail.com>
+	<20111113102428.GD15322@redhat.com> <1321196430.2425.2.camel@sasha>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20111111125907.GB23902@redhat.com>
+In-Reply-To: <1321196430.2425.2.camel@sasha>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,37 +18,169 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Krishna Kumar <krkumar2@in.ibm.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, Wang Sheng-Hui <shhuiw@gmail.com>, Alexey Kardashevskiy <aik@ozlabs.ru>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "penberg@kernel.org" <penberg@kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Sasha Levin <levinsasha928@gmail.com>, Amit Shah <amit.shah@redhat.com>, "avi@redhat.com" <avi@redhat.com>
+To: Sasha Levin <levinsasha928@gmail.com>
+Cc: Krishna Kumar <krkumar2@in.ibm.com>, gorcunov@gmail.com, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, penberg@kernel.org, mingo@elte.hu
 List-Id: virtualization@lists.linuxfoundation.org
 
-PiA+IEFsc28sIGFuIHVucmVsYXRlZCBxdWVzdGlvbnM6IFdpdGggUElPLCByZXF1ZXN0cyB3ZXJl
-IG9yZGVyZWQsIHdoaWNoCj4gPiBtZWFucyB0aGF0IGlmIHdlIHdyb3RlIHRvIHRoZSBxdWV1ZSBz
-ZWxlY3RvciBhbmQgdGhlbiByZWFkIGZyb20gYQo+ID4gcXVldWUgcmVnaXN0ZXIgd2Ugd291bGQg
-cmVhZCB0aGUgY29ycmVjdCBxdWV1ZSBpbmZvLgo+ID4gSXMgdGhlIHNhbWUgdGhpbmcgYXNzdXJl
-ZCB0byB1cyB3aXRoIE1NSU8/Cj4gCj4gRm9yIHJlYWwgUENJLCByZWFkcyBkbyBub3QgYnlwYXNz
-IHdyaXRlcyBpbiBQQ0kuIEhvd2V2ZXIgdGhpcwo+IGlzIG9ubHkgdHJ1ZSBpZiBib3RoIGFyZSBN
-TUlPIG9yIGJvdGggUElPIHJlYWRzLgo+IEkgZG9uJ3QgdGhpbmsgdGhlIG9yZGVyaW5nIG9mIE1N
-SU8gdmVyc3VzIFBJTyBpcyBndWFyYW50ZWVkLgo+IAo+IE9uIEtWTSwgdGhlIGtlcm5lbCBkb2Vz
-bid0IGRvIGFueXRoaW5nIHRvIGd1YXJhbnRlZSBvcmRlcmluZy4KPiBTbyB5b3UgZ2V0IHRoZSBu
-YXR1cmFsIG9yZGVyaW5nIG9mIHRoZSBDUFUuCj4gCj4gPiBJZiB3ZSB3cml0ZSB0byBhIHF1ZXVl
-Cj4gPiBzZWxlY3RvciBhbmQgaW1tZWRpYXRlbHkgcmVhZCBmcm9tIHF1ZXVlIGluZm8gd291bGQg
-d2UgYmUgcmVhZGluZyB0aGUKPiA+IHJpZ2h0IGluZm8sIG9yIGlzIHRoZXJlIHRoZSBzbGlnaHQg
-Y2hhbmNlIHRoYXQgaXQgd291bGQgZ2V0IHJlb3JkZXJlZAo+ID4gYW5kIHdlIHdvdWxkIGJlIHJl
-YWRpbmcgcXVldWUgaW5mbyBmaXJzdCBhbmQgd3JpdGluZyB0byB0aGUgc2VsZWN0b3IKPiA+IGxh
-dGVyPwo+IAo+IFRoZSB0aGluZyB0byByZWFsaXplIGlzIHRoYXQgd3JpdGUgdG8gcXVldWUgc2Vs
-ZWN0b3Igd2l0aCBLVk0gaXMgaW4gdGhlCj4gZW5kIHBlcmZvcm1lZCBieSBob3N0LiBBbmQgcmVh
-ZGluZyBxdWV1ZSBpbmZvIG1lYW5zIHRoYXQgaG9zdCB3aWxsIGJlCj4gcmVhZGluZyB0aGUgcXVl
-dWUgc2VsZWN0b3IuIFNvIHRoaXMgaXMgYSB3cml0ZSBmb2xsb3dlZCBieSByZWFkCj4gZnJvbSB0
-aGUgc2FtZSBhZGRyZXNzLiBBRkFJSyBubyBDUFVzIGNhbiByZW9yZGVyIHN1Y2ggYWNjZXNzZXMs
-Cj4gc28geW91IGdldCB0aGUgcmlnaHQgaW5mby4KCihBcyBmYXIgYXMgSSB1bmRlcnN0YW5kIGFs
-bCB0aGUgY29tcGxleGl0eSA7LSkgTWVtb3J5IG1hcHBlZCB1c2luZwppb3JlbWFwKCktbGlrZSBm
-dW5jdGlvbnMgc2hvdWxkIHByZXNlcnZlIGFjY2VzcyBvcmRlci4gSW4gY2FzZSBvZiBBUk0KYXJj
-aGl0ZWN0dXJlIHN1Y2ggbWVtb3J5IHJlZ2lvbiBpcyBkZWZpbmVkIChhdCB0aGUgcGFnZSB0YWJs
-ZXMgbGV2ZWwpIGFzCmEgImRldmljZSBtZW1vcnkiIChjb250cmFyeSB0byAibm9ybWFsIG1lbW9y
-eSIpIGFuZCB0aGUgcHJvY2Vzc29yIHdpbGwKbm90IHRyeSB0byBiZSBjbGV2ZXIgYWJvdXQgaXQu
-IEkga25vdyBuZXh0LXRvLW5vdGhpbmcgYWJvdXQgeDg2LCBidXQgSQpzdXBwb3NlIHNpbWlsYXIg
-aWRlYSBhcHBsaWVzLgoKQ2hlZXJzIQoKUGF3ZcWCCgoKX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1
-YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhm
-b3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+Hi, Shsha
+
+On 11/13/2011 11:00 PM, Sasha Levin wrote:
+> On Sun, 2011-11-13 at 12:24 +0200, Michael S. Tsirkin wrote:
+>> On Sat, Nov 12, 2011 at 12:12:01AM +0200, Sasha Levin wrote:
+>>> This is a patch based on Krishna Kumar's patch series which implements
+>>> multiple VQ support for virtio-net.
+>>>
+>>> The patch was tested with ver3 of the patch.
+>>>
+>>> Cc: Krishna Kumar<krkumar2@in.ibm.com>
+>>> Cc: Michael S. Tsirkin<mst@redhat.com>
+>>> Cc: Rusty Russell<rusty@rustcorp.com.au>
+>>> Cc: virtualization@lists.linux-foundation.org
+>>> Cc: netdev@vger.kernel.org
+>>> Signed-off-by: Sasha Levin<levinsasha928@gmail.com>
+>>
+>> Any performance numbers?
+>
+> I tried finding a box with more than two cores so I could test it on
+> something like that as well.
+>
+>> From what I see this patch causes a performance regression on my 2 core
+> box.
+>
+> I'll send an updated KVM tools patch in a bit as well.
+>
+> Before:
+>
+> # netperf -H 192.168.33.4,ipv4 -t TCP_RR
+> MIGRATED TCP REQUEST/RESPONSE TEST from 0.0.0.0 (0.0.0.0) port 0 AF_INET
+> to 192.168.33.4 (192.168.33.4) port 0 AF_INET : first burst 0
+> Local /Remote
+> Socket Size   Request  Resp.   Elapsed  Trans.
+> Send   Recv   Size     Size    Time     Rate
+> bytes  Bytes  bytes    bytes   secs.    per sec
+>
+> 16384  87380  1        1       10.00    11160.63
+> 16384  87380
+>
+> # netperf -H 192.168.33.4,ipv4 -t UDP_RR
+> MIGRATED UDP REQUEST/RESPONSE TEST from 0.0.0.0 (0.0.0.0) port 0 AF_INET
+> to 192.168.33.4 (192.168.33.4) port 0 AF_INET : first burst 0
+> Local /Remote
+> Socket Size   Request  Resp.   Elapsed  Trans.
+> Send   Recv   Size     Size    Time     Rate
+> bytes  Bytes  bytes    bytes   secs.    per sec
+>
+> 122880 122880 1        1       10.00    12072.64
+> 229376 229376
+>
+> # netperf -H 192.168.33.4,ipv4 -t TCP_STREAM
+> MIGRATED TCP STREAM TEST from 0.0.0.0 (0.0.0.0) port 0 AF_INET to
+> 192.168.33.4 (192.168.33.4) port 0 AF_INET
+> Recv   Send    Send
+> Socket Socket  Message  Elapsed
+> Size   Size    Size     Time     Throughput
+> bytes  bytes   bytes    secs.    10^6bits/sec
+>
+>   87380  16384  16384    10.00    4654.50
+>
+> netperf -H 192.168.33.4,ipv4 -t TCP_STREAM -- -m 128
+> MIGRATED TCP STREAM TEST from 0.0.0.0 (0.0.0.0) port 0 AF_INET to
+> 192.168.33.4 (192.168.33.4) port 0 AF_INET
+> Recv   Send    Send
+> Socket Socket  Message  Elapsed
+> Size   Size    Size     Time     Throughput
+> bytes  bytes   bytes    secs.    10^6bits/sec
+>
+>   87380  16384    128    10.00     635.45
+>
+> # netperf -H 192.168.33.4,ipv4 -t UDP_STREAM
+> MIGRATED UDP STREAM TEST from 0.0.0.0 (0.0.0.0) port 0 AF_INET to
+> 192.168.33.4 (192.168.33.4) port 0 AF_INET
+> Socket  Message  Elapsed      Messages
+> Size    Size     Time         Okay Errors   Throughput
+> bytes   bytes    secs            #      #   10^6bits/sec
+>
+> 122880   65507   10.00      113894      0    5968.54
+> 229376           10.00       89373           4683.54
+>
+> # netperf -H 192.168.33.4,ipv4 -t UDP_STREAM -- -m 128
+> MIGRATED UDP STREAM TEST from 0.0.0.0 (0.0.0.0) port 0 AF_INET to
+> 192.168.33.4 (192.168.33.4) port 0 AF_INET
+> Socket  Message  Elapsed      Messages
+> Size    Size     Time         Okay Errors   Throughput
+> bytes   bytes    secs            #      #   10^6bits/sec
+>
+> 122880     128   10.00      550634      0      56.38
+> 229376           10.00      398786             40.84
+>
+>
+> After:
+>
+> # netperf -H 192.168.33.4,ipv4 -t TCP_RR
+> MIGRATED TCP REQUEST/RESPONSE TEST from 0.0.0.0 (0.0.0.0) port 0 AF_INET
+> to 192.168.33.4 (192.168.33.4) port 0 AF_INET : first burst 0
+> Local /Remote
+> Socket Size   Request  Resp.   Elapsed  Trans.
+> Send   Recv   Size     Size    Time     Rate
+> bytes  Bytes  bytes    bytes   secs.    per sec
+>
+> 16384  87380  1        1       10.00    8952.47
+> 16384  87380
+>
+> # netperf -H 192.168.33.4,ipv4 -t UDP_RR
+> MIGRATED UDP REQUEST/RESPONSE TEST from 0.0.0.0 (0.0.0.0) port 0 AF_INET
+> to 192.168.33.4 (192.168.33.4) port 0 AF_INET : first burst 0
+> Local /Remote
+> Socket Size   Request  Resp.   Elapsed  Trans.
+> Send   Recv   Size     Size    Time     Rate
+> bytes  Bytes  bytes    bytes   secs.    per sec
+>
+> 122880 122880 1        1       10.00    9534.52
+> 229376 229376
+>
+> # netperf -H 192.168.33.4,ipv4 -t TCP_STREAM
+> MIGRATED TCP STREAM TEST from 0.0.0.0 (0.0.0.0) port 0 AF_INET to
+> 192.168.33.4 (192.168.33.4) port 0 AF_INET
+> Recv   Send    Send
+> Socket Socket  Message  Elapsed
+> Size   Size    Size     Time     Throughput
+> bytes  bytes   bytes    secs.    10^6bits/sec
+>
+>   87380  16384  16384    10.13    2278.23
+>
+> # netperf -H 192.168.33.4,ipv4 -t TCP_STREAM -- -m 128
+> MIGRATED TCP STREAM TEST from 0.0.0.0 (0.0.0.0) port 0 AF_INET to
+> 192.168.33.4 (192.168.33.4) port 0 AF_INET
+> Recv   Send    Send
+> Socket Socket  Message  Elapsed
+> Size   Size    Size     Time     Throughput
+> bytes  bytes   bytes    secs.    10^6bits/sec
+>
+>   87380  16384    128    10.00     623.27
+>
+> # netperf -H 192.168.33.4,ipv4 -t UDP_STREAM
+> MIGRATED UDP STREAM TEST from 0.0.0.0 (0.0.0.0) port 0 AF_INET to
+> 192.168.33.4 (192.168.33.4) port 0 AF_INET
+> Socket  Message  Elapsed      Messages
+> Size    Size     Time         Okay Errors   Throughput
+> bytes   bytes    secs            #      #   10^6bits/sec
+>
+> 122880   65507   10.00      136930      0    7175.72
+> 229376           10.00       16726            876.51
+>
+> # netperf -H 192.168.33.4,ipv4 -t UDP_STREAM -- -m 128
+> MIGRATED UDP STREAM TEST from 0.0.0.0 (0.0.0.0) port 0 AF_INET to
+> 192.168.33.4 (192.168.33.4) port 0 AF_INET
+> Socket  Message  Elapsed      Messages
+> Size    Size     Time         Okay Errors   Throughput
+> bytes   bytes    secs            #      #   10^6bits/sec
+>
+> 122880     128   10.00      982492      0     100.61
+> 229376           10.00      249597             25.56
+>
+
+Why both the bandwidth and latency performance are dropping so 
+dramatically with multiple VQ?
+
+-- 
+Asias He
