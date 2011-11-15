@@ -1,14 +1,11 @@
 From: Pawel Moll <pawel.moll@arm.com>
-Subject: Re: [PATCH] virtio-mmio: Correct the name of the guest features
-	selector
-Date: Tue, 15 Nov 2011 14:25:22 +0000
-Message-ID: <1321367122.3137.142.camel__39525.1186252155$1321371016$gmane$org@hornet.cambridge.arm.com>
-References: <1321366638-28408-1-git-send-email-levinsasha928@gmail.com>
+Subject: [PATCH] virtio-mmio: Devices parameter parsing
+Date: Tue, 15 Nov 2011 13:53:05 +0000
+Message-ID: <1321365185-2928-1-git-send-email-pawel.moll__9423.6237383031$1321371016$gmane$org@arm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1321366638-28408-1-git-send-email-levinsasha928@gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,34 +15,280 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Sasha Levin <levinsasha928@gmail.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+To: Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: Peter Maydell <peter.maydell@linaro.org>, Sasha Levin <levinsasha928@gmail.com>, Pawel Moll <pawel.moll@arm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gVHVlLCAyMDExLTExLTE1IGF0IDE0OjE3ICswMDAwLCBTYXNoYSBMZXZpbiB3cm90ZToKPiBH
-dWVzdCBmZWF0dXJlcyBzZWxlY3RvciBzcGVsbGluZyBtaXN0YWtlLgo+Cj4gZGlmZiAtLWdpdCBh
-L2luY2x1ZGUvbGludXgvdmlydGlvX21taW8uaCBiL2luY2x1ZGUvbGludXgvdmlydGlvX21taW8u
-aAo+IGluZGV4IDI3YzdlZGUuLjVjN2I2ZjAgMTAwNjQ0Cj4gLS0tIGEvaW5jbHVkZS9saW51eC92
-aXJ0aW9fbW1pby5oCj4gKysrIGIvaW5jbHVkZS9saW51eC92aXJ0aW9fbW1pby5oCj4gQEAgLTYz
-LDcgKzYzLDcgQEAKPiAgI2RlZmluZSBWSVJUSU9fTU1JT19HVUVTVF9GRUFUVVJFUwkweDAyMAo+
-ICAKPiAgLyogQWN0aXZhdGVkIGZlYXR1cmVzIHNldCBzZWxlY3RvciAtIFdyaXRlIE9ubHkgKi8K
-PiAtI2RlZmluZSBWSVJUSU9fTU1JT19HVUVTVF9GRUFUVVJFU19TRVQJMHgwMjQKPiArI2RlZmlu
-ZSBWSVJUSU9fTU1JT19HVUVTVF9GRUFUVVJFU19TRUwJMHgwMjQKPiAgCj4gIC8qIEd1ZXN0J3Mg
-bWVtb3J5IHBhZ2Ugc2l6ZSBpbiBieXRlcyAtIFdyaXRlIE9ubHkgKi8KPiAgI2RlZmluZSBWSVJU
-SU9fTU1JT19HVUVTVF9QQUdFX1NJWkUJMHgwMjgKCkRhbW4uIFNvcnJ5IGFib3V0IGl0LiBCdXQg
-aWYgeW91IGNoYW5nZSB0aGUgaGVhZGVyIHlvdSdsbCBuZWVkIHRvIGNoYW5nZQp0aGUgZHJpdmVy
-OgoKZGlmZiAtLWdpdCBhL2RyaXZlcnMvdmlydGlvL3ZpcnRpb19tbWlvLmMgYi9kcml2ZXJzL3Zp
-cnRpby92aXJ0aW9fbW1pby5jCmluZGV4IDFmMjViYjkuLjEwYmI4YjkgMTAwNjQ0Ci0tLSBhL2Ry
-aXZlcnMvdmlydGlvL3ZpcnRpb19tbWlvLmMKKysrIGIvZHJpdmVycy92aXJ0aW8vdmlydGlvX21t
-aW8uYwpAQCAtMTYxLDcgKzE2MSw3IEBAIHN0YXRpYyB2b2lkIHZtX2ZpbmFsaXplX2ZlYXR1cmVz
-KHN0cnVjdCB2aXJ0aW9fZGV2aWNlICp2ZGV2KQogICAgICAgIHZyaW5nX3RyYW5zcG9ydF9mZWF0
-dXJlcyh2ZGV2KTsKIAogICAgICAgIGZvciAoaSA9IDA7IGkgPCBBUlJBWV9TSVpFKHZkZXYtPmZl
-YXR1cmVzKTsgaSsrKSB7Ci0gICAgICAgICAgICAgICB3cml0ZWwoaSwgdm1fZGV2LT5iYXNlICsg
-VklSVElPX01NSU9fR1VFU1RfRkVBVFVSRVNfU0VUKTsKKyAgICAgICAgICAgICAgIHdyaXRlbChp
-LCB2bV9kZXYtPmJhc2UgKyBWSVJUSU9fTU1JT19HVUVTVF9GRUFUVVJFU19TRUwpOwogICAgICAg
-ICAgICAgICAgd3JpdGVsKHZkZXYtPmZlYXR1cmVzW2ldLAogICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgIHZtX2Rldi0+YmFzZSArIFZJUlRJT19NTUlPX0dVRVNUX0ZFQVRVUkVTKTsKICAg
-ICAgICB9CgpDaGVlcnMhCgpQYXdlxYIKCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRp
-b25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRp
-b24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+This patch adds an option to instantiate guest virtio-mmio devices
+basing on a kernel command line (or module) parameter, for example:
+
+	virtio_mmio.devices=0x100@0x100b0000:48,1K@0x1001e000:74
+
+Signed-off-by: Pawel Moll <pawel.moll@arm.com>
+---
+ drivers/virtio/Kconfig       |   25 ++++++
+ drivers/virtio/virtio_mmio.c |  170 +++++++++++++++++++++++++++++++++++++++++-
+ 2 files changed, 194 insertions(+), 1 deletions(-)
+
+Hi All,
+
+When Sasha asked me if there is any way of instantiating the mmio devices
+from kernel command line I answered no and that I believed that the correct
+way of doing that would be passing a Device Tree with it. But then someone
+else asked me the same so I figured out that I was probably wrong and there
+is a need for that...
+
+Here it goes, then. As it's easy to shoot yourself in the foot with that
+(just specify bogus base address and watch as your system is going to hell ;-)
+it's an option that must be explicitly enabled.
+
+I hope it will be useful in DT-less qemu/KVM use cases.
+
+All comments most welcomed!
+
+Cheers!
+
+Pawel
+
+diff --git a/drivers/virtio/Kconfig b/drivers/virtio/Kconfig
+index 816ed08..61f3a79 100644
+--- a/drivers/virtio/Kconfig
++++ b/drivers/virtio/Kconfig
+@@ -46,4 +46,29 @@ config VIRTIO_BALLOON
+ 
+  	 If unsure, say N.
+ 
++config VIRTIO_MMIO_CMDLINE_DEVICES
++	bool "Memory mapped virtio devices parameter parsing"
++	depends on VIRTIO_MMIO
++	---help---
++	 Allow virtio-mmio devices instantiation via the kernel command line
++	 or module parameter. Be aware that using incorrect parameters (base
++	 address in particular) can crash your system - you have been warned.
++
++	 The format for the parameter is as follows:
++
++		[virtio_mmio.]devices=<device>[<delim><device>]
++
++	 where:
++		<device>   := <size>@<baseaddr>:<irq>
++		<delim>    := ',' or ';'
++		<size>     := size (can use standard suffixes like K or M)
++		<baseaddr> := physical base address
++		<irq>      := interrupt number (as passed to request_irq())
++
++	 Example kernel command line parameter:
++
++		virtio_mmio.devices=0x100@0x100b0000:48,1K@0x1001e000:74
++
++	 If unsure, say 'N'.
++
+ endmenu
+diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
+index acc5e43..1f25bb9 100644
+--- a/drivers/virtio/virtio_mmio.c
++++ b/drivers/virtio/virtio_mmio.c
+@@ -6,6 +6,47 @@
+  * This module allows virtio devices to be used over a virtual, memory mapped
+  * platform device.
+  *
++ * The guest device(s) may be instantiated in one of three equivalent ways:
++ *
++ * 1. Static platform device in board's code, eg.:
++ *
++ *	static struct platform_device v2m_virtio_device = {
++ *		.name = "virtio-mmio",
++ *		.id = -1,
++ *		.num_resources = 2,
++ *		.resource = (struct resource []) {
++ *			{
++ *				.start = 0x1001e000,
++ *				.end = 0x1001e0ff,
++ *				.flags = IORESOURCE_MEM,
++ *			}, {
++ *				.start = 42 + 32,
++ *				.end = 42 + 32,
++ *				.flags = IORESOURCE_IRQ,
++ *			},
++ *		}
++ *	};
++ *
++ * 2. Device Tree node, eg.:
++ *
++ *		virtio_block@1e000 {
++ *			compatible = "virtio,mmio";
++ *			reg = <0x1e000 0x100>;
++ *			interrupts = <42>;
++ *		}
++ *
++ * 3. Kernel module (or command line) parameter
++ *		[virtio_mmio.]devices=<device>[<delim><device>]
++ *    where:
++ *		<device>   := <size>@<baseaddr>:<irq>
++ *		<delim>    := ',' or ';'
++ *		<size>     := size (can use standard suffixes like K or M)
++ *		<baseaddr> := physical base address
++ *		<irq>      := interrupt number (as passed to request_irq())
++ *    eg.:
++ *		virtio_mmio.devices=0x100@0x100b0000:48,1K@0x1001e000:74
++ *
++ *
+  * Registers layout (all 32-bit wide):
+  *
+  * offset d. name             description
+@@ -42,6 +83,8 @@
+  * See the COPYING file in the top-level directory.
+  */
+ 
++#define pr_fmt(fmt) "virtio-mmio: " fmt
++
+ #include <linux/highmem.h>
+ #include <linux/interrupt.h>
+ #include <linux/io.h>
+@@ -443,6 +486,127 @@ static int __devexit virtio_mmio_remove(struct platform_device *pdev)
+ 
+ 
+ 
++/* Devices list parameter */
++
++#if defined(CONFIG_VIRTIO_MMIO_CMDLINE_DEVICES)
++
++static char *virtio_mmio_cmdline_devices;
++module_param_named(devices, virtio_mmio_cmdline_devices, charp, 0);
++
++static struct device virtio_mmio_cmdline_parent = {
++	.init_name = "virtio-mmio-cmdline",
++};
++
++static int virtio_mmio_register_cmdline_devices(void)
++{
++	int err;
++	int id = 0;
++	char *device = NULL;
++	char *token;
++
++	err = device_register(&virtio_mmio_cmdline_parent);
++	if (err)
++		return err;
++
++	/* Split colon-or-semicolon-separated devices */
++	while ((token = strsep(&virtio_mmio_cmdline_devices, ",;")) != NULL) {
++		struct resource resources[] = {
++			{
++				.flags = IORESOURCE_IRQ,
++			}, {
++				.flags = IORESOURCE_MEM,
++			}
++		};
++		char *size, *base;
++		unsigned long long val;
++
++		if (!*token)
++			continue;
++
++		kfree(device);
++		device = kstrdup(token, GFP_KERNEL);
++
++		/* Split memory and IRQ resources */
++		base = strsep(&token, ":");
++		if (base == token || !token || !*token) {
++			pr_err("No IRQ in '%s'!\n", device);
++			continue;
++		}
++
++		/* Get IRQ */
++		if (kstrtoull(token, 0, &val) != 0) {
++			pr_err("Wrong IRQ in '%s'!\n", device);
++			continue;
++		}
++		resources[0].start = val;
++		resources[0].end = val;
++
++		/* Split base address and size */
++		size = strsep(&base, "@");
++		if (size == base || !base || !*base) {
++			pr_err("No base in '%s'!\n", device);
++			continue;
++		}
++
++		/* Get base address */
++		if (kstrtoull(base, 0, &val) != 0) {
++			pr_err("Wrong base in '%s'!\n", device);
++			continue;
++		}
++		resources[1].start = val;
++		resources[1].end = val;
++
++		/* Get size */
++		resources[1].end += memparse(size, &token) - 1;
++		if (size == token || *token) {
++			pr_err("Wrong size in '%s'!\n", device);
++			continue;
++		}
++
++		pr_info("Registering device %d at 0x%x-0x%x, IRQ %u.\n",
++				id, resources[1].start, resources[1].end,
++				resources[0].start);
++
++		platform_device_register_resndata(&virtio_mmio_cmdline_parent,
++				"virtio-mmio", id, resources,
++				ARRAY_SIZE(resources), NULL, 0);
++
++		id++;
++	}
++
++	kfree(device);
++
++	return 0;
++}
++
++static int virtio_mmio_unregister_cmdline_device(struct device *dev,
++		void *data)
++{
++	platform_device_unregister(to_platform_device(dev));
++
++	return 0;
++}
++
++static void virtio_mmio_unregister_cmdline_devices(void)
++{
++	device_for_each_child(&virtio_mmio_cmdline_parent, NULL,
++			virtio_mmio_unregister_cmdline_device);
++	device_unregister(&virtio_mmio_cmdline_parent);
++}
++
++#else
++
++static int virtio_mmio_register_cmdline_devices(void)
++{
++	return 0;
++}
++
++static void virtio_mmio_unregister_cmdline_devices(void)
++{
++}
++
++#endif
++
+ /* Platform driver */
+ 
+ static struct of_device_id virtio_mmio_match[] = {
+@@ -463,11 +627,15 @@ static struct platform_driver virtio_mmio_driver = {
+ 
+ static int __init virtio_mmio_init(void)
+ {
+-	return platform_driver_register(&virtio_mmio_driver);
++	int err = virtio_mmio_register_cmdline_devices();
++
++	return err ? err : platform_driver_register(&virtio_mmio_driver);
+ }
+ 
+ static void __exit virtio_mmio_exit(void)
+ {
++	virtio_mmio_unregister_cmdline_devices();
++
+ 	platform_driver_unregister(&virtio_mmio_driver);
+ }
+ 
+-- 
+1.6.3.3
