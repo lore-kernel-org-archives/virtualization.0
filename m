@@ -1,16 +1,16 @@
-From: Amit Shah <amit.shah@redhat.com>
-Subject: Re: [PATCH 00/11] virtio: Support for hibernation (S4)
-Date: Tue, 15 Nov 2011 18:22:46 +0530
-Message-ID: <20111115125246.GB26378@amit-x200.redhat.com>
-References: <cover.1317309123.git.amit.shah@redhat.com>
-	<20111002094920.GF29706@redhat.com>
-	<8739f9ipsi.fsf@rustcorp.com.au>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [RFC 0/5] virtio-pci,kvm tools: Support new virtio-pci spec in
+	kvm tools
+Date: Tue, 15 Nov 2011 14:59:12 +0200
+Message-ID: <20111115125911.GD31208@redhat.com>
+References: <20111114181854.GA24953@redhat.com>
+	<1321314197-5265-1-git-send-email-levinsasha928@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <8739f9ipsi.fsf@rustcorp.com.au>
+In-Reply-To: <1321314197-5265-1-git-send-email-levinsasha928@gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,45 +20,41 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Virtualization List <virtualization@lists.linux-foundation.org>, linux-kernel@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
+To: Sasha Levin <levinsasha928@gmail.com>
+Cc: kvm@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, penberg@kernel.org, mingo@elte.hu
 List-Id: virtualization@lists.linuxfoundation.org
 
-On (Tue) 04 Oct 2011 [10:36:05], Rusty Russell wrote:
-> On Sun, 2 Oct 2011 11:49:21 +0200, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> > On Thu, Sep 29, 2011 at 08:55:56PM +0530, Amit Shah wrote:
-> > > Hello,
-> > > 
-> > > These patches add support for S4 to virtio (pci) and all drivers.  The
-> > > patches are based on the virtio-console patch series in Rusty's queue.
-> > > 
-> > > For each driver, all vqs are removed before hibernation, and then
-> > > re-created after restore.
-> > > 
-> > > All the drivers in testing work fine:
-> > > 
-> > > * virtio-blk is used for the only disk in the VM, IO works fine before
-> > >   and after.
+On Tue, Nov 15, 2011 at 01:43:12AM +0200, Sasha Levin wrote:
+> This patch series contains two fixes for the RFC patch send by Michael. These
+> patches are pretty basic and should probably be merged into the next version
+> of that patch.
+
+Yes, will do, thanks!
+
+> Other two patches add support to the new virtio-pci spec in KVM tools, allowing
+> for easy testing of any future virtio-pci kernel side patches. The usermode code
+> isn't complete, but it's working properly and should be enough for functionality
+> testing.
 > 
-> I'm not familiar with the suspend code, but:
+> Michael S. Tsirkin (1):
+>   virtio-pci: flexible configuration layout
 > 
-> 1) Does it already ensure there are no outstanding I/O requests?  If
->    not, we want to restore them when we unfreeze.
-
-For the blk code, I added blk_drain_queue() and related calls to the
-freeze handler, that was missed earlier.
-
-> 2) Does it stop more I/O from reaching do_virtblk_request during freeze?
->    If not, we need to.
-
-Added blk_stop_queue() and blk_start_queue() calls to ensure this.
-
-> If we need to save and restore requests, I don't think we should do this
-> on a per-driver basis, but try to do it in the core.
-
-Agreed, however currently we don't save and restore any pending vq
-items.  If it is necessary, we should do it in common code (earlier
-version of this patchset did that).  I think we can get better results
-by flushing the vq instead of trying to save/restore elements.
-
-		Amit
+> Sasha Levin (4):
+>   virtio-pci: Fix compilation issue
+>   iomap: Don't ignore offset
+>   kvm tools: Free up the MSI-X PBA BAR
+>   kvm tools: Support new virtio-pci configuration layout
+> 
+>  drivers/virtio/virtio_pci.c        |  184 ++++++++++++++++++++++--
+>  include/asm-generic/io.h           |    4 +
+>  include/asm-generic/iomap.h        |   11 ++
+>  include/linux/pci_regs.h           |    4 +
+>  include/linux/virtio_pci.h         |   41 ++++++
+>  lib/iomap.c                        |   41 +++++-
+>  tools/kvm/include/kvm/pci.h        |   13 ++-
+>  tools/kvm/include/kvm/virtio-pci.h |    5 +-
+>  tools/kvm/virtio/pci.c             |  275 ++++++++++++++++++++++++++++++++----
+>  9 files changed, 530 insertions(+), 48 deletions(-)
+> 
+> -- 
+> 1.7.8.rc1
