@@ -1,12 +1,15 @@
-From: raj@tardy.cup.hp.com (Rick Jones)
-Subject: [RFC PATCH net-next v2] enable virtio_net to return bus_info in
-	ethtool -i consistent with emulated NICs
-Date: Mon, 14 Nov 2011 16:17:08 -0800 (PST)
-Message-ID: <20111115001708.72ED0290054F__6869.91926418177$1321323170$gmane$org@tardy>
+From: Krishna Kumar2 <krkumar2@in.ibm.com>
+Subject: Re: [RFC] kvm tools: Implement multiple VQ for virtio-net
+Date: Tue, 15 Nov 2011 10:14:10 +0530
+Message-ID: <OFDA747DDD.8D1C8FD8-ON65257949.001837DA-65257949.0019D25F@in.ibm.com>
+References: <1321049521-26376-1-git-send-email-levinsasha928@gmail.com>	
+	<20111113102428.GD15322@redhat.com> <1321196430.2425.2.camel@sasha>
+	<4EC07729.3050303@gmail.com> <1321265740.2425.7.camel@sasha>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1321265740.2425.7.camel@sasha>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,208 +19,57 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: netdev@vger.kernel.org, rusty@rustcorp.com.au, mst@redhat.com, virtualization@lists.linux-foundation.org
+To: Sasha Levin <levinsasha928@gmail.com>
+Cc: penberg@kernel.org, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, Asias He <asias.hejun@gmail.com>, virtualization@lists.linux-foundation.org, gorcunov@gmail.com, netdev@vger.kernel.org, mingo@elte.hu
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Rick Jones <rick.jones2@hp.com>
+Sasha Levin <levinsasha928@gmail.com> wrote on 11/14/2011 03:45:40 PM:
 
-Add a new .bus_name to virtio_config_ops then modify virtio_net to 
-call through to it in an ethtool .get_drvinfo routine to report
-bus_info in ethtool -i output which is consistent with other
-emulated NICs and the output of lspci.  
+> > Why both the bandwidth and latency performance are dropping so
+> > dramatically with multiple VQ?
+>
+> It looks like theres no hash sync between host and guest, which makes
+> the RX VQ change for every packet. This is my guess.
 
-Signed-off-by: Rick Jones <rick.jones2@hp.com>
+Yes, I confirmed this happens for macvtap. I am
+using ixgbe - it calls skb_record_rx_queue when
+a skb is allocated, but sets rxhash when a packet
+arrives. Macvtap is relying on record_rx_queue
+first ahead of rxhash (as part of my patch making
+macvtap multiqueue), hence different skbs result
+in macvtap selecting different vq's.
 
----
+Reordering macvtap to use rxhash first results in
+all packets going to the same VQ. The code snippet
+is:
 
-The changes to drivers/lguest/lguest_device.c, drivers/s390/kvm/kvm_virtio.c,
-and drivers/virtio/virtio_mmio.c code inspected only, not compiled.
+{
+	...
+	if (!numvtaps)
+                goto out;
 
-j-ubuntu-guest:~$ ethtool -i eth0
-driver: virtio_net
-version: 1.0.0
-firmware-version: 
-bus-info: 0000:00:03.0
-raj@raj-ubuntu-guest:~$ lspci | grep Ether
-00:03.0 Ethernet controller: Red Hat, Inc Virtio network device
+	rxq = skb_get_rxhash(skb);
+	if (rxq) {
+		tap = rcu_dereference(vlan->taps[rxq % numvtaps]);
+		if (tap)
+			goto out;
+	}
 
- drivers/lguest/lguest_device.c |    6 ++++++
- drivers/net/virtio_net.c       |   15 +++++++++++++++
- drivers/s390/kvm/kvm_virtio.c  |    6 ++++++
- drivers/virtio/virtio_mmio.c   |    6 ++++++
- drivers/virtio/virtio_pci.c    |    8 ++++++++
- include/linux/virtio_config.h  |   14 ++++++++++++++
- 6 files changed, 55 insertions(+), 0 deletions(-)
+	if (likely(skb_rx_queue_recorded(skb))) {
+		rxq = skb_get_rx_queue(skb);
 
+		while (unlikely(rxq >= numvtaps))
+			rxq -= numvtaps;
+			tap = rcu_dereference(vlan->taps[rxq]);
+			if (tap)
+				goto out;
+	}
+}
 
-diff --git a/drivers/lguest/lguest_device.c b/drivers/lguest/lguest_device.c
-index 0dc30ff..595d731 100644
---- a/drivers/lguest/lguest_device.c
-+++ b/drivers/lguest/lguest_device.c
-@@ -381,6 +381,11 @@ error:
- 	return PTR_ERR(vqs[i]);
- }
- 
-+static const char *lg_bus_name(struct virtio_device *vdev)
-+{
-+	return "";
-+}
-+
- /* The ops structure which hooks everything together. */
- static struct virtio_config_ops lguest_config_ops = {
- 	.get_features = lg_get_features,
-@@ -392,6 +397,7 @@ static struct virtio_config_ops lguest_config_ops = {
- 	.reset = lg_reset,
- 	.find_vqs = lg_find_vqs,
- 	.del_vqs = lg_del_vqs,
-+	.bus_name = lg_bus_name,
- };
- 
- /*
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 6ee8410..4dc9d84 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -39,6 +39,7 @@ module_param(gso, bool, 0444);
- #define GOOD_COPY_LEN	128
- 
- #define VIRTNET_SEND_COMMAND_SG_MAX    2
-+#define VIRTNET_DRIVER_VERSION "1.0.0"
- 
- struct virtnet_stats {
- 	struct u64_stats_sync syncp;
-@@ -889,7 +890,21 @@ static void virtnet_get_ringparam(struct net_device *dev,
- 
- }
- 
-+
-+static void virtnet_get_drvinfo(struct net_device *dev,
-+				struct ethtool_drvinfo *info)
-+{
-+	struct virtnet_info *vi = netdev_priv(dev);
-+	struct virtio_device *vdev = vi->vdev;
-+
-+	strlcpy(info->driver, KBUILD_MODNAME, sizeof(info->driver));
-+	strlcpy(info->version, VIRTNET_DRIVER_VERSION, sizeof(info->version));
-+	strlcpy(info->bus_info, virtio_bus_name(vdev), sizeof(info->bus_info));
-+
-+}
-+
- static const struct ethtool_ops virtnet_ethtool_ops = {
-+	.get_drvinfo = virtnet_get_drvinfo,
- 	.get_link = ethtool_op_get_link,
- 	.get_ringparam = virtnet_get_ringparam,
- };
-diff --git a/drivers/s390/kvm/kvm_virtio.c b/drivers/s390/kvm/kvm_virtio.c
-index 94f49ff..8af868b 100644
---- a/drivers/s390/kvm/kvm_virtio.c
-+++ b/drivers/s390/kvm/kvm_virtio.c
-@@ -263,6 +263,11 @@ error:
- 	return PTR_ERR(vqs[i]);
- }
- 
-+static const char *kvm_bus_name(struct virtio_device *vdev)
-+{
-+	return "";
-+}
-+
- /*
-  * The config ops structure as defined by virtio config
-  */
-@@ -276,6 +281,7 @@ static struct virtio_config_ops kvm_vq_configspace_ops = {
- 	.reset = kvm_reset,
- 	.find_vqs = kvm_find_vqs,
- 	.del_vqs = kvm_del_vqs,
-+	.bus_name = kvm_bus_name,
- };
- 
- /*
-diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
-index acc5e43..2f57380 100644
---- a/drivers/virtio/virtio_mmio.c
-+++ b/drivers/virtio/virtio_mmio.c
-@@ -361,7 +361,12 @@ static int vm_find_vqs(struct virtio_device *vdev, unsigned nvqs,
- 	return 0;
- }
- 
-+static const char *vm_bus_name(struct virtio_device *vdev)
-+{
-+	struct virtio_mmio_device *vm_dev = to_virtio_mmio_device(vdev);
- 
-+	return vm_dev->pdev->name;
-+}
- 
- static struct virtio_config_ops virtio_mmio_config_ops = {
- 	.get		= vm_get,
-@@ -373,6 +378,7 @@ static struct virtio_config_ops virtio_mmio_config_ops = {
- 	.del_vqs	= vm_del_vqs,
- 	.get_features	= vm_get_features,
- 	.finalize_features = vm_finalize_features,
-+	.bus_name	= vm_bus_name,
- };
- 
- 
-diff --git a/drivers/virtio/virtio_pci.c b/drivers/virtio/virtio_pci.c
-index 79a31e5..764ec05 100644
---- a/drivers/virtio/virtio_pci.c
-+++ b/drivers/virtio/virtio_pci.c
-@@ -580,6 +580,13 @@ static int vp_find_vqs(struct virtio_device *vdev, unsigned nvqs,
- 				  false, false);
- }
- 
-+static const char *vp_bus_name(struct virtio_device *vdev)
-+{
-+	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
-+
-+	return pci_name(vp_dev->pci_dev);
-+}
-+
- static struct virtio_config_ops virtio_pci_config_ops = {
- 	.get		= vp_get,
- 	.set		= vp_set,
-@@ -590,6 +597,7 @@ static struct virtio_config_ops virtio_pci_config_ops = {
- 	.del_vqs	= vp_del_vqs,
- 	.get_features	= vp_get_features,
- 	.finalize_features = vp_finalize_features,
-+	.bus_name	= vp_bus_name,
- };
- 
- static void virtio_pci_release_dev(struct device *_d)
-diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
-index add4790..63f98d0 100644
---- a/include/linux/virtio_config.h
-+++ b/include/linux/virtio_config.h
-@@ -100,6 +100,10 @@
-  *	vdev: the virtio_device
-  *	This gives the final feature bits for the device: it can change
-  *	the dev->feature bits if it wants.
-+ * @bus_name: return the bus name associated with the device
-+ *	vdev: the virtio_device
-+ *      This returns a pointer to the bus name a la pci_name from which
-+ *      the caller can then copy.
-  */
- typedef void vq_callback_t(struct virtqueue *);
- struct virtio_config_ops {
-@@ -117,6 +121,7 @@ struct virtio_config_ops {
- 	void (*del_vqs)(struct virtio_device *);
- 	u32 (*get_features)(struct virtio_device *vdev);
- 	void (*finalize_features)(struct virtio_device *vdev);
-+	const char *(*bus_name)(struct virtio_device *vdev);
- };
- 
- /* If driver didn't advertise the feature, it will never appear. */
-@@ -182,5 +187,14 @@ struct virtqueue *virtio_find_single_vq(struct virtio_device *vdev,
- 		return ERR_PTR(err);
- 	return vq;
- }
-+
-+static inline
-+const char *virtio_bus_name(struct virtio_device *vdev)
-+{
-+	if (!vdev->config->bus_name)
-+		return "virtio";
-+	return vdev->config->bus_name(vdev);
-+}
-+
- #endif /* __KERNEL__ */
- #endif /* _LINUX_VIRTIO_CONFIG_H */
+I will submit a patch for macvtap separately. I am working
+towards the other issue pointed out - different vhost
+threads handling rx/tx of a single flow.
+
+thanks,
+
+- KK
