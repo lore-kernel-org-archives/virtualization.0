@@ -1,13 +1,17 @@
-From: Peter Maydell <peter.maydell@linaro.org>
-Subject: Re: [RFC] kvm tools: Add support for virtio-mmio
-Date: Tue, 15 Nov 2011 17:00:16 +0000
-Message-ID: <CAFEAcA-2QGk_Y1R_FPrVRVGiP7KyQOuv0zubORm77cOoU_K6gQ__33564.9090972312$1321398111$gmane$org@mail.gmail.com>
-References: <1321375667-17284-1-git-send-email-levinsasha928@gmail.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [RFC] kvm tools: Implement multiple VQ for virtio-net
+Date: Wed, 16 Nov 2011 10:34:42 +1030
+Message-ID: <877h31ortx.fsf@rustcorp.com.au>
+References: <1321049521-26376-1-git-send-email-levinsasha928@gmail.com>
+	<20111113102428.GD15322@redhat.com>
+	<1321196430.2425.2.camel@sasha> <4EC07729.3050303@gmail.com>
+	<CAOJsxLE4yRO+5XncrDEzVh5-RGXG+=HGTAmQ=bX=KMsDqf=feA@mail.gmail.com>
+	<20111114130507.GA18288@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1321375667-17284-1-git-send-email-levinsasha928@gmail.com>
+In-Reply-To: <20111114130507.GA18288@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,27 +21,22 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Sasha Levin <levinsasha928@gmail.com>
-Cc: gorcunov@gmail.com, kvm@vger.kernel.org, Pawel Moll <pawel.moll@arm.com>, asias.hejun@gmail.com, virtualization@lists.linux-foundation.org, penberg@kernel.org, mingo@elte.hu
+To: "Michael S. Tsirkin" <mst@redhat.com>, Pekka Enberg <penberg@kernel.org>
+Cc: Krishna Kumar <krkumar2@in.ibm.com>, kvm@vger.kernel.org, Asias He <asias.hejun@gmail.com>, virtualization@lists.linux-foundation.org, gorcunov@gmail.com, Sasha Levin <levinsasha928@gmail.com>, netdev@vger.kernel.org, mingo@elte.hu, Stephen Hemminger <shemminger@vyatta.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gMTUgTm92ZW1iZXIgMjAxMSAxNjo0NywgU2FzaGEgTGV2aW4gPGxldmluc2FzaGE5MjhAZ21h
-aWwuY29tPiB3cm90ZToKPiArIMKgIMKgIMKgIHZtbWlvLT5oZHIgPSAoc3RydWN0IHZpcnRpb19t
-bWlvX2hkcikgewo+ICsgwqAgwqAgwqAgwqAgwqAgwqAgwqAgLm1hZ2ljIMKgIMKgIMKgIMKgIMKg
-PSB7J3YnLCAnaScsICdyJywgJ3QnfSwKPiArIMKgIMKgIMKgIMKgIMKgIMKgIMKgIC52ZXJzaW9u
-IMKgIMKgIMKgIMKgPSAxLAo+ICsgwqAgwqAgwqAgwqAgwqAgwqAgwqAgLmRldmljZV9pZCDCoCDC
-oCDCoD0gZGV2aWNlX2lkIC0gMHgxMDAwICsgMSwKPiArIMKgIMKgIMKgIMKgIMKgIMKgIMKgIC52
-ZW5kb3JfaWQgwqAgwqAgwqA9IFBDSV9WRU5ET1JfSURfUkVESEFUX1FVTVJBTkVULAo+ICsgwqAg
-wqAgwqAgwqAgwqAgwqAgwqAgLnF1ZXVlX251bV9tYXggwqA9IDI1NiwKPiArIMKgIMKgIMKgIH07
-CgpUaGlzIGlzbid0IGEgUENJIGRldmljZSwgc28gZG9lcyBpdCBtYWtlIHNlbnNlIHRvIHVzZSBh
-IFBDSSB2ZW5kb3IKSUQgaGVyZT8gVGhlIGtlcm5lbCBkb2Vzbid0IGNoZWNrIHRoZSB2ZW5kb3Ig
-SUQgYXQgdGhlIG1vbWVudCwKYnV0IHByZXN1bWFibHkgdGhlIGlkZWEgb2YgdGhlIGZpZWxkIGlz
-IHRvIGFsbG93IHRoZSBrZXJuZWwgdG8Kd29yayBhcm91bmQgaW1wbGVtZW50YXRpb24gYnVncy9i
-bGFja2xpc3Qvd2hhdGV2ZXIgaWYgbmVjZXNzYXJ5LgpJZiB0aGF0J3MgdGhlIHRoZW9yeSB0aGVu
-IGl0IHdvdWxkIG1ha2UgbW9yZSBzZW5zZSBmb3IgUUVNVSBhbmQKa3ZtLXRvb2wgdG8gdXNlIElE
-cyB0aGF0IHNheSAidGhpcyBpcyB0aGUgUUVNVSBpbXBsZW1lbnRhdGlvbiIKYW5kICJ0aGlzIGlz
-IHRoZSBrdm0tdG9vbCBpbXBsZW1lbnRhdGlvbiIuCgooSSBwaWNrZWQgMHg1NTRENDU1MSBmb3Ig
-UUVNVS4uLikKCi0tIFBNTQpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMu
-bGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21h
-aWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+On Mon, 14 Nov 2011 15:05:07 +0200, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> On Mon, Nov 14, 2011 at 02:25:17PM +0200, Pekka Enberg wrote:
+> > On Mon, Nov 14, 2011 at 4:04 AM, Asias He <asias.hejun@gmail.com> wrote:
+> > > Why both the bandwidth and latency performance are dropping so dramatically
+> > > with multiple VQ?
+> > 
+> > What's the expected benefit from multiple VQs
+> 
+> Heh, the original patchset didn't mention this :) It really should.
+> They are supposed to speed up networking for high smp guests.
+
+If we have one queue per guest CPU, does this allow us to run lockless?
+
+Thanks,
+Rusty.
