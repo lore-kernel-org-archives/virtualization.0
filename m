@@ -1,21 +1,17 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCHv2 RFC] virtio-spec: flexible configuration layout
-Date: Wed, 16 Nov 2011 09:03:07 +0200
-Message-ID: <20111116070306.GB5433@redhat.com>
-References: <8739e7uy87.fsf@rustcorp.com.au>
-	<20111102233110.GA20289@redhat.com>
-	<20111108214021.GA4538@redhat.com>
-	<20111109195901.GA28155@redhat.com> <1320870287.3730.6.camel@lappy>
-	<20111109205208.GA28599@redhat.com>
-	<1320872248.3730.11.camel@lappy> <87aa83qoao.fsf@rustcorp.com.au>
-	<20111113151427.GA16749@redhat.com>
-	<87bosdos4y.fsf@rustcorp.com.au>
+Subject: Re: [PATCH 5 of 5] virtio: expose added descriptors immediately
+Date: Wed, 16 Nov 2011 09:18:38 +0200
+Message-ID: <20111116071838.GE5433@redhat.com>
+References: <patchbomb.1320306168@localhost6.localdomain6>
+	<f3831c1617c86a51d875.1320306173@localhost6.localdomain6>
+	<20111113210256.GA31621@redhat.com>
+	<20111114065606.GA3779@redhat.com> <871ut8q5mh.fsf@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <87bosdos4y.fsf@rustcorp.com.au>
+In-Reply-To: <871ut8q5mh.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -26,76 +22,100 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Krishna Kumar <krkumar2@in.ibm.com>, kvm@vger.kernel.org, Pawel Moll <pawel.moll@arm.com>, Wang Sheng-Hui <shhuiw@gmail.com>, Alexey Kardashevskiy <aik@ozlabs.ru>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, penberg@kernel.org, Christian Borntraeger <borntraeger@de.ibm.com>, Sasha Levin <levinsasha928@gmail.com>, Amit Shah <amit.shah@redhat.com>, avi@redhat.com
+Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Nov 16, 2011 at 10:28:05AM +1030, Rusty Russell wrote:
-> On Sun, 13 Nov 2011 17:14:27 +0200, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> > On Fri, Nov 11, 2011 at 02:54:31PM +1030, Rusty Russell wrote:
-> > > Indeed, I'd like to see two changes to your proposal:
+On Wed, Nov 16, 2011 at 10:51:26AM +1030, Rusty Russell wrote:
+> On Mon, 14 Nov 2011 08:56:06 +0200, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> > On Sun, Nov 13, 2011 at 11:03:13PM +0200, Michael S. Tsirkin wrote:
+> > > On Thu, Nov 03, 2011 at 06:12:53PM +1030, Rusty Russell wrote:
+> > > > A virtio driver does virtqueue_add_buf() multiple times before finally
+> > > > calling virtqueue_kick(); previously we only exposed the added buffers
+> > > > in the virtqueue_kick() call.  This means we don't need a memory
+> > > > barrier in virtqueue_add_buf(), but it reduces concurrency as the
+> > > > device (ie. host) can't see the buffers until the kick.
+> > > > 
+> > > > Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 > > > 
-> > > (1) It should be all or nothing.  If a driver can find the virtio header
-> > >     capability, it should only use the capabilties.  Otherwise, it
-> > >     should fall back to legacy.
+> > > In the past I played with a patch like this, but I didn't see a
+> > > performance gain either way. Do you see any gain?
+> > > 
+> > > I'm a bit concerned that with this patch, a buggy driver that
+> > > adds more than 2^16 descriptors without a kick
+> > > would seem to work sometimes. Let's add WARN_ON(vq->num_added > (1 << 16))?
 > > 
-> > Okay, but going forward, if we add more capabilities, we probably won't
-> > want to require them and fail to load if not there.  That's really why I
-> > wanted to make the failover ignore any capability separately - to make
-> > this future proof.  I'm not terribly fixated on this, it just seemed a
-> > bit more symmetrical to treat all capabilities in the same way. Hmm?
-> 
-> Sure, a future capbility may not exist.  But once a driver finds that
-> virtio header structure in the capability, it should *never* fall back
-> to the legacy area.  ie. it can expect that Queue Notify, ISR Status and
-> Device Header all exist.
-> 
-> ie. either use legacy mode, or use capabilities.  Never both.
-> 
+> > Thinking about it more - it might be tricky for drivers
+> > to ensure this. add used to fail when vq is full, but now
+> > driver might do get between add and notify:
+> > 	lock
+> > 	add_buf * N
+> > 	prep
+> > 	unlock
+> > 	lock
+> > 	get_buf * N
+> > 	unlock
+> > 	lock
+> > 	add_buf
+> > 	prep
+> > 	unlock
+> > 	notify
 > > 
-> > >     Your draft suggests a mix is possible;
-> > >     I prefer a clean failure (ie. one day don't present a BAR 0 *at
-> > >     all*, so ancient drivers just fail to load.).
-> > 
-> > Just to clarify, as written in draft this is possible with the current
-> > spec proposal.  So I'm guessing there's some other motivation that you
-> > had in mind?
+> > and since add was followed by get, this doesn't fail.
 > 
-> At the moment you give a hybrid model where both are used.  In five
-> years' time, that's going to be particularly ugly.
-> > 
-> > > (2) There's no huge win in keeping the same layout.  Let's make some
-> > >     cleanups.
-> > 
-> > About this last point - what cleanups do you have in mind?  Just move
-> > some registers around?  I guess we could put feature bits near each
-> > other, and move device status towards the end to avoid wasting 3
-> > bytes.
+> Right, the driver could, in theory, do:
+>         add_buf()
+>         if (!get_buf())
+>                 notify()
 > 
-> > The win seems minimal, but the change does make legacy hypervisor
-> > support in guests more cumbersome, as we need to spread coditional code
-> > around instead of localizing it in the initialization path.
+> But we don't allow that at the moment in our API: we insist on a notify
+> occasionally.  Noone does this at the moment, so a WARN_ON is correct.
 > 
-> But the separation between "legacy" and "modern" will be sharper, making
-> it easier to excise the legacy portion later.
+> If you're just add_buf() without the get_buf() then add_buf() will fail
+> already.
 > 
-> And in five years' time, people implementing virtio will really thank us
-> that they can completely ignore the legacy header.
-
-OK, I get it I think.
-
-> > >    There are more users ahead of us then behind us (I
-> > >     hope!).
-> > 
-> > In that case isn't it safe to assume we'll find some uses
-> > for the reserved registers?
+> Here's my current variant:
 > 
-> How would we tell?  If we use a new capability struct for it, it's
-> obvious.  Otherwise, you're going to need to steal more feature bits.
-
-Yes, exactly, if as you suggest, we disable legacy header
-when there is a capability - we can use reserved registers
-for other stuff.
-
-> Cheers,
+> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+> --- a/drivers/virtio/virtio_ring.c
+> +++ b/drivers/virtio/virtio_ring.c
+> @@ -245,9 +245,19 @@ add_head:
+>  
+>  	/* Put entry in available array (but don't update avail->idx until they
+>  	 * do sync). */
+> -	avail = ((vq->vring.avail->idx + vq->num_added++) & (vq->vring.num-1));
+> +	avail = (vq->vring.avail->idx & (vq->vring.num-1));
+>  	vq->vring.avail->ring[avail] = head;
+>  
+> +	/* Descriptors and available array need to be set before we expose the
+> +	 * new available array entries. */
+> +	virtio_wmb();
+> +	vq->vring.avail->idx++;
+> +	vq->num_added++;
+> +
+> +	/* If you haven't kicked in this long, you're probably doing something
+> +	 * wrong. */
+> +	WARN_ON(vq->num_added > vq->vring.num);
+> +
+>  	pr_debug("Added buffer head %i to %p\n", head, vq);
+>  	END_USE(vq);
+>  
+> It's hard to write a useful WARN_ON() for the "you should kick more
+> regularly" case (we could take timestamps if DEBUG is defined, I guess),
+> so let's leave this until someone actually trips it.
+> 
+> Thanks,
 > Rusty.
-> PS.  Sorry, was off sick for a few days.
+
+My unlocked kick patches will trip this warning: they make
+virtio-net do add + get without kick.
+
+I think block with unlocked kick can trip it too:
+add, lock is dropped and then an interrupt can get.
+
+We also don't need a kick each num - each 2^15 is enough.
+Why don't we do this at start of add_buf:
+if (vq->num_added >= 0x7fff)
+	return -ENOSPC;
+
+-- 
+MST
