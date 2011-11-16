@@ -1,16 +1,17 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH 5 of 5] virtio: expose added descriptors immediately
-Date: Wed, 16 Nov 2011 10:51:26 +1030
-Message-ID: <871ut8q5mh.fsf@rustcorp.com.au>
-References: <patchbomb.1320306168@localhost6.localdomain6>
-	<f3831c1617c86a51d875.1320306173@localhost6.localdomain6>
-	<20111113210256.GA31621@redhat.com>
-	<20111114065606.GA3779@redhat.com>
+From: jason wang <jasowang@redhat.com>
+Subject: Re: [RFC] kvm tools: Implement multiple VQ for virtio-net
+Date: Wed, 16 Nov 2011 14:10:45 +0800
+Message-ID: <4EC353E5.4070009@redhat.com>
+References: <1321049521-26376-1-git-send-email-levinsasha928@gmail.com>	
+	<20111113102428.GD15322@redhat.com>
+	<1321196430.2425.2.camel@sasha> <4EC07729.3050303@gmail.com>
+	<1321265740.2425.7.camel@sasha>
+	<OFDA747DDD.8D1C8FD8-ON65257949.001837DA-65257949.0019D25F@in.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20111114065606.GA3779@redhat.com>
+In-Reply-To: <OFDA747DDD.8D1C8FD8-ON65257949.001837DA-65257949.0019D25F@in.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,86 +21,90 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization <virtualization@lists.linux-foundation.org>
+To: Krishna Kumar2 <krkumar2@in.ibm.com>
+Cc: penberg@kernel.org, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, Asias He <asias.hejun@gmail.com>, virtualization@lists.linux-foundation.org, gorcunov@gmail.com, Sasha Levin <levinsasha928@gmail.com>, netdev@vger.kernel.org, mingo@elte.hu
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, 14 Nov 2011 08:56:06 +0200, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> On Sun, Nov 13, 2011 at 11:03:13PM +0200, Michael S. Tsirkin wrote:
-> > On Thu, Nov 03, 2011 at 06:12:53PM +1030, Rusty Russell wrote:
-> > > A virtio driver does virtqueue_add_buf() multiple times before finally
-> > > calling virtqueue_kick(); previously we only exposed the added buffers
-> > > in the virtqueue_kick() call.  This means we don't need a memory
-> > > barrier in virtqueue_add_buf(), but it reduces concurrency as the
-> > > device (ie. host) can't see the buffers until the kick.
-> > > 
-> > > Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
-> > 
-> > In the past I played with a patch like this, but I didn't see a
-> > performance gain either way. Do you see any gain?
-> > 
-> > I'm a bit concerned that with this patch, a buggy driver that
-> > adds more than 2^16 descriptors without a kick
-> > would seem to work sometimes. Let's add WARN_ON(vq->num_added > (1 << 16))?
-> 
-> Thinking about it more - it might be tricky for drivers
-> to ensure this. add used to fail when vq is full, but now
-> driver might do get between add and notify:
-> 	lock
-> 	add_buf * N
-> 	prep
-> 	unlock
-> 	lock
-> 	get_buf * N
-> 	unlock
-> 	lock
-> 	add_buf
-> 	prep
-> 	unlock
-> 	notify
-> 
-> and since add was followed by get, this doesn't fail.
+On 11/15/2011 12:44 PM, Krishna Kumar2 wrote:
+> Sasha Levin <levinsasha928@gmail.com> wrote on 11/14/2011 03:45:40 PM:
+>
+>>> Why both the bandwidth and latency performance are dropping so
+>>> dramatically with multiple VQ?
+>> It looks like theres no hash sync between host and guest, which makes
+>> the RX VQ change for every packet. This is my guess.
+> Yes, I confirmed this happens for macvtap. I am
+> using ixgbe - it calls skb_record_rx_queue when
+> a skb is allocated, but sets rxhash when a packet
+> arrives. Macvtap is relying on record_rx_queue
+> first ahead of rxhash (as part of my patch making
+> macvtap multiqueue), hence different skbs result
+> in macvtap selecting different vq's.
+>
+> Reordering macvtap to use rxhash first results in
+> all packets going to the same VQ. The code snippet
+> is:
+>
+> {
+> 	...
+> 	if (!numvtaps)
+>                 goto out;
+>
+> 	rxq = skb_get_rxhash(skb);
+> 	if (rxq) {
+> 		tap = rcu_dereference(vlan->taps[rxq % numvtaps]);
+> 		if (tap)
+> 			goto out;
+> 	}
+>
+> 	if (likely(skb_rx_queue_recorded(skb))) {
+> 		rxq = skb_get_rx_queue(skb);
+>
+> 		while (unlikely(rxq >= numvtaps))
+> 			rxq -= numvtaps;
+> 			tap = rcu_dereference(vlan->taps[rxq]);
+> 			if (tap)
+> 				goto out;
+> 	}
+> }
+>
+> I will submit a patch for macvtap separately. I am working
+> towards the other issue pointed out - different vhost
+> threads handling rx/tx of a single flow.
+Hello Krishna:
 
-Right, the driver could, in theory, do:
-        add_buf()
-        if (!get_buf())
-                notify()
+Have any thought in mind to solve the issue of flow handling?
 
-But we don't allow that at the moment in our API: we insist on a notify
-occasionally.  Noone does this at the moment, so a WARN_ON is correct.
+Maybe some performance numbers first is better, it would let us know
+where we are. During the test of my patchset, I find big regression of
+small packet transmission, and more retransmissions were noticed. This
+maybe also the issue of flow affinity. One interesting things is to see
+whether this happens in your patches :)
 
-If you're just add_buf() without the get_buf() then add_buf() will fail
-already.
+I've played with a basic flow director implementation based on my series
+which want to make sure the packets of a flow was handled by the same
+vhost thread/guest vcpu. This is done by:
 
-Here's my current variant:
+- bind virtqueue to guest cpu
+- record the hash to queue mapping when guest sending packets and use
+this mapping to choose the virtqueue when forwarding packets to guest
 
-diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -245,9 +245,19 @@ add_head:
- 
- 	/* Put entry in available array (but don't update avail->idx until they
- 	 * do sync). */
--	avail = ((vq->vring.avail->idx + vq->num_added++) & (vq->vring.num-1));
-+	avail = (vq->vring.avail->idx & (vq->vring.num-1));
- 	vq->vring.avail->ring[avail] = head;
- 
-+	/* Descriptors and available array need to be set before we expose the
-+	 * new available array entries. */
-+	virtio_wmb();
-+	vq->vring.avail->idx++;
-+	vq->num_added++;
-+
-+	/* If you haven't kicked in this long, you're probably doing something
-+	 * wrong. */
-+	WARN_ON(vq->num_added > vq->vring.num);
-+
- 	pr_debug("Added buffer head %i to %p\n", head, vq);
- 	END_USE(vq);
- 
-It's hard to write a useful WARN_ON() for the "you should kick more
-regularly" case (we could take timestamps if DEBUG is defined, I guess),
-so let's leave this until someone actually trips it.
+Test shows some help during for receiving packets from external host and
+packet sending to local host. But it would hurt the performance of
+sending packets to remote host. This is not the perfect solution as it
+can not handle guest moving processes among vcpus, I plan to try
+accelerate RFS and sharing the mapping between host and guest.
 
-Thanks,
-Rusty.
+Anyway this is just for receiving, the small packet sending need more
+thoughts.
+
+Thanks
+
+>
+> thanks,
+>
+> - KK
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe kvm" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
