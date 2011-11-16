@@ -1,17 +1,21 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH 5 of 5] virtio: expose added descriptors immediately
-Date: Wed, 16 Nov 2011 09:18:38 +0200
-Message-ID: <20111116071838.GE5433@redhat.com>
-References: <patchbomb.1320306168@localhost6.localdomain6>
-	<f3831c1617c86a51d875.1320306173@localhost6.localdomain6>
-	<20111113210256.GA31621@redhat.com>
-	<20111114065606.GA3779@redhat.com> <871ut8q5mh.fsf@rustcorp.com.au>
+Subject: Re: [PATCHv2 RFC] virtio-spec: flexible configuration layout
+Date: Wed, 16 Nov 2011 09:21:38 +0200
+Message-ID: <20111116072137.GF5433@redhat.com>
+References: <8739e7uy87.fsf@rustcorp.com.au>
+	<20111102233110.GA20289@redhat.com>
+	<20111108214021.GA4538@redhat.com>
+	<20111109195901.GA28155@redhat.com> <1320870287.3730.6.camel@lappy>
+	<20111109205208.GA28599@redhat.com>
+	<1320872248.3730.11.camel@lappy> <87aa83qoao.fsf@rustcorp.com.au>
+	<CA+1xoqeH3ErNCELD+NoJHz=eH6FtxersUffoJSj0yQx2o=4g0g@mail.gmail.com>
+	<87aa7xos3n.fsf@rustcorp.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <871ut8q5mh.fsf@rustcorp.com.au>
+In-Reply-To: <87aa7xos3n.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,100 +26,40 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization <virtualization@lists.linux-foundation.org>
+Cc: Krishna Kumar <krkumar2@in.ibm.com>, kvm@vger.kernel.org, Pawel Moll <pawel.moll@arm.com>, Wang Sheng-Hui <shhuiw@gmail.com>, Alexey Kardashevskiy <aik@ozlabs.ru>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, penberg@kernel.org, Christian Borntraeger <borntraeger@de.ibm.com>, Sasha Levin <levinsasha928@gmail.com>, Amit Shah <amit.shah@redhat.com>, avi@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Nov 16, 2011 at 10:51:26AM +1030, Rusty Russell wrote:
-> On Mon, 14 Nov 2011 08:56:06 +0200, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> > On Sun, Nov 13, 2011 at 11:03:13PM +0200, Michael S. Tsirkin wrote:
-> > > On Thu, Nov 03, 2011 at 06:12:53PM +1030, Rusty Russell wrote:
-> > > > A virtio driver does virtqueue_add_buf() multiple times before finally
-> > > > calling virtqueue_kick(); previously we only exposed the added buffers
-> > > > in the virtqueue_kick() call.  This means we don't need a memory
-> > > > barrier in virtqueue_add_buf(), but it reduces concurrency as the
-> > > > device (ie. host) can't see the buffers until the kick.
-> > > > 
-> > > > Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
-> > > 
-> > > In the past I played with a patch like this, but I didn't see a
-> > > performance gain either way. Do you see any gain?
-> > > 
-> > > I'm a bit concerned that with this patch, a buggy driver that
-> > > adds more than 2^16 descriptors without a kick
-> > > would seem to work sometimes. Let's add WARN_ON(vq->num_added > (1 << 16))?
-> > 
-> > Thinking about it more - it might be tricky for drivers
-> > to ensure this. add used to fail when vq is full, but now
-> > driver might do get between add and notify:
-> > 	lock
-> > 	add_buf * N
-> > 	prep
-> > 	unlock
-> > 	lock
-> > 	get_buf * N
-> > 	unlock
-> > 	lock
-> > 	add_buf
-> > 	prep
-> > 	unlock
-> > 	notify
-> > 
-> > and since add was followed by get, this doesn't fail.
-> 
-> Right, the driver could, in theory, do:
->         add_buf()
->         if (!get_buf())
->                 notify()
-> 
-> But we don't allow that at the moment in our API: we insist on a notify
-> occasionally.  Noone does this at the moment, so a WARN_ON is correct.
-> 
-> If you're just add_buf() without the get_buf() then add_buf() will fail
-> already.
-> 
-> Here's my current variant:
-> 
-> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> --- a/drivers/virtio/virtio_ring.c
-> +++ b/drivers/virtio/virtio_ring.c
-> @@ -245,9 +245,19 @@ add_head:
->  
->  	/* Put entry in available array (but don't update avail->idx until they
->  	 * do sync). */
-> -	avail = ((vq->vring.avail->idx + vq->num_added++) & (vq->vring.num-1));
-> +	avail = (vq->vring.avail->idx & (vq->vring.num-1));
->  	vq->vring.avail->ring[avail] = head;
->  
-> +	/* Descriptors and available array need to be set before we expose the
-> +	 * new available array entries. */
-> +	virtio_wmb();
-> +	vq->vring.avail->idx++;
-> +	vq->num_added++;
-> +
-> +	/* If you haven't kicked in this long, you're probably doing something
-> +	 * wrong. */
-> +	WARN_ON(vq->num_added > vq->vring.num);
-> +
->  	pr_debug("Added buffer head %i to %p\n", head, vq);
->  	END_USE(vq);
->  
-> It's hard to write a useful WARN_ON() for the "you should kick more
-> regularly" case (we could take timestamps if DEBUG is defined, I guess),
-> so let's leave this until someone actually trips it.
-> 
-> Thanks,
+On Wed, Nov 16, 2011 at 10:28:52AM +1030, Rusty Russell wrote:
+> On Fri, 11 Nov 2011 09:39:13 +0200, Sasha Levin <levinsasha928@gmail.com>=
+ wrote:
+> > On Fri, Nov 11, 2011 at 6:24 AM, Rusty Russell <rusty@rustcorp.com.au> =
+wrote:
+> > > (2) There's no huge win in keeping the same layout. =A0Let's make some
+> > > =A0 =A0cleanups. =A0There are more users ahead of us then behind us (I
+> > > =A0 =A0hope!).
+> > =
+
+> > Actually, if we already do cleanups, here are two more suggestions:
+> > =
+
+> > 1. Make 64bit features a one big 64bit block, instead of having 32bits
+> > in one place and 32 in another.
+> > 2. Remove the reserved fields out of the config (the ones that were
+> > caused by moving the ISR and the notifications out).
+> =
+
+> Yes, those were exactly what I was thinking.  I left it vague because
+> there might be others you can see if we're prepared to abandon the
+> current format.
+> =
+
+> Cheers,
 > Rusty.
 
-My unlocked kick patches will trip this warning: they make
-virtio-net do add + get without kick.
+Yes but driver code doesn't get any cleaner by moving the fields.
+And in fact, the legacy support makes the code messier.
+What are the advantages?
 
-I think block with unlocked kick can trip it too:
-add, lock is dropped and then an interrupt can get.
+-- =
 
-We also don't need a kick each num - each 2^15 is enough.
-Why don't we do this at start of add_buf:
-if (vq->num_added >= 0x7fff)
-	return -ENOSPC;
-
--- 
 MST
