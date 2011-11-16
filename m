@@ -1,15 +1,13 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH] virtio-mmio: Correct the name of the guest features
-	selector
-Date: Wed, 16 Nov 2011 11:15:14 +1030
-Message-ID: <87pqgsopyd.fsf@rustcorp.com.au>
-References: <1321366638-28408-1-git-send-email-levinsasha928@gmail.com>
-	<1321367122.3137.142.camel@hornet.cambridge.arm.com>
+Subject: Re: [PATCH] virtio-mmio: Devices parameter parsing
+Date: Wed, 16 Nov 2011 11:12:05 +1030
+Message-ID: <87sjlooq3m.fsf@rustcorp.com.au>
+References: <1321365185-2928-1-git-send-email-pawel.moll@arm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1321367122.3137.142.camel@hornet.cambridge.arm.com>
+In-Reply-To: <1321365185-2928-1-git-send-email-pawel.moll@arm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,46 +17,44 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Pawel Moll <pawel.moll@arm.com>, Sasha Levin <levinsasha928@gmail.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+To: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: Peter Maydell <peter.maydell@linaro.org>, Sasha Levin <levinsasha928@gmail.com>, Pawel Moll <pawel.moll@arm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 15 Nov 2011 14:25:22 +0000, Pawel Moll <pawel.moll@arm.com> wrote:
-> On Tue, 2011-11-15 at 14:17 +0000, Sasha Levin wrote:
-> > Guest features selector spelling mistake.
-> >
-> > diff --git a/include/linux/virtio_mmio.h b/include/linux/virtio_mmio.h
-> > index 27c7ede..5c7b6f0 100644
-> > --- a/include/linux/virtio_mmio.h
-> > +++ b/include/linux/virtio_mmio.h
-> > @@ -63,7 +63,7 @@
-> >  #define VIRTIO_MMIO_GUEST_FEATURES	0x020
-> >  
-> >  /* Activated features set selector - Write Only */
-> > -#define VIRTIO_MMIO_GUEST_FEATURES_SET	0x024
-> > +#define VIRTIO_MMIO_GUEST_FEATURES_SEL	0x024
-> >  
-> >  /* Guest's memory page size in bytes - Write Only */
-> >  #define VIRTIO_MMIO_GUEST_PAGE_SIZE	0x028
-> 
-> Damn. Sorry about it. But if you change the header you'll need to change
-> the driver:
-> 
-> diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
-> index 1f25bb9..10bb8b9 100644
-> --- a/drivers/virtio/virtio_mmio.c
-> +++ b/drivers/virtio/virtio_mmio.c
-> @@ -161,7 +161,7 @@ static void vm_finalize_features(struct virtio_device *vdev)
->         vring_transport_features(vdev);
->  
->         for (i = 0; i < ARRAY_SIZE(vdev->features); i++) {
-> -               writel(i, vm_dev->base + VIRTIO_MMIO_GUEST_FEATURES_SET);
-> +               writel(i, vm_dev->base + VIRTIO_MMIO_GUEST_FEATURES_SEL);
->                 writel(vdev->features[i],
->                                 vm_dev->base + VIRTIO_MMIO_GUEST_FEATURES);
->         }
+On Tue, 15 Nov 2011 13:53:05 +0000, Pawel Moll <pawel.moll@arm.com> wrote:
+> +static char *virtio_mmio_cmdline_devices;
+> +module_param_named(devices, virtio_mmio_cmdline_devices, charp, 0);
 
-Rolled together and applied.
+This is the wrong way to do this.
 
-Thanks,
+Don't put things in a charp and process it later.  It's lazy.  You
+should write parsers for it and call it straight from module_param.
+
+And if you do it that way, multiple devices are simply multiple
+arguments.
+
+Like so:
+
+static int virtio_mmio_set(const char *val, const struct kernel_param *kp)
+{
+        if (!virtio_mmio_cmdline_parent_initialized) {
+        	err = device_register(&virtio_mmio_cmdline_parent);
+        	if (err)
+        		return err;
+                virtio_mmio_cmdline_parent_initialized = true;
+        }
+        
+        ... parse here, return -errno on fail, 0 on success.
+}
+
+static struct kernel_param_ops param_ops_virtio_mmio = {
+        .set = virtio_mmio_set,
+        .get = virtio_mmio_get,
+};
+
+module_param_cb(device, &param_ops_virtio_mmio, NULL, 0400);
+
+Initialization and error handling is now done for you...
+
+Cheers,
 Rusty.
