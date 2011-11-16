@@ -1,20 +1,18 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCHv2 RFC] virtio-spec: flexible configuration layout
-Date: Wed, 16 Nov 2011 11:09:38 +0200
-Message-ID: <20111116090938.GA17290@redhat.com>
-References: <20111108214021.GA4538@redhat.com>
-	<20111109195901.GA28155@redhat.com> <1320870287.3730.6.camel@lappy>
-	<20111109205208.GA28599@redhat.com>
-	<1320872248.3730.11.camel@lappy> <87aa83qoao.fsf@rustcorp.com.au>
-	<CA+1xoqeH3ErNCELD+NoJHz=eH6FtxersUffoJSj0yQx2o=4g0g@mail.gmail.com>
-	<87aa7xos3n.fsf@rustcorp.com.au> <20111116072137.GF5433@redhat.com>
-	<1321431459.3221.4.camel@lappy>
+From: Krishna Kumar2 <krkumar2@in.ibm.com>
+Subject: Re: [RFC] kvm tools: Implement multiple VQ for virtio-net
+Date: Wed, 16 Nov 2011 14:39:28 +0530
+Message-ID: <OF1D2CD2A7.41E9E5B7-ON6525794A.0031AD22-6525794A.00321BC0@in.ibm.com>
+References: <1321049521-26376-1-git-send-email-levinsasha928@gmail.com>	
+	<20111113102428.GD15322@redhat.com>
+	<1321196430.2425.2.camel@sasha> <4EC07729.3050303@gmail.com>
+	<1321265740.2425.7.camel@sasha>
+	<OFDA747DDD.8D1C8FD8-ON65257949.001837DA-65257949.0019D25F@in.ibm.com>
+	<4EC353E5.4070009@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1321431459.3221.4.camel@lappy>
+In-Reply-To: <4EC353E5.4070009@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,147 +22,52 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Sasha Levin <levinsasha928@gmail.com>
-Cc: Krishna Kumar <krkumar2@in.ibm.com>, kvm@vger.kernel.org, Pawel Moll <pawel.moll@arm.com>, Wang Sheng-Hui <shhuiw@gmail.com>, Alexey Kardashevskiy <aik@ozlabs.ru>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, penberg@kernel.org, Christian Borntraeger <borntraeger@de.ibm.com>, avi@redhat.com, Amit Shah <amit.shah@redhat.com>
+To: jason wang <jasowang@redhat.com>
+Cc: penberg@kernel.org, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, Asias He <asias.hejun@gmail.com>, virtualization@lists.linux-foundation.org, gorcunov@gmail.com, Sasha Levin <levinsasha928@gmail.com>, netdev@vger.kernel.org, mingo@elte.hu
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Nov 16, 2011 at 10:17:39AM +0200, Sasha Levin wrote:
-> On Wed, 2011-11-16 at 09:21 +0200, Michael S. Tsirkin wrote:
-> > On Wed, Nov 16, 2011 at 10:28:52AM +1030, Rusty Russell wrote:
-> > > On Fri, 11 Nov 2011 09:39:13 +0200, Sasha Levin <levinsasha928@gmail.com> wrote:
-> > > > On Fri, Nov 11, 2011 at 6:24 AM, Rusty Russell <rusty@rustcorp.com.au> wrote:
-> > > > > (2) There's no huge win in keeping the same layout.  Let's make some
-> > > > >    cleanups.  There are more users ahead of us then behind us (I
-> > > > >    hope!).
-> > > > 
-> > > > Actually, if we already do cleanups, here are two more suggestions:
-> > > > 
-> > > > 1. Make 64bit features a one big 64bit block, instead of having 32bits
-> > > > in one place and 32 in another.
-> > > > 2. Remove the reserved fields out of the config (the ones that were
-> > > > caused by moving the ISR and the notifications out).
-> > > 
-> > > Yes, those were exactly what I was thinking.  I left it vague because
-> > > there might be others you can see if we're prepared to abandon the
-> > > current format.
-> > > 
-> > > Cheers,
-> > > Rusty.
-> > 
-> > Yes but driver code doesn't get any cleaner by moving the fields.
-> > And in fact, the legacy support makes the code messier.
-> > What are the advantages?
-> > 
+jason wang <jasowang@redhat.com> wrote on 11/16/2011 11:40:45 AM:
 
-The advantages question is what should really balance out the overhead.
+Hi Jason,
 
-> What about splitting the parts which handle legacy code and new code?
+> Have any thought in mind to solve the issue of flow handling?
 
-Well, I considered that. Something along the lines of
-#define VIRTIO_NEW_MSI_CONFIG_VECTOR        18
-And so on for all registers.
+So far nothing concrete.
 
-This seems to add a significant maintainance burden because of code
-duplication. Note that, for example, vector programming is affected.
-Multiply that by the number of guest OSes.
+> Maybe some performance numbers first is better, it would let us know
+> where we are. During the test of my patchset, I find big regression of
+> small packet transmission, and more retransmissions were noticed. This
+> maybe also the issue of flow affinity. One interesting things is to see
+> whether this happens in your patches :)
 
+I haven't got any results for small packet, but will run this week
+and send an update. I remember my earlier patches having regression
+for small packets.
 
-> It'll make it easier playing with the new spec more freely
+> I've played with a basic flow director implementation based on my series
+> which want to make sure the packets of a flow was handled by the same
+> vhost thread/guest vcpu. This is done by:
+>
+> - bind virtqueue to guest cpu
+> - record the hash to queue mapping when guest sending packets and use
+> this mapping to choose the virtqueue when forwarding packets to guest
+>
+> Test shows some help during for receiving packets from external host and
+> packet sending to local host. But it would hurt the performance of
+> sending packets to remote host. This is not the perfect solution as it
+> can not handle guest moving processes among vcpus, I plan to try
+> accelerate RFS and sharing the mapping between host and guest.
+>
+> Anyway this is just for receiving, the small packet sending need more
+> thoughts.
 
-I'm really worried about maintaing drivers long term.
-Ease of experimentation is secondary for me.
+I don't recollect small packet performance for guest->local host.
+Also, using multiple tuns devices on the bridge (instead of mq-tun)
+balances the rx/tx of a flow to a single vq. Then you can avoid
+mq-tun with it's queue selector function, etc. Have you tried it?
 
-> and will also
-> make it easier removing legacy code in the future since you'll need to
-> simply delete a chunk of code instead of removing legacy bits out of
-> working code with a surgical knife.
+I will run my tests this week and get back.
 
-It's unlikely to be a single chunk: we'd have structures and macros
-which are separate. So at least 3 chunks.
+thanks,
 
-Just for fun, here's what's involved in removing legacy map
-support on top of my patch. As you see there are 4 chunks:
-structure decl, map, unmap, and msix enable/disable.
-And finding them was as simple as looking for legacy_map.
-
-
----
-
-diff --git a/drivers/virtio/virtio_pci.c b/drivers/virtio/virtio_pci.c
-index d242fcc..6c4d2faf 100644
---- a/drivers/virtio/virtio_pci.c
-+++ b/drivers/virtio/virtio_pci.c
-@@ -64,9 +64,6 @@ struct virtio_pci_device
- 
- 	/* Various IO mappings: used for resource tracking only. */
- 
--	/* Legacy BAR0: typically PIO. */
--	void __iomem *legacy_map;
--
- 	/* Mappings specified by device capabilities: typically in MMIO */
- 	void __iomem *isr_map;
- 	void __iomem *notify_map;
-@@ -81,11 +78,7 @@ struct virtio_pci_device
- static void virtio_pci_set_msix_enabled(struct virtio_pci_device *vp_dev, int enabled)
- {
- 	vp_dev->msix_enabled = enabled;
--	if (vp_dev->device_map)
--		vp_dev->ioaddr_device = vp_dev->device_map;
--	else
--		vp_dev->ioaddr_device = vp_dev->legacy_map +
--			VIRTIO_PCI_CONFIG(vp_dev);
-+	vp_dev->ioaddr_device = vp_dev->device_map;
- }
- 
- static void __iomem *virtio_pci_map_cfg(struct virtio_pci_device *vp_dev, u8 cap_id,
-@@ -147,8 +140,6 @@ err:
- 
- static void virtio_pci_iounmap(struct virtio_pci_device *vp_dev)
- {
--	if (vp_dev->legacy_map)
--		pci_iounmap(vp_dev->pci_dev, vp_dev->legacy_map);
- 	if (vp_dev->isr_map)
- 		pci_iounmap(vp_dev->pci_dev, vp_dev->isr_map);
- 	if (vp_dev->notify_map)
-@@ -176,36 +167,15 @@ static int virtio_pci_iomap(struct virtio_pci_device *vp_dev)
- 
- 	if (!vp_dev->notify_map || !vp_dev->common_map ||
- 	    !vp_dev->device_map) {
--		/*
--		 * If not all capabilities present, map legacy PIO.
--		 * Legacy access is at BAR 0. We never need to map
--		 * more than 256 bytes there, since legacy config space
--		 * used PIO which has this size limit.
--		 * */
--		vp_dev->legacy_map = pci_iomap(vp_dev->pci_dev, 0, 256);
--		if (!vp_dev->legacy_map) {
--			dev_err(&vp_dev->vdev.dev, "Unable to map legacy PIO");
--			goto err;
--		}
-+		dev_err(&vp_dev->vdev.dev, "Unable to map IO");
-+		goto err;
- 	}
- 
--	/* Prefer MMIO if available. If not, fallback to legacy PIO. */
--	if (vp_dev->common_map)
--		vp_dev->ioaddr = vp_dev->common_map;
--	else
--		vp_dev->ioaddr = vp_dev->legacy_map;
-+	vp_dev->ioaddr = vp_dev->common_map;
- 
--	if (vp_dev->device_map)
--		vp_dev->ioaddr_device = vp_dev->device_map;
--	else
--		vp_dev->ioaddr_device = vp_dev->legacy_map +
--			VIRTIO_PCI_CONFIG(vp_dev);
-+	vp_dev->ioaddr_device = vp_dev->device_map;
- 
--	if (vp_dev->notify_map)
--		vp_dev->ioaddr_notify = vp_dev->notify_map;
--	else
--		vp_dev->ioaddr_notify = vp_dev->legacy_map +
--			VIRTIO_PCI_QUEUE_NOTIFY;
-+	vp_dev->ioaddr_notify = vp_dev->notify_map;
- 
- 	return 0;
- err:
+- KK
