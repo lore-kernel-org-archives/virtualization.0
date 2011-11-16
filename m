@@ -1,23 +1,15 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCHv2 RFC] virtio-spec: flexible configuration layout
-Date: Wed, 16 Nov 2011 10:28:52 +1030
-Message-ID: <87aa7xos3n.fsf@rustcorp.com.au>
-References: <87wrbkvh3v.fsf@rustcorp.com.au>
-	<20111101114542.GA13434@redhat.com>
-	<1320150813.3847.24.camel@lappy>
-	<20111101124223.GA14060@redhat.com>
-	<8739e7uy87.fsf@rustcorp.com.au>
-	<20111102233110.GA20289@redhat.com>
-	<20111108214021.GA4538@redhat.com>
-	<20111109195901.GA28155@redhat.com> <1320870287.3730.6.camel@lappy>
-	<20111109205208.GA28599@redhat.com>
-	<1320872248.3730.11.camel@lappy> <87aa83qoao.fsf@rustcorp.com.au>
-	<CA+1xoqeH3ErNCELD+NoJHz=eH6FtxersUffoJSj0yQx2o=4g0g@mail.gmail.com>
+Subject: Re: [PATCH] virtio-mmio: Correct the name of the guest features
+	selector
+Date: Wed, 16 Nov 2011 11:15:14 +1030
+Message-ID: <87pqgsopyd.fsf@rustcorp.com.au>
+References: <1321366638-28408-1-git-send-email-levinsasha928@gmail.com>
+	<1321367122.3137.142.camel@hornet.cambridge.arm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CA+1xoqeH3ErNCELD+NoJHz=eH6FtxersUffoJSj0yQx2o=4g0g@mail.gmail.com>
+In-Reply-To: <1321367122.3137.142.camel@hornet.cambridge.arm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,25 +19,46 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Sasha Levin <levinsasha928@gmail.com>
-Cc: Krishna Kumar <krkumar2@in.ibm.com>, kvm@vger.kernel.org, Pawel Moll <pawel.moll@arm.com>, "Michael S. Tsirkin" <mst@redhat.com>, Alexey Kardashevskiy <aik@ozlabs.ru>, Wang Sheng-Hui <shhuiw@gmail.com>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, penberg@kernel.org, Christian Borntraeger <borntraeger@de.ibm.com>, avi@redhat.com, Amit Shah <amit.shah@redhat.com>
+To: Pawel Moll <pawel.moll@arm.com>, Sasha Levin <levinsasha928@gmail.com>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gRnJpLCAxMSBOb3YgMjAxMSAwOTozOToxMyArMDIwMCwgU2FzaGEgTGV2aW4gPGxldmluc2Fz
-aGE5MjhAZ21haWwuY29tPiB3cm90ZToKPiBPbiBGcmksIE5vdiAxMSwgMjAxMSBhdCA2OjI0IEFN
-LCBSdXN0eSBSdXNzZWxsIDxydXN0eUBydXN0Y29ycC5jb20uYXU+IHdyb3RlOgo+ID4gKDIpIFRo
-ZXJlJ3Mgbm8gaHVnZSB3aW4gaW4ga2VlcGluZyB0aGUgc2FtZSBsYXlvdXQuIMKgTGV0J3MgbWFr
-ZSBzb21lCj4gPiDCoCDCoGNsZWFudXBzLiDCoFRoZXJlIGFyZSBtb3JlIHVzZXJzIGFoZWFkIG9m
-IHVzIHRoZW4gYmVoaW5kIHVzIChJCj4gPiDCoCDCoGhvcGUhKS4KPiAKPiBBY3R1YWxseSwgaWYg
-d2UgYWxyZWFkeSBkbyBjbGVhbnVwcywgaGVyZSBhcmUgdHdvIG1vcmUgc3VnZ2VzdGlvbnM6Cj4g
-Cj4gMS4gTWFrZSA2NGJpdCBmZWF0dXJlcyBhIG9uZSBiaWcgNjRiaXQgYmxvY2ssIGluc3RlYWQg
-b2YgaGF2aW5nIDMyYml0cwo+IGluIG9uZSBwbGFjZSBhbmQgMzIgaW4gYW5vdGhlci4KPiAyLiBS
-ZW1vdmUgdGhlIHJlc2VydmVkIGZpZWxkcyBvdXQgb2YgdGhlIGNvbmZpZyAodGhlIG9uZXMgdGhh
-dCB3ZXJlCj4gY2F1c2VkIGJ5IG1vdmluZyB0aGUgSVNSIGFuZCB0aGUgbm90aWZpY2F0aW9ucyBv
-dXQpLgoKWWVzLCB0aG9zZSB3ZXJlIGV4YWN0bHkgd2hhdCBJIHdhcyB0aGlua2luZy4gIEkgbGVm
-dCBpdCB2YWd1ZSBiZWNhdXNlCnRoZXJlIG1pZ2h0IGJlIG90aGVycyB5b3UgY2FuIHNlZSBpZiB3
-ZSdyZSBwcmVwYXJlZCB0byBhYmFuZG9uIHRoZQpjdXJyZW50IGZvcm1hdC4KCkNoZWVycywKUnVz
-dHkuCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1
-YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0
-aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5m
-by92aXJ0dWFsaXphdGlvbg==
+On Tue, 15 Nov 2011 14:25:22 +0000, Pawel Moll <pawel.moll@arm.com> wrote:
+> On Tue, 2011-11-15 at 14:17 +0000, Sasha Levin wrote:
+> > Guest features selector spelling mistake.
+> >
+> > diff --git a/include/linux/virtio_mmio.h b/include/linux/virtio_mmio.h
+> > index 27c7ede..5c7b6f0 100644
+> > --- a/include/linux/virtio_mmio.h
+> > +++ b/include/linux/virtio_mmio.h
+> > @@ -63,7 +63,7 @@
+> >  #define VIRTIO_MMIO_GUEST_FEATURES	0x020
+> >  
+> >  /* Activated features set selector - Write Only */
+> > -#define VIRTIO_MMIO_GUEST_FEATURES_SET	0x024
+> > +#define VIRTIO_MMIO_GUEST_FEATURES_SEL	0x024
+> >  
+> >  /* Guest's memory page size in bytes - Write Only */
+> >  #define VIRTIO_MMIO_GUEST_PAGE_SIZE	0x028
+> 
+> Damn. Sorry about it. But if you change the header you'll need to change
+> the driver:
+> 
+> diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
+> index 1f25bb9..10bb8b9 100644
+> --- a/drivers/virtio/virtio_mmio.c
+> +++ b/drivers/virtio/virtio_mmio.c
+> @@ -161,7 +161,7 @@ static void vm_finalize_features(struct virtio_device *vdev)
+>         vring_transport_features(vdev);
+>  
+>         for (i = 0; i < ARRAY_SIZE(vdev->features); i++) {
+> -               writel(i, vm_dev->base + VIRTIO_MMIO_GUEST_FEATURES_SET);
+> +               writel(i, vm_dev->base + VIRTIO_MMIO_GUEST_FEATURES_SEL);
+>                 writel(vdev->features[i],
+>                                 vm_dev->base + VIRTIO_MMIO_GUEST_FEATURES);
+>         }
+
+Rolled together and applied.
+
+Thanks,
+Rusty.
