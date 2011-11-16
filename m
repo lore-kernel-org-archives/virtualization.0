@@ -1,17 +1,21 @@
-From: jason wang <jasowang@redhat.com>
-Subject: Re: [RFC] kvm tools: Implement multiple VQ for virtio-net
-Date: Wed, 16 Nov 2011 14:10:45 +0800
-Message-ID: <4EC353E5.4070009@redhat.com>
-References: <1321049521-26376-1-git-send-email-levinsasha928@gmail.com>	
-	<20111113102428.GD15322@redhat.com>
-	<1321196430.2425.2.camel@sasha> <4EC07729.3050303@gmail.com>
-	<1321265740.2425.7.camel@sasha>
-	<OFDA747DDD.8D1C8FD8-ON65257949.001837DA-65257949.0019D25F@in.ibm.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCHv2 RFC] virtio-spec: flexible configuration layout
+Date: Wed, 16 Nov 2011 09:03:07 +0200
+Message-ID: <20111116070306.GB5433@redhat.com>
+References: <8739e7uy87.fsf@rustcorp.com.au>
+	<20111102233110.GA20289@redhat.com>
+	<20111108214021.GA4538@redhat.com>
+	<20111109195901.GA28155@redhat.com> <1320870287.3730.6.camel@lappy>
+	<20111109205208.GA28599@redhat.com>
+	<1320872248.3730.11.camel@lappy> <87aa83qoao.fsf@rustcorp.com.au>
+	<20111113151427.GA16749@redhat.com>
+	<87bosdos4y.fsf@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <OFDA747DDD.8D1C8FD8-ON65257949.001837DA-65257949.0019D25F@in.ibm.com>
+Content-Disposition: inline
+In-Reply-To: <87bosdos4y.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,90 +25,77 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Krishna Kumar2 <krkumar2@in.ibm.com>
-Cc: penberg@kernel.org, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, Asias He <asias.hejun@gmail.com>, virtualization@lists.linux-foundation.org, gorcunov@gmail.com, Sasha Levin <levinsasha928@gmail.com>, netdev@vger.kernel.org, mingo@elte.hu
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Krishna Kumar <krkumar2@in.ibm.com>, kvm@vger.kernel.org, Pawel Moll <pawel.moll@arm.com>, Wang Sheng-Hui <shhuiw@gmail.com>, Alexey Kardashevskiy <aik@ozlabs.ru>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, penberg@kernel.org, Christian Borntraeger <borntraeger@de.ibm.com>, Sasha Levin <levinsasha928@gmail.com>, Amit Shah <amit.shah@redhat.com>, avi@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 11/15/2011 12:44 PM, Krishna Kumar2 wrote:
-> Sasha Levin <levinsasha928@gmail.com> wrote on 11/14/2011 03:45:40 PM:
->
->>> Why both the bandwidth and latency performance are dropping so
->>> dramatically with multiple VQ?
->> It looks like theres no hash sync between host and guest, which makes
->> the RX VQ change for every packet. This is my guess.
-> Yes, I confirmed this happens for macvtap. I am
-> using ixgbe - it calls skb_record_rx_queue when
-> a skb is allocated, but sets rxhash when a packet
-> arrives. Macvtap is relying on record_rx_queue
-> first ahead of rxhash (as part of my patch making
-> macvtap multiqueue), hence different skbs result
-> in macvtap selecting different vq's.
->
-> Reordering macvtap to use rxhash first results in
-> all packets going to the same VQ. The code snippet
-> is:
->
-> {
-> 	...
-> 	if (!numvtaps)
->                 goto out;
->
-> 	rxq = skb_get_rxhash(skb);
-> 	if (rxq) {
-> 		tap = rcu_dereference(vlan->taps[rxq % numvtaps]);
-> 		if (tap)
-> 			goto out;
-> 	}
->
-> 	if (likely(skb_rx_queue_recorded(skb))) {
-> 		rxq = skb_get_rx_queue(skb);
->
-> 		while (unlikely(rxq >= numvtaps))
-> 			rxq -= numvtaps;
-> 			tap = rcu_dereference(vlan->taps[rxq]);
-> 			if (tap)
-> 				goto out;
-> 	}
-> }
->
-> I will submit a patch for macvtap separately. I am working
-> towards the other issue pointed out - different vhost
-> threads handling rx/tx of a single flow.
-Hello Krishna:
+On Wed, Nov 16, 2011 at 10:28:05AM +1030, Rusty Russell wrote:
+> On Sun, 13 Nov 2011 17:14:27 +0200, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> > On Fri, Nov 11, 2011 at 02:54:31PM +1030, Rusty Russell wrote:
+> > > Indeed, I'd like to see two changes to your proposal:
+> > > 
+> > > (1) It should be all or nothing.  If a driver can find the virtio header
+> > >     capability, it should only use the capabilties.  Otherwise, it
+> > >     should fall back to legacy.
+> > 
+> > Okay, but going forward, if we add more capabilities, we probably won't
+> > want to require them and fail to load if not there.  That's really why I
+> > wanted to make the failover ignore any capability separately - to make
+> > this future proof.  I'm not terribly fixated on this, it just seemed a
+> > bit more symmetrical to treat all capabilities in the same way. Hmm?
+> 
+> Sure, a future capbility may not exist.  But once a driver finds that
+> virtio header structure in the capability, it should *never* fall back
+> to the legacy area.  ie. it can expect that Queue Notify, ISR Status and
+> Device Header all exist.
+> 
+> ie. either use legacy mode, or use capabilities.  Never both.
+> 
+> > 
+> > >     Your draft suggests a mix is possible;
+> > >     I prefer a clean failure (ie. one day don't present a BAR 0 *at
+> > >     all*, so ancient drivers just fail to load.).
+> > 
+> > Just to clarify, as written in draft this is possible with the current
+> > spec proposal.  So I'm guessing there's some other motivation that you
+> > had in mind?
+> 
+> At the moment you give a hybrid model where both are used.  In five
+> years' time, that's going to be particularly ugly.
+> > 
+> > > (2) There's no huge win in keeping the same layout.  Let's make some
+> > >     cleanups.
+> > 
+> > About this last point - what cleanups do you have in mind?  Just move
+> > some registers around?  I guess we could put feature bits near each
+> > other, and move device status towards the end to avoid wasting 3
+> > bytes.
+> 
+> > The win seems minimal, but the change does make legacy hypervisor
+> > support in guests more cumbersome, as we need to spread coditional code
+> > around instead of localizing it in the initialization path.
+> 
+> But the separation between "legacy" and "modern" will be sharper, making
+> it easier to excise the legacy portion later.
+> 
+> And in five years' time, people implementing virtio will really thank us
+> that they can completely ignore the legacy header.
 
-Have any thought in mind to solve the issue of flow handling?
+OK, I get it I think.
 
-Maybe some performance numbers first is better, it would let us know
-where we are. During the test of my patchset, I find big regression of
-small packet transmission, and more retransmissions were noticed. This
-maybe also the issue of flow affinity. One interesting things is to see
-whether this happens in your patches :)
+> > >    There are more users ahead of us then behind us (I
+> > >     hope!).
+> > 
+> > In that case isn't it safe to assume we'll find some uses
+> > for the reserved registers?
+> 
+> How would we tell?  If we use a new capability struct for it, it's
+> obvious.  Otherwise, you're going to need to steal more feature bits.
 
-I've played with a basic flow director implementation based on my series
-which want to make sure the packets of a flow was handled by the same
-vhost thread/guest vcpu. This is done by:
+Yes, exactly, if as you suggest, we disable legacy header
+when there is a capability - we can use reserved registers
+for other stuff.
 
-- bind virtqueue to guest cpu
-- record the hash to queue mapping when guest sending packets and use
-this mapping to choose the virtqueue when forwarding packets to guest
-
-Test shows some help during for receiving packets from external host and
-packet sending to local host. But it would hurt the performance of
-sending packets to remote host. This is not the perfect solution as it
-can not handle guest moving processes among vcpus, I plan to try
-accelerate RFS and sharing the mapping between host and guest.
-
-Anyway this is just for receiving, the small packet sending need more
-thoughts.
-
-Thanks
-
->
-> thanks,
->
-> - KK
->
-> --
-> To unsubscribe from this list: send the line "unsubscribe kvm" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Cheers,
+> Rusty.
+> PS.  Sorry, was off sick for a few days.
