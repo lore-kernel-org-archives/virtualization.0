@@ -1,60 +1,47 @@
-From: James Bottomley <James.Bottomley@HansenPartnership.com>
-Subject: Re: [PATCH 1/1] Staging: hv: storvsc: Move the storage driver out
- of the staging area
-Date: Thu, 17 Nov 2011 12:26:33 -0600
-Message-ID: <1321554393.3041.77.camel@dabdike.int.hansenpartnership.com>
-References: <1320776028-29568-1-git-send-email-kys@microsoft.com>
+From: Amit Shah <amit.shah@redhat.com>
+Subject: Re: [PATCH v3 1/3] virtio_console:  Fix locking of vtermno.
+Date: Fri, 18 Nov 2011 00:39:20 +0530
+Message-ID: <20111117190920.GD2873@amit-x200.redhat.com>
+References: <20111108214452.28884.14840.stgit@miche.sea.corp.google.com>
+	<20111108214458.28884.86759.stgit@miche.sea.corp.google.com>
+	<877h37qo5z.fsf@rustcorp.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-scsi-owner@vger.kernel.org>
-In-Reply-To: <1320776028-29568-1-git-send-email-kys@microsoft.com>
-Sender: linux-scsi-owner@vger.kernel.org
-To: "K. Y. Srinivasan" <kys@microsoft.com>
-Cc: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org, linux-scsi@vger.kernel.org, ohering@suse.com, hch@infradead.org
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <877h37qo5z.fsf@rustcorp.com.au>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Stephen Rothwell <sfr@canb.auug.org.au>, xen-devel@lists.xensource.com, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Greg Kroah-Hartman <gregkh@suse.de>, Miche Baker-Harvey <miche@google.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Anton Blanchard <anton@samba.org>, Mike Waychison <mikew@google.com>, ppc-dev <linuxppc-dev@lists.ozlabs.org>, Eric Northrup <digitaleric@google.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 2011-11-08 at 10:13 -0800, K. Y. Srinivasan wrote:
-> The storage driver (storvsc_drv.c) handles all block storage devices
-> assigned to Linux guests hosted on Hyper-V. This driver has been in the
-> staging tree for a while and this patch moves it out of the staging area.
-> As per Greg's recommendation, this patch makes no changes to the staging/hv
-> directory. Once the driver moves out of staging, we will cleanup the
-> staging/hv directory.
+On (Fri) 11 Nov 2011 [14:57:20], Rusty Russell wrote:
+> On Tue, 08 Nov 2011 13:44:58 -0800, Miche Baker-Harvey <miche@google.com> wrote:
+> > Some modifications of vtermno were not done under the spinlock.
+> > 
+> > Moved assignment from vtermno and increment of vtermno together,
+> > putting both under the spinlock.  Revert vtermno on failure.
+> > 
+> > Signed-off-by: Miche Baker-Harvey <miche@google.com>
 > 
-> This patch includes all the patches that I have sent against the staging/hv
-> tree to address the comments I have gotten to date on this storage driver.
+> Does it matter?  It's normal not to lock in a function called
+> "init_XXX", since it's not exposed yet.
+> 
+> Or is it?
 
-First comment is that it would have been easier to see the individual
-patches for comment before you committed them.
+Slight misnomer, I suppose.
 
-The way you did mempool isn't entirely right: the problem is that to
-prevent a memory to I/O deadlock we need to ensure forward progress on
-the drain device.  Just having 64 commands available to the host doesn't
-necessarily achieve this because LUN1 could consume them all and starve
-LUN0 which is the drain device leading to the deadlock, so the mempool
-really needs to be per device using slave_alloc.
+We do this init_console_port() as part of add_port() if the port is a
+console port.  Should it be named 'mark_console_port()'?  Dunno,
+doesn't sound like the right name.  init fits closest.
 
-+static int storvsc_device_alloc(struct scsi_device *sdevice)
-+{
-+	/*
-+	 * This enables luns to be located sparsely. Otherwise, we may not
-+	 * discovered them.
-+	 */
-+	sdevice->sdev_bflags |= BLIST_SPARSELUN | BLIST_LARGELUN;
-+	return 0;
-+}
-
-Looks bogus ... this should happen automatically for SCSI-3 devices ...
-unless your hypervisor has some strange (and wrong) identification?  I
-really think you want to use SCSI-3 because it will do report LUN
-scanning, which consumes far fewer resources.
-
-I still think you need to disable clustering and junk the bvec merge
-function.  Your object seems to be to accumulate in page size multiples
-(and not aggregate over this) ... that's what clustering is designed to
-do.
-
-James
-
-
+		Amit
