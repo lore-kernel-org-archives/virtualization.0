@@ -1,8 +1,8 @@
 From: Amit Shah <amit.shah@redhat.com>
-Subject: [PATCH v3 02/11] virtio: pci: add PM notification handlers for
-	restore, freeze, thaw, poweroff
-Date: Thu, 17 Nov 2011 17:27:33 +0530
-Message-ID: <42b65464513dadbefefe774339732628f7e4b4f1.1321530505.git.amit.shah@redhat.com>
+Subject: [PATCH v3 03/11] virtio: console: Move out vq and vq buf removal into
+	separate functions
+Date: Thu, 17 Nov 2011 17:27:34 +0530
+Message-ID: <402c5e19ada70420e1cb8d87c913dd07d2e75495.1321530505.git.amit.shah@redhat.com>
 References: <cover.1321530505.git.amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -24,104 +24,126 @@ To: Rusty Russell <rusty@rustcorp.com.au>
 Cc: Amit Shah <amit.shah@redhat.com>, linux-kernel@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, levinsasha928@gmail.com, Virtualization List <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Handle restore and freeze notification from the PM core.  Expose these
-to individual virtio drivers that can quiesce and resume vq operations.
-
-These functions also save device-specific data so that the device can be
-put in pre-suspend state after resume, and disable and enable the PCI
-device in the freeze and resume functions, respectively.
+This common code will be shared with the PM freeze function.
 
 Signed-off-by: Amit Shah <amit.shah@redhat.com>
 ---
- drivers/virtio/virtio_pci.c |   50 +++++++++++++++++++++++++++++++++++++++++++
- include/linux/virtio.h      |    4 +++
- 2 files changed, 54 insertions(+), 0 deletions(-)
+ drivers/char/virtio_console.c |   68 ++++++++++++++++++++++++-----------------
+ 1 files changed, 40 insertions(+), 28 deletions(-)
 
-diff --git a/drivers/virtio/virtio_pci.c b/drivers/virtio/virtio_pci.c
-index 5d36bc0..0db6f98 100644
---- a/drivers/virtio/virtio_pci.c
-+++ b/drivers/virtio/virtio_pci.c
-@@ -55,6 +55,10 @@ struct virtio_pci_device
- 	unsigned msix_vectors;
- 	/* Vectors allocated, excluding per-vq vectors if any */
- 	unsigned msix_used_vectors;
-+
-+	/* Status saved during hibernate/restore */
-+	u8 saved_status;
-+
- 	/* Whether we have vector per vq */
- 	bool per_vq_vectors;
- };
-@@ -708,9 +712,55 @@ static int virtio_pci_resume(struct device *dev)
- 	return 0;
+diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
+index 8e3c46d..e14f5aa 100644
+--- a/drivers/char/virtio_console.c
++++ b/drivers/char/virtio_console.c
+@@ -1271,6 +1271,20 @@ static void remove_port(struct kref *kref)
+ 	kfree(port);
  }
  
-+static int virtio_pci_freeze(struct device *dev)
++static void remove_port_data(struct port *port)
 +{
-+	struct pci_dev *pci_dev = to_pci_dev(dev);
-+	struct virtio_pci_device *vp_dev = pci_get_drvdata(pci_dev);
-+	struct virtio_driver *drv;
-+	int ret;
++	struct port_buffer *buf;
 +
-+	drv = container_of(vp_dev->vdev.dev.driver,
-+			   struct virtio_driver, driver);
++	/* Remove unused data this port might have received. */
++	discard_port_data(port);
 +
-+	ret = 0;
-+	vp_dev->saved_status = vp_get_status(&vp_dev->vdev);
-+	if (drv && drv->freeze)
-+		ret = drv->freeze(&vp_dev->vdev);
++	reclaim_consumed_buffers(port);
 +
-+	if (!ret)
-+		pci_disable_device(pci_dev);
-+	return ret;
++	/* Remove buffers we queued up for the Host to send us data in. */
++	while ((buf = virtqueue_detach_unused_buf(port->in_vq)))
++		free_buf(buf);
 +}
 +
-+static int virtio_pci_restore(struct device *dev)
+ /*
+  * Port got unplugged.  Remove port from portdev's list and drop the
+  * kref reference.  If no userspace has this port opened, it will
+@@ -1278,8 +1292,6 @@ static void remove_port(struct kref *kref)
+  */
+ static void unplug_port(struct port *port)
+ {
+-	struct port_buffer *buf;
+-
+ 	spin_lock_irq(&port->portdev->ports_lock);
+ 	list_del(&port->list);
+ 	spin_unlock_irq(&port->portdev->ports_lock);
+@@ -1300,14 +1312,7 @@ static void unplug_port(struct port *port)
+ 		hvc_remove(port->cons.hvc);
+ 	}
+ 
+-	/* Remove unused data this port might have received. */
+-	discard_port_data(port);
+-
+-	reclaim_consumed_buffers(port);
+-
+-	/* Remove buffers we queued up for the Host to send us data in. */
+-	while ((buf = virtqueue_detach_unused_buf(port->in_vq)))
+-		free_buf(buf);
++	remove_port_data(port);
+ 
+ 	/*
+ 	 * We should just assume the device itself has gone off --
+@@ -1659,6 +1664,28 @@ static const struct file_operations portdev_fops = {
+ 	.owner = THIS_MODULE,
+ };
+ 
++static void remove_vqs(struct ports_device *portdev)
 +{
-+	struct pci_dev *pci_dev = to_pci_dev(dev);
-+	struct virtio_pci_device *vp_dev = pci_get_drvdata(pci_dev);
-+	struct virtio_driver *drv;
-+	int ret;
-+
-+	drv = container_of(vp_dev->vdev.dev.driver,
-+			   struct virtio_driver, driver);
-+
-+	ret = pci_enable_device(pci_dev);
-+	if (ret)
-+		return ret;
-+	pci_set_master(pci_dev);
-+	vp_set_status(&vp_dev->vdev, vp_dev->saved_status);
-+	vp_finalize_features(&vp_dev->vdev);
-+	if (drv && drv->restore)
-+		ret = drv->restore(&vp_dev->vdev);
-+
-+	return ret;
++	portdev->vdev->config->del_vqs(portdev->vdev);
++	kfree(portdev->in_vqs);
++	kfree(portdev->out_vqs);
 +}
 +
- static const struct dev_pm_ops virtio_pci_pm_ops = {
- 	.suspend = virtio_pci_suspend,
- 	.resume  = virtio_pci_resume,
-+	.freeze  = virtio_pci_freeze,
-+	.thaw    = virtio_pci_restore,
-+	.restore = virtio_pci_restore,
-+	.poweroff = virtio_pci_suspend,
- };
- #endif
++static void remove_controlq_data(struct ports_device *portdev)
++{
++	struct port_buffer *buf;
++	unsigned int len;
++
++	if (!use_multiport(portdev))
++		return;
++
++	while ((buf = virtqueue_get_buf(portdev->c_ivq, &len)))
++		free_buf(buf);
++
++	while ((buf = virtqueue_detach_unused_buf(portdev->c_ivq)))
++		free_buf(buf);
++}
++
+ /*
+  * Once we're further in boot, we get probed like any other virtio
+  * device.
+@@ -1764,9 +1791,7 @@ free_vqs:
+ 	/* The host might want to notify mgmt sw about device add failure */
+ 	__send_control_msg(portdev, VIRTIO_CONSOLE_BAD_ID,
+ 			   VIRTIO_CONSOLE_DEVICE_READY, 0);
+-	vdev->config->del_vqs(vdev);
+-	kfree(portdev->in_vqs);
+-	kfree(portdev->out_vqs);
++	remove_vqs(portdev);
+ free_chrdev:
+ 	unregister_chrdev(portdev->chr_major, "virtio-portsdev");
+ free:
+@@ -1804,21 +1829,8 @@ static void virtcons_remove(struct virtio_device *vdev)
+ 	 * have to just stop using the port, as the vqs are going
+ 	 * away.
+ 	 */
+-	if (use_multiport(portdev)) {
+-		struct port_buffer *buf;
+-		unsigned int len;
+-
+-		while ((buf = virtqueue_get_buf(portdev->c_ivq, &len)))
+-			free_buf(buf);
+-
+-		while ((buf = virtqueue_detach_unused_buf(portdev->c_ivq)))
+-			free_buf(buf);
+-	}
+-
+-	vdev->config->del_vqs(vdev);
+-	kfree(portdev->in_vqs);
+-	kfree(portdev->out_vqs);
+-
++	remove_controlq_data(portdev);
++	remove_vqs(portdev);
+ 	kfree(portdev);
+ }
  
-diff --git a/include/linux/virtio.h b/include/linux/virtio.h
-index 4c069d8..1c26416 100644
---- a/include/linux/virtio.h
-+++ b/include/linux/virtio.h
-@@ -146,6 +146,10 @@ struct virtio_driver {
- 	int (*probe)(struct virtio_device *dev);
- 	void (*remove)(struct virtio_device *dev);
- 	void (*config_changed)(struct virtio_device *dev);
-+#ifdef CONFIG_PM
-+	int (*freeze)(struct virtio_device *dev);
-+	int (*restore)(struct virtio_device *dev);
-+#endif
- };
- 
- int register_virtio_driver(struct virtio_driver *drv);
 -- 
 1.7.7.1
