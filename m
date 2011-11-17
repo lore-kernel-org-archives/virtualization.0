@@ -1,14 +1,15 @@
-From: Ben Hutchings <bhutchings@solarflare.com>
-Subject: Re: [RFC] [ver3 PATCH 3/6] virtio_net: virtio_net driver changes
-Date: Fri, 18 Nov 2011 01:08:08 +0000
-Message-ID: <1321578488.2749.66.camel__27199.1743626588$1321917443$gmane$org@bwh-desktop>
-References: <20111111130223.9878.59517.sendpatchset@krkumar2.in.ibm.com>
-	<20111111130420.9878.19729.sendpatchset@krkumar2.in.ibm.com>
+From: Miche Baker-Harvey <miche@google.com>
+Subject: Re: [PATCH v3 2/3] hvc_init(): Enforce one-time initialization.
+Date: Thu, 17 Nov 2011 10:57:37 -0800
+Message-ID: <CAB8RdapbaueyWLJuJDE_ZdvLkRNM4sQHTxgmgO=jrnXZ6YPSmA__18724.1027401344$1321917445$gmane$org@mail.gmail.com>
+References: <20111108214452.28884.14840.stgit@miche.sea.corp.google.com>
+	<20111108214504.28884.61814.stgit@miche.sea.corp.google.com>
+	<874nybqo0o.fsf@rustcorp.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20111111130420.9878.19729.sendpatchset@krkumar2.in.ibm.com>
+In-Reply-To: <874nybqo0o.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,93 +19,84 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Krishna Kumar <krkumar2@in.ibm.com>
-Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, davem@davemloft.net
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Stephen Rothwell <sfr@canb.auug.org.au>, xen-devel@lists.xensource.com, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Greg Kroah-Hartman <gregkh@suse.de>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Anton Blanchard <anton@samba.org>, Amit Shah <amit.shah@redhat.com>, Mike Waychison <mikew@google.com>, ppc-dev <linuxppc-dev@lists.ozlabs.org>, Eric Northrup <digitaleric@google.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 2011-11-11 at 18:34 +0530, Krishna Kumar wrote:
-> Changes for multiqueue virtio_net driver.
-[...]
-> @@ -677,25 +730,35 @@ static struct rtnl_link_stats64 *virtnet
->  {
->  	struct virtnet_info *vi = netdev_priv(dev);
->  	int cpu;
-> -	unsigned int start;
->  
->  	for_each_possible_cpu(cpu) {
-> -		struct virtnet_stats __percpu *stats
-> -			= per_cpu_ptr(vi->stats, cpu);
-> -		u64 tpackets, tbytes, rpackets, rbytes;
-> -
-> -		do {
-> -			start = u64_stats_fetch_begin(&stats->syncp);
-> -			tpackets = stats->tx_packets;
-> -			tbytes   = stats->tx_bytes;
-> -			rpackets = stats->rx_packets;
-> -			rbytes   = stats->rx_bytes;
-> -		} while (u64_stats_fetch_retry(&stats->syncp, start));
-> -
-> -		tot->rx_packets += rpackets;
-> -		tot->tx_packets += tpackets;
-> -		tot->rx_bytes   += rbytes;
-> -		tot->tx_bytes   += tbytes;
-> +		int qpair;
-> +
-> +		for (qpair = 0; qpair < vi->num_queue_pairs; qpair++) {
-> +			struct virtnet_send_stats __percpu *tx_stat;
-> +			struct virtnet_recv_stats __percpu *rx_stat;
+Rusty, Michael, Stephen, et al,
 
-While you're at it, you can drop the per-CPU stats and make them only
-per-queue.  There is unlikely to be any benefit in maintaining them
-per-CPU while receive and transmit processing is serialised per-queue.
+Thanks for your comments on these patches.
 
-[...]
-> +static int invoke_find_vqs(struct virtnet_info *vi)
-> +{
-> +	vq_callback_t **callbacks;
-> +	struct virtqueue **vqs;
-> +	int ret = -ENOMEM;
-> +	int i, total_vqs;
-> +	char **names;
-> +
-> +	/*
-> +	 * We expect 1 RX virtqueue followed by 1 TX virtqueue, followed
-> +	 * by the same 'vi->num_queue_pairs-1' more times, and optionally
-> +	 * one control virtqueue.
-> +	 */
-> +	total_vqs = vi->num_queue_pairs * 2 +
-> +		    virtio_has_feature(vi->vdev, VIRTIO_NET_F_CTRL_VQ);
-> +
-> +	/* Allocate space for find_vqs parameters */
-> +	vqs = kmalloc(total_vqs * sizeof(*vqs), GFP_KERNEL);
-> +	callbacks = kmalloc(total_vqs * sizeof(*callbacks), GFP_KERNEL);
-> +	names = kmalloc(total_vqs * sizeof(*names), GFP_KERNEL);
-> +	if (!vqs || !callbacks || !names)
-> +		goto err;
-> +
-> +	/* Allocate/initialize parameters for recv virtqueues */
-> +	for (i = 0; i < vi->num_queue_pairs * 2; i += 2) {
-> +		callbacks[i] = skb_recv_done;
-> +		names[i] = kasprintf(GFP_KERNEL, "input.%d", i / 2);
-> +		if (!names[i])
-> +			goto err;
-> +	}
-> +
-> +	/* Allocate/initialize parameters for send virtqueues */
-> +	for (i = 1; i < vi->num_queue_pairs * 2; i += 2) {
-> +		callbacks[i] = skb_xmit_done;
-> +		names[i] = kasprintf(GFP_KERNEL, "output.%d", i / 2);
-> +		if (!names[i])
-> +			goto err;
-> +	}
-[...]
+For what I'm trying to do, all three patches are necessary, but maybe
+I'm going about it the wrong way. Your input would be appreciated.
+I'm in no way claiming that these patches are "right", just that it's
+working for me, and that what's in the current pool is not.
 
-The RX and TX interrupt names for a multiqueue device should follow the
-formats "<device>-rx-<index>" and "<device>-tx-<index>".
+What I'm trying to do is:
+On X86,
+under KVM,
+start a virtio console device,
+with multiple ports on the device,
+at least one of which is also a console (as well as ttyS0).
 
-Ben.
+(Eventually, we want to be able to add virtio console ports on the
+fly, and to have multiple virtio console ports be consoles.)
 
--- 
-Ben Hutchings, Staff Engineer, Solarflare
-Not speaking for my employer; that's the marketing department's job.
-They asked us to note that Solarflare product names are trademarked.
+When all three of the patches are in place, this works great. (By
+great, I mean that getty's start up on all of ttyS0, hvc0 and hvc1,
+and console output goes to ttyS0 and to hvc0.
+"who" shows three users: =A0ttyS0, hvc0, and hvc1.
+"cat /proc/consoles" shows both ttyS0 and hvc0.
+I can use all three getty's, and console output really does appear on
+both the consoles.
+
+Based on Rusty's comments, I tried removing each of the patches
+individually. Here's what happens today. I've seen other failure modes
+depending on what precisely I'm passing the guest.
+There's three patches:
+1/3 "fix locking of vtermno"
+2/3 "enforce one-time initialization with hvc_init
+"3/3 "use separate struct console * for each console"
+
+If I remove the "fix locking of vtermno", I only get one virtio
+console terminal. =A0"who" shows the ttyS0 and the hvc0, and I can log
+into the gettys on both. I don't get the second virtio console getty.
+Interestingly, hvc0 shows up in /proc/consoles twice, and in fact the
+console output is dumped twice to hvc0 (as you'd expect from looking
+at printk.c, each line appears twice, followed by the next line.)
+
+If I remove the "enforce one-time initialization with hvc_init" patch,
+which makes sure only a single thread is doing the hvc_init, and gates
+anyone from continuing until it has completed, I get different
+failures, including hangs, and dereferences of NULL pointers.
+
+If I remove the "use separate struct console * for each console"patch,
+what I'm seeing now is that while all of ttyS0, hvc0, and hvc1 are
+present with gettys running on them, of the three, only ttyS0 is a
+console.
+
+I also re-tried each patch alone:
+
+For either the "fix locking of vtermno" or "use separate struct
+console * for each console" patches (in other words, not the "enforce
+one-time initialization with hvc_init" patch), I panic during boot
+with a null dereference.
+
+For just the "enforce one-time initialization with hvc_init" patch, I
+see all of hvc0, hvc1, and ttyS0 in a "who" listing, but only one
+getty is available with an hvc.  Also, an echo to *either* "hvc0"
+or"hvc1" appears on the single hvc getty. =A0Also, no virtio console
+appears in the /proc/consoles list.
+
+Michael, I agree with you about the comment and naming of the mutex
+around hvc_init.
+Stephen, the duplicate messages are not something I'm seeing. =A0It's
+probably the case that there are two "consoles" (registered in printk)
+that have the same tty as their target.  I've added a call to
+register_console in hvc_alloc, and I'm guessing that something in your
+system is making your tty register as a console in hvc_instantiate,
+and then it's re-registered in hvc_alloc, but I really am not sure. We
+don't have earlyprintk support, so the register_console in
+hvc_instantiate is never called.
+
+Miche
