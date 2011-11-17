@@ -1,8 +1,8 @@
 From: Amit Shah <amit.shah@redhat.com>
-Subject: [PATCH v3 10/11] virtio: balloon: Move out vq initialization into
-	separate function
-Date: Thu, 17 Nov 2011 17:27:41 +0530
-Message-ID: <fdde281e044bfc433186abd1a120e1a6e0171a3f.1321530505.git.amit.shah@redhat.com>
+Subject: [PATCH v3 11/11] virtio: balloon: Add freeze,
+	restore handlers to support S4
+Date: Thu, 17 Nov 2011 17:27:42 +0530
+Message-ID: <1147d4f726e51f2e03a84f3732d60ccd0d8e480c.1321530505.git.amit.shah@redhat.com>
 References: <cover.1321530505.git.amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -24,86 +24,51 @@ To: Rusty Russell <rusty@rustcorp.com.au>
 Cc: Amit Shah <amit.shah@redhat.com>, linux-kernel@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, levinsasha928@gmail.com, Virtualization List <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The probe and PM restore functions will share this code.
+Delete the vqs on the freeze callback to prepare for hibernation.
+Re-create the vqs in the restore callback to resume normal function.
 
 Signed-off-by: Amit Shah <amit.shah@redhat.com>
 ---
- drivers/virtio/virtio_balloon.c |   48 ++++++++++++++++++++++++--------------
- 1 files changed, 30 insertions(+), 18 deletions(-)
+ drivers/virtio/virtio_balloon.c |   20 ++++++++++++++++++++
+ 1 files changed, 20 insertions(+), 0 deletions(-)
 
 diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-index 94fd738..1ff3cf4 100644
+index 1ff3cf4..90149d1 100644
 --- a/drivers/virtio/virtio_balloon.c
 +++ b/drivers/virtio/virtio_balloon.c
-@@ -275,32 +275,21 @@ static int balloon(void *_vballoon)
- 	return 0;
+@@ -363,6 +363,22 @@ static void __devexit virtballoon_remove(struct virtio_device *vdev)
+ 	kfree(vb);
  }
  
--static int virtballoon_probe(struct virtio_device *vdev)
-+static int init_vqs(struct virtio_balloon *vb)
- {
--	struct virtio_balloon *vb;
- 	struct virtqueue *vqs[3];
- 	vq_callback_t *callbacks[] = { balloon_ack, balloon_ack, stats_request };
- 	const char *names[] = { "inflate", "deflate", "stats" };
- 	int err, nvqs;
- 
--	vdev->priv = vb = kmalloc(sizeof(*vb), GFP_KERNEL);
--	if (!vb) {
--		err = -ENOMEM;
--		goto out;
--	}
--
--	INIT_LIST_HEAD(&vb->pages);
--	vb->num_pages = 0;
--	init_waitqueue_head(&vb->config_change);
--	vb->vdev = vdev;
--	vb->need_stats_update = 0;
--
--	/* We expect two virtqueues: inflate and deflate,
--	 * and optionally stat. */
-+	/*
-+	 * We expect two virtqueues: inflate and deflate, and
-+	 * optionally stat.
-+	 */
- 	nvqs = virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_STATS_VQ) ? 3 : 2;
--	err = vdev->config->find_vqs(vdev, nvqs, vqs, callbacks, names);
-+	err = vb->vdev->config->find_vqs(vb->vdev, nvqs, vqs, callbacks, names);
- 	if (err)
--		goto out_free_vb;
-+		return err;
- 
- 	vb->inflate_vq = vqs[0];
- 	vb->deflate_vq = vqs[1];
-@@ -317,6 +306,29 @@ static int virtballoon_probe(struct virtio_device *vdev)
- 			BUG();
- 		virtqueue_kick(vb->stats_vq);
- 	}
++#ifdef CONFIG_PM
++static int virtballoon_freeze(struct virtio_device *vdev)
++{
++	/* Now we reset the device so we can clean up the queues. */
++	vdev->config->reset(vdev);
++
++	vdev->config->del_vqs(vdev);
 +	return 0;
 +}
 +
-+static int virtballoon_probe(struct virtio_device *vdev)
++static int virtballoon_restore(struct virtio_device *vdev)
 +{
-+	struct virtio_balloon *vb;
-+	int err;
++	return init_vqs(vdev->priv);
++}
++#endif
 +
-+	vdev->priv = vb = kmalloc(sizeof(*vb), GFP_KERNEL);
-+	if (!vb) {
-+		err = -ENOMEM;
-+		goto out;
-+	}
-+
-+	INIT_LIST_HEAD(&vb->pages);
-+	vb->num_pages = 0;
-+	init_waitqueue_head(&vb->config_change);
-+	vb->vdev = vdev;
-+	vb->need_stats_update = 0;
-+
-+	err = init_vqs(vb);
-+	if (err)
-+		goto out_free_vb;
+ static unsigned int features[] = {
+ 	VIRTIO_BALLOON_F_MUST_TELL_HOST,
+ 	VIRTIO_BALLOON_F_STATS_VQ,
+@@ -377,6 +393,10 @@ static struct virtio_driver virtio_balloon_driver = {
+ 	.probe =	virtballoon_probe,
+ 	.remove =	__devexit_p(virtballoon_remove),
+ 	.config_changed = virtballoon_changed,
++#ifdef CONFIG_PM
++	.freeze	=	virtballoon_freeze,
++	.restore =	virtballoon_restore,
++#endif
+ };
  
- 	vb->thread = kthread_run(balloon, vb, "vballoon");
- 	if (IS_ERR(vb->thread)) {
+ static int __init init(void)
 -- 
 1.7.7.1
