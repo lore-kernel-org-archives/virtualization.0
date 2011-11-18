@@ -1,17 +1,14 @@
-From: Pawel Moll <pawel.moll@arm.com>
-Subject: Re: [PATCH] virtio-mmio: Devices parameter parsing
-Date: Mon, 21 Nov 2011 17:56:50 +0000
-Message-ID: <1321898210.3093.263.camel@hornet.cambridge.arm.com>
-References: <1321365185-2928-1-git-send-email-pawel.moll@arm.com>
-	<87sjlooq3m.fsf@rustcorp.com.au>
-	<1321467222.3137.417.camel@hornet.cambridge.arm.com>
-	<87vcqe9ml9.fsf@rustcorp.com.au>
-	<1321886688.3093.248.camel@hornet.cambridge.arm.com>
+From: Ben Hutchings <bhutchings@solarflare.com>
+Subject: Re: [RFC] [ver3 PATCH 3/6] virtio_net: virtio_net driver changes
+Date: Fri, 18 Nov 2011 01:08:08 +0000
+Message-ID: <1321578488.2749.66.camel__27199.1743626588$1321917443$gmane$org@bwh-desktop>
+References: <20111111130223.9878.59517.sendpatchset@krkumar2.in.ibm.com>
+	<20111111130420.9878.19729.sendpatchset@krkumar2.in.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1321886688.3093.248.camel@hornet.cambridge.arm.com>
+In-Reply-To: <20111111130420.9878.19729.sendpatchset@krkumar2.in.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,91 +18,93 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+To: Krishna Kumar <krkumar2@in.ibm.com>
+Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gTW9uLCAyMDExLTExLTIxIGF0IDE0OjQ0ICswMDAwLCBQYXdlbCBNb2xsIHdyb3RlOgo+IEkn
-bGwgcG9zdCB2MyB0b25pZ2h0IG9yIHRvbW9ycm93LgoKT2ssIGl0IHdvbid0IGJlIHYzIHRoZW4u
-Li4KCkkgdHJpZWQgYWdhaW4sIHVzaW5nIHlvdXIgc3VnZ2VzdGlvbnMgLSBzZWUgYmVsb3cgKGp1
-c3QgdGhlIGNydWNpYWwgYml0LApob3dldmVyIEkgaGF2ZSB0aGUga2VybmVsLXBhcmFtZXRlcnMu
-dHh0IGJpdHMgcmVhZHkgYXMgd2VsbCkuIFBhcnNpbmcKd29ya3MgbGlrZSBjaGFybSwgaG93ZXZl
-ciB3aGVuIGl0IGdldHMgdG8gZGV2aWNlX3JlZ2lzdGVyKCkgYW5kCnBsYXRmb3JtX2RldmljZV9y
-ZWdpc3Rlcl9yZXNuZGF0YSgpIEkgaGl0IHRoZSBzYW1lIHByb2JsZW0gYXMKcHJldmlvdXNseS4g
-Qm90aCBhcmUgdXNpbmcgc2xhYiBhbGxvY2F0b3IuLi4KCmRldmljZV9yZWdpc3RlcigpLT5kZXZp
-Y2VfYWRkKCktPmRldmljZV9wcml2YXRlX2luaXQoKS0+a3phbGxvYygpCgphbmQKCnBsYXRmb3Jt
-X2RldmljZV9yZWdpc3Rlcl9yZXNuZGF0YSgpLT5wbGF0Zm9ybV9kZXZpY2VfcmVnaXN0ZXJfZnVs
-bCgpLT4KcGxhdGZvcm1fZGV2aWNlX2FsbG9jKCktPmt6YWxsb2MoKS4KCkVzc2VudGlhbGx5IGl0
-IHNlZW1zIHRoYXQgdGhlIHBhcmFtZXRlciBjYWxsYmFja3MgYXJlIGp1c3QgZXhlY3V0ZWQKd2Fh
-YXkgdG8gZWFybHkgdG8gZG8gbW9yZSB0aGFuIGp1c3Qgc2V0IGZldyBpbnRlZ2VycyBoZXJlIGFu
-ZCB0aGVyZS4uLgoKQW55IGlkZWFzPwoKQ2hlZXJzIQoKUGF3ZcWCCgo4PC0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0KCkBA
-IC00NDMsNiArNDg5LDE0NSBAQCBzdGF0aWMgaW50IF9fZGV2ZXhpdCB2aXJ0aW9fbW1pb19yZW1v
-dmUoc3RydWN0IHBsYXRmb3JtX2RldmljZSAqcGRldikKIAogCiAKKy8qIERldmljZXMgbGlzdCBw
-YXJhbWV0ZXIgKi8KKworI2lmIGRlZmluZWQoQ09ORklHX1ZJUlRJT19NTUlPX0NNRExJTkVfREVW
-SUNFUykKKworc3RhdGljIHN0cnVjdCBkZXZpY2Ugdm1fY21kbGluZV9wYXJlbnQgPSB7CisJLmlu
-aXRfbmFtZSA9ICJ2aXJ0aW8tbW1pby1jbWRsaW5lIiwKK307CisKK3N0YXRpYyBpbnQgdm1fY21k
-bGluZV9wYXJlbnRfcmVnaXN0ZXJlZDsKK3N0YXRpYyBpbnQgdm1fY21kbGluZV9pZDsKKworc3Rh
-dGljIGludCB2bV9jbWRsaW5lX3NldChjb25zdCBjaGFyICpzdHIsCisJCWNvbnN0IHN0cnVjdCBr
-ZXJuZWxfcGFyYW0gKmtwKQoreworCWludCBlcnI7CisJc3RydWN0IHJlc291cmNlIHJlc291cmNl
-c1syXTsKKwl1bnNpZ25lZCBsb25nIGxvbmcgdmFsOworCWNoYXIgKmRlbGltOworCXN0cnVjdCBw
-bGF0Zm9ybV9kZXZpY2UgKnBkZXY7CisKKwkvKiBTaXplICovCisJcmVzb3VyY2VzWzBdLmZsYWdz
-ID0gSU9SRVNPVVJDRV9NRU07CisJcmVzb3VyY2VzWzBdLmVuZCA9IG1lbXBhcnNlKHN0ciwgJmRl
-bGltKSAtIDE7CisJaWYgKCpkZWxpbSAhPSAnQCcpCisJCXJldHVybiAtRUlOVkFMOworCXN0ciA9
-IGRlbGltICsgMTsKKworCS8qIEJhc2UgYWRkcmVzcyAqLworCWRlbGltID0gc3RyY2hyKHN0ciwg
-JzonKTsKKwlpZiAoIWRlbGltKQorCQlyZXR1cm4gLUVJTlZBTDsKKwkvKiBrc3RydG91bGwgaXMg
-c3RyaWN0LCBzbyB3ZSBoYXZlIHRvIHRlbXBvcmFyaWx5IHRydW5jYXRlICovCisJKmRlbGltID0g
-J1wwJzsKKwllcnIgPSBrc3RydG91bGwoc3RyLCAwLCAmdmFsKTsKKwkqZGVsaW0gPSAnOic7CisJ
-aWYgKGVycikKKwkJcmV0dXJuIGVycjsKKwlyZXNvdXJjZXNbMF0uc3RhcnQgPSB2YWw7CisJcmVz
-b3VyY2VzWzBdLmVuZCArPSB2YWw7CisJc3RyID0gZGVsaW0gKyAxOworCQorCS8qIEludGVycnVw
-dCAqLworCWRlbGltID0gc3RyY2hyKHN0ciwgJzonKTsKKwlpZiAoZGVsaW0pIC8qIE9wdGlvbmFs
-IGRldmljZSBpZCBkZWxpbWl0ZXIgKi8KKwkJKmRlbGltID0gJ1wwJzsKKwllcnIgPSBrc3RydG91
-bGwoc3RyLCAwLCAmdmFsKTsKKwlpZiAoZGVsaW0pCisJCSpkZWxpbSA9ICc6JzsKKwlyZXNvdXJj
-ZXNbMV0uZmxhZ3MgPSBJT1JFU09VUkNFX0lSUTsKKwlyZXNvdXJjZXNbMV0uc3RhcnQgPSByZXNv
-dXJjZXNbMV0uZW5kID0gdmFsOworCXN0ciA9IGRlbGltICsgMTsKKworCS8qIE9wdGlvbmFsIGRl
-dmljZSBpZCAqLworCWlmIChkZWxpbSkgeworCQllcnIgPSBrc3RydG91bGwoc3RyLCAwLCAmdmFs
-KTsKKwkJaWYgKGVycikKKwkJCXJldHVybiBlcnI7CisJCXZtX2NtZGxpbmVfaWQgPSB2YWw7CisJ
-fQorCisJaWYgKCF2bV9jbWRsaW5lX3BhcmVudF9yZWdpc3RlcmVkKSB7CisJCWVyciA9IGRldmlj
-ZV9yZWdpc3Rlcigmdm1fY21kbGluZV9wYXJlbnQpOworCQlpZiAoZXJyKSB7CisJCQlwcl9lcnIo
-IkZhaWxlZCB0byByZWdpc3RlciBwYXJlbnQgZGV2aWNlIVxuIik7CisJCQlyZXR1cm4gZXJyOwor
-CQl9CisJCXZtX2NtZGxpbmVfcGFyZW50X3JlZ2lzdGVyZWQgPSAxOworCX0KKworICAgICAgIHBy
-X2luZm8oIlJlZ2lzdGVyaW5nIGRldmljZSB2aXJ0aW8tbW1pby4lZCBhdCAweCVsbHgtMHglbGx4
-LCBJUlEgJWQuXG4iLAorCQkgICAgICAgdm1fY21kbGluZV9pZCsrLAorCQkgICAgICAgKHVuc2ln
-bmVkIGxvbmcgbG9uZylyZXNvdXJjZXNbMF0uc3RhcnQsCisJCSAgICAgICAodW5zaWduZWQgbG9u
-ZyBsb25nKXJlc291cmNlc1swXS5lbmQsCisJCSAgICAgICAoaW50KXJlc291cmNlc1sxXS5zdGFy
-dCk7CisKKwlwZGV2ID0gcGxhdGZvcm1fZGV2aWNlX3JlZ2lzdGVyX3Jlc25kYXRhKCZ2bV9jbWRs
-aW5lX3BhcmVudCwKKwkJCSJ2aXJ0aW8tbW1pbyIsIHZtX2NtZGxpbmVfaWQrKywKKwkJCXJlc291
-cmNlcywgQVJSQVlfU0laRShyZXNvdXJjZXMpLCBOVUxMLCAwKTsKKwlpZiAoSVNfRVJSKHBkZXYp
-KQorCQlyZXR1cm4gUFRSX0VSUihwZGV2KTsKKworCXJldHVybiAwOworfQorCitzdGF0aWMgaW50
-IHZtX2NtZGxpbmVfZ2V0X2RldmljZShzdHJ1Y3QgZGV2aWNlICpkZXYsIHZvaWQgKmRhdGEpCit7
-CisJY2hhciAqYnVmZmVyID0gZGF0YTsKKwl1bnNpZ25lZCBpbnQgbGVuID0gc3RybGVuKGJ1ZmZl
-cik7CisJc3RydWN0IHBsYXRmb3JtX2RldmljZSAqcGRldiA9IHRvX3BsYXRmb3JtX2RldmljZShk
-ZXYpOworCisJc25wcmludGYoYnVmZmVyICsgbGVuLCBQQUdFX1NJWkUgLSBsZW4sICIweCVsbHhA
-MHglbGx4OiVsbHU6JWRcbiIsCisJCQlwZGV2LT5yZXNvdXJjZVswXS5lbmQgLSBwZGV2LT5yZXNv
-dXJjZVswXS5zdGFydCArIDFVTEwsCisJCQkodW5zaWduZWQgbG9uZyBsb25nKXBkZXYtPnJlc291
-cmNlWzBdLnN0YXJ0LAorCQkJKHVuc2lnbmVkIGxvbmcgbG9uZylwZGV2LT5yZXNvdXJjZVsxXS5z
-dGFydCwKKwkJCXBkZXYtPmlkKTsKKwlyZXR1cm4gMDsKK30KKworc3RhdGljIGludCB2bV9jbWRs
-aW5lX2dldChjaGFyICpidWZmZXIsIGNvbnN0IHN0cnVjdCBrZXJuZWxfcGFyYW0gKmtwKQorewor
-CWJ1ZmZlclswXSA9ICdcMCc7CisJZGV2aWNlX2Zvcl9lYWNoX2NoaWxkKCZ2bV9jbWRsaW5lX3Bh
-cmVudCwgYnVmZmVyLAorCQkJdm1fY21kbGluZV9nZXRfZGV2aWNlKTsKKwlyZXR1cm4gc3RybGVu
-KGJ1ZmZlcikgKyAxOworfQorCitzdGF0aWMgc3RydWN0IGtlcm5lbF9wYXJhbV9vcHMgdm1fY21k
-bGluZV9wYXJhbV9vcHMgPSB7CisJLnNldCA9IHZtX2NtZGxpbmVfc2V0LAorCS5nZXQgPSB2bV9j
-bWRsaW5lX2dldCwKK307CisKK21vZHVsZV9wYXJhbV9jYihkZXZpY2UsICZ2bV9jbWRsaW5lX3Bh
-cmFtX29wcywgTlVMTCwgU19JUlVTUik7CisKK3N0YXRpYyBpbnQgdm1fdW5yZWdpc3Rlcl9jbWRs
-aW5lX2RldmljZShzdHJ1Y3QgZGV2aWNlICpkZXYsCisJCXZvaWQgKmRhdGEpCit7CisJcGxhdGZv
-cm1fZGV2aWNlX3VucmVnaXN0ZXIodG9fcGxhdGZvcm1fZGV2aWNlKGRldikpOworCisJcmV0dXJu
-IDA7Cit9CisKK3N0YXRpYyB2b2lkIHZtX3VucmVnaXN0ZXJfY21kbGluZV9kZXZpY2VzKHZvaWQp
-Cit7CisJaWYgKHZtX2NtZGxpbmVfcGFyZW50X3JlZ2lzdGVyZWQpIHsKKwkJZGV2aWNlX2Zvcl9l
-YWNoX2NoaWxkKCZ2bV9jbWRsaW5lX3BhcmVudCwgTlVMTCwKKwkJCQl2bV91bnJlZ2lzdGVyX2Nt
-ZGxpbmVfZGV2aWNlKTsKKwkJZGV2aWNlX3VucmVnaXN0ZXIoJnZtX2NtZGxpbmVfcGFyZW50KTsK
-KwkJdm1fY21kbGluZV9wYXJlbnRfcmVnaXN0ZXJlZCA9IDA7CisJfQorfQorCisjZWxzZQorCitz
-dGF0aWMgdm9pZCB2aXJ0aW9fbW1pb191bnJlZ2lzdGVyX2NtZGxpbmVfZGV2aWNlcyh2b2lkKQor
-eworfQorCisjZW5kaWYKKwogLyogUGxhdGZvcm0gZHJpdmVyICovCiAKIHN0YXRpYyBzdHJ1Y3Qg
-b2ZfZGV2aWNlX2lkIHZpcnRpb19tbWlvX21hdGNoW10gPSB7CkBAIC00NjksNiArNjU0LDcgQEAg
-c3RhdGljIGludCBfX2luaXQgdmlydGlvX21taW9faW5pdCh2b2lkKQogc3RhdGljIHZvaWQgX19l
-eGl0IHZpcnRpb19tbWlvX2V4aXQodm9pZCkKIHsKIAlwbGF0Zm9ybV9kcml2ZXJfdW5yZWdpc3Rl
-cigmdmlydGlvX21taW9fZHJpdmVyKTsKKwl2bV91bnJlZ2lzdGVyX2NtZGxpbmVfZGV2aWNlcygp
-OwogfQogCiBtb2R1bGVfaW5pdCh2aXJ0aW9fbW1pb19pbml0KTsKCgoKX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBs
-aXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlz
-dHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+On Fri, 2011-11-11 at 18:34 +0530, Krishna Kumar wrote:
+> Changes for multiqueue virtio_net driver.
+[...]
+> @@ -677,25 +730,35 @@ static struct rtnl_link_stats64 *virtnet
+>  {
+>  	struct virtnet_info *vi = netdev_priv(dev);
+>  	int cpu;
+> -	unsigned int start;
+>  
+>  	for_each_possible_cpu(cpu) {
+> -		struct virtnet_stats __percpu *stats
+> -			= per_cpu_ptr(vi->stats, cpu);
+> -		u64 tpackets, tbytes, rpackets, rbytes;
+> -
+> -		do {
+> -			start = u64_stats_fetch_begin(&stats->syncp);
+> -			tpackets = stats->tx_packets;
+> -			tbytes   = stats->tx_bytes;
+> -			rpackets = stats->rx_packets;
+> -			rbytes   = stats->rx_bytes;
+> -		} while (u64_stats_fetch_retry(&stats->syncp, start));
+> -
+> -		tot->rx_packets += rpackets;
+> -		tot->tx_packets += tpackets;
+> -		tot->rx_bytes   += rbytes;
+> -		tot->tx_bytes   += tbytes;
+> +		int qpair;
+> +
+> +		for (qpair = 0; qpair < vi->num_queue_pairs; qpair++) {
+> +			struct virtnet_send_stats __percpu *tx_stat;
+> +			struct virtnet_recv_stats __percpu *rx_stat;
+
+While you're at it, you can drop the per-CPU stats and make them only
+per-queue.  There is unlikely to be any benefit in maintaining them
+per-CPU while receive and transmit processing is serialised per-queue.
+
+[...]
+> +static int invoke_find_vqs(struct virtnet_info *vi)
+> +{
+> +	vq_callback_t **callbacks;
+> +	struct virtqueue **vqs;
+> +	int ret = -ENOMEM;
+> +	int i, total_vqs;
+> +	char **names;
+> +
+> +	/*
+> +	 * We expect 1 RX virtqueue followed by 1 TX virtqueue, followed
+> +	 * by the same 'vi->num_queue_pairs-1' more times, and optionally
+> +	 * one control virtqueue.
+> +	 */
+> +	total_vqs = vi->num_queue_pairs * 2 +
+> +		    virtio_has_feature(vi->vdev, VIRTIO_NET_F_CTRL_VQ);
+> +
+> +	/* Allocate space for find_vqs parameters */
+> +	vqs = kmalloc(total_vqs * sizeof(*vqs), GFP_KERNEL);
+> +	callbacks = kmalloc(total_vqs * sizeof(*callbacks), GFP_KERNEL);
+> +	names = kmalloc(total_vqs * sizeof(*names), GFP_KERNEL);
+> +	if (!vqs || !callbacks || !names)
+> +		goto err;
+> +
+> +	/* Allocate/initialize parameters for recv virtqueues */
+> +	for (i = 0; i < vi->num_queue_pairs * 2; i += 2) {
+> +		callbacks[i] = skb_recv_done;
+> +		names[i] = kasprintf(GFP_KERNEL, "input.%d", i / 2);
+> +		if (!names[i])
+> +			goto err;
+> +	}
+> +
+> +	/* Allocate/initialize parameters for send virtqueues */
+> +	for (i = 1; i < vi->num_queue_pairs * 2; i += 2) {
+> +		callbacks[i] = skb_xmit_done;
+> +		names[i] = kasprintf(GFP_KERNEL, "output.%d", i / 2);
+> +		if (!names[i])
+> +			goto err;
+> +	}
+[...]
+
+The RX and TX interrupt names for a multiqueue device should follow the
+formats "<device>-rx-<index>" and "<device>-tx-<index>".
+
+Ben.
+
+-- 
+Ben Hutchings, Staff Engineer, Solarflare
+Not speaking for my employer; that's the marketing department's job.
+They asked us to note that Solarflare product names are trademarked.
