@@ -1,47 +1,72 @@
-From: Amit Shah <amit.shah@redhat.com>
-Subject: Re: [PATCH v3 1/3] virtio_console:  Fix locking of vtermno.
-Date: Fri, 18 Nov 2011 00:39:20 +0530
-Message-ID: <20111117190920.GD2873@amit-x200.redhat.com>
-References: <20111108214452.28884.14840.stgit@miche.sea.corp.google.com>
-	<20111108214458.28884.86759.stgit@miche.sea.corp.google.com>
-	<877h37qo5z.fsf@rustcorp.com.au>
+From: KY Srinivasan <kys@microsoft.com>
+Subject: RE: [PATCH 1/1] Staging: hv: storvsc: Move the storage driver out
+ of the staging area
+Date: Fri, 18 Nov 2011 04:53:03 +0000
+Message-ID: <6E21E5352C11B742B20C142EB499E0481AA6D232@TK5EX14MBXC128.redmond.corp.microsoft.com>
+References: <1320776028-29568-1-git-send-email-kys@microsoft.com>
+ <1321554393.3041.77.camel@dabdike.int.hansenpartnership.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <877h37qo5z.fsf@rustcorp.com.au>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>, xen-devel@lists.xensource.com, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Greg Kroah-Hartman <gregkh@suse.de>, Miche Baker-Harvey <miche@google.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Anton Blanchard <anton@samba.org>, Mike Waychison <mikew@google.com>, ppc-dev <linuxppc-dev@lists.ozlabs.org>, Eric Northrup <digitaleric@google.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1321554393.3041.77.camel@dabdike.int.hansenpartnership.com>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: James Bottomley <James.Bottomley@HansenPartnership.com>
+Cc: "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, "linux-scsi@vger.kernel.org" <linux-scsi@vger.kernel.org>, "ohering@suse.com" <ohering@suse.com>, "hch@infradead.org" <hch@infradead.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On (Fri) 11 Nov 2011 [14:57:20], Rusty Russell wrote:
-> On Tue, 08 Nov 2011 13:44:58 -0800, Miche Baker-Harvey <miche@google.com> wrote:
-> > Some modifications of vtermno were not done under the spinlock.
-> > 
-> > Moved assignment from vtermno and increment of vtermno together,
-> > putting both under the spinlock.  Revert vtermno on failure.
-> > 
-> > Signed-off-by: Miche Baker-Harvey <miche@google.com>
-> 
-> Does it matter?  It's normal not to lock in a function called
-> "init_XXX", since it's not exposed yet.
-> 
-> Or is it?
-
-Slight misnomer, I suppose.
-
-We do this init_console_port() as part of add_port() if the port is a
-console port.  Should it be named 'mark_console_port()'?  Dunno,
-doesn't sound like the right name.  init fits closest.
-
-		Amit
+DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogSmFtZXMgQm90dG9tbGV5
+IFttYWlsdG86SmFtZXMuQm90dG9tbGV5QEhhbnNlblBhcnRuZXJzaGlwLmNvbV0NCj4gU2VudDog
+VGh1cnNkYXksIE5vdmVtYmVyIDE3LCAyMDExIDE6MjcgUE0NCj4gVG86IEtZIFNyaW5pdmFzYW4N
+Cj4gQ2M6IGdyZWdraEBzdXNlLmRlOyBsaW51eC1rZXJuZWxAdmdlci5rZXJuZWwub3JnOw0KPiBk
+ZXZlbEBsaW51eGRyaXZlcnByb2plY3Qub3JnOyB2aXJ0dWFsaXphdGlvbkBsaXN0cy5vc2RsLm9y
+ZzsgbGludXgtDQo+IHNjc2lAdmdlci5rZXJuZWwub3JnOyBvaGVyaW5nQHN1c2UuY29tOyBoY2hA
+aW5mcmFkZWFkLm9yZw0KPiBTdWJqZWN0OiBSZTogW1BBVENIIDEvMV0gU3RhZ2luZzogaHY6IHN0
+b3J2c2M6IE1vdmUgdGhlIHN0b3JhZ2UgZHJpdmVyIG91dCBvZiB0aGUNCj4gc3RhZ2luZyBhcmVh
+DQo+IA0KPiBPbiBUdWUsIDIwMTEtMTEtMDggYXQgMTA6MTMgLTA4MDAsIEsuIFkuIFNyaW5pdmFz
+YW4gd3JvdGU6DQo+ID4gVGhlIHN0b3JhZ2UgZHJpdmVyIChzdG9ydnNjX2Rydi5jKSBoYW5kbGVz
+IGFsbCBibG9jayBzdG9yYWdlIGRldmljZXMNCj4gPiBhc3NpZ25lZCB0byBMaW51eCBndWVzdHMg
+aG9zdGVkIG9uIEh5cGVyLVYuIFRoaXMgZHJpdmVyIGhhcyBiZWVuIGluIHRoZQ0KPiA+IHN0YWdp
+bmcgdHJlZSBmb3IgYSB3aGlsZSBhbmQgdGhpcyBwYXRjaCBtb3ZlcyBpdCBvdXQgb2YgdGhlIHN0
+YWdpbmcgYXJlYS4NCj4gPiBBcyBwZXIgR3JlZydzIHJlY29tbWVuZGF0aW9uLCB0aGlzIHBhdGNo
+IG1ha2VzIG5vIGNoYW5nZXMgdG8gdGhlIHN0YWdpbmcvaHYNCj4gPiBkaXJlY3RvcnkuIE9uY2Ug
+dGhlIGRyaXZlciBtb3ZlcyBvdXQgb2Ygc3RhZ2luZywgd2Ugd2lsbCBjbGVhbnVwIHRoZQ0KPiA+
+IHN0YWdpbmcvaHYgZGlyZWN0b3J5Lg0KPiA+DQo+ID4gVGhpcyBwYXRjaCBpbmNsdWRlcyBhbGwg
+dGhlIHBhdGNoZXMgdGhhdCBJIGhhdmUgc2VudCBhZ2FpbnN0IHRoZSBzdGFnaW5nL2h2DQo+ID4g
+dHJlZSB0byBhZGRyZXNzIHRoZSBjb21tZW50cyBJIGhhdmUgZ290dGVuIHRvIGRhdGUgb24gdGhp
+cyBzdG9yYWdlIGRyaXZlci4NCj4gDQo+IEZpcnN0IGNvbW1lbnQgaXMgdGhhdCBpdCB3b3VsZCBo
+YXZlIGJlZW4gZWFzaWVyIHRvIHNlZSB0aGUgaW5kaXZpZHVhbA0KPiBwYXRjaGVzIGZvciBjb21t
+ZW50IGJlZm9yZSB5b3UgY29tbWl0dGVkIHRoZW0uDQoNCkkgYW0gbm90IHN1cmUgaWYgdGhlIHBh
+dGNoZXMgaGF2ZSBiZWVuIGNvbW1pdHRlZCB5ZXQuIEFsbCBwYXRjaGVzIHdlcmUgc2VudA0KdG8g
+dmFyaW91cyBtYWlsaW5nIGxpc3RzIGFuZCB5b3Ugd2VyZSBjb3BpZWQgYXMgd2VsbC4gSW4gdGhl
+IGZ1dHVyZSwgSSB3aWxsIGluY2x1ZGUNCnRoZSBzY3NpIG1haWxpbmcgbGlzdCBpbiB0aGUgc2V0
+IG9mIGxpc3RzIEkgaW5jbHVkZSBmb3IgdGhlIHN0YWdpbmcgcGF0Y2hlcy4gDQogDQo+IA0KPiBU
+aGUgd2F5IHlvdSBkaWQgbWVtcG9vbCBpc24ndCBlbnRpcmVseSByaWdodDogdGhlIHByb2JsZW0g
+aXMgdGhhdCB0bw0KPiBwcmV2ZW50IGEgbWVtb3J5IHRvIEkvTyBkZWFkbG9jayB3ZSBuZWVkIHRv
+IGVuc3VyZSBmb3J3YXJkIHByb2dyZXNzIG9uDQo+IHRoZSBkcmFpbiBkZXZpY2UuICBKdXN0IGhh
+dmluZyA2NCBjb21tYW5kcyBhdmFpbGFibGUgdG8gdGhlIGhvc3QgZG9lc24ndA0KPiBuZWNlc3Nh
+cmlseSBhY2hpZXZlIHRoaXMgYmVjYXVzZSBMVU4xIGNvdWxkIGNvbnN1bWUgdGhlbSBhbGwgYW5k
+IHN0YXJ2ZQ0KPiBMVU4wIHdoaWNoIGlzIHRoZSBkcmFpbiBkZXZpY2UgbGVhZGluZyB0byB0aGUg
+ZGVhZGxvY2ssIHNvIHRoZSBtZW1wb29sDQo+IHJlYWxseSBuZWVkcyB0byBiZSBwZXIgZGV2aWNl
+IHVzaW5nIHNsYXZlX2FsbG9jLg0KDQpJIHdpbGwgZG8gdGhpcyBwZXIgTFVOLg0KDQo+IA0KPiAr
+c3RhdGljIGludCBzdG9ydnNjX2RldmljZV9hbGxvYyhzdHJ1Y3Qgc2NzaV9kZXZpY2UgKnNkZXZp
+Y2UpDQo+ICt7DQo+ICsJLyoNCj4gKwkgKiBUaGlzIGVuYWJsZXMgbHVucyB0byBiZSBsb2NhdGVk
+IHNwYXJzZWx5LiBPdGhlcndpc2UsIHdlIG1heSBub3QNCj4gKwkgKiBkaXNjb3ZlcmVkIHRoZW0u
+DQo+ICsJICovDQo+ICsJc2RldmljZS0+c2Rldl9iZmxhZ3MgfD0gQkxJU1RfU1BBUlNFTFVOIHwg
+QkxJU1RfTEFSR0VMVU47DQo+ICsJcmV0dXJuIDA7DQo+ICt9DQo+IA0KPiBMb29rcyBib2d1cyAu
+Li4gdGhpcyBzaG91bGQgaGFwcGVuIGF1dG9tYXRpY2FsbHkgZm9yIFNDU0ktMyBkZXZpY2VzIC4u
+Lg0KPiB1bmxlc3MgeW91ciBoeXBlcnZpc29yIGhhcyBzb21lIHN0cmFuZ2UgKGFuZCB3cm9uZykg
+aWRlbnRpZmljYXRpb24/ICBJDQo+IHJlYWxseSB0aGluayB5b3Ugd2FudCB0byB1c2UgU0NTSS0z
+IGJlY2F1c2UgaXQgd2lsbCBkbyByZXBvcnQgTFVODQo+IHNjYW5uaW5nLCB3aGljaCBjb25zdW1l
+cyBmYXIgZmV3ZXIgcmVzb3VyY2VzLg0KDQpJIHdpbGwgc2VlIGlmIEkgY2FuIGNsZWFuIHRoaXMg
+dXAuDQoNCj4gDQo+IEkgc3RpbGwgdGhpbmsgeW91IG5lZWQgdG8gZGlzYWJsZSBjbHVzdGVyaW5n
+IGFuZCBqdW5rIHRoZSBidmVjIG1lcmdlDQo+IGZ1bmN0aW9uLiAgWW91ciBvYmplY3Qgc2VlbXMg
+dG8gYmUgdG8gYWNjdW11bGF0ZSBpbiBwYWdlIHNpemUgbXVsdGlwbGVzDQo+IChhbmQgbm90IGFn
+Z3JlZ2F0ZSBvdmVyIHRoaXMpIC4uLiB0aGF0J3Mgd2hhdCBjbHVzdGVyaW5nIGlzIGRlc2lnbmVk
+IHRvDQo+IGRvLg0KDQpBcyBwYXJ0IG9mIGFkZHJlc3NpbmcgeW91ciBmaXJzdCByb3VuZCBvZiBj
+b21tZW50cywgSSBleHBlcmltZW50ZWQgd2l0aCB5b3VyDQpzdWdnZXN0aW9ucyBhbmQgSSBjb3Vs
+ZCBub3QgZ2V0IHJpZCBvZiB0aGUgY29kZSB0aGF0IGRvZXMgdGhlIGJvdW5jZSBidWZmZXIgaGFu
+ZGxpbmcuDQpJIGNvdWxkIGdlbmVyYXRlIEkvTyBwYXR0ZXJucyB0aGF0IHdvdWxkIHJlcXVpcmUg
+Ym91bmNlIGJ1ZmZlciBoYW5kbGluZyB3aXRoIHlvdXINCnN1Z2dlc3Rpb25zIGluIHBsYWNlLg0K
+DQpSZWdhcmRzLA0KDQpLLiBZICANCg0K
