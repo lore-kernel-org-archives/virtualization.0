@@ -1,72 +1,69 @@
-From: KY Srinivasan <kys@microsoft.com>
-Subject: RE: [PATCH 1/1] Staging: hv: storvsc: Move the storage driver out
- of the staging area
-Date: Fri, 18 Nov 2011 04:53:03 +0000
-Message-ID: <6E21E5352C11B742B20C142EB499E0481AA6D232@TK5EX14MBXC128.redmond.corp.microsoft.com>
-References: <1320776028-29568-1-git-send-email-kys@microsoft.com>
- <1321554393.3041.77.camel@dabdike.int.hansenpartnership.com>
+From: Sasha Levin <levinsasha928@gmail.com>
+Subject: Re: [RFC] [ver3 PATCH 3/6] virtio_net: virtio_net driver changes
+Date: Fri, 18 Nov 2011 08:24:41 +0200
+Message-ID: <1321597481.8010.19.camel__36685.9278794893$1321597503$gmane$org@lappy>
+References: <20111111130223.9878.59517.sendpatchset@krkumar2.in.ibm.com>
+	<20111111130420.9878.19729.sendpatchset@krkumar2.in.ibm.com>
+	<1321578488.2749.66.camel@bwh-desktop>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1321554393.3041.77.camel@dabdike.int.hansenpartnership.com>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: James Bottomley <James.Bottomley@HansenPartnership.com>
-Cc: "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, "linux-scsi@vger.kernel.org" <linux-scsi@vger.kernel.org>, "ohering@suse.com" <ohering@suse.com>, "hch@infradead.org" <hch@infradead.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1321578488.2749.66.camel@bwh-desktop>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Ben Hutchings <bhutchings@solarflare.com>
+Cc: Krishna Kumar <krkumar2@in.ibm.com>, kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogSmFtZXMgQm90dG9tbGV5
-IFttYWlsdG86SmFtZXMuQm90dG9tbGV5QEhhbnNlblBhcnRuZXJzaGlwLmNvbV0NCj4gU2VudDog
-VGh1cnNkYXksIE5vdmVtYmVyIDE3LCAyMDExIDE6MjcgUE0NCj4gVG86IEtZIFNyaW5pdmFzYW4N
-Cj4gQ2M6IGdyZWdraEBzdXNlLmRlOyBsaW51eC1rZXJuZWxAdmdlci5rZXJuZWwub3JnOw0KPiBk
-ZXZlbEBsaW51eGRyaXZlcnByb2plY3Qub3JnOyB2aXJ0dWFsaXphdGlvbkBsaXN0cy5vc2RsLm9y
-ZzsgbGludXgtDQo+IHNjc2lAdmdlci5rZXJuZWwub3JnOyBvaGVyaW5nQHN1c2UuY29tOyBoY2hA
-aW5mcmFkZWFkLm9yZw0KPiBTdWJqZWN0OiBSZTogW1BBVENIIDEvMV0gU3RhZ2luZzogaHY6IHN0
-b3J2c2M6IE1vdmUgdGhlIHN0b3JhZ2UgZHJpdmVyIG91dCBvZiB0aGUNCj4gc3RhZ2luZyBhcmVh
-DQo+IA0KPiBPbiBUdWUsIDIwMTEtMTEtMDggYXQgMTA6MTMgLTA4MDAsIEsuIFkuIFNyaW5pdmFz
-YW4gd3JvdGU6DQo+ID4gVGhlIHN0b3JhZ2UgZHJpdmVyIChzdG9ydnNjX2Rydi5jKSBoYW5kbGVz
-IGFsbCBibG9jayBzdG9yYWdlIGRldmljZXMNCj4gPiBhc3NpZ25lZCB0byBMaW51eCBndWVzdHMg
-aG9zdGVkIG9uIEh5cGVyLVYuIFRoaXMgZHJpdmVyIGhhcyBiZWVuIGluIHRoZQ0KPiA+IHN0YWdp
-bmcgdHJlZSBmb3IgYSB3aGlsZSBhbmQgdGhpcyBwYXRjaCBtb3ZlcyBpdCBvdXQgb2YgdGhlIHN0
-YWdpbmcgYXJlYS4NCj4gPiBBcyBwZXIgR3JlZydzIHJlY29tbWVuZGF0aW9uLCB0aGlzIHBhdGNo
-IG1ha2VzIG5vIGNoYW5nZXMgdG8gdGhlIHN0YWdpbmcvaHYNCj4gPiBkaXJlY3RvcnkuIE9uY2Ug
-dGhlIGRyaXZlciBtb3ZlcyBvdXQgb2Ygc3RhZ2luZywgd2Ugd2lsbCBjbGVhbnVwIHRoZQ0KPiA+
-IHN0YWdpbmcvaHYgZGlyZWN0b3J5Lg0KPiA+DQo+ID4gVGhpcyBwYXRjaCBpbmNsdWRlcyBhbGwg
-dGhlIHBhdGNoZXMgdGhhdCBJIGhhdmUgc2VudCBhZ2FpbnN0IHRoZSBzdGFnaW5nL2h2DQo+ID4g
-dHJlZSB0byBhZGRyZXNzIHRoZSBjb21tZW50cyBJIGhhdmUgZ290dGVuIHRvIGRhdGUgb24gdGhp
-cyBzdG9yYWdlIGRyaXZlci4NCj4gDQo+IEZpcnN0IGNvbW1lbnQgaXMgdGhhdCBpdCB3b3VsZCBo
-YXZlIGJlZW4gZWFzaWVyIHRvIHNlZSB0aGUgaW5kaXZpZHVhbA0KPiBwYXRjaGVzIGZvciBjb21t
-ZW50IGJlZm9yZSB5b3UgY29tbWl0dGVkIHRoZW0uDQoNCkkgYW0gbm90IHN1cmUgaWYgdGhlIHBh
-dGNoZXMgaGF2ZSBiZWVuIGNvbW1pdHRlZCB5ZXQuIEFsbCBwYXRjaGVzIHdlcmUgc2VudA0KdG8g
-dmFyaW91cyBtYWlsaW5nIGxpc3RzIGFuZCB5b3Ugd2VyZSBjb3BpZWQgYXMgd2VsbC4gSW4gdGhl
-IGZ1dHVyZSwgSSB3aWxsIGluY2x1ZGUNCnRoZSBzY3NpIG1haWxpbmcgbGlzdCBpbiB0aGUgc2V0
-IG9mIGxpc3RzIEkgaW5jbHVkZSBmb3IgdGhlIHN0YWdpbmcgcGF0Y2hlcy4gDQogDQo+IA0KPiBU
-aGUgd2F5IHlvdSBkaWQgbWVtcG9vbCBpc24ndCBlbnRpcmVseSByaWdodDogdGhlIHByb2JsZW0g
-aXMgdGhhdCB0bw0KPiBwcmV2ZW50IGEgbWVtb3J5IHRvIEkvTyBkZWFkbG9jayB3ZSBuZWVkIHRv
-IGVuc3VyZSBmb3J3YXJkIHByb2dyZXNzIG9uDQo+IHRoZSBkcmFpbiBkZXZpY2UuICBKdXN0IGhh
-dmluZyA2NCBjb21tYW5kcyBhdmFpbGFibGUgdG8gdGhlIGhvc3QgZG9lc24ndA0KPiBuZWNlc3Nh
-cmlseSBhY2hpZXZlIHRoaXMgYmVjYXVzZSBMVU4xIGNvdWxkIGNvbnN1bWUgdGhlbSBhbGwgYW5k
-IHN0YXJ2ZQ0KPiBMVU4wIHdoaWNoIGlzIHRoZSBkcmFpbiBkZXZpY2UgbGVhZGluZyB0byB0aGUg
-ZGVhZGxvY2ssIHNvIHRoZSBtZW1wb29sDQo+IHJlYWxseSBuZWVkcyB0byBiZSBwZXIgZGV2aWNl
-IHVzaW5nIHNsYXZlX2FsbG9jLg0KDQpJIHdpbGwgZG8gdGhpcyBwZXIgTFVOLg0KDQo+IA0KPiAr
-c3RhdGljIGludCBzdG9ydnNjX2RldmljZV9hbGxvYyhzdHJ1Y3Qgc2NzaV9kZXZpY2UgKnNkZXZp
-Y2UpDQo+ICt7DQo+ICsJLyoNCj4gKwkgKiBUaGlzIGVuYWJsZXMgbHVucyB0byBiZSBsb2NhdGVk
-IHNwYXJzZWx5LiBPdGhlcndpc2UsIHdlIG1heSBub3QNCj4gKwkgKiBkaXNjb3ZlcmVkIHRoZW0u
-DQo+ICsJICovDQo+ICsJc2RldmljZS0+c2Rldl9iZmxhZ3MgfD0gQkxJU1RfU1BBUlNFTFVOIHwg
-QkxJU1RfTEFSR0VMVU47DQo+ICsJcmV0dXJuIDA7DQo+ICt9DQo+IA0KPiBMb29rcyBib2d1cyAu
-Li4gdGhpcyBzaG91bGQgaGFwcGVuIGF1dG9tYXRpY2FsbHkgZm9yIFNDU0ktMyBkZXZpY2VzIC4u
-Lg0KPiB1bmxlc3MgeW91ciBoeXBlcnZpc29yIGhhcyBzb21lIHN0cmFuZ2UgKGFuZCB3cm9uZykg
-aWRlbnRpZmljYXRpb24/ICBJDQo+IHJlYWxseSB0aGluayB5b3Ugd2FudCB0byB1c2UgU0NTSS0z
-IGJlY2F1c2UgaXQgd2lsbCBkbyByZXBvcnQgTFVODQo+IHNjYW5uaW5nLCB3aGljaCBjb25zdW1l
-cyBmYXIgZmV3ZXIgcmVzb3VyY2VzLg0KDQpJIHdpbGwgc2VlIGlmIEkgY2FuIGNsZWFuIHRoaXMg
-dXAuDQoNCj4gDQo+IEkgc3RpbGwgdGhpbmsgeW91IG5lZWQgdG8gZGlzYWJsZSBjbHVzdGVyaW5n
-IGFuZCBqdW5rIHRoZSBidmVjIG1lcmdlDQo+IGZ1bmN0aW9uLiAgWW91ciBvYmplY3Qgc2VlbXMg
-dG8gYmUgdG8gYWNjdW11bGF0ZSBpbiBwYWdlIHNpemUgbXVsdGlwbGVzDQo+IChhbmQgbm90IGFn
-Z3JlZ2F0ZSBvdmVyIHRoaXMpIC4uLiB0aGF0J3Mgd2hhdCBjbHVzdGVyaW5nIGlzIGRlc2lnbmVk
-IHRvDQo+IGRvLg0KDQpBcyBwYXJ0IG9mIGFkZHJlc3NpbmcgeW91ciBmaXJzdCByb3VuZCBvZiBj
-b21tZW50cywgSSBleHBlcmltZW50ZWQgd2l0aCB5b3VyDQpzdWdnZXN0aW9ucyBhbmQgSSBjb3Vs
-ZCBub3QgZ2V0IHJpZCBvZiB0aGUgY29kZSB0aGF0IGRvZXMgdGhlIGJvdW5jZSBidWZmZXIgaGFu
-ZGxpbmcuDQpJIGNvdWxkIGdlbmVyYXRlIEkvTyBwYXR0ZXJucyB0aGF0IHdvdWxkIHJlcXVpcmUg
-Ym91bmNlIGJ1ZmZlciBoYW5kbGluZyB3aXRoIHlvdXINCnN1Z2dlc3Rpb25zIGluIHBsYWNlLg0K
-DQpSZWdhcmRzLA0KDQpLLiBZICANCg0K
+On Fri, 2011-11-18 at 01:08 +0000, Ben Hutchings wrote:
+> On Fri, 2011-11-11 at 18:34 +0530, Krishna Kumar wrote:
+> > Changes for multiqueue virtio_net driver.
+> [...]
+> > @@ -677,25 +730,35 @@ static struct rtnl_link_stats64 *virtnet
+> >  {
+> >  	struct virtnet_info *vi = netdev_priv(dev);
+> >  	int cpu;
+> > -	unsigned int start;
+> >  
+> >  	for_each_possible_cpu(cpu) {
+> > -		struct virtnet_stats __percpu *stats
+> > -			= per_cpu_ptr(vi->stats, cpu);
+> > -		u64 tpackets, tbytes, rpackets, rbytes;
+> > -
+> > -		do {
+> > -			start = u64_stats_fetch_begin(&stats->syncp);
+> > -			tpackets = stats->tx_packets;
+> > -			tbytes   = stats->tx_bytes;
+> > -			rpackets = stats->rx_packets;
+> > -			rbytes   = stats->rx_bytes;
+> > -		} while (u64_stats_fetch_retry(&stats->syncp, start));
+> > -
+> > -		tot->rx_packets += rpackets;
+> > -		tot->tx_packets += tpackets;
+> > -		tot->rx_bytes   += rbytes;
+> > -		tot->tx_bytes   += tbytes;
+> > +		int qpair;
+> > +
+> > +		for (qpair = 0; qpair < vi->num_queue_pairs; qpair++) {
+> > +			struct virtnet_send_stats __percpu *tx_stat;
+> > +			struct virtnet_recv_stats __percpu *rx_stat;
+> 
+> While you're at it, you can drop the per-CPU stats and make them only
+> per-queue.  There is unlikely to be any benefit in maintaining them
+> per-CPU while receive and transmit processing is serialised per-queue.
+
+It allows you to update stats without a lock.
+
+Whats the benefit of having them per queue?
+
+-- 
+
+Sasha.
