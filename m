@@ -1,88 +1,41 @@
-From: Sasha Levin <levinsasha928@gmail.com>
-Subject: Re: [RFC] [ver3 PATCH 3/6] virtio_net: virtio_net driver changes
-Date: Fri, 18 Nov 2011 18:18:01 +0200
-Message-ID: <1321633081.2974.1.camel__41244.3922170953$1321633101$gmane$org@sasha>
-References: <20111111130223.9878.59517.sendpatchset@krkumar2.in.ibm.com>
-	<20111111130420.9878.19729.sendpatchset@krkumar2.in.ibm.com>
-	<1321578488.2749.66.camel@bwh-desktop> <1321597481.8010.19.camel@lappy>
-	<1321630839.2885.117.camel@deadeye>
+From: James Bottomley <James.Bottomley@HansenPartnership.com>
+Subject: RE: [PATCH 1/1] Staging: hv: storvsc: Move the storage driver out
+ of the staging area
+Date: Fri, 18 Nov 2011 11:00:31 -0600
+Message-ID: <1321635631.3022.44.camel@dabdike.int.hansenpartnership.com>
+References: <1320776028-29568-1-git-send-email-kys@microsoft.com>
+	 <1321554393.3041.77.camel@dabdike.int.hansenpartnership.com>
+	 <6E21E5352C11B742B20C142EB499E0481AA6D232@TK5EX14MBXC128.redmond.corp.microsoft.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1321630839.2885.117.camel@deadeye>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Ben Hutchings <bhutchings@solarflare.com>
-Cc: Krishna Kumar <krkumar2@in.ibm.com>, kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, davem@davemloft.net
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <6E21E5352C11B742B20C142EB499E0481AA6D232@TK5EX14MBXC128.redmond.corp.microsoft.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: KY Srinivasan <kys@microsoft.com>
+Cc: "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, "linux-scsi@vger.kernel.org" <linux-scsi@vger.kernel.org>, "ohering@suse.com" <ohering@suse.com>, "hch@infradead.org" <hch@infradead.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 2011-11-18 at 15:40 +0000, Ben Hutchings wrote:
-> On Fri, 2011-11-18 at 08:24 +0200, Sasha Levin wrote:
-> > On Fri, 2011-11-18 at 01:08 +0000, Ben Hutchings wrote:
-> > > On Fri, 2011-11-11 at 18:34 +0530, Krishna Kumar wrote:
-> > > > Changes for multiqueue virtio_net driver.
-> > > [...]
-> > > > @@ -677,25 +730,35 @@ static struct rtnl_link_stats64 *virtnet
-> > > >  {
-> > > >  	struct virtnet_info *vi = netdev_priv(dev);
-> > > >  	int cpu;
-> > > > -	unsigned int start;
-> > > >  
-> > > >  	for_each_possible_cpu(cpu) {
-> > > > -		struct virtnet_stats __percpu *stats
-> > > > -			= per_cpu_ptr(vi->stats, cpu);
-> > > > -		u64 tpackets, tbytes, rpackets, rbytes;
-> > > > -
-> > > > -		do {
-> > > > -			start = u64_stats_fetch_begin(&stats->syncp);
-> > > > -			tpackets = stats->tx_packets;
-> > > > -			tbytes   = stats->tx_bytes;
-> > > > -			rpackets = stats->rx_packets;
-> > > > -			rbytes   = stats->rx_bytes;
-> > > > -		} while (u64_stats_fetch_retry(&stats->syncp, start));
-> > > > -
-> > > > -		tot->rx_packets += rpackets;
-> > > > -		tot->tx_packets += tpackets;
-> > > > -		tot->rx_bytes   += rbytes;
-> > > > -		tot->tx_bytes   += tbytes;
-> > > > +		int qpair;
-> > > > +
-> > > > +		for (qpair = 0; qpair < vi->num_queue_pairs; qpair++) {
-> > > > +			struct virtnet_send_stats __percpu *tx_stat;
-> > > > +			struct virtnet_recv_stats __percpu *rx_stat;
-> > > 
-> > > While you're at it, you can drop the per-CPU stats and make them only
-> > > per-queue.  There is unlikely to be any benefit in maintaining them
-> > > per-CPU while receive and transmit processing is serialised per-queue.
-> > 
-> > It allows you to update stats without a lock.
+On Fri, 2011-11-18 at 04:53 +0000, KY Srinivasan wrote:
+> > I still think you need to disable clustering and junk the bvec merge
+> > function.  Your object seems to be to accumulate in page size multiples
+> > (and not aggregate over this) ... that's what clustering is designed to
+> > do.
 > 
-> But you'll already be holding a lock related to the queue.
+> As part of addressing your first round of comments, I experimented with your
+> suggestions and I could not get rid of the code that does the bounce buffer handling.
+> I could generate I/O patterns that would require bounce buffer handling with your
+> suggestions in place.
 
-Right, but now you're holding a queue lock just when playing with the
-queue, we don't hold it when we process the data - which is when we
-usually need to update stats.
+There are two separate things here.  One is the scatter gather list
+bounce buffer processing, which is a bit nasty, but if you want to use <
+4kb block size filesystems, I suppose I have to accept that you need it
+(although since it's a global fault of the hypervisor, perhaps it should
+sit in the hypervisor interface layer, so that every SG based transport
+can use it).  The other is the biovec merge function addition.  The
+purpose of this function seems to be to ensure you get one SG entry for
+every page (if I read it right)?  In that case, you don't need any of
+this special casing.  The flag DISABLE_CLUSTERING achieves the same
+thing.
 
-> > Whats the benefit of having them per queue?
-> 
-> It should save some memory (and a little time when summing stats, though
-> that's unlikely to matter much).
-> 
-> The important thing is that splitting up stats per-CPU *and* per-queue
-> is a waste.
-> 
-> Ben.
-> 
-
-
--- 
-
-Sasha.
+James
