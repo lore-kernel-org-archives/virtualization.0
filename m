@@ -1,53 +1,250 @@
-From: KY Srinivasan <kys@microsoft.com>
-Subject: RE: [PATCH 1/1] Staging: hv: storvsc: Move the storage driver out
- of the staging area
-Date: Fri, 18 Nov 2011 23:28:19 +0000
-Message-ID: <6E21E5352C11B742B20C142EB499E0481AA6D4CC@TK5EX14MBXC128.redmond.corp.microsoft.com>
-References: <1320776028-29568-1-git-send-email-kys@microsoft.com>
-	 <1321554393.3041.77.camel@dabdike.int.hansenpartnership.com>
-	 <6E21E5352C11B742B20C142EB499E0481AA6D232@TK5EX14MBXC128.redmond.corp.microsoft.com>
- <1321635631.3022.44.camel@dabdike.int.hansenpartnership.com>
+From: Ioan Raicu <iraicu@cs.iit.edu>
+Subject: CFP: CCGrid 2012 deadline extension
+Date: Sun, 20 Nov 2011 08:52:41 -0600
+Message-ID: <4EC91439.2030806@cs.iit.edu>
+Reply-To: iraicu@cs.iit.edu
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1321635631.3022.44.camel@dabdike.int.hansenpartnership.com>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: James Bottomley <James.Bottomley@HansenPartnership.com>
-Cc: "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, "linux-scsi@vger.kernel.org" <linux-scsi@vger.kernel.org>, "ohering@suse.com" <ohering@suse.com>, "hch@infradead.org" <hch@infradead.org>
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogSmFtZXMgQm90dG9tbGV5
-IFttYWlsdG86SmFtZXMuQm90dG9tbGV5QEhhbnNlblBhcnRuZXJzaGlwLmNvbV0NCj4gU2VudDog
-RnJpZGF5LCBOb3ZlbWJlciAxOCwgMjAxMSAxMjowMSBQTQ0KPiBUbzogS1kgU3Jpbml2YXNhbg0K
-PiBDYzogZ3JlZ2toQHN1c2UuZGU7IGxpbnV4LWtlcm5lbEB2Z2VyLmtlcm5lbC5vcmc7DQo+IGRl
-dmVsQGxpbnV4ZHJpdmVycHJvamVjdC5vcmc7IHZpcnR1YWxpemF0aW9uQGxpc3RzLm9zZGwub3Jn
-OyBsaW51eC0NCj4gc2NzaUB2Z2VyLmtlcm5lbC5vcmc7IG9oZXJpbmdAc3VzZS5jb207IGhjaEBp
-bmZyYWRlYWQub3JnDQo+IFN1YmplY3Q6IFJFOiBbUEFUQ0ggMS8xXSBTdGFnaW5nOiBodjogc3Rv
-cnZzYzogTW92ZSB0aGUgc3RvcmFnZSBkcml2ZXIgb3V0IG9mIHRoZQ0KPiBzdGFnaW5nIGFyZWEN
-Cj4gDQo+IE9uIEZyaSwgMjAxMS0xMS0xOCBhdCAwNDo1MyArMDAwMCwgS1kgU3Jpbml2YXNhbiB3
-cm90ZToNCj4gPiA+IEkgc3RpbGwgdGhpbmsgeW91IG5lZWQgdG8gZGlzYWJsZSBjbHVzdGVyaW5n
-IGFuZCBqdW5rIHRoZSBidmVjIG1lcmdlDQo+ID4gPiBmdW5jdGlvbi4gIFlvdXIgb2JqZWN0IHNl
-ZW1zIHRvIGJlIHRvIGFjY3VtdWxhdGUgaW4gcGFnZSBzaXplIG11bHRpcGxlcw0KPiA+ID4gKGFu
-ZCBub3QgYWdncmVnYXRlIG92ZXIgdGhpcykgLi4uIHRoYXQncyB3aGF0IGNsdXN0ZXJpbmcgaXMg
-ZGVzaWduZWQgdG8NCj4gPiA+IGRvLg0KPiA+DQo+ID4gQXMgcGFydCBvZiBhZGRyZXNzaW5nIHlv
-dXIgZmlyc3Qgcm91bmQgb2YgY29tbWVudHMsIEkgZXhwZXJpbWVudGVkIHdpdGggeW91cg0KPiA+
-IHN1Z2dlc3Rpb25zIGFuZCBJIGNvdWxkIG5vdCBnZXQgcmlkIG9mIHRoZSBjb2RlIHRoYXQgZG9l
-cyB0aGUgYm91bmNlIGJ1ZmZlcg0KPiBoYW5kbGluZy4NCj4gPiBJIGNvdWxkIGdlbmVyYXRlIEkv
-TyBwYXR0ZXJucyB0aGF0IHdvdWxkIHJlcXVpcmUgYm91bmNlIGJ1ZmZlciBoYW5kbGluZyB3aXRo
-DQo+IHlvdXINCj4gPiBzdWdnZXN0aW9ucyBpbiBwbGFjZS4NCj4gDQo+IFRoZXJlIGFyZSB0d28g
-c2VwYXJhdGUgdGhpbmdzIGhlcmUuICBPbmUgaXMgdGhlIHNjYXR0ZXIgZ2F0aGVyIGxpc3QNCj4g
-Ym91bmNlIGJ1ZmZlciBwcm9jZXNzaW5nLCB3aGljaCBpcyBhIGJpdCBuYXN0eSwgYnV0IGlmIHlv
-dSB3YW50IHRvIHVzZSA8DQo+IDRrYiBibG9jayBzaXplIGZpbGVzeXN0ZW1zLCBJIHN1cHBvc2Ug
-SSBoYXZlIHRvIGFjY2VwdCB0aGF0IHlvdSBuZWVkIGl0DQo+IChhbHRob3VnaCBzaW5jZSBpdCdz
-IGEgZ2xvYmFsIGZhdWx0IG9mIHRoZSBoeXBlcnZpc29yLCBwZXJoYXBzIGl0IHNob3VsZA0KPiBz
-aXQgaW4gdGhlIGh5cGVydmlzb3IgaW50ZXJmYWNlIGxheWVyLCBzbyB0aGF0IGV2ZXJ5IFNHIGJh
-c2VkIHRyYW5zcG9ydA0KPiBjYW4gdXNlIGl0KS4gIFRoZSBvdGhlciBpcyB0aGUgYmlvdmVjIG1l
-cmdlIGZ1bmN0aW9uIGFkZGl0aW9uLiAgVGhlDQo+IHB1cnBvc2Ugb2YgdGhpcyBmdW5jdGlvbiBz
-ZWVtcyB0byBiZSB0byBlbnN1cmUgeW91IGdldCBvbmUgU0cgZW50cnkgZm9yDQo+IGV2ZXJ5IHBh
-Z2UgKGlmIEkgcmVhZCBpdCByaWdodCk/ICBJbiB0aGF0IGNhc2UsIHlvdSBkb24ndCBuZWVkIGFu
-eSBvZg0KPiB0aGlzIHNwZWNpYWwgY2FzaW5nLiAgVGhlIGZsYWcgRElTQUJMRV9DTFVTVEVSSU5H
-IGFjaGlldmVzIHRoZSBzYW1lDQo+IHRoaW5nLg0KDQpUaGFua3MgSmFtZXMuIEkgd2lsbCBrZWVw
-IHlvdSBwb3N0ZWQgb24gbXkgcHJvZ3Jlc3Mgb24gdGhpcyBpc3N1ZS4NCg0KUmVnYXJkcywNCg0K
-Sy4gWQ0KDQo=
+****************
+
+DEADLINE EXTENSION (CCGrid 2012)
+Must submit paper by November 25, but can update submission until 
+December 2, 2011.
+
+****************
+
+12th IEEE/ACM International Symposium on Cluster, Cloud and Grid
+
+Computing (CCGrid 2012) Ottawa, Canada
+
+May 13-16, 2012
+
+http://www.cloudbus.org/ccgrid2012
+
+
+CALL FOR PAPERS
+
+Rapid advances in processing, communication and systems/middleware
+technologies are leading to new paradigms and platforms for computing,
+ranging from computing Clusters to widely distributed Grid and
+emerging Clouds. CCGrid is a series of very successful conferences,
+sponsored by the IEEE Computer Society Technical Committee on Scalable
+Computing (TCSC) and ACM, with the overarching goal of bringing
+together international researchers, developers, and users and to
+provide an international forum to present leading research activities
+and results on a broad range of topics related to these platforms and
+paradigms and their applications. The conference features keynotes,
+technical presentations, posters and research demos, workshops,
+tutorials, as well as the SCALE challenges featuring live
+demonstrations.
+
+In 2012, CCGrid will come to Canada for the first time and will be
+held in Ottawa, the capital city. CCGrid 2012 will have a focus on
+important and immediate issues that are significantly influencing all
+aspects of cluster, cloud and grid computing. Topics of interest
+include, but are not limited to:
+
+  * Applications and Experiences: Applications to real and complex
+    problems in science, engineering, business and society; User
+    studies; Experiences with large-scale deployments systems or
+    applications.
+
+  * Architecture: System architectures, Design and deployment.
+
+  * Autonomic Computing and Cyberinfrastructure: Self managed behavior,
+    models and technologies; Autonomic paradigms and approaches
+    (control-based, bio-inspired, emergent, etc.); Bio-inspired
+    approaches to management; SLA definition and enforcement.
+
+  * Performance Modeling and Evaluation: Performance models; Monitoring
+    and evaluation tools, Analysis of system/application performance;
+    Benchmarks and testbeds.
+
+  * Programming Models, Systems, and Fault-Tolerant Computing:
+    Programming models for cluster, clouds and grid computing; fault
+    tolerant infrastructure and algorithms; systems software to enable
+    efficient computing.
+
+  * Multicore and Accelerator-based Computing: Software and application
+    techniques to utilize multicore architectures and
+    accelerators/heterogeneous computing systems.
+
+  * Scheduling and Resource Management: Techniques to schedule jobs and
+    resources on clusters, clouds and grid computing platforms.
+
+  * Cloud Computing: Cloud architectures; Software tools and techniques
+    for clouds.
+
+
+PAPER SUBMISSION
+
+Authors are invited to submit papers electronically. Submitted
+manuscripts should be structured as technical papers and may not
+exceed 8 letter size (8.5 x 11) pages including figures, tables and
+references using the IEEE format for conference proceedings:
+
+http://www.computer.org/portal/web/cscps/formatting
+
+Submissions not conforming to these guidelines may be
+returned without review. Authors should submit the manuscript in PDF
+format and make sure that the file will print on a printer that uses
+letter size (8.5 x 11) paper. The official language of the meeting is
+English. All manuscripts will be reviewed and will be judged on
+correctness, originality, technical strength, significance, quality of
+presentation, and interest and relevance to the conference attendees.
+
+Submitted papers must represent original unpublished research that is
+not currently under review for any other conference or journal. Papers
+not following these guidelines will be rejected without review and
+further action may be taken, including (but not limited to)
+notifications sent to the heads of the institutions of the authors and
+sponsors of the conference. Submissions received after the due date,
+exceeding the page limit, or not appropriately structured may not be
+considered. Authors may contact the conference chairs for more
+information. The proceedings will be published through the IEEE
+Computer Society Press, USA and will be made available online through
+the IEEE Digital Library.
+
+
+Submission Link:
+
+https://www.easychair.org/account/signin.cgi?conf=ccgrid2012
+
+
+JOURNAL SPECIAL ISSUE
+
+Highly rated Top 6 papers from the CCGrid 2012 conference will be
+invited to extend for publication in a special issue of the "Future
+Generation Computer Systems (FGCS)" Journal published by
+Elsevier Press.
+
+
+CHAIRS
+
+General Chair
+
+  * Shikharesh Majumdar, Carleton University, Canada
+
+Honorary Chair
+
+  * Geoffrey Fox, Indiana University, USA
+
+Program Committee Co-Chairs
+
+  * Rajkumar Buyya, University of Melbourne, Australia
+  * Pavan Balaji, Argonne National Laboratory, USA
+
+Program Committee Vice-chairs
+
+  * Daniel S. Katz (Applications and Experiences)
+  * Dhabaleswar K. Panda (Architecture)
+  * Manish Parashar (Middleware, Autonomic Computing, and 
+Cyberinfrastructure)
+  * Ahmad Afsahi (Performance Modeling and Analysis)
+  * Xian-He Sun (Performance Measurement and Evaluation)
+  * William Gropp (Programming Models, Systems, and Fault-Tolerant 
+computing)
+  * David Bader (Multicore and Accelerator-based Computing)
+  * Thomas Fahringer (Scheduling and Resource Management)
+  * Ignacio Martin Llorente and Madhusudhan Govindaraju (Cloud Computing)
+
+Cyber Co-Chairs
+
+  * Anton Beloglazov, The University of Melbourne, Australia
+  * Suraj Pandey, CSIRO, Australia
+  * Trevor Gelowsky, Carleton University, Canada
+
+Workshops Co-Chairs
+
+  * Marin Litiou, York University, Canada
+  * Mukaddim Pathan, Telstra Corporation Limited, Australia
+
+Publicity Chairs
+
+  * Helen Karatza, Aristotle University of Thessaloniki, Greece
+  * Ioan Raicu, Illinois Institute of Technology&  Argonne National 
+Labs, USA
+  * Bruno Schulze, National Laboratory for Scientific Computing, Brazil
+  * G Subrahmanya VRK Rao: Cognizant technology Solutions, India
+
+Tutorials Co-Chairs
+
+  * Sushil K. Prasad, Georgia State University, USA
+  * Rob Simmonds, Westgrid, Canada
+
+Doctoral Symposium Co-Chairs
+
+  * Carlos Varela, Rensselaer Polytechnic Institute, USA
+  * Yogesh Simmhan, University of Southern California
+
+Poster and Research Demo Co-Chairs
+
+  * Suraj Pandey, CSIRO, Australia
+
+SCALE Challenge Coordinator
+
+  * Shantenu Jha, Rutgers and Loisiana State University
+
+Steering Committee
+
+  * Henri Bal, Vrije University, The Netherlands
+  * Pavan Balaji, Argonne National Laboratory, USA
+  * Rajkumar Buyya, University of Melbourne, Australia (Chair)
+  * Franck Capello, University of Paris-Sud, France
+  * Jack Dongarra, University of Tennessee&  ORNL, USA
+  * Dick Epema, Technical University of Delft, The Netherlands
+  * Thomas Fahringer, University of Innsbruck, Austria
+  * Ian Foster, University of Chicago, USA
+  * Wolfgang Gentzsch, DEISA, Germany
+  * Hai Jin, Huazhong University of Science&  Technology, China
+  * Craig Lee, The Aerospace Corporation, USA (Co-Chair)
+  * Laurent Lefevre, INRIA, France
+  * Geng Lin, Dell Inc., USA
+  * Manish Parashar, Rutgers: The State University of New Jersey, USA
+  * Shikharesh Majumdar, Carleton University, Canada
+  * Satoshi Matsuoaka, Tokyo Institute of Technology, Japan
+  * Omer Rana, Cardiff University, UK
+  * Paul Roe, Queensland University of Technology, Australia
+  * Bruno Schulze, LNCC, Brazil
+  * Nalini Venkatasubramanian, University of California, USA
+  * Carlos Varela, Rensselaer Polytechnic Institute, USA
+
+
+IMPORTANT DATES
+
+   Papers Due:             25 November 2011
+   Papers Final Revisions:     02 December 2011
+   Notification of Acceptance:     30 January 2012
+   Camera Ready Papers Due:     27 February 2012
+   Sponsors: IEEE Computer Society (TCSE)&  ACM SIGARCH (approval pending)
+
+-- 
+=================================================================
+Ioan Raicu, Ph.D.
+Assistant Professor, Illinois Institute of Technology (IIT)
+Guest Research Faculty, Argonne National Laboratory (ANL)
+=================================================================
+Data-Intensive Distributed Systems Laboratory, CS/IIT
+Distributed Systems Laboratory, MCS/ANL
+=================================================================
+Cel:    1-847-722-0876
+Office: 1-312-567-5704
+Email:  iraicu@cs.iit.edu
+Web:    http://www.cs.iit.edu/~iraicu/
+Web:    http://datasys.cs.iit.edu/
+=================================================================
+=================================================================
