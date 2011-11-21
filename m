@@ -1,17 +1,15 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH 5 of 5] virtio: expose added descriptors immediately
-Date: Mon, 21 Nov 2011 12:18:45 +1030
-Message-ID: <8739dib5z6.fsf@rustcorp.com.au>
-References: <patchbomb.1320306168@localhost6.localdomain6>
-	<f3831c1617c86a51d875.1320306173@localhost6.localdomain6>
-	<20111113210256.GA31621@redhat.com>
-	<20111114065606.GA3779@redhat.com> <871ut8q5mh.fsf@rustcorp.com.au>
-	<20111116071838.GE5433@redhat.com>
+Subject: Re: [RFC 1/5] virtio-pci: flexible configuration layout
+Date: Mon, 21 Nov 2011 11:31:31 +1030
+Message-ID: <878vnab85w.fsf__5795.89517224139$1321846569$gmane$org@rustcorp.com.au>
+References: <20111114181854.GA24953@redhat.com>
+	<1321314197-5265-1-git-send-email-levinsasha928@gmail.com>
+	<1321314197-5265-2-git-send-email-levinsasha928@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20111116071838.GE5433@redhat.com>
+In-Reply-To: <1321314197-5265-2-git-send-email-levinsasha928@gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,119 +19,90 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization <virtualization@lists.linux-foundation.org>
+To: Sasha Levin <levinsasha928@gmail.com>, linux-kernel@vger.kernel.org
+Cc: penberg@kernel.org, mingo@elte.hu, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 16 Nov 2011 09:18:38 +0200, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> My unlocked kick patches will trip this warning: they make
-> virtio-net do add + get without kick.
-
-Heh, it's a good sign if they do, since that means you're running really
-well :)
-
-> I think block with unlocked kick can trip it too:
-> add, lock is dropped and then an interrupt can get.
+On Tue, 15 Nov 2011 01:43:13 +0200, Sasha Levin <levinsasha928@gmail.com> wrote:
+> From: "Michael S. Tsirkin" <mst@redhat.com>
 > 
-> We also don't need a kick each num - each 2^15 is enough.
-> Why don't we do this at start of add_buf:
-> if (vq->num_added >= 0x7fff)
-> 	return -ENOSPC;
+> Add a flexible mechanism to specify virtio configuration layout, using
+> pci vendor-specific capability.  A separate capability is used for each
+> of common, device specific and data-path accesses.
 
-The warning was there in case a driver is never doing a kick, and
-getting away with it (mostly) because the device is polling.  Let's not
-penalize good drivers to catch bad ones.
+OK, a couple of minor suggestions:
 
-How about we do this properly, like so:
+> +static int virtio_pci_iomap(struct virtio_pci_device *vp_dev)
+> +{
+> +	vp_dev->isr_map = virtio_pci_map_cfg(vp_dev,
+> +					     VIRTIO_PCI_CAP_ISR_CFG,
+> +					     sizeof(u8));
+> +	vp_dev->notify_map = virtio_pci_map_cfg(vp_dev,
+> +						VIRTIO_PCI_CAP_NOTIFY_CFG,
+> +						sizeof(u16));
+> +	vp_dev->common_map = virtio_pci_map_cfg(vp_dev,
+> +						VIRTIO_PCI_CAP_COMMON_CFG,
+> +						sizeof(u32));
+> +	vp_dev->device_map = virtio_pci_map_cfg(vp_dev,
+> +						VIRTIO_PCI_CAP_DEVICE_CFG,
+> +						sizeof(u8));
+> +
+> +	if (!vp_dev->notify_map || !vp_dev->common_map ||
+> +	    !vp_dev->device_map) {
+> +		/*
+> +		 * If not all capabilities present, map legacy PIO.
+> +		 * Legacy access is at BAR 0. We never need to map
+> +		 * more than 256 bytes there, since legacy config space
+> +		 * used PIO which has this size limit.
+> +		 * */
+> +		vp_dev->legacy_map = pci_iomap(vp_dev->pci_dev, 0, 256);
+> +		if (!vp_dev->legacy_map) {
+> +			dev_err(&vp_dev->vdev.dev, "Unable to map legacy PIO");
+> +			goto err;
+> +		}
+> +	}
 
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: virtio: add debugging if driver doesn't kick.
+Please don't mix the two.  Ever, under any circumstances.  If it helps,
+put CONFIG_VIRTIO_PCI_LEGACY #ifdefs in there:
 
-Under the existing #ifdef DEBUG, check that they don't have more than
-1/10 of a second between an add_buf() and a
-virtqueue_notify()/virtqueue_kick_prepare() call.
+	vp_dev->common_map = virtio_pci_map_cfg(vp_dev,
+						VIRTIO_PCI_CAP_COMMON_CFG,
+						sizeof(u32));
+        /* Something horribly wrong? */
+        if (IS_ERR(vp_dev->common_map)) {
+                err = PTR_ERR(vp_dev->common_map);
+                goto fail;
+        }
 
-We could get false positives on a really busy system, but good for
-development.
+        /* Not found? */
+        if (!vp_dev->common_map)
+                return legacy_setup(vp_dev, ...);
 
-Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
----
- drivers/virtio/virtio_ring.c |   31 +++++++++++++++++++++++++++++++
- 1 file changed, 31 insertions(+)
+        ...
 
-diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -22,6 +22,7 @@
- #include <linux/device.h>
- #include <linux/slab.h>
- #include <linux/module.h>
-+#include <linux/hrtimer.h>
- 
- /* virtio guest is communicating with a virtual "device" that actually runs on
-  * a host processor.  Memory barriers are used to control SMP effects. */
-@@ -102,6 +103,10 @@ struct vring_virtqueue
- #ifdef DEBUG
- 	/* They're supposed to lock for us. */
- 	unsigned int in_use;
-+
-+	/* Figure out if their kicks are too delayed. */
-+	bool last_add_time_valid;
-+	ktime_t last_add_time;
- #endif
- 
- 	/* Tokens for callbacks. */
-@@ -192,6 +197,19 @@ int virtqueue_add_buf(struct virtqueue *
- 
- 	BUG_ON(data == NULL);
- 
-+#ifdef DEBUG
-+	{
-+		ktime_t now = ktime_get();
-+
-+		/* No kick or get, with .1 second between?  Warn. */
-+		if (vq->last_add_time_valid)
-+			WARN_ON(ktime_to_ms(ktime_sub(now, vq->last_add_time))
-+					    > 100);
-+		vq->last_add_time = now;
-+		vq->last_add_time_valid = true;
-+	}
-+#endif
-+
- 	/* If the host supports indirect descriptor tables, and we have multiple
- 	 * buffers, then go indirect. FIXME: tune this threshold */
- 	if (vq->indirect && (out + in) > 1 && vq->num_free) {
-@@ -291,6 +309,14 @@ bool virtqueue_kick_prepare(struct virtq
- 	new = vq->vring.avail->idx;
- 	vq->num_added = 0;
- 
-+#ifdef DEBUG
-+	if (vq->last_add_time_valid) {
-+		WARN_ON(ktime_to_ms(ktime_sub(ktime_get(),
-+					      vq->last_add_time)) > 100);
-+	}
-+	vq->last_add_time_valid = false;
-+#endif
-+
- 	if (vq->event) {
- 		needs_kick = vring_need_event(vring_avail_event(&vq->vring),
- 					      new, old);
-@@ -428,6 +454,10 @@ void *virtqueue_get_buf(struct virtqueue
- 		virtio_mb();
- 	}
- 
-+#ifdef DEBUG
-+	vq->last_add_time_valid = false;
-+#endif
-+
- 	END_USE(vq);
- 	return ret;
- }
-@@ -611,6 +641,7 @@ struct virtqueue *vring_new_virtqueue(un
- 	list_add_tail(&vq->vq.list, &vdev->vqs);
- #ifdef DEBUG
- 	vq->in_use = false;
-+	vq->last_add_time_valid = false;
- #endif
- 
- 	vq->indirect = virtio_has_feature(vdev, VIRTIO_RING_F_INDIRECT_DESC);
+Practice has shown that if we allow something, it'll be done.  We should
+break horribly on malformed devices, and really really only fall back
+when we have a well-formed, but old, device.
+
+And various other legacy paths can happily use:
+
+#ifdef CONFIG_VIRTIO_PCI_LEGACY
+#define is_legacy(vp_dev) ((vp_dev)->legacy_map != NULL)
+#else
+#define is_legacy(vp_dev) false
+#endif
+
+Here's suggested Kconfig entry:
+
+config VIRTIO_PCI_LEGACY
+	bool
+        default y
+	depends on VIRTIO_PCI
+	---help---
+	  Look out into your driveway.  Do you have a flying car?  If
+          so, you can happily disable this option and virtio will not
+          break.  Otherwise, leave it set.  Unless you're testing what
+          life will be like in The Future.
+
+Cheers,
+Rusty.
