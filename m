@@ -1,18 +1,16 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH 5 of 5] virtio: expose added descriptors immediately
-Date: Mon, 21 Nov 2011 13:57:04 +0200
-Message-ID: <20111121115702.GA27580@redhat.com>
-References: <patchbomb.1320306168@localhost6.localdomain6>
-	<f3831c1617c86a51d875.1320306173@localhost6.localdomain6>
-	<20111113210256.GA31621@redhat.com>
-	<20111114065606.GA3779@redhat.com> <871ut8q5mh.fsf@rustcorp.com.au>
-	<20111116071838.GE5433@redhat.com> <8739dib5z6.fsf@rustcorp.com.au>
+From: Pawel Moll <pawel.moll@arm.com>
+Subject: Re: [PATCH] virtio-mmio: Devices parameter parsing
+Date: Mon, 21 Nov 2011 14:44:48 +0000
+Message-ID: <1321886688.3093.248.camel@hornet.cambridge.arm.com>
+References: <1321365185-2928-1-git-send-email-pawel.moll@arm.com>
+	<87sjlooq3m.fsf@rustcorp.com.au>
+	<1321467222.3137.417.camel@hornet.cambridge.arm.com>
+	<87vcqe9ml9.fsf@rustcorp.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <8739dib5z6.fsf@rustcorp.com.au>
+In-Reply-To: <87vcqe9ml9.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,126 +21,55 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization <virtualization@lists.linux-foundation.org>
+Cc: Peter Maydell <peter.maydell@linaro.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Sasha Levin <levinsasha928@gmail.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Nov 21, 2011 at 12:18:45PM +1030, Rusty Russell wrote:
-> On Wed, 16 Nov 2011 09:18:38 +0200, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> > My unlocked kick patches will trip this warning: they make
-> > virtio-net do add + get without kick.
-> 
-> Heh, it's a good sign if they do, since that means you're running really
-> well :)
-
-They don't in fact, in my testing :(. But I think they can with luck.
-
-> > I think block with unlocked kick can trip it too:
-> > add, lock is dropped and then an interrupt can get.
-> > 
-> > We also don't need a kick each num - each 2^15 is enough.
-> > Why don't we do this at start of add_buf:
-> > if (vq->num_added >= 0x7fff)
-> > 	return -ENOSPC;
-> 
-> The warning was there in case a driver is never doing a kick, and
-> getting away with it (mostly) because the device is polling.  Let's not
-> penalize good drivers to catch bad ones.
-> 
-> How about we do this properly, like so:
-
-Absolutely. But I think we also need to handle num_added
-overflow of a 15 bit counter, no? Otherwise the
-vring_need_event logic might give us false negatives ....
-I'm guessing we can just assume we need a kick in that case.
-
-> From: Rusty Russell <rusty@rustcorp.com.au>
-> Subject: virtio: add debugging if driver doesn't kick.
-> 
-> Under the existing #ifdef DEBUG, check that they don't have more than
-> 1/10 of a second between an add_buf() and a
-> virtqueue_notify()/virtqueue_kick_prepare() call.
-> 
-> We could get false positives on a really busy system, but good for
-> development.
-> 
-> Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
-> ---
->  drivers/virtio/virtio_ring.c |   31 +++++++++++++++++++++++++++++++
->  1 file changed, 31 insertions(+)
-> 
-> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> --- a/drivers/virtio/virtio_ring.c
-> +++ b/drivers/virtio/virtio_ring.c
-> @@ -22,6 +22,7 @@
->  #include <linux/device.h>
->  #include <linux/slab.h>
->  #include <linux/module.h>
-> +#include <linux/hrtimer.h>
->  
->  /* virtio guest is communicating with a virtual "device" that actually runs on
->   * a host processor.  Memory barriers are used to control SMP effects. */
-> @@ -102,6 +103,10 @@ struct vring_virtqueue
->  #ifdef DEBUG
->  	/* They're supposed to lock for us. */
->  	unsigned int in_use;
-> +
-> +	/* Figure out if their kicks are too delayed. */
-> +	bool last_add_time_valid;
-> +	ktime_t last_add_time;
->  #endif
->  
->  	/* Tokens for callbacks. */
-> @@ -192,6 +197,19 @@ int virtqueue_add_buf(struct virtqueue *
->  
->  	BUG_ON(data == NULL);
->  
-> +#ifdef DEBUG
-> +	{
-> +		ktime_t now = ktime_get();
-> +
-> +		/* No kick or get, with .1 second between?  Warn. */
-> +		if (vq->last_add_time_valid)
-> +			WARN_ON(ktime_to_ms(ktime_sub(now, vq->last_add_time))
-> +					    > 100);
-> +		vq->last_add_time = now;
-> +		vq->last_add_time_valid = true;
-> +	}
-> +#endif
-> +
->  	/* If the host supports indirect descriptor tables, and we have multiple
->  	 * buffers, then go indirect. FIXME: tune this threshold */
->  	if (vq->indirect && (out + in) > 1 && vq->num_free) {
-> @@ -291,6 +309,14 @@ bool virtqueue_kick_prepare(struct virtq
->  	new = vq->vring.avail->idx;
->  	vq->num_added = 0;
->  
-> +#ifdef DEBUG
-> +	if (vq->last_add_time_valid) {
-> +		WARN_ON(ktime_to_ms(ktime_sub(ktime_get(),
-> +					      vq->last_add_time)) > 100);
-> +	}
-> +	vq->last_add_time_valid = false;
-> +#endif
-> +
->  	if (vq->event) {
->  		needs_kick = vring_need_event(vring_avail_event(&vq->vring),
->  					      new, old);
-> @@ -428,6 +454,10 @@ void *virtqueue_get_buf(struct virtqueue
->  		virtio_mb();
->  	}
->  
-> +#ifdef DEBUG
-> +	vq->last_add_time_valid = false;
-> +#endif
-> +
->  	END_USE(vq);
->  	return ret;
->  }
-> @@ -611,6 +641,7 @@ struct virtqueue *vring_new_virtqueue(un
->  	list_add_tail(&vq->vq.list, &vdev->vqs);
->  #ifdef DEBUG
->  	vq->in_use = false;
-> +	vq->last_add_time_valid = false;
->  #endif
->  
->  	vq->indirect = virtio_has_feature(vdev, VIRTIO_RING_F_INDIRECT_DESC);
+T24gTW9uLCAyMDExLTExLTIxIGF0IDAzOjMyICswMDAwLCBSdXN0eSBSdXNzZWxsIHdyb3RlOgo+
+IE5vIGl0J3Mgbm90OyBJIGRpZG4ndCBib3RoZXIgd2hlbiBJIGNvbnZlcnRlZCB0aGluZ3MgYWNy
+b3NzLCBhbmQgaXQKPiBzaG93cy4gIAoKNTQ2OTcwYmMgKFJ1c3R5IFJ1c3NlbGwgICAyMDEwLTA4
+LTExIDIzOjA0OjIwIC0wNjAwIDEzMykgI2RlZmluZSBtb2R1bGVfcGFyYW1fY2IKCk5vdyBJIHVu
+ZGVyc3RhbmQuLi4gOi0pCgo+IEJ1dCB3ZSBleHBlY3QgdmlydGlvIGhhY2tlcnMgdG8gYmUgc21h
+cnRlciB0aGFuIGF2ZXJhZ2UgOikKCkhvcGUgSSdsbCBzdGFuZCB1cCB0byB0aGUgY2hhbGxlbmdl
+IDstKQoKPiA+IHRoZXJlIHdvdWxkIGJlIGEgY2xhc2guIFNvIEkgd2FudGVkIHRvIGFkZCBhICJm
+aXJzdF9pZCIgcGFyYW1ldGVyLCBidXQKPC4uLj4KPiBXZWxsLCB0ZWxsIHRoZW0gdG8gZ2V0IHRo
+ZSBjbWRsaW5lIG9yZGVyIHJpZ2h0LCBvciBhbGxvdyBhbiBleHBsaWNpdAo+IGRldmljZSBpZCBp
+biB0aGUgY29tbWFuZGxpbmUuCgpZZWFoLCBJJ3ZlIGNhbWUgdXAgd2l0aCB0aGUgc2FtZSBpZGVh
+IGxhc3QgbmlnaHQ6CgoJPHNpemU+W0tNR11APGJhc2U+OjxpcnE+Wzo8aWQ+XQoKPGlkPiwgaWYg
+c3BlY2lmaWVkLCBzZXRzIHRoZSBpZCBmb3IgdGhlIGN1cnJlbnQgZGV2aWNlIGFuZCBhIGJhc2Ug
+Zm9yCnRoZSBuZXh0IG9uZS4KCj4gU2luY2UgSSBob3BlIHdlJ3JlIGdvaW5nIHRvIGJlIGNvZGlu
+ZyB0b2dldGhlciBtb3JlIG9mdGVuLCBJJ3ZlIHdyaXR0ZW4KPiB0aGlzIGhvdyBJIHdvdWxkIGhh
+dmUgZG9uZSBpdCAoYmFzZWQgbG9vc2VseSBvbiB5b3VyIHZlcnNpb24pIHRvCj4gY29tcGFyZS4K
+ClRoYW5rcywgeW91ciBlZmZvcnRzIGFyZSB0cnVseSBhcHByZWNpYXRlZCEKCj4gTWFpbiBjaGFu
+Z2VzIG90aGVyIHRoYW4gdGhlIG9idmlvdXM6Cj4gMSkgRG9jdW1lbnRhdGlvbiBpbiBrZXJuZWwt
+cGFyYW1ldGVycy50eHQKCkkgd2FzIGNvbnNpZGVyaW5nIHRoaXMgcHJldmlvdXNseSBidXQgZm9y
+IHNvbWUgcmVhc29uIEkgdGhvdWdodAprZXJuZWwtcGFyYW1ldGVycy50eHQgd2Fzbid0IGEgcGxh
+Y2UgZm9yIG1vZHVsZSBwYXJhbWV0ZXJzIGF0IGFsbC4gTm93IEkKaGFkIGFub3RoZXIgbG9vayBh
+bmQgc2VlIEkgd2FzIHdyb25nLgoKPiAyKSBEb2Vzbid0IGxlYWsgbWVtIG9uIGVycm9yIHBhdGhz
+LgoKRW0sIEkgZG9uJ3QgdGhpbmsgbXkgY29kZSB3YXMgbGVha2luZyBtZW1vcnkgaW4gYW55IGVy
+cm9yIGNhc2U/IChubwpvZmZlbmNlIG1lYW50IG9yIHRha2VuIDstKQoKPiAzKSBIYW5kbGVzIGVy
+cm9yIGZyb20gcGxhdGZvcm1fZGV2aWNlX3JlZ2lzdGVyX3Jlc25kYXRhKCkuCgpBcyBteSBjb2Rl
+IHdhcyBpZ25vcmluZyB3cm9uZyBkZXNjcmlwdGlvbnMgKGFsbCB0aGUgY29udGludWVzKSBJIGln
+bm9yZWQKdGhpcyByZXN1bHQgYXMgd2VsbCAodGhlIGltcGxlbWVudGF0aW9uIGNvbXBsYWlucyBv
+biBpdHMgb3duIGFueXdheSksCmJ1dCBJIGdldCB5b3VyIHBvaW50LgoKPiA0KSBVc2VzIHNob3J0
+ZXIgbmFtZXMgZm9yIHN0YXRpYyBmdW5jdGlvbnMvdmFyaWFibGVzLgoKQWgsIEkgZ2V0IHRoZSBo
+aW50IDotKSBJJ20gdHJ5aW5nIHRvIGtlZXAgdGhlIG5hbWluZyBjb252ZW50aW9uIGluCnN0YXRp
+YyBzeW1ib2xzIGFzIHdlbGwsIGFzIGl0IG1ha2VzIGNzY29wZS9jdGFncy9ncmVwIHVzYWdlIGVh
+c2llci4uLgpJJ2xsIGp1c3QgdXNlIHRoZSBhYmJyZXZpYXRlZCAidm1fIiBwcmVmaXhlcyB0aGVu
+LgoKPiBTZWUgd2hhdCB5b3UgdGhpbmsuLi4KCkZ1bm5pbHkgZW5vdWdoIHdoZW4gSSBwcm9wb3Nl
+ZCBzb21lIHN0cmluZyBwYXJzZXIgZmV3IHllYXJzIGFnbyAodG90YWxseQpkaWZmZXJlbnQgc3Rv
+cnkpIEkgd2FzIGZsYW1lZCBmb3IgdXNpbmcgc3RyY2hyKCkgaW5zdGVhZCBvZiBzdHJzZXAoKSA7
+LSkKQnV0IG9rLCBJIGRvbid0IG1pbmQgZ2V0dGluZyBiYWNrIHRvIGJhc2ljcy4KCj4gK3N0YXRp
+YyBpbnQgc2V0X2NtZGxpbmVfZGV2aWNlKGNvbnN0IGNoYXIgKmRldmljZSwgY29uc3Qgc3RydWN0
+IGtlcm5lbF9wYXJhbSAqa3ApClsuLi5dCj4gKyAgICAgICBkZWxpbSA9IHN0cmNocihkZXZpY2Us
+ICdAJyk7ClsuLi5dCj4gKwkqZGVsaW0gPSAnXDAnOwoKQWguIEkgZm9yZ290IHRoYXQgc3RyY2hy
+KCkgdGFrZXMgY29uc3QgY2hhciAqIGJ1dCByZXR1cm5zICJub24tY29uc3QiCmNoYXIgKi4uLiBD
+aGVhdGluZywgdGhhdCdzIHdoYXQgaXQgaXMgOy0pLCBidXQgd2lsbCB3b3JrLiBQcm9iYWJseSB3
+aGF0CndlIHJlYWxseSB3YW50IGlzIHNvbWV0aGluZyBsaWtlCglrc3RydG91bGxfZGVsaW0oZGV2
+aWNlLCAwLCAmdmFsLCAiQFwwIikKSSdsbCBoYXZlIGEgbG9vayBhbmQgbWF5IHRyeSB0byBwcm9w
+b3NlIHNvbWV0aGluZyBvZiB0aGF0IHNvcnQsIGJ1dAp0aGF0J3MgYW5vdGhlciBzdG9yeS4gTWF5
+YmUgSSBzaG91bGQganVzdCB1c2Ugc2ltcGxlX3N0cnRvbCgpIGZvciB0aGUKdGltZSBiZWluZz8K
+CkknbGwgcG9zdCB2MyB0b25pZ2h0IG9yIHRvbW9ycm93LgoKQ2hlZXJzIQoKUGF3ZcWCCgoKX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRp
+b24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3Jn
+Cmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1
+YWxpemF0aW9u
