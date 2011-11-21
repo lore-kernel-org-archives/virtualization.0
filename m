@@ -1,15 +1,18 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [RFC 1/5] virtio-pci: flexible configuration layout
-Date: Mon, 21 Nov 2011 11:31:31 +1030
-Message-ID: <878vnab85w.fsf__5795.89517224139$1321846569$gmane$org@rustcorp.com.au>
-References: <20111114181854.GA24953@redhat.com>
-	<1321314197-5265-1-git-send-email-levinsasha928@gmail.com>
-	<1321314197-5265-2-git-send-email-levinsasha928@gmail.com>
+Subject: Re: [RFC] kvm tools: Implement multiple VQ for virtio-net
+Date: Mon, 21 Nov 2011 11:11:33 +1030
+Message-ID: <87bos6b936.fsf@rustcorp.com.au>
+References: <1321049521-26376-1-git-send-email-levinsasha928@gmail.com>
+	<20111113102428.GD15322@redhat.com>
+	<1321196430.2425.2.camel@sasha> <4EC07729.3050303@gmail.com>
+	<CAOJsxLE4yRO+5XncrDEzVh5-RGXG+=HGTAmQ=bX=KMsDqf=feA@mail.gmail.com>
+	<20111114130507.GA18288@redhat.com>
+	<877h31ortx.fsf@rustcorp.com.au> <20111116072317.GG5433@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1321314197-5265-2-git-send-email-levinsasha928@gmail.com>
+In-Reply-To: <20111116072317.GG5433@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,90 +22,37 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Sasha Levin <levinsasha928@gmail.com>, linux-kernel@vger.kernel.org
-Cc: penberg@kernel.org, mingo@elte.hu, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, mst@redhat.com
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Krishna Kumar <krkumar2@in.ibm.com>, gorcunov@gmail.com, kvm@vger.kernel.org, Asias He <asias.hejun@gmail.com>, virtualization@lists.linux-foundation.org, Pekka Enberg <penberg@kernel.org>, Sasha Levin <levinsasha928@gmail.com>, netdev@vger.kernel.org, mingo@elte.hu, Stephen Hemminger <shemminger@vyatta.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 15 Nov 2011 01:43:13 +0200, Sasha Levin <levinsasha928@gmail.com> wrote:
-> From: "Michael S. Tsirkin" <mst@redhat.com>
+On Wed, 16 Nov 2011 09:23:17 +0200, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> On Wed, Nov 16, 2011 at 10:34:42AM +1030, Rusty Russell wrote:
+> > On Mon, 14 Nov 2011 15:05:07 +0200, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> > > On Mon, Nov 14, 2011 at 02:25:17PM +0200, Pekka Enberg wrote:
+> > > > On Mon, Nov 14, 2011 at 4:04 AM, Asias He <asias.hejun@gmail.com> wrote:
+> > > > > Why both the bandwidth and latency performance are dropping so dramatically
+> > > > > with multiple VQ?
+> > > > 
+> > > > What's the expected benefit from multiple VQs
+> > > 
+> > > Heh, the original patchset didn't mention this :) It really should.
+> > > They are supposed to speed up networking for high smp guests.
+> > 
+> > If we have one queue per guest CPU, does this allow us to run lockless?
+> > 
+> > Thanks,
+> > Rusty.
 > 
-> Add a flexible mechanism to specify virtio configuration layout, using
-> pci vendor-specific capability.  A separate capability is used for each
-> of common, device specific and data-path accesses.
+> LLTX? It's supposed to be deprecated, isn't it?
 
-OK, a couple of minor suggestions:
+I was referring back to "Subject: virtio net lockless ring" which
+Stephen sent back in June, nothing more specific.
 
-> +static int virtio_pci_iomap(struct virtio_pci_device *vp_dev)
-> +{
-> +	vp_dev->isr_map = virtio_pci_map_cfg(vp_dev,
-> +					     VIRTIO_PCI_CAP_ISR_CFG,
-> +					     sizeof(u8));
-> +	vp_dev->notify_map = virtio_pci_map_cfg(vp_dev,
-> +						VIRTIO_PCI_CAP_NOTIFY_CFG,
-> +						sizeof(u16));
-> +	vp_dev->common_map = virtio_pci_map_cfg(vp_dev,
-> +						VIRTIO_PCI_CAP_COMMON_CFG,
-> +						sizeof(u32));
-> +	vp_dev->device_map = virtio_pci_map_cfg(vp_dev,
-> +						VIRTIO_PCI_CAP_DEVICE_CFG,
-> +						sizeof(u8));
-> +
-> +	if (!vp_dev->notify_map || !vp_dev->common_map ||
-> +	    !vp_dev->device_map) {
-> +		/*
-> +		 * If not all capabilities present, map legacy PIO.
-> +		 * Legacy access is at BAR 0. We never need to map
-> +		 * more than 256 bytes there, since legacy config space
-> +		 * used PIO which has this size limit.
-> +		 * */
-> +		vp_dev->legacy_map = pci_iomap(vp_dev->pci_dev, 0, 256);
-> +		if (!vp_dev->legacy_map) {
-> +			dev_err(&vp_dev->vdev.dev, "Unable to map legacy PIO");
-> +			goto err;
-> +		}
-> +	}
+I assumed from his query that this was still an active area of
+exploration...
 
-Please don't mix the two.  Ever, under any circumstances.  If it helps,
-put CONFIG_VIRTIO_PCI_LEGACY #ifdefs in there:
+Stephen?
 
-	vp_dev->common_map = virtio_pci_map_cfg(vp_dev,
-						VIRTIO_PCI_CAP_COMMON_CFG,
-						sizeof(u32));
-        /* Something horribly wrong? */
-        if (IS_ERR(vp_dev->common_map)) {
-                err = PTR_ERR(vp_dev->common_map);
-                goto fail;
-        }
-
-        /* Not found? */
-        if (!vp_dev->common_map)
-                return legacy_setup(vp_dev, ...);
-
-        ...
-
-Practice has shown that if we allow something, it'll be done.  We should
-break horribly on malformed devices, and really really only fall back
-when we have a well-formed, but old, device.
-
-And various other legacy paths can happily use:
-
-#ifdef CONFIG_VIRTIO_PCI_LEGACY
-#define is_legacy(vp_dev) ((vp_dev)->legacy_map != NULL)
-#else
-#define is_legacy(vp_dev) false
-#endif
-
-Here's suggested Kconfig entry:
-
-config VIRTIO_PCI_LEGACY
-	bool
-        default y
-	depends on VIRTIO_PCI
-	---help---
-	  Look out into your driveway.  Do you have a flying car?  If
-          so, you can happily disable this option and virtio will not
-          break.  Otherwise, leave it set.  Unless you're testing what
-          life will be like in The Future.
-
-Cheers,
+Thanks,
 Rusty.
