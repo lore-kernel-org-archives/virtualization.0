@@ -1,12 +1,17 @@
-From: Ioan Raicu <iraicu@cs.iit.edu>
-Subject: CFP: CCGrid 2012 deadline extension
-Date: Sun, 20 Nov 2011 08:52:41 -0600
-Message-ID: <4EC91439.2030806@cs.iit.edu>
-Reply-To: iraicu@cs.iit.edu
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH 5 of 5] virtio: expose added descriptors immediately
+Date: Mon, 21 Nov 2011 12:18:45 +1030
+Message-ID: <8739dib5z6.fsf@rustcorp.com.au>
+References: <patchbomb.1320306168@localhost6.localdomain6>
+	<f3831c1617c86a51d875.1320306173@localhost6.localdomain6>
+	<20111113210256.GA31621@redhat.com>
+	<20111114065606.GA3779@redhat.com> <871ut8q5mh.fsf@rustcorp.com.au>
+	<20111116071838.GE5433@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20111116071838.GE5433@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,235 +21,119 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-****************
+On Wed, 16 Nov 2011 09:18:38 +0200, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> My unlocked kick patches will trip this warning: they make
+> virtio-net do add + get without kick.
 
-DEADLINE EXTENSION (CCGrid 2012)
-Must submit paper by November 25, but can update submission until 
-December 2, 2011.
+Heh, it's a good sign if they do, since that means you're running really
+well :)
 
-****************
+> I think block with unlocked kick can trip it too:
+> add, lock is dropped and then an interrupt can get.
+> 
+> We also don't need a kick each num - each 2^15 is enough.
+> Why don't we do this at start of add_buf:
+> if (vq->num_added >= 0x7fff)
+> 	return -ENOSPC;
 
-12th IEEE/ACM International Symposium on Cluster, Cloud and Grid
+The warning was there in case a driver is never doing a kick, and
+getting away with it (mostly) because the device is polling.  Let's not
+penalize good drivers to catch bad ones.
 
-Computing (CCGrid 2012) Ottawa, Canada
+How about we do this properly, like so:
 
-May 13-16, 2012
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: virtio: add debugging if driver doesn't kick.
 
-http://www.cloudbus.org/ccgrid2012
+Under the existing #ifdef DEBUG, check that they don't have more than
+1/10 of a second between an add_buf() and a
+virtqueue_notify()/virtqueue_kick_prepare() call.
 
+We could get false positives on a really busy system, but good for
+development.
 
-CALL FOR PAPERS
+Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+---
+ drivers/virtio/virtio_ring.c |   31 +++++++++++++++++++++++++++++++
+ 1 file changed, 31 insertions(+)
 
-Rapid advances in processing, communication and systems/middleware
-technologies are leading to new paradigms and platforms for computing,
-ranging from computing Clusters to widely distributed Grid and
-emerging Clouds. CCGrid is a series of very successful conferences,
-sponsored by the IEEE Computer Society Technical Committee on Scalable
-Computing (TCSC) and ACM, with the overarching goal of bringing
-together international researchers, developers, and users and to
-provide an international forum to present leading research activities
-and results on a broad range of topics related to these platforms and
-paradigms and their applications. The conference features keynotes,
-technical presentations, posters and research demos, workshops,
-tutorials, as well as the SCALE challenges featuring live
-demonstrations.
-
-In 2012, CCGrid will come to Canada for the first time and will be
-held in Ottawa, the capital city. CCGrid 2012 will have a focus on
-important and immediate issues that are significantly influencing all
-aspects of cluster, cloud and grid computing. Topics of interest
-include, but are not limited to:
-
-  * Applications and Experiences: Applications to real and complex
-    problems in science, engineering, business and society; User
-    studies; Experiences with large-scale deployments systems or
-    applications.
-
-  * Architecture: System architectures, Design and deployment.
-
-  * Autonomic Computing and Cyberinfrastructure: Self managed behavior,
-    models and technologies; Autonomic paradigms and approaches
-    (control-based, bio-inspired, emergent, etc.); Bio-inspired
-    approaches to management; SLA definition and enforcement.
-
-  * Performance Modeling and Evaluation: Performance models; Monitoring
-    and evaluation tools, Analysis of system/application performance;
-    Benchmarks and testbeds.
-
-  * Programming Models, Systems, and Fault-Tolerant Computing:
-    Programming models for cluster, clouds and grid computing; fault
-    tolerant infrastructure and algorithms; systems software to enable
-    efficient computing.
-
-  * Multicore and Accelerator-based Computing: Software and application
-    techniques to utilize multicore architectures and
-    accelerators/heterogeneous computing systems.
-
-  * Scheduling and Resource Management: Techniques to schedule jobs and
-    resources on clusters, clouds and grid computing platforms.
-
-  * Cloud Computing: Cloud architectures; Software tools and techniques
-    for clouds.
-
-
-PAPER SUBMISSION
-
-Authors are invited to submit papers electronically. Submitted
-manuscripts should be structured as technical papers and may not
-exceed 8 letter size (8.5 x 11) pages including figures, tables and
-references using the IEEE format for conference proceedings:
-
-http://www.computer.org/portal/web/cscps/formatting
-
-Submissions not conforming to these guidelines may be
-returned without review. Authors should submit the manuscript in PDF
-format and make sure that the file will print on a printer that uses
-letter size (8.5 x 11) paper. The official language of the meeting is
-English. All manuscripts will be reviewed and will be judged on
-correctness, originality, technical strength, significance, quality of
-presentation, and interest and relevance to the conference attendees.
-
-Submitted papers must represent original unpublished research that is
-not currently under review for any other conference or journal. Papers
-not following these guidelines will be rejected without review and
-further action may be taken, including (but not limited to)
-notifications sent to the heads of the institutions of the authors and
-sponsors of the conference. Submissions received after the due date,
-exceeding the page limit, or not appropriately structured may not be
-considered. Authors may contact the conference chairs for more
-information. The proceedings will be published through the IEEE
-Computer Society Press, USA and will be made available online through
-the IEEE Digital Library.
-
-
-Submission Link:
-
-https://www.easychair.org/account/signin.cgi?conf=ccgrid2012
-
-
-JOURNAL SPECIAL ISSUE
-
-Highly rated Top 6 papers from the CCGrid 2012 conference will be
-invited to extend for publication in a special issue of the "Future
-Generation Computer Systems (FGCS)" Journal published by
-Elsevier Press.
-
-
-CHAIRS
-
-General Chair
-
-  * Shikharesh Majumdar, Carleton University, Canada
-
-Honorary Chair
-
-  * Geoffrey Fox, Indiana University, USA
-
-Program Committee Co-Chairs
-
-  * Rajkumar Buyya, University of Melbourne, Australia
-  * Pavan Balaji, Argonne National Laboratory, USA
-
-Program Committee Vice-chairs
-
-  * Daniel S. Katz (Applications and Experiences)
-  * Dhabaleswar K. Panda (Architecture)
-  * Manish Parashar (Middleware, Autonomic Computing, and 
-Cyberinfrastructure)
-  * Ahmad Afsahi (Performance Modeling and Analysis)
-  * Xian-He Sun (Performance Measurement and Evaluation)
-  * William Gropp (Programming Models, Systems, and Fault-Tolerant 
-computing)
-  * David Bader (Multicore and Accelerator-based Computing)
-  * Thomas Fahringer (Scheduling and Resource Management)
-  * Ignacio Martin Llorente and Madhusudhan Govindaraju (Cloud Computing)
-
-Cyber Co-Chairs
-
-  * Anton Beloglazov, The University of Melbourne, Australia
-  * Suraj Pandey, CSIRO, Australia
-  * Trevor Gelowsky, Carleton University, Canada
-
-Workshops Co-Chairs
-
-  * Marin Litiou, York University, Canada
-  * Mukaddim Pathan, Telstra Corporation Limited, Australia
-
-Publicity Chairs
-
-  * Helen Karatza, Aristotle University of Thessaloniki, Greece
-  * Ioan Raicu, Illinois Institute of Technology&  Argonne National 
-Labs, USA
-  * Bruno Schulze, National Laboratory for Scientific Computing, Brazil
-  * G Subrahmanya VRK Rao: Cognizant technology Solutions, India
-
-Tutorials Co-Chairs
-
-  * Sushil K. Prasad, Georgia State University, USA
-  * Rob Simmonds, Westgrid, Canada
-
-Doctoral Symposium Co-Chairs
-
-  * Carlos Varela, Rensselaer Polytechnic Institute, USA
-  * Yogesh Simmhan, University of Southern California
-
-Poster and Research Demo Co-Chairs
-
-  * Suraj Pandey, CSIRO, Australia
-
-SCALE Challenge Coordinator
-
-  * Shantenu Jha, Rutgers and Loisiana State University
-
-Steering Committee
-
-  * Henri Bal, Vrije University, The Netherlands
-  * Pavan Balaji, Argonne National Laboratory, USA
-  * Rajkumar Buyya, University of Melbourne, Australia (Chair)
-  * Franck Capello, University of Paris-Sud, France
-  * Jack Dongarra, University of Tennessee&  ORNL, USA
-  * Dick Epema, Technical University of Delft, The Netherlands
-  * Thomas Fahringer, University of Innsbruck, Austria
-  * Ian Foster, University of Chicago, USA
-  * Wolfgang Gentzsch, DEISA, Germany
-  * Hai Jin, Huazhong University of Science&  Technology, China
-  * Craig Lee, The Aerospace Corporation, USA (Co-Chair)
-  * Laurent Lefevre, INRIA, France
-  * Geng Lin, Dell Inc., USA
-  * Manish Parashar, Rutgers: The State University of New Jersey, USA
-  * Shikharesh Majumdar, Carleton University, Canada
-  * Satoshi Matsuoaka, Tokyo Institute of Technology, Japan
-  * Omer Rana, Cardiff University, UK
-  * Paul Roe, Queensland University of Technology, Australia
-  * Bruno Schulze, LNCC, Brazil
-  * Nalini Venkatasubramanian, University of California, USA
-  * Carlos Varela, Rensselaer Polytechnic Institute, USA
-
-
-IMPORTANT DATES
-
-   Papers Due:             25 November 2011
-   Papers Final Revisions:     02 December 2011
-   Notification of Acceptance:     30 January 2012
-   Camera Ready Papers Due:     27 February 2012
-   Sponsors: IEEE Computer Society (TCSE)&  ACM SIGARCH (approval pending)
-
--- 
-=================================================================
-Ioan Raicu, Ph.D.
-Assistant Professor, Illinois Institute of Technology (IIT)
-Guest Research Faculty, Argonne National Laboratory (ANL)
-=================================================================
-Data-Intensive Distributed Systems Laboratory, CS/IIT
-Distributed Systems Laboratory, MCS/ANL
-=================================================================
-Cel:    1-847-722-0876
-Office: 1-312-567-5704
-Email:  iraicu@cs.iit.edu
-Web:    http://www.cs.iit.edu/~iraicu/
-Web:    http://datasys.cs.iit.edu/
-=================================================================
-=================================================================
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -22,6 +22,7 @@
+ #include <linux/device.h>
+ #include <linux/slab.h>
+ #include <linux/module.h>
++#include <linux/hrtimer.h>
+ 
+ /* virtio guest is communicating with a virtual "device" that actually runs on
+  * a host processor.  Memory barriers are used to control SMP effects. */
+@@ -102,6 +103,10 @@ struct vring_virtqueue
+ #ifdef DEBUG
+ 	/* They're supposed to lock for us. */
+ 	unsigned int in_use;
++
++	/* Figure out if their kicks are too delayed. */
++	bool last_add_time_valid;
++	ktime_t last_add_time;
+ #endif
+ 
+ 	/* Tokens for callbacks. */
+@@ -192,6 +197,19 @@ int virtqueue_add_buf(struct virtqueue *
+ 
+ 	BUG_ON(data == NULL);
+ 
++#ifdef DEBUG
++	{
++		ktime_t now = ktime_get();
++
++		/* No kick or get, with .1 second between?  Warn. */
++		if (vq->last_add_time_valid)
++			WARN_ON(ktime_to_ms(ktime_sub(now, vq->last_add_time))
++					    > 100);
++		vq->last_add_time = now;
++		vq->last_add_time_valid = true;
++	}
++#endif
++
+ 	/* If the host supports indirect descriptor tables, and we have multiple
+ 	 * buffers, then go indirect. FIXME: tune this threshold */
+ 	if (vq->indirect && (out + in) > 1 && vq->num_free) {
+@@ -291,6 +309,14 @@ bool virtqueue_kick_prepare(struct virtq
+ 	new = vq->vring.avail->idx;
+ 	vq->num_added = 0;
+ 
++#ifdef DEBUG
++	if (vq->last_add_time_valid) {
++		WARN_ON(ktime_to_ms(ktime_sub(ktime_get(),
++					      vq->last_add_time)) > 100);
++	}
++	vq->last_add_time_valid = false;
++#endif
++
+ 	if (vq->event) {
+ 		needs_kick = vring_need_event(vring_avail_event(&vq->vring),
+ 					      new, old);
+@@ -428,6 +454,10 @@ void *virtqueue_get_buf(struct virtqueue
+ 		virtio_mb();
+ 	}
+ 
++#ifdef DEBUG
++	vq->last_add_time_valid = false;
++#endif
++
+ 	END_USE(vq);
+ 	return ret;
+ }
+@@ -611,6 +641,7 @@ struct virtqueue *vring_new_virtqueue(un
+ 	list_add_tail(&vq->vq.list, &vdev->vqs);
+ #ifdef DEBUG
+ 	vq->in_use = false;
++	vq->last_add_time_valid = false;
+ #endif
+ 
+ 	vq->indirect = virtio_has_feature(vdev, VIRTIO_RING_F_INDIRECT_DESC);
