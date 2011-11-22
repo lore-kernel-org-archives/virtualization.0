@@ -1,18 +1,20 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH v3 2/3] hvc_init(): Enforce one-time initialization.
-Date: Tue, 22 Nov 2011 11:28:09 +1030
-Message-ID: <877h2tx9b2.fsf@rustcorp.com.au>
-References: <20111108214452.28884.14840.stgit@miche.sea.corp.google.com>
-	<20111108214504.28884.61814.stgit@miche.sea.corp.google.com>
-	<874nybqo0o.fsf@rustcorp.com.au>
-	<CAB8RdapbaueyWLJuJDE_ZdvLkRNM4sQHTxgmgO=jrnXZ6YPSmA@mail.gmail.com>
-	<87lira9ii7.fsf@rustcorp.com.au>
-	<CAB8Rdaqno9kVHB8wsbH5=zs_ppUkd1G=siywFFfH3Ud21qK3FA@mail.gmail.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH 5 of 5] virtio: expose added descriptors immediately
+Date: Tue, 22 Nov 2011 08:29:08 +0200
+Message-ID: <20111122062907.GB11012@redhat.com>
+References: <patchbomb.1320306168@localhost6.localdomain6>
+	<f3831c1617c86a51d875.1320306173@localhost6.localdomain6>
+	<20111113210256.GA31621@redhat.com>
+	<20111114065606.GA3779@redhat.com> <871ut8q5mh.fsf@rustcorp.com.au>
+	<20111116071838.GE5433@redhat.com> <8739dib5z6.fsf@rustcorp.com.au>
+	<20111121115702.GA27580@redhat.com>
+	<87lir9xagv.fsf@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAB8Rdaqno9kVHB8wsbH5=zs_ppUkd1G=siywFFfH3Ud21qK3FA@mail.gmail.com>
+Content-Disposition: inline
+In-Reply-To: <87lir9xagv.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,21 +24,68 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Miche Baker-Harvey <miche@google.com>
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>, xen-devel@lists.xensource.com, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Greg Kroah-Hartman <gregkh@suse.de>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Anton Blanchard <anton@samba.org>, Amit Shah <amit.shah@redhat.com>, Mike Waychison <mikew@google.com>, ppc-dev <linuxppc-dev@lists.ozlabs.org>, Eric Northrup <digitaleric@google.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, 21 Nov 2011 14:16:38 -0800, Miche Baker-Harvey <miche@google.com> wrote:
-> Thanks, Rusty.  I'm not using QEMU though, just KVM.   I create the device, wait
-> for the message from the guest that the device is ready, and then add ports.
+On Tue, Nov 22, 2011 at 11:03:04AM +1030, Rusty Russell wrote:
+> On Mon, 21 Nov 2011 13:57:04 +0200, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> > On Mon, Nov 21, 2011 at 12:18:45PM +1030, Rusty Russell wrote:
+> > > On Wed, 16 Nov 2011 09:18:38 +0200, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> > > > My unlocked kick patches will trip this warning: they make
+> > > > virtio-net do add + get without kick.
+> > > 
+> > > Heh, it's a good sign if they do, since that means you're running really
+> > > well :)
+> > 
+> > They don't in fact, in my testing :(. But I think they can with luck.
+> > 
+> > > > I think block with unlocked kick can trip it too:
+> > > > add, lock is dropped and then an interrupt can get.
+> > > > 
+> > > > We also don't need a kick each num - each 2^15 is enough.
+> > > > Why don't we do this at start of add_buf:
+> > > > if (vq->num_added >= 0x7fff)
+> > > > 	return -ENOSPC;
+> > > 
+> > > The warning was there in case a driver is never doing a kick, and
+> > > getting away with it (mostly) because the device is polling.  Let's not
+> > > penalize good drivers to catch bad ones.
+> > > 
+> > > How about we do this properly, like so:
+> > 
+> > Absolutely. But I think we also need to handle num_added
+> > overflow of a 15 bit counter, no? Otherwise the
+> > vring_need_event logic might give us false negatives ....
+> > I'm guessing we can just assume we need a kick in that case.
 > 
-> Miche
+> You're right.  Thankyou.  My immediate reaction of "make it an unsigned
+> long" doesn't work.
+> 
+> Here's the diff to what I posted before:
+> 
+> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+> --- a/drivers/virtio/virtio_ring.c
+> +++ b/drivers/virtio/virtio_ring.c
+> @@ -254,9 +254,10 @@ add_head:
+>  	vq->vring.avail->idx++;
+>  	vq->num_added++;
+>  
+> -	/* If you haven't kicked in this long, you're probably doing something
+> -	 * wrong. */
+> -	WARN_ON(vq->num_added > vq->vring.num);
+> +	/* This is very unlikely, but theoretically possible.  Kick
+> +	 * just in case. */
+> +	if (unlikely(vq->num_added == 65535))
 
-OK, since Amit was the one who implemented multi-port console, I'm going
-to hand this to him.
+This is 0xffff but why use the decimal notation?
 
-I'm sure he's been looking for excuses to dive back into the console
-code!
+> +		virtqueue_kick(_vq);
+>  
+>  	pr_debug("Added buffer head %i to %p\n", head, vq);
+>  	END_USE(vq);
 
-Cheers,
-Rusty.
+We also still need to reset vq->num_added, right?
+
+-- 
+MST
