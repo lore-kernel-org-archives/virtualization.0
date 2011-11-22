@@ -1,17 +1,18 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH] virtio-mmio: Devices parameter parsing
-Date: Tue, 22 Nov 2011 11:14:18 +1030
-Message-ID: <87ipmdx9y5.fsf@rustcorp.com.au>
-References: <1321365185-2928-1-git-send-email-pawel.moll@arm.com>
-	<87sjlooq3m.fsf@rustcorp.com.au>
-	<1321467222.3137.417.camel@hornet.cambridge.arm.com>
-	<87vcqe9ml9.fsf@rustcorp.com.au>
-	<1321886688.3093.248.camel@hornet.cambridge.arm.com>
+Subject: Re: [PATCH v3 2/3] hvc_init(): Enforce one-time initialization.
+Date: Tue, 22 Nov 2011 11:28:09 +1030
+Message-ID: <877h2tx9b2.fsf@rustcorp.com.au>
+References: <20111108214452.28884.14840.stgit@miche.sea.corp.google.com>
+	<20111108214504.28884.61814.stgit@miche.sea.corp.google.com>
+	<874nybqo0o.fsf@rustcorp.com.au>
+	<CAB8RdapbaueyWLJuJDE_ZdvLkRNM4sQHTxgmgO=jrnXZ6YPSmA@mail.gmail.com>
+	<87lira9ii7.fsf@rustcorp.com.au>
+	<CAB8Rdaqno9kVHB8wsbH5=zs_ppUkd1G=siywFFfH3Ud21qK3FA@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1321886688.3093.248.camel@hornet.cambridge.arm.com>
+In-Reply-To: <CAB8Rdaqno9kVHB8wsbH5=zs_ppUkd1G=siywFFfH3Ud21qK3FA@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,68 +22,21 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Pawel Moll <pawel.moll@arm.com>
-Cc: Peter Maydell <peter.maydell@linaro.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Sasha Levin <levinsasha928@gmail.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+To: Miche Baker-Harvey <miche@google.com>
+Cc: Stephen Rothwell <sfr@canb.auug.org.au>, xen-devel@lists.xensource.com, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Greg Kroah-Hartman <gregkh@suse.de>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Anton Blanchard <anton@samba.org>, Amit Shah <amit.shah@redhat.com>, Mike Waychison <mikew@google.com>, ppc-dev <linuxppc-dev@lists.ozlabs.org>, Eric Northrup <digitaleric@google.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, 21 Nov 2011 14:44:48 +0000, Pawel Moll <pawel.moll@arm.com> wrote:
-> On Mon, 2011-11-21 at 03:32 +0000, Rusty Russell wrote:
-> > 2) Doesn't leak mem on error paths.
+On Mon, 21 Nov 2011 14:16:38 -0800, Miche Baker-Harvey <miche@google.com> wrote:
+> Thanks, Rusty.  I'm not using QEMU though, just KVM.   I create the device, wait
+> for the message from the guest that the device is ready, and then add ports.
 > 
-> Em, I don't think my code was leaking memory in any error case? (no
-> offence meant or taken ;-)
+> Miche
 
-You're right, I'm wrong.  In your original version, your innovative use
-of free() then strdup() worked as intended.
+OK, since Amit was the one who implemented multi-port console, I'm going
+to hand this to him.
 
-> > 3) Handles error from platform_device_register_resndata().
-> 
-> As my code was ignoring wrong descriptions (all the continues) I ignored
-> this result as well (the implementation complains on its own anyway),
-> but I get your point.
-
-I was referring to this:
-
-	  return platform_device_register_resndata(&virtio_mmio_cmdline_parent,
-			  "virtio-mmio", virtio_mmio_cmdline_id++,
-			  resources, ARRAY_SIZE(resources), NULL, 0) != NULL;
-
-The set function returns 0 or a -ve errno, not true/false.
-
-> > 4) Uses shorter names for static functions/variables.
-> 
-> Ah, I get the hint :-) I'm trying to keep the naming convention in
-> static symbols as well, as it makes cscope/ctags/grep usage easier...
-> I'll just use the abbreviated "vm_" prefixes then.
-> 
-> > See what you think...
-> 
-> Funnily enough when I proposed some string parser few years ago (totally
-> different story) I was flamed for using strchr() instead of strsep() ;-)
-> But ok, I don't mind getting back to basics.
-> 
-> > +static int set_cmdline_device(const char *device, const struct kernel_param *kp)
-> [...]
-> > +       delim = strchr(device, '@');
-> [...]
-> > +	*delim = '\0';
-> 
-> Ah. I forgot that strchr() takes const char * but returns "non-const"
-> char *... Cheating, that's what it is ;-), but will work. Probably what
-> we really want is something like
-> 	kstrtoull_delim(device, 0, &val, "@\0")
-> I'll have a look and may try to propose something of that sort, but
-> that's another story. Maybe I should just use simple_strtol() for the
-> time being?
-
-Or would it be simpler to enhance sscanf() with some weird format option
-for suffixing?  I haven't looked for similar cases, but I'd suspect a
-big win in general.
-
-This would be neater than anything else we've got:
-        if (sscanf(device, "%llu@%llu[KMG]:%u", ...) != 3
-            && sscanf(device, "%llu@%llu[KMG]:%u:%u", ...) != 4)
-                return -EINVAL;
+I'm sure he's been looking for excuses to dive back into the console
+code!
 
 Cheers,
 Rusty.
