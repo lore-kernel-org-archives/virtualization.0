@@ -1,21 +1,14 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH 5 of 5] virtio: expose added descriptors immediately
-Date: Wed, 23 Nov 2011 10:30:06 +0200
-Message-ID: <20111123083005.GD22734@redhat.com>
-References: <f3831c1617c86a51d875.1320306173@localhost6.localdomain6>
-	<20111113210256.GA31621@redhat.com>
-	<20111114065606.GA3779@redhat.com> <871ut8q5mh.fsf@rustcorp.com.au>
-	<20111116071838.GE5433@redhat.com> <8739dib5z6.fsf@rustcorp.com.au>
-	<20111121115702.GA27580@redhat.com>
-	<87lir9xagv.fsf@rustcorp.com.au>
-	<20111122062907.GB11012@redhat.com>
-	<87ty5v1vqy.fsf@rustcorp.com.au>
+Subject: Re: [PATCHv3 RFC] virtio-pci: flexible configuration layout
+Date: Wed, 23 Nov 2011 10:49:33 +0200
+Message-ID: <20111123084932.GF22734@redhat.com>
+References: <20111122183621.GA5235@redhat.com> <87hb1v1scp.fsf@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <87ty5v1vqy.fsf@rustcorp.com.au>
+In-Reply-To: <87hb1v1scp.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -26,39 +19,31 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization <virtualization@lists.linux-foundation.org>
+Cc: Krishna Kumar <krkumar2@in.ibm.com>, kvm@vger.kernel.org, Pawel Moll <pawel.moll@arm.com>, Wang Sheng-Hui <shhuiw@gmail.com>, Alexey Kardashevskiy <aik@ozlabs.ru>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, Sasha Levin <levinsasha928@gmail.com>, Amit Shah <amit.shah@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Nov 23, 2011 at 11:49:01AM +1030, Rusty Russell wrote:
-> On Tue, 22 Nov 2011 08:29:08 +0200, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> > On Tue, Nov 22, 2011 at 11:03:04AM +1030, Rusty Russell wrote:
-> > > -	/* If you haven't kicked in this long, you're probably doing something
-> > > -	 * wrong. */
-> > > -	WARN_ON(vq->num_added > vq->vring.num);
-> > > +	/* This is very unlikely, but theoretically possible.  Kick
-> > > +	 * just in case. */
-> > > +	if (unlikely(vq->num_added == 65535))
-> > 
-> > This is 0xffff but why use the decimal notation?
+On Wed, Nov 23, 2011 at 01:02:22PM +1030, Rusty Russell wrote:
+> +/* Fields in VIRTIO_PCI_CAP_COMMON_CFG: */
+> +struct virtio_pci_common_cfg {
+> +	/* About the whole device. */
+> +	__u64 device_features;	/* read-only */
+> +	__u64 guest_features;	/* read-write */
+
+We currently require atomic accesses to common fields.
+Some architectures might not have such for 64 bit,
+so these need to be split I think ...
+
+> +	__u64 queue_address;	/* read-write */
+> +	__u16 msix_config;	/* read-write */
+> +	__u8 device_status;	/* read-write */
+> +	__u8 unused;
+> +
+> +	/* About a specific virtqueue. */
+> +	__u16 queue_select;	/* read-write */
+> +	__u16 queue_align;	/* read-write, power of 2. */
+> +	__u16 queue_size;	/* read-write, power of 2. */
+> +	__u16 queue_msix_vector;/* read-write */
+> +};
+>  #endif
 > 
-> Interesting.  Why use hex?  Feels more like binary?
-
-Just easier to see it's the largest 16 bit number.
-
-> But I've changed it to "(1 << 16) - 1" to be clear.
-
-That's even better.
-
-> > > +		virtqueue_kick(_vq);
-> > >  
-> > >  	pr_debug("Added buffer head %i to %p\n", head, vq);
-> > >  	END_USE(vq);
-> > 
-> > We also still need to reset vq->num_added, right?
 > 
-> virtqueue_kick does that for us.
-> 
-> Cheers,
-> Rusty.
-
-Right.
