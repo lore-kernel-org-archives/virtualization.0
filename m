@@ -1,13 +1,17 @@
-From: Sasha Levin <levinsasha928@gmail.com>
-Subject: Re: [PATCHv3 RFC] virtio-pci: flexible configuration layout
-Date: Wed, 23 Nov 2011 11:44:53 +0200
-Message-ID: <1322041493.3581.11.camel@lappy>
-References: <20111122183621.GA5235@redhat.com> <87hb1v1scp.fsf@rustcorp.com.au>
+From: Amit Shah <amit.shah@redhat.com>
+Subject: Re: [PATCH v3 2/3] hvc_init(): Enforce one-time initialization.
+Date: Wed, 23 Nov 2011 16:08:52 +0530
+Message-ID: <20111123103852.GG16665@amit-x200.redhat.com>
+References: <20111108214452.28884.14840.stgit@miche.sea.corp.google.com>
+	<20111108214504.28884.61814.stgit@miche.sea.corp.google.com>
+	<874nybqo0o.fsf@rustcorp.com.au>
+	<CAB8RdapbaueyWLJuJDE_ZdvLkRNM4sQHTxgmgO=jrnXZ6YPSmA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <87hb1v1scp.fsf@rustcorp.com.au>
+Content-Disposition: inline
+In-Reply-To: <CAB8RdapbaueyWLJuJDE_ZdvLkRNM4sQHTxgmgO=jrnXZ6YPSmA@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,175 +21,106 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Krishna Kumar <krkumar2@in.ibm.com>, kvm@vger.kernel.org, Pawel Moll <pawel.moll@arm.com>, "Michael S. Tsirkin" <mst@redhat.com>, Alexey Kardashevskiy <aik@ozlabs.ru>, Wang Sheng-Hui <shhuiw@gmail.com>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, Amit Shah <amit.shah@redhat.com>
+To: Miche Baker-Harvey <miche@google.com>
+Cc: Stephen Rothwell <sfr@canb.auug.org.au>, xen-devel@lists.xensource.com, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Anton Blanchard <anton@samba.org>, Mike Waychison <mikew@google.com>, ppc-dev <linuxppc-dev@lists.ozlabs.org>, Greg Kroah-Hartman <gregkh@suse.de>, Eric Northrup <digitaleric@google.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 2011-11-23 at 13:02 +1030, Rusty Russell wrote:
-> On Tue, 22 Nov 2011 20:36:22 +0200, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> > Here's an updated vesion.
-> > I'm alternating between updating the spec and the driver,
-> > spec update to follow.
-> 
-> Don't touch the spec yet, we have a long way to go :(
-> 
-> I want the ability for driver to set the ring size, and the device to
-> set the alignment.  That's a bigger change than you have here.  I
-> imagine it almost rips the driver into two completely different drivers.
-> 
-> This is the kind of thing I had in mind, for the header.  Want me to
-> code up the rest?
-> 
-> (I've avoided adding the constants for the new layout: a struct is more
-> compact and more descriptive).
-> 
-> Cheers,
-> Rusty.
-> 
-> diff --git a/include/linux/virtio_pci.h b/include/linux/virtio_pci.h
-> --- a/include/linux/virtio_pci.h
-> +++ b/include/linux/virtio_pci.h
-> @@ -42,56 +42,74 @@
->  #include <linux/virtio_config.h>
->  
->  /* A 32-bit r/o bitmask of the features supported by the host */
-> -#define VIRTIO_PCI_HOST_FEATURES	0
-> +#define VIRTIO_PCI_LEGACY_HOST_FEATURES		0
->  
->  /* A 32-bit r/w bitmask of features activated by the guest */
-> -#define VIRTIO_PCI_GUEST_FEATURES	4
-> +#define VIRTIO_PCI_LEGACY_GUEST_FEATURES	4
->  
->  /* A 32-bit r/w PFN for the currently selected queue */
-> -#define VIRTIO_PCI_QUEUE_PFN		8
-> +#define VIRTIO_PCI_LEGACY_QUEUE_PFN		8
->  
->  /* A 16-bit r/o queue size for the currently selected queue */
-> -#define VIRTIO_PCI_QUEUE_NUM		12
-> +#define VIRTIO_PCI_LEGACY_QUEUE_NUM		12
->  
->  /* A 16-bit r/w queue selector */
-> -#define VIRTIO_PCI_QUEUE_SEL		14
-> +#define VIRTIO_PCI_LEGACY_QUEUE_SEL		14
->  
->  /* A 16-bit r/w queue notifier */
-> -#define VIRTIO_PCI_QUEUE_NOTIFY		16
-> +#define VIRTIO_PCI_LEGACY_QUEUE_NOTIFY		16
->  
->  /* An 8-bit device status register.  */
-> -#define VIRTIO_PCI_STATUS		18
-> +#define VIRTIO_PCI_LEGACY_STATUS		18
->  
->  /* An 8-bit r/o interrupt status register.  Reading the value will return the
->   * current contents of the ISR and will also clear it.  This is effectively
->   * a read-and-acknowledge. */
-> -#define VIRTIO_PCI_ISR			19
-> -
-> -/* The bit of the ISR which indicates a device configuration change. */
-> -#define VIRTIO_PCI_ISR_CONFIG		0x2
-> +#define VIRTIO_PCI_LEGACY_ISR			19
->  
->  /* MSI-X registers: only enabled if MSI-X is enabled. */
->  /* A 16-bit vector for configuration changes. */
-> -#define VIRTIO_MSI_CONFIG_VECTOR        20
-> +#define VIRTIO_MSI_LEGACY_CONFIG_VECTOR        20
->  /* A 16-bit vector for selected queue notifications. */
-> -#define VIRTIO_MSI_QUEUE_VECTOR         22
-> -/* Vector value used to disable MSI for queue */
-> -#define VIRTIO_MSI_NO_VECTOR            0xffff
-> +#define VIRTIO_MSI_LEGACY_QUEUE_VECTOR         22
->  
->  /* The remaining space is defined by each driver as the per-driver
->   * configuration space */
-> -#define VIRTIO_PCI_CONFIG(dev)		((dev)->msix_enabled ? 24 : 20)
-> +#define VIRTIO_PCI_LEGACY_CONFIG(dev)		((dev)->msix_enabled ? 24 : 20)
-> +
-> +/* How many bits to shift physical queue address written to QUEUE_PFN.
-> + * 12 is historical, and due to x86 page size. */
-> +#define VIRTIO_PCI_LEGACY_QUEUE_ADDR_SHIFT	12
-> +
-> +/* The alignment to use between consumer and producer parts of vring.
-> + * x86 pagesize again. */
-> +#define VIRTIO_PCI_LEGACY_VRING_ALIGN		4096
-> +
-> +#ifndef __KERNEL__
-> +/* Don't break compile of old userspace code.  These will go away. */
+On (Thu) 17 Nov 2011 [10:57:37], Miche Baker-Harvey wrote:
+> Rusty, Michael, Stephen, et al,
+> =
 
-Maybe wrap it in:
-#ifndef VIRTIO_PCI_NO_LEGACY
+> Thanks for your comments on these patches.
+> =
 
-#warning Please stop using old defines
+> For what I'm trying to do, all three patches are necessary, but maybe
+> I'm going about it the wrong way. Your input would be appreciated.
+> I'm in no way claiming that these patches are "right", just that it's
+> working for me, and that what's in the current pool is not.
+> =
 
-[...]
+> What I'm trying to do is:
+> On X86,
+> under KVM,
+> start a virtio console device,
+> with multiple ports on the device,
+> at least one of which is also a console (as well as ttyS0).
+> =
 
-> +#define VIRTIO_PCI_HOST_FEATURES VIRTIO_PCI_LEGACY_HOST_FEATURES
-> +#define VIRTIO_PCI_GUEST_FEATURES VIRTIO_PCI_LEGACY_GUEST_FEATURES
-> +#define VIRTIO_PCI_LEGACY_QUEUE_PFN VIRTIO_PCI_QUEUE_PFN
-> +#define VIRTIO_PCI_LEGACY_QUEUE_NUM VIRTIO_PCI_QUEUE_NUM
-> +#define VIRTIO_PCI_LEGACY_QUEUE_SEL VIRTIO_PCI_QUEUE_SEL
-> +#define VIRTIO_PCI_LEGACY_QUEUE_NOTIFY VIRTIO_PCI_QUEUE_NOTIFY
-> +#define VIRTIO_PCI_LEGACY_STATUS VIRTIO_PCI_STATUS
-> +#define VIRTIO_PCI_LEGACY_ISR VIRTIO_PCI_ISR
-> +#define VIRTIO_MSI_LEGACY_CONFIG_VECTOR VIRTIO_MSI_CONFIG_VECTOR
-> +#define VIRTIO_MSI_LEGACY_QUEUE_VECTOR VIRTIO_MSI_QUEUE_VECTOR
-> +#define VIRTIO_PCI_LEGACY_CONFIG(dev) VIRTIO_PCI_CONFIG(dev)
-> +#define VIRTIO_PCI_LEGACY_QUEUE_ADDR_SHIFT VIRTIO_PCI_QUEUE_ADDR_SHIFT
-> +#define VIRTIO_PCI_LEGACY_VRING_ALIGN VIRTIO_PCI_VRING_ALIGN
+> (Eventually, we want to be able to add virtio console ports on the
+> fly, and to have multiple virtio console ports be consoles.)
 
-#endif /* VIRTIO_PCI_NO_LEGACY */
+Are you using kvm-tool to do this?  QEMU can already hot-plug ports
+and virtio-console (virtio-serial) devices.
 
-> +#endif /* ...!KERNEL */
->  
->  /* Virtio ABI version, this must match exactly */
->  #define VIRTIO_PCI_ABI_VERSION		0
->  
-> -/* How many bits to shift physical queue address written to QUEUE_PFN.
-> - * 12 is historical, and due to x86 page size. */
-> -#define VIRTIO_PCI_QUEUE_ADDR_SHIFT	12
-> +/* Vector value used to disable MSI for queue */
-> +#define VIRTIO_MSI_NO_VECTOR            0xffff
->  
-> -/* The alignment to use between consumer and producer parts of vring.
-> - * x86 pagesize again. */
-> -#define VIRTIO_PCI_VRING_ALIGN		4096
-> +/* The bit of the ISR which indicates a device configuration change. */
-> +#define VIRTIO_PCI_ISR_CONFIG		0x2
->  
->  /*
->   * Layout for Virtio PCI vendor specific capability (little-endian):
-> @@ -133,4 +151,20 @@
->  #define VIRTIO_PCI_CAP_CFG_OFF_MASK	0xffffffff
->  #define VIRTIO_PCI_CAP_CFG_OFF_SHIFT	0
->  
-> +/* Fields in VIRTIO_PCI_CAP_COMMON_CFG: */
-> +struct virtio_pci_common_cfg {
-> +	/* About the whole device. */
-> +	__u64 device_features;	/* read-only */
-> +	__u64 guest_features;	/* read-write */
-> +	__u64 queue_address;	/* read-write */
+> When all three of the patches are in place, this works great. (By
+> great, I mean that getty's start up on all of ttyS0, hvc0 and hvc1,
+> and console output goes to ttyS0 and to hvc0.
+> "who" shows three users: =A0ttyS0, hvc0, and hvc1.
+> "cat /proc/consoles" shows both ttyS0 and hvc0.
+> I can use all three getty's, and console output really does appear on
+> both the consoles.
+> =
 
-queue address should be in the queue specific fields below
+> Based on Rusty's comments, I tried removing each of the patches
+> individually. Here's what happens today. I've seen other failure modes
+> depending on what precisely I'm passing the guest.
+> There's three patches:
+> 1/3 "fix locking of vtermno"
+> 2/3 "enforce one-time initialization with hvc_init
+> "3/3 "use separate struct console * for each console"
+> =
 
-> +	__u16 msix_config;	/* read-write */
-> +	__u8 device_status;	/* read-write */
-> +	__u8 unused;
-> +
-> +	/* About a specific virtqueue. */
-> +	__u16 queue_select;	/* read-write */
-> +	__u16 queue_align;	/* read-write, power of 2. */
-> +	__u16 queue_size;	/* read-write, power of 2. */
-> +	__u16 queue_msix_vector;/* read-write */
+> If I remove the "fix locking of vtermno", I only get one virtio
+> console terminal. =A0"who" shows the ttyS0 and the hvc0, and I can log
+> into the gettys on both. I don't get the second virtio console getty.
+> Interestingly, hvc0 shows up in /proc/consoles twice, and in fact the
+> console output is dumped twice to hvc0 (as you'd expect from looking
+> at printk.c, each line appears twice, followed by the next line.)
 
-Maybe we should reserve a bunch of bytes here for future extensions of
-virtqueues. Otherwise, non virtqueue options may be added here which
-will cause fragmentation of virtqueue specific features.
+I don't really understand why.  "fix locking of vtermno" adds locks in
+init_port_console(), which is called from add_port(), which should be
+serialised due to port additions being on work items on the same
+workqueue.  I don't see a race here.
 
-> +};
->  #endif
-> 
-> 
-> 
+> If I remove the "enforce one-time initialization with hvc_init" patch,
+> which makes sure only a single thread is doing the hvc_init, and gates
+> anyone from continuing until it has completed, I get different
+> failures, including hangs, and dereferences of NULL pointers.
+> =
 
--- 
+> If I remove the "use separate struct console * for each console"patch,
+> what I'm seeing now is that while all of ttyS0, hvc0, and hvc1 are
+> present with gettys running on them, of the three, only ttyS0 is a
+> console.
 
-Sasha.
+I don't see any difference in my testing with and without these
+patches.
+
+This is how I tested with qemu:
+
+./x86_64-softmmu/qemu-system-x86_64 -m 512 -smp 2 -chardev
+socket,path=3D/tmp/foo,server,nowait,id=3Dfoo -chardev
+socket,path=3D/tmp/bar,server,nowait,id=3Dbar -device virtio-serial
+-device virtconsole,chardev=3Dfoo,nr=3D4 -device
+virtconsole,chardev=3Dbar,nr=3D3 -net none  -kernel
+/home/amit/src/linux/arch/x86/boot/bzImage -append 'root=3D/dev/sda1
+console=3Dtty0 console=3DttyS0' -initrd /tmp/initramfs.img
+/guests/f14-nolvm.qcow2 -enable-kvm -snapshot
+
+With this setup, with and without patches, I can spawn two consoles
+via:
+
+/sbin/agetty /dev/hvc0 9600 vt100
+/sbin/agetty /dev/hvc1 9600 vt100
+
+(Strange thing is, the second one gives a 'password incorrect' error
+on login attempts, while the first one logs in fine.  I do remember
+testing multiple consoles just fine a year and a half back, so no idea
+why this isn't behaving as expected -- but it mostly looks like a
+userspace issue rather than kernel one.)
+
+As mentioned earlier, I've not looked at the hvc code, but given my
+testing results, I'd like to first understand what you're seeing and
+what your environment is.
+
+		Amit
