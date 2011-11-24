@@ -1,16 +1,11 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCHv3 RFC] virtio-pci: flexible configuration layout
-Date: Thu, 24 Nov 2011 09:11:22 +0200
-Message-ID: <20111124070728.GH29994@redhat.com>
-References: <20111122183621.GA5235@redhat.com> <87hb1v1scp.fsf@rustcorp.com.au>
-	<20111123084640.GE22734@redhat.com>
-	<87ty5uxso3.fsf@rustcorp.com.au>
+From: Krishna Kumar <krkumar2@in.ibm.com>
+Subject: [PATCH] macvtap: Fix macvtap_get_queue to use rxhash first
+Date: Thu, 24 Nov 2011 13:47:14 +0530
+Message-ID: <20111124081714.26635.68141.sendpatchset@krkumar2.in.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <87ty5uxso3.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,86 +15,50 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Krishna Kumar <krkumar2@in.ibm.com>, kvm@vger.kernel.org, Pawel Moll <pawel.moll@arm.com>, Wang Sheng-Hui <shhuiw@gmail.com>, Alexey Kardashevskiy <aik@ozlabs.ru>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, Sasha Levin <levinsasha928@gmail.com>, Amit Shah <amit.shah@redhat.com>
+To: arnd@arndb.de
+Cc: Krishna Kumar <krkumar2@in.ibm.com>, mst@redhat.com, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, levinsasha928@gmail.com, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Nov 24, 2011 at 11:06:44AM +1030, Rusty Russell wrote:
-> Because I suspect we'll be different enough anyway, once we change the
-> way we allocate the ring, and write the alignment.
+It was reported that the macvtap device selects a
+different vhost (when used with multiqueue feature)
+for incoming packets of a single connection. Use
+packet hash first. Patch tested on MQ virtio_net.
 
-Well, it'd be easy to just add pa_high.
+Signed-off-by: Krishna Kumar <krkumar2@in.ibm.com>
+---
+ drivers/net/macvtap.c |   16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
-> It'll be *clearer* to have two completely separate paths than to fill
-> with if() statements.
-
-Well, look at my patches. See how each new feature basically adds *one*
-if statement.
-
-Yes, we could declare all existing features to be required,
-this is what you are advocating. But in a couple of years
-more if statements have accumulated and we still don't have
-a flying car. Meanwhile the driver has a huge legacy section
-which is a huge pain to maintain.
-
-> And a rewrite won't hurt the driver.
-
-Wow. Is everyone going for the rewrite these days?
-After a lot of work we will be back at the point where we left,
-with a minor tweak to enable a huge number of slow devices.
-Meanwhile we have no time to work on real problems,
-such as ring fragmentation that Avi pointed out,
-support for very large requests.
-
-
-And yes it will hurt, it will hurt bisectability and testability.
-What you propose is a huge patch that just changes all of it.
-If there's a breakage, bisect just points at a rewrite.
-What I would like to see is incremental patches. So I would like to
-1. Split driver config from common config
-2. Split isr/notifications out too
-3. Copy config in MMIO
-4. Add a new config
-5. Add length checks
-6. Add 64 bit features
-7. Add alignment programming
-
-At each point we can bisect.  It worked well for event index, qemu had a
-flag to turn it off, each time someone came in and went 'maybe it's
-event index' we just tested without.
-
-> But to be honest I don't really care about the Linux driver: we're
-> steeped in this stuff and we'll get it right.
-
-Maybe. What about windows drivers?
-
-> But I'm *terrified* of making the spec more complex;
-
-All you do is move stuff around. Why do you think it simplifies the spec
-so much?
-
-> implementations will get it wrong.
-
-Just to clarify: you assume that if virtio pci spec is changed, then
-there will be many more new implementations than existing ones, so it is
-worth it to make life (temporarily, for several short years) harder for
-all the existing ones?
-
-Look at the qemu side for example. The way I proposed - with optional
-capabilities, each one with a separate fallback - the change can be
-implemented very gradually.  Each step will be bisectable, and testable.
-
-> I *really* want to banish the legacy stuff to an appendix where noone will
-> ever know it's there :)
-
-This does not make life easy for implementations as they
-need to implement it anyway. What makes life easy is
-making new features optional, so you pick just what you like.
-
-For example, we might want to backport some new feature into
-rhel6.X at some point. I would like the diff to be small,
-and easily understandable in its impact.
-
-
--- 
-MST
+diff -ruNp org/drivers/net/macvtap.c new/drivers/net/macvtap.c
+--- org/drivers/net/macvtap.c	2011-10-22 08:38:01.000000000 +0530
++++ new/drivers/net/macvtap.c	2011-11-16 18:34:51.000000000 +0530
+@@ -175,6 +175,14 @@ static struct macvtap_queue *macvtap_get
+ 	if (!numvtaps)
+ 		goto out;
+ 
++	/* Check if we can use flow to select a queue */
++	rxq = skb_get_rxhash(skb);
++	if (rxq) {
++		tap = rcu_dereference(vlan->taps[rxq % numvtaps]);
++		if (tap)
++			goto out;
++	}
++
+ 	if (likely(skb_rx_queue_recorded(skb))) {
+ 		rxq = skb_get_rx_queue(skb);
+ 
+@@ -186,14 +194,6 @@ static struct macvtap_queue *macvtap_get
+ 			goto out;
+ 	}
+ 
+-	/* Check if we can use flow to select a queue */
+-	rxq = skb_get_rxhash(skb);
+-	if (rxq) {
+-		tap = rcu_dereference(vlan->taps[rxq % numvtaps]);
+-		if (tap)
+-			goto out;
+-	}
+-
+ 	/* Everything failed - find first available queue */
+ 	for (rxq = 0; rxq < MAX_MACVTAP_QUEUES; rxq++) {
+ 		tap = rcu_dereference(vlan->taps[rxq]);
