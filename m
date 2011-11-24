@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCHv3 RFC] virtio-pci: flexible configuration layout
-Date: Thu, 24 Nov 2011 08:24:41 +0200
-Message-ID: <20111124062440.GG29994@redhat.com>
+Date: Thu, 24 Nov 2011 09:11:22 +0200
+Message-ID: <20111124070728.GH29994@redhat.com>
 References: <20111122183621.GA5235@redhat.com> <87hb1v1scp.fsf@rustcorp.com.au>
 	<20111123084640.GE22734@redhat.com>
 	<87ty5uxso3.fsf@rustcorp.com.au>
@@ -25,34 +25,81 @@ Cc: Krishna Kumar <krkumar2@in.ibm.com>, kvm@vger.kernel.org, Pawel Moll <pawel.
 List-Id: virtualization@lists.linuxfoundation.org
 
 On Thu, Nov 24, 2011 at 11:06:44AM +1030, Rusty Russell wrote:
-> > > +/* Fields in VIRTIO_PCI_CAP_COMMON_CFG: */
-> > > +struct virtio_pci_common_cfg {
-> > > +	/* About the whole device. */
-> > > +	__u64 device_features;	/* read-only */
-> > > +	__u64 guest_features;	/* read-write */
-> > > +	__u64 queue_address;	/* read-write */
-> > > +	__u16 msix_config;	/* read-write */
-> > > +	__u8 device_status;	/* read-write */
-> > > +	__u8 unused;
-> > > +
-> > > +	/* About a specific virtqueue. */
-> > > +	__u16 queue_select;	/* read-write */
-> > > +	__u16 queue_align;	/* read-write, power of 2. */
-> > > +	__u16 queue_size;	/* read-write, power of 2. */
-> > > +	__u16 queue_msix_vector;/* read-write */
-> > > +};
-> > 
-> > Slightly confusing as the registers are in fact little endian ...
-> 
-> Good point, should mark them appropriately with __le16.  That makes it
-> even clearer.
-> 
-> Thanks,
-> Rusty.
+> Because I suspect we'll be different enough anyway, once we change the
+> way we allocate the ring, and write the alignment.
 
-Do we still require atomic access to fields in common cfg?
-If yes it's a problem as some systems don't have 64 bit
-addresses. If no, implementations might get harder.
+Well, it'd be easy to just add pa_high.
+
+> It'll be *clearer* to have two completely separate paths than to fill
+> with if() statements.
+
+Well, look at my patches. See how each new feature basically adds *one*
+if statement.
+
+Yes, we could declare all existing features to be required,
+this is what you are advocating. But in a couple of years
+more if statements have accumulated and we still don't have
+a flying car. Meanwhile the driver has a huge legacy section
+which is a huge pain to maintain.
+
+> And a rewrite won't hurt the driver.
+
+Wow. Is everyone going for the rewrite these days?
+After a lot of work we will be back at the point where we left,
+with a minor tweak to enable a huge number of slow devices.
+Meanwhile we have no time to work on real problems,
+such as ring fragmentation that Avi pointed out,
+support for very large requests.
+
+
+And yes it will hurt, it will hurt bisectability and testability.
+What you propose is a huge patch that just changes all of it.
+If there's a breakage, bisect just points at a rewrite.
+What I would like to see is incremental patches. So I would like to
+1. Split driver config from common config
+2. Split isr/notifications out too
+3. Copy config in MMIO
+4. Add a new config
+5. Add length checks
+6. Add 64 bit features
+7. Add alignment programming
+
+At each point we can bisect.  It worked well for event index, qemu had a
+flag to turn it off, each time someone came in and went 'maybe it's
+event index' we just tested without.
+
+> But to be honest I don't really care about the Linux driver: we're
+> steeped in this stuff and we'll get it right.
+
+Maybe. What about windows drivers?
+
+> But I'm *terrified* of making the spec more complex;
+
+All you do is move stuff around. Why do you think it simplifies the spec
+so much?
+
+> implementations will get it wrong.
+
+Just to clarify: you assume that if virtio pci spec is changed, then
+there will be many more new implementations than existing ones, so it is
+worth it to make life (temporarily, for several short years) harder for
+all the existing ones?
+
+Look at the qemu side for example. The way I proposed - with optional
+capabilities, each one with a separate fallback - the change can be
+implemented very gradually.  Each step will be bisectable, and testable.
+
+> I *really* want to banish the legacy stuff to an appendix where noone will
+> ever know it's there :)
+
+This does not make life easy for implementations as they
+need to implement it anyway. What makes life easy is
+making new features optional, so you pick just what you like.
+
+For example, we might want to backport some new feature into
+rhel6.X at some point. I would like the diff to be small,
+and easily understandable in its impact.
+
 
 -- 
 MST
