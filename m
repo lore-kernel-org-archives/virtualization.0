@@ -1,20 +1,13 @@
-From: Stephen Hemminger <shemminger@vyatta.com>
-Subject: Re: [PATCH] macvtap: Fix macvtap_get_queue to use rxhash first
-Date: Mon, 28 Nov 2011 09:42:00 -0800
-Message-ID: <20111128094200.2cb823a0@nehalam.linuxnetplumber.net>
-References: <20111124081714.26635.68141.sendpatchset@krkumar2.in.ibm.com>
-	<20111124095902.GD14491@redhat.com> <4ECE18D5.3060605@redhat.com>
-	<20111124103449.GA16031@redhat.com> <4ECE3F0D.3090908@redhat.com>
-	<20111124161430.GC26770@redhat.com>
-	<OF86B15006.7F4BE3FB-ON65257953.00104C3E-65257953.0010EFCA@in.ibm.com>
-	<4ECF09D5.4010700@redhat.com>
-	<OF835A6FF5.7D752AD1-ON65257953.0016350C-65257953.00169AF4@in.ibm.com>
-	<4ED30D2B.10907@redhat.com>
+From: Cong Wang <amwang@redhat.com>
+Subject: [PATCH 28/62] vhost: remove the second argument of k[un]map_atomic()
+Date: Sun, 27 Nov 2011 13:27:08 +0800
+Message-ID: <1322371662-26166-29-git-send-email-amwang__43368.6055629098$1322504619$gmane$org@redhat.com>
+References: <1322371662-26166-1-git-send-email-amwang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4ED30D2B.10907@redhat.com>
+In-Reply-To: <1322371662-26166-1-git-send-email-amwang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,16 +17,31 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: Krishna Kumar2 <krkumar2@in.ibm.com>, arnd@arndb.de, "Michael S.
-	Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, levinsasha928@gmail.com, davem@davemloft.net
+To: linux-kernel@vger.kernel.org
+Cc: Cong Wang <amwang@redhat.com>, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, akpm@linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, 28 Nov 2011 12:25:15 +0800
-Jason Wang <jasowang@redhat.com> wrote:
 
-> I'm using ixgbe for testing also, for host, its driver seems provide irq 
-> affinity hint, so no binding or irqbalance is needed.
+Signed-off-by: Cong Wang <amwang@redhat.com>
+---
+ drivers/vhost/vhost.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
-The hint is for irqbalance to use. You need to still do manual
-affinity or use irqbalance.
+diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+index c14c42b..bdb2d64 100644
+--- a/drivers/vhost/vhost.c
++++ b/drivers/vhost/vhost.c
+@@ -937,9 +937,9 @@ static int set_bit_to_user(int nr, void __user *addr)
+ 	if (r < 0)
+ 		return r;
+ 	BUG_ON(r != 1);
+-	base = kmap_atomic(page, KM_USER0);
++	base = kmap_atomic(page);
+ 	set_bit(bit, base);
+-	kunmap_atomic(base, KM_USER0);
++	kunmap_atomic(base);
+ 	set_page_dirty_lock(page);
+ 	put_page(page);
+ 	return 0;
+-- 
+1.7.4.4
