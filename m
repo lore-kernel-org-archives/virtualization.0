@@ -1,39 +1,64 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH] vhost-net: Acquire device lock when releasing device
-Date: Sat, 26 Nov 2011 15:45:03 -0500 (EST)
-Message-ID: <20111126.154503.1317670837061338352.davem__28810.1438702599$1322361290$gmane$org@davemloft.net>
-References: <1321607982-16283-1-git-send-email-levinsasha928@gmail.com>
+From: Greg KH <greg@kroah.com>
+Subject: Re: [PATCH 3/3] Staging: hv: mousevsc: Use the KBUILD_MODNAME macro
+Date: Sat, 26 Nov 2011 16:59:28 -0800
+Message-ID: <20111127005928.GA19088@kroah.com>
+References: <1319839847-28959-1-git-send-email-kys@microsoft.com>
+ <1319839888-29000-1-git-send-email-kys@microsoft.com>
+ <1319839888-29000-3-git-send-email-kys@microsoft.com>
+ <ADE657CA350FB648AAC2C43247A983F001F39DEE70F6@AUSP01VMBX24.collaborationhost.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1321607982-16283-1-git-send-email-levinsasha928@gmail.com>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: levinsasha928@gmail.com
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, mst@redhat.com
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <ADE657CA350FB648AAC2C43247A983F001F39DEE70F6@AUSP01VMBX24.collaborationhost.net>
+Sender: linux-kernel-owner@vger.kernel.org
+To: H Hartley Sweeten <hartleys@visionengravers.com>
+Cc: "K. Y. Srinivasan" <kys@microsoft.com>, "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, "ohering@suse.com" <ohering@suse.com>, "joe@perches.com" <joe@perches.com>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "jkosina@suse.cz" <jkosina@suse.cz>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Sasha Levin <levinsasha928@gmail.com>
-Date: Fri, 18 Nov 2011 11:19:42 +0200
+On Fri, Oct 28, 2011 at 06:02:22PM -0500, H Hartley Sweeten wrote:
+> On Friday, October 28, 2011 3:11 PM, K. Y. Srinivasan wrote:
+> > 
+> > Use the KBUILD_MODNAME macro.
+> > 
+> > Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
+> > ---
+> >  drivers/staging/hv/hv_mouse.c |    2 +-
+> >  1 files changed, 1 insertions(+), 1 deletions(-)
+> > 
+> > diff --git a/drivers/staging/hv/hv_mouse.c b/drivers/staging/hv/hv_mouse.c
+> > index c22f729..2c2e1b4 100644
+> > --- a/drivers/staging/hv/hv_mouse.c
+> > +++ b/drivers/staging/hv/hv_mouse.c
+> > @@ -578,7 +578,7 @@ static const struct hv_vmbus_device_id id_table[] = {
+> >  MODULE_DEVICE_TABLE(vmbus, id_table);
+> >  
+> >  static struct  hv_driver mousevsc_drv = {
+> > -	.name = "mousevsc",
+> > +	.name = KBUILD_MODNAME,
+> >  	.id_table = id_table,
+> >  	.probe = mousevsc_probe,
+> >  	.remove = mousevsc_remove,
+> 
+> It's just my opinion, but I'm not sure this is better.
+> 
+> By changing the name to KBUILD_MODNAME you can no longer grep the source to
+> find the driver based on it's name:
 
-> Device lock should be held when releasing a device, and specifically
-> when calling vhost_dev_cleanup(). Otherwise, RCU complains about it:
- ...
-> Cc: "Michael S. Tsirkin" <mst@redhat.com>
-> Cc: kvm@vger.kernel.org
-> Cc: virtualization@lists.linux-foundation.org
-> Cc: netdev@vger.kernel.org
-> Signed-off-by: Sasha Levin <levinsasha928@gmail.com>
+That's fine.
 
-Michael et al., are you guys going to gather this fix or should I
-apply it directly to thet net tree?
+> $ grep -r name * | grep mousevsc
+> drivers/staging/hv/hv_mouse.c:  .name = "mousevsc",
+> 
+> Also, doesn't this change the name of the driver from "mousevsc" to "hv_mouse"?
 
-Thanks.
+Yes.
+
+> Does anything else need modified to handle the name change or is the matching
+> handled strictly by the id_table?
+
+No, this only shows up in sysfs, no other changes needed.
+
+thanks,
+
+greg k-h
