@@ -1,16 +1,19 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCHv3 RFC] virtio-pci: flexible configuration layout
-Date: Mon, 28 Nov 2011 11:25:43 +1030
-Message-ID: <87vcq5t69c.fsf@rustcorp.com.au>
-References: <20111122183621.GA5235@redhat.com> <87hb1v1scp.fsf@rustcorp.com.au>
-	<20111123084640.GE22734@redhat.com>
-	<87ty5uxso3.fsf@rustcorp.com.au>
-	<20111124070728.GH29994@redhat.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH] macvtap: Fix macvtap_get_queue to use rxhash first
+Date: Mon, 28 Nov 2011 12:25:15 +0800
+Message-ID: <4ED30D2B.10907@redhat.com>
+References: <20111124081714.26635.68141.sendpatchset@krkumar2.in.ibm.com>
+	<20111124095902.GD14491@redhat.com> <4ECE18D5.3060605@redhat.com>
+	<20111124103449.GA16031@redhat.com> <4ECE3F0D.3090908@redhat.com>
+	<20111124161430.GC26770@redhat.com>
+	<OF86B15006.7F4BE3FB-ON65257953.00104C3E-65257953.0010EFCA@in.ibm.com>
+	<4ECF09D5.4010700@redhat.com>
+	<OF835A6FF5.7D752AD1-ON65257953.0016350C-65257953.00169AF4@in.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20111124070728.GH29994@redhat.com>
+In-Reply-To: <OF835A6FF5.7D752AD1-ON65257953.0016350C-65257953.00169AF4@in.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,136 +23,33 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Krishna Kumar <krkumar2@in.ibm.com>, kvm@vger.kernel.org, Pawel Moll <pawel.moll@arm.com>, Wang Sheng-Hui <shhuiw@gmail.com>, Alexey Kardashevskiy <aik@ozlabs.ru>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, Sasha Levin <levinsasha928@gmail.com>, Amit Shah <amit.shah@redhat.com>
+To: Krishna Kumar2 <krkumar2@in.ibm.com>
+Cc: arnd@arndb.de, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, levinsasha928@gmail.com, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 24 Nov 2011 09:11:22 +0200, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> On Thu, Nov 24, 2011 at 11:06:44AM +1030, Rusty Russell wrote:
-> > It'll be *clearer* to have two completely separate paths than to fill
-> > with if() statements.
-> 
-> Well, look at my patches. See how each new feature basically adds *one*
-> if statement.
+On 11/25/2011 12:09 PM, Krishna Kumar2 wrote:
+> Jason Wang<jasowang@redhat.com>  wrote on 11/25/2011 08:51:57 AM:
+>> My description is not clear again :(
+>> I mean the same vhost thead:
+>>
+>> vhost thread #0 transmits packets of flow A on processor M
+>> ...
+>> vhost thread #0 move to another process N and start to transmit packets
+>> of flow A
+> Thanks for clarifying. Yes, binding vhosts to CPU's
+> makes the incoming packet go to the same vhost each
+> time. BTW, are you doing any binding and/or irqbalance
+> when you run your tests? I am not running either at
+> this time, but thought both might be useful.
 
-Which means every new feature doubles the number of paths to test.  Both
-in qemu and the kernel.  And I know we're not very good at testing.
+I'm using ixgbe for testing also, for host, its driver seems provide irq 
+affinity hint, so no binding or irqbalance is needed. For guest, 
+irqbalance is used in guest. I've tried bind irq in guest, and it can 
+improve the rx performance.
 
-And you've still got alignment setting and guest-set ringsize to go,
-which are more complex.
-
-> Yes, we could declare all existing features to be required,
-> this is what you are advocating. But in a couple of years
-> more if statements have accumulated and we still don't have
-> a flying car. Meanwhile the driver has a huge legacy section
-> which is a huge pain to maintain.
-
-We've only implemented one layout change in 4 years (MSI-X) with one
-more definite (64-bit features).  The rate of requests is also slowing:
-they mainly came from early re-implementations.
-
-And by drawing a line under legacy mode, we don't have to test those new
-options with legacy mode.
-
-> > And a rewrite won't hurt the driver.
-> 
-> Wow. Is everyone going for the rewrite these days?
-
-Ok, I'll confess that was an ill-advised comment.  The virtio-pci driver
-is actually quite nice.
-
-> And yes it will hurt, it will hurt bisectability and testability.
-> What you propose is a huge patch that just changes all of it.
-> If there's a breakage, bisect just points at a rewrite.
-
-I don't have a problem with bisectability; it's great in the transition.
-
-But you're suggesting we maintain all those different variations
-forever, and that burden be on other implementations too.
-
-> What I would like to see is incremental patches. So I would like to
-> 1. Split driver config from common config
-> 2. Split isr/notifications out too
-> 3. Copy config in MMIO
-> 4. Add a new config
-> 5. Add length checks
-> 6. Add 64 bit features
-> 7. Add alignment programming
-> 
-> At each point we can bisect.  It worked well for event index, qemu had a
-> flag to turn it off, each time someone came in and went 'maybe it's
-> event index' we just tested without.
-
-Ok, I would like to see this too.  But I think the intermediate stages
-should be disallowed in the final patch.
-
-> > But to be honest I don't really care about the Linux driver: we're
-> > steeped in this stuff and we'll get it right.
-> 
-> Maybe. What about windows drivers?
-
-Yes.  My point was: I think one big switch is easier than lots of little
-ones.
-
-> > But I'm *terrified* of making the spec more complex;
-> 
-> All you do is move stuff around. Why do you think it simplifies the spec
-> so much?
-
-No, but it reduces the yuk factor.  Which has been important to adoption.
-
-And that's *not* all I do: reducing the number of options definitely
-simplifies the spec.  For example, the spec should currently say
-(looking at your implementation):
-
-  Notifying the device
-  ====================
-  If you find a valid VIRTIO_PCI_CAP_NOTIFY_CFG capability, and you can
-  map 2 bytes within it, those two bytes should be used to notify the
-  device of new descriptors in its virtqueues, by writing the index of the
-  virtqueue to that mapping.
-
-  If the capability is missing or malformed or you cannot map it, the
-  virtqueue index should be written to the VIRTIO_PCI_QUEUE_NOTIFY offset
-  of the legacy bar.
-
-Vs:
-
-  Notifying the device
-  ====================
-  The index of the virtqueue containing new descriptors should be written
-  to the location specified by the VIRTIO_PCI_CAP_NOTIFY_CFG capability.
-  (Unless the device is in legacy mode, see Appendix Y: Legacy Mode).
-
-> > I *really* want to banish the legacy stuff to an appendix where noone will
-> > ever know it's there :)
-> 
-> This does not make life easy for implementations as they
-> need to implement it anyway. What makes life easy is
-> making new features optional, so you pick just what you like.
-
-Today, that's true.  Tomorrow, it's not.
-
-I'd like to see kvmtools remove support for legacy mode altogether, but
-they probably have existing users.
-
-And there are boutique implementations who don't care about
-compatibility with older versions, but they implement virtio because
-it's well specified, and clear.
-
-> For example, we might want to backport some new feature into
-> rhel6.X at some point. I would like the diff to be small,
-> and easily understandable in its impact.
-
-Sure.  And I'm determined to reduce long-term complexity.
-
-Look, I try to be more inclusive and polite than Linus, but at some
-point more verbiage is wasted.  We will have single Legacy Mode switch.
-Accept it, or fork the standard.
-
-If you want to reuse the same structure, we're going to need to figure
-out how to specify the virtqueue address without a fixed alignment, and
-how to specify the alignment itself.
-
-Thanks,
-Rusty.
+> - KK
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe netdev" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
