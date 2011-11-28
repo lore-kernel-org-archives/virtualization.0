@@ -1,16 +1,20 @@
-From: Sasha Levin <levinsasha928@gmail.com>
-Subject: Re: [PATCHv3 RFC] virtio-pci: flexible configuration layout
-Date: Mon, 28 Nov 2011 11:15:31 +0200
-Message-ID: <1322471731.3577.10.camel@lappy>
-References: <20111122183621.GA5235@redhat.com>
-	<87hb1v1scp.fsf@rustcorp.com.au> <20111123084640.GE22734@redhat.com>
-	<87ty5uxso3.fsf@rustcorp.com.au> <20111124070728.GH29994@redhat.com>
-	<87vcq5t69c.fsf@rustcorp.com.au>
+From: Stephen Hemminger <shemminger@vyatta.com>
+Subject: Re: [PATCH] macvtap: Fix macvtap_get_queue to use rxhash first
+Date: Mon, 28 Nov 2011 09:42:00 -0800
+Message-ID: <20111128094200.2cb823a0@nehalam.linuxnetplumber.net>
+References: <20111124081714.26635.68141.sendpatchset@krkumar2.in.ibm.com>
+	<20111124095902.GD14491@redhat.com> <4ECE18D5.3060605@redhat.com>
+	<20111124103449.GA16031@redhat.com> <4ECE3F0D.3090908@redhat.com>
+	<20111124161430.GC26770@redhat.com>
+	<OF86B15006.7F4BE3FB-ON65257953.00104C3E-65257953.0010EFCA@in.ibm.com>
+	<4ECF09D5.4010700@redhat.com>
+	<OF835A6FF5.7D752AD1-ON65257953.0016350C-65257953.00169AF4@in.ibm.com>
+	<4ED30D2B.10907@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <87vcq5t69c.fsf@rustcorp.com.au>
+In-Reply-To: <4ED30D2B.10907@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,29 +24,16 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Krishna Kumar <krkumar2@in.ibm.com>, kvm@vger.kernel.org, Pawel Moll <pawel.moll@arm.com>, "Michael S. Tsirkin" <mst@redhat.com>, Alexey Kardashevskiy <aik@ozlabs.ru>, Wang Sheng-Hui <shhuiw@gmail.com>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, Amit Shah <amit.shah@redhat.com>
+To: Jason Wang <jasowang@redhat.com>
+Cc: Krishna Kumar2 <krkumar2@in.ibm.com>, arnd@arndb.de, "Michael S.
+	Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, levinsasha928@gmail.com, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, 2011-11-28 at 11:25 +1030, Rusty Russell wrote:
-> I'd like to see kvmtools remove support for legacy mode altogether,
-> but they probably have existing users.
+On Mon, 28 Nov 2011 12:25:15 +0800
+Jason Wang <jasowang@redhat.com> wrote:
 
-While we can't simply remove it right away, instead of mixing our
-implementation for both legacy and new spec in the same code we can
-split the virtio-pci implementation into two:
+> I'm using ixgbe for testing also, for host, its driver seems provide irq 
+> affinity hint, so no binding or irqbalance is needed.
 
-	- virtio/virtio-pci-legacy.c
-	- virtio/virtio-pci.c
-
-At that point we can #ifdef the entire virtio-pci-legacy.c for now and
-remove it at the same time legacy virtio-pci is removed from the kernel.
-
-I think this is something very similar to what you want done in the
-kernel code, so an added plus is that the usermode code will be
-mirroring the kernel code - which is something we try to have in the KVM
-tool :)
-
--- 
-
-Sasha.
+The hint is for irqbalance to use. You need to still do manual
+affinity or use irqbalance.
