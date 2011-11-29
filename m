@@ -1,20 +1,13 @@
-From: Miche Baker-Harvey <miche@google.com>
-Subject: Re: [PATCH v3 2/3] hvc_init(): Enforce one-time initialization.
-Date: Tue, 29 Nov 2011 09:50:41 -0800
-Message-ID: <CAB8Rdapfuf5XH+X9gsUL+CJ9gTQcSNfq4Dj9DoYWQeFgD04ODQ@mail.gmail.com>
-References: <20111108214452.28884.14840.stgit@miche.sea.corp.google.com>
-	<20111108214504.28884.61814.stgit@miche.sea.corp.google.com>
-	<874nybqo0o.fsf@rustcorp.com.au>
-	<CAB8RdapbaueyWLJuJDE_ZdvLkRNM4sQHTxgmgO=jrnXZ6YPSmA@mail.gmail.com>
-	<20111123103852.GG16665@amit-x200.redhat.com>
-	<CAB8RdaoDxMCgTjuGP70bGrsrtgh=USYtU3Spo5OPtVMYAM5EzQ@mail.gmail.com>
-	<20111129142149.GE2822@amit-x200.redhat.com>
-	<CAB8RdapuPRym2dH_9mgmGdzpCxnP1KpS+hS8JJ-geVkga5fMcw@mail.gmail.com>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [ANNOUNCE] Xen port to Cortex-A15 / ARMv7 with virt extensions
+Date: Tue, 29 Nov 2011 21:29:20 +0000
+Message-ID: <201111292129.20444.arnd__9703.47155021063$1322602532$gmane$org@arndb.de>
+References: <alpine.DEB.2.00.1111281009090.31179@kaball-desktop>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAB8RdapuPRym2dH_9mgmGdzpCxnP1KpS+hS8JJ-geVkga5fMcw@mail.gmail.com>
+In-Reply-To: <alpine.DEB.2.00.1111281009090.31179@kaball-desktop>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,81 +17,31 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Amit Shah <amit.shah@redhat.com>
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>, xen-devel@lists.xensource.com, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Anton Blanchard <anton@samba.org>, Mike Waychison <mikew@google.com>, ppc-dev <linuxppc-dev@lists.ozlabs.org>, Greg Kroah-Hartman <gregkh@suse.de>, Eric Northrup <digitaleric@google.com>
+To: linux-arm-kernel@lists.infradead.org
+Cc: xen-devel@lists.xensource.com, linaro-dev@lists.linaro.org, kvm@vger.kernel.org, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, android-virt@lists.cs.columbia.edu, embeddedxen-devel@lists.sourceforge.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-Good grief!  Sorry for the spacing mess-up!  Here's a resend with reformatting.
+On Tuesday 29 November 2011, Stefano Stabellini wrote:
+> Hi all,
+> a few weeks ago I (and a few others) started hacking on a
+> proof-of-concept hypervisor port to Cortex-A15 which uses and requires
+> ARMv7 virtualization extensions. The intention of this work was to find
+> out how to best support ARM v7+ on Xen. See
+> http://old-list-archives.xen.org/archives/html/xen-arm/2011-09/msg00013.html
+> for more details. 
+> 
+> I am pleased to announce that significant progress has been made, and
+> that we now have a nascent Xen port for Cortex-A15. The port is based on
+> xen-unstable (HG CS 8d6edc3d26d2) and written from scratch exploiting
+> the latest virtualization, LPAE, GIC and generic timer support in
+> hardware.
 
-Amit,
-We aren't using either QEMU or kvmtool, but we are using KVM.  All
-the issues we are seeing happen when we try to establish multiple
-virtioconsoles at boot time.  The command line isn't relevant, but I
-can tell you the protocol that's passing between the host (kvm) and
-the guest (see the end of this message).
+Very nice!
 
-We do go through the control_work_handler(), but it's not
-providing synchronization.  Here's a trace of the
-control_work_handler() and handle_control_message() calls; note that
-there are two concurrent calls to control_work_handler().
+Do you have a pointer to the kernel sources for the Linux guest?
+Since Xen and KVM are both in an early working state right now,
+it would be very nice if we could agree on the guest model to make
+sure that it's always possible to run the same kernel in both
+(and potentially other future) hypervisors without modifications.
 
-I decorated control_work_handler() with a "lifetime" marker, and
-passed this value to handle_control_message(), so we can see which
-control messages are being handled from which instance of
-the control_work_handler() thread.
-
-Notice that we enter control_work_handler() a second time before
-the handling of the second PORT_ADD message is complete. The
-first CONSOLE_PORT message is handled by the second
-control_work_handler() call, but the second is handled by the first
-control_work_handler() call.
-
-root@myubuntu:~# dmesg | grep MBH
-[3371055.808738] control_work_handler #1
-[3371055.809372] + #1 handle_control_message PORT_ADD
-[3371055.810169] - handle_control_message PORT_ADD
-[3371055.810170] + #1 handle_control_message PORT_ADD
-[3371055.810244]  control_work_handler #2
-[3371055.810245] + #2 handle_control_message CONSOLE_PORT
-[3371055.810246]  got hvc_ports_mutex
-[3371055.810578] - handle_control_message PORT_ADD
-[3371055.810579] + #1 handle_control_message CONSOLE_PORT
-[3371055.810580]  trylock of hvc_ports_mutex failed
-[3371055.811352]  got hvc_ports_mutex
-[3371055.811370] - handle_control_message CONSOLE_PORT
-[3371055.816609] - handle_control_message CONSOLE_PORT
-
-So, I'm guessing the bug is that there shouldn't be two instances of
-control_work_handler() running simultaneously?
-
-Thanks,
-
-Miche
-
-Protocol:
-We set up the virtio console device registers during initialization,
-specifying the multiport feature, and some number of
-ports, n, where nis greater than 1.
-
-In the guest, virtcons_probe() finds our device, and successfully
-sends the VIRTIO_CONSOLE_DEVICE_READY=1 control message.
-On the host, we receive the VIRTIO_CONSOLE_DEVICE_READY message,
-and send one VIRTIO_CONSOLE_PORT_ADD message via the Receive Control
-queuefor each port in the number of ports.  These messages are
-not serialized: they are all sent at once.
-
-The VIRTIO_CONSOLE_PORT_ADD messages are received
-in handle_control_message() in virtio_console.c, and add_port() is
-called for each.  After each port is added, the guest
-sendsVIRTIO_CONSOLE_PORT_READY to the host, and in these messages, the
-id of the port is included in the message.
-
-On the host, in response to each VIRTIO_CONSOLE_PORT_READY=1
-message, we may send a VIRTIO_CONSOLE_CONSOLE_PORT message.
-On the guest, in response to each VIRTIO_CONSOLE_CONSOLE_PORT
-message, init_port_console() is called on the individual port.  The
-same id is used for these messages as was used for the PORT_READY
-messages.
-
-After each successful init_port_console(), the guest
-sends VIRTIO_CONSOLE_PORT_OPEN back to the host.
+	Arnd
