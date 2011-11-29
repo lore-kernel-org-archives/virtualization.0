@@ -1,17 +1,12 @@
-From: Miche Baker-Harvey <miche@google.com>
-Subject: Re: [PATCH v3 2/3] hvc_init(): Enforce one-time initialization.
-Date: Mon, 28 Nov 2011 15:40:41 -0800
-Message-ID: <CAB8RdaoDxMCgTjuGP70bGrsrtgh=USYtU3Spo5OPtVMYAM5EzQ@mail.gmail.com>
-References: <20111108214452.28884.14840.stgit@miche.sea.corp.google.com>
-	<20111108214504.28884.61814.stgit@miche.sea.corp.google.com>
-	<874nybqo0o.fsf@rustcorp.com.au>
-	<CAB8RdapbaueyWLJuJDE_ZdvLkRNM4sQHTxgmgO=jrnXZ6YPSmA@mail.gmail.com>
-	<20111123103852.GG16665@amit-x200.redhat.com>
+From: Sasha Levin <levinsasha928@gmail.com>
+Subject: [PATCH] virtio-ring: Use threshold for switching to indirect
+	descriptors
+Date: Tue, 29 Nov 2011 11:33:16 +0200
+Message-ID: <1322559196-11139-1-git-send-email-levinsasha928@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20111123103852.GG16665@amit-x200.redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,124 +16,81 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Amit Shah <amit.shah@redhat.com>
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>, xen-devel@lists.xensource.com, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Anton Blanchard <anton@samba.org>, Mike Waychison <mikew@google.com>, ppc-dev <linuxppc-dev@lists.ozlabs.org>, Greg Kroah-Hartman <gregkh@suse.de>, Eric Northrup <digitaleric@google.com>
+To: linux-kernel@vger.kernel.org
+Cc: virtualization@lists.linux-foundation.org, Sasha Levin <levinsasha928@gmail.com>, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Amit,
+Currently if VIRTIO_RING_F_INDIRECT_DESC is enabled we will use indirect
+descriptors even if we have plenty of space in the ring. This means that
+we take a performance hit at all times due to the overhead of creating
+indirect descriptors.
 
-You said that the work would be serialized "due to port additions
-being on work items on the same workqueue".  I'm not seeing that.
-I've double checked this by using a mutex_trylock in
-hvc_console::hvc_alloc(), and here's the relevant output from dmesg:
+With this patch, we will use indirect descriptors only if we have less than
+either 16, or 12% of the total amount of descriptors available.
 
-root@myubuntu:~# dmesg | grep MBH
-[3307216.210274] MBH: got hvc_ports_mutex
-[3307216.210690] MBH: trylock of hvc_ports_mutex failed
-[3307216.211143] MBH: got hvc_ports_mutex
+I did basic performance benchmark on virtio-net with vhost enabled.
 
-This is in a system with two virtio console ports, each of which is a
-console.  I think if the VIRTIO_CONSOLE_CONSOLE_PORT message handling
-were actually being serialized, the trylock should never fail.
+Before:
+	Recv   Send    Send
+	Socket Socket  Message  Elapsed
+	Size   Size    Size     Time     Throughput
+	bytes  bytes   bytes    secs.    10^6bits/sec
 
-What's the source of the serialization for the workqueue items?  At
-first reading it looks like the control_work_handler gets called for
-each virtio interrupt?
+	 87380  16384  16384    10.00    4563.92
 
-Miche
+After:
+	Recv   Send    Send
+	Socket Socket  Message  Elapsed
+	Size   Size    Size     Time     Throughput
+	bytes  bytes   bytes    secs.    10^6bits/sec
 
+	 87380  16384  16384    10.00    5353.28
 
-On Wed, Nov 23, 2011 at 2:38 AM, Amit Shah <amit.shah@redhat.com> wrote:
-> On (Thu) 17 Nov 2011 [10:57:37], Miche Baker-Harvey wrote:
->> Rusty, Michael, Stephen, et al,
->>
->> Thanks for your comments on these patches.
->>
->> For what I'm trying to do, all three patches are necessary, but maybe
->> I'm going about it the wrong way. Your input would be appreciated.
->> I'm in no way claiming that these patches are "right", just that it's
->> working for me, and that what's in the current pool is not.
->>
->> What I'm trying to do is:
->> On X86,
->> under KVM,
->> start a virtio console device,
->> with multiple ports on the device,
->> at least one of which is also a console (as well as ttyS0).
->>
->> (Eventually, we want to be able to add virtio console ports on the
->> fly, and to have multiple virtio console ports be consoles.)
->
-> Are you using kvm-tool to do this? =A0QEMU can already hot-plug ports
-> and virtio-console (virtio-serial) devices.
->
->> When all three of the patches are in place, this works great. (By
->> great, I mean that getty's start up on all of ttyS0, hvc0 and hvc1,
->> and console output goes to ttyS0 and to hvc0.
->> "who" shows three users: =A0ttyS0, hvc0, and hvc1.
->> "cat /proc/consoles" shows both ttyS0 and hvc0.
->> I can use all three getty's, and console output really does appear on
->> both the consoles.
->>
->> Based on Rusty's comments, I tried removing each of the patches
->> individually. Here's what happens today. I've seen other failure modes
->> depending on what precisely I'm passing the guest.
->> There's three patches:
->> 1/3 "fix locking of vtermno"
->> 2/3 "enforce one-time initialization with hvc_init
->> "3/3 "use separate struct console * for each console"
->>
->> If I remove the "fix locking of vtermno", I only get one virtio
->> console terminal. =A0"who" shows the ttyS0 and the hvc0, and I can log
->> into the gettys on both. I don't get the second virtio console getty.
->> Interestingly, hvc0 shows up in /proc/consoles twice, and in fact the
->> console output is dumped twice to hvc0 (as you'd expect from looking
->> at printk.c, each line appears twice, followed by the next line.)
->
-> I don't really understand why. =A0"fix locking of vtermno" adds locks in
-> init_port_console(), which is called from add_port(), which should be
-> serialised due to port additions being on work items on the same
-> workqueue. =A0I don't see a race here.
->
->> If I remove the "enforce one-time initialization with hvc_init" patch,
->> which makes sure only a single thread is doing the hvc_init, and gates
->> anyone from continuing until it has completed, I get different
->> failures, including hangs, and dereferences of NULL pointers.
->>
->> If I remove the "use separate struct console * for each console"patch,
->> what I'm seeing now is that while all of ttyS0, hvc0, and hvc1 are
->> present with gettys running on them, of the three, only ttyS0 is a
->> console.
->
-> I don't see any difference in my testing with and without these
-> patches.
->
-> This is how I tested with qemu:
->
-> ./x86_64-softmmu/qemu-system-x86_64 -m 512 -smp 2 -chardev
-> socket,path=3D/tmp/foo,server,nowait,id=3Dfoo -chardev
-> socket,path=3D/tmp/bar,server,nowait,id=3Dbar -device virtio-serial
-> -device virtconsole,chardev=3Dfoo,nr=3D4 -device
-> virtconsole,chardev=3Dbar,nr=3D3 -net none =A0-kernel
-> /home/amit/src/linux/arch/x86/boot/bzImage -append 'root=3D/dev/sda1
-> console=3Dtty0 console=3DttyS0' -initrd /tmp/initramfs.img
-> /guests/f14-nolvm.qcow2 -enable-kvm -snapshot
->
-> With this setup, with and without patches, I can spawn two consoles
-> via:
->
-> /sbin/agetty /dev/hvc0 9600 vt100
-> /sbin/agetty /dev/hvc1 9600 vt100
->
-> (Strange thing is, the second one gives a 'password incorrect' error
-> on login attempts, while the first one logs in fine. =A0I do remember
-> testing multiple consoles just fine a year and a half back, so no idea
-> why this isn't behaving as expected -- but it mostly looks like a
-> userspace issue rather than kernel one.)
->
-> As mentioned earlier, I've not looked at the hvc code, but given my
-> testing results, I'd like to first understand what you're seeing and
-> what your environment is.
->
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0Amit
->
+Cc: Rusty Russell <rusty@rustcorp.com.au>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: virtualization@lists.linux-foundation.org
+Cc: kvm@vger.kernel.org
+Signed-off-by: Sasha Levin <levinsasha928@gmail.com>
+---
+ drivers/virtio/virtio_ring.c |   12 ++++++++++--
+ 1 files changed, 10 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+index c7a2c20..5e0ce15 100644
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -82,6 +82,7 @@ struct vring_virtqueue
+ 
+ 	/* Host supports indirect buffers */
+ 	bool indirect;
++	unsigned int indirect_threshold;
+ 
+ 	/* Host publishes avail event idx */
+ 	bool event;
+@@ -176,8 +177,9 @@ int virtqueue_add_buf_gfp(struct virtqueue *_vq,
+ 	BUG_ON(data == NULL);
+ 
+ 	/* If the host supports indirect descriptor tables, and we have multiple
+-	 * buffers, then go indirect. FIXME: tune this threshold */
+-	if (vq->indirect && (out + in) > 1 && vq->num_free) {
++	 * buffers, then go indirect. */
++	if (vq->indirect && (out + in) > 1 &&
++	   (vq->num_free < vq->indirect_threshold)) {
+ 		head = vring_add_indirect(vq, sg, out, in, gfp);
+ 		if (likely(head >= 0))
+ 			goto add_head;
+@@ -485,6 +487,12 @@ struct virtqueue *vring_new_virtqueue(unsigned int num,
+ #endif
+ 
+ 	vq->indirect = virtio_has_feature(vdev, VIRTIO_RING_F_INDIRECT_DESC);
++	/*
++	 * Use indirect descriptors only when we have less than either 12%
++	 * or 16 of the descriptors in the ring available.
++	 */
++	if (vq->indirect)
++		vq->indirect_threshold = max(16U, num >> 3);
+ 	vq->event = virtio_has_feature(vdev, VIRTIO_RING_F_EVENT_IDX);
+ 
+ 	/* No callback?  Tell other side not to bother us. */
+-- 
+1.7.8.rc3
