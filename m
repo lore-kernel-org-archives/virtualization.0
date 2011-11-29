@@ -1,18 +1,16 @@
-From: Avi Kivity <avi@redhat.com>
-Subject: Re: [PATCH] virtio-ring: Use threshold for switching to indirect
-	descriptors
-Date: Tue, 29 Nov 2011 16:58:23 +0200
-Message-ID: <4ED4F30F.8000603@redhat.com>
-References: <1322559196-11139-1-git-send-email-levinsasha928@gmail.com>
-	<20111129125622.GB19157@redhat.com>
-	<1322573688.4395.11.camel@lappy>
-	<20111129135406.GB30966@redhat.com> <1322576464.7003.6.camel@lappy>
-	<20111129145451.GD30966@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [RFC] virtio: use mandatory barriers for remote processor vdevs
+Date: Tue, 29 Nov 2011 17:16:07 +0200
+Message-ID: <20111129151607.GE30966@redhat.com>
+References: <1322569886-13055-1-git-send-email-ohad@wizery.com>
+	<20111129131110.GC19157@redhat.com>
+	<CAK=WgbZoGYVyKt=XXvnPVdh0koSBJC0zcgkLaYRkmjwBLOFA-A@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20111129145451.GD30966@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <CAK=WgbZoGYVyKt=XXvnPVdh0koSBJC0zcgkLaYRkmjwBLOFA-A@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,27 +20,60 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: markmc@redhat.com, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Sasha Levin <levinsasha928@gmail.com>
+To: Ohad Ben-Cohen <ohad@wizery.com>
+Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 11/29/2011 04:54 PM, Michael S. Tsirkin wrote:
-> > 
-> > Which is actually strange, weren't indirect buffers introduced to make
-> > the performance *better*? From what I see it's pretty much the
-> > same/worse for virtio-blk.
->
-> I know they were introduced to allow adding very large bufs.
-> See 9fa29b9df32ba4db055f3977933cd0c1b8fe67cd
-> Mark, you wrote the patch, could you tell us which workloads
-> benefit the most from indirect bufs?
->
+On Tue, Nov 29, 2011 at 03:57:19PM +0200, Ohad Ben-Cohen wrote:
+> On Tue, Nov 29, 2011 at 3:11 PM, Michael S. Tsirkin <mst@redhat.com> wrote:
+> > On Tue, Nov 29, 2011 at 02:31:26PM +0200, Ohad Ben-Cohen wrote:
+> >> Virtio is using memory barriers to control the ordering of
+> >> references to the vrings on SMP systems. When the guest is compiled
+> >> with SMP support, virtio is only using SMP barriers in order to
+> >> avoid incurring the overhead involved with mandatory barriers.
+> >>
+> >> Lately, though, virtio is being increasingly used with inter-processor
+> >> communication scenarios too, which involve running two (separate)
+> >> instances of operating systems on two (separate) processors, each of
+> >> which might either be UP or SMP.
+> >
+> > Is that using virtio-mmio?
+> 
+> No, I'm using this:
+> 
+> https://lkml.org/lkml/2011/10/25/139
 
-Indirects are really for block devices with many spindles, since there
-the limiting factor is the number of requests in flight.  Network
-interfaces are limited by bandwidth, it's better to increase the ring
-size and use direct buffers there (so the ring size more or less
-corresponds to the buffer size).
+This mentions iommu - is there a need to use dma api to let
+the firmware acess the rings? Or does it have access to all
+of memory?
+
+> > Sorry, could you pls explain what are 'two external processors'?
+> > I think I know that if two x86 CPUs in an SMP system run kernels built
+> > in an SMP configuration, smp_*mb barriers are enough.
+> 
+> Sure:
+> 
+> My setup is not SMP-based; it's two separate processors running in AMP
+> configuration. The processors have completely different architectures,
+> are not cache coherent, and only simply share some memory, which is
+> used for communications using virtio as the shared memory "wire"
+> protocol (i.e. we're not even doing virtualization: we have Linux on
+> one processor, and some RTOS on another processor, and they use virtio
+> to send and receive buffers).
+
+I'd like to make sure I understand the memory model some more.
+Is there cache snooping? If yes access from an external device
+typically works mostly in the same way as smp ...
+
+
+> So it's not SMP effects we're controlling; we're pretty much doing
+> MMIO and must use mandatory barriers
+
+So you put virtio rings in MMIO memory?
+
+> (otherwise we see breakage).
+
+Could you please give a couple of examples of breakage?
 
 -- 
-error compiling committee.c: too many arguments to function
+MST
