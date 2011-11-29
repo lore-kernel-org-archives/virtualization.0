@@ -1,13 +1,17 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [ANNOUNCE] Xen port to Cortex-A15 / ARMv7 with virt extensions
-Date: Tue, 29 Nov 2011 21:29:20 +0000
-Message-ID: <201111292129.20444.arnd__9703.47155021063$1322602532$gmane$org@arndb.de>
-References: <alpine.DEB.2.00.1111281009090.31179@kaball-desktop>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCHv3 RFC] virtio-pci: flexible configuration layout
+Date: Wed, 30 Nov 2011 10:10:22 +1030
+Message-ID: <87pqgats49.fsf@rustcorp.com.au>
+References: <20111122183621.GA5235@redhat.com> <87hb1v1scp.fsf@rustcorp.com.au>
+	<20111123084640.GE22734@redhat.com>
+	<87ty5uxso3.fsf@rustcorp.com.au>
+	<20111124070728.GH29994@redhat.com>
+	<87vcq5t69c.fsf@rustcorp.com.au> <1322471731.3577.10.camel@lappy>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <alpine.DEB.2.00.1111281009090.31179@kaball-desktop>
+In-Reply-To: <1322471731.3577.10.camel@lappy>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,31 +21,30 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-arm-kernel@lists.infradead.org
-Cc: xen-devel@lists.xensource.com, linaro-dev@lists.linaro.org, kvm@vger.kernel.org, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, android-virt@lists.cs.columbia.edu, embeddedxen-devel@lists.sourceforge.net
+To: Sasha Levin <levinsasha928@gmail.com>
+Cc: Krishna Kumar <krkumar2@in.ibm.com>, kvm@vger.kernel.org, Pawel Moll <pawel.moll@arm.com>, "Michael S. Tsirkin" <mst@redhat.com>, Alexey Kardashevskiy <aik@ozlabs.ru>, Wang Sheng-Hui <shhuiw@gmail.com>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, Amit Shah <amit.shah@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tuesday 29 November 2011, Stefano Stabellini wrote:
-> Hi all,
-> a few weeks ago I (and a few others) started hacking on a
-> proof-of-concept hypervisor port to Cortex-A15 which uses and requires
-> ARMv7 virtualization extensions. The intention of this work was to find
-> out how to best support ARM v7+ on Xen. See
-> http://old-list-archives.xen.org/archives/html/xen-arm/2011-09/msg00013.html
-> for more details. 
+On Mon, 28 Nov 2011 11:15:31 +0200, Sasha Levin <levinsasha928@gmail.com> wrote:
+> On Mon, 2011-11-28 at 11:25 +1030, Rusty Russell wrote:
+> > I'd like to see kvmtools remove support for legacy mode altogether,
+> > but they probably have existing users.
 > 
-> I am pleased to announce that significant progress has been made, and
-> that we now have a nascent Xen port for Cortex-A15. The port is based on
-> xen-unstable (HG CS 8d6edc3d26d2) and written from scratch exploiting
-> the latest virtualization, LPAE, GIC and generic timer support in
-> hardware.
+> While we can't simply remove it right away, instead of mixing our
+> implementation for both legacy and new spec in the same code we can
+> split the virtio-pci implementation into two:
+> 
+> 	- virtio/virtio-pci-legacy.c
+> 	- virtio/virtio-pci.c
+> 
+> At that point we can #ifdef the entire virtio-pci-legacy.c for now and
+> remove it at the same time legacy virtio-pci is removed from the kernel.
 
-Very nice!
+Hmm, that might be neat, but we can't tell the driver core to try
+virtio-pci before virtio-pci-legacy, so we need detection code in both
+modules (and add a "force" flag to virtio-pci-legacy to tell it to
+accept the device even if it's not a legacy-only one).
 
-Do you have a pointer to the kernel sources for the Linux guest?
-Since Xen and KVM are both in an early working state right now,
-it would be very nice if we could agree on the guest model to make
-sure that it's always possible to run the same kernel in both
-(and potentially other future) hypervisors without modifications.
-
-	Arnd
+Then it should work...
+Cheers,
+Rusty.
