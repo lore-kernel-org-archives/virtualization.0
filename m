@@ -1,19 +1,11 @@
-From: Amit Shah <amit.shah@redhat.com>
-Subject: Re: [PATCH v3 2/3] hvc_init(): Enforce one-time initialization.
-Date: Tue, 29 Nov 2011 19:51:49 +0530
-Message-ID: <20111129142149.GE2822@amit-x200.redhat.com>
-References: <20111108214452.28884.14840.stgit@miche.sea.corp.google.com>
-	<20111108214504.28884.61814.stgit@miche.sea.corp.google.com>
-	<874nybqo0o.fsf@rustcorp.com.au>
-	<CAB8RdapbaueyWLJuJDE_ZdvLkRNM4sQHTxgmgO=jrnXZ6YPSmA@mail.gmail.com>
-	<20111123103852.GG16665@amit-x200.redhat.com>
-	<CAB8RdaoDxMCgTjuGP70bGrsrtgh=USYtU3Spo5OPtVMYAM5EzQ@mail.gmail.com>
+From: Stefano Stabellini <stefano.stabellini@eu.citrix.com>
+Subject: [ANNOUNCE] Xen port to Cortex-A15 / ARMv7 with virt extensions
+Date: Tue, 29 Nov 2011 14:53:34 +0000
+Message-ID: <alpine.DEB.2.00.1111281009090.31179@kaball-desktop>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <CAB8RdaoDxMCgTjuGP70bGrsrtgh=USYtU3Spo5OPtVMYAM5EzQ@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,41 +15,79 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Miche Baker-Harvey <miche@google.com>
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>, xen-devel@lists.xensource.com, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Anton Blanchard <anton@samba.org>, Mike Waychison <mikew@google.com>, ppc-dev <linuxppc-dev@lists.ozlabs.org>, Greg Kroah-Hartman <gregkh@suse.de>, Eric Northrup <digitaleric@google.com>
+To: xen-devel@lists.xensource.com
+Cc: linaro-dev@lists.linaro.org, kvm@vger.kernel.org, Stefano Stabellini <Stefano.Stabellini@eu.citrix.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, android-virt@lists.cs.columbia.edu, embeddedxen-devel@lists.sourceforge.net, linux-arm-kernel@lists.infradead.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi,
+Hi all,
+a few weeks ago I (and a few others) started hacking on a
+proof-of-concept hypervisor port to Cortex-A15 which uses and requires
+ARMv7 virtualization extensions. The intention of this work was to find
+out how to best support ARM v7+ on Xen. See
+http://old-list-archives.xen.org/archives/html/xen-arm/2011-09/msg00013.html
+for more details. 
 
-On (Mon) 28 Nov 2011 [15:40:41], Miche Baker-Harvey wrote:
-> Amit,
-> 
-> You said that the work would be serialized "due to port additions
-> being on work items on the same workqueue".  I'm not seeing that.
+I am pleased to announce that significant progress has been made, and
+that we now have a nascent Xen port for Cortex-A15. The port is based on
+xen-unstable (HG CS 8d6edc3d26d2) and written from scratch exploiting
+the latest virtualization, LPAE, GIC and generic timer support in
+hardware.
 
-You leave a lot of questions unanswered.  What's your environment?
-Are you hot-plugging ports?  Are you using qemu?  What's your command
-line?
+We started the work less than three months ago, but the port is already
+capable of booting a Linux 3.0 based virtual machine (dom0) up to a
+shell prompt on an ARM Architecture Envelope Model, configured to emulate
+an A15-based Versatile Express. In this context, we wanted to thank ARM
+for making the model available to us.
+Now we are looking forward to porting the tools and running multiple
+guests.
 
-> I've double checked this by using a mutex_trylock in
-> hvc_console::hvc_alloc(), and here's the relevant output from dmesg:
-> 
-> root@myubuntu:~# dmesg | grep MBH
-> [3307216.210274] MBH: got hvc_ports_mutex
-> [3307216.210690] MBH: trylock of hvc_ports_mutex failed
-> [3307216.211143] MBH: got hvc_ports_mutex
-> 
-> This is in a system with two virtio console ports, each of which is a
-> console.  I think if the VIRTIO_CONSOLE_CONSOLE_PORT message handling
-> were actually being serialized, the trylock should never fail.
+The code requires virtualization, LPAE and GIC support and therefore it
+won't be able to run on anything older than a Cortex-A15.
+On the other hand, thanks to this, it is very small and easy to read,
+write and understand.
+The implementation does not distinguish between PV and HVM guests: there
+is just one type of guests that would be comparable to Linux PV on HVM
+in the Xen X86 world, but with no need for Qemu emulation.
+The code only requires minimal changes to the Linux kernel: just enough
+to support PV drivers.
 
-Agreed.
+Even though we are currently targeting Versatile Express and Cortex-A15
+we do intend to support other machines and other ARMv7 with
+virtualization extensions CPUs.
+We are also looking forward to ARMv8 and 64 bits support.
 
-> What's the source of the serialization for the workqueue items?  At
-> first reading it looks like the control_work_handler gets called for
-> each virtio interrupt?
+Given that porting Xen to Cortex-A15 could be done with so little code,
+we believe that the best course of action is to merge it into
+xen-unstable as quickly as possible. There are still few rough edges to
+sort out but we should be able to produce a clean and digestible patch
+series for submission to xen-devel within the next couple of months. I
+hope to see the first patches going to the list as soon as possible.
+We would very welcome any contributions, in the form of testing, code
+reviews and, of course, patches! 
 
-It all depends on how you add ports.  If you're using qemu, they
-happen via the control work handler.
 
-		Amit
+A git tree is available here:
+
+git://xenbits.xen.org/people/sstabellini/xen-unstable.git arm
+
+the gitweb url is the following:
+
+http://xenbits.xen.org/gitweb/?p=people/sstabellini/xen-unstable.git/.git;a=shortlog;h=refs/heads/arm
+
+And here is the full diff:
+
+http://xenbits.xen.org/people/sstabellini/diff
+
+
+We want to point out that this effort is in addition to Samsung's
+ongoing efforts to upstream Xen ARM to xen-unstable. Samsung's XenARM
+port allows virtualization of Xen on ARM CPUs prior to virtualization
+extensions and supports traditional PV guests.
+
+I would like to thank Tim Deegan and Ian Campbell: if you spend some
+time reading the history, you'll see that this project wouldn't have
+been possible in such a short time without great contributions from
+them.
+
+Cheers,
+Stefano
