@@ -1,18 +1,18 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
+From: Ohad Ben-Cohen <ohad@wizery.com>
 Subject: Re: [RFC] virtio: use mandatory barriers for remote processor vdevs
-Date: Wed, 30 Nov 2011 16:59:59 +0200
-Message-ID: <20111130145958.GE21413@redhat.com>
+Date: Wed, 30 Nov 2011 18:04:56 +0200
+Message-ID: <CAK=WgbYyFdLftE_kp2_JOThVhn-FzGsDqVqKn0Jwm2teQyZBNA__18180.4599510089$1322669160$gmane$org@mail.gmail.com>
 References: <1322569886-13055-1-git-send-email-ohad@wizery.com>
 	<20111129131110.GC19157@redhat.com>
 	<CAK=WgbZoGYVyKt=XXvnPVdh0koSBJC0zcgkLaYRkmjwBLOFA-A@mail.gmail.com>
 	<20111129151607.GE30966@redhat.com>
 	<CAK=WgbZK+k4uuyMPHUfr_PMyrR5ceRTvuDRpmhXfgwpSUOPw0g@mail.gmail.com>
+	<20111130145958.GE21413@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <CAK=WgbZK+k4uuyMPHUfr_PMyrR5ceRTvuDRpmhXfgwpSUOPw0g@mail.gmail.com>
+In-Reply-To: <20111130145958.GE21413@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,31 +22,35 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Ohad Ben-Cohen <ohad@wizery.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Nov 30, 2011 at 01:45:05PM +0200, Ohad Ben-Cohen wrote:
-> > So you put virtio rings in MMIO memory?
-> 
-> I'll be precise: the vrings are created in non-cacheable memory, which
-> both processors have access to.
-> 
-> > Could you please give a couple of examples of breakage?
-> 
-> Sure. Basically, the order of the vring memory operations appear
-> differently to the observing processor. For example, avail->idx gets
-> updated before the new entry is put in the available array...
+On Wed, Nov 30, 2011 at 4:59 PM, Michael S. Tsirkin <mst@redhat.com> wrote:
+> I see. And this happens because the ARM processor reorders
+> memory writes
 
-I see. And this happens because the ARM processor reorders
-memory writes to this uncacheable memory?
-And in an SMP configuration, writes are somehow not reordered?
+Yes.
 
-For example, if we had such an AMP configuration with and x86
-processor, wmb() (sfence) would be wrong and smp_wmb() would be sufficient.
+> And in an SMP configuration, writes are somehow not reordered?
 
-Just checking that this is not a bug in the smp_wmb implementation
-for the specific platform.
+They are, but then the smp memory barriers are enough to control these
+effects. It's not enough to control reordering as seen by a device
+(which is what our AMP processors are) though.
 
--- 
-MST
+(btw, the difference between an SMP processor and a device here lies
+in how the memory is mapped: normal memory vs. device memory
+attributes. it's an ARM thingy).
+
+> Just checking that this is not a bug in the smp_wmb implementation
+> for the specific platform.
+
+No, it's not.
+
+ARM's smp memory barriers use ARM's DMB instruction, which is enough
+to control SMP effects, whereas ARM's mandatory memory barriers use
+ARM's DSB instruction, which is required to ensure the ordering
+between Device and Normal memory accesses.
+
+Thanks,
+Ohad.
