@@ -1,13 +1,11 @@
-From: Anup Patel <anup@brainfault.org>
-Subject: Re: [ANNOUNCE] Xen port to Cortex-A15 / ARMv7 with virt extensions
-Date: Wed, 30 Nov 2011 10:12:19 +0530
-Message-ID: <CAAhSdy3F1oUQP=f_Tig4_MnufwPRpNooZYW8_cSTAse7aOaDoA__1824.04950396648$1322669459$gmane$org@mail.gmail.com>
-References: <alpine.DEB.2.00.1111281009090.31179@kaball-desktop>
-	<201111292129.20444.arnd@arndb.de>
+From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
+Subject: [PATCH RFC V3 0/4] kvm : Paravirt-spinlock support for KVM guests
+Date: Wed, 30 Nov 2011 14:29:21 +0530
+Message-ID: <20111130085921.23386.89708.sendpatchset__32425.0190555633$1322669463$gmane$org@oc5400248562.ibm.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============5726122609665322294=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <201111292129.20444.arnd@arndb.de>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,128 +15,105 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: xen-devel@lists.xensource.com, linaro-dev@lists.linaro.org, kvm@vger.kernel.org, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, android-virt@lists.cs.columbia.edu, embeddedxen-devel@lists.sourceforge.net, linux-arm-kernel@lists.infradead.org
+To: Greg Kroah-Hartman <gregkh@suse.de>, Sedat Dilek <sedat.dilek@gmail.com>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, KVM <kvm@vger.kernel.org>, Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>, Dave Jiang <dave.jiang@intel.com>, Thomas Gleixner <tglx@linutronix.de>, Marcelo Tosatti <mtosatti@redhat.com>, Yinghai Lu <yinghai@kernel.org>, Gleb Natapov <gleb@redhat.com>, Ingo Molnar <mingo@redhat.com>, Avi Kivity <avi@redhat.com>, Xen <xen-devel@lists.xensource.com>, Virtualization <virtualization@lists.linux-foundation.org>, Rik van Riel <riel@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, LKML <linux-kernel@vger.kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, Dave Hansen <dave@linux.vnet.ibm.com>, Suzuki Poulose <suzuki@linux.vnet.ibm.com>, Sasha Levin <levinsasha928@gmail.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
---===============5726122609665322294==
-Content-Type: multipart/alternative; boundary=0015174be22c66cfcd04b2ec5c2b
+The 4-patch series to follow this email extends KVM-hypervisor and Linux guest 
+running on KVM-hypervisor to support pv-ticket spinlocks, based on Xen's implementation.
 
---0015174be22c66cfcd04b2ec5c2b
-Content-Type: text/plain; charset=ISO-8859-1
+One hypercall is introduced in KVM hypervisor,that allows a vcpu to kick
+another vcpu out of halt state.
+The blocking of vcpu is done using halt() in (lock_spinning) slowpath.
 
-Hi all,
+The V2 change discussion was in:  
+ https://lkml.org/lkml/2011/10/23/207
+ 
+Previous discussions : (posted by Srivatsa V).
+https://lkml.org/lkml/2010/7/26/24
+https://lkml.org/lkml/2011/1/19/212
 
-I wanted to know how Xen-ARM for A15 will address following concerns:
+The BASE patch is tip 3.2-rc1 + Jeremy's following patches.
+xadd (https://lkml.org/lkml/2011/10/4/328)
+x86/ticketlocklock  (https://lkml.org/lkml/2011/10/12/496).
 
-- How will Xen-ARM for A15 support legacy guest environment like ARMv5 or
-ARMv6 ?
-- What if my Cortex-A15 board does not have a GIC with virtualization
-support ?
+Changes in V3:
+- rebased to 3.2-rc1
+- use halt() instead of wait for kick hypercall.
+- modify kick hyper call to do wakeup halted vcpu.
+- hook kvm_spinlock_init to smp_prepare_cpus call (moved the call out of head##.c).
+- fix the potential race when zero_stat is read.
+- export debugfs_create_32 and add documentation to API.
+- use static inline and enum instead of ADDSTAT macro. 
+- add  barrier() in after setting kick_vcpu.
+- empty static inline function for kvm_spinlock_init.
+- combine the patches one and two readuce overhead.
+- make KVM_DEBUGFS depends on DEBUGFS.
+- include debugfs header unconditionally.
 
-Best Regards,
-Anup Patel
+Changes in V2:
+- rebased patchesto -rc9
+- synchronization related changes based on Jeremy's changes (Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>) pointed by
+Stephan Diestelhorst <stephan.diestelhorst@amd.com>
+- enabling 32 bit guests
+- splitted patches into two more chunks
 
-On Wed, Nov 30, 2011 at 2:59 AM, Arnd Bergmann <arnd@arndb.de> wrote:
+ Srivatsa Vaddagiri, Suzuki Poulose, Raghavendra K T (4): 
+  Add debugfs support to print u32-arrays in debugfs
+  Add a hypercall to KVM hypervisor to support pv-ticketlocks
+  Added configuration support to enable debug information for KVM Guests
+  pv-ticketlocks support for linux guests running on KVM hypervisor
+ 
+Results:
+ From the results we can see that patched kernel performance is similar to
+ BASE when  there is no lock contention. But once we start seeing more 
+ contention, patched kernel outperforms BASE.
 
-> On Tuesday 29 November 2011, Stefano Stabellini wrote:
-> > Hi all,
-> > a few weeks ago I (and a few others) started hacking on a
-> > proof-of-concept hypervisor port to Cortex-A15 which uses and requires
-> > ARMv7 virtualization extensions. The intention of this work was to find
-> > out how to best support ARM v7+ on Xen. See
-> >
-> http://old-list-archives.xen.org/archives/html/xen-arm/2011-09/msg00013.html
-> > for more details.
-> >
-> > I am pleased to announce that significant progress has been made, and
-> > that we now have a nascent Xen port for Cortex-A15. The port is based on
-> > xen-unstable (HG CS 8d6edc3d26d2) and written from scratch exploiting
-> > the latest virtualization, LPAE, GIC and generic timer support in
-> > hardware.
->
-> Very nice!
->
-> Do you have a pointer to the kernel sources for the Linux guest?
-> Since Xen and KVM are both in an early working state right now,
-> it would be very nice if we could agree on the guest model to make
-> sure that it's always possible to run the same kernel in both
-> (and potentially other future) hypervisors without modifications.
->
->        Arnd
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+set up : 
+Kernel for host/guest : 3.2-rc1 + Jeremy's xadd, pv spinlock patches as BASE
 
---0015174be22c66cfcd04b2ec5c2b
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+3 guests with 8VCPU, 4GB RAM, 1 used for kernbench (kernbench -f -H -M -o 20) other for cpuhog (shell script while 
+true with an instruction)
 
-Hi all,<br><br>I wanted to know how Xen-ARM for A15 will address following =
-concerns:<br><br>- How will Xen-ARM for A15 support legacy guest environmen=
-t like ARMv5 or ARMv6 ?<br>- What if my Cortex-A15 board does not have a GI=
-C with virtualization support ?<br>
-<br>Best Regards,<br>Anup Patel<br><br><div class=3D"gmail_quote">On Wed, N=
-ov 30, 2011 at 2:59 AM, Arnd Bergmann <span dir=3D"ltr">&lt;<a href=3D"mail=
-to:arnd@arndb.de">arnd@arndb.de</a>&gt;</span> wrote:<br><blockquote class=
-=3D"gmail_quote" style=3D"margin: 0pt 0pt 0pt 0.8ex; border-left: 1px solid=
- rgb(204, 204, 204); padding-left: 1ex;">
-<div class=3D"im">On Tuesday 29 November 2011, Stefano Stabellini wrote:<br=
->
-&gt; Hi all,<br>
-&gt; a few weeks ago I (and a few others) started hacking on a<br>
-&gt; proof-of-concept hypervisor port to Cortex-A15 which uses and requires=
-<br>
-&gt; ARMv7 virtualization extensions. The intention of this work was to fin=
-d<br>
-&gt; out how to best support ARM v7+ on Xen. See<br>
-&gt; <a href=3D"http://old-list-archives.xen.org/archives/html/xen-arm/2011=
--09/msg00013.html" target=3D"_blank">http://old-list-archives.xen.org/archi=
-ves/html/xen-arm/2011-09/msg00013.html</a><br>
-&gt; for more details.<br>
-&gt;<br>
-&gt; I am pleased to announce that significant progress has been made, and<=
-br>
-&gt; that we now have a nascent Xen port for Cortex-A15. The port is based =
-on<br>
-&gt; xen-unstable (HG CS 8d6edc3d26d2) and written from scratch exploiting<=
-br>
-&gt; the latest virtualization, LPAE, GIC and generic timer support in<br>
-&gt; hardware.<br>
-<br>
-</div>Very nice!<br>
-<br>
-Do you have a pointer to the kernel sources for the Linux guest?<br>
-Since Xen and KVM are both in an early working state right now,<br>
-it would be very nice if we could agree on the guest model to make<br>
-sure that it&#39;s always possible to run the same kernel in both<br>
-(and potentially other future) hypervisors without modifications.<br>
-<span class=3D"HOEnZb"><font color=3D"#888888"><br>
- =A0 =A0 =A0 =A0Arnd<br>
-</font></span><div class=3D"HOEnZb"><div class=3D"h5">--<br>
-To unsubscribe from this list: send the line &quot;unsubscribe linux-kernel=
-&quot; in<br>
-the body of a message to <a href=3D"mailto:majordomo@vger.kernel.org">major=
-domo@vger.kernel.org</a><br>
-More majordomo info at =A0<a href=3D"http://vger.kernel.org/majordomo-info.=
-html" target=3D"_blank">http://vger.kernel.org/majordomo-info.html</a><br>
-Please read the FAQ at =A0<a href=3D"http://www.tux.org/lkml/" target=3D"_b=
-lank">http://www.tux.org/lkml/</a><br>
-</div></div></blockquote></div><br>
+scenario A: unpinned
 
---0015174be22c66cfcd04b2ec5c2b--
+1x: no hogs
+2x: 8hogs in one guest
+3x: 8hogs each in two guest
 
---===============5726122609665322294==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Result for Non PLE machine :
+Machine : IBM xSeries with Intel(R) Xeon(R) x5570 2.93GHz CPU with 8 core , 64GB RAM
+		 BASE                    BASE+patch            %improvement
+		 mean (sd)               mean (sd)
+Scenario A:	 			
+case 1x:	 157.548 (10.624) 	 156.408 (11.1622) 	0.723589
+case 2x:	 1110.18 (807.019) 	 310.96 (105.194) 	71.9901
+case 3x:	 3110.36 (2408.03) 	 303.688 (110.474) 	90.2362
 
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============5726122609665322294==--
+Result for PLE machine:
+Machine : IBM xSeries with Intel(R) Xeon(R)  X7560 2.27GHz CPU with 32/64 core, with 8  
+         online cores and 4*64GB RAM
+
+		 BASE                    BASE+patch            %improvement
+		 mean (sd)               mean (sd)
+Scenario A:	 			
+case 1x:	 159.725 (47.4906) 	 159.07 (47.8133) 	0.41008
+case 2x:	 190.957 (49.2976) 	 187.273 (50.5469) 	1.92923
+case 3x:	 226.317 (88.6023) 	 223.698 (90.4362) 	1.15723
+
+---
+ 13 files changed, 454 insertions(+), 112 deletions(-)
+ arch/x86/Kconfig                |    9 ++
+ arch/x86/include/asm/kvm_para.h |   17 +++-
+ arch/x86/kernel/kvm.c           |  247 +++++++++++++++++++++++++++++++++++++++
+ arch/x86/kvm/x86.c              |   28 +++++-
+ arch/x86/xen/debugfs.c          |  104 ----------------
+ arch/x86/xen/debugfs.h          |    4 -
+ arch/x86/xen/spinlock.c         |    2 +-
+ fs/debugfs/file.c               |  128 ++++++++++++++++++++
+ include/linux/debugfs.h         |   11 ++
+ include/linux/kvm.h             |    1 +
+ include/linux/kvm_host.h        |    5 +
+ include/linux/kvm_para.h        |    1 +
+ virt/kvm/kvm_main.c             |    7 +
+ 13 files changed, 452 insertions(+), 112 deletions(-)
