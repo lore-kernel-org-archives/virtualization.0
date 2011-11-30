@@ -1,20 +1,19 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCHv3 RFC] virtio-pci: flexible configuration layout
-Date: Wed, 30 Nov 2011 09:18:06 +0200
-Message-ID: <20111130071805.GC17781@redhat.com>
+Date: Wed, 30 Nov 2011 10:14:42 +0200
+Message-ID: <20111130081441.GF17781@redhat.com>
 References: <20111122183621.GA5235@redhat.com> <87hb1v1scp.fsf@rustcorp.com.au>
 	<20111123084640.GE22734@redhat.com>
 	<87ty5uxso3.fsf@rustcorp.com.au>
 	<20111124070728.GH29994@redhat.com>
-	<87vcq5t69c.fsf@rustcorp.com.au>
-	<20111128084009.GB20084@redhat.com>
-	<87sjl6tsnm.fsf@rustcorp.com.au>
+	<87vcq5t69c.fsf@rustcorp.com.au> <1322471731.3577.10.camel@lappy>
+	<87pqgats49.fsf@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <87sjl6tsnm.fsf@rustcorp.com.au>
+In-Reply-To: <87pqgats49.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -28,24 +27,35 @@ To: Rusty Russell <rusty@rustcorp.com.au>
 Cc: Krishna Kumar <krkumar2@in.ibm.com>, kvm@vger.kernel.org, Pawel Moll <pawel.moll@arm.com>, Wang Sheng-Hui <shhuiw@gmail.com>, Alexey Kardashevskiy <aik@ozlabs.ru>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, Sasha Levin <levinsasha928@gmail.com>, Amit Shah <amit.shah@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Nov 30, 2011 at 09:58:45AM +1030, Rusty Russell wrote:
-> > I think I see a way to do that in a relatively painless way.
-> > Do you prefer seeing driver patches or spec? Or are you not interested
-> > in reusing the same structure at all?
+On Wed, Nov 30, 2011 at 10:10:22AM +1030, Rusty Russell wrote:
+> On Mon, 28 Nov 2011 11:15:31 +0200, Sasha Levin <levinsasha928@gmail.com> wrote:
+> > On Mon, 2011-11-28 at 11:25 +1030, Rusty Russell wrote:
+> > > I'd like to see kvmtools remove support for legacy mode altogether,
+> > > but they probably have existing users.
+> > 
+> > While we can't simply remove it right away, instead of mixing our
+> > implementation for both legacy and new spec in the same code we can
+> > split the virtio-pci implementation into two:
+> > 
+> > 	- virtio/virtio-pci-legacy.c
+> > 	- virtio/virtio-pci.c
+> > 
+> > At that point we can #ifdef the entire virtio-pci-legacy.c for now and
+> > remove it at the same time legacy virtio-pci is removed from the kernel.
 > 
-> I think we should look at code at this point; my gut says we're going to
-> be not-quite-similar-enough-to-be-useful.  At which point, a clean-slate
-> approach is more appealing.  But the code will show, one way or another.
+> Hmm, that might be neat, but we can't tell the driver core to try
+> virtio-pci before virtio-pci-legacy, so we need detection code in both
+> modules (and add a "force" flag to virtio-pci-legacy to tell it to
+> accept the device even if it's not a legacy-only one).
+
+This flag might need to be per device ideally, which is tricky ...
+
 > 
-> Thanks,
+> Then it should work...
+> Cheers,
 > Rusty.
 
-Makes sense, absolutely. So I'll hack on it and post and we can
-judge the result.
-
-One small comment that I'm afraid was lost in the noise
-is that we should not add any 64 bit fields in the common area,
-because there's no generic iowrite64/ioread64.
+One also wonders whether and how this will work on other OS-es.
 
 -- 
 MST
