@@ -1,14 +1,17 @@
-From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
-Subject: [PATCH RFC V3 4/4] kvm : pv-ticketlocks support for linux guests
-	running on KVM hypervisor
-Date: Wed, 30 Nov 2011 14:30:38 +0530
-Message-ID: <20111130090038.23386.4505.sendpatchset__327.548469840799$1322669481$gmane$org@oc5400248562.ibm.com>
-References: <20111130085921.23386.89708.sendpatchset@oc5400248562.ibm.com>
+From: Ian Campbell <Ian.Campbell@citrix.com>
+Subject: Re: [Xen-devel] [ANNOUNCE] Xen port to Cortex-A15 / ARMv7 with virt
+	extensions
+Date: Wed, 30 Nov 2011 13:25:34 +0000
+Message-ID: <1322659535.31810.97.camel__26689.9863760502$1322669489$gmane$org@zakaz.uk.xensource.com>
+References: <alpine.DEB.2.00.1111281009090.31179@kaball-desktop>
+	<201111292129.20444.arnd@arndb.de>
+	<alpine.DEB.2.00.1111301053300.31179@kaball-desktop>
+	<201111301303.23851.arnd@arndb.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20111130085921.23386.89708.sendpatchset@oc5400248562.ibm.com>
+In-Reply-To: <201111301303.23851.arnd@arndb.de>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,331 +21,96 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Greg Kroah-Hartman <gregkh@suse.de>, KVM <kvm@vger.kernel.org>, Sedat Dilek <sedat.dilek@gmail.com>, Ingo Molnar <mingo@redhat.com>, Virtualization <virtualization@lists.linux-foundation.org>, Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>, Dave Jiang <dave.jiang@intel.com>, Thomas Gleixner <tglx@linutronix.de>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Gleb Natapov <gleb@redhat.com>, Yinghai Lu <yinghai@kernel.org>, Marcelo Tosatti <mtosatti@redhat.com>, Xen <xen-devel@lists.xensource.com>, Avi Kivity <avi@redhat.com>, Rik van Riel <riel@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, LKML <linux-kernel@vger.kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, Dave Hansen <dave@linux.vnet.ibm.com>, Suzuki Poulose <suzuki@linux.vnet.ibm.com>, Sasha Levin <levinsasha928@gmail.com>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: "xen-devel@lists.xensource.com" <xen-devel@lists.xensource.com>, "linaro-dev@lists.linaro.org" <linaro-dev@lists.linaro.org>, Pawel Moll <pawel.moll@arm.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, Stefano Stabellini <Stefano.Stabellini@eu.citrix.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "android-virt@lists.cs.columbia.edu" <android-virt@lists.cs.columbia.edu>, "embeddedxen-devel@lists.sourceforge.net" <embeddedxen-devel@lists.sourceforge.net>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch extends Linux guests running on KVM hypervisor to support
-pv-ticketlocks. 
-During smp_boot_cpus  paravirtualied KVM guest detects if the hypervisor has
-required feature (KVM_FEATURE_KICK_VCPU) to support pv-ticketlocks. If so,
- support for pv-ticketlocks is registered via pv_lock_ops.
+On Wed, 2011-11-30 at 13:03 +0000, Arnd Bergmann wrote:
+> On Wednesday 30 November 2011, Stefano Stabellini wrote:
+> > On Tue, 29 Nov 2011, Arnd Bergmann wrote:
+> > > On Tuesday 29 November 2011, Stefano Stabellini wrote:
+> > > 
+> > > Do you have a pointer to the kernel sources for the Linux guest?
+> > 
+> > We have very few changes to the Linux kernel at the moment (only 3
+> > commits!), just enough to be able to issue hypercalls and start a PV
+> > console.
+> > 
+> > A git branch is available here (not ready for submission):
+> > 
+> > git://xenbits.xen.org/people/sstabellini/linux-pvhvm.git arm
+> 
+> Ok, interesting. There really isn't much of the platform support
+> that I was expecting there. I finally found the information
+> I was looking for in the xen construct_dom0() function:
+> 
+>  167     regs->r0 = 0; /* SBZ */
+>  168     regs->r1 = 2272; /* Machine NR: Versatile Express */
+>  169     regs->r2 = 0xc0000100; /* ATAGS */
+> 
+> What this means is that you are emulating the current ARM/Keil reference
+> board, at least to the degree that is necessary to get the guest started.
+> 
+> This is the same choice people have made for KVM, but it's not
+> necessarily the best option in the long run. In particular, this
+> board has a lot of hardware that you claim to have by putting the
+> machine number there, when you don't really want to emulate it.
 
-Signed-off-by: Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>
-Signed-off-by: Suzuki Poulose <suzuki@in.ibm.com>
-Signed-off-by: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
----
-diff --git a/arch/x86/include/asm/kvm_para.h b/arch/x86/include/asm/kvm_para.h
-index 8b1d65d..7e419ad 100644
---- a/arch/x86/include/asm/kvm_para.h
-+++ b/arch/x86/include/asm/kvm_para.h
-@@ -195,10 +195,21 @@ void kvm_async_pf_task_wait(u32 token);
- void kvm_async_pf_task_wake(u32 token);
- u32 kvm_read_and_reset_pf_reason(void);
- extern void kvm_disable_steal_time(void);
--#else
--#define kvm_guest_init() do { } while (0)
-+
-+#ifdef CONFIG_PARAVIRT_SPINLOCKS
-+void __init kvm_spinlock_init(void);
-+#else /* CONFIG_PARAVIRT_SPINLOCKS */
-+static void kvm_spinlock_init(void)
-+{
-+}
-+#endif /* CONFIG_PARAVIRT_SPINLOCKS */
-+
-+#else /* CONFIG_KVM_GUEST */
-+#define kvm_guest_init() do {} while (0)
- #define kvm_async_pf_task_wait(T) do {} while(0)
- #define kvm_async_pf_task_wake(T) do {} while(0)
-+#define kvm_spinlock_init() do {} while (0)
-+
- static inline u32 kvm_read_and_reset_pf_reason(void)
- {
- 	return 0;
-diff --git a/arch/x86/kernel/kvm.c b/arch/x86/kernel/kvm.c
-index a9c2116..dffeea3 100644
---- a/arch/x86/kernel/kvm.c
-+++ b/arch/x86/kernel/kvm.c
-@@ -33,6 +33,7 @@
- #include <linux/sched.h>
- #include <linux/slab.h>
- #include <linux/kprobes.h>
-+#include <linux/debugfs.h>
- #include <asm/timer.h>
- #include <asm/cpu.h>
- #include <asm/traps.h>
-@@ -545,6 +546,7 @@ static void __init kvm_smp_prepare_boot_cpu(void)
- #endif
- 	kvm_guest_cpu_init();
- 	native_smp_prepare_boot_cpu();
-+	kvm_spinlock_init();
- }
- 
- static void __cpuinit kvm_guest_cpu_online(void *dummy)
-@@ -627,3 +629,248 @@ static __init int activate_jump_labels(void)
- 	return 0;
- }
- arch_initcall(activate_jump_labels);
-+
-+#ifdef CONFIG_PARAVIRT_SPINLOCKS
-+
-+enum kvm_contention_stat {
-+	TAKEN_SLOW,
-+	TAKEN_SLOW_PICKUP,
-+	RELEASED_SLOW,
-+	RELEASED_SLOW_KICKED,
-+	NR_CONTENTION_STATS
-+};
-+
-+#ifdef CONFIG_KVM_DEBUG_FS
-+
-+static struct kvm_spinlock_stats
-+{
-+	u32 contention_stats[NR_CONTENTION_STATS];
-+
-+#define HISTO_BUCKETS	30
-+	u32 histo_spin_blocked[HISTO_BUCKETS+1];
-+
-+	u64 time_blocked;
-+} spinlock_stats;
-+
-+static u8 zero_stats;
-+
-+static inline void check_zero(void)
-+{
-+	u8 ret;
-+	u8 old = ACCESS_ONCE(zero_stats);
-+	if (unlikely(old)) {
-+		ret = cmpxchg(&zero_stats, old, 0);
-+		/* This ensures only one fellow resets the stat */
-+		if (ret == old)
-+			memset(&spinlock_stats, 0, sizeof(spinlock_stats));
-+	}
-+}
-+
-+static inline void add_stats(enum kvm_contention_stat var, int val)
-+{
-+	check_zero();
-+	spinlock_stats.contention_stats[var] += val;
-+}
-+
-+
-+static inline u64 spin_time_start(void)
-+{
-+	return sched_clock();
-+}
-+
-+static void __spin_time_accum(u64 delta, u32 *array)
-+{
-+	unsigned index = ilog2(delta);
-+
-+	check_zero();
-+
-+	if (index < HISTO_BUCKETS)
-+		array[index]++;
-+	else
-+		array[HISTO_BUCKETS]++;
-+}
-+
-+static inline void spin_time_accum_blocked(u64 start)
-+{
-+	u32 delta = sched_clock() - start;
-+
-+	__spin_time_accum(delta, spinlock_stats.histo_spin_blocked);
-+	spinlock_stats.time_blocked += delta;
-+}
-+
-+static struct dentry *d_spin_debug;
-+static struct dentry *d_kvm_debug;
-+
-+struct dentry *kvm_init_debugfs(void)
-+{
-+	d_kvm_debug = debugfs_create_dir("kvm", NULL);
-+	if (!d_kvm_debug)
-+		printk(KERN_WARNING "Could not create 'kvm' debugfs directory\n");
-+
-+	return d_kvm_debug;
-+}
-+
-+static int __init kvm_spinlock_debugfs(void)
-+{
-+	struct dentry *d_kvm = kvm_init_debugfs();
-+
-+	if (d_kvm == NULL)
-+		return -ENOMEM;
-+
-+	d_spin_debug = debugfs_create_dir("spinlocks", d_kvm);
-+
-+	debugfs_create_u8("zero_stats", 0644, d_spin_debug, &zero_stats);
-+
-+	debugfs_create_u32("taken_slow", 0444, d_spin_debug,
-+		   &spinlock_stats.contention_stats[TAKEN_SLOW]);
-+	debugfs_create_u32("taken_slow_pickup", 0444, d_spin_debug,
-+		   &spinlock_stats.contention_stats[TAKEN_SLOW_PICKUP]);
-+
-+	debugfs_create_u32("released_slow", 0444, d_spin_debug,
-+		   &spinlock_stats.contention_stats[RELEASED_SLOW]);
-+	debugfs_create_u32("released_slow_kicked", 0444, d_spin_debug,
-+		   &spinlock_stats.contention_stats[RELEASED_SLOW_KICKED]);
-+
-+	debugfs_create_u64("time_blocked", 0444, d_spin_debug,
-+			   &spinlock_stats.time_blocked);
-+
-+	debugfs_create_u32_array("histo_blocked", 0444, d_spin_debug,
-+		     spinlock_stats.histo_spin_blocked, HISTO_BUCKETS + 1);
-+
-+	return 0;
-+}
-+fs_initcall(kvm_spinlock_debugfs);
-+#else  /* !CONFIG_KVM_DEBUG_FS */
-+#define TIMEOUT			(1 << 10)
-+static inline void add_stats(enum kvm_contention_stat var, u32 val)
-+{
-+}
-+
-+static inline u64 spin_time_start(void)
-+{
-+	return 0;
-+}
-+
-+static inline void spin_time_accum_blocked(u64 start)
-+{
-+}
-+#endif  /* CONFIG_KVM_DEBUG_FS */
-+
-+struct kvm_lock_waiting {
-+	struct arch_spinlock *lock;
-+	__ticket_t want;
-+};
-+
-+/* cpus 'waiting' on a spinlock to become available */
-+static cpumask_t waiting_cpus;
-+
-+/* Track spinlock on which a cpu is waiting */
-+static DEFINE_PER_CPU(struct kvm_lock_waiting, lock_waiting);
-+
-+static void kvm_lock_spinning(struct arch_spinlock *lock, __ticket_t want)
-+{
-+	struct kvm_lock_waiting *w = &__get_cpu_var(lock_waiting);
-+	int cpu = smp_processor_id();
-+	u64 start;
-+	unsigned long flags;
-+
-+	start = spin_time_start();
-+
-+	/*
-+	 * Make sure an interrupt handler can't upset things in a
-+	 * partially setup state.
-+	 */
-+	local_irq_save(flags);
-+
-+	/*
-+	 * The ordering protocol on this is that the "lock" pointer
-+	 * may only be set non-NULL if the "want" ticket is correct.
-+	 * If we're updating "want", we must first clear "lock".
-+	 */
-+	w->lock = NULL;
-+	smp_wmb();
-+	w->want = want;
-+	smp_wmb();
-+	w->lock = lock;
-+
-+	add_stats(TAKEN_SLOW, 1);
-+
-+	/*
-+	 * This uses set_bit, which is atomic but we should not rely on its
-+	 * reordering gurantees. So barrier is needed after this call.
-+	 */
-+	cpumask_set_cpu(cpu, &waiting_cpus);
-+
-+	barrier();
-+
-+	/*
-+	 * Mark entry to slowpath before doing the pickup test to make
-+	 * sure we don't deadlock with an unlocker.
-+	 */
-+	__ticket_enter_slowpath(lock);
-+
-+	/*
-+	 * check again make sure it didn't become free while
-+	 * we weren't looking.
-+	 */
-+	if (ACCESS_ONCE(lock->tickets.head) == want) {
-+		add_stats(TAKEN_SLOW_PICKUP, 1);
-+		goto out;
-+	}
-+
-+	/* Allow interrupts while blocked */
-+	local_irq_restore(flags);
-+
-+	/* halt until it's our turn and kicked. */
-+	halt();
-+
-+	local_irq_save(flags);
-+out:
-+	cpumask_clear_cpu(cpu, &waiting_cpus);
-+	w->lock = NULL;
-+	local_irq_restore(flags);
-+	spin_time_accum_blocked(start);
-+}
-+PV_CALLEE_SAVE_REGS_THUNK(kvm_lock_spinning);
-+
-+/* Kick a cpu */
-+static inline void kvm_kick_cpu(int cpu)
-+{
-+	kvm_hypercall1(KVM_HC_KICK_CPU, cpu);
-+}
-+
-+/* Kick vcpu waiting on @lock->head to reach value @ticket */
-+static void kvm_unlock_kick(struct arch_spinlock *lock, __ticket_t ticket)
-+{
-+	int cpu;
-+
-+	add_stats(RELEASED_SLOW, 1);
-+
-+	for_each_cpu(cpu, &waiting_cpus) {
-+		const struct kvm_lock_waiting *w = &per_cpu(lock_waiting, cpu);
-+		if (ACCESS_ONCE(w->lock) == lock &&
-+		    ACCESS_ONCE(w->want) == ticket) {
-+			add_stats(RELEASED_SLOW_KICKED, 1);
-+			kvm_kick_cpu(cpu);
-+			break;
-+		}
-+	}
-+}
-+
-+/*
-+ * Setup pv_lock_ops to exploit KVM_FEATURE_KICK_VCPU if present.
-+ */
-+void __init kvm_spinlock_init(void)
-+{
-+	if (!kvm_para_available())
-+		return;
-+	/* Does host kernel support KVM_FEATURE_KICK_VCPU? */
-+	if (!kvm_para_has_feature(KVM_FEATURE_KICK_VCPU))
-+		return;
-+
-+	jump_label_inc(&paravirt_ticketlocks_enabled);
-+
-+	pv_lock_ops.lock_spinning = PV_CALLEE_SAVE(kvm_lock_spinning);
-+	pv_lock_ops.unlock_kick = kvm_unlock_kick;
-+}
-+#endif	/* CONFIG_PARAVIRT_SPINLOCKS */
-diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
-index 8f4b6db..a89546b 100644
---- a/virt/kvm/kvm_main.c
-+++ b/virt/kvm/kvm_main.c
-@@ -1518,6 +1518,12 @@ void kvm_vcpu_block(struct kvm_vcpu *vcpu)
- 			kvm_make_request(KVM_REQ_UNHALT, vcpu);
- 			break;
- 		}
-+		if (vcpu->kicked) {
-+			vcpu->kicked = 0;
-+			barrier();
-+			kvm_make_request(KVM_REQ_UNHALT, vcpu);
-+			break;
-+		}
- 		if (kvm_cpu_has_pending_timer(vcpu))
- 			break;
- 		if (signal_pending(current))
+This code is actually setting up dom0 which (for the most part) sees the
+real hardware.
+
+The hardcoding of the platform is just a short term hack.
+
+> Pawell Moll is working on a variant of the vexpress code that uses
+> the flattened device tree to describe the present hardware [1], and
+> I think that would be a much better target for an official release.
+> Ideally, the hypervisor should provide the device tree binary (dtb)
+> to the guest OS describing the hardware that is actually there.
+
+Agreed. Our intention was to use DT so this fits perfectly with our
+plans.
+
+For dom0 we would expose a (possibly filtered) version of the DT given
+to us by the firmware (e.g. we might hide a serial port to reserve it
+for Xen's use, we'd likely fiddle with the memory map etc).
+
+For domU the DT would presumably be constructed by the toolstack (in
+dom0 userspace) as appropriate for the guest configuration. I guess this
+needn't correspond to any particular "real" hardware platform.
+
+> This would also be the place where you tell the guest that it should
+> look for PV devices. I'm not familiar with how Xen announces PV
+> devices to the guest on other architectures, but you have the
+> choice between providing a full "binding", i.e. a formal specification
+> in device tree format for the guest to detect PV devices in the
+> same way as physical or emulated devices, or just providing a single
+> place in the device tree in which the guest detects the presence
+> of a xen device bus and then uses hcalls to find the devices on that
+> bus.
+
+On x86 there is an emulated PCI device which serves as the hooking point
+for the PV drivers. For ARM I don't think it would be unreasonable to
+have a DT entry instead. I think it would be fine just represent the
+root of the "xenbus" and further discovery would occur using the normal
+xenbus mechanisms (so not a full binding). AIUI for buses which are
+enumerable this is the preferred DT scheme to use.
+
+> Another topic is the question whether there are any hcalls that
+> we should try to standardize before we get another architecture
+> with multiple conflicting hcall APIs as we have on x86 and powerpc.
+
+The hcall API we are currently targeting is the existing Xen API (at
+least the generic parts of it). These generally deal with fairly Xen
+specific concepts like grant tables etc.
+
+Ian.
+
+> 
+> 	Arnd
+> 
+> [1] http://www.spinics.net/lists/arm-kernel/msg149604.html
+> 
+> _______________________________________________
+> Xen-devel mailing list
+> Xen-devel@lists.xensource.com
+> http://lists.xensource.com/xen-devel
