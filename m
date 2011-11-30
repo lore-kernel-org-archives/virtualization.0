@@ -1,16 +1,16 @@
-From: Stefano Stabellini <stefano.stabellini@eu.citrix.com>
-Subject: Re: [ANNOUNCE] Xen port to Cortex-A15 / ARMv7 with virt extensions
-Date: Wed, 30 Nov 2011 14:20:51 +0000
-Message-ID: <alpine.DEB.2.00.1111301420000.31179@kaball-desktop>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [Xen-devel] [ANNOUNCE] Xen port to Cortex-A15 / ARMv7 with virt
+	extensions
+Date: Wed, 30 Nov 2011 14:32:54 +0000
+Message-ID: <201111301432.54463.arnd__13908.0660920174$1322663607$gmane$org@arndb.de>
 References: <alpine.DEB.2.00.1111281009090.31179@kaball-desktop>
-	<201111292129.20444.arnd@arndb.de>
-	<alpine.DEB.2.00.1111301053300.31179@kaball-desktop>
-	<CAHkRjk48jHO19H04rf8252+v04hk9qSdKBrfYCqJsZyamVhMEw@mail.gmail.com>
+	<201111301303.23851.arnd@arndb.de>
+	<1322659535.31810.97.camel@zakaz.uk.xensource.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAHkRjk48jHO19H04rf8252+v04hk9qSdKBrfYCqJsZyamVhMEw@mail.gmail.com>
+In-Reply-To: <1322659535.31810.97.camel@zakaz.uk.xensource.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,28 +20,99 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Catalin Marinas <catalin.marinas@arm.com>
-Cc: "xen-devel@lists.xensource.com" <xen-devel@lists.xensource.com>, "linaro-dev@lists.linaro.org" <linaro-dev@lists.linaro.org>, Arnd Bergmann <arnd@arndb.de>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, Stefano Stabellini <Stefano.Stabellini@eu.citrix.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "android-virt@lists.cs.columbia.edu" <android-virt@lists.cs.columbia.edu>, "embeddedxen-devel@lists.sourceforge.net" <embeddedxen-devel@lists.sourceforge.net>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
+To: Ian Campbell <Ian.Campbell@citrix.com>
+Cc: "xen-devel@lists.xensource.com" <xen-devel@lists.xensource.com>, "linaro-dev@lists.linaro.org" <linaro-dev@lists.linaro.org>, Pawel Moll <pawel.moll@arm.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, Stefano Stabellini <Stefano.Stabellini@eu.citrix.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "android-virt@lists.cs.columbia.edu" <android-virt@lists.cs.columbia.edu>, "embeddedxen-devel@lists.sourceforge.net" <embeddedxen-devel@lists.sourceforge.net>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 30 Nov 2011, Catalin Marinas wrote:
-> On 30 November 2011 11:39, Stefano Stabellini
-> <stefano.stabellini@eu.citrix.com> wrote:
-> > A git branch is available here (not ready for submission):
-> >
-> > git://xenbits.xen.org/people/sstabellini/linux-pvhvm.git arm
-> >
-> > the branch above is based on git://linux-arm.org/linux-2.6.git arm-lpae,
-> > even though guests don't really need lpae support to run on Xen.
+On Wednesday 30 November 2011, Ian Campbell wrote:
+> On Wed, 2011-11-30 at 13:03 +0000, Arnd Bergmann wrote:
+> > On Wednesday 30 November 2011, Stefano Stabellini wrote:
+> > This is the same choice people have made for KVM, but it's not
+> > necessarily the best option in the long run. In particular, this
+> > board has a lot of hardware that you claim to have by putting the
+> > machine number there, when you don't really want to emulate it.
 > 
-> Indeed, you don't really need LPAE. What you may need though is
-> generic timers support for A15, it would allow less Hypervisor traps.
-> For up-to-date architecture patches (well, development tree, not
-> guaranteed to be stable), I would recommend this (they get into
-> mainline at some point):
-> 
-> http://git.kernel.org/?p=linux/kernel/git/cmarinas/linux-arm-arch.git;a=summary
-> 
-> Either use master or just cherry-pick the branches that you are interested in.
+> This code is actually setting up dom0 which (for the most part) sees the
+> real hardware.
 
-Thanks, I'll rebase on that.
+Ok, I see.
+
+> > Pawell Moll is working on a variant of the vexpress code that uses
+> > the flattened device tree to describe the present hardware [1], and
+> > I think that would be a much better target for an official release.
+> > Ideally, the hypervisor should provide the device tree binary (dtb)
+> > to the guest OS describing the hardware that is actually there.
+> 
+> Agreed. Our intention was to use DT so this fits perfectly with our
+> plans.
+> 
+> For dom0 we would expose a (possibly filtered) version of the DT given
+> to us by the firmware (e.g. we might hide a serial port to reserve it
+> for Xen's use, we'd likely fiddle with the memory map etc).
+
+Ah, very good.
+
+> For domU the DT would presumably be constructed by the toolstack (in
+> dom0 userspace) as appropriate for the guest configuration. I guess this
+> needn't correspond to any particular "real" hardware platform.
+
+Correct, but it needs to correspond to some platform that is supported
+by the guest OS, which leaves the choice between emulating a real
+hardware platform, adding a completely new platform specifically for
+virtual machines, or something in between the two.
+
+What I suggested to the KVM developers is to start out with the
+vexpress platform, but then generalize it to the point where it fits
+your needs. All hardware that one expects a guest to have (GIC, timer,
+...) will still show up in the same location as on a real vexpress,
+while anything that makes no sense or is better paravirtualized (LCD,
+storage, ...) just becomes optional and has to be described in the
+device tree if it's actually there.
+
+> > This would also be the place where you tell the guest that it should
+> > look for PV devices. I'm not familiar with how Xen announces PV
+> > devices to the guest on other architectures, but you have the
+> > choice between providing a full "binding", i.e. a formal specification
+> > in device tree format for the guest to detect PV devices in the
+> > same way as physical or emulated devices, or just providing a single
+> > place in the device tree in which the guest detects the presence
+> > of a xen device bus and then uses hcalls to find the devices on that
+> > bus.
+> 
+> On x86 there is an emulated PCI device which serves as the hooking point
+> for the PV drivers. For ARM I don't think it would be unreasonable to
+> have a DT entry instead. I think it would be fine just represent the
+> root of the "xenbus" and further discovery would occur using the normal
+> xenbus mechanisms (so not a full binding). AIUI for buses which are
+> enumerable this is the preferred DT scheme to use.
+
+In general that is the case, yes. One could argue that any software
+protocol between Xen and the guest is as good as any other, so it
+makes sense to use the device tree to describe all devices here.
+The counterargument to that is that Linux and other OSs already
+support Xenbus, so there is no need to come up with a new binding.
+
+I don't care much either way, but I think it would be good to
+use similar solutions across all hypervisors. The two options
+that I've seen discussed for KVM were to use either a virtual PCI
+bus with individual virtio-pci devices as on the PC, or to
+use the new virtio-mmio driver and individually put virtio devices
+into the device tree.
+
+> > Another topic is the question whether there are any hcalls that
+> > we should try to standardize before we get another architecture
+> > with multiple conflicting hcall APIs as we have on x86 and powerpc.
+> 
+> The hcall API we are currently targeting is the existing Xen API (at
+> least the generic parts of it). These generally deal with fairly Xen
+> specific concepts like grant tables etc.
+
+Ok. It would of course still be possible to agree on an argument passing
+convention so that we can share the macros used to issue the hcalls,
+even if the individual commands are all different. I think I also
+remember talk about the need for a set of hypervisor independent calls
+that everyone should implement, but I can't remember what those were.
+Maybe we can split the number space into a range of some generic and
+some vendor specific hcalls?
+
+	Arnd
