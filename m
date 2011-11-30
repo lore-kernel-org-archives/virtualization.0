@@ -1,15 +1,17 @@
-From: Catalin Marinas <catalin.marinas@arm.com>
-Subject: Re: [ANNOUNCE] Xen port to Cortex-A15 / ARMv7 with virt extensions
-Date: Wed, 30 Nov 2011 14:11:10 +0000
-Message-ID: <CAHkRjk48jHO19H04rf8252+v04hk9qSdKBrfYCqJsZyamVhMEw__172.592889475887$1322669490$gmane$org@mail.gmail.com>
-References: <alpine.DEB.2.00.1111281009090.31179@kaball-desktop>
-	<201111292129.20444.arnd@arndb.de>
-	<alpine.DEB.2.00.1111301053300.31179@kaball-desktop>
+From: Sasha Levin <levinsasha928@gmail.com>
+Subject: Re: [PATCH] virtio-ring: Use threshold for switching to indirect
+	descriptors
+Date: Wed, 30 Nov 2011 18:11:51 +0200
+Message-ID: <1322669511.3985.8.camel@lappy>
+References: <1322559196-11139-1-git-send-email-levinsasha928@gmail.com>
+	<20111129125622.GB19157@redhat.com> <1322573688.4395.11.camel@lappy>
+	<20111129135406.GB30966@redhat.com> <1322576464.7003.6.camel@lappy>
+	<20111129145451.GD30966@redhat.com> <4ED4F30F.8000603@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <alpine.DEB.2.00.1111301053300.31179@kaball-desktop>
+In-Reply-To: <4ED4F30F.8000603@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,28 +21,50 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Stefano Stabellini <stefano.stabellini@eu.citrix.com>
-Cc: "xen-devel@lists.xensource.com" <xen-devel@lists.xensource.com>, "linaro-dev@lists.linaro.org" <linaro-dev@lists.linaro.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, Arnd Bergmann <arnd@arndb.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "android-virt@lists.cs.columbia.edu" <android-virt@lists.cs.columbia.edu>, "embeddedxen-devel@lists.sourceforge.net" <embeddedxen-devel@lists.sourceforge.net>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
+To: Avi Kivity <avi@redhat.com>
+Cc: markmc@redhat.com, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 30 November 2011 11:39, Stefano Stabellini
-<stefano.stabellini@eu.citrix.com> wrote:
-> A git branch is available here (not ready for submission):
->
-> git://xenbits.xen.org/people/sstabellini/linux-pvhvm.git arm
->
-> the branch above is based on git://linux-arm.org/linux-2.6.git arm-lpae,
-> even though guests don't really need lpae support to run on Xen.
+On Tue, 2011-11-29 at 16:58 +0200, Avi Kivity wrote:
+> On 11/29/2011 04:54 PM, Michael S. Tsirkin wrote:
+> > > 
+> > > Which is actually strange, weren't indirect buffers introduced to make
+> > > the performance *better*? From what I see it's pretty much the
+> > > same/worse for virtio-blk.
+> >
+> > I know they were introduced to allow adding very large bufs.
+> > See 9fa29b9df32ba4db055f3977933cd0c1b8fe67cd
+> > Mark, you wrote the patch, could you tell us which workloads
+> > benefit the most from indirect bufs?
+> >
+> 
+> Indirects are really for block devices with many spindles, since there
+> the limiting factor is the number of requests in flight.  Network
+> interfaces are limited by bandwidth, it's better to increase the ring
+> size and use direct buffers there (so the ring size more or less
+> corresponds to the buffer size).
+> 
 
-Indeed, you don't really need LPAE. What you may need though is
-generic timers support for A15, it would allow less Hypervisor traps.
-For up-to-date architecture patches (well, development tree, not
-guaranteed to be stable), I would recommend this (they get into
-mainline at some point):
+I did some testing of indirect descriptors under different workloads.
 
-http://git.kernel.org/?p=linux/kernel/git/cmarinas/linux-arm-arch.git;a=summary
+All tests were on a 2 vcpu guest with vhost on. Simple TCP_STREAM using
+netperf.
 
-Either use master or just cherry-pick the branches that you are interested in.
+Indirect desc off:
+guest -> host, 1 stream: ~4600mb/s
+host -> guest, 1 stream: ~5900mb/s
+guest -> host, 8 streams: ~620mb/s (on average)
+host -> guest, 8 stream: ~600mb/s (on average)
+
+Indirect desc on:
+guest -> host, 1 stream: ~4900mb/s
+host -> guest, 1 stream: ~5400mb/s
+guest -> host, 8 streams: ~620mb/s (on average)
+host -> guest, 8 stream: ~600mb/s (on average)
+
+Which means that for one stream, guest to host gets faster while host to
+guest gets slower when indirect descriptors are on.
 
 -- 
-Catalin
+
+Sasha.
