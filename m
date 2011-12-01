@@ -1,22 +1,17 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [RFC] virtio: use mandatory barriers for remote processor vdevs
-Date: Thu, 1 Dec 2011 10:12:37 +0200
-Message-ID: <20111201081236.GB5479@redhat.com>
-References: <1322569886-13055-1-git-send-email-ohad@wizery.com>
-	<20111129131110.GC19157@redhat.com>
-	<CAK=WgbZoGYVyKt=XXvnPVdh0koSBJC0zcgkLaYRkmjwBLOFA-A@mail.gmail.com>
-	<20111129151958.GA31789@redhat.com>
-	<CAK=WgbZ5aBFNro3XC0cN+Ao4ZWrBHwwd3d__CSHA=n56gKmKXw@mail.gmail.com>
-	<20111130145004.GD21413@redhat.com>
-	<CAK=WgbY59n9N_-2_TZ9wNBNcTMV1DCrz65e-Ae=xamcg6A0dOA@mail.gmail.com>
-	<20111130231306.GD30031@redhat.com>
-	<87zkfdrpn8.fsf@rustcorp.com.au>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Subject: Re: virtio-scsi spec (was Re: [PATCH] Add virtio-scsi to the virtio
+	spec)
+Date: Thu, 01 Dec 2011 09:49:20 +0100
+Message-ID: <4ED73F90.5050603@redhat.com>
+References: <1322661042-28191-1-git-send-email-pbonzini@redhat.com>
+	<1322661042-28191-2-git-send-email-pbonzini@redhat.com>
+	<4ED63AE1.8090105@suse.de> <4ED65BA4.3000003@redhat.com>
+	<4ED74E54.3070303@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <87zkfdrpn8.fsf@rustcorp.com.au>
+In-Reply-To: <4ED74E54.3070303@suse.de>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -26,66 +21,25 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Hannes Reinecke <hare@suse.de>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, LKML <linux-kernel@vger.kernel.org>, Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>, virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Dec 01, 2011 at 12:58:59PM +1030, Rusty Russell wrote:
-> On Thu, 1 Dec 2011 01:13:07 +0200, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> > For x86, stores into memory are ordered. So I think that yes, smp_XXX
-> > can be selected at compile time.
-> > 
-> > So let's forget the virtio strangeness for a minute,
-> 
-> Hmm, we got away with light barriers because we knew we were not
-> *really* talking to a device.  But now with virtio-mmio, turns out we
-> are :)
+On 12/01/2011 10:52 AM, Hannes Reinecke wrote:
+>>>>
+>>> I would like to have the other request_queue limitations exposed
+>>> here, too.
+>>> Most notably we're missing the maximum size of an individual segment
+>>> and the maximum size of the overall I/O request.
+>>
+>> The virtio transport does not put any limit, as far as I know.
+>>
+> Virtio doesn't, but the underlying device/driver might.
+> And if we don't expose these values we cannot format the request correctly.
 
-You think virtio-mmio this issue too?  It's reported on remoteproc...
+These limits should be per target/LUN, so it seems like material for 
+another controlq command when the need arises.  For now, I'd really 
+prefer to have the spec match the implementation (plus a few SAM 
+bogosities).
 
-> I'm really tempted to revert d57ed95 for 3.2, and we can revisit this
-> optimization later if it proves worthwhile.
-> 
-> Thoughts?
-> Rusty. 
-
-Generally it does seem the best we can do for 3.2.
-
-Given it's rc3, I'd be a bit wary of introducing regressions - I'll try
-to find some real setups (as in - not my laptop) to run some benchmarks
-on, to verify there's no major problem.
-I hope I can report on this in about a week from now - want to hold onto this meanwhile?
-
-Further, if we do revert, need to remember to apply the following
-beforehand, to avoid breaking virtio tool:
-
-tools/virtio: implement mandatory barriers for x86
-
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-
-diff --git a/tools/virtio/linux/virtio.h b/tools/virtio/linux/virtio.h
-index 68b8b8d..1bf0e80 100644
---- a/tools/virtio/linux/virtio.h
-+++ b/tools/virtio/linux/virtio.h
-@@ -172,11 +172,18 @@ struct virtqueue {
- #define MODULE_LICENSE(__MODULE_LICENSE_value) \
- 	const char *__MODULE_LICENSE_name = __MODULE_LICENSE_value
- 
- #define CONFIG_SMP
- 
- #if defined(__i386__) || defined(__x86_64__)
- #define barrier() asm volatile("" ::: "memory")
- #define mb() __sync_synchronize()
-+#if defined(__i386__)
-+#define wmb() mb()
-+#define rmb() mb()
-+#else
-+#define wmb() asm volatile("sfence" ::: "memory")
-+#define rmb() asm volatile("lfence" ::: "memory")
-+#endif
- 
- #define smp_mb()	mb()
- # define smp_rmb()	barrier()
-
--- 
-MST
+Paolo
