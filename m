@@ -1,22 +1,20 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [RFC] virtio: use mandatory barriers for remote processor vdevs
-Date: Thu, 1 Dec 2011 11:09:21 +0200
-Message-ID: <20111201090920.GA8231@redhat.com>
-References: <1322569886-13055-1-git-send-email-ohad@wizery.com>
-	<20111129131110.GC19157@redhat.com>
-	<CAK=WgbZoGYVyKt=XXvnPVdh0koSBJC0zcgkLaYRkmjwBLOFA-A@mail.gmail.com>
-	<20111129151958.GA31789@redhat.com>
-	<CAK=WgbZ5aBFNro3XC0cN+Ao4ZWrBHwwd3d__CSHA=n56gKmKXw@mail.gmail.com>
-	<20111130145004.GD21413@redhat.com>
-	<CAK=WgbY59n9N_-2_TZ9wNBNcTMV1DCrz65e-Ae=xamcg6A0dOA@mail.gmail.com>
-	<20111130231306.GD30031@redhat.com>
-	<CAK=Wgbb5M62LgXY-sn7R6YautHxwqyDbPTeXYJxgmrS9fPXR9A@mail.gmail.com>
+Subject: Re: [PATCH] virtio-ring: Use threshold for switching to indirect
+	descriptors
+Date: Thu, 1 Dec 2011 12:26:42 +0200
+Message-ID: <20111201102640.GB8822@redhat.com>
+References: <20111129125622.GB19157@redhat.com>
+	<1322573688.4395.11.camel@lappy>
+	<20111129135406.GB30966@redhat.com> <1322576464.7003.6.camel@lappy>
+	<20111129145451.GD30966@redhat.com> <4ED4F30F.8000603@redhat.com>
+	<1322669511.3985.8.camel@lappy> <87wrahrp0u.fsf@rustcorp.com.au>
+	<20111201075847.GA5479@redhat.com> <1322726977.3259.3.camel@lappy>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <CAK=Wgbb5M62LgXY-sn7R6YautHxwqyDbPTeXYJxgmrS9fPXR9A@mail.gmail.com>
+In-Reply-To: <1322726977.3259.3.camel@lappy>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -26,27 +24,98 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Ohad Ben-Cohen <ohad@wizery.com>, dhowells@redhat.com, paulmck@linux.vnet.ibm.com
-Cc: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, kvm@vger.kernel.org
+To: Sasha Levin <levinsasha928@gmail.com>
+Cc: markmc@redhat.com, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Avi Kivity <avi@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Dec 01, 2011 at 08:14:26AM +0200, Ohad Ben-Cohen wrote:
-> On Thu, Dec 1, 2011 at 1:13 AM, Michael S. Tsirkin <mst@redhat.com> wrote:
-> > For x86, stores into memory are ordered. So I think that yes, smp_XXX
-> > can be selected at compile time.
+On Thu, Dec 01, 2011 at 10:09:37AM +0200, Sasha Levin wrote:
+> On Thu, 2011-12-01 at 09:58 +0200, Michael S. Tsirkin wrote:
+> > On Thu, Dec 01, 2011 at 01:12:25PM +1030, Rusty Russell wrote:
+> > > On Wed, 30 Nov 2011 18:11:51 +0200, Sasha Levin <levinsasha928@gmail.com> wrote:
+> > > > On Tue, 2011-11-29 at 16:58 +0200, Avi Kivity wrote:
+> > > > > On 11/29/2011 04:54 PM, Michael S. Tsirkin wrote:
+> > > > > > > 
+> > > > > > > Which is actually strange, weren't indirect buffers introduced to make
+> > > > > > > the performance *better*? From what I see it's pretty much the
+> > > > > > > same/worse for virtio-blk.
+> > > > > >
+> > > > > > I know they were introduced to allow adding very large bufs.
+> > > > > > See 9fa29b9df32ba4db055f3977933cd0c1b8fe67cd
+> > > > > > Mark, you wrote the patch, could you tell us which workloads
+> > > > > > benefit the most from indirect bufs?
+> > > > > >
+> > > > > 
+> > > > > Indirects are really for block devices with many spindles, since there
+> > > > > the limiting factor is the number of requests in flight.  Network
+> > > > > interfaces are limited by bandwidth, it's better to increase the ring
+> > > > > size and use direct buffers there (so the ring size more or less
+> > > > > corresponds to the buffer size).
+> > > > > 
+> > > > 
+> > > > I did some testing of indirect descriptors under different workloads.
+> > > 
+> > > MST and I discussed getting clever with dynamic limits ages ago, but it
+> > > was down low on the TODO list.  Thanks for diving into this...
+> > > 
+> > > AFAICT, if the ring never fills, direct is optimal.  When the ring
+> > > fills, indirect is optimal (we're better to queue now than later).
+> > > 
+> > > Why not something simple, like a threshold which drops every time we
+> > > fill the ring?
+> > > 
+> > > struct vring_virtqueue
+> > > {
+> > > ...
+> > >         int indirect_thresh;
+> > > ...
+> > > }
+> > > 
+> > > virtqueue_add_buf_gfp()
+> > > {
+> > > ...
+> > > 
+> > >         if (vq->indirect &&
+> > >             (vq->vring.num - vq->num_free) + out + in > vq->indirect_thresh)
+> > >                 return indirect()
+> > > ...
+> > > 
+> > > 	if (vq->num_free < out + in) {
+> > >                 if (vq->indirect && vq->indirect_thresh > 0)
+> > >                         vq->indirect_thresh--;
+> > >         
+> > > ...
+> > > }
+> > > 
+> > > Too dumb?
+> > > 
+> > > Cheers,
+> > > Rusty.
+> > 
+> > We'll presumably need some logic to increment is back,
+> > to account for random workload changes.
+> > Something like slow start?
 > 
-> But then you can't use the same kernel image for both scenarios.
+> We can increment it each time the queue was less than 10% full, it
+> should act like slow start, no?
 
-I was talking about virtio-pci. That always allocates the ring
-in the normal memory.
+No, we really shouldn't get an empty ring as long as things behave
+well. What I meant is something like:
 
-> It won't take long until people will use virtio on ARM for both
-> virtualization and for talking to devices, and having to rebuild the
-> kernel for different use cases is nasty.
+#define VIRTIO_DECREMENT 2
+#define VIRTIO_INCREMENT 1
+                if (vq->num_free < out + in) {
+		     if (vq->indirect && vq->indirect_thresh > VIRTIO_DECREMENT)
+                         vq->indirect_thresh /= VIRTIO_DECREMENT;
+		} else {
+			if (vq->indirect_thresh < vq->num)
+				vq->indirect_thresh += VIRTIO_INCREMENT;
+		}
 
-Yes, I understand that it's nasty.
+So we try to avoid indirect but the moment there's no space, we decrease
+the threshold drastically.  If you make the increment/decrement module
+parameters it's easy to try different values.
 
-> _______________________________________________
-> Virtualization mailing list
-> Virtualization@lists.linux-foundation.org
-> https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+
+> -- 
+> 
+> Sasha.
