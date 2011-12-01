@@ -1,49 +1,61 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH 1/1] Staging: hv: mousevsc: Properly add the hid device
-Date: Thu, 1 Dec 2011 20:55:47 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1112012055230.18207@pobox.suse.cz>
-References: <1322671943-6788-1-git-send-email-kys@microsoft.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
+Subject: Re: [PATCH 4/5] Staging: hv: storvsc: Fix a bug in
+ copy_from_bounce_buffer()
+Date: Fri, 2 Dec 2011 00:03:04 +0300
+Message-ID: <20111201210304.GY3195@mwanda>
+References: <1322744315-13017-1-git-send-email-kys@microsoft.com>
+ <1322744360-13067-1-git-send-email-kys@microsoft.com>
+ <1322744360-13067-4-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="zOTFI1MayFoZtDo5"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1322671943-6788-1-git-send-email-kys@microsoft.com>
+Content-Disposition: inline
+In-Reply-To: <1322744360-13067-4-git-send-email-kys@microsoft.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: "K. Y. Srinivasan" <kys@microsoft.com>
-Cc: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org, ohering@suse.com, joe@perches.com, dmitry.torokhov@gmail.com, Haiyang Zhang <haiyangz@microsoft.com>
+Cc: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org, ohering@suse.com, James.Bottomley@HansenPartnership.com, hch@infradead.org, linux-scsi@vger.kernel.org, Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 30 Nov 2011, K. Y. Srinivasan wrote:
 
-> We need to properly add the hid device to correctly initialize the
-> sysfs state. While this patch is against the staging tree; Jiri,
-> please pick up this patch as you merge the Hyper-V mouse driver.
-> 
+--zOTFI1MayFoZtDo5
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Thu, Dec 01, 2011 at 04:59:19AM -0800, K. Y. Srinivasan wrote:
+> Fix a bug in copy_from_bounce_buffer().
+>=20
 > Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 > Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
-> Reported-by: Fuzhou Chen <fuzhouch@microsoft.com>
-> ---
->  drivers/staging/hv/hv_mouse.c |    4 ++++
->  1 files changed, 4 insertions(+), 0 deletions(-)
-> 
-> diff --git a/drivers/staging/hv/hv_mouse.c b/drivers/staging/hv/hv_mouse.c
-> index a28c549..66da8e3 100644
-> --- a/drivers/staging/hv/hv_mouse.c
-> +++ b/drivers/staging/hv/hv_mouse.c
-> @@ -519,6 +519,10 @@ static int mousevsc_probe(struct hv_device *device,
->  
->  	sprintf(hid_dev->name, "%s", "Microsoft Vmbus HID-compliant Mouse");
->  
-> +	ret = hid_add_device(hid_dev);
-> +	if (ret)
-> +		goto probe_err1;
-> +
->  	ret = hid_parse_report(hid_dev, input_dev->report_desc,
->  				input_dev->report_desc_size);
->  
 
-I have refreshed the patch to apply to drivers/hid/hid-hyperv.c driver and 
-applied. Thanks,
+Seriously? ...
 
--- 
-Jiri Kosina
-SUSE Labs
+This is a crap changelog.  What did the bug do?
+
+regards,
+dan carpenter
+
+--zOTFI1MayFoZtDo5
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+
+iQIcBAEBAgAGBQJO1+uIAAoJEOnZkXI/YHqR8mkP/ijt07IWalryi44W7QI4gBRm
+F0jd2CBP11uwpjb4IwuCHIYd2z6ywr/+P/jtVG4Ad+Bntfot+ZZXVzBJQckvAAv5
+qqyggDHW9vzEbptnngpAAyqW8yiigib4fMfi/ve3n9IeHld8BVnZXsJeJeiWgxCs
+rlxY6VvBkcHyYMk7p5ofoI3ZfnlFFnbJcNG7/lN1v5mxc2TVG/HXZfSl0pGOV0KG
+aHm5K8Ud947EfLZD1Nja1wVQVNDbQqlLv4s3b6pSA9/fKDOfS7QOR70W4sANO7vb
+LE+ywSpiZI2NsLEbmTDWyO3gHBQjv8utlQHbVSdKaMJu7oExSv8gO6u1iCfkFzbC
+mubf3e42HrDaXOuPrETYFUtqmPlxOn4DUevpYCzNCbouBgBIaV6t01aC9zLS3HwW
+4AoyNpTLWXXGGvEjJ942jO0ZeOO54X75rnNfHzcqY+9QAJrA3Ch75FHw5+Z+2JAz
+pBcKnzn9QH0VHrPidTR+/nDYGHReZGz3peARHjhSdrXLok7QdLjGklRJAwoUhbCx
+wKHBXkRIdQTLcIfpR6jzQz5buq5V0SzN3RkIw9c8DLbDLPeEew3yUIkmxxK/8PIn
+yKivgXx7XlgwNwYtbsrcnJEOrGPO7z7ASGoqouVSQIcs2GLR58yYyFcsbLe7pmQL
+KzQ0Fa8kceUMDb8yHLau
+=0L8h
+-----END PGP SIGNATURE-----
+
+--zOTFI1MayFoZtDo5--
