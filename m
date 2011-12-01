@@ -1,72 +1,49 @@
-From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 1/1] drivers: hv: Don't OOPS when you cannot init vmbus
-Date: Thu,  1 Dec 2011 09:59:34 -0800
-Message-ID: <1322762374-14161-1-git-send-email-kys@microsoft.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH 1/1] Staging: hv: mousevsc: Properly add the hid device
+Date: Thu, 1 Dec 2011 20:55:47 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1112012055230.18207@pobox.suse.cz>
+References: <1322671943-6788-1-git-send-email-kys@microsoft.com>
+Mime-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1322671943-6788-1-git-send-email-kys@microsoft.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org, ohering@suse.com
-Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Sasha Levin <levinsasha928@gmail.com>
+To: "K. Y. Srinivasan" <kys@microsoft.com>
+Cc: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org, ohering@suse.com, joe@perches.com, dmitry.torokhov@gmail.com, Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The hv vmbus driver was causing an OOPS since it was trying to register drivers
-on top of the bus even if initialization of the bus has failed for some
-reason (such as the odd chance someone would run a hv enabled kernel in a
-non-hv environment).
+On Wed, 30 Nov 2011, K. Y. Srinivasan wrote:
 
+> We need to properly add the hid device to correctly initialize the
+> sysfs state. While this patch is against the staging tree; Jiri,
+> please pick up this patch as you merge the Hyper-V mouse driver.
+> 
+> Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
+> Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
+> Reported-by: Fuzhou Chen <fuzhouch@microsoft.com>
+> ---
+>  drivers/staging/hv/hv_mouse.c |    4 ++++
+>  1 files changed, 4 insertions(+), 0 deletions(-)
+> 
+> diff --git a/drivers/staging/hv/hv_mouse.c b/drivers/staging/hv/hv_mouse.c
+> index a28c549..66da8e3 100644
+> --- a/drivers/staging/hv/hv_mouse.c
+> +++ b/drivers/staging/hv/hv_mouse.c
+> @@ -519,6 +519,10 @@ static int mousevsc_probe(struct hv_device *device,
+>  
+>  	sprintf(hid_dev->name, "%s", "Microsoft Vmbus HID-compliant Mouse");
+>  
+> +	ret = hid_add_device(hid_dev);
+> +	if (ret)
+> +		goto probe_err1;
+> +
+>  	ret = hid_parse_report(hid_dev, input_dev->report_desc,
+>  				input_dev->report_desc_size);
+>  
 
-Signed-off-by: Sasha Levin <levinsasha928@gmail.com>
-Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
----
- drivers/hv/vmbus_drv.c |   16 ++++++++++++++++
- 1 files changed, 16 insertions(+), 0 deletions(-)
+I have refreshed the patch to apply to drivers/hid/hid-hyperv.c driver and 
+applied. Thanks,
 
-diff --git a/drivers/hv/vmbus_drv.c b/drivers/hv/vmbus_drv.c
-index 0c048dd..d3b0b4f 100644
---- a/drivers/hv/vmbus_drv.c
-+++ b/drivers/hv/vmbus_drv.c
-@@ -62,6 +62,14 @@ struct hv_device_info {
- 	struct hv_dev_port_info outbound;
- };
- 
-+static int vmbus_exists(void)
-+{
-+	if (hv_acpi_dev == NULL)
-+		return -ENODEV;
-+
-+	return 0;
-+}
-+
- 
- static void get_channel_info(struct hv_device *device,
- 			     struct hv_device_info *info)
-@@ -590,6 +598,10 @@ int __vmbus_driver_register(struct hv_driver *hv_driver, struct module *owner, c
- 
- 	pr_info("registering driver %s\n", hv_driver->name);
- 
-+	ret = vmbus_exists();
-+	if (ret < 0)
-+		return ret;
-+
- 	hv_driver->driver.name = hv_driver->name;
- 	hv_driver->driver.owner = owner;
- 	hv_driver->driver.mod_name = mod_name;
-@@ -614,6 +626,9 @@ void vmbus_driver_unregister(struct hv_driver *hv_driver)
- {
- 	pr_info("unregistering driver %s\n", hv_driver->name);
- 
-+	if (!vmbus_exists())
-+		return;
-+
- 	driver_unregister(&hv_driver->driver);
- 
- }
-@@ -776,6 +791,7 @@ static int __init hv_acpi_init(void)
- 
- cleanup:
- 	acpi_bus_unregister_driver(&vmbus_acpi_driver);
-+	hv_acpi_dev = NULL;
- 	return ret;
- }
- 
 -- 
-1.7.4.1
+Jiri Kosina
+SUSE Labs
