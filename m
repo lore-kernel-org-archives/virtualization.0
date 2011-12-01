@@ -1,8 +1,8 @@
-From: Stefano Stabellini <stefano.stabellini@eu.citrix.com>
-Subject: Re: [Embeddedxen-devel] [Xen-devel] [ANNOUNCE] Xen port to Cortex-A15
-	/ ARMv7 with virt extensions
-Date: Thu, 1 Dec 2011 15:12:06 +0000
-Message-ID: <alpine.DEB.2.00.1112011441340.31179@kaball-desktop>
+From: Catalin Marinas <catalin.marinas@arm.com>
+Subject: Re: [Android-virt] [Embeddedxen-devel] [Xen-devel] [ANNOUNCE] Xen
+	port to Cortex-A15 / ARMv7 with virt extensions
+Date: Thu, 1 Dec 2011 15:10:43 +0000
+Message-ID: <20111201151043.GG27394__17852.8964556337$1322752800$gmane$org@arm.com>
 References: <alpine.DEB.2.00.1111281009090.31179@kaball-desktop>
 	<201111301432.54463.arnd@arndb.de>
 	<1322670473.31810.129.camel@zakaz.uk.xensource.com>
@@ -13,6 +13,7 @@ Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
 In-Reply-To: <1322735197.31810.191.camel@zakaz.uk.xensource.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -24,10 +25,10 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Ian Campbell <Ian.Campbell@citrix.com>
-Cc: "xen-devel@lists.xensource.com" <xen-devel@lists.xensource.com>, "linaro-dev@lists.linaro.org" <linaro-dev@lists.linaro.org>, Pawel Moll <pawel.moll@arm.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, Stefano Stabellini <Stefano.Stabellini@eu.citrix.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Arnd Bergmann <arnd@arndb.de>, "android-virt@lists.cs.columbia.edu" <android-virt@lists.cs.columbia.edu>, "embeddedxen-devel@lists.sourceforge.net" <embeddedxen-devel@lists.sourceforge.net>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
+Cc: "xen-devel@lists.xensource.com" <xen-devel@lists.xensource.com>, "linaro-dev@lists.linaro.org" <linaro-dev@lists.linaro.org>, Arnd Bergmann <arnd@arndb.de>, Pawel Moll <Pawel.Moll@arm.com>, Stefano Stabellini <Stefano.Stabellini@eu.citrix.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "android-virt@lists.cs.columbia.edu" <android-virt@lists.cs.columbia.edu>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "embeddedxen-devel@lists.sourceforge.net" <embeddedxen-devel@lists.sourceforge.net>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 1 Dec 2011, Ian Campbell wrote:
+On Thu, Dec 01, 2011 at 10:26:37AM +0000, Ian Campbell wrote:
 > On Wed, 2011-11-30 at 18:32 +0000, Stefano Stabellini wrote:
 > > On Wed, 30 Nov 2011, Arnd Bergmann wrote:
 > > > KVM and Xen at least both fall into the single-return-value category,
@@ -52,14 +53,22 @@ On Thu, 1 Dec 2011, Ian Campbell wrote:
 > think vmcall instruction differs between AMD and Intel also) and gives
 > some additional flexibility. It's hard to predict but I don't think I'd
 > expect that to be necessary on ARM.
->
+> 
 > Another reason for having a hypercall page instead of a raw instruction
 > might be wanting to support 32 bit guests (from ~today) on a 64 bit
 > hypervisor in the future and perhaps needing to do some shimming/arg
 > translation. It would be better to aim for having the interface just be
 > 32/64 agnostic but mistakes do happen.
 
-I always like to keep things as simple as possible, so I am in favor of
-using the raw hvc instruction.
-Besides with the bulk of mmu hypercalls gone, it should not be difficult
-to design a 32/64 bit agnostic interface.
+Given the way register banking is done on AArch64, issuing an HVC on a
+32-bit guest OS doesn't require translation on a 64-bit hypervisor. We
+have a similar implementation at the SVC level (for 32-bit user apps on
+a 64-bit kernel), the only modification was where a 32-bit SVC takes a
+64-bit parameter in two separate 32-bit registers, so packing needs to
+be done in a syscall wrapper.
+
+I'm not closely involved with any of the Xen or KVM work but I would
+vote for using HVC than a hypercall page.
+
+-- 
+Catalin
