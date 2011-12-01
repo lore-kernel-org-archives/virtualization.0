@@ -1,20 +1,16 @@
-From: Ohad Ben-Cohen <ohad@wizery.com>
-Subject: Re: [RFC] virtio: use mandatory barriers for remote processor vdevs
-Date: Thu, 1 Dec 2011 09:15:11 +0200
-Message-ID: <CAK=Wgbb7kJu7WgJvCGb==7Oh_xCBrj6m2s1OH-WofXe7VgLBcA@mail.gmail.com>
-References: <1322569886-13055-1-git-send-email-ohad@wizery.com>
-	<20111129131110.GC19157@redhat.com>
-	<CAK=WgbZoGYVyKt=XXvnPVdh0koSBJC0zcgkLaYRkmjwBLOFA-A@mail.gmail.com>
-	<20111129151958.GA31789@redhat.com>
-	<CAK=WgbZ5aBFNro3XC0cN+Ao4ZWrBHwwd3d__CSHA=n56gKmKXw@mail.gmail.com>
-	<20111130145004.GD21413@redhat.com>
-	<CAK=WgbY59n9N_-2_TZ9wNBNcTMV1DCrz65e-Ae=xamcg6A0dOA@mail.gmail.com>
-	<20111130231306.GD30031@redhat.com> <87zkfdrpn8.fsf@rustcorp.com.au>
+From: Hannes Reinecke <hare@suse.de>
+Subject: Re: virtio-scsi spec (was Re: [PATCH] Add virtio-scsi to the virtio
+	spec)
+Date: Thu, 01 Dec 2011 10:52:20 +0100
+Message-ID: <4ED74E54.3070303@suse.de>
+References: <1322661042-28191-1-git-send-email-pbonzini@redhat.com>
+	<1322661042-28191-2-git-send-email-pbonzini@redhat.com>
+	<4ED63AE1.8090105@suse.de> <4ED65BA4.3000003@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
+Content-Type: text/plain; charset="iso-8859-1"; Format="flowed"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <87zkfdrpn8.fsf@rustcorp.com.au>
+In-Reply-To: <4ED65BA4.3000003@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,16 +20,67 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: linux-arm-kernel@lists.infradead.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
+To: Paolo Bonzini <pbonzini@redhat.com>
+Cc: LKML <linux-kernel@vger.kernel.org>, linux-scsi <linux-scsi@redhat.com>, virtualization <virtualization@lists.linux-foundation.org>, Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Dec 1, 2011 at 4:28 AM, Rusty Russell <rusty@rustcorp.com.au> wrote:
-> Hmm, we got away with light barriers because we knew we were not
-> *really* talking to a device. =A0But now with virtio-mmio, turns out we
-> are :)
+On 11/30/2011 05:36 PM, Paolo Bonzini wrote:
+> On 11/30/2011 03:17 PM, Hannes Reinecke wrote:
+>>> seg_max is the maximum number of segments that can be in a
+>>> command. A bidirectional command can include seg_max input
+>>> segments and seg_max output segments.
+>>>
+>> I would like to have the other request_queue limitations exposed
+>> here, too.
+>> Most notably we're missing the maximum size of an individual segment
+>> and the maximum size of the overall I/O request.
 >
-> I'm really tempted to revert d57ed95 for 3.2, and we can revisit this
-> optimization later if it proves worthwhile.
+> The virtio transport does not put any limit, as far as I know.
+>
+Virtio doesn't, but the underlying device/driver might.
+And if we don't expose these values we cannot format the request correctly.
 
-+1
+>> As this is the host specification I really would like to see an host
+>> identifier somewhere in there.
+>> Otherwise we won't be able to reliably identify a virtio SCSI host.
+>
+> I thought about it, but I couldn't figure out exactly how to use it. If
+> it's just allocating 64 bits in the configuration space (with the
+> stipulation that they could be zero), let's do it now. Otherwise a
+> controlq command is indeed better, and it can come later.
+>
+> But even if it's just a 64-bit value, then: 1) where would you place it
+> in sysfs for userspace? I can make up a random name, but existing user
+> tools won't find it and that's against the design of virtio-scsi. 2) How
+> would it be encoded as a transport ID? Is it FC, or firewire, or SAS, or
+> what?
+>
+I was thinking of something along the lines of the TransportID as =
+
+defined in SPC.
+Main idea is to have a unique ID by which we can identify a given =
+
+virtio-scsi host. Admittedly it might not be useful in general, so it =
+
+might be an idea to delegate this to another controlq command.
+
+>> Plus you can't calculate the ITL nexus information, making
+>> Persistent Reservations impossible.
+>
+> They are not impossible, only some features such as SPEC_I_PT. If you
+> use NPIV or iSCSI in the host, then the persistent reservations will
+> already get the correct initiator port. If not, much more work is needed.
+>
+Yes, for a a shared (physical) SCSI host persistent reservations will be =
+
+tricky.
+
+Cheers,
+
+Hannes
+-- =
+
+Dr. Hannes Reinecke		      zSeries & Storage
+hare@suse.de			      +49 911 74053 688
+SUSE LINUX Products GmbH, Maxfeldstr. 5, 90409 N=FCrnberg
+GF: Markus Rex, HRB 16746 (AG N=FCrnberg)
