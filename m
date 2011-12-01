@@ -1,7 +1,7 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
+From: Ohad Ben-Cohen <ohad@wizery.com>
 Subject: Re: [RFC] virtio: use mandatory barriers for remote processor vdevs
-Date: Thu, 01 Dec 2011 12:58:59 +1030
-Message-ID: <87zkfdrpn8.fsf@rustcorp.com.au>
+Date: Thu, 1 Dec 2011 08:14:26 +0200
+Message-ID: <CAK=Wgbb5M62LgXY-sn7R6YautHxwqyDbPTeXYJxgmrS9fPXR9A@mail.gmail.com>
 References: <1322569886-13055-1-git-send-email-ohad@wizery.com>
 	<20111129131110.GC19157@redhat.com>
 	<CAK=WgbZoGYVyKt=XXvnPVdh0koSBJC0zcgkLaYRkmjwBLOFA-A@mail.gmail.com>
@@ -24,22 +24,16 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, Ohad Ben-Cohen <ohad@wizery.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 1 Dec 2011 01:13:07 +0200, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+On Thu, Dec 1, 2011 at 1:13 AM, Michael S. Tsirkin <mst@redhat.com> wrote:
 > For x86, stores into memory are ordered. So I think that yes, smp_XXX
 > can be selected at compile time.
-> 
-> So let's forget the virtio strangeness for a minute,
 
-Hmm, we got away with light barriers because we knew we were not
-*really* talking to a device.  But now with virtio-mmio, turns out we
-are :)
+But then you can't use the same kernel image for both scenarios.
 
-I'm really tempted to revert d57ed95 for 3.2, and we can revisit this
-optimization later if it proves worthwhile.
-
-Thoughts?
-Rusty. 
+It won't take long until people will use virtio on ARM for both
+virtualization and for talking to devices, and having to rebuild the
+kernel for different use cases is nasty.
