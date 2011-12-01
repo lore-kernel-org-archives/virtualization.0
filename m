@@ -1,18 +1,13 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCHv3 RFC] virtio-pci: flexible configuration layout
-Date: Thu, 01 Dec 2011 13:12:42 +1030
-Message-ID: <87vcq1rp0d.fsf@rustcorp.com.au>
-References: <20111122183621.GA5235@redhat.com> <87hb1v1scp.fsf@rustcorp.com.au>
-	<20111123084640.GE22734@redhat.com>
-	<87ty5uxso3.fsf@rustcorp.com.au>
-	<20111124070728.GH29994@redhat.com>
-	<87vcq5t69c.fsf@rustcorp.com.au> <1322471731.3577.10.camel@lappy>
-	<87pqgats49.fsf@rustcorp.com.au> <1322658763.3985.4.camel@lappy>
+Subject: Re: [PATCH] Add virtio-scsi to the virtio spec
+Date: Thu, 01 Dec 2011 13:44:37 +1030
+Message-ID: <87sjl5rnj6.fsf@rustcorp.com.au>
+References: <1322661042-28191-1-git-send-email-pbonzini@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1322658763.3985.4.camel@lappy>
+In-Reply-To: <1322661042-28191-1-git-send-email-pbonzini@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,47 +17,120 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Sasha Levin <levinsasha928@gmail.com>
-Cc: Krishna Kumar <krkumar2@in.ibm.com>, kvm@vger.kernel.org, Pawel Moll <pawel.moll@arm.com>, "Michael S. Tsirkin" <mst@redhat.com>, Alexey Kardashevskiy <aik@ozlabs.ru>, Wang Sheng-Hui <shhuiw@gmail.com>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, Amit Shah <amit.shah@redhat.com>
+To: Paolo Bonzini <pbonzini@redhat.com>, virtualization <virtualization@lists.linux-foundation.org>
+Cc: linux-scsi <linux-scsi@redhat.com>, LKML <linux-kernel@vger.kernel.org>, Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 30 Nov 2011 15:12:43 +0200, Sasha Levin <levinsasha928@gmail.com> wrote:
-> On Wed, 2011-11-30 at 10:10 +1030, Rusty Russell wrote:
-> > On Mon, 28 Nov 2011 11:15:31 +0200, Sasha Levin <levinsasha928@gmail.com> wrote:
-> > > On Mon, 2011-11-28 at 11:25 +1030, Rusty Russell wrote:
-> > > > I'd like to see kvmtools remove support for legacy mode altogether,
-> > > > but they probably have existing users.
-> > > 
-> > > While we can't simply remove it right away, instead of mixing our
-> > > implementation for both legacy and new spec in the same code we can
-> > > split the virtio-pci implementation into two:
-> > > 
-> > > 	- virtio/virtio-pci-legacy.c
-> > > 	- virtio/virtio-pci.c
-> > > 
-> > > At that point we can #ifdef the entire virtio-pci-legacy.c for now and
-> > > remove it at the same time legacy virtio-pci is removed from the kernel.
-> > 
-> > Hmm, that might be neat, but we can't tell the driver core to try
-> > virtio-pci before virtio-pci-legacy, so we need detection code in both
-> > modules (and add a "force" flag to virtio-pci-legacy to tell it to
-> > accept the device even if it's not a legacy-only one).
+On Wed, 30 Nov 2011 14:50:41 +0100, Paolo Bonzini <pbonzini@redhat.com> wrote:
+> Hi all,
 > 
-> I was thinking more in the direction of fallback code in virtio-pci.c to
-> virtio-pci-legacy.c.
-> 
-> Something like:
-> #ifdef VIRTIO_PCI_LEGACY
-> [Create BAR0 and map it to virtio-pci-legacy.c]
-> #endif
-> 
-> So BAR0 isn't defined as long as legacy code is there, which makes
-> falling back to legacy pretty simple.
+> here is the specification for a virtio-based SCSI host (controller, HBA,
+> you name it).  The virtio SCSI host is the basis of an alternative
+> storage stack for KVM. This stack would overcome several limitations of
+> the current solution, virtio-blk:
 
-But it's nicer to see the driver actually labelled "virtio-pci-legacy",
-and such a module.
+OK, I like the idea, but I'd prefer to see the spec only cover things
+which are implemented and tested, otherwise the risk of a flaw in the
+spec is really high in my experience.
 
-I'll code something up, see what it looks like.
+Comments below:
 
-Cheers,
+>   num_queues is the total number of virtqueues exposed by the
+>     device. The driver is free to use only one request queue, or
+>     it can use more to achieve better performance.
+
+s/total number of virtqueues/total number of request virtqueues/ ?
+
+>   max_channel, max_target and max_lun can be used by the driver
+>     as hints for scanning the logical units on the host. In the
+>     current version of the spec, they will always be respectively
+>     0, 255 and 16383.
+
+s/hints for scanning/hints to constrain scanning/ ? (I assume).  But why
+mention the current values?  That doesn't help someone implementing a
+driver or a device.  If you want to, you could mention that as an
+implementation detail of your current implmentation, but it seems out of
+place in the spec.
+
+> If the driver uses the eventq, it should then place at least a
+> buffer in the eventq.
+
+s/at least a/at least one/
+
+> The driver queues requests to an arbitrary request queue, and they are
+> used by the device on that same queue. In this version of the spec,
+> if a driver uses more than one queue it is the responsibility of the
+> driver to ensure strict request ordering; commands placed on different
+> queue will be consumed with no order constraints.
+
+Suggest simplification of second sentence:
+
+It is the responsibility of the driver to ensure strict request
+ordering; commands placed on different queues will be consumed with no
+order constraints.
+
+> The lun field addresses a target and logical unit in the
+> virtio-scsi device's SCSI domain. In this version of the spec,
+> the only supported format for the LUN field is: first byte set to
+> 1, second byte set to target, third and fourth byte representing
+> a single level LUN structure, followed by four zero bytes. With
+> this representation, a virtio-scsi device can serve up to 256
+> targets and 16384 LUNs per target.
+
+You keep saying "In this version of the spec".  I would delete that
+phrase everywhere.
+
+> Task_attr, prio and crn should be left to zero: command priority
+> is explicitly not supported by this version of the device;
+> task_attr defines the task attribute as in the table above, but
+> all task attributes may be mapped to SIMPLE by the device; crn
+> may also be provided by clients, but is generally expected to be
+> 0. The maximum CRN value defined by the protocol is 255, since
+> CRN is stored in an 8-bit integer.
+
+Be braver in your language please.  It helps poor implementers who are
+already confused by learning SCSI and virtio:
+
+ Task_attr, and prio must be zero.[1] task_attr defines the task
+ attribute as in the table above, but all task attributes may be mapped
+ to SIMPLE by the device; crn may also be provided by clients, but is
+ generally expected to be 0.
+
+ [1] Future extensions may use these fields.
+
+Is it useful for a driver to specify ordered (or other) modes, knowing
+it could be reduced to SIMPLE without it being aware?  Or should we use
+feature bits to indicate what the device supports?
+
+>   Note that since ACA is not supported by this version of the
+>   spec, VIRTIO_SCSI_T_TMF_CLEAR_ACA is always a no-operation.
+
+I think if you don't support ACA in the spec, don't define this.  How
+will a driver author use this information?
+
+>     struct virtio_scsi_ctrl_an {
+>	 u32 type;
+>	 u8  lun[8];
+>	 u32 event_requested;
+>	 u32 event_actual;
+>	 u8  response;
+>     }
+
+With all these structures, you might want a comment indicating the
+read-only and write-only (from the device POV) parts of the struct, eg:
+
+     struct virtio_scsi_ctrl_an {
+         // Read-only part
+	 u32 type;
+	 u8  lun[8];
+	 u32 event_requested;
+         // Write-only part
+	 u32 event_actual;
+	 u8  response;
+     }
+
+But basically, though I know nothing about SCSI, I like both the content
+and style of this addition!
+
+Thanks,
 Rusty.
