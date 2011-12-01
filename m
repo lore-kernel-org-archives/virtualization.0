@@ -1,22 +1,18 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH] virtio-mmio: Devices parameter parsing
-Date: Thu, 01 Dec 2011 12:36:39 +1030
-Message-ID: <877h2ht58w.fsf@rustcorp.com.au>
-References: <1321365185-2928-1-git-send-email-pawel.moll@arm.com>
-	<87sjlooq3m.fsf@rustcorp.com.au>
-	<1321467222.3137.417.camel@hornet.cambridge.arm.com>
-	<87vcqe9ml9.fsf@rustcorp.com.au>
-	<1321886688.3093.248.camel@hornet.cambridge.arm.com>
-	<1321898210.3093.263.camel@hornet.cambridge.arm.com>
-	<87fwhhx9is.fsf@rustcorp.com.au>
-	<1322071732.3093.491.camel@hornet.cambridge.arm.com>
-	<87zkfht7dp.fsf@rustcorp.com.au>
-	<1322588190.3164.129.camel@hornet.cambridge.arm.com>
+Subject: Re: [PATCHv3 RFC] virtio-pci: flexible configuration layout
+Date: Thu, 01 Dec 2011 13:12:42 +1030
+Message-ID: <87vcq1rp0d.fsf@rustcorp.com.au>
+References: <20111122183621.GA5235@redhat.com> <87hb1v1scp.fsf@rustcorp.com.au>
+	<20111123084640.GE22734@redhat.com>
+	<87ty5uxso3.fsf@rustcorp.com.au>
+	<20111124070728.GH29994@redhat.com>
+	<87vcq5t69c.fsf@rustcorp.com.au> <1322471731.3577.10.camel@lappy>
+	<87pqgats49.fsf@rustcorp.com.au> <1322658763.3985.4.camel@lappy>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1322588190.3164.129.camel@hornet.cambridge.arm.com>
+In-Reply-To: <1322658763.3985.4.camel@lappy>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -26,57 +22,47 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Pawel Moll <pawel.moll@arm.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+To: Sasha Levin <levinsasha928@gmail.com>
+Cc: Krishna Kumar <krkumar2@in.ibm.com>, kvm@vger.kernel.org, Pawel Moll <pawel.moll@arm.com>, "Michael S. Tsirkin" <mst@redhat.com>, Alexey Kardashevskiy <aik@ozlabs.ru>, Wang Sheng-Hui <shhuiw@gmail.com>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, Amit Shah <amit.shah@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 29 Nov 2011 17:36:30 +0000, Pawel Moll <pawel.moll@arm.com> wrote:
-> On Mon, 2011-11-28 at 00:31 +0000, Rusty Russell wrote:
-> > Off the top of my head, this makes me think of the way initcalls are
-> > ordered.  We could put a parameter parsing initcall at the start of each
-> > initcall level in include/asm-generic/vmlinux.lds.h's INITCALLS macro.
+On Wed, 30 Nov 2011 15:12:43 +0200, Sasha Levin <levinsasha928@gmail.com> wrote:
+> On Wed, 2011-11-30 at 10:10 +1030, Rusty Russell wrote:
+> > On Mon, 28 Nov 2011 11:15:31 +0200, Sasha Levin <levinsasha928@gmail.com> wrote:
+> > > On Mon, 2011-11-28 at 11:25 +1030, Rusty Russell wrote:
+> > > > I'd like to see kvmtools remove support for legacy mode altogether,
+> > > > but they probably have existing users.
+> > > 
+> > > While we can't simply remove it right away, instead of mixing our
+> > > implementation for both legacy and new spec in the same code we can
+> > > split the virtio-pci implementation into two:
+> > > 
+> > > 	- virtio/virtio-pci-legacy.c
+> > > 	- virtio/virtio-pci.c
+> > > 
+> > > At that point we can #ifdef the entire virtio-pci-legacy.c for now and
+> > > remove it at the same time legacy virtio-pci is removed from the kernel.
 > > 
-> > Then we steal four bits from struct kernel_param's flags to indicate the
-> > level of the initcall (-1 == existing ones, otherwise N == before level
-> > N initcalls).
+> > Hmm, that might be neat, but we can't tell the driver core to try
+> > virtio-pci before virtio-pci-legacy, so we need detection code in both
+> > modules (and add a "force" flag to virtio-pci-legacy to tell it to
+> > accept the device even if it's not a legacy-only one).
 > 
-> Yes, this was my initial idea as well. The only problem I faced is the
-> fact that there is no "between levels"... It's easy to add parameters
-> parsing _at_ any particular level, but hard to do this _after_ level A
-> and _before_ level B. The initcalls section simply contains all the
-> calls, ordered by the level - the only "separated" level is the pre-SMP
-> early one. And order within one level is determined by the link order,
-> so I can't guarantee parsing the parameters as the first call of a level
-> (nor as the last call of the previous level).
+> I was thinking more in the direction of fallback code in virtio-pci.c to
+> virtio-pci-legacy.c.
+> 
+> Something like:
+> #ifdef VIRTIO_PCI_LEGACY
+> [Create BAR0 and map it to virtio-pci-legacy.c]
+> #endif
+> 
+> So BAR0 isn't defined as long as legacy code is there, which makes
+> falling back to legacy pretty simple.
 
-Yeah, that's why I suggested changing the linker script.
->  /* This is the fundamental function for registering boot/module
->     parameters. */
-> -#define __module_param_call(prefix, name, ops, arg, isbool, perm)	\
-> +#define __module_param_call(prefix, name, ops, arg, isbool, late, perm)	\
->  	/* Default value instead of permissions? */			\
->  	static int __param_perm_check_##name __attribute__((unused)) =	\
->  	BUILD_BUG_ON_ZERO((perm) < 0 || (perm) > 0777 || ((perm) & 2))	\
+But it's nicer to see the driver actually labelled "virtio-pci-legacy",
+and such a module.
 
-Might as well change isbool to "flags", since we have to fix callers
-anyway.
+I'll code something up, see what it looks like.
 
-> diff --git a/init/main.c b/init/main.c
-> index 217ed23..ce89a53 100644
-> --- a/init/main.c
-> +++ b/init/main.c
-> @@ -407,7 +407,7 @@ static int __init do_early_param(char *param, char *val)
->  
->  void __init parse_early_options(char *cmdline)
->  {
-> -	parse_args("early options", cmdline, NULL, 0, do_early_param);
-> +	parse_args("early options", cmdline, NULL, 0, 0, 0, do_early_param);
-
-It'd be nice to replace the early param stuff too, but that's probably a
-separate patch.  As is getting rid of the old __setup() calls everywhere
-;)
-
-But so far, it looks good!
-
-Thanks,
+Cheers,
 Rusty.
