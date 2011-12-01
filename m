@@ -1,19 +1,22 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH] virtio-ring: Use threshold for switching to indirect
-	descriptors
-Date: Thu, 01 Dec 2011 13:12:25 +1030
-Message-ID: <87wrahrp0u.fsf@rustcorp.com.au>
-References: <1322559196-11139-1-git-send-email-levinsasha928@gmail.com>
-	<20111129125622.GB19157@redhat.com>
-	<1322573688.4395.11.camel@lappy>
-	<20111129135406.GB30966@redhat.com> <1322576464.7003.6.camel@lappy>
-	<20111129145451.GD30966@redhat.com>
-	<4ED4F30F.8000603@redhat.com> <1322669511.3985.8.camel@lappy>
+Subject: Re: [PATCH] virtio-mmio: Devices parameter parsing
+Date: Thu, 01 Dec 2011 12:36:39 +1030
+Message-ID: <877h2ht58w.fsf@rustcorp.com.au>
+References: <1321365185-2928-1-git-send-email-pawel.moll@arm.com>
+	<87sjlooq3m.fsf@rustcorp.com.au>
+	<1321467222.3137.417.camel@hornet.cambridge.arm.com>
+	<87vcqe9ml9.fsf@rustcorp.com.au>
+	<1321886688.3093.248.camel@hornet.cambridge.arm.com>
+	<1321898210.3093.263.camel@hornet.cambridge.arm.com>
+	<87fwhhx9is.fsf@rustcorp.com.au>
+	<1322071732.3093.491.camel@hornet.cambridge.arm.com>
+	<87zkfht7dp.fsf@rustcorp.com.au>
+	<1322588190.3164.129.camel@hornet.cambridge.arm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1322669511.3985.8.camel@lappy>
+In-Reply-To: <1322588190.3164.129.camel@hornet.cambridge.arm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,66 +26,57 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Sasha Levin <levinsasha928@gmail.com>, Avi Kivity <avi@redhat.com>
-Cc: markmc@redhat.com, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
+To: Pawel Moll <pawel.moll@arm.com>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 30 Nov 2011 18:11:51 +0200, Sasha Levin <levinsasha928@gmail.com> wrote:
-> On Tue, 2011-11-29 at 16:58 +0200, Avi Kivity wrote:
-> > On 11/29/2011 04:54 PM, Michael S. Tsirkin wrote:
-> > > > 
-> > > > Which is actually strange, weren't indirect buffers introduced to make
-> > > > the performance *better*? From what I see it's pretty much the
-> > > > same/worse for virtio-blk.
-> > >
-> > > I know they were introduced to allow adding very large bufs.
-> > > See 9fa29b9df32ba4db055f3977933cd0c1b8fe67cd
-> > > Mark, you wrote the patch, could you tell us which workloads
-> > > benefit the most from indirect bufs?
-> > >
+On Tue, 29 Nov 2011 17:36:30 +0000, Pawel Moll <pawel.moll@arm.com> wrote:
+> On Mon, 2011-11-28 at 00:31 +0000, Rusty Russell wrote:
+> > Off the top of my head, this makes me think of the way initcalls are
+> > ordered.  We could put a parameter parsing initcall at the start of each
+> > initcall level in include/asm-generic/vmlinux.lds.h's INITCALLS macro.
 > > 
-> > Indirects are really for block devices with many spindles, since there
-> > the limiting factor is the number of requests in flight.  Network
-> > interfaces are limited by bandwidth, it's better to increase the ring
-> > size and use direct buffers there (so the ring size more or less
-> > corresponds to the buffer size).
-> > 
+> > Then we steal four bits from struct kernel_param's flags to indicate the
+> > level of the initcall (-1 == existing ones, otherwise N == before level
+> > N initcalls).
 > 
-> I did some testing of indirect descriptors under different workloads.
+> Yes, this was my initial idea as well. The only problem I faced is the
+> fact that there is no "between levels"... It's easy to add parameters
+> parsing _at_ any particular level, but hard to do this _after_ level A
+> and _before_ level B. The initcalls section simply contains all the
+> calls, ordered by the level - the only "separated" level is the pre-SMP
+> early one. And order within one level is determined by the link order,
+> so I can't guarantee parsing the parameters as the first call of a level
+> (nor as the last call of the previous level).
 
-MST and I discussed getting clever with dynamic limits ages ago, but it
-was down low on the TODO list.  Thanks for diving into this...
+Yeah, that's why I suggested changing the linker script.
+>  /* This is the fundamental function for registering boot/module
+>     parameters. */
+> -#define __module_param_call(prefix, name, ops, arg, isbool, perm)	\
+> +#define __module_param_call(prefix, name, ops, arg, isbool, late, perm)	\
+>  	/* Default value instead of permissions? */			\
+>  	static int __param_perm_check_##name __attribute__((unused)) =	\
+>  	BUILD_BUG_ON_ZERO((perm) < 0 || (perm) > 0777 || ((perm) & 2))	\
 
-AFAICT, if the ring never fills, direct is optimal.  When the ring
-fills, indirect is optimal (we're better to queue now than later).
+Might as well change isbool to "flags", since we have to fix callers
+anyway.
 
-Why not something simple, like a threshold which drops every time we
-fill the ring?
+> diff --git a/init/main.c b/init/main.c
+> index 217ed23..ce89a53 100644
+> --- a/init/main.c
+> +++ b/init/main.c
+> @@ -407,7 +407,7 @@ static int __init do_early_param(char *param, char *val)
+>  
+>  void __init parse_early_options(char *cmdline)
+>  {
+> -	parse_args("early options", cmdline, NULL, 0, do_early_param);
+> +	parse_args("early options", cmdline, NULL, 0, 0, 0, do_early_param);
 
-struct vring_virtqueue
-{
-...
-        int indirect_thresh;
-...
-}
+It'd be nice to replace the early param stuff too, but that's probably a
+separate patch.  As is getting rid of the old __setup() calls everywhere
+;)
 
-virtqueue_add_buf_gfp()
-{
-...
+But so far, it looks good!
 
-        if (vq->indirect &&
-            (vq->vring.num - vq->num_free) + out + in > vq->indirect_thresh)
-                return indirect()
-...
-
-	if (vq->num_free < out + in) {
-                if (vq->indirect && vq->indirect_thresh > 0)
-                        vq->indirect_thresh--;
-        
-...
-}
-
-Too dumb?
-
-Cheers,
+Thanks,
 Rusty.
