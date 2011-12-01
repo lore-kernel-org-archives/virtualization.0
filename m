@@ -1,47 +1,65 @@
-From: KY Srinivasan <kys@microsoft.com>
-Subject: RE: [PATCH 4/5] Staging: hv: storvsc: Fix a bug in
- copy_from_bounce_buffer()
-Date: Thu, 1 Dec 2011 21:13:34 +0000
-Message-ID: <6E21E5352C11B742B20C142EB499E0481AA7B529@TK5EX14MBXC126.redmond.corp.microsoft.com>
-References: <1322744315-13017-1-git-send-email-kys@microsoft.com>
- <1322744360-13067-1-git-send-email-kys@microsoft.com>
- <1322744360-13067-4-git-send-email-kys@microsoft.com>
- <20111201210304.GY3195@mwanda>
- <6E21E5352C11B742B20C142EB499E0481AA7B4EF@TK5EX14MBXC126.redmond.corp.microsoft.com>
- <20111201211147.GL20466@mwanda>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+From: "K. Y. Srinivasan" <kys@microsoft.com>
+Subject: [PATCH 1/1] hv: Update MAINTAINERS
+Date: Thu,  1 Dec 2011 13:54:46 -0800
+Message-ID: <1322776486-17077-1-git-send-email-kys@microsoft.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20111201211147.GL20466@mwanda>
-Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, "ohering@suse.com" <ohering@suse.com>, "James.Bottomley@HansenPartnership.com" <James.Bottomley@HansenPartnership.com>, "hch@infradead.org" <hch@infradead.org>, "linux-scsi@vger.kernel.org" <linux-scsi@vger.kernel.org>, Haiyang Zhang <haiyangz@microsoft.com>
+To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org, ohering@suse.com, joe@perches.com, dmitry.torokhov@gmail.com, jkosina@suse.cz
+Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
+Update the MAINTAINERS file to reflect the current state
+of the Hyper-V drivers.
 
+Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
+Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
+---
+ MAINTAINERS |   25 +++++++++++++++++++++++--
+ 1 files changed, 23 insertions(+), 2 deletions(-)
 
-> -----Original Message-----
-> From: Dan Carpenter [mailto:dan.carpenter@oracle.com]
-> Sent: Thursday, December 01, 2011 4:12 PM
-> To: KY Srinivasan
-> Cc: gregkh@suse.de; linux-kernel@vger.kernel.org;
-> devel@linuxdriverproject.org; virtualization@lists.osdl.org; ohering@suse.com;
-> James.Bottomley@HansenPartnership.com; hch@infradead.org; linux-
-> scsi@vger.kernel.org; Haiyang Zhang
-> Subject: Re: [PATCH 4/5] Staging: hv: storvsc: Fix a bug in
-> copy_from_bounce_buffer()
-> 
-> On Thu, Dec 01, 2011 at 09:07:46PM +0000, KY Srinivasan wrote:
-> > Sorry Dan. I put in some comments in the code describing the bug. Perhaps I
-> > should have copied that in the changelog as well.
-> 
-> Yes.  That's the entire point of the changelog, in fact.  Could you
-> fix it and resend?
-
-I could do that, but Greg has already checked in this patch. 
-
-Regards,
-
-K. Y
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 3523ab0..db6cee2 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -3197,6 +3197,27 @@ M:	William Irwin <wli@holomorphy.com>
+ S:	Maintained
+ F:	fs/hugetlbfs/
+ 
++Hyper-V CORE DRIVERS
++M:	K. Y. Srinivasan <kys@microsoft.com>
++M:	Haiyang Zhang <haiyangz@microsoft.com>
++L:	devel@linuxdriverproject.org
++S:	Maintained
++F:	drivers/hv/
++
++Hyper-V MOUSE DRIVER
++M:	K. Y. Srinivasan <kys@microsoft.com>
++M:	Haiyang Zhang <haiyangz@microsoft.com>
++L:	devel@linuxdriverproject.org
++S:	Maintained
++F:	drivers/hid/hid-hyperv.c
++
++Hyper-V NETWORK DRIVER
++M:	K. Y. Srinivasan <kys@microsoft.com>
++M:	Haiyang Zhang <haiyangz@microsoft.com>
++L:	devel@linuxdriverproject.org
++S:	Maintained
++F:	drivers/net/hyperv/
++
+ I2C/SMBUS STUB DRIVER
+ M:	"Mark M. Hoffman" <mhoffman@lightlink.com>
+ L:	linux-i2c@vger.kernel.org
+@@ -6323,9 +6344,9 @@ S:	Odd Fixes
+ F:	drivers/staging/frontier/
+ 
+ STAGING - HYPER-V (MICROSOFT)
+-M:	Hank Janssen <hjanssen@microsoft.com>
++M:	K. Y. Srinivasan <kys@microsoft.com>
+ M:	Haiyang Zhang <haiyangz@microsoft.com>
+-S:	Odd Fixes
++S:	Maintained
+ F:	drivers/staging/hv/
+ 
+ STAGING - INDUSTRIAL IO
+-- 
+1.7.4.1
