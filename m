@@ -1,14 +1,22 @@
-From: Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [PATCH] Add virtio-scsi to the virtio spec
-Date: Thu, 01 Dec 2011 09:55:30 +0100
-Message-ID: <4ED74102.6040207@redhat.com>
-References: <1322661042-28191-1-git-send-email-pbonzini@redhat.com>
-	<87sjl5rnj6.fsf@rustcorp.com.au>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [RFC] virtio: use mandatory barriers for remote processor vdevs
+Date: Thu, 1 Dec 2011 11:09:21 +0200
+Message-ID: <20111201090920.GA8231@redhat.com>
+References: <1322569886-13055-1-git-send-email-ohad@wizery.com>
+	<20111129131110.GC19157@redhat.com>
+	<CAK=WgbZoGYVyKt=XXvnPVdh0koSBJC0zcgkLaYRkmjwBLOFA-A@mail.gmail.com>
+	<20111129151958.GA31789@redhat.com>
+	<CAK=WgbZ5aBFNro3XC0cN+Ao4ZWrBHwwd3d__CSHA=n56gKmKXw@mail.gmail.com>
+	<20111130145004.GD21413@redhat.com>
+	<CAK=WgbY59n9N_-2_TZ9wNBNcTMV1DCrz65e-Ae=xamcg6A0dOA@mail.gmail.com>
+	<20111130231306.GD30031@redhat.com>
+	<CAK=Wgbb5M62LgXY-sn7R6YautHxwqyDbPTeXYJxgmrS9fPXR9A@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <87sjl5rnj6.fsf@rustcorp.com.au>
+Content-Disposition: inline
+In-Reply-To: <CAK=Wgbb5M62LgXY-sn7R6YautHxwqyDbPTeXYJxgmrS9fPXR9A@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,121 +26,27 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, LKML <linux-kernel@vger.kernel.org>, Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>, virtualization <virtualization@lists.linux-foundation.org>
+To: Ohad Ben-Cohen <ohad@wizery.com>, dhowells@redhat.com, paulmck@linux.vnet.ibm.com
+Cc: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, kvm@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 12/01/2011 04:14 AM, Rusty Russell wrote:
-> I'd prefer to see the spec only cover things
-> which are implemented and tested, otherwise the risk of a flaw in the
-> spec is really high in my experience.
+On Thu, Dec 01, 2011 at 08:14:26AM +0200, Ohad Ben-Cohen wrote:
+> On Thu, Dec 1, 2011 at 1:13 AM, Michael S. Tsirkin <mst@redhat.com> wrote:
+> > For x86, stores into memory are ordered. So I think that yes, smp_XXX
+> > can be selected at compile time.
+> 
+> But then you can't use the same kernel image for both scenarios.
 
-In general I agree, and I did that for virtio-specific things such as 
-the eventq and the configuration space.  This is also why I don't want 
-to add untested controlq requests that people suggested.
+I was talking about virtio-pci. That always allocates the ring
+in the normal memory.
 
-However, there's tension between this and providing a complete SCSI 
-transport.  SCSI is roughly defined as a set of RPC interfaces ("Send 
-command", "Abort task", etc.) and transports provide the RPC protocol. 
-The SCSI command set changes relatively often, but the RPC interfaces 
-are pretty stable.  This stability limits the risk, and having a mapping 
-for all interfaces also makes future changes less likely.
+> It won't take long until people will use virtio on ARM for both
+> virtualization and for talking to devices, and having to rebuild the
+> kernel for different use cases is nasty.
 
-> Comments below:
->
->>    num_queues is the total number of virtqueues exposed by the
->>      device. The driver is free to use only one request queue, or
->>      it can use more to achieve better performance.
->
-> s/total number of virtqueues/total number of request virtqueues/ ?
+Yes, I understand that it's nasty.
 
-Ok.
-
->>    max_channel, max_target and max_lun can be used by the driver
->>      as hints for scanning the logical units on the host. In the
->>      current version of the spec, they will always be respectively
->>      0, 255 and 16383.
->
-> s/hints for scanning/hints to constrain scanning/ ? (I assume).
-
-Yes.
-
->> The driver queues requests to an arbitrary request queue, and they are
->> used by the device on that same queue. In this version of the spec,
->> if a driver uses more than one queue it is the responsibility of the
->> driver to ensure strict request ordering; commands placed on different
->> queue will be consumed with no order constraints.
->
-> Suggest simplification of second sentence:
->
-> It is the responsibility of the driver to ensure strict request
-> ordering; commands placed on different queues will be consumed with no
-> order constraints.
-
-Agreed.
-
->> Task_attr, prio and crn should be left to zero: command priority
->> is explicitly not supported by this version of the device;
->> task_attr defines the task attribute as in the table above, but
->> all task attributes may be mapped to SIMPLE by the device; crn
->> may also be provided by clients, but is generally expected to be
->> 0. The maximum CRN value defined by the protocol is 255, since
->> CRN is stored in an 8-bit integer.
->
-> Be braver in your language please.  It helps poor implementers who are
-> already confused by learning SCSI and virtio:
->
->   Task_attr, and prio must be zero.[1] task_attr defines the task
->   attribute as in the table above, but all task attributes may be mapped
->   to SIMPLE by the device; crn may also be provided by clients, but is
->   generally expected to be 0.
->
->   [1] Future extensions may use these fields.
->
-> Is it useful for a driver to specify ordered (or other) modes, knowing
-> it could be reduced to SIMPLE without it being aware?  Or should we use
-> feature bits to indicate what the device supports?
-
-This is actually mandated by SCSI. (!)  It defines all the modes, but 
-explicitly says that they can be reduced to SIMPLE.
-
->>    Note that since ACA is not supported by this version of the
->>    spec, VIRTIO_SCSI_T_TMF_CLEAR_ACA is always a no-operation.
->
-> I think if you don't support ACA in the spec, don't define this.  How
-> will a driver author use this information?
-
-I will remove the text, no one will notice. :)
-
-However, leaving the #define is preferrable because it keeps the SCSI 
-transport complete.  SCSI unfortunately is full of obsolete concepts 
-that no one implements but are still in the standard (and have funny 
-names: ACA stands for Auto Contingent Allegiance).  Fallbacks are 
-allowed and indeed defined by the standard, but an implementation is 
-still supposed to provide the "concepts".  You can see this everywhere 
-in drivers/target.
-
->>      struct virtio_scsi_ctrl_an {
->> 	 u32 type;
->> 	 u8  lun[8];
->> 	 u32 event_requested;
->> 	 u32 event_actual;
->> 	 u8  response;
->>      }
->
-> With all these structures, you might want a comment indicating the
-> read-only and write-only (from the device POV) parts of the struct, eg:
->
->       struct virtio_scsi_ctrl_an {
->           // Read-only part
-> 	 u32 type;
-> 	 u8  lun[8];
-> 	 u32 event_requested;
->           // Write-only part
-> 	 u32 event_actual;
-> 	 u8  response;
->       }
-
-(Very) good idea.
-
-Paolo
+> _______________________________________________
+> Virtualization mailing list
+> Virtualization@lists.linux-foundation.org
+> https://lists.linuxfoundation.org/mailman/listinfo/virtualization
