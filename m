@@ -1,23 +1,19 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [RFC] virtio: use mandatory barriers for remote processor vdevs
-Date: Thu, 1 Dec 2011 01:43:18 +0200
-Message-ID: <20111130234318.GC31069@redhat.com>
-References: <1322569886-13055-1-git-send-email-ohad@wizery.com>
-	<20111129131110.GC19157@redhat.com>
-	<CAK=WgbZoGYVyKt=XXvnPVdh0koSBJC0zcgkLaYRkmjwBLOFA-A@mail.gmail.com>
-	<20111129151607.GE30966@redhat.com>
-	<CAK=WgbZK+k4uuyMPHUfr_PMyrR5ceRTvuDRpmhXfgwpSUOPw0g@mail.gmail.com>
-	<20111130145958.GE21413@redhat.com>
-	<CAK=WgbYyFdLftE_kp2_JOThVhn-FzGsDqVqKn0Jwm2teQyZBNA@mail.gmail.com>
-	<20111130161555.GB25812@redhat.com>
-	<CAK=WgbazBq4GVo16sZsrZirgMYbwMcWtPaqn90c6d9Phr0gh3A@mail.gmail.com>
-	<CAK=WgbbZH3ZFzbwwyVBGEvwHPbogDW6+Kb_1pRam2jj5oJHuDA@mail.gmail.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH] virtio-ring: Use threshold for switching to indirect
+	descriptors
+Date: Thu, 01 Dec 2011 13:12:25 +1030
+Message-ID: <87wrahrp0u.fsf@rustcorp.com.au>
+References: <1322559196-11139-1-git-send-email-levinsasha928@gmail.com>
+	<20111129125622.GB19157@redhat.com>
+	<1322573688.4395.11.camel@lappy>
+	<20111129135406.GB30966@redhat.com> <1322576464.7003.6.camel@lappy>
+	<20111129145451.GD30966@redhat.com>
+	<4ED4F30F.8000603@redhat.com> <1322669511.3985.8.camel@lappy>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <CAK=WgbbZH3ZFzbwwyVBGEvwHPbogDW6+Kb_1pRam2jj5oJHuDA@mail.gmail.com>
+In-Reply-To: <1322669511.3985.8.camel@lappy>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,67 +23,66 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Ohad Ben-Cohen <ohad@wizery.com>
-Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Sasha Levin <levinsasha928@gmail.com>, Avi Kivity <avi@redhat.com>
+Cc: markmc@redhat.com, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Dec 01, 2011 at 01:27:10AM +0200, Ohad Ben-Cohen wrote:
-> On Wed, Nov 30, 2011 at 6:24 PM, Ohad Ben-Cohen <ohad@wizery.com> wrote:
-> > On Wed, Nov 30, 2011 at 6:15 PM, Michael S. Tsirkin <mst@redhat.com> wrote:
-> >> How are the rings mapped? normal memory, right?
-> >
-> > No, device memory.
+On Wed, 30 Nov 2011 18:11:51 +0200, Sasha Levin <levinsasha928@gmail.com> wrote:
+> On Tue, 2011-11-29 at 16:58 +0200, Avi Kivity wrote:
+> > On 11/29/2011 04:54 PM, Michael S. Tsirkin wrote:
+> > > > 
+> > > > Which is actually strange, weren't indirect buffers introduced to make
+> > > > the performance *better*? From what I see it's pretty much the
+> > > > same/worse for virtio-blk.
+> > >
+> > > I know they were introduced to allow adding very large bufs.
+> > > See 9fa29b9df32ba4db055f3977933cd0c1b8fe67cd
+> > > Mark, you wrote the patch, could you tell us which workloads
+> > > benefit the most from indirect bufs?
+> > >
+> > 
+> > Indirects are really for block devices with many spindles, since there
+> > the limiting factor is the number of requests in flight.  Network
+> > interfaces are limited by bandwidth, it's better to increase the ring
+> > size and use direct buffers there (so the ring size more or less
+> > corresponds to the buffer size).
+> > 
 > 
-> Ok, I have more info.
-> 
-> Originally remoteproc was mapping the rings using ioremap, and that
-> meant ARM Device memory.
-> 
-> Recently, though, we moved to CMA (allocating memory for the rings via
-> dma_alloc_coherent), and that isn't Device memory anymore: it's
-> uncacheable Normal memory (on ARM v6+).
+> I did some testing of indirect descriptors under different workloads.
 
-And these accesses need to be ordered with DSB? Or DMB?
+MST and I discussed getting clever with dynamic limits ages ago, but it
+was down low on the TODO list.  Thanks for diving into this...
 
-> We still require mandatory barriers though: one very reproducible
-> problem I personally face is that the avail index doesn't get updated
-> before the kick.
+AFAICT, if the ring never fills, direct is optimal.  When the ring
+fills, indirect is optimal (we're better to queue now than later).
 
-Aha! The *kick* really is MMIO. So I think we do need a mandatory barrier
-before the kick.  Maybe we need it for virtio-pci as well
-(not on kvm, naturally :) Off-hand this seems to belong in the transport
-layer but need to think about it.
+Why not something simple, like a threshold which drops every time we
+fill the ring?
 
-> As a result, the remote processor misses a buffer
-> that was just added (the kick wakes it up only to find that the avail
-> index wasn't changed yet). In this case, it probably happens because
-> the mailbox, used to kick the remote processor, is mapped as Device
-> memory, and therefore the kick can be reordered before the updates to
-> the ring  can be observed.
-> 
-> I did get two additional reports about reordering issues, on different
-> setups than my own, and which I can't personally reproduce: the one
-> I've described earlier (avail index gets updated before the avail
-> array) and one in the receive path (reading a used buffer which we
-> already read). I couldn't personally verify those, but both issues
-> were reported to be gone when mandatory barriers were used.
+struct vring_virtqueue
+{
+...
+        int indirect_thresh;
+...
+}
 
-Hmm. So it's a hint that something is wrong with memory
-but not what's wrong exactly.
+virtqueue_add_buf_gfp()
+{
+...
 
-> I expect those reports only to increase: the diversity of platforms
-> that are now looking into adopting virtio for this kind of
-> inter-process communication is quite huge, with several different
-> architectures and even more hardware implementations on the way (not
-> only ARM).
-> 
-> Thanks,
-> Ohad.
+        if (vq->indirect &&
+            (vq->vring.num - vq->num_free) + out + in > vq->indirect_thresh)
+                return indirect()
+...
 
-Right. We need to be very careful with memory,
-it's a tricky field. One known problem with virtio
-is its insistance on using native endian-ness
-for some fields. If power is used, we'll have to fix this.
+	if (vq->num_free < out + in) {
+                if (vq->indirect && vq->indirect_thresh > 0)
+                        vq->indirect_thresh--;
+        
+...
+}
 
--- 
-MST
+Too dumb?
+
+Cheers,
+Rusty.
