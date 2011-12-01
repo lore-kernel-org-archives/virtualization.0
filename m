@@ -1,44 +1,65 @@
-From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 3/5] Staging: hv: storvsc: Fix a bug in storvsc_command_completion()
-Date: Thu,  1 Dec 2011 04:59:18 -0800
-Message-ID: <1322744360-13067-3-git-send-email-kys@microsoft.com>
-References: <1322744315-13017-1-git-send-email-kys@microsoft.com>
- <1322744360-13067-1-git-send-email-kys@microsoft.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1322744360-13067-1-git-send-email-kys@microsoft.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org, ohering@suse.com, James.Bottomley@HansenPartnership.com, hch@infradead.org, linux-scsi@vger.kernel.org
-Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>
+From: Stefano Stabellini <stefano.stabellini@eu.citrix.com>
+Subject: Re: [Embeddedxen-devel] [Xen-devel] [ANNOUNCE] Xen port to Cortex-A15
+	/ ARMv7 with virt extensions
+Date: Thu, 1 Dec 2011 15:12:06 +0000
+Message-ID: <alpine.DEB.2.00.1112011441340.31179@kaball-desktop>
+References: <alpine.DEB.2.00.1111281009090.31179@kaball-desktop>
+	<201111301432.54463.arnd@arndb.de>
+	<1322670473.31810.129.camel@zakaz.uk.xensource.com>
+	<201111301815.01297.arnd@arndb.de>
+	<alpine.DEB.2.00.1111301820290.31179@kaball-desktop>
+	<1322735197.31810.191.camel@zakaz.uk.xensource.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1322735197.31810.191.camel@zakaz.uk.xensource.com>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Ian Campbell <Ian.Campbell@citrix.com>
+Cc: "xen-devel@lists.xensource.com" <xen-devel@lists.xensource.com>, "linaro-dev@lists.linaro.org" <linaro-dev@lists.linaro.org>, Pawel Moll <pawel.moll@arm.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, Stefano Stabellini <Stefano.Stabellini@eu.citrix.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Arnd Bergmann <arnd@arndb.de>, "android-virt@lists.cs.columbia.edu" <android-virt@lists.cs.columbia.edu>, "embeddedxen-devel@lists.sourceforge.net" <embeddedxen-devel@lists.sourceforge.net>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Fix a bug in storvsc_command_completion() that leaks memory when scatter/gather
-lists are used on the "write" side.
+On Thu, 1 Dec 2011, Ian Campbell wrote:
+> On Wed, 2011-11-30 at 18:32 +0000, Stefano Stabellini wrote:
+> > On Wed, 30 Nov 2011, Arnd Bergmann wrote:
+> > > KVM and Xen at least both fall into the single-return-value category,
+> > > so we should be able to agree on a calling conventions. KVM does not
+> > > have an hcall API on ARM yet, and I see no reason not to use the
+> > > same implementation that you have in the Xen guest.
+> > > 
+> > > Stefano, can you split out the generic parts of your asm/xen/hypercall.h
+> > > file into a common asm/hypercall.h and submit it for review to the
+> > > arm kernel list?
+> > 
+> > Sure, I can do that.
+> > Usually the hypercall calling convention is very hypervisor specific,
+> > but if it turns out that we have the same requirements I happy to design
+> > a common interface.
+> 
+> I expect the only real decision to be made is hypercall page vs. raw hvc
+> instruction.
+> 
+> The page was useful on x86 where there is a variety of instructions
+> which could be used (at least for PV there was systenter/syscall/int, I
+> think vmcall instruction differs between AMD and Intel also) and gives
+> some additional flexibility. It's hard to predict but I don't think I'd
+> expect that to be necessary on ARM.
+>
+> Another reason for having a hypercall page instead of a raw instruction
+> might be wanting to support 32 bit guests (from ~today) on a 64 bit
+> hypervisor in the future and perhaps needing to do some shimming/arg
+> translation. It would be better to aim for having the interface just be
+> 32/64 agnostic but mistakes do happen.
 
-Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
-Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
----
- drivers/staging/hv/storvsc_drv.c |    5 ++---
- 1 files changed, 2 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
-index 14ecb69..8dafe52 100644
---- a/drivers/staging/hv/storvsc_drv.c
-+++ b/drivers/staging/hv/storvsc_drv.c
-@@ -1123,13 +1123,12 @@ static void storvsc_command_completion(struct hv_storvsc_request *request)
- 
- 	vm_srb = &request->vstor_packet.vm_srb;
- 	if (cmd_request->bounce_sgl_count) {
--		if (vm_srb->data_in == READ_TYPE) {
-+		if (vm_srb->data_in == READ_TYPE)
- 			copy_from_bounce_buffer(scsi_sglist(scmnd),
- 					cmd_request->bounce_sgl,
- 					scsi_sg_count(scmnd));
--			destroy_bounce_buffer(cmd_request->bounce_sgl,
-+		destroy_bounce_buffer(cmd_request->bounce_sgl,
- 					cmd_request->bounce_sgl_count);
--		}
- 	}
- 
- 	/*
--- 
-1.7.4.1
+I always like to keep things as simple as possible, so I am in favor of
+using the raw hvc instruction.
+Besides with the bulk of mmu hypercalls gone, it should not be difficult
+to design a 32/64 bit agnostic interface.
