@@ -1,52 +1,72 @@
-From: Catalin Marinas <catalin.marinas@arm.com>
-Subject: Re: [Android-virt] [Embeddedxen-devel] [Xen-devel] [ANNOUNCE] Xen
-	port to Cortex-A15 / ARMv7 with virt extensions
-Date: Thu, 1 Dec 2011 16:57:18 +0000
-Message-ID: <20111201165718.GJ27394@arm.com>
-References: <alpine.DEB.2.00.1111281009090.31179@kaball-desktop>
-	<201112011542.19377.arnd@arndb.de> <20111201160241.GH27394@arm.com>
-	<201112011644.41101.arnd@arndb.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <201112011644.41101.arnd@arndb.de>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: "xen-devel@lists.xensource.com" <xen-devel@lists.xensource.com>, "linaro-dev@lists.linaro.org" <linaro-dev@lists.linaro.org>, Ian Campbell <Ian.Campbell@citrix.com>, Pawel Moll <Pawel.Moll@arm.com>, Stefano Stabellini <Stefano.Stabellini@eu.citrix.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "android-virt@lists.cs.columbia.edu" <android-virt@lists.cs.columbia.edu>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "embeddedxen-devel@lists.sourceforge.net" <embeddedxen-devel@lists.sourceforge.net>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
+From: "K. Y. Srinivasan" <kys@microsoft.com>
+Subject: [PATCH 1/1] drivers: hv: Don't OOPS when you cannot init vmbus
+Date: Thu,  1 Dec 2011 09:59:34 -0800
+Message-ID: <1322762374-14161-1-git-send-email-kys@microsoft.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org, ohering@suse.com
+Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Sasha Levin <levinsasha928@gmail.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Dec 01, 2011 at 04:44:40PM +0000, Arnd Bergmann wrote:
-> On Thursday 01 December 2011, Catalin Marinas wrote:
-> > On Thu, Dec 01, 2011 at 03:42:19PM +0000, Arnd Bergmann wrote:
-> > > On Thursday 01 December 2011, Catalin Marinas wrote:
-> > > How do you deal with signed integer arguments passed into SVC or HVC from
-> > > a caller? If I understand the architecture correctly, the upper
-> > > halves of the argument register end up zero-padded, while the callee
-> > > expects sign-extension.
-> > 
-> > If you treat it as an "int" (32-bit) and function prototype defined
-> > accordingly, then the generated code only accesses it as a W (rather
-> > than X) register and the top 32-bit part is ignored (no need for
-> > sign-extension). If it is defined as a "long" in the 32-bit world, then
-> > it indeed needs explicit conversion given the different sizes for long
-> > (for example sys_lseek, the second argument is a 'long' and we do
-> > explicit sign extension in the wrapper).
-...
-> What about unsigned long and pointer? Can we always rely on the upper
-> half of the register to be zero-filled when we get an exception from 32
-> bit into 64 bit state, or do we also have to zero-extend those?
+The hv vmbus driver was causing an OOPS since it was trying to register drivers
+on top of the bus even if initialization of the bus has failed for some
+reason (such as the odd chance someone would run a hv enabled kernel in a
+non-hv environment).
 
-They are also fine, no need for zero-extension.
 
+Signed-off-by: Sasha Levin <levinsasha928@gmail.com>
+Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
+---
+ drivers/hv/vmbus_drv.c |   16 ++++++++++++++++
+ 1 files changed, 16 insertions(+), 0 deletions(-)
+
+diff --git a/drivers/hv/vmbus_drv.c b/drivers/hv/vmbus_drv.c
+index 0c048dd..d3b0b4f 100644
+--- a/drivers/hv/vmbus_drv.c
++++ b/drivers/hv/vmbus_drv.c
+@@ -62,6 +62,14 @@ struct hv_device_info {
+ 	struct hv_dev_port_info outbound;
+ };
+ 
++static int vmbus_exists(void)
++{
++	if (hv_acpi_dev == NULL)
++		return -ENODEV;
++
++	return 0;
++}
++
+ 
+ static void get_channel_info(struct hv_device *device,
+ 			     struct hv_device_info *info)
+@@ -590,6 +598,10 @@ int __vmbus_driver_register(struct hv_driver *hv_driver, struct module *owner, c
+ 
+ 	pr_info("registering driver %s\n", hv_driver->name);
+ 
++	ret = vmbus_exists();
++	if (ret < 0)
++		return ret;
++
+ 	hv_driver->driver.name = hv_driver->name;
+ 	hv_driver->driver.owner = owner;
+ 	hv_driver->driver.mod_name = mod_name;
+@@ -614,6 +626,9 @@ void vmbus_driver_unregister(struct hv_driver *hv_driver)
+ {
+ 	pr_info("unregistering driver %s\n", hv_driver->name);
+ 
++	if (!vmbus_exists())
++		return;
++
+ 	driver_unregister(&hv_driver->driver);
+ 
+ }
+@@ -776,6 +791,7 @@ static int __init hv_acpi_init(void)
+ 
+ cleanup:
+ 	acpi_bus_unregister_driver(&vmbus_acpi_driver);
++	hv_acpi_dev = NULL;
+ 	return ret;
+ }
+ 
 -- 
-Catalin
+1.7.4.1
