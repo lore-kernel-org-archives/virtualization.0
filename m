@@ -1,17 +1,15 @@
-From: Ian Campbell <Ian.Campbell@citrix.com>
-Subject: Re: [Xen-devel] [ANNOUNCE] Xen port to Cortex-A15 / ARMv7 with virt
-	extensions
-Date: Thu, 1 Dec 2011 10:34:58 +0000
-Message-ID: <1322735698.31810.194.camel@zakaz.uk.xensource.com>
-References: <alpine.DEB.2.00.1111281009090.31179@kaball-desktop>
-	<201111301432.54463.arnd@arndb.de>
-	<1322670473.31810.129.camel@zakaz.uk.xensource.com>
-	<201111301815.01297.arnd@arndb.de>
+From: Avi Kivity <avi@redhat.com>
+Subject: Re: [PATCH RFC V3 2/4] kvm hypervisor : Add a hypercall to KVM
+	hypervisor to support pv-ticketlocks
+Date: Thu, 01 Dec 2011 13:11:45 +0200
+Message-ID: <4ED760F1.6080804@redhat.com>
+References: <20111130085921.23386.89708.sendpatchset@oc5400248562.ibm.com>
+	<20111130085959.23386.69166.sendpatchset@oc5400248562.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <201111301815.01297.arnd@arndb.de>
+In-Reply-To: <20111130085959.23386.69166.sendpatchset@oc5400248562.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,61 +19,95 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: "xen-devel@lists.xensource.com" <xen-devel@lists.xensource.com>, "linaro-dev@lists.linaro.org" <linaro-dev@lists.linaro.org>, Pawel Moll <pawel.moll@arm.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, Stefano Stabellini <Stefano.Stabellini@eu.citrix.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "android-virt@lists.cs.columbia.edu" <android-virt@lists.cs.columbia.edu>, "embeddedxen-devel@lists.sourceforge.net" <embeddedxen-devel@lists.sourceforge.net>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
+To: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
+Cc: Peter Zijlstra <peterz@infradead.org>, Virtualization <virtualization@lists.linux-foundation.org>, "H. Peter Anvin" <hpa@zytor.com>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, Dave Jiang <dave.jiang@intel.com>, KVM <kvm@vger.kernel.org>, x86@kernel.org, Ingo Molnar <mingo@redhat.com>, Rik van Riel <riel@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, Xen <xen-devel@lists.xensource.com>, Sasha Levin <levinsasha928@gmail.com>, Sedat Dilek <sedat.dilek@gmail.com>, Thomas Gleixner <tglx@linutronix.de>, Yinghai Lu <yinghai@kernel.org>, Greg Kroah-Hartman <gregkh@suse.de>, LKML <linux-kernel@vger.kernel.org>, Dave Hansen <dave@linux.vnet.ibm.com>, Suzuki Poulose <suzuki@linux.vnet.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 2011-11-30 at 18:15 +0000, Arnd Bergmann wrote:
-> On Wednesday 30 November 2011, Ian Campbell wrote:
-> > On Wed, 2011-11-30 at 14:32 +0000, Arnd Bergmann wrote:
-> > > On Wednesday 30 November 2011, Ian Campbell wrote:
-> > > What I suggested to the KVM developers is to start out with the
-> > > vexpress platform, but then generalize it to the point where it fits
-> > > your needs. All hardware that one expects a guest to have (GIC, timer,
-> > > ...) will still show up in the same location as on a real vexpress,
-> > > while anything that makes no sense or is better paravirtualized (LCD,
-> > > storage, ...) just becomes optional and has to be described in the
-> > > device tree if it's actually there.
-> > 
-> > That's along the lines of what I was thinking as well.
-> > 
-> > The DT contains the address of GIC, timer etc as well right? So at least
-> > in principal we needn't provide e.g. the GIC at the same address as any
-> > real platform but in practice I expect we will.
-> 
-> Yes.
-> 
-> > In principal we could also offer the user options as to which particular
-> > platform a guest looks like.
-> 
-> At least when using a qemu based simulation. Most platforms have some
-> characteristics that are not meaningful in a classic virtualization
-> scenario, but it would certainly be helpful to use the virtualization
-> extensions to run a kernel that was built for a particular platform
-> faster than with pure qemu, when you want to test that kernel image.
-> 
-> It has been suggested in the past that it would be nice to run the
-> guest kernel built for the same platform as the host kernel by
-> default, but I think it would be much better to have just one
-> platform that we end up using for guests on any host platform,
-> unless there is a strong reason to do otherwise.
+On 11/30/2011 10:59 AM, Raghavendra K T wrote:
+> Add a hypercall to KVM hypervisor to support pv-ticketlocks 
+>
+> KVM_HC_KICK_CPU allows the calling vcpu to kick another vcpu out of halt state.
+>     
+> The presence of these hypercalls is indicated to guest via
+> KVM_FEATURE_KICK_VCPU/KVM_CAP_KICK_VCPU.
+>
+> Qemu needs a corresponding patch to pass up the presence of this feature to 
+> guest via cpuid. Patch to qemu will be sent separately.
+>
+> There is no Xen/KVM hypercall interface to await kick from.
 
-Yes, I agree, certainly that is what we were planning to target in the
-first instance. Doing this means that we can get away with minimal
-emulation of actual hardware, relying instead on PV drivers or hardware
-virtualisation features.
+The hypercall needs to be documented in
+Documentation/virtual/kvm/hypercalls.txt.
 
-Supporting specific board platforms as guests would be nice to have
-eventually. We would need to do more emulation (e.g. running qemu as a
-device model) for that case.
+Have you tested it on AMD machines?  There are some differences in the
+hypercall infrastructure there.
 
-> There is also ongoing restructuring in the ARM Linux kernel to
-> allow running the same kernel binary on multiple platforms. While
-> there is still a lot of work to be done, you should assume that
-> we will finish it before you see lots of users in production, there
-> is no need to plan for the current one-kernel-per-board case.
+>  /* This indicates that the new set of kvmclock msrs
+>   * are available. The use of 0x11 and 0x12 is deprecated
+>   */
+>  #define KVM_FEATURE_CLOCKSOURCE2        3
+>  #define KVM_FEATURE_ASYNC_PF		4
+>  #define KVM_FEATURE_STEAL_TIME		5
+> +#define KVM_FEATURE_KICK_VCPU		6
 
-We were absolutely banking on targeting the results of this work, so
-that's good ;-)
+Documentation/virtual/kvm/cpuid.txt.
 
-Ian.
+>  
+>  /* The last 8 bits are used to indicate how to interpret the flags field
+>   * in pvclock structure. If no bits are set, all flags are ignored.
+> diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+> index c38efd7..6e1c8b4 100644
+> --- a/arch/x86/kvm/x86.c
+> +++ b/arch/x86/kvm/x86.c
+> @@ -2103,6 +2103,7 @@ int kvm_dev_ioctl_check_extension(long ext)
+>  	case KVM_CAP_XSAVE:
+>  	case KVM_CAP_ASYNC_PF:
+>  	case KVM_CAP_GET_TSC_KHZ:
+> +	case KVM_CAP_KICK_VCPU:
+
+This is redundant with the feature bit?  In general, KVM_CAP is for the
+host API, while KVM_FEATURE is for the guest API.
+
+>  
+> +/*
+> + * kvm_pv_kick_cpu_op:  Kick a vcpu.
+> + *
+> + * @cpu - vcpu to be kicked.
+> + */
+> +static void kvm_pv_kick_cpu_op(struct kvm *kvm, int cpu)
+> +{
+> +	struct kvm_vcpu *vcpu = kvm_get_vcpu(kvm, cpu);
+
+There is no guarantee that guest cpu numbers match host vcpu numbers. 
+Use APIC IDs, and kvm_apic_match_dest().
+
+> +	struct kvm_mp_state mp_state;
+> +
+> +	mp_state.mp_state = KVM_MP_STATE_RUNNABLE;
+> +	if (vcpu) {
+> +		vcpu->kicked = 1;
+> +		/* Ensure kicked is always set before wakeup */
+> +		barrier();
+> +	}
+> +	kvm_arch_vcpu_ioctl_set_mpstate(vcpu, &mp_state);
+
+This must only be called from the vcpu thread.
+
+> +	kvm_vcpu_kick(vcpu);
+> +}
+> +
+>  
+>  	struct kvm_vcpu_arch arch;
+> +
+> +	/*
+> +	 * blocked vcpu wakes up by checking this flag set by unlocker.
+> +	 */
+> +	int kicked;
+>
+
+Write only variable.
+
+An alternative approach is to use an MSR protocol like x2apic ICR.
+
+-- 
+error compiling committee.c: too many arguments to function
