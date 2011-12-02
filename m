@@ -1,58 +1,60 @@
-From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: =?UTF-8?q?=5BPATCH=201/1=5D=20hv=3A=20Update=20MAINTAINERS?=
-Date: Thu,  1 Dec 2011 14:31:30 -0800
-Message-ID: <1322778690-17381-1-git-send-email-kys@microsoft.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH] virtio-ring: Use threshold for switching to indirect
+	descriptors
+Date: Fri, 02 Dec 2011 11:16:50 +1030
+Message-ID: <87zkfbre9x.fsf@rustcorp.com.au>
+References: <20111129125622.GB19157@redhat.com>
+	<1322573688.4395.11.camel@lappy>
+	<20111129135406.GB30966@redhat.com> <1322576464.7003.6.camel@lappy>
+	<20111129145451.GD30966@redhat.com>
+	<4ED4F30F.8000603@redhat.com> <1322669511.3985.8.camel@lappy>
+	<87wrahrp0u.fsf@rustcorp.com.au> <20111201075847.GA5479@redhat.com>
+	<1322726977.3259.3.camel@lappy> <20111201102640.GB8822@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org, ohering@suse.com, joe@perches.com, dmitry.torokhov@gmail.com, jkosina@suse.cz
-Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20111201102640.GB8822@redhat.com>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>, Sasha Levin <levinsasha928@gmail.com>
+Cc: markmc@redhat.com, virtualization@lists.linux-foundation.org, Avi Kivity <avi@redhat.com>, kvm@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Update the MAINTAINERS file to reflect the current state
-of the Hyper-V drivers.
+On Thu, 1 Dec 2011 12:26:42 +0200, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> On Thu, Dec 01, 2011 at 10:09:37AM +0200, Sasha Levin wrote:
+> > On Thu, 2011-12-01 at 09:58 +0200, Michael S. Tsirkin wrote:
+> > > We'll presumably need some logic to increment is back,
+> > > to account for random workload changes.
+> > > Something like slow start?
+> > 
+> > We can increment it each time the queue was less than 10% full, it
+> > should act like slow start, no?
+> 
+> No, we really shouldn't get an empty ring as long as things behave
+> well. What I meant is something like:
 
-Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
-Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
----
- MAINTAINERS |   16 ++++++++++------
- 1 files changed, 10 insertions(+), 6 deletions(-)
+I was thinking of the network output case, but you're right.  We need to
+distinguish between usually full (eg. virtio-net input) and usually
+empty (eg. virtio-net output).
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 3523ab0..809cad8 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -3197,6 +3197,16 @@ M:	William Irwin <wli@holomorphy.com>
- S:	Maintained
- F:	fs/hugetlbfs/
-=20
-+Hyper-V CORE AND DRIVERS
-+M:	K. Y. Srinivasan <kys@microsoft.com>
-+M:	Haiyang Zhang <haiyangz@microsoft.com>
-+L:	devel@linuxdriverproject.org
-+S:	Maintained
-+F:	drivers/hv/
-+F:	drivers/hid/hid-hyperv.c
-+F:	drivers/net/hyperv/
-+F:	drivers/staging/hv/
-+
- I2C/SMBUS STUB DRIVER
- M:	"Mark M. Hoffman" <mhoffman@lightlink.com>
- L:	linux-i2c@vger.kernel.org
-@@ -6322,12 +6332,6 @@ M:	David T=C3=A4ht <d@teklibre.com>
- S:	Odd Fixes
- F:	drivers/staging/frontier/
-=20
--STAGING - HYPER-V (MICROSOFT)
--M:	Hank Janssen <hjanssen@microsoft.com>
--M:	Haiyang Zhang <haiyangz@microsoft.com>
--S:	Odd Fixes
--F:	drivers/staging/hv/
--
- STAGING - INDUSTRIAL IO
- M:	Jonathan Cameron <jic23@cam.ac.uk>
- L:	linux-iio@vger.kernel.org
---=20
-1.7.4.1
+The signal for "we to pack more into the ring" is different.  We could
+use some hacky heuristic like "out == 0" but I'd rather make it explicit
+when we set up the virtqueue.
+
+Our other alternative, moving the logic to the driver, is worse.
+
+As to fading the effect over time, that's harder.  We have to deplete
+the ring quite a few times before it turns into always-indirect.  We
+could back off every time the ring is totally idle, but that may hurt
+bursty traffic.  Let's try simple first?
+
+Thanks,
+Rusty.
