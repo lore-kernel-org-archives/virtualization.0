@@ -1,72 +1,49 @@
-From: KY Srinivasan <kys@microsoft.com>
-Subject: RE: [PATCH 1/1] hv: Update MAINTAINERS
-Date: Fri, 2 Dec 2011 15:35:11 +0000
-Message-ID: <6E21E5352C11B742B20C142EB499E0481AA7B934@TK5EX14MBXC126.redmond.corp.microsoft.com>
-References: <1322778690-17381-1-git-send-email-kys@microsoft.com>
-	 <alpine.LNX.2.00.1112021531230.18207@pobox.suse.cz>
- <1322836693.3780.7.camel@lappy>
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: [RFC] virtio: use mandatory barriers for remote processor vdevs
+Date: Sat, 03 Dec 2011 10:09:44 +1100
+Message-ID: <1322867384.11728.20.camel@pasglop>
+References: <1322569886-13055-1-git-send-email-ohad@wizery.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1322836693.3780.7.camel@lappy>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Sasha Levin <levinsasha928@gmail.com>, Jiri Kosina <jkosina@suse.cz>
-Cc: "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, "ohering@suse.com" <ohering@suse.com>, "joe@perches.com" <joe@perches.com>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, Haiyang Zhang <haiyangz@microsoft.com>
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1322569886-13055-1-git-send-email-ohad@wizery.com>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Ohad Ben-Cohen <ohad@wizery.com>
+Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-arm-kernel@lists.infradead.org
 List-Id: virtualization@lists.linuxfoundation.org
 
+On Tue, 2011-11-29 at 14:31 +0200, Ohad Ben-Cohen wrote:
+> Virtio is using memory barriers to control the ordering of
+> references to the vrings on SMP systems. When the guest is compiled
+> with SMP support, virtio is only using SMP barriers in order to
+> avoid incurring the overhead involved with mandatory barriers.
+> 
+> Lately, though, virtio is being increasingly used with inter-processor
+> communication scenarios too, which involve running two (separate)
+> instances of operating systems on two (separate) processors, each of
+> which might either be UP or SMP.
+> 
+> To control the ordering of memory references when the vrings are shared
+> between two external processors, we must always use mandatory barriers.
+> 
+> A trivial, albeit sub-optimal, solution would be to simply revert
+> commit d57ed95 "virtio: use smp_XX barriers on SMP". Obviously, though,
+> that's going to have a negative impact on performance of SMP-based
+> virtualization use cases.
 
+Have you measured the impact of using normal barriers (non-SMP ones)
+like we use on normal HW drivers unconditionally ?
 
-> -----Original Message-----
-> From: Sasha Levin [mailto:levinsasha928@gmail.com]
-> Sent: Friday, December 02, 2011 9:38 AM
-> To: Jiri Kosina
-> Cc: KY Srinivasan; gregkh@suse.de; linux-kernel@vger.kernel.org;
-> devel@linuxdriverproject.org; virtualization@lists.osdl.org; ohering@suse.com;
-> joe@perches.com; dmitry.torokhov@gmail.com; Haiyang Zhang
-> Subject: Re: [PATCH 1/1] hv: Update MAINTAINERS
-> 
-> On Fri, 2011-12-02 at 15:31 +0100, Jiri Kosina wrote:
-> > On Thu, 1 Dec 2011, K. Y. Srinivasan wrote:
-> >
-> > > Update the MAINTAINERS file to reflect the current state
-> > > of the Hyper-V drivers.
-> > >
-> > > Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
-> > > Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
-> > > ---
-> > >  MAINTAINERS |   16 ++++++++++------
-> > >  1 files changed, 10 insertions(+), 6 deletions(-)
-> > >
-> > > diff --git a/MAINTAINERS b/MAINTAINERS
-> > > index 3523ab0..809cad8 100644
-> > > --- a/MAINTAINERS
-> > > +++ b/MAINTAINERS
-> > > @@ -3197,6 +3197,16 @@ M:	William Irwin <wli@holomorphy.com>
-> > >  S:	Maintained
-> > >  F:	fs/hugetlbfs/
-> > >
-> > > +Hyper-V CORE AND DRIVERS
-> > > +M:	K. Y. Srinivasan <kys@microsoft.com>
-> > > +M:	Haiyang Zhang <haiyangz@microsoft.com>
-> > > +L:	devel@linuxdriverproject.org
-> > > +S:	Maintained
-> > > +F:	drivers/hv/
-> > > +F:	drivers/hid/hid-hyperv.c
-> > > +F:	drivers/net/hyperv/
-> > > +F:	drivers/staging/hv/
-> > > +
-> >
-> > I will be taking this through trivial tree. Thanks,
-> 
-> It should probably be 'S: Supported' though, right?
+IE. If the difference is small enough I'd say just go for it and avoid
+the bloat.
 
-You are right.
-
-K. Y
-> 
-> --
-> 
-> Sasha.
-> 
+Ben.
