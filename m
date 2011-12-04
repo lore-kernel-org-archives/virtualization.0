@@ -1,19 +1,19 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
+From: Avi Kivity <avi@redhat.com>
 Subject: Re: [PATCH] virtio-ring: Use threshold for switching to indirect
 	descriptors
-Date: Sun, 4 Dec 2011 17:15:30 +0200
-Message-ID: <20111204151530.GB21851@redhat.com>
-References: <20111129145451.GD30966@redhat.com> <4ED4F30F.8000603@redhat.com>
-	<1322669511.3985.8.camel@lappy> <87wrahrp0u.fsf@rustcorp.com.au>
+Date: Sun, 04 Dec 2011 17:16:59 +0200
+Message-ID: <4EDB8EEB.4070309@redhat.com>
+References: <1322669511.3985.8.camel@lappy> <87wrahrp0u.fsf@rustcorp.com.au>
 	<20111201075847.GA5479@redhat.com> <1322726977.3259.3.camel@lappy>
 	<20111201102640.GB8822@redhat.com> <87zkfbre9x.fsf@rustcorp.com.au>
-	<1322913028.3782.4.camel@lappy> <20111204110637.GN15464@redhat.com>
+	<1322913028.3782.4.camel@lappy> <4EDB5EF0.2010909@redhat.com>
+	<20111204120132.GB18758@redhat.com> <4EDB624A.3030403@redhat.com>
+	<20111204151148.GA21851@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20111204110637.GN15464@redhat.com>
+In-Reply-To: <20111204151148.GA21851@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,70 +23,39 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Sasha Levin <levinsasha928@gmail.com>
-Cc: markmc@redhat.com, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Avi Kivity <avi@redhat.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: markmc@redhat.com, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Sasha Levin <levinsasha928@gmail.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sun, Dec 04, 2011 at 01:06:37PM +0200, Michael S. Tsirkin wrote:
-> On Sat, Dec 03, 2011 at 01:50:28PM +0200, Sasha Levin wrote:
-> > On Fri, 2011-12-02 at 11:16 +1030, Rusty Russell wrote:
-> > > On Thu, 1 Dec 2011 12:26:42 +0200, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> > > > On Thu, Dec 01, 2011 at 10:09:37AM +0200, Sasha Levin wrote:
-> > > > > On Thu, 2011-12-01 at 09:58 +0200, Michael S. Tsirkin wrote:
-> > > > > > We'll presumably need some logic to increment is back,
-> > > > > > to account for random workload changes.
-> > > > > > Something like slow start?
-> > > > > 
-> > > > > We can increment it each time the queue was less than 10% full, it
-> > > > > should act like slow start, no?
-> > > > 
-> > > > No, we really shouldn't get an empty ring as long as things behave
-> > > > well. What I meant is something like:
-> > > 
-> > > I was thinking of the network output case, but you're right.  We need to
-> > > distinguish between usually full (eg. virtio-net input) and usually
-> > > empty (eg. virtio-net output).
-> > > 
-> > > The signal for "we to pack more into the ring" is different.  We could
-> > > use some hacky heuristic like "out == 0" but I'd rather make it explicit
-> > > when we set up the virtqueue.
-> > > 
-> > > Our other alternative, moving the logic to the driver, is worse.
-> > > 
-> > > As to fading the effect over time, that's harder.  We have to deplete
-> > > the ring quite a few times before it turns into always-indirect.  We
-> > > could back off every time the ring is totally idle, but that may hurt
-> > > bursty traffic.  Let's try simple first?
-> > 
-> > I tried to take a different approach, and tried putting the indirect
-> > descriptors in a kmem_cache as Michael suggested. The benchmarks showed
-> > that this way virtio-net actually worked faster with indirect on even in
-> > a single stream.
-> > 
-> > Maybe we can do that instead of playing with threshold for now.
-> > 
-> > The question here, how much wasted space we can afford? since indirect
-> > descriptors would have to be the same size we'd have a bunch of them
-> > wasted in the cache. Ofcourse we can make that configurable, but how
-> > much is ok by default?
-> 
-> I think it's a good idea to make that per-device.
-> For network at least, each skb already has overhead of
-> around 1/2 K, so using up to 1/2K more seems acceptable.
-> But even if we went up to MAX_SKB_FRAGS+2, it would be
-> only 1K per ring entry,
+On 12/04/2011 05:11 PM, Michael S. Tsirkin wrote:
+> > There's also the used ring, but that's a
+> > mistake if you have out of order completion.  We should have used copying.
+>
+> Seems unrelated... unless you want used to be written into
+> descriptor ring itself?
 
-I got this wrong - descriptor is 16 bytes, so MAX_SKB_FRAGS+2
-descriptors would be less than 300 bytes overhead per packet.
-That's not a lot.
+The avail/used rings are in addition to the regular ring, no?  If you
+copy descriptors, then it goes away.
 
-> so for a ring of 256 entries, we end up with
-> 256K max waste. That's not that terrible.
-> 
-> But I'd say let's do some benchmarking to figure out
-> the point where the gains are becoming very small.
+> But, I don't really know why does virtio ring insist on
+> making the 3 buffers (avail/used/descriptor)
+> physically contigious. Rusty?
 
+Let's drop them instead.
 
-> > -- 
-> > 
-> > Sasha.
+>
+> > 16kB worth of descriptors is 1024 entries.  With 4kB buffers, that's 4MB
+> > worth of data, or 4 ms at 10GbE line speed.  With 1500 byte buffers it's
+> > just 1.5 ms.  In any case I think it's sufficient.
+>
+> Right. So I think that without indirect, we waste about 3 entries
+> per packet for virtio header and transport etc headers.
+
+That does suck.  Are there issues in increasing the ring size?  Or
+making it discontiguous?
+
+Can you take a peek at how Xen manages its rings?  They have the same
+problems we do.
+
+-- 
+error compiling committee.c: too many arguments to function
