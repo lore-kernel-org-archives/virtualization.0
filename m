@@ -1,19 +1,19 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
+From: Avi Kivity <avi@redhat.com>
 Subject: Re: [PATCH] virtio-ring: Use threshold for switching to indirect
 	descriptors
-Date: Sun, 4 Dec 2011 18:22:21 +0200
-Message-ID: <20111204162221.GB22501@redhat.com>
-References: <4ED4F30F.8000603@redhat.com> <1322669511.3985.8.camel@lappy>
-	<87wrahrp0u.fsf@rustcorp.com.au> <20111201075847.GA5479@redhat.com>
-	<1322726977.3259.3.camel@lappy> <20111201102640.GB8822@redhat.com>
-	<87zkfbre9x.fsf@rustcorp.com.au> <1322913028.3782.4.camel@lappy>
-	<4EDB5EF0.2010909@redhat.com> <1323000831.4205.4.camel@lappy>
+Date: Sun, 04 Dec 2011 18:33:52 +0200
+Message-ID: <4EDBA0F0.4000907@redhat.com>
+References: <20111201075847.GA5479@redhat.com> <1322726977.3259.3.camel@lappy>
+	<20111201102640.GB8822@redhat.com> <87zkfbre9x.fsf@rustcorp.com.au>
+	<1322913028.3782.4.camel@lappy> <4EDB5EF0.2010909@redhat.com>
+	<20111204120132.GB18758@redhat.com> <4EDB624A.3030403@redhat.com>
+	<20111204151148.GA21851@redhat.com> <4EDB8EEB.4070309@redhat.com>
+	<20111204160053.GA22501@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1323000831.4205.4.camel@lappy>
+In-Reply-To: <20111204160053.GA22501@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,63 +23,28 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Sasha Levin <levinsasha928@gmail.com>
-Cc: markmc@redhat.com, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Avi Kivity <avi@redhat.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: markmc@redhat.com, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Sasha Levin <levinsasha928@gmail.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sun, Dec 04, 2011 at 02:13:51PM +0200, Sasha Levin wrote:
-> On Sun, 2011-12-04 at 13:52 +0200, Avi Kivity wrote:
-> > On 12/03/2011 01:50 PM, Sasha Levin wrote:
-> > > On Fri, 2011-12-02 at 11:16 +1030, Rusty Russell wrote:
-> > > > On Thu, 1 Dec 2011 12:26:42 +0200, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> > > > > On Thu, Dec 01, 2011 at 10:09:37AM +0200, Sasha Levin wrote:
-> > > > > > On Thu, 2011-12-01 at 09:58 +0200, Michael S. Tsirkin wrote:
-> > > > > > > We'll presumably need some logic to increment is back,
-> > > > > > > to account for random workload changes.
-> > > > > > > Something like slow start?
-> > > > > > 
-> > > > > > We can increment it each time the queue was less than 10% full, it
-> > > > > > should act like slow start, no?
-> > > > > 
-> > > > > No, we really shouldn't get an empty ring as long as things behave
-> > > > > well. What I meant is something like:
-> > > > 
-> > > > I was thinking of the network output case, but you're right.  We need to
-> > > > distinguish between usually full (eg. virtio-net input) and usually
-> > > > empty (eg. virtio-net output).
-> > > > 
-> > > > The signal for "we to pack more into the ring" is different.  We could
-> > > > use some hacky heuristic like "out == 0" but I'd rather make it explicit
-> > > > when we set up the virtqueue.
-> > > > 
-> > > > Our other alternative, moving the logic to the driver, is worse.
-> > > > 
-> > > > As to fading the effect over time, that's harder.  We have to deplete
-> > > > the ring quite a few times before it turns into always-indirect.  We
-> > > > could back off every time the ring is totally idle, but that may hurt
-> > > > bursty traffic.  Let's try simple first?
-> > >
-> > > I tried to take a different approach, and tried putting the indirect
-> > > descriptors in a kmem_cache as Michael suggested. The benchmarks showed
-> > > that this way virtio-net actually worked faster with indirect on even in
-> > > a single stream.
-> > 
-> > How much better?
-> 
-> host->guest was same with both indirect on and off, and guest->host went
-> up by 5% with indirect on.
-> 
-> This was just a simple 1 TCP stream test.
+On 12/04/2011 06:00 PM, Michael S. Tsirkin wrote:
+> >  If you
+> > copy descriptors, then it goes away.
+>
+> The avail ring could go away. used could if we make descriptors
+> writeable. IIUC it was made RO in the hope that will make it
+> easier for xen to adopt. Still relevant?
 
-I'm confused. didn't you see a bigger benefit for guest->host by
-switching indirect off?
+You mean RO from the consumer side?  Why can't Xen do that?
 
-> > 
-> > I think that if indirects benefit networking, then we're doing something
-> > wrong.  What's going on?  Does the ring get filled too early?  If so we
-> > should expand it.
-> > 
-> 
-> -- 
-> 
-> Sasha.
+> > That does suck.  Are there issues in increasing the ring size?  Or
+> > making it discontiguous?
+>
+> discontiguous ring is what indirect is, basically.
+
+No, discontiguous is more cache and prefetch friendly.  With vmap(), the
+code doesn't even change.
+
+
+-- 
+error compiling committee.c: too many arguments to function
