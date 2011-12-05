@@ -1,19 +1,11 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH] virtio-ring: Use threshold for switching to indirect
-	descriptors
-Date: Mon, 05 Dec 2011 10:40:01 +1030
-Message-ID: <87bornri92.fsf@rustcorp.com.au>
-References: <1322669511.3985.8.camel@lappy> <87wrahrp0u.fsf@rustcorp.com.au>
-	<20111201075847.GA5479@redhat.com> <1322726977.3259.3.camel@lappy>
-	<20111201102640.GB8822@redhat.com> <87zkfbre9x.fsf@rustcorp.com.au>
-	<1322913028.3782.4.camel@lappy> <4EDB5EF0.2010909@redhat.com>
-	<20111204120132.GB18758@redhat.com> <4EDB624A.3030403@redhat.com>
-	<20111204151148.GA21851@redhat.com> <4EDB8EEB.4070309@redhat.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: [net-next RFC PATCH 0/5] Series short description
+Date: Mon, 05 Dec 2011 16:58:37 +0800
+Message-ID: <20111205085603.6116.65101.stgit@dhcp-8-146.nay.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4EDB8EEB.4070309@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,67 +15,69 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Avi Kivity <avi@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
-Cc: markmc@redhat.com, virtualization@lists.linux-foundation.org, Sasha Levin <levinsasha928@gmail.com>, kvm@vger.kernel.org, linux-kernel@vger.kernel.org
+To: krkumar2@in.ibm.com, kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, rusty@rustcorp.com.au, virtualization@lists.linux-foundation.org, levinsasha928@gmail.com, bhutchings@solarflare.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sun, 04 Dec 2011 17:16:59 +0200, Avi Kivity <avi@redhat.com> wrote:
-> On 12/04/2011 05:11 PM, Michael S. Tsirkin wrote:
-> > > There's also the used ring, but that's a
-> > > mistake if you have out of order completion.  We should have used copying.
-> >
-> > Seems unrelated... unless you want used to be written into
-> > descriptor ring itself?
-> 
-> The avail/used rings are in addition to the regular ring, no?  If you
-> copy descriptors, then it goes away.
+multiple queue virtio-net: flow steering through host/guest cooperation
 
-There were two ideas which drove the current design:
+Hello all:
 
-1) The Van-Jacobson style "no two writers to same cacheline makes rings
-   fast" idea.  Empirically, this doesn't show any winnage.
-2) Allowing a generic inter-guest copy mechanism, so we could have
-   genuinely untrusted driver domains.  Yet noone ever did this so it's
-   hardly a killer feature :(
+This is a rough series adds the guest/host cooperation of flow
+steering support based on Krish Kumar's multiple queue virtio-net
+driver patch 3/3 (http://lwn.net/Articles/467283/).
 
-So if we're going to revisit and drop those requirements, I'd say:
+This idea is simple, the backend pass the rxhash to the guest and
+guest would tell the backend the hash to queue mapping when necessary
+then backend can choose the queue based on the hash value of the
+packet.  The table is just a page shared bettwen userspace and the
+backend.
 
-1) Shared device/driver rings like Xen.  Xen uses device-specific ring
-   contents, I'd be tempted to stick to our pre-headers, and a 'u64
-   addr; u64 len_and_flags; u64 cookie;' generic style.  Then use
-   the same ring for responses.  That's a slight space-win, since
-   we're 24 bytes vs 26 bytes now.
+Patch 1 enable the ability to pass the rxhash through vnet_hdr to
+guest.
+Patch 2,3 implement a very simple flow director for tap and
+mavtap. tap part is based on the multiqueue tap patches posted by me
+(http://lwn.net/Articles/459270/).
+Patch 4 implement a method for virtio device to find the irq of a
+specific virtqueue, in order to do device specific interrupt
+optimization
+Patch 5 is the part of the guest driver that using accelerate rfs to
+program the flow director and with some optimizations on irq affinity
+and tx queue selection.
 
-2) Stick with physically-contiguous rings, but use them of size (2^n)-1.
-   Makes the indexing harder, but that -1 lets us stash the indices in
-   the first entry and makes the ring a nice 2^n size.
+This is just a prototype that demonstrates the idea, there are still
+things need to be discussed:
 
-> > > 16kB worth of descriptors is 1024 entries.  With 4kB buffers, that's 4MB
-> > > worth of data, or 4 ms at 10GbE line speed.  With 1500 byte buffers it's
-> > > just 1.5 ms.  In any case I think it's sufficient.
-> >
-> > Right. So I think that without indirect, we waste about 3 entries
-> > per packet for virtio header and transport etc headers.
-> 
-> That does suck.  Are there issues in increasing the ring size?  Or
-> making it discontiguous?
+- An alternative idea instead of shared page is ctrl vq, the reason
+  that a shared table is preferable is the delay of ctrl vq itself.
+- Optimization on irq affinity and tx queue selection
 
-Because the qemu implementation is broken.  We can often put the virtio
-header at the head of the packet.  In practice, the qemu implementation
-insists the header be a single descriptor.
+Comments are welcomed, thanks!
 
-(At least, it used to, perhaps it has now been fixed.  We need a
-VIRTIO_NET_F_I_NOW_CONFORM_TO_THE_DAMN_SPEC_SORRY_I_SUCK bit).
+---
 
-We currently use small rings: the guest can't negotiate so qemu has to
-offer a lowest-common-denominator value.  The new virtio-pci layout
-fixes this, and lets the guest set the ring size.
+Jason Wang (5):
+      virtio_net: passing rxhash through vnet_hdr
+      tuntap: simple flow director support
+      macvtap: flow director support
+      virtio: introduce a method to get the irq of a specific virtqueue
+      virtio-net: flow director support
 
-> Can you take a peek at how Xen manages its rings?  They have the same
-> problems we do.
 
-Yes, I made some mistakes, but I did steal from them in the first
-place...
+ drivers/lguest/lguest_device.c |    8 ++
+ drivers/net/macvlan.c          |    4 +
+ drivers/net/macvtap.c          |   42 ++++++++-
+ drivers/net/tun.c              |  105 ++++++++++++++++------
+ drivers/net/virtio_net.c       |  189 +++++++++++++++++++++++++++++++++++++++-
+ drivers/s390/kvm/kvm_virtio.c  |    6 +
+ drivers/vhost/net.c            |   10 +-
+ drivers/vhost/vhost.h          |    5 +
+ drivers/virtio/virtio_mmio.c   |    8 ++
+ drivers/virtio/virtio_pci.c    |   12 +++
+ include/linux/if_macvlan.h     |    1 
+ include/linux/if_tun.h         |   11 ++
+ include/linux/virtio_config.h  |    4 +
+ include/linux/virtio_net.h     |   16 +++
+ 14 files changed, 377 insertions(+), 44 deletions(-)
 
-Cheers,
-Rusty.
+-- 
+Signature
