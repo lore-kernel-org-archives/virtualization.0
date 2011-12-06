@@ -1,15 +1,16 @@
-From: Jason Wang <jasowang@redhat.com>
+From: Stefan Hajnoczi <stefanha@gmail.com>
 Subject: Re: [net-next RFC PATCH 5/5] virtio-net: flow director support
-Date: Tue, 06 Dec 2011 15:25:16 +0800
-Message-ID: <4EDDC35C.2070100@redhat.com>
+Date: Tue, 6 Dec 2011 09:18:48 +0000
+Message-ID: <CAJSP0QX5dDkpX+cRcQut2mb6K91zeqGLRrZBGAWT_r2p685gaQ__19715.1731852957$1323163142$gmane$org@mail.gmail.com>
 References: <20111205085603.6116.65101.stgit@dhcp-8-146.nay.redhat.com>
 	<20111205085925.6116.94352.stgit@dhcp-8-146.nay.redhat.com>
-	<1323117745.2887.31.camel@bwh-desktop>
+	<CAJSP0QXfHC8j2Kk9x6wyBMubo2=YvpaLAShJtwMWA2mtro6UhA@mail.gmail.com>
+	<4EDDB71F.9080908@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1323117745.2887.31.camel@bwh-desktop>
+In-Reply-To: <4EDDB71F.9080908@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,78 +20,57 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Ben Hutchings <bhutchings@solarflare.com>
-Cc: krkumar2@in.ibm.com, kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, levinsasha928@gmail.com
+To: Jason Wang <jasowang@redhat.com>
+Cc: krkumar2@in.ibm.com, kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, levinsasha928@gmail.com, bhutchings@solarflare.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 12/06/2011 04:42 AM, Ben Hutchings wrote:
-> On Mon, 2011-12-05 at 16:59 +0800, Jason Wang wrote:
->> In order to let the packets of a flow to be passed to the desired
->> guest cpu, we can co-operate with devices through programming the flow
->> director which was just a hash to queue table.
+On Tue, Dec 6, 2011 at 6:33 AM, Jason Wang <jasowang@redhat.com> wrote:
+> On 12/05/2011 06:55 PM, Stefan Hajnoczi wrote:
 >>
->> This kinds of co-operation is done through the accelerate RFS support,
->> a device specific flow sterring method virtnet_fd() is used to modify
->> the flow director based on rfs mapping. The desired queue were
->> calculated through reverse mapping of the irq affinity table. In order
->> to parallelize the ingress path, irq affinity of rx queue were also
->> provides by the driver.
+>> On Mon, Dec 5, 2011 at 8:59 AM, Jason Wang<jasowang@redhat.com> =A0wrote:
+>>>
+>>> +static int virtnet_set_fd(struct net_device *dev, u32 pfn)
+>>> +{
+>>> + =A0 =A0 =A0 struct virtnet_info *vi =3D netdev_priv(dev);
+>>> + =A0 =A0 =A0 struct virtio_device *vdev =3D vi->vdev;
+>>> +
+>>> + =A0 =A0 =A0 if (virtio_has_feature(vdev, VIRTIO_NET_F_HOST_FD)) {
+>>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 vdev->config->set(vdev,
+>>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 offse=
+tof(struct virtio_net_config_fd,
+>>> addr),
+>>> +&pfn, sizeof(u32));
 >>
->> In addition to accelerate RFS, we can also use the guest scheduler to
->> balance the load of TX and reduce the lock contention on egress path,
->> so the processor_id() were used to tx queue selection.
-> [...]
->> +#ifdef CONFIG_RFS_ACCEL
->> +
->> +int virtnet_fd(struct net_device *net_dev, const struct sk_buff *skb,
->> +	       u16 rxq_index, u32 flow_id)
->> +{
->> +	struct virtnet_info *vi = netdev_priv(net_dev);
->> +	u16 *table = NULL;
->> +
->> +	if (skb->protocol != htons(ETH_P_IP) || !skb->rxhash)
->> +		return -EPROTONOSUPPORT;
-> Why only IPv4?
+>> Please use the virtio model (i.e. virtqueues) instead of shared
+>> memory. =A0Mapping a page breaks the virtio abstraction.
+>
+>
+> Using control virtqueue is more suitable but there's are also some proble=
+ms:
+>
+> One problem is the interface, =A0if we use control virtqueue, we need a
+> interface between the backend and tap/macvtap to change the flow mapping.
+> But qemu and vhost_net only know about the file descriptor, more
+> informations or interfaces need to be exposed in order to let ethtool or
+> ioctl work.
 
-Oops, IPv6 should work also.
->> +	table = kmap_atomic(vi->fd_page);
->> +	table[skb->rxhash&  TAP_HASH_MASK] = rxq_index;
->> +	kunmap_atomic(table);
->> +
->> +	return 0;
->> +}
->> +#endif
-> This is not a proper implementation of ndo_rx_flow_steer.  If you steer
-> a flow by changing the RSS table this can easily cause packet reordering
-> in other flows.  The filtering should be more precise, ideally matching
-> exactly a single flow by e.g. VID and IP 5-tuple.
->
-> I think you need to add a second hash table which records exactly which
-> flow is supposed to be steered.  Also, you must call
-> rps_may_expire_flow() to check whether an entry in this table may be
-> replaced; otherwise you can cause packet reordering in the flow that was
-> previously being steered.
->
-> Finally, this function must return the table index it assigned, so that
-> rps_may_expire_flow() works.
+QEMU could provide map a shared page with tap/macvtap.  The difference
+would be that the guest<->host interface is still virtio and QEMU
+pokes values into the shared page on behalf of the guest.
 
-Thanks for the explanation, how about document this briefly in scaling.txt?
->> +static u16 virtnet_select_queue(struct net_device *dev, struct sk_buff *skb)
->> +{
->> +	int txq = skb_rx_queue_recorded(skb) ? skb_get_rx_queue(skb) :
->> +					       smp_processor_id();
->> +
->> +	/* As we make use of the accelerate rfs which let the scheduler to
->> +	 * balance the load, it make sense to choose the tx queue also based on
->> +	 * theprocessor id?
->> +	 */
->> +	while (unlikely(txq>= dev->real_num_tx_queues))
->> +		txq -= dev->real_num_tx_queues;
->> +	return txq;
->> +}
-> [...]
->
-> Don't do this, let XPS handle it.
->
-> Ben.
->
+> Another problem is the delay introduced by ctrl vq, as the ctrl vq would =
+be
+> used in the critical path in guest and it use busy wait to get the respon=
+se,
+> the delay is not neglectable.
+
+Then you need to find a better way of doing this.  Can the host
+automatically associate the flow from the tx virtqueue packets are
+transmitted on?  Does it make sense to add a virtio_net_hdr field that
+updates the queue mapping?
+
+The vcpus are just threads and may not be bound to physical CPUs, so
+what is the big picture here?  Is the guest even in the position to
+set the best queue mappings today?
+
+Stefan
