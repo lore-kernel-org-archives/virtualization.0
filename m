@@ -1,22 +1,18 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH] virtio-ring: Use threshold for switching to indirect
-	descriptors
-Date: Tue, 06 Dec 2011 22:33:21 +1030
-Message-ID: <87pqg1kiuu.fsf__35667.4201241278$1323173417$gmane$org@rustcorp.com.au>
-References: <1322669511.3985.8.camel@lappy> <87wrahrp0u.fsf@rustcorp.com.au>
-	<20111201075847.GA5479@redhat.com> <1322726977.3259.3.camel@lappy>
-	<20111201102640.GB8822@redhat.com> <87zkfbre9x.fsf@rustcorp.com.au>
-	<1322913028.3782.4.camel@lappy> <4EDB5EF0.2010909@redhat.com>
-	<20111204120132.GB18758@redhat.com> <4EDB624A.3030403@redhat.com>
-	<20111204151148.GA21851@redhat.com>
-	<4EDB8EEB.4070309@redhat.com> <87bornri92.fsf@rustcorp.com.au>
-	<4EDC9476.3000301@redhat.com> <87pqg2p9t8.fsf@rustcorp.com.au>
-	<4EDDE73D.1080209@redhat.com>
+From: Stefan Hajnoczi <stefanha@gmail.com>
+Subject: Re: [net-next RFC PATCH 5/5] virtio-net: flow director support
+Date: Tue, 6 Dec 2011 13:15:43 +0000
+Message-ID: <CAJSP0QXsLwvH5xYj6h0E_V4VLg6DuUc-GKXu9esEYzL2MFcFGw__22861.078559845$1323177362$gmane$org@mail.gmail.com>
+References: <20111205085603.6116.65101.stgit@dhcp-8-146.nay.redhat.com>
+	<20111205085925.6116.94352.stgit@dhcp-8-146.nay.redhat.com>
+	<CAJSP0QXfHC8j2Kk9x6wyBMubo2=YvpaLAShJtwMWA2mtro6UhA@mail.gmail.com>
+	<4EDDB71F.9080908@redhat.com>
+	<CAJSP0QX5dDkpX+cRcQut2mb6K91zeqGLRrZBGAWT_r2p685gaQ@mail.gmail.com>
+	<4EDDECA9.8060808@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4EDDE73D.1080209@redhat.com>
+In-Reply-To: <4EDDECA9.8060808@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -26,65 +22,37 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Avi Kivity <avi@redhat.com>
-Cc: markmc@redhat.com, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Sasha Levin <levinsasha928@gmail.com>
+To: Jason Wang <jasowang@redhat.com>
+Cc: krkumar2@in.ibm.com, kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, levinsasha928@gmail.com, bhutchings@solarflare.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 06 Dec 2011 11:58:21 +0200, Avi Kivity <avi@redhat.com> wrote:
-> On 12/06/2011 07:07 AM, Rusty Russell wrote:
-> > Yes, but the hypervisor/trusted party would simply have to do the copy;
-> > the rings themselves would be shared A would say "copy this to/from B's
-> > ring entry N" and you know that A can't have changed B's entry.
-> 
-> Sorry, I don't follow.  How can the rings be shared?  If A puts a gpa in
-> A's address space into the ring, there's no way B can do anything with
-> it, it's an opaque number.  Xen solves this with an extra layer of
-> indirection (grant table handles) that cost extra hypercalls to map or
-> copy.
+On Tue, Dec 6, 2011 at 10:21 AM, Jason Wang <jasowang@redhat.com> wrote:
+> On 12/06/2011 05:18 PM, Stefan Hajnoczi wrote:
+>>
+>> On Tue, Dec 6, 2011 at 6:33 AM, Jason Wang<jasowang@redhat.com> =A0wrote:
+>>>
+>>> On 12/05/2011 06:55 PM, Stefan Hajnoczi wrote:
+>>>>
+>>>> On Mon, Dec 5, 2011 at 8:59 AM, Jason Wang<jasowang@redhat.com>
+>>>> =A0wrote:
+>> The vcpus are just threads and may not be bound to physical CPUs, so
+>> what is the big picture here? =A0Is the guest even in the position to
+>> set the best queue mappings today?
+>
+>
+> Not sure it could publish the best mapping but the idea is to make sure t=
+he
+> packets of a flow were handled by the same guest vcpu and may be the same
+> vhost thread in order to eliminate the packet reordering and lock
+> contention. But this assumption does not take the bouncing of vhost or vc=
+pu
+> threads which would also affect the result.
 
-It's not symmetric.  B can see the desc and avail pages R/O, and the
-used page R/W.  It needs to ask the something to copy in/out of
-descriptors, though, because they're an opaque number, and it doesn't
-have access.  ie. the existence of the descriptor in the ring *implies*
-a grant.
+Okay, this is why I'd like to know what the big picture here is.  What
+solution are you proposing?  How are we going to have everything from
+guest application, guest kernel, host threads, and host NIC driver
+play along so we get the right steering up the entire stack.  I think
+there needs to be an answer to that before changing virtio-net to add
+any steering mechanism.
 
-Perhaps this could be generalized further into a "connect these two
-rings", but I'm not sure.  Descriptors with both read and write parts
-are tricky.
-
-> > Every driver really wants to put a pointer in there.  We have an array
-> > to map desc. numbers to cookies inside the virtio core.
-> >
-> > We really want 64 bits.
-> 
-> With multiqueue, it may be cheaper to do the extra translation locally
-> than to ship the cookie across cores (or, more likely, it will make no
-> difference).
-
-Indeed.
-
-> However, moving pointers only works if you trust the other side.  That
-> doesn't work if we manage to share a ring.
-
-Yes, that part needs to be trusted too.
-
-> > I'm just not sure how the host would even know to hint.
-> 
-> For JBOD storage, a good rule of thumb is (number of spindles) x 3. 
-> With less, you might leave an idle spindle; with more, you're just
-> adding latency.  This assumes you're using indirects so ring entry ==
-> request.  The picture is muddier with massive battery-backed RAID
-> controllers or flash.
-> 
-> For networking, you want (ring size) * min(expected packet size, page
-> size) / (link bandwidth) to be something that doesn't get the
-> bufferbloat people after your blood.
-
-OK, so while neither side knows, the host knows slightly more.
-
-Now I think about it, from a spec POV, saying it's a "hint" is useless,
-as it doesn't tell the driver what to do with it.  I'll say it's a
-maximum, which keeps it simple.
-
-Cheers,
-Rusty.
+Stefan
