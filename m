@@ -1,15 +1,11 @@
-From: Ben Hutchings <bhutchings@solarflare.com>
-Subject: Re: [net-next RFC PATCH 5/5] virtio-net: flow director support
-Date: Tue, 6 Dec 2011 17:36:16 +0000
-Message-ID: <1323192976.2772.3.camel@bwh-desktop>
-References: <20111205085603.6116.65101.stgit@dhcp-8-146.nay.redhat.com>
-	<20111205085925.6116.94352.stgit@dhcp-8-146.nay.redhat.com>
-	<1323117745.2887.31.camel@bwh-desktop>  <4EDDC35C.2070100@redhat.com>
+From: Amit Shah <amit.shah@redhat.com>
+Subject: [PATCH v4 00/12] virtio: s4 support
+Date: Wed,  7 Dec 2011 01:18:38 +0530
+Message-ID: <cover.1323199985.git.amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4EDDC35C.2070100@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,40 +15,84 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: krkumar2@in.ibm.com, kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, levinsasha928@gmail.com
+To: Virtualization List <virtualization@lists.linux-foundation.org>
+Cc: Amit Shah <amit.shah@redhat.com>, linux-kernel@vger.kernel.org, levinsasha928@gmail.com, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 2011-12-06 at 15:25 +0800, Jason Wang wrote:
-> On 12/06/2011 04:42 AM, Ben Hutchings wrote:
-[...]
-> > This is not a proper implementation of ndo_rx_flow_steer.  If you steer
-> > a flow by changing the RSS table this can easily cause packet reordering
-> > in other flows.  The filtering should be more precise, ideally matching
-> > exactly a single flow by e.g. VID and IP 5-tuple.
-> >
-> > I think you need to add a second hash table which records exactly which
-> > flow is supposed to be steered.  Also, you must call
-> > rps_may_expire_flow() to check whether an entry in this table may be
-> > replaced; otherwise you can cause packet reordering in the flow that was
-> > previously being steered.
-> >
-> > Finally, this function must return the table index it assigned, so that
-> > rps_may_expire_flow() works.
-> 
-> Thanks for the explanation, how about document this briefly in scaling.txt?
-[...]
+Hi,
 
-I believe scaling.txt is intended for users/administrators, not
-developers.
+These patches add support for S4 to virtio (pci) and all drivers.
 
-The documentation for implementers of accelerated RFS is in the comment
-for struct net_device_ops and the commit message adding it.  But I
-really should improve that comment.
+For each driver, all vqs are removed before hibernation, and then
+re-created after restore.  Some driver-specific uninit and init work
+is also done in the freeze and restore functions.
 
-Ben.
+All the drivers in testing work fine:
+
+* virtio-blk is used for the only disk in the VM, IO works fine before
+  and after.  'dd if=/dev/zero of=/tmp/bigfile bs=1024 count=200000'
+  across S4 gives same sha1sum for the file in the guest as well as
+  one that's created without invoking S4.
+
+* virtio-console: port IO keeps working fine before and after.
+  * If a port is waiting for data from the host (blocking read(2)
+    call), this works fine in both the cases: host-side connection is
+    available or unavailable after resume.  In case the host-side
+    connection isn't available, the blocking call is terminated.  If
+    it is available, the call continues to remain in blocked state
+    till further data arrives.
+
+* virtio-net: ping remains active across S4.
+
+* virtio-balloon: Works fine before and after.  Forgets the ballooned
+  value across S4 (see details in commit log). Maintains ballooned
+  value on failed freeze.
+
+All of these tests are run in parallel.
+
+I have some more tests lined up on similar lines above.  I'll reply
+here if something breaks.
+
+Please review and apply if appropriate,
+
+v4:
+ - Disable / enable napi across S4 (Michael S. Tsirkin)
+ - Balloon: lots of improvements (I had neglected this driver thinking
+   it was a simple one, but this one needed the most thought!  Check
+   the commit log for patch 12 for details.)
+ - Net, Blk: Reset device as the first operation on freeze
+
+v3:
+ - Reset vqs before deleting them (Sasha Levin)
+ - Flush block queue before freeze (Rusty)
+ - Detach netdev before freeze (Michael S. Tsirkin)
+
+v2:
+ - fix checkpatch errors/warnings
+
+Amit Shah (12):
+  virtio: pci: switch to new PM API
+  virtio: pci: add PM notification handlers for restore, freeze, thaw,
+    poweroff
+  virtio: console: Move out vq and vq buf removal into separate
+    functions
+  virtio: console: Add freeze and restore handlers to support S4
+  virtio: blk: Move out vq initialization to separate function
+  virtio: blk: Add freeze, restore handlers to support S4
+  virtio: net: Move out vq initialization into separate function
+  virtio: net: Move out vq and vq buf removal into separate function
+  virtio: net: Add freeze, restore handlers to support S4
+  virtio: balloon: ensure thread exists before stopping it
+  virtio: balloon: Move out vq initialization into separate function
+  virtio: balloon: Add freeze, restore handlers to support S4
+
+ drivers/block/virtio_blk.c      |   57 +++++++++++++++--
+ drivers/char/virtio_console.c   |  126 +++++++++++++++++++++++++++++--------
+ drivers/net/virtio_net.c        |  102 ++++++++++++++++++++++--------
+ drivers/virtio/virtio_balloon.c |  131 +++++++++++++++++++++++++++++++++------
+ drivers/virtio/virtio_pci.c     |  101 +++++++++++++++++++++++++++++-
+ include/linux/virtio.h          |    5 ++
+ 6 files changed, 439 insertions(+), 83 deletions(-)
 
 -- 
-Ben Hutchings, Staff Engineer, Solarflare
-Not speaking for my employer; that's the marketing department's job.
-They asked us to note that Solarflare product names are trademarked.
+1.7.7.3
