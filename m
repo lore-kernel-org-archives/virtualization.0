@@ -1,16 +1,21 @@
-From: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Subject: Re: [PATCH RFC V3 4/4] kvm : pv-ticketlocks support for linux guests
-	running on KVM hypervisor
-Date: Mon, 5 Dec 2011 22:27:41 -0500
-Message-ID: <20111206032741.GF6647@phenom.dumpdata.com>
-References: <20111130085921.23386.89708.sendpatchset@oc5400248562.ibm.com>
-	<20111130090038.23386.4505.sendpatchset@oc5400248562.ibm.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH] virtio-ring: Use threshold for switching to indirect
+	descriptors
+Date: Tue, 06 Dec 2011 15:37:31 +1030
+Message-ID: <87pqg2p9t8.fsf@rustcorp.com.au>
+References: <1322669511.3985.8.camel@lappy> <87wrahrp0u.fsf@rustcorp.com.au>
+	<20111201075847.GA5479@redhat.com> <1322726977.3259.3.camel@lappy>
+	<20111201102640.GB8822@redhat.com> <87zkfbre9x.fsf@rustcorp.com.au>
+	<1322913028.3782.4.camel@lappy> <4EDB5EF0.2010909@redhat.com>
+	<20111204120132.GB18758@redhat.com> <4EDB624A.3030403@redhat.com>
+	<20111204151148.GA21851@redhat.com>
+	<4EDB8EEB.4070309@redhat.com> <87bornri92.fsf@rustcorp.com.au>
+	<4EDC9476.3000301@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20111130090038.23386.4505.sendpatchset@oc5400248562.ibm.com>
+In-Reply-To: <4EDC9476.3000301@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,111 +25,165 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
-Cc: Peter Zijlstra <peterz@infradead.org>, Virtualization <virtualization@lists.linux-foundation.org>, "H. Peter Anvin" <hpa@zytor.com>, Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, Dave Jiang <dave.jiang@intel.com>, KVM <kvm@vger.kernel.org>, x86@kernel.org, Ingo Molnar <mingo@redhat.com>, Avi Kivity <avi@redhat.com>, Rik van Riel <riel@redhat.com>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, Xen <xen-devel@lists.xensource.com>, Sasha Levin <levinsasha928@gmail.com>, Sedat Dilek <sedat.dilek@gmail.com>, Thomas Gleixner <tglx@linutronix.de>, Yinghai Lu <yinghai@kernel.org>, Greg Kroah-Hartman <gregkh@suse.de>, LKML <linux-kernel@vger.kernel.org>, Dave Hansen <dave@linux.vnet.ibm.com>, Suzuki Poulose <suzuki@linux.vnet.ibm.com>
+To: Avi Kivity <avi@redhat.com>
+Cc: markmc@redhat.com, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Sasha Levin <levinsasha928@gmail.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Nov 30, 2011 at 02:30:38PM +0530, Raghavendra K T wrote:
-> This patch extends Linux guests running on KVM hypervisor to support
-> pv-ticketlocks. 
-> During smp_boot_cpus  paravirtualied KVM guest detects if the hypervisor has
-> required feature (KVM_FEATURE_KICK_VCPU) to support pv-ticketlocks. If so,
->  support for pv-ticketlocks is registered via pv_lock_ops.
+On Mon, 05 Dec 2011 11:52:54 +0200, Avi Kivity <avi@redhat.com> wrote:
+> On 12/05/2011 02:10 AM, Rusty Russell wrote:
+> > On Sun, 04 Dec 2011 17:16:59 +0200, Avi Kivity <avi@redhat.com> wrote:
+> > > On 12/04/2011 05:11 PM, Michael S. Tsirkin wrote:
+> > > > > There's also the used ring, but that's a
+> > > > > mistake if you have out of order completion.  We should have used copying.
+> > > >
+> > > > Seems unrelated... unless you want used to be written into
+> > > > descriptor ring itself?
+> > > 
+> > > The avail/used rings are in addition to the regular ring, no?  If you
+> > > copy descriptors, then it goes away.
+> >
+> > There were two ideas which drove the current design:
+> >
+> > 1) The Van-Jacobson style "no two writers to same cacheline makes rings
+> >    fast" idea.  Empirically, this doesn't show any winnage.
 > 
-> Signed-off-by: Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>
-> Signed-off-by: Suzuki Poulose <suzuki@in.ibm.com>
-> Signed-off-by: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
-> ---
-> diff --git a/arch/x86/include/asm/kvm_para.h b/arch/x86/include/asm/kvm_para.h
-> index 8b1d65d..7e419ad 100644
-> --- a/arch/x86/include/asm/kvm_para.h
-> +++ b/arch/x86/include/asm/kvm_para.h
-> @@ -195,10 +195,21 @@ void kvm_async_pf_task_wait(u32 token);
->  void kvm_async_pf_task_wake(u32 token);
->  u32 kvm_read_and_reset_pf_reason(void);
->  extern void kvm_disable_steal_time(void);
-> -#else
-> -#define kvm_guest_init() do { } while (0)
-> +
-> +#ifdef CONFIG_PARAVIRT_SPINLOCKS
-> +void __init kvm_spinlock_init(void);
-> +#else /* CONFIG_PARAVIRT_SPINLOCKS */
-> +static void kvm_spinlock_init(void)
-> +{
-> +}
-> +#endif /* CONFIG_PARAVIRT_SPINLOCKS */
-> +
-> +#else /* CONFIG_KVM_GUEST */
-> +#define kvm_guest_init() do {} while (0)
->  #define kvm_async_pf_task_wait(T) do {} while(0)
->  #define kvm_async_pf_task_wake(T) do {} while(0)
-> +#define kvm_spinlock_init() do {} while (0)
-> +
->  static inline u32 kvm_read_and_reset_pf_reason(void)
->  {
->  	return 0;
-> diff --git a/arch/x86/kernel/kvm.c b/arch/x86/kernel/kvm.c
-> index a9c2116..dffeea3 100644
-> --- a/arch/x86/kernel/kvm.c
-> +++ b/arch/x86/kernel/kvm.c
-> @@ -33,6 +33,7 @@
->  #include <linux/sched.h>
->  #include <linux/slab.h>
->  #include <linux/kprobes.h>
-> +#include <linux/debugfs.h>
->  #include <asm/timer.h>
->  #include <asm/cpu.h>
->  #include <asm/traps.h>
-> @@ -545,6 +546,7 @@ static void __init kvm_smp_prepare_boot_cpu(void)
->  #endif
->  	kvm_guest_cpu_init();
->  	native_smp_prepare_boot_cpu();
-> +	kvm_spinlock_init();
->  }
->  
->  static void __cpuinit kvm_guest_cpu_online(void *dummy)
-> @@ -627,3 +629,248 @@ static __init int activate_jump_labels(void)
->  	return 0;
->  }
->  arch_initcall(activate_jump_labels);
-> +
-> +#ifdef CONFIG_PARAVIRT_SPINLOCKS
-> +
-> +enum kvm_contention_stat {
-> +	TAKEN_SLOW,
-> +	TAKEN_SLOW_PICKUP,
-> +	RELEASED_SLOW,
-> +	RELEASED_SLOW_KICKED,
-> +	NR_CONTENTION_STATS
-> +};
-> +
-> +#ifdef CONFIG_KVM_DEBUG_FS
-> +
-> +static struct kvm_spinlock_stats
-> +{
-> +	u32 contention_stats[NR_CONTENTION_STATS];
-> +
-> +#define HISTO_BUCKETS	30
-> +	u32 histo_spin_blocked[HISTO_BUCKETS+1];
-> +
-> +	u64 time_blocked;
-> +} spinlock_stats;
-> +
-> +static u8 zero_stats;
-> +
-> +static inline void check_zero(void)
-> +{
-> +	u8 ret;
-> +	u8 old = ACCESS_ONCE(zero_stats);
-> +	if (unlikely(old)) {
-> +		ret = cmpxchg(&zero_stats, old, 0);
-> +		/* This ensures only one fellow resets the stat */
-> +		if (ret == old)
-> +			memset(&spinlock_stats, 0, sizeof(spinlock_stats));
-> +	}
-> +}
-> +
-> +static inline void add_stats(enum kvm_contention_stat var, int val)
+> Write/write is the same as write/read or read/write.  Both cases have to
+> send a probe and wait for the result.  What we really need is to
+> minimize cache line ping ponging, and the descriptor pool fails that
+> with ooo completion.  I doubt it's measurable though except with the
+> very fastest storage providers.
 
-You probably want 'int val' to be 'u32 val' as that is the type
-in contention_stats.
+The claim was that going exclusive->shared->exclusive was cheaper than
+exclusive->invalid->exclusive.  When VJ said it, it seemed convincing :)
+
+> > 2) Allowing a generic inter-guest copy mechanism, so we could have
+> >    genuinely untrusted driver domains.  Yet noone ever did this so it's
+> >    hardly a killer feature :(
+> 
+> It's still a goal, though not an important one.  But we have to
+> translate rings anyway, don't, since buffers are in guest physical
+> addresses, and we're moving into an address space that doesn't map those.
+
+Yes, but the hypervisor/trusted party would simply have to do the copy;
+the rings themselves would be shared A would say "copy this to/from B's
+ring entry N" and you know that A can't have changed B's entry.
+
+> I thought of having a vhost-copy driver that could do ring translation,
+> using a dma engine for the copy.
+
+As long as we get the length of data written from the vhost-copy driver
+(ie. not just the network header).  Otherwise a malicious other guest
+can send short packets, and a local process can read uninitialized
+memory.  And pre-zeroing the buffers for this corner case sucks.
+
+> > So if we're going to revisit and drop those requirements, I'd say:
+> >
+> > 1) Shared device/driver rings like Xen.  Xen uses device-specific ring
+> >    contents, I'd be tempted to stick to our pre-headers, and a 'u64
+> >    addr; u64 len_and_flags; u64 cookie;' generic style.  Then use
+> >    the same ring for responses.  That's a slight space-win, since
+> >    we're 24 bytes vs 26 bytes now.
+> 
+> Let's cheat and have inline contents.  Take three bits from
+> len_and_flags to specify additional descriptors as inline data.
+
+Nice, I like this optimization.
+
+> Also, stuff the cookie into len_and_flags as well.
+
+Every driver really wants to put a pointer in there.  We have an array
+to map desc. numbers to cookies inside the virtio core.
+
+We really want 64 bits.
+
+> > 2) Stick with physically-contiguous rings, but use them of size (2^n)-1.
+> >    Makes the indexing harder, but that -1 lets us stash the indices in
+> >    the first entry and makes the ring a nice 2^n size.
+> 
+> Allocate at lease a cache line for those.  The 2^n size is not really
+> material, a division is never necessary.
+
+We free-run our indices, so we *do* a division (by truncation).  If we
+limit indices to ringsize, then we have to handle empty/full confusion.
+
+It's nice for simple OSes if things pack nicely into pages, but it's not
+a killer feature IMHO.
+
+> > > > > 16kB worth of descriptors is 1024 entries.  With 4kB buffers, that's 4MB
+> > > > > worth of data, or 4 ms at 10GbE line speed.  With 1500 byte buffers it's
+> > > > > just 1.5 ms.  In any case I think it's sufficient.
+> > > >
+> > > > Right. So I think that without indirect, we waste about 3 entries
+> > > > per packet for virtio header and transport etc headers.
+> > > 
+> > > That does suck.  Are there issues in increasing the ring size?  Or
+> > > making it discontiguous?
+> >
+> > Because the qemu implementation is broken.  
+> 
+> I was talking about something else, but this is more important.  Every
+> time we make a simplifying assumption, it turns around and bites us, and
+> the code becomes twice as complicated as it would have been in the first
+> place, and the test matrix explodes.
+
+True, though we seem to be improving.  But this is why I don't want
+optional features in the spec; I want us always to exercise all of it.
+
+> > We can often put the virtio
+> > header at the head of the packet.  In practice, the qemu implementation
+> > insists the header be a single descriptor.
+> >
+> > (At least, it used to, perhaps it has now been fixed.  We need a
+> > VIRTIO_NET_F_I_NOW_CONFORM_TO_THE_DAMN_SPEC_SORRY_I_SUCK bit).
+> 
+> We'll run out of bits in no time.
+
+We had one already: VIRTIO_F_BAD_FEATURE.  We haven't used it in a long
+time (if ever), and I just removed it from the latest version of the
+spec.
+
+But we can cheat: we can add this as a requirement to The New Ring
+Layout.  And document the old behaviour as a footnote.
+
+> > We currently use small rings: the guest can't negotiate so qemu has to
+> > offer a lowest-common-denominator value.  The new virtio-pci layout
+> > fixes this, and lets the guest set the ring size.
+> 
+> Ok good.  Note the figuring out the best ring size needs some info from
+> the host, but that can be had from other channels.
+
+We have a ringsize field; should the host initialize it as a hint?  Or
+as a maximum allowable?
+
+I'm just not sure how the host would even know to hint.
+
+> > > Can you take a peek at how Xen manages its rings?  They have the same
+> > > problems we do.
+> >
+> > Yes, I made some mistakes, but I did steal from them in the first
+> > place...
+> 
+> There was a bit of second system syndrome there.
+
+But also some third syndrome: Xen had gone through their great device
+rewrite, and things like feature bits were a direct response against
+that complexity.  We did well there.
+
+> And I don't understand how the ring/pool issue didn't surface during
+> review, it seems so obvious now but completely eluded me then.
+
+The idea was we'd just enlarge the rings.  Only later did that prove
+naive, and many things came in to fix that.  The cacheline issue is
+speculative at this point.
+
+But we are learning, and making fewer mistakes; we could have learn some
+things earlier (I was remiss in not seeking the Xen devs' advice on the
+ring itself, for example).
+
+I honestly don't think it gets much better than this in Real Life.
+
+I'm working on the virtio-pci capability layout patch now, then I'll
+look at a ring rewrite.
+
+Thanks,
+Rusty.
