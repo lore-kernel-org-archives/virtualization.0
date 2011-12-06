@@ -1,14 +1,16 @@
-From: Ben Hutchings <bhutchings@solarflare.com>
-Subject: Re: [net-next RFC PATCH 5/5] virtio-net: flow director support
-Date: Mon, 5 Dec 2011 20:42:25 +0000
-Message-ID: <1323117745.2887.31.camel@bwh-desktop>
-References: <20111205085603.6116.65101.stgit@dhcp-8-146.nay.redhat.com>
-	<20111205085925.6116.94352.stgit@dhcp-8-146.nay.redhat.com>
+From: Konrad Rzeszutek Wilk <konrad@darnok.org>
+Subject: Re: [Xen-devel] [PATCH RFC V3 1/4] debugfs: Add support to print u32
+	array in debugfs
+Date: Mon, 5 Dec 2011 20:13:27 -0400
+Message-ID: <20111206001327.GA20511__26472.7398557172$1323130971$gmane$org@andromeda.dapyr.net>
+References: <20111130085921.23386.89708.sendpatchset@oc5400248562.ibm.com>
+	<20111130085939.23386.1242.sendpatchset@oc5400248562.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20111205085925.6116.94352.stgit@dhcp-8-146.nay.redhat.com>
+Content-Disposition: inline
+In-Reply-To: <20111130085939.23386.1242.sendpatchset@oc5400248562.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,81 +20,333 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: krkumar2@in.ibm.com, kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, levinsasha928@gmail.com
+To: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
+Cc: KVM <kvm@vger.kernel.org>, Peter Zijlstra <peterz@infradead.org>, Virtualization <virtualization@lists.linux-foundation.org>, "H. Peter Anvin" <hpa@zytor.com>, Xen <xen-devel@lists.xensource.com>, Dave Jiang <dave.jiang@intel.com>, x86@kernel.org, Ingo Molnar <mingo@redhat.com>, Avi Kivity <avi@redhat.com>, Rik van Riel <riel@redhat.com>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, Sasha Levin <levinsasha928@gmail.com>, Sedat Dilek <sedat.dilek@gmail.com>, Thomas Gleixner <tglx@linutronix.de>, Yinghai Lu <yinghai@kernel.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Greg Kroah-Hartman <gregkh@suse.de>, LKML <linux-kernel@vger.kernel.org>, Dave Hansen <dave@linux.vnet.ibm.com>, Suzuki Poulose <suzuki@linux.vnet.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, 2011-12-05 at 16:59 +0800, Jason Wang wrote:
-> In order to let the packets of a flow to be passed to the desired
-> guest cpu, we can co-operate with devices through programming the flow
-> director which was just a hash to queue table.
+On Wed, Nov 30, 2011 at 02:29:39PM +0530, Raghavendra K T wrote:
+> Add debugfs support to print u32-arrays in debugfs. Move the code from Xen to debugfs
+> to make the code common for other users as well.
 > 
-> This kinds of co-operation is done through the accelerate RFS support,
-> a device specific flow sterring method virtnet_fd() is used to modify
-> the flow director based on rfs mapping. The desired queue were
-> calculated through reverse mapping of the irq affinity table. In order
-> to parallelize the ingress path, irq affinity of rx queue were also
-> provides by the driver.
-> 
-> In addition to accelerate RFS, we can also use the guest scheduler to
-> balance the load of TX and reduce the lock contention on egress path,
-> so the processor_id() were used to tx queue selection.
-[...]
-> +#ifdef CONFIG_RFS_ACCEL
+> Signed-off-by: Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>
+> Signed-off-by: Suzuki Poulose <suzuki@in.ibm.com>
+> Signed-off-by: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
+
+Looks good to me.
+> ---
+> diff --git a/arch/x86/xen/debugfs.c b/arch/x86/xen/debugfs.c
+> index 7c0fedd..c8377fb 100644
+> --- a/arch/x86/xen/debugfs.c
+> +++ b/arch/x86/xen/debugfs.c
+> @@ -19,107 +19,3 @@ struct dentry * __init xen_init_debugfs(void)
+>  	return d_xen_debug;
+>  }
+>  
+> -struct array_data
+> -{
+> -	void *array;
+> -	unsigned elements;
+> -};
+> -
+> -static int u32_array_open(struct inode *inode, struct file *file)
+> -{
+> -	file->private_data = NULL;
+> -	return nonseekable_open(inode, file);
+> -}
+> -
+> -static size_t format_array(char *buf, size_t bufsize, const char *fmt,
+> -			   u32 *array, unsigned array_size)
+> -{
+> -	size_t ret = 0;
+> -	unsigned i;
+> -
+> -	for(i = 0; i < array_size; i++) {
+> -		size_t len;
+> -
+> -		len = snprintf(buf, bufsize, fmt, array[i]);
+> -		len++;	/* ' ' or '\n' */
+> -		ret += len;
+> -
+> -		if (buf) {
+> -			buf += len;
+> -			bufsize -= len;
+> -			buf[-1] = (i == array_size-1) ? '\n' : ' ';
+> -		}
+> -	}
+> -
+> -	ret++;		/* \0 */
+> -	if (buf)
+> -		*buf = '\0';
+> -
+> -	return ret;
+> -}
+> -
+> -static char *format_array_alloc(const char *fmt, u32 *array, unsigned array_size)
+> -{
+> -	size_t len = format_array(NULL, 0, fmt, array, array_size);
+> -	char *ret;
+> -
+> -	ret = kmalloc(len, GFP_KERNEL);
+> -	if (ret == NULL)
+> -		return NULL;
+> -
+> -	format_array(ret, len, fmt, array, array_size);
+> -	return ret;
+> -}
+> -
+> -static ssize_t u32_array_read(struct file *file, char __user *buf, size_t len,
+> -			      loff_t *ppos)
+> -{
+> -	struct inode *inode = file->f_path.dentry->d_inode;
+> -	struct array_data *data = inode->i_private;
+> -	size_t size;
+> -
+> -	if (*ppos == 0) {
+> -		if (file->private_data) {
+> -			kfree(file->private_data);
+> -			file->private_data = NULL;
+> -		}
+> -
+> -		file->private_data = format_array_alloc("%u", data->array, data->elements);
+> -	}
+> -
+> -	size = 0;
+> -	if (file->private_data)
+> -		size = strlen(file->private_data);
+> -
+> -	return simple_read_from_buffer(buf, len, ppos, file->private_data, size);
+> -}
+> -
+> -static int xen_array_release(struct inode *inode, struct file *file)
+> -{
+> -	kfree(file->private_data);
+> -
+> -	return 0;
+> -}
+> -
+> -static const struct file_operations u32_array_fops = {
+> -	.owner	= THIS_MODULE,
+> -	.open	= u32_array_open,
+> -	.release= xen_array_release,
+> -	.read	= u32_array_read,
+> -	.llseek = no_llseek,
+> -};
+> -
+> -struct dentry *xen_debugfs_create_u32_array(const char *name, mode_t mode,
+> -					    struct dentry *parent,
+> -					    u32 *array, unsigned elements)
+> -{
+> -	struct array_data *data = kmalloc(sizeof(*data), GFP_KERNEL);
+> -
+> -	if (data == NULL)
+> -		return NULL;
+> -
+> -	data->array = array;
+> -	data->elements = elements;
+> -
+> -	return debugfs_create_file(name, mode, parent, data, &u32_array_fops);
+> -}
+> diff --git a/arch/x86/xen/debugfs.h b/arch/x86/xen/debugfs.h
+> index e281320..12ebf33 100644
+> --- a/arch/x86/xen/debugfs.h
+> +++ b/arch/x86/xen/debugfs.h
+> @@ -3,8 +3,4 @@
+>  
+>  struct dentry * __init xen_init_debugfs(void);
+>  
+> -struct dentry *xen_debugfs_create_u32_array(const char *name, mode_t mode,
+> -					    struct dentry *parent,
+> -					    u32 *array, unsigned elements);
+> -
+>  #endif /* _XEN_DEBUGFS_H */
+> diff --git a/arch/x86/xen/spinlock.c b/arch/x86/xen/spinlock.c
+> index fc506e6..14a8961 100644
+> --- a/arch/x86/xen/spinlock.c
+> +++ b/arch/x86/xen/spinlock.c
+> @@ -286,7 +286,7 @@ static int __init xen_spinlock_debugfs(void)
+>  	debugfs_create_u64("time_blocked", 0444, d_spin_debug,
+>  			   &spinlock_stats.time_blocked);
+>  
+> -	xen_debugfs_create_u32_array("histo_blocked", 0444, d_spin_debug,
+> +	debugfs_create_u32_array("histo_blocked", 0444, d_spin_debug,
+>  				     spinlock_stats.histo_spin_blocked, HISTO_BUCKETS + 1);
+>  
+>  	return 0;
+> diff --git a/fs/debugfs/file.c b/fs/debugfs/file.c
+> index 90f7657..df44ccf 100644
+> --- a/fs/debugfs/file.c
+> +++ b/fs/debugfs/file.c
+> @@ -18,6 +18,7 @@
+>  #include <linux/pagemap.h>
+>  #include <linux/namei.h>
+>  #include <linux/debugfs.h>
+> +#include <linux/slab.h>
+>  
+>  static ssize_t default_read_file(struct file *file, char __user *buf,
+>  				 size_t count, loff_t *ppos)
+> @@ -525,3 +526,130 @@ struct dentry *debugfs_create_blob(const char *name, mode_t mode,
+>  	return debugfs_create_file(name, mode, parent, blob, &fops_blob);
+>  }
+>  EXPORT_SYMBOL_GPL(debugfs_create_blob);
 > +
-> +int virtnet_fd(struct net_device *net_dev, const struct sk_buff *skb,
-> +	       u16 rxq_index, u32 flow_id)
+> +struct array_data {
+> +	void *array;
+> +	u32 elements;
+> +};
+> +
+> +static int u32_array_open(struct inode *inode, struct file *file)
 > +{
-> +	struct virtnet_info *vi = netdev_priv(net_dev);
-> +	u16 *table = NULL;
+> +	file->private_data = NULL;
+> +	return nonseekable_open(inode, file);
+> +}
 > +
-> +	if (skb->protocol != htons(ETH_P_IP) || !skb->rxhash)
-> +		return -EPROTONOSUPPORT;
-
-Why only IPv4?
-
-> +	table = kmap_atomic(vi->fd_page);
-> +	table[skb->rxhash & TAP_HASH_MASK] = rxq_index;
-> +	kunmap_atomic(table);
+> +static size_t format_array(char *buf, size_t bufsize, const char *fmt,
+> +			   u32 *array, u32 array_size)
+> +{
+> +	size_t ret = 0;
+> +	u32 i;
+> +
+> +	for (i = 0; i < array_size; i++) {
+> +		size_t len;
+> +
+> +		len = snprintf(buf, bufsize, fmt, array[i]);
+> +		len++;	/* ' ' or '\n' */
+> +		ret += len;
+> +
+> +		if (buf) {
+> +			buf += len;
+> +			bufsize -= len;
+> +			buf[-1] = (i == array_size-1) ? '\n' : ' ';
+> +		}
+> +	}
+> +
+> +	ret++;		/* \0 */
+> +	if (buf)
+> +		*buf = '\0';
+> +
+> +	return ret;
+> +}
+> +
+> +static char *format_array_alloc(const char *fmt, u32 *array,
+> +						u32 array_size)
+> +{
+> +	size_t len = format_array(NULL, 0, fmt, array, array_size);
+> +	char *ret;
+> +
+> +	ret = kmalloc(len, GFP_KERNEL);
+> +	if (ret == NULL)
+> +		return NULL;
+> +
+> +	format_array(ret, len, fmt, array, array_size);
+> +	return ret;
+> +}
+> +
+> +static ssize_t u32_array_read(struct file *file, char __user *buf, size_t len,
+> +			      loff_t *ppos)
+> +{
+> +	struct inode *inode = file->f_path.dentry->d_inode;
+> +	struct array_data *data = inode->i_private;
+> +	size_t size;
+> +
+> +	if (*ppos == 0) {
+> +		if (file->private_data) {
+> +			kfree(file->private_data);
+> +			file->private_data = NULL;
+> +		}
+> +
+> +		file->private_data = format_array_alloc("%u", data->array,
+> +							      data->elements);
+> +	}
+> +
+> +	size = 0;
+> +	if (file->private_data)
+> +		size = strlen(file->private_data);
+> +
+> +	return simple_read_from_buffer(buf, len, ppos,
+> +					file->private_data, size);
+> +}
+> +
+> +static int u32_array_release(struct inode *inode, struct file *file)
+> +{
+> +	kfree(file->private_data);
 > +
 > +	return 0;
 > +}
-> +#endif
-
-This is not a proper implementation of ndo_rx_flow_steer.  If you steer
-a flow by changing the RSS table this can easily cause packet reordering
-in other flows.  The filtering should be more precise, ideally matching
-exactly a single flow by e.g. VID and IP 5-tuple.
-
-I think you need to add a second hash table which records exactly which
-flow is supposed to be steered.  Also, you must call
-rps_may_expire_flow() to check whether an entry in this table may be
-replaced; otherwise you can cause packet reordering in the flow that was
-previously being steered.
-
-Finally, this function must return the table index it assigned, so that
-rps_may_expire_flow() works.
-
-> +static u16 virtnet_select_queue(struct net_device *dev, struct sk_buff *skb)
-> +{
-> +	int txq = skb_rx_queue_recorded(skb) ? skb_get_rx_queue(skb) :
-> +					       smp_processor_id();
 > +
-> +	/* As we make use of the accelerate rfs which let the scheduler to
-> +	 * balance the load, it make sense to choose the tx queue also based on
-> +	 * theprocessor id?
-> +	 */
-> +	while (unlikely(txq >= dev->real_num_tx_queues))
-> +		txq -= dev->real_num_tx_queues;
-> +	return txq;
+> +static const struct file_operations u32_array_fops = {
+> +	.owner	 = THIS_MODULE,
+> +	.open	 = u32_array_open,
+> +	.release = u32_array_release,
+> +	.read	 = u32_array_read,
+> +	.llseek  = no_llseek,
+> +};
+> +
+> +/**
+> + * debugfs_create_u32_array - create a debugfs file that is used to read u32
+> + * array.
+> + * @name: a pointer to a string containing the name of the file to create.
+> + * @mode: the permission that the file should have.
+> + * @parent: a pointer to the parent dentry for this file.  This should be a
+> + *          directory dentry if set.  If this parameter is %NULL, then the
+> + *          file will be created in the root of the debugfs filesystem.
+> + * @array: u32 array that provides data.
+> + * @elements: total number of elements in the array.
+> + *
+> + * This function creates a file in debugfs with the given name that exports
+> + * @array as data. If the @mode variable is so set it can be read from.
+> + * Writing is not supported. Seek within the file is also not supported.
+> + * Once array is created its size can not be changed.
+> + *
+> + * The function returns a pointer to dentry on success. If debugfs is not
+> + * enabled in the kernel, the value -%ENODEV will be returned.
+> + */
+> +struct dentry *debugfs_create_u32_array(const char *name, mode_t mode,
+> +					    struct dentry *parent,
+> +					    u32 *array, u32 elements)
+> +{
+> +	struct array_data *data = kmalloc(sizeof(*data), GFP_KERNEL);
+> +
+> +	if (data == NULL)
+> +		return NULL;
+> +
+> +	data->array = array;
+> +	data->elements = elements;
+> +
+> +	return debugfs_create_file(name, mode, parent, data, &u32_array_fops);
 > +}
-[...]
-
-Don't do this, let XPS handle it.
-
-Ben.
-
--- 
-Ben Hutchings, Staff Engineer, Solarflare
-Not speaking for my employer; that's the marketing department's job.
-They asked us to note that Solarflare product names are trademarked.
+> +EXPORT_SYMBOL_GPL(debugfs_create_u32_array);
+> diff --git a/include/linux/debugfs.h b/include/linux/debugfs.h
+> index e7d9b20..253e2fb 100644
+> --- a/include/linux/debugfs.h
+> +++ b/include/linux/debugfs.h
+> @@ -74,6 +74,10 @@ struct dentry *debugfs_create_blob(const char *name, mode_t mode,
+>  				  struct dentry *parent,
+>  				  struct debugfs_blob_wrapper *blob);
+>  
+> +struct dentry *debugfs_create_u32_array(const char *name, mode_t mode,
+> +					struct dentry *parent,
+> +					u32 *array, u32 elements);
+> +
+>  bool debugfs_initialized(void);
+>  
+>  #else
+> @@ -193,6 +197,13 @@ static inline bool debugfs_initialized(void)
+>  	return false;
+>  }
+>  
+> +struct dentry *debugfs_create_u32_array(const char *name, mode_t mode,
+> +					struct dentry *parent,
+> +					u32 *array, u32 elements)
+> +{
+> +	return ERR_PTR(-ENODEV);
+> +}
+> +
+>  #endif
+>  
+>  #endif
+> 
+> 
+> _______________________________________________
+> Xen-devel mailing list
+> Xen-devel@lists.xensource.com
+> http://lists.xensource.com/xen-devel
