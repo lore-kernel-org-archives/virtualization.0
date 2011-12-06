@@ -1,15 +1,16 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [net-next RFC PATCH 5/5] virtio-net: flow director support
-Date: Tue, 06 Dec 2011 14:33:03 +0800
-Message-ID: <4EDDB71F.9080908@redhat.com>
-References: <20111205085603.6116.65101.stgit@dhcp-8-146.nay.redhat.com>
-	<20111205085925.6116.94352.stgit@dhcp-8-146.nay.redhat.com>
-	<CAJSP0QXfHC8j2Kk9x6wyBMubo2=YvpaLAShJtwMWA2mtro6UhA@mail.gmail.com>
+From: Raghavendra K T <raghukt@linux.vnet.ibm.com>
+Subject: Re: [PATCH RFC V3 4/4] kvm : pv-ticketlocks support for linux guests
+	running on KVM hypervisor
+Date: Tue, 06 Dec 2011 12:24:05 +0530
+Message-ID: <4EDDBC0D.5090602@linux.vnet.ibm.com>
+References: <20111130085921.23386.89708.sendpatchset@oc5400248562.ibm.com>
+	<20111130090038.23386.4505.sendpatchset@oc5400248562.ibm.com>
+	<20111206032741.GF6647@phenom.dumpdata.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAJSP0QXfHC8j2Kk9x6wyBMubo2=YvpaLAShJtwMWA2mtro6UhA@mail.gmail.com>
+In-Reply-To: <20111206032741.GF6647@phenom.dumpdata.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,38 +20,16 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Stefan Hajnoczi <stefanha@gmail.com>
-Cc: krkumar2@in.ibm.com, kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, levinsasha928@gmail.com, bhutchings@solarflare.com
+To: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, Peter Zijlstra <peterz@infradead.org>, Virtualization <virtualization@lists.linux-foundation.org>, "H. Peter Anvin" <hpa@zytor.com>, Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, Dave Jiang <dave.jiang@intel.com>, KVM <kvm@vger.kernel.org>, x86@kernel.org, Ingo Molnar <mingo@redhat.com>, Avi Kivity <avi@redhat.com>, Rik van Riel <riel@redhat.com>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, Xen <xen-devel@lists.xensource.com>, Sasha Levin <levinsasha928@gmail.com>, Sedat Dilek <sedat.dilek@gmail.com>, Thomas Gleixner <tglx@linutronix.de>, Yinghai Lu <yinghai@kernel.org>, Greg Kroah-Hartman <gregkh@suse.de>, LKML <linux-kernel@vger.kernel.org>, Dave Hansen <dave@linux.vnet.ibm.com>, Suzuki Poulose <suzuki@linux.vne>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 12/05/2011 06:55 PM, Stefan Hajnoczi wrote:
-> On Mon, Dec 5, 2011 at 8:59 AM, Jason Wang<jasowang@redhat.com>  wrote:
->> +static int virtnet_set_fd(struct net_device *dev, u32 pfn)
->> +{
->> +       struct virtnet_info *vi = netdev_priv(dev);
->> +       struct virtio_device *vdev = vi->vdev;
->> +
->> +       if (virtio_has_feature(vdev, VIRTIO_NET_F_HOST_FD)) {
->> +               vdev->config->set(vdev,
->> +                                 offsetof(struct virtio_net_config_fd, addr),
->> +&pfn, sizeof(u32));
-> Please use the virtio model (i.e. virtqueues) instead of shared
-> memory.  Mapping a page breaks the virtio abstraction.
+On 12/06/2011 08:57 AM, Konrad Rzeszutek Wilk wrote:
+>> +static inline void add_stats(enum kvm_contention_stat var, int val)
+>
+> You probably want 'int val' to be 'u32 val' as that is the type
+> in contention_stats.
+>
 
-Using control virtqueue is more suitable but there's are also some problems:
-
-One problem is the interface,  if we use control virtqueue, we need a 
-interface between the backend and tap/macvtap to change the flow 
-mapping. But qemu and vhost_net only know about the file descriptor, 
-more informations or interfaces need to be exposed in order to let 
-ethtool or ioctl work.
-
-Another problem is the delay introduced by ctrl vq, as the ctrl vq would 
-be used in the critical path in guest and it use busy wait to get the 
-response, the delay is not neglectable.
-
-> Stefan
-> --
-> To unsubscribe from this list: send the line "unsubscribe netdev" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Yes. Thanks for pointing, as its cumulative.   It is indeed u32 in #else 
+:).I 'll change that.
