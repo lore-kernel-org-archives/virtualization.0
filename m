@@ -1,8 +1,8 @@
 From: Amit Shah <amit.shah@redhat.com>
-Subject: [PATCH v4 09/12] virtio: net: Add freeze,
-	restore handlers to support S4
-Date: Wed,  7 Dec 2011 01:18:47 +0530
-Message-ID: <712d8d78cf730161181562ed44d4fe08a370b85e.1323199985.git.amit.shah@redhat.com>
+Subject: [PATCH v4 10/12] virtio: balloon: ensure thread exists before
+	stopping it
+Date: Wed,  7 Dec 2011 01:18:48 +0530
+Message-ID: <e85c8b64de7619522a565d8c38e5b2c8c8ed1412.1323199985.git.amit.shah@redhat.com>
 References: <cover.1323199985.git.amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -24,71 +24,32 @@ To: Virtualization List <virtualization@lists.linux-foundation.org>
 Cc: Amit Shah <amit.shah@redhat.com>, linux-kernel@vger.kernel.org, levinsasha928@gmail.com, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Remove all the vqs, disable napi and detach from the netdev on
-hibernation.
+The vballoon thread could have exited earlier and not re-started.
+Ensure we don't try to stop a non-existent thread.
 
-Re-create vqs after restoring from a hibernated image, re-enable napi
-and re-attach the netdev.  This keeps networking working across
-hibernation.
-
-Signed-off-by: Amit Shah <amit.shah@redhat.com>
+This can happen if the balloon driver goes into S4 state and the thread
+exits (this code lands in the next patch).  If, however, on restore, the
+vqs fail to initialise, the vballoon thread will not be re-created.
+Upon a subsequent module removal in that state, we will end up
+dereferencing an invalid pointer without this patch.
 ---
- drivers/net/virtio_net.c |   36 ++++++++++++++++++++++++++++++++++++
- 1 files changed, 36 insertions(+), 0 deletions(-)
+ drivers/virtio/virtio_balloon.c |    4 +++-
+ 1 files changed, 3 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 697a0fc..1378f3c 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -1151,6 +1151,38 @@ static void __devexit virtnet_remove(struct virtio_device *vdev)
- 	free_netdev(vi->dev);
- }
+diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+index 94fd738..22f7c69 100644
+--- a/drivers/virtio/virtio_balloon.c
++++ b/drivers/virtio/virtio_balloon.c
+@@ -338,7 +338,9 @@ static void __devexit virtballoon_remove(struct virtio_device *vdev)
+ {
+ 	struct virtio_balloon *vb = vdev->priv;
  
-+#ifdef CONFIG_PM
-+static int virtnet_freeze(struct virtio_device *vdev)
-+{
-+	struct virtnet_info *vi = vdev->priv;
-+
-+	netif_device_detach(vi->dev);
-+	if (netif_running(vi->dev))
-+		napi_disable(&vi->napi);
-+
-+	remove_vq_common(vi);
-+
-+	return 0;
-+}
-+
-+static int virtnet_restore(struct virtio_device *vdev)
-+{
-+	struct virtnet_info *vi = vdev->priv;
-+	int err;
-+
-+	err = init_vqs(vi);
-+	if (err)
-+		return err;
-+
-+	try_fill_recv(vi, GFP_KERNEL);
-+	if (netif_running(vi->dev))
-+		virtnet_napi_enable(vi);
-+
-+	netif_device_attach(vi->dev);
-+	return 0;
-+}
-+#endif
-+
- static struct virtio_device_id id_table[] = {
- 	{ VIRTIO_ID_NET, VIRTIO_DEV_ANY_ID },
- 	{ 0 },
-@@ -1175,6 +1207,10 @@ static struct virtio_driver virtio_net_driver = {
- 	.probe =	virtnet_probe,
- 	.remove =	__devexit_p(virtnet_remove),
- 	.config_changed = virtnet_config_changed,
-+#ifdef CONFIG_PM
-+	.freeze =	virtnet_freeze,
-+	.restore =	virtnet_restore,
-+#endif
- };
+-	kthread_stop(vb->thread);
++	/* Thread may not have started on restore after a suspend */
++	if (vb->thread)
++		kthread_stop(vb->thread);
  
- static int __init init(void)
+ 	/* There might be pages left in the balloon: free them. */
+ 	while (vb->num_pages)
 -- 
 1.7.7.3
