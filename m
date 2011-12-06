@@ -1,8 +1,8 @@
 From: Amit Shah <amit.shah@redhat.com>
-Subject: [PATCH v4 06/12] virtio: blk: Add freeze,
-	restore handlers to support S4
-Date: Wed,  7 Dec 2011 01:18:44 +0530
-Message-ID: <e66570ecae66535fbb5c060f6572b94e8c9db85e.1323199985.git.amit.shah@redhat.com>
+Subject: [PATCH v4 07/12] virtio: net: Move out vq initialization into
+	separate function
+Date: Wed,  7 Dec 2011 01:18:45 +0530
+Message-ID: <f736ccc9af63c270bf180c49b66a5cf9b87d39e5.1323199985.git.amit.shah@redhat.com>
 References: <cover.1323199985.git.amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -24,71 +24,85 @@ To: Virtualization List <virtualization@lists.linux-foundation.org>
 Cc: Amit Shah <amit.shah@redhat.com>, linux-kernel@vger.kernel.org, levinsasha928@gmail.com, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Delete the vq and flush any pending requests from the block queue on the
-freeze callback to prepare for hibernation.
-
-Re-create the vq in the restore callback to resume normal function.
+The probe and PM restore functions will share this code.
 
 Signed-off-by: Amit Shah <amit.shah@redhat.com>
 ---
- drivers/block/virtio_blk.c |   38 ++++++++++++++++++++++++++++++++++++++
- 1 files changed, 38 insertions(+), 0 deletions(-)
+ drivers/net/virtio_net.c |   47 +++++++++++++++++++++++++++------------------
+ 1 files changed, 28 insertions(+), 19 deletions(-)
 
-diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-index 467f218..a9147a6 100644
---- a/drivers/block/virtio_blk.c
-+++ b/drivers/block/virtio_blk.c
-@@ -568,6 +568,40 @@ static void __devexit virtblk_remove(struct virtio_device *vdev)
- 	ida_simple_remove(&vd_index_ida, index);
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 6ee8410..6baa563 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -954,15 +954,38 @@ static void virtnet_config_changed(struct virtio_device *vdev)
+ 	virtnet_update_status(vi);
  }
  
-+#ifdef CONFIG_PM
-+static int virtblk_freeze(struct virtio_device *vdev)
++static int init_vqs(struct virtnet_info *vi)
 +{
-+	struct virtio_blk *vblk = vdev->priv;
++	struct virtqueue *vqs[3];
++	vq_callback_t *callbacks[] = { skb_recv_done, skb_xmit_done, NULL};
++	const char *names[] = { "input", "output", "control" };
++	int nvqs, err;
 +
-+	/* Ensure we don't receive any more interrupts */
-+	vdev->config->reset(vdev);
++	/* We expect two virtqueues, receive then send,
++	 * and optionally control. */
++	nvqs = virtio_has_feature(vi->vdev, VIRTIO_NET_F_CTRL_VQ) ? 3 : 2;
 +
-+	flush_work(&vblk->config_work);
++	err = vi->vdev->config->find_vqs(vi->vdev, nvqs, vqs, callbacks, names);
++	if (err)
++		return err;
 +
-+	spin_lock_irq(vblk->disk->queue->queue_lock);
-+	blk_stop_queue(vblk->disk->queue);
-+	spin_unlock_irq(vblk->disk->queue->queue_lock);
-+	blk_sync_queue(vblk->disk->queue);
++	vi->rvq = vqs[0];
++	vi->svq = vqs[1];
 +
-+	vdev->config->del_vqs(vdev);
++	if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_CTRL_VQ)) {
++		vi->cvq = vqs[2];
++
++		if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_CTRL_VLAN))
++			vi->dev->features |= NETIF_F_HW_VLAN_FILTER;
++	}
 +	return 0;
 +}
 +
-+static int virtblk_restore(struct virtio_device *vdev)
-+{
-+	struct virtio_blk *vblk = vdev->priv;
-+	int ret;
-+
-+	ret = init_vq(vdev->priv);
-+	if (!ret) {
-+		spin_lock_irq(vblk->disk->queue->queue_lock);
-+		blk_start_queue(vblk->disk->queue);
-+		spin_unlock_irq(vblk->disk->queue->queue_lock);
-+	}
-+	return ret;
-+}
-+#endif
-+
- static const struct virtio_device_id id_table[] = {
- 	{ VIRTIO_ID_BLOCK, VIRTIO_DEV_ANY_ID },
- 	{ 0 },
-@@ -593,6 +627,10 @@ static struct virtio_driver __refdata virtio_blk = {
- 	.probe			= virtblk_probe,
- 	.remove			= __devexit_p(virtblk_remove),
- 	.config_changed		= virtblk_config_changed,
-+#ifdef CONFIG_PM
-+	.freeze			= virtblk_freeze,
-+	.restore		= virtblk_restore,
-+#endif
- };
+ static int virtnet_probe(struct virtio_device *vdev)
+ {
+ 	int err;
+ 	struct net_device *dev;
+ 	struct virtnet_info *vi;
+-	struct virtqueue *vqs[3];
+-	vq_callback_t *callbacks[] = { skb_recv_done, skb_xmit_done, NULL};
+-	const char *names[] = { "input", "output", "control" };
+-	int nvqs;
  
- static int __init init(void)
+ 	/* Allocate ourselves a network device with room for our info */
+ 	dev = alloc_etherdev(sizeof(struct virtnet_info));
+@@ -1034,24 +1057,10 @@ static int virtnet_probe(struct virtio_device *vdev)
+ 	if (virtio_has_feature(vdev, VIRTIO_NET_F_MRG_RXBUF))
+ 		vi->mergeable_rx_bufs = true;
+ 
+-	/* We expect two virtqueues, receive then send,
+-	 * and optionally control. */
+-	nvqs = virtio_has_feature(vi->vdev, VIRTIO_NET_F_CTRL_VQ) ? 3 : 2;
+-
+-	err = vdev->config->find_vqs(vdev, nvqs, vqs, callbacks, names);
++	err = init_vqs(vi);
+ 	if (err)
+ 		goto free_stats;
+ 
+-	vi->rvq = vqs[0];
+-	vi->svq = vqs[1];
+-
+-	if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_CTRL_VQ)) {
+-		vi->cvq = vqs[2];
+-
+-		if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_CTRL_VLAN))
+-			dev->features |= NETIF_F_HW_VLAN_FILTER;
+-	}
+-
+ 	err = register_netdev(dev);
+ 	if (err) {
+ 		pr_debug("virtio_net: registering device failed\n");
 -- 
 1.7.7.3
