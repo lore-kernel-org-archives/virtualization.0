@@ -1,20 +1,15 @@
-From: Stefan Hajnoczi <stefanha@gmail.com>
-Subject: Re: [net-next RFC PATCH 5/5] virtio-net: flow director support
-Date: Wed, 7 Dec 2011 09:08:57 +0000
-Message-ID: <CAJSP0QUGWCf5WHEeCXzqZeF2CvpycxrGo-uPSfpWD1rWD3zeSg@mail.gmail.com>
-References: <20111205085603.6116.65101.stgit@dhcp-8-146.nay.redhat.com>
-	<20111205085925.6116.94352.stgit@dhcp-8-146.nay.redhat.com>
-	<CAJSP0QXfHC8j2Kk9x6wyBMubo2=YvpaLAShJtwMWA2mtro6UhA@mail.gmail.com>
-	<4EDDB71F.9080908@redhat.com>
-	<CAJSP0QX5dDkpX+cRcQut2mb6K91zeqGLRrZBGAWT_r2p685gaQ@mail.gmail.com>
-	<4EDDECA9.8060808@redhat.com>
-	<CAJSP0QXsLwvH5xYj6h0E_V4VLg6DuUc-GKXu9esEYzL2MFcFGw@mail.gmail.com>
-	<4EDED785.80804@redhat.com>
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+Subject: Re: [PATCH v4 01/12] virtio: pci: switch to new PM API
+Date: Wed, 7 Dec 2011 10:48:24 +0100
+Message-ID: <201112071048.24566.rjw@sisk.pl>
+References: <cover.1323199985.git.amit.shah@redhat.com>
+	<201112062312.36498.rjw@sisk.pl>
+	<20111207035703.GA4651@amit-x200.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4EDED785.80804@redhat.com>
+In-Reply-To: <20111207035703.GA4651@amit-x200.redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,65 +19,74 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: krkumar2@in.ibm.com, kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, levinsasha928@gmail.com, bhutchings@solarflare.com
+To: Amit Shah <amit.shah@redhat.com>
+Cc: linux-kernel@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, levinsasha928@gmail.com, Virtualization List <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Dec 7, 2011 at 3:03 AM, Jason Wang <jasowang@redhat.com> wrote:
-> On 12/06/2011 09:15 PM, Stefan Hajnoczi wrote:
->>
->> On Tue, Dec 6, 2011 at 10:21 AM, Jason Wang<jasowang@redhat.com> =A0wrot=
-e:
->>>
->>> On 12/06/2011 05:18 PM, Stefan Hajnoczi wrote:
->>>>
->>>> On Tue, Dec 6, 2011 at 6:33 AM, Jason Wang<jasowang@redhat.com>
->>>> =A0wrote:
->>>>>
->>>>> On 12/05/2011 06:55 PM, Stefan Hajnoczi wrote:
->>>>>>
->>>>>> On Mon, Dec 5, 2011 at 8:59 AM, Jason Wang<jasowang@redhat.com>
->>>>>> =A0wrote:
->>>>
->>>> The vcpus are just threads and may not be bound to physical CPUs, so
->>>> what is the big picture here? =A0Is the guest even in the position to
->>>> set the best queue mappings today?
->>>
->>>
->>> Not sure it could publish the best mapping but the idea is to make sure
->>> the
->>> packets of a flow were handled by the same guest vcpu and may be the sa=
-me
->>> vhost thread in order to eliminate the packet reordering and lock
->>> contention. But this assumption does not take the bouncing of vhost or
->>> vcpu
->>> threads which would also affect the result.
->>
->> Okay, this is why I'd like to know what the big picture here is. =A0What
->> solution are you proposing? =A0How are we going to have everything from
->> guest application, guest kernel, host threads, and host NIC driver
->> play along so we get the right steering up the entire stack. =A0I think
->> there needs to be an answer to that before changing virtio-net to add
->> any steering mechanism.
->
->
-> Consider the complexity of the host nic each with their own steering
-> features, =A0this series make the first step with minimal effort to try t=
-o let
-> guest driver and host tap/macvtap co-operate like what physical nic does.
-> There may be other method, but performance numbers is also needed to give
-> the answer.
+On Wednesday, December 07, 2011, Amit Shah wrote:
+> Hi Rafael,
+> 
+> On (Tue) 06 Dec 2011 [23:12:36], Rafael J. Wysocki wrote:
+> > Hi,
+> > 
+> > On Tuesday, December 06, 2011, Amit Shah wrote:
+> > > The older PM API doesn't have a way to get notifications on hibernate
+> > > events.  Switch to the newer one that gives us those notifications.
+> > > 
+> > > Signed-off-by: Amit Shah <amit.shah@redhat.com>
+> > > ---
+> > >  drivers/virtio/virtio_pci.c |   16 ++++++++++++----
+> > >  1 files changed, 12 insertions(+), 4 deletions(-)
+> > > 
+> > > diff --git a/drivers/virtio/virtio_pci.c b/drivers/virtio/virtio_pci.c
+> > > index 03d1984..23e1532 100644
+> > > --- a/drivers/virtio/virtio_pci.c
+> > > +++ b/drivers/virtio/virtio_pci.c
+> > > @@ -708,19 +708,28 @@ static void __devexit virtio_pci_remove(struct pci_dev *pci_dev)
+> > >  }
+> > >  
+> > >  #ifdef CONFIG_PM
+> > > -static int virtio_pci_suspend(struct pci_dev *pci_dev, pm_message_t state)
+> > > +static int virtio_pci_suspend(struct device *dev)
+> > >  {
+> > > +	struct pci_dev *pci_dev = to_pci_dev(dev);
+> > > +
+> > >  	pci_save_state(pci_dev);
+> > >  	pci_set_power_state(pci_dev, PCI_D3hot);
+> > >  	return 0;
+> > >  }
+> > >  
+> > > -static int virtio_pci_resume(struct pci_dev *pci_dev)
+> > > +static int virtio_pci_resume(struct device *dev)
+> > >  {
+> > > +	struct pci_dev *pci_dev = to_pci_dev(dev);
+> > > +
+> > >  	pci_restore_state(pci_dev);
+> > >  	pci_set_power_state(pci_dev, PCI_D0);
+> > >  	return 0;
+> > >  }
+> > > +
+> > > +static const struct dev_pm_ops virtio_pci_pm_ops = {
+> > > +	.suspend = virtio_pci_suspend,
+> > > +	.resume  = virtio_pci_resume,
+> > > +};
+> > >  #endif
+> > 
+> > You seem to have forgotten about hibernation callbacks.
+> 
+> This patch just moves to the new API keeping everything else the same.
+> The hibernation callbacks come in patch 2.
 
-I agree that performance results for this need to be shown.
+OK, but then hibernation will be broken between the two patches, so perhaps
+it's better to merge them into one?
 
-My original point is really that it's not a good idea to take
-individual steps without a good big picture because this will change
-the virtio-net device specification.  If this turns out to be a dead
-end then hosts will need to continue to support the interface forever
-(legacy guests could still try to use it).  So please first explain
-what the full stack picture is going to look like and how you think it
-will lead to better performance.  You don't need to have all the code
-or evidence, but just enough explanation so we see where this is all
-going.
+> >  Please use
+> > one the macros defined in include/linux/pm.h if you want to use the same
+> > callback routines for hibernation.
+> 
+> No, they're different functions, so I don't use the maros.
 
-Stefan
+OK
+
+Thanks,
+Rafael
