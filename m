@@ -1,18 +1,17 @@
-From: Avi Kivity <avi@redhat.com>
-Subject: Re: [Xen-devel] [PATCH RFC V3 2/4] kvm hypervisor : Add a hypercall
-	to KVM hypervisor to support pv-ticketlocks
-Date: Wed, 07 Dec 2011 12:53:54 +0200
-Message-ID: <4EDF45C2.9060108@redhat.com>
-References: <20111130085921.23386.89708.sendpatchset@oc5400248562.ibm.com>
-	<20111130085959.23386.69166.sendpatchset@oc5400248562.ibm.com>
-	<4ED760F1.6080804@redhat.com> <4ED7DA85.5080504@linux.vnet.ibm.com>
-	<4EDBB6C2.9050303@linux.vnet.ibm.com>
-	<20111206164947.GA13184@andromeda.dapyr.net>
+From: Amit Shah <amit.shah@redhat.com>
+Subject: Re: [PATCH v4 06/12] virtio: blk: Add freeze, restore handlers to
+	support S4
+Date: Wed, 7 Dec 2011 16:26:47 +0530
+Message-ID: <20111207105647.GI4651@amit-x200.redhat.com>
+References: <cover.1323199985.git.amit.shah@redhat.com>
+	<e66570ecae66535fbb5c060f6572b94e8c9db85e.1323199985.git.amit.shah@redhat.com>
+	<20111207103701.GD8326@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20111206164947.GA13184@andromeda.dapyr.net>
+Content-Disposition: inline
+In-Reply-To: <20111207103701.GD8326@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,28 +21,70 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Konrad Rzeszutek Wilk <konrad@darnok.org>
-Cc: Raghavendra K T <raghukt@linux.vnet.ibm.com>, KVM <kvm@vger.kernel.org>, Peter Zijlstra <peterz@infradead.org>, Jeremy Fitzhardinge <jeremy@goop.org>, Virtualization <virtualization@lists.linux-foundation.org>, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, "H. Peter Anvin" <hpa@zytor.com>, Dave Hansen <dave@linux.vnet.ibm.com>, Xen <xen-devel@lists.xensource.com>, Dave Jiang <dave.jiang@intel.com>, x86@kernel.org, Ingo Molnar <mingo@redhat.com>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, Sasha Levin <levinsasha928@gmail.com>, Sedat Dilek <sedat.dilek@gmail.com>, Thomas Gleixner <tglx@linutronix.de>, Yinghai Lu <yinghai@kernel.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Greg Kroah-Hartman <gregkh@suse.de>, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, LKML <linux-kernel@vger.kernel.org>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: linux-kernel@vger.kernel.org, levinsasha928@gmail.com, Virtualization List <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 12/06/2011 06:49 PM, Konrad Rzeszutek Wilk wrote:
-> On Sun, Dec 04, 2011 at 11:36:58PM +0530, Raghavendra K T wrote:
-> > On 12/02/2011 01:20 AM, Raghavendra K T wrote:
-> > >>Have you tested it on AMD machines? There are some differences in the
-> > >>hypercall infrastructure there.
-> > >
-> > >Yes. 'll test on AMD machine and update on that.
-> > >
+On (Wed) 07 Dec 2011 [12:37:02], Michael S. Tsirkin wrote:
+> On Wed, Dec 07, 2011 at 01:18:44AM +0530, Amit Shah wrote:
+> > Delete the vq and flush any pending requests from the block queue on the
+> > freeze callback to prepare for hibernation.
 > > 
-> > I tested the code on 64 bit Dual-Core AMD Opteron machine, and it is 
-> > working.
->
-> I am not that familiar with how KVM does migration, but do you need any
-> special flags in QEMU to when migrating a KVM-pv-spinlock enabled guest
-> to another machine?
+> > Re-create the vq in the restore callback to resume normal function.
+> > 
+> > Signed-off-by: Amit Shah <amit.shah@redhat.com>
+> > ---
+> >  drivers/block/virtio_blk.c |   38 ++++++++++++++++++++++++++++++++++++++
+> >  1 files changed, 38 insertions(+), 0 deletions(-)
+> > 
+> > diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+> > index 467f218..a9147a6 100644
+> > --- a/drivers/block/virtio_blk.c
+> > +++ b/drivers/block/virtio_blk.c
+> > @@ -568,6 +568,40 @@ static void __devexit virtblk_remove(struct virtio_device *vdev)
+> >  	ida_simple_remove(&vd_index_ida, index);
+> >  }
+> >  
+> > +#ifdef CONFIG_PM
+> > +static int virtblk_freeze(struct virtio_device *vdev)
+> > +{
+> > +	struct virtio_blk *vblk = vdev->priv;
+> > +
+> > +	/* Ensure we don't receive any more interrupts */
+> > +	vdev->config->reset(vdev);
+> > +
+> > +	flush_work(&vblk->config_work);
+> 
+> It bothers me that config work can be running
+> after reset here. If it does, it will not get sane
+> values from reading config.
 
-I don't think so.  Sleeping is an ordinary HLT state which we already
-migrate.  There are no further states.
+Why so?
 
--- 
-error compiling committee.c: too many arguments to function
+The reset only ensures the host doesn't write anything more, isn't it?
+Why would the values be affected?
+
+> Also, can there be stuff in the reqs list?
+> If yes is this a problem?
+
+Should be all cleared by the two commands below.  At least that's my
+expectation.  If not, let me know!
+
+> > +	spin_lock_irq(vblk->disk->queue->queue_lock);
+> > +	blk_stop_queue(vblk->disk->queue);
+> > +	spin_unlock_irq(vblk->disk->queue->queue_lock);
+> > +	blk_sync_queue(vblk->disk->queue);
+> > +
+> > +	vdev->config->del_vqs(vdev);
+> > +	return 0;
+> > +}
+> > +
+> 
+> Thinking about it, looks like there's a bug in
+> virtblk_remove: if we get a config change after
+> flush_work we schedule another work.
+> That's a problem for sure as structure is removed.
+
+Yep, it is a potential issue.
+
+		Amit
