@@ -1,18 +1,22 @@
 From: Avi Kivity <avi@redhat.com>
-Subject: Re: [PATCH RFC V3 2/4] kvm hypervisor : Add a hypercall to KVM
-	hypervisor to support pv-ticketlocks
-Date: Wed, 07 Dec 2011 14:47:05 +0200
-Message-ID: <4EDF6049.2030204@redhat.com>
-References: <20111130085921.23386.89708.sendpatchset@oc5400248562.ibm.com>
-	<20111130085959.23386.69166.sendpatchset@oc5400248562.ibm.com>
-	<20111207104849.GA24849@amt.cnet>
-	<4EDF5413.1030107@linux.vnet.ibm.com>
-	<20111207123330.GA32212@amt.cnet>
+Subject: Re: [PATCH] virtio-ring: Use threshold for switching to indirect
+	descriptors
+Date: Wed, 07 Dec 2011 15:37:48 +0200
+Message-ID: <4EDF6C2C.3050604@redhat.com>
+References: <1322669511.3985.8.camel@lappy> <87wrahrp0u.fsf@rustcorp.com.au>
+	<20111201075847.GA5479@redhat.com> <1322726977.3259.3.camel@lappy>
+	<20111201102640.GB8822@redhat.com> <87zkfbre9x.fsf@rustcorp.com.au>
+	<1322913028.3782.4.camel@lappy> <4EDB5EF0.2010909@redhat.com>
+	<20111204120132.GB18758@redhat.com> <4EDB624A.3030403@redhat.com>
+	<20111204151148.GA21851@redhat.com>
+	<4EDB8EEB.4070309@redhat.com> <87bornri92.fsf@rustcorp.com.au>
+	<4EDC9476.3000301@redhat.com> <87pqg2p9t8.fsf@rustcorp.com.au>
+	<4EDDE73D.1080209@redhat.com> <87pqg1kiuu.fsf@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20111207123330.GA32212@amt.cnet>
+In-Reply-To: <87pqg1kiuu.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,28 +26,72 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Marcelo Tosatti <mtosatti@redhat.com>
-Cc: Raghavendra K T <raghukt@linux.vnet.ibm.com>, x86@kernel.org, Peter Zijlstra <peterz@infradead.org>, Virtualization <virtualization@lists.linux-foundation.org>, "H. Peter Anvin" <hpa@zytor.com>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Xen <xen-devel@lists.xensource.com>, Dave Jiang <dave.jiang@intel.com>, KVM <kvm@vger.kernel.org>, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, Ingo Molnar <mingo@redhat.com>, Rik van Riel <riel@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, Sasha Levin <levinsasha928@gmail.com>, Sedat Dilek <sedat.dilek@gmail.com>, Thomas Gleixner <tglx@linutronix.de>, Yinghai Lu <yinghai@kernel.org>, Greg Kroah-Hartman <gregkh@suse.de>, LKML <linux-kernel@vger.kernel.org>, Dave Hansen <dave@linux.vnet.ibm.com>, Suzuk
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: markmc@redhat.com, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Sasha Levin <levinsasha928@gmail.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 12/07/2011 02:33 PM, Marcelo Tosatti wrote:
+On 12/06/2011 02:03 PM, Rusty Russell wrote:
+> On Tue, 06 Dec 2011 11:58:21 +0200, Avi Kivity <avi@redhat.com> wrote:
+> > On 12/06/2011 07:07 AM, Rusty Russell wrote:
+> > > Yes, but the hypervisor/trusted party would simply have to do the copy;
+> > > the rings themselves would be shared A would say "copy this to/from B's
+> > > ring entry N" and you know that A can't have changed B's entry.
 > > 
-> > Also Avi pointed that, logically kvm_arch_vcpu_ioctl_set_mpstate should
-> > be called only in vcpu thread, so after further debugging, I noticed
-> > that,  setting vcpuN->mp_state = KVM_MP_STATE_RUNNABLE; is not
-> > necessary.
-> > I 'll remove that in the next patch. Thanks for pointing.
+> > Sorry, I don't follow.  How can the rings be shared?  If A puts a gpa in
+> > A's address space into the ring, there's no way B can do anything with
+> > it, it's an opaque number.  Xen solves this with an extra layer of
+> > indirection (grant table handles) that cost extra hypercalls to map or
+> > copy.
 >
-> In fact you don't need kvm_arch_vcpu_ioctl_set_mpstate either, only the
-> new "kicked" flag.
+> It's not symmetric.  B can see the desc and avail pages R/O, and the
+> used page R/W.  It needs to ask the something to copy in/out of
+> descriptors, though, because they're an opaque number, and it doesn't
+> have access.  ie. the existence of the descriptor in the ring *implies*
+> a grant.
+>
+> Perhaps this could be generalized further into a "connect these two
+> rings", but I'm not sure.  Descriptors with both read and write parts
+> are tricky.
 
-If we have a kicked flag, it becomes necessary to live migrate it.
+Okay, I was using a wrong mental model of how this works.  B must be
+aware of the translation from A's address space into B.  Both qemu and
+the kernel can do this on their own, but if B is another guest, then it
+cannot do this except by calling H.
 
-Maybe we can change KVM_GET_MP_STATE to fold the kicked flag into the mp
-state (converting HALTED into RUNNABLE).
+vhost-copy cannot work fully transparently, because you need some memory
+to copy into.  Maybe we can have a pci device with a large BAR that
+contains buffers for copying, and also a translation from A addresses
+into B addresses.  It would work something like this:
 
-Also I think we can keep the kicked flag in vcpu->requests, no need for
-new storage.
+  A prepares a request with both out and in buffers
+  vhost-copy allocates memory in B's virtio-copy BAR, copies (using a
+DMA engine) the out buffers into it, and rewrites the out descriptors to
+contain B addresses
+  B services the request, and updates the in addresses in the
+descriptors to point at B memory
+  vhost-copy copies (using a DMA engine) the in buffers into A memory
+
+> > > I'm just not sure how the host would even know to hint.
+> > 
+> > For JBOD storage, a good rule of thumb is (number of spindles) x 3. 
+> > With less, you might leave an idle spindle; with more, you're just
+> > adding latency.  This assumes you're using indirects so ring entry ==
+> > request.  The picture is muddier with massive battery-backed RAID
+> > controllers or flash.
+> > 
+> > For networking, you want (ring size) * min(expected packet size, page
+> > size) / (link bandwidth) to be something that doesn't get the
+> > bufferbloat people after your blood.
+>
+> OK, so while neither side knows, the host knows slightly more.
+>
+> Now I think about it, from a spec POV, saying it's a "hint" is useless,
+> as it doesn't tell the driver what to do with it.  I'll say it's a
+> maximum, which keeps it simple.
+>
+
+Those rules of thumb always have exceptions, I'd say it's the default
+that the guest can override.
 
 -- 
 error compiling committee.c: too many arguments to function
