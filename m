@@ -1,16 +1,16 @@
 From: Amit Shah <amit.shah@redhat.com>
-Subject: Re: [PATCH v4 01/12] virtio: pci: switch to new PM API
-Date: Wed, 7 Dec 2011 09:27:03 +0530
-Message-ID: <20111207035703.GA4651@amit-x200.redhat.com>
+Subject: Re: [PATCH v4 12/12] virtio: balloon: Add freeze, restore handlers
+	to support S4
+Date: Wed, 7 Dec 2011 10:20:48 +0530
+Message-ID: <20111207045048.GA9371@amit-x200.redhat.com>
 References: <cover.1323199985.git.amit.shah@redhat.com>
-	<f34bcde3d5103640176cf6a2cf8c534417771f08.1323199985.git.amit.shah@redhat.com>
-	<201112062312.36498.rjw@sisk.pl>
+	<5deccc36afa59032f0e3b10a653773bad511f303.1323199985.git.amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <201112062312.36498.rjw@sisk.pl>
+In-Reply-To: <5deccc36afa59032f0e3b10a653773bad511f303.1323199985.git.amit.shah@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,69 +20,25 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: linux-kernel@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, levinsasha928@gmail.com, Virtualization List <virtualization@lists.linux-foundation.org>
+To: Virtualization List <virtualization@lists.linux-foundation.org>
+Cc: linux-kernel@vger.kernel.org, levinsasha928@gmail.com, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Rafael,
+On (Wed) 07 Dec 2011 [01:18:50], Amit Shah wrote:
 
-On (Tue) 06 Dec 2011 [23:12:36], Rafael J. Wysocki wrote:
-> Hi,
-> 
-> On Tuesday, December 06, 2011, Amit Shah wrote:
-> > The older PM API doesn't have a way to get notifications on hibernate
-> > events.  Switch to the newer one that gives us those notifications.
-> > 
-> > Signed-off-by: Amit Shah <amit.shah@redhat.com>
-> > ---
-> >  drivers/virtio/virtio_pci.c |   16 ++++++++++++----
-> >  1 files changed, 12 insertions(+), 4 deletions(-)
-> > 
-> > diff --git a/drivers/virtio/virtio_pci.c b/drivers/virtio/virtio_pci.c
-> > index 03d1984..23e1532 100644
-> > --- a/drivers/virtio/virtio_pci.c
-> > +++ b/drivers/virtio/virtio_pci.c
-> > @@ -708,19 +708,28 @@ static void __devexit virtio_pci_remove(struct pci_dev *pci_dev)
-> >  }
-> >  
-> >  #ifdef CONFIG_PM
-> > -static int virtio_pci_suspend(struct pci_dev *pci_dev, pm_message_t state)
-> > +static int virtio_pci_suspend(struct device *dev)
-> >  {
-> > +	struct pci_dev *pci_dev = to_pci_dev(dev);
-> > +
-> >  	pci_save_state(pci_dev);
-> >  	pci_set_power_state(pci_dev, PCI_D3hot);
-> >  	return 0;
-> >  }
-> >  
-> > -static int virtio_pci_resume(struct pci_dev *pci_dev)
-> > +static int virtio_pci_resume(struct device *dev)
-> >  {
-> > +	struct pci_dev *pci_dev = to_pci_dev(dev);
-> > +
-> >  	pci_restore_state(pci_dev);
-> >  	pci_set_power_state(pci_dev, PCI_D0);
-> >  	return 0;
-> >  }
-> > +
-> > +static const struct dev_pm_ops virtio_pci_pm_ops = {
-> > +	.suspend = virtio_pci_suspend,
-> > +	.resume  = virtio_pci_resume,
-> > +};
-> >  #endif
-> 
-> You seem to have forgotten about hibernation callbacks.
+[snip]
 
-This patch just moves to the new API keeping everything else the same.
-The hibernation callbacks come in patch 2.
+> Now to not race with a host issuing ballooning requests while we are in
+> the process of freezing, we just exit from the vballoon kthread when the
+> processes are asked to freeze.  Upon thaw and restore, we re-start the
+> thread.
 
->  Please use
-> one the macros defined in include/linux/pm.h if you want to use the same
-> callback routines for hibernation.
+Actually this isn't necessary.  I over-zealously killed the thread
+when it's not really necessary: the thread is frozen before calling
+the freeze() callback and is thawed only after the restore() or thaw()
+callbacks are done, so we're exactly in the same state with or without
+keeping the kthread around (just that the PID of the kthread will
+change).  So I'll back out this change for the next revision.
 
-No, they're different functions, so I don't use the maros.
-
-Thanks,
 
 		Amit
