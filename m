@@ -1,18 +1,17 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v4 06/12] virtio: blk: Add freeze, restore handlers to
-	support S4
-Date: Wed, 7 Dec 2011 17:58:53 +0200
-Message-ID: <20111207155853.GC23845@redhat.com>
-References: <cover.1323199985.git.amit.shah@redhat.com>
-	<e66570ecae66535fbb5c060f6572b94e8c9db85e.1323199985.git.amit.shah@redhat.com>
-	<20111207103701.GD8326@redhat.com>
-	<20111207105647.GI4651@amit-x200.redhat.com>
+Subject: Re: [PATCH] macvtap: Fix macvtap_get_queue to use rxhash first
+Date: Wed, 7 Dec 2011 18:10:02 +0200
+Message-ID: <20111207161001.GD23845@redhat.com>
+References: <OF86B15006.7F4BE3FB-ON65257953.00104C3E-65257953.0010EFCA@in.ibm.com>
+	<4ECF09D5.4010700@redhat.com>
+	<OF835A6FF5.7D752AD1-ON65257953.0016350C-65257953.00169AF4@in.ibm.com>
+	<20111125.013552.1613051198566054931.davem@davemloft.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20111207105647.GI4651@amit-x200.redhat.com>
+In-Reply-To: <20111125.013552.1613051198566054931.davem@davemloft.net>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,83 +21,40 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Amit Shah <amit.shah@redhat.com>
-Cc: linux-kernel@vger.kernel.org, levinsasha928@gmail.com, Virtualization List <virtualization@lists.linux-foundation.org>
+To: David Miller <davem@davemloft.net>
+Cc: krkumar2@in.ibm.com, arnd@arndb.de, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, levinsasha928@gmail.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Dec 07, 2011 at 04:26:47PM +0530, Amit Shah wrote:
-> On (Wed) 07 Dec 2011 [12:37:02], Michael S. Tsirkin wrote:
-> > On Wed, Dec 07, 2011 at 01:18:44AM +0530, Amit Shah wrote:
-> > > Delete the vq and flush any pending requests from the block queue on the
-> > > freeze callback to prepare for hibernation.
-> > > 
-> > > Re-create the vq in the restore callback to resume normal function.
-> > > 
-> > > Signed-off-by: Amit Shah <amit.shah@redhat.com>
-> > > ---
-> > >  drivers/block/virtio_blk.c |   38 ++++++++++++++++++++++++++++++++++++++
-> > >  1 files changed, 38 insertions(+), 0 deletions(-)
-> > > 
-> > > diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-> > > index 467f218..a9147a6 100644
-> > > --- a/drivers/block/virtio_blk.c
-> > > +++ b/drivers/block/virtio_blk.c
-> > > @@ -568,6 +568,40 @@ static void __devexit virtblk_remove(struct virtio_device *vdev)
-> > >  	ida_simple_remove(&vd_index_ida, index);
-> > >  }
-> > >  
-> > > +#ifdef CONFIG_PM
-> > > +static int virtblk_freeze(struct virtio_device *vdev)
-> > > +{
-> > > +	struct virtio_blk *vblk = vdev->priv;
-> > > +
-> > > +	/* Ensure we don't receive any more interrupts */
-> > > +	vdev->config->reset(vdev);
-> > > +
-> > > +	flush_work(&vblk->config_work);
+On Fri, Nov 25, 2011 at 01:35:52AM -0500, David Miller wrote:
+> From: Krishna Kumar2 <krkumar2@in.ibm.com>
+> Date: Fri, 25 Nov 2011 09:39:11 +0530
+> 
+> > Jason Wang <jasowang@redhat.com> wrote on 11/25/2011 08:51:57 AM:
+> >>
+> >> My description is not clear again :(
+> >> I mean the same vhost thead:
+> >>
+> >> vhost thread #0 transmits packets of flow A on processor M
+> >> ...
+> >> vhost thread #0 move to another process N and start to transmit packets
+> >> of flow A
 > > 
-> > It bothers me that config work can be running
-> > after reset here. If it does, it will not get sane
-> > values from reading config.
+> > Thanks for clarifying. Yes, binding vhosts to CPU's
+> > makes the incoming packet go to the same vhost each
+> > time. BTW, are you doing any binding and/or irqbalance
+> > when you run your tests? I am not running either at
+> > this time, but thought both might be useful.
 > 
-> Why so?
-> 
-> The reset only ensures the host doesn't write anything more, isn't it?
-> Why would the values be affected?
+> So are we going with this patch or are we saying that vhost binding
+> is a requirement?
 
-Generally, not only that. Reset also clears configuration to the
-reset value :) As since accesses are done byte
-by byte you might get a value that is different from
-*both* old and new one as a result.
+OK we didn't come to a conclusion so I would be inclined
+to merge this patch as is for 3.2, and revisit later.
+One question though: do these changes affect userspace
+in any way? For example, will this commit us to
+ensure that a single flow gets a unique hash even
+for strange configurations that transmit the same flow
+from multiple cpus?
 
-But that is a general comment, specifically for block,
-I don't know if there is a problem with this.
-
-Same for console.
-
-> > Also, can there be stuff in the reqs list?
-> > If yes is this a problem?
-> 
-> Should be all cleared by the two commands below.  At least that's my
-> expectation.  If not, let me know!
-> 
-> > > +	spin_lock_irq(vblk->disk->queue->queue_lock);
-> > > +	blk_stop_queue(vblk->disk->queue);
-> > > +	spin_unlock_irq(vblk->disk->queue->queue_lock);
-> > > +	blk_sync_queue(vblk->disk->queue);
-> > > +
-> > > +	vdev->config->del_vqs(vdev);
-> > > +	return 0;
-> > > +}
-> > > +
-> > 
-> > Thinking about it, looks like there's a bug in
-> > virtblk_remove: if we get a config change after
-> > flush_work we schedule another work.
-> > That's a problem for sure as structure is removed.
-> 
-> Yep, it is a potential issue.
-> 
-> 		Amit
-
-Sent a patch.
+-- 
+MST
