@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH RFC] virtio_net: fix refill related races
-Date: Wed, 7 Dec 2011 17:21:22 +0200
-Message-ID: <20111207152120.GA23417@redhat.com>
+Subject: [PATCH RFC] virtio_blk: fix config handler race
+Date: Wed, 7 Dec 2011 17:39:02 +0200
+Message-ID: <20111207153901.GA23820@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -17,169 +17,108 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Amit Shah <amit.shah@redhat.com>
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Fix theoretical races related to refill work:
-1. After napi is disabled by ndo_stop, refill work
-   can run and re-enable it.
-2. Refill can reschedule itself, if this happens
-   it can run after cancel_delayed_work_sync,
-   and will access device after it is destroyed.
+Fix a theoretical race related to config work
+handler: a config interrupt might happen
+after we flush config work but before we
+reset the device. It will then cause the
+config work to run during or after reset.
 
-As a solution, add flags to track napi state and
-to disable refill, and toggle them on start, stop
-and remove; check these flags on refill.
+Two problems with this:
+- if this runs after device is gone we will get use after free
+- access of config while reset is in progress is racy
+(as layout is changing).
 
-refill work structure and new fields aren't used
-on data path, so put them together near the end of
-struct virtnet_info.
+As a solution
+1. flush after reset when we know there will be no more interrupts
+2. add a flag to disable config access before reset
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
 
-RFC only since it's untested at this point.
-A bugfix so 3.2 material?
-Comments?
+RFC only as it's untested.
+Bugfix so 3.2 material? Comments?
 
+ drivers/block/virtio_blk.c |   22 +++++++++++++++++++++-
+ 1 files changed, 21 insertions(+), 1 deletions(-)
 
- drivers/net/virtio_net.c |   57 +++++++++++++++++++++++++++++++++++++---------
- 1 files changed, 46 insertions(+), 11 deletions(-)
-
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index f5b3f19..39eb24c 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -21,6 +21,7 @@
- #include <linux/etherdevice.h>
- #include <linux/ethtool.h>
+diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+index 4d0b70a..34633f3 100644
+--- a/drivers/block/virtio_blk.c
++++ b/drivers/block/virtio_blk.c
+@@ -4,6 +4,7 @@
+ #include <linux/blkdev.h>
+ #include <linux/hdreg.h>
  #include <linux/module.h>
 +#include <linux/mutex.h>
  #include <linux/virtio.h>
- #include <linux/virtio_net.h>
+ #include <linux/virtio_blk.h>
  #include <linux/scatterlist.h>
-@@ -68,15 +69,24 @@ struct virtnet_info {
- 	/* Active statistics */
- 	struct virtnet_stats __percpu *stats;
+@@ -36,6 +37,12 @@ struct virtio_blk
+ 	/* Process context for config space updates */
+ 	struct work_struct config_work;
  
--	/* Work struct for refilling if we run low on memory. */
--	struct delayed_work refill;
--
- 	/* Chain pages by the private ptr. */
- 	struct page *pages;
++	/* Lock for config space updates */
++	struct mutex config_lock;
++
++	/* enable config space updates */
++	bool config_enable;
++
+ 	/* What host tells us, plus 2 for header & tailer. */
+ 	unsigned int sg_elems;
  
- 	/* fragments + linear part + virtio header */
- 	struct scatterlist rx_sg[MAX_SKB_FRAGS + 2];
- 	struct scatterlist tx_sg[MAX_SKB_FRAGS + 2];
-+
-+	/* Work struct for refilling if we run low on memory. */
-+	struct delayed_work refill;
-+
-+	/* Set flag to allow delayed refill work, protected by a refill_lock. */
-+	bool refill_enable;
-+
-+	/* Whether napi is enabled, protected by a refill_lock. */
-+	bool napi_enable;
-+
-+	/* Lock to protect refill and napi enable/disable operations. */
-+	struct mutex refill_lock;
- };
+@@ -318,6 +325,10 @@ static void virtblk_config_changed_work(struct work_struct *work)
+ 	char cap_str_2[10], cap_str_10[10];
+ 	u64 capacity, size;
  
- struct skb_vnet_hdr {
-@@ -477,20 +487,35 @@ static void virtnet_napi_enable(struct virtnet_info *vi)
- 	}
++	mutex_lock(&vblk->config_lock);
++	if (!vblk->config_enable)
++		goto done;
++
+ 	/* Host must always specify the capacity. */
+ 	vdev->config->get(vdev, offsetof(struct virtio_blk_config, capacity),
+ 			  &capacity, sizeof(capacity));
+@@ -340,6 +351,8 @@ static void virtblk_config_changed_work(struct work_struct *work)
+ 		  cap_str_10, cap_str_2);
+ 
+ 	set_capacity(vblk->disk, capacity);
++done:
++	mutex_lock(&vblk->config_lock);
  }
  
-+static void virtnet_refill_enable(struct virtnet_info *vi, bool enable)
-+{
-+	mutex_lock(&vi->refill_lock);
-+	vi->refill_enable = enable;
-+	mutex_unlock(&vi->refill_lock);
-+}
-+
- static void refill_work(struct work_struct *work)
- {
- 	struct virtnet_info *vi;
- 	bool still_empty;
+ static void virtblk_config_changed(struct virtio_device *vdev)
+@@ -388,7 +401,9 @@ static int __devinit virtblk_probe(struct virtio_device *vdev)
+ 	vblk->vdev = vdev;
+ 	vblk->sg_elems = sg_elems;
+ 	sg_init_table(vblk->sg, vblk->sg_elems);
++	mutex_init(&vblk->config_lock);
+ 	INIT_WORK(&vblk->config_work, virtblk_config_changed_work);
++	vblk->config_enable = true;
  
- 	vi = container_of(work, struct virtnet_info, refill.work);
--	napi_disable(&vi->napi);
--	still_empty = !try_fill_recv(vi, GFP_KERNEL);
--	virtnet_napi_enable(vi);
+ 	/* We expect one virtqueue, for output. */
+ 	vblk->vq = virtio_find_single_vq(vdev, blk_done, "requests");
+@@ -542,7 +557,10 @@ static void __devexit virtblk_remove(struct virtio_device *vdev)
+ 	struct virtio_blk *vblk = vdev->priv;
+ 	int index = vblk->index;
  
--	/* In theory, this can happen: if we don't get any buffers in
--	 * we will *never* try to fill again. */
--	if (still_empty)
--		schedule_delayed_work(&vi->refill, HZ/2);
-+	mutex_lock(&vi->refill_lock);
-+	if (vi->refill_enable) {
-+		if (vi->napi_enable)
-+			napi_disable(&vi->napi);
-+		still_empty = !try_fill_recv(vi, GFP_KERNEL);
-+		if (vi->napi_enable)
-+			virtnet_napi_enable(vi);
-+
-+		/* In theory, this can happen: if we don't get any buffers in
-+		 * we will *never* try to fill again. */
-+		if (still_empty)
-+			schedule_delayed_work(&vi->refill, HZ/2);
-+
-+	}
-+	mutex_unlock(&vi->refill_lock);
- }
+-	flush_work(&vblk->config_work);
++	/* Prevent config work handler from accessing the device. */
++	mutex_lock(&vblk->config_lock);
++	vblk->config_enable = false;
++	mutex_unlock(&vblk->config_lock);
  
- static int virtnet_poll(struct napi_struct *napi, int budget)
-@@ -708,7 +733,10 @@ static int virtnet_open(struct net_device *dev)
- {
- 	struct virtnet_info *vi = netdev_priv(dev);
- 
-+	mutex_lock(&vi->refill_lock);
-+	vi->napi_enable = true;
- 	virtnet_napi_enable(vi);
-+	mutex_unlock(&vi->refill_lock);
- 	return 0;
- }
- 
-@@ -761,7 +789,10 @@ static int virtnet_close(struct net_device *dev)
- {
- 	struct virtnet_info *vi = netdev_priv(dev);
- 
-+	mutex_lock(&vi->refill_lock);
-+	vi->napi_enable = false;
- 	napi_disable(&vi->napi);
-+	mutex_unlock(&vi->refill_lock);
- 
- 	return 0;
- }
-@@ -1010,6 +1041,7 @@ static int virtnet_probe(struct virtio_device *vdev)
- 	if (vi->stats == NULL)
- 		goto free;
- 
-+	mutex_init(&vi->refill_lock);
- 	INIT_DELAYED_WORK(&vi->refill, refill_work);
- 	sg_init_table(vi->rx_sg, ARRAY_SIZE(vi->rx_sg));
- 	sg_init_table(vi->tx_sg, ARRAY_SIZE(vi->tx_sg));
-@@ -1047,6 +1079,8 @@ static int virtnet_probe(struct virtio_device *vdev)
- 		goto free_vqs;
- 	}
- 
-+	virtnet_refill_enable(vi, true);
-+
- 	/* Last of all, set up some receive buffers. */
- 	try_fill_recv(vi, GFP_KERNEL);
- 
-@@ -1107,10 +1141,11 @@ static void __devexit virtnet_remove(struct virtio_device *vdev)
- {
- 	struct virtnet_info *vi = vdev->priv;
- 
-+	virtnet_refill_enable(vi, false);
-+
+ 	/* Nothing should be pending. */
+ 	BUG_ON(!list_empty(&vblk->reqs));
+@@ -550,6 +568,8 @@ static void __devexit virtblk_remove(struct virtio_device *vdev)
  	/* Stop all the virtqueues. */
  	vdev->config->reset(vdev);
  
--
- 	unregister_netdev(vi->dev);
- 	cancel_delayed_work_sync(&vi->refill);
- 
++	flush_work(&vblk->config_work);
++
+ 	del_gendisk(vblk->disk);
+ 	blk_cleanup_queue(vblk->disk->queue);
+ 	put_disk(vblk->disk);
 -- 
 1.7.5.53.gc233e
