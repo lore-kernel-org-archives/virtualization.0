@@ -1,17 +1,20 @@
-From: Amit Shah <amit.shah@redhat.com>
-Subject: Re: [PATCH v4 04/12] virtio: console: Add freeze and restore
-	handlers to support S4
-Date: Wed, 7 Dec 2011 16:29:55 +0530
-Message-ID: <20111207105955.GJ4651@amit-x200.redhat.com>
-References: <cover.1323199985.git.amit.shah@redhat.com>
-	<9f09629340556ddac37135bc3aab233f1154f86a.1323199985.git.amit.shah@redhat.com>
-	<20111207104323.GE8326@redhat.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [net-next RFC PATCH 5/5] virtio-net: flow director support
+Date: Wed, 07 Dec 2011 19:02:49 +0800
+Message-ID: <4EDF47D9.1090501@redhat.com>
+References: <20111205085603.6116.65101.stgit@dhcp-8-146.nay.redhat.com>
+	<20111205085925.6116.94352.stgit@dhcp-8-146.nay.redhat.com>
+	<CAJSP0QXfHC8j2Kk9x6wyBMubo2=YvpaLAShJtwMWA2mtro6UhA@mail.gmail.com>
+	<4EDDB71F.9080908@redhat.com>
+	<CAJSP0QX5dDkpX+cRcQut2mb6K91zeqGLRrZBGAWT_r2p685gaQ@mail.gmail.com>
+	<4EDDECA9.8060808@redhat.com>
+	<CAJSP0QXsLwvH5xYj6h0E_V4VLg6DuUc-GKXu9esEYzL2MFcFGw@mail.gmail.com>
+	<4EDE37FE.5090409@us.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20111207104323.GE8326@redhat.com>
+In-Reply-To: <4EDE37FE.5090409@us.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,36 +24,52 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-kernel@vger.kernel.org, levinsasha928@gmail.com, Virtualization List <virtualization@lists.linux-foundation.org>
+To: Sridhar Samudrala <sri@us.ibm.com>
+Cc: krkumar2@in.ibm.com, kvm@vger.kernel.org, mst@redhat.com, virtualization@lists.linux-foundation.org, levinsasha928@gmail.com, netdev@vger.kernel.org, bhutchings@solarflare.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On (Wed) 07 Dec 2011 [12:43:24], Michael S. Tsirkin wrote:
+On 12/06/2011 11:42 PM, Sridhar Samudrala wrote:
+> On 12/6/2011 5:15 AM, Stefan Hajnoczi wrote:
+>> On Tue, Dec 6, 2011 at 10:21 AM, Jason Wang<jasowang@redhat.com>  wrote:
+>>> On 12/06/2011 05:18 PM, Stefan Hajnoczi wrote:
+>>>> On Tue, Dec 6, 2011 at 6:33 AM, Jason Wang<jasowang@redhat.com>    
+>>>> wrote:
+>>>>> On 12/05/2011 06:55 PM, Stefan Hajnoczi wrote:
+>>>>>> On Mon, Dec 5, 2011 at 8:59 AM, Jason Wang<jasowang@redhat.com>
+>>>>>>   wrote:
+>>>> The vcpus are just threads and may not be bound to physical CPUs, so
+>>>> what is the big picture here?  Is the guest even in the position to
+>>>> set the best queue mappings today?
+>>>
+>>> Not sure it could publish the best mapping but the idea is to make 
+>>> sure the
+>>> packets of a flow were handled by the same guest vcpu and may be the 
+>>> same
+>>> vhost thread in order to eliminate the packet reordering and lock
+>>> contention. But this assumption does not take the bouncing of vhost 
+>>> or vcpu
+>>> threads which would also affect the result.
+>> Okay, this is why I'd like to know what the big picture here is.  What
+>> solution are you proposing?  How are we going to have everything from
+>> guest application, guest kernel, host threads, and host NIC driver
+>> play along so we get the right steering up the entire stack.  I think
+>> there needs to be an answer to that before changing virtio-net to add
+>> any steering mechanism.
+>>
+>>
+> Yes. Also the current model of  a vhost thread per VM's interface 
+> doesn't help with packet steering
+> all the way from the guest to the host physical NIC.
+>
+> I think we need to have vhost thread(s) per-CPU that can handle 
+> packets to/from physical NIC's
+> TX/RX queues. Currently we have a single vhost thread for a VM's i/f 
+> that handles all the packets from
+> various flows coming from a multi-queue physical NIC.
 
-> > diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-> > index e14f5aa..fd2fd6f 100644
-> > --- a/drivers/char/virtio_console.c
-> > +++ b/drivers/char/virtio_console.c
-> > @@ -1844,6 +1844,60 @@ static unsigned int features[] = {
-> >  	VIRTIO_CONSOLE_F_MULTIPORT,
-> >  };
-> >  
-> > +#ifdef CONFIG_PM
-> > +static int virtcons_freeze(struct virtio_device *vdev)
-> > +{
-> > +	struct ports_device *portdev;
-> > +	struct port *port;
-> > +
-> > +	portdev = vdev->priv;
-> > +
-> > +	vdev->config->reset(vdev);
-> 
-> 
-> So here, cancel_work_sync might still be running.
-> If it does run, might it try to access the device
-> config?  Could not determine this quickly, if yes it's a problem.
-
-Similar to the other comment: I don't see why just resetting device
-can cause config queue access to go bad.
-
-		Amit
+Even if we have per-cpu workthread, only one socket is used to queue the 
+packet then, so a multiple queue(sockets) tap/macvtap is still needed.
+>
+> Thanks
+> Sridhar
+>
