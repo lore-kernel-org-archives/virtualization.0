@@ -1,18 +1,16 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v4 09/12] virtio: net: Add freeze, restore handlers to
-	support S4
-Date: Wed, 7 Dec 2011 13:46:03 +0200
-Message-ID: <20111207114603.GF8326@redhat.com>
-References: <cover.1323199985.git.amit.shah@redhat.com>
-	<712d8d78cf730161181562ed44d4fe08a370b85e.1323199985.git.amit.shah@redhat.com>
-	<20111207102824.GC8326@redhat.com>
-	<20111207103529.GG4651@amit-x200.redhat.com>
+From: Raghavendra K T <raghukt@linux.vnet.ibm.com>
+Subject: Re: [PATCH RFC V3 2/4] kvm hypervisor : Add a hypercall to KVM
+	hypervisor to support pv-ticketlocks
+Date: Wed, 07 Dec 2011 17:24:59 +0530
+Message-ID: <4EDF5413.1030107@linux.vnet.ibm.com>
+References: <20111130085921.23386.89708.sendpatchset@oc5400248562.ibm.com>
+	<20111130085959.23386.69166.sendpatchset@oc5400248562.ibm.com>
+	<20111207104849.GA24849@amt.cnet>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20111207103529.GG4651@amit-x200.redhat.com>
+In-Reply-To: <20111207104849.GA24849@amt.cnet>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,51 +20,53 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Amit Shah <amit.shah@redhat.com>
-Cc: linux-kernel@vger.kernel.org, levinsasha928@gmail.com, Virtualization List <virtualization@lists.linux-foundation.org>
+To: Marcelo Tosatti <mtosatti@redhat.com>
+Cc: x86@kernel.org, Peter Zijlstra <peterz@infradead.org>, Virtualization <virtualization@lists.linux-foundation.org>, "H. Peter Anvin" <hpa@zytor.com>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Xen <xen-devel@lists.xensource.com>, Dave Jiang <dave.jiang@intel.com>, KVM <kvm@vger.kernel.org>, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, Ingo Molnar <mingo@redhat.com>, Avi Kivity <avi@redhat.com>, Rik van Riel <riel@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, Sasha Levin <levinsasha928@gmail.com>, Sedat Dilek <sedat.dilek@gmail.com>, Thomas Gleixner <tglx@linutronix.de>, Yinghai Lu <yinghai@kernel.org>, Greg Kroah-Hartman <gregkh@suse.de>, LKML <linux-kernel@vger.kernel.org>, Dave Hansen <dave@linux.vnet.ibm.com>, Suzuki Poulose <suzuki>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Dec 07, 2011 at 04:05:29PM +0530, Amit Shah wrote:
-> On (Wed) 07 Dec 2011 [12:28:24], Michael S. Tsirkin wrote:
-> > On Wed, Dec 07, 2011 at 01:18:47AM +0530, Amit Shah wrote:
-> > > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> > > index 697a0fc..1378f3c 100644
-> > > --- a/drivers/net/virtio_net.c
-> > > +++ b/drivers/net/virtio_net.c
-> > > @@ -1151,6 +1151,38 @@ static void __devexit virtnet_remove(struct virtio_device *vdev)
-> > >  	free_netdev(vi->dev);
-> > >  }
-> > >  
-> > > +#ifdef CONFIG_PM
-> > > +static int virtnet_freeze(struct virtio_device *vdev)
-> > > +{
-> > > +	struct virtnet_info *vi = vdev->priv;
-> > > +
-> > > +	netif_device_detach(vi->dev);
-> > > +	if (netif_running(vi->dev))
-> > > +		napi_disable(&vi->napi);
-> > > +
-> > 
-> > Could refill_work still be running at this point?
-> 
-> Yes, it could.  So moving the cancel_delayed_work_sync() before
-> disabling napi would work fine?
+On 12/07/2011 04:18 PM, Marcelo Tosatti wrote:
+> On Wed, Nov 30, 2011 at 02:29:59PM +0530, Raghavendra K T wrote:
+>>
+>> +/*
+>> + * kvm_pv_kick_cpu_op:  Kick a vcpu.
+>> + *
+>> + * @cpu - vcpu to be kicked.
+>> + */
+>> +static void kvm_pv_kick_cpu_op(struct kvm *kvm, int cpu)
+>> +{
+>> +	struct kvm_vcpu *vcpu = kvm_get_vcpu(kvm, cpu);
+>> +	struct kvm_mp_state mp_state;
+>> +
+>> +	mp_state.mp_state = KVM_MP_STATE_RUNNABLE;
+>
+> Since vcpu->mp_state is not protected by a lock, this is potentially racy. For example:
+>
+> CPU0						CPU1
+> kvm_pv_kick_cpu_op				running vcpuN
+> vcpuN->mp_state = KVM_MP_STATE_RUNNABLE;
+> 						kvm_emulate_halt
+> 						vcpuN->mp_state = KVM_MP_STATE_HALTED
+>
+> Is it harmless to lose a kick?
+>
 
-No, because napi poll can schedule that.
-Further, refill can reschedule itself.
+Yes you are right. It was potentially racy and it was harmful too!. I 
+had observed that it was stalling the CPU before I introduced kicked flag.
 
-It also looks like we have a bug in virtio net cleanup now:
-cancel_delayed_work_sync is called after unregister, so
-it will be calling napi API on an invalid device.
-And, if it schedules itself it will run after device is gone.
+But now,
 
-I think we need some locking to fix this.
+vcpu->kicked = 1  ==> kvm_make_request(KVM_REQ_UNHALT, vcpu); ==>
 
->  Anything else that might similar treatment?
-> 
-> 		Amit
+__vcpu_run() ==> kvm_check_request(KVM_REQ_UNHALT, vcpu) ==>
+
+vcpuN->mp_state = KVM_MP_STATE_RUNNABLE; so eventually we will end up
+in RUNNABLE.
+
+Also Avi pointed that, logically kvm_arch_vcpu_ioctl_set_mpstate should
+be called only in vcpu thread, so after further debugging, I noticed
+that,  setting vcpuN->mp_state = KVM_MP_STATE_RUNNABLE; is not
+necessary.
+I 'll remove that in the next patch. Thanks for pointing.
 
 
-
--- 
-MST
+			
