@@ -1,19 +1,16 @@
-From: Marcelo Tosatti <mtosatti@redhat.com>
-Subject: Re: [PATCH RFC V3 2/4] kvm hypervisor : Add a hypercall to KVM
-	hypervisor to support pv-ticketlocks
-Date: Wed, 7 Dec 2011 11:39:47 -0200
-Message-ID: <20111207133947.GA1708@amt.cnet>
-References: <20111130085921.23386.89708.sendpatchset@oc5400248562.ibm.com>
-	<20111130085959.23386.69166.sendpatchset@oc5400248562.ibm.com>
-	<20111207104849.GA24849@amt.cnet>
-	<4EDF5413.1030107@linux.vnet.ibm.com>
-	<20111207123330.GA32212@amt.cnet> <4EDF6049.2030204@redhat.com>
+From: Dor Laor <dlaor@redhat.com>
+Subject: Re: [PATCH v4 00/12] virtio: s4 support
+Date: Wed, 07 Dec 2011 15:43:02 +0200
+Message-ID: <4EDF6D66.5030003@redhat.com>
+References: <cover.1323199985.git.amit.shah@redhat.com>
+	<87wra8j13m.fsf@rustcorp.com.au>
+	<20111207104459.GR12507@redhat.com>
+Reply-To: dlaor@redhat.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <4EDF6049.2030204@redhat.com>
+In-Reply-To: <20111207104459.GR12507@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,35 +20,47 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Avi Kivity <avi@redhat.com>
-Cc: Raghavendra K T <raghukt@linux.vnet.ibm.com>, x86@kernel.org, Peter Zijlstra <peterz@infradead.org>, Virtualization <virtualization@lists.linux-foundation.org>, "H. Peter Anvin" <hpa@zytor.com>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Xen <xen-devel@lists.xensource.com>, Dave Jiang <dave.jiang@intel.com>, KVM <kvm@vger.kernel.org>, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, Ingo Molnar <mingo@redhat.com>, Rik van Riel <riel@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, Sasha Levin <levinsasha928@gmail.com>, Sedat Dilek <sedat.dilek@gmail.com>, Thomas Gleixner <tglx@linutronix.de>, Yinghai Lu <yinghai@kernel.org>, Greg Kroah-Hartman <gregkh@suse.de>, LKML <linux-kernel@vger.kernel.org>, Dave Hansen <dave@linux.vnet.ibm.com>, Suzuk
+To: Gleb Natapov <gleb@redhat.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, Virtualization List <virtualization@lists.linux-foundation.org>, levinsasha928@gmail.com, Amit Shah <amit.shah@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Dec 07, 2011 at 02:47:05PM +0200, Avi Kivity wrote:
-> On 12/07/2011 02:33 PM, Marcelo Tosatti wrote:
-> > > 
-> > > Also Avi pointed that, logically kvm_arch_vcpu_ioctl_set_mpstate should
-> > > be called only in vcpu thread, so after further debugging, I noticed
-> > > that,  setting vcpuN->mp_state = KVM_MP_STATE_RUNNABLE; is not
-> > > necessary.
-> > > I 'll remove that in the next patch. Thanks for pointing.
-> >
-> > In fact you don't need kvm_arch_vcpu_ioctl_set_mpstate either, only the
-> > new "kicked" flag.
-> 
-> If we have a kicked flag, it becomes necessary to live migrate it.
-> 
-> Maybe we can change KVM_GET_MP_STATE to fold the kicked flag into the mp
-> state (converting HALTED into RUNNABLE).
+On 12/07/2011 12:44 PM, Gleb Natapov wrote:
+> On Wed, Dec 07, 2011 at 05:54:29PM +1030, Rusty Russell wrote:
+>> On Wed,  7 Dec 2011 01:18:38 +0530, Amit Shah<amit.shah@redhat.com>  wrote:
+>>> Hi,
+>>>
+>>> These patches add support for S4 to virtio (pci) and all drivers.
+>>
+>> Dumb meta-question: why do we want to hibernate virtual machines?
+>>
+> For instance you want to hibernate your laptop while it is running a virtual
+> machine. You can pause them of course, but then time will be incorrect
+> inside a guest after resume.
 
-Yep, that works.
+Exactly. Today with do that through live migration into a file, we call 
+it external hibernation. The problem that it is transparent from the 
+guest and thus it loses time keeping. Even NTP can't handle it since if 
+it has more than 0.5% delay it stops syncing.
 
-> Also I think we can keep the kicked flag in vcpu->requests, no need for
-> new storage.
+The solution is to do it through s4 where the guest gets a notification 
+when it resumes.
 
-Was going to suggest it but it violates the currently organized
-processing of entries at the beginning of vcpu_enter_guest.
 
-That is, this "kicked" flag is different enough from vcpu->requests
-processing that a separate variable seems worthwhile (even more
-different with convertion to MP_STATE at KVM_GET_MP_STATE).
+>
+>> I figure there's a reason, but it seems a bit weird :)
+>>
+>> Thanks,
+>> Rusty.
+>> --
+>> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>> the body of a message to majordomo@vger.kernel.org
+>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>> Please read the FAQ at  http://www.tux.org/lkml/
+>
+> --
+> 			Gleb.
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
