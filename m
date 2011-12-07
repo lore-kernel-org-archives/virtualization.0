@@ -1,21 +1,18 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [net-next RFC PATCH 5/5] virtio-net: flow director support
-Date: Wed, 07 Dec 2011 20:10:47 +0800
-Message-ID: <4EDF57C7.90406@redhat.com>
-References: <20111205085603.6116.65101.stgit@dhcp-8-146.nay.redhat.com>
-	<20111205085925.6116.94352.stgit@dhcp-8-146.nay.redhat.com>
-	<CAJSP0QXfHC8j2Kk9x6wyBMubo2=YvpaLAShJtwMWA2mtro6UhA@mail.gmail.com>
-	<4EDDB71F.9080908@redhat.com>
-	<CAJSP0QX5dDkpX+cRcQut2mb6K91zeqGLRrZBGAWT_r2p685gaQ@mail.gmail.com>
-	<4EDDECA9.8060808@redhat.com>
-	<CAJSP0QXsLwvH5xYj6h0E_V4VLg6DuUc-GKXu9esEYzL2MFcFGw@mail.gmail.com>
-	<4EDED785.80804@redhat.com>
-	<CAJSP0QUGWCf5WHEeCXzqZeF2CvpycxrGo-uPSfpWD1rWD3zeSg@mail.gmail.com>
+From: Marcelo Tosatti <mtosatti@redhat.com>
+Subject: Re: [PATCH RFC V3 2/4] kvm hypervisor : Add a hypercall to KVM
+	hypervisor to support pv-ticketlocks
+Date: Wed, 7 Dec 2011 10:33:30 -0200
+Message-ID: <20111207123330.GA32212@amt.cnet>
+References: <20111130085921.23386.89708.sendpatchset@oc5400248562.ibm.com>
+	<20111130085959.23386.69166.sendpatchset@oc5400248562.ibm.com>
+	<20111207104849.GA24849@amt.cnet>
+	<4EDF5413.1030107@linux.vnet.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAJSP0QUGWCf5WHEeCXzqZeF2CvpycxrGo-uPSfpWD1rWD3zeSg@mail.gmail.com>
+Content-Disposition: inline
+In-Reply-To: <4EDF5413.1030107@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,42 +22,63 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Stefan Hajnoczi <stefanha@gmail.com>
-Cc: krkumar2@in.ibm.com, kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, levinsasha928@gmail.com, bhutchings@solarflare.com
+To: Raghavendra K T <raghukt@linux.vnet.ibm.com>
+Cc: x86@kernel.org, Peter Zijlstra <peterz@infradead.org>, Virtualization <virtualization@lists.linux-foundation.org>, "H. Peter Anvin" <hpa@zytor.com>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Xen <xen-devel@lists.xensource.com>, Dave Jiang <dave.jiang@intel.com>, KVM <kvm@vger.kernel.org>, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, Ingo Molnar <mingo@redhat.com>, Avi Kivity <avi@redhat.com>, Rik van Riel <riel@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, Sasha Levin <levinsasha928@gmail.com>, Sedat Dilek <sedat.dilek@gmail.com>, Thomas Gleixner <tglx@linutronix.de>, Yinghai Lu <yinghai@kernel.org>, Greg Kroah-Hartman <gregkh@suse.de>, LKML <linux-kernel@vger.kernel.org>, Dave Hansen <dave@linux.vnet.ibm.com>, Suzuki Poulose <suzuki>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 12/07/2011 05:08 PM, Stefan Hajnoczi wrote:
-[...]
->> >  Consider the complexity of the host nic each with their own steering
->> >  features,  this series make the first step with minimal effort to try to let
->> >  guest driver and host tap/macvtap co-operate like what physical nic does.
->> >  There may be other method, but performance numbers is also needed to give
->> >  the answer.
-> I agree that performance results for this need to be shown.
->
-> My original point is really that it's not a good idea to take
-> individual steps without a good big picture because this will change
-> the virtio-net device specification.  If this turns out to be a dead
-> end then hosts will need to continue to support the interface forever
-> (legacy guests could still try to use it).  So please first explain
-> what the full stack picture is going to look like and how you think it
-> will lead to better performance.  You don't need to have all the code
-> or evidence, but just enough explanation so we see where this is all
-> going.
-I think I mention too little in the cover message.
+On Wed, Dec 07, 2011 at 05:24:59PM +0530, Raghavendra K T wrote:
+> On 12/07/2011 04:18 PM, Marcelo Tosatti wrote:
+> >On Wed, Nov 30, 2011 at 02:29:59PM +0530, Raghavendra K T wrote:
+> >>
+> >>+/*
+> >>+ * kvm_pv_kick_cpu_op:  Kick a vcpu.
+> >>+ *
+> >>+ * @cpu - vcpu to be kicked.
+> >>+ */
+> >>+static void kvm_pv_kick_cpu_op(struct kvm *kvm, int cpu)
+> >>+{
+> >>+	struct kvm_vcpu *vcpu = kvm_get_vcpu(kvm, cpu);
+> >>+	struct kvm_mp_state mp_state;
+> >>+
+> >>+	mp_state.mp_state = KVM_MP_STATE_RUNNABLE;
+> >
+> >Since vcpu->mp_state is not protected by a lock, this is potentially racy. For example:
+> >
+> >CPU0						CPU1
+> >kvm_pv_kick_cpu_op				running vcpuN
+> >vcpuN->mp_state = KVM_MP_STATE_RUNNABLE;
+> >						kvm_emulate_halt
+> >						vcpuN->mp_state = KVM_MP_STATE_HALTED
+> >
+> >Is it harmless to lose a kick?
+> >
+> 
+> Yes you are right. It was potentially racy and it was harmful too!.
+> I had observed that it was stalling the CPU before I introduced
+> kicked flag.
+> 
+> But now,
+> 
+> vcpu->kicked = 1  ==> kvm_make_request(KVM_REQ_UNHALT, vcpu); ==>
 
-There's no much changes with Krishna's series except the method that 
-choosing a rx virtqueue. Since original series use different hash 
-methods in host (rxhash) and guest (txhash), a different virtqueue were 
-chose for a flow which could lead packets of a flow to be handled by 
-different vhost thread and vcpu. This may damage the performance.
+Ok, please use a more descriptive name, such as "pvlock_kicked" or
+something.
 
-This series tries to let one vhost thread to process the packets of a 
-flow and also let the packets to be sent directly to a vcpu local to the 
-thread process the data. This is done by letting guest tell the desired 
-queue form which it want to receive the pakcet of a dedicated flow.
+> 
+> __vcpu_run() ==> kvm_check_request(KVM_REQ_UNHALT, vcpu) ==>
+> 
+> vcpuN->mp_state = KVM_MP_STATE_RUNNABLE; so eventually we will end up
+> in RUNNABLE.
+> 
+> Also Avi pointed that, logically kvm_arch_vcpu_ioctl_set_mpstate should
+> be called only in vcpu thread, so after further debugging, I noticed
+> that,  setting vcpuN->mp_state = KVM_MP_STATE_RUNNABLE; is not
+> necessary.
+> I 'll remove that in the next patch. Thanks for pointing.
 
-So passing the hash from host to guest is needed to get the same hash in 
-the two sides. Then a guest programmable hash to queue table were 
-introduced and guest co-operate with the host through accelerate RFS in 
-guest.
+In fact you don't need kvm_arch_vcpu_ioctl_set_mpstate either, only the
+new "kicked" flag.
+
+> 
+> 
+> 			
