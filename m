@@ -1,12 +1,19 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH RFC] virtio_blk: fix config handler race
-Date: Wed, 7 Dec 2011 17:39:02 +0200
-Message-ID: <20111207153901.GA23820@redhat.com>
+Subject: Re: [PATCH] virtio-ring: Use threshold for switching to indirect
+	descriptors
+Date: Wed, 7 Dec 2011 17:48:17 +0200
+Message-ID: <20111207154816.GA23845@redhat.com>
+References: <87zkfbre9x.fsf@rustcorp.com.au> <1322913028.3782.4.camel@lappy>
+	<4EDB5EF0.2010909@redhat.com> <1323000831.4205.4.camel@lappy>
+	<20111204162221.GB22501@redhat.com> <1323020088.3256.3.camel@lappy>
+	<4EDBAFC5.2010405@redhat.com> <1323020374.3256.5.camel@lappy>
+	<1323023039.3256.7.camel@lappy> <1323266565.4009.10.camel@lappy>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
+In-Reply-To: <1323266565.4009.10.camel@lappy>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,109 +23,85 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Amit Shah <amit.shah@redhat.com>
-Cc: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
+To: Sasha Levin <levinsasha928@gmail.com>
+Cc: markmc@redhat.com, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Avi Kivity <avi@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Fix a theoretical race related to config work
-handler: a config interrupt might happen
-after we flush config work but before we
-reset the device. It will then cause the
-config work to run during or after reset.
+On Wed, Dec 07, 2011 at 04:02:45PM +0200, Sasha Levin wrote:
+> On Sun, 2011-12-04 at 20:23 +0200, Sasha Levin wrote:
+> 
+> [snip]
+> 
+> Rusty, Michael, does the below looks a reasonable optimization for you?
 
-Two problems with this:
-- if this runs after device is gone we will get use after free
-- access of config while reset is in progress is racy
-(as layout is changing).
+OK overall but a bit hard to say for sure as it looks pretty incomplete ...
 
-As a solution
-1. flush after reset when we know there will be no more interrupts
-2. add a flag to disable config access before reset
+> should I send it as a patch?
 
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
+What's the performance gain?
 
-RFC only as it's untested.
-Bugfix so 3.2 material? Comments?
+> > Something like the following patch:
+> > 
+> > diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+> > index c7a2c20..3166ca0 100644
+> > --- a/drivers/virtio/virtio_ring.c
+> > +++ b/drivers/virtio/virtio_ring.c
+> > @@ -82,6 +82,7 @@ struct vring_virtqueue
+> >  
+> >  	/* Host supports indirect buffers */
+> >  	bool indirect;
+> > +	struct kmem_cache *indirect_cache;
+> >  
+> >  	/* Host publishes avail event idx */
+> >  	bool event;
+> > @@ -110,6 +111,9 @@ struct vring_virtqueue
+> >  
+> >  #define to_vvq(_vq) container_of(_vq, struct vring_virtqueue, vq)
+> >  
+> > +static unsigned int ind_alloc_thresh = 0;
+> > +module_param(ind_alloc_thresh, uint, S_IRUGO);
 
- drivers/block/virtio_blk.c |   22 +++++++++++++++++++++-
- 1 files changed, 21 insertions(+), 1 deletions(-)
+0 will have no effect?
 
-diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-index 4d0b70a..34633f3 100644
---- a/drivers/block/virtio_blk.c
-+++ b/drivers/block/virtio_blk.c
-@@ -4,6 +4,7 @@
- #include <linux/blkdev.h>
- #include <linux/hdreg.h>
- #include <linux/module.h>
-+#include <linux/mutex.h>
- #include <linux/virtio.h>
- #include <linux/virtio_blk.h>
- #include <linux/scatterlist.h>
-@@ -36,6 +37,12 @@ struct virtio_blk
- 	/* Process context for config space updates */
- 	struct work_struct config_work;
- 
-+	/* Lock for config space updates */
-+	struct mutex config_lock;
-+
-+	/* enable config space updates */
-+	bool config_enable;
-+
- 	/* What host tells us, plus 2 for header & tailer. */
- 	unsigned int sg_elems;
- 
-@@ -318,6 +325,10 @@ static void virtblk_config_changed_work(struct work_struct *work)
- 	char cap_str_2[10], cap_str_10[10];
- 	u64 capacity, size;
- 
-+	mutex_lock(&vblk->config_lock);
-+	if (!vblk->config_enable)
-+		goto done;
-+
- 	/* Host must always specify the capacity. */
- 	vdev->config->get(vdev, offsetof(struct virtio_blk_config, capacity),
- 			  &capacity, sizeof(capacity));
-@@ -340,6 +351,8 @@ static void virtblk_config_changed_work(struct work_struct *work)
- 		  cap_str_10, cap_str_2);
- 
- 	set_capacity(vblk->disk, capacity);
-+done:
-+	mutex_lock(&vblk->config_lock);
- }
- 
- static void virtblk_config_changed(struct virtio_device *vdev)
-@@ -388,7 +401,9 @@ static int __devinit virtblk_probe(struct virtio_device *vdev)
- 	vblk->vdev = vdev;
- 	vblk->sg_elems = sg_elems;
- 	sg_init_table(vblk->sg, vblk->sg_elems);
-+	mutex_init(&vblk->config_lock);
- 	INIT_WORK(&vblk->config_work, virtblk_config_changed_work);
-+	vblk->config_enable = true;
- 
- 	/* We expect one virtqueue, for output. */
- 	vblk->vq = virtio_find_single_vq(vdev, blk_done, "requests");
-@@ -542,7 +557,10 @@ static void __devexit virtblk_remove(struct virtio_device *vdev)
- 	struct virtio_blk *vblk = vdev->priv;
- 	int index = vblk->index;
- 
--	flush_work(&vblk->config_work);
-+	/* Prevent config work handler from accessing the device. */
-+	mutex_lock(&vblk->config_lock);
-+	vblk->config_enable = false;
-+	mutex_unlock(&vblk->config_lock);
- 
- 	/* Nothing should be pending. */
- 	BUG_ON(!list_empty(&vblk->reqs));
-@@ -550,6 +568,8 @@ static void __devexit virtblk_remove(struct virtio_device *vdev)
- 	/* Stop all the virtqueues. */
- 	vdev->config->reset(vdev);
- 
-+	flush_work(&vblk->config_work);
-+
- 	del_gendisk(vblk->disk);
- 	blk_cleanup_queue(vblk->disk->queue);
- 	put_disk(vblk->disk);
--- 
-1.7.5.53.gc233e
+> > +
+> >  /* Set up an indirect table of descriptors and add it to the queue. */
+> >  static int vring_add_indirect(struct vring_virtqueue *vq,
+> >  			      struct scatterlist sg[],
+
+A global parameter is OK for testing but likely not what we want
+in real life. This needs to be different per device.
+
+
+
+> > @@ -121,7 +125,10 @@ static int vring_add_indirect(struct vring_virtqueue *vq,
+> >  	unsigned head;
+> >  	int i;
+> >  
+> > -	desc = kmalloc((out + in) * sizeof(struct vring_desc), gfp);
+> > +	if ((out + in) <= ind_alloc_thresh)
+> > +		desc = kmem_cache_alloc(vq->indirect_cache, gfp);
+> > +	else
+> > +		desc = kmalloc((out + in) * sizeof(struct vring_desc), gfp);
+> >  	if (!desc)
+> >  		return -ENOMEM;
+> >  
+
+free unaffected?
+
+> > @@ -479,6 +486,9 @@ struct virtqueue *vring_new_virtqueue(unsigned int num,
+> >  	vq->broken = false;
+> >  	vq->last_used_idx = 0;
+> >  	vq->num_added = 0;
+> > +	if (ind_alloc_thresh)
+> > +		vq->indirect_cache = KMEM_CACHE(vring_desc[ind_alloc_thresh], 0);
+
+and need to cleanup too?
+
+> >  	list_add_tail(&vq->vq.list, &vdev->vqs);
+> >  #ifdef DEBUG
+> >  	vq->in_use = false;
+> > 
+> 
+> -- 
+> 
+> Sasha.
