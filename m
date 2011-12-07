@@ -1,17 +1,17 @@
 From: Amit Shah <amit.shah@redhat.com>
-Subject: Re: [PATCH v4 06/12] virtio: blk: Add freeze, restore handlers to
-	support S4
-Date: Wed, 7 Dec 2011 16:26:47 +0530
-Message-ID: <20111207105647.GI4651@amit-x200.redhat.com>
+Subject: Re: [PATCH v4 04/12] virtio: console: Add freeze and restore
+	handlers to support S4
+Date: Wed, 7 Dec 2011 16:29:55 +0530
+Message-ID: <20111207105955.GJ4651@amit-x200.redhat.com>
 References: <cover.1323199985.git.amit.shah@redhat.com>
-	<e66570ecae66535fbb5c060f6572b94e8c9db85e.1323199985.git.amit.shah@redhat.com>
-	<20111207103701.GD8326@redhat.com>
+	<9f09629340556ddac37135bc3aab233f1154f86a.1323199985.git.amit.shah@redhat.com>
+	<20111207104323.GE8326@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20111207103701.GD8326@redhat.com>
+In-Reply-To: <20111207104323.GE8326@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,66 +25,32 @@ To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: linux-kernel@vger.kernel.org, levinsasha928@gmail.com, Virtualization List <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On (Wed) 07 Dec 2011 [12:37:02], Michael S. Tsirkin wrote:
-> On Wed, Dec 07, 2011 at 01:18:44AM +0530, Amit Shah wrote:
-> > Delete the vq and flush any pending requests from the block queue on the
-> > freeze callback to prepare for hibernation.
-> > 
-> > Re-create the vq in the restore callback to resume normal function.
-> > 
-> > Signed-off-by: Amit Shah <amit.shah@redhat.com>
-> > ---
-> >  drivers/block/virtio_blk.c |   38 ++++++++++++++++++++++++++++++++++++++
-> >  1 files changed, 38 insertions(+), 0 deletions(-)
-> > 
-> > diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-> > index 467f218..a9147a6 100644
-> > --- a/drivers/block/virtio_blk.c
-> > +++ b/drivers/block/virtio_blk.c
-> > @@ -568,6 +568,40 @@ static void __devexit virtblk_remove(struct virtio_device *vdev)
-> >  	ida_simple_remove(&vd_index_ida, index);
-> >  }
+On (Wed) 07 Dec 2011 [12:43:24], Michael S. Tsirkin wrote:
+
+> > diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
+> > index e14f5aa..fd2fd6f 100644
+> > --- a/drivers/char/virtio_console.c
+> > +++ b/drivers/char/virtio_console.c
+> > @@ -1844,6 +1844,60 @@ static unsigned int features[] = {
+> >  	VIRTIO_CONSOLE_F_MULTIPORT,
+> >  };
 > >  
 > > +#ifdef CONFIG_PM
-> > +static int virtblk_freeze(struct virtio_device *vdev)
+> > +static int virtcons_freeze(struct virtio_device *vdev)
 > > +{
-> > +	struct virtio_blk *vblk = vdev->priv;
+> > +	struct ports_device *portdev;
+> > +	struct port *port;
 > > +
-> > +	/* Ensure we don't receive any more interrupts */
+> > +	portdev = vdev->priv;
+> > +
 > > +	vdev->config->reset(vdev);
-> > +
-> > +	flush_work(&vblk->config_work);
 > 
-> It bothers me that config work can be running
-> after reset here. If it does, it will not get sane
-> values from reading config.
-
-Why so?
-
-The reset only ensures the host doesn't write anything more, isn't it?
-Why would the values be affected?
-
-> Also, can there be stuff in the reqs list?
-> If yes is this a problem?
-
-Should be all cleared by the two commands below.  At least that's my
-expectation.  If not, let me know!
-
-> > +	spin_lock_irq(vblk->disk->queue->queue_lock);
-> > +	blk_stop_queue(vblk->disk->queue);
-> > +	spin_unlock_irq(vblk->disk->queue->queue_lock);
-> > +	blk_sync_queue(vblk->disk->queue);
-> > +
-> > +	vdev->config->del_vqs(vdev);
-> > +	return 0;
-> > +}
-> > +
 > 
-> Thinking about it, looks like there's a bug in
-> virtblk_remove: if we get a config change after
-> flush_work we schedule another work.
-> That's a problem for sure as structure is removed.
+> So here, cancel_work_sync might still be running.
+> If it does run, might it try to access the device
+> config?  Could not determine this quickly, if yes it's a problem.
 
-Yep, it is a potential issue.
+Similar to the other comment: I don't see why just resetting device
+can cause config queue access to go bad.
 
 		Amit
