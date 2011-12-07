@@ -1,17 +1,13 @@
-From: Amit Shah <amit.shah@redhat.com>
-Subject: Re: [PATCH v4 09/12] virtio: net: Add freeze, restore handlers to
-	support S4
-Date: Wed, 7 Dec 2011 16:05:29 +0530
-Message-ID: <20111207103529.GG4651@amit-x200.redhat.com>
-References: <cover.1323199985.git.amit.shah@redhat.com>
-	<712d8d78cf730161181562ed44d4fe08a370b85e.1323199985.git.amit.shah@redhat.com>
-	<20111207102824.GC8326@redhat.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [net-next RFC PATCH 0/5] Series short description
+Date: Wed, 07 Dec 2011 18:00:55 +1030
+Message-ID: <87ty5cj0sw.fsf__32480.8975718499$1323254158$gmane$org@rustcorp.com.au>
+References: <20111205085603.6116.65101.stgit@dhcp-8-146.nay.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20111207102824.GC8326@redhat.com>
+In-Reply-To: <20111205085603.6116.65101.stgit@dhcp-8-146.nay.redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,33 +17,20 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-kernel@vger.kernel.org, levinsasha928@gmail.com, Virtualization List <virtualization@lists.linux-foundation.org>
+To: Jason Wang <jasowang@redhat.com>, krkumar2@in.ibm.com, kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, levinsasha928@gmail.com, bhutchings@solarflare.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On (Wed) 07 Dec 2011 [12:28:24], Michael S. Tsirkin wrote:
-> On Wed, Dec 07, 2011 at 01:18:47AM +0530, Amit Shah wrote:
-> > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> > index 697a0fc..1378f3c 100644
-> > --- a/drivers/net/virtio_net.c
-> > +++ b/drivers/net/virtio_net.c
-> > @@ -1151,6 +1151,38 @@ static void __devexit virtnet_remove(struct virtio_device *vdev)
-> >  	free_netdev(vi->dev);
-> >  }
-> >  
-> > +#ifdef CONFIG_PM
-> > +static int virtnet_freeze(struct virtio_device *vdev)
-> > +{
-> > +	struct virtnet_info *vi = vdev->priv;
-> > +
-> > +	netif_device_detach(vi->dev);
-> > +	if (netif_running(vi->dev))
-> > +		napi_disable(&vi->napi);
-> > +
+On Mon, 05 Dec 2011 16:58:37 +0800, Jason Wang <jasowang@redhat.com> wrote:
+> multiple queue virtio-net: flow steering through host/guest cooperation
 > 
-> Could refill_work still be running at this point?
+> Hello all:
+> 
+> This is a rough series adds the guest/host cooperation of flow
+> steering support based on Krish Kumar's multiple queue virtio-net
+> driver patch 3/3 (http://lwn.net/Articles/467283/).
 
-Yes, it could.  So moving the cancel_delayed_work_sync() before
-disabling napi would work fine?  Anything else that might similar treatment?
+Is there a real (physical) device which does this kind of thing?  How do
+they do it?  Can we copy them?
 
-		Amit
+Cheers,
+Rusty.
