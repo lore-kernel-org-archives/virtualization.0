@@ -1,13 +1,16 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [net-next RFC PATCH 0/5] Series short description
-Date: Wed, 07 Dec 2011 18:00:55 +1030
-Message-ID: <87ty5cj0sw.fsf__32480.8975718499$1323254158$gmane$org@rustcorp.com.au>
-References: <20111205085603.6116.65101.stgit@dhcp-8-146.nay.redhat.com>
+From: Amit Shah <amit.shah@redhat.com>
+Subject: Re: (resend) [PATCH v4 12/12] virtio: balloon: Add freeze, restore
+	handlers to support S4
+Date: Wed, 7 Dec 2011 16:09:41 +0530
+Message-ID: <20111207103941.GH4651@amit-x200.redhat.com>
+References: <5deccc36afa59032f0e3b10a653773bad511f303.1323199985.git.amit.shah@redhat.com>
+	<20111207103448.GA20882@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20111205085603.6116.65101.stgit@dhcp-8-146.nay.redhat.com>
+Content-Disposition: inline
+In-Reply-To: <20111207103448.GA20882@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,20 +20,53 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>, krkumar2@in.ibm.com, kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, levinsasha928@gmail.com, bhutchings@solarflare.com
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Len Brown <len.brown@intel.com>, linux-pm@vger.kernel.org, linux-kernel@vger.kernel.org, Virtualization List <virtualization@lists.linux-foundation.org>, "Rafael J. Wysocki" <rjw@sisk.pl>, levinsasha928@gmail.com, Pavel Machek <pavel@ucw.cz>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, 05 Dec 2011 16:58:37 +0800, Jason Wang <jasowang@redhat.com> wrote:
-> multiple queue virtio-net: flow steering through host/guest cooperation
+On (Wed) 07 Dec 2011 [12:34:48], Michael S. Tsirkin wrote:
+> On Wed, Dec 07, 2011 at 01:18:50AM +0530, Amit Shah wrote:
+> > Now to not race with a host issuing ballooning requests while we are in
+> > the process of freezing, we just exit from the vballoon kthread when the
+> > processes are asked to freeze.  Upon thaw and restore, we re-start the
+> > thread.
 > 
-> Hello all:
+> ...
 > 
-> This is a rough series adds the guest/host cooperation of flow
-> steering support based on Krish Kumar's multiple queue virtio-net
-> driver patch 3/3 (http://lwn.net/Articles/467283/).
+> > ---
+> >  drivers/virtio/virtio_balloon.c |   79 ++++++++++++++++++++++++++++++++++++++-
+> >  1 files changed, 78 insertions(+), 1 deletions(-)
+> > 
+> > diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+> > index 8bf99be..10ec638 100644
+> > --- a/drivers/virtio/virtio_balloon.c
+> > +++ b/drivers/virtio/virtio_balloon.c
+> > @@ -258,7 +258,13 @@ static int balloon(void *_vballoon)
+> >  	while (!kthread_should_stop()) {
+> >  		s64 diff;
+> >  
+> > -		try_to_freeze();
+> > +		/*
+> > +		 * On suspend, we want to exit this thread.  We will
+> > +		 * start a new thread on resume.
+> > +		 */
+> > +		if (freezing(current))
+> > +			break;
+> > +
+> >  		wait_event_interruptible(vb->config_change,
+> >  					 (diff = towards_target(vb)) != 0
+> >  					 || vb->need_stats_update
+> 
+> ...
+> 
+> Note: this relies on kthreads being frozen before devices.
+> Looking at kernel/power/hibernate.c this is the case,
+> but I think we should add a comment to note this.
 
-Is there a real (physical) device which does this kind of thing?  How do
-they do it?  Can we copy them?
+Yes, it does.  And for that reason, I mentioned that stopping the
+thread doesn't buy us anything; I'll revert this change in the next
+submission.
 
-Cheers,
-Rusty.
+> Also Cc linux-pm crowd in case I got it wrong.
+
+		Amit
