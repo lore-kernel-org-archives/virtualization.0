@@ -1,84 +1,67 @@
-From: Stefan Hajnoczi <stefanha@gmail.com>
-Subject: Re: [net-next RFC PATCH 5/5] virtio-net: flow director support
-Date: Wed, 7 Dec 2011 15:04:56 +0000
-Message-ID: <CAJSP0QUyx8tGxXG4ZFLHVTAout0zU4N9JaxSLucuD39P=5X6=w__16456.0361220085$1323270316$gmane$org@mail.gmail.com>
-References: <20111205085603.6116.65101.stgit@dhcp-8-146.nay.redhat.com>
-	<20111205085925.6116.94352.stgit@dhcp-8-146.nay.redhat.com>
-	<CAJSP0QXfHC8j2Kk9x6wyBMubo2=YvpaLAShJtwMWA2mtro6UhA@mail.gmail.com>
-	<4EDDB71F.9080908@redhat.com>
-	<CAJSP0QX5dDkpX+cRcQut2mb6K91zeqGLRrZBGAWT_r2p685gaQ@mail.gmail.com>
-	<4EDDECA9.8060808@redhat.com>
-	<CAJSP0QXsLwvH5xYj6h0E_V4VLg6DuUc-GKXu9esEYzL2MFcFGw@mail.gmail.com>
-	<4EDED785.80804@redhat.com>
-	<CAJSP0QUGWCf5WHEeCXzqZeF2CvpycxrGo-uPSfpWD1rWD3zeSg@mail.gmail.com>
-	<4EDF57C7.90406@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4EDF57C7.90406@redhat.com>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: krkumar2@in.ibm.com, kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, levinsasha928@gmail.com, bhutchings@solarflare.com
+From: "K. Y. Srinivasan" <kys@microsoft.com>
+Subject: [PATCH 1/1] Staging: hv: storvsc: Fix a bug in create_bounce_buffer()
+Date: Wed,  7 Dec 2011 07:15:52 -0800
+Message-ID: <1323270952-22646-1-git-send-email-kys@microsoft.com>
+Return-path: <linux-scsi-owner@vger.kernel.org>
+Sender: linux-scsi-owner@vger.kernel.org
+To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org, ohering@suse.com, James.Bottomley@HansenPartnership.com, hch@infradead.org, linux-scsi@vger.kernel.org
+Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Dec 7, 2011 at 12:10 PM, Jason Wang <jasowang@redhat.com> wrote:
-> On 12/07/2011 05:08 PM, Stefan Hajnoczi wrote:
-> [...]
->
->>> > =A0Consider the complexity of the host nic each with their own steeri=
-ng
->>> > =A0features, =A0this series make the first step with minimal effort t=
-o try
->>> > to let
->>> > =A0guest driver and host tap/macvtap co-operate like what physical nic
->>> > does.
->>> > =A0There may be other method, but performance numbers is also needed =
-to
->>> > give
->>> > =A0the answer.
->>
->> I agree that performance results for this need to be shown.
->>
->> My original point is really that it's not a good idea to take
->> individual steps without a good big picture because this will change
->> the virtio-net device specification. =A0If this turns out to be a dead
->> end then hosts will need to continue to support the interface forever
->> (legacy guests could still try to use it). =A0So please first explain
->> what the full stack picture is going to look like and how you think it
->> will lead to better performance. =A0You don't need to have all the code
->> or evidence, but just enough explanation so we see where this is all
->> going.
->
-> I think I mention too little in the cover message.
->
-> There's no much changes with Krishna's series except the method that
-> choosing a rx virtqueue. Since original series use different hash methods=
- in
-> host (rxhash) and guest (txhash), a different virtqueue were chose for a
-> flow which could lead packets of a flow to be handled by different vhost
-> thread and vcpu. This may damage the performance.
->
-> This series tries to let one vhost thread to process the packets of a flow
-> and also let the packets to be sent directly to a vcpu local to the thread
-> process the data. This is done by letting guest tell the desired queue fo=
-rm
-> which it want to receive the pakcet of a dedicated flow.
->
-> So passing the hash from host to guest is needed to get the same hash in =
-the
-> two sides. Then a guest programmable hash to queue table were introduced =
-and
-> guest co-operate with the host through accelerate RFS in guest.
+Set the length field of the scatter gather elements correctly when we create
+the bounce buffer. When we use the bounce buffer for a "write" operation,
+the act of copying to the bounce buffer, correctly deals with this issue.
+However, on the "read" side, the current code was not correctly setting
+the buffer length. Fix this bug. Note that when we copy from the bounce
+buffer (for the read case), the amount we copy is controlled by the original
+scatter gather list given to the driver.
 
-Thanks for the context, that helps me understand it a little better.
+Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
+Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
+Reported-by: Dadok Milan <dadok@kvados.cz> 
+---
+ drivers/staging/hv/storvsc_drv.c |    9 ++++++---
+ 1 files changed, 6 insertions(+), 3 deletions(-)
 
-Stefan
+diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/staging/hv/storvsc_drv.c
+index 18f8771..eb853f7 100644
+--- a/drivers/staging/hv/storvsc_drv.c
++++ b/drivers/staging/hv/storvsc_drv.c
+@@ -893,12 +893,14 @@ static int do_bounce_buffer(struct scatterlist *sgl, unsigned int sg_count)
+ 
+ static struct scatterlist *create_bounce_buffer(struct scatterlist *sgl,
+ 						unsigned int sg_count,
+-						unsigned int len)
++						unsigned int len,
++						int write)
+ {
+ 	int i;
+ 	int num_pages;
+ 	struct scatterlist *bounce_sgl;
+ 	struct page *page_buf;
++	unsigned int buf_len = ((write == WRITE_TYPE) ? 0 : PAGE_SIZE);
+ 
+ 	num_pages = ALIGN(len, PAGE_SIZE) >> PAGE_SHIFT;
+ 
+@@ -910,7 +912,7 @@ static struct scatterlist *create_bounce_buffer(struct scatterlist *sgl,
+ 		page_buf = alloc_page(GFP_ATOMIC);
+ 		if (!page_buf)
+ 			goto cleanup;
+-		sg_set_page(&bounce_sgl[i], page_buf, 0, 0);
++		sg_set_page(&bounce_sgl[i], page_buf, buf_len, 0);
+ 	}
+ 
+ 	return bounce_sgl;
+@@ -1348,7 +1350,8 @@ static int storvsc_queuecommand(struct Scsi_Host *host, struct scsi_cmnd *scmnd)
+ 		if (do_bounce_buffer(sgl, scsi_sg_count(scmnd)) != -1) {
+ 			cmd_request->bounce_sgl =
+ 				create_bounce_buffer(sgl, scsi_sg_count(scmnd),
+-						     scsi_bufflen(scmnd));
++						     scsi_bufflen(scmnd),
++						     vm_srb->data_in);
+ 			if (!cmd_request->bounce_sgl) {
+ 				scmnd->host_scribble = NULL;
+ 				mempool_free(cmd_request,
+-- 
+1.7.4.1
+
