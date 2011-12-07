@@ -1,14 +1,18 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [net-next RFC PATCH 0/5] Series short description
-Date: Wed, 07 Dec 2011 19:31:14 +0800
-Message-ID: <4EDF4E82.7050201@redhat.com>
-References: <20111205085603.6116.65101.stgit@dhcp-8-146.nay.redhat.com>
-	<87ty5cj0sw.fsf@rustcorp.com.au>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH v4 09/12] virtio: net: Add freeze, restore handlers to
+	support S4
+Date: Wed, 7 Dec 2011 13:46:03 +0200
+Message-ID: <20111207114603.GF8326@redhat.com>
+References: <cover.1323199985.git.amit.shah@redhat.com>
+	<712d8d78cf730161181562ed44d4fe08a370b85e.1323199985.git.amit.shah@redhat.com>
+	<20111207102824.GC8326@redhat.com>
+	<20111207103529.GG4651@amit-x200.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <87ty5cj0sw.fsf@rustcorp.com.au>
+Content-Disposition: inline
+In-Reply-To: <20111207103529.GG4651@amit-x200.redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,33 +22,51 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: krkumar2@in.ibm.com, kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, levinsasha928@gmail.com, bhutchings@solarflare.com
+To: Amit Shah <amit.shah@redhat.com>
+Cc: linux-kernel@vger.kernel.org, levinsasha928@gmail.com, Virtualization List <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 12/07/2011 03:30 PM, Rusty Russell wrote:
-> On Mon, 05 Dec 2011 16:58:37 +0800, Jason Wang<jasowang@redhat.com>  wrote:
->> multiple queue virtio-net: flow steering through host/guest cooperation
->>
->> Hello all:
->>
->> This is a rough series adds the guest/host cooperation of flow
->> steering support based on Krish Kumar's multiple queue virtio-net
->> driver patch 3/3 (http://lwn.net/Articles/467283/).
-> Is there a real (physical) device which does this kind of thing?  How do
-> they do it?  Can we copy them?
->
-> Cheers,
-> Rusty.
-As far as I see, ixgbe and sfc have similar but much more sophisticated 
-mechanism.
+On Wed, Dec 07, 2011 at 04:05:29PM +0530, Amit Shah wrote:
+> On (Wed) 07 Dec 2011 [12:28:24], Michael S. Tsirkin wrote:
+> > On Wed, Dec 07, 2011 at 01:18:47AM +0530, Amit Shah wrote:
+> > > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> > > index 697a0fc..1378f3c 100644
+> > > --- a/drivers/net/virtio_net.c
+> > > +++ b/drivers/net/virtio_net.c
+> > > @@ -1151,6 +1151,38 @@ static void __devexit virtnet_remove(struct virtio_device *vdev)
+> > >  	free_netdev(vi->dev);
+> > >  }
+> > >  
+> > > +#ifdef CONFIG_PM
+> > > +static int virtnet_freeze(struct virtio_device *vdev)
+> > > +{
+> > > +	struct virtnet_info *vi = vdev->priv;
+> > > +
+> > > +	netif_device_detach(vi->dev);
+> > > +	if (netif_running(vi->dev))
+> > > +		napi_disable(&vi->napi);
+> > > +
+> > 
+> > Could refill_work still be running at this point?
+> 
+> Yes, it could.  So moving the cancel_delayed_work_sync() before
+> disabling napi would work fine?
 
-The idea was originally suggested by Ben and it was just borrowed form 
-those real physical nic cards who can dispatch packets based on their 
-hash. All of theses cards can filter the flow based on the hash of 
-L2/L3/L4 header and the stack would tell the card which queue should 
-this flow goes.
+No, because napi poll can schedule that.
+Further, refill can reschedule itself.
 
-So in host, a simple hash to queue table were introduced in tap/macvtap 
-and in guest, the guest driver would tell the desired queue of a flow 
-through changing this table.
+It also looks like we have a bug in virtio net cleanup now:
+cancel_delayed_work_sync is called after unregister, so
+it will be calling napi API on an invalid device.
+And, if it schedules itself it will run after device is gone.
+
+I think we need some locking to fix this.
+
+>  Anything else that might similar treatment?
+> 
+> 		Amit
+
+
+
+-- 
+MST
