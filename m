@@ -1,15 +1,12 @@
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-Subject: Re: [PATCH v4 01/12] virtio: pci: switch to new PM API
-Date: Wed, 7 Dec 2011 11:16:32 +0100
-Message-ID: <201112071116.32862.rjw@sisk.pl>
-References: <cover.1323199985.git.amit.shah@redhat.com>
-	<201112071048.24566.rjw@sisk.pl>
-	<20111207095229.GF4651@amit-x200.redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: (unknown)
+Date: Wed, 7 Dec 2011 12:25:08 +0200
+Message-ID: <20111207102507.GB8326@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20111207095229.GF4651@amit-x200.redhat.com>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,71 +17,58 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Amit Shah <amit.shah@redhat.com>
-Cc: linux-kernel@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, levinsasha928@gmail.com, Virtualization List <virtualization@lists.linux-foundation.org>
+Cc: linux-kernel@vger.kernel.org, levinsasha928@gmail.com, Virtualization List <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wednesday, December 07, 2011, Amit Shah wrote:
-> On (Wed) 07 Dec 2011 [10:48:24], Rafael J. Wysocki wrote:
-> > On Wednesday, December 07, 2011, Amit Shah wrote:
-> > > Hi Rafael,
-> > > 
-> > > On (Tue) 06 Dec 2011 [23:12:36], Rafael J. Wysocki wrote:
-> > > > Hi,
-> > > > 
-> > > > On Tuesday, December 06, 2011, Amit Shah wrote:
-> > > > > The older PM API doesn't have a way to get notifications on hibernate
-> > > > > events.  Switch to the newer one that gives us those notifications.
-> > > > > 
-> > > > > Signed-off-by: Amit Shah <amit.shah@redhat.com>
-> > > > > ---
-> > > > >  drivers/virtio/virtio_pci.c |   16 ++++++++++++----
-> > > > >  1 files changed, 12 insertions(+), 4 deletions(-)
-> > > > > 
-> > > > > diff --git a/drivers/virtio/virtio_pci.c b/drivers/virtio/virtio_pci.c
-> > > > > index 03d1984..23e1532 100644
-> > > > > --- a/drivers/virtio/virtio_pci.c
-> > > > > +++ b/drivers/virtio/virtio_pci.c
-> > > > > @@ -708,19 +708,28 @@ static void __devexit virtio_pci_remove(struct pci_dev *pci_dev)
-> > > > >  }
-> > > > >  
-> > > > >  #ifdef CONFIG_PM
-> > > > > -static int virtio_pci_suspend(struct pci_dev *pci_dev, pm_message_t state)
-> > > > > +static int virtio_pci_suspend(struct device *dev)
-> > > > >  {
-> > > > > +	struct pci_dev *pci_dev = to_pci_dev(dev);
-> > > > > +
-> > > > >  	pci_save_state(pci_dev);
-> > > > >  	pci_set_power_state(pci_dev, PCI_D3hot);
-> > > > >  	return 0;
-> > > > >  }
-> > > > >  
-> > > > > -static int virtio_pci_resume(struct pci_dev *pci_dev)
-> > > > > +static int virtio_pci_resume(struct device *dev)
-> > > > >  {
-> > > > > +	struct pci_dev *pci_dev = to_pci_dev(dev);
-> > > > > +
-> > > > >  	pci_restore_state(pci_dev);
-> > > > >  	pci_set_power_state(pci_dev, PCI_D0);
-> > > > >  	return 0;
-> > > > >  }
-> > > > > +
-> > > > > +static const struct dev_pm_ops virtio_pci_pm_ops = {
-> > > > > +	.suspend = virtio_pci_suspend,
-> > > > > +	.resume  = virtio_pci_resume,
-> > > > > +};
-> > > > >  #endif
-> > > > 
-> > > > You seem to have forgotten about hibernation callbacks.
-> > > 
-> > > This patch just moves to the new API keeping everything else the same.
-> > > The hibernation callbacks come in patch 2.
-> > 
-> > OK, but then hibernation will be broken between the two patches, so perhaps
-> > it's better to merge them into one?
+Pavel Machek <pavel@ucw.cz>,
+"Rafael J. Wysocki" <rjw@sisk.pl>,
+Len Brown <len.brown@intel.com>,
+linux-pm@vger.kernel.org
+Bcc: 
+Subject: Re: [PATCH v4 12/12] virtio: balloon: Add freeze, restore handlers
+ to support S4
+Reply-To: 
+In-Reply-To: <5deccc36afa59032f0e3b10a653773bad511f303.1323199985.git.amit.shah@redhat.com>
+
+On Wed, Dec 07, 2011 at 01:18:50AM +0530, Amit Shah wrote:
+> Now to not race with a host issuing ballooning requests while we are in
+> the process of freezing, we just exit from the vballoon kthread when the
+> processes are asked to freeze.  Upon thaw and restore, we re-start the
+> thread.
+
+...
+
+> ---
+>  drivers/virtio/virtio_balloon.c |   79 ++++++++++++++++++++++++++++++++++++++-
+>  1 files changed, 78 insertions(+), 1 deletions(-)
 > 
-> The hibernation support doesn't exist now.  It's added in the later
-> patches of the series (3 onwards).
+> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+> index 8bf99be..10ec638 100644
+> --- a/drivers/virtio/virtio_balloon.c
+> +++ b/drivers/virtio/virtio_balloon.c
+> @@ -258,7 +258,13 @@ static int balloon(void *_vballoon)
+>  	while (!kthread_should_stop()) {
+>  		s64 diff;
+>  
+> -		try_to_freeze();
+> +		/*
+> +		 * On suspend, we want to exit this thread.  We will
+> +		 * start a new thread on resume.
+> +		 */
+> +		if (freezing(current))
+> +			break;
+> +
+>  		wait_event_interruptible(vb->config_change,
+>  					 (diff = towards_target(vb)) != 0
+>  					 || vb->need_stats_update
 
-OK then, sorry for the noise.
+...
 
-Rafael
+Note: this relies on kthreads being frozen before devices.
+Looking at kernel/power/hibernate.c this is the case,
+but I think we should add a comment to note this.
+
+Also Cc linux-pm crowd in case I got it wrong.
+
+-- 
+MST
