@@ -1,17 +1,18 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH] macvtap: Fix macvtap_get_queue to use rxhash first
-Date: Wed, 7 Dec 2011 18:10:02 +0200
-Message-ID: <20111207161001.GD23845@redhat.com>
-References: <OF86B15006.7F4BE3FB-ON65257953.00104C3E-65257953.0010EFCA@in.ibm.com>
-	<4ECF09D5.4010700@redhat.com>
-	<OF835A6FF5.7D752AD1-ON65257953.0016350C-65257953.00169AF4@in.ibm.com>
-	<20111125.013552.1613051198566054931.davem@davemloft.net>
+From: Raghavendra K T <raghukt@linux.vnet.ibm.com>
+Subject: Re: [PATCH RFC V3 2/4] kvm hypervisor : Add a hypercall to KVM
+	hypervisor to support pv-ticketlocks
+Date: Wed, 07 Dec 2011 22:01:44 +0530
+Message-ID: <4EDF94F0.2080201@linux.vnet.ibm.com>
+References: <20111130085921.23386.89708.sendpatchset@oc5400248562.ibm.com>
+	<20111130085959.23386.69166.sendpatchset@oc5400248562.ibm.com>
+	<20111207104849.GA24849@amt.cnet>
+	<4EDF5413.1030107@linux.vnet.ibm.com>
+	<20111207123330.GA32212@amt.cnet>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20111125.013552.1613051198566054931.davem@davemloft.net>
+In-Reply-To: <20111207123330.GA32212@amt.cnet>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,40 +22,42 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: David Miller <davem@davemloft.net>
-Cc: krkumar2@in.ibm.com, arnd@arndb.de, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, levinsasha928@gmail.com
+To: Marcelo Tosatti <mtosatti@redhat.com>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, x86@kernel.org, Peter Zijlstra <peterz@infradead.org>, Virtualization <virtualization@lists.linux-foundation.org>, "H. Peter Anvin" <hpa@zytor.com>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Xen <xen-devel@lists.xensource.com>, Dave Jiang <dave.jiang@intel.com>, KVM <kvm@vger.kernel.org>, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, Ingo Molnar <mingo@redhat.com>, Avi Kivity <avi@redhat.com>, Rik van Riel <riel@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, Sasha Levin <levinsasha928@gmail.com>, Sedat Dilek <sedat.dilek@gmail.com>, Thomas Gleixner <tglx@linutronix.de>, Yinghai Lu <yinghai@kernel.org>, Greg Kroah-Hartman <gregkh@suse.de>, LKML <linux-kernel@vger.kernel.org>, Dave Hansen <dave@linu>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Nov 25, 2011 at 01:35:52AM -0500, David Miller wrote:
-> From: Krishna Kumar2 <krkumar2@in.ibm.com>
-> Date: Fri, 25 Nov 2011 09:39:11 +0530
-> 
-> > Jason Wang <jasowang@redhat.com> wrote on 11/25/2011 08:51:57 AM:
-> >>
-> >> My description is not clear again :(
-> >> I mean the same vhost thead:
-> >>
-> >> vhost thread #0 transmits packets of flow A on processor M
-> >> ...
-> >> vhost thread #0 move to another process N and start to transmit packets
-> >> of flow A
-> > 
-> > Thanks for clarifying. Yes, binding vhosts to CPU's
-> > makes the incoming packet go to the same vhost each
-> > time. BTW, are you doing any binding and/or irqbalance
-> > when you run your tests? I am not running either at
-> > this time, but thought both might be useful.
-> 
-> So are we going with this patch or are we saying that vhost binding
-> is a requirement?
+On 12/07/2011 06:03 PM, Marcelo Tosatti wrote:
+> On Wed, Dec 07, 2011 at 05:24:59PM +0530, Raghavendra K T wrote:
+>> On 12/07/2011 04:18 PM, Marcelo Tosatti wrote:
+>> Yes you are right. It was potentially racy and it was harmful too!.
+>> I had observed that it was stalling the CPU before I introduced
+>> kicked flag.
+>>
+>> But now,
+>>
+>> vcpu->kicked = 1  ==>  kvm_make_request(KVM_REQ_UNHALT, vcpu); ==>
+>
+> Ok, please use a more descriptive name, such as "pvlock_kicked" or
+> something.
+>
 
-OK we didn't come to a conclusion so I would be inclined
-to merge this patch as is for 3.2, and revisit later.
-One question though: do these changes affect userspace
-in any way? For example, will this commit us to
-ensure that a single flow gets a unique hash even
-for strange configurations that transmit the same flow
-from multiple cpus?
+Yes, pvlock_kicked seems good. 'll use same unless something else
+flashes.
 
--- 
-MST
+>>
+>> __vcpu_run() ==>  kvm_check_request(KVM_REQ_UNHALT, vcpu) ==>
+>>
+>> vcpuN->mp_state = KVM_MP_STATE_RUNNABLE; so eventually we will end up
+>> in RUNNABLE.
+>>
+>> Also Avi pointed that, logically kvm_arch_vcpu_ioctl_set_mpstate should
+>> be called only in vcpu thread, so after further debugging, I noticed
+>> that,  setting vcpuN->mp_state = KVM_MP_STATE_RUNNABLE; is not
+>> necessary.
+>> I 'll remove that in the next patch. Thanks for pointing.
+>
+> In fact you don't need kvm_arch_vcpu_ioctl_set_mpstate either, only the
+> new "kicked" flag.
+>
+
+True indeed, I meant the same.
