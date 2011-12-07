@@ -1,15 +1,15 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH] macvtap: Fix macvtap_get_queue to use rxhash first
-Date: Wed, 07 Dec 2011 13:52:35 -0500 (EST)
-Message-ID: <20111207.135235.557498530764890254.davem@davemloft.net>
-References: <OF835A6FF5.7D752AD1-ON65257953.0016350C-65257953.00169AF4@in.ibm.com>
-	<20111125.013552.1613051198566054931.davem@davemloft.net>
-	<20111207161001.GD23845@redhat.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH v4 00/12] virtio: s4 support
+Date: Wed, 07 Dec 2011 21:22:41 +1030
+Message-ID: <87liqoirgm.fsf@rustcorp.com.au>
+References: <cover.1323199985.git.amit.shah@redhat.com>
+	<87wra8j13m.fsf@rustcorp.com.au>
+	<20111207074456.GD4651@amit-x200.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20111207161001.GD23845@redhat.com>
+In-Reply-To: <20111207074456.GD4651@amit-x200.redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,42 +19,23 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: mst@redhat.com
-Cc: krkumar2@in.ibm.com, arnd@arndb.de, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, levinsasha928@gmail.com
+To: Amit Shah <amit.shah@redhat.com>
+Cc: linux-kernel@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, levinsasha928@gmail.com, Virtualization List <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Date: Wed, 7 Dec 2011 18:10:02 +0200
-
-> On Fri, Nov 25, 2011 at 01:35:52AM -0500, David Miller wrote:
->> From: Krishna Kumar2 <krkumar2@in.ibm.com>
->> Date: Fri, 25 Nov 2011 09:39:11 +0530
->> 
->> > Jason Wang <jasowang@redhat.com> wrote on 11/25/2011 08:51:57 AM:
->> >>
->> >> My description is not clear again :(
->> >> I mean the same vhost thead:
->> >>
->> >> vhost thread #0 transmits packets of flow A on processor M
->> >> ...
->> >> vhost thread #0 move to another process N and start to transmit packets
->> >> of flow A
->> > 
->> > Thanks for clarifying. Yes, binding vhosts to CPU's
->> > makes the incoming packet go to the same vhost each
->> > time. BTW, are you doing any binding and/or irqbalance
->> > when you run your tests? I am not running either at
->> > this time, but thought both might be useful.
->> 
->> So are we going with this patch or are we saying that vhost binding
->> is a requirement?
+On Wed, 7 Dec 2011 13:14:56 +0530, Amit Shah <amit.shah@redhat.com> wrote:
+> On (Wed) 07 Dec 2011 [17:54:29], Rusty Russell wrote:
+> > I figure there's a reason, but it seems a bit weird :)
 > 
-> OK we didn't come to a conclusion so I would be inclined
-> to merge this patch as is for 3.2, and revisit later.
-> One question though: do these changes affect userspace
-> in any way? For example, will this commit us to
-> ensure that a single flow gets a unique hash even
-> for strange configurations that transmit the same flow
-> from multiple cpus?
+> Well, there is one reason right now: migrating storage along with
+> VMs.  The guest needs to sync all data to the disk before the target
+> host accesses the image file.
 
-Once you sort this out, reply with an Acked-by: for me, thanks.
+I don't see why.  Sure, if qemu (or whatever) is doing buffering, it
+needs to flush that.  It doesn't, last I looked, it just maps to
+read/write.
+
+What am I missing?
+
+Thanks,
+Rusty.
