@@ -1,19 +1,14 @@
-From: Raghavendra K T <raghukt@linux.vnet.ibm.com>
-Subject: Re: [PATCH RFC V3 2/4] kvm hypervisor : Add a hypercall to KVM
-	hypervisor to support pv-ticketlocks
-Date: Wed, 07 Dec 2011 22:16:51 +0530
-Message-ID: <4EDF987B.8040900__30074.3922162384$1323277069$gmane$org@linux.vnet.ibm.com>
-References: <20111130085921.23386.89708.sendpatchset@oc5400248562.ibm.com>
-	<20111130085959.23386.69166.sendpatchset@oc5400248562.ibm.com>
-	<20111207104849.GA24849@amt.cnet>
-	<4EDF5413.1030107@linux.vnet.ibm.com>
-	<20111207123330.GA32212@amt.cnet> <4EDF6049.2030204@redhat.com>
-	<20111207133947.GA1708@amt.cnet> <4EDF7DC5.5010504@redhat.com>
+From: Ben Hutchings <bhutchings@solarflare.com>
+Subject: Re: [net-next RFC PATCH 0/5] Series short description
+Date: Wed, 7 Dec 2011 17:02:04 +0000
+Message-ID: <1323277324.2728.34.camel@bwh-desktop>
+References: <20111205085603.6116.65101.stgit@dhcp-8-146.nay.redhat.com>
+	<87ty5cj0sw.fsf@rustcorp.com.au>  <4EDF4E82.7050201@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4EDF7DC5.5010504@redhat.com>
+In-Reply-To: <4EDF4E82.7050201@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,31 +18,61 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Avi Kivity <avi@redhat.com>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, x86@kernel.org, Peter Zijlstra <peterz@infradead.org>, Virtualization <virtualization@lists.linux-foundation.org>, "H. Peter Anvin" <hpa@zytor.com>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Xen <xen-devel@lists.xensource.com>, Dave Jiang <dave.jiang@intel.com>, KVM <kvm@vger.kernel.org>, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, Ingo Molnar <mingo@redhat.com>, Rik van Riel <riel@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, Sasha Levin <levinsasha928@gmail.com>, Sedat Dilek <sedat.dilek@gmail.com>, Thomas Gleixner <tglx@linutronix.de>, Yinghai Lu <yinghai@kernel.org>, Greg Kroah-Hartman <gregkh@suse.de>, LKML <linux-kernel@vger.kernel.org>, Dave Hansen <dave@linux.vnet.ibm.com>, Suzuki
+To: Jason Wang <jasowang@redhat.com>, Rusty Russell <rusty@rustcorp.com.au>
+Cc: krkumar2@in.ibm.com, kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, levinsasha928@gmail.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 12/07/2011 08:22 PM, Avi Kivity wrote:
-> On 12/07/2011 03:39 PM, Marcelo Tosatti wrote:
->>> Also I think we can keep the kicked flag in vcpu->requests, no need for
->>> new storage.
->>
->> Was going to suggest it but it violates the currently organized
->> processing of entries at the beginning of vcpu_enter_guest.
->>
->> That is, this "kicked" flag is different enough from vcpu->requests
->> processing that a separate variable seems worthwhile (even more
->> different with convertion to MP_STATE at KVM_GET_MP_STATE).
->
-> IMO, it's similar to KVM_REQ_EVENT (which can also cause mpstate to
-> change due to apic re-evaluation).
->
+On Wed, 2011-12-07 at 19:31 +0800, Jason Wang wrote:
+> On 12/07/2011 03:30 PM, Rusty Russell wrote:
+> > On Mon, 05 Dec 2011 16:58:37 +0800, Jason Wang<jasowang@redhat.com>  wrote:
+> >> multiple queue virtio-net: flow steering through host/guest cooperation
+> >>
+> >> Hello all:
+> >>
+> >> This is a rough series adds the guest/host cooperation of flow
+> >> steering support based on Krish Kumar's multiple queue virtio-net
+> >> driver patch 3/3 (http://lwn.net/Articles/467283/).
+> > Is there a real (physical) device which does this kind of thing?  How do
+> > they do it?  Can we copy them?
+> >
+> > Cheers,
+> > Rusty.
+> As far as I see, ixgbe and sfc have similar but much more sophisticated 
+> mechanism.
+> 
+> The idea was originally suggested by Ben and it was just borrowed form 
+> those real physical nic cards who can dispatch packets based on their 
+> hash. All of theses cards can filter the flow based on the hash of 
+> L2/L3/L4 header and the stack would tell the card which queue should 
+> this flow goes.
 
-Ok, So what I understand is we have to either :
-1. retain current kick flag AS-IS but would have to make it migration 
-friendly. [I still have to get more familiar with migration side]
-or
-2. introduce notion similar to KVM_REQ_PVLOCK_KICK(??) to be part of
-vcpu->requests.
+Solarflare controllers (sfc driver) have 8192 perfect filters for
+TCP/IPv4 and UDP/IPv4 which can be used for flow steering.  (The filters
+are organised as a hash table, but matched based on 5-tuples.)  I
+implemented the 'accelerated RFS' interface in this driver.
 
-So what would be better? Please let me know.
+I believe the Intel 82599 controllers (ixgbe driver) have both
+hash-based and perfect filter modes and the driver can be configured to
+use one or the other.  The driver has its own independent mechanism for
+steering RX and TX flows which predates RFS; I don't know whether it
+uses hash-based or perfect filters.
+
+Most multi-queue controllers could support a kind of hash-based
+filtering for TCP/IP by adjusting the RSS indirection table.  However,
+this table is usually quite small (64-256 entries).  This means that
+hash collisions will be quite common and this can result in reordering.
+The same applies to the small table Jason has proposed for virtio-net.
+
+> So in host, a simple hash to queue table were introduced in tap/macvtap 
+> and in guest, the guest driver would tell the desired queue of a flow 
+> through changing this table.
+
+I don't think accelerated RFS can work well without the use of perfect
+filtering or hash-based filtering with a very low rate of collisions.
+
+Ben.
+
+-- 
+Ben Hutchings, Staff Engineer, Solarflare
+Not speaking for my employer; that's the marketing department's job.
+They asked us to note that Solarflare product names are trademarked.
