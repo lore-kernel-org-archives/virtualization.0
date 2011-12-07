@@ -1,16 +1,16 @@
-From: Amit Shah <amit.shah@redhat.com>
-Subject: Re: (resend) [PATCH v4 12/12] virtio: balloon: Add freeze, restore
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH v4 04/12] virtio: console: Add freeze and restore
 	handlers to support S4
-Date: Wed, 7 Dec 2011 16:09:41 +0530
-Message-ID: <20111207103941.GH4651@amit-x200.redhat.com>
-References: <5deccc36afa59032f0e3b10a653773bad511f303.1323199985.git.amit.shah@redhat.com>
-	<20111207103448.GA20882@redhat.com>
+Date: Wed, 7 Dec 2011 12:43:24 +0200
+Message-ID: <20111207104323.GE8326@redhat.com>
+References: <cover.1323199985.git.amit.shah@redhat.com>
+	<9f09629340556ddac37135bc3aab233f1154f86a.1323199985.git.amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20111207103448.GA20882@redhat.com>
+In-Reply-To: <9f09629340556ddac37135bc3aab233f1154f86a.1323199985.git.amit.shah@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,53 +20,107 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Len Brown <len.brown@intel.com>, linux-pm@vger.kernel.org, linux-kernel@vger.kernel.org, Virtualization List <virtualization@lists.linux-foundation.org>, "Rafael J. Wysocki" <rjw@sisk.pl>, levinsasha928@gmail.com, Pavel Machek <pavel@ucw.cz>
+To: Amit Shah <amit.shah@redhat.com>
+Cc: linux-kernel@vger.kernel.org, levinsasha928@gmail.com, Virtualization List <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On (Wed) 07 Dec 2011 [12:34:48], Michael S. Tsirkin wrote:
-> On Wed, Dec 07, 2011 at 01:18:50AM +0530, Amit Shah wrote:
-> > Now to not race with a host issuing ballooning requests while we are in
-> > the process of freezing, we just exit from the vballoon kthread when the
-> > processes are asked to freeze.  Upon thaw and restore, we re-start the
-> > thread.
+On Wed, Dec 07, 2011 at 01:18:42AM +0530, Amit Shah wrote:
+> Remove all vqs and associated buffers in the freeze callback which
+> prepares us to go into hibernation state.  On restore, re-create all the
+> vqs and populate the input vqs with buffers to get to the pre-hibernate
+> state.
 > 
-> ...
+> Note: Any outstanding unconsumed buffers are discarded; which means
+> there's a possibility of data loss in case the host or the guest didn't
+> consume any data already present in the vqs.  This can be addressed in a
+> later patch series, perhaps in virtio common code.
 > 
-> > ---
-> >  drivers/virtio/virtio_balloon.c |   79 ++++++++++++++++++++++++++++++++++++++-
-> >  1 files changed, 78 insertions(+), 1 deletions(-)
-> > 
-> > diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-> > index 8bf99be..10ec638 100644
-> > --- a/drivers/virtio/virtio_balloon.c
-> > +++ b/drivers/virtio/virtio_balloon.c
-> > @@ -258,7 +258,13 @@ static int balloon(void *_vballoon)
-> >  	while (!kthread_should_stop()) {
-> >  		s64 diff;
-> >  
-> > -		try_to_freeze();
-> > +		/*
-> > +		 * On suspend, we want to exit this thread.  We will
-> > +		 * start a new thread on resume.
-> > +		 */
-> > +		if (freezing(current))
-> > +			break;
-> > +
-> >  		wait_event_interruptible(vb->config_change,
-> >  					 (diff = towards_target(vb)) != 0
-> >  					 || vb->need_stats_update
+> Signed-off-by: Amit Shah <amit.shah@redhat.com>
+> ---
+>  drivers/char/virtio_console.c |   58 +++++++++++++++++++++++++++++++++++++++++
+>  1 files changed, 58 insertions(+), 0 deletions(-)
 > 
-> ...
-> 
-> Note: this relies on kthreads being frozen before devices.
-> Looking at kernel/power/hibernate.c this is the case,
-> but I think we should add a comment to note this.
+> diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
+> index e14f5aa..fd2fd6f 100644
+> --- a/drivers/char/virtio_console.c
+> +++ b/drivers/char/virtio_console.c
+> @@ -1844,6 +1844,60 @@ static unsigned int features[] = {
+>  	VIRTIO_CONSOLE_F_MULTIPORT,
+>  };
+>  
+> +#ifdef CONFIG_PM
+> +static int virtcons_freeze(struct virtio_device *vdev)
+> +{
+> +	struct ports_device *portdev;
+> +	struct port *port;
+> +
+> +	portdev = vdev->priv;
+> +
+> +	vdev->config->reset(vdev);
 
-Yes, it does.  And for that reason, I mentioned that stopping the
-thread doesn't buy us anything; I'll revert this change in the next
-submission.
 
-> Also Cc linux-pm crowd in case I got it wrong.
+So here, cancel_work_sync might still be running.
+If it does run, might it try to access the device
+config?  Could not determine this quickly, if yes it's a problem.
 
-		Amit
+> +
+> +	cancel_work_sync(&portdev->control_work);
+> +	remove_controlq_data(portdev);
+> +
+> +	list_for_each_entry(port, &portdev->ports, list) {
+> +		/*
+> +		 * We'll ask the host later if the new invocation has
+> +		 * the port opened or closed.
+> +		 */
+> +		port->host_connected = false;
+> +		remove_port_data(port);
+> +	}
+> +	remove_vqs(portdev);
+> +
+> +	return 0;
+> +}
+> +
+> +static int virtcons_restore(struct virtio_device *vdev)
+> +{
+> +	struct ports_device *portdev;
+> +	struct port *port;
+> +	int ret;
+> +
+> +	portdev = vdev->priv;
+> +
+> +	ret = init_vqs(portdev);
+> +	if (ret)
+> +		return ret;
+> +
+> +	if (use_multiport(portdev))
+> +		fill_queue(portdev->c_ivq, &portdev->cvq_lock);
+> +
+> +	list_for_each_entry(port, &portdev->ports, list) {
+> +		port->in_vq = portdev->in_vqs[port->id];
+> +		port->out_vq = portdev->out_vqs[port->id];
+> +
+> +		fill_queue(port->in_vq, &port->inbuf_lock);
+> +
+> +		/* Get port open/close status on the host */
+> +		send_control_msg(port, VIRTIO_CONSOLE_PORT_READY, 1);
+> +	}
+> +	return 0;
+> +}
+> +#endif
+> +
+>  static struct virtio_driver virtio_console = {
+>  	.feature_table = features,
+>  	.feature_table_size = ARRAY_SIZE(features),
+> @@ -1853,6 +1907,10 @@ static struct virtio_driver virtio_console = {
+>  	.probe =	virtcons_probe,
+>  	.remove =	virtcons_remove,
+>  	.config_changed = config_intr,
+> +#ifdef CONFIG_PM
+> +	.freeze =	virtcons_freeze,
+> +	.restore =	virtcons_restore,
+> +#endif
+>  };
+>  
+>  static int __init init(void)
+> -- 
+> 1.7.7.3
