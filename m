@@ -1,15 +1,16 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: (resend) [PATCH v4 12/12] virtio: balloon: Add freeze, restore
-	handlers to support S4
-Date: Wed, 7 Dec 2011 12:34:48 +0200
-Message-ID: <20111207103448.GA20882@redhat.com>
-References: <5deccc36afa59032f0e3b10a653773bad511f303.1323199985.git.amit.shah@redhat.com>
+Subject: Re: [PATCH v4 06/12] virtio: blk: Add freeze, restore handlers to
+	support S4
+Date: Wed, 7 Dec 2011 12:37:02 +0200
+Message-ID: <20111207103701.GD8326@redhat.com>
+References: <cover.1323199985.git.amit.shah@redhat.com>
+	<e66570ecae66535fbb5c060f6572b94e8c9db85e.1323199985.git.amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <5deccc36afa59032f0e3b10a653773bad511f303.1323199985.git.amit.shah@redhat.com>
+In-Reply-To: <e66570ecae66535fbb5c060f6572b94e8c9db85e.1323199985.git.amit.shah@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,53 +21,91 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Amit Shah <amit.shah@redhat.com>
-Cc: Len Brown <len.brown@intel.com>, linux-pm@vger.kernel.org, linux-kernel@vger.kernel.org, Virtualization List <virtualization@lists.linux-foundation.org>, "Rafael J. Wysocki" <rjw@sisk.pl>, levinsasha928@gmail.com, Pavel Machek <pavel@ucw.cz>
+Cc: linux-kernel@vger.kernel.org, levinsasha928@gmail.com, Virtualization List <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Dec 07, 2011 at 01:18:50AM +0530, Amit Shah wrote:
-> Now to not race with a host issuing ballooning requests while we are in
-> the process of freezing, we just exit from the vballoon kthread when the
-> processes are asked to freeze.  Upon thaw and restore, we re-start the
-> thread.
-
-...
-
-> ---
->  drivers/virtio/virtio_balloon.c |   79 ++++++++++++++++++++++++++++++++++++++-
->  1 files changed, 78 insertions(+), 1 deletions(-)
+On Wed, Dec 07, 2011 at 01:18:44AM +0530, Amit Shah wrote:
+> Delete the vq and flush any pending requests from the block queue on the
+> freeze callback to prepare for hibernation.
 > 
-> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-> index 8bf99be..10ec638 100644
-> --- a/drivers/virtio/virtio_balloon.c
-> +++ b/drivers/virtio/virtio_balloon.c
-> @@ -258,7 +258,13 @@ static int balloon(void *_vballoon)
->  	while (!kthread_should_stop()) {
->  		s64 diff;
+> Re-create the vq in the restore callback to resume normal function.
+> 
+> Signed-off-by: Amit Shah <amit.shah@redhat.com>
+> ---
+>  drivers/block/virtio_blk.c |   38 ++++++++++++++++++++++++++++++++++++++
+>  1 files changed, 38 insertions(+), 0 deletions(-)
+> 
+> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+> index 467f218..a9147a6 100644
+> --- a/drivers/block/virtio_blk.c
+> +++ b/drivers/block/virtio_blk.c
+> @@ -568,6 +568,40 @@ static void __devexit virtblk_remove(struct virtio_device *vdev)
+>  	ida_simple_remove(&vd_index_ida, index);
+>  }
 >  
-> -		try_to_freeze();
-> +		/*
-> +		 * On suspend, we want to exit this thread.  We will
-> +		 * start a new thread on resume.
-> +		 */
-> +		if (freezing(current))
-> +			break;
+> +#ifdef CONFIG_PM
+> +static int virtblk_freeze(struct virtio_device *vdev)
+> +{
+> +	struct virtio_blk *vblk = vdev->priv;
 > +
->  		wait_event_interruptible(vb->config_change,
->  					 (diff = towards_target(vb)) != 0
->  					 || vb->need_stats_update
+> +	/* Ensure we don't receive any more interrupts */
+> +	vdev->config->reset(vdev);
+> +
+> +	flush_work(&vblk->config_work);
 
-...
-
-Note: this relies on kthreads being frozen before devices.
-Looking at kernel/power/hibernate.c this is the case,
-but I think we should add a comment to note this.
-
-Also Cc linux-pm crowd in case I got it wrong.
+It bothers me that config work can be running
+after reset here. If it does, it will not get sane
+values from reading config.
 
 
----
+Also, can there be stuff in the reqs list?
+If yes is this a problem?
 
-Resending due to corrupted headers. Sorry about the noise.
+> +
+> +	spin_lock_irq(vblk->disk->queue->queue_lock);
+> +	blk_stop_queue(vblk->disk->queue);
+> +	spin_unlock_irq(vblk->disk->queue->queue_lock);
+> +	blk_sync_queue(vblk->disk->queue);
+> +
+> +	vdev->config->del_vqs(vdev);
+> +	return 0;
+> +}
+> +
 
--- 
-MST
+Thinking about it, looks like there's a bug in
+virtblk_remove: if we get a config change after
+flush_work we schedule another work.
+That's a problem for sure as structure is removed.
+
+
+> +static int virtblk_restore(struct virtio_device *vdev)
+> +{
+> +	struct virtio_blk *vblk = vdev->priv;
+> +	int ret;
+> +
+> +	ret = init_vq(vdev->priv);
+> +	if (!ret) {
+> +		spin_lock_irq(vblk->disk->queue->queue_lock);
+> +		blk_start_queue(vblk->disk->queue);
+> +		spin_unlock_irq(vblk->disk->queue->queue_lock);
+> +	}
+> +	return ret;
+> +}
+> +#endif
+> +
+>  static const struct virtio_device_id id_table[] = {
+>  	{ VIRTIO_ID_BLOCK, VIRTIO_DEV_ANY_ID },
+>  	{ 0 },
+> @@ -593,6 +627,10 @@ static struct virtio_driver __refdata virtio_blk = {
+>  	.probe			= virtblk_probe,
+>  	.remove			= __devexit_p(virtblk_remove),
+>  	.config_changed		= virtblk_config_changed,
+> +#ifdef CONFIG_PM
+> +	.freeze			= virtblk_freeze,
+> +	.restore		= virtblk_restore,
+> +#endif
+>  };
+>  
+>  static int __init init(void)
+> -- 
+> 1.7.7.3
