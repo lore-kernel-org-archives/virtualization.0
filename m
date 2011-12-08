@@ -1,15 +1,13 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH v4 00/12] virtio: s4 support
-Date: Wed, 07 Dec 2011 21:22:41 +1030
-Message-ID: <87liqoirgm.fsf@rustcorp.com.au>
-References: <cover.1323199985.git.amit.shah@redhat.com>
-	<87wra8j13m.fsf@rustcorp.com.au>
-	<20111207074456.GD4651@amit-x200.redhat.com>
+Subject: Re: [PATCH RFC] virtio_net: fix refill related races
+Date: Thu, 08 Dec 2011 15:07:29 +1030
+Message-ID: <8739cvisqe.fsf@rustcorp.com.au>
+References: <20111207152120.GA23417@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20111207074456.GD4651@amit-x200.redhat.com>
+In-Reply-To: <20111207152120.GA23417@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,22 +18,22 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Amit Shah <amit.shah@redhat.com>
-Cc: linux-kernel@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, levinsasha928@gmail.com, Virtualization List <virtualization@lists.linux-foundation.org>
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 7 Dec 2011 13:14:56 +0530, Amit Shah <amit.shah@redhat.com> wrote:
-> On (Wed) 07 Dec 2011 [17:54:29], Rusty Russell wrote:
-> > I figure there's a reason, but it seems a bit weird :)
+On Wed, 7 Dec 2011 17:21:22 +0200, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> Fix theoretical races related to refill work:
+> 1. After napi is disabled by ndo_stop, refill work
+>    can run and re-enable it.
+> 2. Refill can reschedule itself, if this happens
+>    it can run after cancel_delayed_work_sync,
+>    and will access device after it is destroyed.
 > 
-> Well, there is one reason right now: migrating storage along with
-> VMs.  The guest needs to sync all data to the disk before the target
-> host accesses the image file.
+> As a solution, add flags to track napi state and
+> to disable refill, and toggle them on start, stop
+> and remove; check these flags on refill.
 
-I don't see why.  Sure, if qemu (or whatever) is doing buffering, it
-needs to flush that.  It doesn't, last I looked, it just maps to
-read/write.
+Why isn't a "dont-readd" flag sufficient?
 
-What am I missing?
-
-Thanks,
+Cheers,
 Rusty.
