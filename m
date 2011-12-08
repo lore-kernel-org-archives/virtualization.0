@@ -1,23 +1,13 @@
-From: Amit Shah <amit.shah@redhat.com>
-Subject: Re: [PATCH v3 2/3] hvc_init(): Enforce one-time initialization.
-Date: Thu, 8 Dec 2011 17:38:04 +0530
-Message-ID: <20111208120804.GF23531@amit-x200.redhat.com>
-References: <20111108214504.28884.61814.stgit@miche.sea.corp.google.com>
-	<874nybqo0o.fsf@rustcorp.com.au>
-	<CAB8RdapbaueyWLJuJDE_ZdvLkRNM4sQHTxgmgO=jrnXZ6YPSmA@mail.gmail.com>
-	<20111123103852.GG16665@amit-x200.redhat.com>
-	<CAB8RdaoDxMCgTjuGP70bGrsrtgh=USYtU3Spo5OPtVMYAM5EzQ@mail.gmail.com>
-	<20111129142149.GE2822@amit-x200.redhat.com>
-	<CAB8RdapuPRym2dH_9mgmGdzpCxnP1KpS+hS8JJ-geVkga5fMcw@mail.gmail.com>
-	<CAB8Rdapfuf5XH+X9gsUL+CJ9gTQcSNfq4Dj9DoYWQeFgD04ODQ@mail.gmail.com>
-	<20111205105452.GB27683@amit-x200.redhat.com>
-	<CAB8Rdar=qOokxZkjQVRmo=zN_f75jPwzU+6=WBRo0g+P7w+pAw@mail.gmail.com>
+From: Sasha Levin <levinsasha928@gmail.com>
+Subject: Re: [PATCH 0/11] RFC: PCI using capabilitities
+Date: Thu, 08 Dec 2011 17:37:37 +0200
+Message-ID: <1323358657.32487.9.camel__8581.27219039506$1323358697$gmane$org@lappy>
+References: <87pqfzgy6p.fsf@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <CAB8Rdar=qOokxZkjQVRmo=zN_f75jPwzU+6=WBRo0g+P7w+pAw@mail.gmail.com>
+In-Reply-To: <87pqfzgy6p.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,44 +17,59 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Miche Baker-Harvey <miche@google.com>
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>, xen-devel@lists.xensource.com, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Anton Blanchard <anton@samba.org>, Mike Waychison <mikew@google.com>, ppc-dev <linuxppc-dev@lists.ozlabs.org>, Greg Kroah-Hartman <gregkh@suse.de>, Eric Northrup <digitaleric@google.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, Avi Kivity <avi@redhat.com>, kvm@vger.kernel.org, virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On (Tue) 06 Dec 2011 [09:05:38], Miche Baker-Harvey wrote:
-> Amit,
+On Thu, 2011-12-08 at 20:52 +1030, Rusty Russell wrote:
+> Here's the patch series I ended up with.  I haven't coded up the QEMU
+> side yet, so no idea if the new driver works.
 > 
-> Ah, indeed.  I am not using MSI-X, so virtio_pci::vp_try_to_find_vqs()
-> calls vp_request_intx() and sets up an interrupt callback.  From
-> there, when an interrupt occurs, the stack looks something like this:
-> 
-> virtio_pci::vp_interrupt()
->   virtio_pci::vp_vring_interrupt()
->     virtio_ring::vring_interrupt()
->       vq->vq.callback()  <-- in this case, that's virtio_console::control_intr()
->         workqueue::schedule_work()
->           workqueue::queue_work()
->             queue_work_on(get_cpu())  <-- queues the work on the current CPU.
-> 
-> I'm not doing anything to keep multiple control message from being
-> sent concurrently to the guest, and we will take those interrupts on
-> any CPU. I've confirmed that the two instances of
-> handle_control_message() are occurring on different CPUs.
+> Questions:
+> (1) Do we win from separating ISR, NOTIFY and COMMON?
+> (2) I used a "u8 bar"; should I use a bir and pack it instead?  BIR
+>     seems a little obscure (noone else in the kernel source seems to
+>     refer to it).
 
-So let's have a new helper, port_lock() that takes the port-specific
-spinlock.  There has to be a new helper, since the port lock should
-depend on the portdev lock being taken too.  For the port addition
-case, just the portdev lock should be taken.  For any other
-operations, the port lock should be taken.
+I started implementing it for KVM tools, when I noticed a strange thing:
+my vq creating was failing because the driver was reading a value other
+than 0 from the address field of a new vq, and failing.
 
-My assumption was that we would be able to serialise the work items,
-but that will be too restrictive.  Taking port locks sounds like a
-better idea.
+I've added simple prints in the usermode code, and saw the following
+ordering:
 
-We'd definitely need the port lock in the control work handler.  We
-might need it in a few more places (like module removal), but we'll
-worry about that later.
+1. queue select vq 0
+2. queue read address (returns 0 - new vq)
+3. queue write address (good address of vq)
+4. queue read address (returns !=0, fails)
+4. queue select vq 1
 
-Does this sound fine?
+From that I understood that the ordering is wrong, the driver was trying
+to read address before selecting the correct vq.
 
-		Amit
+At that point, I've added simple prints to the driver. Initially it
+looked as follows:
+
+	iowrite16(index, &vp_dev->common->queue_select);
+
+	switch (ioread64(&vp_dev->common->queue_address)) {
+		[...]
+	};
+
+So I added prints before the iowrite16() and after the ioread64(), and
+saw that while the driver prints were ordered, the device ones weren't:
+
+	[    1.264052] before iowrite index=1
+	kvmtool: net returning pfn (vq=0): 310706176
+	kvmtool: queue selected: 1
+	[    1.264890] after ioread index=1
+
+Suspecting that something was wrong with ordering, I've added a print
+between the iowrite and the ioread, and it finally started working well.
+
+Which leads me to the question: Are MMIO vs MMIO reads/writes not
+ordered?
+
+-- 
+
+Sasha.
