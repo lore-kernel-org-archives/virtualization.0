@@ -1,13 +1,16 @@
-From: Sasha Levin <levinsasha928@gmail.com>
-Subject: Re: [PATCH 0/11] RFC: PCI using capabilitities
-Date: Thu, 08 Dec 2011 17:37:37 +0200
-Message-ID: <1323358657.32487.9.camel__8581.27219039506$1323358697$gmane$org@lappy>
-References: <87pqfzgy6p.fsf@rustcorp.com.au>
+From: Raghavendra K T <raghukt@linux.vnet.ibm.com>
+Subject: Re: [PATCH RFC V3 2/4] kvm hypervisor : Add a hypercall to KVM
+	hypervisor to support pv-ticketlocks
+Date: Thu, 08 Dec 2011 23:05:04 +0530
+Message-ID: <4EE0F548.8050006@linux.vnet.ibm.com>
+References: <20111130085921.23386.89708.sendpatchset@oc5400248562.ibm.com>
+	<20111130085959.23386.69166.sendpatchset@oc5400248562.ibm.com>
+	<4ED760F1.6080804@redhat.com> <4ED7DA85.5080504@linux.vnet.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <87pqfzgy6p.fsf@rustcorp.com.au>
+In-Reply-To: <4ED7DA85.5080504@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,59 +20,60 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, Avi Kivity <avi@redhat.com>, kvm@vger.kernel.org, virtualization <virtualization@lists.linux-foundation.org>
+To: Raghavendra K T <raghukt@linux.vnet.ibm.com>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, x86@kernel.org, Peter Zijlstra <peterz@infradead.org>, Virtualization <virtualization@lists.linux-foundation.org>, "H. Peter Anvin" <hpa@zytor.com>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Xen <xen-devel@lists.xensource.com>, Dave Jiang <dave.jiang@intel.com>, KVM <kvm@vger.kernel.org>, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, Ingo Molnar <mingo@redhat.com>, Avi Kivity <avi@redhat.com>, Rik van Riel <riel@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, Sasha Levin <levinsasha928@gmail.com>, Sedat Dilek <sedat.dilek@gmail.com>, Thomas Gleixner <tglx@linutronix.de>, Yinghai Lu <yinghai@kernel.org>, Greg Kroah-Hartman <gregkh@suse.de>, LKML <linux-kernel@vger.kernel.org>, Dave Hansen <dave@linu>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 2011-12-08 at 20:52 +1030, Rusty Russell wrote:
-> Here's the patch series I ended up with.  I haven't coded up the QEMU
-> side yet, so no idea if the new driver works.
-> 
-> Questions:
-> (1) Do we win from separating ISR, NOTIFY and COMMON?
-> (2) I used a "u8 bar"; should I use a bir and pack it instead?  BIR
->     seems a little obscure (noone else in the kernel source seems to
->     refer to it).
+On 12/02/2011 01:20 AM, Raghavendra K T wrote:
+>>>
+>>> +/*
+>>> + * kvm_pv_kick_cpu_op: Kick a vcpu.
+>>> + *
+>>> + * @cpu - vcpu to be kicked.
+>>> + */
+>>> +static void kvm_pv_kick_cpu_op(struct kvm *kvm, int cpu)
+>>> +{
+>>> + struct kvm_vcpu *vcpu = kvm_get_vcpu(kvm, cpu);
+>>
+>> There is no guarantee that guest cpu numbers match host vcpu numbers.
+>> Use APIC IDs, and kvm_apic_match_dest().
+>
+> Okay. I have to dig more on this.
+>
+Sorry for late reply on this, was experimenting with the changes needed.
 
-I started implementing it for KVM tools, when I noticed a strange thing:
-my vq creating was failing because the driver was reading a value other
-than 0 from the address field of a new vq, and failing.
+Wanted to confirm if it is according to your expectation.
 
-I've added simple prints in the usermode code, and saw the following
-ordering:
+  Host side change should look like this to get vcpu,
 
-1. queue select vq 0
-2. queue read address (returns 0 - new vq)
-3. queue write address (good address of vq)
-4. queue read address (returns !=0, fails)
-4. queue select vq 1
+	int i;
+	struct kvm_vcpu *vcpu = NULL;
 
-From that I understood that the ordering is wrong, the driver was trying
-to read address before selecting the correct vq.
+	kvm_for_each_vcpu(i, vcpu, kvm) {
+		if (!kvm_apic_present(vcpu))
+		continue;
 
-At that point, I've added simple prints to the driver. Initially it
-looked as follows:
+		if (kvm_apic_match_dest(vcpu, 0, 0, cpu, 0)) {
+		break;
+		}
+	}
 
-	iowrite16(index, &vp_dev->common->queue_select);
 
-	switch (ioread64(&vp_dev->common->queue_address)) {
-		[...]
-	};
+In guest side, convert the cpu to apicid using,
 
-So I added prints before the iowrite16() and after the ioread64(), and
-saw that while the driver prints were ordered, the device ones weren't:
+apicid = apic->cpu_present_to_apicid(cpu);
+OR
+apicid =  per_cpu(x86_cpu_to_apicid, cpu);
 
-	[    1.264052] before iowrite index=1
-	kvmtool: net returning pfn (vq=0): 310706176
-	kvmtool: queue selected: 1
-	[    1.264890] after ioread index=1
+But I have a question, as you know, we are storing the waiting cpus in
+cpumask, to track the cpu to be kicked.
 
-Suspecting that something was wrong with ordering, I've added a print
-between the iowrite and the ioread, and it finally started working well.
+You want to change the logic to store the apicid directly instead of
+cpu during contention or is it OK to convert before kick hypercall?.
 
-Which leads me to the question: Are MMIO vs MMIO reads/writes not
-ordered?
+Probably it would be more good if I can get to know the scenario,
+where guest cpu numbers does not match host vcpu numbers. It may answer 
+the whole question and help me in testing/validating the code.
 
--- 
-
-Sasha.
+Thanks
+- Raghu
