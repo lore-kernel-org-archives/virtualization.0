@@ -1,62 +1,51 @@
-From: "Rolf Eike Beer" <eike-kernel@sf-tec.de>
-Subject: Re: [PATCH 1/1] Staging: hv: storvsc: Move the storage driver out of
- the staging area
-Date: Thu, 8 Dec 2011 11:37:28 +0100
-Message-ID: <0b79f774eeb89b67073e93fcc5db8c55.squirrel@webmail.sf-mail.de>
-References: <1323274574-22863-1-git-send-email-kys@microsoft.com>
+From: Sasha Levin <levinsasha928@gmail.com>
+Subject: Re: [PATCH] virtio-ring: Use threshold for switching to indirect
+	descriptors
+Date: Thu, 08 Dec 2011 12:37:48 +0200
+Message-ID: <1323340668.3904.21.camel@lappy>
+References: <87zkfbre9x.fsf@rustcorp.com.au> <1322913028.3782.4.camel@lappy>
+	<4EDB5EF0.2010909@redhat.com> <1323000831.4205.4.camel@lappy>
+	<20111204162221.GB22501@redhat.com> <1323020088.3256.3.camel@lappy>
+	<4EDBAFC5.2010405@redhat.com> <1323020374.3256.5.camel@lappy>
+	<1323023039.3256.7.camel@lappy> <1323266565.4009.10.camel@lappy>
+	<20111207154816.GA23845@redhat.com> <87r50fgzyj.fsf@rustcorp.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Return-path: <linux-scsi-owner@vger.kernel.org>
-In-Reply-To: <1323274574-22863-1-git-send-email-kys@microsoft.com>
-Sender: linux-scsi-owner@vger.kernel.org
-Cc: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org, ohering@suse.com, james.bottomley@hansenpartnership.com, hch@infradead.org, linux-scsi@vger.kernel.org, "K. Y. Srinivasan" <kys@microsoft.com>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <87r50fgzyj.fsf@rustcorp.com.au>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: markmc@redhat.com, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Avi Kivity <avi@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-> The storage driver (storvsc_drv.c) handles all block storage devices
-> assigned to Linux guests hosted on Hyper-V. This driver has been in the
-> staging tree for a while and this patch moves it out of the staging area.
-> As per Greg's recommendation, this patch makes no changes to the
-> staging/hv
-> directory. Once the driver moves out of staging, we will cleanup the
-> staging/hv directory.
->
-> This patch includes all the patches that I have sent against the
-> staging/hv
-> tree to address the comments I have gotten to date on this storage driver.
->
-> Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
-> ---
->  drivers/scsi/Kconfig       |    7 +
->  drivers/scsi/Makefile      |    3 +
->  drivers/scsi/storvsc_drv.c | 1586
-> ++++++++++++++++++++++++++++++++++++++++++++
->  3 files changed, 1596 insertions(+), 0 deletions(-)
->  create mode 100644 drivers/scsi/storvsc_drv.c
->
-> diff --git a/drivers/scsi/Kconfig b/drivers/scsi/Kconfig
-> index 06ea3bc..4910269 100644
-> --- a/drivers/scsi/Kconfig
-> +++ b/drivers/scsi/Kconfig
-> @@ -662,6 +662,13 @@ config VMWARE_PVSCSI
->  	  To compile this driver as a module, choose M here: the
->  	  module will be called vmw_pvscsi.
->
-> +config HYPERV_STORAGE
-> +	tristate "Microsoft Hyper-V virtual storage driver"
-> +	depends on SCSI && HYPERV
-> +	default HYPERV
-> +	help
-> +	  Select this option to enable the Hyper-V virtual storage driver.
-> +
->  config LIBFC
->  	tristate "LibFC module"
->  	select SCSI_FC_ATTRS
+On Thu, 2011-12-08 at 20:14 +1030, Rusty Russell wrote:
+> On Wed, 7 Dec 2011 17:48:17 +0200, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> > On Wed, Dec 07, 2011 at 04:02:45PM +0200, Sasha Levin wrote:
+> > > On Sun, 2011-12-04 at 20:23 +0200, Sasha Levin wrote:
+> > > 
+> > > [snip]
+> > > 
+> > > Rusty, Michael, does the below looks a reasonable optimization for you?
+> > 
+> > OK overall but a bit hard to say for sure as it looks pretty incomplete ...
+> 
+> A static threshold is very hackish; we need to either initialize it to
+> a proven-good value (since noone will ever change it) or be cleverer.
 
-Maybe that help text could be slightly more verbose? Like "This is only
-necessary if you plan to run this kernel as a guest on Microsoft Hyper-V"?
-And I would welcome the usual "the module will be called" text for this
-driver, too. See the first 2 lines of context of think hunk for a
-copy&paste source of this text.
+I'll better wait to see how the threshold issue is resolved, and
+possibly do it as a dynamic value which depends on the threshold.
 
-Eike
+I doubt theres one magic value which would work for all.
+
+-- 
+
+Sasha.
