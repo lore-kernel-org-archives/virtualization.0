@@ -1,20 +1,17 @@
-From: Avi Kivity <avi@redhat.com>
-Subject: Re: [PATCH RFC V3 2/4] kvm hypervisor : Add a hypercall to KVM
-	hypervisor to support pv-ticketlocks
-Date: Thu, 08 Dec 2011 11:40:22 +0200
-Message-ID: <4EE08606.2060508@redhat.com>
-References: <20111130085921.23386.89708.sendpatchset@oc5400248562.ibm.com>
-	<20111130085959.23386.69166.sendpatchset@oc5400248562.ibm.com>
-	<20111207104849.GA24849@amt.cnet>
-	<4EDF5413.1030107@linux.vnet.ibm.com>
-	<20111207123330.GA32212@amt.cnet> <4EDF6049.2030204@redhat.com>
-	<20111207133947.GA1708@amt.cnet> <4EDF7DC5.5010504@redhat.com>
-	<4EDF987B.8040900@linux.vnet.ibm.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH] macvtap: Fix macvtap_get_queue to use rxhash first
+Date: Thu, 08 Dec 2011 17:46:17 +0800
+Message-ID: <4EE08769.7020701@redhat.com>
+References: <OF86B15006.7F4BE3FB-ON65257953.00104C3E-65257953.0010EFCA@in.ibm.com>
+	<4ECF09D5.4010700@redhat.com>
+	<OF835A6FF5.7D752AD1-ON65257953.0016350C-65257953.00169AF4@in.ibm.com>
+	<20111125.013552.1613051198566054931.davem@davemloft.net>
+	<20111207161001.GD23845@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4EDF987B.8040900@linux.vnet.ibm.com>
+In-Reply-To: <20111207161001.GD23845@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,39 +21,38 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Raghavendra K T <raghukt@linux.vnet.ibm.com>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, x86@kernel.org, Peter Zijlstra <peterz@infradead.org>, Virtualization <virtualization@lists.linux-foundation.org>, "H. Peter Anvin" <hpa@zytor.com>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Xen <xen-devel@lists.xensource.com>, Dave Jiang <dave.jiang@intel.com>, KVM <kvm@vger.kernel.org>, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, Ingo Molnar <mingo@redhat.com>, Rik van Riel <riel@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, Sasha Levin <levinsasha928@gmail.com>, Sedat Dilek <sedat.dilek@gmail.com>, Thomas Gleixner <tglx@linutronix.de>, Yinghai Lu <yinghai@kernel.org>, Greg Kroah-Hartman <gregkh@suse.de>, LKML <linux-kernel@vger.kernel.org>, Dave Hansen <dave@linux.vnet.ibm.com>, Suzuki
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: krkumar2@in.ibm.com, arnd@arndb.de, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, levinsasha928@gmail.com, David Miller <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 12/07/2011 06:46 PM, Raghavendra K T wrote:
-> On 12/07/2011 08:22 PM, Avi Kivity wrote:
->> On 12/07/2011 03:39 PM, Marcelo Tosatti wrote:
->>>> Also I think we can keep the kicked flag in vcpu->requests, no need
->>>> for
->>>> new storage.
->>>
->>> Was going to suggest it but it violates the currently organized
->>> processing of entries at the beginning of vcpu_enter_guest.
->>>
->>> That is, this "kicked" flag is different enough from vcpu->requests
->>> processing that a separate variable seems worthwhile (even more
->>> different with convertion to MP_STATE at KVM_GET_MP_STATE).
+On 12/08/2011 12:10 AM, Michael S. Tsirkin wrote:
+> On Fri, Nov 25, 2011 at 01:35:52AM -0500, David Miller wrote:
+>> From: Krishna Kumar2<krkumar2@in.ibm.com>
+>> Date: Fri, 25 Nov 2011 09:39:11 +0530
 >>
->> IMO, it's similar to KVM_REQ_EVENT (which can also cause mpstate to
->> change due to apic re-evaluation).
->>
+>>> Jason Wang<jasowang@redhat.com>  wrote on 11/25/2011 08:51:57 AM:
+>>>> My description is not clear again :(
+>>>> I mean the same vhost thead:
+>>>>
+>>>> vhost thread #0 transmits packets of flow A on processor M
+>>>> ...
+>>>> vhost thread #0 move to another process N and start to transmit packets
+>>>> of flow A
+>>> Thanks for clarifying. Yes, binding vhosts to CPU's
+>>> makes the incoming packet go to the same vhost each
+>>> time. BTW, are you doing any binding and/or irqbalance
+>>> when you run your tests? I am not running either at
+>>> this time, but thought both might be useful.
+>> So are we going with this patch or are we saying that vhost binding
+>> is a requirement?
+> OK we didn't come to a conclusion so I would be inclined
+> to merge this patch as is for 3.2, and revisit later.
+> One question though: do these changes affect userspace
+> in any way? For example, will this commit us to
+> ensure that a single flow gets a unique hash even
+> for strange configurations that transmit the same flow
+> from multiple cpus?
 >
-> Ok, So what I understand is we have to either :
-> 1. retain current kick flag AS-IS but would have to make it migration
-> friendly. [I still have to get more familiar with migration side]
-> or
-> 2. introduce notion similar to KVM_REQ_PVLOCK_KICK(??) to be part of
-> vcpu->requests.
->
-> So what would be better? Please let me know.
->
-
-IMO, KVM_REQ.
-
--- 
-error compiling committee.c: too many arguments to function
+The hash were generated by either host kernel or host nic, so I think 
+it's unique except for the nic that would provide different hashes for a 
+flow. I wonder whether there's a such nic.
