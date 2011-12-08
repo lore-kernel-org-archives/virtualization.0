@@ -1,14 +1,12 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: [RFC 10/11] virtio_pci: share virtqueue setup/teardown between modern
-	and legacy driver.
-Date: Thu, 08 Dec 2011 21:12:09 +1030
-Message-ID: <87vcprfipq.fsf@rustcorp.com.au>
+Subject: [RFC 8/11] virtio_pci: share structure between legacy and modern.
+Date: Thu, 08 Dec 2011 21:10:24 +1030
+Message-ID: <87y5unfisn.fsf@rustcorp.com.au>
 References: <87pqfzgy6p.fsf@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <87pqfzgy6p.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,813 +20,463 @@ To: virtualization <virtualization@lists.linux-foundation.org>
 Cc: Sasha Levin <levinsasha928@gmail.com>, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-There's a great deal of work in setting up and disabling interrupts,
-particularly with MSI-X, which is generic.  So we move most of the
-work out to helpers which take the location of the msix_config
-register, and setup_vq and del_vq functions.
+They're almost identical: we add a "legacy" ioregion (what was
+"ioaddr" in the legacy driver), and move it out to virtio_pci-common.h.
 ---
- drivers/virtio/virtio_pci-common.c |  249 +++++++++++++++++++++++++++++++++++++
- drivers/virtio/virtio_pci-common.h |   19 ++
- drivers/virtio/virtio_pci.c        |  224 +--------------------------------
- drivers/virtio/virtio_pci_legacy.c |  229 ++--------------------------------
- 4 files changed, 291 insertions(+), 430 deletions(-)
+ drivers/virtio/virtio_pci-common.h |   72 ++++++++++++++++++++++
+ drivers/virtio/virtio_pci.c        |   64 -------------------
+ drivers/virtio/virtio_pci_legacy.c |  120 +++++++++----------------------------
+ 3 files changed, 105 insertions(+), 151 deletions(-)
 
-diff --git a/drivers/virtio/virtio_pci-common.c b/drivers/virtio/virtio_pci-common.c
---- a/drivers/virtio/virtio_pci-common.c
-+++ b/drivers/virtio/virtio_pci-common.c
-@@ -11,6 +11,7 @@
- #define VIRTIO_PCI_NO_LEGACY
- #include "virtio_pci-common.h"
- #include <linux/virtio_ring.h>
-+#include <linux/interrupt.h>
- 
- /* the notify function used when creating a virt queue */
- void virtio_pci_notify(struct virtqueue *vq)
-@@ -79,3 +80,251 @@ irqreturn_t virtio_pci_interrupt(int irq
- 
- 	return virtio_pci_vring_interrupt(irq, opaque);
- }
-+
-+static void vp_free_vectors(struct virtio_device *vdev,
-+			    __le16 __iomem *msix_config)
-+{
-+	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
-+	int i;
-+
-+	if (vp_dev->intx_enabled) {
-+		free_irq(vp_dev->pci_dev->irq, vp_dev);
-+		vp_dev->intx_enabled = 0;
-+	}
-+
-+	for (i = 0; i < vp_dev->msix_used_vectors; ++i)
-+		free_irq(vp_dev->msix_entries[i].vector, vp_dev);
-+
-+	if (vp_dev->msix_enabled) {
-+		/* Disable the vector used for configuration */
-+		iowrite16(VIRTIO_MSI_NO_VECTOR, msix_config);
-+		/* Flush the write out to device */
-+		ioread16(msix_config);
-+
-+		pci_disable_msix(vp_dev->pci_dev);
-+		vp_dev->msix_enabled = 0;
-+		vp_dev->msix_vectors = 0;
-+	}
-+
-+	vp_dev->msix_used_vectors = 0;
-+	kfree(vp_dev->msix_names);
-+	vp_dev->msix_names = NULL;
-+	kfree(vp_dev->msix_entries);
-+	vp_dev->msix_entries = NULL;
-+}
-+
-+static int vp_request_msix_vectors(struct virtio_device *vdev,
-+				   __le16 __iomem *msix_config,
-+				   int nvectors, bool per_vq_vectors)
-+{
-+	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
-+	const char *name = dev_name(&vp_dev->vdev.dev);
-+	unsigned i, v;
-+	int err = -ENOMEM;
-+
-+	vp_dev->msix_entries = kmalloc(nvectors * sizeof *vp_dev->msix_entries,
-+				       GFP_KERNEL);
-+	if (!vp_dev->msix_entries)
-+		goto error;
-+	vp_dev->msix_names = kmalloc(nvectors * sizeof *vp_dev->msix_names,
-+				     GFP_KERNEL);
-+	if (!vp_dev->msix_names)
-+		goto error;
-+
-+	for (i = 0; i < nvectors; ++i)
-+		vp_dev->msix_entries[i].entry = i;
-+
-+	/* pci_enable_msix returns positive if we can't get this many. */
-+	err = pci_enable_msix(vp_dev->pci_dev, vp_dev->msix_entries, nvectors);
-+	if (err > 0)
-+		err = -ENOSPC;
-+	if (err)
-+		goto error;
-+	vp_dev->msix_vectors = nvectors;
-+	vp_dev->msix_enabled = 1;
-+
-+	/* Set the vector used for configuration */
-+	v = vp_dev->msix_used_vectors;
-+	snprintf(vp_dev->msix_names[v], sizeof *vp_dev->msix_names,
-+		 "%s-config", name);
-+	err = request_irq(vp_dev->msix_entries[v].vector,
-+			  virtio_pci_config_changed, 0, vp_dev->msix_names[v],
-+			  vp_dev);
-+	if (err)
-+		goto error;
-+	++vp_dev->msix_used_vectors;
-+
-+	iowrite16(v, msix_config);
-+	/* Verify we had enough resources to assign the vector */
-+	v = ioread16(msix_config);
-+	if (v == VIRTIO_MSI_NO_VECTOR) {
-+		err = -EBUSY;
-+		goto error;
-+	}
-+
-+	if (!per_vq_vectors) {
-+		/* Shared vector for all VQs */
-+		v = vp_dev->msix_used_vectors;
-+		snprintf(vp_dev->msix_names[v], sizeof *vp_dev->msix_names,
-+			 "%s-virtqueues", name);
-+		err = request_irq(vp_dev->msix_entries[v].vector,
-+				  virtio_pci_vring_interrupt, 0,
-+				  vp_dev->msix_names[v], vp_dev);
-+		if (err)
-+			goto error;
-+		++vp_dev->msix_used_vectors;
-+	}
-+	return 0;
-+error:
-+	vp_free_vectors(vdev, msix_config);
-+	return err;
-+}
-+
-+static int vp_request_intx(struct virtio_device *vdev)
-+{
-+	int err;
-+	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
-+
-+	err = request_irq(vp_dev->pci_dev->irq, virtio_pci_interrupt,
-+			  IRQF_SHARED, dev_name(&vdev->dev), vp_dev);
-+	if (!err)
-+		vp_dev->intx_enabled = 1;
-+	return err;
-+}
-+
-+static int vp_try_to_find_vqs(struct virtio_device *vdev,
-+			      __le16 __iomem *msix_config,
-+			      struct virtqueue *(setup_vq)(struct virtio_device*,
-+							   unsigned,
-+							   void (*)(struct
-+								    virtqueue *),
-+							   const char *,
-+							   u16 msix_vec),
-+			      void (*del_vq)(struct virtqueue *vq),
-+			      unsigned nvqs,
-+			      struct virtqueue *vqs[],
-+			      vq_callback_t *callbacks[],
-+			      const char *names[],
-+			      bool use_msix,
-+			      bool per_vq_vectors)
-+{
-+	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
-+	u16 msix_vec;
-+	int i, err, nvectors, allocated_vectors;
-+
-+	if (!use_msix) {
-+		/* Old style: one normal interrupt for change and all vqs. */
-+		err = vp_request_intx(vdev);
-+		if (err)
-+			goto error_request;
-+	} else {
-+		if (per_vq_vectors) {
-+			/* Best option: one for change interrupt, one per vq. */
-+			nvectors = 1;
-+			for (i = 0; i < nvqs; ++i)
-+				if (callbacks[i])
-+					++nvectors;
-+		} else {
-+			/* Second best: one for change, shared for all vqs. */
-+			nvectors = 2;
-+		}
-+
-+		err = vp_request_msix_vectors(vdev, msix_config,
-+					      nvectors, per_vq_vectors);
-+		if (err)
-+			goto error_request;
-+	}
-+
-+	vp_dev->per_vq_vectors = per_vq_vectors;
-+	allocated_vectors = vp_dev->msix_used_vectors;
-+	for (i = 0; i < nvqs; ++i) {
-+		if (!callbacks[i] || !vp_dev->msix_enabled)
-+			msix_vec = VIRTIO_MSI_NO_VECTOR;
-+		else if (vp_dev->per_vq_vectors)
-+			msix_vec = allocated_vectors++;
-+		else
-+			msix_vec = VP_MSIX_VQ_VECTOR;
-+		vqs[i] = setup_vq(vdev, i, callbacks[i], names[i], msix_vec);
-+		if (IS_ERR(vqs[i])) {
-+			err = PTR_ERR(vqs[i]);
-+			goto error_find;
-+		}
-+
-+		if (!vp_dev->per_vq_vectors || msix_vec == VIRTIO_MSI_NO_VECTOR)
-+			continue;
-+
-+		/* allocate per-vq irq if available and necessary */
-+		snprintf(vp_dev->msix_names[msix_vec],
-+			 sizeof *vp_dev->msix_names,
-+			 "%s-%s",
-+			 dev_name(&vp_dev->vdev.dev), names[i]);
-+		err = request_irq(vp_dev->msix_entries[msix_vec].vector,
-+				  vring_interrupt, 0,
-+				  vp_dev->msix_names[msix_vec],
-+				  vqs[i]);
-+		if (err) {
-+			del_vq(vqs[i]);
-+			goto error_find;
-+		}
-+	}
-+	return 0;
-+
-+error_find:
-+	virtio_pci_del_vqs(vdev, msix_config, del_vq);
-+
-+error_request:
-+	return err;
-+}
-+
-+/* the config->find_vqs() implementation */
-+int virtio_pci_find_vqs(struct virtio_device *vdev,
-+			__le16 __iomem *msix_config,
-+			struct virtqueue *(setup_vq)(struct virtio_device *,
-+						     unsigned,
-+						     void (*)(struct virtqueue*),
-+						     const char *,
-+						     u16 msix_vec),
-+			void (*del_vq)(struct virtqueue *vq),
-+			unsigned nvqs,
-+			struct virtqueue *vqs[],
-+			vq_callback_t *callbacks[],
-+			const char *names[])
-+{
-+	int err;
-+
-+	/* Try MSI-X with one vector per queue. */
-+	err = vp_try_to_find_vqs(vdev, msix_config, setup_vq, del_vq,
-+				 nvqs, vqs, callbacks, names, true, true);
-+	if (!err)
-+		return 0;
-+	/* Fallback: MSI-X with one vector for config, one shared for queues. */
-+	err = vp_try_to_find_vqs(vdev, msix_config, setup_vq, del_vq,
-+				 nvqs, vqs, callbacks, names, true, false);
-+	if (!err)
-+		return 0;
-+	/* Finally fall back to regular interrupts. */
-+	return vp_try_to_find_vqs(vdev, msix_config, setup_vq, del_vq,
-+				  nvqs, vqs, callbacks, names, false, false);
-+}
-+
-+/* the core of a config->del_vqs() implementation */
-+void virtio_pci_del_vqs(struct virtio_device *vdev,
-+			__le16 __iomem *msix_config,
-+			void (*del_vq)(struct virtqueue *vq))
-+{
-+	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
-+	struct virtqueue *vq, *n;
-+	struct virtio_pci_vq_info *info;
-+
-+	list_for_each_entry_safe(vq, n, &vdev->vqs, list) {
-+		info = vq->priv;
-+		if (vp_dev->per_vq_vectors &&
-+			info->msix_vector != VIRTIO_MSI_NO_VECTOR)
-+			free_irq(vp_dev->msix_entries[info->msix_vector].vector,
-+				 vq);
-+		del_vq(vq);
-+	}
-+	vp_dev->per_vq_vectors = false;
-+
-+	vp_free_vectors(vdev, msix_config);
-+}
 diff --git a/drivers/virtio/virtio_pci-common.h b/drivers/virtio/virtio_pci-common.h
---- a/drivers/virtio/virtio_pci-common.h
+new file mode 100644
+--- /dev/null
 +++ b/drivers/virtio/virtio_pci-common.h
-@@ -87,6 +87,25 @@ irqreturn_t virtio_pci_vring_interrupt(i
- irqreturn_t virtio_pci_interrupt(int irq, void *opaque);
- 
- /* Core of a config->find_vqs() implementation */
-+int virtio_pci_find_vqs(struct virtio_device *vdev,
-+			__le16 __iomem *msix_config,
-+			struct virtqueue *(setup_vq)(struct virtio_device *,
-+						     unsigned,
-+						     void (*)(struct virtqueue*),
-+						     const char *,
-+						     u16 msix_vec),
-+			void (*del_vq)(struct virtqueue *vq),
-+			unsigned nvqs,
-+			struct virtqueue *vqs[],
-+			vq_callback_t *callbacks[],
-+			const char *names[]);
+@@ -0,0 +1,72 @@
++#include <linux/pci.h>
++#include <linux/virtio_pci.h>
 +
-+/* the core of a config->del_vqs() implementation */
-+void virtio_pci_del_vqs(struct virtio_device *vdev,
-+			__le16 __iomem *msix_config,
-+			void (*del_vq)(struct virtqueue *vq));
++/* Our device structure: shared by virtio_pci and virtio_pci_legacy. */
++struct virtio_pci_device
++{
++	struct virtio_device vdev;
++	struct pci_dev *pci_dev;
 +
-+/* Core of a config->find_vqs() implementation */
- int virtio_pci_find_vqs(struct virtio_pci_device *vp_dev,
- 			__le16 __iomem *msix_config,
- 			struct virtqueue *(setup_vq)(struct virtio_pci_device *,
++	/* The IO mapping for the PCI config space (non-legacy mode) */
++	struct virtio_pci_common_cfg __iomem *common;
++	/* Device-specific data (non-legacy mode). */
++	void __iomem *device;
++
++	/* In legacy mode, these two point to within ->legacy. */
++	/* Where to read and clear interrupt */ 
++	u8 __iomem *isr;
++	/* Write the virtqueue index here to notify device of activity. */
++	__le16 __iomem *notify;
++
++#ifdef CONFIG_VIRTIO_PCI_LEGACY
++	/* Instead of common, notify and device, legacy uses this: */
++	void __iomem *legacy;
++#endif
++
++	/* a list of queues so we can dispatch IRQs */
++	spinlock_t lock;
++	struct list_head virtqueues;
++
++	/* MSI-X support */
++	int msix_enabled;
++	int intx_enabled;
++	struct msix_entry *msix_entries;
++	/* Name strings for interrupts. This size should be enough,
++	 * and I'm too lazy to allocate each name separately. */
++	char (*msix_names)[256];
++	/* Number of available vectors */
++	unsigned msix_vectors;
++	/* Vectors allocated, excluding per-vq vectors if any */
++	unsigned msix_used_vectors;
++	/* Whether we have vector per vq */
++	bool per_vq_vectors;
++};
++
++/* Constants for MSI-X */
++/* Use first vector for configuration changes, second and the rest for
++ * virtqueues Thus, we need at least 2 vectors for MSI. */
++enum {
++	VP_MSIX_CONFIG_VECTOR = 0,
++	VP_MSIX_VQ_VECTOR = 1,
++};
++
++struct virtio_pci_vq_info
++{
++	/* the actual virtqueue */
++	struct virtqueue *vq;
++
++	/* the number of entries in the queue */
++	int num;
++
++	/* the index of the queue */
++	int queue_index;
++
++	/* the virtual address of the ring queue */
++	void *queue;
++
++	/* the list node for the virtqueues list */
++	struct list_head node;
++
++	/* MSI-X vector (or none) */
++	unsigned msix_vector;
++};
 diff --git a/drivers/virtio/virtio_pci.c b/drivers/virtio/virtio_pci.c
 --- a/drivers/virtio/virtio_pci.c
 +++ b/drivers/virtio/virtio_pci.c
-@@ -145,115 +145,6 @@ static void vp_reset(struct virtio_devic
- 	vp_synchronize_vectors(vdev);
- }
+@@ -22,6 +22,7 @@
+ #include <linux/virtio_pci.h>
+ #include <linux/highmem.h>
+ #include <linux/spinlock.h>
++#include "virtio_pci-common.h"
  
--static void vp_free_vectors(struct virtio_device *vdev)
--{
--	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
--	int i;
--
--	if (vp_dev->intx_enabled) {
--		free_irq(vp_dev->pci_dev->irq, vp_dev);
--		vp_dev->intx_enabled = 0;
--	}
--
--	for (i = 0; i < vp_dev->msix_used_vectors; ++i)
--		free_irq(vp_dev->msix_entries[i].vector, vp_dev);
--
--	if (vp_dev->msix_enabled) {
--		/* Disable the vector used for configuration */
--		iowrite16(VIRTIO_MSI_NO_VECTOR, &vp_dev->common->msix_config);
--		/* Flush the write out to device */
--		ioread16(&vp_dev->common->msix_config);
--
--		pci_disable_msix(vp_dev->pci_dev);
--		vp_dev->msix_enabled = 0;
--		vp_dev->msix_vectors = 0;
--	}
--
--	vp_dev->msix_used_vectors = 0;
--	kfree(vp_dev->msix_names);
--	vp_dev->msix_names = NULL;
--	kfree(vp_dev->msix_entries);
--	vp_dev->msix_entries = NULL;
--}
--
--static int vp_request_msix_vectors(struct virtio_device *vdev, int nvectors,
--				   bool per_vq_vectors)
--{
--	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
--	const char *name = dev_name(&vp_dev->vdev.dev);
--	unsigned i, v;
--	int err = -ENOMEM;
--
--	vp_dev->msix_entries = kmalloc(nvectors * sizeof *vp_dev->msix_entries,
--				       GFP_KERNEL);
--	if (!vp_dev->msix_entries)
--		goto error;
--	vp_dev->msix_names = kmalloc(nvectors * sizeof *vp_dev->msix_names,
--				     GFP_KERNEL);
--	if (!vp_dev->msix_names)
--		goto error;
--
--	for (i = 0; i < nvectors; ++i)
--		vp_dev->msix_entries[i].entry = i;
--
--	/* pci_enable_msix returns positive if we can't get this many. */
--	err = pci_enable_msix(vp_dev->pci_dev, vp_dev->msix_entries, nvectors);
--	if (err > 0)
--		err = -ENOSPC;
--	if (err)
--		goto error;
--	vp_dev->msix_vectors = nvectors;
--	vp_dev->msix_enabled = 1;
--
--	/* Set the vector used for configuration */
--	v = vp_dev->msix_used_vectors;
--	snprintf(vp_dev->msix_names[v], sizeof *vp_dev->msix_names,
--		 "%s-config", name);
--	err = request_irq(vp_dev->msix_entries[v].vector,
--			  virtio_pci_config_changed, 0, vp_dev->msix_names[v],
--			  vp_dev);
--	if (err)
--		goto error;
--	++vp_dev->msix_used_vectors;
--
--	iowrite16(v, &vp_dev->common->msix_config);
--	/* Verify we had enough resources to assign the vector */
--	v = ioread16(&vp_dev->common->msix_config);
--	if (v == VIRTIO_MSI_NO_VECTOR) {
--		err = -EBUSY;
--		goto error;
--	}
--
--	if (!per_vq_vectors) {
--		/* Shared vector for all VQs */
--		v = vp_dev->msix_used_vectors;
--		snprintf(vp_dev->msix_names[v], sizeof *vp_dev->msix_names,
--			 "%s-virtqueues", name);
--		err = request_irq(vp_dev->msix_entries[v].vector,
--				  virtio_pci_vring_interrupt, 0,
--				  vp_dev->msix_names[v], vp_dev);
--		if (err)
--			goto error;
--		++vp_dev->msix_used_vectors;
--	}
--	return 0;
--error:
--	vp_free_vectors(vdev);
--	return err;
--}
--
--static int vp_request_intx(struct virtio_device *vdev)
--{
--	int err;
--	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
--
--	err = request_irq(vp_dev->pci_dev->irq, virtio_pci_interrupt,
--			  IRQF_SHARED, dev_name(&vdev->dev), vp_dev);
--	if (!err)
--		vp_dev->intx_enabled = 1;
--	return err;
--}
--
- static void *alloc_virtqueue_pages(u16 *num)
- {
- 	void *pages;
-@@ -403,116 +294,19 @@ static void vp_del_vq(struct virtqueue *
- static void vp_del_vqs(struct virtio_device *vdev)
- {
- 	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
--	struct virtqueue *vq, *n;
--	struct virtio_pci_vq_info *info;
--
--	list_for_each_entry_safe(vq, n, &vdev->vqs, list) {
--		info = vq->priv;
--		if (vp_dev->per_vq_vectors &&
--			info->msix_vector != VIRTIO_MSI_NO_VECTOR)
--			free_irq(vp_dev->msix_entries[info->msix_vector].vector,
--				 vq);
--		vp_del_vq(vq);
--	}
--	vp_dev->per_vq_vectors = false;
--
--	vp_free_vectors(vdev);
-+	virtio_pci_del_vqs(vdev, &vp_dev->common->msix_config, vp_del_vq);
- }
+ MODULE_AUTHOR("Rusty Russell <rusty@rustcorp.com.au>");
+ MODULE_DESCRIPTION("virtio-pci");
+@@ -31,69 +32,6 @@ MODULE_VERSION("2");
+ /* Use cacheline size as a good guess at a nice alignment. */
+ #define VIRTIO_PCI_ALIGN	SMP_CACHE_BYTES
  
--static int vp_try_to_find_vqs(struct virtio_device *vdev, unsigned nvqs,
--			      struct virtqueue *vqs[],
--			      vq_callback_t *callbacks[],
--			      const char *names[],
--			      bool use_msix,
--			      bool per_vq_vectors)
-+static int vp_find_vqs(struct virtio_device *vdev,
-+			unsigned nvqs,
-+			struct virtqueue *vqs[],
-+			vq_callback_t *callbacks[],
-+			const char *names[])
- {
- 	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
--	u16 msix_vec;
--	int i, err, nvectors, allocated_vectors;
--
--	if (!use_msix) {
--		/* Old style: one normal interrupt for change and all vqs. */
--		err = vp_request_intx(vdev);
--		if (err)
--			goto error_request;
--	} else {
--		if (per_vq_vectors) {
--			/* Best option: one for change interrupt, one per vq. */
--			nvectors = 1;
--			for (i = 0; i < nvqs; ++i)
--				if (callbacks[i])
--					++nvectors;
--		} else {
--			/* Second best: one for change, shared for all vqs. */
--			nvectors = 2;
--		}
--
--		err = vp_request_msix_vectors(vdev, nvectors, per_vq_vectors);
--		if (err)
--			goto error_request;
--	}
--
--	vp_dev->per_vq_vectors = per_vq_vectors;
--	allocated_vectors = vp_dev->msix_used_vectors;
--	for (i = 0; i < nvqs; ++i) {
--		if (!callbacks[i] || !vp_dev->msix_enabled)
--			msix_vec = VIRTIO_MSI_NO_VECTOR;
--		else if (vp_dev->per_vq_vectors)
--			msix_vec = allocated_vectors++;
--		else
--			msix_vec = VP_MSIX_VQ_VECTOR;
--		vqs[i] = setup_vq(vdev, i, callbacks[i], names[i], msix_vec);
--		if (IS_ERR(vqs[i])) {
--			err = PTR_ERR(vqs[i]);
--			goto error_find;
--		}
--
--		if (!vp_dev->per_vq_vectors || msix_vec == VIRTIO_MSI_NO_VECTOR)
--			continue;
--
--		/* allocate per-vq irq if available and necessary */
--		snprintf(vp_dev->msix_names[msix_vec],
--			 sizeof *vp_dev->msix_names,
--			 "%s-%s",
--			 dev_name(&vp_dev->vdev.dev), names[i]);
--		err = request_irq(vp_dev->msix_entries[msix_vec].vector,
--				  vring_interrupt, 0,
--				  vp_dev->msix_names[msix_vec],
--				  vqs[i]);
--		if (err) {
--			vp_del_vq(vqs[i]);
--			goto error_find;
--		}
--	}
--	return 0;
--
--error_find:
--	vp_del_vqs(vdev);
--
--error_request:
--	return err;
--}
--
--/* the config->find_vqs() implementation */
--static int vp_find_vqs(struct virtio_device *vdev, unsigned nvqs,
--		       struct virtqueue *vqs[],
--		       vq_callback_t *callbacks[],
--		       const char *names[])
+-/* Our device structure */
+-struct virtio_pci_device
 -{
--	int err;
+-	struct virtio_device vdev;
+-	struct pci_dev *pci_dev;
 -
--	/* Try MSI-X with one vector per queue. */
--	err = vp_try_to_find_vqs(vdev, nvqs, vqs, callbacks, names, true, true);
--	if (!err)
--		return 0;
--	/* Fallback: MSI-X with one vector for config, one shared for queues. */
--	err = vp_try_to_find_vqs(vdev, nvqs, vqs, callbacks, names,
--				 true, false);
--	if (!err)
--		return 0;
--	/* Finally fall back to regular interrupts. */
--	return vp_try_to_find_vqs(vdev, nvqs, vqs, callbacks, names,
--				  false, false);
-+	return virtio_pci_find_vqs(vdev, &vp_dev->common->msix_config,
-+				   setup_vq, vp_del_vq,
-+				   nvqs, vqs, callbacks, names);
- }
- 
- static struct virtio_config_ops virtio_pci_config_ops = {
+-	/* The IO mapping for the PCI config space */
+-	struct virtio_pci_common_cfg __iomem *common;
+-	/* Where to read and clear interrupt */ 
+-	u8 __iomem *isr;
+-	/* Write the virtqueue index here to notify device of activity. */
+-	__le16 __iomem *notify;
+-	/* Device-specific data. */
+-	void __iomem *device;
+-
+-	/* a list of queues so we can dispatch IRQs */
+-	spinlock_t lock;
+-	struct list_head virtqueues;
+-
+-	/* MSI-X support */
+-	int msix_enabled;
+-	int intx_enabled;
+-	struct msix_entry *msix_entries;
+-	/* Name strings for interrupts. This size should be enough,
+-	 * and I'm too lazy to allocate each name separately. */
+-	char (*msix_names)[256];
+-	/* Number of available vectors */
+-	unsigned msix_vectors;
+-	/* Vectors allocated, excluding per-vq vectors if any */
+-	unsigned msix_used_vectors;
+-	/* Whether we have vector per vq */
+-	bool per_vq_vectors;
+-};
+-
+-/* Constants for MSI-X */
+-/* Use first vector for configuration changes, second and the rest for
+- * virtqueues Thus, we need at least 2 vectors for MSI. */
+-enum {
+-	VP_MSIX_CONFIG_VECTOR = 0,
+-	VP_MSIX_VQ_VECTOR = 1,
+-};
+-
+-struct virtio_pci_vq_info
+-{
+-	/* the actual virtqueue */
+-	struct virtqueue *vq;
+-
+-	/* the number of entries in the queue */
+-	int num;
+-
+-	/* the index of the queue */
+-	int queue_index;
+-
+-	/* the virtual address of the ring queue */
+-	void *queue;
+-
+-	/* the list node for the virtqueues list */
+-	struct list_head node;
+-
+-	/* MSI-X vector (or none) */
+-	unsigned msix_vector;
+-};
+-
+ /* Qumranet donated their vendor ID for devices 0x1000 thru 0x10FF. */
+ static struct pci_device_id virtio_pci_id_table[] = {
+ 	{ 0x1af4, PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0 },
 diff --git a/drivers/virtio/virtio_pci_legacy.c b/drivers/virtio/virtio_pci_legacy.c
 --- a/drivers/virtio/virtio_pci_legacy.c
 +++ b/drivers/virtio/virtio_pci_legacy.c
-@@ -134,120 +134,11 @@ static void vp_reset(struct virtio_devic
+@@ -25,6 +25,7 @@
+ #include <linux/virtio_pci.h>
+ #include <linux/highmem.h>
+ #include <linux/spinlock.h>
++#include "virtio_pci-common.h"
+ 
+ static bool force_nonlegacy;
+ module_param(force_nonlegacy, bool, 0644);
+@@ -35,63 +36,6 @@ MODULE_DESCRIPTION("virtio-pci-legacy");
+ MODULE_LICENSE("GPL");
+ MODULE_VERSION("1");
+ 
+-/* Our device structure */
+-struct virtio_pci_device
+-{
+-	struct virtio_device vdev;
+-	struct pci_dev *pci_dev;
+-
+-	/* the IO mapping for the PCI config space */
+-	void __iomem *ioaddr;
+-
+-	/* a list of queues so we can dispatch IRQs */
+-	spinlock_t lock;
+-	struct list_head virtqueues;
+-
+-	/* MSI-X support */
+-	int msix_enabled;
+-	int intx_enabled;
+-	struct msix_entry *msix_entries;
+-	/* Name strings for interrupts. This size should be enough,
+-	 * and I'm too lazy to allocate each name separately. */
+-	char (*msix_names)[256];
+-	/* Number of available vectors */
+-	unsigned msix_vectors;
+-	/* Vectors allocated, excluding per-vq vectors if any */
+-	unsigned msix_used_vectors;
+-	/* Whether we have vector per vq */
+-	bool per_vq_vectors;
+-};
+-
+-/* Constants for MSI-X */
+-/* Use first vector for configuration changes, second and the rest for
+- * virtqueues Thus, we need at least 2 vectors for MSI. */
+-enum {
+-	VP_MSIX_CONFIG_VECTOR = 0,
+-	VP_MSIX_VQ_VECTOR = 1,
+-};
+-
+-struct virtio_pci_vq_info
+-{
+-	/* the actual virtqueue */
+-	struct virtqueue *vq;
+-
+-	/* the number of entries in the queue */
+-	int num;
+-
+-	/* the index of the queue */
+-	int queue_index;
+-
+-	/* the virtual address of the ring queue */
+-	void *queue;
+-
+-	/* the list node for the virtqueues list */
+-	struct list_head node;
+-
+-	/* MSI-X vector (or none) */
+-	unsigned msix_vector;
+-};
+-
+ /* Qumranet donated their vendor ID for devices 0x1000 thru 0x10FF. */
+ static struct pci_device_id virtio_pci_id_table[] = {
+ 	{ 0x1af4, PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0 },
+@@ -112,7 +56,7 @@ static u64 vp_get_features(struct virtio
+ 	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
+ 
+ 	/* We only support 32 feature bits. */
+-	return ioread32(vp_dev->ioaddr + VIRTIO_PCI_HOST_FEATURES);
++	return ioread32(vp_dev->legacy + VIRTIO_PCI_HOST_FEATURES);
+ }
+ 
+ /* virtio config->finalize_features() implementation */
+@@ -124,7 +68,7 @@ static void vp_finalize_features(struct 
+ 	vring_transport_features(vdev);
+ 
+ 	/* We only support 32 feature bits. */
+-	iowrite32(vdev->features, vp_dev->ioaddr+VIRTIO_PCI_GUEST_FEATURES);
++	iowrite32(vdev->features, vp_dev->legacy+VIRTIO_PCI_GUEST_FEATURES);
+ }
+ 
+ /* virtio config->get() implementation */
+@@ -132,13 +76,13 @@ static void vp_get(struct virtio_device 
+ 		   void *buf, unsigned len)
+ {
+ 	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
+-	void __iomem *ioaddr = vp_dev->ioaddr +
++	void __iomem *legacy = vp_dev->legacy +
+ 				VIRTIO_PCI_CONFIG(vp_dev) + offset;
+ 	u8 *ptr = buf;
+ 	int i;
+ 
+ 	for (i = 0; i < len; i++)
+-		ptr[i] = ioread8(ioaddr + i);
++		ptr[i] = ioread8(legacy + i);
+ }
+ 
+ /* the config->set() implementation.  it's symmetric to the config->get()
+@@ -147,20 +91,20 @@ static void vp_set(struct virtio_device 
+ 		   const void *buf, unsigned len)
+ {
+ 	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
+-	void __iomem *ioaddr = vp_dev->ioaddr +
++	void __iomem *legacy = vp_dev->legacy +
+ 				VIRTIO_PCI_CONFIG(vp_dev) + offset;
+ 	const u8 *ptr = buf;
+ 	int i;
+ 
+ 	for (i = 0; i < len; i++)
+-		iowrite8(ptr[i], ioaddr + i);
++		iowrite8(ptr[i], legacy + i);
+ }
+ 
+ /* config->{get,set}_status() implementations */
+ static u8 vp_get_status(struct virtio_device *vdev)
+ {
+ 	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
+-	return ioread8(vp_dev->ioaddr + VIRTIO_PCI_STATUS);
++	return ioread8(vp_dev->legacy + VIRTIO_PCI_STATUS);
+ }
+ 
+ static void vp_set_status(struct virtio_device *vdev, u8 status)
+@@ -168,7 +112,7 @@ static void vp_set_status(struct virtio_
+ 	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
+ 	/* We should never be setting status to 0. */
+ 	BUG_ON(status == 0);
+-	iowrite8(status, vp_dev->ioaddr + VIRTIO_PCI_STATUS);
++	iowrite8(status, vp_dev->legacy + VIRTIO_PCI_STATUS);
+ }
+ 
+ /* wait for pending irq handlers */
+@@ -188,10 +132,10 @@ static void vp_reset(struct virtio_devic
+ {
+ 	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
+ 	/* 0 status means a reset. */
+-	iowrite8(0, vp_dev->ioaddr + VIRTIO_PCI_STATUS);
++	iowrite8(0, vp_dev->legacy + VIRTIO_PCI_STATUS);
+ 	/* Flush out the status write, and flush in device writes,
+ 	 * including MSi-X interrupts, if any. */
+-	ioread8(vp_dev->ioaddr + VIRTIO_PCI_STATUS);
++	ioread8(vp_dev->legacy + VIRTIO_PCI_STATUS);
+ 	/* Flush pending VQ/configuration callbacks. */
  	vp_synchronize_vectors(vdev);
  }
+@@ -204,7 +148,7 @@ static void vp_notify(struct virtqueue *
  
--static void vp_free_vectors(struct virtio_device *vdev)
--{
--	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
--	int i;
--
--	if (vp_dev->intx_enabled) {
--		free_irq(vp_dev->pci_dev->irq, vp_dev);
--		vp_dev->intx_enabled = 0;
--	}
--
--	for (i = 0; i < vp_dev->msix_used_vectors; ++i)
--		free_irq(vp_dev->msix_entries[i].vector, vp_dev);
--
--	if (vp_dev->msix_enabled) {
--		/* Disable the vector used for configuration */
--		iowrite16(VIRTIO_MSI_NO_VECTOR,
--			  vp_dev->legacy + VIRTIO_MSI_CONFIG_VECTOR);
--		/* Flush the write out to device */
--		ioread16(vp_dev->legacy + VIRTIO_MSI_CONFIG_VECTOR);
--
--		pci_disable_msix(vp_dev->pci_dev);
--		vp_dev->msix_enabled = 0;
--		vp_dev->msix_vectors = 0;
--	}
--
--	vp_dev->msix_used_vectors = 0;
--	kfree(vp_dev->msix_names);
--	vp_dev->msix_names = NULL;
--	kfree(vp_dev->msix_entries);
--	vp_dev->msix_entries = NULL;
--}
--
--static int vp_request_msix_vectors(struct virtio_device *vdev, int nvectors,
--				   bool per_vq_vectors)
--{
--	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
--	const char *name = dev_name(&vp_dev->vdev.dev);
--	unsigned i, v;
--	int err = -ENOMEM;
--
--	vp_dev->msix_entries = kmalloc(nvectors * sizeof *vp_dev->msix_entries,
--				       GFP_KERNEL);
--	if (!vp_dev->msix_entries)
--		goto error;
--	vp_dev->msix_names = kmalloc(nvectors * sizeof *vp_dev->msix_names,
--				     GFP_KERNEL);
--	if (!vp_dev->msix_names)
--		goto error;
--
--	for (i = 0; i < nvectors; ++i)
--		vp_dev->msix_entries[i].entry = i;
--
--	/* pci_enable_msix returns positive if we can't get this many. */
--	err = pci_enable_msix(vp_dev->pci_dev, vp_dev->msix_entries, nvectors);
--	if (err > 0)
--		err = -ENOSPC;
--	if (err)
--		goto error;
--	vp_dev->msix_vectors = nvectors;
--	vp_dev->msix_enabled = 1;
--
--	/* Set the vector used for configuration */
--	v = vp_dev->msix_used_vectors;
--	snprintf(vp_dev->msix_names[v], sizeof *vp_dev->msix_names,
--		 "%s-config", name);
--	err = request_irq(vp_dev->msix_entries[v].vector,
--			  virtio_pci_config_changed, 0, vp_dev->msix_names[v],
--			  vp_dev);
--	if (err)
--		goto error;
--	++vp_dev->msix_used_vectors;
--
--	iowrite16(v, vp_dev->legacy + VIRTIO_MSI_CONFIG_VECTOR);
--	/* Verify we had enough resources to assign the vector */
--	v = ioread16(vp_dev->legacy + VIRTIO_MSI_CONFIG_VECTOR);
--	if (v == VIRTIO_MSI_NO_VECTOR) {
--		err = -EBUSY;
--		goto error;
--	}
--
--	if (!per_vq_vectors) {
--		/* Shared vector for all VQs */
--		v = vp_dev->msix_used_vectors;
--		snprintf(vp_dev->msix_names[v], sizeof *vp_dev->msix_names,
--			 "%s-virtqueues", name);
--		err = request_irq(vp_dev->msix_entries[v].vector,
--				  virtio_pci_vring_interrupt, 0,
--				  vp_dev->msix_names[v], vp_dev);
--		if (err)
--			goto error;
--		++vp_dev->msix_used_vectors;
--	}
--	return 0;
--error:
--	vp_free_vectors(vdev);
--	return err;
--}
--
--static int vp_request_intx(struct virtio_device *vdev)
--{
--	int err;
--	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
--
--	err = request_irq(vp_dev->pci_dev->irq, virtio_pci_interrupt,
--			  IRQF_SHARED, dev_name(&vdev->dev), vp_dev);
--	if (!err)
--		vp_dev->intx_enabled = 1;
--	return err;
--}
--
--static struct virtqueue *setup_vq(struct virtio_device *vdev, unsigned index,
--				  void (*callback)(struct virtqueue *vq),
--				  const char *name,
--				  u16 msix_vec)
-+static struct virtqueue *setup_legacy_vq(struct virtio_device *vdev,
-+					 unsigned index,
-+					 void (*callback)(struct virtqueue *vq),
-+					 const char *name,
-+					 u16 msix_vec)
- {
- 	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
- 	struct virtio_pci_vq_info *info;
-@@ -326,7 +217,7 @@ out_info:
- 	return ERR_PTR(err);
+ 	/* we write the queue's selector into the notification register to
+ 	 * signal the other end */
+-	iowrite16(info->queue_index, vp_dev->ioaddr + VIRTIO_PCI_QUEUE_NOTIFY);
++	iowrite16(info->queue_index, vp_dev->legacy + VIRTIO_PCI_QUEUE_NOTIFY);
  }
  
--static void vp_del_vq(struct virtqueue *vq)
-+static void del_legacy_vq(struct virtqueue *vq)
- {
- 	struct virtio_pci_device *vp_dev = to_vp_device(vq->vdev);
- 	struct virtio_pci_vq_info *info = vq->priv;
-@@ -359,94 +250,10 @@ static void vp_del_vq(struct virtqueue *
- static void vp_del_vqs(struct virtio_device *vdev)
- {
- 	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
--	struct virtqueue *vq, *n;
--	struct virtio_pci_vq_info *info;
+ /* Handle a configuration change: Tell driver if it wants to know. */
+@@ -251,7 +195,7 @@ static irqreturn_t vp_interrupt(int irq,
  
--	list_for_each_entry_safe(vq, n, &vdev->vqs, list) {
--		info = vq->priv;
--		if (vp_dev->per_vq_vectors &&
--			info->msix_vector != VIRTIO_MSI_NO_VECTOR)
--			free_irq(vp_dev->msix_entries[info->msix_vector].vector,
--				 vq);
--		vp_del_vq(vq);
--	}
--	vp_dev->per_vq_vectors = false;
--
--	vp_free_vectors(vdev);
--}
--
--static int vp_try_to_find_vqs(struct virtio_device *vdev, unsigned nvqs,
--			      struct virtqueue *vqs[],
--			      vq_callback_t *callbacks[],
--			      const char *names[],
--			      bool use_msix,
--			      bool per_vq_vectors)
--{
--	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
--	u16 msix_vec;
--	int i, err, nvectors, allocated_vectors;
--
--	if (!use_msix) {
--		/* Old style: one normal interrupt for change and all vqs. */
--		err = vp_request_intx(vdev);
--		if (err)
--			goto error_request;
--	} else {
--		if (per_vq_vectors) {
--			/* Best option: one for change interrupt, one per vq. */
--			nvectors = 1;
--			for (i = 0; i < nvqs; ++i)
--				if (callbacks[i])
--					++nvectors;
--		} else {
--			/* Second best: one for change, shared for all vqs. */
--			nvectors = 2;
--		}
--
--		err = vp_request_msix_vectors(vdev, nvectors, per_vq_vectors);
--		if (err)
--			goto error_request;
--	}
--
--	vp_dev->per_vq_vectors = per_vq_vectors;
--	allocated_vectors = vp_dev->msix_used_vectors;
--	for (i = 0; i < nvqs; ++i) {
--		if (!callbacks[i] || !vp_dev->msix_enabled)
--			msix_vec = VIRTIO_MSI_NO_VECTOR;
--		else if (vp_dev->per_vq_vectors)
--			msix_vec = allocated_vectors++;
--		else
--			msix_vec = VP_MSIX_VQ_VECTOR;
--		vqs[i] = setup_vq(vdev, i, callbacks[i], names[i], msix_vec);
--		if (IS_ERR(vqs[i])) {
--			err = PTR_ERR(vqs[i]);
--			goto error_find;
--		}
--
--		if (!vp_dev->per_vq_vectors || msix_vec == VIRTIO_MSI_NO_VECTOR)
--			continue;
--
--		/* allocate per-vq irq if available and necessary */
--		snprintf(vp_dev->msix_names[msix_vec],
--			 sizeof *vp_dev->msix_names,
--			 "%s-%s",
--			 dev_name(&vp_dev->vdev.dev), names[i]);
--		err = request_irq(vp_dev->msix_entries[msix_vec].vector,
--				  vring_interrupt, 0,
--				  vp_dev->msix_names[msix_vec],
--				  vqs[i]);
--		if (err) {
--			vp_del_vq(vqs[i]);
--			goto error_find;
--		}
--	}
--	return 0;
--
--error_find:
--	vp_del_vqs(vdev);
--
--error_request:
--	return err;
-+	return virtio_pci_del_vqs(vdev, vp_dev->legacy +
-+				  VIRTIO_MSI_LEGACY_CONFIG_VECTOR,
-+				  del_legacy_vq);
- }
+ 	/* reading the ISR has the effect of also clearing it so it's very
+ 	 * important to save off the value. */
+-	isr = ioread8(vp_dev->ioaddr + VIRTIO_PCI_ISR);
++	isr = ioread8(vp_dev->legacy + VIRTIO_PCI_ISR);
  
- /* the config->find_vqs() implementation */
-@@ -455,20 +262,12 @@ static int vp_find_vqs(struct virtio_dev
- 		       vq_callback_t *callbacks[],
- 		       const char *names[])
- {
--	int err;
-+	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
+ 	/* It's definitely not us if the ISR was not high */
+ 	if (!isr)
+@@ -280,9 +224,9 @@ static void vp_free_vectors(struct virti
+ 	if (vp_dev->msix_enabled) {
+ 		/* Disable the vector used for configuration */
+ 		iowrite16(VIRTIO_MSI_NO_VECTOR,
+-			  vp_dev->ioaddr + VIRTIO_MSI_CONFIG_VECTOR);
++			  vp_dev->legacy + VIRTIO_MSI_CONFIG_VECTOR);
+ 		/* Flush the write out to device */
+-		ioread16(vp_dev->ioaddr + VIRTIO_MSI_CONFIG_VECTOR);
++		ioread16(vp_dev->legacy + VIRTIO_MSI_CONFIG_VECTOR);
  
--	/* Try MSI-X with one vector per queue. */
--	err = vp_try_to_find_vqs(vdev, nvqs, vqs, callbacks, names, true, true);
--	if (!err)
--		return 0;
--	/* Fallback: MSI-X with one vector for config, one shared for queues. */
--	err = vp_try_to_find_vqs(vdev, nvqs, vqs, callbacks, names,
--				 true, false);
--	if (!err)
--		return 0;
--	/* Finally fall back to regular interrupts. */
--	return vp_try_to_find_vqs(vdev, nvqs, vqs, callbacks, names,
--				  false, false);
-+	return virtio_pci_find_vqs(vdev, vp_dev->legacy +
-+				   VIRTIO_MSI_LEGACY_CONFIG_VECTOR,
-+				   setup_legacy_vq, del_legacy_vq,
-+				   nvqs, vqs, callbacks, names);
- }
+ 		pci_disable_msix(vp_dev->pci_dev);
+ 		vp_dev->msix_enabled = 0;
+@@ -336,9 +280,9 @@ static int vp_request_msix_vectors(struc
+ 		goto error;
+ 	++vp_dev->msix_used_vectors;
  
- static struct virtio_config_ops virtio_pci_config_ops = {
+-	iowrite16(v, vp_dev->ioaddr + VIRTIO_MSI_CONFIG_VECTOR);
++	iowrite16(v, vp_dev->legacy + VIRTIO_MSI_CONFIG_VECTOR);
+ 	/* Verify we had enough resources to assign the vector */
+-	v = ioread16(vp_dev->ioaddr + VIRTIO_MSI_CONFIG_VECTOR);
++	v = ioread16(vp_dev->legacy + VIRTIO_MSI_CONFIG_VECTOR);
+ 	if (v == VIRTIO_MSI_NO_VECTOR) {
+ 		err = -EBUSY;
+ 		goto error;
+@@ -387,11 +331,11 @@ static struct virtqueue *setup_vq(struct
+ 	int err;
+ 
+ 	/* Select the queue we're interested in */
+-	iowrite16(index, vp_dev->ioaddr + VIRTIO_PCI_QUEUE_SEL);
++	iowrite16(index, vp_dev->legacy + VIRTIO_PCI_QUEUE_SEL);
+ 
+ 	/* Check if queue is either not available or already active. */
+-	num = ioread16(vp_dev->ioaddr + VIRTIO_PCI_QUEUE_NUM);
+-	if (!num || ioread32(vp_dev->ioaddr + VIRTIO_PCI_QUEUE_PFN))
++	num = ioread16(vp_dev->legacy + VIRTIO_PCI_QUEUE_NUM);
++	if (!num || ioread32(vp_dev->legacy + VIRTIO_PCI_QUEUE_PFN))
+ 		return ERR_PTR(-ENOENT);
+ 
+ 	/* allocate and fill out our structure the represents an active
+@@ -413,7 +357,7 @@ static struct virtqueue *setup_vq(struct
+ 
+ 	/* activate the queue */
+ 	iowrite32(virt_to_phys(info->queue) >> VIRTIO_PCI_QUEUE_ADDR_SHIFT,
+-		  vp_dev->ioaddr + VIRTIO_PCI_QUEUE_PFN);
++		  vp_dev->legacy + VIRTIO_PCI_QUEUE_PFN);
+ 
+ 	/* create the vring */
+ 	vq = vring_new_virtqueue(info->num, VIRTIO_PCI_VRING_ALIGN,
+@@ -427,8 +371,8 @@ static struct virtqueue *setup_vq(struct
+ 	info->vq = vq;
+ 
+ 	if (msix_vec != VIRTIO_MSI_NO_VECTOR) {
+-		iowrite16(msix_vec, vp_dev->ioaddr + VIRTIO_MSI_QUEUE_VECTOR);
+-		msix_vec = ioread16(vp_dev->ioaddr + VIRTIO_MSI_QUEUE_VECTOR);
++		iowrite16(msix_vec, vp_dev->legacy + VIRTIO_MSI_QUEUE_VECTOR);
++		msix_vec = ioread16(vp_dev->legacy + VIRTIO_MSI_QUEUE_VECTOR);
+ 		if (msix_vec == VIRTIO_MSI_NO_VECTOR) {
+ 			err = -EBUSY;
+ 			goto out_assign;
+@@ -448,7 +392,7 @@ static struct virtqueue *setup_vq(struct
+ out_assign:
+ 	vring_del_virtqueue(vq);
+ out_activate_queue:
+-	iowrite32(0, vp_dev->ioaddr + VIRTIO_PCI_QUEUE_PFN);
++	iowrite32(0, vp_dev->legacy + VIRTIO_PCI_QUEUE_PFN);
+ 	free_pages_exact(info->queue, size);
+ out_info:
+ 	kfree(info);
+@@ -465,19 +409,19 @@ static void vp_del_vq(struct virtqueue *
+ 	list_del(&info->node);
+ 	spin_unlock_irqrestore(&vp_dev->lock, flags);
+ 
+-	iowrite16(info->queue_index, vp_dev->ioaddr + VIRTIO_PCI_QUEUE_SEL);
++	iowrite16(info->queue_index, vp_dev->legacy + VIRTIO_PCI_QUEUE_SEL);
+ 
+ 	if (vp_dev->msix_enabled) {
+ 		iowrite16(VIRTIO_MSI_NO_VECTOR,
+-			  vp_dev->ioaddr + VIRTIO_MSI_QUEUE_VECTOR);
++			  vp_dev->legacy + VIRTIO_MSI_QUEUE_VECTOR);
+ 		/* Flush the write out to device */
+-		ioread8(vp_dev->ioaddr + VIRTIO_PCI_ISR);
++		ioread8(vp_dev->legacy + VIRTIO_PCI_ISR);
+ 	}
+ 
+ 	vring_del_virtqueue(vq);
+ 
+ 	/* Select and deactivate the queue */
+-	iowrite32(0, vp_dev->ioaddr + VIRTIO_PCI_QUEUE_PFN);
++	iowrite32(0, vp_dev->legacy + VIRTIO_PCI_QUEUE_PFN);
+ 
+ 	size = PAGE_ALIGN(vring_size(info->num, VIRTIO_PCI_VRING_ALIGN));
+ 	free_pages_exact(info->queue, size);
+@@ -676,8 +620,8 @@ static int __devinit virtio_pci_probe(st
+ 	if (err)
+ 		goto out_enable_device;
+ 
+-	vp_dev->ioaddr = pci_iomap(pci_dev, 0, 0);
+-	if (vp_dev->ioaddr == NULL)
++	vp_dev->legacy = pci_iomap(pci_dev, 0, 0);
++	if (vp_dev->legacy == NULL)
+ 		goto out_req_regions;
+ 
+ 	pci_set_drvdata(pci_dev, vp_dev);
+@@ -699,7 +643,7 @@ static int __devinit virtio_pci_probe(st
+ 
+ out_set_drvdata:
+ 	pci_set_drvdata(pci_dev, NULL);
+-	pci_iounmap(pci_dev, vp_dev->ioaddr);
++	pci_iounmap(pci_dev, vp_dev->legacy);
+ out_req_regions:
+ 	pci_release_regions(pci_dev);
+ out_enable_device:
+@@ -717,7 +661,7 @@ static void __devexit virtio_pci_remove(
+ 
+ 	vp_del_vqs(&vp_dev->vdev);
+ 	pci_set_drvdata(pci_dev, NULL);
+-	pci_iounmap(pci_dev, vp_dev->ioaddr);
++	pci_iounmap(pci_dev, vp_dev->legacy);
+ 	pci_release_regions(pci_dev);
+ 	pci_disable_device(pci_dev);
+ 	kfree(vp_dev);
