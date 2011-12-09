@@ -1,20 +1,12 @@
-From: Raghavendra K T <raghukt@linux.vnet.ibm.com>
-Subject: Re: [PATCH RFC V3 2/4] kvm hypervisor : Add a hypercall to KVM
-	hypervisor to support pv-ticketlocks
-Date: Fri, 09 Dec 2011 16:29:06 +0530
-Message-ID: <4EE1E9FA.5030307__26927.2691374228$1323428398$gmane$org@linux.vnet.ibm.com>
-References: <20111130085921.23386.89708.sendpatchset@oc5400248562.ibm.com>
-	<20111130085959.23386.69166.sendpatchset@oc5400248562.ibm.com>
-	<20111207104849.GA24849@amt.cnet>
-	<4EDF5413.1030107@linux.vnet.ibm.com>
-	<20111207123330.GA32212@amt.cnet> <4EDF6049.2030204@redhat.com>
-	<20111207133947.GA1708@amt.cnet> <4EDF7DC5.5010504@redhat.com>
-	<4EDF987B.8040900@linux.vnet.ibm.com> <4EE08606.2060508@redhat.com>
+From: Laszlo Ersek <lersek@redhat.com>
+Subject: [PATCH v3 REPOST] xen-netfront: delay gARP until backend switches to
+	Connected
+Date: Fri,  9 Dec 2011 12:38:58 +0100
+Message-ID: <1323430738-3798-1-git-send-email-lersek__44752.4449126378$1323452182$gmane$org@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4EE08606.2060508@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,41 +16,66 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Avi Kivity <avi@redhat.com>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, x86@kernel.org, Peter Zijlstra <peterz@infradead.org>, Virtualization <virtualization@lists.linux-foundation.org>, "H. Peter Anvin" <hpa@zytor.com>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Xen <xen-devel@lists.xensource.com>, Dave Jiang <dave.jiang@intel.com>, KVM <kvm@vger.kernel.org>, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, Ingo Molnar <mingo@redhat.com>, Rik van Riel <riel@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, Sasha Levin <levinsasha928@gmail.com>, Sedat Dilek <sedat.dilek@gmail.com>, Thomas Gleixner <tglx@linutronix.de>, Yinghai Lu <yinghai@kernel.org>, Greg Kroah-Hartman <gregkh@suse.de>, LKML <linux-kernel@vger.kernel.org>, Dave Hansen <dave@linux.vnet.ibm.com>, Suzuki
+To: ian.campbell@citrix.com, konrad.wilk@oracle.com, jeremy@goop.org, xen-devel@lists.xensource.com, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 12/08/2011 03:10 PM, Avi Kivity wrote:
-> On 12/07/2011 06:46 PM, Raghavendra K T wrote:
->> On 12/07/2011 08:22 PM, Avi Kivity wrote:
->>> On 12/07/2011 03:39 PM, Marcelo Tosatti wrote:
->>>>> Also I think we can keep the kicked flag in vcpu->requests, no need
->>>>> for
->>>>> new storage.
->>>>
->>>> Was going to suggest it but it violates the currently organized
->>>> processing of entries at the beginning of vcpu_enter_guest.
->>>>
->>>> That is, this "kicked" flag is different enough from vcpu->requests
->>>> processing that a separate variable seems worthwhile (even more
->>>> different with convertion to MP_STATE at KVM_GET_MP_STATE).
->>>
->>> IMO, it's similar to KVM_REQ_EVENT (which can also cause mpstate to
->>> change due to apic re-evaluation).
->>>
->>
->> Ok, So what I understand is we have to either :
->> 1. retain current kick flag AS-IS but would have to make it migration
->> friendly. [I still have to get more familiar with migration side]
->> or
->> 2. introduce notion similar to KVM_REQ_PVLOCK_KICK(??) to be part of
->> vcpu->requests.
->>
->> So what would be better? Please let me know.
->>
->
-> IMO, KVM_REQ.
->
+After a guest is live migrated, the xen-netfront driver emits a gratuitous
+ARP message, so that networking hardware on the target host's subnet can
+take notice, and public routing to the guest is re-established. However,
+if the packet appears on the backend interface before the backend is added
+to the target host's bridge, the packet is lost, and the migrated guest's
+peers become unable to talk to the guest.
 
-Ok, 'll continue in this direction. Hmm I think now the race condition 
-should be kept in mind, pointed by Marcello.
+A sufficient two-parts condition to prevent the above is:
+
+(1) ensure that the backend only moves to Connected xenbus state after its
+hotplug scripts completed, ie. the netback interface got added to the
+bridge; and
+
+(2) ensure the frontend only queues the gARP when it sees the backend move
+to Connected.
+
+These two together provide complete ordering. Sub-condition (1) is
+satisfied by pvops commit 43223efd9bfd.
+
+In general, the full condition is sufficient, not necessary, because,
+according to [1], live migration has been working for a long time without
+satisfying sub-condition (2). However, after 43223efd9bfd was backported
+to the RHEL-5 host to ensure (1), (2) still proved necessary in the RHEL-6
+guest. This patch intends to provide (2) for upstream.
+
+The Reviewed-by line comes from [2].
+
+[1] http://old-list-archives.xen.org/xen-devel/2011-06/msg01969.html
+[2] http://old-list-archives.xen.org/xen-devel/2011-07/msg00484.html
+
+Signed-off-by: Laszlo Ersek <lersek@redhat.com>
+Reviewed-by: Ian Campbell <ian.campbell@citrix.com>
+---
+ drivers/net/xen-netfront.c |    4 +++-
+ 1 files changed, 3 insertions(+), 1 deletions(-)
+
+diff --git a/drivers/net/xen-netfront.c b/drivers/net/xen-netfront.c
+index d29365a..f033656 100644
+--- a/drivers/net/xen-netfront.c
++++ b/drivers/net/xen-netfront.c
+@@ -1646,7 +1646,6 @@ static void netback_changed(struct xenbus_device *dev,
+ 	case XenbusStateInitialised:
+ 	case XenbusStateReconfiguring:
+ 	case XenbusStateReconfigured:
+-	case XenbusStateConnected:
+ 	case XenbusStateUnknown:
+ 	case XenbusStateClosed:
+ 		break;
+@@ -1657,6 +1656,9 @@ static void netback_changed(struct xenbus_device *dev,
+ 		if (xennet_connect(netdev) != 0)
+ 			break;
+ 		xenbus_switch_state(dev, XenbusStateConnected);
++		break;
++
++	case XenbusStateConnected:
+ 		netif_notify_peers(netdev);
+ 		break;
+ 
+-- 
+1.7.4.4
