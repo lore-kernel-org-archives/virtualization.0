@@ -1,16 +1,20 @@
-From: Raghavendra K T <raghukt@linux.vnet.ibm.com>
-Subject: Re: [PATCH RFC V3 2/4] kvm hypervisor : Add a hypercall to KVM
-	hypervisor to support pv-ticketlocks
-Date: Thu, 08 Dec 2011 23:05:04 +0530
-Message-ID: <4EE0F548.8050006@linux.vnet.ibm.com>
-References: <20111130085921.23386.89708.sendpatchset@oc5400248562.ibm.com>
-	<20111130085959.23386.69166.sendpatchset@oc5400248562.ibm.com>
-	<4ED760F1.6080804@redhat.com> <4ED7DA85.5080504@linux.vnet.ibm.com>
+From: Sridhar Samudrala <sri@us.ibm.com>
+Subject: Re: [net-next RFC PATCH 5/5] virtio-net: flow director support
+Date: Thu, 08 Dec 2011 18:00:39 -0800
+Message-ID: <4EE16BC7.1030808@us.ibm.com>
+References: <20111205085603.6116.65101.stgit@dhcp-8-146.nay.redhat.com>
+	<20111205085925.6116.94352.stgit@dhcp-8-146.nay.redhat.com>
+	<CAJSP0QXfHC8j2Kk9x6wyBMubo2=YvpaLAShJtwMWA2mtro6UhA@mail.gmail.com>
+	<4EDDB71F.9080908@redhat.com>
+	<CAJSP0QX5dDkpX+cRcQut2mb6K91zeqGLRrZBGAWT_r2p685gaQ@mail.gmail.com>
+	<4EDDECA9.8060808@redhat.com>
+	<CAJSP0QXsLwvH5xYj6h0E_V4VLg6DuUc-GKXu9esEYzL2MFcFGw@mail.gmail.com>
+	<4EDE37FE.5090409@us.ibm.com> <4EDF47D9.1090501@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4ED7DA85.5080504@linux.vnet.ibm.com>
+In-Reply-To: <4EDF47D9.1090501@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,60 +24,57 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Raghavendra K T <raghukt@linux.vnet.ibm.com>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, x86@kernel.org, Peter Zijlstra <peterz@infradead.org>, Virtualization <virtualization@lists.linux-foundation.org>, "H. Peter Anvin" <hpa@zytor.com>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Xen <xen-devel@lists.xensource.com>, Dave Jiang <dave.jiang@intel.com>, KVM <kvm@vger.kernel.org>, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, Ingo Molnar <mingo@redhat.com>, Avi Kivity <avi@redhat.com>, Rik van Riel <riel@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, Sasha Levin <levinsasha928@gmail.com>, Sedat Dilek <sedat.dilek@gmail.com>, Thomas Gleixner <tglx@linutronix.de>, Yinghai Lu <yinghai@kernel.org>, Greg Kroah-Hartman <gregkh@suse.de>, LKML <linux-kernel@vger.kernel.org>, Dave Hansen <dave@linu>
+To: Jason Wang <jasowang@redhat.com>
+Cc: krkumar2@in.ibm.com, kvm@vger.kernel.org, mst@redhat.com, virtualization@lists.linux-foundation.org, levinsasha928@gmail.com, netdev@vger.kernel.org, bhutchings@solarflare.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 12/02/2011 01:20 AM, Raghavendra K T wrote:
+On 12/7/2011 3:02 AM, Jason Wang wrote:
+> On 12/06/2011 11:42 PM, Sridhar Samudrala wrote:
+>> On 12/6/2011 5:15 AM, Stefan Hajnoczi wrote:
+>>> On Tue, Dec 6, 2011 at 10:21 AM, Jason Wang<jasowang@redhat.com>  
+>>> wrote:
+>>>> On 12/06/2011 05:18 PM, Stefan Hajnoczi wrote:
+>>>>> On Tue, Dec 6, 2011 at 6:33 AM, Jason Wang<jasowang@redhat.com>    
+>>>>> wrote:
+>>>>>> On 12/05/2011 06:55 PM, Stefan Hajnoczi wrote:
+>>>>>>> On Mon, Dec 5, 2011 at 8:59 AM, Jason Wang<jasowang@redhat.com>
+>>>>>>>   wrote:
+>>>>> The vcpus are just threads and may not be bound to physical CPUs, so
+>>>>> what is the big picture here?  Is the guest even in the position to
+>>>>> set the best queue mappings today?
+>>>>
+>>>> Not sure it could publish the best mapping but the idea is to make 
+>>>> sure the
+>>>> packets of a flow were handled by the same guest vcpu and may be 
+>>>> the same
+>>>> vhost thread in order to eliminate the packet reordering and lock
+>>>> contention. But this assumption does not take the bouncing of vhost 
+>>>> or vcpu
+>>>> threads which would also affect the result.
+>>> Okay, this is why I'd like to know what the big picture here is.  What
+>>> solution are you proposing?  How are we going to have everything from
+>>> guest application, guest kernel, host threads, and host NIC driver
+>>> play along so we get the right steering up the entire stack.  I think
+>>> there needs to be an answer to that before changing virtio-net to add
+>>> any steering mechanism.
 >>>
->>> +/*
->>> + * kvm_pv_kick_cpu_op: Kick a vcpu.
->>> + *
->>> + * @cpu - vcpu to be kicked.
->>> + */
->>> +static void kvm_pv_kick_cpu_op(struct kvm *kvm, int cpu)
->>> +{
->>> + struct kvm_vcpu *vcpu = kvm_get_vcpu(kvm, cpu);
+>>>
+>> Yes. Also the current model of  a vhost thread per VM's interface 
+>> doesn't help with packet steering
+>> all the way from the guest to the host physical NIC.
 >>
->> There is no guarantee that guest cpu numbers match host vcpu numbers.
->> Use APIC IDs, and kvm_apic_match_dest().
+>> I think we need to have vhost thread(s) per-CPU that can handle 
+>> packets to/from physical NIC's
+>> TX/RX queues. Currently we have a single vhost thread for a VM's i/f 
+>> that handles all the packets from
+>> various flows coming from a multi-queue physical NIC.
 >
-> Okay. I have to dig more on this.
->
-Sorry for late reply on this, was experimenting with the changes needed.
-
-Wanted to confirm if it is according to your expectation.
-
-  Host side change should look like this to get vcpu,
-
-	int i;
-	struct kvm_vcpu *vcpu = NULL;
-
-	kvm_for_each_vcpu(i, vcpu, kvm) {
-		if (!kvm_apic_present(vcpu))
-		continue;
-
-		if (kvm_apic_match_dest(vcpu, 0, 0, cpu, 0)) {
-		break;
-		}
-	}
-
-
-In guest side, convert the cpu to apicid using,
-
-apicid = apic->cpu_present_to_apicid(cpu);
-OR
-apicid =  per_cpu(x86_cpu_to_apicid, cpu);
-
-But I have a question, as you know, we are storing the waiting cpus in
-cpumask, to track the cpu to be kicked.
-
-You want to change the logic to store the apicid directly instead of
-cpu during contention or is it OK to convert before kick hypercall?.
-
-Probably it would be more good if I can get to know the scenario,
-where guest cpu numbers does not match host vcpu numbers. It may answer 
-the whole question and help me in testing/validating the code.
+> Even if we have per-cpu workthread, only one socket is used to queue 
+> the packet then, so a multiple queue(sockets) tap/macvtap is still 
+> needed.
+I think so.  We need per-cpu tap/macvtap sockets along with per-cpu 
+vhost threads.
+This will parallelize all the way from physical NIC to vhost.
 
 Thanks
-- Raghu
+Sridhar
