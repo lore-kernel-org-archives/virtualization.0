@@ -1,21 +1,15 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH] virtio-ring: Use threshold for switching to indirect
-	descriptors
-Date: Fri, 09 Dec 2011 16:03:10 +1030
-Message-ID: <87obvifgx5.fsf__46105.5352156565$1323426775$gmane$org@rustcorp.com.au>
-References: <87zkfbre9x.fsf@rustcorp.com.au> <1322913028.3782.4.camel@lappy>
-	<4EDB5EF0.2010909@redhat.com> <1323000831.4205.4.camel@lappy>
-	<20111204162221.GB22501@redhat.com>
-	<1323020088.3256.3.camel@lappy> <4EDBAFC5.2010405@redhat.com>
-	<1323020374.3256.5.camel@lappy> <1323023039.3256.7.camel@lappy>
-	<1323266565.4009.10.camel@lappy>
-	<20111207154816.GA23845@redhat.com>
-	<87r50fgzyj.fsf@rustcorp.com.au> <1323340668.3904.21.camel@lappy>
+Subject: Re: [net-next RFC PATCH 0/5] Series short description
+Date: Fri, 09 Dec 2011 16:01:53 +1030
+Message-ID: <87r50efgza.fsf@rustcorp.com.au>
+References: <20111205085603.6116.65101.stgit@dhcp-8-146.nay.redhat.com>
+	<87ty5cj0sw.fsf@rustcorp.com.au> <4EDF4E82.7050201@redhat.com>
+	<1323277324.2728.34.camel@bwh-desktop>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1323340668.3904.21.camel@lappy>
+In-Reply-To: <1323277324.2728.34.camel@bwh-desktop>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,31 +19,37 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Sasha Levin <levinsasha928@gmail.com>
-Cc: markmc@redhat.com, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Avi Kivity <avi@redhat.com>
+To: Ben Hutchings <bhutchings@solarflare.com>, Jason Wang <jasowang@redhat.com>
+Cc: krkumar2@in.ibm.com, kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, levinsasha928@gmail.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 08 Dec 2011 12:37:48 +0200, Sasha Levin <levinsasha928@gmail.com> wrote:
-> On Thu, 2011-12-08 at 20:14 +1030, Rusty Russell wrote:
-> > On Wed, 7 Dec 2011 17:48:17 +0200, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> > > On Wed, Dec 07, 2011 at 04:02:45PM +0200, Sasha Levin wrote:
-> > > > On Sun, 2011-12-04 at 20:23 +0200, Sasha Levin wrote:
-> > > > 
-> > > > [snip]
-> > > > 
-> > > > Rusty, Michael, does the below looks a reasonable optimization for you?
-> > > 
-> > > OK overall but a bit hard to say for sure as it looks pretty incomplete ...
-> > 
-> > A static threshold is very hackish; we need to either initialize it to
-> > a proven-good value (since noone will ever change it) or be cleverer.
+On Wed, 7 Dec 2011 17:02:04 +0000, Ben Hutchings <bhutchings@solarflare.com> wrote:
+> Solarflare controllers (sfc driver) have 8192 perfect filters for
+> TCP/IPv4 and UDP/IPv4 which can be used for flow steering.  (The filters
+> are organised as a hash table, but matched based on 5-tuples.)  I
+> implemented the 'accelerated RFS' interface in this driver.
 > 
-> I'll better wait to see how the threshold issue is resolved, and
-> possibly do it as a dynamic value which depends on the threshold.
-> 
-> I doubt theres one magic value which would work for all.
+> I believe the Intel 82599 controllers (ixgbe driver) have both
+> hash-based and perfect filter modes and the driver can be configured to
+> use one or the other.  The driver has its own independent mechanism for
+> steering RX and TX flows which predates RFS; I don't know whether it
+> uses hash-based or perfect filters.
 
-Sure, but if it's generally better than the current value, I'll apply it.
+Thanks for this summary (and Jason, too).  I've fallen a long way behind
+NIC state-of-the-art.
+ 
+> Most multi-queue controllers could support a kind of hash-based
+> filtering for TCP/IP by adjusting the RSS indirection table.  However,
+> this table is usually quite small (64-256 entries).  This means that
+> hash collisions will be quite common and this can result in reordering.
+> The same applies to the small table Jason has proposed for virtio-net.
 
-Cheers,
+But this happens on real hardware today.  Better that real hardware is
+nice, but is it overkill?
+
+And can't you reorder even with perfect matching, since prior packets
+will be on the old queue and more recent ones on the new queue?  Does it
+discard or requeue old ones?  Or am I missing a trick?
+
+Thanks,
 Rusty.
