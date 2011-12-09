@@ -1,15 +1,20 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [net-next RFC PATCH 0/5] Series short description
-Date: Fri, 09 Dec 2011 16:01:53 +1030
-Message-ID: <87r50efgza.fsf@rustcorp.com.au>
-References: <20111205085603.6116.65101.stgit@dhcp-8-146.nay.redhat.com>
-	<87ty5cj0sw.fsf@rustcorp.com.au> <4EDF4E82.7050201@redhat.com>
-	<1323277324.2728.34.camel@bwh-desktop>
+From: Raghavendra K T <raghukt@linux.vnet.ibm.com>
+Subject: Re: [PATCH RFC V3 2/4] kvm hypervisor : Add a hypercall to KVM
+	hypervisor to support pv-ticketlocks
+Date: Fri, 09 Dec 2011 16:29:06 +0530
+Message-ID: <4EE1E9FA.5030307__26927.2691374228$1323428398$gmane$org@linux.vnet.ibm.com>
+References: <20111130085921.23386.89708.sendpatchset@oc5400248562.ibm.com>
+	<20111130085959.23386.69166.sendpatchset@oc5400248562.ibm.com>
+	<20111207104849.GA24849@amt.cnet>
+	<4EDF5413.1030107@linux.vnet.ibm.com>
+	<20111207123330.GA32212@amt.cnet> <4EDF6049.2030204@redhat.com>
+	<20111207133947.GA1708@amt.cnet> <4EDF7DC5.5010504@redhat.com>
+	<4EDF987B.8040900@linux.vnet.ibm.com> <4EE08606.2060508@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1323277324.2728.34.camel@bwh-desktop>
+In-Reply-To: <4EE08606.2060508@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,37 +24,41 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Ben Hutchings <bhutchings@solarflare.com>, Jason Wang <jasowang@redhat.com>
-Cc: krkumar2@in.ibm.com, kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, levinsasha928@gmail.com
+To: Avi Kivity <avi@redhat.com>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, x86@kernel.org, Peter Zijlstra <peterz@infradead.org>, Virtualization <virtualization@lists.linux-foundation.org>, "H. Peter Anvin" <hpa@zytor.com>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Xen <xen-devel@lists.xensource.com>, Dave Jiang <dave.jiang@intel.com>, KVM <kvm@vger.kernel.org>, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, Ingo Molnar <mingo@redhat.com>, Rik van Riel <riel@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, Sasha Levin <levinsasha928@gmail.com>, Sedat Dilek <sedat.dilek@gmail.com>, Thomas Gleixner <tglx@linutronix.de>, Yinghai Lu <yinghai@kernel.org>, Greg Kroah-Hartman <gregkh@suse.de>, LKML <linux-kernel@vger.kernel.org>, Dave Hansen <dave@linux.vnet.ibm.com>, Suzuki
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 7 Dec 2011 17:02:04 +0000, Ben Hutchings <bhutchings@solarflare.com> wrote:
-> Solarflare controllers (sfc driver) have 8192 perfect filters for
-> TCP/IPv4 and UDP/IPv4 which can be used for flow steering.  (The filters
-> are organised as a hash table, but matched based on 5-tuples.)  I
-> implemented the 'accelerated RFS' interface in this driver.
-> 
-> I believe the Intel 82599 controllers (ixgbe driver) have both
-> hash-based and perfect filter modes and the driver can be configured to
-> use one or the other.  The driver has its own independent mechanism for
-> steering RX and TX flows which predates RFS; I don't know whether it
-> uses hash-based or perfect filters.
+On 12/08/2011 03:10 PM, Avi Kivity wrote:
+> On 12/07/2011 06:46 PM, Raghavendra K T wrote:
+>> On 12/07/2011 08:22 PM, Avi Kivity wrote:
+>>> On 12/07/2011 03:39 PM, Marcelo Tosatti wrote:
+>>>>> Also I think we can keep the kicked flag in vcpu->requests, no need
+>>>>> for
+>>>>> new storage.
+>>>>
+>>>> Was going to suggest it but it violates the currently organized
+>>>> processing of entries at the beginning of vcpu_enter_guest.
+>>>>
+>>>> That is, this "kicked" flag is different enough from vcpu->requests
+>>>> processing that a separate variable seems worthwhile (even more
+>>>> different with convertion to MP_STATE at KVM_GET_MP_STATE).
+>>>
+>>> IMO, it's similar to KVM_REQ_EVENT (which can also cause mpstate to
+>>> change due to apic re-evaluation).
+>>>
+>>
+>> Ok, So what I understand is we have to either :
+>> 1. retain current kick flag AS-IS but would have to make it migration
+>> friendly. [I still have to get more familiar with migration side]
+>> or
+>> 2. introduce notion similar to KVM_REQ_PVLOCK_KICK(??) to be part of
+>> vcpu->requests.
+>>
+>> So what would be better? Please let me know.
+>>
+>
+> IMO, KVM_REQ.
+>
 
-Thanks for this summary (and Jason, too).  I've fallen a long way behind
-NIC state-of-the-art.
- 
-> Most multi-queue controllers could support a kind of hash-based
-> filtering for TCP/IP by adjusting the RSS indirection table.  However,
-> this table is usually quite small (64-256 entries).  This means that
-> hash collisions will be quite common and this can result in reordering.
-> The same applies to the small table Jason has proposed for virtio-net.
-
-But this happens on real hardware today.  Better that real hardware is
-nice, but is it overkill?
-
-And can't you reorder even with perfect matching, since prior packets
-will be on the old queue and more recent ones on the new queue?  Does it
-discard or requeue old ones?  Or am I missing a trick?
-
-Thanks,
-Rusty.
+Ok, 'll continue in this direction. Hmm I think now the race condition 
+should be kept in mind, pointed by Marcello.
