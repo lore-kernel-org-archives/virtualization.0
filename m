@@ -1,16 +1,14 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH v3 REPOST] xen-netfront: delay gARP until backend
-	switches to Connected
-Date: Fri, 09 Dec 2011 19:24:39 -0500 (EST)
-Message-ID: <20111209.192439.275865894437319638.davem@davemloft.net>
-References: <1323430738-3798-1-git-send-email-lersek@redhat.com>
-	<20111209.134514.2071890208094978847.davem@davemloft.net>
-	<1323465781.20936.49.camel@dagon.hellion.org.uk>
+From: Sasha Levin <levinsasha928@gmail.com>
+Subject: Re: [RFC 4/11] virtio-pci: define layout for virtio vendor-specific
+	capabilities.
+Date: Sat, 10 Dec 2011 23:14:49 +0200
+Message-ID: <1323551689.32487.32.camel@lappy>
+References: <87pqfzgy6p.fsf@rustcorp.com.au> <874nxbgxmr.fsf@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1323465781.20936.49.camel@dagon.hellion.org.uk>
+In-Reply-To: <874nxbgxmr.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,27 +18,75 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Ian.Campbell@citrix.com
-Cc: jeremy@goop.org, xen-devel@lists.xensource.com, konrad.wilk@oracle.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, lersek@redhat.com
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Ian Campbell <Ian.Campbell@citrix.com>
-Date: Fri, 9 Dec 2011 21:23:00 +0000
-
-> On Fri, 2011-12-09 at 18:45 +0000, David Miller wrote:
->> From: Laszlo Ersek <lersek@redhat.com>
->> Date: Fri,  9 Dec 2011 12:38:58 +0100
->> 
->> > These two together provide complete ordering. Sub-condition (1) is
->> > satisfied by pvops commit 43223efd9bfd.
->> 
->> I don't see this commit in Linus's tree,
+On Thu, 2011-12-08 at 21:04 +1030, Rusty Russell wrote:
+> Based on patch by Michael S. Tsirkin <mst@redhat.com>, but I found it
+> hard to follow so changed to use structures which are more
+> self-documenting.
 > 
-> The referenced commit is in
-> git://git.kernel.org/pub/scm/linux/kernel/git/jeremy/xen.git#xen/next-2.6.32  some people call the "pvops tree" but there's no reason to expect someone outside the Xen world to know that...
+> Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+> ---
+>  include/linux/virtio_pci.h |   41 +++++++++++++++++++++++++++++++++++++++++
+>  1 file changed, 41 insertions(+)
 > 
-> A better reference would have been 6b0b80ca7165 in
-> git://xenbits.xen.org/people/ianc/linux-2.6.git#upstream/dom0/backend/netback-history which is the precise branch that was flattened to make f942dc2552b8, which is the upstream commit that added netback, so this change is already in upstream.
+> diff --git a/include/linux/virtio_pci.h b/include/linux/virtio_pci.h
+> --- a/include/linux/virtio_pci.h
+> +++ b/include/linux/virtio_pci.h
+> @@ -92,4 +92,45 @@
+>  /* The alignment to use between consumer and producer parts of vring.
+>   * x86 pagesize again. */
+>  #define VIRTIO_PCI_VRING_ALIGN		4096
+> +
+> +/* IDs for different capabilities.  Must all exist. */
+> +/* FIXME: Do we win from separating ISR, NOTIFY and COMMON? */
+> +/* Common configuration */
+> +#define VIRTIO_PCI_CAP_COMMON_CFG	1
+> +/* Notifications */
+> +#define VIRTIO_PCI_CAP_NOTIFY_CFG	2
+> +/* ISR access */
+> +#define VIRTIO_PCI_CAP_ISR_CFG		3
+> +/* Device specific confiuration */
+> +#define VIRTIO_PCI_CAP_DEVICE_CFG	4
+> +
+> +/* This is the PCI capability header: */
+> +struct virtio_pci_cap {
+> +	u8 cap_vndr;	/* Generic PCI field: PCI_CAP_ID_VNDR */
+> +	u8 cap_next;	/* Generic PCI field: next ptr. */
 
-I want the commit message fixed so someone seeing the commit ID can
-figure out what it actually refers to.
+There should be a cap_len field here, which is mandatory for
+PCI_CAP_ID_VNDR capabilities.
+
+> +	u8 cfg_type;	/* One of the VIRTIO_PCI_CAP_*_CFG. */
+> +/* FIXME: Should we use a bir, instead of raw bar number? */
+> +	u8 bar;		/* Where to find it. */
+> +	__le32 offset;	/* Offset within bar. */
+> +	__le32 length;	/* Length. */
+> +};
+> +
+> +/* Fields in VIRTIO_PCI_CAP_COMMON_CFG: */
+> +struct virtio_pci_common_cfg {
+> +	/* About the whole device. */
+> +	__le32 device_feature_select;	/* read-write */
+> +	__le32 device_feature;		/* read-only */
+> +	__le32 guest_feature_select;	/* read-write */
+> +	__le32 guest_feature;		/* read-only */
+> +	__le16 msix_config;		/* read-write */
+> +	__u8 device_status;		/* read-write */
+> +	__u8 unused;
+> +
+> +	/* About a specific virtqueue. */
+> +	__le16 queue_select;	/* read-write */
+> +	__le16 queue_align;	/* read-write, power of 2. */
+> +	__le16 queue_size;	/* read-write, power of 2. */
+> +	__le16 queue_msix_vector;/* read-write */
+> +	__le64 queue_address;	/* read-write: 0xFFFFFFFFFFFFFFFF == DNE. */
+
+This is now a 64bit address, but we can't do an atomic iowrite64(). We
+should make it clear to the device when it should initialize the vq.
+
+-- 
+
+Sasha.
