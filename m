@@ -1,16 +1,14 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [RFC 6/11] virtio_pci: don't use the legacy driver if we find
-	the new PCI capabilities.
-Date: Sun, 11 Dec 2011 11:37:28 +0200
-Message-ID: <20111211093726.GA11504@redhat.com>
-References: <87pqfzgy6p.fsf@rustcorp.com.au> <871usfgxg9.fsf@rustcorp.com.au>
-	<1323551918.32487.34.camel@lappy>
+Subject: Re: [RFC 7/11] virtio_pci: new, capability-aware driver.
+Date: Sun, 11 Dec 2011 11:42:56 +0200
+Message-ID: <20111211094256.GB11504@redhat.com>
+References: <87pqfzgy6p.fsf@rustcorp.com.au> <87zkf3fiu2.fsf@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1323551918.32487.34.camel@lappy>
+In-Reply-To: <87zkf3fiu2.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,20 +18,18 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Sasha Levin <levinsasha928@gmail.com>
-Cc: virtualization <virtualization@lists.linux-foundation.org>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Sasha Levin <levinsasha928@gmail.com>, virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sat, Dec 10, 2011 at 11:18:38PM +0200, Sasha Levin wrote:
-> On Thu, 2011-12-08 at 21:08 +1030, Rusty Russell wrote:
-> > With module option to override.  I assume I can call
-> > pci_find_capability() before pci_request_regions? 
-> 
-> I don't think thats safe.
+On Thu, Dec 08, 2011 at 09:09:33PM +1030, Rusty Russell wrote:
+> +/* There is no iowrite64.  We use two 32-bit ops. */
+> +static void iowrite64(u64 val, const __le64 *addr)
+> +{
+> +	iowrite32((u32)val, (__le32 *)addr);
+> +	iowrite32(val >> 32, (__le32 *)addr + 1);
+> +}
+> +
 
-Why wouldn't it be? pci_find_capability is only
-using config cycles, it never needs any regions.
-
-> -- 
-> 
-> Sasha.
+Let's put addr_lo/addr_hi in the structure then,
+to make the fact this field is not atomic explicit?
