@@ -1,14 +1,15 @@
-From: Sasha Levin <levinsasha928@gmail.com>
-Subject: Re: [PATCH 0/11] RFC: PCI using capabilitities
-Date: Sun, 11 Dec 2011 14:53:12 +0200
-Message-ID: <1323607992.4063.9.camel__45443.5486499735$1323608033$gmane$org@lappy>
-References: <87pqfzgy6p.fsf@rustcorp.com.au>
-	<1323358657.32487.9.camel@lappy> <20111211124703.GE11504@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH RFC] virtio_net: fix refill related races
+Date: Sun, 11 Dec 2011 16:44:29 +0200
+Message-ID: <20111211144428.GB14381@redhat.com>
+References: <20111207152120.GA23417@redhat.com>
+	<8739cvisqe.fsf@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20111211124703.GE11504@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <8739cvisqe.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,37 +19,42 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Avi Kivity <avi@redhat.com>, kvm@vger.kernel.org, virtualization <virtualization@lists.linux-foundation.org>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Amit Shah <amit.shah@redhat.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sun, 2011-12-11 at 14:47 +0200, Michael S. Tsirkin wrote:
-> First, I'd like to answer your questions from the PCI side.
-> Look for PCI rules in the PCI spec.
-> You will notices that a write is required to be able to
-> pass a read request. It might also pass read completion.
-> A read request will not pass a write request.
-> There's more or less no ordering between different types of transactions
-> (memory versus io/configuration).
+On Thu, Dec 08, 2011 at 03:07:29PM +1030, Rusty Russell wrote:
+> On Wed, 7 Dec 2011 17:21:22 +0200, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> > Fix theoretical races related to refill work:
+> > 1. After napi is disabled by ndo_stop, refill work
+> >    can run and re-enable it.
+> > 2. Refill can reschedule itself, if this happens
+> >    it can run after cancel_delayed_work_sync,
+> >    and will access device after it is destroyed.
+> > 
+> > As a solution, add flags to track napi state and
+> > to disable refill, and toggle them on start, stop
+> > and remove; check these flags on refill.
 > 
-> That's wrt to the question you asked.
+> Why isn't a "dont-readd" flag sufficient?
 > 
-> But this is not your setup: you have a single vcpu so
-> you will not initiate a write (select vq) until you get
-> a read completion.
-> 
-> So what you are really describing is this setup: guest reads a value,
-> gets the response, then writes out another one, and kvm tool reports the
-> write before the read. 
+> Cheers,
+> Rusty.
 
-No, it's exactly the opposite. Guest writes a value first and then reads
-one (writes queue_select and reads queue_address) and kvm tool reporting
-the read before the write.
+I started with that, but here's the problem I wanted to
+address:
 
-I must add here that the kvm tool doesn't do anything fancy with simple
-IO/MMIO. Theres no thread games or anything similar there. The vcpu
-thread is doing all the IO/MMIO work.
+- we run out of descriptors and schedule refill work
+- ndo_close runs
+- refill work runs
+- ndo_open runs
+
+
+Now if we just disable refill, refill work will not add buffers and will
+not reschedule.  Now we'll never get more buffers.
+We can try starting refill work from ndo_open but overall
+this seems to me more risky than just splitting flags.
+
 
 -- 
-
-Sasha.
+MST
