@@ -1,14 +1,15 @@
-From: Sasha Levin <levinsasha928@gmail.com>
-Subject: Re: [PATCH 0/11] RFC: PCI using capabilitities
-Date: Sat, 10 Dec 2011 23:32:53 +0200
-Message-ID: <1323552773.32487.37.camel@lappy>
-References: <87pqfzgy6p.fsf@rustcorp.com.au>
-	<1323358657.32487.9.camel@lappy> <87d3byfev0.fsf@rustcorp.com.au>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [RFC 6/11] virtio_pci: don't use the legacy driver if we find the
+	new PCI capabilities.
+Date: Sun, 11 Dec 2011 15:45:46 +1030
+Message-ID: <87fwgrofi5.fsf@rustcorp.com.au>
+References: <87pqfzgy6p.fsf@rustcorp.com.au> <871usfgxg9.fsf@rustcorp.com.au>
+	<1323551918.32487.34.camel@lappy>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <87d3byfev0.fsf@rustcorp.com.au>
+In-Reply-To: <1323551918.32487.34.camel@lappy>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,29 +19,21 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, Avi Kivity <avi@redhat.com>, kvm@vger.kernel.org, virtualization <virtualization@lists.linux-foundation.org>
+To: Sasha Levin <levinsasha928@gmail.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 2011-12-09 at 16:47 +1030, Rusty Russell wrote:
-> On Thu, 08 Dec 2011 17:37:37 +0200, Sasha Levin <levinsasha928@gmail.com> wrote:
-> > Which leads me to the question: Are MMIO vs MMIO reads/writes not
-> > ordered?
+On Sat, 10 Dec 2011 23:18:38 +0200, Sasha Levin <levinsasha928@gmail.com> wrote:
+> On Thu, 2011-12-08 at 21:08 +1030, Rusty Russell wrote:
+> > With module option to override.  I assume I can call
+> > pci_find_capability() before pci_request_regions? 
 > 
-> That seems really odd, especially being repeatable.
+> I don't think thats safe.
 
-Happens every single time. Can't be a coincidence.
+Actually, a number of drivers do it first thing in probe()
+(eg. drivers/char/agp/intel-agp.c).
 
-I even went into paranoia mode and made sure that both IO requests come
-from the same vcpu.
+So I think it's easiest right at the start.  I've changed that.
 
-Another weird thing I've noticed is that mb() doesn't fix it, while if I
-replace the mb() with a printk() it works well.
-
-> BTW, that's an address, not a pfn now.
-
-Fixed :)
-
--- 
-
-Sasha.
+Thanks,
+Rusty.
