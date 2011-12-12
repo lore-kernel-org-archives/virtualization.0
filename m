@@ -1,34 +1,27 @@
 From: Greg KH <greg@kroah.com>
-Subject: Re: [PATCH 0000/0004] Drivers: hv: Fixes
-Date: Mon, 12 Dec 2011 14:28:01 -0800
-Message-ID: <20111212222801.GA16054@kroah.com>
+Subject: Re: [PATCH 4/4] Drivers: hv: Support building the vmbus driver as
+ part of the kernel
+Date: Mon, 12 Dec 2011 14:27:12 -0800
+Message-ID: <20111212222712.GA13510@kroah.com>
 References: <1323710931-29616-1-git-send-email-kys@microsoft.com>
+ <1323710959-29655-1-git-send-email-kys@microsoft.com>
+ <1323710959-29655-4-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1323710931-29616-1-git-send-email-kys@microsoft.com>
+In-Reply-To: <1323710959-29655-4-git-send-email-kys@microsoft.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: "K. Y. Srinivasan" <kys@microsoft.com>
-Cc: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org, ohering@suse.com
+Cc: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org, ohering@suse.com, Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Dec 12, 2011 at 09:28:51AM -0800, K. Y. Srinivasan wrote:
-> Some fixes to the vmbus driver:
+On Mon, Dec 12, 2011 at 09:29:19AM -0800, K. Y. Srinivasan wrote:
+> Support building the vmbus driver as part of the kernel. 
 > 
-> 	1. Fix a memory leak in a failure path.
-> 
-> 	2. Make vmbus driver unloadable.
-> 
-> 	3. Get rid of an unnecessary check in hv_init()
-> 	   in preparation for supporting kexec().
-> 
-> 	4. Make it possible to build the vmbus driver as part of the
-> 	   kernel. This patch was submitted earlier, but seems to have been 
-> 	   lost.
+> Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
+> Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 
-No, it was not lost, it was applied to my driver-core-next tree a while
-ago.  Because of this, I had to hand-edit patch 2 above and skip patch 4
-here.
+This was already applied to my tree, I don't know why you missed it...
 
 greg k-h
