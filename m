@@ -1,16 +1,23 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [RFC 7/11] virtio_pci: new, capability-aware driver.
-Date: Mon, 12 Dec 2011 20:25:34 +0200
-Message-ID: <20111212182533.GB25916@redhat.com>
-References: <87pqfzgy6p.fsf@rustcorp.com.au> <87zkf3fiu2.fsf@rustcorp.com.au>
-	<20111211094256.GB11504@redhat.com>
-	<87boreohhs.fsf@rustcorp.com.au>
+From: Miche Baker-Harvey <miche@google.com>
+Subject: Re: [PATCH v3 2/3] hvc_init(): Enforce one-time initialization.
+Date: Mon, 12 Dec 2011 11:11:55 -0800
+Message-ID: <CAB8RdapDDV0kYW_uASpBoJ3hbx6zScKnG+LWWcjYtqMnqXN4Xw@mail.gmail.com>
+References: <20111108214504.28884.61814.stgit@miche.sea.corp.google.com>
+	<874nybqo0o.fsf@rustcorp.com.au>
+	<CAB8RdapbaueyWLJuJDE_ZdvLkRNM4sQHTxgmgO=jrnXZ6YPSmA@mail.gmail.com>
+	<20111123103852.GG16665@amit-x200.redhat.com>
+	<CAB8RdaoDxMCgTjuGP70bGrsrtgh=USYtU3Spo5OPtVMYAM5EzQ@mail.gmail.com>
+	<20111129142149.GE2822@amit-x200.redhat.com>
+	<CAB8RdapuPRym2dH_9mgmGdzpCxnP1KpS+hS8JJ-geVkga5fMcw@mail.gmail.com>
+	<CAB8Rdapfuf5XH+X9gsUL+CJ9gTQcSNfq4Dj9DoYWQeFgD04ODQ@mail.gmail.com>
+	<20111205105452.GB27683@amit-x200.redhat.com>
+	<CAB8Rdar=qOokxZkjQVRmo=zN_f75jPwzU+6=WBRo0g+P7w+pAw@mail.gmail.com>
+	<20111208120804.GF23531@amit-x200.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <87boreohhs.fsf@rustcorp.com.au>
+In-Reply-To: <20111208120804.GF23531@amit-x200.redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,54 +27,59 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Sasha Levin <levinsasha928@gmail.com>, virtualization <virtualization@lists.linux-foundation.org>
+To: Amit Shah <amit.shah@redhat.com>
+Cc: Stephen Rothwell <sfr@canb.auug.org.au>, xen-devel@lists.xensource.com, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Anton Blanchard <anton@samba.org>, Mike Waychison <mikew@google.com>, ppc-dev <linuxppc-dev@lists.ozlabs.org>, Greg Kroah-Hartman <gregkh@suse.de>, Eric Northrup <digitaleric@google.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Dec 12, 2011 at 09:15:03AM +1030, Rusty Russell wrote:
-> On Sun, 11 Dec 2011 11:42:56 +0200, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> > On Thu, Dec 08, 2011 at 09:09:33PM +1030, Rusty Russell wrote:
-> > > +/* There is no iowrite64.  We use two 32-bit ops. */
-> > > +static void iowrite64(u64 val, const __le64 *addr)
-> > > +{
-> > > +	iowrite32((u32)val, (__le32 *)addr);
-> > > +	iowrite32(val >> 32, (__le32 *)addr + 1);
-> > > +}
-> > > +
-> > 
-> > Let's put addr_lo/addr_hi in the structure then,
-> > to make the fact this field is not atomic explicit?
-> 
-> Good point, assuming I haven't missed something.
-> 
-> Are 64-bit accesses actually unknown in PCI-land?  Or is this a limited
-> availability thing?
-> 
-> Thanks,
-> Rusty.
-
-By the way, a generic question on virtio-pci: we now have:
-
-/* virtio config->get() implementation */
-static void vp_get(struct virtio_device *vdev, unsigned offset,
-                   void *buf, unsigned len)
-{
-        struct virtio_pci_device *vp_dev = to_vp_device(vdev);
-        void __iomem *ioaddr = vp_dev->ioaddr +
-                                VIRTIO_PCI_CONFIG(vp_dev) + offset;
-        u8 *ptr = buf;
-        int i;
-
-        for (i = 0; i < len; i++)
-                ptr[i] = ioread8(ioaddr + i);
-}
-
-This means that if configuration is read while
-it is changed, we might get an inconsistent state,
-with parts of a 64 bit field coming from old
-and parts from new value.
-
-Isn't this a problem?
-
--- 
-MST
+So on a CONSOLE_PORT_ADD message, we would take the
+(existing)ports_device::ports_lock, and for other control messages we
+would justtake the (new) port::port_lock? =A0You are concerned that just
+takingthe ports_lock for all control messages could be too
+restrictive? =A0Iwouldn't have expected these messages to be frequent
+occurrences, butI'll defer to your experience here.
+The CONSOLE_CONSOLE_PORT message calls hvc_alloc, which also
+needsserialization. =A0That's in another one of these three patches; are
+youthinking we could leave that patch be, or that we would we use
+theport_lock for CONSOLE_CONSOLE_PORT? =A0Using the port_lock
+wouldprovide the HVC serialization "for free" but it would be cleaner
+if weput HVC related synchronization in hvc_console.c.
+On Thu, Dec 8, 2011 at 4:08 AM, Amit Shah <amit.shah@redhat.com> wrote:
+> On (Tue) 06 Dec 2011 [09:05:38], Miche Baker-Harvey wrote:
+>> Amit,
+>>
+>> Ah, indeed. =A0I am not using MSI-X, so virtio_pci::vp_try_to_find_vqs()
+>> calls vp_request_intx() and sets up an interrupt callback. =A0From
+>> there, when an interrupt occurs, the stack looks something like this:
+>>
+>> virtio_pci::vp_interrupt()
+>> =A0 virtio_pci::vp_vring_interrupt()
+>> =A0 =A0 virtio_ring::vring_interrupt()
+>> =A0 =A0 =A0 vq->vq.callback() =A0<-- in this case, that's virtio_console=
+::control_intr()
+>> =A0 =A0 =A0 =A0 workqueue::schedule_work()
+>> =A0 =A0 =A0 =A0 =A0 workqueue::queue_work()
+>> =A0 =A0 =A0 =A0 =A0 =A0 queue_work_on(get_cpu()) =A0<-- queues the work =
+on the current CPU.
+>>
+>> I'm not doing anything to keep multiple control message from being
+>> sent concurrently to the guest, and we will take those interrupts on
+>> any CPU. I've confirmed that the two instances of
+>> handle_control_message() are occurring on different CPUs.
+>
+> So let's have a new helper, port_lock() that takes the port-specific
+> spinlock. =A0There has to be a new helper, since the port lock should
+> depend on the portdev lock being taken too. =A0For the port addition
+> case, just the portdev lock should be taken. =A0For any other
+> operations, the port lock should be taken.
+>
+> My assumption was that we would be able to serialise the work items,
+> but that will be too restrictive. =A0Taking port locks sounds like a
+> better idea.
+>
+> We'd definitely need the port lock in the control work handler. =A0We
+> might need it in a few more places (like module removal), but we'll
+> worry about that later.
+>
+> Does this sound fine?
+>
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0Amit
