@@ -1,35 +1,79 @@
-From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 1/4] Drivers: hv: Fix a memory leak
-Date: Mon, 12 Dec 2011 09:29:16 -0800
-Message-ID: <1323710959-29655-1-git-send-email-kys@microsoft.com>
-References: <1323710931-29616-1-git-send-email-kys@microsoft.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1323710931-29616-1-git-send-email-kys@microsoft.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org, ohering@suse.com
-Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>
+From: Pawel Moll <pawel.moll@arm.com>
+Subject: Re: [PATCH] virtio-mmio: Devices parameter parsing
+Date: Mon, 12 Dec 2011 17:53:21 +0000
+Message-ID: <1323712401.2391.93.camel@hornet.cambridge.arm.com>
+References: <1321365185-2928-1-git-send-email-pawel.moll@arm.com>
+	<87sjlooq3m.fsf@rustcorp.com.au>
+	<1321467222.3137.417.camel@hornet.cambridge.arm.com>
+	<87vcqe9ml9.fsf@rustcorp.com.au>
+	<1321886688.3093.248.camel@hornet.cambridge.arm.com>
+	<1321898210.3093.263.camel@hornet.cambridge.arm.com>
+	<87fwhhx9is.fsf@rustcorp.com.au>
+	<1322071732.3093.491.camel@hornet.cambridge.arm.com>
+	<87zkfht7dp.fsf@rustcorp.com.au>
+	<1322588190.3164.129.camel@hornet.cambridge.arm.com>
+	<877h2ht58w.fsf@rustcorp.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <877h2ht58w.fsf@rustcorp.com.au>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-There was a memory leak in a failure path in vmbus_process_offer().
-Fix it.
-
-Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
-Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
----
- drivers/hv/channel_mgmt.c |    1 +
- 1 files changed, 1 insertions(+), 0 deletions(-)
-
-diff --git a/drivers/hv/channel_mgmt.c b/drivers/hv/channel_mgmt.c
-index 12b85ff..b91af50 100644
---- a/drivers/hv/channel_mgmt.c
-+++ b/drivers/hv/channel_mgmt.c
-@@ -287,6 +287,7 @@ static void vmbus_process_offer(struct work_struct *work)
- 		spin_lock_irqsave(&vmbus_connection.channel_lock, flags);
- 		list_del(&newchannel->listentry);
- 		spin_unlock_irqrestore(&vmbus_connection.channel_lock, flags);
-+		kfree(newchannel->device_obj);
- 
- 		free_channel(newchannel);
- 	} else {
--- 
-1.7.4.1
+SGVsbG8sCgpTb3JyeSBmb3IgdGhlIGRlbGF5IC0gbGFzdCB3ZWVrcyB3ZXJlIGEgYml0IGhlY3Rp
+YyBmb3IgbWUgKGFuZCBub3RoaW5nCndpbGwgY2hhbmdlIHRpbGwgRnJpZGF5IHdoZW4gSSdtIG9m
+ZiBmb3IgaG9saWRheSEgOi0pCgpPbiBUaHUsIDIwMTEtMTItMDEgYXQgMDI6MDYgKzAwMDAsIFJ1
+c3R5IFJ1c3NlbGwgd3JvdGU6Cj4gPiBZZXMsIHRoaXMgd2FzIG15IGluaXRpYWwgaWRlYSBhcyB3
+ZWxsLiBUaGUgb25seSBwcm9ibGVtIEkgZmFjZWQgaXMgdGhlCj4gPiBmYWN0IHRoYXQgdGhlcmUg
+aXMgbm8gImJldHdlZW4gbGV2ZWxzIi4uLiBJdCdzIGVhc3kgdG8gYWRkIHBhcmFtZXRlcnMKPiA+
+IHBhcnNpbmcgX2F0XyBhbnkgcGFydGljdWxhciBsZXZlbCwgYnV0IGhhcmQgdG8gZG8gdGhpcyBf
+YWZ0ZXJfIGxldmVsIEEKPiA+IGFuZCBfYmVmb3JlXyBsZXZlbCBCLiBUaGUgaW5pdGNhbGxzIHNl
+Y3Rpb24gc2ltcGx5IGNvbnRhaW5zIGFsbCB0aGUKPiA+IGNhbGxzLCBvcmRlcmVkIGJ5IHRoZSBs
+ZXZlbCAtIHRoZSBvbmx5ICJzZXBhcmF0ZWQiIGxldmVsIGlzIHRoZSBwcmUtU01QCj4gPiBlYXJs
+eSBvbmUuIEFuZCBvcmRlciB3aXRoaW4gb25lIGxldmVsIGlzIGRldGVybWluZWQgYnkgdGhlIGxp
+bmsgb3JkZXIsCj4gPiBzbyBJIGNhbid0IGd1YXJhbnRlZSBwYXJzaW5nIHRoZSBwYXJhbWV0ZXJz
+IGFzIHRoZSBmaXJzdCBjYWxsIG9mIGEgbGV2ZWwKPiA+IChub3IgYXMgdGhlIGxhc3QgY2FsbCBv
+ZiB0aGUgcHJldmlvdXMgbGV2ZWwpLgo+IAo+IFllYWgsIHRoYXQncyB3aHkgSSBzdWdnZXN0ZWQg
+Y2hhbmdpbmcgdGhlIGxpbmtlciBzY3JpcHQuCgpTb3VuZGVkIGEgYml0IHNjYXJ5LCBidXQgdHVy
+bmVkIG91dCB0byBiZSBtdWNoIGxlc3MgaW50cnVzaXZlIHRoYXQgSQpleHBlY3RlZC4uLiBJJ2xs
+IHBvc3QgdGhlIHByb3Bvc2FsIGluIGEgc2Vjb25kLgoKPiA+ICAvKiBUaGlzIGlzIHRoZSBmdW5k
+YW1lbnRhbCBmdW5jdGlvbiBmb3IgcmVnaXN0ZXJpbmcgYm9vdC9tb2R1bGUKPiA+ICAgICBwYXJh
+bWV0ZXJzLiAqLwo+ID4gLSNkZWZpbmUgX19tb2R1bGVfcGFyYW1fY2FsbChwcmVmaXgsIG5hbWUs
+IG9wcywgYXJnLCBpc2Jvb2wsIHBlcm0pCVwKPiA+ICsjZGVmaW5lIF9fbW9kdWxlX3BhcmFtX2Nh
+bGwocHJlZml4LCBuYW1lLCBvcHMsIGFyZywgaXNib29sLCBsYXRlLCBwZXJtKQlcCj4gPiAgCS8q
+IERlZmF1bHQgdmFsdWUgaW5zdGVhZCBvZiBwZXJtaXNzaW9ucz8gKi8JCQlcCj4gPiAgCXN0YXRp
+YyBpbnQgX19wYXJhbV9wZXJtX2NoZWNrXyMjbmFtZSBfX2F0dHJpYnV0ZV9fKCh1bnVzZWQpKSA9
+CVwKPiA+ICAJQlVJTERfQlVHX09OX1pFUk8oKHBlcm0pIDwgMCB8fCAocGVybSkgPiAwNzc3IHx8
+ICgocGVybSkgJiAyKSkJXAo+IAo+IE1pZ2h0IGFzIHdlbGwgY2hhbmdlIGlzYm9vbCB0byAiZmxh
+Z3MiLCBzaW5jZSB3ZSBoYXZlIHRvIGZpeCBjYWxsZXJzCj4gYW55d2F5LgoKU3VyZSB0aGluZywg
+ZG9uZS4KCj4gPiBkaWZmIC0tZ2l0IGEvaW5pdC9tYWluLmMgYi9pbml0L21haW4uYwo+ID4gaW5k
+ZXggMjE3ZWQyMy4uY2U4OWE1MyAxMDA2NDQKPiA+IC0tLSBhL2luaXQvbWFpbi5jCj4gPiArKysg
+Yi9pbml0L21haW4uYwo+ID4gQEAgLTQwNyw3ICs0MDcsNyBAQCBzdGF0aWMgaW50IF9faW5pdCBk
+b19lYXJseV9wYXJhbShjaGFyICpwYXJhbSwgY2hhciAqdmFsKQo+ID4gIAo+ID4gIHZvaWQgX19p
+bml0IHBhcnNlX2Vhcmx5X29wdGlvbnMoY2hhciAqY21kbGluZSkKPiA+ICB7Cj4gPiAtCXBhcnNl
+X2FyZ3MoImVhcmx5IG9wdGlvbnMiLCBjbWRsaW5lLCBOVUxMLCAwLCBkb19lYXJseV9wYXJhbSk7
+Cj4gPiArCXBhcnNlX2FyZ3MoImVhcmx5IG9wdGlvbnMiLCBjbWRsaW5lLCBOVUxMLCAwLCAwLCAw
+LCBkb19lYXJseV9wYXJhbSk7Cj4gCj4gSXQnZCBiZSBuaWNlIHRvIHJlcGxhY2UgdGhlIGVhcmx5
+IHBhcmFtIHN0dWZmIHRvbywgYnV0IHRoYXQncyBwcm9iYWJseSBhCj4gc2VwYXJhdGUgcGF0Y2gu
+ICBBcyBpcyBnZXR0aW5nIHJpZCBvZiB0aGUgb2xkIF9fc2V0dXAoKSBjYWxscyBldmVyeXdoZXJl
+Cj4gOykKCkkgcHJvbWlzZSB0byBsb29rIGludG8gaXQgbmV4dCB5ZWFyIDstKQoKPiBCdXQgc28g
+ZmFyLCBpdCBsb29rcyBnb29kIQoKQ29vbCwgaGF2ZSBhIGxvb2sgYXQgdGhlIHBhdGNoZXMgZm9s
+bG93aW5nIHRoaXMgbWFpbCB0aGVuLiBJIGhvcGUgdGhleQptYWtlIHNvbWUgc2Vuc2UsIGhvd2V2
+ZXIgaXQncyB1bmxpa2VseSBJJ2xsIGdldCB0aGVtIHJlYWR5IGZvciAzLjMKKHVubGVzcyB0aGV5
+IGFscmVhZHkgYXJlPyA7LSkgYmVjYXVzZSBvZiBteSBob2xpZGF5cy4gTWF5YmUgYXQgbGVhc3QK
+dGhleSBjb3VsZCBiZSBsaW51eC1uZXh0LWVkIHRvIHNlZSB3aGF0IGRpZCBJIGJyZWFrPwoKQ2hl
+ZXJzIQoKUGF3ZcWCCgoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxp
+bnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWls
+bWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
