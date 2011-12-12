@@ -1,23 +1,13 @@
 From: Pawel Moll <pawel.moll@arm.com>
-Subject: Re: [PATCH] virtio-mmio: Devices parameter parsing
-Date: Mon, 12 Dec 2011 17:53:21 +0000
-Message-ID: <1323712401.2391.93.camel@hornet.cambridge.arm.com>
-References: <1321365185-2928-1-git-send-email-pawel.moll@arm.com>
-	<87sjlooq3m.fsf@rustcorp.com.au>
-	<1321467222.3137.417.camel@hornet.cambridge.arm.com>
-	<87vcqe9ml9.fsf@rustcorp.com.au>
-	<1321886688.3093.248.camel@hornet.cambridge.arm.com>
-	<1321898210.3093.263.camel@hornet.cambridge.arm.com>
-	<87fwhhx9is.fsf@rustcorp.com.au>
-	<1322071732.3093.491.camel@hornet.cambridge.arm.com>
-	<87zkfht7dp.fsf@rustcorp.com.au>
-	<1322588190.3164.129.camel@hornet.cambridge.arm.com>
-	<877h2ht58w.fsf@rustcorp.com.au>
+Subject: [PATCH 1/2] params: <level>_initcall-like kernel parameters
+Date: Mon, 12 Dec 2011 17:57:06 +0000
+Message-ID: <1323712627-17353-1-git-send-email-pawel.moll@arm.com>
+References: <1323712401.2391.93.camel@hornet.cambridge.arm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <877h2ht58w.fsf@rustcorp.com.au>
+In-Reply-To: <1323712401.2391.93.camel@hornet.cambridge.arm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,53 +17,355 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+To: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: Pawel Moll <pawel.moll@arm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-SGVsbG8sCgpTb3JyeSBmb3IgdGhlIGRlbGF5IC0gbGFzdCB3ZWVrcyB3ZXJlIGEgYml0IGhlY3Rp
-YyBmb3IgbWUgKGFuZCBub3RoaW5nCndpbGwgY2hhbmdlIHRpbGwgRnJpZGF5IHdoZW4gSSdtIG9m
-ZiBmb3IgaG9saWRheSEgOi0pCgpPbiBUaHUsIDIwMTEtMTItMDEgYXQgMDI6MDYgKzAwMDAsIFJ1
-c3R5IFJ1c3NlbGwgd3JvdGU6Cj4gPiBZZXMsIHRoaXMgd2FzIG15IGluaXRpYWwgaWRlYSBhcyB3
-ZWxsLiBUaGUgb25seSBwcm9ibGVtIEkgZmFjZWQgaXMgdGhlCj4gPiBmYWN0IHRoYXQgdGhlcmUg
-aXMgbm8gImJldHdlZW4gbGV2ZWxzIi4uLiBJdCdzIGVhc3kgdG8gYWRkIHBhcmFtZXRlcnMKPiA+
-IHBhcnNpbmcgX2F0XyBhbnkgcGFydGljdWxhciBsZXZlbCwgYnV0IGhhcmQgdG8gZG8gdGhpcyBf
-YWZ0ZXJfIGxldmVsIEEKPiA+IGFuZCBfYmVmb3JlXyBsZXZlbCBCLiBUaGUgaW5pdGNhbGxzIHNl
-Y3Rpb24gc2ltcGx5IGNvbnRhaW5zIGFsbCB0aGUKPiA+IGNhbGxzLCBvcmRlcmVkIGJ5IHRoZSBs
-ZXZlbCAtIHRoZSBvbmx5ICJzZXBhcmF0ZWQiIGxldmVsIGlzIHRoZSBwcmUtU01QCj4gPiBlYXJs
-eSBvbmUuIEFuZCBvcmRlciB3aXRoaW4gb25lIGxldmVsIGlzIGRldGVybWluZWQgYnkgdGhlIGxp
-bmsgb3JkZXIsCj4gPiBzbyBJIGNhbid0IGd1YXJhbnRlZSBwYXJzaW5nIHRoZSBwYXJhbWV0ZXJz
-IGFzIHRoZSBmaXJzdCBjYWxsIG9mIGEgbGV2ZWwKPiA+IChub3IgYXMgdGhlIGxhc3QgY2FsbCBv
-ZiB0aGUgcHJldmlvdXMgbGV2ZWwpLgo+IAo+IFllYWgsIHRoYXQncyB3aHkgSSBzdWdnZXN0ZWQg
-Y2hhbmdpbmcgdGhlIGxpbmtlciBzY3JpcHQuCgpTb3VuZGVkIGEgYml0IHNjYXJ5LCBidXQgdHVy
-bmVkIG91dCB0byBiZSBtdWNoIGxlc3MgaW50cnVzaXZlIHRoYXQgSQpleHBlY3RlZC4uLiBJJ2xs
-IHBvc3QgdGhlIHByb3Bvc2FsIGluIGEgc2Vjb25kLgoKPiA+ICAvKiBUaGlzIGlzIHRoZSBmdW5k
-YW1lbnRhbCBmdW5jdGlvbiBmb3IgcmVnaXN0ZXJpbmcgYm9vdC9tb2R1bGUKPiA+ICAgICBwYXJh
-bWV0ZXJzLiAqLwo+ID4gLSNkZWZpbmUgX19tb2R1bGVfcGFyYW1fY2FsbChwcmVmaXgsIG5hbWUs
-IG9wcywgYXJnLCBpc2Jvb2wsIHBlcm0pCVwKPiA+ICsjZGVmaW5lIF9fbW9kdWxlX3BhcmFtX2Nh
-bGwocHJlZml4LCBuYW1lLCBvcHMsIGFyZywgaXNib29sLCBsYXRlLCBwZXJtKQlcCj4gPiAgCS8q
-IERlZmF1bHQgdmFsdWUgaW5zdGVhZCBvZiBwZXJtaXNzaW9ucz8gKi8JCQlcCj4gPiAgCXN0YXRp
-YyBpbnQgX19wYXJhbV9wZXJtX2NoZWNrXyMjbmFtZSBfX2F0dHJpYnV0ZV9fKCh1bnVzZWQpKSA9
-CVwKPiA+ICAJQlVJTERfQlVHX09OX1pFUk8oKHBlcm0pIDwgMCB8fCAocGVybSkgPiAwNzc3IHx8
-ICgocGVybSkgJiAyKSkJXAo+IAo+IE1pZ2h0IGFzIHdlbGwgY2hhbmdlIGlzYm9vbCB0byAiZmxh
-Z3MiLCBzaW5jZSB3ZSBoYXZlIHRvIGZpeCBjYWxsZXJzCj4gYW55d2F5LgoKU3VyZSB0aGluZywg
-ZG9uZS4KCj4gPiBkaWZmIC0tZ2l0IGEvaW5pdC9tYWluLmMgYi9pbml0L21haW4uYwo+ID4gaW5k
-ZXggMjE3ZWQyMy4uY2U4OWE1MyAxMDA2NDQKPiA+IC0tLSBhL2luaXQvbWFpbi5jCj4gPiArKysg
-Yi9pbml0L21haW4uYwo+ID4gQEAgLTQwNyw3ICs0MDcsNyBAQCBzdGF0aWMgaW50IF9faW5pdCBk
-b19lYXJseV9wYXJhbShjaGFyICpwYXJhbSwgY2hhciAqdmFsKQo+ID4gIAo+ID4gIHZvaWQgX19p
-bml0IHBhcnNlX2Vhcmx5X29wdGlvbnMoY2hhciAqY21kbGluZSkKPiA+ICB7Cj4gPiAtCXBhcnNl
-X2FyZ3MoImVhcmx5IG9wdGlvbnMiLCBjbWRsaW5lLCBOVUxMLCAwLCBkb19lYXJseV9wYXJhbSk7
-Cj4gPiArCXBhcnNlX2FyZ3MoImVhcmx5IG9wdGlvbnMiLCBjbWRsaW5lLCBOVUxMLCAwLCAwLCAw
-LCBkb19lYXJseV9wYXJhbSk7Cj4gCj4gSXQnZCBiZSBuaWNlIHRvIHJlcGxhY2UgdGhlIGVhcmx5
-IHBhcmFtIHN0dWZmIHRvbywgYnV0IHRoYXQncyBwcm9iYWJseSBhCj4gc2VwYXJhdGUgcGF0Y2gu
-ICBBcyBpcyBnZXR0aW5nIHJpZCBvZiB0aGUgb2xkIF9fc2V0dXAoKSBjYWxscyBldmVyeXdoZXJl
-Cj4gOykKCkkgcHJvbWlzZSB0byBsb29rIGludG8gaXQgbmV4dCB5ZWFyIDstKQoKPiBCdXQgc28g
-ZmFyLCBpdCBsb29rcyBnb29kIQoKQ29vbCwgaGF2ZSBhIGxvb2sgYXQgdGhlIHBhdGNoZXMgZm9s
-bG93aW5nIHRoaXMgbWFpbCB0aGVuLiBJIGhvcGUgdGhleQptYWtlIHNvbWUgc2Vuc2UsIGhvd2V2
-ZXIgaXQncyB1bmxpa2VseSBJJ2xsIGdldCB0aGVtIHJlYWR5IGZvciAzLjMKKHVubGVzcyB0aGV5
-IGFscmVhZHkgYXJlPyA7LSkgYmVjYXVzZSBvZiBteSBob2xpZGF5cy4gTWF5YmUgYXQgbGVhc3QK
-dGhleSBjb3VsZCBiZSBsaW51eC1uZXh0LWVkIHRvIHNlZSB3aGF0IGRpZCBJIGJyZWFrPwoKQ2hl
-ZXJzIQoKUGF3ZcWCCgoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxp
-bnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWls
-bWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+This patch adds a set of macros that can be used to declare
+kernel parameters to be parsed _before_ initcalls at a chosen
+level are executed. Such parameters are marked using existing
+"flags" field of the "kernel_param" structure.
+
+Linker macro collating init calls had to be modified in order
+to add additional symbols between levels that are later used
+by the init code to split the calls into blocks.
+
+Signed-off-by: Pawel Moll <pawel.moll@arm.com>
+---
+ include/asm-generic/vmlinux.lds.h |   35 ++++++++------------
+ include/linux/moduleparam.h       |   59 ++++++++++++++++++++++++++++----
+ init/main.c                       |   66 +++++++++++++++++++++++++++++++++---
+ kernel/module.c                   |    3 +-
+ kernel/params.c                   |    9 ++++-
+ 5 files changed, 135 insertions(+), 37 deletions(-)
+
+diff --git a/include/asm-generic/vmlinux.lds.h b/include/asm-generic/vmlinux.lds.h
+index b5e2e4c..c4ad0b1 100644
+--- a/include/asm-generic/vmlinux.lds.h
++++ b/include/asm-generic/vmlinux.lds.h
+@@ -615,30 +615,23 @@
+ 		*(.init.setup)						\
+ 		VMLINUX_SYMBOL(__setup_end) = .;
+ 
+-#define INITCALLS							\
+-	*(.initcallearly.init)						\
+-	VMLINUX_SYMBOL(__early_initcall_end) = .;			\
+-  	*(.initcall0.init)						\
+-  	*(.initcall0s.init)						\
+-  	*(.initcall1.init)						\
+-  	*(.initcall1s.init)						\
+-  	*(.initcall2.init)						\
+-  	*(.initcall2s.init)						\
+-  	*(.initcall3.init)						\
+-  	*(.initcall3s.init)						\
+-  	*(.initcall4.init)						\
+-  	*(.initcall4s.init)						\
+-  	*(.initcall5.init)						\
+-  	*(.initcall5s.init)						\
+-	*(.initcallrootfs.init)						\
+-  	*(.initcall6.init)						\
+-  	*(.initcall6s.init)						\
+-  	*(.initcall7.init)						\
+-  	*(.initcall7s.init)
++#define INIT_CALLS_LEVEL(level)						\
++		VMLINUX_SYMBOL(__initcall##level##_start) = .;		\
++		*(.initcall##level##.init)				\
++		*(.initcall##level##s.init)				\
+ 
+ #define INIT_CALLS							\
+ 		VMLINUX_SYMBOL(__initcall_start) = .;			\
+-		INITCALLS						\
++		*(.initcallearly.init)					\
++		INIT_CALLS_LEVEL(0)					\
++		INIT_CALLS_LEVEL(1)					\
++		INIT_CALLS_LEVEL(2)					\
++		INIT_CALLS_LEVEL(3)					\
++		INIT_CALLS_LEVEL(4)					\
++		INIT_CALLS_LEVEL(5)					\
++		INIT_CALLS_LEVEL(rootfs)				\
++		INIT_CALLS_LEVEL(6)					\
++		INIT_CALLS_LEVEL(7)					\
+ 		VMLINUX_SYMBOL(__initcall_end) = .;
+ 
+ #define CON_INITCALL							\
+diff --git a/include/linux/moduleparam.h b/include/linux/moduleparam.h
+index 7939f63..7f4c9b5 100644
+--- a/include/linux/moduleparam.h
++++ b/include/linux/moduleparam.h
+@@ -48,7 +48,14 @@ struct kernel_param_ops {
+ };
+ 
+ /* Flag bits for kernel_param.flags */
+-#define KPARAM_ISBOOL		2
++#define KPARAM_ISBOOL		(1 << 1)
++#define KPARAM_ISLEVEL		(1 << 2)
++#define KPARAM_LEVEL_SHIFT	3
++#define KPARAM_LEVEL_MASK	(7 << KPARAM_LEVEL_SHIFT)
++
++#define __kparam_isbool(arg)	(__same_type((arg), bool) ? KPARAM_ISBOOL : 0)
++#define __kparam_isboolp(arg)	(__same_type((arg), bool *) ? KPARAM_ISBOOL : 0)
++#define __kparam_level(level)	(KPARAM_ISLEVEL | (level) << KPARAM_LEVEL_SHIFT)
+ 
+ struct kernel_param {
+ 	const char *name;
+@@ -132,7 +139,42 @@ struct kparam_array
+  */
+ #define module_param_cb(name, ops, arg, perm)				      \
+ 	__module_param_call(MODULE_PARAM_PREFIX,			      \
+-			    name, ops, arg, __same_type((arg), bool *), perm)
++			    name, ops, arg, __kparam_isboolp(arg), perm)
++
++/**
++ * <level>_param_cb - general callback for a module/cmdline parameter
++ *                    to be evaluated before certain initcall level
++ * @name: a valid C identifier which is the parameter name.
++ * @ops: the set & get operations for this parameter.
++ * @perm: visibility in sysfs.
++ *
++ * The ops can have NULL set or get functions.
++ */
++#define __level_param_cb(level, name, ops, arg, perm)			      \
++	__module_param_call(MODULE_PARAM_PREFIX,			      \
++			    name, ops, arg,				      \
++			    __kparam_isboolp(arg) | __kparam_level(level), perm)
++
++#define core_param_cb(name, ops, arg, perm)				      \
++	__level_param_cb(1, name, ops, arg, perm)
++
++#define postcore_param_cb(name, ops, arg, perm)				      \
++	__level_param_cb(2, name, ops, arg, perm)
++
++#define arch_param_cb(name, ops, arg, perm)				      \
++	__level_param_cb(3, name, ops, arg, perm)
++
++#define subsys_param_cb(name, ops, arg, perm)				      \
++	__level_param_cb(4, name, ops, arg, perm)
++
++#define fs_param_cb(name, ops, arg, perm)				      \
++	__level_param_cb(5, name, ops, arg, perm)
++
++#define device_param_cb(name, ops, arg, perm)				      \
++	__level_param_cb(6, name, ops, arg, perm)
++
++#define late_param_cb(name, ops, arg, perm)				      \
++	__level_param_cb(7, name, ops, arg, perm)
+ 
+ /* On alpha, ia64 and ppc64 relocations to global data cannot go into
+    read-only sections (which is part of respective UNIX ABI on these
+@@ -146,7 +188,7 @@ struct kparam_array
+ 
+ /* This is the fundamental function for registering boot/module
+    parameters. */
+-#define __module_param_call(prefix, name, ops, arg, isbool, perm)	\
++#define __module_param_call(prefix, name, ops, arg, flags, perm)	\
+ 	/* Default value instead of permissions? */			\
+ 	static int __param_perm_check_##name __attribute__((unused)) =	\
+ 	BUILD_BUG_ON_ZERO((perm) < 0 || (perm) > 0777 || ((perm) & 2))	\
+@@ -155,8 +197,7 @@ struct kparam_array
+ 	static struct kernel_param __moduleparam_const __param_##name	\
+ 	__used								\
+     __attribute__ ((unused,__section__ ("__param"),aligned(sizeof(void *)))) \
+-	= { __param_str_##name, ops, perm, isbool ? KPARAM_ISBOOL : 0,	\
+-	    { arg } }
++	= { __param_str_##name, ops, perm, flags, { arg } }
+ 
+ /* Obsolete - use module_param_cb() */
+ #define module_param_call(name, set, get, arg, perm)			\
+@@ -164,7 +205,7 @@ struct kparam_array
+ 		 { (void *)set, (void *)get };				\
+ 	__module_param_call(MODULE_PARAM_PREFIX,			\
+ 			    name, &__param_ops_##name, arg,		\
+-			    __same_type(arg, bool *),			\
++			    __kparam_isboolp(arg),			\
+ 			    (perm) + sizeof(__check_old_set_param(set))*0)
+ 
+ /* We don't get oldget: it's often a new-style param_get_uint, etc. */
+@@ -246,7 +287,7 @@ static inline void __kernel_param_unlock(void)
+ #define core_param(name, var, type, perm)				\
+ 	param_check_##type(name, &(var));				\
+ 	__module_param_call("", name, &param_ops_##type,		\
+-			    &var, __same_type(var, bool), perm)
++			    &var, __kparam_isbool(var), perm)
+ #endif /* !MODULE */
+ 
+ /**
+@@ -292,6 +333,8 @@ extern int parse_args(const char *name,
+ 		      char *args,
+ 		      const struct kernel_param *params,
+ 		      unsigned num,
++		      u16 flags_mask,
++		      u16 flags,
+ 		      int (*unknown)(char *param, char *val));
+ 
+ /* Called by module remove. */
+@@ -402,7 +445,7 @@ extern int param_get_invbool(char *buffer, const struct kernel_param *kp);
+ 	__module_param_call(MODULE_PARAM_PREFIX, name,			\
+ 			    &param_array_ops,				\
+ 			    .arr = &__param_arr_##name,			\
+-			    __same_type(array[0], bool), perm);		\
++			    __kparam_isbool(array[0]), perm);		\
+ 	__MODULE_PARM_TYPE(name, "array of " #type)
+ 
+ extern struct kernel_param_ops param_array_ops;
+diff --git a/init/main.c b/init/main.c
+index 217ed23..a7838c8 100644
+--- a/init/main.c
++++ b/init/main.c
+@@ -407,7 +407,7 @@ static int __init do_early_param(char *param, char *val)
+ 
+ void __init parse_early_options(char *cmdline)
+ {
+-	parse_args("early options", cmdline, NULL, 0, do_early_param);
++	parse_args("early options", cmdline, NULL, 0, 0, 0, do_early_param);
+ }
+ 
+ /* Arch code calls this early on, or if not, just before other parsing. */
+@@ -511,7 +511,7 @@ asmlinkage void __init start_kernel(void)
+ 	parse_early_param();
+ 	parse_args("Booting kernel", static_command_line, __start___param,
+ 		   __stop___param - __start___param,
+-		   &unknown_bootoption);
++		   KPARAM_ISLEVEL, 0, &unknown_bootoption);
+ 
+ 	jump_label_init();
+ 
+@@ -708,16 +708,70 @@ int __init_or_module do_one_initcall(initcall_t fn)
+ }
+ 
+ 
+-extern initcall_t __initcall_start[], __initcall_end[], __early_initcall_end[];
++extern initcall_t __initcall_start[];
++extern initcall_t __initcall0_start[];
++extern initcall_t __initcall1_start[];
++extern initcall_t __initcall2_start[];
++extern initcall_t __initcall3_start[];
++extern initcall_t __initcall4_start[];
++extern initcall_t __initcall5_start[];
++extern initcall_t __initcall6_start[];
++extern initcall_t __initcall7_start[];
++extern initcall_t __initcall_end[];
++
++static initcall_t *initcall_levels[] __initdata = {
++	__initcall0_start,
++	__initcall1_start,
++	__initcall2_start,
++	__initcall3_start,
++	__initcall4_start,
++	__initcall5_start,
++	__initcall6_start,
++	__initcall7_start,
++	__initcall_end,
++};
++
++static char *initcall_level_names[] __initdata = {
++	"core parameters",
++	"postcore parameters",
++	"arch parameters",
++	"subsys parameters",
++	"fs parameters",
++	"device parameters",
++	"late parameters",
++};
++
++static int __init ignore_unknown_bootoption(char *param, char *val)
++{
++	return 0;
++}
+ 
+-static void __init do_initcalls(void)
++static void __init do_initcall_level(int level)
+ {
++	extern const struct kernel_param __start___param[], __stop___param[];
+ 	initcall_t *fn;
+ 
+-	for (fn = __early_initcall_end; fn < __initcall_end; fn++)
++	strcpy(static_command_line, saved_command_line);
++	parse_args(initcall_level_names[level],
++			static_command_line, __start___param,
++			__stop___param - __start___param,
++			KPARAM_ISLEVEL | KPARAM_LEVEL_MASK,
++			__kparam_level(level),
++			ignore_unknown_bootoption);
++
++	for (fn = initcall_levels[level]; fn < initcall_levels[level + 1];
++			fn++)
+ 		do_one_initcall(*fn);
+ }
+ 
++static void __init do_initcalls(void)
++{
++	int level;
++
++	for (level = 0; level < ARRAY_SIZE(initcall_levels) - 1; level++)
++		do_initcall_level(level);
++}
++
+ /*
+  * Ok, the machine is now initialized. None of the devices
+  * have been touched yet, but the CPU subsystem is up and
+@@ -741,7 +795,7 @@ static void __init do_pre_smp_initcalls(void)
+ {
+ 	initcall_t *fn;
+ 
+-	for (fn = __initcall_start; fn < __early_initcall_end; fn++)
++	for (fn = __initcall_start; fn < __initcall0_start; fn++)
+ 		do_one_initcall(*fn);
+ }
+ 
+diff --git a/kernel/module.c b/kernel/module.c
+index 178333c..66d3e75 100644
+--- a/kernel/module.c
++++ b/kernel/module.c
+@@ -2893,7 +2893,8 @@ static struct module *load_module(void __user *umod,
+ 	mutex_unlock(&module_mutex);
+ 
+ 	/* Module is ready to execute: parsing args may do that. */
+-	err = parse_args(mod->name, mod->args, mod->kp, mod->num_kp, NULL);
++	err = parse_args(mod->name, mod->args, mod->kp, mod->num_kp,
++			 0, 0, NULL);
+ 	if (err < 0)
+ 		goto unlink;
+ 
+diff --git a/kernel/params.c b/kernel/params.c
+index 65aae11..ddde6a7 100644
+--- a/kernel/params.c
++++ b/kernel/params.c
+@@ -94,6 +94,8 @@ static int parse_one(char *param,
+ 		     char *val,
+ 		     const struct kernel_param *params,
+ 		     unsigned num_params,
++		     int flags_mask,
++		     int flags,
+ 		     int (*handle_unknown)(char *param, char *val))
+ {
+ 	unsigned int i;
+@@ -102,6 +104,8 @@ static int parse_one(char *param,
+ 	/* Find parameter */
+ 	for (i = 0; i < num_params; i++) {
+ 		if (parameq(param, params[i].name)) {
++			if ((params[i].flags & flags_mask) != flags)
++				return 0;
+ 			/* No one handled NULL, so do it here. */
+ 			if (!val && params[i].ops->set != param_set_bool)
+ 				return -EINVAL;
+@@ -180,6 +184,8 @@ int parse_args(const char *name,
+ 	       char *args,
+ 	       const struct kernel_param *params,
+ 	       unsigned num,
++	       u16 flags_mask,
++	       u16 flags,
+ 	       int (*unknown)(char *param, char *val))
+ {
+ 	char *param, *val;
+@@ -195,7 +201,8 @@ int parse_args(const char *name,
+ 
+ 		args = next_arg(args, &param, &val);
+ 		irq_was_disabled = irqs_disabled();
+-		ret = parse_one(param, val, params, num, unknown);
++		ret = parse_one(param, val, params, num,
++				flags_mask, flags, unknown);
+ 		if (irq_was_disabled && !irqs_disabled()) {
+ 			printk(KERN_WARNING "parse_args(): option '%s' enabled "
+ 					"irq's!\n", param);
+-- 
+1.7.5.4
