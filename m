@@ -1,16 +1,17 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [RFC 7/11] virtio_pci: new, capability-aware driver.
-Date: Mon, 12 Dec 2011 13:49:13 +0200
-Message-ID: <20111212114912.GA7946@redhat.com>
-References: <87pqfzgy6p.fsf@rustcorp.com.au> <87zkf3fiu2.fsf@rustcorp.com.au>
-	<20111211094256.GB11504@redhat.com>
-	<87boreohhs.fsf@rustcorp.com.au>
+Subject: Re: [PATCH RFC] virtio_net: fix refill related races
+Date: Mon, 12 Dec 2011 13:54:06 +0200
+Message-ID: <20111212115405.GB7946@redhat.com>
+References: <20111207152120.GA23417@redhat.com>
+	<8739cvisqe.fsf@rustcorp.com.au>
+	<20111211144428.GB14381@redhat.com>
+	<878vmioh10.fsf@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <87boreohhs.fsf@rustcorp.com.au>
+In-Reply-To: <878vmioh10.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,33 +22,57 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Sasha Levin <levinsasha928@gmail.com>, virtualization <virtualization@lists.linux-foundation.org>
+Cc: Amit Shah <amit.shah@redhat.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Dec 12, 2011 at 09:15:03AM +1030, Rusty Russell wrote:
-> On Sun, 11 Dec 2011 11:42:56 +0200, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> > On Thu, Dec 08, 2011 at 09:09:33PM +1030, Rusty Russell wrote:
-> > > +/* There is no iowrite64.  We use two 32-bit ops. */
-> > > +static void iowrite64(u64 val, const __le64 *addr)
-> > > +{
-> > > +	iowrite32((u32)val, (__le32 *)addr);
-> > > +	iowrite32(val >> 32, (__le32 *)addr + 1);
-> > > +}
-> > > +
+On Mon, Dec 12, 2011 at 09:25:07AM +1030, Rusty Russell wrote:
+> On Sun, 11 Dec 2011 16:44:29 +0200, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> > On Thu, Dec 08, 2011 at 03:07:29PM +1030, Rusty Russell wrote:
+> > > On Wed, 7 Dec 2011 17:21:22 +0200, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> > > > Fix theoretical races related to refill work:
+> > > > 1. After napi is disabled by ndo_stop, refill work
+> > > >    can run and re-enable it.
+> > > > 2. Refill can reschedule itself, if this happens
+> > > >    it can run after cancel_delayed_work_sync,
+> > > >    and will access device after it is destroyed.
+> > > > 
+> > > > As a solution, add flags to track napi state and
+> > > > to disable refill, and toggle them on start, stop
+> > > > and remove; check these flags on refill.
+> > > 
+> > > Why isn't a "dont-readd" flag sufficient?
+> > > 
+> > > Cheers,
+> > > Rusty.
 > > 
-> > Let's put addr_lo/addr_hi in the structure then,
-> > to make the fact this field is not atomic explicit?
+> > I started with that, but here's the problem I wanted to
+> > address:
+> > 
+> > - we run out of descriptors and schedule refill work
+> > - ndo_close runs
+> > - refill work runs
+> > - ndo_open runs
 > 
-> Good point, assuming I haven't missed something.
+> (s/ndo_close/ndo_stop/)
 > 
-> Are 64-bit accesses actually unknown in PCI-land?  Or is this a limited
-> availability thing?
+> You don't think we should do any refills on a closed device?  If so, we
+> simply move the refill-stop code into ndo_stop (aka virtnet_close), and
+> the refill-start code into ndo_open (aka. virtnet_open).  Right?
+
+We can do that, yes. We'll have to also cancel work if outstanding.
+It seems a bigger change though. I'm especially concerned
+about putting refill-start in virtnet_open, suddenly
+it's always running where it used to only run after
+we have consumed some buffers. I'm just concerned about
+doing big changes that late in release cycle but maybe
+that's OK.
+
+> Orthogonally, the refill-stop code is still buggy, as you noted.
+
+Sorry I don't understand how it's still buggy.
+
+>  And
+> for self-rearming timers the pattern I've always used is a flag.
 > 
-> Thanks,
+> Or am I being obtuse again? :)
 > Rusty.
-
-I think PCI can optionally support atomic 64 bit accesses, but not all
-architectures can generate them.
-
--- 
-MST
