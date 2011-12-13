@@ -1,15 +1,16 @@
-From: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Subject: Re: [PATCH] xen-blkfront: Use kcalloc instead of kzalloc to allocate
-	array
-Date: Wed, 14 Dec 2011 13:56:41 -0500
-Message-ID: <20111214185641.GD24598@phenom.dumpdata.com>
-References: <1322600880.1534.293.camel@localhost.localdomain>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [RFC 7/11] virtio_pci: new, capability-aware driver.
+Date: Tue, 13 Dec 2011 12:51:20 +1030
+Message-ID: <87liqhtdnj.fsf@rustcorp.com.au>
+References: <87pqfzgy6p.fsf@rustcorp.com.au> <87zkf3fiu2.fsf@rustcorp.com.au>
+	<20111211094256.GB11504@redhat.com>
+	<87boreohhs.fsf@rustcorp.com.au>
+	<20111212182533.GB25916@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1322600880.1534.293.camel@localhost.localdomain>
+In-Reply-To: <20111212182533.GB25916@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,68 +20,36 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Thomas Meyer <thomas@m3y3r.de>
-Cc: xen-devel@lists.xensource.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Sasha Levin <levinsasha928@gmail.com>, virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Nov 29, 2011 at 10:08:00PM +0100, Thomas Meyer wrote:
-> The advantage of kcalloc is, that will prevent integer overflows which could
-> result from the multiplication of number of elements and size and it is also
-> a bit nicer to read.
+On Mon, 12 Dec 2011 20:25:34 +0200, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> By the way, a generic question on virtio-pci: we now have:
 > 
-> The semantic patch that makes this change is available
-> in https://lkml.org/lkml/2011/11/25/107
+> /* virtio config->get() implementation */
+> static void vp_get(struct virtio_device *vdev, unsigned offset,
+>                    void *buf, unsigned len)
+> {
+>         struct virtio_pci_device *vp_dev = to_vp_device(vdev);
+>         void __iomem *ioaddr = vp_dev->ioaddr +
+>                                 VIRTIO_PCI_CONFIG(vp_dev) + offset;
+>         u8 *ptr = buf;
+>         int i;
 > 
-
-Thomas,
-
-I put the xen-blkfront part of the patch in my tree and dropped the cciss_scsi one.
-
-> Signed-off-by: Thomas Meyer <thomas@m3y3r.de>
-> ---
+>         for (i = 0; i < len; i++)
+>                 ptr[i] = ioread8(ioaddr + i);
+> }
 > 
-> diff -u -p a/drivers/block/cciss_scsi.c b/drivers/block/cciss_scsi.c
-> --- a/drivers/block/cciss_scsi.c 2011-11-28 19:36:47.343430551 +0100
-> +++ b/drivers/block/cciss_scsi.c 2011-11-28 19:49:24.922716381 +0100
-> @@ -534,10 +534,10 @@ adjust_cciss_scsi_table(ctlr_info_t *h,
->  	int nadded, nremoved;
->  	struct Scsi_Host *sh = NULL;
->  
-> -	added = kzalloc(sizeof(*added) * CCISS_MAX_SCSI_DEVS_PER_HBA,
-> -			GFP_KERNEL);
-> -	removed = kzalloc(sizeof(*removed) * CCISS_MAX_SCSI_DEVS_PER_HBA,
-> +	added = kcalloc(CCISS_MAX_SCSI_DEVS_PER_HBA, sizeof(*added),
->  			GFP_KERNEL);
-> +	removed = kcalloc(CCISS_MAX_SCSI_DEVS_PER_HBA, sizeof(*removed),
-> +			  GFP_KERNEL);
->  
->  	if (!added || !removed) {
->  		dev_warn(&h->pdev->dev,
-> @@ -1191,8 +1191,8 @@ cciss_update_non_disk_devices(ctlr_info_
->  
->  	ld_buff = kzalloc(reportlunsize, GFP_KERNEL);
->  	inq_buff = kmalloc(OBDR_TAPE_INQ_SIZE, GFP_KERNEL);
-> -	currentsd = kzalloc(sizeof(*currentsd) *
-> -			(CCISS_MAX_SCSI_DEVS_PER_HBA+1), GFP_KERNEL);
-> +	currentsd = kcalloc(CCISS_MAX_SCSI_DEVS_PER_HBA + 1,
-> +			    sizeof(*currentsd), GFP_KERNEL);
->  	if (ld_buff == NULL || inq_buff == NULL || currentsd == NULL) {
->  		printk(KERN_ERR "cciss: out of memory\n");
->  		goto out;
-> diff -u -p a/drivers/block/xen-blkfront.c b/drivers/block/xen-blkfront.c
-> --- a/drivers/block/xen-blkfront.c 2011-11-13 11:07:22.680095573 +0100
-> +++ b/drivers/block/xen-blkfront.c 2011-11-28 19:49:29.109460410 +0100
-> @@ -156,7 +156,7 @@ static int xlbd_reserve_minors(unsigned
->  	if (end > nr_minors) {
->  		unsigned long *bitmap, *old;
->  
-> -		bitmap = kzalloc(BITS_TO_LONGS(end) * sizeof(*bitmap),
-> +		bitmap = kcalloc(BITS_TO_LONGS(end), sizeof(*bitmap),
->  				 GFP_KERNEL);
->  		if (bitmap == NULL)
->  			return -ENOMEM;
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> This means that if configuration is read while
+> it is changed, we might get an inconsistent state,
+> with parts of a 64 bit field coming from old
+> and parts from new value.
+> 
+> Isn't this a problem?
+
+I don't think so; it's the caller's problem if they need to do locking.
+Is there a caller which needs this?
+
+Or am I missing something?
+Rusty.
