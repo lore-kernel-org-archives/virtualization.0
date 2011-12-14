@@ -1,31 +1,86 @@
-From: Greg KH <gregkh@suse.de>
-Subject: Re: hv_storvsc driver
-Date: Tue, 13 Dec 2011 08:07:53 -0800
-Message-ID: <20111213160753.GA8006@suse.de>
-References: <1323791916-2340-1-git-send-email-kys@microsoft.com>
+From: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Subject: Re: [PATCH] xen-blkfront: Use kcalloc instead of kzalloc to allocate
+	array
+Date: Wed, 14 Dec 2011 13:56:41 -0500
+Message-ID: <20111214185641.GD24598@phenom.dumpdata.com>
+References: <1322600880.1534.293.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-scsi-owner@vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1323791916-2340-1-git-send-email-kys@microsoft.com>
-Sender: linux-scsi-owner@vger.kernel.org
-To: "K. Y. Srinivasan" <kys@microsoft.com>
-Cc: linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org, ohering@suse.com, James.Bottomley@HansenPartnership.com, hch@infradead.org, linux-scsi@vger.kernel.org
+In-Reply-To: <1322600880.1534.293.camel@localhost.localdomain>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Thomas Meyer <thomas@m3y3r.de>
+Cc: xen-devel@lists.xensource.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Dec 13, 2011 at 07:58:36AM -0800, K. Y. Srinivasan wrote:
+On Tue, Nov 29, 2011 at 10:08:00PM +0100, Thomas Meyer wrote:
+> The advantage of kcalloc is, that will prevent integer overflows which could
+> result from the multiplication of number of elements and size and it is also
+> a bit nicer to read.
 > 
-> Sometime back I had sent the scsi mailing list, the patch to move the 
-> Hyper-V storage driver out of staging. This patch addresses  the
-> review comments I have gotten to date from James, Greg and Christoph (I have not heard
-> from anybody else in the  scsi mailing list). The patches addressing the review
-> comments have already been sent to the staging tree and Greg has already
-> applied these patches. James, Let me know what I can do to expedite the
-> move from the staging tree.
+> The semantic patch that makes this change is available
+> in https://lkml.org/lkml/2011/11/25/107
 > 
-> Greg, do you have any issues you would want
-> me to address before this driver can exit staging. Let me know.
 
-It's not up to me, it's up to the scsi maintainers, sorry.
+Thomas,
 
-greg k-h
+I put the xen-blkfront part of the patch in my tree and dropped the cciss_scsi one.
+
+> Signed-off-by: Thomas Meyer <thomas@m3y3r.de>
+> ---
+> 
+> diff -u -p a/drivers/block/cciss_scsi.c b/drivers/block/cciss_scsi.c
+> --- a/drivers/block/cciss_scsi.c 2011-11-28 19:36:47.343430551 +0100
+> +++ b/drivers/block/cciss_scsi.c 2011-11-28 19:49:24.922716381 +0100
+> @@ -534,10 +534,10 @@ adjust_cciss_scsi_table(ctlr_info_t *h,
+>  	int nadded, nremoved;
+>  	struct Scsi_Host *sh = NULL;
+>  
+> -	added = kzalloc(sizeof(*added) * CCISS_MAX_SCSI_DEVS_PER_HBA,
+> -			GFP_KERNEL);
+> -	removed = kzalloc(sizeof(*removed) * CCISS_MAX_SCSI_DEVS_PER_HBA,
+> +	added = kcalloc(CCISS_MAX_SCSI_DEVS_PER_HBA, sizeof(*added),
+>  			GFP_KERNEL);
+> +	removed = kcalloc(CCISS_MAX_SCSI_DEVS_PER_HBA, sizeof(*removed),
+> +			  GFP_KERNEL);
+>  
+>  	if (!added || !removed) {
+>  		dev_warn(&h->pdev->dev,
+> @@ -1191,8 +1191,8 @@ cciss_update_non_disk_devices(ctlr_info_
+>  
+>  	ld_buff = kzalloc(reportlunsize, GFP_KERNEL);
+>  	inq_buff = kmalloc(OBDR_TAPE_INQ_SIZE, GFP_KERNEL);
+> -	currentsd = kzalloc(sizeof(*currentsd) *
+> -			(CCISS_MAX_SCSI_DEVS_PER_HBA+1), GFP_KERNEL);
+> +	currentsd = kcalloc(CCISS_MAX_SCSI_DEVS_PER_HBA + 1,
+> +			    sizeof(*currentsd), GFP_KERNEL);
+>  	if (ld_buff == NULL || inq_buff == NULL || currentsd == NULL) {
+>  		printk(KERN_ERR "cciss: out of memory\n");
+>  		goto out;
+> diff -u -p a/drivers/block/xen-blkfront.c b/drivers/block/xen-blkfront.c
+> --- a/drivers/block/xen-blkfront.c 2011-11-13 11:07:22.680095573 +0100
+> +++ b/drivers/block/xen-blkfront.c 2011-11-28 19:49:29.109460410 +0100
+> @@ -156,7 +156,7 @@ static int xlbd_reserve_minors(unsigned
+>  	if (end > nr_minors) {
+>  		unsigned long *bitmap, *old;
+>  
+> -		bitmap = kzalloc(BITS_TO_LONGS(end) * sizeof(*bitmap),
+> +		bitmap = kcalloc(BITS_TO_LONGS(end), sizeof(*bitmap),
+>  				 GFP_KERNEL);
+>  		if (bitmap == NULL)
+>  			return -ENOMEM;
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
