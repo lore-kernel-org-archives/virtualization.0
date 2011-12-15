@@ -1,15 +1,11 @@
-From: Pawel Moll <pawel.moll@arm.com>
-Subject: Re: [PATCH 1/2] params: <level>_initcall-like kernel parameters
-Date: Thu, 15 Dec 2011 09:38:34 +0000
-Message-ID: <1323941914.16998.3.camel@hornet.cambridge.arm.com>
-References: <1323712401.2391.93.camel@hornet.cambridge.arm.com>
-	<1323712627-17353-1-git-send-email-pawel.moll@arm.com>
-	<871us6sdaz.fsf@rustcorp.com.au>
+From: Amit Shah <amit.shah@redhat.com>
+Subject: [PATCH v5 00/11]  virtio: s4 support
+Date: Thu, 15 Dec 2011 18:15:46 +0530
+Message-ID: <cover.1323952933.git.amit.shah@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <871us6sdaz.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,37 +15,87 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+To: Virtualization List <virtualization@lists.linux-foundation.org>
+Cc: linux-pm@vger.kernel.org, linux-kernel@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, levinsasha928@gmail.com, Amit Shah <amit.shah@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-TW9ybmluZywKCk9uIFRodSwgMjAxMS0xMi0xNSBhdCAwMzo1MSArMDAwMCwgUnVzdHkgUnVzc2Vs
-bCB3cm90ZToKPiBPbiBNb24sIDEyIERlYyAyMDExIDE3OjU3OjA2ICswMDAwLCBQYXdlbCBNb2xs
-IDxwYXdlbC5tb2xsQGFybS5jb20+IHdyb3RlOgo+ID4gVGhpcyBwYXRjaCBhZGRzIGEgc2V0IG9m
-IG1hY3JvcyB0aGF0IGNhbiBiZSB1c2VkIHRvIGRlY2xhcmUKPiA+IGtlcm5lbCBwYXJhbWV0ZXJz
-IHRvIGJlIHBhcnNlZCBfYmVmb3JlXyBpbml0Y2FsbHMgYXQgYSBjaG9zZW4KPiA+IGxldmVsIGFy
-ZSBleGVjdXRlZC4gU3VjaCBwYXJhbWV0ZXJzIGFyZSBtYXJrZWQgdXNpbmcgZXhpc3RpbmcKPiA+
-ICJmbGFncyIgZmllbGQgb2YgdGhlICJrZXJuZWxfcGFyYW0iIHN0cnVjdHVyZS4KPiA+IAo+ID4g
-TGlua2VyIG1hY3JvIGNvbGxhdGluZyBpbml0IGNhbGxzIGhhZCB0byBiZSBtb2RpZmllZCBpbiBv
-cmRlcgo+ID4gdG8gYWRkIGFkZGl0aW9uYWwgc3ltYm9scyBiZXR3ZWVuIGxldmVscyB0aGF0IGFy
-ZSBsYXRlciB1c2VkCj4gPiBieSB0aGUgaW5pdCBjb2RlIHRvIHNwbGl0IHRoZSBjYWxscyBpbnRv
-IGJsb2Nrcy4KPiAKPiBUaGlzIHBhdGNoIHdhc24ndCBxdWl0ZSB3aGF0IEkgd2FzIHRoaW5raW5n
-LCBidXQgSSd2ZSByZWFsaXplZCB0aGF0Cj4gd2UgY2FuJ3QgcHV0IHRoZSBwYXJhbXMgaW4gdGhl
-IC5pbml0IHNlY3Rpb24sIHlvdXIgYXBwcm9hY2ggaXMgcHJvYmFibHkKPiB0aGUgYmVzdCBvbmUu
-CgpUaGUgb25seSB3YXkgSSBjb3VsZCB0aGluayBvZiB0byBwdXQgdGhlIHBhcmFtZXRlcnMgcGFz
-c2luZyBjb2RlIGluCmJldHdlZW4gbGV2ZWxzIHdhcyBhZGRpbmcgbmV3IGxpbmtlciBzZWN0aW9u
-cywgYW5kIHRoYXQgc291bmRlZCBsaWtlIGFuCm92ZXJraWxsLi4uCgo+IE5vdGUgdGhhdCBJJ3Zl
-IGp1c3QgY3JlYXRlZCBhIHNlcmllcyB3aGljaCBnZXRzIHJpZCBvZiB0aGF0IHNpbGx5IElTQk9P
-TAo+IHRoaW5nLCBzbyB5b3UgY2FuIHVzZSB0aGUgd2hvbGUgZmllbGQgZm9yICJsZXZlbCIuICBU
-aGVuIEkgc2V0IHRoZSBsZXZlbAo+IHRvIC0xIGZvciB0aGUgbm9ybWFsIGNhbGxzOyBJIHdhbnQg
-dG8gdXNlIC0yIGZvciB0aGUgZWFybHkgY2FsbHMsIGJ1dAo+IHRoYXQncyBub3QgZG9uZSB5ZXQu
-Li4KPiAKPiBJJ2xsIHJld29yayBhbmQgcmViYXNlIHlvdXIgcGF0Y2ggbGlrZSB0aGF0IG5vdy4K
-CkNvb2wsIGl0J3MgYWxsIHlvdXJzLCBlc3BlY2lhbGx5IG5vdyB0aGF0IEknbSB0aGUgbGFzdCBk
-YXkgYXQgd29yayB0aGlzCnllYXIgc28gd29uJ3QgYmUgYWJsZSB0byBjb250cmlidXRlIG11Y2gg
-aW4gdGhlIGZvbGxvd2luZyB3ZWVrcy4uLiBDb3VsZApJIGp1c3QgYXNrIHlvdSB0byByZW1lbWJl
-ciBhYm91dCB0aGUgdmlydGlvX21taW8gcGFyYW1ldGVycyBwYXRjaCBpZiB5b3UKZ2V0IHNvbWV3
-aGVyZSB3aXRoIHRoaXM/IEknbGwgYmUgbW9zdCBncmF0ZWZ1bCEKCkNoZWVycyEKClBhd2XFggoK
-Cl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxp
-emF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9u
-Lm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92
-aXJ0dWFsaXphdGlvbg==
+Hi,
+
+These patches add support for S4 to virtio (pci) and all drivers.
+
+Michael saw some race in virtio-net module removal which will need a
+similar fix for the freeze code as well.  I'll update the virtio-net
+patch with that fix once the fix is settled upon and applied.
+
+For each driver, all vqs are removed before hibernation, and then
+re-created after restore.  Some driver-specific uninit and init work
+is also done in the freeze and restore functions.
+
+All the drivers in testing work fine:
+
+* virtio-blk is used for the only disk in the VM, IO works fine before
+  and after.  'dd if=/dev/zero of=/tmp/bigfile bs=1024 count=200000'
+  across S4 gives same sha1sum for the file in the guest as well as
+  one that's created without invoking S4.
+
+* virtio-console: port IO keeps working fine before and after.
+  * If a port is waiting for data from the host (blocking read(2)
+    call), this works fine in both the cases: host-side connection is
+    available or unavailable after resume.  In case the host-side
+    connection isn't available, the blocking call is terminated.  If
+    it is available, the call continues to remain in blocked state
+    till further data arrives.
+
+* virtio-net: ping remains active across S4.
+
+* virtio-balloon: Works fine before and after.  Forgets the ballooned
+  value across S4 (see details in commit log). Maintains ballooned
+  value on failed freeze.
+
+All of these tests are run in parallel.
+
+v5:
+ - Enable virtio device after the driver-specific restore/thaw
+   callbacks are completed.
+ - Balloon: Don't exit kthread on freeze.  It's already frozen by the
+   PM API before invoking the freeze callback, so exiting is pointless.
+
+v4:
+ - Disable / enable napi across S4 (Michael S. Tsirkin)
+ - Balloon: lots of improvements (I had neglected this driver thinking
+   it was a simple one, but this one needed the most thought!  Check
+   the commit log for patch 12 for details.)
+ - Net, Blk: Reset device as the first operation on freeze
+
+v3:
+ - Reset vqs before deleting them (Sasha Levin)
+ - Flush block queue before freeze (Rusty)
+ - Detach netdev before freeze (Michael S. Tsirkin)
+
+v2:
+ - fix checkpatch errors/warnings
+
+Amit Shah (11):
+  virtio: pci: switch to new PM API
+  virtio: pci: add PM notification handlers for restore, freeze, thaw,
+    poweroff
+  virtio: console: Move vq and vq buf removal into separate functions
+  virtio: console: Add freeze and restore handlers to support S4
+  virtio: blk: Move vq initialization to separate function
+  virtio: blk: Add freeze, restore handlers to support S4
+  virtio: net: Move vq initialization into separate function
+  virtio: net: Move vq and vq buf removal into separate function
+  virtio: net: Add freeze, restore handlers to support S4
+  virtio: balloon: Move vq initialization into separate function
+  virtio: balloon: Add freeze, restore handlers to support S4
+
+ drivers/block/virtio_blk.c      |   57 ++++++++++++++++--
+ drivers/char/virtio_console.c   |  126 ++++++++++++++++++++++++++++++---------
+ drivers/net/virtio_net.c        |  102 +++++++++++++++++++++++--------
+ drivers/virtio/virtio_balloon.c |   95 ++++++++++++++++++++++++------
+ drivers/virtio/virtio_pci.c     |  106 +++++++++++++++++++++++++++++++-
+ include/linux/virtio.h          |    5 ++
+ 6 files changed, 410 insertions(+), 81 deletions(-)
+
+-- 
+1.7.7.3
