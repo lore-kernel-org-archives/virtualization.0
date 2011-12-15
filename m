@@ -1,14 +1,15 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [RFC 3/11] pci: add pci_iomap_range
-Date: Thu, 15 Dec 2011 10:30:49 +0200
-Message-ID: <20111215083048.GB3630@redhat.com>
-References: <87pqfzgy6p.fsf@rustcorp.com.au> <87hb1bgxpt.fsf@rustcorp.com.au>
+From: Pawel Moll <pawel.moll@arm.com>
+Subject: Re: [PATCH 1/2] params: <level>_initcall-like kernel parameters
+Date: Thu, 15 Dec 2011 09:38:34 +0000
+Message-ID: <1323941914.16998.3.camel@hornet.cambridge.arm.com>
+References: <1323712401.2391.93.camel@hornet.cambridge.arm.com>
+	<1323712627-17353-1-git-send-email-pawel.moll@arm.com>
+	<871us6sdaz.fsf@rustcorp.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <87hb1bgxpt.fsf@rustcorp.com.au>
+In-Reply-To: <871us6sdaz.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,146 +20,36 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Sasha Levin <levinsasha928@gmail.com>, virtualization <virtualization@lists.linux-foundation.org>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Dec 08, 2011 at 09:02:46PM +1030, Rusty Russell wrote:
-> From: Michael S Tsirkin <mst@redhat.com>
-> 
-> Virtio drivers should map the part of the range they need, not necessarily
-> all of it.
-> 
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
-
-
-I think that we should add a forcenocache flag.
-This will let devices put the cap structure in
-the prefetcheable BAR. That has an advantage that
-it can be located anywhere in the 2^64 space,
-while non-prefetcheable BARs are limited to lower 4G
-for devices behind a PCI-to-PCI bridge.
-
-> ---
->  include/asm-generic/io.h    |    4 ++++
->  include/asm-generic/iomap.h |   11 +++++++++++
->  lib/iomap.c                 |   41 ++++++++++++++++++++++++++++++++++++-----
->  3 files changed, 51 insertions(+), 5 deletions(-)
-> 
-> diff --git a/include/asm-generic/io.h b/include/asm-generic/io.h
-> index 9120887..3cf1787 100644
-> --- a/include/asm-generic/io.h
-> +++ b/include/asm-generic/io.h
-> @@ -286,6 +286,10 @@ static inline void writesb(const void __iomem *addr, const void *buf, int len)
->  /* Create a virtual mapping cookie for a PCI BAR (memory or IO) */
->  struct pci_dev;
->  extern void __iomem *pci_iomap(struct pci_dev *dev, int bar, unsigned long max);
-> +extern void __iomem *pci_iomap_range(struct pci_dev *dev, int bar,
-> +				     unsigned offset,
-> +				     unsigned long minlen,
-> +				     unsigned long maxlen);
->  static inline void pci_iounmap(struct pci_dev *dev, void __iomem *p)
->  {
->  }
-> diff --git a/include/asm-generic/iomap.h b/include/asm-generic/iomap.h
-> index 98dcd76..6f192d4 100644
-> --- a/include/asm-generic/iomap.h
-> +++ b/include/asm-generic/iomap.h
-> @@ -70,8 +70,19 @@ extern void ioport_unmap(void __iomem *);
->  /* Create a virtual mapping cookie for a PCI BAR (memory or IO) */
->  struct pci_dev;
->  extern void __iomem *pci_iomap(struct pci_dev *dev, int bar, unsigned long max);
-> +extern void __iomem *pci_iomap_range(struct pci_dev *dev, int bar,
-> +				     unsigned offset,
-> +				     unsigned long minlen,
-> +				     unsigned long maxlen);
->  extern void pci_iounmap(struct pci_dev *dev, void __iomem *);
->  #else
-> +static inline void __iomem *pci_iomap_range(struct pci_dev *dev, int bar,
-> +					    unsigned offset,
-> +					    unsigned long minlen,
-> +					    unsigned long maxlen)
-> +{
-> +	return NULL;
-> +}
->  struct pci_dev;
->  static inline void __iomem *pci_iomap(struct pci_dev *dev, int bar, unsigned long max)
->  {
-> diff --git a/lib/iomap.c b/lib/iomap.c
-> index 5dbcb4b..93ae915 100644
-> --- a/lib/iomap.c
-> +++ b/lib/iomap.c
-> @@ -243,26 +243,37 @@ EXPORT_SYMBOL(ioport_unmap);
->  
->  #ifdef CONFIG_PCI
->  /**
-> - * pci_iomap - create a virtual mapping cookie for a PCI BAR
-> + * pci_iomap_range - create a virtual mapping cookie for a PCI BAR
->   * @dev: PCI device that owns the BAR
->   * @bar: BAR number
-> - * @maxlen: length of the memory to map
-> + * @offset: map memory at the given offset in BAR
-> + * @minlen: min length of the memory to map
-> + * @maxlen: max length of the memory to map
->   *
->   * Using this function you will get a __iomem address to your device BAR.
->   * You can access it using ioread*() and iowrite*(). These functions hide
->   * the details if this is a MMIO or PIO address space and will just do what
->   * you expect from them in the correct way.
->   *
-> + * @minlen specifies the minimum length to map. We check that BAR is
-> + * large enough.
->   * @maxlen specifies the maximum length to map. If you want to get access to
-> - * the complete BAR without checking for its length first, pass %0 here.
-> + * the complete BAR from offset to the end, pass %0 here.
->   * */
-> -void __iomem *pci_iomap(struct pci_dev *dev, int bar, unsigned long maxlen)
-> +void __iomem *pci_iomap_range(struct pci_dev *dev, int bar,
-> +			      unsigned offset,
-> +			      unsigned long minlen,
-> +			      unsigned long maxlen)
->  {
->  	resource_size_t start = pci_resource_start(dev, bar);
->  	resource_size_t len = pci_resource_len(dev, bar);
->  	unsigned long flags = pci_resource_flags(dev, bar);
->  
-> -	if (!len || !start)
-> +	if (len <= offset || !start)
-> +		return NULL;
-> +	len -= offset;
-> +	start += offset;
-> +	if (len < minlen)
->  		return NULL;
->  	if (maxlen && len > maxlen)
->  		len = maxlen;
-> @@ -277,10 +288,30 @@ void __iomem *pci_iomap(struct pci_dev *dev, int bar, unsigned long maxlen)
->  	return NULL;
->  }
->  
-> +/**
-> + * pci_iomap - create a virtual mapping cookie for a PCI BAR
-> + * @dev: PCI device that owns the BAR
-> + * @bar: BAR number
-> + * @maxlen: length of the memory to map
-> + *
-> + * Using this function you will get a __iomem address to your device BAR.
-> + * You can access it using ioread*() and iowrite*(). These functions hide
-> + * the details if this is a MMIO or PIO address space and will just do what
-> + * you expect from them in the correct way.
-> + *
-> + * @maxlen specifies the maximum length to map. If you want to get access to
-> + * the complete BAR without checking for its length first, pass %0 here.
-> + * */
-> +void __iomem *pci_iomap(struct pci_dev *dev, int bar, unsigned long maxlen)
-> +{
-> +	return pci_iomap_range(dev, bar, 0, 0, maxlen);
-> +}
-> +
->  void pci_iounmap(struct pci_dev *dev, void __iomem * addr)
->  {
->  	IO_COND(addr, /* nothing */, iounmap(addr));
->  }
->  EXPORT_SYMBOL(pci_iomap);
-> +EXPORT_SYMBOL(pci_iomap_range);
->  EXPORT_SYMBOL(pci_iounmap);
->  #endif /* CONFIG_PCI */
+TW9ybmluZywKCk9uIFRodSwgMjAxMS0xMi0xNSBhdCAwMzo1MSArMDAwMCwgUnVzdHkgUnVzc2Vs
+bCB3cm90ZToKPiBPbiBNb24sIDEyIERlYyAyMDExIDE3OjU3OjA2ICswMDAwLCBQYXdlbCBNb2xs
+IDxwYXdlbC5tb2xsQGFybS5jb20+IHdyb3RlOgo+ID4gVGhpcyBwYXRjaCBhZGRzIGEgc2V0IG9m
+IG1hY3JvcyB0aGF0IGNhbiBiZSB1c2VkIHRvIGRlY2xhcmUKPiA+IGtlcm5lbCBwYXJhbWV0ZXJz
+IHRvIGJlIHBhcnNlZCBfYmVmb3JlXyBpbml0Y2FsbHMgYXQgYSBjaG9zZW4KPiA+IGxldmVsIGFy
+ZSBleGVjdXRlZC4gU3VjaCBwYXJhbWV0ZXJzIGFyZSBtYXJrZWQgdXNpbmcgZXhpc3RpbmcKPiA+
+ICJmbGFncyIgZmllbGQgb2YgdGhlICJrZXJuZWxfcGFyYW0iIHN0cnVjdHVyZS4KPiA+IAo+ID4g
+TGlua2VyIG1hY3JvIGNvbGxhdGluZyBpbml0IGNhbGxzIGhhZCB0byBiZSBtb2RpZmllZCBpbiBv
+cmRlcgo+ID4gdG8gYWRkIGFkZGl0aW9uYWwgc3ltYm9scyBiZXR3ZWVuIGxldmVscyB0aGF0IGFy
+ZSBsYXRlciB1c2VkCj4gPiBieSB0aGUgaW5pdCBjb2RlIHRvIHNwbGl0IHRoZSBjYWxscyBpbnRv
+IGJsb2Nrcy4KPiAKPiBUaGlzIHBhdGNoIHdhc24ndCBxdWl0ZSB3aGF0IEkgd2FzIHRoaW5raW5n
+LCBidXQgSSd2ZSByZWFsaXplZCB0aGF0Cj4gd2UgY2FuJ3QgcHV0IHRoZSBwYXJhbXMgaW4gdGhl
+IC5pbml0IHNlY3Rpb24sIHlvdXIgYXBwcm9hY2ggaXMgcHJvYmFibHkKPiB0aGUgYmVzdCBvbmUu
+CgpUaGUgb25seSB3YXkgSSBjb3VsZCB0aGluayBvZiB0byBwdXQgdGhlIHBhcmFtZXRlcnMgcGFz
+c2luZyBjb2RlIGluCmJldHdlZW4gbGV2ZWxzIHdhcyBhZGRpbmcgbmV3IGxpbmtlciBzZWN0aW9u
+cywgYW5kIHRoYXQgc291bmRlZCBsaWtlIGFuCm92ZXJraWxsLi4uCgo+IE5vdGUgdGhhdCBJJ3Zl
+IGp1c3QgY3JlYXRlZCBhIHNlcmllcyB3aGljaCBnZXRzIHJpZCBvZiB0aGF0IHNpbGx5IElTQk9P
+TAo+IHRoaW5nLCBzbyB5b3UgY2FuIHVzZSB0aGUgd2hvbGUgZmllbGQgZm9yICJsZXZlbCIuICBU
+aGVuIEkgc2V0IHRoZSBsZXZlbAo+IHRvIC0xIGZvciB0aGUgbm9ybWFsIGNhbGxzOyBJIHdhbnQg
+dG8gdXNlIC0yIGZvciB0aGUgZWFybHkgY2FsbHMsIGJ1dAo+IHRoYXQncyBub3QgZG9uZSB5ZXQu
+Li4KPiAKPiBJJ2xsIHJld29yayBhbmQgcmViYXNlIHlvdXIgcGF0Y2ggbGlrZSB0aGF0IG5vdy4K
+CkNvb2wsIGl0J3MgYWxsIHlvdXJzLCBlc3BlY2lhbGx5IG5vdyB0aGF0IEknbSB0aGUgbGFzdCBk
+YXkgYXQgd29yayB0aGlzCnllYXIgc28gd29uJ3QgYmUgYWJsZSB0byBjb250cmlidXRlIG11Y2gg
+aW4gdGhlIGZvbGxvd2luZyB3ZWVrcy4uLiBDb3VsZApJIGp1c3QgYXNrIHlvdSB0byByZW1lbWJl
+ciBhYm91dCB0aGUgdmlydGlvX21taW8gcGFyYW1ldGVycyBwYXRjaCBpZiB5b3UKZ2V0IHNvbWV3
+aGVyZSB3aXRoIHRoaXM/IEknbGwgYmUgbW9zdCBncmF0ZWZ1bCEKCkNoZWVycyEKClBhd2XFggoK
+Cl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxp
+emF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9u
+Lm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92
+aXJ0dWFsaXphdGlvbg==
