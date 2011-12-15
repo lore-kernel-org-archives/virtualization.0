@@ -1,16 +1,14 @@
-From: Amit Shah <amit.shah@redhat.com>
-Subject: [PATCH v5 11/11] virtio: balloon: Add freeze,
-	restore handlers to support S4
-Date: Thu, 15 Dec 2011 18:15:57 +0530
-Message-ID: <a25590de10d16905372ea3d96b259c95dfa6f6e9.1323952934.git.amit.shah@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH v5 00/11]  virtio: s4 support
+Date: Thu, 15 Dec 2011 15:13:14 +0200
+Message-ID: <20111215131314.GA22791@redhat.com>
 References: <cover.1323952933.git.amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
 In-Reply-To: <cover.1323952933.git.amit.shah@redhat.com>
-In-Reply-To: <cover.1323952933.git.amit.shah@redhat.com>
-References: <cover.1323952933.git.amit.shah@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,115 +18,20 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Virtualization List <virtualization@lists.linux-foundation.org>
-Cc: linux-pm@vger.kernel.org, linux-kernel@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, levinsasha928@gmail.com, Amit Shah <amit.shah@redhat.com>
+To: Amit Shah <amit.shah@redhat.com>
+Cc: linux-kernel@vger.kernel.org, linux-pm@vger.kernel.org, levinsasha928@gmail.com, Virtualization List <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Handling balloon hibernate / restore is tricky.  If the balloon was
-inflated before going into the hibernation state, upon resume, the host
-will not have any memory of that.  Any pages that were passed on to the
-host earlier would most likely be invalid, and the host will have to
-re-balloon to the previous value to get in the pre-hibernate state.
+On Thu, Dec 15, 2011 at 06:15:46PM +0530, Amit Shah wrote:
+> Hi,
+> 
+> These patches add support for S4 to virtio (pci) and all drivers.
+> 
+> Michael saw some race in virtio-net module removal which will need a
+> similar fix for the freeze code as well.  I'll update the virtio-net
+> patch with that fix once the fix is settled upon and applied.
 
-So the only sane thing for the guest to do here is to discard all the
-pages that were put in the balloon.  When to discard the pages is the
-next question.
+block too?
 
-One solution is to deflate the balloon just before writing the image to
-the disk (in the freeze() PM callback).  However, asking for pages from
-the host just to discard them immediately after seems wasteful of
-resources.  Hence, it makes sense to do this by just fudging our
-counters soon after wakeup.  This means we don't deflate the balloon
-before sleep, and also don't put unnecessary pressure on the host.
-
-This also helps in the thaw case: if the freeze fails for whatever
-reason, the balloon should continue to remain in the inflated state.
-This was tested by issuing 'swapoff -a' and trying to go into the S4
-state.  That fails, and the balloon stays inflated, as expected.  Both
-the host and the guest are happy.
-
-Finally, in the restore() callback, we empty the list of pages that were
-previously given off to the host, add the appropriate number of pages to
-the totalram_pages counter, reset the num_pages counter to 0, and
-all is fine.
-
-As a last step, delete the vqs on the freeze callback to prepare for
-hibernation, and re-create them in the restore and thaw callbacks to
-resume normal operation.
-
-The kthread doesn't race with any operations here, since it's frozen
-before the freeze() call and is thawed after the thaw() and restore()
-callbacks, so we're safe with that.
-
-Signed-off-by: Amit Shah <amit.shah@redhat.com>
----
- drivers/virtio/virtio_balloon.c |   47 +++++++++++++++++++++++++++++++++++++++
- 1 files changed, 47 insertions(+), 0 deletions(-)
-
-diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-index 1ff3cf4..4c327c7 100644
---- a/drivers/virtio/virtio_balloon.c
-+++ b/drivers/virtio/virtio_balloon.c
-@@ -363,6 +363,48 @@ static void __devexit virtballoon_remove(struct virtio_device *vdev)
- 	kfree(vb);
- }
- 
-+#ifdef CONFIG_PM
-+static int virtballoon_freeze(struct virtio_device *vdev)
-+{
-+	/*
-+	 * The kthread is already frozen by the PM core before this
-+	 * function is called.
-+	 */
-+
-+	/* Ensure we don't get any more requests from the host */
-+	vdev->config->reset(vdev);
-+	vdev->config->del_vqs(vdev);
-+	return 0;
-+}
-+
-+static int virtballoon_thaw(struct virtio_device *vdev)
-+{
-+	return init_vqs(vdev->priv);
-+}
-+
-+static int virtballoon_restore(struct virtio_device *vdev)
-+{
-+	struct virtio_balloon *vb = vdev->priv;
-+	struct page *page, *page2;
-+
-+	/* We're starting from a clean slate */
-+	vb->num_pages = 0;
-+
-+	/*
-+	 * If a request wasn't complete at the time of freezing, this
-+	 * could have been set.
-+	 */
-+	vb->need_stats_update = 0;
-+
-+	/* We don't have these pages in the balloon anymore! */
-+	list_for_each_entry_safe(page, page2, &vb->pages, lru) {
-+		list_del(&page->lru);
-+		totalram_pages++;
-+	}
-+	return init_vqs(vdev->priv);
-+}
-+#endif
-+
- static unsigned int features[] = {
- 	VIRTIO_BALLOON_F_MUST_TELL_HOST,
- 	VIRTIO_BALLOON_F_STATS_VQ,
-@@ -377,6 +419,11 @@ static struct virtio_driver virtio_balloon_driver = {
- 	.probe =	virtballoon_probe,
- 	.remove =	__devexit_p(virtballoon_remove),
- 	.config_changed = virtballoon_changed,
-+#ifdef CONFIG_PM
-+	.freeze	=	virtballoon_freeze,
-+	.restore =	virtballoon_restore,
-+	.thaw =		virtballoon_thaw,
-+#endif
- };
- 
- static int __init init(void)
 -- 
-1.7.7.3
+MST
