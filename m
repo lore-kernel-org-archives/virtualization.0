@@ -1,18 +1,14 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [RFC 7/11] virtio_pci: new, capability-aware driver.
-Date: Thu, 15 Dec 2011 10:27:50 +0200
-Message-ID: <20111215063004.GA3630@redhat.com>
-References: <87pqfzgy6p.fsf@rustcorp.com.au> <87zkf3fiu2.fsf@rustcorp.com.au>
-	<20111211094256.GB11504@redhat.com>
-	<87boreohhs.fsf@rustcorp.com.au>
-	<20111212182533.GB25916@redhat.com>
-	<87liqhtdnj.fsf@rustcorp.com.au>
+Subject: Re: [RFC 3/11] pci: add pci_iomap_range
+Date: Thu, 15 Dec 2011 10:30:49 +0200
+Message-ID: <20111215083048.GB3630@redhat.com>
+References: <87pqfzgy6p.fsf@rustcorp.com.au> <87hb1bgxpt.fsf@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <87liqhtdnj.fsf@rustcorp.com.au>
+In-Reply-To: <87hb1bgxpt.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -26,66 +22,143 @@ To: Rusty Russell <rusty@rustcorp.com.au>
 Cc: Sasha Levin <levinsasha928@gmail.com>, virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Dec 13, 2011 at 12:51:20PM +1030, Rusty Russell wrote:
-> On Mon, 12 Dec 2011 20:25:34 +0200, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> > By the way, a generic question on virtio-pci: we now have:
-> > 
-> > /* virtio config->get() implementation */
-> > static void vp_get(struct virtio_device *vdev, unsigned offset,
-> >                    void *buf, unsigned len)
-> > {
-> >         struct virtio_pci_device *vp_dev = to_vp_device(vdev);
-> >         void __iomem *ioaddr = vp_dev->ioaddr +
-> >                                 VIRTIO_PCI_CONFIG(vp_dev) + offset;
-> >         u8 *ptr = buf;
-> >         int i;
-> > 
-> >         for (i = 0; i < len; i++)
-> >                 ptr[i] = ioread8(ioaddr + i);
-> > }
-> > 
-> > This means that if configuration is read while
-> > it is changed, we might get an inconsistent state,
-> > with parts of a 64 bit field coming from old
-> > and parts from new value.
-> > 
-> > Isn't this a problem?
+On Thu, Dec 08, 2011 at 09:02:46PM +1030, Rusty Russell wrote:
+> From: Michael S Tsirkin <mst@redhat.com>
 > 
-> I don't think so; it's the caller's problem if they need to do locking.
-> Is there a caller which needs this?
+> Virtio drivers should map the part of the range they need, not necessarily
+> all of it.
 > 
-> Or am I missing something?
-> Rusty.
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 
 
-I mean like this in block:
+I think that we should add a forcenocache flag.
+This will let devices put the cap structure in
+the prefetcheable BAR. That has an advantage that
+it can be located anywhere in the 2^64 space,
+while non-prefetcheable BARs are limited to lower 4G
+for devices behind a PCI-to-PCI bridge.
 
-
-
-        /* Host must always specify the capacity. */
-        vdev->config->get(vdev, offsetof(struct virtio_blk_config,
-capacity),
-                          &capacity, sizeof(capacity));
-
-        /* If capacity is too big, truncate with warning. */
-        if ((sector_t)capacity != capacity) {
-                dev_warn(&vdev->dev, "Capacity %llu too large:
-truncating\n",
-                         (unsigned long long)capacity);
-                capacity = (sector_t)-1;
-        }
-
-
-Now let's assume capacity field is changed from 0x8000 to 0x10000
-on host. Is it possible that we read two upper bytes
-before the change so we see 0x0000....
-and 2 lower bytes after the change
-so we see 0x....0000 and resulting capacity appears
-to be 0?
-
-If no why not?
-
-And what kind of locking can help?
-
--- 
-MST
+> ---
+>  include/asm-generic/io.h    |    4 ++++
+>  include/asm-generic/iomap.h |   11 +++++++++++
+>  lib/iomap.c                 |   41 ++++++++++++++++++++++++++++++++++++-----
+>  3 files changed, 51 insertions(+), 5 deletions(-)
+> 
+> diff --git a/include/asm-generic/io.h b/include/asm-generic/io.h
+> index 9120887..3cf1787 100644
+> --- a/include/asm-generic/io.h
+> +++ b/include/asm-generic/io.h
+> @@ -286,6 +286,10 @@ static inline void writesb(const void __iomem *addr, const void *buf, int len)
+>  /* Create a virtual mapping cookie for a PCI BAR (memory or IO) */
+>  struct pci_dev;
+>  extern void __iomem *pci_iomap(struct pci_dev *dev, int bar, unsigned long max);
+> +extern void __iomem *pci_iomap_range(struct pci_dev *dev, int bar,
+> +				     unsigned offset,
+> +				     unsigned long minlen,
+> +				     unsigned long maxlen);
+>  static inline void pci_iounmap(struct pci_dev *dev, void __iomem *p)
+>  {
+>  }
+> diff --git a/include/asm-generic/iomap.h b/include/asm-generic/iomap.h
+> index 98dcd76..6f192d4 100644
+> --- a/include/asm-generic/iomap.h
+> +++ b/include/asm-generic/iomap.h
+> @@ -70,8 +70,19 @@ extern void ioport_unmap(void __iomem *);
+>  /* Create a virtual mapping cookie for a PCI BAR (memory or IO) */
+>  struct pci_dev;
+>  extern void __iomem *pci_iomap(struct pci_dev *dev, int bar, unsigned long max);
+> +extern void __iomem *pci_iomap_range(struct pci_dev *dev, int bar,
+> +				     unsigned offset,
+> +				     unsigned long minlen,
+> +				     unsigned long maxlen);
+>  extern void pci_iounmap(struct pci_dev *dev, void __iomem *);
+>  #else
+> +static inline void __iomem *pci_iomap_range(struct pci_dev *dev, int bar,
+> +					    unsigned offset,
+> +					    unsigned long minlen,
+> +					    unsigned long maxlen)
+> +{
+> +	return NULL;
+> +}
+>  struct pci_dev;
+>  static inline void __iomem *pci_iomap(struct pci_dev *dev, int bar, unsigned long max)
+>  {
+> diff --git a/lib/iomap.c b/lib/iomap.c
+> index 5dbcb4b..93ae915 100644
+> --- a/lib/iomap.c
+> +++ b/lib/iomap.c
+> @@ -243,26 +243,37 @@ EXPORT_SYMBOL(ioport_unmap);
+>  
+>  #ifdef CONFIG_PCI
+>  /**
+> - * pci_iomap - create a virtual mapping cookie for a PCI BAR
+> + * pci_iomap_range - create a virtual mapping cookie for a PCI BAR
+>   * @dev: PCI device that owns the BAR
+>   * @bar: BAR number
+> - * @maxlen: length of the memory to map
+> + * @offset: map memory at the given offset in BAR
+> + * @minlen: min length of the memory to map
+> + * @maxlen: max length of the memory to map
+>   *
+>   * Using this function you will get a __iomem address to your device BAR.
+>   * You can access it using ioread*() and iowrite*(). These functions hide
+>   * the details if this is a MMIO or PIO address space and will just do what
+>   * you expect from them in the correct way.
+>   *
+> + * @minlen specifies the minimum length to map. We check that BAR is
+> + * large enough.
+>   * @maxlen specifies the maximum length to map. If you want to get access to
+> - * the complete BAR without checking for its length first, pass %0 here.
+> + * the complete BAR from offset to the end, pass %0 here.
+>   * */
+> -void __iomem *pci_iomap(struct pci_dev *dev, int bar, unsigned long maxlen)
+> +void __iomem *pci_iomap_range(struct pci_dev *dev, int bar,
+> +			      unsigned offset,
+> +			      unsigned long minlen,
+> +			      unsigned long maxlen)
+>  {
+>  	resource_size_t start = pci_resource_start(dev, bar);
+>  	resource_size_t len = pci_resource_len(dev, bar);
+>  	unsigned long flags = pci_resource_flags(dev, bar);
+>  
+> -	if (!len || !start)
+> +	if (len <= offset || !start)
+> +		return NULL;
+> +	len -= offset;
+> +	start += offset;
+> +	if (len < minlen)
+>  		return NULL;
+>  	if (maxlen && len > maxlen)
+>  		len = maxlen;
+> @@ -277,10 +288,30 @@ void __iomem *pci_iomap(struct pci_dev *dev, int bar, unsigned long maxlen)
+>  	return NULL;
+>  }
+>  
+> +/**
+> + * pci_iomap - create a virtual mapping cookie for a PCI BAR
+> + * @dev: PCI device that owns the BAR
+> + * @bar: BAR number
+> + * @maxlen: length of the memory to map
+> + *
+> + * Using this function you will get a __iomem address to your device BAR.
+> + * You can access it using ioread*() and iowrite*(). These functions hide
+> + * the details if this is a MMIO or PIO address space and will just do what
+> + * you expect from them in the correct way.
+> + *
+> + * @maxlen specifies the maximum length to map. If you want to get access to
+> + * the complete BAR without checking for its length first, pass %0 here.
+> + * */
+> +void __iomem *pci_iomap(struct pci_dev *dev, int bar, unsigned long maxlen)
+> +{
+> +	return pci_iomap_range(dev, bar, 0, 0, maxlen);
+> +}
+> +
+>  void pci_iounmap(struct pci_dev *dev, void __iomem * addr)
+>  {
+>  	IO_COND(addr, /* nothing */, iounmap(addr));
+>  }
+>  EXPORT_SYMBOL(pci_iomap);
+> +EXPORT_SYMBOL(pci_iomap_range);
+>  EXPORT_SYMBOL(pci_iounmap);
+>  #endif /* CONFIG_PCI */
