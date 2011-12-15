@@ -1,8 +1,8 @@
 From: Amit Shah <amit.shah@redhat.com>
-Subject: [PATCH v5 05/11] virtio: blk: Move vq initialization to separate
-	function
-Date: Thu, 15 Dec 2011 18:15:51 +0530
-Message-ID: <a794bcd99e030299fab77a2b2d845d96a01a9146.1323952934.git.amit.shah@redhat.com>
+Subject: [PATCH v5 06/11] virtio: blk: Add freeze,
+	restore handlers to support S4
+Date: Thu, 15 Dec 2011 18:15:52 +0530
+Message-ID: <a43d429430f89966048908183d424aa22094a95b.1323952934.git.amit.shah@redhat.com>
 References: <cover.1323952933.git.amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -24,50 +24,71 @@ To: Virtualization List <virtualization@lists.linux-foundation.org>
 Cc: linux-pm@vger.kernel.org, linux-kernel@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, levinsasha928@gmail.com, Amit Shah <amit.shah@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The probe and PM restore functions will share this code.
+Delete the vq and flush any pending requests from the block queue on the
+freeze callback to prepare for hibernation.
+
+Re-create the vq in the restore callback to resume normal function.
 
 Signed-off-by: Amit Shah <amit.shah@redhat.com>
 ---
- drivers/block/virtio_blk.c |   19 ++++++++++++++-----
- 1 files changed, 14 insertions(+), 5 deletions(-)
+ drivers/block/virtio_blk.c |   38 ++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 38 insertions(+), 0 deletions(-)
 
 diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-index 4d0b70a..467f218 100644
+index 467f218..a9147a6 100644
 --- a/drivers/block/virtio_blk.c
 +++ b/drivers/block/virtio_blk.c
-@@ -349,6 +349,18 @@ static void virtblk_config_changed(struct virtio_device *vdev)
- 	queue_work(virtblk_wq, &vblk->config_work);
+@@ -568,6 +568,40 @@ static void __devexit virtblk_remove(struct virtio_device *vdev)
+ 	ida_simple_remove(&vd_index_ida, index);
  }
  
-+static int init_vq(struct virtio_blk *vblk)
++#ifdef CONFIG_PM
++static int virtblk_freeze(struct virtio_device *vdev)
 +{
-+	int err = 0;
++	struct virtio_blk *vblk = vdev->priv;
 +
-+	/* We expect one virtqueue, for output. */
-+	vblk->vq = virtio_find_single_vq(vblk->vdev, blk_done, "requests");
-+	if (IS_ERR(vblk->vq))
-+		err = PTR_ERR(vblk->vq);
++	/* Ensure we don't receive any more interrupts */
++	vdev->config->reset(vdev);
 +
-+	return err;
++	flush_work(&vblk->config_work);
++
++	spin_lock_irq(vblk->disk->queue->queue_lock);
++	blk_stop_queue(vblk->disk->queue);
++	spin_unlock_irq(vblk->disk->queue->queue_lock);
++	blk_sync_queue(vblk->disk->queue);
++
++	vdev->config->del_vqs(vdev);
++	return 0;
 +}
 +
- static int __devinit virtblk_probe(struct virtio_device *vdev)
- {
- 	struct virtio_blk *vblk;
-@@ -390,12 +402,9 @@ static int __devinit virtblk_probe(struct virtio_device *vdev)
- 	sg_init_table(vblk->sg, vblk->sg_elems);
- 	INIT_WORK(&vblk->config_work, virtblk_config_changed_work);
++static int virtblk_restore(struct virtio_device *vdev)
++{
++	struct virtio_blk *vblk = vdev->priv;
++	int ret;
++
++	ret = init_vq(vdev->priv);
++	if (!ret) {
++		spin_lock_irq(vblk->disk->queue->queue_lock);
++		blk_start_queue(vblk->disk->queue);
++		spin_unlock_irq(vblk->disk->queue->queue_lock);
++	}
++	return ret;
++}
++#endif
++
+ static const struct virtio_device_id id_table[] = {
+ 	{ VIRTIO_ID_BLOCK, VIRTIO_DEV_ANY_ID },
+ 	{ 0 },
+@@ -593,6 +627,10 @@ static struct virtio_driver __refdata virtio_blk = {
+ 	.probe			= virtblk_probe,
+ 	.remove			= __devexit_p(virtblk_remove),
+ 	.config_changed		= virtblk_config_changed,
++#ifdef CONFIG_PM
++	.freeze			= virtblk_freeze,
++	.restore		= virtblk_restore,
++#endif
+ };
  
--	/* We expect one virtqueue, for output. */
--	vblk->vq = virtio_find_single_vq(vdev, blk_done, "requests");
--	if (IS_ERR(vblk->vq)) {
--		err = PTR_ERR(vblk->vq);
-+	err = init_vq(vblk);
-+	if (err)
- 		goto out_free_vblk;
--	}
- 
- 	vblk->pool = mempool_create_kmalloc_pool(1,sizeof(struct virtblk_req));
- 	if (!vblk->pool) {
+ static int __init init(void)
 -- 
 1.7.7.3
