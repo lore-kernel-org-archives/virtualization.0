@@ -1,8 +1,8 @@
 From: Amit Shah <amit.shah@redhat.com>
-Subject: [PATCH v5 03/11] virtio: console: Move vq and vq buf removal into
-	separate functions
-Date: Thu, 15 Dec 2011 18:15:49 +0530
-Message-ID: <6064de73e48118cbfe7c3eccd53b702ccf7d82b5.1323952933.git.amit.shah@redhat.com>
+Subject: [PATCH v5 04/11] virtio: console: Add freeze and restore handlers to
+	support S4
+Date: Thu, 15 Dec 2011 18:15:50 +0530
+Message-ID: <8540b30b494b5bdd8eba349781e4bf2ca819c08f.1323952934.git.amit.shah@redhat.com>
 References: <cover.1323952933.git.amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -24,126 +24,96 @@ To: Virtualization List <virtualization@lists.linux-foundation.org>
 Cc: linux-pm@vger.kernel.org, linux-kernel@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, levinsasha928@gmail.com, Amit Shah <amit.shah@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This common code will be shared with the PM freeze function.
+Remove all vqs and associated buffers in the freeze callback which
+prepares us to go into hibernation state.  On restore, re-create all the
+vqs and populate the input vqs with buffers to get to the pre-hibernate
+state.
+
+Note: Any outstanding unconsumed buffers are discarded; which means
+there's a possibility of data loss in case the host or the guest didn't
+consume any data already present in the vqs.  This can be addressed in a
+later patch series, perhaps in virtio common code.
 
 Signed-off-by: Amit Shah <amit.shah@redhat.com>
 ---
- drivers/char/virtio_console.c |   68 ++++++++++++++++++++++++-----------------
- 1 files changed, 40 insertions(+), 28 deletions(-)
+ drivers/char/virtio_console.c |   58 +++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 58 insertions(+), 0 deletions(-)
 
 diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index 8e3c46d..e14f5aa 100644
+index e14f5aa..fd2fd6f 100644
 --- a/drivers/char/virtio_console.c
 +++ b/drivers/char/virtio_console.c
-@@ -1271,6 +1271,20 @@ static void remove_port(struct kref *kref)
- 	kfree(port);
- }
- 
-+static void remove_port_data(struct port *port)
-+{
-+	struct port_buffer *buf;
-+
-+	/* Remove unused data this port might have received. */
-+	discard_port_data(port);
-+
-+	reclaim_consumed_buffers(port);
-+
-+	/* Remove buffers we queued up for the Host to send us data in. */
-+	while ((buf = virtqueue_detach_unused_buf(port->in_vq)))
-+		free_buf(buf);
-+}
-+
- /*
-  * Port got unplugged.  Remove port from portdev's list and drop the
-  * kref reference.  If no userspace has this port opened, it will
-@@ -1278,8 +1292,6 @@ static void remove_port(struct kref *kref)
-  */
- static void unplug_port(struct port *port)
- {
--	struct port_buffer *buf;
--
- 	spin_lock_irq(&port->portdev->ports_lock);
- 	list_del(&port->list);
- 	spin_unlock_irq(&port->portdev->ports_lock);
-@@ -1300,14 +1312,7 @@ static void unplug_port(struct port *port)
- 		hvc_remove(port->cons.hvc);
- 	}
- 
--	/* Remove unused data this port might have received. */
--	discard_port_data(port);
--
--	reclaim_consumed_buffers(port);
--
--	/* Remove buffers we queued up for the Host to send us data in. */
--	while ((buf = virtqueue_detach_unused_buf(port->in_vq)))
--		free_buf(buf);
-+	remove_port_data(port);
- 
- 	/*
- 	 * We should just assume the device itself has gone off --
-@@ -1659,6 +1664,28 @@ static const struct file_operations portdev_fops = {
- 	.owner = THIS_MODULE,
+@@ -1844,6 +1844,60 @@ static unsigned int features[] = {
+ 	VIRTIO_CONSOLE_F_MULTIPORT,
  };
  
-+static void remove_vqs(struct ports_device *portdev)
++#ifdef CONFIG_PM
++static int virtcons_freeze(struct virtio_device *vdev)
 +{
-+	portdev->vdev->config->del_vqs(portdev->vdev);
-+	kfree(portdev->in_vqs);
-+	kfree(portdev->out_vqs);
-+}
++	struct ports_device *portdev;
++	struct port *port;
 +
-+static void remove_controlq_data(struct ports_device *portdev)
-+{
-+	struct port_buffer *buf;
-+	unsigned int len;
++	portdev = vdev->priv;
 +
-+	if (!use_multiport(portdev))
-+		return;
++	vdev->config->reset(vdev);
 +
-+	while ((buf = virtqueue_get_buf(portdev->c_ivq, &len)))
-+		free_buf(buf);
-+
-+	while ((buf = virtqueue_detach_unused_buf(portdev->c_ivq)))
-+		free_buf(buf);
-+}
-+
- /*
-  * Once we're further in boot, we get probed like any other virtio
-  * device.
-@@ -1764,9 +1791,7 @@ free_vqs:
- 	/* The host might want to notify mgmt sw about device add failure */
- 	__send_control_msg(portdev, VIRTIO_CONSOLE_BAD_ID,
- 			   VIRTIO_CONSOLE_DEVICE_READY, 0);
--	vdev->config->del_vqs(vdev);
--	kfree(portdev->in_vqs);
--	kfree(portdev->out_vqs);
-+	remove_vqs(portdev);
- free_chrdev:
- 	unregister_chrdev(portdev->chr_major, "virtio-portsdev");
- free:
-@@ -1804,21 +1829,8 @@ static void virtcons_remove(struct virtio_device *vdev)
- 	 * have to just stop using the port, as the vqs are going
- 	 * away.
- 	 */
--	if (use_multiport(portdev)) {
--		struct port_buffer *buf;
--		unsigned int len;
--
--		while ((buf = virtqueue_get_buf(portdev->c_ivq, &len)))
--			free_buf(buf);
--
--		while ((buf = virtqueue_detach_unused_buf(portdev->c_ivq)))
--			free_buf(buf);
--	}
--
--	vdev->config->del_vqs(vdev);
--	kfree(portdev->in_vqs);
--	kfree(portdev->out_vqs);
--
++	cancel_work_sync(&portdev->control_work);
 +	remove_controlq_data(portdev);
++
++	list_for_each_entry(port, &portdev->ports, list) {
++		/*
++		 * We'll ask the host later if the new invocation has
++		 * the port opened or closed.
++		 */
++		port->host_connected = false;
++		remove_port_data(port);
++	}
 +	remove_vqs(portdev);
- 	kfree(portdev);
- }
++
++	return 0;
++}
++
++static int virtcons_restore(struct virtio_device *vdev)
++{
++	struct ports_device *portdev;
++	struct port *port;
++	int ret;
++
++	portdev = vdev->priv;
++
++	ret = init_vqs(portdev);
++	if (ret)
++		return ret;
++
++	if (use_multiport(portdev))
++		fill_queue(portdev->c_ivq, &portdev->cvq_lock);
++
++	list_for_each_entry(port, &portdev->ports, list) {
++		port->in_vq = portdev->in_vqs[port->id];
++		port->out_vq = portdev->out_vqs[port->id];
++
++		fill_queue(port->in_vq, &port->inbuf_lock);
++
++		/* Get port open/close status on the host */
++		send_control_msg(port, VIRTIO_CONSOLE_PORT_READY, 1);
++	}
++	return 0;
++}
++#endif
++
+ static struct virtio_driver virtio_console = {
+ 	.feature_table = features,
+ 	.feature_table_size = ARRAY_SIZE(features),
+@@ -1853,6 +1907,10 @@ static struct virtio_driver virtio_console = {
+ 	.probe =	virtcons_probe,
+ 	.remove =	virtcons_remove,
+ 	.config_changed = config_intr,
++#ifdef CONFIG_PM
++	.freeze =	virtcons_freeze,
++	.restore =	virtcons_restore,
++#endif
+ };
  
+ static int __init init(void)
 -- 
 1.7.7.3
