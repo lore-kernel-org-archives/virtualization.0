@@ -1,19 +1,16 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [RFC 7/11] virtio_pci: new, capability-aware driver.
-Date: Sun, 18 Dec 2011 12:18:32 +0200
-Message-ID: <20111218101831.GB30374@redhat.com>
-References: <87pqfzgy6p.fsf@rustcorp.com.au> <87zkf3fiu2.fsf@rustcorp.com.au>
-	<20111211094256.GB11504@redhat.com>
-	<87boreohhs.fsf@rustcorp.com.au>
-	<20111212182533.GB25916@redhat.com>
-	<87liqhtdnj.fsf@rustcorp.com.au> <20111215063004.GA3630@redhat.com>
-	<87zketp9nz.fsf@rustcorp.com.au>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [Qemu-devel] [RFC 0/4] virtio-mmio transport
+Date: Fri, 16 Dec 2011 16:06:53 +1030
+Message-ID: <87iplhoz62.fsf__34446.5723298073$1324241788$gmane$org@rustcorp.com.au>
+References: <1321282528-19070-1-git-send-email-peter.maydell@linaro.org>
+	<201112120252.35295.paul@codesourcery.com>
+	<1323688579.2391.11.camel@hornet.cambridge.arm.com>
+	<201112121445.27873.paul@codesourcery.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <87zketp9nz.fsf@rustcorp.com.au>
+In-Reply-To: <201112121445.27873.paul@codesourcery.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,68 +20,28 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Sasha Levin <levinsasha928@gmail.com>, virtualization <virtualization@lists.linux-foundation.org>
+To: Paul Brook <paul@codesourcery.com>, Pawel Moll <pawel.moll@arm.com>
+Cc: Peter Maydell <peter.maydell@linaro.org>, virtualization@lists.linux-foundation.org, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, Anthony Liguori <anthony@codemonkey.ws>, Paolo Bonzini <pbonzini@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Dec 16, 2011 at 12:20:08PM +1030, Rusty Russell wrote:
-> On Thu, 15 Dec 2011 10:27:50 +0200, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> > On Tue, Dec 13, 2011 at 12:51:20PM +1030, Rusty Russell wrote:
-> > I mean like this in block:
-> > 
-> > 
-> > 
-> >         /* Host must always specify the capacity. */
-> >         vdev->config->get(vdev, offsetof(struct virtio_blk_config,
-> > capacity),
-> >                           &capacity, sizeof(capacity));
-> > 
-> >         /* If capacity is too big, truncate with warning. */
-> >         if ((sector_t)capacity != capacity) {
-> >                 dev_warn(&vdev->dev, "Capacity %llu too large:
-> > truncating\n",
-> >                          (unsigned long long)capacity);
-> >                 capacity = (sector_t)-1;
-> >         }
-> > 
-> > 
-> > Now let's assume capacity field is changed from 0x8000 to 0x10000
-> > on host. Is it possible that we read two upper bytes
-> > before the change so we see 0x0000....
-> > and 2 lower bytes after the change
-> > so we see 0x....0000 and resulting capacity appears
-> > to be 0?
-> > 
-> > If no why not?
+On Mon, 12 Dec 2011 14:45:26 +0000, Paul Brook <paul@codesourcery.com> wrote:
+> > I can do that, but not this year (on holiday from Friday 16th, without
+> > any access to Internet whatsoever :-) One think to be decided is in what
+> > order the halfs should be filled? Low first, then high? High then low?
+> > Does it matter at all? :-)
 > 
-> Same issue in reverse with the guest setting the MAC address in
-> virtio_net, if the host were reading it.  And virtio_balloon?  We have
-> ignored it, so far.
-> 
-> Perhaps a new feature VIRTIO_F_UNSTABLE?  Which (unlike other features)
-> appears and vanishes around config writes by either side?  Kind of a
-> hack though...
-> 
-> Cheers,
-> Rusty.
+> My inital though was that you shouldn't be changing this value when the ring 
+> is enabled.  Unfortunately you disable the ring by setting the address to zero 
+> so that argument doesn't work :-/
 
-Not sure how this can work in such a setup: when would guest
-check this bit to avoid races?
-A separate registers also seems nicer than a flag.
+It only does that after a reset, and since reset should set the values
+to 0 (I don't think the spec says that, but it will for the new config)
+we needn't do it at all.
 
-Some other possible design choices:
-- a flag to signal config accesses in progress by guest
-  host would need to buffer changes and apply them in one go
-  when flag is cleared
-- a register to make host get/set config in guest memory
-- use a control vq for all devices
+It's just a convenient value for the driver to read and know the ring
+has been cleaned up.
 
-The last two involve defining a structure specifying
-offset and length of device configuration affected.
+I think initialize by QueueNum makes sense.
 
-The last option is preferable if other transports
-besides pci might have the same issue: we solve
-it once and for all this way.
-
--- 
-MST
+Thanks,
+Rusty.
