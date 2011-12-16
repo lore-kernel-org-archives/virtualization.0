@@ -1,17 +1,16 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
 Subject: Re: [RFC 7/11] virtio_pci: new, capability-aware driver.
-Date: Fri, 16 Dec 2011 12:20:08 +1030
-Message-ID: <87zketp9nz.fsf@rustcorp.com.au>
+Date: Fri, 16 Dec 2011 12:28:26 +1030
+Message-ID: <87ty51p9a5.fsf@rustcorp.com.au>
 References: <87pqfzgy6p.fsf@rustcorp.com.au> <87zkf3fiu2.fsf@rustcorp.com.au>
 	<20111211094256.GB11504@redhat.com>
-	<87boreohhs.fsf@rustcorp.com.au>
-	<20111212182533.GB25916@redhat.com>
-	<87liqhtdnj.fsf@rustcorp.com.au> <20111215063004.GA3630@redhat.com>
+	<87boreohhs.fsf@rustcorp.com.au> <20111212114912.GA7946@redhat.com>
+	<4EE64380.2090305@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20111215063004.GA3630@redhat.com>
+In-Reply-To: <4EE64380.2090305@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,46 +20,43 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
+To: Don Dutile <ddutile@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
 Cc: Sasha Levin <levinsasha928@gmail.com>, virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 15 Dec 2011 10:27:50 +0200, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> On Tue, Dec 13, 2011 at 12:51:20PM +1030, Rusty Russell wrote:
-> I mean like this in block:
-> 
-> 
-> 
->         /* Host must always specify the capacity. */
->         vdev->config->get(vdev, offsetof(struct virtio_blk_config,
-> capacity),
->                           &capacity, sizeof(capacity));
-> 
->         /* If capacity is too big, truncate with warning. */
->         if ((sector_t)capacity != capacity) {
->                 dev_warn(&vdev->dev, "Capacity %llu too large:
-> truncating\n",
->                          (unsigned long long)capacity);
->                 capacity = (sector_t)-1;
->         }
-> 
-> 
-> Now let's assume capacity field is changed from 0x8000 to 0x10000
-> on host. Is it possible that we read two upper bytes
-> before the change so we see 0x0000....
-> and 2 lower bytes after the change
-> so we see 0x....0000 and resulting capacity appears
-> to be 0?
-> 
-> If no why not?
+On Mon, 12 Dec 2011 13:10:08 -0500, Don Dutile <ddutile@redhat.com> wrote:
+> On 12/12/2011 06:49 AM, Michael S. Tsirkin wrote:
+> > On Mon, Dec 12, 2011 at 09:15:03AM +1030, Rusty Russell wrote:
+> >> On Sun, 11 Dec 2011 11:42:56 +0200, "Michael S. Tsirkin"<mst@redhat.com>  wrote:
+> >>> On Thu, Dec 08, 2011 at 09:09:33PM +1030, Rusty Russell wrote:
+> >>>> +/* There is no iowrite64.  We use two 32-bit ops. */
+> >>>> +static void iowrite64(u64 val, const __le64 *addr)
+> >>>> +{
+> >>>> +	iowrite32((u32)val, (__le32 *)addr);
+> >>>> +	iowrite32(val>>  32, (__le32 *)addr + 1);
+> >>>> +}
+> >>>> +
+> >>>
+> >>> Let's put addr_lo/addr_hi in the structure then,
+> >>> to make the fact this field is not atomic explicit?
+> >>
+> >> Good point, assuming I haven't missed something.
+> >>
+> >> Are 64-bit accesses actually unknown in PCI-land?  Or is this a limited
+> >> availability thing?
+> >>
+> >> Thanks,
+> >> Rusty.
+> >
+> > I think PCI can optionally support atomic 64 bit accesses, but not all
+> > architectures can generate them.
+> >
+> yes. PCI(e) support atomic 64-bit ops; it's dependent on CPU & chipset interface
+> to PCI that determines ability to generate a 64-bit length xaction.
 
-Same issue in reverse with the guest setting the MAC address in
-virtio_net, if the host were reading it.  And virtio_balloon?  We have
-ignored it, so far.
+Does this mean it's possible to detect inside Linux?  I'd like to use it
+if we can, but if everyone is really going to do two 32 bit writes, then
+we should just define it that way.
 
-Perhaps a new feature VIRTIO_F_UNSTABLE?  Which (unlike other features)
-appears and vanishes around config writes by either side?  Kind of a
-hack though...
-
-Cheers,
+Thanks,
 Rusty.
