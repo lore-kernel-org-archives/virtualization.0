@@ -1,15 +1,13 @@
-From: Zang Hongyong <zanghongyong@huawei.com>
-Subject: Re: [PATCH 0/2] vhot-net: Use kvm_memslots instead of vhost_memory to
-	translate GPA to HVA
-Date: Fri, 16 Dec 2011 15:40:01 +0800
-Message-ID: <4EEAF5D1.2080805__771.75540286607$1324331283$gmane$org@huawei.com>
+From: zanghongyong@huawei.com
+Subject: [PATCH 1/2] kvm: Introduce get_kvm_from_task
+Date: Fri, 16 Dec 2011 13:32:07 +0800
+Message-ID: <1324013528-3663-2-git-send-email-zanghongyong__43638.2521329962$1324331284$gmane$org@huawei.com>
 References: <1324013528-3663-1-git-send-email-zanghongyong@huawei.com>
-	<1324019151.4496.9.camel@lappy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-reply-to: <1324019151.4496.9.camel@lappy>
+In-reply-to: <1324013528-3663-1-git-send-email-zanghongyong@huawei.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,27 +17,54 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Sasha Levin <levinsasha928@gmail.com>
-Cc: wusongwei@huawei.com, kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, hanweidong@huawei.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, xiaowei.yang@huawei.com
+To: linux-kernel@vger.kernel.org
+Cc: wusongwei@huawei.com, kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, hanweidong@huawei.com, virtualization@lists.linux-foundation.org, xiaowei.yang@huawei.com, Hongyong Zang <zanghongyong@huawei.com>, levinsasha928@gmail.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-5LqOIDIwMTEvMTIvMTYs5pif5pyf5LqUIDE1OjA1LCBTYXNoYSBMZXZpbiDlhpnpgZM6Cj4gT24g
-RnJpLCAyMDExLTEyLTE2IGF0IDEzOjMyICswODAwLCB6YW5naG9uZ3lvbmdAaHVhd2VpLmNvbSB3
-cm90ZToKPj4gRnJvbTogSG9uZ3lvbmcgWmFuZzx6YW5naG9uZ3lvbmdAaHVhd2VpLmNvbT4KPj4K
-Pj4gVmhvc3QtbmV0IHVzZXMgaXRzIG93biB2aG9zdF9tZW1vcnksIHdoaWNoIHJlc3VsdHMgZnJv
-bSB1c2VyIHNwYWNlIChxZW11KSBpbmZvLAo+PiB0byB0cmFuc2xhdGUgR1BBIHRvIEhWQS4gU2lu
-Y2Uga2VybmVsJ3Mga3ZtIHN0cnVjdHVyZSBhbHJlYWR5IG1haW50YWlucyB0aGUKPj4gYWRkcmVz
-cyByZWxhdGlvbnNoaXAgaW4gaXRzIG1lbWJlciAqa3ZtX21lbXNsb3RzKiwgdGhlc2UgcGF0Y2hl
-cyB1c2Uga2VybmVsJ3MKPj4ga3ZtX21lbXNsb3RzIGRpcmVjdGx5IHdpdGhvdXQgdGhlIG5lZWQg
-b2YgaW5pdGlhbGl6YXRpb24gYW5kIG1haW50ZW5hbmNlIG9mCj4+IHZob3N0X21lbW9yeS4KPiBD
-b25jZXB0dWFsbHksIHZob3N0IGlzbid0IGF3YXJlIG9mIEtWTSAtIGl0J3MganVzdCBhIGRyaXZl
-ciB3aGljaCBtb3Zlcwo+IGRhdGEgZnJvbSB2cSB0byBhIHRhcCBkZXZpY2UgYW5kIGJhY2suIFlv
-dSBjYW4ndCBzaW1wbHkgYWRkIEtWTSBzcGVjaWZpYwo+IGNvZGUgaW50byB2aG9zdC4KPgo+IFdo
-YXRzIHRoZSBwZXJmb3JtYW5jZSBiZW5lZml0Pwo+CkJ1dCB2aG9zdC1uZXQgaXMgb25seSB1c2Vk
-IGluIHZpcnR1YWxpemF0aW9uIHNpdHVhdGlvbi4gdmhvc3RfbWVtb3J5IGlzIAptYWludGFpbmVk
-CmJ5IHVzZXIgc3BhY2UgcWVtdS4KSW4gdGhpcyB3YXksIHRoZSBtZW1vcnkgcmVsYXRpb25zaGlw
-IGNhbiBiZSBhY2NxdWlyZWQgZnJvbSBrZXJuZWwgCndpdGhvdXQgdGhlCm5lZWQgb2YgbWFpbnRh
-aW5lbmNlIG9mIHZob3N0X21lbW9yeSBmcm9tIHFlbXUuCgpfX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmly
-dHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51
-eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+From: Hongyong Zang <zanghongyong@huawei.com>
+
+This function finds the kvm structure from its corresponding user
+space process, such as qemu process.
+
+Signed-off-by: Hongyong Zang <zanghongyong@huawei.com>
+---
+ include/linux/kvm_host.h |    2 +-
+ virt/kvm/kvm_main.c      |   13 +++++++++++++
+ 2 files changed, 14 insertions(+), 1 deletions(-)
+
+diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
+index 8c5c303..1b2f027 100644
+--- a/include/linux/kvm_host.h
++++ b/include/linux/kvm_host.h
+@@ -801,4 +801,4 @@ static inline bool kvm_check_request(int req, struct kvm_vcpu *vcpu)
+ }
+ 
+ #endif
+-
++struct kvm *get_kvm_from_task(struct task_struct *task);
+diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
+index e289486..458fe29 100644
+--- a/virt/kvm/kvm_main.c
++++ b/virt/kvm/kvm_main.c
+@@ -2664,6 +2664,19 @@ static const struct file_operations *stat_fops[] = {
+ 	[KVM_STAT_VM]   = &vm_stat_fops,
+ };
+ 
++struct kvm* get_kvm_from_task(struct task_struct *task)
++{
++        struct kvm *kvm;
++
++        list_for_each_entry(kvm, &vm_list, vm_list) {
++                if(kvm->mm == task->mm)
++                    return kvm;
++        }
++
++        return NULL;
++}
++EXPORT_SYMBOL_GPL(get_kvm_from_task);
++
+ static void kvm_init_debug(void)
+ {
+ 	struct kvm_stats_debugfs_item *p;
+-- 
+1.7.1
