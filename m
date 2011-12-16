@@ -1,13 +1,15 @@
-From: zanghongyong@huawei.com
-Subject: [PATCH 2/2] vhost-net: Use kvm_memslots for address translation
-Date: Fri, 16 Dec 2011 13:32:08 +0800
-Message-ID: <1324013528-3663-3-git-send-email-zanghongyong__4394.59915874085$1324331277$gmane$org@huawei.com>
+From: Zang Hongyong <zanghongyong@huawei.com>
+Subject: Re: [PATCH 0/2] vhot-net: Use kvm_memslots instead of vhost_memory to
+	translate GPA to HVA
+Date: Fri, 16 Dec 2011 15:40:01 +0800
+Message-ID: <4EEAF5D1.2080805__771.75540286607$1324331283$gmane$org@huawei.com>
 References: <1324013528-3663-1-git-send-email-zanghongyong@huawei.com>
+	<1324019151.4496.9.camel@lappy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-reply-to: <1324013528-3663-1-git-send-email-zanghongyong@huawei.com>
+In-reply-to: <1324019151.4496.9.camel@lappy>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,162 +19,27 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org
-Cc: wusongwei@huawei.com, kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, hanweidong@huawei.com, virtualization@lists.linux-foundation.org, xiaowei.yang@huawei.com, Hongyong Zang <zanghongyong@huawei.com>, levinsasha928@gmail.com
+To: Sasha Levin <levinsasha928@gmail.com>
+Cc: wusongwei@huawei.com, kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, hanweidong@huawei.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, xiaowei.yang@huawei.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Hongyong Zang <zanghongyong@huawei.com>
-
-Use kvm's memslots instead of vhost_memory to traslate address
-from GPA to HVA.
-
-Signed-off-by: Hongyong Zang <zanghongyong@huawei.com>
----
- drivers/vhost/vhost.c |   53 ++++++++++++++++++------------------------------
- 1 files changed, 20 insertions(+), 33 deletions(-)
-
-diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-index c14c42b..63e4322 100644
---- a/drivers/vhost/vhost.c
-+++ b/drivers/vhost/vhost.c
-@@ -11,6 +11,7 @@
-  * Generic code for virtio server in host kernel.
-  */
- 
-+#include <linux/kvm_host.h>
- #include <linux/eventfd.h>
- #include <linux/vhost.h>
- #include <linux/virtio_net.h>
-@@ -904,23 +905,6 @@ done:
- 	return r;
- }
- 
--static const struct vhost_memory_region *find_region(struct vhost_memory *mem,
--						     __u64 addr, __u32 len)
--{
--	struct vhost_memory_region *reg;
--	int i;
--
--	/* linear search is not brilliant, but we really have on the order of 6
--	 * regions in practice */
--	for (i = 0; i < mem->nregions; ++i) {
--		reg = mem->regions + i;
--		if (reg->guest_phys_addr <= addr &&
--		    reg->guest_phys_addr + reg->memory_size - 1 >= addr)
--			return reg;
--	}
--	return NULL;
--}
--
- /* TODO: This is really inefficient.  We need something like get_user()
-  * (instruction directly accesses the data, with an exception table entry
-  * returning -EFAULT). See Documentation/x86/exception-tables.txt.
-@@ -1046,40 +1030,36 @@ int vhost_init_used(struct vhost_virtqueue *vq)
- 	return get_user(vq->last_used_idx, &vq->used->idx);
- }
- 
--static int translate_desc(struct vhost_dev *dev, u64 addr, u32 len,
-+static int translate_desc(struct kvm *kvm, u64 addr, u32 len,
- 			  struct iovec iov[], int iov_size)
- {
--	const struct vhost_memory_region *reg;
--	struct vhost_memory *mem;
-+	const struct kvm_memory_slot *slot;
-+	gfn_t gfn = addr >> PAGE_SHIFT;
- 	struct iovec *_iov;
- 	u64 s = 0;
- 	int ret = 0;
- 
--	rcu_read_lock();
--
--	mem = rcu_dereference(dev->memory);
- 	while ((u64)len > s) {
- 		u64 size;
- 		if (unlikely(ret >= iov_size)) {
- 			ret = -ENOBUFS;
- 			break;
- 		}
--		reg = find_region(mem, addr, len);
--		if (unlikely(!reg)) {
-+		slot = gfn_to_memslot(kvm, gfn);
-+		if (unlikely(!slot)) {
- 			ret = -EFAULT;
- 			break;
- 		}
- 		_iov = iov + ret;
--		size = reg->memory_size - addr + reg->guest_phys_addr;
-+		size = slot->npages*VHOST_PAGE_SIZE - addr + (slot->base_gfn<<PAGE_SHIFT);
- 		_iov->iov_len = min((u64)len, size);
- 		_iov->iov_base = (void __user *)(unsigned long)
--			(reg->userspace_addr + addr - reg->guest_phys_addr);
-+			(slot->userspace_addr + addr - (slot->base_gfn<<PAGE_SHIFT));
- 		s += size;
- 		addr += size;
- 		++ret;
- 	}
- 
--	rcu_read_unlock();
- 	return ret;
- }
- 
-@@ -1104,7 +1084,7 @@ static unsigned next_desc(struct vring_desc *desc)
- 	return next;
- }
- 
--static int get_indirect(struct vhost_dev *dev, struct vhost_virtqueue *vq,
-+static int get_indirect(struct kvm *kvm, struct vhost_virtqueue *vq,
- 			struct iovec iov[], unsigned int iov_size,
- 			unsigned int *out_num, unsigned int *in_num,
- 			struct vhost_log *log, unsigned int *log_num,
-@@ -1123,7 +1103,7 @@ static int get_indirect(struct vhost_dev *dev, struct vhost_virtqueue *vq,
- 		return -EINVAL;
- 	}
- 
--	ret = translate_desc(dev, indirect->addr, indirect->len, vq->indirect,
-+	ret = translate_desc(kvm, indirect->addr, indirect->len, vq->indirect,
- 			     UIO_MAXIOV);
- 	if (unlikely(ret < 0)) {
- 		vq_err(vq, "Translation failure %d in indirect.\n", ret);
-@@ -1163,7 +1143,7 @@ static int get_indirect(struct vhost_dev *dev, struct vhost_virtqueue *vq,
- 			return -EINVAL;
- 		}
- 
--		ret = translate_desc(dev, desc.addr, desc.len, iov + iov_count,
-+		ret = translate_desc(kvm, desc.addr, desc.len, iov + iov_count,
- 				     iov_size - iov_count);
- 		if (unlikely(ret < 0)) {
- 			vq_err(vq, "Translation failure %d indirect idx %d\n",
-@@ -1209,6 +1189,13 @@ int vhost_get_vq_desc(struct vhost_dev *dev, struct vhost_virtqueue *vq,
- 	unsigned int i, head, found = 0;
- 	u16 last_avail_idx;
- 	int ret;
-+	struct kvm *kvm = get_kvm_from_task(current);
-+
-+	if(unlikely(kvm == NULL)){
-+		vq_err(vq, "Failed to get corresponding kvm struct of vhost-%d\n",
-+			current->pid);
-+		return -EFAULT;
-+	}
- 
- 	/* Check it isn't doing very strange things with descriptor numbers. */
- 	last_avail_idx = vq->last_avail_idx;
-@@ -1274,7 +1261,7 @@ int vhost_get_vq_desc(struct vhost_dev *dev, struct vhost_virtqueue *vq,
- 			return -EFAULT;
- 		}
- 		if (desc.flags & VRING_DESC_F_INDIRECT) {
--			ret = get_indirect(dev, vq, iov, iov_size,
-+			ret = get_indirect(kvm, vq, iov, iov_size,
- 					   out_num, in_num,
- 					   log, log_num, &desc);
- 			if (unlikely(ret < 0)) {
-@@ -1285,7 +1272,7 @@ int vhost_get_vq_desc(struct vhost_dev *dev, struct vhost_virtqueue *vq,
- 			continue;
- 		}
- 
--		ret = translate_desc(dev, desc.addr, desc.len, iov + iov_count,
-+		ret = translate_desc(kvm, desc.addr, desc.len, iov + iov_count,
- 				     iov_size - iov_count);
- 		if (unlikely(ret < 0)) {
- 			vq_err(vq, "Translation failure %d descriptor idx %d\n",
--- 
-1.7.1
+5LqOIDIwMTEvMTIvMTYs5pif5pyf5LqUIDE1OjA1LCBTYXNoYSBMZXZpbiDlhpnpgZM6Cj4gT24g
+RnJpLCAyMDExLTEyLTE2IGF0IDEzOjMyICswODAwLCB6YW5naG9uZ3lvbmdAaHVhd2VpLmNvbSB3
+cm90ZToKPj4gRnJvbTogSG9uZ3lvbmcgWmFuZzx6YW5naG9uZ3lvbmdAaHVhd2VpLmNvbT4KPj4K
+Pj4gVmhvc3QtbmV0IHVzZXMgaXRzIG93biB2aG9zdF9tZW1vcnksIHdoaWNoIHJlc3VsdHMgZnJv
+bSB1c2VyIHNwYWNlIChxZW11KSBpbmZvLAo+PiB0byB0cmFuc2xhdGUgR1BBIHRvIEhWQS4gU2lu
+Y2Uga2VybmVsJ3Mga3ZtIHN0cnVjdHVyZSBhbHJlYWR5IG1haW50YWlucyB0aGUKPj4gYWRkcmVz
+cyByZWxhdGlvbnNoaXAgaW4gaXRzIG1lbWJlciAqa3ZtX21lbXNsb3RzKiwgdGhlc2UgcGF0Y2hl
+cyB1c2Uga2VybmVsJ3MKPj4ga3ZtX21lbXNsb3RzIGRpcmVjdGx5IHdpdGhvdXQgdGhlIG5lZWQg
+b2YgaW5pdGlhbGl6YXRpb24gYW5kIG1haW50ZW5hbmNlIG9mCj4+IHZob3N0X21lbW9yeS4KPiBD
+b25jZXB0dWFsbHksIHZob3N0IGlzbid0IGF3YXJlIG9mIEtWTSAtIGl0J3MganVzdCBhIGRyaXZl
+ciB3aGljaCBtb3Zlcwo+IGRhdGEgZnJvbSB2cSB0byBhIHRhcCBkZXZpY2UgYW5kIGJhY2suIFlv
+dSBjYW4ndCBzaW1wbHkgYWRkIEtWTSBzcGVjaWZpYwo+IGNvZGUgaW50byB2aG9zdC4KPgo+IFdo
+YXRzIHRoZSBwZXJmb3JtYW5jZSBiZW5lZml0Pwo+CkJ1dCB2aG9zdC1uZXQgaXMgb25seSB1c2Vk
+IGluIHZpcnR1YWxpemF0aW9uIHNpdHVhdGlvbi4gdmhvc3RfbWVtb3J5IGlzIAptYWludGFpbmVk
+CmJ5IHVzZXIgc3BhY2UgcWVtdS4KSW4gdGhpcyB3YXksIHRoZSBtZW1vcnkgcmVsYXRpb25zaGlw
+IGNhbiBiZSBhY2NxdWlyZWQgZnJvbSBrZXJuZWwgCndpdGhvdXQgdGhlCm5lZWQgb2YgbWFpbnRh
+aW5lbmNlIG9mIHZob3N0X21lbW9yeSBmcm9tIHFlbXUuCgpfX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmly
+dHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51
+eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
