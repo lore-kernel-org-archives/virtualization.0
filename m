@@ -1,16 +1,21 @@
-From: Zang Hongyong <zanghongyong@huawei.com>
-Subject: Re: [PATCH 0/2] vhot-net: Use kvm_memslots instead of vhost_memory to
-	translate GPA to HVA
-Date: Fri, 16 Dec 2011 16:18:45 +0800
-Message-ID: <4EEAFEE5.3000406__24766.3679336712$1324331288$gmane$org@huawei.com>
-References: <1324013528-3663-1-git-send-email-zanghongyong@huawei.com>
-	<1324019151.4496.9.camel@lappy> <4EEAF5D1.2080805@huawei.com>
-	<1324022358.4496.25.camel@lappy>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [RFC 7/11] virtio_pci: new, capability-aware driver.
+Date: Mon, 19 Dec 2011 21:38:42 +1030
+Message-ID: <871us0om2t.fsf@rustcorp.com.au>
+References: <87pqfzgy6p.fsf@rustcorp.com.au> <87zkf3fiu2.fsf@rustcorp.com.au>
+	<20111211094256.GB11504@redhat.com>
+	<87boreohhs.fsf@rustcorp.com.au>
+	<20111212182533.GB25916@redhat.com>
+	<87liqhtdnj.fsf@rustcorp.com.au> <20111215063004.GA3630@redhat.com>
+	<87zketp9nz.fsf@rustcorp.com.au>
+	<20111218101831.GB30374@redhat.com>
+	<87bor5nlht.fsf@rustcorp.com.au>
+	<20111219091324.GA19535@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-2022-jp"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-reply-to: <1324022358.4496.25.camel@lappy>
+In-Reply-To: <20111219091324.GA19535@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,49 +25,55 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Sasha Levin <levinsasha928@gmail.com>
-Cc: wusongwei@huawei.com, kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, hanweidong@huawei.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, xiaowei.yang@huawei.com
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>, Sasha Levin <levinsasha928@gmail.com>, Pawel Moll <pawel.moll@arm.com>, virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-于 2011/12/16,星期五 15:59, Sasha Levin 写道:
-> On Fri, 2011-12-16 at 15:40 +0800, Zang Hongyong wrote:
->> 于 2011/12/16,星期五 15:05, Sasha Levin 写道:
->>> On Fri, 2011-12-16 at 13:32 +0800, zanghongyong@huawei.com wrote:
->>>> From: Hongyong Zang<zanghongyong@huawei.com>
->>>>
->>>> Vhost-net uses its own vhost_memory, which results from user space (qemu) info,
->>>> to translate GPA to HVA. Since kernel's kvm structure already maintains the
->>>> address relationship in its member *kvm_memslots*, these patches use kernel's
->>>> kvm_memslots directly without the need of initialization and maintenance of
->>>> vhost_memory.
->>> Conceptually, vhost isn't aware of KVM - it's just a driver which moves
->>> data from vq to a tap device and back. You can't simply add KVM specific
->>> code into vhost.
->>>
->>> Whats the performance benefit?
->>>
->> But vhost-net is only used in virtualization situation. vhost_memory is 
->> maintained
->> by user space qemu.
->> In this way, the memory relationship can be accquired from kernel 
->> without the
->> need of maintainence of vhost_memory from qemu.
-> You can't assume that vhost-* is used only along with qemu/kvm. Just as
-> virtio has more uses than just virtualization (heres one:
-> https://lkml.org/lkml/2011/10/25/139 ), there are more uses for vhost as
-> well.
->
-> There has been a great deal of effort to keep vhost and kvm untangled.
-> One example is the memory translation it has to do, another one is the
-> eventfd/irqfd thing it does just so it could signal an IRQ in the guest
-> instead of accessing the guest directly.
->
-> If you do see a great performance increase when tying vhost and KVM
-> together, it may be worth it to create some sort of an in-kernel
-> vhost-kvm bridging thing, but if the performance isn't noticeable we're
-> better off just leaving it as is and keeping the vhost code general.
->
-Thanks for your explanation.
-Since memory layout is seldom changed after guest boots, the situation
-manily occurs during initialization. There's no need for vhost-kvm
-bridge now.
+On Mon, 19 Dec 2011 11:13:26 +0200, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> On Mon, Dec 19, 2011 at 04:36:38PM +1030, Rusty Russell wrote:
+> > On Sun, 18 Dec 2011 12:18:32 +0200, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> > > On Fri, Dec 16, 2011 at 12:20:08PM +1030, Rusty Russell wrote:
+> > > > Perhaps a new feature VIRTIO_F_UNSTABLE?  Which (unlike other features)
+> > > > appears and vanishes around config writes by either side?  Kind of a
+> > > > hack though...
+> > > 
+> > > Not sure how this can work in such a setup: when would guest
+> > > check this bit to avoid races?
+> > > A separate registers also seems nicer than a flag.
+> > > 
+> > > Some other possible design choices:
+> > > - a flag to signal config accesses in progress by guest
+> > >   host would need to buffer changes and apply them in one go
+> > >   when flag is cleared
+> > > - a register to make host get/set config in guest memory
+> > > - use a control vq for all devices
+> > 
+> > - seqlock-style generation count register(s)?
+> >   Has the advantage of
+> >   being a noop if things never change.
+
+Actually, the host doesn't need anything, since it can always lock out
+the guest while it updates the area.
+
+It's the guest which can't do atomic updates.
+
+> The counter can be in guest memory, right? So we don't pay extra
+> exits.
+
+Could be, but I'm not delighted about the design.  What does the host do
+if the guest screws things up?  How long do you wait for them to
+complete the seqlock?  Or does it save the old version for use in the
+duration?
+
+And we don't have any atomic guest write problems that I know of.  We
+can solve it in future (by specifying a config queue).
+
+> > - continue to ignore it ;)
+> 
+> Since you decided on a config layout redesign it seems a good time to
+> fix architectural problems ...
+
+Yes, indeed.
+
+Cheers,
+Rusty.
