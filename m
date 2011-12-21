@@ -1,11 +1,22 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: [PATCH] virtio: harsher barriers for virtio-mmio.
-Date: Wed, 21 Dec 2011 15:51:37 +1030
-Message-ID: <87k45qjy8u.fsf@rustcorp.com.au>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH RFC] virtio_net: fix refill related races
+Date: Wed, 21 Dec 2011 11:06:37 +0200
+Message-ID: <20111221090637.GA31592@redhat.com>
+References: <20111211144428.GB14381@redhat.com>
+	<878vmioh10.fsf@rustcorp.com.au> <20111212115405.GB7946@redhat.com>
+	<87iplltd0g.fsf@rustcorp.com.au>
+	<20111220190908.GC25689@redhat.com>
+	<20111220190946.GD10752@google.com>
+	<20111220193055.GA26392@redhat.com>
+	<20111220193154.GG10752@google.com>
+	<20111220194518.GB26692@redhat.com>
+	<87hb0udd2h.fsf@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <87hb0udd2h.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,242 +26,148 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: torvalds@linux-foundation.org
-Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, rhod <rhod@redhat.com>, linux-arm-kernel@lists.infradead.org
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Tejun Heo <tj@kernel.org>, Amit Shah <amit.shah@redhat.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-We were cheating with our barriers; using the smp ones rather than the
-real device ones.  That was fine, until virtio-mmio came along, which
-could be talking to a real device (a non-SMP CPU).
+On Wed, Dec 21, 2011 at 10:13:18AM +1030, Rusty Russell wrote:
+> On Tue, 20 Dec 2011 21:45:19 +0200, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> > On Tue, Dec 20, 2011 at 11:31:54AM -0800, Tejun Heo wrote:
+> > > On Tue, Dec 20, 2011 at 09:30:55PM +0200, Michael S. Tsirkin wrote:
+> > > > Hmm, in that case it looks like a nasty race could get
+> > > > triggered, with try_fill_recv run on multiple CPUs in parallel,
+> > > > corrupting the linked list within the vq.
+> > > > 
+> > > > Using the mutex as my patch did will fix that naturally, as well.
+> > > 
+> > > Don't know the code but just use nrt wq.  There's even a system one
+> > > called system_nrq_wq.
+> > > 
+> > > Thanks.
+> > 
+> > We can, but we need the mutex for other reasons, anyway.
+> 
+> Well, here's the alternate approach.  What do you think?
 
-Unfortunately, just putting back the real barriers (reverting
-d57ed95d) causes a performance regression on virtio-pci.  In
-particular, Amos reports netbench's TCP_RR over virtio_net CPU
-utilization increased up to 35% while throughput went down by up to
-14%.
+It looks very clean, thanks. Some documentation suggestions below.
+Also - Cc stable on this and the block patch?
 
-By comparison, this branch is in the noise.
+> Finding two wq issues makes you justifiably cautious, but it almost
+> feels like giving up to simply wrap it in a lock.  The APIs are designed
+> to let us do it without a lock; I was just using them wrong.
 
-Reference: https://lkml.org/lkml/2011/12/11/22
+One thing I note is that this scheme works because there's a single
+entity disabling/enabling napi and the refill thread.
+So it's possible that Amit will need to add a lock and track NAPI
+state anyway to make suspend work. But we'll see.
 
-Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
----
- drivers/lguest/lguest_device.c |   10 ++++++----
- drivers/s390/kvm/kvm_virtio.c  |    2 +-
- drivers/virtio/virtio_mmio.c   |    7 ++++---
- drivers/virtio/virtio_pci.c    |    4 ++--
- drivers/virtio/virtio_ring.c   |   34 +++++++++++++++++++++-------------
- include/linux/virtio_ring.h    |    1 +
- tools/virtio/linux/virtio.h    |    1 +
- tools/virtio/virtio_test.c     |    3 ++-
- 8 files changed, 38 insertions(+), 24 deletions(-)
+> Two patches in one mail.  It's gauche, but it's an RFC only (untested).
+> 
+> Cheers,
+> Rusty.
+> 
+> virtio_net: set/cancel work on ndo_open/ndo_stop
+> 
+> Michael S. Tsirkin noticed that we could run the refill work after
+> ndo_close, which can re-enable napi - we don't disable it until
+> virtnet_remove.  This is clearly wrong, so move the workqueue control
+> to ndo_open and ndo_stop (aka. virtnet_open and virtnet_close).
+> 
+> One subtle point: virtnet_probe() could simply fail if it couldn't
+> allocate a receive buffer, but that's less polite in virtnet_open() so
+> we schedule a refill as we do in the normal receive path if we run out
+> of memory.
+> 
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -719,6 +719,10 @@ static int virtnet_open(struct net_devic
+>  {
+>  	struct virtnet_info *vi = netdev_priv(dev);
+>  
+> +	/* Make sure we have some buffersl if oom use wq. */
 
-diff --git a/drivers/lguest/lguest_device.c b/drivers/lguest/lguest_device.c
---- a/drivers/lguest/lguest_device.c
-+++ b/drivers/lguest/lguest_device.c
-@@ -291,11 +291,13 @@ static struct virtqueue *lg_find_vq(stru
- 	}
- 
- 	/*
--	 * OK, tell virtio_ring.c to set up a virtqueue now we know its size
--	 * and we've got a pointer to its pages.
-+	 * OK, tell virtio_ring.c to set up a virtqueue now we know its size
-+	 * and we've got a pointer to its pages.  Note that we set weak_barriers
-+	 * to 'true': the host just a(nother) SMP CPU, so we only need inter-cpu
-+	 * barriers.
- 	 */
--	vq = vring_new_virtqueue(lvq->config.num, LGUEST_VRING_ALIGN,
--				 vdev, lvq->pages, lg_notify, callback, name);
-+	vq = vring_new_virtqueue(lvq->config.num, LGUEST_VRING_ALIGN, vdev,
-+				 true, lvq->pages, lg_notify, callback, name);
- 	if (!vq) {
- 		err = -ENOMEM;
- 		goto unmap;
-diff --git a/drivers/s390/kvm/kvm_virtio.c b/drivers/s390/kvm/kvm_virtio.c
---- a/drivers/s390/kvm/kvm_virtio.c
-+++ b/drivers/s390/kvm/kvm_virtio.c
-@@ -198,7 +198,7 @@ static struct virtqueue *kvm_find_vq(str
- 		goto out;
- 
- 	vq = vring_new_virtqueue(config->num, KVM_S390_VIRTIO_RING_ALIGN,
--				 vdev, (void *) config->address,
-+				 vdev, true, (void *) config->address,
- 				 kvm_notify, callback, name);
- 	if (!vq) {
- 		err = -ENOMEM;
-diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
---- a/drivers/virtio/virtio_mmio.c
-+++ b/drivers/virtio/virtio_mmio.c
-@@ -309,9 +309,10 @@ static struct virtqueue *vm_setup_vq(str
- 	writel(virt_to_phys(info->queue) >> PAGE_SHIFT,
- 			vm_dev->base + VIRTIO_MMIO_QUEUE_PFN);
- 
--	/* Create the vring */
--	vq = vring_new_virtqueue(info->num, VIRTIO_MMIO_VRING_ALIGN,
--				 vdev, info->queue, vm_notify, callback, name);
-+	/* Create the vring: no weak barriers, the other side is could
-+	 * be an independent "device". */
-+	vq = vring_new_virtqueue(info->num, VIRTIO_MMIO_VRING_ALIGN, vdev,
-+				 false, info->queue, vm_notify, callback, name);
- 	if (!vq) {
- 		err = -ENOMEM;
- 		goto error_new_virtqueue;
-diff --git a/drivers/virtio/virtio_pci.c b/drivers/virtio/virtio_pci.c
---- a/drivers/virtio/virtio_pci.c
-+++ b/drivers/virtio/virtio_pci.c
-@@ -414,8 +414,8 @@ static struct virtqueue *setup_vq(struct
- 		  vp_dev->ioaddr + VIRTIO_PCI_QUEUE_PFN);
- 
- 	/* create the vring */
--	vq = vring_new_virtqueue(info->num, VIRTIO_PCI_VRING_ALIGN,
--				 vdev, info->queue, vp_notify, callback, name);
-+	vq = vring_new_virtqueue(info->num, VIRTIO_PCI_VRING_ALIGN, vdev,
-+				 true, info->queue, vp_notify, callback, name);
- 	if (!vq) {
- 		err = -ENOMEM;
- 		goto out_activate_queue;
-diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -28,17 +28,20 @@
- #ifdef CONFIG_SMP
- /* Where possible, use SMP barriers which are more lightweight than mandatory
-  * barriers, because mandatory barriers control MMIO effects on accesses
-- * through relaxed memory I/O windows (which virtio does not use). */
--#define virtio_mb() smp_mb()
--#define virtio_rmb() smp_rmb()
--#define virtio_wmb() smp_wmb()
-+ * through relaxed memory I/O windows (which virtio-pci does not use). */
-+#define virtio_mb(vq) \
-+	do { if ((vq)->weak_barriers) smp_mb(); else mb(); } while(0)
-+#define virtio_rmb(vq) \
-+	do { if ((vq)->weak_barriers) smp_rmb(); else rmb(); } while(0)
-+#define virtio_wmb(vq) \
-+	do { if ((vq)->weak_barriers) smp_rmb(); else rmb(); } while(0)
- #else
- /* We must force memory ordering even if guest is UP since host could be
-  * running on another CPU, but SMP barriers are defined to barrier() in that
-  * configuration. So fall back to mandatory barriers instead. */
--#define virtio_mb() mb()
--#define virtio_rmb() rmb()
--#define virtio_wmb() wmb()
-+#define virtio_mb(vq) mb()
-+#define virtio_rmb(vq) rmb()
-+#define virtio_wmb(vq) wmb()
- #endif
- 
- #ifdef DEBUG
-@@ -77,6 +80,9 @@ struct vring_virtqueue
- 	/* Actual memory layout for this queue */
- 	struct vring vring;
- 
-+	/* Can we use weak barriers? */
-+	bool weak_barriers;
-+
- 	/* Other side has made a mess, don't try any more. */
- 	bool broken;
- 
-@@ -245,14 +251,14 @@ void virtqueue_kick(struct virtqueue *_v
- 	START_USE(vq);
- 	/* Descriptors and available array need to be set before we expose the
- 	 * new available array entries. */
--	virtio_wmb();
-+	virtio_wmb(vq);
- 
- 	old = vq->vring.avail->idx;
- 	new = vq->vring.avail->idx = old + vq->num_added;
- 	vq->num_added = 0;
- 
- 	/* Need to update avail index before checking if we should notify */
--	virtio_mb();
-+	virtio_mb(vq);
- 
- 	if (vq->event ?
- 	    vring_need_event(vring_avail_event(&vq->vring), new, old) :
-@@ -314,7 +320,7 @@ void *virtqueue_get_buf(struct virtqueue
- 	}
- 
- 	/* Only get used array entries after they have been exposed by host. */
--	virtio_rmb();
-+	virtio_rmb(vq);
- 
- 	i = vq->vring.used->ring[vq->last_used_idx%vq->vring.num].id;
- 	*len = vq->vring.used->ring[vq->last_used_idx%vq->vring.num].len;
-@@ -337,7 +343,7 @@ void *virtqueue_get_buf(struct virtqueue
- 	 * the read in the next get_buf call. */
- 	if (!(vq->vring.avail->flags & VRING_AVAIL_F_NO_INTERRUPT)) {
- 		vring_used_event(&vq->vring) = vq->last_used_idx;
--		virtio_mb();
-+		virtio_mb(vq);
- 	}
- 
- 	END_USE(vq);
-@@ -366,7 +372,7 @@ bool virtqueue_enable_cb(struct virtqueu
- 	 * entry. Always do both to keep code simple. */
- 	vq->vring.avail->flags &= ~VRING_AVAIL_F_NO_INTERRUPT;
- 	vring_used_event(&vq->vring) = vq->last_used_idx;
--	virtio_mb();
-+	virtio_mb(vq);
- 	if (unlikely(more_used(vq))) {
- 		END_USE(vq);
- 		return false;
-@@ -393,7 +399,7 @@ bool virtqueue_enable_cb_delayed(struct 
- 	/* TODO: tune this threshold */
- 	bufs = (u16)(vq->vring.avail->idx - vq->last_used_idx) * 3 / 4;
- 	vring_used_event(&vq->vring) = vq->last_used_idx + bufs;
--	virtio_mb();
-+	virtio_mb(vq);
- 	if (unlikely((u16)(vq->vring.used->idx - vq->last_used_idx) > bufs)) {
- 		END_USE(vq);
- 		return false;
-@@ -453,6 +459,7 @@ EXPORT_SYMBOL_GPL(vring_interrupt);
- struct virtqueue *vring_new_virtqueue(unsigned int num,
- 				      unsigned int vring_align,
- 				      struct virtio_device *vdev,
-+				      bool weak_barriers,
- 				      void *pages,
- 				      void (*notify)(struct virtqueue *),
- 				      void (*callback)(struct virtqueue *),
-@@ -476,6 +483,7 @@ struct virtqueue *vring_new_virtqueue(un
- 	vq->vq.vdev = vdev;
- 	vq->vq.name = name;
- 	vq->notify = notify;
-+	vq->weak_barriers = weak_barriers;
- 	vq->broken = false;
- 	vq->last_used_idx = 0;
- 	vq->num_added = 0;
-diff --git a/include/linux/virtio_ring.h b/include/linux/virtio_ring.h
---- a/include/linux/virtio_ring.h
-+++ b/include/linux/virtio_ring.h
-@@ -168,6 +168,7 @@ struct virtqueue;
- struct virtqueue *vring_new_virtqueue(unsigned int num,
- 				      unsigned int vring_align,
- 				      struct virtio_device *vdev,
-+				      bool weak_barriers,
- 				      void *pages,
- 				      void (*notify)(struct virtqueue *vq),
- 				      void (*callback)(struct virtqueue *vq),
-diff --git a/tools/virtio/linux/virtio.h b/tools/virtio/linux/virtio.h
---- a/tools/virtio/linux/virtio.h
-+++ b/tools/virtio/linux/virtio.h
-@@ -214,6 +214,7 @@ void *virtqueue_detach_unused_buf(struct
- struct virtqueue *vring_new_virtqueue(unsigned int num,
- 				      unsigned int vring_align,
- 				      struct virtio_device *vdev,
-+				      bool weak_barriers,
- 				      void *pages,
- 				      void (*notify)(struct virtqueue *vq),
- 				      void (*callback)(struct virtqueue *vq),
-diff --git a/tools/virtio/virtio_test.c b/tools/virtio/virtio_test.c
---- a/tools/virtio/virtio_test.c
-+++ b/tools/virtio/virtio_test.c
-@@ -92,7 +92,8 @@ static void vq_info_add(struct vdev_info
- 	assert(r >= 0);
- 	memset(info->ring, 0, vring_size(num, 4096));
- 	vring_init(&info->vring, num, info->ring, 4096);
--	info->vq = vring_new_virtqueue(info->vring.num, 4096, &dev->vdev, info->ring,
-+	info->vq = vring_new_virtqueue(info->vring.num, 4096, &dev->vdev,
-+				       true, info->ring,
- 				       vq_notify, vq_callback, "test");
- 	assert(info->vq);
- 	info->vq->priv = info;
+Typo :)
+
+> +	if (!try_fill_recv(vi, GFP_KERNEL))
+> +		schedule_delayed_work(&vi->refill, 0);
+> +
+>  	virtnet_napi_enable(vi);
+>  	return 0;
+>  }
+> @@ -772,6 +776,8 @@ static int virtnet_close(struct net_devi
+>  {
+>  	struct virtnet_info *vi = netdev_priv(dev);
+>  
+> +	/* Make sure refill_work doesn't re-enable napi! */
+> +	cancel_delayed_work_sync(&vi->refill);
+>  	napi_disable(&vi->napi);
+>  
+>  	return 0;
+> @@ -1082,7 +1088,6 @@ static int virtnet_probe(struct virtio_d
+>  
+>  unregister:
+>  	unregister_netdev(dev);
+> -	cancel_delayed_work_sync(&vi->refill);
+>  free_vqs:
+>  	vdev->config->del_vqs(vdev);
+>  free_stats:
+> @@ -1121,9 +1126,7 @@ static void __devexit virtnet_remove(str
+>  	/* Stop all the virtqueues. */
+>  	vdev->config->reset(vdev);
+>  
+> -
+>  	unregister_netdev(vi->dev);
+> -	cancel_delayed_work_sync(&vi->refill);
+>  
+>  	/* Free unused buffers in both send and recv, if any. */
+>  	free_unused_bufs(vi);
+> 
+> 
+> virtio_net: use non-reentrant workqueue.
+> 
+> Michael S. Tsirkin also noticed that we could run the refill work
+> multiple CPUs: if we kick off a refill on one CPU and then on another,
+> they would both manipulate the queue at the same time (they use
+> napi_disable to avoid racing against the receive handler itself).
+> 
+> Tejun points out that this is what the WQ_NON_REENTRANT flag is for,
+> and that there is a convenient system kthread we can use.
+> 
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -501,7 +501,7 @@ static void refill_work(struct work_stru
+>  	/* In theory, this can happen: if we don't get any buffers in
+>  	 * we will *never* try to fill again. */
+>  	if (still_empty)
+> -		schedule_delayed_work(&vi->refill, HZ/2);
+> +		queue_delayed_work(system_nrt_wq, &vi->refill, HZ/2);
+>  }
+>  
+>  static int virtnet_poll(struct napi_struct *napi, int budget)
+> @@ -520,7 +520,7 @@ again:
+>  
+>  	if (vi->num < vi->max / 2) {
+>  		if (!try_fill_recv(vi, GFP_ATOMIC))
+> -			schedule_delayed_work(&vi->refill, 0);
+> +			queue_delayed_work(system_nrt_wq, &vi->refill, 0);
+>  	}
+>  
+>  	/* Out of packets? */
+> @@ -721,7 +721,7 @@ static int virtnet_open(struct net_devic
+>  
+>  	/* Make sure we have some buffersl if oom use wq. */
+>  	if (!try_fill_recv(vi, GFP_KERNEL))
+> -		schedule_delayed_work(&vi->refill, 0);
+> +		queue_delayed_work(&system_nrt_wq, &vi->refill, 0);
+>  
+>  	virtnet_napi_enable(vi);
+>  	return 0;
+
+Maybe document some rules:
+- try_fill_recv must always run from napi or with napi disabled ...
+- refill only runs when device is open
+
+-- 
+MST
