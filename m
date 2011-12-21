@@ -1,87 +1,256 @@
-From: KY Srinivasan <kys@microsoft.com>
-Subject: RE: [PATCH 1/1][RESEND] Staging: hv: storvsc: Move the storage
- driver out of the staging area
-Date: Wed, 21 Dec 2011 00:42:52 +0000
-Message-ID: <6E21E5352C11B742B20C142EB499E0481B286840@TK5EX14MBXC122.redmond.corp.microsoft.com>
-References: <1324407064-16875-1-git-send-email-kys@microsoft.com>
- <CAA9_cmf2RQapBD3th-RAhhTBB64N9ChKNFNXz0PEZJexeQUoqw@mail.gmail.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: [PATCH] virtio: harsher barriers for virtio-mmio.
+Date: Wed, 21 Dec 2011 15:51:37 +1030
+Message-ID: <87k45qjy8u.fsf@rustcorp.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-scsi-owner@vger.kernel.org>
-In-Reply-To: <CAA9_cmf2RQapBD3th-RAhhTBB64N9ChKNFNXz0PEZJexeQUoqw@mail.gmail.com>
-Content-Language: en-US
-Sender: linux-scsi-owner@vger.kernel.org
-To: Dan Williams <dan.j.williams@intel.com>
-Cc: "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, "ohering@suse.com" <ohering@suse.com>, "James.Bottomley@hansenpartnership.com" <James.Bottomley@hansenpartnership.com>, "hch@infradead.org" <hch@infradead.org>, "linux-scsi@vger.kernel.org" <linux-scsi@vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: torvalds@linux-foundation.org
+Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, rhod <rhod@redhat.com>, linux-arm-kernel@lists.infradead.org
 List-Id: virtualization@lists.linuxfoundation.org
 
+We were cheating with our barriers; using the smp ones rather than the
+real device ones.  That was fine, until virtio-mmio came along, which
+could be talking to a real device (a non-SMP CPU).
 
+Unfortunately, just putting back the real barriers (reverting
+d57ed95d) causes a performance regression on virtio-pci.  In
+particular, Amos reports netbench's TCP_RR over virtio_net CPU
+utilization increased up to 35% while throughput went down by up to
+14%.
 
-> -----Original Message-----
-> From: dan.j.williams@gmail.com [mailto:dan.j.williams@gmail.com] On B=
-ehalf Of
-> Dan Williams
-> Sent: Tuesday, December 20, 2011 6:06 PM
-> To: KY Srinivasan
-> Cc: gregkh@suse.de; linux-kernel@vger.kernel.org;
-> devel@linuxdriverproject.org; virtualization@lists.osdl.org; ohering@=
-suse.com;
-> James.Bottomley@hansenpartnership.com; hch@infradead.org; linux-
-> scsi@vger.kernel.org
-> Subject: Re: [PATCH 1/1][RESEND] Staging: hv: storvsc: Move the stora=
-ge driver
-> out of the staging area
->=20
-> On Tue, Dec 20, 2011 at 10:51 AM, K. Y. Srinivasan <kys@microsoft.com=
-> wrote:
-> > The storage driver (storvsc_drv.c) handles all block storage device=
-s
-> > assigned to Linux guests hosted on Hyper-V. This driver has been in=
- the
-> > staging tree for a while and this patch moves it out of the staging=
- area.
-> > As per Greg's recommendation, this patch makes no changes to the st=
-aging/hv
-> > directory. Once the driver moves out of staging, we will cleanup th=
-e
-> > staging/hv directory.
-> >
-> > This patch includes all the patches that I have sent against the st=
-aging/hv
-> > tree to address the comments I have gotten to date on this storage =
-driver.
-> > Greg has already applied all these patches to the staging tree.
-> >
-> > Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
-> > ---
-> > =A0drivers/scsi/Kconfig =A0 =A0 =A0 | =A0 =A07 +
-> > =A0drivers/scsi/Makefile =A0 =A0 =A0| =A0 =A03 +
-> > =A0drivers/scsi/storvsc_drv.c | 1586
-> ++++++++++++++++++++++++++++++++++++++++++++
-> > =A03 files changed, 1596 insertions(+), 0 deletions(-)
-> > =A0create mode 100644 drivers/scsi/storvsc_drv.c
->=20
-> Shouldn't this diffstat be something like the following?
->=20
->  drivers/scsi/Kconfig                       |    7 +
->  drivers/scsi/Makefile                      |    3 +
->  drivers/{staging/hv =3D> scsi}/storvsc_drv.c |  310 ++++++++++++++++=
-+++---------
->  3 files changed, 218 insertions(+), 102 deletions(-)
->  rename drivers/{staging/hv =3D> scsi}/storvsc_drv.c (87%)
+By comparison, this branch is in the noise.
 
-As per Greg's suggestion, this patch does not remove the driver from
-the staging tree. Once the driver lands in the correct directory, we wi=
-ll
-remove the driver from the staging directory.
+Reference: https://lkml.org/lkml/2011/12/11/22
 
-Regards,
+Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+---
+ drivers/lguest/lguest_device.c |   10 ++++++----
+ drivers/s390/kvm/kvm_virtio.c  |    2 +-
+ drivers/virtio/virtio_mmio.c   |    7 ++++---
+ drivers/virtio/virtio_pci.c    |    4 ++--
+ drivers/virtio/virtio_ring.c   |   34 +++++++++++++++++++++-------------
+ include/linux/virtio_ring.h    |    1 +
+ tools/virtio/linux/virtio.h    |    1 +
+ tools/virtio/virtio_test.c     |    3 ++-
+ 8 files changed, 38 insertions(+), 24 deletions(-)
 
-K. Y
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-scsi" i=
-n
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+diff --git a/drivers/lguest/lguest_device.c b/drivers/lguest/lguest_device.c
+--- a/drivers/lguest/lguest_device.c
++++ b/drivers/lguest/lguest_device.c
+@@ -291,11 +291,13 @@ static struct virtqueue *lg_find_vq(stru
+ 	}
+ 
+ 	/*
+-	 * OK, tell virtio_ring.c to set up a virtqueue now we know its size
+-	 * and we've got a pointer to its pages.
++	 * OK, tell virtio_ring.c to set up a virtqueue now we know its size
++	 * and we've got a pointer to its pages.  Note that we set weak_barriers
++	 * to 'true': the host just a(nother) SMP CPU, so we only need inter-cpu
++	 * barriers.
+ 	 */
+-	vq = vring_new_virtqueue(lvq->config.num, LGUEST_VRING_ALIGN,
+-				 vdev, lvq->pages, lg_notify, callback, name);
++	vq = vring_new_virtqueue(lvq->config.num, LGUEST_VRING_ALIGN, vdev,
++				 true, lvq->pages, lg_notify, callback, name);
+ 	if (!vq) {
+ 		err = -ENOMEM;
+ 		goto unmap;
+diff --git a/drivers/s390/kvm/kvm_virtio.c b/drivers/s390/kvm/kvm_virtio.c
+--- a/drivers/s390/kvm/kvm_virtio.c
++++ b/drivers/s390/kvm/kvm_virtio.c
+@@ -198,7 +198,7 @@ static struct virtqueue *kvm_find_vq(str
+ 		goto out;
+ 
+ 	vq = vring_new_virtqueue(config->num, KVM_S390_VIRTIO_RING_ALIGN,
+-				 vdev, (void *) config->address,
++				 vdev, true, (void *) config->address,
+ 				 kvm_notify, callback, name);
+ 	if (!vq) {
+ 		err = -ENOMEM;
+diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
+--- a/drivers/virtio/virtio_mmio.c
++++ b/drivers/virtio/virtio_mmio.c
+@@ -309,9 +309,10 @@ static struct virtqueue *vm_setup_vq(str
+ 	writel(virt_to_phys(info->queue) >> PAGE_SHIFT,
+ 			vm_dev->base + VIRTIO_MMIO_QUEUE_PFN);
+ 
+-	/* Create the vring */
+-	vq = vring_new_virtqueue(info->num, VIRTIO_MMIO_VRING_ALIGN,
+-				 vdev, info->queue, vm_notify, callback, name);
++	/* Create the vring: no weak barriers, the other side is could
++	 * be an independent "device". */
++	vq = vring_new_virtqueue(info->num, VIRTIO_MMIO_VRING_ALIGN, vdev,
++				 false, info->queue, vm_notify, callback, name);
+ 	if (!vq) {
+ 		err = -ENOMEM;
+ 		goto error_new_virtqueue;
+diff --git a/drivers/virtio/virtio_pci.c b/drivers/virtio/virtio_pci.c
+--- a/drivers/virtio/virtio_pci.c
++++ b/drivers/virtio/virtio_pci.c
+@@ -414,8 +414,8 @@ static struct virtqueue *setup_vq(struct
+ 		  vp_dev->ioaddr + VIRTIO_PCI_QUEUE_PFN);
+ 
+ 	/* create the vring */
+-	vq = vring_new_virtqueue(info->num, VIRTIO_PCI_VRING_ALIGN,
+-				 vdev, info->queue, vp_notify, callback, name);
++	vq = vring_new_virtqueue(info->num, VIRTIO_PCI_VRING_ALIGN, vdev,
++				 true, info->queue, vp_notify, callback, name);
+ 	if (!vq) {
+ 		err = -ENOMEM;
+ 		goto out_activate_queue;
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -28,17 +28,20 @@
+ #ifdef CONFIG_SMP
+ /* Where possible, use SMP barriers which are more lightweight than mandatory
+  * barriers, because mandatory barriers control MMIO effects on accesses
+- * through relaxed memory I/O windows (which virtio does not use). */
+-#define virtio_mb() smp_mb()
+-#define virtio_rmb() smp_rmb()
+-#define virtio_wmb() smp_wmb()
++ * through relaxed memory I/O windows (which virtio-pci does not use). */
++#define virtio_mb(vq) \
++	do { if ((vq)->weak_barriers) smp_mb(); else mb(); } while(0)
++#define virtio_rmb(vq) \
++	do { if ((vq)->weak_barriers) smp_rmb(); else rmb(); } while(0)
++#define virtio_wmb(vq) \
++	do { if ((vq)->weak_barriers) smp_rmb(); else rmb(); } while(0)
+ #else
+ /* We must force memory ordering even if guest is UP since host could be
+  * running on another CPU, but SMP barriers are defined to barrier() in that
+  * configuration. So fall back to mandatory barriers instead. */
+-#define virtio_mb() mb()
+-#define virtio_rmb() rmb()
+-#define virtio_wmb() wmb()
++#define virtio_mb(vq) mb()
++#define virtio_rmb(vq) rmb()
++#define virtio_wmb(vq) wmb()
+ #endif
+ 
+ #ifdef DEBUG
+@@ -77,6 +80,9 @@ struct vring_virtqueue
+ 	/* Actual memory layout for this queue */
+ 	struct vring vring;
+ 
++	/* Can we use weak barriers? */
++	bool weak_barriers;
++
+ 	/* Other side has made a mess, don't try any more. */
+ 	bool broken;
+ 
+@@ -245,14 +251,14 @@ void virtqueue_kick(struct virtqueue *_v
+ 	START_USE(vq);
+ 	/* Descriptors and available array need to be set before we expose the
+ 	 * new available array entries. */
+-	virtio_wmb();
++	virtio_wmb(vq);
+ 
+ 	old = vq->vring.avail->idx;
+ 	new = vq->vring.avail->idx = old + vq->num_added;
+ 	vq->num_added = 0;
+ 
+ 	/* Need to update avail index before checking if we should notify */
+-	virtio_mb();
++	virtio_mb(vq);
+ 
+ 	if (vq->event ?
+ 	    vring_need_event(vring_avail_event(&vq->vring), new, old) :
+@@ -314,7 +320,7 @@ void *virtqueue_get_buf(struct virtqueue
+ 	}
+ 
+ 	/* Only get used array entries after they have been exposed by host. */
+-	virtio_rmb();
++	virtio_rmb(vq);
+ 
+ 	i = vq->vring.used->ring[vq->last_used_idx%vq->vring.num].id;
+ 	*len = vq->vring.used->ring[vq->last_used_idx%vq->vring.num].len;
+@@ -337,7 +343,7 @@ void *virtqueue_get_buf(struct virtqueue
+ 	 * the read in the next get_buf call. */
+ 	if (!(vq->vring.avail->flags & VRING_AVAIL_F_NO_INTERRUPT)) {
+ 		vring_used_event(&vq->vring) = vq->last_used_idx;
+-		virtio_mb();
++		virtio_mb(vq);
+ 	}
+ 
+ 	END_USE(vq);
+@@ -366,7 +372,7 @@ bool virtqueue_enable_cb(struct virtqueu
+ 	 * entry. Always do both to keep code simple. */
+ 	vq->vring.avail->flags &= ~VRING_AVAIL_F_NO_INTERRUPT;
+ 	vring_used_event(&vq->vring) = vq->last_used_idx;
+-	virtio_mb();
++	virtio_mb(vq);
+ 	if (unlikely(more_used(vq))) {
+ 		END_USE(vq);
+ 		return false;
+@@ -393,7 +399,7 @@ bool virtqueue_enable_cb_delayed(struct 
+ 	/* TODO: tune this threshold */
+ 	bufs = (u16)(vq->vring.avail->idx - vq->last_used_idx) * 3 / 4;
+ 	vring_used_event(&vq->vring) = vq->last_used_idx + bufs;
+-	virtio_mb();
++	virtio_mb(vq);
+ 	if (unlikely((u16)(vq->vring.used->idx - vq->last_used_idx) > bufs)) {
+ 		END_USE(vq);
+ 		return false;
+@@ -453,6 +459,7 @@ EXPORT_SYMBOL_GPL(vring_interrupt);
+ struct virtqueue *vring_new_virtqueue(unsigned int num,
+ 				      unsigned int vring_align,
+ 				      struct virtio_device *vdev,
++				      bool weak_barriers,
+ 				      void *pages,
+ 				      void (*notify)(struct virtqueue *),
+ 				      void (*callback)(struct virtqueue *),
+@@ -476,6 +483,7 @@ struct virtqueue *vring_new_virtqueue(un
+ 	vq->vq.vdev = vdev;
+ 	vq->vq.name = name;
+ 	vq->notify = notify;
++	vq->weak_barriers = weak_barriers;
+ 	vq->broken = false;
+ 	vq->last_used_idx = 0;
+ 	vq->num_added = 0;
+diff --git a/include/linux/virtio_ring.h b/include/linux/virtio_ring.h
+--- a/include/linux/virtio_ring.h
++++ b/include/linux/virtio_ring.h
+@@ -168,6 +168,7 @@ struct virtqueue;
+ struct virtqueue *vring_new_virtqueue(unsigned int num,
+ 				      unsigned int vring_align,
+ 				      struct virtio_device *vdev,
++				      bool weak_barriers,
+ 				      void *pages,
+ 				      void (*notify)(struct virtqueue *vq),
+ 				      void (*callback)(struct virtqueue *vq),
+diff --git a/tools/virtio/linux/virtio.h b/tools/virtio/linux/virtio.h
+--- a/tools/virtio/linux/virtio.h
++++ b/tools/virtio/linux/virtio.h
+@@ -214,6 +214,7 @@ void *virtqueue_detach_unused_buf(struct
+ struct virtqueue *vring_new_virtqueue(unsigned int num,
+ 				      unsigned int vring_align,
+ 				      struct virtio_device *vdev,
++				      bool weak_barriers,
+ 				      void *pages,
+ 				      void (*notify)(struct virtqueue *vq),
+ 				      void (*callback)(struct virtqueue *vq),
+diff --git a/tools/virtio/virtio_test.c b/tools/virtio/virtio_test.c
+--- a/tools/virtio/virtio_test.c
++++ b/tools/virtio/virtio_test.c
+@@ -92,7 +92,8 @@ static void vq_info_add(struct vdev_info
+ 	assert(r >= 0);
+ 	memset(info->ring, 0, vring_size(num, 4096));
+ 	vring_init(&info->vring, num, info->ring, 4096);
+-	info->vq = vring_new_virtqueue(info->vring.num, 4096, &dev->vdev, info->ring,
++	info->vq = vring_new_virtqueue(info->vring.num, 4096, &dev->vdev,
++				       true, info->ring,
+ 				       vq_notify, vq_callback, "test");
+ 	assert(info->vq);
+ 	info->vq->priv = info;
