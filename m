@@ -1,21 +1,13 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [RFC 7/11] virtio_pci: new, capability-aware driver.
-Date: Wed, 21 Dec 2011 11:03:25 +1030
-Message-ID: <878vm6daqy.fsf@rustcorp.com.au>
-References: <20111211094256.GB11504@redhat.com>
-	<87boreohhs.fsf@rustcorp.com.au>
-	<20111212182533.GB25916@redhat.com>
-	<87liqhtdnj.fsf@rustcorp.com.au> <20111215063004.GA3630@redhat.com>
-	<87zketp9nz.fsf@rustcorp.com.au>
-	<20111218101831.GB30374@redhat.com>
-	<87bor5nlht.fsf@rustcorp.com.au>
-	<20111219091324.GA19535@redhat.com>
-	<871us0om2t.fsf@rustcorp.com.au> <20111220113718.GF3913@redhat.com>
+Subject: Re: [PATCH RFC] virtio_blk: fix config handler race
+Date: Wed, 21 Dec 2011 11:03:31 +1030
+Message-ID: <877h1qdaqs.fsf@rustcorp.com.au>
+References: <20111207153901.GA23820@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20111220113718.GF3913@redhat.com>
+In-Reply-To: <20111207153901.GA23820@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,58 +17,28 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>, Sasha Levin <levinsasha928@gmail.com>, Pawel Moll <pawel.moll@arm.com>, virtualization <virtualization@lists.linux-foundation.org>
+To: Amit Shah <amit.shah@redhat.com>
+Cc: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 20 Dec 2011 13:37:18 +0200, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> On Mon, Dec 19, 2011 at 09:38:42PM +1030, Rusty Russell wrote:
-> > On Mon, 19 Dec 2011 11:13:26 +0200, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> > 
-> > Actually, the host doesn't need anything, since it can always lock out
-> > the guest while it updates the area.
-> > It's the guest which can't do atomic updates.
-> 
-> There are 2 cases
-> - updates by guest accesses by host
-> - accesses by guest updates by host
-> 
-> Both are problematic because the guest accesses are split.
-> Consider the example I gave at the beginning was with capacity read
-> by guest. Host can not solve it without guest changes, right?
+On Wed, 7 Dec 2011 17:39:02 +0200, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> Fix a theoretical race related to config work
+> handler: a config interrupt might happen
+> after we flush config work but before we
+> reset the device. It will then cause the
+> config work to run during or after reset.
 
-Indeed, my brain fart.  Let's pretend I didn't say that, and you didn't
-have to explain it to me in baby words :)
+Thanks for the reminder.  Apologies that this slipped through :(
 
-> > > The counter can be in guest memory, right? So we don't pay extra
-> > > exits.
-> > 
-> > Could be, but I'm not delighted about the design.
-> 
-> OK, so this is an argument for always using a control vq, right?
+> As a solution
+> 1. flush after reset when we know there will be no more interrupts
+> 2. add a flag to disable config access before reset
 
-Yes.  The idea that we can alter fields in the device-specific config
-area is flawed.  There may be cases where it doesn't matter, but as an
-idea it was holed to begin with.
+It's crude, but it works.  Applied.
 
-We can reduce probability by doing a double read to check, but there are
-still cases where it will fail.
+If this happens again, do we want a "__virtio_device_disable" which
+stops any interrupts from being delivered?  That would make this neater,
+though the implementation might be a bit nasty.
 
-> > What does the host do
-> > if the guest screws things up?  How long do you wait for them to
-> > complete the seqlock?  Or does it save the old version for use in the
-> > duration?
-> 
-> Yes, it will have to only apply the change when seqlock is dropped.
-
-If the seqlock is in normal memory, how does it get notified?  It would
-have to poll.  That's annoying, since you don't know when to give up and
-declare the device terminally broken.
-
-> Don't have == not reported as observed in the field?
-> It seems clear from code that we do have a race, correct?
-
-Yes, and yes.
-
-Cheers,
+Thanks,
 Rusty.
