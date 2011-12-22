@@ -1,8 +1,8 @@
 From: Amit Shah <amit.shah@redhat.com>
-Subject: [PATCH v6 08/11] virtio: net: Move vq and vq buf removal into
-	separate function
-Date: Thu, 22 Dec 2011 16:58:32 +0530
-Message-ID: <96738116f38b183689b9c35d912a3bd8d2376ce5.1324553223.git.amit.shah@redhat.com>
+Subject: [PATCH v6 09/11] virtio: net: Add freeze,
+	restore handlers to support S4
+Date: Thu, 22 Dec 2011 16:58:33 +0530
+Message-ID: <f84fa9fdc9f5629e711cbb89a2e7efbb289d72fa.1324553223.git.amit.shah@redhat.com>
 References: <cover.1324553223.git.amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -24,51 +24,81 @@ To: Virtualization List <virtualization@lists.linux-foundation.org>
 Cc: Amit Shah <amit.shah@redhat.com>, linux-pm@vger.kernel.org, linux-kernel@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The remove and PM freeze functions will share this code.
+Remove all the vqs, disable napi and detach from the netdev on
+hibernation.
+
+Re-create vqs after restoring from a hibernated image, re-enable napi
+and re-attach the netdev.  This keeps networking working across
+hibernation.
 
 Signed-off-by: Amit Shah <amit.shah@redhat.com>
 ---
- drivers/net/virtio_net.c |   20 ++++++++++++--------
- 1 files changed, 12 insertions(+), 8 deletions(-)
+ drivers/net/virtio_net.c |   46 ++++++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 46 insertions(+), 0 deletions(-)
 
 diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index ec8c400..7a2a5bf 100644
+index 7a2a5bf..b31670f 100644
 --- a/drivers/net/virtio_net.c
 +++ b/drivers/net/virtio_net.c
-@@ -1134,22 +1134,26 @@ static void free_unused_bufs(struct virtnet_info *vi)
- 	BUG_ON(vi->num != 0);
+@@ -1159,6 +1159,48 @@ static void __devexit virtnet_remove(struct virtio_device *vdev)
+ 	free_netdev(vi->dev);
  }
  
--static void __devexit virtnet_remove(struct virtio_device *vdev)
-+static void remove_vq_common(struct virtnet_info *vi)
- {
--	struct virtnet_info *vi = vdev->priv;
--
--	/* Stop all the virtqueues. */
--	vdev->config->reset(vdev);
--
--	unregister_netdev(vi->dev);
-+	vi->vdev->config->reset(vi->vdev);
- 
- 	/* Free unused buffers in both send and recv, if any. */
- 	free_unused_bufs(vi);
- 
--	vdev->config->del_vqs(vi->vdev);
-+	vi->vdev->config->del_vqs(vi->vdev);
- 
- 	while (vi->pages)
- 		__free_pages(get_a_page(vi, GFP_KERNEL), 0);
-+}
-+
-+static void __devexit virtnet_remove(struct virtio_device *vdev)
++#ifdef CONFIG_PM
++static int virtnet_freeze(struct virtio_device *vdev)
 +{
 +	struct virtnet_info *vi = vdev->priv;
 +
-+	unregister_netdev(vi->dev);
++	virtqueue_disable_cb(vi->rvq);
++	virtqueue_disable_cb(vi->svq);
++	if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_CTRL_VQ))
++		virtqueue_disable_cb(vi->cvq);
++
++	netif_device_detach(vi->dev);
++	cancel_delayed_work_sync(&vi->refill);
++
++	if (netif_running(vi->dev))
++		napi_disable(&vi->napi);
 +
 +	remove_vq_common(vi);
++
++	return 0;
++}
++
++static int virtnet_restore(struct virtio_device *vdev)
++{
++	struct virtnet_info *vi = vdev->priv;
++	int err;
++
++	err = init_vqs(vi);
++	if (err)
++		return err;
++
++	if (netif_running(vi->dev))
++		virtnet_napi_enable(vi);
++
++	netif_device_attach(vi->dev);
++
++	if (!try_fill_recv(vi, GFP_KERNEL))
++		schedule_delayed_work(&vi->refill, 0);
++
++	return 0;
++}
++#endif
++
+ static struct virtio_device_id id_table[] = {
+ 	{ VIRTIO_ID_NET, VIRTIO_DEV_ANY_ID },
+ 	{ 0 },
+@@ -1183,6 +1225,10 @@ static struct virtio_driver virtio_net_driver = {
+ 	.probe =	virtnet_probe,
+ 	.remove =	__devexit_p(virtnet_remove),
+ 	.config_changed = virtnet_config_changed,
++#ifdef CONFIG_PM
++	.freeze =	virtnet_freeze,
++	.restore =	virtnet_restore,
++#endif
+ };
  
- 	free_percpu(vi->stats);
- 	free_netdev(vi->dev);
+ static int __init init(void)
 -- 
 1.7.7.4
