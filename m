@@ -1,16 +1,12 @@
-From: Amit Shah <amit.shah@redhat.com>
-Subject: [PATCH v6 11/11] virtio: balloon: Add freeze,
-	restore handlers to support S4
-Date: Thu, 22 Dec 2011 16:58:35 +0530
-Message-ID: <0d8d245e8252c8491f3348419bbf7e5b3b1214b7.1324553223.git.amit.shah@redhat.com>
-References: <cover.1324553223.git.amit.shah@redhat.com>
+From: Ioan Raicu <iraicu@cs.iit.edu>
+Subject: CFP: The 9th Int. Conf. on Autonomic Computing (ICAC) 2012
+Date: Thu, 22 Dec 2011 17:02:56 -0600
+Message-ID: <4EF3B720.7060503@cs.iit.edu>
+Reply-To: iraicu@cs.iit.edu
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="iso-8859-1"; Format="flowed"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <cover.1324553223.git.amit.shah@redhat.com>
-In-Reply-To: <cover.1324553223.git.amit.shah@redhat.com>
-References: <cover.1324553223.git.amit.shah@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,115 +16,214 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Virtualization List <virtualization@lists.linux-foundation.org>
-Cc: Amit Shah <amit.shah@redhat.com>, linux-pm@vger.kernel.org, linux-kernel@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
+To: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Handling balloon hibernate / restore is tricky.  If the balloon was
-inflated before going into the hibernation state, upon resume, the host
-will not have any memory of that.  Any pages that were passed on to the
-host earlier would most likely be invalid, and the host will have to
-re-balloon to the previous value to get in the pre-hibernate state.
+CALL FOR PAPERS and WORKSHOP PROPOSALS
 
-So the only sane thing for the guest to do here is to discard all the
-pages that were put in the balloon.  When to discard the pages is the
-next question.
+The 9th International Conference on Autonomic Computing (ICAC 2012)
 
-One solution is to deflate the balloon just before writing the image to
-the disk (in the freeze() PM callback).  However, asking for pages from
-the host just to discard them immediately after seems wasteful of
-resources.  Hence, it makes sense to do this by just fudging our
-counters soon after wakeup.  This means we don't deflate the balloon
-before sleep, and also don't put unnecessary pressure on the host.
+September 17-21, 2012. San Jose, CA, USA
+http://icac2012.cs.fiu.edu/
+-----------------------------------------------------------------
 
-This also helps in the thaw case: if the freeze fails for whatever
-reason, the balloon should continue to remain in the inflated state.
-This was tested by issuing 'swapoff -a' and trying to go into the S4
-state.  That fails, and the balloon stays inflated, as expected.  Both
-the host and the guest are happy.
+IMPORTANT DATES
 
-Finally, in the restore() callback, we empty the list of pages that were
-previously given off to the host, add the appropriate number of pages to
-the totalram_pages counter, reset the num_pages counter to 0, and
-all is fine.
+Paper and Poster Submission: March 9, 2012, 11:59pm PST
+Notification: May 18, 2012
+Camera-ready Due: June 8, 2012
+Workshop Proposal Submission: February 10, 2012
+-----------------------------------------------------------------
 
-As a last step, delete the vqs on the freeze callback to prepare for
-hibernation, and re-create them in the restore and thaw callbacks to
-resume normal operation.
+OVERVIEW
+ICAC is the leading conference on autonomic computing techniques,
+foundations, and applications. Autonomic computing refers to
+methods and means for automated management of performance, fault,
+security, and configuration with little involvement of users or
+administrators. Systems introducing new autonomic features are
+becoming increasingly prevalent, motivating research that spans
+a variety of areas, from computer systems, networking, software
+engineering, and data management to machine learning, control
+theory, and bio-inspired computing. ICAC brings together
+researchers and practitioners across these disciplines to
+address multiple facets of adaptation and self-management in
+computing systems and applications from different perspectives.
+Autonomic computing solutions are sought for clouds, grids,
+data centers, enterprise software, internet services, data
+services, smart phones, embedded systems, and sensor networks.
+In these environments, resources and applications must be managed
+to maximize performance and minimize cost, while maintaining
+predictable and reliable behavior in the face of varying
+workloads, failures, and malicious threats. Papers are solicited
+from all areas of autonomic computing, including (but not limited
+to):
 
-The kthread doesn't race with any operations here, since it's frozen
-before the freeze() call and is thawed after the thaw() and restore()
-callbacks, so we're safe with that.
+* End-to-end techniques for management of resources, workloads,
+   performance, faults, power/cooling, security, and others.
 
-Signed-off-by: Amit Shah <amit.shah@redhat.com>
----
- drivers/virtio/virtio_balloon.c |   47 +++++++++++++++++++++++++++++++++++++++
- 1 files changed, 47 insertions(+), 0 deletions(-)
+* Self-managing components, such as server, storage, network
+   protocols, or specific application elements, and embedded and
+   mobile end systems such as smart phones.
 
-diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-index 1ff3cf4..4c327c7 100644
---- a/drivers/virtio/virtio_balloon.c
-+++ b/drivers/virtio/virtio_balloon.c
-@@ -363,6 +363,48 @@ static void __devexit virtballoon_remove(struct virtio_device *vdev)
- 	kfree(vb);
- }
- 
-+#ifdef CONFIG_PM
-+static int virtballoon_freeze(struct virtio_device *vdev)
-+{
-+	/*
-+	 * The kthread is already frozen by the PM core before this
-+	 * function is called.
-+	 */
-+
-+	/* Ensure we don't get any more requests from the host */
-+	vdev->config->reset(vdev);
-+	vdev->config->del_vqs(vdev);
-+	return 0;
-+}
-+
-+static int virtballoon_thaw(struct virtio_device *vdev)
-+{
-+	return init_vqs(vdev->priv);
-+}
-+
-+static int virtballoon_restore(struct virtio_device *vdev)
-+{
-+	struct virtio_balloon *vb = vdev->priv;
-+	struct page *page, *page2;
-+
-+	/* We're starting from a clean slate */
-+	vb->num_pages = 0;
-+
-+	/*
-+	 * If a request wasn't complete at the time of freezing, this
-+	 * could have been set.
-+	 */
-+	vb->need_stats_update = 0;
-+
-+	/* We don't have these pages in the balloon anymore! */
-+	list_for_each_entry_safe(page, page2, &vb->pages, lru) {
-+		list_del(&page->lru);
-+		totalram_pages++;
-+	}
-+	return init_vqs(vdev->priv);
-+}
-+#endif
-+
- static unsigned int features[] = {
- 	VIRTIO_BALLOON_F_MUST_TELL_HOST,
- 	VIRTIO_BALLOON_F_STATS_VQ,
-@@ -377,6 +419,11 @@ static struct virtio_driver virtio_balloon_driver = {
- 	.probe =	virtballoon_probe,
- 	.remove =	__devexit_p(virtballoon_remove),
- 	.config_changed = virtballoon_changed,
-+#ifdef CONFIG_PM
-+	.freeze	=	virtballoon_freeze,
-+	.restore =	virtballoon_restore,
-+	.thaw =		virtballoon_thaw,
-+#endif
- };
- 
- static int __init init(void)
--- 
-1.7.7.4
+* Decision and analysis techniques and their use, such as machine
+   learning, control theory, predictive methods, probability and
+   stochastic processes, queuing theory methodologies, emergent
+   behavior, rule-based systems, and bio-inspired techniques.
+
+* Monitoring systems for autonomic computing.
+
+* Hypervisor, operating systems, hardware, or application support
+   for autonomic computing.
+
+* Novel human interfaces for monitoring and controlling autonomic
+   systems.
+
+* Management topics, such as specification and modeling of
+   service-level agreements, behavior enforcement and tie-in with
+   IT governance.
+
+* Toolkits, frameworks, principles and architectures, from
+   software engineering practices and experimental methodologies
+   to agent-based techniques and virtualization.
+
+* Fundamental science and theory of self-managing systems:
+   understanding, controlling or exploiting system behaviors to
+   enforce autonomic properties.
+
+* Applications of autonomic computing and experiences with
+   prototyped or deployed systems solving real-world problems in
+   science, engineering, business and society.
+
+Papers will be judged on originality, significance, interest,
+correctness, clarity and relevance to the broader community.
+Papers should report on experiences, measurements, user studies,
+or other evaluations, as appropriate. Evaluations of a prototype
+or large-scale deployment of systems and applications is expected.
+
+PAPER AND POSTER SUBMISSIONS
+Full papers (a maximum of 10 pages in the two-column ACM proceedings
+format) and posters (2 pages) are invited on a wide variety of
+topics relating to autonomic computing. Submitted papers must be
+original work, and may not be under consideration for another
+conference or journal. Complete formatting and submission
+instructions can be found on the conference web site. Accepted
+papers and posters will appear in proceedings distributed at the
+conference and available electronically. Relevant top ICAC'12
+papers will be invited for "fast-track" submissions to the
+ACM Transactions on Autonomous and Adaptive Systems (TAAS).
+
+WORKSHOPS, DEMONSTRATIONS AND EXHIBITION
+ICAC'12 welcomes proposals for co-located workshops on topics of
+interest to the autonomic computing community. Workshop proposals
+should be submitted to the Workshop Chair, Fred Douglis
+(f.douglis@computer.org) by February 10, 2012. Workshops are
+expected to publish proceedings, and should cover areas that
+complement the main program. ICAC'12 will also feature a
+demonstration and exhibition session consisting of prototypes and
+technology artifacts such as demonstrating autonomic software or
+autonomic computing principles. Entries will be judged by a
+separate committee led by the demo/exhibit chair.
+
+INDUSTRY SESSION
+One of ICAC's important roles is to bring together researchers
+and practitioners from academia and industry. In its industry
+session, ICAC helps fulfill this role by presenting an industry
+viewpoint on technologies, products, and market needs. The
+industry session also addresses current challenges, and
+opportunities for academic and corporate research collaborations.
+We encourage industry leaders, including entrepreneurs, product
+developers, architects, managers, marketers and end users,
+to submit their papers and posters reflecting such industry
+perspectives as part of the regular submission process.
+------------------------------------------------------------------
+
+ORGANIZERS
+
+GENERAL CHAIR
+Dejan Milojicic, HP Labs
+
+PROGRAM CHAIRS
+Dongyan Xu, Purdue University
+Vanish Talwar, HP Labs
+
+INDUSTRY CHAIR
+Xiaoyun Zhu, VMware
+
+WORKSHOPS CHAIR
+Fred Douglis, EMC
+
+POSTERS/DEMO/EXHIBITS CHAIR
+Eno Thereska, Microsoft Research
+
+FINANCE CHAIR
+Michael Kozuch, Intel
+
+LOCAL ARRANGEMENT CHAIR
+Jessica Blaine
+
+PUBLICITY CHAIRS
+Daniel Batista, University of S=E3o Paulo
+Vartan Padaryan, ISP/Russian Academy of Sci.
+Ioan Raicu, Illinois Inst. of Technology
+Jianfeng Zhan, ICT/Chinese Academy of Sci.
+Ming Zhao, Florida Intl. University
+
+PROGRAM COMMITTEE
+Tarek Abdelzaher, UIUC
+Umesh Bellur, IIT, Bombay
+Ken Birman, Cornell University
+Rajkumar Buyya, Univ. of Melbourne
+Rocky Chang, Hong Kong Polytechnic University
+Yuan Chen, HP Labs
+Alva Couch, Tufts University
+Peter Dinda, Northwestern University
+Fred Douglis, EMC
+Renato Figueiredo, University of Florida
+Mohamed Hefeeda, Qatar Computing Research Institute
+Joe Hellerstein, Google
+Geoff Jiang, NEC Labs
+Jeff Kephart, IBM Research
+Emre Kiciman, Microsoft Research
+Fabio Kon, University of S=E3o Paulo
+Michael Kozuch, Intel
+Dejan Milojicic, HP Labs
+Klara Nahrstedt, UIUC
+Priya Narasimhan, CMU
+Manish Parashar, Rutgers University
+Ioan Raicu, Illinois Inst. of Technology
+Omer Rana, Cardiff University
+Masoud Sadjadi, Florida Intl. University
+Rick Schlichting, AT&T Labs
+Hartmut Schmeck, KIT
+Karsten Schwan, Georgia Tech
+Onn Shehory, IBM Research
+Eno Thereska, Microsoft Research
+Xiaoyun Zhu, VMware
+
+-- =
+
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+Ioan Raicu, Ph.D.
+Assistant Professor, Illinois Institute of Technology (IIT)
+Guest Research Faculty, Argonne National Laboratory (ANL)
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+Data-Intensive Distributed Systems Laboratory, CS/IIT
+Distributed Systems Laboratory, MCS/ANL
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+Cel:    1-847-722-0876
+Office: 1-312-567-5704
+Email:  iraicu@cs.iit.edu
+Web:    http://www.cs.iit.edu/~iraicu/
+Web:    http://datasys.cs.iit.edu/
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
