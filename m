@@ -1,8 +1,8 @@
 From: Amit Shah <amit.shah@redhat.com>
-Subject: [PATCH v6 10/11] virtio: balloon: Move vq initialization into
-	separate function
-Date: Thu, 22 Dec 2011 16:58:34 +0530
-Message-ID: <58cfe6a9de1db2bfdad7d6c9960275cf954e4a6a.1324553223.git.amit.shah@redhat.com>
+Subject: [PATCH v6 11/11] virtio: balloon: Add freeze,
+	restore handlers to support S4
+Date: Thu, 22 Dec 2011 16:58:35 +0530
+Message-ID: <0d8d245e8252c8491f3348419bbf7e5b3b1214b7.1324553223.git.amit.shah@redhat.com>
 References: <cover.1324553223.git.amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -24,86 +24,111 @@ To: Virtualization List <virtualization@lists.linux-foundation.org>
 Cc: Amit Shah <amit.shah@redhat.com>, linux-pm@vger.kernel.org, linux-kernel@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The probe and PM restore functions will share this code.
+Handling balloon hibernate / restore is tricky.  If the balloon was
+inflated before going into the hibernation state, upon resume, the host
+will not have any memory of that.  Any pages that were passed on to the
+host earlier would most likely be invalid, and the host will have to
+re-balloon to the previous value to get in the pre-hibernate state.
+
+So the only sane thing for the guest to do here is to discard all the
+pages that were put in the balloon.  When to discard the pages is the
+next question.
+
+One solution is to deflate the balloon just before writing the image to
+the disk (in the freeze() PM callback).  However, asking for pages from
+the host just to discard them immediately after seems wasteful of
+resources.  Hence, it makes sense to do this by just fudging our
+counters soon after wakeup.  This means we don't deflate the balloon
+before sleep, and also don't put unnecessary pressure on the host.
+
+This also helps in the thaw case: if the freeze fails for whatever
+reason, the balloon should continue to remain in the inflated state.
+This was tested by issuing 'swapoff -a' and trying to go into the S4
+state.  That fails, and the balloon stays inflated, as expected.  Both
+the host and the guest are happy.
+
+Finally, in the restore() callback, we empty the list of pages that were
+previously given off to the host, add the appropriate number of pages to
+the totalram_pages counter, reset the num_pages counter to 0, and
+all is fine.
+
+As a last step, delete the vqs on the freeze callback to prepare for
+hibernation, and re-create them in the restore and thaw callbacks to
+resume normal operation.
+
+The kthread doesn't race with any operations here, since it's frozen
+before the freeze() call and is thawed after the thaw() and restore()
+callbacks, so we're safe with that.
 
 Signed-off-by: Amit Shah <amit.shah@redhat.com>
 ---
- drivers/virtio/virtio_balloon.c |   48 ++++++++++++++++++++++++--------------
- 1 files changed, 30 insertions(+), 18 deletions(-)
+ drivers/virtio/virtio_balloon.c |   47 +++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 47 insertions(+), 0 deletions(-)
 
 diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-index 94fd738..1ff3cf4 100644
+index 1ff3cf4..4c327c7 100644
 --- a/drivers/virtio/virtio_balloon.c
 +++ b/drivers/virtio/virtio_balloon.c
-@@ -275,32 +275,21 @@ static int balloon(void *_vballoon)
- 	return 0;
+@@ -363,6 +363,48 @@ static void __devexit virtballoon_remove(struct virtio_device *vdev)
+ 	kfree(vb);
  }
  
--static int virtballoon_probe(struct virtio_device *vdev)
-+static int init_vqs(struct virtio_balloon *vb)
- {
--	struct virtio_balloon *vb;
- 	struct virtqueue *vqs[3];
- 	vq_callback_t *callbacks[] = { balloon_ack, balloon_ack, stats_request };
- 	const char *names[] = { "inflate", "deflate", "stats" };
- 	int err, nvqs;
- 
--	vdev->priv = vb = kmalloc(sizeof(*vb), GFP_KERNEL);
--	if (!vb) {
--		err = -ENOMEM;
--		goto out;
--	}
--
--	INIT_LIST_HEAD(&vb->pages);
--	vb->num_pages = 0;
--	init_waitqueue_head(&vb->config_change);
--	vb->vdev = vdev;
--	vb->need_stats_update = 0;
--
--	/* We expect two virtqueues: inflate and deflate,
--	 * and optionally stat. */
++#ifdef CONFIG_PM
++static int virtballoon_freeze(struct virtio_device *vdev)
++{
 +	/*
-+	 * We expect two virtqueues: inflate and deflate, and
-+	 * optionally stat.
++	 * The kthread is already frozen by the PM core before this
++	 * function is called.
 +	 */
- 	nvqs = virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_STATS_VQ) ? 3 : 2;
--	err = vdev->config->find_vqs(vdev, nvqs, vqs, callbacks, names);
-+	err = vb->vdev->config->find_vqs(vb->vdev, nvqs, vqs, callbacks, names);
- 	if (err)
--		goto out_free_vb;
-+		return err;
- 
- 	vb->inflate_vq = vqs[0];
- 	vb->deflate_vq = vqs[1];
-@@ -317,6 +306,29 @@ static int virtballoon_probe(struct virtio_device *vdev)
- 			BUG();
- 		virtqueue_kick(vb->stats_vq);
- 	}
++
++	/* Ensure we don't get any more requests from the host */
++	vdev->config->reset(vdev);
++	vdev->config->del_vqs(vdev);
 +	return 0;
 +}
 +
-+static int virtballoon_probe(struct virtio_device *vdev)
++static int virtballoon_thaw(struct virtio_device *vdev)
 +{
-+	struct virtio_balloon *vb;
-+	int err;
++	return init_vqs(vdev->priv);
++}
 +
-+	vdev->priv = vb = kmalloc(sizeof(*vb), GFP_KERNEL);
-+	if (!vb) {
-+		err = -ENOMEM;
-+		goto out;
-+	}
++static int virtballoon_restore(struct virtio_device *vdev)
++{
++	struct virtio_balloon *vb = vdev->priv;
++	struct page *page, *page2;
 +
-+	INIT_LIST_HEAD(&vb->pages);
++	/* We're starting from a clean slate */
 +	vb->num_pages = 0;
-+	init_waitqueue_head(&vb->config_change);
-+	vb->vdev = vdev;
++
++	/*
++	 * If a request wasn't complete at the time of freezing, this
++	 * could have been set.
++	 */
 +	vb->need_stats_update = 0;
 +
-+	err = init_vqs(vb);
-+	if (err)
-+		goto out_free_vb;
++	/* We don't have these pages in the balloon anymore! */
++	list_for_each_entry_safe(page, page2, &vb->pages, lru) {
++		list_del(&page->lru);
++		totalram_pages++;
++	}
++	return init_vqs(vdev->priv);
++}
++#endif
++
+ static unsigned int features[] = {
+ 	VIRTIO_BALLOON_F_MUST_TELL_HOST,
+ 	VIRTIO_BALLOON_F_STATS_VQ,
+@@ -377,6 +419,11 @@ static struct virtio_driver virtio_balloon_driver = {
+ 	.probe =	virtballoon_probe,
+ 	.remove =	__devexit_p(virtballoon_remove),
+ 	.config_changed = virtballoon_changed,
++#ifdef CONFIG_PM
++	.freeze	=	virtballoon_freeze,
++	.restore =	virtballoon_restore,
++	.thaw =		virtballoon_thaw,
++#endif
+ };
  
- 	vb->thread = kthread_run(balloon, vb, "vballoon");
- 	if (IS_ERR(vb->thread)) {
+ static int __init init(void)
 -- 
 1.7.7.4
