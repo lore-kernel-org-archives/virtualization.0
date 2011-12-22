@@ -1,22 +1,11 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH RFC] virtio_net: fix refill related races
-Date: Thu, 22 Dec 2011 14:23:26 +1030
-Message-ID: <87d3bhjm89.fsf@rustcorp.com.au>
-References: <20111211144428.GB14381@redhat.com>
-	<878vmioh10.fsf@rustcorp.com.au> <20111212115405.GB7946@redhat.com>
-	<87iplltd0g.fsf@rustcorp.com.au>
-	<20111220190908.GC25689@redhat.com>
-	<20111220190946.GD10752@google.com>
-	<20111220193055.GA26392@redhat.com>
-	<20111220193154.GG10752@google.com>
-	<20111220194518.GB26692@redhat.com>
-	<87hb0udd2h.fsf@rustcorp.com.au>
-	<20111221090637.GA31592@redhat.com>
+From: Amit Shah <amit.shah@redhat.com>
+Subject: [PATCH v6 00/11] virtio: s4 support
+Date: Thu, 22 Dec 2011 16:58:24 +0530
+Message-ID: <cover.1324553223.git.amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20111221090637.GA31592@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -26,121 +15,86 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Tejun Heo <tj@kernel.org>, Amit Shah <amit.shah@redhat.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Virtualization List <virtualization@lists.linux-foundation.org>
+Cc: Amit Shah <amit.shah@redhat.com>, linux-pm@vger.kernel.org, linux-kernel@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 21 Dec 2011 11:06:37 +0200, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> On Wed, Dec 21, 2011 at 10:13:18AM +1030, Rusty Russell wrote:
-> > On Tue, 20 Dec 2011 21:45:19 +0200, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> > > On Tue, Dec 20, 2011 at 11:31:54AM -0800, Tejun Heo wrote:
-> > > > On Tue, Dec 20, 2011 at 09:30:55PM +0200, Michael S. Tsirkin wrote:
-> > > > > Hmm, in that case it looks like a nasty race could get
-> > > > > triggered, with try_fill_recv run on multiple CPUs in parallel,
-> > > > > corrupting the linked list within the vq.
-> > > > > 
-> > > > > Using the mutex as my patch did will fix that naturally, as well.
-> > > > 
-> > > > Don't know the code but just use nrt wq.  There's even a system one
-> > > > called system_nrq_wq.
-> > > > 
-> > > > Thanks.
-> > > 
-> > > We can, but we need the mutex for other reasons, anyway.
-> > 
-> > Well, here's the alternate approach.  What do you think?
-> 
-> It looks very clean, thanks. Some documentation suggestions below.
-> Also - Cc stable on this and the block patch?
+Hi,
 
-AFAICT we haven't seen this bug, and theoretical bugs don't get into
--stable.
+These patches add support for S4 to virtio (pci) and all drivers.
 
-> > Finding two wq issues makes you justifiably cautious, but it almost
-> > feels like giving up to simply wrap it in a lock.  The APIs are designed
-> > to let us do it without a lock; I was just using them wrong.
-> 
-> One thing I note is that this scheme works because there's a single
-> entity disabling/enabling napi and the refill thread.
-> So it's possible that Amit will need to add a lock and track NAPI
-> state anyway to make suspend work. But we'll see.
+For each driver, all vqs are removed before hibernation, and then
+re-created after restore.  Some driver-specific uninit and init work
+is also done in the freeze and restore functions.
 
-Fixed typo, documented the locking, queued for -next.
+All the drivers in testing work fine:
 
-Thanks!
-Rusty.
+* virtio-blk is used for the only disk in the VM, IO works fine before
+  and after.  'dd if=/dev/zero of=/tmp/bigfile bs=1024 count=200000'
+  across S4 gives same sha1sum for the file in the guest as well as
+  one that's created without invoking S4.
 
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: virtio_net: set/cancel work on ndo_open/ndo_stop
+* virtio-console: port IO keeps working fine before and after.
+  * If a port is waiting for data from the host (blocking read(2)
+    call), this works fine in both the cases: host-side connection is
+    available or unavailable after resume.  In case the host-side
+    connection isn't available, the blocking call is terminated.  If
+    it is available, the call continues to remain in blocked state
+    till further data arrives.
 
-Michael S. Tsirkin noticed that we could run the refill work after
-ndo_close, which can re-enable napi - we don't disable it until
-virtnet_remove.  This is clearly wrong, so move the workqueue control
-to ndo_open and ndo_stop (aka. virtnet_open and virtnet_close).
+* virtio-net: ping remains active across S4.
 
-One subtle point: virtnet_probe() could simply fail if it couldn't
-allocate a receive buffer, but that's less polite in virtnet_open() so
-we schedule a refill as we do in the normal receive path if we run out
-of memory.
+* virtio-balloon: Works fine before and after.  Forgets the ballooned
+  value across S4 (see details in commit log). Maintains ballooned
+  value on failed freeze.
 
-Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
----
- drivers/net/virtio_net.c |   17 +++++++++++++----
- 1 file changed, 13 insertions(+), 4 deletions(-)
+All of these tests are run in parallel.
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -439,7 +439,13 @@ static int add_recvbuf_mergeable(struct 
- 	return err;
- }
- 
--/* Returns false if we couldn't fill entirely (OOM). */
-+/*
-+ * Returns false if we couldn't fill entirely (OOM).
-+ *
-+ * Normally run in the receive path, but can also be run from ndo_open
-+ * before we're receiving packets, or from refill_work which is
-+ * careful to disable receiving (using napi_disable).
-+ */
- static bool try_fill_recv(struct virtnet_info *vi, gfp_t gfp)
- {
- 	int err;
-@@ -719,6 +725,10 @@ static int virtnet_open(struct net_devic
- {
- 	struct virtnet_info *vi = netdev_priv(dev);
- 
-+	/* Make sure we have some buffers: if oom use wq. */
-+	if (!try_fill_recv(vi, GFP_KERNEL))
-+		schedule_delayed_work(&vi->refill, 0);
-+
- 	virtnet_napi_enable(vi);
- 	return 0;
- }
-@@ -772,6 +782,8 @@ static int virtnet_close(struct net_devi
- {
- 	struct virtnet_info *vi = netdev_priv(dev);
- 
-+	/* Make sure refill_work doesn't re-enable napi! */
-+	cancel_delayed_work_sync(&vi->refill);
- 	napi_disable(&vi->napi);
- 
- 	return 0;
-@@ -1082,7 +1094,6 @@ static int virtnet_probe(struct virtio_d
- 
- unregister:
- 	unregister_netdev(dev);
--	cancel_delayed_work_sync(&vi->refill);
- free_vqs:
- 	vdev->config->del_vqs(vdev);
- free_stats:
-@@ -1121,9 +1132,7 @@ static void __devexit virtnet_remove(str
- 	/* Stop all the virtqueues. */
- 	vdev->config->reset(vdev);
- 
--
- 	unregister_netdev(vi->dev);
--	cancel_delayed_work_sync(&vi->refill);
- 
- 	/* Free unused buffers in both send and recv, if any. */
- 	free_unused_bufs(vi);
+v6:
+ - Based on top of block and net module remove race fix patches
+
+v5:
+ - Enable virtio device after the driver-specific restore/thaw
+   callbacks are completed.
+ - Balloon: Don't exit kthread on freeze.  It's already frozen by the
+   PM API before invoking the freeze callback, so exiting is pointless.
+
+v4:
+ - Disable / enable napi across S4 (Michael S. Tsirkin)
+ - Balloon: lots of improvements (I had neglected this driver thinking
+   it was a simple one, but this one needed the most thought!  Check
+   the commit log for patch 12 for details.)
+ - Net, Blk: Reset device as the first operation on freeze
+
+v3:
+ - Reset vqs before deleting them (Sasha Levin)
+ - Flush block queue before freeze (Rusty)
+ - Detach netdev before freeze (Michael S. Tsirkin)
+
+v2:
+ - fix checkpatch errors/warnings
+
+Amit Shah (11):
+  virtio: pci: switch to new PM API
+  virtio: pci: add PM notification handlers for restore, freeze, thaw,
+    poweroff
+  virtio: console: Move vq and vq buf removal into separate functions
+  virtio: console: Add freeze and restore handlers to support S4
+  virtio: blk: Move vq initialization to separate function
+  virtio: blk: Add freeze, restore handlers to support S4
+  virtio: net: Move vq initialization into separate function
+  virtio: net: Move vq and vq buf removal into separate function
+  virtio: net: Add freeze, restore handlers to support S4
+  virtio: balloon: Move vq initialization into separate function
+  virtio: balloon: Add freeze, restore handlers to support S4
+
+ drivers/block/virtio_blk.c      |   63 ++++++++++++++++++--
+ drivers/char/virtio_console.c   |  126 ++++++++++++++++++++++++++++++---------
+ drivers/net/virtio_net.c        |  113 ++++++++++++++++++++++++++--------
+ drivers/virtio/virtio_balloon.c |   95 ++++++++++++++++++++++++------
+ drivers/virtio/virtio_pci.c     |  106 +++++++++++++++++++++++++++++++-
+ include/linux/virtio.h          |    5 ++
+ 6 files changed, 426 insertions(+), 82 deletions(-)
+
+-- 
+1.7.7.4
