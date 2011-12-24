@@ -1,11 +1,16 @@
-From: Julia Lawall <julia@diku.dk>
-Subject: [PATCH 4/9] drivers/xen/gntalloc.c: introduce missing kfree
-Date: Fri, 23 Dec 2011 18:39:29 +0100
-Message-ID: <1324661974-17281-4-git-send-email-julia__13454.0977109738$1324663860$gmane$org@diku.dk>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [RESENDx2] [PULL] virtio: fix barriers for virtio-mmio
+Date: Sat, 24 Dec 2011 13:31:14 +1030
+Message-ID: <87pqfeisg5.fsf@rustcorp.com.au>
+References: <8739cbkgv2.fsf@rustcorp.com.au>
+	<CA+55aFyvMkAtXPRxiFR+UpZKGHMhp8Vd9aYg1dkaoKMwD5MLcw@mail.gmail.com>
+	<CA+55aFzKU0GWqpQo2AzAawoVm=qPaJiwKTcifeYApyZP_Hj3nQ@mail.gmail.com>
+	<CAK=WgbacH1tXHJiHNKLNNsFA7-vnFT_J6vYOANh0wzGyUj8Zpg@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <CAK=WgbacH1tXHJiHNKLNNsFA7-vnFT_J6vYOANh0wzGyUj8Zpg@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,61 +20,22 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, xen-devel@lists.xensource.com, kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Ohad Ben-Cohen <ohad@wizery.com>, Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-kernel@vger.kernel.org, linux-arm <linux-arm-kernel@lists.infradead.org>, virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Error handling code following a kmalloc should free the allocated data.
-Out_unlock is used on both success and failure, so free vm_priv before
-jumping to that label.
+On Fri, 23 Dec 2011 13:35:26 +0200, Ohad Ben-Cohen <ohad@wizery.com> wrote:
+> On Fri, Dec 23, 2011 at 11:35 AM, Linus Torvalds
+> <torvalds@linux-foundation.org> wrote:
+> > On x86, there really is never any reason to use the heavy memory
+> > barriers unless you are talking to a real device. And last I saw,
+> > "virtio" was still about virtual IO.
 
-A simplified version of the semantic match that finds the problem is as
-follows: (http://coccinelle.lip6.fr)
+Not any more, as the commit message describes.
 
-// <smpl>
-@r exists@
-local idexpression x;
-statement S;
-identifier f1;
-position p1,p2;
-expression *ptr != NULL;
-@@
+But I missed that they're using rpmsg, which isn't merged yet.
 
-x@p1 = \(kmalloc\|kzalloc\|kcalloc\)(...);
-...
-if (x == NULL) S
-<... when != x
-     when != if (...) { <+...x...+> }
-x->f1
-...>
-(
- return \(0\|<+...x...+>\|ptr\);
-|
- return@p2 ...;
-)
-
-@script:python@
-p1 << r.p1;
-p2 << r.p2;
-@@
-
-print "* file: %s kmalloc %s return %s" % (p1[0].file,p1[0].line,p2[0].line)
-// </smpl>
-
-Signed-off-by: Julia Lawall <julia@diku.dk>
-
----
- drivers/xen/gntalloc.c |    1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/drivers/xen/gntalloc.c b/drivers/xen/gntalloc.c
-index e2400c8..934985d 100644
---- a/drivers/xen/gntalloc.c
-+++ b/drivers/xen/gntalloc.c
-@@ -525,6 +525,7 @@ static int gntalloc_mmap(struct file *filp, struct vm_area_struct *vma)
- 		rv = -ENOENT;
- 		pr_debug("%s: Could not find grant reference",
- 				__func__);
-+		kfree(vm_priv);
- 		goto out_unlock;
- 	}
+Sorry for the noise,
+Rusty.
+PS. Switching barriers by bus type is too crude anyway, let's come up
+    with something better...
