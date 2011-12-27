@@ -1,41 +1,42 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [RESENDx2] [PULL] virtio: fix barriers for virtio-mmio
-Date: Sat, 24 Dec 2011 13:31:14 +1030
-Message-ID: <87pqfeisg5.fsf@rustcorp.com.au>
-References: <8739cbkgv2.fsf@rustcorp.com.au>
-	<CA+55aFyvMkAtXPRxiFR+UpZKGHMhp8Vd9aYg1dkaoKMwD5MLcw@mail.gmail.com>
-	<CA+55aFzKU0GWqpQo2AzAawoVm=qPaJiwKTcifeYApyZP_Hj3nQ@mail.gmail.com>
-	<CAK=WgbacH1tXHJiHNKLNNsFA7-vnFT_J6vYOANh0wzGyUj8Zpg@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAK=WgbacH1tXHJiHNKLNNsFA7-vnFT_J6vYOANh0wzGyUj8Zpg@mail.gmail.com>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Ohad Ben-Cohen <ohad@wizery.com>, Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-kernel@vger.kernel.org, linux-arm <linux-arm-kernel@lists.infradead.org>, virtualization <virtualization@lists.linux-foundation.org>
+From: "K. Y. Srinivasan" <kys@microsoft.com>
+Subject: [PATCH 1/1] Drivers:hv: Fix a bug in vmbus_driver_unregister()
+Date: Tue, 27 Dec 2011 13:49:37 -0800
+Message-ID: <1325022577-23081-1-git-send-email-kys@microsoft.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org, ohering@suse.com
+Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Fuzhou Chen <fuzhouch@microsoft.com>, Sasha Levin <levinsasha928@gmail.com>, stable <stable@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 23 Dec 2011 13:35:26 +0200, Ohad Ben-Cohen <ohad@wizery.com> wrote:
-> On Fri, Dec 23, 2011 at 11:35 AM, Linus Torvalds
-> <torvalds@linux-foundation.org> wrote:
-> > On x86, there really is never any reason to use the heavy memory
-> > barriers unless you are talking to a real device. And last I saw,
-> > "virtio" was still about virtual IO.
+The function vmbus_exists() was introduced recently to deal with cases where
+the vmbus driver failed to initialize and yet other Hyper-V drivers attempted
+to register with the vmbus bus driver. This patch introduced a bug where
+vmbus_driver_unregister() would fail to unregister the driver. This patch 
+fixes the problem.
 
-Not any more, as the commit message describes.
+Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
+Signed-off-by: Fuzhou Chen <fuzhouch@microsoft.com>
+Cc: Sasha Levin <levinsasha928@gmail.com>
+Cc: stable <stable@vger.kernel.org>
+---
+ drivers/hv/vmbus_drv.c |    5 +----
+ 1 files changed, 1 insertions(+), 4 deletions(-)
 
-But I missed that they're using rpmsg, which isn't merged yet.
-
-Sorry for the noise,
-Rusty.
-PS. Switching barriers by bus type is too crude anyway, let's come up
-    with something better...
+diff --git a/drivers/hv/vmbus_drv.c b/drivers/hv/vmbus_drv.c
+index c3875f7..a220e57 100644
+--- a/drivers/hv/vmbus_drv.c
++++ b/drivers/hv/vmbus_drv.c
+@@ -627,10 +627,7 @@ void vmbus_driver_unregister(struct hv_driver *hv_driver)
+ 	pr_info("unregistering driver %s\n", hv_driver->name);
+ 
+ 	if (!vmbus_exists())
+-		return;
+-
+-	driver_unregister(&hv_driver->driver);
+-
++		driver_unregister(&hv_driver->driver);
+ }
+ EXPORT_SYMBOL_GPL(vmbus_driver_unregister);
+ 
+-- 
+1.7.4.1
