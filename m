@@ -1,17 +1,18 @@
-From: Amit Shah <amit.shah@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH v6 09/11] virtio: net: Add freeze, restore handlers to
 	support S4
-Date: Fri, 30 Dec 2011 15:08:19 +0530
-Message-ID: <20111230085205.GG4576@amit.redhat.com>
+Date: Sun, 1 Jan 2012 13:47:27 +0200
+Message-ID: <20120101114727.GC25350@redhat.com>
 References: <cover.1324553223.git.amit.shah@redhat.com>
 	<f84fa9fdc9f5629e711cbb89a2e7efbb289d72fa.1324553223.git.amit.shah@redhat.com>
 	<20111229161523.GB2300@redhat.com>
+	<20111230085205.GG4576@amit.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20111229161523.GB2300@redhat.com>
+In-Reply-To: <20111230085205.GG4576@amit.redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,90 +22,22 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
+To: Amit Shah <amit.shah@redhat.com>
 Cc: linux-pm@vger.kernel.org, linux-kernel@vger.kernel.org, Virtualization List <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On (Thu) 29 Dec 2011 [18:15:23], Michael S. Tsirkin wrote:
-> On Thu, Dec 22, 2011 at 04:58:33PM +0530, Amit Shah wrote:
-> > Remove all the vqs, disable napi and detach from the netdev on
-> > hibernation.
+On Fri, Dec 30, 2011 at 03:08:19PM +0530, Amit Shah wrote:
 > > 
-> > Re-create vqs after restoring from a hibernated image, re-enable napi
-> > and re-attach the netdev.  This keeps networking working across
-> > hibernation.
+> > > +	if (!try_fill_recv(vi, GFP_KERNEL))
+> > > +		schedule_delayed_work(&vi->refill, 0);
 > > 
-> > Signed-off-by: Amit Shah <amit.shah@redhat.com>
-> > ---
-> >  drivers/net/virtio_net.c |   46 ++++++++++++++++++++++++++++++++++++++++++++++
-> >  1 files changed, 46 insertions(+), 0 deletions(-)
-> > 
-> > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> > index 7a2a5bf..b31670f 100644
-> > --- a/drivers/net/virtio_net.c
-> > +++ b/drivers/net/virtio_net.c
-> > @@ -1159,6 +1159,48 @@ static void __devexit virtnet_remove(struct virtio_device *vdev)
-> >  	free_netdev(vi->dev);
-> >  }
-> >  
-> > +#ifdef CONFIG_PM
-> > +static int virtnet_freeze(struct virtio_device *vdev)
-> > +{
-> > +	struct virtnet_info *vi = vdev->priv;
-> > +
-> > +	virtqueue_disable_cb(vi->rvq);
-> > +	virtqueue_disable_cb(vi->svq);
-> > +	if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_CTRL_VQ))
-> > +		virtqueue_disable_cb(vi->cvq);
-> > +
-> > +	netif_device_detach(vi->dev);
-> > +	cancel_delayed_work_sync(&vi->refill);
-> > +
-> > +	if (netif_running(vi->dev))
-> > +		napi_disable(&vi->napi);
-> > +
-> > +	remove_vq_common(vi);
-> > +
-> > +	return 0;
-> > +}
-> > +
-> > +static int virtnet_restore(struct virtio_device *vdev)
-> > +{
-> > +	struct virtnet_info *vi = vdev->priv;
-> > +	int err;
-> > +
-> > +	err = init_vqs(vi);
-> > +	if (err)
-> > +		return err;
-> > +
-> > +	if (netif_running(vi->dev))
+> > This needs to be switched to non reentrant wq too?
 > 
-> Can virtnet close run at this point?
-> If yes it's a bug.
-
-Userspace is suspended, and kthreads are frozen.  If virtnet_close was
-called before suspend, it would have already succeeded in disabling
-napi.
-
-> > +		virtnet_napi_enable(vi);
-> > +
-> > +	netif_device_attach(vi->dev);
-> > +
+> Subsequent invocations could create problems?  Note that this will be
+> the first item to be queued in the workqueue for the refill work.
 > 
-> Not that open/close start/stop refill,
-> I wonder whether this is a problem.
-> For example, can virtnet_close run at this point,
-> and cancel refill?
+> 		Amit
 
-Same as above
-
-> 
-> > +	if (!try_fill_recv(vi, GFP_KERNEL))
-> > +		schedule_delayed_work(&vi->refill, 0);
-> 
-> This needs to be switched to non reentrant wq too?
-
-Subsequent invocations could create problems?  Note that this will be
-the first item to be queued in the workqueue for the refill work.
-
-		Amit
+See recent patches on net-next.
+We switched other calls to a non reentrant wq so I think same
+reasoning applies there.
