@@ -1,18 +1,15 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v6 09/11] virtio: net: Add freeze, restore handlers to
-	support S4
-Date: Sun, 1 Jan 2012 13:47:27 +0200
-Message-ID: <20120101114727.GC25350@redhat.com>
-References: <cover.1324553223.git.amit.shah@redhat.com>
-	<f84fa9fdc9f5629e711cbb89a2e7efbb289d72fa.1324553223.git.amit.shah@redhat.com>
-	<20111229161523.GB2300@redhat.com>
-	<20111230085205.GG4576@amit.redhat.com>
+Subject: Re: [patch] virtio_blk: lock() => unlock() typo in
+	virtblk_config_changed_work()
+Date: Tue, 3 Jan 2012 17:31:28 +0200
+Message-ID: <20120103153127.GA8440@redhat.com>
+References: <20120103144513.GB21712@elgon.mountain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20111230085205.GG4576@amit.redhat.com>
+In-Reply-To: <20120103144513.GB21712@elgon.mountain>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,22 +19,28 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Amit Shah <amit.shah@redhat.com>
-Cc: linux-pm@vger.kernel.org, linux-kernel@vger.kernel.org, Virtualization List <virtualization@lists.linux-foundation.org>
+To: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: kernel-janitors@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Dec 30, 2011 at 03:08:19PM +0530, Amit Shah wrote:
-> > 
-> > > +	if (!try_fill_recv(vi, GFP_KERNEL))
-> > > +		schedule_delayed_work(&vi->refill, 0);
-> > 
-> > This needs to be switched to non reentrant wq too?
+On Tue, Jan 03, 2012 at 05:45:13PM +0300, Dan Carpenter wrote:
+> This will deadlock.
 > 
-> Subsequent invocations could create problems?  Note that this will be
-> the first item to be queued in the workqueue for the refill work.
+> Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
 > 
-> 		Amit
+> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+> index f3d77b3..ba73661 100644
+> --- a/drivers/block/virtio_blk.c
+> +++ b/drivers/block/virtio_blk.c
+> @@ -352,7 +352,7 @@ static void virtblk_config_changed_work(struct work_struct *work)
+>  
+>  	set_capacity(vblk->disk, capacity);
+>  done:
+> -	mutex_lock(&vblk->config_lock);
+> +	mutex_unlock(&vblk->config_lock);
+>  }
+>  
+>  static void virtblk_config_changed(struct virtio_device *vdev)
 
-See recent patches on net-next.
-We switched other calls to a non reentrant wq so I think same
-reasoning applies there.
+Good catch.
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
