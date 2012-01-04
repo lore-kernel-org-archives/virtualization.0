@@ -1,11 +1,15 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: [PATCH 1/2] virtio: net: Move vq initialization into separate function
-Date: Wed, 04 Jan 2012 13:27:05 +1030
-Message-ID: <87obukcgzi.fsf__38976.8036352054$1325645876$gmane$org@rustcorp.com.au>
+Subject: Re: [patch] virtio_blk: lock() => unlock() typo in
+	virtblk_config_changed_work()
+Date: Wed, 04 Jan 2012 13:02:55 +1030
+Message-ID: <87wr98ci3s.fsf@rustcorp.com.au>
+References: <20120103144513.GB21712@elgon.mountain>
+	<20120103153127.GA8440@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20120103153127.GA8440@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,90 +19,34 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: netdev <netdev@vger.kernel.org>
-Cc: Amit Shah <amit.shah@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, Virtualization List <virtualization@lists.linux-foundation.org>
+To: "Michael S. Tsirkin" <mst@redhat.com>, Dan Carpenter <dan.carpenter@oracle.com>
+Cc: kernel-janitors@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Amit Shah <amit.shah@redhat.com>
+On Tue, 3 Jan 2012 17:31:28 +0200, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> On Tue, Jan 03, 2012 at 05:45:13PM +0300, Dan Carpenter wrote:
+> > This will deadlock.
+> > 
+> > Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+> > 
+> > diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+> > index f3d77b3..ba73661 100644
+> > --- a/drivers/block/virtio_blk.c
+> > +++ b/drivers/block/virtio_blk.c
+> > @@ -352,7 +352,7 @@ static void virtblk_config_changed_work(struct work_struct *work)
+> >  
+> >  	set_capacity(vblk->disk, capacity);
+> >  done:
+> > -	mutex_lock(&vblk->config_lock);
+> > +	mutex_unlock(&vblk->config_lock);
+> >  }
+> >  
+> >  static void virtblk_config_changed(struct virtio_device *vdev)
+> 
+> Good catch.
+> Acked-by: Michael S. Tsirkin <mst@redhat.com>
 
-The probe and PM restore functions will share this code.
+Indeed, I folded it into that patch.
 
-Signed-off-by: Amit Shah <amit.shah@redhat.com>
-Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
----
- drivers/net/virtio_net.c |   47 ++++++++++++++++++++++++++++-------------------
- 1 file changed, 28 insertions(+), 19 deletions(-)
-
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 1b67e8a..ec8c400 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -966,15 +966,38 @@ static void virtnet_config_changed(struct virtio_device *vdev)
- 	virtnet_update_status(vi);
- }
- 
-+static int init_vqs(struct virtnet_info *vi)
-+{
-+	struct virtqueue *vqs[3];
-+	vq_callback_t *callbacks[] = { skb_recv_done, skb_xmit_done, NULL};
-+	const char *names[] = { "input", "output", "control" };
-+	int nvqs, err;
-+
-+	/* We expect two virtqueues, receive then send,
-+	 * and optionally control. */
-+	nvqs = virtio_has_feature(vi->vdev, VIRTIO_NET_F_CTRL_VQ) ? 3 : 2;
-+
-+	err = vi->vdev->config->find_vqs(vi->vdev, nvqs, vqs, callbacks, names);
-+	if (err)
-+		return err;
-+
-+	vi->rvq = vqs[0];
-+	vi->svq = vqs[1];
-+
-+	if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_CTRL_VQ)) {
-+		vi->cvq = vqs[2];
-+
-+		if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_CTRL_VLAN))
-+			vi->dev->features |= NETIF_F_HW_VLAN_FILTER;
-+	}
-+	return 0;
-+}
-+
- static int virtnet_probe(struct virtio_device *vdev)
- {
- 	int err;
- 	struct net_device *dev;
- 	struct virtnet_info *vi;
--	struct virtqueue *vqs[3];
--	vq_callback_t *callbacks[] = { skb_recv_done, skb_xmit_done, NULL};
--	const char *names[] = { "input", "output", "control" };
--	int nvqs;
- 
- 	/* Allocate ourselves a network device with room for our info */
- 	dev = alloc_etherdev(sizeof(struct virtnet_info));
-@@ -1046,24 +1069,10 @@ static int virtnet_probe(struct virtio_device *vdev)
- 	if (virtio_has_feature(vdev, VIRTIO_NET_F_MRG_RXBUF))
- 		vi->mergeable_rx_bufs = true;
- 
--	/* We expect two virtqueues, receive then send,
--	 * and optionally control. */
--	nvqs = virtio_has_feature(vi->vdev, VIRTIO_NET_F_CTRL_VQ) ? 3 : 2;
--
--	err = vdev->config->find_vqs(vdev, nvqs, vqs, callbacks, names);
-+	err = init_vqs(vi);
- 	if (err)
- 		goto free_stats;
- 
--	vi->rvq = vqs[0];
--	vi->svq = vqs[1];
--
--	if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_CTRL_VQ)) {
--		vi->cvq = vqs[2];
--
--		if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_CTRL_VLAN))
--			dev->features |= NETIF_F_HW_VLAN_FILTER;
--	}
--
- 	err = register_netdev(dev);
- 	if (err) {
- 		pr_debug("virtio_net: registering device failed\n");
+Thanks!
+Rusty.
