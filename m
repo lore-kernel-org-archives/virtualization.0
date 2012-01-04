@@ -1,11 +1,19 @@
-From: Haogang Chen <haogangchen@gmail.com>
-Subject: [PATCH] XEN: xenbus: integer overflow in process_msg()
-Date: Tue,  3 Jan 2012 14:42:11 -0500
-Message-ID: <1325619731-13936-1-git-send-email-haogangchen__2438.21249246157$1325623494$gmane$org@gmail.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH v6 09/11] virtio: net: Add freeze,
+	restore handlers to support S4
+Date: Wed, 04 Jan 2012 13:19:47 +1030
+Message-ID: <87ty4cchbo.fsf@rustcorp.com.au>
+References: <cover.1324553223.git.amit.shah@redhat.com>
+	<f84fa9fdc9f5629e711cbb89a2e7efbb289d72fa.1324553223.git.amit.shah@redhat.com>
+	<20111229161523.GB2300@redhat.com>
+	<20111230085205.GG4576@amit.redhat.com>
+	<20120101114727.GC25350@redhat.com>
+	<20120103170748.GE4536@amit.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20120103170748.GE4536@amit.redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,41 +23,38 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Jeremy Fitzhardinge <jeremy@goop.org>, Ian Campbell <Ian.Campbell@citrix.com>
-Cc: Haogang Chen <haogangchen@gmail.com>, xen-devel@lists.xensource.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Amit Shah <amit.shah@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: netdev <netdev@vger.kernel.org>, linux-pm@vger.kernel.org, linux-kernel@vger.kernel.org, Virtualization List <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-There is a potential integer overflow in process_msg() that could result
-in cross-domain attack.
+On Tue, 3 Jan 2012 22:37:48 +0530, Amit Shah <amit.shah@redhat.com> wrote:
+> On (Sun) 01 Jan 2012 [13:47:27], Michael S. Tsirkin wrote:
+> > On Fri, Dec 30, 2011 at 03:08:19PM +0530, Amit Shah wrote:
+> > > > 
+> > > > > +	if (!try_fill_recv(vi, GFP_KERNEL))
+> > > > > +		schedule_delayed_work(&vi->refill, 0);
+> > > > 
+> > > > This needs to be switched to non reentrant wq too?
+> > > 
+> > > Subsequent invocations could create problems?  Note that this will be
+> > > the first item to be queued in the workqueue for the refill work.
+> > > 
+> > > 		Amit
+> > 
+> > See recent patches on net-next.
+> > We switched other calls to a non reentrant wq so I think same
+> > reasoning applies there.
+> 
+> There's a patch ordering issue; so this series should land after the
+> -net series is merged.
+> 
+> Rusty, do you want me to re-spin this patch on top of yours, or is
+> that something that you'll handle?
 
-	body = kmalloc(msg->hdr.len + 1, GFP_NOIO | __GFP_HIGH);
+Indeed, this can't go via -net, since it needs the virtio-pci patches
+which change power management.
 
-When a malicious guest passes 0xffffffff in msg->hdr.len, the subsequent
-call to xb_read() would write to a zero-length buffer. This causes
-kernel oops in the receiving guest and hangs its xenbus kernel thread.
-The patch returns -EINVAL in that case.
+I've changed that one line, and will post those patches for DaveM's ack.
 
-Signed-off-by: Haogang Chen <haogangchen@gmail.com>
----
- drivers/xen/xenbus/xenbus_xs.c |    6 ++++++
- 1 files changed, 6 insertions(+), 0 deletions(-)
-
-diff --git a/drivers/xen/xenbus/xenbus_xs.c b/drivers/xen/xenbus/xenbus_xs.c
-index ede860f..e32aefb 100644
---- a/drivers/xen/xenbus/xenbus_xs.c
-+++ b/drivers/xen/xenbus/xenbus_xs.c
-@@ -801,6 +801,12 @@ static int process_msg(void)
- 		goto out;
- 	}
- 
-+	if (msg->hdr.len == UINT_MAX) {
-+		kfree(msg);
-+		err = -EINVAL;
-+		goto out;
-+	}
-+
- 	body = kmalloc(msg->hdr.len + 1, GFP_NOIO | __GFP_HIGH);
- 	if (body == NULL) {
- 		kfree(msg);
--- 
-1.7.5.4
+Thanks,
+Rusty.
