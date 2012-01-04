@@ -1,7 +1,8 @@
 From: Ian Campbell <ian.campbell@citrix.com>
-Subject: [PATCH 1/2] xenbus: maximum buffer size is XENSTORE_PAYLOAD_MAX
-Date: Wed, 4 Jan 2012 11:39:51 +0000
-Message-ID: <1325677192-10459-1-git-send-email-ian.campbell@citrix.com>
+Subject: [PATCH 2/2] xen/xenbus: don't reimplement kvasprintf via a fixed size
+	buffer
+Date: Wed, 4 Jan 2012 11:39:52 +0000
+Message-ID: <1325677192-10459-2-git-send-email-ian.campbell@citrix.com>
 References: <1325677158.25206.244.camel@zakaz.uk.xensource.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -20,12 +21,6 @@ Errors-To: virtualization-bounces@lists.linux-foundation.org
 Cc: Jeremy Fitzhardinge <jeremy@goop.org>, xen-devel@lists.xensource.com, Ian Campbell <ian.campbell@citrix.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Haogang Chen <haogangchen@gmail.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Use this now that it is defined even though it happens to be == PAGE_SIZE.
-
-The code which takes requests from userspace already validates against the size
-of this buffer so no further checks are required to ensure that userspace
-requests comply with the protocol in this respect.
-
 Signed-off-by: Ian Campbell <ian.campbell@citrix.com>
 Cc: Haogang Chen <haogangchen@gmail.com>
 Cc: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
@@ -34,21 +29,41 @@ Cc: xen-devel@lists.xensource.com
 Cc: virtualization@lists.linux-foundation.org
 Cc: linux-kernel@vger.kernel.org
 ---
- drivers/xen/xenbus/xenbus_dev_frontend.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+ drivers/xen/xenbus/xenbus_xs.c |   17 +++++++----------
+ 1 files changed, 7 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/xen/xenbus/xenbus_dev_frontend.c b/drivers/xen/xenbus/xenbus_dev_frontend.c
-index fb30cff..1fe4324 100644
---- a/drivers/xen/xenbus/xenbus_dev_frontend.c
-+++ b/drivers/xen/xenbus/xenbus_dev_frontend.c
-@@ -104,7 +104,7 @@ struct xenbus_file_priv {
- 	unsigned int len;
- 	union {
- 		struct xsd_sockmsg msg;
--		char buffer[PAGE_SIZE];
-+		char buffer[XENSTORE_PAYLOAD_MAX];
- 	} u;
+diff --git a/drivers/xen/xenbus/xenbus_xs.c b/drivers/xen/xenbus/xenbus_xs.c
+index 6f0121e..226d1ac 100644
+--- a/drivers/xen/xenbus/xenbus_xs.c
++++ b/drivers/xen/xenbus/xenbus_xs.c
+@@ -532,21 +532,18 @@ int xenbus_printf(struct xenbus_transaction t,
+ {
+ 	va_list ap;
+ 	int ret;
+-#define PRINTF_BUFFER_SIZE 4096
+-	char *printf_buffer;
+-
+-	printf_buffer = kmalloc(PRINTF_BUFFER_SIZE, GFP_NOIO | __GFP_HIGH);
+-	if (printf_buffer == NULL)
+-		return -ENOMEM;
++	char *buf;
  
- 	/* Response queue. */
+ 	va_start(ap, fmt);
+-	ret = vsnprintf(printf_buffer, PRINTF_BUFFER_SIZE, fmt, ap);
++	buf = kvasprintf(GFP_NOIO | __GFP_HIGH, fmt, ap);
+ 	va_end(ap);
+ 
+-	BUG_ON(ret > PRINTF_BUFFER_SIZE-1);
+-	ret = xenbus_write(t, dir, node, printf_buffer);
++	if (!buf)
++		return -ENOMEM;
++
++	ret = xenbus_write(t, dir, node, buf);
+ 
+-	kfree(printf_buffer);
++	kfree(buf);
+ 
+ 	return ret;
+ }
 -- 
 1.7.2.5
