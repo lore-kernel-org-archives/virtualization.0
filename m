@@ -1,14 +1,13 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: [PATCH] (please ack, don't apply!) virtio: net: Add freeze,
-	restore handlers to support S4
-Date: Wed, 04 Jan 2012 13:30:27 +1030
-Message-ID: <87ipkscgtw.fsf@rustcorp.com.au>
-References: <87obukcgzi.fsf@rustcorp.com.au>
+From: Ian Campbell <Ian.Campbell@citrix.com>
+Subject: Re: [PATCH] XEN: xenbus: integer overflow in process_msg()
+Date: Wed, 4 Jan 2012 09:24:54 +0000
+Message-ID: <1325669095.25206.176.camel@zakaz.uk.xensource.com>
+References: <1325619731-13936-1-git-send-email-haogangchen@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <87obukcgzi.fsf@rustcorp.com.au>
+In-Reply-To: <1325619731-13936-1-git-send-email-haogangchen@gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,88 +17,52 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: netdev <netdev@vger.kernel.org>
-Cc: Amit Shah <amit.shah@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, Virtualization List <virtualization@lists.linux-foundation.org>
+To: Haogang Chen <haogangchen@gmail.com>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, "xen-devel@lists.xensource.com" <xen-devel@lists.xensource.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-(This needs PM changes to virtio_pci which are in my tree, so best done
- via that rather than net-next.  Thanks!)
- 
-From: Amit Shah <amit.shah@redhat.com>
+On Tue, 2012-01-03 at 19:42 +0000, Haogang Chen wrote:
+> There is a potential integer overflow in process_msg() that could result
+> in cross-domain attack.
+> 
+> 	body = kmalloc(msg->hdr.len + 1, GFP_NOIO | __GFP_HIGH);
+> 
+> When a malicious guest passes 0xffffffff in msg->hdr.len, the subsequent
+> call to xb_read() would write to a zero-length buffer.
 
-Remove all the vqs, disable napi and detach from the netdev on
-hibernation.
+The other end of this connection is always the xenstore backend daemon
+so there is no guest (malicious or otherwise) which can do this. The
+xenstore daemon is a trusted component in the system.
 
-Re-create vqs after restoring from a hibernated image, re-enable napi
-and re-attach the netdev.  This keeps networking working across
-hibernation.
+However this seem like a reasonable robustness improvement so we should
+have it.
 
-Signed-off-by: Amit Shah <amit.shah@redhat.com>
-Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
----
- drivers/net/virtio_net.c |   46 ++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 46 insertions(+)
+> This causes
+> kernel oops in the receiving guest and hangs its xenbus kernel thread.
+> The patch returns -EINVAL in that case.
+> 
+> Signed-off-by: Haogang Chen <haogangchen@gmail.com>
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -1159,6 +1159,48 @@ static void __devexit virtnet_remove(str
- 	free_netdev(vi->dev);
- }
- 
-+#ifdef CONFIG_PM
-+static int virtnet_freeze(struct virtio_device *vdev)
-+{
-+	struct virtnet_info *vi = vdev->priv;
-+
-+	virtqueue_disable_cb(vi->rvq);
-+	virtqueue_disable_cb(vi->svq);
-+	if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_CTRL_VQ))
-+		virtqueue_disable_cb(vi->cvq);
-+
-+	netif_device_detach(vi->dev);
-+	cancel_delayed_work_sync(&vi->refill);
-+
-+	if (netif_running(vi->dev))
-+		napi_disable(&vi->napi);
-+
-+	remove_vq_common(vi);
-+
-+	return 0;
-+}
-+
-+static int virtnet_restore(struct virtio_device *vdev)
-+{
-+	struct virtnet_info *vi = vdev->priv;
-+	int err;
-+
-+	err = init_vqs(vi);
-+	if (err)
-+		return err;
-+
-+	if (netif_running(vi->dev))
-+		virtnet_napi_enable(vi);
-+
-+	netif_device_attach(vi->dev);
-+
-+	if (!try_fill_recv(vi, GFP_KERNEL))
-+		queue_delayed_work(system_nrt_wq, &vi->refill, 0);
-+
-+	return 0;
-+}
-+#endif
-+
- static struct virtio_device_id id_table[] = {
- 	{ VIRTIO_ID_NET, VIRTIO_DEV_ANY_ID },
- 	{ 0 },
-@@ -1183,6 +1225,10 @@ static struct virtio_driver virtio_net_d
- 	.probe =	virtnet_probe,
- 	.remove =	__devexit_p(virtnet_remove),
- 	.config_changed = virtnet_config_changed,
-+#ifdef CONFIG_PM
-+	.freeze =	virtnet_freeze,
-+	.restore =	virtnet_restore,
-+#endif
- };
- 
- static int __init init(void)
+Acked-by: Ian Campbell <ian.campbell@citrix.com>
+
+> ---
+>  drivers/xen/xenbus/xenbus_xs.c |    6 ++++++
+>  1 files changed, 6 insertions(+), 0 deletions(-)
+> 
+> diff --git a/drivers/xen/xenbus/xenbus_xs.c b/drivers/xen/xenbus/xenbus_xs.c
+> index ede860f..e32aefb 100644
+> --- a/drivers/xen/xenbus/xenbus_xs.c
+> +++ b/drivers/xen/xenbus/xenbus_xs.c
+> @@ -801,6 +801,12 @@ static int process_msg(void)
+>  		goto out;
+>  	}
+>  
+> +	if (msg->hdr.len == UINT_MAX) {
+> +		kfree(msg);
+> +		err = -EINVAL;
+> +		goto out;
+> +	}
+> +
+>  	body = kmalloc(msg->hdr.len + 1, GFP_NOIO | __GFP_HIGH);
+>  	if (body == NULL) {
+>  		kfree(msg);
