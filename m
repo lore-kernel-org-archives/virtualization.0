@@ -1,15 +1,14 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [patch] virtio_blk: lock() => unlock() typo in
-	virtblk_config_changed_work()
-Date: Wed, 04 Jan 2012 13:02:55 +1030
-Message-ID: <87wr98ci3s.fsf@rustcorp.com.au>
-References: <20120103144513.GB21712@elgon.mountain>
-	<20120103153127.GA8440@redhat.com>
+Subject: [PATCH 2/2] virtio: net: Move vq and vq buf removal into separate
+	function
+Date: Wed, 04 Jan 2012 13:28:49 +1030
+Message-ID: <87lipocgwm.fsf@rustcorp.com.au>
+References: <87obukcgzi.fsf@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20120103153127.GA8440@redhat.com>
+In-Reply-To: <87obukcgzi.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,34 +18,56 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, Dan Carpenter <dan.carpenter@oracle.com>
-Cc: kernel-janitors@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: netdev <netdev@vger.kernel.org>
+Cc: Amit Shah <amit.shah@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, Virtualization List <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 3 Jan 2012 17:31:28 +0200, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> On Tue, Jan 03, 2012 at 05:45:13PM +0300, Dan Carpenter wrote:
-> > This will deadlock.
-> > 
-> > Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-> > 
-> > diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-> > index f3d77b3..ba73661 100644
-> > --- a/drivers/block/virtio_blk.c
-> > +++ b/drivers/block/virtio_blk.c
-> > @@ -352,7 +352,7 @@ static void virtblk_config_changed_work(struct work_struct *work)
-> >  
-> >  	set_capacity(vblk->disk, capacity);
-> >  done:
-> > -	mutex_lock(&vblk->config_lock);
-> > +	mutex_unlock(&vblk->config_lock);
-> >  }
-> >  
-> >  static void virtblk_config_changed(struct virtio_device *vdev)
-> 
-> Good catch.
-> Acked-by: Michael S. Tsirkin <mst@redhat.com>
+From: Amit Shah <amit.shah@redhat.com>
 
-Indeed, I folded it into that patch.
+The remove and PM freeze functions will share this code.
 
-Thanks!
-Rusty.
+Signed-off-by: Amit Shah <amit.shah@redhat.com>
+Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+---
+ drivers/net/virtio_net.c |   20 ++++++++++++--------
+ 1 file changed, 12 insertions(+), 8 deletions(-)
+
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index ec8c400..7a2a5bf 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -1134,22 +1134,26 @@ static void free_unused_bufs(struct virtnet_info *vi)
+ 	BUG_ON(vi->num != 0);
+ }
+ 
+-static void __devexit virtnet_remove(struct virtio_device *vdev)
++static void remove_vq_common(struct virtnet_info *vi)
+ {
+-	struct virtnet_info *vi = vdev->priv;
+-
+-	/* Stop all the virtqueues. */
+-	vdev->config->reset(vdev);
+-
+-	unregister_netdev(vi->dev);
++	vi->vdev->config->reset(vi->vdev);
+ 
+ 	/* Free unused buffers in both send and recv, if any. */
+ 	free_unused_bufs(vi);
+ 
+-	vdev->config->del_vqs(vi->vdev);
++	vi->vdev->config->del_vqs(vi->vdev);
+ 
+ 	while (vi->pages)
+ 		__free_pages(get_a_page(vi, GFP_KERNEL), 0);
++}
++
++static void __devexit virtnet_remove(struct virtio_device *vdev)
++{
++	struct virtnet_info *vi = vdev->priv;
++
++	unregister_netdev(vi->dev);
++
++	remove_vq_common(vi);
+ 
+ 	free_percpu(vi->stats);
+ 	free_netdev(vi->dev);
