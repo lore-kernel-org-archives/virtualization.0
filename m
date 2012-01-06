@@ -1,7 +1,8 @@
 From: Amit Shah <amit.shah@redhat.com>
-Subject: [PATCH 1/2] virtio: console: Serialise control work
-Date: Fri,  6 Jan 2012 16:19:07 +0530
-Message-ID: <0ee4e2fc77b40f1985391ce3f9b8a2cf3f729324.1325845993.git.amit.shah@redhat.com>
+Subject: [PATCH 2/2] virtio: console: Disable callbacks for virtqueues at
+	start of S4 freeze
+Date: Fri,  6 Jan 2012 16:19:08 +0530
+Message-ID: <a2f6a8acbe7f66f36f3fcede19ed72808673ff9c.1325845993.git.amit.shah@redhat.com>
 References: <cover.1325845993.git.amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -23,51 +24,39 @@ To: Rusty Russell <rusty@rustcorp.com.au>
 Cc: Amit Shah <amit.shah@redhat.com>, Virtualization List <virtualization@lists.linux-foundation.org>, miche@google.com, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-We currently allow multiple instances of the control work handler to run
-in parallel.  This isn't expected to work; serialise access by disabling
-interrupts on new packets from the Host and enable them when all the
-existing ones are consumed.
+To ensure we don't receive any more interrupts from the host after we
+enter the freeze function, disable all vq interrupts.
 
-Testcase: hot-plug/unplug a port in a loop.  Without this patch, some
-sysfs warnings are seen along with freezes.  With the patch, all works
-fine.
+There wasn't any problem seen due to this in tests, but applying this
+patch makes the freeze case more robust.
 
-Reported-by: Miche Baker-Harvey <miche@google.com>
 Signed-off-by: Amit Shah <amit.shah@redhat.com>
 ---
- drivers/char/virtio_console.c |    6 ++++++
- 1 files changed, 6 insertions(+), 0 deletions(-)
+ drivers/char/virtio_console.c |    8 ++++++++
+ 1 files changed, 8 insertions(+), 0 deletions(-)
 
 diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index fd2fd6f..fc54a79 100644
+index fc54a79..c1c45d8 100644
 --- a/drivers/char/virtio_console.c
 +++ b/drivers/char/virtio_console.c
-@@ -1471,6 +1471,7 @@ static void control_work_handler(struct work_struct *work)
- 	portdev = container_of(work, struct ports_device, control_work);
- 	vq = portdev->c_ivq;
+@@ -1860,10 +1860,18 @@ static int virtcons_freeze(struct virtio_device *vdev)
  
-+ start:
- 	spin_lock(&portdev->cvq_lock);
- 	while ((buf = virtqueue_get_buf(vq, &len))) {
- 		spin_unlock(&portdev->cvq_lock);
-@@ -1488,6 +1489,10 @@ static void control_work_handler(struct work_struct *work)
- 		}
- 	}
- 	spin_unlock(&portdev->cvq_lock);
-+	if (unlikely(!virtqueue_enable_cb(vq))) {
-+		virtqueue_disable_cb(vq);
-+		goto start;
-+	}
- }
+ 	vdev->config->reset(vdev);
  
- static void out_intr(struct virtqueue *vq)
-@@ -1538,6 +1543,7 @@ static void control_intr(struct virtqueue *vq)
- {
- 	struct ports_device *portdev;
++	virtqueue_disable_cb(portdev->c_ivq);
+ 	cancel_work_sync(&portdev->control_work);
++	/*
++	 * Once more: if control_work_handler() was running, it would
++	 * enable the cb as the last step.
++	 */
++	virtqueue_disable_cb(portdev->c_ivq);
+ 	remove_controlq_data(portdev);
  
-+	virtqueue_disable_cb(vq);
- 	portdev = vq->vdev->priv;
- 	schedule_work(&portdev->control_work);
- }
+ 	list_for_each_entry(port, &portdev->ports, list) {
++		virtqueue_disable_cb(port->in_vq);
++		virtqueue_disable_cb(port->out_vq);
+ 		/*
+ 		 * We'll ask the host later if the new invocation has
+ 		 * the port opened or closed.
 -- 
 1.7.7.4
