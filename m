@@ -1,65 +1,129 @@
-From: Mike Waychison <mikew@google.com>
-Subject: Re: [RFC PATCH v1 2/2] virtio_net: Don't disable napi on low memory.
-Date: Fri, 6 Jan 2012 09:54:46 -0800
-Message-ID: <CAGTjWtBbLtm47kozBC2fdwGYKsOooQec0W9PwUEAF58mYDioaQ@mail.gmail.com>
-References: <20120104225223.18184.1537.stgit@mike2.sea.corp.google.com>
-	<20120104225237.18184.71853.stgit@mike2.sea.corp.google.com>
-	<87y5tnat2g.fsf@rustcorp.com.au>
-	<CAGTjWtB3PjWDfaunXjF-KQwKYg-bPgrn-8N=8iwL0EPvviXMuw@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAGTjWtB3PjWDfaunXjF-KQwKYg-bPgrn-8N=8iwL0EPvviXMuw@mail.gmail.com>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
+From: "K. Y. Srinivasan" <kys@microsoft.com>
+Subject: [PATCH 1/1] drivers: hv: Get rid of some unnecessary code
+Date: Sun,  8 Jan 2012 10:12:18 -0800
+Message-ID: <1326046338-23033-1-git-send-email-kys@microsoft.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org, ohering@suse.com
+Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Jan 4, 2012 at 6:46 PM, Mike Waychison <mikew@google.com> wrote:
-> On Wed, Jan 4, 2012 at 4:31 PM, Rusty Russell <rusty@rustcorp.com.au> wro=
-te:
->> 4) You use the skb data for the linked list; use the skb head's list.
+The current code unnecessarily limits the number of offers we handle.
+Get rid of this limitation. As part of this cleanup, also get rid of an
+unused define - MAX_MSG_TYPES.
 
-What did you mean by this?  I was under the impression that the ->next
-and ->prev fields in sk_buff were the first two elements specifically
-so that the pointer could be treated as a list_head.  If it's the cast
-in particular that you have an objection with, I can easily change
-this to a singly linked list threaded through ->next if that's
-cleaner.
+Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
+Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
+---
+ drivers/hv/channel_mgmt.c |   87 ---------------------------------------------
+ 1 files changed, 0 insertions(+), 87 deletions(-)
 
->>
->> Instead, here's how I think it should be done:
-...
->
-> This sounds reasonable to me. =A0I'll see what I can muster together this=
- week.
->
-
-So I started implementing it the way you were mentioning, and ran into
-a problem with the original patchset.
-
-Currently the "mergeable" and "big" receive buffers use a private page
-free list (virtnet_info->pages) which has no synchronization itself.
-This means that the batched version can't use get_a_page() and
-give_pages() as is, which reduces the need to re-use the same alloc
-halves that I've split.   Alternatives I can think of at this point:
-
-- pass in a flag to the allocators like "bool is_serial" that is true
-if we are serializing with napi, (which determines if we can much with
-vi->pages)
-or
-- not use the same allocators for the "mergeable" and "big" paths.
-The mergeable allocator in the non-serialized case reduces to
-alloc_page(), while the big allocator looks like a copy and paste that
-uses alloc_page instead of get_a_page().
-
-Preferences?  I'll code one of the two up and see what it looks like.
+diff --git a/drivers/hv/channel_mgmt.c b/drivers/hv/channel_mgmt.c
+index 36484db..9ffbfc5 100644
+--- a/drivers/hv/channel_mgmt.c
++++ b/drivers/hv/channel_mgmt.c
+@@ -37,81 +37,6 @@ struct vmbus_channel_message_table_entry {
+ 	void (*message_handler)(struct vmbus_channel_message_header *msg);
+ };
+ 
+-#define MAX_MSG_TYPES                    4
+-#define MAX_NUM_DEVICE_CLASSES_SUPPORTED 8
+-
+-static const uuid_le
+-	supported_device_classes[MAX_NUM_DEVICE_CLASSES_SUPPORTED] = {
+-	/* {ba6163d9-04a1-4d29-b605-72e2ffb1dc7f} */
+-	/* Storage - SCSI */
+-	{
+-		.b  = {
+-			0xd9, 0x63, 0x61, 0xba, 0xa1, 0x04, 0x29, 0x4d,
+-			0xb6, 0x05, 0x72, 0xe2, 0xff, 0xb1, 0xdc, 0x7f
+-		}
+-	},
+-
+-	/* {F8615163-DF3E-46c5-913F-F2D2F965ED0E} */
+-	/* Network */
+-	{
+-		.b = {
+-			0x63, 0x51, 0x61, 0xF8, 0x3E, 0xDF, 0xc5, 0x46,
+-			0x91, 0x3F, 0xF2, 0xD2, 0xF9, 0x65, 0xED, 0x0E
+-		}
+-	},
+-
+-	/* {CFA8B69E-5B4A-4cc0-B98B-8BA1A1F3F95A} */
+-	/* Input */
+-	{
+-		.b = {
+-			0x9E, 0xB6, 0xA8, 0xCF, 0x4A, 0x5B, 0xc0, 0x4c,
+-			0xB9, 0x8B, 0x8B, 0xA1, 0xA1, 0xF3, 0xF9, 0x5A
+-		}
+-	},
+-
+-	/* {32412632-86cb-44a2-9b5c-50d1417354f5} */
+-	/* IDE */
+-	{
+-		.b = {
+-			0x32, 0x26, 0x41, 0x32, 0xcb, 0x86, 0xa2, 0x44,
+-			0x9b, 0x5c, 0x50, 0xd1, 0x41, 0x73, 0x54, 0xf5
+-		}
+-	},
+-	/* 0E0B6031-5213-4934-818B-38D90CED39DB */
+-	/* Shutdown */
+-	{
+-		.b = {
+-			0x31, 0x60, 0x0B, 0X0E, 0x13, 0x52, 0x34, 0x49,
+-			0x81, 0x8B, 0x38, 0XD9, 0x0C, 0xED, 0x39, 0xDB
+-		}
+-	},
+-	/* {9527E630-D0AE-497b-ADCE-E80AB0175CAF} */
+-	/* TimeSync */
+-	{
+-		.b = {
+-			0x30, 0xe6, 0x27, 0x95, 0xae, 0xd0, 0x7b, 0x49,
+-			0xad, 0xce, 0xe8, 0x0a, 0xb0, 0x17, 0x5c, 0xaf
+-		}
+-	},
+-	/* {57164f39-9115-4e78-ab55-382f3bd5422d} */
+-	/* Heartbeat */
+-	{
+-		.b = {
+-			0x39, 0x4f, 0x16, 0x57, 0x15, 0x91, 0x78, 0x4e,
+-			0xab, 0x55, 0x38, 0x2f, 0x3b, 0xd5, 0x42, 0x2d
+-		}
+-	},
+-	/* {A9A0F4E7-5A45-4d96-B827-8A841E8C03E6} */
+-	/* KVP */
+-	{
+-		.b = {
+-			0xe7, 0xf4, 0xa0, 0xa9, 0x45, 0x5a, 0x96, 0x4d,
+-			0xb8, 0x27, 0x8a, 0x84, 0x1e, 0x8c, 0x3,  0xe6
+-	}
+-	},
+-
+-};
+-
+ 
+ /**
+  * vmbus_prep_negotiate_resp() - Create default response for Hyper-V Negotiate message
+@@ -321,20 +246,8 @@ static void vmbus_onoffer(struct vmbus_channel_message_header *hdr)
+ 	struct vmbus_channel *newchannel;
+ 	uuid_le *guidtype;
+ 	uuid_le *guidinstance;
+-	int i;
+-	int fsupported = 0;
+ 
+ 	offer = (struct vmbus_channel_offer_channel *)hdr;
+-	for (i = 0; i < MAX_NUM_DEVICE_CLASSES_SUPPORTED; i++) {
+-		if (!uuid_le_cmp(offer->offer.if_type,
+-				supported_device_classes[i])) {
+-			fsupported = 1;
+-			break;
+-		}
+-	}
+-
+-	if (!fsupported)
+-		return;
+ 
+ 	guidtype = &offer->offer.if_type;
+ 	guidinstance = &offer->offer.if_instance;
+-- 
+1.7.4.1
