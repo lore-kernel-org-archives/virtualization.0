@@ -1,129 +1,45 @@
-From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 1/1] drivers: hv: Get rid of some unnecessary code
-Date: Sun,  8 Jan 2012 10:12:18 -0800
-Message-ID: <1326046338-23033-1-git-send-email-kys@microsoft.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org, ohering@suse.com
-Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH 0/2] virtio: console: control queue race fixes
+Date: Mon, 09 Jan 2012 13:01:15 +1030
+Message-ID: <87obuda9os.fsf@rustcorp.com.au>
+References: <cover.1325845993.git.amit.shah@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <cover.1325845993.git.amit.shah@redhat.com>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Cc: Amit Shah <amit.shah@redhat.com>, Virtualization List <virtualization@lists.linux-foundation.org>, miche@google.com, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The current code unnecessarily limits the number of offers we handle.
-Get rid of this limitation. As part of this cleanup, also get rid of an
-unused define - MAX_MSG_TYPES.
+On Fri,  6 Jan 2012 16:19:06 +0530, Amit Shah <amit.shah@redhat.com> wrote:
+> Hello,
+> 
+> The first patch here fixes the race seen by Miche.  He hasn't yet
+> reported back if this fixes the races he saw, but Joy Pu from Red Hat
+> tested this patch with hot-plugging/unplugging ports in a loop.
+> Before this patch, he saw some freezes as well as sysfs warnings.
+> After applying the patch, all was well.
 
-Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
-Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
----
- drivers/hv/channel_mgmt.c |   87 ---------------------------------------------
- 1 files changed, 0 insertions(+), 87 deletions(-)
 
-diff --git a/drivers/hv/channel_mgmt.c b/drivers/hv/channel_mgmt.c
-index 36484db..9ffbfc5 100644
---- a/drivers/hv/channel_mgmt.c
-+++ b/drivers/hv/channel_mgmt.c
-@@ -37,81 +37,6 @@ struct vmbus_channel_message_table_entry {
- 	void (*message_handler)(struct vmbus_channel_message_header *msg);
- };
- 
--#define MAX_MSG_TYPES                    4
--#define MAX_NUM_DEVICE_CLASSES_SUPPORTED 8
--
--static const uuid_le
--	supported_device_classes[MAX_NUM_DEVICE_CLASSES_SUPPORTED] = {
--	/* {ba6163d9-04a1-4d29-b605-72e2ffb1dc7f} */
--	/* Storage - SCSI */
--	{
--		.b  = {
--			0xd9, 0x63, 0x61, 0xba, 0xa1, 0x04, 0x29, 0x4d,
--			0xb6, 0x05, 0x72, 0xe2, 0xff, 0xb1, 0xdc, 0x7f
--		}
--	},
--
--	/* {F8615163-DF3E-46c5-913F-F2D2F965ED0E} */
--	/* Network */
--	{
--		.b = {
--			0x63, 0x51, 0x61, 0xF8, 0x3E, 0xDF, 0xc5, 0x46,
--			0x91, 0x3F, 0xF2, 0xD2, 0xF9, 0x65, 0xED, 0x0E
--		}
--	},
--
--	/* {CFA8B69E-5B4A-4cc0-B98B-8BA1A1F3F95A} */
--	/* Input */
--	{
--		.b = {
--			0x9E, 0xB6, 0xA8, 0xCF, 0x4A, 0x5B, 0xc0, 0x4c,
--			0xB9, 0x8B, 0x8B, 0xA1, 0xA1, 0xF3, 0xF9, 0x5A
--		}
--	},
--
--	/* {32412632-86cb-44a2-9b5c-50d1417354f5} */
--	/* IDE */
--	{
--		.b = {
--			0x32, 0x26, 0x41, 0x32, 0xcb, 0x86, 0xa2, 0x44,
--			0x9b, 0x5c, 0x50, 0xd1, 0x41, 0x73, 0x54, 0xf5
--		}
--	},
--	/* 0E0B6031-5213-4934-818B-38D90CED39DB */
--	/* Shutdown */
--	{
--		.b = {
--			0x31, 0x60, 0x0B, 0X0E, 0x13, 0x52, 0x34, 0x49,
--			0x81, 0x8B, 0x38, 0XD9, 0x0C, 0xED, 0x39, 0xDB
--		}
--	},
--	/* {9527E630-D0AE-497b-ADCE-E80AB0175CAF} */
--	/* TimeSync */
--	{
--		.b = {
--			0x30, 0xe6, 0x27, 0x95, 0xae, 0xd0, 0x7b, 0x49,
--			0xad, 0xce, 0xe8, 0x0a, 0xb0, 0x17, 0x5c, 0xaf
--		}
--	},
--	/* {57164f39-9115-4e78-ab55-382f3bd5422d} */
--	/* Heartbeat */
--	{
--		.b = {
--			0x39, 0x4f, 0x16, 0x57, 0x15, 0x91, 0x78, 0x4e,
--			0xab, 0x55, 0x38, 0x2f, 0x3b, 0xd5, 0x42, 0x2d
--		}
--	},
--	/* {A9A0F4E7-5A45-4d96-B827-8A841E8C03E6} */
--	/* KVP */
--	{
--		.b = {
--			0xe7, 0xf4, 0xa0, 0xa9, 0x45, 0x5a, 0x96, 0x4d,
--			0xb8, 0x27, 0x8a, 0x84, 0x1e, 0x8c, 0x3,  0xe6
--	}
--	},
--
--};
--
- 
- /**
-  * vmbus_prep_negotiate_resp() - Create default response for Hyper-V Negotiate message
-@@ -321,20 +246,8 @@ static void vmbus_onoffer(struct vmbus_channel_message_header *hdr)
- 	struct vmbus_channel *newchannel;
- 	uuid_le *guidtype;
- 	uuid_le *guidinstance;
--	int i;
--	int fsupported = 0;
- 
- 	offer = (struct vmbus_channel_offer_channel *)hdr;
--	for (i = 0; i < MAX_NUM_DEVICE_CLASSES_SUPPORTED; i++) {
--		if (!uuid_le_cmp(offer->offer.if_type,
--				supported_device_classes[i])) {
--			fsupported = 1;
--			break;
--		}
--	}
--
--	if (!fsupported)
--		return;
- 
- 	guidtype = &offer->offer.if_type;
- 	guidinstance = &offer->offer.if_instance;
--- 
-1.7.4.1
+So, the first one should be cc: stable?
+
+> The second patch can be folded into the series fixing S4 for
+> virtio-console.  It ensures all callbacks are disabled in the freeze
+> function.  This patch has a dependency on the 1st one in the sense the
+> double disabling of vq won't make sense w/o patch 1.
+> 
+> Please review and apply.
+
+Done, thanks.
+
+Cheers,
+Rusty.
