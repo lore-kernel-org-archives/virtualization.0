@@ -1,13 +1,13 @@
 From: Andrew Jones <drjones@redhat.com>
-Subject: [PATCH 2/4 v2] xen kconfig: relax INPUT_XEN_KBDDEV_FRONTEND deps
-Date: Mon,  9 Jan 2012 18:51:41 +0100
-Message-ID: <1326131501-9610-1-git-send-email-drjones@redhat.com>
-References: <725950ad-d5cf-4ddb-9870-a5c8d75cfa51@zmail13.collab.prod.int.phx2.redhat.com>
+Subject: [PATCH 3/4 v2] xen kconfig: add dom0 support help text
+Date: Mon,  9 Jan 2012 19:07:56 +0100
+Message-ID: <1326132476-10047-1-git-send-email-drjones@redhat.com>
+References: <1325842991-4404-4-git-send-email-drjones@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <725950ad-d5cf-4ddb-9870-a5c8d75cfa51@zmail13.collab.prod.int.phx2.redhat.com>
+In-Reply-To: <1325842991-4404-4-git-send-email-drjones@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,46 +18,37 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: xen-devel@lists.xensource.com
-Cc: jeremy@goop.org, virtualization@lists.linux-foundation.org, dmitry.torokhov@gmail.com, FlorianSchandinat@gmx.de, konrad.wilk@oracle.com
+Cc: jeremy@goop.org, virtualization@lists.linux-foundation.org, Ian.Campbell@citrix.com, stefano.stabellini@eu.citrix.com, konrad.wilk@oracle.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-PV-on-HVM guests may want to use the xen keyboard/mouse frontend, but
-they don't use the xen frame buffer frontend. For this case it doesn't
-make much sense for INPUT_XEN_KBDDEV_FRONTEND to depend on
-XEN_FBDEV_FRONTEND. The opposite direction always makes more sense, i.e.
-if you're using xenfb, then you'll want xenkbd. Switch the dependencies.
+Describe dom0 support in the config menu and supply help text for it.
+
+v2 adds 'if EXPERT' to keep it out of the "standard" menu.
 
 Signed-off-by: Andrew Jones <drjones@redhat.com>
 ---
- drivers/input/misc/Kconfig |    2 +-
- drivers/video/Kconfig      |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ arch/x86/xen/Kconfig |    7 ++++++-
+ 1 files changed, 6 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-index 22d875f..36c15bf 100644
---- a/drivers/input/misc/Kconfig
-+++ b/drivers/input/misc/Kconfig
-@@ -533,7 +533,7 @@ config INPUT_CMA3000_I2C
+diff --git a/arch/x86/xen/Kconfig b/arch/x86/xen/Kconfig
+index 26c731a..31ec975 100644
+--- a/arch/x86/xen/Kconfig
++++ b/arch/x86/xen/Kconfig
+@@ -14,9 +14,14 @@ config XEN
+ 	  Xen hypervisor.
  
- config INPUT_XEN_KBDDEV_FRONTEND
- 	tristate "Xen virtual keyboard and mouse support"
--	depends on XEN_FBDEV_FRONTEND
-+	depends on XEN
- 	default y
- 	select XEN_XENBUS_FRONTEND
- 	help
-diff --git a/drivers/video/Kconfig b/drivers/video/Kconfig
-index d83e967..3e38c2f 100644
---- a/drivers/video/Kconfig
-+++ b/drivers/video/Kconfig
-@@ -2263,7 +2263,7 @@ config FB_VIRTUAL
+ config XEN_DOM0
+-	def_bool y
++	bool "Xen Initial Domain (Dom0) support" if EXPERT
++	default y
+ 	depends on XEN && PCI_XEN && SWIOTLB_XEN
+ 	depends on X86_LOCAL_APIC && X86_IO_APIC && ACPI && PCI
++	help
++	  This allows the kernel to be used for the initial Xen domain,
++	  Domain0. This is a privileged guest that supplies backends
++	  and is used to manage the other Xen domains.
  
- config XEN_FBDEV_FRONTEND
- 	tristate "Xen virtual frame buffer support"
--	depends on FB && XEN
-+	depends on FB && XEN && INPUT_XEN_KBDDEV_FRONTEND
- 	select FB_SYS_FILLRECT
- 	select FB_SYS_COPYAREA
- 	select FB_SYS_IMAGEBLIT
+ # Dummy symbol since people have come to rely on the PRIVILEGED_GUEST
+ # name in tools.
 -- 
 1.7.7.5
