@@ -1,16 +1,17 @@
-From: Amit Shah <amit.shah@redhat.com>
-Subject: Re: [PATCH 1/2] virtio: console: Serialise control work
-Date: Mon, 9 Jan 2012 09:23:53 +0530
-Message-ID: <20120109035353.GC29012@amit.redhat.com>
-References: <cover.1325845993.git.amit.shah@redhat.com>
-	<0ee4e2fc77b40f1985391ce3f9b8a2cf3f729324.1325845993.git.amit.shah@redhat.com>
-	<87lipha9k8.fsf@rustcorp.com.au>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [RFC PATCH v1 2/2] virtio_net: Don't disable napi on low memory.
+Date: Mon, 09 Jan 2012 17:16:52 +1030
+Message-ID: <877h119xur.fsf@rustcorp.com.au>
+References: <20120104225223.18184.1537.stgit@mike2.sea.corp.google.com>
+	<20120104225237.18184.71853.stgit@mike2.sea.corp.google.com>
+	<87y5tnat2g.fsf@rustcorp.com.au>
+	<CAGTjWtB3PjWDfaunXjF-KQwKYg-bPgrn-8N=8iwL0EPvviXMuw@mail.gmail.com>
+	<CAGTjWtBbLtm47kozBC2fdwGYKsOooQec0W9PwUEAF58mYDioaQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <87lipha9k8.fsf@rustcorp.com.au>
+In-Reply-To: <CAGTjWtBbLtm47kozBC2fdwGYKsOooQec0W9PwUEAF58mYDioaQ@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,26 +21,45 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Virtualization List <virtualization@lists.linux-foundation.org>, miche@google.com, "Michael S. Tsirkin" <mst@redhat.com>
+To: Mike Waychison <mikew@google.com>
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On (Mon) 09 Jan 2012 [13:03:59], Rusty Russell wrote:
-> On Fri,  6 Jan 2012 16:19:07 +0530, Amit Shah <amit.shah@redhat.com> wrote:
-> > We currently allow multiple instances of the control work handler to run
-> > in parallel.  This isn't expected to work; serialise access by disabling
-> > interrupts on new packets from the Host and enable them when all the
-> > existing ones are consumed.
-> > 
-> > Testcase: hot-plug/unplug a port in a loop.  Without this patch, some
-> > sysfs warnings are seen along with freezes.  With the patch, all works
-> > fine.
-> 
-> Wait a sec... This might *work*, but it's not correct.  Remember that
-> disabling callbacks is a hint, and it's cetainly not synchronous.
-> 
-> You need something else to explicitly prevent reentry.
-
-OK, right.  I'll use the nrt workqueue to synchronise then.
-
-		Amit
+T24gRnJpLCA2IEphbiAyMDEyIDA5OjU0OjQ2IC0wODAwLCBNaWtlIFdheWNoaXNvbiA8bWlrZXdA
+Z29vZ2xlLmNvbT4gd3JvdGU6Cj4gT24gV2VkLCBKYW4gNCwgMjAxMiBhdCA2OjQ2IFBNLCBNaWtl
+IFdheWNoaXNvbiA8bWlrZXdAZ29vZ2xlLmNvbT4gd3JvdGU6Cj4gPiBPbiBXZWQsIEphbiA0LCAy
+MDEyIGF0IDQ6MzEgUE0sIFJ1c3R5IFJ1c3NlbGwgPHJ1c3R5QHJ1c3Rjb3JwLmNvbS5hdT4gd3Jv
+dGU6Cj4gPj4gNCkgWW91IHVzZSB0aGUgc2tiIGRhdGEgZm9yIHRoZSBsaW5rZWQgbGlzdDsgdXNl
+IHRoZSBza2IgaGVhZCdzIGxpc3QuCj4gCj4gV2hhdCBkaWQgeW91IG1lYW4gYnkgdGhpcz8gIEkg
+d2FzIHVuZGVyIHRoZSBpbXByZXNzaW9uIHRoYXQgdGhlIC0+bmV4dAo+IGFuZCAtPnByZXYgZmll
+bGRzIGluIHNrX2J1ZmYgd2VyZSB0aGUgZmlyc3QgdHdvIGVsZW1lbnRzIHNwZWNpZmljYWxseQo+
+IHNvIHRoYXQgdGhlIHBvaW50ZXIgY291bGQgYmUgdHJlYXRlZCBhcyBhIGxpc3RfaGVhZC4gIElm
+IGl0J3MgdGhlIGNhc3QKPiBpbiBwYXJ0aWN1bGFyIHRoYXQgeW91IGhhdmUgYW4gb2JqZWN0aW9u
+IHdpdGgsIEkgY2FuIGVhc2lseSBjaGFuZ2UKPiB0aGlzIHRvIGEgc2luZ2x5IGxpbmtlZCBsaXN0
+IHRocmVhZGVkIHRocm91Z2ggLT5uZXh0IGlmIHRoYXQncwo+IGNsZWFuZXIuCgpZZXAsIEkgc2F3
+IHRoZSBjYXN0IGFuZCBtaXNyZWFkIHlvdXIgY29kZS4gIEkgY291bGQgaGF2ZSBzd29ybiB0aGF0
+IHNrYgp1c2VkIGEgcmVhbCBsaXN0X2hlYWQgdGhlc2UgZGF5cywgYnV0IEknbSB3cm9uZy4KCj4g
+Pj4KPiA+PiBJbnN0ZWFkLCBoZXJlJ3MgaG93IEkgdGhpbmsgaXQgc2hvdWxkIGJlIGRvbmU6Cj4g
+Li4uCj4gPgo+ID4gVGhpcyBzb3VuZHMgcmVhc29uYWJsZSB0byBtZS4gwqBJJ2xsIHNlZSB3aGF0
+IEkgY2FuIG11c3RlciB0b2dldGhlciB0aGlzIHdlZWsuCj4gPgo+IAo+IFNvIEkgc3RhcnRlZCBp
+bXBsZW1lbnRpbmcgaXQgdGhlIHdheSB5b3Ugd2VyZSBtZW50aW9uaW5nLCBhbmQgcmFuIGludG8K
+PiBhIHByb2JsZW0gd2l0aCB0aGUgb3JpZ2luYWwgcGF0Y2hzZXQuCj4gCj4gQ3VycmVudGx5IHRo
+ZSAibWVyZ2VhYmxlIiBhbmQgImJpZyIgcmVjZWl2ZSBidWZmZXJzIHVzZSBhIHByaXZhdGUgcGFn
+ZQo+IGZyZWUgbGlzdCAodmlydG5ldF9pbmZvLT5wYWdlcykgd2hpY2ggaGFzIG5vIHN5bmNocm9u
+aXphdGlvbiBpdHNlbGYuCj4gVGhpcyBtZWFucyB0aGF0IHRoZSBiYXRjaGVkIHZlcnNpb24gY2Fu
+J3QgdXNlIGdldF9hX3BhZ2UoKSBhbmQKPiBnaXZlX3BhZ2VzKCkgYXMgaXMsIHdoaWNoIHJlZHVj
+ZXMgdGhlIG5lZWQgdG8gcmUtdXNlIHRoZSBzYW1lIGFsbG9jCj4gaGFsdmVzIHRoYXQgSSd2ZSBz
+cGxpdC4gICBBbHRlcm5hdGl2ZXMgSSBjYW4gdGhpbmsgb2YgYXQgdGhpcyBwb2ludDoKPiAKPiAt
+IHBhc3MgaW4gYSBmbGFnIHRvIHRoZSBhbGxvY2F0b3JzIGxpa2UgImJvb2wgaXNfc2VyaWFsIiB0
+aGF0IGlzIHRydWUKPiBpZiB3ZSBhcmUgc2VyaWFsaXppbmcgd2l0aCBuYXBpLCAod2hpY2ggZGV0
+ZXJtaW5lcyBpZiB3ZSBjYW4gbXVjaCB3aXRoCj4gdmktPnBhZ2VzKQo+IG9yCj4gLSBub3QgdXNl
+IHRoZSBzYW1lIGFsbG9jYXRvcnMgZm9yIHRoZSAibWVyZ2VhYmxlIiBhbmQgImJpZyIgcGF0aHMu
+Cj4gVGhlIG1lcmdlYWJsZSBhbGxvY2F0b3IgaW4gdGhlIG5vbi1zZXJpYWxpemVkIGNhc2UgcmVk
+dWNlcyB0bwo+IGFsbG9jX3BhZ2UoKSwgd2hpbGUgdGhlIGJpZyBhbGxvY2F0b3IgbG9va3MgbGlr
+ZSBhIGNvcHkgYW5kIHBhc3RlIHRoYXQKPiB1c2VzIGFsbG9jX3BhZ2UgaW5zdGVhZCBvZiBnZXRf
+YV9wYWdlKCkuCj4gCj4gUHJlZmVyZW5jZXM/ICBJJ2xsIGNvZGUgb25lIG9mIHRoZSB0d28gdXAg
+YW5kIHNlZSB3aGF0IGl0IGxvb2tzIGxpa2UuCgpXaGF0ZXZlciByZXN1bHRzIGluIGEgY2xlYW5l
+ciBkcml2ZXIsIEknbSBoYXBweS4KClRoYW5rcywKUnVzdHkuCl9fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApW
+aXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxp
+bnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
