@@ -1,17 +1,13 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [RFC PATCH v1 2/2] virtio_net: Don't disable napi on low memory.
-Date: Mon, 09 Jan 2012 17:16:52 +1030
-Message-ID: <877h119xur.fsf@rustcorp.com.au>
-References: <20120104225223.18184.1537.stgit@mike2.sea.corp.google.com>
-	<20120104225237.18184.71853.stgit@mike2.sea.corp.google.com>
-	<87y5tnat2g.fsf@rustcorp.com.au>
-	<CAGTjWtB3PjWDfaunXjF-KQwKYg-bPgrn-8N=8iwL0EPvviXMuw@mail.gmail.com>
-	<CAGTjWtBbLtm47kozBC2fdwGYKsOooQec0W9PwUEAF58mYDioaQ@mail.gmail.com>
+From: Andrew Jones <drjones@redhat.com>
+Subject: Re: [Xen-devel] [PATCH] xen: remove CONFIG_XEN_DOM0 compile option
+Date: Mon, 09 Jan 2012 05:37:33 -0500 (EST)
+Message-ID: <d6148ae9-932e-4fba-947e-ee70b2e25fd2@zmail13.collab.prod.int.phx2.redhat.com>
+References: <alpine.DEB.2.00.1201061648440.3150@kaball-desktop>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAGTjWtBbLtm47kozBC2fdwGYKsOooQec0W9PwUEAF58mYDioaQ@mail.gmail.com>
+In-Reply-To: <alpine.DEB.2.00.1201061648440.3150@kaball-desktop>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,45 +17,82 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Mike Waychison <mikew@google.com>
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
+To: Stefano Stabellini <stefano.stabellini@eu.citrix.com>
+Cc: jeremy@goop.org, xen-devel@lists.xensource.com, konrad wilk <konrad.wilk@oracle.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gRnJpLCA2IEphbiAyMDEyIDA5OjU0OjQ2IC0wODAwLCBNaWtlIFdheWNoaXNvbiA8bWlrZXdA
-Z29vZ2xlLmNvbT4gd3JvdGU6Cj4gT24gV2VkLCBKYW4gNCwgMjAxMiBhdCA2OjQ2IFBNLCBNaWtl
-IFdheWNoaXNvbiA8bWlrZXdAZ29vZ2xlLmNvbT4gd3JvdGU6Cj4gPiBPbiBXZWQsIEphbiA0LCAy
-MDEyIGF0IDQ6MzEgUE0sIFJ1c3R5IFJ1c3NlbGwgPHJ1c3R5QHJ1c3Rjb3JwLmNvbS5hdT4gd3Jv
-dGU6Cj4gPj4gNCkgWW91IHVzZSB0aGUgc2tiIGRhdGEgZm9yIHRoZSBsaW5rZWQgbGlzdDsgdXNl
-IHRoZSBza2IgaGVhZCdzIGxpc3QuCj4gCj4gV2hhdCBkaWQgeW91IG1lYW4gYnkgdGhpcz8gIEkg
-d2FzIHVuZGVyIHRoZSBpbXByZXNzaW9uIHRoYXQgdGhlIC0+bmV4dAo+IGFuZCAtPnByZXYgZmll
-bGRzIGluIHNrX2J1ZmYgd2VyZSB0aGUgZmlyc3QgdHdvIGVsZW1lbnRzIHNwZWNpZmljYWxseQo+
-IHNvIHRoYXQgdGhlIHBvaW50ZXIgY291bGQgYmUgdHJlYXRlZCBhcyBhIGxpc3RfaGVhZC4gIElm
-IGl0J3MgdGhlIGNhc3QKPiBpbiBwYXJ0aWN1bGFyIHRoYXQgeW91IGhhdmUgYW4gb2JqZWN0aW9u
-IHdpdGgsIEkgY2FuIGVhc2lseSBjaGFuZ2UKPiB0aGlzIHRvIGEgc2luZ2x5IGxpbmtlZCBsaXN0
-IHRocmVhZGVkIHRocm91Z2ggLT5uZXh0IGlmIHRoYXQncwo+IGNsZWFuZXIuCgpZZXAsIEkgc2F3
-IHRoZSBjYXN0IGFuZCBtaXNyZWFkIHlvdXIgY29kZS4gIEkgY291bGQgaGF2ZSBzd29ybiB0aGF0
-IHNrYgp1c2VkIGEgcmVhbCBsaXN0X2hlYWQgdGhlc2UgZGF5cywgYnV0IEknbSB3cm9uZy4KCj4g
-Pj4KPiA+PiBJbnN0ZWFkLCBoZXJlJ3MgaG93IEkgdGhpbmsgaXQgc2hvdWxkIGJlIGRvbmU6Cj4g
-Li4uCj4gPgo+ID4gVGhpcyBzb3VuZHMgcmVhc29uYWJsZSB0byBtZS4gwqBJJ2xsIHNlZSB3aGF0
-IEkgY2FuIG11c3RlciB0b2dldGhlciB0aGlzIHdlZWsuCj4gPgo+IAo+IFNvIEkgc3RhcnRlZCBp
-bXBsZW1lbnRpbmcgaXQgdGhlIHdheSB5b3Ugd2VyZSBtZW50aW9uaW5nLCBhbmQgcmFuIGludG8K
-PiBhIHByb2JsZW0gd2l0aCB0aGUgb3JpZ2luYWwgcGF0Y2hzZXQuCj4gCj4gQ3VycmVudGx5IHRo
-ZSAibWVyZ2VhYmxlIiBhbmQgImJpZyIgcmVjZWl2ZSBidWZmZXJzIHVzZSBhIHByaXZhdGUgcGFn
-ZQo+IGZyZWUgbGlzdCAodmlydG5ldF9pbmZvLT5wYWdlcykgd2hpY2ggaGFzIG5vIHN5bmNocm9u
-aXphdGlvbiBpdHNlbGYuCj4gVGhpcyBtZWFucyB0aGF0IHRoZSBiYXRjaGVkIHZlcnNpb24gY2Fu
-J3QgdXNlIGdldF9hX3BhZ2UoKSBhbmQKPiBnaXZlX3BhZ2VzKCkgYXMgaXMsIHdoaWNoIHJlZHVj
-ZXMgdGhlIG5lZWQgdG8gcmUtdXNlIHRoZSBzYW1lIGFsbG9jCj4gaGFsdmVzIHRoYXQgSSd2ZSBz
-cGxpdC4gICBBbHRlcm5hdGl2ZXMgSSBjYW4gdGhpbmsgb2YgYXQgdGhpcyBwb2ludDoKPiAKPiAt
-IHBhc3MgaW4gYSBmbGFnIHRvIHRoZSBhbGxvY2F0b3JzIGxpa2UgImJvb2wgaXNfc2VyaWFsIiB0
-aGF0IGlzIHRydWUKPiBpZiB3ZSBhcmUgc2VyaWFsaXppbmcgd2l0aCBuYXBpLCAod2hpY2ggZGV0
-ZXJtaW5lcyBpZiB3ZSBjYW4gbXVjaCB3aXRoCj4gdmktPnBhZ2VzKQo+IG9yCj4gLSBub3QgdXNl
-IHRoZSBzYW1lIGFsbG9jYXRvcnMgZm9yIHRoZSAibWVyZ2VhYmxlIiBhbmQgImJpZyIgcGF0aHMu
-Cj4gVGhlIG1lcmdlYWJsZSBhbGxvY2F0b3IgaW4gdGhlIG5vbi1zZXJpYWxpemVkIGNhc2UgcmVk
-dWNlcyB0bwo+IGFsbG9jX3BhZ2UoKSwgd2hpbGUgdGhlIGJpZyBhbGxvY2F0b3IgbG9va3MgbGlr
-ZSBhIGNvcHkgYW5kIHBhc3RlIHRoYXQKPiB1c2VzIGFsbG9jX3BhZ2UgaW5zdGVhZCBvZiBnZXRf
-YV9wYWdlKCkuCj4gCj4gUHJlZmVyZW5jZXM/ICBJJ2xsIGNvZGUgb25lIG9mIHRoZSB0d28gdXAg
-YW5kIHNlZSB3aGF0IGl0IGxvb2tzIGxpa2UuCgpXaGF0ZXZlciByZXN1bHRzIGluIGEgY2xlYW5l
-ciBkcml2ZXIsIEknbSBoYXBweS4KClRoYW5rcywKUnVzdHkuCl9fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApW
-aXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxp
-bnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+
+
+----- Original Message -----
+> On Fri, 6 Jan 2012, Andrew Jones wrote:
+> > XEN_DOM0 is a silent option that has been automatically selected
+> > when
+> > CONFIG_XEN is selected since 6b0661a5e6fbf. If this option was
+> > changed
+> > to a menu configurable option then it would only give users the
+> > ability
+> > to compile out about 100 kbytes of code.
+> 
+> I think that it is less than that because backends are not tied to
+> dom0
+> in any way, even though currently they cannot be compiled without
+> XEN_DOM0.
+> Running a network or block backend in domU is a well known
+> configuration.
+> Therefore the code compiled out only amounts to about 10K.
+> 
+> 
+> > diff --git a/drivers/xen/Kconfig b/drivers/xen/Kconfig
+> > index 8795480..0725228 100644
+> > --- a/drivers/xen/Kconfig
+> > +++ b/drivers/xen/Kconfig
+> > @@ -78,8 +78,9 @@ config XEN_DEV_EVTCHN
+> >  
+> >  config XEN_BACKEND
+> >  	bool "Backend driver support"
+> > -	depends on XEN_DOM0
+> >  	default y
+> > +	depends on XEN && PCI_XEN && SWIOTLB_XEN
+> > +	depends on X86_LOCAL_APIC && X86_IO_APIC && ACPI && PCI
+> >  	help
+> >  	  Support for backend device drivers that provide I/O services
+> >  	  to other virtual machines.
+> 
+> I think we can trimmer the dependency list here: after all backends
+> can
+> be run in unpriviledged guests as well (see driver domains).
+> So I think it should depend only on XEN.
+
+Hmm.. Actually, with dependency lists in mind, I think a really messed
+this patch up. I should have either had CONFIG_XEN inherit these deps,
+or I should have spread them around to be required at only the specific
+places they're needed, and then left the stub functions in. Neither of
+those options seems like a good idea to me. We either force all XEN
+guests to always have all the deps needed for an initial domain, which
+is exactly the opposite of the suggestion above (trimming XEN_BACKEND
+deps for driver domains), or we actually make the code messier and
+more complicated with more #ifdefs, which are now neatly packaged with
+XEN_DOM0.
+
+The driver domain concept may actually be the technical need for
+making XEN_DOM0 optional. If we want the ability to build a minimally
+configed XEN kernel to be used as a driver domain, then it doesn't
+seem like we'd want it to also be capable of running as an initial
+domain, or to be forced to have all the dependencies and code of an
+initial domain.
+
+With that in mind, I propose we go back to my initial patch, relax
+deps for XEN_BACKEND, and double check that each individual backend
+has the appropriate minimal deps. In general, it should be a goal to
+make sure most XEN options are menu selectable and that all dep lists
+are minimized in order to make sure driver domains can be built with
+minimal configs.
+
+Drew
+
+> 
+> _______________________________________________
+> Xen-devel mailing list
+> Xen-devel@lists.xensource.com
+> http://lists.xensource.com/xen-devel
+> 
