@@ -1,16 +1,21 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [Xen-devel] [PATCH 2/4] xen kconfig: relax
-	INPUT_XEN_KBDDEV_FRONTEND deps
-Date: Sun, 8 Jan 2012 23:59:11 -0800
-Message-ID: <20120109075911.GA4049__1758.46186834878$1326138711$gmane$org@core.coreip.homeip.net>
-References: <20120106154640.GC21220@andromeda.dapyr.net>
-	<da05c51a-a541-4edd-8356-f0b5d2af0c03@zmail13.collab.prod.int.phx2.redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [RFC 7/11] virtio_pci: new, capability-aware driver.
+Date: Tue, 10 Jan 2012 19:03:36 +0200
+Message-ID: <20120110170334.GA18404@redhat.com>
+References: <20111212182533.GB25916@redhat.com>
+	<87liqhtdnj.fsf@rustcorp.com.au> <20111215063004.GA3630@redhat.com>
+	<87zketp9nz.fsf@rustcorp.com.au>
+	<20111218101831.GB30374@redhat.com>
+	<87bor5nlht.fsf@rustcorp.com.au>
+	<20111219091324.GA19535@redhat.com>
+	<871us0om2t.fsf@rustcorp.com.au> <20111220113718.GF3913@redhat.com>
+	<878vm6daqy.fsf@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <da05c51a-a541-4edd-8356-f0b5d2af0c03@zmail13.collab.prod.int.phx2.redhat.com>
+In-Reply-To: <878vm6daqy.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,90 +25,42 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Andrew Jones <drjones@redhat.com>
-Cc: jeremy@goop.org, xen-devel@lists.xensource.com, FlorianSchandinat@gmx.de, konrad wilk <konrad.wilk@oracle.com>, virtualization@lists.linux-foundation.org, Konrad Rzeszutek Wilk <konrad@darnok.org>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>, Sasha Levin <levinsasha928@gmail.com>, Pawel Moll <pawel.moll@arm.com>, virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Andrew,
-
-On Fri, Jan 06, 2012 at 10:58:06AM -0500, Andrew Jones wrote:
-> 
-> 
-> ----- Original Message -----
-> > On Fri, Jan 06, 2012 at 10:43:09AM +0100, Andrew Jones wrote:
-> > > PV-on-HVM guests may want to use the xen keyboard/mouse frontend,
-> > > but
-> > > they don't use the xen frame buffer frontend. For this case it
-> > > doesn't
-> > > make much sense for INPUT_XEN_KBDDEV_FRONTEND to depend on
-> > > XEN_FBDEV_FRONTEND. The opposite direction always makes more sense,
-> > > i.e.
-> > > if you're using xenfb, then you'll want xenkbd. Switch the
-> > > dependencies.
-> > 
-> > You need to CC as well these people that have 'maintainer' field on
-> > them:
-> > 
-> > konrad@phenom:~/work/linux$ scripts/get_maintainer.pl -f
-> > drivers/video/Kconfig
-> > Florian Tobias Schandinat <FlorianSchandinat@gmx.de>
-> > (maintainer:FRAMEBUFFER LAYER)
-> > linux-fbdev@vger.kernel.org (open list:FRAMEBUFFER LAYER)
-> > linux-kernel@vger.kernel.org (open list)
-> > konrad@phenom:~/work/linux$ scripts/get_maintainer.pl -f
-> > drivers/input/misc/Kconfig
-> > Dmitry Torokhov <dmitry.torokhov@gmail.com> (maintainer:INPUT
-> > (KEYBOARD,...,commit_signer:9/16=56%)
-> > Samuel Ortiz <sameo@linux.intel.com> (commit_signer:3/16=19%)
-> > Anirudh Ghayal <aghayal@codeaurora.org> (commit_signer:2/16=12%)
-> > Peter Ujfalusi <peter.ujfalusi@ti.com> (commit_signer:2/16=12%)
-> > Alan Cox <alan@linux.intel.com> (commit_signer:2/16=12%)
-> > linux-input@vger.kernel.org (open list:INPUT (KEYBOARD,...)
-> > linux-kernel@vger.kernel.org (open list)
-> > 
-> 
-> Thanks. Replied with them in CC.
-> 
-> Drew
-> 
+On Wed, Dec 21, 2011 at 11:03:25AM +1030, Rusty Russell wrote:
+> On Tue, 20 Dec 2011 13:37:18 +0200, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> > On Mon, Dec 19, 2011 at 09:38:42PM +1030, Rusty Russell wrote:
+> > > On Mon, 19 Dec 2011 11:13:26 +0200, "Michael S. Tsirkin" <mst@redhat.com> wrote:
 > > > 
-> > > Signed-off-by: Andrew Jones <drjones@redhat.com>
-> > > ---
-> > >  drivers/input/misc/Kconfig |    2 +-
-> > >  drivers/video/Kconfig      |    1 +
-> > >  2 files changed, 2 insertions(+), 1 deletions(-)
+> > > Actually, the host doesn't need anything, since it can always lock out
+> > > the guest while it updates the area.
+> > > It's the guest which can't do atomic updates.
+> > 
+> > There are 2 cases
+> > - updates by guest accesses by host
+> > - accesses by guest updates by host
+> > 
+> > Both are problematic because the guest accesses are split.
+> > Consider the example I gave at the beginning was with capacity read
+> > by guest. Host can not solve it without guest changes, right?
+> 
+> Indeed, my brain fart.  Let's pretend I didn't say that, and you didn't
+> have to explain it to me in baby words :)
+> 
+> > > > The counter can be in guest memory, right? So we don't pay extra
+> > > > exits.
 > > > 
-> > > diff --git a/drivers/input/misc/Kconfig
-> > > b/drivers/input/misc/Kconfig
-> > > index 22d875f..36c15bf 100644
-> > > --- a/drivers/input/misc/Kconfig
-> > > +++ b/drivers/input/misc/Kconfig
-> > > @@ -533,7 +533,7 @@ config INPUT_CMA3000_I2C
-> > >  
-> > >  config INPUT_XEN_KBDDEV_FRONTEND
-> > >  	tristate "Xen virtual keyboard and mouse support"
-> > > -	depends on XEN_FBDEV_FRONTEND
-> > > +	depends on XEN
+> > > Could be, but I'm not delighted about the design.
+> > 
+> > OK, so this is an argument for always using a control vq, right?
+> 
+> Yes.  The idea that we can alter fields in the device-specific config
+> area is flawed.  There may be cases where it doesn't matter, but as an
+> idea it was holed to begin with.
+> 
+> We can reduce probability by doing a double read to check, but there are
+> still cases where it will fail.
 
-This is OK with me.
-
-> > >  	default y
-> > >  	select XEN_XENBUS_FRONTEND
-> > >  	help
-> > > diff --git a/drivers/video/Kconfig b/drivers/video/Kconfig
-> > > index d83e967..269b299 100644
-> > > --- a/drivers/video/Kconfig
-> > > +++ b/drivers/video/Kconfig
-> > > @@ -2269,6 +2269,7 @@ config XEN_FBDEV_FRONTEND
-> > >  	select FB_SYS_IMAGEBLIT
-> > >  	select FB_SYS_FOPS
-> > >  	select FB_DEFERRED_IO
-> > > +	select INPUT_XEN_KBDDEV_FRONTEND
-
-But here you need to either depend on or select INPUT as select does not
-resolve dependencies for selected symbol.
-
-Thanks.
-
--- 
-Dmitry
+Okay - want me to propose an interface for that?
