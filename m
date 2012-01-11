@@ -1,16 +1,15 @@
 From: Konrad Rzeszutek Wilk <konrad@darnok.org>
-Subject: Re: [Xen-devel] [PATCH 2/4 v2] xen kconfig: relax
-	INPUT_XEN_KBDDEV_FRONTEND deps
-Date: Wed, 11 Jan 2012 12:11:31 -0400
-Message-ID: <20120111161130.GA18203@andromeda.dapyr.net>
-References: <725950ad-d5cf-4ddb-9870-a5c8d75cfa51@zmail13.collab.prod.int.phx2.redhat.com>
-	<1326131501-9610-1-git-send-email-drjones@redhat.com>
+Subject: Re: [Xen-devel] [PATCH] xen: remove CONFIG_XEN_DOM0 compile option
+Date: Wed, 11 Jan 2012 12:19:11 -0400
+Message-ID: <20120111161911.GB18203@andromeda.dapyr.net>
+References: <4F0B8D06.8050501@goop.org>
+	<8e643150-6be5-44ba-aba3-a987b22fc82b@zmail13.collab.prod.int.phx2.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1326131501-9610-1-git-send-email-drjones@redhat.com>
+In-Reply-To: <8e643150-6be5-44ba-aba3-a987b22fc82b@zmail13.collab.prod.int.phx2.redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,56 +20,33 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Andrew Jones <drjones@redhat.com>
-Cc: jeremy@goop.org, xen-devel@lists.xensource.com, konrad.wilk@oracle.com, FlorianSchandinat@gmx.de, dmitry.torokhov@gmail.com, virtualization@lists.linux-foundation.org
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, xen-devel@lists.xensource.com, virtualization@lists.linux-foundation.org, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Jan 09, 2012 at 06:51:41PM +0100, Andrew Jones wrote:
-> PV-on-HVM guests may want to use the xen keyboard/mouse frontend, but
-> they don't use the xen frame buffer frontend. For this case it doesn't
+> > If the root complaint is that "customers think that anything set in
+> > .config is a supported feature", then the solutions are to support
+> > all
+> > the features in .config, re-educate the customers that they're wrong,
+> > or
+> > maintain a local patch to do this stuff.
+> 
+> If only re-educating people was free, like preempting questions is.
+> Local patches are of course always an option, and perhaps in this
+> case it's the best one. However, I think we already made a case for
+> better xen configurability for the driver domains, so I'm not 100%
 
-Ok, but PV does?
-> make much sense for INPUT_XEN_KBDDEV_FRONTEND to depend on
-> XEN_FBDEV_FRONTEND. The opposite direction always makes more sense, i.e.
-> if you're using xenfb, then you'll want xenkbd. Switch the dependencies.
+Could you repost those backend patches please? At this point I am not
+sure which one we have discarded?
 
-That sounds like it would be universal irregardless if it is
-PV or PVonHVM?
+> convinced my initial patch (making dom0 configurable) isn't worthy
+> of upstream. Also, I didn't see any comments on my v2[*] of that
+> patch, which I believe satisfies the menu complexity issue and
+> brings in more configurability. That said, I'm about to reply to
+> that patch myself, since there's an issue with it.
 > 
-> Signed-off-by: Andrew Jones <drjones@redhat.com>
-> ---
->  drivers/input/misc/Kconfig |    2 +-
->  drivers/video/Kconfig      |    2 +-
->  2 files changed, 2 insertions(+), 2 deletions(-)
+> Drew
 > 
-> diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-> index 22d875f..36c15bf 100644
-> --- a/drivers/input/misc/Kconfig
-> +++ b/drivers/input/misc/Kconfig
-> @@ -533,7 +533,7 @@ config INPUT_CMA3000_I2C
->  
->  config INPUT_XEN_KBDDEV_FRONTEND
->  	tristate "Xen virtual keyboard and mouse support"
-> -	depends on XEN_FBDEV_FRONTEND
-> +	depends on XEN
->  	default y
->  	select XEN_XENBUS_FRONTEND
->  	help
-> diff --git a/drivers/video/Kconfig b/drivers/video/Kconfig
-> index d83e967..3e38c2f 100644
-> --- a/drivers/video/Kconfig
-> +++ b/drivers/video/Kconfig
-> @@ -2263,7 +2263,7 @@ config FB_VIRTUAL
->  
->  config XEN_FBDEV_FRONTEND
->  	tristate "Xen virtual frame buffer support"
-> -	depends on FB && XEN
-> +	depends on FB && XEN && INPUT_XEN_KBDDEV_FRONTEND
->  	select FB_SYS_FILLRECT
->  	select FB_SYS_COPYAREA
->  	select FB_SYS_IMAGEBLIT
-> -- 
-> 1.7.7.5
-> 
+> [*] http://article.gmane.org/gmane.linux.kernel.virtualization/14635
 > 
 > _______________________________________________
 > Xen-devel mailing list
