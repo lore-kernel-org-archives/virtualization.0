@@ -1,9 +1,8 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [RFC 7/11] virtio_pci: new, capability-aware driver.
-Date: Wed, 11 Jan 2012 23:58:09 +0200
-Message-ID: <20120111215808.GB27292@redhat.com>
-References: <20120111151230.GA20570@redhat.com>
-	<4F0DA7A5.7050600@codemonkey.ws>
+Date: Thu, 12 Jan 2012 00:02:33 +0200
+Message-ID: <20120111220232.GC27292@redhat.com>
+References: <4F0DA7A5.7050600@codemonkey.ws>
 	<20120111152129.GB20570@redhat.com>
 	<4F0DAA9B.7060703@codemonkey.ws>
 	<20120111154515.GD20570@redhat.com>
@@ -12,12 +11,13 @@ References: <20120111151230.GA20570@redhat.com>
 	<4F0DE62F.6030805@codemonkey.ws>
 	<20120111201436.GA27292@redhat.com>
 	<4F0DF08F.7010706@codemonkey.ws>
+	<1326315726.23910.143.camel@pasglop>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <4F0DF08F.7010706@codemonkey.ws>
+In-Reply-To: <1326315726.23910.143.camel@pasglop>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,37 +27,43 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Anthony Liguori <anthony@codemonkey.ws>
-Cc: Pawel Moll <pawel.moll@arm.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, virtualization <virtualization@lists.linux-foundation.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Sasha Levin <levinsasha928@gmail.com>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Pawel Moll <pawel.moll@arm.com>, virtualization <virtualization@lists.linux-foundation.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Sasha Levin <levinsasha928@gmail.com>, Anthony Liguori <anthony@codemonkey.ws>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Jan 11, 2012 at 02:26:55PM -0600, Anthony Liguori wrote:
-> On 01/11/2012 02:14 PM, Michael S. Tsirkin wrote:
-> >On Wed, Jan 11, 2012 at 01:42:39PM -0600, Anthony Liguori wrote:
-> >>On 01/11/2012 11:08 AM, Michael S. Tsirkin wrote:
-> >>>
-> >>>Not sure what you mean. Using VQ is DMA which is pretty common for PCI.
-> >>
-> >>Do you know of a network device that obtains it's mac address via a DMA transaction?
-> >
-> >Sure.
-> >See mlx4_replace_mac in drivers/net/ethernet/mellanox/mlx4/port.c
+On Thu, Jan 12, 2012 at 08:02:06AM +1100, Benjamin Herrenschmidt wrote:
+> On Wed, 2012-01-11 at 14:26 -0600, Anthony Liguori wrote:
+> > 
+> > I'd say that's a special case but I see what you're getting at here.
+> > 
+> > So what about keeping the config space read-only and using control
+> > queues for 
+> > everything else?
 > 
-> I'd say that's a special case but I see what you're getting at here.
-> 
-> So what about keeping the config space read-only and using control
-> queues for everything else?
+> Which is exactly what Rusty and I are proposing :-)
+> I would go further
+> and eliminate the idea of a seqlock and instead of a status queue with
+> precise messages indicating what changed.
+>
+> I would couple that with the new queue format allowing immediate data in
+> the descriptor to avoid having to use indirect buffers for these, which
+> means no allocation, no buffer pool etc... which makes everything a lot
+> easier to deal with as well.
 
-Not just read-only - constant.
+We just need a couple of buffers outstanding. It can't be easier,
+and a single buf descriptors already do not use indirection.
 
-> Regards,
+> We could probably have a helper library for sending control messages
+> which could handle waiting for a ring slot to be free (practically
+> always the case on control queues), writing the message, sending it and
+> waiting for a status queue confirmation message.
 > 
-> Anthony Liguori
+> Cheers,
+> Ben.
 > 
-> >
-> >>Regards,
-> >>
-> >>Anthony Liguori
-> >>
-> >>>
-> >>>>>
+
+Look, we have a race currently. Let us not tie a bug fix to a huge
+rewrite with unclear performance benefits, please.
+
+-- 
+MST
