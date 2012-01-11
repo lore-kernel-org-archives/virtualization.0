@@ -1,14 +1,19 @@
-From: Ben Hutchings <bhutchings@solarflare.com>
-Subject: Re: [PATCH] vhost-net: add module alias (v2)
-Date: Wed, 11 Jan 2012 21:00:17 +0000
-Message-ID: <1326315617.2705.10.camel@bwh-desktop>
-References: <20120110205400.6c1cb306@nehalam.linuxnetplumber.net>
-	<20120111091653.188b24ab@nehalam.linuxnetplumber.net>
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: [RFC 7/11] virtio_pci: new, capability-aware driver.
+Date: Thu, 12 Jan 2012 08:02:06 +1100
+Message-ID: <1326315726.23910.143.camel@pasglop>
+References: <8762gj6q5r.fsf@rustcorp.com.au>
+	<4F0D8EFA.3010503@codemonkey.ws> <20120111151230.GA20570@redhat.com>
+	<4F0DA7A5.7050600@codemonkey.ws> <20120111152129.GB20570@redhat.com>
+	<4F0DAA9B.7060703@codemonkey.ws> <20120111154515.GD20570@redhat.com>
+	<4F0DB2AB.8030506@codemonkey.ws> <20120111170859.GA22310@redhat.com>
+	<4F0DE62F.6030805@codemonkey.ws> <20120111201436.GA27292@redhat.com>
+	<4F0DF08F.7010706@codemonkey.ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20120111091653.188b24ab@nehalam.linuxnetplumber.net>
+In-Reply-To: <4F0DF08F.7010706@codemonkey.ws>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,47 +23,31 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Stephen Hemminger <shemminger@vyatta.com>
-Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, Kay Sievers <kay.sievers@vrfy.org>, virtualization@lists.linux-foundation.org, Alan Cox <device@lanana.org>
+To: Anthony Liguori <anthony@codemonkey.ws>
+Cc: Pawel Moll <pawel.moll@arm.com>, "Michael S. Tsirkin" <mst@redhat.com>, virtualization <virtualization@lists.linux-foundation.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Sasha Levin <levinsasha928@gmail.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 2012-01-11 at 09:16 -0800, Stephen Hemminger wrote:
-> By adding the correct module alias, programs won't have to explicitly
-> call modprobe. Vhost-net will always be available if built into the kernel.
-> It does require assigning a permanent minor number for depmod to work.
-> Choose one next to TUN since this driver is related to it.
+On Wed, 2012-01-11 at 14:26 -0600, Anthony Liguori wrote:
 > 
-> Also, use C99 style initialization.
+> I'd say that's a special case but I see what you're getting at here.
 > 
-> Signed-off-by: Stephen Hemminger <shemminger@vyatta.com>
-> 
-> ---
-> v2 - document minor number and make sure to not overlap
-[...]
-> --- a/include/linux/miscdevice.h	2012-01-10 10:56:59.779189436 -0800
-> +++ b/include/linux/miscdevice.h	2012-01-11 09:13:20.803694316 -0800
-> @@ -42,6 +42,7 @@
->  #define AUTOFS_MINOR		235
->  #define MAPPER_CTRL_MINOR	236
->  #define LOOP_CTRL_MINOR		237
-> +#define VHOST_NET_MINOR		238
->  #define MISC_DYNAMIC_MINOR	255
->  
->  struct device;
-> --- a/Documentation/devices.txt	2012-01-10 10:56:53.399116518 -0800
-> +++ b/Documentation/devices.txt	2012-01-11 09:12:49.251197653 -0800
-> @@ -447,6 +447,8 @@ Your cooperation is appreciated.
->  		234 = /dev/btrfs-control	Btrfs control device
->  		235 = /dev/autofs	Autofs control device
->  		236 = /dev/mapper/control	Device-Mapper control device
-> +		237 = /dev/vhost-net	Host kernel accelerator for virtio net
-[...]
+> So what about keeping the config space read-only and using control
+> queues for 
+> everything else?
 
-238 != 237.  It looks like someone forgot to add loopctrl here.
+Which is exactly what Rusty and I are proposing :-) I would go further
+and eliminate the idea of a seqlock and instead of a status queue with
+precise messages indicating what changed.
 
+I would couple that with the new queue format allowing immediate data in
+the descriptor to avoid having to use indirect buffers for these, which
+means no allocation, no buffer pool etc... which makes everything a lot
+easier to deal with as well.
+
+We could probably have a helper library for sending control messages
+which could handle waiting for a ring slot to be free (practically
+always the case on control queues), writing the message, sending it and
+waiting for a status queue confirmation message.
+
+Cheers,
 Ben.
-
--- 
-Ben Hutchings, Staff Engineer, Solarflare
-Not speaking for my employer; that's the marketing department's job.
-They asked us to note that Solarflare product names are trademarked.
