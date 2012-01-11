@@ -1,13 +1,21 @@
-From: Andrew Jones <drjones@redhat.com>
-Subject: Re: [Xen-devel] [PATCH 3/4 v2] xen kconfig: add dom0 support help text
-Date: Wed, 11 Jan 2012 10:45:55 -0500 (EST)
-Message-ID: <7aa66b79-0850-458c-981b-6cd998d93e3b@zmail13.collab.prod.int.phx2.redhat.com>
-References: <1326132476-10047-1-git-send-email-drjones@redhat.com>
+From: Anthony Liguori <anthony@codemonkey.ws>
+Subject: Re: [RFC 7/11] virtio_pci: new, capability-aware driver.
+Date: Wed, 11 Jan 2012 10:02:51 -0600
+Message-ID: <4F0DB2AB.8030506@codemonkey.ws>
+References: <871us0om2t.fsf@rustcorp.com.au> <20111220113718.GF3913@redhat.com>
+	<878vm6daqy.fsf@rustcorp.com.au>
+	<20120110170334.GA18404@redhat.com>
+	<8762gj6q5r.fsf@rustcorp.com.au> <4F0D8EFA.3010503@codemonkey.ws>
+	<20120111151230.GA20570@redhat.com>
+	<4F0DA7A5.7050600@codemonkey.ws>
+	<20120111152129.GB20570@redhat.com>
+	<4F0DAA9B.7060703@codemonkey.ws>
+	<20120111154515.GD20570@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1326132476-10047-1-git-send-email-drjones@redhat.com>
+In-Reply-To: <20120111154515.GD20570@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,51 +25,57 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: xen-devel@lists.xensource.com
-Cc: jeremy@goop.org, stefano stabellini <stefano.stabellini@eu.citrix.com>, Ian Campbell <Ian.Campbell@citrix.com>, konrad wilk <konrad.wilk@oracle.com>, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Pawel Moll <pawel.moll@arm.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, virtualization <virtualization@lists.linux-foundation.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Sasha Levin <levinsasha928@gmail.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
+On 01/11/2012 09:45 AM, Michael S. Tsirkin wrote:
+> On Wed, Jan 11, 2012 at 09:28:27AM -0600, Anthony Liguori wrote:
+>> On 01/11/2012 09:21 AM, Michael S. Tsirkin wrote:
+>>> On Wed, Jan 11, 2012 at 09:15:49AM -0600, Anthony Liguori wrote:
+>>>>> This is similar to what we have now. But it's still buggy: e.g. if guest
+>>>>> updates MAC byte by byte, we have no way to know when it's done doing
+>>>>> so.
+>>>>
+>>>> This is no different than a normal network card.  You have to use a
+>>>> secondary register to trigger an update.
+>>>>
+>>>> Regards,
+>>>>
+>>>> Anthony Liguori
+>>>
+>>> Possible but doesn't let us layer nicely to allow unchanged drivers
+>>> that work with all transports (new pci, old pci, non pci).
+>>
+>> If we declare config space LE, then we have to touch all drivers.
+>> There's no way around it because the virtio API is byte-based, not
+>> word based.
+>
+> Fine but don't we want to be compatible with old hypervisors?
 
+We can modify the drivers to work either with a virtio1 or virtio2 transport. 
+If the only difference is that we move to word access instead of byte access for 
+the config space, it's a nop because drivers don't rely on sub-word access today.
 
------ Original Message -----
-> Describe dom0 support in the config menu and supply help text for it.
-> 
-> v2 adds 'if EXPERT' to keep it out of the "standard" menu.
-> 
-> Signed-off-by: Andrew Jones <drjones@redhat.com>
-> ---
->  arch/x86/xen/Kconfig |    7 ++++++-
->  1 files changed, 6 insertions(+), 1 deletions(-)
-> 
-> diff --git a/arch/x86/xen/Kconfig b/arch/x86/xen/Kconfig
-> index 26c731a..31ec975 100644
-> --- a/arch/x86/xen/Kconfig
-> +++ b/arch/x86/xen/Kconfig
-> @@ -14,9 +14,14 @@ config XEN
->  	  Xen hypervisor.
->  
->  config XEN_DOM0
-> -	def_bool y
-> +	bool "Xen Initial Domain (Dom0) support" if EXPERT
-> +	default y
->  	depends on XEN && PCI_XEN && SWIOTLB_XEN
->  	depends on X86_LOCAL_APIC && X86_IO_APIC && ACPI && PCI
-> +	help
-> +	  This allows the kernel to be used for the initial Xen domain,
-> +	  Domain0. This is a privileged guest that supplies backends
-> +	  and is used to manage the other Xen domains.
->  
->  # Dummy symbol since people have come to rely on the
->  PRIVILEGED_GUEST
->  # name in tools.
-> --
-> 1.7.7.5
+>> This is why I'm suggesting making the virtio API (and then the
+>> virtio-pci ABI) word based.  It gives us the flexibility to make
+>> endianness a property of the transport and not a property of the
+>> devices.
+>>
+>> Regards,
+>>
+>> Anthony Liguori
+>
+> Some fields are 64 bit, this is still tricky to do atomically.
+> What's the objection to using a config VQ?
 
-There's currently an issue using EXPERT. It doesn't make this
-patch wrong, but any users that would want to turn EXPERT on, in
-order to turn DOM0 off, would find that their configs have gotten
-twisted in other ways as well. I've posted a patch for EXPERT, and
-if it gets merged, then I really can't see any good arguments against
-this patch.
+Then we move very far away from something that looks like a PCI device.  The 
+problem we're having here is specifically where we've deviated from what a 
+normal PCI device would do.  Fixing that by deviating even further seems counter 
+intuitive to me.
 
-Drew
+Regards,
+
+Anthony Liguori
+
+>
