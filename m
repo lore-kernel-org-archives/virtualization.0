@@ -1,7 +1,7 @@
 From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
 Subject: Re: [RFC 7/11] virtio_pci: new, capability-aware driver.
-Date: Thu, 12 Jan 2012 09:19:09 +1100
-Message-ID: <1326320349.23910.159.camel@pasglop>
+Date: Thu, 12 Jan 2012 09:56:39 +1100
+Message-ID: <1326322599.23910.167.camel@pasglop>
 References: <20111218101831.GB30374@redhat.com>
 	<87bor5nlht.fsf@rustcorp.com.au> <20111219091324.GA19535@redhat.com>
 	<871us0om2t.fsf@rustcorp.com.au> <20111220113718.GF3913@redhat.com>
@@ -29,15 +29,43 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 On Thu, 2012-01-12 at 00:13 +0200, Michael S. Tsirkin wrote:
 
-> > We typically pre-populate the data rings with skb's for 1500 and 9000
-> > bytes packets. Small packets come in immediately in the completion ring,
-> > and large packets via the data ring. 
+> > Well, I would argue that the network driver world has proven countless
+> > times that those are good ideas :-)
 > 
-> Won't real workloads suffer from packet reordering?
+> Below you seem to suggest that separate rings like
+> virtio has now is better than a single ring like Rusty
+> suggested.
 
-No, they aren't re-ordered. The completion ring has an entry for each
-packet, in order. Those entries eventually reference the entry index in
-the data rings if the data was put there instead of being immediate.
+I was merely pointing at examples. My understanding (but I may have
+misparsed him) is that Rusty wants to collate the descriptors and the
+"available" ring. I personally don't think the completions (the used
+ring) should be merged, it should remain separate. If Rusty was hinting
+at doing that then I disagree with him :-)
+
+> Are you familiar with current virtio ring structure?  How is this
+> different?
+
+Vaguely yes :-) It does have this uni-directional model, I didn't
+express myself very well or I got confused by the statements about a
+single ring. Yes, I think we should keep the ring at least split into
+two directions as it is today.
+
+But we can certainly merge available ring and descriptors ring.
+
+Another option is having the ring entry size be a configurable power of
+two. This is trivial and comes at pretty much no cost. That would allow
+virtio-net for example to do efficient things like putting the headers
+as immediate data in the ring and the data as indirect.
+
+This means a large part of the packet processing can happen without
+touching additional cache lines.
+
+Anyway, at this stage, I plan to sit down with Rusty next week and hash
+out some kind of proposal, which we can experiment with & benchmark.
+
+I'd suggest doing a simple user space app that creates such a ring,
+forks, and produce / consume. We can then run that through perf and
+analyze the cache behaviour, maximum throughput, etc....
 
 Cheers,
 Ben.
