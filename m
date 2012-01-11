@@ -1,19 +1,14 @@
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: Re: [RFC 7/11] virtio_pci: new, capability-aware driver.
-Date: Thu, 12 Jan 2012 07:59:18 +1100
-Message-ID: <1326315558.23910.140.camel@pasglop>
-References: <878vm6daqy.fsf@rustcorp.com.au>
-	<20120110170334.GA18404@redhat.com> <8762gj6q5r.fsf@rustcorp.com.au>
-	<4F0D8EFA.3010503@codemonkey.ws> <20120111151230.GA20570@redhat.com>
-	<4F0DA7A5.7050600@codemonkey.ws> <20120111152129.GB20570@redhat.com>
-	<4F0DAA9B.7060703@codemonkey.ws> <20120111154515.GD20570@redhat.com>
-	<4F0DB2AB.8030506@codemonkey.ws> <20120111170859.GA22310@redhat.com>
-	<4F0DE62F.6030805@codemonkey.ws>
+From: Ben Hutchings <bhutchings@solarflare.com>
+Subject: Re: [PATCH] vhost-net: add module alias (v2)
+Date: Wed, 11 Jan 2012 21:00:17 +0000
+Message-ID: <1326315617.2705.10.camel@bwh-desktop>
+References: <20120110205400.6c1cb306@nehalam.linuxnetplumber.net>
+	<20120111091653.188b24ab@nehalam.linuxnetplumber.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4F0DE62F.6030805@codemonkey.ws>
+In-Reply-To: <20120111091653.188b24ab@nehalam.linuxnetplumber.net>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,19 +18,47 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Anthony Liguori <anthony@codemonkey.ws>
-Cc: Pawel Moll <pawel.moll@arm.com>, "Michael S. Tsirkin" <mst@redhat.com>, virtualization <virtualization@lists.linux-foundation.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Sasha Levin <levinsasha928@gmail.com>
+To: Stephen Hemminger <shemminger@vyatta.com>
+Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, Kay Sievers <kay.sievers@vrfy.org>, virtualization@lists.linux-foundation.org, Alan Cox <device@lanana.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 2012-01-11 at 13:42 -0600, Anthony Liguori wrote:
-> On 01/11/2012 11:08 AM, Michael S. Tsirkin wrote:
-> >
-> > Not sure what you mean. Using VQ is DMA which is pretty common for PCI.
+On Wed, 2012-01-11 at 09:16 -0800, Stephen Hemminger wrote:
+> By adding the correct module alias, programs won't have to explicitly
+> call modprobe. Vhost-net will always be available if built into the kernel.
+> It does require assigning a permanent minor number for depmod to work.
+> Choose one next to TUN since this driver is related to it.
 > 
-> Do you know of a network device that obtains it's mac address via a DMA transaction?
+> Also, use C99 style initialization.
+> 
+> Signed-off-by: Stephen Hemminger <shemminger@vyatta.com>
+> 
+> ---
+> v2 - document minor number and make sure to not overlap
+[...]
+> --- a/include/linux/miscdevice.h	2012-01-10 10:56:59.779189436 -0800
+> +++ b/include/linux/miscdevice.h	2012-01-11 09:13:20.803694316 -0800
+> @@ -42,6 +42,7 @@
+>  #define AUTOFS_MINOR		235
+>  #define MAPPER_CTRL_MINOR	236
+>  #define LOOP_CTRL_MINOR		237
+> +#define VHOST_NET_MINOR		238
+>  #define MISC_DYNAMIC_MINOR	255
+>  
+>  struct device;
+> --- a/Documentation/devices.txt	2012-01-10 10:56:53.399116518 -0800
+> +++ b/Documentation/devices.txt	2012-01-11 09:12:49.251197653 -0800
+> @@ -447,6 +447,8 @@ Your cooperation is appreciated.
+>  		234 = /dev/btrfs-control	Btrfs control device
+>  		235 = /dev/autofs	Autofs control device
+>  		236 = /dev/mapper/control	Device-Mapper control device
+> +		237 = /dev/vhost-net	Host kernel accelerator for virtio net
+[...]
 
-I wouldn't be surprised if we could find one, but even if we don't why
-is that an issue ?
+238 != 237.  It looks like someone forgot to add loopctrl here.
 
-Cheers,
 Ben.
+
+-- 
+Ben Hutchings, Staff Engineer, Solarflare
+Not speaking for my employer; that's the marketing department's job.
+They asked us to note that Solarflare product names are trademarked.
