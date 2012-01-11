@@ -1,21 +1,16 @@
-From: Anthony Liguori <anthony@codemonkey.ws>
-Subject: Re: [RFC 7/11] virtio_pci: new, capability-aware driver.
-Date: Wed, 11 Jan 2012 10:02:51 -0600
-Message-ID: <4F0DB2AB.8030506@codemonkey.ws>
-References: <871us0om2t.fsf@rustcorp.com.au> <20111220113718.GF3913@redhat.com>
-	<878vm6daqy.fsf@rustcorp.com.au>
-	<20120110170334.GA18404@redhat.com>
-	<8762gj6q5r.fsf@rustcorp.com.au> <4F0D8EFA.3010503@codemonkey.ws>
-	<20120111151230.GA20570@redhat.com>
-	<4F0DA7A5.7050600@codemonkey.ws>
-	<20120111152129.GB20570@redhat.com>
-	<4F0DAA9B.7060703@codemonkey.ws>
-	<20120111154515.GD20570@redhat.com>
+From: Konrad Rzeszutek Wilk <konrad@darnok.org>
+Subject: Re: [Xen-devel] [PATCH 2/4 v2] xen kconfig: relax
+	INPUT_XEN_KBDDEV_FRONTEND deps
+Date: Wed, 11 Jan 2012 12:11:31 -0400
+Message-ID: <20120111161130.GA18203@andromeda.dapyr.net>
+References: <725950ad-d5cf-4ddb-9870-a5c8d75cfa51@zmail13.collab.prod.int.phx2.redhat.com>
+	<1326131501-9610-1-git-send-email-drjones@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20120111154515.GD20570@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <1326131501-9610-1-git-send-email-drjones@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,57 +20,59 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Pawel Moll <pawel.moll@arm.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, virtualization <virtualization@lists.linux-foundation.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Sasha Levin <levinsasha928@gmail.com>
+To: Andrew Jones <drjones@redhat.com>
+Cc: jeremy@goop.org, xen-devel@lists.xensource.com, konrad.wilk@oracle.com, FlorianSchandinat@gmx.de, dmitry.torokhov@gmail.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 01/11/2012 09:45 AM, Michael S. Tsirkin wrote:
-> On Wed, Jan 11, 2012 at 09:28:27AM -0600, Anthony Liguori wrote:
->> On 01/11/2012 09:21 AM, Michael S. Tsirkin wrote:
->>> On Wed, Jan 11, 2012 at 09:15:49AM -0600, Anthony Liguori wrote:
->>>>> This is similar to what we have now. But it's still buggy: e.g. if guest
->>>>> updates MAC byte by byte, we have no way to know when it's done doing
->>>>> so.
->>>>
->>>> This is no different than a normal network card.  You have to use a
->>>> secondary register to trigger an update.
->>>>
->>>> Regards,
->>>>
->>>> Anthony Liguori
->>>
->>> Possible but doesn't let us layer nicely to allow unchanged drivers
->>> that work with all transports (new pci, old pci, non pci).
->>
->> If we declare config space LE, then we have to touch all drivers.
->> There's no way around it because the virtio API is byte-based, not
->> word based.
->
-> Fine but don't we want to be compatible with old hypervisors?
+On Mon, Jan 09, 2012 at 06:51:41PM +0100, Andrew Jones wrote:
+> PV-on-HVM guests may want to use the xen keyboard/mouse frontend, but
+> they don't use the xen frame buffer frontend. For this case it doesn't
 
-We can modify the drivers to work either with a virtio1 or virtio2 transport. 
-If the only difference is that we move to word access instead of byte access for 
-the config space, it's a nop because drivers don't rely on sub-word access today.
+Ok, but PV does?
+> make much sense for INPUT_XEN_KBDDEV_FRONTEND to depend on
+> XEN_FBDEV_FRONTEND. The opposite direction always makes more sense, i.e.
+> if you're using xenfb, then you'll want xenkbd. Switch the dependencies.
 
->> This is why I'm suggesting making the virtio API (and then the
->> virtio-pci ABI) word based.  It gives us the flexibility to make
->> endianness a property of the transport and not a property of the
->> devices.
->>
->> Regards,
->>
->> Anthony Liguori
->
-> Some fields are 64 bit, this is still tricky to do atomically.
-> What's the objection to using a config VQ?
-
-Then we move very far away from something that looks like a PCI device.  The 
-problem we're having here is specifically where we've deviated from what a 
-normal PCI device would do.  Fixing that by deviating even further seems counter 
-intuitive to me.
-
-Regards,
-
-Anthony Liguori
-
->
+That sounds like it would be universal irregardless if it is
+PV or PVonHVM?
+> 
+> Signed-off-by: Andrew Jones <drjones@redhat.com>
+> ---
+>  drivers/input/misc/Kconfig |    2 +-
+>  drivers/video/Kconfig      |    2 +-
+>  2 files changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
+> index 22d875f..36c15bf 100644
+> --- a/drivers/input/misc/Kconfig
+> +++ b/drivers/input/misc/Kconfig
+> @@ -533,7 +533,7 @@ config INPUT_CMA3000_I2C
+>  
+>  config INPUT_XEN_KBDDEV_FRONTEND
+>  	tristate "Xen virtual keyboard and mouse support"
+> -	depends on XEN_FBDEV_FRONTEND
+> +	depends on XEN
+>  	default y
+>  	select XEN_XENBUS_FRONTEND
+>  	help
+> diff --git a/drivers/video/Kconfig b/drivers/video/Kconfig
+> index d83e967..3e38c2f 100644
+> --- a/drivers/video/Kconfig
+> +++ b/drivers/video/Kconfig
+> @@ -2263,7 +2263,7 @@ config FB_VIRTUAL
+>  
+>  config XEN_FBDEV_FRONTEND
+>  	tristate "Xen virtual frame buffer support"
+> -	depends on FB && XEN
+> +	depends on FB && XEN && INPUT_XEN_KBDDEV_FRONTEND
+>  	select FB_SYS_FILLRECT
+>  	select FB_SYS_COPYAREA
+>  	select FB_SYS_IMAGEBLIT
+> -- 
+> 1.7.7.5
+> 
+> 
+> _______________________________________________
+> Xen-devel mailing list
+> Xen-devel@lists.xensource.com
+> http://lists.xensource.com/xen-devel
