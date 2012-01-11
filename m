@@ -1,19 +1,18 @@
 From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
 Subject: Re: [RFC 7/11] virtio_pci: new, capability-aware driver.
-Date: Thu, 12 Jan 2012 08:02:06 +1100
-Message-ID: <1326315726.23910.143.camel@pasglop>
-References: <8762gj6q5r.fsf@rustcorp.com.au>
-	<4F0D8EFA.3010503@codemonkey.ws> <20120111151230.GA20570@redhat.com>
-	<4F0DA7A5.7050600@codemonkey.ws> <20120111152129.GB20570@redhat.com>
-	<4F0DAA9B.7060703@codemonkey.ws> <20120111154515.GD20570@redhat.com>
-	<4F0DB2AB.8030506@codemonkey.ws> <20120111170859.GA22310@redhat.com>
-	<4F0DE62F.6030805@codemonkey.ws> <20120111201436.GA27292@redhat.com>
-	<4F0DF08F.7010706@codemonkey.ws>
+Date: Thu, 12 Jan 2012 08:13:42 +1100
+Message-ID: <1326316422.23910.154.camel@pasglop>
+References: <20111215063004.GA3630@redhat.com>
+	<87zketp9nz.fsf@rustcorp.com.au> <20111218101831.GB30374@redhat.com>
+	<87bor5nlht.fsf@rustcorp.com.au> <20111219091324.GA19535@redhat.com>
+	<871us0om2t.fsf@rustcorp.com.au> <20111220113718.GF3913@redhat.com>
+	<878vm6daqy.fsf@rustcorp.com.au> <20120110170334.GA18404@redhat.com>
+	<8762gj6q5r.fsf@rustcorp.com.au> <20120111102129.GC20988@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4F0DF08F.7010706@codemonkey.ws>
+In-Reply-To: <20120111102129.GC20988@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,31 +22,92 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Anthony Liguori <anthony@codemonkey.ws>
-Cc: Pawel Moll <pawel.moll@arm.com>, "Michael S. Tsirkin" <mst@redhat.com>, virtualization <virtualization@lists.linux-foundation.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Sasha Levin <levinsasha928@gmail.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>, Sasha Levin <levinsasha928@gmail.com>, Pawel Moll <pawel.moll@arm.com>, virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 2012-01-11 at 14:26 -0600, Anthony Liguori wrote:
+On Wed, 2012-01-11 at 12:21 +0200, Michael S. Tsirkin wrote:
 > 
-> I'd say that's a special case but I see what you're getting at here.
+> > BenH also convinced me we should finally make the config space LE if
+> > we're going to change things.  Since PCI is the most common transport,
+> > guest-endian confuses people.  And it sucks for really weird machines.
 > 
-> So what about keeping the config space read-only and using control
-> queues for 
-> everything else?
+> Are we going to keep guest endian for e.g. virtio net header?
+> If yes the benefit of switching config space is not that big.
+> And changes in devices would affect non-PCI transports.
 
-Which is exactly what Rusty and I are proposing :-) I would go further
-and eliminate the idea of a seqlock and instead of a status queue with
-precise messages indicating what changed.
+I think the concept of "guest endian" is broken by design. What does
+that mean when running for example an ARM or a ppc 440 "guest" which
+could be either endian ? Since you can't hard code your guest endian how
+do you obtain/negociate it ? Also you now have to deal with dual endian
+in the host, makes everything trickier.
 
-I would couple that with the new queue format allowing immediate data in
-the descriptor to avoid having to use indirect buffers for these, which
-means no allocation, no buffer pool etc... which makes everything a lot
-easier to deal with as well.
+Just make everything LE.
 
-We could probably have a helper library for sending control messages
-which could handle waiting for a ring slot to be free (practically
-always the case on control queues), writing the message, sending it and
-waiting for a status queue confirmation message.
+> Quite possibly all or some of these things help performance
+> but do we have to change the spec before we have experimental
+> proof?
+
+Well, I would argue that the network driver world has proven countless
+times that those are good ideas :-) But by all mean, let's do a
+prototype implementation with virtio-net for example and bench it.
+
+I don't think you need a single ring. For multiqueue net, you definitely
+want multiple rings and you do want rings to remain uni-directional.
+
+One other thing that can be useful is to separate the completion ring
+from the actual ring of DMA descriptors, making the former completely
+read-only by the guest and the later completely read only by the host.
+
+For example take the ehea ethernet rx model. It has 3 rx "rings" per
+queue. One contains the completions, it's a toggle-valid model so we
+never write back to clear valid, it contains infos from the parser, the
+tokenID of the packet and the index as to where in which ring the data
+is, wich is either inline in the completion ring (small packet), header
+inline & data in a data ring or completely in a data ring. Then you have
+two data rings which are simply rings of SG list entries (more or less).
+
+We typically pre-populate the data rings with skb's for 1500 and 9000
+bytes packets. Small packets come in immediately in the completion ring,
+and large packets via the data ring. 
+
+That's just -an- example. There's many other to take inspiration from.
+Network folks have beaten to death the problem of ring efficiency vs.
+CPU caches.
+
+> > Moreover, I think we should make all these changes at once (at least, in
+> > the spec).  That makes it a big change, and it'll take longer to
+> > develop, but makes it easy in the long run to differentiate legacy and
+> > modern virtio.
+> > 
+> > Thoughts?
+> > Rusty.
+> 
+> BTW this seems to be the reverse from what you have in Mar 2001,
+> see 87mxkjls61.fsf@rustcorp.com.au :)
+
+That was 10 years ago... 
+
+> I am much less concerned with what we do for configuration,
+> but I do not believe we have learned all performance lessons
+> from virtio ring1. 
+
+Maybe we have learned some more since then ? :-)
+
+> Is there any reason why we shouldn't be
+> able to experiment with inline within virtio1 and see
+> whether that gets us anything?
+> If we do a bunch of changes to the ring at once, we can't
+> figure out what's right, what's wrong, or back out of
+> mistakes later.
+> 
+> Since there are non PCI transports that use the ring,
+> we really shouldn't make both the configuration and
+> the ring changes depend on the same feature bit.
+
+Another advantage of inline data is that it makes things a lot easier
+for cases where only small amount of data need to be exchanged, such as
+control/status rings, maybe virtio-tty (which I'm working on), etc... 
 
 Cheers,
 Ben.
