@@ -1,14 +1,22 @@
-From: Stephen Hemminger <shemminger@vyatta.com>
-Subject: Re: [PATCH] vhost-net: add module alias
-Date: Wed, 11 Jan 2012 08:58:57 -0800
-Message-ID: <20120111085857.0753322f@nehalam.linuxnetplumber.net>
-References: <20120110205400.6c1cb306@nehalam.linuxnetplumber.net>
-	<4F0D3543.7020401@msgid.tls.msk.ru>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [RFC 7/11] virtio_pci: new, capability-aware driver.
+Date: Wed, 11 Jan 2012 19:08:59 +0200
+Message-ID: <20120111170859.GA22310@redhat.com>
+References: <878vm6daqy.fsf@rustcorp.com.au>
+	<20120110170334.GA18404@redhat.com>
+	<8762gj6q5r.fsf@rustcorp.com.au> <4F0D8EFA.3010503@codemonkey.ws>
+	<20120111151230.GA20570@redhat.com>
+	<4F0DA7A5.7050600@codemonkey.ws>
+	<20120111152129.GB20570@redhat.com>
+	<4F0DAA9B.7060703@codemonkey.ws>
+	<20120111154515.GD20570@redhat.com>
+	<4F0DB2AB.8030506@codemonkey.ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4F0D3543.7020401@msgid.tls.msk.ru>
+Content-Disposition: inline
+In-Reply-To: <4F0DB2AB.8030506@codemonkey.ws>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,39 +26,62 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Michael Tokarev <mjt@tls.msk.ru>
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, Kay Sievers <kay.sievers@vrfy.org>, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
+To: Anthony Liguori <anthony@codemonkey.ws>
+Cc: Pawel Moll <pawel.moll@arm.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, virtualization <virtualization@lists.linux-foundation.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Sasha Levin <levinsasha928@gmail.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 11 Jan 2012 11:07:47 +0400
-Michael Tokarev <mjt@tls.msk.ru> wrote:
-
-> On 11.01.2012 08:54, Stephen Hemminger wrote:
-> > By adding the a module alias, programs (or users) won't have to explicitly
-> > call modprobe. Vhost-net will always be available if built into the kernel.
-> > It does require assigning a permanent minor number for depmod to work.
-> > Choose one next to TUN since this driver is related to it.
+On Wed, Jan 11, 2012 at 10:02:51AM -0600, Anthony Liguori wrote:
+> On 01/11/2012 09:45 AM, Michael S. Tsirkin wrote:
+> >On Wed, Jan 11, 2012 at 09:28:27AM -0600, Anthony Liguori wrote:
+> >>On 01/11/2012 09:21 AM, Michael S. Tsirkin wrote:
+> >>>On Wed, Jan 11, 2012 at 09:15:49AM -0600, Anthony Liguori wrote:
+> >>>>>This is similar to what we have now. But it's still buggy: e.g. if guest
+> >>>>>updates MAC byte by byte, we have no way to know when it's done doing
+> >>>>>so.
+> >>>>
+> >>>>This is no different than a normal network card.  You have to use a
+> >>>>secondary register to trigger an update.
+> >>>>
+> >>>>Regards,
+> >>>>
+> >>>>Anthony Liguori
+> >>>
+> >>>Possible but doesn't let us layer nicely to allow unchanged drivers
+> >>>that work with all transports (new pci, old pci, non pci).
+> >>
+> >>If we declare config space LE, then we have to touch all drivers.
+> >>There's no way around it because the virtio API is byte-based, not
+> >>word based.
+> >
+> >Fine but don't we want to be compatible with old hypervisors?
 > 
-> Why do you think a statically-allocated device number will do any good
-> at all?  Static /dev is gone almost completely, at least on the systems
-> where whole virt stuff makes any sense, so you don't have pre-created
-> vhost-net device anymore, and hence this allocation makes no sense.
-> Just IMHO anyway.
+> We can modify the drivers to work either with a virtio1 or virtio2
+> transport. If the only difference is that we move to word access
+> instead of byte access for the config space, it's a nop because
+> drivers don't rely on sub-word access today.
+> 
+> >>This is why I'm suggesting making the virtio API (and then the
+> >>virtio-pci ABI) word based.  It gives us the flexibility to make
+> >>endianness a property of the transport and not a property of the
+> >>devices.
+> >>
+> >>Regards,
+> >>
+> >>Anthony Liguori
+> >
+> >Some fields are 64 bit, this is still tricky to do atomically.
+> >What's the objection to using a config VQ?
+> 
+> Then we move very far away from something that looks like a PCI
+> device.  The problem we're having here is specifically where we've
+> deviated from what a normal PCI device would do.  Fixing that by
+> deviating even further seems counter intuitive to me.
+> 
+> Regards,
+> 
+> Anthony Liguori
 
-The statically allocated device number is required for the udev/module
-autoloading to work. Probably the udev infrastructure needs a consistent
-number to hang off of.
 
-It looks like:
-  * driver adds MODULE_ALIAS() for devname and character device
-  * depmod scans modules and creates modules.devname (in /lib/modules)
-  * udev uses modules.devname to autoload the module
+Not sure what you mean. Using VQ is DMA which is pretty common for PCI.
 
-$ /sbin/modinfo vhost_net
-filename:       /lib/modules/3.2.0-net+/kernel/drivers/vhost/vhost_net.ko
-alias:          devname:vhost-net
-alias:          char-major-10-201
-description:    Host kernel accelerator for virtio net
-...
-
-See also: https://lkml.org/lkml/2010/5/21/134
+> >
