@@ -1,13 +1,22 @@
-From: Stephen Hemminger <shemminger@vyatta.com>
-Subject: [PATCH] vhost-net: add module alias (v2)
-Date: Wed, 11 Jan 2012 09:16:53 -0800
-Message-ID: <20120111091653.188b24ab@nehalam.linuxnetplumber.net>
-References: <20120110205400.6c1cb306@nehalam.linuxnetplumber.net>
+From: Stefan Hajnoczi <stefanha@gmail.com>
+Subject: Re: [RFC 7/11] virtio_pci: new, capability-aware driver.
+Date: Wed, 11 Jan 2012 17:21:53 +0000
+Message-ID: <CAJSP0QVm2f+A8hFa+tx3LRcXa_oe8mn4=DhrGMnozVB8_K4OxQ@mail.gmail.com>
+References: <87bor5nlht.fsf@rustcorp.com.au>
+	<20111219091324.GA19535@redhat.com>
+	<871us0om2t.fsf@rustcorp.com.au> <20111220113718.GF3913@redhat.com>
+	<878vm6daqy.fsf@rustcorp.com.au>
+	<20120110170334.GA18404@redhat.com>
+	<8762gj6q5r.fsf@rustcorp.com.au>
+	<CAJSP0QU_viNks2jv003c8+gYWFkyW=FvZpU5w6wyroeEyFkXsA@mail.gmail.com>
+	<1326273019.23910.118.camel@pasglop>
+	<CAJSP0QWMBhsg9ExmTsDG7d32p=7tokCPpm5Z0DMAm2_ADvvb+g@mail.gmail.com>
+	<20120111153954.GC20570@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20120110205400.6c1cb306@nehalam.linuxnetplumber.net>
+In-Reply-To: <20120111153954.GC20570@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,65 +26,38 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Stephen Hemminger <shemminger@vyatta.com>, Alan Cox <device@lanana.org>
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, Kay Sievers <kay.sievers@vrfy.org>, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Pawel Moll <pawel.moll@arm.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, virtualization <virtualization@lists.linux-foundation.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Sasha Levin <levinsasha928@gmail.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-By adding the correct module alias, programs won't have to explicitly
-call modprobe. Vhost-net will always be available if built into the kernel.
-It does require assigning a permanent minor number for depmod to work.
-Choose one next to TUN since this driver is related to it.
+On Wed, Jan 11, 2012 at 3:39 PM, Michael S. Tsirkin <mst@redhat.com> wrote:
+> On Wed, Jan 11, 2012 at 02:28:48PM +0000, Stefan Hajnoczi wrote:
+>> On Wed, Jan 11, 2012 at 9:10 AM, Benjamin Herrenschmidt
+>> <benh@kernel.crashing.org> wrote:
+>> > On Wed, 2012-01-11 at 08:47 +0000, Stefan Hajnoczi wrote:
+>> >>
+>> >> This is also an opportunity to stop using CPU physical addresses in
+>> >> the ring and instead perform DMA like a normal PCI device (use bus
+>> >> addresses).
+>> >
+>> > Euh why ?
+>>
+>> Because it's a paravirt hack that ends up hitting corner cases. =A0It's
+>> not possible to do virtio-pci passthrough under nested virtualization
+>> unless we use an IOMMU. =A0Imagine passing virtio-net from L0 into the
+>> L2 guest (i.e. PCI-passthrough). =A0If virtio-pci is really "PCI" this
+>> should be possible but it's not when we use physical addresses instead
+>> of bus addresses.
+>>
+>> Stefan
+>
+> It won't be hard to show siginificant performance regression if
+> we do this. Hard to justify for something as niche as nested virt.
 
-Also, use C99 style initialization.
+For x86 this should be mostly a nop.  For ppc and SPARC architectures
+maybe you're right.  I still think it's a design flaw because if
+virtio v2 doesn't use bus addresses then it will simply not be
+possible to do passthrough for nested virt and other cases we haven't
+hit yet.
 
-Signed-off-by: Stephen Hemminger <shemminger@vyatta.com>
-
----
-v2 - document minor number and make sure to not overlap
-
- Documentation/devices.txt  |    2 ++
- drivers/vhost/net.c        |    8 +++++---
- include/linux/miscdevice.h |    1 +
- 3 files changed, 8 insertions(+), 3 deletions(-)
-
---- a/drivers/vhost/net.c	2012-01-10 10:56:58.883179194 -0800
-+++ b/drivers/vhost/net.c	2012-01-10 19:48:23.650225892 -0800
-@@ -856,9 +856,9 @@ static const struct file_operations vhos
- };
- 
- static struct miscdevice vhost_net_misc = {
--	MISC_DYNAMIC_MINOR,
--	"vhost-net",
--	&vhost_net_fops,
-+	.minor = VHOST_NET_MINOR,
-+	.name = "vhost-net",
-+	.fops = &vhost_net_fops,
- };
- 
- static int vhost_net_init(void)
-@@ -879,3 +879,5 @@ MODULE_VERSION("0.0.1");
- MODULE_LICENSE("GPL v2");
- MODULE_AUTHOR("Michael S. Tsirkin");
- MODULE_DESCRIPTION("Host kernel accelerator for virtio net");
-+MODULE_ALIAS_MISCDEV(VHOST_NET_MINOR);
-+MODULE_ALIAS("devname:vhost-net");
---- a/include/linux/miscdevice.h	2012-01-10 10:56:59.779189436 -0800
-+++ b/include/linux/miscdevice.h	2012-01-11 09:13:20.803694316 -0800
-@@ -42,6 +42,7 @@
- #define AUTOFS_MINOR		235
- #define MAPPER_CTRL_MINOR	236
- #define LOOP_CTRL_MINOR		237
-+#define VHOST_NET_MINOR		238
- #define MISC_DYNAMIC_MINOR	255
- 
- struct device;
---- a/Documentation/devices.txt	2012-01-10 10:56:53.399116518 -0800
-+++ b/Documentation/devices.txt	2012-01-11 09:12:49.251197653 -0800
-@@ -447,6 +447,8 @@ Your cooperation is appreciated.
- 		234 = /dev/btrfs-control	Btrfs control device
- 		235 = /dev/autofs	Autofs control device
- 		236 = /dev/mapper/control	Device-Mapper control device
-+		237 = /dev/vhost-net	Host kernel accelerator for virtio net
-+
- 		240-254			Reserved for local use
- 		255			Reserved for MISC_DYNAMIC_MINOR
+Stefan
