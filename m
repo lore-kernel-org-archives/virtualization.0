@@ -1,16 +1,22 @@
-From: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Subject: Re: [Xen-devel] [PATCH] xen: remove CONFIG_XEN_DOM0 compile option
-Date: Wed, 11 Jan 2012 12:27:00 -0500
-Message-ID: <20120111172700.GA4449__17158.0532486134$1326303944$gmane$org@phenom.dumpdata.com>
-References: <4F0B8D06.8050501@goop.org>
-	<8e643150-6be5-44ba-aba3-a987b22fc82b@zmail13.collab.prod.int.phx2.redhat.com>
-	<20120111161911.GB18203@andromeda.dapyr.net>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [RFC 7/11] virtio_pci: new, capability-aware driver.
+Date: Wed, 11 Jan 2012 20:34:41 +0200
+Message-ID: <20120111183440.GC23753@redhat.com>
+References: <871us0om2t.fsf@rustcorp.com.au> <20111220113718.GF3913@redhat.com>
+	<878vm6daqy.fsf@rustcorp.com.au>
+	<20120110170334.GA18404@redhat.com>
+	<8762gj6q5r.fsf@rustcorp.com.au>
+	<CAJSP0QU_viNks2jv003c8+gYWFkyW=FvZpU5w6wyroeEyFkXsA@mail.gmail.com>
+	<1326273019.23910.118.camel@pasglop>
+	<CAJSP0QWMBhsg9ExmTsDG7d32p=7tokCPpm5Z0DMAm2_ADvvb+g@mail.gmail.com>
+	<20120111153954.GC20570@redhat.com>
+	<CAJSP0QVm2f+A8hFa+tx3LRcXa_oe8mn4=DhrGMnozVB8_K4OxQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20120111161911.GB18203@andromeda.dapyr.net>
+In-Reply-To: <CAJSP0QVm2f+A8hFa+tx3LRcXa_oe8mn4=DhrGMnozVB8_K4OxQ@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,42 +26,56 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Konrad Rzeszutek Wilk <konrad@darnok.org>
-Cc: Andrew Jones <drjones@redhat.com>, xen-devel@lists.xensource.com, virtualization@lists.linux-foundation.org, Jeremy Fitzhardinge <jeremy@goop.org>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>
+To: Stefan Hajnoczi <stefanha@gmail.com>
+Cc: Pawel Moll <pawel.moll@arm.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, virtualization <virtualization@lists.linux-foundation.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Sasha Levin <levinsasha928@gmail.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Jan 11, 2012 at 12:19:11PM -0400, Konrad Rzeszutek Wilk wrote:
-> > > If the root complaint is that "customers think that anything set in
-> > > .config is a supported feature", then the solutions are to support
-> > > all
-> > > the features in .config, re-educate the customers that they're wrong,
-> > > or
-> > > maintain a local patch to do this stuff.
-> > 
-> > If only re-educating people was free, like preempting questions is.
-> > Local patches are of course always an option, and perhaps in this
-> > case it's the best one. However, I think we already made a case for
-> > better xen configurability for the driver domains, so I'm not 100%
-> 
-> Could you repost those backend patches please? At this point I am not
-> sure which one we have discarded?
+On Wed, Jan 11, 2012 at 05:21:53PM +0000, Stefan Hajnoczi wrote:
+> On Wed, Jan 11, 2012 at 3:39 PM, Michael S. Tsirkin <mst@redhat.com> wrot=
+e:
+> > On Wed, Jan 11, 2012 at 02:28:48PM +0000, Stefan Hajnoczi wrote:
+> >> On Wed, Jan 11, 2012 at 9:10 AM, Benjamin Herrenschmidt
+> >> <benh@kernel.crashing.org> wrote:
+> >> > On Wed, 2012-01-11 at 08:47 +0000, Stefan Hajnoczi wrote:
+> >> >>
+> >> >> This is also an opportunity to stop using CPU physical addresses in
+> >> >> the ring and instead perform DMA like a normal PCI device (use bus
+> >> >> addresses).
+> >> >
+> >> > Euh why ?
+> >>
+> >> Because it's a paravirt hack that ends up hitting corner cases. =A0It's
+> >> not possible to do virtio-pci passthrough under nested virtualization
+> >> unless we use an IOMMU. =A0Imagine passing virtio-net from L0 into the
+> >> L2 guest (i.e. PCI-passthrough). =A0If virtio-pci is really "PCI" this
+> >> should be possible but it's not when we use physical addresses instead
+> >> of bus addresses.
+> >>
+> >> Stefan
+> >
+> > It won't be hard to show siginificant performance regression if
+> > we do this. Hard to justify for something as niche as nested virt.
+> =
 
-hm, I was thinking in terms of the XenBus ones. We had somewhere in this
-converstion something about seperating the backend's from depending on
-CONFIG_XEN_DOM0 as they can be run in any domain nowadays.
+> For x86 this should be mostly a nop.
 
-> 
-> > convinced my initial patch (making dom0 configurable) isn't worthy
-> > of upstream. Also, I didn't see any comments on my v2[*] of that
-> > patch, which I believe satisfies the menu complexity issue and
-> > brings in more configurability. That said, I'm about to reply to
-> > that patch myself, since there's an issue with it.
-> > 
-> > Drew
-> > 
-> > [*] http://article.gmane.org/gmane.linux.kernel.virtualization/14635
-> > 
-> > _______________________________________________
-> > Xen-devel mailing list
-> > Xen-devel@lists.xensource.com
-> > http://lists.xensource.com/xen-devel
+Maybe it should, but AFAIK it isn't.
+
+> For ppc and SPARC architectures maybe you're right.  I still think
+> it's a design flaw because if virtio v2 doesn't use bus addresses then
+> it will simply not be possible to do passthrough for nested virt and
+> other cases we haven't hit yet.
+> =
+
+> Stefan
+
+virtio-pci does not implement things like SRIOV or FLR so it
+won't work anyway.
+
+If we ever fix this, and if we really want to pass through a virtio
+device (why?) using an emulated iommu seems silly - we probably want a
+PV IOMMU as well.
+
+-- =
+
+MST
