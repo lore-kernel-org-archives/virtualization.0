@@ -1,15 +1,15 @@
-From: Michael Tokarev <mjt@tls.msk.ru>
-Subject: Re: [PATCH] vhost-net: add module alias
-Date: Wed, 11 Jan 2012 21:02:38 +0400
-Message-ID: <4F0DC0AE.5010106__40250.2729245045$1326410114$gmane$org@msgid.tls.msk.ru>
+From: Thadeu Lima de Souza Cascardo <cascardo@linux.vnet.ibm.com>
+Subject: Re: [PATCH] vhost-net: add module alias (v2)
+Date: Thu, 12 Jan 2012 18:04:48 -0200
+Message-ID: <20120112200448.GA3446__13655.4700359286$1326410121$gmane$org@oc1711230544.ibm.com>
 References: <20120110205400.6c1cb306@nehalam.linuxnetplumber.net>
-	<4F0D3543.7020401@msgid.tls.msk.ru>
-	<20120111085857.0753322f@nehalam.linuxnetplumber.net>
+	<20120111091653.188b24ab@nehalam.linuxnetplumber.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20120111085857.0753322f@nehalam.linuxnetplumber.net>
+Content-Disposition: inline
+In-Reply-To: <20120111091653.188b24ab@nehalam.linuxnetplumber.net>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,35 +20,80 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Stephen Hemminger <shemminger@vyatta.com>
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, Kay Sievers <kay.sievers@vrfy.org>, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, Kay Sievers <kay.sievers@vrfy.org>, virtualization@lists.linux-foundation.org, Alan Cox <device@lanana.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 11.01.2012 20:58, Stephen Hemminger wrote:
-> On Wed, 11 Jan 2012 11:07:47 +0400
-> Michael Tokarev <mjt@tls.msk.ru> wrote:
+On Wed, Jan 11, 2012 at 09:16:53AM -0800, Stephen Hemminger wrote:
+> By adding the correct module alias, programs won't have to explicitly
+> call modprobe. Vhost-net will always be available if built into the kernel.
+> It does require assigning a permanent minor number for depmod to work.
+> Choose one next to TUN since this driver is related to it.
 > 
->> On 11.01.2012 08:54, Stephen Hemminger wrote:
->>> By adding the a module alias, programs (or users) won't have to explicitly
->>> call modprobe. Vhost-net will always be available if built into the kernel.
->>> It does require assigning a permanent minor number for depmod to work.
->>> Choose one next to TUN since this driver is related to it.
->>
->> Why do you think a statically-allocated device number will do any good
->> at all?  Static /dev is gone almost completely, at least on the systems
->> where whole virt stuff makes any sense, so you don't have pre-created
->> vhost-net device anymore, and hence this allocation makes no sense.
->> Just IMHO anyway.
-[]
-> See also: https://lkml.org/lkml/2010/5/21/134
+> Also, use C99 style initialization.
+> 
+> Signed-off-by: Stephen Hemminger <shemminger@vyatta.com>
+> 
+> ---
+> v2 - document minor number and make sure to not overlap
+> 
+>  Documentation/devices.txt  |    2 ++
+>  drivers/vhost/net.c        |    8 +++++---
+>  include/linux/miscdevice.h |    1 +
+>  3 files changed, 8 insertions(+), 3 deletions(-)
+> 
+> --- a/drivers/vhost/net.c	2012-01-10 10:56:58.883179194 -0800
+> +++ b/drivers/vhost/net.c	2012-01-10 19:48:23.650225892 -0800
+> @@ -856,9 +856,9 @@ static const struct file_operations vhos
+>  };
+> 
+>  static struct miscdevice vhost_net_misc = {
+> -	MISC_DYNAMIC_MINOR,
+> -	"vhost-net",
+> -	&vhost_net_fops,
+> +	.minor = VHOST_NET_MINOR,
+> +	.name = "vhost-net",
+> +	.fops = &vhost_net_fops,
+>  };
+> 
+>  static int vhost_net_init(void)
+> @@ -879,3 +879,5 @@ MODULE_VERSION("0.0.1");
+>  MODULE_LICENSE("GPL v2");
+>  MODULE_AUTHOR("Michael S. Tsirkin");
+>  MODULE_DESCRIPTION("Host kernel accelerator for virtio net");
+> +MODULE_ALIAS_MISCDEV(VHOST_NET_MINOR);
+> +MODULE_ALIAS("devname:vhost-net");
+> --- a/include/linux/miscdevice.h	2012-01-10 10:56:59.779189436 -0800
+> +++ b/include/linux/miscdevice.h	2012-01-11 09:13:20.803694316 -0800
+> @@ -42,6 +42,7 @@
+>  #define AUTOFS_MINOR		235
+>  #define MAPPER_CTRL_MINOR	236
+>  #define LOOP_CTRL_MINOR		237
+> +#define VHOST_NET_MINOR		238
+>  #define MISC_DYNAMIC_MINOR	255
+> 
+>  struct device;
+> --- a/Documentation/devices.txt	2012-01-10 10:56:53.399116518 -0800
+> +++ b/Documentation/devices.txt	2012-01-11 09:12:49.251197653 -0800
+> @@ -447,6 +447,8 @@ Your cooperation is appreciated.
+>  		234 = /dev/btrfs-control	Btrfs control device
+>  		235 = /dev/autofs	Autofs control device
+>  		236 = /dev/mapper/control	Device-Mapper control device
+> +		237 = /dev/vhost-net	Host kernel accelerator for virtio net
+> +
+>  		240-254			Reserved for local use
+>  		255			Reserved for MISC_DYNAMIC_MINOR
+> 
+> 
 
-Aha.  So udev pre-creates statically-allocated devnodes nowadays:
+You added vhost-net minor as 238 in the code and 237 in the
+documentation. That's because loop-control is missing from the docs.
 
- Udev will pick up the depmod created file on startup and create all the
- static device nodes which the kernel modules specify, so that these modules
- get automatically loaded when the device node is accessed...
+Regards.
+Cascardo.
 
-This was the part I missed.  Now it all looks logically.
-
-Thanks,
-
-/mjt
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe netdev" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
