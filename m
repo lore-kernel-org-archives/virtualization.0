@@ -1,26 +1,14 @@
-From: Stefan Hajnoczi <stefanha@gmail.com>
-Subject: Re: [RFC 7/11] virtio_pci: new, capability-aware driver.
-Date: Thu, 12 Jan 2012 10:37:58 +0000
-Message-ID: <CAJSP0QUkPPB6Z1n4g5ahS-Pm9sqQK_-7OTZURL6DBdX3WFZPnw@mail.gmail.com>
-References: <20111212182533.GB25916@redhat.com>
-	<87liqhtdnj.fsf@rustcorp.com.au> <20111215063004.GA3630@redhat.com>
-	<87zketp9nz.fsf@rustcorp.com.au>
-	<20111218101831.GB30374@redhat.com>
-	<87bor5nlht.fsf@rustcorp.com.au>
-	<20111219091324.GA19535@redhat.com>
-	<871us0om2t.fsf@rustcorp.com.au> <20111220113718.GF3913@redhat.com>
-	<878vm6daqy.fsf@rustcorp.com.au>
-	<20120110170334.GA18404@redhat.com>
-	<8762gj6q5r.fsf@rustcorp.com.au>
-	<CAJSP0QU_viNks2jv003c8+gYWFkyW=FvZpU5w6wyroeEyFkXsA@mail.gmail.com>
-	<1326273019.23910.118.camel@pasglop>
-	<CAJSP0QWMBhsg9ExmTsDG7d32p=7tokCPpm5Z0DMAm2_ADvvb+g@mail.gmail.com>
-	<1326314764.23910.128.camel@pasglop>
+From: Andrew Jones <drjones@redhat.com>
+Subject: Re: [Xen-devel] [PATCH 1/4] xen kconfig: keep
+	XEN_XENBUS_FRONTEND	builtin
+Date: Thu, 12 Jan 2012 05:49:57 -0500 (EST)
+Message-ID: <e37e8bec-f4ec-4420-81f0-da0ef90a6120@zmail13.collab.prod.int.phx2.redhat.com>
+References: <20120111172832.GB4449@phenom.dumpdata.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1326314764.23910.128.camel@pasglop>
+In-Reply-To: <20120111172832.GB4449@phenom.dumpdata.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -30,45 +18,54 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Pawel Moll <pawel.moll@arm.com>, "Michael S. Tsirkin" <mst@redhat.com>, virtualization <virtualization@lists.linux-foundation.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Sasha Levin <levinsasha928@gmail.com>
+To: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Cc: konrad@darnok.org, jeremy@goop.org, xen-devel@lists.xensource.com, stefano stabellini <stefano.stabellini@eu.citrix.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Jan 11, 2012 at 8:46 PM, Benjamin Herrenschmidt
-<benh@kernel.crashing.org> wrote:
-> On Wed, 2012-01-11 at 14:28 +0000, Stefan Hajnoczi wrote:
->> On Wed, Jan 11, 2012 at 9:10 AM, Benjamin Herrenschmidt
->> <benh@kernel.crashing.org> wrote:
->> > On Wed, 2012-01-11 at 08:47 +0000, Stefan Hajnoczi wrote:
->> >>
->> >> This is also an opportunity to stop using CPU physical addresses in
->> >> the ring and instead perform DMA like a normal PCI device (use bus
->> >> addresses).
->> >
->> > Euh why ?
->>
->> Because it's a paravirt hack that ends up hitting corner cases. =A0It's
->> not possible to do virtio-pci passthrough under nested virtualization
->> unless we use an IOMMU. =A0Imagine passing virtio-net from L0 into the
->> L2 guest (i.e. PCI-passthrough). =A0If virtio-pci is really "PCI" this
->> should be possible but it's not when we use physical addresses instead
->> of bus addresses.
->
-> Is this just an academic exercise or is there any actual value in doing
-> this ?
 
-It's a corner case, the value is small.  I also hit this with virtio
-on SPARC which is made difficult by the fact that the Solaris kernel
-assumes there is an IOMMU for scatter-gather and doesn't provide
-functions for allocating physically contiguous memory in drivers.
-It's another instance where this shortcut comes up against problems
-and behaving like a real PCI device would work fine.
 
-> Using an iommu is going to slaugher your performance, so at the very
-> least it should be kept an option.
+----- Original Message -----
+> On Wed, Jan 11, 2012 at 05:36:38PM +0100, Andrew Jones wrote:
+> > When XEN_XENBUS_FRONTEND gets selected as a module it can lead to
+> > unbootable configs. If we need it, then we should just build it in.
+> 
+> Hm, don't the frontends by themsevles load this module? So if you
+> do 'modprobe xen-pcifront' it would load this automatically?
+> 
 
-That's a good idea.  By default it can continue to use physical addresses.
+The problem is on boot, getting it there before we need xen-blkfront.
+I think it might solvable if you make sure your tooling pushes the
+xenbus module into your initrd. However we've had problems with
+platform_pci being a module in the past, and if I'm not mistaken
+that was one of the motivators for building it in (5fbdc10395cd). I
+see this as a similar story.
 
-I guess there's no point in worrying about it until we have a real user.
+Drew
 
-Stefan
+> > 
+> > Signed-off-by: Andrew Jones <drjones@redhat.com>
+> > ---
+> >  drivers/xen/Kconfig |    2 +-
+> >  1 files changed, 1 insertions(+), 1 deletions(-)
+> > 
+> > diff --git a/drivers/xen/Kconfig b/drivers/xen/Kconfig
+> > index 8795480..1d24061 100644
+> > --- a/drivers/xen/Kconfig
+> > +++ b/drivers/xen/Kconfig
+> > @@ -118,7 +118,7 @@ config XEN_SYS_HYPERVISOR
+> >  	 but will have no xen contents.
+> >  
+> >  config XEN_XENBUS_FRONTEND
+> > -	tristate
+> > +	bool
+> >  
+> >  config XEN_GNTDEV
+> >  	tristate "userspace grant access device driver"
+> > --
+> > 1.7.7.5
+> 
+> _______________________________________________
+> Xen-devel mailing list
+> Xen-devel@lists.xensource.com
+> http://lists.xensource.com/xen-devel
+> 
