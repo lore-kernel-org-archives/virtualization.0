@@ -1,14 +1,13 @@
 From: Andrew Jones <drjones@redhat.com>
-Subject: Re: [Xen-devel] [PATCH 1/4] xen kconfig: keep
-	XEN_XENBUS_FRONTEND	builtin
-Date: Thu, 12 Jan 2012 05:49:57 -0500 (EST)
-Message-ID: <e37e8bec-f4ec-4420-81f0-da0ef90a6120@zmail13.collab.prod.int.phx2.redhat.com>
-References: <20120111172832.GB4449@phenom.dumpdata.com>
+Subject: Re: [Xen-devel] [PATCH] xen: remove CONFIG_XEN_DOM0 compile option
+Date: Thu, 12 Jan 2012 05:53:16 -0500 (EST)
+Message-ID: <2498642a-56c9-497e-84f1-be06a7a5aa26@zmail13.collab.prod.int.phx2.redhat.com>
+References: <20120111172700.GA4449@phenom.dumpdata.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20120111172832.GB4449@phenom.dumpdata.com>
+In-Reply-To: <20120111172700.GA4449@phenom.dumpdata.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,53 +18,65 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Cc: konrad@darnok.org, jeremy@goop.org, xen-devel@lists.xensource.com, stefano stabellini <stefano.stabellini@eu.citrix.com>, virtualization@lists.linux-foundation.org
+Cc: Konrad Rzeszutek Wilk <konrad@darnok.org>, Jeremy Fitzhardinge <jeremy@goop.org>, xen-devel@lists.xensource.com, virtualization@lists.linux-foundation.org, Stefano Stabellini <stefano.stabellini@eu.citrix.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
 
 
 ----- Original Message -----
-> On Wed, Jan 11, 2012 at 05:36:38PM +0100, Andrew Jones wrote:
-> > When XEN_XENBUS_FRONTEND gets selected as a module it can lead to
-> > unbootable configs. If we need it, then we should just build it in.
+> On Wed, Jan 11, 2012 at 12:19:11PM -0400, Konrad Rzeszutek Wilk
+> wrote:
+> > > > If the root complaint is that "customers think that anything
+> > > > set in
+> > > > .config is a supported feature", then the solutions are to
+> > > > support
+> > > > all
+> > > > the features in .config, re-educate the customers that they're
+> > > > wrong,
+> > > > or
+> > > > maintain a local patch to do this stuff.
+> > > 
+> > > If only re-educating people was free, like preempting questions
+> > > is.
+> > > Local patches are of course always an option, and perhaps in this
+> > > case it's the best one. However, I think we already made a case
+> > > for
+> > > better xen configurability for the driver domains, so I'm not
+> > > 100%
+> > 
+> > Could you repost those backend patches please? At this point I am
+> > not
+> > sure which one we have discarded?
 > 
-> Hm, don't the frontends by themsevles load this module? So if you
-> do 'modprobe xen-pcifront' it would load this automatically?
+> hm, I was thinking in terms of the XenBus ones. We had somewhere in
+> this
+> converstion something about seperating the backend's from depending
+> on
+> CONFIG_XEN_DOM0 as they can be run in any domain nowadays.
 > 
 
-The problem is on boot, getting it there before we need xen-blkfront.
-I think it might solvable if you make sure your tooling pushes the
-xenbus module into your initrd. However we've had problems with
-platform_pci being a module in the past, and if I'm not mistaken
-that was one of the motivators for building it in (5fbdc10395cd). I
-see this as a similar story.
+Ah, I still haven't posted anything like that. So nothing got lost :-)
+It's a good idea, but it's probably best done and tested by someone
+working with driver domains, or even with the backends at all, which
+I'm not.
 
 Drew
 
 > > 
-> > Signed-off-by: Andrew Jones <drjones@redhat.com>
-> > ---
-> >  drivers/xen/Kconfig |    2 +-
-> >  1 files changed, 1 insertions(+), 1 deletions(-)
-> > 
-> > diff --git a/drivers/xen/Kconfig b/drivers/xen/Kconfig
-> > index 8795480..1d24061 100644
-> > --- a/drivers/xen/Kconfig
-> > +++ b/drivers/xen/Kconfig
-> > @@ -118,7 +118,7 @@ config XEN_SYS_HYPERVISOR
-> >  	 but will have no xen contents.
-> >  
-> >  config XEN_XENBUS_FRONTEND
-> > -	tristate
-> > +	bool
-> >  
-> >  config XEN_GNTDEV
-> >  	tristate "userspace grant access device driver"
-> > --
-> > 1.7.7.5
-> 
-> _______________________________________________
-> Xen-devel mailing list
-> Xen-devel@lists.xensource.com
-> http://lists.xensource.com/xen-devel
+> > > convinced my initial patch (making dom0 configurable) isn't
+> > > worthy
+> > > of upstream. Also, I didn't see any comments on my v2[*] of that
+> > > patch, which I believe satisfies the menu complexity issue and
+> > > brings in more configurability. That said, I'm about to reply to
+> > > that patch myself, since there's an issue with it.
+> > > 
+> > > Drew
+> > > 
+> > > [*]
+> > > http://article.gmane.org/gmane.linux.kernel.virtualization/14635
+> > > 
+> > > _______________________________________________
+> > > Xen-devel mailing list
+> > > Xen-devel@lists.xensource.com
+> > > http://lists.xensource.com/xen-devel
 > 
