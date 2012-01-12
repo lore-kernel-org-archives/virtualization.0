@@ -1,64 +1,94 @@
-From: Andrew Jones <drjones@redhat.com>
-Subject: Re: [Xen-devel] [PATCH 1/4] xen kconfig: keep XEN_XENBUS_FRONTEND
-	builtin
-Date: Thu, 12 Jan 2012 12:46:03 -0500 (EST)
-Message-ID: <38f5d265-e690-4a8c-9d73-b43c804087e3@zmail13.collab.prod.int.phx2.redhat.com>
-References: <20120112154206.GA9722@wavehammer.waldi.eu.org>
+From: KY Srinivasan <kys@microsoft.com>
+Subject: RE: [PATCH 1/1][RESEND] Staging: hv: storvsc: Move the storage
+ driver out of the staging area
+Date: Thu, 12 Jan 2012 17:55:45 +0000
+Message-ID: <6E21E5352C11B742B20C142EB499E0481B6EFEF0@TK5EX14MBXC126.redmond.corp.microsoft.com>
+References: <1325622441-15600-1-git-send-email-kys@microsoft.com>
+ <20120111103649.GB22652@infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20120112154206.GA9722@wavehammer.waldi.eu.org>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Bastian Blank <waldi@debian.org>
-Cc: jeremy@goop.org, xen-devel@lists.xensource.com, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, stefano stabellini <stefano.stabellini@eu.citrix.com>, virtualization@lists.linux-foundation.org, konrad@darnok.org
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-scsi-owner@vger.kernel.org>
+In-Reply-To: <20120111103649.GB22652@infradead.org>
+Content-Language: en-US
+Sender: linux-scsi-owner@vger.kernel.org
+To: Christoph Hellwig <hch@infradead.org>
+Cc: "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, "ohering@suse.com" <ohering@suse.com>, "James.Bottomley@HansenPartnership.com" <James.Bottomley@HansenPartnership.com>, "linux-scsi@vger.kernel.org" <linux-scsi@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
+Christoph,
+
+Let me begin by first thanking you for your detailed review. I have addressed all the issues you have
+identified - the code looks much better now; thank you! I am currently testing this code and I will post
+the patches soon - individual patches against the current code in the staging tree as well as a patch to
+move the driver out of staging (as I have done in the past). Please find my responses to your comments
+in-line.
+
+Regards,
+
+K. Y
+
+> -----Original Message-----
+> From: Christoph Hellwig [mailto:hch@infradead.org]
+> Sent: Wednesday, January 11, 2012 5:37 AM
+> To: KY Srinivasan
+> Cc: gregkh@suse.de; linux-kernel@vger.kernel.org;
+> devel@linuxdriverproject.org; virtualization@lists.osdl.org; ohering@suse.com;
+> James.Bottomley@HansenPartnership.com; hch@infradead.org; linux-
+> scsi@vger.kernel.org
+> Subject: Re: [PATCH 1/1][RESEND] Staging: hv: storvsc: Move the storage driver
+> out of the staging area
+> 
+> 
+> I'd also really recommend splitting the actual protocol defintion in
+> a header separate from the driver implementation to make it clear what
+> is part of the protocol and what's internal to the driver.
+
+I have consolidated all of the protocol defines at the start of the file and
+these are properly commented. The decision to not have a separate header file
+was based on the comments I got from the community a while ago. Hopefully,
+this consolidation will address all the concerns.
+
+> 
+> > +static inline struct storvsc_device *get_out_stor_device(
+> > +					struct hv_device *device)
+> 
+> > +static inline struct storvsc_device *get_in_stor_device(
+> > +					struct hv_device *device)
+> 
+> I'm pretty sure you defended this odd reference counting scheme last
+> time the discussion came up, but please write up a long comment in
+> the code explaning it so that the question doesn't come up again
+> all the time.
+
+I don't have any reference counting anymore. I have added a comment
+explaining the protocol for managing the life-cycle.
+ 
+> 
+> > +	request_size = sizeof(struct storvsc_cmd_request);
+> > +
+> > +	cmd_request = mempool_alloc(memp->request_mempool,
+> > +				       GFP_ATOMIC);
+> > +	if (!cmd_request)
+> > +		return SCSI_MLQUEUE_DEVICE_BUSY;
+> 
+> The point of the mempool allocator is that it will never return NULL.
+
+With GFP_ATOMIC flag, the allocation I think can fail. At least that is what
+mempool_alloc() comment says.
+
+> 
+> > +	/* max # of devices per target */
+> > +	host->max_lun = STORVSC_MAX_LUNS_PER_TARGET;
+> > +	/* max # of targets per channel */
+> > +	host->max_id = STORVSC_MAX_TARGETS;
+> > +	/* max # of channels */
+> > +	host->max_channel = STORVSC_MAX_CHANNELS - 1;
+> > +	/* max cmd length */
+> > +	host->max_cmd_len = STORVSC_MAX_CMD_LEN;
+> 
+> Any reason these aren't set directly in the host template?
+
+This state is not in the scsi_host_template. What am I missing here.
 
 
------ Original Message -----
-> On Thu, Jan 12, 2012 at 09:37:45AM -0500, Konrad Rzeszutek Wilk
-> wrote:
-> > Or is it possible to make the modules (fb) try to load xenbus
-> > frontend
-> > automatically? Preferrably one would do this:
-> 
-> Which modules?
-> 
-> > modprobe xen_fbfront
-> > which would then automatically load xenbus_module, xen_kbdfront
-> 
-> I think you are missing something.
-
-I'll look into this and see if I can get the xenbus module to
-work on boot with the right initrd magic. Or at least come up with
-a better story why it won't.
-
-Drew
-
-> 
-> | video/xen-fbfront.c:      return
-> | xenbus_register_frontend(&xenfb_driver);
-> | xen/xenbus/xenbus_probe_frontend.c:EXPORT_SYMBOL_GPL(xenbus_register_frontend);
-> 
-> xen-fbfront already pulls in the module, at least in Linus' tree.
-> 
-> > Better yet if udev/kudzu figured out this automtically and loaded
-> > the modules.
-> 
-> No workarounds for kernel problems if not absolutely necessary.
-> 
-> Bastian
-> 
-> --
-> Military secrets are the most fleeting of all.
-> 		-- Spock, "The Enterprise Incident", stardate 5027.4
-> 
