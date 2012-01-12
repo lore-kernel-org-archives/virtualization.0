@@ -1,13 +1,13 @@
 From: Andrew Jones <drjones@redhat.com>
-Subject: Re: [Xen-devel] [PATCH] xen: remove CONFIG_XEN_DOM0 compile option
-Date: Thu, 12 Jan 2012 05:53:16 -0500 (EST)
-Message-ID: <2498642a-56c9-497e-84f1-be06a7a5aa26@zmail13.collab.prod.int.phx2.redhat.com>
-References: <20120111172700.GA4449@phenom.dumpdata.com>
+Subject: Re: [PATCH 4/4] xen kconfig: describe xen tmem in the config menu
+Date: Thu, 12 Jan 2012 05:54:49 -0500 (EST)
+Message-ID: <929b2415-1926-4efa-90b1-eef07e1f2c9c@zmail13.collab.prod.int.phx2.redhat.com>
+References: <20120111173536.GD4449@phenom.dumpdata.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20120111172700.GA4449@phenom.dumpdata.com>
+In-Reply-To: <20120111173536.GD4449@phenom.dumpdata.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,65 +18,43 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Cc: Konrad Rzeszutek Wilk <konrad@darnok.org>, Jeremy Fitzhardinge <jeremy@goop.org>, xen-devel@lists.xensource.com, virtualization@lists.linux-foundation.org, Stefano Stabellini <stefano.stabellini@eu.citrix.com>
+Cc: konrad@darnok.org, jeremy@goop.org, xen-devel@lists.xensource.com, virtualization@lists.linux-foundation.org, stefano stabellini <stefano.stabellini@eu.citrix.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
 
 
 ----- Original Message -----
-> On Wed, Jan 11, 2012 at 12:19:11PM -0400, Konrad Rzeszutek Wilk
-> wrote:
-> > > > If the root complaint is that "customers think that anything
-> > > > set in
-> > > > .config is a supported feature", then the solutions are to
-> > > > support
-> > > > all
-> > > > the features in .config, re-educate the customers that they're
-> > > > wrong,
-> > > > or
-> > > > maintain a local patch to do this stuff.
-> > > 
-> > > If only re-educating people was free, like preempting questions
-> > > is.
-> > > Local patches are of course always an option, and perhaps in this
-> > > case it's the best one. However, I think we already made a case
-> > > for
-> > > better xen configurability for the driver domains, so I'm not
-> > > 100%
-> > 
-> > Could you repost those backend patches please? At this point I am
-> > not
-> > sure which one we have discarded?
+> On Wed, Jan 11, 2012 at 05:36:41PM +0100, Andrew Jones wrote:
+> > Add a description to the config menu for xen tmem.
 > 
-> hm, I was thinking in terms of the XenBus ones. We had somewhere in
-> this
-> converstion something about seperating the backend's from depending
-> on
-> CONFIG_XEN_DOM0 as they can be run in any domain nowadays.
+> We will have another config option asked during 'make oldconfig'
+> right?
+> 
+> I thought part of this cleanup patch is to remove some of this
+> complexity - not make it _more_ complex.
 > 
 
-Ah, I still haven't posted anything like that. So nothing got lost :-)
-It's a good idea, but it's probably best done and tested by someone
-working with driver domains, or even with the backends at all, which
-I'm not.
-
-Drew
+Another candidate for 'if EXPERT' then, IMHO.
 
 > > 
-> > > convinced my initial patch (making dom0 configurable) isn't
-> > > worthy
-> > > of upstream. Also, I didn't see any comments on my v2[*] of that
-> > > patch, which I believe satisfies the menu complexity issue and
-> > > brings in more configurability. That said, I'm about to reply to
-> > > that patch myself, since there's an issue with it.
-> > > 
-> > > Drew
-> > > 
-> > > [*]
-> > > http://article.gmane.org/gmane.linux.kernel.virtualization/14635
-> > > 
-> > > _______________________________________________
-> > > Xen-devel mailing list
-> > > Xen-devel@lists.xensource.com
-> > > http://lists.xensource.com/xen-devel
+> > Signed-off-by: Andrew Jones <drjones@redhat.com>
+> > ---
+> >  drivers/xen/Kconfig |    2 +-
+> >  1 files changed, 1 insertions(+), 1 deletions(-)
+> > 
+> > diff --git a/drivers/xen/Kconfig b/drivers/xen/Kconfig
+> > index 1d24061..7e8d728 100644
+> > --- a/drivers/xen/Kconfig
+> > +++ b/drivers/xen/Kconfig
+> > @@ -143,7 +143,7 @@ config SWIOTLB_XEN
+> >  	select SWIOTLB
+> >  
+> >  config XEN_TMEM
+> > -	bool
+> > +	bool "Xen Transcendent Memory (tmem)"
+> >  	default y if (CLEANCACHE || FRONTSWAP)
+> >  	help
+> >  	  Shim to interface in-kernel Transcendent Memory hooks
+> > --
+> > 1.7.7.5
 > 
