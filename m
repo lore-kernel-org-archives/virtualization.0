@@ -1,19 +1,14 @@
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: Re: [RFC 7/11] virtio_pci: new, capability-aware driver.
-Date: Thu, 12 Jan 2012 09:56:39 +1100
-Message-ID: <1326322599.23910.167.camel@pasglop>
-References: <20111218101831.GB30374@redhat.com>
-	<87bor5nlht.fsf@rustcorp.com.au> <20111219091324.GA19535@redhat.com>
-	<871us0om2t.fsf@rustcorp.com.au> <20111220113718.GF3913@redhat.com>
-	<878vm6daqy.fsf@rustcorp.com.au> <20120110170334.GA18404@redhat.com>
-	<8762gj6q5r.fsf@rustcorp.com.au> <20120111102129.GC20988@redhat.com>
-	<1326316422.23910.154.camel@pasglop>
-	<20120111221349.GD27292@redhat.com>
+From: Zhi Yong Wu <zwu.kernel@gmail.com>
+Subject: Re: [PATCH] vhost-net: add module alias (v2)
+Date: Thu, 12 Jan 2012 10:15:20 +0800
+Message-ID: <CAEH94LiF_F51_avA9UWMneo1N1wY0NzJmfohpxdrkAv2WkWT5Q__47865.1416291997$1326334540$gmane$org@mail.gmail.com>
+References: <20120110205400.6c1cb306@nehalam.linuxnetplumber.net>
+	<20120111091653.188b24ab@nehalam.linuxnetplumber.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20120111221349.GD27292@redhat.com>
+In-Reply-To: <20120111091653.188b24ab@nehalam.linuxnetplumber.net>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,49 +18,93 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>, Sasha Levin <levinsasha928@gmail.com>, Pawel Moll <pawel.moll@arm.com>, virtualization <virtualization@lists.linux-foundation.org>
+To: Stephen Hemminger <shemminger@vyatta.com>
+Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, Kay Sievers <kay.sievers@vrfy.org>, virtualization@lists.linux-foundation.org, Alan Cox <device@lanana.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 2012-01-12 at 00:13 +0200, Michael S. Tsirkin wrote:
+On Thu, Jan 12, 2012 at 1:16 AM, Stephen Hemminger
+<shemminger@vyatta.com> wrote:
+> By adding the correct module alias, programs won't have to explicitly
+> call modprobe. Vhost-net will always be available if built into the kerne=
+l.
+> It does require assigning a permanent minor number for depmod to work.
+> Choose one next to TUN since this driver is related to it.
+>
+> Also, use C99 style initialization.
+>
+> Signed-off-by: Stephen Hemminger <shemminger@vyatta.com>
+>
+> ---
+> v2 - document minor number and make sure to not overlap
+>
+> =A0Documentation/devices.txt =A0| =A0 =A02 ++
+> =A0drivers/vhost/net.c =A0 =A0 =A0 =A0| =A0 =A08 +++++---
+> =A0include/linux/miscdevice.h | =A0 =A01 +
+> =A03 files changed, 8 insertions(+), 3 deletions(-)
+>
+> --- a/drivers/vhost/net.c =A0 =A0 =A0 2012-01-10 10:56:58.883179194 -0800
+> +++ b/drivers/vhost/net.c =A0 =A0 =A0 2012-01-10 19:48:23.650225892 -0800
+> @@ -856,9 +856,9 @@ static const struct file_operations vhos
+> =A0};
+>
+> =A0static struct miscdevice vhost_net_misc =3D {
+> - =A0 =A0 =A0 MISC_DYNAMIC_MINOR,
+> - =A0 =A0 =A0 "vhost-net",
+> - =A0 =A0 =A0 &vhost_net_fops,
+> + =A0 =A0 =A0 .minor =3D VHOST_NET_MINOR,
+> + =A0 =A0 =A0 .name =3D "vhost-net",
+> + =A0 =A0 =A0 .fops =3D &vhost_net_fops,
+> =A0};
+>
+> =A0static int vhost_net_init(void)
+> @@ -879,3 +879,5 @@ MODULE_VERSION("0.0.1");
+> =A0MODULE_LICENSE("GPL v2");
+> =A0MODULE_AUTHOR("Michael S. Tsirkin");
+> =A0MODULE_DESCRIPTION("Host kernel accelerator for virtio net");
+> +MODULE_ALIAS_MISCDEV(VHOST_NET_MINOR);
+> +MODULE_ALIAS("devname:vhost-net");
+> --- a/include/linux/miscdevice.h =A0 =A0 =A0 =A02012-01-10 10:56:59.77918=
+9436 -0800
+> +++ b/include/linux/miscdevice.h =A0 =A0 =A0 =A02012-01-11 09:13:20.80369=
+4316 -0800
+> @@ -42,6 +42,7 @@
+> =A0#define AUTOFS_MINOR =A0 =A0 =A0 =A0 =A0 235
+> =A0#define MAPPER_CTRL_MINOR =A0 =A0 =A0236
+> =A0#define LOOP_CTRL_MINOR =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0237
+> +#define VHOST_NET_MINOR =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0238
+> =A0#define MISC_DYNAMIC_MINOR =A0 =A0 255
+>
+> =A0struct device;
+> --- a/Documentation/devices.txt 2012-01-10 10:56:53.399116518 -0800
+> +++ b/Documentation/devices.txt 2012-01-11 09:12:49.251197653 -0800
+> @@ -447,6 +447,8 @@ Your cooperation is appreciated.
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0234 =3D /dev/btrfs-control =A0 =A0 =A0 =A0=
+Btrfs control device
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0235 =3D /dev/autofs =A0 =A0 =A0 Autofs con=
+trol device
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0236 =3D /dev/mapper/control =A0 =A0 =A0 De=
+vice-Mapper control device
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 237 =3D /dev/vhost-net =A0 =A0Host kernel a=
+ccelerator for virtio net
+> +
+238? The stuff for LOOP_CTRL seems to be missing?
 
-> > Well, I would argue that the network driver world has proven countless
-> > times that those are good ideas :-)
-> 
-> Below you seem to suggest that separate rings like
-> virtio has now is better than a single ring like Rusty
-> suggested.
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0240-254 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 Re=
+served for local use
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0255 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =
+=A0 Reserved for MISC_DYNAMIC_MINOR
+>
+>
+>
+> _______________________________________________
+> Virtualization mailing list
+> Virtualization@lists.linux-foundation.org
+> https://lists.linuxfoundation.org/mailman/listinfo/virtualization
 
-I was merely pointing at examples. My understanding (but I may have
-misparsed him) is that Rusty wants to collate the descriptors and the
-"available" ring. I personally don't think the completions (the used
-ring) should be merged, it should remain separate. If Rusty was hinting
-at doing that then I disagree with him :-)
 
-> Are you familiar with current virtio ring structure?  How is this
-> different?
 
-Vaguely yes :-) It does have this uni-directional model, I didn't
-express myself very well or I got confused by the statements about a
-single ring. Yes, I think we should keep the ring at least split into
-two directions as it is today.
+-- =
 
-But we can certainly merge available ring and descriptors ring.
+Regards,
 
-Another option is having the ring entry size be a configurable power of
-two. This is trivial and comes at pretty much no cost. That would allow
-virtio-net for example to do efficient things like putting the headers
-as immediate data in the ring and the data as indirect.
-
-This means a large part of the packet processing can happen without
-touching additional cache lines.
-
-Anyway, at this stage, I plan to sit down with Rusty next week and hash
-out some kind of proposal, which we can experiment with & benchmark.
-
-I'd suggest doing a simple user space app that creates such a ring,
-forks, and produce / consume. We can then run that through perf and
-analyze the cache behaviour, maximum throughput, etc....
-
-Cheers,
-Ben.
+Zhi Yong Wu
