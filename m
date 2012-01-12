@@ -1,23 +1,22 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
 Subject: Re: [RFC 7/11] virtio_pci: new, capability-aware driver.
-Date: Thu, 12 Jan 2012 12:12:17 +1030
-Message-ID: <87wr8x4rye.fsf@rustcorp.com.au>
-References: <4F0DA7A5.7050600@codemonkey.ws>
-	<20120111152129.GB20570@redhat.com>
-	<4F0DAA9B.7060703@codemonkey.ws>
-	<20120111154515.GD20570@redhat.com>
-	<4F0DB2AB.8030506@codemonkey.ws>
-	<20120111170859.GA22310@redhat.com>
-	<4F0DE62F.6030805@codemonkey.ws>
-	<20120111201436.GA27292@redhat.com>
-	<4F0DF08F.7010706@codemonkey.ws>
-	<1326315726.23910.143.camel@pasglop>
-	<20120111220232.GC27292@redhat.com>
+Date: Thu, 12 Jan 2012 12:05:06 +1030
+Message-ID: <87zkdt4sad.fsf@rustcorp.com.au>
+References: <20111212182533.GB25916@redhat.com>
+	<87liqhtdnj.fsf@rustcorp.com.au> <20111215063004.GA3630@redhat.com>
+	<87zketp9nz.fsf@rustcorp.com.au>
+	<20111218101831.GB30374@redhat.com>
+	<87bor5nlht.fsf@rustcorp.com.au>
+	<20111219091324.GA19535@redhat.com>
+	<871us0om2t.fsf@rustcorp.com.au> <20111220113718.GF3913@redhat.com>
+	<878vm6daqy.fsf@rustcorp.com.au>
+	<20120110170334.GA18404@redhat.com>
+	<8762gj6q5r.fsf@rustcorp.com.au> <4F0D8EFA.3010503@codemonkey.ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20120111220232.GC27292@redhat.com>
+In-Reply-To: <4F0D8EFA.3010503@codemonkey.ws>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,26 +26,27 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>, Pawel Moll <pawel.moll@arm.com>, Sasha Levin <levinsasha928@gmail.com>, Anthony Liguori <anthony@codemonkey.ws>, virtualization <virtualization@lists.linux-foundation.org>
+To: Anthony Liguori <anthony@codemonkey.ws>
+Cc: Pawel Moll <pawel.moll@arm.com>, "Michael S. Tsirkin" <mst@redhat.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, virtualization <virtualization@lists.linux-foundation.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Sasha Levin <levinsasha928@gmail.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 12 Jan 2012 00:02:33 +0200, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> Look, we have a race currently. Let us not tie a bug fix to a huge
-> rewrite with unclear performance benefits, please.
+On Wed, 11 Jan 2012 07:30:34 -0600, Anthony Liguori <anthony@codemonkey.ws> wrote:
+> I think the more important thing to do is require accesses to integers in the 
+> config space to always be aligned and to use the appropriate accessor. 
+> Non-integer fields should be restricted to byte access.
+> 
+> That limits config space entries to 32-bit but also means that there is no need 
+> for a generation counter.
 
-In theory, yes.  In practice, we bandaid it.
+Unfortunately not, see virtio_blk.  capacity is 64 bits, and geometry is
+multiple fields.
 
-I think in the short term we change ->get to get the entire sequence
-twice, and check it's the same.  Theoretically, still racy, but it does
-cut the window.  And we haven't seen the bug yet, either.
+> If we're already making the change, the endianness ought to be a feature bit.
 
-In the longer term, we fix it properly:
+I'd rather tie it to the new PCI config layout (and ring format).  Then
+we can simply have two backends, legacy and modern.
 
-1) Make it readonly, prevents one class of problems.
-2) Treat it as constant if drv->config_changed is NULL (we can do this
-   now, in fact) and ignore the config interrupt.
-3) Use a generation counter on the config, odd means wait.
+For non-PCI, we would need a feature bit.
 
 Cheers,
 Rusty.
