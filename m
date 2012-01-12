@@ -1,19 +1,22 @@
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [RFC 7/11] virtio_pci: new, capability-aware driver.
-Date: Thu, 12 Jan 2012 17:28:34 +1100
-Message-ID: <1326349714.23910.207.camel@pasglop>
-References: <87bor5nlht.fsf@rustcorp.com.au>
-	<20111219091324.GA19535@redhat.com> <871us0om2t.fsf@rustcorp.com.au>
-	<20111220113718.GF3913@redhat.com> <878vm6daqy.fsf@rustcorp.com.au>
-	<20120110170334.GA18404@redhat.com> <8762gj6q5r.fsf@rustcorp.com.au>
-	<20120111102129.GC20988@redhat.com> <87vcoh4r2y.fsf@rustcorp.com.au>
-	<1326342719.23910.199.camel@pasglop>
-	<20120112060954.GD10319@redhat.com>
+Date: Thu, 12 Jan 2012 08:37:11 +0200
+Message-ID: <20120112063710.GE10319@redhat.com>
+References: <20111220113718.GF3913@redhat.com> <878vm6daqy.fsf@rustcorp.com.au>
+	<20120110170334.GA18404@redhat.com>
+	<8762gj6q5r.fsf@rustcorp.com.au>
+	<20120111102129.GC20988@redhat.com>
+	<1326316422.23910.154.camel@pasglop>
+	<20120111221349.GD27292@redhat.com>
+	<1326322599.23910.167.camel@pasglop>
+	<20120112052953.GB10319@redhat.com>
+	<1326348822.23910.202.camel@pasglop>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20120112060954.GD10319@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <1326348822.23910.202.camel@pasglop>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,69 +26,40 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
 Cc: Christian Borntraeger <borntraeger@de.ibm.com>, Sasha Levin <levinsasha928@gmail.com>, Pawel Moll <pawel.moll@arm.com>, virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 2012-01-12 at 08:09 +0200, Michael S. Tsirkin wrote:
-> On Thu, Jan 12, 2012 at 03:31:59PM +1100, Benjamin Herrenschmidt wrote:
-> > However I can see at least one advantage of what you've done :-) You
-> > never have to deal with holes in the ring.
-> 
-> Another advantage is the design goal for that ring:
-> host never needs to copy even if it completes
-> descriptors out of order. And out of order is something that does not
-> happen at all with hardware drivers. This is where paravirt is
-> different.
-
-Actually out of order can happen with tagged command queue for SCSI or
-ATA, tho I'm not 100% familiar with how things like AHCI handle this.
-
-> > > > Two rings do have the advantage of not requiring host side copy, which
-> > > > copy would surely add to cache pressure.
+On Thu, Jan 12, 2012 at 05:13:42PM +1100, Benjamin Herrenschmidt wrote:
+> On Thu, 2012-01-12 at 07:29 +0200, Michael S. Tsirkin wrote:
+> > On Thu, Jan 12, 2012 at 09:56:39AM +1100, Benjamin Herrenschmidt wrote:
+> > > I'd suggest doing a simple user space app that creates such a ring,
+> > > forks, and produce / consume. We can then run that through perf and
+> > > analyze the cache behaviour, maximum throughput, etc....
 > > > 
-> > > Well, a simple host could process in-order and leave stuff in the ring I
-> > > guess.  A smarter host would copy and queue, maybe leave one queue entry
-> > > in so it doesn't get flooded?
+> > > Cheers,
+> > > Ben.
 > > 
-> > What's wrong with a ring of descriptors + a ring of completion, with a
-> > single toggle valid bit to indicate whether a given descriptor is valid
-> > or not (to avoid the nasty ping pong on the ring head/tails).
+> > Sure. You can also use my tools/virtio hack: this rebuilds virtio
+> > ring code in userspace, has the advantage of reusing
+> > actual kernel code, so it's up to date, has same barriers, etc.
 > 
-> First, I don't understand how a valid bit avoids ping poing on the last
-> descriptor. Second, how do you handle out of order completions?
-
-A toggle means the valid bit is never cleared, it just changes polarity
-every time you go around the ring. So there's never a write back to 0.
-
-Out of order is something I hadn't thought about (I was most probably
-too focused on virtio-net) and is indeed a PITA. It's doable with rings
-but can get nasty.
-
-I'll give that more thought in the next week, and Rusty and I shall play
-with userspace models based on your tool.
-
-> > > > About inline - it can only help very small buffers.
-> > > > Which workloads do you have in mind exactly?
-> > > 
-> > > It was suggested by others, but I think TCP Acks are the classic one.
-> > 
-> > Split headers + data too, tho that means supporting immediate +
-> > indirect. 
-> > 
-> > It makes a lot of sense for command rings as well if we're going to go
-> > down that route.
+> Yes, Rusty mentioned it today :-)
 > 
-> I don't see why it makes sense for commands. It's a performance
-> optimization and commands are off the data path.
+> We'll play around in the next couple of weeks. With LCA, I'm not sure
+> how much I'll get done next week but heh...
+> 
+> I'm curious to see if we can still have a one-size-fit-all between
+> unordered blk requests with large data/descriptor access ratio and
+> ordered network buffers with a much smaller one.
+> 
+> Cheers,
+> Ben.
+> 
 
-Oh just code simplification not having to dequeue a descriptor, allocate
-a buffer, etc... but a lot of that can be buried in helpers indeed.
-
-> We can't, legal PCI ProgIf values are defined in PCI spec.
-
-Hrm, more or less yes, I suppose we should stay away from that then,
-do we use revision ID for anything in virtio-land ?
-
-Cheers,
-Ben.
+network buffers aren't ordered when the backend is zero copy.
+Another idea is to add different sized bufs in the RX ring,
+and have the device use the size that fits best.
+This can improve small packet memory utilization without
+need for data copies, but it also means that
+descriptors are completed out of order in -net.
