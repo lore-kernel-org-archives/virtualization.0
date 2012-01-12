@@ -1,22 +1,15 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [RFC 7/11] virtio_pci: new, capability-aware driver.
-Date: Thu, 12 Jan 2012 07:29:54 +0200
-Message-ID: <20120112052953.GB10319@redhat.com>
-References: <20111219091324.GA19535@redhat.com>
-	<871us0om2t.fsf@rustcorp.com.au> <20111220113718.GF3913@redhat.com>
-	<878vm6daqy.fsf@rustcorp.com.au>
-	<20120110170334.GA18404@redhat.com>
-	<8762gj6q5r.fsf@rustcorp.com.au>
-	<20120111102129.GC20988@redhat.com>
-	<1326316422.23910.154.camel@pasglop>
-	<20120111221349.GD27292@redhat.com>
-	<1326322599.23910.167.camel@pasglop>
+From: Stephen Hemminger <shemminger@vyatta.com>
+Subject: [PATCH] vhost-net: add module alias (v2.1)
+Date: Wed, 11 Jan 2012 21:30:38 -0800
+Message-ID: <20120111213038.39213819@nehalam.linuxnetplumber.net>
+References: <20120110205400.6c1cb306@nehalam.linuxnetplumber.net>
+	<20120111091653.188b24ab@nehalam.linuxnetplumber.net>
+	<CAEH94LiF_F51_avA9UWMneo1N1wY0NzJmfohpxdrkAv2WkWT5Q@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1326322599.23910.167.camel@pasglop>
+In-Reply-To: <CAEH94LiF_F51_avA9UWMneo1N1wY0NzJmfohpxdrkAv2WkWT5Q@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -26,21 +19,69 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>, Sasha Levin <levinsasha928@gmail.com>, Pawel Moll <pawel.moll@arm.com>, virtualization <virtualization@lists.linux-foundation.org>
+To: Zhi Yong Wu <zwu.kernel@gmail.com>
+Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, Kay Sievers <kay.sievers@vrfy.org>, virtualization@lists.linux-foundation.org, Alan Cox <device@lanana.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Jan 12, 2012 at 09:56:39AM +1100, Benjamin Herrenschmidt wrote:
-> I'd suggest doing a simple user space app that creates such a ring,
-> forks, and produce / consume. We can then run that through perf and
-> analyze the cache behaviour, maximum throughput, etc....
-> 
-> Cheers,
-> Ben.
+Subject: vhost-net: add module alias (v2.1)
 
-Sure. You can also use my tools/virtio hack: this rebuilds virtio
-ring code in userspace, has the advantage of reusing
-actual kernel code, so it's up to date, has same barriers, etc.
+By adding some module aliases, programs (or users) won't have to explicitly
+call modprobe. Vhost-net will always be available if built into the kernel.
+It does require assigning a permanent minor number for depmod to work.
 
--- 
-MST
+Also:
+  - use C99 style initialization.
+  - add missing entry in documentation for loop-control
+
+Signed-off-by: Stephen Hemminger <shemminger@vyatta.com>
+
+---
+2.1 - add missing documentation for loop control as well
+
+ Documentation/devices.txt  |    3 +++
+ drivers/vhost/net.c        |    8 +++++---
+ include/linux/miscdevice.h |    1 +
+ 3 files changed, 9 insertions(+), 3 deletions(-)
+
+--- a/drivers/vhost/net.c	2012-01-10 10:56:58.883179194 -0800
++++ b/drivers/vhost/net.c	2012-01-10 19:48:23.650225892 -0800
+@@ -856,9 +856,9 @@ static const struct file_operations vhos
+ };
+ 
+ static struct miscdevice vhost_net_misc = {
+-	MISC_DYNAMIC_MINOR,
+-	"vhost-net",
+-	&vhost_net_fops,
++	.minor = VHOST_NET_MINOR,
++	.name = "vhost-net",
++	.fops = &vhost_net_fops,
+ };
+ 
+ static int vhost_net_init(void)
+@@ -879,3 +879,5 @@ MODULE_VERSION("0.0.1");
+ MODULE_LICENSE("GPL v2");
+ MODULE_AUTHOR("Michael S. Tsirkin");
+ MODULE_DESCRIPTION("Host kernel accelerator for virtio net");
++MODULE_ALIAS_MISCDEV(VHOST_NET_MINOR);
++MODULE_ALIAS("devname:vhost-net");
+--- a/include/linux/miscdevice.h	2012-01-10 10:56:59.779189436 -0800
++++ b/include/linux/miscdevice.h	2012-01-11 09:13:20.803694316 -0800
+@@ -42,6 +42,7 @@
+ #define AUTOFS_MINOR		235
+ #define MAPPER_CTRL_MINOR	236
+ #define LOOP_CTRL_MINOR		237
++#define VHOST_NET_MINOR		238
+ #define MISC_DYNAMIC_MINOR	255
+ 
+ struct device;
+--- a/Documentation/devices.txt	2012-01-10 10:56:53.399116518 -0800
++++ b/Documentation/devices.txt	2012-01-11 13:17:07.882113340 -0800
+@@ -447,6 +447,9 @@ Your cooperation is appreciated.
+ 		234 = /dev/btrfs-control	Btrfs control device
+ 		235 = /dev/autofs	Autofs control device
+ 		236 = /dev/mapper/control	Device-Mapper control device
++		237 = /dev/loop-control Loopback control device
++		238 = /dev/vhost-net	Host kernel accelerator for virtio net
++
+ 		240-254			Reserved for local use
+ 		255			Reserved for MISC_DYNAMIC_MINOR
