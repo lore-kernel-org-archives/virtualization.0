@@ -1,15 +1,15 @@
-From: Amit Shah <amit.shah@redhat.com>
-Subject: Re: [PULL] virtio and lguest
-Date: Fri, 13 Jan 2012 16:18:45 +0530
-Message-ID: <20120113104845.GC9506@amit.redhat.com>
-References: <87lipd4hqx.fsf@rustcorp.com.au>
-	<CA+55aFyOy4bWUq6PH3ThM2CXOFwi75FE8HGOJ8DNZjFWw9rq6A@mail.gmail.com>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH] vhost-net: add module alias (v2.1)
+Date: Fri, 13 Jan 2012 10:12:45 -0800 (PST)
+Message-ID: <20120113.101245.1898604125300586417.davem@davemloft.net>
+References: <20120111213038.39213819@nehalam.linuxnetplumber.net>
+	<20120112.200701.1473475851890804136.davem@davemloft.net>
+	<CAPXgP10uf-5wDxGOP8yhfUcn+18Ga+eZp-Psz_Pxe9PoJZagoA@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <CA+55aFyOy4bWUq6PH3ThM2CXOFwi75FE8HGOJ8DNZjFWw9rq6A@mail.gmail.com>
+In-Reply-To: <CAPXgP10uf-5wDxGOP8yhfUcn+18Ga+eZp-Psz_Pxe9PoJZagoA@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,55 +19,41 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Stratos Psomadakis <psomas@cslab.ece.ntua.gr>, "Michael S. Tsirkin" <mst@redhat.com>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Sasha Levin <levinsasha928@gmail.com>, Jacek Galowicz <jacek@galowicz.de>, Christoph Hellwig <hch@lst.de>, Davidlohr Bueso <dave@gnu.org>
+To: kay.sievers@vrfy.org
+Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, shemminger@vyatta.com, device@lanana.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi,
+From: Kay Sievers <kay.sievers@vrfy.org>
+Date: Fri, 13 Jan 2012 05:19:05 +0100
 
-On (Thu) 12 Jan 2012 [16:29:14], Linus Torvalds wrote:
-> On Wed, Jan 11, 2012 at 9:22 PM, Rusty Russell <rusty@rustcorp.com.au> wr=
-ote:
-> >
-> > Amit Shah (12):
-> > =A0 =A0 =A0virtio: pci: switch to new PM API
+> On Fri, Jan 13, 2012 at 05:07, David Miller <davem@davemloft.net> wrote:
+>> From: Stephen Hemminger <shemminger@vyatta.com>
+>> Date: Wed, 11 Jan 2012 21:30:38 -0800
+>>
+>>> Subject: vhost-net: add module alias (v2.1)
+>>>
+>>> By adding some module aliases, programs (or users) won't have to explic=
+itly
+>>> call modprobe. Vhost-net will always be available if built into the ker=
+nel.
+>>> It does require assigning a permanent minor number for depmod to work.
+>>>
+>>> Also:
+>>> =A0 - use C99 style initialization.
+>>> =A0 - add missing entry in documentation for loop-control
+>>>
+>>> Signed-off-by: Stephen Hemminger <shemminger@vyatta.com>
+>>
+>> ACKs, NACKs? =A0What is happening here?
 > =
 
-> Hmm. Afaik, this is broken, or at least not complete.
+> In general, static minors are acceptable and very useful to make
+> on-demand loading of kernel modules working. They should be used only
+> for single-instance devices though, which usually means: One single
+> static device name associated with a module.
 > =
 
-> Sure, it switches to the new PM API, but it still does the PCI ops itself.
-> =
+> That looks all fine here, and for what it's worth:
+>   Acked-By: Kay Sievers <kay.sievers@vrfy.org>
 
-> It should not need to - the PCI layer will do the power state and
-> standard PCI device state saving. And setting the PCI_D3hot state when
-> shared interrupts can still happen at suspend time is just a bad idea.
-
-The idea behind this patchset is to get S4 working properly.  There's
-no change to the way S3 was/is being done, and the state-setting is
-done only in the S3 PM callbacks.
-
-> So I think you're doing extra work and introducing bugs by doing so -
-> the default PCI bus operations should already do all you do, just do
-
-For S4, we need some driver-specific (not just virtio-specific) work
-to be done on the freeze/restore callbacks...
-
-> it better. And then you can use the SIMPLE_DEV_PM_OPS() to build the
-> dev_pm_ops structure and get all the normal cases right automatically.
-
-... and we also have separate stuff to be done in thaw/restore/freeze
-callbacks for different drivers.  So using the *_PM_OPS() macros
-wouldn't have worked.
-
-> I don't know if there is any particularly good example of this, but
-> you can see some of the network drivers for examples of this. Notice
-> how they don't need to worry about PCI power states etc at all, they
-> just need to worry about the actual chip suspend/resume (and for a
-> network driver, you'd do the netif_device_detach/netif_device_attach
-> etc)
-
-I think your concern is with the way S3 is being done, and I volunteer
-to look at improving the situation there.  Might take a while, though.
-
-		Amit
+Ok, applied, thanks everyone.
