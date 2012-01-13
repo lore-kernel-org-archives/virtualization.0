@@ -1,15 +1,13 @@
-From: Thadeu Lima de Souza Cascardo <cascardo@linux.vnet.ibm.com>
-Subject: Re: [PATCH] vhost-net: add module alias (v2)
-Date: Thu, 12 Jan 2012 18:04:48 -0200
-Message-ID: <20120112200448.GA3446__13655.4700359286$1326410121$gmane$org@oc1711230544.ibm.com>
-References: <20120110205400.6c1cb306@nehalam.linuxnetplumber.net>
-	<20120111091653.188b24ab@nehalam.linuxnetplumber.net>
+From: Linus Torvalds <torvalds@linux-foundation.org>
+Subject: Re: [PULL] virtio and lguest
+Date: Thu, 12 Jan 2012 16:29:14 -0800
+Message-ID: <CA+55aFyOy4bWUq6PH3ThM2CXOFwi75FE8HGOJ8DNZjFWw9rq6A@mail.gmail.com>
+References: <87lipd4hqx.fsf@rustcorp.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20120111091653.188b24ab@nehalam.linuxnetplumber.net>
+In-Reply-To: <87lipd4hqx.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,81 +17,34 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Stephen Hemminger <shemminger@vyatta.com>
-Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, Kay Sievers <kay.sievers@vrfy.org>, virtualization@lists.linux-foundation.org, Alan Cox <device@lanana.org>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Stratos Psomadakis <psomas@cslab.ece.ntua.gr>, "Michael S. Tsirkin" <mst@redhat.com>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Sasha Levin <levinsasha928@gmail.com>, Amit Shah <amit.shah@redhat.com>, Jacek Galowicz <jacek@galowicz.de>, Christoph Hellwig <hch@lst.de>, Davidlohr Bueso <dave@gnu.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Jan 11, 2012 at 09:16:53AM -0800, Stephen Hemminger wrote:
-> By adding the correct module alias, programs won't have to explicitly
-> call modprobe. Vhost-net will always be available if built into the kernel.
-> It does require assigning a permanent minor number for depmod to work.
-> Choose one next to TUN since this driver is related to it.
-> 
-> Also, use C99 style initialization.
-> 
-> Signed-off-by: Stephen Hemminger <shemminger@vyatta.com>
-> 
-> ---
-> v2 - document minor number and make sure to not overlap
-> 
->  Documentation/devices.txt  |    2 ++
->  drivers/vhost/net.c        |    8 +++++---
->  include/linux/miscdevice.h |    1 +
->  3 files changed, 8 insertions(+), 3 deletions(-)
-> 
-> --- a/drivers/vhost/net.c	2012-01-10 10:56:58.883179194 -0800
-> +++ b/drivers/vhost/net.c	2012-01-10 19:48:23.650225892 -0800
-> @@ -856,9 +856,9 @@ static const struct file_operations vhos
->  };
-> 
->  static struct miscdevice vhost_net_misc = {
-> -	MISC_DYNAMIC_MINOR,
-> -	"vhost-net",
-> -	&vhost_net_fops,
-> +	.minor = VHOST_NET_MINOR,
-> +	.name = "vhost-net",
-> +	.fops = &vhost_net_fops,
->  };
-> 
->  static int vhost_net_init(void)
-> @@ -879,3 +879,5 @@ MODULE_VERSION("0.0.1");
->  MODULE_LICENSE("GPL v2");
->  MODULE_AUTHOR("Michael S. Tsirkin");
->  MODULE_DESCRIPTION("Host kernel accelerator for virtio net");
-> +MODULE_ALIAS_MISCDEV(VHOST_NET_MINOR);
-> +MODULE_ALIAS("devname:vhost-net");
-> --- a/include/linux/miscdevice.h	2012-01-10 10:56:59.779189436 -0800
-> +++ b/include/linux/miscdevice.h	2012-01-11 09:13:20.803694316 -0800
-> @@ -42,6 +42,7 @@
->  #define AUTOFS_MINOR		235
->  #define MAPPER_CTRL_MINOR	236
->  #define LOOP_CTRL_MINOR		237
-> +#define VHOST_NET_MINOR		238
->  #define MISC_DYNAMIC_MINOR	255
-> 
->  struct device;
-> --- a/Documentation/devices.txt	2012-01-10 10:56:53.399116518 -0800
-> +++ b/Documentation/devices.txt	2012-01-11 09:12:49.251197653 -0800
-> @@ -447,6 +447,8 @@ Your cooperation is appreciated.
->  		234 = /dev/btrfs-control	Btrfs control device
->  		235 = /dev/autofs	Autofs control device
->  		236 = /dev/mapper/control	Device-Mapper control device
-> +		237 = /dev/vhost-net	Host kernel accelerator for virtio net
-> +
->  		240-254			Reserved for local use
->  		255			Reserved for MISC_DYNAMIC_MINOR
-> 
-> 
+On Wed, Jan 11, 2012 at 9:22 PM, Rusty Russell <rusty@rustcorp.com.au> wrot=
+e:
+>
+> Amit Shah (12):
+> =A0 =A0 =A0virtio: pci: switch to new PM API
 
-You added vhost-net minor as 238 in the code and 237 in the
-documentation. That's because loop-control is missing from the docs.
+Hmm. Afaik, this is broken, or at least not complete.
 
-Regards.
-Cascardo.
+Sure, it switches to the new PM API, but it still does the PCI ops itself.
 
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe netdev" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
+It should not need to - the PCI layer will do the power state and
+standard PCI device state saving. And setting the PCI_D3hot state when
+shared interrupts can still happen at suspend time is just a bad idea.
+
+So I think you're doing extra work and introducing bugs by doing so -
+the default PCI bus operations should already do all you do, just do
+it better. And then you can use the SIMPLE_DEV_PM_OPS() to build the
+dev_pm_ops structure and get all the normal cases right automatically.
+
+I don't know if there is any particularly good example of this, but
+you can see some of the network drivers for examples of this. Notice
+how they don't need to worry about PCI power states etc at all, they
+just need to worry about the actual chip suspend/resume (and for a
+network driver, you'd do the netif_device_detach/netif_device_attach
+etc)
+
+                         Linus
