@@ -1,14 +1,15 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PULL] virtio and lguest
-Date: Fri, 13 Jan 2012 12:59:19 +1030
-Message-ID: <87fwfkjpxc.fsf@rustcorp.com.au>
-References: <87lipd4hqx.fsf@rustcorp.com.au>
-	<CA+55aFyOy4bWUq6PH3ThM2CXOFwi75FE8HGOJ8DNZjFWw9rq6A@mail.gmail.com>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH] vhost-net: add module alias (v2.1)
+Date: Thu, 12 Jan 2012 20:07:01 -0800 (PST)
+Message-ID: <20120112.200701.1473475851890804136.davem@davemloft.net>
+References: <20120111091653.188b24ab@nehalam.linuxnetplumber.net>
+	<CAEH94LiF_F51_avA9UWMneo1N1wY0NzJmfohpxdrkAv2WkWT5Q@mail.gmail.com>
+	<20120111213038.39213819@nehalam.linuxnetplumber.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CA+55aFyOy4bWUq6PH3ThM2CXOFwi75FE8HGOJ8DNZjFWw9rq6A@mail.gmail.com>
+In-Reply-To: <20120111213038.39213819@nehalam.linuxnetplumber.net>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,35 +19,23 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Stratos Psomadakis <psomas@cslab.ece.ntua.gr>, "Michael S. Tsirkin" <mst@redhat.com>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Sasha Levin <levinsasha928@gmail.com>, Amit Shah <amit.shah@redhat.com>, Jacek Galowicz <jacek@galowicz.de>, Christoph Hellwig <hch@lst.de>, Davidlohr Bueso <dave@gnu.org>
+To: shemminger@vyatta.com
+Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, kay.sievers@vrfy.org, virtualization@lists.linux-foundation.org, device@lanana.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gVGh1LCAxMiBKYW4gMjAxMiAxNjoyOToxNCAtMDgwMCwgTGludXMgVG9ydmFsZHMgPHRvcnZh
-bGRzQGxpbnV4LWZvdW5kYXRpb24ub3JnPiB3cm90ZToKPiBPbiBXZWQsIEphbiAxMSwgMjAxMiBh
-dCA5OjIyIFBNLCBSdXN0eSBSdXNzZWxsIDxydXN0eUBydXN0Y29ycC5jb20uYXU+IHdyb3RlOgo+
-ID4KPiA+IEFtaXQgU2hhaCAoMTIpOgo+ID4gwqAgwqAgwqB2aXJ0aW86IHBjaTogc3dpdGNoIHRv
-IG5ldyBQTSBBUEkKPiAKPiBIbW0uIEFmYWlrLCB0aGlzIGlzIGJyb2tlbiwgb3IgYXQgbGVhc3Qg
-bm90IGNvbXBsZXRlLgo+IAo+IFN1cmUsIGl0IHN3aXRjaGVzIHRvIHRoZSBuZXcgUE0gQVBJLCBi
-dXQgaXQgc3RpbGwgZG9lcyB0aGUgUENJIG9wcyBpdHNlbGYuCj4gCj4gSXQgc2hvdWxkIG5vdCBu
-ZWVkIHRvIC0gdGhlIFBDSSBsYXllciB3aWxsIGRvIHRoZSBwb3dlciBzdGF0ZSBhbmQKPiBzdGFu
-ZGFyZCBQQ0kgZGV2aWNlIHN0YXRlIHNhdmluZy4gQW5kIHNldHRpbmcgdGhlIFBDSV9EM2hvdCBz
-dGF0ZSB3aGVuCj4gc2hhcmVkIGludGVycnVwdHMgY2FuIHN0aWxsIGhhcHBlbiBhdCBzdXNwZW5k
-IHRpbWUgaXMganVzdCBhIGJhZCBpZGVhLgo+IAo+IFNvIEkgdGhpbmsgeW91J3JlIGRvaW5nIGV4
-dHJhIHdvcmsgYW5kIGludHJvZHVjaW5nIGJ1Z3MgYnkgZG9pbmcgc28gLQo+IHRoZSBkZWZhdWx0
-IFBDSSBidXMgb3BlcmF0aW9ucyBzaG91bGQgYWxyZWFkeSBkbyBhbGwgeW91IGRvLCBqdXN0IGRv
-Cj4gaXQgYmV0dGVyLiBBbmQgdGhlbiB5b3UgY2FuIHVzZSB0aGUgU0lNUExFX0RFVl9QTV9PUFMo
-KSB0byBidWlsZCB0aGUKPiBkZXZfcG1fb3BzIHN0cnVjdHVyZSBhbmQgZ2V0IGFsbCB0aGUgbm9y
-bWFsIGNhc2VzIHJpZ2h0IGF1dG9tYXRpY2FsbHkuCj4gCj4gSSBkb24ndCBrbm93IGlmIHRoZXJl
-IGlzIGFueSBwYXJ0aWN1bGFybHkgZ29vZCBleGFtcGxlIG9mIHRoaXMsIGJ1dAo+IHlvdSBjYW4g
-c2VlIHNvbWUgb2YgdGhlIG5ldHdvcmsgZHJpdmVycyBmb3IgZXhhbXBsZXMgb2YgdGhpcy4gTm90
-aWNlCj4gaG93IHRoZXkgZG9uJ3QgbmVlZCB0byB3b3JyeSBhYm91dCBQQ0kgcG93ZXIgc3RhdGVz
-IGV0YyBhdCBhbGwsIHRoZXkKPiBqdXN0IG5lZWQgdG8gd29ycnkgYWJvdXQgdGhlIGFjdHVhbCBj
-aGlwIHN1c3BlbmQvcmVzdW1lIChhbmQgZm9yIGEKPiBuZXR3b3JrIGRyaXZlciwgeW91J2QgZG8g
-dGhlIG5ldGlmX2RldmljZV9kZXRhY2gvbmV0aWZfZGV2aWNlX2F0dGFjaAo+IGV0YykKCk9rLCBJ
-J2xsIGNvbmZlc3MgY29tcGxldGUgaWdub3JhbmNlLCBhbmQgd2FpdCBmb3IgQW1pdCB0byByZXNw
-b25kLiAgSQptdXN0IGFkbWl0IHRoYXQgUE0gZm9yIHZpcnR1YWwgZGV2aWNlcyBpcyBub3QgYSBw
-ZXJzb25hbCBwcmlvcml0eS4uLgoKVGhhbmtzLApSdXN0eS4KX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZp
-cnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGlu
-dXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+From: Stephen Hemminger <shemminger@vyatta.com>
+Date: Wed, 11 Jan 2012 21:30:38 -0800
+
+> Subject: vhost-net: add module alias (v2.1)
+> 
+> By adding some module aliases, programs (or users) won't have to explicitly
+> call modprobe. Vhost-net will always be available if built into the kernel.
+> It does require assigning a permanent minor number for depmod to work.
+> 
+> Also:
+>   - use C99 style initialization.
+>   - add missing entry in documentation for loop-control
+> 
+> Signed-off-by: Stephen Hemminger <shemminger@vyatta.com>
+
+ACKs, NACKs?  What is happening here?
