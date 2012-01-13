@@ -1,16 +1,15 @@
-From: Kay Sievers <kay.sievers@vrfy.org>
-Subject: Re: [PATCH] vhost-net: add module alias (v2.1)
-Date: Fri, 13 Jan 2012 05:19:05 +0100
-Message-ID: <CAPXgP10uf-5wDxGOP8yhfUcn+18Ga+eZp-Psz_Pxe9PoJZagoA@mail.gmail.com>
-References: <20120111091653.188b24ab@nehalam.linuxnetplumber.net>
-	<CAEH94LiF_F51_avA9UWMneo1N1wY0NzJmfohpxdrkAv2WkWT5Q@mail.gmail.com>
-	<20120111213038.39213819@nehalam.linuxnetplumber.net>
-	<20120112.200701.1473475851890804136.davem@davemloft.net>
+From: Amit Shah <amit.shah@redhat.com>
+Subject: Re: [PULL] virtio and lguest
+Date: Fri, 13 Jan 2012 16:18:45 +0530
+Message-ID: <20120113104845.GC9506@amit.redhat.com>
+References: <87lipd4hqx.fsf@rustcorp.com.au>
+	<CA+55aFyOy4bWUq6PH3ThM2CXOFwi75FE8HGOJ8DNZjFWw9rq6A@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20120112.200701.1473475851890804136.davem@davemloft.net>
+Content-Disposition: inline
+In-Reply-To: <CA+55aFyOy4bWUq6PH3ThM2CXOFwi75FE8HGOJ8DNZjFWw9rq6A@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,29 +19,55 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: David Miller <davem@davemloft.net>
-Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, shemminger@vyatta.com, device@lanana.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Stratos Psomadakis <psomas@cslab.ece.ntua.gr>, "Michael S. Tsirkin" <mst@redhat.com>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Sasha Levin <levinsasha928@gmail.com>, Jacek Galowicz <jacek@galowicz.de>, Christoph Hellwig <hch@lst.de>, Davidlohr Bueso <dave@gnu.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gRnJpLCBKYW4gMTMsIDIwMTIgYXQgMDU6MDcsIERhdmlkIE1pbGxlciA8ZGF2ZW1AZGF2ZW1s
-b2Z0Lm5ldD4gd3JvdGU6Cj4gRnJvbTogU3RlcGhlbiBIZW1taW5nZXIgPHNoZW1taW5nZXJAdnlh
-dHRhLmNvbT4KPiBEYXRlOiBXZWQsIDExIEphbiAyMDEyIDIxOjMwOjM4IC0wODAwCj4KPj4gU3Vi
-amVjdDogdmhvc3QtbmV0OiBhZGQgbW9kdWxlIGFsaWFzICh2Mi4xKQo+Pgo+PiBCeSBhZGRpbmcg
-c29tZSBtb2R1bGUgYWxpYXNlcywgcHJvZ3JhbXMgKG9yIHVzZXJzKSB3b24ndCBoYXZlIHRvIGV4
-cGxpY2l0bHkKPj4gY2FsbCBtb2Rwcm9iZS4gVmhvc3QtbmV0IHdpbGwgYWx3YXlzIGJlIGF2YWls
-YWJsZSBpZiBidWlsdCBpbnRvIHRoZSBrZXJuZWwuCj4+IEl0IGRvZXMgcmVxdWlyZSBhc3NpZ25p
-bmcgYSBwZXJtYW5lbnQgbWlub3IgbnVtYmVyIGZvciBkZXBtb2QgdG8gd29yay4KPj4KPj4gQWxz
-bzoKPj4gwqAgLSB1c2UgQzk5IHN0eWxlIGluaXRpYWxpemF0aW9uLgo+PiDCoCAtIGFkZCBtaXNz
-aW5nIGVudHJ5IGluIGRvY3VtZW50YXRpb24gZm9yIGxvb3AtY29udHJvbAo+Pgo+PiBTaWduZWQt
-b2ZmLWJ5OiBTdGVwaGVuIEhlbW1pbmdlciA8c2hlbW1pbmdlckB2eWF0dGEuY29tPgo+Cj4gQUNL
-cywgTkFDS3M/IMKgV2hhdCBpcyBoYXBwZW5pbmcgaGVyZT8KCkluIGdlbmVyYWwsIHN0YXRpYyBt
-aW5vcnMgYXJlIGFjY2VwdGFibGUgYW5kIHZlcnkgdXNlZnVsIHRvIG1ha2UKb24tZGVtYW5kIGxv
-YWRpbmcgb2Yga2VybmVsIG1vZHVsZXMgd29ya2luZy4gVGhleSBzaG91bGQgYmUgdXNlZCBvbmx5
-CmZvciBzaW5nbGUtaW5zdGFuY2UgZGV2aWNlcyB0aG91Z2gsIHdoaWNoIHVzdWFsbHkgbWVhbnM6
-IE9uZSBzaW5nbGUKc3RhdGljIGRldmljZSBuYW1lIGFzc29jaWF0ZWQgd2l0aCBhIG1vZHVsZS4K
-ClRoYXQgbG9va3MgYWxsIGZpbmUgaGVyZSwgYW5kIGZvciB3aGF0IGl0J3Mgd29ydGg6CiAgQWNr
-ZWQtQnk6IEtheSBTaWV2ZXJzIDxrYXkuc2lldmVyc0B2cmZ5Lm9yZz4KCktheQpfX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWls
-aW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6
-Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRp
-b24=
+Hi,
+
+On (Thu) 12 Jan 2012 [16:29:14], Linus Torvalds wrote:
+> On Wed, Jan 11, 2012 at 9:22 PM, Rusty Russell <rusty@rustcorp.com.au> wr=
+ote:
+> >
+> > Amit Shah (12):
+> > =A0 =A0 =A0virtio: pci: switch to new PM API
+> =
+
+> Hmm. Afaik, this is broken, or at least not complete.
+> =
+
+> Sure, it switches to the new PM API, but it still does the PCI ops itself.
+> =
+
+> It should not need to - the PCI layer will do the power state and
+> standard PCI device state saving. And setting the PCI_D3hot state when
+> shared interrupts can still happen at suspend time is just a bad idea.
+
+The idea behind this patchset is to get S4 working properly.  There's
+no change to the way S3 was/is being done, and the state-setting is
+done only in the S3 PM callbacks.
+
+> So I think you're doing extra work and introducing bugs by doing so -
+> the default PCI bus operations should already do all you do, just do
+
+For S4, we need some driver-specific (not just virtio-specific) work
+to be done on the freeze/restore callbacks...
+
+> it better. And then you can use the SIMPLE_DEV_PM_OPS() to build the
+> dev_pm_ops structure and get all the normal cases right automatically.
+
+... and we also have separate stuff to be done in thaw/restore/freeze
+callbacks for different drivers.  So using the *_PM_OPS() macros
+wouldn't have worked.
+
+> I don't know if there is any particularly good example of this, but
+> you can see some of the network drivers for examples of this. Notice
+> how they don't need to worry about PCI power states etc at all, they
+> just need to worry about the actual chip suspend/resume (and for a
+> network driver, you'd do the netif_device_detach/netif_device_attach
+> etc)
+
+I think your concern is with the way S3 is being done, and I volunteer
+to look at improving the situation there.  Might take a while, though.
+
+		Amit
