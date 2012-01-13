@@ -1,22 +1,14 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [RFC 7/11] virtio_pci: new, capability-aware driver.
-Date: Fri, 13 Jan 2012 13:52:28 +1030
-Message-ID: <877h0wjngr.fsf@rustcorp.com.au>
-References: <20111218101831.GB30374@redhat.com>
-	<87bor5nlht.fsf@rustcorp.com.au>
-	<20111219091324.GA19535@redhat.com>
-	<871us0om2t.fsf@rustcorp.com.au> <20111220113718.GF3913@redhat.com>
-	<878vm6daqy.fsf@rustcorp.com.au>
-	<20120110170334.GA18404@redhat.com>
-	<8762gj6q5r.fsf@rustcorp.com.au>
-	<20120111102129.GC20988@redhat.com>
-	<87vcoh4r2y.fsf@rustcorp.com.au>
-	<20120112060009.GC10319@redhat.com>
+Subject: Re: [PULL] virtio and lguest
+Date: Fri, 13 Jan 2012 12:59:19 +1030
+Message-ID: <87fwfkjpxc.fsf@rustcorp.com.au>
+References: <87lipd4hqx.fsf@rustcorp.com.au>
+	<CA+55aFyOy4bWUq6PH3ThM2CXOFwi75FE8HGOJ8DNZjFWw9rq6A@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20120112060009.GC10319@redhat.com>
+In-Reply-To: <CA+55aFyOy4bWUq6PH3ThM2CXOFwi75FE8HGOJ8DNZjFWw9rq6A@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -26,100 +18,35 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Sasha Levin <levinsasha928@gmail.com>, Pawel Moll <pawel.moll@arm.com>, virtualization <virtualization@lists.linux-foundation.org>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Stratos Psomadakis <psomas@cslab.ece.ntua.gr>, "Michael S. Tsirkin" <mst@redhat.com>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Sasha Levin <levinsasha928@gmail.com>, Amit Shah <amit.shah@redhat.com>, Jacek Galowicz <jacek@galowicz.de>, Christoph Hellwig <hch@lst.de>, Davidlohr Bueso <dave@gnu.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 12 Jan 2012 08:00:10 +0200, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> On Thu, Jan 12, 2012 at 12:31:09PM +1030, Rusty Russell wrote:
-> > If we use a 32-bit counter, we also get this though, right?
-> > 
-> > If counter has changed, it's a config interrupt...
-> 
-> But we need an exit to read the counter. We can put the counter
-> in memory but this looks suspiciously like a simplified VQ -
-> so why not use a VQ then?
-
-Because now a driver first gets the data from config space.  But from
-then on, they have to get it from the vq, and ignore the config space.
-That's a bit weird.
-
-> > > If we do require config VQ anyway, why not use it to notify
-> > > guest of config changes? Guest could pre-post an in buffer
-> > > and host uses that.
-> > 
-> > We could, but it's an additional burden on each device.  vqs are cheap,
-> > but not free.  And the config area is so damn convenient...
-> 
-> Not if you start playing with counters, checking it twice,
-> reinvent all kind of barriers ...
-
-None of that appears inside the driver, though.  And let's be honest,
-it's not *that* bad (very approx code):
-
-static u32 vp_get_gen(struct virtio_pci_device *vp_dev)
-{
-        u32 gen;
-        do {
-                gen = ioread32(vp_dev->ioaddr + VIRTIO_PCI_CONFIG_GEN);
-        } while (unlikely((gen & 1) == 1));
-
-        virtio_rmb();
-        return gen;
-}
-
-static bool vp_check_gen(struct virtio_pci_device *vp_dev, u32 gen)
-{
-        virtio_rmb();
-        return ioread32(vp_dev->ioaddr + VIRTIO_PCI_CONFIG_GEN) == gen;
-}
-
-static void vp_get32(struct virtio_device *vdev, unsigned offset, u32 *buf)
-{
-	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
-        u32 gen;
-
-        do {
-                gen = vp_get_gen(vdev);
-                *buf = ioread32(vp_dev->ioaddr + VIRTIO_PCI_CONFIG(vp_dev) + offset);
-        } while (unlikely(!vp_check_gen(vp_dev, gen)));
-}
-...
-
-> > It was suggested by others, but I think TCP Acks are the classic one.
-> > 12 + 14 + 20 + 40 = 86 bytes with virtio_net_hdr_mrg_rxbuf at the front.
-> 
-> That's only the simplest IPv4, right?
-> Anyway, this spans multiple descriptors so this complicates allocation
-> significantly.
-
-Yes, I think any general-but-useful inline will need to span multiple
-descriptors.  That's part of the fun!
-
-Let's get totally crazy and implement our ring in stripes, like:
-
-00 04 08 12 01 05 09 13 02 06 10 14 03 07 11 15
-
-That way consecutive (32-byte) descriptors don't share a cacheline!
-(Not serious... quiet.)
-
-> > Yes, I'm thinking #define VIRTIO_F_VIRTIO2 (-1).  For PCI, this gets
-> > mapped into a "are we using the new config layout?".  For others, it
-> > gets mapped into a transport-specific feature.
-> > 
-> > (I'm sure you get it, but for the others) This is because I want to be
-> > draw a clear line between all the legacy stuff at the same time, not
-> > have to support part of it later because someone might not flip the
-> > feature bit.
-> 
-> So my point is, config stuff and ring are completely separate,
-> they are different layers.
-
-Absolutely, and we should analyze them separately as well as together.
-
-*But* for maintenance is far easier if we only have to test new
-config+new ring and old config+old ring.  They do interact, because
-remember, the allocation of the ring changes with new config, too...
-
-Cheers,
-Rusty.
+T24gVGh1LCAxMiBKYW4gMjAxMiAxNjoyOToxNCAtMDgwMCwgTGludXMgVG9ydmFsZHMgPHRvcnZh
+bGRzQGxpbnV4LWZvdW5kYXRpb24ub3JnPiB3cm90ZToKPiBPbiBXZWQsIEphbiAxMSwgMjAxMiBh
+dCA5OjIyIFBNLCBSdXN0eSBSdXNzZWxsIDxydXN0eUBydXN0Y29ycC5jb20uYXU+IHdyb3RlOgo+
+ID4KPiA+IEFtaXQgU2hhaCAoMTIpOgo+ID4gwqAgwqAgwqB2aXJ0aW86IHBjaTogc3dpdGNoIHRv
+IG5ldyBQTSBBUEkKPiAKPiBIbW0uIEFmYWlrLCB0aGlzIGlzIGJyb2tlbiwgb3IgYXQgbGVhc3Qg
+bm90IGNvbXBsZXRlLgo+IAo+IFN1cmUsIGl0IHN3aXRjaGVzIHRvIHRoZSBuZXcgUE0gQVBJLCBi
+dXQgaXQgc3RpbGwgZG9lcyB0aGUgUENJIG9wcyBpdHNlbGYuCj4gCj4gSXQgc2hvdWxkIG5vdCBu
+ZWVkIHRvIC0gdGhlIFBDSSBsYXllciB3aWxsIGRvIHRoZSBwb3dlciBzdGF0ZSBhbmQKPiBzdGFu
+ZGFyZCBQQ0kgZGV2aWNlIHN0YXRlIHNhdmluZy4gQW5kIHNldHRpbmcgdGhlIFBDSV9EM2hvdCBz
+dGF0ZSB3aGVuCj4gc2hhcmVkIGludGVycnVwdHMgY2FuIHN0aWxsIGhhcHBlbiBhdCBzdXNwZW5k
+IHRpbWUgaXMganVzdCBhIGJhZCBpZGVhLgo+IAo+IFNvIEkgdGhpbmsgeW91J3JlIGRvaW5nIGV4
+dHJhIHdvcmsgYW5kIGludHJvZHVjaW5nIGJ1Z3MgYnkgZG9pbmcgc28gLQo+IHRoZSBkZWZhdWx0
+IFBDSSBidXMgb3BlcmF0aW9ucyBzaG91bGQgYWxyZWFkeSBkbyBhbGwgeW91IGRvLCBqdXN0IGRv
+Cj4gaXQgYmV0dGVyLiBBbmQgdGhlbiB5b3UgY2FuIHVzZSB0aGUgU0lNUExFX0RFVl9QTV9PUFMo
+KSB0byBidWlsZCB0aGUKPiBkZXZfcG1fb3BzIHN0cnVjdHVyZSBhbmQgZ2V0IGFsbCB0aGUgbm9y
+bWFsIGNhc2VzIHJpZ2h0IGF1dG9tYXRpY2FsbHkuCj4gCj4gSSBkb24ndCBrbm93IGlmIHRoZXJl
+IGlzIGFueSBwYXJ0aWN1bGFybHkgZ29vZCBleGFtcGxlIG9mIHRoaXMsIGJ1dAo+IHlvdSBjYW4g
+c2VlIHNvbWUgb2YgdGhlIG5ldHdvcmsgZHJpdmVycyBmb3IgZXhhbXBsZXMgb2YgdGhpcy4gTm90
+aWNlCj4gaG93IHRoZXkgZG9uJ3QgbmVlZCB0byB3b3JyeSBhYm91dCBQQ0kgcG93ZXIgc3RhdGVz
+IGV0YyBhdCBhbGwsIHRoZXkKPiBqdXN0IG5lZWQgdG8gd29ycnkgYWJvdXQgdGhlIGFjdHVhbCBj
+aGlwIHN1c3BlbmQvcmVzdW1lIChhbmQgZm9yIGEKPiBuZXR3b3JrIGRyaXZlciwgeW91J2QgZG8g
+dGhlIG5ldGlmX2RldmljZV9kZXRhY2gvbmV0aWZfZGV2aWNlX2F0dGFjaAo+IGV0YykKCk9rLCBJ
+J2xsIGNvbmZlc3MgY29tcGxldGUgaWdub3JhbmNlLCBhbmQgd2FpdCBmb3IgQW1pdCB0byByZXNw
+b25kLiAgSQptdXN0IGFkbWl0IHRoYXQgUE0gZm9yIHZpcnR1YWwgZGV2aWNlcyBpcyBub3QgYSBw
+ZXJzb25hbCBwcmlvcml0eS4uLgoKVGhhbmtzLApSdXN0eS4KX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZp
+cnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGlu
+dXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
