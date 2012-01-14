@@ -1,10 +1,10 @@
-From: Ioan Raicu <iraicu@cs.iit.edu>
-Subject: CFP: IEEE eScience 2012 in Chicago IL USA
-Date: Sat, 14 Jan 2012 12:01:34 -0600
-Message-ID: <4F11C2FE.9000908@cs.iit.edu>
-Reply-To: iraicu@cs.iit.edu
+From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
+Subject: [PATCH RFC V4 0/5] kvm : Paravirt-spinlock support for KVM guests
+Date: Sat, 14 Jan 2012 23:55:02 +0530
+Message-ID: <20120114182501.8604.68416.sendpatchset@oc5400248562.ibm.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============1079340877482885046=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -15,632 +15,156 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
+To: Jeremy Fitzhardinge <jeremy@goop.org>, Randy Dunlap <rdunlap@xenotime.net>, linux-doc@vger.kernel.org, KVM <kvm@vger.kernel.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Glauber Costa <glommer@redhat.com>, Jan Kiszka <jan.kiszka@siemens.com>, Rik van Riel <riel@redhat.com>, Dave Jiang <dave.jiang@intel.com>, "H. Peter Anvin" <hpa@zytor.com>, Thomas Gleixner <tglx@linutronix.de>, X86 <x86@kernel.org>, Marcelo Tosatti <mtosatti@redhat.com>, Gleb Natapov <gleb@redhat.com>, Avi Kivity <avi@redhat.com>, Alexander Graf <agraf@suse.de>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Paul Mackerras <paulus@samba.org>, Sedat Dilek <sedat.dilek@gmail.com>, Ingo Molnar <mingo@redhat.com>, LKML <linux-kernel@vger.kernel.org>, Greg Kroah-Hartman <gregkh@suse.de>, Virtualization <virtualization@lists.linux-foundation.org>, Rob Landley <rlandley@parallels.com>
+Cc: Peter Zijlstra <peterz@infradead.org>, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, Dave Hansen <dave@linux.vnet.ibm.com>, Suzuki Poulose <suzuki@linux.vnet.ibm.com>, Sasha Levin <levinsasha928@gmail.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This is a multi-part message in MIME format.
---===============1079340877482885046==
-Content-Type: multipart/alternative;
- boundary="------------030605050909070702010008"
+The 5-patch series to follow this email extends KVM-hypervisor and Linux guest 
+running on KVM-hypervisor to support pv-ticket spinlocks, based on Xen's implementation.
 
-This is a multi-part message in MIME format.
---------------030605050909070702010008
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: quoted-printable
+One hypercall is introduced in KVM hypervisor,that allows a vcpu to kick
+another vcpu out of halt state.
+The blocking of vcpu is done using halt() in (lock_spinning) slowpath.
 
+Changes in V4:
+- reabsed to 3.2.0 pre.
+- use APIC ID for kicking the vcpu and use kvm_apic_match_dest for matching. (Avi)
+- fold vcpu->kicked flag into vcpu->requests (KVM_REQ_PVLOCK_KICK) and related 
+  changes for UNHALT path to make pv ticket spinlock migration friendly. (Avi, Marcello)
+- Added Documentation for CPUID, Hypercall (KVM_HC_KICK_CPU)
+  and capabilty (KVM_CAP_PVLOCK_KICK) (Avi)
+- Remove unneeded kvm_arch_vcpu_ioctl_set_mpstate call. (Marcello)
+- cumulative variable type changed (int ==> u32) in add_stat (Konrad)
+- remove unneeded kvm_guest_init for !CONFIG_KVM_GUEST case
 
-      Call for Papers
+Changes in V3:
+- rebased to 3.2-rc1
+- use halt() instead of wait for kick hypercall.
+- modify kick hyper call to do wakeup halted vcpu.
+- hook kvm_spinlock_init to smp_prepare_cpus call (moved the call out of head##.c).
+- fix the potential race when zero_stat is read.
+- export debugfs_create_32 and add documentation to API.
+- use static inline and enum instead of ADDSTAT macro. 
+- add  barrier() in after setting kick_vcpu.
+- empty static inline function for kvm_spinlock_init.
+- combine the patches one and two readuce overhead.
+- make KVM_DEBUGFS depends on DEBUGFS.
+- include debugfs header unconditionally.
 
+Changes in V2:
+- rebased patchesto -rc9
+- synchronization related changes based on Jeremy's changes 
+ (Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>) pointed by 
+ Stephan Diestelhorst <stephan.diestelhorst@amd.com>
+- enabling 32 bit guests
+- splitted patches into two more chunks
 
-        8th IEEE International Conference on eScience
-        October 8-12, 2012
-        Chicago, IL, USA
+ Srivatsa Vaddagiri, Suzuki Poulose, Raghavendra K T (5): 
+  Add debugfs support to print u32-arrays in debugfs
+  Add a hypercall to KVM hypervisor to support pv-ticketlocks
+  Added configuration support to enable debug information for KVM Guests
+  pv-ticketlocks support for linux guests running on KVM hypervisor
+  Add documentation on Hypercalls and features used for PV spinlock
+ 
+Test Set up :
+The BASE patch is pre 3.2.0 + Jeremy's following patches.
+xadd (https://lkml.org/lkml/2011/10/4/328)
+x86/ticketlocklock  (https://lkml.org/lkml/2011/10/12/496).
+Kernel for host/guest : 3.2.0 + Jeremy's xadd, pv spinlock patches as BASE
+(Note:locked add change is not taken yet)
 
-Researchers in all disciplines are increasingly adopting digital tools,=20
-techniques and practices, often in communities and projects that span=20
-disciplines, laboratories, organizations, and national boundaries. The=20
-eScience 2012 conference is designed to bring together leading=20
-international and interdisciplinary research communities, developers,=20
-and users of eScience applications and enabling IT technologies. The=20
-conference serves as a forum to present the results of the latest=20
-applications research and product/tool developments and to highlight=20
-related activities from around the world. Also, we are now entering the=20
-second decade of eScience and the 2012 conference gives an opportunity=20
-to take stock of what has been achieved so far and look forward to the=20
-challenges and opportunities the next decade will bring.
+Results:
+ The performance gain is mainly because of reduced busy-wait time.
+ From the results we can see that patched kernel performance is similar to
+ BASE when there is no lock contention. But once we start seeing more
+ contention, patched kernel outperforms BASE (non PLE).
+ On PLE machine we do not see greater performance improvement because of PLE
+ complimenting halt()
 
-A special emphasis of the 2012 conference is on advances in the=20
-application of technology in a particular discipline. Accordingly,=20
-significant advances in applications science and technology will be=20
-considered as important as the development of new technologies=20
-themselves. Further, we welcome contributions in educational activities=20
-under any of these disciplines.
+3 guests with 8VCPU, 4GB RAM, 1 used for kernbench
+(kernbench -f -H -M -o 20) other for cpuhog (shell script while
+true with an instruction)
 
-As a result, the conference will be structured around two e-Science track=
-s:
+scenario A: unpinned
 
-  * *eScience Algorithms and Applications*
-      o eScience application areas, including:
-          + Physical sciences
-          + Biomedical sciences
-          + Social sciences and humanities
-      o Data-oriented approaches and applications
-      o Compute-oriented approaches and applications
-      o Extreme scale approaches and applications
-  * *Cyberinfrastructure to support eScience*
-      o Novel hardware
-      o Novel uses of production infrastructure
-      o Software and services
-      o Tools
+1x: no hogs
+2x: 8hogs in one guest
+3x: 8hogs each in two guest
 
-The conference proceedings will be published by the IEEE Computer=20
-Society Press, USA and will be made available online through the IEEE=20
-Digital Library. Selected papers will be invited to submit extended=20
-versions to a special issue of the Future Generation Computer Systems=20
-(FGCS)=20
-<http://www.journals.elsevier.com/future-generation-computer-systems/>=20
-journal.
+scenario B: unpinned, run kernbench on all the guests no hogs.
 
+Dbench on PLE machine:
+dbench run on all the guest simultaneously with
+dbench --warmup=30 -t 120 with NRCLIENTS=(8/16/32).
 
-        SUBMISSION PROCESS
+Result for Non PLE machine :
+============================
+Machine : IBM xSeries with Intel(R) Xeon(R) x5570 2.93GHz CPU with 8 core , 64GB RAM
+		 BASE                    BASE+patch            %improvement
+		 mean (sd)               mean (sd)
+Scenario A:
+case 1x:	 164.233 (16.5506) 	 163.584 (15.4598 	0.39517
+case 2x:	 897.654 (543.993) 	 328.63 (103.771) 	63.3901
+case 3x:	 2855.73 (2201.41) 	 315.029 (111.854) 	88.9685
 
-Authors are invited to submit papers with unpublished, original work of=20
-not more than 8 pages of double column text using single spaced 10 point=20
-size on 8.5 x 11 inch pages, as per IEEE 8.5 x 11 manuscript guidelines.=20
-(Up to 2 additional pages may be purchased for US$150/page)
+Dbench:
+Throughput is in MB/sec
+NRCLIENTS	 BASE                    BASE+patch            %improvement
+               	 mean (sd)               mean (sd)
+8       	1.774307  (0.061361) 	1.725667  (0.034644) 	-2.74135
+16      	1.445967  (0.044805) 	1.463173  (0.094399) 	1.18993
+32        	2.136667  (0.105717) 	2.193792  (0.129357) 	2.67356
 
-Templates are available from=20
-http://www.ieee.org/conferences_events/conferences/publishing/templates.h=
-tml.
+Result for PLE machine:
+======================
+Machine : IBM xSeries with Intel(R) Xeon(R)  X7560 2.27GHz CPU with 32/64 core, with 8
+         online cores and 4*64GB RAM
 
-Authors should submit a PDF file that will print on a PostScript printer=20
-to https://www.easychair.org/conferences/?conf=3Descience2012
+Kernbench:
+		 BASE                    BASE+patch            %improvement
+		 mean (sd)               mean (sd)
+Scenario A:	 			
+case 1x:	 161.263 (56.518) 	 159.635 (40.5621) 	1.00953
+case 2x:	 190.748 (61.2745) 	 190.606 (54.4766) 	0.0744438
+case 3x:	 227.378 (100.215) 	 225.442 (92.0809) 	0.851446
 
-(Note that paper submitters also must submit an abstract in advance of=20
-the paper deadline. This should be done through the same site where=20
-papers are submitted.)
+Scenario B:
+		 446.104 (58.54 )	 433.12733 (54.476)	2.91
 
-It is a requirement that at least one author of each accepted paper=20
-attend the conference.
+Dbench:
+Throughput is in MB/sec
+NRCLIENTS	 BASE                    BASE+patch            %improvement
+               	 mean (sd)               mean (sd)
+8       	1.101190  (0.875082) 	1.700395  (0.846809) 	54.4143
+16      	1.524312  (0.120354) 	1.477553  (0.058166) 	-3.06755
+32        	2.143028  (0.157103) 	2.090307  (0.136778) 	-2.46012
 
+---
+ V3 kernel Changes:
+ https://lkml.org/lkml/2011/11/30/62
+ V2 kernel changes : 
+ https://lkml.org/lkml/2011/10/23/207
 
-        ORGANIZATION
+ Previous discussions : (posted by Srivatsa V).
+ https://lkml.org/lkml/2010/7/26/24
+ https://lkml.org/lkml/2011/1/19/212
+ 
+ Qemu patch for V3:
+ http://lists.gnu.org/archive/html/qemu-devel/2011-12/msg00397.html
 
-
-          General Chair
-
-  * *Ian Foster*, University of Chicago & Argonne National Laboratory, US=
-A
-
-
-          Program Co-Chairs
-
-  * *Daniel S. Katz*, University of Chicago & Argonne National
-    Laboratory, USA
-  * *Heinz Stockinger*, SIB Swiss Institute of Bioinformatics, Switzerlan=
-d
-
-
-          Program Vice Co-Chairs
-
-  * eScience Algorithms and Applications Track
-      o *David Abramson*, Monash University, Australia
-      o *Gabrielle Allen*, Louisiana State University, USA
-  * Cyberinfrastructure to support eScience Track
-      o *Rosa M. Badia*, Barcelona Supercomputing Center / CSIC, Spain
-      o *Geoffrey Fox*, Indiana University, USA
-
-
-          Sponsorship Chair
-
-  * *Charlie Catlett*, Argonne National Laboratory, USA
-
-
-          Conference Manager and Finance Chair
-
-  * *Julie Wulf-Knoerzer*, University of Chicago & Argonne National
-    Laboratory, USA
-
-
-          Publicity Chairs
-
-  * *Kento Aida*, National Institute of Informatics, Japan
-  * *Ioan Raicu*, Illinois Institute of Technology, USA
-  * *David Wallom*, Oxford e-Research Centre, UK
-
-
-          Local Organizing Committee
-
-  * *Ninfa Mayorga*, University of Chicago, USA
-  * *Evelyn Rayburn*, University of Chicago, USA
-  * *Lynn Valentini*, Argonne National Laboratory, USA
-
-
-          Program Committee
-
-  * eScience Algorithms and Applications Track
-      o *Srinivas Aluru*, Iowa State University, USA
-      o *Ashiq Anjum*, University of Derby, UK
-      o *David A. Bader*, Georgia Institute of Technology, USA
-      o *Jon Blower*, University of Reading, UK
-      o *Paul Bonnington*, Monash University, Australia
-      o *Simon Cox*, University of Southampton, UK
-      o *David De Roure*, Oxford e-Research Centre, UK
-      o *George Djorgovski*, California Institute of Technology, USA
-      o *Anshu Dubey*, University of Chicago & Argonne National
-        Laboratory, USA
-      o *Yuri Estrin*, Monash University, Australia
-      o *Dan Fay*, Microsoft, USA
-      o *Jeremy Frey*, University of Southampton, UK
-      o *Wolfgang Gentzsch*, HPC Consultant, Germany
-      o *Lutz Gross*, The University of Queensland, Austrialia
-      o *Sverker Holmgren*, Uppsala University, Sweden
-      o *Bill Howe*, University of Washington, USA
-      o *Marina Jirotka*, University of Oxford, UK
-      o *Timoleon Kipouros*, University of Cambridge, UK
-      o *Kerstin Kleese van Dam*, Pacific Northwest National Laboratory, =
-USA
-      o *Arun S. Konagurthu*, Monash University, Australia
-      o *Peter Kunszt*, SystemsX.ch, Switzerland
-      o *Alexey Lastovetsky*, University College Dublin, Ireland
-      o *Andrew Lewis*, Griffith University, Australia
-      o *Sergio Maffioletti*, University of Zurich, Switzerland
-      o *Amitava Majumdar*, San Diego Supercomputer Center, University
-        of California at San Diego, USA
-      o *Rui Mao*, Shenzhen University, China
-      o *Madhav V. Marathe*, Virginia Tech, USA
-      o *Maryann Martone*, University of California at San Diego, USA
-      o *Louis Moresi*, Monash University, Australia
-      o *Riccardo Murri*, University of Zurich, Switzerland
-      o *Silvia D. Olabarriaga*, Academic Medical Center of the
-        University of Amsterdam, Netherlands
-      o *Enrique S. Quintana-Ort=ED*, Universidad Jaume I, Spain
-      o *Abani Patra*, University at Buffalo, USA
-      o *Rob Pennington*, NSF, USA
-      o *Andrew Perry*, Monash University, Australia
-      o *Beth Plale*, Indiana University, USA
-      o *Michael Resch*, University of Stuttgart, Germany
-      o *Adrian Sandu*, Virginia Tech, USA
-      o *Mark Savill*, Cranfield University, UK
-      o *Erik Schnetter*, Perimeter Institute for Theoretical Physics,
-        Canada
-      o *Edward Seidel*, Louisiana State University, USA
-      o *Suzanne M. Shontz*, The Pennsylvania State University, USA
-      o *David Skinner*, Lawrence Berkeley National Laboratory, USA
-      o *Alan Sussman*, University of Maryland, USA
-      o *Alex Szalay*, Johns Hopkins University, USA
-      o *Domenico Talia*, ICAR-CNR & University of Calabria, Italy
-      o *Jian Tao*, Louisiana State University, USA
-      o *David Wallom*, Oxford e-Research Centre, UK
-      o *Shaowen Wang*, University of Illinois at Urbana-Champaign, USA
-      o *Michael Wilde*, Argonne National Laboratory & University of
-        Chicago, USA
-      o *Nancy Wilkins-Diehr*, San Diego Supercomputer Center,
-        University of California at San Diego, USA
-      o *Wu Zhang*, Shanghai University, China
-      o *Yunquan Zhang*, Chinese Academy of Sciences, China
-  * Cyberinfrastructure to support eScience Track
-      o *Deb Agarwal*, Lawrence Berkeley National Laboratory, USA
-      o *Ilkay Altintas*, San Diego Supercomputer Center, University of
-        California at San Diego, USA
-      o *Henri Bal*, Vrije Universiteit, Netherlands
-      o *Roger Barga*, Microsoft, USA
-      o *Martin Berzins*, University of Utah, USA
-      o *John Brooke*, University of Manchester, UK
-      o *Thomas Fahringer*, University of Innsbruck, Austria
-      o *Gilles Fedak*, INRIA, France
-      o *Jos=E9 A. B. Fortes*, University of Florida, USA
-      o *Yolanda Gil*, ISI/USC, USA
-      o *Madhusudhan Govindaraju*, SUNY Binghamton, USA
-      o *Thomas Hacker*, Purdue University, USA
-      o *Ken Hawick*, Massey University, New Zealand
-      o *Marty Humphrey*, University of Virginia, USA
-      o *Hai Jin*, Huazhong University of Science and Technology, China
-      o *Thilo Kielmann*, Vrije Universiteit, Netherlands
-      o *Scott Klasky*, Oak Ridge National Laboratory, USA
-      o *Isao Kojima*, AIST, Japan
-      o *Tevfik Kosar*, University at Buffalo, USA
-      o *Dieter Kranzlmueller*, LMU & LRZ Munich, Germany
-      o *Erwin Laure*, KTH, Sweden
-      o *Jysoo Lee*, KISTI, Korea
-      o *Li Xiaoming*, Peking University, China
-      o *Bertram Lud=E4scher*, University of California, Davis, USA
-      o *Andrew Lumsdaine*, Indiana University, USA
-      o *Tanu Malik*, University of Chicago, USA
-      o *Satoshi Matsuoka*, Tokyo Institute of Technology, Japan
-      o *Reagan Moore*, University of North Carolina at Chapel Hill, USA
-      o *Shirley Moore*, University of Kentucky, USA
-      o *Steven Newhouse*, EGI, Netherlands
-      o *Dhabaleswar K. (DK) Panda*, The Ohio State University, USA
-      o *Manish Parashar*, Rutgers University, USA
-      o *Ron Perrott*, University of Oxford, UK
-      o *Depei Qian*, Beihang University, China
-      o *Judy Qui*, Indiana University, USA
-      o *Ioan Raicu*, Illinois Institute of Technology, USA
-      o *Lavanya Ramakrishnan*, Lawrence Berkeley National Laboratory, US=
-A
-      o *Omer Rana*, Cardiff University, UK
-      o *Paul Roe*, Queensland University of Technology, Australia
-      o *Bruno Schulze*, LNCC, Brazil
-      o *Marc Snir*, Argonne National Laboratory & University of
-        Illinois at Urbana-Champaign, USA
-      o *Xian-He Sun*, Illinois Institute of Technology, USA
-      o *Yoshio Tanaka*, AIST, Japan
-      o *Michela Taufer*, University of Delaware, USA
-      o *Kerry Taylor*, CSIRO, Australia
-      o *Douglas Thain*, University of Notre Dame, USA
-      o *Paul Watson*, Newcastle University, UK
-      o *Jun Zhao*, University of Oxford, UK
-
---=20
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-Ioan Raicu, Ph.D.
-Assistant Professor, Illinois Institute of Technology (IIT)
-Guest Research Faculty, Argonne National Laboratory (ANL)
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-Data-Intensive Distributed Systems Laboratory, CS/IIT
-Distributed Systems Laboratory, MCS/ANL
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-Cel:    1-847-722-0876
-Office: 1-312-567-5704
-Email:  iraicu@cs.iit.edu
-Web:    http://www.cs.iit.edu/~iraicu/
-Web:    http://datasys.cs.iit.edu/
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-
-
-
---------------030605050909070702010008
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-
-<html>
-  <head>
-
-    <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
-  </head>
-  <body bgcolor="#FFFFFF" text="#000000">
-    <div class="two-thirds column">
-      <h3>Call for Papers</h3>
-      <h4>8th IEEE International Conference on eScience <br>
-        October 8-12, 2012 <br>
-        Chicago, IL, USA </h4>
-      <p> Researchers in all disciplines are increasingly adopting
-        digital tools, techniques and practices, often in communities
-        and projects that span disciplines, laboratories, organizations,
-        and national boundaries. The eScience 2012 conference is
-        designed to bring together leading international and
-        interdisciplinary research communities, developers, and users of
-        eScience applications and enabling IT technologies. The
-        conference serves as a forum to present the results of the
-        latest applications research and product/tool developments and
-        to highlight related activities from around the world. Also, we
-        are now entering the second decade of eScience and the 2012
-        conference gives an opportunity to take stock of what has been
-        achieved so far and look forward to the challenges and
-        opportunities the next decade will bring.</p>
-      <p>A special emphasis of the 2012 conference is on advances in the
-        application of technology in a particular discipline.
-        Accordingly, significant advances in applications science and
-        technology will be considered as important as the development of
-        new technologies themselves. Further, we welcome contributions
-        in educational activities under any of these disciplines.</p>
-      <p>As a result, the conference will be structured around two
-        e-Science tracks:</p>
-      <ul>
-        <li><strong>eScience Algorithms and Applications</strong>
-          <ul class="square">
-            <li> eScience application areas, including:
-              <ul>
-                <li> Physical sciences</li>
-                <li> Biomedical sciences</li>
-                <li> Social sciences and humanities</li>
-              </ul>
-            </li>
-            <li> Data-oriented approaches and applications</li>
-            <li> Compute-oriented approaches and applications</li>
-            <li> Extreme scale approaches and applications</li>
-          </ul>
-        </li>
-        <li><strong>Cyberinfrastructure to support eScience</strong>
-          <ul class="square">
-            <li> Novel hardware</li>
-            <li> Novel uses of production infrastructure</li>
-            <li> Software and services</li>
-            <li> Tools</li>
-          </ul>
-        </li>
-      </ul>
-      <p>The conference proceedings will be published by the IEEE
-        Computer Society Press, USA and will be made available online
-        through the IEEE Digital Library. Selected papers will be
-        invited to submit extended versions to a special issue of the <a
-href="http://www.journals.elsevier.com/future-generation-computer-systems/">Future
-
-          Generation Computer Systems (FGCS)</a> journal.</p>
-      <h4> SUBMISSION PROCESS<a name="process">&nbsp;</a> </h4>
-      <p>Authors are invited to submit papers with unpublished, original
-        work of not more than 8 pages of double column text using single
-        spaced 10 point size on 8.5 x 11 inch pages, as per IEEE 8.5 x
-        11 manuscript guidelines. (Up to 2 additional pages may be
-        purchased for US$150/page)</p>
-      <p>Templates are available from <a
-href="http://www.ieee.org/conferences_events/conferences/publishing/templates.html">http://www.ieee.org/conferences_events/conferences/publishing/templates.html</a>.</p>
-      <p>Authors should submit a PDF file that will print on a
-        PostScript printer to <a
-          href="https://www.easychair.org/conferences/?conf=escience2012">https://www.easychair.org/conferences/?conf=escience2012</a></p>
-      <p>(Note that paper submitters also must submit an abstract in
-        advance of the paper deadline. This should be done through the
-        same site where papers are submitted.)</p>
-      <p>It is a requirement that at least one author of each accepted
-        paper attend the conference.</p>
-      <h4> ORGANIZATION </h4>
-      <h5 class="light">General Chair</h5>
-      <ul class="committee">
-        <li><strong>Ian Foster</strong>, University of Chicago &amp;
-          Argonne National Laboratory, USA</li>
-      </ul>
-      <h5 class="light">Program Co-Chairs</h5>
-      <ul class="committee">
-        <li><strong>Daniel S. Katz</strong>, University of Chicago &amp;
-          Argonne National Laboratory, USA</li>
-        <li><strong>Heinz Stockinger</strong>, SIB Swiss Institute of
-          Bioinformatics, Switzerland</li>
-      </ul>
-      <h5 class="light">Program Vice Co-Chairs</h5>
-      <ul class="committee">
-        <li>eScience Algorithms and Applications Track</li>
-        <ul>
-          <li><strong>David Abramson</strong>, Monash University,
-            Australia</li>
-          <li><strong>Gabrielle Allen</strong>, Louisiana State
-            University, USA</li>
-        </ul>
-        <li>Cyberinfrastructure to support eScience Track</li>
-        <ul>
-          <li><strong>Rosa M. Badia</strong>, Barcelona Supercomputing
-            Center / CSIC, Spain</li>
-          <li><strong>Geoffrey Fox</strong>, Indiana University, USA</li>
-        </ul>
-      </ul>
-      <h5 class="light">Sponsorship Chair</h5>
-      <ul class="committee">
-        <li><strong>Charlie Catlett</strong>, Argonne National
-          Laboratory, USA</li>
-      </ul>
-      <h5 class="light">Conference Manager and Finance Chair</h5>
-      <ul class="committee">
-        <li><strong>Julie Wulf-Knoerzer</strong>, University of Chicago
-          &amp; Argonne National Laboratory, USA</li>
-      </ul>
-      <h5 class="light">Publicity Chairs</h5>
-      <ul class="committee">
-        <li><strong>Kento Aida</strong>, National Institute of
-          Informatics, Japan</li>
-        <li><strong>Ioan Raicu</strong>, Illinois Institute of
-          Technology, USA</li>
-        <li><strong>David Wallom</strong>, Oxford e-Research Centre, UK</li>
-      </ul>
-      <h5 class="light">Local Organizing Committee</h5>
-      <ul class="committee">
-        <li><strong>Ninfa Mayorga</strong>, University of Chicago, USA</li>
-        <li><strong>Evelyn Rayburn</strong>, University of Chicago, USA</li>
-        <li><strong>Lynn Valentini</strong>, Argonne National
-          Laboratory, USA</li>
-      </ul>
-      <h5 class="light">Program Committee</h5>
-      <ul class="committee">
-        <li>eScience Algorithms and Applications Track</li>
-        <ul>
-          <li><strong>Srinivas Aluru</strong>, Iowa State University,
-            USA</li>
-          <li><strong>Ashiq Anjum</strong>, University of Derby, UK</li>
-          <li><strong>David A. Bader</strong>, Georgia Institute of
-            Technology, USA</li>
-          <li><strong>Jon Blower</strong>, University of Reading, UK</li>
-          <li><strong>Paul Bonnington</strong>, Monash University,
-            Australia</li>
-          <li><strong>Simon Cox</strong>, University of Southampton, UK</li>
-          <li><strong>David De Roure</strong>, Oxford e-Research Centre,
-            UK</li>
-          <li><strong>George Djorgovski</strong>, California Institute
-            of Technology, USA</li>
-          <li><strong>Anshu Dubey</strong>, University of Chicago &amp;
-            Argonne National Laboratory, USA</li>
-          <li><strong>Yuri Estrin</strong>, Monash University, Australia</li>
-          <li><strong>Dan Fay</strong>, Microsoft, USA</li>
-          <li><strong>Jeremy Frey</strong>, University of Southampton,
-            UK</li>
-          <li><strong>Wolfgang Gentzsch</strong>, HPC Consultant,
-            Germany</li>
-          <li><strong>Lutz Gross</strong>, The University of Queensland,
-            Austrialia</li>
-          <li><strong>Sverker Holmgren</strong>, Uppsala University,
-            Sweden</li>
-          <li><strong>Bill Howe</strong>, University of Washington, USA</li>
-          <li><strong>Marina Jirotka</strong>, University of Oxford, UK</li>
-          <li><strong>Timoleon Kipouros</strong>, University of
-            Cambridge, UK</li>
-          <li><strong>Kerstin Kleese van Dam</strong>, Pacific Northwest
-            National Laboratory, USA</li>
-          <li><strong>Arun S. Konagurthu</strong>, Monash University,
-            Australia</li>
-          <li><strong>Peter Kunszt</strong>, SystemsX.ch, Switzerland</li>
-          <li><strong>Alexey Lastovetsky</strong>, University College
-            Dublin, Ireland</li>
-          <li><strong>Andrew Lewis</strong>, Griffith University,
-            Australia</li>
-          <li><strong>Sergio Maffioletti</strong>, University of Zurich,
-            Switzerland</li>
-          <li><strong>Amitava Majumdar</strong>, San Diego Supercomputer
-            Center, University of California at San Diego, USA</li>
-          <li><strong>Rui Mao</strong>, Shenzhen University, China</li>
-          <li><strong>Madhav V. Marathe</strong>, Virginia Tech, USA</li>
-          <li><strong>Maryann Martone</strong>, University of California
-            at San Diego, USA</li>
-          <li><strong>Louis Moresi</strong>, Monash University,
-            Australia</li>
-          <li><strong>Riccardo Murri</strong>, University of Zurich,
-            Switzerland</li>
-          <li><strong>Silvia D. Olabarriaga</strong>, Academic Medical
-            Center of the University of Amsterdam, Netherlands</li>
-          <li><strong>Enrique S. Quintana-Ort&iacute;</strong>, Universidad
-            Jaume I, Spain</li>
-          <li><strong>Abani Patra</strong>, University at Buffalo, USA</li>
-          <li><strong>Rob Pennington</strong>, NSF, USA</li>
-          <li><strong>Andrew Perry</strong>, Monash University,
-            Australia</li>
-          <li><strong>Beth Plale</strong>, Indiana University, USA</li>
-          <li><strong>Michael Resch</strong>, University of Stuttgart,
-            Germany</li>
-          <li><strong>Adrian Sandu</strong>, Virginia Tech, USA</li>
-          <li><strong>Mark Savill</strong>, Cranfield University, UK</li>
-          <li><strong>Erik Schnetter</strong>, Perimeter Institute for
-            Theoretical Physics, Canada</li>
-          <li><strong>Edward Seidel</strong>, Louisiana State
-            University, USA</li>
-          <li><strong>Suzanne M. Shontz</strong>, The Pennsylvania State
-            University, USA</li>
-          <li><strong>David Skinner</strong>, Lawrence Berkeley National
-            Laboratory, USA</li>
-          <li><strong>Alan Sussman</strong>, University of Maryland, USA</li>
-          <li><strong>Alex Szalay</strong>, Johns Hopkins University,
-            USA</li>
-          <li><strong>Domenico Talia</strong>, ICAR-CNR &amp; University
-            of Calabria, Italy</li>
-          <li><strong>Jian Tao</strong>, Louisiana State University, USA</li>
-          <li><strong>David Wallom</strong>, Oxford e-Research Centre,
-            UK</li>
-          <li><strong>Shaowen Wang</strong>, University of Illinois at
-            Urbana-Champaign, USA</li>
-          <li><strong>Michael Wilde</strong>, Argonne National
-            Laboratory &amp; University of Chicago, USA</li>
-          <li><strong>Nancy Wilkins-Diehr</strong>, San Diego
-            Supercomputer Center, University of California at San Diego,
-            USA</li>
-          <li><strong>Wu Zhang</strong>, Shanghai University, China</li>
-          <li><strong>Yunquan Zhang</strong>, Chinese Academy of
-            Sciences, China</li>
-        </ul>
-        <li>Cyberinfrastructure to support eScience Track</li>
-        <ul>
-          <li><strong>Deb Agarwal</strong>, Lawrence Berkeley National
-            Laboratory, USA</li>
-          <li><strong>Ilkay Altintas</strong>, San Diego Supercomputer
-            Center, University of California at San Diego, USA</li>
-          <li><strong>Henri Bal</strong>, Vrije Universiteit,
-            Netherlands</li>
-          <li><strong>Roger Barga</strong>, Microsoft, USA</li>
-          <li><strong>Martin Berzins</strong>, University of Utah, USA</li>
-          <li><strong>John Brooke</strong>, University of Manchester, UK</li>
-          <li><strong>Thomas Fahringer</strong>, University of
-            Innsbruck, Austria</li>
-          <li><strong>Gilles Fedak</strong>, INRIA, France</li>
-          <li><strong>Jos&eacute; A. B. Fortes</strong>, University of Florida,
-            USA</li>
-          <li><strong>Yolanda Gil</strong>, ISI/USC, USA</li>
-          <li><strong>Madhusudhan Govindaraju</strong>, SUNY Binghamton,
-            USA</li>
-          <li><strong>Thomas Hacker</strong>, Purdue University, USA</li>
-          <li><strong>Ken Hawick</strong>, Massey University, New
-            Zealand</li>
-          <li><strong>Marty Humphrey</strong>, University of Virginia,
-            USA</li>
-          <li><strong>Hai Jin</strong>, Huazhong University of Science
-            and Technology, China</li>
-          <li><strong>Thilo Kielmann</strong>, Vrije Universiteit,
-            Netherlands</li>
-          <li><strong>Scott Klasky</strong>, Oak Ridge National
-            Laboratory, USA</li>
-          <li><strong>Isao Kojima</strong>, AIST, Japan</li>
-          <li><strong>Tevfik Kosar</strong>, University at Buffalo, USA</li>
-          <li><strong>Dieter Kranzlmueller</strong>, LMU &amp; LRZ
-            Munich, Germany</li>
-          <li><strong>Erwin Laure</strong>, KTH, Sweden</li>
-          <li><strong>Jysoo Lee</strong>, KISTI, Korea</li>
-          <li><strong>Li Xiaoming</strong>, Peking University, China</li>
-          <li><strong>Bertram Lud&auml;scher</strong>, University of
-            California, Davis, USA</li>
-          <li><strong>Andrew Lumsdaine</strong>, Indiana University, USA</li>
-          <li><strong>Tanu Malik</strong>, University of Chicago, USA</li>
-          <li><strong>Satoshi Matsuoka</strong>, Tokyo Institute of
-            Technology, Japan</li>
-          <li><strong>Reagan Moore</strong>, University of North
-            Carolina at Chapel Hill, USA</li>
-          <li><strong>Shirley Moore</strong>, University of Kentucky,
-            USA</li>
-          <li><strong>Steven Newhouse</strong>, EGI, Netherlands</li>
-          <li><strong>Dhabaleswar K. (DK) Panda</strong>, The Ohio State
-            University, USA</li>
-          <li><strong>Manish Parashar</strong>, Rutgers University, USA</li>
-          <li><strong>Ron Perrott</strong>, University of Oxford, UK</li>
-          <li><strong>Depei Qian</strong>, Beihang University, China</li>
-          <li><strong>Judy Qui</strong>, Indiana University, USA</li>
-          <li><strong>Ioan Raicu</strong>, Illinois Institute of
-            Technology, USA</li>
-          <li><strong>Lavanya Ramakrishnan</strong>, Lawrence Berkeley
-            National Laboratory, USA</li>
-          <li><strong>Omer Rana</strong>, Cardiff University, UK</li>
-          <li><strong>Paul Roe</strong>, Queensland University of
-            Technology, Australia</li>
-          <li><strong>Bruno Schulze</strong>, LNCC, Brazil</li>
-          <li><strong>Marc Snir</strong>, Argonne National Laboratory
-            &amp; University of Illinois at Urbana-Champaign, USA</li>
-          <li><strong>Xian-He Sun</strong>, Illinois Institute of
-            Technology, USA</li>
-          <li><strong>Yoshio Tanaka</strong>, AIST, Japan</li>
-          <li><strong>Michela Taufer</strong>, University of Delaware,
-            USA</li>
-          <li><strong>Kerry Taylor</strong>, CSIRO, Australia</li>
-          <li><strong>Douglas Thain</strong>, University of Notre Dame,
-            USA</li>
-          <li><strong>Paul Watson</strong>, Newcastle University, UK</li>
-          <li><strong>Jun Zhao</strong>, University of Oxford, UK</li>
-        </ul>
-      </ul>
-    </div>
-    <pre class="moz-signature" cols="72">-- 
-=================================================================
-Ioan Raicu, Ph.D.
-Assistant Professor, Illinois Institute of Technology (IIT)
-Guest Research Faculty, Argonne National Laboratory (ANL)
-=================================================================
-Data-Intensive Distributed Systems Laboratory, CS/IIT
-Distributed Systems Laboratory, MCS/ANL
-=================================================================
-Cel:    1-847-722-0876
-Office: 1-312-567-5704
-Email:  <a class="moz-txt-link-abbreviated" href="mailto:iraicu@cs.iit.edu">iraicu@cs.iit.edu</a>
-Web:    <a class="moz-txt-link-freetext" href="http://www.cs.iit.edu/~iraicu/">http://www.cs.iit.edu/~iraicu/</a>
-Web:    <a class="moz-txt-link-freetext" href="http://datasys.cs.iit.edu/">http://datasys.cs.iit.edu/</a>
-=================================================================
-=================================================================
-
-</pre>
-  </body>
-</html>
-
---------------030605050909070702010008--
-
---===============1079340877482885046==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============1079340877482885046==--
+ Documentation/virtual/kvm/api.txt        |    7 +
+ Documentation/virtual/kvm/cpuid.txt      |    4 +
+ Documentation/virtual/kvm/hypercalls.txt |   54 +++++++
+ arch/x86/Kconfig                         |    9 +
+ arch/x86/include/asm/kvm_para.h          |   16 ++-
+ arch/x86/kernel/kvm.c                    |  249 ++++++++++++++++++++++++++++++
+ arch/x86/kvm/x86.c                       |   37 ++++-
+ arch/x86/xen/debugfs.c                   |  104 -------------
+ arch/x86/xen/debugfs.h                   |    4 -
+ arch/x86/xen/spinlock.c                  |    2 +-
+ fs/debugfs/file.c                        |  128 +++++++++++++++
+ include/linux/debugfs.h                  |   11 ++
+ include/linux/kvm.h                      |    1 +
+ include/linux/kvm_host.h                 |    1 +
+ include/linux/kvm_para.h                 |    1 +
+ 15 files changed, 514 insertions(+), 114 deletions(-)
