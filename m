@@ -1,14 +1,11 @@
-From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
-Subject: [PATCH RFC V4 5/5] Documentation/kvm : Add documentation on
-	Hypercalls and features used for PV spinlock
-Date: Sat, 14 Jan 2012 23:57:11 +0530
-Message-ID: <20120114182710.8604.22277.sendpatchset__18819.3562011749$1326565706$gmane$org@oc5400248562.ibm.com>
-References: <20120114182501.8604.68416.sendpatchset@oc5400248562.ibm.com>
+From: Ioan Raicu <iraicu@cs.iit.edu>
+Subject: Call for Workshops at IEEE eScience, due January 23, 2012
+Date: Sat, 14 Jan 2012 21:57:42 -0600
+Message-ID: <4F124EB6.8030604@cs.iit.edu>
+Reply-To: iraicu@cs.iit.edu
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============1231127480884233677=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20120114182501.8604.68416.sendpatchset@oc5400248562.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,114 +15,271 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jeremy Fitzhardinge <jeremy@goop.org>, Randy Dunlap <rdunlap@xenotime.net>, linux-doc@vger.kernel.org, KVM <kvm@vger.kernel.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Glauber Costa <glommer@redhat.com>, Jan Kiszka <jan.kiszka@siemens.com>, Rik van Riel <riel@redhat.com>, Dave Jiang <dave.jiang@intel.com>, "H. Peter Anvin" <hpa@zytor.com>, Thomas Gleixner <tglx@linutronix.de>, Rob Landley <rlandley@parallels.com>, X86 <x86@kernel.org>, Gleb Natapov <gleb@redhat.com>, Avi Kivity <avi@redhat.com>, Alexander Graf <agraf@suse.de>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Paul Mackerras <paulus@samba.org>, Sedat Dilek <sedat.dilek@gmail.com>, Ingo Molnar <mingo@redhat.com>, LKML <linux-kernel@vger.kernel.org>, Greg Kroah-Hartman <gregkh@suse.de>, Virtualization <virtualization@lists.linux-foundation.org>, Marcelo Tosatti <mtosatti@redhat.com>
-Cc: Peter Zijlstra <peterz@infradead.org>, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, Dave Hansen <dave@linux.vnet.ibm.com>, Suzuki Poulose <suzuki@linux.vnet.ibm.com>, Sasha Levin <levinsasha928@gmail.com>
+To: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Add Documentation on CPUID, KVM_CAP_PVLOCK_KICK, and Hypercalls supported.
+This is a multi-part message in MIME format.
+--===============1231127480884233677==
+Content-Type: multipart/alternative;
+ boundary="------------030706090009030203000406"
 
-KVM_HC_KICK_CPU  hypercall added to wakeup halted vcpu in
-paravirtual spinlock enabled guest.
+This is a multi-part message in MIME format.
+--------------030706090009030203000406
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-KVM_FEATURE_PVLOCK_KICK enables guest to check whether pv spinlock can
-be enabled in guest. support in host is queried via
-ioctl(KVM_CHECK_EXTENSION, KVM_CAP_PVLOCK_KICK)
 
-A minimal Documentation and template is added for hypercalls.
+      Call for Workshops
 
-Signed-off-by: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
-Signed-off-by: Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>
----
-diff --git a/Documentation/virtual/kvm/api.txt b/Documentation/virtual/kvm/api.txt
-index e2a4b52..1583bc7 100644
---- a/Documentation/virtual/kvm/api.txt
-+++ b/Documentation/virtual/kvm/api.txt
-@@ -1109,6 +1109,13 @@ support.  Instead it is reported via
- if that returns true and you use KVM_CREATE_IRQCHIP, or if you emulate the
- feature in userspace, then you can enable the feature for KVM_SET_CPUID2.
- 
-+Paravirtualized ticket spinlocks can be enabled in guest by checking whether
-+support exists in host via,
-+
-+  ioctl(KVM_CHECK_EXTENSION, KVM_CAP_PVLOCK_KICK)
-+
-+if this call return true, guest can use the feature.
-+
- 4.47 KVM_PPC_GET_PVINFO
- 
- Capability: KVM_CAP_PPC_GET_PVINFO
-diff --git a/Documentation/virtual/kvm/cpuid.txt b/Documentation/virtual/kvm/cpuid.txt
-index 8820685..c7fc0da 100644
---- a/Documentation/virtual/kvm/cpuid.txt
-+++ b/Documentation/virtual/kvm/cpuid.txt
-@@ -39,6 +39,10 @@ KVM_FEATURE_CLOCKSOURCE2           ||     3 || kvmclock available at msrs
- KVM_FEATURE_ASYNC_PF               ||     4 || async pf can be enabled by
-                                    ||       || writing to msr 0x4b564d02
- ------------------------------------------------------------------------------
-+KVM_FEATURE_PVLOCK_KICK            ||     6 || guest checks this feature bit
-+                                   ||       || before enabling paravirtualized
-+                                   ||       || spinlock support.
-+------------------------------------------------------------------------------
- KVM_FEATURE_CLOCKSOURCE_STABLE_BIT ||    24 || host will warn if no guest-side
-                                    ||       || per-cpu warps are expected in
-                                    ||       || kvmclock.
-diff --git a/Documentation/virtual/kvm/hypercalls.txt b/Documentation/virtual/kvm/hypercalls.txt
-new file mode 100644
-index 0000000..7872da5
---- /dev/null
-+++ b/Documentation/virtual/kvm/hypercalls.txt
-@@ -0,0 +1,54 @@
-+KVM Hypercalls Documentation
-+===========================
-+Template for documentation is
-+The documenenation for hypercalls should inlcude
-+1. Hypercall name, value.
-+2. Architecture(s)
-+3. Purpose
-+
-+
-+1. KVM_HC_VAPIC_POLL_IRQ
-+------------------------
-+value: 1
-+Architecture: x86
-+Purpose:
-+
-+2. KVM_HC_MMU_OP
-+------------------------
-+value: 2
-+Architecture: x86
-+Purpose: Support MMU operations such as writing to PTE,
-+flushing TLB, release PT.
-+
-+3. KVM_HC_FEATURES
-+------------------------
-+value: 3
-+Architecture: PPC
-+Purpose:
-+
-+4. KVM_HC_PPC_MAP_MAGIC_PAGE
-+------------------------
-+value: 4
-+Architecture: PPC
-+Purpose: To enable communication between the hypervisor and guest there is a
-+new shared page that contains parts of supervisor visible register state.
-+The guest can map this shared page using this hypercall.
-+
-+5. KVM_HC_KICK_CPU
-+------------------------
-+value: 5
-+Architecture: x86
-+Purpose: Hypercall used to wakeup a vcpu from HLT state
-+
-+Usage example : A vcpu of a paravirtualized guest that is busywaiting in guest
-+kernel mode for an event to occur (ex: a spinlock to become available)
-+can execute HLT instruction once it has busy-waited for more than a
-+threshold time-interval. Execution of HLT instruction would cause
-+the hypervisor to put the vcpu to sleep (unless yield_on_hlt=0) until occurence
-+of an appropriate event. Another vcpu of the same guest can wakeup the sleeping
-+vcpu by issuing KVM_HC_KICK_CPU hypercall, specifying APIC ID of the vcpu to be
-+wokenup.
-+
-+TODO:
-+1. more information on input and output needed?
-+2. Add more detail to purpose of hypercalls.
+
+        8th IEEE International Conference on eScience
+        October 8-12, 2012
+        Chicago, IL, USA
+
+The 8th IEEE eScience conference (e-Science 2012), sponsored by the IEEE 
+Computer Society's Technical Committee for Scalable Computing (TCSC), 
+will be held in Chicago Illinois from 8-12th October 2012. The eScience 
+2011 conference is designed to bring together leading international and 
+interdisciplinary research communities, developers, and users of 
+eScience applications and enabling IT technologies.
+
+Multiple e-Science 2012 Workshops will be held on Monday and Tuesday, 
+8th and 9th October, co-located with the main conference.
+
+Workshops are an important part of the conference in providing 
+opportunity for researchers to present their work in a more focused way 
+than the conference itself and to have discussion of particular topics 
+of interest to the community. We cordially invite you to submit workshop 
+proposals on any eScience related topic to the Workshop Chair.
+
+To help those interested know their purpose and scope, workshop 
+proposals should include:
+
+  * A description of the workshop, its focus, goals, and outcome
+  * A draft call for papers
+  * Names and affiliations of the organizers and tentative composition
+    of the committees
+  * Expected numbers of submissions and accepted papers
+  * Prior history of this workshop, if any. Please include: number of
+    submissions, number of accepted papers, and attendee count.
+
+Workshop organizers are responsible for establishing a program 
+committee, collecting and evaluating submissions, notifying authors of 
+acceptance or rejection in due time, ensuring a transparent and fair 
+selection process, organizing selected papers into sessions, and 
+assigning session chairs. Proposals will be selected that show clear 
+focus and objectives in areas of emerging or developing interest 
+guaranteed to generate significant interest in the community.
+
+Once accepted, the workshop should establish its own paper submission 
+system. For each paper selected for publication, an author must be 
+registered for eScience 2012. Each paper must be presented in person by 
+at least one of the authors. It is expected that the proceedings of the 
+eScience 2012 workshops will be published by the IEEE Computer Society 
+Press, USA and will be made available online through the IEEE Digital 
+Library.
+
+
+        SUBMISSION PROCESS
+
+Workshop proposals should be emailed to escience2012-workshops@fnal.gov 
+<mailto:escience2012-workshops@fnal.gov?subject=Workshop%20Submission%20for%20the%208th%20IEEE%20International%20Conference%20on%20eScience>
+
+
+        ORGANIZATION
+
+
+          General Chair
+
+  * *Ian Foster*, University of Chicago & Argonne National Laboratory, USA
+
+
+          Program Co-Chairs
+
+  * *Daniel S. Katz*, University of Chicago & Argonne National
+    Laboratory, USA
+  * *Heinz Stockinger*, SIB Swiss Institute of Bioinformatics, Switzerland
+
+
+          Workshops Chair
+
+  * *Ruth Pordes*, FNAL, USA
+
+
+          Sponsorship Chair
+
+  * *Charlie Catlett*, Argonne National Laboratory, USA
+
+
+          Conference Manager and Finance Chair
+
+  * *Julie Wulf-Knoerzer*, University of Chicago & Argonne National
+    Laboratory, USA
+
+
+          Publicity Chairs
+
+  * *Kento Aida*, National Institute of Informatics, Japan
+  * *Ioan Raicu*, Illinois Institute of Technology, USA
+  * *David Wallom*, Oxford e-Research Centre, UK
+
+
+          Local Organizing Committee
+
+  * *Ninfa Mayorga*, University of Chicago, USA
+  * *Evelyn Rayburn*, University of Chicago, USA
+  * *Lynn Valentini*, Argonne National Laboratory, USA
+
+-- 
+=================================================================
+Ioan Raicu, Ph.D.
+Assistant Professor, Illinois Institute of Technology (IIT)
+Guest Research Faculty, Argonne National Laboratory (ANL)
+=================================================================
+Data-Intensive Distributed Systems Laboratory, CS/IIT
+Distributed Systems Laboratory, MCS/ANL
+=================================================================
+Cel:    1-847-722-0876
+Office: 1-312-567-5704
+Email:  iraicu@cs.iit.edu
+Web:    http://www.cs.iit.edu/~iraicu/
+Web:    http://datasys.cs.iit.edu/
+=================================================================
+=================================================================
+
+
+
+--------------030706090009030203000406
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+
+<html>
+  <head>
+
+    <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
+  </head>
+  <body bgcolor="#FFFFFF" text="#000000">
+    <h3>Call for Workshops</h3>
+    <h4>8th IEEE International Conference on eScience <br>
+      October 8-12, 2012 <br>
+      Chicago, IL, USA </h4>
+    <p> The 8th IEEE eScience conference (e-Science 2012), sponsored by
+      the IEEE Computer Society's Technical Committee for Scalable
+      Computing (TCSC), will be held in Chicago Illinois from 8-12th
+      October 2012. The eScience 2011 conference is designed to bring
+      together leading international and interdisciplinary research
+      communities, developers, and users of eScience applications and
+      enabling IT technologies.</p>
+    <p>Multiple e-Science 2012 Workshops will be held on Monday and
+      Tuesday, 8th and 9th October, co-located with the main conference.</p>
+    <p>Workshops are an important part of the conference in providing
+      opportunity for researchers to present their work in a more
+      focused way than the conference itself and to have discussion of
+      particular topics of interest to the community. We cordially
+      invite you to submit workshop proposals on any eScience related
+      topic to the Workshop Chair.</p>
+    <p>To help those interested know their purpose and scope, workshop
+      proposals should include:</p>
+    <ul class="square">
+      <li>A description of the workshop, its focus, goals, and outcome</li>
+      <li>A draft call for papers</li>
+      <li>Names and affiliations of the organizers and tentative
+        composition of the committees</li>
+      <li>Expected numbers of submissions and accepted papers</li>
+      <li>Prior history of this workshop, if any. Please include: number
+        of submissions, number of accepted papers, and attendee count.</li>
+    </ul>
+    <p>Workshop organizers are responsible for establishing a program
+      committee, collecting and evaluating submissions, notifying
+      authors of acceptance or rejection in due time, ensuring a
+      transparent and fair selection process, organizing selected papers
+      into sessions, and assigning session chairs. Proposals will be
+      selected that show clear focus and objectives in areas of emerging
+      or developing interest guaranteed to generate significant interest
+      in the community.</p>
+    <p>Once accepted, the workshop should establish its own paper
+      submission system. For each paper selected for publication, an
+      author must be registered for eScience 2012. Each paper must be
+      presented in person by at least one of the authors. It is expected
+      that the proceedings of the eScience 2012 workshops will be
+      published by the IEEE Computer Society Press, USA and will be made
+      available online through the IEEE Digital Library.</p>
+    <h4> SUBMISSION PROCESS<a name="process">&nbsp;</a> </h4>
+    <p>Workshop proposals should be emailed to <a
+href="mailto:escience2012-workshops@fnal.gov?subject=Workshop%20Submission%20for%20the%208th%20IEEE%20International%20Conference%20on%20eScience">escience2012-workshops@fnal.gov</a></p>
+    <h4> ORGANIZATION </h4>
+    <h5 class="light">General Chair</h5>
+    <ul class="committee">
+      <li><strong>Ian Foster</strong>, University of Chicago &amp;
+        Argonne National Laboratory, USA</li>
+    </ul>
+    <h5 class="light">Program Co-Chairs</h5>
+    <ul class="committee">
+      <li><strong>Daniel S. Katz</strong>, University of Chicago &amp;
+        Argonne National Laboratory, USA</li>
+      <li><strong>Heinz Stockinger</strong>, SIB Swiss Institute of
+        Bioinformatics, Switzerland</li>
+    </ul>
+    <h5 class="light">Workshops Chair</h5>
+    <ul class="committee">
+      <li><strong>Ruth Pordes</strong>, FNAL, USA</li>
+    </ul>
+    <h5 class="light">Sponsorship Chair</h5>
+    <ul class="committee">
+      <li><strong>Charlie Catlett</strong>, Argonne National Laboratory,
+        USA</li>
+    </ul>
+    <h5 class="light">Conference Manager and Finance Chair</h5>
+    <ul class="committee">
+      <li><strong>Julie Wulf-Knoerzer</strong>, University of Chicago
+        &amp; Argonne National Laboratory, USA</li>
+    </ul>
+    <h5 class="light">Publicity Chairs</h5>
+    <ul class="committee">
+      <li><strong>Kento Aida</strong>, National Institute of
+        Informatics, Japan</li>
+      <li><strong>Ioan Raicu</strong>, Illinois Institute of Technology,
+        USA</li>
+      <li><strong>David Wallom</strong>, Oxford e-Research Centre, UK</li>
+    </ul>
+    <h5 class="light">Local Organizing Committee</h5>
+    <ul class="committee">
+      <li><strong>Ninfa Mayorga</strong>, University of Chicago, USA</li>
+      <li><strong>Evelyn Rayburn</strong>, University of Chicago, USA</li>
+      <li><strong>Lynn Valentini</strong>, Argonne National Laboratory,
+        USA</li>
+    </ul>
+    <pre class="moz-signature" cols="72">-- 
+=================================================================
+Ioan Raicu, Ph.D.
+Assistant Professor, Illinois Institute of Technology (IIT)
+Guest Research Faculty, Argonne National Laboratory (ANL)
+=================================================================
+Data-Intensive Distributed Systems Laboratory, CS/IIT
+Distributed Systems Laboratory, MCS/ANL
+=================================================================
+Cel:    1-847-722-0876
+Office: 1-312-567-5704
+Email:  <a class="moz-txt-link-abbreviated" href="mailto:iraicu@cs.iit.edu">iraicu@cs.iit.edu</a>
+Web:    <a class="moz-txt-link-freetext" href="http://www.cs.iit.edu/~iraicu/">http://www.cs.iit.edu/~iraicu/</a>
+Web:    <a class="moz-txt-link-freetext" href="http://datasys.cs.iit.edu/">http://datasys.cs.iit.edu/</a>
+=================================================================
+=================================================================
+
+</pre>
+  </body>
+</html>
+
+--------------030706090009030203000406--
+
+--===============1231127480884233677==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============1231127480884233677==--
