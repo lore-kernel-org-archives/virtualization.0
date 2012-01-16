@@ -1,17 +1,15 @@
-From: Alexander Graf <agraf@suse.de>
+From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
 Subject: Re: [PATCH RFC V4 0/5] kvm : Paravirt-spinlock support for KVM guests
-Date: Mon, 16 Jan 2012 19:42:38 +0100
-Message-ID: <E9F33AFD-F051-4D68-84FF-D259FD6AD19D@suse.de>
+Date: Tue, 17 Jan 2012 00:18:38 +0530
+Message-ID: <4F147106.4040803@linux.vnet.ibm.com>
 References: <20120114182501.8604.68416.sendpatchset@oc5400248562.ibm.com>
 	<3EC1B881-0724-49E3-B892-F40BEB07D15D@suse.de>
-	<20120116142014.GA10155@linux.vnet.ibm.com>
-	<B6E21B69-17D1-48E0-AFD4-B52075094005@suse.de>
-	<4F146EA5.3010106@linux.vnet.ibm.com>
-Mime-Version: 1.0 (Apple Message framework v1084)
-Content-Type: text/plain; charset="us-ascii"
+	<4F14296B.4070003@linux.vnet.ibm.com> <4F142AF1.2020801@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4F146EA5.3010106@linux.vnet.ibm.com>
+In-Reply-To: <4F142AF1.2020801@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,68 +19,40 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Greg Kroah-Hartman <gregkh@suse.de>, linux-doc@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Jan Kiszka <jan.kiszka@siemens.com>, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, Paul Mackerras <paulus@samba.org>, "H. Peter Anvin" <hpa@zytor.com>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Xen <xen-devel@lists.xensource.com>, Dave Jiang <dave.jiang@intel.com>, KVM <kvm@vger.kernel.org>, Glauber Costa <glommer@redhat.com>, X86 <x86@kernel.org>, Ingo Molnar <mingo@redhat.com>, Avi Kivity <avi@redhat.com>, Rik van Riel <riel@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Sasha Levin <levinsasha928@gmail.com>, Sedat Dilek <sedat.dilek@gmail.com>, Thomas Gleixner <tglx@linutronix.de>, Virtualization <virtualization@lists.linux-foundation.org>, LKML <linux-kernel@vger.kernel.org>, Dave Hansen <dave@linu>
+To: Avi Kivity <avi@redhat.com>, Alexander Graf <agraf@suse.de>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Greg Kroah-Hartman <gregkh@suse.de>, linux-doc@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Jan Kiszka <jan.kiszka@siemens.com>, Virtualization <virtualization@lists.linux-foundation.org>, Paul Mackerras <paulus@samba.org>, "H. Peter Anvin" <hpa@zytor.com>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Xen <xen-devel@lists.xensource.com>, Dave Jiang <dave.jiang@intel.com>, KVM <kvm@vger.kernel.org>, Rob Landley <rlandley@parallels.com>, X86 <x86@kernel.org>, Ingo Molnar <mingo@redhat.com>, Rik van Riel <riel@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, Sasha Levin <levinsasha928@gmail.com>, Sedat Dilek <sedat.dilek@gmail.com>, Thomas Gleixner <tglx@linutronix.de>, LKML <linux-kernel@vger.kernel.org>, Dave Hansen <dave@linux.vnet.ibm.com>, Suzuki
 List-Id: virtualization@lists.linuxfoundation.org
 
+On 01/16/2012 07:19 PM, Avi Kivity wrote:
+> On 01/16/2012 03:43 PM, Raghavendra K T wrote:
+>>>> Dbench:
+>>>> Throughput is in MB/sec
+>>>> NRCLIENTS     BASE                    BASE+patch
+>>>> %improvement
+>>>>                      mean (sd)               mean (sd)
+>>>> 8           1.101190  (0.875082)     1.700395  (0.846809)     54.4143
+>>>> 16          1.524312  (0.120354)     1.477553  (0.058166)     -3.06755
+>>>> 32            2.143028  (0.157103)     2.090307  (0.136778)
+>>>> -2.46012
+>>>
+>>> So on a very contended system we're actually slower? Is this expected?
+>>>
+>>>
+>>
+>>
+>> I think, the result is interesting because its PLE machine. I have to
+>> experiment more with parameters, SPIN_THRESHOLD, and also may be
+>> ple_gap and ple_window.
+>
+> Perhaps the PLE stuff fights with the PV stuff?
+>
 
-On 16.01.2012, at 19:38, Raghavendra K T wrote:
+I also think so. The slight advantage in PLE, with current patch would
+be  that, we are be able to say " This is the next guy who should
+probably get his turn".  But If total number of unnecessary "halt
+exits" disadvantage dominates above advantage, then we see degradation.
 
-> On 01/16/2012 07:53 PM, Alexander Graf wrote:
->> 
->> On 16.01.2012, at 15:20, Srivatsa Vaddagiri wrote:
->> 
->>> * Alexander Graf<agraf@suse.de>  [2012-01-16 04:57:45]:
->>> 
->>>> Speaking of which - have you benchmarked performance degradation of pv ticket locks on bare metal?
->>> 
->>> You mean, run kernel on bare metal with CONFIG_PARAVIRT_SPINLOCKS
->>> enabled and compare how it performs with CONFIG_PARAVIRT_SPINLOCKS disabled for
->>> some workload(s)?
->> 
->> Yup
->> 
->>> 
->>> In some sense, the 1x overcommitcase results posted does measure the overhead
->>> of (pv-)spinlocks no? We don't see any overhead in that case for atleast
->>> kernbench ..
->>> 
->>>> Result for Non PLE machine :
->>>> ============================
->>> 
->>> [snip]
->>> 
->>>> Kernbench:
->>>>               BASE                    BASE+patch
->> 
->> What is BASE really? Is BASE already with the PV spinlocks enabled? I'm having a hard time understanding which tree you're working against, since the prerequisites aren't upstream yet.
->> 
->> 
->> Alex
-> 
-> Sorry for confusion, I think I was little imprecise on the BASE.
-> 
-> The BASE is pre 3.2.0 + Jeremy's following patches:
-> xadd (https://lkml.org/lkml/2011/10/4/328)
-> x86/ticketlocklock  (https://lkml.org/lkml/2011/10/12/496).
-> So this would have ticketlock cleanups from Jeremy and
-> CONFIG_PARAVIRT_SPINLOCKS=y
-> 
-> BASE+patch = pre 3.2.0 + Jeremy's above patches + above V5 PV spinlock
-> series and CONFIG_PARAVIRT_SPINLOCKS=y
-> 
-> In both the cases  CONFIG_PARAVIRT_SPINLOCKS=y.
-> 
-> So let,
-> A. pre-3.2.0 with CONFIG_PARAVIRT_SPINLOCKS = n
-> B. pre-3.2.0 + Jeremy's above patches with CONFIG_PARAVIRT_SPINLOCKS = n
-> C. pre-3.2.0 + Jeremy's above patches with CONFIG_PARAVIRT_SPINLOCKS = y
-> D. pre-3.2.0 + Jeremy's above patches + V5 patches with CONFIG_PARAVIRT_SPINLOCKS = n
-> E. pre-3.2.0 + Jeremy's above patches + V5 patches with CONFIG_PARAVIRT_SPINLOCKS = y
-> 
-> is it performance of A vs E ? (currently C vs E)
-
-Since D and E only matter with KVM in use, yes, I'm mostly interested in A, B and C :).
-
-
-Alex
+One clarification in above benchmarking is,  Dbench is run
+simultaneously on all (8 vcpu) 3 guests. So we already have 1:3 
+overcommit when we run 8 clients of dbench. after that it was just 
+increasing number of clients.
