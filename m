@@ -1,19 +1,17 @@
-From: Alan Cox <alan@linux.intel.com>
-Subject: Re: [PATCH] vhost-net: add module alias (v2.1)
-Date: Mon, 16 Jan 2012 23:34:19 +0000
-Message-ID: <20120116233419.34cda70f@bob.linux.org.uk>
-References: <20120111091653.188b24ab@nehalam.linuxnetplumber.net>
-	<CAEH94LiF_F51_avA9UWMneo1N1wY0NzJmfohpxdrkAv2WkWT5Q@mail.gmail.com>
-	<20120111213038.39213819@nehalam.linuxnetplumber.net>
-	<20120112.200701.1473475851890804136.davem@davemloft.net>
-	<20120115124236.GA31012@redhat.com>
-	<20120116122645.2257b40b@bob.linux.org.uk>
-	<20120116075236.110cc4b4@nehalam.linuxnetplumber.net>
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+Subject: Re: [PATCH RFC V4 4/5] kvm : pv-ticketlocks support for linux guests
+	running on KVM hypervisor
+Date: Tue, 17 Jan 2012 10:49:18 +1100
+Message-ID: <4F14B77E.30202@goop.org>
+References: <20120114182501.8604.68416.sendpatchset@oc5400248562.ibm.com>
+	<20120114182645.8604.68884.sendpatchset@oc5400248562.ibm.com>
+	<4F13E84C.3010808@redhat.com> <4F1430A2.1080401@linux.vnet.ibm.com>
+	<4F143874.9010307@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20120116075236.110cc4b4@nehalam.linuxnetplumber.net>
+In-Reply-To: <4F143874.9010307@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,16 +21,22 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Stephen Hemminger <shemminger@vyatta.com>
-Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, kay.sievers@vrfy.org, virtualization@lists.linux-foundation.org, device@lanana.org, David Miller <davem@davemloft.net>
+To: Avi Kivity <avi@redhat.com>
+Cc: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, linux-doc@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Jan Kiszka <jan.kiszka@siemens.com>, Virtualization <virtualization@lists.linux-foundation.org>, Paul Mackerras <paulus@samba.org>, "H. Peter Anvin" <hpa@zytor.com>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Xen <xen-devel@lists.xensource.com>, Dave Jiang <dave.jiang@intel.com>, KVM <kvm@vger.kernel.org>, Glauber Costa <glommer@redhat.com>, X86 <x86@kernel.org>, Ingo Molnar <mingo@redhat.com>, Rik van Riel <riel@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Greg Kroah-Hartman <gregkh@suse.de>, Sasha Levin <levinsasha928@gmail.com>, Sedat Dilek <sedat.dilek@gmail.com>, Thomas Gleixner <tglx@linutronix.de>, LKML <linux-kernel@vger.kernel.org>, Dave Hansen <dave@linux.vnet.ibm.com>, Suzuki Poulose <suzuki@linux.vnet.ibm.com>S
 List-Id: virtualization@lists.linuxfoundation.org
 
-> Also:
->   - use C99 style initialization.
->   - add missing entry in documentation for loop-control
-> 
-> Signed-off-by: Stephen Hemminger <shemminger@vyatta.com>
+On 01/17/2012 01:47 AM, Avi Kivity wrote:
+> On 01/16/2012 04:13 PM, Raghavendra K T wrote:
+>>> Please drop all of these and replace with tracepoints in the appropriate
+>>> spots.  Everything else (including the historgram) can be reconstructed
+>>> the tracepoints in userspace.
+>>>
+>>
+>> I think Jeremy pointed that tracepoints use spinlocks and hence debugfs
+>> is the option.. no ?
+>>
+> Yeah, I think you're right.  What a pity.
 
-For the device allocation
+Yes, I went through the same thought process.
 
-Acked-by: Alan Cox <devices@lanana.org>
+    J
