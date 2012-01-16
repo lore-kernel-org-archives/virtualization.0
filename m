@@ -1,15 +1,15 @@
-From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
-Subject: Re: [PATCH RFC V4 0/5] kvm : Paravirt-spinlock support for KVM guests
-Date: Tue, 17 Jan 2012 00:18:38 +0530
-Message-ID: <4F147106.4040803@linux.vnet.ibm.com>
-References: <20120114182501.8604.68416.sendpatchset@oc5400248562.ibm.com>
-	<3EC1B881-0724-49E3-B892-F40BEB07D15D@suse.de>
-	<4F14296B.4070003@linux.vnet.ibm.com> <4F142AF1.2020801@redhat.com>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH] vhost-net: add module alias (v2.1)
+Date: Mon, 16 Jan 2012 18:06:47 -0500 (EST)
+Message-ID: <20120116.180647.1716624961347284814.davem@davemloft.net>
+References: <20120115124236.GA31012@redhat.com>
+	<20120116122645.2257b40b@bob.linux.org.uk>
+	<20120116075236.110cc4b4@nehalam.linuxnetplumber.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4F142AF1.2020801@redhat.com>
+In-Reply-To: <20120116075236.110cc4b4@nehalam.linuxnetplumber.net>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,40 +19,44 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Avi Kivity <avi@redhat.com>, Alexander Graf <agraf@suse.de>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Greg Kroah-Hartman <gregkh@suse.de>, linux-doc@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Jan Kiszka <jan.kiszka@siemens.com>, Virtualization <virtualization@lists.linux-foundation.org>, Paul Mackerras <paulus@samba.org>, "H. Peter Anvin" <hpa@zytor.com>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Xen <xen-devel@lists.xensource.com>, Dave Jiang <dave.jiang@intel.com>, KVM <kvm@vger.kernel.org>, Rob Landley <rlandley@parallels.com>, X86 <x86@kernel.org>, Ingo Molnar <mingo@redhat.com>, Rik van Riel <riel@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, Sasha Levin <levinsasha928@gmail.com>, Sedat Dilek <sedat.dilek@gmail.com>, Thomas Gleixner <tglx@linutronix.de>, LKML <linux-kernel@vger.kernel.org>, Dave Hansen <dave@linux.vnet.ibm.com>, Suzuki
+To: shemminger@vyatta.com
+Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, kay.sievers@vrfy.org, virtualization@lists.linux-foundation.org, device@lanana.org, alan@linux.intel.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 01/16/2012 07:19 PM, Avi Kivity wrote:
-> On 01/16/2012 03:43 PM, Raghavendra K T wrote:
->>>> Dbench:
->>>> Throughput is in MB/sec
->>>> NRCLIENTS     BASE                    BASE+patch
->>>> %improvement
->>>>                      mean (sd)               mean (sd)
->>>> 8           1.101190  (0.875082)     1.700395  (0.846809)     54.4143
->>>> 16          1.524312  (0.120354)     1.477553  (0.058166)     -3.06755
->>>> 32            2.143028  (0.157103)     2.090307  (0.136778)
->>>> -2.46012
->>>
->>> So on a very contended system we're actually slower? Is this expected?
->>>
->>>
->>
->>
->> I think, the result is interesting because its PLE machine. I have to
->> experiment more with parameters, SPIN_THRESHOLD, and also may be
->> ple_gap and ple_window.
->
-> Perhaps the PLE stuff fights with the PV stuff?
->
+From: Stephen Hemminger <shemminger@vyatta.com>
+Date: Mon, 16 Jan 2012 07:52:36 -0800
 
-I also think so. The slight advantage in PLE, with current patch would
-be  that, we are be able to say " This is the next guy who should
-probably get his turn".  But If total number of unnecessary "halt
-exits" disadvantage dominates above advantage, then we see degradation.
+> On Mon, 16 Jan 2012 12:26:45 +0000
+> Alan Cox <alan@linux.intel.com> wrote:
+> 
+>> > > ACKs, NACKs?  What is happening here?
+>> > 
+>> > I would like an Ack from Alan Cox who switched vhost-net
+>> > to a dynamic minor in the first place, in commit
+>> > 79907d89c397b8bc2e05b347ec94e928ea919d33.
+>> 
+>> Sorry device@lanana.org isn't yet back from the kernel hack incident.
+>> 
+>> I don't read netdev so someone needs to summarise the issue and send me
+>> a copy of the patch to look at.
+>> 
+>> Alan
+> 
+> Subject: vhost-net: add module alias (v2.1)
+> 
+> By adding some module aliases, programs (or users) won't have to explicitly
+> call modprobe. Vhost-net will always be available if built into the kernel.
+> It does require assigning a permanent minor number for depmod to work.
+> 
+> Also:
+>   - use C99 style initialization.
+>   - add missing entry in documentation for loop-control
+> 
+> Signed-off-by: Stephen Hemminger <shemminger@vyatta.com>
 
-One clarification in above benchmarking is,  Dbench is run
-simultaneously on all (8 vcpu) 3 guests. So we already have 1:3 
-overcommit when we run 8 clients of dbench. after that it was just 
-increasing number of clients.
+I already applied your first patch, so you need to give me something
+relative to apply on top of your original one.
+
+And it also shows that you're really not generating these patches
+against current 'net', otherwise you'd have noticed your other patch
+already there.
