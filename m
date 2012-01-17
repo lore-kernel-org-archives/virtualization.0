@@ -1,20 +1,16 @@
 From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
-Subject: Re: [PATCH RFC V4 0/5] kvm : Paravirt-spinlock support for KVM guests
-Date: Wed, 18 Jan 2012 00:06:30 +0530
-Message-ID: <4F15BFAE.7060500@linux.vnet.ibm.com>
+Subject: Re: [PATCH RFC V4 4/5] kvm : pv-ticketlocks support for linux guests
+	running on KVM hypervisor
+Date: Wed, 18 Jan 2012 00:27:19 +0530
+Message-ID: <4F15C48F.1000000@linux.vnet.ibm.com>
 References: <20120114182501.8604.68416.sendpatchset@oc5400248562.ibm.com>
-	<3EC1B881-0724-49E3-B892-F40BEB07D15D@suse.de>
-	<20120116142014.GA10155@linux.vnet.ibm.com>
-	<B6E21B69-17D1-48E0-AFD4-B52075094005@suse.de>
-	<4F146EA5.3010106@linux.vnet.ibm.com>
-	<E9F33AFD-F051-4D68-84FF-D259FD6AD19D@suse.de>
-	<4F15AF9E.9000907@linux.vnet.ibm.com>
-	<1485A122-9D48-46E3-A01E-E37B5C9EC54A@suse.de>
+	<20120114182645.8604.68884.sendpatchset@oc5400248562.ibm.com>
+	<20120117110210.GA17420@amt.cnet>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1485A122-9D48-46E3-A01E-E37B5C9EC54A@suse.de>
+In-Reply-To: <20120117110210.GA17420@amt.cnet>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,117 +20,147 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Alexander Graf <agraf@suse.de>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Greg Kroah-Hartman <gregkh@suse.de>, linux-doc@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Jan Kiszka <jan.kiszka@siemens.com>, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, Paul Mackerras <paulus@samba.org>, "H. Peter Anvin" <hpa@zytor.com>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Xen <xen-devel@lists.xensource.com>, Dave Jiang <dave.jiang@intel.com>, KVM <kvm@vger.kernel.org>, Glauber Costa <glommer@redhat.com>, X86 <x86@kernel.org>, Ingo Molnar <mingo@redhat.com>, Avi Kivity <avi@redhat.com>, Rik van Riel <riel@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Sasha Levin <levinsasha928@gmail.com>, Sedat Dilek <sedat.dilek@gmail.com>, Thomas Gleixner <tglx@linutronix.de>, Virtualization <virtualization@lists.linux-foundation.org>, LKML <linux-kernel@vger.kernel.org>, Dave Hansen <dave@linu>
+To: Marcelo Tosatti <mtosatti@redhat.com>, Avi Kivity <avi@redhat.com>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Raghavendra <raghavendra.kt@linux.vnet.ibm.com>, linux-doc@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Jan Kiszka <jan.kiszka@siemens.com>, Virtualization <virtualization@lists.linux-foundation.org>, Paul Mackerras <paulus@samba.org>, "H. Peter Anvin" <hpa@zytor.com>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Xen <xen-devel@lists.xensource.com>, Dave Jiang <dave.jiang@intel.com>, KVM <kvm@vger.kernel.org>, Rob Landley <rlandley@parallels.com>, X86 <x86@kernel.org>, Ingo Molnar <mingo@redhat.com>, Rik van Riel <riel@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, Sasha Levin <levinsasha928@gmail.com>, Sedat Dilek <sedat.dilek@gmail.com>, Thomas Gleixner <tglx@linutronix.de>, Greg Kroah-Hartman <gregkh@suse.de>, LKML <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 01/17/2012 11:09 PM, Alexander Graf wrote:
->
-> On 17.01.2012, at 18:27, Raghavendra K T wrote:
->
->> On 01/17/2012 12:12 AM, Alexander Graf wrote:
->>>
->>> On 16.01.2012, at 19:38, Raghavendra K T wrote:
->>>
->>>> On 01/16/2012 07:53 PM, Alexander Graf wrote:
->>>>>
->>>>> On 16.01.2012, at 15:20, Srivatsa Vaddagiri wrote:
->>>>>
->>>>>> * Alexander Graf<agraf@suse.de>    [2012-01-16 04:57:45]:
->>>>>>
->>>>>>> Speaking of which - have you benchmarked performance degradation of pv ticket locks on bare metal?
->>>>>>
->>>>>> You mean, run kernel on bare metal with CONFIG_PARAVIRT_SPINLOCKS
->>>>>> enabled and compare how it performs with CONFIG_PARAVIRT_SPINLOCKS disabled for
->>>>>> some workload(s)?
->>>>>
->>>>> Yup
->>>>>
->>>>>>
->>>>>> In some sense, the 1x overcommitcase results posted does measure the overhead
->>>>>> of (pv-)spinlocks no? We don't see any overhead in that case for atleast
->>>>>> kernbench ..
->>>>>>
->>>>>>> Result for Non PLE machine :
->>>>>>> ============================
->>>>>>
->>>>>> [snip]
->>>>>>
->>>>>>> Kernbench:
->>>>>>>                BASE                    BASE+patch
->>>>>
->>>>> What is BASE really? Is BASE already with the PV spinlocks enabled? I'm having a hard time understanding which tree you're working against, since the prerequisites aren't upstream yet.
->>>>>
->>>>>
->>>>> Alex
->>>>
->>>> Sorry for confusion, I think I was little imprecise on the BASE.
->>>>
->>>> The BASE is pre 3.2.0 + Jeremy's following patches:
->>>> xadd (https://lkml.org/lkml/2011/10/4/328)
->>>> x86/ticketlocklock  (https://lkml.org/lkml/2011/10/12/496).
->>>> So this would have ticketlock cleanups from Jeremy and
->>>> CONFIG_PARAVIRT_SPINLOCKS=y
->>>>
->>>> BASE+patch = pre 3.2.0 + Jeremy's above patches + above V5 PV spinlock
->>>> series and CONFIG_PARAVIRT_SPINLOCKS=y
->>>>
->>>> In both the cases  CONFIG_PARAVIRT_SPINLOCKS=y.
->>>>
->>>> So let,
->>>> A. pre-3.2.0 with CONFIG_PARAVIRT_SPINLOCKS = n
->>>> B. pre-3.2.0 + Jeremy's above patches with CONFIG_PARAVIRT_SPINLOCKS = n
->>>> C. pre-3.2.0 + Jeremy's above patches with CONFIG_PARAVIRT_SPINLOCKS = y
->>>> D. pre-3.2.0 + Jeremy's above patches + V5 patches with CONFIG_PARAVIRT_SPINLOCKS = n
->>>> E. pre-3.2.0 + Jeremy's above patches + V5 patches with CONFIG_PARAVIRT_SPINLOCKS = y
->>>>
->>>> is it performance of A vs E ? (currently C vs E)
->>>
->>> Since D and E only matter with KVM in use, yes, I'm mostly interested in A, B and C :).
->>>
->>>
->>> Alex
->>>
->>>
->> setup :
->> Native: IBM xSeries with Intel(R) Xeon(R) x5570 2.93GHz CPU with 8 core , 64GB RAM, (16 cpu online)
+On 01/17/2012 04:32 PM, Marcelo Tosatti wrote:
+> On Sat, Jan 14, 2012 at 11:56:46PM +0530, Raghavendra K T wrote:
+>> Extends Linux guest running on KVM hypervisor to support pv-ticketlocks.
+>> diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+>> index c7b05fc..4d7a950 100644
+>> --- a/arch/x86/kvm/x86.c
+>> +++ b/arch/x86/kvm/x86.c
+>> @@ -5754,8 +5754,9 @@ static int vcpu_enter_guest(struct kvm_vcpu *vcpu)
 >>
->> Guest : Single guest with 8 VCPU 4GB Ram.
->> benchmark : kernbench -f -H -M -o 20
+>>   	local_irq_disable();
 >>
->> Here is the result :
->> Native Run
->> ============
->> case A               case B             %improvement   case C  %improvement
->> 56.1917 (2.57125)    56.035 (2.02439)   0.278867       56.27 (2.40401)   -0.139344	
+>> -	if (vcpu->mode == EXITING_GUEST_MODE || vcpu->requests
+>> -	    || need_resched() || signal_pending(current)) {
+>> +	if (vcpu->mode == EXITING_GUEST_MODE
+>> +		 || (vcpu->requests&  ~(1UL<<KVM_REQ_PVLOCK_KICK))
+>> +		 || need_resched() || signal_pending(current)) {
+>>   		vcpu->mode = OUTSIDE_GUEST_MODE;
+>>   		smp_wmb();
+>>   		local_irq_enable();
+>> @@ -6711,6 +6712,7 @@ int kvm_arch_vcpu_runnable(struct kvm_vcpu *vcpu)
+>>   		!vcpu->arch.apf.halted)
+>>   		|| !list_empty_careful(&vcpu->async_pf.done)
+>>   		|| vcpu->arch.mp_state == KVM_MP_STATE_SIPI_RECEIVED
+>> +		|| kvm_check_request(KVM_REQ_PVLOCK_KICK, vcpu)
 >
-> This looks a lot like statistical derivation. How often did you execute the test case? Did you make sure to have a clean base state every time?
+> The bit should only be read here (kvm_arch_vcpu_runnable), but cleared
+> on vcpu entry (along with the other kvm_check_request processing).
 >
-> Maybe it'd be a good idea to create a small in-kernel microbenchmark with a couple threads that take spinlocks, then do work for a specified number of cycles, then release them again and start anew. At the end of it, we can check how long the whole thing took for n runs. That would enable us to measure the worst case scenario.
->
+> Then the first hunk becomes unnecessary.
 
-It was a quick test.  two iteration of kernbench (=6runs) and had 
-ensured cache is cleared.
+true. [ patch below ]
 
-echo "1" > /proc/sys/vm/drop_caches
-ccache -C. Yes may be I can run test as you mentioned..
-
->>
->> Guest Run
->> ============
->> case A               case B             %improvement   case C  %improvement
->> 166.999 (15.7613)    161.876 (14.4874) 	3.06768        161.24 (12.6497)  3.44852
 >
-> Is this the same machine? Why is the guest 3x slower?
-Yes non - ple machine but with all 16 cpus online. 3x slower you meant 
-case A is slower (pre-3.2.0 with CONFIG_PARAVIRT_SPINLOCKS = n) ?
+> Please do not mix host/guest patches.
+
+yes, will be taken care in next version..
 
 >
 >
-> Alex
->
->>
->> We do not see much overhead in native run with CONFIG_PARAVIRT_SPINLOCKS = y
->>
->
->
+
+I had tried alternative approach earlier, I think that is closer
+to your expectation.
+
+where
+- flag is read in kvm_arch_vcpu_runnable
+- flag cleared in vcpu entry along with others.
+
+But it needs per vcpu flag to remember that pv_unhalted while clearing
+the flag in vcpu enter [ patch below ]. Could not find third alternative
+though.
+
+Simply clearing the request bit in vcpu entry had made guest hang in 
+*rare* scenario.  [as kick will be lost].
+
+[ I had observed guest hang after 4 iteration of kernbench with 1:3 
+overcommit. with 2/3 guest running while 1 hogs ]
+
+Avi,
+do you think having pv_unhalt flag in below patch cause problem to
+live migration still? (vcpu->request bit is retained as is) OR do we 
+have to have KVM_GET_MP_STATE changes also with below patch you 
+mentioned earlier.
+
+---8<---
+diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+index c38efd7..1bf8fa8 100644
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -5684,6 +5717,11 @@ static int vcpu_enter_guest(struct kvm_vcpu *vcpu)
+  			r = 1;
+  			goto out;
+  		}
++		if (kvm_check_request(KVM_REQ_PVKICK, vcpu)) {
++			vcpu->pv_unhalted = 1;
++			r = 1;
++			goto out;
++		}
+  		if (kvm_check_request(KVM_REQ_STEAL_UPDATE, vcpu))
+  			record_steal_time(vcpu);
+  		if (kvm_check_request(KVM_REQ_NMI, vcpu))
+@@ -6683,6 +6720,7 @@ int kvm_arch_vcpu_runnable(struct kvm_vcpu *vcpu)
+  		!vcpu->arch.apf.halted)
+  		|| !list_empty_careful(&vcpu->async_pf.done)
+  		|| vcpu->arch.mp_state == KVM_MP_STATE_SIPI_RECEIVED
++		|| (kvm_test_request(KVM_REQ_PVKICK, vcpu) || vcpu->pv_unhalted)
+  		|| atomic_read(&vcpu->arch.nmi_queued) ||
+  		(kvm_arch_interrupt_allowed(vcpu) &&
+  		 kvm_cpu_has_interrupt(vcpu));
+diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
+index d526231..a48e0f2 100644
+--- a/include/linux/kvm_host.h
++++ b/include/linux/kvm_host.h
+@@ -154,6 +155,8 @@ struct kvm_vcpu {
+  #endif
+
+  	struct kvm_vcpu_arch arch;
++
++	int pv_unhalted;
+  };
+
+  static inline int kvm_vcpu_exiting_guest_mode(struct kvm_vcpu *vcpu)
+@@ -770,5 +773,12 @@ static inline bool kvm_check_request(int req, 
+struct kvm_vcpu *vcpu)
+  	}
+  }
+
++static inline bool kvm_test_request(int req, struct kvm_vcpu *vcpu)
++{
++	if (test_bit(req, &vcpu->requests))
++		return true;
++	else
++		return false;
++}
+  #endif
+
+diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
+index d9cfb78..55c44a2 100644
+--- a/virt/kvm/kvm_main.c
++++ b/virt/kvm/kvm_main.c
+@@ -226,6 +226,7 @@ int kvm_vcpu_init(struct kvm_vcpu *vcpu, struct kvm 
+*kvm, unsigned id)
+  	vcpu->kvm = kvm;
+  	vcpu->vcpu_id = id;
+  	vcpu->pid = NULL;
++	vcpu->pv_unhalted = 0;
+  	init_waitqueue_head(&vcpu->wq);
+  	kvm_async_pf_vcpu_init(vcpu);
+
+@@ -1509,11 +1510,12 @@ void mark_page_dirty(struct kvm *kvm, gfn_t gfn)
+  void kvm_vcpu_block(struct kvm_vcpu *vcpu)
+  {
+  	DEFINE_WAIT(wait);
+  	for (;;) {
+  		prepare_to_wait(&vcpu->wq, &wait, TASK_INTERRUPTIBLE);
+
+  		if (kvm_arch_vcpu_runnable(vcpu)) {
++			vcpu->pv_unhalted = 0;
+  			kvm_make_request(KVM_REQ_UNHALT, vcpu);
+  			break;
+  		}
