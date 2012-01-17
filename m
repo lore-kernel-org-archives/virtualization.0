@@ -1,24 +1,18 @@
-From: Marcelo Tosatti <mtosatti@redhat.com>
-Subject: Re: [PATCH RFC V4 5/5] Documentation/kvm : Add documentation on
-	Hypercalls and features used for PV spinlock
-Date: Tue, 17 Jan 2012 13:53:03 -0200
-Message-ID: <20120117155303.GA28904@amt.cnet>
-References: <20120116094020.GA6019@linux.vnet.ibm.com>
-	<4F13F883.5090002@redhat.com>
-	<20120116141117.GB6019@linux.vnet.ibm.com>
-	<20120117091413.GM2167@redhat.com>
-	<20120117122650.GC30757@linux.vnet.ibm.com>
-	<20120117125126.GQ2167@redhat.com>
-	<20120117131103.GD30398@linux.vnet.ibm.com>
-	<20120117132051.GR2167@redhat.com>
-	<20120117142818.GE30398@linux.vnet.ibm.com>
-	<20120117153233.GA7911@redhat.com>
+From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
+Subject: Re: [PATCH RFC V4 0/5] kvm : Paravirt-spinlock support for KVM guests
+Date: Tue, 17 Jan 2012 22:57:58 +0530
+Message-ID: <4F15AF9E.9000907@linux.vnet.ibm.com>
+References: <20120114182501.8604.68416.sendpatchset@oc5400248562.ibm.com>
+	<3EC1B881-0724-49E3-B892-F40BEB07D15D@suse.de>
+	<20120116142014.GA10155@linux.vnet.ibm.com>
+	<B6E21B69-17D1-48E0-AFD4-B52075094005@suse.de>
+	<4F146EA5.3010106@linux.vnet.ibm.com>
+	<E9F33AFD-F051-4D68-84FF-D259FD6AD19D@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20120117153233.GA7911@redhat.com>
+In-Reply-To: <E9F33AFD-F051-4D68-84FF-D259FD6AD19D@suse.de>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -28,31 +22,94 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gleb Natapov <gleb@redhat.com>, Anthony Liguori <aliguori@us.ibm.com>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, KVM <kvm@vger.kernel.org>, linux-doc@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Jan Kiszka <jan.kiszka@siemens.com>, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, Paul Mackerras <paulus@samba.org>, "H. Peter Anvin" <hpa@zytor.com>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Xen <xen-devel@lists.xensource.com>, Dave Jiang <dave.jiang@intel.com>, Glauber Costa <glommer@redhat.com>, X86 <x86@kernel.org>, Ingo Molnar <mingo@redhat.com>, Avi Kivity <avi@redhat.com>, Rik van Riel <riel@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Sasha Levin <levinsasha928@gmail.com>, Sedat Dilek <sedat.dilek@gmail.com>, Thomas Gleixner <tglx@linutronix.de>, Virtualization <virtualization@lists.linux-foundation.org>, Greg Kroah-Hartman <gregkh@suse.de>
+To: Alexander Graf <agraf@suse.de>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Greg Kroah-Hartman <gregkh@suse.de>, linux-doc@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Jan Kiszka <jan.kiszka@siemens.com>, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, Paul Mackerras <paulus@samba.org>, "H. Peter Anvin" <hpa@zytor.com>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Xen <xen-devel@lists.xensource.com>, Dave Jiang <dave.jiang@intel.com>, KVM <kvm@vger.kernel.org>, Glauber Costa <glommer@redhat.com>, X86 <x86@kernel.org>, Ingo Molnar <mingo@redhat.com>, Avi Kivity <avi@redhat.com>, Rik van Riel <riel@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Sasha Levin <levinsasha928@gmail.com>, Sedat Dilek <sedat.dilek@gmail.com>, Thomas Gleixner <tglx@linutronix.de>, Virtualization <virtualization@lists.linux-foundation.org>, LKML <linux-kernel@vger.kernel.org>, Dave Hansen <dave@linu>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jan 17, 2012 at 05:32:33PM +0200, Gleb Natapov wrote:
-> On Tue, Jan 17, 2012 at 07:58:18PM +0530, Srivatsa Vaddagiri wrote:
-> > * Gleb Natapov <gleb@redhat.com> [2012-01-17 15:20:51]:
-> > 
-> > > > Having the hypercall makes the intent of vcpu (to sleep on a kick) clear to 
-> > > > hypervisor vs assuming that because of a trapped HLT instruction (which
-> > > > will anyway won't work when yield_on_hlt=0).
-> > > > 
-> > > The purpose of yield_on_hlt=0 is to allow VCPU to occupy CPU for the
-> > > entire time slice no mater what. I do not think disabling yield on HLT
-> > > is even make sense in CPU oversubscribe scenario.
-> > 
-> > Yes, so is there any real use for yield_on_hlt=0? I believe Anthony
-> > initially added it as a way to implement CPU bandwidth capping for VMs,
-> > which would ensure that busy VMs don't eat into cycles meant for a idle
-> > VM. Now that we have proper support in scheduler for CPU bandwidth capping, is 
-> > there any real world use for yield_on_hlt=0? If not, deprecate it?
-> > 
-> I was against adding it in the first place, so if IBM no longer needs it
-> I am for removing it ASAP.
+On 01/17/2012 12:12 AM, Alexander Graf wrote:
+>
+> On 16.01.2012, at 19:38, Raghavendra K T wrote:
+>
+>> On 01/16/2012 07:53 PM, Alexander Graf wrote:
+>>>
+>>> On 16.01.2012, at 15:20, Srivatsa Vaddagiri wrote:
+>>>
+>>>> * Alexander Graf<agraf@suse.de>   [2012-01-16 04:57:45]:
+>>>>
+>>>>> Speaking of which - have you benchmarked performance degradation of pv ticket locks on bare metal?
+>>>>
+>>>> You mean, run kernel on bare metal with CONFIG_PARAVIRT_SPINLOCKS
+>>>> enabled and compare how it performs with CONFIG_PARAVIRT_SPINLOCKS disabled for
+>>>> some workload(s)?
+>>>
+>>> Yup
+>>>
+>>>>
+>>>> In some sense, the 1x overcommitcase results posted does measure the overhead
+>>>> of (pv-)spinlocks no? We don't see any overhead in that case for atleast
+>>>> kernbench ..
+>>>>
+>>>>> Result for Non PLE machine :
+>>>>> ============================
+>>>>
+>>>> [snip]
+>>>>
+>>>>> Kernbench:
+>>>>>                BASE                    BASE+patch
+>>>
+>>> What is BASE really? Is BASE already with the PV spinlocks enabled? I'm having a hard time understanding which tree you're working against, since the prerequisites aren't upstream yet.
+>>>
+>>>
+>>> Alex
+>>
+>> Sorry for confusion, I think I was little imprecise on the BASE.
+>>
+>> The BASE is pre 3.2.0 + Jeremy's following patches:
+>> xadd (https://lkml.org/lkml/2011/10/4/328)
+>> x86/ticketlocklock  (https://lkml.org/lkml/2011/10/12/496).
+>> So this would have ticketlock cleanups from Jeremy and
+>> CONFIG_PARAVIRT_SPINLOCKS=y
+>>
+>> BASE+patch = pre 3.2.0 + Jeremy's above patches + above V5 PV spinlock
+>> series and CONFIG_PARAVIRT_SPINLOCKS=y
+>>
+>> In both the cases  CONFIG_PARAVIRT_SPINLOCKS=y.
+>>
+>> So let,
+>> A. pre-3.2.0 with CONFIG_PARAVIRT_SPINLOCKS = n
+>> B. pre-3.2.0 + Jeremy's above patches with CONFIG_PARAVIRT_SPINLOCKS = n
+>> C. pre-3.2.0 + Jeremy's above patches with CONFIG_PARAVIRT_SPINLOCKS = y
+>> D. pre-3.2.0 + Jeremy's above patches + V5 patches with CONFIG_PARAVIRT_SPINLOCKS = n
+>> E. pre-3.2.0 + Jeremy's above patches + V5 patches with CONFIG_PARAVIRT_SPINLOCKS = y
+>>
+>> is it performance of A vs E ? (currently C vs E)
+>
+> Since D and E only matter with KVM in use, yes, I'm mostly interested in A, B and C :).
+>
+>
+> Alex
+>
+>
+setup :
+Native: IBM xSeries with Intel(R) Xeon(R) x5570 2.93GHz CPU with 8 core 
+, 64GB RAM, (16 cpu online)
 
-+1.
+Guest : Single guest with 8 VCPU 4GB Ram.
+benchmark : kernbench -f -H -M -o 20
 
-Anthony?
+Here is the result :
+Native Run
+============
+case A               case B             %improvement   case C 
+  %improvement
+56.1917 (2.57125)    56.035 (2.02439)   0.278867       56.27 (2.40401) 
+   -0.139344	
+
+Guest Run
+============
+case A               case B             %improvement   case C 
+  %improvement
+166.999 (15.7613)    161.876 (14.4874) 	3.06768        161.24 (12.6497) 
+  3.44852
+
+We do not see much overhead in native run with CONFIG_PARAVIRT_SPINLOCKS = y
