@@ -1,18 +1,22 @@
 From: Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>
-Subject: Re: [PATCH RFC V4 4/5] kvm : pv-ticketlocks support for linux guests
-	running on KVM hypervisor
-Date: Tue, 17 Jan 2012 17:03:20 +0530
-Message-ID: <20120117113312.GB30398@linux.vnet.ibm.com>
+Subject: Re: [PATCH RFC V4 5/5] Documentation/kvm : Add documentation on
+	Hypercalls and features used for PV spinlock
+Date: Tue, 17 Jan 2012 17:56:50 +0530
+Message-ID: <20120117122650.GC30757@linux.vnet.ibm.com>
 References: <20120114182501.8604.68416.sendpatchset@oc5400248562.ibm.com>
-	<20120114182645.8604.68884.sendpatchset@oc5400248562.ibm.com>
-	<20120117110210.GA17420@amt.cnet>
+	<20120114182710.8604.22277.sendpatchset@oc5400248562.ibm.com>
+	<4F13E739.7040300@redhat.com>
+	<20120116094020.GA6019@linux.vnet.ibm.com>
+	<4F13F883.5090002@redhat.com>
+	<20120116141117.GB6019@linux.vnet.ibm.com>
+	<20120117091413.GM2167@redhat.com>
 Reply-To: Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20120117110210.GA17420@amt.cnet>
+In-Reply-To: <20120117091413.GM2167@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,44 +26,23 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Marcelo Tosatti <mtosatti@redhat.com>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, linux-doc@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Jan Kiszka <jan.kiszka@siemens.com>, Virtualization <virtualization@lists.linux-foundation.org>, Paul Mackerras <paulus@samba.org>, "H. Peter Anvin" <hpa@zytor.com>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Xen <xen-devel@lists.xensource.com>, Dave Jiang <dave.jiang@intel.com>, KVM <kvm@vger.kernel.org>, Glauber Costa <glommer@redhat.com>, X86 <x86@kernel.org>, Ingo Molnar <mingo@redhat.com>, Avi Kivity <avi@redhat.com>, Rik van Riel <riel@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Sasha Levin <levinsasha928@gmail.com>, Sedat Dilek <sedat.dilek@gmail.com>, Thomas Gleixner <tglx@linutronix.de>, Greg Kroah-Hartman <gregkh@suse.de>, LKML <linux-kernel@vger.kernel.org>Dave Hansen <dav>
+To: Gleb Natapov <gleb@redhat.com>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, KVM <kvm@vger.kernel.org>, linux-doc@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Jan Kiszka <jan.kiszka@siemens.com>, Virtualization <virtualization@lists.linux-foundation.org>, Paul Mackerras <paulus@samba.org>, "H. Peter Anvin" <hpa@zytor.com>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Xen <xen-devel@lists.xensource.com>, Dave Jiang <dave.jiang@intel.com>, Glauber Costa <glommer@redhat.com>, X86 <x86@kernel.org>, Ingo Molnar <mingo@redhat.com>, Avi Kivity <avi@redhat.com>, Rik van Riel <riel@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Sasha Levin <levinsasha928@gmail.com>, Sedat Dilek <sedat.dilek@gmail.com>, Thomas Gleixner <tglx@linutronix.de>, Greg Kroah-Hartman <gregkh@suse.de>, LKML <linux-kernel@vger.kernel.org>Dave Hansen <dave>
 List-Id: virtualization@lists.linuxfoundation.org
 
-* Marcelo Tosatti <mtosatti@redhat.com> [2012-01-17 09:02:11]:
+* Gleb Natapov <gleb@redhat.com> [2012-01-17 11:14:13]:
 
-> > +/* Kick vcpu waiting on @lock->head to reach value @ticket */
-> > +static void kvm_unlock_kick(struct arch_spinlock *lock, __ticket_t ticket)
-> > +{
-> > +	int cpu;
-> > +	int apicid;
-> > +
-> > +	add_stats(RELEASED_SLOW, 1);
-> > +
-> > +	for_each_cpu(cpu, &waiting_cpus) {
-> > +		const struct kvm_lock_waiting *w = &per_cpu(lock_waiting, cpu);
-> > +		if (ACCESS_ONCE(w->lock) == lock &&
-> > +		    ACCESS_ONCE(w->want) == ticket) {
-> > +			add_stats(RELEASED_SLOW_KICKED, 1);
-> > +			apicid = per_cpu(x86_cpu_to_apicid, cpu);
-> > +			kvm_kick_cpu(apicid);
-> > +			break;
-> > +		}
-> > +	}
-> 
-> What prevents a kick from being lost here, if say, the waiter is at
-> local_irq_save in kvm_lock_spinning, before the lock/want assignments?
+> > The problem case I was thinking of was when guest VCPU would have issued
+> > HLT with interrupts disabled. I guess one option is to inject an NMI,
+> > and have the guest kernel NMI handler recognize this and make
+> > adjustments such that the vcpu avoids going back to HLT instruction.
+> > 
+> Just kick vcpu out of a guest mode and adjust rip to point after HLT on
+> next re-entry. Don't forget to call vmx_clear_hlt().
 
-The waiter does check for lock becoming available before actually
-sleeping:
+Looks bit hackish to me compared to having another hypercall to yield!
 
-+	/*
-+        * check again make sure it didn't become free while
-+        * we weren't looking.
-+        */
-+	if (ACCESS_ONCE(lock->tickets.head) == want) {
-+               add_stats(TAKEN_SLOW_PICKUP, 1);
-+               goto out;
-+	}
+> > Having another hypercall to do yield/sleep (rather than effecting that
+> > via HLT) seems like an alternate clean solution here ..
 
 - vatsa
