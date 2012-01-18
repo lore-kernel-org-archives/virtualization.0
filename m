@@ -1,34 +1,46 @@
-From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 1/1] drivers: hid: hid-hyperv: Properly disconnect the input device
-Date: Wed, 18 Jan 2012 08:57:14 -0800
-Message-ID: <1326905834-7624-1-git-send-email-kys@microsoft.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org, ohering@suse.com, joe@perches.com, dmitry.torokhov@gmail.com, jkosina@suse.cz
-Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, stable <stable@vger.kernel.org>
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+Subject: Re: [PATCH RFC V4 4/5] kvm : pv-ticketlocks support for linux guests
+	running on KVM hypervisor
+Date: Thu, 19 Jan 2012 08:52:15 +1100
+Message-ID: <4F173F0F.5020604@goop.org>
+References: <20120114182501.8604.68416.sendpatchset@oc5400248562.ibm.com>
+	<20120114182645.8604.68884.sendpatchset@oc5400248562.ibm.com>
+	<20120117110210.GA17420@amt.cnet>
+	<20120117113312.GB30398@linux.vnet.ibm.com>
+	<4F1621B2.3020203@goop.org>
+	<20120118135445.GB25711@linux.vnet.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20120118135445.GB25711@linux.vnet.ibm.com>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>
+Cc: X86 <x86@kernel.org>, linux-doc@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Jan Kiszka <jan.kiszka@siemens.com>, Virtualization <virtualization@lists.linux-foundation.org>, Paul Mackerras <paulus@samba.org>, "H. Peter Anvin" <hpa@zytor.com>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Xen <xen-devel@lists.xensource.com>, Dave Jiang <dave.jiang@intel.com>, KVM <kvm@vger.kernel.org>, Glauber Costa <glommer@redhat.com>, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, Ingo Molnar <mingo@redhat.com>, Avi Kivity <avi@redhat.com>, Rik van Riel <riel@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Greg Kroah-Hartman <gregkh@suse.de>, Sasha Levin <levinsasha928@gmail.com>, Sedat Dilek <sedat.dilek@gmail.com>, Thomas Gleixner <tglx@linutronix.de>, LKML <linux-kernel@vger.kernel.org>, Dave Hansen <dave@linux.vnet.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-When we unload the mouse driver, properly disconnect the input device.
+On 01/19/2012 12:54 AM, Srivatsa Vaddagiri wrote:
+>
+>> That logic relies on the "kick" being level triggered, so that "kick"
+>> before "block" will cause the block to fall out immediately.  If you're
+>> using "hlt" as the block and it has the usual edge-triggered behaviour,
+>> what stops a "kick-before-hlt" from losing the kick?
+> Hmm ..'hlt' should result in a check for kick request (in hypervisor
+> context) before vcpu is put to sleep. IOW vcpu1 that is attempting to kick vcpu0
+> will set a 'somebody_tried_kicking_vcpu0' flag, which hypervisor should check 
+> before it puts vcpu0 to sleep because of trapped 'hlt' instruction.
+>
+> Won't that trap the 'kick-before-hlt' case? What am I missing here?
 
-Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
-Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
-Reported-by: Fuzhou Chen <fuzhouch@microsoft.com>
-Cc: stable <stable@vger.kernel.org>
----
- drivers/hid/hid-hyperv.c |    1 +
- 1 files changed, 1 insertions(+), 0 deletions(-)
+Nothing, that sounds fine.  It wasn't clear to me that your kick
+operation left persistent state, and so has a level-triggered effect on hlt.
 
-diff --git a/drivers/hid/hid-hyperv.c b/drivers/hid/hid-hyperv.c
-index 0c33ae9..4066324 100644
---- a/drivers/hid/hid-hyperv.c
-+++ b/drivers/hid/hid-hyperv.c
-@@ -548,6 +548,7 @@ static int mousevsc_remove(struct hv_device *dev)
- 	struct mousevsc_dev *input_dev = hv_get_drvdata(dev);
- 
- 	vmbus_close(dev->channel);
-+	hid_hw_stop(input_dev->hid_device);
- 	hid_destroy_device(input_dev->hid_device);
- 	mousevsc_free_device(input_dev);
- 
--- 
-1.7.4.1
+    J
