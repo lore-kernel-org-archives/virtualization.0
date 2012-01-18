@@ -1,23 +1,17 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [RFC 7/11] virtio_pci: new, capability-aware driver.
-Date: Wed, 18 Jan 2012 15:22:47 +1030
-Message-ID: <87aa5lzk68.fsf@rustcorp.com.au>
-References: <4F0DAA9B.7060703@codemonkey.ws>
-	<20120111154515.GD20570@redhat.com>
-	<4F0DB2AB.8030506@codemonkey.ws>
-	<20120111170859.GA22310@redhat.com>
-	<4F0DE62F.6030805@codemonkey.ws>
-	<20120111201436.GA27292@redhat.com>
-	<4F0DF08F.7010706@codemonkey.ws>
-	<1326315726.23910.143.camel@pasglop>
-	<20120111220232.GC27292@redhat.com>
-	<87wr8x4rye.fsf@rustcorp.com.au>
-	<20120113021930.GA15379@redhat.com>
+From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
+Subject: Re: [PATCH RFC V4 0/5] kvm : Paravirt-spinlock support for KVM guests
+Date: Wed, 18 Jan 2012 15:53:16 +0530
+Message-ID: <4F169D94.2010403@linux.vnet.ibm.com>
+References: <20120114182501.8604.68416.sendpatchset@oc5400248562.ibm.com>
+	<3EC1B881-0724-49E3-B892-F40BEB07D15D@suse.de>
+	<03D10A71-19F8-4278-B7A4-3F618ED6ECF0@goop.org>
+	<0B6BF918-45C7-45C6-AAA4-FB73EFAB9FDB@suse.de>
+	<4F14C10C.3010303@goop.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20120113021930.GA15379@redhat.com>
+In-Reply-To: <4F14C10C.3010303@goop.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,37 +21,83 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Pawel Moll <pawel.moll@arm.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, virtualization <virtualization@lists.linux-foundation.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Sasha Levin <levinsasha928@gmail.com>, Anthony Liguori <anthony@codemonkey.ws>
+To: Jeremy Fitzhardinge <jeremy@goop.org>, Alexander Graf <agraf@suse.de>
+Cc: Greg Kroah-Hartman <gregkh@suse.de>, linux-doc@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Jan Kiszka <jan.kiszka@siemens.com>, Virtualization <virtualization@lists.linux-foundation.org>, Paul Mackerras <paulus@samba.org>, Raghavendra <raghavendra.kt@linux.vnet.ibm.com>, "H. Peter Anvin" <hpa@zytor.com>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Xen <xen-devel@lists.xensource.com>, Dave Jiang <dave.jiang@intel.com>, KVM <kvm@vger.kernel.org>, Rob Landley <rlandley@parallels.com>, X86 <x86@kernel.org>, Ingo Molnar <mingo@redhat.com>, Avi Kivity <avi@redhat.com>, Rik van Riel <riel@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, Sasha Levin <levinsasha928@gmail.com>, Sedat Dilek <sedat.dilek@gmail.com>, Thomas Gleixner <tglx@linutronix.de>, LKML <linux-kernel@vger.kernel.org>Dave
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 13 Jan 2012 04:19:30 +0200, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> On Thu, Jan 12, 2012 at 12:12:17PM +1030, Rusty Russell wrote:
-> > On Thu, 12 Jan 2012 00:02:33 +0200, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> > > Look, we have a race currently. Let us not tie a bug fix to a huge
-> > > rewrite with unclear performance benefits, please.
-> > 
-> > In theory, yes.  In practice, we bandaid it.
-> > 
-> > I think in the short term we change ->get to get the entire sequence
-> > twice, and check it's the same.  Theoretically, still racy, but it does
-> > cut the window.  And we haven't seen the bug yet, either.
-> 
-> I thought about this some more. Since we always get
-> an interrupt on config changes, it seems that a rather
-> robust method would be to just synchronize against that.
-> Something like the below (warning - completely untested).
-> Still need to think about memory barriers, overflow etc.
-> What do you think?
+On 01/17/2012 06:00 AM, Jeremy Fitzhardinge wrote:
+> On 01/16/2012 09:24 PM, Alexander Graf wrote:
+>> This is true in case you're spinning. If on overcommit spinlocks would
+>> instead of spin just yield(), we wouldn't have any vcpu running that's
+>> just waiting for a late ticket.
+>
+> Yes, but the reality is that most spinlocks are held for a short period
+> of time and there's a low likelihood of being preempted while within a
+> spinlock critical section.  Therefore if someone else tries to get the
+> spinlock and there's contention, it's always worth spinning for a little
+> while because the lock will likely become free soon.
 
-Ben's point about arbitrary delays in irq delivery still applies.  If
-qemu changes config space the injects, there's a window there, too.
+I too believe that lock-holder-preemption forms small part of the 
+problem. Non - PLE machine results seem to support that for the patch.
 
-But in practice, like my suggested double-read, it probably slows things
-down enough that it would be hard to hit.  Testing required...
+>
+> At least that's the case if the lock has low contention (shallow queue
+> depth and not in slow state).  Again, maybe it makes sense to never spin
+> for deep queues or already slowstate locks.
+>
+>> We still have an issue finding the point in time when a vcpu could run again, which is what this whole series is about. My point above was that instead of doing a count loop, we could just do the normal spin dance and set the threshold to when we enable the magic to have another spin lock notify us in the CPU. That way we
+>>
+>>    * don't change the uncontended case
+>
+> I don't follow you.  What do you mean by "the normal spin dance"?  What
+> do you mean by "have another spinlock notify us in the CPU"?  Don't
+> change which uncontended case?  Do you mean in the locking path?  Or the
+> unlock path?  Or both?
+>
+>>    * can set the threshold on the host, which knows how contended the system is
+>
+> Hm, I'm not convinced that knowing how contended the system is is all
+> that useful overall.  What's important is how contended a particular
+> lock is, and what state the current holder is in.  If it's not currently
+> running, then knowing the overall system contention would give you some
+> idea about how long you need to wait for it to be rescheduled, but
+> that's getting pretty indirect.
+>
+> I think the "slowpath if preempted while spinning" idea I mentioned in
+> the other mail is probably worth following up, since that give specific
+> actionable information to the guest from the hypervisor.  But lots of
+> caveats.
+>
+> [[
+> A possible mechanism:
+>
+>    * register ranges of [er]ips with the hypervisor
+>    * each range is paired with a "resched handler block"
+>    * if vcpu is preempted within such a range, make sure it is
+>      rescheduled in the resched handler block
+>
+> This is obviously akin to the exception mechanism, but it is partially
+> implemented by the hypervisor.  It allows the spinlock code to be
+> unchanged from native, but make use of a resched rather than an explicit
+> counter to determine when to slowpath the lock.  And it's a nice general
+> mechanism that could be potentially useful elsewhere.
+>
+> Unfortunately, it doesn't change the unlock path at all; it still needs
+> to explicitly test if a VCPU needs to be kicked on unlock.
+> ]]
+>
+>
+>> And since we control what spin locks look like, we can for example always keep the pointer to it in a specific register so that we can handle pv_lock_ops.lock_spinning() inside there and fetch all the information we need from our pt_regs.
+>
+> You've left a pile of parts of an idea lying around, but I'm not sure
+> what shape you intend it to be.
 
-Obviously, I'd like to fix this properly, but for legacy this might work
-fine.
+Interesting option But, Is it a feasible option to have specific
+registers ? Considering we can have nested locks [ which means we need
+a table ] and also considering the fact that "normal" spinlock 
+acquisition path should have less overhead.
 
-Cheers,
-Rusty.
+>
+>      J
+>
+>
