@@ -1,19 +1,11 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [PATCH RFC V4 4/5] kvm : pv-ticketlocks support for linux guests
-	running on KVM hypervisor
-Date: Thu, 19 Jan 2012 08:52:15 +1100
-Message-ID: <4F173F0F.5020604@goop.org>
-References: <20120114182501.8604.68416.sendpatchset@oc5400248562.ibm.com>
-	<20120114182645.8604.68884.sendpatchset@oc5400248562.ibm.com>
-	<20120117110210.GA17420@amt.cnet>
-	<20120117113312.GB30398@linux.vnet.ibm.com>
-	<4F1621B2.3020203@goop.org>
-	<20120118135445.GB25711@linux.vnet.ibm.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: [PATCH 1/2] virtio: fix typos of memory barriers
+Date: Fri, 20 Jan 2012 16:16:59 +0800
+Message-ID: <20120120081658.50747.10625.stgit@amd-6168-8-1.englab.nay.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20120118135445.GB25711@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,24 +15,25 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>
-Cc: X86 <x86@kernel.org>, linux-doc@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Jan Kiszka <jan.kiszka@siemens.com>, Virtualization <virtualization@lists.linux-foundation.org>, Paul Mackerras <paulus@samba.org>, "H. Peter Anvin" <hpa@zytor.com>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Xen <xen-devel@lists.xensource.com>, Dave Jiang <dave.jiang@intel.com>, KVM <kvm@vger.kernel.org>, Glauber Costa <glommer@redhat.com>, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, Ingo Molnar <mingo@redhat.com>, Avi Kivity <avi@redhat.com>, Rik van Riel <riel@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Greg Kroah-Hartman <gregkh@suse.de>, Sasha Levin <levinsasha928@gmail.com>, Sedat Dilek <sedat.dilek@gmail.com>, Thomas Gleixner <tglx@linutronix.de>, LKML <linux-kernel@vger.kernel.org>, Dave Hansen <dave@linux.vnet.ibm.com>
+To: rusty@rustcorp.com.au, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, mst@redhat.com
+Cc: netdev@vger.kernel.org, kvm@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 01/19/2012 12:54 AM, Srivatsa Vaddagiri wrote:
->
->> That logic relies on the "kick" being level triggered, so that "kick"
->> before "block" will cause the block to fall out immediately.  If you're
->> using "hlt" as the block and it has the usual edge-triggered behaviour,
->> what stops a "kick-before-hlt" from losing the kick?
-> Hmm ..'hlt' should result in a check for kick request (in hypervisor
-> context) before vcpu is put to sleep. IOW vcpu1 that is attempting to kick vcpu0
-> will set a 'somebody_tried_kicking_vcpu0' flag, which hypervisor should check 
-> before it puts vcpu0 to sleep because of trapped 'hlt' instruction.
->
-> Won't that trap the 'kick-before-hlt' case? What am I missing here?
+Signed-off-by: Jason Wang <jasowang@redhat.com>
+---
+ drivers/virtio/virtio_ring.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-Nothing, that sounds fine.  It wasn't clear to me that your kick
-operation left persistent state, and so has a level-triggered effect on hlt.
-
-    J
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+index 79e1b29..78428a8 100644
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -35,7 +35,7 @@
+ #define virtio_rmb(vq) \
+ 	do { if ((vq)->weak_barriers) smp_rmb(); else rmb(); } while(0)
+ #define virtio_wmb(vq) \
+-	do { if ((vq)->weak_barriers) smp_rmb(); else rmb(); } while(0)
++	do { if ((vq)->weak_barriers) smp_wmb(); else wmb(); } while(0)
+ #else
+ /* We must force memory ordering even if guest is UP since host could be
+  * running on another CPU, but SMP barriers are defined to barrier() in that
