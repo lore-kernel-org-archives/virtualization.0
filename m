@@ -1,25 +1,13 @@
-From: Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>
-Subject: Re: [PATCH RFC V4 5/5] Documentation/kvm : Add documentation on
-	Hypercalls and features used for PV spinlock
-Date: Fri, 20 Jan 2012 20:39:55 +0530
-Message-ID: <20120120150955.GA8019@linux.vnet.ibm.com>
-References: <4F13F883.5090002@redhat.com>
-	<20120116141117.GB6019@linux.vnet.ibm.com>
-	<20120117091413.GM2167@redhat.com>
-	<20120117122650.GC30757@linux.vnet.ibm.com>
-	<20120117125126.GQ2167@redhat.com>
-	<20120117131103.GD30398@linux.vnet.ibm.com>
-	<20120117132051.GR2167@redhat.com>
-	<20120117142818.GE30398@linux.vnet.ibm.com>
-	<20120117153233.GA7911@redhat.com>
-	<20120117155303.GA28904@amt.cnet>
-Reply-To: Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>
+From: Akinobu Mita <akinobu.mita@gmail.com>
+Subject: [PATCH] xen-blkfront: use bitmap_set() and bitmap_clear()
+Date: Sat, 21 Jan 2012 00:15:26 +0900
+Message-ID: <1327072528-8479-4-git-send-email-akinobu.mita@gmail.com>
+References: <1327072528-8479-1-git-send-email-akinobu.mita@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20120117155303.GA28904@amt.cnet>
+In-Reply-To: <1327072528-8479-1-git-send-email-akinobu.mita@gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -29,40 +17,53 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Marcelo Tosatti <mtosatti@redhat.com>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, KVM <kvm@vger.kernel.org>, linux-doc@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Jan Kiszka <jan.kiszka@siemens.com>, Virtualization <virtualization@lists.linux-foundation.org>, Anthony Liguori <aliguori@linux.vnet.ibm.com>, Paul Mackerras <paulus@samba.org>, "H. Peter Anvin" <hpa@zytor.com>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Xen <xen-devel@lists.xensource.com>, Dave Jiang <dave.jiang@intel.com>, Glauber Costa <glommer@redhat.com>, X86 <x86@kernel.org>, Ingo Molnar <mingo@redhat.com>, Avi Kivity <avi@redhat.com>, Rik van Riel <riel@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Sasha Levin <levinsasha928@gmail.com>, Sedat Dilek <sedat.dilek@gmail.com>, Thomas Gleixner <tglx@linutronix.de>, Anthony Liguori <aliguori@us.ibm.com>, Greg
+To: linux-kernel@vger.kernel.org, akpm@linux-foundation.org
+Cc: xen-devel@lists.xensource.com, Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, virtualization@lists.linux-foundation.org, Akinobu Mita <akinobu.mita@gmail.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-* Marcelo Tosatti <mtosatti@redhat.com> [2012-01-17 13:53:03]:
+Use bitmap_set and bitmap_clear rather than modifying individual bits
+in a memory region.
 
-> on tue, jan 17, 2012 at 05:32:33pm +0200, gleb natapov wrote:
-> > on tue, jan 17, 2012 at 07:58:18pm +0530, srivatsa vaddagiri wrote:
-> > > * gleb natapov <gleb@redhat.com> [2012-01-17 15:20:51]:
-> > > 
-> > > > > having the hypercall makes the intent of vcpu (to sleep on a kick) clear to 
-> > > > > hypervisor vs assuming that because of a trapped hlt instruction (which
-> > > > > will anyway won't work when yield_on_hlt=0).
-> > > > > 
-> > > > the purpose of yield_on_hlt=0 is to allow vcpu to occupy cpu for the
-> > > > entire time slice no mater what. i do not think disabling yield on hlt
-> > > > is even make sense in cpu oversubscribe scenario.
-> > > 
-> > > Yes, so is there any real use for yield_on_hlt=0? I believe Anthony
-> > > initially added it as a way to implement CPU bandwidth capping for VMs,
-> > > which would ensure that busy VMs don't eat into cycles meant for a idle
-> > > VM. Now that we have proper support in scheduler for CPU bandwidth capping, is 
-> > > there any real world use for yield_on_hlt=0? If not, deprecate it?
-> > > 
-> > I was against adding it in the first place, so if IBM no longer needs it
-> > I am for removing it ASAP.
-> 
-> +1. 
-> 
-> Anthony?
+Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
+Cc: Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>
+Cc: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Cc: xen-devel@lists.xensource.com
+Cc: virtualization@lists.linux-foundation.org
+---
+ drivers/block/xen-blkfront.c |    7 +++----
+ 1 files changed, 3 insertions(+), 4 deletions(-)
 
-CCing Anthony.
-
-Anthony, could you ACK removal of yield_on_hlt (as keeping it around will
-require unnecessary complications in pv-spinlock patches)?
-
-- vatsa
+diff --git a/drivers/block/xen-blkfront.c b/drivers/block/xen-blkfront.c
+index 2f22874..619868d 100644
+--- a/drivers/block/xen-blkfront.c
++++ b/drivers/block/xen-blkfront.c
+@@ -43,6 +43,7 @@
+ #include <linux/slab.h>
+ #include <linux/mutex.h>
+ #include <linux/scatterlist.h>
++#include <linux/bitmap.h>
+ 
+ #include <xen/xen.h>
+ #include <xen/xenbus.h>
+@@ -177,8 +178,7 @@ static int xlbd_reserve_minors(unsigned int minor, unsigned int nr)
+ 
+ 	spin_lock(&minor_lock);
+ 	if (find_next_bit(minors, end, minor) >= end) {
+-		for (; minor < end; ++minor)
+-			__set_bit(minor, minors);
++		bitmap_set(minors, minor, nr);
+ 		rc = 0;
+ 	} else
+ 		rc = -EBUSY;
+@@ -193,8 +193,7 @@ static void xlbd_release_minors(unsigned int minor, unsigned int nr)
+ 
+ 	BUG_ON(end > nr_minors);
+ 	spin_lock(&minor_lock);
+-	for (; minor < end; ++minor)
+-		__clear_bit(minor, minors);
++	bitmap_clear(minors,  minor, nr);
+ 	spin_unlock(&minor_lock);
+ }
+ 
+-- 
+1.7.4.4
