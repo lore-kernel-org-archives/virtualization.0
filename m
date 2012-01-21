@@ -1,12 +1,19 @@
-From: Joe Perches <joe@perches.com>
-Subject: [PATCH] include/checkpatch: Prefer __scanf to
-	__attribute__((format(scanf, ...)
-Date: Fri, 20 Jan 2012 16:01:12 -0800
-Message-ID: <2cf7ddd75001233e79e928c4dcfae6768af5790c.1327103792.git.joe@perches.com>
+From: Andrew Morton <akpm@linux-foundation.org>
+Subject: Re: [PATCH] xen-blkfront: use bitmap_set() and bitmap_clear()
+Date: Fri, 20 Jan 2012 16:04:08 -0800
+Message-ID: <20120120160408.9aa3b5fd.akpm@linux-foundation.org>
+References: <1327072528-8479-1-git-send-email-akinobu.mita@gmail.com>
+	<1327072528-8479-4-git-send-email-akinobu.mita@gmail.com>
+	<20120120152819.GA3959@phenom.dumpdata.com>
+	<CAC5umyi9vuOh9Bx_HoB8ieXcVjZsisKOG6mCEM2ZGL7zXCrVTQ@mail.gmail.com>
+	<20120120160938.GC3959@phenom.dumpdata.com>
+	<20120120151149.04352aac.akpm@linux-foundation.org>
+	<20120120235508.GA17260@phenom.dumpdata.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20120120235508.GA17260@phenom.dumpdata.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,85 +23,46 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Andrew Morton <akpm@linux-foundation.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Jeremy Fitzhardinge <jeremy@goop.org>, Andy Whitcroft <apw@canonical.com>
-Cc: xen-devel@lists.xensource.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Cc: Jeremy Fitzhardinge Jeremy Fitzhardinge <jeremy@goop.org>, xen-devel@lists.xensource.com, virtualization@lists.linux-foundation.org, Akinobu Mita <akinobu.mita@gmail.com>, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-It's equivalent to __printf, so prefer __scanf.
+On Fri, 20 Jan 2012 18:55:08 -0500
+Konrad Rzeszutek Wilk <konrad.wilk@oracle.com> wrote:
 
-Signed-off-by: Joe Perches <joe@perches.com>
----
- include/linux/compiler-gcc.h |    3 ++-
- include/linux/kernel.h       |    8 ++++----
- include/xen/xenbus.h         |    4 ++--
- scripts/checkpatch.pl        |    6 ++++++
- 4 files changed, 14 insertions(+), 7 deletions(-)
+> On Fri, Jan 20, 2012 at 03:11:49PM -0800, Andrew Morton wrote:
+> > On Fri, 20 Jan 2012 11:09:38 -0500
+> > Konrad Rzeszutek Wilk <konrad.wilk@oracle.com> wrote:
+> > 
+> > > > 
+> > > > > Did you test this patch with a large amount of minors?
+> > > > 
+> > > > Sorry I didn't do runtime test.
+> > > 
+> > > Please do.
+> > 
+> > The poor guy probably doesn't know how to test it and surely it would
+> > be quite a lot of work for him to do so.
+> > 
+> > Overall, it would be much more efficient if the tester of this code is
+> > someone who is set up to easily apply the patch and test it.  ie: the
+> > code maintainer(s).
+> 
+> <grins>
+> 
+> This patch aside - Andrew how do you deal with a large amount of patches
+> and make sure they are tested?
 
-diff --git a/include/linux/compiler-gcc.h b/include/linux/compiler-gcc.h
-index 3fd17c2..e5834aa 100644
---- a/include/linux/compiler-gcc.h
-+++ b/include/linux/compiler-gcc.h
-@@ -87,7 +87,8 @@
-  */
- #define __pure				__attribute__((pure))
- #define __aligned(x)			__attribute__((aligned(x)))
--#define __printf(a,b)			__attribute__((format(printf,a,b)))
-+#define __printf(a, b)			__attribute__((format(printf, a, b)))
-+#define __scanf(a, b)			__attribute__((format(scanf, a, b)))
- #define  noinline			__attribute__((noinline))
- #define __attribute_const__		__attribute__((__const__))
- #define __maybe_unused			__attribute__((unused))
-diff --git a/include/linux/kernel.h b/include/linux/kernel.h
-index e834342..30f21ec 100644
---- a/include/linux/kernel.h
-+++ b/include/linux/kernel.h
-@@ -315,10 +315,10 @@ extern __printf(2, 3)
- char *kasprintf(gfp_t gfp, const char *fmt, ...);
- extern char *kvasprintf(gfp_t gfp, const char *fmt, va_list args);
- 
--extern int sscanf(const char *, const char *, ...)
--	__attribute__ ((format (scanf, 2, 3)));
--extern int vsscanf(const char *, const char *, va_list)
--	__attribute__ ((format (scanf, 2, 0)));
-+extern __scanf(2, 3)
-+int sscanf(const char *, const char *, ...);
-+extern __scanf(2, 0)
-+int vsscanf(const char *, const char *, va_list);
- 
- extern int get_option(char **str, int *pint);
- extern char *get_options(const char *str, int nints, int *ints);
-diff --git a/include/xen/xenbus.h b/include/xen/xenbus.h
-index e8c599b..0a7515c 100644
---- a/include/xen/xenbus.h
-+++ b/include/xen/xenbus.h
-@@ -139,9 +139,9 @@ int xenbus_transaction_start(struct xenbus_transaction *t);
- int xenbus_transaction_end(struct xenbus_transaction t, int abort);
- 
- /* Single read and scanf: returns -errno or num scanned if > 0. */
-+__scanf(4, 5)
- int xenbus_scanf(struct xenbus_transaction t,
--		 const char *dir, const char *node, const char *fmt, ...)
--	__attribute__((format(scanf, 4, 5)));
-+		 const char *dir, const char *node, const char *fmt, ...);
- 
- /* Single printf and write: returns -errno or 0. */
- __printf(4, 5)
-diff --git a/scripts/checkpatch.pl b/scripts/checkpatch.pl
-index e3bfcbe..2b52aeb 100755
---- a/scripts/checkpatch.pl
-+++ b/scripts/checkpatch.pl
-@@ -3117,6 +3117,12 @@ sub process {
- 			     "__printf(string-index, first-to-check) is preferred over __attribute__((format(printf, string-index, first-to-check)))\n" . $herecurr);
- 		}
- 
-+# Check for __attribute__ format(scanf, prefer __scanf
-+		if ($line =~ /\b__attribute__\s*\(\s*\(\s*format\s*\(\s*scanf\b/) {
-+			WARN("PREFER_SCANF",
-+			     "__scanf(string-index, first-to-check) is preferred over __attribute__((format(scanf, string-index, first-to-check)))\n" . $herecurr);
-+		}
-+
- # check for sizeof(&)
- 		if ($line =~ /\bsizeof\s*\(\s*\&/) {
- 			WARN("SIZEOF_ADDRESS",
--- 
-1.7.8.111.gad25c.dirty
+Not very well :(
+
+> Is there a weekly Test Tuesday where you 
+> kick off your automated tests and dilligently look for any variations?
+> Or is it more of compile the kernel with X features and run it for a week
+> doing normal (and abnormal!) things to see if it falls over?
+
+I build all the patches I have along with all of linux-next and boot
+the thing, then use the resulting kernel for a few hours compilation
+testing, then shove it all into linux-next where I naively hope that
+someone else is testing things.
+
+The coverage which is obtained this way is pretty poor.  
