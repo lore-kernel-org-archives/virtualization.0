@@ -1,19 +1,14 @@
-From: Andrew Morton <akpm@linux-foundation.org>
-Subject: Re: [PATCH] xen-blkfront: use bitmap_set() and bitmap_clear()
-Date: Fri, 20 Jan 2012 16:04:08 -0800
-Message-ID: <20120120160408.9aa3b5fd.akpm@linux-foundation.org>
-References: <1327072528-8479-1-git-send-email-akinobu.mita@gmail.com>
-	<1327072528-8479-4-git-send-email-akinobu.mita@gmail.com>
-	<20120120152819.GA3959@phenom.dumpdata.com>
-	<CAC5umyi9vuOh9Bx_HoB8ieXcVjZsisKOG6mCEM2ZGL7zXCrVTQ@mail.gmail.com>
-	<20120120160938.GC3959@phenom.dumpdata.com>
-	<20120120151149.04352aac.akpm@linux-foundation.org>
-	<20120120235508.GA17260@phenom.dumpdata.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH 1/2] virtio: fix typos of memory barriers
+Date: Sun, 22 Jan 2012 13:47:46 +0200
+Message-ID: <20120122114746.GC27222@redhat.com>
+References: <20120120081658.50747.10625.stgit@amd-6168-8-1.englab.nay.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20120120235508.GA17260@phenom.dumpdata.com>
+Content-Disposition: inline
+In-Reply-To: <20120120081658.50747.10625.stgit@amd-6168-8-1.englab.nay.redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,46 +18,37 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Cc: Jeremy Fitzhardinge Jeremy Fitzhardinge <jeremy@goop.org>, xen-devel@lists.xensource.com, virtualization@lists.linux-foundation.org, Akinobu Mita <akinobu.mita@gmail.com>, linux-kernel@vger.kernel.org
+To: Jason Wang <jasowang@redhat.com>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 20 Jan 2012 18:55:08 -0500
-Konrad Rzeszutek Wilk <konrad.wilk@oracle.com> wrote:
+On Fri, Jan 20, 2012 at 04:16:59PM +0800, Jason Wang wrote:
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
 
-> On Fri, Jan 20, 2012 at 03:11:49PM -0800, Andrew Morton wrote:
-> > On Fri, 20 Jan 2012 11:09:38 -0500
-> > Konrad Rzeszutek Wilk <konrad.wilk@oracle.com> wrote:
-> > 
-> > > > 
-> > > > > Did you test this patch with a large amount of minors?
-> > > > 
-> > > > Sorry I didn't do runtime test.
-> > > 
-> > > Please do.
-> > 
-> > The poor guy probably doesn't know how to test it and surely it would
-> > be quite a lot of work for him to do so.
-> > 
-> > Overall, it would be much more efficient if the tester of this code is
-> > someone who is set up to easily apply the patch and test it.  ie: the
-> > code maintainer(s).
+Good catch.
+Note: this fixes a bug introduced by
+7b21e34fd1c272e3a8c3846168f2f6287a4cd72b.
+It's probably a good idea to mention
+this is the commit log.
+
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
+
+
+
+> ---
+>  drivers/virtio/virtio_ring.c |    2 +-
+>  1 files changed, 1 insertions(+), 1 deletions(-)
 > 
-> <grins>
-> 
-> This patch aside - Andrew how do you deal with a large amount of patches
-> and make sure they are tested?
-
-Not very well :(
-
-> Is there a weekly Test Tuesday where you 
-> kick off your automated tests and dilligently look for any variations?
-> Or is it more of compile the kernel with X features and run it for a week
-> doing normal (and abnormal!) things to see if it falls over?
-
-I build all the patches I have along with all of linux-next and boot
-the thing, then use the resulting kernel for a few hours compilation
-testing, then shove it all into linux-next where I naively hope that
-someone else is testing things.
-
-The coverage which is obtained this way is pretty poor.  
+> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+> index 79e1b29..78428a8 100644
+> --- a/drivers/virtio/virtio_ring.c
+> +++ b/drivers/virtio/virtio_ring.c
+> @@ -35,7 +35,7 @@
+>  #define virtio_rmb(vq) \
+>  	do { if ((vq)->weak_barriers) smp_rmb(); else rmb(); } while(0)
+>  #define virtio_wmb(vq) \
+> -	do { if ((vq)->weak_barriers) smp_rmb(); else rmb(); } while(0)
+> +	do { if ((vq)->weak_barriers) smp_wmb(); else wmb(); } while(0)
+>  #else
+>  /* We must force memory ordering even if guest is UP since host could be
+>   * running on another CPU, but SMP barriers are defined to barrier() in that
