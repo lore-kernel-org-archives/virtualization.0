@@ -1,15 +1,15 @@
-From: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Subject: Re: [PATCH 3/4] xen kconfig: add dom0 support help text
-Date: Mon, 23 Jan 2012 13:42:42 -0500
-Message-ID: <20120123184242.GC12542@phenom.dumpdata.com>
-References: <1325842991-4404-1-git-send-email-drjones@redhat.com>
-	<1325842991-4404-4-git-send-email-drjones@redhat.com>
+From: Konrad Rzeszutek Wilk <konrad@darnok.org>
+Subject: Re: [Xen-devel] [PATCH] include/checkpatch: Prefer __scanf to
+	__attribute__((format(scanf, ...)
+Date: Mon, 23 Jan 2012 21:47:17 -0400
+Message-ID: <20120124014717.GA24204@andromeda.dapyr.net>
+References: <2cf7ddd75001233e79e928c4dcfae6768af5790c.1327103792.git.joe@perches.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1325842991-4404-4-git-send-email-drjones@redhat.com>
+In-Reply-To: <2cf7ddd75001233e79e928c4dcfae6768af5790c.1327103792.git.joe@perches.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,78 +19,99 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Andrew Jones <drjones@redhat.com>
-Cc: jeremy@goop.org, xen-devel@lists.xensource.com, virtualization@lists.linux-foundation.org
+To: Joe Perches <joe@perches.com>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, xen-devel@lists.xensource.com, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Andy Whitcroft <apw@canonical.com>, Andrew Morton <akpm@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Jan 06, 2012 at 10:43:10AM +0100, Andrew Jones wrote:
-> Describe dom0 support in the config menu and supply help text for it.
+On Fri, Jan 20, 2012 at 04:01:12PM -0800, Joe Perches wrote:
+> It's equivalent to __printf, so prefer __scanf.
 
-So I had this reply in my draft and forgot to send it. Sorry about that.
+So ... looking at this patch it just seems to macro-fy the
+__printf and __scanf attributes. Is this required to make
+cleanpatch.pl work easier?
 
-My understanding from the converstion was that we try to "squash"
-the XEN_DOM0 option so that it would not be present. But that did not
-work as it lead to a string of X86_LOCAL_APIC, X86_IO_ACPI, ACPI, PCI,
-and so on. Then the .h with #define XEN_something based on those
-symbols, but that is not the job of a header file. It is the job
-of Kconfig.
+And there is also some checkpatch.pl features. Should that part
+be in a seperate patch?
 
-The other way was to squash this in with the backend support. Since
-we are moving away from having one initial domain, to having
-multitple "initial domains" (priviliged domains) where each can
-server as a backend.  However (quoting Jeremy) "it is more of
-disaggregating the privilege to reduce the amount concentrated in any one
-part.  Backends don't need any more privilege than to be able to
-access the specific device(s) they're being the backend for."
-
-Interestingly, that means DOM0 is kind of .. well, it should be
-no different from a normal HVM guest. The old-style PV dom0 remains
-would be ..well, almost nothing. The Xen MMU, and Xen SWIOTLB - those
-are the ones that pop in mind for Dom0, but they are also used
-for PV PCI. In fact, all (I think?) of the CONFIG_XEN_DOM0 functionality
-can be _used_ in a PV guest. The 'if (initial_xen_domain()' should
-probably be addressed first and to figure which one of those can be
-altered as the "backend domain" can run both frontend and backend drivers
-(oh joy!). So more relaxing those config options and/or "if (xen..)".
-
-Anyhow, back to the HVM dom0 - that is in the future - and it is going
-to take a couple of years to get it. I would rather not shoot my
-foot by removing these CONFIG_* option until we get a better grasp of how
-we want to deal with the PV hybrid.
-
-What I am saying is that I don't know what the right answer is,
-but I don't believe the patch below is it. I wish I had a better
-answer in terms of "do this instead", but none of those worked.
-
-Perhaps we can brainstorm some of this at XenSummit by which time
-I hope Mukesh's PV hybrid work will be completed and a lot of the
-work on the toolstack for backend drivers will be laid out.
-
-> 
-> Signed-off-by: Andrew Jones <drjones@redhat.com>
+> Signed-off-by: Joe Perches <joe@perches.com>
 > ---
->  arch/x86/xen/Kconfig |    7 ++++++-
->  1 files changed, 6 insertions(+), 1 deletions(-)
+>  include/linux/compiler-gcc.h |    3 ++-
+>  include/linux/kernel.h       |    8 ++++----
+>  include/xen/xenbus.h         |    4 ++--
+>  scripts/checkpatch.pl        |    6 ++++++
+>  4 files changed, 14 insertions(+), 7 deletions(-)
 > 
-> diff --git a/arch/x86/xen/Kconfig b/arch/x86/xen/Kconfig
-> index 26c731a..88862d5 100644
-> --- a/arch/x86/xen/Kconfig
-> +++ b/arch/x86/xen/Kconfig
-> @@ -14,9 +14,14 @@ config XEN
->  	  Xen hypervisor.
+> diff --git a/include/linux/compiler-gcc.h b/include/linux/compiler-gcc.h
+> index 3fd17c2..e5834aa 100644
+> --- a/include/linux/compiler-gcc.h
+> +++ b/include/linux/compiler-gcc.h
+> @@ -87,7 +87,8 @@
+>   */
+>  #define __pure				__attribute__((pure))
+>  #define __aligned(x)			__attribute__((aligned(x)))
+> -#define __printf(a,b)			__attribute__((format(printf,a,b)))
+> +#define __printf(a, b)			__attribute__((format(printf, a, b)))
+> +#define __scanf(a, b)			__attribute__((format(scanf, a, b)))
+>  #define  noinline			__attribute__((noinline))
+>  #define __attribute_const__		__attribute__((__const__))
+>  #define __maybe_unused			__attribute__((unused))
+> diff --git a/include/linux/kernel.h b/include/linux/kernel.h
+> index e834342..30f21ec 100644
+> --- a/include/linux/kernel.h
+> +++ b/include/linux/kernel.h
+> @@ -315,10 +315,10 @@ extern __printf(2, 3)
+>  char *kasprintf(gfp_t gfp, const char *fmt, ...);
+>  extern char *kvasprintf(gfp_t gfp, const char *fmt, va_list args);
 >  
->  config XEN_DOM0
-> -	def_bool y
-> +	bool "Xen Initial Domain (Dom0) support"
-> +	default y
->  	depends on XEN && PCI_XEN && SWIOTLB_XEN
->  	depends on X86_LOCAL_APIC && X86_IO_APIC && ACPI && PCI
-> +	help
-> +	  This allows the kernel to be used for the initial Xen domain,
-> +	  Domain0. This is a privileged guest that supplies backends
-> +	  and is used to manage the other Xen domains.
+> -extern int sscanf(const char *, const char *, ...)
+> -	__attribute__ ((format (scanf, 2, 3)));
+> -extern int vsscanf(const char *, const char *, va_list)
+> -	__attribute__ ((format (scanf, 2, 0)));
+> +extern __scanf(2, 3)
+> +int sscanf(const char *, const char *, ...);
+> +extern __scanf(2, 0)
+> +int vsscanf(const char *, const char *, va_list);
 >  
->  # Dummy symbol since people have come to rely on the PRIVILEGED_GUEST
->  # name in tools.
+>  extern int get_option(char **str, int *pint);
+>  extern char *get_options(const char *str, int nints, int *ints);
+> diff --git a/include/xen/xenbus.h b/include/xen/xenbus.h
+> index e8c599b..0a7515c 100644
+> --- a/include/xen/xenbus.h
+> +++ b/include/xen/xenbus.h
+> @@ -139,9 +139,9 @@ int xenbus_transaction_start(struct xenbus_transaction *t);
+>  int xenbus_transaction_end(struct xenbus_transaction t, int abort);
+>  
+>  /* Single read and scanf: returns -errno or num scanned if > 0. */
+> +__scanf(4, 5)
+>  int xenbus_scanf(struct xenbus_transaction t,
+> -		 const char *dir, const char *node, const char *fmt, ...)
+> -	__attribute__((format(scanf, 4, 5)));
+> +		 const char *dir, const char *node, const char *fmt, ...);
+>  
+>  /* Single printf and write: returns -errno or 0. */
+>  __printf(4, 5)
+> diff --git a/scripts/checkpatch.pl b/scripts/checkpatch.pl
+> index e3bfcbe..2b52aeb 100755
+> --- a/scripts/checkpatch.pl
+> +++ b/scripts/checkpatch.pl
+> @@ -3117,6 +3117,12 @@ sub process {
+>  			     "__printf(string-index, first-to-check) is preferred over __attribute__((format(printf, string-index, first-to-check)))\n" . $herecurr);
+>  		}
+>  
+> +# Check for __attribute__ format(scanf, prefer __scanf
+> +		if ($line =~ /\b__attribute__\s*\(\s*\(\s*format\s*\(\s*scanf\b/) {
+> +			WARN("PREFER_SCANF",
+> +			     "__scanf(string-index, first-to-check) is preferred over __attribute__((format(scanf, string-index, first-to-check)))\n" . $herecurr);
+> +		}
+> +
+>  # check for sizeof(&)
+>  		if ($line =~ /\bsizeof\s*\(\s*\&/) {
+>  			WARN("SIZEOF_ADDRESS",
 > -- 
-> 1.7.7.5
+> 1.7.8.111.gad25c.dirty
+> 
+> 
+> _______________________________________________
+> Xen-devel mailing list
+> Xen-devel@lists.xensource.com
+> http://lists.xensource.com/xen-devel
