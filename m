@@ -1,20 +1,16 @@
-From: Avi Kivity <avi@redhat.com>
-Subject: Re: [PATCH RFC V4 4/5] kvm : pv-ticketlocks support for linux guests
-	running on KVM hypervisor
-Date: Tue, 24 Jan 2012 16:08:51 +0200
-Message-ID: <4F1EBB73.3000705@redhat.com>
-References: <20120114182501.8604.68416.sendpatchset@oc5400248562.ibm.com>
-	<20120114182645.8604.68884.sendpatchset@oc5400248562.ibm.com>
-	<20120117110210.GA17420@amt.cnet>
-	<20120117113312.GB30398@linux.vnet.ibm.com>
-	<4F1621B2.3020203@goop.org>
-	<20120118135445.GB25711@linux.vnet.ibm.com>
-	<4F173F0F.5020604@goop.org>
+From: Igor Mammedov <imammedo@redhat.com>
+Subject: Re: [Xen-devel] [PATCH 4/4] xen kconfig: describe xen tmem in the
+	config menu
+Date: Tue, 24 Jan 2012 09:30:15 +0100
+Message-ID: <4F1E6C17.7060609__23010.4260649115$1327424646$gmane$org@redhat.com>
+References: <1325842991-4404-1-git-send-email-drjones@redhat.com>
+	<1325842991-4404-5-git-send-email-drjones@redhat.com>
+	<20120123183454.GA12542@phenom.dumpdata.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4F173F0F.5020604@goop.org>
+In-Reply-To: <20120123183454.GA12542@phenom.dumpdata.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,30 +20,24 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, linux-doc@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Jan Kiszka <jan.kiszka@siemens.com>, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, Paul Mackerras <paulus@samba.org>, "H. Peter Anvin" <hpa@zytor.com>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Xen <xen-devel@lists.xensource.com>, Dave Jiang <dave.jiang@intel.com>, KVM <kvm@vger.kernel.org>, Glauber Costa <glommer@redhat.com>, X86 <x86@kernel.org>, Ingo Molnar <mingo@redhat.com>, Rik van Riel <riel@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Greg Kroah-Hartman <gregkh@suse.de>, Sasha Levin <levinsasha928@gmail.com>, Sedat Dilek <sedat.dilek@gmail.com>, Thomas Gleixner <tglx@linutronix.de>, Virtualization <virtualization@lists.linux-foundation.org>, LKML <linux-kernel@vger.kernel.org>, Dave Hansen <dave@linux.vnet.ibm.com>
+To: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Cc: Andrew Jones <drjones@redhat.com>, xen-devel@lists.xensource.com, jeremy@goop.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 01/18/2012 11:52 PM, Jeremy Fitzhardinge wrote:
-> On 01/19/2012 12:54 AM, Srivatsa Vaddagiri wrote:
-> >
-> >> That logic relies on the "kick" being level triggered, so that "kick"
-> >> before "block" will cause the block to fall out immediately.  If you're
-> >> using "hlt" as the block and it has the usual edge-triggered behaviour,
-> >> what stops a "kick-before-hlt" from losing the kick?
-> > Hmm ..'hlt' should result in a check for kick request (in hypervisor
-> > context) before vcpu is put to sleep. IOW vcpu1 that is attempting to kick vcpu0
-> > will set a 'somebody_tried_kicking_vcpu0' flag, which hypervisor should check 
-> > before it puts vcpu0 to sleep because of trapped 'hlt' instruction.
-> >
-> > Won't that trap the 'kick-before-hlt' case? What am I missing here?
+On 01/23/2012 07:34 PM, Konrad Rzeszutek Wilk wrote:
+> On Fri, Jan 06, 2012 at 10:43:11AM +0100, Andrew Jones wrote:
+>> Add a description to the config menu for xen tmem.
 >
-> Nothing, that sounds fine.  It wasn't clear to me that your kick
-> operation left persistent state, and so has a level-triggered effect on hlt.
->
+> I am not sure what this patch gets us. If this is to minimize the
+> size of the module - so say it gets loaded, but tmem-enabled is
+> not set nor cleancache and we just have it consuming memory - we can do it
+> via returning -ENODEV on the module load.
 
-btw, this persistent state needs to be saved/restored for live
-migration.  Best to put it into some MSR.
+But why compile in something that one may never use? At least with this patch
+I'll have a choice to turn it off if I don't need it.
+For example when I build hardened kernel, I'd like to turn of all unnecessary
+features for a particular config (i.e. reduce attack surface as much as possible).
 
 -- 
-error compiling committee.c: too many arguments to function
+Thanks,
+  Igor
